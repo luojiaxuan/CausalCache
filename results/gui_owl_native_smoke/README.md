@@ -1,15 +1,20 @@
-# GUI-Owl-1.5-8B native policy smoke
+# GUI-Owl-1.5-8B 256-token interface smoke（非 native resolution）
 
 ## 结论
 
 固定的 `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`
-已在单张 A6000 上闭合：
+已在单张 A6000 上闭合 logits/parser 接口：
 
 - 标准 `Qwen3VLForConditionalGeneration` 与 `Qwen3VLProcessor` 本地加载；
-- 单图与官方 native 5-image history 均返回 finite token logits；
+- 单图与 5-image history 均返回 finite token logits；
 - 两种输入均生成且只生成一个符合 pinned `mobile_use` grammar 的 click；
 - strict parser 将两条输出都规范化为 `tap / coordinate_bin:x3_y2`；
 - 5-image 输入使用 2,365 tokens，峰值 allocated GPU memory 为 17.07 GiB。
+
+本次人为固定为 256 visual tokens/图。后续对 pinned adapter 的端到端 processor replay 表明，
+1080×2400 AndroidWorld screenshot 在 model-default resolution 下产生 grid `[1,150,68]`，即
+2,550 visual tokens/图。本次结果因此只证明接口可运行，不能称为 native-resolution smoke，
+也不能用于 AndroidWorld policy validation。
 
 两种输出恰好都与 GUIOdyssey fixture 的 recorded tap executable-match，但这是 interface
 smoke 的 incidental observation，不作为 GUIOdyssey policy coverage，也不重新打开已经结束

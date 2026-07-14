@@ -210,6 +210,22 @@
 - bridge 已补齐 `open_app` alias 与双 alias regression test。正式 rollout 必须从空 checkpoint 目录
   重启，不能 `--resume` 这次无效尝试。
 
+### 2026-07-14：完整 validation 第二次启动与 native-resolution 审计
+
+- 修复 `open_app` 后从空目录启动 4-worker validation，在 45 个 checkpoint 时得到 12 个
+  official success、7 个 infrastructure failure、1 个 parse failure；即使余下 17 个全部成功，
+  上界也只有 29/62；
+- 在按协议 early-stop 后复核 pinned adapter，发现 runner 强制 256 visual tokens/图，而上游先做
+  1080×2400→1092×2408 resize，再由 GUI-Owl processor 产生 grid `[1,150,68]`；merge size 2
+  对应 2,550 effective visual tokens/图；
+- 同一 pinned processor 对原图和上游 resize 图均返回 `[1,150,68]`，因此 model-default resolution
+  是可机器复现的唯一修正，不是基于 success 调参；
+- 第二次运行整体标记为 configuration-invalid，不用于拒绝 GUI-Owl，也不改变 validation plan、
+  gate threshold、prompt、action equivalence 或模型权重；诊断见
+  `results/gui_owl_androidworld_validation_attempt2/`；
+- runtime 现在显式区分 model-default 与 fixed-token preprocessing，并记录实际 `image_grid_thw`
+  和 effective visual token count。下一步必须先通过 model-default 1/5-image memory smoke。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -218,7 +234,7 @@
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
-- Pending AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；单实例 official-success smoke 已通过，等待完整 62-instance validation gate；
+- Pending AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；256-token chain smoke 已通过但 native-resolution smoke 待重跑；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
@@ -233,4 +249,4 @@
 
 ## 下一步
 
-在冻结的 31-template / 62-instance validation partition 运行 GUI-Owl frozen-policy closed-loop reproduction gate，分别记录 setup、parse、executor 与 terminal success。
+先在 model-default resolution 下重跑 GUI-Owl 1/5-image logits、generation 与显存 smoke；通过后才从空目录重启冻结的 31-template / 62-instance closed-loop reproduction gate。

@@ -25,17 +25,17 @@ validation partition 上重新验证。
 标准 Transformers forward 预期可返回 token logits，但仍必须通过本项目 smoke 才能更新
 为 accepted policy。
 
-Native smoke 已通过：单图与官方 5-image history 分别使用 1,212 与 2,365 input
-tokens，均得到 finite logits 和唯一合法 click；峰值 allocated GPU memory 为 17.07 GiB。
-结果见 `results/gui_owl_native_smoke/`。emulator/reward smoke 也已通过：
+最初的 256-visual-token smoke 已证明 logits/parser 接口可运行，但后来核对 pinned adapter
+发现它不复现上游视觉分辨率，因此不能作为 native-resolution smoke。结果及边界见
+`results/gui_owl_native_smoke/`。emulator/reward smoke 已通过：
 `SystemWifiTurnOn` 经 HTTP executor 后 score 从 0.0 变为 1.0，结果见
 `results/androidworld_environment_smoke/`。candidate 仍需通过 task partition 与 validation
 task-success gates，尚未写入主 experiment contract。
 
 冻结 validation plan 上的 `ClockStopWatchPausedVerify[0]` 单实例 closed-loop smoke 已通过：
 4/4 outputs parsed，policy 明确 terminate，environment reward 与 AndroidWorld 官方 success 均为 1。
-结果见 `results/gui_owl_androidworld_validation_smoke/`。这只关闭执行链路，不替代 62-instance
-validation gate。
+结果见 `results/gui_owl_androidworld_validation_smoke/`。该 run 同样使用 256 visual tokens/图，
+只关闭执行链路，不构成 native policy reproduction，也不替代 62-instance validation gate。
 
 ## Pinned benchmark code
 
@@ -52,6 +52,12 @@ parser 以 pinned MobileAgent adapter 为准。若 fork 与 canonical environmen
 官方 agent 每次保留最近 5 张截图，将更早历史退化为 executed-action text。其
 `mobile_use` grammar 包含 click、long press、swipe、type、system button、open、wait、
 answer 与 terminate，坐标范围为 `[0, 1000]`。
+
+视觉预处理必须使用 model-default resolution。pinned adapter 先把 1080×2400 screenshot
+resize 为 1092×2408；GUI-Owl 的 Qwen3-VL processor 随后得到 grid `[1,150,68]`，merge
+size 为 2，因此有效视觉 token 数是 `150×68/4=2550`/图。项目已用相同模型 processor
+分别重放原图和上游 resize 图，两者 grid 完全一致。此前强制 256 tokens/图的运行只保留约
+1/10 的视觉 token，全部标记为 configuration-invalid，不能用于 policy gate。
 
 第一步完全复现该 native context，不立即把现有“两张图一个 event block”的 GUIOdyssey
 prompt 套上去。native smoke 通过后，再把 CausalCache high-fidelity event exposure 映射到
@@ -84,15 +90,18 @@ benchmark-specific validation；当前 v0.3 contract 仍保持不变，避免用
 ## 预注册 gates 与执行顺序
 
 1. 下载并校验 14 个 pinned model files；
-2. native prompt/parser smoke：finite logits、单 action parse、1/5-image history；
+2. [待重跑] model-default resolution 下的 native prompt/parser smoke：finite logits、单 action
+   parse、1/5-image history；
 3. [已通过] 启动 pinned AndroidWorld emulator，完成环境与 reward smoke；
 4. [已完成] 从 pinned registry 生成并提交 task partition manifest；
 5. 在 validation partition 复现 frozen policy，要求 parse coverage 至少 95%、task success
    至少 50%；
 6. 只有通过后才升级 experiment contract、生成 restoration labels 和训练 gate。
 
-validation 开始后不再调 prompt、executable equivalence 或 threshold。若 gate 失败，停止
-该 stack 并报告 reproduction failure，不用 test partition 继续选模型。
+validation 开始后不再调 prompt、executable equivalence 或 threshold。将 256-token 输入修正为
+pinned model-default resolution 不是调参，而是恢复漏掉的上游预处理契约；修正前的结果全部作废，
+阈值、task plan 与 policy 权重保持不变。若修正后的 gate 失败，停止该 stack 并报告
+reproduction failure，不用 test partition 继续选模型。
 
 ## Compute placement
 

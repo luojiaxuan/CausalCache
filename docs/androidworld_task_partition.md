@@ -132,7 +132,7 @@ python3 -m scripts.run_gui_owl_androidworld_validation \
   --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
   --validation-plan /data/repo/configs/androidworld_validation_plan.json \
   --device cuda:0 \
-  --visual-tokens-per-image 256 \
+  --use-model-default-visual-resolution \
   --maximum-visible-images 5 \
   --max-new-tokens 256 \
   --minimum-parse-coverage 0.95 \

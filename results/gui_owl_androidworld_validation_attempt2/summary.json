@@ -1,0 +1,25 @@
+{
+  "artifact_status": "configuration_invalid",
+  "checkpoint_count": 45,
+  "completed_episode_count": 38,
+  "exception_episode_count": 7,
+  "first_started_at": "2026-07-14T15:26:21.629465+00:00",
+  "last_started_at": "2026-07-14T16:14:38.711863+00:00",
+  "maximum_possible_official_success_count": 29,
+  "minimum_required_official_success_count": 31,
+  "model_step_count": 485,
+  "official_success_count": 12,
+  "parse_success_count": 484,
+  "plan_instance_count": 62,
+  "run_visual_tokens_per_image": 256,
+  "native_effective_visual_tokens_per_image": 2550,
+  "schema_version": "0.1.0",
+  "termination_counts": {
+    "exception": 7,
+    "parse_error": 1,
+    "policy_terminated": 26,
+    "step_budget_exhausted": 11
+  },
+  "valid_for_policy_gate": false,
+  "visual_token_ratio_to_native": 0.10039215686274511
+}

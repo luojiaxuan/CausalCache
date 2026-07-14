@@ -22,7 +22,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--decision-step-id", type=int, required=True)
     parser.add_argument("--device", required=True)
-    parser.add_argument("--visual-tokens-per-image", type=int, required=True)
+    visual_group = parser.add_mutually_exclusive_group(required=True)
+    visual_group.add_argument(
+        "--use-model-default-visual-resolution",
+        action="store_true",
+    )
+    visual_group.add_argument("--visual-tokens-per-image", type=int)
     parser.add_argument("--max-new-tokens", type=int, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     return parser.parse_args()

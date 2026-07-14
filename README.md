@@ -249,9 +249,10 @@ $$
 - GUI-Owl native logits/history smoke: [`results/gui_owl_native_smoke/README.md`](results/gui_owl_native_smoke/README.md)
 - AndroidWorld environment/reward smoke: [`results/androidworld_environment_smoke/README.md`](results/androidworld_environment_smoke/README.md)
 - GUI-Owl AndroidWorld validation smoke: [`results/gui_owl_androidworld_validation_smoke/README.md`](results/gui_owl_androidworld_validation_smoke/README.md)
+- GUI-Owl configuration-invalid validation audit: [`results/gui_owl_androidworld_validation_attempt2/README.md`](results/gui_owl_androidworld_validation_attempt2/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
-- 当前状态：论文骨架、实验契约、synthetic estimator validation、GUIOdyssey pilot 与 GUI-Owl 单实例 closed-loop 链路已完成；尚无 CausalCache 方法效果结果，也尚未完成 AndroidWorld validation gate。
+- 当前状态：论文骨架、实验契约、synthetic estimator validation、GUIOdyssey pilot 与 GUI-Owl 单实例 action/reward 链路已完成；native-resolution smoke 待重跑，尚无 CausalCache 方法效果结果，也尚未完成 AndroidWorld validation gate。
 
 ### Data and Models
 
@@ -262,7 +263,7 @@ $$
 | Rejected GUI-tuned candidate | <https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B> | `683d002dd99d8f95104d31e70391a39348857f4e` | parsed 9/9、executable-match 4/9；未通过预注册 50% gate |
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
 | Rejected GUI navigation candidate | <https://huggingface.co/showlab/ShowUI-2B> | `cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60` | parsed 9/9、executable-match 2/9；未通过预注册 gate |
-| Pending AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 单实例 official-success smoke 已通过；等待 62-instance validation gate |
+| Pending AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 256-token chain smoke 已通过；model-default native-resolution smoke 待重跑 |
 | Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 

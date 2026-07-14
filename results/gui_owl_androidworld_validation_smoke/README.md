@@ -35,6 +35,8 @@
 - Server image ID：`sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486`
 - GPU：Aries 单张 RTX A6000，显式使用 `cuda:0`
 - Generation：greedy、256 visual tokens/image、最多 5 张可见截图、最多 256 new tokens
+- Resolution boundary：本次只验证 action/reward 链路；256-token 输入不是 pinned model-default
+  resolution，不能用于 policy reproduction gate
 
 MobileAgent HTTP server 原始代码使用旧 `env.json_action`，不能接收官方 GUI-Owl converter 的
 四坐标 swipe。本次 image 通过严格 build-context patch 切换到 pinned fork 自带的

@@ -271,7 +271,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--task-type", required=True)
     parser.add_argument("--task-index", type=int, required=True)
     parser.add_argument("--device", required=True)
-    parser.add_argument("--visual-tokens-per-image", type=int, default=256)
+    visual_group = parser.add_mutually_exclusive_group(required=True)
+    visual_group.add_argument(
+        "--use-model-default-visual-resolution",
+        action="store_true",
+    )
+    visual_group.add_argument("--visual-tokens-per-image", type=int)
     parser.add_argument("--maximum-visible-images", type=int, default=5)
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--output", type=Path, required=True)

@@ -12,7 +12,7 @@
     "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
     "license": "mit",
     "architecture": "Qwen3VLForConditionalGeneration",
-    "status": "single_validation_smoke_passed_pending_full_validation",
+    "status": "native_resolution_smoke_pending",
     "reported_androidworld_success": 0.69,
     "deterministic_generation": {
       "do_sample": false
@@ -23,7 +23,16 @@
     "recent_history": "screenshot_and_executed_action",
     "older_history": "executed_action_text",
     "action_grammar": "mobile_use_tool_call",
-    "coordinate_range": [0, 1000]
+    "coordinate_range": [0, 1000],
+    "visual_preprocessing": {
+      "mode": "model_default",
+      "source_screenshot_width": 1080,
+      "source_screenshot_height": 2400,
+      "upstream_resized_width": 1092,
+      "upstream_resized_height": 2408,
+      "processor_image_grid_thw": [1, 150, 68],
+      "effective_visual_tokens_per_image": 2550
+    }
   },
   "server_transport": {
     "image": "causalcache-androidworld:11cea575-executor1",
@@ -65,6 +74,8 @@
     "environment_success": true,
     "policy_declared_done": true,
     "official_success": true,
+    "visual_tokens_per_image": 256,
+    "valid_for_policy_gate": false,
     "result": "results/gui_owl_androidworld_validation_smoke/summary.json"
   },
   "compute_preflight": {

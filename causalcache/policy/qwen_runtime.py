@@ -6,7 +6,7 @@ import io
 import json
 import tarfile
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +21,23 @@ def visual_patch_factor(model_dir: Path) -> int:
     if patch_size <= 0 or merge_size <= 0:
         raise ValueError("visual patch and merge sizes must be positive")
     return patch_size * merge_size
+
+
+def effective_visual_tokens(
+    image_grid_thw: Sequence[Sequence[int]],
+    *,
+    merge_size: int,
+) -> int:
+    if merge_size <= 0:
+        raise ValueError("visual merge size must be positive")
+    divisor = merge_size * merge_size
+    total = 0
+    for grid in image_grid_thw:
+        if len(grid) != 3 or any(int(value) <= 0 for value in grid):
+            raise ValueError("each visual grid must contain positive t, h, and w")
+        temporal, height, width = (int(value) for value in grid)
+        total += temporal * height * width // divisor
+    return total
 
 
 def action_dict(action: ExecutableAction) -> dict[str, Any]:
@@ -55,7 +72,7 @@ class QwenPolicyRuntime:
         *,
         model_dir: Path,
         device: str,
-        visual_tokens_per_image: int,
+        visual_tokens_per_image: int | None,
     ) -> None:
         import torch
         import transformers
@@ -64,15 +81,23 @@ class QwenPolicyRuntime:
         if not device.startswith("cuda:"):
             raise ValueError("Qwen policy runtime requires an explicit cuda device")
         patch_factor = visual_patch_factor(model_dir)
-        pixels_per_image = visual_tokens_per_image * patch_factor * patch_factor
+        if visual_tokens_per_image is not None and visual_tokens_per_image <= 0:
+            raise ValueError("visual token target must be positive")
+        processor_kwargs: dict[str, Any] = {}
+        if visual_tokens_per_image is not None:
+            pixels_per_image = visual_tokens_per_image * patch_factor * patch_factor
+            processor_kwargs = {
+                "min_pixels": pixels_per_image,
+                "max_pixels": pixels_per_image,
+            }
         self.torch = torch
         self.device = device
         self.processor = AutoProcessor.from_pretrained(
             model_dir,
-            min_pixels=pixels_per_image,
-            max_pixels=pixels_per_image,
+            **processor_kwargs,
             local_files_only=True,
         )
+        self.merge_size = int(self.processor.image_processor.merge_size)
         load_start = time.perf_counter()
         self.model = AutoModelForImageTextToText.from_pretrained(
             model_dir,
@@ -91,6 +116,15 @@ class QwenPolicyRuntime:
             "processor_class": self.processor.__class__.__name__,
             "model_class": self.model.__class__.__name__,
             "visual_patch_factor": patch_factor,
+            "visual_preprocessing": {
+                "mode": (
+                    "model_default"
+                    if visual_tokens_per_image is None
+                    else "fixed_token_target"
+                ),
+                "target_tokens_per_image": visual_tokens_per_image,
+                "merge_size": self.merge_size,
+            },
         }
 
     def _encode(self, messages: list[dict[str, Any]]) -> Any:
@@ -114,6 +148,11 @@ class QwenPolicyRuntime:
         result = {
             "input_tokens": int(inputs.input_ids.shape[1]),
             "image_count": int(inputs.image_grid_thw.shape[0]),
+            "image_grid_thw": inputs.image_grid_thw.detach().cpu().tolist(),
+            "effective_visual_tokens": effective_visual_tokens(
+                inputs.image_grid_thw.detach().cpu().tolist(),
+                merge_size=self.merge_size,
+            ),
             "logits_shape": list(logits.shape),
             "latency_seconds": time.perf_counter() - start,
             "peak_gpu_memory_bytes": int(self.torch.cuda.max_memory_allocated(self.device)),
@@ -189,6 +228,11 @@ class QwenPolicyRuntime:
         result = {
             "input_tokens": int(inputs.input_ids.shape[1]),
             "image_count": int(inputs.image_grid_thw.shape[0]),
+            "image_grid_thw": inputs.image_grid_thw.detach().cpu().tolist(),
+            "effective_visual_tokens": effective_visual_tokens(
+                inputs.image_grid_thw.detach().cpu().tolist(),
+                merge_size=self.merge_size,
+            ),
             "generated_tokens": int(new_tokens.shape[1]),
             "latency_seconds": latency_seconds,
             "peak_gpu_memory_bytes": int(self.torch.cuda.max_memory_allocated(self.device)),
