@@ -89,7 +89,13 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
         "suite_task_combinations": 1,
         "task_type": args.task_type,
         "task_index": args.task_index,
-        "executed_action": {"action_type": "open_app", "app_name": "settings"},
+        "action_coordinate_frame": [1080, 2400],
+        "executed_actions": [
+            {"action_type": "open_app", "app_name": "settings"},
+            {"action_type": "click", "x": 407, "y": 859},
+            {"action_type": "click", "x": 280, "y": 675},
+            {"action_type": "click", "x": 965, "y": 683},
+        ],
     }
 
     health = request_json(args.base_url, "/health")
@@ -129,6 +135,8 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
         summary["score_before"] = request_json(
             args.base_url, "/task/score", params=task_params
         )["score"]
+        if summary["score_before"] != 0.0:
+            raise ValueError(f"task did not start at zero reward: {summary['score_before']}")
 
         before_payload, before_type = request_raw(
             args.base_url,
@@ -138,12 +146,17 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
         summary["screenshot_before"] = summarize_screenshot(
             before_payload, before_type
         )
-        summary["action_response"] = request_json(
-            args.base_url,
-            "/execute_action",
-            method="POST",
-            body=summary["executed_action"],
-        )
+        summary["action_responses"] = []
+        for action in summary["executed_actions"]:
+            summary["action_responses"].append(
+                request_json(
+                    args.base_url,
+                    "/execute_action",
+                    method="POST",
+                    body=action,
+                )
+            )
+            time.sleep(args.action_settle_seconds)
         after_payload, after_type = request_raw(
             args.base_url,
             "/screenshot",
@@ -159,6 +172,10 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
         summary["score_after"] = request_json(
             args.base_url, "/task/score", params=task_params
         )["score"]
+        if summary["score_after"] != 1.0:
+            raise ValueError(
+                f"executor path did not trigger positive reward: {summary['score_after']}"
+            )
     finally:
         if initialized:
             summary["tear_down"] = request_json(
@@ -178,6 +195,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--task-type", default="SystemWifiTurnOn")
     parser.add_argument("--task-index", type=int, default=0)
     parser.add_argument("--suite-seed", type=int, default=271828)
+    parser.add_argument("--action-settle-seconds", type=float, default=2.0)
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
