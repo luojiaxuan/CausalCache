@@ -88,6 +88,7 @@
 - 记录自定义 1D RoPE、tokenizer/chat template、remote code 与长于官方默认 image history 的复现风险；
 - 实现共享 resized-coordinate conversion、OpenCUA prompt、PyAutoGUI parser、pinned runtime 与显式 logits probe，22 个单元测试通过；
 - 接口审计通过，只允许在相同预注册 gate 下继续，不据此认定它适合作为主 teacher。
+- 第一次 load smoke 在容器预装的 Transformers 5.6.0 上因 remote `tie_weights()` 签名不兼容而失败；依据上游源码固定独立 `transformers==4.53.0` runtime，不对模型代码做运行时补丁。
 
 ## 当前 artifact 状态
 
@@ -109,4 +110,4 @@
 
 ## 下一步
 
-按 `configs/open_cua_7b_snapshot.json` 顺序下载并校验 OpenCUA-7B，在单张 A6000 上先验证 pinned remote model、processor、logits 和 PyAutoGUI parser，再运行相同 9-decision coverage。若 load 或 smoke 不可复现，先记录接口失败，不直接进入全轨迹运行。
+38/38 个 OpenCUA-7B snapshot 文件已下载到 Aries 持久盘并校验。下一步在独立 Transformers 4.53.0 venv 中重跑 processor、logits 和单 decision smoke；只有通过后才运行相同 9-decision coverage。

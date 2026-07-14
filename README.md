@@ -234,6 +234,7 @@ $$
 - Qwen3-VL full-history coverage: [`results/qwen_policy_coverage/README.md`](results/qwen_policy_coverage/README.md)
 - UI-TARS full-history coverage: [`results/ui_tars_policy_coverage/README.md`](results/ui_tars_policy_coverage/README.md)
 - OpenCUA-7B pinned snapshot manifest: [`configs/open_cua_7b_snapshot.json`](configs/open_cua_7b_snapshot.json)
+- OpenCUA-7B pinned runtime dependency: [`requirements/opencua.txt`](requirements/opencua.txt)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
 - 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey 单轨迹可复现 pilot artifact 已完成；尚无可报告的真实模型效果结果。

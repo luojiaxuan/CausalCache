@@ -1,0 +1,2 @@
+# note (luojiaxuan): OpenCUA remote code is adapted against this exact Transformers release.
+transformers==4.53.0

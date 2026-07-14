@@ -26,6 +26,11 @@ class OpenCUAPolicyRuntime:
 
         if not device.startswith("cuda:"):
             raise ValueError("OpenCUA policy runtime requires an explicit cuda device")
+        if transformers.__version__ != "4.53.0":
+            raise RuntimeError(
+                "OpenCUA pinned remote code requires transformers==4.53.0; "
+                f"found {transformers.__version__}"
+            )
         pixels_per_image = visual_tokens_per_image * 28 * 28
         self.torch = torch
         self.device = device
