@@ -3,7 +3,43 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: AAAI-27 paper backbone / experiment implementation
+> Status: AAAI-27 paper backbone ready / validated teacher selection blocked
+
+## 团队交接入口
+
+当前可复核结论：方法与 synthetic estimator 接口已实现；五个 frozen-policy candidates 均未通过
+冻结 gate，最新 GUI-Owl native-resolution validation 的完整成功率上界是 30/62。当前没有
+accepted validated teacher，也没有 CausalCache 方法效果结果。下一步必须先预注册 replacement
+teacher source，不能直接打开 AndroidWorld test split 或事后放宽旧 gate。
+
+新合作者按以下顺序阅读：
+
+1. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+2. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+3. [`docs/experiment_contract.md`](docs/experiment_contract.md)：不可静默改变的实验语义；
+4. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+5. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+
+仓库结构：
+
+```text
+README.md          # 总索引与交接状态
+AGENTS.md          # 每步 Git/HF/compute 规则
+paper/             # AAAI LaTeX package
+code/              # package、scripts、tests、configs、requirements
+data/              # 小 fixture 与轻量 result summaries
+docs/              # contract、execution、progress、decisions
+```
+
+快速验证：
+
+```bash
+make test validate-contract paper
+```
+
+计算 placement：Hyper01 H200 默认用于 policy forward、attribution 和 gate training；AndroidWorld
+closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 的 KVM 可用，但 Docker root 只剩约 7.7G，
+在解决 image 容量并重做 environment smoke 前不迁移完整 emulator stack。
 
 ## 一句话主张
 
@@ -226,32 +262,36 @@ $$
 - GitHub: <https://github.com/luojiaxuan/CausalCache>
 - Canonical branch: `main`
 - Paper source: [`paper/main.tex`](paper/main.tex)
+- Code layout and commands: [`code/README.md`](code/README.md)
+- Small-data policy: [`data/README.md`](data/README.md)
+- Cross-chip execution and handoff: [`docs/execution.md`](docs/execution.md)
+- Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Experiment contract: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
 - AndroidWorld frozen task partition: [`docs/androidworld_task_partition.md`](docs/androidworld_task_partition.md)
 - Progress record: [`docs/progress.md`](docs/progress.md)
-- Synthetic estimator validation: [`results/synthetic_phase0/README.md`](results/synthetic_phase0/README.md)
-- Qwen3-VL real-policy smoke test: [`results/qwen_policy_smoke/README.md`](results/qwen_policy_smoke/README.md)
-- Qwen3-VL full-history coverage: [`results/qwen_policy_coverage/README.md`](results/qwen_policy_coverage/README.md)
-- UI-TARS full-history coverage: [`results/ui_tars_policy_coverage/README.md`](results/ui_tars_policy_coverage/README.md)
-- OpenCUA-7B pinned snapshot manifest: [`configs/open_cua_7b_snapshot.json`](configs/open_cua_7b_snapshot.json)
-- OpenCUA-7B pinned runtime dependency: [`requirements/opencua.txt`](requirements/opencua.txt)
-- OpenCUA-7B logits and mixed-fidelity smoke: [`results/open_cua_policy_smoke/README.md`](results/open_cua_policy_smoke/README.md)
-- OpenCUA-7B full-history coverage: [`results/open_cua_policy_coverage/README.md`](results/open_cua_policy_coverage/README.md)
-- ShowUI-2B pinned snapshot manifest: [`configs/showui_2b_snapshot.json`](configs/showui_2b_snapshot.json)
-- ShowUI-2B logits and mixed-fidelity smoke: [`results/showui_policy_smoke/README.md`](results/showui_policy_smoke/README.md)
-- ShowUI-2B full-history coverage: [`results/showui_policy_coverage/README.md`](results/showui_policy_coverage/README.md)
-- GUI-Owl-1.5-8B pinned snapshot manifest: [`configs/gui_owl_1_5_8b_snapshot.json`](configs/gui_owl_1_5_8b_snapshot.json)
-- AndroidWorld stack preregistration: [`configs/androidworld_stack.json`](configs/androidworld_stack.json)
-- AndroidWorld task partition manifest: [`configs/androidworld_task_partition.json`](configs/androidworld_task_partition.json)
-- AndroidWorld validation execution plan: [`configs/androidworld_validation_plan.json`](configs/androidworld_validation_plan.json)
-- GUI-Owl native logits/history smoke: [`results/gui_owl_native_smoke/README.md`](results/gui_owl_native_smoke/README.md)
-- GUI-Owl model-default native-resolution smoke: [`results/gui_owl_native_resolution_smoke/README.md`](results/gui_owl_native_resolution_smoke/README.md)
-- AndroidWorld environment/reward smoke: [`results/androidworld_environment_smoke/README.md`](results/androidworld_environment_smoke/README.md)
-- GUI-Owl AndroidWorld validation smoke: [`results/gui_owl_androidworld_validation_smoke/README.md`](results/gui_owl_androidworld_validation_smoke/README.md)
-- GUI-Owl configuration-invalid validation audit: [`results/gui_owl_androidworld_validation_attempt2/README.md`](results/gui_owl_androidworld_validation_attempt2/README.md)
-- GUI-Owl native-resolution validation rejection: [`results/gui_owl_androidworld_validation/README.md`](results/gui_owl_androidworld_validation/README.md)
+- Synthetic estimator validation: [`data/results/synthetic_phase0/README.md`](data/results/synthetic_phase0/README.md)
+- Qwen3-VL real-policy smoke test: [`data/results/qwen_policy_smoke/README.md`](data/results/qwen_policy_smoke/README.md)
+- Qwen3-VL full-history coverage: [`data/results/qwen_policy_coverage/README.md`](data/results/qwen_policy_coverage/README.md)
+- UI-TARS full-history coverage: [`data/results/ui_tars_policy_coverage/README.md`](data/results/ui_tars_policy_coverage/README.md)
+- OpenCUA-7B pinned snapshot manifest: [`code/configs/open_cua_7b_snapshot.json`](code/configs/open_cua_7b_snapshot.json)
+- OpenCUA-7B pinned runtime dependency: [`code/requirements/opencua.txt`](code/requirements/opencua.txt)
+- OpenCUA-7B logits and mixed-fidelity smoke: [`data/results/open_cua_policy_smoke/README.md`](data/results/open_cua_policy_smoke/README.md)
+- OpenCUA-7B full-history coverage: [`data/results/open_cua_policy_coverage/README.md`](data/results/open_cua_policy_coverage/README.md)
+- ShowUI-2B pinned snapshot manifest: [`code/configs/showui_2b_snapshot.json`](code/configs/showui_2b_snapshot.json)
+- ShowUI-2B logits and mixed-fidelity smoke: [`data/results/showui_policy_smoke/README.md`](data/results/showui_policy_smoke/README.md)
+- ShowUI-2B full-history coverage: [`data/results/showui_policy_coverage/README.md`](data/results/showui_policy_coverage/README.md)
+- GUI-Owl-1.5-8B pinned snapshot manifest: [`code/configs/gui_owl_1_5_8b_snapshot.json`](code/configs/gui_owl_1_5_8b_snapshot.json)
+- AndroidWorld stack preregistration: [`code/configs/androidworld_stack.json`](code/configs/androidworld_stack.json)
+- AndroidWorld task partition manifest: [`code/configs/androidworld_task_partition.json`](code/configs/androidworld_task_partition.json)
+- AndroidWorld validation execution plan: [`code/configs/androidworld_validation_plan.json`](code/configs/androidworld_validation_plan.json)
+- GUI-Owl native logits/history smoke: [`data/results/gui_owl_native_smoke/README.md`](data/results/gui_owl_native_smoke/README.md)
+- GUI-Owl model-default native-resolution smoke: [`data/results/gui_owl_native_resolution_smoke/README.md`](data/results/gui_owl_native_resolution_smoke/README.md)
+- AndroidWorld environment/reward smoke: [`data/results/androidworld_environment_smoke/README.md`](data/results/androidworld_environment_smoke/README.md)
+- GUI-Owl AndroidWorld validation smoke: [`data/results/gui_owl_androidworld_validation_smoke/README.md`](data/results/gui_owl_androidworld_validation_smoke/README.md)
+- GUI-Owl configuration-invalid validation audit: [`data/results/gui_owl_androidworld_validation_attempt2/README.md`](data/results/gui_owl_androidworld_validation_attempt2/README.md)
+- GUI-Owl native-resolution validation rejection: [`data/results/gui_owl_androidworld_validation/README.md`](data/results/gui_owl_androidworld_validation/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
 - 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey pilot 已完成；GUI-Owl 的 native-resolution AndroidWorld gate 以成功率上界 30/62 判负。尚无 accepted validated teacher，也尚无 CausalCache 方法效果结果。
@@ -270,7 +310,7 @@ $$
 | Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
-Pilot 的生成配置见 [`configs/guiodyssey_pilot.json`](configs/guiodyssey_pilot.json)。当前没有仅存于本地、等待上传的可复用数据集、模型或评测 artifact。
+Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)。当前没有仅存于本地、等待上传的可复用数据集、模型或评测 artifact。
 
 ## Citation
 

@@ -32,7 +32,7 @@ falsification。按 gate 前登记的停止规则，不再针对该 trajectory �
 python3 -m scripts.run_showui_policy_coverage \
   --dataset-tar /data/artifacts/causalcache-guiodyssey-pilot-mobile-v03/data/guiodyssey-pilot-00000.tar \
   --model-dir /data/artifacts/models/ShowUI-2B \
-  --coverage-gate configs/policy_coverage_gate.json \
+  --coverage-gate code/configs/policy_coverage_gate.json \
   --device cuda:0 \
   --visual-tokens-per-image 256 \
   --max-new-tokens 128 \

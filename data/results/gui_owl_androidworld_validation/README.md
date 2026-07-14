@@ -51,9 +51,9 @@ effective visual tokens；最多保留 5 张截图。结果可用于拒绝该 po
 
 ```bash
 python -m scripts.summarize_gui_owl_androidworld_validation \
-  --validation-plan configs/androidworld_validation_plan.json \
+  --validation-plan code/configs/androidworld_validation_plan.json \
   --episodes-dir /path/to/downloaded/episode-checkpoints \
-  --output results/gui_owl_androidworld_validation/summary.json \
+  --output data/results/gui_owl_androidworld_validation/summary.json \
   --minimum-parse-coverage 0.95 \
   --minimum-official-success 0.5
 ```

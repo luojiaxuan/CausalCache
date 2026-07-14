@@ -4,6 +4,7 @@
 # Python
 __pycache__/
 *.py[cod]
+*.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
@@ -16,10 +17,21 @@ logs/
 checkpoints/
 wandb/
 
-# Local data and caches
-/data/
+# Local-only data and caches. Small fixtures and summaries under data/ are tracked.
+/data/cache/
+/data/checkpoints/
+/data/experiments/
+/data/local/
+/data/raw/
+/data/staging/
+/data/tmp/
 .cache/
 tmp/
+
+# Secrets
+.secrets/
+/secrets/
+hf_key.txt
 
 # Paper build intermediates
 output/pdf/main.pdf

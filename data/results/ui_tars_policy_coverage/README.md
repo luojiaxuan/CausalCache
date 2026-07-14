@@ -39,7 +39,7 @@ restoration attribution pilot：
 python3 -m scripts.run_ui_tars_policy_coverage \
   --dataset-tar /data/artifacts/causalcache-guiodyssey-pilot-mobile-v03/data/guiodyssey-pilot-00000.tar \
   --model-dir /data/artifacts/models/UI-TARS-1.5-7B \
-  --coverage-gate configs/policy_coverage_gate.json \
+  --coverage-gate code/configs/policy_coverage_gate.json \
   --device cuda:0 \
   --visual-tokens-per-image 256 \
   --max-new-tokens 256 \

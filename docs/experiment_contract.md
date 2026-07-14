@@ -1,6 +1,6 @@
 # CausalCache 实验契约 v0.3
 
-本文档冻结第一轮实验的对象、干预、预算和判定标准。后续如果修改这些定义，必须同时修改 `configs/phase0_contract.json`、对应测试和论文，并在 `docs/progress.md` 记录原因。
+本文档冻结第一轮实验的对象、干预、预算和判定标准。后续如果修改这些定义，必须同时修改 `code/configs/phase0_contract.json`、对应测试和论文，并在 `docs/progress.md` 记录原因。
 
 ## 1. 系统边界
 

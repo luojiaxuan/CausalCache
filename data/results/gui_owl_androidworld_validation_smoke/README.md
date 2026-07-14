@@ -52,7 +52,7 @@ MobileAgent HTTP server 原始代码使用旧 `env.json_action`，不能接收�
 python3 -m scripts.run_gui_owl_androidworld_episode \
   --base-url http://172.17.0.1:5000 \
   --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
-  --validation-plan configs/androidworld_validation_plan.json \
+  --validation-plan code/configs/androidworld_validation_plan.json \
   --task-type ClockStopWatchPausedVerify \
   --task-index 0 \
   --device cuda:0 \

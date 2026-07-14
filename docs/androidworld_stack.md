@@ -18,7 +18,7 @@ validation partition 上重新验证。
 - Architecture：标准 `Qwen3VLForConditionalGeneration`
 - License：MIT
 - 官方报告 AndroidWorld success：69.0%
-- Snapshot manifest：`configs/gui_owl_1_5_8b_snapshot.json`
+- Snapshot manifest：`code/configs/gui_owl_1_5_8b_snapshot.json`
 
 选择它不是因为单纯的排行榜分数，而是因为官方 AndroidWorld agent 已经闭合本项目需要
 的三个接口：mobile action tool call、multi-image history、较早 action 的文本退化表示。
@@ -28,14 +28,14 @@ validation partition 上重新验证。
 最初的 256-visual-token smoke 只证明 logits/parser 接口可运行。修正后，model-default
 resolution 的 1/5-image smoke 已通过：5 张 GUIOdyssey fixture screenshots 共 20,010 visual
 tokens、21,185 input tokens，last-token logits finite，generation 产生唯一合法 click，峰值显存
-22.77 GiB。结果见 `results/gui_owl_native_resolution_smoke/`。emulator/reward smoke 已通过：
+22.77 GiB。结果见 `data/results/gui_owl_native_resolution_smoke/`。emulator/reward smoke 已通过：
 `SystemWifiTurnOn` 经 HTTP executor 后 score 从 0.0 变为 1.0，结果见
-`results/androidworld_environment_smoke/`。candidate 随后未通过 task-success gate，因此未写入
+`data/results/androidworld_environment_smoke/`。candidate 随后未通过 task-success gate，因此未写入
 主 experiment contract。
 
 冻结 validation plan 上的 `ClockStopWatchPausedVerify[0]` 单实例 closed-loop smoke 已通过：
 4/4 outputs parsed，policy 明确 terminate，environment reward 与 AndroidWorld 官方 success 均为 1。
-结果见 `results/gui_owl_androidworld_validation_smoke/`。该 run 同样使用 256 visual tokens/图，
+结果见 `data/results/gui_owl_androidworld_validation_smoke/`。该 run 同样使用 256 visual tokens/图，
 只关闭执行链路，不构成 native policy reproduction，也不替代 62-instance validation gate。
 
 ## Pinned benchmark code
@@ -115,7 +115,7 @@ effective visual tokens。
 固定 62 条分母下，50% gate 至少需要 31 个成功。此时剩余 15 条即使全部成功也只能达到
 30/62，因此按预注册规则 early-stop。部分 checkpoint 的 15/47 比例受 round-robin worker 完成
 顺序影响，不作为完整 benchmark success rate；合法结论是完整成功率上界 30/62，小于 50%。
-详细 trace 与机器可读 summary 见 `results/gui_owl_androidworld_validation/`。
+详细 trace 与机器可读 summary 见 `data/results/gui_owl_androidworld_validation/`。
 
 该结果有效拒绝 GUI-Owl candidate。test partition 保持 sealed，prompt、equivalence、threshold、
 task split 和权重均未事后调整。主 attribution 链路在新的 validated teacher 被预注册并通过独立
@@ -130,7 +130,7 @@ A6000 policy smoke。每个 GPU job 仍需 10 秒 idle preflight，并显式使�
 
 Pinned MobileAgent Dockerfile 的 `openjdk:18-jdk-slim` 在 2026-07-14 已无法从 Docker Hub
 解析。为保持 upstream checkout 与 revision 不变，构建前使用
-`scripts/prepare_androidworld_dockerfile.py` 严格将这一行替换为可解析的
+`code/scripts/prepare_androidworld_dockerfile.py` 严格将这一行替换为可解析的
 `eclipse-temurin:17-jdk-jammy`。脚本要求原始行恰好出现一次，upstream 变化时会拒绝
 静默打补丁。这是环境可用性修复，不修改 AndroidWorld task、reward、agent 或 prompt。
 
@@ -146,7 +146,7 @@ Python 3.11 环境预装 `wheel==0.45.1` 与 upstream `setup.py` 已声明的
 MobileAgent HTTP server 另有一个 fork 内部 schema mismatch：原始 server 导入旧
 `android_world.env.json_action`，但同 revision 的 GUI-Owl converter 产生四坐标 swipe，只被
 `android_world.agents.new_json_action` 接受。构建 context 通过
-`scripts/prepare_androidworld_server.py` 做单行 fail-closed import replacement；修复 image ID 为
+`code/scripts/prepare_androidworld_server.py` 做单行 fail-closed import replacement；修复 image ID 为
 `sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486`，正式 episode 前的
 四坐标 swipe transport smoke 已通过。该修复保持 action coordinates 不变，只关闭 transport
 schema 差异。

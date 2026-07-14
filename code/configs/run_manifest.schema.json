@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/luojiaxuan/CausalCache/code/configs/run_manifest.schema.json",
+  "title": "CausalCache material run manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "git",
+    "host",
+    "gpu",
+    "container",
+    "runtime",
+    "model",
+    "dataset",
+    "configs",
+    "argv",
+    "seed",
+    "split",
+    "worker_count",
+    "started_at",
+    "finished_at",
+    "status",
+    "outputs"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1.0"},
+    "run_id": {"type": "string", "minLength": 1},
+    "git": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["remote", "commit", "dirty"],
+      "properties": {
+        "remote": {"type": "string", "format": "uri"},
+        "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "dirty": {"const": false}
+      }
+    },
+    "host": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["alias", "hostname", "architecture"],
+      "properties": {
+        "alias": {"type": "string"},
+        "hostname": {"type": "string"},
+        "architecture": {"type": "string"}
+      }
+    },
+    "gpu": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["indices", "name", "driver"],
+      "properties": {
+        "indices": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {"type": "integer", "minimum": 0},
+          "uniqueItems": true
+        },
+        "name": {"type": "string"},
+        "driver": {"type": "string"}
+      }
+    },
+    "container": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["image", "digest", "name"],
+      "properties": {
+        "image": {"type": "string"},
+        "digest": {"type": "string"},
+        "name": {"type": "string", "pattern": "^sglang-omni-jaxan-[0-9]{8}$"}
+      }
+    },
+    "runtime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["python", "torch", "cuda", "transformers", "dtype"],
+      "properties": {
+        "python": {"type": "string"},
+        "torch": {"type": "string"},
+        "cuda": {"type": "string"},
+        "transformers": {"type": "string"},
+        "dtype": {"type": "string"}
+      }
+    },
+    "model": {"$ref": "#/$defs/hfArtifact"},
+    "dataset": {"$ref": "#/$defs/hfArtifact"},
+    "configs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {"type": "string"},
+          "sha256": {"$ref": "#/$defs/sha256"}
+        }
+      }
+    },
+    "argv": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "seed": {"type": "integer"},
+    "split": {"type": "string"},
+    "worker_count": {"type": "integer", "minimum": 1},
+    "started_at": {"type": "string", "format": "date-time"},
+    "finished_at": {"type": "string", "format": "date-time"},
+    "status": {"enum": ["complete", "early_stopped", "failed", "invalid"]},
+    "outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hf_repo", "hf_revision", "git_summary_path"],
+      "properties": {
+        "hf_repo": {"type": ["string", "null"]},
+        "hf_revision": {"type": ["string", "null"]},
+        "git_summary_path": {"type": "string"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "hfArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo", "revision", "manifest_sha256"],
+      "properties": {
+        "repo": {"type": "string"},
+        "revision": {"type": "string"},
+        "manifest_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]}
+      }
+    }
+  }
+}

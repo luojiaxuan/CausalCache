@@ -10,15 +10,17 @@ clean-paper:
 	rm -f output/pdf/causalcache_aaai27.pdf
 
 test:
-	python3 -m unittest discover -s tests -v
+	cd code && python3 -m unittest discover -s tests -v
 
 validate-contract:
-	python3 -m scripts.validate_contract --config configs/phase0_contract.json --decision tests/fixtures/validated_decision.json
+	cd code && python3 -m scripts.validate_contract \
+		--config configs/phase0_contract.json \
+		--decision ../data/fixtures/validated_decision.json
 
 synthetic-phase0:
-	python3 -m scripts.run_synthetic_attribution \
+	cd code && python3 -m scripts.run_synthetic_attribution \
 		--contract configs/phase0_contract.json \
 		--scenario configs/synthetic_phase0.json \
-		--output-json results/synthetic_phase0/summary.json \
-		--output-csv results/synthetic_phase0/per_seed.csv \
-		--output-report results/synthetic_phase0/README.md
+		--output-json ../data/results/synthetic_phase0/summary.json \
+		--output-csv ../data/results/synthetic_phase0/per_seed.csv \
+		--output-report ../data/results/synthetic_phase0/README.md

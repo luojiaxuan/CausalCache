@@ -59,7 +59,7 @@
     "no_prompt_or_equivalence_tuning_after_validation_starts": true
   },
   "validation_plan": {
-    "path": "configs/androidworld_validation_plan.json",
+    "path": "code/configs/androidworld_validation_plan.json",
     "task_type_count": 31,
     "task_instance_count": 62,
     "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
@@ -76,7 +76,7 @@
     "official_success": true,
     "visual_tokens_per_image": 256,
     "valid_for_policy_gate": false,
-    "result": "results/gui_owl_androidworld_validation_smoke/summary.json"
+    "result": "data/results/gui_owl_androidworld_validation_smoke/summary.json"
   },
   "native_resolution_smoke": {
     "mode": "model_default",
@@ -86,7 +86,7 @@
     "finite_last_token_logits": true,
     "generation_parse_success": true,
     "five_image_peak_gpu_memory_bytes": 24446907392,
-    "result": "results/gui_owl_native_resolution_smoke/summary.json"
+    "result": "data/results/gui_owl_native_resolution_smoke/summary.json"
   },
   "validation_result": {
     "artifact_status": "valid_early_stopped_policy_rejection",
@@ -99,7 +99,7 @@
     "minimum_required_official_success_count": 31,
     "maximum_possible_official_success_count": 30,
     "test_partition_opened": false,
-    "result": "results/gui_owl_androidworld_validation/summary.json"
+    "result": "data/results/gui_owl_androidworld_validation/summary.json"
   },
   "compute_preflight": {
     "host": "aries",

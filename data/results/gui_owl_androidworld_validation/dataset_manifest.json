@@ -15,6 +15,7 @@
   "policy_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
   "policy_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
   "validation_plan": "configs/androidworld_validation_plan.json",
+  "current_repo_validation_plan": "code/configs/androidworld_validation_plan.json",
   "validation_plan_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
   "record_count": 47,
   "layout": {
@@ -24,6 +25,7 @@
   },
   "record_schema": "One JSON object per completed or exception episode; fields include frozen plan index and instance, policy/runtime provenance, model steps, parsed actions, termination, and official AndroidWorld success.",
   "generation_command": "python -m scripts.run_gui_owl_androidworld_validation with configs/androidworld_validation_plan.json and model-default visual resolution; see results/gui_owl_androidworld_validation/README.md",
+  "current_repo_result": "data/results/gui_owl_androidworld_validation/README.md",
   "packaging": "Episode JSON files sorted by plan_index and written as deterministic gzip-compressed JSONL.",
   "status": "uploaded"
 }

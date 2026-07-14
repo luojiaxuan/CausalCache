@@ -43,7 +43,7 @@ tokens，全部完成 generation；峰值 allocated GPU memory 为 18.71 GB。
   -m scripts.run_open_cua_policy_coverage \
   --dataset-tar /data/artifacts/causalcache-guiodyssey-pilot-mobile-v03/data/guiodyssey-pilot-00000.tar \
   --model-dir /data/artifacts/models/OpenCUA-7B \
-  --coverage-gate configs/policy_coverage_gate.json \
+  --coverage-gate code/configs/policy_coverage_gate.json \
   --device cuda:0 \
   --visual-tokens-per-image 256 \
   --max-new-tokens 256 \

@@ -1,0 +1,24 @@
+# Data 目录
+
+本目录只保存适合 Git review 的小数据与轻量实验记录，不是大型 artifact 仓库。
+
+```text
+data/
+├── fixtures/    # 单测和 contract 使用的最小确定性 fixture
+└── results/     # README、summary.json、轻量 CSV/manifest
+```
+
+以下内容禁止作为唯一副本留在 Git 或共享机器本地盘：raw screenshots、完整 rollout traces、生成
+dataset、model weights、checkpoint、adapter。它们以 Hugging Face dataset/model repo 为 canonical
+source，并在顶层 `README.md` 和相关 result README 中记录 repo、revision/tag、schema 与生成命令。
+
+`data/cache/`、`data/raw/`、`data/staging/`、`data/local/` 与 `data/tmp/` 已被 Git 忽略，只能用于
+本地短期 staging。注意：仓库相对路径 `data/` 与容器持久挂载点绝对路径 `/data` 是两个不同概念。
+
+当前 reusable artifacts：
+
+- GUIOdyssey pilot：private HF dataset
+  `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
+- GUI-Owl AndroidWorld validation traces：private HF dataset
+  `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0`
+  (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)。

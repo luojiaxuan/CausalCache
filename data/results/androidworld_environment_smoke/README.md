@@ -20,7 +20,7 @@ validation seed suite 可重建；`SystemWifiTurnOn` 经同一 HTTP executor 完
 - Runtime container：`sglang-omni-jaxan-07141346`，仅作为 Aries 可重建 cache
 
 上游 Dockerfile 的三个 build-tooling compatibility fix 由
-`scripts/prepare_androidworld_dockerfile.py` 严格生成：替换已移除的 Java base image、固定 uv
+`code/scripts/prepare_androidworld_dockerfile.py` 严格生成：替换已移除的 Java base image、固定 uv
 `0.11.28`，并为 Python 3.11 非隔离构建预装 `wheel==0.45.1` 与
 `grpcio-tools==1.71.0`。未修改 task、reward、agent、prompt 或 AndroidWorld Python 源码。
 
@@ -68,7 +68,7 @@ python3 -m scripts.run_androidworld_environment_smoke \
   --task-index 0 \
   --suite-seed 271828 \
   --action-settle-seconds 2 \
-  --output results/androidworld_environment_smoke/summary.json
+  --output data/results/androidworld_environment_smoke/summary.json
 ```
 
 下一步是从 pinned 116-task registry 生成 SHA256 template partition manifest；在 manifest 提交前不

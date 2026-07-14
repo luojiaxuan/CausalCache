@@ -46,7 +46,7 @@
 - 实现统一的 summary-only、mixed-fidelity、full-history prompt contract 与 JSON executable action parser；
 - 在 GUIOdyssey trajectory `0054832199799795` 的 decision step 4 上，三种 fidelity 输入都生成与 recorded action 完全匹配的 `type_text("Cryptocurrency Market")`；
 - 输入长度分别为 501、865、1,593 tokens，单张 A6000 peak allocated memory 为 17.71、17.85、18.10 GB；
-- 结果见 `results/qwen_policy_smoke/`。这只验证 policy forward 链路，不能说明 restoration 有收益。
+- 结果见 `data/results/qwen_policy_smoke/`。这只验证 policy forward 链路，不能说明 restoration 有收益。
 
 ### 2026-07-14：Qwen3-VL full-history coverage（negative result）
 
@@ -55,7 +55,7 @@
 - 在 schema v0.2 executable equivalence 下，tap 为 0/7、swipe 为 1/1、type_text 为 1/1，总 coverage 为 2/9（22.2%）；
 - 1 个状态输出 unsupported `click` alias，另外 6 个 tap 的 coordinate bin 不匹配；
 - 按预注册 validation contract，拒绝 Qwen3-VL-8B-Instruct 作为主 frozen teacher，不放宽标准；
-- 结果见 `results/qwen_policy_coverage/`。这不是对 CausalCache 机制的 falsification，而是 backbone selection 的负结果。
+- 结果见 `data/results/qwen_policy_coverage/`。这不是对 CausalCache 机制的 falsification，而是 backbone selection 的负结果。
 
 ### 2026-07-14：Executable equivalence contract v0.2
 
@@ -78,7 +78,7 @@
 - 在相同 9-decision pilot、相同 full-history validation contract 下得到 9/9 parsed、4/9 executable match；
 - tap 为 2/7、swipe 为 1/1、type_text 为 1/1，action-type gate 通过，但 44.4% overall coverage 低于预注册的 50%；
 - 不因一个相邻 coordinate-bin miss 事后放宽 equivalence，拒绝该 candidate 进入 attribution pilot；
-- 结果见 `results/ui_tars_policy_coverage/`。这仍是 backbone selection 的负结果，不是 CausalCache 方法效果。
+- 结果见 `data/results/ui_tars_policy_coverage/`。这仍是 backbone selection 的负结果，不是 CausalCache 方法效果。
 
 ### 2026-07-14：OpenCUA-7B 接口审计
 
@@ -93,7 +93,7 @@
 - 第三次 load smoke 发现 adapter 错用 Transformers 5.x 的 `dtype=` 参数；固定 4.53.0 runtime 已改为对应的 `torch_dtype=`，其余实验接口不变。
 - 第四次 smoke 成功加载 28/28 权重 shard，但 processor 要求 system message 使用 typed content list；消息容器已修正且新增回归测试，prompt 文本不变。
 - 第五次 smoke 成功得到 finite logits，并验证 1/3/7-image generation；发现 summary/full 各输出两个 PyAutoGUI call，parser 已收紧为每个 decision 必须恰好一个 executable call，拒绝静默截取。
-- canonical smoke 的 summary-only logits shape 为 `[1, 526, 152064]` 且全部 finite；只恢复 event 2 时唯一 action 与 recorded `type_text("Cryptocurrency Market")` 匹配；结果见 `results/open_cua_policy_smoke/`，不作为 attribution 效果证据。
+- canonical smoke 的 summary-only logits shape 为 `[1, 526, 152064]` 且全部 finite；只恢复 event 2 时唯一 action 与 recorded `type_text("Cryptocurrency Market")` 匹配；结果见 `data/results/open_cua_policy_smoke/`，不作为 attribution 效果证据。
 - 实现 OpenCUA 9-decision coverage runner，逐步记录 image count、input tokens、raw output、single-action parse、显存和 latency，并直接读取预注册 gate 配置。
 
 ### 2026-07-14：OpenCUA-7B coverage（negative result）
@@ -102,7 +102,7 @@
 - tap 为 1/7、swipe 为 0/1、type_text 为 0/1，overall gate 与 action-type gate 均失败；
 - 3--19 image full-history 输入全部运行完成，最长 5,172 tokens、峰值 allocated GPU memory 18.71 GB，排除 OOM 或短 context 作为主要失败原因；
 - 失败集中在 desktop-oriented grounding、multi-action output 和 mobile trajectory action mismatch；
-- 拒绝该 candidate 进入 attribution pilot，结果见 `results/open_cua_policy_coverage/`。
+- 拒绝该 candidate 进入 attribution pilot，结果见 `data/results/open_cua_policy_coverage/`。
 
 ### 2026-07-14：ShowUI-2B 接口审计与 revision 冻结
 
@@ -120,7 +120,7 @@
 - tap 为 1/7、swipe 为 0/1、type_text 为 1/1，overall gate 与 action-type gate 均失败；
 - 3--19 image 输入全部运行完成，最长 5,305 tokens、峰值 allocated GPU memory 5.01 GiB；
 - 后半段多次过早生成 `ANSWER('task complete')`，说明失败来自 behavior coverage 而非 runtime；
-- 拒绝该 candidate 进入 attribution pilot，结果见 `results/showui_policy_coverage/`；
+- 拒绝该 candidate 进入 attribution pilot，结果见 `data/results/showui_policy_coverage/`；
 - 四个预登记 candidate 全部未过门槛，停止在当前 pilot 上继续枚举 backbone，转向 benchmark-native policy/evaluation stack 设计。
 
 ### 2026-07-14：AndroidWorld benchmark-native stack 冻结
@@ -138,7 +138,7 @@
 - 单图与 native 5-image history 均返回 finite logits，并各生成唯一合法 click；
 - 5-image 输入为 2,365 tokens，峰值 allocated GPU memory 17.07 GiB；
 - 两条输出都与 fixture tap 匹配只视为 incidental，不计入 coverage；
-- 结果见 `results/gui_owl_native_smoke/`。下一步启动 AndroidWorld emulator/reward smoke。
+- 结果见 `data/results/gui_owl_native_smoke/`。下一步启动 AndroidWorld emulator/reward smoke。
 
 ### 2026-07-14：AndroidWorld container compatibility fix
 
@@ -158,7 +158,7 @@
 - 4 个状态变更全部通过 `/execute_action` 完成，截图 payload SHA256 发生变化；
 - `/task/score` 从 0.0 变为 1.0，随后 `/task/tear_down` 成功，正式 smoke 耗时 44.189 秒；
 - Contacts 首次 setup 有权限文案 mismatch warning，后续 validation 必须单独标记 setup failure；
-- 结果见 `results/androidworld_environment_smoke/`。下一步先提交冻结 task partition manifest，
+- 结果见 `data/results/androidworld_environment_smoke/`。下一步先提交冻结 task partition manifest，
   之后才启动 GUI-Owl validation rollout。
 
 ### 2026-07-14：AndroidWorld task partition 冻结
@@ -168,7 +168,7 @@
 - 按预注册 SHA256 bucket rule 得到 train 60 templates / 180 instances、validation 31 / 62、
   test 25 / 75；
 - 不对不均匀 split 做事后 rebalance，final test 在 validation gate 通过前保持 sealed；
-- manifest 与重建测试见 `configs/androidworld_task_partition.json` 和
+- manifest 与重建测试见 `code/configs/androidworld_task_partition.json` 和
   `docs/androidworld_task_partition.md`。
 
 ### 2026-07-14：AndroidWorld validation execution plan
@@ -179,7 +179,7 @@
 - 62 个实例全部从 home screen 开始，step budget 最小 10、最大 60；
 - 发现 upstream wheel 漏装 `task_evals` 子包，按官方 server 相同条件从 Docker `/` 源码根运行，
   未修改 benchmark package；
-- 计划见 `configs/androidworld_validation_plan.json`，下一步只跑单个 validation instance 的
+- 计划见 `code/configs/androidworld_validation_plan.json`，下一步只跑单个 validation instance 的
   GUI-Owl closed-loop smoke。
 
 ### 2026-07-14：GUI-Owl 单实例 AndroidWorld closed-loop smoke
@@ -194,7 +194,7 @@
 - 最终 frozen-policy episode 从 reward 0 开始，4/4 outputs parsed，3 个 click 与 1 个
   `status/task_complete` 全部执行成功，policy 明确 done，最终 reward 与官方 success 均为 1；
 - 单实例耗时 78.675 秒，最多 4 张可见截图、2,040 input tokens、16.90 GiB peak allocated GPU
-  memory；完整 trace 见 `results/gui_owl_androidworld_validation_smoke/`；
+  memory；完整 trace 见 `data/results/gui_owl_androidworld_validation_smoke/`；
 - 该结果只允许进入完整 62-instance validation rollout，不接受 GUI-Owl 为主 teacher，也不构成
   CausalCache 方法效果证据。
 
@@ -206,7 +206,7 @@
 - pinned MobileAgent converter 同时接受 `open` 与 `open_app` 并映射到 AndroidWorld
   `action_type=open_app`，HTTP executor 也已在环境 smoke 中执行同一 action type；
 - rollout 被立即中止，16 个 checkpoint 标记为 implementation-invalid 并从正式 gate 排除；诊断摘要见
-  `results/gui_owl_androidworld_validation_attempt1/`；
+  `data/results/gui_owl_androidworld_validation_attempt1/`；
 - bridge 已补齐 `open_app` alias 与双 alias regression test。正式 rollout 必须从空 checkpoint 目录
   重启，不能 `--resume` 这次无效尝试。
 
@@ -222,14 +222,14 @@
   是可机器复现的唯一修正，不是基于 success 调参；
 - 第二次运行整体标记为 configuration-invalid，不用于拒绝 GUI-Owl，也不改变 validation plan、
   gate threshold、prompt、action equivalence 或模型权重；诊断见
-  `results/gui_owl_androidworld_validation_attempt2/`；
+  `data/results/gui_owl_androidworld_validation_attempt2/`；
 - runtime 现在显式区分 model-default 与 fixed-token preprocessing，并记录实际 `image_grid_thw`
   和 effective visual token count；
 - model-default 1/5-image smoke 随后通过：GUIOdyssey fixture 每图 grid `[1,116,138]`、4,002
   visual tokens，5 图共 20,010 visual tokens / 21,185 input tokens；last-token logits finite，
   generation 是唯一合法 click，5-image generation 峰值 22.77 GiB；
 - 该 fixture 的横向截图 token 数高于 AndroidWorld；1080×2400 AndroidWorld processor replay
-  仍固定为 `[1,150,68]` / 2,550 tokens。结果见 `results/gui_owl_native_resolution_smoke/`。
+  仍固定为 `[1,150,68]` / 2,550 tokens。结果见 `data/results/gui_owl_native_resolution_smoke/`。
 
 ### 2026-07-14：GUI-Owl 正式 native-resolution validation 判负
 
@@ -243,11 +243,29 @@
 - 不报告受 worker 完成顺序影响的 15/47 为 benchmark success，只报告固定分母下界 15/62 与
   上界 30/62；test partition 保持 sealed；
 - GUI-Owl 正式拒绝为 validated teacher，不升级 AndroidWorld attribution contract，不在该 stack
-  上生成 restoration labels 或训练 gate；结果见 `results/gui_owl_androidworld_validation/`；
+  上生成 restoration labels 或训练 gate；结果见 `data/results/gui_owl_androidworld_validation/`；
 - 47 条 reusable traces 已聚合为单个 gzip JSONL shard 并上传到 private Hugging Face dataset
   `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0`
   (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)；Git 只保留 README、summary 和 manifest，不重复
   提交逐 episode 小文件。
+
+### 2026-07-14：仓库 SoT 与跨芯片执行结构
+
+- 顶层固定为 `README.md` 总索引、`paper/` LaTeX、`code/` 可执行逻辑、`data/` 小数据、`docs/`
+  交接记录；原 package/scripts/tests/configs/requirements 与轻量 results 已机械迁移并保留 Git history；
+- `pyproject.toml` 从 `code/` 发现 `causalcache` 与 `scripts` packages；Makefile、tests、active configs、
+  README/docs 链接同步更新，并新增 layout regression test；
+- 新增 `AGENTS.md`、`code/README.md`、`data/README.md` 与 `docs/execution.md`，固定每步
+  verify→HF→docs→commit→push main 的完成条件；
+- 实测 Hyper01 为 x86_64、8×H200 且 KVM 可用，但 Docker root `/var/lib/docker` 位于只剩约
+  7.7G 的根盘，尚无 AndroidWorld image；因此 H200 先承担 policy/offline 工作，已验证的 Aries
+  stack 继续承担 closed-loop MVP；
+- Mac `~/hf_key.txt` 只允许通过 stdin 用于单次 HF API 调用，不进入 argv、环境变量、远端持久盘、
+  Git 或日志；
+- 迁移后 51 个单测、contract validation、synthetic deterministic replay、fresh editable install、30 个
+  JSON、全部相对 Markdown links 与 AAAI LaTeX 构建均通过；synthetic summary 的陈旧
+  `contract_version` metadata 从 `0.1.0` 对齐到实际 config `0.3.0`，其数值结果不变；
+- 本次只改变 repository/execution contract，不改任何历史 experiment semantics 或结果数字。
 
 ## 当前 artifact 状态
 

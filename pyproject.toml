@@ -14,4 +14,5 @@ dependencies = []
 pilot = ["pyarrow>=15"]
 
 [tool.setuptools.packages.find]
-include = ["causalcache*"]
+where = ["code"]
+include = ["causalcache*", "scripts*"]

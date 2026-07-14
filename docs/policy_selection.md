@@ -8,7 +8,7 @@
 2. 能在本地 forward 中访问 token logits；
 3. 支持截图输入和 mobile GUI action grounding；
 4. 能在一张 A6000 上完成 pilot forward；
-5. 在固定 GUIOdyssey pilot 上通过 `configs/policy_coverage_gate.json`。
+5. 在固定 GUIOdyssey pilot 上通过 `code/configs/policy_coverage_gate.json`。
 
 Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-match coverage 至少 50%，并且当前 trajectory 出现的 tap、swipe、type_text 三类 action 各至少匹配一次。该 gate 只决定是否继续做 attribution pilot；正式实验仍需报告未过滤 coverage，并逐状态执行 executable-match validation。
 
@@ -28,7 +28,7 @@ Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-
 - Revision：`683d002dd99d8f95104d31e70391a39348857f4e`
 - Architecture：`Qwen2_5_VLForConditionalGeneration`
 - Native mobile grammar source：[UI-TARS `prompt.py`](https://github.com/bytedance/UI-TARS/blob/main/codes/ui_tars/prompt.py)
-- Snapshot manifest：`configs/ui_tars_1_5_7b_snapshot.json`
+- Snapshot manifest：`code/configs/ui_tars_1_5_7b_snapshot.json`
 
 UI-TARS 评测使用其原生 mobile action grammar，再映射到项目统一的 `ExecutableAction`。mixed-fidelity event 内容、visual-token budget 和 validation contract 没有随 backbone 改变。
 
@@ -38,7 +38,7 @@ UI-TARS 评测使用其原生 mobile action grammar，再映射到项目统一�
 - Parser coverage：9/9；
 - Action-type gate：通过，tap 2/7、swipe 1/1、type_text 1/1；
 - 决策：不进入 attribution pilot，不因 decision step 9 的相邻-bin miss 事后修改 equivalence；
-- 完整记录：`results/ui_tars_policy_coverage/`。
+- 完整记录：`data/results/ui_tars_policy_coverage/`。
 
 下一候选优先评估 OpenCUA-7B。只有在确认其 custom code 可复现、logits 可访问、
 mobile action grammar 可映射到当前 `ExecutableAction` 后，才固定 revision 并运行
@@ -54,8 +54,8 @@ mobile action grammar 可映射到当前 `ExecutableAction` 后，才固定 revi
 - Action grammar：官方 evaluator 输出 `pyautogui.*` 或 `computer.terminate(...)`，可映射到现有 tap、type_text、swipe、home、back、wait、stop；
 - Coordinate：模型输出 smart-resized image 上的绝对坐标，必须用实际 `image_grid_thw` 归一化，不能直接当原图坐标；
 - Multi-image 风险：官方 model card 强调 3-screenshot history，官方 evaluator 另提供 1/3/5-image 设置；本项目仍按原 contract 构造 full history，并原样报告实际 image count、input tokens、显存和 coverage；
-- Snapshot manifest：`configs/open_cua_7b_snapshot.json`。
-- Runtime dependency：`requirements/opencua.txt`，固定 `transformers==4.53.0` 与兼容的 `kernels==0.11.7`。
+- Snapshot manifest：`code/configs/open_cua_7b_snapshot.json`。
+- Runtime dependency：`code/requirements/opencua.txt`，固定 `transformers==4.53.0` 与兼容的 `kernels==0.11.7`。
 
 审计结论为可进入实测。运行使用 pinned remote code 和模型自带 processor，且不采用
 上游示例中与当前 remote forward signature 不一致的 `grid_thws` 参数名。coverage gate
@@ -85,7 +85,7 @@ parse failure。mixed-fidelity 输出单个正确 `write` action，仍按原 con
 - Parser coverage：7/9；
 - Action-type gate：失败，tap 1/7、swipe 0/1、type_text 0/1；
 - 计算可行性：3--19 images、最长 5,172 input tokens 均完成，峰值显存 18.71 GB；
-- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `results/open_cua_policy_coverage/`。
+- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `data/results/open_cua_policy_coverage/`。
 
 ## ShowUI-2B 接口审计与冻结配置
 
@@ -93,7 +93,7 @@ parse failure。mixed-fidelity 输出单个正确 `write` action，仍按原 con
 - Revision：`cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`
 - Architecture：`Qwen2VLForConditionalGeneration`，标准 Transformers forward 可返回 token logits；
 - License：MIT；
-- Snapshot manifest：`configs/showui_2b_snapshot.json`；
+- Snapshot manifest：`code/configs/showui_2b_snapshot.json`；
 - Coordinate：官方 navigation output 使用相对坐标 `[0, 1]`；进入统一 executable schema 前映射到 `[0, 1000]`；
 - Native phone grammar：`INPUT`、`SWIPE`、`TAP`、`ANSWER`、`ENTER`；覆盖当前 pilot 的 tap、type_text 与 swipe；
 - Output format：单个 Python dictionary，字段为 `action`、`value`、`position`。
@@ -112,7 +112,7 @@ ShowUI 可选的组合点击；因此 adapter 在 coverage gate 前固定为：`
 修正后的 canonical smoke 已完成：summary-only、恢复 event 2 与 full-history 分别使用
 1、3、7 张图，均生成唯一且正确的 `INPUT('cryptocurrency market')`；summary-only
 forward 返回 `[1, 695, 151936]` finite logits，峰值显存不超过 4.45 GiB。结果见
-`results/showui_policy_smoke/`。这只证明候选可以进入预注册 coverage gate。
+`data/results/showui_policy_smoke/`。这只证明候选可以进入预注册 coverage gate。
 
 ## ShowUI-2B gate 结果
 
@@ -121,7 +121,7 @@ forward 返回 `[1, 695, 151936]` finite logits，峰值显存不超过 4.45 GiB
 - Action-type gate：失败，tap 1/7、swipe 0/1、type_text 1/1；
 - 计算可行性：3--19 images、最长 5,305 input tokens 均完成，峰值显存 5.01 GiB；
 - 主要失败：后半段多次过早输出 `ANSWER('task complete')`；
-- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `results/showui_policy_coverage/`。
+- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `data/results/showui_policy_coverage/`。
 
 四个已登记 candidate 均未通过 gate。按预注册停止规则，不继续为当前单轨迹枚举相似
 backbone，也不事后调整 prompt、坐标容差或 threshold；下一步重新选择 benchmark-native
@@ -143,4 +143,4 @@ A6000 的峰值显存为 17.07 GiB。该 candidate 当前状态为
 `rejected_by_native_validation_gate`，不作为 accepted teacher。model-default 正式 validation
 在 47/62 checkpoint 时得到 15 个 official success；即使余下 15 条全成功也只有 30/62，低于
 31/62 gate。496/496 action 均可解析，因此失败不是 serialization coverage 导致。结果见
-`results/gui_owl_androidworld_validation/`。
+`data/results/gui_owl_androidworld_validation/`。

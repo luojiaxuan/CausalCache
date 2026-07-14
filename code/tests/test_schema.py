@@ -6,11 +6,14 @@ from causalcache.schema import ActionType, DecisionRecord, ExecutableAction, Low
 
 
 ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = ROOT.parent
 
 
 class SchemaTest(unittest.TestCase):
     def _decision(self) -> DecisionRecord:
-        with (ROOT / "tests" / "fixtures" / "validated_decision.json").open(encoding="utf-8") as handle:
+        with (REPOSITORY_ROOT / "data" / "fixtures" / "validated_decision.json").open(
+            encoding="utf-8"
+        ) as handle:
             return DecisionRecord.from_dict(json.load(handle))
 
     def test_validated_reference_matches(self) -> None:

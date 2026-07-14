@@ -3,7 +3,7 @@
 ## 结论
 
 116 个 pinned AndroidWorld task templates 已在任何 validation rollout 之前完成冻结。机器可读
-manifest 位于 `configs/androidworld_task_partition.json`，其 sorted task-name registry hash 为：
+manifest 位于 `code/configs/androidworld_task_partition.json`，其 sorted task-name registry hash 为：
 
 ```text
 185ae2019706693bd32ecc25ffd0c8f87be87331cae6f7d7e31c91674c962b89
@@ -28,7 +28,7 @@ task length 移动 templates。Final test 在 validation gate 通过前保持 se
 
 ## Validation execution plan
 
-`configs/androidworld_validation_plan.json` 使用 pinned suite seed 实例化 validation-only 参数，
+`code/configs/androidworld_validation_plan.json` 使用 pinned suite seed 实例化 validation-only 参数，
 冻结每个实例的 goal、template、complexity、`start_on_home_screen` 与官方
 `int(10 * complexity)` step budget。62 个 instance records 的 SHA256 为：
 
@@ -104,9 +104,9 @@ GUI-Owl 官方 converter 产生的四坐标 swipe。构建 Docker context 时必
 ```bash
 python3 -m scripts.build_androidworld_task_partition \
   --base-url http://127.0.0.1:5000 \
-  --stack-config configs/androidworld_stack.json \
+  --stack-config code/configs/androidworld_stack.json \
   --expected-task-types 116 \
-  --output configs/androidworld_task_partition.json
+  --output code/configs/androidworld_task_partition.json
 ```
 
 单元测试会从 committed task names 与 stack config 完整重建 manifest，验证 hash assignment、
@@ -130,7 +130,7 @@ python3 -m scripts.run_gui_owl_androidworld_validation \
   --base-url http://172.17.0.1:5003 \
   --base-url http://172.17.0.1:5004 \
   --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
-  --validation-plan /data/repo/configs/androidworld_validation_plan.json \
+  --validation-plan /data/repo/code/configs/androidworld_validation_plan.json \
   --device cuda:0 \
   --use-model-default-visual-resolution \
   --maximum-visible-images 5 \

@@ -64,7 +64,7 @@ tar shard 内包含 `manifest.json` 和 `{len(trajectory['steps'])}` 张原始 t
 
 ## Generation
 
-从 CausalCache Git 仓库运行 `scripts/build_guiodyssey_pilot.py`，并显式传入上述 repo、revision、row index 与输出路径。policy-visible summary 不包含 expert inline reasoning。
+从 CausalCache Git 仓库运行 `code/scripts/build_guiodyssey_pilot.py`，并显式传入上述 repo、revision、row index 与输出路径。policy-visible summary 不包含 expert inline reasoning。
 
 ## Intended Use
 

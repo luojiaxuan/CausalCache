@@ -8,7 +8,7 @@ bridge 与 pinned MobileAgent converter 不一致后被立即中止，全部 che
 
 ## 诊断
 
-- 冻结 plan：`configs/androidworld_validation_plan.json`；
+- 冻结 plan：`code/configs/androidworld_validation_plan.json`；
 - 启动时间：2026-07-14 15:11--15:14 UTC；
 - 4 个独立 AndroidWorld emulator workers，单个冻结 GUI-Owl runtime；
 - 中止时产生 16 个原子 checkpoint、25 个 model steps；
