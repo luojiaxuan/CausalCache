@@ -40,10 +40,19 @@
 - 上传到私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile` revision `6c840b1be9d96d23425c51ba7c02b35063cfa731`；
 - 该 artifact 只验证真实数据接口，不构成 restoration 或任务成功率证据。
 
+### 2026-07-14：Qwen3-VL real-policy forward smoke
+
+- 固定 `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b` 的 14 个加载文件，并校验四个 weight shard 的 LFS SHA256；
+- 实现统一的 summary-only、mixed-fidelity、full-history prompt contract 与 JSON executable action parser；
+- 在 GUIOdyssey trajectory `0054832199799795` 的 decision step 4 上，三种 fidelity 输入都生成与 recorded action 完全匹配的 `type_text("Cryptocurrency Market")`；
+- 输入长度分别为 501、865、1,593 tokens，单张 A6000 peak allocated memory 为 17.71、17.85、18.10 GB；
+- 结果见 `results/qwen_policy_smoke/`。这只验证 policy forward 链路，不能说明 restoration 有收益。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@6c840b1be9d96d23425c51ba7c02b35063cfa731`；
+- Frozen policy：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus 目录只作为 HF artifact 的 staging/cache。
@@ -51,11 +60,12 @@
 ## 未决策项
 
 - transfer backbone；
-- `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b` 能否通过 mixed-fidelity forward、teacher-forced logits 与 executable action coverage smoke test；
+- Qwen3-VL 在全部 pilot decisions 和扩展数据上的 executable-match coverage；
+- canonical action path 上 teacher-forced component distance 的具体 token boundary；
 - pilot 应扩展到多少 app、trajectory 和 horizon 才足以进入 attribution 主表。
 
 这些项目必须经过可获得 logits、许可证、磁盘和算力检查后再冻结，不能为了填配置而猜测。
 
 ## 下一步
 
-顺序下载并固定 Qwen3-VL-8B-Instruct 模型文件，在单 GPU 上完成 full-history / summary-only / mixed-fidelity forward smoke test；随后实现 canonical action path 的 teacher-forced component distance，并报告 executable-match coverage。
+在全部 9 个 pilot decisions 上运行 full-history generation，报告 executable-match coverage 和失败类型；随后只对通过验证的状态实现 canonical action path teacher-forced component distance。

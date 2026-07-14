@@ -22,7 +22,7 @@
     "repo": "Qwen/Qwen3-VL-8B-Instruct",
     "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
     "license": "apache-2.0",
-    "status": "selected_pending_forward_smoke_test"
+    "status": "forward_smoke_passed_pending_full_coverage"
   },
   "validation": {
     "pilot_filter": "successful_trajectory",
