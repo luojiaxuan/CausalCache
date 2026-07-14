@@ -231,6 +231,18 @@ class PolicyPromptTest(unittest.TestCase):
             screen_height=2400,
         )
         self.assertEqual(typed, {"action_type": "input_text", "text": "hello"})
+        for open_action in ("open", "open_app"):
+            opened = gui_owl_action_to_androidworld(
+                'Action: Open Markor\n<tool_call>{"name":"mobile_use","arguments":'
+                f'{{"action":"{open_action}","text":"markor"}}}}'
+                '</tool_call>',
+                screen_width=1080,
+                screen_height=2400,
+            )
+            self.assertEqual(
+                opened,
+                {"action_type": "open_app", "app_name": "markor"},
+            )
         terminated = gui_owl_action_to_androidworld(
             'Action: Finish\n<tool_call>{"name":"mobile_use","arguments":'
             '{"action":"terminate","status":"success"}}</tool_call>',

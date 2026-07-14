@@ -198,6 +198,18 @@
 - 该结果只允许进入完整 62-instance validation rollout，不接受 GUI-Owl 为主 teacher，也不构成
   CausalCache 方法效果证据。
 
+### 2026-07-14：完整 validation 首次启动与 action-alias 修复
+
+- 首次完整 rollout 在 4 个独立 emulator worker、单 A6000、单模型串行 generation 下启动；
+- 前 16 个已 checkpoint episode 中，2 个 Clock 实例 official success，另外 14 个在首步被本项目
+  bridge 错误拒绝；这些首步都是结构合法的 `action=open_app`，错误不是 policy parse failure；
+- pinned MobileAgent converter 同时接受 `open` 与 `open_app` 并映射到 AndroidWorld
+  `action_type=open_app`，HTTP executor 也已在环境 smoke 中执行同一 action type；
+- rollout 被立即中止，16 个 checkpoint 标记为 implementation-invalid 并从正式 gate 排除；诊断摘要见
+  `results/gui_owl_androidworld_validation_attempt1/`；
+- bridge 已补齐 `open_app` alias 与双 alias regression test。正式 rollout 必须从空 checkpoint 目录
+  重启，不能 `--resume` 这次无效尝试。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；

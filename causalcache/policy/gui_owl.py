@@ -214,7 +214,7 @@ def gui_owl_action_to_androidworld(
         if button not in button_actions:
             raise ValueError(f"unsupported GUI-Owl system button: {button}")
         return {"action_type": button_actions[button]}
-    if action == "open":
+    if action in {"open", "open_app"}:
         return {"action_type": "open_app", "app_name": str(arguments["text"])}
     if action == "wait":
         return {"action_type": "wait"}

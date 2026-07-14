@@ -1,0 +1,37 @@
+{
+  "artifact_status": "implementation_invalid",
+  "checkpoint_count": 16,
+  "first_started_at": "2026-07-14T15:11:41.302277+00:00",
+  "last_started_at": "2026-07-14T15:14:04.518139+00:00",
+  "model_step_count": 25,
+  "official_success_count": 2,
+  "open_app_alias_failure_count": 14,
+  "parse_success_count": 11,
+  "plan_indices": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    10,
+    11,
+    12,
+    14,
+    15,
+    18,
+    19,
+    23
+  ],
+  "run_status_counts": {
+    "complete": 16
+  },
+  "schema_version": "0.1.0",
+  "termination_counts": {
+    "parse_error": 14,
+    "policy_terminated": 2
+  },
+  "valid_for_policy_gate": false
+}
