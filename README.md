@@ -243,6 +243,7 @@ $$
 - ShowUI-2B full-history coverage: [`results/showui_policy_coverage/README.md`](results/showui_policy_coverage/README.md)
 - GUI-Owl-1.5-8B pinned snapshot manifest: [`configs/gui_owl_1_5_8b_snapshot.json`](configs/gui_owl_1_5_8b_snapshot.json)
 - AndroidWorld stack preregistration: [`configs/androidworld_stack.json`](configs/androidworld_stack.json)
+- GUI-Owl native logits/history smoke: [`results/gui_owl_native_smoke/README.md`](results/gui_owl_native_smoke/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
 - 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey 单轨迹可复现 pilot artifact 已完成；尚无可报告的真实模型效果结果。
@@ -256,7 +257,7 @@ $$
 | Rejected GUI-tuned candidate | <https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B> | `683d002dd99d8f95104d31e70391a39348857f4e` | parsed 9/9、executable-match 4/9；未通过预注册 50% gate |
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
 | Rejected GUI navigation candidate | <https://huggingface.co/showlab/ShowUI-2B> | `cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60` | parsed 9/9、executable-match 2/9；未通过预注册 gate |
-| Pending AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 官方 AndroidWorld adapter 与 69.0% 报告 success；等待本项目 native smoke/reproduction |
+| Pending AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | native finite-logit/1--5-image smoke 已通过；等待 emulator/reward 与 validation success gate |
 | Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 

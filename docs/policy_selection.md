@@ -137,3 +137,7 @@ partition 上按原生 adapter 复现。官方 adapter 保留最近 5 张截图�
 模型只有在 finite-logit/native parser smoke、emulator/reward smoke，以及预注册的至少
 95% parse coverage 和 50% validation task success 都通过后，才会写入主 experiment
 contract。完整 provenance、task split 与停止规则见 `docs/androidworld_stack.md`。
+
+Native smoke 已得到单图与 5 图 finite logits、严格单 `mobile_use` parse，并确认一张
+A6000 的峰值显存为 17.07 GiB。该 candidate 当前状态为
+`native_smoke_passed_pending_emulator_reward_smoke`，仍不等于 accepted teacher。

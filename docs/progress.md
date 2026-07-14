@@ -131,6 +131,15 @@
 - Aries 已确认 x86_64、Docker 27.2.1 与 `/dev/kvm` 可用；
 - 详细执行顺序见 `docs/androidworld_stack.md`。当前只完成 stack preregistration，尚未把 candidate 标记为 accepted。
 
+### 2026-07-14：GUI-Owl native logits/history smoke
+
+- 14 个 pinned snapshot files 已在 Aries 持久盘完成 SHA256 校验；
+- 补齐 AndroidWorld `open`、`answer`、`key`、`recents` executable action types，并实现 pinned `mobile_use` prompt/parser；
+- 单图与 native 5-image history 均返回 finite logits，并各生成唯一合法 click；
+- 5-image 输入为 2,365 tokens，峰值 allocated GPU memory 17.07 GiB；
+- 两条输出都与 fixture tap 匹配只视为 incidental，不计入 coverage；
+- 结果见 `results/gui_owl_native_smoke/`。下一步启动 AndroidWorld emulator/reward smoke。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -154,4 +163,4 @@
 
 ## 下一步
 
-按 `docs/androidworld_stack.md` 下载 GUI-Owl snapshot，完成 native logits/prompt/parser smoke；通过后再启动 AndroidWorld emulator 与 reward smoke。
+按 pinned MobileAgent/AndroidWorld revisions 准备 emulator 容器，先验证 health、task initialize、action execution、reward 和 teardown，再运行 GUI-Owl 小规模 closed-loop smoke。

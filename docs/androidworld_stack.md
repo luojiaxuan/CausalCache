@@ -25,6 +25,11 @@ validation partition 上重新验证。
 标准 Transformers forward 预期可返回 token logits，但仍必须通过本项目 smoke 才能更新
 为 accepted policy。
 
+Native smoke 已通过：单图与官方 5-image history 分别使用 1,212 与 2,365 input
+tokens，均得到 finite logits 和唯一合法 click；峰值 allocated GPU memory 为 17.07 GiB。
+结果见 `results/gui_owl_native_smoke/`。candidate 仍需通过 emulator/reward 与 validation
+task-success gates，尚未写入主 experiment contract。
+
 ## Pinned benchmark code
 
 - Canonical AndroidWorld：`google-research/android_world@3e50888527ef9f29b9157ecd537e408008bb1c85`
