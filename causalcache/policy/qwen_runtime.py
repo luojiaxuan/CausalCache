@@ -142,7 +142,12 @@ class QwenPolicyRuntime:
         self.torch.cuda.synchronize(self.device)
         start = time.perf_counter()
         with self.torch.inference_mode():
-            outputs = self.model(**inputs, use_cache=False, return_dict=True)
+            outputs = self.model(
+                **inputs,
+                use_cache=False,
+                return_dict=True,
+                logits_to_keep=1,
+            )
         self.torch.cuda.synchronize(self.device)
         logits = outputs.logits
         result = {
@@ -154,6 +159,7 @@ class QwenPolicyRuntime:
                 merge_size=self.merge_size,
             ),
             "logits_shape": list(logits.shape),
+            "logits_to_keep": 1,
             "latency_seconds": time.perf_counter() - start,
             "peak_gpu_memory_bytes": int(self.torch.cuda.max_memory_allocated(self.device)),
             "finite_last_token_logits": bool(self.torch.isfinite(logits[:, -1]).all().item()),
