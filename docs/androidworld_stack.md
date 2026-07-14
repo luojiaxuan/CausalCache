@@ -104,4 +104,7 @@ Pinned MobileAgent Dockerfile 的 `openjdk:18-jdk-slim` 在 2026-07-14 已无法
 `pkg_resources` 而在新版 uv 的隔离构建中失败。构建前处理因此还会严格将
 `uv pip install . --system` 替换为 uv 建议的
 `uv pip install . --system --no-build-isolation`，使用镜像中 Python 3.11 已安装的
-setuptools。该修复不改动 AndroidWorld Python 源码或 dependency constraints。
+setuptools。因 Ubuntu 的 `python3-wheel` 只安装给系统 Python 3.10，overlay 还会在
+Python 3.11 环境预装 `wheel==0.45.1` 与 upstream `setup.py` 已声明的
+`grpcio-tools==1.71.0`。构建工具 uv 固定为首次构建观测到的 `0.11.28`。这些修复
+不改动 AndroidWorld Python 源码或 runtime dependency constraints。

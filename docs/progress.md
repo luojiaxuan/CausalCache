@@ -146,6 +146,8 @@
 - 新增严格、可测试的构建前处理，仅替换为 `eclipse-temurin:17-jdk-jammy`；
 - upstream `setup.py` 的未声明 `pkg_resources` 在 uv 隔离构建中引发第二次失败，
   按构建器建议严格切换为 `--no-build-isolation`；
+- 源码编译的 Python 3.11 环境不能复用 Ubuntu Python 3.10 的 wheel，因此固定 uv
+  `0.11.28`，并预装 `wheel==0.45.1` 与 upstream 已锁定的 `grpcio-tools==1.71.0`；
 - 保留 upstream checkout 与 pinned revision 不变，未修改 task、reward、agent 或 prompt。
 
 ## 当前 artifact 状态
