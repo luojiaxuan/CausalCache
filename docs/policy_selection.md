@@ -140,4 +140,7 @@ contract。完整 provenance、task split 与停止规则见 `docs/androidworld_
 
 Native smoke 已得到单图与 5 图 finite logits、严格单 `mobile_use` parse，并确认一张
 A6000 的峰值显存为 17.07 GiB。该 candidate 当前状态为
-`native_smoke_passed_pending_emulator_reward_smoke`，仍不等于 accepted teacher。
+`rejected_by_native_validation_gate`，不作为 accepted teacher。model-default 正式 validation
+在 47/62 checkpoint 时得到 15 个 official success；即使余下 15 条全成功也只有 30/62，低于
+31/62 gate。496/496 action 均可解析，因此失败不是 serialization coverage 导致。结果见
+`results/gui_owl_androidworld_validation/`。

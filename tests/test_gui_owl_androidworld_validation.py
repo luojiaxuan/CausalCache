@@ -1,6 +1,7 @@
 import unittest
 
 from scripts.run_gui_owl_androidworld_validation import (
+    aggregate_early_stopped_validation,
     aggregate_validation,
     build_assignments,
     episode_filename,
@@ -76,6 +77,48 @@ class GUIOwlAndroidWorldValidationTest(unittest.TestCase):
         )
         self.assertFalse(summary["gates"]["parse_gate_passed"])
         self.assertEqual(summary["outcomes"], {"parse_failure": 1})
+
+    def test_early_stop_requires_mathematically_impossible_gate(self) -> None:
+        instances = [
+            {"task_type": f"Task{index}", "task_index": 0}
+            for index in range(4)
+        ]
+        plan = {
+            "split": "validation",
+            "instance_records_sha256": "abc",
+            "task_instance_count": 4,
+            "instances": instances,
+        }
+        episodes = [
+            {
+                "plan_index": index,
+                "instance": instances[index],
+                "run_status": "complete",
+                "model_step_count": 1,
+                "parse_success_count": 1,
+                "official_success": False,
+                "termination_reason": "policy_terminated",
+            }
+            for index in range(3)
+        ]
+        summary = aggregate_early_stopped_validation(
+            plan=plan,
+            episodes=episodes,
+            minimum_parse_coverage=0.95,
+            minimum_official_success=0.5,
+        )
+        self.assertEqual(summary["maximum_possible_official_success_count"], 1)
+        self.assertEqual(summary["minimum_required_official_success_count"], 2)
+        self.assertFalse(summary["gates"]["validation_gate_passed"])
+
+        episodes[0]["official_success"] = True
+        with self.assertRaisesRegex(ValueError, "not yet mathematically impossible"):
+            aggregate_early_stopped_validation(
+                plan=plan,
+                episodes=episodes,
+                minimum_parse_coverage=0.95,
+                minimum_official_success=0.5,
+            )
 
 
 if __name__ == "__main__":

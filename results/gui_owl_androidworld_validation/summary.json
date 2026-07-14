@@ -1,0 +1,194 @@
+{
+  "artifact_status": "valid_early_stopped_policy_rejection",
+  "base_urls": [
+    "http://172.17.0.1:5000",
+    "http://172.17.0.1:5001",
+    "http://172.17.0.1:5002",
+    "http://172.17.0.1:5003"
+  ],
+  "checkpoint_count": 47,
+  "completed_episode_count": 38,
+  "early_stop_reason": "success_gate_mathematically_impossible",
+  "episode_files": [
+    "episodes/000-ClockStopWatchPausedVerify-0.json",
+    "episodes/001-ClockStopWatchPausedVerify-1.json",
+    "episodes/002-ExpenseAddMultiple-0.json",
+    "episodes/003-ExpenseAddMultiple-1.json",
+    "episodes/004-ExpenseAddMultipleFromGallery-0.json",
+    "episodes/005-ExpenseAddMultipleFromGallery-1.json",
+    "episodes/006-ExpenseDeleteMultiple-0.json",
+    "episodes/007-ExpenseDeleteMultiple-1.json",
+    "episodes/008-FilesDeleteFile-0.json",
+    "episodes/009-FilesDeleteFile-1.json",
+    "episodes/010-MarkorAddNoteHeader-0.json",
+    "episodes/011-MarkorAddNoteHeader-1.json",
+    "episodes/012-MarkorChangeNoteContent-0.json",
+    "episodes/013-MarkorChangeNoteContent-1.json",
+    "episodes/014-MarkorCreateNoteAndSms-0.json",
+    "episodes/015-MarkorCreateNoteAndSms-1.json",
+    "episodes/016-MarkorDeleteNote-0.json",
+    "episodes/017-MarkorDeleteNote-1.json",
+    "episodes/018-OsmAndFavorite-0.json",
+    "episodes/019-OsmAndFavorite-1.json",
+    "episodes/020-RecipeDeleteDuplicateRecipes-0.json",
+    "episodes/021-RecipeDeleteDuplicateRecipes-1.json",
+    "episodes/022-RecipeDeleteDuplicateRecipes3-0.json",
+    "episodes/023-RecipeDeleteDuplicateRecipes3-1.json",
+    "episodes/024-RecipeDeleteMultipleRecipesWithConstraint-0.json",
+    "episodes/025-RecipeDeleteMultipleRecipesWithConstraint-1.json",
+    "episodes/026-RecipeDeleteSingleWithRecipeWithNoise-0.json",
+    "episodes/027-RecipeDeleteSingleWithRecipeWithNoise-1.json",
+    "episodes/028-RetroPlayingQueue-0.json",
+    "episodes/029-RetroPlayingQueue-1.json",
+    "episodes/030-RetroSavePlaylist-0.json",
+    "episodes/032-SimpleCalendarAddOneEvent-0.json",
+    "episodes/033-SimpleCalendarAddOneEvent-1.json",
+    "episodes/036-SimpleCalendarEventsInTimeRange-0.json",
+    "episodes/037-SimpleCalendarEventsInTimeRange-1.json",
+    "episodes/040-SimpleCalendarNextMeetingWithPerson-0.json",
+    "episodes/041-SimpleCalendarNextMeetingWithPerson-1.json",
+    "episodes/044-SimpleSmsSend-0.json",
+    "episodes/045-SimpleSmsSend-1.json",
+    "episodes/048-SimpleSmsSendReceivedAddress-0.json",
+    "episodes/049-SimpleSmsSendReceivedAddress-1.json",
+    "episodes/052-SystemBrightnessMax-0.json",
+    "episodes/053-SystemBrightnessMax-1.json",
+    "episodes/056-SystemWifiTurnOn-0.json",
+    "episodes/057-SystemWifiTurnOn-1.json",
+    "episodes/060-VlcCreatePlaylist-0.json",
+    "episodes/061-VlcCreatePlaylist-1.json"
+  ],
+  "exception_episode_count": 9,
+  "first_started_at": "2026-07-14T16:37:17.231155+00:00",
+  "gates": {
+    "minimum_official_success": 0.5,
+    "minimum_parse_coverage": 0.95,
+    "official_success_gate_passed": false,
+    "parse_gate_passed_on_observed_actions": true,
+    "validation_gate_passed": false
+  },
+  "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+  "last_started_at": "2026-07-14T17:34:04.586418+00:00",
+  "maximum_possible_official_success_count": 30,
+  "maximum_possible_official_success_rate": 0.4838709677419355,
+  "minimum_required_official_success_count": 31,
+  "model_step_count": 496,
+  "official_success_count": 15,
+  "official_success_rate_lower_bound": 0.24193548387096775,
+  "outcomes": {
+    "infrastructure_failure": 9,
+    "official_success": 15,
+    "terminal_failure": 23
+  },
+  "parse_coverage": 1.0,
+  "parse_success_count": 496,
+  "plan_instance_count": 62,
+  "policy": {
+    "do_sample": false,
+    "max_new_tokens": 256,
+    "maximum_visible_images": 5,
+    "model_class": "Qwen3VLForConditionalGeneration",
+    "observed_effective_visual_tokens_per_image": [
+      2550
+    ],
+    "observed_image_grid_thw": [
+      [
+        1,
+        150,
+        68
+      ]
+    ],
+    "processor_class": "Qwen3VLProcessor",
+    "snapshot": {
+      "files": [
+        {
+          "path": "chat_template.json",
+          "sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce",
+          "size": 5499
+        },
+        {
+          "path": "config.json",
+          "sha256": "e36c10d2850778887b13b6874174c669773be7e1f024e9d1d04f02315674ad0a",
+          "size": 1468
+        },
+        {
+          "path": "generation_config.json",
+          "sha256": "29d2f9cebb08e5a8d0312d42f20018c4cda80dc3f53feb0989f6fabe0319eed9",
+          "size": 214
+        },
+        {
+          "path": "merges.txt",
+          "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+          "size": 1671839
+        },
+        {
+          "path": "model-00001-of-00004.safetensors",
+          "sha256": "49e63303f03a7c18ffd96bbad8690d456d030f90aa30b6c7e22bdba7ed1245cc",
+          "size": 4902275944
+        },
+        {
+          "path": "model-00002-of-00004.safetensors",
+          "sha256": "720626319c03380ca7010cc1f7bf5fd42b89dbfa9e72b435d1c7aff7cfb67fb3",
+          "size": 4915962496
+        },
+        {
+          "path": "model-00003-of-00004.safetensors",
+          "sha256": "bb506b267b3952461a5b2d90c58e9dbcd017a0000944dda76a9cfadd29d38665",
+          "size": 4999831048
+        },
+        {
+          "path": "model-00004-of-00004.safetensors",
+          "sha256": "7944b039da7fa9c6cf59c2eb0a495a262e4e12c5bf4bf2bf75c5a5d90abfc847",
+          "size": 2716270024
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sha256": "520b2e05079402e9468a8701d03d1154d14b2599593afb6effa7fb60c1bff070",
+          "size": 67759
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+          "size": 390
+        },
+        {
+          "path": "tokenizer.json",
+          "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+          "size": 7032403
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+          "size": 10868
+        },
+        {
+          "path": "video_preprocessor_config.json",
+          "sha256": "f38c890c32e0c037969b33be7693b2a51464695378b223418db5262a6da43fa0",
+          "size": 386
+        },
+        {
+          "path": "vocab.json",
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+          "size": 2776833
+        }
+      ],
+      "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc"
+    },
+    "visual_preprocessing": {
+      "merge_size": 2,
+      "mode": "model_default",
+      "target_tokens_per_image": null
+    }
+  },
+  "schema_version": "0.1.0",
+  "server_image": "causalcache-androidworld:11cea575-executor1",
+  "server_image_sha256": "542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+  "split": "validation",
+  "termination_reasons": {
+    "exception": 9,
+    "policy_terminated": 28,
+    "step_budget_exhausted": 10
+  },
+  "unobserved_instance_count": 15
+}

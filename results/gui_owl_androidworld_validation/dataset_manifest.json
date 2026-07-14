@@ -1,0 +1,29 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_type": "androidworld_closed_loop_validation_traces",
+  "canonical_repo": "gavinlaw/causalcache-androidworld-validation-mobile",
+  "canonical_repo_type": "dataset",
+  "canonical_tag": "v0.1.0",
+  "canonical_revision": "3fcca45fffe9842c9fcebbf5c6c27c9540bb1515",
+  "visibility": "private",
+  "source_git_repo": "https://github.com/luojiaxuan/CausalCache",
+  "source_git_branch": "main",
+  "benchmark_repo": "google-research/android_world",
+  "benchmark_revision": "3e50888527ef9f29b9157ecd537e408008bb1c85",
+  "agent_repo": "X-PLUG/MobileAgent",
+  "agent_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+  "policy_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+  "policy_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+  "validation_plan": "configs/androidworld_validation_plan.json",
+  "validation_plan_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+  "record_count": 47,
+  "layout": {
+    "trace_shard": "data/validation-00000-of-00001.jsonl.gz",
+    "summary": "summary.json",
+    "manifest": "dataset_manifest.json"
+  },
+  "record_schema": "One JSON object per completed or exception episode; fields include frozen plan index and instance, policy/runtime provenance, model steps, parsed actions, termination, and official AndroidWorld success.",
+  "generation_command": "python -m scripts.run_gui_owl_androidworld_validation with configs/androidworld_validation_plan.json and model-default visual resolution; see results/gui_owl_androidworld_validation/README.md",
+  "packaging": "Episode JSON files sorted by plan_index and written as deterministic gzip-compressed JSONL.",
+  "status": "uploaded"
+}

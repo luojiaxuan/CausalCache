@@ -12,7 +12,7 @@
     "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
     "license": "mit",
     "architecture": "Qwen3VLForConditionalGeneration",
-    "status": "native_resolution_smoke_passed_pending_full_validation",
+    "status": "rejected_by_native_validation_gate",
     "reported_androidworld_success": 0.69,
     "deterministic_generation": {
       "do_sample": false
@@ -87,6 +87,19 @@
     "generation_parse_success": true,
     "five_image_peak_gpu_memory_bytes": 24446907392,
     "result": "results/gui_owl_native_resolution_smoke/summary.json"
+  },
+  "validation_result": {
+    "artifact_status": "valid_early_stopped_policy_rejection",
+    "checkpoint_count": 47,
+    "plan_instance_count": 62,
+    "model_step_count": 496,
+    "parse_success_count": 496,
+    "parse_coverage": 1.0,
+    "official_success_count": 15,
+    "minimum_required_official_success_count": 31,
+    "maximum_possible_official_success_count": 30,
+    "test_partition_opened": false,
+    "result": "results/gui_owl_androidworld_validation/summary.json"
   },
   "compute_preflight": {
     "host": "aries",

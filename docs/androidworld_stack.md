@@ -30,8 +30,8 @@ resolution 的 1/5-image smoke 已通过：5 张 GUIOdyssey fixture screenshots 
 tokens、21,185 input tokens，last-token logits finite，generation 产生唯一合法 click，峰值显存
 22.77 GiB。结果见 `results/gui_owl_native_resolution_smoke/`。emulator/reward smoke 已通过：
 `SystemWifiTurnOn` 经 HTTP executor 后 score 从 0.0 变为 1.0，结果见
-`results/androidworld_environment_smoke/`。candidate 仍需通过 task partition 与 validation
-task-success gates，尚未写入主 experiment contract。
+`results/androidworld_environment_smoke/`。candidate 随后未通过 task-success gate，因此未写入
+主 experiment contract。
 
 冻结 validation plan 上的 `ClockStopWatchPausedVerify[0]` 单实例 closed-loop smoke 已通过：
 4/4 outputs parsed，policy 明确 terminate，environment reward 与 AndroidWorld 官方 success 均为 1。
@@ -95,14 +95,31 @@ benchmark-specific validation；当前 v0.3 contract 仍保持不变，避免用
    parse、1/5-image history；
 3. [已通过] 启动 pinned AndroidWorld emulator，完成环境与 reward smoke；
 4. [已完成] 从 pinned registry 生成并提交 task partition manifest；
-5. 在 validation partition 复现 frozen policy，要求 parse coverage 至少 95%、task success
-   至少 50%；
-6. 只有通过后才升级 experiment contract、生成 restoration labels 和训练 gate。
+5. [未通过] 在 validation partition 复现 frozen policy，要求 parse coverage 至少 95%、task
+   success 至少 50%；
+6. 因第 5 步失败，不升级 experiment contract、不生成该 policy 的 restoration labels，也不训练
+   gate。
 
 validation 开始后不再调 prompt、executable equivalence 或 threshold。将 256-token 输入修正为
 pinned model-default resolution 不是调参，而是恢复漏掉的上游预处理契约；修正前的结果全部作废，
 阈值、task plan 与 policy 权重保持不变。若修正后的 gate 失败，停止该 stack 并报告
 reproduction failure，不用 test partition 继续选模型。
+
+## 正式 native-resolution validation 结果
+
+正式 rollout 使用 4 个独立 emulator workers、单 A6000 与串行 frozen policy runtime。47 个
+checkpoint 后得到 15 个 official success、23 个正常终止失败和 9 个 infrastructure exception；
+496/496 action parsed。所有执行步均记录 model-default grid `[1,150,68]`，即每张截图 2,550
+effective visual tokens。
+
+固定 62 条分母下，50% gate 至少需要 31 个成功。此时剩余 15 条即使全部成功也只能达到
+30/62，因此按预注册规则 early-stop。部分 checkpoint 的 15/47 比例受 round-robin worker 完成
+顺序影响，不作为完整 benchmark success rate；合法结论是完整成功率上界 30/62，小于 50%。
+详细 trace 与机器可读 summary 见 `results/gui_owl_androidworld_validation/`。
+
+该结果有效拒绝 GUI-Owl candidate。test partition 保持 sealed，prompt、equivalence、threshold、
+task split 和权重均未事后调整。主 attribution 链路在新的 validated teacher 被预注册并通过独立
+gate 前停止。
 
 ## Compute placement
 

@@ -231,6 +231,24 @@
 - 该 fixture 的横向截图 token 数高于 AndroidWorld；1080×2400 AndroidWorld processor replay
   仍固定为 `[1,150,68]` / 2,550 tokens。结果见 `results/gui_owl_native_resolution_smoke/`。
 
+### 2026-07-14：GUI-Owl 正式 native-resolution validation 判负
+
+- 从空结果目录启动 4-worker、单 A6000、model-default resolution 的 frozen validation；
+- 在 47/62 个原子 checkpoint 时得到 15 个 official success、23 个正常终止失败、9 个
+  infrastructure exception；496/496 actions parsed；
+- 所有 generation 均记录 `[1,150,68]` grid 与每图 2,550 effective visual tokens，关闭了前次
+  256-token configuration-invalid 问题；
+- 固定 62 条分母下至少需要 31 个成功；剩余 15 条全成功的上界也只有 30/62，因此按预注册规则
+  early-stop，并停止 GPU runner 与 utilization monitor；
+- 不报告受 worker 完成顺序影响的 15/47 为 benchmark success，只报告固定分母下界 15/62 与
+  上界 30/62；test partition 保持 sealed；
+- GUI-Owl 正式拒绝为 validated teacher，不升级 AndroidWorld attribution contract，不在该 stack
+  上生成 restoration labels 或训练 gate；结果见 `results/gui_owl_androidworld_validation/`；
+- 47 条 reusable traces 已聚合为单个 gzip JSONL shard 并上传到 private Hugging Face dataset
+  `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0`
+  (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)；Git 只保留 README、summary 和 manifest，不重复
+  提交逐 episode 小文件。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -239,7 +257,8 @@
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
-- Pending AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；model-default native-resolution 1/5-image smoke 已通过，等待从空目录重跑 validation gate；
+- Rejected AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native validation 上界 30/62，未通过 50% gate；
+- AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0` (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
@@ -254,4 +273,5 @@
 
 ## 下一步
 
-从空目录、干净 emulator 与 model-default resolution 重启冻结的 31-template / 62-instance closed-loop reproduction gate。
+在不打开 AndroidWorld test partition 的前提下，预注册新的 validated-teacher 来源与独立 gate。
+GUI-Owl 已停止，不对其 prompt、action equivalence 或 threshold 做结果后调优。

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import threading
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -130,6 +131,98 @@ def aggregate_validation(
             "minimum_official_success": minimum_official_success,
             "official_success_gate_passed": success_gate_passed,
             "validation_gate_passed": parse_gate_passed and success_gate_passed,
+        },
+    }
+
+
+def aggregate_early_stopped_validation(
+    *,
+    plan: dict[str, Any],
+    episodes: list[dict[str, Any]],
+    minimum_parse_coverage: float,
+    minimum_official_success: float,
+) -> dict[str, Any]:
+    planned_count = int(plan["task_instance_count"])
+    checkpoint_count = len(episodes)
+    if not 0 < checkpoint_count < planned_count:
+        raise ValueError("early-stop summary requires a non-empty partial run")
+    seen_indices: set[int] = set()
+    for episode in episodes:
+        plan_index = int(episode["plan_index"])
+        if plan_index in seen_indices:
+            raise ValueError(f"duplicate validation plan index: {plan_index}")
+        if not 0 <= plan_index < planned_count:
+            raise ValueError(f"validation plan index is out of range: {plan_index}")
+        if episode.get("instance") != plan["instances"][plan_index]:
+            raise ValueError(f"episode does not match frozen plan index {plan_index}")
+        seen_indices.add(plan_index)
+
+    model_steps = sum(int(episode.get("model_step_count", 0)) for episode in episodes)
+    parse_successes = sum(
+        int(episode.get("parse_success_count", 0)) for episode in episodes
+    )
+    parse_coverage = parse_successes / model_steps if model_steps else 0.0
+    official_successes = sum(
+        bool(episode.get("official_success", False)) for episode in episodes
+    )
+    unobserved_count = planned_count - checkpoint_count
+    maximum_possible_successes = official_successes + unobserved_count
+    minimum_required_successes = math.ceil(
+        minimum_official_success * planned_count
+    )
+    if maximum_possible_successes >= minimum_required_successes:
+        raise ValueError("success gate is not yet mathematically impossible")
+
+    outcomes: Counter[str] = Counter()
+    termination_reasons: Counter[str] = Counter()
+    for episode in episodes:
+        termination_reason = str(episode.get("termination_reason", "exception"))
+        termination_reasons[termination_reason] += 1
+        if episode.get("run_status") == "exception":
+            outcomes["infrastructure_failure"] += 1
+        elif termination_reason == "parse_error":
+            outcomes["parse_failure"] += 1
+        elif termination_reason == "executor_error":
+            outcomes["executor_failure"] += 1
+        elif episode.get("official_success", False):
+            outcomes["official_success"] += 1
+        else:
+            outcomes["terminal_failure"] += 1
+
+    parse_gate_passed = parse_coverage >= minimum_parse_coverage
+    return {
+        "schema_version": "0.1.0",
+        "artifact_status": "valid_early_stopped_policy_rejection",
+        "split": plan["split"],
+        "instance_records_sha256": plan["instance_records_sha256"],
+        "plan_instance_count": planned_count,
+        "checkpoint_count": checkpoint_count,
+        "unobserved_instance_count": unobserved_count,
+        "completed_episode_count": sum(
+            episode.get("run_status") == "complete" for episode in episodes
+        ),
+        "exception_episode_count": sum(
+            episode.get("run_status") == "exception" for episode in episodes
+        ),
+        "model_step_count": model_steps,
+        "parse_success_count": parse_successes,
+        "parse_coverage": parse_coverage,
+        "official_success_count": official_successes,
+        "official_success_rate_lower_bound": official_successes / planned_count,
+        "minimum_required_official_success_count": minimum_required_successes,
+        "maximum_possible_official_success_count": maximum_possible_successes,
+        "maximum_possible_official_success_rate": (
+            maximum_possible_successes / planned_count
+        ),
+        "outcomes": dict(sorted(outcomes.items())),
+        "termination_reasons": dict(sorted(termination_reasons.items())),
+        "early_stop_reason": "success_gate_mathematically_impossible",
+        "gates": {
+            "minimum_parse_coverage": minimum_parse_coverage,
+            "parse_gate_passed_on_observed_actions": parse_gate_passed,
+            "minimum_official_success": minimum_official_success,
+            "official_success_gate_passed": False,
+            "validation_gate_passed": False,
         },
     }
 
