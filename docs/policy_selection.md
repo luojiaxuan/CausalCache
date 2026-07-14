@@ -73,3 +73,7 @@ Hub 0.36 的 `kernels 0.11.7`，覆盖系统可见版本。
 第四次 smoke 已成功加载全部 28 个权重 shard，随后发现 Transformers 4.53 的
 multimodal processor 要求 system message 也使用 typed content list。adapter 已将
 相同 system prompt 包装为 `[{"type": "text", "text": ...}]`，不改变 prompt 内容。
+第五次 smoke 完成 load、logits forward 和 1/3/7-image generation；其中 summary-only
+与 full-history 各输出两个 PyAutoGUI call。单 decision contract 不允许 parser 静默取
+最后一个动作，因此 parser 现要求恰好一个 executable code line，多动作输出记为
+parse failure。mixed-fidelity 输出单个正确 `write` action，仍按原 contract 匹配。

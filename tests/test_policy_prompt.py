@@ -106,6 +106,11 @@ class PolicyPromptTest(unittest.TestCase):
         self.assertEqual(text_action.text_argument, "hello")
         scroll = parse_open_cua_action("Code:\npyautogui.scroll(-4)", inputs)
         self.assertEqual(scroll.target, "scroll:down")
+        with self.assertRaisesRegex(ValueError, "2 executable code lines"):
+            parse_open_cua_action(
+                "Code:\npyautogui.write('hello')\npyautogui.press('enter')",
+                inputs,
+            )
 
 
 if __name__ == "__main__":

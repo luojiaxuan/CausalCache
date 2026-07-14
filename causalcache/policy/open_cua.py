@@ -57,7 +57,9 @@ def _action_call(text: str) -> tuple[str, ast.Call]:
     )
     if not candidates:
         raise ValueError("OpenCUA output does not contain a supported code line")
-    expression = ast.parse(candidates[-1].strip().strip("`"), mode="eval").body
+    if len(candidates) != 1:
+        raise ValueError(f"OpenCUA output contains {len(candidates)} executable code lines")
+    expression = ast.parse(candidates[0].strip().strip("`"), mode="eval").body
     if not isinstance(expression, ast.Call) or not isinstance(expression.func, ast.Attribute):
         raise ValueError("OpenCUA code must be a function call")
     namespace = expression.func.value
