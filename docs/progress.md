@@ -93,6 +93,7 @@
 - 第三次 load smoke 发现 adapter 错用 Transformers 5.x 的 `dtype=` 参数；固定 4.53.0 runtime 已改为对应的 `torch_dtype=`，其余实验接口不变。
 - 第四次 smoke 成功加载 28/28 权重 shard，但 processor 要求 system message 使用 typed content list；消息容器已修正且新增回归测试，prompt 文本不变。
 - 第五次 smoke 成功得到 finite logits，并验证 1/3/7-image generation；发现 summary/full 各输出两个 PyAutoGUI call，parser 已收紧为每个 decision 必须恰好一个 executable call，拒绝静默截取。
+- canonical smoke 的 summary-only logits shape 为 `[1, 526, 152064]` 且全部 finite；只恢复 event 2 时唯一 action 与 recorded `type_text("Cryptocurrency Market")` 匹配；结果见 `results/open_cua_policy_smoke/`，不作为 attribution 效果证据。
 
 ## 当前 artifact 状态
 
@@ -114,4 +115,4 @@
 
 ## 下一步
 
-38/38 个 OpenCUA-7B snapshot 文件已下载到 Aries 持久盘并校验。下一步在独立 Transformers 4.53.0 venv 中重跑 processor、logits 和单 decision smoke；只有通过后才运行相同 9-decision coverage。
+OpenCUA-7B pinned runtime 与单 decision smoke 已通过。下一步实现并运行相同的 9-decision full-history coverage gate；threshold、single-action parsing 和 coordinate equivalence 保持不变。

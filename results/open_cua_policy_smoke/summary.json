@@ -1,0 +1,281 @@
+{
+  "dataset": {
+    "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "source_id": "0054832199799795"
+  },
+  "decision_step_id": 4,
+  "logits_probe": {
+    "finite_last_token_logits": true,
+    "input_tokens": 526,
+    "latency_seconds": 0.6656188173219562,
+    "logits_shape": [
+      1,
+      526,
+      152064
+    ],
+    "peak_gpu_memory_bytes": 16820162048
+  },
+  "model": {
+    "device": "cuda:0",
+    "dtype": "bfloat16",
+    "load_seconds": 4.2799937995150685,
+    "model_class": "OpenCUAForConditionalGeneration",
+    "processor_class": "OpenCUAProcessor",
+    "snapshot": {
+      "files": [
+        {
+          "path": "config.json",
+          "sha256": "77d22b5c7146bd9cb754942504ed248b2fa01d9ab500ee7bc6843331bca59ce9",
+          "size": 1890
+        },
+        {
+          "path": "configuration_opencua.py",
+          "sha256": "12892d04cf561ddf85fbb166088cf6ec2c3edbfed86152461a25ed82f14ef560",
+          "size": 1325
+        },
+        {
+          "path": "generation_config.json",
+          "sha256": "7f7048d857eb4ca4ce38041aba882715412935bbbc8d33230b9d7e3928099cb4",
+          "size": 51
+        },
+        {
+          "path": "model-1-of-28.safetensors",
+          "sha256": "9a3506c63d3baab868f3255e9b6cacf867085f17425d7fbe2da10c08b508d6e4",
+          "size": 2909257312
+        },
+        {
+          "path": "model-10-of-28.safetensors",
+          "sha256": "9d5048fcce0dc2edf4f2a62869027c8bdb8c69aa5020b05751b18b309d318966",
+          "size": 466117392
+        },
+        {
+          "path": "model-11-of-28.safetensors",
+          "sha256": "ca339d3bbb4c1b4768f1cc9b1a8ab84ecde16124d491ae4f90a236cd90e29cfd",
+          "size": 466117400
+        },
+        {
+          "path": "model-12-of-28.safetensors",
+          "sha256": "a434de8c0f522324f74cd8551ae2ed46834261bf046f53a4a05c895c6f050fda",
+          "size": 466117400
+        },
+        {
+          "path": "model-13-of-28.safetensors",
+          "sha256": "5fe22a8d394036292096af3f217ec408b2a65992e42c63dc47e32d3d043d52d5",
+          "size": 466117400
+        },
+        {
+          "path": "model-14-of-28.safetensors",
+          "sha256": "1c3b36c075870a155722182ac609fedd9cffbb0c8738283ef69932e507dbb7ff",
+          "size": 466117400
+        },
+        {
+          "path": "model-15-of-28.safetensors",
+          "sha256": "5803bb47a77cf9d35b454033757233476108ffc6ee51eae27d376ddb6d65192b",
+          "size": 466117400
+        },
+        {
+          "path": "model-16-of-28.safetensors",
+          "sha256": "1735b1d93e02fa3b09efe5bbbad1c5e606f9032b1cd86dd53b37239e8eeb7048",
+          "size": 466117400
+        },
+        {
+          "path": "model-17-of-28.safetensors",
+          "sha256": "f3e6962b08e4ad662b6d49ccaeb4ef74d47de175210414f17f53c69e02cce3ed",
+          "size": 466117400
+        },
+        {
+          "path": "model-18-of-28.safetensors",
+          "sha256": "48e412611842a2f5fa713e2ced535d99f9a94629bc51cbc59491caff7c218bf3",
+          "size": 466117400
+        },
+        {
+          "path": "model-19-of-28.safetensors",
+          "sha256": "dd789c2881931b0b7bd7824267219be98ffe6ac24b75b65f162ff43b7e957b65",
+          "size": 466117400
+        },
+        {
+          "path": "model-2-of-28.safetensors",
+          "sha256": "02fb3f50de744efc8a92c1d1eec805ff7e9c74a34bc48e6d7736d1dab2f42a15",
+          "size": 466117392
+        },
+        {
+          "path": "model-20-of-28.safetensors",
+          "sha256": "b62719ac9f79b4b4002e0ee6d88c1e347ecef2f58b9e9a5e1e36c86eea31012f",
+          "size": 466117400
+        },
+        {
+          "path": "model-21-of-28.safetensors",
+          "sha256": "f04560df629f1a464d554959535a8e432c969928ad00301e01825b952872e3c1",
+          "size": 466117400
+        },
+        {
+          "path": "model-22-of-28.safetensors",
+          "sha256": "f85cde5aad58c443f119e0a2a18f82643f632c8dd10267ed2ff5dfe293689deb",
+          "size": 466117400
+        },
+        {
+          "path": "model-23-of-28.safetensors",
+          "sha256": "a8cfeac6748d97ace65f2cba30bd503acae5581971cf8079516627329b2748db",
+          "size": 466117400
+        },
+        {
+          "path": "model-24-of-28.safetensors",
+          "sha256": "a9b95b68efe5db8cdb7da036436628c0bd22970d3bafdb8ad22be5dd9da4ae2a",
+          "size": 466117400
+        },
+        {
+          "path": "model-25-of-28.safetensors",
+          "sha256": "ab0258e3876489823db02595c0190b2bfa6d9b413bcbc86cdbb6cff33746fd3c",
+          "size": 466117400
+        },
+        {
+          "path": "model-26-of-28.safetensors",
+          "sha256": "e249da457081b255ede43cbed8ebcbdc50d232f4291b29ec182ebe8fce544859",
+          "size": 466117400
+        },
+        {
+          "path": "model-27-of-28.safetensors",
+          "sha256": "30dd9483797d65dfdff6f29cc177104ce5ce6bfe2189ba0d30790df96a3e8024",
+          "size": 466117400
+        },
+        {
+          "path": "model-28-of-28.safetensors",
+          "sha256": "538c7c84b26ca41215513bed9d06063c509caebbf5198778f2e08208a3745bbe",
+          "size": 1556119576
+        },
+        {
+          "path": "model-3-of-28.safetensors",
+          "sha256": "54ef58c5324cc5729bde30de5034c3915efe52ed4afd1253a2f97dcfb66c66a2",
+          "size": 466117392
+        },
+        {
+          "path": "model-4-of-28.safetensors",
+          "sha256": "87d7dc8980aed79389c2542b446bb5d0620017efcc8c75afea0810919b697aae",
+          "size": 466117392
+        },
+        {
+          "path": "model-5-of-28.safetensors",
+          "sha256": "9be48ae41eb09decd62222457b54781f293bff6a448c0aab97a1bd244b7e2164",
+          "size": 466117392
+        },
+        {
+          "path": "model-6-of-28.safetensors",
+          "sha256": "a7cdfc13104d94030b952dd03baa8b9a82e1b26428bf5975c2270d7371c40985",
+          "size": 466117392
+        },
+        {
+          "path": "model-7-of-28.safetensors",
+          "sha256": "d18ffa62e87fa0b9a3bba4510a2b3f9908af531030b157547a7f74a46d71ea5b",
+          "size": 466117392
+        },
+        {
+          "path": "model-8-of-28.safetensors",
+          "sha256": "e1f543fb327c4f50c905e10b78bfaf9f7109dae2b4278bef7c5f92987e8b41e8",
+          "size": 466117392
+        },
+        {
+          "path": "model-9-of-28.safetensors",
+          "sha256": "afb7644e9777f8f0020f5875a2a91b0e6f235f10309cebf173cfe726a81b365c",
+          "size": 466117392
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sha256": "f102efba627b3e16ff081d53dbd7b1580a8a4dcada9c247abad777da4bc0e779",
+          "size": 62895
+        },
+        {
+          "path": "modeling_opencua.py",
+          "sha256": "fb8fcf59150cd659d7cb54151f32b49e18bbd2c662fbe93daf78afc33f0a1b53",
+          "size": 24850
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sha256": "21abff07f35b4275d024954e6d8ee5867005d897ddee259ece6a08ba4b3a049c",
+          "size": 306
+        },
+        {
+          "path": "processing_opencua.py",
+          "sha256": "58198678600fd5a81aab6838321ab56b663f6f2c29918af1bac03ac2378b1b99",
+          "size": 14158
+        },
+        {
+          "path": "tiktoken.model",
+          "sha256": "b2b1b8dfb5cc5f024bafc373121c6aba3f66f9a5a0269e243470a1de16a33186",
+          "size": 2561218
+        },
+        {
+          "path": "tokenization_opencua.py",
+          "sha256": "7386c9fb5b45a5e5a63fab059dd3c4650c1a229d7e1ce5e14ead276e6be9f3db",
+          "size": 14151
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sha256": "d4e3fdefbdf32b8b1e16b9ead85ccc4b734d242be1ac83a0b9efdd194c3194f2",
+          "size": 6232
+        }
+      ],
+      "repo": "xlangai/OpenCUA-7B",
+      "revision": "a2efb7d2b104d477a4a2666a357e79550a28aafc"
+    },
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "4.53.0",
+    "trust_remote_code": true
+  },
+  "results": {
+    "full_history": {
+      "executable_match": false,
+      "generated_tokens": 134,
+      "image_count": 7,
+      "input_tokens": 1990,
+      "latency_seconds": 4.615514416247606,
+      "output_text": "# Step 3:\n## Thought:\nThe task is to search for cryptocurrency market articles on BBC News. The previous actions have successfully navigated to the search interface. The next logical step is to input the search term 'cryptocurrency' into the search bar. This will allow the application to display relevant articles. Typing 'cryptocurrency' and pressing enter will initiate the search, moving us closer to the goal of finding and sharing an article.\n\n## Action:\nType 'cryptocurrency' into the search bar and press enter to search for articles.\n\n## Code:\n```python\npyautogui.write(message='cryptocurrency')\npyautogui.press('enter')\n```",
+      "parse_error": "OpenCUA output contains 2 executable code lines",
+      "parsed_action": null,
+      "peak_gpu_memory_bytes": 17457190912,
+      "restored_event_step_ids": [
+        1,
+        2,
+        3
+      ]
+    },
+    "mixed_fidelity": {
+      "executable_match": true,
+      "generated_tokens": 129,
+      "image_count": 3,
+      "input_tokens": 1014,
+      "latency_seconds": 3.796684116125107,
+      "output_text": "# Step 4:\n## Thought:\nThe task is to search for articles on the Cryptocurrency Market using BBC News. So far, I've navigated to the search bar, which is the correct step to begin the search process. The next logical step is to input the search term 'Cryptocurrency Market' into the search bar. This will allow me to find relevant articles. Typing the search term is essential to progress towards the goal of finding and sharing a suitable article.\n\n## Action:\nType 'Cryptocurrency Market' into the search bar.\n\n## Code:\n```python\npyautogui.write(message='Cryptocurrency Market')\n```",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "type_text",
+        "target": "text_field_unknown",
+        "text_argument": "Cryptocurrency Market",
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 17045694464,
+      "restored_event_step_ids": [
+        2
+      ]
+    },
+    "summary_only": {
+      "executable_match": false,
+      "generated_tokens": 174,
+      "image_count": 1,
+      "input_tokens": 526,
+      "latency_seconds": 4.69381248857826,
+      "output_text": "# Step 1:\n## Thought:\nTo achieve the goal of searching for the latest articles on the Cryptocurrency Market on BBC News, I need to start by entering the search query. The search bar is currently empty, and the keyboard is ready for input. The next logical step is to type the search term 'cryptocurrency' into the search bar. This will allow me to find relevant articles on the topic. After typing, I will need to execute the search by pressing the search button or hitting enter. This action will bring up search results related to cryptocurrency, moving me closer to the goal of finding and sharing a suitable article.\n\n## Action:\nType 'cryptocurrency' into the search bar and press the search button to execute the search.\n\n## Code:\n```python\npyautogui.write(message='cryptocurrency')\npyautogui.press('enter')\n```",
+      "parse_error": "OpenCUA output contains 2 executable code lines",
+      "parsed_action": null,
+      "peak_gpu_memory_bytes": 16850767872,
+      "restored_event_step_ids": []
+    }
+  },
+  "schema_version": "0.1.0",
+  "validated_action": {
+    "action_type": "type_text",
+    "target": "text_field_unknown",
+    "text_argument": "Cryptocurrency Market",
+    "text_case_sensitive": false
+  },
+  "visual_tokens_per_image": 256
+}
