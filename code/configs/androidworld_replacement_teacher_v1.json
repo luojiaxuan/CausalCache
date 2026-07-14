@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1.0",
-  "status": "smoke_rerun_pending",
+  "status": "androidworld_validation_pending",
   "candidate": {
     "repo": "mPLUG/GUI-Owl-1.5-8B-Think",
     "revision": "afe3707fc84caebc4d7046118b34493ecf8bb060",
@@ -49,7 +49,16 @@
     "required_variants": ["single_image", "native_five_image_history"],
     "finite_last_token_logits": true,
     "minimum_parse_coverage": 1.0,
-    "executable_match_is_diagnostic_only": true
+    "executable_match_is_diagnostic_only": true,
+    "result": {
+      "status": "passed",
+      "scope": "interface_only_not_policy_coverage",
+      "run_git_commit": "72c59c4d5f2f9c4f7eb42758d6606b1736e6121d",
+      "summary": "data/results/gui_owl_1_5_8b_think_smoke/summary.json",
+      "finite_logits_variants": 2,
+      "parsed_variants": 2,
+      "required_variants": 2
+    }
   },
   "validation_gate": {
     "plan": "code/configs/androidworld_validation_plan.json",

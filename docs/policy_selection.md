@@ -172,6 +172,9 @@ action，且沿用既有栈的 `max_new_tokens=256`；官方 71.6% 只作为选�
 AndroidWorld validation 前执行了上述一次性适配：共享 helper 只允许并剔除最多一个
 闭合 prefix，随后仍执行原有的单 action/单 tool-call full match。记录输出与 malformed boundary
 回归测试都已通过；该改动不使用 action correctness 或 benchmark reward。
+适配后在 Hyper01 以原 model/data/fixture/generation 参数重跑，单图与 5 图的 finite logits
+与 parse 均为 2/2，因此 interface smoke 通过。`executable_match` 0/2 按预注册只作
+diagnostic；candidate 只被推进到 AndroidWorld validation，未被接受为 teacher。
 
 `MarsXL/UI-Voyager@c262b85` 没有选为主 teacher：其官方 inference 始终只传当前截图，所谓
 `n_history_image` 只影响 SFT artifact 保存。为它加入历史截图会形成新的 OOD policy interface，

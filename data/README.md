@@ -27,3 +27,5 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 
 - `results/gui_owl_1_5_8b_think_smoke_strict/`：Hyper01 首次 1/5-image Think checkpoint smoke；
   finite logits 通过，strict parser 因闭合 thinking prefix 按设计拒绝。
+- `results/gui_owl_1_5_8b_think_smoke/`：format-only parser 适配后的原参数重跑；finite logits
+  与 parse 均为 2/2，interface smoke 通过。

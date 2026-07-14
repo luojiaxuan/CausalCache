@@ -165,12 +165,17 @@ ssh -T -o RemoteCommand=none -o RequestTTY=no hyper01 \
 1. model/data revisions 与 SHA256；
 2. processor `image_grid_thw`、effective visual tokens、input token count；
 3. finite logits、唯一 action parse、canonical executable action；
-4. deterministic decoding 下的 raw output；若浮点 logits 有微小差异，记录容差，不放宽 executable
-   equivalence；
+4. deterministic decoding 下的 raw output；若浮点 logits 或 natural-language description 有微小差异，
+   记录差异，不放宽 tool-call grammar 或 executable equivalence；
 5. AndroidWorld reset、execute、score、tear-down 与 server image digest。
 
 只有 smoke 通过后才启动完整 rollout。H200 与 A6000 的 latency、peak memory 可以不同；action、grid、
 token budget、task reward 与 gate decision 不应因芯片不同而改变。
+
+GUI-Owl Think 在同一 H200 上的两次 `do_sample=false` 运行已观察到一个 Action description
+句点的引号内/外位置差异，tool-call JSON 与 canonical action 不变。因此 executable gate 可按
+canonical action 执行；但后续 teacher-forced token distance 不得假定 raw generation byte-identical，必须
+固定 action token boundary 并报告 repeat-forward variance。
 
 ## Run metadata 与回写
 

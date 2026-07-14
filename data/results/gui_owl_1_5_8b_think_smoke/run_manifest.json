@@ -1,0 +1,80 @@
+{
+  "schema_version": "0.1.0",
+  "run_id": "gui-owl-1-5-8b-think-native-smoke-20260714T184510Z",
+  "git": {
+    "remote": "https://github.com/luojiaxuan/CausalCache.git",
+    "commit": "72c59c4d5f2f9c4f7eb42758d6606b1736e6121d",
+    "dirty": false
+  },
+  "host": {
+    "alias": "hyper01",
+    "hostname": "node-radixark-16-0001",
+    "architecture": "x86_64"
+  },
+  "gpu": {
+    "indices": [0],
+    "name": "NVIDIA H200",
+    "driver": "570.172.08"
+  },
+  "container": {
+    "image": "hongccc/sglang-omni:dev",
+    "digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "name": "sglang-omni-jaxan-07150220"
+  },
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.11.0+cu130",
+    "cuda": "13.0",
+    "transformers": "5.6.0",
+    "dtype": "bfloat16"
+  },
+  "model": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Think",
+    "revision": "afe3707fc84caebc4d7046118b34493ecf8bb060",
+    "manifest_sha256": "d43477c79f48481799cbe382e59a16a74975c6bff8507dd05badf904ad00289f"
+  },
+  "dataset": {
+    "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+    "manifest_sha256": "dc9aa2fd38aefe315afa34efea68086e8efaddf2d971df2e012b43b65d7b7ef4"
+  },
+  "configs": [
+    {
+      "path": "code/configs/androidworld_replacement_teacher_v1.json",
+      "sha256": "7bf2f140b24504fa5bc76d26e1d7b5c037a8e4b42d3ef9e6da412f44b6d1b589"
+    },
+    {
+      "path": "code/configs/gui_owl_1_5_8b_think_snapshot.json",
+      "sha256": "d43477c79f48481799cbe382e59a16a74975c6bff8507dd05badf904ad00289f"
+    }
+  ],
+  "argv": [
+    "/data/venvs/causalcache/bin/python",
+    "-m",
+    "scripts.run_gui_owl_native_smoke",
+    "--dataset-tar",
+    "/data/artifacts/guiodyssey-pilot/guiodyssey-pilot-00000.tar",
+    "--model-dir",
+    "/data/models/gui-owl-1.5-8b-think-afe3707",
+    "--decision-step-id",
+    "6",
+    "--device",
+    "cuda:0",
+    "--use-model-default-visual-resolution",
+    "--max-new-tokens",
+    "256",
+    "--output-dir",
+    "/data/results/gui_owl_1_5_8b_think_smoke_rerun"
+  ],
+  "seed": null,
+  "split": "guiodyssey_pilot_interface_fixture",
+  "worker_count": 1,
+  "started_at": "2026-07-14T18:45:10Z",
+  "finished_at": "2026-07-14T18:46:25Z",
+  "status": "complete",
+  "outputs": {
+    "hf_repo": null,
+    "hf_revision": null,
+    "git_summary_path": "data/results/gui_owl_1_5_8b_think_smoke/summary.json"
+  }
+}

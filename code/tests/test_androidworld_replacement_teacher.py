@@ -60,6 +60,13 @@ class AndroidWorldReplacementTeacherTest(unittest.TestCase):
         self.assertEqual(generation["max_new_tokens"], 256)
         self.assertFalse(generation["do_sample"])
 
+    def test_smoke_result_only_advances_to_validation(self) -> None:
+        result = self.replacement["smoke_gate"]["result"]
+        self.assertEqual(self.replacement["status"], "androidworld_validation_pending")
+        self.assertEqual(result["status"], "passed")
+        self.assertEqual(result["scope"], "interface_only_not_policy_coverage")
+        self.assertEqual(result["parsed_variants"], result["required_variants"])
+
 
 if __name__ == "__main__":
     unittest.main()
