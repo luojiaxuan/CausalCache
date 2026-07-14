@@ -55,3 +55,21 @@ worker 仍完成 score 与 teardown。`--resume` 只接受 instance、plan index
 plan 一致的 checkpoint，并要求 episode 内的 Git commit、model snapshot、runtime、processor、
 generation、plan 和 server digest 完全一致；非 resume 运行要求空 output directory。命令必须用
 `--run-git-commit` 显式传入 full SHA，runner 会同时校验实际 HEAD 与 clean worktree。
+
+正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
+
+```bash
+python3 -m scripts.package_androidworld_validation \
+  --validation-run-dir /data/experiments/gui_owl_1_5_8b_think_androidworld_validation \
+  --validation-plan code/configs/androidworld_validation_plan.json \
+  --output-dir /data/experiments/gui_owl_1_5_8b_think_androidworld_hf_payload \
+  --policy-slug gui-owl-1.5-8b-think \
+  --source-run-git-commit <FULL_RUN_GIT_COMMIT> \
+  --hf-repo gavinlaw/causalcache-androidworld-validation-mobile \
+  --hf-tag v0.2.0
+```
+
+packager 会重新验证 summary、冻结 plan、所有 episode instance/index/filename/run contract 与完整或
+数学确定 early-stop 计数，然后按 `plan_index` 写一个 `mtime=0` 的 deterministic gzip JSONL。HF 布局
+固定为 `data/<policy-slug>/...` 与 `runs/<policy-slug>/...`；输出目录必须为空，payload manifest 只记录
+预期 repo/tag 和内容 hash，不记录尚未产生的 HF OID。

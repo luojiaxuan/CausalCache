@@ -211,6 +211,14 @@ failure classification。字段契约见 `code/configs/run_manifest.schema.json`
 没有 RNG 参数的 deterministic runner 必须记录 `seed=null`，不得为了满足 metadata 伪记一个
 未实际设置的 seed。
 
+AndroidWorld validation 的本地 `episodes/*.json` 是 resumable checkpoints，不是 HF 上传布局。run
+完成或产生数学确定的 early-stop summary 后，使用
+`scripts.package_androidworld_validation` 对 summary、plan、run contract 与 episode 集合做 fail-closed
+复核，并生成单个 deterministic gzip JSONL shard。相同输入重复打包必须得到相同 SHA256；HF stable
+repo 内按 `data/<policy-slug>/` 和 `runs/<policy-slug>/` 隔离 policy 版本，旧 tag 不覆盖。上传 payload
+得到 immutable OID 后再创建 tag；HF payload manifest 不写自己的 OID，最终 OID 只回写 Git 中的
+dataset/run manifests，避免 revision 自引用。
+
 一个里程碑的完成顺序固定为：
 
 ```text
