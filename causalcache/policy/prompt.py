@@ -28,12 +28,14 @@ def _json_text(value: Any) -> str:
     return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
-def build_policy_messages(
+def build_mixed_fidelity_content(
     manifest: Mapping[str, Any],
     *,
     decision_step_id: int,
     restored_event_step_ids: Sequence[int],
     image_loader: Callable[[str], Any],
+    initial_text: str,
+    final_text: str,
 ) -> list[dict[str, Any]]:
     trajectory = manifest["trajectory"]
     decisions = {
@@ -48,9 +50,7 @@ def build_policy_messages(
         raise ValueError("restored events must belong to the decision history")
     events = {int(event["step_id"]): event for event in trajectory["events"]}
 
-    content: list[dict[str, Any]] = [
-        {"type": "text", "text": f"Task instruction: {trajectory['instruction']}"}
-    ]
+    content: list[dict[str, Any]] = [{"type": "text", "text": initial_text}]
     for step_id in history_ids:
         event = events[step_id]
         if step_id in restored_ids:
@@ -76,8 +76,26 @@ def build_policy_messages(
         [
             {"type": "text", "text": "Current observation:"},
             {"type": "image", "image": image_loader(decision["current_observation_path"])},
-            {"type": "text", "text": "Predict the next executable action."},
+            {"type": "text", "text": final_text},
         ]
+    )
+    return content
+
+
+def build_policy_messages(
+    manifest: Mapping[str, Any],
+    *,
+    decision_step_id: int,
+    restored_event_step_ids: Sequence[int],
+    image_loader: Callable[[str], Any],
+) -> list[dict[str, Any]]:
+    content = build_mixed_fidelity_content(
+        manifest,
+        decision_step_id=decision_step_id,
+        restored_event_step_ids=restored_event_step_ids,
+        image_loader=image_loader,
+        initial_text=f"Task instruction: {manifest['trajectory']['instruction']}",
+        final_text="Predict the next executable action.",
     )
     return [
         {"role": "system", "content": [{"type": "text", "text": SYSTEM_PROMPT}]},

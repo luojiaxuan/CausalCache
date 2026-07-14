@@ -71,11 +71,21 @@
 - 重建 deterministic pilot、更新私有 HF revision，并最后一次重跑 Qwen3-VL consistency coverage；
 - Qwen3-VL coverage 仍为 2/9，因此 rejection 决策不变。
 
+### 2026-07-14：UI-TARS-1.5-7B coverage（negative result）
+
+- 固定并逐文件校验 `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；
+- 实现 native mobile prompt、Qwen2.5-VL resized-coordinate normalization 和统一 executable parser；
+- 在相同 9-decision pilot、相同 full-history validation contract 下得到 9/9 parsed、4/9 executable match；
+- tap 为 2/7、swipe 为 1/1、type_text 为 1/1，action-type gate 通过，但 44.4% overall coverage 低于预注册的 50%；
+- 不因一个相邻 coordinate-bin miss 事后放宽 equivalence，拒绝该 candidate 进入 attribution pilot；
+- 结果见 `results/ui_tars_policy_coverage/`。这仍是 backbone selection 的负结果，不是 CausalCache 方法效果。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
+- Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
@@ -90,4 +100,4 @@
 
 ## 下一步
 
-已冻结 UI-TARS-1.5-7B revision 与预注册 pilot coverage gate：overall coverage 至少 50%，且 tap、swipe、type_text 各至少一个 match。下一步按固定文件 manifest 下载模型，使用 native mobile action grammar 跑同一 9-decision coverage。
+在不改变预注册 gate 的前提下审计 OpenCUA-7B 的 custom code、logit access 与 mobile action grammar；若接口闭合，则冻结 revision 并运行同一 9-decision coverage。若不可复现，再评估 ShowUI-2B，但不把纯 grounding coverage 当作完整 action-policy coverage。

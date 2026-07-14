@@ -24,6 +24,12 @@
     "license": "apache-2.0",
     "status": "rejected_as_primary_teacher_coverage_2_of_9"
   },
+  "ui_tars_candidate": {
+    "repo": "ByteDance-Seed/UI-TARS-1.5-7B",
+    "revision": "683d002dd99d8f95104d31e70391a39348857f4e",
+    "license": "apache-2.0",
+    "status": "rejected_by_preregistered_gate_coverage_4_of_9"
+  },
   "validation": {
     "pilot_filter": "successful_trajectory",
     "paper_primary_filter": "executable_match",

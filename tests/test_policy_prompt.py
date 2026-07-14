@@ -1,6 +1,7 @@
 import unittest
 
 from causalcache.policy import build_policy_messages, parse_policy_action
+from causalcache.policy.ui_tars import build_ui_tars_messages, parse_ui_tars_action
 from causalcache.schema import ActionType
 
 
@@ -62,6 +63,26 @@ class PolicyPromptTest(unittest.TestCase):
         action = parse_policy_action('answer: {"action_type":"tap","coordinate":[1000,0]}')
         self.assertEqual(action.action_type, ActionType.TAP)
         self.assertEqual(action.target, "coordinate_bin:x9_y0")
+
+    def test_ui_tars_native_prompt_and_coordinate_parser(self) -> None:
+        messages = build_ui_tars_messages(
+            self.manifest,
+            decision_step_id=2,
+            restored_event_step_ids=[1],
+            image_loader=lambda path: path,
+        )
+        self.assertIn("scroll(point=", messages[1]["content"][0]["text"])
+        action = parse_ui_tars_action(
+            "Thought: tap the center\nAction: click(point='<point>170 300</point>')",
+            {"image_grid_thw": [[1, 42, 24]]},
+        )
+        self.assertEqual(action.action_type, ActionType.TAP)
+        self.assertEqual(action.target, "coordinate_bin:x5_y5")
+        swipe = parse_ui_tars_action(
+            "Thought: move down\nAction: scroll(point='<point>170 300</point>', direction='down')",
+            {"image_grid_thw": [[1, 42, 24]]},
+        )
+        self.assertEqual(swipe.target, "scroll:down")
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import io
 import json
 import tarfile
 import time
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -102,6 +103,7 @@ class QwenPolicyRuntime:
         *,
         max_new_tokens: int,
         validated_action: ExecutableAction,
+        action_parser: Callable[[str, Any], ExecutableAction] | None = None,
     ) -> dict[str, Any]:
         inputs = self._encode(messages)
         self.torch.cuda.reset_peak_memory_stats(self.device)
@@ -121,7 +123,11 @@ class QwenPolicyRuntime:
         parse_error = None
         executable_match = False
         try:
-            parsed_action = parse_policy_action(output_text)
+            parsed_action = (
+                parse_policy_action(output_text)
+                if action_parser is None
+                else action_parser(output_text, inputs)
+            )
             executable_match = parsed_action.executable_match(validated_action)
         except (KeyError, TypeError, ValueError) as error:
             parse_error = str(error)
