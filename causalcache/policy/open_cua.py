@@ -41,7 +41,10 @@ def build_open_cua_messages(
         ),
     )
     return [
-        {"role": "system", "content": OPEN_CUA_SYSTEM_PROMPT},
+        {
+            "role": "system",
+            "content": [{"type": "text", "text": OPEN_CUA_SYSTEM_PROMPT}],
+        },
         {"role": "user", "content": content},
     ]
 

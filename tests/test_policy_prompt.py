@@ -92,7 +92,8 @@ class PolicyPromptTest(unittest.TestCase):
             restored_event_step_ids=[1],
             image_loader=lambda path: path,
         )
-        self.assertIn("PyAutoGUI", messages[0]["content"])
+        self.assertIn("PyAutoGUI", messages[0]["content"][0]["text"])
+        self.assertEqual(messages[0]["content"][0]["type"], "text")
         inputs = {"image_grid_thw": [[1, 42, 24]]}
         action = parse_open_cua_action(
             "Thought: use the center\nCode:\n```python\npyautogui.click(x=170, y=300)\n```",

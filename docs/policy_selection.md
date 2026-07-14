@@ -70,3 +70,6 @@ Hub 0.36 的 `kernels 0.11.7`，覆盖系统可见版本。
 第三次 load smoke 到达 `from_pretrained` 后发现 adapter 使用了 Transformers 5.x 的
 `dtype=` 参数；固定 runtime 4.53.0 对应改用 `torch_dtype=`。该修改只修正加载 API，
 不改变权重、prompt、processor 或 validation contract。
+第四次 smoke 已成功加载全部 28 个权重 shard，随后发现 Transformers 4.53 的
+multimodal processor 要求 system message 也使用 typed content list。adapter 已将
+相同 system prompt 包装为 `[{"type": "text", "text": ...}]`，不改变 prompt 内容。
