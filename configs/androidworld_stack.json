@@ -43,6 +43,14 @@
     "minimum_validation_task_success": 0.5,
     "no_prompt_or_equivalence_tuning_after_validation_starts": true
   },
+  "validation_plan": {
+    "path": "configs/androidworld_validation_plan.json",
+    "task_type_count": 31,
+    "task_instance_count": 62,
+    "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+    "minimum_step_budget": 10,
+    "maximum_step_budget": 60
+  },
   "compute_preflight": {
     "host": "aries",
     "architecture": "x86_64",

@@ -171,6 +171,17 @@
 - manifest 与重建测试见 `configs/androidworld_task_partition.json` 和
   `docs/androidworld_task_partition.md`。
 
+### 2026-07-14：AndroidWorld validation execution plan
+
+- 只实例化 validation split，未生成 final-test 动态参数；
+- 固定 62 个 goal、template、complexity、home reset flag 与官方 dynamic step budget，instance
+  records SHA256 为 `8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8`；
+- 62 个实例全部从 home screen 开始，step budget 最小 10、最大 60；
+- 发现 upstream wheel 漏装 `task_evals` 子包，按官方 server 相同条件从 Docker `/` 源码根运行，
+  未修改 benchmark package；
+- 计划见 `configs/androidworld_validation_plan.json`，下一步只跑单个 validation instance 的
+  GUI-Owl closed-loop smoke。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；

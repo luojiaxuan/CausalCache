@@ -110,3 +110,7 @@ setuptools。因 Ubuntu 的 `python3-wheel` 只安装给系统 Python 3.10，ove
 Python 3.11 环境预装 `wheel==0.45.1` 与 upstream `setup.py` 已声明的
 `grpcio-tools==1.71.0`。构建工具 uv 固定为首次构建观测到的 `0.11.28`。这些修复
 不改动 AndroidWorld Python 源码或 runtime dependency constraints。
+
+upstream wheel 只安装顶层 `android_world`，漏掉 `task_evals` 等子包；官方 server 能运行是因为
+Docker entrypoint 的工作目录 `/` 包含完整 COPY 源码。validation plan builder 因此也必须在该
+源码根目录解析 AndroidWorld，不能从不完整的 site-package wheel 单独运行。

@@ -245,6 +245,7 @@ $$
 - GUI-Owl-1.5-8B pinned snapshot manifest: [`configs/gui_owl_1_5_8b_snapshot.json`](configs/gui_owl_1_5_8b_snapshot.json)
 - AndroidWorld stack preregistration: [`configs/androidworld_stack.json`](configs/androidworld_stack.json)
 - AndroidWorld task partition manifest: [`configs/androidworld_task_partition.json`](configs/androidworld_task_partition.json)
+- AndroidWorld validation execution plan: [`configs/androidworld_validation_plan.json`](configs/androidworld_validation_plan.json)
 - GUI-Owl native logits/history smoke: [`results/gui_owl_native_smoke/README.md`](results/gui_owl_native_smoke/README.md)
 - AndroidWorld environment/reward smoke: [`results/androidworld_environment_smoke/README.md`](results/androidworld_environment_smoke/README.md)
 - Build command: `make paper`
