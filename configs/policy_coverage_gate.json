@@ -1,0 +1,10 @@
+{
+  "schema_version": "0.1.0",
+  "pilot_dataset": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+  "pilot_revision": "6c840b1be9d96d23425c51ba7c02b35063cfa731",
+  "validation_mode": "full_history_executable_match",
+  "minimum_overall_coverage": 0.5,
+  "require_at_least_one_match_per_present_action_type": true,
+  "present_action_types": ["tap", "swipe", "type_text"],
+  "notes": "This gate only decides whether a backbone proceeds to the attribution pilot. Main experiments still report unfiltered coverage and use executable-match filtering per decision."
+}

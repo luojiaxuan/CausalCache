@@ -227,6 +227,7 @@ $$
 - Canonical branch: `main`
 - Paper source: [`paper/main.tex`](paper/main.tex)
 - Experiment contract: [`docs/experiment_contract.md`](docs/experiment_contract.md)
+- Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - Progress record: [`docs/progress.md`](docs/progress.md)
 - Synthetic estimator validation: [`results/synthetic_phase0/README.md`](results/synthetic_phase0/README.md)
 - Qwen3-VL real-policy smoke test: [`results/qwen_policy_smoke/README.md`](results/qwen_policy_smoke/README.md)

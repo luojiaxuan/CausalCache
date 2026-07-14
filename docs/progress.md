@@ -76,4 +76,4 @@
 
 ## 下一步
 
-筛选具有公开权重、可访问 logits、GUI action grounding 能力和许可清晰的 GUI-tuned policy；先用同一 9-decision contract 做 coverage gate，只有覆盖率足够的 backbone 才进入 teacher-forced distance 实现。
+已冻结 UI-TARS-1.5-7B revision 与预注册 pilot coverage gate：overall coverage 至少 50%，且 tap、swipe、type_text 各至少一个 match。下一步按固定文件 manifest 下载模型，使用 native mobile action grammar 跑同一 9-decision coverage。
