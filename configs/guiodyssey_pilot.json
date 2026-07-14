@@ -1,0 +1,32 @@
+{
+  "schema_version": "0.1.0",
+  "source": {
+    "upstream_repo": "hflqf88888/GUIOdyssey",
+    "upstream_revision": "61632d0f3f4d51d7e9561ce4f84347dd06b2019d",
+    "transport_repo": "cua-lite/GUIOdyssey",
+    "transport_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+    "transport_file": "mobile/use/train/shard-00004-of-00610.parquet",
+    "transport_file_sha256": "67b3bd97cf31b98f1f7a5b242116155386af70d04b8575daa3ed951d0e55f1fd",
+    "row_index": 2,
+    "source_id": "0054832199799795",
+    "required_terminal_status": "success"
+  },
+  "artifact": {
+    "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "revision": "6c840b1be9d96d23425c51ba7c02b35063cfa731",
+    "visibility": "private",
+    "shard": "data/guiodyssey-pilot-00000.tar",
+    "shard_sha256": "ee36ed14332ab00ab3170de0c9a756940adbbdcc8907c6df19731ca659eb5d72"
+  },
+  "policy_candidate": {
+    "repo": "Qwen/Qwen3-VL-8B-Instruct",
+    "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+    "license": "apache-2.0",
+    "status": "selected_pending_forward_smoke_test"
+  },
+  "validation": {
+    "pilot_filter": "successful_trajectory",
+    "paper_primary_filter": "executable_match",
+    "expert_inline_reasoning_policy_visible": false
+  }
+}

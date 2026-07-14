@@ -17,7 +17,7 @@ checkpoints/
 wandb/
 
 # Local data and caches
-data/
+/data/
 .cache/
 tmp/
 

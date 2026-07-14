@@ -208,11 +208,11 @@ $$
 - [x] 固化问题定义、核心机制、实验主线与 claim 边界；
 - [x] 建立并验证 AAAI-27 官方 LaTeX anonymous submission 骨架；
 - [x] 冻结 action serialization、validated teacher 与 mixed-fidelity experiment contract；
-- [ ] 确定主冻结 GUI policy 与 transfer backbone；
-- [ ] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
+- [ ] 完成主冻结 GUI policy forward smoke test，并确定 transfer backbone；
+- [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
-- [ ] 接入真实轨迹的 deterministic low-fidelity summarizer 与 teacher-forced policy distance；
+- [ ] 在已接入的真实轨迹上实现 teacher-forced policy distance；
 - [ ] 构造 matched-NLL memory pairs，验证关键假设；
 - [ ] 训练 query-time memory gate；
 - [ ] 完成 AndroidWorld closed-loop evaluation；
@@ -230,16 +230,17 @@ $$
 - Synthetic estimator validation: [`results/synthetic_phase0/README.md`](results/synthetic_phase0/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
-- 当前状态：论文骨架、实验契约和 synthetic estimator validation 已完成；尚无可报告的真实模型实验结果。
+- 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey 单轨迹可复现 pilot artifact 已完成；尚无可报告的真实模型效果结果。
 
 ### Data and Models
 
 | Artifact | Canonical location | Revision/status | Notes |
 | --- | --- | --- | --- |
-| Attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | 未来采用稳定的 lowercase kebab-case repo ID，并在此记录 revision |
+| GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `6c840b1be9d96d23425c51ba7c02b35063cfa731`，private | 10 screenshots、9 events、9 decisions；只用于接口验证 |
+| Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
-当前没有仅存于本地、等待上传的可复用数据集、模型或评测 artifact。
+Pilot 的生成配置见 [`configs/guiodyssey_pilot.json`](configs/guiodyssey_pilot.json)。当前没有仅存于本地、等待上传的可复用数据集、模型或评测 artifact。
 
 ## Citation
 

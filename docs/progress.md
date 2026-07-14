@@ -31,21 +31,31 @@
 
 以上结果只验证实现与指标链路，不构成论文效果证据。
 
+### 2026-07-14：GUIOdyssey deterministic pilot artifact
+
+- 从 `cua-lite/GUIOdyssey` 固定 revision 的单个 Parquet shard 提取 upstream GUIOdyssey 成功轨迹 `0054832199799795`；
+- 实现 tap、long press、type、swipe、system button 的 executable canonicalization，以及 action 与 terminal signal 分离；
+- 生成 10 screenshots、9 events、9 decisions 的 deterministic tar shard，连续两次构建 SHA256 一致；
+- 明确拒绝失败轨迹，且 policy-visible manifest 不包含 expert inline reasoning；
+- 上传到私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile` revision `6c840b1be9d96d23425c51ba7c02b35063cfa731`；
+- 该 artifact 只验证真实数据接口，不构成 restoration 或任务成功率证据。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
-- 可复用 attribution 数据集：尚未生成，目标 Hugging Face dataset repo 待 owner 确认；
+- GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@6c840b1be9d96d23425c51ba7c02b35063cfa731`；
+- 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
-- 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact。
+- 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus 目录只作为 HF artifact 的 staging/cache。
 
 ## 未决策项
 
-- 主 frozen policy backbone 与 transfer backbone；
-- 离线真实轨迹首选 GUIOdyssey 还是更容易复现实验 logits 的等价数据；
-- 目标 Hugging Face owner 与最终 dataset/model repo ID。
+- transfer backbone；
+- `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b` 能否通过 mixed-fidelity forward、teacher-forced logits 与 executable action coverage smoke test；
+- pilot 应扩展到多少 app、trajectory 和 horizon 才足以进入 attribution 主表。
 
 这些项目必须经过可获得 logits、许可证、磁盘和算力检查后再冻结，不能为了填配置而猜测。
 
 ## 下一步
 
-检查可用 frozen GUI policy、logit access、真实轨迹许可证和算力，然后接入最小真实离线 attribution pilot，首先报告 validated teacher coverage 与 mixed-fidelity forward 的一致性。
+顺序下载并固定 Qwen3-VL-8B-Instruct 模型文件，在单 GPU 上完成 full-history / summary-only / mixed-fidelity forward smoke test；随后实现 canonical action path 的 teacher-forced component distance，并报告 executable-match coverage。

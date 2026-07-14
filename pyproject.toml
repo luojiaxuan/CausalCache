@@ -10,5 +10,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
 
+[project.optional-dependencies]
+pilot = ["pyarrow>=15"]
+
 [tool.setuptools.packages.find]
 include = ["causalcache*"]
