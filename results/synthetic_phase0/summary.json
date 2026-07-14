@@ -1,0 +1,87 @@
+{
+  "aggregates": [
+    {
+      "jaccard_mean": 0.9,
+      "jaccard_std": 0.223607,
+      "mean_standard_error": 2.991384,
+      "sample_count": 4,
+      "spearman_mean": 0.980952,
+      "spearman_std": 0.031044,
+      "utility_ratio_to_exact_mean": 0.976776,
+      "utility_ratio_to_optimum_mean": 0.838654
+    },
+    {
+      "jaccard_mean": 1.0,
+      "jaccard_std": 0.0,
+      "mean_standard_error": 2.196442,
+      "sample_count": 8,
+      "spearman_mean": 0.995238,
+      "spearman_std": 0.010648,
+      "utility_ratio_to_exact_mean": 1.0,
+      "utility_ratio_to_optimum_mean": 0.858594
+    },
+    {
+      "jaccard_mean": 1.0,
+      "jaccard_std": 0.0,
+      "mean_standard_error": 1.656495,
+      "sample_count": 16,
+      "spearman_mean": 0.990476,
+      "spearman_std": 0.013041,
+      "utility_ratio_to_exact_mean": 1.0,
+      "utility_ratio_to_optimum_mean": 0.858594
+    },
+    {
+      "jaccard_mean": 1.0,
+      "jaccard_std": 0.0,
+      "mean_standard_error": 1.185501,
+      "sample_count": 32,
+      "spearman_mean": 0.985714,
+      "spearman_std": 0.013041,
+      "utility_ratio_to_exact_mean": 1.0,
+      "utility_ratio_to_optimum_mean": 0.858594
+    }
+  ],
+  "budget": 512,
+  "contract_version": "0.1.0",
+  "event_costs": {
+    "0": 256,
+    "1": 256,
+    "2": 128,
+    "3": 128,
+    "4": 256,
+    "5": 128,
+    "6": 256,
+    "7": 128
+  },
+  "exact_attribution": {
+    "0": 39.154857,
+    "1": 24.165429,
+    "2": 5.668,
+    "3": 24.596286,
+    "4": 14.538,
+    "5": -23.130714,
+    "6": -15.043429,
+    "7": 1.176
+  },
+  "exact_attribution_selection": [
+    0,
+    2,
+    3
+  ],
+  "exact_attribution_selection_utility": 54.1,
+  "exact_distribution": "all shared permutations with greedy maximal near-budget packing",
+  "exact_selection_ratio_to_subset_optimum": 0.858594,
+  "exact_selection_reconstruction_error": 15.319143,
+  "experiment": "synthetic_phase0_budget_conditioned_restoration",
+  "global_subset_optimum": [
+    0,
+    1
+  ],
+  "global_subset_optimum_utility": 63.01,
+  "negative_gain_events": [
+    5,
+    6
+  ],
+  "sampled_distribution": "shared antithetic permutations with greedy maximal near-budget packing",
+  "scope": "implementation_validation_not_paper_evidence"
+}

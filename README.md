@@ -7,7 +7,7 @@
 
 ## 一句话主张
 
-现有 GUI memory 方法主要根据 recency、similarity、attention 或 learned salience 保存历史。CausalCache 直接测量：**恢复某个历史 GUI 事件，能在多大程度上恢复完整历史条件下的后续 action behavior**，并把这种昂贵的 restoration attribution 蒸馏成在线 memory selector。
+现有 GUI memory 方法主要根据 recency、similarity、attention 或 learned salience 保存历史。CausalCache 直接测量：**在实际部署预算附近，把某个 GUI 事件从固定低保真记录升级为高保真视觉证据，能在多大程度上恢复 validated frozen policy 当前决策的 executable behavior**，并把这种昂贵的 restoration attribution 蒸馏成在线 memory selector。
 
 ## 核心观察
 
@@ -38,16 +38,16 @@ $$
 给定任务指令 $g$、当前观测 $o_t$ 和高保真事件预算 $B$，目标是选择：
 
 $$
-M_t\subset H_t,\qquad |M_t|\le B,
+M_t\subset H_t,\qquad \sum_{j\in M_t}c_j\le B,
 $$
 
-使冻结 GUI policy 的长期 executable task success 最大。这里限制的是昂贵的**高保真多模态历史预算**；未选事件只保留固定长度的文本或结构化摘要。
+使冻结 GUI policy 的长期 executable task success 最大。这里的 $B$ 限制 policy-visible multimodal context，不限制 persistent storage；原始事件保存在 archive，未选事件在当前 query 只暴露固定长度摘要。
 
 ## 方法
 
 ### 1. Restoration Attribution
 
-首先用完整历史运行冻结策略 $\pi_0$，得到参考 action behavior：
+首先只在 full-history action 通过 executor-compatible action validation 的状态上运行冻结策略 $\pi_0$，得到参考 action behavior：
 
 $$
 q_t=\pi_0(\cdot\mid g,o_t,H_t).
@@ -66,22 +66,22 @@ $$
 
 其中 $a^*$ 是完整历史策略生成的 canonical action，KL 在 teacher-forced action token 上计算。这样无需枚举包含 coordinate 和 text argument 的完整 sequence action space。
 
-事件 $e_j$ 的 restoration gain 为：
+事件 $e_j$ 在部署预算 $B$ 附近的 restoration gain 为：
 
 $$
-G_{j,t}=\mathbb{E}_{\sigma}\!\left[
-D_t(S^\sigma_j)-D_t(S^\sigma_j\cup\{j\})
+G^{(B)}_{j,t}=\mathbb{E}_{S\sim\mathcal C_B(j)}\!\left[
+D_t(S)-D_t(S\cup\{j\})
 \right].
 $$
 
-若恢复某事件显著减少与完整历史策略的差异，则该事件对当前决策具有较高 restoration value。实际使用共享的 $K=8\text{--}32$ 个 permutation，并报告估计方差和 telescoping error。
+其中 $\mathcal C_B(j)$ 只包含为 $e_j$ 留出容量的 maximal near-budget coalitions。该定义是 budget-conditioned Shapley-style attribution；新意不在通用 Shapley estimator，而在 GUI mixed-fidelity intervention、validated executable behavior value 和固定预算蒸馏。实际使用共享 antithetic permutation，并报告 standard error、Spearman、top-budget Jaccard、oracle utility 与 coalition reconstruction error。
 
 ### 2. 在线 Memory Gate
 
 离线 restoration attribution 计算昂贵，因此训练轻量 gate：
 
 $$
-s_{j,t}=f_\theta(g,o_t,\tilde e_j,\Delta t)
+s_{j,t}=f_\theta(g,o_t,\tilde e_j,z_j,\Delta t,B)
 $$
 
 预测 $G_{j,t}$。这里采用 **query-time scoring**：历史事件在每个决策时刻根据当前状态重新打分，解决 arrival-time label 随未来时刻变化的契约问题。
@@ -94,7 +94,7 @@ L=L_{\text{regression}}
 +\lambda_2L_{\text{top-}B}.
 $$
 
-推理时保留分数最高的 $B$ 个高保真 event blocks，其余事件使用固定长度摘要。冻结 action policy，只训练 memory gate。
+推理时使用 positive-value knapsack；分数不超过阈值的事件不会被强制加入，因此实际选择可以少于预算容量。冻结 action policy，只训练 memory gate。
 
 ### 3. Mixed-Fidelity Memory
 
@@ -108,7 +108,7 @@ deterministic_ui_delta
 result_status
 ```
 
-截图的高保真表示仍使用原始视觉输入。第一版不做跨层 KV surgery，而是通过 mixed-fidelity input 重新运行 policy，避免位置编码与上下文依赖导致不合法的 KV 拼接。
+系统由 raw event archive、cheap summary/index（可含预计算视觉 embedding）和 policy-visible high-fidelity context 三层组成。截图高保真表示仍使用原始视觉输入。第一版不做跨层 KV surgery，而是通过 mixed-fidelity input 重新运行 policy，避免位置编码与上下文依赖导致不合法的 KV 拼接。
 
 ## 实验设计
 
@@ -169,7 +169,7 @@ $$
 
 ## 预期贡献
 
-1. 提出 restoration-guided GUI memory attribution。
+1. 提出与部署预算对齐的 restoration-guided GUI memory attribution。
 2. 提出将反事实 restoration gain 蒸馏成在线固定预算 memory gate 的方法。
 3. 证明 matched next-action fidelity 下，不同 memory 仍产生不同长期成功率。
 4. 在相同多模态 memory budget 下，提高 long-horizon GUI task success。
@@ -201,7 +201,7 @@ $$
 
 ## Paper Story
 
-> Long-horizon GUI agents do not merely need more memory; they need memory whose restoration recovers future control behavior. CausalCache learns to preserve exactly that evidence.
+> Long-horizon GUI memory selection lacks policy-grounded supervision. CausalCache values an event by how much upgrading it from a fixed low-fidelity record to high-fidelity visual evidence restores a validated frozen policy's executable decision behavior, then distills this budget-conditioned teacher into a query-time gate.
 
 ## 初始路线图
 
@@ -210,8 +210,9 @@ $$
 - [x] 冻结 action serialization、validated teacher 与 mixed-fidelity experiment contract；
 - [ ] 确定主冻结 GUI policy 与 transfer backbone；
 - [ ] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
-- [ ] 实现 teacher-forced policy distance 与 restoration attribution；
-- [ ] 在小规模离线轨迹上验证 telescoping、方差和 permutation 数量；
+- [x] 实现并测试 budget-conditioned restoration attribution 核心；
+- [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
+- [ ] 接入真实轨迹的 deterministic low-fidelity summarizer 与 teacher-forced policy distance；
 - [ ] 构造 matched-NLL memory pairs，验证关键假设；
 - [ ] 训练 query-time memory gate；
 - [ ] 完成 AndroidWorld closed-loop evaluation；
@@ -226,9 +227,10 @@ $$
 - Paper source: [`paper/main.tex`](paper/main.tex)
 - Experiment contract: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Progress record: [`docs/progress.md`](docs/progress.md)
+- Synthetic estimator validation: [`results/synthetic_phase0/README.md`](results/synthetic_phase0/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
-- 当前状态：论文骨架和实验契约已建立；尚无可报告的真实模型实验结果。
+- 当前状态：论文骨架、实验契约和 synthetic estimator validation 已完成；尚无可报告的真实模型实验结果。
 
 ### Data and Models
 

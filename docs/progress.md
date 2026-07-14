@@ -21,6 +21,16 @@
 - 冻结 reference validation、near-budget coalition、稳定性指标和 matched-NLL 协议；
 - 增加机器可读配置、fixture、验证 CLI 与单元测试。
 
+### 2026-07-14：Synthetic estimator validation
+
+- 实现 shared antithetic permutation 与 variable-cost maximal near-budget coalition；
+- 实现 exact permutation enumeration、standard error、positive-value knapsack、Spearman 与 top-budget Jaccard；
+- 在 8-event 非线性 synthetic frozen behavior 上验证两个负 restoration-gain event 不会被强制选择；
+- 5 seeds 下，$K=4$ 的 mean top-budget Jaccard 为 0.90，$K\ge 8$ 为 1.00；mean standard error 从 2.99（$K=4$）下降到 1.19（$K=32$）；
+- exact marginal-score selection 的实际 utility 仅为 global subset optimum 的 85.9%，确认 interaction 会破坏 attribution 的可加性，后续真实实验必须报告 reconstruction error 并保留 budget-aware set loss。
+
+以上结果只验证实现与指标链路，不构成论文效果证据。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -38,4 +48,4 @@
 
 ## 下一步
 
-实现 budget-conditioned restoration estimator，并在完全可控的 synthetic frozen policy 上验证：精确值恢复、负 gain 不强制选择、$K$ 与 ranking stability、top-budget overlap 和 oracle utility。
+检查可用 frozen GUI policy、logit access、真实轨迹许可证和算力，然后接入最小真实离线 attribution pilot，首先报告 validated teacher coverage 与 mixed-fidelity forward 的一致性。
