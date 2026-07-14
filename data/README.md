@@ -20,8 +20,9 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 - GUIOdyssey pilot：private HF dataset
   `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - GUI-Owl AndroidWorld validation traces：private HF dataset
-  `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0`
-  (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)。
+  `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0`
+  (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保留在 immutable
+  `v0.1.0`。
 
 最新轻量运行记录：
 
@@ -29,3 +30,5 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
   finite logits 通过，strict parser 因闭合 thinking prefix 按设计拒绝。
 - `results/gui_owl_1_5_8b_think_smoke/`：format-only parser 适配后的原参数重跑；finite logits
   与 parse 均为 2/2，interface smoke 通过。
+- `results/gui_owl_1_5_8b_think_androidworld_validation/`：Aries 42-checkpoint 数学 early-stop；
+  parse 512/513，但 official-success 上界 29/62，candidate 被有效拒绝。

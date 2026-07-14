@@ -69,7 +69,16 @@
       "required": ["image", "digest", "name"],
       "properties": {
         "image": {"type": "string"},
-        "digest": {"type": "string"},
+        "digest": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "Registry repository digest for the named image."
+        },
+        "image_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "Optional local Docker image ID observed on the execution host."
+        },
         "name": {"type": "string", "pattern": "^sglang-omni-jaxan-[0-9]{8}$"}
       }
     },

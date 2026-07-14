@@ -20,7 +20,8 @@ Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-
 | [UI-TARS-1.5-7B](https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B) | Apache-2.0 / Qwen2.5-VL | 官方 mobile action grammar、GUI agent tuning、标准 Transformers | 拒绝：pilot full-history match 4/9，低于预注册 50% gate |
 | [ShowUI-2B](https://huggingface.co/showlab/ShowUI-2B) | MIT / Qwen2-VL | 仅 2B、原生 phone navigation grammar、logits 可用 | 拒绝：pilot full-history match 2/9 |
 | [OpenCUA-7B](https://huggingface.co/xlangai/OpenCUA-7B) | MIT / custom code | computer-use tuning、公开权重 | 拒绝：pilot full-history match 1/9 |
-| [GUI-Owl-1.5-8B-Instruct](https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct) | MIT / Qwen3-VL | 官方 AndroidWorld adapter、原生 5-image history、logits 可用 | 新 benchmark-native stack；等待 native smoke/reproduction gate |
+| [GUI-Owl-1.5-8B-Instruct](https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct) | MIT / Qwen3-VL | 官方 AndroidWorld adapter、原生 5-image history、logits 可用 | 拒绝：固定 62 分母 success 上界 30/62 |
+| [GUI-Owl-1.5-8B-Think](https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think) | MIT / Qwen3-VL | 同一原生接口、官方报告 AndroidWorld 71.6% | 拒绝：固定 62 分母 success 上界 29/62 |
 
 ## UI-TARS 冻结配置
 
@@ -175,6 +176,22 @@ AndroidWorld validation 前执行了上述一次性适配：共享 helper 只允
 适配后在 Hyper01 以原 model/data/fixture/generation 参数重跑，单图与 5 图的 finite logits
 与 parse 均为 2/2，因此 interface smoke 通过。`executable_match` 0/2 按预注册只作
 diagnostic；candidate 只被推进到 AndroidWorld validation，未被接受为 teacher。
+
+Aries 正式 validation 使用完全相同的 62-instance plan、model-default preprocessing、5-image 上限、
+deterministic generation 和 50% gate。40 个 checkpoint 时 success 上界已经严格低于 31/62；两个在途
+worker 完成后得到 42 records、9 official successes、20 unobserved，因此完整成功率下界为 9/62、上界
+为 29/62。512/513 actions parsed（99.81%），parse gate 通过，但 task-success gate 失败。该差异不能
+归因于主要的 output grammar coverage。
+
+9 个 exception 与 Instruct run 一样按固定分母保留：6 个 HTTP 500、2 个 live instance 与 frozen plan
+不一致、1 个任务初始 reward 已为 1.0；没有 retry 或删除。完整结果见
+`data/results/gui_owl_1_5_8b_think_androidworld_validation/`，raw traces 位于 private HF dataset
+`gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0`
+(`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)。
+
+最终决定：`rejected_by_androidworld_validation_gate`。官方 71.6% 只作为选型 prior，不能替代本项目
+冻结 deterministic contract 的复现结果。按预注册停止本轮，不继续 test split，不升级 teacher contract，
+不生成 restoration labels。任何新的 policy 或 validated-reference 来源必须作为下一轮独立预注册。
 
 `MarsXL/UI-Voyager@c262b85` 没有选为主 teacher：其官方 inference 始终只传当前截图，所谓
 `n_history_image` 只影响 SFT artifact 保存。为它加入历史截图会形成新的 OOD policy interface，

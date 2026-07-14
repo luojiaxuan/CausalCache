@@ -60,12 +60,83 @@ class AndroidWorldReplacementTeacherTest(unittest.TestCase):
         self.assertEqual(generation["max_new_tokens"], 256)
         self.assertFalse(generation["do_sample"])
 
-    def test_smoke_result_only_advances_to_validation(self) -> None:
+    def test_smoke_result_is_interface_only(self) -> None:
         result = self.replacement["smoke_gate"]["result"]
-        self.assertEqual(self.replacement["status"], "androidworld_validation_pending")
         self.assertEqual(result["status"], "passed")
         self.assertEqual(result["scope"], "interface_only_not_policy_coverage")
         self.assertEqual(result["parsed_variants"], result["required_variants"])
+
+    def test_validation_failure_rejects_candidate(self) -> None:
+        result = self.replacement["validation_gate"]["result"]
+        self.assertEqual(
+            self.replacement["status"],
+            "rejected_by_androidworld_validation_gate",
+        )
+        self.assertEqual(result["status"], "failed")
+        self.assertEqual(
+            result["artifact_status"],
+            "valid_early_stopped_policy_rejection",
+        )
+        self.assertGreaterEqual(
+            result["parse_coverage"],
+            self.replacement["validation_gate"]["minimum_action_parse_coverage"],
+        )
+        self.assertLess(
+            result["maximum_possible_official_success_rate"],
+            self.replacement["validation_gate"]["minimum_task_success"],
+        )
+        self.assertEqual(
+            result["checkpoint_count"] + result["unobserved_instance_count"],
+            result["plan_instance_count"],
+        )
+
+        summary = json.loads(
+            (REPOSITORY_ROOT / result["summary"]).read_text(encoding="utf-8")
+        )
+        for key in (
+            "artifact_status",
+            "checkpoint_count",
+            "plan_instance_count",
+            "unobserved_instance_count",
+            "parse_success_count",
+            "model_step_count",
+            "parse_coverage",
+            "official_success_count",
+            "official_success_rate_lower_bound",
+            "maximum_possible_official_success_count",
+            "maximum_possible_official_success_rate",
+            "early_stop_reason",
+        ):
+            self.assertEqual(result[key], summary[key])
+        self.assertEqual(result["run_git_commit"], summary["run_contract"]["git_commit"])
+
+    def test_validation_artifact_provenance_is_unambiguous(self) -> None:
+        result_dir = (
+            REPOSITORY_ROOT
+            / "data"
+            / "results"
+            / "gui_owl_1_5_8b_think_androidworld_validation"
+        )
+        run_manifest = json.loads(
+            (result_dir / "run_manifest.json").read_text(encoding="utf-8")
+        )
+        container = run_manifest["container"]
+        self.assertEqual(
+            container["digest"],
+            "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+        )
+        self.assertEqual(
+            container["image_id"],
+            "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+        )
+
+        dataset_manifest = json.loads(
+            (result_dir / "dataset_manifest.json").read_text(encoding="utf-8")
+        )
+        self.assertIn("canonical_revision", dataset_manifest["manifest_scope"])
+        self.assertIn("hf_payload_layout", dataset_manifest)
+        self.assertIn("hf_payload_files", dataset_manifest)
+        self.assertNotIn("files", dataset_manifest)
 
 
 if __name__ == "__main__":

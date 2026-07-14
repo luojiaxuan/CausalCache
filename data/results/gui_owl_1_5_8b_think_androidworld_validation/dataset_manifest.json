@@ -1,0 +1,56 @@
+{
+  "schema_version": "0.1.0",
+  "artifact_type": "androidworld_closed_loop_validation_payload",
+  "canonical_repo": "gavinlaw/causalcache-androidworld-validation-mobile",
+  "canonical_repo_type": "dataset",
+  "canonical_tag": "v0.2.0",
+  "canonical_revision": "0faf767e7c1f64b5f39fde1ac6913ca93337d8f2",
+  "visibility": "private",
+  "source_run_git_commit": "36526c58997be5409f65c5976fb35e17aa007ad7",
+  "packager_git_commit": "b83c913cf28d46413b74e15e0070f8c0f48a2ee8",
+  "benchmark_repo": "google-research/android_world",
+  "benchmark_revision": "3e50888527ef9f29b9157ecd537e408008bb1c85",
+  "agent_repo": "X-PLUG/MobileAgent",
+  "agent_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+  "policy_repo": "mPLUG/GUI-Owl-1.5-8B-Think",
+  "policy_revision": "afe3707fc84caebc4d7046118b34493ecf8bb060",
+  "validation_plan_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+  "plan_instance_count": 62,
+  "record_count": 42,
+  "run_status": "valid_early_stopped_policy_rejection",
+  "manifest_scope": "The layout and hashes below describe files downloaded from canonical_revision, not this Git-tracked pointer manifest.",
+  "hf_payload_layout": {
+    "trace_shard": "data/gui-owl-1.5-8b-think/validation-00000-of-00001.jsonl.gz",
+    "summary": "runs/gui-owl-1.5-8b-think/summary.json",
+    "payload_manifest": "runs/gui-owl-1.5-8b-think/payload_manifest.json",
+    "dataset_card": "README.md",
+    "dataset_index": "dataset_manifest.json"
+  },
+  "hf_payload_files": {
+    "trace_shard": {
+      "bytes": 92016,
+      "sha256": "a5e9e771fde087f0684b016a884e37ec4300066c4b3a37e42e79303cd3e787fb",
+      "record_count": 42
+    },
+    "summary": {
+      "bytes": 8105,
+      "sha256": "d12caac81e8d2b0f611fd368a3da5746428cc83da594e8a3bfb1be4157ffc4de"
+    },
+    "payload_manifest": {
+      "bytes": 1084,
+      "sha256": "8364ed7d09be63bedb57794f6fecd617d637b5eb37ca6019964756f2a56a915a"
+    },
+    "dataset_card": {
+      "bytes": 2857,
+      "sha256": "00b2f8932aa2946e6f4eceebe663d90d9c020a5d34f4f32da03ff308815a695e"
+    },
+    "dataset_index": {
+      "bytes": 1621,
+      "sha256": "0a2a078e52bbfb5bd32572c6552057da78acbebec0ba3e0e60ae1cfc7777f02c"
+    }
+  },
+  "record_schema": "One canonical JSON object per completed or exception episode; each record includes frozen plan index and instance, policy/runtime provenance, actions, termination, and official AndroidWorld success.",
+  "packaging": "Episodes are fail-closed validated, sorted by plan_index, serialized as canonical UTF-8 JSONL, and compressed with gzip filename empty and mtime zero.",
+  "upload_verification": "All five files were downloaded from the immutable revision and matched by SHA256; the shard decompressed to 42 unique plan-sorted records.",
+  "status": "uploaded"
+}

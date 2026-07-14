@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1.0",
-  "status": "androidworld_validation_pending",
+  "status": "rejected_by_androidworld_validation_gate",
   "candidate": {
     "repo": "mPLUG/GUI-Owl-1.5-8B-Think",
     "revision": "afe3707fc84caebc4d7046118b34493ecf8bb060",
@@ -67,7 +67,27 @@
     "minimum_action_parse_coverage": 0.95,
     "minimum_task_success": 0.5,
     "early_stop_when_success_is_mathematically_impossible": true,
-    "test_partition_must_remain_sealed": true
+    "test_partition_must_remain_sealed": true,
+    "result": {
+      "status": "failed",
+      "artifact_status": "valid_early_stopped_policy_rejection",
+      "run_git_commit": "36526c58997be5409f65c5976fb35e17aa007ad7",
+      "summary": "data/results/gui_owl_1_5_8b_think_androidworld_validation/summary.json",
+      "checkpoint_count": 42,
+      "plan_instance_count": 62,
+      "unobserved_instance_count": 20,
+      "parse_success_count": 512,
+      "model_step_count": 513,
+      "parse_coverage": 0.9980506822612085,
+      "official_success_count": 9,
+      "official_success_rate_lower_bound": 0.14516129032258066,
+      "maximum_possible_official_success_count": 29,
+      "maximum_possible_official_success_rate": 0.46774193548387094,
+      "early_stop_reason": "success_gate_mathematically_impossible",
+      "hf_repo": "gavinlaw/causalcache-androidworld-validation-mobile",
+      "hf_tag": "v0.2.0",
+      "hf_revision": "0faf767e7c1f64b5f39fde1ac6913ca93337d8f2"
+    }
   },
   "change_control": {
     "no_prompt_equivalence_threshold_or_visual_preprocessing_changes_after_validation_starts": true,

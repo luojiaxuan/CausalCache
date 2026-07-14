@@ -51,8 +51,9 @@ not persistent storage, and filters reference states whose full-history action
 is not validated. We evaluate whether restoration supervision improves the
 closed-loop success--memory frontier and whether retained restoration value
 predicts success after controlling for next-action likelihood, context cost,
-and task horizon. \pending{Insert the principal AndroidWorld result and the
-matched-NLL effect size.}
+and task horizon. \pending{Primary-policy selection is currently blocked:
+frozen local gates rejected both GUI-Owl variants.  Insert no method-effect
+claim until a new validated reference is preregistered and passes its gate.}
 \end{abstract}
 
 \section{Introduction}
@@ -253,6 +254,11 @@ mobile dataset provides offline attribution and action analysis. We use one
 primary frozen policy and one transfer backbone. Every comparison shares the
 same low-fidelity channel, action policy, gate architecture where applicable,
 and visual-token accounting.
+
+\pending{The primary frozen policy remains unresolved.  GUI-Owl-1.5-8B-Instruct
+and GUI-Owl-1.5-8B-Think passed native interface checks but were rejected by
+fixed-denominator AndroidWorld success upper bounds of 30/62 and 29/62,
+respectively.  Restoration-label generation is paused.}
 
 \subsection{Comparisons}
 

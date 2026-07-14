@@ -121,6 +121,22 @@ effective visual tokens。
 task split 和权重均未事后调整。主 attribution 链路在新的 validated teacher 被预注册并通过独立
 gate 前停止。
 
+## Replacement Think validation 结果
+
+预注册的唯一 replacement
+`mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060` 在 Hyper01 通过
+1/5-image finite-logit/parser smoke 后，复用同一 AndroidWorld plan、四 executor、model-default
+preprocessing、5-image 上限、deterministic decoding 和 gate。Aries 单 A6000 正式 run 在 40 个
+checkpoint 时触发数学 early stop；两个在途 episode 完成后，最终为 42 checkpoints、9 successes、20
+unobserved，固定分母成功率下界 9/62、上界 29/62。512/513 model actions parsed（99.81%）。
+
+因此 Think 同样被有效拒绝；其高 parse coverage 不能弥补 closed-loop success gate 失败。该 run 未访问
+test split，也未修改 prompt、parser、action equivalence、threshold 或 preprocessing。raw traces 位于
+private HF dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0`
+(`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；轻量结果见
+`data/results/gui_owl_1_5_8b_think_androidworld_validation/`。本 stack 与 replacement round 均停止，新的
+primary reference 必须另行预注册。
+
 ## Compute placement
 
 Aries 已确认 x86_64、Docker 27.2.1、`/dev/kvm` 可用，适合 Android emulator 与单卡

@@ -2,7 +2,10 @@
 
 ## 当前目标
 
-在 AAAI-27 截止前完成一个最小但可证伪的 CausalCache 实验链路：validated offline attribution、multi-budget gate、AndroidWorld closed-loop frontier 与 matched-NLL mechanism test。
+原目标是在 AAAI-27 截止前完成 validated offline attribution、multi-budget gate、AndroidWorld
+closed-loop frontier 与 matched-NLL mechanism test。当前 operational objective 已收窄为解除
+validated-reference blocker：六个 candidate 均未通过冻结 gate，在新的 primary reference 预注册并通过前，
+不得生成 attribution labels 或声称 CausalCache 方法效果。
 
 ## 已完成里程碑
 
@@ -282,7 +285,7 @@
   4-image history，现固定为 step 6 以真正覆盖 5-image 上限；同时显式固定
   `max_new_tokens=256`；
 - `UI-Voyager` 未选为主 teacher，因为官方推理只暴露当前截图，加入历史截图会改变其已报告策略接口；
-- 首次 smoke 后的当前状态为 `smoke_format_adaptation_pending`，不是 accepted teacher，也不是
+- 首次 smoke 后的当时状态为 `smoke_format_adaptation_pending`，不是 accepted teacher，也不是
   CausalCache 效果证据。
 
 ### 2026-07-14：GUI-Owl Think 首次 strict-parser smoke
@@ -305,7 +308,7 @@
   与当前 executable parser 复用同一 boundary helper；
 - 两个已记录 smoke raw outputs 与人工 malformed cases 均有回归测试；未查看或使用
   AndroidWorld success，prompt、action mapping、equivalence 和 threshold 均未修改；
-- 当前状态为 `smoke_rerun_pending`，必须先 push 该 parser commit 才能原参数重跑。
+- 该里程碑结束时状态为 `smoke_rerun_pending`，必须先 push 该 parser commit 才能原参数重跑。
 
 ### 2026-07-14：GUI-Owl Think interface smoke 通过
 
@@ -316,7 +319,7 @@
   interface gate；`executable_match` 0/2 仍只作 diagnostic；
 - 与首次运行比较，single-image raw output 逐字相同；5-image 只有 Action description 中
   一个句点的引号内/外位置不同，thinking、tool call 与 canonical action 相同；
-- 当前状态为 `androidworld_validation_pending`，不是 accepted teacher；只允许进入冻结的
+- 该里程碑结束时状态为 `androidworld_validation_pending`，不是 accepted teacher；只允许进入冻结的
   62-instance validation plan。
 
 ### 2026-07-14：AndroidWorld automatic early-stop orchestration
@@ -362,6 +365,28 @@
   tests 与 contract validation 通过。该工具在正式 run Git commit 之后实现，只用于事后 artifact
   packaging，不改变已运行的 policy、plan 或 gate。
 
+### 2026-07-14：GUI-Owl Think AndroidWorld validation 判负
+
+- 在 clean Git `36526c58997be5409f65c5976fb35e17aa007ad7`、Aries physical GPU 1、四个 pinned
+  AndroidWorld executors 上运行冻结的 62-instance plan；Python 3.12.3、PyTorch 2.11.0+cu130、
+  CUDA 13.0、Transformers 5.6.0、BF16、model-default visual resolution、最多 5 images、
+  `do_sample=false`、`max_new_tokens=256`；
+- 40 个原子 checkpoint 时已有 8 个 success，剩余 22 条即使全部成功也只有 30/62，触发自动停止；
+  两个在途 worker 完成 score/tear-down 后，最终 summary 为 42 checkpoints、9 successes、20
+  unobserved，上界 29/62（46.77%），低于 31/62 gate；
+- 513 model steps 中 512 parsed（99.81%），parse gate 通过；outcomes 为 9 official success、23
+  terminal failure、1 parse failure、9 infrastructure failure；9 exceptions 包括 6 个 HTTP 500、2 个
+  live-instance mismatch、1 个 nonzero initial reward；
+- wall time 6384.83 s；GPU monitor 的 86 个 10 秒 window-average utilization mean/median 为
+  84.7%/87%，30 个窗口至少 90%，forward peak 反复为 100%；较低窗口来自 emulator round-trip，未改变
+  单 GPU 与冻结 worker topology；
+- 相同输入独立打包两次 byte-identical；42 条 raw traces 上传 private HF dataset
+  `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0`
+  (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)，上传后 5 个文件 SHA、解压记录数与 plan index
+  均重新核验；旧 `v0.1.0` tag 未改写；
+- candidate 状态改为 `rejected_by_androidworld_validation_gate`。按预注册规则停止 replacement round，
+  test split 保持 sealed，不升级 teacher contract、不生成 restoration labels、不训练 gate。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -371,8 +396,8 @@
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
 - Rejected AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native validation 上界 30/62，未通过 50% gate；
-- Replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；Hyper01 interface smoke 已通过，Aries AndroidWorld validation 待执行；
-- AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0` (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)；
+- Rejected replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；native validation 上界 29/62，未通过 50% gate；
+- AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0` (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保持在 `v0.1.0`；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
@@ -380,6 +405,7 @@
 ## 未决策项
 
 - transfer backbone；
+- 新的 primary validated-reference policy/contract；
 - canonical action path 上 teacher-forced component distance 的具体 token boundary；
 - pilot 应扩展到多少 app、trajectory 和 horizon 才足以进入 attribution 主表。
 
@@ -387,7 +413,8 @@
 
 ## 下一步
 
-把本次 preflight 里程碑 push 后同步 exact clean Git commit，在 Aries 已验证的 AndroidWorld stack 上
-启动冻结的 62-instance validation plan，并启用自动 success-upper-bound early stop 与 GPU utilization
-monitor。test partition 保持 sealed，不修改 prompt、parser、action equivalence 或 threshold；只有 parse
-coverage 至少 95% 且 official task success 至少 50% 才接受 teacher。
+不要在已拒绝的 GUI-Owl stack 上生成 restoration labels 或继续 test split。下一项科学工作必须先形成
+新的 primary validated-reference 预注册：明确 policy/revision、原生 history/action interface、decoding、
+validation source 和停止规则，再运行新的独立 gate。使用 expert-success states 代替 frozen-policy coverage、
+接入新的 benchmark-native policy、或修改 deterministic decoding 都会改变当前实验契约，必须先作为显式
+decision 记录并 push，不能在本轮结果后静默选择。

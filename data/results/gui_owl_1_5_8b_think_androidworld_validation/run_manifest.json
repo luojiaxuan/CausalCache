@@ -1,0 +1,113 @@
+{
+  "schema_version": "0.1.0",
+  "run_id": "gui-owl-1.5-8b-think-androidworld-validation-20260714",
+  "git": {
+    "remote": "https://github.com/luojiaxuan/CausalCache",
+    "commit": "36526c58997be5409f65c5976fb35e17aa007ad7",
+    "dirty": false
+  },
+  "host": {
+    "alias": "aries",
+    "hostname": "aries.cs.ucsb.edu",
+    "architecture": "x86_64"
+  },
+  "gpu": {
+    "indices": [1],
+    "name": "NVIDIA RTX A6000",
+    "driver": "550.107.02"
+  },
+  "container": {
+    "image": "hongccc/sglang-omni:dev",
+    "digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "image_id": "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+    "name": "sglang-omni-jaxan-07141905"
+  },
+  "runtime": {
+    "python": "3.12.3",
+    "torch": "2.11.0+cu130",
+    "cuda": "13.0",
+    "transformers": "5.6.0",
+    "dtype": "bfloat16"
+  },
+  "model": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Think",
+    "revision": "afe3707fc84caebc4d7046118b34493ecf8bb060",
+    "manifest_sha256": "d43477c79f48481799cbe382e59a16a74975c6bff8507dd05badf904ad00289f"
+  },
+  "dataset": {
+    "repo": "google-research/android_world",
+    "revision": "3e50888527ef9f29b9157ecd537e408008bb1c85",
+    "manifest_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8"
+  },
+  "configs": [
+    {
+      "path": "code/configs/gui_owl_1_5_8b_think_snapshot.json",
+      "sha256": "d43477c79f48481799cbe382e59a16a74975c6bff8507dd05badf904ad00289f"
+    },
+    {
+      "path": "code/configs/androidworld_replacement_teacher_v1.json",
+      "sha256": "2b697e13a59b96f6bd6688302914214eafd3908390f9243700f640aa00caa8fd"
+    },
+    {
+      "path": "code/configs/androidworld_stack.json",
+      "sha256": "3a14ca4b1464ae4293944ef3387c6f1ad2a3a716dc8af29258a92bd4d6a22481"
+    },
+    {
+      "path": "code/configs/androidworld_task_partition.json",
+      "sha256": "edb3ba4b03339db7c8580f58052d63813d4456030686493161f288230c787683"
+    },
+    {
+      "path": "code/configs/androidworld_validation_plan.json",
+      "sha256": "6429599d9d351c396cf0da12939ed82fb84c9acb9c07b051ae92f9d2832e3b42"
+    }
+  ],
+  "argv": [
+    "/data/venvs/causalcache-think-validation/bin/python",
+    "-m",
+    "scripts.run_gui_owl_androidworld_validation",
+    "--base-url",
+    "http://172.17.0.1:5000",
+    "--base-url",
+    "http://172.17.0.1:5001",
+    "--base-url",
+    "http://172.17.0.1:5002",
+    "--base-url",
+    "http://172.17.0.1:5003",
+    "--model-dir",
+    "/data/artifacts/models/GUI-Owl-1.5-8B-Think",
+    "--validation-plan",
+    "/data/causalcache-think-validation/code/configs/androidworld_validation_plan.json",
+    "--device",
+    "cuda:0",
+    "--use-model-default-visual-resolution",
+    "--maximum-visible-images",
+    "5",
+    "--max-new-tokens",
+    "256",
+    "--minimum-parse-coverage",
+    "0.95",
+    "--minimum-official-success",
+    "0.5",
+    "--early-stop-when-success-is-mathematically-impossible",
+    "--server-image",
+    "causalcache-androidworld:11cea575-executor1",
+    "--server-image-sha256",
+    "542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+    "--run-git-commit",
+    "36526c58997be5409f65c5976fb35e17aa007ad7",
+    "--output-dir",
+    "/data/experiments/gui_owl_1_5_8b_think_androidworld_validation",
+    "--resume"
+  ],
+  "seed": 271828,
+  "split": "validation",
+  "worker_count": 4,
+  "started_at": "2026-07-14T19:14:07.366498+00:00",
+  "finished_at": "2026-07-14T21:00:32.194421+00:00",
+  "status": "early_stopped",
+  "outputs": {
+    "hf_repo": "gavinlaw/causalcache-androidworld-validation-mobile",
+    "hf_revision": "0faf767e7c1f64b5f39fde1ac6913ca93337d8f2",
+    "git_summary_path": "data/results/gui_owl_1_5_8b_think_androidworld_validation/summary.json"
+  }
+}
