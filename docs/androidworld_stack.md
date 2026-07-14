@@ -27,7 +27,9 @@ validation partition 上重新验证。
 
 Native smoke 已通过：单图与官方 5-image history 分别使用 1,212 与 2,365 input
 tokens，均得到 finite logits 和唯一合法 click；峰值 allocated GPU memory 为 17.07 GiB。
-结果见 `results/gui_owl_native_smoke/`。candidate 仍需通过 emulator/reward 与 validation
+结果见 `results/gui_owl_native_smoke/`。emulator/reward smoke 也已通过：
+`SystemWifiTurnOn` 经 HTTP executor 后 score 从 0.0 变为 1.0，结果见
+`results/androidworld_environment_smoke/`。candidate 仍需通过 task partition 与 validation
 task-success gates，尚未写入主 experiment contract。
 
 ## Pinned benchmark code
@@ -78,7 +80,7 @@ benchmark-specific validation；当前 v0.3 contract 仍保持不变，避免用
 
 1. 下载并校验 14 个 pinned model files；
 2. native prompt/parser smoke：finite logits、单 action parse、1/5-image history；
-3. 启动 pinned AndroidWorld emulator，完成环境与 reward smoke；
+3. [已通过] 启动 pinned AndroidWorld emulator，完成环境与 reward smoke；
 4. 从 pinned registry 生成并提交 task partition manifest；
 5. 在 validation partition 复现 frozen policy，要求 parse coverage 至少 95%、task success
    至少 50%；

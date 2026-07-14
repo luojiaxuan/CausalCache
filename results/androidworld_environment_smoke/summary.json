@@ -1,0 +1,84 @@
+{
+  "action_coordinate_frame": [
+    1080,
+    2400
+  ],
+  "action_responses": [
+    {
+      "message": "Action JSONAction(action_type='open_app', app_name='settings') executed.",
+      "status": "success"
+    },
+    {
+      "message": "Action JSONAction(action_type='click', x=407, y=859) executed.",
+      "status": "success"
+    },
+    {
+      "message": "Action JSONAction(action_type='click', x=280, y=675) executed.",
+      "status": "success"
+    },
+    {
+      "message": "Action JSONAction(action_type='click', x=965, y=683) executed.",
+      "status": "success"
+    }
+  ],
+  "base_url": "http://127.0.0.1:5000",
+  "elapsed_seconds": 44.189,
+  "executed_actions": [
+    {
+      "action_type": "open_app",
+      "app_name": "settings"
+    },
+    {
+      "action_type": "click",
+      "x": 407,
+      "y": 859
+    },
+    {
+      "action_type": "click",
+      "x": 280,
+      "y": 675
+    },
+    {
+      "action_type": "click",
+      "x": 965,
+      "y": 683
+    }
+  ],
+  "goal": "Turn wifi on.",
+  "health": {
+    "status": "success"
+  },
+  "initialize": {
+    "message": "Task SystemWifiTurnOn 0 initialized.",
+    "status": "success"
+  },
+  "registry_task_types": 116,
+  "schema_version": "0.1.0",
+  "score_after": 1.0,
+  "score_before": 0.0,
+  "screenshot_after": {
+    "content_type": "application/json",
+    "response_bytes": 36125361,
+    "sha256": "6ca602b703128e7fcafd8405407d534eda595572900633b21cbd341d5d376a42"
+  },
+  "screenshot_before": {
+    "content_type": "application/json",
+    "response_bytes": 31130992,
+    "sha256": "b252b54487612acbbb2d54fa1d7b60ec09bbe71f6c455dc29d44cd3c81672773"
+  },
+  "screenshot_changed": true,
+  "started_at": "2026-07-14T13:58:48.518974+00:00",
+  "suite_reinitialize": {
+    "message": "Task suite re-initialized with n_task_combinations=1, seed=271828.",
+    "status": "success"
+  },
+  "suite_seed": 271828,
+  "suite_task_combinations": 1,
+  "task_index": 0,
+  "task_type": "SystemWifiTurnOn",
+  "tear_down": {
+    "message": "Task SystemWifiTurnOn 0 torn down.",
+    "status": "success"
+  },
+  "template": "Turn wifi {on_or_off}."
+}

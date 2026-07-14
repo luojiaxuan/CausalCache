@@ -150,6 +150,17 @@
   `0.11.28`，并预装 `wheel==0.45.1` 与 upstream 已锁定的 `grpcio-tools==1.71.0`；
 - 保留 upstream checkout 与 pinned revision 不变，未修改 task、reward、agent 或 prompt。
 
+### 2026-07-14：AndroidWorld environment/reward smoke
+
+- 在 Aries KVM 上构建并启动 Pixel 6 / API 33 / Google APIs x86_64 emulator，读取到 116 个
+  AndroidWorld task types；
+- 使用 validation seed `271828` 和单组合 suite 初始化 `SystemWifiTurnOn[0]`；
+- 4 个状态变更全部通过 `/execute_action` 完成，截图 payload SHA256 发生变化；
+- `/task/score` 从 0.0 变为 1.0，随后 `/task/tear_down` 成功，正式 smoke 耗时 44.189 秒；
+- Contacts 首次 setup 有权限文案 mismatch warning，后续 validation 必须单独标记 setup failure；
+- 结果见 `results/androidworld_environment_smoke/`。下一步先提交冻结 task partition manifest，
+  之后才启动 GUI-Owl validation rollout。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -158,7 +169,7 @@
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
-- Pending AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；等待 native smoke 与 closed-loop reproduction gate；
+- Pending AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native 与 environment/reward smoke 已通过，等待 task partition 与 validation success gate；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
@@ -173,4 +184,4 @@
 
 ## 下一步
 
-按 pinned MobileAgent/AndroidWorld revisions 准备 emulator 容器，先验证 health、task initialize、action execution、reward 和 teardown，再运行 GUI-Owl 小规模 closed-loop smoke。
+从 pinned 116-task registry 生成 SHA256 template partition manifest 并提交；随后在 validation partition 运行 GUI-Owl frozen-policy closed-loop reproduction gate。
