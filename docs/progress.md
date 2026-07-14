@@ -282,7 +282,20 @@
   4-image history，现固定为 step 6 以真正覆盖 5-image 上限；同时显式固定
   `max_new_tokens=256`；
 - `UI-Voyager` 未选为主 teacher，因为官方推理只暴露当前截图，加入历史截图会改变其已报告策略接口；
-- 当前状态仍是 preregistered-not-run，不是 accepted teacher，也不是 CausalCache 效果证据。
+- 首次 smoke 后的当前状态为 `smoke_format_adaptation_pending`，不是 accepted teacher，也不是
+  CausalCache 效果证据。
+
+### 2026-07-14：GUI-Owl Think 首次 strict-parser smoke
+
+- Hyper01 单 H200 在 Git `e40a0c780c96dda1d43ac5ae1469ccca86d9887d` 运行，model/data revision、
+  Docker digest、完整 argv 与 runtime 已写入
+  `data/results/gui_owl_1_5_8b_think_smoke_strict/run_manifest.json`；
+- single-image 与 5-image history 的 last-token logits 均 finite，实际 image count 为 1/5，峰值
+  显存约 19.15/24.47 GB；
+- 两个 raw output 都是一个闭合 `<think>...</think>` prefix，后接一个原生
+  `Action + mobile_use <tool_call>`；旧 strict parser 按设计拒绝，parse coverage 0/2；
+- 该次运行状态为 `invalid`，不是 candidate rejection；预注册只允许在任何 validation 前
+  做一次与 action correctness 无关的 fail-closed format adaptation，并先提交测试。
 
 ## 当前 artifact 状态
 
@@ -293,7 +306,7 @@
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
 - Rejected AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native validation 上界 30/62，未通过 50% gate；
-- Preregistered replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；尚未运行 Hyper01 smoke 或 AndroidWorld gate；
+- Replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；首次 Hyper01 smoke 已完成，format-only parser 适配待重跑，尚未运行 AndroidWorld gate；
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0` (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
@@ -309,6 +322,8 @@
 
 ## 下一步
 
-从 Git `main` 的精确提交在 Hyper01 单 H200 运行 GUI-Owl Think model-default 1/5-image
-finite-logit/parser smoke。smoke 结果必须先回写并 push；通过后才能在 Aries 复用冻结的 62-instance
-AndroidWorld validation gate。test partition 保持 sealed，不修改 prompt、action equivalence 或 threshold。
+只扩展 GUI-Owl parser 的输出边界，允许最多一个闭合 `<think>...</think>` prefix，但不改
+`Action` 与 `mobile_use` tool-call grammar。补 fail-closed 回归测试、commit/push 后，在 Hyper01
+以完全相同的 model/data/fixture/generation 参数重跑 1/5-image smoke。只有重跑达到 2/2 parse
+才能在 Aries 复用冻结的 62-instance AndroidWorld validation gate。test partition 保持 sealed，不修改
+prompt、action equivalence 或 threshold。

@@ -3,15 +3,16 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: AAAI-27 paper backbone ready / replacement teacher preregistered
+> Status: AAAI-27 paper backbone ready / replacement teacher format adaptation pending
 
 ## 团队交接入口
 
 当前可复核结论：方法与 synthetic estimator 接口已实现；五个 frozen-policy candidates 均未通过
 冻结 gate，最新 GUI-Owl native-resolution validation 的完整成功率上界是 30/62。当前没有
 accepted validated teacher，也没有 CausalCache 方法效果结果。唯一的新一轮 candidate 已冻结为
-`GUI-Owl-1.5-8B-Think@afe3707`；下一步先在 Hyper01 做独立 logits/parser smoke，不能直接打开
-AndroidWorld test split 或事后放宽旧 gate。
+`GUI-Owl-1.5-8B-Think@afe3707`；Hyper01 首次 smoke 已确认 1/5-image finite logits，但旧 strict
+parser 拒绝了 checkpoint 稳定产生的闭合 `<think>` prefix。下一步只做预注册允许的
+format-only parser 适配并重跑 smoke；在通过前不能启动 AndroidWorld validation 或打开 test split。
 
 新合作者按以下顺序阅读：
 
@@ -246,7 +247,7 @@ $$
 - [x] 建立并验证 AAAI-27 官方 LaTeX anonymous submission 骨架；
 - [x] 冻结 action serialization、validated teacher 与 mixed-fidelity experiment contract；
 - [x] 固定并评估首个 frozen policy candidate；因 full-history coverage 仅 2/9，拒绝作为主 teacher；
-- [ ] 选择 GUI-tuned 主 frozen policy，并确定 transfer backbone；五个 predecessor 已拒绝，`GUI-Owl-1.5-8B-Think@afe3707` 已作为本轮唯一 replacement preregister，尚未运行 smoke 或 gate；
+- [ ] 选择 GUI-tuned 主 frozen policy，并确定 transfer backbone；五个 predecessor 已拒绝，`GUI-Owl-1.5-8B-Think@afe3707` 已完成首次 interface smoke，待 format-only parser 适配重跑，尚未运行 AndroidWorld gate；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
@@ -295,9 +296,10 @@ $$
 - GUI-Owl AndroidWorld validation smoke: [`data/results/gui_owl_androidworld_validation_smoke/README.md`](data/results/gui_owl_androidworld_validation_smoke/README.md)
 - GUI-Owl configuration-invalid validation audit: [`data/results/gui_owl_androidworld_validation_attempt2/README.md`](data/results/gui_owl_androidworld_validation_attempt2/README.md)
 - GUI-Owl native-resolution validation rejection: [`data/results/gui_owl_androidworld_validation/README.md`](data/results/gui_owl_androidworld_validation/README.md)
+- GUI-Owl Think strict-parser smoke: [`data/results/gui_owl_1_5_8b_think_smoke_strict/README.md`](data/results/gui_owl_1_5_8b_think_smoke_strict/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
-- 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey pilot 已完成；GUI-Owl Instruct 的 native-resolution AndroidWorld gate 以成功率上界 30/62 判负。GUI-Owl Think replacement 已预注册但尚未运行，当前仍无 accepted validated teacher 或 CausalCache 方法效果结果。
+- 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey pilot 已完成；GUI-Owl Instruct 的 native-resolution AndroidWorld gate 以成功率上界 30/62 判负。GUI-Owl Think 首次 smoke 已确认 finite logits，但待 format-only parser 适配重跑；当前仍无 accepted validated teacher 或 CausalCache 方法效果结果。
 
 ### Data and Models
 
@@ -309,7 +311,7 @@ $$
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
 | Rejected GUI navigation candidate | <https://huggingface.co/showlab/ShowUI-2B> | `cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60` | parsed 9/9、executable-match 2/9；未通过预注册 gate |
 | Rejected AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 496/496 parsed；official-success 上界 30/62，未通过 50% gate |
-| Preregistered replacement candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think> | `afe3707fc84caebc4d7046118b34493ecf8bb060` | 本轮唯一 candidate；Hyper01 smoke 尚未运行，不是 accepted teacher |
+| Replacement candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think> | `afe3707fc84caebc4d7046118b34493ecf8bb060` | 首次 finite-logit smoke 完成；format-only parser 适配待重跑，不是 accepted teacher |
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.1.0` / `3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`，private | 47 traces；单个 deterministic gzip JSONL shard；GUI-Owl valid rejection |
 | Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |

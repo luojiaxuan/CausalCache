@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1.0",
-  "status": "preregistered_not_run",
+  "status": "smoke_format_adaptation_pending",
   "candidate": {
     "repo": "mPLUG/GUI-Owl-1.5-8B-Think",
     "revision": "afe3707fc84caebc4d7046118b34493ecf8bb060",

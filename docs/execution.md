@@ -179,6 +179,8 @@ Transformers、dtype、Docker image/digest、model/data HF revision、seed、wor
 failure classification。字段契约见 `code/configs/run_manifest.schema.json`。轻量 summary 写入
 `data/results/<run>/`；raw traces/checkpoints 先上传 HF，再把 repo/tag/revision 写回 README、manifest
 与 `docs/progress.md`。
+没有 RNG 参数的 deterministic runner 必须记录 `seed=null`，不得为了满足 metadata 伪记一个
+未实际设置的 seed。
 
 一个里程碑的完成顺序固定为：
 

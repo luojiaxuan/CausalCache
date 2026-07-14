@@ -22,3 +22,8 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 - GUI-Owl AndroidWorld validation traces：private HF dataset
   `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0`
   (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)。
+
+最新轻量运行记录：
+
+- `results/gui_owl_1_5_8b_think_smoke_strict/`：Hyper01 首次 1/5-image Think checkpoint smoke；
+  finite logits 通过，strict parser 因闭合 thinking prefix 按设计拒绝。

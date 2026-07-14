@@ -1,0 +1,231 @@
+{
+  "fixture": {
+    "decision_step_id": 6,
+    "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "source_id": "0054832199799795"
+  },
+  "logits_probes": {
+    "native_five_image_history": {
+      "effective_visual_tokens": 20010,
+      "finite_last_token_logits": true,
+      "image_count": 5,
+      "image_grid_thw": [
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ]
+      ],
+      "input_tokens": 21185,
+      "latency_seconds": 1.735054808901623,
+      "logits_shape": [
+        1,
+        1,
+        151936
+      ],
+      "logits_to_keep": 1,
+      "peak_gpu_memory_bytes": 22388425216
+    },
+    "single_image": {
+      "effective_visual_tokens": 4002,
+      "finite_last_token_logits": true,
+      "image_count": 1,
+      "image_grid_thw": [
+        [
+          1,
+          116,
+          138
+        ]
+      ],
+      "input_tokens": 4976,
+      "latency_seconds": 2.0057204510085285,
+      "logits_shape": [
+        1,
+        1,
+        151936
+      ],
+      "logits_to_keep": 1,
+      "peak_gpu_memory_bytes": 18549415424
+    }
+  },
+  "model": {
+    "device": "cuda:0",
+    "dtype": "bfloat16",
+    "load_seconds": 7.123256866121665,
+    "model_class": "Qwen3VLForConditionalGeneration",
+    "processor_class": "Qwen3VLProcessor",
+    "snapshot": {
+      "files": [
+        {
+          "path": "chat_template.json",
+          "sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce",
+          "size": 5499
+        },
+        {
+          "path": "config.json",
+          "sha256": "e36c10d2850778887b13b6874174c669773be7e1f024e9d1d04f02315674ad0a",
+          "size": 1468
+        },
+        {
+          "path": "generation_config.json",
+          "sha256": "29d2f9cebb08e5a8d0312d42f20018c4cda80dc3f53feb0989f6fabe0319eed9",
+          "size": 214
+        },
+        {
+          "path": "merges.txt",
+          "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+          "size": 1671839
+        },
+        {
+          "path": "model-00001-of-00004.safetensors",
+          "sha256": "98f9e07fbee5846afaf3c0371e538f74c3a4f4dc21aaaf85a4d276bb31b84280",
+          "size": 4902275944
+        },
+        {
+          "path": "model-00002-of-00004.safetensors",
+          "sha256": "29e299ebd1184ae71029cedbe65d08929fd8132215868fad968501bee2183d2e",
+          "size": 4915962496
+        },
+        {
+          "path": "model-00003-of-00004.safetensors",
+          "sha256": "87034d24189890bd9449cb674d709a050c4093c97978a1bc0f3323635ccef346",
+          "size": 4999831048
+        },
+        {
+          "path": "model-00004-of-00004.safetensors",
+          "sha256": "afb3ecbf02e3eaa860c2c1843ec64cb5c8dbdafe810f4f55d2da79ba59a0c3d9",
+          "size": 2716270024
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sha256": "520b2e05079402e9468a8701d03d1154d14b2599593afb6effa7fb60c1bff070",
+          "size": 67759
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+          "size": 390
+        },
+        {
+          "path": "tokenizer.json",
+          "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+          "size": 7032403
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+          "size": 10868
+        },
+        {
+          "path": "video_preprocessor_config.json",
+          "sha256": "f38c890c32e0c037969b33be7693b2a51464695378b223418db5262a6da43fa0",
+          "size": 386
+        },
+        {
+          "path": "vocab.json",
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+          "size": 2776833
+        }
+      ],
+      "repo": "mPLUG/GUI-Owl-1.5-8B-Think",
+      "revision": "afe3707fc84caebc4d7046118b34493ecf8bb060"
+    },
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0",
+    "visual_patch_factor": 32,
+    "visual_preprocessing": {
+      "merge_size": 2,
+      "mode": "model_default",
+      "target_tokens_per_image": null
+    }
+  },
+  "results": {
+    "native_five_image_history": {
+      "effective_visual_tokens": 20010,
+      "executable_match": false,
+      "generated_tokens": 188,
+      "image_count": 5,
+      "image_grid_thw": [
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ]
+      ],
+      "input_tokens": 21185,
+      "latency_seconds": 11.91603765799664,
+      "output_text": "<think>The global task objective is to find the latest articles on the Cryptocurrency Market using BBC News and then share a suitable article on Threads with moments. The search for \"Cryptocurrency Market\" has been executed, and the current screenshot shows a list of articles related to the query.\n\nReviewing the articles, the one titled \"Migrants hit by high fees to send money home\" appears to be the most recent and relevant to the topic of cryptocurrency markets, especially considering the context of financial transactions and fees which can be pertinent to cryptocurrency usage.\n\nAccording to the requirements, determining the next action involves selecting this article to read its content and assess its suitability for sharing. \n</think>\nAction: Click on the article titled \"Migrants hit by high fees to send money home.\"\n<tool_call>\n{\"name\": \"mobile_use\", \"arguments\": {\"action\": \"click\", \"coordinate\": [286, 317]}}\n</tool_call>",
+      "parse_error": "GUI-Owl output must contain exactly one native action and tool call",
+      "parsed_action": null,
+      "peak_gpu_memory_bytes": 24471047168
+    },
+    "single_image": {
+      "effective_visual_tokens": 4002,
+      "executable_match": false,
+      "generated_tokens": 229,
+      "image_count": 1,
+      "image_grid_thw": [
+        [
+          1,
+          116,
+          138
+        ]
+      ],
+      "input_tokens": 4976,
+      "latency_seconds": 13.570374076021835,
+      "output_text": "<think>The global task objective is to find the latest articles on the Cryptocurrency Market using BBC News and then share a suitable article on Threads with moments. The search query \"Cryptocurrency Market\" has been entered, and the current screenshot shows a list of articles related to this query.\n\nReviewing the articles, the first one titled \"Migrants hit by high fees to send money home\" does not seem directly relevant to the Cryptocurrency Market. The second article about drug dealers is also unrelated. The third article, \"Bitcoin price briefly tops $69,000 for new high,\" appears to be directly related to the Cryptocurrency Market and could be a suitable choice for sharing.\n\nAccording to the requirements, determining the next action involves selecting an article that best fits the topic. The third article is the most relevant based on its title and description.\n</think>\nAction: Click on the article titled \"Bitcoin price briefly tops $69,000 for new high.\"\n<tool_call>\n{\"name\": \"mobile_use\", \"arguments\": {\"action\": \"click\", \"coordinate\": [273, 857]}}\n</tool_call>",
+      "parse_error": "GUI-Owl output must contain exactly one native action and tool call",
+      "parsed_action": null,
+      "peak_gpu_memory_bytes": 19148649472
+    }
+  },
+  "schema_version": "0.1.0",
+  "scope": "interface_only_not_policy_coverage",
+  "validated_fixture_action": {
+    "action_type": "tap",
+    "target": "coordinate_bin:x3_y2",
+    "text_argument": null,
+    "text_case_sensitive": false
+  },
+  "visual_tokens_per_image": null
+}
