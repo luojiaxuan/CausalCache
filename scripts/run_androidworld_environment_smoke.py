@@ -89,7 +89,7 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
         "suite_task_combinations": 1,
         "task_type": args.task_type,
         "task_index": args.task_index,
-        "executed_action": {"action_type": "navigate_home"},
+        "executed_action": {"action_type": "open_app", "app_name": "settings"},
     }
 
     health = request_json(args.base_url, "/health")
@@ -154,6 +154,8 @@ def run_smoke(args: argparse.Namespace) -> dict[str, Any]:
             summary["screenshot_before"]["sha256"]
             != summary["screenshot_after"]["sha256"]
         )
+        if not summary["screenshot_changed"]:
+            raise ValueError("open_app action did not produce a visible state change")
         summary["score_after"] = request_json(
             args.base_url, "/task/score", params=task_params
         )["score"]
