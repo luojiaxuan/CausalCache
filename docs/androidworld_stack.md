@@ -91,3 +91,11 @@ validation 开始后不再调 prompt、executable equivalence 或 threshold。�
 
 Aries 已确认 x86_64、Docker 27.2.1、`/dev/kvm` 可用，适合 Android emulator 与单卡
 A6000 policy smoke。每个 GPU job 仍需 10 秒 idle preflight，并显式使用至多一张 GPU。
+
+## Container compatibility
+
+Pinned MobileAgent Dockerfile 的 `openjdk:18-jdk-slim` 在 2026-07-14 已无法从 Docker Hub
+解析。为保持 upstream checkout 与 revision 不变，构建前使用
+`scripts/prepare_androidworld_dockerfile.py` 严格将这一行替换为可解析的
+`eclipse-temurin:17-jdk-jammy`。脚本要求原始行恰好出现一次，upstream 变化时会拒绝
+静默打补丁。这是环境可用性修复，不修改 AndroidWorld task、reward、agent 或 prompt。
