@@ -130,11 +130,16 @@ class PolicyPromptTest(unittest.TestCase):
             "coordinate_bin:x5_y4",
         )
         text_action = parse_showui_action(
-            "{'action': 'INPUT', 'value': 'Hello', 'position': [0.5, 0.5]}",
+            "{'action': 'INPUT', 'value': 'Hello', 'position': None}",
             {},
         )
         self.assertEqual(text_action.action_type, ActionType.TYPE_TEXT)
         self.assertEqual(text_action.text_argument, "Hello")
+        positioned_text_action = parse_showui_action(
+            "{'action': 'INPUT', 'value': 'World', 'position': [0.5, 0.5]}",
+            {},
+        )
+        self.assertEqual(positioned_text_action.text_argument, "World")
         swipe = parse_showui_action(
             "{'action': 'SWIPE', 'value': None, 'position': [[0.5, 0.8], [0.5, 0.2]]}",
             {},

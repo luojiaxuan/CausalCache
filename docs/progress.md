@@ -109,7 +109,8 @@
 - 官方 model card 的 phone navigation action space 明确定义 `INPUT`、`SWIPE`、`TAP`、`ANSWER` 与 `ENTER`，因此不是只能输出点击坐标的 grounding-only 接口；
 - 固定 `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`，并记录 11 个 runtime 文件的 size 与 SHA256；
 - 固定使用原生 phone prompt、单 dictionary output 与 `[0, 1]` 相对坐标；
-- 下一步先完成 parser/prompt 单测与单 GPU smoke，再在完全相同的预注册 gate 上评估 9 个 full-history decisions。
+- 第一次 smoke 的三种 fidelity 都生成正确 `INPUT` 文本但返回 `position=None`；在 gate 前明确按统一 executor 只消费文本参数，位置非空时才额外校验；
+- 下一步重新完成单 GPU smoke，再在完全相同的预注册 gate 上评估 9 个 full-history decisions。
 
 ## 当前 artifact 状态
 

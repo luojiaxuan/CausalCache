@@ -101,3 +101,9 @@ parse failure。mixed-fidelity 输出单个正确 `write` action，仍按原 con
 只使用官方 phone navigation prompt，不把 point-grounding 接口混入 action coverage。其
 `INPUT` 虽含点击位置，但统一 schema 仍按当前 validation contract 映射为一次
 `type_text`；不会为了该 candidate 修改 recorded action、gate threshold 或 equivalence。
+
+第一次 smoke 中三种 fidelity 均输出正确的 `INPUT` 文本但将 `position` 设为 `None`。
+当前 executor 的 `type_text` 与其他 candidate 一样只要求已聚焦文本框和文本参数，不执行
+ShowUI 可选的组合点击；因此 adapter 在 coverage gate 前固定为：`position` 非空时校验其
+坐标，空值时仍映射为单次 `type_text`。该修改不改变文本 equivalence、validated action
+或 gate，只移除统一 executor 不消费的字段要求。

@@ -94,7 +94,8 @@ def parse_showui_action(text: str, model_inputs: Any) -> ExecutableAction:
             }
         )[0]
     if action == "INPUT":
-        _normalized_point(position)
+        if position is not None:
+            _normalized_point(position)
         text_argument = value.get("value")
         if not isinstance(text_argument, str):
             raise ValueError("ShowUI INPUT requires a string value")
