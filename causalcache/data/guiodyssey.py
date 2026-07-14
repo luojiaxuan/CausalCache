@@ -24,6 +24,20 @@ def _coordinate_bin(coordinate: Sequence[int], grid_size: int) -> str:
     return f"x{x_bin}_y{y_bin}"
 
 
+def _scroll_direction(start_coordinate: Sequence[int], end_coordinate: Sequence[int]) -> str:
+    if len(start_coordinate) != 2 or len(end_coordinate) != 2:
+        raise ValueError("swipe coordinates must contain x and y")
+    start_x, start_y = (int(value) for value in start_coordinate)
+    end_x, end_y = (int(value) for value in end_coordinate)
+    delta_x = end_x - start_x
+    delta_y = end_y - start_y
+    if delta_x == 0 and delta_y == 0:
+        raise ValueError("swipe must move")
+    if abs(delta_y) >= abs(delta_x):
+        return "scroll:down" if delta_y < 0 else "scroll:up"
+    return "scroll:right" if delta_x < 0 else "scroll:left"
+
+
 def canonicalize_tool_call(
     tool_call: Mapping[str, Any],
     *,
@@ -47,9 +61,7 @@ def canonicalize_tool_call(
         text = str(arguments["text"])
         return ExecutableAction(ActionType.TYPE_TEXT, target="text_field_unknown", text_argument=text), text
     if name == "swipe":
-        start = _coordinate_bin(arguments["start_coordinate"], grid_size)
-        end = _coordinate_bin(arguments["coordinate"], grid_size)
-        target = f"swipe:{start}->{end}"
+        target = _scroll_direction(arguments["start_coordinate"], arguments["coordinate"])
         return ExecutableAction(ActionType.SWIPE, target=target), target
     if name == "system_button":
         button = str(arguments["button"]).casefold()
@@ -222,7 +234,7 @@ def build_pilot_manifest(
         )
 
     manifest = {
-        "schema_version": "0.1.0",
+        "schema_version": "0.2.0",
         "dataset_repo": hf_destination,
         "source": {
             "upstream_repo": upstream_repo,

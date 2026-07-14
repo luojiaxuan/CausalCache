@@ -1,7 +1,7 @@
 {
   "schema_version": "0.1.0",
   "pilot_dataset": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
-  "pilot_revision": "6c840b1be9d96d23425c51ba7c02b35063cfa731",
+  "pilot_revision": "dd65d55279d6467ae5d797d002a7b6b32ab92ee5",
   "validation_mode": "full_history_executable_match",
   "minimum_overall_coverage": 0.5,
   "require_at_least_one_match_per_present_action_type": true,

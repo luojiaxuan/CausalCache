@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "source": {
     "upstream_repo": "hflqf88888/GUIOdyssey",
     "upstream_revision": "61632d0f3f4d51d7e9561ce4f84347dd06b2019d",
@@ -13,16 +13,16 @@
   },
   "artifact": {
     "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
-    "revision": "6c840b1be9d96d23425c51ba7c02b35063cfa731",
+    "revision": "dd65d55279d6467ae5d797d002a7b6b32ab92ee5",
     "visibility": "private",
     "shard": "data/guiodyssey-pilot-00000.tar",
-    "shard_sha256": "ee36ed14332ab00ab3170de0c9a756940adbbdcc8907c6df19731ca659eb5d72"
+    "shard_sha256": "db0fcc7762b5736a557f1393f8653bf2e7253b7bc2fcd3b62a80997bfa26491e"
   },
   "policy_candidate": {
     "repo": "Qwen/Qwen3-VL-8B-Instruct",
     "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
     "license": "apache-2.0",
-    "status": "rejected_as_primary_teacher_coverage_1_of_9"
+    "status": "rejected_as_primary_teacher_coverage_2_of_9"
   },
   "validation": {
     "pilot_filter": "successful_trajectory",

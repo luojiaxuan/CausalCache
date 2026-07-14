@@ -1,4 +1,4 @@
-# CausalCache 实验契约 v0.1
+# CausalCache 实验契约 v0.2
 
 本文档冻结第一轮实验的对象、干预、预算和判定标准。后续如果修改这些定义，必须同时修改 `configs/phase0_contract.json`、对应测试和论文，并在 `docs/progress.md` 记录原因。
 
@@ -42,6 +42,8 @@ result_status
 ## 4. Action Behavior Distance
 
 第一版 distance 分为 action type、target 和 text 三部分。target 映射到 UI element ID 或 coarse coordinate bin；text 做 NFKC 与空白规范化，非大小写敏感字段再做 casefold。密码或明确大小写敏感字段必须设置 `text_case_sensitive=true`。
+
+Swipe/scroll 不比较不同 policy grammar 的原始起止坐标。它们统一为 viewport content direction：`scroll:up`、`scroll:down`、`scroll:left` 或 `scroll:right`。例如手指从屏幕底部向顶部滑动规范化为 `scroll:down`。这使等价的 swipe 与 direction-based scroll executable-match，同时仍拒绝方向错误的动作。
 
 teacher-forced token divergence 是 canonical action path 上的 pathwise divergence，不称为完整 sequence-action KL。主文报告 executable action match；raw token KL 只作为辅助分析。
 

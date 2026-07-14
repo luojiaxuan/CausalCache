@@ -20,6 +20,20 @@ class GUIOdysseyTest(unittest.TestCase):
         self.assertEqual(action.action_type, ActionType.TAP)
         self.assertEqual(target, "coordinate_bin:x9_y0")
 
+        swipe, swipe_target = canonicalize_tool_call(
+            {
+                "function": {
+                    "name": "swipe",
+                    "arguments": {
+                        "start_coordinate": [603, 824],
+                        "coordinate": [620, 304],
+                    },
+                }
+            }
+        )
+        self.assertEqual(swipe.action_type, ActionType.SWIPE)
+        self.assertEqual(swipe_target, "scroll:down")
+
     def test_manifest_omits_inline_reasoning(self) -> None:
         messages = [
             {

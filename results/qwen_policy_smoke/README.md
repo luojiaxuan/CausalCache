@@ -12,7 +12,7 @@
 
 ## 配置
 
-- Dataset：`gavinlaw/causalcache-guiodyssey-pilot-mobile@6c840b1be9d96d23425c51ba7c02b35063cfa731`
+- Dataset：`gavinlaw/causalcache-guiodyssey-pilot-mobile@dd65d55279d6467ae5d797d002a7b6b32ab92ee5`
 - Trajectory：`0054832199799795`
 - Decision step：4
 - Mixed restored event：3

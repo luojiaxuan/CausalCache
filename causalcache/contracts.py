@@ -113,6 +113,8 @@ class DistanceContract:
         )
         if not contract.pathwise_teacher_forcing:
             raise ValueError("the first implementation requires pathwise teacher forcing")
+        if contract.target_canonicalization != "ui_element_or_coordinate_bin_or_scroll_direction":
+            raise ValueError("target canonicalization must preserve executable equivalence")
         return contract
 
 

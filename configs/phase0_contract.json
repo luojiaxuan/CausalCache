@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "memory": {
     "budget_type": "policy_visible_context",
     "cost_unit": "visual_tokens",
@@ -28,7 +28,7 @@
       "text": 1.0
     },
     "pathwise_teacher_forcing": true,
-    "target_canonicalization": "ui_element_or_coordinate_bin",
+    "target_canonicalization": "ui_element_or_coordinate_bin_or_scroll_direction",
     "text_canonicalization": "nfkc_whitespace_casefold_unless_sensitive"
   },
   "attribution": {

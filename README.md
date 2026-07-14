@@ -208,7 +208,7 @@ $$
 - [x] 固化问题定义、核心机制、实验主线与 claim 边界；
 - [x] 建立并验证 AAAI-27 官方 LaTeX anonymous submission 骨架；
 - [x] 冻结 action serialization、validated teacher 与 mixed-fidelity experiment contract；
-- [x] 固定并评估首个 frozen policy candidate；因 full-history coverage 仅 1/9，拒绝作为主 teacher；
+- [x] 固定并评估首个 frozen policy candidate；因 full-history coverage 仅 2/9，拒绝作为主 teacher；
 - [ ] 选择 GUI-tuned 主 frozen policy，并确定 transfer backbone；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
@@ -240,8 +240,8 @@ $$
 
 | Artifact | Canonical location | Revision/status | Notes |
 | --- | --- | --- | --- |
-| GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `6c840b1be9d96d23425c51ba7c02b35063cfa731`，private | 10 screenshots、9 events、9 decisions；只用于接口验证 |
-| Rejected policy candidate | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> | `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b` | full-history executable-match 1/9；不作为主 teacher |
+| GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `dd65d55279d6467ae5d797d002a7b6b32ab92ee5`，private | schema v0.2；10 screenshots、9 events、9 decisions |
+| Rejected policy candidate | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> | `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b` | full-history executable-match 2/9；不作为主 teacher |
 | Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
