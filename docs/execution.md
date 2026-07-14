@@ -150,6 +150,14 @@ docker ps -a --format "{{.Names}}" | sort
 原则，适合小模型 smoke、数据处理和 sample-level evaluation。A6000 默认单卡，只有明确吞吐理由才用
 第二张卡。
 
+AndroidWorld emulator container 与 policy container 的权限需求不同：emulator 需要 KVM/privileged
+设备访问，policy container 不应因此继承 `--privileged`。policy container 必须使用 Docker 的显式
+`--gpus '"device=<physical-id>"'` 绑定，并在加载模型前同时确认 `nvidia-smi` 只列出一张卡、
+`torch.cuda.device_count() == 1`，以及容器内 `cuda:0` UUID 对应选中的物理 GPU。2026-07-14 的 Aries
+preflight 发现 image 自带 `NVIDIA_VISIBLE_DEVICES=all`；在 `--privileged` 下它会绕过预期隔离并看到
+8 张卡，因此正式 Think policy container 去掉 `--privileged`，保留单卡 device request。科学参数仍由
+CLI 显式传入，不能用 `CUDA_VISIBLE_DEVICES` 代替该设备契约。
+
 同一个 attribution-label dataset 只能指定一种 canonical hardware/runtime；默认在 Hyper01 H200
 生成，Aries A6000 只做固定 canary 或 closed-loop MVP，不能把两种芯片生成的 labels 混进同一 train
 split。跨芯片 replication 单独记录和报告。
@@ -187,6 +195,11 @@ GUI-Owl Think 在同一 H200 上的两次 `do_sample=false` 运行已观察到�
 句点的引号内/外位置差异，tool-call JSON 与 canonical action 不变。因此 executable gate 可按
 canonical action 执行；但后续 teacher-forced token distance 不得假定 raw generation byte-identical，必须
 固定 action token boundary 并报告 repeat-forward variance。
+
+replacement teacher 已在 Hyper01 完成独立 1/5-image interface smoke。Aries 上不再单独执行并随后
+重复某个冻结 validation instance；完整 runner 写出的第一个原子 episode checkpoint 同时作为
+closed-loop infrastructure canary。其成功或失败都不能触发 prompt、parser、model、task plan 或 gate
+threshold 修改，正式分母始终来自同一个冻结 62-instance plan。
 
 ## Run metadata 与回写
 

@@ -12,8 +12,10 @@
 accepted validated teacher，也没有 CausalCache 方法效果结果。唯一的新一轮 candidate 已冻结为
 `GUI-Owl-1.5-8B-Think@afe3707`；Hyper01 首次 smoke 已确认 1/5-image finite logits，但旧 strict
 parser 拒绝了 checkpoint 稳定产生的闭合 `<think>` prefix。预注册允许的 format-only parser
-适配与原参数重跑已完成；finite logits 和 parse 均为 2/2，smoke 通过。下一步只能在
-Aries 运行冻结的 62-instance AndroidWorld validation；test split 仍保持 sealed。
+适配与原参数重跑已完成；finite logits 和 parse 均为 2/2，smoke 通过。Aries 的独立单卡 policy
+container、Think snapshot、四个 AndroidWorld executors 和空结果目录已完成正式运行前检查；下一步只能
+运行冻结的 62-instance AndroidWorld validation，首个正式 checkpoint 同时承担 infrastructure canary，
+不额外提前观察 validation instance。test split 仍保持 sealed。
 
 新合作者按以下顺序阅读：
 

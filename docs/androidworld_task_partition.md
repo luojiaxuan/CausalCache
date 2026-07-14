@@ -130,7 +130,7 @@ python3 -m scripts.run_gui_owl_androidworld_validation \
   --base-url http://172.17.0.1:5002 \
   --base-url http://172.17.0.1:5003 \
   --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Think \
-  --validation-plan /data/repo/code/configs/androidworld_validation_plan.json \
+  --validation-plan /data/causalcache-think-validation/code/configs/androidworld_validation_plan.json \
   --device cuda:0 \
   --use-model-default-visual-resolution \
   --maximum-visible-images 5 \
@@ -147,4 +147,5 @@ python3 -m scripts.run_gui_owl_androidworld_validation \
 
 端口 `5000–5003` 来自已记录的正式 validation summary；早期文档中的 `5001–5004` 是
 off-by-one 书写错误，不得用来改变 worker assignment。新 Think run 必须使用独立空目录；
-`--resume` 只用于同一 run contract 的中断恢复。
+`--resume` 只用于同一 run contract 的中断恢复。首个正式 episode checkpoint 同时验证闭环链路；不得
+先单独运行、观察并随后重复一个 validation instance。

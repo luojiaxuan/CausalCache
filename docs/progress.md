@@ -331,6 +331,25 @@
   等于 clean checkout HEAD，防止 Think run 静默复用 Instruct checkpoint；
 - 62 条、50% gate 的边界测试固定：47 checkpoints/16 successes 不能停，47/15 必须停。
 
+### 2026-07-14：GUI-Owl Think Aries 正式运行 preflight
+
+- 在 Aries `/mnt/data6/jiaxuanluo/causalcache` 准备独立 clean checkout、venv、model cache 与空实验目录；
+  preflight checkout 为 Git `aaa19a9efc72b3a48cb05375f19649a8f9e3f210`，正式 runner 启动前会同步
+  本里程碑对应的最新 pushed `main` 并把 full SHA 写入每条 episode contract；
+- model snapshot 为 `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`，
+  14/14 pinned files 已核验；runtime 为 Python 3.12.3、PyTorch 2.11.0+cu130、CUDA 13.0、
+  Transformers 5.6.0；
+- policy container `sglang-omni-jaxan-07141905` 使用 image
+  `sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21`，只暴露 Aries
+  physical GPU 1（A6000 UUID `GPU-7bf06053-364d-92a4-fdd0-b04b2dd66291`，容器内 `cuda:0`）；
+- 首次带 `--privileged` 的空 policy container 会看到全部 8 张 GPU，未加载模型即删除重建；正式
+  container 去掉该权限后 `nvidia-smi` 与 PyTorch 均只看到一张卡；
+- 四个 pinned AndroidWorld executors 的 `5000–5003/health` 全部通过，server image digest 保持
+  `sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486`；Think validation
+  output directory 在启动前不存在；
+- 为避免提前观察后重复 validation 样本，不再另跑 `ClockStopWatchPausedVerify[0]`。完整 runner 的首个
+  原子 checkpoint 同时作为 infrastructure canary，结果不得用于修改冻结协议。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -356,7 +375,7 @@
 
 ## 下一步
 
-在 Aries 已验证的 AndroidWorld stack 上复用冻结的 62-instance validation plan；运行前重做
-GPU/container/disk preflight，同步 passing-smoke 的精确 Git commit 与 Think model snapshot。test partition
-保持 sealed，不修改 prompt、parser、action equivalence 或 threshold；只有 parse coverage 至少 95% 且
-official task success 至少 50% 才接受 teacher。
+把本次 preflight 里程碑 push 后同步 exact clean Git commit，在 Aries 已验证的 AndroidWorld stack 上
+启动冻结的 62-instance validation plan，并启用自动 success-upper-bound early stop 与 GPU utilization
+monitor。test partition 保持 sealed，不修改 prompt、parser、action equivalence 或 threshold；只有 parse
+coverage 至少 95% 且 official task success 至少 50% 才接受 teacher。
