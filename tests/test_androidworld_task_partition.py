@@ -1,4 +1,6 @@
+import json
 import unittest
+from pathlib import Path
 
 from scripts.build_androidworld_task_partition import (
     build_manifest,
@@ -44,6 +46,21 @@ class AndroidWorldTaskPartitionTest(unittest.TestCase):
         self.stack["task_partition"]["validation_buckets"] = [5, 6, 7]
         with self.assertRaisesRegex(ValueError, "multiple splits"):
             build_manifest(["TaskAlpha"], self.stack)
+
+    def test_committed_manifest_rebuilds_from_its_task_types(self) -> None:
+        project_root = Path(__file__).resolve().parents[1]
+        stack = json.loads(
+            (project_root / "configs/androidworld_stack.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        manifest = json.loads(
+            (project_root / "configs/androidworld_task_partition.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        task_types = [task["task_type"] for task in manifest["tasks"]]
+        self.assertEqual(build_manifest(task_types, stack), manifest)
 
 
 if __name__ == "__main__":

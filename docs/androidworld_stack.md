@@ -81,7 +81,7 @@ benchmark-specific validation；当前 v0.3 contract 仍保持不变，避免用
 1. 下载并校验 14 个 pinned model files；
 2. native prompt/parser smoke：finite logits、单 action parse、1/5-image history；
 3. [已通过] 启动 pinned AndroidWorld emulator，完成环境与 reward smoke；
-4. 从 pinned registry 生成并提交 task partition manifest；
+4. [已完成] 从 pinned registry 生成并提交 task partition manifest；
 5. 在 validation partition 复现 frozen policy，要求 parse coverage 至少 95%、task success
    至少 50%；
 6. 只有通过后才升级 experiment contract、生成 restoration labels 和训练 gate。

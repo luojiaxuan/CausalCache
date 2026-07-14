@@ -1,0 +1,987 @@
+{
+  "assignment": "int(sha256(task_name).hexdigest(), 16) % 10",
+  "registry": {
+    "sorted_task_types_sha256": "185ae2019706693bd32ecc25ffd0c8f87be87331cae6f7d7e31c91674c962b89",
+    "task_type_count": 116
+  },
+  "schema_version": "0.1.0",
+  "source": {
+    "agent_path": "Mobile-Agent-v3.5/android_world_v3.5/android_world/agents/gui_owl.py",
+    "agent_repo": "X-PLUG/MobileAgent",
+    "agent_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+    "canonical_repo": "google-research/android_world",
+    "canonical_revision": "3e50888527ef9f29b9157ecd537e408008bb1c85"
+  },
+  "splits": {
+    "test": {
+      "buckets": [
+        8,
+        9
+      ],
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_instance_count": 75,
+      "task_type_count": 25,
+      "task_types": [
+        "BrowserDraw",
+        "BrowserMultiply",
+        "ClockTimerEntry",
+        "ExpenseAddMultipleFromMarkor",
+        "ExpenseAddSingle",
+        "ExpenseDeleteDuplicates",
+        "ExpenseDeleteSingle",
+        "MarkorDeleteAllNotes",
+        "MarkorDeleteNewestNote",
+        "MarkorEditNote",
+        "MarkorMergeNotes",
+        "NotesIsTodo",
+        "NotesRecipeIngredientCount",
+        "OsmAndTrack",
+        "RecipeAddMultipleRecipesFromImage",
+        "RecipeAddMultipleRecipesFromMarkor2",
+        "RetroCreatePlaylist",
+        "SimpleCalendarAddOneEventRelativeDay",
+        "SimpleCalendarAddOneEventTomorrow",
+        "SimpleCalendarEventOnDateAtTime",
+        "SimpleCalendarEventsOnDate",
+        "SportsTrackerTotalDistanceForCategoryOverInterval",
+        "TasksDueOnDate",
+        "TasksIncompleteTasksOnDate",
+        "TurnOffWifiAndTurnOnBluetooth"
+      ]
+    },
+    "train": {
+      "buckets": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_instance_count": 180,
+      "task_type_count": 60,
+      "task_types": [
+        "AudioRecorderRecordAudio",
+        "AudioRecorderRecordAudioWithFileName",
+        "BrowserMaze",
+        "CameraTakePhoto",
+        "CameraTakeVideo",
+        "ClockStopWatchRunning",
+        "ContactsAddContact",
+        "ContactsNewContactDraft",
+        "ExpenseDeleteDuplicates2",
+        "ExpenseDeleteMultiple2",
+        "FilesMoveFile",
+        "MarkorCreateFolder",
+        "MarkorCreateNote",
+        "MarkorCreateNoteFromClipboard",
+        "MarkorMoveNote",
+        "MarkorTranscribeReceipt",
+        "MarkorTranscribeVideo",
+        "NotesMeetingAttendeeCount",
+        "NotesTodoItemCount",
+        "OpenAppTaskEval",
+        "OsmAndMarker",
+        "RecipeAddMultipleRecipes",
+        "RecipeAddMultipleRecipesFromMarkor",
+        "RecipeAddSingleRecipe",
+        "RecipeDeleteDuplicateRecipes2",
+        "RecipeDeleteMultipleRecipes",
+        "RecipeDeleteMultipleRecipesWithNoise",
+        "RecipeDeleteSingleRecipe",
+        "RetroPlaylistDuration",
+        "SaveCopyOfReceiptTaskEval",
+        "SimpleCalendarAddOneEventInTwoWeeks",
+        "SimpleCalendarAddRepeatingEvent",
+        "SimpleCalendarAnyEventsOnDate",
+        "SimpleCalendarDeleteEventsOnRelativeDay",
+        "SimpleCalendarDeleteOneEvent",
+        "SimpleCalendarEventsInNextWeek",
+        "SimpleCalendarFirstEventAfterStartTime",
+        "SimpleCalendarLocationOfEvent",
+        "SimpleDrawProCreateDrawing",
+        "SimpleSmsReply",
+        "SimpleSmsReplyMostRecent",
+        "SportsTrackerActivitiesCountForWeek",
+        "SportsTrackerActivitiesOnDate",
+        "SportsTrackerActivityDuration",
+        "SportsTrackerLongestDistanceActivity",
+        "SportsTrackerTotalDurationForCategoryThisWeek",
+        "SystemBluetoothTurnOff",
+        "SystemBluetoothTurnOn",
+        "SystemBluetoothTurnOnVerify",
+        "SystemBrightnessMin",
+        "SystemBrightnessMinVerify",
+        "SystemCopyToClipboard",
+        "SystemWifiTurnOff",
+        "SystemWifiTurnOffVerify",
+        "SystemWifiTurnOnVerify",
+        "TasksCompletedTasksForDate",
+        "TasksDueNextWeek",
+        "TasksHighPriorityTasks",
+        "TasksHighPriorityTasksDueOnDate",
+        "VlcCreateTwoPlaylists"
+      ]
+    },
+    "validation": {
+      "buckets": [
+        6,
+        7
+      ],
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_instance_count": 62,
+      "task_type_count": 31,
+      "task_types": [
+        "ClockStopWatchPausedVerify",
+        "ExpenseAddMultiple",
+        "ExpenseAddMultipleFromGallery",
+        "ExpenseDeleteMultiple",
+        "FilesDeleteFile",
+        "MarkorAddNoteHeader",
+        "MarkorChangeNoteContent",
+        "MarkorCreateNoteAndSms",
+        "MarkorDeleteNote",
+        "OsmAndFavorite",
+        "RecipeDeleteDuplicateRecipes",
+        "RecipeDeleteDuplicateRecipes3",
+        "RecipeDeleteMultipleRecipesWithConstraint",
+        "RecipeDeleteSingleWithRecipeWithNoise",
+        "RetroPlayingQueue",
+        "RetroSavePlaylist",
+        "SimpleCalendarAddOneEvent",
+        "SimpleCalendarDeleteEvents",
+        "SimpleCalendarEventsInTimeRange",
+        "SimpleCalendarNextEvent",
+        "SimpleCalendarNextMeetingWithPerson",
+        "SimpleSmsResend",
+        "SimpleSmsSend",
+        "SimpleSmsSendClipboardContent",
+        "SimpleSmsSendReceivedAddress",
+        "SystemBluetoothTurnOffVerify",
+        "SystemBrightnessMax",
+        "SystemBrightnessMaxVerify",
+        "SystemWifiTurnOn",
+        "TurnOnWifiAndOpenApp",
+        "VlcCreatePlaylist"
+      ]
+    }
+  },
+  "tasks": [
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "AudioRecorderRecordAudio"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "AudioRecorderRecordAudioWithFileName"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "BrowserDraw"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "BrowserMaze"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "BrowserMultiply"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "CameraTakePhoto"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "CameraTakeVideo"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "ClockStopWatchPausedVerify"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "ClockStopWatchRunning"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "ClockTimerEntry"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "ContactsAddContact"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "ContactsNewContactDraft"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "ExpenseAddMultiple"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "ExpenseAddMultipleFromGallery"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "ExpenseAddMultipleFromMarkor"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "ExpenseAddSingle"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "ExpenseDeleteDuplicates"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "ExpenseDeleteDuplicates2"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "ExpenseDeleteMultiple"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "ExpenseDeleteMultiple2"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "ExpenseDeleteSingle"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "FilesDeleteFile"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "FilesMoveFile"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "MarkorAddNoteHeader"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "MarkorChangeNoteContent"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "MarkorCreateFolder"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "MarkorCreateNote"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "MarkorCreateNoteAndSms"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "MarkorCreateNoteFromClipboard"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "MarkorDeleteAllNotes"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "MarkorDeleteNewestNote"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "MarkorDeleteNote"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "MarkorEditNote"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "MarkorMergeNotes"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "MarkorMoveNote"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "MarkorTranscribeReceipt"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "MarkorTranscribeVideo"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "NotesIsTodo"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "NotesMeetingAttendeeCount"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "NotesRecipeIngredientCount"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "NotesTodoItemCount"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "OpenAppTaskEval"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "OsmAndFavorite"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "OsmAndMarker"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "OsmAndTrack"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "RecipeAddMultipleRecipes"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "RecipeAddMultipleRecipesFromImage"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "RecipeAddMultipleRecipesFromMarkor"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "RecipeAddMultipleRecipesFromMarkor2"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "RecipeAddSingleRecipe"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "RecipeDeleteDuplicateRecipes"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "RecipeDeleteDuplicateRecipes2"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "RecipeDeleteDuplicateRecipes3"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "RecipeDeleteMultipleRecipes"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "RecipeDeleteMultipleRecipesWithConstraint"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "RecipeDeleteMultipleRecipesWithNoise"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "RecipeDeleteSingleRecipe"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "RecipeDeleteSingleWithRecipeWithNoise"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "RetroCreatePlaylist"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "RetroPlayingQueue"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "RetroPlaylistDuration"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "RetroSavePlaylist"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SaveCopyOfReceiptTaskEval"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleCalendarAddOneEvent"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarAddOneEventInTwoWeeks"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarAddOneEventRelativeDay"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarAddOneEventTomorrow"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarAddRepeatingEvent"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarAnyEventsOnDate"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleCalendarDeleteEvents"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarDeleteEventsOnRelativeDay"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarDeleteOneEvent"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarEventOnDateAtTime"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarEventsInNextWeek"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleCalendarEventsInTimeRange"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarEventsOnDate"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarFirstEventAfterStartTime"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleCalendarLocationOfEvent"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleCalendarNextEvent"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleCalendarNextMeetingWithPerson"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleDrawProCreateDrawing"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleSmsReply"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SimpleSmsReplyMostRecent"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleSmsResend"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleSmsSend"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleSmsSendClipboardContent"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SimpleSmsSendReceivedAddress"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SportsTrackerActivitiesCountForWeek"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SportsTrackerActivitiesOnDate"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SportsTrackerActivityDuration"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SportsTrackerLongestDistanceActivity"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "SportsTrackerTotalDistanceForCategoryOverInterval"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SportsTrackerTotalDurationForCategoryThisWeek"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemBluetoothTurnOff"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SystemBluetoothTurnOffVerify"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemBluetoothTurnOn"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemBluetoothTurnOnVerify"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SystemBrightnessMax"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SystemBrightnessMaxVerify"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemBrightnessMin"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemBrightnessMinVerify"
+    },
+    {
+      "bucket": 3,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemCopyToClipboard"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemWifiTurnOff"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemWifiTurnOffVerify"
+    },
+    {
+      "bucket": 6,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "SystemWifiTurnOn"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "SystemWifiTurnOnVerify"
+    },
+    {
+      "bucket": 4,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "TasksCompletedTasksForDate"
+    },
+    {
+      "bucket": 5,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "TasksDueNextWeek"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "TasksDueOnDate"
+    },
+    {
+      "bucket": 1,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "TasksHighPriorityTasks"
+    },
+    {
+      "bucket": 2,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "TasksHighPriorityTasksDueOnDate"
+    },
+    {
+      "bucket": 9,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "TasksIncompleteTasksOnDate"
+    },
+    {
+      "bucket": 8,
+      "split": "test",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type": "TurnOffWifiAndTurnOnBluetooth"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "TurnOnWifiAndOpenApp"
+    },
+    {
+      "bucket": 7,
+      "split": "validation",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type": "VlcCreatePlaylist"
+    },
+    {
+      "bucket": 0,
+      "split": "train",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type": "VlcCreateTwoPlaylists"
+    }
+  ]
+}

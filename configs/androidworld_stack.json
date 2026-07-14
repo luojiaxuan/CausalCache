@@ -12,7 +12,7 @@
     "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
     "license": "mit",
     "architecture": "Qwen3VLForConditionalGeneration",
-    "status": "environment_reward_smoke_passed_pending_task_partition",
+    "status": "task_partition_frozen_pending_validation_rollout",
     "reported_androidworld_success": 0.69,
     "deterministic_generation": {
       "do_sample": false

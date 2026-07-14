@@ -161,6 +161,16 @@
 - 结果见 `results/androidworld_environment_smoke/`。下一步先提交冻结 task partition manifest，
   之后才启动 GUI-Owl validation rollout。
 
+### 2026-07-14：AndroidWorld task partition 冻结
+
+- 从 live pinned registry 读取并排序 116 个 task types，registry SHA256 为
+  `185ae2019706693bd32ecc25ffd0c8f87be87331cae6f7d7e31c91674c962b89`；
+- 按预注册 SHA256 bucket rule 得到 train 60 templates / 180 instances、validation 31 / 62、
+  test 25 / 75；
+- 不对不均匀 split 做事后 rebalance，final test 在 validation gate 通过前保持 sealed；
+- manifest 与重建测试见 `configs/androidworld_task_partition.json` 和
+  `docs/androidworld_task_partition.md`。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -184,4 +194,4 @@
 
 ## 下一步
 
-从 pinned 116-task registry 生成 SHA256 template partition manifest 并提交；随后在 validation partition 运行 GUI-Owl frozen-policy closed-loop reproduction gate。
+在冻结的 31-template / 62-instance validation partition 运行 GUI-Owl frozen-policy closed-loop reproduction gate，分别记录 setup、parse、executor 与 terminal success。

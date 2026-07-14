@@ -229,6 +229,7 @@ $$
 - Experiment contract: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
+- AndroidWorld frozen task partition: [`docs/androidworld_task_partition.md`](docs/androidworld_task_partition.md)
 - Progress record: [`docs/progress.md`](docs/progress.md)
 - Synthetic estimator validation: [`results/synthetic_phase0/README.md`](results/synthetic_phase0/README.md)
 - Qwen3-VL real-policy smoke test: [`results/qwen_policy_smoke/README.md`](results/qwen_policy_smoke/README.md)
@@ -243,6 +244,7 @@ $$
 - ShowUI-2B full-history coverage: [`results/showui_policy_coverage/README.md`](results/showui_policy_coverage/README.md)
 - GUI-Owl-1.5-8B pinned snapshot manifest: [`configs/gui_owl_1_5_8b_snapshot.json`](configs/gui_owl_1_5_8b_snapshot.json)
 - AndroidWorld stack preregistration: [`configs/androidworld_stack.json`](configs/androidworld_stack.json)
+- AndroidWorld task partition manifest: [`configs/androidworld_task_partition.json`](configs/androidworld_task_partition.json)
 - GUI-Owl native logits/history smoke: [`results/gui_owl_native_smoke/README.md`](results/gui_owl_native_smoke/README.md)
 - AndroidWorld environment/reward smoke: [`results/androidworld_environment_smoke/README.md`](results/androidworld_environment_smoke/README.md)
 - Build command: `make paper`
