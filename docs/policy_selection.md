@@ -54,7 +54,7 @@ mobile action grammar 可映射到当前 `ExecutableAction` 后，才固定 revi
 - Coordinate：模型输出 smart-resized image 上的绝对坐标，必须用实际 `image_grid_thw` 归一化，不能直接当原图坐标；
 - Multi-image 风险：官方 model card 强调 3-screenshot history，官方 evaluator 另提供 1/3/5-image 设置；本项目仍按原 contract 构造 full history，并原样报告实际 image count、input tokens、显存和 coverage；
 - Snapshot manifest：`configs/open_cua_7b_snapshot.json`。
-- Runtime dependency：`requirements/opencua.txt`，固定 `transformers==4.53.0`。
+- Runtime dependency：`requirements/opencua.txt`，固定 `transformers==4.53.0` 与兼容的 `kernels==0.11.7`。
 
 审计结论为可进入实测。运行使用 pinned remote code 和模型自带 processor，且不采用
 上游示例中与当前 remote forward signature 不一致的 `grid_thws` 参数名。coverage gate
@@ -64,3 +64,6 @@ mobile action grammar 可映射到当前 `ExecutableAction` 后，才固定 revi
 `PreTrainedModel.post_init()` 会向 remote `tie_weights()` 传入 `recompute_mapping`，而
 OpenCUA 的实现没有该参数。由于上游 `modeling_opencua.py` 明确基于 Transformers
 4.53.0，本项目使用独立持久化 venv 固定该版本，不修改或 monkey-patch remote model。
+独立 venv 使用 system-site PyTorch，因此也会看到容器的 `kernels 0.14.1`；该版本要求
+新版 Hugging Face Hub。第二次 import smoke 据此失败后，项目在 venv 内显式安装兼容
+Hub 0.36 的 `kernels 0.11.7`，覆盖系统可见版本。
