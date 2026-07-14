@@ -107,3 +107,8 @@ parse failure。mixed-fidelity 输出单个正确 `write` action，仍按原 con
 ShowUI 可选的组合点击；因此 adapter 在 coverage gate 前固定为：`position` 非空时校验其
 坐标，空值时仍映射为单次 `type_text`。该修改不改变文本 equivalence、validated action
 或 gate，只移除统一 executor 不消费的字段要求。
+
+修正后的 canonical smoke 已完成：summary-only、恢复 event 2 与 full-history 分别使用
+1、3、7 张图，均生成唯一且正确的 `INPUT('cryptocurrency market')`；summary-only
+forward 返回 `[1, 695, 151936]` finite logits，峰值显存不超过 4.45 GiB。结果见
+`results/showui_policy_smoke/`。这只证明候选可以进入预注册 coverage gate。

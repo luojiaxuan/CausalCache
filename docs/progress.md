@@ -110,7 +110,9 @@
 - 固定 `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`，并记录 11 个 runtime 文件的 size 与 SHA256；
 - 固定使用原生 phone prompt、单 dictionary output 与 `[0, 1]` 相对坐标；
 - 第一次 smoke 的三种 fidelity 都生成正确 `INPUT` 文本但返回 `position=None`；在 gate 前明确按统一 executor 只消费文本参数，位置非空时才额外校验；
-- 下一步重新完成单 GPU smoke，再在完全相同的预注册 gate 上评估 9 个 full-history decisions。
+- 修正后的 smoke 返回 `[1, 695, 151936]` finite logits，且 1/3/7-image 三种输入均生成唯一、正确的 `type_text('cryptocurrency market')`；
+- 峰值 allocated GPU memory 不超过 4.45 GiB，确认单张 A6000 可运行；
+- 下一步在完全相同的预注册 gate 上评估 9 个 full-history decisions。
 
 ## 当前 artifact 状态
 
