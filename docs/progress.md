@@ -123,6 +123,14 @@
 - 拒绝该 candidate 进入 attribution pilot，结果见 `results/showui_policy_coverage/`；
 - 四个预登记 candidate 全部未过门槛，停止在当前 pilot 上继续枚举 backbone，转向 benchmark-native policy/evaluation stack 设计。
 
+### 2026-07-14：AndroidWorld benchmark-native stack 冻结
+
+- 固定 `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` 作为新的 primary policy candidate；
+- 官方 AndroidWorld adapter 报告 69.0% success，并原生使用最近 5 张截图与更早 action text，接口与 mixed-fidelity memory 问题直接对齐；
+- 固定 canonical AndroidWorld 与 MobileAgent adapter revisions、模型 14 个 runtime files、SHA256、task hash partition 和 validation gate；
+- Aries 已确认 x86_64、Docker 27.2.1 与 `/dev/kvm` 可用；
+- 详细执行顺序见 `docs/androidworld_stack.md`。当前只完成 stack preregistration，尚未把 candidate 标记为 accepted。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -131,6 +139,7 @@
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
+- Pending AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；等待 native smoke 与 closed-loop reproduction gate；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
@@ -145,4 +154,4 @@
 
 ## 下一步
 
-设计 benchmark-native policy/evaluation stack：先冻结无泄漏的 train/validation/test provenance、policy training boundary 与 token-logit access，再创建新的 held-out teacher coverage pilot。不得复用当前 train trajectory 作为训练后 coverage 证据。
+按 `docs/androidworld_stack.md` 下载 GUI-Owl snapshot，完成 native logits/prompt/parser smoke；通过后再启动 AndroidWorld emulator 与 reward smoke。

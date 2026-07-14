@@ -228,6 +228,7 @@ $$
 - Paper source: [`paper/main.tex`](paper/main.tex)
 - Experiment contract: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
+- AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
 - Progress record: [`docs/progress.md`](docs/progress.md)
 - Synthetic estimator validation: [`results/synthetic_phase0/README.md`](results/synthetic_phase0/README.md)
 - Qwen3-VL real-policy smoke test: [`results/qwen_policy_smoke/README.md`](results/qwen_policy_smoke/README.md)
@@ -240,6 +241,8 @@ $$
 - ShowUI-2B pinned snapshot manifest: [`configs/showui_2b_snapshot.json`](configs/showui_2b_snapshot.json)
 - ShowUI-2B logits and mixed-fidelity smoke: [`results/showui_policy_smoke/README.md`](results/showui_policy_smoke/README.md)
 - ShowUI-2B full-history coverage: [`results/showui_policy_coverage/README.md`](results/showui_policy_coverage/README.md)
+- GUI-Owl-1.5-8B pinned snapshot manifest: [`configs/gui_owl_1_5_8b_snapshot.json`](configs/gui_owl_1_5_8b_snapshot.json)
+- AndroidWorld stack preregistration: [`configs/androidworld_stack.json`](configs/androidworld_stack.json)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
 - 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey 单轨迹可复现 pilot artifact 已完成；尚无可报告的真实模型效果结果。
@@ -253,6 +256,7 @@ $$
 | Rejected GUI-tuned candidate | <https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B> | `683d002dd99d8f95104d31e70391a39348857f4e` | parsed 9/9、executable-match 4/9；未通过预注册 50% gate |
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
 | Rejected GUI navigation candidate | <https://huggingface.co/showlab/ShowUI-2B> | `cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60` | parsed 9/9、executable-match 2/9；未通过预注册 gate |
+| Pending AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 官方 AndroidWorld adapter 与 69.0% 报告 success；等待本项目 native smoke/reproduction |
 | Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 

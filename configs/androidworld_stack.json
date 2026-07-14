@@ -1,0 +1,53 @@
+{
+  "schema_version": "0.1.0",
+  "benchmark": {
+    "canonical_repo": "google-research/android_world",
+    "canonical_revision": "3e50888527ef9f29b9157ecd537e408008bb1c85",
+    "agent_repo": "X-PLUG/MobileAgent",
+    "agent_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+    "agent_path": "Mobile-Agent-v3.5/android_world_v3.5/android_world/agents/gui_owl.py"
+  },
+  "policy": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "license": "mit",
+    "architecture": "Qwen3VLForConditionalGeneration",
+    "status": "pinned_pending_native_smoke",
+    "reported_androidworld_success": 0.69,
+    "deterministic_generation": {
+      "do_sample": false
+    }
+  },
+  "native_context": {
+    "maximum_visible_images": 5,
+    "recent_history": "screenshot_and_executed_action",
+    "older_history": "executed_action_text",
+    "action_grammar": "mobile_use_tool_call",
+    "coordinate_range": [0, 1000]
+  },
+  "task_partition": {
+    "assignment": "int(sha256(task_name).hexdigest(), 16) % 10",
+    "train_buckets": [0, 1, 2, 3, 4, 5],
+    "validation_buckets": [6, 7],
+    "test_buckets": [8, 9],
+    "train_suite_seed": 314159,
+    "validation_suite_seed": 271828,
+    "test_suite_seed": 161803,
+    "train_task_combinations": 3,
+    "validation_task_combinations": 2,
+    "test_task_combinations": 3
+  },
+  "gates": {
+    "finite_token_logits": true,
+    "minimum_action_parse_coverage": 0.95,
+    "minimum_validation_task_success": 0.5,
+    "no_prompt_or_equivalence_tuning_after_validation_starts": true
+  },
+  "compute_preflight": {
+    "host": "aries",
+    "architecture": "x86_64",
+    "kvm_available": true,
+    "docker_server_version": "27.2.1",
+    "maximum_policy_gpus": 1
+  }
+}

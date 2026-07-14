@@ -1,0 +1,20 @@
+{
+  "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+  "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+  "files": [
+    {"path": "chat_template.json", "size": 5499, "sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce"},
+    {"path": "config.json", "size": 1468, "sha256": "e36c10d2850778887b13b6874174c669773be7e1f024e9d1d04f02315674ad0a"},
+    {"path": "generation_config.json", "size": 214, "sha256": "29d2f9cebb08e5a8d0312d42f20018c4cda80dc3f53feb0989f6fabe0319eed9"},
+    {"path": "merges.txt", "size": 1671839, "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3"},
+    {"path": "model-00001-of-00004.safetensors", "size": 4902275944, "sha256": "49e63303f03a7c18ffd96bbad8690d456d030f90aa30b6c7e22bdba7ed1245cc"},
+    {"path": "model-00002-of-00004.safetensors", "size": 4915962496, "sha256": "720626319c03380ca7010cc1f7bf5fd42b89dbfa9e72b435d1c7aff7cfb67fb3"},
+    {"path": "model-00003-of-00004.safetensors", "size": 4999831048, "sha256": "bb506b267b3952461a5b2d90c58e9dbcd017a0000944dda76a9cfadd29d38665"},
+    {"path": "model-00004-of-00004.safetensors", "size": 2716270024, "sha256": "7944b039da7fa9c6cf59c2eb0a495a262e4e12c5bf4bf2bf75c5a5d90abfc847"},
+    {"path": "model.safetensors.index.json", "size": 67759, "sha256": "520b2e05079402e9468a8701d03d1154d14b2599593afb6effa7fb60c1bff070"},
+    {"path": "preprocessor_config.json", "size": 390, "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516"},
+    {"path": "tokenizer.json", "size": 7032403, "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7"},
+    {"path": "tokenizer_config.json", "size": 10868, "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399"},
+    {"path": "video_preprocessor_config.json", "size": 386, "sha256": "f38c890c32e0c037969b33be7693b2a51464695378b223418db5262a6da43fa0"},
+    {"path": "vocab.json", "size": 2776833, "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910"}
+  ]
+}

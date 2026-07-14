@@ -20,6 +20,7 @@ Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-
 | [UI-TARS-1.5-7B](https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B) | Apache-2.0 / Qwen2.5-VL | 官方 mobile action grammar、GUI agent tuning、标准 Transformers | 拒绝：pilot full-history match 4/9，低于预注册 50% gate |
 | [ShowUI-2B](https://huggingface.co/showlab/ShowUI-2B) | MIT / Qwen2-VL | 仅 2B、原生 phone navigation grammar、logits 可用 | 拒绝：pilot full-history match 2/9 |
 | [OpenCUA-7B](https://huggingface.co/xlangai/OpenCUA-7B) | MIT / custom code | computer-use tuning、公开权重 | 拒绝：pilot full-history match 1/9 |
+| [GUI-Owl-1.5-8B-Instruct](https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct) | MIT / Qwen3-VL | 官方 AndroidWorld adapter、原生 5-image history、logits 可用 | 新 benchmark-native stack；等待 native smoke/reproduction gate |
 
 ## UI-TARS 冻结配置
 
@@ -125,3 +126,14 @@ forward 返回 `[1, 695, 151936]` finite logits，峰值显存不超过 4.45 GiB
 四个已登记 candidate 均未通过 gate。按预注册停止规则，不继续为当前单轨迹枚举相似
 backbone，也不事后调整 prompt、坐标容差或 threshold；下一步重新选择 benchmark-native
 policy/evaluation stack，并要求独立 held-out validation 与合法 token-logit access。
+
+## AndroidWorld-native successor
+
+新的 stack 固定 `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`。
+它不参加已结束的 GUIOdyssey gate，而是在 pinned AndroidWorld registry 的独立 validation
+partition 上按原生 adapter 复现。官方 adapter 保留最近 5 张截图并把更早 action 转为
+文本，直接提供 mixed-fidelity history 接口；模型卡报告 AndroidWorld success 69.0%。
+
+模型只有在 finite-logit/native parser smoke、emulator/reward smoke，以及预注册的至少
+95% parse coverage 和 50% validation task success 都通过后，才会写入主 experiment
+contract。完整 provenance、task split 与停止规则见 `docs/androidworld_stack.md`。
