@@ -1,0 +1,253 @@
+{
+  "base_url": "http://172.17.0.1:5000",
+  "elapsed_seconds": 78.675,
+  "environment_runtime": {
+    "agent_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+    "server_image": "causalcache-androidworld:11cea575-executor1",
+    "server_image_sha256": "542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+    "server_json_action": "android_world.agents.new_json_action"
+  },
+  "environment_success": true,
+  "health": {
+    "status": "success"
+  },
+  "initialize": {
+    "message": "Task ClockStopWatchPausedVerify 0 initialized.",
+    "status": "success"
+  },
+  "instance": {
+    "complexity": 1.0,
+    "goal": "Pause the stopwatch.",
+    "max_steps": 10,
+    "start_on_home_screen": true,
+    "task_index": 0,
+    "task_type": "ClockStopWatchPausedVerify",
+    "template": "Pause the stopwatch."
+  },
+  "model_step_count": 4,
+  "official_success": true,
+  "parse_coverage": 1.0,
+  "parse_success_count": 4,
+  "policy": {
+    "device": "cuda:0",
+    "do_sample": false,
+    "dtype": "bfloat16",
+    "load_seconds": 4.324023290537298,
+    "max_new_tokens": 256,
+    "maximum_visible_images": 5,
+    "model_class": "Qwen3VLForConditionalGeneration",
+    "processor_class": "Qwen3VLProcessor",
+    "snapshot": {
+      "files": [
+        {
+          "path": "chat_template.json",
+          "sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce",
+          "size": 5499
+        },
+        {
+          "path": "config.json",
+          "sha256": "e36c10d2850778887b13b6874174c669773be7e1f024e9d1d04f02315674ad0a",
+          "size": 1468
+        },
+        {
+          "path": "generation_config.json",
+          "sha256": "29d2f9cebb08e5a8d0312d42f20018c4cda80dc3f53feb0989f6fabe0319eed9",
+          "size": 214
+        },
+        {
+          "path": "merges.txt",
+          "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+          "size": 1671839
+        },
+        {
+          "path": "model-00001-of-00004.safetensors",
+          "sha256": "49e63303f03a7c18ffd96bbad8690d456d030f90aa30b6c7e22bdba7ed1245cc",
+          "size": 4902275944
+        },
+        {
+          "path": "model-00002-of-00004.safetensors",
+          "sha256": "720626319c03380ca7010cc1f7bf5fd42b89dbfa9e72b435d1c7aff7cfb67fb3",
+          "size": 4915962496
+        },
+        {
+          "path": "model-00003-of-00004.safetensors",
+          "sha256": "bb506b267b3952461a5b2d90c58e9dbcd017a0000944dda76a9cfadd29d38665",
+          "size": 4999831048
+        },
+        {
+          "path": "model-00004-of-00004.safetensors",
+          "sha256": "7944b039da7fa9c6cf59c2eb0a495a262e4e12c5bf4bf2bf75c5a5d90abfc847",
+          "size": 2716270024
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sha256": "520b2e05079402e9468a8701d03d1154d14b2599593afb6effa7fb60c1bff070",
+          "size": 67759
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+          "size": 390
+        },
+        {
+          "path": "tokenizer.json",
+          "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+          "size": 7032403
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+          "size": 10868
+        },
+        {
+          "path": "video_preprocessor_config.json",
+          "sha256": "f38c890c32e0c037969b33be7693b2a51464695378b223418db5262a6da43fa0",
+          "size": 386
+        },
+        {
+          "path": "vocab.json",
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+          "size": 2776833
+        }
+      ],
+      "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc"
+    },
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0",
+    "visual_patch_factor": 32,
+    "visual_tokens_per_image": 256
+  },
+  "policy_declared_done": true,
+  "reset": {
+    "message": "Environment reset with go_home=True.",
+    "status": "success"
+  },
+  "schema_version": "0.1.0",
+  "score_after": 1.0,
+  "score_before": 0.0,
+  "screenshots": [
+    {
+      "height": 2400,
+      "pixel_sha256": "ed7b696b1e4c2a48d2c1be012e00ac8128bf9269d51fad1fbc1aeda77e6a13fb",
+      "response_bytes": 31130990,
+      "width": 1080
+    },
+    {
+      "height": 2400,
+      "pixel_sha256": "7e59c6e68f8fe2aa818df923a8f065059fcdded77ce9cb1721d70166a53db624",
+      "response_bytes": 28862610,
+      "width": 1080
+    },
+    {
+      "height": 2400,
+      "pixel_sha256": "520648438a3b44425d9399049284d56bf1ef9852da431ee1618fbd99aaeb7f5d",
+      "response_bytes": 29013998,
+      "width": 1080
+    },
+    {
+      "height": 2400,
+      "pixel_sha256": "27fb4d9c612a4e67b01c95378018024586d1468f915e942081fc010801046e92",
+      "response_bytes": 28821467,
+      "width": 1080
+    }
+  ],
+  "started_at": "2026-07-14T14:54:45.054175+00:00",
+  "steps": [
+    {
+      "androidworld_action": {
+        "action_type": "click",
+        "x": 280,
+        "y": 406
+      },
+      "execute_response": {
+        "message": "Action JSONAction(action_type='click', x=280, y=406) executed.",
+        "status": "success"
+      },
+      "generation": {
+        "generated_tokens": 45,
+        "image_count": 1,
+        "input_tokens": 1179,
+        "latency_seconds": 2.4585473416373134,
+        "output_text": "Action: Click on the \"Paused\" status indicator.\n<tool_call>\n{\"name\": \"mobile_use\", \"arguments\": {\"action\": \"click\", \"coordinate\": [259, 169]}}\n</tool_call>",
+        "peak_gpu_memory_bytes": 17878038016
+      },
+      "step_index": 0
+    },
+    {
+      "androidworld_action": {
+        "action_type": "click",
+        "x": 552,
+        "y": 1986
+      },
+      "execute_response": {
+        "message": "Action JSONAction(action_type='click', x=552, y=1986) executed.",
+        "status": "success"
+      },
+      "generation": {
+        "generated_tokens": 46,
+        "image_count": 2,
+        "input_tokens": 1465,
+        "latency_seconds": 1.993517380207777,
+        "output_text": "Action: Click the blue circular button with the play icon.\n<tool_call>\n{\"name\": \"mobile_use\", \"arguments\": {\"action\": \"click\", \"coordinate\": [511, 827]}}\n</tool_call>",
+        "peak_gpu_memory_bytes": 17967611392
+      },
+      "step_index": 1
+    },
+    {
+      "androidworld_action": {
+        "action_type": "click",
+        "x": 552,
+        "y": 1986
+      },
+      "execute_response": {
+        "message": "Action JSONAction(action_type='click', x=552, y=1986) executed.",
+        "status": "success"
+      },
+      "generation": {
+        "generated_tokens": 47,
+        "image_count": 3,
+        "input_tokens": 1752,
+        "latency_seconds": 2.204870879650116,
+        "output_text": "Action: Click the pause button in the center of the screen.\n<tool_call>\n{\"name\": \"mobile_use\", \"arguments\": {\"action\": \"click\", \"coordinate\": [511, 827]}}\n</tool_call>",
+        "peak_gpu_memory_bytes": 18084508160
+      },
+      "step_index": 2
+    },
+    {
+      "androidworld_action": {
+        "action_type": "status",
+        "goal_status": "task_complete"
+      },
+      "execute_response": {
+        "message": "Action JSONAction(action_type='status', goal_status='task_complete') executed.",
+        "status": "success"
+      },
+      "generation": {
+        "generated_tokens": 38,
+        "image_count": 4,
+        "input_tokens": 2040,
+        "latency_seconds": 1.81056450586766,
+        "output_text": "Action: Terminate the process as the task is finished.\n<tool_call>\n{\"name\": \"mobile_use\", \"arguments\": {\"action\": \"terminate\", \"status\": \"success\"}}\n</tool_call>",
+        "peak_gpu_memory_bytes": 18150696448
+      },
+      "step_index": 3
+    }
+  ],
+  "suite_reinitialize": {
+    "message": "Task suite re-initialized with n_task_combinations=2, seed=271828.",
+    "status": "success"
+  },
+  "tear_down": {
+    "message": "Task ClockStopWatchPausedVerify 0 torn down.",
+    "status": "success"
+  },
+  "terminal_success": true,
+  "termination_reason": "policy_terminated",
+  "validation_plan": {
+    "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+    "path": "configs/androidworld_validation_plan.json",
+    "suite_seed": 271828,
+    "task_combinations": 2
+  }
+}

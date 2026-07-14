@@ -12,7 +12,7 @@
     "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
     "license": "mit",
     "architecture": "Qwen3VLForConditionalGeneration",
-    "status": "task_partition_frozen_pending_validation_rollout",
+    "status": "single_validation_smoke_passed_pending_full_validation",
     "reported_androidworld_success": 0.69,
     "deterministic_generation": {
       "do_sample": false
@@ -24,6 +24,12 @@
     "older_history": "executed_action_text",
     "action_grammar": "mobile_use_tool_call",
     "coordinate_range": [0, 1000]
+  },
+  "server_transport": {
+    "image": "causalcache-androidworld:11cea575-executor1",
+    "image_sha256": "542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+    "json_action_schema": "android_world.agents.new_json_action",
+    "four_coordinate_swipe_smoke": true
   },
   "task_partition": {
     "assignment": "int(sha256(task_name).hexdigest(), 16) % 10",
@@ -50,6 +56,16 @@
     "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
     "minimum_step_budget": 10,
     "maximum_step_budget": 60
+  },
+  "validation_smoke": {
+    "task_type": "ClockStopWatchPausedVerify",
+    "task_index": 0,
+    "model_step_count": 4,
+    "parse_coverage": 1.0,
+    "environment_success": true,
+    "policy_declared_done": true,
+    "official_success": true,
+    "result": "results/gui_owl_androidworld_validation_smoke/summary.json"
   },
   "compute_preflight": {
     "host": "aries",

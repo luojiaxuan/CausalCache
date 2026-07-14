@@ -32,6 +32,11 @@ tokens，均得到 finite logits 和唯一合法 click；峰值 allocated GPU me
 `results/androidworld_environment_smoke/`。candidate 仍需通过 task partition 与 validation
 task-success gates，尚未写入主 experiment contract。
 
+冻结 validation plan 上的 `ClockStopWatchPausedVerify[0]` 单实例 closed-loop smoke 已通过：
+4/4 outputs parsed，policy 明确 terminate，environment reward 与 AndroidWorld 官方 success 均为 1。
+结果见 `results/gui_owl_androidworld_validation_smoke/`。这只关闭执行链路，不替代 62-instance
+validation gate。
+
 ## Pinned benchmark code
 
 - Canonical AndroidWorld：`google-research/android_world@3e50888527ef9f29b9157ecd537e408008bb1c85`
@@ -110,6 +115,14 @@ setuptools。因 Ubuntu 的 `python3-wheel` 只安装给系统 Python 3.10，ove
 Python 3.11 环境预装 `wheel==0.45.1` 与 upstream `setup.py` 已声明的
 `grpcio-tools==1.71.0`。构建工具 uv 固定为首次构建观测到的 `0.11.28`。这些修复
 不改动 AndroidWorld Python 源码或 runtime dependency constraints。
+
+MobileAgent HTTP server 另有一个 fork 内部 schema mismatch：原始 server 导入旧
+`android_world.env.json_action`，但同 revision 的 GUI-Owl converter 产生四坐标 swipe，只被
+`android_world.agents.new_json_action` 接受。构建 context 通过
+`scripts/prepare_androidworld_server.py` 做单行 fail-closed import replacement；修复 image ID 为
+`sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486`，正式 episode 前的
+四坐标 swipe transport smoke 已通过。该修复保持 action coordinates 不变，只关闭 transport
+schema 差异。
 
 upstream wheel 只安装顶层 `android_world`，漏掉 `task_evals` 等子包；官方 server 能运行是因为
 Docker entrypoint 的工作目录 `/` 包含完整 COPY 源码。validation plan builder 因此也必须在该

@@ -182,6 +182,22 @@
 - 计划见 `configs/androidworld_validation_plan.json`，下一步只跑单个 validation instance 的
   GUI-Owl closed-loop smoke。
 
+### 2026-07-14：GUI-Owl 单实例 AndroidWorld closed-loop smoke
+
+- 首次 `SystemWifiTurnOn[0]` 尝试在 policy generation 前暴露 upstream a11y reset failure；保留
+  官方 `initialize_task → agent.reset` 顺序，没有为通过 smoke 跳过 reset；
+- `ClockStopWatchPausedVerify[0]` 首条模型动作暴露 MobileAgent HTTP server 的 JSONAction schema
+  mismatch：旧 schema 拒绝四坐标 swipe；新增 fail-closed build-context patch，与 pinned GUI-Owl
+  converter 的 `new_json_action` 对齐；
+- 修复 image `sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486`
+  已通过独立四坐标 swipe transport smoke；
+- 最终 frozen-policy episode 从 reward 0 开始，4/4 outputs parsed，3 个 click 与 1 个
+  `status/task_complete` 全部执行成功，policy 明确 done，最终 reward 与官方 success 均为 1；
+- 单实例耗时 78.675 秒，最多 4 张可见截图、2,040 input tokens、16.90 GiB peak allocated GPU
+  memory；完整 trace 见 `results/gui_owl_androidworld_validation_smoke/`；
+- 该结果只允许进入完整 62-instance validation rollout，不接受 GUI-Owl 为主 teacher，也不构成
+  CausalCache 方法效果证据。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -190,7 +206,7 @@
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
-- Pending AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native 与 environment/reward smoke 已通过，等待 task partition 与 validation success gate；
+- Pending AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；单实例 official-success smoke 已通过，等待完整 62-instance validation gate；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
