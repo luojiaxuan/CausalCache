@@ -60,7 +60,7 @@ def build_policy_messages(
                     {"type": "image", "image": image_loader(event["observation_before_path"])},
                     {
                         "type": "text",
-                        "text": f"Executed action: {_json_text(event['executed_action'])}. After action:",
+                        "text": f"Executed action: {_json_text(event['source_tool_call'])}. After action:",
                     },
                     {"type": "image", "image": image_loader(event["observation_after_path"])},
                 ]

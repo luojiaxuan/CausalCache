@@ -1,4 +1,4 @@
-# CausalCache 实验契约 v0.2
+# CausalCache 实验契约 v0.3
 
 本文档冻结第一轮实验的对象、干预、预算和判定标准。后续如果修改这些定义，必须同时修改 `configs/phase0_contract.json`、对应测试和论文，并在 `docs/progress.md` 记录原因。
 
@@ -26,7 +26,7 @@ deterministic_ui_delta
 result_status
 ```
 
-高保真 archive event 额外记录 action 前后截图 URI、结构化 executable action、visual-token cost 和可选廉价视觉 embedding URI。URI 必须稳定指向 Git/Hugging Face 中记录的 artifact 或测试 fixture；本地临时路径不能被写成 canonical location。
+高保真 archive event 额外记录 action 前后截图 URI、原始 action arguments、规范化 executable action、visual-token cost 和可选廉价视觉 embedding URI。低保真表示只暴露 coarse target；恢复高保真事件时必须恢复原始 action arguments，不能用 coarse canonical action 冒充原始动作。URI 必须稳定指向 Git/Hugging Face 中记录的 artifact 或测试 fixture；本地临时路径不能被写成 canonical location。
 
 ## 3. Validated Reference Policy
 

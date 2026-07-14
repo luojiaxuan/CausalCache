@@ -37,7 +37,7 @@
 - 实现 tap、long press、type、swipe、system button 的 executable canonicalization，以及 action 与 terminal signal 分离；
 - 生成 10 screenshots、9 events、9 decisions 的 deterministic tar shard，连续两次构建 SHA256 一致；
 - 明确拒绝失败轨迹，且 policy-visible manifest 不包含 expert inline reasoning；
-- 上传到私有 Hugging Face dataset；当前 canonical revision 为 `dd65d55279d6467ae5d797d002a7b6b32ab92ee5`；
+- 上传到私有 Hugging Face dataset；当前 canonical revision 为 `1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - 该 artifact 只验证真实数据接口，不构成 restoration 或任务成功率证据。
 
 ### 2026-07-14：Qwen3-VL real-policy forward smoke
@@ -51,9 +51,9 @@
 ### 2026-07-14：Qwen3-VL full-history coverage（negative result）
 
 - 在同一成功 trajectory 的全部 9 个 decisions 上运行 full-history deterministic generation；
-- 9 个输出中 6 个满足 executable JSON schema；decision step 4 的 `type_text` 和 step 8 的 `swipe` 与 recorded action 匹配；
+- schema v0.3 输入下，9 个输出中 8 个满足 executable JSON schema；decision step 4 的 `type_text` 和 step 8 的 `swipe` 与 recorded action 匹配；
 - 在 schema v0.2 executable equivalence 下，tap 为 0/7、swipe 为 1/1、type_text 为 1/1，总 coverage 为 2/9（22.2%）；
-- 3 个长历史状态输出 non-executable canonical target，另外 4 个 tap 的 coordinate bin 不匹配；
+- 1 个状态输出 unsupported `click` alias，另外 6 个 tap 的 coordinate bin 不匹配；
 - 按预注册 validation contract，拒绝 Qwen3-VL-8B-Instruct 作为主 frozen teacher，不放宽标准；
 - 结果见 `results/qwen_policy_coverage/`。这不是对 CausalCache 机制的 falsification，而是 backbone selection 的负结果。
 
@@ -64,10 +64,17 @@
 - 重建 deterministic pilot、更新私有 HF revision，并在相同规则下重跑 Qwen3-VL coverage；
 - 该修改在 UI-TARS coverage 前完成，避免为新 candidate 事后放宽验证。
 
+### 2026-07-14：High-fidelity action contract v0.3
+
+- 发现 archived raw tool call 已保存，但 high-fidelity policy prompt 错误地只暴露 coarse canonical target；
+- high-fidelity event 现显式包含并暴露原始 action arguments，low-fidelity event 仍只暴露 coordinate bin 或 scroll direction；
+- 重建 deterministic pilot、更新私有 HF revision，并最后一次重跑 Qwen3-VL consistency coverage；
+- Qwen3-VL coverage 仍为 2/9，因此 rejection 决策不变。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
-- GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@dd65d55279d6467ae5d797d002a7b6b32ab92ee5`；
+- GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；

@@ -8,19 +8,19 @@
 
 | Action type | Decisions | Parseable | Matches | Coverage |
 | --- | ---: | ---: | ---: | ---: |
-| tap | 7 | 4 | 0 | 0% |
+| tap | 7 | 6 | 0 | 0% |
 | swipe | 1 | 1 | 1 | 100% |
 | type_text | 1 | 1 | 1 | 100% |
-| overall | 9 | 6 | 2 | 22.2% |
+| overall | 9 | 8 | 2 | 22.2% |
 
-3 个长历史状态输出了 `target: coordinate_bin:*`，而不是约定的可执行 coordinate，因此按预注册 contract 记为 parse failure。其余 4 个 tap 虽然可解析，但 target coordinate bin 不匹配。不能通过放宽验证标准把这些状态加入 attribution 数据。
+1 个状态输出了 unsupported `click` alias，因此按预注册 contract 记为 parse failure。其余 6 个 tap 虽然可解析，但 target coordinate bin 不匹配。不能通过放宽验证标准把这些状态加入 attribution 数据。
 
 该结果只拒绝此通用 backbone 作为主 teacher，不是否定 CausalCache 方法。完整记录见 [`summary.json`](summary.json)。
 
 ## 资源范围
 
 - Visual tokens：每张图 256
-- 最大 full-history input：4,033 tokens
+- 最大 full-history input：4,067 tokens
 - 最大 peak allocated GPU memory：18.84 GB
 - Runtime：单张 NVIDIA RTX A6000、bfloat16、PyTorch 2.11.0+cu130、Transformers 5.6.0
 

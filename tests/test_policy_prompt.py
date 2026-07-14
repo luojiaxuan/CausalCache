@@ -15,6 +15,9 @@ class PolicyPromptTest(unittest.TestCase):
                         "observation_before_path": "before.png",
                         "observation_after_path": "after.png",
                         "executed_action": {"action_type": "tap", "target": "coordinate_bin:x1_y2"},
+                        "source_tool_call": {
+                            "function": {"name": "tap", "arguments": {"coordinate": [100, 200]}}
+                        },
                         "low_fidelity": {
                             "step_id": 1,
                             "action_type": "tap",

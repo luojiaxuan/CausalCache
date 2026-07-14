@@ -155,7 +155,9 @@ The deterministic low-fidelity record contains
 step\_id, action\_type, target\_text\_or\_coordinate\_bin,\newline
 deterministic\_ui\_delta, result\_status.
 \end{quote}
-The archive stores the original screenshots, action, UI delta, and metadata.
+The archive stores the original screenshots, raw action arguments, canonical
+action, UI delta, and metadata. Restoring an event exposes the raw arguments;
+the coarse target remains exclusive to its low-fidelity record.
 The gate may additionally use a precomputed cheap visual embedding $z_j$; this
 avoids asking the summary alone to predict the importance of information that
 the summary necessarily omitted. The action policy receives mixed-fidelity

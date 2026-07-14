@@ -10,7 +10,7 @@
       "coverage": 0.0,
       "decisions": 7,
       "matches": 0,
-      "parsed": 4
+      "parsed": 6
     },
     "type_text": {
       "coverage": 1.0,
@@ -72,17 +72,17 @@
       "executable_match": false,
       "generated_tokens": 18,
       "history_events": 1,
-      "input_tokens": 779,
-      "latency_seconds": 0.8506771503016353,
-      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[719, 126]}",
+      "input_tokens": 783,
+      "latency_seconds": 0.8250215984880924,
+      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[312, 126]}",
       "parse_error": null,
       "parsed_action": {
         "action_type": "tap",
-        "target": "coordinate_bin:x7_y1",
+        "target": "coordinate_bin:x3_y1",
         "text_argument": null,
         "text_case_sensitive": false
       },
-      "peak_gpu_memory_bytes": 17834381312,
+      "peak_gpu_memory_bytes": 17834612736,
       "validated_action": {
         "action_type": "tap",
         "target": "coordinate_bin:x8_y9",
@@ -95,17 +95,12 @@
       "executable_match": false,
       "generated_tokens": 18,
       "history_events": 2,
-      "input_tokens": 1186,
-      "latency_seconds": 0.9041317468509078,
-      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[222, 130]}",
-      "parse_error": null,
-      "parsed_action": {
-        "action_type": "tap",
-        "target": "coordinate_bin:x2_y1",
-        "text_argument": null,
-        "text_case_sensitive": false
-      },
-      "peak_gpu_memory_bytes": 17928811520,
+      "input_tokens": 1194,
+      "latency_seconds": 0.8653698470443487,
+      "output_text": "{\"action_type\":\"click\",\"coordinate\":[237, 130]}",
+      "parse_error": "unsupported policy action type: click",
+      "parsed_action": null,
+      "peak_gpu_memory_bytes": 17931494400,
       "validated_action": {
         "action_type": "tap",
         "target": "coordinate_bin:x1_y1",
@@ -118,8 +113,8 @@
       "executable_match": true,
       "generated_tokens": 14,
       "history_events": 3,
-      "input_tokens": 1593,
-      "latency_seconds": 0.8640864137560129,
+      "input_tokens": 1605,
+      "latency_seconds": 0.8344157664105296,
       "output_text": "{\"action_type\":\"type_text\",\"text\":\"Cryptocurrency Market\"}",
       "parse_error": null,
       "parsed_action": {
@@ -128,7 +123,7 @@
         "text_argument": "Cryptocurrency Market",
         "text_case_sensitive": false
       },
-      "peak_gpu_memory_bytes": 18091704832,
+      "peak_gpu_memory_bytes": 18093753344,
       "validated_action": {
         "action_type": "type_text",
         "target": "text_field_unknown",
@@ -139,11 +134,11 @@
     {
       "decision_step_id": 5,
       "executable_match": false,
-      "generated_tokens": 18,
+      "generated_tokens": 17,
       "history_events": 4,
-      "input_tokens": 2000,
-      "latency_seconds": 1.1046836590394378,
-      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[871, 871]}",
+      "input_tokens": 2006,
+      "latency_seconds": 1.0276066344231367,
+      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[869,875]}",
       "parse_error": null,
       "parsed_action": {
         "action_type": "tap",
@@ -151,7 +146,7 @@
         "text_argument": null,
         "text_case_sensitive": false
       },
-      "peak_gpu_memory_bytes": 18194423808,
+      "peak_gpu_memory_bytes": 18194058752,
       "validated_action": {
         "action_type": "tap",
         "target": "coordinate_bin:x8_y9",
@@ -164,9 +159,9 @@
       "executable_match": false,
       "generated_tokens": 18,
       "history_events": 5,
-      "input_tokens": 2407,
-      "latency_seconds": 1.1895891781896353,
-      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[347, 837]}",
+      "input_tokens": 2417,
+      "latency_seconds": 1.1555723017081618,
+      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[322, 846]}",
       "parse_error": null,
       "parsed_action": {
         "action_type": "tap",
@@ -174,7 +169,7 @@
         "text_argument": null,
         "text_case_sensitive": false
       },
-      "peak_gpu_memory_bytes": 18320576512,
+      "peak_gpu_memory_bytes": 18323879424,
       "validated_action": {
         "action_type": "tap",
         "target": "coordinate_bin:x3_y2",
@@ -185,14 +180,19 @@
     {
       "decision_step_id": 7,
       "executable_match": false,
-      "generated_tokens": 27,
+      "generated_tokens": 17,
       "history_events": 6,
-      "input_tokens": 2814,
-      "latency_seconds": 1.6238918593153358,
-      "output_text": "{\"action_type\":\"tap\",\"target\":\"coordinate_bin:x7_y1\",\"text_argument\":null,\"text_case_sensitive\":false}",
-      "parse_error": "'coordinate'",
-      "parsed_action": null,
-      "peak_gpu_memory_bytes": 18448550400,
+      "input_tokens": 2828,
+      "latency_seconds": 1.219739293679595,
+      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[757, 57]}",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x7_y0",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 18452115456,
       "validated_action": {
         "action_type": "tap",
         "target": "coordinate_bin:x8_y0",
@@ -205,9 +205,9 @@
       "executable_match": true,
       "generated_tokens": 31,
       "history_events": 7,
-      "input_tokens": 3221,
-      "latency_seconds": 1.8715612357482314,
-      "output_text": "{\"action_type\":\"swipe\",\"start_coordinate\":[524, 856],\"coordinate\":[524, 356]}",
+      "input_tokens": 3238,
+      "latency_seconds": 1.794383704662323,
+      "output_text": "{\"action_type\":\"swipe\",\"start_coordinate\":[576, 856],\"coordinate\":[576, 359]}",
       "parse_error": null,
       "parsed_action": {
         "action_type": "swipe",
@@ -215,7 +215,7 @@
         "text_argument": null,
         "text_case_sensitive": false
       },
-      "peak_gpu_memory_bytes": 18581715456,
+      "peak_gpu_memory_bytes": 18585185280,
       "validated_action": {
         "action_type": "swipe",
         "target": "scroll:down",
@@ -226,14 +226,19 @@
     {
       "decision_step_id": 9,
       "executable_match": false,
-      "generated_tokens": 27,
+      "generated_tokens": 18,
       "history_events": 8,
-      "input_tokens": 3626,
-      "latency_seconds": 1.8313551153987646,
-      "output_text": "{\"action_type\":\"tap\",\"target\":\"coordinate_bin:x8_y8\",\"text_argument\":null,\"text_case_sensitive\":false}",
-      "parse_error": "'coordinate'",
-      "parsed_action": null,
-      "peak_gpu_memory_bytes": 18710231040,
+      "input_tokens": 3656,
+      "latency_seconds": 1.454930130392313,
+      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[819, 834]}",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x8_y8",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 18717745152,
       "validated_action": {
         "action_type": "tap",
         "target": "coordinate_bin:x7_y8",
@@ -244,14 +249,19 @@
     {
       "decision_step_id": 10,
       "executable_match": false,
-      "generated_tokens": 27,
+      "generated_tokens": 18,
       "history_events": 9,
-      "input_tokens": 4033,
-      "latency_seconds": 1.9307993287220597,
-      "output_text": "{\"action_type\":\"tap\",\"target\":\"coordinate_bin:x7_y5\",\"text_argument\":null,\"text_case_sensitive\":false}",
-      "parse_error": "'coordinate'",
-      "parsed_action": null,
-      "peak_gpu_memory_bytes": 18841492480,
+      "input_tokens": 4067,
+      "latency_seconds": 1.5581170041114092,
+      "output_text": "{\"action_type\":\"tap\",\"coordinate\":[767, 507]}",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x7_y5",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 18849100800,
       "validated_action": {
         "action_type": "tap",
         "target": "coordinate_bin:x7_y4",
@@ -263,7 +273,7 @@
   "model": {
     "device": "cuda:0",
     "dtype": "bfloat16",
-    "load_seconds": 2.6248314110562205,
+    "load_seconds": 3.6249685753136873,
     "model_class": "Qwen3VLForConditionalGeneration",
     "processor_class": "Qwen3VLProcessor",
     "snapshot": {
@@ -349,7 +359,7 @@
     "coverage": 0.2222222222222222,
     "decisions": 9,
     "matches": 2,
-    "parsed": 6
+    "parsed": 8
   },
   "schema_version": "0.1.0",
   "validation_mode": "full_history_executable_match",

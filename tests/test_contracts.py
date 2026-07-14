@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class ExperimentContractTest(unittest.TestCase):
     def test_phase0_contract_loads(self) -> None:
         contract = ExperimentContract.load(ROOT / "configs" / "phase0_contract.json")
-        self.assertEqual(contract.version, "0.2.0")
+        self.assertEqual(contract.version, "0.3.0")
         self.assertEqual(
             contract.distance.target_canonicalization,
             "ui_element_or_coordinate_bin_or_scroll_direction",

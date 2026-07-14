@@ -92,6 +92,10 @@ class GUIOdysseyTest(unittest.TestCase):
         serialized = json.dumps(manifest)
         self.assertNotIn("private expert rationale", serialized)
         self.assertEqual(len(manifest["trajectory"]["events"]), 1)
+        self.assertEqual(
+            manifest["trajectory"]["events"][0]["source_tool_call"]["function"]["arguments"]["coordinate"],
+            [100, 200],
+        )
         self.assertEqual(len(manifest["trajectory"]["decisions"]), 1)
         self.assertEqual(manifest["trajectory"]["terminal_status"], "success")
         self.assertEqual(len(images), 2)

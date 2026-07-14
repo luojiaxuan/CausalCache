@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.3.0",
   "source": {
     "upstream_repo": "hflqf88888/GUIOdyssey",
     "upstream_revision": "61632d0f3f4d51d7e9561ce4f84347dd06b2019d",
@@ -13,10 +13,10 @@
   },
   "artifact": {
     "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
-    "revision": "dd65d55279d6467ae5d797d002a7b6b32ab92ee5",
+    "revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
     "visibility": "private",
     "shard": "data/guiodyssey-pilot-00000.tar",
-    "shard_sha256": "db0fcc7762b5736a557f1393f8653bf2e7253b7bc2fcd3b62a80997bfa26491e"
+    "shard_sha256": "54399e28df381c2114c1422dedc1aed17f1bd15b320e636155a070e181c33e72"
   },
   "policy_candidate": {
     "repo": "Qwen/Qwen3-VL-8B-Instruct",

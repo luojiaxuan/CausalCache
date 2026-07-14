@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.3.0",
   "memory": {
     "budget_type": "policy_visible_context",
     "cost_unit": "visual_tokens",

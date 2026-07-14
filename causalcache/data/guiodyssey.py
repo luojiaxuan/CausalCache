@@ -211,6 +211,7 @@ def build_pilot_manifest(
                 "observation_before_path": image_paths[index],
                 "observation_after_path": image_paths[index + 1],
                 "executed_action": _action_dict(action),
+                "source_tool_call": raw_tools[index],
                 "low_fidelity": {
                     "step_id": index + 1,
                     "action_type": action.action_type.value,
@@ -234,7 +235,7 @@ def build_pilot_manifest(
         )
 
     manifest = {
-        "schema_version": "0.2.0",
+        "schema_version": "0.3.0",
         "dataset_repo": hf_destination,
         "source": {
             "upstream_repo": upstream_repo,
