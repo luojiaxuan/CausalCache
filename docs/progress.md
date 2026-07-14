@@ -350,6 +350,18 @@
 - 为避免提前观察后重复 validation 样本，不再另跑 `ClockStopWatchPausedVerify[0]`。完整 runner 的首个
   原子 checkpoint 同时作为 infrastructure canary，结果不得用于修改冻结协议。
 
+### 2026-07-14：AndroidWorld validation deterministic packaging
+
+- 新增 `scripts.package_androidworld_validation`，对完整或数学确定 early-stop summary、冻结 plan、
+  episode instance/index/filename/run contract 与聚合计数做 fail-closed 复核；
+- raw episode 按 `plan_index` 写成一个 canonical UTF-8、`mtime=0` 的 deterministic gzip JSONL shard，
+  避免把 resumable checkpoints 作为大量小文件上传；
+- HF stable repo 内按 `data/<policy-slug>/` 与 `runs/<policy-slug>/` 隔离 policy artifact；payload manifest
+  记录目标 repo/tag 和内容 SHA256，但不记录尚未产生的 HF OID，避免 revision 自引用；
+- 相同输入双重打包 byte-identical、early-stop 决定性与错误 contract 拒绝均已覆盖；当前全量 65 个
+  tests 与 contract validation 通过。该工具在正式 run Git commit 之后实现，只用于事后 artifact
+  packaging，不改变已运行的 policy、plan 或 gate。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
