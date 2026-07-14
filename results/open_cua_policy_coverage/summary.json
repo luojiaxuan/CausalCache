@@ -1,0 +1,473 @@
+{
+  "by_action_type": {
+    "swipe": {
+      "coverage": 0.0,
+      "decisions": 1,
+      "matches": 0,
+      "parsed": 1
+    },
+    "tap": {
+      "coverage": 0.14285714285714285,
+      "decisions": 7,
+      "matches": 1,
+      "parsed": 6
+    },
+    "type_text": {
+      "coverage": 0.0,
+      "decisions": 1,
+      "matches": 0,
+      "parsed": 0
+    }
+  },
+  "dataset": {
+    "apps": [
+      "BBC News",
+      "Threads"
+    ],
+    "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+    "source_id": "0054832199799795"
+  },
+  "decisions": [
+    {
+      "decision_step_id": 2,
+      "executable_match": false,
+      "generated_tokens": 123,
+      "history_events": 1,
+      "image_count": 3,
+      "input_tokens": 928,
+      "latency_seconds": 3.635924993082881,
+      "output_text": "# Step 1:\n## Thought:\nTo achieve the goal of searching for cryptocurrency market articles on BBC News, I need to navigate to the search functionality. The current state shows the BBC homepage, and the search icon is visible in the navigation bar. Clicking this icon will likely open a search interface where I can enter the search query. This is the logical next step to progress toward finding relevant articles.\n\n## Action:\nClick on the search icon in the top navigation bar of the BBC website.\n\n## Code:\n```python\npyautogui.click(x=219, y=28)\n```",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x4_y0",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 17015234560,
+      "validated_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x8_y9",
+        "text_argument": null,
+        "text_case_sensitive": false
+      }
+    },
+    {
+      "decision_step_id": 3,
+      "executable_match": false,
+      "generated_tokens": 139,
+      "history_events": 2,
+      "image_count": 5,
+      "input_tokens": 1459,
+      "latency_seconds": 5.153091792948544,
+      "output_text": "## Step 3:\n## Thought:\nThe task is to search for cryptocurrency market articles on BBC News. So far, I've accessed the BBC News website and navigated to the 'More BBC' section. The next logical step is to utilize the search bar to find relevant articles. Clicking on the search bar will allow me to enter the search query for cryptocurrency market articles. This action aligns with the goal of finding and sharing the desired content.\n\n## Action:\nClick on the search bar at the top of the BBC News page to begin entering a search query.\n\n## Code:\n```python\npyautogui.click(x=109, y(90))\n```",
+      "parse_error": "positional argument follows keyword argument (<unknown>, line 1)",
+      "parsed_action": null,
+      "peak_gpu_memory_bytes": 17231152128,
+      "validated_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x1_y1",
+        "text_argument": null,
+        "text_case_sensitive": false
+      }
+    },
+    {
+      "decision_step_id": 4,
+      "executable_match": false,
+      "generated_tokens": 134,
+      "history_events": 3,
+      "image_count": 7,
+      "input_tokens": 1990,
+      "latency_seconds": 4.6327805537730455,
+      "output_text": "# Step 3:\n## Thought:\nThe task is to search for cryptocurrency market articles on BBC News. The previous actions have successfully navigated to the search interface. The next logical step is to input the search term 'cryptocurrency' into the search bar. This will allow the application to display relevant articles. Typing 'cryptocurrency' and pressing enter will initiate the search, moving us closer to the goal of finding and sharing an article.\n\n## Action:\nType 'cryptocurrency' into the search bar and press enter to search for articles.\n\n## Code:\n```python\npyautogui.write(message='cryptocurrency')\npyautogui.press('enter')\n```",
+      "parse_error": "OpenCUA output contains 2 executable code lines",
+      "parsed_action": null,
+      "peak_gpu_memory_bytes": 17456074752,
+      "validated_action": {
+        "action_type": "type_text",
+        "target": "text_field_unknown",
+        "text_argument": "Cryptocurrency Market",
+        "text_case_sensitive": false
+      }
+    },
+    {
+      "decision_step_id": 5,
+      "executable_match": false,
+      "generated_tokens": 161,
+      "history_events": 4,
+      "image_count": 9,
+      "input_tokens": 2511,
+      "latency_seconds": 6.811665706336498,
+      "output_text": "# Step 5:\n## Thought:\nThe search term 'Cryptocurrency Market' has been successfully entered into the search bar, which is a crucial step toward finding relevant articles. The next logical step is to execute the search to display the results. The search button, located at the bottom right of the keyboard, is the appropriate target to initiate this action. Clicking this button will likely lead to a list of articles related to the cryptocurrency market, moving us closer to the goal of finding a suitable article to share on Threads.\n\n## Action:\nClick the search button (magnifying glass icon) at the bottom right of the keyboard to execute the search for 'Cryptocurrency Market'.\n\n## Code:\n```python\npyautogui.click(x=450, y=406)\n```",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x9_y9",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 17649160192,
+      "validated_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x8_y9",
+        "text_argument": null,
+        "text_case_sensitive": false
+      }
+    },
+    {
+      "decision_step_id": 6,
+      "executable_match": false,
+      "generated_tokens": 133,
+      "history_events": 5,
+      "image_count": 11,
+      "input_tokens": 3042,
+      "latency_seconds": 6.3283253107219934,
+      "output_text": "# Thought:\nThe search for 'Cryptocurrency Market' has been executed, and relevant articles are displayed. The article about Bitcoin's price reaching a new high is visible and seems suitable for sharing. The next logical step is to select this article to proceed with sharing it on Threads. The element at the center of the image patch is the headline of this article, which aligns with the task goal.\n\n## Action:\nClick on the article titled 'Bitcoin price briefly tops $69,000 for new high' to open it.\n\n## Code:\n```python\npyautogui.click(x=209, y=377)\n```",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x4_y9",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 17858310144,
+      "validated_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x3_y2",
+        "text_argument": null,
+        "text_case_sensitive": false
+      }
+    },
+    {
+      "decision_step_id": 7,
+      "executable_match": true,
+      "generated_tokens": 134,
+      "history_events": 6,
+      "image_count": 13,
+      "input_tokens": 3573,
+      "latency_seconds": 6.941077000461519,
+      "output_text": "Thought: The task is to share a suitable article on Threads. The current article is not directly related to cryptocurrency, but the 'Share' button is visible, which is necessary for sharing. The next logical step is to click the 'Share' button to open sharing options. This action aligns with the goal of sharing the article, even if it's not the ideal one. Clicking 'Share' will likely open a menu with various sharing options, including Threads.\n\nAction: Click the 'Share' button located at the top of the article page.\n\nCode:\n```python\npyautogui.click(x=405, y=31)\n```",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x8_y0",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 18069276672,
+      "validated_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x8_y0",
+        "text_argument": null,
+        "text_case_sensitive": false
+      }
+    },
+    {
+      "decision_step_id": 8,
+      "executable_match": false,
+      "generated_tokens": 98,
+      "history_events": 7,
+      "image_count": 15,
+      "input_tokens": 4103,
+      "latency_seconds": 6.383038303814828,
+      "output_text": "# Thought:\nThe task is to share the article on Threads. The sharing dialog is open, and the Threads icon is visible. The next logical step is to select the Threads icon to proceed with sharing the article. This aligns with the goal of sharing the article on Threads.\n\n# Action:\nClick on the Threads icon in the sharing dialog to share the article.\n\n# Code:\n```python\npyautogui.click(x=407, y=266)\n```",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x8_y6",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 18281644544,
+      "validated_action": {
+        "action_type": "swipe",
+        "target": "scroll:down",
+        "text_argument": null,
+        "text_case_sensitive": false
+      }
+    },
+    {
+      "decision_step_id": 9,
+      "executable_match": false,
+      "generated_tokens": 100,
+      "history_events": 8,
+      "image_count": 17,
+      "input_tokens": 4641,
+      "latency_seconds": 6.909993967041373,
+      "output_text": "# Thought:\nThe task is to share the article on Threads. The sharing menu is open, and the Threads app icon is visible. The next logical step is to select the Threads app to proceed with sharing the article. This aligns with the goal of sharing the article on Threads.\n\n# Action:\nClick on the Threads app icon in the sharing menu to share the article.\n\n# Code:\n```python\npyautogui.click(x=513, y=357)\n```",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x9_y9",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 18495187456,
+      "validated_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x7_y8",
+        "text_argument": null,
+        "text_case_sensitive": false
+      }
+    },
+    {
+      "decision_step_id": 10,
+      "executable_match": false,
+      "generated_tokens": 107,
+      "history_events": 9,
+      "image_count": 19,
+      "input_tokens": 5172,
+      "latency_seconds": 7.853599742054939,
+      "output_text": "# Thought:\nThe task is to share the article on Threads. The previous actions have successfully navigated to the Threads sharing interface, and the article link is ready to be posted. The next logical step is to click the 'Post' button to share the article. This action will complete the task of sharing the article on Threads.\n\n# Action:\nClick the 'Post' button to share the article on Threads.\n\n# Code:\n```python\npyautogui.click(x=773, y=553)\n```",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x9_y9",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 18710405632,
+      "validated_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x7_y4",
+        "text_argument": null,
+        "text_case_sensitive": false
+      }
+    }
+  ],
+  "gate": {
+    "action_type_coverage_pass": false,
+    "configuration": {
+      "minimum_overall_coverage": 0.5,
+      "notes": "This gate only decides whether a backbone proceeds to the attribution pilot. Main experiments still report unfiltered coverage and use executable-match filtering per decision.",
+      "pilot_dataset": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+      "pilot_revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+      "present_action_types": [
+        "tap",
+        "swipe",
+        "type_text"
+      ],
+      "require_at_least_one_match_per_present_action_type": true,
+      "schema_version": "0.1.0",
+      "validation_mode": "full_history_executable_match"
+    },
+    "overall_coverage_pass": false,
+    "passed": false
+  },
+  "model": {
+    "device": "cuda:0",
+    "dtype": "bfloat16",
+    "load_seconds": 4.568588841706514,
+    "model_class": "OpenCUAForConditionalGeneration",
+    "processor_class": "OpenCUAProcessor",
+    "snapshot": {
+      "files": [
+        {
+          "path": "config.json",
+          "sha256": "77d22b5c7146bd9cb754942504ed248b2fa01d9ab500ee7bc6843331bca59ce9",
+          "size": 1890
+        },
+        {
+          "path": "configuration_opencua.py",
+          "sha256": "12892d04cf561ddf85fbb166088cf6ec2c3edbfed86152461a25ed82f14ef560",
+          "size": 1325
+        },
+        {
+          "path": "generation_config.json",
+          "sha256": "7f7048d857eb4ca4ce38041aba882715412935bbbc8d33230b9d7e3928099cb4",
+          "size": 51
+        },
+        {
+          "path": "model-1-of-28.safetensors",
+          "sha256": "9a3506c63d3baab868f3255e9b6cacf867085f17425d7fbe2da10c08b508d6e4",
+          "size": 2909257312
+        },
+        {
+          "path": "model-10-of-28.safetensors",
+          "sha256": "9d5048fcce0dc2edf4f2a62869027c8bdb8c69aa5020b05751b18b309d318966",
+          "size": 466117392
+        },
+        {
+          "path": "model-11-of-28.safetensors",
+          "sha256": "ca339d3bbb4c1b4768f1cc9b1a8ab84ecde16124d491ae4f90a236cd90e29cfd",
+          "size": 466117400
+        },
+        {
+          "path": "model-12-of-28.safetensors",
+          "sha256": "a434de8c0f522324f74cd8551ae2ed46834261bf046f53a4a05c895c6f050fda",
+          "size": 466117400
+        },
+        {
+          "path": "model-13-of-28.safetensors",
+          "sha256": "5fe22a8d394036292096af3f217ec408b2a65992e42c63dc47e32d3d043d52d5",
+          "size": 466117400
+        },
+        {
+          "path": "model-14-of-28.safetensors",
+          "sha256": "1c3b36c075870a155722182ac609fedd9cffbb0c8738283ef69932e507dbb7ff",
+          "size": 466117400
+        },
+        {
+          "path": "model-15-of-28.safetensors",
+          "sha256": "5803bb47a77cf9d35b454033757233476108ffc6ee51eae27d376ddb6d65192b",
+          "size": 466117400
+        },
+        {
+          "path": "model-16-of-28.safetensors",
+          "sha256": "1735b1d93e02fa3b09efe5bbbad1c5e606f9032b1cd86dd53b37239e8eeb7048",
+          "size": 466117400
+        },
+        {
+          "path": "model-17-of-28.safetensors",
+          "sha256": "f3e6962b08e4ad662b6d49ccaeb4ef74d47de175210414f17f53c69e02cce3ed",
+          "size": 466117400
+        },
+        {
+          "path": "model-18-of-28.safetensors",
+          "sha256": "48e412611842a2f5fa713e2ced535d99f9a94629bc51cbc59491caff7c218bf3",
+          "size": 466117400
+        },
+        {
+          "path": "model-19-of-28.safetensors",
+          "sha256": "dd789c2881931b0b7bd7824267219be98ffe6ac24b75b65f162ff43b7e957b65",
+          "size": 466117400
+        },
+        {
+          "path": "model-2-of-28.safetensors",
+          "sha256": "02fb3f50de744efc8a92c1d1eec805ff7e9c74a34bc48e6d7736d1dab2f42a15",
+          "size": 466117392
+        },
+        {
+          "path": "model-20-of-28.safetensors",
+          "sha256": "b62719ac9f79b4b4002e0ee6d88c1e347ecef2f58b9e9a5e1e36c86eea31012f",
+          "size": 466117400
+        },
+        {
+          "path": "model-21-of-28.safetensors",
+          "sha256": "f04560df629f1a464d554959535a8e432c969928ad00301e01825b952872e3c1",
+          "size": 466117400
+        },
+        {
+          "path": "model-22-of-28.safetensors",
+          "sha256": "f85cde5aad58c443f119e0a2a18f82643f632c8dd10267ed2ff5dfe293689deb",
+          "size": 466117400
+        },
+        {
+          "path": "model-23-of-28.safetensors",
+          "sha256": "a8cfeac6748d97ace65f2cba30bd503acae5581971cf8079516627329b2748db",
+          "size": 466117400
+        },
+        {
+          "path": "model-24-of-28.safetensors",
+          "sha256": "a9b95b68efe5db8cdb7da036436628c0bd22970d3bafdb8ad22be5dd9da4ae2a",
+          "size": 466117400
+        },
+        {
+          "path": "model-25-of-28.safetensors",
+          "sha256": "ab0258e3876489823db02595c0190b2bfa6d9b413bcbc86cdbb6cff33746fd3c",
+          "size": 466117400
+        },
+        {
+          "path": "model-26-of-28.safetensors",
+          "sha256": "e249da457081b255ede43cbed8ebcbdc50d232f4291b29ec182ebe8fce544859",
+          "size": 466117400
+        },
+        {
+          "path": "model-27-of-28.safetensors",
+          "sha256": "30dd9483797d65dfdff6f29cc177104ce5ce6bfe2189ba0d30790df96a3e8024",
+          "size": 466117400
+        },
+        {
+          "path": "model-28-of-28.safetensors",
+          "sha256": "538c7c84b26ca41215513bed9d06063c509caebbf5198778f2e08208a3745bbe",
+          "size": 1556119576
+        },
+        {
+          "path": "model-3-of-28.safetensors",
+          "sha256": "54ef58c5324cc5729bde30de5034c3915efe52ed4afd1253a2f97dcfb66c66a2",
+          "size": 466117392
+        },
+        {
+          "path": "model-4-of-28.safetensors",
+          "sha256": "87d7dc8980aed79389c2542b446bb5d0620017efcc8c75afea0810919b697aae",
+          "size": 466117392
+        },
+        {
+          "path": "model-5-of-28.safetensors",
+          "sha256": "9be48ae41eb09decd62222457b54781f293bff6a448c0aab97a1bd244b7e2164",
+          "size": 466117392
+        },
+        {
+          "path": "model-6-of-28.safetensors",
+          "sha256": "a7cdfc13104d94030b952dd03baa8b9a82e1b26428bf5975c2270d7371c40985",
+          "size": 466117392
+        },
+        {
+          "path": "model-7-of-28.safetensors",
+          "sha256": "d18ffa62e87fa0b9a3bba4510a2b3f9908af531030b157547a7f74a46d71ea5b",
+          "size": 466117392
+        },
+        {
+          "path": "model-8-of-28.safetensors",
+          "sha256": "e1f543fb327c4f50c905e10b78bfaf9f7109dae2b4278bef7c5f92987e8b41e8",
+          "size": 466117392
+        },
+        {
+          "path": "model-9-of-28.safetensors",
+          "sha256": "afb7644e9777f8f0020f5875a2a91b0e6f235f10309cebf173cfe726a81b365c",
+          "size": 466117392
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sha256": "f102efba627b3e16ff081d53dbd7b1580a8a4dcada9c247abad777da4bc0e779",
+          "size": 62895
+        },
+        {
+          "path": "modeling_opencua.py",
+          "sha256": "fb8fcf59150cd659d7cb54151f32b49e18bbd2c662fbe93daf78afc33f0a1b53",
+          "size": 24850
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sha256": "21abff07f35b4275d024954e6d8ee5867005d897ddee259ece6a08ba4b3a049c",
+          "size": 306
+        },
+        {
+          "path": "processing_opencua.py",
+          "sha256": "58198678600fd5a81aab6838321ab56b663f6f2c29918af1bac03ac2378b1b99",
+          "size": 14158
+        },
+        {
+          "path": "tiktoken.model",
+          "sha256": "b2b1b8dfb5cc5f024bafc373121c6aba3f66f9a5a0269e243470a1de16a33186",
+          "size": 2561218
+        },
+        {
+          "path": "tokenization_opencua.py",
+          "sha256": "7386c9fb5b45a5e5a63fab059dd3c4650c1a229d7e1ce5e14ead276e6be9f3db",
+          "size": 14151
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sha256": "d4e3fdefbdf32b8b1e16b9ead85ccc4b734d242be1ac83a0b9efdd194c3194f2",
+          "size": 6232
+        }
+      ],
+      "repo": "xlangai/OpenCUA-7B",
+      "revision": "a2efb7d2b104d477a4a2666a357e79550a28aafc"
+    },
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "4.53.0",
+    "trust_remote_code": true
+  },
+  "overall": {
+    "coverage": 0.1111111111111111,
+    "decisions": 9,
+    "matches": 1,
+    "parsed": 7
+  },
+  "schema_version": "0.1.0",
+  "validation_mode": "full_history_executable_match",
+  "visual_tokens_per_image": 256
+}

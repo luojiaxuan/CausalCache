@@ -19,7 +19,7 @@ Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-
 | [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | Apache-2.0 / Qwen3-VL | 标准 Transformers、multi-image、logits 可用 | 拒绝：pilot full-history match 2/9 |
 | [UI-TARS-1.5-7B](https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B) | Apache-2.0 / Qwen2.5-VL | 官方 mobile action grammar、GUI agent tuning、标准 Transformers | 拒绝：pilot full-history match 4/9，低于预注册 50% gate |
 | [ShowUI-2B](https://huggingface.co/showlab/ShowUI-2B) | MIT / Qwen2-VL | 仅 2B、GUI grounding 专用、logits 可用 | 后备；更偏 grounding，完整 action planning 风险较高 |
-| [OpenCUA-7B](https://huggingface.co/xlangai/OpenCUA-7B) | MIT / custom code | computer-use tuning、公开权重 | logits/multi-image smoke 通过；full-history gate 待运行 |
+| [OpenCUA-7B](https://huggingface.co/xlangai/OpenCUA-7B) | MIT / custom code | computer-use tuning、公开权重 | 拒绝：pilot full-history match 1/9 |
 
 ## UI-TARS 冻结配置
 
@@ -77,3 +77,15 @@ multimodal processor 要求 system message 也使用 typed content list。adapte
 与 full-history 各输出两个 PyAutoGUI call。单 decision contract 不允许 parser 静默取
 最后一个动作，因此 parser 现要求恰好一个 executable code line，多动作输出记为
 parse failure。mixed-fidelity 输出单个正确 `write` action，仍按原 contract 匹配。
+
+## OpenCUA-7B gate 结果
+
+- 结果：1/9（11.1%），远低于冻结的 50% overall threshold；
+- Parser coverage：7/9；
+- Action-type gate：失败，tap 1/7、swipe 0/1、type_text 0/1；
+- 计算可行性：3--19 images、最长 5,172 input tokens 均完成，峰值显存 18.71 GB；
+- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `results/open_cua_policy_coverage/`。
+
+下一步只剩 ShowUI-2B 这一已登记后备，但它主要是 grounding model。评估前必须先
+明确其 action-planning prompt 与 text/swipe 输出能力；若只能做 point grounding，则不应
+为了得到较高 tap 分数而把它冒充完整 frozen action policy。

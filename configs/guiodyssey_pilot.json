@@ -34,7 +34,7 @@
     "repo": "xlangai/OpenCUA-7B",
     "revision": "a2efb7d2b104d477a4a2666a357e79550a28aafc",
     "license": "mit",
-    "status": "logits_and_mixed_fidelity_smoke_passed_coverage_pending"
+    "status": "rejected_by_preregistered_gate_coverage_1_of_9"
   },
   "validation": {
     "pilot_filter": "successful_trajectory",
