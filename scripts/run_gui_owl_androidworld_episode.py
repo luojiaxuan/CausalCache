@@ -88,18 +88,23 @@ def apply_answer_followup_override(
     return action, False
 
 
-def run_episode(args: argparse.Namespace) -> dict[str, Any]:
+def run_episode(
+    args: argparse.Namespace,
+    *,
+    runtime: Any | None = None,
+) -> dict[str, Any]:
     plan = json.loads(args.validation_plan.read_text(encoding="utf-8"))
     instance = select_instance(
         plan,
         task_type=args.task_type,
         task_index=args.task_index,
     )
-    runtime = QwenPolicyRuntime(
-        model_dir=args.model_dir,
-        device=args.device,
-        visual_tokens_per_image=args.visual_tokens_per_image,
-    )
+    if runtime is None:
+        runtime = QwenPolicyRuntime(
+            model_dir=args.model_dir,
+            device=args.device,
+            visual_tokens_per_image=args.visual_tokens_per_image,
+        )
     summary: dict[str, Any] = {
         "schema_version": "0.1.0",
         "started_at": datetime.now(timezone.utc).isoformat(),
@@ -242,6 +247,7 @@ def run_episode(args: argparse.Namespace) -> dict[str, Any]:
             )
 
     summary["termination_reason"] = termination_reason
+    summary["run_status"] = "complete"
     summary["model_step_count"] = len(summary["steps"])
     summary["parse_success_count"] = parse_successes
     summary["parse_coverage"] = (

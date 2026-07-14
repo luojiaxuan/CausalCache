@@ -40,6 +40,16 @@ task length 移动 templates。Final test 在 validation gate 通过前保持 se
 成本统一截断；单任务链路 smoke 通过后，完整 validation runner 必须逐实例 checkpoint，允许安全
 续跑但不改变实例顺序或预算。
 
+完整 runner 使用多个相互隔离的 emulator worker 并行推进 episode，但只加载一个冻结 policy
+runtime；所有 generation 通过进程内 lock 串行执行，避免在同一张 GPU 上复制模型或并发改变
+推理语义。任务按 plan index 对 worker 做确定性 round-robin 分配。每个 episode 完成或抛出异常后，
+都会先原子写入 `episodes/<plan-index>-<task-type>-<task-index>.json`，再继续下一项；`--resume`
+只复用 instance record 与冻结 plan 完全相同的 checkpoint。
+
+最终 `summary.json` 以全部 62 个实例为 official-success denominator。setup/infrastructure、parse、
+executor 与 terminal failure 分开计数；parse coverage 只衡量实际生成的 action outputs，不通过删除
+失败 episode 来提高 success rate。
+
 ## Validation templates
 
 validation gate 固定使用以下 31 个 templates、每个 2 个动态实例：
@@ -108,4 +118,27 @@ python3 -m scripts.build_androidworld_task_partition \
 ```bash
 python3 -m scripts.prepare_androidworld_server \
   --source server/android_server.py
+```
+
+完整 validation gate 使用下面的入口；每个 `--base-url` 必须对应一个独立、health-ready 且来自同一
+pinned image digest 的 AndroidWorld server：
+
+```bash
+python3 -m scripts.run_gui_owl_androidworld_validation \
+  --base-url http://172.17.0.1:5001 \
+  --base-url http://172.17.0.1:5002 \
+  --base-url http://172.17.0.1:5003 \
+  --base-url http://172.17.0.1:5004 \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --validation-plan /data/repo/configs/androidworld_validation_plan.json \
+  --device cuda:0 \
+  --visual-tokens-per-image 256 \
+  --maximum-visible-images 5 \
+  --max-new-tokens 256 \
+  --minimum-parse-coverage 0.95 \
+  --minimum-official-success 0.5 \
+  --server-image causalcache-androidworld:11cea575-executor1 \
+  --server-image-sha256 542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486 \
+  --output-dir /data/experiments/gui_owl_androidworld_validation \
+  --resume
 ```
