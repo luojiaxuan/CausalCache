@@ -48,11 +48,20 @@
 - 输入长度分别为 501、865、1,593 tokens，单张 A6000 peak allocated memory 为 17.71、17.85、18.10 GB；
 - 结果见 `results/qwen_policy_smoke/`。这只验证 policy forward 链路，不能说明 restoration 有收益。
 
+### 2026-07-14：Qwen3-VL full-history coverage（negative result）
+
+- 在同一成功 trajectory 的全部 9 个 decisions 上运行 full-history deterministic generation；
+- 9 个输出中 6 个满足 executable JSON schema，只有 decision step 4 的 `type_text` 与 recorded action 匹配；
+- tap 为 0/7、swipe 为 0/1、type_text 为 1/1，总 coverage 为 1/9（11.1%）；
+- 3 个长历史状态输出 non-executable canonical target，另外 5 个视觉 action 的 coordinate bin 不匹配；
+- 按预注册 validation contract，拒绝 Qwen3-VL-8B-Instruct 作为主 frozen teacher，不放宽标准；
+- 结果见 `results/qwen_policy_coverage/`。这不是对 CausalCache 机制的 falsification，而是 backbone selection 的负结果。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@6c840b1be9d96d23425c51ba7c02b35063cfa731`；
-- Frozen policy：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
+- Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus 目录只作为 HF artifact 的 staging/cache。
@@ -60,7 +69,6 @@
 ## 未决策项
 
 - transfer backbone；
-- Qwen3-VL 在全部 pilot decisions 和扩展数据上的 executable-match coverage；
 - canonical action path 上 teacher-forced component distance 的具体 token boundary；
 - pilot 应扩展到多少 app、trajectory 和 horizon 才足以进入 attribution 主表。
 
@@ -68,4 +76,4 @@
 
 ## 下一步
 
-在全部 9 个 pilot decisions 上运行 full-history generation，报告 executable-match coverage 和失败类型；随后只对通过验证的状态实现 canonical action path teacher-forced component distance。
+筛选具有公开权重、可访问 logits、GUI action grounding 能力和许可清晰的 GUI-tuned policy；先用同一 9-decision contract 做 coverage gate，只有覆盖率足够的 backbone 才进入 teacher-forced distance 实现。
