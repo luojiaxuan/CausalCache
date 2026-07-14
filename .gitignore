@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+
+# Notebooks and experiment outputs
+.ipynb_checkpoints/
+outputs/
+logs/
+checkpoints/
+wandb/
+
+# Local data and caches
+data/
+.cache/
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+
+# Editors
+.idea/
+.vscode/
+*~
