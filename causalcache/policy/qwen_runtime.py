@@ -91,6 +91,27 @@ class QwenPolicyRuntime:
             return_tensors="pt",
         ).to(self.device)
 
+    def probe_logits(self, messages: list[dict[str, Any]]) -> dict[str, Any]:
+        inputs = self._encode(messages)
+        self.torch.cuda.reset_peak_memory_stats(self.device)
+        self.torch.cuda.synchronize(self.device)
+        start = time.perf_counter()
+        with self.torch.inference_mode():
+            outputs = self.model(**inputs, use_cache=False, return_dict=True)
+        self.torch.cuda.synchronize(self.device)
+        logits = outputs.logits
+        result = {
+            "input_tokens": int(inputs.input_ids.shape[1]),
+            "image_count": int(inputs.image_grid_thw.shape[0]),
+            "logits_shape": list(logits.shape),
+            "latency_seconds": time.perf_counter() - start,
+            "peak_gpu_memory_bytes": int(self.torch.cuda.max_memory_allocated(self.device)),
+            "finite_last_token_logits": bool(self.torch.isfinite(logits[:, -1]).all().item()),
+        }
+        del outputs, logits
+        self.torch.cuda.empty_cache()
+        return result
+
     def warmup(self, messages: list[dict[str, Any]]) -> None:
         inputs = self._encode(messages)
         with self.torch.inference_mode():
@@ -133,6 +154,7 @@ class QwenPolicyRuntime:
             parse_error = str(error)
         return {
             "input_tokens": int(inputs.input_ids.shape[1]),
+            "image_count": int(inputs.image_grid_thw.shape[0]),
             "generated_tokens": int(new_tokens.shape[1]),
             "latency_seconds": latency_seconds,
             "peak_gpu_memory_bytes": int(self.torch.cuda.max_memory_allocated(self.device)),
