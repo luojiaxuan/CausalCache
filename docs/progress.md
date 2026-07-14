@@ -86,6 +86,7 @@
 - 确认 remote `forward()` 返回 token logits，满足后续 teacher-forced component distance 接口；
 - 确认官方 PyAutoGUI grammar 可映射到统一 `ExecutableAction`，absolute coordinate 需按 smart-resized image 归一化；
 - 记录自定义 1D RoPE、tokenizer/chat template、remote code 与长于官方默认 image history 的复现风险；
+- 实现共享 resized-coordinate conversion、OpenCUA prompt、PyAutoGUI parser、pinned runtime 与显式 logits probe，22 个单元测试通过；
 - 接口审计通过，只允许在相同预注册 gate 下继续，不据此认定它适合作为主 teacher。
 
 ## 当前 artifact 状态

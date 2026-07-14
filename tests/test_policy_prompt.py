@@ -1,6 +1,7 @@
 import unittest
 
 from causalcache.policy import build_policy_messages, parse_policy_action
+from causalcache.policy.open_cua import build_open_cua_messages, parse_open_cua_action
 from causalcache.policy.ui_tars import build_ui_tars_messages, parse_ui_tars_action
 from causalcache.schema import ActionType
 
@@ -83,6 +84,27 @@ class PolicyPromptTest(unittest.TestCase):
             {"image_grid_thw": [[1, 42, 24]]},
         )
         self.assertEqual(swipe.target, "scroll:down")
+
+    def test_open_cua_prompt_and_pyautogui_parser(self) -> None:
+        messages = build_open_cua_messages(
+            self.manifest,
+            decision_step_id=2,
+            restored_event_step_ids=[1],
+            image_loader=lambda path: path,
+        )
+        self.assertIn("PyAutoGUI", messages[0]["content"])
+        inputs = {"image_grid_thw": [[1, 42, 24]]}
+        action = parse_open_cua_action(
+            "Thought: use the center\nCode:\n```python\npyautogui.click(x=170, y=300)\n```",
+            inputs,
+        )
+        self.assertEqual(action.action_type, ActionType.TAP)
+        self.assertEqual(action.target, "coordinate_bin:x5_y5")
+        text_action = parse_open_cua_action("Code:\npyautogui.write('hello')", inputs)
+        self.assertEqual(text_action.action_type, ActionType.TYPE_TEXT)
+        self.assertEqual(text_action.text_argument, "hello")
+        scroll = parse_open_cua_action("Code:\npyautogui.scroll(-4)", inputs)
+        self.assertEqual(scroll.target, "scroll:down")
 
 
 if __name__ == "__main__":

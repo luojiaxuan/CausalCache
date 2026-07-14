@@ -8,6 +8,7 @@ from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 from causalcache.data.guiodyssey import canonicalize_tool_call
+from causalcache.policy.coordinates import normalized_resized_point
 from causalcache.policy.prompt import build_mixed_fidelity_content
 from causalcache.schema import ActionType, ExecutableAction
 
@@ -77,33 +78,6 @@ def _keyword_values(call: ast.Call) -> dict[str, Any]:
     return values
 
 
-def _point(value: Any) -> tuple[int, int]:
-    if isinstance(value, (list, tuple)) and len(value) == 2:
-        return int(value[0]), int(value[1])
-    coordinates = re.findall(r"-?\d+", str(value))
-    if len(coordinates) < 2:
-        raise ValueError(f"cannot parse UI-TARS point: {value}")
-    return int(coordinates[0]), int(coordinates[1])
-
-
-def _current_resized_shape(model_inputs: Any) -> tuple[int, int]:
-    grids = model_inputs["image_grid_thw"]
-    grid = grids[-1]
-    if hasattr(grid, "tolist"):
-        grid = grid.tolist()
-    resized_height = int(grid[1]) * 14
-    resized_width = int(grid[2]) * 14
-    return resized_width, resized_height
-
-
-def _normalized_point(value: Any, model_inputs: Any) -> list[int]:
-    x, y = _point(value)
-    width, height = _current_resized_shape(model_inputs)
-    normalized_x = min(1000, max(0, round(x / width * 1000)))
-    normalized_y = min(1000, max(0, round(y / height * 1000)))
-    return [normalized_x, normalized_y]
-
-
 def parse_ui_tars_action(text: str, model_inputs: Any) -> ExecutableAction:
     call = _action_expression(text)
     name = call.func.id
@@ -117,7 +91,7 @@ def parse_ui_tars_action(text: str, model_inputs: Any) -> ExecutableAction:
             {
                 "function": {
                     "name": tool_name,
-                    "arguments": {"coordinate": _normalized_point(point_value, model_inputs)},
+                    "arguments": {"coordinate": normalized_resized_point(point_value, model_inputs)},
                 }
             }
         )[0]
@@ -133,8 +107,8 @@ def parse_ui_tars_action(text: str, model_inputs: Any) -> ExecutableAction:
             raise ValueError(f"unsupported scroll direction: {direction}")
         return ExecutableAction(ActionType.SWIPE, target=f"scroll:{direction}")
     if name == "drag":
-        start = _normalized_point(values["start_point"], model_inputs)
-        end = _normalized_point(values["end_point"], model_inputs)
+        start = normalized_resized_point(values["start_point"], model_inputs)
+        end = normalized_resized_point(values["end_point"], model_inputs)
         return canonicalize_tool_call(
             {
                 "function": {
