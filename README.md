@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: research idea / project initialization
+> Status: AAAI-27 paper backbone / experiment implementation
 
 ## 一句话主张
 
@@ -206,6 +206,7 @@ $$
 ## 初始路线图
 
 - [x] 固化问题定义、核心机制、实验主线与 claim 边界；
+- [x] 建立并验证 AAAI-27 官方 LaTeX anonymous submission 骨架；
 - [ ] 确定冻结 GUI policy、action serialization 与 mixed-fidelity prompt contract；
 - [ ] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [ ] 实现 teacher-forced policy distance 与 restoration attribution；
@@ -221,7 +222,9 @@ $$
 
 - GitHub: <https://github.com/luojiaxuan/CausalCache>
 - Canonical branch: `main`
-- 当前状态：研究构想与项目 README 初始化；尚无实现或实验结果。
+- Paper source: [`paper/main.tex`](paper/main.tex)
+- Build command: `make paper`
+- 当前状态：研究构想与 AAAI-27 论文骨架已建立；尚无可报告的实验结果。
 
 ### Data and Models
 

@@ -1,0 +1,313 @@
+\documentclass[letterpaper]{article}
+\usepackage[submission]{aaai2027}
+\usepackage[hyphens]{url}
+\usepackage{graphicx}
+\urlstyle{rm}
+\def\UrlFont{\rm}
+\usepackage{natbib}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{booktabs}
+\frenchspacing
+
+\pdfinfo{
+/TemplateVersion (2027.1)
+}
+
+\setcounter{secnumdepth}{0}
+
+% note (luojiaxuan): Keep every unmeasured result explicit so the draft never
+% silently turns an intended experiment into an empirical claim.
+\newcommand{\pending}[1]{\textbf{[Pending: #1]}}
+\newcommand{\method}{\textsc{CausalCache}}
+\newcommand{\hf}{\mathrm{HF}}
+\newcommand{\lf}{\mathrm{LF}}
+\newcommand{\cost}{\operatorname{cost}}
+
+\title{CausalCache: Budget-Conditioned Behavioral Restoration for Long-Horizon GUI Memory}
+\author{Anonymous Submission}
+\affiliations{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Long-horizon GUI agents must decide which historical visual evidence to expose
+to an action policy under a limited multimodal context budget. Existing memory
+controllers commonly learn from recency, similarity, attention, or salience
+labels, none of which directly measures whether high-fidelity evidence changes
+the policy's executable decision. We introduce \method, a policy-grounded
+supervision framework that upgrades one event at a time from a fixed-cost
+summary to its archived high-fidelity representation and measures how much the
+upgrade restores a validated frozen policy's action behavior. We formulate a
+budget-conditioned, Shapley-style restoration value whose coalitions match the
+deployment budget, then distill the expensive offline values into a
+query-conditioned multi-budget gate. The method limits policy-visible context,
+not persistent storage, and filters reference states whose full-history action
+is not validated. We evaluate whether restoration supervision improves the
+closed-loop success--memory frontier and whether retained restoration value
+predicts success after controlling for next-action likelihood, context cost,
+and task horizon. \pending{Insert the principal AndroidWorld result and the
+matched-NLL effect size.}
+\end{abstract}
+
+\section{Introduction}
+
+A GUI trajectory can contain screenshots, actions, text arguments, coordinates,
+and state changes accumulated over dozens of decisions. Passing every event to
+a multimodal policy is expensive and can amplify context rot, while replacing
+all screenshots with summaries discards exact visual evidence. A memory
+controller must therefore decide which historical events deserve high-fidelity
+exposure at each decision.
+
+Prior controllers select memory using recency, retrieval similarity, attention,
+learned salience, or task-state heuristics. These signals need not agree with
+the frozen action policy's actual dependence on an event. Two memories can even
+have similar successor-action negative log-likelihood (NLL) while supporting
+different closed-loop outcomes. This motivates a narrower question: \emph{how
+much does upgrading a historical event from a deterministic low-fidelity record
+to its high-fidelity visual evidence restore a validated policy's executable
+action behavior?}
+
+\method answers this question offline and uses the answers as supervision. It
+maintains a raw event archive, a cheap summary/index, and a limited
+policy-visible high-fidelity context. For validated decision states, it samples
+near-budget mixed-fidelity coalitions and estimates each event's marginal
+behavioral restoration. The estimator is explicitly Shapley-style; our claimed
+contribution is the GUI intervention surface, the executable policy-behavior
+value, its alignment with the deployment budget, and closed-loop validation,
+not a new generic attribution estimator. A lightweight query-time gate then
+predicts these values from the current state, event summary, optional cheap
+visual embedding, age, and requested budget.
+
+Our evaluation is organized around four falsifiable questions:
+\begin{enumerate}
+    \item Does a restoration oracle improve executable task success at a fixed
+    policy-visible visual budget?
+    \item Can a distilled gate approach the oracle without material online
+    latency?
+    \item Does restoration supervision outperform the same gate architecture
+    trained on next-action NLL or shuffled labels?
+    \item After matching or controlling for NLL, tokens, and horizon, does
+    retained restoration value still explain terminal success?
+\end{enumerate}
+
+\section{Related Work}
+
+\paragraph{GUI memory.}
+MementoGUI learns multimodal write, compression, and retrieval operators for a
+frozen GUI action model \cite{zeng2026mementogui}. AndroTMem retrieves anchored
+intermediate states connected to the current subgoal \cite{shi2026androtmem}.
+These systems establish the importance of learned controllers and
+dependency-critical events. \method instead derives selector supervision from
+the marginal behavior change induced by restoring the high-fidelity version of
+the same event.
+
+\paragraph{Interventional memory selection.}
+CMI compares agent behavior under memory interventions
+\cite{srivastava2026cmi}, while ATMem estimates how active memory states affect
+GUI task completion \cite{liu2026atmem}. Our scope is intentionally narrower:
+we hold the action policy fixed, intervene on low- versus high-fidelity GUI
+evidence, assign credit near the actual context budget, and validate the dense
+decision-time surrogate through executable closed-loop outcomes.
+
+\paragraph{Shapley-style attribution.}
+Permutation marginal contributions originate in cooperative game theory
+\cite{shapley1953value}. We use this tool as an estimator, but change its value
+function and coalition distribution to reflect mixed-fidelity GUI context and a
+fixed operating budget.
+
+\section{Problem Formulation}
+
+Let the history before decision $t$ be
+\begin{equation}
+H_t = \{e_1,\ldots,e_{t-1}\}, \qquad
+e_j=(o_{j-1},a_j,o_j,\delta_j),
+\end{equation}
+where $\delta_j$ is an optional deterministic UI delta. Every event has an
+archived high-fidelity representation $e_j^{\hf}$ and a fixed-cost low-fidelity
+record $\tilde e_j$. A query-time selector chooses the events exposed at high
+fidelity:
+\begin{equation}
+M_t \subseteq H_t, \qquad
+\sum_{j\in M_t} c_j \leq B,
+\end{equation}
+where $c_j$ is the visual-token cost and $B$ is the policy-visible context
+budget. Unselected events remain available as low-fidelity records. Raw events
+are retained in an external archive, so an event can be retrieved again at a
+later query; $B$ is not a persistent storage or eviction budget.
+
+The action policy $\pi_0$ is frozen. Only the selector is trained. Our goal is
+to improve executable task success across budgets without attributing gains to
+extra visual tokens or a stronger action policy.
+
+\section{CausalCache}
+
+\subsection{Two-Level Event Representation}
+
+The deterministic low-fidelity record contains
+\begin{quote}
+\small\ttfamily
+step\_id, action\_type, target\_text\_or\_coordinate\_bin,\newline
+deterministic\_ui\_delta, result\_status.
+\end{quote}
+The archive stores the original screenshots, action, UI delta, and metadata.
+The gate may additionally use a precomputed cheap visual embedding $z_j$; this
+avoids asking the summary alone to predict the importance of information that
+the summary necessarily omitted. The action policy receives mixed-fidelity
+inputs through a normal forward pass; we do not splice cached keys and values
+across incompatible contexts.
+
+\subsection{Validated Full-History Reference}
+
+For a full-history state, the frozen policy defines
+\begin{equation}
+q_t = \pi_0(\cdot\mid g,o_t,H_t).
+\end{equation}
+We generate attribution labels only when the full-history canonical action
+$a_t^*$ is validated by an executor-compatible reference action or belongs to a
+successful trajectory. We report reference coverage and compare against an
+unfiltered teacher. Thus, full history is a reference condition, not an assumed
+oracle.
+
+\subsection{Executable Behavioral Distance}
+
+For a high-fidelity coalition $S$, all events outside $S$ use their low-fidelity
+records. We measure pathwise divergence along the canonical action rather than
+claiming a full sequence-action KL:
+\begin{equation}
+D_t(S) = \alpha D_{\mathrm{type}}(S)
+       + \beta D_{\mathrm{target}}(S)
+       + \gamma D_{\mathrm{text}}(S).
+\end{equation}
+Action type uses teacher-forced token divergence; coordinates are mapped to UI
+elements or coarse bins; text arguments are normalized before comparison.
+Executable action match is the primary action metric, with raw token KL as an
+auxiliary analysis.
+
+\subsection{Budget-Conditioned Restoration}
+
+For event $j$, let $\mathcal{C}_B(j)$ be a distribution over feasible
+coalitions $S\subseteq H_t\setminus\{j\}$ that leave room for $c_j$ and are
+near budget. The budget-conditioned restoration value is
+\begin{equation}
+G_{j,t}^{(B)} =
+\mathbb{E}_{S\sim\mathcal{C}_B(j)}
+\left[D_t(S)-D_t(S\cup\{j\})\right].
+\label{eq:restoration}
+\end{equation}
+When all high-fidelity blocks have equal cost, $\mathcal{C}_B(j)$ is uniform
+over coalitions of size $B-1$. Unlike a standard Shapley value averaged over all
+coalition sizes, Equation~\ref{eq:restoration} asks whether restoring $j$ helps
+when the system already operates near its deployed budget. We use shared,
+antithetic, or stratified coalition samples where applicable and report standard
+errors, ranking stability, and top-$B$ overlap across seeds.
+
+\begin{algorithm}[t]
+\caption{Offline Budget-Conditioned Restoration Labels}
+\label{alg:labels}
+\begin{algorithmic}[1]
+\REQUIRE Validated state $(g,o_t,H_t,a_t^*)$, budget $B$, samples $K$
+\STATE Run full history once to cache reference behavior $q_t$
+\FOR{$k=1$ to $K$}
+    \STATE Sample a shared near-budget coalition design for all events
+    \FOR{each event $j$ evaluated by the design}
+        \STATE Run mixed-fidelity policy for $S$ and $S\cup\{j\}$
+        \STATE Record $D_t(S)-D_t(S\cup\{j\})$
+    \ENDFOR
+\ENDFOR
+\STATE Return means, standard errors, and sample metadata
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Multi-Budget Query-Time Gate}
+
+The distilled selector predicts
+\begin{equation}
+s_{j,t}=f_\theta(g,o_t,\tilde e_j,z_j,\Delta t,B)
+\end{equation}
+with regression, pairwise-ranking, and budget-aware set losses. At inference,
+the selector solves a cost-constrained positive-value selection problem:
+\begin{equation}
+M_t=\arg\max_{M:\sum_{j\in M}c_j\le B}
+\sum_{j\in M}\max(s_{j,t}-\tau,0).
+\end{equation}
+For equal-cost event blocks this reduces to selecting up to, rather than exactly,
+the top $B$ events above threshold $\tau$. This permits a null decision when all
+candidate restorations are predicted to be harmful or useless.
+
+\section{Experimental Protocol}
+
+\subsection{Benchmarks and Policies}
+
+AndroidWorld \cite{rawles2025androidworld} is the sole primary closed-loop
+benchmark. GUIOdyssey \cite{lu2025guiodyssey} or an equivalent long-horizon
+mobile dataset provides offline attribution and action analysis. We use one
+primary frozen policy and one transfer backbone. Every comparison shares the
+same low-fidelity channel, action policy, gate architecture where applicable,
+and visual-token accounting.
+
+\subsection{Comparisons}
+
+The compact main comparison includes summary only, recent, similarity, the same
+gate trained on next-action NLL or salience, the strongest reproducible GUI
+memory controller, a restoration oracle, and distilled \method. A random label
+shuffle uses the same training states and gate capacity as a negative control.
+
+\subsection{Success--Memory Frontier}
+
+We report closed-loop task success against visual tokens and end-to-end latency,
+plus success per unit memory/compute. Restoration must improve the Pareto
+frontier rather than consume additional context. \pending{Insert main frontier
+plot and paired confidence intervals.}
+
+\subsection{Matched-NLL Mechanism Test}
+
+Within task, budget, and horizon strata, we match memory decisions by successor
+NLL and test whether retained restoration mass remains associated with terminal
+success. The preregistered conditional model is
+\begin{equation}
+\begin{aligned}
+\Pr(y=1)=\sigma\!\bigl(&\beta_0+\beta_1 R+\beta_2\mathrm{NLL}\\
+&+\beta_3\mathrm{tokens}+\beta_4\mathrm{horizon}\bigr),
+\end{aligned}
+\end{equation}
+where $R$ is retained restoration mass. The mechanism claim requires a stable
+$\beta_1>0$ under paired bootstrap confidence intervals and reasonable matching
+tolerances. We will report all eligible pairs rather than selected anecdotes.
+
+\subsection{Attribution Cost and Stability}
+
+We vary coalition samples $K$ and report attribution standard error,
+Spearman rank correlation to a high-$K$ estimate, top-budget Jaccard overlap,
+oracle success, total offline labeling compute, and online selector latency.
+The per-permutation telescoping identity is used only as an implementation sanity
+check. Coalition reconstruction error measures non-additive interactions.
+
+\section{Limitations and Claim Boundary}
+
+Restoration value is a dense decision-time surrogate. It is not a direct
+long-horizon causal effect, and its relevance to long-horizon control must be
+established through closed-loop success and the matched-NLL analysis. The causal
+language in this paper refers only to a controlled low-/high-fidelity
+intervention on a frozen policy's behavior. We do not identify environment-level
+structural causality and do not learn a world model. The method should be
+weakened or abandoned if restoration fails to beat recency, similarity, and
+attention; if its matched-NLL association disappears; if the distilled gate
+cannot approach the oracle; or if gains come from extra tokens.
+
+\section{Conclusion}
+
+\method turns mixed-fidelity behavioral restoration into policy-grounded
+supervision for GUI memory selection. Its central empirical burden is not that
+attribution can fit a selector, but that budget-aligned restoration identifies
+high-fidelity evidence that improves executable long-horizon control beyond
+what next-action likelihood and context size explain.
+
+\bibliography{references}
+
+\end{document}
