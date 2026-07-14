@@ -1,0 +1,241 @@
+{
+  "fixture": {
+    "decision_step_id": 6,
+    "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "source_id": "0054832199799795"
+  },
+  "logits_probes": {
+    "native_five_image_history": {
+      "effective_visual_tokens": 20010,
+      "finite_last_token_logits": true,
+      "image_count": 5,
+      "image_grid_thw": [
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ]
+      ],
+      "input_tokens": 21185,
+      "latency_seconds": 7.675725179724395,
+      "logits_shape": [
+        1,
+        1,
+        151936
+      ],
+      "logits_to_keep": 1,
+      "peak_gpu_memory_bytes": 22363390464
+    },
+    "single_image": {
+      "effective_visual_tokens": 4002,
+      "finite_last_token_logits": true,
+      "image_count": 1,
+      "image_grid_thw": [
+        [
+          1,
+          116,
+          138
+        ]
+      ],
+      "input_tokens": 4976,
+      "latency_seconds": 1.9832055466249585,
+      "logits_shape": [
+        1,
+        1,
+        151936
+      ],
+      "logits_to_keep": 1,
+      "peak_gpu_memory_bytes": 18524380672
+    }
+  },
+  "model": {
+    "device": "cuda:0",
+    "dtype": "bfloat16",
+    "load_seconds": 4.196922900155187,
+    "model_class": "Qwen3VLForConditionalGeneration",
+    "processor_class": "Qwen3VLProcessor",
+    "snapshot": {
+      "files": [
+        {
+          "path": "chat_template.json",
+          "sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce",
+          "size": 5499
+        },
+        {
+          "path": "config.json",
+          "sha256": "e36c10d2850778887b13b6874174c669773be7e1f024e9d1d04f02315674ad0a",
+          "size": 1468
+        },
+        {
+          "path": "generation_config.json",
+          "sha256": "29d2f9cebb08e5a8d0312d42f20018c4cda80dc3f53feb0989f6fabe0319eed9",
+          "size": 214
+        },
+        {
+          "path": "merges.txt",
+          "sha256": "599bab54075088774b1733fde865d5bd747cbcc7a547c5bc12610e874e26f5e3",
+          "size": 1671839
+        },
+        {
+          "path": "model-00001-of-00004.safetensors",
+          "sha256": "49e63303f03a7c18ffd96bbad8690d456d030f90aa30b6c7e22bdba7ed1245cc",
+          "size": 4902275944
+        },
+        {
+          "path": "model-00002-of-00004.safetensors",
+          "sha256": "720626319c03380ca7010cc1f7bf5fd42b89dbfa9e72b435d1c7aff7cfb67fb3",
+          "size": 4915962496
+        },
+        {
+          "path": "model-00003-of-00004.safetensors",
+          "sha256": "bb506b267b3952461a5b2d90c58e9dbcd017a0000944dda76a9cfadd29d38665",
+          "size": 4999831048
+        },
+        {
+          "path": "model-00004-of-00004.safetensors",
+          "sha256": "7944b039da7fa9c6cf59c2eb0a495a262e4e12c5bf4bf2bf75c5a5d90abfc847",
+          "size": 2716270024
+        },
+        {
+          "path": "model.safetensors.index.json",
+          "sha256": "520b2e05079402e9468a8701d03d1154d14b2599593afb6effa7fb60c1bff070",
+          "size": 67759
+        },
+        {
+          "path": "preprocessor_config.json",
+          "sha256": "27225450ac9c6529872ee1924fcb0962ff5634834f817040f444118116f4e516",
+          "size": 390
+        },
+        {
+          "path": "tokenizer.json",
+          "sha256": "a5d85b6dcc535e6b93115a9ef287e6132fdbf30270da6218194ba742261173c7",
+          "size": 7032403
+        },
+        {
+          "path": "tokenizer_config.json",
+          "sha256": "c2da771801886ad9ae98181793ffd3dfb7f1af30f6f7c6a4e15d7dbba52e2399",
+          "size": 10868
+        },
+        {
+          "path": "video_preprocessor_config.json",
+          "sha256": "f38c890c32e0c037969b33be7693b2a51464695378b223418db5262a6da43fa0",
+          "size": 386
+        },
+        {
+          "path": "vocab.json",
+          "sha256": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+          "size": 2776833
+        }
+      ],
+      "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc"
+    },
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0",
+    "visual_patch_factor": 32,
+    "visual_preprocessing": {
+      "merge_size": 2,
+      "mode": "model_default",
+      "target_tokens_per_image": null
+    }
+  },
+  "results": {
+    "native_five_image_history": {
+      "effective_visual_tokens": 20010,
+      "executable_match": true,
+      "generated_tokens": 48,
+      "image_count": 5,
+      "image_grid_thw": [
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ],
+        [
+          1,
+          116,
+          138
+        ]
+      ],
+      "input_tokens": 21185,
+      "latency_seconds": 9.66919927392155,
+      "output_text": "Action: Click on the article titled \"Migrants hit by high fees to send money home.\"\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\": [387, 273]}}\n</tool_call>",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x3_y2",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 24446907392
+    },
+    "single_image": {
+      "effective_visual_tokens": 4002,
+      "executable_match": true,
+      "generated_tokens": 53,
+      "image_count": 1,
+      "image_grid_thw": [
+        [
+          1,
+          116,
+          138
+        ]
+      ],
+      "input_tokens": 4976,
+      "latency_seconds": 3.298922749236226,
+      "output_text": "Action: Click on the article titled \"Migrants hit by high fees to send money home.\"\n<tool_call>\n{\"name\": \"mobile_use\", \"arguments\": {\"action\": \"click\", \"coordinate\": [375, 299]}}\n</tool_call>",
+      "parse_error": null,
+      "parsed_action": {
+        "action_type": "tap",
+        "target": "coordinate_bin:x3_y2",
+        "text_argument": null,
+        "text_case_sensitive": false
+      },
+      "peak_gpu_memory_bytes": 19123614720
+    }
+  },
+  "schema_version": "0.1.0",
+  "scope": "interface_only_not_policy_coverage",
+  "validated_fixture_action": {
+    "action_type": "tap",
+    "target": "coordinate_bin:x3_y2",
+    "text_argument": null,
+    "text_case_sensitive": false
+  },
+  "visual_tokens_per_image": null
+}
