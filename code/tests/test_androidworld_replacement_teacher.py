@@ -53,6 +53,13 @@ class AndroidWorldReplacementTeacherTest(unittest.TestCase):
             ]
         )
 
+    def test_smoke_uses_true_five_image_history_and_frozen_generation(self) -> None:
+        smoke_gate = self.replacement["smoke_gate"]
+        generation = self.replacement["frozen_interface"]["generation"]
+        self.assertEqual(smoke_gate["decision_step_id"], 6)
+        self.assertEqual(generation["max_new_tokens"], 256)
+        self.assertFalse(generation["do_sample"])
+
 
 if __name__ == "__main__":
     unittest.main()

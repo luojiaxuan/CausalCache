@@ -278,6 +278,9 @@
   generation、62-instance validation plan、95% parse gate 与 50% success gate 全部保持不变；
 - Hyper01 只承担 standalone logits/parser smoke；Aries 继续承担已验证的 closed-loop stack，未预注册
   跨主机 policy/environment topology；
+- 在任何 candidate inference 前发现并修正 smoke 协议错误：原 decision step 4 只会产生
+  4-image history，现固定为 step 6 以真正覆盖 5-image 上限；同时显式固定
+  `max_new_tokens=256`；
 - `UI-Voyager` 未选为主 teacher，因为官方推理只暴露当前截图，加入历史截图会改变其已报告策略接口；
 - 当前状态仍是 preregistered-not-run，不是 accepted teacher，也不是 CausalCache 效果证据。
 

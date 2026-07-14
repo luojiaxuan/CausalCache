@@ -161,7 +161,9 @@ processor、tokenizer、model config、native 5-image history 与 `mobile_use` g
 4. failure 时拒绝并停止本轮，success 时才升级 benchmark-specific teacher contract。
 
 deterministic generation 继续使用 `do_sample=false`，因为 restoration contract 需要固定 canonical
-action；官方 71.6% 只作为选型 prior，不声称可与本项目 deterministic gate 直接比较。首次 smoke
+action，且沿用既有栈的 `max_new_tokens=256`；官方 71.6% 只作为选型 prior，不声称可与
+本项目 deterministic gate 直接比较。smoke fixture 固定在 decision step 6，使 history branch
+真实经过 5-image 上限；早期配置中的 step 4 在任何 candidate inference 前经协议审计更正。首次 smoke
 若只暴露与 action correctness 无关的稳定 Thinking prefix，可在任何 validation episode 开始前做
 一次 fail-closed parser 适配并增加测试；不得根据动作正确性、success 或 validation state 调整格式。
 完整冻结配置见 `code/configs/androidworld_replacement_teacher_v1.json`。
