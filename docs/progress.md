@@ -80,6 +80,14 @@
 - 不因一个相邻 coordinate-bin miss 事后放宽 equivalence，拒绝该 candidate 进入 attribution pilot；
 - 结果见 `results/ui_tars_policy_coverage/`。这仍是 backbone selection 的负结果，不是 CausalCache 方法效果。
 
+### 2026-07-14：OpenCUA-7B 接口审计
+
+- 固定 `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc` 与 38 个必要文件；
+- 确认 remote `forward()` 返回 token logits，满足后续 teacher-forced component distance 接口；
+- 确认官方 PyAutoGUI grammar 可映射到统一 `ExecutableAction`，absolute coordinate 需按 smart-resized image 归一化；
+- 记录自定义 1D RoPE、tokenizer/chat template、remote code 与长于官方默认 image history 的复现风险；
+- 接口审计通过，只允许在相同预注册 gate 下继续，不据此认定它适合作为主 teacher。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -100,4 +108,4 @@
 
 ## 下一步
 
-在不改变预注册 gate 的前提下审计 OpenCUA-7B 的 custom code、logit access 与 mobile action grammar；若接口闭合，则冻结 revision 并运行同一 9-decision coverage。若不可复现，再评估 ShowUI-2B，但不把纯 grounding coverage 当作完整 action-policy coverage。
+按 `configs/open_cua_7b_snapshot.json` 顺序下载并校验 OpenCUA-7B，在单张 A6000 上先验证 pinned remote model、processor、logits 和 PyAutoGUI parser，再运行相同 9-decision coverage。若 load 或 smoke 不可复现，先记录接口失败，不直接进入全轨迹运行。

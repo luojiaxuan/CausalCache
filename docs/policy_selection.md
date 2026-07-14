@@ -42,3 +42,19 @@ UI-TARS 评测使用其原生 mobile action grammar，再映射到项目统一�
 下一候选优先评估 OpenCUA-7B。只有在确认其 custom code 可复现、logits 可访问、
 mobile action grammar 可映射到当前 `ExecutableAction` 后，才固定 revision 并运行
 同一 gate。ShowUI-2B 保留为 grounding-oriented 后备，不默认假定其具备完整规划能力。
+
+## OpenCUA-7B 接口审计与冻结配置
+
+- Model：`xlangai/OpenCUA-7B`
+- Revision：`a2efb7d2b104d477a4a2666a357e79550a28aafc`
+- Upstream code revision：`xlang-ai/OpenCUA@dfc91ba89f700d10f26ec50362d308571482ab8b`
+- Architecture：remote `OpenCUAForConditionalGeneration`，基于 Qwen2.5-VL，但将 M-RoPE 改为 1D RoPE，并使用自定义 tokenizer/chat template；
+- Logit access：remote `forward()` 返回带 `logits` 的 `LlavaCausalLMOutputWithPast`，满足 teacher-forced distance 的必要接口；
+- Action grammar：官方 evaluator 输出 `pyautogui.*` 或 `computer.terminate(...)`，可映射到现有 tap、type_text、swipe、home、back、wait、stop；
+- Coordinate：模型输出 smart-resized image 上的绝对坐标，必须用实际 `image_grid_thw` 归一化，不能直接当原图坐标；
+- Multi-image 风险：官方 model card 强调 3-screenshot history，官方 evaluator 另提供 1/3/5-image 设置；本项目仍按原 contract 构造 full history，并原样报告实际 image count、input tokens、显存和 coverage；
+- Snapshot manifest：`configs/open_cua_7b_snapshot.json`。
+
+审计结论为可进入实测。运行使用 pinned remote code 和模型自带 processor，且不采用
+上游示例中与当前 remote forward signature 不一致的 `grid_thws` 参数名。coverage gate
+与 UI-TARS 完全相同，不因 OpenCUA 的 desktop-oriented grammar 调整判定标准。
