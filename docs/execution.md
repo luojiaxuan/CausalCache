@@ -118,6 +118,17 @@ policy runtime；尚未验证“Aries emulator + Hyper01 policy”的拆机拓�
 受控 tunnel，必须作为独立里程碑测试并记录，不得把它当成现有 runner 已支持。worker 数可以因机器
 改变，但 validation plan、instance denominator 与失败处理不能改变。
 
+62-instance validation 的命令必须显式传入
+`--early-stop-when-success-is-mathematically-impossible`。每个 episode 作为原子 checkpoint 写盘后，runner
+用固定 62 分母计算 `observed_success + unobserved_count`；只有该上界严格小于达到
+50% 所需的 31 个 success 时才停止分配新 episode。已在途的 worker 必须完成 score 和
+tear-down，所以最终 checkpoint 可比首次触发边界多最多 `worker_count-1` 条。非 resume 运行
+必须使用空 output directory；resume 前必须校验 plan index、instance 与 filename。
+每条 episode 还必须带 `run_contract`，固定 Git commit、model snapshot identity、runtime/processor、
+visual preprocessing、generation、plan hash 和 server digest。resume 只能接受完整 contract 相同的
+checkpoint，防止 Think 误复用 Instruct 的旧 episode。CLI 传入的 `--run-git-commit` 必须是
+full SHA，且 runner 会校验它等于 clean checkout 的实际 HEAD。
+
 ## Aries/Taurus fallback adapter
 
 Aries 是当前 AndroidWorld closed-loop MVP 的 validated host。每次运行仍需重新检查所有本地盘，不能

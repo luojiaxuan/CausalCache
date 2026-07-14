@@ -125,11 +125,11 @@ pinned image digest 的 AndroidWorld server：
 
 ```bash
 python3 -m scripts.run_gui_owl_androidworld_validation \
+  --base-url http://172.17.0.1:5000 \
   --base-url http://172.17.0.1:5001 \
   --base-url http://172.17.0.1:5002 \
   --base-url http://172.17.0.1:5003 \
-  --base-url http://172.17.0.1:5004 \
-  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Think \
   --validation-plan /data/repo/code/configs/androidworld_validation_plan.json \
   --device cuda:0 \
   --use-model-default-visual-resolution \
@@ -137,8 +137,14 @@ python3 -m scripts.run_gui_owl_androidworld_validation \
   --max-new-tokens 256 \
   --minimum-parse-coverage 0.95 \
   --minimum-official-success 0.5 \
+  --early-stop-when-success-is-mathematically-impossible \
   --server-image causalcache-androidworld:11cea575-executor1 \
   --server-image-sha256 542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486 \
-  --output-dir /data/experiments/gui_owl_androidworld_validation \
+  --run-git-commit <FULL_GIT_COMMIT> \
+  --output-dir /data/experiments/gui_owl_1_5_8b_think_androidworld_validation \
   --resume
 ```
+
+端口 `5000–5003` 来自已记录的正式 validation summary；早期文档中的 `5001–5004` 是
+off-by-one 书写错误，不得用来改变 worker assignment。新 Think run 必须使用独立空目录；
+`--resume` 只用于同一 run contract 的中断恢复。

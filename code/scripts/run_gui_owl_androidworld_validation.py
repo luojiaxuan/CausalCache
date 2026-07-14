@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
+import re
+import subprocess
 import threading
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
@@ -58,6 +61,111 @@ def build_assignments(
     for plan_index, instance in enumerate(instances):
         assignments[plan_index % len(base_urls)].append((plan_index, instance))
     return assignments
+
+
+def success_gate_is_mathematically_impossible(
+    *,
+    planned_count: int,
+    checkpoint_count: int,
+    official_successes: int,
+    minimum_official_success: float,
+) -> bool:
+    if not 0 <= checkpoint_count <= planned_count:
+        raise ValueError("checkpoint count must be within the frozen plan")
+    if not 0 <= official_successes <= checkpoint_count:
+        raise ValueError("official successes must be within completed checkpoints")
+    minimum_required_successes = math.ceil(
+        minimum_official_success * planned_count
+    )
+    maximum_possible_successes = official_successes + (
+        planned_count - checkpoint_count
+    )
+    return maximum_possible_successes < minimum_required_successes
+
+
+def validate_git_checkout(expected_commit: str) -> None:
+    if re.fullmatch(r"[0-9a-f]{40}", expected_commit) is None:
+        raise ValueError("run git commit must be a full lowercase SHA")
+    repository_root = Path(__file__).resolve().parents[2]
+    actual_commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repository_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if actual_commit != expected_commit:
+        raise ValueError("run git commit does not match the checkout")
+    dirty = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=repository_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    if dirty:
+        raise ValueError("validation requires a clean git checkout")
+
+
+def build_run_contract(
+    *,
+    git_commit: str,
+    plan: dict[str, Any],
+    runtime_metadata: dict[str, Any],
+    maximum_visible_images: int,
+    max_new_tokens: int,
+    server_image: str,
+    server_image_sha256: str,
+) -> dict[str, Any]:
+    snapshot = runtime_metadata["snapshot"]
+    snapshot_sha256 = hashlib.sha256(
+        json.dumps(snapshot, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+    return {
+        "git_commit": git_commit,
+        "validation_plan_records_sha256": plan["instance_records_sha256"],
+        "model": {
+            "repo": snapshot["repo"],
+            "revision": snapshot["revision"],
+            "snapshot_sha256": snapshot_sha256,
+        },
+        "runtime": {
+            "model_class": runtime_metadata["model_class"],
+            "processor_class": runtime_metadata["processor_class"],
+            "dtype": runtime_metadata["dtype"],
+            "torch_version": runtime_metadata["torch_version"],
+            "transformers_version": runtime_metadata["transformers_version"],
+            "visual_preprocessing": runtime_metadata["visual_preprocessing"],
+        },
+        "maximum_visible_images": maximum_visible_images,
+        "max_new_tokens": max_new_tokens,
+        "do_sample": False,
+        "server_image": server_image,
+        "server_image_sha256": server_image_sha256,
+    }
+
+
+def validate_resume_checkpoint(
+    episode: dict[str, Any],
+    *,
+    plan_index: int,
+    instance: dict[str, Any],
+    base_url: str,
+    run_contract: dict[str, Any],
+) -> None:
+    if episode.get("plan_index") != plan_index:
+        raise ValueError("resume checkpoint plan index does not match")
+    if episode.get("instance") != instance:
+        raise ValueError("resume checkpoint instance does not match")
+    if episode.get("run_contract") != run_contract:
+        raise ValueError("resume checkpoint run contract does not match")
+    expected_environment = {
+        "base_url": base_url,
+        "server_image": run_contract["server_image"],
+        "server_image_sha256": run_contract["server_image_sha256"],
+    }
+    if episode.get("environment_runtime") != expected_environment:
+        raise ValueError("resume checkpoint environment runtime does not match")
 
 
 def write_json_atomic(path: Path, value: dict[str, Any]) -> None:
@@ -170,7 +278,12 @@ def aggregate_early_stopped_validation(
     minimum_required_successes = math.ceil(
         minimum_official_success * planned_count
     )
-    if maximum_possible_successes >= minimum_required_successes:
+    if not success_gate_is_mathematically_impossible(
+        planned_count=planned_count,
+        checkpoint_count=checkpoint_count,
+        official_successes=official_successes,
+        minimum_official_success=minimum_official_success,
+    ):
         raise ValueError("success gate is not yet mathematically impossible")
 
     outcomes: Counter[str] = Counter()
@@ -254,6 +367,7 @@ def exception_episode(
 
 
 def run_validation(args: argparse.Namespace) -> dict[str, Any]:
+    validate_git_checkout(args.run_git_commit)
     plan = json.loads(args.validation_plan.read_text(encoding="utf-8"))
     if plan.get("split") != "validation":
         raise ValueError("full runner accepts only the frozen validation plan")
@@ -270,9 +384,66 @@ def run_validation(args: argparse.Namespace) -> dict[str, Any]:
         visual_tokens_per_image=args.visual_tokens_per_image,
     )
     runtime = SerializedRuntime(raw_runtime)
+    run_contract = build_run_contract(
+        git_commit=args.run_git_commit,
+        plan=plan,
+        runtime_metadata=runtime.metadata,
+        maximum_visible_images=args.maximum_visible_images,
+        max_new_tokens=args.max_new_tokens,
+        server_image=args.server_image,
+        server_image_sha256=args.server_image_sha256,
+    )
     assignments = build_assignments(plan["instances"], args.base_url)
     episodes_dir = args.output_dir / "episodes"
     started_at = datetime.now(timezone.utc).isoformat()
+    checkpoint_lock = threading.Lock()
+    stop_event = threading.Event()
+
+    def completed_episode_paths() -> list[Path]:
+        return [
+            episodes_dir / episode_filename(plan_index, instance)
+            for plan_index, instance in enumerate(plan["instances"])
+            if (episodes_dir / episode_filename(plan_index, instance)).exists()
+        ]
+
+    def update_early_stop() -> None:
+        if not args.early_stop_when_success_is_mathematically_impossible:
+            return
+        with checkpoint_lock:
+            paths = completed_episode_paths()
+            episodes = [json.loads(path.read_text(encoding="utf-8")) for path in paths]
+            official_successes = sum(
+                bool(episode.get("official_success", False)) for episode in episodes
+            )
+            if success_gate_is_mathematically_impossible(
+                planned_count=int(plan["task_instance_count"]),
+                checkpoint_count=len(episodes),
+                official_successes=official_successes,
+                minimum_official_success=args.minimum_official_success,
+            ):
+                stop_event.set()
+
+    initial_episode_paths = completed_episode_paths()
+    if initial_episode_paths and not args.resume:
+        raise ValueError("output directory already contains validation checkpoints")
+    for path in initial_episode_paths:
+        episode = json.loads(path.read_text(encoding="utf-8"))
+        plan_index = int(episode["plan_index"])
+        if not 0 <= plan_index < int(plan["task_instance_count"]):
+            raise ValueError(f"resume checkpoint plan index is out of range: {path}")
+        expected_path = episodes_dir / episode_filename(
+            plan_index, plan["instances"][plan_index]
+        )
+        if path != expected_path:
+            raise ValueError(f"resume checkpoint filename does not match its plan index: {path}")
+        validate_resume_checkpoint(
+            episode,
+            plan_index=plan_index,
+            instance=plan["instances"][plan_index],
+            base_url=args.base_url[plan_index % len(args.base_url)],
+            run_contract=run_contract,
+        )
+    update_early_stop()
 
     def worker(
         base_url: str,
@@ -280,12 +451,20 @@ def run_validation(args: argparse.Namespace) -> dict[str, Any]:
     ) -> list[Path]:
         paths = []
         for plan_index, instance in assigned:
+            if stop_event.is_set():
+                break
             path = episodes_dir / episode_filename(plan_index, instance)
             if args.resume and path.exists():
                 existing = json.loads(path.read_text(encoding="utf-8"))
-                if existing.get("instance") != instance:
-                    raise ValueError(f"resume checkpoint does not match plan: {path}")
+                validate_resume_checkpoint(
+                    existing,
+                    plan_index=plan_index,
+                    instance=instance,
+                    base_url=base_url,
+                    run_contract=run_contract,
+                )
                 paths.append(path)
+                update_early_stop()
                 continue
             episode_args = argparse.Namespace(
                 base_url=base_url,
@@ -307,6 +486,7 @@ def run_validation(args: argparse.Namespace) -> dict[str, Any]:
                     error=error,
                 )
             episode["plan_index"] = plan_index
+            episode["run_contract"] = run_contract
             episode["environment_runtime"] = {
                 "base_url": base_url,
                 "server_image": args.server_image,
@@ -314,6 +494,7 @@ def run_validation(args: argparse.Namespace) -> dict[str, Any]:
             }
             write_json_atomic(path, episode)
             paths.append(path)
+            update_early_stop()
         return paths
 
     with ThreadPoolExecutor(max_workers=len(args.base_url)) as executor:
@@ -324,17 +505,24 @@ def run_validation(args: argparse.Namespace) -> dict[str, Any]:
         for future in futures:
             future.result()
 
-    episode_paths = [
-        episodes_dir / episode_filename(plan_index, instance)
-        for plan_index, instance in enumerate(plan["instances"])
-    ]
+    episode_paths = completed_episode_paths()
     episodes = [json.loads(path.read_text(encoding="utf-8")) for path in episode_paths]
-    summary = aggregate_validation(
-        plan=plan,
-        episodes=episodes,
-        minimum_parse_coverage=args.minimum_parse_coverage,
-        minimum_official_success=args.minimum_official_success,
-    )
+    if len(episodes) == int(plan["task_instance_count"]):
+        summary = aggregate_validation(
+            plan=plan,
+            episodes=episodes,
+            minimum_parse_coverage=args.minimum_parse_coverage,
+            minimum_official_success=args.minimum_official_success,
+        )
+    elif args.early_stop_when_success_is_mathematically_impossible:
+        summary = aggregate_early_stopped_validation(
+            plan=plan,
+            episodes=episodes,
+            minimum_parse_coverage=args.minimum_parse_coverage,
+            minimum_official_success=args.minimum_official_success,
+        )
+    else:
+        raise ValueError("validation finished without every frozen-plan checkpoint")
     summary.update(
         {
             "started_at": started_at,
@@ -342,6 +530,7 @@ def run_validation(args: argparse.Namespace) -> dict[str, Any]:
             "base_urls": args.base_url,
             "server_image": args.server_image,
             "server_image_sha256": args.server_image_sha256,
+            "run_contract": run_contract,
             "policy": {
                 **runtime.metadata,
                 "visual_tokens_per_image": args.visual_tokens_per_image,
@@ -372,8 +561,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--minimum-parse-coverage", type=float, default=0.95)
     parser.add_argument("--minimum-official-success", type=float, default=0.5)
+    parser.add_argument(
+        "--early-stop-when-success-is-mathematically-impossible",
+        action="store_true",
+    )
     parser.add_argument("--server-image", required=True)
     parser.add_argument("--server-image-sha256", required=True)
+    parser.add_argument("--run-git-commit", required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--resume", action="store_true")
     return parser.parse_args()
@@ -381,15 +575,32 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     summary = run_validation(parse_args())
-    print(
-        json.dumps(
+    result = {
+        "parse_coverage": summary["parse_coverage"],
+        "outcomes": summary["outcomes"],
+        "gates": summary["gates"],
+    }
+    if "task_instance_count" in summary:
+        result.update(
             {
                 "task_instance_count": summary["task_instance_count"],
-                "parse_coverage": summary["parse_coverage"],
                 "official_success_rate": summary["official_success_rate"],
-                "outcomes": summary["outcomes"],
-                "gates": summary["gates"],
-            },
+            }
+        )
+    else:
+        result.update(
+            {
+                "artifact_status": summary["artifact_status"],
+                "plan_instance_count": summary["plan_instance_count"],
+                "checkpoint_count": summary["checkpoint_count"],
+                "maximum_possible_official_success_rate": summary[
+                    "maximum_possible_official_success_rate"
+                ],
+            }
+        )
+    print(
+        json.dumps(
+            result,
             indent=2,
             sort_keys=True,
         )

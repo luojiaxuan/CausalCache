@@ -47,3 +47,11 @@ model revision、dtype、budget、prompt、preprocessing 或 threshold。
 GUI-Owl Think 的冻结输出边界允许开头最多一个小写且闭合的 `<think>...</think>`
 block；剔除后仍必须完整匹配单行 `Action:` 和唯一 `mobile_use` `<tool_call>`。未闭合、
 多 block、中缀/后缀 thinking 或额外文本全部 fail closed。
+
+AndroidWorld full validation 必须显式传入
+`--early-stop-when-success-is-mathematically-impossible`。runner 只在原子 episode checkpoint
+写盘后检查固定分母上的 success 上界；达不到 gate 时不再分配新 episode，已在途的
+worker 仍完成 score 与 teardown。`--resume` 只接受 instance、plan index 和文件名都与冻结
+plan 一致的 checkpoint，并要求 episode 内的 Git commit、model snapshot、runtime、processor、
+generation、plan 和 server digest 完全一致；非 resume 运行要求空 output directory。命令必须用
+`--run-git-commit` 显式传入 full SHA，runner 会同时校验实际 HEAD 与 clean worktree。

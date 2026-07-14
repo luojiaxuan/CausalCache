@@ -319,6 +319,18 @@
 - 当前状态为 `androidworld_validation_pending`，不是 accepted teacher；只允许进入冻结的
   62-instance validation plan。
 
+### 2026-07-14：AndroidWorld automatic early-stop orchestration
+
+- full runner 新增显式 `--early-stop-when-success-is-mathematically-impossible`，不再依赖
+  外部人工观察后终止 GPU process；
+- 只在 episode JSON 原子写盘后计算固定分母 success 上界；上界严格低于 gate 时设置
+  stop event，已在途 worker 仍完成 score/tear-down；
+- early-stopped summary、CLI 输出与 full-run summary 均可正常写入；`--resume` 增加 plan index、
+  instance、filename 与完整 run contract 校验，非 resume 运行拒绝非空 output directory；
+- 每条 episode 新增 Git/model/runtime/processor/generation/plan/server identity；CLI 的 full Git SHA 必须
+  等于 clean checkout HEAD，防止 Think run 静默复用 Instruct checkpoint；
+- 62 条、50% gate 的边界测试固定：47 checkpoints/16 successes 不能停，47/15 必须停。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；

@@ -1,14 +1,85 @@
+import json
 import unittest
 
 from scripts.run_gui_owl_androidworld_validation import (
     aggregate_early_stopped_validation,
     aggregate_validation,
+    build_run_contract,
     build_assignments,
     episode_filename,
+    success_gate_is_mathematically_impossible,
+    validate_resume_checkpoint,
 )
 
 
 class GUIOwlAndroidWorldValidationTest(unittest.TestCase):
+    def test_resume_checkpoint_requires_exact_run_contract(self) -> None:
+        instance = {"task_type": "Task", "task_index": 0}
+        runtime_metadata = {
+            "snapshot": {"repo": "owner/model", "revision": "abc", "files": []},
+            "model_class": "Model",
+            "processor_class": "Processor",
+            "dtype": "bfloat16",
+            "torch_version": "2.0",
+            "transformers_version": "5.0",
+            "visual_preprocessing": {"mode": "model_default"},
+        }
+        contract = build_run_contract(
+            git_commit="a" * 40,
+            plan={"instance_records_sha256": "plan"},
+            runtime_metadata=runtime_metadata,
+            maximum_visible_images=5,
+            max_new_tokens=256,
+            server_image="server:image",
+            server_image_sha256="image-sha",
+        )
+        episode = {
+            "plan_index": 0,
+            "instance": instance,
+            "run_contract": contract,
+            "environment_runtime": {
+                "base_url": "http://worker",
+                "server_image": "server:image",
+                "server_image_sha256": "image-sha",
+            },
+        }
+        validate_resume_checkpoint(
+            episode,
+            plan_index=0,
+            instance=instance,
+            base_url="http://worker",
+            run_contract=contract,
+        )
+
+        different_contract = json.loads(json.dumps(contract))
+        different_contract["model"]["revision"] = "different"
+        with self.assertRaisesRegex(ValueError, "run contract"):
+            validate_resume_checkpoint(
+                episode,
+                plan_index=0,
+                instance=instance,
+                base_url="http://worker",
+                run_contract=different_contract,
+            )
+
+    def test_early_stop_boundary_is_strictly_below_required_successes(self) -> None:
+        self.assertFalse(
+            success_gate_is_mathematically_impossible(
+                planned_count=62,
+                checkpoint_count=47,
+                official_successes=16,
+                minimum_official_success=0.5,
+            )
+        )
+        self.assertTrue(
+            success_gate_is_mathematically_impossible(
+                planned_count=62,
+                checkpoint_count=47,
+                official_successes=15,
+                minimum_official_success=0.5,
+            )
+        )
+
     def test_round_robin_assignment_preserves_plan_indices(self) -> None:
         instances = [
             {"task_type": f"Task{index}", "task_index": 0}
