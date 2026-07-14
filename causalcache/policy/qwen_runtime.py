@@ -1,4 +1,4 @@
-"""Reusable single-GPU Qwen3-VL runtime for CausalCache policy experiments."""
+"""Reusable single-GPU Qwen-family runtime for CausalCache policy experiments."""
 
 from __future__ import annotations
 

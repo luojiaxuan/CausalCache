@@ -2,6 +2,7 @@ import unittest
 
 from causalcache.policy import build_policy_messages, parse_policy_action
 from causalcache.policy.open_cua import build_open_cua_messages, parse_open_cua_action
+from causalcache.policy.showui import build_showui_messages, parse_showui_action
 from causalcache.policy.ui_tars import build_ui_tars_messages, parse_ui_tars_action
 from causalcache.schema import ActionType
 
@@ -110,6 +111,54 @@ class PolicyPromptTest(unittest.TestCase):
             parse_open_cua_action(
                 "Code:\npyautogui.write('hello')\npyautogui.press('enter')",
                 inputs,
+            )
+
+    def test_showui_phone_prompt_and_dictionary_parser(self) -> None:
+        messages = build_showui_messages(
+            self.manifest,
+            decision_step_id=2,
+            restored_event_step_ids=[1],
+            image_loader=lambda path: path,
+        )
+        self.assertIn("`INPUT`", messages[0]["content"][0]["text"])
+        self.assertIn("`SWIPE`", messages[0]["content"][0]["text"])
+        self.assertEqual(
+            parse_showui_action(
+                "{'action': 'TAP', 'value': None, 'position': [0.55, 0.42]}",
+                {},
+            ).target,
+            "coordinate_bin:x5_y4",
+        )
+        text_action = parse_showui_action(
+            "{'action': 'INPUT', 'value': 'Hello', 'position': [0.5, 0.5]}",
+            {},
+        )
+        self.assertEqual(text_action.action_type, ActionType.TYPE_TEXT)
+        self.assertEqual(text_action.text_argument, "Hello")
+        swipe = parse_showui_action(
+            "{'action': 'SWIPE', 'value': None, 'position': [[0.5, 0.8], [0.5, 0.2]]}",
+            {},
+        )
+        self.assertEqual(swipe.target, "scroll:down")
+        self.assertEqual(
+            parse_showui_action(
+                "```python\n{'action': 'ENTER', 'value': None, 'position': None}\n```",
+                {},
+            ).action_type,
+            ActionType.ENTER,
+        )
+
+    def test_showui_parser_rejects_noncanonical_output(self) -> None:
+        with self.assertRaisesRegex(ValueError, "exactly one dictionary"):
+            parse_showui_action(
+                "{'action': 'TAP', 'value': None, 'position': [0.5, 0.5]}\n"
+                "{'action': 'ENTER', 'value': None, 'position': None}",
+                {},
+            )
+        with self.assertRaisesRegex(ValueError, r"in \[0, 1\]"):
+            parse_showui_action(
+                "{'action': 'TAP', 'value': None, 'position': [500, 500]}",
+                {},
             )
 
 
