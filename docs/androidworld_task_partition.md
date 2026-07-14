@@ -82,6 +82,11 @@ Contacts 首次 setup warning 不直接影响 validation templates；VLC 的 x86
 但 `VlcCreatePlaylist` 仍必须在 rollout 中接受独立 task-initialize 检查。setup failure、parse
 failure、executor failure 与 terminal failure 必须分开计数，不能从 success denominator 删除。
 
+MobileAgent fork 的 HTTP server 原始代码错误导入旧 `android_world.env.json_action`，无法接收
+GUI-Owl 官方 converter 产生的四坐标 swipe。构建 Docker context 时必须先运行
+`scripts.prepare_androidworld_server`，严格替换为同一 pinned fork 的
+`android_world.agents.new_json_action`；这只闭合 transport schema，不改变 agent action。
+
 ## Reproduction
 
 在 pinned AndroidWorld server ready 后运行：
@@ -97,3 +102,10 @@ python3 -m scripts.build_androidworld_task_partition \
 单元测试会从 committed task names 与 stack config 完整重建 manifest，验证 hash assignment、
 全覆盖、无重复和无 bucket overlap；validation plan 另行验证 instance hash、每 template 两个实例
 和官方 complexity budget。
+
+构建 pinned server image 前还需执行：
+
+```bash
+python3 -m scripts.prepare_androidworld_server \
+  --source server/android_server.py
+```

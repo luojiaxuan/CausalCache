@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import time
+import urllib.error
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -63,6 +64,15 @@ def load_screenshot(base_url: str) -> tuple[Any, dict[str, Any]]:
         "pixel_sha256": hashlib.sha256(pixels.tobytes()).hexdigest(),
     }
     return image, metadata
+
+
+def http_error_record(error: urllib.error.HTTPError) -> dict[str, Any]:
+    payload = error.read()
+    return {
+        "status_code": error.code,
+        "reason": str(error.reason),
+        "response_body": payload.decode("utf-8", errors="replace"),
+    }
 
 
 def run_episode(args: argparse.Namespace) -> dict[str, Any]:
@@ -175,12 +185,17 @@ def run_episode(args: argparse.Namespace) -> dict[str, Any]:
 
             parse_successes += 1
             step["androidworld_action"] = android_action
-            step["execute_response"] = request_json(
-                args.base_url,
-                "/execute_action",
-                method="POST",
-                body=android_action,
-            )
+            try:
+                step["execute_response"] = request_json(
+                    args.base_url,
+                    "/execute_action",
+                    method="POST",
+                    body=android_action,
+                )
+            except urllib.error.HTTPError as error:
+                step["executor_error"] = http_error_record(error)
+                termination_reason = "executor_error"
+                break
             action_outputs.append(generation["output_text"])
             if android_action["action_type"] == "status":
                 termination_reason = "policy_terminated"
