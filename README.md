@@ -2,7 +2,7 @@
 
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
-> Target venue: AAAI  
+> Target venue: AAAI
 > Status: research idea / project initialization
 
 ## 一句话主张
@@ -235,4 +235,3 @@ $$
 ## Citation
 
 项目仍处于研究与实验阶段，正式 citation 将在论文公开后补充。
-
