@@ -43,3 +43,7 @@ model revision、dtype、budget、prompt、preprocessing 或 threshold。
 - `data/results/` 只接收轻量 summary、CSV 与 README；raw traces、datasets、checkpoint 进入 HF；
 - 每个可复现实验里程碑在同一小提交中更新 code、config、result summary 和 progress，然后 push
   `main`。
+
+GUI-Owl Think 的冻结输出边界允许开头最多一个小写且闭合的 `<think>...</think>`
+block；剔除后仍必须完整匹配单行 `Action:` 和唯一 `mobile_use` `<tool_call>`。未闭合、
+多 block、中缀/后缀 thinking 或额外文本全部 fail closed。

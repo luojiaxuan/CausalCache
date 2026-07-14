@@ -168,6 +168,11 @@ action，且沿用既有栈的 `max_new_tokens=256`；官方 71.6% 只作为选�
 一次 fail-closed parser 适配并增加测试；不得根据动作正确性、success 或 validation state 调整格式。
 完整冻结配置见 `code/configs/androidworld_replacement_teacher_v1.json`。
 
+首次 smoke 的两个输出均只额外包含一个开头且闭合的 `<think>` block。因此在任何
+AndroidWorld validation 前执行了上述一次性适配：共享 helper 只允许并剔除最多一个
+闭合 prefix，随后仍执行原有的单 action/单 tool-call full match。记录输出与 malformed boundary
+回归测试都已通过；该改动不使用 action correctness 或 benchmark reward。
+
 `MarsXL/UI-Voyager@c262b85` 没有选为主 teacher：其官方 inference 始终只传当前截图，所谓
 `n_history_image` 只影响 SFT artifact 保存。为它加入历史截图会形成新的 OOD policy interface，
 其报告的 81.0% AndroidWorld success 不能支持该修改后的接口。

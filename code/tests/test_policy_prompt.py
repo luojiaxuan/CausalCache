@@ -1,4 +1,6 @@
+import json
 import unittest
+from pathlib import Path
 
 from causalcache.policy import build_policy_messages, parse_policy_action
 from causalcache.policy.open_cua import build_open_cua_messages, parse_open_cua_action
@@ -207,6 +209,54 @@ class PolicyPromptTest(unittest.TestCase):
         self.assertEqual(answer.text_argument, "42")
         with self.assertRaisesRegex(ValueError, "exactly one"):
             parse_gui_owl_action(action_outputs[0] + "\n" + action_outputs[1], {})
+
+    def test_gui_owl_parser_allows_one_closed_thinking_prefix(self) -> None:
+        native_action = (
+            'Action: Tap the result\n<tool_call>\n'
+            '{"name":"mobile_use","arguments":{"action":"click",'
+            '"coordinate":[286,317]}}\n</tool_call>'
+        )
+        output = "<think>Inspect the visible results.\nChoose one.</think>\n" + native_action
+        action = parse_gui_owl_action(output, {})
+        self.assertEqual(action.action_type, ActionType.TAP)
+        self.assertEqual(action.target, "coordinate_bin:x2_y3")
+
+        messages = build_gui_owl_native_messages(
+            instruction="Open the result.",
+            screenshots=["before.png", "after.png"],
+            action_outputs=[output],
+        )
+        self.assertEqual(len(messages), 4)
+
+    def test_gui_owl_parser_rejects_malformed_thinking_boundaries(self) -> None:
+        native_action = (
+            'Action: Tap the result\n<tool_call>\n'
+            '{"name":"mobile_use","arguments":{"action":"click",'
+            '"coordinate":[286,317]}}\n</tool_call>'
+        )
+        invalid_outputs = [
+            "<think>unclosed\n" + native_action,
+            "<think>one</think><think>two</think>\n" + native_action,
+            "preface\n<think>reason</think>\n" + native_action,
+            native_action + "\n<think>suffix</think>",
+        ]
+        for output in invalid_outputs:
+            with self.subTest(output=output):
+                with self.assertRaisesRegex(ValueError, "thinking|exactly one"):
+                    parse_gui_owl_action(output, {})
+
+    def test_gui_owl_parser_accepts_both_recorded_think_smoke_outputs(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        summary = json.loads(
+            (
+                repository_root
+                / "data/results/gui_owl_1_5_8b_think_smoke_strict/summary.json"
+            ).read_text(encoding="utf-8")
+        )
+        for name, result in summary["results"].items():
+            with self.subTest(variant=name):
+                action = parse_gui_owl_action(result["output_text"], {})
+                self.assertEqual(action.action_type, ActionType.TAP)
 
     def test_gui_owl_androidworld_converter_matches_pinned_mobileagent(self) -> None:
         click = gui_owl_action_to_androidworld(

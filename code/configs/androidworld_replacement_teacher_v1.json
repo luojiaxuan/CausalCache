@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1.0",
-  "status": "smoke_format_adaptation_pending",
+  "status": "smoke_rerun_pending",
   "candidate": {
     "repo": "mPLUG/GUI-Owl-1.5-8B-Think",
     "revision": "afe3707fc84caebc4d7046118b34493ecf8bb060",
@@ -36,8 +36,9 @@
       "reason": "A deterministic canonical action is required by the frozen-policy restoration contract; the upstream sampling defaults are not used."
     },
     "output_boundary": {
-      "smoke_parser": "existing_strict_action_then_single_tool_call",
-      "reasoning_prefix_allowed": false,
+      "smoke_parser": "optional_single_closed_think_prefix_then_strict_action_and_single_tool_call",
+      "reasoning_prefix_allowed": true,
+      "maximum_reasoning_prefix_blocks": 1,
       "format_discovery_rule": "A format-only parser change is allowed after the first smoke only if it is independent of action correctness, is regression-tested, and is committed before any validation episode starts."
     }
   },

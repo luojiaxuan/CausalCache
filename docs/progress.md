@@ -297,6 +297,16 @@
 - 该次运行状态为 `invalid`，不是 candidate rejection；预注册只允许在任何 validation 前
   做一次与 action correctness 无关的 fail-closed format adaptation，并先提交测试。
 
+### 2026-07-14：GUI-Owl Think format-only parser 适配
+
+- 只允许 raw output 开头最多一个小写、闭合的 `<think>...</think>` block；剔除后仍
+  full-match 单行 `Action:` 和唯一 `mobile_use` tool call；
+- 未闭合、多 block、非前缀位置、suffix 或额外文本全部 fail closed；历史 action description
+  与当前 executable parser 复用同一 boundary helper；
+- 两个已记录 smoke raw outputs 与人工 malformed cases 均有回归测试；未查看或使用
+  AndroidWorld success，prompt、action mapping、equivalence 和 threshold 均未修改；
+- 当前状态为 `smoke_rerun_pending`，必须先 push 该 parser commit 才能原参数重跑。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -306,7 +316,7 @@
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
 - Rejected AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native validation 上界 30/62，未通过 50% gate；
-- Replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；首次 Hyper01 smoke 已完成，format-only parser 适配待重跑，尚未运行 AndroidWorld gate；
+- Replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；format-only parser 适配已提交，smoke 重跑待执行，尚未运行 AndroidWorld gate；
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0` (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
@@ -322,8 +332,7 @@
 
 ## 下一步
 
-只扩展 GUI-Owl parser 的输出边界，允许最多一个闭合 `<think>...</think>` prefix，但不改
-`Action` 与 `mobile_use` tool-call grammar。补 fail-closed 回归测试、commit/push 后，在 Hyper01
-以完全相同的 model/data/fixture/generation 参数重跑 1/5-image smoke。只有重跑达到 2/2 parse
+在 parser commit/push 后，从 Git `main` 精确提交在 Hyper01 以完全相同的
+model/data/fixture/generation 参数重跑 1/5-image smoke。只有重跑达到 2/2 parse
 才能在 Aries 复用冻结的 62-instance AndroidWorld validation gate。test partition 保持 sealed，不修改
 prompt、action equivalence 或 threshold。

@@ -38,7 +38,24 @@ Rules:
 - If finishing, use action=terminate in the tool call.'''
 
 
+def _strip_optional_thinking_prefix(output: str) -> str:
+    text = output.strip()
+    opening_tag = "<think>"
+    closing_tag = "</think>"
+    if not text.startswith(opening_tag):
+        if opening_tag in text or closing_tag in text:
+            raise ValueError("GUI-Owl thinking block must be a single prefix")
+        return text
+    if text.count(opening_tag) != 1 or text.count(closing_tag) != 1:
+        raise ValueError("GUI-Owl thinking block must be a single closed prefix")
+    closing_index = text.find(closing_tag, len(opening_tag))
+    if closing_index < 0:
+        raise ValueError("GUI-Owl thinking block must be a single closed prefix")
+    return text[closing_index + len(closing_tag) :].lstrip()
+
+
 def _action_description(output: str) -> str:
+    output = _strip_optional_thinking_prefix(output)
     match = re.fullmatch(
         r"\s*Action:\s*(?P<description>[^\n]+)\n\s*<tool_call>.*</tool_call>\s*",
         output,
@@ -136,6 +153,7 @@ def render_gui_owl_action(
 
 
 def parse_gui_owl_tool_arguments(text: str) -> Mapping[str, Any]:
+    text = _strip_optional_thinking_prefix(text)
     if text.count("<tool_call>") != 1 or text.count("</tool_call>") != 1:
         raise ValueError("GUI-Owl output must contain exactly one native action and tool call")
     match = re.fullmatch(
