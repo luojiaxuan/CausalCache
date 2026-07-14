@@ -104,6 +104,13 @@
 - 失败集中在 desktop-oriented grounding、multi-action output 和 mobile trajectory action mismatch；
 - 拒绝该 candidate 进入 attribution pilot，结果见 `results/open_cua_policy_coverage/`。
 
+### 2026-07-14：ShowUI-2B 接口审计与 revision 冻结
+
+- 官方 model card 的 phone navigation action space 明确定义 `INPUT`、`SWIPE`、`TAP`、`ANSWER` 与 `ENTER`，因此不是只能输出点击坐标的 grounding-only 接口；
+- 固定 `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`，并记录 11 个 runtime 文件的 size 与 SHA256；
+- 固定使用原生 phone prompt、单 dictionary output 与 `[0, 1]` 相对坐标；
+- 下一步先完成 parser/prompt 单测与单 GPU smoke，再在完全相同的预注册 gate 上评估 9 个 full-history decisions。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -111,6 +118,7 @@
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
+- Pending GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；尚未完成 smoke 与 coverage gate；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
@@ -125,4 +133,4 @@
 
 ## 下一步
 
-审计 ShowUI-2B 是否具备完整 next-action planning、type_text 与 swipe 输出接口；只有接口闭合才运行同一 gate。若它只是 point grounding model，则记录不适用并停止在当前 pilot 上继续枚举 backbone，转向选择一个与 benchmark 原生适配的 policy/evaluation stack。
+实现 ShowUI-2B 原生 phone navigation adapter，依次完成单测、单 GPU smoke 与预注册 coverage gate。若仍未通过，则停止在当前 pilot 上继续枚举 backbone，转向选择一个与 benchmark 原生适配的 policy/evaluation stack。

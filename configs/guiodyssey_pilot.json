@@ -36,6 +36,12 @@
     "license": "mit",
     "status": "rejected_by_preregistered_gate_coverage_1_of_9"
   },
+  "showui_candidate": {
+    "repo": "showlab/ShowUI-2B",
+    "revision": "cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60",
+    "license": "mit",
+    "status": "pinned_pending_smoke_and_coverage_gate"
+  },
   "validation": {
     "pilot_filter": "successful_trajectory",
     "paper_primary_filter": "executable_match",

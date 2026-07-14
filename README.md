@@ -237,6 +237,7 @@ $$
 - OpenCUA-7B pinned runtime dependency: [`requirements/opencua.txt`](requirements/opencua.txt)
 - OpenCUA-7B logits and mixed-fidelity smoke: [`results/open_cua_policy_smoke/README.md`](results/open_cua_policy_smoke/README.md)
 - OpenCUA-7B full-history coverage: [`results/open_cua_policy_coverage/README.md`](results/open_cua_policy_coverage/README.md)
+- ShowUI-2B pinned snapshot manifest: [`configs/showui_2b_snapshot.json`](configs/showui_2b_snapshot.json)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
 - 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey 单轨迹可复现 pilot artifact 已完成；尚无可报告的真实模型效果结果。
@@ -249,6 +250,7 @@ $$
 | Rejected policy candidate | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> | `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b` | full-history executable-match 2/9；不作为主 teacher |
 | Rejected GUI-tuned candidate | <https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B> | `683d002dd99d8f95104d31e70391a39348857f4e` | parsed 9/9、executable-match 4/9；未通过预注册 50% gate |
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
+| Pending GUI navigation candidate | <https://huggingface.co/showlab/ShowUI-2B> | `cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60` | 原生 phone navigation 接口已审计；等待 smoke 与 coverage gate |
 | Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 

@@ -18,7 +18,7 @@ Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-
 | --- | --- | --- | --- |
 | [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | Apache-2.0 / Qwen3-VL | 标准 Transformers、multi-image、logits 可用 | 拒绝：pilot full-history match 2/9 |
 | [UI-TARS-1.5-7B](https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B) | Apache-2.0 / Qwen2.5-VL | 官方 mobile action grammar、GUI agent tuning、标准 Transformers | 拒绝：pilot full-history match 4/9，低于预注册 50% gate |
-| [ShowUI-2B](https://huggingface.co/showlab/ShowUI-2B) | MIT / Qwen2-VL | 仅 2B、GUI grounding 专用、logits 可用 | 后备；更偏 grounding，完整 action planning 风险较高 |
+| [ShowUI-2B](https://huggingface.co/showlab/ShowUI-2B) | MIT / Qwen2-VL | 仅 2B、原生 phone navigation grammar、logits 可用 | 已冻结 revision；等待 smoke 与同一 coverage gate |
 | [OpenCUA-7B](https://huggingface.co/xlangai/OpenCUA-7B) | MIT / custom code | computer-use tuning、公开权重 | 拒绝：pilot full-history match 1/9 |
 
 ## UI-TARS 冻结配置
@@ -86,6 +86,18 @@ parse failure。mixed-fidelity 输出单个正确 `write` action，仍按原 con
 - 计算可行性：3--19 images、最长 5,172 input tokens 均完成，峰值显存 18.71 GB；
 - 决策：拒绝该 candidate 进入 attribution pilot，结果见 `results/open_cua_policy_coverage/`。
 
-下一步只剩 ShowUI-2B 这一已登记后备，但它主要是 grounding model。评估前必须先
-明确其 action-planning prompt 与 text/swipe 输出能力；若只能做 point grounding，则不应
-为了得到较高 tap 分数而把它冒充完整 frozen action policy。
+## ShowUI-2B 接口审计与冻结配置
+
+- Model：`showlab/ShowUI-2B`
+- Revision：`cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`
+- Architecture：`Qwen2VLForConditionalGeneration`，标准 Transformers forward 可返回 token logits；
+- License：MIT；
+- Snapshot manifest：`configs/showui_2b_snapshot.json`；
+- Coordinate：官方 navigation output 使用相对坐标 `[0, 1]`；进入统一 executable schema 前映射到 `[0, 1000]`；
+- Native phone grammar：`INPUT`、`SWIPE`、`TAP`、`ANSWER`、`ENTER`；覆盖当前 pilot 的 tap、type_text 与 swipe；
+- Output format：单个 Python dictionary，字段为 `action`、`value`、`position`。
+
+接口审计结论为可进入实测。ShowUI 同时支持 point grounding 与完整 UI navigation；本项目
+只使用官方 phone navigation prompt，不把 point-grounding 接口混入 action coverage。其
+`INPUT` 虽含点击位置，但统一 schema 仍按当前 validation contract 映射为一次
+`type_text`；不会为了该 candidate 修改 recorded action、gate threshold 或 equivalence。
