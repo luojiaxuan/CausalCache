@@ -99,3 +99,9 @@ Pinned MobileAgent Dockerfile 的 `openjdk:18-jdk-slim` 在 2026-07-14 已无法
 `scripts/prepare_androidworld_dockerfile.py` 严格将这一行替换为可解析的
 `eclipse-temurin:17-jdk-jammy`。脚本要求原始行恰好出现一次，upstream 变化时会拒绝
 静默打补丁。这是环境可用性修复，不修改 AndroidWorld task、reward、agent 或 prompt。
+
+同一 Dockerfile 的 project install 会因 upstream `setup.py` 直接使用但未声明
+`pkg_resources` 而在新版 uv 的隔离构建中失败。构建前处理因此还会严格将
+`uv pip install . --system` 替换为 uv 建议的
+`uv pip install . --system --no-build-isolation`，使用镜像中 Python 3.11 已安装的
+setuptools。该修复不改动 AndroidWorld Python 源码或 dependency constraints。

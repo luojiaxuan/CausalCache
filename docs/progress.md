@@ -144,6 +144,8 @@
 
 - pinned MobileAgent Dockerfile 因 `openjdk:18-jdk-slim` 不再可解析而无法原样构建；
 - 新增严格、可测试的构建前处理，仅替换为 `eclipse-temurin:17-jdk-jammy`；
+- upstream `setup.py` 的未声明 `pkg_resources` 在 uv 隔离构建中引发第二次失败，
+  按构建器建议严格切换为 `--no-build-isolation`；
 - 保留 upstream checkout 与 pinned revision 不变，未修改 task、reward、agent 或 prompt。
 
 ## 当前 artifact 状态

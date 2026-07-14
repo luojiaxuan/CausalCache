@@ -1,4 +1,4 @@
-"""Prepare the pinned AndroidWorld Dockerfile with a reproducible base-image fix."""
+"""Prepare the pinned AndroidWorld Dockerfile with reproducible build fixes."""
 
 from __future__ import annotations
 
@@ -8,17 +8,26 @@ from pathlib import Path
 
 REMOVED_BASE_IMAGE = "FROM openjdk:18-jdk-slim"
 COMPATIBLE_BASE_IMAGE = "FROM eclipse-temurin:17-jdk-jammy"
+ISOLATED_PROJECT_INSTALL = "RUN uv pip install . --system"
+NON_ISOLATED_PROJECT_INSTALL = "RUN uv pip install . --system --no-build-isolation"
+
+REPLACEMENTS = {
+    REMOVED_BASE_IMAGE: COMPATIBLE_BASE_IMAGE,
+    ISOLATED_PROJECT_INSTALL: NON_ISOLATED_PROJECT_INSTALL,
+}
 
 
 def prepare_dockerfile(source: Path, output: Path) -> None:
     contents = source.read_text(encoding="utf-8")
-    occurrences = contents.count(REMOVED_BASE_IMAGE)
-    if occurrences != 1:
-        raise ValueError(
-            f"expected exactly one pinned base image, found {occurrences}: {source}"
-        )
-
-    rendered = contents.replace(REMOVED_BASE_IMAGE, COMPATIBLE_BASE_IMAGE)
+    rendered = contents
+    for original, replacement in REPLACEMENTS.items():
+        occurrences = contents.count(original)
+        if occurrences != 1:
+            raise ValueError(
+                f"expected exactly one occurrence of {original!r}, "
+                f"found {occurrences}: {source}"
+            )
+        rendered = rendered.replace(original, replacement)
     output.write_text(rendered, encoding="utf-8")
 
 
