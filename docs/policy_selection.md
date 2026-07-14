@@ -67,3 +67,6 @@ OpenCUA 的实现没有该参数。由于上游 `modeling_opencua.py` 明确基�
 独立 venv 使用 system-site PyTorch，因此也会看到容器的 `kernels 0.14.1`；该版本要求
 新版 Hugging Face Hub。第二次 import smoke 据此失败后，项目在 venv 内显式安装兼容
 Hub 0.36 的 `kernels 0.11.7`，覆盖系统可见版本。
+第三次 load smoke 到达 `from_pretrained` 后发现 adapter 使用了 Transformers 5.x 的
+`dtype=` 参数；固定 runtime 4.53.0 对应改用 `torch_dtype=`。该修改只修正加载 API，
+不改变权重、prompt、processor 或 validation contract。

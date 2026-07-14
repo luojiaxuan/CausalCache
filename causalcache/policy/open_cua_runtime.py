@@ -44,7 +44,7 @@ class OpenCUAPolicyRuntime:
         load_start = time.perf_counter()
         self.model = AutoModel.from_pretrained(
             model_dir,
-            dtype=torch.bfloat16,
+            torch_dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
             local_files_only=True,
             trust_remote_code=True,
