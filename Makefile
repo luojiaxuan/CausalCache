@@ -1,4 +1,4 @@
-.PHONY: paper clean-paper
+.PHONY: paper clean-paper test validate-contract
 
 paper:
 	mkdir -p output/pdf
@@ -8,3 +8,9 @@ paper:
 clean-paper:
 	cd paper && latexmk -C -outdir=../output/pdf main.tex
 	rm -f output/pdf/causalcache_aaai27.pdf
+
+test:
+	python3 -m unittest discover -s tests -v
+
+validate-contract:
+	python3 -m scripts.validate_contract --config configs/phase0_contract.json --decision tests/fixtures/validated_decision.json

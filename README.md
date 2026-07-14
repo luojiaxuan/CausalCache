@@ -207,7 +207,8 @@ $$
 
 - [x] 固化问题定义、核心机制、实验主线与 claim 边界；
 - [x] 建立并验证 AAAI-27 官方 LaTeX anonymous submission 骨架；
-- [ ] 确定冻结 GUI policy、action serialization 与 mixed-fidelity prompt contract；
+- [x] 冻结 action serialization、validated teacher 与 mixed-fidelity experiment contract；
+- [ ] 确定主冻结 GUI policy 与 transfer backbone；
 - [ ] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [ ] 实现 teacher-forced policy distance 与 restoration attribution；
 - [ ] 在小规模离线轨迹上验证 telescoping、方差和 permutation 数量；
@@ -223,8 +224,11 @@ $$
 - GitHub: <https://github.com/luojiaxuan/CausalCache>
 - Canonical branch: `main`
 - Paper source: [`paper/main.tex`](paper/main.tex)
+- Experiment contract: [`docs/experiment_contract.md`](docs/experiment_contract.md)
+- Progress record: [`docs/progress.md`](docs/progress.md)
 - Build command: `make paper`
-- 当前状态：研究构想与 AAAI-27 论文骨架已建立；尚无可报告的实验结果。
+- Test command: `make test validate-contract`
+- 当前状态：论文骨架和实验契约已建立；尚无可报告的真实模型实验结果。
 
 ### Data and Models
 

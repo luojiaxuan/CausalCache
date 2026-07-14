@@ -1,0 +1,59 @@
+{
+  "version": "0.1.0",
+  "memory": {
+    "budget_type": "policy_visible_context",
+    "cost_unit": "visual_tokens",
+    "persistent_raw_archive": true,
+    "low_fidelity_schema": [
+      "step_id",
+      "action_type",
+      "target_text_or_coordinate_bin",
+      "deterministic_ui_delta",
+      "result_status"
+    ],
+    "visual_token_budgets": [256, 512, 1024, 2048],
+    "selection_rule": "positive_value_knapsack",
+    "selection_threshold": 0.0
+  },
+  "teacher": {
+    "validation_mode": "executable_match",
+    "report_coverage": true,
+    "run_unfiltered_ablation": true
+  },
+  "distance": {
+    "components": ["action_type", "target", "text"],
+    "weights": {
+      "action_type": 1.0,
+      "target": 1.0,
+      "text": 1.0
+    },
+    "pathwise_teacher_forcing": true,
+    "target_canonicalization": "ui_element_or_coordinate_bin",
+    "text_canonicalization": "nfkc_whitespace_casefold_unless_sensitive"
+  },
+  "attribution": {
+    "estimator": "budget_conditioned_restoration",
+    "coalition_mode": "near_budget",
+    "samples_primary": 16,
+    "samples_sweep": [4, 8, 16, 32],
+    "seeds": [0, 1, 2, 3, 4],
+    "shared_coalitions": true,
+    "report_metrics": [
+      "standard_error",
+      "spearman",
+      "top_budget_jaccard",
+      "oracle_utility",
+      "coalition_reconstruction_error"
+    ]
+  },
+  "evaluation": {
+    "primary_closed_loop_benchmark": "AndroidWorld",
+    "offline_analysis_benchmark": "GUIOdyssey_or_equivalent",
+    "primary_policy_backbone": "pending_reproducibility_check",
+    "transfer_policy_backbone": "pending_reproducibility_check",
+    "mechanism_test": "matched_nll_conditional_success",
+    "negative_control": "shuffle_restoration_labels",
+    "primary_axis": "success_vs_visual_tokens_and_latency",
+    "control_variables": ["successor_nll", "visual_tokens", "task_horizon"]
+  }
+}

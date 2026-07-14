@@ -1,0 +1,51 @@
+{
+  "trajectory_id": "synthetic-contract-001",
+  "decision_step_id": 3,
+  "instruction": "Turn on Wi-Fi and return to the previous screen.",
+  "current_observation_uri": "fixture://synthetic-contract-001/step-3.png",
+  "history": [
+    {
+      "trajectory_id": "synthetic-contract-001",
+      "low_fidelity": {
+        "step_id": 1,
+        "action_type": "tap",
+        "target_text_or_coordinate_bin": "settings",
+        "deterministic_ui_delta": "opened=settings",
+        "result_status": "success"
+      },
+      "observation_before_uri": "fixture://synthetic-contract-001/step-0.png",
+      "observation_after_uri": "fixture://synthetic-contract-001/step-1.png",
+      "executed_action": {
+        "action_type": "tap",
+        "target": "Settings"
+      },
+      "visual_token_cost": 256,
+      "visual_embedding_uri": "fixture://synthetic-contract-001/step-1.embedding"
+    },
+    {
+      "trajectory_id": "synthetic-contract-001",
+      "low_fidelity": {
+        "step_id": 2,
+        "action_type": "tap",
+        "target_text_or_coordinate_bin": "wifi_toggle",
+        "deterministic_ui_delta": "wifi=on",
+        "result_status": "success"
+      },
+      "observation_before_uri": "fixture://synthetic-contract-001/step-1.png",
+      "observation_after_uri": "fixture://synthetic-contract-001/step-2.png",
+      "executed_action": {
+        "action_type": "tap",
+        "target": "Wi-Fi toggle"
+      },
+      "visual_token_cost": 256,
+      "visual_embedding_uri": "fixture://synthetic-contract-001/step-2.embedding"
+    }
+  ],
+  "full_history_action": {
+    "action_type": "back"
+  },
+  "validated_action": {
+    "action_type": "back"
+  },
+  "trajectory_success": true
+}
