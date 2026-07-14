@@ -114,6 +114,15 @@
 - 峰值 allocated GPU memory 不超过 4.45 GiB，确认单张 A6000 可运行；
 - 下一步在完全相同的预注册 gate 上评估 9 个 full-history decisions。
 
+### 2026-07-14：ShowUI-2B coverage（negative result）
+
+- 在相同 9-decision full-history gate 下得到 9/9 parsed、2/9 executable match；
+- tap 为 1/7、swipe 为 0/1、type_text 为 1/1，overall gate 与 action-type gate 均失败；
+- 3--19 image 输入全部运行完成，最长 5,305 tokens、峰值 allocated GPU memory 5.01 GiB；
+- 后半段多次过早生成 `ANSWER('task complete')`，说明失败来自 behavior coverage 而非 runtime；
+- 拒绝该 candidate 进入 attribution pilot，结果见 `results/showui_policy_coverage/`；
+- 四个预登记 candidate 全部未过门槛，停止在当前 pilot 上继续枚举 backbone，转向 benchmark-native policy/evaluation stack 设计。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -121,7 +130,7 @@
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
-- Pending GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；尚未完成 smoke 与 coverage gate；
+- Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
@@ -136,4 +145,4 @@
 
 ## 下一步
 
-实现 ShowUI-2B 原生 phone navigation adapter，依次完成单测、单 GPU smoke 与预注册 coverage gate。若仍未通过，则停止在当前 pilot 上继续枚举 backbone，转向选择一个与 benchmark 原生适配的 policy/evaluation stack。
+设计 benchmark-native policy/evaluation stack：先冻结无泄漏的 train/validation/test provenance、policy training boundary 与 token-logit access，再创建新的 held-out teacher coverage pilot。不得复用当前 train trajectory 作为训练后 coverage 证据。

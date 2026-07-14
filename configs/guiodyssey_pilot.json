@@ -40,7 +40,7 @@
     "repo": "showlab/ShowUI-2B",
     "revision": "cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60",
     "license": "mit",
-    "status": "smoke_passed_pending_coverage_gate"
+    "status": "rejected_by_preregistered_gate_coverage_2_of_9"
   },
   "validation": {
     "pilot_filter": "successful_trajectory",

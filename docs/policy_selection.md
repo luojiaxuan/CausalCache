@@ -18,7 +18,7 @@ Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-
 | --- | --- | --- | --- |
 | [Qwen3-VL-8B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct) | Apache-2.0 / Qwen3-VL | 标准 Transformers、multi-image、logits 可用 | 拒绝：pilot full-history match 2/9 |
 | [UI-TARS-1.5-7B](https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B) | Apache-2.0 / Qwen2.5-VL | 官方 mobile action grammar、GUI agent tuning、标准 Transformers | 拒绝：pilot full-history match 4/9，低于预注册 50% gate |
-| [ShowUI-2B](https://huggingface.co/showlab/ShowUI-2B) | MIT / Qwen2-VL | 仅 2B、原生 phone navigation grammar、logits 可用 | 已冻结 revision；等待 smoke 与同一 coverage gate |
+| [ShowUI-2B](https://huggingface.co/showlab/ShowUI-2B) | MIT / Qwen2-VL | 仅 2B、原生 phone navigation grammar、logits 可用 | 拒绝：pilot full-history match 2/9 |
 | [OpenCUA-7B](https://huggingface.co/xlangai/OpenCUA-7B) | MIT / custom code | computer-use tuning、公开权重 | 拒绝：pilot full-history match 1/9 |
 
 ## UI-TARS 冻结配置
@@ -112,3 +112,16 @@ ShowUI 可选的组合点击；因此 adapter 在 coverage gate 前固定为：`
 1、3、7 张图，均生成唯一且正确的 `INPUT('cryptocurrency market')`；summary-only
 forward 返回 `[1, 695, 151936]` finite logits，峰值显存不超过 4.45 GiB。结果见
 `results/showui_policy_smoke/`。这只证明候选可以进入预注册 coverage gate。
+
+## ShowUI-2B gate 结果
+
+- 结果：2/9（22.2%），低于冻结的 50% overall threshold；
+- Parser coverage：9/9；
+- Action-type gate：失败，tap 1/7、swipe 0/1、type_text 1/1；
+- 计算可行性：3--19 images、最长 5,305 input tokens 均完成，峰值显存 5.01 GiB；
+- 主要失败：后半段多次过早输出 `ANSWER('task complete')`；
+- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `results/showui_policy_coverage/`。
+
+四个已登记 candidate 均未通过 gate。按预注册停止规则，不继续为当前单轨迹枚举相似
+backbone，也不事后调整 prompt、坐标容差或 threshold；下一步重新选择 benchmark-native
+policy/evaluation stack，并要求独立 held-out validation 与合法 token-logit access。
