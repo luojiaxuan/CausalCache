@@ -2,6 +2,11 @@ import unittest
 
 from causalcache.policy import build_policy_messages, parse_policy_action
 from causalcache.policy.open_cua import build_open_cua_messages, parse_open_cua_action
+from causalcache.policy.gui_owl import (
+    build_gui_owl_native_messages,
+    parse_gui_owl_action,
+    render_gui_owl_action,
+)
 from causalcache.policy.showui import build_showui_messages, parse_showui_action
 from causalcache.policy.ui_tars import build_ui_tars_messages, parse_ui_tars_action
 from causalcache.schema import ActionType
@@ -165,6 +170,42 @@ class PolicyPromptTest(unittest.TestCase):
                 "{'action': 'TAP', 'value': None, 'position': [500, 500]}",
                 {},
             )
+
+    def test_gui_owl_native_history_and_parser(self) -> None:
+        action_outputs = [
+            render_gui_owl_action(
+                {"function": {"name": "tap", "arguments": {"coordinate": [100, 200]}}},
+                description=f"Tap item {index}",
+            )
+            for index in range(5)
+        ]
+        messages = build_gui_owl_native_messages(
+            instruction="Open the saved item.",
+            screenshots=[f"screen-{index}.png" for index in range(6)],
+            action_outputs=action_outputs,
+        )
+        images = [
+            item["image"]
+            for message in messages
+            for item in message["content"]
+            if item["type"] == "image"
+        ]
+        self.assertEqual(images, [f"screen-{index}.png" for index in range(1, 6)])
+        self.assertIn("Step1: Tap item 0", messages[1]["content"][0]["text"])
+
+        tap = parse_gui_owl_action(action_outputs[0], {})
+        self.assertEqual(tap.action_type, ActionType.TAP)
+        self.assertEqual(tap.target, "coordinate_bin:x0_y1")
+        answer = parse_gui_owl_action(
+            'Action: Return the result\n<tool_call>\n'
+            '{"name":"mobile_use","arguments":{"action":"answer","text":"42"}}\n'
+            '</tool_call>',
+            {},
+        )
+        self.assertEqual(answer.action_type, ActionType.ANSWER)
+        self.assertEqual(answer.text_argument, "42")
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            parse_gui_owl_action(action_outputs[0] + "\n" + action_outputs[1], {})
 
 
 if __name__ == "__main__":

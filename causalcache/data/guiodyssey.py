@@ -69,10 +69,20 @@ def canonicalize_tool_call(
             "home": ActionType.HOME,
             "back": ActionType.BACK,
             "enter": ActionType.ENTER,
+            "menu": ActionType.RECENTS,
         }
         if button not in mapping:
             raise ValueError(f"unsupported system button: {button}")
         return ExecutableAction(mapping[button], target=button), button
+    if name == "open":
+        app_name = str(arguments["text"])
+        return ExecutableAction(ActionType.OPEN, target=app_name), app_name
+    if name == "answer":
+        answer = str(arguments["text"])
+        return ExecutableAction(ActionType.ANSWER, text_argument=answer), answer
+    if name == "key":
+        key = str(arguments["text"])
+        return ExecutableAction(ActionType.KEY, target=key), key
     if name == "wait":
         return ExecutableAction(ActionType.WAIT), "wait"
     if name == "stop":

@@ -14,6 +14,15 @@ from causalcache.policy.prompt import parse_policy_action
 from causalcache.schema import ExecutableAction
 
 
+def visual_patch_factor(model_dir: Path) -> int:
+    config = json.loads((model_dir / "preprocessor_config.json").read_text(encoding="utf-8"))
+    patch_size = int(config.get("patch_size", 14))
+    merge_size = int(config.get("merge_size", 2))
+    if patch_size <= 0 or merge_size <= 0:
+        raise ValueError("visual patch and merge sizes must be positive")
+    return patch_size * merge_size
+
+
 def action_dict(action: ExecutableAction) -> dict[str, Any]:
     return {
         "action_type": action.action_type.value,
@@ -54,7 +63,8 @@ class QwenPolicyRuntime:
 
         if not device.startswith("cuda:"):
             raise ValueError("Qwen policy runtime requires an explicit cuda device")
-        pixels_per_image = visual_tokens_per_image * 28 * 28
+        patch_factor = visual_patch_factor(model_dir)
+        pixels_per_image = visual_tokens_per_image * patch_factor * patch_factor
         self.torch = torch
         self.device = device
         self.processor = AutoProcessor.from_pretrained(
@@ -80,6 +90,7 @@ class QwenPolicyRuntime:
             "transformers_version": transformers.__version__,
             "processor_class": self.processor.__class__.__name__,
             "model_class": self.model.__class__.__name__,
+            "visual_patch_factor": patch_factor,
         }
 
     def _encode(self, messages: list[dict[str, Any]]) -> Any:

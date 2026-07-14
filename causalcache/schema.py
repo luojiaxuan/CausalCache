@@ -17,6 +17,10 @@ class ActionType(str, Enum):
     BACK = "back"
     HOME = "home"
     ENTER = "enter"
+    OPEN = "open"
+    ANSWER = "answer"
+    KEY = "key"
+    RECENTS = "recents"
     WAIT = "wait"
     STOP = "stop"
 
