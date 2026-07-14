@@ -137,6 +137,41 @@ class QwenPolicyRuntime:
         validated_action: ExecutableAction,
         action_parser: Callable[[str, Any], ExecutableAction] | None = None,
     ) -> dict[str, Any]:
+        result, inputs = self.generate_text(
+            messages,
+            max_new_tokens=max_new_tokens,
+            return_inputs=True,
+        )
+        output_text = result["output_text"]
+        parsed_action = None
+        parse_error = None
+        executable_match = False
+        try:
+            parsed_action = (
+                parse_policy_action(output_text)
+                if action_parser is None
+                else action_parser(output_text, inputs)
+            )
+            executable_match = parsed_action.executable_match(validated_action)
+        except (KeyError, TypeError, ValueError) as error:
+            parse_error = str(error)
+        result.update(
+            {
+                "parsed_action": action_dict(parsed_action) if parsed_action is not None else None,
+                "parse_error": parse_error,
+                "executable_match": executable_match,
+            }
+        )
+        return result
+
+    def generate_text(
+        self,
+        messages: list[dict[str, Any]],
+        *,
+        max_new_tokens: int,
+        return_inputs: bool = False,
+    ) -> dict[str, Any] | tuple[dict[str, Any], Any]:
+        """Generate raw policy text for closed-loop execution or downstream parsing."""
         inputs = self._encode(messages)
         self.torch.cuda.reset_peak_memory_stats(self.device)
         self.torch.cuda.synchronize(self.device)
@@ -151,26 +186,14 @@ class QwenPolicyRuntime:
         latency_seconds = time.perf_counter() - start
         new_tokens = generated[:, inputs.input_ids.shape[1] :]
         output_text = self.processor.batch_decode(new_tokens, skip_special_tokens=True)[0].strip()
-        parsed_action = None
-        parse_error = None
-        executable_match = False
-        try:
-            parsed_action = (
-                parse_policy_action(output_text)
-                if action_parser is None
-                else action_parser(output_text, inputs)
-            )
-            executable_match = parsed_action.executable_match(validated_action)
-        except (KeyError, TypeError, ValueError) as error:
-            parse_error = str(error)
-        return {
+        result = {
             "input_tokens": int(inputs.input_ids.shape[1]),
             "image_count": int(inputs.image_grid_thw.shape[0]),
             "generated_tokens": int(new_tokens.shape[1]),
             "latency_seconds": latency_seconds,
             "peak_gpu_memory_bytes": int(self.torch.cuda.max_memory_allocated(self.device)),
             "output_text": output_text,
-            "parsed_action": action_dict(parsed_action) if parsed_action is not None else None,
-            "parse_error": parse_error,
-            "executable_match": executable_match,
         }
+        if return_inputs:
+            return result, inputs
+        return result

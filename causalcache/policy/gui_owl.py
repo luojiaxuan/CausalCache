@@ -135,7 +135,7 @@ def render_gui_owl_action(
     )
 
 
-def _native_tool_call(text: str) -> Mapping[str, Any]:
+def parse_gui_owl_tool_arguments(text: str) -> Mapping[str, Any]:
     if text.count("<tool_call>") != 1 or text.count("</tool_call>") != 1:
         raise ValueError("GUI-Owl output must contain exactly one native action and tool call")
     match = re.fullmatch(
@@ -154,9 +154,82 @@ def _native_tool_call(text: str) -> Mapping[str, Any]:
     return arguments
 
 
+def _scaled_coordinate(
+    value: Any,
+    *,
+    screen_width: int,
+    screen_height: int,
+) -> list[int]:
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)) or len(value) != 2:
+        raise ValueError("GUI-Owl coordinate must contain exactly two numbers")
+    if screen_width <= 0 or screen_height <= 0:
+        raise ValueError("AndroidWorld screen dimensions must be positive")
+    x, y = value
+    if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+        raise ValueError("GUI-Owl coordinate values must be numeric")
+    if not 0 <= x <= 999 or not 0 <= y <= 999:
+        raise ValueError("GUI-Owl coordinate values must be in [0, 999]")
+    return [int(x / 999 * screen_width), int(y / 999 * screen_height)]
+
+
+def gui_owl_action_to_androidworld(
+    text: str,
+    *,
+    screen_width: int,
+    screen_height: int,
+) -> dict[str, Any]:
+    """Translate one native GUI-Owl tool call using the pinned MobileAgent mapping."""
+    arguments = parse_gui_owl_tool_arguments(text)
+    action = str(arguments["action"]).casefold()
+    if action == "tap":
+        action = "click"
+    if action in {"click", "long_press"}:
+        x, y = _scaled_coordinate(
+            arguments["coordinate"],
+            screen_width=screen_width,
+            screen_height=screen_height,
+        )
+        return {"action_type": action, "x": x, "y": y}
+    if action == "swipe":
+        start = _scaled_coordinate(
+            arguments["coordinate"],
+            screen_width=screen_width,
+            screen_height=screen_height,
+        )
+        end = _scaled_coordinate(
+            arguments["coordinate2"],
+            screen_width=screen_width,
+            screen_height=screen_height,
+        )
+        return {"action_type": "swipe", "direction": [*start, *end]}
+    if action == "type":
+        return {"action_type": "input_text", "text": str(arguments["text"])}
+    if action == "system_button":
+        button_actions = {
+            "back": "navigate_back",
+            "home": "navigate_home",
+            "enter": "keyboard_enter",
+        }
+        button = str(arguments["button"]).casefold()
+        if button not in button_actions:
+            raise ValueError(f"unsupported GUI-Owl system button: {button}")
+        return {"action_type": button_actions[button]}
+    if action == "open":
+        return {"action_type": "open_app", "app_name": str(arguments["text"])}
+    if action == "wait":
+        return {"action_type": "wait"}
+    if action == "answer":
+        return {"action_type": "answer", "text": str(arguments["text"])}
+    if action == "terminate":
+        return {"action_type": "status", "goal_status": "task_complete"}
+    if action == "key":
+        raise ValueError("GUI-Owl key actions are unsupported by the pinned MobileAgent converter")
+    raise ValueError(f"unsupported GUI-Owl action: {action}")
+
+
 def parse_gui_owl_action(text: str, model_inputs: Any) -> ExecutableAction:
     del model_inputs
-    arguments = _native_tool_call(text)
+    arguments = parse_gui_owl_tool_arguments(text)
     action = str(arguments["action"]).casefold()
     if action == "tap":
         action = "click"

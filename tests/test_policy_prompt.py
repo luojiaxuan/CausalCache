@@ -4,6 +4,7 @@ from causalcache.policy import build_policy_messages, parse_policy_action
 from causalcache.policy.open_cua import build_open_cua_messages, parse_open_cua_action
 from causalcache.policy.gui_owl import (
     build_gui_owl_native_messages,
+    gui_owl_action_to_androidworld,
     parse_gui_owl_action,
     render_gui_owl_action,
 )
@@ -206,6 +207,56 @@ class PolicyPromptTest(unittest.TestCase):
         self.assertEqual(answer.text_argument, "42")
         with self.assertRaisesRegex(ValueError, "exactly one"):
             parse_gui_owl_action(action_outputs[0] + "\n" + action_outputs[1], {})
+
+    def test_gui_owl_androidworld_converter_matches_pinned_mobileagent(self) -> None:
+        click = gui_owl_action_to_androidworld(
+            'Action: Tap the item\n<tool_call>{"name":"mobile_use","arguments":'
+            '{"action":"click","coordinate":[500,250]}}</tool_call>',
+            screen_width=1080,
+            screen_height=2400,
+        )
+        self.assertEqual(click, {"action_type": "click", "x": 540, "y": 600})
+        swipe = gui_owl_action_to_androidworld(
+            'Action: Scroll down\n<tool_call>{"name":"mobile_use","arguments":'
+            '{"action":"swipe","coordinate":[500,800],"coordinate2":[500,200]}}'
+            '</tool_call>',
+            screen_width=1080,
+            screen_height=2400,
+        )
+        self.assertEqual(swipe, {"action_type": "swipe", "direction": [540, 1921, 540, 480]})
+        typed = gui_owl_action_to_androidworld(
+            'Action: Enter text\n<tool_call>{"name":"mobile_use","arguments":'
+            '{"action":"type","text":"hello"}}</tool_call>',
+            screen_width=1080,
+            screen_height=2400,
+        )
+        self.assertEqual(typed, {"action_type": "input_text", "text": "hello"})
+        terminated = gui_owl_action_to_androidworld(
+            'Action: Finish\n<tool_call>{"name":"mobile_use","arguments":'
+            '{"action":"terminate","status":"success"}}</tool_call>',
+            screen_width=1080,
+            screen_height=2400,
+        )
+        self.assertEqual(
+            terminated,
+            {"action_type": "status", "goal_status": "task_complete"},
+        )
+
+    def test_gui_owl_androidworld_converter_rejects_unimplemented_official_actions(self) -> None:
+        with self.assertRaisesRegex(ValueError, "system button"):
+            gui_owl_action_to_androidworld(
+                'Action: Show apps\n<tool_call>{"name":"mobile_use","arguments":'
+                '{"action":"system_button","button":"Menu"}}</tool_call>',
+                screen_width=1080,
+                screen_height=2400,
+            )
+        with self.assertRaisesRegex(ValueError, "key actions"):
+            gui_owl_action_to_androidworld(
+                'Action: Clear\n<tool_call>{"name":"mobile_use","arguments":'
+                '{"action":"key","text":"clear"}}</tool_call>',
+                screen_width=1080,
+                screen_height=2400,
+            )
 
 
 if __name__ == "__main__":
