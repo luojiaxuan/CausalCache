@@ -75,6 +75,19 @@ def http_error_record(error: urllib.error.HTTPError) -> dict[str, Any]:
     }
 
 
+def apply_answer_followup_override(
+    action: dict[str, Any],
+    *,
+    previous_executed_action: dict[str, Any] | None,
+) -> tuple[dict[str, Any], bool]:
+    if (
+        previous_executed_action is not None
+        and previous_executed_action["action_type"] == "answer"
+    ):
+        return {"action_type": "status", "goal_status": "task_complete"}, True
+    return action, False
+
+
 def run_episode(args: argparse.Namespace) -> dict[str, Any]:
     plan = json.loads(args.validation_plan.read_text(encoding="utf-8"))
     instance = select_instance(
@@ -112,6 +125,7 @@ def run_episode(args: argparse.Namespace) -> dict[str, Any]:
     initialized = False
     screenshots: list[Any] = []
     action_outputs: list[str] = []
+    executed_actions: list[dict[str, Any]] = []
     parse_successes = 0
     termination_reason = "step_budget_exhausted"
 
@@ -173,7 +187,7 @@ def run_episode(args: argparse.Namespace) -> dict[str, Any]:
             step = {"step_index": step_index, "generation": generation}
             summary["steps"].append(step)
             try:
-                android_action = gui_owl_action_to_androidworld(
+                generated_android_action = gui_owl_action_to_androidworld(
                     generation["output_text"],
                     screen_width=screenshot_metadata["width"],
                     screen_height=screenshot_metadata["height"],
@@ -184,6 +198,13 @@ def run_episode(args: argparse.Namespace) -> dict[str, Any]:
                 break
 
             parse_successes += 1
+            android_action, answer_followup_override = apply_answer_followup_override(
+                generated_android_action,
+                previous_executed_action=(executed_actions[-1] if executed_actions else None),
+            )
+            if answer_followup_override:
+                step["generated_androidworld_action"] = generated_android_action
+                step["official_answer_followup_override"] = True
             step["androidworld_action"] = android_action
             try:
                 step["execute_response"] = request_json(
@@ -197,6 +218,7 @@ def run_episode(args: argparse.Namespace) -> dict[str, Any]:
                 termination_reason = "executor_error"
                 break
             action_outputs.append(generation["output_text"])
+            executed_actions.append(android_action)
             if android_action["action_type"] == "status":
                 termination_reason = "policy_terminated"
                 break
@@ -225,7 +247,12 @@ def run_episode(args: argparse.Namespace) -> dict[str, Any]:
     summary["parse_coverage"] = (
         parse_successes / len(summary["steps"]) if summary["steps"] else 0.0
     )
-    summary["terminal_success"] = summary["score_after"] == 1.0
+    summary["environment_success"] = summary["score_after"] == 1.0
+    summary["policy_declared_done"] = termination_reason == "policy_terminated"
+    summary["official_success"] = (
+        summary["environment_success"] and summary["policy_declared_done"]
+    )
+    summary["terminal_success"] = summary["official_success"]
     summary["elapsed_seconds"] = round(time.monotonic() - started, 3)
     return summary
 
@@ -260,6 +287,8 @@ def main() -> None:
                 "model_step_count": summary["model_step_count"],
                 "parse_coverage": summary["parse_coverage"],
                 "termination_reason": summary["termination_reason"],
+                "environment_success": summary["environment_success"],
+                "official_success": summary["official_success"],
                 "terminal_success": summary["terminal_success"],
                 "elapsed_seconds": summary["elapsed_seconds"],
             },

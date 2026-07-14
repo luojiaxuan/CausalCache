@@ -2,7 +2,11 @@ import unittest
 import urllib.error
 from io import BytesIO
 
-from scripts.run_gui_owl_androidworld_episode import http_error_record, select_instance
+from scripts.run_gui_owl_androidworld_episode import (
+    apply_answer_followup_override,
+    http_error_record,
+    select_instance,
+)
 
 
 class GUIOwlAndroidWorldEpisodeTest(unittest.TestCase):
@@ -46,6 +50,24 @@ class GUIOwlAndroidWorldEpisodeTest(unittest.TestCase):
             )
         finally:
             error.close()
+
+    def test_answer_forces_next_generated_action_to_terminate(self) -> None:
+        generated = {"action_type": "answer", "text": "done"}
+        effective, overridden = apply_answer_followup_override(
+            generated,
+            previous_executed_action={"action_type": "answer", "text": "done"},
+        )
+        self.assertTrue(overridden)
+        self.assertEqual(
+            effective,
+            {"action_type": "status", "goal_status": "task_complete"},
+        )
+        unchanged, overridden = apply_answer_followup_override(
+            generated,
+            previous_executed_action={"action_type": "click", "x": 1, "y": 2},
+        )
+        self.assertFalse(overridden)
+        self.assertEqual(unchanged, generated)
         with self.assertRaisesRegex(ValueError, "exactly one"):
             select_instance(
                 {"split": "validation", "instances": []},
