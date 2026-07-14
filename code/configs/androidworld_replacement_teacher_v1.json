@@ -1,0 +1,71 @@
+{
+  "schema_version": "0.1.0",
+  "status": "preregistered_not_run",
+  "candidate": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Think",
+    "revision": "afe3707fc84caebc4d7046118b34493ecf8bb060",
+    "snapshot_manifest": "code/configs/gui_owl_1_5_8b_think_snapshot.json",
+    "license": "mit",
+    "architecture": "Qwen3VLForConditionalGeneration",
+    "parameter_count": 8767123696,
+    "reported_androidworld_success": 0.716
+  },
+  "selection_rationale": {
+    "only_candidate_in_this_round": true,
+    "reason": "The Think checkpoint is the highest reported AndroidWorld member of the already integrated GUI-Owl 1.5 8B family and preserves the native five-image policy interface.",
+    "rejected_predecessor": "mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "not_selected_as_primary": {
+      "repo": "MarsXL/UI-Voyager",
+      "revision": "c262b85f18f1c669b19bca544e0ee2eb71225ff3",
+      "reason": "Its official inference path sends only the current screenshot; adding historical screenshots would create an unvalidated policy interface for this memory study."
+    }
+  },
+  "frozen_interface": {
+    "benchmark_repo": "google-research/android_world",
+    "benchmark_revision": "3e50888527ef9f29b9157ecd537e408008bb1c85",
+    "adapter_repo": "X-PLUG/MobileAgent",
+    "adapter_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+    "maximum_visible_images": 5,
+    "older_history": "executed_action_text",
+    "action_grammar": "mobile_use_tool_call",
+    "coordinate_range": [0, 1000],
+    "visual_preprocessing": "model_default",
+    "generation": {
+      "do_sample": false,
+      "reason": "A deterministic canonical action is required by the frozen-policy restoration contract; the upstream sampling defaults are not used."
+    },
+    "output_boundary": {
+      "smoke_parser": "existing_strict_action_then_single_tool_call",
+      "reasoning_prefix_allowed": false,
+      "format_discovery_rule": "A format-only parser change is allowed after the first smoke only if it is independent of action correctness, is regression-tested, and is committed before any validation episode starts."
+    }
+  },
+  "smoke_gate": {
+    "fixture_source": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "fixture_revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+    "decision_step_id": 4,
+    "required_variants": ["single_image", "native_five_image_history"],
+    "finite_last_token_logits": true,
+    "minimum_parse_coverage": 1.0,
+    "executable_match_is_diagnostic_only": true
+  },
+  "validation_gate": {
+    "plan": "code/configs/androidworld_validation_plan.json",
+    "plan_instance_count": 62,
+    "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+    "minimum_action_parse_coverage": 0.95,
+    "minimum_task_success": 0.5,
+    "early_stop_when_success_is_mathematically_impossible": true,
+    "test_partition_must_remain_sealed": true
+  },
+  "change_control": {
+    "no_prompt_equivalence_threshold_or_visual_preprocessing_changes_after_validation_starts": true,
+    "validation_failure_action": "reject_candidate_and_stop_this_round",
+    "acceptance_action": "upgrade_benchmark_specific_teacher_contract_before_generating_restoration_labels"
+  },
+  "compute_placement": {
+    "standalone_smoke": "hyper01_single_h200",
+    "closed_loop_validation": "aries_existing_androidworld_stack",
+    "cross_host_policy_environment_topology": "not_preregistered"
+  }
+}

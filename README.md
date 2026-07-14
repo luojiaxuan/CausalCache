@@ -3,14 +3,15 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: AAAI-27 paper backbone ready / validated teacher selection blocked
+> Status: AAAI-27 paper backbone ready / replacement teacher preregistered
 
 ## 团队交接入口
 
 当前可复核结论：方法与 synthetic estimator 接口已实现；五个 frozen-policy candidates 均未通过
 冻结 gate，最新 GUI-Owl native-resolution validation 的完整成功率上界是 30/62。当前没有
-accepted validated teacher，也没有 CausalCache 方法效果结果。下一步必须先预注册 replacement
-teacher source，不能直接打开 AndroidWorld test split 或事后放宽旧 gate。
+accepted validated teacher，也没有 CausalCache 方法效果结果。唯一的新一轮 candidate 已冻结为
+`GUI-Owl-1.5-8B-Think@afe3707`；下一步先在 Hyper01 做独立 logits/parser smoke，不能直接打开
+AndroidWorld test split 或事后放宽旧 gate。
 
 新合作者按以下顺序阅读：
 
@@ -38,7 +39,7 @@ make test validate-contract paper
 ```
 
 计算 placement：Hyper01 H200 默认用于 policy forward、attribution 和 gate training；AndroidWorld
-closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 的 KVM 可用，但 Docker root 只剩约 7.7G，
+closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 的 KVM 可用，但 Docker root 只剩约 7G，
 在解决 image 容量并重做 environment smoke 前不迁移完整 emulator stack。
 
 ## 一句话主张
@@ -245,7 +246,7 @@ $$
 - [x] 建立并验证 AAAI-27 官方 LaTeX anonymous submission 骨架；
 - [x] 冻结 action serialization、validated teacher 与 mixed-fidelity experiment contract；
 - [x] 固定并评估首个 frozen policy candidate；因 full-history coverage 仅 2/9，拒绝作为主 teacher；
-- [ ] 选择 GUI-tuned 主 frozen policy，并确定 transfer backbone；Qwen3-VL、UI-TARS、OpenCUA、ShowUI 与 GUI-Owl 均已按冻结 gate 拒绝，validated teacher 尚未解决；
+- [ ] 选择 GUI-tuned 主 frozen policy，并确定 transfer backbone；五个 predecessor 已拒绝，`GUI-Owl-1.5-8B-Think@afe3707` 已作为本轮唯一 replacement preregister，尚未运行 smoke 或 gate；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
@@ -283,6 +284,8 @@ $$
 - ShowUI-2B logits and mixed-fidelity smoke: [`data/results/showui_policy_smoke/README.md`](data/results/showui_policy_smoke/README.md)
 - ShowUI-2B full-history coverage: [`data/results/showui_policy_coverage/README.md`](data/results/showui_policy_coverage/README.md)
 - GUI-Owl-1.5-8B pinned snapshot manifest: [`code/configs/gui_owl_1_5_8b_snapshot.json`](code/configs/gui_owl_1_5_8b_snapshot.json)
+- GUI-Owl-1.5-8B-Think pinned snapshot manifest: [`code/configs/gui_owl_1_5_8b_think_snapshot.json`](code/configs/gui_owl_1_5_8b_think_snapshot.json)
+- Replacement teacher preregistration: [`code/configs/androidworld_replacement_teacher_v1.json`](code/configs/androidworld_replacement_teacher_v1.json)
 - AndroidWorld stack preregistration: [`code/configs/androidworld_stack.json`](code/configs/androidworld_stack.json)
 - AndroidWorld task partition manifest: [`code/configs/androidworld_task_partition.json`](code/configs/androidworld_task_partition.json)
 - AndroidWorld validation execution plan: [`code/configs/androidworld_validation_plan.json`](code/configs/androidworld_validation_plan.json)
@@ -294,7 +297,7 @@ $$
 - GUI-Owl native-resolution validation rejection: [`data/results/gui_owl_androidworld_validation/README.md`](data/results/gui_owl_androidworld_validation/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
-- 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey pilot 已完成；GUI-Owl 的 native-resolution AndroidWorld gate 以成功率上界 30/62 判负。尚无 accepted validated teacher，也尚无 CausalCache 方法效果结果。
+- 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey pilot 已完成；GUI-Owl Instruct 的 native-resolution AndroidWorld gate 以成功率上界 30/62 判负。GUI-Owl Think replacement 已预注册但尚未运行，当前仍无 accepted validated teacher 或 CausalCache 方法效果结果。
 
 ### Data and Models
 
@@ -306,6 +309,7 @@ $$
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
 | Rejected GUI navigation candidate | <https://huggingface.co/showlab/ShowUI-2B> | `cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60` | parsed 9/9、executable-match 2/9；未通过预注册 gate |
 | Rejected AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 496/496 parsed；official-success 上界 30/62，未通过 50% gate |
+| Preregistered replacement candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think> | `afe3707fc84caebc4d7046118b34493ecf8bb060` | 本轮唯一 candidate；Hyper01 smoke 尚未运行，不是 accepted teacher |
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.1.0` / `3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`，private | 47 traces；单个 deterministic gzip JSONL shard；GUI-Owl valid rejection |
 | Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |

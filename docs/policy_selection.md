@@ -144,3 +144,28 @@ A6000 的峰值显存为 17.07 GiB。该 candidate 当前状态为
 在 47/62 checkpoint 时得到 15 个 official success；即使余下 15 条全成功也只有 30/62，低于
 31/62 gate。496/496 action 均可解析，因此失败不是 serialization coverage 导致。结果见
 `data/results/gui_owl_androidworld_validation/`。
+
+## AndroidWorld replacement teacher v1
+
+下一轮只预注册 `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`，
+不并行枚举更多 backbone。模型卡报告 AndroidWorld success 71.6%，权重为 MIT licensed BF16
+8.77B `Qwen3VLForConditionalGeneration`。它与已拒绝的 Instruct checkpoint 共享 chat template、
+processor、tokenizer、model config、native 5-image history 与 `mobile_use` grammar；14 个 runtime
+文件中只有四个 weight shards 不同。因此此次替换不引入新的 prompt 或 action adapter。
+
+选择该模型只用于决定下一次预注册实验，不等价于本地 gate 已通过。固定执行顺序为：
+
+1. Hyper01 单 H200 做 model-default 1/5-image finite-logit 与 strict parser smoke；
+2. smoke 通过后，在完全相同的 62-instance AndroidWorld validation plan 上运行；
+3. parse coverage 仍须至少 95%，task success 仍须至少 50%；
+4. failure 时拒绝并停止本轮，success 时才升级 benchmark-specific teacher contract。
+
+deterministic generation 继续使用 `do_sample=false`，因为 restoration contract 需要固定 canonical
+action；官方 71.6% 只作为选型 prior，不声称可与本项目 deterministic gate 直接比较。首次 smoke
+若只暴露与 action correctness 无关的稳定 Thinking prefix，可在任何 validation episode 开始前做
+一次 fail-closed parser 适配并增加测试；不得根据动作正确性、success 或 validation state 调整格式。
+完整冻结配置见 `code/configs/androidworld_replacement_teacher_v1.json`。
+
+`MarsXL/UI-Voyager@c262b85` 没有选为主 teacher：其官方 inference 始终只传当前截图，所谓
+`n_history_image` 只影响 SFT artifact 保存。为它加入历史截图会形成新的 OOD policy interface，
+其报告的 81.0% AndroidWorld success 不能支持该修改后的接口。

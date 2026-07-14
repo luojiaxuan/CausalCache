@@ -26,7 +26,7 @@ HF create/upload/tag。远端确需访问 private repo 时，由操作者通过�
 | 小模型 smoke、sample-level debug | Aries/Taurus A6000 | Hyper01 | 避免为小任务占用 H200 |
 
 2026-07-14 实测 Hyper01：8×NVIDIA H200（每卡 143,771 MiB）、x86_64、`/dev/kvm` 可用；
-`/data01` 约 1.8T 可用，`/data02` 约 975G 可用，而根分区只剩约 7.7G。Docker root 是
+`/data01` 约 1.8T 可用，`/data02` 约 975G 可用，而根分区只剩约 7G。Docker root 是
 `/var/lib/docker`，当前有 `hongccc/sglang-omni:dev`，但没有约 13.4G 的
 `causalcache-androidworld` image。禁止用全局 Docker prune 腾空间；在 Docker root 被管理员迁移或
 明确释放足够空间前，Hyper01 只承担已有 image 可完成的 policy/offline 工作，closed-loop MVP 留在

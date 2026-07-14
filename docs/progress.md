@@ -267,6 +267,20 @@
   `contract_version` metadata 从 `0.1.0` 对齐到实际 config `0.3.0`，其数值结果不变；
 - 本次只改变 repository/execution contract，不改任何历史 experiment semantics 或结果数字。
 
+### 2026-07-14：Replacement teacher v1 预注册
+
+- 本轮唯一 candidate 冻结为
+  `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；官方报告
+  AndroidWorld 71.6%，但该数字不作为本项目 gate 结果；
+- 新 checkpoint 与已接入的 Instruct 版本共享全部 10 个非权重 runtime files，四个 BF16 weight
+  shard 的 SHA256 单独固定在 `code/configs/gui_owl_1_5_8b_think_snapshot.json`；
+- prompt、native 5-image history、action grammar、model-default visual preprocessing、deterministic
+  generation、62-instance validation plan、95% parse gate 与 50% success gate 全部保持不变；
+- Hyper01 只承担 standalone logits/parser smoke；Aries 继续承担已验证的 closed-loop stack，未预注册
+  跨主机 policy/environment topology；
+- `UI-Voyager` 未选为主 teacher，因为官方推理只暴露当前截图，加入历史截图会改变其已报告策略接口；
+- 当前状态仍是 preregistered-not-run，不是 accepted teacher，也不是 CausalCache 效果证据。
+
 ## 当前 artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -276,6 +290,7 @@
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
 - Rejected AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native validation 上界 30/62，未通过 50% gate；
+- Preregistered replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；尚未运行 Hyper01 smoke 或 AndroidWorld gate；
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.1.0` (`3fcca45fffe9842c9fcebbf5c6c27c9540bb1515`)；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
@@ -291,5 +306,6 @@
 
 ## 下一步
 
-在不打开 AndroidWorld test partition 的前提下，预注册新的 validated-teacher 来源与独立 gate。
-GUI-Owl 已停止，不对其 prompt、action equivalence 或 threshold 做结果后调优。
+从 Git `main` 的精确提交在 Hyper01 单 H200 运行 GUI-Owl Think model-default 1/5-image
+finite-logit/parser smoke。smoke 结果必须先回写并 push；通过后才能在 Aries 复用冻结的 62-instance
+AndroidWorld validation gate。test partition 保持 sealed，不修改 prompt、action equivalence 或 threshold。
