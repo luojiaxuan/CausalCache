@@ -519,6 +519,29 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
   与 pre-upload bytes 完全一致。此时尚未运行任何 independent policy output；下一步为 formal reference
   gate。
 
+### 2026-07-14：独立 UI-TARS reference gate 判负
+
+- 在 clean Git `585fd2aa8061f069008d985552ddaec4bbfd5246`、完整 artifact/model/interface/hardware-anchor
+  fail-closed validation 后，于 Hyper00 physical GPU 1 运行冻结的 8 trajectories / 75 decisions reference；
+- 69/75 outputs parsed，27/75 executable match（36.0%）；预注册 threshold 至少需要 38/75；tap 21/58、
+  swipe 0/2、type_text 5/9，因此 overall 与 required-action 两个 gate 均失败；
+- 6 个 parse failure 都是 prompt 允许但 parser 未实现的 `open_app`。这是 v1 action-contract mismatch；即使
+  事后把 6 个全部乐观计为正确也只有 33/75（44.0%），且 swipe 仍为 0/2，所以 no-go 对它稳健；
+- 逐 decision 复核确认 75 个 `(source_id, decision_step)` 唯一、source list 等于冻结 reference split、旧
+  anchor source 已排除、75/75 match flags 可从 raw record 重算；正式输出为 `summary.json`，没有
+  `failure.json` 或 incomplete denominator；
+- 按 protocol 输出 `NO_GO_CURRENT_REFERENCE_STACK` 并停止；disjoint 15-trajectory / 132-decision oracle
+  split 未运行，不生成 restoration labels、不训练 gate、不改 v1 prompt/parser/equivalence/threshold；
+- raw per-decision summary 与 monitor 上传 private HF
+  `gavinlaw/causalcache-guiodyssey-independent-mobile@reference-gate-v1`
+  (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)；四个文件从 immutable revision 强制重下载并核验
+  SHA256，轻量结论见 `data/results/independent_reference_gate_v1/`；
+- 单 H200 wall 296.75 s、generation latency 合计 185.26 s、peak allocated 18.20 GB；10 个 active monitor
+  windows 的平均 window utilization 20.4%、sample max 83%。逐 decision preprocessing/短 generation
+  仍需 batching，但科学 no-go 已使本路线不进入 coalition-scale oracle；
+- GUIOdyssey source 是 train shards，不能仅凭当前 provenance 排除 UI-TARS 训练数据重叠。任何 v2 必须
+  在新 untouched split 前先预注册一致的 `open_app` action contract；这不会回改 v1 结论。
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - GUIOdyssey independent gate：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-independent-mobile@v0.1.0` (`84c9f5a335e9612ccb4bd566f977574f359b2485`)；schema v0.4，immutable re-download verified；
@@ -529,7 +552,9 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - Rejected AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native validation 上界 30/62，未通过 50% gate；
 - Rejected replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；native validation 上界 29/62，未通过 50% gate；
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0` (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保持在 `v0.1.0`；
-- independent candidate dataset 已冻结；reference/oracle run records 尚未生成，必须使用后续 immutable revision；
+- independent candidate dataset 已冻结；reference raw record 位于 private HF
+  `@reference-gate-v1` (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)；reference 判负，oracle records
+  按协议未生成；
 - selection-biased go/no-go compact result：Git `data/results/go_no_go_diagnostic_v1/`；raw 209 KiB debug
   summary 只含可丢弃的 per-token/runtime 展开，canonical distances 与结论已压缩进 Git；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
@@ -546,8 +571,9 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 
 ## 下一步
 
-不要在已拒绝的 GUI-Owl stack 上生成 restoration labels 或继续 test split。下一项科学工作必须先形成
-新的 primary validated-reference 预注册：明确 policy/revision、原生 history/action interface、decoding、
-validation source 和停止规则，再运行新的独立 gate。使用 expert-success states 代替 frozen-policy coverage、
-接入新的 benchmark-native policy、或修改 deterministic decoding 都会改变当前实验契约，必须先作为显式
-decision 记录并 push，不能在本轮结果后静默选择。
+不要在已拒绝的 GUI-Owl 或 UI-TARS v1 stack 上生成 restoration labels，也不要打开 GUIOdyssey oracle 或
+AndroidWorld test split。下一项科学工作只能二选一：停止该 paper route，把 `INCONCLUSIVE_POSITIVE` 作为
+后续 GUI agentic RL 的工程观察；或另立 versioned primary-reference 预注册，明确 policy/revision、原生
+history/action contract（尤其 `open_app`）、decoding、untouched validation source 和停止规则后再跑新 gate。
+使用 expert-success states 代替 frozen-policy coverage、接入新的 benchmark-native policy、修改 parser 或
+deterministic decoding 都会改变当前实验契约，必须先作为显式 decision 记录并 push，不能回改 v1。

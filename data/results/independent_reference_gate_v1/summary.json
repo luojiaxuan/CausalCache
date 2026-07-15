@@ -1,0 +1,119 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "independent_reference_gate_v1",
+  "outcome": "NO_GO_CURRENT_REFERENCE_STACK",
+  "validation_mode": "full_history_executable_match",
+  "gate": {
+    "minimum_overall_coverage": 0.5,
+    "required_action_types": [
+      "tap",
+      "swipe",
+      "type_text"
+    ],
+    "overall_coverage_pass": false,
+    "action_type_coverage_pass": false,
+    "passed": false
+  },
+  "overall": {
+    "trajectories": 8,
+    "decisions": 75,
+    "parsed": 69,
+    "matches": 27,
+    "coverage": 0.36,
+    "optimistic_parse_failure_match_upper_bound": {
+      "matches": 33,
+      "coverage": 0.44
+    }
+  },
+  "by_action_type": {
+    "home": {
+      "decisions": 6,
+      "parsed": 1,
+      "matches": 1,
+      "coverage": 0.16666666666666666
+    },
+    "swipe": {
+      "decisions": 2,
+      "parsed": 2,
+      "matches": 0,
+      "coverage": 0.0
+    },
+    "tap": {
+      "decisions": 58,
+      "parsed": 57,
+      "matches": 21,
+      "coverage": 0.3620689655172414
+    },
+    "type_text": {
+      "decisions": 9,
+      "parsed": 9,
+      "matches": 5,
+      "coverage": 0.5555555555555556
+    }
+  },
+  "parse_failures": {
+    "total": 6,
+    "unsupported_open_app": 6,
+    "reference_action_types": {
+      "home": 5,
+      "tap": 1
+    }
+  },
+  "by_trajectory": {
+    "0062545727651092": {"decisions": 11, "parsed": 11, "matches": 4, "coverage": 0.36363636363636365},
+    "0074966019597416": {"decisions": 8, "parsed": 7, "matches": 4, "coverage": 0.5},
+    "0119197274492507": {"decisions": 9, "parsed": 8, "matches": 3, "coverage": 0.3333333333333333},
+    "0124013985171518": {"decisions": 8, "parsed": 8, "matches": 4, "coverage": 0.5},
+    "0125975818276068": {"decisions": 9, "parsed": 8, "matches": 1, "coverage": 0.1111111111111111},
+    "0139487095063242": {"decisions": 6, "parsed": 6, "matches": 4, "coverage": 0.6666666666666666},
+    "0145589904916408": {"decisions": 12, "parsed": 10, "matches": 6, "coverage": 0.5},
+    "0194478440163092": {"decisions": 12, "parsed": 11, "matches": 1, "coverage": 0.08333333333333333}
+  },
+  "dataset": {
+    "repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+    "revision": "84c9f5a335e9612ccb4bd566f977574f359b2485",
+    "manifest_sha256": "3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949",
+    "shard_sha256": "b16bd9c631c3e0ad2576715db6aad72be82ca9dda71612576c5f8b8ab52b0fe2"
+  },
+  "policy": {
+    "repo": "ByteDance-Seed/UI-TARS-1.5-7B",
+    "revision": "683d002dd99d8f95104d31e70391a39348857f4e"
+  },
+  "run": {
+    "git_commit": "585fd2aa8061f069008d985552ddaec4bbfd5246",
+    "config_sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8",
+    "host_alias": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "container_name": "sglang-omni-jaxan-07151458",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "physical_gpu_id": 1,
+    "container_device": "cuda:0",
+    "gpu_name": "NVIDIA H200",
+    "gpu_uuid": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+    "driver_version": "570.172.08",
+    "python_version": "3.12.3",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0",
+    "dtype": "bfloat16",
+    "started_at": "2026-07-15T07:00:15.896745+00:00",
+    "completed_at": "2026-07-15T07:05:12.643631+00:00",
+    "wall_time_seconds": 296.74808958591893,
+    "generation_latency_seconds_sum": 185.26009036088362,
+    "peak_gpu_memory_bytes": 18201206272,
+    "gpu_monitor": {
+      "active_windows": 10,
+      "mean_window_average_utilization_percent": 20.4,
+      "maximum_sampled_utilization_percent": 83,
+      "sha256": "cec257fc075e60dedafff728c2669816eb80ab6cc4886e7cf6b20648ca7ece18"
+    }
+  },
+  "artifacts": {
+    "raw_summary_sha256": "0a5af5b1ef4478c9ccf3b7c9ba59a7d01bc46ba73b330d281ab23dff6b93eb52",
+    "hf_repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+    "hf_tag": "reference-gate-v1",
+    "hf_revision": "b3e1245c6c6a1723fe2ca3a861148008df39df46",
+    "hf_path": "runs/independent-reference-gate-v1",
+    "immutable_redownload_verified": true
+  },
+  "oracle_split_status": "not_evaluated_due_to_reference_gate_failure"
+}

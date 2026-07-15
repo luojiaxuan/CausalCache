@@ -196,3 +196,16 @@ worker 完成后得到 42 records、9 official successes、20 unobserved，因�
 `MarsXL/UI-Voyager@c262b85` 没有选为主 teacher：其官方 inference 始终只传当前截图，所谓
 `n_history_image` 只影响 SFT artifact 保存。为它加入历史截图会形成新的 OOD policy interface，
 其报告的 81.0% AndroidWorld success 不能支持该修改后的接口。
+
+## Independent UI-TARS reference v1 最终决定
+
+selection-biased diagnostic 之后，项目按预注册回到 exact
+`ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`，但使用此前未观察 policy
+output 的独立 8-trajectory / 75-decision GUIOdyssey split。Hyper00 behavioral anchor 先精确复现旧 A6000
+decision vector；正式 gate 随后得到 69/75 parsed、27/75 executable match（36.0%），tap 21/58、swipe
+0/2、type_text 5/9，未通过冻结 50% + required-action gate。
+
+最终决定：`rejected_by_independent_reference_gate_v1`。prompt 列出但 parser 未实现 `open_app` 的接口
+mismatch 影响 6 项；即使全部乐观计为正确也只有 44%，且 swipe gate 仍失败，故不能借此重开 v1。
+oracle split 保持未观察，不生成 restoration labels。任何新 candidate、action adapter 或 validation source
+都必须另立 versioned preregistration，不能把本结果后的修正回填到 v1。

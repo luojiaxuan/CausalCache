@@ -90,6 +90,23 @@ anchor 不一致，就把未修改的 policy/config 转到 Aries；在 anchor �
 的 policy outputs。新 artifact 还必须先上传 private Hugging Face、把 immutable revision 与 tar/manifest
 SHA 回写并 push，之后才允许 inference。
 
+### v1 执行结果
+
+该 gate 已在 Git `585fd2aa8061f069008d985552ddaec4bbfd5246` 上完整执行，结果为
+`NO_GO_CURRENT_REFERENCE_STACK`：69/75 parsed、27/75 executable match（36.0%），tap 21/58、swipe
+0/2、type_text 5/9。整体至少需要 38/75，且 swipe required-action gate 独立失败，因此按上述规则停止，
+oracle split 未打开。完整轻量结论见
+[`data/results/independent_reference_gate_v1/`](../data/results/independent_reference_gate_v1/)，raw run 位于
+private HF `gavinlaw/causalcache-guiodyssey-independent-mobile@reference-gate-v1`
+(`b3e1245c6c6a1723fe2ca3a861148008df39df46`)。
+
+冻结 prompt 允许 `open_app`、parser 却未实现它，导致 6 个 parse failure；这是 v1 stack 的已知 action
+contract mismatch。它不能在看过结果后修正：即使把 6 项全部乐观计为 match 也只有 33/75（44.0%），且
+swipe 仍为 0/2，所以 v1 no-go 不依赖该 mismatch。若未来另立 v2，必须在新 untouched split 的任何 policy
+output 前先解决并提交一致 action contract。GUIOdyssey source 来自 train shards，当前 provenance 不能
+证明它不在 UI-TARS 训练语料中，因此“独立”只指本项目此前未观察这些 policy outputs，不声称严格训练集
+去污染。
+
 若 gate 通过，paper-level oracle 至少需要 20 个预先冻结的 executable-matched states，覆盖至少 10 条
 trajectory 与 3 个 app。扩展集的 `GO` 条件预先固定为：
 

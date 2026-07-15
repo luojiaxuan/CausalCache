@@ -10,6 +10,15 @@ committed config 和 immutable manifest 冻结；oracle distance/统计仍须第
 Independent gate 的合法输出只决定是否进入更大规模实验。它不能单独支持 terminal-success、matched-NLL
 或 distilled-gate 的论文 claim，也不能把旧 diagnostic states 变成 training labels。
 
+## 当前状态
+
+v1 formal reference 已完成并输出 `NO_GO_CURRENT_REFERENCE_STACK`：69/75 parsed、27/75 match、swipe
+0/2。raw run 已同步 private HF `@reference-gate-v1`
+(`b3e1245c6c6a1723fe2ca3a861148008df39df46`)，Git 轻量索引见
+[`data/results/independent_reference_gate_v1/`](../data/results/independent_reference_gate_v1/)。因此本文后续
+oracle 命令仅保留为审计过的预注册记录，不得在 v1 上执行。冻结 prompt/parser 存在 `open_app` 不一致，
+但 6 项全部乐观计正确仍只有 44%，且 swipe gate 仍失败；任何修正只能进入新版本、新 untouched split。
+
 ## Hyper00 old-pilot hardware anchor
 
 在查看 independent split policy output 前，Hyper00 用 UI-TARS 重跑旧 9-decision artifact，结果是

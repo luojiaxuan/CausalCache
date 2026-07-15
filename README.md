@@ -3,12 +3,20 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: diagnostic INCONCLUSIVE_POSITIVE / independent artifact frozen / reference gate next
+> Status: independent reference `NO_GO_CURRENT_REFERENCE_STACK` / oracle not opened
 
 ## 团队交接入口
 
-当前可复核结论：方法与 synthetic estimator 接口已实现；六个 frozen-policy candidates 均未通过
-冻结 gate，当前没有 accepted validated teacher，也没有 CausalCache 方法效果结果。最新
+当前最重要的可复核结论：冻结的 independent UI-TARS reference gate 已合法完成，但只有 27/75（36.0%）
+full-history executable match，且 swipe 为 0/2，未通过 50% + required-action gate。因此当前
+UI-TARS reference stack 明确 `NO_GO`，132-decision oracle split 未打开，不能生成 restoration labels 或
+训练 gate。raw 结果已上传 private HF
+`reference-gate-v1@b3e1245c6c6a1723fe2ca3a861148008df39df46`，轻量结论见
+[`data/results/independent_reference_gate_v1/`](data/results/independent_reference_gate_v1/)。这关闭的是
+当前 reference 获取路线，不是对 CausalCache 假设本身的 falsification。
+
+方法与 synthetic estimator 接口已实现；六个早期 frozen-policy candidates 均未通过冻结 gate，当前没有
+accepted validated teacher，也没有 CausalCache 方法效果结果。最新
 `GUI-Owl-1.5-8B-Think@afe3707` 虽在 Hyper01 通过 1/5-image finite-logit/parser smoke，但 Aries
 AndroidWorld 正式 validation 在 42/62 checkpoints 后以 success 下界 9/62、上界 29/62 判负；
 512/513 actions parsed，说明失败不是主要来自 serialization coverage。raw traces 已上传 private HF
@@ -50,9 +58,8 @@ multi-trajectory deterministic builder 与 formal fail-closed reference runner �
 两次构建 byte-identical，artifact 已上传 private HF
 `gavinlaw/causalcache-guiodyssey-independent-mobile@84c9f5a335e9612ccb4bd566f977574f359b2485`
 并从 immutable revision 强制重下载验 hash。reference split 冻结为 8 trajectories / 75 decisions / 14 app
-labels，oracle split 为 15 / 132 / 23，二者 trajectory-disjoint。命令、回写与失败恢复见
-[`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)；下一步才是首次 independent policy
-inference。
+labels，oracle split 为 15 / 132 / 23，二者 trajectory-disjoint。formal reference 已按冻结分母完成并判负；
+命令、回写与失败恢复见 [`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)。
 
 新合作者按以下顺序阅读：
 
@@ -81,8 +88,8 @@ docs/              # contract、execution、progress、decisions
 make test validate-contract paper
 ```
 
-计算 placement：当前 independent policy/reference 工作使用已通过 behavioral anchor 的 Hyper00 H200；
-AndroidWorld closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 当前不参与本轮执行。
+计算 placement：本轮 independent policy/reference 已在通过 behavioral anchor 的 Hyper00 H200 完成；
+AndroidWorld closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 未参与本轮执行。
 
 ## 一句话主张
 
@@ -319,6 +326,7 @@ $$
 - Qwen3-VL full-history coverage: [`data/results/qwen_policy_coverage/README.md`](data/results/qwen_policy_coverage/README.md)
 - UI-TARS full-history coverage: [`data/results/ui_tars_policy_coverage/README.md`](data/results/ui_tars_policy_coverage/README.md)
 - Independent gate artifact index: [`data/manifests/independent_reference_gate_v1_artifact.json`](data/manifests/independent_reference_gate_v1_artifact.json)
+- Independent UI-TARS reference rejection: [`data/results/independent_reference_gate_v1/README.md`](data/results/independent_reference_gate_v1/README.md)
 - OpenCUA-7B pinned snapshot manifest: [`code/configs/open_cua_7b_snapshot.json`](code/configs/open_cua_7b_snapshot.json)
 - OpenCUA-7B pinned runtime dependency: [`code/requirements/opencua.txt`](code/requirements/opencua.txt)
 - OpenCUA-7B logits and mixed-fidelity smoke: [`data/results/open_cua_policy_smoke/README.md`](data/results/open_cua_policy_smoke/README.md)
@@ -343,7 +351,7 @@ $$
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract`
-- 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey pilot 已完成；GUI-Owl Instruct 与 Think 的 AndroidWorld gate 分别以上界 30/62、29/62 判负。当前仍无 accepted validated teacher 或 CausalCache 方法效果结果，主 attribution 链路按预注册停止。
+- 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey pilot 已完成；independent UI-TARS reference 以 27/75、swipe 0/2 判负，oracle 未打开。当前仍无 accepted validated teacher 或 CausalCache 方法效果结果，主 attribution 链路按预注册停止。
 
 ### Data and Models
 
@@ -351,6 +359,7 @@ $$
 | --- | --- | --- | --- |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |
+| Independent UI-TARS reference run | 同一 private independent dataset repo | `reference-gate-v1` / `b3e1245c6c6a1723fe2ca3a861148008df39df46` | 69/75 parsed、27/75 match、swipe 0/2；`NO_GO_CURRENT_REFERENCE_STACK`；oracle 未运行 |
 | Rejected policy candidate | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> | `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b` | full-history executable-match 2/9；不作为主 teacher |
 | Rejected GUI-tuned candidate | <https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B> | `683d002dd99d8f95104d31e70391a39348857f4e` | parsed 9/9、executable-match 4/9；未通过预注册 50% gate |
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
@@ -358,7 +367,7 @@ $$
 | Rejected AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 496/496 parsed；official-success 上界 30/62，未通过 50% gate |
 | Rejected replacement candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think> | `afe3707fc84caebc4d7046118b34493ecf8bb060` | 512/513 parsed；official-success 上界 29/62，未通过 50% gate |
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.2.0` / `0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`，private | 42 Think traces；deterministic gzip JSONL；`v0.1.0` Instruct artifact 保持不变 |
-| Full attribution/evaluation datasets | 同一 private independent dataset repo | candidate artifact frozen；attribution records not generated | reference gate 通过后才允许 oracle records |
+| Full attribution/evaluation datasets | 同一 private independent dataset repo | attribution records not generated | v1 reference 已失败，禁止生成 oracle records；后续只能另立 versioned preregistration |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
