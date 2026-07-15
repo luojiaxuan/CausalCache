@@ -9,7 +9,6 @@ from pathlib import Path
 from causalcache.restoration_v2_baselines import (
     CANDIDATE_EVENT_STEP_IDS,
     RESIZED_RGB_BYTE_COUNT,
-    frozen_policy_vision_embedding_similarity_baseline,
     joint_rgb_histogram,
     joint_rgb_histogram_cosine,
     normalized_ocr_token_set,
@@ -176,65 +175,13 @@ class RestorationV2OcrRgbBaselineTest(unittest.TestCase):
             )
 
 
-class RestorationV2PolicyVisionBaselineTest(unittest.TestCase):
-    def test_mean_pool_l2_normalize_cosine_and_top_two(self) -> None:
-        result = frozen_policy_vision_embedding_similarity_baseline(
-            event_last_visual_outputs={
-                1: [[2.0, 0.0]],
-                2: [[0.0, 1.0]],
-                3: [[-1.0, 0.0], [-3.0, 0.0]],
-                4: [[0.0, 1.0], [2.0, -1.0]],
-            },
-            current_last_visual_output=[[1.0, 0.0], [3.0, 0.0]],
-        )
-        self.assertEqual(result.score(1), 1.0)
-        self.assertEqual(result.score(2), 0.0)
-        self.assertEqual(result.score(3), -1.0)
-        self.assertEqual(result.score(4), 1.0)
-        self.assertEqual(result.ranked_event_step_ids, (1, 4, 2, 3))
-        self.assertEqual(result.selected_event_step_ids, (1, 4))
-
+class RestorationV2PolicyVisionTieBreakTest(unittest.TestCase):
     def test_score_ties_use_frozen_tolerance_then_lower_step(self) -> None:
         result = select_top_two(
             {1: 0.9, 2: 0.9000000005, 3: 0.8, 4: 0.7}
         )
         self.assertEqual(result.ranked_event_step_ids[:2], (1, 2))
         self.assertEqual(result.selected_event_step_ids, (1, 2))
-
-    def test_policy_vision_missing_nonfinite_zero_and_dimension_fail_closed(self) -> None:
-        valid = {
-            1: [[1.0, 0.0]],
-            2: [[1.0, 0.0]],
-            3: [[1.0, 0.0]],
-            4: [[1.0, 0.0]],
-        }
-        missing = dict(valid)
-        missing.pop(4)
-        with self.assertRaisesRegex(ValueError, r"missing=\[4\]"):
-            frozen_policy_vision_embedding_similarity_baseline(
-                event_last_visual_outputs=missing,
-                current_last_visual_output=[[1.0, 0.0]],
-            )
-        nonfinite = dict(valid)
-        nonfinite[4] = [[math.inf, 0.0]]
-        with self.assertRaisesRegex(ValueError, "finite"):
-            frozen_policy_vision_embedding_similarity_baseline(
-                event_last_visual_outputs=nonfinite,
-                current_last_visual_output=[[1.0, 0.0]],
-            )
-        with self.assertRaisesRegex(ValueError, "positive L2 norm"):
-            frozen_policy_vision_embedding_similarity_baseline(
-                event_last_visual_outputs=valid,
-                current_last_visual_output=[[0.0, 0.0]],
-            )
-        dimension = dict(valid)
-        dimension[4] = [[1.0, 0.0, 0.0]]
-        with self.assertRaisesRegex(ValueError, "hidden dimension"):
-            frozen_policy_vision_embedding_similarity_baseline(
-                event_last_visual_outputs=dimension,
-                current_last_visual_output=[[1.0, 0.0]],
-            )
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -224,7 +224,10 @@ restoration v2 non-oracle baseline 的纯公式实现位于
 2-of-4 subset 的解析期望（没有 seed 或 sampled selector）、OCR+RGB 使用 full uncapped OCR token set 与
 256x256 RGB 的 16^3 joint histogram、policy-vision 使用 spatial-merger output 的 mean-pool/L2/cosine。
 top-2 tie 按 frozen `isclose` tolerance 后取较小 event step。当前公式和纯 CPU tests 已实现；policy-vision
-extractor 与完成态 source-hash manifest 仍需在任何 policy output 前补齐。
+唯一入口位于 `causalcache.policy.gui_owl_v2_vision`：只调用 final main merger `pooler_output`，排除
+pre-merger `last_hidden_state` 与全部 DeepStack features；完整 14-file model snapshot 和 Transformers 5.6.0
+三份 source SHA 必须先验证。`make validate-restoration-v2-baselines` 复核 11-file source manifest；dependency 6
+已闭合。
 
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 

@@ -6,9 +6,9 @@ AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate�
 frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
 untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
-preflight、exact IDs、exposure 与 OCR 已闭合；当前推进 baselines、derived artifact 与 execution config。仍没有
-v2 policy output、restoration label 或方法效果结果。baseline 纯公式已经实现；当前下一步是补齐
-policy-vision extractor/source manifest，并构建完整 derived artifact，随后冻结 execution config。
+preflight、exact IDs、exposure、OCR 与 baselines 已闭合；当前推进 derived artifact 与 execution config。仍没有
+v2 policy output、restoration label 或方法效果结果。当前下一步是构建并 immutable-verify 完整 derived
+artifact，随后冻结 execution config。
 
 ## 已完成里程碑
 
@@ -788,6 +788,20 @@ policy-vision extractor/source manifest，并构建完整 derived artifact，随
   output；policy-vision extractor identity 和完成态 source-hash manifest 仍 pending，因此 dependency 6 尚未
   标为 passed。
 
+### 2026-07-15：Policy-vision extractor 与 dependency 6 通过
+
+- 新增唯一 policy-vision baseline 入口 `code/causalcache/policy/gui_owl_v2_vision.py`；旧 generic
+  Python-double vision entry 已删除，避免 runner 在两套数值语义间误选；
+- extractor 只调用 Qwen3-VL final main merger `pooler_output`，按逐图 `t*h*w/4` 边界在 accelerator 上做
+  BF16→FP32 mean/L2/cosine；明确排除 pre-merger `last_hidden_state` 和 layer 8/16/24 DeepStack outputs；
+- 正式调用前必须逐文件验证 GUI-Owl 14-file snapshot（17,545,907,171 bytes）、repo/revision、exact local
+  inventory、Transformers 5.6.0 与三份 source SHA。Aries verifier 对实际 snapshot 全部通过；Hyper00/Aries
+  source SHA 一致；
+- Aries 真实 PyTorch runtime 的 5 个 fake-model Torch tests 全部通过；测试不加载 GUI-Owl，不调用 language
+  model、LM head 或 generation，也未读取 confirm score；
+- `data/manifests/restoration_v2_baselines.json` 绑定 11 个 Git source 与全部公式/identity，离线 validator
+  outcome 为 `PASSED_BASELINE_SOURCE_VALIDATION`；dependency 6 已 passed。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -830,8 +844,7 @@ policy-vision extractor/source manifest，并构建完整 derived artifact，随
    constructor 与 device-side executor dispatch 均有独立 evidence；
 5. pinned accessibility/OCR identity：implementation/config/weights SHA、synthetic golden 与 HF immutable
    model revision、6-image real-screen golden、HF dataset immutable re-download 与完成态 manifest passed；
-6. baseline specification/source hashes：scientific formula 与纯公式实现已完成；policy-vision extractor
-   identity、完成态 source-hash manifest pending；
+6. baseline specification/source hashes：passed，见 `data/manifests/restoration_v2_baselines.json`；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
 8. 引用 scientific-config SHA 的 execution config：pending。
 
@@ -840,8 +853,8 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步补齐 policy-vision extractor/source manifest，并构建、immutable-verify 完整 private HF
-derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
+逐步 push：下一步构建、immutable-verify 完整 private HF derived artifact，最后冻结包含全部
+identity/source hashes 与 microbatch 的 execution config。
 八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact

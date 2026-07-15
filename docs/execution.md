@@ -129,7 +129,8 @@ constructor preflight summary 随后 commit/push。`JSONAction(**payload)` 仅�
 device-side executor；还必须补 executor dispatch/behavioral smoke。此后才允许构建/冻结 derived HF
 artifact；同时还必须闭合 exact confirm IDs、exposure ledger、OCR identity、baseline source hashes，并
 冻结引用全部 artifact/interface identity 的 execution config。其中 exact IDs/exposure 与 OCR identity 已在
-下述 formal runs 闭合；完整 derived artifact、baseline source hashes 与 execution config 仍 pending。
+下述 formal runs 闭合；baseline source hashes 也由 `make validate-restoration-v2-baselines` 闭合。完整
+derived artifact 与 execution config 仍 pending。
 `docs/restoration_v2.md` 所列八项全部完成
 后，才允许执行 GPU substrate screening。
 
@@ -251,8 +252,9 @@ Git 完成态 manifest 后，才能把 dependency 5 标为 passed。本步骤 CP
 materialization + replay 的 5-file tree 均为 `605d6396...7e25`；private HF tag
 `ocr-real-screen-golden-v1.0.0` 解析到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`，fresh immutable
 re-download 后第三次 replay 通过。完整证据见
-`data/results/restoration_v2_ocr_backend/real_screen_summary.json`。这只闭合 dependency 5；完整 derived
-artifact、baseline hashes 与 execution config 仍阻止 GUI-Owl policy output。
+`data/results/restoration_v2_ocr_backend/real_screen_summary.json`。这只闭合 dependency 5；baseline dependency
+另由 `data/manifests/restoration_v2_baselines.json` 闭合。完整 derived artifact 与 execution config 仍阻止
+GUI-Owl policy output。
 
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从

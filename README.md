@@ -26,8 +26,9 @@ step-6 全部 16 个）已通过；pinned AndroidWorld `JSONAction` constructor 
 device-side executor dispatch 已在 Aries 正式通过 14/14 cases，negative actuation control 为 HTTP 500，
 独立 reducer verdict 为 `PASSED_EXECUTOR_DISPATCH`；证据见
 [`data/results/restoration_v2_executor_dispatch/`](data/results/restoration_v2_executor_dispatch/)。因此 action
-dependency 已闭合；完整 derived artifact、baseline source manifest 与 execution config 仍阻止 policy
-inference。baseline 的纯公式实现已经完成，但 policy-vision extractor identity 尚未写入完成态 manifest。
+dependency 已闭合；完整 derived artifact 与 execution config 仍阻止 policy inference。baseline 公式、
+GUI-Owl final-main-merger extractor、完整 snapshot/runtime verifier 与 11-file source manifest 已通过，
+dependency 6 已闭合。
 
 OCR/image backend 的 implementation identity 已冻结为 CPU-only
 `RapidOCR 3.8.4 + ONNX Runtime 1.24.4 + PP-OCRv5 mobile English`，两个 wheel、det/rec 与虽关闭但
@@ -107,7 +108,8 @@ docs/              # contract、execution、progress、decisions
 ```bash
 make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces \
   validate-restoration-v2-executor-dispatch validate-restoration-v2-selection \
-  validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact paper
+  validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact \
+  validate-restoration-v2-baselines paper
 ```
 
 计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback；任何正式
@@ -329,7 +331,8 @@ $$
 - [x] 实现并测试完整 111-pool reconstruction、exact-ID selection 与 append-only exposure materializer；
 - [x] 从 pinned source 正式冻结 exact 20-state confirm IDs、65 个 state witnesses 与 exposure ledger；
 - [x] 完成 OCR identity、synthetic/real-screen golden 与 immutable HF model/dataset artifact；
-- [ ] 完成完整 derived artifact、baseline hashes 与 execution config；
+- [x] 完成 baseline formulas、policy-vision extractor 与 source hashes；
+- [ ] 完成完整 derived artifact 与 execution config；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
@@ -372,6 +375,8 @@ $$
 - Frozen real-screen pre-output source contract: [`data/manifests/restoration_v2_real_screen_source.json`](data/manifests/restoration_v2_real_screen_source.json)
 - Passed real-screen run/HF summary: [`data/results/restoration_v2_ocr_backend/real_screen_summary.json`](data/results/restoration_v2_ocr_backend/real_screen_summary.json)
 - Restoration-v2 deterministic baseline formulas: [`code/causalcache/restoration_v2_baselines.py`](code/causalcache/restoration_v2_baselines.py)
+- Restoration-v2 policy-vision extractor: [`code/causalcache/policy/gui_owl_v2_vision.py`](code/causalcache/policy/gui_owl_v2_vision.py)
+- Restoration-v2 baseline source manifest: [`data/manifests/restoration_v2_baselines.json`](data/manifests/restoration_v2_baselines.json)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
@@ -406,8 +411,8 @@ $$
 - GUI-Owl Think passing native smoke: [`data/results/gui_owl_1_5_8b_think_smoke/README.md`](data/results/gui_owl_1_5_8b_think_smoke/README.md)
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
-- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor、device-side executor dispatch、exact selection/exposure 及完整 OCR dependency 已通过。完整 derived HF artifact、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor、device-side executor dispatch、exact selection/exposure、完整 OCR dependency 与 baseline dependency 已通过。完整 derived HF artifact 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 

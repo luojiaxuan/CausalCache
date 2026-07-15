@@ -1,0 +1,171 @@
+{
+  "artifact_id": "causalcache-restoration-v2-baselines-v1",
+  "dependency_6_closed": true,
+  "implementation_contract": {
+    "candidate_event_step_ids": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "ocr_and_rgb": {
+      "empty_ocr_set_jaccard": 1.0,
+      "ocr_jaccard_weight": 0.5,
+      "ocr_normalization": "Unicode_NFKC_collapse_whitespace_strip_then_set",
+      "rgb_histogram_weight": 0.5,
+      "rgb_joint_histogram_bins_per_channel": 16,
+      "rgb_resize": [
+        256,
+        256
+      ]
+    },
+    "policy_vision": {
+      "all_deepstack_features_excluded": true,
+      "deepstack_visual_indexes": [
+        8,
+        16,
+        24
+      ],
+      "feature_call": "Qwen3VLForConditionalGeneration.get_image_features(pixel_values,image_grid_thw,return_dict=True)",
+      "feature_dtype": "torch.bfloat16",
+      "feature_field": "pooler_output",
+      "feature_semantics": "final_main_vision_merger_output",
+      "generate_called": false,
+      "l2_norm_epsilon": 1e-12,
+      "language_model_called": false,
+      "lm_head_called": false,
+      "mean_and_l2_reduction_dtype": "torch.float32",
+      "model_class": "Qwen3VLForConditionalGeneration",
+      "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+      "normalized_embeddings_remain_on_accelerator": true,
+      "cpu_transfer": "grid_metadata_per_image_norm_validation_scalars_and_four_final_cosines_only",
+      "full_visual_features_move_to_cpu": false,
+      "patch_size": 16,
+      "per_image_boundary": "t*h*w/(spatial_merge_size^2)",
+      "pre_merger_last_hidden_state_excluded": true,
+      "spatial_merge_size": 2,
+      "snapshot_file_count": 14,
+      "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+      "snapshot_total_bytes": 17545907171,
+      "snapshot_verification": "exact_local_snapshot_json_and_every_listed_file_size_sha256_and_exact_file_inventory_before_extraction",
+      "temporal_patch_size": 2,
+      "transformers_source_sha256": {
+        "image_processing_qwen2_vl.py": "de5859892f04c64f3e79c9d318842ac0040000788e43870997bd1ec6565c02bb",
+        "modeling_qwen3_vl.py": "c37abc40a3744dc116cf1e06eceb7ff79bd384cfbfe0d41773f5efc074f31523",
+        "processing_qwen3_vl.py": "b51f77d783b4a88d503bf9198828d46f71e3ead3833da2631748188b159253ba"
+      },
+      "transformers_version": "5.6.0",
+      "vision_depth": 27,
+      "vision_hidden_size_before_merger": 1152,
+      "vision_output_size_after_merger": 4096
+    },
+    "primary_budget_event_capacity": 2,
+    "recent_selection": [
+      3,
+      4
+    ],
+    "scientific_baseline_contract": {
+      "formula_source_hashes_required_before_confirm": true,
+      "frozen_policy_vision_embedding_similarity": "cosine_of_l2_normalized_mean_last_visual_encoder_output_after_spatial_merger(post,current);select_top_2",
+      "ocr_and_rgb_similarity": "score=0.5*set_jaccard_of_whitespace_token_sets_after_frozen_ocr_normalization(post,current)+0.5*cosine_joint_rgb_histogram_16x16x16(post,current);select_top_2",
+      "recent": "select_events_3_and_4",
+      "summary_only": "select_empty",
+      "tie_break": "higher_score_then_lower_event_step_id",
+      "uniform_random_exact_expectation": "mean_normalized_recovery_over_all_2_of_4_subsets"
+    },
+    "score_tie": {
+      "abs_tol": 1e-12,
+      "rel_tol": 1e-09,
+      "secondary_key": "lower_event_step_id"
+    },
+    "summary_only_selection": [],
+    "uniform_random_exact_subsets": [
+      [
+        1,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ]
+    ],
+    "uniform_random_seed": null
+  },
+  "negative_declarations": {
+    "confirm_scores_observed": false,
+    "policy_loaded": false,
+    "policy_output_generated": false,
+    "restoration_output_generated": false,
+    "sampled_random_selector_implemented": false
+  },
+  "protocol_id": "causalcache_restoration_v2",
+  "schema_version": "1.0.0",
+  "scientific_contract": {
+    "path": "code/configs/causalcache_restoration_v2.json",
+    "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+  },
+  "source_files": [
+    {
+      "path": "code/causalcache/low_fidelity_v2.py",
+      "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a"
+    },
+    {
+      "path": "code/causalcache/policy/gui_owl_v2_vision.py",
+      "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24"
+    },
+    {
+      "path": "code/causalcache/restoration_v2_baselines.py",
+      "sha256": "7df03a3478b2ba0aaaa40d1a08de54126f1211404bf3fc20470876ada735366d"
+    },
+    {
+      "path": "code/causalcache/restoration_v2_text_backend.py",
+      "sha256": "f2ed121f290095514ec0f54b83217188f3f9496e5b68da5216f2f19c0d43206e"
+    },
+    {
+      "path": "code/configs/causalcache_restoration_v2.json",
+      "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+    },
+    {
+      "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+    },
+    {
+      "path": "code/configs/restoration_v2_ocr_backend.json",
+      "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+    },
+    {
+      "path": "code/scripts/validate_restoration_v2_baselines.py",
+      "sha256": "f8fd8cded492dff7629aa89503b8de8136e86c709bc2a0cef74aa5cf604e8f99"
+    },
+    {
+      "path": "code/tests/test_gui_owl_v2_vision.py",
+      "sha256": "ccdaf6db12b77aa8a03f5a198808da339063a229a7713e2560d2caeb3ee491ea"
+    },
+    {
+      "path": "code/tests/test_restoration_v2_baseline_manifest.py",
+      "sha256": "a17c9274cc531a45807971e7d32cc64c8706296e5a1af2281248f457bb1b855d"
+    },
+    {
+      "path": "code/tests/test_restoration_v2_baselines.py",
+      "sha256": "1ac7d13e80c9638a11597afc1ba33a0b6dae20e8ed9f1166c1a402927c8ba165"
+    }
+  ],
+  "status": "PASSED_PREOUTPUT_BASELINE_IMPLEMENTATION"
+}
