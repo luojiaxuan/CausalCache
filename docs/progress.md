@@ -5,8 +5,9 @@
 AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop
 frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
-untouched 20-state confirm。scientific contract 与 CPU interface source hashes 已冻结；当前先完成 pinned
-AndroidWorld executor preflight 和 derived artifact。仍没有 v2 policy output、restoration label 或方法效果结果。
+untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
+preflight 已闭合；当前推进 exact IDs、exposure、OCR、baselines、derived artifact 与 execution config。仍没有
+v2 policy output、restoration label 或方法效果结果。
 
 ## 已完成里程碑
 
@@ -619,6 +620,21 @@ AndroidWorld executor preflight 和 derived artifact。仍没有 v2 policy outpu
   frozen runner 计算的 digest 与 shape；所有 attempt files exclusive-create，失败不能被同路径成功重跑覆盖；
 - 当前仅完成代码与 tests，必须先 commit/push，再在 Aries 正式运行。本步骤没有 policy/GPU output。
 
+### 2026-07-15：Executor-dispatch formal run 通过
+
+- 从已推送 commit `b6e57c2` 的新 clean detached checkout 运行 formal attempt
+  `rv2-20260715T101814Z-53016a40`，未复用旧开发目录；
+- pre/post inspection 锁定相同 Aries runtime/server container、image、5003→5000 port、mount 与四个 live
+  source hashes；dispatch 总耗时 53.39 秒，首帧为 1080x2400；
+- frozen parser/bridge 重新生成的 14 个 cases 全部返回 exact HTTP 200 success echo；11 个 AndroidWorld
+  action types 的 raw denominator 与 counts 由 reducer 重算；
+- 缺坐标 click 的 pinned constructor-acceptance witness 通过，相同 payload 在 live actuation 返回 HTTP 500，
+  随后 health 与 cleanup reset 正常；
+- canonical offline verdict 为 `PASSED_EXECUTOR_DISPATCH`，summary SHA256
+  `61956a457fb15a8fdfd35baf1a9f07c48ab45910a94829d537c9a591b2ffcc39`；四件套见
+  `data/results/restoration_v2_executor_dispatch/`；
+- 第 4 项 action dependency 已闭合。本次未加载 policy、未使用 GPU、未生成 v2 policy/restoration output。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -631,6 +647,8 @@ AndroidWorld executor preflight 和 derived artifact。仍没有 v2 policy outpu
 - GUI-Owl-1.5-8B-Instruct：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；v1 native validation 上界 30/62、未通过 50% success gate；v2 只将同一 checkpoint 用作 stable self-behavior substrate；
 - Rejected replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；native validation 上界 29/62，未通过 50% gate；
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0` (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保持在 `v0.1.0`；
+- restoration v2 executor evidence：Git `data/results/restoration_v2_executor_dispatch/`，formal verdict
+  `PASSED_EXECUTOR_DISPATCH`，14/14 cases，summary SHA256 `61956a45...`；
 - independent candidate dataset 已冻结；reference raw record 位于 private HF
   `@reference-gate-v1` (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)；reference 判负，oracle records
   按协议未生成。旧 oracle raw trajectories/images/expert actions 已被 builder 读取和打包，不是 raw unseen；
@@ -646,8 +664,8 @@ AndroidWorld executor preflight 和 derived artifact。仍没有 v2 policy outpu
 1. derived artifact immutable HF revision/file hashes：pending；
 2. exact confirm trajectory/state IDs：pending；
 3. exposure ledger：pending；
-4. restricted prompt/parser/bridge/executor fixture：CPU prompt/parser/bridge 与真实 pinned `JSONAction`
-   constructor passed，device-side executor dispatch pending；
+4. restricted prompt/parser/bridge/executor fixture：passed；CPU prompt/parser/bridge、真实 pinned `JSONAction`
+   constructor 与 device-side executor dispatch 均有独立 evidence；
 5. pinned accessibility/OCR identity：pending；
 6. baseline specification/source hashes：scientific formula 已冻结，implementation source hashes pending；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
@@ -658,8 +676,8 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步先冻结并正式运行无需 GPU 的 AndroidWorld executor-dispatch preflight，再 materialize exact IDs、
-exposure ledger、OCR summaries/backend identity 和 baseline source hashes；随后构建并 immutable-verify
+逐步 push：下一步 materialize exact IDs、exposure ledger、OCR summaries/backend identity 和 baseline source
+hashes；随后构建并 immutable-verify
 private HF derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
 八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity

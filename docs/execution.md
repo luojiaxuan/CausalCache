@@ -132,7 +132,12 @@ artifact；同时还必须闭合 exact confirm IDs、exposure ledger、OCR ident
 
 2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
 `data/results/restoration_v2_constructor_preflight/`。冻结 interface manifest 保留 run 前 `pending`，实际
-状态由该 result summary 更新；executor dispatch 仍须单独闭合。
+状态由该 result summary 更新。
+
+同日 executor dispatch formal attempt `rv2-20260715T101814Z-53016a40` 已在 Aries 对 14/14 cases 通过，
+negative actuation control 为 HTTP 500，独立 reducer verdict 为 `PASSED_EXECUTOR_DISPATCH`。完整四件套见
+`data/results/restoration_v2_executor_dispatch/`；该结果闭合第 4 项 action dependency，但不替代其余七项
+pre-output dependencies。
 
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从

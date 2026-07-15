@@ -1,0 +1,1063 @@
+{
+  "androidworld_executor_dispatch_validation": {
+    "action_records": [
+      {
+        "canonical_arguments": {
+          "action": "click",
+          "coordinate": [
+            0,
+            0
+          ]
+        },
+        "case_id": "click_minimum",
+        "index": 0,
+        "live_screenshot_before_first_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 13.350118,
+          "finished_at": "2026-07-15T10:18:53.825516+00:00",
+          "height": 2400,
+          "http_status": 200,
+          "response_bytes": 35977173,
+          "response_sha256": "8e4ac6ad79dd2f01cc70c2e66f113e23da1b8cbe200b6d815cd375cd6b20dda4",
+          "started_at": "2026-07-15T10:18:41.242467+00:00",
+          "width": 1080
+        },
+        "native_output_sha256": "509ba8ab3f023a22bab3f8a0abfc49ceefaaff7dedf6b0ee490183d28ba91e57",
+        "payload": {
+          "action_type": "click",
+          "x": 0,
+          "y": 0
+        },
+        "payload_sha256": "93a843ef7333ecd8f66446077a6f2097b2bf978639fe2995f6fcd07118607f3e",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 0.149642,
+          "finished_at": "2026-07-15T10:18:41.242292+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:18:41.092686+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.113865,
+          "finished_at": "2026-07-15T10:18:56.790118+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='click', x=0, y=0) executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='click', x=0, y=0) executed.\"}",
+          "response_bytes": 91,
+          "response_sha256": "777922a6b7f233e20afa2b3adf7bc6cd0eed7a263dc227f864b959e07733be8d",
+          "started_at": "2026-07-15T10:18:54.676290+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "click",
+          "coordinate": [
+            999,
+            999
+          ]
+        },
+        "case_id": "click_maximum",
+        "index": 1,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "84321793dfba352e0a803be39f4bf0944369aa1dfa82ffbe611522cbcf30c3ce",
+        "payload": {
+          "action_type": "click",
+          "x": 1079,
+          "y": 2399
+        },
+        "payload_sha256": "e4c775dd291c424a7e06f02985e1489d90551f51277b63a172ff94e94d4f9765",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.108415,
+          "finished_at": "2026-07-15T10:18:57.898665+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:18:56.790302+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.127824,
+          "finished_at": "2026-07-15T10:19:00.026745+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='click', x=1079, y=2399) executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='click', x=1079, y=2399) executed.\"}",
+          "response_bytes": 97,
+          "response_sha256": "03ee181d663e7b988450e7629ac36c00f64b7eafe0803d3919e9c7854f9a9ee7",
+          "started_at": "2026-07-15T10:18:57.898993+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "click",
+          "coordinate": [
+            500,
+            250
+          ]
+        },
+        "case_id": "tap_alias",
+        "index": 2,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "68f9a4840f6a27af521bb6287e01846b1b93b47b327910a351c1a8c2dc76fd64",
+        "payload": {
+          "action_type": "click",
+          "x": 540,
+          "y": 600
+        },
+        "payload_sha256": "4e897a520425d92ab92c38f94508ca8e792d582cc95e5b32ab2566c6a9ffe820",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 0.086174,
+          "finished_at": "2026-07-15T10:19:00.113097+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:00.026956+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.105181,
+          "finished_at": "2026-07-15T10:19:02.218374+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='click', x=540, y=600) executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='click', x=540, y=600) executed.\"}",
+          "response_bytes": 95,
+          "response_sha256": "469c1a021253b4391b8e88ca4503427633a025a6af533df03f833bc95f97b789",
+          "started_at": "2026-07-15T10:19:00.113243+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "long_press",
+          "coordinate": [
+            250,
+            500
+          ]
+        },
+        "case_id": "long_press",
+        "index": 3,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "ff2972c525e04b75dcef72f5eba8d97dc0ca593c943b817a9f6061dc02ba3db2",
+        "payload": {
+          "action_type": "long_press",
+          "x": 270,
+          "y": 1201
+        },
+        "payload_sha256": "5b94bdf16218699d439ce022b09ae37f59d81c02afc620ff0fc8ec4bb0052acd",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.085305,
+          "finished_at": "2026-07-15T10:19:03.303897+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:02.218638+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 3.115346,
+          "finished_at": "2026-07-15T10:19:06.419386+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='long_press', x=270, y=1201) executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='long_press', x=270, y=1201) executed.\"}",
+          "response_bytes": 101,
+          "response_sha256": "7549c093d9393f4481a45d166f7392f174b9762a40edf3c64051b762f746af73",
+          "started_at": "2026-07-15T10:19:03.304085+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "swipe",
+          "coordinate": [
+            500,
+            800
+          ],
+          "coordinate2": [
+            500,
+            200
+          ]
+        },
+        "case_id": "swipe",
+        "index": 4,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "1697f22653a3c596af931810462be3ee5c2e1d8554cf0068f119424d0ec3446e",
+        "payload": {
+          "action_type": "swipe",
+          "direction": [
+            540,
+            1921,
+            540,
+            480
+          ]
+        },
+        "payload_sha256": "be4156d57bd0e11f4b5e89fb4a54e1a9ba9281b3d05164fd976f44149f4f6715",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.100273,
+          "finished_at": "2026-07-15T10:19:07.519757+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:06.419559+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.633181,
+          "finished_at": "2026-07-15T10:19:10.153116+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='swipe', direction=[540, 1921, 540, 480]) executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='swipe', direction=[540, 1921, 540, 480]) executed.\"}",
+          "response_bytes": 114,
+          "response_sha256": "df73ecec3d3a3d59e3c38852bfbb6079798063dc119ff92c1a3ef7384bb0c990",
+          "started_at": "2026-07-15T10:19:07.519975+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "type",
+          "text": "Café"
+        },
+        "case_id": "type_nfkc",
+        "index": 5,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "96c2abf5f9ad0c3202bf7a9c7cf8a05a63d24135f8f85ee4b136ad5ef5ef1bde",
+        "payload": {
+          "action_type": "input_text",
+          "text": "Café"
+        },
+        "payload_sha256": "d6c43a6cabe041eb41cb7b64fbd29074832d192e93356f7e2e3f89dc8a7b43f0",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.089652,
+          "finished_at": "2026-07-15T10:19:11.242907+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:10.153305+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.403672,
+          "finished_at": "2026-07-15T10:19:13.646822+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='input_text', text='Café') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='input_text', text='Café') executed.\"}",
+          "response_bytes": 100,
+          "response_sha256": "73190d2771435f0c35a61849c1391df36256d36a81226cf53e652564016a8056",
+          "started_at": "2026-07-15T10:19:11.243191+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "system_button",
+          "button": "Back"
+        },
+        "case_id": "system_back",
+        "index": 6,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "cfb2c6b7a776186054917c697cd7e810f2bdc5a6e48f81472d7e45e0d8b46fe4",
+        "payload": {
+          "action_type": "navigate_back"
+        },
+        "payload_sha256": "ae885accd7f9e2882b21625e97f5d0ad506df0edb37fa0f5cfb9f9af5b45aa75",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 0.083741,
+          "finished_at": "2026-07-15T10:19:13.730710+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:13.647001+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.103174,
+          "finished_at": "2026-07-15T10:19:15.834008+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='navigate_back') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='navigate_back') executed.\"}",
+          "response_bytes": 89,
+          "response_sha256": "0a5659f18bc945079c59c466dff6abc71d8cbbadec7c97590160e16c9f001e99",
+          "started_at": "2026-07-15T10:19:13.730879+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "system_button",
+          "button": "Home"
+        },
+        "case_id": "system_home",
+        "index": 7,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "9f45a918b90b82fa9f5885fd7166f98e0c448c736757d62638d6488ae4aca313",
+        "payload": {
+          "action_type": "navigate_home"
+        },
+        "payload_sha256": "0d2a05de3474e7d8d55f55399a5b6975f8647501d1eebdc84e441f05bafc8147",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.088375,
+          "finished_at": "2026-07-15T10:19:16.922571+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:15.834249+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.09579,
+          "finished_at": "2026-07-15T10:19:19.018619+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='navigate_home') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='navigate_home') executed.\"}",
+          "response_bytes": 89,
+          "response_sha256": "5808b365756ead54c0557b3baec67ef6a07d11c590c6ef2883b3b9b453d08704",
+          "started_at": "2026-07-15T10:19:16.922880+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "system_button",
+          "button": "Enter"
+        },
+        "case_id": "system_enter",
+        "index": 8,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "2b693822636b8d8d7752022cee5d6d5fcf2c90fdddefcfa654c35560a1250028",
+        "payload": {
+          "action_type": "keyboard_enter"
+        },
+        "payload_sha256": "03cee66f6ed68e3e877d734a99419cfe8c9d5296d769d63a93b084ddc7075d3f",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.086014,
+          "finished_at": "2026-07-15T10:19:20.104889+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:19.018926+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.099689,
+          "finished_at": "2026-07-15T10:19:22.204735+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='keyboard_enter') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='keyboard_enter') executed.\"}",
+          "response_bytes": 90,
+          "response_sha256": "19f4757cb3a8893bc390c1069f25f4ee7e88abd95e54dc5e26e9fcb7dfcfaf6e",
+          "started_at": "2026-07-15T10:19:20.105147+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "open",
+          "text": "Markor"
+        },
+        "case_id": "open",
+        "index": 9,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "2ced6db3e74bdf7f1758d9875162b162977d4c16591a9de33af777ea62760ef8",
+        "payload": {
+          "action_type": "open_app",
+          "app_name": "Markor"
+        },
+        "payload_sha256": "17d7b4a8d6636b6f6c80f4609211568f1eeecc28f23e69f51fc67ee52e4538c8",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.096502,
+          "finished_at": "2026-07-15T10:19:23.301498+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:22.205047+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.187433,
+          "finished_at": "2026-07-15T10:19:25.489147+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='open_app', app_name='Markor') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='open_app', app_name='Markor') executed.\"}",
+          "response_bytes": 103,
+          "response_sha256": "bbb80f25f5e04e4131b58631d71461441c6d00b645f63d54425e466f0ba30516",
+          "started_at": "2026-07-15T10:19:23.301765+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "open",
+          "text": "Tasks"
+        },
+        "case_id": "open_app_alias",
+        "index": 10,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "89608d8d0703a64db41eb0f15d1cc993f2a16c94f3945d3afc0522ebd2c50b44",
+        "payload": {
+          "action_type": "open_app",
+          "app_name": "Tasks"
+        },
+        "payload_sha256": "d9e93d3f0bb1d3e81014b2f577115b7f7542ae3f52e268fe469d7a11c611e252",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.104216,
+          "finished_at": "2026-07-15T10:19:26.593579+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:25.489414+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 2.143897,
+          "finished_at": "2026-07-15T10:19:28.737715+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='open_app', app_name='Tasks') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='open_app', app_name='Tasks') executed.\"}",
+          "response_bytes": 102,
+          "response_sha256": "742ea5a01b746c765235c5f7a9008c8807bfa269e0edd760a85b98687382b38d",
+          "started_at": "2026-07-15T10:19:26.593864+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "wait"
+        },
+        "case_id": "wait",
+        "index": 11,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "599ab6f002276b68a97f1c123ec565a7a0bce9ae804c7aa26fdbd16dcd66692a",
+        "payload": {
+          "action_type": "wait"
+        },
+        "payload_sha256": "0a28c221b222678ea8a8007fee36a1d83bbaed129d94e6dfbba937a89a07e1ac",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 0.127352,
+          "finished_at": "2026-07-15T10:19:28.865303+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:28.737984+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 3.07323,
+          "finished_at": "2026-07-15T10:19:31.938632+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='wait') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='wait') executed.\"}",
+          "response_bytes": 80,
+          "response_sha256": "7f3aff27b0047f29b978bc38b19d0c67d9291569f56c05400cf8ecbffc6d2a4a",
+          "started_at": "2026-07-15T10:19:28.865456+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "answer",
+          "text": "完成 ✅"
+        },
+        "case_id": "answer",
+        "index": 12,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "c4f0933ca61246bf3da92e1f8867b09350ef49cb6e2695627c046cc0d8ee8204",
+        "payload": {
+          "action_type": "answer",
+          "text": "完成 ✅"
+        },
+        "payload_sha256": "f2a82af24b7e6e2cd38537b29d279054f0e0062e60e1f6e3cdcf63e59a621366",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 1.08369,
+          "finished_at": "2026-07-15T10:19:33.022582+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:31.938942+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 0.032024,
+          "finished_at": "2026-07-15T10:19:33.054951+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='answer', text='完成 ✅') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='answer', text='完成 ✅') executed.\"}",
+          "response_bytes": 101,
+          "response_sha256": "c2fa5d9f4525b7d78169e8ed069ab074591e36daf3cbd74ee838007a27daa59d",
+          "started_at": "2026-07-15T10:19:33.022958+00:00"
+        }
+      },
+      {
+        "canonical_arguments": {
+          "action": "terminate",
+          "status": "success"
+        },
+        "case_id": "terminate",
+        "index": 13,
+        "live_screenshot_before_first_case": null,
+        "native_output_sha256": "c75ddcf4c02e8fc083edab5fb54c022a3df590770b82931d484f39b8ce1a75ce",
+        "payload": {
+          "action_type": "status",
+          "goal_status": "task_complete"
+        },
+        "payload_sha256": "d17edce51196b1d65528a5dd900430eaa5c0c311a9f4d922e6747fdcf5c05d87",
+        "reset_before_case": {
+          "content_type": "application/json",
+          "elapsed_seconds": 0.12419,
+          "finished_at": "2026-07-15T10:19:33.179260+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Environment reset with go_home=True.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+          "response_bytes": 69,
+          "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+          "started_at": "2026-07-15T10:19:33.055110+00:00"
+        },
+        "response": {
+          "content_type": "application/json",
+          "elapsed_seconds": 0.002968,
+          "finished_at": "2026-07-15T10:19:33.182381+00:00",
+          "http_status": 200,
+          "json_body": {
+            "message": "Action JSONAction(action_type='status', goal_status='task_complete') executed.",
+            "status": "success"
+          },
+          "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Action JSONAction(action_type='status', goal_status='task_complete') executed.\"}",
+          "response_bytes": 111,
+          "response_sha256": "586eda702b5d61116c29960966dd74052f6086b87f2314acc3d6e24d031e0a0d",
+          "started_at": "2026-07-15T10:19:33.179447+00:00"
+        }
+      }
+    ],
+    "androidworld_action_type_counts": {
+      "answer": 1,
+      "click": 3,
+      "input_text": 1,
+      "keyboard_enter": 1,
+      "long_press": 1,
+      "navigate_back": 1,
+      "navigate_home": 1,
+      "open_app": 2,
+      "status": 1,
+      "swipe": 1,
+      "wait": 1
+    },
+    "case_ids": [
+      "click_minimum",
+      "click_maximum",
+      "tap_alias",
+      "long_press",
+      "swipe",
+      "type_nfkc",
+      "system_back",
+      "system_home",
+      "system_enter",
+      "open",
+      "open_app_alias",
+      "wait",
+      "answer",
+      "terminate"
+    ],
+    "cleanup_reset": {
+      "content_type": "application/json",
+      "elapsed_seconds": 1.070835,
+      "finished_at": "2026-07-15T10:19:34.408284+00:00",
+      "http_status": 200,
+      "json_body": {
+        "message": "Environment reset with go_home=True.",
+        "status": "success"
+      },
+      "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+      "response_bytes": 69,
+      "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+      "started_at": "2026-07-15T10:19:33.337496+00:00"
+    },
+    "health_after_negative_control": {
+      "content_type": "application/json",
+      "elapsed_seconds": 0.005215,
+      "finished_at": "2026-07-15T10:19:33.337375+00:00",
+      "http_status": 200,
+      "json_body": {
+        "status": "success"
+      },
+      "raw_body_utf8": "{\"status\":\"success\"}",
+      "response_bytes": 20,
+      "response_sha256": "912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d",
+      "started_at": "2026-07-15T10:19:33.332181+00:00"
+    },
+    "health_before": {
+      "content_type": "application/json",
+      "elapsed_seconds": 0.024973,
+      "finished_at": "2026-07-15T10:18:41.092518+00:00",
+      "http_status": 200,
+      "json_body": {
+        "status": "success"
+      },
+      "raw_body_utf8": "{\"status\":\"success\"}",
+      "response_bytes": 20,
+      "response_sha256": "912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d",
+      "started_at": "2026-07-15T10:18:41.067564+00:00"
+    },
+    "negative_actuation_control": {
+      "payload": {
+        "action_type": "click"
+      },
+      "purpose": "constructor accepts the action, but actuation must reject missing coordinates",
+      "reset_before": {
+        "content_type": "application/json",
+        "elapsed_seconds": 0.082858,
+        "finished_at": "2026-07-15T10:19:33.265369+00:00",
+        "http_status": 200,
+        "json_body": {
+          "message": "Environment reset with go_home=True.",
+          "status": "success"
+        },
+        "raw_body_utf8": "{\"status\":\"success\",\"message\":\"Environment reset with go_home=True.\"}",
+        "response_bytes": 69,
+        "response_sha256": "7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e",
+        "started_at": "2026-07-15T10:19:33.182552+00:00"
+      },
+      "response": {
+        "body_text": "Internal Server Error",
+        "content_type": "text/plain",
+        "elapsed_seconds": 0.066576,
+        "finished_at": "2026-07-15T10:19:33.332103+00:00",
+        "http_status": 500,
+        "raw_body_utf8": "Internal Server Error",
+        "response_bytes": 21,
+        "response_sha256": "e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62",
+        "started_at": "2026-07-15T10:19:33.265560+00:00"
+      }
+    },
+    "status": "passed",
+    "validated_case_count": 14
+  },
+  "argv": [
+    "/data/worktrees/causalcache-restoration-v2-dispatch/code/scripts/validate_restoration_v2_executor_dispatch.py",
+    "--attempt-id",
+    "rv2-20260715T101814Z-53016a40",
+    "--contract",
+    "configs/causalcache_restoration_v2.json",
+    "--action-fixture",
+    "../data/fixtures/gui_owl_v2_action_roundtrip.json",
+    "--prompt-fixture",
+    "../data/fixtures/restoration_v2_prompt_low_fidelity.json",
+    "--interface-manifest",
+    "../data/manifests/restoration_v2_interfaces.json",
+    "--stack-config",
+    "configs/androidworld_stack.json",
+    "--host-inspection",
+    "/data/tmp/before-rv2-20260715T101814Z-53016a40.json",
+    "--androidworld-source-root",
+    "/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5",
+    "--androidworld-source-revision",
+    "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+    "--run-git-commit",
+    "b6e57c2619e88b8646657b3190bf45853a86c3d2",
+    "--host-name",
+    "aries.cs.ucsb.edu",
+    "--runtime-container-name",
+    "sglang-omni-jaxan-07140435",
+    "--runtime-container-id",
+    "b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa",
+    "--runtime-image-id",
+    "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+    "--runtime-image-repo-digest",
+    "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "--server-container-name",
+    "sglang-omni-jaxan-07141630",
+    "--server-container-id",
+    "ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07",
+    "--server-image",
+    "causalcache-androidworld:11cea575-executor1",
+    "--server-image-id",
+    "sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+    "--server-json-action-schema",
+    "android_world.agents.new_json_action",
+    "--base-url",
+    "http://172.17.0.1:5003",
+    "--server-host-port",
+    "5003",
+    "--server-container-port",
+    "5000",
+    "--timeout-seconds",
+    "120",
+    "--output-summary",
+    "/data/tmp/raw-rv2-20260715T101814Z-53016a40.json"
+  ],
+  "attempt_id": "rv2-20260715T101814Z-53016a40",
+  "canonical_packaging": {
+    "after_inspection_sha256": "b36beafb0a9b4c251c93621ec3db7227cb6c4409e3a00daeaff2e23aacdb2321",
+    "attempt_id": "rv2-20260715T101814Z-53016a40",
+    "offline_validator_sha256": "c5535544d290a63fce848bccd3a9cd04001dda0ade34addd864ce06571f7d824",
+    "packaged_at": "2026-07-15T10:20:03.648206+00:00",
+    "raw_summary_raw_utf8": "{\n  \"androidworld_executor_dispatch_validation\": {\n    \"action_records\": [\n      {\n        \"canonical_arguments\": {\n          \"action\": \"click\",\n          \"coordinate\": [\n            0,\n            0\n          ]\n        },\n        \"case_id\": \"click_minimum\",\n        \"index\": 0,\n        \"live_screenshot_before_first_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 13.350118,\n          \"finished_at\": \"2026-07-15T10:18:53.825516+00:00\",\n          \"height\": 2400,\n          \"http_status\": 200,\n          \"response_bytes\": 35977173,\n          \"response_sha256\": \"8e4ac6ad79dd2f01cc70c2e66f113e23da1b8cbe200b6d815cd375cd6b20dda4\",\n          \"started_at\": \"2026-07-15T10:18:41.242467+00:00\",\n          \"width\": 1080\n        },\n        \"native_output_sha256\": \"509ba8ab3f023a22bab3f8a0abfc49ceefaaff7dedf6b0ee490183d28ba91e57\",\n        \"payload\": {\n          \"action_type\": \"click\",\n          \"x\": 0,\n          \"y\": 0\n        },\n        \"payload_sha256\": \"93a843ef7333ecd8f66446077a6f2097b2bf978639fe2995f6fcd07118607f3e\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 0.149642,\n          \"finished_at\": \"2026-07-15T10:18:41.242292+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:18:41.092686+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.113865,\n          \"finished_at\": \"2026-07-15T10:18:56.790118+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='click', x=0, y=0) executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='click', x=0, y=0) executed.\\\"}\",\n          \"response_bytes\": 91,\n          \"response_sha256\": \"777922a6b7f233e20afa2b3adf7bc6cd0eed7a263dc227f864b959e07733be8d\",\n          \"started_at\": \"2026-07-15T10:18:54.676290+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"click\",\n          \"coordinate\": [\n            999,\n            999\n          ]\n        },\n        \"case_id\": \"click_maximum\",\n        \"index\": 1,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"84321793dfba352e0a803be39f4bf0944369aa1dfa82ffbe611522cbcf30c3ce\",\n        \"payload\": {\n          \"action_type\": \"click\",\n          \"x\": 1079,\n          \"y\": 2399\n        },\n        \"payload_sha256\": \"e4c775dd291c424a7e06f02985e1489d90551f51277b63a172ff94e94d4f9765\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.108415,\n          \"finished_at\": \"2026-07-15T10:18:57.898665+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:18:56.790302+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.127824,\n          \"finished_at\": \"2026-07-15T10:19:00.026745+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='click', x=1079, y=2399) executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='click', x=1079, y=2399) executed.\\\"}\",\n          \"response_bytes\": 97,\n          \"response_sha256\": \"03ee181d663e7b988450e7629ac36c00f64b7eafe0803d3919e9c7854f9a9ee7\",\n          \"started_at\": \"2026-07-15T10:18:57.898993+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"click\",\n          \"coordinate\": [\n            500,\n            250\n          ]\n        },\n        \"case_id\": \"tap_alias\",\n        \"index\": 2,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"68f9a4840f6a27af521bb6287e01846b1b93b47b327910a351c1a8c2dc76fd64\",\n        \"payload\": {\n          \"action_type\": \"click\",\n          \"x\": 540,\n          \"y\": 600\n        },\n        \"payload_sha256\": \"4e897a520425d92ab92c38f94508ca8e792d582cc95e5b32ab2566c6a9ffe820\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 0.086174,\n          \"finished_at\": \"2026-07-15T10:19:00.113097+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:00.026956+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.105181,\n          \"finished_at\": \"2026-07-15T10:19:02.218374+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='click', x=540, y=600) executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='click', x=540, y=600) executed.\\\"}\",\n          \"response_bytes\": 95,\n          \"response_sha256\": \"469c1a021253b4391b8e88ca4503427633a025a6af533df03f833bc95f97b789\",\n          \"started_at\": \"2026-07-15T10:19:00.113243+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"long_press\",\n          \"coordinate\": [\n            250,\n            500\n          ]\n        },\n        \"case_id\": \"long_press\",\n        \"index\": 3,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"ff2972c525e04b75dcef72f5eba8d97dc0ca593c943b817a9f6061dc02ba3db2\",\n        \"payload\": {\n          \"action_type\": \"long_press\",\n          \"x\": 270,\n          \"y\": 1201\n        },\n        \"payload_sha256\": \"5b94bdf16218699d439ce022b09ae37f59d81c02afc620ff0fc8ec4bb0052acd\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.085305,\n          \"finished_at\": \"2026-07-15T10:19:03.303897+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:02.218638+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 3.115346,\n          \"finished_at\": \"2026-07-15T10:19:06.419386+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='long_press', x=270, y=1201) executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='long_press', x=270, y=1201) executed.\\\"}\",\n          \"response_bytes\": 101,\n          \"response_sha256\": \"7549c093d9393f4481a45d166f7392f174b9762a40edf3c64051b762f746af73\",\n          \"started_at\": \"2026-07-15T10:19:03.304085+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"swipe\",\n          \"coordinate\": [\n            500,\n            800\n          ],\n          \"coordinate2\": [\n            500,\n            200\n          ]\n        },\n        \"case_id\": \"swipe\",\n        \"index\": 4,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"1697f22653a3c596af931810462be3ee5c2e1d8554cf0068f119424d0ec3446e\",\n        \"payload\": {\n          \"action_type\": \"swipe\",\n          \"direction\": [\n            540,\n            1921,\n            540,\n            480\n          ]\n        },\n        \"payload_sha256\": \"be4156d57bd0e11f4b5e89fb4a54e1a9ba9281b3d05164fd976f44149f4f6715\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.100273,\n          \"finished_at\": \"2026-07-15T10:19:07.519757+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:06.419559+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.633181,\n          \"finished_at\": \"2026-07-15T10:19:10.153116+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='swipe', direction=[540, 1921, 540, 480]) executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='swipe', direction=[540, 1921, 540, 480]) executed.\\\"}\",\n          \"response_bytes\": 114,\n          \"response_sha256\": \"df73ecec3d3a3d59e3c38852bfbb6079798063dc119ff92c1a3ef7384bb0c990\",\n          \"started_at\": \"2026-07-15T10:19:07.519975+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"type\",\n          \"text\": \"Café\"\n        },\n        \"case_id\": \"type_nfkc\",\n        \"index\": 5,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"96c2abf5f9ad0c3202bf7a9c7cf8a05a63d24135f8f85ee4b136ad5ef5ef1bde\",\n        \"payload\": {\n          \"action_type\": \"input_text\",\n          \"text\": \"Café\"\n        },\n        \"payload_sha256\": \"d6c43a6cabe041eb41cb7b64fbd29074832d192e93356f7e2e3f89dc8a7b43f0\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.089652,\n          \"finished_at\": \"2026-07-15T10:19:11.242907+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:10.153305+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.403672,\n          \"finished_at\": \"2026-07-15T10:19:13.646822+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='input_text', text='Café') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='input_text', text='Café') executed.\\\"}\",\n          \"response_bytes\": 100,\n          \"response_sha256\": \"73190d2771435f0c35a61849c1391df36256d36a81226cf53e652564016a8056\",\n          \"started_at\": \"2026-07-15T10:19:11.243191+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"system_button\",\n          \"button\": \"Back\"\n        },\n        \"case_id\": \"system_back\",\n        \"index\": 6,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"cfb2c6b7a776186054917c697cd7e810f2bdc5a6e48f81472d7e45e0d8b46fe4\",\n        \"payload\": {\n          \"action_type\": \"navigate_back\"\n        },\n        \"payload_sha256\": \"ae885accd7f9e2882b21625e97f5d0ad506df0edb37fa0f5cfb9f9af5b45aa75\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 0.083741,\n          \"finished_at\": \"2026-07-15T10:19:13.730710+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:13.647001+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.103174,\n          \"finished_at\": \"2026-07-15T10:19:15.834008+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='navigate_back') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='navigate_back') executed.\\\"}\",\n          \"response_bytes\": 89,\n          \"response_sha256\": \"0a5659f18bc945079c59c466dff6abc71d8cbbadec7c97590160e16c9f001e99\",\n          \"started_at\": \"2026-07-15T10:19:13.730879+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"system_button\",\n          \"button\": \"Home\"\n        },\n        \"case_id\": \"system_home\",\n        \"index\": 7,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"9f45a918b90b82fa9f5885fd7166f98e0c448c736757d62638d6488ae4aca313\",\n        \"payload\": {\n          \"action_type\": \"navigate_home\"\n        },\n        \"payload_sha256\": \"0d2a05de3474e7d8d55f55399a5b6975f8647501d1eebdc84e441f05bafc8147\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.088375,\n          \"finished_at\": \"2026-07-15T10:19:16.922571+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:15.834249+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.09579,\n          \"finished_at\": \"2026-07-15T10:19:19.018619+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='navigate_home') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='navigate_home') executed.\\\"}\",\n          \"response_bytes\": 89,\n          \"response_sha256\": \"5808b365756ead54c0557b3baec67ef6a07d11c590c6ef2883b3b9b453d08704\",\n          \"started_at\": \"2026-07-15T10:19:16.922880+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"system_button\",\n          \"button\": \"Enter\"\n        },\n        \"case_id\": \"system_enter\",\n        \"index\": 8,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"2b693822636b8d8d7752022cee5d6d5fcf2c90fdddefcfa654c35560a1250028\",\n        \"payload\": {\n          \"action_type\": \"keyboard_enter\"\n        },\n        \"payload_sha256\": \"03cee66f6ed68e3e877d734a99419cfe8c9d5296d769d63a93b084ddc7075d3f\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.086014,\n          \"finished_at\": \"2026-07-15T10:19:20.104889+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:19.018926+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.099689,\n          \"finished_at\": \"2026-07-15T10:19:22.204735+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='keyboard_enter') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='keyboard_enter') executed.\\\"}\",\n          \"response_bytes\": 90,\n          \"response_sha256\": \"19f4757cb3a8893bc390c1069f25f4ee7e88abd95e54dc5e26e9fcb7dfcfaf6e\",\n          \"started_at\": \"2026-07-15T10:19:20.105147+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"open\",\n          \"text\": \"Markor\"\n        },\n        \"case_id\": \"open\",\n        \"index\": 9,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"2ced6db3e74bdf7f1758d9875162b162977d4c16591a9de33af777ea62760ef8\",\n        \"payload\": {\n          \"action_type\": \"open_app\",\n          \"app_name\": \"Markor\"\n        },\n        \"payload_sha256\": \"17d7b4a8d6636b6f6c80f4609211568f1eeecc28f23e69f51fc67ee52e4538c8\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.096502,\n          \"finished_at\": \"2026-07-15T10:19:23.301498+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:22.205047+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.187433,\n          \"finished_at\": \"2026-07-15T10:19:25.489147+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='open_app', app_name='Markor') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='open_app', app_name='Markor') executed.\\\"}\",\n          \"response_bytes\": 103,\n          \"response_sha256\": \"bbb80f25f5e04e4131b58631d71461441c6d00b645f63d54425e466f0ba30516\",\n          \"started_at\": \"2026-07-15T10:19:23.301765+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"open\",\n          \"text\": \"Tasks\"\n        },\n        \"case_id\": \"open_app_alias\",\n        \"index\": 10,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"89608d8d0703a64db41eb0f15d1cc993f2a16c94f3945d3afc0522ebd2c50b44\",\n        \"payload\": {\n          \"action_type\": \"open_app\",\n          \"app_name\": \"Tasks\"\n        },\n        \"payload_sha256\": \"d9e93d3f0bb1d3e81014b2f577115b7f7542ae3f52e268fe469d7a11c611e252\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.104216,\n          \"finished_at\": \"2026-07-15T10:19:26.593579+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:25.489414+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 2.143897,\n          \"finished_at\": \"2026-07-15T10:19:28.737715+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='open_app', app_name='Tasks') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='open_app', app_name='Tasks') executed.\\\"}\",\n          \"response_bytes\": 102,\n          \"response_sha256\": \"742ea5a01b746c765235c5f7a9008c8807bfa269e0edd760a85b98687382b38d\",\n          \"started_at\": \"2026-07-15T10:19:26.593864+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"wait\"\n        },\n        \"case_id\": \"wait\",\n        \"index\": 11,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"599ab6f002276b68a97f1c123ec565a7a0bce9ae804c7aa26fdbd16dcd66692a\",\n        \"payload\": {\n          \"action_type\": \"wait\"\n        },\n        \"payload_sha256\": \"0a28c221b222678ea8a8007fee36a1d83bbaed129d94e6dfbba937a89a07e1ac\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 0.127352,\n          \"finished_at\": \"2026-07-15T10:19:28.865303+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:28.737984+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 3.07323,\n          \"finished_at\": \"2026-07-15T10:19:31.938632+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='wait') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='wait') executed.\\\"}\",\n          \"response_bytes\": 80,\n          \"response_sha256\": \"7f3aff27b0047f29b978bc38b19d0c67d9291569f56c05400cf8ecbffc6d2a4a\",\n          \"started_at\": \"2026-07-15T10:19:28.865456+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"answer\",\n          \"text\": \"完成 ✅\"\n        },\n        \"case_id\": \"answer\",\n        \"index\": 12,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"c4f0933ca61246bf3da92e1f8867b09350ef49cb6e2695627c046cc0d8ee8204\",\n        \"payload\": {\n          \"action_type\": \"answer\",\n          \"text\": \"完成 ✅\"\n        },\n        \"payload_sha256\": \"f2a82af24b7e6e2cd38537b29d279054f0e0062e60e1f6e3cdcf63e59a621366\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 1.08369,\n          \"finished_at\": \"2026-07-15T10:19:33.022582+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:31.938942+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 0.032024,\n          \"finished_at\": \"2026-07-15T10:19:33.054951+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='answer', text='完成 ✅') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='answer', text='完成 ✅') executed.\\\"}\",\n          \"response_bytes\": 101,\n          \"response_sha256\": \"c2fa5d9f4525b7d78169e8ed069ab074591e36daf3cbd74ee838007a27daa59d\",\n          \"started_at\": \"2026-07-15T10:19:33.022958+00:00\"\n        }\n      },\n      {\n        \"canonical_arguments\": {\n          \"action\": \"terminate\",\n          \"status\": \"success\"\n        },\n        \"case_id\": \"terminate\",\n        \"index\": 13,\n        \"live_screenshot_before_first_case\": null,\n        \"native_output_sha256\": \"c75ddcf4c02e8fc083edab5fb54c022a3df590770b82931d484f39b8ce1a75ce\",\n        \"payload\": {\n          \"action_type\": \"status\",\n          \"goal_status\": \"task_complete\"\n        },\n        \"payload_sha256\": \"d17edce51196b1d65528a5dd900430eaa5c0c311a9f4d922e6747fdcf5c05d87\",\n        \"reset_before_case\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 0.12419,\n          \"finished_at\": \"2026-07-15T10:19:33.179260+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Environment reset with go_home=True.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n          \"response_bytes\": 69,\n          \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n          \"started_at\": \"2026-07-15T10:19:33.055110+00:00\"\n        },\n        \"response\": {\n          \"content_type\": \"application/json\",\n          \"elapsed_seconds\": 0.002968,\n          \"finished_at\": \"2026-07-15T10:19:33.182381+00:00\",\n          \"http_status\": 200,\n          \"json_body\": {\n            \"message\": \"Action JSONAction(action_type='status', goal_status='task_complete') executed.\",\n            \"status\": \"success\"\n          },\n          \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Action JSONAction(action_type='status', goal_status='task_complete') executed.\\\"}\",\n          \"response_bytes\": 111,\n          \"response_sha256\": \"586eda702b5d61116c29960966dd74052f6086b87f2314acc3d6e24d031e0a0d\",\n          \"started_at\": \"2026-07-15T10:19:33.179447+00:00\"\n        }\n      }\n    ],\n    \"androidworld_action_type_counts\": {\n      \"answer\": 1,\n      \"click\": 3,\n      \"input_text\": 1,\n      \"keyboard_enter\": 1,\n      \"long_press\": 1,\n      \"navigate_back\": 1,\n      \"navigate_home\": 1,\n      \"open_app\": 2,\n      \"status\": 1,\n      \"swipe\": 1,\n      \"wait\": 1\n    },\n    \"case_ids\": [\n      \"click_minimum\",\n      \"click_maximum\",\n      \"tap_alias\",\n      \"long_press\",\n      \"swipe\",\n      \"type_nfkc\",\n      \"system_back\",\n      \"system_home\",\n      \"system_enter\",\n      \"open\",\n      \"open_app_alias\",\n      \"wait\",\n      \"answer\",\n      \"terminate\"\n    ],\n    \"cleanup_reset\": {\n      \"content_type\": \"application/json\",\n      \"elapsed_seconds\": 1.070835,\n      \"finished_at\": \"2026-07-15T10:19:34.408284+00:00\",\n      \"http_status\": 200,\n      \"json_body\": {\n        \"message\": \"Environment reset with go_home=True.\",\n        \"status\": \"success\"\n      },\n      \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n      \"response_bytes\": 69,\n      \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n      \"started_at\": \"2026-07-15T10:19:33.337496+00:00\"\n    },\n    \"health_after_negative_control\": {\n      \"content_type\": \"application/json\",\n      \"elapsed_seconds\": 0.005215,\n      \"finished_at\": \"2026-07-15T10:19:33.337375+00:00\",\n      \"http_status\": 200,\n      \"json_body\": {\n        \"status\": \"success\"\n      },\n      \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\"}\",\n      \"response_bytes\": 20,\n      \"response_sha256\": \"912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d\",\n      \"started_at\": \"2026-07-15T10:19:33.332181+00:00\"\n    },\n    \"health_before\": {\n      \"content_type\": \"application/json\",\n      \"elapsed_seconds\": 0.024973,\n      \"finished_at\": \"2026-07-15T10:18:41.092518+00:00\",\n      \"http_status\": 200,\n      \"json_body\": {\n        \"status\": \"success\"\n      },\n      \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\"}\",\n      \"response_bytes\": 20,\n      \"response_sha256\": \"912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d\",\n      \"started_at\": \"2026-07-15T10:18:41.067564+00:00\"\n    },\n    \"negative_actuation_control\": {\n      \"payload\": {\n        \"action_type\": \"click\"\n      },\n      \"purpose\": \"constructor accepts the action, but actuation must reject missing coordinates\",\n      \"reset_before\": {\n        \"content_type\": \"application/json\",\n        \"elapsed_seconds\": 0.082858,\n        \"finished_at\": \"2026-07-15T10:19:33.265369+00:00\",\n        \"http_status\": 200,\n        \"json_body\": {\n          \"message\": \"Environment reset with go_home=True.\",\n          \"status\": \"success\"\n        },\n        \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\",\\\"message\\\":\\\"Environment reset with go_home=True.\\\"}\",\n        \"response_bytes\": 69,\n        \"response_sha256\": \"7e8aee0c1dc6d7f2ab57878fdcee1468cc9e447d2d27a8f88d88dfe3728efb4e\",\n        \"started_at\": \"2026-07-15T10:19:33.182552+00:00\"\n      },\n      \"response\": {\n        \"body_text\": \"Internal Server Error\",\n        \"content_type\": \"text/plain\",\n        \"elapsed_seconds\": 0.066576,\n        \"finished_at\": \"2026-07-15T10:19:33.332103+00:00\",\n        \"http_status\": 500,\n        \"raw_body_utf8\": \"Internal Server Error\",\n        \"response_bytes\": 21,\n        \"response_sha256\": \"e41656eb2ba6c6293bf6dd928e5a88cdbc50535cab661c1969e0f598e497ed62\",\n        \"started_at\": \"2026-07-15T10:19:33.265560+00:00\"\n      }\n    },\n    \"status\": \"passed\",\n    \"validated_case_count\": 14\n  },\n  \"argv\": [\n    \"/data/worktrees/causalcache-restoration-v2-dispatch/code/scripts/validate_restoration_v2_executor_dispatch.py\",\n    \"--attempt-id\",\n    \"rv2-20260715T101814Z-53016a40\",\n    \"--contract\",\n    \"configs/causalcache_restoration_v2.json\",\n    \"--action-fixture\",\n    \"../data/fixtures/gui_owl_v2_action_roundtrip.json\",\n    \"--prompt-fixture\",\n    \"../data/fixtures/restoration_v2_prompt_low_fidelity.json\",\n    \"--interface-manifest\",\n    \"../data/manifests/restoration_v2_interfaces.json\",\n    \"--stack-config\",\n    \"configs/androidworld_stack.json\",\n    \"--host-inspection\",\n    \"/data/tmp/before-rv2-20260715T101814Z-53016a40.json\",\n    \"--androidworld-source-root\",\n    \"/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5\",\n    \"--androidworld-source-revision\",\n    \"11cea575561fb7800b5fb6b6cafa56f7a91de11f\",\n    \"--run-git-commit\",\n    \"b6e57c2619e88b8646657b3190bf45853a86c3d2\",\n    \"--host-name\",\n    \"aries.cs.ucsb.edu\",\n    \"--runtime-container-name\",\n    \"sglang-omni-jaxan-07140435\",\n    \"--runtime-container-id\",\n    \"b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa\",\n    \"--runtime-image-id\",\n    \"sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21\",\n    \"--runtime-image-repo-digest\",\n    \"sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa\",\n    \"--server-container-name\",\n    \"sglang-omni-jaxan-07141630\",\n    \"--server-container-id\",\n    \"ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07\",\n    \"--server-image\",\n    \"causalcache-androidworld:11cea575-executor1\",\n    \"--server-image-id\",\n    \"sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486\",\n    \"--server-json-action-schema\",\n    \"android_world.agents.new_json_action\",\n    \"--base-url\",\n    \"http://172.17.0.1:5003\",\n    \"--server-host-port\",\n    \"5003\",\n    \"--server-container-port\",\n    \"5000\",\n    \"--timeout-seconds\",\n    \"120\",\n    \"--output-summary\",\n    \"/data/tmp/raw-rv2-20260715T101814Z-53016a40.json\"\n  ],\n  \"attempt_id\": \"rv2-20260715T101814Z-53016a40\",\n  \"elapsed_seconds\": 53.387586,\n  \"evidence_type\": \"restoration_v2_androidworld_executor_dispatch\",\n  \"finished_at\": \"2026-07-15T10:19:34.408469+00:00\",\n  \"interface_validation\": {\n    \"action_fixture\": {\n      \"accepted_aliases\": [\n        \"open_app\",\n        \"tap\"\n      ],\n      \"canonical_actions\": [\n        \"answer\",\n        \"click\",\n        \"long_press\",\n        \"open\",\n        \"swipe\",\n        \"system_button\",\n        \"terminate\",\n        \"type\",\n        \"wait\"\n      ],\n      \"coordinate_scalar_checks\": 6000,\n      \"invalid_case_count\": 23,\n      \"path\": \"../data/fixtures/gui_owl_v2_action_roundtrip.json\",\n      \"sha256\": \"ab6ca84a894a601450424150a510d3e9a2cb4a5522ee0d050ba7a5908af661de\",\n      \"system_buttons\": [\n        \"Back\",\n        \"Enter\",\n        \"Home\"\n      ],\n      \"valid_case_count\": 14\n    },\n    \"androidworld_json_action_constructor_validation\": {\n      \"container_image_digest\": \"sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa\",\n      \"module_path\": \"/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5/android_world/agents/new_json_action.py\",\n      \"module_sha256\": \"14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f\",\n      \"run_git_commit\": \"b6e57c2619e88b8646657b3190bf45853a86c3d2\",\n      \"source_revision\": \"11cea575561fb7800b5fb6b6cafa56f7a91de11f\",\n      \"source_root\": \"/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5\",\n      \"status\": \"passed\",\n      \"validated_case_count\": 14\n    },\n    \"implementation_contract_bindings\": {\n      \"canonical_action_count\": 9,\n      \"decision_steps\": [\n        4,\n        5,\n        6\n      ],\n      \"low_fidelity_field_count\": 8,\n      \"screen_text_token_cap\": 32\n    },\n    \"interface_manifest\": {\n      \"interface_version\": \"restoration-v2-interface-1.0.0\",\n      \"path\": \"../data/manifests/restoration_v2_interfaces.json\",\n      \"sha256\": \"5a6166febe7d7575b7dc5dc7637c77cadec48b569a00121cbd5766c67e9c4860\",\n      \"source_file_count\": 6\n    },\n    \"policy_output_generated_by_this_validation\": false,\n    \"prompt_low_fidelity_fixture\": {\n      \"coalition_count\": 28,\n      \"confirm_coalition_count\": 16,\n      \"decision_steps\": [\n        4,\n        5,\n        6\n      ],\n      \"event_count\": 5,\n      \"path\": \"../data/fixtures/restoration_v2_prompt_low_fidelity.json\",\n      \"reference_image_count\": 5,\n      \"sha256\": \"bcfb701858c8e96a731a865f59979b0a0ba1fa1487cb8010431b4a0f2284eb68\",\n      \"summary_only_image_count\": 1\n    },\n    \"protocol_id\": \"causalcache_restoration_v2\",\n    \"schema_version\": \"1.0.0\",\n    \"scientific_contract_sha256\": \"9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc\"\n  },\n  \"negative_control_constructor_validation\": {\n    \"json_action_json_str\": \"{\\\"action_type\\\":\\\"click\\\"}\",\n    \"json_action_repr\": \"JSONAction(action_type='click')\",\n    \"module_path\": \"/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5/android_world/agents/new_json_action.py\",\n    \"module_sha256\": \"14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f\",\n    \"payload\": {\n      \"action_type\": \"click\"\n    },\n    \"status\": \"passed\"\n  },\n  \"offline_reduction\": {\n    \"negative_actuation_control_status\": 500,\n    \"status\": \"PASSED_EXECUTOR_DISPATCH\",\n    \"validated_case_count\": 14\n  },\n  \"policy_output_generated\": false,\n  \"protocol_id\": \"causalcache_restoration_v2\",\n  \"restoration_label_generated\": false,\n  \"run_git_commit\": \"b6e57c2619e88b8646657b3190bf45853a86c3d2\",\n  \"runtime\": {\n    \"gpu_used\": false,\n    \"platform\": \"Linux-6.8.0-101-generic-x86_64-with-glibc2.39\",\n    \"policy_loaded\": false,\n    \"python_version\": \"3.12.3\"\n  },\n  \"schema_version\": \"1.0.0\",\n  \"server_provenance\": {\n    \"androidworld_source_revision\": \"11cea575561fb7800b5fb6b6cafa56f7a91de11f\",\n    \"base_url\": \"http://172.17.0.1:5003\",\n    \"host\": \"aries.cs.ucsb.edu\",\n    \"host_inspection\": \"/data/tmp/before-rv2-20260715T101814Z-53016a40.json\",\n    \"host_inspection_before\": {\n      \"attempt_id\": \"rv2-20260715T101814Z-53016a40\",\n      \"evidence_type\": \"restoration_v2_live_executor_container_inspection\",\n      \"finished_at\": \"2026-07-15T10:18:22.606522+00:00\",\n      \"health\": {\n        \"content_type\": \"application/json\",\n        \"elapsed_seconds\": 0.00597,\n        \"finished_at\": \"2026-07-15T10:18:22.606410+00:00\",\n        \"http_status\": 200,\n        \"json_body\": {\n          \"status\": \"success\"\n        },\n        \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\"}\",\n        \"response_bytes\": 20,\n        \"response_sha256\": \"912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d\",\n        \"started_at\": \"2026-07-15T10:18:22.600498+00:00\",\n        \"url\": \"http://127.0.0.1:5003/health\"\n      },\n      \"host\": \"aries.cs.ucsb.edu\",\n      \"inspector_source\": \"/mnt/data6/jiaxuanluo/causalcache/worktrees/causalcache-restoration-v2-dispatch/code/scripts/inspect_restoration_v2_executor_container.py\",\n      \"inspector_source_sha256\": \"992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c\",\n      \"live_source_sha256\": {\n        \"/android_world/agents/new_json_action.py\": \"14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f\",\n        \"/android_world/env/actuation.py\": \"69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925\",\n        \"/android_world/env/interface.py\": \"1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2\",\n        \"/server/android_server.py\": \"3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e\"\n      },\n      \"phase\": \"before\",\n      \"runtime_container\": {\n        \"config_image\": \"hongccc/sglang-omni:dev\",\n        \"hostname\": \"b93fb3d81e1e\",\n        \"id\": \"b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa\",\n        \"image_id\": \"sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21\",\n        \"image_repo_digest\": \"hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa\",\n        \"mounts\": {\n          \"/data\": \"/mnt/data6/jiaxuanluo/causalcache\",\n          \"/root/.cache/huggingface\": \"/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface\"\n        },\n        \"name\": \"sglang-omni-jaxan-07140435\",\n        \"running\": true\n      },\n      \"schema_version\": \"1.0.0\",\n      \"server_container\": {\n        \"config_image\": \"causalcache-androidworld:11cea575-executor1\",\n        \"container_port\": 5000,\n        \"host_port\": 5003,\n        \"hostname\": \"ed6198b1de65\",\n        \"id\": \"ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07\",\n        \"image_id\": \"sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486\",\n        \"name\": \"sglang-omni-jaxan-07141630\",\n        \"running\": true\n      },\n      \"started_at\": \"2026-07-15T10:18:22.255363+00:00\",\n      \"status\": \"passed\"\n    },\n    \"host_inspection_before_raw_utf8\": \"{\\n  \\\"attempt_id\\\": \\\"rv2-20260715T101814Z-53016a40\\\",\\n  \\\"evidence_type\\\": \\\"restoration_v2_live_executor_container_inspection\\\",\\n  \\\"finished_at\\\": \\\"2026-07-15T10:18:22.606522+00:00\\\",\\n  \\\"health\\\": {\\n    \\\"content_type\\\": \\\"application/json\\\",\\n    \\\"elapsed_seconds\\\": 0.00597,\\n    \\\"finished_at\\\": \\\"2026-07-15T10:18:22.606410+00:00\\\",\\n    \\\"http_status\\\": 200,\\n    \\\"json_body\\\": {\\n      \\\"status\\\": \\\"success\\\"\\n    },\\n    \\\"raw_body_utf8\\\": \\\"{\\\\\\\"status\\\\\\\":\\\\\\\"success\\\\\\\"}\\\",\\n    \\\"response_bytes\\\": 20,\\n    \\\"response_sha256\\\": \\\"912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d\\\",\\n    \\\"started_at\\\": \\\"2026-07-15T10:18:22.600498+00:00\\\",\\n    \\\"url\\\": \\\"http://127.0.0.1:5003/health\\\"\\n  },\\n  \\\"host\\\": \\\"aries.cs.ucsb.edu\\\",\\n  \\\"inspector_source\\\": \\\"/mnt/data6/jiaxuanluo/causalcache/worktrees/causalcache-restoration-v2-dispatch/code/scripts/inspect_restoration_v2_executor_container.py\\\",\\n  \\\"inspector_source_sha256\\\": \\\"992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c\\\",\\n  \\\"live_source_sha256\\\": {\\n    \\\"/android_world/agents/new_json_action.py\\\": \\\"14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f\\\",\\n    \\\"/android_world/env/actuation.py\\\": \\\"69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925\\\",\\n    \\\"/android_world/env/interface.py\\\": \\\"1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2\\\",\\n    \\\"/server/android_server.py\\\": \\\"3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e\\\"\\n  },\\n  \\\"phase\\\": \\\"before\\\",\\n  \\\"runtime_container\\\": {\\n    \\\"config_image\\\": \\\"hongccc/sglang-omni:dev\\\",\\n    \\\"hostname\\\": \\\"b93fb3d81e1e\\\",\\n    \\\"id\\\": \\\"b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa\\\",\\n    \\\"image_id\\\": \\\"sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21\\\",\\n    \\\"image_repo_digest\\\": \\\"hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa\\\",\\n    \\\"mounts\\\": {\\n      \\\"/data\\\": \\\"/mnt/data6/jiaxuanluo/causalcache\\\",\\n      \\\"/root/.cache/huggingface\\\": \\\"/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface\\\"\\n    },\\n    \\\"name\\\": \\\"sglang-omni-jaxan-07140435\\\",\\n    \\\"running\\\": true\\n  },\\n  \\\"schema_version\\\": \\\"1.0.0\\\",\\n  \\\"server_container\\\": {\\n    \\\"config_image\\\": \\\"causalcache-androidworld:11cea575-executor1\\\",\\n    \\\"container_port\\\": 5000,\\n    \\\"host_port\\\": 5003,\\n    \\\"hostname\\\": \\\"ed6198b1de65\\\",\\n    \\\"id\\\": \\\"ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07\\\",\\n    \\\"image_id\\\": \\\"sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486\\\",\\n    \\\"name\\\": \\\"sglang-omni-jaxan-07141630\\\",\\n    \\\"running\\\": true\\n  },\\n  \\\"started_at\\\": \\\"2026-07-15T10:18:22.255363+00:00\\\",\\n  \\\"status\\\": \\\"passed\\\"\\n}\\n\",\n    \"host_inspection_sha256\": \"2cb7134351e2a526743ca11318526520822ae88cbdc9a99f6dad0acb5bd15f9a\",\n    \"live_source_sha256\": {\n      \"/android_world/agents/new_json_action.py\": \"14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f\",\n      \"/android_world/env/actuation.py\": \"69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925\",\n      \"/android_world/env/interface.py\": \"1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2\",\n      \"/server/android_server.py\": \"3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e\"\n    },\n    \"runtime_container\": {\n      \"id\": \"b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa\",\n      \"image_id\": \"sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21\",\n      \"image_repo_digest\": \"sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa\",\n      \"mounts\": {\n        \"/data\": \"/mnt/data6/jiaxuanluo/causalcache\",\n        \"/root/.cache/huggingface\": \"/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface\"\n      },\n      \"name\": \"sglang-omni-jaxan-07140435\"\n    },\n    \"server_container\": {\n      \"container_port\": 5000,\n      \"host_health_url\": \"http://127.0.0.1:5003/health\",\n      \"host_port\": 5003,\n      \"id\": \"ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07\",\n      \"image\": \"causalcache-androidworld:11cea575-executor1\",\n      \"image_id\": \"sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486\",\n      \"json_action_schema\": \"android_world.agents.new_json_action\",\n      \"name\": \"sglang-omni-jaxan-07141630\"\n    },\n    \"stack_config\": \"/data/worktrees/causalcache-restoration-v2-dispatch/code/configs/androidworld_stack.json\",\n    \"stack_config_sha256\": \"3a14ca4b1464ae4293944ef3387c6f1ad2a3a716dc8af29258a92bd4d6a22481\"\n  },\n  \"source_sha256\": {\n    \"host_inspector\": \"992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c\",\n    \"offline_validator\": \"c5535544d290a63fce848bccd3a9cd04001dda0ade34addd864ce06571f7d824\",\n    \"runner\": \"a34d83ed68f2d6097ef5e807346b7bc871c2d8e6f036742fd012702b296f06e9\"\n  },\n  \"started_at\": \"2026-07-15T10:18:41.020891+00:00\",\n  \"status\": \"passed\",\n  \"step\": \"androidworld_executor_dispatch_preflight\"\n}\n",
+    "raw_summary_sha256": "e1c801e56317f7638ffa9afc352d52152dcff979e82c0f27f4c61a837624587d"
+  },
+  "elapsed_seconds": 53.387586,
+  "evidence_type": "restoration_v2_androidworld_executor_dispatch",
+  "finished_at": "2026-07-15T10:19:34.408469+00:00",
+  "interface_validation": {
+    "action_fixture": {
+      "accepted_aliases": [
+        "open_app",
+        "tap"
+      ],
+      "canonical_actions": [
+        "answer",
+        "click",
+        "long_press",
+        "open",
+        "swipe",
+        "system_button",
+        "terminate",
+        "type",
+        "wait"
+      ],
+      "coordinate_scalar_checks": 6000,
+      "invalid_case_count": 23,
+      "path": "../data/fixtures/gui_owl_v2_action_roundtrip.json",
+      "sha256": "ab6ca84a894a601450424150a510d3e9a2cb4a5522ee0d050ba7a5908af661de",
+      "system_buttons": [
+        "Back",
+        "Enter",
+        "Home"
+      ],
+      "valid_case_count": 14
+    },
+    "androidworld_json_action_constructor_validation": {
+      "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "module_path": "/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5/android_world/agents/new_json_action.py",
+      "module_sha256": "14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f",
+      "run_git_commit": "b6e57c2619e88b8646657b3190bf45853a86c3d2",
+      "source_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+      "source_root": "/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5",
+      "status": "passed",
+      "validated_case_count": 14
+    },
+    "implementation_contract_bindings": {
+      "canonical_action_count": 9,
+      "decision_steps": [
+        4,
+        5,
+        6
+      ],
+      "low_fidelity_field_count": 8,
+      "screen_text_token_cap": 32
+    },
+    "interface_manifest": {
+      "interface_version": "restoration-v2-interface-1.0.0",
+      "path": "../data/manifests/restoration_v2_interfaces.json",
+      "sha256": "5a6166febe7d7575b7dc5dc7637c77cadec48b569a00121cbd5766c67e9c4860",
+      "source_file_count": 6
+    },
+    "policy_output_generated_by_this_validation": false,
+    "prompt_low_fidelity_fixture": {
+      "coalition_count": 28,
+      "confirm_coalition_count": 16,
+      "decision_steps": [
+        4,
+        5,
+        6
+      ],
+      "event_count": 5,
+      "path": "../data/fixtures/restoration_v2_prompt_low_fidelity.json",
+      "reference_image_count": 5,
+      "sha256": "bcfb701858c8e96a731a865f59979b0a0ba1fa1487cb8010431b4a0f2284eb68",
+      "summary_only_image_count": 1
+    },
+    "protocol_id": "causalcache_restoration_v2",
+    "schema_version": "1.0.0",
+    "scientific_contract_sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+  },
+  "negative_control_constructor_validation": {
+    "json_action_json_str": "{\"action_type\":\"click\"}",
+    "json_action_repr": "JSONAction(action_type='click')",
+    "module_path": "/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5/android_world/agents/new_json_action.py",
+    "module_sha256": "14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f",
+    "payload": {
+      "action_type": "click"
+    },
+    "status": "passed"
+  },
+  "offline_reduction": {
+    "negative_actuation_control_status": 500,
+    "status": "PASSED_EXECUTOR_DISPATCH",
+    "validated_case_count": 14
+  },
+  "policy_output_generated": false,
+  "protocol_id": "causalcache_restoration_v2",
+  "restoration_label_generated": false,
+  "run_git_commit": "b6e57c2619e88b8646657b3190bf45853a86c3d2",
+  "runtime": {
+    "gpu_used": false,
+    "platform": "Linux-6.8.0-101-generic-x86_64-with-glibc2.39",
+    "policy_loaded": false,
+    "python_version": "3.12.3"
+  },
+  "schema_version": "1.0.0",
+  "server_provenance": {
+    "androidworld_source_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+    "base_url": "http://172.17.0.1:5003",
+    "host": "aries.cs.ucsb.edu",
+    "host_inspection": "/data/tmp/before-rv2-20260715T101814Z-53016a40.json",
+    "host_inspection_after": {
+      "attempt_id": "rv2-20260715T101814Z-53016a40",
+      "evidence_type": "restoration_v2_live_executor_container_inspection",
+      "finished_at": "2026-07-15T10:19:47.150035+00:00",
+      "health": {
+        "content_type": "application/json",
+        "elapsed_seconds": 0.006738,
+        "finished_at": "2026-07-15T10:19:47.149890+00:00",
+        "http_status": 200,
+        "json_body": {
+          "status": "success"
+        },
+        "raw_body_utf8": "{\"status\":\"success\"}",
+        "response_bytes": 20,
+        "response_sha256": "912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d",
+        "started_at": "2026-07-15T10:19:47.143228+00:00",
+        "url": "http://127.0.0.1:5003/health"
+      },
+      "host": "aries.cs.ucsb.edu",
+      "inspector_source": "/mnt/data6/jiaxuanluo/causalcache/worktrees/causalcache-restoration-v2-dispatch/code/scripts/inspect_restoration_v2_executor_container.py",
+      "inspector_source_sha256": "992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c",
+      "live_source_sha256": {
+        "/android_world/agents/new_json_action.py": "14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f",
+        "/android_world/env/actuation.py": "69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925",
+        "/android_world/env/interface.py": "1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2",
+        "/server/android_server.py": "3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e"
+      },
+      "phase": "after",
+      "runtime_container": {
+        "config_image": "hongccc/sglang-omni:dev",
+        "hostname": "b93fb3d81e1e",
+        "id": "b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa",
+        "image_id": "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+        "image_repo_digest": "hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+        "mounts": {
+          "/data": "/mnt/data6/jiaxuanluo/causalcache",
+          "/root/.cache/huggingface": "/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface"
+        },
+        "name": "sglang-omni-jaxan-07140435",
+        "running": true
+      },
+      "schema_version": "1.0.0",
+      "server_container": {
+        "config_image": "causalcache-androidworld:11cea575-executor1",
+        "container_port": 5000,
+        "host_port": 5003,
+        "hostname": "ed6198b1de65",
+        "id": "ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07",
+        "image_id": "sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+        "name": "sglang-omni-jaxan-07141630",
+        "running": true
+      },
+      "started_at": "2026-07-15T10:19:46.770225+00:00",
+      "status": "passed"
+    },
+    "host_inspection_after_raw_utf8": "{\n  \"attempt_id\": \"rv2-20260715T101814Z-53016a40\",\n  \"evidence_type\": \"restoration_v2_live_executor_container_inspection\",\n  \"finished_at\": \"2026-07-15T10:19:47.150035+00:00\",\n  \"health\": {\n    \"content_type\": \"application/json\",\n    \"elapsed_seconds\": 0.006738,\n    \"finished_at\": \"2026-07-15T10:19:47.149890+00:00\",\n    \"http_status\": 200,\n    \"json_body\": {\n      \"status\": \"success\"\n    },\n    \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\"}\",\n    \"response_bytes\": 20,\n    \"response_sha256\": \"912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d\",\n    \"started_at\": \"2026-07-15T10:19:47.143228+00:00\",\n    \"url\": \"http://127.0.0.1:5003/health\"\n  },\n  \"host\": \"aries.cs.ucsb.edu\",\n  \"inspector_source\": \"/mnt/data6/jiaxuanluo/causalcache/worktrees/causalcache-restoration-v2-dispatch/code/scripts/inspect_restoration_v2_executor_container.py\",\n  \"inspector_source_sha256\": \"992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c\",\n  \"live_source_sha256\": {\n    \"/android_world/agents/new_json_action.py\": \"14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f\",\n    \"/android_world/env/actuation.py\": \"69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925\",\n    \"/android_world/env/interface.py\": \"1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2\",\n    \"/server/android_server.py\": \"3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e\"\n  },\n  \"phase\": \"after\",\n  \"runtime_container\": {\n    \"config_image\": \"hongccc/sglang-omni:dev\",\n    \"hostname\": \"b93fb3d81e1e\",\n    \"id\": \"b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa\",\n    \"image_id\": \"sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21\",\n    \"image_repo_digest\": \"hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa\",\n    \"mounts\": {\n      \"/data\": \"/mnt/data6/jiaxuanluo/causalcache\",\n      \"/root/.cache/huggingface\": \"/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface\"\n    },\n    \"name\": \"sglang-omni-jaxan-07140435\",\n    \"running\": true\n  },\n  \"schema_version\": \"1.0.0\",\n  \"server_container\": {\n    \"config_image\": \"causalcache-androidworld:11cea575-executor1\",\n    \"container_port\": 5000,\n    \"host_port\": 5003,\n    \"hostname\": \"ed6198b1de65\",\n    \"id\": \"ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07\",\n    \"image_id\": \"sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486\",\n    \"name\": \"sglang-omni-jaxan-07141630\",\n    \"running\": true\n  },\n  \"started_at\": \"2026-07-15T10:19:46.770225+00:00\",\n  \"status\": \"passed\"\n}\n",
+    "host_inspection_after_sha256": "b36beafb0a9b4c251c93621ec3db7227cb6c4409e3a00daeaff2e23aacdb2321",
+    "host_inspection_before": {
+      "attempt_id": "rv2-20260715T101814Z-53016a40",
+      "evidence_type": "restoration_v2_live_executor_container_inspection",
+      "finished_at": "2026-07-15T10:18:22.606522+00:00",
+      "health": {
+        "content_type": "application/json",
+        "elapsed_seconds": 0.00597,
+        "finished_at": "2026-07-15T10:18:22.606410+00:00",
+        "http_status": 200,
+        "json_body": {
+          "status": "success"
+        },
+        "raw_body_utf8": "{\"status\":\"success\"}",
+        "response_bytes": 20,
+        "response_sha256": "912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d",
+        "started_at": "2026-07-15T10:18:22.600498+00:00",
+        "url": "http://127.0.0.1:5003/health"
+      },
+      "host": "aries.cs.ucsb.edu",
+      "inspector_source": "/mnt/data6/jiaxuanluo/causalcache/worktrees/causalcache-restoration-v2-dispatch/code/scripts/inspect_restoration_v2_executor_container.py",
+      "inspector_source_sha256": "992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c",
+      "live_source_sha256": {
+        "/android_world/agents/new_json_action.py": "14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f",
+        "/android_world/env/actuation.py": "69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925",
+        "/android_world/env/interface.py": "1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2",
+        "/server/android_server.py": "3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e"
+      },
+      "phase": "before",
+      "runtime_container": {
+        "config_image": "hongccc/sglang-omni:dev",
+        "hostname": "b93fb3d81e1e",
+        "id": "b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa",
+        "image_id": "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+        "image_repo_digest": "hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+        "mounts": {
+          "/data": "/mnt/data6/jiaxuanluo/causalcache",
+          "/root/.cache/huggingface": "/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface"
+        },
+        "name": "sglang-omni-jaxan-07140435",
+        "running": true
+      },
+      "schema_version": "1.0.0",
+      "server_container": {
+        "config_image": "causalcache-androidworld:11cea575-executor1",
+        "container_port": 5000,
+        "host_port": 5003,
+        "hostname": "ed6198b1de65",
+        "id": "ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07",
+        "image_id": "sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+        "name": "sglang-omni-jaxan-07141630",
+        "running": true
+      },
+      "started_at": "2026-07-15T10:18:22.255363+00:00",
+      "status": "passed"
+    },
+    "host_inspection_before_raw_utf8": "{\n  \"attempt_id\": \"rv2-20260715T101814Z-53016a40\",\n  \"evidence_type\": \"restoration_v2_live_executor_container_inspection\",\n  \"finished_at\": \"2026-07-15T10:18:22.606522+00:00\",\n  \"health\": {\n    \"content_type\": \"application/json\",\n    \"elapsed_seconds\": 0.00597,\n    \"finished_at\": \"2026-07-15T10:18:22.606410+00:00\",\n    \"http_status\": 200,\n    \"json_body\": {\n      \"status\": \"success\"\n    },\n    \"raw_body_utf8\": \"{\\\"status\\\":\\\"success\\\"}\",\n    \"response_bytes\": 20,\n    \"response_sha256\": \"912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d\",\n    \"started_at\": \"2026-07-15T10:18:22.600498+00:00\",\n    \"url\": \"http://127.0.0.1:5003/health\"\n  },\n  \"host\": \"aries.cs.ucsb.edu\",\n  \"inspector_source\": \"/mnt/data6/jiaxuanluo/causalcache/worktrees/causalcache-restoration-v2-dispatch/code/scripts/inspect_restoration_v2_executor_container.py\",\n  \"inspector_source_sha256\": \"992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c\",\n  \"live_source_sha256\": {\n    \"/android_world/agents/new_json_action.py\": \"14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f\",\n    \"/android_world/env/actuation.py\": \"69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925\",\n    \"/android_world/env/interface.py\": \"1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2\",\n    \"/server/android_server.py\": \"3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e\"\n  },\n  \"phase\": \"before\",\n  \"runtime_container\": {\n    \"config_image\": \"hongccc/sglang-omni:dev\",\n    \"hostname\": \"b93fb3d81e1e\",\n    \"id\": \"b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa\",\n    \"image_id\": \"sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21\",\n    \"image_repo_digest\": \"hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa\",\n    \"mounts\": {\n      \"/data\": \"/mnt/data6/jiaxuanluo/causalcache\",\n      \"/root/.cache/huggingface\": \"/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface\"\n    },\n    \"name\": \"sglang-omni-jaxan-07140435\",\n    \"running\": true\n  },\n  \"schema_version\": \"1.0.0\",\n  \"server_container\": {\n    \"config_image\": \"causalcache-androidworld:11cea575-executor1\",\n    \"container_port\": 5000,\n    \"host_port\": 5003,\n    \"hostname\": \"ed6198b1de65\",\n    \"id\": \"ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07\",\n    \"image_id\": \"sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486\",\n    \"name\": \"sglang-omni-jaxan-07141630\",\n    \"running\": true\n  },\n  \"started_at\": \"2026-07-15T10:18:22.255363+00:00\",\n  \"status\": \"passed\"\n}\n",
+    "host_inspection_sha256": "2cb7134351e2a526743ca11318526520822ae88cbdc9a99f6dad0acb5bd15f9a",
+    "live_source_sha256": {
+      "/android_world/agents/new_json_action.py": "14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f",
+      "/android_world/env/actuation.py": "69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925",
+      "/android_world/env/interface.py": "1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2",
+      "/server/android_server.py": "3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e"
+    },
+    "runtime_container": {
+      "id": "b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa",
+      "image_id": "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+      "image_repo_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "mounts": {
+        "/data": "/mnt/data6/jiaxuanluo/causalcache",
+        "/root/.cache/huggingface": "/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface"
+      },
+      "name": "sglang-omni-jaxan-07140435"
+    },
+    "server_container": {
+      "container_port": 5000,
+      "host_health_url": "http://127.0.0.1:5003/health",
+      "host_port": 5003,
+      "id": "ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07",
+      "image": "causalcache-androidworld:11cea575-executor1",
+      "image_id": "sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+      "json_action_schema": "android_world.agents.new_json_action",
+      "name": "sglang-omni-jaxan-07141630"
+    },
+    "stack_config": "/data/worktrees/causalcache-restoration-v2-dispatch/code/configs/androidworld_stack.json",
+    "stack_config_sha256": "3a14ca4b1464ae4293944ef3387c6f1ad2a3a716dc8af29258a92bd4d6a22481"
+  },
+  "source_sha256": {
+    "host_inspector": "992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c",
+    "offline_validator": "c5535544d290a63fce848bccd3a9cd04001dda0ade34addd864ce06571f7d824",
+    "runner": "a34d83ed68f2d6097ef5e807346b7bc871c2d8e6f036742fd012702b296f06e9"
+  },
+  "started_at": "2026-07-15T10:18:41.020891+00:00",
+  "status": "passed",
+  "step": "androidworld_executor_dispatch_preflight"
+}

@@ -85,7 +85,9 @@ CPU 检查通过 14 个合法 action、23 个非法 action、6,000 个 coordinat
 共 28 个 coalitions（含全部 16 个 step-6 coalitions）；pinned AndroidWorld `JSONAction` constructor 已对
 14/14 payload 通过，证据见
 [`restoration_v2_constructor_preflight`](../data/results/restoration_v2_constructor_preflight/README.md)。
-device-side executor dispatch 尚未正式记录，所以完整 round trip 仍 pending。
+device-side executor dispatch 也已对 14/14 cases 正式通过，negative actuation control 为 HTTP 500，见
+[`restoration_v2_executor_dispatch`](../data/results/restoration_v2_executor_dispatch/README.md)。action round
+trip dependency 已闭合，但其余 pre-output dependencies 仍必须全部完成。
 
 ## 数据角色与 exposure
 

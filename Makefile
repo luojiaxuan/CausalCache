@@ -1,4 +1,4 @@
-.PHONY: paper clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces synthetic-phase0
+.PHONY: paper clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch synthetic-phase0
 
 paper:
 	mkdir -p output/pdf
@@ -27,6 +27,10 @@ validate-restoration-v2-interfaces:
 		--action-fixture ../data/fixtures/gui_owl_v2_action_roundtrip.json \
 		--prompt-fixture ../data/fixtures/restoration_v2_prompt_low_fidelity.json \
 		--interface-manifest ../data/manifests/restoration_v2_interfaces.json
+
+validate-restoration-v2-executor-dispatch:
+	cd code && python3 -m scripts.validate_restoration_v2_executor_evidence validate \
+		--summary ../data/results/restoration_v2_executor_dispatch/summary-rv2-20260715T101814Z-53016a40.json
 
 synthetic-phase0:
 	cd code && python3 -m scripts.run_synthetic_attribution \

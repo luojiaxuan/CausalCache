@@ -65,8 +65,8 @@ SHA256；其中 step 6 覆盖全部 16 个 coalitions。默认输出的
 `--androidworld-source-root`、`--androidworld-source-revision`、`--container-image-digest` 和
 `--run-git-commit`，通过 clean-check/module-origin 验证，并让 14 个合法 payload 通过 pinned
 `JSONAction(**payload)` 后，才能把 constructor integration 记为 passed。该 constructor 仍不等于真实
-device-side executor dispatch；后者通过前，第 4 项 dependency 保持 pending。两种检查都不加载 policy、
-不生成 v2 output。
+device-side executor dispatch；后者已由独立 formal result 闭合，见
+`data/results/restoration_v2_executor_dispatch/`。两种检查都不加载 policy、不生成 v2 output。
 
 历史 v1 replacement-teacher GUI-Owl Think 的冻结输出边界允许开头最多一个小写且闭合的 `<think>...</think>`
 block；剔除后仍必须完整匹配单行 `Action:` 和唯一 `mobile_use` `<tool_call>`。未闭合、
@@ -85,7 +85,8 @@ block 都拒绝。
 compact HTTP records 也保留 raw response bytes 的 UTF-8 表示，使 reducer 能重算 length、SHA256 和
 decoded body。大体积 screenshot pixels 只保留 frozen runner 计算的 transport digest 与 shape。
 
-完整参数和 claim 边界见 `docs/restoration_v2_executor_dispatch.md`。三者都不加载 policy。
+完整参数和 claim 边界见 `docs/restoration_v2_executor_dispatch.md`；canonical result 可用
+`make validate-restoration-v2-executor-dispatch` 复核。三者都不加载 policy。
 
 AndroidWorld full validation 必须显式传入
 `--early-stop-when-success-is-mathematically-impossible`。runner 只在原子 episode checkpoint

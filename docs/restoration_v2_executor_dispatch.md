@@ -118,5 +118,7 @@ passing 结果同时保存 before inspection、raw runner output、after inspect
 
 ## 当前状态
 
-runner、host inspector、offline reducer 与 mutation tests 已实现，正式 Aries run 尚未执行。本步骤不加载
-policy、不使用 GPU，也不生成 policy output 或 restoration label。
+formal attempt `rv2-20260715T101814Z-53016a40` 已在 Aries 通过，独立 verdict 为
+`PASSED_EXECUTOR_DISPATCH`，14/14 cases，negative actuation control 为 HTTP 500。四件套证据见
+[`../data/results/restoration_v2_executor_dispatch/`](../data/results/restoration_v2_executor_dispatch/)。本步骤
+未加载 policy、不使用 GPU，也不生成 policy output 或 restoration label。

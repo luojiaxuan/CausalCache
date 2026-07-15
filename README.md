@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: restoration v2 scientific + CPU interface contracts frozen / no v2 policy output yet
+> Status: restoration v2 action dependency passed / remaining pre-output dependencies pending
 
 ## 团队交接入口
 
@@ -23,12 +23,15 @@ action、23 个非法 action、6,000 个完整标量坐标检查和 decision ste
 step-6 全部 16 个）已通过；pinned AndroidWorld `JSONAction` constructor 已在 Aries 对 14/14 payload
 通过，证据见
 [`data/results/restoration_v2_constructor_preflight/`](data/results/restoration_v2_constructor_preflight/)。
-device-side executor dispatch 的 formal runner 已冻结，但 Aries run 尚未正式记录，因此 action dependency
-尚未完全闭合，不能据此开始 policy inference。
+device-side executor dispatch 已在 Aries 正式通过 14/14 cases，negative actuation control 为 HTTP 500，
+独立 reducer verdict 为 `PASSED_EXECUTOR_DISPATCH`；证据见
+[`data/results/restoration_v2_executor_dispatch/`](data/results/restoration_v2_executor_dispatch/)。因此 action
+dependency 已闭合；derived artifact、exact IDs、exposure、OCR、baselines 与 execution config 仍阻止 policy
+inference。
 
 executor-dispatch 的 live-inspection、negative-control 与 offline-reduction 契约见
-[`docs/restoration_v2_executor_dispatch.md`](docs/restoration_v2_executor_dispatch.md)；正式 run 必须在该
-runner commit/push 后执行。
+[`docs/restoration_v2_executor_dispatch.md`](docs/restoration_v2_executor_dispatch.md)。本次 run 绑定已推送
+commit `b6e57c2619e88b8646657b3190bf45853a86c3d2`，未加载 policy 或使用 GPU。
 
 v2 的干预已收窄：所有 memory 始终保留相同 strong low-fidelity summary；恢复 event 时只增加一张
 post-action state image，不增加 before image 或额外 action text。confirm 固定每条 trajectory 的 decision
@@ -77,7 +80,8 @@ docs/              # contract、execution、progress、decisions
 快速验证：
 
 ```bash
-make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces paper
+make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces \
+  validate-restoration-v2-executor-dispatch paper
 ```
 
 计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback；任何正式
@@ -295,7 +299,8 @@ $$
 - [x] 冻结 restoration v2 primary policy 与 stable self-behavior reference；GUI-Owl Instruct 仅作为 v2 substrate，不回改其 v1 AndroidWorld rejection；
 - [x] 冻结 v2 restricted action、strong LF、post-state-only prompt 与 interface source hashes；
 - [x] 在 pinned AndroidWorld 对 14/14 payload 闭合 `JSONAction` constructor；
-- [ ] 闭合 executor dispatch，并完成 derived artifact、exposure ledger、OCR identity、baseline hashes 与 execution config；
+- [x] 在 Aries 正式闭合 14-case executor dispatch 与 negative actuation control；
+- [ ] 完成 derived artifact、exposure ledger、OCR identity、baseline hashes 与 execution config；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
@@ -322,6 +327,7 @@ $$
 - Frozen v2 interface hashes: [`data/manifests/restoration_v2_interfaces.json`](data/manifests/restoration_v2_interfaces.json)
 - Pinned AndroidWorld constructor preflight: [`data/results/restoration_v2_constructor_preflight/`](data/results/restoration_v2_constructor_preflight/)
 - Executor-dispatch contract: [`docs/restoration_v2_executor_dispatch.md`](docs/restoration_v2_executor_dispatch.md)
+- Pinned AndroidWorld executor-dispatch result: [`data/results/restoration_v2_executor_dispatch/`](data/results/restoration_v2_executor_dispatch/)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
@@ -356,8 +362,8 @@ $$
 - GUI-Owl Think passing native smoke: [`data/results/gui_owl_1_5_8b_think_smoke/README.md`](data/results/gui_owl_1_5_8b_think_smoke/README.md)
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
-- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific contract 与 interface source hashes 已冻结，CPU action/prompt/LF fixture 与 pinned `JSONAction` constructor 已通过，但 device-side executor dispatch、derived HF artifact、exact confirm IDs、exposure ledger、OCR、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch`
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor 与 device-side executor dispatch 已通过。derived HF artifact、exact confirm IDs、exposure ledger、OCR、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 

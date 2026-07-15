@@ -24,12 +24,13 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
   candidates、八字段 summaries 与 current-equivalent event 5；同一 prefix fixture 还覆盖 development
   steps 4/5，validator 共穷举 28 个 coalitions，其中 step 6 为 16 个；
 - `manifests/restoration_v2_interfaces.json`：上述 fixtures、v2 action/prompt/LF code 与接口说明的逐文件
-  size/SHA256。它只证明本地 CPU interface validation；真实 AndroidWorld `JSONAction` constructor 与
-  executor dispatch status 仍为 pending。
+  size/SHA256。它只证明本地 CPU interface validation；真实 AndroidWorld 运行状态由独立 result evidence
+  给出，不事后改写 source manifest 的 pre-evidence sentinel。
 
 冻结后的 constructor run 证据位于 `results/restoration_v2_constructor_preflight/`：14/14 payload 已被
-pinned `JSONAction` 接受。interface manifest 的 `pending` 是运行前 source snapshot，不被事后改写；实际
-run status 以 result summary 为准。device-side executor dispatch 仍待正式记录。
+pinned `JSONAction` 接受。formal device-side result 位于 `results/restoration_v2_executor_dispatch/`：14/14
+cases 与 negative control 已通过独立 reducer。interface manifest 的 `pending` 是运行前 source snapshot，
+不被事后改写；实际 run status 以 result summary 为准。
 
 当前 reusable artifacts：
 
@@ -49,6 +50,9 @@ run status 以 result summary 为准。device-side executor dispatch 仍待正�
   `v0.1.0`。
 
 最新轻量运行记录：
+
+- `results/restoration_v2_executor_dispatch/`：Aries formal attempt 通过 14/14 cases，negative actuation
+  control 为 HTTP 500，canonical verdict 为 `PASSED_EXECUTOR_DISPATCH`；未加载 policy 或使用 GPU；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；

@@ -1,0 +1,55 @@
+{
+  "attempt_id": "rv2-20260715T101814Z-53016a40",
+  "evidence_type": "restoration_v2_live_executor_container_inspection",
+  "finished_at": "2026-07-15T10:18:22.606522+00:00",
+  "health": {
+    "content_type": "application/json",
+    "elapsed_seconds": 0.00597,
+    "finished_at": "2026-07-15T10:18:22.606410+00:00",
+    "http_status": 200,
+    "json_body": {
+      "status": "success"
+    },
+    "raw_body_utf8": "{\"status\":\"success\"}",
+    "response_bytes": 20,
+    "response_sha256": "912d0c07da7bdb22cdae025b96da26d01523aaab7362edb28544e3949deb369d",
+    "started_at": "2026-07-15T10:18:22.600498+00:00",
+    "url": "http://127.0.0.1:5003/health"
+  },
+  "host": "aries.cs.ucsb.edu",
+  "inspector_source": "/mnt/data6/jiaxuanluo/causalcache/worktrees/causalcache-restoration-v2-dispatch/code/scripts/inspect_restoration_v2_executor_container.py",
+  "inspector_source_sha256": "992064ef6105fa911de0fb9324d52f0cbb55a24984292c4131a778d63b42c23c",
+  "live_source_sha256": {
+    "/android_world/agents/new_json_action.py": "14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f",
+    "/android_world/env/actuation.py": "69d1190d1c6dd250d1ca228ea91ffb5fea3fd133b21995b3b298b500612ed925",
+    "/android_world/env/interface.py": "1772e5485225f4e52dc68954aa5769d4e49a9e63174f9ec10f3e52560d5646c2",
+    "/server/android_server.py": "3433a814b6753490c6af0bb24cadb68648dd78b133aac288fdf63b6d5e2a928e"
+  },
+  "phase": "before",
+  "runtime_container": {
+    "config_image": "hongccc/sglang-omni:dev",
+    "hostname": "b93fb3d81e1e",
+    "id": "b93fb3d81e1eb4f49fc90f0f03965a6cd5b0fb491a7b30e2fc3610c417ccc9aa",
+    "image_id": "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+    "image_repo_digest": "hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "mounts": {
+      "/data": "/mnt/data6/jiaxuanluo/causalcache",
+      "/root/.cache/huggingface": "/mnt/data6/jiaxuanluo/causalcache/.cache/huggingface"
+    },
+    "name": "sglang-omni-jaxan-07140435",
+    "running": true
+  },
+  "schema_version": "1.0.0",
+  "server_container": {
+    "config_image": "causalcache-androidworld:11cea575-executor1",
+    "container_port": 5000,
+    "host_port": 5003,
+    "hostname": "ed6198b1de65",
+    "id": "ed6198b1de651de7361ba53e857249516425ab47ae5c07bf37f0455f7ab26b07",
+    "image_id": "sha256:542e11e5d263ddcd3dffc52c5be2cb2aca0b1f08bbcf2120cecb8150b8d51486",
+    "name": "sglang-omni-jaxan-07141630",
+    "running": true
+  },
+  "started_at": "2026-07-15T10:18:22.255363+00:00",
+  "status": "passed"
+}
