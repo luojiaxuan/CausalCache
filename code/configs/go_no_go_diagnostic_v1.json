@@ -1,0 +1,127 @@
+{
+  "schema_version": "0.1.0",
+  "name": "exploratory_oracle_diagnostic_v1",
+  "status": "preregistered_before_restoration_forward",
+  "scope": {
+    "scientific_role": "selection_biased_engineering_and_hard_negative_diagnostic",
+    "can_produce_paper_go": false,
+    "can_train_gate": false,
+    "can_replace_primary_teacher_gate": false
+  },
+  "dataset": {
+    "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+    "shard": "data/guiodyssey-pilot-00000.tar",
+    "shard_sha256": "54399e28df381c2114c1422dedc1aed17f1bd15b320e636155a070e181c33e72",
+    "source_id": "0054832199799795"
+  },
+  "policy": {
+    "repo": "Qwen/Qwen3-VL-8B-Instruct",
+    "revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+    "status": "rejected_as_primary_teacher_coverage_2_of_9",
+    "dtype": "bfloat16",
+    "decoding": {
+      "do_sample": false,
+      "max_new_tokens": 128
+    }
+  },
+  "states": [
+    {
+      "decision_step_id": 4,
+      "history_events": 3,
+      "selection_reason": "previously_observed_full_history_executable_match"
+    },
+    {
+      "decision_step_id": 8,
+      "history_events": 7,
+      "selection_reason": "previously_observed_full_history_executable_match"
+    }
+  ],
+  "intervention": {
+    "visual_tokens_per_image": 256,
+    "images_per_restored_event": 2,
+    "event_cost_visual_tokens": 512,
+    "current_observation_cost_excluded_as_constant": true,
+    "budgets_visual_tokens": [
+      512,
+      1024
+    ]
+  },
+  "distance": {
+    "name": "teacher_forced_action_path_full_vocab_kl",
+    "canonical_action_source": "full_history_deterministic_generated_json",
+    "canonical_json": {
+      "ensure_ascii": false,
+      "sort_keys": true,
+      "separators": [
+        ",",
+        ":"
+      ]
+    },
+    "include_explanation": false,
+    "include_generated_special_tokens": false,
+    "aggregation": "mean_over_canonical_action_tokens",
+    "vocabulary": "full",
+    "log_softmax_dtype": "float32",
+    "self_repeat_count": 1,
+    "sensitivity_epsilon": {
+      "absolute_floor": 0.0001,
+      "repeat_noise_multiplier": 10.0
+    }
+  },
+  "coalitions": {
+    "enumeration": "all_subsets_with_cost_at_most_budget",
+    "maximum_restored_events": 2,
+    "expected_unique_forward_count_excluding_generation": 38
+  },
+  "baselines": [
+    "summary_only",
+    "recent",
+    "uniform_random_exact_expectation",
+    "rgb_histogram_similarity",
+    "global_exhaustive_oracle",
+    "budget_conditioned_restoration_selector"
+  ],
+  "attribution": {
+    "exact_reference": true,
+    "samples_sweep": [
+      4,
+      8,
+      16
+    ],
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "shared_antithetic_permutations": true
+  },
+  "outcome_rule": {
+    "allowed_statuses": [
+      "INVALID",
+      "NO_GO_DIAGNOSTIC",
+      "INCONCLUSIVE_NEGATIVE",
+      "INCONCLUSIVE_POSITIVE"
+    ],
+    "no_go_diagnostic_if": [
+      "both_states_have_summary_distance_at_or_below_state_epsilon",
+      "or_neither_state_has_budget_1024_oracle_utility_above_state_epsilon"
+    ],
+    "inconclusive_positive_requires": [
+      "at_least_one_memory_sensitive_state",
+      "at_least_one_state_with_budget_1024_normalized_oracle_recovery_at_least_0.25",
+      "that_state_has_at_least_one_positive_exact_gain_for_a_non_recent_event"
+    ],
+    "inconclusive_negative": "all_valid_outcomes_not_matching_the_other_two_rules",
+    "post_result_changes_forbidden": [
+      "decision_states",
+      "low_fidelity_schema",
+      "visual_resolution",
+      "budgets",
+      "distance",
+      "thresholds"
+    ]
+  }
+}

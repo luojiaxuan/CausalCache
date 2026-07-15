@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: AAAI-27 paper backbone ready / primary teacher selection blocked by frozen validation gates
+> Status: AAAI-27 paper backbone ready / go-no-go diagnostic preregistered / primary teacher still blocked
 
 ## 团队交接入口
 
@@ -15,13 +15,20 @@ AndroidWorld 正式 validation 在 42/62 checkpoints 后以 success 下界 9/62�
 dataset `v0.2.0@0faf767e`。按预注册 change control，本轮停止，不生成 restoration labels 或训练 gate；
 下一步必须先形成新的 validated-reference/primary-policy 预注册决策。final test 仍保持 sealed。
 
+当前正在执行的 go/no-go 分为两层。第一层已在任何 restoration forward 前冻结为
+[`code/configs/go_no_go_diagnostic_v1.json`](code/configs/go_no_go_diagnostic_v1.json)：只用已有 Qwen
+matched states 验证真实 action-path KL 与 exhaustive oracle，因 post-selection bias 禁止给出论文级
+`GO`。判据、失败边界与独立扩展要求见 [`docs/go_no_go.md`](docs/go_no_go.md)。正式 reference gate
+与 paper-level go/no-go 仍必须使用未观察 policy/restoration 的独立多轨迹 manifest。
+
 新合作者按以下顺序阅读：
 
 1. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
 2. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
 3. [`docs/experiment_contract.md`](docs/experiment_contract.md)：不可静默改变的实验语义；
-4. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-5. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+4. [`docs/go_no_go.md`](docs/go_no_go.md)：当前 diagnostic 与扩展 pilot 的冻结判据；
+5. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+6. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 

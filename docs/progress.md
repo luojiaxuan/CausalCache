@@ -389,6 +389,19 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 
 ## 当前 artifact 状态
 
+### 2026-07-14：go/no-go existence diagnostic 预注册
+
+- 在任何 restoration forward 前冻结 `exploratory_oracle_diagnostic_v1`：Qwen exact revision、旧
+  GUIOdyssey artifact、decision step 4/8、每 event 512 visual tokens、预算 512/1024、full-vocabulary
+  teacher-forced action-path mean KL、全部可行 coalition、固定 baselines 与四分支判据；
+- 明确这两个 states 是在 2/9 coverage 后观察到的 matched subset，只能产生当前 representation/policy
+  stack 的工程结论或硬负信号，禁止训练 gate、替换 primary teacher gate 或输出论文级 `GO`；
+- paper-level go/no-go 仍要求未观察 restoration 的独立多轨迹 manifest，且必须先通过未修改的 50%
+  full-history executable-match reference gate；旧 single-trajectory rejection 保留披露；
+- compute 改用 Hyper00（Hyper01 有用户任务）：只读审计时 Hyper00 8×H200 均为空、`/data01` 与
+  `/data02` 空间充足；正式 GPU forward 前仍须重新运行 10 秒 idle-cleanup preflight，并显式绑定至多
+  一张即时空闲 GPU。
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
