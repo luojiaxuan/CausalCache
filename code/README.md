@@ -181,10 +181,10 @@ python3 -m scripts.materialize_restoration_v2_selection \
 witnesses，exposure 的 negative claim 只是 pre-output process declaration。正式产物进入 Git 后用
 `scripts.validate_restoration_v2_selection` 独立复核。
 
-2026-07-15 formal run 已从 pushed `main@ed0706e` 在 Hyper00 完成，并在两个空目录中
+2026-07-15 canonical formal run 已从 pushed `main@30879c0` 在 Hyper00 完成，并在两个空目录中
 得到 byte-identical 结果。canonical 产物为
 `data/manifests/restoration_v2_selection.json` 和 `data/manifests/restoration_v2_exposure.json`，SHA256 分别为
-`13197eed...` / `0b1a4dfd...`；可从仓库根目录运行 `make validate-restoration-v2-selection`
+`292c7e52...` / `bc122482...`；可从仓库根目录运行 `make validate-restoration-v2-selection`
 独立复核。
 
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：

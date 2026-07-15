@@ -35,9 +35,9 @@ cases 与 negative control 已通过独立 reducer。interface manifest 的 `pen
 restoration v2 exact selection/exposure 产物：
 
 - `manifests/restoration_v2_selection.json`：111-trajectory eligible pool、8/15/20 role proof、exact
-  30/15/20 states 与 65 个 content witnesses，SHA256 `13197eed...`；
+  30/15/20 states 与 65 个 content witnesses，SHA256 `292c7e52...`；
 - `manifests/restoration_v2_exposure.json`：append-only pre-output exposure evidence，SHA256
-  `0b1a4dfd...`；
+  `bc122482...`；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
   byte-identical 全量构建结论。
 

@@ -644,7 +644,7 @@ v2 policy output、restoration label 或方法效果结果。
 - confirm 算法固定为排除 exact 8+15、保留 `decision_count>=5`、取首 20 后才检查 app diversity，禁止
   为 diversity top-up；`decision_count>=5` 恰好保证 decision step 6 存在；
 - selection manifest 保存完整 pool records、8/15/20 disjoint proof、train/dev/confirm 的 30/15/20 state
-  IDs，以及 current、candidate events 1--4、event-5 current-equivalence 与 action hashes；
+  IDs，以及每个 state 的 current、全部已存在 candidate events、紧邻 current-equivalence event 与 action hashes；
 - exposure 使用 append-only events 与 reducer，术语明确为 confirm `policy-output untouched`，而不是
   `raw unseen`；已有 v1 UI-TARS output 只覆盖 reference 8 条；
 - synthetic/mutation tests 覆盖 step-6 语义、fixed-prefix/no-top-up、pool mutation、overlap 和 exposure
@@ -662,7 +662,7 @@ v2 policy output、restoration label 或方法效果结果。
 - 修复将 role inventory 改为显式 frozen tuple，并新增“serialize→parse→validate”回归测试。必须先
   commit/push 修复，再从新 commit/new output path 重跑 formal materialization。
 
-### 2026-07-15：Selection formal attempt 2 通过
+### 2026-07-15：Selection formal attempt 2 通过，后因 metadata 不全被 supersede
 
 - 从 pushed `main@ed0706ecb72d9a828f452f7308859f95f9554c55` 的同一 clean detached Hyper00
   worktree，在全新 output path 重跑；source 212 rows、111 eligible count、pool SHA `84d685...`、五类
@@ -675,9 +675,20 @@ v2 policy output、restoration label 或方法效果结果。
 - selection SHA256 `13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3`，
   exposure SHA256 `0b1a4dfdb9f23be1a7456f78801f26e0b0800b7f32f011af913257b6919535ae`；
 - 独立 validator 通过；第二个空目录的全量重建与第一次 passing build 两文件 byte-identical；canonical
-  manifests 与轻量 summary 已进入 `data/manifests/`、`data/results/restoration_v2_selection/`；
-- dependencies 2/3 正式闭合。本步骤在 Hyper00 CPU 执行，未加载 policy、未使用 GPU、未生成任何 v2
-  policy/restoration output。
+  ID 与科学选择结果有效；但轻量 summary 未保存完整 argv、起止时间与 dtype 声明，因此不作为
+  最终 canonical runtime record，也不事后伪造缺失 metadata。
+
+### 2026-07-15：Selection canonical formal run 通过
+
+- 从 pushed `main@30879c09e896a61929c66935f98c21e6c3fc7ff5` 的全新 clean detached Hyper00
+  worktree 重跑，formal run 为 `2026-07-15T11:11:29.634935126Z`--`11:11:36.857590859Z`；
+- 完整 argv、validator argv、所有 input/config/source hashes、container digest、Python/pyarrow、
+  `dtype=not_applicable`、null seed 与 negative output declarations 已记录在 result summary；
+- canonical selection SHA256 `292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b`，
+  exposure SHA256 `bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95`；
+- 第二次 rebuild 为 `11:11:52.565730649Z`--`11:12:00.086714732Z`，字节级一致，且两次均通过
+  独立 validator；dependencies 2/3 正式闭合。本步骤未加载 policy、未使用 GPU、未生成任何
+  v2 policy/restoration output。
 
 ## Artifact 状态
 
@@ -694,7 +705,7 @@ v2 policy output、restoration label 或方法效果结果。
 - restoration v2 executor evidence：Git `data/results/restoration_v2_executor_dispatch/`，formal verdict
   `PASSED_EXECUTOR_DISPATCH`，14/14 cases，summary SHA256 `61956a45...`；
 - restoration v2 exact selection/exposure：Git `data/manifests/restoration_v2_selection.json` 与
-  `data/manifests/restoration_v2_exposure.json`，SHA256 分别为 `13197eed...` / `0b1a4dfd...`；20 confirm
+  `data/manifests/restoration_v2_exposure.json`，SHA256 分别为 `292c7e52...` / `bc122482...`；20 confirm
   trajectories、45 screening states，formal verdict `PASSED_PREOUTPUT_SELECTION_VALIDATION`；
 - independent candidate dataset 已冻结；reference raw record 位于 private HF
   `@reference-gate-v1` (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)；reference 判负，oracle records
@@ -709,8 +720,8 @@ v2 policy output、restoration label 或方法效果结果。
 ## 八项 pre-output dependencies 状态
 
 1. derived artifact immutable HF revision/file hashes：pending；
-2. exact confirm trajectory/state IDs：passed，selection SHA256 `13197eed...`；
-3. exposure ledger：passed，ledger SHA256 `0b1a4dfd...`；
+2. exact confirm trajectory/state IDs：passed，selection SHA256 `292c7e52...`；
+3. exposure ledger：passed，ledger SHA256 `bc122482...`；
 4. restricted prompt/parser/bridge/executor fixture：passed；CPU prompt/parser/bridge、真实 pinned `JSONAction`
    constructor 与 device-side executor dispatch 均有独立 evidence；
 5. pinned accessibility/OCR identity：pending；

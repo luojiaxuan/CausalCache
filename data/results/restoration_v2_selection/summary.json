@@ -1,9 +1,12 @@
 {
-  "schema_version": "0.1.0",
+  "schema_version": "0.2.0",
   "protocol_id": "causalcache_restoration_v2",
   "outcome": "PASSED_PREOUTPUT_SELECTION_VALIDATION",
   "canonical_attempt": {
-    "run_git_commit": "ed0706ecb72d9a828f452f7308859f95f9554c55",
+    "run_git_commit": "30879c09e896a61929c66935f98c21e6c3fc7ff5",
+    "started_at_utc": "2026-07-15T11:11:29.634935126Z",
+    "ended_at_utc": "2026-07-15T11:11:36.857590859Z",
+    "working_directory": "/data/worktrees/causalcache-restoration-v2-selection-30879c0/code",
     "host_alias": "hyper00",
     "hostname": "node-radixark-16-0000",
     "container_name": "sglang-omni-jaxan-07151357",
@@ -11,11 +14,56 @@
     "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
     "python_version": "3.12.3",
     "pyarrow_version": "24.0.0",
+    "dtype": "not_applicable_cpu_policy_blind_data_materialization",
     "seed": null,
     "gpu_used": false,
     "policy_loaded": false,
     "policy_output_generated": false,
-    "restoration_output_generated": false
+    "restoration_output_generated": false,
+    "argv": [
+      "/data/.venv/causalcache/bin/python",
+      "-m",
+      "scripts.materialize_restoration_v2_selection",
+      "--v2-contract",
+      "configs/causalcache_restoration_v2.json",
+      "--v1-config",
+      "configs/independent_reference_gate_v1.json",
+      "--source-file-manifest",
+      "../data/manifests/independent_reference_gate_v1_source_files.json",
+      "--source-root",
+      "/data/source/guiodyssey-independent-v1",
+      "--parent-manifest",
+      "/data/staging/causalcache-parent/manifest.json",
+      "--v1-summary",
+      "../data/results/independent_reference_gate_v1/summary.json",
+      "--git-revision",
+      "30879c09e896a61929c66935f98c21e6c3fc7ff5",
+      "--output-selection",
+      "/data/tmp/restoration-v2-selection-30879c0/selection.json",
+      "--output-exposure",
+      "/data/tmp/restoration-v2-selection-30879c0/exposure.json"
+    ],
+    "validator_argv": [
+      "/data/.venv/causalcache/bin/python",
+      "-m",
+      "scripts.validate_restoration_v2_selection",
+      "--v2-contract",
+      "configs/causalcache_restoration_v2.json",
+      "--selection",
+      "/data/tmp/restoration-v2-selection-30879c0/selection.json",
+      "--exposure",
+      "/data/tmp/restoration-v2-selection-30879c0/exposure.json"
+    ]
+  },
+  "input_identities": {
+    "scientific_contract_sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc",
+    "v1_config_sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8",
+    "source_file_manifest_sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+    "parent_manifest_sha256": "3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949",
+    "v1_summary_sha256": "c49d79dff67aabb0867bda56836f7337201a5015ba618160c45e8dd011b64c8e",
+    "materializer_sha256": "0cce2137e3274fa25167bdf35289de720c854ebe4e1c66770d397d4f88b0e3c4",
+    "validator_sha256": "6699e14a1e93b5e69cfab16ad3bac77640d8aeac99b9abe243514e9342d76704",
+    "selection_module_sha256": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a"
   },
   "source_reconstruction": {
     "source_rows": 212,
@@ -27,7 +75,7 @@
   "selection": {
     "path": "data/manifests/restoration_v2_selection.json",
     "size_bytes": 218833,
-    "sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+    "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
     "confirm_trajectory_count": 20,
     "confirm_state_count": 20,
     "label_train_state_count": 30,
@@ -61,17 +109,67 @@
   "exposure": {
     "path": "data/manifests/restoration_v2_exposure.json",
     "size_bytes": 5621,
-    "sha256": "0b1a4dfdb9f23be1a7456f78801f26e0b0800b7f32f011af913257b6919535ae",
+    "sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95",
     "status": "FROZEN_PREOUTPUT_EXPOSURE",
     "gui_owl_v2_policy_output_generated": false,
     "restoration_output_generated": false
   },
   "validation": {
-    "independent_validator_outcome": "PASSED_PREOUTPUT_SELECTION_VALIDATION",
+    "canonical_validator_outcome": "PASSED_PREOUTPUT_SELECTION_VALIDATION",
+    "rebuild_validator_outcome": "PASSED_PREOUTPUT_SELECTION_VALIDATION",
     "deterministic_full_rebuild_count": 2,
     "selection_bytes_identical": true,
-    "exposure_bytes_identical": true
+    "exposure_bytes_identical": true,
+    "rebuild_started_at_utc": "2026-07-15T11:11:52.565730649Z",
+    "rebuild_ended_at_utc": "2026-07-15T11:12:00.086714732Z",
+    "rebuild_output_directory": "/data/tmp/restoration-v2-selection-30879c0-rebuild",
+    "rebuild_argv": [
+      "/data/.venv/causalcache/bin/python",
+      "-m",
+      "scripts.materialize_restoration_v2_selection",
+      "--v2-contract",
+      "configs/causalcache_restoration_v2.json",
+      "--v1-config",
+      "configs/independent_reference_gate_v1.json",
+      "--source-file-manifest",
+      "../data/manifests/independent_reference_gate_v1_source_files.json",
+      "--source-root",
+      "/data/source/guiodyssey-independent-v1",
+      "--parent-manifest",
+      "/data/staging/causalcache-parent/manifest.json",
+      "--v1-summary",
+      "../data/results/independent_reference_gate_v1/summary.json",
+      "--git-revision",
+      "30879c09e896a61929c66935f98c21e6c3fc7ff5",
+      "--output-selection",
+      "/data/tmp/restoration-v2-selection-30879c0-rebuild/selection.json",
+      "--output-exposure",
+      "/data/tmp/restoration-v2-selection-30879c0-rebuild/exposure.json"
+    ],
+    "rebuild_validator_argv": [
+      "/data/.venv/causalcache/bin/python",
+      "-m",
+      "scripts.validate_restoration_v2_selection",
+      "--v2-contract",
+      "configs/causalcache_restoration_v2.json",
+      "--selection",
+      "/data/tmp/restoration-v2-selection-30879c0-rebuild/selection.json",
+      "--exposure",
+      "/data/tmp/restoration-v2-selection-30879c0-rebuild/exposure.json"
+    ]
   },
+  "superseded_attempts": [
+    {
+      "run_git_commit": "ed0706ecb72d9a828f452f7308859f95f9554c55",
+      "selection_sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+      "exposure_sha256": "0b1a4dfdb9f23be1a7456f78801f26e0b0800b7f32f011af913257b6919535ae",
+      "builder_outcome": "PASSED_PREOUTPUT_SELECTION",
+      "validator_outcome": "PASSED_PREOUTPUT_SELECTION_VALIDATION",
+      "classification": "superseded_to_complete_formal_runtime_metadata",
+      "policy_output_generated": false,
+      "canonical": false
+    }
+  ],
   "failed_attempts": [
     {
       "run_git_commit": "826b45feb90f92e212a0d3d25e220f52fcf3c697",

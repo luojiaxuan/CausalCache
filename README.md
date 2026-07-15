@@ -32,8 +32,8 @@ exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必�
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
 parent tar 继续抽样。pipeline 固定 `decision_count>=5` 后的首 20 条、step 6、8/15/20 disjoint proof，
 同时为 45 个 screening states 和 20 个 confirm states 写 image/action content witnesses。Hyper00 已从
-`main@ed0706e` 完成两次 byte-identical 全量构建并通过独立 validator；canonical selection/exposure SHA
-分别为 `13197eed...` / `0b1a4dfd...`，见
+`main@30879c0` 完成两次 byte-identical 全量构建，两次均通过独立 validator；canonical
+selection/exposure SHA 分别为 `292c7e52...` / `bc122482...`，见
 [`data/results/restoration_v2_selection/`](data/results/restoration_v2_selection/)。confirm 固定 20 条、覆盖
 29 个 normalized app labels，未 top-up，且仍没有任何 v2 policy/restoration output。
 

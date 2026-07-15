@@ -114,11 +114,11 @@ append-only evidence events 再 reducer；confirm 会被 deterministic pipeline 
 所以准确术语是 `policy-output untouched`，不能声称 `raw unseen`。materializer/validator 位于
 `code/causalcache/data/restoration_v2_selection.py` 与 `code/scripts/`。
 
-Hyper00 formal attempt 2 已从 pushed `main@ed0706e` 复现完整 pool，并将 exact 20 confirm IDs、65 state
+Hyper00 canonical formal run 已从 pushed `main@30879c0` 复现完整 pool，并将 exact 20 confirm IDs、65 state
 witnesses 与 exposure ledger 冻结到
 [`restoration_v2_selection.json`](../data/manifests/restoration_v2_selection.json) 和
 [`restoration_v2_exposure.json`](../data/manifests/restoration_v2_exposure.json)。两次全量构建 byte-identical，
-独立 validator 通过；文件 SHA256 分别为 `13197eed...` / `0b1a4dfd...`。dependencies 2/3 已闭合，
+两次均通过独立 validator；文件 SHA256 分别为 `292c7e52...` / `bc122482...`。dependencies 2/3 已闭合，
 但这不解锁 policy inference：derived artifact、OCR、baselines 与 execution config 仍为 mandatory blockers。
 
 所有 v2 derived summaries、OCR/UI delta、split manifests 和 attribution records 的 canonical destination 是
@@ -171,8 +171,8 @@ stability failure，输出 `INCONCLUSIVE_V2`。contract/runtime 错误为 `INVAL
 以下八项缺一不可：
 
 1. derived artifact immutable HF revision 与逐文件 hash；
-2. exact confirm trajectory/state IDs（passed：`13197eed...`）；
-3. exposure ledger（passed：`0b1a4dfd...`）；
+2. exact confirm trajectory/state IDs（passed：`292c7e52...`）；
+3. exposure ledger（passed：`bc122482...`）；
 4. restricted action exhaustive round-trip fixture；
 5. pinned accessibility/OCR backend revision 与 model hash；
 6. baseline exact specification 与 source hashes；

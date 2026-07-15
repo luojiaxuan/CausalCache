@@ -22,7 +22,7 @@
       "evidence": {
         "manual_screenshot_review_recorded": false,
         "selection_basis_uses_policy_output": false,
-        "selection_manifest_sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+        "selection_manifest_sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
         "source_file_manifest_sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc"
       },
       "roles": [
@@ -35,7 +35,7 @@
       "access_kind": "recorded_expert_action_read",
       "event_id": "recorded-expert-actions-machine-read",
       "evidence": {
-        "selection_manifest_sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+        "selection_manifest_sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
         "uses_action_validity": true,
         "uses_postselection_expert_alignment": false,
         "uses_recorded_terminal_success": true,
@@ -157,7 +157,7 @@
     ]
   },
   "schema_version": "0.1.0",
-  "selection_manifest_sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+  "selection_manifest_sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
   "semantics": {
     "confirm_terminology": "policy-output untouched; not raw-unseen",
     "events_are_append_only": true,

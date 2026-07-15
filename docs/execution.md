@@ -140,8 +140,8 @@ negative actuation control 为 HTTP 500，独立 reducer verdict 为 `PASSED_EXE
 `data/results/restoration_v2_executor_dispatch/`；该结果闭合第 4 项 action dependency，但不替代其余七项
 pre-output dependencies。
 
-exact-ID/exposure 是纯 CPU 数据步骤。Hyper00 已从 pushed
-`main@ed0706ecb72d9a828f452f7308859f95f9554c55` 的 clean detached worktree 正式运行，未占用
+exact-ID/exposure 是纯 CPU 数据步骤。Hyper00 canonical run 已从 pushed
+`main@30879c09e896a61929c66935f98c21e6c3fc7ff5` 的 clean detached worktree 正式运行，未占用
 GPU。正式命令显式传入 source root、parent manifest 与 Git revision，两个输出路径在执行前不存在：
 
 ```bash
@@ -159,7 +159,7 @@ python3 -m scripts.materialize_restoration_v2_selection \
 
 runner 对 2.25 GB source files 先做 size/SHA 验证，再读取 raw rows 两遍以重建全 pool 和固定 65 个
 state witnesses；parent tar 只含 23 条，没有被当作 confirm source。两个空目录的全量构建字节级一致，并分别通过
-独立 validator。canonical selection/exposure SHA256 为 `13197eed...` / `0b1a4dfd...`，证据见
+独立 validator。canonical selection/exposure SHA256 为 `292c7e52...` / `bc122482...`，证据见
 `data/results/restoration_v2_selection/`；dependencies 2/3 已闭合。该步骤未启动 GUI-Owl，也未产生任何
 policy/restoration output。
 

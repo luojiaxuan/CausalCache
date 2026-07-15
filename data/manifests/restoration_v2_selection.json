@@ -136,7 +136,7 @@
   "generator": {
     "cli_path": "code/scripts/materialize_restoration_v2_selection.py",
     "cli_sha256": "0cce2137e3274fa25167bdf35289de720c854ebe4e1c66770d397d4f88b0e3c4",
-    "git_revision": "ed0706ecb72d9a828f452f7308859f95f9554c55",
+    "git_revision": "30879c09e896a61929c66935f98c21e6c3fc7ff5",
     "module_path": "code/causalcache/data/restoration_v2_selection.py",
     "module_sha256": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a",
     "validator_path": "code/scripts/validate_restoration_v2_selection.py",
