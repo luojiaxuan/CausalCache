@@ -372,8 +372,8 @@ materialization + replay 的 5-file tree 均为 `605d6396...7e25`；private HF t
 `ocr-real-screen-golden-v1.0.0` 解析到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`，fresh immutable
 re-download 后第三次 replay 通过。完整证据见
 `data/results/restoration_v2_ocr_backend/real_screen_summary.json`。这只闭合 dependency 5；baseline dependency
-另由 `data/manifests/restoration_v2_baselines.json` 闭合。完整 derived artifact 现已闭合；execution config
-仍阻止 GUI-Owl policy output。
+另由 `data/manifests/restoration_v2_baselines.json` 闭合。完整 derived artifact 现已闭合；在该里程碑当时，
+execution config 仍阻止 GUI-Owl policy output。
 
 ### 完整 GUIOdyssey derived artifact
 
@@ -432,14 +432,14 @@ tree SHA256 为 `475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6
 `1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010`。
 
 private HF tag `restoration-v2-derived-v1.0.0` 解析到 immutable revision
-`89f136abaff797e14fe758a198996e51032a10a6`；repo `main` 为 9 files，旧
+`89f136abaff797e14fe758a198996e51032a10a6`；该里程碑当时 repo `main` 为 9 files，旧
 `ocr-real-screen-golden-v1.0.0@9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` 保持不变。第一次
 `hf download` preflight 因同时传入 `--cache-dir` 与 `--local-dir` 被 CLI 在下载前拒绝，零文件落盘，属于
 superseded preflight failure；正式重试必须使用新的空目录并只投影 exact 6 files。fresh immutable projection
 随后在 Hyper00 于 UTC `15:20:56.587--15:31:30.534Z` 完成第三次 210-record replay，tree/OCR aggregate
 一致。三次均未加载 policy 或生成 policy/restoration output；dependency 1 已 passed，轻量证据见
-`data/results/restoration_v2_derived_artifact/`。第 8 项 execution config 仍 pending，policy inference 继续
-locked。
+`data/results/restoration_v2_derived_artifact/`。该里程碑结束时第 8 项 execution config 仍 pending，policy
+inference 当时继续 locked。
 
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从

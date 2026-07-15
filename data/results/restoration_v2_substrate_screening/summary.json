@@ -1,0 +1,181 @@
+{
+  "artifact": {
+    "artifact_manifest_sha256": "ce817c5047484d1f9cecb6b60423e318a6509f4480477c5a1504cff58bc456f2",
+    "archive_sha256": "c3619a177f2b3bd958295bf1fb09653333eb6a735004713158a457a45534a45e",
+    "archive_size_bytes": 19025,
+    "fresh_download_verified": true,
+    "immutable_revision": "c073e143b935a79befd8ab1fd7123796792efad8",
+    "path_prefix": "runs/restoration-v2-substrate-screening-v1",
+    "repo_id": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "repo_type": "dataset",
+    "tag": "restoration-v2-substrate-screening-v1.0.0"
+  },
+  "checks": {
+    "minimum_finite_logit_coverage": false,
+    "minimum_memory_sensitive_states": false,
+    "minimum_parse_coverage": false,
+    "minimum_repeat_canonical_action_agreement": false,
+    "minimum_screening_states": true
+  },
+  "execution": {
+    "attempt_marker_count": 45,
+    "ended_at_utc": "2026-07-15T18:33:03.975100Z",
+    "generation_call_count": 45,
+    "generation_token_count": {
+      "maximum": 256,
+      "mean": 43.17777777777778,
+      "minimum": 25,
+      "total": 1943
+    },
+    "resume": false,
+    "run_command": "python3 -m scripts.run_restoration_v2_substrate_screening --repository-root /data/worktrees/causalcache-restoration-v2-compute-158afc4 --execution-config /data/worktrees/causalcache-restoration-v2-compute-158afc4/code/configs/restoration_v2_execution_hyper00_v1.json --readiness-manifest /data/worktrees/causalcache-restoration-v2-compute-158afc4/data/manifests/restoration_v2_readiness.json --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload --scientific-config /data/worktrees/causalcache-restoration-v2-compute-158afc4/code/configs/causalcache_restoration_v2.json --selection-manifest /data/worktrees/causalcache-restoration-v2-compute-158afc4/data/manifests/restoration_v2_selection.json --ocr-backend-config /data/worktrees/causalcache-restoration-v2-compute-158afc4/code/configs/restoration_v2_ocr_backend.json --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct --device cuda:0 --host-alias hyper00 --host-hostname node-radixark-16-0000 --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa --output-dir /data/tmp/restoration-v2-substrate-screening-20260715T182823Z",
+    "seed": null,
+    "started_at_utc": "2026-07-15T18:30:34.753266Z",
+    "state_duration_seconds_sum": 149.17295773443766,
+    "state_record_count": 45,
+    "state_retry_count": 0,
+    "worker_count": 1
+  },
+  "exploratory_native_format_inventory": {
+    "outputs_with_canonical_first_payload_count": 43,
+    "outputs_with_first_balanced_json_count": 43,
+    "exact_native_prefix_count": 45,
+    "exactly_one_action_line_count": 44,
+    "conservative_adapter_rejection_counts": {
+      "additional_observation_marker": 2,
+      "multiple_action_blocks": 1,
+      "second_json_object": 1,
+      "truncated_json": 1
+    },
+    "mechanically_normalizable_envelope_upper_bound_count": 40,
+    "note": "Post-hoc format-only inventory; it does not alter the official 0/45 strict-parser result and is not a gate recomputation.",
+    "observed_json_wrapper_counts": {
+      "function_and_arguments": 1,
+      "mobile_use_key": 6,
+      "name_and_arguments": 1,
+      "raw_arguments": 35
+    },
+    "observed_suffix_counts_after_first_balanced_json": {
+      "empty": 25,
+      "extra_brace_then_repeated_opener": 3,
+      "extra_closing_brace": 4,
+      "observation_marker": 2,
+      "repeated_opener": 8,
+      "second_json_object": 1
+    },
+    "strict_parser_success_count": 0
+  },
+  "failure": {
+    "category_counts": {
+      "PARSE_FAILURE": 45
+    },
+    "exception_type_counts": {
+      "GUIOwlV2GenerationParseError": 45
+    },
+    "stage_counts": {
+      "reference_generation_1": 45
+    }
+  },
+  "gate_contract": {
+    "fail_outcome": "NO_GO_V2_SUBSTRATE",
+    "minimum_finite_logit_coverage": 1.0,
+    "minimum_memory_sensitive_states": 8,
+    "minimum_parse_coverage": 0.99,
+    "minimum_repeat_canonical_action_agreement": 1.0,
+    "minimum_screening_states": 20,
+    "pass_outcome": "RUN_UNTOUCHED_RESTORATION_CONFIRM"
+  },
+  "gate_passed": false,
+  "hashes": {
+    "aggregate_sha256": "57a2456c2667380fecf5f9b4a66c6ed60c5572d284fcf62e4f70348f87532df8",
+    "execution_config_sha256": "819cb973d9211a5a9b3b4d7c109520605e35b07ad008bf125353d33d0bf91ca0",
+    "exposure_manifest_sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95",
+    "interface_manifest_sha256": "5a6166febe7d7575b7dc5dc7637c77cadec48b569a00121cbd5766c67e9c4860",
+    "ocr_backend_config_sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+    "ocr_backend_manifest_sha256": "107478672438b52e9c2ccc9ef8de5d13d4e16329ab1afbe95772e2d3df5bd2a9",
+    "readiness_manifest_sha256": "f2bcc2d7515dd072a11419fc2d890bdbdb642c27cb8320afb051e4da1440e5d1",
+    "run_contract_sha256": "ed1791e148a18f39f3fc04fd0b4aacf66bfc3225e8fc92a38c9c97835e1c61f1",
+    "run_manifest_sha256": "c154b3ee1c37caec358a97b6560a64d054809fce7c8ab06d4f6f1b34b479ba17",
+    "scientific_config_sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc",
+    "selection_manifest_sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+    "shape_records_sha256": "54745463826de38cb0a6ccad718f1595edb2e40bdfb580471c85697618d393dc"
+  },
+  "metrics": {
+    "finite_logit_coverage": 0.0,
+    "finite_logit_state_count": 0,
+    "finite_repeat_kl_count": 0,
+    "fixed_state_denominator": 45,
+    "mean_repeat_kl": null,
+    "memory_sensitive_state_count": 0,
+    "memory_sensitive_state_ids": [],
+    "parse_coverage": 0.0,
+    "parse_success_count": 0,
+    "repeat_canonical_action_agreement": 0.0,
+    "repeat_canonical_action_agreement_count": 0,
+    "repeat_noise_epsilon": null
+  },
+  "negative_declarations": {
+    "confirm_role_used": false,
+    "kl_measurement_count": 0,
+    "oom_failure_count": 0,
+    "restoration_label_count": 0,
+    "sample_mutation_performed": false,
+    "teacher_forward_count": 0,
+    "top_up_performed": false
+  },
+  "outcome": "NO_GO_V2_SUBSTRATE",
+  "policy": {
+    "do_sample": false,
+    "dtype": "torch.bfloat16",
+    "max_new_tokens": 256,
+    "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+  },
+  "protocol_id": "causalcache_restoration_v2",
+  "run_git_commit": "a0001cbc4d4c3e2584ae3bbcff217ce664e5e064",
+  "runtime": {
+    "container_id": "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
+    "container_image": "hongccc/sglang-omni:dev",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "cudnn_version": 91900,
+    "gpu_compute_capability": [
+      9,
+      0
+    ],
+    "gpu_multiprocessor_count": 132,
+    "gpu_name": "NVIDIA H200",
+    "gpu_uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "nvidia_driver_version": "570.172.08",
+    "peak_gpu_memory_allocated_bytes": 22239610880,
+    "peak_gpu_memory_reserved_bytes": 23410507776,
+    "python_version": "3.12.3",
+    "selected_device": "cuda:0",
+    "torch_cuda_build_version": "13.0",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0",
+    "visible_cuda_device_count": 1
+  },
+  "schema_version": "1.0.0",
+  "screening_data": {
+    "derived_artifact_immutable_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+    "derived_artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+    "role_counts": {
+      "v2_development": 15,
+      "v2_label_train": 30
+    },
+    "state_count": 45
+  },
+  "shape_sweep": {
+    "maximum_context_tokens": 32768,
+    "maximum_sequence_length": 14499,
+    "minimum_sequence_length": 3245,
+    "policy_forward_executed": false,
+    "prompt_count": 90,
+    "shape_records_sha256": "54745463826de38cb0a6ccad718f1595edb2e40bdfb580471c85697618d393dc",
+    "status": "PASSED_90_PROMPT_PROCESSOR_ONLY_SHAPE_SWEEP"
+  },
+  "status": "COMPLETED_FIXED_45_STATE_SUBSTRATE_SCREENING"
+}

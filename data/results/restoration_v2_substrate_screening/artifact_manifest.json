@@ -1,0 +1,42 @@
+{
+  "artifact_kind": "raw_restoration_v2_substrate_screening_trace_shard",
+  "contents": {
+    "aggregate_file_count": 1,
+    "attempt_marker_count": 45,
+    "log_file_count": 1,
+    "run_manifest_file_count": 1,
+    "state_record_count": 45,
+    "total_source_file_count": 93
+  },
+  "created_at_utc": "2026-07-15T18:42:15Z",
+  "generation_command": "python3 -m scripts.run_restoration_v2_substrate_screening --repository-root /data/worktrees/causalcache-restoration-v2-compute-158afc4 --execution-config /data/worktrees/causalcache-restoration-v2-compute-158afc4/code/configs/restoration_v2_execution_hyper00_v1.json --readiness-manifest /data/worktrees/causalcache-restoration-v2-compute-158afc4/data/manifests/restoration_v2_readiness.json --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload --scientific-config /data/worktrees/causalcache-restoration-v2-compute-158afc4/code/configs/causalcache_restoration_v2.json --selection-manifest /data/worktrees/causalcache-restoration-v2-compute-158afc4/data/manifests/restoration_v2_selection.json --ocr-backend-config /data/worktrees/causalcache-restoration-v2-compute-158afc4/code/configs/restoration_v2_ocr_backend.json --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct --device cuda:0 --host-alias hyper00 --host-hostname node-radixark-16-0000 --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa --output-dir /data/tmp/restoration-v2-substrate-screening-20260715T182823Z",
+  "huggingface": {
+    "path_prefix": "runs/restoration-v2-substrate-screening-v1",
+    "repo_id": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "repo_type": "dataset",
+    "target_tag": "restoration-v2-substrate-screening-v1.0.0"
+  },
+  "packaging": {
+    "archive_filename": "restoration-v2-substrate-screening-20260715T182823Z.tar.gz",
+    "archive_sha256": "c3619a177f2b3bd958295bf1fb09653333eb6a735004713158a457a45534a45e",
+    "archive_size_bytes": 19025,
+    "command": "tar --sort=name --mtime=1970-01-01T00:00:00Z --owner=0 --group=0 --numeric-owner -czf restoration-v2-substrate-screening-20260715T182823Z.tar.gz -C /data/tmp restoration-v2-substrate-screening-20260715T182823Z -C /data/logs restoration-v2-substrate-screening-20260715T182823Z.log",
+    "source_file_manifest_sha256": "8bed41c629b3dfad98a8eafa0abe3e182928f979c6efa33ba79931a8d35fc51f"
+  },
+  "protocol_id": "causalcache_restoration_v2",
+  "raw_trace_policy": {
+    "contains_native_policy_outputs": true,
+    "git_tracked": false,
+    "may_contain_task_text": true,
+    "private_repository_required": true
+  },
+  "run": {
+    "aggregate_sha256": "57a2456c2667380fecf5f9b4a66c6ed60c5572d284fcf62e4f70348f87532df8",
+    "git_commit": "a0001cbc4d4c3e2584ae3bbcff217ce664e5e064",
+    "log_sha256": "d6790b286d11730b2a9f5cd9ff368cabf9c663f870b8cb8f238775523b7f1684",
+    "outcome": "NO_GO_V2_SUBSTRATE",
+    "run_contract_sha256": "ed1791e148a18f39f3fc04fd0b4aacf66bfc3225e8fc92a38c9c97835e1c61f1",
+    "run_manifest_sha256": "c154b3ee1c37caec358a97b6560a64d054809fce7c8ab06d4f6f1b34b479ba17"
+  },
+  "schema_version": "1.0.0"
+}

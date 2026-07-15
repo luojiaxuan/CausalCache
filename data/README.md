@@ -74,6 +74,10 @@ restoration v2 exact selection/exposure 产物：
   加载 processor、哈希 model snapshot 与
   Transformers source，不允许 materialize model weights、调用 forward/generate 或产生 policy/restoration
   output；结果必须先由干净 pushed commit 生成，再回写并冻结 exact image-grid/token-shape evidence。
+- `results/restoration_v2_substrate_screening/`：第一次 fixed 45-state screening 的轻量 aggregate、完整 runtime/
+  input provenance、raw artifact manifest 与 format-only inventory；正式 verdict 为 `NO_GO_V2_SUBSTRATE`，
+  strict parse 0/45，confirm 未打开。45 条 native outputs、attempt markers、state records 与 log 只在 private
+  HF tar shard，不进入 Git。
 
 当前 reusable artifacts：
 
@@ -100,9 +104,14 @@ restoration v2 exact selection/exposure 产物：
   (`9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`)；5/5 files fresh re-download verified，完整 tree
   SHA256 `605d6396...7e25`；该旧 tag 保持不变。
 - Restoration v2 full derived artifact：同一 private HF dataset
-  `@restoration-v2-derived-v1.0.0` (`89f136abaff797e14fe758a198996e51032a10a6`)；repo `main` 为 9 files，
+  `@restoration-v2-derived-v1.0.0` (`89f136abaff797e14fe758a198996e51032a10a6`)；
   exact 6-file derived projection 已 fresh re-download，tree SHA256 `475e6cf2...a6e`，210 条 OCR replay
   通过。
+- Restoration v2 first substrate trace：同一 private HF dataset
+  `@restoration-v2-substrate-screening-v1.0.0`
+  (`c073e143b935a79befd8ab1fd7123796792efad8`)；prefix
+  `runs/restoration-v2-substrate-screening-v1/`，deterministic tar SHA256 `c3619a17...a45e`，manifest 与
+  archive 已从 immutable revision fresh re-download 验 hash。
 
 最新轻量运行记录：
 
@@ -134,7 +143,11 @@ restoration v2 exact selection/exposure 产物：
 
 - `results/restoration_v2_runtime_reanchor/`：screening preflight 发现旧 GPU 0 busy 后，在空闲 physical GPU 2
   的新单卡容器重新完成 GPU compute + independent validation + real processor audit；三份 evidence 均为
-  policy-output-free。GPU-2 config/readiness 重签前 screening 保持暂停；
+  policy-output-free。该里程碑结束时 GPU-2 config/readiness 尚未重签，screening 当时保持暂停；
+
+- `results/restoration_v2_substrate_screening/`：Hyper00 physical GPU 2 完成固定 45-state run；90-prompt shape
+  sweep 通过，45/45 在第一次 reference generation strict parse 失败，teacher forward/KL/restoration label
+  均为 0，合法 verdict `NO_GO_V2_SUBSTRATE`；无 retry/top-up/confirm access；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；

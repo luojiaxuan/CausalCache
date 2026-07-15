@@ -1075,10 +1075,31 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - validator 再次明确 `policy_imported_by_validator=false`、policy/restoration output 均为 false。现在只允许
   固定 45-state development screening，confirm 继续 locked。
 
+### 2026-07-15：第一次 fixed 45-state substrate screening 合法判负
+
+- 从 clean pushed `main@a0001cbc4d4c3e2584ae3bbcff217ce664e5e064` 在 Hyper00 non-privileged container
+  `69f2b174...194df`、单张 physical GPU 2（H200，`GPU-e19275bf...66b81`）运行；live runtime guard、derived
+  artifact validation 与全部 90 个 processor-only prompt shapes 先通过，sequence length 范围
+  3,245--14,499，未超过固定 context；
+- 45 个固定 state（30 label-train + 15 development）各生成一次，共 1,943 tokens；45/45 都在
+  `reference_generation_1` 触发 `GUIOwlV2GenerationParseError`，因此正式 aggregate 为 strict parse 0/45、
+  `NO_GO_V2_SUBSTRATE`。没有 OOM、resume、state retry、top-up、sample mutation 或 confirm access；
+- parse 之后未进入任何 teacher forward，故 finite-logit coverage、repeat agreement 与 memory-sensitive count
+  的 0 值都是未测量下游量，不是 logits/non-sensitivity 证据；KL measurement 与 restoration label 均为 0；
+- raw run 的 45 native outputs、45 state records、45 attempt markers、run manifest 与 log 已打成单个
+  deterministic tar，上传 private HF
+  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile@restoration-v2-substrate-screening-v1.0.0`
+  (`c073e143b935a79befd8ab1fd7123796792efad8`) 并 fresh re-download 验 hash；Git 只保存轻量 summary 与
+  artifact manifest；
+- post-hoc format inventory 发现 45/45 都有 exact `Action:` + `<tool_call>` prefix，43/45 条 output 的
+  first balanced JSON 可以 canonicalize，但这只是宽松 diagnostic；在拒绝多 action、截断、第二 JSON 与额外 observation 后，保守的 envelope-only
+  normalization 上界只有 40/45，低于 frozen 0.99 gate（45 states 必须 45/45）。它不 retroactively 改写
+  本次 0/45；confirm 继续 locked。
+
 ## 下一步
 
-下一步 push GPU-2 readiness summary/docs，并在 clean main 再验证 authorization；随后复核 Hyper00 GPU/container
-状态，启动 utilization monitor 与 development substrate screening。
-只有 screening 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
-top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
-75-instance final plan 一并冻结。
+下一步先对 immutable raw trace 做可复现、fail-closed 的 parser/generation diagnosis，并冻结新的 versioned
+interface rescue；优先验证 official `tools=` chat-template 路径与单一完整 JSON 后的 generation termination，
+但不得语法补全截断 JSON、静默取多 action 的第一个或在原 v2 result 上 relabel。新 protocol 必须在任何新
+policy output 前完成 tests、commit、push 与重新 authorization；只有新 substrate screening 通过才能打开
+fixed-denominator confirm。AndroidWorld validation 只作 development，test split 继续 sealed。

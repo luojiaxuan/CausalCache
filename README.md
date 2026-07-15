@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: GPU-0 readiness passed historically / GPU-2 re-anchor audits passed / re-signing pending / policy inference paused
+> Status: v2 fixed 45-state substrate = `NO_GO_V2_SUBSTRATE` (strict parse 0/45) / confirm locked / versioned interface rescue pending
 
 ## 团队交接入口
 
@@ -13,8 +13,9 @@ policy output 前冻结，SHA256 为
 `9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc`。primary policy 固定为
 `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faec`；reference 只要求 restricted action 可解析、logits finite、
 两次 canonical action 一致，expert alignment 仅分层报告且不能过滤状态。完整定义、data exposure 和
-go/no-go 阈值见 [`docs/restoration_v2.md`](docs/restoration_v2.md)。当前没有任何 v2 policy output、
-restoration label、gate checkpoint 或方法效果结果。
+go/no-go 阈值见 [`docs/restoration_v2.md`](docs/restoration_v2.md)。第一次固定 development screening 已产生
+45 个 v2 native policy outputs，但 strict parse 为 0/45，因此没有 teacher forward、KL、restoration label、
+gate checkpoint 或方法效果结果；confirm 仍 locked。
 
 v2 CPU interface 已独立实现并 hash-pinned，见
 [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md) 与
@@ -26,7 +27,7 @@ step-6 全部 16 个）已通过；pinned AndroidWorld `JSONAction` constructor 
 device-side executor dispatch 已在 Aries 正式通过 14/14 cases，negative actuation control 为 HTTP 500，
 独立 reducer verdict 为 `PASSED_EXECUTOR_DISPATCH`；证据见
 [`data/results/restoration_v2_executor_dispatch/`](data/results/restoration_v2_executor_dispatch/)。因此 action
-dependency 已闭合；execution config 仍阻止 policy inference。baseline 公式、
+dependency 已闭合。baseline 公式、
 GUI-Owl final-main-merger extractor、完整 snapshot/runtime verifier 与 11-file source manifest 已通过，
 dependency 6 已闭合。
 
@@ -52,8 +53,7 @@ byte-identical，tree SHA256 为 `475e6cf2...a6e`，OCR aggregate 为 `1e04ddbd.
 `restoration-v2-derived-v1.0.0` 固定到 immutable revision
 `89f136abaff797e14fe758a198996e51032a10a6`；fresh immutable download 后第三次 210-record replay 通过。
 dependency 1 已闭合，且三次均未加载 policy 或生成 restoration output。详细证据见
-[`data/results/restoration_v2_derived_artifact/`](data/results/restoration_v2_derived_artifact/)；当前只剩
-execution config 阻止 policy inference。
+[`data/results/restoration_v2_derived_artifact/`](data/results/restoration_v2_derived_artifact/)。
 
 dependency 8 的 source implementation 前置现已就绪：
 [`code/causalcache/restoration_v2_gpu_kl.py`](code/causalcache/restoration_v2_gpu_kl.py) 将 BF16
@@ -91,6 +91,15 @@ Transformers。GPU-2 readiness manifest 已绑定 clean implementation commit `1
 clean-Git authorization 在 `main@caa4f37` 返回 8/8、`SCREENING_ALLOWED + CONFIRM_LOCKED`；当前结果见
 [`data/results/restoration_v2_readiness/`](data/results/restoration_v2_readiness/)。
 
+第一次 fixed 45-state substrate screening 已在 `main@a0001cb`、Hyper00 单张 physical GPU 2 完整执行。
+90-prompt shape sweep 通过，45 个 state 均生成一次；但冻结 parser 因 native envelope mismatch 在
+`reference_generation_1` 得到 45/45 `PARSE_FAILURE`，正式输出 `NO_GO_V2_SUBSTRATE`。因此 teacher forward、
+KL 与 restoration label 均为 0，这不是“logits 不 finite”或“memory 不敏感”的测量。原始 trace 已打成单个
+deterministic tar shard 上传 private HF，轻量结论与 immutable revision 见
+[`data/results/restoration_v2_substrate_screening/`](data/results/restoration_v2_substrate_screening/)。只读审计中
+保守的单动作 envelope-only normalization 上界为 40/45，仍低于 0.99 gate；原 v2 结果不改写，confirm 保持
+locked，下一步必须先冻结 versioned interface/generation rescue。
+
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
 parent tar 继续抽样。pipeline 固定 `decision_count>=5` 后的首 20 条、step 6、8/15/20 disjoint proof，
@@ -98,7 +107,7 @@ parent tar 继续抽样。pipeline 固定 `decision_count>=5` 后的首 20 条�
 `main@30879c0` 完成两次 byte-identical 全量构建，两次均通过独立 validator；canonical
 selection/exposure SHA 分别为 `292c7e52...` / `bc122482...`，见
 [`data/results/restoration_v2_selection/`](data/results/restoration_v2_selection/)。confirm 固定 20 条、覆盖
-29 个 normalized app labels，未 top-up，且仍没有任何 v2 policy/restoration output。
+29 个 normalized app labels，未 top-up；confirm 仍没有任何 policy/restoration output。
 
 executor-dispatch 的 live-inspection、negative-control 与 offline-reduction 契约见
 [`docs/restoration_v2_executor_dispatch.md`](docs/restoration_v2_executor_dispatch.md)。本次 run 绑定已推送
@@ -158,10 +167,10 @@ make test validate-contract validate-restoration-v2 validate-restoration-v2-inte
   validate-restoration-v2-baselines paper
 ```
 
-计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback；当前
-pre-output dependencies 1--7 已闭合，任何正式 GPU output 前还必须冻结
-[`docs/restoration_v2.md`](docs/restoration_v2.md) 所列第 8 项 execution config。AndroidWorld closed-loop MVP 继续使用
-已验证的 Aries stack。Hyper01 当前不参与本轮执行。
+计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback。八项
+pre-output dependencies 已闭合并完成第一次正式 screening；当前因 strict parse 0/45 停在
+`NO_GO_V2_SUBSTRATE + CONFIRM_LOCKED`。任何 interface rescue 都必须另立 versioned protocol、先 commit/push
+再产生新 output。AndroidWorld closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 当前不参与本轮执行。
 
 ## 一句话主张
 
@@ -386,6 +395,8 @@ $$
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
 - [x] 在已接入的真实轨迹上实现 teacher-forced policy distance 与固定 45-state substrate runner；
+- [x] 完成第一次固定 45-state substrate screening；strict parse 0/45，合法输出 `NO_GO_V2_SUBSTRATE`，confirm 未打开；
+- [ ] 冻结并验证 versioned native-output/generation rescue；保留原 v2 negative result，不做 retroactive relabel；
 - [ ] 构造 matched-NLL memory pairs，验证关键假设；
 - [ ] 训练 query-time memory gate；
 - [ ] 完成 AndroidWorld closed-loop evaluation；
@@ -467,11 +478,12 @@ $$
 - Restoration v2 execution config: [`code/configs/restoration_v2_execution_hyper00_v1.json`](code/configs/restoration_v2_execution_hyper00_v1.json)
 - Restoration v2 readiness authorization: [`data/results/restoration_v2_readiness/README.md`](data/results/restoration_v2_readiness/README.md)
 - Restoration v2 GPU-2 runtime re-anchor: [`data/results/restoration_v2_runtime_reanchor/README.md`](data/results/restoration_v2_runtime_reanchor/README.md)
+- Restoration v2 fixed 45-state substrate result: [`data/results/restoration_v2_substrate_screening/README.md`](data/results/restoration_v2_substrate_screening/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 GPU-2 readiness 已在 clean `main` 正式通过，
-  当前状态为 `SCREENING_ALLOWED + CONFIRM_LOCKED`。尚未运行 45-state screening，因此仍
-  没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 第一次固定 45-state screening 在
+  clean `main` 完成，strict parse 0/45，正式为 `NO_GO_V2_SUBSTRATE + CONFIRM_LOCKED`。已有 45 个 native
+  policy outputs，但没有 teacher forward、KL、restoration label 或 CausalCache 方法效果结果。
 
 ### Data and Models
 
@@ -484,18 +496,19 @@ $$
 | Rejected GUI-tuned candidate | <https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B> | `683d002dd99d8f95104d31e70391a39348857f4e` | parsed 9/9、executable-match 4/9；未通过预注册 50% gate |
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
 | Rejected GUI navigation candidate | <https://huggingface.co/showlab/ShowUI-2B> | `cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60` | parsed 9/9、executable-match 2/9；未通过预注册 gate |
-| GUI-Owl-1.5-8B-Instruct | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | v1 AndroidWorld success teacher 被拒；v2 stable self-behavior substrate 已冻结，尚无 v2 output |
+| GUI-Owl-1.5-8B-Instruct | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | v1 AndroidWorld success teacher 被拒；v2 首次 fixed screen 因 strict envelope parse 0/45 判 `NO_GO_V2_SUBSTRATE` |
 | Rejected replacement candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think> | `afe3707fc84caebc4d7046118b34493ecf8bb060` | 512/513 parsed；official-success 上界 29/62，未通过 50% gate |
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.2.0` / `0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`，private | 42 Think traces；deterministic gzip JSONL；`v0.1.0` Instruct artifact 保持不变 |
 | Restoration v2 OCR models | <https://huggingface.co/gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en> | `v1.0.0` / `0dbc766a73ee88d10d52285d434dbfec58617835`，private | 三份 ONNX、model card 与 manifest；fresh immutable re-download 后 6/6 file hashes verified |
-| Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | `restoration-v2-derived-v1.0.0` / `89f136abaff797e14fe758a198996e51032a10a6`，private | exact 6-file derived projection 已 fresh re-download 并第三次 replay；repo `main` 为 9 files；旧 OCR golden tag 仍固定到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` |
+| Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | `restoration-v2-derived-v1.0.0` / `89f136abaff797e14fe758a198996e51032a10a6`，private | exact 6-file derived projection 已 fresh re-download 并第三次 replay；旧 OCR golden tag 仍固定到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` |
+| Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict parse 0/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。
-v2 完整 derived dataset、OCR 三模型与 6-image real-screen golden 已成为 private HF dataset/model canonical
-artifacts。Hyper00 model 与 repeat output 只保留为可重建 cache；完成态 Git manifest/result 绑定 immutable
-revisions、逐文件 hashes 与 replay evidence。dependencies 1 与 5 均已通过。
+v2 完整 derived dataset、OCR 三模型、6-image real-screen golden 与第一次 screening raw trace 已成为 private
+HF dataset/model canonical artifacts。Hyper00 model cache 仍可重建；native outputs 不留在 Git，而由完成态
+Git manifest/result 绑定 HF immutable revision、逐文件 hashes 与 fresh-download evidence。
 
 ## Citation
 

@@ -4,7 +4,8 @@
 
 仓库没有通过历史 v1 expert-coverage gate 的 teacher；v1 UI-TARS 已正式输出
 `NO_GO_CURRENT_REFERENCE_STACK`。restoration v2 已另立为 stable self-behavior estimand 并在任何 v2
-policy output 前冻结，但目前只完成科学契约，还不是 `GO`。已观察的 GUIOdyssey decision step 4/8 仍有
+policy output 前冻结；第一次 fixed 45-state screen 因 strict parse 0/45 合法输出
+`NO_GO_V2_SUBSTRATE`，仍不是 `GO`。已观察的 GUIOdyssey decision step 4/8 仍有
 post-selection bias，只能作为历史 existence diagnostic，不能成为 v2 label 或推翻 v1 rejection。
 
 第一阶段使用 `code/configs/go_no_go_diagnostic_v1.json`。配置在任何 restoration forward 之前冻结，
@@ -126,7 +127,10 @@ gate 仍是后续阶段，offline oracle `GO` 不等于论文主张已经成立�
 v2 不重开或放宽 v1 expert gate。它把 reference 改为 GUI-Owl-1.5-8B-Instruct 的 parseable、finite、
 repeat-stable self-behavior；expert alignment 只作为独立质量轴报告，不能决定 admission、drop 或 top-up。
 科学配置为 [`causalcache_restoration_v2.json`](../code/configs/causalcache_restoration_v2.json)，完整干预与
-data exposure 见 [`restoration_v2.md`](restoration_v2.md)。当前尚未运行任何 v2 output。
+data exposure 见 [`restoration_v2.md`](restoration_v2.md)。第一次 fixed 45-state run 已生成 45 个 native
+outputs，但 strict parser 0/45，正式输出 `NO_GO_V2_SUBSTRATE`；没有 teacher forward、KL 或 restoration label，
+confirm 未打开。轻量结论见
+[`data/results/restoration_v2_substrate_screening/`](../data/results/restoration_v2_substrate_screening/)。
 
 第一层只在 label-train/development 做 substrate screening，至少 20 states：
 
@@ -138,6 +142,11 @@ data exposure 见 [`restoration_v2.md`](restoration_v2.md)。当前尚未运行�
 任一失败输出 `NO_GO_V2_SUBSTRATE`，untouched confirm 不打开。通过后，confirm 固定使用 frozen hash order
 中的 20 条 trajectory，每条 decision step 6 一个 state；parse/stability failure 计入固定分母，不能换样本、
 按 expert/quality/sensitivity 过滤或事后 top-up。
+
+第一次正式 screen 的 45 个 failure 全部发生在 `reference_generation_1` 的 exact envelope parse。只读
+format inventory 中，保守的 single-decision envelope-only normalization 最多恢复 40/45；在 45-state
+denominator 上 0.99 threshold 实际要求 45/45，因此不能靠 retroactive parser 放宽把该结果变成 pass。任何
+rescue 必须另立 versioned protocol，并继续拒绝多 action、截断 JSON、第二 JSON 与额外 observation。
 
 Confirm primary 固定四个 visual candidates、容量最多两个，`K=16`、seed `20270715`。进入 gate training 必须
 同时满足：

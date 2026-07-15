@@ -8,8 +8,9 @@ executable-match admission gate 下充当 reference 的路线，不是对 Causal
 v2 改用冻结策略自身的稳定行为作为 attribution reference。科学配置已经在任何 v2 policy output 前冻结为
 [`causalcache_restoration_v2.json`](../code/configs/causalcache_restoration_v2.json)，raw-file SHA256 为
 `9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc`。机器 validator 位于
-[`restoration_v2_contract.py`](../code/causalcache/restoration_v2_contract.py)。当前仍没有 v2 policy output、
-restoration label 或方法效果结果。
+[`restoration_v2_contract.py`](../code/causalcache/restoration_v2_contract.py)。第一次 fixed development screen
+已生成 45 个 v2 native policy outputs，但 strict parse 为 0/45，因而仍没有 teacher forward、KL、
+restoration label 或方法效果结果；原科学配置不回改，confirm 保持 locked。
 
 这不是降低 v1 的 50% threshold。v1 估计“与 expert top-1 对齐的 policy behavior 能否作为 reference”；
 v2 估计“恢复视觉证据能否恢复冻结策略自身 parseable、finite、repeat-stable 的决策行为”。二者是不同
@@ -122,8 +123,8 @@ Hyper00 canonical formal run 已从 pushed `main@30879c0` 复现完整 pool，�
 witnesses 与 exposure ledger 冻结到
 [`restoration_v2_selection.json`](../data/manifests/restoration_v2_selection.json) 和
 [`restoration_v2_exposure.json`](../data/manifests/restoration_v2_exposure.json)。两次全量构建 byte-identical，
-两次均通过独立 validator；文件 SHA256 分别为 `292c7e52...` / `bc122482...`。dependencies 2/3 已闭合，
-但这本身不解锁 policy inference；当前第 8 项 execution config 仍是 mandatory blocker。
+两次均通过独立 validator；文件 SHA256 分别为 `292c7e52...` / `bc122482...`。dependencies 2/3 已闭合；
+后续第 8 项 execution config 也已完成并用于第一次正式 screen。
 
 所有 v2 derived summaries、OCR/UI delta、split manifests 和 attribution records 的 canonical destination 是
 private HF dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`。完整 derived payload 已固定为
@@ -207,7 +208,8 @@ stability failure，输出 `INCONCLUSIVE_V2`。contract/runtime 错误为 `INVAL
 7. v2 prompt/parser/bridge/runtime source hashes（passed）；
 8. 引用本科学配置 SHA 的 execution config，并冻结 microbatch size。
 
-当前 dependencies 1--7 已 passed；第 8 项仍 pending，因此 policy inference 继续 locked。
+八项 dependencies 已全部 passed，并只授权了第一次固定 label-train/development screening。该 run 已合法输出
+`NO_GO_V2_SUBSTRATE`；这不授权 confirm 或在原结果上修改 parser 后重算。
 
 GPU KL、deterministic microbatch、GUI-Owl v2 runtime、synthetic CUDA audit、real processor audit、
 readiness validator、confirm-safe screening loader 与固定 45-state runner 的 source 已实现并完成本地
@@ -242,6 +244,12 @@ classes 冻结。完成态 execution config 也已通过 8-dependency、14-sourc
 implementation commit `14faaa4...452aa`；formal clean-Git CLI 已在 `main@caa4f37` 返回
 `SCREENING_ALLOWED + CONFIRM_LOCKED`。GPU-0 summary 只作为历史 pass；当前 GPU-2 dependency 8 已重新闭合，
 development screening 解锁，confirm 仍 locked。
+
+第一次 screening 随后从 `main@a0001cb` 在该 exact runtime 完成：90-prompt shape sweep 通过，45/45
+native generations 在 strict envelope parse 失败，正式 verdict 为 `NO_GO_V2_SUBSTRATE`；teacher forward、
+KL 与 restoration label 均为 0。完整轻量证据见
+[`restoration_v2_substrate_screening`](../data/results/restoration_v2_substrate_screening/)。任何输出接口救援必须
+另立 versioned protocol，不能覆盖本结果；confirm 继续 locked。
 
 验证命令：
 
