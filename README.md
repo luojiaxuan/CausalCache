@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: restoration v2 scientific contract frozen / no v2 policy output yet
+> Status: restoration v2 scientific + CPU interface contracts frozen / no v2 policy output yet
 
 ## 团队交接入口
 
@@ -15,6 +15,14 @@ policy output 前冻结，SHA256 为
 两次 canonical action 一致，expert alignment 仅分层报告且不能过滤状态。完整定义、data exposure 和
 go/no-go 阈值见 [`docs/restoration_v2.md`](docs/restoration_v2.md)。当前没有任何 v2 policy output、
 restoration label、gate checkpoint 或方法效果结果。
+
+v2 CPU interface 已独立实现并 hash-pinned，见
+[`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md) 与
+[`data/manifests/restoration_v2_interfaces.json`](data/manifests/restoration_v2_interfaces.json)。14 个合法
+action、23 个非法 action、6,000 个完整标量坐标检查和 decision steps 4/5/6 共 28 个 coalition（含
+step-6 全部 16 个）已通过；真实 pinned AndroidWorld `JSONAction` constructor 与 device-side executor
+dispatch 尚未运行，因此 action dependency 仍是“CPU 通过、constructor/executor pending”，不能据此开始
+policy inference。
 
 v2 的干预已收窄：所有 memory 始终保留相同 strong low-fidelity summary；恢复 event 时只增加一张
 post-action state image，不增加 before image 或额外 action text。confirm 固定每条 trajectory 的 decision
@@ -40,12 +48,14 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 新合作者按以下顺序阅读：
 
 1. [`docs/restoration_v2.md`](docs/restoration_v2.md)：当前 scientific contract、data roles 与 gates；
-2. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
-3. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-4. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-5. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-6. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-7. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+2. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
+   post-state-only prompt 的冻结实现；
+3. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+4. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+5. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+6. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+7. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+8. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -61,12 +71,13 @@ docs/              # contract、execution、progress、decisions
 快速验证：
 
 ```bash
-make test validate-contract validate-restoration-v2 paper
+make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces paper
 ```
 
 计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback；任何正式
-GPU output 前仍须完成 preflight、derived HF artifact 与 execution-config freeze。AndroidWorld closed-loop
-MVP 继续使用已验证的 Aries stack。Hyper01 当前不参与本轮执行。
+GPU output 前必须闭合 [`docs/restoration_v2.md`](docs/restoration_v2.md) 所列全部八项 pre-output
+dependencies，而不只是 derived HF artifact 与 execution config。AndroidWorld closed-loop MVP 继续使用
+已验证的 Aries stack。Hyper01 当前不参与本轮执行。
 
 ## 一句话主张
 
@@ -276,7 +287,8 @@ $$
 - [x] 冻结 action serialization、validated-reference requirements 与 mixed-fidelity experiment contract；
 - [x] 固定并评估首个 frozen policy candidate；因 full-history coverage 仅 2/9，拒绝作为主 teacher；
 - [x] 冻结 restoration v2 primary policy 与 stable self-behavior reference；GUI-Owl Instruct 仅作为 v2 substrate，不回改其 v1 AndroidWorld rejection；
-- [ ] 闭合 v2 action fixture、derived artifact、exposure ledger、OCR identity、interface hashes 与 execution config；
+- [x] 冻结 v2 restricted action、strong LF、post-state-only prompt 与 interface source hashes；
+- [ ] 在 pinned AndroidWorld 闭合 `JSONAction` constructor 与 executor dispatch，并完成 derived artifact、exposure ledger、OCR identity、baseline hashes 与 execution config；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
@@ -299,6 +311,8 @@ $$
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)
+- Frozen v2 interface semantics: [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)
+- Frozen v2 interface hashes: [`data/manifests/restoration_v2_interfaces.json`](data/manifests/restoration_v2_interfaces.json)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
@@ -333,8 +347,8 @@ $$
 - GUI-Owl Think passing native smoke: [`data/results/gui_owl_1_5_8b_think_smoke/README.md`](data/results/gui_owl_1_5_8b_think_smoke/README.md)
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
-- Test command: `make test validate-contract validate-restoration-v2`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 stable self-behavior scientific contract 已冻结，但八项 pre-output dependencies 尚未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces`
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific contract 与 interface source hashes 已冻结，CPU action/prompt/LF fixture 通过，但真实 AndroidWorld executor、derived HF artifact、exact confirm IDs、exposure ledger、OCR、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 

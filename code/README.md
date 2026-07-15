@@ -16,7 +16,7 @@ code/
 根目录的 `make` target 不要求 editable install：
 
 ```bash
-make test validate-contract validate-restoration-v2
+make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces
 make paper
 ```
 
@@ -31,6 +31,11 @@ python3 -m venv .venv
   --decision data/fixtures/validated_decision.json
 .venv/bin/python -m scripts.validate_restoration_v2_contract \
   --config code/configs/causalcache_restoration_v2.json
+.venv/bin/python -m scripts.validate_restoration_v2_interfaces \
+  --contract code/configs/causalcache_restoration_v2.json \
+  --action-fixture data/fixtures/gui_owl_v2_action_roundtrip.json \
+  --prompt-fixture data/fixtures/restoration_v2_prompt_low_fidelity.json \
+  --interface-manifest data/manifests/restoration_v2_interfaces.json
 ```
 
 共享机器中的 virtualenv 必须放在持久挂载 `/data` 下，例如 `/data/.venv/causalcache`；不要依赖
@@ -51,9 +56,22 @@ stable self-behavior reference、post-state-only intervention、八字段 strong
 inventory、exact 8+10+5 历史 exposure 边界、fixed 20-state confirm 与两级 gate。它不替代历史
 `phase0_contract.json` validator；两者代表不同版本的 estimand，必须分别通过。
 
-GUI-Owl Think 的冻结输出边界允许开头最多一个小写且闭合的 `<think>...</think>`
+v2 executable interface 使用显式 versioned 模块 `causalcache.policy.gui_owl_v2` 与
+`causalcache.low_fidelity_v2`，不修改历史 v1 parser/prompt/schema。CPU validator 对 restricted grammar、
+canonical teacher target、AndroidWorld payload、八字段 serialization 和 steps 4/5/6 共 28 个 prompt
+coalitions 做 fail-closed 检查，并验证 `data/manifests/restoration_v2_interfaces.json` 中的逐文件
+SHA256；其中 step 6 覆盖全部 16 个 coalitions。默认输出的
+`androidworld_json_action_constructor_validation.status=not_run` 是刻意的：只有显式传
+`--androidworld-source-root`、`--androidworld-source-revision`、`--container-image-digest` 和
+`--run-git-commit`，通过 clean-check/module-origin 验证，并让 14 个合法 payload 通过 pinned
+`JSONAction(**payload)` 后，才能把 constructor integration 记为 passed。该 constructor 仍不等于真实
+device-side executor dispatch；后者通过前，第 4 项 dependency 保持 pending。两种检查都不加载 policy、
+不生成 v2 output。
+
+历史 v1 replacement-teacher GUI-Owl Think 的冻结输出边界允许开头最多一个小写且闭合的 `<think>...</think>`
 block；剔除后仍必须完整匹配单行 `Action:` 和唯一 `mobile_use` `<tool_call>`。未闭合、
-多 block、中缀/后缀 thinking 或额外文本全部 fail closed。
+多 block、中缀/后缀 thinking 或额外文本全部 fail closed。v2 Instruct parser 不继承该例外，任何 thinking
+block 都拒绝。
 
 AndroidWorld full validation 必须显式传入
 `--early-stop-when-success-is-mathematically-impossible`。runner 只在原子 episode checkpoint

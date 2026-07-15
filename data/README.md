@@ -16,6 +16,17 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 `data/cache/`、`data/raw/`、`data/staging/`、`data/local/` 与 `data/tmp/` 已被 Git 忽略，只能用于
 本地短期 staging。注意：仓库相对路径 `data/` 与容器持久挂载点绝对路径 `/data` 是两个不同概念。
 
+当前 v2 interface fixtures：
+
+- `fixtures/gui_owl_v2_action_roundtrip.json`：14 个合法、23 个非法 native action cases，覆盖全部
+  canonical actions、aliases、system buttons 与 coordinate endpoints；
+- `fixtures/restoration_v2_prompt_low_fidelity.json`：synthetic step-6 state，固定 events 1--5、四个
+  candidates、八字段 summaries 与 current-equivalent event 5；同一 prefix fixture 还覆盖 development
+  steps 4/5，validator 共穷举 28 个 coalitions，其中 step 6 为 16 个；
+- `manifests/restoration_v2_interfaces.json`：上述 fixtures、v2 action/prompt/LF code 与接口说明的逐文件
+  size/SHA256。它只证明本地 CPU interface validation；真实 AndroidWorld `JSONAction` constructor 与
+  executor dispatch status 仍为 pending。
+
 当前 reusable artifacts：
 
 - Independent GUIOdyssey gate：private HF dataset

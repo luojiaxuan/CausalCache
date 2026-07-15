@@ -78,6 +78,13 @@ normalized coordinate 固定为 `[0, 999]`，pixel 映射为
 exhaustive fixture；raw native tool call 和实际 executor payload 都进入 archive。该 fixture 100% 通过前
 禁止任何 v2 policy output。
 
+实现层的 exact case、parameter、NFKC、swipe bin、screen-text tokenization 与 prompt ordering 已在
+[`restoration_v2_interfaces.md`](restoration_v2_interfaces.md) 冻结，并由
+[`restoration_v2_interfaces.json`](../data/manifests/restoration_v2_interfaces.json) 逐文件 hash。当前本地
+CPU 检查通过 14 个合法 action、23 个非法 action、6,000 个 coordinate scalar checks 和 steps 4/5/6
+共 28 个 coalitions（含全部 16 个 step-6 coalitions）；pinned AndroidWorld `JSONAction` constructor 与
+device-side executor dispatch 尚未运行，所以完整 round trip 仍 pending。
+
 ## 数据角色与 exposure
 
 Parent artifact 保持 immutable：
@@ -152,7 +159,7 @@ stability failure，输出 `INCONCLUSIVE_V2`。contract/runtime 错误为 `INVAL
 验证命令：
 
 ```bash
-make validate-restoration-v2
+make validate-restoration-v2 validate-restoration-v2-interfaces
 ```
 
 任何 v2 output 出现后不得修改 scientific fields。硬件、容器、batch size 与 source hashes 只写入单独

@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_restoration_v2",
+  "scientific_contract_sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc",
+  "trajectories": [
+    {
+      "source_id": "fixture-step-6",
+      "instruction": "Save the note and return to the previous screen.",
+      "events": [
+        {
+          "step_id": 1,
+          "observation_before_path": "fixture://before-001.png",
+          "observation_after_path": "fixture://post-001.png",
+          "observation_after_sha256": "049af49b5520490c4f07c7bbdb9cca4114095896ffe2097b12c30edfc5387ec1",
+          "source_tool_call": {"function": {"name": "tap", "arguments": {"coordinate": [100, 200]}}},
+          "low_fidelity_v2": {
+            "step_id": 1,
+            "action_type": "click",
+            "action_argument": "coordinate_bin:x1_y2",
+            "foreground_app": "notes",
+            "screen_text_added": ["Saved"],
+            "screen_text_removed": [],
+            "screen_change": "medium",
+            "executor_result": "accepted"
+          },
+          "low_fidelity_v2_serialized": "{\"step_id\":1,\"action_type\":\"click\",\"action_argument\":\"coordinate_bin:x1_y2\",\"foreground_app\":\"notes\",\"screen_text_added\":[\"Saved\"],\"screen_text_removed\":[],\"screen_change\":\"medium\",\"executor_result\":\"accepted\"}\n",
+          "low_fidelity_v2_sha256": "697a52da1983615f50a1d5fb07552550c802d02f681b0902e1cf9baa23ee41c6"
+        },
+        {
+          "step_id": 2,
+          "observation_before_path": "fixture://before-002.png",
+          "observation_after_path": "fixture://post-002.png",
+          "observation_after_sha256": "af10287d6a6723bdec7fa101e60129ca5ff503212db2c4101d597107c500de52",
+          "source_tool_call": {"function": {"name": "swipe", "arguments": {"start_coordinate": [500, 800], "coordinate": [500, 200]}}},
+          "low_fidelity_v2": {
+            "step_id": 2,
+            "action_type": "swipe",
+            "action_argument": "viewport_down:medium",
+            "foreground_app": "notes",
+            "screen_text_added": ["Archive"],
+            "screen_text_removed": ["Saved"],
+            "screen_change": "high",
+            "executor_result": "accepted"
+          },
+          "low_fidelity_v2_serialized": "{\"step_id\":2,\"action_type\":\"swipe\",\"action_argument\":\"viewport_down:medium\",\"foreground_app\":\"notes\",\"screen_text_added\":[\"Archive\"],\"screen_text_removed\":[\"Saved\"],\"screen_change\":\"high\",\"executor_result\":\"accepted\"}\n",
+          "low_fidelity_v2_sha256": "93f505a43fee85b6025f2b2c34dc0da776143424a71791a1a88fddef3bb910dc"
+        },
+        {
+          "step_id": 3,
+          "observation_before_path": "fixture://before-003.png",
+          "observation_after_path": "fixture://post-003.png",
+          "observation_after_sha256": "fa301a6c8e16192172cd45d07ca332bdbf18bce3586c7a6e93720f9f02fb16c0",
+          "source_tool_call": {"function": {"name": "type", "arguments": {"text": "Café"}}},
+          "low_fidelity_v2": {
+            "step_id": 3,
+            "action_type": "type",
+            "action_argument": "Café",
+            "foreground_app": "notes",
+            "screen_text_added": ["Café"],
+            "screen_text_removed": [],
+            "screen_change": "low",
+            "executor_result": "accepted"
+          },
+          "low_fidelity_v2_serialized": "{\"step_id\":3,\"action_type\":\"type\",\"action_argument\":\"Café\",\"foreground_app\":\"notes\",\"screen_text_added\":[\"Café\"],\"screen_text_removed\":[],\"screen_change\":\"low\",\"executor_result\":\"accepted\"}\n",
+          "low_fidelity_v2_sha256": "ea046a1073ec2a0cdbbd7a6a882cd008f634f096651038d7b01ce71d72fe619b"
+        },
+        {
+          "step_id": 4,
+          "observation_before_path": "fixture://before-004.png",
+          "observation_after_path": "fixture://post-004.png",
+          "observation_after_sha256": "5fe053bb781bfe2b2911c2149f0872df7717425294dbd1bdc9247a6da31f3a9e",
+          "source_tool_call": {"function": {"name": "system_button", "arguments": {"button": "Back"}}},
+          "low_fidelity_v2": {
+            "step_id": 4,
+            "action_type": "system_button",
+            "action_argument": "Back",
+            "foreground_app": "unknown",
+            "screen_text_added": [],
+            "screen_text_removed": ["Archive"],
+            "screen_change": "medium",
+            "executor_result": "unknown"
+          },
+          "low_fidelity_v2_serialized": "{\"step_id\":4,\"action_type\":\"system_button\",\"action_argument\":\"Back\",\"foreground_app\":\"unknown\",\"screen_text_added\":[],\"screen_text_removed\":[\"Archive\"],\"screen_change\":\"medium\",\"executor_result\":\"unknown\"}\n",
+          "low_fidelity_v2_sha256": "3f25e618ba9ca13166facb5fc89da7a0a567224bd835b9cf323ba18a95a05d39"
+        },
+        {
+          "step_id": 5,
+          "observation_before_path": "fixture://before-005.png",
+          "observation_after_path": "fixture://current.png",
+          "observation_after_sha256": "b49a3492bc096a85f9360126ffe50f63773ae046cfedb8e79654a12ec61b9de1",
+          "source_tool_call": {"function": {"name": "wait", "arguments": {}}},
+          "low_fidelity_v2": {
+            "step_id": 5,
+            "action_type": "wait",
+            "action_argument": "wait",
+            "foreground_app": "unknown",
+            "screen_text_added": [],
+            "screen_text_removed": [],
+            "screen_change": "none",
+            "executor_result": "unknown"
+          },
+          "low_fidelity_v2_serialized": "{\"step_id\":5,\"action_type\":\"wait\",\"action_argument\":\"wait\",\"foreground_app\":\"unknown\",\"screen_text_added\":[],\"screen_text_removed\":[],\"screen_change\":\"none\",\"executor_result\":\"unknown\"}\n",
+          "low_fidelity_v2_sha256": "0ff0289bb3f488df2cab18ae3b3f3ebd7677bc0dde9e3d559c7710cfebe58341"
+        }
+      ],
+      "decisions": [
+        {
+          "decision_step_id": 4,
+          "history_event_step_ids": [1, 2, 3],
+          "candidate_event_step_ids": [1, 2],
+          "current_equivalent_event_step_id": 3,
+          "current_observation_path": "fixture://post-003.png",
+          "current_observation_sha256": "fa301a6c8e16192172cd45d07ca332bdbf18bce3586c7a6e93720f9f02fb16c0"
+        },
+        {
+          "decision_step_id": 5,
+          "history_event_step_ids": [1, 2, 3, 4],
+          "candidate_event_step_ids": [1, 2, 3],
+          "current_equivalent_event_step_id": 4,
+          "current_observation_path": "fixture://post-004.png",
+          "current_observation_sha256": "5fe053bb781bfe2b2911c2149f0872df7717425294dbd1bdc9247a6da31f3a9e"
+        },
+        {
+          "decision_step_id": 6,
+          "history_event_step_ids": [1, 2, 3, 4, 5],
+          "candidate_event_step_ids": [1, 2, 3, 4],
+          "current_equivalent_event_step_id": 5,
+          "current_observation_path": "fixture://current.png",
+          "current_observation_sha256": "b49a3492bc096a85f9360126ffe50f63773ae046cfedb8e79654a12ec61b9de1"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_restoration_v2",
+  "scientific_contract_sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc",
+  "interface_version": "restoration-v2-interface-1.0.0",
+  "materialized_before_any_v2_policy_output": true,
+  "files": [
+    {
+      "path": "code/causalcache/policy/gui_owl_v2.py",
+      "size_bytes": 21838,
+      "sha256": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a"
+    },
+    {
+      "path": "code/causalcache/low_fidelity_v2.py",
+      "size_bytes": 14249,
+      "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a"
+    },
+    {
+      "path": "code/scripts/validate_restoration_v2_interfaces.py",
+      "size_bytes": 27053,
+      "sha256": "b61097c934342ef70354652e3af5b0329f1628d7cd70599999e56b34f1c8c16f"
+    },
+    {
+      "path": "data/fixtures/gui_owl_v2_action_roundtrip.json",
+      "size_bytes": 12664,
+      "sha256": "ab6ca84a894a601450424150a510d3e9a2cb4a5522ee0d050ba7a5908af661de"
+    },
+    {
+      "path": "data/fixtures/restoration_v2_prompt_low_fidelity.json",
+      "size_bytes": 7073,
+      "sha256": "bcfb701858c8e96a731a865f59979b0a0ba1fa1487cb8010431b4a0f2284eb68"
+    },
+    {
+      "path": "docs/restoration_v2_interfaces.md",
+      "size_bytes": 7249,
+      "sha256": "e0b416b8553d085c086affc4a22a9bd8750b0756d462eea2bcd83755f7e242ae"
+    }
+  ],
+  "local_cpu_validation": {
+    "valid_action_cases": 14,
+    "invalid_action_cases": 23,
+    "coordinate_scalar_checks": 6000,
+    "prompt_coalitions": 28,
+    "confirm_prompt_coalitions": 16,
+    "status": "passed"
+  },
+  "androidworld_json_action_constructor_validation": {
+    "status": "pending",
+    "reason": "requires pinned AndroidWorld source integration preflight"
+  },
+  "androidworld_executor_dispatch_validation": {
+    "status": "pending",
+    "reason": "JSONAction construction alone does not execute device-side effects"
+  },
+  "policy_output_generated_by_this_validation": false
+}

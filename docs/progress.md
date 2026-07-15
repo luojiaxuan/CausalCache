@@ -5,7 +5,8 @@
 AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop
 frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
-untouched 20-state confirm。当前没有 v2 policy output、restoration label 或方法效果结果。
+untouched 20-state confirm。scientific contract 与 CPU interface source hashes 已冻结；当前先完成 pinned
+AndroidWorld executor preflight 和 derived artifact。仍没有 v2 policy output、restoration label 或方法效果结果。
 
 ## 已完成里程碑
 
@@ -573,6 +574,27 @@ untouched 20-state confirm。当前没有 v2 policy output、restoration label �
   `9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc`；config validator 与回归测试已加入，
   完整说明见 `docs/restoration_v2.md`。这一步没有运行 GPU 或产生新 artifact。
 
+### 2026-07-15：Restoration v2 CPU interface 冻结
+
+- 新增独立 `gui_owl_v2` action/prompt adapter，未修改历史 v1：prompt inventory 与 parser/bridge 精确闭合
+  九个 canonical actions，只接受 `tap/open_app` 两个 alias，拒绝 `key/Menu/time/terminate:failure`；
+- strict parser 拒绝 missing/extra/wrong-type 参数、duplicate JSON keys、非 finite JSON、thinking 与额外
+  prose；canonical target 固定 nonsemantic Action carrier 和 NFKC compact tool call；
+- `[0,999]` 到 pixel 使用 integer half-up 等价公式，6 个 extents 的全部 6,000 个 scalar checks 均满足
+  endpoints、monotonic 与严格不越界；
+- strong LF 八字段 serializer 固定 key order、compact UTF-8 newline、ordered screen-text arrays、32-token
+  cap、foreground/executor provenance、screen-change bins，并补齐 swipe direction/displacement 等实现细节；
+- post-state-only builder 在 image load 前校验 trajectory/event/decision identity、summary bytes/SHA 与
+  current-equivalent event，并对实际 image bytes 重算 SHA 后才 decode；steps 4/5/6 共穷举 28 个
+  coalitions（step 6 为 16 个），每个 state 内所有 text blocks byte-identical，image count 始终为
+  `1+|S|`，before image、raw source tool call 与额外 action description 从未进入 prompt；
+- action fixture 为 14 valid / 23 invalid，CPU parse/canonicalize/reparse/AndroidWorld-payload 全部通过；
+  source/fixture/spec 由 `data/manifests/restoration_v2_interfaces.json` 逐文件 hash；
+- 真实 pinned AndroidWorld `new_json_action.JSONAction` constructor 和 device-side executor dispatch 尚未
+  执行，manifest 分别标为 `pending`；这一步未加载 GUI-Owl、未生成 policy output，也没有新的 HF
+  artifact。完整语义见
+  `docs/restoration_v2_interfaces.md`。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -595,20 +617,27 @@ untouched 20-state confirm。当前没有 v2 policy output、restoration label �
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
 
-## 待闭合实现项
+## 八项 pre-output dependencies 状态
 
-- materialize exact confirm IDs、overlap matrix 与 exposure ledger；
-- 固定 accessibility/OCR backend revision、model/file hash 和 strong-summary derivation；
-- 实现 restricted action parser/bridge/executor matrix 与 exhaustive fixture；
-- 实现 v2 post-state-only prompt、canonical native tool-call path 和 source hashes；
-- 实现 GPU-side scalar KL、batch-1 CPU equivalence与 coalition microbatch；
-- 构建 derived HF artifact、从 immutable revision 重下载验 hash；
-- 冻结引用 scientific-config SHA 的 execution config，包括 host、runtime、microbatch 和 artifact identity。
+1. derived artifact immutable HF revision/file hashes：pending；
+2. exact confirm trajectory/state IDs：pending；
+3. exposure ledger：pending；
+4. restricted prompt/parser/bridge/executor fixture：CPU prompt/parser/bridge passed，真实 `JSONAction`
+   constructor 与 executor dispatch pending；
+5. pinned accessibility/OCR identity：pending；
+6. baseline specification/source hashes：scientific formula 已冻结，implementation source hashes pending；
+7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
+8. 引用 scientific-config SHA 的 execution config：pending。
+
+GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch 是后续 engineering 实现项；它们
+不能替代上述任何 pre-output dependency，且 microbatch 必须进入第 8 项 execution config。
 
 ## 下一步
 
-按上面的八项依赖顺序实现并逐步 push：先闭合 CPU action/prompt/data contract，再构建并冻结 private HF
-derived artifact，随后在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
+逐步 push：下一步先完成无需 GPU 的 pinned AndroidWorld constructor 与 executor-dispatch preflight，再 materialize exact IDs、
+exposure ledger、OCR summaries/backend identity 和 baseline source hashes；随后构建并 immutable-verify
+private HF derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
+八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
 75-instance final plan 一并冻结。

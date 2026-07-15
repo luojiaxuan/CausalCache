@@ -112,7 +112,23 @@ cd /data/repo
   --decision data/fixtures/validated_decision.json
 /data/.venv/causalcache/bin/python -m scripts.validate_restoration_v2_contract \
   --config code/configs/causalcache_restoration_v2.json
+/data/.venv/causalcache/bin/python -m scripts.validate_restoration_v2_interfaces \
+  --contract code/configs/causalcache_restoration_v2.json \
+  --action-fixture data/fixtures/gui_owl_v2_action_roundtrip.json \
+  --prompt-fixture data/fixtures/restoration_v2_prompt_low_fidelity.json \
+  --interface-manifest data/manifests/restoration_v2_interfaces.json
 ```
+
+上面的 interface 命令只做 CPU prompt/parser/bridge 检查，正常状态明确为
+`androidworld_json_action_constructor_validation.status=not_run`。在任何 policy output 前，还要在 pinned AndroidWorld
+source 上同时显式传 `--androidworld-source-root <PATH>`、`--androidworld-source-revision <FULL_SHA>`、
+`--container-image-digest sha256:<DIGEST>` 与 `--run-git-commit <FULL_SHA>`。validator 会 fail closed 检查
+两个 checkout、module origin 与 revision，再确认全部 14 个合法 payload 被真实 `JSONAction` 接受；轻量
+constructor preflight summary 随后 commit/push。`JSONAction(**payload)` 仅证明 schema construction，不是
+device-side executor；还必须补 executor dispatch/behavioral smoke。此后才允许构建/冻结 derived HF
+artifact；同时还必须闭合 exact confirm IDs、exposure ledger、OCR identity、baseline source hashes，并
+冻结引用全部 artifact/interface identity 的 execution config。`docs/restoration_v2.md` 所列八项全部完成
+后，才允许执行 GPU substrate screening。
 
 正式 run 必须 checkout 已 push 的 exact commit 并保持 clean detached worktree；开发阶段的同一 topic
 可以复用 `/data/repo` 后回到 `main` 执行 `git pull --ff-only origin main`，不要重复 clone 到多个散乱

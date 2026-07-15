@@ -1,0 +1,227 @@
+{
+  "schema_version": "1.0.0",
+  "contract_id": "gui_owl_androidworld_v2",
+  "scientific_contract_sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc",
+  "coverage_scope": "all_actions_aliases_buttons_and_coordinate_scalar_domain",
+  "screen": {
+    "width": 1080,
+    "height": 2400
+  },
+  "valid_cases": [
+    {
+      "id": "click_minimum",
+      "native_output": "Action: Tap the upper-left corner\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[0,0]}}\n</tool_call>",
+      "canonical_arguments": {"action": "click", "coordinate": [0, 0]},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[0,0]}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "click", "x": 0, "y": 0}
+    },
+    {
+      "id": "click_maximum",
+      "native_output": "Action: Tap the lower-right corner\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"coordinate\":[999,999],\"action\":\"click\"}}</tool_call>",
+      "canonical_arguments": {"action": "click", "coordinate": [999, 999]},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[999,999]}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "click", "x": 1079, "y": 2399}
+    },
+    {
+      "id": "tap_alias",
+      "native_output": "Action: Tap the item\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"tap\",\"coordinate\":[500,250]}}\n</tool_call>",
+      "canonical_arguments": {"action": "click", "coordinate": [500, 250]},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[500,250]}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "click", "x": 540, "y": 600}
+    },
+    {
+      "id": "long_press",
+      "native_output": "Action: Hold the item\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"long_press\",\"coordinate\":[250,500]}}\n</tool_call>",
+      "canonical_arguments": {"action": "long_press", "coordinate": [250, 500]},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"long_press\",\"coordinate\":[250,500]}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "long_press", "x": 270, "y": 1201}
+    },
+    {
+      "id": "swipe",
+      "native_output": "Action: Scroll down\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"coordinate2\":[500,200],\"action\":\"swipe\",\"coordinate\":[500,800]}}\n</tool_call>",
+      "canonical_arguments": {"action": "swipe", "coordinate": [500, 800], "coordinate2": [500, 200]},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"swipe\",\"coordinate\":[500,800],\"coordinate2\":[500,200]}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "swipe", "direction": [540, 1921, 540, 480]}
+    },
+    {
+      "id": "type_nfkc",
+      "native_output": "Action: Enter the title\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"type\",\"text\":\"Café\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "type", "text": "Café"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"type\",\"text\":\"Café\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "input_text", "text": "Café"}
+    },
+    {
+      "id": "system_back",
+      "native_output": "Action: Go back\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"system_button\",\"button\":\"Back\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "system_button", "button": "Back"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"system_button\",\"button\":\"Back\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "navigate_back"}
+    },
+    {
+      "id": "system_home",
+      "native_output": "Action: Go home\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"system_button\",\"button\":\"Home\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "system_button", "button": "Home"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"system_button\",\"button\":\"Home\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "navigate_home"}
+    },
+    {
+      "id": "system_enter",
+      "native_output": "Action: Confirm the input\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"system_button\",\"button\":\"Enter\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "system_button", "button": "Enter"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"system_button\",\"button\":\"Enter\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "keyboard_enter"}
+    },
+    {
+      "id": "open",
+      "native_output": "Action: Open Markor\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"open\",\"text\":\"Markor\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "open", "text": "Markor"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"open\",\"text\":\"Markor\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "open_app", "app_name": "Markor"}
+    },
+    {
+      "id": "open_app_alias",
+      "native_output": "Action: Open Tasks\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"open_app\",\"text\":\"Tasks\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "open", "text": "Tasks"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"open\",\"text\":\"Tasks\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "open_app", "app_name": "Tasks"}
+    },
+    {
+      "id": "wait",
+      "native_output": "Action: Wait for the page\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "wait"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "wait"}
+    },
+    {
+      "id": "answer",
+      "native_output": "Action: Return the answer\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"answer\",\"text\":\"完成 ✅\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "answer", "text": "完成 ✅"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"answer\",\"text\":\"完成 ✅\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "answer", "text": "完成 ✅"}
+    },
+    {
+      "id": "terminate",
+      "native_output": "Action: Finish successfully\n<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"status\":\"success\",\"action\":\"terminate\"}}\n</tool_call>",
+      "canonical_arguments": {"action": "terminate", "status": "success"},
+      "canonical_tool_call": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"terminate\",\"status\":\"success\"}}\n</tool_call>",
+      "androidworld_payload": {"action_type": "status", "goal_status": "task_complete"}
+    }
+  ],
+  "invalid_cases": [
+    {
+      "id": "removed_key_action",
+      "native_output": "Action: Clear\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"key\",\"text\":\"clear\"}}</tool_call>",
+      "error_contains": "unsupported"
+    },
+    {
+      "id": "removed_menu_button",
+      "native_output": "Action: Show apps\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"system_button\",\"button\":\"Menu\"}}</tool_call>",
+      "error_contains": "Back, Home, or Enter"
+    },
+    {
+      "id": "terminate_failure",
+      "native_output": "Action: Fail\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"terminate\",\"status\":\"failure\"}}</tool_call>",
+      "error_contains": "status=success"
+    },
+    {
+      "id": "click_missing_coordinate",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\"}}</tool_call>",
+      "error_contains": "exactly"
+    },
+    {
+      "id": "click_extra_text",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[1,2],\"text\":\"x\"}}</tool_call>",
+      "error_contains": "exactly"
+    },
+    {
+      "id": "long_press_time_forbidden",
+      "native_output": "Action: Hold\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"long_press\",\"coordinate\":[1,2],\"time\":2}}</tool_call>",
+      "error_contains": "exactly"
+    },
+    {
+      "id": "wait_time_forbidden",
+      "native_output": "Action: Wait\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\",\"time\":2}}</tool_call>",
+      "error_contains": "exactly"
+    },
+    {
+      "id": "coordinate_negative",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[-1,2]}}</tool_call>",
+      "error_contains": "[0, 999]"
+    },
+    {
+      "id": "coordinate_too_large",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[1000,2]}}</tool_call>",
+      "error_contains": "[0, 999]"
+    },
+    {
+      "id": "coordinate_float",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[1.0,2]}}</tool_call>",
+      "error_contains": "integers"
+    },
+    {
+      "id": "coordinate_boolean",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[true,2]}}</tool_call>",
+      "error_contains": "integers"
+    },
+    {
+      "id": "coordinate_wrong_length",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[1]}}</tool_call>",
+      "error_contains": "exactly two"
+    },
+    {
+      "id": "coordinate_nan",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[NaN,2]}}</tool_call>",
+      "error_contains": "non-finite"
+    },
+    {
+      "id": "text_wrong_type",
+      "native_output": "Action: Type\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"type\",\"text\":42}}</tool_call>",
+      "error_contains": "JSON string"
+    },
+    {
+      "id": "uppercase_action",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"Click\",\"coordinate\":[1,2]}}</tool_call>",
+      "error_contains": "unsupported"
+    },
+    {
+      "id": "wrong_tool_name",
+      "native_output": "Action: Tap\n<tool_call>{\"name\":\"computer_use\",\"arguments\":{\"action\":\"click\",\"coordinate\":[1,2]}}</tool_call>",
+      "error_contains": "mobile_use"
+    },
+    {
+      "id": "arguments_not_object",
+      "native_output": "Action: Wait\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":[\"wait\"]}</tool_call>",
+      "error_contains": "JSON object"
+    },
+    {
+      "id": "extra_top_level_key",
+      "native_output": "Action: Wait\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"},\"extra\":1}</tool_call>",
+      "error_contains": "exactly name and arguments"
+    },
+    {
+      "id": "duplicate_action_key",
+      "native_output": "Action: Wait\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\",\"action\":\"click\"}}</tool_call>",
+      "error_contains": "duplicate JSON key"
+    },
+    {
+      "id": "two_tool_calls",
+      "native_output": "Action: Wait\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"}}</tool_call>\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"}}</tool_call>",
+      "error_contains": "valid JSON"
+    },
+    {
+      "id": "thinking_prefix",
+      "native_output": "<think>wait</think>\nAction: Wait\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"}}</tool_call>",
+      "error_contains": "one Action line"
+    },
+    {
+      "id": "extra_suffix",
+      "native_output": "Action: Wait\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"}}</tool_call>\nDone",
+      "error_contains": "one Action line"
+    },
+    {
+      "id": "empty_action_line",
+      "native_output": "Action:\n<tool_call>{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"}}</tool_call>",
+      "error_contains": "one Action line"
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-.PHONY: paper clean-paper test validate-contract validate-restoration-v2 synthetic-phase0
+.PHONY: paper clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces synthetic-phase0
 
 paper:
 	mkdir -p output/pdf
@@ -20,6 +20,13 @@ validate-contract:
 validate-restoration-v2:
 	cd code && python3 -m scripts.validate_restoration_v2_contract \
 		--config configs/causalcache_restoration_v2.json
+
+validate-restoration-v2-interfaces:
+	cd code && python3 -m scripts.validate_restoration_v2_interfaces \
+		--contract configs/causalcache_restoration_v2.json \
+		--action-fixture ../data/fixtures/gui_owl_v2_action_roundtrip.json \
+		--prompt-fixture ../data/fixtures/restoration_v2_prompt_low_fidelity.json \
+		--interface-manifest ../data/manifests/restoration_v2_interfaces.json
 
 synthetic-phase0:
 	cd code && python3 -m scripts.run_synthetic_attribution \
