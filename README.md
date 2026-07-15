@@ -29,6 +29,13 @@ matched states 验证真实 action-path KL 与 exhaustive oracle，因 post-sele
 [`docs/go_no_go.md`](docs/go_no_go.md)。正式 reference gate 与 paper-level go/no-go 仍必须使用未观察
 policy/restoration 的独立多轨迹 manifest。
 
+独立 gate 的 source pool、policy-blind eligibility/hash split、48-decision reference 最低规模、UI-TARS
+exact revision、H200-to-A6000 behavioral anchor 与 fail-closed outcome 已在任何新 source row decoding 或
+policy inference 前冻结到
+[`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。
+artifact 必须先上传 Hugging Face 并把 immutable revision/SHA 回写 Git；reference 失败即停止当前路线，
+不会在看到输出后换样本或调阈值。
+
 新合作者按以下顺序阅读：
 
 1. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；

@@ -1,0 +1,160 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "independent_reference_gate_v1",
+  "preregistration_status": "frozen_before_source_row_decoding_or_policy_inference",
+  "source_pool": {
+    "upstream_repo": "hflqf88888/GUIOdyssey",
+    "upstream_revision": "61632d0f3f4d51d7e9561ce4f84347dd06b2019d",
+    "transport_repo": "cua-lite/GUIOdyssey",
+    "transport_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+    "transport_files": [
+      "mobile/use/train/shard-00000-of-00610.parquet",
+      "mobile/use/train/shard-00001-of-00610.parquet",
+      "mobile/use/train/shard-00002-of-00610.parquet",
+      "mobile/use/train/shard-00003-of-00610.parquet",
+      "mobile/use/train/shard-00004-of-00610.parquet",
+      "mobile/use/train/shard-00005-of-00610.parquet",
+      "mobile/use/train/shard-00006-of-00610.parquet",
+      "mobile/use/train/shard-00007-of-00610.parquet",
+      "mobile/use/train/shard-00008-of-00610.parquet",
+      "mobile/use/train/shard-00009-of-00610.parquet",
+      "mobile/use/train/shard-00010-of-00610.parquet",
+      "mobile/use/train/shard-00011-of-00610.parquet",
+      "mobile/use/train/shard-00012-of-00610.parquet",
+      "mobile/use/train/shard-00013-of-00610.parquet",
+      "mobile/use/train/shard-00014-of-00610.parquet",
+      "mobile/use/train/shard-00015-of-00610.parquet"
+    ],
+    "license": "cc-by-4.0",
+    "excluded_source_ids": [
+      "0054832199799795"
+    ],
+    "required_file_manifest_before_inference": true
+  },
+  "eligibility": {
+    "platform": "mobile",
+    "terminal_status": "success",
+    "terminal_signal_must_be_last": true,
+    "executable_actions_per_observation": 1,
+    "minimum_decisions_per_trajectory": 4,
+    "maximum_decisions_per_trajectory": 12,
+    "source_id_regex": "^[A-Za-z0-9._-]+$",
+    "require_unique_source_id": true,
+    "require_embedded_supported_images": true,
+    "parser_compatible_action_types": [
+      "back",
+      "home",
+      "long_press",
+      "stop",
+      "swipe",
+      "tap",
+      "type_text",
+      "wait"
+    ],
+    "app_normalization": "Unicode NFKC, collapse whitespace to one ASCII space, strip, then casefold",
+    "open_ended_exception_filtering_forbidden": true
+  },
+  "selection": {
+    "trajectory_salt": "causalcache-independent-reference-v1",
+    "trajectory_hash_input": "UTF8(salt + NUL + source_id)",
+    "trajectory_order": [
+      "sha256_hex",
+      "source_id",
+      "transport_file",
+      "transport_row_index"
+    ],
+    "algorithm": "Sort every eligible trajectory once; take the shortest prefix satisfying every reference_gate quota, remove it, then take the shortest remaining prefix satisfying every oracle_pilot quota.",
+    "split_overlap_allowed": false,
+    "top_up_after_policy_output_allowed": false,
+    "reference_gate": {
+      "minimum_trajectories": 8,
+      "minimum_decisions": 48,
+      "minimum_distinct_app_labels": 3,
+      "minimum_candidate_count_per_required_action_type": 1
+    },
+    "oracle_pilot": {
+      "minimum_trajectories": 15,
+      "minimum_decisions": 60,
+      "minimum_distinct_app_labels": 3,
+      "minimum_candidate_count_per_required_action_type": 1
+    },
+    "required_action_types": [
+      "tap",
+      "swipe",
+      "type_text"
+    ],
+    "insufficient_pool_outcome": "INSUFFICIENT_DATA"
+  },
+  "artifact": {
+    "repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+    "visibility": "private",
+    "revision": null,
+    "shard": "data/guiodyssey-independent-00000.tar",
+    "shard_sha256": null,
+    "manifest_sha256": null,
+    "status": "must_be_built_uploaded_and_committed_before_policy_inference"
+  },
+  "policy": {
+    "repo": "ByteDance-Seed/UI-TARS-1.5-7B",
+    "revision": "683d002dd99d8f95104d31e70391a39348857f4e",
+    "snapshot_manifest": "code/configs/ui_tars_1_5_7b_snapshot.json",
+    "device": "cuda:0",
+    "dtype": "bfloat16",
+    "visual_tokens_per_image": 256,
+    "max_new_tokens": 256,
+    "do_sample": false,
+    "coordinate_grid_size": 10,
+    "frozen_interface_sha256": {
+      "code/causalcache/policy/ui_tars.py": "d79a3a15b820a4b8d441893b48fdfd4caeb51b7a7bb4b69f9b0c3ebd6a1eb140",
+      "code/causalcache/policy/coordinates.py": "ff5240eba3984a57af3e2566d463f4a93cd33cdec91bbab0dbad34e18fbc3d0a",
+      "code/causalcache/policy/prompt.py": "d7ffe6c2b3b8624244fbf941139ff3d5a1636572f949995db6f88b322d5fe1cb",
+      "code/causalcache/schema.py": "3f281fe3a646468de36f4764d20c46d1dea3867d35c819ca4ad52977d318ee5b",
+      "code/configs/policy_coverage_gate.json": "d60e7baf12468fbef288b7343d7c4b03d2a3691344139435eb0cdc412fe52b06"
+    }
+  },
+  "hardware_anchor": {
+    "dataset_repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "dataset_revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+    "dataset_shard_sha256": "54399e28df381c2114c1422dedc1aed17f1bd15b320e636155a070e181c33e72",
+    "expected_parsed": 9,
+    "expected_matches": 4,
+    "expected_decision_match_vector": [
+      [2, false],
+      [3, false],
+      [4, true],
+      [5, true],
+      [6, false],
+      [7, true],
+      [8, true],
+      [9, false],
+      [10, false]
+    ],
+    "hyper00_failure_action": "Move the unchanged run to Aries; do not inspect the independent split on Hyper00."
+  },
+  "reference_gate": {
+    "validation_mode": "full_history_executable_match",
+    "denominator": "every frozen reference_gate decision",
+    "parse_failure_counts_as_non_match": true,
+    "minimum_overall_coverage": 0.5,
+    "require_at_least_one_match_per_required_action_type": true,
+    "required_action_types": [
+      "tap",
+      "swipe",
+      "type_text"
+    ],
+    "pass_outcome": "REFERENCE_GATE_PASSED",
+    "fail_outcome": "NO_GO_CURRENT_REFERENCE_STACK",
+    "invalid_outcome": "INVALID",
+    "run_entire_fixed_denominator": true,
+    "subset_prompt_parser_equivalence_or_threshold_change_after_output_allowed": false
+  },
+  "oracle_boundary": {
+    "oracle_split_policy_inference_allowed_only_after_reference_gate_pass": true,
+    "restoration_inference_allowed_only_after_a_second_frozen_oracle_analysis_config": true,
+    "minimum_primary_matched_states": 20,
+    "minimum_primary_trajectories": 10,
+    "minimum_primary_distinct_app_labels": 3,
+    "maximum_primary_states_per_trajectory": 2,
+    "primary_states_used_for_gate_training": false
+  }
+}

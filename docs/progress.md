@@ -474,6 +474,23 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
   瓶颈是 CPU full-vocabulary KL。独立扩展前必须完成 GPU-side KL/batching，否则 attribution 成本 gate
   不通过。
 
+### 2026-07-14：独立 UI-TARS reference gate 预注册
+
+- 在读取新的 GUIOdyssey source rows 或运行新 policy output 前，冻结
+  `code/configs/independent_reference_gate_v1.json`；source pool 为 exact transport revision 的前 16 个
+  mobile/use train shards，旧 trajectory `0054832199799795` 显式排除；
+- eligibility 只读取 source structure，限制 successful mobile、最后一步 terminal、单 executable action、
+  4--12 decisions、安全唯一 source ID、合法图片与原 parser 可表示 action domain；不允许开放式
+  `except ValueError: skip`；
+- trajectory 用 fixed salt + NUL + source ID 的 SHA256 全序排列；reference/oracle 分别取满足
+  8 trajectories/48 decisions/3 apps 与 15 trajectories/60 decisions/3 apps 的最短不重叠前缀，policy
+  output 后禁止 top-up；
+- UI-TARS revision、256 visual-token target、256 generation cap、10x10 equivalence 与原 interface file
+  SHA 全部锁定。reference 仍用原 50% overall + tap/swipe/type_text 每类至少一 match，不新增结果驱动
+  threshold；
+- Hyper00 正式运行前必须先在旧 9-decision artifact 复现 A6000 的 9/9 parsed、4/9 match boolean vector；
+  anchor 不一致则不查看 Hyper00 独立 outputs，转 Aries 执行未修改协议。
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；

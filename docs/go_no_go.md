@@ -75,6 +75,21 @@ restoration 的独立多轨迹 split，并在 policy inference 前完成 manifes
 若 reference gate 失败，立即输出 `NO_GO_CURRENT_REFERENCE_STACK`，不得换 subset、prompt、equivalence
 或 threshold。它只说明当前 reference 获取路线不成立。
 
+可执行预注册已经冻结为
+[`code/configs/independent_reference_gate_v1.json`](../code/configs/independent_reference_gate_v1.json)：从
+固定 transport revision 的前 16 个 mobile/use train shards 读取全部 rows，先按显式结构规则做
+policy-blind eligibility，再以 `SHA256(UTF8(salt + NUL + source_id))` 唯一排序。`reference_gate` 是满足
+8 trajectories、48 decisions、3 个 normalized app labels 与三类 required action 都出现的最短前缀；
+`oracle_pilot` 是移除前者后满足 15 trajectories、60 decisions、3 apps 与相同 action presence 的最短
+前缀。整个 frozen reference denominator 都要评测，parse error 计为 non-match；任何 policy output 后都
+禁止补样本或重排。
+
+旧结果来自 Aries A6000，而独立 gate 计划在 Hyper00 H200 执行。为隔离硬件变量，Hyper00 必须先在旧
+9-decision artifact 上复现冻结的 9/9 parsed、4/9 match 及逐 decision boolean vector。若 behavioral
+anchor 不一致，就把未修改的 policy/config 转到 Aries；在 anchor 通过前不得在 Hyper00 打开独立 split
+的 policy outputs。新 artifact 还必须先上传 private Hugging Face、把 immutable revision 与 tar/manifest
+SHA 回写并 push，之后才允许 inference。
+
 若 gate 通过，paper-level oracle 至少需要 20 个预先冻结的 executable-matched states，覆盖至少 10 条
 trajectory 与 3 个 app。扩展集的 `GO` 条件预先固定为：
 
