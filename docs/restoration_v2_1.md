@@ -111,6 +111,14 @@ runtime metadata，并在每个 attempt 与 generation 前复核其 hash 和 run
 oracle 或 paper claim。只有通过后，才允许按已冻结状态顺序进入完整 45-state v2.1 substrate；pilot output
 不能被改写成旧 v2 success，confirm 仍锁定。
 
+唯一正式 attempt 已在 source `70724bdb82484cd5645d174765724bd1f83b5ace` 上完成并输出
+`PASS_V2_1_INTERFACE_PILOT`：15/15 strict parse、15/15 model-emitted closer、15/15 AndroidWorld bridge，
+generation calls 恰为 15；retry、top-up、truncation、extra output、teacher、KL、restoration 与 confirm
+generation 均为 0。运行耗时 84.279 秒。raw evidence 见 private HF tag `v2.1-interface-pilot-v1` / immutable
+revision `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，Git 轻量 binding 见
+`data/results/restoration_v2_1_interface_pilot/`。这只解除 native output interface gate，不是完整 45-state
+stable-reference 或 restoration 结果。
+
 ## 审计与完成条件
 
 任何 v2.1 policy output 前，interface/runtime、machine-readable contract、validator、tests、README/docs 都
@@ -128,5 +136,6 @@ reducer。
 冻结 contract 位于 `code/configs/causalcache_restoration_v2_1_pilot.json`，当前 SHA256 为
 `9d51a2ed5d6cc382f297c1b8af3100d784090f72800d637136b88982763fdbf7`，interface source SHA256 为
 `90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964`。90-prompt real `AutoProcessor`
-audit 已正式通过，fixed-15 no-retry runner 的 source 已就绪；当前只授权从包含 processor manifest 的 clean
-pushed `main` 发起唯一正式 pilot，不代表 pilot 已通过，也不授权 teacher、KL、restoration 或 confirm output。
+audit 与 fixed-15 interface pilot 均已正式通过。下一阶段只允许先冻结、验证并 push unchanged-interface
+full-45 substrate source/contract；当前结果仍不授权 confirm，也不证明 repeat stability、finite KL、memory
+sensitivity、restoration oracle 或论文主张。

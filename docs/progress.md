@@ -1219,10 +1219,32 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - Git 只保存 `data/results/restoration_v2_1_processor_preflight/` 的轻量 manifest/说明。该 PASS 只关闭
   processor gate；fixed-15 pilot 尚未运行，parse/closer/bridge 结果仍未知。
 
+### 2026-07-15：v2.1 fixed-15 interface pilot 正式通过
+
+- processor artifact 的 reuse-mode validator 先从 fresh immutable HF download 在 clean
+  `main@70724bdb82484cd5645d174765724bd1f83b5ace` 重新得到 90 prompts PASS；随后 GPU preflight 确认
+  Hyper00 全部 8 张 H200 无 compute process，canonical root/ledger 不存在；
+- 唯一 formal attempt 使用 container-local `cuda:0`（映射 host physical GPU 2，UUID
+  `GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81`）、BF16、greedy batch-1、256-token cap；15 个冻结
+  `v2_development` states 各 generation 一次，84.279 秒完成；
+- 正式 outcome 为 `PASS_V2_1_INTERFACE_PILOT`：strict whole-output parse 15/15、model-emitted closer
+  15/15、AndroidWorld bridge 15/15；generation 15，retry/top-up/truncation/extra output 均为 0；
+- teacher forward、KL measurement、restoration label、expert action read、label-train/confirm generation 均为 0，
+  没有 sample mutation。该 PASS 只证明 native official-tool interface 可用于下一阶段，不证明 stable
+  reference、memory sensitivity 或 CausalCache 方法有效；
+- utilization monitor 在 model load/processor 与 batch-1 generation 交错时观测到低于 90% 的窗口；已立即核查
+  为单卡、固定 batch-1 protocol，不能再减少 GPU 数且不得为 pilot 改 batching。run 在 84.279 秒内完成；这不是
+  throughput efficiency 结果，full-45 source 需继续记录 latency/utilization；
+- canonical output 与 sibling ledger 已封装为 34-file deterministic USTAR，133,120 bytes，SHA256
+  `f71d5fd575dde48ae8b3e50a19dd2fbecfa02d7d5ae6087f909a47dfd7032064`。private HF tag
+  `v2.1-interface-pilot-v1` 解析到 immutable revision
+  `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`；fresh immutable download 的 byte hash/size 已复核；
+- Git 只保存 `data/results/restoration_v2_1_interface_pilot/` 的 34-file inventory/binding 与说明。提交后仍须从
+  clean descendant `main` 对 fresh archive 运行 artifact validator，才完成 committed-binding verification。
+
 ## 下一步
 
-下一步先把 processor manifest/说明 commit 并 push canonical `main`，再从 fresh immutable HF download 做
-reuse validation；通过后在 Hyper00 做 GPU/disk/container 与 10 秒 idle preflight，并只执行一次固定
-15-state、每 state 一次的 interface pilot。任何失败都不得
-重试/top-up/修 parser；只有 pilot 通过才进入 unchanged-interface full-45 substrate。confirm、AndroidWorld
-test split 与 restoration label 继续锁定。
+下一步先 commit/push fixed-15 manifest 与说明，再从 fresh immutable HF archive 做 committed-binding
+validation。通过后先实现、冻结并验证新的 full-45 source/contract、canonical attempt identity 与 raw artifact
+流程，commit/push 后才允许运行；不得复用或重启 fixed-15 canonical root。confirm、AndroidWorld test split、
+teacher/KL/restoration 继续锁定，直到 full-45 contract 按预注册 gate 明确授权。

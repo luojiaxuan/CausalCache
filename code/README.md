@@ -141,7 +141,8 @@ fresh download，不能读取未绑定的本地 run output。
 只有该 evidence 经独立 validator 通过，才能调用 fixed-15 no-retry runner
 `scripts.run_restoration_v2_1_interface_pilot`。runner 只读取冻结的 15 个 `v2_development` states，每 state
 先写 attempt marker 再作一次 full-history generation；interrupted marker 不得 retry。parse failure 进入科学
-`NO_GO`，OOM/runtime/contract failure 进入 invalid。下列是 source interface，不是已执行结果：
+`NO_GO`，OOM/runtime/contract failure 进入 invalid。下列是唯一正式 attempt 已使用的 exact argv；canonical
+root/ledger 已被永久 claim，不得再次执行或加 `--resume` 继续 generation：
 
 ```bash
 cd /data/CausalCache/code
@@ -189,6 +190,13 @@ python3 -m scripts.manage_restoration_v2_1_pilot_artifact create-manifest \
 `main` 是 source commit 的 descendant。这里是独立进程调用同一冻结 reducer/schema helper 重算，不声称为第二套
 implementation-independent reducer。CLI 不联网证明 revision 存在，因此正式回写同样要求 fresh immutable
 download 的 archive SHA256/size 与 Git manifest 完全相等。
+
+唯一正式 attempt 已输出 `PASS_V2_1_INTERFACE_PILOT`。raw 34-file USTAR 位于 private HF dataset
+`gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile`，tag `v2.1-interface-pilot-v1`，immutable
+revision `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，SHA256
+`f71d5fd575dde48ae8b3e50a19dd2fbecfa02d7d5ae6087f909a47dfd7032064`，133,120 bytes；fresh download
+已逐 byte 复核。Git 结果说明见 `data/results/restoration_v2_1_interface_pilot/README.md`。该 runner 不得用于
+full-45；后者必须先有新的冻结 contract/source 与独立 canonical attempt identity。
 
 正式 device-side executor 证据使用三个独立入口：
 
