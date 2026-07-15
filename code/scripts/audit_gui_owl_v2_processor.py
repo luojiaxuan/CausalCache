@@ -243,6 +243,50 @@ def _host_list(value: Any, name: str) -> Any:
     return detached.tolist()
 
 
+def _processor_pixel_target_identity(
+    image_processor: Any,
+    *,
+    target_pixels: int,
+) -> dict[str, Any]:
+    if image_processor is None:
+        raise ValueError("processor is missing image_processor")
+    direct_min_present = hasattr(image_processor, "min_pixels")
+    direct_max_present = hasattr(image_processor, "max_pixels")
+    size = getattr(image_processor, "size", None)
+    shortest_edge = getattr(size, "shortest_edge", None)
+    longest_edge = getattr(size, "longest_edge", None)
+    non_edge_values = {
+        field: getattr(size, field, None)
+        for field in ("height", "width", "max_height", "max_width")
+    }
+    merge_size = getattr(image_processor, "merge_size", None)
+    if direct_min_present or direct_max_present:
+        raise ValueError("processor pixel target must use the pinned SizeDict representation")
+    if (
+        shortest_edge != target_pixels
+        or longest_edge != target_pixels
+        or any(value is not None for value in non_edge_values.values())
+        or merge_size != VISION_SPATIAL_MERGE_SIZE
+    ):
+        raise ValueError("actual processor min/max target or merge size drifted")
+    return {
+        "image_processor_class": image_processor.__class__.__name__,
+        "image_processor_module": image_processor.__class__.__module__,
+        "pixel_target_runtime_representation": (
+            "image_processor.size.shortest_edge_longest_edge"
+        ),
+        "size_class": size.__class__.__name__,
+        "size_module": size.__class__.__module__,
+        "direct_min_pixels_attribute_present": False,
+        "direct_max_pixels_attribute_present": False,
+        "size_non_edge_fields": non_edge_values,
+        "actual_min_pixels": int(shortest_edge),
+        "actual_max_pixels": int(longest_edge),
+        "actual_min_equals_max_equals_target": True,
+        "spatial_merge_size": int(merge_size),
+    }
+
+
 def _tensor_inventory(model_inputs: Mapping[str, Any]) -> dict[str, Any]:
     keys = frozenset(model_inputs)
     missing = REQUIRED_PROCESSOR_TENSORS.difference(keys)
@@ -458,15 +502,10 @@ def run_processor_audit(
         local_files_only=True,
     )
     image_processor = getattr(processor, "image_processor", None)
-    actual_min_pixels = getattr(image_processor, "min_pixels", None)
-    actual_max_pixels = getattr(image_processor, "max_pixels", None)
-    actual_merge_size = getattr(image_processor, "merge_size", None)
-    if (
-        actual_min_pixels != target_pixels
-        or actual_max_pixels != target_pixels
-        or actual_merge_size != VISION_SPATIAL_MERGE_SIZE
-    ):
-        raise ValueError("actual processor min/max target or merge size drifted")
+    pixel_target_identity = _processor_pixel_target_identity(
+        image_processor,
+        target_pixels=target_pixels,
+    )
     portrait_raw = deterministic_rgb_png(width=108, height=240, seed=37)
     landscape_raw = deterministic_rgb_png(width=240, height=108, seed=91)
     portrait = _load_png(image_module, portrait_raw)
@@ -507,10 +546,7 @@ def run_processor_audit(
                     FROZEN_GUI_OWL_V2_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE
                 ),
                 "target_pixels_per_image": target_pixels,
-                "actual_min_pixels": int(actual_min_pixels),
-                "actual_max_pixels": int(actual_max_pixels),
-                "actual_min_equals_max_equals_target": True,
-                "spatial_merge_size": int(actual_merge_size),
+                **pixel_target_identity,
                 "local_files_only": True,
             },
             "deterministic_images": {

@@ -167,6 +167,23 @@ def _processor_summary() -> dict[str, object]:
             "processor_identity": {
                 "processor_class": "Qwen3VLProcessor",
                 "tokenizer_class": "Qwen2TokenizerFast",
+                "image_processor_class": "Qwen2VLImageProcessor",
+                "image_processor_module": (
+                    "transformers.models.qwen2_vl.image_processing_qwen2_vl"
+                ),
+                "pixel_target_runtime_representation": (
+                    "image_processor.size.shortest_edge_longest_edge"
+                ),
+                "size_class": "SizeDict",
+                "size_module": "transformers.image_utils",
+                "direct_min_pixels_attribute_present": False,
+                "direct_max_pixels_attribute_present": False,
+                "size_non_edge_fields": {
+                    "height": None,
+                    "width": None,
+                    "max_height": None,
+                    "max_width": None,
+                },
                 "target_effective_visual_tokens_per_image": 2560,
                 "target_pixels_per_image": 2_621_440,
                 "actual_min_pixels": 2_621_440,
@@ -370,6 +387,13 @@ class RestorationV2ReadinessSchemaTest(unittest.TestCase):
             assert isinstance(processor, dict)
             processor["target_pixels_per_image"] = 2_621_439
 
+        def change_pixel_representation(value: dict[str, object]) -> None:
+            audit = value["processor_audit"]
+            assert isinstance(audit, dict)
+            processor = audit["processor_identity"]
+            assert isinstance(processor, dict)
+            processor["pixel_target_runtime_representation"] = "direct_min_max"
+
         def change_token_boundary(value: dict[str, object]) -> None:
             audit = value["processor_audit"]
             assert isinstance(audit, dict)
@@ -407,6 +431,7 @@ class RestorationV2ReadinessSchemaTest(unittest.TestCase):
             (change_transformers_source, "model snapshot"),
             (change_deterministic_image, "deterministic image"),
             (change_pixel_target, "pixel target"),
+            (change_pixel_representation, "pixel target"),
             (change_token_boundary, "tokenizer boundary"),
             (change_five_image_case, "case single_conversation_five_images"),
         )

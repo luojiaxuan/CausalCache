@@ -772,6 +772,22 @@ def _validate_processor_audit_summary(
         or not processor.get("processor_class", "").endswith("Processor")
         or not isinstance(processor.get("tokenizer_class"), str)
         or not processor.get("tokenizer_class")
+        or processor.get("image_processor_class") != "Qwen2VLImageProcessor"
+        or processor.get("image_processor_module")
+        != "transformers.models.qwen2_vl.image_processing_qwen2_vl"
+        or processor.get("pixel_target_runtime_representation")
+        != "image_processor.size.shortest_edge_longest_edge"
+        or processor.get("size_class") != "SizeDict"
+        or processor.get("size_module") != "transformers.image_utils"
+        or processor.get("direct_min_pixels_attribute_present") is not False
+        or processor.get("direct_max_pixels_attribute_present") is not False
+        or processor.get("size_non_edge_fields")
+        != {
+            "height": None,
+            "width": None,
+            "max_height": None,
+            "max_width": None,
+        }
         or processor.get("target_effective_visual_tokens_per_image") != 2560
         or processor.get("target_pixels_per_image") != 2_621_440
         or processor.get("actual_min_pixels") != 2_621_440

@@ -64,7 +64,9 @@ restoration v2 exact selection/exposure 产物：
   validation；batch-1/CPU、batch-2/two-batch-1、logits/log-probs、zero-stride、invalid-to-NaN 和
   microbatch-2/no-OOM 全部通过，但明确不关闭 dependency 8。
 - `results/restoration_v2_processor_audit/`：预留给 Hyper00 上真实 pinned `AutoProcessor` 的轻量审计证据；
-  当前目录尚未生成，dependency 8 仍为 pending。正式审计只允许加载 processor、哈希 model snapshot 与
+  第一次 clean-commit attempt 因真实 Transformers `SizeDict` pixel-limit 表示与 source 假设不符而在任何
+  policy output 前 fail closed；完成态目录尚未生成，dependency 8 仍为 pending。正式审计只允许加载
+  processor、哈希 model snapshot 与
   Transformers source，不允许 materialize model weights、调用 forward/generate 或产生 policy/restoration
   output；结果必须先由干净 pushed commit 生成，再回写并冻结 exact image-grid/token-shape evidence。
 

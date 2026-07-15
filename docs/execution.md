@@ -194,7 +194,10 @@ python3 -m scripts.audit_gui_owl_v2_processor \
 summary 必须证明真实 `AutoProcessor` 的 1-image、5-image、nested batch-2、no-padding、token boundary、
 pixel target、tensor dtype/shape 与实际 visual grid；顶层与 nested flags 都必须声明只调用
 `AutoProcessor.from_pretrained`、model weights 未 materialize、policy forward/generate/output 与 restoration
-output 均为 false。随后把轻量 summary commit/push，再用其 exact SHA 和实际 geometry 生成 execution config。
+output 均为 false。pinned Transformers `5.6.0` 会把 `min_pixels/max_pixels` 构造参数保存为
+`image_processor.size.shortest_edge/longest_edge`；审计必须验证这一 exact `SizeDict` 表示，不能误要求运行时
+仍存在 direct attributes。随后把轻量 summary commit/push，再用其 exact SHA 和实际 geometry 生成
+execution config。
 
 readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
 运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived

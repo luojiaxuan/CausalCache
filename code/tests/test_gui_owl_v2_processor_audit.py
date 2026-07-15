@@ -120,15 +120,24 @@ class _FakeProcessor:
         bad_batch_shape: bool = False,
         bad_grid_count: bool = False,
         bad_pixel_dtype: bool = False,
+        expose_direct_pixel_attributes: bool = False,
         min_pixels: int,
         max_pixels: int,
     ) -> None:
         self.tokenizer = _FakeTokenizer(merge_joint_boundary=merge_joint_boundary)
         self.image_processor = types.SimpleNamespace(
-            min_pixels=min_pixels,
-            max_pixels=max_pixels,
             merge_size=2,
+            size=types.SimpleNamespace(
+                shortest_edge=min_pixels,
+                longest_edge=max_pixels,
+                height=None,
+                width=None,
+                max_height=None,
+                max_width=None,
+            ),
         )
+        if expose_direct_pixel_attributes:
+            self.image_processor.min_pixels = min_pixels
         self.bad_batch_shape = bad_batch_shape
         self.bad_grid_count = bad_grid_count
         self.bad_pixel_dtype = bad_pixel_dtype
@@ -251,6 +260,17 @@ class GUIOwlV2ProcessorAuditTest(unittest.TestCase):
         self.assertIs(result["policy_generate_executed"], False)
         self.assertIs(result["policy_output"], False)
         self.assertIs(result["policy_output_generated"], False)
+        identity = result["processor_identity"]
+        self.assertEqual(  # type: ignore[index]
+            identity["pixel_target_runtime_representation"],
+            "image_processor.size.shortest_edge_longest_edge",
+        )
+        self.assertIs(  # type: ignore[index]
+            identity["direct_min_pixels_attribute_present"], False
+        )
+        self.assertIs(  # type: ignore[index]
+            identity["direct_max_pixels_attribute_present"], False
+        )
         self.assertEqual(
             result["single_conversation_one_image"]["samples"][0]["image_count"],  # type: ignore[index]
             1,
@@ -323,6 +343,8 @@ class GUIOwlV2ProcessorAuditTest(unittest.TestCase):
     def test_actual_min_and_max_pixels_must_equal_frozen_target(self) -> None:
         with self.assertRaisesRegex(ValueError, "min/max target"):
             self._run(_processor(max_pixels=2_621_439))
+        with self.assertRaisesRegex(ValueError, "pinned SizeDict representation"):
+            self._run(_processor(expose_direct_pixel_attributes=True))
 
     def test_processor_tensor_dtype_drift_is_rejected(self) -> None:
         with self.assertRaisesRegex(ValueError, "pixel_values dtype drifted"):

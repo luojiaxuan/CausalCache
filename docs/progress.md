@@ -966,6 +966,19 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 本里程碑仍是 source-only：没有运行 GUI-Owl policy、没有生成 v2 policy/restoration output、没有创建新的
   HF artifact，dependency 8 仍 pending。
 
+### 2026-07-15：第一次 real processor audit 按设计 fail closed
+
+- clean pushed commit `6535e71d07b841e381f131f471d74467d6bef649` 在 Hyper00 容器
+  `6263d8cd...c3ac21` 运行 processor-only audit；完整 17 GB model snapshot SHA 已先通过，随后在任何
+  processor case、model weight materialization、forward/generate 或 policy/restoration output 前，以
+  `actual processor min/max target or merge size drifted` 终止；
+- 根因不是 scientific config 或 pixel target 改变：Transformers `5.6.0` 的 pinned
+  `Qwen2VLImageProcessor` 将显式 `min_pixels=max_pixels=2621440` 归一化到
+  `image_processor.size.shortest_edge/longest_edge`，并不保留 direct `min_pixels/max_pixels` attributes；
+- 审计器现改为严格验证该真实 `SizeDict` 表示、四个 non-edge fields 为 `None`、merge size 2，并把 class/
+  module/representation 全部写入 evidence；readiness validator 同步要求这些 exact fields。该失败是
+  pre-output superseded attempt，dependency 8 仍 pending，可在新 pushed commit 上安全重跑 processor audit。
+
 ## 下一步
 
 逐步 push：先从本次 clean pushed source commit 在 Hyper00 完成 policy-output-free real processor audit；把
