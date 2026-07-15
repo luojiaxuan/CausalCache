@@ -161,7 +161,8 @@ visual tokens、1/5-image 与 nested batch-2 exact shapes，以及全部零 poli
 已通过当前 readiness parser 的 exact-value validation。完成态
 `configs/restoration_v2_execution_hyper00_v1.json` 进一步绑定 8 项 evidence、14 个 source roles、真实
 processor geometry、Hyper00 runtime 与 microbatch=2；config SHA256 为 `f2b6521e...73a5`。readiness manifest
-仍待物化。
+已物化为 `data/manifests/restoration_v2_readiness.json` 并通过结构校验，但必须在其 commit/push 后由 clean
+Git binding 正式验证，才能授权 screening。
 
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，

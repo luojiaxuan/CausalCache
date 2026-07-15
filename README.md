@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: restoration v2 dependencies 1--7 passed / real processor audit and execution config passed / readiness pending / policy inference locked
+> Status: restoration v2 dependencies 1--7 passed / processor audit and execution config passed / readiness manifest prepared / clean authorization pending
 
 ## 团队交接入口
 
@@ -81,7 +81,8 @@ shape sweep，再允许首个 policy output，并以 attempt marker 禁止崩溃
 1/5-image sequence lengths 为 2,943/13,286，且所有 model/policy/restoration negative declarations 均为 false。
 证据见 [`data/results/restoration_v2_processor_audit/`](data/results/restoration_v2_processor_audit/)。完成态 execution
 config 也已冻结并通过 8-dependency / 14-source validation，SHA256 为 `f2b6521e...73a5`；readiness manifest
-尚未 materialize，所以 screening 仍未授权，v2 policy output 仍 locked。
+已按 `SCREENING_ALLOWED + CONFIRM_LOCKED` 结构物化并通过离线校验。它仍需先 commit/push，再由 clean
+`HEAD == origin/main` 的正式 validator 授权；当前 v2 policy output 仍 locked。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的

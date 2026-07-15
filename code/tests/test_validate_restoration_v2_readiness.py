@@ -262,6 +262,26 @@ def _manifest(
 
 
 class RestorationV2ReadinessSchemaTest(unittest.TestCase):
+    def test_committed_readiness_manifest_has_exact_structure(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        config_path = "code/configs/restoration_v2_execution_hyper00_v1.json"
+        config_file = repository_root / config_path
+        validated = _validate_execution_config(
+            _load_json_object(config_file),
+            repository_root=repository_root,
+        )
+        self.assertEqual(
+            _validate_readiness_manifest(
+                _load_json_object(
+                    repository_root / "data/manifests/restoration_v2_readiness.json"
+                ),
+                config_path=config_path,
+                config_sha256=hashlib.sha256(config_file.read_bytes()).hexdigest(),
+                source_files=validated["source_files"],
+            ),
+            "a2aeb7f1930d40cb569c8e2adfc0dc39e950d131",
+        )
+
     def test_committed_execution_config_passes_preoutput_validation(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         config = _load_json_object(

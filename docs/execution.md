@@ -210,7 +210,8 @@ lengths 分别为 2,943、13,286、2,946。后续 execution config 必须引用�
 `f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5`。它绑定 8 项 exact evidence、14 个
 source roles、processor summary/actual geometry、Hyper00 runtime、H200 UUID、single-device CUDA、固定
 microbatch=2 与 no-OOM-fallback；当前 `_validate_execution_config` 已通过。该 config 本身不授权 policy
-inference，仍必须等待下一 clean pushed commit 的 readiness manifest。
+inference。readiness manifest 已物化并离线验证，绑定 implementation commit `a2aeb7f...d131`；仍必须先
+commit/push manifest，再在 clean `HEAD == origin/main` 上运行正式 CLI。
 
 readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
 运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived

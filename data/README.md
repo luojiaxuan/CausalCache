@@ -56,6 +56,9 @@ restoration v2 exact selection/exposure 产物：
 - `manifests/restoration_v2_derived_artifact.json`：绑定 builder commit、两次 byte-identical Hyper00 build、
   private HF tag/immutable revision、exact 6-file hashes 与 fresh-download replay；当前
   `dependency_1_closed=true`；
+- `manifests/restoration_v2_readiness.json`：绑定 execution config SHA、implementation commit 与同一 14-source
+  inventory，公开状态仅为 `SCREENING_ALLOWED + CONFIRM_LOCKED`；当前已通过结构校验，等待 clean pushed
+  commit 上的正式 Git authorization；
 - `results/restoration_v2_derived_artifact/`：完整 derived artifact 的轻量结果、复现参数、UTC brackets、
   superseded download preflight failure 与 negative declarations；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次

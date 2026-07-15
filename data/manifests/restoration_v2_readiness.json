@@ -1,0 +1,90 @@
+{
+  "branch": "main",
+  "canonical_remote": "https://github.com/luojiaxuan/CausalCache.git",
+  "confirm_locked": true,
+  "dependency_count": 8,
+  "execution_config": {
+    "path": "code/configs/restoration_v2_execution_hyper00_v1.json",
+    "sha256": "f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5"
+  },
+  "implementation_git_commit": "a2aeb7f1930d40cb569c8e2adfc0dc39e950d131",
+  "materialized_before_any_v2_policy_output": true,
+  "passed_dependency_count": 8,
+  "policy_output_generated_before_manifest": false,
+  "protocol_id": "causalcache_restoration_v2",
+  "restoration_output_generated_before_manifest": false,
+  "schema_version": "1.0.0",
+  "source_files": [
+    {
+      "path": "code/causalcache/data/guiodyssey_restoration_v2.py",
+      "role": "derived_artifact_validator",
+      "sha256": "8caf9418e4212c760b789f660b8b67c9b23a5b88d08a8434d4a1e718f7a0e4ee"
+    },
+    {
+      "path": "code/scripts/audit_restoration_v2_gpu_compute.py",
+      "role": "gpu_compute_audit",
+      "sha256": "9f14cb722eb8aee0d1a436ab1d88d4c7b61c246b3d05ab2df0c470a7906f7439"
+    },
+    {
+      "path": "code/scripts/validate_restoration_v2_gpu_compute_audit.py",
+      "role": "gpu_compute_audit_validator",
+      "sha256": "237a1e598402035d0a7d0bc7410d9e9e0726ed8727290f620893b88d9aa5d9d1"
+    },
+    {
+      "path": "code/causalcache/restoration_v2_gpu_kl.py",
+      "role": "gpu_kl",
+      "sha256": "6227375fdb61a32bc71d22c1e77f1c62eb211cfb043984351512077fd1fec5ce"
+    },
+    {
+      "path": "code/causalcache/low_fidelity_v2.py",
+      "role": "low_fidelity_serializer",
+      "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a"
+    },
+    {
+      "path": "code/causalcache/restoration_v2_batching.py",
+      "role": "microbatch_planner",
+      "sha256": "769adf794ba10da018f27680ce25e851d760bddc8e8c0ba8a55bbb7780c2783b"
+    },
+    {
+      "path": "code/causalcache/policy/gui_owl_v2.py",
+      "role": "policy_interface",
+      "sha256": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a"
+    },
+    {
+      "path": "code/causalcache/policy/gui_owl_v2_runtime.py",
+      "role": "policy_runtime",
+      "sha256": "7cc0299b1b1679def61a3e2e30017d2f7812a47114b5a286afdf3979536c9c41"
+    },
+    {
+      "path": "code/scripts/validate_restoration_v2_readiness.py",
+      "role": "readiness_validator",
+      "sha256": "e88affa23da6728ee6ad5efb381e4d8f4e8c7cad746b7ab255572b71fa8a948a"
+    },
+    {
+      "path": "code/scripts/audit_gui_owl_v2_processor.py",
+      "role": "real_processor_audit",
+      "sha256": "bcc14b6be3179190bfd0e29fc6c7e7e74fada51c9a1e9b13ff3f3a20c044bd31"
+    },
+    {
+      "path": "code/causalcache/data/restoration_v2_screening.py",
+      "role": "screening_artifact_loader",
+      "sha256": "e4574c2d0c29f8bffae77bde7ea7fa0e441d49d4c128b443ed50208a711a2b61"
+    },
+    {
+      "path": "code/causalcache/data/restoration_v2_selection.py",
+      "role": "selection_validator",
+      "sha256": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a"
+    },
+    {
+      "path": "code/scripts/run_restoration_v2_substrate_screening.py",
+      "role": "substrate_screening_runner",
+      "sha256": "85408c439e750da26ae6b7b1f8084ed40bc0e68d360e074cc35ed2b167a4edf4"
+    },
+    {
+      "path": "code/causalcache/policy/gui_owl_v2_vision.py",
+      "role": "vision_runtime_verifier",
+      "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24"
+    }
+  ],
+  "status": "SCREENING_ALLOWED"
+}

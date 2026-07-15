@@ -1006,6 +1006,15 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - config 仍声明 `CONFIRM_LOCKED` 且不授权 inference；dependency 8 的最终公开状态仍等待后续 clean pushed
   commit 中的 readiness manifest 与 Git ancestry/source-blob validation。
 
+### 2026-07-15：readiness manifest 物化，等待 clean authorization
+
+- 新增 `data/manifests/restoration_v2_readiness.json`，绑定 config SHA `f2b6521e...73a5`、implementation
+  commit `a2aeb7f1930d40cb569c8e2adfc0dc39e950d131` 与同一 14-source inventory；
+- manifest 结构、8/8 count、config/source hashes、canonical remote/main、pre-output declarations 与
+  `SCREENING_ALLOWED + CONFIRM_LOCKED` 均已离线通过；confirm role 仍明确 forbidden；
+- 当前工作树包含未提交 manifest，因此正式 validator 按设计尚不能通过 clean-Git gate。下一步先
+  commit/push，再运行 CLI；在该 CLI 返回前仍不允许 policy import/output。
+
 ## 下一步
 
 下一步只物化 readiness manifest：它必须引用本次 config 的 exact SHA、implementation commit 与同一 14-source
