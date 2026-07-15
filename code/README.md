@@ -187,6 +187,14 @@ witnesses，exposure 的 negative claim 只是 pre-output process declaration。
 `292c7e52...` / `bc122482...`；可从仓库根目录运行 `make validate-restoration-v2-selection`
 独立复核。
 
+restoration v2 OCR/image implementation 位于
+`causalcache.restoration_v2_text_backend`，冻结 config 为
+`configs/restoration_v2_ocr_backend.json`，full runtime lock 为
+`requirements/restoration_v2_ocr_lock.txt`。本机只做 source/config validation 时不需安装 OCR extra；
+Hyper00 end-to-end 用 `scripts.validate_restoration_v2_ocr_backend inspect-golden|validate-golden`。该模块
+保存 full uncapped OCR tokens，不用 capped summary delta 反推 OCR+RGB baseline。当前 model HF
+revision/golden 尚 pending，详见 `docs/restoration_v2_ocr.md`。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash

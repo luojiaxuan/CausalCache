@@ -1,0 +1,193 @@
+from __future__ import annotations
+
+import copy
+import importlib.util
+import json
+import unittest
+from pathlib import Path
+
+from causalcache.restoration_v2_text_backend import (
+    PreparedImage,
+    build_ocr_record,
+    canonical_json_bytes,
+    canonicalize_rapidocr_nodes,
+    decode_fixture_image,
+    load_backend_config,
+    mean_absolute_rgb_difference_from_prepared,
+    prepare_image_bytes,
+    sha256_bytes,
+    validate_backend_config,
+    validate_selected_guiodyssey_image,
+)
+from scripts.validate_restoration_v2_ocr_backend import config_only
+
+
+ROOT = Path(__file__).resolve().parents[2]
+CONFIG_PATH = ROOT / "code/configs/restoration_v2_ocr_backend.json"
+FIXTURE_PATH = ROOT / "data/fixtures/restoration_v2_ocr_golden.json"
+PIL_AVAILABLE = importlib.util.find_spec("PIL") is not None
+
+
+class RestorationV2TextBackendTest(unittest.TestCase):
+    def test_frozen_backend_config_and_fixture_source_validate(self) -> None:
+        config = load_backend_config(CONFIG_PATH)
+        self.assertEqual(
+            config["backend_id"],
+            "rapidocr-3.8.4-ppocrv5-mobile-en-cpu-v1",
+        )
+        result = config_only(
+            backend_config_path=CONFIG_PATH,
+            fixture_path=FIXTURE_PATH,
+        )
+        self.assertEqual(result["outcome"], "PASSED_OCR_CONFIG_SOURCE_VALIDATION")
+        self.assertEqual(result["fixture_case_count"], 2)
+        self.assertFalse(result["prepared_images_validated"])
+        self.assertFalse(result["policy_output_generated"])
+
+    def test_backend_identity_and_parameters_fail_closed(self) -> None:
+        config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+        mutations = []
+        changed = copy.deepcopy(config)
+        changed["inference"]["intra_op_num_threads"] = 2
+        mutations.append(changed)
+        changed = copy.deepcopy(config)
+        changed["models"]["recognizer"]["sha256"] = "0" * 64
+        mutations.append(changed)
+        changed = copy.deepcopy(config)
+        changed["image_preprocessing"]["resample"] = "nearest"
+        mutations.append(changed)
+        changed = copy.deepcopy(config)
+        changed["canonical_output"]["full_spatial_tokens_are_uncapped"] = False
+        mutations.append(changed)
+        changed = copy.deepcopy(config)
+        changed["runtime_packages"]["requests"] = "0.0.0"
+        mutations.append(changed)
+        changed = copy.deepcopy(config)
+        changed["golden_contract"]["confirm_images_may_be_used_for_golden_selection"] = True
+        mutations.append(changed)
+        changed = copy.deepcopy(config)
+        changed["ocr_input"]["pre_resize"] = True
+        mutations.append(changed)
+        changed = copy.deepcopy(config)
+        changed["unexpected_field"] = "must fail closed"
+        mutations.append(changed)
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                with self.assertRaises(ValueError):
+                    validate_backend_config(mutation)
+
+    def test_node_canonicalization_rounds_sorts_and_preserves_full_tokens(self) -> None:
+        nodes = canonicalize_rapidocr_nodes(
+            boxes=[
+                [[9.6, 10.4], [19.7, 10.4], [19.7, 20.6], [9.6, 20.6]],
+                [[1.2, 1.2], [7.7, 1.2], [7.7, 5.8], [1.2, 5.8]],
+            ],
+            texts=["  Beta\nTwo ", "Cafe\u0301 One"],
+            scores=[0.8123456789, 0.999999999],
+            width=20,
+            height=30,
+        )
+        self.assertEqual(
+            [node["normalized_text"] for node in nodes],
+            ["Caf\u00e9 One", "Beta Two"],
+        )
+        self.assertEqual(nodes[0]["bbox_top_left_bottom_right"], [1, 1, 6, 8])
+        self.assertEqual(nodes[1]["polygon_xy"][1], [19, 10])
+        self.assertEqual(nodes[1]["confidence_decimal_string"], "0.81234568")
+
+    @unittest.skipUnless(PIL_AVAILABLE, "Pillow is an optional OCR dependency")
+    def test_record_hash_and_full_tokens_are_exact(self) -> None:
+        fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+        image_bytes = decode_fixture_image(fixture["cases"][0])
+        record = build_ocr_record(
+            image_member_path="fixtures/rgb-2x2.png",
+            image_bytes=image_bytes,
+            backend_config_sha256="1" * 64,
+            boxes=[[[0, 0], [1, 0], [1, 1], [0, 1]]],
+            texts=["Alpha Beta"],
+            scores=[0.75],
+        )
+        self.assertEqual(record["full_spatial_tokens"], ["Alpha", "Beta"])
+        digest = record.pop("canonical_ocr_record_sha256")
+        self.assertEqual(digest, sha256_bytes(canonical_json_bytes(record)))
+
+    @unittest.skipUnless(PIL_AVAILABLE, "Pillow is an optional OCR dependency")
+    def test_prepared_image_and_mad_are_exact(self) -> None:
+        fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+        first = prepare_image_bytes(decode_fixture_image(fixture["cases"][0]))
+        second = prepare_image_bytes(decode_fixture_image(fixture["cases"][1]))
+        self.assertEqual(first.source_mode, "RGBA")
+        self.assertEqual(first.alpha_extrema, (255, 255))
+        self.assertEqual(
+            first.resized_rgb_bytes_sha256,
+            "abf1b6b546f81519a02053c5ba25b9a6d31fa9c0d44df6a1326780d468f80621",
+        )
+        value = mean_absolute_rgb_difference_from_prepared(first, second)
+        self.assertGreaterEqual(value, 0.0)
+        self.assertLessEqual(value, 1.0)
+        self.assertEqual(mean_absolute_rgb_difference_from_prepared(first, first), 0.0)
+
+    def test_invalid_ocr_payloads_and_paths_are_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "length mismatch"):
+            canonicalize_rapidocr_nodes(
+                boxes=[[[0, 0], [1, 0], [1, 1], [0, 1]]],
+                texts=[],
+                scores=[],
+                width=2,
+                height=2,
+            )
+        for unsafe_path in ("", "/absolute.png", "../escape.png", "..\\escape.png", "./a.png"):
+            with self.subTest(unsafe_path=unsafe_path):
+                with self.assertRaisesRegex(ValueError, "safe relative"):
+                    build_ocr_record(
+                        image_member_path=unsafe_path,
+                        image_bytes=b"not decoded because path fails first",
+                        backend_config_sha256="1" * 64,
+                        boxes=None,
+                        texts=None,
+                        scores=None,
+                    )
+        if PIL_AVAILABLE:
+            fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+            with self.assertRaisesRegex(ValueError, "safe relative"):
+                build_ocr_record(
+                    image_member_path="../escape.png",
+                    image_bytes=decode_fixture_image(fixture["cases"][0]),
+                    backend_config_sha256="1" * 64,
+                    boxes=None,
+                    texts=None,
+                    scores=None,
+                )
+
+    def test_selected_guiodyssey_image_contract_is_fail_closed(self) -> None:
+        config = load_backend_config(CONFIG_PATH)
+        prepared = PreparedImage(
+            source_format="PNG",
+            source_mode="RGBA",
+            width=1080,
+            height=2400,
+            exif_present=False,
+            alpha_extrema=(255, 255),
+            rgb_bytes_sha256="1" * 64,
+            resized_rgb_bytes=b"",
+        )
+        validate_selected_guiodyssey_image(prepared, config)
+        invalid = PreparedImage(
+            source_format="JPEG",
+            source_mode="RGB",
+            width=1080,
+            height=2400,
+            exif_present=False,
+            alpha_extrema=None,
+            rgb_bytes_sha256="1" * 64,
+            resized_rgb_bytes=b"",
+        )
+        with self.assertRaisesRegex(
+            ValueError,
+            "INVALID_DERIVED_ARTIFACT_BEFORE_POLICY_OUTPUT",
+        ):
+            validate_selected_guiodyssey_image(invalid, config)
+
+
+if __name__ == "__main__":
+    unittest.main()

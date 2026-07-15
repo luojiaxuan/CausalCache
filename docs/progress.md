@@ -690,6 +690,21 @@ v2 policy output、restoration label 或方法效果结果。
   独立 validator；dependencies 2/3 正式闭合。本步骤未加载 policy、未使用 GPU、未生成任何
   v2 policy/restoration output。
 
+### 2026-07-15：OCR/image implementation identity 冻结
+
+- 确认 Hyper00/Aries 都没有现成 OCR runtime 或 weights；选择 CPU-only `RapidOCR==3.8.4` +
+  `onnxruntime==1.24.4`，显式 PP-OCRv5 mobile detector + English recognizer，关闭 orientation cls，
+  intra/inter-op threads 均为 1；
+- Hyper00 persistent venv 已安装 full exact lock 并 `pip check` 通过；det/rec 从 RapidOCR pinned
+  ModelScope v3.8.0 URLs 下载，inactive classifier 从 hash-pinned wheel 提取，三个 SHA 与 upstream
+  manifest 一致；
+- 新增 fail-closed backend config、exact runtime lock、lazy optional-dependency adapter、canonical node/record
+  schema、256x256 Pillow bilinear implementation、config/golden validator 与 mutation tests；
+- Git golden 已冻结 2x2 RGB 和两行 English text PNG bytes 及 prepared hashes；OCR expected output
+  仍必须从已 push commit 在 Hyper00 两个独立进程生成；
+- 本里程碑未使用 GPU，未加载 GUI-Owl，未产生 policy/restoration output。HF model
+  upload、immutable re-download、source manifest 和 real-screen golden 尚 pending，因此 dependency 5 未闭合。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -712,10 +727,15 @@ v2 policy output、restoration label 或方法效果结果。
   按协议未生成。旧 oracle raw trajectories/images/expert actions 已被 builder 读取和打包，不是 raw unseen；
 - restoration v2 derived dataset 的 canonical destination 是 private HF
   `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`，当前 `not built`，没有 local staging artifact；
+- restoration v2 OCR 三模型的 canonical destination 是 private HF model
+  `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en`；当前唯一副本状态是 Hyper00
+  `/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1` 的 local staging dependency，三个 SHA 已冻结但尚未上传，
+  因而不是 canonical artifact；
 - selection-biased go/no-go compact result：Git `data/results/go_no_go_diagnostic_v1/`；raw 209 KiB debug
   summary 只含可丢弃的 per-token/runtime 展开，canonical distances 与结论已压缩进 Git；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
-- 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
+- 当前没有仅存在共享机器或本地磁盘上的正式实验 output；上述 OCR models 是明确登记、等待上传的 staging
+  dependency，其余 Taurus/Aries/Hyper 目录只作为 HF artifact 的 staging/cache。
 
 ## 八项 pre-output dependencies 状态
 
@@ -724,7 +744,8 @@ v2 policy output、restoration label 或方法效果结果。
 3. exposure ledger：passed，ledger SHA256 `bc122482...`；
 4. restricted prompt/parser/bridge/executor fixture：passed；CPU prompt/parser/bridge、真实 pinned `JSONAction`
    constructor 与 device-side executor dispatch 均有独立 evidence；
-5. pinned accessibility/OCR identity：pending；
+5. pinned accessibility/OCR identity：implementation/config/weights SHA staged；HF immutable revision 与
+   end-to-end golden pending；
 6. baseline specification/source hashes：scientific formula 已冻结，implementation source hashes pending；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
 8. 引用 scientific-config SHA 的 execution config：pending。
@@ -734,8 +755,9 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步冻结 OCR/image backend identity、完整 screen OCR tokens 与 golden fixtures，再冻结 baseline
-implementation/source hashes；随后构建并 immutable-verify
+逐步 push：下一步从已 push OCR implementation 在 Hyper00 生成并复现 end-to-end golden，将三个
+ONNX 文件上传 private HF model repo 并 immutable-verify，然后冻结 baseline implementation/source hashes；随后
+构建并 immutable-verify
 private HF derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
 八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity

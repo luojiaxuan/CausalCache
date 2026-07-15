@@ -1,4 +1,4 @@
-.PHONY: paper clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection synthetic-phase0
+.PHONY: paper clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config synthetic-phase0
 
 paper:
 	mkdir -p output/pdf
@@ -37,6 +37,11 @@ validate-restoration-v2-selection:
 		--v2-contract configs/causalcache_restoration_v2.json \
 		--selection ../data/manifests/restoration_v2_selection.json \
 		--exposure ../data/manifests/restoration_v2_exposure.json
+
+validate-restoration-v2-ocr-config:
+	cd code && python3 -m scripts.validate_restoration_v2_ocr_backend config-only \
+		--backend-config configs/restoration_v2_ocr_backend.json \
+		--fixture ../data/fixtures/restoration_v2_ocr_golden.json
 
 synthetic-phase0:
 	cd code && python3 -m scripts.run_synthetic_attribution \

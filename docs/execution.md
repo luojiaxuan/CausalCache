@@ -21,6 +21,7 @@ HF create/upload/tag。远端确需访问 private repo 时，由操作者通过�
 | 工作 | 默认位置 | 备选 | 原因 |
 | --- | --- | --- | --- |
 | 文档、Git、LaTeX、单测、轻量数据处理 | Mac | Aries/Taurus | 不占共享 GPU |
+| restoration v2 OCR/image materialization | Hyper00 CPU | Aries CPU | exact wheel/model SHA 和单线程 ONNX Runtime；不申请 GPU |
 | restoration v2 offline inference、attribution | Hyper00 H200 | Aries A6000 | Hyper01 当前有其他任务；v2 canonical runtime 最终由 execution config 冻结 |
 | gate training / 后续重训练 | B200 | Hyper00 H200 | 先用至多 2 GPU 达到 90% utilization，再决定是否扩展 |
 | AndroidWorld emulator + policy rollout | Aries A6000 | Hyper01 H200（待解锁） | Aries stack 已验证；Hyper01 先解决 Docker root 容量并重做 environment smoke |
@@ -162,6 +163,29 @@ state witnesses；parent tar 只含 23 条，没有被当作 confirm source。�
 独立 validator。canonical selection/exposure SHA256 为 `292c7e52...` / `bc122482...`，证据见
 `data/results/restoration_v2_selection/`；dependencies 2/3 已闭合。该步骤未启动 GUI-Owl，也未产生任何
 policy/restoration output。
+
+OCR/image backend 是纯 CPU 数据步骤，不触发 GPU cleanup 或 utilization monitor。implementation contract、
+exact runtime lock、model SHA 和 synthetic fixture 见 `docs/restoration_v2_ocr.md`。Hyper00 staging 固定为
+`/data/.venv/causalcache-ocr-v2` 与 `/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1`；它们都是可重建的
+local cache，不是 canonical artifact。正式 synthetic golden 必须从已 push 的 clean detached commit 在两个
+独立 Python process 中各写入一个原先不存在的 output path，再比较 canonical JSON bytes。命令显式传入
+backend config、model dir、fixture 和 output，不通过环境变量覆盖任何 OCR 参数：
+
+```bash
+cd /data/repo/code
+/data/.venv/causalcache-ocr-v2/bin/python -m scripts.validate_restoration_v2_ocr_backend \
+  inspect-golden \
+  --backend-config configs/restoration_v2_ocr_backend.json \
+  --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 \
+  --wheel-dir /data/tmp/causalcache-ocr-v2-wheels \
+  --fixture ../data/fixtures/restoration_v2_ocr_golden.json \
+  --output /data/tmp/causalcache-ocr-v2-golden/repeat-1.json
+```
+
+三份 ONNX 文件必须上传 private HF model repo 并从 immutable revision 重新下载、逐文件验 SHA；Git 只保存
+repo/revision/hash 与轻量 golden evidence。synthetic golden 通过后还要用 label/development 中按冻结规则
+policy-blind 选出的真实截图做 behavioral golden；confirm screenshot 不得用于挑选或调 backend。上述证据未
+全部回写 Git 前，dependency 5 仍是 pending，也不得开始 GUI-Owl policy output。
 
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从
