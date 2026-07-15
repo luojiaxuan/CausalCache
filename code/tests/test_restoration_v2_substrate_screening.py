@@ -10,7 +10,6 @@ from pathlib import Path
 from unittest import mock
 
 from causalcache.data.restoration_v2_screening import ScreeningState
-from causalcache.policy.gui_owl_v2_runtime import GUIOwlV2GenerationParseError
 from causalcache.data.guiodyssey_restoration_v2 import (
     EXPECTED_FORMAL_COUNTS,
     PAYLOAD_PREFIX,
@@ -25,6 +24,7 @@ from scripts.run_restoration_v2_substrate_screening import (
     SubstrateGateContract,
     _canonical_input_bindings,
     _execution_bindings,
+    _validate_live_execution_runtime_identity,
     aggregate_substrate_gate,
     execute_production_screening,
     preflight_screening_message_shapes,
@@ -46,6 +46,25 @@ def _authorization() -> dict[str, object]:
         "allowed_roles": ["v2_label_train", "v2_development"],
         "passed_dependency_count": 8,
         "dependency_count": 8,
+    }
+
+
+def _live_runtime_identity() -> dict[str, object]:
+    return {
+        "platform_machine": "x86_64",
+        "gpu_name": "NVIDIA H200",
+        "gpu_uuid": "e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+        "nvidia_smi_gpu_uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+        "nvidia_driver_version": "570.172.08",
+        "gpu_compute_capability": [9, 0],
+        "gpu_multiprocessor_count": 132,
+        "visible_cuda_device_count": 1,
+        "selected_device": "cuda:0",
+        "python_version": "3.12.3",
+        "torch_version": "2.11.0+cu130",
+        "torch_cuda_build_version": "13.0",
+        "cudnn_version": 91900,
+        "transformers_version": "5.6.0",
     }
 
 
@@ -73,6 +92,21 @@ class _Action:
 
     def arguments(self) -> dict[str, object]:
         return {"action": self.name}
+
+
+class _GenerationParseError(ValueError):
+    def __init__(
+        self,
+        *,
+        output_text: str,
+        metadata: dict[str, object],
+        parse_error: Exception,
+    ) -> None:
+        super().__init__("generated action could not be parsed")
+        self.output_text = output_text
+        self.metadata = metadata
+        self.parse_error_type = type(parse_error).__name__
+        self.parse_error_message = str(parse_error)
 
 
 def _generation(name: str = "wait") -> object:
@@ -361,6 +395,21 @@ class ScreeningAuthorizationTest(unittest.TestCase):
                     ),
                 )
 
+    def test_live_gpu_and_software_identity_are_exact(self) -> None:
+        identity = _live_runtime_identity()
+        self.assertEqual(
+            _validate_live_execution_runtime_identity(identity, identity),
+            identity,
+        )
+        for field in identity:
+            with self.subTest(field=field):
+                changed = dict(identity)
+                changed[field] = (
+                    [0, 0] if isinstance(identity[field], list) else "drifted"
+                )
+                with self.assertRaisesRegex(ValueError, field):
+                    _validate_live_execution_runtime_identity(identity, changed)
+
     def test_runtime_identity_mismatch_fails_before_runtime_import(self) -> None:
         args = argparse.Namespace(
             repository_root=".",
@@ -398,6 +447,57 @@ class ScreeningAuthorizationTest(unittest.TestCase):
             )
         runtime_loader.assert_not_called()
 
+    def test_live_gpu_identity_mismatch_fails_before_artifact_or_runtime_import(
+        self,
+    ) -> None:
+        args = argparse.Namespace(
+            repository_root=".",
+            execution_config="config",
+            readiness_manifest="readiness",
+            scientific_config="scientific",
+            selection_manifest="selection",
+            ocr_backend_config="backend",
+            derived_artifact_root="artifact",
+            device="cuda:0",
+            host_alias="hyper00",
+            host_hostname="node-radixark-16-0000",
+            container_id="a" * 64,
+            container_image_digest="sha256:" + "b" * 64,
+        )
+        for field in ("gpu_uuid", "transformers_version"):
+            with self.subTest(field=field):
+                artifact_loader = mock.Mock()
+                runtime_loader = mock.Mock()
+                observed = _live_runtime_identity()
+                observed[field] = "drifted"
+                with (
+                    mock.patch(
+                        "scripts.run_restoration_v2_substrate_screening.load_json_object",
+                        return_value=(b"{}", {}),
+                    ),
+                    mock.patch(
+                        "scripts.run_restoration_v2_substrate_screening._canonical_input_bindings",
+                        return_value={},
+                    ),
+                    mock.patch(
+                        "scripts.run_restoration_v2_substrate_screening._execution_bindings",
+                        return_value={
+                            "execution_runtime": _live_runtime_identity(),
+                            "actual_run_identity": {},
+                        },
+                    ),
+                    self.assertRaisesRegex(ValueError, field),
+                ):
+                    execute_production_screening(
+                        args,
+                        authorization_validator=lambda **kwargs: _authorization(),
+                        artifact_loader=artifact_loader,
+                        runtime_identity_loader=lambda **kwargs: observed,
+                        runtime_class_loader=runtime_loader,
+                    )
+                artifact_loader.assert_not_called()
+                runtime_loader.assert_not_called()
+
     def test_artifact_failure_prevents_runtime_import(self) -> None:
         args = argparse.Namespace(
             repository_root=".",
@@ -425,7 +525,7 @@ class ScreeningAuthorizationTest(unittest.TestCase):
                     "canonical_data": {"artifact_tree_sha256": "a" * 64},
                     "snapshot_manifest_path": Path("snapshot"),
                     "snapshot_manifest": {},
-                    "execution_runtime": {},
+                    "execution_runtime": _live_runtime_identity(),
                     "actual_run_identity": {},
                 },
             ),
@@ -446,6 +546,7 @@ class ScreeningAuthorizationTest(unittest.TestCase):
                 artifact_loader=lambda **kwargs: (_ for _ in ()).throw(
                     ValueError("artifact invalid")
                 ),
+                runtime_identity_loader=lambda **kwargs: _live_runtime_identity(),
                 runtime_class_loader=runtime_loader,
             )
         runtime_loader.assert_not_called()
@@ -503,7 +604,7 @@ class ScreeningStateTest(unittest.TestCase):
 
     def test_parse_failure_preserves_generated_text_when_runtime_provides_it(self) -> None:
         artifact = _Artifact()
-        error = GUIOwlV2GenerationParseError(
+        error = _GenerationParseError(
             output_text="raw malformed generation",
             metadata={"do_sample": False},
             parse_error=ValueError("malformed tool call"),
@@ -672,7 +773,7 @@ class ScreeningShapeSweepTest(unittest.TestCase):
                     "canonical_data": {"artifact_tree_sha256": "a" * 64},
                     "snapshot_manifest_path": Path("snapshot"),
                     "snapshot_manifest": {},
-                    "execution_runtime": {},
+                    "execution_runtime": _live_runtime_identity(),
                     "actual_run_identity": {},
                 },
             ),
@@ -693,6 +794,7 @@ class ScreeningShapeSweepTest(unittest.TestCase):
                 args,
                 authorization_validator=lambda **kwargs: _authorization(),
                 artifact_loader=lambda **kwargs: artifact,
+                runtime_identity_loader=lambda **kwargs: _live_runtime_identity(),
                 runtime_class_loader=lambda: (
                     lambda **kwargs: runtime
                 ),

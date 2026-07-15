@@ -28,7 +28,7 @@ PROCESSOR_AUDIT_SUMMARY_PATH = (
     "data/results/restoration_v2_processor_audit/summary.json"
 )
 PROCESSOR_AUDIT_SUMMARY_SHA256 = (
-    "7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8"
+    "69bb8ddb578bcb8019fda05fd3a4a2be600043b9b2d58db052078f5107bbd119"
 )
 PROCESSOR_AUDIT_SOURCE_PATHS = (
     "code/causalcache/policy/gui_owl_v2.py",

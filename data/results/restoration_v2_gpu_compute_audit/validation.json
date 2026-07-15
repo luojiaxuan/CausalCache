@@ -21,10 +21,10 @@
   "policy_output_generated": false,
   "protocol_id": "causalcache_restoration_v2",
   "restoration_output_generated": false,
-  "run_git_commit": "a0f06f495a78bee43112651040fca6c3d31701ac",
+  "run_git_commit": "47062741a950b7c6050a6223b91f4bbae65332e7",
   "runtime_identity": {
-    "container_hostname": "6263d8cd69fb",
-    "container_id": "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+    "container_hostname": "69f2b1742e8f",
+    "container_id": "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
     "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
     "gpu_compute_capability": [
       9,
@@ -32,11 +32,11 @@
     ],
     "gpu_multiprocessor_count": 132,
     "gpu_name": "NVIDIA H200",
-    "gpu_uuid": "e10a085b-e20e-a454-6fda-17063cf68418",
+    "gpu_uuid": "e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
     "host_alias": "hyper00",
     "host_hostname": "node-radixark-16-0000",
     "nvidia_driver_version": "570.172.08",
-    "nvidia_smi_gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+    "nvidia_smi_gpu_uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
     "platform_machine": "x86_64",
     "selected_device": "cuda:0",
     "torch_cuda_build_version": "13.0",
@@ -59,7 +59,7 @@
       "size_bytes": 29197
     }
   },
-  "summary_sha256": "0b0adbd0086c800fc27f435ed2c445a01048941a71335920d27079937c4b8134",
+  "summary_sha256": "dce797694194cd88ac749dcc357c3259c41b69a5bde7a99fc93c675cab2e9dac",
   "validator_source": {
     "path": "code/scripts/validate_restoration_v2_gpu_compute_audit.py",
     "sha256": "237a1e598402035d0a7d0bc7410d9e9e0726ed8727290f620893b88d9aa5d9d1",

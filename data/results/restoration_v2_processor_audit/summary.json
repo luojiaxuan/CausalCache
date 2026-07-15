@@ -6,24 +6,24 @@
     "--expected-snapshot-manifest",
     "configs/gui_owl_1_5_8b_snapshot.json",
     "--output-summary",
-    "/data/tmp/restoration-v2-processor-audit-20260715T173819Z/summary.json",
+    "/data/tmp/restoration-v2-gpu-reanchor-20260715T175854Z/processor-summary.json",
     "--repository-root",
     "..",
     "--run-git-commit",
-    "82442da8193063b59e7b538d321406e26401d393",
+    "47062741a950b7c6050a6223b91f4bbae65332e7",
     "--host-alias",
     "hyper00",
     "--host-hostname",
     "node-radixark-16-0000",
     "--container-id",
-    "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+    "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
     "--container-image-digest",
     "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa"
   ],
-  "argv_shell_quoted": "/data/worktrees/causalcache-restoration-v2-compute-158afc4/code/scripts/audit_gui_owl_v2_processor.py --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct --expected-snapshot-manifest configs/gui_owl_1_5_8b_snapshot.json --output-summary /data/tmp/restoration-v2-processor-audit-20260715T173819Z/summary.json --repository-root .. --run-git-commit 82442da8193063b59e7b538d321406e26401d393 --host-alias hyper00 --host-hostname node-radixark-16-0000 --container-id 6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21 --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+  "argv_shell_quoted": "/data/worktrees/causalcache-restoration-v2-compute-158afc4/code/scripts/audit_gui_owl_v2_processor.py --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct --expected-snapshot-manifest configs/gui_owl_1_5_8b_snapshot.json --output-summary /data/tmp/restoration-v2-gpu-reanchor-20260715T175854Z/processor-summary.json --repository-root .. --run-git-commit 47062741a950b7c6050a6223b91f4bbae65332e7 --host-alias hyper00 --host-hostname node-radixark-16-0000 --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
   "auto_processor_loaded": true,
   "auto_processor_only": true,
-  "ended_at_utc": "2026-07-15T17:38:51.584295Z",
+  "ended_at_utc": "2026-07-15T18:00:22.778372Z",
   "evidence_type": "gui_owl_v2_policy_output_free_processor_audit",
   "model_weight_files_sha256_verified": true,
   "model_weights_loaded": false,
@@ -402,15 +402,15 @@
   "repository": {
     "head_verified_as_commit": true,
     "repository_root": "/data/worktrees/causalcache-restoration-v2-compute-158afc4",
-    "run_git_commit": "82442da8193063b59e7b538d321406e26401d393",
+    "run_git_commit": "47062741a950b7c6050a6223b91f4bbae65332e7",
     "submodules_checked": true,
     "untracked_files_checked": true,
     "worktree_clean": true
   },
   "restoration_output_generated": false,
   "runtime_identity": {
-    "container_hostname": "6263d8cd69fb",
-    "container_id": "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+    "container_hostname": "69f2b1742e8f",
+    "container_id": "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
     "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
     "host_alias": "hyper00",
     "host_hostname": "node-radixark-16-0000",
@@ -441,5 +441,5 @@
       "size_bytes": 26867
     }
   },
-  "started_at_utc": "2026-07-15T17:38:30.280432Z"
+  "started_at_utc": "2026-07-15T17:59:55.707871Z"
 }

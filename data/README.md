@@ -57,8 +57,9 @@ restoration v2 exact selection/exposure 产物：
   private HF tag/immutable revision、exact 6-file hashes 与 fresh-download replay；当前
   `dependency_1_closed=true`；
 - `manifests/restoration_v2_readiness.json`：绑定 execution config SHA、implementation commit 与同一 14-source
-  inventory，公开状态仅为 `SCREENING_ALLOWED + CONFIRM_LOCKED`；clean pushed commit 上的正式 Git
-  authorization 已通过；
+  inventory。GPU-0 的首次 `SCREENING_ALLOWED + CONFIRM_LOCKED` 已保留在 Git history/readiness result；
+  GPU-2 过渡 manifest 当前明确为 `SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`，等待新 implementation
+  commit 后再签；
 - `results/restoration_v2_derived_artifact/`：完整 derived artifact 的轻量结果、复现参数、UTC brackets、
   superseded download preflight failure 与 negative declarations；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
@@ -68,7 +69,8 @@ restoration v2 exact selection/exposure 产物：
   microbatch-2/no-OOM 全部通过，但明确不关闭 dependency 8。
 - `results/restoration_v2_processor_audit/`：保存 Hyper00 上真实 pinned `AutoProcessor` 的轻量审计证据；
   第一次 clean-commit attempt 因真实 Transformers `SizeDict` pixel-limit 表示与 source 假设不符而在任何
-  policy output 前 fail closed；修复后的 formal audit 已通过，summary SHA256 为 `7d5ac1bd...43b8`。正式审计只
+  policy output 前 fail closed；GPU-2 re-anchor formal audit 已通过，canonical summary SHA256 为
+  `69bb8ddb...d119`。正式审计只
   加载 processor、哈希 model snapshot 与
   Transformers source，不允许 materialize model weights、调用 forward/generate 或产生 policy/restoration
   output；结果必须先由干净 pushed commit 生成，再回写并冻结 exact image-grid/token-shape evidence。
@@ -118,16 +120,17 @@ restoration v2 exact selection/exposure 产物：
 - `results/restoration_v2_executor_dispatch/`：Aries formal attempt 通过 14/14 cases，negative actuation
   control 为 HTTP 500，canonical verdict 为 `PASSED_EXECUTOR_DISPATCH`；未加载 policy 或使用 GPU；
 
-- `results/restoration_v2_gpu_compute_audit/`：Hyper00 formal H200 compute audit 通过，summary SHA256
-  `0b0adbd0...8134`；独立 validator 从 run commit Git blobs 复核通过，policy/restoration output 均为 false；
+- `results/restoration_v2_gpu_compute_audit/`：Hyper00 GPU-2 formal H200 compute audit 通过，canonical summary
+  SHA256 `dce79769...9dac`；独立 validator 从 run commit Git blobs 复核通过，policy/restoration output 均为
+  false；
 
-- `results/restoration_v2_processor_audit/`：Hyper00 real `AutoProcessor` formal summary 已通过；exact
+- `results/restoration_v2_processor_audit/`：Hyper00 GPU-2 real `AutoProcessor` formal summary 已通过；exact
   grids/tokens/tensors、source hashes、零 model-tensor/forward/generate/output declarations 均已冻结。该子项
-  已完成，execution config 与 readiness authorization 也已通过；
+  已完成；GPU-2 execution config 已冻结，readiness 正在 fail-closed 重签；
 
-- `results/restoration_v2_readiness/`：首次 clean-Git formal authorization 返回 8/8 passed、
+- `results/restoration_v2_readiness/`：GPU-0 首次 clean-Git formal authorization 返回 8/8 passed、
   `SCREENING_ALLOWED + CONFIRM_LOCKED`，summary SHA256 `20b9e810...5964`；dependency 8 正式闭合，仍不授权
-  confirm；
+  confirm；该结果是历史授权，不适用于 GPU-2 runtime；
 
 - `results/restoration_v2_runtime_reanchor/`：screening preflight 发现旧 GPU 0 busy 后，在空闲 physical GPU 2
   的新单卡容器重新完成 GPU compute + independent validation + real processor audit；三份 evidence 均为

@@ -38,7 +38,7 @@
       "actual_effective_visual_tokens_per_image": 2584,
       "evidence": {
         "path": "data/results/restoration_v2_processor_audit/summary.json",
-        "sha256": "7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8"
+        "sha256": "69bb8ddb578bcb8019fda05fd3a4a2be600043b9b2d58db052078f5107bbd119"
       },
       "five_image_sequence_length": 13286,
       "image_processor_class": "Qwen2VLImageProcessor",
@@ -158,15 +158,15 @@
       "evidence": [
         {
           "path": "data/results/restoration_v2_gpu_compute_audit/summary.json",
-          "sha256": "0b0adbd0086c800fc27f435ed2c445a01048941a71335920d27079937c4b8134"
+          "sha256": "dce797694194cd88ac749dcc357c3259c41b69a5bde7a99fc93c675cab2e9dac"
         },
         {
           "path": "data/results/restoration_v2_gpu_compute_audit/validation.json",
-          "sha256": "50033175f05bf0e8d005acea6e28851dd12103b95ea23cb0696a22582dd9b87e"
+          "sha256": "ad53e18691424bc173919bdd578f7aff5a412c7fafb201816d2ae8576cd4f2a6"
         },
         {
           "path": "data/results/restoration_v2_processor_audit/summary.json",
-          "sha256": "7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8"
+          "sha256": "69bb8ddb578bcb8019fda05fd3a4a2be600043b9b2d58db052078f5107bbd119"
         }
       ],
       "id": 8,
@@ -190,8 +190,8 @@
   },
   "execution_id": "causalcache-restoration-v2-hyper00-h200-v1",
   "execution_runtime": {
-    "container_hostname": "6263d8cd69fb",
-    "container_id": "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+    "container_hostname": "69f2b1742e8f",
+    "container_id": "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
     "container_image": "hongccc/sglang-omni:dev",
     "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
     "cudnn_version": 91900,
@@ -201,11 +201,11 @@
     ],
     "gpu_multiprocessor_count": 132,
     "gpu_name": "NVIDIA H200",
-    "gpu_uuid": "e10a085b-e20e-a454-6fda-17063cf68418",
+    "gpu_uuid": "e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
     "host_alias": "hyper00",
     "host_hostname": "node-radixark-16-0000",
     "nvidia_driver_version": "570.172.08",
-    "nvidia_smi_gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+    "nvidia_smi_gpu_uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
     "platform_machine": "x86_64",
     "python_version": "3.12.3",
     "selected_device": "cuda:0",
@@ -281,7 +281,7 @@
     {
       "path": "code/scripts/validate_restoration_v2_readiness.py",
       "role": "readiness_validator",
-      "sha256": "e88affa23da6728ee6ad5efb381e4d8f4e8c7cad746b7ab255572b71fa8a948a"
+      "sha256": "831b0a0b28e665cfeed988da970cc5569a8e8c55764ccf20428100388e0f3126"
     },
     {
       "path": "code/scripts/audit_gui_owl_v2_processor.py",
@@ -301,7 +301,7 @@
     {
       "path": "code/scripts/run_restoration_v2_substrate_screening.py",
       "role": "substrate_screening_runner",
-      "sha256": "85408c439e750da26ae6b7b1f8084ed40bc0e68d360e074cc35ed2b167a4edf4"
+      "sha256": "58307a7f689a7c804e29c75c2c73b0568c1298ac7aef52a21a1aa44959b47018"
     },
     {
       "path": "code/causalcache/policy/gui_owl_v2_vision.py",

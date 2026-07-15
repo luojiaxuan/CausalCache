@@ -4,11 +4,11 @@
     "--device",
     "cuda:0",
     "--run-git-commit",
-    "a0f06f495a78bee43112651040fca6c3d31701ac",
+    "47062741a950b7c6050a6223b91f4bbae65332e7",
     "--container-image-digest",
     "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
     "--output-summary",
-    "/data/tmp/causalcache-restoration-v2-gpu-compute-audit-a0f06f4/summary.json",
+    "/data/tmp/restoration-v2-gpu-reanchor-20260715T175854Z/summary.json",
     "--repository-root",
     "/data/worktrees/causalcache-restoration-v2-compute-158afc4",
     "--host-alias",
@@ -16,9 +16,9 @@
     "--host-hostname",
     "node-radixark-16-0000",
     "--container-id",
-    "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21"
+    "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df"
   ],
-  "argv_shell_quoted": "/data/worktrees/causalcache-restoration-v2-compute-158afc4/code/scripts/audit_restoration_v2_gpu_compute.py --device cuda:0 --run-git-commit a0f06f495a78bee43112651040fca6c3d31701ac --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa --output-summary /data/tmp/causalcache-restoration-v2-gpu-compute-audit-a0f06f4/summary.json --repository-root /data/worktrees/causalcache-restoration-v2-compute-158afc4 --host-alias hyper00 --host-hostname node-radixark-16-0000 --container-id 6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+  "argv_shell_quoted": "/data/worktrees/causalcache-restoration-v2-compute-158afc4/code/scripts/audit_restoration_v2_gpu_compute.py --device cuda:0 --run-git-commit 47062741a950b7c6050a6223b91f4bbae65332e7 --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa --output-summary /data/tmp/restoration-v2-gpu-reanchor-20260715T175854Z/summary.json --repository-root /data/worktrees/causalcache-restoration-v2-compute-158afc4 --host-alias hyper00 --host-hostname node-radixark-16-0000 --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
   "automatic_oom_fallback": false,
   "compute_audit": {
     "automatic_oom_fallback": false,
@@ -91,26 +91,26 @@
     },
     "latency": {
       "batch1_candidate_a": {
-        "elapsed_nanoseconds": 167135929,
-        "elapsed_seconds": 0.167135929
+        "elapsed_nanoseconds": 173020047,
+        "elapsed_seconds": 0.173020047
       },
       "batch1_candidate_b": {
-        "elapsed_nanoseconds": 630927,
-        "elapsed_seconds": 0.000630927
+        "elapsed_nanoseconds": 977867,
+        "elapsed_seconds": 0.000977867
       },
       "batch1_invalid_numeric": {
-        "elapsed_nanoseconds": 380445,
-        "elapsed_seconds": 0.000380445
+        "elapsed_nanoseconds": 414113,
+        "elapsed_seconds": 0.000414113
       },
       "batch1_pre_normalized_log_probs": {
-        "elapsed_nanoseconds": 361763,
-        "elapsed_seconds": 0.000361763
+        "elapsed_nanoseconds": 391675,
+        "elapsed_seconds": 0.000391675
       },
       "batch2": {
-        "elapsed_nanoseconds": 543108,
-        "elapsed_seconds": 0.000543108
+        "elapsed_nanoseconds": 623946,
+        "elapsed_seconds": 0.000623946
       },
-      "total_measured_elapsed_nanoseconds": 169052172
+      "total_measured_elapsed_nanoseconds": 175427648
     },
     "logits_vs_pre_normalized_log_probs": {
       "absolute_error": 0.0,
@@ -162,7 +162,7 @@
     }
   },
   "dependency_8_compute_primitives_audited": true,
-  "ended_at_utc": "2026-07-15T16:39:40.860745Z",
+  "ended_at_utc": "2026-07-15T17:59:11.299909Z",
   "evidence_type": "restoration_v2_policy_blind_gpu_compute_audit",
   "outcome": "PASSED_RESTORATION_V2_GPU_COMPUTE_AUDIT",
   "planner_audit": {
@@ -225,15 +225,15 @@
   "repository": {
     "head_verified_as_commit": true,
     "repository_root": "/data/worktrees/causalcache-restoration-v2-compute-158afc4",
-    "run_git_commit": "a0f06f495a78bee43112651040fca6c3d31701ac",
+    "run_git_commit": "47062741a950b7c6050a6223b91f4bbae65332e7",
     "submodules_checked": true,
     "untracked_files_checked": true,
     "worktree_clean": true
   },
   "restoration_output_generated": false,
   "runtime_identity": {
-    "container_hostname": "6263d8cd69fb",
-    "container_id": "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+    "container_hostname": "69f2b1742e8f",
+    "container_id": "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
     "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
     "cudnn_version": 91900,
     "gpu_compute_capability": [
@@ -243,12 +243,12 @@
     "gpu_multiprocessor_count": 132,
     "gpu_name": "NVIDIA H200",
     "gpu_total_memory_bytes": 150121021440,
-    "gpu_uuid": "e10a085b-e20e-a454-6fda-17063cf68418",
+    "gpu_uuid": "e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
     "gpu_uuid_source": "torch.cuda.get_device_properties",
     "host_alias": "hyper00",
     "host_hostname": "node-radixark-16-0000",
     "nvidia_driver_version": "570.172.08",
-    "nvidia_smi_gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+    "nvidia_smi_gpu_uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
     "platform_machine": "x86_64",
     "python_version": "3.12.3",
     "selected_device": "cuda:0",
@@ -271,5 +271,5 @@
       "size_bytes": 29197
     }
   },
-  "started_at_utc": "2026-07-15T16:39:39.153365Z"
+  "started_at_utc": "2026-07-15T17:59:09.694330Z"
 }

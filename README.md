@@ -79,14 +79,16 @@ pushed `main` 和 `CONFIRM_LOCKED`，才返回 `SCREENING_ALLOWED`。production 
 shape sweep，再允许首个 policy output，并以 attempt marker 禁止崩溃后的 hidden retry。上述 source 已通过
 本地 tests。正式 Hyper00 processor audit 也已通过：真实 grid 对齐后每图 2,584 effective visual tokens，
 1/5-image sequence lengths 为 2,943/13,286，且所有 model/policy/restoration negative declarations 均为 false。
-证据见 [`data/results/restoration_v2_processor_audit/`](data/results/restoration_v2_processor_audit/)。完成态 execution
-config 也已冻结并通过 8-dependency / 14-source validation，SHA256 为 `f2b6521e...73a5`；readiness manifest
-已按 `SCREENING_ALLOWED + CONFIRM_LOCKED` 结构物化。clean `HEAD == origin/main` 的正式 validator 已通过，
-结果见 [`data/results/restoration_v2_readiness/`](data/results/restoration_v2_readiness/)；dependency 8 正式闭合。
-正式 GPU preflight 随后发现该 config 锁定的 physical GPU 0 已被其他任务占用，因而没有启动 screening。
+证据见 [`data/results/restoration_v2_processor_audit/`](data/results/restoration_v2_processor_audit/)。首次 GPU-0
+execution config/readiness 已在 clean `main` 通过，历史授权见
+[`data/results/restoration_v2_readiness/`](data/results/restoration_v2_readiness/)；正式 preflight 随后发现该
+physical GPU 已被其他任务占用，因而没有启动 screening。
 空闲 GPU 2 上的新单卡 runtime 已重新通过 GPU compute 与 processor audits，证据见
 [`data/results/restoration_v2_runtime_reanchor/`](data/results/restoration_v2_runtime_reanchor/)；planned GPU-2
-screening 需先重签 config/readiness，期间 policy inference 暂停，confirm 始终锁定。
+canonical execution config 已改绑新 container/GPU/evidence，SHA256 为 `819cb973...91ca0`。runner 还会在
+artifact/model load 前实时核对 GPU UUID、单卡可见性、driver、compute capability、PyTorch/CUDA/cuDNN 与
+Transformers。当前 readiness manifest 故意标记
+`SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`；重签完成前 policy inference 暂停，confirm 始终锁定。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
@@ -463,9 +465,13 @@ $$
 - Restoration v2 real processor audit: [`data/results/restoration_v2_processor_audit/README.md`](data/results/restoration_v2_processor_audit/README.md)
 - Restoration v2 execution config: [`code/configs/restoration_v2_execution_hyper00_v1.json`](code/configs/restoration_v2_execution_hyper00_v1.json)
 - Restoration v2 readiness authorization: [`data/results/restoration_v2_readiness/README.md`](data/results/restoration_v2_readiness/README.md)
+- Restoration v2 GPU-2 runtime re-anchor: [`data/results/restoration_v2_runtime_reanchor/README.md`](data/results/restoration_v2_runtime_reanchor/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 dependencies 1--8 已全部通过，正式状态为 `SCREENING_ALLOWED + CONFIRM_LOCKED`。尚未运行 45-state screening，因此仍没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 GPU-0 首次 authorization 是历史记录，GPU-2
+  config 已重锚但 readiness 正在重签，当前 fail-closed 状态为
+  `SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN + CONFIRM_LOCKED`。尚未运行 45-state screening，因此仍
+  没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 

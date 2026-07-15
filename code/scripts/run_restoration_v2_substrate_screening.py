@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import inspect
 import io
 import json
 import math
 import os
+import platform
 import re
 import socket
 import subprocess
@@ -1139,6 +1141,116 @@ def _execution_bindings(
     }
 
 
+def _load_live_execution_runtime_identity(*, device: str) -> dict[str, Any]:
+    try:
+        import torch
+    except ModuleNotFoundError as error:
+        raise RuntimeError("production screening requires the pinned PyTorch") from error
+    if not bool(torch.cuda.is_available()):
+        raise RuntimeError("production screening requires available CUDA")
+    match = CUDA_DEVICE_PATTERN.fullmatch(device)
+    if match is None:
+        raise ValueError("production screening device must be explicit CUDA")
+    device_index = int(device.split(":", maxsplit=1)[1])
+    visible_count = int(torch.cuda.device_count())
+    if device_index >= visible_count:
+        raise ValueError("production screening CUDA device is not visible")
+    canonical_device = torch.device(device)
+    torch.cuda.set_device(canonical_device)
+    properties = torch.cuda.get_device_properties(canonical_device)
+    property_uuid = getattr(properties, "uuid", None)
+    if isinstance(property_uuid, bytes):
+        gpu_uuid = property_uuid.decode("ascii")
+    else:
+        gpu_uuid = str(property_uuid) if property_uuid is not None else ""
+    if gpu_uuid.startswith("GPU-"):
+        gpu_uuid = gpu_uuid[4:]
+    if not gpu_uuid:
+        raise RuntimeError("PyTorch did not expose the selected GPU UUID")
+
+    try:
+        nvidia_smi = subprocess.run(
+            [
+                "nvidia-smi",
+                "--query-gpu=index,uuid,driver_version",
+                "--format=csv,noheader,nounits",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError) as error:
+        raise RuntimeError("nvidia-smi runtime identity query failed") from error
+    records: list[dict[str, str]] = []
+    for raw_line in nvidia_smi.stdout.splitlines():
+        fields = [field.strip() for field in raw_line.split(",", maxsplit=2)]
+        if len(fields) == 3 and all(fields):
+            records.append(
+                {
+                    "index": fields[0],
+                    "uuid": fields[1],
+                    "driver_version": fields[2],
+                }
+            )
+    expected_nvidia_uuid = f"GPU-{gpu_uuid}"
+    selected = next(
+        (record for record in records if record["uuid"] == expected_nvidia_uuid),
+        None,
+    )
+    if selected is None:
+        raise RuntimeError("PyTorch and nvidia-smi GPU UUIDs differ")
+
+    cudnn_version = (
+        torch.backends.cudnn.version()
+        if hasattr(torch.backends, "cudnn")
+        else None
+    )
+    return {
+        "platform_machine": platform.machine(),
+        "gpu_name": str(properties.name),
+        "gpu_uuid": gpu_uuid,
+        "nvidia_smi_gpu_uuid": selected["uuid"],
+        "nvidia_driver_version": selected["driver_version"],
+        "gpu_compute_capability": [int(properties.major), int(properties.minor)],
+        "gpu_multiprocessor_count": int(properties.multi_processor_count),
+        "visible_cuda_device_count": visible_count,
+        "selected_device": str(canonical_device),
+        "python_version": platform.python_version(),
+        "torch_version": str(torch.__version__),
+        "torch_cuda_build_version": str(torch.version.cuda),
+        "cudnn_version": cudnn_version,
+        "transformers_version": importlib.metadata.version("transformers"),
+    }
+
+
+def _validate_live_execution_runtime_identity(
+    configured: Mapping[str, Any],
+    observed: Mapping[str, Any],
+) -> dict[str, Any]:
+    required_fields = (
+        "platform_machine",
+        "gpu_name",
+        "gpu_uuid",
+        "nvidia_smi_gpu_uuid",
+        "nvidia_driver_version",
+        "gpu_compute_capability",
+        "gpu_multiprocessor_count",
+        "visible_cuda_device_count",
+        "selected_device",
+        "python_version",
+        "torch_version",
+        "torch_cuda_build_version",
+        "cudnn_version",
+        "transformers_version",
+    )
+    for field in required_fields:
+        if field not in observed or observed[field] != configured.get(field):
+            raise ValueError(
+                f"live execution runtime {field} differs from the frozen config"
+            )
+    return {field: observed[field] for field in required_fields}
+
+
 def _load_runtime_class() -> type[Any]:
     from causalcache.policy.gui_owl_v2_runtime import GUIOwlV2Runtime
 
@@ -1186,6 +1298,9 @@ def execute_production_screening(
     artifact_loader: Callable[..., ValidatedScreeningArtifact] = (
         load_validated_screening_artifact
     ),
+    runtime_identity_loader: Callable[..., Mapping[str, Any]] = (
+        _load_live_execution_runtime_identity
+    ),
     runtime_class_loader: Callable[[], type[Any]] = _load_runtime_class,
     kl_kernel_loader: Callable[[], Callable[..., Any]] = _load_gpu_kl_kernel,
     run_executor: Callable[..., dict[str, Any]] = run_substrate_screening,
@@ -1217,6 +1332,11 @@ def execute_production_screening(
         container_image_digest=args.container_image_digest,
         actual_container_hostname=actual_container_hostname,
     )
+    live_runtime_identity = _validate_live_execution_runtime_identity(
+        bindings["execution_runtime"],
+        runtime_identity_loader(device=args.device),
+    )
+    bindings["actual_run_identity"].update(live_runtime_identity)
     artifact = artifact_loader(
         artifact_root=args.derived_artifact_root,
         backend_config_path=input_bindings["ocr_backend_config_path"],

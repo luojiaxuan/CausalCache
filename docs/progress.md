@@ -1036,10 +1036,28 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 全程没有 policy/restoration output。旧 GPU-0 readiness 保留为历史 pass；planned GPU-2 screening 暂停，
   直到 canonical evidence、execution config 与 readiness manifest 重新绑定并正式授权。
 
+### 2026-07-15：GPU-2 canonical transition 已锁定，等待 re-sign
+
+- 将 re-anchor 的 GPU summary、independent validation、real processor summary 升级为 canonical evidence；
+  SHA256 分别为 `dce79769...9dac`、`ad53e186...2a6`、`69bb8ddb...d119`，三份均与保留在
+  `restoration_v2_runtime_reanchor/` 的原始副本 byte-identical；
+- execution config 改绑新 container `69f2b174...194df`、GPU UUID
+  `GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81` 与新 evidence，14-source inventory 同步更新；完成态 config
+  SHA256 为 `819cb973...91ca0`；
+- production runner 新增 pre-import live runtime guard：Torch 与 `nvidia-smi` UUID 必须直接一致，并逐字段核对
+  visible GPU count、driver、compute capability、SM count、Python、PyTorch/CUDA/cuDNN、Transformers；GPU 或
+  software drift 在 artifact/model load 前 fail closed；
+- readiness manifest 暂时设为 `SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN` 且 implementation commit 为
+  `null`，避免 GPU-0 历史 authorization 被误用于 GPU-2；focused GPU/readiness/runner tests 41/41、全量
+  tests 314/314 通过，另有 10 个 optional-dependency skips；formal readiness CLI 按预期以 locked-state error
+  非零退出；
+- 本里程碑仍未 import policy runtime、未加载 model、未生成 policy/restoration output。下一 commit 只负责把
+  manifest 绑定本 transition 的 clean pushed commit，不再修改 execution config 或 14-source files。
+
 ## 下一步
 
-下一步先把 GPU-2 re-anchor evidence push，再重签 execution config/readiness；之后才在 Hyper00 运行
-development substrate screening。
+下一步 push 当前 fail-closed transition；随后生成绑定该 commit 的 GPU-2 readiness manifest，clean main 正式
+authorization 通过后才在 Hyper00 运行 development substrate screening。
 只有 screening 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
 75-instance final plan 一并冻结。

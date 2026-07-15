@@ -160,10 +160,12 @@ formal processor evidence 位于 `data/results/restoration_v2_processor_audit/`�
 visual tokens、1/5-image 与 nested batch-2 exact shapes，以及全部零 policy-output declarations。该 evidence
 已通过当前 readiness parser 的 exact-value validation。完成态
 `configs/restoration_v2_execution_hyper00_v1.json` 进一步绑定 8 项 evidence、14 个 source roles、真实
-processor geometry、Hyper00 runtime 与 microbatch=2；config SHA256 为 `f2b6521e...73a5`。readiness manifest
-已物化为 `data/manifests/restoration_v2_readiness.json` 并通过结构校验，但必须在其 commit/push 后由 clean
-Git binding 正式验证，才能授权 screening。首次正式验证现已通过，evidence 位于
-`data/results/restoration_v2_readiness/`；公开状态为 `SCREENING_ALLOWED + CONFIRM_LOCKED`。
+processor geometry、Hyper00 GPU-2 runtime 与 microbatch=2；当前 config SHA256 为
+`819cb973...91ca0`。production runner 会在 artifact/model load 前实时复核 GPU UUID、visible count、driver、
+compute capability、PyTorch/CUDA/cuDNN 与 Transformers。GPU-0 首次正式验证 evidence 位于
+`data/results/restoration_v2_readiness/`，仅作历史记录；GPU-2 readiness manifest 当前为
+`SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`，必须绑定本次 clean pushed implementation commit 并通过
+formal Git validation 才能恢复 `SCREENING_ALLOWED + CONFIRM_LOCKED`。
 
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，

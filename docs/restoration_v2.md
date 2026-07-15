@@ -233,12 +233,14 @@ production runner 必须先完成 45×2 个真实 prompt 的 processor-only shap
 和 non-finite distance 属于固定分母内的合法 substrate failures；prompt/data/shape/model-forward/KL-kernel/OOM
 属于 invalid run，不能输出科学 `NO_GO`。
 
-正式 real processor audit 已从 clean pushed commit 在 Hyper00 通过；summary SHA256 为
-`7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8`，真实每图 visual token accounting 为
+正式 real processor audit 已从 clean pushed commit 在 Hyper00 通过；GPU-2 canonical processor summary
+SHA256 为
+`69bb8ddb578bcb8019fda05fd3a4a2be600043b9b2d58db052078f5107bbd119`，真实每图 visual token accounting 为
 2,584 而不是构造 target 2,560。readiness validator 已将 exact grids、token counts、tensor inventory 与 runtime
 classes 冻结。完成态 execution config 也已通过 8-dependency、14-source 与 actual-geometry validation，SHA256
-为 `f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5`。readiness manifest 与正式
-clean-Git authorization 现已通过，dependency 8 闭合；仅 development screening 解锁，confirm 仍 locked。
+为 `819cb973d9211a5a9b3b4d7c109520605e35b07ad008bf125353d33d0bf91ca0`。GPU-2 readiness manifest 正在
+fail-closed 重签。GPU-0 readiness manifest 与 clean-Git authorization 只作为历史 pass；当前 GPU-2 dependency
+8 authorization 尚未重新闭合，development screening 与 confirm 均保持 locked。
 
 验证命令：
 

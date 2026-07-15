@@ -5,9 +5,9 @@
   "dependency_count": 8,
   "execution_config": {
     "path": "code/configs/restoration_v2_execution_hyper00_v1.json",
-    "sha256": "f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5"
+    "sha256": "819cb973d9211a5a9b3b4d7c109520605e35b07ad008bf125353d33d0bf91ca0"
   },
-  "implementation_git_commit": "a2aeb7f1930d40cb569c8e2adfc0dc39e950d131",
+  "implementation_git_commit": null,
   "materialized_before_any_v2_policy_output": true,
   "passed_dependency_count": 8,
   "policy_output_generated_before_manifest": false,
@@ -58,7 +58,7 @@
     {
       "path": "code/scripts/validate_restoration_v2_readiness.py",
       "role": "readiness_validator",
-      "sha256": "e88affa23da6728ee6ad5efb381e4d8f4e8c7cad746b7ab255572b71fa8a948a"
+      "sha256": "831b0a0b28e665cfeed988da970cc5569a8e8c55764ccf20428100388e0f3126"
     },
     {
       "path": "code/scripts/audit_gui_owl_v2_processor.py",
@@ -78,7 +78,7 @@
     {
       "path": "code/scripts/run_restoration_v2_substrate_screening.py",
       "role": "substrate_screening_runner",
-      "sha256": "85408c439e750da26ae6b7b1f8084ed40bc0e68d360e074cc35ed2b167a4edf4"
+      "sha256": "58307a7f689a7c804e29c75c2c73b0568c1298ac7aef52a21a1aa44959b47018"
     },
     {
       "path": "code/causalcache/policy/gui_owl_v2_vision.py",
@@ -86,5 +86,5 @@
       "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24"
     }
   ],
-  "status": "SCREENING_ALLOWED"
+  "status": "SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN"
 }

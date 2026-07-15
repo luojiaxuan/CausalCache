@@ -7,13 +7,13 @@ model weights、screenshots、policy logits 或 restoration outputs。
 
 - outcome：`PASSED_GUI_OWL_V2_PROCESSOR_AUDIT`；
 - summary：`summary.json`；
-- summary SHA256：`7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8`；
-- run commit：`82442da8193063b59e7b538d321406e26401d393`，clean detached worktree；
+- summary SHA256：`69bb8ddb578bcb8019fda05fd3a4a2be600043b9b2d58db052078f5107bbd119`；
+- run commit：`47062741a950b7c6050a6223b91f4bbae65332e7`，clean detached worktree；
 - host/container：Hyper00 `node-radixark-16-0000`，
-  `6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21`；
+  `69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df`；
 - container image digest：
   `sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa`；
-- UTC bracket：`2026-07-15T17:38:30.280432Z` -- `2026-07-15T17:38:51.584295Z`；
+- UTC bracket：`2026-07-15T17:59:55.707871Z` -- `2026-07-15T18:00:22.778372Z`；
 - runtime：Python `3.12.3`、Transformers `5.6.0`、PyTorch distribution `2.11.0+cu130`、
   Pillow `12.2.0`，processor device `cpu`。
 
@@ -50,6 +50,7 @@ forward/generate 或 policy/restoration output 前；修复与根因记录在 co
 
 ## 边界
 
-该结果关闭 dependency 8 的 real-processor 子项，但不单独关闭 dependency 8。execution config、exact source
-inventory 与 readiness manifest 尚需从包含本 summary 的后续 clean pushed commit 生成；在 readiness validator
-返回 `SCREENING_ALLOWED + CONFIRM_LOCKED` 前，v2 policy inference 仍保持锁定。
+该结果关闭 GPU-2 dependency 8 的 real-processor 子项，但不单独授权 inference。canonical execution config
+已改绑本 summary；readiness manifest 在 runtime re-sign 过渡 commit 中故意保持
+`SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`。只有后续 manifest 绑定该 clean pushed implementation
+commit 且正式 validator 返回 `SCREENING_ALLOWED + CONFIRM_LOCKED` 后，才能启动 v2 policy inference。

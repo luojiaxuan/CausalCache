@@ -163,16 +163,16 @@ GPU preflight 后从 pushed clean commit 运行，显式传入
 path。该 runner 只使用 synthetic logits，summary 必须保持 `policy_output_generated=false` 与
 `restoration_output_generated=false`。
 
-2026-07-15 Hyper00 formal compute audit 已按上述契约通过，summary SHA256 为
-`0b0adbd0086c800fc27f435ed2c445a01048941a71335920d27079937c4b8134`；独立 validator 不 import
+2026-07-15 Hyper00 GPU-2 re-anchor formal compute audit 已按上述契约通过，canonical summary SHA256 为
+`dce797694194cd88ac749dcc357c3259c41b69a5bde7a99fc93c675cab2e9dac`；独立 validator 不 import
 runner/compute modules，而从 run commit Git blobs 重新验证 source 与关键字段。证据位于
-`data/results/restoration_v2_gpu_compute_audit/`。该结果不是 GUI-Owl processor/model runtime pass；在真实
-runtime smoke 与引用全部 source/identity 的 execution config/readiness validator 提交、push 前，第 8 项仍
-为 pending。
+`data/results/restoration_v2_gpu_compute_audit/`；旧 GPU-0 结果保留在 Git history。该结果不是 GUI-Owl
+processor/model runtime pass，也不单独授权 policy inference。
 
 ### Restoration v2 real processor 与 screening CLI 顺序
 
-正式记录已从 clean pushed commit `82442da8193063b59e7b538d321406e26401d393` 运行
+当前 GPU-2 canonical 记录从 clean pushed commit
+`47062741a950b7c6050a6223b91f4bbae65332e7` 运行
 `scripts.audit_gui_owl_v2_processor`。该命令是 CPU processor audit，
 不会实例化 model weights 或调用 forward/generate，因此不是 v2 policy output；但会读取完整 model snapshot
 做 SHA，并 import pinned Transformers modules 复核 source。正式命令必须显式传 model/cache、Git、host、
@@ -201,23 +201,26 @@ output 均为 false。pinned Transformers `5.6.0` 会把 `min_pixels/max_pixels`
 execution config。
 
 canonical summary 位于 `data/results/restoration_v2_processor_audit/summary.json`，SHA256
-`7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8`。实际 portrait/landscape grids 为
+`69bb8ddb578bcb8019fda05fd3a4a2be600043b9b2d58db052078f5107bbd119`。实际 portrait/landscape grids 为
 `[1,152,68]` / `[1,68,152]`，每图 2,584 effective visual tokens；1-image、5-image、nested batch-2 sequence
 lengths 分别为 2,943、13,286、2,946。后续 execution config 必须引用这些实测值，不能回写构造 target 2,560
 冒充实际 accounting。
 
-完成态 execution config 已物化为 `code/configs/restoration_v2_execution_hyper00_v1.json`，SHA256
-`f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5`。它绑定 8 项 exact evidence、14 个
-source roles、processor summary/actual geometry、Hyper00 runtime、H200 UUID、single-device CUDA、固定
-microbatch=2 与 no-OOM-fallback；当前 `_validate_execution_config` 已通过。该 config 本身不授权 policy
-inference。readiness manifest 已物化并离线验证，绑定 implementation commit `a2aeb7f...d131`；仍必须先
-commit/push manifest，再在 clean `HEAD == origin/main` 上运行正式 CLI。首次正式 CLI 已在 commit
-`429c4584ba7c18eee0b96741b6c1514bd4d4d7ec` 通过，summary SHA256 `20b9e810...5964`；dependency 8 已闭合。
+GPU-2 execution config 已物化为 `code/configs/restoration_v2_execution_hyper00_v1.json`，SHA256
+`819cb973d9211a5a9b3b4d7c109520605e35b07ad008bf125353d33d0bf91ca0`。它绑定 8 项 exact evidence、14 个
+source roles、processor summary/actual geometry、Hyper00 runtime、新 H200 UUID、single-device CUDA、固定
+microbatch=2 与 no-OOM-fallback；当前 `_validate_execution_config` 已通过。production runner 在 artifact/model
+load 前还会用 PyTorch、`nvidia-smi` 与 package metadata 逐字段核对 GPU UUID、visible count、driver、compute
+capability、SM count、Python、PyTorch/CUDA/cuDNN 和 Transformers，Torch 与 `nvidia-smi` UUID 必须直接一致。
+该 config 本身不授权 policy inference。
 
 正式 GPU preflight 后旧 runtime 的 physical GPU 0 被其他任务占用，10 秒采样选择 physical GPU 2。为避免
 共享繁忙 GPU，screening 未启动；新 non-privileged 单卡容器已通过 CUDA compute、独立 validator 与 real
 processor audit。re-anchor evidence 位于 `data/results/restoration_v2_runtime_reanchor/`。GPU-2 execution
-config/readiness 重签完成前，旧 authorization 只作历史记录，不用于启动新 runtime。
+config 已完成 GPU-2 改绑；过渡 readiness manifest 明确为
+`SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`，implementation commit 暂为空。旧 authorization 只作历史
+记录，不用于启动新 runtime。下一 commit 必须把 manifest 绑定本次 clean pushed implementation commit，再在
+clean `HEAD == origin/main` 上运行正式 CLI；通过前 policy/restoration output 仍为零。
 
 readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
 运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived

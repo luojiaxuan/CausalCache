@@ -262,7 +262,7 @@ def _manifest(
 
 
 class RestorationV2ReadinessSchemaTest(unittest.TestCase):
-    def test_committed_readiness_manifest_has_exact_structure(self) -> None:
+    def test_committed_readiness_manifest_is_locked_during_runtime_resign(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         config_path = "code/configs/restoration_v2_execution_hyper00_v1.json"
         config_file = repository_root / config_path
@@ -270,17 +270,21 @@ class RestorationV2ReadinessSchemaTest(unittest.TestCase):
             _load_json_object(config_file),
             repository_root=repository_root,
         )
+        manifest = _load_json_object(
+            repository_root / "data/manifests/restoration_v2_readiness.json"
+        )
         self.assertEqual(
+            manifest["status"], "SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN"
+        )
+        with self.assertRaisesRegex(
+            ValueError, "readiness manifest state or pre-output boundary drifted"
+        ):
             _validate_readiness_manifest(
-                _load_json_object(
-                    repository_root / "data/manifests/restoration_v2_readiness.json"
-                ),
+                manifest,
                 config_path=config_path,
                 config_sha256=hashlib.sha256(config_file.read_bytes()).hexdigest(),
                 source_files=validated["source_files"],
-            ),
-            "a2aeb7f1930d40cb569c8e2adfc0dc39e950d131",
-        )
+            )
 
     def test_committed_execution_config_passes_preoutput_validation(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
@@ -330,7 +334,7 @@ class RestorationV2ReadinessSchemaTest(unittest.TestCase):
                 summary,
                 repository_root=repository_root,
             ),
-            "82442da8193063b59e7b538d321406e26401d393",
+            "47062741a950b7c6050a6223b91f4bbae65332e7",
         )
 
     def test_old_gpu_validation_remains_explicitly_preclosure(self) -> None:
