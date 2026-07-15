@@ -934,18 +934,43 @@ config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy ou
 6. baseline specification/source hashes：passed，见 `data/manifests/restoration_v2_baselines.json`；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
 8. 引用 scientific-config SHA 的 execution config：pending。GPU KL/microbatch/runtime/audit source 与
-   Hyper00 formal compute audit 已通过，但真实 model runtime smoke、完成态 config/source-hash manifest 与
-   readiness validator 尚未闭合。
+   Hyper00 formal compute audit 已通过；confirm-safe screening loader、真实 processor-only audit CLI、
+   readiness validator 与固定 45-state production runner source 也已实现，但正式 processor evidence、完成态
+   config/source-hash manifest 与 readiness manifest 尚未闭合。
 
-GPU-side scalar KL、GUI-Owl runtime 与 coalition microbatch 已 implementation-ready；formal CUDA audit 与
-config closure 仍 pending。它们不能替代上述任何 pre-output dependency，且 microbatch 必须进入第 8 项
-execution config。
+GPU-side scalar KL、GUI-Owl runtime 与 coalition microbatch 已 implementation-ready，formal CUDA audit 已
+通过。新增 runner 在 readiness 8/8 前不 import policy runtime；readiness 后也先对固定 45 states 的
+reference/summary 共 90 个 prompt 做 processor-only shape sweep，任何 context overflow 在首个 forward 前
+输出 `INVALID_BEFORE_POLICY_FORWARD`。每个 state 在首次 policy call 前写 exclusive attempt marker；崩溃后
+存在 marker 而无 terminal record 时禁止 resume 重跑。合法 scientific failures 只包括 parse、repeat-action
+mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO_V2_SUBSTRATE`。
+
+### 2026-07-15：Restoration v2 screening execution source 完成
+
+- 新增只读 derived loader，先运行 public artifact validator，再逐 byte 复核 canonical JSONL/USTAR、selection
+  witnesses 与 90 个 screening image SHA；API 只暴露 10 条 label-train + 5 条 development、45 states，confirm
+  state/image 无法寻址；
+- 新增真实 `AutoProcessor` audit：完整 pinned model snapshot/Transformers source hash、deterministic portrait/
+  landscape PNG、assistant-prefix/carrier/tool boundary、1-image、5-image 与 nested batch-2 均 fail closed；它只
+  调用 `AutoProcessor.from_pretrained`，权重文件只做 SHA 读取，不实例化为 tensors，不 forward/generate；
+- 新增 readiness validator：dependency 8 必须同时包含历史 GPU audit/独立 validation、真实 processor summary、
+  14 个固定 source roles、clean pushed `main` 与 ancestor Git blobs；公开状态只可能是
+  `SCREENING_ALLOWED + CONFIRM_LOCKED`，不能借 dummy `real_processor_*` 文件绕过；
+- 新增 45-state runner：每 state 两次 deterministic full-history generation、两次独立 reference teacher
+  forward、一次 summary teacher forward；reference FP32 log-probs 与 full-vocabulary KL 留在 GPU，只读取两个
+  final distance scalars；global `max(1e-4,10*mean_repeat_kl)` 决定 memory sensitivity；
+- parse failure 保留 raw generated text/metadata；OOM、prompt/shape/teacher/kernel error 是 fatal invalid，不能
+  自动 fallback 或污染科学 gate；完整本地验证为 309 tests passed；当前最小本机环境另有 10 个
+  optional-dependency skips（8 个 Pillow、2 个 PyTorch/GPU），所有既有
+  contract/interface/executor/selection/OCR/baseline validators 通过；
+- 本里程碑仍是 source-only：没有运行 GUI-Owl policy、没有生成 v2 policy/restoration output、没有创建新的
+  HF artifact，dependency 8 仍 pending。
 
 ## 下一步
 
-逐步 push：先 commit/push formal CUDA summary 与独立 validation，再冻结包含全部
-identity/source hashes 与 coalition microbatch 的 execution config 及 readiness validator，并在其允许范围内
-完成真实 GUI-Owl runtime smoke。
+逐步 push：先从本次 clean pushed source commit 在 Hyper00 完成 policy-output-free real processor audit；把
+summary 回写 Git 后，再冻结包含其 exact geometry、全部 identity/source hashes 与 coalition microbatch 的
+execution config/readiness manifest。
 第 8 项闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact

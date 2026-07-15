@@ -76,6 +76,23 @@ class GUIOwlV2GenerationResult:
     metadata: Mapping[str, Any]
 
 
+class GUIOwlV2GenerationParseError(ValueError):
+    """Strict parse failure that preserves the generated text and run metadata."""
+
+    def __init__(
+        self,
+        *,
+        output_text: str,
+        metadata: Mapping[str, Any],
+        parse_error: ValueError,
+    ) -> None:
+        super().__init__(f"strict GUI-Owl v2 action parse failed: {parse_error}")
+        self.output_text = output_text
+        self.metadata = dict(metadata)
+        self.parse_error_type = parse_error.__class__.__name__
+        self.parse_error_message = str(parse_error)
+
+
 def _validated_token_ids(values: Any, *, name: str) -> tuple[int, ...]:
     if isinstance(values, (str, bytes, bytearray, Mapping)):
         raise TypeError(f"{name} must be a sequence of token ids")
@@ -390,6 +407,16 @@ class GUIOwlV2Runtime:
             "max_pixels": pixels_per_image,
         }
 
+    def maximum_context_tokens(self) -> int:
+        """Return the verified model text context limit without a policy forward."""
+        text_config = getattr(self.model.config, "text_config", None)
+        value = getattr(text_config, "max_position_embeddings", None)
+        if type(value) is not int or value <= 0:
+            raise ValueError(
+                "verified GUI-Owl text config lacks a positive max_position_embeddings"
+            )
+        return value
+
     def _encode_exact_batch(
         self,
         messages_batch: Sequence[Sequence[Mapping[str, Any]]],
@@ -638,7 +665,6 @@ class GUIOwlV2Runtime:
         if len(decoded) != 1 or not isinstance(decoded[0], str):
             raise ValueError("GUI-Owl v2 generation must decode to exactly one string")
         output_text = decoded[0]
-        parsed = parse_gui_owl_v2_output(output_text)
         metadata = {
             **self._image_metadata(model_inputs, image_counts)[0],
             "generated_tokens": int(new_tokens.shape[1]),
@@ -653,6 +679,14 @@ class GUIOwlV2Runtime:
             ),
             "full_logit_tensor_host_transfers": 0,
         }
+        try:
+            parsed = parse_gui_owl_v2_output(output_text)
+        except ValueError as error:
+            raise GUIOwlV2GenerationParseError(
+                output_text=output_text,
+                metadata=metadata,
+                parse_error=error,
+            ) from error
         return GUIOwlV2GenerationResult(
             output_text=output_text,
             parsed_output=parsed,

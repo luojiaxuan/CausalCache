@@ -63,6 +63,10 @@ restoration v2 exact selection/exposure 产物：
 - `results/restoration_v2_gpu_compute_audit/`：Hyper00 单张 H200 policy-blind CUDA audit 与独立 offline
   validation；batch-1/CPU、batch-2/two-batch-1、logits/log-probs、zero-stride、invalid-to-NaN 和
   microbatch-2/no-OOM 全部通过，但明确不关闭 dependency 8。
+- `results/restoration_v2_processor_audit/`：预留给 Hyper00 上真实 pinned `AutoProcessor` 的轻量审计证据；
+  当前目录尚未生成，dependency 8 仍为 pending。正式审计只允许加载 processor、哈希 model snapshot 与
+  Transformers source，不允许 materialize model weights、调用 forward/generate 或产生 policy/restoration
+  output；结果必须先由干净 pushed commit 生成，再回写并冻结 exact image-grid/token-shape evidence。
 
 当前 reusable artifacts：
 
@@ -111,6 +115,9 @@ restoration v2 exact selection/exposure 产物：
 
 - `results/restoration_v2_gpu_compute_audit/`：Hyper00 formal H200 compute audit 通过，summary SHA256
   `0b0adbd0...8134`；独立 validator 从 run commit Git blobs 复核通过，policy/restoration output 均为 false；
+
+- `results/restoration_v2_processor_audit/`：尚未运行；其 formal summary、exact processor grids/tokens 与
+  source hashes 是关闭 dependency 8、物化 readiness manifest 之前的最后一项 pre-output evidence；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；

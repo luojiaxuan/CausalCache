@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: restoration v2 dependencies 1--7 passed / execution config pending / policy inference locked
+> Status: restoration v2 dependencies 1--7 passed / screening runtime source ready / processor audit and execution config pending / policy inference locked
 
 ## 团队交接入口
 
@@ -71,8 +71,14 @@ batch-1 对独立 float64 CPU oracle 的最大误差为 `3.05e-8`，batch-2 对�
 zero-stride/NaN/no-host-intermediate-read 均通过；独立 validator 已从 run commit Git blobs 复核 source 与
 全部关键字段。证据见
 [`data/results/restoration_v2_gpu_compute_audit/`](data/results/restoration_v2_gpu_compute_audit/)。这仍只是
-policy-blind compute audit；真实 GUI-Owl runtime smoke、execution config 与 readiness validator 尚未闭合，
-所以 dependency 8 仍 pending，v2 policy output 仍 locked。
+policy-blind compute audit。真实输入执行底座现已实现：confirm-safe loader 只暴露
+label-train/development 的 45 states / 90 images；processor-only audit 会在不实例化 model weights、forward
+或 generate 的前提下验证真实 `AutoProcessor` 的 1-image、5-image、nested batch-2、token boundary 与 exact
+pixel target；readiness validator 必须同时复核 GPU audit、processor audit、全部 source Git blobs、clean
+pushed `main` 和 `CONFIRM_LOCKED`，才返回 `SCREENING_ALLOWED`。production runner 随后先完成 90-prompt
+shape sweep，再允许首个 policy output，并以 attempt marker 禁止崩溃后的 hidden retry。上述 source 已通过
+本地 tests，但正式 processor audit、execution config/readiness manifest 尚未 materialize，所以 dependency 8
+仍 pending，v2 policy output 仍 locked。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
@@ -362,11 +368,11 @@ $$
 - [x] 完成 OCR identity、synthetic/real-screen golden 与 immutable HF model/dataset artifact；
 - [x] 完成 baseline formulas、policy-vision extractor 与 source hashes；
 - [x] 完成完整 derived artifact、immutable HF revision 与 fresh-download replay；
-- [ ] 冻结 execution config 与 coalition microbatch；
+- [ ] 完成真实 processor audit，并冻结 execution config/readiness manifest；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
-- [ ] 在已接入的真实轨迹上实现 teacher-forced policy distance；
+- [x] 在已接入的真实轨迹上实现 teacher-forced policy distance 与固定 45-state substrate runner；
 - [ ] 构造 matched-NLL memory pairs，验证关键假设；
 - [ ] 训练 query-time memory gate；
 - [ ] 完成 AndroidWorld closed-loop evaluation；
@@ -446,7 +452,7 @@ $$
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 dependencies 1--7 已通过，包括完整 derived HF artifact。execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 dependencies 1--7 已通过，包括完整 derived HF artifact。screening loader、真实 processor audit、readiness validator 与 45-state runner source 已实现并通过本地测试；正式 processor evidence 和 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 

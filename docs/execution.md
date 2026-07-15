@@ -170,6 +170,61 @@ runner/compute modules，而从 run commit Git blobs 重新验证 source 与关�
 runtime smoke 与引用全部 source/identity 的 execution config/readiness validator 提交、push 前，第 8 项仍
 为 pending。
 
+### Restoration v2 real processor 与 screening CLI 顺序
+
+下一步先从 clean pushed commit 运行 `scripts.audit_gui_owl_v2_processor`。该命令是 CPU processor audit，
+不会实例化 model weights 或调用 forward/generate，因此不是 v2 policy output；但会读取完整 model snapshot
+做 SHA，并 import pinned Transformers modules 复核 source。正式命令必须显式传 model/cache、Git、host、
+container 与 exclusive output path：
+
+```bash
+cd /data/worktrees/<clean-causalcache-commit>/code
+python3 -m scripts.audit_gui_owl_v2_processor \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --expected-snapshot-manifest configs/gui_owl_1_5_8b_snapshot.json \
+  --output-summary /data/tmp/restoration-v2-processor-audit/summary.json \
+  --repository-root .. \
+  --run-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id <FULL_64_HEX_CONTAINER_ID> \
+  --container-image-digest sha256:<FULL_IMAGE_DIGEST>
+```
+
+summary 必须证明真实 `AutoProcessor` 的 1-image、5-image、nested batch-2、no-padding、token boundary、
+pixel target、tensor dtype/shape 与实际 visual grid；顶层与 nested flags 都必须声明只调用
+`AutoProcessor.from_pretrained`、model weights 未 materialize、policy forward/generate/output 与 restoration
+output 均为 false。随后把轻量 summary commit/push，再用其 exact SHA 和实际 geometry 生成 execution config。
+
+readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
+运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived
+artifact/selection witness validation → runtime import/model load → 全部 90 prompts processor-only shape sweep →
+首个 policy output。任一前置失败都不得触发后续阶段。正式 screening 参数全部显式传入：
+
+```bash
+cd /data/worktrees/<clean-readiness-commit>/code
+python3 -m scripts.run_restoration_v2_substrate_screening \
+  --repository-root .. \
+  --execution-config code/configs/restoration_v2_execution_hyper00_v1.json \
+  --readiness-manifest data/manifests/restoration_v2_readiness.json \
+  --derived-artifact-root /data/artifacts/<immutable-derived-materialization> \
+  --scientific-config code/configs/causalcache_restoration_v2.json \
+  --selection-manifest data/manifests/restoration_v2_selection.json \
+  --ocr-backend-config code/configs/restoration_v2_ocr_backend.json \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --device cuda:0 \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id <FULL_64_HEX_CONTAINER_ID> \
+  --container-image-digest sha256:<FULL_IMAGE_DIGEST> \
+  --output-dir /data/tmp/restoration-v2-substrate-screening
+```
+
+每个 state 的 attempt marker 在首次 policy call 前 exclusive-create。`--resume` 只允许复用已有 terminal
+record；若 marker 存在但 terminal record 不存在，必须将该 run 视为 interrupted/invalid，禁止 hidden retry、
+top-up 或替换 state。production security contract 以该 CLI 为准；测试中的 dependency-injection hooks 不能
+作为正式入口。
+
 2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
 `data/results/restoration_v2_constructor_preflight/`。冻结 interface manifest 保留 run 前 `pending`，实际
 状态由该 result summary 更新。

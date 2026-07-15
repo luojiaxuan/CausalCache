@@ -140,6 +140,21 @@ blobs 独立复核 source hashes、standard JSON、provenance 与全部数值/�
 `data/results/restoration_v2_gpu_compute_audit/`。这不等于真实 model runtime pass，也不关闭 execution
 config；必须等 dependency-8 readiness validator 一并闭合后才能生成 v2 policy output。
 
+`causalcache.data.restoration_v2_screening` 是 fail-closed screening view。它先调用现有 derived artifact 与
+selection validators，再独立读取 canonical trajectory JSONL 和 regular-file-only USTAR，逐条绑定 manifest/
+selection/image SHA；返回值只含 label-train/development 的 15 trajectories、45 states、90 images，confirm
+role 无 API 可寻址。`scripts.audit_gui_owl_v2_processor` 只加载真实 pinned `AutoProcessor`，检查 deterministic
+portrait/landscape、token boundaries、1/5-image 与 nested batch-2 的 exact tensor/grid/dtype accounting；权重
+文件会做 SHA，但不 materialize model tensors，不 forward/generate。
+
+`scripts.validate_restoration_v2_readiness` 是正式 policy import 前唯一授权入口。它固定 dependency-8 evidence
+为 GPU summary + GPU independent validation + real processor summary，重算 processor run commit 与最终
+implementation commit 的 Git blobs，并要求 clean `HEAD == origin/main`、exact 14-role source inventory、
+`SCREENING_ALLOWED` 与 `CONFIRM_LOCKED`。`scripts.run_restoration_v2_substrate_screening` 只能在该授权后 dynamic
+import runtime；随后先完成全部 90 prompts 的 processor-only context sweep，再执行固定 45-state denominator。
+每 state 写 no-retry attempt marker，保留 parse-failure raw output；OOM、contract/shape/model/kernel error 是
+fatal invalid，只有 parse、repeat-action mismatch 与 non-finite distance 进入 scientific substrate gate。
+
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，
 并只按 frozen config 输出 `INVALID`、`NO_GO_DIAGNOSTIC`、`INCONCLUSIVE_NEGATIVE` 或

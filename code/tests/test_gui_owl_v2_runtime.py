@@ -13,6 +13,7 @@ from causalcache.policy.gui_owl_v2 import (
 from causalcache.policy.gui_owl_v2_runtime import (
     FROZEN_GUI_OWL_V2_MAX_NEW_TOKENS,
     GUI_OWL_V2_ASSISTANT_GENERATION_PREFIX,
+    GUIOwlV2GenerationParseError,
     GUIOwlV2Runtime,
     build_gui_owl_v2_teacher_tokens,
     gui_owl_v2_teacher_layout,
@@ -519,6 +520,16 @@ class GUIOwlV2RuntimeFakeModelTest(unittest.TestCase):
             },
         )
 
+    def test_generation_parse_failure_preserves_raw_output_and_metadata(self) -> None:
+        runtime = _fake_runtime()
+        raw_output = "Action: malformed\n<tool_call>not-json</tool_call>"
+        runtime.processor.batch_decode = lambda values, **kwargs: [raw_output]
+        with self.assertRaises(GUIOwlV2GenerationParseError) as caught:
+            runtime.generate_native_action(_native_messages("current"))
+        self.assertEqual(caught.exception.output_text, raw_output)
+        self.assertEqual(caught.exception.metadata["do_sample"], False)
+        self.assertEqual(caught.exception.parse_error_type, "ValueError")
+
     def test_shape_preparation_does_not_execute_policy_forward(self) -> None:
         runtime = _fake_runtime()
         shape = runtime.prepare_native_message_shape(_native_messages("current"))
@@ -528,6 +539,16 @@ class GUIOwlV2RuntimeFakeModelTest(unittest.TestCase):
         self.assertIs(shape["policy_forward_executed"], False)
         self.assertEqual(runtime.model.forward_calls, [])
         self.assertEqual(runtime.model.generate_calls, [])
+
+    def test_context_limit_comes_from_verified_text_config(self) -> None:
+        runtime = _fake_runtime()
+        runtime.model.config = types.SimpleNamespace(
+            text_config=types.SimpleNamespace(max_position_embeddings=32_768)
+        )
+        self.assertEqual(runtime.maximum_context_tokens(), 32_768)
+        runtime.model.config.text_config.max_position_embeddings = None
+        with self.assertRaisesRegex(ValueError, "max_position_embeddings"):
+            runtime.maximum_context_tokens()
 
 
 if __name__ == "__main__":

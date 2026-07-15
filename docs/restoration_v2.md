@@ -209,8 +209,9 @@ stability failure，输出 `INCONCLUSIVE_V2`。contract/runtime 错误为 `INVAL
 
 当前 dependencies 1--7 已 passed；第 8 项仍 pending，因此 policy inference 继续 locked。
 
-GPU KL、deterministic microbatch、GUI-Owl v2 runtime 与 synthetic CUDA audit runner 的 source 已实现并
-完成本地 source/unit validation。正式 KL 路径把 numeric predicates 留在同一 CUDA device，invalid example
+GPU KL、deterministic microbatch、GUI-Owl v2 runtime、synthetic CUDA audit、real processor audit、
+readiness validator、confirm-safe screening loader 与固定 45-state runner 的 source 已实现并完成本地
+source/unit validation。正式 KL 路径把 numeric predicates 留在同一 CUDA device，invalid example
 只映射为 `NaN` final distance；primitive 不读取 validation scalar、不传输 full tensor，调用方只读取最终
 distance scalar 并对 nonfinite fail closed。microbatch 固定为 2，按 exact image-count/sequence-length
 分组且禁止自动 OOM fallback。
@@ -219,9 +220,21 @@ Hyper00 单张 H200 policy-blind formal CUDA audit 已从 clean pushed commit �
 commit 的 Git blobs 复核三份 source 与全部数值、provenance、NaN、host-read 和 planner 字段；证据见
 [`../data/results/restoration_v2_gpu_compute_audit/`](../data/results/restoration_v2_gpu_compute_audit/)。
 
-这仍不等于第 8 项 passed：尚未完成真实 GUI-Owl processor/model runtime smoke，也尚未把
-runtime/audit/validator source hashes、runtime/container/model/data identities 与 microbatch size 写入完成态
-execution config/readiness validator。因此 screening 仍 locked。
+processor audit 只允许 `AutoProcessor.from_pretrained`：完整权重文件可以逐 byte 做 SHA，但不得实例化 model
+weights、执行 forward/generate 或生成 policy/restoration output。readiness validator 必须从 processor run
+commit 的 Git blobs 重算 source SHA，同时绑定历史 GPU audit、真实 processor summary、固定 14-role source
+inventory、runtime/container/model/data identity 与 microbatch。它只解锁 screening roles，并保持
+`v2_confirm_primary` 为 `CONFIRM_LOCKED`。
+
+production runner 必须先完成 45×2 个真实 prompt 的 processor-only shape sweep；任何
+`sequence_length + 256` 超出 verified model context 的状态在首个 policy forward 前判
+`INVALID_BEFORE_POLICY_FORWARD`。每个 state 在首个 policy call 前写 no-retry attempt marker；存在 marker
+但无 terminal record 的 interrupted state 不得 resume 重跑。parse failure、repeat canonical-action mismatch
+和 non-finite distance 属于固定分母内的合法 substrate failures；prompt/data/shape/model-forward/KL-kernel/OOM
+属于 invalid run，不能输出科学 `NO_GO`。
+
+这些 source guard 仍不等于第 8 项 passed：正式 real processor audit summary、execution config 与 readiness
+manifest 尚未 materialize。因此 screening 仍 locked。
 
 验证命令：
 
