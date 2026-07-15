@@ -854,6 +854,23 @@ config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy ou
   policy、不使用 GPU，也没有生成 v2 policy/restoration output。Hyper00 CUDA audit、实际
   runtime 与 execution config 仍 pending，因此 dependency 8 未通过。
 
+### 2026-07-15：GUI-Owl v2 runtime 与 CUDA audit runner 源码前置
+
+- 新增 `causalcache.policy.gui_owl_v2_runtime`：完整验证 pinned model snapshot 与 Transformers source，
+  固定单卡 BF16、每图 target 2560 effective visual tokens 并记录 actual grid/tokens、native assistant
+  prefix/fixed carrier/tool-call action span；batch-1/2 teacher forcing 必须共享同一 decision state 的同一个
+  canonical reference action，并只返回 GPU BF16 logits；native generation 固定 deterministic kwargs 并
+  strict parse；
+- GPU KL 删除 validation path 的四次 `.item()`：finite/normalization/nonnegative/final-finite predicates
+  留在 device，invalid example 映射为最终 `NaN` distance；primitive audit 固定
+  `validation_scalar_host_reads=0`、`full_tensor_host_transfers=0`；
+- 新增 `scripts.audit_restoration_v2_gpu_compute`：从 clean exact Git checkout 绑定显式
+  host/GPU/container/runtime identity，并审计 batch-1/float64 CPU、batch-2/two-batch-1、
+  logits/log-probs、zero-stride shared reference、invalid-to-NaN 和 single-state microbatch 2/no-OOM；
+- Mac 全量 256 tests passed，10 个 optional runtime tests skipped。本步骤未使用 GPU、未实例化或加载
+  GUI-Owl，也未生成 v2 policy/restoration output。Hyper00 formal CUDA audit、execution config 与
+  readiness validator 仍 pending，因此 dependency 8 未通过。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -901,16 +918,18 @@ config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy ou
    model revision、6-image real-screen golden、HF dataset immutable re-download 与完成态 manifest passed；
 6. baseline specification/source hashes：passed，见 `data/manifests/restoration_v2_baselines.json`；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
-8. 引用 scientific-config SHA 的 execution config：pending。GPU KL/microbatch 纯源码前置已通过
-   Mac 单测，但 Hyper00 CUDA audit、runtime source identity 与完成态 config/validator 尚未闭合。
+8. 引用 scientific-config SHA 的 execution config：pending。GPU KL/microbatch/runtime/audit source 已通过
+   Mac 单测，但 Hyper00 formal CUDA audit、完成态 config/source-hash manifest 与 validator 尚未闭合。
 
-GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch 是后续 engineering 实现项；它们
-不能替代上述任何 pre-output dependency，且 microbatch 必须进入第 8 项 execution config。
+GPU-side scalar KL、GUI-Owl runtime 与 coalition microbatch 已 implementation-ready；formal CUDA audit 与
+config closure 仍 pending。它们不能替代上述任何 pre-output dependency，且 microbatch 必须进入第 8 项
+execution config。
 
 ## 下一步
 
-逐步 push：下一步先在 Hyper00 对 GPU KL 做 batch-1/CPU 与 batch-2/two-batch-1 等价性审计，
-再冻结包含全部 identity/source hashes 与 coalition microbatch 的 execution config。
+逐步 push：先 push 本 source milestone，再从 clean pushed checkout 在 Hyper00 完成 formal CUDA audit；
+commit/push audit summary 后冻结包含全部 identity/source hashes 与 coalition microbatch 的 execution config
+及 readiness validator。
 第 8 项闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact

@@ -39,8 +39,9 @@ class FullVocabularyMeanKLAudit:
     reduction: str
     log_normalization_atol: float
     negative_kl_atol: float
-    maximum_log_normalization_error: float
-    minimum_per_token_kl_before_clamp: float
+    numeric_validation: str
+    invalid_numeric_output: str
+    device_validation_category_count: int
     validation_scalar_host_reads: int
     full_tensor_host_transfers: int
 
@@ -130,8 +131,10 @@ def gpu_resident_full_vocab_mean_kl(
     view is accepted without a reference ``repeat`` or ``contiguous`` copy and is
     recorded in the audit metadata.
 
-    Validation performs four explicit scalar device-to-host reads. No full input,
-    intermediate, per-token, or output tensor is copied to CPU by this function.
+    Numeric validation remains on device. Invalid examples are represented by a
+    non-finite final distance, so the caller can fail closed when it transfers
+    that distance scalar without separately reading validation values. No input,
+    intermediate, per-token, validation, or output tensor is copied to CPU here.
     """
 
     torch = _torch_module()
@@ -155,13 +158,11 @@ def gpu_resident_full_vocab_mean_kl(
         if zero_copy_batch_expansion
         else reference_log_probs
     )
-    input_finite = torch.isfinite(reference_for_compute).all() & torch.isfinite(
-        candidate
-    ).all()
-    if not bool(input_finite.item()):
-        raise ValueError("restoration KL inputs contain non-finite values")
-
     with torch.inference_mode():
+        reference_input_finite = torch.isfinite(reference_for_compute).all(
+            dim=(-2, -1)
+        )
+        candidate_input_finite = torch.isfinite(candidate).all(dim=(-2, -1))
         if representation == "logits":
             candidate_log_probs = torch.log_softmax(
                 candidate.to(dtype=torch.float32),
@@ -172,21 +173,10 @@ def gpu_resident_full_vocab_mean_kl(
 
         reference_normalization_error = torch.abs(
             torch.logsumexp(reference_for_compute, dim=-1)
-        ).amax()
+        ).amax(dim=-1)
         candidate_normalization_error = torch.abs(
             torch.logsumexp(candidate_log_probs, dim=-1)
-        ).amax()
-        maximum_normalization_error = float(
-            torch.maximum(
-                reference_normalization_error,
-                candidate_normalization_error,
-            ).item()
-        )
-        if maximum_normalization_error > LOG_NORMALIZATION_ATOL:
-            raise ValueError(
-                "restoration KL log-probabilities are not normalized within "
-                f"atol={LOG_NORMALIZATION_ATOL}"
-            )
+        ).amax(dim=-1)
 
         per_token_kl = torch.sum(
             reference_for_compute.exp()
@@ -194,17 +184,24 @@ def gpu_resident_full_vocab_mean_kl(
             dim=-1,
             dtype=torch.float32,
         )
-        minimum_per_token_kl = float(per_token_kl.amin().item())
-        if minimum_per_token_kl < -NEGATIVE_KL_ATOL:
-            raise ValueError(
-                "restoration KL is materially negative; inputs may not be log-probabilities"
-            )
-        per_example_mean_kl = per_token_kl.clamp_min(0.0).mean(
+        minimum_per_token_kl = per_token_kl.amin(dim=-1)
+        uncloaked_mean_kl = per_token_kl.clamp_min(0.0).mean(
             dim=-1,
             dtype=torch.float32,
         )
-        if not bool(torch.isfinite(per_example_mean_kl).all().item()):
-            raise ValueError("restoration KL output contains non-finite values")
+        numeric_validity = (
+            reference_input_finite
+            & candidate_input_finite
+            & (reference_normalization_error <= LOG_NORMALIZATION_ATOL)
+            & (candidate_normalization_error <= LOG_NORMALIZATION_ATOL)
+            & (minimum_per_token_kl >= -NEGATIVE_KL_ATOL)
+            & torch.isfinite(uncloaked_mean_kl)
+        )
+        per_example_mean_kl = torch.where(
+            numeric_validity,
+            uncloaked_mean_kl,
+            torch.full_like(uncloaked_mean_kl, math.nan),
+        )
 
     if (
         per_example_mean_kl.shape != (batch_size,)
@@ -230,9 +227,10 @@ def gpu_resident_full_vocab_mean_kl(
         reduction="full_vocabulary_sum_then_distance_token_mean_per_example",
         log_normalization_atol=LOG_NORMALIZATION_ATOL,
         negative_kl_atol=NEGATIVE_KL_ATOL,
-        maximum_log_normalization_error=maximum_normalization_error,
-        minimum_per_token_kl_before_clamp=minimum_per_token_kl,
-        validation_scalar_host_reads=4,
+        numeric_validation="gpu_resident_per_example_predicates",
+        invalid_numeric_output="nan_final_distance",
+        device_validation_category_count=4,
+        validation_scalar_host_reads=0,
         full_tensor_host_transfers=0,
     )
     return FullVocabularyMeanKLResult(

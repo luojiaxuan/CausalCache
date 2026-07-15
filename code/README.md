@@ -109,15 +109,33 @@ forcing 必须把二者与 action prefix 一起扩展：mask 填 1，新 action 
 restoration v2 不使用上述把 full-vocabulary tensor 搬到 CPU 的历史 diagnostic 路径。
 `causalcache.restoration_v2_gpu_kl` 只接受同一 CUDA device 上的 `[B,T,V]` tensor：reference
 是 normalized FP32 log-probabilities，candidate 是 BF16 logits 或已归一化的 FP32 log-probabilities；
-FP32 reduction 与 `[B]` 输出都保持 GPU-resident。正式 batch 可用
+FP32 reduction 与 `[B]` 输出都保持 GPU-resident。finite input、normalization、nonnegative KL 与
+finite output predicates 也在 device 上计算；invalid example 只变成 `NaN` final distance。primitive
+内部不读取 validation scalar，也不传输 full tensor；调用方只读取最终 distance scalar，并在 nonfinite
+时 fail closed。Python audit metadata 是静态记录，不是 device tensor value transfer。正式 batch 可用
 `reference.expand(B,-1,-1)` 零拷贝复用 reference。独立 float64 CPU oracle 只能用于审计，
 等价容差固定为 `atol=1e-6, rtol=1e-5`。
 
 `causalcache.restoration_v2_batching` 使用显式 `microbatch_size=2`，按
 `(image_count, sequence_length)` 精确分组、组键升序执行、组内按唯一 `input_index`
 排序，并在 JSON-ready audit 中明确记录 `automatic_oom_fallback=false`。这两个模块只冻结
-compute/planning semantics；必须在 Hyper00 CUDA audit 和 execution-config validator 通过后才能生成
-v2 policy output。
+compute/planning semantics。
+
+`causalcache.policy.gui_owl_v2_runtime` 验证完整 pinned model snapshot 与 Transformers source，固定单张
+CUDA device、BF16 weights，以及每图 target 2560 effective visual tokens 对应的 exact
+`min_pixels=max_pixels`；actual grid/tokens 仍逐图记录。
+processor native assistant prefix 后追加 exact fixed carrier；carrier/tool-call boundary 若发生 tokenizer
+merge 就 fail closed，distance 只覆盖 canonical `<tool_call>` token span。teacher forcing 仅接受 batch 1/2、
+同一 decision state 的同一个 canonical reference action、equal image count 与 exact sequence shape；
+已知 prompt-aligned fields 才能被扩展，并通过
+`logits_to_keep=distance token count` 返回 GPU BF16 `[B,T,V]`。native generation 固定 batch 1、
+`do_sample=false`、`max_new_tokens=256` 与 strict parser。
+
+`scripts.audit_restoration_v2_gpu_compute` 是 policy-blind、synthetic-only CUDA runner。它要求 clean exact
+Git commit、显式 CUDA device 及 host/container provenance，审计 batch 1 对独立 float64 CPU oracle、batch 2
+对两次 batch 1、logits 对 pre-normalized log-probs、zero-stride reference、invalid-to-NaN，以及
+single-decision-state microbatch 2/no-OOM 语义。CLI source 已实现，但尚未产生 Hyper00 formal pass；必须等
+该 summary 与 execution-config validator 一并闭合后才能生成 v2 policy output。
 
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，

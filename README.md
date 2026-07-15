@@ -55,15 +55,20 @@ dependency 1 已闭合，且三次均未加载 policy 或生成 restoration outp
 [`data/results/restoration_v2_derived_artifact/`](data/results/restoration_v2_derived_artifact/)；当前只剩
 execution config 阻止 policy inference。
 
-dependency 8 的纯实现前置现已就绪：
+dependency 8 的 source implementation 前置现已就绪：
 [`code/causalcache/restoration_v2_gpu_kl.py`](code/causalcache/restoration_v2_gpu_kl.py) 将 BF16
 candidate logits 的 FP32 `log_softmax`、full-vocabulary KL 与 action-token mean 留在同一 CUDA
-device，只返回每个 coalition 的 device scalar；
+device；finite/normalization/nonnegative/final-finite predicates 也全部留在 device，非法数值只映射为最终
+`NaN` distance，primitive 记录 `validation_scalar_host_reads=0` 与
+`full_tensor_host_transfers=0`；
 [`code/causalcache/restoration_v2_batching.py`](code/causalcache/restoration_v2_batching.py) 固定
 microbatch size 2，按 exact `(image_count, sequence_length)` 分组且禁止自动 OOM
-fallback。本地 233 tests passed（10 个 optional runtime skips）。这只是 CPU/source validation；Hyper00
-CUDA equivalence audit、实际 runtime source identity 与 execution config 尚未冻结，所以仍不允许
-v2 policy output。
+fallback；[`code/causalcache/policy/gui_owl_v2_runtime.py`](code/causalcache/policy/gui_owl_v2_runtime.py)
+实现 pinned snapshot/Transformers source 校验、单卡 BF16、每图 target 2560 effective visual tokens、native
+batch-1 generation，以及只在 GPU 返回 tool-call distance span logits 的 batch-1/2 teacher forcing。
+synthetic-only CUDA audit CLI 也已实现。本地 256 tests passed（10 个 optional runtime skips）。这只是
+source/local validation；尚未产生 Hyper00 formal CUDA summary，也未冻结 execution config/validator，
+所以 dependency 8 仍 pending，v2 policy output 仍 locked。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的

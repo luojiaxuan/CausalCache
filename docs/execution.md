@@ -140,7 +140,12 @@ derived artifact 已由 2026-07-15 formal runs 闭合；当前只剩 execution c
 的 CPU full-tensor 返回路径。reference 必须作为 normalized FP32 `[1,T,V]` tensor 留在选定的
 CUDA device，对 batch 使用零拷贝 `.expand(B,-1,-1)`；candidate BF16 logits 在 GPU 上转 FP32
 `log_softmax`，随后做 vocabulary sum 和 distance-token mean。production 函数返回 GPU 上的
-FP32 `[B]` scalar tensor，调用方只能把最终 distance 和小型 audit metadata 回传 CPU。
+FP32 `[B]` scalar tensor。finite input、normalization、nonnegative per-token KL 与 finite output predicates
+全部留在 GPU；invalid example 变为 `NaN` final distance。KL primitive 不做 validation scalar read 或
+full-tensor host transfer；调用方只读取最终 distance scalar(s)，遇到 nonfinite 必须判为 invalid。Python
+生成的小型 static audit metadata 可序列化，但不属于 device tensor value transfer。runtime 可为 shape/
+accounting 搬运 `image_grid_thw` 等小型 metadata，也可解码生成 token；reference、candidate、full logits 与
+intermediate KL tensor 不得搬到 CPU。
 
 coalition planner 只接受显式 `microbatch_size=2`，按 exact `(image_count, sequence_length)`
 分组，组内按 frozen `input_index` 排序。任何自动 OOM fallback、按运行结果调 batch，或把
@@ -149,10 +154,15 @@ coalition planner 只接受显式 `microbatch_size=2`，按 exact `(image_count,
 - batch 1 GPU KL 对独立 float64 CPU oracle；
 - batch 2 对两次 batch 1；
 - cached reference 的 zero-stride expansion 没有 materialized copy；
+- invalid numeric input 只产生 `NaN` final distance，kernel validation host read 为 0；
 - `atol=1e-6, rtol=1e-5`、finite output、FP32 output 和同 device 约束全部通过。
 
-这些 source 已有 Mac CPU/unit-test 验证，但本段不是 GPU pass 记录。在 Hyper00 CUDA
-summary 与引用其 source hashes 的 execution config 提交、push 前，第 8 项仍为 pending。
+GUI-Owl v2 runtime 与 synthetic CUDA audit runner source 已有 Mac unit-test 验证，但本段不是 model
+runtime 或 GPU pass 记录。formal audit 必须在 GPU preflight 后从 pushed clean commit 运行，显式传入
+`--device`、`--run-git-commit`、container image digest/id、host alias/hostname 与不存在的 exclusive output
+path。该 runner 只使用 synthetic logits，summary 必须保持 `policy_output_generated=false` 与
+`restoration_output_generated=false`。在 Hyper00 CUDA summary 与引用其 source hashes 的 execution config
+提交、push 前，第 8 项仍为 pending。
 
 2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
 `data/results/restoration_v2_constructor_preflight/`。冻结 interface manifest 保留 run 前 `pending`，实际

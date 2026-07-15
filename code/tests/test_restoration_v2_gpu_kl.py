@@ -168,8 +168,11 @@ class RestorationV2GPUKLTest(unittest.TestCase):
         self.assertEqual(audit["reference_input_dtype"], REFERENCE_DTYPE)
         self.assertEqual(audit["candidate_input_dtype"], CANDIDATE_LOGITS_DTYPE)
         self.assertEqual(audit["compute_dtype"], COMPUTE_DTYPE)
-        self.assertEqual(audit["validation_scalar_host_reads"], 4)
+        self.assertEqual(audit["validation_scalar_host_reads"], 0)
         self.assertEqual(audit["full_tensor_host_transfers"], 0)
+        self.assertEqual(audit["numeric_validation"], "gpu_resident_per_example_predicates")
+        self.assertEqual(audit["invalid_numeric_output"], "nan_final_distance")
+        self.assertEqual(audit["device_validation_category_count"], 4)
         self.assertFalse(audit["reference_zero_copy_batch_expansion"])
         self.assertEqual(audit["reference_compute_batch_size"], 2)
 
@@ -208,24 +211,30 @@ class RestorationV2GPUKLTest(unittest.TestCase):
             COMPUTE_DTYPE,
         )
 
-        with self.assertRaisesRegex(ValueError, "non-finite"):
-            gpu_resident_full_vocab_mean_kl(
-                reference,
-                candidate_logits.clone().index_fill_(2, torch.tensor([0], device=device), math.inf),
-                candidate_representation="logits",
-            )
+        invalid_nonfinite = gpu_resident_full_vocab_mean_kl(
+            reference,
+            candidate_logits.clone().index_fill_(
+                2,
+                torch.tensor([0], device=device),
+                math.inf,
+            ),
+            candidate_representation="logits",
+        )
+        self.assertFalse(torch.isfinite(invalid_nonfinite.per_example_mean_kl).all())
         with self.assertRaisesRegex(TypeError, "candidate dtype drifted"):
             gpu_resident_full_vocab_mean_kl(
                 reference,
                 candidate_logits.float(),
                 candidate_representation="logits",
             )
-        with self.assertRaisesRegex(ValueError, "not normalized"):
-            gpu_resident_full_vocab_mean_kl(
-                torch.zeros_like(reference),
-                candidate_logits,
-                candidate_representation="logits",
-            )
+        invalid_normalization = gpu_resident_full_vocab_mean_kl(
+            torch.zeros_like(reference),
+            candidate_logits,
+            candidate_representation="logits",
+        )
+        self.assertFalse(
+            torch.isfinite(invalid_normalization.per_example_mean_kl).all()
+        )
         if torch.cuda.device_count() >= 2:
             with self.assertRaisesRegex(ValueError, "same CUDA device"):
                 gpu_resident_full_vocab_mean_kl(
