@@ -1189,6 +1189,17 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 输出前验证为 v2.1 63/63、全仓 391 passed（10 个 optional-dependency skips）；全部既有 contract/interface/
   executor/selection/OCR/baseline validators 与 AAAI LaTeX build 通过。processor audit 与 pilot 尚未运行。
 
+### 2026-07-15：v2.1 processor preflight 首次启动在 preprocessing 前 fail closed
+
+- source `main@f689025929e608dcdd10d35b910cef0b2f2424e1` 已 clean push，并在 Hyper00/container
+  `69f2b174...94df` 完成 host/disk/path preflight；
+- 第一次 CPU-only CLI 把 `--derived-artifact-root` 错传为 repo 内层 `derived/restoration-v2-v1`。artifact loader
+  在调用 `AutoProcessor` 前发现缺少根层 `.gitattributes`/`README.md`，因此 fail closed；
+- `formal-result.json` 不存在，model weights、policy forward/generation、restoration 与 confirm processor input 均未
+  发生。这不是 scientific result，也不消耗 fixed-15 policy attempt；
+- 正确 root 是 `/data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload`。先修正并 push 正式 argv，
+  再从新的 clean `main` 重启 processor-only audit。
+
 ## 下一步
 
 下一步从 clean pushed v2.1 source commit 在 Hyper00 运行 90-prompt processor-only preflight；它必须在

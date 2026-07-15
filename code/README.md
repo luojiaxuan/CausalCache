@@ -94,7 +94,7 @@ Hyper00 产生正式 evidence。
 cd /data/CausalCache/code
 python3 -m scripts.audit_gui_owl_v2_1_processor \
   --repository-root /data/CausalCache \
-  --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload/derived/restoration-v2-v1 \
+  --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload \
   --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
   --snapshot-manifest /data/CausalCache/code/configs/gui_owl_1_5_8b_snapshot.json \
   --v2-config /data/CausalCache/code/configs/causalcache_restoration_v2.json \
@@ -141,7 +141,7 @@ python3 -m scripts.run_restoration_v2_1_interface_pilot \
   --repository-root /data/CausalCache \
   --contract /data/CausalCache/code/configs/causalcache_restoration_v2_1_pilot.json \
   --processor-preflight /data/tmp/causalcache-restoration-v2-1-processor-preflight-hf-redownload/processor-preflight-v1/formal-result.json \
-  --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload/derived/restoration-v2-v1 \
+  --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload \
   --scientific-config /data/CausalCache/code/configs/causalcache_restoration_v2.json \
   --selection-manifest /data/CausalCache/data/manifests/restoration_v2_selection.json \
   --ocr-backend-config /data/CausalCache/code/configs/restoration_v2_ocr_backend.json \
