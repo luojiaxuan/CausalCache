@@ -430,6 +430,18 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - outcome reducer 要求输入 states 与 config 完全一致，并保证 positive evidence 来自同一个
   memory-sensitive state；非法、重复或非 finite 输入统一输出 `INVALID`。
 
+### 2026-07-14：go/no-go fail-closed runner
+
+- runner 已闭合 full-history executable validation、canonical action tokenization、full/repeat reference、
+  36 个 exhaustive mixed-fidelity coalition forwards、实际 visual-token 复核、deterministic baselines、exact
+  与 sampled restoration selectors、selected-coalition generation 和最终 outcome reducer；
+- attribution 内部把 manifest 的 1-based step ids 显式映射到 estimator 的 contiguous 0-based ids，再映射
+  回 result；$K\in\{4,8,16\}$、5 seeds 只读取同一 KL cache，报告 standard error、Spearman、Jaccard 与
+  exact-selector utility ratio；
+- CLI 要求 clean full Git SHA、dataset SHA、model snapshot repo/revision 与 container image digest，记录完整
+  argv、host/GPU、Python/PyTorch/Transformers、时间、latency 与 peak memory；成功不落 full logits，失败原子
+  写入一个 `failure.json`；90 项 CPU tests 与 contract validation 通过，尚未启动正式 GPU forward。
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；

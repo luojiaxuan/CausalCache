@@ -67,6 +67,24 @@ histogram similarity，在完整 feasible-coalition distance table 上确定 rec
 并只按 frozen config 输出 `INVALID`、`NO_GO_DIAGNOSTIC`、`INCONCLUSIVE_NEGATIVE` 或
 `INCONCLUSIVE_POSITIVE`。random 是 maximal feasible coalitions 的解析期望，不引入隐藏 seed。
 
+冻结 diagnostic 通过 fail-closed CLI 执行：
+
+```bash
+python3 -m scripts.run_go_no_go_diagnostic \
+  --config code/configs/go_no_go_diagnostic_v1.json \
+  --dataset-tar /data/artifacts/guiodyssey-pilot-00000.tar \
+  --model-dir /data/artifacts/models/Qwen3-VL-8B-Instruct \
+  --device cuda:0 \
+  --output-dir /data/experiments/go-no-go-diagnostic-v1 \
+  --run-git-commit <FULL_CLEAN_MAIN_SHA> \
+  --container-image-digest <SHA256_IMAGE_ID>
+```
+
+runner 拒绝 dirty/mismatched Git、dataset SHA、model snapshot、visual accounting 或 full-history
+executable mismatch；异常写单个 `failure.json` 并返回 nonzero。成功只写轻量 `summary.json`，不保存
+full-vocabulary logits。coalition forwards 固定为 36 个 mixed-fidelity inputs、2 个 full references 和 2 个
+repeat-noise probes；selector、random expectation 与 $K$ sweep 都读取同一 distance cache。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash
