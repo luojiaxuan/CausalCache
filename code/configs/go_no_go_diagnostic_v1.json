@@ -39,13 +39,26 @@
   ],
   "intervention": {
     "visual_tokens_per_image": 256,
+    "visual_tokens_per_image_semantics": "processor_target_before_aspect_ratio_rounding",
+    "effective_visual_tokens_per_image": 238,
     "images_per_restored_event": 2,
-    "event_cost_visual_tokens": 512,
+    "event_cost_visual_tokens": 476,
     "current_observation_cost_excluded_as_constant": true,
     "budgets_visual_tokens": [
       512,
       1024
-    ]
+    ],
+    "static_preprocessing_audit": {
+      "performed_before_restoration_forward": true,
+      "source_image_width": 2208,
+      "source_image_height": 1840,
+      "resized_width": 476,
+      "resized_height": 392,
+      "patch_size": 14,
+      "merge_size": 2,
+      "transformers_version": "5.6.0",
+      "effective_token_formula": "(476/14)*(392/14)/(2*2)=238"
+    }
   },
   "distance": {
     "name": "teacher_forced_action_path_full_vocab_kl",

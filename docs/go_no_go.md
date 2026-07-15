@@ -30,8 +30,10 @@ mixed-fidelity rerun、teacher-forced KL 和 oracle ceiling，也可以给出当
 - rejected diagnostic policy
   `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；
 - decision step 4 与 8，不根据 restoration 结果继续筛状态；
-- 每张图 256 effective visual tokens；每个 high-fidelity event 恢复 action 前后两张图，因此成本为
-  512，而不是 256；预算固定为 512 与 1024；
+- processor 参数仍以每图 256 visual tokens 作为 resize target；在任何 restoration forward 前，使用
+  pinned Transformers 5.6.0 对 artifact 中统一的 2208×1840 图像做静态检查，`smart_resize` 实际得到
+  476×392，因此每图 effective cost 为 238、每个 high-fidelity event 的两张图合计 476；预算上限仍
+  固定为 512 与 1024，分别最多容纳 1 与 2 个事件；
 - 对最多两个恢复事件的全部可行 coalition 做 exhaustive rerun。step 4 为 7 个 coalition，step 8 为
   29 个 coalition，加两个 full-history reference，共 38 个 teacher-forced forward；重复 reference
   仅用于估计数值噪声。

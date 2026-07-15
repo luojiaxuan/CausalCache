@@ -392,7 +392,7 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 ### 2026-07-14：go/no-go existence diagnostic 预注册
 
 - 在任何 restoration forward 前冻结 `exploratory_oracle_diagnostic_v1`：Qwen exact revision、旧
-  GUIOdyssey artifact、decision step 4/8、每 event 512 visual tokens、预算 512/1024、full-vocabulary
+  GUIOdyssey artifact、decision step 4/8、预算 512/1024、full-vocabulary
   teacher-forced action-path mean KL、全部可行 coalition、固定 baselines 与四分支判据；
 - 明确这两个 states 是在 2/9 coverage 后观察到的 matched subset，只能产生当前 representation/policy
   stack 的工程结论或硬负信号，禁止训练 gate、替换 primary teacher gate 或输出论文级 `GO`；
@@ -401,6 +401,15 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - compute 改用 Hyper00（Hyper01 有用户任务）：只读审计时 Hyper00 8×H200 均为空、`/data01` 与
   `/data02` 空间充足；正式 GPU forward 前仍须重新运行 10 秒 idle-cleanup preflight，并显式绑定至多
   一张即时空闲 GPU。
+
+### 2026-07-14：pre-forward visual-cost correction
+
+- artifact 的 10 张截图均为 2208×1840；在未运行任何 restoration forward 的前提下，用 pinned
+  Transformers 5.6.0 `smart_resize` 静态核验 256-token resize target，实际尺寸为 476×392；
+- 按 patch 14、merge 2 核算，每张图是 238 effective visual tokens，每个 restored event 的前后两张图
+  成本为 476。原预注册中把 processor target 直接写成 effective cost 512，现已显式纠正；
+- 预算 cap 保持 512/1024 不变，因此可行 coalition 仍分别为最多 1/2 个事件，states、distance、baselines、
+  threshold 与 forward 数量均未改变。正式 runner 还会逐 coalition 对 `image_grid_thw` 做 fail-closed 复核。
 
 ### 2026-07-14：teacher-forced action-path KL runtime
 
