@@ -56,6 +56,12 @@ plan 一致的 checkpoint，并要求 episode 内的 Git commit、model snapshot
 generation、plan 和 server digest 完全一致；非 resume 运行要求空 output directory。命令必须用
 `--run-git-commit` 显式传入 full SHA，runner 会同时校验实际 HEAD 与 clean worktree。
 
+Qwen-family diagnostic 的 teacher-forced 接口由
+`QwenPolicyRuntime.teacher_forced_action_log_probs` 提供：调用方显式传入 canonical action token ids，
+runtime 只拼接 `action[:-1]`，并取 prompt 最后位置开始的 $L$ 个 full-vocabulary logits。输出是 CPU
+float32 log-probabilities；`full_vocab_action_path_kl` 负责逐 token KL 与 mean/sum 聚合。该接口不加入
+generated special tokens，也不把 pathwise KL 描述成完整 sequence-action KL。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash

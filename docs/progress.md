@@ -402,6 +402,15 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
   `/data02` 空间充足；正式 GPU forward 前仍须重新运行 10 秒 idle-cleanup preflight，并显式绑定至多
   一张即时空闲 GPU。
 
+### 2026-07-14：teacher-forced action-path KL runtime
+
+- Qwen runtime 新增 canonical action 无 special-token 编码、严格 causal shift 的
+  `prompt + action[:-1]` teacher forcing，以及 full-vocabulary float32 log-prob 输出；
+- 每次 forward fail-closed 检查单 batch、logits shape、vocabulary boundary 与 finite 值，并记录 prompt/
+  forced token 数、image grid、effective visual tokens、latency 和 peak GPU memory；
+- KL helper 同时返回 per-token、sum 和 mean，拒绝 materially negative 或非 finite 输入；纯 CPU 测试覆盖
+  shift、special-token rejection、self KL 与已知 Bernoulli KL，尚未产生 GPU 实验结果。
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import json
+import math
 import tarfile
 import time
 from collections.abc import Callable, Sequence
@@ -12,6 +13,107 @@ from typing import Any
 
 from causalcache.policy.prompt import parse_policy_action
 from causalcache.schema import ExecutableAction
+
+
+def _validated_token_ids(token_ids: Sequence[int], *, name: str) -> list[int]:
+    result: list[int] = []
+    for token_id in token_ids:
+        if isinstance(token_id, bool) or not isinstance(token_id, int) or token_id < 0:
+            raise ValueError(f"{name} must contain non-negative integer token ids")
+        result.append(token_id)
+    if not result:
+        raise ValueError(f"{name} must not be empty")
+    return result
+
+
+def _teacher_forced_action_layout(
+    prompt_token_ids: Sequence[int],
+    action_token_ids: Sequence[int],
+) -> dict[str, list[int]]:
+    """Describe the causal-LM shift used for teacher-forced action scoring."""
+    prompt_ids = _validated_token_ids(prompt_token_ids, name="prompt_token_ids")
+    action_ids = _validated_token_ids(action_token_ids, name="action_token_ids")
+    model_input_ids = prompt_ids + action_ids[:-1]
+    first_action_logit = len(prompt_ids) - 1
+    return {
+        "model_input_ids": model_input_ids,
+        "action_token_ids": action_ids,
+        "action_logit_positions": list(
+            range(first_action_logit, first_action_logit + len(action_ids))
+        ),
+    }
+
+
+def _sequence_action_path_kl(
+    reference: Sequence[Sequence[float]],
+    candidate: Sequence[Sequence[float]],
+) -> list[float]:
+    reference_rows = [[float(value) for value in row] for row in reference]
+    candidate_rows = [[float(value) for value in row] for row in candidate]
+    if not reference_rows or len(reference_rows) != len(candidate_rows):
+        raise ValueError("reference and candidate must have the same non-empty shape")
+    vocabulary_size = len(reference_rows[0])
+    if vocabulary_size == 0:
+        raise ValueError("action-path log-probabilities need a non-empty vocabulary")
+    for reference_row, candidate_row in zip(reference_rows, candidate_rows, strict=True):
+        if len(reference_row) != vocabulary_size or len(candidate_row) != vocabulary_size:
+            raise ValueError("reference and candidate must have the same rectangular shape")
+        if not all(math.isfinite(value) for value in reference_row + candidate_row):
+            raise ValueError("action-path log-probabilities must be finite")
+    return [
+        sum(
+            math.exp(reference_value) * (reference_value - candidate_value)
+            for reference_value, candidate_value in zip(
+                reference_row,
+                candidate_row,
+                strict=True,
+            )
+        )
+        for reference_row, candidate_row in zip(
+            reference_rows,
+            candidate_rows,
+            strict=True,
+        )
+    ]
+
+
+def full_vocab_action_path_kl(reference: Any, candidate: Any) -> dict[str, Any]:
+    """Compute full-vocabulary KL at every teacher-forced action position."""
+    if hasattr(reference, "detach") or hasattr(candidate, "detach"):
+        try:
+            import torch
+        except ModuleNotFoundError as error:
+            raise RuntimeError("tensor KL computation requires PyTorch") from error
+        if not isinstance(reference, torch.Tensor) or not isinstance(candidate, torch.Tensor):
+            raise TypeError("reference and candidate must use the same tensor representation")
+        if reference.ndim != 2 or candidate.ndim != 2 or reference.shape != candidate.shape:
+            raise ValueError("reference and candidate must have the same rank-2 shape")
+        if reference.shape[0] == 0 or reference.shape[1] == 0:
+            raise ValueError("action-path log-probabilities must have non-empty dimensions")
+        reference_tensor = reference.detach().to(device="cpu", dtype=torch.float32)
+        candidate_tensor = candidate.detach().to(device="cpu", dtype=torch.float32)
+        if not torch.isfinite(reference_tensor).all() or not torch.isfinite(
+            candidate_tensor
+        ).all():
+            raise ValueError("action-path log-probabilities must be finite")
+        per_token_tensor = torch.sum(
+            reference_tensor.exp() * (reference_tensor - candidate_tensor),
+            dim=-1,
+        )
+        per_token = [float(value) for value in per_token_tensor.tolist()]
+    else:
+        per_token = _sequence_action_path_kl(reference, candidate)
+
+    negative_tolerance = 1e-5
+    if min(per_token) < -negative_tolerance:
+        raise ValueError("action-path KL is materially negative; inputs may not be log-probabilities")
+    nonnegative = [max(0.0, value) for value in per_token]
+    total = float(sum(nonnegative))
+    return {
+        "per_token": nonnegative,
+        "sum": total,
+        "mean": total / len(nonnegative),
+    }
 
 
 def visual_patch_factor(model_dir: Path) -> int:
@@ -135,6 +237,136 @@ class QwenPolicyRuntime:
             return_dict=True,
             return_tensors="pt",
         ).to(self.device)
+
+    def tokenize_canonical_action(self, canonical_action: str) -> list[int]:
+        if not isinstance(canonical_action, str) or not canonical_action.strip():
+            raise ValueError("canonical action must be a non-empty string")
+        token_ids = _validated_token_ids(
+            self.processor.tokenizer.encode(
+                canonical_action,
+                add_special_tokens=False,
+            ),
+            name="canonical_action_token_ids",
+        )
+        special_ids = set(
+            int(value) for value in self.processor.tokenizer.all_special_ids
+        )
+        if special_ids.intersection(token_ids):
+            raise ValueError("canonical action must not contain special tokens")
+        return token_ids
+
+    def teacher_forced_action_log_probs(
+        self,
+        messages: list[dict[str, Any]],
+        action_token_ids: Sequence[int],
+    ) -> tuple[Any, dict[str, Any]]:
+        """Return CPU float32 full-vocabulary log probabilities on the action path."""
+        action_ids = _validated_token_ids(
+            action_token_ids,
+            name="action_token_ids",
+        )
+        special_ids = set(
+            int(value) for value in self.processor.tokenizer.all_special_ids
+        )
+        if special_ids.intersection(action_ids):
+            raise ValueError("action_token_ids must not contain special tokens")
+
+        inputs = self._encode(messages)
+        prompt_input_ids = inputs["input_ids"]
+        if prompt_input_ids.ndim != 2 or prompt_input_ids.shape[0] != 1:
+            raise ValueError("teacher forcing requires a single rank-2 prompt input")
+        prompt_ids = [int(value) for value in prompt_input_ids[0].detach().cpu().tolist()]
+        layout = _teacher_forced_action_layout(prompt_ids, action_ids)
+        model_inputs = dict(inputs)
+        forced_prefix = action_ids[:-1]
+        if "attention_mask" in model_inputs:
+            attention_mask = model_inputs["attention_mask"]
+            if attention_mask.shape != prompt_input_ids.shape:
+                raise ValueError("attention_mask must align with prompt input_ids")
+        if forced_prefix:
+            prefix_tensor = self.torch.tensor(
+                [forced_prefix],
+                dtype=prompt_input_ids.dtype,
+                device=prompt_input_ids.device,
+            )
+            model_inputs["input_ids"] = self.torch.cat(
+                [prompt_input_ids, prefix_tensor],
+                dim=1,
+            )
+            if "attention_mask" in model_inputs:
+                attention_mask = model_inputs["attention_mask"]
+                forced_attention = self.torch.ones(
+                    (1, len(forced_prefix)),
+                    dtype=attention_mask.dtype,
+                    device=attention_mask.device,
+                )
+                model_inputs["attention_mask"] = self.torch.cat(
+                    [attention_mask, forced_attention],
+                    dim=1,
+                )
+
+        actual_model_input_ids = [
+            int(value)
+            for value in model_inputs["input_ids"][0].detach().cpu().tolist()
+        ]
+        if actual_model_input_ids != layout["model_input_ids"]:
+            raise RuntimeError("teacher-forced model input does not match the causal shift layout")
+        action_length = len(action_ids)
+        self.torch.cuda.reset_peak_memory_stats(self.device)
+        self.torch.cuda.synchronize(self.device)
+        start = time.perf_counter()
+        with self.torch.inference_mode():
+            outputs = self.model(
+                **model_inputs,
+                use_cache=False,
+                return_dict=True,
+                logits_to_keep=action_length,
+            )
+            logits = outputs.logits
+            if logits.ndim != 3 or logits.shape[0] != 1 or logits.shape[1] != action_length:
+                raise RuntimeError(
+                    "teacher-forced logits must have shape [1, action_tokens, vocabulary]"
+                )
+            vocabulary_size = int(logits.shape[2])
+            if any(token_id >= vocabulary_size for token_id in action_ids):
+                raise ValueError("action token id exceeds the model vocabulary")
+            if not self.torch.isfinite(logits).all():
+                raise RuntimeError("teacher-forced action logits contain non-finite values")
+            log_probs = self.torch.log_softmax(logits[0].float(), dim=-1)
+            if not self.torch.isfinite(log_probs).all():
+                raise RuntimeError("teacher-forced action log-probabilities are non-finite")
+            cpu_log_probs = log_probs.detach().to(device="cpu", dtype=self.torch.float32)
+        self.torch.cuda.synchronize(self.device)
+        latency_seconds = time.perf_counter() - start
+
+        image_grid = (
+            model_inputs["image_grid_thw"].detach().cpu().tolist()
+            if "image_grid_thw" in model_inputs
+            else []
+        )
+        metadata = {
+            "prompt_input_tokens": len(prompt_ids),
+            "input_tokens": int(model_inputs["input_ids"].shape[1]),
+            "teacher_forced_prefix_tokens": len(forced_prefix),
+            "action_tokens": action_length,
+            "vocabulary_size": vocabulary_size,
+            "action_logit_positions": layout["action_logit_positions"],
+            "image_count": len(image_grid),
+            "image_grid_thw": image_grid,
+            "effective_visual_tokens": effective_visual_tokens(
+                image_grid,
+                merge_size=self.merge_size,
+            ),
+            "logits_to_keep": action_length,
+            "latency_seconds": latency_seconds,
+            "peak_gpu_memory_bytes": int(
+                self.torch.cuda.max_memory_allocated(self.device)
+            ),
+            "finite_log_probs": True,
+        }
+        del outputs, logits, log_probs
+        self.torch.cuda.empty_cache()
+        return cpu_log_probs, metadata
 
     def probe_logits(self, messages: list[dict[str, Any]]) -> dict[str, Any]:
         inputs = self._encode(messages)
