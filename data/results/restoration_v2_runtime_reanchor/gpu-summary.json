@@ -1,0 +1,275 @@
+{
+  "argv": [
+    "/data/worktrees/causalcache-restoration-v2-compute-158afc4/code/scripts/audit_restoration_v2_gpu_compute.py",
+    "--device",
+    "cuda:0",
+    "--run-git-commit",
+    "47062741a950b7c6050a6223b91f4bbae65332e7",
+    "--container-image-digest",
+    "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "--output-summary",
+    "/data/tmp/restoration-v2-gpu-reanchor-20260715T175854Z/summary.json",
+    "--repository-root",
+    "/data/worktrees/causalcache-restoration-v2-compute-158afc4",
+    "--host-alias",
+    "hyper00",
+    "--host-hostname",
+    "node-radixark-16-0000",
+    "--container-id",
+    "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df"
+  ],
+  "argv_shell_quoted": "/data/worktrees/causalcache-restoration-v2-compute-158afc4/code/scripts/audit_restoration_v2_gpu_compute.py --device cuda:0 --run-git-commit 47062741a950b7c6050a6223b91f4bbae65332e7 --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa --output-summary /data/tmp/restoration-v2-gpu-reanchor-20260715T175854Z/summary.json --repository-root /data/worktrees/causalcache-restoration-v2-compute-158afc4 --host-alias hyper00 --host-hostname node-radixark-16-0000 --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
+  "automatic_oom_fallback": false,
+  "compute_audit": {
+    "automatic_oom_fallback": false,
+    "batch1_gpu_vs_independent_cpu_oracle": [
+      {
+        "absolute_error": 6.481126080259969e-09,
+        "actual": 0.3341484069824219,
+        "allowed_error": 4.34148413463548e-06,
+        "atol": 1e-06,
+        "comparison": "batch1_candidate_a_gpu_vs_independent_cpu_float64_oracle",
+        "expected": 0.33414841346354796,
+        "passed": true,
+        "rtol": 1e-05
+      },
+      {
+        "absolute_error": 3.047375374265471e-08,
+        "actual": 0.31102344393730164,
+        "allowed_error": 4.110234134635479e-06,
+        "atol": 1e-06,
+        "comparison": "batch1_candidate_b_gpu_vs_independent_cpu_float64_oracle",
+        "expected": 0.3110234134635479,
+        "passed": true,
+        "rtol": 1e-05
+      }
+    ],
+    "batch2_vs_two_independent_batch1_gpu_calls": [
+      {
+        "absolute_error": 0.0,
+        "actual": 0.3341484069824219,
+        "allowed_error": 4.341484069824219e-06,
+        "atol": 1e-06,
+        "comparison": "batch2_candidate_a_vs_independent_batch1_gpu_call",
+        "expected": 0.3341484069824219,
+        "passed": true,
+        "rtol": 1e-05
+      },
+      {
+        "absolute_error": 0.0,
+        "actual": 0.31102344393730164,
+        "allowed_error": 4.1102344393730165e-06,
+        "atol": 1e-06,
+        "comparison": "batch2_candidate_b_vs_independent_batch1_gpu_call",
+        "expected": 0.31102344393730164,
+        "passed": true,
+        "rtol": 1e-05
+      }
+    ],
+    "cuda_memory_after_compute": {
+      "allocated_bytes": 5632,
+      "peak_allocated_bytes": 11776,
+      "peak_reserved_bytes": 2097152,
+      "reserved_bytes": 2097152
+    },
+    "cuda_memory_before_compute": {
+      "allocated_bytes": 3072,
+      "reserved_bytes": 2097152
+    },
+    "equivalence_tolerance": {
+      "atol": 1e-06,
+      "rtol": 1e-05
+    },
+    "host_read_final_distance_scalar_count": 6,
+    "host_read_intermediate_tensor_value_count": 0,
+    "invalid_numeric_to_nan_final_distance": {
+      "final_distance_is_nan": true,
+      "host_read_scope": "final_distance_scalar_only",
+      "injected_invalidity": "candidate_logits_nan",
+      "serialized_final_distance": "nan",
+      "status": "passed"
+    },
+    "latency": {
+      "batch1_candidate_a": {
+        "elapsed_nanoseconds": 173020047,
+        "elapsed_seconds": 0.173020047
+      },
+      "batch1_candidate_b": {
+        "elapsed_nanoseconds": 977867,
+        "elapsed_seconds": 0.000977867
+      },
+      "batch1_invalid_numeric": {
+        "elapsed_nanoseconds": 414113,
+        "elapsed_seconds": 0.000414113
+      },
+      "batch1_pre_normalized_log_probs": {
+        "elapsed_nanoseconds": 391675,
+        "elapsed_seconds": 0.000391675
+      },
+      "batch2": {
+        "elapsed_nanoseconds": 623946,
+        "elapsed_seconds": 0.000623946
+      },
+      "total_measured_elapsed_nanoseconds": 175427648
+    },
+    "logits_vs_pre_normalized_log_probs": {
+      "absolute_error": 0.0,
+      "actual": 0.3341484069824219,
+      "allowed_error": 4.341484069824219e-06,
+      "atol": 1e-06,
+      "comparison": "candidate_a_logits_vs_pre_normalized_log_probs",
+      "expected": 0.3341484069824219,
+      "passed": true,
+      "rtol": 1e-05
+    },
+    "returned_host_values": "final_distance_scalars_and_audit_metadata_only",
+    "status": "passed",
+    "synthetic_fixture": {
+      "batch_size": 2,
+      "candidate_logits_dtype": "torch.bfloat16",
+      "distance_token_count": 4,
+      "generator": "literal_fixed_values_no_rng",
+      "reference_dtype": "torch.float32",
+      "vocabulary_size": 5
+    },
+    "zero_stride_reference": {
+      "input_batch_stride": 0,
+      "primitive_audit": {
+        "batch_size": 2,
+        "candidate_input_dtype": "torch.bfloat16",
+        "candidate_representation": "logits",
+        "compute_dtype": "torch.float32",
+        "device": "cuda:0",
+        "device_validation_category_count": 4,
+        "distance_tokens": 4,
+        "full_tensor_host_transfers": 0,
+        "invalid_numeric_output": "nan_final_distance",
+        "log_normalization_atol": 0.0005,
+        "negative_kl_atol": 1e-05,
+        "numeric_validation": "gpu_resident_per_example_predicates",
+        "operation": "teacher_forced_full_vocabulary_mean_kl_on_distance_token_span",
+        "output_dtype": "torch.float32",
+        "reduction": "full_vocabulary_sum_then_distance_token_mean_per_example",
+        "reference_batch_stride": 0,
+        "reference_compute_batch_size": 1,
+        "reference_input_dtype": "torch.float32",
+        "reference_zero_copy_batch_expansion": true,
+        "validation_scalar_host_reads": 0,
+        "vocabulary_size": 5
+      },
+      "reference_compute_batch_size": 1,
+      "storage_shared_with_batch1_reference": true
+    }
+  },
+  "dependency_8_compute_primitives_audited": true,
+  "ended_at_utc": "2026-07-15T17:59:11.299909Z",
+  "evidence_type": "restoration_v2_policy_blind_gpu_compute_audit",
+  "outcome": "PASSED_RESTORATION_V2_GPU_COMPUTE_AUDIT",
+  "planner_audit": {
+    "automatic_oom_fallback": false,
+    "observed_microbatches": [
+      {
+        "coalition_ids": [
+          "synthetic-state:candidate-a",
+          "synthetic-state:candidate-b"
+        ],
+        "image_count": 2,
+        "microbatch_index": 0,
+        "sequence_length": 128,
+        "size": 2
+      }
+    ],
+    "planner_audit": {
+      "automatic_oom_fallback": false,
+      "group_count": 1,
+      "group_order": "ascending_image_count_then_sequence_length",
+      "grouping_fields": [
+        "image_count",
+        "sequence_length"
+      ],
+      "groups": [
+        {
+          "coalition_ids": [
+            "synthetic-state:candidate-a",
+            "synthetic-state:candidate-b"
+          ],
+          "group_index": 0,
+          "image_count": 2,
+          "input_indices": [
+            0,
+            1
+          ],
+          "microbatch_indices": [
+            0
+          ],
+          "microbatch_sizes": [
+            2
+          ],
+          "record_count": 2,
+          "sequence_length": 128
+        }
+      ],
+      "input_record_count": 2,
+      "microbatch_count": 1,
+      "microbatch_size": 2,
+      "microbatch_size_source": "explicit_argument",
+      "schema_version": "0.1.0",
+      "within_group_order": "ascending_input_index"
+    },
+    "planning_scope": "single_decision_state",
+    "status": "passed"
+  },
+  "policy_loaded": false,
+  "policy_output_generated": false,
+  "protocol_id": "causalcache_restoration_v2",
+  "repository": {
+    "head_verified_as_commit": true,
+    "repository_root": "/data/worktrees/causalcache-restoration-v2-compute-158afc4",
+    "run_git_commit": "47062741a950b7c6050a6223b91f4bbae65332e7",
+    "submodules_checked": true,
+    "untracked_files_checked": true,
+    "worktree_clean": true
+  },
+  "restoration_output_generated": false,
+  "runtime_identity": {
+    "container_hostname": "69f2b1742e8f",
+    "container_id": "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "cudnn_version": 91900,
+    "gpu_compute_capability": [
+      9,
+      0
+    ],
+    "gpu_multiprocessor_count": 132,
+    "gpu_name": "NVIDIA H200",
+    "gpu_total_memory_bytes": 150121021440,
+    "gpu_uuid": "e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+    "gpu_uuid_source": "torch.cuda.get_device_properties",
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "nvidia_driver_version": "570.172.08",
+    "nvidia_smi_gpu_uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+    "platform_machine": "x86_64",
+    "python_version": "3.12.3",
+    "selected_device": "cuda:0",
+    "torch_cuda_build_version": "13.0",
+    "torch_version": "2.11.0+cu130",
+    "visible_cuda_device_count": 1
+  },
+  "schema_version": "0.1.0",
+  "source_files": {
+    "code/causalcache/restoration_v2_batching.py": {
+      "sha256": "769adf794ba10da018f27680ce25e851d760bddc8e8c0ba8a55bbb7780c2783b",
+      "size_bytes": 7761
+    },
+    "code/causalcache/restoration_v2_gpu_kl.py": {
+      "sha256": "6227375fdb61a32bc71d22c1e77f1c62eb211cfb043984351512077fd1fec5ce",
+      "size_bytes": 13986
+    },
+    "code/scripts/audit_restoration_v2_gpu_compute.py": {
+      "sha256": "9f14cb722eb8aee0d1a436ab1d88d4c7b61c246b3d05ab2df0c470a7906f7439",
+      "size_bytes": 29197
+    }
+  },
+  "started_at_utc": "2026-07-15T17:59:09.694330Z"
+}

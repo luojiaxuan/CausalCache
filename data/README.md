@@ -129,6 +129,10 @@ restoration v2 exact selection/exposure 产物：
   `SCREENING_ALLOWED + CONFIRM_LOCKED`，summary SHA256 `20b9e810...5964`；dependency 8 正式闭合，仍不授权
   confirm；
 
+- `results/restoration_v2_runtime_reanchor/`：screening preflight 发现旧 GPU 0 busy 后，在空闲 physical GPU 2
+  的新单卡容器重新完成 GPU compute + independent validation + real processor audit；三份 evidence 均为
+  policy-output-free。GPU-2 config/readiness 重签前 screening 保持暂停；
+
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；
 

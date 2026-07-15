@@ -214,6 +214,11 @@ inference。readiness manifest 已物化并离线验证，绑定 implementation 
 commit/push manifest，再在 clean `HEAD == origin/main` 上运行正式 CLI。首次正式 CLI 已在 commit
 `429c4584ba7c18eee0b96741b6c1514bd4d4d7ec` 通过，summary SHA256 `20b9e810...5964`；dependency 8 已闭合。
 
+正式 GPU preflight 后旧 runtime 的 physical GPU 0 被其他任务占用，10 秒采样选择 physical GPU 2。为避免
+共享繁忙 GPU，screening 未启动；新 non-privileged 单卡容器已通过 CUDA compute、独立 validator 与 real
+processor audit。re-anchor evidence 位于 `data/results/restoration_v2_runtime_reanchor/`。GPU-2 execution
+config/readiness 重签完成前，旧 authorization 只作历史记录，不用于启动新 runtime。
+
 readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
 运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived
 artifact/selection witness validation → runtime import/model load → 全部 90 prompts processor-only shape sweep →

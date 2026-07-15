@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: restoration v2 dependencies 1--8 passed / SCREENING_ALLOWED / CONFIRM_LOCKED / 45-state screening pending
+> Status: GPU-0 readiness passed historically / GPU-2 re-anchor audits passed / re-signing pending / policy inference paused
 
 ## 团队交接入口
 
@@ -83,7 +83,10 @@ shape sweep，再允许首个 policy output，并以 attempt marker 禁止崩溃
 config 也已冻结并通过 8-dependency / 14-source validation，SHA256 为 `f2b6521e...73a5`；readiness manifest
 已按 `SCREENING_ALLOWED + CONFIRM_LOCKED` 结构物化。clean `HEAD == origin/main` 的正式 validator 已通过，
 结果见 [`data/results/restoration_v2_readiness/`](data/results/restoration_v2_readiness/)；dependency 8 正式闭合。
-这只解锁固定 45-state development screening，confirm 继续锁定。
+正式 GPU preflight 随后发现该 config 锁定的 physical GPU 0 已被其他任务占用，因而没有启动 screening。
+空闲 GPU 2 上的新单卡 runtime 已重新通过 GPU compute 与 processor audits，证据见
+[`data/results/restoration_v2_runtime_reanchor/`](data/results/restoration_v2_runtime_reanchor/)；planned GPU-2
+screening 需先重签 config/readiness，期间 policy inference 暂停，confirm 始终锁定。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的

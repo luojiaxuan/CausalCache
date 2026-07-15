@@ -1025,9 +1025,21 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - validator 未 import policy，policy/restoration output 均为 false。dependency 8 正式闭合，但授权范围仅为
   10 条 label-train + 5 条 development 的固定 45-state screening；`v2_confirm_primary` 继续 locked。
 
+### 2026-07-15：screening preflight 触发 GPU-2 runtime re-anchor
+
+- 10 秒 preflight 发现旧 config 锁定的 physical GPU 0 正被其他任务占用 112+ GiB 显存、86%--87%
+  utilization；未共享该 GPU，未启动 screening；
+- preflight 选择空闲 physical GPU 2。首次新容器因 `--privileged` 使 PyTorch 看见 8 卡，在任何审计/policy
+  load 前删除；完成态 non-privileged 容器 `69f2b174...194df` 严格只见 `cuda:0`；
+- 新 H200 UUID `GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81` 上 formal GPU audit、独立 validator 与 real
+  processor audit 全部通过，SHA256 分别为 `dce79769...9dac`、`ad53e186...2a6`、`69bb8ddb...d119`；
+- 全程没有 policy/restoration output。旧 GPU-0 readiness 保留为历史 pass；planned GPU-2 screening 暂停，
+  直到 canonical evidence、execution config 与 readiness manifest 重新绑定并正式授权。
+
 ## 下一步
 
-下一步从包含 readiness evidence 的 clean pushed commit 在 Hyper00 运行 development substrate screening。
+下一步先把 GPU-2 re-anchor evidence push，再重签 execution config/readiness；之后才在 Hyper00 运行
+development substrate screening。
 只有 screening 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
 75-instance final plan 一并冻结。

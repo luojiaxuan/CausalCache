@@ -1,0 +1,445 @@
+{
+  "argv": [
+    "/data/worktrees/causalcache-restoration-v2-compute-158afc4/code/scripts/audit_gui_owl_v2_processor.py",
+    "--model-dir",
+    "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "--expected-snapshot-manifest",
+    "configs/gui_owl_1_5_8b_snapshot.json",
+    "--output-summary",
+    "/data/tmp/restoration-v2-gpu-reanchor-20260715T175854Z/processor-summary.json",
+    "--repository-root",
+    "..",
+    "--run-git-commit",
+    "47062741a950b7c6050a6223b91f4bbae65332e7",
+    "--host-alias",
+    "hyper00",
+    "--host-hostname",
+    "node-radixark-16-0000",
+    "--container-id",
+    "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
+    "--container-image-digest",
+    "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa"
+  ],
+  "argv_shell_quoted": "/data/worktrees/causalcache-restoration-v2-compute-158afc4/code/scripts/audit_gui_owl_v2_processor.py --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct --expected-snapshot-manifest configs/gui_owl_1_5_8b_snapshot.json --output-summary /data/tmp/restoration-v2-gpu-reanchor-20260715T175854Z/processor-summary.json --repository-root .. --run-git-commit 47062741a950b7c6050a6223b91f4bbae65332e7 --host-alias hyper00 --host-hostname node-radixark-16-0000 --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+  "auto_processor_loaded": true,
+  "auto_processor_only": true,
+  "ended_at_utc": "2026-07-15T18:00:22.778372Z",
+  "evidence_type": "gui_owl_v2_policy_output_free_processor_audit",
+  "model_weight_files_sha256_verified": true,
+  "model_weights_loaded": false,
+  "model_weights_materialized_as_tensors": false,
+  "outcome": "PASSED_GUI_OWL_V2_PROCESSOR_AUDIT",
+  "policy_forward_executed": false,
+  "policy_generate_executed": false,
+  "policy_loaded": false,
+  "policy_model_loaded": false,
+  "policy_output": false,
+  "policy_output_generated": false,
+  "pretrained_loader_calls": [
+    "AutoProcessor.from_pretrained"
+  ],
+  "processor_audit": {
+    "auto_processor_loaded": true,
+    "auto_processor_only": true,
+    "deterministic_images": {
+      "generator": "stdlib_rgb_scanlines_png_zlib_level_9",
+      "landscape": {
+        "height": 108,
+        "sha256": "3af4878fdbba4f543cddd68f06ad8b56eb51d3735b89c0f30b96c5f31ed5c75a",
+        "size_bytes": 77956,
+        "width": 240
+      },
+      "portrait": {
+        "height": 240,
+        "sha256": "e9e529dfc0d8c881053a3d81dde0802dae2c52cc1a4821f95c4ded117ed34b37",
+        "size_bytes": 55579,
+        "width": 108
+      }
+    },
+    "model_identity": {
+      "model_dir": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+      "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+      "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+      "transformers_source_sha256": {
+        "image_processing_qwen2_vl.py": "de5859892f04c64f3e79c9d318842ac0040000788e43870997bd1ec6565c02bb",
+        "modeling_qwen3_vl.py": "c37abc40a3744dc116cf1e06eceb7ff79bd384cfbfe0d41773f5efc074f31523",
+        "processing_qwen3_vl.py": "b51f77d783b4a88d503bf9198828d46f71e3ead3833da2631748188b159253ba"
+      },
+      "transformers_version": "5.6.0",
+      "verified_model_file_count": 14,
+      "verified_model_total_bytes": 17545907171
+    },
+    "model_weight_files_sha256_verified": true,
+    "model_weights_loaded": false,
+    "model_weights_materialized_as_tensors": false,
+    "nested_batch_two_equal_shape": {
+      "assistant_prefix_tail_exact": true,
+      "attention_mask_all_one": true,
+      "batch_size": 2,
+      "case": "nested_batch_two_equal_shape",
+      "equal_image_count": true,
+      "equal_sequence_length": true,
+      "image_counts": [
+        1,
+        1
+      ],
+      "no_padding": true,
+      "padding": false,
+      "samples": [
+        {
+          "effective_visual_tokens": 2584,
+          "effective_visual_tokens_per_image": [
+            2584
+          ],
+          "image_count": 1,
+          "image_grid_thw": [
+            [
+              1,
+              152,
+              68
+            ]
+          ],
+          "policy_visible_text_tokens": 362,
+          "sequence_length": 2946
+        },
+        {
+          "effective_visual_tokens": 2584,
+          "effective_visual_tokens_per_image": [
+            2584
+          ],
+          "image_count": 1,
+          "image_grid_thw": [
+            [
+              1,
+              68,
+              152
+            ]
+          ],
+          "policy_visible_text_tokens": 362,
+          "sequence_length": 2946
+        }
+      ],
+      "status": "passed",
+      "tensor_inventory": {
+        "attention_mask": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            2,
+            2946
+          ]
+        },
+        "image_grid_thw": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            2,
+            3
+          ]
+        },
+        "input_ids": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            2,
+            2946
+          ]
+        },
+        "mm_token_type_ids": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            2,
+            2946
+          ]
+        },
+        "pixel_values": {
+          "device": "cpu",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            20672,
+            1536
+          ]
+        }
+      }
+    },
+    "policy_forward_executed": false,
+    "policy_generate_executed": false,
+    "policy_loaded": false,
+    "policy_model_loaded": false,
+    "policy_output": false,
+    "policy_output_generated": false,
+    "pretrained_loader_calls": [
+      "AutoProcessor.from_pretrained"
+    ],
+    "processor_identity": {
+      "actual_max_pixels": 2621440,
+      "actual_min_equals_max_equals_target": true,
+      "actual_min_pixels": 2621440,
+      "direct_max_pixels_attribute_present": false,
+      "direct_min_pixels_attribute_present": false,
+      "image_processor_class": "Qwen2VLImageProcessor",
+      "image_processor_module": "transformers.models.qwen2_vl.image_processing_qwen2_vl",
+      "local_files_only": true,
+      "pixel_target_runtime_representation": "image_processor.size.shortest_edge_longest_edge",
+      "processor_class": "Qwen3VLProcessor",
+      "size_class": "SizeDict",
+      "size_module": "transformers.image_utils",
+      "size_non_edge_fields": {
+        "height": null,
+        "max_height": null,
+        "max_width": null,
+        "width": null
+      },
+      "spatial_merge_size": 2,
+      "target_effective_visual_tokens_per_image": 2560,
+      "target_pixels_per_image": 2621440,
+      "tokenizer_class": "Qwen2Tokenizer"
+    },
+    "restoration_output_generated": false,
+    "single_conversation_five_images": {
+      "assistant_prefix_tail_exact": true,
+      "attention_mask_all_one": true,
+      "batch_size": 1,
+      "case": "single_conversation_five_images",
+      "equal_image_count": true,
+      "equal_sequence_length": true,
+      "image_counts": [
+        5
+      ],
+      "no_padding": true,
+      "padding": false,
+      "samples": [
+        {
+          "effective_visual_tokens": 12920,
+          "effective_visual_tokens_per_image": [
+            2584,
+            2584,
+            2584,
+            2584,
+            2584
+          ],
+          "image_count": 5,
+          "image_grid_thw": [
+            [
+              1,
+              152,
+              68
+            ],
+            [
+              1,
+              68,
+              152
+            ],
+            [
+              1,
+              152,
+              68
+            ],
+            [
+              1,
+              68,
+              152
+            ],
+            [
+              1,
+              152,
+              68
+            ]
+          ],
+          "policy_visible_text_tokens": 366,
+          "sequence_length": 13286
+        }
+      ],
+      "status": "passed",
+      "tensor_inventory": {
+        "attention_mask": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            1,
+            13286
+          ]
+        },
+        "image_grid_thw": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            5,
+            3
+          ]
+        },
+        "input_ids": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            1,
+            13286
+          ]
+        },
+        "mm_token_type_ids": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            1,
+            13286
+          ]
+        },
+        "pixel_values": {
+          "device": "cpu",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            51680,
+            1536
+          ]
+        }
+      }
+    },
+    "single_conversation_one_image": {
+      "assistant_prefix_tail_exact": true,
+      "attention_mask_all_one": true,
+      "batch_size": 1,
+      "case": "single_conversation_one_image",
+      "equal_image_count": true,
+      "equal_sequence_length": true,
+      "image_counts": [
+        1
+      ],
+      "no_padding": true,
+      "padding": false,
+      "samples": [
+        {
+          "effective_visual_tokens": 2584,
+          "effective_visual_tokens_per_image": [
+            2584
+          ],
+          "image_count": 1,
+          "image_grid_thw": [
+            [
+              1,
+              152,
+              68
+            ]
+          ],
+          "policy_visible_text_tokens": 359,
+          "sequence_length": 2943
+        }
+      ],
+      "status": "passed",
+      "tensor_inventory": {
+        "attention_mask": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            1,
+            2943
+          ]
+        },
+        "image_grid_thw": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            1,
+            3
+          ]
+        },
+        "input_ids": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            1,
+            2943
+          ]
+        },
+        "mm_token_type_ids": {
+          "device": "cpu",
+          "dtype": "torch.int64",
+          "requires_grad": false,
+          "shape": [
+            1,
+            2943
+          ]
+        },
+        "pixel_values": {
+          "device": "cpu",
+          "dtype": "torch.float32",
+          "requires_grad": false,
+          "shape": [
+            10336,
+            1536
+          ]
+        }
+      }
+    },
+    "status": "passed",
+    "tokenizer_boundary": {
+      "action": "wait",
+      "assistant_prefix_text": "<|im_start|>assistant\n",
+      "assistant_prefix_tokens": 3,
+      "carrier_text": "Action: Execute the selected mobile action.\n",
+      "carrier_tokens": 8,
+      "distance_text": "<tool_call>\n{\"name\":\"mobile_use\",\"arguments\":{\"action\":\"wait\"}}\n</tool_call>",
+      "distance_tokens": 15,
+      "joint_boundary_exact": true,
+      "status": "passed"
+    }
+  },
+  "protocol_id": "causalcache_restoration_v2",
+  "repository": {
+    "head_verified_as_commit": true,
+    "repository_root": "/data/worktrees/causalcache-restoration-v2-compute-158afc4",
+    "run_git_commit": "47062741a950b7c6050a6223b91f4bbae65332e7",
+    "submodules_checked": true,
+    "untracked_files_checked": true,
+    "worktree_clean": true
+  },
+  "restoration_output_generated": false,
+  "runtime_identity": {
+    "container_hostname": "69f2b1742e8f",
+    "container_id": "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "pillow_version": "12.2.0",
+    "platform_machine": "x86_64",
+    "platform_system": "Linux",
+    "processor_device": "cpu",
+    "python_version": "3.12.3",
+    "torch_distribution_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0"
+  },
+  "schema_version": "0.1.0",
+  "source_files": {
+    "code/causalcache/policy/gui_owl_v2.py": {
+      "sha256": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a",
+      "size_bytes": 21838
+    },
+    "code/causalcache/policy/gui_owl_v2_runtime.py": {
+      "sha256": "7cc0299b1b1679def61a3e2e30017d2f7812a47114b5a286afdf3979536c9c41",
+      "size_bytes": 29381
+    },
+    "code/causalcache/policy/gui_owl_v2_vision.py": {
+      "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24",
+      "size_bytes": 19721
+    },
+    "code/scripts/audit_gui_owl_v2_processor.py": {
+      "sha256": "bcc14b6be3179190bfd0e29fc6c7e7e74fada51c9a1e9b13ff3f3a20c044bd31",
+      "size_bytes": 26867
+    }
+  },
+  "started_at_utc": "2026-07-15T17:59:55.707871Z"
+}
