@@ -708,6 +708,11 @@ v2 policy output、restoration label 或方法效果结果。
   `Causal Cache / Step 42`，但 serialized package-source evidence 以 basename 为 key，两个不同目录的
   `main.py` 发生覆盖；该 run 已登记为 `INVALID_EVIDENCE_SCHEMA_PACKAGE_PATH_COLLISION`，不回写 expected，
   修复后必须从新的 pushed commit 重跑两个独立进程。
+- 修复后从 pushed `main@09e4f6d` 在 Hyper00 两个独立进程运行 `inspect-golden`，UTC brackets 为
+  `11:47:47.140669493Z--11:47:48.656088201Z` 与
+  `11:47:57.685531727Z--11:47:59.202436027Z`；两份 canonical JSON byte-identical，SHA256 均为
+  `6cda74bb4f33708795842c947dac53e380e9f0d4e3debcbf9bb38334a645af44`。expected fields 已回写 fixture，
+  但仍必须从包含 expected 的新 pushed commit 跑 `validate-golden` 才能标记 synthetic golden passed。
 
 ## Artifact 状态
 

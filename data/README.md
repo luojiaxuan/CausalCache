@@ -26,8 +26,9 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 - `manifests/restoration_v2_interfaces.json`：上述 fixtures、v2 action/prompt/LF code 与接口说明的逐文件
   size/SHA256。它只证明本地 CPU interface validation；真实 AndroidWorld 运行状态由独立 result evidence
   给出，不事后改写 source manifest 的 pre-evidence sentinel。
-- `fixtures/restoration_v2_ocr_golden.json`：内嵌 2x2 RGB 与两行 English OCR PNG bytes，已冻结
-  source/prepared hashes；end-to-end OCR expected inspection 待 Hyper00 formal run 后回写。
+- `fixtures/restoration_v2_ocr_golden.json`：内嵌 2x2 RGB 与两行 English OCR PNG bytes，source/prepared
+  hashes 和两次 byte-identical Hyper00 inspection 的 expected fields 已冻结；仍需从包含该 expected 的新
+  pushed commit 运行 `validate-golden`，不能把生成 expected 的 run 自称独立验证。
 
 冻结后的 constructor run 证据位于 `results/restoration_v2_constructor_preflight/`：14/14 payload 已被
 pinned `JSONAction` 接受。formal device-side result 位于 `results/restoration_v2_executor_dispatch/`：14/14

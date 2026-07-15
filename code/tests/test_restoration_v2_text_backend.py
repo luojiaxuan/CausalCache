@@ -76,6 +76,24 @@ class RestorationV2TextBackendTest(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     validate_backend_config(mutation)
 
+    def test_frozen_expected_inspection_identity_is_complete(self) -> None:
+        fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+        expected = fixture["expected_inspection"]
+        self.assertEqual(
+            expected["backend_config_sha256"],
+            "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+        )
+        self.assertEqual(len(expected["rapidocr_package_file_sha256"]), 5)
+        self.assertEqual(expected["recognizer_character_inventory"]["entry_count"], 436)
+        self.assertEqual(
+            expected["cases"][1]["ocr_record"]["full_spatial_tokens"],
+            ["Causal", "Cache", "Step", "42"],
+        )
+        self.assertEqual(
+            expected["cases"][1]["ocr_record"]["canonical_ocr_record_sha256"],
+            "47941b52bf42df7c452119821e824953ab1a3ebd2aa8b1d31ef97b21d1093371",
+        )
+
     def test_node_canonicalization_rounds_sorts_and_preserves_full_tokens(self) -> None:
         nodes = canonicalize_rapidocr_nodes(
             boxes=[

@@ -29,3 +29,23 @@ Git。正式通过前，dependency 5 仍为 pending，且不允许生成 GUI-Owl
 
 后续 runner 必须用 RapidOCR package-relative path 作为 source evidence key，并从新的 pushed commit 重新执行
 两个独立进程。
+
+## Frozen expected candidate
+
+`main@09e4f6d2c1c91bc8e17cb19c4da8c22153919d45` 修复 package-relative key 后，在同一 Hyper00
+CPU runtime 运行两个独立 `inspect-golden` process：
+
+| Repeat | UTC bracket | Canonical inspection SHA256 |
+| --- | --- | --- |
+| 1 | `2026-07-15T11:47:47.140669493Z` -- `2026-07-15T11:47:48.656088201Z` | `6cda74bb4f33708795842c947dac53e380e9f0d4e3debcbf9bb38334a645af44` |
+| 2 | `2026-07-15T11:47:57.685531727Z` -- `2026-07-15T11:47:59.202436027Z` | `6cda74bb4f33708795842c947dac53e380e9f0d4e3debcbf9bb38334a645af44` |
+
+两次 full argv 与 superseded attempt 相同，仅 output path 分别为
+`/data/tmp/causalcache-ocr-v2-golden-09e4f6d-repeat-{1,2}/inspection.json`；两次均从 clean detached
+`09e4f6d` 执行。canonical records byte-identical，synthetic OCR tokens 是
+`["Causal", "Cache", "Step", "42"]`，record SHA256 为
+`47941b52bf42df7c452119821e824953ab1a3ebd2aa8b1d31ef97b21d1093371`。
+
+这些 expected fields 已写入 Git fixture，但当前状态仍是
+`synthetic_expected_inspection_frozen_validation_from_pushed_fixture_pending`。必须先 commit/push 本 fixture，
+再从该 exact commit 执行 `validate-golden`；在此之前不把 synthetic golden 记为 passed。

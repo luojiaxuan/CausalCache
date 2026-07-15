@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "backend_id": "rapidocr-3.8.4-ppocrv5-mobile-en-cpu-v1",
-  "status": "synthetic_images_frozen_expected_inspection_pending",
+  "status": "synthetic_expected_inspection_frozen_validation_from_pushed_fixture_pending",
   "cases": [
     {
       "case_id": "rgb_2x2",
@@ -44,5 +44,237 @@
       }
     }
   ],
-  "expected_inspection": null
+  "expected_inspection": {
+    "backend_config_sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+    "runtime_packages": {
+      "Pillow": "12.2.0",
+      "PyYAML": "6.0.3",
+      "Shapely": "2.1.2",
+      "antlr4-python3-runtime": "4.9.3",
+      "certifi": "2026.6.17",
+      "charset-normalizer": "3.4.9",
+      "colorlog": "6.10.1",
+      "flatbuffers": "25.12.19",
+      "idna": "3.18",
+      "mpmath": "1.3.0",
+      "numpy": "2.3.5",
+      "omegaconf": "2.3.1",
+      "onnxruntime": "1.24.4",
+      "opencv-python": "4.10.0.84",
+      "packaging": "26.2",
+      "protobuf": "7.35.1",
+      "pyarrow": "24.0.0",
+      "pyclipper": "1.4.0",
+      "rapidocr": "3.8.4",
+      "requests": "2.34.2",
+      "six": "1.17.0",
+      "sympy": "1.14.0",
+      "tqdm": "4.68.4",
+      "urllib3": "2.7.0"
+    },
+    "rapidocr_package_file_sha256": {
+      "ch_ppocr_rec/main.py": "7e45ae163ae05973724943749a83b9c2ff3f8e37c838a6a3d253043f58ea5b58",
+      "config.yaml": "253abd97e27627c00925b06c33cdc8c63fd56093f9a9a80c9a258bf1a2621d18",
+      "default_models.yaml": "0d734a5024997bdbbd84d275c633285d6e0084a2514a934825fd59772c6464ab",
+      "inference_engine/onnxruntime/main.py": "f62a6aaaf7edb0b71eba65bdd5e2ae2fed6194643c44382618eaeb757827e775",
+      "utils/load_image.py": "f6de151fdce9fdf6890650dc3f7305455a2cade9bbf7652a30a558ee3fbe3f59"
+    },
+    "wheel_sha256": {
+      "onnxruntime": "0d640eb9f3782689b55cfa715094474cd5662f2f137be6a6f847a594b6e9705c",
+      "rapidocr": "1a8400df99ea2348a6d1902d1c6fa64c29edcf56b3c58cecd4cf1e5ff51b7ae2"
+    },
+    "model_sha256": {
+      "detector": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+      "inactive_classifier": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+      "recognizer": "c3461add59bb4323ecba96a492ab75e06dda42467c9e3d0c18db5d1d21924be8"
+    },
+    "recognizer_character_inventory": {
+      "canonical_json_sha256": "16d149d69e1f4202e7d5a703ca26edcc04070888cd59c2353bf4cc70406ab611",
+      "entry_count": 436,
+      "metadata_key": "character",
+      "utf8_sha256": "e025a66d31f327ba0c232e03f407ae8d105e1e709e7ccb3f408aa778c24e70d6"
+    },
+    "cases": [
+      {
+        "case_id": "rgb_2x2",
+        "image_sha256": "af53cfabddf7c67c53ca687b8feb02b8277022ef3b974f14e14c8b422676801b",
+        "prepared": {
+          "alpha_extrema": [
+            255,
+            255
+          ],
+          "exif_present": false,
+          "height": 2,
+          "resized_rgb_256x256_sha256": "abf1b6b546f81519a02053c5ba25b9a6d31fa9c0d44df6a1326780d468f80621",
+          "rgb_bytes_sha256": "6733cdd08e5c7ef0453e2759ef0d28fbd43ea2aa7883b55422a13dac38e23ecc",
+          "source_format": "PNG",
+          "source_mode": "RGBA",
+          "width": 2
+        },
+        "run_ocr": false
+      },
+      {
+        "case_id": "ocr_two_lines",
+        "image_sha256": "74625f87747ad3cc8887cc79c6cd0f11a0d2b85bb81bd755d9bd3f0ad11cda9f",
+        "ocr_record": {
+          "alpha_extrema": [
+            255,
+            255
+          ],
+          "backend_config_sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+          "backend_id": "rapidocr-3.8.4-ppocrv5-mobile-en-cpu-v1",
+          "canonical_ocr_record_sha256": "47941b52bf42df7c452119821e824953ab1a3ebd2aa8b1d31ef97b21d1093371",
+          "exif_present": false,
+          "full_spatial_tokens": [
+            "Causal",
+            "Cache",
+            "Step",
+            "42"
+          ],
+          "full_spatial_tokens_sha256": "a3d46d9925c986bd54e19e44cec3d6c1109d35323ba18155e31e63732265ebc4",
+          "height": 360,
+          "image_member_path": "fixtures/ocr-two-lines.png",
+          "image_sha256": "74625f87747ad3cc8887cc79c6cd0f11a0d2b85bb81bd755d9bd3f0ad11cda9f",
+          "nodes": [
+            {
+              "bbox_top_left_bottom_right": [
+                75,
+                46,
+                131,
+                233
+              ],
+              "confidence_decimal_string": "0.99978000",
+              "normalized_text": "Causal",
+              "polygon_xy": [
+                [
+                  46,
+                  75
+                ],
+                [
+                  233,
+                  75
+                ],
+                [
+                  233,
+                  131
+                ],
+                [
+                  46,
+                  131
+                ]
+              ],
+              "raw_text": "Causal"
+            },
+            {
+              "bbox_top_left_bottom_right": [
+                77,
+                241,
+                130,
+                416
+              ],
+              "confidence_decimal_string": "0.99979000",
+              "normalized_text": "Cache",
+              "polygon_xy": [
+                [
+                  242,
+                  77
+                ],
+                [
+                  416,
+                  78
+                ],
+                [
+                  415,
+                  130
+                ],
+                [
+                  241,
+                  129
+                ]
+              ],
+              "raw_text": "Cache"
+            },
+            {
+              "bbox_top_left_bottom_right": [
+                186,
+                46,
+                242,
+                158
+              ],
+              "confidence_decimal_string": "0.99996000",
+              "normalized_text": "Step",
+              "polygon_xy": [
+                [
+                  46,
+                  186
+                ],
+                [
+                  158,
+                  186
+                ],
+                [
+                  158,
+                  242
+                ],
+                [
+                  46,
+                  242
+                ]
+              ],
+              "raw_text": "Step"
+            },
+            {
+              "bbox_top_left_bottom_right": [
+                186,
+                160,
+                236,
+                227
+              ],
+              "confidence_decimal_string": "0.99998000",
+              "normalized_text": "42",
+              "polygon_xy": [
+                [
+                  160,
+                  188
+                ],
+                [
+                  226,
+                  186
+                ],
+                [
+                  227,
+                  235
+                ],
+                [
+                  161,
+                  236
+                ]
+              ],
+              "raw_text": "42"
+            }
+          ],
+          "resized_rgb_256x256_sha256": "927d40990db3e14a3d31ef737d4d666932f231ac6a4e29d5eeed4fa897ea3e69",
+          "rgb_bytes_sha256": "34ae2845498caf52083cb9db2850cf0fca26ea964fcd86cadc1b92f664faba1b",
+          "schema_version": "1.0.0",
+          "source_format": "PNG",
+          "source_mode": "RGBA",
+          "width": 640
+        },
+        "prepared": {
+          "alpha_extrema": [
+            255,
+            255
+          ],
+          "exif_present": false,
+          "height": 360,
+          "resized_rgb_256x256_sha256": "927d40990db3e14a3d31ef737d4d666932f231ac6a4e29d5eeed4fa897ea3e69",
+          "rgb_bytes_sha256": "34ae2845498caf52083cb9db2850cf0fca26ea964fcd86cadc1b92f664faba1b",
+          "source_format": "PNG",
+          "source_mode": "RGBA",
+          "width": 640
+        },
+        "run_ocr": true
+      }
+    ]
+  }
 }

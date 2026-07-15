@@ -88,8 +88,9 @@ tie-break。text 使用 NFKC、collapse whitespace、strip；full tokens 不截�
 
 Git fixture
 [`restoration_v2_ocr_golden.json`](../data/fixtures/restoration_v2_ocr_golden.json) 内嵌两个固定 PNG：2x2 RGB
-resize case 与两行 English OCR case。当前 image bytes/prepared hashes 已冻结，OCR expected output 等待从已
-push commit 在 Hyper00 两个独立进程中生成后回写。
+resize case 与两行 English OCR case。image bytes/prepared hashes 以及 pushed `main@09e4f6d` 两个独立
+进程产生的 byte-identical OCR expected fields 已冻结；下一步必须从包含 expected 的新 pushed commit 运行
+`validate-golden`，生成 expected 的 inspection 本身不算独立 validation。
 
 real-screen golden 不允许人工挑图。eligible pool 只来自 frozen `v2_label_train`/`v2_development` states 的
 `candidate_post_state` 与 `current_observation`，先按 image SHA 去重，再分别在 portrait/landscape 中按
