@@ -1244,9 +1244,39 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   返回 `VALID_RESTORATION_V2_1_INTERFACE_PILOT_ARTIFACT`、`archive_hash_verified=true` 与同一 PASS；
   committed binding 已闭合。
 
+### 2026-07-15：v2.1 full-45 substrate source contract 已冻结
+
+- 新增独立 child protocol `causalcache_restoration_v2_1_full_45_substrate`；machine-readable contract
+  `code/configs/causalcache_restoration_v2_1_full_45.json` 的 SHA256 为
+  `0924dd66fab9440bed66585765e9b1f5ab6fb80fbdf65a1492efba7ae81e116b`，并绑定 fixed-15 PASS、
+  90-prompt processor PASS、parent v2 scientific config 与 exact 30+15 state projection；
+- exact projection SHA256 为 `65e7085f01bc26e425bab7f5148c6729bc8c6d0a62802ebc5e8dfeaed6439249`。
+  每 state 固定两次 full-history generation；仅当两次均 strict parse、model-emitted closer、bridge 成功且
+  canonical action 一致时，才执行两次 reference 和一次 summary-only teacher forward，再计算 repeat 与
+  summary-reference GPU KL；
+- 全 attempt 的 planned/maximum schedule 同为 generation 90、teacher 135、KL 90。parse/mismatch/non-finite
+  仍留在 45 分母；runtime/contract/OOM/bridge invariant 进入 `INVALID`。gate 要求 45/45 parse、45/45 finite、
+  45/45 repeat agreement，并有至少 8 个 states 满足 summary KL 大于
+  `max(1e-4, 10 * mean(repeat KL))`；
+- canonical attempt/root/sibling ledger/archive 与 private HF destination 均和 fixed-15 完全独立。resume 只跳过
+  已有 terminal prefix；root 外 ledger 以 atomic replace + file/directory fsync 维护 attempted/completed high-water
+  journal。marker 无 terminal、删除 marker+terminal pair 或删除整个目录都会使 attempt `INVALID`，不能重生成或
+  换目录重跑；teacher suppression 也精确绑定 BF16 minimum，不接受任意负 finite 近似；
+- source inventory 覆盖 full-45 source 及其递归本地 import closure；正式 runner 在 policy runtime import 前
+  验证 clean pushed `main`、Git blobs、derived artifact，并从 private HF immutable revisions 的 fresh download
+  复核 fixed-15 archive 与 processor JSON；
+- raw evidence manager 将 canonical root 与 sibling ledger 打成 deterministic USTAR，并从逐 state records
+  重算 denominator、operation counts、gate 与 outcome。正式 raw archive 只进入 private HF，Git 只保存轻量
+  manifest 与 immutable binding；archive reader 会按同一 USTAR serializer 重建并要求原始 bytes 完全一致，
+  因而拒绝 GNU tar、trailing bytes 与非 canonical header；
+- 本里程碑是 source-only，validator 明确返回 policy/GPU 未授权；尚未运行 full-45 generation、teacher、KL、
+  restoration 或 confirm。full-45 focused tests 33/33、全仓 424 tests（10 skips）、全部既有 validators 与
+  AAAI LaTeX build 已通过。source commit/push 与 clean descendant validation 完成后，才允许唯一 formal
+  attempt。
+
 ## 下一步
 
-下一步是纯 source-freeze milestone：新增并冻结独立的 full-45 child contract、hardened runner、canonical
-attempt identity 与 raw artifact packager/validators/tests；commit/push 后才允许运行。fixed-15 runner/ledger 和旧
-v2 runner 都不得复用。confirm、AndroidWorld test split、teacher/KL/restoration 继续锁定，直到 full-45
-contract 按预注册 gate 明确授权。
+下一步先把 full-45 source milestone commit/push 到 canonical `main` 并在 clean Hyper00 checkout 独立验证，
+随后才发起唯一 `restoration-v2-1-full-45-substrate-v1` formal attempt。fixed-15 runner/ledger 和旧 v2 runner
+都不得复用。confirm、AndroidWorld test split 与 restoration 继续锁定，直到 full-45 contract 按预注册 gate
+明确授权下一阶段 source freeze。

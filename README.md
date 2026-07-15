@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 source frozen / formal run pending / confirm locked
 
 ## 团队交接入口
 
@@ -40,6 +40,15 @@ incomplete marker 也不得通过换目录重跑。global ledger/root/run manife
 construction 前 durable claim；constructor/OOM 与中断残留只会落成可打包 `INVALID`，`--resume` 不会继续
 generation。raw pilot evidence 使用 deterministic USTAR 上传 private Hugging Face，Git 只保存 immutable
 revision、hash 与 compact reduction。
+
+unchanged-interface full-45 已冻结为独立 child contract
+[`code/configs/causalcache_restoration_v2_1_full_45.json`](code/configs/causalcache_restoration_v2_1_full_45.json)，
+SHA256 为 `0924dd66fab9440bed66585765e9b1f5ab6fb80fbdf65a1492efba7ae81e116b`。它固定 30 个
+`v2_label_train` + 15 个 `v2_development` states、每 state 两次 fresh full-history generation、三次
+teacher forward 与两次 GPU KL；全 attempt 上限为 90/135/90。45/45 parse、finite logits 与 canonical
+agreement 都是硬门槛，且至少 8 个 states 的 summary KL 必须超过 repeat-noise epsilon。当前里程碑仍是
+source-only，full-45 policy attempt 尚未运行。完整契约与 resume/INVALID/artifact 边界见
+[`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变
@@ -178,15 +187,16 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 
 1. [`docs/restoration_v2.md`](docs/restoration_v2.md)：当前 scientific contract、data roles 与 gates；
 2. [`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)：official-tool interface rescue 与固定 15-state pilot；
-3. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
+3. [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)：full-45 stable-reference substrate、gate 与一次性执行边界；
+4. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
    post-state-only prompt 的冻结实现；
-4. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
-5. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
-6. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-7. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-8. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-9. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-10. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+5. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+6. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
+7. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+8. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+9. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+10. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+11. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -206,13 +216,18 @@ make test validate-contract validate-restoration-v2 validate-restoration-v2-inte
   validate-restoration-v2-executor-dispatch validate-restoration-v2-selection \
   validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact \
   validate-restoration-v2-baselines paper
+
+cd code && python3 -m scripts.validate_restoration_v2_1_full_45_contract \
+  --repository-root .. \
+  --config code/configs/causalcache_restoration_v2_1_full_45.json
 ```
 
 计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback。八项
 pre-output dependencies 已闭合并完成第一次正式 screening；v2 保持
 `NO_GO_V2_SUBSTRATE + NO_GO_ADAPTER_ONLY`。v2.1 versioned source/contract 已冻结，90-prompt
-processor-only preflight 与 fixed-15 interface pilot 均已正式通过；下一步先冻结并审计 unchanged-interface
-full-45 substrate 的独立 source/contract，未 commit/push 前不执行。完整 artifact 中的 confirm bytes 只接受
+processor-only preflight 与 fixed-15 interface pilot 均已正式通过；unchanged-interface full-45 substrate 的
+独立 source/contract 已冻结，正式 run 必须等本 source milestone clean commit/push 后执行。完整 artifact 中的
+confirm bytes 只接受
 loader validation/hash，不向 processor 或
 decoder 暴露任何 confirm state/prompt/image，也不生成 confirm output。AndroidWorld closed-loop MVP 继续使用
 已验证的 Aries stack。Hyper01 当前不参与本轮执行。
@@ -444,7 +459,8 @@ $$
 - [x] 完成 immutable raw-trace parser compatibility replay；40/45 低于 required 45/45，正式为 `NO_GO_ADAPTER_ONLY`；
 - [x] 冻结 versioned native-output/generation rescue source，并完成 v2.1 90-prompt processor-only preflight；
 - [x] 完成 v2.1 fixed-15 native-output interface pilot；15/15 parse/closer/bridge，保留原 v2 negative result；
-- [ ] 冻结并执行 unchanged-interface full-45 v2.1 substrate；不做 retroactive relabel；
+- [x] 冻结 unchanged-interface full-45 v2.1 child contract、runner 与 raw artifact chain；
+- [ ] 执行唯一 full-45 v2.1 substrate attempt；不做 retroactive relabel；
 - [ ] 构造 matched-NLL memory pairs，验证关键假设；
 - [ ] 训练 query-time memory gate；
 - [ ] 完成 AndroidWorld closed-loop evaluation；
@@ -533,17 +549,22 @@ $$
 - Restoration v2.1 interface and execution boundary: [`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)
 - Restoration v2.1 passed processor preflight: [`data/results/restoration_v2_1_processor_preflight/README.md`](data/results/restoration_v2_1_processor_preflight/README.md)
 - Restoration v2.1 passed fixed-15 interface pilot: [`data/results/restoration_v2_1_interface_pilot/README.md`](data/results/restoration_v2_1_interface_pilot/README.md)
+- Restoration v2.1 frozen full-45 contract: [`code/configs/causalcache_restoration_v2_1_full_45.json`](code/configs/causalcache_restoration_v2_1_full_45.json)
+- Restoration v2.1 full-45 execution boundary: [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)
 - Restoration v2.1 processor-only audit CLI: `cd code && python3 -m scripts.audit_gui_owl_v2_1_processor --help`
 - Restoration v2.1 fixed-15 no-retry runner: `cd code && python3 -m scripts.run_restoration_v2_1_interface_pilot --help`
 - Restoration v2.1 raw evidence manager: `cd code && python3 -m scripts.manage_restoration_v2_1_pilot_artifact --help`
+- Restoration v2.1 full-45 runner: `cd code && python3 -m scripts.run_restoration_v2_1_full_45_substrate --help`
+- Restoration v2.1 full-45 artifact manager: `cd code && python3 -m scripts.manage_restoration_v2_1_full_45_artifact --help`
 - Build command: `make paper`
-- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`；v2.1 contract 另用 `cd code && python3 -m scripts.validate_restoration_v2_1_contract --repository-root .. --config code/configs/causalcache_restoration_v2_1_pilot.json`
+- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`；v2.1 pilot/full-45 contracts 分别用 `cd code && python3 -m scripts.validate_restoration_v2_1_contract --repository-root .. --config code/configs/causalcache_restoration_v2_1_pilot.json` 与 `cd code && python3 -m scripts.validate_restoration_v2_1_full_45_contract --repository-root .. --config code/configs/causalcache_restoration_v2_1_full_45.json`
 - 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 第一次固定 45-state screening 在
   clean `main` 完成，strict parse 0/45，正式为 `NO_GO_V2_SUBSTRATE + CONFIRM_LOCKED`；事后 immutable
   replay 的保守上界也仅 40/45，正式为 `NO_GO_ADAPTER_ONLY`。已有 45 个 native policy outputs，但没有
   teacher forward、KL、restoration label 或 CausalCache 方法效果结果。v2.1 official-tool contract、
   90-prompt processor preflight 与唯一 fixed-15 pilot 均已正式通过；后者 15/15 parse/closer/bridge，raw
-  artifact 已绑定 private HF immutable revision。teacher/KL/restoration 仍未运行，confirm 仍 locked。
+  artifact 已绑定 private HF immutable revision。full-45 source 已冻结但 formal attempt 尚未运行；因此 full-45
+  teacher/KL 与 memory-sensitivity 结果仍未知，restoration 仍未运行，confirm 仍 locked。
 
 ### Data and Models
 

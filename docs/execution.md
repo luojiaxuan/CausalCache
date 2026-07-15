@@ -253,6 +253,25 @@ record；若 marker 存在但 terminal record 不存在，必须将该 run 视�
 top-up 或替换 state。production security contract 以该 CLI 为准；测试中的 dependency-injection hooks 不能
 作为正式入口。
 
+### Restoration v2.1 full-45 执行顺序
+
+v2.1 full-45 使用独立 contract、runner、root、ledger 和 HF repo，不能续写 fixed-15 或旧 v2 screening。
+正式 Hyper00 顺序固定为：fresh immutable fixed-15/processor evidence byte validation → clean pushed `main` 与
+formal source inventory validation → derived artifact/exact 45-state projection validation → live host/container/GPU
+identity validation → durable ledger/root/run manifest claim → policy runtime import/model construction → 45-state
+execution → deterministic USTAR → private HF immutable upload/fresh-download → Git manifest/committed-binding
+validation。完整 argv 和 canonical paths 见 `code/README.md`，科学 gate 与 resume 语义见
+`docs/restoration_v2_1_full_45.md`。
+
+sibling ledger 是 root 外的 durable high-water journal，不只是一次性 claim marker。每次 state attempt 与 terminal
+落盘都经过 atomic replace、file fsync 和 parent-directory fsync；resume 会把 journal high-water 与 state/attempt
+inventory exact 对齐。两边任何缺失或超前都进入 canonical `INVALID`，不能通过删除成对文件绕开 no-retry。
+
+该正式 job 只使用 container `cuda:0`，对应 Hyper00 host physical GPU 2。GPU job 前仍须重新执行
+host/GPU/disk/container preflight 与至少 10 秒 idle sampling，并确认 canonical root、ledger、archive 均不存在；
+长任务同时启动 utilization monitor。fixed batch-1 protocol 不能为了提高 utilization 改写 scientific schedule，
+但低利用率窗口必须立即检查并记录原因。
+
 2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
 `data/results/restoration_v2_constructor_preflight/`。冻结 interface manifest 保留 run 前 `pending`，实际
 状态由该 result summary 更新。

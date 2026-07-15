@@ -200,6 +200,67 @@ revision `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，SHA256
 `data/results/restoration_v2_1_interface_pilot/README.md`。该 runner 不得用于 full-45；后者必须先有新的冻结
 contract/source 与独立 canonical attempt identity。
 
+full-45 child contract 现已冻结为
+`configs/causalcache_restoration_v2_1_full_45.json`，SHA256
+`0924dd66fab9440bed66585765e9b1f5ab6fb80fbdf65a1492efba7ae81e116b`。source-only validation 不读取 policy
+或 GPU，也不授权执行：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.validate_restoration_v2_1_full_45_contract \
+  --repository-root /data/CausalCache \
+  --config /data/CausalCache/code/configs/causalcache_restoration_v2_1_full_45.json
+```
+
+唯一正式 full-45 attempt 必须从 clean pushed `main` 使用下面的 absolute argv。`--pilot-evidence` 与
+`--processor-preflight` 都必须是各自 private HF immutable revision 的 fresh download；首次 invocation 不带
+`--resume`。canonical root 或 sibling ledger 一旦存在就不得删除或换目录重跑：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.run_restoration_v2_1_full_45_substrate \
+  --repository-root /data/CausalCache \
+  --contract /data/CausalCache/code/configs/causalcache_restoration_v2_1_full_45.json \
+  --pilot-evidence /data/tmp/causalcache-restoration-v2-1-interface-pilot-hf-redownload/raw/restoration-v2-1-interface-pilot-v1.tar \
+  --processor-preflight /data/tmp/causalcache-restoration-v2-1-processor-preflight-hf-redownload/processor-preflight-v1/formal-result.json \
+  --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload \
+  --scientific-config /data/CausalCache/code/configs/causalcache_restoration_v2.json \
+  --selection-manifest /data/CausalCache/data/manifests/restoration_v2_selection.json \
+  --ocr-backend-config /data/CausalCache/code/configs/restoration_v2_ocr_backend.json \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --device cuda:0 \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --output-dir /data/experiments/causalcache/restoration-v2-1-full-45-substrate-v1
+```
+
+每 state 必须完整执行两次 reference generation；两次都 parse/closer/bridge 成功并 canonical agreement 后，
+才执行 3 次 teacher forward 与 2 次 GPU KL。parse、agreement 或 non-finite 是科学失败并留在 45 分母；
+contract/runtime/OOM/bridge invariant 是 `INVALID`。`--resume` 只跳过 terminal prefix；marker 无 terminal 会
+永久封存为 `INVALID`，不会继续该 state。root 外 sibling ledger 的 durable high-water journal 还会让删除
+marker+terminal pair 或整个 state/attempt 目录的行为 fail closed，不能通过删文件重生成已尝试 state。
+
+terminal outcome 出现后，在同一个 source commit 上打 deterministic USTAR：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.manage_restoration_v2_1_full_45_artifact archive \
+  --repository-root /data/CausalCache \
+  --raw-output-dir /data/experiments/causalcache/restoration-v2-1-full-45-substrate-v1 \
+  --global-attempt-ledger /data/experiments/causalcache/.restoration-v2-1-full-45-substrate-v1.attempt.json \
+  --output /data/experiments/causalcache/restoration-v2-1-full-45-substrate-v1.raw.tar \
+  --source-git-commit <FULL_45_SOURCE_SHA>
+```
+
+raw archive 上传 private dataset
+`gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile` 的
+`raw/restoration-v2-1-full-45-substrate-v1.tar`，tag `v2.1-full-45-substrate-v1`。只有取得 immutable revision、
+fresh-download 并逐 byte 验证后，才可 `create-manifest` 写入
+`data/results/restoration_v2_1_full_45_substrate/artifact.json`。完整 gate、artifact 与 promotion 边界见
+`docs/restoration_v2_1_full_45.md`。
+
 正式 device-side executor 证据使用三个独立入口：
 
 - `scripts.inspect_restoration_v2_executor_container` 在 Aries host 读取 live Docker/container/source identity；
