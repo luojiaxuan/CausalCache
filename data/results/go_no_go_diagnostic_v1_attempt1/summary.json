@@ -1,0 +1,16 @@
+{
+  "artifact_status": "implementation_invalid",
+  "completed_at": "2026-07-15T05:59:56.000841+00:00",
+  "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+  "dataset_revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+  "failure_class": "IndexError",
+  "failure_stage": "decision_4_full_history_teacher_forced_reference",
+  "git_commit": "527711bcf1b71ab84f7bdf68d0ddafe0c2444240",
+  "gpu": "NVIDIA H200 physical 0 / container cuda:0",
+  "host": "hyper00 / node-radixark-16-0000",
+  "message": "attention mask length 2023 did not match mm_token_type_ids length 2011 after appending the canonical action prefix",
+  "model_revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+  "restoration_distances_produced": 0,
+  "schema_version": "0.1.0",
+  "valid_for_diagnostic": false
+}

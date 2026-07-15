@@ -7,6 +7,7 @@ from pathlib import Path
 from causalcache.policy.qwen_runtime import (
     QwenPolicyRuntime,
     _teacher_forced_action_layout,
+    _teacher_forced_sequence_fill_value,
     effective_visual_tokens,
     full_vocab_action_path_kl,
     visual_patch_factor,
@@ -48,6 +49,12 @@ class QwenRuntimeTest(unittest.TestCase):
         self.assertEqual(layout["action_token_ids"], [20, 21, 22])
         with self.assertRaisesRegex(ValueError, "must not be empty"):
             _teacher_forced_action_layout([10], [])
+
+    def test_sequence_aligned_multimodal_inputs_use_text_prefix_values(self) -> None:
+        self.assertEqual(_teacher_forced_sequence_fill_value("attention_mask"), 1)
+        self.assertEqual(_teacher_forced_sequence_fill_value("mm_token_type_ids"), 0)
+        with self.assertRaisesRegex(ValueError, "unsupported"):
+            _teacher_forced_sequence_fill_value("unexpected_ids")
 
     def test_full_vocab_action_path_kl_self_and_known_case(self) -> None:
         reference = [[math.log(0.75), math.log(0.25)]]

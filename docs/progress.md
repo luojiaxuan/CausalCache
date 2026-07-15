@@ -442,6 +442,18 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
   argv、host/GPU、Python/PyTorch/Transformers、时间、latency 与 peak memory；成功不落 full logits，失败原子
   写入一个 `failure.json`；90 项 CPU tests 与 contract validation 通过，尚未启动正式 GPU forward。
 
+### 2026-07-14：go/no-go attempt 1 implementation-invalid
+
+- Hyper00 preflight 重新确认 GPU 0/1 空闲，formal run 只绑定 physical GPU 0；clean Git `527711b`、
+  pinned dataset SHA、model snapshot 与 container image digest 全部通过 runner contract；
+- decision step 4 full-history generation 通过 executable match，但首个 action-path reference forward
+  在 Qwen3-VL 3D RoPE 前 fail closed：追加 12 个 action prefix tokens 后 attention mask 为 2023，未同步
+  扩展的 `mm_token_type_ids` 仍为 2011；
+- 本次生成 0 个 restoration distances，`valid_for_diagnostic=false`，不解释为方法结果；轻量失败摘要见
+  `data/results/go_no_go_diagnostic_v1_attempt1/`；
+- 修复同步扩展 `attention_mask=1` 与新文本的 `mm_token_type_ids=0`，未知 aligned tensor 继续拒绝；
+  states、预算、distance、baselines 与 threshold 不变，更新 clean main 后从新目录重跑。
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；

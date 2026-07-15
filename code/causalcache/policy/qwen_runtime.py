@@ -44,6 +44,16 @@ def _teacher_forced_action_layout(
     }
 
 
+def _teacher_forced_sequence_fill_value(key: str) -> int:
+    values = {
+        "attention_mask": 1,
+        "mm_token_type_ids": 0,
+    }
+    if key not in values:
+        raise ValueError(f"unsupported sequence-aligned model input: {key}")
+    return values[key]
+
+
 def _sequence_action_path_kl(
     reference: Sequence[Sequence[float]],
     candidate: Sequence[Sequence[float]],
@@ -279,10 +289,15 @@ class QwenPolicyRuntime:
         layout = _teacher_forced_action_layout(prompt_ids, action_ids)
         model_inputs = dict(inputs)
         forced_prefix = action_ids[:-1]
-        if "attention_mask" in model_inputs:
-            attention_mask = model_inputs["attention_mask"]
-            if attention_mask.shape != prompt_input_ids.shape:
-                raise ValueError("attention_mask must align with prompt input_ids")
+        sequence_aligned_keys = {
+            key
+            for key, value in model_inputs.items()
+            if key != "input_ids"
+            and hasattr(value, "shape")
+            and tuple(value.shape) == tuple(prompt_input_ids.shape)
+        }
+        for key in sequence_aligned_keys:
+            _teacher_forced_sequence_fill_value(key)
         if forced_prefix:
             prefix_tensor = self.torch.tensor(
                 [forced_prefix],
@@ -293,15 +308,16 @@ class QwenPolicyRuntime:
                 [prompt_input_ids, prefix_tensor],
                 dim=1,
             )
-            if "attention_mask" in model_inputs:
-                attention_mask = model_inputs["attention_mask"]
-                forced_attention = self.torch.ones(
+            for key in sorted(sequence_aligned_keys):
+                sequence_tensor = model_inputs[key]
+                forced_values = self.torch.full(
                     (1, len(forced_prefix)),
-                    dtype=attention_mask.dtype,
-                    device=attention_mask.device,
+                    _teacher_forced_sequence_fill_value(key),
+                    dtype=sequence_tensor.dtype,
+                    device=sequence_tensor.device,
                 )
-                model_inputs["attention_mask"] = self.torch.cat(
-                    [attention_mask, forced_attention],
+                model_inputs[key] = self.torch.cat(
+                    [sequence_tensor, forced_values],
                     dim=1,
                 )
 
@@ -348,6 +364,7 @@ class QwenPolicyRuntime:
             "prompt_input_tokens": len(prompt_ids),
             "input_tokens": int(model_inputs["input_ids"].shape[1]),
             "teacher_forced_prefix_tokens": len(forced_prefix),
+            "extended_sequence_aligned_inputs": sorted(sequence_aligned_keys),
             "action_tokens": action_length,
             "vocabulary_size": vocabulary_size,
             "action_logit_positions": layout["action_logit_positions"],

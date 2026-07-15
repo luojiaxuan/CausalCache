@@ -62,6 +62,10 @@ runtime 只拼接 `action[:-1]`，并取 prompt 最后位置开始的 $L$ 个 fu
 float32 log-probabilities；`full_vocab_action_path_kl` 负责逐 token KL 与 mean/sum 聚合。该接口不加入
 generated special tokens，也不把 pathwise KL 描述成完整 sequence-action KL。
 
+Qwen3-VL 的 processor 同时返回 sequence-aligned `attention_mask` 与 `mm_token_type_ids`。teacher
+forcing 必须把二者与 action prefix 一起扩展：mask 填 1，新 action tokens 是文本所以 multimodal type
+填 0；任何未知的 prompt-length tensor 直接拒绝，避免 3D RoPE 在静默错位的输入上继续运行。
+
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，
 并只按 frozen config 输出 `INVALID`、`NO_GO_DIAGNOSTIC`、`INCONCLUSIVE_NEGATIVE` 或
