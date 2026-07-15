@@ -27,6 +27,9 @@ PROCESSOR_AUDIT_SOURCE_PATH = "code/scripts/audit_gui_owl_v2_processor.py"
 PROCESSOR_AUDIT_SUMMARY_PATH = (
     "data/results/restoration_v2_processor_audit/summary.json"
 )
+PROCESSOR_AUDIT_SUMMARY_SHA256 = (
+    "7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8"
+)
 PROCESSOR_AUDIT_SOURCE_PATHS = (
     "code/causalcache/policy/gui_owl_v2.py",
     "code/causalcache/policy/gui_owl_v2_runtime.py",
@@ -58,6 +61,136 @@ DETERMINISTIC_PROCESSOR_IMAGES = {
         "sha256": "3af4878fdbba4f543cddd68f06ad8b56eb51d3735b89c0f30b96c5f31ed5c75a",
         "size_bytes": 77_956,
     },
+}
+
+
+def _expected_cpu_tensor(shape: list[int], dtype: str) -> dict[str, Any]:
+    return {
+        "shape": shape,
+        "dtype": dtype,
+        "device": "cpu",
+        "requires_grad": False,
+    }
+
+
+def _expected_processor_case(
+    *,
+    name: str,
+    image_counts: list[int],
+    samples: list[dict[str, Any]],
+    sequence_length: int,
+    raw_patch_count: int,
+) -> dict[str, Any]:
+    batch_size = len(image_counts)
+    return {
+        "status": "passed",
+        "case": name,
+        "batch_size": batch_size,
+        "image_counts": image_counts,
+        "padding": False,
+        "no_padding": True,
+        "equal_image_count": True,
+        "equal_sequence_length": True,
+        "attention_mask_all_one": True,
+        "assistant_prefix_tail_exact": True,
+        "tensor_inventory": {
+            "attention_mask": _expected_cpu_tensor(
+                [batch_size, sequence_length], "torch.int64"
+            ),
+            "image_grid_thw": _expected_cpu_tensor(
+                [sum(image_counts), 3], "torch.int64"
+            ),
+            "input_ids": _expected_cpu_tensor(
+                [batch_size, sequence_length], "torch.int64"
+            ),
+            "mm_token_type_ids": _expected_cpu_tensor(
+                [batch_size, sequence_length], "torch.int64"
+            ),
+            "pixel_values": _expected_cpu_tensor(
+                [raw_patch_count, 1536], "torch.float32"
+            ),
+        },
+        "samples": samples,
+    }
+
+
+EXPECTED_PROCESSOR_TOKENIZER_BOUNDARY = {
+    "status": "passed",
+    "action": "wait",
+    "assistant_prefix_text": "<|im_start|>assistant\n",
+    "carrier_text": "Action: Execute the selected mobile action.\n",
+    "distance_text": (
+        '<tool_call>\n{"name":"mobile_use","arguments":{"action":"wait"}}\n'
+        "</tool_call>"
+    ),
+    "assistant_prefix_tokens": 3,
+    "carrier_tokens": 8,
+    "distance_tokens": 15,
+    "joint_boundary_exact": True,
+}
+EXPECTED_PROCESSOR_CASES = {
+    "single_conversation_one_image": _expected_processor_case(
+        name="single_conversation_one_image",
+        image_counts=[1],
+        samples=[
+            {
+                "image_count": 1,
+                "image_grid_thw": [[1, 152, 68]],
+                "effective_visual_tokens_per_image": [2584],
+                "effective_visual_tokens": 2584,
+                "policy_visible_text_tokens": 359,
+                "sequence_length": 2943,
+            }
+        ],
+        sequence_length=2943,
+        raw_patch_count=10_336,
+    ),
+    "single_conversation_five_images": _expected_processor_case(
+        name="single_conversation_five_images",
+        image_counts=[5],
+        samples=[
+            {
+                "image_count": 5,
+                "image_grid_thw": [
+                    [1, 152, 68],
+                    [1, 68, 152],
+                    [1, 152, 68],
+                    [1, 68, 152],
+                    [1, 152, 68],
+                ],
+                "effective_visual_tokens_per_image": [2584, 2584, 2584, 2584, 2584],
+                "effective_visual_tokens": 12_920,
+                "policy_visible_text_tokens": 366,
+                "sequence_length": 13_286,
+            }
+        ],
+        sequence_length=13_286,
+        raw_patch_count=51_680,
+    ),
+    "nested_batch_two_equal_shape": _expected_processor_case(
+        name="nested_batch_two_equal_shape",
+        image_counts=[1, 1],
+        samples=[
+            {
+                "image_count": 1,
+                "image_grid_thw": [[1, 152, 68]],
+                "effective_visual_tokens_per_image": [2584],
+                "effective_visual_tokens": 2584,
+                "policy_visible_text_tokens": 362,
+                "sequence_length": 2946,
+            },
+            {
+                "image_count": 1,
+                "image_grid_thw": [[1, 68, 152]],
+                "effective_visual_tokens_per_image": [2584],
+                "effective_visual_tokens": 2584,
+                "policy_visible_text_tokens": 362,
+                "sequence_length": 2946,
+            },
+        ],
+        sequence_length=2946,
+        raw_patch_count=20_672,
+    ),
 }
 EXPECTED_SOURCE_PATHS = {
     "derived_artifact_validator": (
@@ -492,6 +625,11 @@ def _validate_dependencies(
         for raw_record in _list(config["source_files"], name="source_files")
         for record in (_object(raw_record, name="source file"),)
     }
+    if (
+        _evidence_by_path(dependencies[8])[PROCESSOR_AUDIT_SUMMARY_PATH]["sha256"]
+        != PROCESSOR_AUDIT_SUMMARY_SHA256
+    ):
+        raise ValueError("dependency 8 processor summary SHA256 drifted")
     _validate_processor_audit_summary(
         loaded[PROCESSOR_AUDIT_SUMMARY_PATH],
         configured_sources=configured_sources,
@@ -633,6 +771,8 @@ def _validate_processor_case(
         )
     if tensor_metadata != expected_shapes_and_dtypes:
         raise ValueError(f"processor audit case {name} tensor shape/dtype drifted")
+    if case != EXPECTED_PROCESSOR_CASES[name]:
+        raise ValueError(f"processor audit case {name} exact evidence drifted")
 
 
 def _validate_processor_audit_summary(
@@ -720,10 +860,8 @@ def _validate_processor_audit_summary(
         any(runtime.get(field) != execution_runtime.get(field) for field in shared_runtime_fields)
         or runtime.get("platform_system") != "Linux"
         or runtime.get("processor_device") != "cpu"
-        or not isinstance(runtime.get("torch_distribution_version"), str)
-        or not runtime.get("torch_distribution_version")
-        or not isinstance(runtime.get("pillow_version"), str)
-        or not runtime.get("pillow_version")
+        or runtime.get("torch_distribution_version") != "2.11.0+cu130"
+        or runtime.get("pillow_version") != "12.2.0"
     ):
         raise ValueError("dependency 8 processor runtime identity drifted")
 
@@ -768,10 +906,8 @@ def _validate_processor_audit_summary(
 
     processor = _object(audit.get("processor_identity"), name="processor identity")
     if (
-        not isinstance(processor.get("processor_class"), str)
-        or not processor.get("processor_class", "").endswith("Processor")
-        or not isinstance(processor.get("tokenizer_class"), str)
-        or not processor.get("tokenizer_class")
+        processor.get("processor_class") != "Qwen3VLProcessor"
+        or processor.get("tokenizer_class") != "Qwen2Tokenizer"
         or processor.get("image_processor_class") != "Qwen2VLImageProcessor"
         or processor.get("image_processor_module")
         != "transformers.models.qwen2_vl.image_processing_qwen2_vl"
@@ -799,24 +935,7 @@ def _validate_processor_audit_summary(
         raise ValueError("dependency 8 real processor pixel target drifted")
 
     tokenizer = _object(audit.get("tokenizer_boundary"), name="tokenizer boundary")
-    if (
-        tokenizer.get("status") != "passed"
-        or tokenizer.get("action") != "wait"
-        or tokenizer.get("assistant_prefix_text") != "<|im_start|>assistant\n"
-        or tokenizer.get("carrier_text")
-        != "Action: Execute the selected mobile action.\n"
-        or tokenizer.get("distance_text")
-        != '<tool_call>\n{"name":"mobile_use","arguments":{"action":"wait"}}\n</tool_call>'
-        or tokenizer.get("joint_boundary_exact") is not True
-        or any(
-            type(tokenizer.get(field)) is not int or tokenizer[field] <= 0
-            for field in (
-                "assistant_prefix_tokens",
-                "carrier_tokens",
-                "distance_tokens",
-            )
-        )
-    ):
+    if tokenizer != EXPECTED_PROCESSOR_TOKENIZER_BOUNDARY:
         raise ValueError("dependency 8 processor tokenizer boundary drifted")
 
     _validate_processor_case(

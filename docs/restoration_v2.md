@@ -233,8 +233,11 @@ production runner 必须先完成 45×2 个真实 prompt 的 processor-only shap
 和 non-finite distance 属于固定分母内的合法 substrate failures；prompt/data/shape/model-forward/KL-kernel/OOM
 属于 invalid run，不能输出科学 `NO_GO`。
 
-这些 source guard 仍不等于第 8 项 passed：正式 real processor audit summary、execution config 与 readiness
-manifest 尚未 materialize。因此 screening 仍 locked。
+正式 real processor audit 已从 clean pushed commit 在 Hyper00 通过；summary SHA256 为
+`7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8`，真实每图 visual token accounting 为
+2,584 而不是构造 target 2,560。readiness validator 已将 exact grids、token counts、tensor inventory 与 runtime
+classes 冻结。这仍不等于第 8 项 passed：execution config 与 readiness manifest 尚未 materialize，screening
+仍 locked。
 
 验证命令：
 

@@ -172,7 +172,8 @@ runtime smoke 与引用全部 source/identity 的 execution config/readiness val
 
 ### Restoration v2 real processor 与 screening CLI 顺序
 
-下一步先从 clean pushed commit 运行 `scripts.audit_gui_owl_v2_processor`。该命令是 CPU processor audit，
+正式记录已从 clean pushed commit `82442da8193063b59e7b538d321406e26401d393` 运行
+`scripts.audit_gui_owl_v2_processor`。该命令是 CPU processor audit，
 不会实例化 model weights 或调用 forward/generate，因此不是 v2 policy output；但会读取完整 model snapshot
 做 SHA，并 import pinned Transformers modules 复核 source。正式命令必须显式传 model/cache、Git、host、
 container 与 exclusive output path：
@@ -198,6 +199,12 @@ output 均为 false。pinned Transformers `5.6.0` 会把 `min_pixels/max_pixels`
 `image_processor.size.shortest_edge/longest_edge`；审计必须验证这一 exact `SizeDict` 表示，不能误要求运行时
 仍存在 direct attributes。随后把轻量 summary commit/push，再用其 exact SHA 和实际 geometry 生成
 execution config。
+
+canonical summary 位于 `data/results/restoration_v2_processor_audit/summary.json`，SHA256
+`7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8`。实际 portrait/landscape grids 为
+`[1,152,68]` / `[1,68,152]`，每图 2,584 effective visual tokens；1-image、5-image、nested batch-2 sequence
+lengths 分别为 2,943、13,286、2,946。后续 execution config 必须引用这些实测值，不能回写构造 target 2,560
+冒充实际 accounting。
 
 readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
 运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived

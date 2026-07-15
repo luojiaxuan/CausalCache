@@ -15,9 +15,12 @@ from scripts.validate_restoration_v2_readiness import (
     DETERMINISTIC_PROCESSOR_IMAGES,
     EXPECTED_DEPENDENCY_EVIDENCE_PATHS,
     EXPECTED_DEPENDENCY_NAMES,
+    EXPECTED_PROCESSOR_CASES,
+    EXPECTED_PROCESSOR_TOKENIZER_BOUNDARY,
     PROCESSOR_AUDIT_SOURCE_PATH,
     PROCESSOR_AUDIT_SOURCE_PATHS,
     PROCESSOR_AUDIT_SUMMARY_PATH,
+    PROCESSOR_AUDIT_SUMMARY_SHA256,
     READINESS_STATUS,
     TRANSFORMERS_SOURCE_SHA256,
     _dependency_map,
@@ -56,51 +59,9 @@ def _processor_runtime() -> dict[str, object]:
 
 
 def _processor_case(name: str, image_counts: list[int]) -> dict[str, object]:
-    effective_per_image = 2550
-    text_tokens = 8
-    sequence_length = effective_per_image * image_counts[0] + text_tokens
-    samples = [
-        {
-            "image_count": image_count,
-            "image_grid_thw": [[1, 150, 68] for _ in range(image_count)],
-            "effective_visual_tokens_per_image": [
-                effective_per_image for _ in range(image_count)
-            ],
-            "effective_visual_tokens": effective_per_image * image_count,
-            "policy_visible_text_tokens": text_tokens,
-            "sequence_length": effective_per_image * image_count + text_tokens,
-        }
-        for image_count in image_counts
-    ]
-    total_images = sum(image_counts)
-    def tensor(shape: list[int], dtype: str) -> dict[str, object]:
-        return {
-            "shape": shape,
-            "dtype": dtype,
-            "device": "cpu",
-            "requires_grad": False,
-        }
-    return {
-        "status": "passed",
-        "case": name,
-        "batch_size": len(image_counts),
-        "image_counts": image_counts,
-        "padding": False,
-        "no_padding": True,
-        "equal_image_count": len(set(image_counts)) == 1,
-        "equal_sequence_length": True,
-        "attention_mask_all_one": True,
-        "assistant_prefix_tail_exact": True,
-        "tensor_inventory": {
-            "input_ids": tensor([len(image_counts), sequence_length], "torch.int64"),
-            "attention_mask": tensor(
-                [len(image_counts), sequence_length], "torch.int64"
-            ),
-            "pixel_values": tensor([total_images * 10_200, 1536], "torch.float32"),
-            "image_grid_thw": tensor([total_images, 3], "torch.int64"),
-        },
-        "samples": samples,
-    }
+    case = copy.deepcopy(EXPECTED_PROCESSOR_CASES[name])
+    assert case["image_counts"] == image_counts
+    return case
 
 
 def _processor_summary() -> dict[str, object]:
@@ -143,8 +104,8 @@ def _processor_summary() -> dict[str, object]:
         "runtime_identity": {
             **_processor_runtime(),
             "platform_system": "Linux",
-            "torch_distribution_version": "2.11.0",
-            "pillow_version": "11.2.1",
+            "torch_distribution_version": "2.11.0+cu130",
+            "pillow_version": "12.2.0",
             "processor_device": "cpu",
         },
         "processor_audit": {
@@ -166,7 +127,7 @@ def _processor_summary() -> dict[str, object]:
             },
             "processor_identity": {
                 "processor_class": "Qwen3VLProcessor",
-                "tokenizer_class": "Qwen2TokenizerFast",
+                "tokenizer_class": "Qwen2Tokenizer",
                 "image_processor_class": "Qwen2VLImageProcessor",
                 "image_processor_module": (
                     "transformers.models.qwen2_vl.image_processing_qwen2_vl"
@@ -193,20 +154,9 @@ def _processor_summary() -> dict[str, object]:
                 "local_files_only": True,
             },
             "deterministic_images": DETERMINISTIC_PROCESSOR_IMAGES,
-            "tokenizer_boundary": {
-                "status": "passed",
-                "action": "wait",
-                "assistant_prefix_text": "<|im_start|>assistant\n",
-                "carrier_text": "Action: Execute the selected mobile action.\n",
-                "distance_text": (
-                    '<tool_call>\n{"name":"mobile_use","arguments":{"action":"wait"}}\n'
-                    "</tool_call>"
-                ),
-                "assistant_prefix_tokens": 3,
-                "carrier_tokens": 8,
-                "distance_tokens": 20,
-                "joint_boundary_exact": True,
-            },
+            "tokenizer_boundary": copy.deepcopy(
+                EXPECTED_PROCESSOR_TOKENIZER_BOUNDARY
+            ),
             "single_conversation_one_image": _processor_case(
                 "single_conversation_one_image", [1]
             ),
@@ -311,6 +261,35 @@ def _manifest(
 
 
 class RestorationV2ReadinessSchemaTest(unittest.TestCase):
+    def test_committed_real_processor_summary_passes_exact_validation(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        summary_path = repository_root / PROCESSOR_AUDIT_SUMMARY_PATH
+        self.assertEqual(
+            hashlib.sha256(summary_path.read_bytes()).hexdigest(),
+            PROCESSOR_AUDIT_SUMMARY_SHA256,
+        )
+        summary = _load_json_object(summary_path)
+        inventory = summary["source_files"]
+        self.assertIsInstance(inventory, dict)
+        configured_sources = {
+            path: {"path": path, "sha256": record["sha256"]}
+            for path, record in inventory.items()
+        }
+        runtime = summary["runtime_identity"]
+        self.assertIsInstance(runtime, dict)
+        _validate_processor_audit_summary(
+            summary,
+            configured_sources=configured_sources,
+            execution_runtime=runtime,
+        )
+        self.assertEqual(
+            _validate_processor_audit_git_binding(
+                summary,
+                repository_root=repository_root,
+            ),
+            "82442da8193063b59e7b538d321406e26401d393",
+        )
+
     def test_old_gpu_validation_remains_explicitly_preclosure(self) -> None:
         summary, validation = _preclosure_gpu_evidence()
         _validate_preclosure_gpu_compute_audit(

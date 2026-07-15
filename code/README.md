@@ -155,6 +155,11 @@ import runtime；随后先完成全部 90 prompts 的 processor-only context swe
 每 state 写 no-retry attempt marker，保留 parse-failure raw output；OOM、contract/shape/model/kernel error 是
 fatal invalid，只有 parse、repeat-action mismatch 与 non-finite distance 进入 scientific substrate gate。
 
+formal processor evidence 位于 `data/results/restoration_v2_processor_audit/`：Hyper00 clean commit 审计冻结
+`Qwen3VLProcessor/Qwen2Tokenizer/Qwen2VLImageProcessor`、真实 portrait/landscape grids、每图 2,584 effective
+visual tokens、1/5-image 与 nested batch-2 exact shapes，以及全部零 policy-output declarations。该 evidence
+已通过当前 readiness parser 的 exact-value validation，但 execution config/readiness manifest 仍待物化。
+
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，
 并只按 frozen config 输出 `INVALID`、`NO_GO_DIAGNOSTIC`、`INCONCLUSIVE_NEGATIVE` 或

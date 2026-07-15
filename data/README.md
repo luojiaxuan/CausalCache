@@ -63,10 +63,10 @@ restoration v2 exact selection/exposure 产物：
 - `results/restoration_v2_gpu_compute_audit/`：Hyper00 单张 H200 policy-blind CUDA audit 与独立 offline
   validation；batch-1/CPU、batch-2/two-batch-1、logits/log-probs、zero-stride、invalid-to-NaN 和
   microbatch-2/no-OOM 全部通过，但明确不关闭 dependency 8。
-- `results/restoration_v2_processor_audit/`：预留给 Hyper00 上真实 pinned `AutoProcessor` 的轻量审计证据；
+- `results/restoration_v2_processor_audit/`：保存 Hyper00 上真实 pinned `AutoProcessor` 的轻量审计证据；
   第一次 clean-commit attempt 因真实 Transformers `SizeDict` pixel-limit 表示与 source 假设不符而在任何
-  policy output 前 fail closed；完成态目录尚未生成，dependency 8 仍为 pending。正式审计只允许加载
-  processor、哈希 model snapshot 与
+  policy output 前 fail closed；修复后的 formal audit 已通过，summary SHA256 为 `7d5ac1bd...43b8`。正式审计只
+  加载 processor、哈希 model snapshot 与
   Transformers source，不允许 materialize model weights、调用 forward/generate 或产生 policy/restoration
   output；结果必须先由干净 pushed commit 生成，再回写并冻结 exact image-grid/token-shape evidence。
 
@@ -118,8 +118,9 @@ restoration v2 exact selection/exposure 产物：
 - `results/restoration_v2_gpu_compute_audit/`：Hyper00 formal H200 compute audit 通过，summary SHA256
   `0b0adbd0...8134`；独立 validator 从 run commit Git blobs 复核通过，policy/restoration output 均为 false；
 
-- `results/restoration_v2_processor_audit/`：尚未运行；其 formal summary、exact processor grids/tokens 与
-  source hashes 是关闭 dependency 8、物化 readiness manifest 之前的最后一项 pre-output evidence；
+- `results/restoration_v2_processor_audit/`：Hyper00 real `AutoProcessor` formal summary 已通过；exact
+  grids/tokens/tensors、source hashes、零 model-tensor/forward/generate/output declarations 均已冻结。该子项
+  已完成，但 dependency 8 仍需 execution config/readiness manifest；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；

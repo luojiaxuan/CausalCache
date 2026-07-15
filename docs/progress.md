@@ -934,9 +934,9 @@ config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy ou
 6. baseline specification/source hashes：passed，见 `data/manifests/restoration_v2_baselines.json`；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
 8. 引用 scientific-config SHA 的 execution config：pending。GPU KL/microbatch/runtime/audit source 与
-   Hyper00 formal compute audit 已通过；confirm-safe screening loader、真实 processor-only audit CLI、
-   readiness validator 与固定 45-state production runner source 也已实现，但正式 processor evidence、完成态
-   config/source-hash manifest 与 readiness manifest 尚未闭合。
+   Hyper00 formal compute audit 与 real processor audit 均已通过；confirm-safe screening loader、
+   readiness validator 与固定 45-state production runner source 也已实现，但完成态 config/source-hash
+   manifest 与 readiness manifest 尚未闭合。
 
 GPU-side scalar KL、GUI-Owl runtime 与 coalition microbatch 已 implementation-ready，formal CUDA audit 已
 通过。新增 runner 在 readiness 8/8 前不 import policy runtime；readiness 后也先对固定 45 states 的
@@ -979,11 +979,25 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   module/representation 全部写入 evidence；readiness validator 同步要求这些 exact fields。该失败是
   pre-output superseded attempt，dependency 8 仍 pending，可在新 pushed commit 上安全重跑 processor audit。
 
+### 2026-07-15：real processor audit 正式通过
+
+- clean pushed commit `82442da8193063b59e7b538d321406e26401d393` 在同一 Hyper00 container 完成 formal
+  audit；summary SHA256 `7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8`，UTC
+  bracket `17:38:30.280432Z--17:38:51.584295Z`；
+- 完整 14-file / 17,545,907,171-byte model snapshot 与 pinned Transformers source 复核通过；唯一 pretrained
+  loader 是 `AutoProcessor.from_pretrained`，model weights 未 materialize 为 tensors，forward/generate、
+  policy output、restoration output 均为 false；
+- 真实 processor 为 `Qwen3VLProcessor + Qwen2Tokenizer + Qwen2VLImageProcessor`；portrait/landscape grids
+  为 `[1,152,68]` / `[1,68,152]`，对齐后每图 2,584 effective visual tokens；1-image/5-image sequence 为
+  2,943/13,286，nested batch-2 sequence 为 2,946，无 padding；
+- readiness validator 现对实际 tokenizer 3/8/15 token boundaries、全部 grid/sample/tensor inventory、PyTorch/
+  Pillow runtime 与 class/module 做 exact equality，不再只检查“内部自洽”；processor 子项已闭合，但
+  dependency 8 仍等待 execution config、完整 source inventory 与 readiness manifest。
+
 ## 下一步
 
-逐步 push：先从本次 clean pushed source commit 在 Hyper00 完成 policy-output-free real processor audit；把
-summary 回写 Git 后，再冻结包含其 exact geometry、全部 identity/source hashes 与 coalition microbatch 的
-execution config/readiness manifest。
+逐步 push：从包含 formal processor summary 的 clean pushed commit，冻结引用其 exact SHA/geometry、全部
+identity/source hashes 与 coalition microbatch 的 execution config；再物化 readiness manifest 并独立验证。
 第 8 项闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
