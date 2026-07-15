@@ -1131,10 +1131,34 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `data/results/restoration_v2_parser_compatibility/`；结果回归加入 committed-result/golden binding 后，全量
   tests 为 328 passed、10 optional-dependency skips。
 
+### 2026-07-15：Restoration v2.1 official-tool interface 与 pilot contract 已冻结
+
+- v2 的 `NO_GO_V2_SUBSTRATE` 和 parser replay 的 `NO_GO_ADAPTER_ONLY` 保持不变；v2.1 明确是新的
+  policy-interface reset，不是对旧 raw output 的 relabel 或 compatibility adapter；
+- 新增独立 official `tools=` schema、two-message prompt、single-line whole-output parser 和 AndroidWorld
+  bridge round-trip。assistant 不再输出 `Action:` carrier；alias、CRLF、多行 JSON、duplicate key、非 finite
+  number、非 NFKC text、truncated JSON、第二 call/JSON、observation 与任何前后文本均 fail closed；
+- 新 runtime 固定 pinned chat-template file/text SHA、assistant/opener/closer/EOS/pad token IDs；generation
+  使用 closer token `151658` 作为唯一 EOS并 suppression 标准 EOS，greedy batch-1、256-token cap、
+  `skip_special_tokens=false`。没有 model closer 就按 truncation 失败，不做 host completion；
+- teacher distance span 从 opener 到 model closer inclusive，且 reference/candidate teacher logits 对 generation
+  forbidden EOS columns 应用相同的 GPU-resident、BF16 finite-min mask，避免 generation 与 KL 的策略支持
+  不一致；
+- machine-readable contract
+  `code/configs/causalcache_restoration_v2_1_pilot.json` SHA256 为
+  `5b4c1e176e25ba30d84965f7c32c09594bb5a47dc3cd4f6be47d61e94cfeba03`。它固定 processor-only
+  45-state × 2-fidelity 共 90 prompts，随后只对 15 个 `v2_development` states 各生成一次；
+- pilot 通过条件是 15/15 exact parse、15/15 model-emitted closer、15/15 AndroidWorld bridge，且所有
+  truncation/extra-output/retry/top-up 计数为 0。pilot 明确禁止 teacher、KL、restoration、expert、label-train
+  和 confirm；pass 也只授权 unchanged-interface full-45 substrate，不授权 confirm；
+- 本里程碑是 source-only：validator 返回 processor preflight pending 且不授权 generation；尚未加载 v2.1
+  model、forward、generate 或产生 policy/restoration output。下一步必须先从本 source commit push 后运行
+  Hyper00 processor-only preflight。
+
 ## 下一步
 
-下一步冻结新的 v2.1 interface rescue；优先验证 official `tools=` chat-template 路径与 model-emitted
-`</tool_call>` generation termination，
-但不得语法补全截断 JSON、静默取多 action 的第一个或在原 v2 result 上 relabel。新 protocol 必须在任何新
-policy output 前完成 tests、commit、push 与重新 authorization；只有新 substrate screening 通过才能打开
-fixed-denominator confirm。AndroidWorld validation 只作 development，test split 继续 sealed。
+下一步从 clean pushed v2.1 source commit 在 Hyper00 运行 90-prompt processor-only preflight；它必须在
+不加载 model weights、不 forward/generate 的条件下复核 official tools 注入、token boundary、image-count
+distribution 与 context。通过后才执行固定 15-state、每 state 一次的 interface pilot。任何失败都不得
+重试/top-up/修 parser；只有 pilot 通过才进入 unchanged-interface full-45 substrate。confirm、AndroidWorld
+test split 与 restoration label 继续锁定。

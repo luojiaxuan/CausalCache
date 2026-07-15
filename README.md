@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / confirm locked / v2.1 interface rescue next
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 source frozen、processor preflight pending / confirm locked
 
 ## 团队交接入口
 
@@ -16,6 +16,15 @@ policy output 前冻结，SHA256 为
 go/no-go 阈值见 [`docs/restoration_v2.md`](docs/restoration_v2.md)。第一次固定 development screening 已产生
 45 个 v2 native policy outputs，但 strict parse 为 0/45，因此没有 teacher forward、KL、restoration label、
 gate checkpoint 或方法效果结果；confirm 仍 locked。
+
+新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
+[`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
+SHA256 为 `5b4c1e176e25ba30d84965f7c32c09594bb5a47dc3cd4f6be47d61e94cfeba03`。它改用 checkpoint
+official `tools=` chat template、要求模型原生 `</tool_call>`、删除 `Action:` carrier，并固定先做零 policy
+output 的 90-prompt processor preflight，再对 exact 15 个 `v2_development` states 各生成一次。pilot 必须
+15/15 strict whole-output parse、15/15 model-emitted closer、15/15 AndroidWorld bridge，任何一次失败即
+`NO_GO_V2_1_INTERFACE_PILOT`，不得 retry/top-up/teacher/KL/restoration/confirm。完整边界见
+[`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)。当前仅 source/contract 已就绪，尚无 v2.1 policy output。
 
 v2 CPU interface 已独立实现并 hash-pinned，见
 [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md) 与
@@ -145,15 +154,16 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 新合作者按以下顺序阅读：
 
 1. [`docs/restoration_v2.md`](docs/restoration_v2.md)：当前 scientific contract、data roles 与 gates；
-2. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
+2. [`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)：official-tool interface rescue 与固定 15-state pilot；
+3. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
    post-state-only prompt 的冻结实现；
-3. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
-4. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
-5. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-6. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-7. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-8. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-9. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+4. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+5. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
+6. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+7. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+8. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+9. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+10. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -176,9 +186,10 @@ make test validate-contract validate-restoration-v2 validate-restoration-v2-inte
 ```
 
 计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback。八项
-pre-output dependencies 已闭合并完成第一次正式 screening；当前因 strict parse 0/45 停在
-`NO_GO_V2_SUBSTRATE + CONFIRM_LOCKED`。任何 interface rescue 都必须另立 versioned protocol、先 commit/push
-再产生新 output。AndroidWorld closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 当前不参与本轮执行。
+pre-output dependencies 已闭合并完成第一次正式 screening；v2 保持
+`NO_GO_V2_SUBSTRATE + NO_GO_ADAPTER_ONLY`。v2.1 versioned source/contract 已冻结，下一步是 Hyper00
+processor-only preflight 与固定 15-state interface pilot；在其通过前不运行 teacher/KL/restoration，confirm
+继续锁定。AndroidWorld closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 当前不参与本轮执行。
 
 ## 一句话主张
 
@@ -490,12 +501,15 @@ $$
 - Restoration v2 fixed 45-state substrate result: [`data/results/restoration_v2_substrate_screening/README.md`](data/results/restoration_v2_substrate_screening/README.md)
 - Restoration v2 parser replay golden contract: [`data/manifests/restoration_v2_parser_compatibility_golden.json`](data/manifests/restoration_v2_parser_compatibility_golden.json)
 - Restoration v2 formal parser compatibility replay: [`data/results/restoration_v2_parser_compatibility/README.md`](data/results/restoration_v2_parser_compatibility/README.md)
+- Restoration v2.1 frozen pilot contract: [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)
+- Restoration v2.1 interface and execution boundary: [`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)
 - Build command: `make paper`
-- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
+- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`；v2.1 contract 另用 `cd code && python3 -m scripts.validate_restoration_v2_1_contract --repository-root .. --config code/configs/causalcache_restoration_v2_1_pilot.json`
 - 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 第一次固定 45-state screening 在
   clean `main` 完成，strict parse 0/45，正式为 `NO_GO_V2_SUBSTRATE + CONFIRM_LOCKED`；事后 immutable
   replay 的保守上界也仅 40/45，正式为 `NO_GO_ADAPTER_ONLY`。已有 45 个 native policy outputs，但没有
-  teacher forward、KL、restoration label 或 CausalCache 方法效果结果。
+  teacher forward、KL、restoration label 或 CausalCache 方法效果结果。v2.1 official-tool source/contract 已
+  在新 output 前冻结，90-prompt processor preflight 与 15-state pilot 尚未执行。
 
 ### Data and Models
 

@@ -47,16 +47,17 @@ adds exactly one archived post-action image. We measure how much this visual
 addition restores a frozen policy's stable full-history self-behavior. We
 formulate a budget-conditioned, Shapley-style restoration value whose coalitions
 match the deployment budget, then distill the expensive offline values into a
-query-conditioned multi-budget gate. The v2 reference is screened for exact
+query-conditioned multi-budget gate. The versioned reference is screened for exact
 action-contract parsing, finite teacher-forced logits, and repeat-stable
 canonical output; expert top-1 alignment is reported only as a diagnostic and
 never used to admit or remove states. We evaluate whether restoration
 supervision improves the closed-loop success--memory frontier and whether
 retained restoration value predicts success after controlling for next-action
 likelihood, context cost, and task horizon. \pending{The v1 expert-aligned
-reference stack remains rejected. The preregistered v2 estimand fixes
-GUI-Owl-1.5-8B-Instruct as a stable self-behavior reference; insert no
-method-effect claim until the substrate and untouched restoration gates pass.}
+reference stack and first v2 output contract remain rejected. The preregistered
+v2.1 interface fixes GUI-Owl-1.5-8B-Instruct as a stable self-behavior
+reference; insert no method-effect claim until the substrate and untouched
+restoration gates pass.}
 \end{abstract}
 
 \section{Introduction}
@@ -189,17 +190,17 @@ added only for $S\subseteq C_t$. The frozen-policy reference is
 \begin{equation}
 q_t = \pi_0(\cdot\mid g,x_t,X_t(C_t)).
 \end{equation}
-Its deterministically decoded output is normalized to one exact native
-MobileUse tool call and used as the canonical action $a_t^*$. The substrate
+Its deterministically decoded output must be one exact native MobileUse tool
+call and is used as the canonical action $a_t^*$. The substrate
 requires contract-parseable output, finite teacher-forced logits, and identical
 canonical actions across two deterministic forwards. Expert agreement does not
 define or filter the reference. Once the untouched confirm split is opened,
 parse or stability failures count against the fixed-denominator gate rather
-than being removed. For teacher forcing, the processor's native assistant prefix
-is followed by the fixed nonsemantic carrier ``Action: Execute the selected
-mobile action.'' and then a deterministic MobileUse tool call. This preserves
-the native response envelope without leaking the reference's generated target
-description into every coalition.
+than being removed. We use the checkpoint's official tool-template path rather
+than reproducing its schema in a hand-written prompt. For teacher forcing, the
+processor's native assistant prefix is followed directly by the deterministic
+MobileUse tool call; no generated action description or fixed Action carrier is
+inserted. Text arguments must already use Unicode NFKC normalization.
 
 \subsection{Executable Behavioral Distance}
 
@@ -215,8 +216,10 @@ q^S_{t,l}(\cdot\mid a^*_{t,<l})
 \right).
 \end{equation}
 The KL is teacher-forced over the full vocabulary from the opening
-\texttt{<tool\_call>} through the closing tag; the fixed Action carrier is
-context but is not scored. Action-type match, canonical coordinate-bin match, normalized
+\texttt{<tool\_call>} through the model-emitted closing tag. Standard model EOS
+tokens that are suppressed during generation receive the same finite minimum
+logit mask in both reference and candidate distributions before normalization.
+Action-type match, canonical coordinate-bin match, normalized
 coordinate distance, and text-argument match are reported as diagnostics, not
 mixed into the primary restoration distance.
 
@@ -284,12 +287,12 @@ primary frozen policy and one transfer backbone. Every comparison shares the
 same low-fidelity channel, action policy, gate architecture where applicable,
 and visual-token accounting.
 
-The v2 primary policy is frozen to GUI-Owl-1.5-8B-Instruct
+The v2.1 primary policy is frozen to GUI-Owl-1.5-8B-Instruct
 \cite{xu2026mobileagent35} at model revision
 \texttt{06d5faec}, using bfloat16 and
-deterministic decoding. The earlier GUI-Owl and UI-TARS expert-alignment gates
-remain valid negative v1 results; v2 changes the estimand rather than lowering
-those thresholds.
+deterministic decoding through its official tool template. The earlier
+GUI-Owl output-contract and UI-TARS expert-alignment gates remain valid negative
+results; v2.1 versions the interface rather than relabeling those outputs.
 
 The untouched confirm set contains one decision-6 state from each of 20
 trajectories selected before policy inference in frozen hash order. Every state

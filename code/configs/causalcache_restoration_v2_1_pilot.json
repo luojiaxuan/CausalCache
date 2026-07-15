@@ -1,0 +1,274 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "causalcache_restoration_v2_1_official_tool_interface",
+  "preregistration_status": "policy_interface_reset_frozen_before_any_v2_1_policy_output",
+  "change_control": {
+    "change_class": "new_policy_interface_protocol_not_format_only_adapter",
+    "parent_protocol_id": "causalcache_restoration_v2",
+    "parent_scientific_contract": {
+      "path": "code/configs/causalcache_restoration_v2.json",
+      "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+    },
+    "parent_substrate_result": {
+      "path": "data/results/restoration_v2_substrate_screening/summary.json",
+      "sha256": "57a00ac2363890bc2b45b0681dee6f785d05abeb90b4d98499d52d5f16e5c7e6",
+      "outcome_must_remain": "NO_GO_V2_SUBSTRATE",
+      "strict_parse_success_count_must_remain": 0
+    },
+    "parent_parser_replay": {
+      "path": "data/results/restoration_v2_parser_compatibility/formal_result.json",
+      "sha256": "78272ee54c1234244239eff080f03d7d97b5973fa5d5cf26fddd77b95794a6e0",
+      "outcome_must_remain": "NO_GO_ADAPTER_ONLY"
+    },
+    "v2_results_may_be_relabelled": false,
+    "v2_compatibility_outputs_may_count_as_v2_1_outputs": false,
+    "v2_1_was_designed_after_v2_development_output": true,
+    "pilot_is_interface_engineering_not_confirmatory_evidence": true,
+    "scientific_fields_may_change_after_first_v2_1_policy_output": false
+  },
+  "primary_policy": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "snapshot_manifest": {
+      "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+    },
+    "frozen": true,
+    "dtype": "torch.bfloat16",
+    "device_count": 1,
+    "generation": {
+      "batch_size": 1,
+      "planned_generations_per_state": 1,
+      "do_sample": false,
+      "num_beams": 1,
+      "num_return_sequences": 1,
+      "max_new_tokens": 256,
+      "eos_token_id": 151658,
+      "eos_token_text": "</tool_call>",
+      "pad_token_id": 151643,
+      "pad_token_text": "<|endoftext|>",
+      "suppress_token_ids": [151643, 151645],
+      "suppress_token_texts": ["<|endoftext|>", "<|im_end|>"],
+      "automatic_retry": false,
+      "automatic_oom_fallback": false,
+      "fallback_generation_interface": null
+    }
+  },
+  "policy_interface": {
+    "contract_id": "gui_owl_v2_1_official_tool_interface",
+    "source": {
+      "path": "code/causalcache/policy/gui_owl_v2_1.py",
+      "sha256": "9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c"
+    },
+    "chat_template_mode": "official_tools_argument",
+    "tools_argument_count": 1,
+    "tool_name": "mobile_use",
+    "manual_tools_xml_in_system_prompt": false,
+    "action_line_carrier_present": false,
+    "generation_and_teacher_prompt_identical": true,
+    "output_envelope": "exact_single_complete_official_tool_call_only",
+    "whole_output_pattern": "<tool_call>\\n{strict_json}\\n</tool_call>",
+    "leading_or_trailing_whitespace_allowed": false,
+    "surrounding_prose_allowed": false,
+    "action_line_allowed": false,
+    "observation_allowed": false,
+    "second_json_allowed": false,
+    "second_tool_call_allowed": false,
+    "model_emitted_closer_required": true,
+    "host_appended_closer_allowed": false,
+    "syntax_completion_allowed": false,
+    "compatibility_parser_fallback_allowed": false,
+    "parent_v2_parser_fallback_allowed": false,
+    "wrapper": {
+      "required_top_level_keys": ["name", "arguments"],
+      "name": "mobile_use",
+      "arguments_must_be_object": true,
+      "duplicate_json_keys_allowed": false,
+      "nonfinite_json_numbers_allowed": false,
+      "text_arguments_must_already_be_unicode_nfkc": true,
+      "non_nfkc_text_arguments_rejected_by_parser": true
+    },
+    "actions": [
+      "click",
+      "long_press",
+      "swipe",
+      "type",
+      "system_button",
+      "open",
+      "wait",
+      "answer",
+      "terminate"
+    ],
+    "model_action_aliases_allowed": false,
+    "androidworld_bridge_required": true,
+    "teacher_target": {
+      "serialization": "official_tool_call_json_with_comma_space_and_colon_space",
+      "action_carrier": null,
+      "distance_span": "first_token_of_<tool_call>_through_model_emitted_</tool_call>_inclusive",
+      "suppressed_standard_eos_token_ids": [151645, 151643],
+      "generation_suppression_semantics": "negative_infinity_via_transformers_suppress_tokens",
+      "teacher_suppression_semantics": "torch_finfo_bfloat16_min_finite",
+      "teacher_mask_application": "same_mask_on_every_reference_and_candidate_action_path_position_before_float32_log_softmax",
+      "target_disjoint_from_suppressed_standard_eos_required": true
+    },
+    "immutable_identity": {
+      "official_chat_template": {
+        "snapshot_path": "chat_template.json",
+        "sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce"
+      },
+      "system_prompt_utf8_sha256": "ea077cd01084b1e9f5e67cad8f9260eb92941fb300fde26d2f1d572f1434bdf0",
+      "final_user_instruction_utf8_sha256": "bca922705f623a84200c8f8492ec9205594bafcae686c24ebf1b0e969fcfb77e",
+      "canonical_tool_schema_sha256": "8f92f2fe5eeda45af1e41852f364d2fa4738fbb502eb4fb80f6ef1025691f6c7",
+      "parser_source": {
+        "path": "code/causalcache/policy/gui_owl_v2_1.py",
+        "sha256": "9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c"
+      },
+      "teacher_serializer_source": {
+        "path": "code/causalcache/policy/gui_owl_v2_1.py",
+        "sha256": "9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c"
+      },
+      "runtime_source": {
+        "path": "code/causalcache/policy/gui_owl_v2_1_runtime.py",
+        "sha256": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5"
+      }
+    }
+  },
+  "data": {
+    "derived_artifact": {
+      "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "immutable_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e"
+    },
+    "selection_manifest": {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    },
+    "pilot_role": "v2_development",
+    "pilot_source_ids": [
+      "0119685762769531",
+      "0126163828013448",
+      "0106443124024468",
+      "0141544666483837",
+      "0035782072567389"
+    ],
+    "pilot_decision_step_ids": [4, 5, 6],
+    "pilot_state_count": 15,
+    "source_state_indices": [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44],
+    "pilot_state_ids": [
+      "0119685762769531:decision_step:004",
+      "0119685762769531:decision_step:005",
+      "0119685762769531:decision_step:006",
+      "0126163828013448:decision_step:004",
+      "0126163828013448:decision_step:005",
+      "0126163828013448:decision_step:006",
+      "0106443124024468:decision_step:004",
+      "0106443124024468:decision_step:005",
+      "0106443124024468:decision_step:006",
+      "0141544666483837:decision_step:004",
+      "0141544666483837:decision_step:005",
+      "0141544666483837:decision_step:006",
+      "0035782072567389:decision_step:004",
+      "0035782072567389:decision_step:005",
+      "0035782072567389:decision_step:006"
+    ],
+    "pilot_state_projection_schema": [
+      "pilot_index",
+      "source_state_index",
+      "role",
+      "trajectory_id",
+      "decision_step_id",
+      "state_id",
+      "candidate_event_step_ids"
+    ],
+    "pilot_state_projection_sha256": "f29b787f3d0b1e9436f20d2a3c782c8e27d3617c063d2326ac9ced31c5d45956",
+    "full_history_only": true,
+    "confirm_role": "v2_confirm_primary",
+    "confirm_policy_output_allowed": false,
+    "label_train_policy_output_allowed": false,
+    "top_up_allowed": false,
+    "state_filtering_after_output_allowed": false
+  },
+  "processor_preflight": {
+    "required_before_any_v2_1_policy_generation": true,
+    "required_success_status": "PASSED_RESTORATION_V2_1_90_PROMPT_PROCESSOR_PREFLIGHT",
+    "runtime_source_sha256": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5",
+    "canonical_tool_schema_sha256": "8f92f2fe5eeda45af1e41852f364d2fa4738fbb502eb4fb80f6ef1025691f6c7",
+    "chat_template_file_sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce",
+    "chat_template_text_sha256": "3636d0f0bd6bef02654cdffdc447b79cb2cef8ab02cc75267345946291a489e4",
+    "assistant_prefix_token_ids": [151644, 77091, 198],
+    "tool_call_open_token_id": 151657,
+    "tool_call_close_token_id": 151658,
+    "standard_eos_token_ids": [151645, 151643],
+    "pad_token_id": 151643,
+    "roles": ["v2_label_train", "v2_development"],
+    "state_count": 45,
+    "fidelities": ["reference", "summary_only"],
+    "prompt_count": 90,
+    "official_tools_injected_prompt_count": 90,
+    "reference_prompt_count": 45,
+    "summary_only_prompt_count": 45,
+    "image_count_distribution": {
+      "1": 45,
+      "3": 15,
+      "4": 15,
+      "5": 15
+    },
+    "teacher_boundary_validated": true,
+    "full_45_state_projection_sha256": "65e7085f01bc26e425bab7f5148c6729bc8c6d0a62802ebc5e8dfeaed6439249",
+    "reserved_generation_tokens": 256,
+    "verified_context_limit_required": true,
+    "context_overflow_count": 0,
+    "policy_model_loaded": false,
+    "policy_forward_executed": false,
+    "policy_generation_executed": false,
+    "confirm_accessed": false,
+    "restoration_output_generated": false,
+    "must_bind_contract_sha256": true,
+    "must_bind_selection_manifest_sha256": true,
+    "must_bind_policy_interface_source_sha256": true,
+    "failure_outcome": "INVALID_BEFORE_V2_1_POLICY_GENERATION"
+  },
+  "pilot_execution": {
+    "fixed_state_denominator": 15,
+    "planned_generation_call_count": 15,
+    "full_history_reference_generation_only": true,
+    "state_attempt_marker_written_before_generation": true,
+    "resume_may_only_reuse_terminal_state_records": true,
+    "incomplete_attempt_may_be_retried": false,
+    "completed_state_may_be_regenerated": false,
+    "state_retry_count": 0,
+    "top_up_count": 0,
+    "teacher_forward_count": 0,
+    "kl_measurement_count": 0,
+    "restoration_label_count": 0,
+    "expert_action_read_count": 0,
+    "confirm_state_generation_count": 0,
+    "label_train_state_generation_count": 0,
+    "sample_mutation_allowed": false
+  },
+  "pilot_gate": {
+    "fixed_state_denominator": 15,
+    "required_exact_whole_output_parse_count": 15,
+    "required_model_emitted_closer_count": 15,
+    "required_androidworld_bridge_count": 15,
+    "maximum_max_token_truncation_count": 0,
+    "maximum_surrounding_prose_count": 0,
+    "maximum_action_line_count": 0,
+    "maximum_observation_count": 0,
+    "maximum_second_json_count": 0,
+    "maximum_second_tool_call_count": 0,
+    "maximum_retry_count": 0,
+    "maximum_top_up_count": 0,
+    "pass_outcome": "PASS_V2_1_INTERFACE_PILOT",
+    "fail_outcome": "NO_GO_V2_1_INTERFACE_PILOT",
+    "invalid_outcome": "INVALID_V2_1_PILOT"
+  },
+  "promotion": {
+    "pilot_pass_does_not_authorize_confirm": true,
+    "pilot_pass_authorizes_only": "unchanged_interface_fixed_45_state_substrate_screening",
+    "full_45_state_projection_sha256": "65e7085f01bc26e425bab7f5148c6729bc8c6d0a62802ebc5e8dfeaed6439249",
+    "interface_prompt_generation_parser_teacher_and_gate_sources_may_change_before_full_45": false,
+    "confirm_remains_locked_until_full_45_substrate_gate_passes": true,
+    "same_parent_v2_restoration_gate_thresholds_required_after_substrate_pass": true
+  }
+}

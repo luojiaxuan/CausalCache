@@ -73,6 +73,13 @@ block；剔除后仍必须完整匹配单行 `Action:` 和唯一 `mobile_use` `<
 多 block、中缀/后缀 thinking 或额外文本全部 fail closed。v2 Instruct parser 不继承该例外，任何 thinking
 block 都拒绝。
 
+v2.1 interface rescue 使用独立模块 `causalcache.policy.gui_owl_v2_1`、
+`causalcache.policy.gui_owl_v2_1_runtime` 与 `causalcache.restoration_v2_1_contract`。它通过 pinned
+processor 的 official `tools=` 注入 schema，删除旧 `Action:` carrier，并只接受模型完整生成的一组
+`<tool_call>`。generation closer、标准 EOS suppression、teacher EOS finite mask、chat-template 与 token IDs
+均被 contract hash 绑定。`scripts.validate_restoration_v2_1_contract` 只验证 immutable source/contract；在
+独立 90-prompt processor evidence 通过前，它明确不授权 policy generation。
+
 正式 device-side executor 证据使用三个独立入口：
 
 - `scripts.inspect_restoration_v2_executor_container` 在 Aries host 读取 live Docker/container/source identity；
