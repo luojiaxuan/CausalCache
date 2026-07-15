@@ -838,6 +838,22 @@ config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy ou
   `policy_output_generated=false`、`restoration_output_generated=false`；dependency 1 已闭合，详细轻量证据见
   `data/results/restoration_v2_derived_artifact/`。
 
+### 2026-07-15：GPU-resident KL 与 deterministic microbatch 源码前置
+
+- 新增 `causalcache.restoration_v2_gpu_kl`：正式 API 只接受同一 CUDA device 上的
+  `[B,T,V]` tensor，reference 固定为 normalized FP32 log-probabilities，candidate 为 BF16
+  logits 或 normalized FP32 log-probabilities；FP32 `log_softmax`、full-vocabulary KL 和 token mean
+  都不离开 GPU；
+- cached `[1,T,V]` reference 通过 zero-stride `.expand(B,-1,-1)` 复用，正式返回值是
+  GPU 上的 FP32 `[B]`；独立 float64 CPU oracle 只用于审计，等价容差为
+  `atol=1e-6, rtol=1e-5`；
+- 新增 `causalcache.restoration_v2_batching`：只允许显式 microbatch size 2，按 exact
+  `(image_count, sequence_length)` 升序分组，组内按唯一 `input_index` 排序，并固定
+  `automatic_oom_fallback=false`；
+- Mac 全量 233 tests passed，10 个 optional PyTorch/Pillow runtime tests skipped。本步没有加载
+  policy、不使用 GPU，也没有生成 v2 policy/restoration output。Hyper00 CUDA audit、实际
+  runtime 与 execution config 仍 pending，因此 dependency 8 未通过。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -885,14 +901,16 @@ config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy ou
    model revision、6-image real-screen golden、HF dataset immutable re-download 与完成态 manifest passed；
 6. baseline specification/source hashes：passed，见 `data/manifests/restoration_v2_baselines.json`；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
-8. 引用 scientific-config SHA 的 execution config：pending。
+8. 引用 scientific-config SHA 的 execution config：pending。GPU KL/microbatch 纯源码前置已通过
+   Mac 单测，但 Hyper00 CUDA audit、runtime source identity 与完成态 config/validator 尚未闭合。
 
 GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch 是后续 engineering 实现项；它们
 不能替代上述任何 pre-output dependency，且 microbatch 必须进入第 8 项 execution config。
 
 ## 下一步
 
-逐步 push：下一步冻结包含全部 identity/source hashes 与 coalition microbatch 的 execution config。
+逐步 push：下一步先在 Hyper00 对 GPU KL 做 batch-1/CPU 与 batch-2/two-batch-1 等价性审计，
+再冻结包含全部 identity/source hashes 与 coalition microbatch 的 execution config。
 第 8 项闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact

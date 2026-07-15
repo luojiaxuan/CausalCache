@@ -106,6 +106,19 @@ Qwen3-VL 的 processor 同时返回 sequence-aligned `attention_mask` 与 `mm_to
 forcing 必须把二者与 action prefix 一起扩展：mask 填 1，新 action tokens 是文本所以 multimodal type
 填 0；任何未知的 prompt-length tensor 直接拒绝，避免 3D RoPE 在静默错位的输入上继续运行。
 
+restoration v2 不使用上述把 full-vocabulary tensor 搬到 CPU 的历史 diagnostic 路径。
+`causalcache.restoration_v2_gpu_kl` 只接受同一 CUDA device 上的 `[B,T,V]` tensor：reference
+是 normalized FP32 log-probabilities，candidate 是 BF16 logits 或已归一化的 FP32 log-probabilities；
+FP32 reduction 与 `[B]` 输出都保持 GPU-resident。正式 batch 可用
+`reference.expand(B,-1,-1)` 零拷贝复用 reference。独立 float64 CPU oracle 只能用于审计，
+等价容差固定为 `atol=1e-6, rtol=1e-5`。
+
+`causalcache.restoration_v2_batching` 使用显式 `microbatch_size=2`，按
+`(image_count, sequence_length)` 精确分组、组键升序执行、组内按唯一 `input_index`
+排序，并在 JSON-ready audit 中明确记录 `automatic_oom_fallback=false`。这两个模块只冻结
+compute/planning semantics；必须在 Hyper00 CUDA audit 和 execution-config validator 通过后才能生成
+v2 policy output。
+
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，
 并只按 frozen config 输出 `INVALID`、`NO_GO_DIAGNOSTIC`、`INCONCLUSIVE_NEGATIVE` 或

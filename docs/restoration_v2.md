@@ -209,6 +209,12 @@ stability failure，输出 `INCONCLUSIVE_V2`。contract/runtime 错误为 `INVAL
 
 当前 dependencies 1--7 已 passed；第 8 项仍 pending，因此 policy inference 继续 locked。
 
+GPU KL 与 deterministic microbatch 的纯源码前置已实现：正式路径使用同一 CUDA device 上的
+FP32 full-vocabulary reduction，microbatch 固定为 2 且按 exact image-count/sequence-length 分组，
+禁止自动 OOM fallback。这不等于第 8 项 passed；还必须完成 Hyper00 CUDA equivalence audit，
+并把 audited source hashes、runtime/container/model/data identities 与 microbatch size 写入单独的
+execution config。
+
 验证命令：
 
 ```bash

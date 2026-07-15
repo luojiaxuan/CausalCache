@@ -134,6 +134,26 @@ derived artifact 已由 2026-07-15 formal runs 闭合；当前只剩 execution c
 `docs/restoration_v2.md` 所列八项全部完成
 后，才允许执行 GPU substrate screening。
 
+### Restoration v2 GPU reduction 与 microbatch 语义
+
+正式 v2 distance 不得调用历史 `QwenPolicyRuntime.teacher_forced_action_log_probs`
+的 CPU full-tensor 返回路径。reference 必须作为 normalized FP32 `[1,T,V]` tensor 留在选定的
+CUDA device，对 batch 使用零拷贝 `.expand(B,-1,-1)`；candidate BF16 logits 在 GPU 上转 FP32
+`log_softmax`，随后做 vocabulary sum 和 distance-token mean。production 函数返回 GPU 上的
+FP32 `[B]` scalar tensor，调用方只能把最终 distance 和小型 audit metadata 回传 CPU。
+
+coalition planner 只接受显式 `microbatch_size=2`，按 exact `(image_count, sequence_length)`
+分组，组内按 frozen `input_index` 排序。任何自动 OOM fallback、按运行结果调 batch，或把
+不同 shape padding 到同一正式 batch 都是 contract violation。Hyper00 还必须验证：
+
+- batch 1 GPU KL 对独立 float64 CPU oracle；
+- batch 2 对两次 batch 1；
+- cached reference 的 zero-stride expansion 没有 materialized copy；
+- `atol=1e-6, rtol=1e-5`、finite output、FP32 output 和同 device 约束全部通过。
+
+这些 source 已有 Mac CPU/unit-test 验证，但本段不是 GPU pass 记录。在 Hyper00 CUDA
+summary 与引用其 source hashes 的 execution config 提交、push 前，第 8 项仍为 pending。
+
 2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
 `data/results/restoration_v2_constructor_preflight/`。冻结 interface manifest 保留 run 前 `pending`，实际
 状态由该 result summary 更新。

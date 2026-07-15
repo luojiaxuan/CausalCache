@@ -55,6 +55,16 @@ dependency 1 已闭合，且三次均未加载 policy 或生成 restoration outp
 [`data/results/restoration_v2_derived_artifact/`](data/results/restoration_v2_derived_artifact/)；当前只剩
 execution config 阻止 policy inference。
 
+dependency 8 的纯实现前置现已就绪：
+[`code/causalcache/restoration_v2_gpu_kl.py`](code/causalcache/restoration_v2_gpu_kl.py) 将 BF16
+candidate logits 的 FP32 `log_softmax`、full-vocabulary KL 与 action-token mean 留在同一 CUDA
+device，只返回每个 coalition 的 device scalar；
+[`code/causalcache/restoration_v2_batching.py`](code/causalcache/restoration_v2_batching.py) 固定
+microbatch size 2，按 exact `(image_count, sequence_length)` 分组且禁止自动 OOM
+fallback。本地 233 tests passed（10 个 optional runtime skips）。这只是 CPU/source validation；Hyper00
+CUDA equivalence audit、实际 runtime source identity 与 execution config 尚未冻结，所以仍不允许
+v2 policy output。
+
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
 parent tar 继续抽样。pipeline 固定 `decision_count>=5` 后的首 20 条、step 6、8/15/20 disjoint proof，
