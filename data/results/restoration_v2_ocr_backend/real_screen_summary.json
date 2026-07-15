@@ -1,0 +1,165 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_restoration_v2",
+  "outcome": "PASSED_REAL_SCREEN_OCR_GOLDEN",
+  "artifact_id": "causalcache-restoration-v2-real-screen-golden-v1",
+  "source": {
+    "run_git_commit": "dcc6e217b4885cef5f745d987a1ec74e57109717",
+    "clean_checkout": true,
+    "head_equals_origin_main": true,
+    "source_contract_path": "data/manifests/restoration_v2_real_screen_source.json",
+    "source_contract_sha256": "374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5",
+    "scientific_contract_sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc",
+    "backend_config_sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+    "selection_sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+    "exposure_sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95",
+    "checkout_transport": {
+      "canonical_main_push_verified_on_mac": true,
+      "hyper00_https_fetch_outcome": "FAILED_NONINTERACTIVE_GITHUB_CREDENTIALS",
+      "fallback": "incremental_git_bundle_from_verified_pushed_main",
+      "bundle_size_bytes": 90956,
+      "bundle_sha256": "b980719ca44a57251ed807acd75c5f06ea9be6a218eeab0205807dc71872da0d"
+    }
+  },
+  "selection": {
+    "eligible_state_count": 45,
+    "eligible_occurrence_count": 180,
+    "candidate_post_state_occurrence_count": 135,
+    "current_observation_occurrence_count": 45,
+    "unique_image_count": 75,
+    "orientation_counts": {
+      "portrait": 55,
+      "landscape": 20,
+      "square": 0
+    },
+    "confirm_unique_image_count": 97,
+    "confirm_sha_intersection_count": 0,
+    "selected_image_count": 6
+  },
+  "materialization_repeats": [
+    {
+      "repeat": 1,
+      "started_at_utc": "2026-07-15T12:56:51.799980862Z",
+      "ended_at_utc": "2026-07-15T12:57:21.514769385Z",
+      "argv": "/data/.venv/causalcache-ocr-v2/bin/python -m scripts.materialize_restoration_v2_real_screen --v2-contract configs/causalcache_restoration_v2.json --v1-config configs/independent_reference_gate_v1.json --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json --source-root /data/source/guiodyssey-independent-v1 --selection-manifest ../data/manifests/restoration_v2_selection.json --exposure-manifest ../data/manifests/restoration_v2_exposure.json --backend-config configs/restoration_v2_ocr_backend.json --source-contract ../data/manifests/restoration_v2_real_screen_source.json --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 --wheel-dir /data/tmp/causalcache-ocr-v2-wheels --git-revision dcc6e217b4885cef5f745d987a1ec74e57109717 --output-dir /data/tmp/restoration-v2-real-screen-dcc6e217-repeat-1",
+      "output_path": "/data/tmp/restoration-v2-real-screen-dcc6e217-repeat-1",
+      "outcome": "MATERIALIZED_POLICY_BLIND_REAL_SCREEN_GOLDEN",
+      "artifact_tree_sha256": "605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25"
+    },
+    {
+      "repeat": 2,
+      "started_at_utc": "2026-07-15T12:58:23.052897194Z",
+      "ended_at_utc": "2026-07-15T12:58:53.066616371Z",
+      "argv": "/data/.venv/causalcache-ocr-v2/bin/python -m scripts.materialize_restoration_v2_real_screen --v2-contract configs/causalcache_restoration_v2.json --v1-config configs/independent_reference_gate_v1.json --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json --source-root /data/source/guiodyssey-independent-v1 --selection-manifest ../data/manifests/restoration_v2_selection.json --exposure-manifest ../data/manifests/restoration_v2_exposure.json --backend-config configs/restoration_v2_ocr_backend.json --source-contract ../data/manifests/restoration_v2_real_screen_source.json --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 --wheel-dir /data/tmp/causalcache-ocr-v2-wheels --git-revision dcc6e217b4885cef5f745d987a1ec74e57109717 --output-dir /data/tmp/restoration-v2-real-screen-dcc6e217-repeat-2",
+      "output_path": "/data/tmp/restoration-v2-real-screen-dcc6e217-repeat-2",
+      "outcome": "MATERIALIZED_POLICY_BLIND_REAL_SCREEN_GOLDEN",
+      "artifact_tree_sha256": "605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25"
+    }
+  ],
+  "artifact_validations": [
+    {
+      "validation_id": "repeat-1-independent-replay",
+      "started_at_utc": "2026-07-15T12:57:39.541455453Z",
+      "ended_at_utc": "2026-07-15T12:58:09.121744442Z",
+      "argv": "/data/.venv/causalcache-ocr-v2/bin/python -m scripts.validate_restoration_v2_real_screen artifact --source-contract ../data/manifests/restoration_v2_real_screen_source.json --repository-root .. --output-dir /data/tmp/restoration-v2-real-screen-dcc6e217-repeat-1 --git-revision dcc6e217b4885cef5f745d987a1ec74e57109717 --source-root /data/source/guiodyssey-independent-v1 --v2-contract configs/causalcache_restoration_v2.json --v1-config configs/independent_reference_gate_v1.json --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json --selection-manifest ../data/manifests/restoration_v2_selection.json --exposure-manifest ../data/manifests/restoration_v2_exposure.json --backend-config configs/restoration_v2_ocr_backend.json --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 --wheel-dir /data/tmp/causalcache-ocr-v2-wheels",
+      "outcome": "PASSED_REAL_SCREEN_ARTIFACT_VALIDATION",
+      "ocr_replay_record_count": 6,
+      "artifact_tree_sha256": "605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25"
+    },
+    {
+      "validation_id": "repeat-2-independent-replay",
+      "started_at_utc": "2026-07-15T12:59:06.804010548Z",
+      "ended_at_utc": "2026-07-15T12:59:36.733867218Z",
+      "argv": "/data/.venv/causalcache-ocr-v2/bin/python -m scripts.validate_restoration_v2_real_screen artifact --source-contract ../data/manifests/restoration_v2_real_screen_source.json --repository-root .. --output-dir /data/tmp/restoration-v2-real-screen-dcc6e217-repeat-2 --git-revision dcc6e217b4885cef5f745d987a1ec74e57109717 --source-root /data/source/guiodyssey-independent-v1 --v2-contract configs/causalcache_restoration_v2.json --v1-config configs/independent_reference_gate_v1.json --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json --selection-manifest ../data/manifests/restoration_v2_selection.json --exposure-manifest ../data/manifests/restoration_v2_exposure.json --backend-config configs/restoration_v2_ocr_backend.json --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 --wheel-dir /data/tmp/causalcache-ocr-v2-wheels",
+      "outcome": "PASSED_REAL_SCREEN_ARTIFACT_VALIDATION",
+      "ocr_replay_record_count": 6,
+      "artifact_tree_sha256": "605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25"
+    },
+    {
+      "validation_id": "hf-immutable-redownload-independent-replay",
+      "started_at_utc": "2026-07-15T13:02:39.070364572Z",
+      "ended_at_utc": "2026-07-15T13:03:08.754529856Z",
+      "argv": "/data/.venv/causalcache-ocr-v2/bin/python -m scripts.validate_restoration_v2_real_screen artifact --source-contract ../data/manifests/restoration_v2_real_screen_source.json --repository-root .. --output-dir /data/tmp/restoration-v2-real-screen-dcc6e217-hf-redownload --git-revision dcc6e217b4885cef5f745d987a1ec74e57109717 --source-root /data/source/guiodyssey-independent-v1 --v2-contract configs/causalcache_restoration_v2.json --v1-config configs/independent_reference_gate_v1.json --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json --selection-manifest ../data/manifests/restoration_v2_selection.json --exposure-manifest ../data/manifests/restoration_v2_exposure.json --backend-config configs/restoration_v2_ocr_backend.json --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 --wheel-dir /data/tmp/causalcache-ocr-v2-wheels",
+      "outcome": "PASSED_REAL_SCREEN_ARTIFACT_VALIDATION",
+      "ocr_replay_record_count": 6,
+      "artifact_tree_sha256": "605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25"
+    }
+  ],
+  "hf_dataset_artifact": {
+    "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "repo_type": "dataset",
+    "visibility": "private",
+    "tag": "ocr-real-screen-golden-v1.0.0",
+    "immutable_revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b",
+    "tag_resolved_revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b",
+    "payload_prefix": "golden/real-screen-v1",
+    "upload": {
+      "started_at_utc": "2026-07-15T13:01:38.162239Z",
+      "ended_at_utc": "2026-07-15T13:01:43.243442Z",
+      "client": "huggingface_hub==1.23.0",
+      "method": "HfApi.create_repo(private=True)+upload_folder+create_tag",
+      "source_repeat": 1,
+      "commit_message": "Add restoration-v2 real-screen OCR golden v1"
+    },
+    "redownload": {
+      "started_at_utc": "2026-07-15T13:02:01.373811Z",
+      "ended_at_utc": "2026-07-15T13:02:03.274964Z",
+      "client": "huggingface_hub==1.23.0",
+      "method": "snapshot_download",
+      "revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b",
+      "fresh_cache_dir": "/tmp/causalcache-hf-fresh-cache-dcc6e217",
+      "all_listed_file_hashes_verified": true,
+      "artifact_validator_replayed_on_hyper00": true
+    },
+    "artifact_tree_sha256": "605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25",
+    "payload_index_sha256": "5d3e061b7db176ff6d6e97939cb98c2a6b819a928cea78d35677cc54cd0b1eb5",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "size_bytes": 42,
+        "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9"
+      },
+      {
+        "path": "README.md",
+        "size_bytes": 464,
+        "sha256": "837b73784b25439eab058ff0c4c06ce3c24ebabb8f368a61e4e7574a39936d5a"
+      },
+      {
+        "path": "golden/real-screen-v1/images-00000-of-00001.tar",
+        "size_bytes": 3102720,
+        "sha256": "9876d1e604634712374c3b53cc1e7ef40141daf415b6699941ccc55dbcc759f7"
+      },
+      {
+        "path": "golden/real-screen-v1/manifest.json",
+        "size_bytes": 145574,
+        "sha256": "c9652993d8a9854f0a35de596176b9c83ff127240ee21548180e20bd4df88cab"
+      },
+      {
+        "path": "golden/real-screen-v1/ocr-records-00000-of-00001.jsonl",
+        "size_bytes": 73930,
+        "sha256": "c646f1a182f1a6b6c43a17115f15c799e82ca283dc94844c01b8dd77b1ff2a70"
+      }
+    ]
+  },
+  "runtime": {
+    "host": "node-radixark-16-0000",
+    "architecture": "x86_64",
+    "kernel": "6.8.0-1043-aiext",
+    "python": "3.12.3",
+    "pyarrow": "24.0.0",
+    "container_name": "sglang-omni-jaxan-07151357",
+    "container_id": "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "provider": "CPUExecutionProvider",
+    "gpu_used": false,
+    "dtype": "not_applicable_cpu_onnxruntime",
+    "seed": null
+  },
+  "negative_declarations": {
+    "confirm_images_used": false,
+    "policy_loaded": false,
+    "policy_output_generated": false,
+    "restoration_output_generated": false
+  },
+  "dependency_5_closed": true
+}

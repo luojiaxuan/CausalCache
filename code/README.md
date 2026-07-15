@@ -194,8 +194,9 @@ restoration v2 OCR/image implementation 位于
 Hyper00 end-to-end 用 `scripts.validate_restoration_v2_ocr_backend inspect-golden|validate-golden`。该模块
 保存 full uncapped OCR tokens，不用 capped summary delta 反推 OCR+RGB baseline。private HF model
 `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@0dbc766a73ee88d10d52285d434dbfec58617835`
-已 immutable-verify；`make validate-restoration-v2-ocr-artifact` 可离线 fail closed 复核 8 个 Git source 与
-6 个 HF file identity。当前只剩 6-image real-screen golden 与完成态 manifest，详见
+已 immutable-verify；`make validate-restoration-v2-ocr-artifact` 可离线 fail closed 复核 14 个 Git source 与
+6 个 model files，并复核 real-screen 5-file dataset artifact。6-image real-screen golden 已在 Hyper00
+两次独立构建、三次 replay（含 HF immutable re-download）通过，dependency 5 已闭合，详见
 `docs/restoration_v2_ocr.md`。
 
 real-screen pre-output 实现位于 `causalcache.data.restoration_v2_real_screen`，正式入口是
@@ -214,8 +215,9 @@ materializer 必须运行在 `HEAD == origin/main == --git-revision` 的 clean c
 固定 55/20 orientation pool 中各前 3 张；confirm screenshot、policy output 与 restoration output 都不读取。
 输出固定为 `.gitattributes`、`README.md`、deterministic USTAR、canonical OCR JSONL 与 provenance manifest
 共 5 个文件。artifact validator 重新读取 raw source、重放 6 次 OCR、逐字节重建 USTAR/JSONL/manifest，
-并给出覆盖完整 5-file tree 的 hash。正式 Hyper00 argv 见 `docs/execution.md`；当前 source 已冻结，真实
-OCR output 与 HF upload 尚未执行。
+并给出覆盖完整 5-file tree 的 hash。正式 Hyper00 argv 见 `docs/execution.md`；canonical tag
+`ocr-real-screen-golden-v1.0.0` 已固定到 HF revision
+`9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`，tree SHA256 为 `605d6396...7e25`。
 
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 

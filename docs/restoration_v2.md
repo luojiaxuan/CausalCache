@@ -67,8 +67,8 @@ before/after RGB 在 256x256 bilinear resize 后的 mean absolute difference，�
 Pillow/resampling 与 OCR/accessibility 的 exact revision/hash 写入 execution config。
 当前 implementation 选择、锁定参数、model/wheel SHA、uncapped OCR record schema 与 golden 进度见
 [`restoration_v2_ocr.md`](restoration_v2_ocr.md)。synthetic golden 与 HF immutable model revision 已通过；
-real-screen pre-output source/materializer/validator 已冻结，但 6-image OCR output、HF immutable re-download
-和完成态 manifest 未闭合前，第 5 项 dependency 仍是 pending。
+real-screen pre-output source/materializer/validator、6-image OCR output、HF immutable re-download 与完成态
+manifest 也已通过，第 5 项 dependency 现为 passed。
 
 ## Action contract
 
@@ -123,11 +123,12 @@ witnesses 与 exposure ledger 冻结到
 [`restoration_v2_selection.json`](../data/manifests/restoration_v2_selection.json) 和
 [`restoration_v2_exposure.json`](../data/manifests/restoration_v2_exposure.json)。两次全量构建 byte-identical，
 两次均通过独立 validator；文件 SHA256 分别为 `292c7e52...` / `bc122482...`。dependencies 2/3 已闭合，
-但这不解锁 policy inference：derived artifact、OCR、baselines 与 execution config 仍为 mandatory blockers。
+但这不解锁 policy inference：完整 derived artifact、baselines 与 execution config 仍为 mandatory blockers。
 
 所有 v2 derived summaries、OCR/UI delta、split manifests 和 attribution records 的 canonical destination 是
-private HF dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`。在它获得 immutable revision、
-从 revision 重下载验 hash，并把 revision 回写 Git 前，不允许运行 v2 policy。Git 只保存 config、代码、
+private HF dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`。real-screen OCR golden prefix 已有
+独立 immutable revision；在完整 derived payload 获得新的专用 immutable revision、从该 revision 重下载验
+hash，并把 revision 回写 Git 前，不允许运行 v2 policy。Git 只保存 config、代码、
 exposure ledger、轻量 manifest/result 和进展。
 
 ## 两级 go/no-go
@@ -178,7 +179,7 @@ stability failure，输出 `INCONCLUSIVE_V2`。contract/runtime 错误为 `INVAL
 2. exact confirm trajectory/state IDs（passed：`292c7e52...`）；
 3. exposure ledger（passed：`bc122482...`）；
 4. restricted action exhaustive round-trip fixture；
-5. pinned accessibility/OCR backend revision 与 model hash；
+5. pinned accessibility/OCR backend revision、model hash 与 behavioral goldens（passed）；
 6. baseline exact specification 与 source hashes；
 7. v2 prompt/parser/bridge/runtime source hashes；
 8. 引用本科学配置 SHA 的 execution config，并冻结 microbatch size。

@@ -5,11 +5,12 @@
 OCR/image implementation identity 已在任何 v2 policy output 前冻结。Hyper00 locked CPU runtime、synthetic
 golden 与 private HF model artifact 均已验证；`v1.0.0` 解析到 immutable revision
 `0dbc766a73ee88d10d52285d434dbfec58617835`，6/6 files 已 fresh re-download 并逐文件验 hash，Git
-source/artifact manifest 也已通过 fail-closed validator。当前只剩 6-image real-screen golden 与完成态
-manifest，因此八项 pre-output dependencies 中第 5 项仍未标为 passed。real-screen 的 17-file pre-output
+source/artifact manifest 也已通过 fail-closed validator。6-image real-screen golden 与完成态 manifest
+现已通过，因此八项 pre-output dependencies 中第 5 项已标为 passed。real-screen 的 17-file pre-output
 source contract、materializer 与独立 artifact validator 已冻结；source contract SHA256 为
-`374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5`。这一步尚未执行 6 次真实 OCR，
-也没有向 derived HF repo 上传任何文件。
+`374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5`。Hyper00 两次独立 materialization、
+两次独立 replay 与 HF immutable re-download 后第三次 replay 全部通过；private dataset revision 为
+`9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`。
 
 hash-bound backend config 只保存永久静态 identity、预定 private HF repo 与稳定 artifact-manifest path；
 upload status 和 immutable revision 不写进该 config，避免上传后改变 config SHA。当前 live status 由本页、
@@ -125,6 +126,30 @@ mtime/uid/gid 为 0 的 deterministic USTAR；validator 必须从 raw Parquet �
 比较 USTAR、JSONL 和 manifest，再比较完整 5-file artifact-tree hash。该 prefix 只闭合 OCR behavioral
 golden，不替代完整 derived dataset dependency。
 
+### Formal real-screen verdict
+
+formal source 是 pushed `main@dcc6e217b4885cef5f745d987a1ec74e57109717`。Hyper00 CPU-only 两次
+materialization 的 UTC brackets 为 `12:56:51.799980862Z--12:57:21.514769385Z` 与
+`12:58:23.052897194Z--12:58:53.066616371Z`；两个独立目录的 5 个文件全部 byte-identical。对应 raw-source +
+OCR replay 分别在 `12:57:39.541455453Z--12:58:09.121744442Z` 与
+`12:59:06.804010548Z--12:59:36.733867218Z` 通过。canonical identities：
+
+| Item | SHA256 |
+| --- | --- |
+| complete 5-file tree | `605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25` |
+| payload index | `5d3e061b7db176ff6d6e97939cb98c2a6b819a928cea78d35677cc54cd0b1eb5` |
+| raw-image USTAR | `9876d1e604634712374c3b53cc1e7ef40141daf415b6699941ccc55dbcc759f7` |
+| OCR JSONL | `c646f1a182f1a6b6c43a17115f15c799e82ca283dc94844c01b8dd77b1ff2a70` |
+| payload manifest | `c9652993d8a9854f0a35de596176b9c83ff127240ee21548180e20bd4df88cab` |
+
+exact tree 已上传 private HF dataset
+`gavinlaw/causalcache-guiodyssey-restoration-v2-mobile@ocr-real-screen-golden-v1.0.0`，tag 解析到 full immutable
+revision `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`。从全新本机 cache 按该 revision 下载后 5/5 file
+size/SHA 一致，再送回 Hyper00 于 `13:02:39.070364572Z--13:03:08.754529856Z` 完成第三次 raw-source + OCR
+replay。完整 argv、runtime、HF upload/download 和 negative declarations 见
+[`real_screen_summary.json`](../data/results/restoration_v2_ocr_backend/real_screen_summary.json)。confirm image、
+policy output 与 restoration output 均未使用或生成。
+
 canonical model artifact 是 private HF model
 `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`；full immutable revision 为
 `0dbc766a73ee88d10d52285d434dbfec58617835`。model card、artifact manifest、三份 ONNX 与
@@ -163,7 +188,7 @@ cd /data/repo/code
   --output /data/tmp/causalcache-ocr-v2-golden/inspection.json
 ```
 
-正式完成条件中，private HF model immutable re-download、synthetic golden 两进程 byte-identical 和当前
-Git source/artifact manifest 已完成；剩余条件是 label/development policy-blind real-screen golden 上传
-derived HF dataset，并把该 dataset revision/records 写入完成态 Git manifest。confirm images 不参与 golden
-selection。
+private HF model immutable re-download、synthetic golden 两进程 byte-identical、label/development
+policy-blind real-screen golden、private HF dataset immutable re-download 与完成态 Git manifest 已全部完成。
+OCR dependency 5 现在 passed。该结论只解锁一个 pre-output dependency；完整 derived dataset、baselines 与
+execution config 仍 pending，不能据此启动 policy output。confirm images 未参与 golden selection。

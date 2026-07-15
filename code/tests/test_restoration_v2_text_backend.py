@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import importlib.util
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -217,8 +219,10 @@ class RestorationV2TextBackendTest(unittest.TestCase):
         )
         self.assertEqual(result["outcome"], "PASSED_OCR_ARTIFACT_SOURCE_VALIDATION")
         self.assertEqual(result["hf_file_count"], 6)
+        self.assertEqual(result["hf_dataset_file_count"], 5)
         self.assertTrue(result["model_hashes_bound_to_backend_config"])
-        self.assertFalse(result["dependency_5_closed"])
+        self.assertTrue(result["real_screen_golden_passed"])
+        self.assertTrue(result["dependency_5_closed"])
 
     def test_hf_artifact_model_hash_drift_fails_closed(self) -> None:
         manifest = json.loads(ARTIFACT_MANIFEST_PATH.read_text(encoding="utf-8"))
@@ -267,6 +271,95 @@ class RestorationV2TextBackendTest(unittest.TestCase):
                     artifact_manifest_path=path,
                     repository_root=ROOT,
                 )
+
+    def test_hf_real_screen_revision_and_file_identity_fail_closed(self) -> None:
+        manifest = json.loads(ARTIFACT_MANIFEST_PATH.read_text(encoding="utf-8"))
+        mutations = []
+        changed = copy.deepcopy(manifest)
+        changed["real_screen_golden"]["immutable_revision"] = "0" * 40
+        mutations.append((changed, "immutable revision drifted"))
+        changed = copy.deepcopy(manifest)
+        changed["real_screen_golden"]["files"][0]["sha256"] = "0" * 64
+        mutations.append((changed, "file identity drifted"))
+        changed = copy.deepcopy(manifest)
+        changed["real_screen_golden"]["redownload"][
+            "artifact_validator_replayed_on_hyper00"
+        ] = False
+        mutations.append((changed, "re-download is not verified"))
+        for index, (changed, message) in enumerate(mutations):
+            with tempfile.TemporaryDirectory() as directory:
+                path = Path(directory) / f"mutated-manifest-{index}.json"
+                path.write_text(json.dumps(changed), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, message):
+                    validate_artifact_source(
+                        backend_config_path=CONFIG_PATH,
+                        artifact_manifest_path=path,
+                        repository_root=ROOT,
+                    )
+
+    def test_hf_real_screen_repeat_and_replay_evidence_fail_closed(self) -> None:
+        mutations = [
+            (
+                lambda summary: summary["materialization_repeats"].pop(),
+                "materialization evidence drifted",
+            ),
+            (
+                lambda summary: summary["artifact_validations"].pop(),
+                "validation evidence drifted",
+            ),
+            (
+                lambda summary: summary["artifact_validations"][0].update(
+                    {"ocr_replay_record_count": 5}
+                ),
+                "replay evidence drifted",
+            ),
+        ]
+        for mutate, message in mutations:
+            manifest = json.loads(
+                ARTIFACT_MANIFEST_PATH.read_text(encoding="utf-8")
+            )
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                for record in manifest["source_files"]:
+                    source = ROOT / record["path"]
+                    destination = root / record["path"]
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(source, destination)
+                summary_relative = manifest["real_screen_golden"]["summary_path"]
+                summary_path = root / summary_relative
+                summary = json.loads(summary_path.read_text(encoding="utf-8"))
+                mutate(summary)
+                summary_path.write_text(
+                    json.dumps(summary, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                summary_sha256 = hashlib.sha256(
+                    summary_path.read_bytes()
+                ).hexdigest()
+                source_record = next(
+                    record
+                    for record in manifest["source_files"]
+                    if record["path"] == summary_relative
+                )
+                source_record["sha256"] = summary_sha256
+                manifest["real_screen_golden"][
+                    "summary_sha256"
+                ] = summary_sha256
+                manifest_path = (
+                    root / "data/manifests/restoration_v2_ocr_backend.json"
+                )
+                manifest_path.write_text(
+                    json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                    encoding="utf-8",
+                )
+                with self.assertRaisesRegex(ValueError, message):
+                    validate_artifact_source(
+                        backend_config_path=(
+                            root / "code/configs/restoration_v2_ocr_backend.json"
+                        ),
+                        artifact_manifest_path=manifest_path,
+                        repository_root=root,
+                    )
 
 
 if __name__ == "__main__":

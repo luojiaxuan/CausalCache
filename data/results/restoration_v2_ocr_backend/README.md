@@ -2,6 +2,8 @@
 
 本目录保存 OCR/image backend 的轻量运行证据；ONNX models、真实 screenshots 与完整 derived records 不进入
 Git。正式通过前，dependency 5 仍为 pending，且不允许生成 GUI-Owl policy/restoration output。
+当前 synthetic、HF model、real-screen 与 HF dataset immutable checks 均已完成，dependency 5 现为 passed；
+完整 derived artifact、baselines 与 execution config 仍阻止 policy output。
 
 ## Superseded attempts
 
@@ -80,9 +82,28 @@ model artifact 里程碑见下节。
 三份 ONNX、model card 与 artifact manifest 已上传到 private HF model
 `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`；tag 解析到 full revision
 `0dbc766a73ee88d10d52285d434dbfec58617835`。`2026-07-15T12:01:12Z` 从该 revision fresh
-re-download 后 6/6 file sizes/SHA256 一致。完整 inventory、upload/download argv 与 8 个 Git source hashes
-见 [`restoration_v2_ocr_backend.json`](../../manifests/restoration_v2_ocr_backend.json)；离线
+re-download 后 6/6 file sizes/SHA256 一致。该里程碑当时绑定 8 个 backend source hashes；完成态 manifest
+在 real-screen 通过后扩展为 14 个 source，见
+[`restoration_v2_ocr_backend.json`](../../manifests/restoration_v2_ocr_backend.json)。离线
 `artifact-source` validator 输出 `PASSED_OCR_ARTIFACT_SOURCE_VALIDATION`。
 
-因此 model artifact 与 synthetic golden 已通过；当前只剩 6-image policy-blind real-screen golden 和完成态
-manifest，dependency 5 仍未闭合。
+因此 model artifact 与 synthetic golden 已通过；当时仍待 6-image policy-blind real-screen golden。后续
+完成态见下节。
+
+## Final real-screen verdict
+
+从 pushed `main@dcc6e217b4885cef5f745d987a1ec74e57109717` 在 Hyper00 CPU runtime 两次独立
+materialize，并分别从 raw Parquet 重建候选池、重放 6 次 OCR。两个 5-file trees byte-identical，SHA256
+均为 `605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25`；两次 validator 均返回
+`PASSED_REAL_SCREEN_ARTIFACT_VALIDATION`。
+
+payload 已上传 private HF dataset
+`gavinlaw/causalcache-guiodyssey-restoration-v2-mobile@ocr-real-screen-golden-v1.0.0`，immutable revision 为
+`9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`。从全新 cache 按该 revision 下载后 5/5 files 与上传前
+size/SHA 一致；fresh snapshot 在 Hyper00 第三次通过同一 raw-source + OCR replay validator。完整 argv、
+UTC brackets、runtime、5-file inventory、HF operation metadata 与 negative declarations 见
+[`real_screen_summary.json`](real_screen_summary.json)。完成态 manifest 的离线 validator 现返回
+`dependency_5_closed=true`。
+
+本步骤未使用 confirm images、未加载 GUI-Owl、未生成 policy/restoration output。OCR dependency 5 已闭合，
+但不能替代完整 derived artifact、baseline source hashes 或 execution config。

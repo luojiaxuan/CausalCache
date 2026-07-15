@@ -29,6 +29,33 @@ from causalcache.restoration_v2_text_backend import (
 
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 GIT_SHA_PATTERN = re.compile(r"[0-9a-f]{40}")
+REAL_SCREEN_RUN_GIT_COMMIT = "dcc6e217b4885cef5f745d987a1ec74e57109717"
+REAL_SCREEN_SOURCE_CONTRACT_SHA256 = (
+    "374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5"
+)
+REAL_SCREEN_HF_REVISION = "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b"
+REAL_SCREEN_ARTIFACT_TREE_SHA256 = (
+    "605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25"
+)
+REAL_SCREEN_PAYLOAD_INDEX_SHA256 = (
+    "5d3e061b7db176ff6d6e97939cb98c2a6b819a928cea78d35677cc54cd0b1eb5"
+)
+REAL_SCREEN_HF_FILES = {
+    ".gitattributes": (42, "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9"),
+    "README.md": (464, "837b73784b25439eab058ff0c4c06ce3c24ebabb8f368a61e4e7574a39936d5a"),
+    "golden/real-screen-v1/images-00000-of-00001.tar": (
+        3102720,
+        "9876d1e604634712374c3b53cc1e7ef40141daf415b6699941ccc55dbcc759f7",
+    ),
+    "golden/real-screen-v1/manifest.json": (
+        145574,
+        "c9652993d8a9854f0a35de596176b9c83ff127240ee21548180e20bd4df88cab",
+    ),
+    "golden/real-screen-v1/ocr-records-00000-of-00001.jsonl": (
+        73930,
+        "c646f1a182f1a6b6c43a17115f15c799e82ca283dc94844c01b8dd77b1ff2a70",
+    ),
+}
 
 
 def _prepared_payload(image_bytes: bytes) -> dict[str, Any]:
@@ -215,7 +242,7 @@ def validate_artifact_source(
     if manifest.get("artifact_id") != "causalcache-restoration-v2-ocr-backend-v1":
         raise ValueError("unexpected OCR artifact_id")
     if manifest.get("status") != (
-        "hf_model_immutable_verified_synthetic_golden_passed_real_screen_pending"
+        "hf_model_immutable_verified_synthetic_and_real_screen_golden_passed"
     ):
         raise ValueError("unexpected OCR artifact manifest status")
     implementation_commit = manifest.get("backend_implementation_git_commit")
@@ -257,11 +284,17 @@ def validate_artifact_source(
     expected_source_paths = {
         "Makefile",
         "code/causalcache/restoration_v2_text_backend.py",
+        "code/causalcache/data/restoration_v2_real_screen.py",
         "code/configs/restoration_v2_ocr_backend.json",
         "code/requirements/restoration_v2_ocr_lock.txt",
+        "code/scripts/materialize_restoration_v2_real_screen.py",
         "code/scripts/validate_restoration_v2_ocr_backend.py",
+        "code/scripts/validate_restoration_v2_real_screen.py",
+        "code/tests/test_restoration_v2_real_screen.py",
         "code/tests/test_restoration_v2_text_backend.py",
         "data/fixtures/restoration_v2_ocr_golden.json",
+        "data/manifests/restoration_v2_real_screen_source.json",
+        "data/results/restoration_v2_ocr_backend/real_screen_summary.json",
         "data/results/restoration_v2_ocr_backend/synthetic_summary.json",
     }
     if set(observed_source) != expected_source_paths:
@@ -344,19 +377,196 @@ def validate_artifact_source(
     )
     if redownload.get("argv") != expected_redownload_argv:
         raise ValueError("OCR HF immutable re-download argv drifted")
-    if manifest.get("dependency_5_closed") is not False:
-        raise ValueError("OCR dependency 5 cannot close before real-screen golden")
+    if manifest.get("dependency_5_closed") is not True:
+        raise ValueError("OCR dependency 5 must close after both goldens pass")
     real_screen = manifest.get("real_screen_golden")
     if not isinstance(real_screen, Mapping) or real_screen.get("status") != (
-        "pending_policy_blind_six_image_materialization"
+        "passed_policy_blind_six_image_materialization"
     ):
-        raise ValueError("OCR real-screen golden pending state drifted")
+        raise ValueError("OCR real-screen golden passing state drifted")
+    if real_screen.get("outcome") != "PASSED_REAL_SCREEN_OCR_GOLDEN":
+        raise ValueError("OCR real-screen golden outcome drifted")
     if real_screen.get("confirm_images_used") is not False:
         raise ValueError("confirm images cannot enter OCR real-screen golden")
     if real_screen.get("destination") != config["golden_contract"][
         "real_screen_golden_destination"
     ]:
         raise ValueError("OCR real-screen golden destination drifted")
+    if real_screen.get("repo_type") != "dataset" or real_screen.get(
+        "visibility"
+    ) != "private":
+        raise ValueError("OCR real-screen HF dataset type or visibility drifted")
+    if real_screen.get("tag") != "ocr-real-screen-golden-v1.0.0":
+        raise ValueError("OCR real-screen HF tag drifted")
+    if real_screen.get("immutable_revision") != REAL_SCREEN_HF_REVISION or (
+        real_screen.get("tag_resolved_revision") != REAL_SCREEN_HF_REVISION
+    ):
+        raise ValueError("OCR real-screen HF immutable revision drifted")
+    if real_screen.get("uploaded_from_git_commit") != REAL_SCREEN_RUN_GIT_COMMIT:
+        raise ValueError("OCR real-screen source Git revision drifted")
+    if real_screen.get("source_contract_sha256") != (
+        REAL_SCREEN_SOURCE_CONTRACT_SHA256
+    ):
+        raise ValueError("OCR real-screen source contract identity drifted")
+    if real_screen.get("artifact_tree_sha256") != (
+        REAL_SCREEN_ARTIFACT_TREE_SHA256
+    ):
+        raise ValueError("OCR real-screen artifact tree identity drifted")
+    if real_screen.get("payload_index_sha256") != (
+        REAL_SCREEN_PAYLOAD_INDEX_SHA256
+    ):
+        raise ValueError("OCR real-screen payload index identity drifted")
+    files = real_screen.get("files")
+    if not isinstance(files, list) or len(files) != len(REAL_SCREEN_HF_FILES):
+        raise ValueError("OCR real-screen HF file inventory drifted")
+    files_by_path = {}
+    for record in files:
+        if not isinstance(record, Mapping) or not isinstance(record.get("path"), str):
+            raise ValueError("OCR real-screen HF file record drifted")
+        path = record["path"]
+        if path in files_by_path:
+            raise ValueError("OCR real-screen HF file paths must be unique")
+        files_by_path[path] = record
+    if set(files_by_path) != set(REAL_SCREEN_HF_FILES):
+        raise ValueError("OCR real-screen HF file inventory drifted")
+    for path, (size_bytes, digest) in REAL_SCREEN_HF_FILES.items():
+        if files_by_path[path].get("size_bytes") != size_bytes or files_by_path[
+            path
+        ].get("sha256") != digest:
+            raise ValueError(f"OCR real-screen HF file identity drifted: {path}")
+    redownload = real_screen.get("redownload")
+    if not isinstance(redownload, Mapping) or redownload.get(
+        "all_listed_file_hashes_verified"
+    ) is not True or redownload.get("artifact_validator_replayed_on_hyper00") is not True:
+        raise ValueError("OCR real-screen immutable re-download is not verified")
+    if redownload.get("revision") != REAL_SCREEN_HF_REVISION:
+        raise ValueError("OCR real-screen re-download revision drifted")
+    summary_path = real_screen.get("summary_path")
+    if observed_source.get(summary_path) != real_screen.get("summary_sha256"):
+        raise ValueError("OCR real-screen summary identity drifted")
+    summary = load_json(root.joinpath(*PurePosixPath(summary_path).parts))
+    if summary.get("outcome") != "PASSED_REAL_SCREEN_OCR_GOLDEN" or summary.get(
+        "dependency_5_closed"
+    ) is not True:
+        raise ValueError("OCR real-screen summary outcome drifted")
+    if summary.get("source", {}).get("run_git_commit") != REAL_SCREEN_RUN_GIT_COMMIT:
+        raise ValueError("OCR real-screen summary Git revision drifted")
+    if summary.get("source", {}).get("source_contract_sha256") != (
+        REAL_SCREEN_SOURCE_CONTRACT_SHA256
+    ):
+        raise ValueError("OCR real-screen summary source contract drifted")
+    summary_hf = summary.get("hf_dataset_artifact")
+    if not isinstance(summary_hf, Mapping) or summary_hf.get(
+        "immutable_revision"
+    ) != REAL_SCREEN_HF_REVISION:
+        raise ValueError("OCR real-screen summary HF revision drifted")
+    if summary_hf.get("artifact_tree_sha256") != REAL_SCREEN_ARTIFACT_TREE_SHA256:
+        raise ValueError("OCR real-screen summary artifact tree drifted")
+    summary_files = summary_hf.get("files")
+    if not isinstance(summary_files, list) or len(summary_files) != len(
+        REAL_SCREEN_HF_FILES
+    ):
+        raise ValueError("OCR real-screen summary HF file inventory drifted")
+    summary_files_by_path = {
+        record.get("path"): record
+        for record in summary_files
+        if isinstance(record, Mapping)
+    }
+    if set(summary_files_by_path) != set(REAL_SCREEN_HF_FILES):
+        raise ValueError("OCR real-screen summary HF file inventory drifted")
+    for path, (size_bytes, digest) in REAL_SCREEN_HF_FILES.items():
+        if summary_files_by_path[path].get("size_bytes") != size_bytes or (
+            summary_files_by_path[path].get("sha256") != digest
+        ):
+            raise ValueError(f"OCR real-screen summary HF file drifted: {path}")
+    if real_screen.get("independent_materialization_repeat_count") != 2:
+        raise ValueError("OCR real-screen materialization repeat count drifted")
+    if real_screen.get("artifact_validation_count") != 3:
+        raise ValueError("OCR real-screen artifact validation count drifted")
+    materializations = summary.get("materialization_repeats")
+    if not isinstance(materializations, list) or len(materializations) != 2:
+        raise ValueError("OCR real-screen materialization evidence drifted")
+    expected_materialization_paths = [
+        "/data/tmp/restoration-v2-real-screen-dcc6e217-repeat-1",
+        "/data/tmp/restoration-v2-real-screen-dcc6e217-repeat-2",
+    ]
+    if [record.get("repeat") for record in materializations] != [1, 2]:
+        raise ValueError("OCR real-screen materialization repeat IDs drifted")
+    for record, output_path in zip(
+        materializations,
+        expected_materialization_paths,
+        strict=True,
+    ):
+        if record.get("outcome") != (
+            "MATERIALIZED_POLICY_BLIND_REAL_SCREEN_GOLDEN"
+        ) or record.get("artifact_tree_sha256") != (
+            REAL_SCREEN_ARTIFACT_TREE_SHA256
+        ):
+            raise ValueError("OCR real-screen materialization outcome drifted")
+        if record.get("output_path") != output_path:
+            raise ValueError("OCR real-screen materialization output path drifted")
+        argv = record.get("argv")
+        if not isinstance(argv, str) or (
+            f"--git-revision {REAL_SCREEN_RUN_GIT_COMMIT}" not in argv
+            or f"--output-dir {output_path}" not in argv
+        ):
+            raise ValueError("OCR real-screen materialization argv drifted")
+        started = record.get("started_at_utc")
+        ended = record.get("ended_at_utc")
+        if not isinstance(started, str) or not isinstance(ended, str) or not (
+            started < ended
+        ):
+            raise ValueError("OCR real-screen materialization UTC bracket drifted")
+    if materializations[0]["ended_at_utc"] >= materializations[1][
+        "started_at_utc"
+    ]:
+        raise ValueError("OCR real-screen materialization order drifted")
+    validations = summary.get("artifact_validations")
+    expected_validation_paths = {
+        "repeat-1-independent-replay": expected_materialization_paths[0],
+        "repeat-2-independent-replay": expected_materialization_paths[1],
+        "hf-immutable-redownload-independent-replay": (
+            "/data/tmp/restoration-v2-real-screen-dcc6e217-hf-redownload"
+        ),
+    }
+    if not isinstance(validations, list) or len(validations) != 3:
+        raise ValueError("OCR real-screen validation evidence drifted")
+    if [record.get("validation_id") for record in validations] != list(
+        expected_validation_paths
+    ):
+        raise ValueError("OCR real-screen validation IDs drifted")
+    previous_end = None
+    for record in validations:
+        validation_id = record["validation_id"]
+        output_path = expected_validation_paths[validation_id]
+        if record.get("outcome") != "PASSED_REAL_SCREEN_ARTIFACT_VALIDATION":
+            raise ValueError("OCR real-screen validation outcome drifted")
+        if record.get("ocr_replay_record_count") != 6 or record.get(
+            "artifact_tree_sha256"
+        ) != REAL_SCREEN_ARTIFACT_TREE_SHA256:
+            raise ValueError("OCR real-screen replay evidence drifted")
+        argv = record.get("argv")
+        if not isinstance(argv, str) or (
+            f"--git-revision {REAL_SCREEN_RUN_GIT_COMMIT}" not in argv
+            or f"--output-dir {output_path}" not in argv
+        ):
+            raise ValueError("OCR real-screen validation argv drifted")
+        started = record.get("started_at_utc")
+        ended = record.get("ended_at_utc")
+        if not isinstance(started, str) or not isinstance(ended, str) or not (
+            started < ended
+        ):
+            raise ValueError("OCR real-screen validation UTC bracket drifted")
+        if previous_end is not None and previous_end >= started:
+            raise ValueError("OCR real-screen validation order drifted")
+        previous_end = ended
+    if summary.get("negative_declarations") != {
+        "confirm_images_used": False,
+        "policy_loaded": False,
+        "policy_output_generated": False,
+        "restoration_output_generated": False,
+    }:
+        raise ValueError("OCR real-screen summary negative declarations drifted")
     if manifest.get("policy_output_generated_before_manifest") is not False:
         raise ValueError("OCR artifact manifest must precede policy output")
     if manifest.get("restoration_output_generated_before_manifest") is not False:
@@ -370,10 +580,12 @@ def validate_artifact_source(
         "hf_model_repo": hf_artifact["repo"],
         "hf_model_immutable_revision": revision,
         "hf_file_count": len(artifact_files),
+        "hf_dataset_file_count": len(files),
+        "hf_dataset_immutable_revision": REAL_SCREEN_HF_REVISION,
         "model_hashes_bound_to_backend_config": True,
         "synthetic_golden_passed": True,
-        "real_screen_golden_passed": False,
-        "dependency_5_closed": False,
+        "real_screen_golden_passed": True,
+        "dependency_5_closed": True,
         "policy_output_generated_by_this_validation": False,
     }
 

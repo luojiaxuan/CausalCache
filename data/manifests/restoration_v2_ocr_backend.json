@@ -2,12 +2,17 @@
   "schema_version": "1.0.0",
   "protocol_id": "causalcache_restoration_v2",
   "artifact_id": "causalcache-restoration-v2-ocr-backend-v1",
-  "status": "hf_model_immutable_verified_synthetic_golden_passed_real_screen_pending",
+  "status": "hf_model_immutable_verified_synthetic_and_real_screen_golden_passed",
   "backend_implementation_git_commit": "fc51de1dbc5a4a657503b8804e4549085314d94a",
+  "real_screen_materializer_git_commit": "dcc6e217b4885cef5f745d987a1ec74e57109717",
   "source_files": [
     {
       "path": "Makefile",
       "sha256": "a1e3af2f71ea145588e0f117d2656ca83158c1abfadbae050a6cb7b04423dd0d"
+    },
+    {
+      "path": "code/causalcache/data/restoration_v2_real_screen.py",
+      "sha256": "1630e6834754e2a3449acd352c6eefff0e6647d02b126a1d8e4c37684ba0b1a3"
     },
     {
       "path": "code/causalcache/restoration_v2_text_backend.py",
@@ -22,16 +27,36 @@
       "sha256": "1c36a767a69ab158101a686ee94d67f04d837df17301f6043b77c87060a82c4e"
     },
     {
+      "path": "code/scripts/materialize_restoration_v2_real_screen.py",
+      "sha256": "0e0736c3e5e7bfe4243900cd53a903bd987539cbf51cdc2e3e33988b75dc8b96"
+    },
+    {
       "path": "code/scripts/validate_restoration_v2_ocr_backend.py",
-      "sha256": "d6e3ebebad474c9c5ddfc60a60e412e97c9c2635ed17aa968f8b0a97ad5f705e"
+      "sha256": "fe4365eab59a8b4dca8f02e5c88a0e89c94450c6e9ea7c489d4a88ba7d62e19d"
+    },
+    {
+      "path": "code/scripts/validate_restoration_v2_real_screen.py",
+      "sha256": "aff09c74b2181835039557a63f5e1d6091fba4a0ea23879052788762140323f4"
+    },
+    {
+      "path": "code/tests/test_restoration_v2_real_screen.py",
+      "sha256": "e58cba114c9b00c17a68e37247f38b606e8f5d6526decebce7f79e8ba2a88e3e"
     },
     {
       "path": "code/tests/test_restoration_v2_text_backend.py",
-      "sha256": "09c76de3b18c37aaa27534219e749cc8d6de9e9e6915349bf4f558bae5ea094a"
+      "sha256": "95ff025c66770f6cd9ed763440665c070eaad6a630fc96a7e655c5b6e2e38860"
     },
     {
       "path": "data/fixtures/restoration_v2_ocr_golden.json",
       "sha256": "8c81feb37af9d2393d62d6ddbfe65948f84e0eb0be0c0baf10126c547103bca6"
+    },
+    {
+      "path": "data/manifests/restoration_v2_real_screen_source.json",
+      "sha256": "374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5"
+    },
+    {
+      "path": "data/results/restoration_v2_ocr_backend/real_screen_summary.json",
+      "sha256": "a20194e3ea5c3ff44edfc5d89933112f94cfb2080962030812f6a39ee7571ad4"
     },
     {
       "path": "data/results/restoration_v2_ocr_backend/synthetic_summary.json",
@@ -93,11 +118,62 @@
     "summary_sha256": "c44fb34861534e7a5d29ce0476e2bf342206a7ec8a588db3a0ee5744e8829514"
   },
   "real_screen_golden": {
-    "status": "pending_policy_blind_six_image_materialization",
+    "status": "passed_policy_blind_six_image_materialization",
+    "outcome": "PASSED_REAL_SCREEN_OCR_GOLDEN",
     "destination": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "repo_type": "dataset",
+    "visibility": "private",
+    "tag": "ocr-real-screen-golden-v1.0.0",
+    "immutable_revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b",
+    "tag_resolved_revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b",
+    "uploaded_from_git_commit": "dcc6e217b4885cef5f745d987a1ec74e57109717",
+    "source_contract_sha256": "374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5",
+    "artifact_tree_sha256": "605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25",
+    "payload_index_sha256": "5d3e061b7db176ff6d6e97939cb98c2a6b819a928cea78d35677cc54cd0b1eb5",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "size_bytes": 42,
+        "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9"
+      },
+      {
+        "path": "README.md",
+        "size_bytes": 464,
+        "sha256": "837b73784b25439eab058ff0c4c06ce3c24ebabb8f368a61e4e7574a39936d5a"
+      },
+      {
+        "path": "golden/real-screen-v1/images-00000-of-00001.tar",
+        "size_bytes": 3102720,
+        "sha256": "9876d1e604634712374c3b53cc1e7ef40141daf415b6699941ccc55dbcc759f7"
+      },
+      {
+        "path": "golden/real-screen-v1/manifest.json",
+        "size_bytes": 145574,
+        "sha256": "c9652993d8a9854f0a35de596176b9c83ff127240ee21548180e20bd4df88cab"
+      },
+      {
+        "path": "golden/real-screen-v1/ocr-records-00000-of-00001.jsonl",
+        "size_bytes": 73930,
+        "sha256": "c646f1a182f1a6b6c43a17115f15c799e82ca283dc94844c01b8dd77b1ff2a70"
+      }
+    ],
+    "redownload": {
+      "started_at_utc": "2026-07-15T13:02:01.373811Z",
+      "ended_at_utc": "2026-07-15T13:02:03.274964Z",
+      "client": "huggingface_hub==1.23.0",
+      "method": "snapshot_download",
+      "revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b",
+      "fresh_cache_dir": "/tmp/causalcache-hf-fresh-cache-dcc6e217",
+      "all_listed_file_hashes_verified": true,
+      "artifact_validator_replayed_on_hyper00": true
+    },
+    "summary_path": "data/results/restoration_v2_ocr_backend/real_screen_summary.json",
+    "summary_sha256": "a20194e3ea5c3ff44edfc5d89933112f94cfb2080962030812f6a39ee7571ad4",
+    "independent_materialization_repeat_count": 2,
+    "artifact_validation_count": 3,
     "confirm_images_used": false
   },
-  "dependency_5_closed": false,
+  "dependency_5_closed": true,
   "policy_output_generated_before_manifest": false,
   "restoration_output_generated_before_manifest": false
 }

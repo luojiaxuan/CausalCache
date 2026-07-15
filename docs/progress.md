@@ -6,10 +6,9 @@ AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate�
 frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
 untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
-preflight、exact IDs 与 exposure 已闭合；当前推进 OCR、baselines、derived artifact 与 execution config。仍没有
-v2 policy output、restoration label 或方法效果结果。OCR real-screen 的 source/materializer 已冻结，下一步是
-Hyper00 CPU 双跑、private HF upload 与 immutable re-download；在完成态 Git manifest 回写前 dependency 5
-仍为 pending。
+preflight、exact IDs、exposure 与 OCR 已闭合；当前推进 baselines、derived artifact 与 execution config。仍没有
+v2 policy output、restoration label 或方法效果结果。OCR dependency 已通过；当前下一步是冻结 baseline
+implementation/source hashes，并构建完整 derived artifact，随后冻结 execution config。
 
 ## 已完成里程碑
 
@@ -756,6 +755,26 @@ Hyper00 CPU 双跑、private HF upload 与 immutable re-download；在完成态 
   CPU runtime 独立构建两次、验证 5-file tree byte-identical、上传 private HF dataset、按 immutable revision
   fresh re-download 并重放 validator。完成前 dependency 5 仍 pending，且没有 v2 policy/restoration output。
 
+### 2026-07-15：Real-screen OCR golden 与 dependency 5 通过
+
+- 从 pushed `main@dcc6e217b4885cef5f745d987a1ec74e57109717` 的 clean Hyper00 checkout，用 CPU-only
+  RapidOCR runtime 两次独立 materialize exact 6-image payload；UTC brackets 为
+  `12:56:51.799980862Z--12:57:21.514769385Z` 与 `12:58:23.052897194Z--12:58:53.066616371Z`；
+- 两个输出目录的 `.gitattributes`、README、raw-image USTAR、OCR JSONL 与 manifest 5/5 byte-identical，
+  complete tree SHA256 `605d6396b0cde84697ff3f2407a3630d7ccdb822f55c2bdae56be82e942a7e25`；
+  两次独立 validator 都从 2.25 GB raw Parquet 重建 75-image pool 并重放 6 次 OCR，结果为
+  `PASSED_REAL_SCREEN_ARTIFACT_VALIDATION`；
+- exact tree 已上传 private HF dataset
+  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile@ocr-real-screen-golden-v1.0.0`，tag 解析到 immutable
+  revision `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`；从全新本机 cache 下载后 5/5 hashes 一致，送回
+  Hyper00 第三次 raw-source + OCR replay 仍通过；
+- 完成态 `data/manifests/restoration_v2_ocr_backend.json` 绑定 14 个 Git source、HF model/dataset 两个
+  immutable revisions、11 个远端文件 identity 与
+  `data/results/restoration_v2_ocr_backend/real_screen_summary.json`。离线 outcome 仍为
+  `PASSED_OCR_ARTIFACT_SOURCE_VALIDATION`，但现报告 `dependency_5_closed=true`；
+- confirm images、GUI-Owl policy 与 restoration output 均未使用或生成。OCR dependency 5 已 passed；完整
+  derived artifact、baseline implementation/source hashes 与 execution config 仍 pending。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -777,7 +796,8 @@ Hyper00 CPU 双跑、private HF upload 与 immutable re-download；在完成态 
   `@reference-gate-v1` (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)；reference 判负，oracle records
   按协议未生成。旧 oracle raw trajectories/images/expert actions 已被 builder 读取和打包，不是 raw unseen；
 - restoration v2 derived dataset 的 canonical destination 是 private HF
-  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`，当前 `not built`，没有 local staging artifact；
+  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`；real-screen OCR golden prefix 已固定在
+  `ocr-real-screen-golden-v1.0.0@9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`，完整 derived records 仍未构建；
 - restoration v2 OCR 三模型的 canonical artifact 是 private HF model
   `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`
   (`0dbc766a73ee88d10d52285d434dbfec58617835`)；6/6 files 已从 immutable revision fresh re-download
@@ -796,7 +816,7 @@ Hyper00 CPU 双跑、private HF upload 与 immutable re-download；在完成态 
 4. restricted prompt/parser/bridge/executor fixture：passed；CPU prompt/parser/bridge、真实 pinned `JSONAction`
    constructor 与 device-side executor dispatch 均有独立 evidence；
 5. pinned accessibility/OCR identity：implementation/config/weights SHA、synthetic golden 与 HF immutable
-   model revision passed；6-image real-screen golden 与完成态 manifest pending；
+   model revision、6-image real-screen golden、HF dataset immutable re-download 与完成态 manifest passed；
 6. baseline specification/source hashes：scientific formula 已冻结，implementation source hashes pending；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
 8. 引用 scientific-config SHA 的 execution config：pending。
@@ -806,10 +826,8 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步按已冻结 policy-blind 规则 materialize 3 张 portrait + 3 张 landscape real-screen golden，
-用 immutable HF OCR model 生成并复现 records，作为 private HF derived artifact 的第一批数据；随后冻结
-baseline implementation/source hashes，构建并 immutable-verify 完整 private HF derived artifact，最后冻结包含
-全部 identity/source hashes 与 microbatch 的 execution config。
+逐步 push：下一步冻结 baseline implementation/source hashes，然后构建并 immutable-verify 完整 private HF
+derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
 八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact

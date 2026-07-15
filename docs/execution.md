@@ -128,8 +128,9 @@ source 上同时显式传 `--androidworld-source-root <PATH>`、`--androidworld-
 constructor preflight summary 随后 commit/push。`JSONAction(**payload)` 仅证明 schema construction，不是
 device-side executor；还必须补 executor dispatch/behavioral smoke。此后才允许构建/冻结 derived HF
 artifact；同时还必须闭合 exact confirm IDs、exposure ledger、OCR identity、baseline source hashes，并
-冻结引用全部 artifact/interface identity 的 execution config。其中 exact IDs/exposure 已在下述
-Hyper00 formal run 闭合；`docs/restoration_v2.md` 所列八项全部完成
+冻结引用全部 artifact/interface identity 的 execution config。其中 exact IDs/exposure 与 OCR identity 已在
+下述 formal runs 闭合；完整 derived artifact、baseline source hashes 与 execution config 仍 pending。
+`docs/restoration_v2.md` 所列八项全部完成
 后，才允许执行 GPU substrate screening。
 
 2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
@@ -186,9 +187,8 @@ cd /data/repo/code
 
 可从仓库根目录运行 `make validate-restoration-v2-ocr-artifact`，离线复核 Git source、HF
 repo/revision/file inventory、fresh re-download 标记与 synthetic summary。模型上传和 synthetic golden 已
-通过；下一步仍须用 label/development 中按冻结规则 policy-blind 选出的真实截图做 behavioral golden；confirm
-screenshot 不得用于挑选或调 backend。real-screen evidence 未上传 HF 并回写完成态 Git manifest 前，
-dependency 5 仍是 pending，也不得开始 GUI-Owl policy output。
+通过；label/development 中按冻结规则 policy-blind 选出的 real-screen behavioral golden 也已完成。confirm
+screenshot 未参与挑选或 backend 调整，完成态 manifest 已回写，dependency 5 现为 passed。
 
 real-screen source contract 已在 output 前冻结，source-only validation 不运行 OCR：
 
@@ -246,6 +246,13 @@ root，tar/JSONL/manifest 位于 `golden/real-screen-v1` prefix。tag 后按 ful
 snapshot-download，再在 snapshot root 上运行同一 artifact validator。HF
 revision、tag、完整 file hashes、两次 UTC brackets、runtime/container identity 与 re-download evidence 回写
 Git 完成态 manifest 后，才能把 dependency 5 标为 passed。本步骤 CPU-only，不触发 GPU cleanup/monitor。
+
+上述 formal flow 已在 pushed `main@dcc6e217b4885cef5f745d987a1ec74e57109717` 完成：两次
+materialization + replay 的 5-file tree 均为 `605d6396...7e25`；private HF tag
+`ocr-real-screen-golden-v1.0.0` 解析到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`，fresh immutable
+re-download 后第三次 replay 通过。完整证据见
+`data/results/restoration_v2_ocr_backend/real_screen_summary.json`。这只闭合 dependency 5；完整 derived
+artifact、baseline hashes 与 execution config 仍阻止 GUI-Owl policy output。
 
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从

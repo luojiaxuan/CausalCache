@@ -42,12 +42,15 @@ restoration v2 exact selection/exposure 产物：
   30/15/20 states 与 65 个 content witnesses，SHA256 `292c7e52...`；
 - `manifests/restoration_v2_exposure.json`：append-only pre-output exposure evidence，SHA256
   `bc122482...`；
-- `manifests/restoration_v2_ocr_backend.json`：8 个 Git source、private HF OCR model revision、6 个 HF file
-  hashes、fresh re-download 与 synthetic golden 的 fail-closed index；real-screen golden 未完成前
-  `dependency_5_closed=false`；
+- `manifests/restoration_v2_ocr_backend.json`：14 个 Git source、private HF OCR model revision、6 个 HF file
+  hashes，以及 real-screen source/result、private HF dataset revision、5 个 dataset file hashes 与三次
+  replay 的完成态 fail-closed index；当前 `dependency_5_closed=true`；
 - `manifests/restoration_v2_real_screen_source.json`：在任何 real-screen OCR output 前冻结的 17-file source
   contract，记录 45 states / 180 occurrences / 75 unique images、55/20 orientation、confirm SHA overlap 0
   与 exact 3+3 screenshot keys；当前只是 source truth，不是 OCR result 或 derived artifact 完成证据；
+- `results/restoration_v2_ocr_backend/real_screen_summary.json`：Hyper00 两次 materialization、两次独立 replay、
+  private HF upload/tag、fresh immutable re-download 后第三次 replay 的完整 argv、UTC brackets、runtime、
+  5-file hashes 与 negative declarations；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
   byte-identical 全量构建结论。
 
@@ -71,12 +74,16 @@ restoration v2 exact selection/exposure 产物：
   `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`
   (`0dbc766a73ee88d10d52285d434dbfec58617835`)；三份 ONNX、model card 与 manifest 已 fresh
   re-download，6/6 file hashes verified。
+- Restoration v2 real-screen OCR golden：private HF dataset
+  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile@ocr-real-screen-golden-v1.0.0`
+  (`9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`)；5/5 files fresh re-download verified，完整 tree
+  SHA256 `605d6396...7e25`；这只是 full derived dataset 的 immutable prefix。
 
 最新轻量运行记录：
 
 - `results/restoration_v2_ocr_backend/`：保留首次 package-source key 冲突与 mutable-status 两个 superseded
   attempt；最终 static fixture 已从 pushed commit 两次通过 `validate-golden` 且 byte-identical。synthetic
-  golden 与 immutable HF model artifact passed；real-screen golden/完成态 manifest 仍 pending；
+  golden、immutable HF model artifact、real-screen golden 与 HF dataset immutable re-download 均 passed；
 
 - `results/restoration_v2_selection/`：Hyper00 formal selection/exposure 通过独立 validator；20 条
   confirm trajectories 已按 fixed first-20/no-top-up 规则冻结，未加载 policy 或使用 GPU；
