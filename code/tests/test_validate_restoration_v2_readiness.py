@@ -262,7 +262,7 @@ def _manifest(
 
 
 class RestorationV2ReadinessSchemaTest(unittest.TestCase):
-    def test_committed_readiness_manifest_is_locked_during_runtime_resign(self) -> None:
+    def test_committed_readiness_manifest_has_exact_gpu2_resign(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         config_path = "code/configs/restoration_v2_execution_hyper00_v1.json"
         config_file = repository_root / config_path
@@ -274,17 +274,14 @@ class RestorationV2ReadinessSchemaTest(unittest.TestCase):
             repository_root / "data/manifests/restoration_v2_readiness.json"
         )
         self.assertEqual(
-            manifest["status"], "SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN"
-        )
-        with self.assertRaisesRegex(
-            ValueError, "readiness manifest state or pre-output boundary drifted"
-        ):
             _validate_readiness_manifest(
                 manifest,
                 config_path=config_path,
                 config_sha256=hashlib.sha256(config_file.read_bytes()).hexdigest(),
                 source_files=validated["source_files"],
-            )
+            ),
+            "14faaa44cf1b2044b1f1bcb3c9dcfce36eb452aa",
+        )
 
     def test_committed_execution_config_passes_preoutput_validation(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]

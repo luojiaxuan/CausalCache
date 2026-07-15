@@ -238,9 +238,10 @@ SHA256 为
 `69bb8ddb578bcb8019fda05fd3a4a2be600043b9b2d58db052078f5107bbd119`，真实每图 visual token accounting 为
 2,584 而不是构造 target 2,560。readiness validator 已将 exact grids、token counts、tensor inventory 与 runtime
 classes 冻结。完成态 execution config 也已通过 8-dependency、14-source 与 actual-geometry validation，SHA256
-为 `819cb973d9211a5a9b3b4d7c109520605e35b07ad008bf125353d33d0bf91ca0`。GPU-2 readiness manifest 正在
-fail-closed 重签。GPU-0 readiness manifest 与 clean-Git authorization 只作为历史 pass；当前 GPU-2 dependency
-8 authorization 尚未重新闭合，development screening 与 confirm 均保持 locked。
+为 `819cb973d9211a5a9b3b4d7c109520605e35b07ad008bf125353d33d0bf91ca0`。GPU-2 readiness manifest 已绑定
+implementation commit `14faaa4...452aa`，等待 manifest commit/push 后的 formal clean-Git CLI。GPU-0 readiness
+manifest 与 authorization 只作为历史 pass；当前 GPU-2 dependency 8 authorization 尚未重新闭合，development
+screening 与 confirm 均保持 locked。
 
 验证命令：
 

@@ -217,10 +217,10 @@ capability、SM count、Python、PyTorch/CUDA/cuDNN 和 Transformers，Torch 与
 正式 GPU preflight 后旧 runtime 的 physical GPU 0 被其他任务占用，10 秒采样选择 physical GPU 2。为避免
 共享繁忙 GPU，screening 未启动；新 non-privileged 单卡容器已通过 CUDA compute、独立 validator 与 real
 processor audit。re-anchor evidence 位于 `data/results/restoration_v2_runtime_reanchor/`。GPU-2 execution
-config 已完成 GPU-2 改绑；过渡 readiness manifest 明确为
-`SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`，implementation commit 暂为空。旧 authorization 只作历史
-记录，不用于启动新 runtime。下一 commit 必须把 manifest 绑定本次 clean pushed implementation commit，再在
-clean `HEAD == origin/main` 上运行正式 CLI；通过前 policy/restoration output 仍为零。
+config 已完成 GPU-2 改绑；readiness manifest 已绑定 clean implementation commit
+`14faaa44cf1b2044b1f1bcb3c9dcfce36eb452aa` 并恢复 `SCREENING_ALLOWED` schema。旧 authorization 只作历史
+记录，不用于启动新 runtime。当前 manifest commit 仍需先 push，再在 clean `HEAD == origin/main` 上运行正式
+CLI；通过前 policy/restoration output 仍为零。
 
 readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
 运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived

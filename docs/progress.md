@@ -1054,10 +1054,20 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 本里程碑仍未 import policy runtime、未加载 model、未生成 policy/restoration output。下一 commit 只负责把
   manifest 绑定本 transition 的 clean pushed commit，不再修改 execution config 或 14-source files。
 
+### 2026-07-15：GPU-2 readiness manifest 已 re-sign，等待 formal CLI
+
+- transition commit `14faaa44cf1b2044b1f1bcb3c9dcfce36eb452aa` 已 push 到 canonical `main`；该 commit
+  包含 exact GPU-2 config、14-source inventory、canonical evidence 与 live runtime guard；
+- readiness manifest 恢复 `SCREENING_ALLOWED` schema，`implementation_git_commit` 精确绑定 `14faaa4...452aa`，
+  config SHA 仍为 `819cb973...91ca0`，confirm 仍为 `CONFIRM_LOCKED`；
+- 本步骤只修改 manifest、tests 与 docs，没有修改 execution config 或 14-source files，也没有 policy/model
+  import/output。manifest commit/push 后必须在 clean `HEAD == origin/main` 运行 formal CLI；在此之前操作上仍
+  locked。
+
 ## 下一步
 
-下一步 push 当前 fail-closed transition；随后生成绑定该 commit 的 GPU-2 readiness manifest，clean main 正式
-authorization 通过后才在 Hyper00 运行 development substrate screening。
+下一步 push GPU-2 readiness manifest，并在 clean main 运行正式 authorization；通过后才在 Hyper00 运行
+development substrate screening。
 只有 screening 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
 75-instance final plan 一并冻结。

@@ -87,8 +87,8 @@ physical GPU 已被其他任务占用，因而没有启动 screening。
 [`data/results/restoration_v2_runtime_reanchor/`](data/results/restoration_v2_runtime_reanchor/)；planned GPU-2
 canonical execution config 已改绑新 container/GPU/evidence，SHA256 为 `819cb973...91ca0`。runner 还会在
 artifact/model load 前实时核对 GPU UUID、单卡可见性、driver、compute capability、PyTorch/CUDA/cuDNN 与
-Transformers。当前 readiness manifest 故意标记
-`SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`；重签完成前 policy inference 暂停，confirm 始终锁定。
+Transformers。GPU-2 readiness manifest 已绑定 clean implementation commit `14faaa4...452aa`，但正式
+clean-Git authorization CLI 尚未运行；该 CLI 返回前 policy inference 继续暂停，confirm 始终锁定。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
@@ -469,8 +469,8 @@ $$
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
 - 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 GPU-0 首次 authorization 是历史记录，GPU-2
-  config 已重锚但 readiness 正在重签，当前 fail-closed 状态为
-  `SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN + CONFIRM_LOCKED`。尚未运行 45-state screening，因此仍
+  manifest 已重签但等待 clean-Git formal CLI，当前操作状态为
+  `SCREENING_PENDING_CLEAN_AUTHORIZATION + CONFIRM_LOCKED`。尚未运行 45-state screening，因此仍
   没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models

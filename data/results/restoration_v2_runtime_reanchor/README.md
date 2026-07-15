@@ -37,6 +37,6 @@ forward/generate。
 ## 状态边界
 
 这些文件是 re-signing 原始输入；同一 bytes 现已提升到 canonical GPU/processor audit 目录，execution config
-也已改绑新 runtime。旧 GPU-0 authorization 保留为历史证据；当前 manifest 明确为
-`SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`，planned GPU-2 screening 保持锁定，直到后续 clean pushed
-commit 绑定 implementation revision 并通过正式 authorization。
+也已改绑新 runtime。旧 GPU-0 authorization 保留为历史证据；当前 manifest 已绑定 implementation commit
+`14faaa4...452aa`，planned GPU-2 screening 保持锁定，直到该 manifest commit/push 并通过正式 clean-Git
+authorization。

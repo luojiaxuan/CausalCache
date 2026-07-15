@@ -163,9 +163,9 @@ visual tokens、1/5-image 与 nested batch-2 exact shapes，以及全部零 poli
 processor geometry、Hyper00 GPU-2 runtime 与 microbatch=2；当前 config SHA256 为
 `819cb973...91ca0`。production runner 会在 artifact/model load 前实时复核 GPU UUID、visible count、driver、
 compute capability、PyTorch/CUDA/cuDNN 与 Transformers。GPU-0 首次正式验证 evidence 位于
-`data/results/restoration_v2_readiness/`，仅作历史记录；GPU-2 readiness manifest 当前为
-`SCREENING_LOCKED_RUNTIME_REANCHOR_PENDING_RESIGN`，必须绑定本次 clean pushed implementation commit 并通过
-formal Git validation 才能恢复 `SCREENING_ALLOWED + CONFIRM_LOCKED`。
+`data/results/restoration_v2_readiness/`，仅作历史记录；GPU-2 readiness manifest 已绑定 clean implementation
+commit `14faaa4...452aa`，必须在本 manifest commit/push 后通过 formal clean-Git validation，才能操作性恢复
+`SCREENING_ALLOWED + CONFIRM_LOCKED`。
 
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，
