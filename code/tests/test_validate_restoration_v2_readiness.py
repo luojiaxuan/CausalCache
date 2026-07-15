@@ -26,6 +26,7 @@ from scripts.validate_restoration_v2_readiness import (
     _dependency_map,
     _load_json_object,
     _validate_dependency_evidence_inventory,
+    _validate_execution_config,
     _validate_preclosure_gpu_compute_audit,
     _validate_processor_audit_summary,
     _validate_processor_audit_git_binding,
@@ -261,6 +262,28 @@ def _manifest(
 
 
 class RestorationV2ReadinessSchemaTest(unittest.TestCase):
+    def test_committed_execution_config_passes_preoutput_validation(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        config = _load_json_object(
+            repository_root
+            / "code/configs/restoration_v2_execution_hyper00_v1.json"
+        )
+        validated = _validate_execution_config(
+            config,
+            repository_root=repository_root,
+        )
+        self.assertEqual(len(validated["dependencies"]), 8)
+        self.assertEqual(len(validated["source_files"]), 14)
+
+        changed = copy.deepcopy(config)
+        policy = changed["canonical_policy"]
+        assert isinstance(policy, dict)
+        geometry = policy["processor_geometry"]
+        assert isinstance(geometry, dict)
+        geometry["actual_effective_visual_tokens_per_image"] = 2560
+        with self.assertRaisesRegex(ValueError, "processor geometry"):
+            _validate_execution_config(changed, repository_root=repository_root)
+
     def test_committed_real_processor_summary_passes_exact_validation(self) -> None:
         repository_root = Path(__file__).resolve().parents[2]
         summary_path = repository_root / PROCESSOR_AUDIT_SUMMARY_PATH

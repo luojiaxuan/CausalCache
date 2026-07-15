@@ -206,6 +206,12 @@ canonical summary 位于 `data/results/restoration_v2_processor_audit/summary.js
 lengths 分别为 2,943、13,286、2,946。后续 execution config 必须引用这些实测值，不能回写构造 target 2,560
 冒充实际 accounting。
 
+完成态 execution config 已物化为 `code/configs/restoration_v2_execution_hyper00_v1.json`，SHA256
+`f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5`。它绑定 8 项 exact evidence、14 个
+source roles、processor summary/actual geometry、Hyper00 runtime、H200 UUID、single-device CUDA、固定
+microbatch=2 与 no-OOM-fallback；当前 `_validate_execution_config` 已通过。该 config 本身不授权 policy
+inference，仍必须等待下一 clean pushed commit 的 readiness manifest。
+
 readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
 运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived
 artifact/selection witness validation → runtime import/model load → 全部 90 prompts processor-only shape sweep →

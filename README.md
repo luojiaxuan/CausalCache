@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: restoration v2 dependencies 1--7 passed / real processor audit passed / execution config and readiness pending / policy inference locked
+> Status: restoration v2 dependencies 1--7 passed / real processor audit and execution config passed / readiness pending / policy inference locked
 
 ## 团队交接入口
 
@@ -79,8 +79,9 @@ pushed `main` 和 `CONFIRM_LOCKED`，才返回 `SCREENING_ALLOWED`。production 
 shape sweep，再允许首个 policy output，并以 attempt marker 禁止崩溃后的 hidden retry。上述 source 已通过
 本地 tests。正式 Hyper00 processor audit 也已通过：真实 grid 对齐后每图 2,584 effective visual tokens，
 1/5-image sequence lengths 为 2,943/13,286，且所有 model/policy/restoration negative declarations 均为 false。
-证据见 [`data/results/restoration_v2_processor_audit/`](data/results/restoration_v2_processor_audit/)。execution
-config/readiness manifest 尚未 materialize，所以 dependency 8 仍 pending，v2 policy output 仍 locked。
+证据见 [`data/results/restoration_v2_processor_audit/`](data/results/restoration_v2_processor_audit/)。完成态 execution
+config 也已冻结并通过 8-dependency / 14-source validation，SHA256 为 `f2b6521e...73a5`；readiness manifest
+尚未 materialize，所以 screening 仍未授权，v2 policy output 仍 locked。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
@@ -371,7 +372,8 @@ $$
 - [x] 完成 baseline formulas、policy-vision extractor 与 source hashes；
 - [x] 完成完整 derived artifact、immutable HF revision 与 fresh-download replay；
 - [x] 完成真实 processor audit，冻结 exact grid/token/tensor evidence；
-- [ ] 冻结 execution config/readiness manifest；
+- [x] 冻结 execution config；
+- [ ] 物化并验证 readiness manifest；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
@@ -454,9 +456,10 @@ $$
 - GUI-Owl Think passing native smoke: [`data/results/gui_owl_1_5_8b_think_smoke/README.md`](data/results/gui_owl_1_5_8b_think_smoke/README.md)
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Restoration v2 real processor audit: [`data/results/restoration_v2_processor_audit/README.md`](data/results/restoration_v2_processor_audit/README.md)
+- Restoration v2 execution config: [`code/configs/restoration_v2_execution_hyper00_v1.json`](code/configs/restoration_v2_execution_hyper00_v1.json)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 dependencies 1--7 已通过，包括完整 derived HF artifact。screening loader、readiness validator 与 45-state runner source 已实现；Hyper00 real processor audit 已通过并冻结 exact evidence。execution config/readiness 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 dependencies 1--7 已通过，包括完整 derived HF artifact。screening loader、readiness validator 与 45-state runner source 已实现；Hyper00 real processor audit 与完成态 execution config 已通过。readiness manifest 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 

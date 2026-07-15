@@ -236,8 +236,9 @@ production runner 必须先完成 45×2 个真实 prompt 的 processor-only shap
 正式 real processor audit 已从 clean pushed commit 在 Hyper00 通过；summary SHA256 为
 `7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8`，真实每图 visual token accounting 为
 2,584 而不是构造 target 2,560。readiness validator 已将 exact grids、token counts、tensor inventory 与 runtime
-classes 冻结。这仍不等于第 8 项 passed：execution config 与 readiness manifest 尚未 materialize，screening
-仍 locked。
+classes 冻结。完成态 execution config 也已通过 8-dependency、14-source 与 actual-geometry validation，SHA256
+为 `f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5`。readiness manifest 尚未
+materialize，screening 仍 locked。
 
 验证命令：
 

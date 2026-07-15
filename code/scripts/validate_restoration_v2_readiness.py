@@ -192,6 +192,30 @@ EXPECTED_PROCESSOR_CASES = {
         raw_patch_count=20_672,
     ),
 }
+EXPECTED_PROCESSOR_GEOMETRY = {
+    "evidence": {
+        "path": PROCESSOR_AUDIT_SUMMARY_PATH,
+        "sha256": PROCESSOR_AUDIT_SUMMARY_SHA256,
+    },
+    "processor_class": "Qwen3VLProcessor",
+    "tokenizer_class": "Qwen2Tokenizer",
+    "image_processor_class": "Qwen2VLImageProcessor",
+    "pixel_target_pixels_per_image": 2_621_440,
+    "pixel_target_runtime_representation": (
+        "image_processor.size.shortest_edge_longest_edge"
+    ),
+    "actual_effective_visual_tokens_per_image": 2584,
+    "portrait_image_grid_thw": [1, 152, 68],
+    "landscape_image_grid_thw": [1, 68, 152],
+    "single_image_sequence_length": 2943,
+    "five_image_sequence_length": 13_286,
+    "nested_batch_two_sequence_length": 2946,
+    "teacher_boundary_tokens": {
+        "assistant_prefix": 3,
+        "carrier": 8,
+        "distance": 15,
+    },
+}
 EXPECTED_SOURCE_PATHS = {
     "derived_artifact_validator": (
         "code/causalcache/data/guiodyssey_restoration_v2.py"
@@ -1040,6 +1064,20 @@ def _validate_execution_config(
         raise ValueError("scientific contract SHA256 drifted")
 
     policy = _object(config["canonical_policy"], name="canonical_policy")
+    _exact_keys(
+        policy,
+        {
+            "repo",
+            "revision",
+            "model_class",
+            "dtype",
+            "target_effective_visual_tokens_per_image",
+            "generation",
+            "snapshot_manifest",
+            "processor_geometry",
+        },
+        name="canonical_policy",
+    )
     snapshot = _object(policy.get("snapshot_manifest"), name="policy snapshot")
     snapshot_reference = _validate_file_reference(
         snapshot,
@@ -1062,6 +1100,18 @@ def _validate_execution_config(
         or len(_list(snapshot_payload.get("files"), name="snapshot files")) != 14
     ):
         raise ValueError("canonical policy contract drifted")
+    geometry = _object(policy.get("processor_geometry"), name="processor_geometry")
+    geometry_evidence = _object(
+        geometry.get("evidence"), name="processor_geometry evidence"
+    )
+    _validate_file_reference(
+        geometry_evidence,
+        repository_root=repository_root,
+        expected_path=PROCESSOR_AUDIT_SUMMARY_PATH,
+        name="processor geometry evidence",
+    )
+    if geometry != EXPECTED_PROCESSOR_GEOMETRY:
+        raise ValueError("canonical processor geometry drifted")
 
     data = _object(config["canonical_data"], name="canonical_data")
     if data != {

@@ -120,7 +120,7 @@ restoration v2 exact selection/exposure 产物：
 
 - `results/restoration_v2_processor_audit/`：Hyper00 real `AutoProcessor` formal summary 已通过；exact
   grids/tokens/tensors、source hashes、零 model-tensor/forward/generate/output declarations 均已冻结。该子项
-  已完成，但 dependency 8 仍需 execution config/readiness manifest；
+  已完成，execution config 也已冻结；dependency 8 仍需 readiness manifest；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；

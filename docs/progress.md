@@ -933,10 +933,10 @@ config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy ou
    model revision、6-image real-screen golden、HF dataset immutable re-download 与完成态 manifest passed；
 6. baseline specification/source hashes：passed，见 `data/manifests/restoration_v2_baselines.json`；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
-8. 引用 scientific-config SHA 的 execution config：pending。GPU KL/microbatch/runtime/audit source 与
-   Hyper00 formal compute audit 与 real processor audit 均已通过；confirm-safe screening loader、
-   readiness validator 与固定 45-state production runner source 也已实现，但完成态 config/source-hash
-   manifest 与 readiness manifest 尚未闭合。
+8. 引用 scientific-config SHA 的 execution config：config passed / readiness pending。GPU KL/microbatch/runtime/
+   audit source、Hyper00 formal compute audit 与 real processor audit 均已通过；confirm-safe screening loader、
+   readiness validator 与固定 45-state production runner source 也已实现；完成态 config/source-hash
+   inventory 已通过，readiness manifest 尚未闭合。
 
 GPU-side scalar KL、GUI-Owl runtime 与 coalition microbatch 已 implementation-ready，formal CUDA audit 已
 通过。新增 runner 在 readiness 8/8 前不 import policy runtime；readiness 后也先对固定 45 states 的
@@ -994,10 +994,22 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   Pillow runtime 与 class/module 做 exact equality，不再只检查“内部自洽”；processor 子项已闭合，但
   dependency 8 仍等待 execution config、完整 source inventory 与 readiness manifest。
 
+### 2026-07-15：execution config 完成
+
+- 新增 `code/configs/restoration_v2_execution_hyper00_v1.json`，SHA256
+  `f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5`；
+- exact 8-dependency evidence inventory、14 个 source roles/current hashes、scientific config SHA、derived HF
+  identity、GUI-Owl snapshot、Hyper00/H200/container runtime、GPU KL dtype/host-transfer contract 与
+  microbatch=2/no-fallback 全部通过 `_validate_execution_config`；
+- canonical policy 额外绑定 processor summary SHA 与真实 2,584-token geometry、1/5-image/nested batch-2
+  sequence lengths 和 3/8/15 teacher boundaries，防止把 2,560 构造 target 误报成实测 accounting；
+- config 仍声明 `CONFIRM_LOCKED` 且不授权 inference；dependency 8 的最终公开状态仍等待后续 clean pushed
+  commit 中的 readiness manifest 与 Git ancestry/source-blob validation。
+
 ## 下一步
 
-逐步 push：从包含 formal processor summary 的 clean pushed commit，冻结引用其 exact SHA/geometry、全部
-identity/source hashes 与 coalition microbatch 的 execution config；再物化 readiness manifest 并独立验证。
+下一步只物化 readiness manifest：它必须引用本次 config 的 exact SHA、implementation commit 与同一 14-source
+inventory；commit/push 后在 clean `HEAD == origin/main` 上运行正式 validator。
 第 8 项闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
