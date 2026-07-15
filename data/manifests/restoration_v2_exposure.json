@@ -1,0 +1,168 @@
+{
+  "events": [
+    {
+      "access_kind": "raw_source_machine_access",
+      "event_id": "parent-artifact-v1-raw-machine-access",
+      "evidence": {
+        "parent_manifest_sha256": "3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949",
+        "parent_repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+        "parent_revision": "84c9f5a335e9612ccb4bd566f977574f359b2485"
+      },
+      "roles": [
+        "v1_reference_contract_audit_only",
+        "v2_label_train",
+        "v2_development"
+      ],
+      "source_id_count": 23,
+      "source_ids_sha256": "4a2bb7205b8105b2e3a1211a806f3ce3cc4b2167a43a75deae267ca986fa78f0"
+    },
+    {
+      "access_kind": "raw_source_machine_access",
+      "event_id": "confirm-selection-v2-raw-machine-access",
+      "evidence": {
+        "manual_screenshot_review_recorded": false,
+        "selection_basis_uses_policy_output": false,
+        "selection_manifest_sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+        "source_file_manifest_sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc"
+      },
+      "roles": [
+        "v2_confirm_primary"
+      ],
+      "source_id_count": 20,
+      "source_ids_sha256": "c84ba8b9b705abc7ba7d6d7230b868fd4600e3a835b1c763a8aaf1f93feb052e"
+    },
+    {
+      "access_kind": "recorded_expert_action_read",
+      "event_id": "recorded-expert-actions-machine-read",
+      "evidence": {
+        "selection_manifest_sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+        "uses_action_validity": true,
+        "uses_postselection_expert_alignment": false,
+        "uses_recorded_terminal_success": true,
+        "uses_v2_policy_output": false
+      },
+      "roles": [
+        "v1_reference_contract_audit_only",
+        "v2_label_train",
+        "v2_development",
+        "v2_confirm_primary"
+      ],
+      "source_id_count": 43,
+      "source_ids_sha256": "8153474e290c771fddd8b014749ab2e3f90a438dad09a2388d177756a0c0c351"
+    },
+    {
+      "access_kind": "policy_output",
+      "event_id": "ui-tars-reference-gate-v1-policy-output",
+      "evidence": {
+        "hf_path": "runs/independent-reference-gate-v1",
+        "hf_repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+        "hf_revision": "b3e1245c6c6a1723fe2ca3a861148008df39df46",
+        "policy_repo": "ByteDance-Seed/UI-TARS-1.5-7B",
+        "policy_revision": "683d002dd99d8f95104d31e70391a39348857f4e",
+        "summary_path": "data/results/independent_reference_gate_v1/summary.json",
+        "summary_sha256": "c49d79dff67aabb0867bda56836f7337201a5015ba618160c45e8dd011b64c8e"
+      },
+      "roles": [
+        "v1_reference_contract_audit_only"
+      ],
+      "source_id_count": 8,
+      "source_ids_sha256": "6522e2f9c7eb08765606250fbb480b4f46e009a892b3693a573ea07c9c10791d"
+    }
+  ],
+  "freeze_declaration": {
+    "confirm_selection_changed_after_output": false,
+    "gui_owl_v2_policy_output_generated": false,
+    "restoration_output_generated": false
+  },
+  "protocol_id": "causalcache_restoration_v2",
+  "reduced_roles": {
+    "v1_reference_contract_audit_only": {
+      "expert_action_machine_seen": true,
+      "known_policy_outputs": [
+        "ui-tars-reference-gate-v1-policy-output"
+      ],
+      "known_restoration_outputs": [],
+      "raw_machine_seen": true
+    },
+    "v2_confirm_primary": {
+      "expert_action_machine_seen": true,
+      "known_policy_outputs": [],
+      "known_restoration_outputs": [],
+      "raw_machine_seen": true
+    },
+    "v2_development": {
+      "expert_action_machine_seen": true,
+      "known_policy_outputs": [],
+      "known_restoration_outputs": [],
+      "raw_machine_seen": true
+    },
+    "v2_label_train": {
+      "expert_action_machine_seen": true,
+      "known_policy_outputs": [],
+      "known_restoration_outputs": [],
+      "raw_machine_seen": true
+    }
+  },
+  "role_source_ids": {
+    "v1_reference_contract_audit_only": [
+      "0062545727651092",
+      "0119197274492507",
+      "0139487095063242",
+      "0194478440163092",
+      "0074966019597416",
+      "0125975818276068",
+      "0124013985171518",
+      "0145589904916408"
+    ],
+    "v2_confirm_primary": [
+      "0138580662882674",
+      "0141017089161442",
+      "0088916287721604",
+      "0182869798349621",
+      "0062595953452329",
+      "0206356317737773",
+      "0128873485175141",
+      "0097146299278532",
+      "0126322136688861",
+      "0003269005797789",
+      "0107883386619316",
+      "0015844124232805",
+      "0007216161758334",
+      "0208932442851349",
+      "0140656067727410",
+      "0205621648359625",
+      "0047234313779636",
+      "0125033580932478",
+      "0163270032450668",
+      "0061317255667027"
+    ],
+    "v2_development": [
+      "0119685762769531",
+      "0126163828013448",
+      "0106443124024468",
+      "0141544666483837",
+      "0035782072567389"
+    ],
+    "v2_label_train": [
+      "0131649930078879",
+      "0214993880872733",
+      "0230010406789851",
+      "0021006740023566",
+      "0218068002038239",
+      "0217738978329323",
+      "0139141460497671",
+      "0122136372603148",
+      "0214300008821039",
+      "0050955459888018"
+    ]
+  },
+  "schema_version": "0.1.0",
+  "selection_manifest_sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+  "semantics": {
+    "confirm_terminology": "policy-output untouched; not raw-unseen",
+    "events_are_append_only": true,
+    "negative_output_claim": "process declaration at freeze, not cryptographic proof",
+    "raw_data_seen_is_distinct_from_policy_output_seen": true
+  },
+  "status": "FROZEN_PREOUTPUT_EXPOSURE"
+}

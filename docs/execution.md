@@ -127,7 +127,8 @@ source 上同时显式传 `--androidworld-source-root <PATH>`、`--androidworld-
 constructor preflight summary 随后 commit/push。`JSONAction(**payload)` 仅证明 schema construction，不是
 device-side executor；还必须补 executor dispatch/behavioral smoke。此后才允许构建/冻结 derived HF
 artifact；同时还必须闭合 exact confirm IDs、exposure ledger、OCR identity、baseline source hashes，并
-冻结引用全部 artifact/interface identity 的 execution config。`docs/restoration_v2.md` 所列八项全部完成
+冻结引用全部 artifact/interface identity 的 execution config。其中 exact IDs/exposure 已在下述
+Hyper00 formal run 闭合；`docs/restoration_v2.md` 所列八项全部完成
 后，才允许执行 GPU substrate screening。
 
 2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
@@ -139,9 +140,9 @@ negative actuation control 为 HTTP 500，独立 reducer verdict 为 `PASSED_EXE
 `data/results/restoration_v2_executor_dispatch/`；该结果闭合第 4 项 action dependency，但不替代其余七项
 pre-output dependencies。
 
-exact-ID/exposure 是纯 CPU 数据步骤，当前在 Hyper00 已保留的 pinned source cache 上运行，不需要占用
-GPU。必须从已 push 的 clean detached commit 执行，显式传 source root、parent manifest 与 Git revision；
-两个输出路径必须不存在：
+exact-ID/exposure 是纯 CPU 数据步骤。Hyper00 已从 pushed
+`main@ed0706ecb72d9a828f452f7308859f95f9554c55` 的 clean detached worktree 正式运行，未占用
+GPU。正式命令显式传入 source root、parent manifest 与 Git revision，两个输出路径在执行前不存在：
 
 ```bash
 python3 -m scripts.materialize_restoration_v2_selection \
@@ -156,10 +157,11 @@ python3 -m scripts.materialize_restoration_v2_selection \
   --output-exposure /data/tmp/restoration-v2-exposure.json
 ```
 
-runner 会对 2.25 GB source files 先做 size/SHA 验证，再读取 raw rows 两遍以重建全 pool 和固定 65 个
-state witnesses；parent tar 只含 23 条，不能作为 confirm source。输出只含轻量 metadata/hash，不含
-截图 bytes；生成后必须复制回 Git、用独立 validator 复核、更新 README/docs、commit/push，才关闭
-dependencies 2/3。该步骤不得启动 GUI-Owl 或产生任何 policy/restoration output。
+runner 对 2.25 GB source files 先做 size/SHA 验证，再读取 raw rows 两遍以重建全 pool 和固定 65 个
+state witnesses；parent tar 只含 23 条，没有被当作 confirm source。两个空目录的全量构建字节级一致，并分别通过
+独立 validator。canonical selection/exposure SHA256 为 `13197eed...` / `0b1a4dfd...`，证据见
+`data/results/restoration_v2_selection/`；dependencies 2/3 已闭合。该步骤未启动 GUI-Owl，也未产生任何
+policy/restoration output。
 
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从

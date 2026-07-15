@@ -32,6 +32,15 @@ pinned `JSONAction` 接受。formal device-side result 位于 `results/restorati
 cases 与 negative control 已通过独立 reducer。interface manifest 的 `pending` 是运行前 source snapshot，
 不被事后改写；实际 run status 以 result summary 为准。
 
+restoration v2 exact selection/exposure 产物：
+
+- `manifests/restoration_v2_selection.json`：111-trajectory eligible pool、8/15/20 role proof、exact
+  30/15/20 states 与 65 个 content witnesses，SHA256 `13197eed...`；
+- `manifests/restoration_v2_exposure.json`：append-only pre-output exposure evidence，SHA256
+  `0b1a4dfd...`；
+- `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
+  byte-identical 全量构建结论。
+
 当前 reusable artifacts：
 
 - Independent GUIOdyssey gate：private HF dataset
@@ -50,6 +59,9 @@ cases 与 negative control 已通过独立 reducer。interface manifest 的 `pen
   `v0.1.0`。
 
 最新轻量运行记录：
+
+- `results/restoration_v2_selection/`：Hyper00 formal selection/exposure 通过独立 validator；20 条
+  confirm trajectories 已按 fixed first-20/no-top-up 规则冻结，未加载 policy 或使用 GPU；
 
 - `results/restoration_v2_executor_dispatch/`：Aries formal attempt 通过 14/14 cases，negative actuation
   control 为 HTTP 500，canonical verdict 为 `PASSED_EXECUTOR_DISPATCH`；未加载 policy 或使用 GPU；

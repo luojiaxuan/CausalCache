@@ -1,0 +1,86 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "causalcache_restoration_v2",
+  "outcome": "PASSED_PREOUTPUT_SELECTION_VALIDATION",
+  "canonical_attempt": {
+    "run_git_commit": "ed0706ecb72d9a828f452f7308859f95f9554c55",
+    "host_alias": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "container_name": "sglang-omni-jaxan-07151357",
+    "container_image": "hongccc/sglang-omni:dev",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "python_version": "3.12.3",
+    "pyarrow_version": "24.0.0",
+    "seed": null,
+    "gpu_used": false,
+    "policy_loaded": false,
+    "policy_output_generated": false,
+    "restoration_output_generated": false
+  },
+  "source_reconstruction": {
+    "source_rows": 212,
+    "eligible_trajectories": 111,
+    "eligible_pool_sha256": "84d6855b20227d7f884d4ce26cfae7188c1075bb7751cab78a3cf325eef192cb",
+    "remaining_after_prior_roles": 88,
+    "structurally_eligible_after_decision_count_filter": 84
+  },
+  "selection": {
+    "path": "data/manifests/restoration_v2_selection.json",
+    "size_bytes": 218833,
+    "sha256": "13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3",
+    "confirm_trajectory_count": 20,
+    "confirm_state_count": 20,
+    "label_train_state_count": 30,
+    "development_state_count": 15,
+    "confirm_distinct_app_label_count": 29,
+    "reference_oracle_confirm_union_count": 43,
+    "reference_oracle_confirm_union_sha256": "18e3151cb3757eee429cc3472d93831c4f8d30dcb29da68a00aabd414e2db0ba",
+    "confirm_source_ids": [
+      "0138580662882674",
+      "0141017089161442",
+      "0088916287721604",
+      "0182869798349621",
+      "0062595953452329",
+      "0206356317737773",
+      "0128873485175141",
+      "0097146299278532",
+      "0126322136688861",
+      "0003269005797789",
+      "0107883386619316",
+      "0015844124232805",
+      "0007216161758334",
+      "0208932442851349",
+      "0140656067727410",
+      "0205621648359625",
+      "0047234313779636",
+      "0125033580932478",
+      "0163270032450668",
+      "0061317255667027"
+    ]
+  },
+  "exposure": {
+    "path": "data/manifests/restoration_v2_exposure.json",
+    "size_bytes": 5621,
+    "sha256": "0b1a4dfdb9f23be1a7456f78801f26e0b0800b7f32f011af913257b6919535ae",
+    "status": "FROZEN_PREOUTPUT_EXPOSURE",
+    "gui_owl_v2_policy_output_generated": false,
+    "restoration_output_generated": false
+  },
+  "validation": {
+    "independent_validator_outcome": "PASSED_PREOUTPUT_SELECTION_VALIDATION",
+    "deterministic_full_rebuild_count": 2,
+    "selection_bytes_identical": true,
+    "exposure_bytes_identical": true
+  },
+  "failed_attempts": [
+    {
+      "run_git_commit": "826b45feb90f92e212a0d3d25e220f52fcf3c697",
+      "scratch_path": "/data/tmp/restoration-v2-selection-826b45f",
+      "builder_outcome": "PASSED_PREOUTPUT_SELECTION",
+      "validator_outcome": "REJECTED_SERIALIZED_ROLE_ORDER",
+      "classification": "validator_contract_bug",
+      "policy_output_generated": false,
+      "canonical": false
+    }
+  ]
+}

@@ -6,7 +6,7 @@ AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate�
 frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
 untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
-preflight 已闭合；当前推进 exact IDs、exposure、OCR、baselines、derived artifact 与 execution config。仍没有
+preflight、exact IDs 与 exposure 已闭合；当前推进 OCR、baselines、derived artifact 与 execution config。仍没有
 v2 policy output、restoration label 或方法效果结果。
 
 ## 已完成里程碑
@@ -662,6 +662,23 @@ v2 policy output、restoration label 或方法效果结果。
 - 修复将 role inventory 改为显式 frozen tuple，并新增“serialize→parse→validate”回归测试。必须先
   commit/push 修复，再从新 commit/new output path 重跑 formal materialization。
 
+### 2026-07-15：Selection formal attempt 2 通过
+
+- 从 pushed `main@ed0706ecb72d9a828f452f7308859f95f9554c55` 的同一 clean detached Hyper00
+  worktree，在全新 output path 重跑；source 212 rows、111 eligible count、pool SHA `84d685...`、五类
+  exclusion counts 与 frozen 8/15 role order 全部复现；
+- 排除 exact 23 条后剩 88 条，其中 84 条满足 `decision_count>=5`；confirm 是 structural order 首 20，
+  对应 global indices 23--29、31--43，index 30 因结构条件被跳过，不存在 result-dependent filter；
+- confirm 覆盖 29 个 normalized app labels，远高于 frozen minimum 3；8/15/20 union 为 43 且两两不交；
+- exact state denominator 为 label-train 30、development 15、confirm 20；65 states 的 current/candidate/
+  current-equivalence image 与 validated-action hashes 均已冻结；
+- selection SHA256 `13197eedc413717a3f190aa53453c6f34b1db82c57f0b47945d552f38bec74f3`，
+  exposure SHA256 `0b1a4dfdb9f23be1a7456f78801f26e0b0800b7f32f011af913257b6919535ae`；
+- 独立 validator 通过；第二个空目录的全量重建与第一次 passing build 两文件 byte-identical；canonical
+  manifests 与轻量 summary 已进入 `data/manifests/`、`data/results/restoration_v2_selection/`；
+- dependencies 2/3 正式闭合。本步骤在 Hyper00 CPU 执行，未加载 policy、未使用 GPU、未生成任何 v2
+  policy/restoration output。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -676,6 +693,9 @@ v2 policy output、restoration label 或方法效果结果。
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0` (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保持在 `v0.1.0`；
 - restoration v2 executor evidence：Git `data/results/restoration_v2_executor_dispatch/`，formal verdict
   `PASSED_EXECUTOR_DISPATCH`，14/14 cases，summary SHA256 `61956a45...`；
+- restoration v2 exact selection/exposure：Git `data/manifests/restoration_v2_selection.json` 与
+  `data/manifests/restoration_v2_exposure.json`，SHA256 分别为 `13197eed...` / `0b1a4dfd...`；20 confirm
+  trajectories、45 screening states，formal verdict `PASSED_PREOUTPUT_SELECTION_VALIDATION`；
 - independent candidate dataset 已冻结；reference raw record 位于 private HF
   `@reference-gate-v1` (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)；reference 判负，oracle records
   按协议未生成。旧 oracle raw trajectories/images/expert actions 已被 builder 读取和打包，不是 raw unseen；
@@ -689,8 +709,8 @@ v2 policy output、restoration label 或方法效果结果。
 ## 八项 pre-output dependencies 状态
 
 1. derived artifact immutable HF revision/file hashes：pending；
-2. exact confirm trajectory/state IDs：materializer passed，formal manifest pending；
-3. exposure ledger：append-only schema/reducer passed，formal ledger pending；
+2. exact confirm trajectory/state IDs：passed，selection SHA256 `13197eed...`；
+3. exposure ledger：passed，ledger SHA256 `0b1a4dfd...`；
 4. restricted prompt/parser/bridge/executor fixture：passed；CPU prompt/parser/bridge、真实 pinned `JSONAction`
    constructor 与 device-side executor dispatch 均有独立 evidence；
 5. pinned accessibility/OCR identity：pending；
@@ -703,8 +723,8 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步从已 push commit 在 Hyper00 重建 111-pool并 materialize exact IDs/exposure ledger；随后
-冻结 OCR summaries/backend identity 和 baseline source hashes，再构建并 immutable-verify
+逐步 push：下一步冻结 OCR/image backend identity、完整 screen OCR tokens 与 golden fixtures，再冻结 baseline
+implementation/source hashes；随后构建并 immutable-verify
 private HF derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
 八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity

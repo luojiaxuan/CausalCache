@@ -1,4 +1,4 @@
-.PHONY: paper clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch synthetic-phase0
+.PHONY: paper clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection synthetic-phase0
 
 paper:
 	mkdir -p output/pdf
@@ -31,6 +31,12 @@ validate-restoration-v2-interfaces:
 validate-restoration-v2-executor-dispatch:
 	cd code && python3 -m scripts.validate_restoration_v2_executor_evidence validate \
 		--summary ../data/results/restoration_v2_executor_dispatch/summary-rv2-20260715T101814Z-53016a40.json
+
+validate-restoration-v2-selection:
+	cd code && python3 -m scripts.validate_restoration_v2_selection \
+		--v2-contract configs/causalcache_restoration_v2.json \
+		--selection ../data/manifests/restoration_v2_selection.json \
+		--exposure ../data/manifests/restoration_v2_exposure.json
 
 synthetic-phase0:
 	cd code && python3 -m scripts.run_synthetic_attribution \
