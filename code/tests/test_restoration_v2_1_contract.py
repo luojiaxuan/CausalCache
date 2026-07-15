@@ -33,7 +33,7 @@ def _preflight() -> dict[str, object]:
         "status": "PASSED_RESTORATION_V2_1_90_PROMPT_PROCESSOR_PREFLIGHT",
         "contract_sha256": FROZEN_RESTORATION_V2_1_PILOT_SHA256,
         "selection_manifest_sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
-        "policy_interface_source_sha256": "9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c",
+        "policy_interface_source_sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
         "runtime_source_sha256": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5",
         "canonical_tool_schema_sha256": "8f92f2fe5eeda45af1e41852f364d2fa4738fbb502eb4fb80f6ef1025691f6c7",
         "chat_template_file_sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce",
@@ -58,7 +58,9 @@ def _preflight() -> dict[str, object]:
         "policy_model_loaded": False,
         "policy_forward_executed": False,
         "policy_generation_executed": False,
-        "confirm_accessed": False,
+        "full_artifact_including_confirm_bytes_validated_by_loader": True,
+        "confirm_state_prompt_or_image_exposed_to_decoder_or_processor": False,
+        "confirm_processor_prompt_count": 0,
         "restoration_output_generated": False,
     }
 
@@ -168,6 +170,26 @@ class RestorationV21PilotContractTest(unittest.TestCase):
         self.assertEqual(gate["pass_outcome"], "PASS_V2_1_INTERFACE_PILOT")
         self.assertEqual(gate["fail_outcome"], "NO_GO_V2_1_INTERFACE_PILOT")
         execution = contract["pilot_execution"]
+        self.assertEqual(
+            execution["attempt_id"],
+            "restoration-v2-1-interface-pilot-v1",
+        )
+        self.assertEqual(
+            execution["canonical_persistent_output_dir"],
+            "/data/experiments/causalcache/restoration-v2-1-interface-pilot-v1",
+        )
+        self.assertEqual(execution["canonical_host_alias"], "hyper00")
+        self.assertEqual(
+            execution["canonical_host_hostname"],
+            "node-radixark-16-0000",
+        )
+        self.assertEqual(execution["canonical_device"], "cuda:0")
+        self.assertIs(execution["cross_host_attempt_allowed"], False)
+        self.assertIs(execution["alternate_output_dir_allowed"], False)
+        self.assertIs(
+            execution["output_directory_deletion_after_first_attempt_allowed"],
+            False,
+        )
         for field in (
             "state_retry_count",
             "top_up_count",
@@ -200,7 +222,22 @@ class RestorationV21PilotContractTest(unittest.TestCase):
             contract["processor_preflight"]["teacher_boundary_validated"],
             True,
         )
-        self.assertIs(contract["processor_preflight"]["confirm_accessed"], False)
+        self.assertIs(
+            contract["processor_preflight"][
+                "full_artifact_including_confirm_bytes_validated_by_loader"
+            ],
+            True,
+        )
+        self.assertIs(
+            contract["processor_preflight"][
+                "confirm_state_prompt_or_image_exposed_to_decoder_or_processor"
+            ],
+            False,
+        )
+        self.assertEqual(
+            contract["processor_preflight"]["confirm_processor_prompt_count"],
+            0,
+        )
         self.assertIs(
             contract["processor_preflight"]["restoration_output_generated"],
             False,
@@ -259,7 +296,7 @@ class RestorationV21PilotContractTest(unittest.TestCase):
             _preflight(),
             contract_sha256=FROZEN_RESTORATION_V2_1_PILOT_SHA256,
             selection_manifest_sha256="292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
-            policy_interface_source_sha256="9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c",
+            policy_interface_source_sha256="90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
         )
         self.assertEqual(result["prompt_count"], 90)
 
@@ -270,7 +307,7 @@ class RestorationV21PilotContractTest(unittest.TestCase):
                 forward,
                 contract_sha256=FROZEN_RESTORATION_V2_1_PILOT_SHA256,
                 selection_manifest_sha256="292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
-                policy_interface_source_sha256="9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c",
+                policy_interface_source_sha256="90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
             )
 
         missing_tool_injection = _preflight()
@@ -280,17 +317,41 @@ class RestorationV21PilotContractTest(unittest.TestCase):
                 missing_tool_injection,
                 contract_sha256=FROZEN_RESTORATION_V2_1_PILOT_SHA256,
                 selection_manifest_sha256="292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
-                policy_interface_source_sha256="9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c",
+                policy_interface_source_sha256="90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
             )
 
-        confirm = _preflight()
-        confirm["confirm_accessed"] = True
-        with self.assertRaisesRegex(ValueError, "confirm_accessed"):
+        confirm_exposure = _preflight()
+        confirm_exposure[
+            "confirm_state_prompt_or_image_exposed_to_decoder_or_processor"
+        ] = True
+        with self.assertRaisesRegex(ValueError, "confirm_state_prompt_or_image"):
             validate_restoration_v2_1_processor_preflight(
-                confirm,
+                confirm_exposure,
                 contract_sha256=FROZEN_RESTORATION_V2_1_PILOT_SHA256,
                 selection_manifest_sha256="292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
-                policy_interface_source_sha256="9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c",
+                policy_interface_source_sha256="90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
+            )
+
+        missing_full_artifact_validation = _preflight()
+        missing_full_artifact_validation[
+            "full_artifact_including_confirm_bytes_validated_by_loader"
+        ] = False
+        with self.assertRaisesRegex(ValueError, "full-artifact loader validation"):
+            validate_restoration_v2_1_processor_preflight(
+                missing_full_artifact_validation,
+                contract_sha256=FROZEN_RESTORATION_V2_1_PILOT_SHA256,
+                selection_manifest_sha256="292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+                policy_interface_source_sha256="90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
+            )
+
+        confirm_prompt = _preflight()
+        confirm_prompt["confirm_processor_prompt_count"] = 1
+        with self.assertRaisesRegex(ValueError, "confirm prompt count"):
+            validate_restoration_v2_1_processor_preflight(
+                confirm_prompt,
+                contract_sha256=FROZEN_RESTORATION_V2_1_PILOT_SHA256,
+                selection_manifest_sha256="292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+                policy_interface_source_sha256="90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
             )
 
         wrong_runtime = _preflight()
@@ -300,7 +361,7 @@ class RestorationV21PilotContractTest(unittest.TestCase):
                 wrong_runtime,
                 contract_sha256=FROZEN_RESTORATION_V2_1_PILOT_SHA256,
                 selection_manifest_sha256="292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
-                policy_interface_source_sha256="9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c",
+                policy_interface_source_sha256="90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
             )
 
     def test_cli_reports_pending_or_validated_processor_preflight(self) -> None:

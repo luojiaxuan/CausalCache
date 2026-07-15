@@ -80,6 +80,108 @@ processor 的 official `tools=` 注入 schema，删除旧 `Action:` carrier，�
 均被 contract hash 绑定。`scripts.validate_restoration_v2_1_contract` 只验证 immutable source/contract；在
 独立 90-prompt processor evidence 通过前，它明确不授权 policy generation。
 
+v2.1 的 processor-only 正式入口是 `scripts.audit_gui_owl_v2_1_processor`，独立重算/验证逻辑在
+`causalcache.restoration_v2_1_processor_audit`。它用真实 pinned `AutoProcessor` 处理 45 states ×
+reference/summary-only 共 90 prompts，验证 official tools、tensor/shape、context 与全部九种 action 的
+teacher golden；teacher bytes 与 official assistant `tool_calls` Jinja/tojson 一致，包括 canonical insertion order
+与原始 Unicode UTF-8，decoded text 仍须 strict NFKC。不加载 model weights，也不 forward/generate。
+loader 会验证/hash 包含 confirm bytes 的完整 artifact，但交给 decoder/processor 的 confirm
+state/prompt/image 为 0，
+`confirm_processor_prompt_count=0`。正式 output 必须在 Git repo 外 exclusive-create；source 已就绪，尚未在
+Hyper00 产生正式 evidence。
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.audit_gui_owl_v2_1_processor \
+  --repository-root /data/CausalCache \
+  --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload/derived/restoration-v2-v1 \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --snapshot-manifest /data/CausalCache/code/configs/gui_owl_1_5_8b_snapshot.json \
+  --v2-config /data/CausalCache/code/configs/causalcache_restoration_v2.json \
+  --v2-1-config /data/CausalCache/code/configs/causalcache_restoration_v2_1_pilot.json \
+  --selection-manifest /data/CausalCache/data/manifests/restoration_v2_selection.json \
+  --ocr-backend-config /data/CausalCache/code/configs/restoration_v2_ocr_backend.json \
+  --artifact-binding-manifest /data/CausalCache/data/manifests/restoration_v2_derived_artifact.json \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --run-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --output /data/experiments/causalcache/restoration-v2-1-processor-preflight-v1/formal-result.json
+```
+
+正式 raw JSON 先上传 private HF dataset
+`gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile` 并取得 immutable revision；随后只把轻量
+artifact manifest 写入 Git：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.package_restoration_v2_1_processor_evidence \
+  --repository-root /data/CausalCache \
+  --raw-evidence /data/experiments/causalcache/restoration-v2-1-processor-preflight-v1/formal-result.json \
+  --hf-repo gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile \
+  --hf-immutable-revision <HF_COMMIT_OID> \
+  --hf-path processor-preflight-v1/formal-result.json \
+  --current-git-commit <PROCESSOR_AUDIT_SOURCE_SHA> \
+  --output /data/CausalCache/data/results/restoration_v2_1_processor_preflight/artifact.json
+```
+
+raw prompt/input-ID evidence 不进入 Git；pilot 从 immutable artifact 的本地下载件复核 SHA、size、source commit
+与 compact reduction。packager 本身不联网证明 HF revision 存在；正式流程必须在 upload/tag 后从 40-hex
+immutable revision fresh download，并逐 byte 复核 manifest 中的 SHA256/size，之后才允许提交 Git manifest。
+
+只有该 evidence 经独立 validator 通过，才能调用 fixed-15 no-retry runner
+`scripts.run_restoration_v2_1_interface_pilot`。runner 只读取冻结的 15 个 `v2_development` states，每 state
+先写 attempt marker 再作一次 full-history generation；interrupted marker 不得 retry。parse failure 进入科学
+`NO_GO`，OOM/runtime/contract failure 进入 invalid。下列是 source interface，不是已执行结果：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.run_restoration_v2_1_interface_pilot \
+  --repository-root /data/CausalCache \
+  --contract /data/CausalCache/code/configs/causalcache_restoration_v2_1_pilot.json \
+  --processor-preflight /data/tmp/causalcache-restoration-v2-1-processor-preflight-hf-redownload/processor-preflight-v1/formal-result.json \
+  --derived-artifact-root /data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload/derived/restoration-v2-v1 \
+  --scientific-config /data/CausalCache/code/configs/causalcache_restoration_v2.json \
+  --selection-manifest /data/CausalCache/data/manifests/restoration_v2_selection.json \
+  --ocr-backend-config /data/CausalCache/code/configs/restoration_v2_ocr_backend.json \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --device cuda:0 \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id 69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --output-dir /data/experiments/causalcache/restoration-v2-1-interface-pilot-v1
+```
+
+无论 pilot 终止为 `PASS`、科学 `NO_GO` 还是 runtime `INVALID`，都先在同一 clean source commit 上把
+canonical output 与 sibling ledger 打成 deterministic USTAR；raw archive 上传 private Hugging Face dataset 后，
+再在 Git 中生成轻量 manifest。正式入口如下：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.manage_restoration_v2_1_pilot_artifact archive \
+  --repository-root /data/CausalCache \
+  --raw-output-dir /data/experiments/causalcache/restoration-v2-1-interface-pilot-v1 \
+  --global-attempt-ledger /data/experiments/causalcache/.restoration-v2-1-interface-pilot-v1.attempt.json \
+  --output /data/experiments/causalcache/restoration-v2-1-interface-pilot-v1.raw.tar \
+  --source-git-commit <PILOT_SOURCE_SHA>
+
+python3 -m scripts.manage_restoration_v2_1_pilot_artifact create-manifest \
+  --repository-root /data/CausalCache \
+  --raw-archive /data/experiments/causalcache/restoration-v2-1-interface-pilot-v1.raw.tar \
+  --source-git-commit <PILOT_SOURCE_SHA> \
+  --hf-repo gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile \
+  --hf-immutable-revision <HF_COMMIT_OID> \
+  --hf-path raw/restoration-v2-1-interface-pilot-v1.tar \
+  --output /data/CausalCache/data/results/restoration_v2_1_interface_pilot/artifact.json
+```
+
+`validate` 子命令从 immutable HF revision 的 fresh download 或 extracted tree 重算相同证据，并要求当前 clean
+`main` 是 source commit 的 descendant。这里是独立进程调用同一冻结 reducer/schema helper 重算，不声称为第二套
+implementation-independent reducer。CLI 不联网证明 revision 存在，因此正式回写同样要求 fresh immutable
+download 的 archive SHA256/size 与 Git manifest 完全相等。
+
 正式 device-side executor 证据使用三个独立入口：
 
 - `scripts.inspect_restoration_v2_executor_container` 在 Aries host 读取 live Docker/container/source identity；

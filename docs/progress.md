@@ -1146,14 +1146,48 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   不一致；
 - machine-readable contract
   `code/configs/causalcache_restoration_v2_1_pilot.json` SHA256 为
-  `5b4c1e176e25ba30d84965f7c32c09594bb5a47dc3cd4f6be47d61e94cfeba03`。它固定 processor-only
+  `9d51a2ed5d6cc382f297c1b8af3100d784090f72800d637136b88982763fdbf7`。它固定 processor-only
   45-state × 2-fidelity 共 90 prompts，随后只对 15 个 `v2_development` states 各生成一次；
 - pilot 通过条件是 15/15 exact parse、15/15 model-emitted closer、15/15 AndroidWorld bridge，且所有
   truncation/extra-output/retry/top-up 计数为 0。pilot 明确禁止 teacher、KL、restoration、expert、label-train
-  和 confirm；pass 也只授权 unchanged-interface full-45 substrate，不授权 confirm；
+  policy output，也不会向 decoder 暴露任何 confirm state/prompt/image；pass 也只授权 unchanged-interface
+  full-45 substrate，不授权 confirm generation；
 - 本里程碑是 source-only：validator 返回 processor preflight pending 且不授权 generation；尚未加载 v2.1
   model、forward、generate 或产生 policy/restoration output。下一步必须先从本 source commit push 后运行
   Hyper00 processor-only preflight。
+
+### 2026-07-15：Restoration v2.1 formal audit/pilot runner source 就绪
+
+- 90-prompt real `AutoProcessor` audit 会从 45 个 screening states 构造 full-history/summary-only 两种输入，
+  检查 official tools 注入、tensor/shape、image-count distribution、token boundary 与 `seq_len + 256 <= 32768`；
+  独立 reducer 从逐 prompt records 重算结论，不信任 runner 自报 aggregate；正式 evidence 还记录完整 argv、
+  Hyper00/container/image、Python/platform/package、start/end/duration，并明确 CPU-only、无 GPU operation、seed
+  not applicable；
+- official Jinja/tojson correction 已在任何新 output 前冻结；teacher targets 与 official assistant
+  `tool_calls` JSON 逐字节一致（canonical insertion order、原始 Unicode UTF-8），解码后的 text 仍做 strict NFKC；
+  interface source SHA256 为 `90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964`；
+- fixed-15 runner 只按冻结顺序处理 `v2_development` states；每个 state 在 generation 前写 attempt marker，
+  只允许一次 full-history generation，parse failure 是科学 `NO_GO`，OOM/runtime/contract failure 是 invalid，
+  interrupted attempt 不得 hidden retry；formal attempt ID 与 persistent output path 已在 pre-output contract
+  固定，alternate output path 不能绕过 marker；
+- formal runner 在任何 policy runtime import/model construction 前先 durable claim global ledger、root 与
+  run manifest。constructor/OOM 写 0/0 canonical `INVALID`；ledger-only、root-partial 或 marker-only crash 在
+  `--resume` 时只能封存为 `INVALID`，不能继续 generation。成功构造后 exclusive 写完整 35-key
+  `runtime_identity.json`，并在每个 attempt/generation 前复核；
+- raw evidence packager 已在 output 前冻结：normalized deterministic USTAR 同时包含 canonical output 与 sibling
+  ledger；PASS/NO_GO 重算 exact fixed-15 gate，INVALID 复核 strict partial inventory，并从 source commit 重放
+  config、selection、policy/source blobs 与 processor artifact binding。raw archive 进入 private HF，Git 只保存
+  immutable revision/hash/compact reduction；
+- confirm 语义已精确化：loader 必须验证并 hash 包含 confirm bytes 的完整 artifact，但 decoder/processor
+  暴露的 confirm state、prompt、image 都为 0；`confirm_processor_prompt_count=0`，confirm generation
+  count=0；
+- 该里程碑仍是 source-only。正式 Hyper00 processor audit 与 fixed-15 pilot 均未运行，不报告 parse、closer、
+  bridge 或 generation 结果，也不运行 teacher/KL/restoration；旧 `NO_GO_V2_SUBSTRATE` 与
+  `NO_GO_ADAPTER_ONLY` 不变；
+- 与路线评审的映射未改变：stable self-behavior reference、post-state-only intervention 和 strong
+  low-fidelity summary 均已在 v2 冻结，v2.1 只关闭 official-tool interface 风险；
+- 输出前验证为 v2.1 63/63、全仓 391 passed（10 个 optional-dependency skips）；全部既有 contract/interface/
+  executor/selection/OCR/baseline validators 与 AAAI LaTeX build 通过。processor audit 与 pilot 尚未运行。
 
 ## 下一步
 

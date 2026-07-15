@@ -11,6 +11,10 @@ Restoration v2.1 是新的 policy-interface protocol，不是对 v2 raw output �
 restricted action inventory、AndroidWorld bridge、视觉预算或 confirm split。`v2_confirm_primary` 始终保持
 `CONFIRM_LOCKED`。
 
+这也对应当前路线评审的三项关键建议：reference 是冻结策略的 stable self-behavior，高保真 event 只暴露
+post-state image，strong low-fidelity channel 已按冻结八字段实现。v2.1 只替换 output interface，不重新打开
+这三项科学设计。
+
 ## 冻结接口
 
 - protocol ID：`causalcache_restoration_v2_1_official_tool_interface`；
@@ -24,7 +28,8 @@ restricted action inventory、AndroidWorld bridge、视觉预算或 confirm spli
   CRLF、多行 JSON、alias、重复 key、非有限数、第二个 JSON、第二个 call、`Action:`、analysis、
   observation、truncated JSON、非 NFKC text 与任何额外文本；
 - teacher target：从 `<tool_call>` opener 到 `</tool_call>` closer 全部进入 distance span；JSON 使用
-  official template 的 `", "` / `": "` spacing，不加入 `Action:` 或 `<|im_end|>`；
+  official assistant `tool_calls` 的 Jinja/tojson bytes，包括 `", "` / `": "` spacing、canonical insertion order 与
+  原始 Unicode UTF-8，不加入 `Action:` 或 `<|im_end|>`；解码后的 text argument 仍须严格为 NFKC；
 - AndroidWorld bridge：parser 成功后仍必须通过既有 canonical action bridge，不允许新 executor action。
 
 ## 冻结 generation boundary
@@ -51,14 +56,38 @@ teacher target 必须与这两个 token disjoint；否则 runtime fail closed。
 在任何 v2.1 model forward 或 generation 前，对既有 45 个 screening states 的 full-history 与 summary-only
 prompt 各处理一次，共 90 prompts。audit 必须验证 official tools schema 确实进入 chat template、所有 prompt
 在 `sequence_length + 256` 下不超过 context、1/3/4/5-image shape 合法、assistant/tool/teacher token boundary
-无 merge，并明确记录 `model_weights_loaded=false`、`forward_executed=false`、`generate_executed=false`、
-`confirm_accessed=false`。
+无 merge，并明确记录 `model_weights_materialized_as_tensors=false`、`policy_model_loaded=false`、
+`policy_forward_executed=false`、`policy_generation_executed=false`、
+`full_artifact_including_confirm_bytes_validated_by_loader=true`、
+`confirm_state_prompt_or_image_exposed_to_decoder_or_processor=false` 与
+`confirm_processor_prompt_count=0`。这里 loader 会验证并 hash 包含 confirm bytes 的完整 artifact；这不等于把
+confirm 内容交给 processor。processor 输入只来自 45 个 screening states，confirm prompt/image 数量严格为 0。
+正式入口为 `cd /data/CausalCache/code && python3 -m scripts.audit_gui_owl_v2_1_processor ...`；完整显式参数见
+`code/README.md`，output 必须在 repo 外 exclusive-create。evidence 同时绑定 frozen Hyper00
+host/container/image identity、Python/platform/package versions、start/end/duration，并明确记录
+`gpu_operations_executed=false`、`random_seed=null` 与 `seed_not_applicable=true`。
 
 ### B. 固定 15-state development pilot
 
 pilot 只使用 selection manifest 已冻结的 `v2_development` 15 states，保持 manifest order。每个 state 只对
 full-history prompt 做一次 greedy generation；不 retry、不 top-up、不换 prompt、不做第二次 generation，且
-不执行 teacher forward、KL、restoration attribution、expert matching 或 confirm access。
+不执行 teacher forward、KL、restoration attribution 或 expert matching。loader 仍可验证/hash 完整 artifact，
+但 decoder 不会获得任何 confirm state/prompt/image，confirm generation count 固定为 0。
+正式入口为 `cd /data/CausalCache/code && python3 -m scripts.run_restoration_v2_1_interface_pilot ...`；只有独立验证通过的
+processor preflight 才能作为输入。
+正式 attempt ID 固定为 `restoration-v2-1-interface-pilot-v1`，唯一 persistent output path 固定为
+`/data/experiments/causalcache/restoration-v2-1-interface-pilot-v1`。alternate path 与首次 attempt 后删除
+官方目录再运行均不允许；这使 no-retry 约束跨 CLI invocation 成立，而不只在调用者选择的单个目录内成立。
+attempt 还固定到 `hyper00` / `node-radixark-16-0000`、container
+`69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df`、image digest
+`sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa` 与 `cuda:0`；跨 host/container/device
+运行不属于同一正式 attempt。
+
+正式执行顺序固定为 CPU/data authorization、durable global ledger/root/run-manifest claim、policy runtime
+import/model construction、exclusive `runtime_identity.json`、逐 state attempt marker、generation。constructor/OOM
+发生在 claim 后时固定写 0/0 `INVALID`；进程中断后 `--resume` 只允许复核已有 terminal evidence，或把
+ledger-only/root-partial/marker-only 状态封存成 `INVALID`，绝不继续 generation。成功构造后记录完整 35-key
+runtime metadata，并在每个 attempt 与 generation 前复核其 hash 和 run-contract binding。
 
 只有以下条件全部满足才输出 `PASS_V2_1_INTERFACE_PILOT`：
 
@@ -80,3 +109,15 @@ oracle 或 paper claim。只有通过后，才允许按已冻结状态顺序进�
 blob hashes、model snapshot、processor chat-template、host/GPU/container/runtime identity、完整 argv 与
 attempt markers。raw generation trace 只进入 private Hugging Face dataset repo；Git 仅保存轻量 aggregate、
 artifact revision、hash 与失败分类。
+
+raw evidence 由 `scripts.manage_restoration_v2_1_pilot_artifact` 打成 normalized deterministic USTAR，包含
+canonical output 与 sibling global ledger。validator 对 PASS/NO_GO 重算固定 15-state gate，对 INVALID 复核
+严格 partial inventory，并从 source commit 重放 frozen config、selection、policy/source blobs 与 processor
+artifact binding。它在独立进程中复用冻结 reducer/schema helper，不声称有第二套 implementation-independent
+reducer。
+
+冻结 contract 位于 `code/configs/causalcache_restoration_v2_1_pilot.json`，当前 SHA256 为
+`9d51a2ed5d6cc382f297c1b8af3100d784090f72800d637136b88982763fdbf7`，interface source SHA256 为
+`90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964`。90-prompt real `AutoProcessor`
+audit/reducer 与 fixed-15 no-retry runner 的 source 已就绪；本状态只表示可从 clean pushed source 发起正式
+Hyper00 run，不代表 audit 或 pilot 已通过，也不授权提前生成 policy output。

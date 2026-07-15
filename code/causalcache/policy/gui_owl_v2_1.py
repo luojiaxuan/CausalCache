@@ -164,12 +164,14 @@ def parse_gui_owl_v2_1_output(text: str) -> ParsedGUIOwlV21Output:
 def serialize_gui_owl_v2_1_teacher_target(action: GUIOwlV2Action) -> str:
     if not isinstance(action, GUIOwlV2Action):
         raise TypeError("action must be a GUIOwlV2Action")
-    payload = json.dumps(
-        {"name": "mobile_use", "arguments": action.arguments()},
+    arguments = json.dumps(
+        action.arguments(),
         ensure_ascii=False,
+        sort_keys=False,
         separators=(", ", ": "),
         allow_nan=False,
     )
+    payload = f'{{"name": "mobile_use", "arguments": {arguments}}}'
     return f"<tool_call>\n{payload}\n</tool_call>"
 
 

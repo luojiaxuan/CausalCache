@@ -85,6 +85,17 @@ class GUIOwlV21InterfaceTest(unittest.TestCase):
                     screen_height=2400,
                 )
 
+    def test_teacher_target_matches_official_tojson_unicode_serialization(self) -> None:
+        target = serialize_gui_owl_v2_1_teacher_target(
+            GUIOwlV2Action(action="type", text="Café")
+        )
+        self.assertEqual(
+            target,
+            '<tool_call>\n{"name": "mobile_use", "arguments": '
+            '{"action": "type", "text": "Café"}}\n</tool_call>',
+        )
+        self.assertEqual(parse_gui_owl_v2_1_output(target).canonical_action.text, "Café")
+
     def test_parser_rejects_recovery_aliases_and_any_extra_output(self) -> None:
         valid = serialize_gui_owl_v2_1_teacher_target(GUIOwlV2Action(action="wait"))
         cases = (

@@ -58,7 +58,7 @@
     "contract_id": "gui_owl_v2_1_official_tool_interface",
     "source": {
       "path": "code/causalcache/policy/gui_owl_v2_1.py",
-      "sha256": "9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c"
+      "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964"
     },
     "chat_template_mode": "official_tools_argument",
     "tools_argument_count": 1,
@@ -121,11 +121,11 @@
       "canonical_tool_schema_sha256": "8f92f2fe5eeda45af1e41852f364d2fa4738fbb502eb4fb80f6ef1025691f6c7",
       "parser_source": {
         "path": "code/causalcache/policy/gui_owl_v2_1.py",
-        "sha256": "9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c"
+        "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964"
       },
       "teacher_serializer_source": {
         "path": "code/causalcache/policy/gui_owl_v2_1.py",
-        "sha256": "9c2f992d1b67dfc7f825b0bea6c076784d640cdd6abc87ddeb2bd2ff808c5a2c"
+        "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964"
       },
       "runtime_source": {
         "path": "code/causalcache/policy/gui_owl_v2_1_runtime.py",
@@ -221,7 +221,9 @@
     "policy_model_loaded": false,
     "policy_forward_executed": false,
     "policy_generation_executed": false,
-    "confirm_accessed": false,
+    "full_artifact_including_confirm_bytes_validated_by_loader": true,
+    "confirm_state_prompt_or_image_exposed_to_decoder_or_processor": false,
+    "confirm_processor_prompt_count": 0,
     "restoration_output_generated": false,
     "must_bind_contract_sha256": true,
     "must_bind_selection_manifest_sha256": true,
@@ -229,6 +231,16 @@
     "failure_outcome": "INVALID_BEFORE_V2_1_POLICY_GENERATION"
   },
   "pilot_execution": {
+    "attempt_id": "restoration-v2-1-interface-pilot-v1",
+    "canonical_persistent_output_dir": "/data/experiments/causalcache/restoration-v2-1-interface-pilot-v1",
+    "canonical_host_alias": "hyper00",
+    "canonical_host_hostname": "node-radixark-16-0000",
+    "canonical_container_id": "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df",
+    "canonical_container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "canonical_device": "cuda:0",
+    "cross_host_attempt_allowed": false,
+    "alternate_output_dir_allowed": false,
+    "output_directory_deletion_after_first_attempt_allowed": false,
     "fixed_state_denominator": 15,
     "planned_generation_call_count": 15,
     "full_history_reference_generation_only": true,

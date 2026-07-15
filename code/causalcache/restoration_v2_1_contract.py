@@ -11,7 +11,7 @@ from typing import Any, Mapping
 
 
 FROZEN_RESTORATION_V2_1_PILOT_SHA256 = (
-    "5b4c1e176e25ba30d84965f7c32c09594bb5a47dc3cd4f6be47d61e94cfeba03"
+    "9d51a2ed5d6cc382f297c1b8af3100d784090f72800d637136b88982763fdbf7"
 )
 CANONICAL_CONFIG_PATH = "code/configs/causalcache_restoration_v2_1_pilot.json"
 PROTOCOL_ID = "causalcache_restoration_v2_1_official_tool_interface"
@@ -581,7 +581,9 @@ def validate_restoration_v2_1_pilot_contract(
         "policy_model_loaded": False,
         "policy_forward_executed": False,
         "policy_generation_executed": False,
-        "confirm_accessed": False,
+        "full_artifact_including_confirm_bytes_validated_by_loader": True,
+        "confirm_state_prompt_or_image_exposed_to_decoder_or_processor": False,
+        "confirm_processor_prompt_count": 0,
         "restoration_output_generated": False,
         "must_bind_contract_sha256": True,
         "must_bind_selection_manifest_sha256": True,
@@ -592,6 +594,23 @@ def validate_restoration_v2_1_pilot_contract(
 
     execution = _object(data["pilot_execution"], "pilot_execution")
     expected_execution = {
+        "attempt_id": "restoration-v2-1-interface-pilot-v1",
+        "canonical_persistent_output_dir": (
+            "/data/experiments/causalcache/"
+            "restoration-v2-1-interface-pilot-v1"
+        ),
+        "canonical_host_alias": "hyper00",
+        "canonical_host_hostname": "node-radixark-16-0000",
+        "canonical_container_id": (
+            "69f2b1742e8fd9baac5080b2b97ee1f3c7c1df520f908a4541cadde9d28194df"
+        ),
+        "canonical_container_image_digest": (
+            "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa"
+        ),
+        "canonical_device": "cuda:0",
+        "cross_host_attempt_allowed": False,
+        "alternate_output_dir_allowed": False,
+        "output_directory_deletion_after_first_attempt_allowed": False,
         "fixed_state_denominator": 15,
         "planned_generation_call_count": 15,
         "full_history_reference_generation_only": True,
@@ -708,7 +727,9 @@ def validate_restoration_v2_1_processor_preflight(
         "policy_model_loaded",
         "policy_forward_executed",
         "policy_generation_executed",
-        "confirm_accessed",
+        "full_artifact_including_confirm_bytes_validated_by_loader",
+        "confirm_state_prompt_or_image_exposed_to_decoder_or_processor",
+        "confirm_processor_prompt_count",
         "restoration_output_generated",
     }
     _exact_keys(value, expected_keys, "processor preflight")
@@ -809,11 +830,20 @@ def validate_restoration_v2_1_processor_preflight(
     shape_hash = value["shape_records_sha256"]
     if not isinstance(shape_hash, str) or SHA256_PATTERN.fullmatch(shape_hash) is None:
         raise ValueError("processor preflight shape-record SHA256 is invalid")
+    _true(
+        value["full_artifact_including_confirm_bytes_validated_by_loader"],
+        "processor preflight full-artifact loader validation",
+    )
+    _equal(
+        value["confirm_processor_prompt_count"],
+        0,
+        "processor preflight confirm prompt count",
+    )
     for field in (
         "policy_model_loaded",
         "policy_forward_executed",
         "policy_generation_executed",
-        "confirm_accessed",
+        "confirm_state_prompt_or_image_exposed_to_decoder_or_processor",
         "restoration_output_generated",
     ):
         _false(value[field], f"processor preflight {field}")
