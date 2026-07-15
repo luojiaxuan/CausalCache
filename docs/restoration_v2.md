@@ -215,9 +215,13 @@ GPU KL、deterministic microbatch、GUI-Owl v2 runtime 与 synthetic CUDA audit 
 distance scalar 并对 nonfinite fail closed。microbatch 固定为 2，按 exact image-count/sequence-length
 分组且禁止自动 OOM fallback。
 
-这不等于第 8 项 passed：尚未完成真实 model runtime smoke 或 Hyper00 formal CUDA audit，也尚未把
-runtime/audit source hashes、runtime/container/model/data identities 与 microbatch size 写入完成态 execution
-config/validator。因此 screening 仍 locked。
+Hyper00 单张 H200 policy-blind formal CUDA audit 已从 clean pushed commit 通过，独立 validator 又从该
+commit 的 Git blobs 复核三份 source 与全部数值、provenance、NaN、host-read 和 planner 字段；证据见
+[`../data/results/restoration_v2_gpu_compute_audit/`](../data/results/restoration_v2_gpu_compute_audit/)。
+
+这仍不等于第 8 项 passed：尚未完成真实 GUI-Owl processor/model runtime smoke，也尚未把
+runtime/audit/validator source hashes、runtime/container/model/data identities 与 microbatch size 写入完成态
+execution config/readiness validator。因此 screening 仍 locked。
 
 验证命令：
 

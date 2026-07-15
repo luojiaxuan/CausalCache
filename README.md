@@ -66,8 +66,12 @@ microbatch size 2，按 exact `(image_count, sequence_length)` 分组且禁止�
 fallback；[`code/causalcache/policy/gui_owl_v2_runtime.py`](code/causalcache/policy/gui_owl_v2_runtime.py)
 实现 pinned snapshot/Transformers source 校验、单卡 BF16、每图 target 2560 effective visual tokens、native
 batch-1 generation，以及只在 GPU 返回 tool-call distance span logits 的 batch-1/2 teacher forcing。
-synthetic-only CUDA audit CLI 也已实现。本地 256 tests passed（10 个 optional runtime skips）。这只是
-source/local validation；尚未产生 Hyper00 formal CUDA summary，也未冻结 execution config/validator，
+synthetic-only CUDA audit CLI 也已实现。Hyper00 单张 H200 formal run 已从 clean pushed commit 通过：
+batch-1 对独立 float64 CPU oracle 的最大误差为 `3.05e-8`，batch-2 对两次 batch-1 完全一致，
+zero-stride/NaN/no-host-intermediate-read 均通过；独立 validator 已从 run commit Git blobs 复核 source 与
+全部关键字段。证据见
+[`data/results/restoration_v2_gpu_compute_audit/`](data/results/restoration_v2_gpu_compute_audit/)。这仍只是
+policy-blind compute audit；真实 GUI-Owl runtime smoke、execution config 与 readiness validator 尚未闭合，
 所以 dependency 8 仍 pending，v2 policy output 仍 locked。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建

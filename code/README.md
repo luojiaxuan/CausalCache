@@ -134,8 +134,11 @@ merge 就 fail closed，distance 只覆盖 canonical `<tool_call>` token span。
 `scripts.audit_restoration_v2_gpu_compute` 是 policy-blind、synthetic-only CUDA runner。它要求 clean exact
 Git commit、显式 CUDA device 及 host/container provenance，审计 batch 1 对独立 float64 CPU oracle、batch 2
 对两次 batch 1、logits 对 pre-normalized log-probs、zero-stride reference、invalid-to-NaN，以及
-single-decision-state microbatch 2/no-OOM 语义。CLI source 已实现，但尚未产生 Hyper00 formal pass；必须等
-该 summary 与 execution-config validator 一并闭合后才能生成 v2 policy output。
+single-decision-state microbatch 2/no-OOM 语义。Hyper00 单张 H200 formal run 已通过；
+`scripts.validate_restoration_v2_gpu_compute_audit` 不 import runner/compute modules，而是从 run commit Git
+blobs 独立复核 source hashes、standard JSON、provenance 与全部数值/规划字段。轻量 evidence 位于
+`data/results/restoration_v2_gpu_compute_audit/`。这不等于真实 model runtime pass，也不关闭 execution
+config；必须等 dependency-8 readiness validator 一并闭合后才能生成 v2 policy output。
 
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，

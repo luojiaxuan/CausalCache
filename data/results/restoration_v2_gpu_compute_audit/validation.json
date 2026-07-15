@@ -1,0 +1,68 @@
+{
+  "compute_validation": {
+    "batch1_cpu_oracle_comparisons": 2,
+    "batch2_batch1_comparisons": 2,
+    "batch2_maximum_absolute_error": 0.0,
+    "full_tensor_host_transfers": 0,
+    "invalid_numeric_output": "nan_final_distance",
+    "maximum_batch1_cpu_oracle_absolute_error": 3.047375374265471e-08,
+    "representation_comparisons": 1,
+    "validation_scalar_host_reads": 0
+  },
+  "dependency_8_closed": false,
+  "evidence_type": "independent_restoration_v2_gpu_compute_audit_validation",
+  "outcome": "PASSED_INDEPENDENT_RESTORATION_V2_GPU_COMPUTE_AUDIT_VALIDATION",
+  "planner_validation": {
+    "automatic_oom_fallback": false,
+    "microbatch_size": 2,
+    "planning_scope": "single_decision_state"
+  },
+  "policy_loaded": false,
+  "policy_output_generated": false,
+  "protocol_id": "causalcache_restoration_v2",
+  "restoration_output_generated": false,
+  "run_git_commit": "a0f06f495a78bee43112651040fca6c3d31701ac",
+  "runtime_identity": {
+    "container_hostname": "6263d8cd69fb",
+    "container_id": "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "gpu_compute_capability": [
+      9,
+      0
+    ],
+    "gpu_multiprocessor_count": 132,
+    "gpu_name": "NVIDIA H200",
+    "gpu_uuid": "e10a085b-e20e-a454-6fda-17063cf68418",
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "nvidia_driver_version": "570.172.08",
+    "nvidia_smi_gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+    "platform_machine": "x86_64",
+    "selected_device": "cuda:0",
+    "torch_cuda_build_version": "13.0",
+    "torch_version": "2.11.0+cu130",
+    "visible_cuda_device_count": 1
+  },
+  "schema_version": "0.1.0",
+  "screening_unlocked": false,
+  "source_files_verified_from_run_commit": {
+    "code/causalcache/restoration_v2_batching.py": {
+      "sha256": "769adf794ba10da018f27680ce25e851d760bddc8e8c0ba8a55bbb7780c2783b",
+      "size_bytes": 7761
+    },
+    "code/causalcache/restoration_v2_gpu_kl.py": {
+      "sha256": "6227375fdb61a32bc71d22c1e77f1c62eb211cfb043984351512077fd1fec5ce",
+      "size_bytes": 13986
+    },
+    "code/scripts/audit_restoration_v2_gpu_compute.py": {
+      "sha256": "9f14cb722eb8aee0d1a436ab1d88d4c7b61c246b3d05ab2df0c470a7906f7439",
+      "size_bytes": 29197
+    }
+  },
+  "summary_sha256": "0b0adbd0086c800fc27f435ed2c445a01048941a71335920d27079937c4b8134",
+  "validator_source": {
+    "path": "code/scripts/validate_restoration_v2_gpu_compute_audit.py",
+    "sha256": "237a1e598402035d0a7d0bc7410d9e9e0726ed8727290f620893b88d9aa5d9d1",
+    "size_bytes": 25361
+  }
+}

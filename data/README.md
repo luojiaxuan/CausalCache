@@ -60,6 +60,9 @@ restoration v2 exact selection/exposure 产物：
   superseded download preflight failure 与 negative declarations；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
   byte-identical 全量构建结论。
+- `results/restoration_v2_gpu_compute_audit/`：Hyper00 单张 H200 policy-blind CUDA audit 与独立 offline
+  validation；batch-1/CPU、batch-2/two-batch-1、logits/log-probs、zero-stride、invalid-to-NaN 和
+  microbatch-2/no-OOM 全部通过，但明确不关闭 dependency 8。
 
 当前 reusable artifacts：
 
@@ -105,6 +108,9 @@ restoration v2 exact selection/exposure 产物：
 
 - `results/restoration_v2_executor_dispatch/`：Aries formal attempt 通过 14/14 cases，negative actuation
   control 为 HTTP 500，canonical verdict 为 `PASSED_EXECUTOR_DISPATCH`；未加载 policy 或使用 GPU；
+
+- `results/restoration_v2_gpu_compute_audit/`：Hyper00 formal H200 compute audit 通过，summary SHA256
+  `0b0adbd0...8134`；独立 validator 从 run commit Git blobs 复核通过，policy/restoration output 均为 false；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；

@@ -157,12 +157,18 @@ coalition planner 只接受显式 `microbatch_size=2`，按 exact `(image_count,
 - invalid numeric input 只产生 `NaN` final distance，kernel validation host read 为 0；
 - `atol=1e-6, rtol=1e-5`、finite output、FP32 output 和同 device 约束全部通过。
 
-GUI-Owl v2 runtime 与 synthetic CUDA audit runner source 已有 Mac unit-test 验证，但本段不是 model
-runtime 或 GPU pass 记录。formal audit 必须在 GPU preflight 后从 pushed clean commit 运行，显式传入
+GUI-Owl v2 runtime 与 synthetic CUDA audit runner source 已有 Mac unit-test 验证。formal audit 必须在
+GPU preflight 后从 pushed clean commit 运行，显式传入
 `--device`、`--run-git-commit`、container image digest/id、host alias/hostname 与不存在的 exclusive output
 path。该 runner 只使用 synthetic logits，summary 必须保持 `policy_output_generated=false` 与
-`restoration_output_generated=false`。在 Hyper00 CUDA summary 与引用其 source hashes 的 execution config
-提交、push 前，第 8 项仍为 pending。
+`restoration_output_generated=false`。
+
+2026-07-15 Hyper00 formal compute audit 已按上述契约通过，summary SHA256 为
+`0b0adbd0086c800fc27f435ed2c445a01048941a71335920d27079937c4b8134`；独立 validator 不 import
+runner/compute modules，而从 run commit Git blobs 重新验证 source 与关键字段。证据位于
+`data/results/restoration_v2_gpu_compute_audit/`。该结果不是 GUI-Owl processor/model runtime pass；在真实
+runtime smoke 与引用全部 source/identity 的 execution config/readiness validator 提交、push 前，第 8 项仍
+为 pending。
 
 2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
 `data/results/restoration_v2_constructor_preflight/`。冻结 interface manifest 保留 run 前 `pending`，实际
