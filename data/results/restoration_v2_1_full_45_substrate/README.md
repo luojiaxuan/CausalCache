@@ -69,8 +69,10 @@ restoration confirm、coalition construction 和 gate training 必须停止；�
 
 HF tag 已通过 API 解析到上述 immutable revision；随后从该 40-hex revision 强制 fresh-download，得到同样的
 962,560 bytes 与 raw SHA256。正式 Git manifest 由这个 fresh download 创建，而不是由 upload 前的本地 tar
-创建。当前 result milestone 首次提交前，committed-binding validator 仍为 pending；必须先 commit/push
-manifest，再从 clean descendant `main` 对该 fresh archive 验证，才能闭合完整证据链。
+创建。manifest commit/push 后，clean `main@554c51e417d702a6bc759b1f592979a4c38c5283` 的
+committed-binding validator 从该 fresh archive 返回
+`VALID_RESTORATION_V2_1_FULL_45_ARTIFACT`、`archive_hash_verified=true`、94 files、同一 tree SHA 与同一
+NO-GO；完整证据链已闭合。
 
 ## 下一步边界
 

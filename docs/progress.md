@@ -7,9 +7,9 @@ AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gat
 official-tools processor preflight 与 fixed-15 interface pilot 均已闭合；唯一 full-45 run 虽得到 45/45 parse 和
 32 个 memory-sensitive states，但 exact canonical repeat agreement 只有 32/45，因此正式为
 `NO_GO_V2_1_FULL_45_SUBSTRATE`。没有生成 restoration label、baseline selection、gate checkpoint、confirm
-policy output 或 CausalCache 方法效果结果。当前 operational objective 仅是闭合该 NO-GO 的 Git/HF
-committed-binding，然后做 source-only design review；在新的 versioned protocol 明确授权前，不运行
-restoration、confirm 或 AndroidWorld test split。
+policy output 或 CausalCache 方法效果结果。该 NO-GO 的 Git/HF committed binding 已在 clean
+`main@554c51e` 闭合；当前 operational objective 只剩 source-only design review。在新的 versioned protocol
+明确授权前，不运行 restoration、confirm 或 AndroidWorld test split。
 
 ## 已完成里程碑
 
@@ -1298,8 +1298,11 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4`。private HF tag
   `v2.1-full-45-substrate-v1` 固定到 immutable revision
   `814506ef1450838d4bc6ed3d89fe53e0773d92fb`；fresh immutable download 已逐 byte 复核，Git compact result
-  位于 `data/results/restoration_v2_1_full_45_substrate/`。本条结果首次提交前 committed-binding 仍为 pending；
-  必须先 push manifest，再从 clean descendant 对 fresh archive 运行 validator，才能闭合完整 SoT chain。
+  位于 `data/results/restoration_v2_1_full_45_substrate/`；
+- manifest push 后，Hyper00 clean `main@554c51e417d702a6bc759b1f592979a4c38c5283` 从 fresh immutable archive
+  运行 committed-binding validator，返回 `VALID_RESTORATION_V2_1_FULL_45_ARTIFACT`、
+  `archive_hash_verified=true`、94 files 与 tree SHA256 `6c5e515a...19281`。source commit、当前 descendant、
+  archive、manifest、reducer outcome 与 HF revision 的完整 SoT chain 已闭合。
 
 ## 下一步
 

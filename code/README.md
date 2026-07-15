@@ -269,7 +269,9 @@ memory-sensitive states；restoration、baseline、gate training 与 confirm wor
 SHA256 为 `8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4`，private HF immutable revision
 为 `814506ef1450838d4bc6ed3d89fe53e0773d92fb`，fresh download 已逐 byte 复核。Git compact evidence 见
 `data/results/restoration_v2_1_full_45_substrate/`。该 runner/attempt 不得再次执行；当前 contract 不授权
-restoration 或 confirm。
+restoration 或 confirm。manifest push 后，clean
+`main@554c51e417d702a6bc759b1f592979a4c38c5283` 的 `validate` 子命令从 fresh archive 返回
+`VALID_RESTORATION_V2_1_FULL_45_ARTIFACT`、`archive_hash_verified=true` 与同一 NO-GO。
 
 正式 device-side executor 证据使用三个独立入口：
 

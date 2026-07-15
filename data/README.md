@@ -124,7 +124,7 @@ restoration v2 exact selection/exposure 产物：
   `gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile@v2.1-full-45-substrate-v1`
   (`814506ef1450838d4bc6ed3d89fe53e0773d92fb`)；94-file deterministic USTAR SHA256
   `8cd53d6e...f4fa4`、962,560 bytes，fresh immutable download verified；verdict
-  `NO_GO_V2_1_FULL_45_SUBSTRATE`。
+  `NO_GO_V2_1_FULL_45_SUBSTRATE`；clean `main@554c51e` committed-binding validation passed。
 
 最新轻量运行记录：
 

@@ -51,7 +51,8 @@ agreement 都是硬门槛，且至少 8 个 states 的 summary KL 必须超过 r
 完全一致的只有 32/45，低于冻结的 45/45 gate，因此结果为 `NO_GO_V2_1_FULL_45_SUBSTRATE`。13 个 mismatch
 均保持 action type，包含 12 个 `click→click` 与 1 个 `swipe→swipe` coordinate jitter；这只是描述性分析，
 不能把当前结果事后改写为 PASS。raw evidence 已上传 private HF 并从 immutable revision fresh-download
-逐 byte 验证；轻量结论见
+逐 byte 验证；manifest push 后，clean `main@554c51e` 的 committed-binding validator 返回
+`VALID_RESTORATION_V2_1_FULL_45_ARTIFACT` 与同一 NO-GO。轻量结论见
 [`data/results/restoration_v2_1_full_45_substrate/`](data/results/restoration_v2_1_full_45_substrate/)，完整契约与
 resume/INVALID/artifact 边界见 [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)。
 

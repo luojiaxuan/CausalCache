@@ -106,8 +106,9 @@ raw 94-file deterministic USTAR 已上传 private HF dataset
 `v2.1-full-45-substrate-v1` 固定到 immutable revision
 `814506ef1450838d4bc6ed3d89fe53e0773d92fb`。fresh immutable download 的 962,560 bytes 与 SHA256
 `8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4` 已逐 byte 复核；Git 轻量结果见
-`data/results/restoration_v2_1_full_45_substrate/`。在该 manifest 首次 commit/push 之前，完整链条仍停在
-committed-binding pending；必须从 clean descendant 对 fresh immutable archive 再运行 validator。
+`data/results/restoration_v2_1_full_45_substrate/`。manifest push 后，clean
+`main@554c51e417d702a6bc759b1f592979a4c38c5283` 从该 fresh archive 返回
+`VALID_RESTORATION_V2_1_FULL_45_ARTIFACT` 与 `archive_hash_verified=true`；committed binding 已闭合。
 
 本结果只否定 exact coordinate-level canonical equality 下的 v2.1 substrate admission，不等价于 restoration
 oracle 失败。当前 contract 不授权 restoration 或 confirm；若继续，必须先冻结新的 executable/UI-element
