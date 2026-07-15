@@ -167,7 +167,9 @@ policy/restoration output。
 OCR/image backend 是纯 CPU 数据步骤，不触发 GPU cleanup 或 utilization monitor。implementation contract、
 exact runtime lock、model SHA 和 synthetic fixture 见 `docs/restoration_v2_ocr.md`。Hyper00 staging 固定为
 `/data/.venv/causalcache-ocr-v2` 与 `/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1`；它们都是可重建的
-local cache，不是 canonical artifact。正式 synthetic golden 必须从已 push 的 clean detached commit 在两个
+local cache，不是 canonical artifact。三模型的 canonical artifact 已固定为 private HF model
+`gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@0dbc766a73ee88d10d52285d434dbfec58617835`，并已从该
+revision fresh re-download 验证 6/6 files。正式 synthetic golden 必须从已 push 的 clean detached commit 在两个
 独立 Python process 中各写入一个原先不存在的 output path，再比较 canonical JSON bytes。命令显式传入
 backend config、model dir、fixture 和 output，不通过环境变量覆盖任何 OCR 参数：
 
@@ -182,10 +184,11 @@ cd /data/repo/code
   --output /data/tmp/causalcache-ocr-v2-golden/repeat-1.json
 ```
 
-三份 ONNX 文件必须上传 private HF model repo 并从 immutable revision 重新下载、逐文件验 SHA；Git 只保存
-repo/revision/hash 与轻量 golden evidence。synthetic golden 通过后还要用 label/development 中按冻结规则
-policy-blind 选出的真实截图做 behavioral golden；confirm screenshot 不得用于挑选或调 backend。上述证据未
-全部回写 Git 前，dependency 5 仍是 pending，也不得开始 GUI-Owl policy output。
+可从仓库根目录运行 `make validate-restoration-v2-ocr-artifact`，离线复核 Git source、HF
+repo/revision/file inventory、fresh re-download 标记与 synthetic summary。模型上传和 synthetic golden 已
+通过；下一步仍须用 label/development 中按冻结规则 policy-blind 选出的真实截图做 behavioral golden；confirm
+screenshot 不得用于挑选或调 backend。real-screen evidence 未上传 HF 并回写完成态 Git manifest 前，
+dependency 5 仍是 pending，也不得开始 GUI-Owl policy output。
 
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从

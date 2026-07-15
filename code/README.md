@@ -192,8 +192,11 @@ restoration v2 OCR/image implementation 位于
 `configs/restoration_v2_ocr_backend.json`，full runtime lock 为
 `requirements/restoration_v2_ocr_lock.txt`。本机只做 source/config validation 时不需安装 OCR extra；
 Hyper00 end-to-end 用 `scripts.validate_restoration_v2_ocr_backend inspect-golden|validate-golden`。该模块
-保存 full uncapped OCR tokens，不用 capped summary delta 反推 OCR+RGB baseline。当前 model HF
-revision/golden 尚 pending，详见 `docs/restoration_v2_ocr.md`。
+保存 full uncapped OCR tokens，不用 capped summary delta 反推 OCR+RGB baseline。private HF model
+`gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@0dbc766a73ee88d10d52285d434dbfec58617835`
+已 immutable-verify；`make validate-restoration-v2-ocr-artifact` 可离线 fail closed 复核 8 个 Git source 与
+6 个 HF file identity。当前只剩 6-image real-screen golden 与完成态 manifest，详见
+`docs/restoration_v2_ocr.md`。
 
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 

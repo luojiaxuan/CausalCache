@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_restoration_v2",
+  "artifact_id": "causalcache-restoration-v2-ocr-backend-v1",
+  "status": "hf_model_immutable_verified_synthetic_golden_passed_real_screen_pending",
+  "backend_implementation_git_commit": "fc51de1dbc5a4a657503b8804e4549085314d94a",
+  "source_files": [
+    {
+      "path": "Makefile",
+      "sha256": "a1e3af2f71ea145588e0f117d2656ca83158c1abfadbae050a6cb7b04423dd0d"
+    },
+    {
+      "path": "code/causalcache/restoration_v2_text_backend.py",
+      "sha256": "f2ed121f290095514ec0f54b83217188f3f9496e5b68da5216f2f19c0d43206e"
+    },
+    {
+      "path": "code/configs/restoration_v2_ocr_backend.json",
+      "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+    },
+    {
+      "path": "code/requirements/restoration_v2_ocr_lock.txt",
+      "sha256": "1c36a767a69ab158101a686ee94d67f04d837df17301f6043b77c87060a82c4e"
+    },
+    {
+      "path": "code/scripts/validate_restoration_v2_ocr_backend.py",
+      "sha256": "d6e3ebebad474c9c5ddfc60a60e412e97c9c2635ed17aa968f8b0a97ad5f705e"
+    },
+    {
+      "path": "code/tests/test_restoration_v2_text_backend.py",
+      "sha256": "09c76de3b18c37aaa27534219e749cc8d6de9e9e6915349bf4f558bae5ea094a"
+    },
+    {
+      "path": "data/fixtures/restoration_v2_ocr_golden.json",
+      "sha256": "8c81feb37af9d2393d62d6ddbfe65948f84e0eb0be0c0baf10126c547103bca6"
+    },
+    {
+      "path": "data/results/restoration_v2_ocr_backend/synthetic_summary.json",
+      "sha256": "c44fb34861534e7a5d29ce0476e2bf342206a7ec8a588db3a0ee5744e8829514"
+    }
+  ],
+  "hf_model_artifact": {
+    "repo": "gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en",
+    "repo_type": "model",
+    "visibility": "private",
+    "tag": "v1.0.0",
+    "immutable_revision": "0dbc766a73ee88d10d52285d434dbfec58617835",
+    "tag_resolved_revision": "0dbc766a73ee88d10d52285d434dbfec58617835",
+    "uploaded_from_git_commit": "fc51de1dbc5a4a657503b8804e4549085314d94a",
+    "upload_argv": "hf upload gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en /tmp/causalcache-ocr-model-v1 . --repo-type model --commit-message 'Upload pinned CausalCache OCR backend v1' --format json",
+    "files": [
+      {
+        "path": ".gitattributes",
+        "size_bytes": 1519,
+        "sha256": "11ad7efa24975ee4b0c3c3a38ed18737f0658a5f75a0a96787b576a78a023361"
+      },
+      {
+        "path": "README.md",
+        "size_bytes": 1978,
+        "sha256": "2ab694826f0527d9967393f5bbc399fba020680605531f640661ed82a6e02953"
+      },
+      {
+        "path": "ch_PP-OCRv5_det_mobile.onnx",
+        "size_bytes": 4819576,
+        "sha256": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae"
+      },
+      {
+        "path": "ch_ppocr_mobile_v2.0_cls_mobile.onnx",
+        "size_bytes": 585532,
+        "sha256": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c"
+      },
+      {
+        "path": "en_PP-OCRv5_rec_mobile.onnx",
+        "size_bytes": 7872351,
+        "sha256": "c3461add59bb4323ecba96a492ab75e06dda42467c9e3d0c18db5d1d21924be8"
+      },
+      {
+        "path": "manifest.json",
+        "size_bytes": 1478,
+        "sha256": "dabac7010bb55554ea167f6acefcc954745c2d7c3e4e6a1a4459e1c49fed0e0e"
+      }
+    ],
+    "redownload": {
+      "verified_at_utc": "2026-07-15T12:01:12Z",
+      "hf_cli_version": "1.23.0",
+      "argv": "hf download gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en --revision 0dbc766a73ee88d10d52285d434dbfec58617835 --repo-type model --local-dir /tmp/causalcache-ocr-model-v1-redownload-0dbc766 --force-download --format json",
+      "fresh_local_dir": "/tmp/causalcache-ocr-model-v1-redownload-0dbc766",
+      "all_listed_file_hashes_verified": true
+    }
+  },
+  "synthetic_golden": {
+    "outcome": "PASSED_SYNTHETIC_OCR_GOLDEN",
+    "summary_path": "data/results/restoration_v2_ocr_backend/synthetic_summary.json",
+    "summary_sha256": "c44fb34861534e7a5d29ce0476e2bf342206a7ec8a588db3a0ee5744e8829514"
+  },
+  "real_screen_golden": {
+    "status": "pending_policy_blind_six_image_materialization",
+    "destination": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "confirm_images_used": false
+  },
+  "dependency_5_closed": false,
+  "policy_output_generated_before_manifest": false,
+  "restoration_output_generated_before_manifest": false
+}

@@ -2,14 +2,16 @@
 
 ## 当前状态
 
-OCR/image implementation identity 已在任何 v2 policy output 前冻结。当前仅关闭了 source/config/interface
-层：Hyper00 的 locked CPU runtime 与三份 ONNX 文件已 staged 并验证 SHA，synthetic golden 已从最终
-static fixture 两次独立通过；private HF model revision、6-image real-screen golden 和 source-hash manifest
-仍 pending。因此八项 pre-output dependencies 中第 5 项尚未标为 passed。
+OCR/image implementation identity 已在任何 v2 policy output 前冻结。Hyper00 locked CPU runtime、synthetic
+golden 与 private HF model artifact 均已验证；`v1.0.0` 解析到 immutable revision
+`0dbc766a73ee88d10d52285d434dbfec58617835`，6/6 files 已 fresh re-download 并逐文件验 hash，Git
+source/artifact manifest 也已通过 fail-closed validator。当前只剩 6-image real-screen golden 与完成态
+manifest，因此八项 pre-output dependencies 中第 5 项仍未标为 passed。
 
-hash-bound backend config 只保存永久静态 identity、预定 private HF repo 与 future artifact-manifest path；
+hash-bound backend config 只保存永久静态 identity、预定 private HF repo 与稳定 artifact-manifest path；
 upload status 和 immutable revision 不写进该 config，避免上传后改变 config SHA。当前 live status 由本页、
-顶层 README 与未来 `data/manifests/restoration_v2_ocr_backend.json` 共同索引。
+顶层 README 与
+[`data/manifests/restoration_v2_ocr_backend.json`](../data/manifests/restoration_v2_ocr_backend.json) 共同索引。
 
 ## 选择
 
@@ -98,10 +100,17 @@ real-screen golden 不允许人工挑图。eligible pool 只来自 frozen `v2_la
 `(image_sha256, image_member_path)` 取前 3 张，共 6 张；任一 stratum 不足 3 张即 fail closed。confirm role
 完全排除。该规则已写入 backend config，必须先于任何 OCR/policy result 执行。
 
+canonical model artifact 是 private HF model
+`gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`；full immutable revision 为
+`0dbc766a73ee88d10d52285d434dbfec58617835`。model card、artifact manifest、三份 ONNX 与
+`.gitattributes` 共 6 个文件已在 `2026-07-15T12:01:12Z` 用 HF CLI 1.23.0 fresh re-download，6/6
+size/SHA256 一致。Hyper00 `/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1` 现在仅是可重建 cache。
+
 配置层验证不要求本机安装 OCR extra：
 
 ```bash
 make validate-restoration-v2-ocr-config
+make validate-restoration-v2-ocr-artifact
 ```
 
 Hyper00 runtime 使用 Python 3.12.3 持久 venv，不使用 GPU。下面命令从 exact lock 重建 runtime，
@@ -129,6 +138,7 @@ cd /data/repo/code
   --output /data/tmp/causalcache-ocr-v2-golden/inspection.json
 ```
 
-正式完成条件：三模型上传 private HF model repo 并 immutable re-download 验证；synthetic golden 两进程
-byte-identical；label/development policy-blind real-screen golden 上传 derived HF dataset；Git manifest 绑定
-backend/config/module/validator/fixture/lock 与 HF revisions。confirm images 不参与 golden selection。
+正式完成条件中，private HF model immutable re-download、synthetic golden 两进程 byte-identical 和当前
+Git source/artifact manifest 已完成；剩余条件是 label/development policy-blind real-screen golden 上传
+derived HF dataset，并把该 dataset revision/records 写入完成态 Git manifest。confirm images 不参与 golden
+selection。

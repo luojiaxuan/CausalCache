@@ -31,8 +31,10 @@ dependency 已闭合；derived artifact、OCR、baselines 与 execution config �
 OCR/image backend 的 implementation identity 已冻结为 CPU-only
 `RapidOCR 3.8.4 + ONNX Runtime 1.24.4 + PP-OCRv5 mobile English`，两个 wheel、det/rec 与虽关闭但
 constructor 仍加载的 classifier model 都有 exact SHA；256x256 Pillow bilinear 与 uncapped full-screen
-OCR record schema 也已实现。synthetic golden 已从最终 static fixture 两次独立通过；当前仍需 private HF
-model revision、6-image real-screen golden 与 final manifest，所以 OCR dependency 尚未标为 passed。见
+OCR record schema 也已实现。synthetic golden 已从最终 static fixture 两次独立通过；private HF model
+`v1.0.0@0dbc766a73ee88d10d52285d434dbfec58617835` 已上传、按 immutable revision fresh re-download 并逐文件
+验 hash，Git source/artifact manifest 也已通过 fail-closed validator。当前只剩 6-image policy-blind
+real-screen golden 与完成态 manifest，所以 OCR dependency 尚未标为 passed。见
 [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
@@ -355,6 +357,7 @@ $$
 - Restoration-v2 OCR backend config: [`code/configs/restoration_v2_ocr_backend.json`](code/configs/restoration_v2_ocr_backend.json)
 - Restoration-v2 OCR implementation and validator: [`code/causalcache/restoration_v2_text_backend.py`](code/causalcache/restoration_v2_text_backend.py), [`code/scripts/validate_restoration_v2_ocr_backend.py`](code/scripts/validate_restoration_v2_ocr_backend.py)
 - Restoration-v2 OCR runtime lock and synthetic fixture: [`code/requirements/restoration_v2_ocr_lock.txt`](code/requirements/restoration_v2_ocr_lock.txt), [`data/fixtures/restoration_v2_ocr_golden.json`](data/fixtures/restoration_v2_ocr_golden.json)
+- Restoration-v2 OCR source/artifact manifest: [`data/manifests/restoration_v2_ocr_backend.json`](data/manifests/restoration_v2_ocr_backend.json)
 - Restoration-v2 OCR evidence: [`data/results/restoration_v2_ocr_backend/`](data/results/restoration_v2_ocr_backend/)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
@@ -390,8 +393,8 @@ $$
 - GUI-Owl Think passing native smoke: [`data/results/gui_owl_1_5_8b_think_smoke/README.md`](data/results/gui_owl_1_5_8b_think_smoke/README.md)
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
-- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor、device-side executor dispatch、exact selection 与 exposure ledger 已通过。derived HF artifact、OCR、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact`
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor、device-side executor dispatch、exact selection/exposure、OCR synthetic golden 与 immutable HF model artifact 已通过。derived HF artifact、OCR real-screen golden、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 
@@ -407,14 +410,15 @@ $$
 | GUI-Owl-1.5-8B-Instruct | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | v1 AndroidWorld success teacher 被拒；v2 stable self-behavior substrate 已冻结，尚无 v2 output |
 | Rejected replacement candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think> | `afe3707fc84caebc4d7046118b34493ecf8bb060` | 512/513 parsed；official-success 上界 29/62，未通过 50% gate |
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.2.0` / `0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`，private | 42 Think traces；deterministic gzip JSONL；`v0.1.0` Instruct artifact 保持不变 |
-| Restoration v2 OCR models | <https://huggingface.co/gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en> | private repo pending upload | 三份 ONNX 仅 staged 于 Hyper00 `/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1`；SHA 已冻结但尚非 canonical artifact |
+| Restoration v2 OCR models | <https://huggingface.co/gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en> | `v1.0.0` / `0dbc766a73ee88d10d52285d434dbfec58617835`，private | 三份 ONNX、model card 与 manifest；fresh immutable re-download 后 6/6 file hashes verified |
 | Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | private repo not built | 预定保存 strong summaries、OCR/UI delta、split manifests 与 attribution records；immutable revision 前禁止 policy output |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。
-v2 derived dataset 尚未构建；OCR 三模型只是等待上传的 local staging dependency，不是 formal result，必须
-上传 private HF、immutable re-download 并将 revision 回写 Git 后才成为 canonical artifact。
+v2 derived dataset 尚未构建；OCR 三模型已经是 private HF canonical model artifact，Hyper00
+`/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1` 只保留为可重建 cache。OCR dependency 仍需完成冻结规则下的
+6-image real-screen golden，并把 derived dataset revision 与完成态写回 Git manifest。
 
 ## Citation
 

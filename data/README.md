@@ -27,8 +27,9 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
   size/SHA256。它只证明本地 CPU interface validation；真实 AndroidWorld 运行状态由独立 result evidence
   给出，不事后改写 source manifest 的 pre-evidence sentinel。
 - `fixtures/restoration_v2_ocr_golden.json`：内嵌 2x2 RGB 与两行 English OCR PNG bytes，source/prepared
-  hashes 和两次 byte-identical Hyper00 inspection 的 expected fields 已冻结；仍需从包含该 expected 的新
-  pushed commit 运行 `validate-golden`，不能把生成 expected 的 run 自称独立验证。
+  hashes 和两次 byte-identical Hyper00 inspection 的 expected fields 已冻结；最终 static fixture 已从新
+  pushed commit 两次独立通过 `validate-golden`，canonical evidence 位于
+  `results/restoration_v2_ocr_backend/`。
 
 冻结后的 constructor run 证据位于 `results/restoration_v2_constructor_preflight/`：14/14 payload 已被
 pinned `JSONAction` 接受。formal device-side result 位于 `results/restoration_v2_executor_dispatch/`：14/14
@@ -41,6 +42,9 @@ restoration v2 exact selection/exposure 产物：
   30/15/20 states 与 65 个 content witnesses，SHA256 `292c7e52...`；
 - `manifests/restoration_v2_exposure.json`：append-only pre-output exposure evidence，SHA256
   `bc122482...`；
+- `manifests/restoration_v2_ocr_backend.json`：8 个 Git source、private HF OCR model revision、6 个 HF file
+  hashes、fresh re-download 与 synthetic golden 的 fail-closed index；real-screen golden 未完成前
+  `dependency_5_closed=false`；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
   byte-identical 全量构建结论。
 
@@ -60,12 +64,16 @@ restoration v2 exact selection/exposure 产物：
   `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0`
   (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保留在 immutable
   `v0.1.0`。
+- Restoration v2 OCR models：private HF model
+  `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`
+  (`0dbc766a73ee88d10d52285d434dbfec58617835`)；三份 ONNX、model card 与 manifest 已 fresh
+  re-download，6/6 file hashes verified。
 
 最新轻量运行记录：
 
 - `results/restoration_v2_ocr_backend/`：保留首次 package-source key 冲突与 mutable-status 两个 superseded
   attempt；最终 static fixture 已从 pushed commit 两次通过 `validate-golden` 且 byte-identical。synthetic
-  golden passed，HF revision/real-screen golden/final manifest 仍 pending；
+  golden 与 immutable HF model artifact passed；real-screen golden/完成态 manifest 仍 pending；
 
 - `results/restoration_v2_selection/`：Hyper00 formal selection/exposure 通过独立 validator；20 条
   confirm trajectories 已按 fixed first-20/no-top-up 规则冻结，未加载 policy 或使用 GPU；

@@ -71,6 +71,18 @@ superseded lifecycle attempt 保留，最终 synthetic verdict 必须从包含�
 `8c81feb37af9d2393d62d6ddbfe65948f84e0eb0be0c0baf10126c547103bca6`。
 
 完整 argv、UTC bracket、container identity、model/wheel hashes 与 negative declarations 位于
-[`synthetic_summary.json`](synthetic_summary.json)。synthetic golden 至此 passed；private HF model
-immutable revision、6-image policy-blind real-screen golden 与 final source/artifact manifest 仍 pending，
-所以 dependency 5 尚未闭合。
+[`synthetic_summary.json`](synthetic_summary.json)。synthetic golden 至此 passed；当时 private HF model
+immutable revision、6-image policy-blind real-screen golden 与 source/artifact manifest 均 pending。后续
+model artifact 里程碑见下节。
+
+## Immutable HF model artifact
+
+三份 ONNX、model card 与 artifact manifest 已上传到 private HF model
+`gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`；tag 解析到 full revision
+`0dbc766a73ee88d10d52285d434dbfec58617835`。`2026-07-15T12:01:12Z` 从该 revision fresh
+re-download 后 6/6 file sizes/SHA256 一致。完整 inventory、upload/download argv 与 8 个 Git source hashes
+见 [`restoration_v2_ocr_backend.json`](../../manifests/restoration_v2_ocr_backend.json)；离线
+`artifact-source` validator 输出 `PASSED_OCR_ARTIFACT_SOURCE_VALIDATION`。
+
+因此 model artifact 与 synthetic golden 已通过；当前只剩 6-image policy-blind real-screen golden 和完成态
+manifest，dependency 5 仍未闭合。

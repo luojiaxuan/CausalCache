@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -19,12 +20,13 @@ from causalcache.restoration_v2_text_backend import (
     validate_backend_config,
     validate_selected_guiodyssey_image,
 )
-from scripts.validate_restoration_v2_ocr_backend import config_only
+from scripts.validate_restoration_v2_ocr_backend import config_only, validate_artifact_source
 
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG_PATH = ROOT / "code/configs/restoration_v2_ocr_backend.json"
 FIXTURE_PATH = ROOT / "data/fixtures/restoration_v2_ocr_golden.json"
+ARTIFACT_MANIFEST_PATH = ROOT / "data/manifests/restoration_v2_ocr_backend.json"
 PIL_AVAILABLE = importlib.util.find_spec("PIL") is not None
 
 
@@ -206,6 +208,65 @@ class RestorationV2TextBackendTest(unittest.TestCase):
             "INVALID_DERIVED_ARTIFACT_BEFORE_POLICY_OUTPUT",
         ):
             validate_selected_guiodyssey_image(invalid, config)
+
+    def test_hf_artifact_and_source_manifest_validate_without_network(self) -> None:
+        result = validate_artifact_source(
+            backend_config_path=CONFIG_PATH,
+            artifact_manifest_path=ARTIFACT_MANIFEST_PATH,
+            repository_root=ROOT,
+        )
+        self.assertEqual(result["outcome"], "PASSED_OCR_ARTIFACT_SOURCE_VALIDATION")
+        self.assertEqual(result["hf_file_count"], 6)
+        self.assertTrue(result["model_hashes_bound_to_backend_config"])
+        self.assertFalse(result["dependency_5_closed"])
+
+    def test_hf_artifact_model_hash_drift_fails_closed(self) -> None:
+        manifest = json.loads(ARTIFACT_MANIFEST_PATH.read_text(encoding="utf-8"))
+        detector = next(
+            record
+            for record in manifest["hf_model_artifact"]["files"]
+            if record["path"] == "ch_PP-OCRv5_det_mobile.onnx"
+        )
+        detector["sha256"] = "0" * 64
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "mutated-manifest.json"
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "detector SHA256 drifted"):
+                validate_artifact_source(
+                    backend_config_path=CONFIG_PATH,
+                    artifact_manifest_path=path,
+                    repository_root=ROOT,
+                )
+
+    def test_hf_artifact_source_omission_fails_closed(self) -> None:
+        manifest = json.loads(ARTIFACT_MANIFEST_PATH.read_text(encoding="utf-8"))
+        manifest["source_files"] = [
+            record
+            for record in manifest["source_files"]
+            if record["path"] != "code/causalcache/restoration_v2_text_backend.py"
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "mutated-manifest.json"
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "source file inventory drifted"):
+                validate_artifact_source(
+                    backend_config_path=CONFIG_PATH,
+                    artifact_manifest_path=path,
+                    repository_root=ROOT,
+                )
+
+    def test_hf_artifact_preoutput_declaration_fails_closed(self) -> None:
+        manifest = json.loads(ARTIFACT_MANIFEST_PATH.read_text(encoding="utf-8"))
+        manifest["policy_output_generated_before_manifest"] = True
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "mutated-manifest.json"
+            path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "must precede policy output"):
+                validate_artifact_source(
+                    backend_config_path=CONFIG_PATH,
+                    artifact_manifest_path=path,
+                    repository_root=ROOT,
+                )
 
 
 if __name__ == "__main__":
