@@ -40,6 +40,12 @@ artifact 必须先上传 Hugging Face 并把 immutable revision/SHA 回写 Git�
 [`data/manifests/independent_reference_gate_v1_source_files.json`](data/manifests/independent_reference_gate_v1_source_files.json)；
 这些 hash 已在 row decoding 前生成。
 
+Hyper00 H200 的 UI-TARS behavioral anchor 已通过：旧 9-decision artifact 精确复现 A6000 的 9/9 parsed、
+4/9 match 与逐 decision vector，见
+[`data/results/ui_tars_hyper00_hardware_anchor/`](data/results/ui_tars_hyper00_hardware_anchor/)。因此独立 gate
+可以留在 Hyper00；该 anchor 的低平均利用率仍要求在 oracle-scale attribution 前完成 batching/GPU-side
+KL 优化。
+
 新合作者按以下顺序阅读：
 
 1. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；

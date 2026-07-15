@@ -1,0 +1,82 @@
+{
+  "schema_version": "0.1.0",
+  "outcome": "HARDWARE_ANCHOR_PASSED",
+  "dataset": {
+    "repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+    "shard_sha256": "54399e28df381c2114c1422dedc1aed17f1bd15b320e636155a070e181c33e72",
+    "source_id": "0054832199799795"
+  },
+  "model": {
+    "snapshot": {
+      "repo": "ByteDance-Seed/UI-TARS-1.5-7B",
+      "revision": "683d002dd99d8f95104d31e70391a39348857f4e"
+    },
+    "dtype": "bfloat16",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0"
+  },
+  "visual_tokens_per_image": 256,
+  "max_new_tokens": 256,
+  "overall": {
+    "decisions": 9,
+    "parsed": 9,
+    "matches": 4,
+    "coverage": 0.4444444444444444
+  },
+  "decisions": [
+    {
+      "decision_step_id": 2,
+      "executable_match": false
+    },
+    {
+      "decision_step_id": 3,
+      "executable_match": false
+    },
+    {
+      "decision_step_id": 4,
+      "executable_match": true
+    },
+    {
+      "decision_step_id": 5,
+      "executable_match": true
+    },
+    {
+      "decision_step_id": 6,
+      "executable_match": false
+    },
+    {
+      "decision_step_id": 7,
+      "executable_match": true
+    },
+    {
+      "decision_step_id": 8,
+      "executable_match": true
+    },
+    {
+      "decision_step_id": 9,
+      "executable_match": false
+    },
+    {
+      "decision_step_id": 10,
+      "executable_match": false
+    }
+  ],
+  "runtime": {
+    "git_commit": "89f4aa618ff1e74c57bef44dd69903e1c5134f7f",
+    "host_alias": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "physical_gpu_id": 0,
+    "container_device": "cuda:0",
+    "gpu_name": "NVIDIA H200",
+    "gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+    "driver_version": "570.172.08",
+    "container_name": "sglang-omni-jaxan-07151357",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "utc_interval": "2026-07-15T06:40:03Z/2026-07-15T06:41:04Z",
+    "generation_latency_seconds_sum": 30.768743344582617,
+    "peak_gpu_memory_bytes": 17831817728,
+    "raw_summary_sha256": "696d2d49efbfff5c2602091399fa0cb7c68f09cef6828e8aa7f10eff497bbe77",
+    "gpu_monitor_sha256": "9a09e5dc747df9c366fa5801a4bdbadaa60939336945e1d65e7cd8fde7465fcb"
+  }
+}

@@ -26,6 +26,9 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 
 最新轻量运行记录：
 
+- `results/ui_tars_hyper00_hardware_anchor/`：Hyper00 H200 精确复现旧 A6000 UI-TARS 9/9 parsed、4/9
+  executable-match vector，允许独立 reference gate 留在 Hyper00；
+
 - `results/gui_owl_1_5_8b_think_smoke_strict/`：Hyper01 首次 1/5-image Think checkpoint smoke；
   finite logits 通过，strict parser 因闭合 thinking prefix 按设计拒绝。
 - `results/gui_owl_1_5_8b_think_smoke/`：format-only parser 适配后的原参数重跑；finite logits

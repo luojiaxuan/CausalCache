@@ -494,6 +494,12 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
   在任何 row decoding 前逐文件计算 size/SHA256 并写入
   `data/manifests/independent_reference_gate_v1_source_files.json`。后续 builder 必须逐项验证，不能接受
   revision 相同但 local bytes 不一致的输入。
+- Hyper00 随后用 exact UI-TARS snapshot 在旧 9-decision artifact 运行 behavioral anchor；9/9 parsed、4/9
+  match 及逐 step vector 与 Aries A6000 完全相同，`HARDWARE_ANCHOR_PASSED`，因此无需因芯片差异转回
+  Aries。compact result 位于 `data/results/ui_tars_hyper00_hardware_anchor/`；
+- anchor peak 17.83 GB，generation latency 合计 30.77 s。monitor 两个 active windows 平均只有 21%/18%，
+  原因是单样本 variable-history preprocessing + 短 generation；reference gate 保持单卡监督执行，正式
+  coalition-scale oracle 前必须先做 batching/concurrency 与 GPU-side KL。
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
