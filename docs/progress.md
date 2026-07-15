@@ -411,6 +411,16 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - KL helper 同时返回 per-token、sum 和 mean，拒绝 materially negative 或非 finite 输入；纯 CPU 测试覆盖
   shift、special-token rejection、self KL 与已知 Bernoulli KL，尚未产生 GPU 实验结果。
 
+### 2026-07-14：go/no-go deterministic reducer
+
+- 新增纯 CPU reducer：首个 action JSON 的 sorted compact canonicalization、16×16×16 joint RGB
+  histogram cosine，以及完整 coalition table 上的 recent、similarity、uniform maximal-random 与 global
+  oracle；
+- oracle ties 固定按 distance、cost、event ids 排序；global oracle 可选择空 memory，负 restoration 不会
+  被强制计为收益；normalized recovery 使用预注册的 `max(D(empty), epsilon)` 分母；
+- outcome reducer 要求输入 states 与 config 完全一致，并保证 positive evidence 来自同一个
+  memory-sensitive state；非法、重复或非 finite 输入统一输出 `INVALID`。
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；

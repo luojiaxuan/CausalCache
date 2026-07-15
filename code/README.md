@@ -62,6 +62,11 @@ runtime 只拼接 `action[:-1]`，并取 prompt 最后位置开始的 $L$ 个 fu
 float32 log-probabilities；`full_vocab_action_path_kl` 负责逐 token KL 与 mean/sum 聚合。该接口不加入
 generated special tokens，也不把 pathwise KL 描述成完整 sequence-action KL。
 
+`causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
+histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，
+并只按 frozen config 输出 `INVALID`、`NO_GO_DIAGNOSTIC`、`INCONCLUSIVE_NEGATIVE` 或
+`INCONCLUSIVE_POSITIVE`。random 是 maximal feasible coalitions 的解析期望，不引入隐藏 seed。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash
