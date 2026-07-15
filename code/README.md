@@ -195,8 +195,10 @@ download 的 archive SHA256/size 与 Git manifest 完全相等。
 `gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile`，tag `v2.1-interface-pilot-v1`，immutable
 revision `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，SHA256
 `f71d5fd575dde48ae8b3e50a19dd2fbecfa02d7d5ae6087f909a47dfd7032064`，133,120 bytes；fresh download
-已逐 byte 复核。Git 结果说明见 `data/results/restoration_v2_1_interface_pilot/README.md`。该 runner 不得用于
-full-45；后者必须先有新的冻结 contract/source 与独立 canonical attempt identity。
+已逐 byte 复核。Git manifest commit/push 后，clean `main@6458111` 的 committed-binding validator 返回
+`VALID_RESTORATION_V2_1_INTERFACE_PILOT_ARTIFACT` 与同一 PASS。结果说明见
+`data/results/restoration_v2_1_interface_pilot/README.md`。该 runner 不得用于 full-45；后者必须先有新的冻结
+contract/source 与独立 canonical attempt identity。
 
 正式 device-side executor 证据使用三个独立入口：
 

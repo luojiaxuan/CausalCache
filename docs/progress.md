@@ -1239,12 +1239,14 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `f71d5fd575dde48ae8b3e50a19dd2fbecfa02d7d5ae6087f909a47dfd7032064`。private HF tag
   `v2.1-interface-pilot-v1` 解析到 immutable revision
   `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`；fresh immutable download 的 byte hash/size 已复核；
-- Git 只保存 `data/results/restoration_v2_1_interface_pilot/` 的 34-file inventory/binding 与说明。提交后仍须从
-  clean descendant `main` 对 fresh archive 运行 artifact validator，才完成 committed-binding verification。
+- Git 只保存 `data/results/restoration_v2_1_interface_pilot/` 的 34-file inventory/binding 与说明。manifest
+  push 后，artifact validator 已在 clean `main@64581118eb3375a03234ef49e5ce1f7bc41d354e` 从 fresh archive
+  返回 `VALID_RESTORATION_V2_1_INTERFACE_PILOT_ARTIFACT`、`archive_hash_verified=true` 与同一 PASS；
+  committed binding 已闭合。
 
 ## 下一步
 
-下一步先 commit/push fixed-15 manifest 与说明，再从 fresh immutable HF archive 做 committed-binding
-validation。通过后先实现、冻结并验证新的 full-45 source/contract、canonical attempt identity 与 raw artifact
-流程，commit/push 后才允许运行；不得复用或重启 fixed-15 canonical root。confirm、AndroidWorld test split、
-teacher/KL/restoration 继续锁定，直到 full-45 contract 按预注册 gate 明确授权。
+下一步是纯 source-freeze milestone：新增并冻结独立的 full-45 child contract、hardened runner、canonical
+attempt identity 与 raw artifact packager/validators/tests；commit/push 后才允许运行。fixed-15 runner/ledger 和旧
+v2 runner 都不得复用。confirm、AndroidWorld test split、teacher/KL/restoration 继续锁定，直到 full-45
+contract 按预注册 gate 明确授权。

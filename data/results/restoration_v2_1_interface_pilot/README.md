@@ -36,8 +36,10 @@ processor 与 frozen batch-1 generation 交错时观测到低于 90% 的窗口�
   `e7a92a0469e3b66113158d5c2ce713c363ecaff97f95498f3ef84f02a4a6bed8`。
 
 上传后已按 40-hex immutable revision 强制 fresh download；下载件与 formal archive 的 byte SHA256/size 完全
-一致，HF tag 也解析到上述 revision。当前 manifest commit 后还需从 clean descendant `main` 运行 artifact
-validator；完成前只把 fresh-download verification 视为通过，不提前声称 committed-binding validation 完成。
+一致，HF tag 也解析到上述 revision。manifest commit/push 后，artifact validator 已在 clean descendant
+`main@64581118eb3375a03234ef49e5ce1f7bc41d354e` 从该 fresh archive 返回
+`VALID_RESTORATION_V2_1_INTERFACE_PILOT_ARTIFACT`、`archive_hash_verified=true` 与同一
+`PASS_V2_1_INTERFACE_PILOT`；committed binding 已闭合。
 
 ## Claim 边界
 
