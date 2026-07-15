@@ -52,6 +52,7 @@ class SubsetSearchAblationTest(unittest.TestCase):
         )
         scenario = next(item for item in scenarios if item.scenario_id == "controlled_complementary_trap")
         result = evaluate_scenario(scenario, self.config)
+        self.assertEqual(json.loads(json.dumps(result)), result)
         self.assertEqual(method(result, "exact_subset")["selected_coalition"], [2, 3])
         self.assertEqual(method(result, "true_conditional_greedy_raw_gain")["selected_coalition"], [0, 1])
         self.assertEqual(method(result, "true_conditional_greedy_raw_gain")["utility_ratio_to_exact_subset"], 0.5)

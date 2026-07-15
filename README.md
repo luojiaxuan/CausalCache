@@ -64,8 +64,10 @@ post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修
 [`ablations/subset_search.md`](ablations/subset_search.md)。v1 source/config/CPU runner 已冻结：小规模 exact
 subset oracle、true conditional-marginal greedy、2x2 bounded exchange、true-utility beam-$2/4/8$ 分别报告
 actual utility、greedy/exact ratio 与全部 coalition query cost；同时把既有 phase-0 的 averaged-score
-objective-projection gap 与真正 search regret 分开。正式 result 尚未运行；允许的下一步仅是 synthetic 与旧 v1
-selection-biased cached coalition table 的 CPU replay，零新 policy/GPU/confirm access，不重开 v2.1。
+objective-projection gap 与真正 search regret 分开。首次 CPU attempt 的数值复算完成，但 pre-commit replay
+发现 in-memory trace coalition 是 tuple、JSON round-trip 后是 list，导致 validator payload equality fail closed；
+该 output 已删除，未作为正式结果。source 已补 JSON-normalization regression，待 commit/push 后从新 clean main
+重跑。整个 attempt 为零新 policy/GPU/confirm access，v2.1 不重开。
 
 official Jinja/tojson compatibility 已在输出前冻结：teacher target 与 official assistant `tool_calls` JSON
 逐字节一致，包括 canonical insertion order 与原始 Unicode UTF-8；解码后的 text argument 仍须严格满足 NFKC。
@@ -487,7 +489,8 @@ $$
 - [x] 执行唯一 full-45 v2.1 substrate attempt；32/45 exact repeat agreement，正式为 `NO_GO_V2_1_FULL_45_SUBSTRATE`；
 - [x] 记录 prospective interaction-aware gate ablation；仅 source-only proposal，不重开 v2.1；
 - [x] 冻结 subset-search v1 source/config/CPU runner；formal synthetic + cached-table replay 待 clean pushed source；
-- [ ] 从 clean pushed source 运行 subset-search v1，并提交轻量 result/validator evidence；
+- [x] 首次 subset-search CPU attempt 在 pre-commit JSON round-trip validation fail closed；output 未保留；
+- [ ] push serialization fix 后从新 clean source 重跑并提交轻量 result/validator evidence；
 - [ ] 在不读取 confirm policy output 的前提下，决定是否冻结新的 executable/UI-element equivalence protocol；
 - [ ] 只有新 substrate gate 通过后，才构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。

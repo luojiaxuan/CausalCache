@@ -515,6 +515,7 @@ def _trace(result: SearchResult) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for step in result.trace:
         row = asdict(step)
+        row["coalition"] = list(step.coalition)
         row["utility"] = _round_float(step.utility)
         if step.marginal_gain is not None:
             row["marginal_gain"] = _round_float(step.marginal_gain)

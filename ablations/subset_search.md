@@ -1,6 +1,6 @@
 # Subset Search Ablation
 
-> 状态：v1 source/config/runner 已冻结，正式 CPU result 尚未运行。
+> 状态：首次 CPU attempt 在 pre-commit JSON round-trip replay fail closed；serialization fix 待 push 后 canonical rerun。
 >
 > 范围：synthetic implementation validation，加上旧 v1 selection-biased development coalition table 的
 > post-hoc replay。零新 policy/GPU operation；不训练 gate、不读取 confirm、不修改
@@ -182,6 +182,38 @@ python3 -m scripts.run_subset_search_ablation \
 本次结果是轻量 deterministic summaries，进入 Git 即足够；没有新的 reusable dataset/model，不创建多余 HF
 repo。正式结果回写并 push 后，再由独立 CLI 对 committed summary、source commit/blob、input hashes 与完整
 scientific payload 复算。
+
+## 首次 CPU attempt：artifact validation fail closed（2026-07-15）
+
+首次 attempt 从 clean pushed `main@d5cd389f6a7b2720cc1daaa3373cefa52480cf7b` 运行 14 个 scenarios，CPU
+wall time 51.668 秒，policy/GPU operation 均为 0。runner 写出后，pre-commit 独立复算发现 scientific values
+一致，但 Python in-memory trace 中的 `coalition` 是 tuple，JSON round-trip 后变成 list；validator 使用严格
+payload equality，因此按设计 fail closed。该 attempt 的 result 目录已删除，没有 commit、push 或升级为正式证据。
+
+已在 `_trace` serialization boundary 显式转换 list，并加入 `json.loads(json.dumps(result)) == result` regression。
+必须先把该 source fix commit/push，再从新的 clean source 重新生成；不能沿用旧 output 或只放宽 validator。
+
+以下只记录 failed attempt 的 provisional diagnostics，canonical rerun 前不能称为 formal result：
+
+- 既有 phase-0 中，exact averaged-marginal knapsack / exact subset ratio 为 `0.858594`，而 true conditional
+  greedy 为 `1.0`。因此这里的已知缺口确实来自 value projection，不是 greedy optimization；
+- controlled complementary trap 中 raw greedy/beam-2 ratio 为 `0.5`，2x2 exchange 与 beam-4/8 为 `1.0`；
+  controlled mixed/non-monotone 中 raw greedy 为 `0.666667`，exchange/beam-4/8 为 `1.0`；
+- variable-cost case 中 raw greedy 为 `0.833333`，density greedy 为 `1.0`，证明 cost-aware rule 必须先冻结；
+- scale sweep 的 exact query 数随 $n=8/12/16/24,b=3$ 为 `93/299/697/2325`。raw greedy 只用
+  `22/34/46/70` queries，ratio 为 `1.0/0.95098/0.95098/0.970588`；beam-4 用
+  `51/88/125/197` queries 在该 generator 上都找到 exact。2x2 exchange 也都 exact，但到 $n=24$ 使用
+  `1185` queries，明显高于 beam-4；这些只描述该冻结 generator，不构成通用 guarantee；
+- 旧 real cached table 的 step 4/8 × budget 512/1024 共四个 cases 中，true greedy、exchange、beam 与 exact
+  全部选同一 coalition，greedy/exact ratio 均为 `1.0`。step 8 / 1024 虽有 2 个正、19 个负 pair
+  interactions，仍未观察到 real greedy trap；这两个事后挑选 states 只能作 consistency smoke；
+- 若把旧 state sensitivity threshold `1e-4` 混作 search stopping threshold，step 4 / 1024 会从 exact
+  `[1,3]` 提前停在 `[3]`，ratio `0.944896`。这属于 abstention-threshold sensitivity，不是 search regret。
+
+若 canonical rerun 逐项复现，最稳妥的方法决策仍是：主线上使用 set-conditioned greedy；exact 只作小规模 ceiling；beam/local 是
+可替换的 offline diagnostics。synthetic 已证明 stronger search 可能修复 greedy trap，但旧 real table 没有证明
+它值得增加线上复杂度。只有未来 development data 出现稳定真实 search regret，且 direct set-utility contract
+闭合后，才考虑 learned beam/local。
 
 ## 对论文的安全表述
 

@@ -1346,10 +1346,36 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   生成 formal result，没有运行 GPU、policy、gate、closed-loop 或 confirm；v2.1 继续保持
   `NO_GO_V2_1_FULL_45_SUBSTRATE`。
 
+### 2026-07-15：Subset-search v1 首次 CPU attempt 在 artifact validation 前 fail closed
+
+- source milestone `d5cd389f6a7b2720cc1daaa3373cefa52480cf7b` push 后，从 clean canonical main 运行
+  frozen CLI；14 个 scenarios 在 CPU 上 51.668 秒完成，外部/untouched data、policy、GPU、confirm access 与
+  learned-gate/closed-loop evaluation 均为 0；
+- phase-0 exact averaged-marginal knapsack / exact subset 为 0.858594，而 true conditional greedy 为 1.0，
+  正式确认前者应命名 objective-projection gap，不是 greedy search gap；
+- controlled complement trap 中 raw greedy/beam-2 ratio 0.5，2x2 exchange/beam-4/8 为 1.0；mixed
+  non-monotone 中 raw greedy 0.666667、exchange/beam-4/8 为 1.0；variable-cost 中 raw 0.833333、density
+  1.0；
+- $n=8/12/16/24,b=3$ exact queries 为 93/299/697/2325；raw greedy queries 22/34/46/70，ratio
+  1.0/0.95098/0.95098/0.970588；beam-4 queries 51/88/125/197，在该 deterministic generator 上均 exact；
+  2x2 exchange 虽均 exact，但 $n=24$ 使用 1,185 queries，不能简单视为便宜修复；
+- 旧 v1 selection-biased cached table 的四个 state/budget cases 中，true greedy、exchange、beam 与 exact
+  coalition 全部相同，greedy ratio 均为 1.0。step 8 / 1024 有 2 个 positive、19 个 negative pair
+  interactions 但没有 greedy trap；真实 table 只验证 implementation consistency，不支持 stronger search 的
+  paper-level收益；
+- 单列 threshold sensitivity 发现把旧 `1e-4` state floor 当 search threshold 会令 step 4 / 1024 从 exact
+  `[1,3]` 提前停在 `[3]`，ratio 0.944896；该差距明确归入 abstention，不归入 search regret；
+- runner 输出后、任何 result commit 前执行独立 scientific replay；所有数值相同，但 in-memory trace coalition
+  是 tuple，JSON load 后为 list，严格 payload equality 因类型不一致触发 `AssertionError`。这是 artifact
+  serialization contract bug，不是搜索数值不稳定；按 fail-closed 边界，首次 result 目录已删除，未 commit/push；
+- source 已在 `_trace` boundary 显式输出 list，并加入完整 JSON round-trip equality regression。下一步先
+  commit/push 该 fix，再从新的 clean source canonical rerun；不能沿用首次 output 或放宽 validator。上述数值在
+  canonical rerun 前只算 provisional diagnostics。
+
 ## 下一步
 
-先 commit/push subset-search source milestone，再从 clean pushed `main` 运行唯一 CPU-only formal ablation，
-回写轻量 summary/report 并从 clean descendant main 复算验证。它不需要 GPU，也不改变 v2.1。并行的主路线仍是：
+先 commit/push subset-search JSON serialization fix，再从新 clean main canonical rerun、提交 result，并从 clean
+descendant main 复算验证 committed summary；这些步骤不需要 GPU，也不改变 v2.1。并行的主路线仍是：
 v2.1 已按冻结 gate 停止，不运行 restoration、gate training 或 confirm；只有先冻结不依赖本次 32/45 结果调参的
 新 executable/UI-element equivalence protocol 并通过新 substrate gate，才允许后续 restoration/confirm。必须永久
 保留 exact-coordinate NO-GO，不能在当前 45 states 上事后加容差 retroactive PASS。

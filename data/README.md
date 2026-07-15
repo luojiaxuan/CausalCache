@@ -33,8 +33,10 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 - `fixtures/subset_search_scenarios_v1.json`：additive、redundant、complementary trap、mixed/non-monotone 与
   variable-cost 五个 deterministic set-function cases；只用于 CPU search implementation validation。
 
-`results/subset_search_ablation_v1/` 目前尚未生成。正式 CPU run 只会写轻量 `summary.json` 与 `README.md`，
-并复用已有 phase-0 config 和旧 v1 `coalition_distances.csv`；不复制 raw policy trace，也不创建新的 HF repo。
+首次 subset-search CPU attempt 在 pre-commit strict replay 中因 tuple/list JSON-normalization mismatch fail closed；
+对应 `results/subset_search_ablation_v1/` 已删除且未进入 Git。serialization regression fix push 后，canonical
+rerun 仍只会写轻量 `summary.json` 与 `README.md`，复用已有 phase-0 config 和旧 v1
+`coalition_distances.csv`；不复制 raw policy trace，也不创建新的 HF repo。
 
 冻结后的 constructor run 证据位于 `results/restoration_v2_constructor_preflight/`：14/14 payload 已被
 pinned `JSONAction` 接受。formal device-side result 位于 `results/restoration_v2_executor_dispatch/`：14/14
