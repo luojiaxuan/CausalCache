@@ -66,8 +66,8 @@ tokens，exact text/open/answer argument 不截断，任何 context overflow 在
 before/after RGB 在 256x256 bilinear resize 后的 mean absolute difference，阈值固定为 0.005/0.05/0.20。
 Pillow/resampling 与 OCR/accessibility 的 exact revision/hash 写入 execution config。
 当前 implementation 选择、锁定参数、model/wheel SHA、uncapped OCR record schema 与 golden 进度见
-[`restoration_v2_ocr.md`](restoration_v2_ocr.md)。HF immutable revision 和 end-to-end golden 未闭合前，第 5 项
-dependency 仍是 pending。
+[`restoration_v2_ocr.md`](restoration_v2_ocr.md)。synthetic golden 已通过；HF immutable revision、real-screen
+golden 和 final manifest 未闭合前，第 5 项 dependency 仍是 pending。
 
 ## Action contract
 

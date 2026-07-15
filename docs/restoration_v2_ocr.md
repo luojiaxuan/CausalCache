@@ -3,9 +3,9 @@
 ## 当前状态
 
 OCR/image implementation identity 已在任何 v2 policy output 前冻结。当前仅关闭了 source/config/interface
-层：Hyper00 的 locked CPU runtime 与三份 ONNX 文件已 staged 并验证 SHA；private HF model revision、
-end-to-end OCR golden 和 source-hash manifest 仍 pending。因此八项 pre-output dependencies 中第 5 项尚未
-标为 passed。
+层：Hyper00 的 locked CPU runtime 与三份 ONNX 文件已 staged 并验证 SHA，synthetic golden 已从最终
+static fixture 两次独立通过；private HF model revision、6-image real-screen golden 和 source-hash manifest
+仍 pending。因此八项 pre-output dependencies 中第 5 项尚未标为 passed。
 
 hash-bound backend config 只保存永久静态 identity、预定 private HF repo 与 future artifact-manifest path；
 upload status 和 immutable revision 不写进该 config，避免上传后改变 config SHA。当前 live status 由本页、
@@ -89,8 +89,9 @@ tie-break。text 使用 NFKC、collapse whitespace、strip；full tokens 不截�
 Git fixture
 [`restoration_v2_ocr_golden.json`](../data/fixtures/restoration_v2_ocr_golden.json) 内嵌两个固定 PNG：2x2 RGB
 resize case 与两行 English OCR case。image bytes/prepared hashes 以及 pushed `main@09e4f6d` 两个独立
-进程产生的 byte-identical OCR expected fields 已冻结；下一步必须从包含 expected 的新 pushed commit 运行
-`validate-golden`，生成 expected 的 inspection 本身不算独立 validation。
+进程产生的 byte-identical OCR expected fields 已冻结；随后从最终 pushed `main@820fa54` 两个独立进程运行
+`validate-golden`，均得到 `PASSED_OCR_GOLDEN_VALIDATION` 且 validation JSON byte-identical。完整 evidence
+见 [`data/results/restoration_v2_ocr_backend/`](../data/results/restoration_v2_ocr_backend/)。
 
 real-screen golden 不允许人工挑图。eligible pool 只来自 frozen `v2_label_train`/`v2_development` states 的
 `candidate_post_state` 与 `current_observation`，先按 image SHA 去重，再分别在 portrait/landscape 中按

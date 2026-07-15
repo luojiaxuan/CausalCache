@@ -63,9 +63,9 @@ restoration v2 exact selection/exposure 产物：
 
 最新轻量运行记录：
 
-- `results/restoration_v2_ocr_backend/`：首次 Hyper00 synthetic OCR forward 成功，但 serialized package-source
-  evidence 因两个 `main.py` basename key 冲突而作废；fixture expected 未回写，等待修复后的 pushed commit
-  独立重跑；
+- `results/restoration_v2_ocr_backend/`：保留首次 package-source key 冲突与 mutable-status 两个 superseded
+  attempt；最终 static fixture 已从 pushed commit 两次通过 `validate-golden` 且 byte-identical。synthetic
+  golden passed，HF revision/real-screen golden/final manifest 仍 pending；
 
 - `results/restoration_v2_selection/`：Hyper00 formal selection/exposure 通过独立 validator；20 条
   confirm trajectories 已按 fixed first-20/no-top-up 规则冻结，未加载 policy 或使用 GPU；

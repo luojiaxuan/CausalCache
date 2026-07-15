@@ -717,6 +717,11 @@ v2 policy output、restoration label 或方法效果结果。
   但审计发现 fixture 顶层 status 仍含 mutable pending lifecycle。该 status 已改为永久内容描述
   `synthetic_expected_inspection_frozen`；因此 b82c3d8 validation 作为 superseded passing attempt 保留，
   必须再从最终 static-status fixture commit 重跑后才给 synthetic golden 最终 verdict。
+- 从 pushed `main@820fa54` 对最终 static fixture 两次运行 `validate-golden`，UTC brackets 为
+  `11:53:34.926118232Z--11:53:36.505118659Z` 与
+  `11:53:53.276034846Z--11:53:54.879217749Z`；两次均为 `PASSED_OCR_GOLDEN_VALIDATION`，validation JSON
+  byte-identical，SHA256 `3f4fde7c...49a6`，最终 fixture SHA256 `8c81feb3...bca6`。synthetic golden passed；
+  HF immutable revision、6-image real-screen golden 和 final manifest 仍 pending。
 
 ## Artifact 状态
 
@@ -757,8 +762,8 @@ v2 policy output、restoration label 或方法效果结果。
 3. exposure ledger：passed，ledger SHA256 `bc122482...`；
 4. restricted prompt/parser/bridge/executor fixture：passed；CPU prompt/parser/bridge、真实 pinned `JSONAction`
    constructor 与 device-side executor dispatch 均有独立 evidence；
-5. pinned accessibility/OCR identity：implementation/config/weights SHA staged；HF immutable revision 与
-   end-to-end golden pending；
+5. pinned accessibility/OCR identity：implementation/config/weights SHA 与 synthetic golden passed；HF
+   immutable revision、6-image real-screen golden 与 final manifest pending；
 6. baseline specification/source hashes：scientific formula 已冻结，implementation source hashes pending；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
 8. 引用 scientific-config SHA 的 execution config：pending。

@@ -62,3 +62,15 @@ status 又改变 fixture SHA。
 该 fixture 的 expected 内容正确，但顶层 status 当时仍包含 mutable `validation...pending` 字样。为避免
 通过后改 status 破坏 hash-bound fixture，status 被改成永久内容描述；因此上述 passing validation 作为
 superseded lifecycle attempt 保留，最终 synthetic verdict 必须从包含静态 status 的新 pushed commit 再跑。
+
+## Final synthetic verdict
+
+从 pushed `main@820fa54c5e65e72e0f3395ea606f1b5dc71bf71f` 的 clean detached worktree 两次运行
+`validate-golden`，两次均返回 `PASSED_OCR_GOLDEN_VALIDATION`，validation JSON byte-identical，SHA256
+均为 `3f4fde7c58b31813af630d6646ac5ef353856ca6eff7add7aa31ddcb7a3c49a6`。最终 static fixture SHA256 为
+`8c81feb37af9d2393d62d6ddbfe65948f84e0eb0be0c0baf10126c547103bca6`。
+
+完整 argv、UTC bracket、container identity、model/wheel hashes 与 negative declarations 位于
+[`synthetic_summary.json`](synthetic_summary.json)。synthetic golden 至此 passed；private HF model
+immutable revision、6-image policy-blind real-screen golden 与 final source/artifact manifest 仍 pending，
+所以 dependency 5 尚未闭合。

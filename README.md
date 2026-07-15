@@ -31,8 +31,9 @@ dependency 已闭合；derived artifact、OCR、baselines 与 execution config �
 OCR/image backend 的 implementation identity 已冻结为 CPU-only
 `RapidOCR 3.8.4 + ONNX Runtime 1.24.4 + PP-OCRv5 mobile English`，两个 wheel、det/rec 与虽关闭但
 constructor 仍加载的 classifier model 都有 exact SHA；256x256 Pillow bilinear 与 uncapped full-screen
-OCR record schema 也已实现。当前仍需 private HF model revision 和 end-to-end golden，所以 OCR
-dependency 尚未标为 passed。见 [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)。
+OCR record schema 也已实现。synthetic golden 已从最终 static fixture 两次独立通过；当前仍需 private HF
+model revision、6-image real-screen golden 与 final manifest，所以 OCR dependency 尚未标为 passed。见
+[`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
