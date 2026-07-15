@@ -73,6 +73,20 @@ block；剔除后仍必须完整匹配单行 `Action:` 和唯一 `mobile_use` `<
 多 block、中缀/后缀 thinking 或额外文本全部 fail closed。v2 Instruct parser 不继承该例外，任何 thinking
 block 都拒绝。
 
+正式 device-side executor 证据使用三个独立入口：
+
+- `scripts.inspect_restoration_v2_executor_container` 在 Aries host 读取 live Docker/container/source identity；
+- `scripts.validate_restoration_v2_executor_dispatch` 在绑定的 runtime container 内重新执行
+  native-output parser/bridge、14 个 valid requests 和一个必须 HTTP 500 的 negative actuation control；
+- `scripts.validate_restoration_v2_executor_evidence` 从 raw HTTP records 独立重算 denominator 与 verdict。
+
+正式 run 使用 unique attempt ID、exclusive output、pre/post live inspection 和 immutable packaging；失败后
+不得覆盖同一路径。canonical summary 内嵌两次 inspection 的原始 UTF-8 JSON，action/reset/health 等
+compact HTTP records 也保留 raw response bytes 的 UTF-8 表示，使 reducer 能重算 length、SHA256 和
+decoded body。大体积 screenshot pixels 只保留 frozen runner 计算的 transport digest 与 shape。
+
+完整参数和 claim 边界见 `docs/restoration_v2_executor_dispatch.md`。三者都不加载 policy。
+
 AndroidWorld full validation 必须显式传入
 `--early-stop-when-success-is-mathematically-impossible`。runner 只在原子 episode checkpoint
 写盘后检查固定分母上的 success 上界；达不到 gate 时不再分配新 episode，已在途的

@@ -12,9 +12,9 @@ policy output、restoration label 或方法效果结果。
 
 ## 不可混淆的状态
 
-冻结的 [`../../manifests/restoration_v2_interfaces.json`](../../manifests/restoration_v2_interfaces.json)
-是 run 前的 interface source snapshot，所以其 constructor 字段刻意保留 `pending`。本目录的
-[`summary.json`](summary.json) 是随后在 exact manifest hash
+本目录 evidence 绑定的是 commit `a9e2afa` 中 run 前的 interface source snapshot；其 constructor 字段
+刻意保留 `pending`。当前 manifest 可在 policy output 前因状态说明或后续 preflight source 更新而前进，不能
+用当前工作树文件替代历史 bytes。本目录的 [`summary.json`](summary.json) 是随后在 exact manifest hash
 `02744d82a91d0dca12d4c8792d78e6140e443cfbe674805dfe14d4665d9d017d` 上产生的 run evidence，字段为
 `passed`。二者分别回答“运行前冻结了什么”和“冻结后实际运行是否通过”。
 

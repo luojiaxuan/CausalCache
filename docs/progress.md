@@ -605,6 +605,20 @@ AndroidWorld executor preflight 和 derived artifact。仍没有 v2 policy outpu
   host/container 与起止时间，见 `data/results/restoration_v2_constructor_preflight/`；
 - 该结果不证明 device-side executor dispatch；未加载 policy、未使用 GPU、未生成任何 v2 policy output。
 
+### 2026-07-15：Executor-dispatch formal runner 冻结
+
+- 新增 Aries host-side Docker inspection，绑定 runtime/server container ID、actual image ID、5003→5000
+  port mapping、persistent mounts、live health 与四个 executor source hashes；
+- formal runner 从每个 native output 重新执行 v2 parser 与 bridge，不直接信 fixture payload；14 个 case
+  保持单 worker、固定顺序、每 case 独立 reset、每 case 一次请求且零 retry；
+- valid response 必须 exact HTTP 200 JSON echo；另对缺坐标 click 先从 pinned source 记录 constructor-acceptance
+  witness，再要求相同 payload 在 live actuation 必须 HTTP 500，并要求失败后 health 与 cleanup reset 正常；
+- 独立 reducer 从 raw records 重算 14-case denominator、action-type counts、response binding 和 verdict；
+- pre/post inspection 对同一 unique attempt 做时间夹持和 container/source identity 比较；compact
+  action/reset/health response 保留 raw UTF-8 body，reducer 重算 bytes/SHA/JSON；大体积 screenshot 只记录
+  frozen runner 计算的 digest 与 shape；所有 attempt files exclusive-create，失败不能被同路径成功重跑覆盖；
+- 当前仅完成代码与 tests，必须先 commit/push，再在 Aries 正式运行。本步骤没有 policy/GPU output。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；

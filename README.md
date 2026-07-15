@@ -23,8 +23,12 @@ action、23 个非法 action、6,000 个完整标量坐标检查和 decision ste
 step-6 全部 16 个）已通过；pinned AndroidWorld `JSONAction` constructor 已在 Aries 对 14/14 payload
 通过，证据见
 [`data/results/restoration_v2_constructor_preflight/`](data/results/restoration_v2_constructor_preflight/)。
-device-side executor dispatch 仍未正式冻结和记录，因此 action dependency 尚未完全闭合，不能据此开始
-policy inference。
+device-side executor dispatch 的 formal runner 已冻结，但 Aries run 尚未正式记录，因此 action dependency
+尚未完全闭合，不能据此开始 policy inference。
+
+executor-dispatch 的 live-inspection、negative-control 与 offline-reduction 契约见
+[`docs/restoration_v2_executor_dispatch.md`](docs/restoration_v2_executor_dispatch.md)；正式 run 必须在该
+runner commit/push 后执行。
 
 v2 的干预已收窄：所有 memory 始终保留相同 strong low-fidelity summary；恢复 event 时只增加一张
 post-action state image，不增加 before image 或额外 action text。confirm 固定每条 trajectory 的 decision
@@ -317,6 +321,7 @@ $$
 - Frozen v2 interface semantics: [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)
 - Frozen v2 interface hashes: [`data/manifests/restoration_v2_interfaces.json`](data/manifests/restoration_v2_interfaces.json)
 - Pinned AndroidWorld constructor preflight: [`data/results/restoration_v2_constructor_preflight/`](data/results/restoration_v2_constructor_preflight/)
+- Executor-dispatch contract: [`docs/restoration_v2_executor_dispatch.md`](docs/restoration_v2_executor_dispatch.md)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)

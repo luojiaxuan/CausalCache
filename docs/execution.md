@@ -134,6 +134,18 @@ artifact；同时还必须闭合 exact confirm IDs、exposure ledger、OCR ident
 `data/results/restoration_v2_constructor_preflight/`。冻结 interface manifest 保留 run 前 `pending`，实际
 状态由该 result summary 更新；executor dispatch 仍须单独闭合。
 
+executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
+再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从
+raw records 重算。不得把此前的手工 transport probe、constructor summary 或旧 environment smoke 冒充
+本次 formal evidence。
+
+每次 formal run 使用显式 unique attempt ID，所有已产生文件均 exclusive-create；失败 attempt 必须在新
+attempt 前连同错误回写 Git，且不能伪造无法通过 reducer 的 canonical package。passing attempt 的
+before/raw/after/canonical 四件套全部保留；post-inspection 必须确认 dispatch 后仍是同一
+container/image/port/source，canonical package 内嵌两次 inspection raw JSON，并从 action/reset/health
+等 compact HTTP raw body 重算 length、SHA256 与 decoded response。大体积 screenshot pixels 不嵌入 Git，
+只保留 frozen runner 计算的 transport SHA256 与 1080x2400 shape，因此 shape check 依赖该 runner source。
+
 正式 run 必须 checkout 已 push 的 exact commit 并保持 clean detached worktree；开发阶段的同一 topic
 可以复用 `/data/repo` 后回到 `main` 执行 `git pull --ff-only origin main`，不要重复 clone 到多个散乱
 目录。当前 validated AndroidWorld 路径是在 Aries 同一 host 上运行 emulator HTTP containers 与本地

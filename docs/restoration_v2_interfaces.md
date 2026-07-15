@@ -7,11 +7,12 @@
 config 的 raw SHA256
 `9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc` 单独锁定。
 
-当前 CPU interface fixture 已通过：14 个合法 action cases、23 个非法 cases、6,000 个完整标量坐标检查，
-以及 steps 4/5/6 共 28 个 coalition，其中 step-6 四候选为 16 个。该检查没有生成任何 policy output。
-真实 pinned AndroidWorld `new_json_action.JSONAction` 构造器与 device-side executor dispatch 尚未运行，
-因此完整的 `prompt -> parser -> bridge -> executor` dependency 仍为 pending，不能把本地 schema 检查写成
-已闭合。
+CPU interface fixture 已通过：14 个合法 action cases、23 个非法 cases、6,000 个完整标量坐标检查，以及
+steps 4/5/6 共 28 个 coalition，其中 step-6 四候选为 16 个。该检查没有生成任何 policy output。后续 pinned
+AndroidWorld `new_json_action.JSONAction` constructor 已有独立 14/14 run evidence，见
+`data/results/restoration_v2_constructor_preflight/`；source manifest 中的 `pending` 是 pre-evidence sentinel，
+不作为可变运行状态。device-side executor dispatch 仍为 pending，因此完整的
+`prompt -> parser -> bridge -> executor` dependency 尚未闭合。
 
 ## Action 与 canonical target
 
