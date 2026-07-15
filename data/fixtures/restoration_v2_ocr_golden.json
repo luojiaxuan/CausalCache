@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "backend_id": "rapidocr-3.8.4-ppocrv5-mobile-en-cpu-v1",
-  "status": "synthetic_expected_inspection_frozen_validation_from_pushed_fixture_pending",
+  "status": "synthetic_expected_inspection_frozen",
   "cases": [
     {
       "case_id": "rgb_2x2",

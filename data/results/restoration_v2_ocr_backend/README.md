@@ -46,6 +46,19 @@ CPU runtime 运行两个独立 `inspect-golden` process：
 `["Causal", "Cache", "Step", "42"]`，record SHA256 为
 `47941b52bf42df7c452119821e824953ab1a3ebd2aa8b1d31ef97b21d1093371`。
 
-这些 expected fields 已写入 Git fixture，但当前状态仍是
-`synthetic_expected_inspection_frozen_validation_from_pushed_fixture_pending`。必须先 commit/push 本 fixture，
-再从该 exact commit 执行 `validate-golden`；在此之前不把 synthetic golden 记为 passed。
+这些 expected fields 已写入 Git fixture。fixture 的 `status` 永久描述内容为
+`synthetic_expected_inspection_frozen`；是否通过独立 validation 只由本 result record 描述，避免运行后改
+status 又改变 fixture SHA。
+
+## Superseded validation of lifecycle-labeled fixture
+
+从 pushed `main@b82c3d8a4a672af4c1802f8772861e235926c39c` 两次运行 `validate-golden` 均返回
+`PASSED_OCR_GOLDEN_VALIDATION`，UTC brackets 分别为
+`2026-07-15T11:51:36.090924406Z--11:51:37.643951115Z` 与
+`2026-07-15T11:51:51.246038518Z--11:51:52.779843042Z`；两份 validation JSON byte-identical，SHA256
+均为 `e1fee0870d8c644e1aedc2c064730155f7273d6e4c4bda511b1bcedcb2e65245`，fixture SHA256 为
+`b407ae14ba2d06e63432b58f70ab10a1b070425aa5d6934e259fc7cff6ab2015`。
+
+该 fixture 的 expected 内容正确，但顶层 status 当时仍包含 mutable `validation...pending` 字样。为避免
+通过后改 status 破坏 hash-bound fixture，status 被改成永久内容描述；因此上述 passing validation 作为
+superseded lifecycle attempt 保留，最终 synthetic verdict 必须从包含静态 status 的新 pushed commit 再跑。

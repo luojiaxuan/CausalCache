@@ -713,6 +713,10 @@ v2 policy output、restoration label 或方法效果结果。
   `11:47:57.685531727Z--11:47:59.202436027Z`；两份 canonical JSON byte-identical，SHA256 均为
   `6cda74bb4f33708795842c947dac53e380e9f0d4e3debcbf9bb38334a645af44`。expected fields 已回写 fixture，
   但仍必须从包含 expected 的新 pushed commit 跑 `validate-golden` 才能标记 synthetic golden passed。
+- pushed `main@b82c3d8` 的两次 `validate-golden` 均通过且输出 byte-identical（SHA256 `e1fee087...5245`），
+  但审计发现 fixture 顶层 status 仍含 mutable pending lifecycle。该 status 已改为永久内容描述
+  `synthetic_expected_inspection_frozen`；因此 b82c3d8 validation 作为 superseded passing attempt 保留，
+  必须再从最终 static-status fixture commit 重跑后才给 synthetic golden 最终 verdict。
 
 ## Artifact 状态
 

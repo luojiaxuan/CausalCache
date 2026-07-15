@@ -78,6 +78,7 @@ class RestorationV2TextBackendTest(unittest.TestCase):
 
     def test_frozen_expected_inspection_identity_is_complete(self) -> None:
         fixture = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+        self.assertEqual(fixture["status"], "synthetic_expected_inspection_frozen")
         expected = fixture["expected_inspection"]
         self.assertEqual(
             expected["backend_config_sha256"],
