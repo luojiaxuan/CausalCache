@@ -6,9 +6,9 @@ AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate�
 frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
 untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
-preflight、exact IDs、exposure、OCR 与 baselines 已闭合；当前推进 derived artifact 与 execution config。仍没有
-v2 policy output、restoration label 或方法效果结果。当前下一步是构建并 immutable-verify 完整 derived
-artifact，随后冻结 execution config。
+preflight、exact IDs、exposure、OCR 与 baselines 已闭合；完整 derived builder/validator source 也已实现，
+当前等待从 exact pushed main 在 Hyper00 双跑并 immutable-verify HF artifact，随后冻结 execution config。
+仍没有 v2 policy output、restoration label 或方法效果结果。
 
 ## 已完成里程碑
 
@@ -801,6 +801,22 @@ artifact，随后冻结 execution config。
   model、LM head 或 generation，也未读取 confirm score；
 - `data/manifests/restoration_v2_baselines.json` 绑定 11 个 Git source 与全部公式/identity，离线 validator
   outcome 为 `PASSED_BASELINE_SOURCE_VALIDATION`；dependency 6 已 passed。
+
+### 2026-07-15：完整 derived builder/validator source 就绪
+
+- 新增 policy-blind full builder、independent validator 与 15 项定向 schema/artifact tests；正式 inventory 固定为
+  35 trajectories、175 events、65 states、210 张 `observation-000..005` 与 210 条 uncapped OCR records；
+- builder 不再接受裸外部 OCR JSONL，而是验证 exact raw source 后，用 pinned RapidOCR/ONNX Runtime/wheel/model
+  直接生成记录；builder post-write 和 standalone validator 都重跑 210 OCR 并逐条 exact compare；
+- raw GUIOdyssey tool call 必须与 archived canonical executed action 的 type/target/text/case 全字段一致；
+  low-fidelity 保存 OCR multiset delta、screen-change、discard counts、exact serialization/SHA，high-fidelity 只保存
+  post-state image pointer；
+- formal 路径同时绑定 clean `origin/main` Git revision、v2 contract HF repo、v1 source dataset、selection/exposure、
+  OCR model/wheel/package-source/runtime/recognizer identity，并对 nonformal counts、dirty checkout、identity drift、
+  action drift、OCR replay drift与 extra files fail closed；
+- 本机完整 212 tests 通过（9 项因可选 Pillow/PyTorch runtime 跳过）；Aries pinned Pillow 相关回归 66/66
+  通过。独立审计发现的裸 OCR、counts、action、provenance 与 replay blockers 均已修复；尚未运行正式全量
+  build，因此 dependency 1 仍 pending，且仍无 policy/restoration output。
 
 ## Artifact 状态
 

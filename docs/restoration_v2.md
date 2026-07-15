@@ -131,6 +131,16 @@ private HF dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`。rea
 hash，并把 revision 回写 Git 前，不允许运行 v2 policy。Git 只保存 config、代码、
 exposure ledger、轻量 manifest/result 和进展。
 
+完整 derived builder/validator 已在任何 v2 policy output 前实现。它不消费外部裸 OCR JSONL，而是从
+pinned raw source 重建 exact 35 trajectories / 175 history events / 65 states / 210 images，并用已闭合的
+RapidOCR runtime 当场生成 full records。事件同时保存 raw tool call 与完整 canonical executed action；二者
+的 action type、target、text argument 和 case flag 必须一致。low-fidelity block 保存 exact action argument、
+OCR added/removed multiset delta、screen-change bin、discard counts、exact UTF-8 serialization 与 SHA；
+high-fidelity block 只引用 post-state image。正式构建和 immutable re-download validation 都重跑 210 条
+OCR 并逐条比对，且对 Git revision、contract repo、source dataset、selection/exposure、wheel/model/package
+source identity fail closed。当前仅 source milestone 完成；HF immutable artifact 尚未产生，因此 dependency 1
+仍为 pending。
+
 ## 两级 go/no-go
 
 先只在 label-train/development 运行 substrate screening，至少 20 states：

@@ -229,6 +229,16 @@ pre-merger `last_hidden_state` 与全部 DeepStack features；完整 14-file mod
 三份 source SHA 必须先验证。`make validate-restoration-v2-baselines` 复核 11-file source manifest；dependency 6
 已闭合。
 
+完整 GUIOdyssey restoration-v2 derived artifact 的实现位于
+`causalcache.data.guiodyssey_restoration_v2`，正式入口为
+`scripts.build_guiodyssey_restoration_v2` 与 `scripts.validate_guiodyssey_restoration_v2`。builder 不接受裸
+OCR JSONL：它从 exact 35 条 pinned raw trajectory 重建 210 张 `observation-000..005`，验证完整 raw
+tool-call/canonical executed-action 一致性，再用 pinned CPU RapidOCR runtime 按 member path 排序生成 OCR。
+固定输出是逻辑上的 6-file artifact projection：root control files、deterministic image USTAR、full uncapped
+OCR JSONL、35-trajectory JSONL 与 payload manifest。builder 的 post-write validation 和独立 validator 都
+强制 35/175/65/210 counts、exact image inventory、runtime/source/HF identity，并重跑 210 条 OCR 逐条
+compare；fixture 模式可以显式关闭 formal counts，但正式 CLI 不能。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash

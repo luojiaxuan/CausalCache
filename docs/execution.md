@@ -256,6 +256,55 @@ re-download 后第三次 replay 通过。完整证据见
 另由 `data/manifests/restoration_v2_baselines.json` 闭合。完整 derived artifact 与 execution config 仍阻止
 GUI-Owl policy output。
 
+### 完整 GUIOdyssey derived artifact
+
+正式 derived builder 必须在 `HEAD == origin/main == --git-revision` 的 clean Hyper00 checkout 中运行。
+这是 CPU-only 数据构建，不使用 GPU；每次先重验 2.25 GB 的 16 个 Parquet、selection/exposure 与 OCR
+artifact source，再直接生成并 replay exact 210 条 OCR。不得传入外部 OCR JSONL。第一次 run 的显式命令为：
+
+```bash
+cd /data/CausalCache/code
+/data/.venv/causalcache-ocr-v2/bin/python -m scripts.build_guiodyssey_restoration_v2 \
+  --v2-contract configs/causalcache_restoration_v2.json \
+  --v1-config configs/independent_reference_gate_v1.json \
+  --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json \
+  --source-root /data/source/guiodyssey-independent-v1 \
+  --selection-manifest ../data/manifests/restoration_v2_selection.json \
+  --exposure-manifest ../data/manifests/restoration_v2_exposure.json \
+  --ocr-backend-config configs/restoration_v2_ocr_backend.json \
+  --ocr-backend-manifest ../data/manifests/restoration_v2_ocr_backend.json \
+  --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 \
+  --wheel-dir /data/tmp/causalcache-ocr-v2-wheels \
+  --git-revision <FULL_PUSHED_MAIN_SHA> \
+  --output-dir /data/tmp/causalcache-restoration-v2-derived-<SHORT_SHA>-repeat-1
+```
+
+repeat-2 必须使用新的空 output directory，两个 artifact tree、OCR aggregate 和逐文件 bytes 必须完全一致。
+上传 private HF dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile` 后创建稳定 tag
+`restoration-v2-derived-v1.0.0`。由于同一 repo 保留既有 `golden/real-screen-v1` prefix，fresh immutable
+download 必须只投影 `.gitattributes`、`README.md` 与 `derived/restoration-v2-v1/**` 到 clean root；不能把
+HF cache metadata 或 golden prefix 混入 exact 6-file validator root。随后执行：
+
+```bash
+cd /data/CausalCache/code
+/data/.venv/causalcache-ocr-v2/bin/python -m scripts.validate_guiodyssey_restoration_v2 \
+  --output-dir /data/tmp/causalcache-restoration-v2-derived-<SHORT_SHA>-hf-redownload \
+  --v2-contract configs/causalcache_restoration_v2.json \
+  --v1-config configs/independent_reference_gate_v1.json \
+  --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json \
+  --selection-manifest ../data/manifests/restoration_v2_selection.json \
+  --exposure-manifest ../data/manifests/restoration_v2_exposure.json \
+  --ocr-backend-config configs/restoration_v2_ocr_backend.json \
+  --ocr-backend-manifest ../data/manifests/restoration_v2_ocr_backend.json \
+  --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 \
+  --wheel-dir /data/tmp/causalcache-ocr-v2-wheels \
+  --git-revision <FULL_PUSHED_MAIN_SHA>
+```
+
+只有 tag resolution、immutable download file hashes、第三次 210-record OCR replay、UTC brackets、完整 argv、
+host/container/runtime 与 negative declarations 全部写入 Git completion manifest 并 push 后，dependency 1
+才可标为 passed。本步骤仍不生成 policy/restoration output。
+
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从
 raw records 重算。不得把此前的手工 transport probe、constructor summary 或旧 environment smoke 冒充

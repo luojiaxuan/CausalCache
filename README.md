@@ -45,6 +45,14 @@ dataset tag `ocr-real-screen-golden-v1.0.0` 固定到 `9ebbbbbc4666e8a065f4ecb52
 dependency 5 已闭合，但完整 derived dataset 仍未构建。见
 [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)。
 
+完整 derived dataset 的 policy-blind builder 与独立 validator 已实现并通过审计，但尚未执行正式全量构建。
+它从 pinned 16 个 Parquet 重载 exact 35 条 trajectory，直接在 pinned CPU OCR runtime 上生成 210 条记录，
+固定 175 个 event、65 个 decision state 与 210 张 `observation-000..005`；每个 high-fidelity block 只指向
+post-state image。正式 builder 和 immutable re-download validator 都会对 210 张图重跑 OCR 并逐条 exact
+compare，同时校验 full canonical executed action、strong low-fidelity serialization、Git/HF/source/runtime
+identity。source milestone 已就绪；dependency 1 仍需 Hyper00 双跑、HF upload/tag、fresh immutable
+re-download 与 Git completion manifest 才能闭合。
+
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
 parent tar 继续抽样。pipeline 固定 `decision_count>=5` 后的首 20 条、step 6、8/15/20 disjoint proof，
@@ -377,6 +385,8 @@ $$
 - Restoration-v2 deterministic baseline formulas: [`code/causalcache/restoration_v2_baselines.py`](code/causalcache/restoration_v2_baselines.py)
 - Restoration-v2 policy-vision extractor: [`code/causalcache/policy/gui_owl_v2_vision.py`](code/causalcache/policy/gui_owl_v2_vision.py)
 - Restoration-v2 baseline source manifest: [`data/manifests/restoration_v2_baselines.json`](data/manifests/restoration_v2_baselines.json)
+- Restoration-v2 derived dataset builder: [`code/scripts/build_guiodyssey_restoration_v2.py`](code/scripts/build_guiodyssey_restoration_v2.py)
+- Restoration-v2 derived dataset validator: [`code/scripts/validate_guiodyssey_restoration_v2.py`](code/scripts/validate_guiodyssey_restoration_v2.py)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
