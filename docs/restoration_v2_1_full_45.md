@@ -88,5 +88,27 @@ committed-binding validation。
 
 ## 当前状态
 
-当前只冻结并验证 source contract、runner、artifact manager 与 tests。尚未发起 full-45 policy attempt，因而
-没有 full-45 parse、agreement、finite-logit、KL、memory-sensitive-state 或 PASS/NO_GO 结果。
+唯一正式 attempt 已在 source commit `7a5b6d5710fe4d054936b5aa474648149f725edb` 上完成，结论为
+`NO_GO_V2_1_FULL_45_SUBSTRATE`：
+
+- 45/45 states 的两次 generation 都 strict parse；90/90 outputs 都有 model-emitted closer 并通过
+  AndroidWorld bridge；
+- 32/45 states 的两次 exact canonical action 完全一致，低于冻结的 45/45 gate；13 个 mismatch 为 12 个
+  `click→click` 与 1 个 `swipe→swipe` coordinate jitter；
+- 只有上述 32 个 agreement states 按冻结 schedule 进入 teacher forcing：96 次 teacher forward、64 次 GPU
+  KL，没有 non-finite failure；
+- 32 个 states 的 repeat KL 都为 0，故 epsilon 为 `1e-4`；32/32 summary-reference KL 均高于 epsilon，
+  summary-reference KL 的 min/median/mean/max 为 0.000783/0.031472/0.044022/0.196197；
+- retry、top-up、sample mutation、expert read、restoration、baseline、gate training 与 confirm work 全为 0。
+
+raw 94-file deterministic USTAR 已上传 private HF dataset
+`gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile`，tag
+`v2.1-full-45-substrate-v1` 固定到 immutable revision
+`814506ef1450838d4bc6ed3d89fe53e0773d92fb`。fresh immutable download 的 962,560 bytes 与 SHA256
+`8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4` 已逐 byte 复核；Git 轻量结果见
+`data/results/restoration_v2_1_full_45_substrate/`。在该 manifest 首次 commit/push 之前，完整链条仍停在
+committed-binding pending；必须从 clean descendant 对 fresh immutable archive 再运行 validator。
+
+本结果只否定 exact coordinate-level canonical equality 下的 v2.1 substrate admission，不等价于 restoration
+oracle 失败。当前 contract 不授权 restoration 或 confirm；若继续，必须先冻结新的 executable/UI-element
+equivalence protocol，不能对当前 45 states 事后加容差或 retroactive PASS。

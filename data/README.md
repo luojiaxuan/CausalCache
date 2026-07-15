@@ -82,6 +82,10 @@ restoration v2 exact selection/exposure 产物：
   `results/restoration_v2_parser_compatibility/`：在 formal replay 前固定 HF/archive/run identity、0/43/40 totals、
   五个 rejection identities 与 45-record classification SHA；clean pushed replay 得到
   `NO_GO_ADAPTER_ONLY`。Git result 只含 output hashes，不含 native text。
+- `results/restoration_v2_1_processor_preflight/`、`results/restoration_v2_1_interface_pilot/` 与
+  `results/restoration_v2_1_full_45_substrate/`：依次保存 v2.1 official-tools processor PASS、fixed-15 interface
+  PASS 和唯一 full-45 substrate NO-GO 的轻量 manifest/reduction。full-45 得到 45/45 parse、32/45 exact
+  repeat agreement 与 32 个 memory-sensitive states；raw outputs 只在 private HF deterministic USTAR 中。
 
 当前 reusable artifacts：
 
@@ -116,6 +120,11 @@ restoration v2 exact selection/exposure 产物：
   (`c073e143b935a79befd8ab1fd7123796792efad8`)；prefix
   `runs/restoration-v2-substrate-screening-v1/`，deterministic tar SHA256 `c3619a17...a45e`，manifest 与
   archive 已从 immutable revision fresh re-download 验 hash。
+- Restoration v2.1 full-45 substrate trace：private HF dataset
+  `gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile@v2.1-full-45-substrate-v1`
+  (`814506ef1450838d4bc6ed3d89fe53e0773d92fb`)；94-file deterministic USTAR SHA256
+  `8cd53d6e...f4fa4`、962,560 bytes，fresh immutable download verified；verdict
+  `NO_GO_V2_1_FULL_45_SUBSTRATE`。
 
 最新轻量运行记录：
 
@@ -156,6 +165,11 @@ restoration v2 exact selection/exposure 产物：
 - `results/restoration_v2_parser_compatibility/`：从 `main@fc3adf1` 正式 replay immutable raw archive；strict
   0/45、single-action canonical-first 43/45、conservative recovery 40/45，低于 required 45/45，输出
   `NO_GO_ADAPTER_ONLY`；25 个 clean EOF、15 个 suffix recovery、0 个 model-emitted canonical closer；
+
+- `results/restoration_v2_1_full_45_substrate/`：唯一 Hyper00 full-45 attempt 得到 90/90 parseable
+  generations、32/45 exact canonical repeat agreement、96 次 teacher forward、64 次 GPU KL 与 32 个
+  memory-sensitive states；冻结 reducer 输出 `NO_GO_V2_1_FULL_45_SUBSTRATE`，restoration/confirm/gate work
+  全为 0；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；

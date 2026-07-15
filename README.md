@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 source frozen / formal run pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / confirm locked
 
 ## 团队交接入口
 
@@ -46,9 +46,14 @@ unchanged-interface full-45 已冻结为独立 child contract
 SHA256 为 `0924dd66fab9440bed66585765e9b1f5ab6fb80fbdf65a1492efba7ae81e116b`。它固定 30 个
 `v2_label_train` + 15 个 `v2_development` states、每 state 两次 fresh full-history generation、三次
 teacher forward 与两次 GPU KL；全 attempt 上限为 90/135/90。45/45 parse、finite logits 与 canonical
-agreement 都是硬门槛，且至少 8 个 states 的 summary KL 必须超过 repeat-noise epsilon。当前里程碑仍是
-source-only，full-45 policy attempt 尚未运行。完整契约与 resume/INVALID/artifact 边界见
-[`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)。
+agreement 都是硬门槛，且至少 8 个 states 的 summary KL 必须超过 repeat-noise epsilon。唯一正式 run
+得到 45/45 strict parse、90/90 closer/bridge 和 32 个 memory-sensitive states，但两次 exact canonical action
+完全一致的只有 32/45，低于冻结的 45/45 gate，因此结果为 `NO_GO_V2_1_FULL_45_SUBSTRATE`。13 个 mismatch
+均保持 action type，包含 12 个 `click→click` 与 1 个 `swipe→swipe` coordinate jitter；这只是描述性分析，
+不能把当前结果事后改写为 PASS。raw evidence 已上传 private HF 并从 immutable revision fresh-download
+逐 byte 验证；轻量结论见
+[`data/results/restoration_v2_1_full_45_substrate/`](data/results/restoration_v2_1_full_45_substrate/)，完整契约与
+resume/INVALID/artifact 边界见 [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变
@@ -142,12 +147,12 @@ deterministic tar shard 上传 private HF，轻量结论与 immutable revision �
 locked。用于复核该上界的 versioned compatibility parser 与 immutable archive replay 已完成 source
 implementation；40 条中只有 25 条在首个 JSON 后 clean EOF，另外 15 条需要丢弃精确白名单中的残余 opener/
 extra brace，且 0 条由模型生成 canonical closer，因此不能称为 native well-formed output。auditor 会逐项绑定
-HF immutable revision、archive/run-contract/source commit 与 pre-registered per-state classification hash，重新执行 strict
-parser、保守 adapter、canonical round-trip 与 AndroidWorld bridge，但正式 replay 必须等本 source commit
-push 后从 clean `main` 单独运行。该正式 replay 现已在 `main@fc3adf1` 完成，得到
-`NO_GO_ADAPTER_ONLY`；完整结果见
-[`data/results/restoration_v2_parser_compatibility/`](data/results/restoration_v2_parser_compatibility/)。下一步仍
-必须先冻结 versioned interface/generation rescue。
+HF immutable revision、archive/run-contract/source commit 与 pre-registered per-state classification hash，重新执行
+strict parser、保守 adapter、canonical round-trip 与 AndroidWorld bridge。该正式 replay 已在
+`main@fc3adf1` 完成，得到 `NO_GO_ADAPTER_ONLY`；完整结果见
+[`data/results/restoration_v2_parser_compatibility/`](data/results/restoration_v2_parser_compatibility/)。当时必须先
+冻结 versioned interface/generation rescue；该步骤后来已由 v2.1 processor、pilot 与 full-45 milestones
+完成并得到独立结果。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
@@ -225,12 +230,14 @@ cd code && python3 -m scripts.validate_restoration_v2_1_full_45_contract \
 计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback。八项
 pre-output dependencies 已闭合并完成第一次正式 screening；v2 保持
 `NO_GO_V2_SUBSTRATE + NO_GO_ADAPTER_ONLY`。v2.1 versioned source/contract 已冻结，90-prompt
-processor-only preflight 与 fixed-15 interface pilot 均已正式通过；unchanged-interface full-45 substrate 的
-独立 source/contract 已冻结，正式 run 必须等本 source milestone clean commit/push 后执行。完整 artifact 中的
-confirm bytes 只接受
-loader validation/hash，不向 processor 或
-decoder 暴露任何 confirm state/prompt/image，也不生成 confirm output。AndroidWorld closed-loop MVP 继续使用
-已验证的 Aries stack。Hyper01 当前不参与本轮执行。
+processor-only preflight 与 fixed-15 interface pilot 均已正式通过；唯一 unchanged-interface full-45 attempt
+已在 Hyper00 完成并按冻结 gate 判为 `NO_GO_V2_1_FULL_45_SUBSTRATE`。失败点是 32/45 exact canonical
+repeat agreement，而不是 interface parse 或未观测到 summary/full-history behavior distance；按照该 contract，
+restoration、confirm 与 gate training 均不得继续。完整 artifact 中的 confirm bytes 只接受 loader
+validation/hash，不向 processor 或 decoder 暴露任何 confirm state/prompt/image，也没有生成 confirm output。
+若探索 executable/UI-element equivalence，必须先冻结新的 versioned source-only protocol，保留本次 NO_GO，
+不能在当前 45 states 上 retroactive relabel。AndroidWorld closed-loop MVP 继续使用已验证的 Aries stack；
+Hyper01 当前不参与本轮执行。
 
 ## 一句话主张
 
@@ -460,10 +467,9 @@ $$
 - [x] 冻结 versioned native-output/generation rescue source，并完成 v2.1 90-prompt processor-only preflight；
 - [x] 完成 v2.1 fixed-15 native-output interface pilot；15/15 parse/closer/bridge，保留原 v2 negative result；
 - [x] 冻结 unchanged-interface full-45 v2.1 child contract、runner 与 raw artifact chain；
-- [ ] 执行唯一 full-45 v2.1 substrate attempt；不做 retroactive relabel；
-- [ ] 构造 matched-NLL memory pairs，验证关键假设；
-- [ ] 训练 query-time memory gate；
-- [ ] 完成 AndroidWorld closed-loop evaluation；
+- [x] 执行唯一 full-45 v2.1 substrate attempt；32/45 exact repeat agreement，正式为 `NO_GO_V2_1_FULL_45_SUBSTRATE`；
+- [ ] 在不读取 confirm policy output 的前提下，决定是否冻结新的 executable/UI-element equivalence protocol；
+- [ ] 只有新 substrate gate 通过后，才构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
 ## Source of Truth
@@ -551,6 +557,7 @@ $$
 - Restoration v2.1 passed fixed-15 interface pilot: [`data/results/restoration_v2_1_interface_pilot/README.md`](data/results/restoration_v2_1_interface_pilot/README.md)
 - Restoration v2.1 frozen full-45 contract: [`code/configs/causalcache_restoration_v2_1_full_45.json`](code/configs/causalcache_restoration_v2_1_full_45.json)
 - Restoration v2.1 full-45 execution boundary: [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)
+- Restoration v2.1 full-45 NO-GO result: [`data/results/restoration_v2_1_full_45_substrate/README.md`](data/results/restoration_v2_1_full_45_substrate/README.md)
 - Restoration v2.1 processor-only audit CLI: `cd code && python3 -m scripts.audit_gui_owl_v2_1_processor --help`
 - Restoration v2.1 fixed-15 no-retry runner: `cd code && python3 -m scripts.run_restoration_v2_1_interface_pilot --help`
 - Restoration v2.1 raw evidence manager: `cd code && python3 -m scripts.manage_restoration_v2_1_pilot_artifact --help`
@@ -563,8 +570,10 @@ $$
   replay 的保守上界也仅 40/45，正式为 `NO_GO_ADAPTER_ONLY`。已有 45 个 native policy outputs，但没有
   teacher forward、KL、restoration label 或 CausalCache 方法效果结果。v2.1 official-tool contract、
   90-prompt processor preflight 与唯一 fixed-15 pilot 均已正式通过；后者 15/15 parse/closer/bridge，raw
-  artifact 已绑定 private HF immutable revision。full-45 source 已冻结但 formal attempt 尚未运行；因此 full-45
-  teacher/KL 与 memory-sensitivity 结果仍未知，restoration 仍未运行，confirm 仍 locked。
+  artifact 已绑定 private HF immutable revision。唯一 full-45 formal attempt 得到 45/45 parse、32/45 exact
+  canonical repeat agreement、32/45 finite-logit coverage 与 32 个 memory-sensitive states，正式为
+  `NO_GO_V2_1_FULL_45_SUBSTRATE`。没有 restoration、baseline selection、gate training 或 confirm work；当前
+  v2.1 路线已停止，confirm 仍 locked。
 
 ### Data and Models
 
@@ -585,6 +594,7 @@ $$
 | Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
 | Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |
+| Restoration v2.1 full-45 substrate trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile> | `v2.1-full-45-substrate-v1` / `814506ef1450838d4bc6ed3d89fe53e0773d92fb`，private | 45/45 parse、32/45 exact repeat agreement、32 memory-sensitive；`NO_GO_V2_1_FULL_45_SUBSTRATE`；raw USTAR SHA256 `8cd53d6e...f4fa4`、962,560 bytes；fresh immutable download verified |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent

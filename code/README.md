@@ -212,9 +212,10 @@ python3 -m scripts.validate_restoration_v2_1_full_45_contract \
   --config /data/CausalCache/code/configs/causalcache_restoration_v2_1_full_45.json
 ```
 
-唯一正式 full-45 attempt 必须从 clean pushed `main` 使用下面的 absolute argv。`--pilot-evidence` 与
-`--processor-preflight` 都必须是各自 private HF immutable revision 的 fresh download；首次 invocation 不带
-`--resume`。canonical root 或 sibling ledger 一旦存在就不得删除或换目录重跑：
+唯一正式 full-45 attempt 已从 clean pushed `main` 使用下面的 absolute argv；以下命令只作为 provenance，
+不得再次执行。`--pilot-evidence` 与 `--processor-preflight` 均来自各自 private HF immutable revision 的
+fresh download，首次 invocation 未带 `--resume`。canonical root 与 sibling ledger 已永久 claim，不能删除、
+换目录或重跑：
 
 ```bash
 cd /data/CausalCache/code
@@ -242,7 +243,7 @@ contract/runtime/OOM/bridge invariant 是 `INVALID`。`--resume` 只跳过 termi
 永久封存为 `INVALID`，不会继续该 state。root 外 sibling ledger 的 durable high-water journal 还会让删除
 marker+terminal pair 或整个 state/attempt 目录的行为 fail closed，不能通过删文件重生成已尝试 state。
 
-terminal outcome 出现后，在同一个 source commit 上打 deterministic USTAR：
+terminal outcome 出现后，已在同一个 source commit 上用下列命令打 deterministic USTAR：
 
 ```bash
 cd /data/CausalCache/code
@@ -260,6 +261,15 @@ raw archive 上传 private dataset
 fresh-download 并逐 byte 验证后，才可 `create-manifest` 写入
 `data/results/restoration_v2_1_full_45_substrate/artifact.json`。完整 gate、artifact 与 promotion 边界见
 `docs/restoration_v2_1_full_45.md`。
+
+唯一正式 attempt 已按上述 argv 在 source
+`7a5b6d5710fe4d054936b5aa474648149f725edb` 完成，结果为
+`NO_GO_V2_1_FULL_45_SUBSTRATE`：45/45 strict parse，32/45 exact canonical repeat agreement，32 个
+memory-sensitive states；restoration、baseline、gate training 与 confirm work 均为 0。raw 94-file USTAR
+SHA256 为 `8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4`，private HF immutable revision
+为 `814506ef1450838d4bc6ed3d89fe53e0773d92fb`，fresh download 已逐 byte 复核。Git compact evidence 见
+`data/results/restoration_v2_1_full_45_substrate/`。该 runner/attempt 不得再次执行；当前 contract 不授权
+restoration 或 confirm。
 
 正式 device-side executor 证据使用三个独立入口：
 

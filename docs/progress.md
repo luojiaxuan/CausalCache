@@ -2,12 +2,14 @@
 
 ## 当前目标
 
-AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop
-frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
-pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
-untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
-preflight、exact IDs、exposure、OCR、baselines 与完整 derived HF artifact 已闭合。八项中只剩 execution
-config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy output、restoration label 或方法效果结果。
+AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
+与 matched-NLL mechanism test，但当前 v2.1 实验路线已按 substrate gate 停止。八项 pre-output dependencies、
+official-tools processor preflight 与 fixed-15 interface pilot 均已闭合；唯一 full-45 run 虽得到 45/45 parse 和
+32 个 memory-sensitive states，但 exact canonical repeat agreement 只有 32/45，因此正式为
+`NO_GO_V2_1_FULL_45_SUBSTRATE`。没有生成 restoration label、baseline selection、gate checkpoint、confirm
+policy output 或 CausalCache 方法效果结果。当前 operational objective 仅是闭合该 NO-GO 的 Git/HF
+committed-binding，然后做 source-only design review；在新的 versioned protocol 明确授权前，不运行
+restoration、confirm 或 AndroidWorld test split。
 
 ## 已完成里程碑
 
@@ -1274,9 +1276,34 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   AAAI LaTeX build 已通过。source commit/push 与 clean descendant validation 完成后，才允许唯一 formal
   attempt。
 
+### 2026-07-15：v2.1 full-45 substrate 正式判为 NO-GO
+
+- 唯一 `restoration-v2-1-full-45-substrate-v1` attempt 从 clean pushed source
+  `7a5b6d5710fe4d054936b5aa474648149f725edb` 在 Hyper00 单张 H200 上完成；运行时间为
+  `2026-07-15T22:59:20.590509Z`--`23:04:48.502942Z`，327.912 秒；
+- 90/90 generations 均 strict parse、有 model-emitted closer 并通过 AndroidWorld bridge；但只有 32/45
+  states 的两次 exact canonical action 完全一致，低于冻结的 45/45 gate。13 个 mismatch 全部保持 action
+  type：12 个 `click→click`、1 个 `swipe→swipe`；label-train/development 分布为 10/3，step 4/5/6
+  分布为 3/5/5；
+- 32 个 agreement states 产生 96 次 teacher forward 与 64 次 GPU KL。repeat KL 全为 0，epsilon 固定为
+  `1e-4`；32/32 summary-reference KL 超过 epsilon，min/median/mean/max 为
+  0.000783/0.031472/0.044022/0.196197，因此 interface 和 history sensitivity signal 都存在；
+- frozen reducer 仍必须输出 `NO_GO_V2_1_FULL_45_SUBSTRATE`，因为 repeat agreement 与相应 finite-logit
+  coverage 均只有 32/45。retry、top-up、sample mutation、expert read、restoration coalition、baseline、gate
+  training 和 confirm work 全为 0；不能把 coordinate jitter 事后 relabel 成 PASS；
+- utilization monitor 观测到 model load/CPU processor 与 batch-1 generation/teacher 交错导致平均窗口低于
+  90%，但 active GPU 峰值为 99--100%，仅使用一张 GPU，且 frozen batch-1 protocol 不允许为本次结果修改
+  batching；
+- canonical 94-file deterministic USTAR 为 962,560 bytes，SHA256
+  `8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4`。private HF tag
+  `v2.1-full-45-substrate-v1` 固定到 immutable revision
+  `814506ef1450838d4bc6ed3d89fe53e0773d92fb`；fresh immutable download 已逐 byte 复核，Git compact result
+  位于 `data/results/restoration_v2_1_full_45_substrate/`。本条结果首次提交前 committed-binding 仍为 pending；
+  必须先 push manifest，再从 clean descendant 对 fresh archive 运行 validator，才能闭合完整 SoT chain。
+
 ## 下一步
 
-下一步先把 full-45 source milestone commit/push 到 canonical `main` 并在 clean Hyper00 checkout 独立验证，
-随后才发起唯一 `restoration-v2-1-full-45-substrate-v1` formal attempt。fixed-15 runner/ledger 和旧 v2 runner
-都不得复用。confirm、AndroidWorld test split 与 restoration 继续锁定，直到 full-45 contract 按预注册 gate
-明确授权下一阶段 source freeze。
+v2.1 已按冻结 gate 停止，不运行 restoration、gate training 或 confirm。下一步只允许做 source-only design
+review：判断是否有不依赖本次 32/45 结果调参、且可在执行前确定的 executable/UI-element equivalence。若决定
+继续，必须使用新的 protocol ID、独立 attempt identity 和 untouched confirm policy outputs，并永久保留本次
+exact-coordinate NO-GO；不得在当前 45 states 上添加容差后 retroactive PASS。
