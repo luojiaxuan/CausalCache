@@ -219,8 +219,10 @@ capability、SM count、Python、PyTorch/CUDA/cuDNN 和 Transformers，Torch 与
 processor audit。re-anchor evidence 位于 `data/results/restoration_v2_runtime_reanchor/`。GPU-2 execution
 config 已完成 GPU-2 改绑；readiness manifest 已绑定 clean implementation commit
 `14faaa44cf1b2044b1f1bcb3c9dcfce36eb452aa` 并恢复 `SCREENING_ALLOWED` schema。旧 authorization 只作历史
-记录，不用于启动新 runtime。当前 manifest commit 仍需先 push，再在 clean `HEAD == origin/main` 上运行正式
-CLI；通过前 policy/restoration output 仍为零。
+记录，不用于启动新 runtime。manifest commit `caa4f376026d13acd21db1f88b893bc92dd482b1` push 后，正式
+CLI 在 clean `HEAD == origin/main` 返回 `SCREENING_ALLOWED + CONFIRM_LOCKED`；canonical summary SHA256 为
+`36bd183f9fb4e0c3440d9ca8bc5c01e97cd1d25ca0c42e391961026fb8bcaa02`，且仍记录零 policy/restoration
+output。
 
 readiness manifest commit/push 并通过 `scripts.validate_restoration_v2_readiness` 后，production screening 才能
 运行。CLI 的固定顺序是：CPU readiness 8/8 + confirm lock → canonical Git input/hash binding → derived

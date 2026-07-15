@@ -1064,10 +1064,21 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   import/output。manifest commit/push 后必须在 clean `HEAD == origin/main` 运行 formal CLI；在此之前操作上仍
   locked。
 
+### 2026-07-15：GPU-2 dependency 8 正式重新闭合
+
+- re-sign commit `caa4f376026d13acd21db1f88b893bc92dd482b1` push 后，formal readiness CLI 在 clean
+  `HEAD == origin/main` 返回 8/8、`SCREENING_ALLOWED + CONFIRM_LOCKED`；
+- Git binding 记录 implementation commit `14faaa4...452aa` 与 validation/current/origin commit
+  `caa4f37...82b1`，execution config SHA 仍为 `819cb973...91ca0`；
+- GPU-2 canonical readiness summary SHA256 为 `36bd183f...aa02`；GPU-0 首次 summary 以
+  `gpu0-summary.json`/`20b9e810...5964` 归档，不再授权当前 runtime；
+- validator 再次明确 `policy_imported_by_validator=false`、policy/restoration output 均为 false。现在只允许
+  固定 45-state development screening，confirm 继续 locked。
+
 ## 下一步
 
-下一步 push GPU-2 readiness manifest，并在 clean main 运行正式 authorization；通过后才在 Hyper00 运行
-development substrate screening。
+下一步 push GPU-2 readiness summary/docs，并在 clean main 再验证 authorization；随后复核 Hyper00 GPU/container
+状态，启动 utilization monitor 与 development substrate screening。
 只有 screening 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
 75-instance final plan 一并冻结。

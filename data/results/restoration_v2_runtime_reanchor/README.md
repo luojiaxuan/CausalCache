@@ -38,5 +38,5 @@ forward/generate。
 
 这些文件是 re-signing 原始输入；同一 bytes 现已提升到 canonical GPU/processor audit 目录，execution config
 也已改绑新 runtime。旧 GPU-0 authorization 保留为历史证据；当前 manifest 已绑定 implementation commit
-`14faaa4...452aa`，planned GPU-2 screening 保持锁定，直到该 manifest commit/push 并通过正式 clean-Git
-authorization。
+`14faaa4...452aa`；formal clean-Git authorization 已在 `main@caa4f37` 返回
+`SCREENING_ALLOWED + CONFIRM_LOCKED`。GPU-2 development screening 已获准启动，confirm 仍 locked。
