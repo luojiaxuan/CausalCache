@@ -160,6 +160,27 @@ runner 在加载模型前验证 clean Git、frozen interface hashes、anchor、H
 split denominator。合法 gate failure 输出 `NO_GO_CURRENT_REFERENCE_STACK` 并正常退出；契约/运行错误写
 `failure.json` 并返回 nonzero。reference 通过前禁止读取 `oracle_pilot` policy output。
 
+restoration v2 不能直接从只含 8+15 trajectories 的 parent tar 继续选 confirm。CPU materializer 会重扫
+pinned 16 个 Parquet、复现完整 111-pool SHA，并在 fixed first-20/no-top-up 规则下写 exact selection 与
+append-only exposure ledger：
+
+```bash
+python3 -m scripts.materialize_restoration_v2_selection \
+  --v2-contract code/configs/causalcache_restoration_v2.json \
+  --v1-config code/configs/independent_reference_gate_v1.json \
+  --source-file-manifest data/manifests/independent_reference_gate_v1_source_files.json \
+  --source-root /data/source/guiodyssey-independent-v1 \
+  --parent-manifest /data/staging/causalcache-parent/manifest.json \
+  --v1-summary data/results/independent_reference_gate_v1/summary.json \
+  --git-revision <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --output-selection /data/tmp/restoration-v2-selection.json \
+  --output-exposure /data/tmp/restoration-v2-exposure.json
+```
+
+输出采用 exclusive-create；selection 保存完整 eligible records 和 65 个 screening/confirm state content
+witnesses，exposure 的 negative claim 只是 pre-output process declaration。正式产物进入 Git 后用
+`scripts.validate_restoration_v2_selection` 独立复核。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash

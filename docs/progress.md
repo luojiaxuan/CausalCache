@@ -635,6 +635,22 @@ v2 policy output、restoration label 或方法效果结果。
   `data/results/restoration_v2_executor_dispatch/`；
 - 第 4 项 action dependency 已闭合。本次未加载 policy、未使用 GPU、未生成 v2 policy/restoration output。
 
+### 2026-07-15：Restoration-v2 selection/exposure materializer
+
+- 确认 parent HF manifest 虽记录完整 111-pool hash，但 `trajectories` 只含原 8+15 条，不能从 parent tar
+  猜出 confirm；正式选择必须重扫 pinned 16 个 Parquet；
+- 新增 fail-closed CPU pipeline：先验证 2.25 GB source files，再重建 212 rows / 111 eligible pool，要求
+  count、canonical pool SHA、exclusion counts 与原 reference/oracle 顺序全部精确复现；
+- confirm 算法固定为排除 exact 8+15、保留 `decision_count>=5`、取首 20 后才检查 app diversity，禁止
+  为 diversity top-up；`decision_count>=5` 恰好保证 decision step 6 存在；
+- selection manifest 保存完整 pool records、8/15/20 disjoint proof、train/dev/confirm 的 30/15/20 state
+  IDs，以及 current、candidate events 1--4、event-5 current-equivalence 与 action hashes；
+- exposure 使用 append-only events 与 reducer，术语明确为 confirm `policy-output untouched`，而不是
+  `raw unseen`；已有 v1 UI-TARS output 只覆盖 reference 8 条；
+- synthetic/mutation tests 覆盖 step-6 语义、fixed-prefix/no-top-up、pool mutation、overlap 和 exposure
+  digest。当前只完成实现；必须从已推送 commit 在 Hyper00 正式生成两个 manifest 后，dependencies 2/3
+  才能标为 passed。本步骤未生成 policy/restoration output。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -662,8 +678,8 @@ v2 policy output、restoration label 或方法效果结果。
 ## 八项 pre-output dependencies 状态
 
 1. derived artifact immutable HF revision/file hashes：pending；
-2. exact confirm trajectory/state IDs：pending；
-3. exposure ledger：pending；
+2. exact confirm trajectory/state IDs：materializer passed，formal manifest pending；
+3. exposure ledger：append-only schema/reducer passed，formal ledger pending；
 4. restricted prompt/parser/bridge/executor fixture：passed；CPU prompt/parser/bridge、真实 pinned `JSONAction`
    constructor 与 device-side executor dispatch 均有独立 evidence；
 5. pinned accessibility/OCR identity：pending；
@@ -676,8 +692,8 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步 materialize exact IDs、exposure ledger、OCR summaries/backend identity 和 baseline source
-hashes；随后构建并 immutable-verify
+逐步 push：下一步从已 push commit 在 Hyper00 重建 111-pool并 materialize exact IDs/exposure ledger；随后
+冻结 OCR summaries/backend identity 和 baseline source hashes，再构建并 immutable-verify
 private HF derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
 八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity

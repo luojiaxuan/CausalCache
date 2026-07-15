@@ -102,6 +102,19 @@ Untouched confirm 从 v1 全序中排除 exact 8+15 后继续取首个满足 `de
 trajectory，每条只取 step 6。不能依据 parse、stability、expert alignment、memory sensitivity 或结果 top-up。
 exact IDs、overlap matrix 和 file hashes 必须在 inference 前 materialize。
 
+Parent `manifest.json` 只保存原 8+15 条 selected trajectories，不能从其中恢复完整 111 条 eligible
+records。正式 materializer 因而必须对 source-file manifest 中 pinned 16 个 Parquet 逐文件验证
+size/SHA 后重跑 v1 inspection/salted order；只有 eligible count=111、pool SHA=`84d685...`、exclusion
+counts 与 8/15 顺序全部一致，才允许继续选 confirm。`decision_count=len(actions)-1`，decision steps 为
+`2..decision_count+1`，所以 frozen `decision_count>=5` 正好保证 step 6，而不是隐式收紧样本。
+
+selection manifest 同时冻结 train/development/confirm 的 30/15/20 state IDs，以及每个 state 的 current
+image、候选 event post-state、current-equivalence 和 validated-action hashes。exposure ledger 使用
+append-only evidence events 再 reducer；confirm 会被 deterministic pipeline 读取 raw rows/images/actions，
+所以准确术语是 `policy-output untouched`，不能声称 `raw unseen`。materializer/validator 位于
+`code/causalcache/data/restoration_v2_selection.py` 与 `code/scripts/`；正式产物生成前 dependencies 2/3
+仍是 pending。
+
 所有 v2 derived summaries、OCR/UI delta、split manifests 和 attribution records 的 canonical destination 是
 private HF dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`。在它获得 immutable revision、
 从 revision 重下载验 hash，并把 revision 回写 Git 前，不允许运行 v2 policy。Git 只保存 config、代码、

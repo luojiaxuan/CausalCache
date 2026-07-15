@@ -29,6 +29,12 @@ device-side executor dispatch 已在 Aries 正式通过 14/14 cases，negative a
 dependency 已闭合；derived artifact、exact IDs、exposure、OCR、baselines 与 execution config 仍阻止 policy
 inference。
 
+exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
+完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
+parent tar 继续抽样。pipeline 固定 `decision_count>=5` 后的首 20 条、step 6、8/15/20 disjoint proof，
+同时为 45 个 screening states 和 20 个 confirm states 写 image/action content witnesses；当前仍需从已推送
+commit 在 Hyper00 正式 materialize 后，exact IDs 与 exposure 两项才算闭合。
+
 executor-dispatch 的 live-inspection、negative-control 与 offline-reduction 契约见
 [`docs/restoration_v2_executor_dispatch.md`](docs/restoration_v2_executor_dispatch.md)。本次 run 绑定已推送
 commit `b6e57c2619e88b8646657b3190bf45853a86c3d2`，未加载 policy 或使用 GPU。
@@ -300,6 +306,7 @@ $$
 - [x] 冻结 v2 restricted action、strong LF、post-state-only prompt 与 interface source hashes；
 - [x] 在 pinned AndroidWorld 对 14/14 payload 闭合 `JSONAction` constructor；
 - [x] 在 Aries 正式闭合 14-case executor dispatch 与 negative actuation control；
+- [x] 实现并测试完整 111-pool reconstruction、exact-ID selection 与 append-only exposure materializer；
 - [ ] 完成 derived artifact、exposure ledger、OCR identity、baseline hashes 与 execution config；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
@@ -328,6 +335,7 @@ $$
 - Pinned AndroidWorld constructor preflight: [`data/results/restoration_v2_constructor_preflight/`](data/results/restoration_v2_constructor_preflight/)
 - Executor-dispatch contract: [`docs/restoration_v2_executor_dispatch.md`](docs/restoration_v2_executor_dispatch.md)
 - Pinned AndroidWorld executor-dispatch result: [`data/results/restoration_v2_executor_dispatch/`](data/results/restoration_v2_executor_dispatch/)
+- Restoration-v2 selection materializer: [`code/causalcache/data/restoration_v2_selection.py`](code/causalcache/data/restoration_v2_selection.py)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
@@ -363,7 +371,7 @@ $$
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor 与 device-side executor dispatch 已通过。derived HF artifact、exact confirm IDs、exposure ledger、OCR、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor、device-side executor dispatch 与 policy-blind selection materializer 已通过。derived HF artifact、正式 exact confirm IDs/exposure 产物、OCR、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 
