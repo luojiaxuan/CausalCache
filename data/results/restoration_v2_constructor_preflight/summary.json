@@ -1,0 +1,73 @@
+{
+  "action_fixture": {
+    "accepted_aliases": [
+      "open_app",
+      "tap"
+    ],
+    "canonical_actions": [
+      "answer",
+      "click",
+      "long_press",
+      "open",
+      "swipe",
+      "system_button",
+      "terminate",
+      "type",
+      "wait"
+    ],
+    "coordinate_scalar_checks": 6000,
+    "invalid_case_count": 23,
+    "path": "../data/fixtures/gui_owl_v2_action_roundtrip.json",
+    "sha256": "ab6ca84a894a601450424150a510d3e9a2cb4a5522ee0d050ba7a5908af661de",
+    "system_buttons": [
+      "Back",
+      "Enter",
+      "Home"
+    ],
+    "valid_case_count": 14
+  },
+  "androidworld_json_action_constructor_validation": {
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "module_path": "/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5/android_world/agents/new_json_action.py",
+    "module_sha256": "14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f",
+    "run_git_commit": "a9e2afabf54e753747ce5394223c407e4dd03a4f",
+    "source_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+    "source_root": "/data/worktrees/mobileagent-restoration-v2/Mobile-Agent-v3.5/android_world_v3.5",
+    "status": "passed",
+    "validated_case_count": 14
+  },
+  "implementation_contract_bindings": {
+    "canonical_action_count": 9,
+    "decision_steps": [
+      4,
+      5,
+      6
+    ],
+    "low_fidelity_field_count": 8,
+    "screen_text_token_cap": 32
+  },
+  "interface_manifest": {
+    "interface_version": "restoration-v2-interface-1.0.0",
+    "path": "../data/manifests/restoration_v2_interfaces.json",
+    "sha256": "02744d82a91d0dca12d4c8792d78e6140e443cfbe674805dfe14d4665d9d017d",
+    "source_file_count": 6
+  },
+  "policy_output_generated_by_this_validation": false,
+  "prompt_low_fidelity_fixture": {
+    "coalition_count": 28,
+    "confirm_coalition_count": 16,
+    "decision_steps": [
+      4,
+      5,
+      6
+    ],
+    "event_count": 5,
+    "path": "../data/fixtures/restoration_v2_prompt_low_fidelity.json",
+    "reference_image_count": 5,
+    "sha256": "bcfb701858c8e96a731a865f59979b0a0ba1fa1487cb8010431b4a0f2284eb68",
+    "summary_only_image_count": 1
+  },
+  "protocol_id": "causalcache_restoration_v2",
+  "schema_version": "1.0.0",
+  "scientific_contract_sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+}

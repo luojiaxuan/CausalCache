@@ -82,8 +82,10 @@ exhaustive fixture；raw native tool call 和实际 executor payload 都进入 a
 [`restoration_v2_interfaces.md`](restoration_v2_interfaces.md) 冻结，并由
 [`restoration_v2_interfaces.json`](../data/manifests/restoration_v2_interfaces.json) 逐文件 hash。当前本地
 CPU 检查通过 14 个合法 action、23 个非法 action、6,000 个 coordinate scalar checks 和 steps 4/5/6
-共 28 个 coalitions（含全部 16 个 step-6 coalitions）；pinned AndroidWorld `JSONAction` constructor 与
-device-side executor dispatch 尚未运行，所以完整 round trip 仍 pending。
+共 28 个 coalitions（含全部 16 个 step-6 coalitions）；pinned AndroidWorld `JSONAction` constructor 已对
+14/14 payload 通过，证据见
+[`restoration_v2_constructor_preflight`](../data/results/restoration_v2_constructor_preflight/README.md)。
+device-side executor dispatch 尚未正式记录，所以完整 round trip 仍 pending。
 
 ## 数据角色与 exposure
 

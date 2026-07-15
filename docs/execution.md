@@ -130,6 +130,10 @@ artifact；同时还必须闭合 exact confirm IDs、exposure ledger、OCR ident
 冻结引用全部 artifact/interface identity 的 execution config。`docs/restoration_v2.md` 所列八项全部完成
 后，才允许执行 GPU substrate screening。
 
+2026-07-15 的 constructor preflight 已在 Aries 对 14/14 payload 通过，exact evidence 见
+`data/results/restoration_v2_constructor_preflight/`。冻结 interface manifest 保留 run 前 `pending`，实际
+状态由该 result summary 更新；executor dispatch 仍须单独闭合。
+
 正式 run 必须 checkout 已 push 的 exact commit 并保持 clean detached worktree；开发阶段的同一 topic
 可以复用 `/data/repo` 后回到 `main` 执行 `git pull --ff-only origin main`，不要重复 clone 到多个散乱
 目录。当前 validated AndroidWorld 路径是在 Aries 同一 host 上运行 emulator HTTP containers 与本地

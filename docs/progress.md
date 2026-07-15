@@ -595,6 +595,16 @@ AndroidWorld executor preflight 和 derived artifact。仍没有 v2 policy outpu
   artifact。完整语义见
   `docs/restoration_v2_interfaces.md`。
 
+### 2026-07-15：Pinned AndroidWorld constructor preflight
+
+- 在 Aries 创建 exact CausalCache commit `a9e2afa` 与 MobileAgent revision `11cea575...` 的两个 clean
+  detached checkout，没有复用历史 dirty 开发目录；
+- 14 个冻结合法 payload 全部通过真实 `android_world.agents.new_json_action.JSONAction(**payload)`；
+  module SHA256 为 `14ca00cabf3d5b83e4d55cb683a09a4beccbbc658e21039ca5cf8cef3f543e3f`；
+- 结果绑定 interface manifest SHA256 `02744d82...`、runtime image repo digest `6a8f60af...`、完整 argv、
+  host/container 与起止时间，见 `data/results/restoration_v2_constructor_preflight/`；
+- 该结果不证明 device-side executor dispatch；未加载 policy、未使用 GPU、未生成任何 v2 policy output。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -622,8 +632,8 @@ AndroidWorld executor preflight 和 derived artifact。仍没有 v2 policy outpu
 1. derived artifact immutable HF revision/file hashes：pending；
 2. exact confirm trajectory/state IDs：pending；
 3. exposure ledger：pending；
-4. restricted prompt/parser/bridge/executor fixture：CPU prompt/parser/bridge passed，真实 `JSONAction`
-   constructor 与 executor dispatch pending；
+4. restricted prompt/parser/bridge/executor fixture：CPU prompt/parser/bridge 与真实 pinned `JSONAction`
+   constructor passed，device-side executor dispatch pending；
 5. pinned accessibility/OCR identity：pending；
 6. baseline specification/source hashes：scientific formula 已冻结，implementation source hashes pending；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
@@ -634,7 +644,7 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步先完成无需 GPU 的 pinned AndroidWorld constructor 与 executor-dispatch preflight，再 materialize exact IDs、
+逐步 push：下一步先冻结并正式运行无需 GPU 的 AndroidWorld executor-dispatch preflight，再 materialize exact IDs、
 exposure ledger、OCR summaries/backend identity 和 baseline source hashes；随后构建并 immutable-verify
 private HF derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
 八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening

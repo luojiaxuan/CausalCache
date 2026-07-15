@@ -27,6 +27,10 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
   size/SHA256。它只证明本地 CPU interface validation；真实 AndroidWorld `JSONAction` constructor 与
   executor dispatch status 仍为 pending。
 
+冻结后的 constructor run 证据位于 `results/restoration_v2_constructor_preflight/`：14/14 payload 已被
+pinned `JSONAction` 接受。interface manifest 的 `pending` 是运行前 source snapshot，不被事后改写；实际
+run status 以 result summary 为准。device-side executor dispatch 仍待正式记录。
+
 当前 reusable artifacts：
 
 - Independent GUIOdyssey gate：private HF dataset
