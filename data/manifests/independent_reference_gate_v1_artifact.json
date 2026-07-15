@@ -1,0 +1,99 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "independent_reference_gate_v1",
+  "build_git_commit": "7bd1851e0a5a8ba133141069145eee7fc2f901cf",
+  "created_at_utc": "2026-07-15T06:54:12Z",
+  "artifact": {
+    "repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+    "visibility": "private",
+    "tag": "v0.1.0",
+    "revision": "84c9f5a335e9612ccb4bd566f977574f359b2485",
+    "upload_verification": "Both files were force-downloaded from the immutable revision on Hyper00 and matched the pre-upload size and SHA256."
+  },
+  "files": [
+    {
+      "path": "manifest.json",
+      "size": 514429,
+      "sha256": "3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949"
+    },
+    {
+      "path": "data/guiodyssey-independent-00000.tar",
+      "size": 163061760,
+      "sha256": "b16bd9c631c3e0ad2576715db6aad72be82ca9dda71612576c5f8b8ab52b0fe2",
+      "members": 231,
+      "images": 230
+    }
+  ],
+  "source_pool": {
+    "rows": 212,
+    "eligible_trajectories": 111,
+    "eligible_pool_sha256": "84d6855b20227d7f884d4ce26cfae7188c1075bb7751cab78a3cf325eef192cb",
+    "protocol_config_sha256_at_build": "40b00e0a8da9e4f573ffcea2447c5e569c795c1e980c5889cb1ec486822b2a95",
+    "source_file_manifest_sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+    "exclusion_counts": {
+      "decision_count_above_maximum": 81,
+      "decision_count_below_minimum": 1,
+      "excluded_source_id": 1,
+      "invalid_executable_action": 6,
+      "terminal_status_mismatch": 12
+    }
+  },
+  "splits": {
+    "reference_gate": {
+      "trajectory_count": 8,
+      "decision_count": 75,
+      "distinct_app_label_count": 14,
+      "action_type_counts": {
+        "home": 6,
+        "swipe": 2,
+        "tap": 58,
+        "type_text": 9
+      },
+      "source_ids": [
+        "0062545727651092",
+        "0119197274492507",
+        "0139487095063242",
+        "0194478440163092",
+        "0074966019597416",
+        "0125975818276068",
+        "0124013985171518",
+        "0145589904916408"
+      ]
+    },
+    "oracle_pilot": {
+      "trajectory_count": 15,
+      "decision_count": 132,
+      "distinct_app_label_count": 23,
+      "action_type_counts": {
+        "home": 13,
+        "swipe": 6,
+        "tap": 93,
+        "type_text": 20
+      },
+      "source_ids": [
+        "0131649930078879",
+        "0214993880872733",
+        "0230010406789851",
+        "0021006740023566",
+        "0218068002038239",
+        "0217738978329323",
+        "0139141460497671",
+        "0122136372603148",
+        "0214300008821039",
+        "0050955459888018",
+        "0119685762769531",
+        "0126163828013448",
+        "0106443124024468",
+        "0141544666483837",
+        "0035782072567389"
+      ]
+    }
+  },
+  "reproducibility": {
+    "independent_builds": 2,
+    "manifest_byte_identical": true,
+    "tar_byte_identical": true,
+    "generation_command": "PYTHONPATH=code /data/.venv/causalcache/bin/python -m scripts.build_guiodyssey_independent --config code/configs/independent_reference_gate_v1.json --source-file-manifest data/manifests/independent_reference_gate_v1_source_files.json --source-root /data/source/guiodyssey-independent-v1 --output-dir <EMPTY_OUTPUT_DIR>"
+  },
+  "policy_inference_status": "not_started_at_artifact_freeze"
+}

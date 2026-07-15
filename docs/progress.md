@@ -505,12 +505,23 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - 新增 formal reference runner：模型加载前验证 clean Git、frozen interface、base 50% gate、HF artifact
   revision/tar/manifest SHA、完整 split denominator、UI-TARS snapshot 实际文件 SHA 与 H200 anchor；合法
   scientific failure 输出 `NO_GO_CURRENT_REFERENCE_STACK`，实现/契约异常原子写 `failure.json`；
-- full suite 从 91 增至 106 tests，另通过 contract validation、py_compile 与 whitespace check。下一步先
-  构建两份 byte-identical artifact、上传 private HF、把 immutable revision/SHA 回写并 push；此前 formal
-  runner 因 config artifact fields 为 null 按设计拒绝 inference。
+- full suite 从 91 增至 106 tests，另通过 contract validation、py_compile 与 whitespace check；
+- 在 clean Git `7bd1851` 上从 212 rows 得到 111 eligible trajectories；命名 exclusions 为 length-above 81、
+  length-below 1、旧 source 1、invalid executable action 6、terminal failure 12；
+- 两个独立 output dirs 均生成同一 manifest SHA
+  `3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949` 与 163,061,760-byte tar SHA
+  `b16bd9c631c3e0ad2576715db6aad72be82ca9dda71612576c5f8b8ab52b0fe2`；230 images、tar 231 members；
+- reference 最短前缀为 8 trajectories/75 decisions/14 app labels（tap 58、swipe 2、type_text 9、home 6）；
+  disjoint oracle 为 15/132/23（tap 93、swipe 6、type_text 20、home 13）；
+- artifact 已上传 private HF
+  `gavinlaw/causalcache-guiodyssey-independent-mobile@v0.1.0`
+  (`84c9f5a335e9612ccb4bd566f977574f359b2485`)；从 immutable OID force-download manifest/tar 后 size/SHA
+  与 pre-upload bytes 完全一致。此时尚未运行任何 independent policy output；下一步为 formal reference
+  gate。
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
+- GUIOdyssey independent gate：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-independent-mobile@v0.1.0` (`84c9f5a335e9612ccb4bd566f977574f359b2485`)；schema v0.4，immutable re-download verified；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
@@ -518,7 +529,7 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - Rejected AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native validation 上界 30/62，未通过 50% gate；
 - Rejected replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；native validation 上界 29/62，未通过 50% gate；
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0` (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保持在 `v0.1.0`；
-- 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
+- independent candidate dataset 已冻结；reference/oracle run records 尚未生成，必须使用后续 immutable revision；
 - selection-biased go/no-go compact result：Git `data/results/go_no_go_diagnostic_v1/`；raw 209 KiB debug
   summary 只含可丢弃的 per-token/runtime 展开，canonical distances 与结论已压缩进 Git；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；

@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: AAAI-27 backbone ready / diagnostic INCONCLUSIVE_POSITIVE / independent reference gate next
+> Status: diagnostic INCONCLUSIVE_POSITIVE / independent artifact frozen / reference gate next
 
 ## 团队交接入口
 
@@ -47,9 +47,12 @@ Hyper00 H200 的 UI-TARS behavioral anchor 已通过：旧 9-decision artifact �
 KL 优化。
 
 multi-trajectory deterministic builder 与 formal fail-closed reference runner 已实现并通过 106 个 tests；
-命令、HF 回写和失败恢复见
-[`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)。下一原子步骤是构建 artifact、上传
-private HF 并回写 immutable revision/SHA；在这之前 runner 会拒绝加载模型。
+两次构建 byte-identical，artifact 已上传 private HF
+`gavinlaw/causalcache-guiodyssey-independent-mobile@84c9f5a335e9612ccb4bd566f977574f359b2485`
+并从 immutable revision 强制重下载验 hash。reference split 冻结为 8 trajectories / 75 decisions / 14 app
+labels，oracle split 为 15 / 132 / 23，二者 trajectory-disjoint。命令、回写与失败恢复见
+[`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)；下一步才是首次 independent policy
+inference。
 
 新合作者按以下顺序阅读：
 
@@ -315,6 +318,7 @@ $$
 - Qwen3-VL real-policy smoke test: [`data/results/qwen_policy_smoke/README.md`](data/results/qwen_policy_smoke/README.md)
 - Qwen3-VL full-history coverage: [`data/results/qwen_policy_coverage/README.md`](data/results/qwen_policy_coverage/README.md)
 - UI-TARS full-history coverage: [`data/results/ui_tars_policy_coverage/README.md`](data/results/ui_tars_policy_coverage/README.md)
+- Independent gate artifact index: [`data/manifests/independent_reference_gate_v1_artifact.json`](data/manifests/independent_reference_gate_v1_artifact.json)
 - OpenCUA-7B pinned snapshot manifest: [`code/configs/open_cua_7b_snapshot.json`](code/configs/open_cua_7b_snapshot.json)
 - OpenCUA-7B pinned runtime dependency: [`code/requirements/opencua.txt`](code/requirements/opencua.txt)
 - OpenCUA-7B logits and mixed-fidelity smoke: [`data/results/open_cua_policy_smoke/README.md`](data/results/open_cua_policy_smoke/README.md)
@@ -346,6 +350,7 @@ $$
 | Artifact | Canonical location | Revision/status | Notes |
 | --- | --- | --- | --- |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
+| Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |
 | Rejected policy candidate | <https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct> | `0c351dd01ed87e9c1b53cbc748cba10e6187ff3b` | full-history executable-match 2/9；不作为主 teacher |
 | Rejected GUI-tuned candidate | <https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B> | `683d002dd99d8f95104d31e70391a39348857f4e` | parsed 9/9、executable-match 4/9；未通过预注册 50% gate |
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
@@ -353,10 +358,12 @@ $$
 | Rejected AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 496/496 parsed；official-success 上界 30/62，未通过 50% gate |
 | Rejected replacement candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think> | `afe3707fc84caebc4d7046118b34493ecf8bb060` | 512/513 parsed；official-success 上界 29/62，未通过 50% gate |
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.2.0` / `0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`，private | 42 Think traces；deterministic gzip JSONL；`v0.1.0` Instruct artifact 保持不变 |
-| Full attribution/evaluation datasets | Hugging Face dataset repo（待创建） | not created | pilot 扩展为多 app、多 horizon 后创建或升级 |
+| Full attribution/evaluation datasets | 同一 private independent dataset repo | candidate artifact frozen；attribution records not generated | reference gate 通过后才允许 oracle records |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
-Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)。当前没有仅存于本地、等待上传的可复用数据集、模型或评测 artifact。
+Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
+artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。
+当前没有仅存于本地、等待上传的可复用数据集、模型或评测 artifact。
 
 ## Citation
 

@@ -5,6 +5,7 @@
 ```text
 data/
 ├── fixtures/    # 单测和 contract 使用的最小确定性 fixture
+├── manifests/   # 轻量 source/artifact index，不含 raw screenshots
 └── results/     # README、summary.json、轻量 CSV/manifest
 ```
 
@@ -16,6 +17,11 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 本地短期 staging。注意：仓库相对路径 `data/` 与容器持久挂载点绝对路径 `/data` 是两个不同概念。
 
 当前 reusable artifacts：
+
+- Independent GUIOdyssey gate：private HF dataset
+  `gavinlaw/causalcache-guiodyssey-independent-mobile@v0.1.0`
+  (`84c9f5a335e9612ccb4bd566f977574f359b2485`)；schema v0.4，reference 8 trajectories/75 decisions，
+  oracle 15/132；
 
 - GUIOdyssey pilot：private HF dataset
   `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；

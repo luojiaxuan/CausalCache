@@ -88,11 +88,12 @@
   "artifact": {
     "repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
     "visibility": "private",
-    "revision": null,
+    "tag": "v0.1.0",
+    "revision": "84c9f5a335e9612ccb4bd566f977574f359b2485",
     "shard": "data/guiodyssey-independent-00000.tar",
-    "shard_sha256": null,
-    "manifest_sha256": null,
-    "status": "must_be_built_uploaded_and_committed_before_policy_inference"
+    "shard_sha256": "b16bd9c631c3e0ad2576715db6aad72be82ca9dda71612576c5f8b8ab52b0fe2",
+    "manifest_sha256": "3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949",
+    "status": "immutable_revision_redownload_verified_before_policy_inference"
   },
   "policy": {
     "repo": "ByteDance-Seed/UI-TARS-1.5-7B",
