@@ -704,6 +704,10 @@ v2 policy output、restoration label 或方法效果结果。
   仍必须从已 push commit 在 Hyper00 两个独立进程生成；
 - 本里程碑未使用 GPU，未加载 GUI-Owl，未产生 policy/restoration output。HF model
   upload、immutable re-download、source manifest 和 real-screen golden 尚 pending，因此 dependency 5 未闭合。
+- 从 pushed `main@0e1dfa1` 的首次 Hyper00 synthetic inspection 完成真实 OCR forward，识别得到
+  `Causal Cache / Step 42`，但 serialized package-source evidence 以 basename 为 key，两个不同目录的
+  `main.py` 发生覆盖；该 run 已登记为 `INVALID_EVIDENCE_SCHEMA_PACKAGE_PATH_COLLISION`，不回写 expected，
+  修复后必须从新的 pushed commit 重跑两个独立进程。
 
 ## Artifact 状态
 

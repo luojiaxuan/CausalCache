@@ -432,7 +432,7 @@ def verify_rapidocr_package_files(config: Mapping[str, Any]) -> dict[str, str]:
         digest = sha256_file(path)
         if digest != expected[field]:
             raise ValueError(f"installed RapidOCR resource SHA256 drifted: {path.name}")
-        observed[path.name] = digest
+        observed[path.relative_to(root).as_posix()] = digest
     return observed
 
 

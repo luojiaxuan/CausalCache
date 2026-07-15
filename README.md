@@ -354,6 +354,7 @@ $$
 - Restoration-v2 OCR backend config: [`code/configs/restoration_v2_ocr_backend.json`](code/configs/restoration_v2_ocr_backend.json)
 - Restoration-v2 OCR implementation and validator: [`code/causalcache/restoration_v2_text_backend.py`](code/causalcache/restoration_v2_text_backend.py), [`code/scripts/validate_restoration_v2_ocr_backend.py`](code/scripts/validate_restoration_v2_ocr_backend.py)
 - Restoration-v2 OCR runtime lock and synthetic fixture: [`code/requirements/restoration_v2_ocr_lock.txt`](code/requirements/restoration_v2_ocr_lock.txt), [`data/fixtures/restoration_v2_ocr_golden.json`](data/fixtures/restoration_v2_ocr_golden.json)
+- Restoration-v2 OCR evidence: [`data/results/restoration_v2_ocr_backend/`](data/results/restoration_v2_ocr_backend/)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
