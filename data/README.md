@@ -45,6 +45,9 @@ restoration v2 exact selection/exposure 产物：
 - `manifests/restoration_v2_ocr_backend.json`：8 个 Git source、private HF OCR model revision、6 个 HF file
   hashes、fresh re-download 与 synthetic golden 的 fail-closed index；real-screen golden 未完成前
   `dependency_5_closed=false`；
+- `manifests/restoration_v2_real_screen_source.json`：在任何 real-screen OCR output 前冻结的 17-file source
+  contract，记录 45 states / 180 occurrences / 75 unique images、55/20 orientation、confirm SHA overlap 0
+  与 exact 3+3 screenshot keys；当前只是 source truth，不是 OCR result 或 derived artifact 完成证据；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
   byte-identical 全量构建结论。
 

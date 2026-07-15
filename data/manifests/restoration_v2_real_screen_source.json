@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_restoration_v2",
+  "artifact_id": "causalcache-restoration-v2-real-screen-source-v1",
+  "status": "SOURCE_FROZEN_BEFORE_REAL_SCREEN_OCR_OUTPUT",
+  "policy_output_generated_before_source_manifest": false,
+  "restoration_output_generated_before_source_manifest": false,
+  "confirm_images_may_be_materialized": false,
+  "inputs": {
+    "scientific_contract": {
+      "path": "code/configs/causalcache_restoration_v2.json",
+      "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+    },
+    "selection_manifest": {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    },
+    "exposure_manifest": {
+      "path": "data/manifests/restoration_v2_exposure.json",
+      "sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95"
+    },
+    "ocr_backend_config": {
+      "path": "code/configs/restoration_v2_ocr_backend.json",
+      "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+    },
+    "v1_selection_config": {
+      "path": "code/configs/independent_reference_gate_v1.json",
+      "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8"
+    },
+    "source_file_manifest": {
+      "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+      "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+      "repo": "cua-lite/GUIOdyssey",
+      "revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+      "file_count": 16,
+      "total_bytes": 2252923738
+    },
+    "ocr_runtime_lock": {
+      "path": "code/requirements/restoration_v2_ocr_lock.txt",
+      "sha256": "1c36a767a69ab158101a686ee94d67f04d837df17301f6043b77c87060a82c4e"
+    },
+    "ocr_model_artifact": {
+      "repo": "gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en",
+      "repo_type": "model",
+      "visibility": "private",
+      "immutable_revision": "0dbc766a73ee88d10d52285d434dbfec58617835",
+      "models": {
+        "ch_PP-OCRv5_det_mobile.onnx": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+        "ch_ppocr_mobile_v2.0_cls_mobile.onnx": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+        "en_PP-OCRv5_rec_mobile.onnx": "c3461add59bb4323ecba96a492ab75e06dda42467c9e3d0c18db5d1d21924be8"
+      }
+    },
+    "derived_dataset_destination": {
+      "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "repo_type": "dataset",
+      "visibility": "private",
+      "payload_prefix": "golden/real-screen-v1"
+    }
+  },
+  "source_files": [
+    {
+      "path": "code/causalcache/data/guiodyssey.py",
+      "sha256": "c8630f36fe343c63e5f1bf4b6401c4eb049dc4e8457abc761ed41011f4efc1c4"
+    },
+    {
+      "path": "code/causalcache/data/guiodyssey_independent.py",
+      "sha256": "1beb1333a4f016a0cca5457fe02acc910b35fd621604e7aa588a7b7f61c11b9b"
+    },
+        {
+            "path": "code/causalcache/data/restoration_v2_real_screen.py",
+            "sha256": "1630e6834754e2a3449acd352c6eefff0e6647d02b126a1d8e4c37684ba0b1a3"
+    },
+    {
+      "path": "code/causalcache/data/restoration_v2_selection.py",
+      "sha256": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a"
+    },
+    {
+      "path": "code/causalcache/restoration_v2_contract.py",
+      "sha256": "f83ae8ececfaafb5cfb3cef9bb617945353c34f6659a74b6080ae9798784c4b3"
+    },
+    {
+      "path": "code/causalcache/restoration_v2_text_backend.py",
+      "sha256": "f2ed121f290095514ec0f54b83217188f3f9496e5b68da5216f2f19c0d43206e"
+    },
+    {
+      "path": "code/causalcache/schema.py",
+      "sha256": "3f281fe3a646468de36f4764d20c46d1dea3867d35c819ca4ad52977d318ee5b"
+    },
+    {
+      "path": "code/configs/causalcache_restoration_v2.json",
+      "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+    },
+    {
+      "path": "code/configs/independent_reference_gate_v1.json",
+      "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8"
+    },
+    {
+      "path": "code/configs/restoration_v2_ocr_backend.json",
+      "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+    },
+    {
+      "path": "code/requirements/restoration_v2_ocr_lock.txt",
+      "sha256": "1c36a767a69ab158101a686ee94d67f04d837df17301f6043b77c87060a82c4e"
+    },
+    {
+      "path": "code/scripts/materialize_restoration_v2_real_screen.py",
+            "sha256": "0e0736c3e5e7bfe4243900cd53a903bd987539cbf51cdc2e3e33988b75dc8b96"
+    },
+    {
+      "path": "code/scripts/validate_restoration_v2_real_screen.py",
+            "sha256": "aff09c74b2181835039557a63f5e1d6091fba4a0ea23879052788762140323f4"
+    },
+        {
+            "path": "code/tests/test_restoration_v2_real_screen.py",
+            "sha256": "e58cba114c9b00c17a68e37247f38b606e8f5d6526decebce7f79e8ba2a88e3e"
+    },
+    {
+      "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+      "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc"
+    },
+    {
+      "path": "data/manifests/restoration_v2_exposure.json",
+      "sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95"
+    },
+    {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    }
+  ],
+  "expected_selection": {
+    "eligible_state_count": 45,
+    "eligible_occurrence_count": 180,
+    "unique_image_count": 75,
+    "orientation_counts": {
+      "portrait": 55,
+      "landscape": 20,
+      "square": 0
+    },
+    "confirm_unique_image_count": 97,
+    "confirm_sha_intersection_count": 0,
+    "same_sha_representative_path": "minimum_image_member_path",
+    "orientation_definition": {
+      "portrait": "height>width",
+      "landscape": "width>height",
+      "square": "INVALID_DERIVED_ARTIFACT_BEFORE_POLICY_OUTPUT"
+    },
+    "selected_images": {
+      "portrait": [
+        {
+          "image_sha256": "02a92f2d9749446e03533884f0dccce0fadff860a07e3192414fe60f6af63c3f",
+          "image_member_path": "images/0131649930078879/observation-005.png",
+          "width": 720,
+          "height": 1280
+        },
+        {
+          "image_sha256": "0e3304250dcf14ea3fb2c19cc4e14a2716b7cc77d00966c3cbc6d9e1cde4031a",
+          "image_member_path": "images/0217738978329323/observation-004.png",
+          "width": 1440,
+          "height": 3120
+        },
+        {
+          "image_sha256": "112d550f8bc65da5541015d7ff68677c410865f57a629144e9214ba6bb1e3cd1",
+          "image_member_path": "images/0217738978329323/observation-003.png",
+          "width": 1440,
+          "height": 3120
+        }
+      ],
+      "landscape": [
+        {
+          "image_sha256": "11cbacfa5532c1839970ea53db979df9bcc6a12ab91839ac284ca7af903b054b",
+          "image_member_path": "images/0214300008821039/observation-003.png",
+          "width": 2560,
+          "height": 1600
+        },
+        {
+          "image_sha256": "1c68bb93daceb610845ba368ba3015e7c3a86336c9271f062c6b9e61d7a7ef5c",
+          "image_member_path": "images/0119685762769531/observation-003.png",
+          "width": 2560,
+          "height": 1600
+        },
+        {
+          "image_sha256": "250c54400ebcffa05d2085c6ba2127d226732aea577792fa2dc96bf0b4d38127",
+          "image_member_path": "images/0214993880872733/observation-004.png",
+          "width": 2560,
+          "height": 1600
+        }
+      ]
+    }
+  }
+}

@@ -34,7 +34,11 @@ constructor 仍加载的 classifier model 都有 exact SHA；256x256 Pillow bili
 OCR record schema 也已实现。synthetic golden 已从最终 static fixture 两次独立通过；private HF model
 `v1.0.0@0dbc766a73ee88d10d52285d434dbfec58617835` 已上传、按 immutable revision fresh re-download 并逐文件
 验 hash，Git source/artifact manifest 也已通过 fail-closed validator。当前只剩 6-image policy-blind
-real-screen golden 与完成态 manifest，所以 OCR dependency 尚未标为 passed。见
+real-screen golden 与完成态 manifest，所以 OCR dependency 尚未标为 passed。real-screen 的 pre-output
+source contract、materializer 与独立 replay validator 已冻结：45 个 screening states 展开为 180 个
+occurrences、75 张 unique images（55 portrait / 20 landscape），confirm 有 97 张 unique images 且 SHA
+交集为 0；exact 3+3 screenshots 已在未读取 OCR/policy output 时固定。当前尚未运行这 6 张图的 OCR、上传
+derived HF prefix 或生成完成态 manifest。见
 [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
@@ -359,6 +363,9 @@ $$
 - Restoration-v2 OCR runtime lock and synthetic fixture: [`code/requirements/restoration_v2_ocr_lock.txt`](code/requirements/restoration_v2_ocr_lock.txt), [`data/fixtures/restoration_v2_ocr_golden.json`](data/fixtures/restoration_v2_ocr_golden.json)
 - Restoration-v2 OCR source/artifact manifest: [`data/manifests/restoration_v2_ocr_backend.json`](data/manifests/restoration_v2_ocr_backend.json)
 - Restoration-v2 OCR evidence: [`data/results/restoration_v2_ocr_backend/`](data/results/restoration_v2_ocr_backend/)
+- Restoration-v2 real-screen materializer: [`code/causalcache/data/restoration_v2_real_screen.py`](code/causalcache/data/restoration_v2_real_screen.py), [`code/scripts/materialize_restoration_v2_real_screen.py`](code/scripts/materialize_restoration_v2_real_screen.py)
+- Restoration-v2 real-screen source/artifact validator: [`code/scripts/validate_restoration_v2_real_screen.py`](code/scripts/validate_restoration_v2_real_screen.py)
+- Frozen real-screen pre-output source contract: [`data/manifests/restoration_v2_real_screen_source.json`](data/manifests/restoration_v2_real_screen_source.json)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
@@ -394,7 +401,7 @@ $$
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor、device-side executor dispatch、exact selection/exposure、OCR synthetic golden 与 immutable HF model artifact 已通过。derived HF artifact、OCR real-screen golden、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 scientific/interface contracts、CPU fixtures、pinned `JSONAction` constructor、device-side executor dispatch、exact selection/exposure、OCR synthetic golden 与 immutable HF model artifact 已通过；real-screen source/materializer 已在 output 前冻结。derived HF artifact、OCR real-screen output、baselines 与 execution config 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 

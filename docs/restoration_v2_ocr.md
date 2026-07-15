@@ -6,7 +6,10 @@ OCR/image implementation identity 已在任何 v2 policy output 前冻结。Hype
 golden 与 private HF model artifact 均已验证；`v1.0.0` 解析到 immutable revision
 `0dbc766a73ee88d10d52285d434dbfec58617835`，6/6 files 已 fresh re-download 并逐文件验 hash，Git
 source/artifact manifest 也已通过 fail-closed validator。当前只剩 6-image real-screen golden 与完成态
-manifest，因此八项 pre-output dependencies 中第 5 项仍未标为 passed。
+manifest，因此八项 pre-output dependencies 中第 5 项仍未标为 passed。real-screen 的 17-file pre-output
+source contract、materializer 与独立 artifact validator 已冻结；source contract SHA256 为
+`374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5`。这一步尚未执行 6 次真实 OCR，
+也没有向 derived HF repo 上传任何文件。
 
 hash-bound backend config 只保存永久静态 identity、预定 private HF repo 与稳定 artifact-manifest path；
 upload status 和 immutable revision 不写进该 config，避免上传后改变 config SHA。当前 live status 由本页、
@@ -99,6 +102,28 @@ real-screen golden 不允许人工挑图。eligible pool 只来自 frozen `v2_la
 `candidate_post_state` 与 `current_observation`，先按 image SHA 去重，再分别在 portrait/landscape 中按
 `(image_sha256, image_member_path)` 取前 3 张，共 6 张；任一 stratum 不足 3 张即 fail closed。confirm role
 完全排除。该规则已写入 backend config，必须先于任何 OCR/policy result 执行。
+
+policy-blind raw-source 复算得到 45 states、180 occurrences（135 candidate post-state + 45 current）、75
+unique images，其中 55 portrait、20 landscape、0 square。confirm role 有 97 张 unique images，与 eligible
+pool 的 SHA intersection 为 0。同 SHA 的全部 occurrences/path 都保留并逐路径验 bytes，canonical
+representative 固定为最小 member path。冻结的 6 张图为：
+
+| Stratum | SHA256 | GUIOdyssey member | Shape |
+| --- | --- | --- | --- |
+| portrait | `02a92f2d9749446e03533884f0dccce0fadff860a07e3192414fe60f6af63c3f` | `images/0131649930078879/observation-005.png` | 720x1280 |
+| portrait | `0e3304250dcf14ea3fb2c19cc4e14a2716b7cc77d00966c3cbc6d9e1cde4031a` | `images/0217738978329323/observation-004.png` | 1440x3120 |
+| portrait | `112d550f8bc65da5541015d7ff68677c410865f57a629144e9214ba6bb1e3cd1` | `images/0217738978329323/observation-003.png` | 1440x3120 |
+| landscape | `11cbacfa5532c1839970ea53db979df9bcc6a12ab91839ac284ca7af903b054b` | `images/0214300008821039/observation-003.png` | 2560x1600 |
+| landscape | `1c68bb93daceb610845ba368ba3015e7c3a86336c9271f062c6b9e61d7a7ef5c` | `images/0119685762769531/observation-003.png` | 2560x1600 |
+| landscape | `250c54400ebcffa05d2085c6ba2127d226732aea577792fa2dc96bf0b4d38127` | `images/0214993880872733/observation-004.png` | 2560x1600 |
+
+source contract 是
+[`restoration_v2_real_screen_source.json`](../data/manifests/restoration_v2_real_screen_source.json)。正式
+payload 固定为 `.gitattributes`、`README.md`、`golden/real-screen-v1/images-00000-of-00001.tar`、
+`ocr-records-00000-of-00001.jsonl` 与 `manifest.json`。tar 只含上述 6 张原始 PNG bytes，并使用
+mtime/uid/gid 为 0 的 deterministic USTAR；validator 必须从 raw Parquet 重建候选池、重放 OCR，逐字节
+比较 USTAR、JSONL 和 manifest，再比较完整 5-file artifact-tree hash。该 prefix 只闭合 OCR behavioral
+golden，不替代完整 derived dataset dependency。
 
 canonical model artifact 是 private HF model
 `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`；full immutable revision 为

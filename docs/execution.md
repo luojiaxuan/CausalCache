@@ -190,6 +190,63 @@ repo/revision/file inventory、fresh re-download 标记与 synthetic summary。�
 screenshot 不得用于挑选或调 backend。real-screen evidence 未上传 HF 并回写完成态 Git manifest 前，
 dependency 5 仍是 pending，也不得开始 GUI-Owl policy output。
 
+real-screen source contract 已在 output 前冻结，source-only validation 不运行 OCR：
+
+```bash
+cd /data/repo/code
+/data/.venv/causalcache-ocr-v2/bin/python -m scripts.validate_restoration_v2_real_screen \
+  source \
+  --source-contract ../data/manifests/restoration_v2_real_screen_source.json \
+  --repository-root ..
+```
+
+正式 materialization 必须从新的 pushed `main` clean checkout 运行；`--output-dir` 必须原先不存在。以下命令
+分别用 `repeat-1` 和 `repeat-2` 两个新目录启动两个独立 Python process，除 output path 外 argv 完全相同：
+
+```bash
+cd /data/repo/code
+/data/.venv/causalcache-ocr-v2/bin/python -m scripts.materialize_restoration_v2_real_screen \
+  --v2-contract configs/causalcache_restoration_v2.json \
+  --v1-config configs/independent_reference_gate_v1.json \
+  --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json \
+  --source-root /data/source/guiodyssey-independent-v1 \
+  --selection-manifest ../data/manifests/restoration_v2_selection.json \
+  --exposure-manifest ../data/manifests/restoration_v2_exposure.json \
+  --backend-config configs/restoration_v2_ocr_backend.json \
+  --source-contract ../data/manifests/restoration_v2_real_screen_source.json \
+  --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 \
+  --wheel-dir /data/tmp/causalcache-ocr-v2-wheels \
+  --git-revision <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --output-dir /data/tmp/restoration-v2-real-screen-<SHORT_SHA>-repeat-1
+```
+
+每个输出都必须用 artifact mode 从原始 Parquet 独立复算并重放 6 次 OCR：
+
+```bash
+/data/.venv/causalcache-ocr-v2/bin/python -m scripts.validate_restoration_v2_real_screen \
+  artifact \
+  --source-contract ../data/manifests/restoration_v2_real_screen_source.json \
+  --repository-root .. \
+  --output-dir /data/tmp/restoration-v2-real-screen-<SHORT_SHA>-repeat-1 \
+  --git-revision <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --source-root /data/source/guiodyssey-independent-v1 \
+  --v2-contract configs/causalcache_restoration_v2.json \
+  --v1-config configs/independent_reference_gate_v1.json \
+  --source-file-manifest ../data/manifests/independent_reference_gate_v1_source_files.json \
+  --selection-manifest ../data/manifests/restoration_v2_selection.json \
+  --exposure-manifest ../data/manifests/restoration_v2_exposure.json \
+  --backend-config configs/restoration_v2_ocr_backend.json \
+  --model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 \
+  --wheel-dir /data/tmp/causalcache-ocr-v2-wheels
+```
+
+两次 validator 的 5 个 file SHA 与 `artifact_tree_sha256` 必须一致。只上传其中一份 exact 5-file tree 到
+private dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`；`.gitattributes`/`README.md` 位于 repo
+root，tar/JSONL/manifest 位于 `golden/real-screen-v1` prefix。tag 后按 full immutable revision fresh
+snapshot-download，再在 snapshot root 上运行同一 artifact validator。HF
+revision、tag、完整 file hashes、两次 UTC brackets、runtime/container identity 与 re-download evidence 回写
+Git 完成态 manifest 后，才能把 dependency 5 标为 passed。本步骤 CPU-only，不触发 GPU cleanup/monitor。
+
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从
 raw records 重算。不得把此前的手工 transport probe、constructor summary 或旧 environment smoke 冒充

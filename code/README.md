@@ -198,6 +198,25 @@ Hyper00 end-to-end 用 `scripts.validate_restoration_v2_ocr_backend inspect-gold
 6 个 HF file identity。当前只剩 6-image real-screen golden 与完成态 manifest，详见
 `docs/restoration_v2_ocr.md`。
 
+real-screen pre-output 实现位于 `causalcache.data.restoration_v2_real_screen`，正式入口是
+`scripts.materialize_restoration_v2_real_screen`，独立复算入口是
+`scripts.validate_restoration_v2_real_screen`。运行 OCR 前先验证包含 17 个逐文件 SHA 的 source contract：
+
+```bash
+cd code
+python3 -m scripts.validate_restoration_v2_real_screen source \
+  --source-contract ../data/manifests/restoration_v2_real_screen_source.json \
+  --repository-root ..
+```
+
+materializer 必须运行在 `HEAD == origin/main == --git-revision` 的 clean checkout，重新验证 2.25 GB 的
+16 个 Parquet 后只加载 45 个 screening states 的原始截图。它按 SHA 去重、同 SHA 取最小 member path，
+固定 55/20 orientation pool 中各前 3 张；confirm screenshot、policy output 与 restoration output 都不读取。
+输出固定为 `.gitattributes`、`README.md`、deterministic USTAR、canonical OCR JSONL 与 provenance manifest
+共 5 个文件。artifact validator 重新读取 raw source、重放 6 次 OCR、逐字节重建 USTAR/JSONL/manifest，
+并给出覆盖完整 5-file tree 的 hash。正式 Hyper00 argv 见 `docs/execution.md`；当前 source 已冻结，真实
+OCR output 与 HF upload 尚未执行。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash

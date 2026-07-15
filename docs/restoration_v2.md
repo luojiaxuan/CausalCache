@@ -67,7 +67,8 @@ before/after RGB 在 256x256 bilinear resize 后的 mean absolute difference，�
 Pillow/resampling 与 OCR/accessibility 的 exact revision/hash 写入 execution config。
 当前 implementation 选择、锁定参数、model/wheel SHA、uncapped OCR record schema 与 golden 进度见
 [`restoration_v2_ocr.md`](restoration_v2_ocr.md)。synthetic golden 与 HF immutable model revision 已通过；
-real-screen golden 和完成态 manifest 未闭合前，第 5 项 dependency 仍是 pending。
+real-screen pre-output source/materializer/validator 已冻结，但 6-image OCR output、HF immutable re-download
+和完成态 manifest 未闭合前，第 5 项 dependency 仍是 pending。
 
 ## Action contract
 

@@ -7,7 +7,9 @@ frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
 untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
 preflight、exact IDs 与 exposure 已闭合；当前推进 OCR、baselines、derived artifact 与 execution config。仍没有
-v2 policy output、restoration label 或方法效果结果。
+v2 policy output、restoration label 或方法效果结果。OCR real-screen 的 source/materializer 已冻结，下一步是
+Hyper00 CPU 双跑、private HF upload 与 immutable re-download；在完成态 Git manifest 回写前 dependency 5
+仍为 pending。
 
 ## 已完成里程碑
 
@@ -735,6 +737,24 @@ v2 policy output、restoration label 或方法效果结果。
   `PASSED_OCR_ARTIFACT_SOURCE_VALIDATION`；
 - 本步骤不把 model cache、token 或 ONNX 放进 Git；Hyper00 staging 现在只是可重建 cache。未加载 GUI-Owl、
   未生成 policy/restoration output；dependency 5 仍只因 6-image real-screen golden 与完成态 manifest pending。
+
+### 2026-07-15：Real-screen golden source/materializer 冻结
+
+- 在读取任何 real-screen OCR/policy/restoration output 前冻结 17-file source contract；当前 SHA256 为
+  `374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5`，source-only validator outcome 为
+  `PASSED_REAL_SCREEN_SOURCE_VALIDATION`；
+- 从已冻结 selection witnesses 复算 45 screening states / 180 occurrences，其中 candidate post-state 135、
+  current 45；按 SHA 去重得到 75 unique images（55 portrait / 20 landscape / 0 square）；confirm 97 unique
+  images 与 eligible pool 的 SHA overlap 为 0；
+- policy-blind 排序已固定 portrait/landscape 各 3 张 exact SHA/path/dimensions；同 SHA 的全部 occurrence paths
+  会逐路径验 bytes，canonical representative 是最小 member path，不因当前数据碰巧一 SHA 一 path 而改变契约；
+- 新增 raw Parquet reload、deterministic 5-file HF payload materializer 与独立 validator。validator 重建完整
+  75-image pool、重放 6 次 OCR、逐字节比较 canonical USTAR/JSONL/manifest，并输出覆盖 `.gitattributes`、
+  `README.md` 和三个 payload 文件的 `artifact_tree_sha256`；canonical USTAR trailer 与 HF extra-file
+  mutation 均有回归覆盖；
+- 本里程碑只冻结 source/runner，不是 real-screen OCR 结果。下一步先 push clean `main`，再在 Hyper00
+  CPU runtime 独立构建两次、验证 5-file tree byte-identical、上传 private HF dataset、按 immutable revision
+  fresh re-download 并重放 validator。完成前 dependency 5 仍 pending，且没有 v2 policy/restoration output。
 
 ## Artifact 状态
 
