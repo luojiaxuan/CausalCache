@@ -42,6 +42,43 @@ python3 -m venv .venv
 容器层。实验语义参数使用 CLI 或 committed JSON config 显式传入，不使用临时环境变量覆盖 seed、
 model revision、dtype、budget、prompt、preprocessing 或 threshold。
 
+## Subset-search v1
+
+`causalcache.subset_search` 实现 black-box set utility 上的 deterministic exact、true conditional greedy、
+2x2 bounded exchange 和 beam search；`causalcache.subset_search_ablation` 绑定 controlled synthetic、既有
+phase-0 与旧 v1 cached coalition table。equal-cost 时 density greedy 自动省略，所有方法统计全部 evaluated
+coalitions。true-$U$ exchange/beam 只是 offline oracle-search diagnostic，不能当作 learned gate latency。
+
+focused tests：
+
+```bash
+cd code
+python3 -m unittest tests.test_subset_search tests.test_subset_search_ablation -v
+```
+
+正式 CPU run 必须先 commit/push source，并从 clean canonical `main` 运行；不需要 GPU preflight：
+
+```bash
+cd /absolute/path/to/CausalCache/code
+python3 -m scripts.run_subset_search_ablation \
+  --repository-root /absolute/path/to/CausalCache \
+  --config /absolute/path/to/CausalCache/code/configs/subset_search_ablation_v1.json \
+  --source-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --output-dir /absolute/path/to/CausalCache/data/results/subset_search_ablation_v1
+```
+
+result commit/push 后，从 clean descendant main 复算并验证 committed summary：
+
+```bash
+cd /absolute/path/to/CausalCache/code
+python3 -m scripts.validate_subset_search_ablation \
+  --repository-root /absolute/path/to/CausalCache \
+  --config /absolute/path/to/CausalCache/code/configs/subset_search_ablation_v1.json \
+  --summary /absolute/path/to/CausalCache/data/results/subset_search_ablation_v1/summary.json
+```
+
+完整 estimand、query accounting 与 claim boundary 见 `ablations/subset_search.md`。
+
 ## 修改规则
 
 - 改动 frozen contract 时，同时改 `code/configs/`、对应 tests、论文与 `docs/progress.md`；

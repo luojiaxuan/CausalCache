@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "experiment_id": "subset-search-ablation-v1",
+  "scope": "synthetic_implementation_validation_and_posthoc_development_table_replay",
+  "utility_epsilon": 1e-12,
+  "exact_search": {
+    "max_feasible_coalitions": 5000
+  },
+  "greedy": {
+    "stopping_threshold": 0.0,
+    "score_rules": ["raw_gain", "gain_per_cost"],
+    "omit_density_when_all_costs_equal": true
+  },
+  "local_exchange": {
+    "seed": "true_conditional_greedy_raw_gain",
+    "max_remove": 2,
+    "max_add": 2,
+    "max_passes": 8
+  },
+  "beam_search": {
+    "widths": [2, 4, 8],
+    "allow_nonpositive_prefixes": true
+  },
+  "real_table_replay": {
+    "distance_column": "distance_mean",
+    "event_cost": 476,
+    "budgets": [512, 1024],
+    "search_stopping_threshold": 0.0,
+    "state_sensitivity_threshold_for_separate_analysis": 0.0001
+  },
+  "scale_sweep": {
+    "generator": "deterministic_linear_pairwise_v1",
+    "event_counts": [8, 12, 16, 24],
+    "event_cost": 1,
+    "slot_budget": 3
+  },
+  "inputs": {
+    "controlled_scenarios": {
+      "path": "data/fixtures/subset_search_scenarios_v1.json",
+      "sha256": "0583827b4f8247acacfa58229f7f5eda5020faf858010e6d1fb8d2d7ea332f3a"
+    },
+    "phase0_scenario": {
+      "path": "code/configs/synthetic_phase0.json",
+      "sha256": "560fb40ac7d5ee513c1acddc7efe62237c8a940a8d00968af90cc5cec1c55f8d"
+    },
+    "real_policy_coalition_table": {
+      "path": "data/results/go_no_go_diagnostic_v1/coalition_distances.csv",
+      "sha256": "3679d990166c6907e20f1eb141152fee221fcb2bf72f5392f6c8210a505dbed2"
+    },
+    "real_policy_compact_summary": {
+      "path": "data/results/go_no_go_diagnostic_v1/summary.json",
+      "sha256": "8180c749a4de11208f780c0bc0d2f1739e6d375280de2b44c595b71800261489"
+    }
+  },
+  "claim_boundary": {
+    "new_policy_or_gpu_operations": false,
+    "learned_gate_evaluated": false,
+    "closed_loop_success_evaluated": false,
+    "can_reopen_v2_1_no_go": false,
+    "real_table_is_selection_biased_development_evidence": true,
+    "true_utility_search_is_offline_oracle_diagnostic": true
+  }
+}

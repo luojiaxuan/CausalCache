@@ -1320,9 +1320,36 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 该里程碑仅为 Git source-only proposal，没有修改 frozen v2/v2.1 contract、代码或论文，没有运行 policy/GPU，
   没有读取 confirm，也没有新增 HF artifact。真实 ablation 仍被 v2.1 substrate NO-GO 阻断。
 
+### 2026-07-15：Subset-search v1 source/config/runner 冻结
+
+- 合作方进一步指出“conditional marginal 包含 interaction”并不保证最终 greedy subset 全局最优；该问题被拆成
+  value-source 与 search-algorithm 两个轴，避免把既有 phase-0 的 0.859 误称为 greedy gap。前者是 exact
+  averaged marginal 经 exact additive knapsack 后相对真实 subset objective 的 projection gap；只有 true
+  conditional greedy 相对 exact subset 的差才是 search regret；
+- 新增 deterministic black-box search module：exact subset、raw/density conditional greedy、从 raw-greedy
+  seed 出发的 2x2 bounded exchange、允许 non-positive prefix 的 true-utility beam-$2/4/8$。所有方法允许空集，
+  统一 utility/cost/cardinality/lexicographic tie-break，并记录全部 unique set evaluations、evaluated candidates、
+  sequential rounds；exchange 成本包含 seed 与未采用 neighbors；
+- 冻结 `code/configs/subset_search_ablation_v1.json`，SHA256
+  `161518c3e951829528b63b9146878236d918d4d620b4a6acbecc53f7c4db921f`。输入包含五类 controlled
+  functions、既有 phase-0 mixed synthetic、$n=8/12/16/24,b=3$ scale sweep，以及旧 v1 两个
+  selection-biased development states 的完整 singleton/pair table；
+- 旧 real table replay 明确使用 `distance_mean`、每 event 476 visual tokens、budget 512/1024；它不运行新
+  policy forward，只验证 exact/greedy/exchange/beam 的 cached-table consistency。state sensitivity threshold
+  `1e-4` 仅单列为 abstention sensitivity，canonical search stopping threshold 固定为 0，不能混成 interaction
+  search gap；
+- true-$U$ greedy/exchange/beam 在真实部署都需要 frozen-policy rerun，因此只称 offline optimizer diagnostic；
+  learned marginal head 没有 direct set-utility/path contract 时不能直接用于 beam/removal。exact 只保证冻结
+  single-step restoration utility 最优，不代表 terminal success 最优；
+- focused tests 16/16、全仓 440 tests（10 个 optional-dependency skips）、既有 contract/interface/executor/
+  selection/OCR/baseline validators 与 AAAI LaTeX build 全部通过。该里程碑只冻结 source/config/runner，尚未
+  生成 formal result，没有运行 GPU、policy、gate、closed-loop 或 confirm；v2.1 继续保持
+  `NO_GO_V2_1_FULL_45_SUBSTRATE`。
+
 ## 下一步
 
-v2.1 已按冻结 gate 停止，不运行 restoration、gate training 或 confirm。下一步只允许做 source-only design
-review：判断是否有不依赖本次 32/45 结果调参、且可在执行前确定的 executable/UI-element equivalence。若决定
-继续，必须使用新的 protocol ID、独立 attempt identity 和 untouched confirm policy outputs，并永久保留本次
-exact-coordinate NO-GO；不得在当前 45 states 上添加容差后 retroactive PASS。
+先 commit/push subset-search source milestone，再从 clean pushed `main` 运行唯一 CPU-only formal ablation，
+回写轻量 summary/report 并从 clean descendant main 复算验证。它不需要 GPU，也不改变 v2.1。并行的主路线仍是：
+v2.1 已按冻结 gate 停止，不运行 restoration、gate training 或 confirm；只有先冻结不依赖本次 32/45 结果调参的
+新 executable/UI-element equivalence protocol 并通过新 substrate gate，才允许后续 restoration/confirm。必须永久
+保留 exact-coordinate NO-GO，不能在当前 45 states 上事后加容差 retroactive PASS。

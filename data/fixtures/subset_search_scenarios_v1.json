@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "utility_family": "linear_plus_pairwise",
+  "scenarios": [
+    {
+      "scenario_id": "controlled_additive",
+      "budget": 2,
+      "event_costs": {"0": 1, "1": 1, "2": 1, "3": 1},
+      "linear_values": {"0": 4.0, "1": 3.0, "2": 2.0, "3": -1.0},
+      "pair_interactions": {}
+    },
+    {
+      "scenario_id": "controlled_redundant",
+      "budget": 2,
+      "event_costs": {"0": 1, "1": 1, "2": 1, "3": 1},
+      "linear_values": {"0": 10.0, "1": 10.0, "2": 6.0, "3": 5.0},
+      "pair_interactions": {"0,1": -9.0}
+    },
+    {
+      "scenario_id": "controlled_complementary_trap",
+      "budget": 2,
+      "event_costs": {"0": 1, "1": 1, "2": 1, "3": 1},
+      "linear_values": {"0": 4.0, "1": 3.0, "2": 0.0, "3": 0.0},
+      "pair_interactions": {"0,1": -2.0, "2,3": 10.0}
+    },
+    {
+      "scenario_id": "controlled_mixed_nonmonotone",
+      "budget": 3,
+      "event_costs": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1},
+      "linear_values": {"0": 5.0, "1": 4.0, "2": 3.0, "3": 2.0, "4": -2.0, "5": -3.0},
+      "pair_interactions": {"0,1": -7.0, "0,4": 6.0, "1,5": 7.0, "2,3": 8.0, "4,5": -10.0}
+    },
+    {
+      "scenario_id": "controlled_variable_cost_density",
+      "budget": 2,
+      "event_costs": {"0": 2, "1": 1, "2": 1},
+      "linear_values": {"0": 5.0, "1": 3.0, "2": 3.0},
+      "pair_interactions": {}
+    }
+  ]
+}

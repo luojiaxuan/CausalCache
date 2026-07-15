@@ -60,6 +60,13 @@ resume/INVALID/artifact 边界见 [`docs/restoration_v2_1_full_45.md`](docs/rest
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变
 这些科学设计，也不覆盖旧 v2 negative results。
 
+合作方提出的 subset optimality 问题已拆成独立 search ablation，见
+[`ablations/subset_search.md`](ablations/subset_search.md)。v1 source/config/CPU runner 已冻结：小规模 exact
+subset oracle、true conditional-marginal greedy、2x2 bounded exchange、true-utility beam-$2/4/8$ 分别报告
+actual utility、greedy/exact ratio 与全部 coalition query cost；同时把既有 phase-0 的 averaged-score
+objective-projection gap 与真正 search regret 分开。正式 result 尚未运行；允许的下一步仅是 synthetic 与旧 v1
+selection-biased cached coalition table 的 CPU replay，零新 policy/GPU/confirm access，不重开 v2.1。
+
 official Jinja/tojson compatibility 已在输出前冻结：teacher target 与 official assistant `tool_calls` JSON
 逐字节一致，包括 canonical insertion order 与原始 Unicode UTF-8；解码后的 text argument 仍须严格满足 NFKC。
 interface source SHA256 为 `90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964`。
@@ -479,6 +486,8 @@ $$
 - [x] 冻结 unchanged-interface full-45 v2.1 child contract、runner 与 raw artifact chain；
 - [x] 执行唯一 full-45 v2.1 substrate attempt；32/45 exact repeat agreement，正式为 `NO_GO_V2_1_FULL_45_SUBSTRATE`；
 - [x] 记录 prospective interaction-aware gate ablation；仅 source-only proposal，不重开 v2.1；
+- [x] 冻结 subset-search v1 source/config/CPU runner；formal synthetic + cached-table replay 待 clean pushed source；
+- [ ] 从 clean pushed source 运行 subset-search v1，并提交轻量 result/validator evidence；
 - [ ] 在不读取 confirm policy output 的前提下，决定是否冻结新的 executable/UI-element equivalence protocol；
 - [ ] 只有新 substrate gate 通过后，才构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -495,6 +504,8 @@ $$
 - Cross-chip execution and handoff: [`docs/execution.md`](docs/execution.md)
 - Ablation index: [`ablations/README.md`](ablations/README.md)
 - Interaction-aware gate proposal: [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)
+- Subset-search contract and interpretation: [`ablations/subset_search.md`](ablations/subset_search.md)
+- Frozen subset-search config: [`code/configs/subset_search_ablation_v1.json`](code/configs/subset_search_ablation_v1.json)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)

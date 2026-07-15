@@ -30,6 +30,11 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
   hashes 和两次 byte-identical Hyper00 inspection 的 expected fields 已冻结；最终 static fixture 已从新
   pushed commit 两次独立通过 `validate-golden`，canonical evidence 位于
   `results/restoration_v2_ocr_backend/`。
+- `fixtures/subset_search_scenarios_v1.json`：additive、redundant、complementary trap、mixed/non-monotone 与
+  variable-cost 五个 deterministic set-function cases；只用于 CPU search implementation validation。
+
+`results/subset_search_ablation_v1/` 目前尚未生成。正式 CPU run 只会写轻量 `summary.json` 与 `README.md`，
+并复用已有 phase-0 config 和旧 v1 `coalition_distances.csv`；不复制 raw policy trace，也不创建新的 HF repo。
 
 冻结后的 constructor run 证据位于 `results/restoration_v2_constructor_preflight/`：14/14 payload 已被
 pinned `JSONAction` 接受。formal device-side result 位于 `results/restoration_v2_executor_dispatch/`：14/14

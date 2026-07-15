@@ -214,6 +214,13 @@ reconstruction error 或 exact-oracle gap，以覆盖可能的高阶 interaction
 | Pair-seeded or two-step lookahead | 是 | 先比较单 event 与 event pair | 纯互补诊断，不默认进入主方法 |
 | Exact subset restoration oracle | 完整枚举 | $\arg\max_{c(S)\le B}U(S)$ | interaction-aware global ceiling |
 
+上述矩阵把 value estimation 与 search 放在一起概述；正式 optimizer 诊断已单独冻结在
+[`subset_search.md`](subset_search.md)。特别是，既有 phase-0 的 85.9% 是 averaged attribution 经过 exact
+additive knapsack 后相对真实 subset optimum 的 objective-projection gap，不是 greedy search gap。新诊断会把
+exact subset、true conditional-marginal greedy、2x2 bounded exchange 与 true-utility beam-$2/4/8$ 分开计数。
+使用真实 $U(S)$ 的 exchange/beam 仍需 policy rerun，只能作为 offline oracle-search ablation；learned marginal
+head 若没有 direct set-utility/path-score contract，不能直接复用这两类搜索。
+
 Independent 与 set-conditioned gate 应共享 event/query encoder、training states、visual budget 与尽可能匹配的
 parameter/compute envelope，避免收益只是来自更大模型；两者还必须使用相同 label-forward budget。数据在
 trajectory/app 层先划分，同一 decision state 的所有 coalitions/edges 必须留在同一 split，防止 coalition leakage。
