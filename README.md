@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: restoration v2 dependencies 1--7 passed / processor audit and execution config passed / readiness manifest prepared / clean authorization pending
+> Status: restoration v2 dependencies 1--8 passed / SCREENING_ALLOWED / CONFIRM_LOCKED / 45-state screening pending
 
 ## 团队交接入口
 
@@ -81,8 +81,9 @@ shape sweep，再允许首个 policy output，并以 attempt marker 禁止崩溃
 1/5-image sequence lengths 为 2,943/13,286，且所有 model/policy/restoration negative declarations 均为 false。
 证据见 [`data/results/restoration_v2_processor_audit/`](data/results/restoration_v2_processor_audit/)。完成态 execution
 config 也已冻结并通过 8-dependency / 14-source validation，SHA256 为 `f2b6521e...73a5`；readiness manifest
-已按 `SCREENING_ALLOWED + CONFIRM_LOCKED` 结构物化并通过离线校验。它仍需先 commit/push，再由 clean
-`HEAD == origin/main` 的正式 validator 授权；当前 v2 policy output 仍 locked。
+已按 `SCREENING_ALLOWED + CONFIRM_LOCKED` 结构物化。clean `HEAD == origin/main` 的正式 validator 已通过，
+结果见 [`data/results/restoration_v2_readiness/`](data/results/restoration_v2_readiness/)；dependency 8 正式闭合。
+这只解锁固定 45-state development screening，confirm 继续锁定。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
@@ -374,7 +375,7 @@ $$
 - [x] 完成完整 derived artifact、immutable HF revision 与 fresh-download replay；
 - [x] 完成真实 processor audit，冻结 exact grid/token/tensor evidence；
 - [x] 冻结 execution config；
-- [ ] 物化并验证 readiness manifest；
+- [x] 物化并正式验证 readiness manifest；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
@@ -458,9 +459,10 @@ $$
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Restoration v2 real processor audit: [`data/results/restoration_v2_processor_audit/README.md`](data/results/restoration_v2_processor_audit/README.md)
 - Restoration v2 execution config: [`code/configs/restoration_v2_execution_hyper00_v1.json`](code/configs/restoration_v2_execution_hyper00_v1.json)
+- Restoration v2 readiness authorization: [`data/results/restoration_v2_readiness/README.md`](data/results/restoration_v2_readiness/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
-- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 dependencies 1--7 已通过，包括完整 derived HF artifact。screening loader、readiness validator 与 45-state runner source 已实现；Hyper00 real processor audit 与完成态 execution config 已通过。readiness manifest 仍未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 dependencies 1--8 已全部通过，正式状态为 `SCREENING_ALLOWED + CONFIRM_LOCKED`。尚未运行 45-state screening，因此仍没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 

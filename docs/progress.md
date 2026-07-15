@@ -933,10 +933,10 @@ config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy ou
    model revision、6-image real-screen golden、HF dataset immutable re-download 与完成态 manifest passed；
 6. baseline specification/source hashes：passed，见 `data/manifests/restoration_v2_baselines.json`；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
-8. 引用 scientific-config SHA 的 execution config：config passed / readiness pending。GPU KL/microbatch/runtime/
+8. 引用 scientific-config SHA 的 execution config：passed。GPU KL/microbatch/runtime/
    audit source、Hyper00 formal compute audit 与 real processor audit 均已通过；confirm-safe screening loader、
    readiness validator 与固定 45-state production runner source 也已实现；完成态 config/source-hash
-   inventory 已通过，readiness manifest 尚未闭合。
+   inventory、readiness manifest 与 clean-Git authorization 全部通过。
 
 GPU-side scalar KL、GUI-Owl runtime 与 coalition microbatch 已 implementation-ready，formal CUDA audit 已
 通过。新增 runner 在 readiness 8/8 前不 import policy runtime；readiness 后也先对固定 45 states 的
@@ -1015,11 +1015,19 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 当前工作树包含未提交 manifest，因此正式 validator 按设计尚不能通过 clean-Git gate。下一步先
   commit/push，再运行 CLI；在该 CLI 返回前仍不允许 policy import/output。
 
+### 2026-07-15：dependency 8 正式闭合
+
+- manifest commit `429c4584ba7c18eee0b96741b6c1514bd4d4d7ec` push 后，正式
+  `scripts.validate_restoration_v2_readiness` 在 clean `HEAD == origin/main` 上返回
+  `SCREENING_ALLOWED + CONFIRM_LOCKED`，8/8 dependencies passed；
+- summary SHA256 `20b9e81050e56622cfe9bfe4dd1343f33513ae7f37fe25716d13b86ea8115964`；Git binding
+  同时记录 implementation commit `a2aeb7f...d131` 与 current/origin commit `429c458...d7ec`；
+- validator 未 import policy，policy/restoration output 均为 false。dependency 8 正式闭合，但授权范围仅为
+  10 条 label-train + 5 条 development 的固定 45-state screening；`v2_confirm_primary` 继续 locked。
+
 ## 下一步
 
-下一步只物化 readiness manifest：它必须引用本次 config 的 exact SHA、implementation commit 与同一 14-source
-inventory；commit/push 后在 clean `HEAD == origin/main` 上运行正式 validator。
-第 8 项闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
-通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
+下一步从包含 readiness evidence 的 clean pushed commit 在 Hyper00 运行 development substrate screening。
+只有 screening 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
 75-instance final plan 一并冻结。

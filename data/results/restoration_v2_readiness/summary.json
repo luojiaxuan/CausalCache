@@ -1,0 +1,127 @@
+{
+  "allowed_roles": [
+    "v2_label_train",
+    "v2_development"
+  ],
+  "confirm_locked": true,
+  "confirm_state": "CONFIRM_LOCKED",
+  "dependencies": [
+    {
+      "evidence": [
+        {
+          "path": "data/manifests/restoration_v2_derived_artifact.json",
+          "sha256": "1f155a90af33da21947c89ac12f30f873f18e15e4efc82e5759f648114f25f7c"
+        }
+      ],
+      "id": 1,
+      "name": "derived_artifact_immutable_hf_revision_and_file_hashes",
+      "status": "passed"
+    },
+    {
+      "evidence": [
+        {
+          "path": "data/manifests/restoration_v2_selection.json",
+          "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+        }
+      ],
+      "id": 2,
+      "name": "exact_confirm_trajectory_and_state_ids",
+      "status": "passed"
+    },
+    {
+      "evidence": [
+        {
+          "path": "data/manifests/restoration_v2_exposure.json",
+          "sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95"
+        }
+      ],
+      "id": 3,
+      "name": "exposure_ledger",
+      "status": "passed"
+    },
+    {
+      "evidence": [
+        {
+          "path": "data/manifests/restoration_v2_interfaces.json",
+          "sha256": "5a6166febe7d7575b7dc5dc7637c77cadec48b569a00121cbd5766c67e9c4860"
+        },
+        {
+          "path": "data/results/restoration_v2_executor_dispatch/summary-rv2-20260715T101814Z-53016a40.json",
+          "sha256": "61956a457fb15a8fdfd35baf1a9f07c48ab45910a94829d537c9a591b2ffcc39"
+        }
+      ],
+      "id": 4,
+      "name": "restricted_prompt_parser_bridge_executor_round_trip_fixture",
+      "status": "passed"
+    },
+    {
+      "evidence": [
+        {
+          "path": "data/manifests/restoration_v2_ocr_backend.json",
+          "sha256": "107478672438b52e9c2ccc9ef8de5d13d4e16329ab1afbe95772e2d3df5bd2a9"
+        }
+      ],
+      "id": 5,
+      "name": "pinned_ocr_or_accessibility_backend_identity",
+      "status": "passed"
+    },
+    {
+      "evidence": [
+        {
+          "path": "data/manifests/restoration_v2_baselines.json",
+          "sha256": "bd6f4d620d02bde478bf765c6fa3605bb86e20ebf449e999654e7a6766ba5710"
+        }
+      ],
+      "id": 6,
+      "name": "baseline_specification_and_source_hashes",
+      "status": "passed"
+    },
+    {
+      "evidence": [
+        {
+          "path": "data/manifests/restoration_v2_interfaces.json",
+          "sha256": "5a6166febe7d7575b7dc5dc7637c77cadec48b569a00121cbd5766c67e9c4860"
+        }
+      ],
+      "id": 7,
+      "name": "v2_interface_source_hashes",
+      "status": "passed"
+    },
+    {
+      "evidence": [
+        {
+          "path": "data/results/restoration_v2_gpu_compute_audit/summary.json",
+          "sha256": "0b0adbd0086c800fc27f435ed2c445a01048941a71335920d27079937c4b8134"
+        },
+        {
+          "path": "data/results/restoration_v2_gpu_compute_audit/validation.json",
+          "sha256": "50033175f05bf0e8d005acea6e28851dd12103b95ea23cb0696a22582dd9b87e"
+        },
+        {
+          "path": "data/results/restoration_v2_processor_audit/summary.json",
+          "sha256": "7d5ac1bd13ba5def46dfb2ca419d59bb0da1ff970f186e9fd092d4006d8b43b8"
+        }
+      ],
+      "id": 8,
+      "name": "execution_config_referencing_scientific_config_sha256",
+      "status": "passed"
+    }
+  ],
+  "dependency_count": 8,
+  "execution_config": {
+    "path": "code/configs/restoration_v2_execution_hyper00_v1.json",
+    "sha256": "f2b6521ed8b1d65d4b6170c94c5c4cf8e46d135e352bdb52b21bf4e8f64173a5"
+  },
+  "git": {
+    "current_git_commit": "429c4584ba7c18eee0b96741b6c1514bd4d4d7ec",
+    "implementation_git_commit": "a2aeb7f1930d40cb569c8e2adfc0dc39e950d131",
+    "origin_main_git_commit": "429c4584ba7c18eee0b96741b6c1514bd4d4d7ec"
+  },
+  "passed_dependency_count": 8,
+  "policy_imported_by_validator": false,
+  "policy_output_generated": false,
+  "protocol_id": "causalcache_restoration_v2",
+  "restoration_output_generated": false,
+  "schema_version": "1.0.0",
+  "state": "SCREENING_ALLOWED"
+}

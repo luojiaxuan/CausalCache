@@ -57,8 +57,8 @@ restoration v2 exact selection/exposure 产物：
   private HF tag/immutable revision、exact 6-file hashes 与 fresh-download replay；当前
   `dependency_1_closed=true`；
 - `manifests/restoration_v2_readiness.json`：绑定 execution config SHA、implementation commit 与同一 14-source
-  inventory，公开状态仅为 `SCREENING_ALLOWED + CONFIRM_LOCKED`；当前已通过结构校验，等待 clean pushed
-  commit 上的正式 Git authorization；
+  inventory，公开状态仅为 `SCREENING_ALLOWED + CONFIRM_LOCKED`；clean pushed commit 上的正式 Git
+  authorization 已通过；
 - `results/restoration_v2_derived_artifact/`：完整 derived artifact 的轻量结果、复现参数、UTC brackets、
   superseded download preflight failure 与 negative declarations；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
@@ -123,7 +123,11 @@ restoration v2 exact selection/exposure 产物：
 
 - `results/restoration_v2_processor_audit/`：Hyper00 real `AutoProcessor` formal summary 已通过；exact
   grids/tokens/tensors、source hashes、零 model-tensor/forward/generate/output declarations 均已冻结。该子项
-  已完成，execution config 也已冻结；dependency 8 仍需 readiness manifest；
+  已完成，execution config 与 readiness authorization 也已通过；
+
+- `results/restoration_v2_readiness/`：首次 clean-Git formal authorization 返回 8/8 passed、
+  `SCREENING_ALLOWED + CONFIRM_LOCKED`，summary SHA256 `20b9e810...5964`；dependency 8 正式闭合，仍不授权
+  confirm；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；
