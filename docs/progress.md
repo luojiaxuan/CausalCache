@@ -490,6 +490,10 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
   threshold；
 - Hyper00 正式运行前必须先在旧 9-decision artifact 复现 A6000 的 9/9 parsed、4/9 match boolean vector；
   anchor 不一致则不查看 Hyper00 独立 outputs，转 Aries 执行未修改协议。
+- Hyper00 已从 immutable transport revision 下载冻结的 16 个 source shards，共 2,252,923,738 bytes；
+  在任何 row decoding 前逐文件计算 size/SHA256 并写入
+  `data/manifests/independent_reference_gate_v1_source_files.json`。后续 builder 必须逐项验证，不能接受
+  revision 相同但 local bytes 不一致的输入。
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；

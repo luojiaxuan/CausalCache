@@ -36,6 +36,10 @@ policy inference 前冻结到
 artifact 必须先上传 Hugging Face 并把 immutable revision/SHA 回写 Git；reference 失败即停止当前路线，
 不会在看到输出后换样本或调阈值。
 
+冻结 source pool 的 16 个 Parquet 文件（2.25 GB）及逐文件 SHA256 见
+[`data/manifests/independent_reference_gate_v1_source_files.json`](data/manifests/independent_reference_gate_v1_source_files.json)；
+这些 hash 已在 row decoding 前生成。
+
 新合作者按以下顺序阅读：
 
 1. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；

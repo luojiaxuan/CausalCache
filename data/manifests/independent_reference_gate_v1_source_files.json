@@ -1,0 +1,90 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "independent_reference_gate_v1",
+  "repo": "cua-lite/GUIOdyssey",
+  "revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+  "total_bytes": 2252923738,
+  "files": [
+    {
+      "path": "mobile/use/train/shard-00000-of-00610.parquet",
+      "size": 164543844,
+      "sha256": "a350cdf2e00f97f32abb46aaf1c164c925558b8dd51ad306799f66a2a4e08c9c"
+    },
+    {
+      "path": "mobile/use/train/shard-00001-of-00610.parquet",
+      "size": 138291048,
+      "sha256": "fa050656bee845883f8b876beb7a4c68cb8a618b54bb2fee603df86ffa17d0d7"
+    },
+    {
+      "path": "mobile/use/train/shard-00002-of-00610.parquet",
+      "size": 194210052,
+      "sha256": "0e8f2f01ca6e964bc468596dd930eb080ce2c40d87443baee27c3a16372ffbaf"
+    },
+    {
+      "path": "mobile/use/train/shard-00003-of-00610.parquet",
+      "size": 171799925,
+      "sha256": "afc2486a34d27e6ad8b050acc350e844ea78c410988716d3880b3ca84fbdaf4c"
+    },
+    {
+      "path": "mobile/use/train/shard-00004-of-00610.parquet",
+      "size": 94973235,
+      "sha256": "67b3bd97cf31b98f1f7a5b242116155386af70d04b8575daa3ed951d0e55f1fd"
+    },
+    {
+      "path": "mobile/use/train/shard-00005-of-00610.parquet",
+      "size": 138124195,
+      "sha256": "d77d307a97d36a4dfc1830fb3dbf42d835af59aeba9051e8a433cfde22c80d1f"
+    },
+    {
+      "path": "mobile/use/train/shard-00006-of-00610.parquet",
+      "size": 133068295,
+      "sha256": "3af133c9de93b0eafd73240f4ac6f1e41389dfd79892b06fa508ad480de98930"
+    },
+    {
+      "path": "mobile/use/train/shard-00007-of-00610.parquet",
+      "size": 155805287,
+      "sha256": "98af0b45e241db6bb30e617c93ee89e3c9714bfd3103fd31130b7c76023d7f1e"
+    },
+    {
+      "path": "mobile/use/train/shard-00008-of-00610.parquet",
+      "size": 168400168,
+      "sha256": "95d01c7f6455410bbd7077a614e0ddab7fd314385245b80fdc2cfc70e43ac641"
+    },
+    {
+      "path": "mobile/use/train/shard-00009-of-00610.parquet",
+      "size": 116207783,
+      "sha256": "1606ef2755e38c2d64ac4bd618fa4aa7adf2212012c4dcafc1340f5eacc918fd"
+    },
+    {
+      "path": "mobile/use/train/shard-00010-of-00610.parquet",
+      "size": 121484360,
+      "sha256": "46e1e9644a4d6d0b5d37496c3dd46bbefc76f1668489b1e70f6f9ff7892ef9d3"
+    },
+    {
+      "path": "mobile/use/train/shard-00011-of-00610.parquet",
+      "size": 113518845,
+      "sha256": "034d18748eb5def327bad3e95d84141fed069f99b9bc0397e9c8e5dd1e5f2d0e"
+    },
+    {
+      "path": "mobile/use/train/shard-00012-of-00610.parquet",
+      "size": 99536552,
+      "sha256": "e54eab329e45c5970ba21576f002529f9cf8e77ecda39a487c4398ef13648f7e"
+    },
+    {
+      "path": "mobile/use/train/shard-00013-of-00610.parquet",
+      "size": 210498632,
+      "sha256": "a7a996231189ed16c7e086586b59a1acf60f832d480b48f4f908b55a45114f31"
+    },
+    {
+      "path": "mobile/use/train/shard-00014-of-00610.parquet",
+      "size": 96254950,
+      "sha256": "f48d67b3efb34e81a4da38f2803010c1191bf5049e660c27e912424bbecf3d6f"
+    },
+    {
+      "path": "mobile/use/train/shard-00015-of-00610.parquet",
+      "size": 136206567,
+      "sha256": "d35b76ed08f3f477f3f0a78dd5015fa2a5993ab3ad4b82954a2c12d442638f35"
+    }
+  ],
+  "verification": "Downloaded from the immutable Hugging Face revision on Hyper00; every local size and SHA256 matched this manifest before row decoding."
+}
