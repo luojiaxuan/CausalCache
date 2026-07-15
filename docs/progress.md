@@ -454,6 +454,26 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - 修复同步扩展 `attention_mask=1` 与新文本的 `mm_token_type_ids=0`，未知 aligned tensor 继续拒绝；
   states、预算、distance、baselines 与 threshold 不变，更新 clean main 后从新目录重跑。
 
+### 2026-07-14：go/no-go diagnostic v1 `INCONCLUSIVE_POSITIVE`
+
+- 修复后的 clean Git `2715f31` 在 Hyper00 physical GPU 0 完成 38 个 reference/coalition forwards、2 个
+  repeat probes 和 selected-memory generations；两状态 repeat KL=0，全部实际 visual-token accounting 与
+  full-history executable validation 通过；
+- step 8 summary-only action-path KL 为 0.109727；512-token cap 下 oracle `[1]` recovery 0.526，对比
+  recent/similarity `[7]` 0.332、random 0.368；1024 cap 下 oracle/restoration `[1,7]` recovery 0.842，
+  对比 recent/similarity `[6,7]` 0.487、random 0.581；
+- step 8 的非 recent event 1 exact gain 为正且远高于 epsilon；$K=16$ 五 seeds 全部选择 `[1,7]`，
+  min Spearman 0.964、Jaccard/utility ratio 1.0，满足 selection-biased diagnostic 的 positive rule；
+- step 4 也 memory-sensitive，但 absolute KL 仅 0.000349；1024 oracle 相对 recent 的 normalized gain 只有
+  0.007。全部 selected memories 生成的 action 仍 executable-match，因此没有 action recovery 或 success
+  结论；
+- canonical compact result 与全部 coalition distances 已写入
+  `data/results/go_no_go_diagnostic_v1/`。这两个 states 来自已观察的 matched subset，明确禁止升级为 paper
+  `GO`、训练 gate 或改写 rejected teacher decision；
+- wall 170.30 s 中记录的 teacher-forced GPU forward 仅 4.09 s；monitor 三个 active 10 秒窗口均为 0%，
+  瓶颈是 CPU full-vocabulary KL。独立扩展前必须完成 GPU-side KL/batching，否则 attribution 成本 gate
+  不通过。
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - Rejected policy candidate：上游 Hugging Face model `Qwen/Qwen3-VL-8B-Instruct@0c351dd01ed87e9c1b53cbc748cba10e6187ff3b`；共享机器副本只是可重建 cache；
@@ -464,6 +484,8 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - Rejected replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；native validation 上界 29/62，未通过 50% gate；
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0` (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保持在 `v0.1.0`；
 - 完整 attribution dataset：尚未生成，pilot 扩展后仍需单独登记 revision；
+- selection-biased go/no-go compact result：Git `data/results/go_no_go_diagnostic_v1/`；raw 209 KiB debug
+  summary 只含可丢弃的 per-token/runtime 展开，canonical distances 与结论已压缩进 Git；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
 

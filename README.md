@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: AAAI-27 paper backbone ready / go-no-go diagnostic preregistered / primary teacher still blocked
+> Status: AAAI-27 backbone ready / diagnostic INCONCLUSIVE_POSITIVE / independent reference gate next
 
 ## 团队交接入口
 
@@ -15,11 +15,19 @@ AndroidWorld 正式 validation 在 42/62 checkpoints 后以 success 下界 9/62�
 dataset `v0.2.0@0faf767e`。按预注册 change control，本轮停止，不生成 restoration labels 或训练 gate；
 下一步必须先形成新的 validated-reference/primary-policy 预注册决策。final test 仍保持 sealed。
 
+冻结的两状态 real-policy diagnostic 已完成，结果为 `INCONCLUSIVE_POSITIVE`，详见
+[`data/results/go_no_go_diagnostic_v1/`](data/results/go_no_go_diagnostic_v1/)。在 step 8、1024-token cap
+下，recent/similarity 恢复 48.7%，random expectation 58.1%，而 exhaustive oracle 与 restoration
+selector 选择最早 event 1 + 最新 event 7，恢复 84.2%；$K=16$ 五个 seed 全部复现该选择。由于 states
+来自已观察的 2/9 matched subset，且所有 memories 的离散 executable swipe 都仍正确，这只是值得进入
+独立扩展集的存在性证据，不是 paper `GO`、terminal-success 结果或 gate-training labels。
+
 当前正在执行的 go/no-go 分为两层。第一层已在任何 restoration forward 前冻结为
 [`code/configs/go_no_go_diagnostic_v1.json`](code/configs/go_no_go_diagnostic_v1.json)：只用已有 Qwen
 matched states 验证真实 action-path KL 与 exhaustive oracle，因 post-selection bias 禁止给出论文级
-`GO`。判据、失败边界与独立扩展要求见 [`docs/go_no_go.md`](docs/go_no_go.md)。正式 reference gate
-与 paper-level go/no-go 仍必须使用未观察 policy/restoration 的独立多轨迹 manifest。
+`GO`，现已按冻结判据得到 `INCONCLUSIVE_POSITIVE`。判据、失败边界与独立扩展要求见
+[`docs/go_no_go.md`](docs/go_no_go.md)。正式 reference gate 与 paper-level go/no-go 仍必须使用未观察
+policy/restoration 的独立多轨迹 manifest。
 
 新合作者按以下顺序阅读：
 

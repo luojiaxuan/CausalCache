@@ -1,0 +1,169 @@
+{
+  "artifact_status": "valid_selection_biased_diagnostic",
+  "claim_boundary": {
+    "can_produce_paper_go": false,
+    "can_replace_primary_teacher_gate": false,
+    "can_train_gate": false,
+    "selected_after_policy_coverage": true
+  },
+  "compute": {
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "gpu": "NVIDIA H200 physical 0 / container cuda:0",
+    "max_peak_gpu_memory_bytes": 18896081920,
+    "max_peak_gpu_memory_gib": 17.598347663879395,
+    "model_load_seconds": 4.8014405618887395,
+    "monitor_active_low_utilization_windows": 3,
+    "monitor_window_average_gpu_utilization_percent": 0,
+    "selected_generation_forward_seconds": 13.428125377977267,
+    "teacher_forced_forward_seconds": 4.093302947003394,
+    "wall_time_seconds": 170.30135830305517
+  },
+  "outcome": {
+    "evaluated_step_ids": [
+      4,
+      8
+    ],
+    "positive_step_ids": [
+      8
+    ],
+    "reasons": [
+      "at least one state is memory-sensitive",
+      "step 8 exceeds 0.25 normalized oracle recovery and has positive non-recent restoration gain"
+    ],
+    "status": "INCONCLUSIVE_POSITIVE"
+  },
+  "provenance": {
+    "completed_at": "2026-07-15T06:07:51.824996+00:00",
+    "config_sha256": "86f34b563295423536d4891c9aa0949790ac3fff30a907b9833d261deb8f13ee",
+    "dataset_repo": "gavinlaw/causalcache-guiodyssey-pilot-mobile",
+    "dataset_revision": "1de9c34ff029d4c01665cdaca74436ae24bff276",
+    "dataset_shard_sha256": "54399e28df381c2114c1422dedc1aed17f1bd15b320e636155a070e181c33e72",
+    "git_commit": "2715f3141e6cbd475b6a9ab92034f24155f698a5",
+    "host": "hyper00 / node-radixark-16-0000",
+    "model_repo": "Qwen/Qwen3-VL-8B-Instruct",
+    "model_revision": "0c351dd01ed87e9c1b53cbc748cba10e6187ff3b",
+    "python_version": "3.12.3",
+    "raw_debug_summary_sha256": "21df0507df23c7c269be30d511693824114bd3e4831e8f40ce8ebd70a9a392e0",
+    "started_at": "2026-07-15T06:05:01.525003+00:00",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0"
+  },
+  "schema_version": "0.1.0",
+  "states": [
+    {
+      "budget_1024": {
+        "exact_selector_coalition": [
+          1,
+          3
+        ],
+        "k16_all_seeds_selected_exact": true,
+        "k16_min_spearman": 0.9999999999999998,
+        "k16_top_budget_jaccard": 1.0,
+        "oracle_coalition": [
+          1,
+          3
+        ],
+        "oracle_distance": 1.2629124945476087e-06,
+        "oracle_normalized_recovery": 0.9963786510872508,
+        "random_expected_normalized_recovery": 0.9441980545635172,
+        "recent_coalition": [
+          2,
+          3
+        ],
+        "recent_normalized_recovery": 0.989271570624176,
+        "similarity_coalition": [
+          2,
+          3
+        ],
+        "similarity_normalized_recovery": 0.989271570624176
+      },
+      "budget_512": {
+        "exact_selector_coalition": [
+          3
+        ],
+        "oracle_coalition": [
+          3
+        ],
+        "oracle_normalized_recovery": 0.9414737672788169,
+        "random_expected_normalized_recovery": 0.8244476516793056,
+        "recent_normalized_recovery": 0.9414737672788169,
+        "similarity_normalized_recovery": 0.9414737672788169
+      },
+      "canonical_action": "{\"action_type\":\"type_text\",\"text\":\"Cryptocurrency Market\"}",
+      "decision_step_id": 4,
+      "epsilon": 0.0001,
+      "memory_sensitive": true,
+      "repeat_kl": 0.0,
+      "selected_generations_all_executable_match": true,
+      "summary_distance": 0.0003487409042805665
+    },
+    {
+      "budget_1024": {
+        "exact_selector_coalition": [
+          1,
+          7
+        ],
+        "k16_all_seeds_selected_exact": true,
+        "k16_exact_selector_utility_ratio": 1.0,
+        "k16_min_spearman": 0.9642857142857142,
+        "k16_top_budget_jaccard": 1.0,
+        "oracle_coalition": [
+          1,
+          7
+        ],
+        "oracle_distance": 0.017288755197115608,
+        "oracle_gain_over_strongest_baseline_recovery": 0.2614646365763953,
+        "oracle_normalized_recovery": 0.8424389856616662,
+        "positive_non_recent_event_ids": [
+          1
+        ],
+        "random_expected_normalized_recovery": 0.5809743490852709,
+        "recent_coalition": [
+          6,
+          7
+        ],
+        "recent_normalized_recovery": 0.48719885283226666,
+        "similarity_coalition": [
+          6,
+          7
+        ],
+        "similarity_normalized_recovery": 0.48719885283226666
+      },
+      "budget_512": {
+        "exact_selector_coalition": [
+          1
+        ],
+        "oracle_coalition": [
+          1
+        ],
+        "oracle_gain_over_strongest_baseline_recovery": 0.15798041471500782,
+        "oracle_normalized_recovery": 0.5257568029670635,
+        "random_expected_normalized_recovery": 0.36777638825205566,
+        "recent_coalition": [
+          7
+        ],
+        "recent_normalized_recovery": 0.33151811060572534,
+        "similarity_coalition": [
+          7
+        ],
+        "similarity_normalized_recovery": 0.33151811060572534
+      },
+      "canonical_action": "{\"action_type\":\"swipe\",\"coordinate\":[572,374],\"start_coordinate\":[572,856]}",
+      "decision_step_id": 8,
+      "epsilon": 0.0001,
+      "memory_sensitive": true,
+      "repeat_kl": 0.0,
+      "selected_generations_all_executable_match": true,
+      "summary_distance": 0.10972736669485465
+    }
+  ],
+  "visual_accounting": {
+    "budget_caps": [
+      512,
+      1024
+    ],
+    "effective_visual_tokens_per_image": 238,
+    "images_per_restored_event": 2,
+    "restored_event_cost": 476
+  }
+}
