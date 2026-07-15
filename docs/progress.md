@@ -1200,10 +1200,29 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 正确 root 是 `/data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload`。先修正并 push 正式 argv，
   再从新的 clean `main` 重启 processor-only audit。
 
+### 2026-07-15：v2.1 90-prompt processor preflight 正式通过
+
+- 修正文档 argv 后，从 clean pushed `main@d0205afd789cda602fbf8964505d9de9a1b1fe53` 在 Hyper00/container
+  `69f2b174...94df` 运行真实 `AutoProcessor`；45 states × full-history/summary-only 共 90 prompts 全部完成，
+  official tools 注入 90/90，image-count distribution 为 1-image 45、3/4/5-image 各 15；
+- input token 长度 3,759--15,013，context overflow 为 0，最长输入加固定 256 generation budget 后为 15,269，
+  低于 32,768。processor class、prompt、shape 与 teacher-golden records 均有独立 SHA256 reduction；
+- 运行耗时 59.589 秒，明确记录 `gpu_operations_executed=false`、policy model 未实例化、weights 未
+  materialize 为 tensors、forward/generate 未执行、confirm processor prompt 为 0。因此本步骤没有产生任何
+  v2.1 policy output，也没有运行 teacher、KL、
+  restoration 或访问 confirm input；
+- 7,609,803-byte raw JSON（SHA256 `5349ffc6b91bf93ed26d25104fe6c907f31ccc497007a5c0ae6ed5ddf5c84991`）
+  已上传 private HF dataset `gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile`，tag
+  `v2.1-processor-preflight-v1` 固定到 immutable revision
+  `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`；fresh immutable download 的 byte hash/size 与 API tag binding
+  均已复核；
+- Git 只保存 `data/results/restoration_v2_1_processor_preflight/` 的轻量 manifest/说明。该 PASS 只关闭
+  processor gate；fixed-15 pilot 尚未运行，parse/closer/bridge 结果仍未知。
+
 ## 下一步
 
-下一步从 clean pushed v2.1 source commit 在 Hyper00 运行 90-prompt processor-only preflight；它必须在
-不加载 model weights、不 forward/generate 的条件下复核 official tools 注入、token boundary、image-count
-distribution 与 context。通过后才执行固定 15-state、每 state 一次的 interface pilot。任何失败都不得
+下一步先把 processor manifest/说明 commit 并 push canonical `main`，再从 fresh immutable HF download 做
+reuse validation；通过后在 Hyper00 做 GPU/disk/container 与 10 秒 idle preflight，并只执行一次固定
+15-state、每 state 一次的 interface pilot。任何失败都不得
 重试/top-up/修 parser；只有 pilot 通过才进入 unchanged-interface full-45 substrate。confirm、AndroidWorld
 test split 与 restoration label 继续锁定。

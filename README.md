@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 source frozen、processor preflight pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 processor preflight = `PASS`、fixed-15 pilot pending / confirm locked
 
 ## 团队交接入口
 
@@ -25,8 +25,11 @@ output 的 90-prompt processor preflight，再对 exact 15 个 `v2_development` 
 15/15 strict whole-output parse、15/15 model-emitted closer、15/15 AndroidWorld bridge，任何一次失败即
 `NO_GO_V2_1_INTERFACE_PILOT`，不得 retry/top-up/teacher/KL/restoration，也不得向 decoder/processor 暴露
 任何 confirm state/prompt/image。完整边界见
-[`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)。90-prompt real `AutoProcessor` audit/reducer 与 fixed-15
-no-retry runner 的 source 已就绪，正式 Hyper00 audit/pilot 尚未运行，因此尚无 v2.1 policy output。loader
+[`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)。90-prompt real `AutoProcessor` preflight 已在 Hyper00
+CPU-only 正式通过：90/90 official-tools prompts 合法，context overflow 为 0，input token 长度为
+3,759--15,013；policy model 未实例化、weights 未 materialize 为 tensors，且没有 forward、generation 或
+GPU operation。raw JSON 已上传 private HF，并由 fresh immutable download 逐 byte 复核。fixed-15 pilot
+尚未运行，因此仍无 v2.1 policy output。loader
 会验证并 hash 包含 confirm bytes 的完整 artifact，但提供给 decoder/processor 的 confirm state、prompt、image
 均为 0，`confirm_processor_prompt_count=0`、confirm generation count 也为 0。
 唯一正式 attempt 固定为 `restoration-v2-1-interface-pilot-v1`，持久路径固定为
@@ -205,8 +208,8 @@ make test validate-contract validate-restoration-v2 validate-restoration-v2-inte
 
 计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback。八项
 pre-output dependencies 已闭合并完成第一次正式 screening；v2 保持
-`NO_GO_V2_SUBSTRATE + NO_GO_ADAPTER_ONLY`。v2.1 versioned source/contract 已冻结，下一步是 Hyper00
-processor-only preflight 与固定 15-state interface pilot；两者已有 source，但尚无正式结果。在其通过前不运行
+`NO_GO_V2_SUBSTRATE + NO_GO_ADAPTER_ONLY`。v2.1 versioned source/contract 已冻结，90-prompt
+processor-only preflight 已正式通过；下一步是 Hyper00 固定 15-state interface pilot。在 pilot 通过前不运行
 teacher/KL/restoration；完整 artifact 中的 confirm bytes 只接受 loader validation/hash，不向 processor 或
 decoder 暴露任何 confirm state/prompt/image，也不生成 confirm output。AndroidWorld closed-loop MVP 继续使用
 已验证的 Aries stack。Hyper01 当前不参与本轮执行。
@@ -436,7 +439,8 @@ $$
 - [x] 在已接入的真实轨迹上实现 teacher-forced policy distance 与固定 45-state substrate runner；
 - [x] 完成第一次固定 45-state substrate screening；strict parse 0/45，合法输出 `NO_GO_V2_SUBSTRATE`，confirm 未打开；
 - [x] 完成 immutable raw-trace parser compatibility replay；40/45 低于 required 45/45，正式为 `NO_GO_ADAPTER_ONLY`；
-- [ ] 冻结并验证 versioned native-output/generation rescue；保留原 v2 negative result，不做 retroactive relabel；
+- [x] 冻结 versioned native-output/generation rescue source，并完成 v2.1 90-prompt processor-only preflight；
+- [ ] 完成 v2.1 fixed-15 native-output interface pilot；保留原 v2 negative result，不做 retroactive relabel；
 - [ ] 构造 matched-NLL memory pairs，验证关键假设；
 - [ ] 训练 query-time memory gate；
 - [ ] 完成 AndroidWorld closed-loop evaluation；
@@ -523,6 +527,7 @@ $$
 - Restoration v2 formal parser compatibility replay: [`data/results/restoration_v2_parser_compatibility/README.md`](data/results/restoration_v2_parser_compatibility/README.md)
 - Restoration v2.1 frozen pilot contract: [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)
 - Restoration v2.1 interface and execution boundary: [`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)
+- Restoration v2.1 passed processor preflight: [`data/results/restoration_v2_1_processor_preflight/README.md`](data/results/restoration_v2_1_processor_preflight/README.md)
 - Restoration v2.1 processor-only audit CLI: `cd code && python3 -m scripts.audit_gui_owl_v2_1_processor --help`
 - Restoration v2.1 fixed-15 no-retry runner: `cd code && python3 -m scripts.run_restoration_v2_1_interface_pilot --help`
 - Restoration v2.1 raw evidence manager: `cd code && python3 -m scripts.manage_restoration_v2_1_pilot_artifact --help`
@@ -532,7 +537,8 @@ $$
   clean `main` 完成，strict parse 0/45，正式为 `NO_GO_V2_SUBSTRATE + CONFIRM_LOCKED`；事后 immutable
   replay 的保守上界也仅 40/45，正式为 `NO_GO_ADAPTER_ONLY`。已有 45 个 native policy outputs，但没有
   teacher forward、KL、restoration label 或 CausalCache 方法效果结果。v2.1 official-tool contract、
-  90-prompt audit/reducer、fixed-15 runner 与 raw packager source 已就绪；正式 Hyper00 preflight/pilot 尚未执行。
+  90-prompt processor preflight 已正式通过并绑定 private HF immutable artifact；fixed-15 runner 与 raw
+  packager source 已就绪，正式 pilot 尚未执行。
 
 ### Data and Models
 
@@ -551,8 +557,8 @@ $$
 | Restoration v2 OCR models | <https://huggingface.co/gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en> | `v1.0.0` / `0dbc766a73ee88d10d52285d434dbfec58617835`，private | 三份 ONNX、model card 与 manifest；fresh immutable re-download 后 6/6 file hashes verified |
 | Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | `restoration-v2-derived-v1.0.0` / `89f136abaff797e14fe758a198996e51032a10a6`，private | exact 6-file derived projection 已 fresh re-download 并第三次 replay；旧 OCR golden tag 仍固定到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` |
 | Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
-| Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | pending formal audit/upload | 90-prompt CPU-only raw JSON；目标 tag `v2.1-processor-preflight-v1`；Git manifest 尚未生成 |
-| Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | pending processor PASS and pilot run | canonical fixed-15 raw USTAR；目标 tag `v2.1-interface-pilot-v1`；不得提前生成 |
+| Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
+| Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | pending fixed-15 pilot run | processor preflight 已通过；canonical raw USTAR 目标 tag `v2.1-interface-pilot-v1`；不得提前生成 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent

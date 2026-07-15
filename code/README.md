@@ -77,8 +77,9 @@ v2.1 interface rescue 使用独立模块 `causalcache.policy.gui_owl_v2_1`、
 `causalcache.policy.gui_owl_v2_1_runtime` 与 `causalcache.restoration_v2_1_contract`。它通过 pinned
 processor 的 official `tools=` 注入 schema，删除旧 `Action:` carrier，并只接受模型完整生成的一组
 `<tool_call>`。generation closer、标准 EOS suppression、teacher EOS finite mask、chat-template 与 token IDs
-均被 contract hash 绑定。`scripts.validate_restoration_v2_1_contract` 只验证 immutable source/contract；在
-独立 90-prompt processor evidence 通过前，它明确不授权 policy generation。
+均被 contract hash 绑定。`scripts.validate_restoration_v2_1_contract` 只验证 immutable source/contract；独立
+90-prompt processor evidence 现已正式通过，但只有其 Git manifest commit/push 并从 clean immutable HF
+download 复核后，才授权唯一 fixed-15 pilot。
 
 v2.1 的 processor-only 正式入口是 `scripts.audit_gui_owl_v2_1_processor`，独立重算/验证逻辑在
 `causalcache.restoration_v2_1_processor_audit`。它用真实 pinned `AutoProcessor` 处理 45 states ×
@@ -87,8 +88,8 @@ teacher golden；teacher bytes 与 official assistant `tool_calls` Jinja/tojson 
 与原始 Unicode UTF-8，decoded text 仍须 strict NFKC。不加载 model weights，也不 forward/generate。
 loader 会验证/hash 包含 confirm bytes 的完整 artifact，但交给 decoder/processor 的 confirm
 state/prompt/image 为 0，
-`confirm_processor_prompt_count=0`。正式 output 必须在 Git repo 外 exclusive-create；source 已就绪，尚未在
-Hyper00 产生正式 evidence。
+`confirm_processor_prompt_count=0`。正式 output 必须在 Git repo 外 exclusive-create；Hyper00 正式 evidence
+已通过并绑定 `data/results/restoration_v2_1_processor_preflight/artifact.json`。
 
 ```bash
 cd /data/CausalCache/code
@@ -129,6 +130,13 @@ python3 -m scripts.package_restoration_v2_1_processor_evidence \
 raw prompt/input-ID evidence 不进入 Git；pilot 从 immutable artifact 的本地下载件复核 SHA、size、source commit
 与 compact reduction。packager 本身不联网证明 HF revision 存在；正式流程必须在 upload/tag 后从 40-hex
 immutable revision fresh download，并逐 byte 复核 manifest 中的 SHA256/size，之后才允许提交 Git manifest。
+
+完成态为 `PASSED_RESTORATION_V2_1_90_PROMPT_PROCESSOR_PREFLIGHT`。raw JSON 位于 private HF dataset
+`gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile`，tag
+`v2.1-processor-preflight-v1`，immutable revision
+`85576161b7cb8bbae14e46a482c42b5be5bf1d7e`；Git 结果说明见
+`data/results/restoration_v2_1_processor_preflight/README.md`。fixed-15 runner 必须读取上述 immutable revision 的
+fresh download，不能读取未绑定的本地 run output。
 
 只有该 evidence 经独立 validator 通过，才能调用 fixed-15 no-retry runner
 `scripts.run_restoration_v2_1_interface_pilot`。runner 只读取冻结的 15 个 `v2_development` states，每 state

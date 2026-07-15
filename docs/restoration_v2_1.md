@@ -67,6 +67,15 @@ confirm 内容交给 processor。processor 输入只来自 45 个 screening stat
 host/container/image identity、Python/platform/package versions、start/end/duration，并明确记录
 `gpu_operations_executed=false`、`random_seed=null` 与 `seed_not_applicable=true`。
 
+正式 preflight 已在 source `d0205afd789cda602fbf8964505d9de9a1b1fe53` 上通过：45 states × 2 fidelity
+共 90 prompts，official tools 注入 90/90，image-count distribution 为 1-image 45、3/4/5-image 各 15，
+context overflow 为 0，input token 长度 3,759--15,013，最长输入加 256 generation budget 后仍低于 32,768。
+运行明确记录 policy model 未实例化、weights 未 materialize 为 tensors、forward/generate 未执行、GPU
+operation 为 false；这只关闭 processor gate，不是 policy-interface pilot 结果。Git 轻量证据见
+`data/results/restoration_v2_1_processor_preflight/`，raw evidence 固定在 private HF tag
+`v2.1-processor-preflight-v1` / immutable revision
+`85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，并已 fresh-download 逐 byte 复核。
+
 ### B. 固定 15-state development pilot
 
 pilot 只使用 selection manifest 已冻结的 `v2_development` 15 states，保持 manifest order。每个 state 只对
@@ -119,5 +128,5 @@ reducer。
 冻结 contract 位于 `code/configs/causalcache_restoration_v2_1_pilot.json`，当前 SHA256 为
 `9d51a2ed5d6cc382f297c1b8af3100d784090f72800d637136b88982763fdbf7`，interface source SHA256 为
 `90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964`。90-prompt real `AutoProcessor`
-audit/reducer 与 fixed-15 no-retry runner 的 source 已就绪；本状态只表示可从 clean pushed source 发起正式
-Hyper00 run，不代表 audit 或 pilot 已通过，也不授权提前生成 policy output。
+audit 已正式通过，fixed-15 no-retry runner 的 source 已就绪；当前只授权从包含 processor manifest 的 clean
+pushed `main` 发起唯一正式 pilot，不代表 pilot 已通过，也不授权 teacher、KL、restoration 或 confirm output。
