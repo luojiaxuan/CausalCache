@@ -7,8 +7,8 @@ frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
 untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
 preflight、exact IDs、exposure 与 OCR 已闭合；当前推进 baselines、derived artifact 与 execution config。仍没有
-v2 policy output、restoration label 或方法效果结果。OCR dependency 已通过；当前下一步是冻结 baseline
-implementation/source hashes，并构建完整 derived artifact，随后冻结 execution config。
+v2 policy output、restoration label 或方法效果结果。baseline 纯公式已经实现；当前下一步是补齐
+policy-vision extractor/source manifest，并构建完整 derived artifact，随后冻结 execution config。
 
 ## 已完成里程碑
 
@@ -775,6 +775,19 @@ implementation/source hashes，并构建完整 derived artifact，随后冻结 e
 - confirm images、GUI-Owl policy 与 restoration output 均未使用或生成。OCR dependency 5 已 passed；完整
   derived artifact、baseline implementation/source hashes 与 execution config 仍 pending。
 
+### 2026-07-15：Deterministic baseline 纯公式实现
+
+- 新增 `code/causalcache/restoration_v2_baselines.py`，实现 summary-only、recent、uniform-random exact
+  expectation、OCR+RGB similarity 与 frozen-policy vision similarity；所有输入均按四候选 exact coverage
+  fail closed；
+- random 不采样，也不使用 confirmatory attribution seed；它按 lexicographic 顺序枚举六个 2-of-4 subsets，
+  对 runner 提供的六个 normalized recovery 求解析均值；
+- OCR+RGB 使用 frozen OCR normalization 后的 token set Jaccard 与 256x256 RGB 16x16x16 joint histogram
+  cosine 各 0.5；policy-vision 对 spatial-merger 后的 visual token rows 做 mean-pool、L2-normalize 与 cosine；
+- 11 个定向 tests 与 16 个 scientific-contract tests 通过。本步骤未加载 policy、未生成 policy/restoration
+  output；policy-vision extractor identity 和完成态 source-hash manifest 仍 pending，因此 dependency 6 尚未
+  标为 passed。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -817,7 +830,8 @@ implementation/source hashes，并构建完整 derived artifact，随后冻结 e
    constructor 与 device-side executor dispatch 均有独立 evidence；
 5. pinned accessibility/OCR identity：implementation/config/weights SHA、synthetic golden 与 HF immutable
    model revision、6-image real-screen golden、HF dataset immutable re-download 与完成态 manifest passed；
-6. baseline specification/source hashes：scientific formula 已冻结，implementation source hashes pending；
+6. baseline specification/source hashes：scientific formula 与纯公式实现已完成；policy-vision extractor
+   identity、完成态 source-hash manifest pending；
 7. v2 interface source hashes：passed，见 `data/manifests/restoration_v2_interfaces.json`；
 8. 引用 scientific-config SHA 的 execution config：pending。
 
@@ -826,7 +840,7 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步冻结 baseline implementation/source hashes，然后构建并 immutable-verify 完整 private HF
+逐步 push：下一步补齐 policy-vision extractor/source manifest，并构建、immutable-verify 完整 private HF
 derived artifact，最后冻结包含全部 identity/source hashes 与 microbatch 的 execution config。
 八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity

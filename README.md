@@ -26,7 +26,8 @@ step-6 全部 16 个）已通过；pinned AndroidWorld `JSONAction` constructor 
 device-side executor dispatch 已在 Aries 正式通过 14/14 cases，negative actuation control 为 HTTP 500，
 独立 reducer verdict 为 `PASSED_EXECUTOR_DISPATCH`；证据见
 [`data/results/restoration_v2_executor_dispatch/`](data/results/restoration_v2_executor_dispatch/)。因此 action
-dependency 已闭合；完整 derived artifact、baselines 与 execution config 仍阻止 policy inference。
+dependency 已闭合；完整 derived artifact、baseline source manifest 与 execution config 仍阻止 policy
+inference。baseline 的纯公式实现已经完成，但 policy-vision extractor identity 尚未写入完成态 manifest。
 
 OCR/image backend 的 implementation identity 已冻结为 CPU-only
 `RapidOCR 3.8.4 + ONNX Runtime 1.24.4 + PP-OCRv5 mobile English`，两个 wheel、det/rec 与虽关闭但
@@ -370,6 +371,7 @@ $$
 - Restoration-v2 real-screen source/artifact validator: [`code/scripts/validate_restoration_v2_real_screen.py`](code/scripts/validate_restoration_v2_real_screen.py)
 - Frozen real-screen pre-output source contract: [`data/manifests/restoration_v2_real_screen_source.json`](data/manifests/restoration_v2_real_screen_source.json)
 - Passed real-screen run/HF summary: [`data/results/restoration_v2_ocr_backend/real_screen_summary.json`](data/results/restoration_v2_ocr_backend/real_screen_summary.json)
+- Restoration-v2 deterministic baseline formulas: [`code/causalcache/restoration_v2_baselines.py`](code/causalcache/restoration_v2_baselines.py)
 - Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)

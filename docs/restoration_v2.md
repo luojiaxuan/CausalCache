@@ -161,6 +161,11 @@ OCR+RGB score 是 OCR-token set Jaccard 与 16x16x16 joint-RGB-histogram cosine 
 vision score 是 spatial merger 后最后 visual output 的 mean-pool、L2-normalize、cosine。相似度均取 top 2，
 tie 按较小 event step。exact formula source hashes 必须进入 execution config。
 
+纯公式已实现于 `code/causalcache/restoration_v2_baselines.py`。random 严格枚举 lexicographic 六个 2-of-4
+subsets 并计算解析均值，不借用 attribution seed；OCR+RGB 直接消费 derived artifact 的 uncapped full-screen
+tokens 与 pinned 256x256 RGB bytes，不能由 capped summary delta 反推。此实现尚不单独闭合 dependency 6：
+policy-vision extractor identity 与最终 source-hash manifest 仍需先冻结。
+
 稳定性只在 memory-sensitive confirm states 上聚合并取 deterministic median。score ties 使用
 `rel_tol=1e-9, abs_tol=1e-12` 和较小 step ID；Spearman 使用 average ranks，双方 constant 且选择集合相同
 记 1、仅一方 constant 记 0；Jaccard 的 empty/empty 记 1。utility denominator 不超过 epsilon 时，双方

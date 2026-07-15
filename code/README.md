@@ -219,6 +219,13 @@ materializer 必须运行在 `HEAD == origin/main == --git-revision` 的 clean c
 `ocr-real-screen-golden-v1.0.0` 已固定到 HF revision
 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`，tree SHA256 为 `605d6396...7e25`。
 
+restoration v2 non-oracle baseline 的纯公式实现位于
+`causalcache.restoration_v2_baselines`：summary-only 取空集、recent 固定 events 3/4、random 是全部六个
+2-of-4 subset 的解析期望（没有 seed 或 sampled selector）、OCR+RGB 使用 full uncapped OCR token set 与
+256x256 RGB 的 16^3 joint histogram、policy-vision 使用 spatial-merger output 的 mean-pool/L2/cosine。
+top-2 tie 按 frozen `isclose` tolerance 后取较小 event step。当前公式和纯 CPU tests 已实现；policy-vision
+extractor 与完成态 source-hash manifest 仍需在任何 policy output 前补齐。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash
