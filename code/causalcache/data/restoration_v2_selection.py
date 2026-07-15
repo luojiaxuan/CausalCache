@@ -25,6 +25,12 @@ from causalcache.restoration_v2_contract import FROZEN_RESTORATION_V2_SHA256
 SELECTION_SCHEMA_VERSION = "0.1.0"
 EXPOSURE_SCHEMA_VERSION = "0.1.0"
 STATE_ID_TEMPLATE = "{source_id}:decision_step:{decision_step_id:03d}"
+EXPOSURE_ROLE_NAMES = (
+    "v1_reference_contract_audit_only",
+    "v2_label_train",
+    "v2_development",
+    "v2_confirm_primary",
+)
 V1_POLICY_REPO = "ByteDance-Seed/UI-TARS-1.5-7B"
 V1_POLICY_REVISION = "683d002dd99d8f95104d31e70391a39348857f4e"
 V1_SUMMARY_PATH = "data/results/independent_reference_gate_v1/summary.json"
@@ -1056,12 +1062,7 @@ def build_exposure_ledger(
             record["source_id"]
             for record in selection_manifest["roles"][name]["trajectories"]
         ]
-        for name in (
-            "v1_reference_contract_audit_only",
-            "v2_label_train",
-            "v2_development",
-            "v2_confirm_primary",
-        )
+        for name in EXPOSURE_ROLE_NAMES
     }
     reference_ids = set(role_ids["v1_reference_contract_audit_only"])
     if v1_summary.get("outcome") != "NO_GO_CURRENT_REFERENCE_STACK":
@@ -1090,11 +1091,7 @@ def build_exposure_ledger(
             "evidence": dict(evidence),
         }
 
-    parent_roles = (
-        "v1_reference_contract_audit_only",
-        "v2_label_train",
-        "v2_development",
-    )
+    parent_roles = EXPOSURE_ROLE_NAMES[:3]
     raw_roles = (
         *parent_roles,
         "v2_confirm_primary",
@@ -1241,12 +1238,14 @@ def validate_exposure_ledger(
     selection_sha = ledger.get("selection_manifest_sha256")
     if not _is_sha256(selection_sha):
         raise ValueError("exposure selection-manifest SHA256 is invalid")
+    if set(ledger.get("role_source_ids", {})) != set(EXPOSURE_ROLE_NAMES):
+        raise ValueError("exposure role inventory drifted")
     expected_role_ids = {
         name: [
             record["source_id"]
             for record in selection_manifest["roles"][name]["trajectories"]
         ]
-        for name in ledger["role_source_ids"]
+        for name in EXPOSURE_ROLE_NAMES
     }
     if ledger["role_source_ids"] != expected_role_ids:
         raise ValueError("exposure role IDs differ from selection manifest")
@@ -1289,7 +1288,7 @@ def validate_exposure_ledger(
     }:
         raise ValueError("confirm raw-access evidence mismatch")
     expert_event = events["recorded-expert-actions-machine-read"]
-    if expert_event["roles"] != list(expected_role_ids) or expert_event[
+    if expert_event["roles"] != list(EXPOSURE_ROLE_NAMES) or expert_event[
         "access_kind"
     ] != "recorded_expert_action_read":
         raise ValueError("expert-action exposure event drifted")

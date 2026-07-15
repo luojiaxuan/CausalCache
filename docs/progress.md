@@ -651,6 +651,17 @@ v2 policy output、restoration label 或方法效果结果。
   digest。当前只完成实现；必须从已推送 commit 在 Hyper00 正式生成两个 manifest 后，dependencies 2/3
   才能标为 passed。本步骤未生成 policy/restoration output。
 
+### 2026-07-15：Selection formal attempt 1 被 validator 拒绝
+
+- 从已推送 `main@826b45f` 的 clean detached Hyper00 worktree 重建出 212 rows / 111 eligible pool，builder
+  产出 fixed-prefix 20 IDs、30/15/20 state counts；未加载 policy、未使用 GPU；
+- 独立 validator 随后拒绝 exposure：canonical JSON 使用 `sort_keys=True`，落盘再读回后 role-object key
+  order 改变，而 validator 错把 dict insertion order 当作 expert-access event 的语义；
+- 这是 serialization/validator contract bug，不是 selection scientific failure；attempt 路径
+  `/data/tmp/restoration-v2-selection-826b45f` 保留且不会覆盖，但不能作为 canonical artifact；
+- 修复将 role inventory 改为显式 frozen tuple，并新增“serialize→parse→validate”回归测试。必须先
+  commit/push 修复，再从新 commit/new output path 重跑 formal materialization。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；

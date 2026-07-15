@@ -330,6 +330,7 @@ class RestorationV2SelectionTest(unittest.TestCase):
             ),
             v1_summary=summary,
         )
+        ledger = json.loads(pretty_json_bytes(ledger))
         validate_exposure_ledger(ledger, selection_manifest=selection)
         invalid = copy.deepcopy(ledger)
         del invalid["events"][3]["evidence"]["hf_revision"]
