@@ -500,6 +500,14 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - anchor peak 17.83 GB，generation latency 合计 30.77 s。monitor 两个 active windows 平均只有 21%/18%，
   原因是单样本 variable-history preprocessing + 短 generation；reference gate 保持单卡监督执行，正式
   coalition-scale oracle 前必须先做 batching/concurrency 与 GPU-side KL。
+- 新增 v0.4 multi-trajectory builder：逐文件 hash、命名 eligibility exclusion、NFKC app normalization、
+  salted shortest-prefix split、image collision/path 检查和 byte-deterministic tar；旧 v0.3 API 不变；
+- 新增 formal reference runner：模型加载前验证 clean Git、frozen interface、base 50% gate、HF artifact
+  revision/tar/manifest SHA、完整 split denominator、UI-TARS snapshot 实际文件 SHA 与 H200 anchor；合法
+  scientific failure 输出 `NO_GO_CURRENT_REFERENCE_STACK`，实现/契约异常原子写 `failure.json`；
+- full suite 从 91 增至 106 tests，另通过 contract validation、py_compile 与 whitespace check。下一步先
+  构建两份 byte-identical artifact、上传 private HF、把 immutable revision/SHA 回写并 push；此前 formal
+  runner 因 config artifact fields 为 null 按设计拒绝 inference。
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；

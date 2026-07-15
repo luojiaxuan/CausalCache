@@ -46,14 +46,20 @@ Hyper00 H200 的 UI-TARS behavioral anchor 已通过：旧 9-decision artifact �
 可以留在 Hyper00；该 anchor 的低平均利用率仍要求在 oracle-scale attribution 前完成 batching/GPU-side
 KL 优化。
 
+multi-trajectory deterministic builder 与 formal fail-closed reference runner 已实现并通过 106 个 tests；
+命令、HF 回写和失败恢复见
+[`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)。下一原子步骤是构建 artifact、上传
+private HF 并回写 immutable revision/SHA；在这之前 runner 会拒绝加载模型。
+
 新合作者按以下顺序阅读：
 
 1. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
 2. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
 3. [`docs/experiment_contract.md`](docs/experiment_contract.md)：不可静默改变的实验语义；
 4. [`docs/go_no_go.md`](docs/go_no_go.md)：当前 diagnostic 与扩展 pilot 的冻结判据；
-5. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-6. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+5. [`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)：独立 artifact/gate 的执行与回写；
+6. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+7. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -72,9 +78,8 @@ docs/              # contract、execution、progress、decisions
 make test validate-contract paper
 ```
 
-计算 placement：Hyper01 H200 默认用于 policy forward、attribution 和 gate training；AndroidWorld
-closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 的 KVM 可用，但 Docker root 只剩约 7G，
-在解决 image 容量并重做 environment smoke 前不迁移完整 emulator stack。
+计算 placement：当前 independent policy/reference 工作使用已通过 behavioral anchor 的 Hyper00 H200；
+AndroidWorld closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 当前不参与本轮执行。
 
 ## 一句话主张
 

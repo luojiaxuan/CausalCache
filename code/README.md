@@ -89,6 +89,37 @@ executable mismatch；异常写单个 `failure.json` 并返回 nonzero。成功�
 full-vocabulary logits。coalition forwards 固定为 36 个 mixed-fidelity inputs、2 个 full references 和 2 个
 repeat-noise probes；selector、random expectation 与 $K$ sweep 都读取同一 distance cache。
 
+独立多轨迹 artifact 用冻结的 16-file manifest 构建。CLI 会先重算全部 2.25 GB source files 的 size/SHA，
+再以命名 exclusion rules 扫描 rows、做 salted trajectory 排序和 shortest-prefix split；输出是一个
+deterministic tar shard，不允许覆盖非空目录：
+
+```bash
+python3 -m scripts.build_guiodyssey_independent \
+  --config code/configs/independent_reference_gate_v1.json \
+  --source-file-manifest data/manifests/independent_reference_gate_v1_source_files.json \
+  --source-root /data/source/guiodyssey-independent-v1 \
+  --output-dir /data/artifacts/causalcache-guiodyssey-independent-v1
+```
+
+artifact 上传 private HF、将 immutable revision 与 manifest/shard SHA 回写 config 并 push 后，才运行
+formal UI-TARS reference gate：
+
+```bash
+python3 -m scripts.run_independent_ui_tars_reference_gate \
+  --config code/configs/independent_reference_gate_v1.json \
+  --dataset-tar /data/artifacts/causalcache-guiodyssey-independent-v1/data/guiodyssey-independent-00000.tar \
+  --hardware-anchor-summary data/results/ui_tars_hyper00_hardware_anchor/summary.json \
+  --model-dir /data/artifacts/models/UI-TARS-1.5-7B \
+  --device cuda:0 \
+  --output-dir /data/experiments/independent-reference-gate-v1 \
+  --run-git-commit <FULL_CLEAN_MAIN_SHA> \
+  --container-image-digest <SHA256_IMAGE_ID>
+```
+
+runner 在加载模型前验证 clean Git、frozen interface hashes、anchor、HF revision、tar/manifest SHA 与完整
+split denominator。合法 gate failure 输出 `NO_GO_CURRENT_REFERENCE_STACK` 并正常退出；契约/运行错误写
+`failure.json` 并返回 nonzero。reference 通过前禁止读取 `oracle_pilot` policy output。
+
 正式 validation 结束后只上传聚合 payload，不直接上传逐 episode 小文件：
 
 ```bash
