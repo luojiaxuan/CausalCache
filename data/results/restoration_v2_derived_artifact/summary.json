@@ -1,0 +1,731 @@
+{
+  "artifact_id": "causalcache-restoration-v2-derived-artifact-v1",
+  "artifact_validations": [
+    {
+      "argv": [
+        "/data/.venv/causalcache-ocr-v2/bin/python",
+        "-m",
+        "scripts.build_guiodyssey_restoration_v2",
+        "--v2-contract",
+        "configs/causalcache_restoration_v2.json",
+        "--v1-config",
+        "configs/independent_reference_gate_v1.json",
+        "--source-file-manifest",
+        "../data/manifests/independent_reference_gate_v1_source_files.json",
+        "--source-root",
+        "/data/source/guiodyssey-independent-v1",
+        "--selection-manifest",
+        "../data/manifests/restoration_v2_selection.json",
+        "--exposure-manifest",
+        "../data/manifests/restoration_v2_exposure.json",
+        "--ocr-backend-config",
+        "configs/restoration_v2_ocr_backend.json",
+        "--ocr-backend-manifest",
+        "../data/manifests/restoration_v2_ocr_backend.json",
+        "--model-dir",
+        "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+        "--wheel-dir",
+        "/data/tmp/causalcache-ocr-v2-wheels",
+        "--git-revision",
+        "1a01f2323647d092cab67f0531ecb877a4a255de",
+        "--output-dir",
+        "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-1"
+      ],
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "ended_at_utc": "2026-07-15T14:47:57.486955852Z",
+      "ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_performed": true,
+      "ocr_replay_record_count": 210,
+      "outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_ARTIFACT_VALIDATION",
+      "output_path": "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-1",
+      "policy_loaded": false,
+      "policy_output_generated": false,
+      "restoration_output_generated": false,
+      "source": "builder_integrated",
+      "started_at_utc": "2026-07-15T14:26:37.779182367Z",
+      "validation_id": "repeat-1-builder-integrated-replay"
+    },
+    {
+      "argv": [
+        "/data/.venv/causalcache-ocr-v2/bin/python",
+        "-m",
+        "scripts.build_guiodyssey_restoration_v2",
+        "--v2-contract",
+        "configs/causalcache_restoration_v2.json",
+        "--v1-config",
+        "configs/independent_reference_gate_v1.json",
+        "--source-file-manifest",
+        "../data/manifests/independent_reference_gate_v1_source_files.json",
+        "--source-root",
+        "/data/source/guiodyssey-independent-v1",
+        "--selection-manifest",
+        "../data/manifests/restoration_v2_selection.json",
+        "--exposure-manifest",
+        "../data/manifests/restoration_v2_exposure.json",
+        "--ocr-backend-config",
+        "configs/restoration_v2_ocr_backend.json",
+        "--ocr-backend-manifest",
+        "../data/manifests/restoration_v2_ocr_backend.json",
+        "--model-dir",
+        "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+        "--wheel-dir",
+        "/data/tmp/causalcache-ocr-v2-wheels",
+        "--git-revision",
+        "1a01f2323647d092cab67f0531ecb877a4a255de",
+        "--output-dir",
+        "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-2"
+      ],
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "ended_at_utc": "2026-07-15T15:12:43.238635504Z",
+      "ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_performed": true,
+      "ocr_replay_record_count": 210,
+      "outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_ARTIFACT_VALIDATION",
+      "output_path": "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-2",
+      "policy_loaded": false,
+      "policy_output_generated": false,
+      "restoration_output_generated": false,
+      "source": "builder_integrated",
+      "started_at_utc": "2026-07-15T14:51:24.170577043Z",
+      "validation_id": "repeat-2-builder-integrated-replay"
+    },
+    {
+      "argv": [
+        "/data/.venv/causalcache-ocr-v2/bin/python",
+        "-m",
+        "scripts.validate_guiodyssey_restoration_v2",
+        "--output-dir",
+        "/data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload",
+        "--v2-contract",
+        "configs/causalcache_restoration_v2.json",
+        "--v1-config",
+        "configs/independent_reference_gate_v1.json",
+        "--source-file-manifest",
+        "../data/manifests/independent_reference_gate_v1_source_files.json",
+        "--selection-manifest",
+        "../data/manifests/restoration_v2_selection.json",
+        "--exposure-manifest",
+        "../data/manifests/restoration_v2_exposure.json",
+        "--ocr-backend-config",
+        "configs/restoration_v2_ocr_backend.json",
+        "--ocr-backend-manifest",
+        "../data/manifests/restoration_v2_ocr_backend.json",
+        "--model-dir",
+        "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+        "--wheel-dir",
+        "/data/tmp/causalcache-ocr-v2-wheels",
+        "--git-revision",
+        "1a01f2323647d092cab67f0531ecb877a4a255de"
+      ],
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "ended_at_utc": "2026-07-15T15:31:30.534390269Z",
+      "ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_performed": true,
+      "ocr_replay_record_count": 210,
+      "outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_ARTIFACT_VALIDATION",
+      "output_path": "/data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload",
+      "policy_loaded": false,
+      "policy_output_generated": false,
+      "restoration_output_generated": false,
+      "source": "standalone_validator",
+      "started_at_utc": "2026-07-15T15:20:56.587011300Z",
+      "validation_id": "hf-immutable-redownload-exact-replay"
+    }
+  ],
+  "dependency_1_closed": true,
+  "deterministic_identity": {
+    "all_six_files_byte_identical": true,
+    "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+    "canonical_files": [
+      {
+        "path": ".gitattributes",
+        "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9",
+        "size_bytes": 42
+      },
+      {
+        "path": "README.md",
+        "sha256": "0635bba67aad567fc75427c55bd8b1778b92e60499a6c1fecb4cfd90390c0918",
+        "size_bytes": 2107
+      },
+      {
+        "path": "derived/restoration-v2-v1/images-00000-of-00001.tar",
+        "sha256": "1a383c116117d26d7a123343816187695c8312a5923359a6518d7f0051d17326",
+        "size_bytes": 155883520
+      },
+      {
+        "path": "derived/restoration-v2-v1/manifest.json",
+        "sha256": "90a48f794123b915994df9a780a0553f71f9fad26c95cae7b24d1435d1627945",
+        "size_bytes": 7382
+      },
+      {
+        "path": "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+        "sha256": "b8c96b9951d8166839dde71b4c8ca60f099b92e892bbeafde819beb96a9fc97d",
+        "size_bytes": 1897573
+      },
+      {
+        "path": "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+        "sha256": "c08ae40d0fe27783c03c00459066db43dd8610cc8b77f74babdcc97dc18b747e",
+        "size_bytes": 595807
+      }
+    ],
+    "materialization_repeat_count": 2,
+    "ocr_record_aggregate_byte_identical": true,
+    "ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010"
+  },
+  "hf_dataset_artifact": {
+    "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+    "counts": {
+      "event_count": 175,
+      "image_member_count": 210,
+      "ocr_record_count": 210,
+      "state_count": 65,
+      "trajectory_count": 35
+    },
+    "exact_download_allowlist": [
+      ".gitattributes",
+      "README.md",
+      "derived/restoration-v2-v1/images-00000-of-00001.tar",
+      "derived/restoration-v2-v1/manifest.json",
+      "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+      "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl"
+    ],
+    "files": [
+      {
+        "path": ".gitattributes",
+        "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9",
+        "size_bytes": 42
+      },
+      {
+        "path": "README.md",
+        "sha256": "0635bba67aad567fc75427c55bd8b1778b92e60499a6c1fecb4cfd90390c0918",
+        "size_bytes": 2107
+      },
+      {
+        "path": "derived/restoration-v2-v1/images-00000-of-00001.tar",
+        "sha256": "1a383c116117d26d7a123343816187695c8312a5923359a6518d7f0051d17326",
+        "size_bytes": 155883520
+      },
+      {
+        "path": "derived/restoration-v2-v1/manifest.json",
+        "sha256": "90a48f794123b915994df9a780a0553f71f9fad26c95cae7b24d1435d1627945",
+        "size_bytes": 7382
+      },
+      {
+        "path": "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+        "sha256": "b8c96b9951d8166839dde71b4c8ca60f099b92e892bbeafde819beb96a9fc97d",
+        "size_bytes": 1897573
+      },
+      {
+        "path": "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+        "sha256": "c08ae40d0fe27783c03c00459066db43dd8610cc8b77f74babdcc97dc18b747e",
+        "size_bytes": 595807
+      }
+    ],
+    "immutable_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+    "ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+    "payload_prefix": "derived/restoration-v2-v1",
+    "redownload": {
+      "all_listed_file_hashes_verified": true,
+      "allow_patterns": [
+        ".gitattributes",
+        "README.md",
+        "derived/restoration-v2-v1/images-00000-of-00001.tar",
+        "derived/restoration-v2-v1/manifest.json",
+        "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+        "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl"
+      ],
+      "argv": [
+        "/Users/luojiaxuan/.local/bin/hf",
+        "download",
+        "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+        ".gitattributes",
+        "README.md",
+        "derived/restoration-v2-v1/images-00000-of-00001.tar",
+        "derived/restoration-v2-v1/manifest.json",
+        "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+        "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+        "--repo-type",
+        "dataset",
+        "--revision",
+        "89f136abaff797e14fe758a198996e51032a10a6",
+        "--local-dir",
+        "/tmp/causalcache-restoration-v2-hf-download-attempt-2-89f136a",
+        "--force-download",
+        "--format",
+        "json"
+      ],
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "artifact_validator_replayed_on_hyper00": true,
+      "client": "hf CLI 1.23.0 (huggingface_hub 1.23.0)",
+      "download_root": "/tmp/causalcache-restoration-v2-hf-download-attempt-2-89f136a",
+      "ended_at_utc": "2026-07-15T15:18:16Z",
+      "force_download": true,
+      "fresh_cache_dir": "/tmp/causalcache-restoration-v2-hf-download-attempt-2-89f136a/.cache/huggingface/download",
+      "fresh_cache_dir_preexisted": false,
+      "method": "hf_cli_download+exact_six_clean_projection",
+      "observed_files": [
+        {
+          "path": ".gitattributes",
+          "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9",
+          "size_bytes": 42
+        },
+        {
+          "path": "README.md",
+          "sha256": "0635bba67aad567fc75427c55bd8b1778b92e60499a6c1fecb4cfd90390c0918",
+          "size_bytes": 2107
+        },
+        {
+          "path": "derived/restoration-v2-v1/images-00000-of-00001.tar",
+          "sha256": "1a383c116117d26d7a123343816187695c8312a5923359a6518d7f0051d17326",
+          "size_bytes": 155883520
+        },
+        {
+          "path": "derived/restoration-v2-v1/manifest.json",
+          "sha256": "90a48f794123b915994df9a780a0553f71f9fad26c95cae7b24d1435d1627945",
+          "size_bytes": 7382
+        },
+        {
+          "path": "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+          "sha256": "b8c96b9951d8166839dde71b4c8ca60f099b92e892bbeafde819beb96a9fc97d",
+          "size_bytes": 1897573
+        },
+        {
+          "path": "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+          "sha256": "c08ae40d0fe27783c03c00459066db43dd8610cc8b77f74babdcc97dc18b747e",
+          "size_bytes": 595807
+        }
+      ],
+      "ocr_replay_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_record_count": 210,
+      "projection_root": "/data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload",
+      "revision": "89f136abaff797e14fe758a198996e51032a10a6",
+      "started_at_utc": "2026-07-15T15:18:07Z",
+      "validated_output_path": "/data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload",
+      "validator_outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_ARTIFACT_VALIDATION"
+    },
+    "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "repo_type": "dataset",
+    "tag": "restoration-v2-derived-v1.0.0",
+    "tag_resolved_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+    "upload": {
+      "allow_patterns": [
+        ".gitattributes",
+        "README.md",
+        "derived/restoration-v2-v1/images-00000-of-00001.tar",
+        "derived/restoration-v2-v1/manifest.json",
+        "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+        "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl"
+      ],
+      "client": "hf CLI 1.23.0 (huggingface_hub 1.23.0)",
+      "commit_message": "Upload CausalCache restoration v2 derived artifact v1",
+      "commit_oid": "89f136abaff797e14fe758a198996e51032a10a6",
+      "local_upload_source_path": "/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-1",
+      "method": "hf_cli_upload+hf_cli_tag_create",
+      "source_materialization_output_path": "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-1",
+      "source_repeat": 1,
+      "tag_create_argv": [
+        "/Users/luojiaxuan/.local/bin/hf",
+        "repos",
+        "tag",
+        "create",
+        "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+        "restoration-v2-derived-v1.0.0",
+        "--repo-type",
+        "dataset",
+        "--revision",
+        "89f136abaff797e14fe758a198996e51032a10a6",
+        "--message",
+        "CausalCache restoration-v2 derived dataset v1.0.0",
+        "--format",
+        "json"
+      ],
+      "tag_ended_at_utc": "2026-07-15T15:17:18Z",
+      "tag_resolution_method": "HfApi.dataset_info(revision=tag).sha",
+      "tag_started_at_utc": "2026-07-15T15:17:16Z",
+      "upload_argv": [
+        "/Users/luojiaxuan/.local/bin/hf",
+        "upload",
+        "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+        "/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-1",
+        ".",
+        "--repo-type",
+        "dataset",
+        "--revision",
+        "main",
+        "--include",
+        ".gitattributes",
+        "--include",
+        "README.md",
+        "--include",
+        "derived/restoration-v2-v1/images-00000-of-00001.tar",
+        "--include",
+        "derived/restoration-v2-v1/manifest.json",
+        "--include",
+        "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+        "--include",
+        "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+        "--commit-message",
+        "Upload CausalCache restoration v2 derived artifact v1",
+        "--format",
+        "json"
+      ],
+      "upload_ended_at_utc": "2026-07-15T15:16:51Z",
+      "upload_started_at_utc": "2026-07-15T15:15:31Z"
+    },
+    "uploaded_from_git_commit": "1a01f2323647d092cab67f0531ecb877a4a255de",
+    "visibility": "private"
+  },
+  "materialization_repeats": [
+    {
+      "argv": [
+        "/data/.venv/causalcache-ocr-v2/bin/python",
+        "-m",
+        "scripts.build_guiodyssey_restoration_v2",
+        "--v2-contract",
+        "configs/causalcache_restoration_v2.json",
+        "--v1-config",
+        "configs/independent_reference_gate_v1.json",
+        "--source-file-manifest",
+        "../data/manifests/independent_reference_gate_v1_source_files.json",
+        "--source-root",
+        "/data/source/guiodyssey-independent-v1",
+        "--selection-manifest",
+        "../data/manifests/restoration_v2_selection.json",
+        "--exposure-manifest",
+        "../data/manifests/restoration_v2_exposure.json",
+        "--ocr-backend-config",
+        "configs/restoration_v2_ocr_backend.json",
+        "--ocr-backend-manifest",
+        "../data/manifests/restoration_v2_ocr_backend.json",
+        "--model-dir",
+        "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+        "--wheel-dir",
+        "/data/tmp/causalcache-ocr-v2-wheels",
+        "--git-revision",
+        "1a01f2323647d092cab67f0531ecb877a4a255de",
+        "--output-dir",
+        "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-1"
+      ],
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "counts": {
+        "event_count": 175,
+        "image_member_count": 210,
+        "ocr_record_count": 210,
+        "state_count": 65,
+        "trajectory_count": 35
+      },
+      "ended_at_utc": "2026-07-15T14:47:57.486955852Z",
+      "generated_ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "generated_ocr_record_count": 210,
+      "ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_performed": true,
+      "ocr_replay_record_count": 210,
+      "outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_ARTIFACT_VALIDATION",
+      "output_dir_preexisted": false,
+      "output_path": "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-1",
+      "policy_loaded": false,
+      "policy_output_generated": false,
+      "repeat": 1,
+      "restoration_output_generated": false,
+      "started_at_utc": "2026-07-15T14:26:37.779182367Z"
+    },
+    {
+      "argv": [
+        "/data/.venv/causalcache-ocr-v2/bin/python",
+        "-m",
+        "scripts.build_guiodyssey_restoration_v2",
+        "--v2-contract",
+        "configs/causalcache_restoration_v2.json",
+        "--v1-config",
+        "configs/independent_reference_gate_v1.json",
+        "--source-file-manifest",
+        "../data/manifests/independent_reference_gate_v1_source_files.json",
+        "--source-root",
+        "/data/source/guiodyssey-independent-v1",
+        "--selection-manifest",
+        "../data/manifests/restoration_v2_selection.json",
+        "--exposure-manifest",
+        "../data/manifests/restoration_v2_exposure.json",
+        "--ocr-backend-config",
+        "configs/restoration_v2_ocr_backend.json",
+        "--ocr-backend-manifest",
+        "../data/manifests/restoration_v2_ocr_backend.json",
+        "--model-dir",
+        "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+        "--wheel-dir",
+        "/data/tmp/causalcache-ocr-v2-wheels",
+        "--git-revision",
+        "1a01f2323647d092cab67f0531ecb877a4a255de",
+        "--output-dir",
+        "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-2"
+      ],
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "counts": {
+        "event_count": 175,
+        "image_member_count": 210,
+        "ocr_record_count": 210,
+        "state_count": 65,
+        "trajectory_count": 35
+      },
+      "ended_at_utc": "2026-07-15T15:12:43.238635504Z",
+      "generated_ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "generated_ocr_record_count": 210,
+      "ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+      "ocr_replay_performed": true,
+      "ocr_replay_record_count": 210,
+      "outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_ARTIFACT_VALIDATION",
+      "output_dir_preexisted": false,
+      "output_path": "/data/tmp/causalcache-restoration-v2-derived-1a01f23-repeat-2",
+      "policy_loaded": false,
+      "policy_output_generated": false,
+      "repeat": 2,
+      "restoration_output_generated": false,
+      "started_at_utc": "2026-07-15T14:51:24.170577043Z"
+    }
+  ],
+  "negative_declarations": {
+    "confirm_policy_scores_observed": false,
+    "policy_forward_called": false,
+    "policy_module_loaded": false,
+    "policy_output_generated": false,
+    "restoration_output_generated": false
+  },
+  "outcome": "PASSED_RESTORATION_V2_DERIVED_ARTIFACT_COMPLETION",
+  "payload_manifest_snapshot": {
+    "content": {
+      "artifact_id": "causalcache-guiodyssey-restoration-v2-mobile-v1",
+      "counts": {
+        "event_count": 175,
+        "image_member_count": 210,
+        "ocr_record_count": 210,
+        "state_count": 65,
+        "trajectory_count": 35
+      },
+      "dataset_repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "formal_counts_enforced": true,
+      "generator": {
+        "build_cli_path": "code/scripts/build_guiodyssey_restoration_v2.py",
+        "build_cli_sha256": "142be847ed168690e05e1472e0b12b51c57bcf2f07c3f94d36a12194961b093a",
+        "git_revision": "1a01f2323647d092cab67f0531ecb877a4a255de",
+        "module_path": "code/causalcache/data/guiodyssey_restoration_v2.py",
+        "module_sha256": "8caf9418e4212c760b789f660b8b67c9b23a5b88d08a8434d4a1e718f7a0e4ee",
+        "validator_path": "code/scripts/validate_guiodyssey_restoration_v2.py",
+        "validator_sha256": "63e590d3f134168cf426a942444a441f777b7fc547ce89665aec9a4f1a384476"
+      },
+      "inputs": {
+        "exposure_manifest": {
+          "path": "data/manifests/restoration_v2_exposure.json",
+          "sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95"
+        },
+        "ocr_backend_config": {
+          "path": "code/configs/restoration_v2_ocr_backend.json",
+          "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+        },
+        "ocr_backend_manifest": {
+          "path": "data/manifests/restoration_v2_ocr_backend.json",
+          "sha256": "107478672438b52e9c2ccc9ef8de5d13d4e16329ab1afbe95772e2d3df5bd2a9"
+        },
+        "scientific_contract": {
+          "path": "code/configs/causalcache_restoration_v2.json",
+          "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+        },
+        "selection_manifest": {
+          "path": "data/manifests/restoration_v2_selection.json",
+          "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+        },
+        "source_file_manifest": {
+          "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+          "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc"
+        },
+        "v1_config": {
+          "path": "code/configs/independent_reference_gate_v1.json",
+          "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8"
+        }
+      },
+      "inventories": {
+        "image_members_sha256": "34306ef4da6aba377a610dffebca73ecac5f04c70cf17a1362554cf6a8fa1085",
+        "ocr_record_aggregate_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+        "ocr_records_sha256": "1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010",
+        "trajectory_index_sha256": "c638d5a52c50e1aad1e6d85740aff305979ffdcd16eb2e1febfe84049c270740"
+      },
+      "license": "cc-by-4.0",
+      "ocr_backend": {
+        "backend_config_sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+        "backend_id": "rapidocr-3.8.4-ppocrv5-mobile-en-cpu-v1",
+        "hf_model_repo": "gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en",
+        "hf_model_revision": "0dbc766a73ee88d10d52285d434dbfec58617835",
+        "hf_model_tag": "v1.0.0",
+        "real_screen_golden_dataset_revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b"
+      },
+      "ocr_runtime": {
+        "model_sha256": {
+          "detector": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+          "inactive_classifier": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+          "recognizer": "c3461add59bb4323ecba96a492ab75e06dda42467c9e3d0c18db5d1d21924be8"
+        },
+        "rapidocr_package_file_sha256": {
+          "ch_ppocr_rec/main.py": "7e45ae163ae05973724943749a83b9c2ff3f8e37c838a6a3d253043f58ea5b58",
+          "config.yaml": "253abd97e27627c00925b06c33cdc8c63fd56093f9a9a80c9a258bf1a2621d18",
+          "default_models.yaml": "0d734a5024997bdbbd84d275c633285d6e0084a2514a934825fd59772c6464ab",
+          "inference_engine/onnxruntime/main.py": "f62a6aaaf7edb0b71eba65bdd5e2ae2fed6194643c44382618eaeb757827e775",
+          "utils/load_image.py": "f6de151fdce9fdf6890650dc3f7305455a2cade9bbf7652a30a558ee3fbe3f59"
+        },
+        "recognizer_character_inventory": {
+          "canonical_json_sha256": "16d149d69e1f4202e7d5a703ca26edcc04070888cd59c2353bf4cc70406ab611",
+          "entry_count": 436,
+          "metadata_key": "character",
+          "utf8_sha256": "e025a66d31f327ba0c232e03f407ae8d105e1e709e7ccb3f408aa778c24e70d6"
+        },
+        "runtime_packages": {
+          "Pillow": "12.2.0",
+          "PyYAML": "6.0.3",
+          "Shapely": "2.1.2",
+          "antlr4-python3-runtime": "4.9.3",
+          "certifi": "2026.6.17",
+          "charset-normalizer": "3.4.9",
+          "colorlog": "6.10.1",
+          "flatbuffers": "25.12.19",
+          "idna": "3.18",
+          "mpmath": "1.3.0",
+          "numpy": "2.3.5",
+          "omegaconf": "2.3.1",
+          "onnxruntime": "1.24.4",
+          "opencv-python": "4.10.0.84",
+          "packaging": "26.2",
+          "protobuf": "7.35.1",
+          "pyarrow": "24.0.0",
+          "pyclipper": "1.4.0",
+          "rapidocr": "3.8.4",
+          "requests": "2.34.2",
+          "six": "1.17.0",
+          "sympy": "1.14.0",
+          "tqdm": "4.68.4",
+          "urllib3": "2.7.0"
+        },
+        "wheel_sha256": {
+          "onnxruntime": "0d640eb9f3782689b55cfa715094474cd5662f2f137be6a6f847a594b6e9705c",
+          "rapidocr": "1a8400df99ea2348a6d1902d1c6fa64c29edcf56b3c58cecd4cf1e5ff51b7ae2"
+        }
+      },
+      "payload_files": [
+        {
+          "member_count": 210,
+          "path": "derived/restoration-v2-v1/images-00000-of-00001.tar",
+          "sha256": "1a383c116117d26d7a123343816187695c8312a5923359a6518d7f0051d17326",
+          "size_bytes": 155883520
+        },
+        {
+          "path": "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+          "record_count": 210,
+          "sha256": "b8c96b9951d8166839dde71b4c8ca60f099b92e892bbeafde819beb96a9fc97d",
+          "size_bytes": 1897573
+        },
+        {
+          "path": "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+          "record_count": 35,
+          "sha256": "c08ae40d0fe27783c03c00459066db43dd8610cc8b77f74babdcc97dc18b747e",
+          "size_bytes": 595807
+        }
+      ],
+      "policy_output_generated": false,
+      "protocol_id": "causalcache_restoration_v2",
+      "restoration_output_generated": false,
+      "role_source_ids": {
+        "v2_confirm_primary": [
+          "0138580662882674",
+          "0141017089161442",
+          "0088916287721604",
+          "0182869798349621",
+          "0062595953452329",
+          "0206356317737773",
+          "0128873485175141",
+          "0097146299278532",
+          "0126322136688861",
+          "0003269005797789",
+          "0107883386619316",
+          "0015844124232805",
+          "0007216161758334",
+          "0208932442851349",
+          "0140656067727410",
+          "0205621648359625",
+          "0047234313779636",
+          "0125033580932478",
+          "0163270032450668",
+          "0061317255667027"
+        ],
+        "v2_development": [
+          "0119685762769531",
+          "0126163828013448",
+          "0106443124024468",
+          "0141544666483837",
+          "0035782072567389"
+        ],
+        "v2_label_train": [
+          "0131649930078879",
+          "0214993880872733",
+          "0230010406789851",
+          "0021006740023566",
+          "0218068002038239",
+          "0217738978329323",
+          "0139141460497671",
+          "0122136372603148",
+          "0214300008821039",
+          "0050955459888018"
+        ]
+      },
+      "schema_version": "1.0.0",
+      "source_dataset": {
+        "license": "cc-by-4.0",
+        "transport_repo": "cua-lite/GUIOdyssey",
+        "transport_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+        "upstream_repo": "hflqf88888/GUIOdyssey",
+        "upstream_revision": "61632d0f3f4d51d7e9561ce4f84347dd06b2019d"
+      },
+      "status": "POLICY_BLIND_DERIVED_DATASET_MATERIALIZED"
+    },
+    "path": "derived/restoration-v2-v1/manifest.json",
+    "sha256": "90a48f794123b915994df9a780a0553f71f9fad26c95cae7b24d1435d1627945"
+  },
+  "protocol_id": "causalcache_restoration_v2",
+  "runtime": {
+    "architecture": "x86_64",
+    "container_id": "6263d8cd69fbe30a1313982126c493d08ed3997c1f58e1080c95481d03c3ac21",
+    "container_image": "hongccc/sglang-omni:dev",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_name": "sglang-omni-jaxan-07151357",
+    "dtype": "not_applicable_cpu_onnxruntime",
+    "gpu_used": false,
+    "host_alias": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "kernel": "6.8.0-1043-aiext",
+    "library_versions": {
+      "Pillow": "12.2.0",
+      "huggingface_hub": "1.23.0",
+      "onnxruntime": "1.24.4",
+      "pyarrow": "24.0.0",
+      "rapidocr": "3.8.4"
+    },
+    "provider": "CPUExecutionProvider",
+    "python": "3.12.3",
+    "seed": null
+  },
+  "schema_version": "1.0.0",
+  "source": {
+    "builder_git_commit": "1a01f2323647d092cab67f0531ecb877a4a255de",
+    "builder_git_tree": "753e42ab9663553d461e8200dcfcdd5576ee209e",
+    "checkout_transport": {
+      "bundle_sha256": "a97563e9ddbbc2ab2242af6070480aae518938fd2100d4c09b808b7b6c5e1857",
+      "bundle_size_bytes": 1325083,
+      "canonical_main_push_verified_on_mac": true,
+      "fallback": "complete_git_bundle_from_verified_pushed_main",
+      "hyper00_https_fetch_outcome": "FAILED_NONINTERACTIVE_GITHUB_CREDENTIALS"
+    },
+    "clean_checkout": true,
+    "head_equals_origin_main": true
+  }
+}

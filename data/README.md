@@ -53,6 +53,11 @@ restoration v2 exact selection/exposure 产物：
   5-file hashes 与 negative declarations；
 - `manifests/restoration_v2_baselines.json`：冻结五个 non-oracle baselines、final-main-merger vision extractor、
   GUI-Owl snapshot/Transformers source identity 与 11 个 Git source SHA；当前 `dependency_6_closed=true`；
+- `manifests/restoration_v2_derived_artifact.json`：绑定 builder commit、两次 byte-identical Hyper00 build、
+  private HF tag/immutable revision、exact 6-file hashes 与 fresh-download replay；当前
+  `dependency_1_closed=true`；
+- `results/restoration_v2_derived_artifact/`：完整 derived artifact 的轻量结果、复现参数、UTC brackets、
+  superseded download preflight failure 与 negative declarations；
 - `results/restoration_v2_selection/`：Hyper00 runtime、exact confirm IDs、失败 attempt 记录与两次
   byte-identical 全量构建结论。
 
@@ -79,13 +84,21 @@ restoration v2 exact selection/exposure 产物：
 - Restoration v2 real-screen OCR golden：private HF dataset
   `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile@ocr-real-screen-golden-v1.0.0`
   (`9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`)；5/5 files fresh re-download verified，完整 tree
-  SHA256 `605d6396...7e25`；这只是 full derived dataset 的 immutable prefix。
+  SHA256 `605d6396...7e25`；该旧 tag 保持不变。
+- Restoration v2 full derived artifact：同一 private HF dataset
+  `@restoration-v2-derived-v1.0.0` (`89f136abaff797e14fe758a198996e51032a10a6`)；repo `main` 为 9 files，
+  exact 6-file derived projection 已 fresh re-download，tree SHA256 `475e6cf2...a6e`，210 条 OCR replay
+  通过。
 
 最新轻量运行记录：
 
 - `results/restoration_v2_ocr_backend/`：保留首次 package-source key 冲突与 mutable-status 两个 superseded
   attempt；最终 static fixture 已从 pushed commit 两次通过 `validate-golden` 且 byte-identical。synthetic
   golden、immutable HF model artifact、real-screen golden 与 HF dataset immutable re-download 均 passed；
+
+- `results/restoration_v2_derived_artifact/`：builder commit `1a01f2323647d092cab67f0531ecb877a4a255de`
+  在 Hyper00 CPU-only runtime 两次构建 exact 6-file bytes 相同；HF immutable re-download 后第三次
+  210-record replay 通过。三次均未加载 policy 或产生 restoration output；dependency 1 已 passed；
 
 - `results/restoration_v2_selection/`：Hyper00 formal selection/exposure 通过独立 validator；20 条
   confirm trajectories 已按 fixed first-20/no-top-up 规则冻结，未加载 policy 或使用 GPU；

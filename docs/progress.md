@@ -6,9 +6,8 @@ AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate�
 frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
 pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
 untouched 20-state confirm。scientific contract、CPU interface source hashes 与 pinned AndroidWorld executor
-preflight、exact IDs、exposure、OCR 与 baselines 已闭合；完整 derived builder/validator source 也已实现，
-当前等待从 exact pushed main 在 Hyper00 双跑并 immutable-verify HF artifact，随后冻结 execution config。
-仍没有 v2 policy output、restoration label 或方法效果结果。
+preflight、exact IDs、exposure、OCR、baselines 与完整 derived HF artifact 已闭合。八项中只剩 execution
+config；在它冻结前 policy inference 继续 locked。仍没有 v2 policy output、restoration label 或方法效果结果。
 
 ## 已完成里程碑
 
@@ -818,6 +817,27 @@ preflight、exact IDs、exposure、OCR 与 baselines 已闭合；完整 derived 
   通过。独立审计发现的裸 OCR、counts、action、provenance 与 replay blockers 均已修复；尚未运行正式全量
   build，因此 dependency 1 仍 pending，且仍无 policy/restoration output。
 
+### 2026-07-15：完整 derived artifact 与 dependency 1 通过
+
+- exact pushed builder commit `1a01f2323647d092cab67f0531ecb877a4a255de` 在 Hyper00 CPU-only runtime
+  完成两次正式 build：UTC `14:26:37.779--14:47:57.486Z` 与
+  `14:51:24.170--15:12:43.238Z`；两次均为 35 trajectories / 175 events / 65 states / 210 images /
+  210 full OCR records；
+- 两次 exact 6-file artifact bytes 完全一致，tree SHA256 为
+  `475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e`，OCR aggregate 为
+  `1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010`；
+- artifact 已上传 private HF dataset
+  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile@restoration-v2-derived-v1.0.0`，tag 解析到 immutable
+  `89f136abaff797e14fe758a198996e51032a10a6`。repo `main` 当前为 9 files；旧
+  `ocr-real-screen-golden-v1.0.0` 仍固定到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`；
+- 第一次 `hf download` CLI preflight 同时传入 `--cache-dir` 与 `--local-dir`，在下载前被参数检查拒绝，
+  零文件落盘，记为 superseded preflight failure。随后使用新的空目录只投影 exact 6 files，fresh immutable
+  download 成功；
+- Hyper00 在 UTC `15:20:56.587--15:31:30.534Z` 对该 immutable projection 完成第三次 210-record OCR
+  replay，tree/OCR aggregate 与两次 build 完全一致。三次均为 `policy_loaded=false`、
+  `policy_output_generated=false`、`restoration_output_generated=false`；dependency 1 已闭合，详细轻量证据见
+  `data/results/restoration_v2_derived_artifact/`。
+
 ## Artifact 状态
 
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
@@ -839,8 +859,9 @@ preflight、exact IDs、exposure、OCR 与 baselines 已闭合；完整 derived 
   `@reference-gate-v1` (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)；reference 判负，oracle records
   按协议未生成。旧 oracle raw trajectories/images/expert actions 已被 builder 读取和打包，不是 raw unseen；
 - restoration v2 derived dataset 的 canonical destination 是 private HF
-  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`；real-screen OCR golden prefix 已固定在
-  `ocr-real-screen-golden-v1.0.0@9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`，完整 derived records 仍未构建；
+  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`；完整 artifact 已固定在
+  `restoration-v2-derived-v1.0.0@89f136abaff797e14fe758a198996e51032a10a6`，旧 real-screen OCR golden
+  保持在 `ocr-real-screen-golden-v1.0.0@9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`；
 - restoration v2 OCR 三模型的 canonical artifact 是 private HF model
   `gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@v1.0.0`
   (`0dbc766a73ee88d10d52285d434dbfec58617835`)；6/6 files 已从 immutable revision fresh re-download
@@ -853,7 +874,9 @@ preflight、exact IDs、exposure、OCR 与 baselines 已闭合；完整 derived 
 
 ## 八项 pre-output dependencies 状态
 
-1. derived artifact immutable HF revision/file hashes：pending；
+1. derived artifact immutable HF revision/file hashes：passed，
+   `restoration-v2-derived-v1.0.0@89f136abaff797e14fe758a198996e51032a10a6`，tree SHA256
+   `475e6cf2...a6e`；
 2. exact confirm trajectory/state IDs：passed，selection SHA256 `292c7e52...`；
 3. exposure ledger：passed，ledger SHA256 `bc122482...`；
 4. restricted prompt/parser/bridge/executor fixture：passed；CPU prompt/parser/bridge、真实 pinned `JSONAction`
@@ -869,9 +892,8 @@ GPU-side scalar KL、batch-1 audited CPU equivalence 与 coalition microbatch �
 
 ## 下一步
 
-逐步 push：下一步构建、immutable-verify 完整 private HF derived artifact，最后冻结包含全部
-identity/source hashes 与 microbatch 的 execution config。
-八项全部闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
+逐步 push：下一步冻结包含全部 identity/source hashes 与 coalition microbatch 的 execution config。
+第 8 项闭合后，才在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
 通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
 top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
 75-instance final plan 一并冻结。

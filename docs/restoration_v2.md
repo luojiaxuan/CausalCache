@@ -123,13 +123,13 @@ witnesses 与 exposure ledger 冻结到
 [`restoration_v2_selection.json`](../data/manifests/restoration_v2_selection.json) 和
 [`restoration_v2_exposure.json`](../data/manifests/restoration_v2_exposure.json)。两次全量构建 byte-identical，
 两次均通过独立 validator；文件 SHA256 分别为 `292c7e52...` / `bc122482...`。dependencies 2/3 已闭合，
-但这不解锁 policy inference：完整 derived artifact、baselines 与 execution config 仍为 mandatory blockers。
+但这本身不解锁 policy inference；当前第 8 项 execution config 仍是 mandatory blocker。
 
 所有 v2 derived summaries、OCR/UI delta、split manifests 和 attribution records 的 canonical destination 是
-private HF dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`。real-screen OCR golden prefix 已有
-独立 immutable revision；在完整 derived payload 获得新的专用 immutable revision、从该 revision 重下载验
-hash，并把 revision 回写 Git 前，不允许运行 v2 policy。Git 只保存 config、代码、
-exposure ledger、轻量 manifest/result 和进展。
+private HF dataset `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`。完整 derived payload 已固定为
+`restoration-v2-derived-v1.0.0@89f136abaff797e14fe758a198996e51032a10a6`；旧 real-screen OCR golden tag
+仍固定为 `ocr-real-screen-golden-v1.0.0@9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`。Git 只保存 config、
+代码、exposure ledger、轻量 manifest/result 和进展。
 
 完整 derived builder/validator 已在任何 v2 policy output 前实现。它不消费外部裸 OCR JSONL，而是从
 pinned raw source 重建 exact 35 trajectories / 175 history events / 65 states / 210 images，并用已闭合的
@@ -138,8 +138,11 @@ RapidOCR runtime 当场生成 full records。事件同时保存 raw tool call �
 OCR added/removed multiset delta、screen-change bin、discard counts、exact UTF-8 serialization 与 SHA；
 high-fidelity block 只引用 post-state image。正式构建和 immutable re-download validation 都重跑 210 条
 OCR 并逐条比对，且对 Git revision、contract repo、source dataset、selection/exposure、wheel/model/package
-source identity fail closed。当前仅 source milestone 完成；HF immutable artifact 尚未产生，因此 dependency 1
-仍为 pending。
+source identity fail closed。builder commit `1a01f2323647d092cab67f0531ecb877a4a255de` 的两次 Hyper00
+CPU-only build exact 6-file bytes 相同，tree SHA256 为 `475e6cf2...a6e`、OCR aggregate 为
+`1e04ddbd...010`；fresh immutable download 后第三次 210-record replay 也通过。三次均未加载 policy 或生成
+restoration output，dependency 1 已 passed；详细证据见
+[`restoration_v2_derived_artifact`](../data/results/restoration_v2_derived_artifact/)。
 
 ## 两级 go/no-go
 
@@ -194,14 +197,17 @@ stability failure，输出 `INCONCLUSIVE_V2`。contract/runtime 错误为 `INVAL
 
 以下八项缺一不可：
 
-1. derived artifact immutable HF revision 与逐文件 hash；
+1. derived artifact immutable HF revision 与逐文件 hash（passed：
+   `89f136abaff797e14fe758a198996e51032a10a6` / `475e6cf2...a6e`）；
 2. exact confirm trajectory/state IDs（passed：`292c7e52...`）；
 3. exposure ledger（passed：`bc122482...`）；
-4. restricted action exhaustive round-trip fixture；
+4. restricted action exhaustive round-trip fixture（passed）；
 5. pinned accessibility/OCR backend revision、model hash 与 behavioral goldens（passed）；
-6. baseline exact specification 与 source hashes；
-7. v2 prompt/parser/bridge/runtime source hashes；
+6. baseline exact specification 与 source hashes（passed）；
+7. v2 prompt/parser/bridge/runtime source hashes（passed）；
 8. 引用本科学配置 SHA 的 execution config，并冻结 microbatch size。
+
+当前 dependencies 1--7 已 passed；第 8 项仍 pending，因此 policy inference 继续 locked。
 
 验证命令：
 

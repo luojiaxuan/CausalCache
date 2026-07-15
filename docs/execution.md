@@ -130,7 +130,7 @@ device-side executor；还必须补 executor dispatch/behavioral smoke。此后�
 artifact；同时还必须闭合 exact confirm IDs、exposure ledger、OCR identity、baseline source hashes，并
 冻结引用全部 artifact/interface identity 的 execution config。其中 exact IDs/exposure 与 OCR identity 已在
 下述 formal runs 闭合；baseline source hashes 也由 `make validate-restoration-v2-baselines` 闭合。完整
-derived artifact 与 execution config 仍 pending。
+derived artifact 已由 2026-07-15 formal runs 闭合；当前只剩 execution config pending。
 `docs/restoration_v2.md` 所列八项全部完成
 后，才允许执行 GPU substrate screening。
 
@@ -253,8 +253,8 @@ materialization + replay 的 5-file tree 均为 `605d6396...7e25`；private HF t
 `ocr-real-screen-golden-v1.0.0` 解析到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b`，fresh immutable
 re-download 后第三次 replay 通过。完整证据见
 `data/results/restoration_v2_ocr_backend/real_screen_summary.json`。这只闭合 dependency 5；baseline dependency
-另由 `data/manifests/restoration_v2_baselines.json` 闭合。完整 derived artifact 与 execution config 仍阻止
-GUI-Owl policy output。
+另由 `data/manifests/restoration_v2_baselines.json` 闭合。完整 derived artifact 现已闭合；execution config
+仍阻止 GUI-Owl policy output。
 
 ### 完整 GUIOdyssey derived artifact
 
@@ -304,6 +304,23 @@ cd /data/CausalCache/code
 只有 tag resolution、immutable download file hashes、第三次 210-record OCR replay、UTC brackets、完整 argv、
 host/container/runtime 与 negative declarations 全部写入 Git completion manifest 并 push 后，dependency 1
 才可标为 passed。本步骤仍不生成 policy/restoration output。
+
+2026-07-15 完成证据：builder commit
+`1a01f2323647d092cab67f0531ecb877a4a255de` 在 Hyper00 CPU-only runtime 两次构建的 UTC brackets 为
+`14:26:37.779--14:47:57.486Z` 和 `14:51:24.170--15:12:43.238Z`；两次均得到
+35 trajectories / 175 events / 65 states / 210 images / 210 OCR records，exact 6-file bytes 相同。artifact
+tree SHA256 为 `475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e`，OCR aggregate 为
+`1e04ddbdd2fd6e5fc50206c436f512908b269fc95566476c799a075eb9af7010`。
+
+private HF tag `restoration-v2-derived-v1.0.0` 解析到 immutable revision
+`89f136abaff797e14fe758a198996e51032a10a6`；repo `main` 为 9 files，旧
+`ocr-real-screen-golden-v1.0.0@9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` 保持不变。第一次
+`hf download` preflight 因同时传入 `--cache-dir` 与 `--local-dir` 被 CLI 在下载前拒绝，零文件落盘，属于
+superseded preflight failure；正式重试必须使用新的空目录并只投影 exact 6 files。fresh immutable projection
+随后在 Hyper00 于 UTC `15:20:56.587--15:31:30.534Z` 完成第三次 210-record replay，tree/OCR aggregate
+一致。三次均未加载 policy 或生成 policy/restoration output；dependency 1 已 passed，轻量证据见
+`data/results/restoration_v2_derived_artifact/`。第 8 项 execution config 仍 pending，policy inference 继续
+locked。
 
 executor dispatch 必须按 `docs/restoration_v2_executor_dispatch.md` 先运行 host-side live Docker inspection，
 再在 exact pushed `main` checkout 运行 14-case dispatch 与 negative actuation control，最后用独立 reducer 从
