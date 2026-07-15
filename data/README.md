@@ -78,6 +78,10 @@ restoration v2 exact selection/exposure 产物：
   input provenance、raw artifact manifest 与 format-only inventory；正式 verdict 为 `NO_GO_V2_SUBSTRATE`，
   strict parse 0/45，confirm 未打开。45 条 native outputs、attempt markers、state records 与 log 只在 private
   HF tar shard，不进入 Git。
+- `manifests/restoration_v2_parser_compatibility_golden.json` 与
+  `results/restoration_v2_parser_compatibility/`：在 formal replay 前固定 HF/archive/run identity、0/43/40 totals、
+  五个 rejection identities 与 45-record classification SHA；clean pushed replay 得到
+  `NO_GO_ADAPTER_ONLY`。Git result 只含 output hashes，不含 native text。
 
 当前 reusable artifacts：
 
@@ -148,6 +152,10 @@ restoration v2 exact selection/exposure 产物：
 - `results/restoration_v2_substrate_screening/`：Hyper00 physical GPU 2 完成固定 45-state run；90-prompt shape
   sweep 通过，45/45 在第一次 reference generation strict parse 失败，teacher forward/KL/restoration label
   均为 0，合法 verdict `NO_GO_V2_SUBSTRATE`；无 retry/top-up/confirm access；
+
+- `results/restoration_v2_parser_compatibility/`：从 `main@fc3adf1` 正式 replay immutable raw archive；strict
+  0/45、single-action canonical-first 43/45、conservative recovery 40/45，低于 required 45/45，输出
+  `NO_GO_ADAPTER_ONLY`；25 个 clean EOF、15 个 suffix recovery、0 个 model-emitted canonical closer；
 
 - `results/independent_reference_gate_v1/`：正式独立 reference 得到 69/75 parsed、27/75 match、swipe
   0/2，合法输出 `NO_GO_CURRENT_REFERENCE_STACK`；oracle split 未运行；

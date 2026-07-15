@@ -235,6 +235,32 @@ def _write_archive(
 
 
 class RestorationV2ParserReplayTest(unittest.TestCase):
+    def test_committed_formal_result_matches_golden_and_audit_commit(self) -> None:
+        repository_root = Path(__file__).resolve().parents[2]
+        result_path = (
+            repository_root
+            / "data/results/restoration_v2_parser_compatibility/formal_result.json"
+        )
+        golden_path = (
+            repository_root
+            / "data/manifests/restoration_v2_parser_compatibility_golden.json"
+        )
+        result_payload = result_path.read_bytes()
+        self.assertEqual(
+            hashlib.sha256(result_payload).hexdigest(),
+            "78272ee54c1234244239eff080f03d7d97b5973fa5d5cf26fddd77b95794a6e0",
+        )
+        result = json.loads(result_payload)
+        golden = json.loads(golden_path.read_bytes())
+        _validate_golden_result(result, golden)
+        self.assertEqual(result["immutable_source"], golden["source_artifact"])
+        self.assertEqual(
+            result["audit_run"]["git_pre_and_post_identity"]["git_commit"],
+            "fc3adf13d48bb016014f7efa62bd27c8a4d12f49",
+        )
+        self.assertTrue(result["audit_run"]["pre_and_post_validation_matched"])
+        self.assertNotIn("output_text", result_payload.decode("utf-8"))
+
     def test_immutable_replay_reports_the_expected_adapter_only_no_go(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             archive = Path(temporary_directory) / "trace.tar.gz"

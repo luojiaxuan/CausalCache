@@ -1115,10 +1115,26 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `main` 对 HF immutable archive 运行 formal CLI，随后才允许把 replay summary 写入 Git；全量 tests 为
   327 passed、10 optional-dependency skips。
 
+### 2026-07-15：immutable parser compatibility replay 正式判负
+
+- source commit `fc3adf13d48bb016014f7efa62bd27c8a4d12f49` push 后，从 clean `main` 运行 formal
+  CLI；审计前后均确认 `HEAD == origin/main == GitHub remote main`，实际 import 的四个 source 与 committed
+  blobs 完全一致；
+- 已提交 golden contract、HF immutable revision、archive SHA、run contract/source commit、96-member tar
+  inventory、原 0/45 aggregate、45-record classification SHA 与五个 rejection identities 全部通过；
+- 正式结果为 strict 0/45、single-action canonical-first 43/45、conservative recovery 40/45；后者低于
+  frozen 0.99 gate 对应的 required 45/45，因此输出 `NO_GO_ADAPTER_ONLY`；
+- 40 个 accepted 中 clean EOF 25、suffix recovery 15，model-emitted canonical closer 0；该证据排除
+  “只换 parser 就能继续 v2”的路线，但没有否定 restoration hypothesis；
+- replay 没有 raw-text Git exposure、model import/load、forward/generation、retry、top-up 或 confirm access。
+  完整 formal result SHA256 为 `78272ee5...a6e0`，见
+  `data/results/restoration_v2_parser_compatibility/`；结果回归加入 committed-result/golden binding 后，全量
+  tests 为 328 passed、10 optional-dependency skips。
+
 ## 下一步
 
-下一步先从 clean pushed commit 正式执行 immutable parser replay，再冻结新的 versioned interface rescue；
-优先验证 official `tools=` chat-template 路径与 model-emitted `</tool_call>` generation termination，
+下一步冻结新的 v2.1 interface rescue；优先验证 official `tools=` chat-template 路径与 model-emitted
+`</tool_call>` generation termination，
 但不得语法补全截断 JSON、静默取多 action 的第一个或在原 v2 result 上 relabel。新 protocol 必须在任何新
 policy output 前完成 tests、commit、push 与重新 authorization；只有新 substrate screening 通过才能打开
 fixed-denominator confirm。AndroidWorld validation 只作 development，test split 继续 sealed。

@@ -182,6 +182,11 @@ AndroidWorld bridge。正式 CLI 是 `scripts.replay_restoration_v2_parser_compa
 classification hash。result exclusive-write；它只做离线格式复核，不 import/load/forward/generate policy，
 也不能改写原 run。
 
+上述 CLI 已从 clean pushed `main@fc3adf13d48bb016014f7efa62bd27c8a4d12f49` 对 HF immutable archive
+正式运行并通过全部 pre/post identity 与 golden checks，输出 `NO_GO_ADAPTER_ONLY`。Git evidence 位于
+`data/results/restoration_v2_parser_compatibility/`；其 40/45 compatibility acceptance 中只有 25 个 clean
+EOF，另外 15 个执行 exact-whitelist suffix recovery，0 个包含 model-emitted canonical closer。
+
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，
 并只按 frozen config 输出 `INVALID`、`NO_GO_DIAGNOSTIC`、`INCONCLUSIVE_NEGATIVE` 或

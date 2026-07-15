@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 fixed 45-state substrate = `NO_GO_V2_SUBSTRATE` (strict parse 0/45) / confirm locked / versioned interface rescue pending
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / confirm locked / v2.1 interface rescue next
 
 ## 团队交接入口
 
@@ -103,7 +103,10 @@ implementation；40 条中只有 25 条在首个 JSON 后 clean EOF，另外 15 
 extra brace，且 0 条由模型生成 canonical closer，因此不能称为 native well-formed output。auditor 会逐项绑定
 HF immutable revision、archive/run-contract/source commit 与 pre-registered per-state classification hash，重新执行 strict
 parser、保守 adapter、canonical round-trip 与 AndroidWorld bridge，但正式 replay 必须等本 source commit
-push 后从 clean `main` 单独运行。下一步仍必须先冻结 versioned interface/generation rescue。
+push 后从 clean `main` 单独运行。该正式 replay 现已在 `main@fc3adf1` 完成，得到
+`NO_GO_ADAPTER_ONLY`；完整结果见
+[`data/results/restoration_v2_parser_compatibility/`](data/results/restoration_v2_parser_compatibility/)。下一步仍
+必须先冻结 versioned interface/generation rescue。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
@@ -401,7 +404,7 @@ $$
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
 - [x] 在已接入的真实轨迹上实现 teacher-forced policy distance 与固定 45-state substrate runner；
 - [x] 完成第一次固定 45-state substrate screening；strict parse 0/45，合法输出 `NO_GO_V2_SUBSTRATE`，confirm 未打开；
-- [x] 实现 immutable raw-trace parser compatibility replay；正式 clean-commit replay 待下一里程碑执行；
+- [x] 完成 immutable raw-trace parser compatibility replay；40/45 低于 required 45/45，正式为 `NO_GO_ADAPTER_ONLY`；
 - [ ] 冻结并验证 versioned native-output/generation rescue；保留原 v2 negative result，不做 retroactive relabel；
 - [ ] 构造 matched-NLL memory pairs，验证关键假设；
 - [ ] 训练 query-time memory gate；
@@ -486,11 +489,13 @@ $$
 - Restoration v2 GPU-2 runtime re-anchor: [`data/results/restoration_v2_runtime_reanchor/README.md`](data/results/restoration_v2_runtime_reanchor/README.md)
 - Restoration v2 fixed 45-state substrate result: [`data/results/restoration_v2_substrate_screening/README.md`](data/results/restoration_v2_substrate_screening/README.md)
 - Restoration v2 parser replay golden contract: [`data/manifests/restoration_v2_parser_compatibility_golden.json`](data/manifests/restoration_v2_parser_compatibility_golden.json)
+- Restoration v2 formal parser compatibility replay: [`data/results/restoration_v2_parser_compatibility/README.md`](data/results/restoration_v2_parser_compatibility/README.md)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
 - 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 第一次固定 45-state screening 在
-  clean `main` 完成，strict parse 0/45，正式为 `NO_GO_V2_SUBSTRATE + CONFIRM_LOCKED`。已有 45 个 native
-  policy outputs，但没有 teacher forward、KL、restoration label 或 CausalCache 方法效果结果。
+  clean `main` 完成，strict parse 0/45，正式为 `NO_GO_V2_SUBSTRATE + CONFIRM_LOCKED`；事后 immutable
+  replay 的保守上界也仅 40/45，正式为 `NO_GO_ADAPTER_ONLY`。已有 45 个 native policy outputs，但没有
+  teacher forward、KL、restoration label 或 CausalCache 方法效果结果。
 
 ### Data and Models
 
@@ -508,7 +513,7 @@ $$
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.2.0` / `0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`，private | 42 Think traces；deterministic gzip JSONL；`v0.1.0` Instruct artifact 保持不变 |
 | Restoration v2 OCR models | <https://huggingface.co/gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en> | `v1.0.0` / `0dbc766a73ee88d10d52285d434dbfec58617835`，private | 三份 ONNX、model card 与 manifest；fresh immutable re-download 后 6/6 file hashes verified |
 | Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | `restoration-v2-derived-v1.0.0` / `89f136abaff797e14fe758a198996e51032a10a6`，private | exact 6-file derived projection 已 fresh re-download 并第三次 replay；旧 OCR golden tag 仍固定到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` |
-| Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict parse 0/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` |
+| Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
