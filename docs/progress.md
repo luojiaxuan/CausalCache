@@ -2,10 +2,10 @@
 
 ## 当前目标
 
-原目标是在 AAAI-27 截止前完成 validated offline attribution、multi-budget gate、AndroidWorld
-closed-loop frontier 与 matched-NLL mechanism test。当前 operational objective 已收窄为解除
-validated-reference blocker：六个 candidate 均未通过冻结 gate，在新的 primary reference 预注册并通过前，
-不得生成 attribution labels 或声称 CausalCache 方法效果。
+AAAI-27 目标仍是完成 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop
+frontier 与 matched-NLL mechanism test。当前 operational objective 是闭合 restoration v2 的八项
+pre-output dependencies，然后只在 label-train/development 做 substrate screening；screening 通过后才打开
+untouched 20-state confirm。当前没有 v2 policy output、restoration label 或方法效果结果。
 
 ## 已完成里程碑
 
@@ -542,6 +542,39 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - GUIOdyssey source 是 train shards，不能仅凭当前 provenance 排除 UI-TARS 训练数据重叠。任何 v2 必须
   在新 untouched split 前先预注册一致的 `open_app` action contract；这不会回改 v1 结论。
 
+### 2026-07-15：Restoration v2 scientific contract 冻结
+
+- 保留 v1 `NO_GO_CURRENT_REFERENCE_STACK`，不修改原 prompt、parser、threshold 或 negative result；v2
+  是 stable self-behavior 的新 estimand，不是降低 expert top-1 gate；
+- primary substrate 固定为
+  `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`，reference admission
+  只检查 restricted action parse、finite logits 和两次 canonical action 一致；expert alignment 只报告，
+  不得筛选状态；
+- strong low-fidelity event 固定八字段且出现在每个 memory；high fidelity 只增加一张 post-action image，
+  不增加 before image、raw action arguments 或额外 action text；
+- confirm 固定 decision step 6：events 1--4 为 visual candidates，event 5 的 post-state 等于 current，因而
+  summary-only 且不能选择；reference 为四张历史 post-state 加 current，primary capacity `B=2`，允许
+  positive-value selector abstain，另做 exact-two ablation；
+- teacher forcing 固定 native assistant prefix + nonsemantic Action carrier，并只在 deterministic
+  `<tool_call>...</tool_call>` token span 上计算 full-vocabulary mean KL；不复用 full-history 自由文本
+  description，避免向 coalition 泄漏 target；
+- 旧 15 条 oracle trajectories 的 raw artifact 已读取/打包但无 policy/restoration output，按原顺序拆为
+  10 条 label-train、5 条 development；confirm 继续 v1 frozen hash order，从 exact 8+15 后取 20 条
+  structurally eligible trajectory，每条一个 step-6 state，禁止 output-driven top-up/filter；
+- substrate gate 固定至少 20 states、parse 0.99、finite 1.0、repeat agreement 1.0、memory-sensitive 至少 8；
+  confirm 固定 20 states、`K=16`、oracle recovery 0.30、strongest-baseline gain 0.10 + paired 90% bootstrap、
+  Spearman 0.80、Jaccard 0.75、utility ratio 0.90；
+- v2 action inventory 删除 `key`/`Menu`，接受 `tap`/`open_app` alias，坐标固定 `[0,999]` 且映射进有效像素；
+  exhaustive round-trip fixture 100% 通过前禁止 policy output；
+- recent/random/OCR+RGB/policy-vision baseline 公式、tie-break 与 source hashes 必须在 confirm 前冻结；
+  Spearman/Jaccard/utility ratio 只在 memory-sensitive states 上取 deterministic median，并锁定 ties 和
+  degenerate denominator；
+- scientific config SHA256 为
+  `9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc`；config validator 与回归测试已加入，
+  完整说明见 `docs/restoration_v2.md`。这一步没有运行 GPU 或产生新 artifact。
+
+## Artifact 状态
+
 - Git 代码、配置、论文与轻量测试 fixture：本仓库 `main`；
 - GUIOdyssey pilot：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-pilot-mobile@1de9c34ff029d4c01665cdaca74436ae24bff276`；
 - GUIOdyssey independent gate：私有 Hugging Face dataset `gavinlaw/causalcache-guiodyssey-independent-mobile@v0.1.0` (`84c9f5a335e9612ccb4bd566f977574f359b2485`)；schema v0.4，immutable re-download verified；
@@ -549,31 +582,33 @@ validated-reference blocker：六个 candidate 均未通过冻结 gate，在新�
 - Rejected GUI-tuned policy candidate：上游 Hugging Face model `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`；Aries 副本只是可重建 cache；
 - Rejected computer-use policy candidate：上游 Hugging Face model `xlangai/OpenCUA-7B@a2efb7d2b104d477a4a2666a357e79550a28aafc`；Aries snapshot 与 venv 只是可重建 cache；
 - Rejected GUI navigation policy candidate：上游 Hugging Face model `showlab/ShowUI-2B@cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60`；Aries snapshot 只是可重建 cache；
-- Rejected AndroidWorld-native policy candidate：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；native validation 上界 30/62，未通过 50% gate；
+- GUI-Owl-1.5-8B-Instruct：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`；v1 native validation 上界 30/62、未通过 50% success gate；v2 只将同一 checkpoint 用作 stable self-behavior substrate；
 - Rejected replacement policy：上游 Hugging Face model `mPLUG/GUI-Owl-1.5-8B-Think@afe3707fc84caebc4d7046118b34493ecf8bb060`；native validation 上界 29/62，未通过 50% gate；
 - AndroidWorld native validation traces：私有 Hugging Face dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0` (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；旧 Instruct artifact 保持在 `v0.1.0`；
 - independent candidate dataset 已冻结；reference raw record 位于 private HF
   `@reference-gate-v1` (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)；reference 判负，oracle records
-  按协议未生成；
+  按协议未生成。旧 oracle raw trajectories/images/expert actions 已被 builder 读取和打包，不是 raw unseen；
+- restoration v2 derived dataset 的 canonical destination 是 private HF
+  `gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`，当前 `not built`，没有 local staging artifact；
 - selection-biased go/no-go compact result：Git `data/results/go_no_go_diagnostic_v1/`；raw 209 KiB debug
   summary 只含可丢弃的 per-token/runtime 展开，canonical distances 与结论已压缩进 Git；
 - gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 artifact；Taurus/Aries 目录只作为 HF artifact 的 staging/cache。
 
-## 未决策项
+## 待闭合实现项
 
-- transfer backbone；
-- 新的 primary validated-reference policy/contract；
-- canonical action path 上 teacher-forced component distance 的具体 token boundary；
-- pilot 应扩展到多少 app、trajectory 和 horizon 才足以进入 attribution 主表。
-
-这些项目必须经过可获得 logits、许可证、磁盘和算力检查后再冻结，不能为了填配置而猜测。
+- materialize exact confirm IDs、overlap matrix 与 exposure ledger；
+- 固定 accessibility/OCR backend revision、model/file hash 和 strong-summary derivation；
+- 实现 restricted action parser/bridge/executor matrix 与 exhaustive fixture；
+- 实现 v2 post-state-only prompt、canonical native tool-call path 和 source hashes；
+- 实现 GPU-side scalar KL、batch-1 CPU equivalence与 coalition microbatch；
+- 构建 derived HF artifact、从 immutable revision 重下载验 hash；
+- 冻结引用 scientific-config SHA 的 execution config，包括 host、runtime、microbatch 和 artifact identity。
 
 ## 下一步
 
-不要在已拒绝的 GUI-Owl 或 UI-TARS v1 stack 上生成 restoration labels，也不要打开 GUIOdyssey oracle 或
-AndroidWorld test split。下一项科学工作只能二选一：停止该 paper route，把 `INCONCLUSIVE_POSITIVE` 作为
-后续 GUI agentic RL 的工程观察；或另立 versioned primary-reference 预注册，明确 policy/revision、原生
-history/action contract（尤其 `open_app`）、decoding、untouched validation source 和停止规则后再跑新 gate。
-使用 expert-success states 代替 frozen-policy coverage、接入新的 benchmark-native policy、修改 parser 或
-deterministic decoding 都会改变当前实验契约，必须先作为显式 decision 记录并 push，不能回改 v1。
+按上面的八项依赖顺序实现并逐步 push：先闭合 CPU action/prompt/data contract，再构建并冻结 private HF
+derived artifact，随后在 Hyper00（Aries fallback）运行 development substrate screening。只有 screening
+通过才能打开 fixed-denominator confirm；confirm 失败不能换样本、调 threshold 或按 quality/sensitivity
+top-up。AndroidWorld validation 只作 development，test split 继续 sealed，直到 gate checkpoint 与 exact
+75-instance final plan 一并冻结。

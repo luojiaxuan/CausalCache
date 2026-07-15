@@ -1,4 +1,4 @@
-.PHONY: paper clean-paper test validate-contract synthetic-phase0
+.PHONY: paper clean-paper test validate-contract validate-restoration-v2 synthetic-phase0
 
 paper:
 	mkdir -p output/pdf
@@ -16,6 +16,10 @@ validate-contract:
 	cd code && python3 -m scripts.validate_contract \
 		--config configs/phase0_contract.json \
 		--decision ../data/fixtures/validated_decision.json
+
+validate-restoration-v2:
+	cd code && python3 -m scripts.validate_restoration_v2_contract \
+		--config configs/causalcache_restoration_v2.json
 
 synthetic-phase0:
 	cd code && python3 -m scripts.run_synthetic_attribution \

@@ -1,6 +1,6 @@
 # Frozen policy 选择记录
 
-## 选择标准
+## 历史 v1 teacher 选择标准
 
 主 frozen policy 必须同时满足：
 
@@ -12,6 +12,11 @@
 
 Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-match coverage 至少 50%，并且当前 trajectory 出现的 tap、swipe、type_text 三类 action 各至少匹配一次。该 gate 只决定是否继续做 attribution pilot；正式实验仍需报告未过滤 coverage，并逐状态执行 executable-match validation。
 
+这些标准及其 negative results 均保留，但不再是 restoration v2 的 admission rule。v2 substrate 只要求
+restricted action parse、finite teacher-forced logits、两次 deterministic forward 的 canonical action 一致，
+并在 development screening 中确认足够 memory-sensitive states。expert alignment 和 rollout outcome 是两个
+独立报告轴，不能用于筛 label 或 confirm state。
+
 ## 候选
 
 | Candidate | License / architecture | 优点 | 当前决定 |
@@ -20,7 +25,7 @@ Pilot gate 在运行 GUI-tuned candidate 前冻结为：full-history executable-
 | [UI-TARS-1.5-7B](https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B) | Apache-2.0 / Qwen2.5-VL | 官方 mobile action grammar、GUI agent tuning、标准 Transformers | 拒绝：pilot full-history match 4/9，低于预注册 50% gate |
 | [ShowUI-2B](https://huggingface.co/showlab/ShowUI-2B) | MIT / Qwen2-VL | 仅 2B、原生 phone navigation grammar、logits 可用 | 拒绝：pilot full-history match 2/9 |
 | [OpenCUA-7B](https://huggingface.co/xlangai/OpenCUA-7B) | MIT / custom code | computer-use tuning、公开权重 | 拒绝：pilot full-history match 1/9 |
-| [GUI-Owl-1.5-8B-Instruct](https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct) | MIT / Qwen3-VL | 官方 AndroidWorld adapter、原生 5-image history、logits 可用 | 拒绝：固定 62 分母 success 上界 30/62 |
+| [GUI-Owl-1.5-8B-Instruct](https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct) | MIT / Qwen3-VL | 官方 AndroidWorld adapter、原生 5-image history、logits 可用 | v1 success teacher 拒绝；v2 stable self-behavior substrate 已选定 |
 | [GUI-Owl-1.5-8B-Think](https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think) | MIT / Qwen3-VL | 同一原生接口、官方报告 AndroidWorld 71.6% | 拒绝：固定 62 分母 success 上界 29/62 |
 
 ## UI-TARS 冻结配置
@@ -207,5 +212,23 @@ decision vector；正式 gate 随后得到 69/75 parsed、27/75 executable match
 
 最终决定：`rejected_by_independent_reference_gate_v1`。prompt 列出但 parser 未实现 `open_app` 的接口
 mismatch 影响 6 项；即使全部乐观计为正确也只有 44%，且 swipe gate 仍失败，故不能借此重开 v1。
-oracle split 保持未观察，不生成 restoration labels。任何新 candidate、action adapter 或 validation source
+oracle split 保持未观察 policy/restoration output，不生成 v1 restoration labels；其 raw rows 和 images 已由
+artifact builder 读取和打包。任何新 candidate、action adapter 或 validation source
 都必须另立 versioned preregistration，不能把本结果后的修正回填到 v1。
+
+## Restoration v2 当前决定
+
+v2 固定
+`mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc`，不是因为它通过了
+v1 task-success/expert gate，而是因为它提供原生 MobileUse grammar、五图接口和可 teacher-force 的 logits，
+足以定义冻结策略的 stable self-behavior。v1 的 AndroidWorld rejection 仍原样披露。
+
+v2 prompt inventory 只保留能贯通 parser、canonical action 与 AndroidWorld executor 的 action：
+`click`、`long_press`、`swipe`、`type`、`system_button={Back,Home,Enter}`、`open`、`wait`、
+`answer`、`terminate(success)`；接受 `tap` 与 `open_app` alias，删除 `key` 与 `Menu`。normalized
+coordinate 使用 `[0,999]`。这不修改历史 ShowUI `[0,1000]` adapter 或 v1 结果。
+
+每个 action/alias 必须在任何 v2 output 前通过 exhaustive
+`prompt -> native tool call -> parser -> canonical action -> AndroidWorld payload -> pinned JSONAction`
+fixture，且保留 exact native tool call 和 executor payload。quality 两轴只用于预注册分层报告，不得改变
+fixed-denominator screening/confirm。完整契约见 [`restoration_v2.md`](restoration_v2.md)。

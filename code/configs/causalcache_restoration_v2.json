@@ -1,0 +1,433 @@
+{
+  "schema_version": "0.2.0",
+  "protocol_id": "causalcache_restoration_v2",
+  "preregistration_status": "scientific_contract_frozen_before_any_v2_policy_output",
+  "change_control": {
+    "v1_result_path": "data/results/independent_reference_gate_v1/summary.json",
+    "v1_outcome_must_remain": "NO_GO_CURRENT_REFERENCE_STACK",
+    "v2_is_a_new_estimand": true,
+    "expert_top1_threshold_removed_not_lowered": true,
+    "scientific_fields_may_change_after_first_v2_policy_output": false,
+    "implementation_identity_filled_by_separate_execution_config_before_output": true
+  },
+  "primary_policy": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+    "frozen": true,
+    "dtype": "bfloat16",
+    "decoding": {
+      "do_sample": false,
+      "max_new_tokens": 256
+    },
+    "mixed_fidelity_prompt_mode": "single_user_post_state_v2",
+    "visual_preprocessing": {
+      "mode": "fixed_token_target",
+      "target_effective_tokens_per_image": 2560,
+      "record_actual_image_grid_and_tokens": true
+    }
+  },
+  "reference_definition": {
+    "mode": "stable_full_history_self_behavior",
+    "expert_top1_match_required": false,
+    "summary_present_for_every_history_event": true,
+    "confirm_decision_step_id": 6,
+    "history_event_step_ids": [1, 2, 3, 4, 5],
+    "current_equivalent_event_step_id": 5,
+    "observation_identity": "artifact_image_member_path_and_sha256",
+    "reference_high_fidelity_event_step_ids": [1, 2, 3, 4],
+    "reference_history_images": 4,
+    "current_observation_images": 1,
+    "total_reference_images": 5,
+    "reference_contains_every_distinct_post_state_image": true,
+    "canonical_action_path": "native_envelope_with_fixed_nonsemantic_action_carrier_and_normalized_mobile_use_tool_call",
+    "teacher_forced_action_carrier": "Action: Execute the selected mobile action.\n",
+    "canonical_tool_call_serialization": {
+      "opening": "<tool_call>\n",
+      "top_level_key_order": ["name", "arguments"],
+      "name": "mobile_use",
+      "argument_key_order": ["action", "coordinate", "coordinate2", "text", "button", "status"],
+      "omit_absent_arguments": true,
+      "text_normalization": "Unicode_NFKC",
+      "coordinate_number_format": "base10_integer",
+      "json": "ensure_ascii_false_separators_comma_colon",
+      "closing": "\n</tool_call>"
+    },
+    "teacher_forced_context": "processor_native_assistant_prefix_plus_fixed_action_carrier",
+    "distance_token_span": "first_token_of_<tool_call>_through_final_token_of_</tool_call>_inclusive",
+    "distance": "teacher_forced_full_vocabulary_mean_kl_on_distance_token_span",
+    "parse_required": true,
+    "finite_logits_required": true,
+    "repeat_forwards": 2,
+    "repeat_canonical_action_match_required": true,
+    "repeat_noise_epsilon": "max(1e-4,10*mean_repeat_kl)"
+  },
+  "quality_reporting": {
+    "may_filter_label_or_confirm_states": false,
+    "rollout_outcome_axis": [
+      "successful_self_rollout",
+      "failed_self_rollout",
+      "not_available"
+    ],
+    "source_trajectory_axis": [
+      "expert_success_trajectory",
+      "self_rollout_trajectory",
+      "not_available"
+    ],
+    "expert_alignment_axis": [
+      "semantic_expert_match",
+      "canonical_bin_match",
+      "action_type_match_only",
+      "expert_mismatch",
+      "not_available"
+    ],
+    "semantic_match_requires_preoutput_ui_target_annotation": true,
+    "always_report": [
+      "action_type_match",
+      "canonical_bin_match",
+      "normalized_coordinate_distance",
+      "text_argument_match"
+    ]
+  },
+  "action_contract": {
+    "contract_id": "gui_owl_androidworld_v2",
+    "output_envelope": "one_Action_line_then_one_mobile_use_tool_call",
+    "inventory_equality_scope": "normalized_policy_visible_effective_inventory_after_bridge",
+    "prompt_parser_bridge_effective_executor_inventory_equal": true,
+    "unsupported_prompt_actions_allowed": false,
+    "canonical_prompt_actions": [
+      "click",
+      "long_press",
+      "swipe",
+      "type",
+      "system_button",
+      "open",
+      "wait",
+      "answer",
+      "terminate"
+    ],
+    "system_buttons": [
+      "Back",
+      "Home",
+      "Enter"
+    ],
+    "accepted_model_aliases": {
+      "tap": "click",
+      "open_app": "open"
+    },
+    "removed_upstream_actions": [
+      "key",
+      "system_button:Menu"
+    ],
+    "coordinate_contract": {
+      "normalized_minimum": 0,
+      "normalized_maximum": 999,
+      "pixel_scaling": "floor(value*(extent-1)/999+0.5)",
+      "pixel_output_must_be_strictly_inside_extent": true
+    },
+    "parameter_contract": {
+      "click": ["coordinate"],
+      "long_press": ["coordinate"],
+      "swipe": ["coordinate", "coordinate2"],
+      "type": ["text"],
+      "system_button": ["button"],
+      "open": ["text"],
+      "wait": [],
+      "answer": ["text"],
+      "terminate": ["status=success"]
+    },
+    "exact_native_tool_call_preserved_in_archive": true,
+    "exact_androidworld_payload_preserved_in_archive": true,
+    "exhaustive_round_trip_fixture_required": true,
+    "exhaustive_round_trip_pass_rate": 1.0,
+    "empirical_development_parse_coverage_minimum": 0.99
+  },
+  "low_fidelity_event": {
+    "schema_version": "2.0.0",
+    "serialized_key_order": [
+      "step_id",
+      "action_type",
+      "action_argument",
+      "foreground_app",
+      "screen_text_added",
+      "screen_text_removed",
+      "screen_change",
+      "executor_result"
+    ],
+    "serialization": "compact_utf8_json_ensure_ascii_false_separators_comma_colon_then_newline",
+    "missing_scalar_value": "unknown",
+    "present_for_every_event_in_every_memory": true,
+    "byte_identical_between_low_and_high_fidelity": true,
+    "action_argument": {
+      "spatial_action": "10x10_coordinate_bin",
+      "swipe": "viewport_direction_and_displacement_bin",
+      "text_open_answer": "exact_nfkc_text",
+      "system_button": "exact_button",
+      "wait": "wait"
+    },
+    "screen_text_delta": {
+      "source": "accessibility_tree_else_pinned_ocr",
+      "normalization": "Unicode_NFKC_collapse_whitespace_strip",
+      "ordering": "top_to_bottom_then_left_to_right",
+      "maximum_added_tokens": 32,
+      "maximum_removed_tokens": 32,
+      "truncation": "keep_first_tokens_in_frozen_spatial_order_and_record_discarded_count_in_artifact_metadata",
+      "backend_revision_and_model_hash_required_in_execution_config": true
+    },
+    "foreground_app": {
+      "source": "source_app_label_else_executor_package_name_else_unknown",
+      "normalization": "Unicode_NFKC_collapse_whitespace_strip_casefold"
+    },
+    "screen_change": {
+      "metric": "mean_absolute_rgb_difference_after_256x256_bilinear_resize_in_[0,1]",
+      "bins": {
+        "none": "value<=0.005",
+        "low": "0.005<value<=0.05",
+        "medium": "0.05<value<=0.20",
+        "high": "value>0.20"
+      },
+      "library_version_and_resampling_identity_required_in_execution_config": true
+    },
+    "executor_result_values": [
+      "accepted",
+      "failed",
+      "unknown"
+    ],
+    "executor_result_provenance": "accepted_or_failed_only_from_executor_record_else_unknown_never_inferred_from_pixels",
+    "exact_text_argument_is_not_truncated": true,
+    "context_overflow_outcome": "INVALID_BEFORE_POLICY_FORWARD",
+    "report_policy_visible_text_tokens": true
+  },
+  "high_fidelity_event": {
+    "images_per_event": 1,
+    "image": "post_action_state",
+    "include_before_image": false,
+    "include_additional_action_text": false,
+    "adds_only_post_state_image_to_shared_summary": true,
+    "latest_event_whose_post_state_is_current_is_not_a_candidate": true,
+    "candidate_image_must_not_equal_current_observation_path": true,
+    "persistent_archive_retains_before_and_after_images": true
+  },
+  "memory_budget": {
+    "cost_unit": "effective_visual_tokens",
+    "budget_semantics": "maximum_cap_not_required_consumption",
+    "candidate_event_count_at_confirm_state": 4,
+    "reference_high_fidelity_event_count": 4,
+    "primary_selected_event_capacity": 2,
+    "secondary_selected_event_capacities": [1, 3],
+    "candidate_costs_must_be_equal_within_state": true,
+    "primary_visual_token_budget": "2*verified_event_visual_token_cost",
+    "same_summary_and_visual_budget_for_every_selector": true,
+    "report_actual_visual_tokens": true,
+    "cardinality_matched_ablation_required": true
+  },
+  "data": {
+    "parent_artifact": {
+      "repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+      "revision": "84c9f5a335e9612ccb4bd566f977574f359b2485",
+      "manifest_sha256": "3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949",
+      "eligible_pool_sha256": "84d6855b20227d7f884d4ce26cfae7188c1075bb7751cab78a3cf325eef192cb"
+    },
+    "derived_artifact": {
+      "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "visibility": "private",
+      "status": "not_built_before_scientific_contract_freeze",
+      "immutable_revision_required_before_policy_output": true
+    },
+    "roles": {
+      "v1_reference_contract_audit_only": {
+        "source_ids": [
+          "0062545727651092",
+          "0119197274492507",
+          "0139487095063242",
+          "0194478440163092",
+          "0074966019597416",
+          "0125975818276068",
+          "0124013985171518",
+          "0145589904916408"
+        ],
+        "trajectory_count": 8,
+        "decision_count": 75,
+        "policy_output_seen": true,
+        "restoration_output_seen": false,
+        "may_train_or_confirm": false
+      },
+      "v2_label_train": {
+        "source_split": "v1_oracle_pilot_first_10_trajectories_in_frozen_order",
+        "source_ids": [
+          "0131649930078879",
+          "0214993880872733",
+          "0230010406789851",
+          "0021006740023566",
+          "0218068002038239",
+          "0217738978329323",
+          "0139141460497671",
+          "0122136372603148",
+          "0214300008821039",
+          "0050955459888018"
+        ],
+        "trajectory_count": 10,
+        "decision_count": 87,
+        "policy_output_seen": false,
+        "state_decision_step_ids": [4, 5, 6],
+        "state_selection": "all_available_requested_step_ids_in_source_order_without_top_up"
+      },
+      "v2_development": {
+        "source_split": "v1_oracle_pilot_last_5_trajectories_in_frozen_order",
+        "source_ids": [
+          "0119685762769531",
+          "0126163828013448",
+          "0106443124024468",
+          "0141544666483837",
+          "0035782072567389"
+        ],
+        "trajectory_count": 5,
+        "decision_count": 45,
+        "policy_output_seen": false,
+        "state_decision_step_ids": [4, 5, 6],
+        "state_selection": "all_available_requested_step_ids_in_source_order_without_top_up"
+      },
+      "v2_confirm_primary": {
+        "source": "remaining_v1_eligible_pool_after_exact_8_reference_and_15_oracle_trajectories",
+        "trajectory_order": "continue_frozen_v1_sha256_order_without_new_salt",
+        "trajectory_structural_filter": "decision_count_at_least_5",
+        "selection": "first_20_structurally_eligible_remaining_trajectories",
+        "trajectory_count": 20,
+        "decision_step_id": 6,
+        "states_per_trajectory": 1,
+        "state_count": 20,
+        "minimum_distinct_app_labels": 3,
+        "insufficient_prefix_diversity_outcome": "INVALID_BEFORE_POLICY_OUTPUT",
+        "policy_output_seen": false,
+        "restoration_output_seen": false,
+        "exact_ids_manifest_required_before_policy_output": true,
+        "top_up_after_policy_output_allowed": false,
+        "filter_by_parse_stability_quality_or_sensitivity_allowed": false
+      }
+    },
+    "exposure_ledger_required": true,
+    "raw_data_seen_is_distinct_from_policy_output_seen": true
+  },
+  "substrate_gate": {
+    "screening_roles": [
+      "v2_label_train",
+      "v2_development"
+    ],
+    "minimum_screening_states": 20,
+    "minimum_parse_coverage": 0.99,
+    "minimum_finite_logit_coverage": 1.0,
+    "minimum_repeat_canonical_action_agreement": 1.0,
+    "minimum_memory_sensitive_states": 8,
+    "memory_sensitive_definition": "summary_reference_kl_greater_than_repeat_noise_epsilon",
+    "fail_outcome": "NO_GO_V2_SUBSTRATE",
+    "pass_outcome": "RUN_UNTOUCHED_RESTORATION_CONFIRM"
+  },
+  "restoration_gate": {
+    "primary_states": 20,
+    "primary_budget_event_capacity": 2,
+    "confirmatory_permutation_samples": 16,
+    "confirmatory_seed": 20270715,
+    "run_full_fixed_state_denominator": true,
+    "parse_or_stability_failure_counts_as_gate_failure": true,
+    "minimum_memory_sensitive_states": 8,
+    "minimum_mean_oracle_recovery": 0.3,
+    "minimum_mean_gain_over_strongest_baseline": 0.1,
+    "normalized_recovery_per_state": "(D(empty)-D(selected))/max(D(empty),epsilon)",
+    "mean_recovery_denominator": "all_20_fixed_confirm_states",
+    "oracle_selection": "minimum_distance_subset_with_cardinality_0_1_or_2_of_4_candidates",
+    "oracle_tie_break": "lower_distance_then_lower_cardinality_then_lower_event_step_ids",
+    "strongest_baseline_definition": "maximum_dataset_mean_normalized_recovery_across_nonoracle_baselines",
+    "paired_bootstrap": {
+      "confidence": 0.9,
+      "resamples": 10000,
+      "seed": 271828,
+      "resampling_unit": "confirm_state_with_replacement_fixed_20_draws",
+      "interval": "percentile_two_sided_90_percent_lower_fifth_percentile",
+      "lower_bound_must_be_positive": true,
+      "comparison_scope": "oracle_minus_each_nonoracle_baseline_all_lower_bounds_must_be_positive"
+    },
+    "minimum_median_spearman_to_exact": 0.8,
+    "minimum_median_top_budget_jaccard_to_exact": 0.75,
+    "minimum_median_exact_selector_utility_ratio": 0.9,
+    "stability_metric_contract": {
+      "state_denominator": "memory_sensitive_confirm_states",
+      "aggregation": "deterministic_median_average_two_middle_values",
+      "exact_attribution": "mean_marginal_over_all_singleton_near_budget_coalitions_for_each_candidate",
+      "score_tie": "math_isclose_rel_tol_1e-9_abs_tol_1e-12_then_lower_event_step_id",
+      "spearman": "average_ranks;both_constant_and_same_selected_set=1;one_constant=0",
+      "sampled_and_exact_selection": "positive_gain_knapsack_with_capacity_2_and_lower_event_step_id_tie_break",
+      "jaccard": "set_jaccard_empty_empty_equals_1",
+      "utility_ratio": "sampled_selection_utility_divided_by_exact_attribution_selection_utility;if_both_abs_le_epsilon_then_1;if_only_denominator_abs_le_epsilon_then_0"
+    },
+    "baselines": [
+      "summary_only",
+      "recent",
+      "uniform_random_exact_expectation",
+      "ocr_and_rgb_similarity",
+      "frozen_policy_vision_embedding_similarity"
+    ],
+    "baseline_contract": {
+      "summary_only": "select_empty",
+      "recent": "select_events_3_and_4",
+      "uniform_random_exact_expectation": "mean_normalized_recovery_over_all_2_of_4_subsets",
+      "ocr_and_rgb_similarity": "score=0.5*set_jaccard_of_whitespace_token_sets_after_frozen_ocr_normalization(post,current)+0.5*cosine_joint_rgb_histogram_16x16x16(post,current);select_top_2",
+      "frozen_policy_vision_embedding_similarity": "cosine_of_l2_normalized_mean_last_visual_encoder_output_after_spatial_merger(post,current);select_top_2",
+      "tie_break": "higher_score_then_lower_event_step_id",
+      "formula_source_hashes_required_before_confirm": true
+    },
+    "exact_capacity_2_cardinality_ablation_required": true,
+    "pass_outcome": "GO_TO_GATE_TRAINING",
+    "hard_no_go_outcome": "NO_GO_RESTORATION_V2",
+    "hard_no_go_if": [
+      "memory_sensitive_states_less_than_4",
+      "mean_oracle_recovery_less_than_or_equal_to_0.10"
+    ],
+    "other_valid_outcome": "INCONCLUSIVE_V2",
+    "parse_or_stability_failure_outcome": "INCONCLUSIVE_V2",
+    "invalid_outcome": "INVALID"
+  },
+  "attribution_compute": {
+    "development_permutation_samples": 4,
+    "confirmatory_permutation_samples": 16,
+    "stability_audit_permutation_samples": 32,
+    "screening_may_stop_confirmatory_run": true,
+    "reference_log_probs_remain_on_gpu": true,
+    "kl_reduction_on_gpu": true,
+    "only_scalar_distances_move_to_cpu": true,
+    "coalitions_grouped_by_image_count_and_sequence_length": true,
+    "microbatch_size_frozen_in_execution_config_before_confirm": true,
+    "batch_1_equivalence_to_audited_cpu_kl_required": true
+  },
+  "androidworld_evaluation": {
+    "train_templates_and_instances": "60_templates_180_instances_no_project_policy_output_at_v2_freeze",
+    "validation_role": "development_only_due_to_prior_gui_owl_outputs",
+    "test_templates_and_instances": "25_templates_75_instances_sealed",
+    "test_plan_generated_only_after_gate_checkpoint_freeze": true,
+    "paired_methods_run_as_one_preregistered_batch": [
+      "summary_only",
+      "recent",
+      "similarity",
+      "next_action_nll_gate",
+      "causalcache_gate",
+      "native_full_context_reference"
+    ],
+    "primary_metric": "paired_terminal_success_difference_at_equal_visual_budget"
+  },
+  "paper_gate": {
+    "distilled_gate_must_approach_oracle": true,
+    "closed_loop_success_improvement_required": true,
+    "same_visual_budget_required": true,
+    "mechanism_model": "success~restoration_mass+successor_nll+visual_tokens+horizon",
+    "restoration_coefficient_must_be_positive": true
+  },
+  "implementation_dependencies_before_any_v2_policy_output": [
+    "derived_artifact_immutable_hf_revision_and_file_hashes",
+    "exact_confirm_trajectory_and_state_ids",
+    "exposure_ledger",
+    "restricted_prompt_parser_bridge_executor_round_trip_fixture",
+    "pinned_ocr_or_accessibility_backend_identity",
+    "baseline_specification_and_source_hashes",
+    "v2_interface_source_hashes",
+    "execution_config_referencing_this_scientific_config_sha256"
+  ]
+}

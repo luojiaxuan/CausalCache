@@ -16,7 +16,7 @@ code/
 根目录的 `make` target 不要求 editable install：
 
 ```bash
-make test validate-contract
+make test validate-contract validate-restoration-v2
 make paper
 ```
 
@@ -29,6 +29,8 @@ python3 -m venv .venv
 .venv/bin/python -m scripts.validate_contract \
   --config code/configs/phase0_contract.json \
   --decision data/fixtures/validated_decision.json
+.venv/bin/python -m scripts.validate_restoration_v2_contract \
+  --config code/configs/causalcache_restoration_v2.json
 ```
 
 共享机器中的 virtualenv 必须放在持久挂载 `/data` 下，例如 `/data/.venv/causalcache`；不要依赖
@@ -43,6 +45,11 @@ model revision、dtype、budget、prompt、preprocessing 或 threshold。
 - `data/results/` 只接收轻量 summary、CSV 与 README；raw traces、datasets、checkpoint 进入 HF；
 - 每个可复现实验里程碑在同一小提交中更新 code、config、result summary 和 progress，然后 push
   `main`。
+
+当前 v2 scientific contract 由 `causalcache.restoration_v2_contract` fail closed 验证。validator 同时锁定
+stable self-behavior reference、post-state-only intervention、八字段 strong summary、restricted action
+inventory、exact 8+10+5 历史 exposure 边界、fixed 20-state confirm 与两级 gate。它不替代历史
+`phase0_contract.json` validator；两者代表不同版本的 estimand，必须分别通过。
 
 GUI-Owl Think 的冻结输出边界允许开头最多一个小写且闭合的 `<think>...</think>`
 block；剔除后仍必须完整匹配单行 `Action:` 和唯一 `mobile_use` `<tool_call>`。未闭合、

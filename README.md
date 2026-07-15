@@ -3,71 +3,47 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: independent reference `NO_GO_CURRENT_REFERENCE_STACK` / oracle not opened
+> Status: restoration v2 scientific contract frozen / no v2 policy output yet
 
 ## 团队交接入口
 
-当前最重要的可复核结论：冻结的 independent UI-TARS reference gate 已合法完成，但只有 27/75（36.0%）
-full-history executable match，且 swipe 为 0/2，未通过 50% + required-action gate。因此当前
-UI-TARS reference stack 明确 `NO_GO`，132-decision oracle split 未打开，不能生成 restoration labels 或
-训练 gate。raw 结果已上传 private HF
+当前路线已经从 v1 expert-aligned admission 切换为 versioned v2 stable self-behavior estimand。科学配置
+[`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json) 已在任何 v2
+policy output 前冻结，SHA256 为
+`9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc`。primary policy 固定为
+`mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faec`；reference 只要求 restricted action 可解析、logits finite、
+两次 canonical action 一致，expert alignment 仅分层报告且不能过滤状态。完整定义、data exposure 和
+go/no-go 阈值见 [`docs/restoration_v2.md`](docs/restoration_v2.md)。当前没有任何 v2 policy output、
+restoration label、gate checkpoint 或方法效果结果。
+
+v2 的干预已收窄：所有 memory 始终保留相同 strong low-fidelity summary；恢复 event 时只增加一张
+post-action state image，不增加 before image 或额外 action text。confirm 固定每条 trajectory 的 decision
+step 6；events 1--4 是四个 visual candidates，event 5 的 post-state 等于 current observation，因而只保留
+summary、不重复计图且不能被选择。reference 使用四张历史 post-state 加 current，覆盖每个 non-current
+historical event 且不重复 event 5 的 current-equivalent image；
+主预算容量为四个候选中最多选两个；exact-two 作为 cardinality-matched ablation。
+
+历史 v1 结果保持有效且不回改：independent UI-TARS reference gate 得到 69/75 parsed、27/75（36.0%）
+expert executable match、swipe 0/2，输出 `NO_GO_CURRENT_REFERENCE_STACK`。这否定的是 v1 reference
+stack，不是 restoration 假设。raw 结果位于 private HF
 `reference-gate-v1@b3e1245c6c6a1723fe2ca3a861148008df39df46`，轻量结论见
-[`data/results/independent_reference_gate_v1/`](data/results/independent_reference_gate_v1/)。这关闭的是
-当前 reference 获取路线，不是对 CausalCache 假设本身的 falsification。
+[`data/results/independent_reference_gate_v1/`](data/results/independent_reference_gate_v1/)。旧 15-trajectory /
+132-decision oracle raw trajectories 已被 builder 读取和打包，但从未产生本项目 policy/restoration output；
+v2 只按预先冻结顺序把它们用于 label-train/development screening。
 
-方法与 synthetic estimator 接口已实现；六个早期 frozen-policy candidates 均未通过冻结 gate，当前没有
-accepted validated teacher，也没有 CausalCache 方法效果结果。最新
-`GUI-Owl-1.5-8B-Think@afe3707` 虽在 Hyper01 通过 1/5-image finite-logit/parser smoke，但 Aries
-AndroidWorld 正式 validation 在 42/62 checkpoints 后以 success 下界 9/62、上界 29/62 判负；
-512/513 actions parsed，说明失败不是主要来自 serialization coverage。raw traces 已上传 private HF
-dataset `v0.2.0@0faf767e`。按预注册 change control，本轮停止，不生成 restoration labels 或训练 gate；
-下一步必须先形成新的 validated-reference/primary-policy 预注册决策。final test 仍保持 sealed。
-
-冻结的两状态 real-policy diagnostic 已完成，结果为 `INCONCLUSIVE_POSITIVE`，详见
-[`data/results/go_no_go_diagnostic_v1/`](data/results/go_no_go_diagnostic_v1/)。在 step 8、1024-token cap
-下，recent/similarity 恢复 48.7%，random expectation 58.1%，而 exhaustive oracle 与 restoration
-selector 选择最早 event 1 + 最新 event 7，恢复 84.2%；$K=16$ 五个 seed 全部复现该选择。由于 states
-来自已观察的 2/9 matched subset，且所有 memories 的离散 executable swipe 都仍正确，这只是值得进入
-独立扩展集的存在性证据，不是 paper `GO`、terminal-success 结果或 gate-training labels。
-
-当前正在执行的 go/no-go 分为两层。第一层已在任何 restoration forward 前冻结为
-[`code/configs/go_no_go_diagnostic_v1.json`](code/configs/go_no_go_diagnostic_v1.json)：只用已有 Qwen
-matched states 验证真实 action-path KL 与 exhaustive oracle，因 post-selection bias 禁止给出论文级
-`GO`，现已按冻结判据得到 `INCONCLUSIVE_POSITIVE`。判据、失败边界与独立扩展要求见
-[`docs/go_no_go.md`](docs/go_no_go.md)。正式 reference gate 与 paper-level go/no-go 仍必须使用未观察
-policy/restoration 的独立多轨迹 manifest。
-
-独立 gate 的 source pool、policy-blind eligibility/hash split、48-decision reference 最低规模、UI-TARS
-exact revision、H200-to-A6000 behavioral anchor 与 fail-closed outcome 已在任何新 source row decoding 或
-policy inference 前冻结到
-[`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。
-artifact 必须先上传 Hugging Face 并把 immutable revision/SHA 回写 Git；reference 失败即停止当前路线，
-不会在看到输出后换样本或调阈值。
-
-冻结 source pool 的 16 个 Parquet 文件（2.25 GB）及逐文件 SHA256 见
-[`data/manifests/independent_reference_gate_v1_source_files.json`](data/manifests/independent_reference_gate_v1_source_files.json)；
-这些 hash 已在 row decoding 前生成。
-
-Hyper00 H200 的 UI-TARS behavioral anchor 已通过：旧 9-decision artifact 精确复现 A6000 的 9/9 parsed、
-4/9 match 与逐 decision vector，见
-[`data/results/ui_tars_hyper00_hardware_anchor/`](data/results/ui_tars_hyper00_hardware_anchor/)。因此独立 gate
-可以留在 Hyper00；该 anchor 的低平均利用率仍要求在 oracle-scale attribution 前完成 batching/GPU-side
-KL 优化。
-
-multi-trajectory deterministic builder 与 formal fail-closed reference runner 已实现并通过 106 个 tests；
-两次构建 byte-identical，artifact 已上传 private HF
-`gavinlaw/causalcache-guiodyssey-independent-mobile@84c9f5a335e9612ccb4bd566f977574f359b2485`
-并从 immutable revision 强制重下载验 hash。reference split 冻结为 8 trajectories / 75 decisions / 14 app
-labels，oracle split 为 15 / 132 / 23，二者 trajectory-disjoint。formal reference 已按冻结分母完成并判负；
-命令、回写与失败恢复见 [`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)。
+更早的两状态 real-policy diagnostic 为 `INCONCLUSIVE_POSITIVE`：step 8、1024-token cap 下 exhaustive oracle
+恢复 84.2%，recent/similarity 为 48.7%，random expectation 为 58.1%。由于它来自已观察 matched subset，
+它仍只是一条 selection-biased existence signal，不能成为 paper `GO` 或训练 label。历史 v1 配置、artifact、
+H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go.md) 与
+[`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)。
 
 新合作者按以下顺序阅读：
 
-1. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
-2. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-3. [`docs/experiment_contract.md`](docs/experiment_contract.md)：不可静默改变的实验语义；
-4. [`docs/go_no_go.md`](docs/go_no_go.md)：当前 diagnostic 与扩展 pilot 的冻结判据；
-5. [`docs/independent_gate_execution.md`](docs/independent_gate_execution.md)：独立 artifact/gate 的执行与回写；
+1. [`docs/restoration_v2.md`](docs/restoration_v2.md)：当前 scientific contract、data roles 与 gates；
+2. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+3. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+4. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+5. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
 6. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
 7. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
@@ -85,15 +61,16 @@ docs/              # contract、execution、progress、decisions
 快速验证：
 
 ```bash
-make test validate-contract paper
+make test validate-contract validate-restoration-v2 paper
 ```
 
-计算 placement：本轮 independent policy/reference 已在通过 behavioral anchor 的 Hyper00 H200 完成；
-AndroidWorld closed-loop MVP 继续使用已验证的 Aries stack。Hyper01 未参与本轮执行。
+计算 placement：v2 offline substrate/attribution 默认使用 Hyper00 H200，Aries A6000 为 fallback；任何正式
+GPU output 前仍须完成 preflight、derived HF artifact 与 execution-config freeze。AndroidWorld closed-loop
+MVP 继续使用已验证的 Aries stack。Hyper01 当前不参与本轮执行。
 
 ## 一句话主张
 
-现有 GUI memory 方法主要根据 recency、similarity、attention 或 learned salience 保存历史。CausalCache 直接测量：**在实际部署预算附近，把某个 GUI 事件从固定低保真记录升级为高保真视觉证据，能在多大程度上恢复 validated frozen policy 当前决策的 executable behavior**，并把这种昂贵的 restoration attribution 蒸馏成在线 memory selector。
+现有 GUI memory 方法主要根据 recency、similarity、attention 或 learned salience 保存历史。CausalCache 直接测量：**在实际部署预算附近，只给某个 GUI 事件增加 archived post-state image，能在多大程度上恢复冻结策略 parseable、finite、repeat-stable 的 self-behavior**，并把这种昂贵的 restoration attribution 蒸馏成在线 memory selector。
 
 ## 核心观察
 
@@ -127,13 +104,13 @@ $$
 M_t\subset H_t,\qquad \sum_{j\in M_t}c_j\le B,
 $$
 
-使冻结 GUI policy 的长期 executable task success 最大。这里的 $B$ 限制 policy-visible multimodal context，不限制 persistent storage；原始事件保存在 archive，未选事件在当前 query 只暴露固定长度摘要。
+使冻结 GUI policy 的长期 executable task success 最大。这里的 $B$ 限制 policy-visible multimodal context，不限制 persistent storage；原始事件保存在 archive，未选事件在当前 query 只暴露 deterministic strong summary，并单独报告实际 text tokens。
 
 ## 方法
 
 ### 1. Restoration Attribution
 
-首先只在 full-history action 通过 executor-compatible action validation 的状态上运行冻结策略 $\pi_0$，得到参考 action behavior：
+首先在 action-contract parse、finite-logit 与 repeat-stability 检查通过的开发状态上运行冻结策略 $\pi_0$，得到 self-behavior reference；untouched confirm 使用固定分母，失败状态不能事后删除：
 
 $$
 q_t=\pi_0(\cdot\mid g,o_t,H_t).
@@ -160,7 +137,7 @@ D_t(S)-D_t(S\cup\{j\})
 \right].
 $$
 
-其中 $\mathcal C_B(j)$ 只包含为 $e_j$ 留出容量的 maximal near-budget coalitions。该定义是 budget-conditioned Shapley-style attribution；新意不在通用 Shapley estimator，而在 GUI mixed-fidelity intervention、validated executable behavior value 和固定预算蒸馏。实际使用共享 antithetic permutation，并报告 standard error、Spearman、top-budget Jaccard、oracle utility 与 coalition reconstruction error。
+其中 $\mathcal C_B(j)$ 只包含为 $e_j$ 留出容量的 maximal near-budget coalitions。该定义是 budget-conditioned Shapley-style attribution；新意不在通用 Shapley estimator，而在 GUI mixed-fidelity intervention、stable policy-behavior value 和固定预算蒸馏。实际使用共享 antithetic permutation，并报告 standard error、Spearman、top-budget Jaccard、oracle utility 与 coalition reconstruction error。
 
 ### 2. 在线 Memory Gate
 
@@ -184,17 +161,20 @@ $$
 
 ### 3. Mixed-Fidelity Memory
 
-每个低保真事件固定包含：
+v2 每个 low-fidelity event 固定包含：
 
 ```text
 step_id
 action_type
-target_text_or_coordinate_bin
-deterministic_ui_delta
-result_status
+action_argument
+foreground_app
+screen_text_added
+screen_text_removed
+screen_change
+executor_result
 ```
 
-系统由 raw event archive、cheap summary/index（可含预计算视觉 embedding）和 policy-visible high-fidelity context 三层组成。截图高保真表示仍使用原始视觉输入。第一版不做跨层 KV surgery，而是通过 mixed-fidelity input 重新运行 policy，避免位置编码与上下文依赖导致不合法的 KV 拼接。
+系统由 raw event archive、cheap summary/index（可含预计算视觉 embedding）和 policy-visible high-fidelity context 三层组成。所有 memory 中 summary 序列化 byte-identical；high fidelity 只增加一张 post-action state image。第一版不做跨层 KV surgery，而是通过 mixed-fidelity input 重新运行 policy，避免位置编码与上下文依赖导致不合法的 KV 拼接。
 
 ## 实验设计
 
@@ -287,7 +267,7 @@ $$
 
 ## Paper Story
 
-> Long-horizon GUI memory selection lacks policy-grounded supervision. CausalCache values an event by how much upgrading it from a fixed low-fidelity record to high-fidelity visual evidence restores a validated frozen policy's executable decision behavior, then distills this budget-conditioned teacher into a query-time gate.
+> Long-horizon GUI memory selection lacks policy-grounded supervision. CausalCache values an event by how much adding only its archived post-state image to an unchanged strong-summary history restores a frozen policy's stable self-behavior, then distills this budget-conditioned teacher into a query-time gate.
 
 ## 初始路线图
 
@@ -295,7 +275,8 @@ $$
 - [x] 建立并验证 AAAI-27 官方 LaTeX anonymous submission 骨架；
 - [x] 冻结 action serialization、validated-reference requirements 与 mixed-fidelity experiment contract；
 - [x] 固定并评估首个 frozen policy candidate；因 full-history coverage 仅 2/9，拒绝作为主 teacher；
-- [ ] 选择主 frozen policy，并确定 transfer backbone；六个 candidate 均已被冻结 gate 拒绝，新的 validated-reference 方案尚未预注册；
+- [x] 冻结 restoration v2 primary policy 与 stable self-behavior reference；GUI-Owl Instruct 仅作为 v2 substrate，不回改其 v1 AndroidWorld rejection；
+- [ ] 闭合 v2 action fixture、derived artifact、exposure ledger、OCR identity、interface hashes 与 execution config；
 - [x] 实现 trajectory/event schema 与 deterministic low-fidelity summarizer；
 - [x] 实现并测试 budget-conditioned restoration attribution 核心；
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
@@ -316,7 +297,9 @@ $$
 - Small-data policy: [`data/README.md`](data/README.md)
 - Cross-chip execution and handoff: [`docs/execution.md`](docs/execution.md)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
-- Experiment contract: [`docs/experiment_contract.md`](docs/experiment_contract.md)
+- Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
+- Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)
+- Historical experiment contract v0.3: [`docs/experiment_contract.md`](docs/experiment_contract.md)
 - Frozen policy selection: [`docs/policy_selection.md`](docs/policy_selection.md)
 - AndroidWorld benchmark-native stack: [`docs/androidworld_stack.md`](docs/androidworld_stack.md)
 - AndroidWorld frozen task partition: [`docs/androidworld_task_partition.md`](docs/androidworld_task_partition.md)
@@ -350,8 +333,8 @@ $$
 - GUI-Owl Think passing native smoke: [`data/results/gui_owl_1_5_8b_think_smoke/README.md`](data/results/gui_owl_1_5_8b_think_smoke/README.md)
 - GUI-Owl Think AndroidWorld validation rejection: [`data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md`](data/results/gui_owl_1_5_8b_think_androidworld_validation/README.md)
 - Build command: `make paper`
-- Test command: `make test validate-contract`
-- 当前状态：论文骨架、实验契约、synthetic estimator validation 与 GUIOdyssey pilot 已完成；independent UI-TARS reference 以 27/75、swipe 0/2 判负，oracle 未打开。当前仍无 accepted validated teacher 或 CausalCache 方法效果结果，主 attribution 链路按预注册停止。
+- Test command: `make test validate-contract validate-restoration-v2`
+- 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 stable self-behavior scientific contract 已冻结，但八项 pre-output dependencies 尚未闭合，因而没有 v2 policy/restoration output 或 CausalCache 方法效果结果。
 
 ### Data and Models
 
@@ -364,15 +347,15 @@ $$
 | Rejected GUI-tuned candidate | <https://huggingface.co/ByteDance-Seed/UI-TARS-1.5-7B> | `683d002dd99d8f95104d31e70391a39348857f4e` | parsed 9/9、executable-match 4/9；未通过预注册 50% gate |
 | Rejected computer-use candidate | <https://huggingface.co/xlangai/OpenCUA-7B> | `a2efb7d2b104d477a4a2666a357e79550a28aafc` | parsed 7/9、executable-match 1/9；未通过预注册 gate |
 | Rejected GUI navigation candidate | <https://huggingface.co/showlab/ShowUI-2B> | `cabec4fcc48d15ffd3efe0b33ea9bc7d41509d60` | parsed 9/9、executable-match 2/9；未通过预注册 gate |
-| Rejected AndroidWorld-native candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | 496/496 parsed；official-success 上界 30/62，未通过 50% gate |
+| GUI-Owl-1.5-8B-Instruct | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Instruct> | `06d5faecff74840bab2be2425e9c42667a5d04fc` | v1 AndroidWorld success teacher 被拒；v2 stable self-behavior substrate 已冻结，尚无 v2 output |
 | Rejected replacement candidate | <https://huggingface.co/mPLUG/GUI-Owl-1.5-8B-Think> | `afe3707fc84caebc4d7046118b34493ecf8bb060` | 512/513 parsed；official-success 上界 29/62，未通过 50% gate |
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.2.0` / `0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`，private | 42 Think traces；deterministic gzip JSONL；`v0.1.0` Instruct artifact 保持不变 |
-| Full attribution/evaluation datasets | 同一 private independent dataset repo | attribution records not generated | v1 reference 已失败，禁止生成 oracle records；后续只能另立 versioned preregistration |
+| Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | private repo not built | 预定保存 strong summaries、OCR/UI delta、split manifests 与 attribution records；immutable revision 前禁止 policy output |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。
-当前没有仅存于本地、等待上传的可复用数据集、模型或评测 artifact。
+v2 derived dataset 尚未构建；当前不存在已生成却只留在本地、等待上传的 v2 data/model artifact。
 
 ## Citation
 

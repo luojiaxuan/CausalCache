@@ -9,7 +9,7 @@ data、preprocessing、decoding、budget、seed 与 gate 均由 Git/HF revision 
 
 1. Git `main`：代码、config、脚本、论文、轻量 summary、progress 与本执行文档；
 2. Hugging Face：全部 reusable datasets、raw data artifacts、model weights、checkpoints、adapters；
-3. Mac/Hyper01/Aries 本地盘：cache、staging 和 active run，可随时重建，不是 canonical source。
+3. Mac/Hyper00/Hyper01/Aries 本地盘：cache、staging 和 active run，可随时重建，不是 canonical source。
 
 Mac 上的 HF token 位于 `~/hf_key.txt`。该文件不得复制进仓库、命令日志、result JSON 或 Docker
 image；`.gitignore` 也显式拒绝 `hf_key.txt` 与 `.secrets/`。优先在 Mac 已认证的 `hf` CLI 上执行
@@ -21,7 +21,8 @@ HF create/upload/tag。远端确需访问 private repo 时，由操作者通过�
 | 工作 | 默认位置 | 备选 | 原因 |
 | --- | --- | --- | --- |
 | 文档、Git、LaTeX、单测、轻量数据处理 | Mac | Aries/Taurus | 不占共享 GPU |
-| 大模型 inference、attribution、gate training | Hyper01 H200 | B200 | H200 吞吐和显存明显优于 A6000 |
+| restoration v2 offline inference、attribution | Hyper00 H200 | Aries A6000 | Hyper01 当前有其他任务；v2 canonical runtime 最终由 execution config 冻结 |
+| gate training / 后续重训练 | B200 | Hyper00 H200 | 先用至多 2 GPU 达到 90% utilization，再决定是否扩展 |
 | AndroidWorld emulator + policy rollout | Aries A6000 | Hyper01 H200（待解锁） | Aries stack 已验证；Hyper01 先解决 Docker root 容量并重做 environment smoke |
 | 小模型 smoke、sample-level debug | Aries/Taurus A6000 | Hyper01 | 避免为小任务占用 H200 |
 
@@ -44,14 +45,16 @@ Aries。任何 repo、virtualenv、log、checkpoint 与 cache 都不得写入根
 - benchmark/server image digest 与 reward implementation。
 
 允许作为 host adapter 改变的只有：物理 GPU id、单/双卡映射、batch/concurrency、emulator worker
-数、cache/staging 绝对路径。改变这些参数后，语义输出仍需通过固定 smoke。
+数、cache/staging 绝对路径。改变这些参数后，语义输出仍需通过固定 smoke。restoration v2 confirm 的
+microbatch size 虽不改变科学 estimand，也必须在 execution config 中于 confirm output 前冻结，不能按
+结果或 OOM 选择性变化。
 
 ## 每次 GPU job 的 preflight
 
-从 Mac 非交互检查 Hyper01：
+restoration v2 当前从 Mac 非交互检查 Hyper00：
 
 ```bash
-ssh -T -o RemoteCommand=none -o RequestTTY=no hyper01 '
+ssh -T -o RemoteCommand=none -o RequestTTY=no hyper00 '
 hostname
 uname -m
 test -e /dev/kvm && ls -l /dev/kvm
@@ -66,13 +69,13 @@ docker ps -a --format "{{.Names}}" | sort
 GPU utilization monitor；低于 90% 时检查 batching、I/O、ADB 等待或减少 GPU 数，不能无人值守地
 低效运行。
 
-## Hyper01 容器约定
+## Hyper00 v2 容器约定
 
 默认 image 为 `hongccc/sglang-omni:dev`。下面示例使用 GPU 0；必须用 preflight 的实际选择替换。
 科学参数不通过环境变量传递；固定的 cache 环境变量只负责把基础设施写入持久盘。
 
 ```bash
-ssh hyper01
+ssh hyper00
 
 docker run -itd \
   --shm-size 32g \
@@ -89,8 +92,6 @@ docker run -itd \
   --ulimit nofile=65536:65536 \
   --ulimit memlock=-1 \
   --ulimit stack=67108864 \
-  --privileged \
-  --cap-add=SYS_PTRACE \
   --name sglang-omni-jaxan-$(date +%m%d%H%M) \
   hongccc/sglang-omni:dev \
   /bin/zsh
@@ -109,6 +110,8 @@ cd /data/repo
 /data/.venv/causalcache/bin/python -m scripts.validate_contract \
   --config code/configs/phase0_contract.json \
   --decision data/fixtures/validated_decision.json
+/data/.venv/causalcache/bin/python -m scripts.validate_restoration_v2_contract \
+  --config code/configs/causalcache_restoration_v2.json
 ```
 
 正式 run 必须 checkout 已 push 的 exact commit 并保持 clean detached worktree；开发阶段的同一 topic
@@ -158,8 +161,8 @@ preflight 发现 image 自带 `NVIDIA_VISIBLE_DEVICES=all`；在 `--privileged` 
 8 张卡，因此正式 Think policy container 去掉 `--privileged`，保留单卡 device request。科学参数仍由
 CLI 显式传入，不能用 `CUDA_VISIBLE_DEVICES` 代替该设备契约。
 
-同一个 attribution-label dataset 只能指定一种 canonical hardware/runtime；默认在 Hyper01 H200
-生成，Aries A6000 只做固定 canary 或 closed-loop MVP，不能把两种芯片生成的 labels 混进同一 train
+同一个 attribution-label dataset 只能指定一种 canonical hardware/runtime；restoration v2 默认在 Hyper00
+H200 生成，Aries A6000 只做固定 canary 或 fallback，不能把两种芯片生成的 labels 混进同一 train
 split。跨芯片 replication 单独记录和报告。
 
 ## HF token 的安全传递
@@ -196,7 +199,7 @@ GUI-Owl Think 在同一 H200 上的两次 `do_sample=false` 运行已观察到�
 canonical action 执行；但后续 teacher-forced token distance 不得假定 raw generation byte-identical，必须
 固定 action token boundary 并报告 repeat-forward variance。
 
-replacement teacher 已在 Hyper01 完成独立 1/5-image interface smoke。Aries 上不再单独执行并随后
+历史 v1 replacement teacher 已在 Hyper01 完成独立 1/5-image interface smoke。Aries 上不再单独执行并随后
 重复某个冻结 validation instance；完整 runner 写出的第一个原子 episode checkpoint 同时作为
 closed-loop infrastructure canary。其成功或失败都不能触发 prompt、parser、model、task plan 或 gate
 threshold 修改，正式分母始终来自同一个冻结 62-instance plan。
@@ -208,6 +211,10 @@ Transformers、dtype、Docker image/digest、model/data HF revision、seed、wor
 failure classification。字段契约见 `code/configs/run_manifest.schema.json`。轻量 summary 写入
 `data/results/<run>/`；raw traces/checkpoints 先上传 HF，再把 repo/tag/revision 写回 README、manifest
 与 `docs/progress.md`。
+restoration v2 还必须记录 scientific/execution config SHA、derived artifact immutable revision、exact
+confirm IDs manifest 与 exposure-ledger hash、accessibility/OCR identity、action-interface source hashes、
+每图 `image_grid_thw`/effective visual tokens、policy-visible text tokens、microbatch size，以及 batch-1
+GPU KL 对 audited CPU KL 的 equivalence result。
 没有 RNG 参数的 deterministic runner 必须记录 `seed=null`，不得为了满足 metadata 伪记一个
 未实际设置的 seed。
 

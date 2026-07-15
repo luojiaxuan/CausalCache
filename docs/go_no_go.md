@@ -2,10 +2,10 @@
 
 ## 当前结论边界
 
-仓库目前没有通过冻结 coverage gate 的 reference policy。因此，已观察到 full-history executable
-match 的 GUIOdyssey decision step 4/8 存在明显的 post-selection bias：它们可以验证真实视觉
-mixed-fidelity rerun、teacher-forced KL 和 oracle ceiling，也可以给出当前表示的硬负信号，但不能单独
-产生论文意义上的 `GO`，不能生成 gate training labels，也不能推翻已经记录的 policy rejection。
+仓库没有通过历史 v1 expert-coverage gate 的 teacher；v1 UI-TARS 已正式输出
+`NO_GO_CURRENT_REFERENCE_STACK`。restoration v2 已另立为 stable self-behavior estimand 并在任何 v2
+policy output 前冻结，但目前只完成科学契约，还不是 `GO`。已观察的 GUIOdyssey decision step 4/8 仍有
+post-selection bias，只能作为历史 existence diagnostic，不能成为 v2 label 或推翻 v1 rejection。
 
 第一阶段使用 `code/configs/go_no_go_diagnostic_v1.json`。配置在任何 restoration forward 之前冻结，
 只允许四种输出：
@@ -61,10 +61,10 @@ baselines 固定为 recent、全部等大小 coalition 的 uniform-random exact 
 current image 的 RGB histogram cosine similarity、global exhaustive oracle 和 budget-conditioned
 restoration selector。所有 selector 读同一个 coalition-distance cache，不追加选择性 policy forward。
 
-## 第二阶段：真正的 paper-level go/no-go
+## 历史第二阶段：v1 paper-level go/no-go
 
-第一阶段即使得到 `INCONCLUSIVE_POSITIVE`，也只表示值得扩展。真正的 `GO` 必须使用没有观察过
-restoration 的独立多轨迹 split，并在 policy inference 前完成 manifest 与判据 commit。当前推荐路线是
+第一阶段即使得到 `INCONCLUSIVE_POSITIVE`，也只表示值得扩展。v1 当时要求使用没有观察过
+restoration 的独立多轨迹 split，并在 policy inference 前完成 manifest 与判据 commit。当时冻结路线是
 固定旧 pilot 中最接近 gate 的
 `ByteDance-Seed/UI-TARS-1.5-7B@683d002dd99d8f95104d31e70391a39348857f4e`，保持原 prompt、parser、
 10×10 coordinate bin、deterministic decoding 和以下 gate 不变：full-history executable-match coverage
@@ -95,7 +95,7 @@ SHA 回写并 push，之后才允许 inference。
 该 gate 已在 Git `585fd2aa8061f069008d985552ddaec4bbfd5246` 上完整执行，结果为
 `NO_GO_CURRENT_REFERENCE_STACK`：69/75 parsed、27/75 executable match（36.0%），tap 21/58、swipe
 0/2、type_text 5/9。整体至少需要 38/75，且 swipe required-action gate 独立失败，因此按上述规则停止，
-oracle split 未打开。完整轻量结论见
+oracle split 未打开任何 policy/restoration output（raw artifact 已由 builder 打包）。完整轻量结论见
 [`data/results/independent_reference_gate_v1/`](../data/results/independent_reference_gate_v1/)，raw run 位于
 private HF `gavinlaw/causalcache-guiodyssey-independent-mobile@reference-gate-v1`
 (`b3e1245c6c6a1723fe2ca3a861148008df39df46`)。
@@ -107,7 +107,7 @@ output 前先解决并提交一致 action contract。GUIOdyssey source 来自 tr
 证明它不在 UI-TARS 训练语料中，因此“独立”只指本项目此前未观察这些 policy outputs，不声称严格训练集
 去污染。
 
-若 gate 通过，paper-level oracle 至少需要 20 个预先冻结的 executable-matched states，覆盖至少 10 条
+v1 当时规定：若 gate 通过，paper-level oracle 至少需要 20 个预先冻结的 executable-matched states，覆盖至少 10 条
 trajectory 与 3 个 app。扩展集的 `GO` 条件预先固定为：
 
 - memory-sensitive states 至少 8/20；
@@ -120,3 +120,40 @@ trajectory 与 3 个 app。扩展集的 `GO` 条件预先固定为：
 若不多于 3/20 states 敏感，或 oracle mean recovery 不高于 0.10 且没有 executable recovery，则为
 paper-level `NO-GO`；其余为 `INCONCLUSIVE`。AndroidWorld closed-loop success、matched-NLL 与 distilled
 gate 仍是后续阶段，offline oracle `GO` 不等于论文主张已经成立。
+
+## Restoration v2 当前 gate
+
+v2 不重开或放宽 v1 expert gate。它把 reference 改为 GUI-Owl-1.5-8B-Instruct 的 parseable、finite、
+repeat-stable self-behavior；expert alignment 只作为独立质量轴报告，不能决定 admission、drop 或 top-up。
+科学配置为 [`causalcache_restoration_v2.json`](../code/configs/causalcache_restoration_v2.json)，完整干预与
+data exposure 见 [`restoration_v2.md`](restoration_v2.md)。当前尚未运行任何 v2 output。
+
+第一层只在 label-train/development 做 substrate screening，至少 20 states：
+
+- action-contract parse coverage 至少 0.99；
+- finite-logit coverage 为 1.0；
+- 两次 deterministic forward 的 canonical-action agreement 为 1.0；
+- `D(summary) > max(1e-4, 10 * mean_repeat_kl)` 的 memory-sensitive states 至少 8。
+
+任一失败输出 `NO_GO_V2_SUBSTRATE`，untouched confirm 不打开。通过后，confirm 固定使用 frozen hash order
+中的 20 条 trajectory，每条 decision step 6 一个 state；parse/stability failure 计入固定分母，不能换样本、
+按 expert/quality/sensitivity 过滤或事后 top-up。
+
+Confirm primary 固定四个 visual candidates、容量最多两个，`K=16`、seed `20270715`。进入 gate training 必须
+同时满足：
+
+- memory-sensitive states 至少 8/20；
+- mean oracle recovery 至少 0.30；每状态使用
+  `(D(empty)-D(selected))/max(D(empty), epsilon)`，对全部 20 个固定状态取均值；
+- 相对 strongest baseline 的 mean gain 至少 0.10，paired 90% bootstrap lower bound 大于 0；
+- median Spearman to exact 至少 0.80；
+- memory-sensitive states 上的 median top-budget Jaccard 至少 0.75；
+- median sampled-selector / exact-attribution-selector utility ratio 至少 0.90。
+
+Oracle 在 0/1/2-event subsets 中取最小 distance，exact-2 作为 cardinality ablation；paired bootstrap
+要求 oracle 对每个 non-oracle baseline 的 90% lower bound
+都大于 0。全部 pass 条件成立才输出 `GO_TO_GATE_TRAINING`。memory-sensitive 少于 4，或 mean oracle
+recovery 不高于 0.10，输出硬 `NO_GO_RESTORATION_V2`；其余合法但不满足 pass 的结果，包括 confirm
+parse/stability failure，输出 `INCONCLUSIVE_V2`。contract/runtime 错误为 `INVALID`。offline
+`GO_TO_GATE_TRAINING` 只表示 oracle 值得蒸馏，仍不等于 gate、closed-loop success 或 matched-NLL
+paper claim 已成立。

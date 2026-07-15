@@ -1,6 +1,10 @@
-# CausalCache 实验契约 v0.3
+# CausalCache 历史实验契约 v0.3
 
-本文档冻结第一轮实验的对象、干预、预算和判定标准。后续如果修改这些定义，必须同时修改 `code/configs/phase0_contract.json`、对应测试和论文，并在 `docs/progress.md` 记录原因。
+本文档保留第一轮实验的对象、干预、预算和判定标准，不能用 v2 结果回改。当前 restoration v2 是新的
+estimand，其 strong low-fidelity schema、post-state-only intervention、stable self-behavior reference 和 gates
+见 [`restoration_v2.md`](restoration_v2.md) 与
+[`causalcache_restoration_v2.json`](../code/configs/causalcache_restoration_v2.json)。后续如果修改 v0.3 定义，
+必须同时修改 `code/configs/phase0_contract.json`、对应测试和论文，并在 `docs/progress.md` 记录原因。
 
 ## 1. 系统边界
 
