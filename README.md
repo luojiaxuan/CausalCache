@@ -194,15 +194,16 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 1. [`docs/restoration_v2.md`](docs/restoration_v2.md)：当前 scientific contract、data roles 与 gates；
 2. [`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)：official-tool interface rescue 与固定 15-state pilot；
 3. [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)：full-45 stable-reference substrate、gate 与一次性执行边界；
-4. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
+4. [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)：interaction-aware student 的设计、能力边界与 ablation matrix；
+5. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
    post-state-only prompt 的冻结实现；
-5. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
-6. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
-7. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-8. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-9. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-10. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-11. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+6. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+7. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
+8. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+9. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+10. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+11. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+12. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -210,6 +211,7 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 README.md          # 总索引与交接状态
 AGENTS.md          # 每步 Git/HF/compute 规则
 paper/             # AAAI LaTeX package
+ablations/         # 未冻结的方法比较、诊断设计与执行前边界
 code/              # package、scripts、tests、configs、requirements
 data/              # 小 fixture 与轻量 result summaries
 docs/              # contract、execution、progress、decisions
@@ -311,7 +313,7 @@ $$
 
 其中 $\mathcal C_B(j)$ 只包含为 $e_j$ 留出容量的 maximal near-budget coalitions。该定义是 budget-conditioned Shapley-style attribution；新意不在通用 Shapley estimator，而在 GUI mixed-fidelity intervention、stable policy-behavior value 和固定预算蒸馏。实际使用共享 antithetic permutation，并报告 standard error、Spearman、top-budget Jaccard、oracle utility 与 coalition reconstruction error。
 
-### 2. 在线 Memory Gate
+### 2. 在线 Memory Gate（当前 independent baseline）
 
 离线 restoration attribution 计算昂贵，因此训练轻量 gate：
 
@@ -330,6 +332,11 @@ L=L_{\text{regression}}
 $$
 
 推理时使用 positive-value knapsack；分数不超过阈值的事件不会被强制加入，因此实际选择可以少于预算容量。冻结 action policy，只训练 memory gate。
+
+该写法是 averaged-$G^{(B)}$ 的 independent student baseline，不表示 event utility 真正可加。prospective
+set-conditioned iterative gate、额外 conditional-edge labels、greedy 的 pure-complementarity failure 与完整
+ablation matrix 见 [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)；它尚未进入 frozen
+v2/v2.1 contract。
 
 ### 3. Mixed-Fidelity Memory
 
@@ -404,6 +411,8 @@ $$
 - 不同 memory budget；
 - success、NLL 与 restoration mass 的独立相关性；
 - 跨 app、任务长度和 policy backbone 泛化。
+- independent average-value gate 对比 set-conditioned iterative gate，并按 interaction mass 分层报告 oracle gap；
+  设计与限制见 [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)。
 
 ## 预期贡献
 
@@ -469,6 +478,7 @@ $$
 - [x] 完成 v2.1 fixed-15 native-output interface pilot；15/15 parse/closer/bridge，保留原 v2 negative result；
 - [x] 冻结 unchanged-interface full-45 v2.1 child contract、runner 与 raw artifact chain；
 - [x] 执行唯一 full-45 v2.1 substrate attempt；32/45 exact repeat agreement，正式为 `NO_GO_V2_1_FULL_45_SUBSTRATE`；
+- [x] 记录 prospective interaction-aware gate ablation；仅 source-only proposal，不重开 v2.1；
 - [ ] 在不读取 confirm policy output 的前提下，决定是否冻结新的 executable/UI-element equivalence protocol；
 - [ ] 只有新 substrate gate 通过后，才构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -483,6 +493,8 @@ $$
 - Code layout and commands: [`code/README.md`](code/README.md)
 - Small-data policy: [`data/README.md`](data/README.md)
 - Cross-chip execution and handoff: [`docs/execution.md`](docs/execution.md)
+- Ablation index: [`ablations/README.md`](ablations/README.md)
+- Interaction-aware gate proposal: [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)

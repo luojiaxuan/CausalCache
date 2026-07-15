@@ -1304,6 +1304,22 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `archive_hash_verified=true`、94 files 与 tree SHA256 `6c5e515a...19281`。source commit、当前 descendant、
   archive、manifest、reducer outcome 与 HF revision 的完整 SoT chain 已闭合。
 
+### 2026-07-15：Interaction-aware gate ablation 设计记录
+
+- 合作方指出 synthetic 已观测到 non-additive event interaction，而当前独立 event score 会把
+  coalition-conditioned marginal 压缩成 context-independent average value；该问题被确认为真实的
+  subset-objective information bottleneck，不是 restoration attribution 本身假设 event 独立，也不是当前
+  independent student 违反已经冻结的 averaged-$G$ teacher contract；
+- 新增 `ablations/interaction_aware_gate.md`，记录 set-conditioned iterative gate：每选入一个 event 后，基于
+  更新后的 coalition embedding 与剩余 budget 给候选重新打分；同时保留 independent gate 与 exact subset
+  oracle 作为 ablation 两端；
+- 文档明确三项限制：当前 near-budget label distribution 不覆盖 iterative gate 的全部前缀 cardinalities；标准
+  permutation edge 不自动提供同一 coalition 下的 conditional-ranking pairs；pure complementarity 也可能让
+  greedy 从空集停止。因此 set conditioning 只能声称缩小 interaction-induced oracle gap，不能声称解决任意
+  interaction；
+- 该里程碑仅为 Git source-only proposal，没有修改 frozen v2/v2.1 contract、代码或论文，没有运行 policy/GPU，
+  没有读取 confirm，也没有新增 HF artifact。真实 ablation 仍被 v2.1 substrate NO-GO 阻断。
+
 ## 下一步
 
 v2.1 已按冻结 gate 停止，不运行 restoration、gate training 或 confirm。下一步只允许做 source-only design
