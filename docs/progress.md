@@ -1092,14 +1092,33 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   (`c073e143b935a79befd8ab1fd7123796792efad8`) 并 fresh re-download 验 hash；Git 只保存轻量 summary 与
   artifact manifest；
 - post-hoc format inventory 发现 45/45 都有 exact `Action:` + `<tool_call>` prefix，43/45 条 output 的
-  first balanced JSON 可以 canonicalize，但这只是宽松 diagnostic；在拒绝多 action、截断、第二 JSON 与额外 observation 后，保守的 envelope-only
+  单动作 first balanced JSON 可以 canonicalize，但这只是宽松 diagnostic；在拒绝多 action、截断、第二 JSON 与额外 observation 后，保守的 envelope-only
   normalization 上界只有 40/45，低于 frozen 0.99 gate（45 states 必须 45/45）。它不 retroactively 改写
   本次 0/45；confirm 继续 locked。
 
+### 2026-07-15：immutable parser compatibility replay source 已实现
+
+- 新增 versioned、format-only compatibility parser；原 strict parser 总是先运行，仅允许历史 trace 中明确定义的
+  `Action:` envelope、四种 wrapper 与五种安全 suffix。它不补 `}`、不取多动作的第一个、不接受第二 JSON 或
+  observation，并继续复用 frozen action canonicalizer 与 AndroidWorld bridge；
+- 新增 immutable tar replay 与 clean-main CLI：绑定 archive SHA、exact 96-member order、run contract、source
+  run commit、HF immutable revision、原 aggregate 和 45 个 no-retry failure records；archive 从已哈希 bytes
+  解析，避免 path reopen TOCTOU；输出只保留 raw-output SHA，不复制 raw text；
+- 独立 synthetic 45-state archive 覆盖预期 `0 strict / 43 single-action canonical-first / 40 conservative`
+  计数、gate-pass outcome derivation，以及 SHA、member-order、official-result drift、dirty/remote Git、committed
+  blob、exclusive write 和 non-finite JSON 的 fail-closed 路径；
+- pre-registered golden manifest 进一步固定 45-record canonical classification SHA 和五个 rejection 的
+  state/output hashes。40 个 accepted output 中仅 25 个是 clean EOF；其余 15 个分别丢弃重复 opener 8、extra
+  brace 4、extra brace + opener 3，model-emitted canonical closer 为 0，因而必须称为 suffix recovery 而不是
+  native well-formed parse；
+- 本里程碑只冻结 auditor source，不把本地直接调用得到的计数当作正式结果。必须先 commit/push，再从 clean
+  `main` 对 HF immutable archive 运行 formal CLI，随后才允许把 replay summary 写入 Git；全量 tests 为
+  327 passed、10 optional-dependency skips。
+
 ## 下一步
 
-下一步先对 immutable raw trace 做可复现、fail-closed 的 parser/generation diagnosis，并冻结新的 versioned
-interface rescue；优先验证 official `tools=` chat-template 路径与单一完整 JSON 后的 generation termination，
+下一步先从 clean pushed commit 正式执行 immutable parser replay，再冻结新的 versioned interface rescue；
+优先验证 official `tools=` chat-template 路径与 model-emitted `</tool_call>` generation termination，
 但不得语法补全截断 JSON、静默取多 action 的第一个或在原 v2 result 上 relabel。新 protocol 必须在任何新
 policy output 前完成 tests、commit、push 与重新 authorization；只有新 substrate screening 通过才能打开
 fixed-denominator confirm。AndroidWorld validation 只作 development，test split 继续 sealed。

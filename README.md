@@ -98,7 +98,12 @@ KL 与 restoration label 均为 0，这不是“logits 不 finite”或“memory
 deterministic tar shard 上传 private HF，轻量结论与 immutable revision 见
 [`data/results/restoration_v2_substrate_screening/`](data/results/restoration_v2_substrate_screening/)。只读审计中
 保守的单动作 envelope-only normalization 上界为 40/45，仍低于 0.99 gate；原 v2 结果不改写，confirm 保持
-locked，下一步必须先冻结 versioned interface/generation rescue。
+locked。用于复核该上界的 versioned compatibility parser 与 immutable archive replay 已完成 source
+implementation；40 条中只有 25 条在首个 JSON 后 clean EOF，另外 15 条需要丢弃精确白名单中的残余 opener/
+extra brace，且 0 条由模型生成 canonical closer，因此不能称为 native well-formed output。auditor 会逐项绑定
+HF immutable revision、archive/run-contract/source commit 与 pre-registered per-state classification hash，重新执行 strict
+parser、保守 adapter、canonical round-trip 与 AndroidWorld bridge，但正式 replay 必须等本 source commit
+push 后从 clean `main` 单独运行。下一步仍必须先冻结 versioned interface/generation rescue。
 
 exact-ID/exposure materializer 已实现为 policy-blind CPU pipeline：它必须从 pinned 16 个 Parquet 重建
 完整 111-trajectory eligible pool，并逐字节复现 frozen pool SHA，不能误从只含 8+15 条 trajectory 的
@@ -396,6 +401,7 @@ $$
 - [x] 在 synthetic frozen behavior 上验证方差、ranking stability、负 gain 和 interaction error；
 - [x] 在已接入的真实轨迹上实现 teacher-forced policy distance 与固定 45-state substrate runner；
 - [x] 完成第一次固定 45-state substrate screening；strict parse 0/45，合法输出 `NO_GO_V2_SUBSTRATE`，confirm 未打开；
+- [x] 实现 immutable raw-trace parser compatibility replay；正式 clean-commit replay 待下一里程碑执行；
 - [ ] 冻结并验证 versioned native-output/generation rescue；保留原 v2 negative result，不做 retroactive relabel；
 - [ ] 构造 matched-NLL memory pairs，验证关键假设；
 - [ ] 训练 query-time memory gate；
@@ -479,6 +485,7 @@ $$
 - Restoration v2 readiness authorization: [`data/results/restoration_v2_readiness/README.md`](data/results/restoration_v2_readiness/README.md)
 - Restoration v2 GPU-2 runtime re-anchor: [`data/results/restoration_v2_runtime_reanchor/README.md`](data/results/restoration_v2_runtime_reanchor/README.md)
 - Restoration v2 fixed 45-state substrate result: [`data/results/restoration_v2_substrate_screening/README.md`](data/results/restoration_v2_substrate_screening/README.md)
+- Restoration v2 parser replay golden contract: [`data/manifests/restoration_v2_parser_compatibility_golden.json`](data/manifests/restoration_v2_parser_compatibility_golden.json)
 - Build command: `make paper`
 - Test command: `make test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines`
 - 当前状态：v1 UI-TARS reference 以 27/75、swipe 0/2 判负；v2 第一次固定 45-state screening 在

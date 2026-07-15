@@ -37,8 +37,8 @@
     "worker_count": 1
   },
   "exploratory_native_format_inventory": {
-    "outputs_with_canonical_first_payload_count": 43,
-    "outputs_with_first_balanced_json_count": 43,
+    "single_action_outputs_with_canonical_first_payload_count": 43,
+    "single_action_outputs_with_first_balanced_json_count": 43,
     "exact_native_prefix_count": 45,
     "exactly_one_action_line_count": 44,
     "conservative_adapter_rejection_counts": {

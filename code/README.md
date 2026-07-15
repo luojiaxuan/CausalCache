@@ -168,6 +168,20 @@ implementation commit `14faaa4...452aa`，formal clean-Git validation 已在 `ma
 `SCREENING_ALLOWED + CONFIRM_LOCKED`，canonical summary 位于
 `data/results/restoration_v2_readiness/summary.json`。
 
+第一次 45-state run 的 format diagnosis 使用独立的
+`causalcache.policy.gui_owl_v2_compat` 与
+`causalcache.restoration_v2_parser_replay`。compatibility parser 始终先运行原 strict parser，只对白名单中的
+历史 `Action:` envelope、四种已观测 JSON wrapper 做 canonicalization，并可丢弃五种精确白名单 suffix；后者是
+显式记录的 format recovery，不代表 native output well-formed，也不补全任何缺失语法。多动作、截断、
+第二 JSON、observation、duplicate key、非 finite number 与未知 action 均 fail closed。replay 直接读取单个
+deterministic tar 的已哈希 bytes，不按路径重开，也不向文件系统展开 raw outputs；它固定检查 96-member inventory、archive/run contract/source
+commit、原 `NO_GO_V2_SUBSTRATE` aggregate 和 45 个 no-retry state record，再重跑 parser、strict round-trip 与
+AndroidWorld bridge。正式 CLI 是 `scripts.replay_restoration_v2_parser_compat`，要求 clean
+`HEAD == origin/main == remote main`，把实际 imported modules 与该 commit 的 Git blobs 做 pre/post 双重绑定，
+并使用已提交 golden contract 固定 HF revision、0/43/40 totals、五个 rejection identities 和 45-record
+classification hash。result exclusive-write；它只做离线格式复核，不 import/load/forward/generate policy，
+也不能改写原 run。
+
 `causalcache.diagnostic` 是不依赖 GPU 的 result reducer：canonicalize 首个 action JSON，计算 RGB
 histogram similarity，在完整 feasible-coalition distance table 上确定 recent/similarity/random/oracle，
 并只按 frozen config 输出 `INVALID`、`NO_GO_DIAGNOSTIC`、`INCONCLUSIVE_NEGATIVE` 或

@@ -10,7 +10,7 @@ GUI-Owl generation；随后 45/45 都在第一次 reference generation 的严格
 - run commit：`a0001cbc4d4c3e2584ae3bbcff217ce664e5e064`；
 - run contract SHA256：`ed1791e148a18f39f3fc04fd0b4aacf66bfc3225e8fc92a38c9c97835e1c61f1`；
 - aggregate SHA256：`57a2456c2667380fecf5f9b4a66c6ed60c5572d284fcf62e4f70348f87532df8`；
-- Git summary SHA256：`7b8e32be20b758b158293ec8ebb1017b6d68b557341b8826685a9206aa3ecf66`；
+- Git summary SHA256：`57a00ac2363890bc2b45b0681dee6f785d05abeb90b4d98499d52d5f16e5c7e6`；
 - fixed denominator：45 states，其中 `v2_label_train=30`、`v2_development=15`；
 - strict parse：0/45；finite-logit coverage：0/45；repeat agreement：0/45；
 - failure：45 个 `GUIOwlV2GenerationParseError`，全部位于 `reference_generation_1`；
@@ -47,10 +47,15 @@ memory 与 gate fields 在 `summary.json`。
 
 ## 解释与下一步边界
 
-只读 format inventory 显示，45/45 都使用预期 `Action:` + `<tool_call>` prefix；43/45 条 output 的首个
-balanced JSON 可以 canonicalize，只作为宽松 format diagnostic，不是 parser coverage。wrapper 和闭合形式与
+只读 format inventory 显示，45/45 都使用预期 `Action:` + `<tool_call>` prefix；43/45 条只含一个
+`Action:` 的 output，其首个 balanced JSON 可以 canonicalize；这只作为宽松 format diagnostic，不是 parser coverage。wrapper 和闭合形式与
 冻结 parser 不一致；保守的 envelope-only mechanical normalization 上界为 40/45。剩余 5 条包括多 action、
 截断 JSON、第二 JSON 或额外 observation，不能通过“静默取第一个动作”恢复。
+
+这 40 条不是 40 条 native well-formed tool calls：只有 25 条在首个 JSON 后 clean EOF，另外 15 条需要丢弃
+精确白名单中的残余 suffix（重复 opener 8、extra brace 4、extra brace + opener 3），model-emitted canonical
+`</tool_call>` 为 0。它们只能称为保守的 format-recovery 上界；预注册的 per-state classification golden
+contract 位于 `data/manifests/restoration_v2_parser_compatibility_golden.json`。
 
 因此该 run 否定当前 exact v2 parser/policy substrate 合约，却尚未测量 restoration hypothesis。任何救援都必须
 保留本结果，先冻结一个 versioned compatibility protocol 和 fail-closed replay tests，再从新的 clean pushed
