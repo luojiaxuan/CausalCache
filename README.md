@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager = source-only frozen、fresh-45 not run / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration source pending、confirm locked
 
 ## 团队交接入口
 
@@ -78,20 +78,23 @@ repair、72-member deterministic USTAR 与 private HF immutable fresh-download �
 也尚未授权 restoration 或 confirm。轻量结果见
 [`data/results/spatial_reference_audit_v1/`](data/results/spatial_reference_audit_v1/)。
 
-新的 [`docs/restoration_v2_2_eager.md`](docs/restoration_v2_2_eager.md) 与
+[`docs/restoration_v2_2_eager.md`](docs/restoration_v2_2_eager.md) 与
 [`code/configs/causalcache_restoration_v2_2_eager.json`](code/configs/causalcache_restoration_v2_2_eager.json)
-只冻结 source，不包含新的 policy 结果。它继承 v2.1 official-tool interface、45-state projection、gate 与
+冻结了新的 eager child。它继承 v2.1 official-tool interface、45-state projection、gate 与
 90/135/90 operation ceiling，唯一 scientific delta 是 BF16 eager fixed-seed/TF32-off numerical control；不声称
 strict CUDA determinism。正式 attempt 必须 fresh 跑 45 states，并固定在同机同容器的两张 H200 上按偶数
 index 23 states / 奇数 index 22 states 分工。global sibling ledger 必须在两个 worker import runtime 前统一
-claim；旧 v2.1 raw/ledger/state output 不能复用。当前 confirm、restoration 与 gate work 仍全为 0，planned
-private HF dataset 尚无 revision。
+claim；旧 v2.1 raw/ledger/state output 不能复用。唯一 Hyper00 attempt 已正式通过：45/45 parse、45/45 exact
+repeat、45/45 finite logits、45 个 memory-sensitive states，90/135/90 calls 精确命中，retry/top-up 为 0。
+confirm、restoration 与 gate work 仍全为 0。
 
 正式 source freeze 已在 clean pushed `main@b3a6303d69b1145fbf195e0bd18b9b3065a6f213`
 建立：contract SHA256 为
 `f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7`，50-file formal inventory
-SHA256 为 `bb6351e4dd5b4470ed1add86dbcbaa714a56063ba8ecf07268b6f13f630f9e54`。全仓
-538 tests 通过、11 skipped；该验证未调用 GPU 或 policy，fresh-45 artifact 仍为 pending。
+SHA256 为 `bb6351e4dd5b4470ed1add86dbcbaa714a56063ba8ecf07268b6f13f630f9e54`。执行 source 为
+`main@8ae07519f14ac3635f292ee93a7b6d624507427e`；102-file deterministic USTAR 已在 private HF revision
+`3577099d505b8c652d764f41269df911128ec767` fresh-download 并逐 byte 复核。轻量结果见
+[`data/results/restoration_v2_2_eager_full_45_substrate/`](data/results/restoration_v2_2_eager_full_45_substrate/)。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变
@@ -534,10 +537,11 @@ $$
 - [x] push serialization fix 后从新 clean source canonical rerun；pre-commit scientific replay 通过；
 - [x] 提交/push subset-search result，并从 clean descendant main 通过 committed full-payload validator；
 - [x] 完成 bounded spatial audit、离线 validator repair、deterministic USTAR 与 private HF immutable binding；
-- [x] 冻结新的 `v2.2-eager` runtime/source 与双 H200 fresh-45 contract；尚未运行 policy；
-- [ ] 运行唯一 `v2.2-eager` fresh 45-state substrate，并闭合 private HF immutable artifact；
-- [ ] 只有 `v2.2-eager` 仍不稳定时，才决定是否冻结 executable/UI-element equivalence protocol；
-- [ ] 只有新 substrate gate 通过后，才构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
+- [x] 冻结新的 `v2.2-eager` runtime/source 与双 H200 fresh-45 contract；
+- [x] 运行唯一 `v2.2-eager` fresh 45-state substrate并闭合 private HF immutable artifact；45/45 exact repeat，正式 PASS；
+- [x] v2.2 已稳定，因此不进入 executable/UI-element equivalence 补救分支；
+- [ ] 另行冻结 restoration attribution source，生成 exact subset oracle/conditional-marginal labels；confirm 仍 locked；
+- [ ] 构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
 ## Source of Truth
@@ -561,6 +565,7 @@ $$
 - Spatial reference audit canonical result: [`data/results/spatial_reference_audit_v1/`](data/results/spatial_reference_audit_v1/)
 - Restoration v2.2-eager source-only contract: [`docs/restoration_v2_2_eager.md`](docs/restoration_v2_2_eager.md)
 - Restoration v2.2-eager machine-readable config: [`code/configs/causalcache_restoration_v2_2_eager.json`](code/configs/causalcache_restoration_v2_2_eager.json)
+- Restoration v2.2-eager canonical result: [`data/results/restoration_v2_2_eager_full_45_substrate/`](data/results/restoration_v2_2_eager_full_45_substrate/)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)
@@ -653,9 +658,11 @@ $$
   canonical repeat agreement、32/45 finite-logit coverage 与 32 个 memory-sensitive states，正式为
   `NO_GO_V2_1_FULL_45_SUBSTRATE`。bounded spatial audit 随后得到 auto 7/13、eager 13/13，并在不重跑
   profile 的离线 repair 后正式归约为 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；private HF immutable
-  artifact 已 fresh-download 复核。v2.2-eager 已完成 source-only freeze，固定两张 H200 按 23/22 states
-  parity 分工和独立 global ledger，但 fresh-45 尚未运行。没有 restoration、baseline selection、gate training
-  或 confirm work；下一步是唯一 v2.2-eager substrate attempt，confirm 仍 locked。
+  artifact 已 fresh-download 复核。v2.2-eager 随后在两张 H200 上按 23/22 parity 完成唯一 fresh-45 attempt：
+  45/45 parse、45/45 exact repeat、45/45 finite logits、45 个 memory-sensitive states，正式为
+  `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw artifact 已绑定 private HF immutable revision。没有 restoration、
+  baseline selection、gate training 或 confirm work；下一步是独立冻结 restoration attribution source，confirm
+  仍 locked。
 
 ### Data and Models
 
@@ -678,7 +685,7 @@ $$
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |
 | Restoration v2.1 full-45 substrate trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile> | `v2.1-full-45-substrate-v1` / `814506ef1450838d4bc6ed3d89fe53e0773d92fb`，private | 45/45 parse、32/45 exact repeat agreement、32 memory-sensitive；`NO_GO_V2_1_FULL_45_SUBSTRATE`；raw USTAR SHA256 `8cd53d6e...f4fa4`、962,560 bytes；fresh immutable download verified |
 | Spatial reference audit trace | <https://huggingface.co/datasets/gavinlaw/causalcache-spatial-reference-audit-mobile> | `spatial-reference-audit-v1` / `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，private | auto 7/13、eager 13/13、FP32 4/4 descriptive；`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR SHA256 `d62ad05f...e5ecc`；fresh immutable canonical rebuild verified |
-| Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | planned private repo；not uploaded | source-only freeze；fresh 45-state run、raw archive、immutable revision 与 verdict 均尚未产生 |
+| Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | `v2.2-eager-full-45-substrate-v1` / `3577099d505b8c652d764f41269df911128ec767`，private | 45/45 parse/repeat/finite logits、45 memory-sensitive；`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw USTAR SHA256 `b22827e6...09fb5`、fresh immutable download verified |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent

@@ -147,18 +147,23 @@ restoration v2 exact selection/exposure 产物：
   `results/spatial_reference_audit_v1/`，raw canonical artifact 位于
   `gavinlaw/causalcache-spatial-reference-audit-mobile@d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`。
 
-- Restoration v2.2-eager：当前只有 source-only contract，计划 private HF dataset 为
-  `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile@v2.2-eager-full-45-substrate-v1`。
-  fresh 45-state run、raw USTAR、immutable revision 与 Git result 目录都尚未产生；旧 v2.1 full-45 raw、
-  spatial audit raw 或其 aggregate/state records 不得复制或计入新 artifact。两个 H200 worker 共享一个独立
-  global attempt ledger，固定 even 23 / odd 22 state inventory。confirm、restoration 与 gate artifact count
-  当前均为 0。
+- Restoration v2.2-eager：唯一 fresh-45 run 已闭合，Git 轻量结果位于
+  `results/restoration_v2_2_eager_full_45_substrate/`；raw canonical artifact 位于 private
+  `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile@3577099d505b8c652d764f41269df911128ec767`
+  （tag `v2.2-eager-full-45-substrate-v1`）。两个 H200 worker 共享独立 global ledger，固定 even 23 / odd 22
+  inventory；45/45 parse/repeat/finite logits，正式为 `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`。102-file USTAR
+  SHA256 为 `b22827e6...09fb5`，fresh immutable download 已逐 byte 复核。confirm、restoration 与 gate artifact
+  count 当前仍均为 0。
 
 最新轻量运行记录：
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private
   HF immutable revision `d6b2312e...45c1` fresh-download 并完成 canonical rebuild；v2.1 NO-GO 不变；
+
+- `results/restoration_v2_2_eager_full_45_substrate/`：唯一 Hyper00 双 H200 fresh-45 attempt 为 45/45 exact
+  repeat、45/45 finite logits、45 memory-sensitive states，正式 PASS；deterministic USTAR 与 private HF
+  immutable revision `3577099d...c767` 已 fresh-download 闭合，restoration/gate/confirm count 均为 0；
 
 - `results/restoration_v2_ocr_backend/`：保留首次 package-source key 冲突与 mutable-status 两个 superseded
   attempt；最终 static fixture 已从 pushed commit 两次通过 `validate-golden` 且 byte-identical。synthetic

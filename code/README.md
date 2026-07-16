@@ -674,7 +674,7 @@ confirm/restoration/gate operation count 必须为 0。
 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；若两者均 13/13，则结论是本次 numerical audit inconclusive，
 不得把稳定性归因给 eager。FP32 永不参与 pass/fail。本次 repaired artifact 落在 eager-specific 分支。
 
-## Restoration v2.2-eager source-only freeze
+## Restoration v2.2-eager source freeze 与正式结果
 
 `configs/causalcache_restoration_v2_2_eager.json` 冻结 fresh-45 child contract。它只继承 v2.1 full-45 的
 official-tool interface、prompt/parser/teacher/KL、45-state projection、gate 与 90/135/90 operation ceiling，并将
@@ -743,11 +743,15 @@ python3 -m scripts.manage_restoration_v2_2_eager_artifact seal-interrupted \
 terminal 后先执行 `archive`，上传 private HF，再把 canonical source archive 与不同路径的 fresh immutable
 download 同时交给 `create-manifest`；同一路径、byte drift、非 frozen repo/path 或非 40-hex revision 都会拒绝。
 
-本阶段只有 source-only freeze；source validator 不加载 processor/model、不调用 GPU，也不授权正式 attempt。
+source validator 不加载 processor/model、不调用 GPU，也不授权正式 attempt。
 formal freeze 已在 clean pushed `main@b3a6303d69b1145fbf195e0bd18b9b3065a6f213` 建立：config SHA256
 `f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7`，50-file formal inventory SHA256
-`bb6351e4dd5b4470ed1add86dbcbaa714a56063ba8ecf07268b6f13f630f9e54`。当前没有 v2.2 generation、
-teacher、KL、restoration、gate 或 confirm output；confirm/restoration/gate access counts 必须保持 0。正式 raw 的
-planned private HF destination 是 `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，但
-archive、tag 对应的 immutable revision 与 Git result 尚未产生。完整边界见
+`bb6351e4dd5b4470ed1add86dbcbaa714a56063ba8ecf07268b6f13f630f9e54`。唯一正式 attempt 的 execution source
+为 `main@8ae07519f14ac3635f292ee93a7b6d624507427e`，结果是 45/45 parse、45/45 exact repeat、45/45 finite
+logits、45 memory-sensitive states，正式 `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`。generation/teacher/KL 为
+90/135/90；restoration、gate 与 confirm output/count 仍全为 0。
+
+102-file raw USTAR SHA256 为 `b22827e6e2d8d33b03686fc177dc8f9c55c5133470fbe40f9fb3e33cce809fb5`，
+private HF revision 为 `3577099d505b8c652d764f41269df911128ec767`，fresh immutable download 已逐 byte
+复核。Git compact result 见 `data/results/restoration_v2_2_eager_full_45_substrate/`，完整边界见
 `docs/restoration_v2_2_eager.md`。

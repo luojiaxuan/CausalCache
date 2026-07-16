@@ -3,14 +3,14 @@
 ## 当前目标
 
 AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
-与 matched-NLL mechanism test，但当前 v2.1 实验路线已按 substrate gate 停止。八项 pre-output dependencies、
-official-tools processor preflight 与 fixed-15 interface pilot 均已闭合；唯一 full-45 run 虽得到 45/45 parse 和
-32 个 memory-sensitive states，但 exact canonical repeat agreement 只有 32/45，因此正式为
-`NO_GO_V2_1_FULL_45_SUBSTRATE`。没有生成 restoration label、baseline selection、gate checkpoint、confirm
-policy output 或 CausalCache 方法效果结果。该 NO-GO 的 Git/HF committed binding 已在 clean
-`main@554c51e` 闭合；bounded spatial audit 随后正式得到 eager-specific exact-stability recovery，新的
-v2.2-eager 已完成 source-only contract freeze，但 fresh-45 尚未运行。在该 substrate gate 明确 PASS 前，
-不运行 restoration、confirm 或 AndroidWorld test split。
+与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
+`NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权
+全新的 v2.2-eager substrate。唯一 v2.2 fresh-45 attempt 已在双 H200 上取得 45/45 parse、45/45 exact repeat、
+45/45 finite logits 与 45 个 memory-sensitive states，正式为 `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；deterministic
+USTAR 与 private HF immutable revision 已完成 fresh-download 复核。当前没有 restoration label、baseline
+selection、gate checkpoint、confirm policy output 或 CausalCache 方法效果结果。下一步是另行冻结 restoration
+attribution source，生成 exact subset oracle 与 conditional-marginal labels；confirm 和 AndroidWorld test split
+仍保持 locked。
 
 ## 已完成里程碑
 
@@ -1533,12 +1533,33 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   仍 fail closed。所有检查均发生在 global claim/runtime import 前，canonical output、ledger、generation、teacher
   与 KL count 仍为 0。
 
+### 2026-07-16：Restoration v2.2-eager fresh-45 substrate 与 immutable artifact 闭合
+
+- 从 execution source `main@8ae07519f14ac3635f292ee93a7b6d624507427e` 在 Hyper00 同机同容器的两张
+  H200 上完成唯一 fresh-45 attempt；even/odd worker 分别固定处理 23/22 states，未发生 retry、top-up、resume、
+  state stealing 或 alternate output；
+- 45/45 states 完成并 parse，45/45 exact repeat canonical action agreement，45/45 finite logits，45 个
+  memory-sensitive states，finite repeat KL mean 为 0.0；正式结论为
+  `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；
+- generation/teacher/KL 精确为 90/135/90，全部 gate checks 为 true；restoration coalition/label、baseline、
+  gate training/selection 与 confirm operation 均为 0，因此本结果只通过 stable reference substrate gate，不是
+  CausalCache 方法效果证据；
+- run window 为 `2026-07-16T06:05:09.464587Z`--`06:15:19.889274Z`，wall time 610.425 秒；双卡 steady-state
+  monitor windows 为 92%--100% average utilization；
+- canonical evidence 已封装为 102-file deterministic USTAR，SHA256
+  `b22827e6e2d8d33b03686fc177dc8f9c55c5133470fbe40f9fb3e33cce809fb5`，size 1,269,760 bytes，tree
+  SHA256 `e7f0047b20c27bac1f4d61d7c0bff2e63c7760469cf9ccaa188dca948b7a4359`；
+- private HF dataset `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile` 的 tag
+  `v2.2-eager-full-45-substrate-v1` 绑定 immutable revision
+  `3577099d505b8c652d764f41269df911128ec767`；不同路径 fresh download 与 source archive 逐 byte 相同；
+- Git compact result 位于 `data/results/restoration_v2_2_eager_full_45_substrate/`。eager 已通过，因此不进入
+  executable/UI-element equivalence 补救分支；restoration 与 confirm 必须由新的独立 source contract 授权。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
-profile。v2.2-eager source-only freeze 已完成；下一步只运行唯一 fresh 45-state 双 H200 substrate attempt，并
-在 terminal 后闭合 deterministic USTAR、private HF immutable fresh-download 与 Git result。若新 substrate 仍
-不稳定，再进入独立 source-only semantic-key / canonical-representative protocol。任何 semantic protocol 都不能
-用当前 13 个 delta 调 radius，且必须在 synthetic
-邻接控件 negative fixture 与独立 AndroidWorld UI-node calibration artifact 上先验证。之后只有新的 versioned
-45-state substrate gate 通过，才允许 exact restoration；全部选择和阈值冻结后，最后才能打开 confirm。
+profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
+canonical-representative 补救分支。下一步先冻结独立 restoration attribution source：固定 coalition enumeration、
+exact subset oracle、conditional marginal label schema、operation budget、artifact lifecycle 与 fail-closed validator；
+随后才允许生成 restoration labels，并比较 exact subset oracle、oracle-marginal greedy 与 distilled greedy。
+全部选择、阈值和 matched-NLL protocol 冻结后，最后才能打开 confirm；AndroidWorld sealed test split 仍不得读取。

@@ -21,9 +21,10 @@ gate。它不是 CausalCache 方法效果实验，也不读取 AndroidWorld seal
   `/data/experiments/causalcache/.restoration-v2-2-eager-full-45-substrate-v1.attempt.json`；
 - raw archive：
   `/data/experiments/causalcache/restoration-v2-2-eager-full-45-substrate-v1.raw.tar`；
-- planned private HF dataset：
-  `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，计划 tag
-  `v2.2-eager-full-45-substrate-v1`，计划 path
+- private HF dataset：
+  `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，tag
+  `v2.2-eager-full-45-substrate-v1`，immutable revision
+  `3577099d505b8c652d764f41269df911128ec767`，path
   `raw/restoration-v2-2-eager-full-45-substrate-v1.tar`。
 
 formal source freeze 已从 clean pushed
@@ -122,13 +123,21 @@ expert action read、restoration coalition/candidate/label、baseline selection�
 授权 confirm execution。若 v2.2-eager 仍不稳定，下一步只能另行冻结 semantic-key / canonical-representative
 protocol，不能事后修改本 contract。
 
-## Artifact 与当前状态
+## Artifact 与正式结果
 
-正式 terminal 后才可从 canonical root、global ledger 和两个 worker inventory 构建 deterministic USTAR，上传
-上述 planned private HF dataset，并在 fresh immutable download、archive byte hash 与 exact inventory 验证后
-把 immutable revision 写回 Git 轻量 result。当前阶段只有 source-only freeze：没有 v2.2 policy output、没有
-raw archive、没有 HF immutable revision，也没有 substrate verdict。
+唯一 Hyper00 双 H200 attempt 已完成全部 45 states，并正式得到
+`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`：45/45 parse、45/45 exact repeat canonical action、45/45 finite logits、
+45 memory-sensitive states；generation/teacher/KL 为 90/135/90，retry/top-up 和全部 prohibited work 为 0。
+execution source 是 `main@8ae07519f14ac3635f292ee93a7b6d624507427e`，run-contract SHA256 为
+`397f8da2b89b495c93ef3a034dfe16fb6d883ab4fdb7b830003397c9cc9a2727`。
+
+canonical root、global ledger 和两个 disjoint worker inventories 已构建为 102-file deterministic USTAR：SHA256
+`b22827e6e2d8d33b03686fc177dc8f9c55c5133470fbe40f9fb3e33cce809fb5`，size 1,269,760 bytes，tree
+SHA256 `e7f0047b20c27bac1f4d61d7c0bff2e63c7760469cf9ccaa188dca948b7a4359`。private HF immutable
+fresh-download 与 source archive byte-identical；Git 轻量 result 位于
+`data/results/restoration_v2_2_eager_full_45_substrate/`。
 
 artifact manifest 必须同时读取 canonical source archive 与不同路径的 fresh immutable download，要求二者
 byte-identical，并 exact 绑定 frozen HF repo、path 与 40-hex immutable revision；不能用同一个本地文件自证
-fresh download。
+fresh download。本次 formal manifest 已满足该约束，SHA256 为
+`77cfebc01909b1a018f7fe4ab300b843695ca9726fb96d3035587803bb4c2711`。

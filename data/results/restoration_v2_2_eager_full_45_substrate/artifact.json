@@ -1,0 +1,30 @@
+{
+  "hf_artifact": {
+    "fresh_archive_sha256": "b22827e6e2d8d33b03686fc177dc8f9c55c5133470fbe40f9fb3e33cce809fb5",
+    "fresh_archive_size_bytes": 1269760,
+    "fresh_immutable_download_verified": true,
+    "immutable_revision": "3577099d505b8c652d764f41269df911128ec767",
+    "path": "raw/restoration-v2-2-eager-full-45-substrate-v1.tar",
+    "repo": "gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile",
+    "tag": "v2.2-eager-full-45-substrate-v1"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_eager_full_45_substrate",
+  "raw_archive": {
+    "file_count": 102,
+    "format": "ustar",
+    "sha256": "b22827e6e2d8d33b03686fc177dc8f9c55c5133470fbe40f9fb3e33cce809fb5",
+    "size_bytes": 1269760,
+    "tree_inventory_sha256": "e7f0047b20c27bac1f4d61d7c0bff2e63c7760469cf9ccaa188dca948b7a4359"
+  },
+  "result": {
+    "attempted_state_count": 45,
+    "completed_state_count": 45,
+    "outcome": "PASS_V2_2_EAGER_FULL_45_SUBSTRATE"
+  },
+  "schema_version": "1.0.0",
+  "source_execution": {
+    "run_contract_sha256": "397f8da2b89b495c93ef3a034dfe16fb6d883ab4fdb7b830003397c9cc9a2727",
+    "source_git_commit": "8ae07519f14ac3635f292ee93a7b6d624507427e"
+  },
+  "status": "VERIFIED_RESTORATION_V2_2_EAGER_ARTIFACT"
+}

@@ -654,7 +654,7 @@ restoration coalition、baseline、selector 和 gate training 都不属于本 jo
 
 ## Restoration v2.2-eager fresh-45 执行边界
 
-本阶段是 source-only freeze，完整 contract 见 `docs/restoration_v2_2_eager.md` 和
+本阶段的 source freeze 与唯一正式执行均已闭合，完整 contract 见 `docs/restoration_v2_2_eager.md` 和
 `code/configs/causalcache_restoration_v2_2_eager.json`。spatial audit 的正式父结论是
 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`，只授权冻结 eager runtime；v2.1 的
 `NO_GO_V2_1_FULL_45_SUBSTRATE` 不变，confirm 仍 locked。formal source freeze 已在 clean pushed
@@ -693,10 +693,13 @@ NVML index 可以是 preflight 选中的任意两个不同非负编号。两份 
 或双卡 identity 漂移都必须在 model forward 前使 attempt `INVALID`。
 
 terminal 后才允许从 global ledger、canonical root 与两个 disjoint worker inventories 构建 deterministic USTAR。
-planned private HF dataset 为
-`gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，tag 计划为
-`v2.2-eager-full-45-substrate-v1`。当前没有 raw archive 或 immutable revision；必须完成 fresh immutable download、
-byte hash 和 exact inventory 验证后，才能向 Git 写轻量 result。source-only validator 通过本身不授权 GPU run。
+唯一 Hyper00 run 已于 `2026-07-16T06:05:09.464587Z`--`06:15:19.889274Z` 完成，45/45 states、
+90/135/90 operations、zero retry/top-up，正式为 `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`。102-file USTAR SHA256
+为 `b22827e6e2d8d33b03686fc177dc8f9c55c5133470fbe40f9fb3e33cce809fb5`；private HF tag
+`v2.2-eager-full-45-substrate-v1` 解析到 immutable revision
+`3577099d505b8c652d764f41269df911128ec767`，fresh-download 与 source archive byte-identical。Git 轻量结果见
+`data/results/restoration_v2_2_eager_full_45_substrate/`。source-only validator 通过本身不授权 GPU run；本次
+execution 的独立 global claim 才授权并记录了正式 policy operations。
 
 若 coordinator 在 aggregate 前硬中断，只能执行 policy-free `seal-interrupted` 将 existing claim、两个 sibling
 high-water 与 forensic inventory 封存为 `INVALID`；不得重新调用 production runner。root ledger 缺失或落后
