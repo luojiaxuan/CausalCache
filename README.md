@@ -60,6 +60,9 @@ overall mean normalized recovery 为 `0.771189 / 0.019571 / 0.520650`，exact co
 restoration attribution，也不构成 gate、matched-NLL 或 closed-loop 证据。
 独立 raw-to-result 审计未 import 项目 reducer，44/44 checks、0 mismatch；60 scores、15 complete rows 与
 7×10,000 bootstrap 均 bit-exact，audit projection SHA256 为 `9e842494...12df`。
+exact-three result 与 artifact regression 已 commit/push 为
+`main@7e59591573cb31f178dfd07422cc2e3c8aeff573`；Hyper00 随后从该 clean descendant checkout 重建三份
+files 并返回 `VALID_RESTORATION_V2_2_OCR_RGB_BASELINE_V2_IDENTITY_REPAIR`。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，

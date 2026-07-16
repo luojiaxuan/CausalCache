@@ -919,4 +919,7 @@ cd /data/CausalCache/code
 `5942519bdff8f3e8a64bbc8b32a5d42a64abff37daf0804fcce0f098a63765b2`。train/development/overall mean
 normalized recovery 为 `0.771189/0.019571/0.520650`，exact match 为 `3/10、0/5、3/15`。唯一负 state
 `0141544666483837` 保留在 development denominator；这是小 `D(empty)` 下的真实 non-monotone similarity
-failure，不做删除或 clamp。result commit/push 后仍需从 clean descendant `main` 重复上述 `validate`。
+failure，不做删除或 clamp。
+exact-three result 已 commit/push 为 `main@7e59591573cb31f178dfd07422cc2e3c8aeff573`；同一 Hyper00
+runtime 从该 clean descendant checkout 执行上述 `validate`，已返回
+`VALID_RESTORATION_V2_2_OCR_RGB_BASELINE_V2_IDENTITY_REPAIR` 且 worktree 保持 clean。

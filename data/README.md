@@ -173,7 +173,8 @@ restoration v2 exact selection/exposure 产物：
   `results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair/`，scientific payload SHA256 为
   `5942519bdff8f3e8a64bbc8b32a5d42a64abff37daf0804fcce0f098a63765b2`。本步骤复用上述 exact-label 与
   full-derived HF immutable revisions，不创建新的 raw dataset/model artifact；GPU、OCR inference、policy、gate、
-  matched-NLL、closed-loop 与 confirm/test operation 均为 0。
+  matched-NLL、closed-loop 与 confirm/test operation 均为 0。result commit
+  `7e59591573cb31f178dfd07422cc2e3c8aeff573` 已通过 clean descendant Hyper00 committed replay。
 
 最新轻量运行记录：
 

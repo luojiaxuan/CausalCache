@@ -1788,9 +1788,11 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   comparator、aggregate、development deltas 与 7×10,000 bootstrap 的 max absolute diff 都是 0，并独立复原
   scientific payload hash。audit/remote/lexical projection SHA256 分别为 `9e842494...12df`、
   `3bf18032...07e2`、`70ba220d...b2c9`；
+- exact-three result 与 artifact regression 已 commit/push 为
+  `main@7e59591573cb31f178dfd07422cc2e3c8aeff573`；Hyper00 从该 clean descendant checkout 重建三份
+  files，返回 `VALID_RESTORATION_V2_2_OCR_RGB_BASELINE_V2_IDENTITY_REPAIR`，worktree 保持 clean；
 - 本结果的结论是 OCR/RGB 已闭合但 development 不稳的弱 non-learned comparator。没有新增 HF artifact；
-  policy-vision、gate checkpoint、matched-NLL、closed-loop 与 confirm output 仍不存在。result commit/push 后还要
-  从 clean descendant `main` 做 committed byte replay。
+  policy-vision、gate checkpoint、matched-NLL、closed-loop 与 confirm output 仍不存在。
 
 ## 下一步
 
@@ -1798,8 +1800,8 @@ Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimize
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
 offline oracle/labels、private HF immutable artifact、selector-geometry v2 repaired result 与 OCR/RGB v2
-comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。下一步先 commit/push 本 exact-three result、
-从 clean descendant `main` 做 committed byte replay，再单独冻结 policy-vision feature-only similarity baseline。
+comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。下一步单独冻结 policy-vision feature-only
+similarity baseline。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge

@@ -9,7 +9,9 @@ SHA256 为 `d68cb032ef3c56c330d57329507d409b20f878b7510bd09d88e2eff1f3f898f3`；
 `causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair`。canonical result directory 固定为
 [`../data/results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair/`](../data/results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair/)。
 source freeze 时该目录不存在；正式 run 后只允许 exact-three 文件，result commit 后从 descendant clean
-`main` 再做 committed replay。
+`main` 再做 committed replay。result 已 commit/push 为
+`main@7e59591573cb31f178dfd07422cc2e3c8aeff573`；Hyper00 从该 clean checkout 执行 formal `validate`，返回
+`VALID_RESTORATION_V2_2_OCR_RGB_BASELINE_V2_IDENTITY_REPAIR`，并保持 worktree clean。
 
 v1 attempt 是 zero-score implementation invalid，而不是 negative scientific result。其 immutable failure binding 已在
 `main@2870d8ae26542a184647e8b6d97b8c79e4e12641` 提交，见
@@ -176,7 +178,7 @@ ceilings 和 v1 absence。只有这些全部通过，OCR/RGB comparator 才算�
 
 1. source freeze 已 commit/push；
 2. Hyper00 v2 CPU-only aggregate、pre-commit replay 与独立审计已完成；
-3. commit/push exact-three lightweight result，再做 descendant validation；
+3. exact-three lightweight result 已 commit/push，clean descendant validation 已通过；
 4. 单独冻结并执行 policy-vision feature-only baseline；
 5. visual comparator matrix 完整后，才冻结 gate training/evaluation contract。
 

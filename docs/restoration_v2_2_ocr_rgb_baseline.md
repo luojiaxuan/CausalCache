@@ -149,7 +149,8 @@ config/protocol/output directory 并绑定 v1 failure record。
    runtime 完成 canonical aggregate、pre-commit byte replay 与独立数值审计；
 4. 有效 v2 result 见
    [`restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`](restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md)；
-   轻量 result commit/push 后仍需从 clean descendant `main` 做 committed replay；
+   轻量 result 已在 `main@7e59591573cb31f178dfd07422cc2e3c8aeff573` commit/push，并通过 clean
+   descendant committed replay；
 5. 单独冻结并执行 policy-vision feature-only baseline；
 6. visual comparator matrix 完整后，才冻结 gate training、matched-NLL 与 closed-loop contract。
 
