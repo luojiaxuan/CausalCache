@@ -18,8 +18,9 @@ Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行
 v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00 完成 15-state formal aggregate、
 逐 byte replay 与独立复算。它的 development mean recovery 为 `0.019571`、exact match 为 `0/5`，因此是已闭合
 但不稳定的弱 similarity comparator；这不构成 learned gate 的负结论。policy-vision v1 formal attempt 又因
-PyTorch UUID object type 在 0 feature 时 `INVALID`。UUID type-only v2 source 已冻结，但尚未执行，因此仍无
-policy-vision scientific result。
+PyTorch UUID object type 在 0 feature 时 `INVALID`。UUID type-only v2 随后通过原失败点，但 pinned
+`SizeDict` 不满足冻结的 `Mapping` interface check，再次于 0 feature fail closed；因此仍无 policy-vision
+scientific result。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1859,6 +1860,22 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - source validator 与 focused regression 已通过；这只授权一次新的 clean/pushed-main formal run，不是
   comparator recovery，也不解锁 gate、confirm、matched-NLL 或 closed-loop。
 
+### 2026-07-16：policy-vision v2 zero-feature SizeDict-interface invalid attempt
+
+- 唯一 v2 attempt 从 clean pushed `main@fe7640395d3b6aea2e5e3a8cc34a49efc5ba2d2f` 在 Hyper00 GPU 0/1
+  启动；durable ledger 在 worker/model/feature 前成功 `O_EXCL` claim，UUID exact-type、expected UUID、
+  `nvidia-smi`/PCI 与全部 source/input/host preflight 均通过；
+- `Qwen2VLImageProcessor.size` 的实际类型是 `transformers.image_utils.SizeDict`。其 `dict(size)` 精确等于
+  冻结的 `longest_edge=shortest_edge=2621440`，但 `isinstance(size, Mapping)` 为 false，因此 v2 在 policy model
+  load、processor batch 或 feature forward 前按冻结 source fail closed；
+- formal policy model load、feature、cosine、selection、semantic label load、result、gate、matched-NLL、
+  closed-loop 与 confirm/test 均为 0；canonical output/staging 不存在。failure record 记录三次 post-failure
+  processor-only diagnostic，只检查 type/repr/dict/Mapping，不加载 policy model 或运行图像 batch；该次数、
+  traceback 与 failure-observed 时间属于本次执行记录，不提升为独立耐久日志证据；
+- v2 ledger SHA256 为 `492e7c7a...4502`，停止的 container `sglang-omni-jaxan-07170602` 与 ledger 均保留。
+  同一 protocol 不重跑；轻量 evidence 位于
+  `data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
@@ -1866,8 +1883,9 @@ profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
 offline oracle/labels、private HF immutable artifact、selector-geometry v2 repaired result 与 OCR/RGB v2
 comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision v1 唯一 invocation 在
-zero-feature UUID type probe 阶段 `INVALID`；type-only v2 replacement source 已冻结，下一步从新的 clean pushed
-`main` 在两张 H200 上执行 feature/replay/result，并在 result commit 后做独立 CPU artifact audit。
+zero-feature UUID type probe 阶段 `INVALID`；type-only v2 跨过 UUID 后又在 zero-feature SizeDict interface check
+阶段 `INVALID`，且 durable ledger 已阻止重跑。下一步先冻结只修 exact loaded `SizeDict` interface normalization
+的新版本，再从新的 clean pushed `main` 执行；若产生 result，才做 committed replay 与独立 CPU artifact audit。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge

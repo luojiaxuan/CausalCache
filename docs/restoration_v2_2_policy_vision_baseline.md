@@ -323,3 +323,17 @@ v2 仍是一次 attempt、无 resume、失败不得同 protocol 静默重试。r
 artifact。这里的重建以 committed `state_scores.jsonl` 中记录的 feature rows、immutable labels 和 identity
 witness 为输入；CPU `validate` 不重新加载模型或重算 vision features。随后再做不 import 项目 reducer 的独立
 reducer/math 审计，二者都不能替代 formal GPU replay checks。
+
+### v2 formal outcome
+
+唯一 v2 attempt 从 `main@fe7640395d3b6aea2e5e3a8cc34a49efc5ba2d2f` 启动并永久 claim ledger。UUID v2
+repair 通过；新的 fail-closed 点是 `image_processor.size` interface。pinned runtime 返回
+`transformers.image_utils.SizeDict`，`dict(size)` 精确为冻结的
+`{"longest_edge": 2621440, "shortest_edge": 2621440}`，但该类型不实现 `collections.abc.Mapping`。因此
+v2 在 policy model load、processor batch、feature forward、cosine、selection 和 semantic label load 前退出，
+canonical output/staging 均不存在。
+
+该结果只否定 v2 的 interface predicate，不否定冻结 preprocessing 数值或 comparator。same-protocol retry 已由
+ledger 禁止；若继续，必须先提交
+`data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`，再冻结新的 versioned
+SizeDict-interface repair。不能事后修改 v2，也不能据此开始 gate/confirm。

@@ -180,9 +180,11 @@ restoration v2 exact selection/exposure 产物：
   `main@c0937056e94d110cd67e593288f9e0c3a3b24809` 启动，但 pinned PyTorch 2.11 将 device UUID 暴露为
   `torch._C._CUuuid`，与只接受 `str/bytes` 的 v1 probe 不兼容；它在 0 feature、0 model/processor load、
   0 semantic label load 时永久 `INVALID`，canonical output/staging 均不存在。轻量 failure binding 位于
-  `results/restoration_v2_2_policy_vision_baseline_v1_attempt/`。UUID type-only v2 contract 已冻结，使用全新的
-  `results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair/` identity；正式 result 尚不存在，因而这里不
-  登记 recovery、feature cache 或新 HF artifact。
+  `results/restoration_v2_2_policy_vision_baseline_v1_attempt/`。UUID type-only v2 contract 使用全新的 identity；
+  唯一 v2 attempt 跨过 UUID check 后，又因 pinned `SizeDict` 可转成冻结数值但不是 `Mapping` 而在 0 feature
+  fail closed。failure binding 位于
+  `results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`；canonical result 仍不存在，因而
+  这里不登记 recovery、feature cache 或新 HF artifact。
 
 最新轻量运行记录：
 

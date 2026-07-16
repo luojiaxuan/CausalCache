@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "status": "INVALID_POLICY_VISION_V2_ZERO_FEATURE_SIZE_DICT_INTERFACE",
+  "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair",
+  "source_git_commit": "fe7640395d3b6aea2e5e3a8cc34a49efc5ba2d2f",
+  "contract_sha256": "23733169ef5ba60a84f4447080ef12e1893858aa375ff50d8d4e3595699e774e",
+  "failure_stage": "after_gpu_uuid_snapshot_verification_and_image_processor_construction_before_policy_model_load_or_feature_forward",
+  "exception": {
+    "type": "ValueError",
+    "message": "policy-vision image processor size drifted",
+    "origin": "GUIOwlV22VisionFeatureRuntime.__init__:image_processor_size_interface_check"
+  },
+  "formal_attempt": {
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "container_name": "sglang-omni-jaxan-07170602",
+    "container_id": "f6211dfe12e64e935de4885390b1688cbad50dff969c3a6797a965a667f17634",
+    "container_hostname": "f6211dfe12e6",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "nvidia_driver_version": "570.172.08",
+    "gpu_uuids_in_logical_order": [
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c"
+    ],
+    "container_started_at_utc": "2026-07-16T22:02:22.847914455Z",
+    "failure_observed_no_later_than_utc": "2026-07-16T22:03:48Z",
+    "container_stopped_at_utc": "2026-07-16T22:06:25.893714318Z",
+    "host_evidence_sha256": "ad7deb3e757c6d15be3a50b51bc49565154f39033e6f1477cf96e90cd829bbe8",
+    "attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v2-gpu-uuid-repair-attempt.json",
+    "attempt_ledger_sha256": "492e7c7aea0539fc5bc65c0d0be41b5659563a140d8e411a3b347b4c18584502",
+    "attempt_ledger_mode": "0600",
+    "attempt_ledger_status": "CLAIMED_POLICY_VISION_FORMAL_ATTEMPT"
+  },
+  "passed_boundaries": {
+    "clean_pushed_main": true,
+    "exact_17_path_source_diff": true,
+    "v1_failure_bytes_unchanged": true,
+    "v1_and_v2_canonical_output_absent_before_claim": true,
+    "raw_label_archive_byte_identity": true,
+    "derived_exact_six_projection": true,
+    "model_snapshot_manifest_path": true,
+    "host_container_gpu_evidence": true,
+    "torch_c_cuuuid_exact_loaded_type": true,
+    "expected_uuid_nvidia_smi_and_pci_binding": true,
+    "durable_exclusive_attempt_claim": true
+  },
+  "root_cause": {
+    "image_processor_class": "transformers.models.qwen2_vl.image_processing_qwen2_vl.Qwen2VLImageProcessor",
+    "size_python_type": "transformers.image_utils.SizeDict",
+    "size_repr": "SizeDict(height=None, width=None, longest_edge=2621440, shortest_edge=2621440, max_height=None, max_width=None)",
+    "is_collections_abc_mapping": false,
+    "dict_conversion": {
+      "longest_edge": 2621440,
+      "shortest_edge": 2621440
+    },
+    "expected_dict": {
+      "longest_edge": 2621440,
+      "shortest_edge": 2621440
+    },
+    "dict_conversion_equals_expected": true,
+    "diagnosis": "the pinned SizeDict is exactly convertible to the frozen two-key geometry but does not implement collections.abc.Mapping",
+    "scientific_preprocessing_value_drift_observed": false
+  },
+  "formal_operation_bounds_before_failure": {
+    "model_snapshot_full_verification_completed_worker_count_min": 1,
+    "model_snapshot_full_verification_completed_worker_count_max": 2,
+    "image_processor_construction_completed_worker_count_min": 1,
+    "image_processor_construction_completed_worker_count_max": 2,
+    "policy_model_load_count": 0,
+    "image_processor_batch_count": 0,
+    "policy_vision_feature_forward_count": 0,
+    "cosine_scalar_transfer_count": 0,
+    "canonical_state_score_count": 0,
+    "selection_count": 0,
+    "restoration_label_semantic_load_count": 0,
+    "result_file_count": 0,
+    "gate_training_example_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0,
+    "confirm_state_access_count": 0,
+    "sealed_test_state_access_count": 0
+  },
+  "post_failure_diagnostic": {
+    "image_processor_construction_count": 3,
+    "policy_model_load_count": 0,
+    "image_processor_batch_count": 0,
+    "policy_vision_feature_forward_count": 0,
+    "purpose": "inspect_SizeDict_type_repr_dict_conversion_and_Mapping_membership_only"
+  },
+  "output_boundary": {
+    "canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair",
+    "canonical_result_directory_exists": false,
+    "hidden_staging_directory_exists": false,
+    "raw_features_or_images_copied_to_git": false,
+    "new_hugging_face_artifact_created": false
+  },
+  "retry_boundary": {
+    "same_protocol_retry_allowed": false,
+    "attempt_ledger_must_be_preserved": true,
+    "container_preserved_stopped": true,
+    "next_permissible_action": "commit_failure_evidence_then_freeze_a_new_versioned_SizeDict_interface_repair_before_any_new_formal_run"
+  }
+}

@@ -112,6 +112,10 @@ GPU UUID profile、新 canonical output，且从 clean pushed `main` 启动。v1
 claim，不能换 ledger 路径重试。source-only PASS 不是 comparator result；CPU validate 只重建 recorded feature
 rows 的 reducer/output bytes，不重新计算 vision features。
 
+唯一 v2 run 已永久 claim 并在 0 feature 时封存：UUID exact-type repair 通过，但
+`transformers.image_utils.SizeDict` 不实现 `collections.abc.Mapping`，尽管 `dict(size)` 与冻结两键数值完全
+一致。v2 入口不得再次执行；后续只能新增 versioned SizeDict-interface repair 与新 ledger/output identity。
+
 v2 executable interface 使用显式 versioned 模块 `causalcache.policy.gui_owl_v2` 与
 `causalcache.low_fidelity_v2`，不修改历史 v1 parser/prompt/schema。CPU validator 对 restricted grammar、
 canonical teacher target、AndroidWorld payload、八字段 serialization 和 steps 4/5/6 共 28 个 prompt
