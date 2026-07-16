@@ -1,0 +1,116 @@
+{
+  "schema_version": "0.2.0",
+  "protocol_id": "causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair",
+  "repair_status": "source_only_frozen_before_any_v2_identity_repair_aggregate",
+  "parent_contract": {
+    "path": "code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json",
+    "sha256": "08f57505d71e603d81d6915ef27cf008d0fe097a56d70a05f8b3519211e2e6f9",
+    "protocol_id": "causalcache_restoration_v2_2_ocr_rgb_baseline_v1",
+    "source_git_commit": "aa5898f25e2e7d647363fe701ac90134bf744a5c"
+  },
+  "failed_attempt": {
+    "directory": "data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt",
+    "git_commit": "2870d8ae26542a184647e8b6d97b8c79e4e12641",
+    "protocol_id": "causalcache_restoration_v2_2_ocr_rgb_baseline_v1",
+    "status": "OCR_RGB_BASELINE_ATTEMPT_INVALID",
+    "outcome": "INVALID_RESTORATION_V2_2_OCR_RGB_BASELINE_V1",
+    "error_class": "ValueError",
+    "error_message": "derived trajectories line 0 has invalid identity encoding",
+    "formal_state_score_row_count": 0,
+    "scientific_payload_generated": false,
+    "exact_files": [
+      {
+        "path": "README.md",
+        "size_bytes": 3881,
+        "sha256": "9b3b6d2eab20d997bd26f12845de9ba7849b7fa0f5905f501fdb3b9179b9e6be"
+      },
+      {
+        "path": "summary.json",
+        "size_bytes": 4798,
+        "sha256": "fa422e4c71f9d25af4359ac222cadfe249d952c4a626685f787595077b686b14"
+      }
+    ]
+  },
+  "repair_scope": {
+    "identity_scanner_only": true,
+    "parent_scientific_contract_changed": false,
+    "immutable_inputs_changed": false,
+    "feature_contract_changed": false,
+    "selection_contract_changed": false,
+    "statistics_contract_changed": false,
+    "operation_ceiling_changed": false,
+    "trajectory_identity": {
+      "file": "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+      "identity_field": "source_id",
+      "expected_total_line_count": 35,
+      "expected_occurrences_per_line": 2,
+      "all_occurrences_must_decode_to_same_utf8_value": true,
+      "escaped_identity_allowed": false,
+      "nonselected_record_semantic_parse_allowed": false
+    },
+    "ocr_identity": {
+      "file": "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+      "identity_field": "image_member_path",
+      "expected_total_line_count": 210,
+      "expected_occurrences_per_line": 1,
+      "all_occurrences_must_decode_to_same_utf8_value": true,
+      "escaped_identity_allowed": false,
+      "nonselected_record_semantic_parse_allowed": false
+    },
+    "selected_record_identity_post_parse_crosscheck": true,
+    "zero_occurrence_fails_closed": true,
+    "occurrence_count_drift_fails_closed": true,
+    "inconsistent_occurrence_value_fails_closed": true,
+    "v1_default_identity_scanner_semantics_preserved": true,
+    "shared_reducer_source": {
+      "path": "code/causalcache/restoration_v2_2_ocr_rgb.py",
+      "parent_source_sha256": "65e9f8e0f0769f88245652f6567182bcb6724b7143c7e34c8ff251584c91120b",
+      "repair_source_sha256": "db276c6f7ad6f5d29b63d7cabd66b86bd0e6c65df7715d022727726cb5eca6a0"
+    },
+    "parent_to_repair_source_changed_paths": [
+      "README.md",
+      "code/README.md",
+      "code/causalcache/restoration_v2_2_ocr_rgb.py",
+      "code/causalcache/restoration_v2_2_ocr_rgb_contract_v2.py",
+      "code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json",
+      "code/scripts/run_restoration_v2_2_ocr_rgb_baseline_v2.py",
+      "code/scripts/validate_restoration_v2_2_ocr_rgb_contract_v2.py",
+      "code/tests/test_restoration_v2_2_ocr_rgb_v2.py",
+      "data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/README.md",
+      "data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/summary.json",
+      "docs/progress.md",
+      "docs/restoration_v2_2_ocr_rgb_baseline.md",
+      "docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md"
+    ]
+  },
+  "authorization": {
+    "cpu_feature_reduction_allowed": true,
+    "gpu_allowed": false,
+    "ocr_inference_allowed": false,
+    "model_load_allowed": false,
+    "policy_forward_allowed": false,
+    "restoration_teacher_forward_allowed": false,
+    "new_kl_measurement_allowed": false,
+    "gate_training_allowed": false,
+    "matched_nll_allowed": false,
+    "closed_loop_allowed": false,
+    "confirm_access_allowed": false,
+    "sealed_test_access_allowed": false
+  },
+  "output_contract": {
+    "canonical_result_directory": "data/results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair",
+    "exact_files": [
+      "README.md",
+      "state_scores.jsonl",
+      "summary.json"
+    ],
+    "invalid_v1_canonical_result_directory": "data/results/restoration_v2_2_ocr_rgb_baseline_v1",
+    "invalid_v1_canonical_result_and_staging_must_remain_absent": true,
+    "failed_attempt_directory_must_remain_byte_unchanged": true,
+    "raw_labels_images_ocr_or_histograms_copied_to_git": false,
+    "formal_run_requires_clean_pushed_main": true,
+    "run_requires_exclusive_new_output_directory": true,
+    "validate_rebuilds_every_output_byte_from_immutable_inputs": true,
+    "result_status_before_execution": "not_generated"
+  }
+}

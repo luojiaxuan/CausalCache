@@ -15,7 +15,8 @@ matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一�
 先补齐 visual comparator matrix。selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 已完成
 source-only freeze，但首次 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次
-而 `INVALID`。replacement lexer repair 与 policy-vision stage 仍 pending。
+而 `INVALID`。replacement v2 identity-repair source 已冻结，只允许 trajectory=`2` / OCR=`1` 的 exact occurrence
+profile；Hyper00 formal aggregate 与 policy-vision stage 仍 pending。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1745,15 +1746,33 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - replacement 必须使用新 protocol/config/output identity，只修 exact per-file occurrence 和 equal-value validation，
   scientific inputs、feature、selection、statistics 与 operation ceiling 不变。
 
+### 2026-07-16：OCR/RGB baseline v2 identity-repair source-only freeze
+
+- 新 contract
+  `code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json` 的 SHA256 为
+  `d68cb032ef3c56c330d57329507d409b20f878b7510bd09d88e2eff1f3f898f3`，绑定 parent source/config、v1 failure
+  commit 与 exact-two failure files；
+- repair 只把 trajectory identity occurrence 固定为每行 2 次且值相同；OCR 仍为每行 1 次。0/1/3 次、escaped
+  identity 或同一行值不一致均 fail closed；nonselected record 仍不做 semantic parse；
+- shared scanner 默认仍为 v1 的每行一次，v2 runner 才显式传 `(2,1)` 和新 protocol ID；synthetic regression
+  证明两版本输出除 protocol identity 外一致，避免 silent same-identity retry；
+- shared reducer parent/repaired bytes 与 parent→formal-source exact changed-path allowlist 均由 contract/runner
+  fail closed；formal source 还必须是 failure commit descendant，source-only validator 要求 v2 output/staging absent；
+- parent scientific contract、immutable inputs、feature、selection、statistics、operation ceiling 与 confirm/test lock
+  全部不变。v1 没有 scientific payload，因此不声称 v1/v2 values 相同；
+- formal v2 output 仍未生成。下一步从包含本 source freeze 的 clean pushed `main` 在 Hyper00 CPU runtime 执行，
+  再做 byte replay、独立 state/aggregate audit 和 Git 回写；完整协议见
+  `docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
 offline oracle/labels、private HF immutable artifact 与 selector-geometry v2 repaired result 已闭合。OCR/RGB v1
-source 已冻结但首次 attempt 已 zero-score `INVALID`；下一步先 commit/push failure binding，再冻结 exact-occurrence /
-equal-value versioned repair，并在新的 clean pushed `main` 上完成 Hyper00 CPU formal aggregate、byte replay 与 Git
-回写，再单独冻结 vision-only similarity baseline。只有 visual comparators 完整、geometry
+首次 attempt 已 zero-score `INVALID`，failure binding 与 v2 exact-occurrence/equal-value repair source 已冻结；下一步
+在新的 clean pushed `main` 上完成 Hyper00 CPU v2 formal aggregate、byte replay、独立审计与 Git 回写，再单独冻结
+vision-only similarity baseline。只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
 sampling、encoder、checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate。confirm 与

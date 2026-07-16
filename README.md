@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、versioned lexer repair pending / policy-vision pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair source frozen/formal pending / policy-vision pending / confirm locked
 
 ## 团队交接入口
 
@@ -46,8 +46,10 @@ lexer 不接受同一 JSONL 中 top-level 与 nested metadata 的两个相同 `s
 canonical output 与 staging 均不存在，见
 [`data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/`](data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/)。
 它是零分 implementation failure，不产生 scientific conclusion；当前仍没有可报告的 OCR/RGB recovery 或
-match-rate result。下一步只允许冻结新 identity 的 exact-occurrence/equal-value lexer repair（trajectory 每行
-两个、OCR 每行一个），科学契约与 immutable inputs 不变。
+match-rate result。versioned replacement source 已冻结为
+[`causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json`](code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json)，
+SHA256 `d68cb032ef3c56c330d57329507d409b20f878b7510bd09d88e2eff1f3f898f3`。它只修 exact-occurrence/equal-value
+identity lexer（trajectory 每行两个、OCR 每行一个）；科学契约与 immutable inputs 不变，formal aggregate pending。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -294,17 +296,18 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 3. [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)：full-45 stable-reference substrate、gate 与一次性执行边界；
 4. [`docs/restoration_v2_2_eager.md`](docs/restoration_v2_2_eager.md)：只改 eager runtime 的 fresh-45 双 H200 source-only contract；
 5. [`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)：已闭合的 attribution run、exact subset oracle、conditional-marginal labels 与 artifact identity；
-6. [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)：OCR/RGB source freeze、confirm-safe reduction 与待执行 formal run；
-7. [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)：interaction-aware student 的设计、能力边界与 ablation matrix；
-8. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
+6. [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)：OCR/RGB v1 source、zero-score invalid attempt 与不可重跑边界；
+7. [`docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`](docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md)：v2 exact-occurrence identity repair 与待执行 formal run；
+8. [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)：interaction-aware student 的设计、能力边界与 ablation matrix；
+9. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
    post-state-only prompt 的冻结实现；
-9. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
-10. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
-11. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-12. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-13. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-14. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-15. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+10. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+11. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
+12. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+13. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+14. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+15. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+16. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -596,7 +599,8 @@ $$
 - [x] 从 clean pushed source 执行并验证 v2 reporting-only repair；144 个 interaction joint cells 与 analytic-random 集合几何完整落盘；
 - [x] 冻结 primary `n=4,B=2` OCR/RGB source-only contract；
 - [x] OCR/RGB v1 首次 Hyper00 attempt 在 zero-score identity scan 阶段 fail closed，并记录 canonical output absent；
-- [ ] 冻结并执行新 identity 的 exact-occurrence/equal-value lexer repair，再单独冻结 policy-vision feature-only stage；
+- [x] 冻结新 identity 的 exact-occurrence/equal-value lexer repair source；v1 default semantics 与 failure binding 保持不变；
+- [ ] 在 Hyper00 执行并验证 OCR/RGB v2 aggregate，再单独冻结 policy-vision feature-only stage；
 - [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -643,6 +647,10 @@ $$
 - Restoration v2.2 OCR/RGB machine-readable contract: [`code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json`](code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json)
 - Restoration v2.2 OCR/RGB source validator: [`code/scripts/validate_restoration_v2_2_ocr_rgb_contract.py`](code/scripts/validate_restoration_v2_2_ocr_rgb_contract.py)
 - Restoration v2.2 OCR/RGB formal reducer: [`code/scripts/run_restoration_v2_2_ocr_rgb_baseline.py`](code/scripts/run_restoration_v2_2_ocr_rgb_baseline.py)
+- Restoration v2.2 OCR/RGB v2 identity-repair protocol: [`docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`](docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md)
+- Restoration v2.2 OCR/RGB v2 identity-repair contract: [`code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json`](code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json)
+- Restoration v2.2 OCR/RGB v2 validator: [`code/scripts/validate_restoration_v2_2_ocr_rgb_contract_v2.py`](code/scripts/validate_restoration_v2_2_ocr_rgb_contract_v2.py)
+- Restoration v2.2 OCR/RGB v2 runner: [`code/scripts/run_restoration_v2_2_ocr_rgb_baseline_v2.py`](code/scripts/run_restoration_v2_2_ocr_rgb_baseline_v2.py)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)

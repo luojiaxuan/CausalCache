@@ -127,25 +127,39 @@ def select_jsonl_records_by_identity(
     identity_field: str,
     allowed_identities: Iterable[str],
     expected_total_line_count: int,
+    expected_identity_occurrences_per_line: int = 1,
     label: str,
 ) -> dict[str, dict[str, Any]]:
     """Parse only allowlisted records while treating every other line as opaque bytes."""
     allowed = frozenset(allowed_identities)
     if not allowed or any(not isinstance(value, str) or not value for value in allowed):
         raise ValueError("allowed identities must be non-empty strings")
+    if (
+        type(expected_identity_occurrences_per_line) is not int
+        or expected_identity_occurrences_per_line <= 0
+    ):
+        raise ValueError("expected identity occurrence count must be positive")
     field = re.escape(identity_field.encode("ascii"))
+    identity_key_pattern = re.compile(rb'"' + field + rb'":')
     identity_pattern = re.compile(rb'"' + field + rb'":"([^"\\]+)"')
     selected: dict[str, dict[str, Any]] = {}
     for index, line in enumerate(
         _jsonl_lines(path, expected_count=expected_total_line_count, label=label)
     ):
+        key_matches = identity_key_pattern.findall(line)
         matches = identity_pattern.findall(line)
-        if len(matches) != 1:
+        if (
+            len(key_matches) != expected_identity_occurrences_per_line
+            or len(matches) != expected_identity_occurrences_per_line
+        ):
             raise ValueError(f"{label} line {index} has invalid identity encoding")
         try:
-            identity = matches[0].decode("utf-8")
+            identities = tuple(value.decode("utf-8") for value in matches)
         except UnicodeDecodeError as error:
             raise ValueError(f"{label} line {index} identity is not UTF-8") from error
+        if len(set(identities)) != 1:
+            raise ValueError(f"{label} line {index} has inconsistent identities")
+        identity = identities[0]
         if identity not in allowed:
             continue
         if identity in selected:
@@ -393,6 +407,8 @@ def _materialize_selected_features(
         tuple[Mapping[int, ImageRequirement], ImageRequirement],
     ],
     selected_paths: frozenset[str],
+    *,
+    ocr_identity_occurrences_per_line: int = 1,
 ) -> dict[str, SelectedImageFeature]:
     derived = contract.data["immutable_inputs"]["derived_dataset"]
     prefix = derived["payload_prefix"]
@@ -403,6 +419,9 @@ def _materialize_selected_features(
         identity_field="image_member_path",
         allowed_identities=selected_paths,
         expected_total_line_count=derived["counts"]["ocr_record_count"],
+        expected_identity_occurrences_per_line=(
+            ocr_identity_occurrences_per_line
+        ),
         label="derived OCR records",
     )
     payloads = _selected_image_payloads(
@@ -473,8 +492,11 @@ def score_ocr_rgb_state(
     event_features: Mapping[int, SelectedImageFeature],
     current_feature: SelectedImageFeature,
     distance_by_coalition: Mapping[tuple[int, ...], float],
+    output_protocol_id: str = PROTOCOL_ID,
 ) -> dict[str, Any]:
     """Score one synthetic or formal primary state without loading any model."""
+    if not isinstance(output_protocol_id, str) or not output_protocol_id:
+        raise ValueError("output protocol id must be a non-empty string")
     if set(event_features) != set(PRIMARY_EVENT_IDS):
         raise ValueError("state scoring requires event features 1..4 exactly")
     expected_coalitions = {
@@ -609,7 +631,7 @@ def score_ocr_rgb_state(
         }
     return {
         "schema_version": SCHEMA_VERSION,
-        "protocol_id": PROTOCOL_ID,
+        "protocol_id": output_protocol_id,
         "state": {
             "index": state.get("index"),
             "role": state.get("role"),
@@ -671,6 +693,9 @@ def build_state_score_records(
     contract: RestorationV22OcrRgbContract,
     labels_archive: Path,
     derived_root: Path,
+    trajectory_identity_occurrences_per_line: int = 1,
+    ocr_identity_occurrences_per_line: int = 1,
+    output_protocol_id: str = PROTOCOL_ID,
 ) -> tuple[dict[str, Any], ...]:
     contract.validate_bound_sources()
     validate_derived_projection(contract, derived_root)
@@ -690,6 +715,9 @@ def build_state_score_records(
         identity_field="source_id",
         allowed_identities=trajectory_ids,
         expected_total_line_count=derived["counts"]["trajectory_count"],
+        expected_identity_occurrences_per_line=(
+            trajectory_identity_occurrences_per_line
+        ),
         label="derived trajectories",
     )
     requirements, selected_paths = _selected_trajectory_inputs(
@@ -701,6 +729,7 @@ def build_state_score_records(
         derived_root,
         requirements,
         selected_paths,
+        ocr_identity_occurrences_per_line=ocr_identity_occurrences_per_line,
     )
 
     label_states = load_selector_geometry_states(labels_archive)
@@ -749,6 +778,7 @@ def build_state_score_records(
                 event_features=event_features,
                 current_feature=current_feature,
                 distance_by_coalition=distances,
+                output_protocol_id=output_protocol_id,
             )
         )
     if len(results) != 15 or sum(

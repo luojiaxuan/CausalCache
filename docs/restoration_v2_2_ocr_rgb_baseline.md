@@ -10,7 +10,8 @@ SHA256 固定为
 `data/results/restoration_v2_2_ocr_rgb_baseline_v1/` 与 staging 均不存在，任何 recovery、match rate 或 paired
 delta 都还不能报告为结果。compact failure binding 见
 [`../data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/`](../data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/)；
-replacement 必须使用新 protocol/output identity。
+replacement 已使用新 protocol/output identity 完成 source freeze，见
+[`restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`](restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md)。
 
 clean pushed `main@aa5898f25e2e7d647363fe701ac90134bf744a5c` 的 formal runner 在第 0 条 derived trajectory
 identity scan 失败。每条 trajectory 的同一个 `source_id` 合法地出现在 top-level 与 nested selection metadata，
@@ -142,8 +143,8 @@ config/protocol/output directory 并绑定 v1 failure record。
 
 ## 下一步
 
-1. commit/push v1 zero-score failure binding；
-2. 冻结新 identity 的 exact-occurrence/equal-value lexer repair，通过 source validator 与 tests 后 commit/push；
+1. v1 zero-score failure binding 已在 `main@2870d8ae26542a184647e8b6d97b8c79e4e12641` commit/push；
+2. 新 identity 的 exact-occurrence/equal-value lexer repair source 已冻结；
 3. 在 Hyper00 CPU-only runtime 运行 replacement canonical aggregate，做 pre-commit byte replay 与独立数值审计；
 4. commit/push 轻量 Git result，再从 clean descendant `main` 做 committed replay；
 5. 单独冻结并执行 policy-vision feature-only baseline；

@@ -876,30 +876,39 @@ bootstrap。
 
 完整 derived projection 只做 hash/inventory 与 nonselected identity opaque scan；只有 allowlisted train/development
 records 做 semantic parse。confirm prompt/image/OCR 不进入 scorer，GPU、OCR inference/model load、policy/
-policy-vision forward、gate、matched-NLL、closed-loop、confirm/test operation 全为 0。详细 contract 见
-`docs/restoration_v2_2_ocr_rgb_baseline.md`。
+policy-vision forward、gate、matched-NLL、closed-loop、confirm/test operation 全为 0。
 
-source-only validation：
+v1 formal attempt 在任何 feature score 前因 trajectory line 含两个相同 `source_id`、而 scanner 错误要求恰好一个
+occurrence 而 fail closed；canonical output/staging 均不存在，不得重跑 v1。v2 使用独立 contract/output identity，
+只允许 trajectory 每行 2 次且值相同、OCR 每行 1 次；shared scanner 的默认 v1 语义保持不变。详细 parent 与
+failure 边界见 `docs/restoration_v2_2_ocr_rgb_baseline.md`，当前 repair 协议见
+`docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`。
+
+v2 source validation 与 focused tests：
 
 ```bash
 cd /absolute/path/to/CausalCache/code
-python3 -m scripts.validate_restoration_v2_2_ocr_rgb_contract \
+python3 -m scripts.validate_restoration_v2_2_ocr_rgb_contract_v2 \
   --repository-root .. \
-  --contract configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json
+  --contract configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json
+python3 -m unittest \
+  tests.test_restoration_v2_2_ocr_rgb \
+  tests.test_restoration_v2_2_ocr_rgb_v2 -v
 ```
 
-Hyper00 CPU formal aggregate 尚未运行。source push 后使用 clean `main`、immutable label archive 与 exact-six
-derived projection 调用：
+v2 Hyper00 CPU formal aggregate 尚未运行。source push 后使用 clean `main`、immutable label archive 与
+exact-six derived projection 调用：
 
 ```bash
-/data02/jaxan/.venv/causalcache-ocr-v2/bin/python \
-  -m scripts.run_restoration_v2_2_ocr_rgb_baseline run \
-  --repository-root /absolute/path/to/CausalCache \
-  --contract /absolute/path/to/CausalCache/code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json \
-  --labels-archive /immutable/raw/v2.2-eager-train-dev-exact-v2.tar \
-  --derived-root /immutable/restoration-v2-derived-exact-six \
-  --source-git-commit <CLEAN_PUSHED_MAIN_SHA> \
-  --output-dir /absolute/path/to/CausalCache/data/results/restoration_v2_2_ocr_rgb_baseline_v1
+cd /data/CausalCache/code
+/data/.venv/causalcache-ocr-v2/bin/python \
+  -m scripts.run_restoration_v2_2_ocr_rgb_baseline_v2 run \
+  --repository-root /data/CausalCache \
+  --contract /data/CausalCache/code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json \
+  --labels-archive /data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar \
+  --derived-root /data/tmp/causalcache-restoration-labels-v2-derived \
+  --source-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --output-dir /data/CausalCache/data/results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair
 ```
 
 result commit/push 后把 `run` 改为 `validate`，会从 immutable inputs 重建并逐 byte 比较 canonical
