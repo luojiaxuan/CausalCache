@@ -77,6 +77,9 @@ python3 -m scripts.validate_subset_search_ablation \
   --summary /absolute/path/to/CausalCache/data/results/subset_search_ablation_v1/summary.json
 ```
 
+canonical result 已从 clean `main@45bcf7e` 运行该 validator 并返回
+`VALID_SUBSET_SEARCH_ABLATION_V1`；命令保留为后续 source/result 变更后的强制复验入口。
+
 完整 estimand、query accounting 与 claim boundary 见 `ablations/subset_search.md`。
 
 ## 修改规则

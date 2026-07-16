@@ -1,7 +1,7 @@
 # Subset Search Ablation
 
-> 状态：canonical CPU result 与 pre-commit scientific replay 已通过；result commit 后的 clean-descendant
-> validation 待执行。
+> 状态：canonical CPU result、pre-commit scientific replay 与 result commit 后的 clean-descendant
+> full-payload validation 均已通过。
 >
 > 范围：synthetic implementation validation，加上旧 v1 selection-biased development coalition table 的
 > post-hoc replay。零新 policy/GPU operation；不训练 gate、不读取 confirm、不修改
@@ -225,6 +225,23 @@ exact 只作小规模 ceiling；beam/local 是
 可替换的 offline diagnostics。synthetic 已证明 stronger search 可能修复 greedy trap，但旧 real table 没有证明
 它值得增加线上复杂度。只有未来 development data 出现稳定真实 search regret，且 direct set-utility contract
 闭合后，才考虑 learned beam/local。
+
+## Committed-result validation（2026-07-15）
+
+轻量结果已在 `main@45bcf7e3ab984e2f4c977af46a27312b1ed8ba0a` commit/push。随后从该 clean
+descendant main 调用独立 validator；validator 从冻结 config、fixtures、phase-0 input 与旧 cached table 重新构造
+完整 scientific payload，同时校验 source commit blobs、当前 source/input hashes 与 committed summary blob。输出为：
+
+```text
+status: VALID_SUBSET_SEARCH_ABLATION_V1
+source_commit: 7569ce2ac1e63f565be4e0d4dcc9626285aa355c
+validated_commit: 45bcf7e3ab984e2f4c977af46a27312b1ed8ba0a
+scientific_payload_sha256: 26846d509d421dcb49f2d1554598893a65829c6a25610ef399ce69b383274edf
+v2_1_outcome_unchanged: NO_GO_V2_1_FULL_45_SUBSTRATE
+```
+
+因此本 ablation 已闭合到 committed artifact，而不只是同一进程内的数值复算。它仍是 CPU-only optimizer
+diagnostic；验证通过不扩大 real-policy evidence，也不授权读取 confirm 或启动新的 restoration run。
 
 ## 对论文的安全表述
 

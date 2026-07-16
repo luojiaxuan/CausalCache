@@ -491,10 +491,10 @@ $$
 - [x] 冻结 unchanged-interface full-45 v2.1 child contract、runner 与 raw artifact chain；
 - [x] 执行唯一 full-45 v2.1 substrate attempt；32/45 exact repeat agreement，正式为 `NO_GO_V2_1_FULL_45_SUBSTRATE`；
 - [x] 记录 prospective interaction-aware gate ablation；仅 source-only proposal，不重开 v2.1；
-- [x] 冻结 subset-search v1 source/config/CPU runner；formal synthetic + cached-table replay 待 clean pushed source；
+- [x] 冻结 subset-search v1 source/config/CPU runner，并完成 formal synthetic + cached-table replay；
 - [x] 首次 subset-search CPU attempt 在 pre-commit JSON round-trip validation fail closed；output 未保留；
 - [x] push serialization fix 后从新 clean source canonical rerun；pre-commit scientific replay 通过；
-- [ ] 提交/push subset-search result，并从 clean descendant main 运行 committed validator；
+- [x] 提交/push subset-search result，并从 clean descendant main 通过 committed full-payload validator；
 - [ ] 在不读取 confirm policy output 的前提下，决定是否冻结新的 executable/UI-element equivalence protocol；
 - [ ] 只有新 substrate gate 通过后，才构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。

@@ -51,5 +51,8 @@ sensitivity threshold `1e-4` 错当 search stopping threshold，step 4 / budget 
 ## Provenance
 
 - Source Git commit：`7569ce2ac1e63f565be4e0d4dcc9626285aa355c`
+- Result Git commit：`45bcf7e3ab984e2f4c977af46a27312b1ed8ba0a`
 - Scientific payload SHA256：`26846d509d421dcb49f2d1554598893a65829c6a25610ef399ce69b383274edf`
 - Device：CPU；GPU/policy operations：`0`
+- Committed validation：clean `main@45bcf7e` 独立 full-payload rebuild 通过，状态
+  `VALID_SUBSET_SEARCH_ABLATION_V1`；v2.1 outcome 保持 `NO_GO_V2_1_FULL_45_SUBSTRATE`。

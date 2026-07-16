@@ -1395,10 +1395,25 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 轻量 summary/report 位于 `data/results/subset_search_ablation_v1/`。下一步 commit/push result，再从 clean
   descendant main 运行正式 committed validator。
 
+### 2026-07-15：Subset-search v1 committed result validation 闭合
+
+- canonical summary/report 已作为 `main@45bcf7e3ab984e2f4c977af46a27312b1ed8ba0a` commit/push；该
+  result commit 只包含轻量 Git artifacts，没有新增 reusable dataset/model，因此无需创建 HF repo；
+- 从 clean `main@45bcf7e` 调用独立 validator。它重新构造 14-scenario 完整 scientific payload，并同时校验
+  source commit blobs、当前 source/config/input hashes、JSON round-trip identity 与 committed summary blob；
+- validator 返回 `VALID_SUBSET_SEARCH_ABLATION_V1`，source commit 为
+  `7569ce2ac1e63f565be4e0d4dcc9626285aa355c`，scientific payload SHA256 为
+  `26846d509d421dcb49f2d1554598893a65829c6a25610ef399ce69b383274edf`；
+- formal result 因而从 source、运行、pre-commit replay、result commit 到 clean-descendant committed replay
+  全链路闭合。v2.1 outcome 仍为 `NO_GO_V2_1_FULL_45_SUBSTRATE`，没有 policy/GPU/confirm operation；
+- 方法决策保持：set-conditioned greedy 是线上主线，exact 是小规模离线 ceiling，beam/local 只作可替换的
+  true-utility offline diagnostics。旧 real table 中 greedy/exact 比为 1，尚无证据为线上 stronger search
+  增加复杂度。
+
 ## 下一步
 
-先 commit/push subset-search result，再从 clean descendant main 复算验证 committed summary；该步骤不需要 GPU，
-也不改变 v2.1。并行的主路线仍是：
-v2.1 已按冻结 gate 停止，不运行 restoration、gate training 或 confirm；只有先冻结不依赖本次 32/45 结果调参的
-新 executable/UI-element equivalence protocol 并通过新 substrate gate，才允许后续 restoration/confirm。必须永久
-保留 exact-coordinate NO-GO，不能在当前 45 states 上事后加容差 retroactive PASS。
+Subset-search v1 已闭合，不继续为 optimizer 本身追加算法。主路线回到 substrate：v2.1 已按冻结 gate 停止，
+不运行 restoration、gate training 或 confirm；下一步只能先冻结不依赖本次 32/45 结果调参的新
+executable/UI-element equivalence protocol，并在新的 versioned development gate 上验证。只有该 gate 通过后才允许
+后续 restoration/confirm。必须永久保留 exact-coordinate NO-GO，不能在当前 45 states 上事后加容差
+retroactive PASS。
