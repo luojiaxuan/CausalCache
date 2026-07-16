@@ -495,6 +495,17 @@ def deleted_root_ledger_attempt(
 
 
 class TwoWorkerRunnerTest(unittest.TestCase):
+    def test_processor_parent_reuses_v2_1_strict_json_contract(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "formal-result.json"
+            path.write_bytes(b'{"z":1,"a":2}\n')
+            self.assertEqual(
+                runner._strict_processor_parent_json(path), {"z": 1, "a": 2}
+            )
+            path.write_bytes(b'{"a":1,"a":2}\n')
+            with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
+                runner._strict_processor_parent_json(path)
+
     def test_repaired_spatial_parent_uses_raw_profile_summary_schema(self) -> None:
         summary = {
             "profile_summaries": [

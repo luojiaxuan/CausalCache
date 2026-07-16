@@ -183,6 +183,18 @@ def _strict_json(path: Path) -> dict[str, Any]:
     return strict_json_object_bytes(path.read_bytes(), label=str(path))
 
 
+def _strict_processor_parent_json(path: Path) -> dict[str, Any]:
+    from causalcache.restoration_v2_1_processor_audit import (
+        strict_json_object_bytes as strict_processor_json_object_bytes,
+    )
+
+    if path.is_symlink() or not path.is_file():
+        raise ValueError(f"required processor evidence file is missing: {path}")
+    return strict_processor_json_object_bytes(
+        path.read_bytes(), label="external processor evidence"
+    )
+
+
 def _external_record(
     path: str | Path, *, validation_status: str, validation_outcome: str
 ) -> dict[str, Any]:
@@ -320,7 +332,7 @@ def _validate_parent_evidence(
     )
     processor_path = Path(args.processor_evidence).resolve()
     processor_validation = validate_restoration_v2_1_processor_audit(
-        _strict_json(processor_path),
+        _strict_processor_parent_json(processor_path),
         repository_root=repository_root,
         current_git_commit=current_git_commit,
         mode="reuse",
