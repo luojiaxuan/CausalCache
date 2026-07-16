@@ -13,10 +13,11 @@ preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replaceme
 HF immutable artifact。当前已有 offline teacher labels 和 oracle 上界，但仍没有 learned gate checkpoint、
 matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一步不是直接训练 set-conditioned gate，而是
 先补齐 visual comparator matrix。selector geometry 的 versioned reporting repair 已完成并支持
-`set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 已完成
-source-only freeze，但首次 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次
-而 `INVALID`。replacement v2 identity-repair source 已冻结，只允许 trajectory=`2` / OCR=`1` 的 exact occurrence
-profile；Hyper00 formal aggregate 与 policy-vision stage 仍 pending。
+`set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
+Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
+v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00 完成 15-state formal aggregate、
+逐 byte replay 与独立复算。它的 development mean recovery 为 `0.019571`、exact match 为 `0/5`，因此是已闭合
+但不稳定的弱 similarity comparator；这不构成 learned gate 的负结论。policy-vision stage 仍 pending。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1764,15 +1765,42 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   再做 byte replay、独立 state/aggregate audit 和 Git 回写；完整协议见
   `docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`。
 
+### 2026-07-16：OCR/RGB baseline v2 formal comparator 闭合
+
+- clean pushed `main@a9bede85ab8bd10623c5755b944b3c26865c6485` 在 Hyper00 container
+  `sglang-omni-jaxan-07170035` 的 Python 3.12.3 / Pillow 12.2.0 CPU runtime 完成唯一 canonical aggregate；
+  15 states、60 candidate comparisons、75 unique images，GPU/OCR inference/policy/gate/confirm/test operation 全为 0；
+- 同一 source、immutable raw-label archive 和 exact-six derived projection 的 `validate` mode 逐 byte 重建
+  exact-three files。scientific payload SHA256 为
+  `5942519bdff8f3e8a64bbc8b32a5d42a64abff37daf0804fcce0f098a63765b2`，state JSONL SHA256 为
+  `07e29538232620bbea3bb12d1c0ce2649ee505285f53daf006dea3f670ba2d0a`；
+- train/development/overall mean normalized recovery 为 `0.771189/0.019571/0.520650`，exact coalition match 为
+  `3/10、0/5、3/15`。overall 相对 budget-conditioned independent 的 difference 为 `-0.292103`，90% interval
+  `[-0.625159,-0.046921]`；相对 recent/random 的 intervals 均跨 0；
+- development trajectory `0141544666483837` 是唯一负 recovery：OCR/RGB 选 `[3,4]`，
+  `D(empty)=0.000616046`、`D(selected)=0.002243123`、recovery `-2.641163`；exact `[1,2]` recovery
+  `0.923640`。raw witness、hash/path、coalition lookup 与符号均一致，因此保留为 non-monotone + small-denominator
+  failure，不删除、clamp 或改 denominator；
+- 新 artifact regression 不依赖 formal reducer 聚合结果，锁定 exact-three hashes、canonical 15-row JSONL、
+  scientific payload、HF/Git provenance、完整 operation dict、headline/bootstrap、异常点和 v1 zero-score failure
+  boundary；原 source-only test 改为 result-stage aware；
+- 另一套不 import 项目 reducer 的 raw-to-result 审计得到 44/44 checks、0 mismatch；60 scores、15 complete rows、
+  comparator、aggregate、development deltas 与 7×10,000 bootstrap 的 max absolute diff 都是 0，并独立复原
+  scientific payload hash。audit/remote/lexical projection SHA256 分别为 `9e842494...12df`、
+  `3bf18032...07e2`、`70ba220d...b2c9`；
+- 本结果的结论是 OCR/RGB 已闭合但 development 不稳的弱 non-learned comparator。没有新增 HF artifact；
+  policy-vision、gate checkpoint、matched-NLL、closed-loop 与 confirm output 仍不存在。result commit/push 后还要
+  从 clean descendant `main` 做 committed byte replay。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
-offline oracle/labels、private HF immutable artifact 与 selector-geometry v2 repaired result 已闭合。OCR/RGB v1
-首次 attempt 已 zero-score `INVALID`，failure binding 与 v2 exact-occurrence/equal-value repair source 已冻结；下一步
-在新的 clean pushed `main` 上完成 Hyper00 CPU v2 formal aggregate、byte replay、独立审计与 Git 回写，再单独冻结
-vision-only similarity baseline。只有 visual comparators 完整、geometry
+offline oracle/labels、private HF immutable artifact、selector-geometry v2 repaired result 与 OCR/RGB v2
+comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。下一步先 commit/push 本 exact-three result、
+从 clean descendant `main` 做 committed byte replay，再单独冻结 policy-vision feature-only similarity baseline。
+只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
 sampling、encoder、checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate。confirm 与

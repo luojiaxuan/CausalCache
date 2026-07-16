@@ -166,6 +166,15 @@ restoration v2 exact selection/exposure 产物：
   （tag `v2.2-eager-train-dev-exact-v2`），fresh immutable download 已闭合。gate checkpoint、matched-NLL pairs、
   closed-loop episodes 与 confirm artifact 仍不存在。
 
+- Restoration v2.2 OCR/RGB comparator：v1 formal attempt 在 0 score 时因 identity lexer contract 错误永久
+  `INVALID`，轻量 failure binding 位于 `results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/`；新 identity 的
+  v2 repair 已从 `main@a9bede85ab8bd10623c5755b944b3c26865c6485` 完成 15-state/60-score CPU-only
+  aggregate 与 byte replay。canonical exact-three Git result 位于
+  `results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair/`，scientific payload SHA256 为
+  `5942519bdff8f3e8a64bbc8b32a5d42a64abff37daf0804fcce0f098a63765b2`。本步骤复用上述 exact-label 与
+  full-derived HF immutable revisions，不创建新的 raw dataset/model artifact；GPU、OCR inference、policy、gate、
+  matched-NLL、closed-loop 与 confirm/test operation 均为 0。
+
 最新轻量运行记录：
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
@@ -180,6 +189,11 @@ restoration v2 exact selection/exposure 产物：
   binding 和 policy-free scientific reduction。$B=2$ oracle normalized recovery 为 overall/train/dev
   0.8735/0.9028/0.8149；75/435 conditional marginals 为负且覆盖 22/45 states。该目录不包含 raw labels，也不
   声称 gate、matched-NLL 或 closed-loop 结果；
+
+- `results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair/`：15 个 primary `n=4,B=2` states 的 frozen
+  OCR-token/RGB-histogram comparator；train/development/overall recovery 为
+  `0.771189/0.019571/0.520650`，exact match 为 `3/10、0/5、3/15`。唯一 development 负 recovery state 保留，
+  不做 post-hoc 删除或 clamp；这是已闭合的弱 similarity baseline，不是 learned gate 或 closed-loop 结果；
 
 - `results/restoration_v2_ocr_backend/`：保留首次 package-source key 冲突与 mutable-status 两个 superseded
   attempt；最终 static fixture 已从 pushed commit 两次通过 `validate-golden` 且 byte-identical。synthetic

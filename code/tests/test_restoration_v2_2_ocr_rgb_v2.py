@@ -66,7 +66,6 @@ class RestorationV22OcrRgbIdentityRepairTest(unittest.TestCase):
         result = validate_contract(
             CONFIG,
             repository_root=ROOT,
-            require_output_absent=True,
         )
         self.assertEqual(result["status"], PASS_STATUS)
         self.assertEqual(result["protocol_id"], PROTOCOL_ID)
@@ -79,7 +78,7 @@ class RestorationV22OcrRgbIdentityRepairTest(unittest.TestCase):
             OCR_IDENTITY_OCCURRENCES_PER_LINE,
         )
         self.assertFalse(result["scientific_contract_changed"])
-        self.assertFalse(result["formal_aggregate_generated"])
+        self.assertTrue(result["formal_aggregate_generated"])
         self.assertFalse(result["staging_output_exists"])
         self.assertNotEqual(V1_CANONICAL_RESULT_DIRECTORY, V2_CANONICAL_RESULT_DIRECTORY)
         self.assertFalse((ROOT / V1_CANONICAL_RESULT_DIRECTORY).exists())

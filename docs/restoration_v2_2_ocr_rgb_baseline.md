@@ -145,8 +145,11 @@ config/protocol/output directory 并绑定 v1 failure record。
 
 1. v1 zero-score failure binding 已在 `main@2870d8ae26542a184647e8b6d97b8c79e4e12641` commit/push；
 2. 新 identity 的 exact-occurrence/equal-value lexer repair source 已冻结；
-3. 在 Hyper00 CPU-only runtime 运行 replacement canonical aggregate，做 pre-commit byte replay 与独立数值审计；
-4. commit/push 轻量 Git result，再从 clean descendant `main` 做 committed replay；
+3. replacement 已从 clean `main@a9bede85ab8bd10623c5755b944b3c26865c6485` 在 Hyper00 CPU-only
+   runtime 完成 canonical aggregate、pre-commit byte replay 与独立数值审计；
+4. 有效 v2 result 见
+   [`restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`](restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md)；
+   轻量 result commit/push 后仍需从 clean descendant `main` 做 committed replay；
 5. 单独冻结并执行 policy-vision feature-only baseline；
 6. visual comparator matrix 完整后，才冻结 gate training、matched-NLL 与 closed-loop contract。
 

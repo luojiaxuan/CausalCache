@@ -866,7 +866,8 @@ empty）和全部 0-operation declarations 已闭合。
 
 ## Restoration v2.2 OCR/RGB baseline
 
-primary `n=4,B=2` OCR/RGB stage 已完成 source-only freeze，contract 为
+primary `n=4,B=2` OCR/RGB stage 已从 clean `main@a9bede85ab8bd10623c5755b944b3c26865c6485`
+完成 formal aggregate 与 pre-commit byte replay，contract 为
 `configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json`，SHA256
 `08f57505d71e603d81d6915ef27cf008d0fe097a56d70a05f8b3519211e2e6f9`。它验证完整 45-state / 420-row
 label artifact，只计算其中 15-state / 240-row primary slice；输入为 75 张 unique images，产生 60 组 archived
@@ -884,7 +885,8 @@ occurrence 而 fail closed；canonical output/staging 均不存在，不得重�
 failure 边界见 `docs/restoration_v2_2_ocr_rgb_baseline.md`，当前 repair 协议见
 `docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`。
 
-v2 source validation 与 focused tests：
+source-only validator 只用于 output 生成前；canonical result 已存在后，使用 formal runner `validate` 和 artifact
+regression。focused tests：
 
 ```bash
 cd /absolute/path/to/CausalCache/code
@@ -893,11 +895,11 @@ python3 -m scripts.validate_restoration_v2_2_ocr_rgb_contract_v2 \
   --contract configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json
 python3 -m unittest \
   tests.test_restoration_v2_2_ocr_rgb \
-  tests.test_restoration_v2_2_ocr_rgb_v2 -v
+  tests.test_restoration_v2_2_ocr_rgb_v2 \
+  tests.test_restoration_v2_2_ocr_rgb_v2_artifact -v
 ```
 
-v2 Hyper00 CPU formal aggregate 尚未运行。source push 后使用 clean `main`、immutable label archive 与
-exact-six derived projection 调用：
+v2 Hyper00 CPU formal aggregate 已使用 immutable label archive 与 exact-six derived projection 执行：
 
 ```bash
 cd /data/CausalCache/code
@@ -907,9 +909,14 @@ cd /data/CausalCache/code
   --contract /data/CausalCache/code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.json \
   --labels-archive /data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar \
   --derived-root /data/tmp/causalcache-restoration-labels-v2-derived \
-  --source-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --source-git-commit a9bede85ab8bd10623c5755b944b3c26865c6485 \
   --output-dir /data/CausalCache/data/results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair
 ```
 
-result commit/push 后把 `run` 改为 `validate`，会从 immutable inputs 重建并逐 byte 比较 canonical
-`README.md`、`state_scores.jsonl`、`summary.json`。
+同一命令把 `run` 改为 `validate` 后已在 source commit 上从 immutable inputs 重建并逐 byte 比较 canonical
+`README.md`、`state_scores.jsonl`、`summary.json`。结果位于
+`data/results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair/`，scientific payload SHA256 为
+`5942519bdff8f3e8a64bbc8b32a5d42a64abff37daf0804fcce0f098a63765b2`。train/development/overall mean
+normalized recovery 为 `0.771189/0.019571/0.520650`，exact match 为 `3/10、0/5、3/15`。唯一负 state
+`0141544666483837` 保留在 development denominator；这是小 `D(empty)` 下的真实 non-monotone similarity
+failure，不做删除或 clamp。result commit/push 后仍需从 clean descendant `main` 重复上述 `validate`。
