@@ -1444,10 +1444,37 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   eager-specific recovery；若两个 BF16 profile 都是 13/13，只报告本次 numerical audit inconclusive，不归因于
   eager。FP32 与 margin 始终不决定分支。
 
+### 2026-07-15：Spatial reference audit v1 formal raw 与 validation-repair 前置
+
+- 从 clean pushed `main@c093bd8f92ab97427acb427bd2d66fb6b20b556a` 在 Hyper01 non-privileged
+  container `7ca0845bbaa5...ff4b`、单张 `NVIDIA H200` 上完成唯一 attempt；三个 profile 与 sibling ledger
+  都已 durable terminal，未发生 retry、resume、alternate path 或 output deletion；
+- raw metrics 为 BF16 auto 7/13 exact generated-token stable、BF16 eager-control 13/13、FP32 eager-control
+  4/4。operation counts 精确为 generation 60、teacher forward 120，confirm/restoration/gate 均为 0；FP32
+  仍只作描述性 probe；
+- 原 formal wrapper 在三个 profile 之后、summary 写入之前由 independent validator fail closed，exception 为
+  `ValueError: generation per-image effective visual token count drifted`，exit code 为 1；raw root、ledger、formal
+  log/exit 与三个 terminal 的 pre-repair SHA 已冻结，不允许重跑 profile；
+- 只读诊断确认旧 validator 有两个纯离线 contract bug：它把 target `2560` 错当成所有 realized grid 的固定
+  token 数，而实际合法 realized set 为 2516/2560/2584；它还把 teacher aligned inventory 错写为
+  `attention_mask + input_ids`，frozen runtime 的实际定义是 `attention_mask + mm_token_type_ids`；
+- 180/180 shape nodes 的 grid accounting 正确；60/60 generation 的 grid、effective visual tokens、text tokens 与
+  prompt tokens 和已验证 v2.1 parent raw 的同 state witness exact。仅在内存中窄修上述两项、且不传
+  `--summary-output` 的 dry-run 已让旧 validator 其余全链通过，没有第三个 blocker，candidate decision 为
+  `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；
+- 新增 source-only validation-repair child，旧 33-file audit source/config/validator/exposure ledger 全部
+  byte-immutable。repair 先绑定 pre-repair tree、ledger、terminal、formal log/exit 和 parent archive，再用 dynamic
+  grid accounting + parent-shape witness 运行其余旧 validator；全部读取验证完成后才 exclusive-create 一个
+  provenance-complete `summary.json`，不加载 processor/model，不调用 GPU/policy，也不修改已有 raw；
+- 完整说明见 `docs/spatial_reference_audit_v1_validation_repair.md`。repair source commit/push、远端 clean-main
+  execution、旧 deterministic USTAR、HF immutable fresh-download 与 Git result 尚未闭合，因此 candidate decision
+  暂不提升为正式 artifact verdict。
+
 ## 下一步
 
-Subset-search v1 已闭合，不继续为 optimizer 本身追加算法。先完成 13-state bounded numerical audit；只有 BF16
-eager-control 13/13 且 BF16 auto 非 13/13 才冻结新的 eager runtime；eager 不稳定才进入独立 source-only
-semantic-key / canonical-representative protocol；两者都稳定则本次数值归因不充分。任何 semantic protocol 都不能用当前 13 个 delta 调 radius，且必须在 synthetic
+Subset-search v1 已闭合，不继续为 optimizer 本身追加算法。先完成 spatial audit 的纯离线 validation repair、
+deterministic USTAR、private HF immutable binding 与 Git result；不得重跑任何 profile。若 repaired artifact
+保持 BF16 eager-control 13/13 且 BF16 auto 7/13，才冻结新的 `v2.2-eager` runtime 和全新 45-state attempt；
+只有 eager 不稳定才进入独立 source-only semantic-key / canonical-representative protocol。任何 semantic protocol 都不能用当前 13 个 delta 调 radius，且必须在 synthetic
 邻接控件 negative fixture 与独立 AndroidWorld UI-node calibration artifact 上先验证。之后只有新的 versioned
 45-state substrate gate 通过，才允许 exact restoration；全部选择和阈值冻结后，最后才能打开 confirm。

@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial determinism audit = source frozen, GPU result pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit profiles complete (auto 7/13、eager 13/13、FP32 4/4), original validator failed closed, offline repair pending / confirm locked
 
 ## 团队交接入口
 
@@ -66,7 +66,15 @@ teacher forward；confirm、restoration、gate training 与 coordinate radius tu
 PyTorch/CUDA/cuDNN、Transformers、driver、scientific environment absence 和 observed attention backend 都在
 durable claim 前 exact 核对。判定分为 eager unstable→semantic、eager stable/auto unstable→eager-specific
 recovery、两者均 stable→本次 numerical audit inconclusive；FP32 与 teacher-forced margin 都不控制结论，后者也
-不是旧 generation-time margin。当前只完成 source/CPU validation，尚无新 GPU 结果，v2.1 NO-GO 不变。
+不是旧 generation-time margin。唯一 Hyper01 attempt 已完成全部 60 次 generation 与 120 次 teacher forward：
+BF16 auto 为 7/13 exact stable、BF16 eager-control 为 13/13、FP32 描述性 probe 为 4/4；confirm、restoration
+和 gate 均为 0。原独立 validator 随后因把 processor target `2560` 误当成所有 realized grid 的固定 token 数而
+fail closed，且还把 teacher aligned inventory 错写为 `attention_mask + input_ids`。raw profile 与 terminal
+ledger 已冻结，不允许重跑；新的纯离线 validation repair 只修这两个读取契约，并要求所有 shape metadata 与
+固定 parent raw witness exact，见
+[`docs/spatial_reference_audit_v1_validation_repair.md`](docs/spatial_reference_audit_v1_validation_repair.md)。
+在 repaired validator、deterministic USTAR、HF immutable fresh-download 和 Git result 全部闭合前，
+`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` 仍只是 raw-derived candidate decision；v2.1 NO-GO 不变。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变

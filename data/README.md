@@ -140,7 +140,9 @@ restoration v2 exact selection/exposure 产物：
   source/config、`fixtures/spatial_reference_audit_v1_parent_mismatches.json` 和
   `manifests/spatial_reference_audit_v1_exposure.json`。旧 `restoration_v2_exposure.json` 是 immutable
   historical pre-output snapshot；新 child ledger 记录已经发生的 v2/v2.1 output 与本 audit 的零新-output freeze。
-  GPU profile、HF immutable revision 和 compact result 都仍为 pending，不能写成已完成 artifact。
+  唯一 GPU attempt 的三个 raw profile 已完成（auto 7/13、eager 13/13、FP32 4/4），但原 validator 在 summary
+  前因 realized-grid 与 aligned-input 两个读取契约错误 fail closed；profile 不重跑，纯离线 repair 仍 pending。
+  HF immutable revision 和 compact result 尚未产生，不能写成已完成 artifact。
 
 最新轻量运行记录：
 

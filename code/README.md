@@ -632,6 +632,21 @@ operation counts。shared-prefix 两次 forward 的 image grid/prompt/aligned-in
 分别验证 action-token length 且共享同一 base image/prompt shape。runner/validator 的设备名都严格要求
 `NVIDIA H200`。
 
+唯一 attempt 已完成，但上面的原 validator 因两个读取契约错误在 summary 前 fail closed；不得重跑 profile。
+从新的 clean pushed `main` 只运行纯离线 repair：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.validate_spatial_reference_audit_v1_validation_repair_v1 \
+  --repository-root /data/CausalCache \
+  --config /data/CausalCache/code/configs/spatial_reference_audit_v1_validation_repair_v1.json
+```
+
+repair 会把旧 config 与 33-file source inventory 逐 blob 绑定回 raw commit
+`c093bd8f92ab97427acb427bd2d66fb6b20b556a`，动态按 realized grid 核算 visual tokens，并与 parent
+generation witness exact 对齐。它不加载 processor/model、不运行 forward，只能 exclusive-create canonical
+`summary.json`，随后复核 audit root 由 70 增至 71 个文件、加入 sibling ledger 后 package inventory 为 72。
+
 validator 完成后，用冻结 packager 将 canonical root 与 root 外 sibling ledger 一并封装；所有路径和 source commit
 都显式传入，archive 只能 exclusive-create，不能覆盖或换名重试：
 
@@ -639,7 +654,7 @@ validator 完成后，用冻结 packager 将 canonical root 与 root 外 sibling
 python3 -m scripts.package_spatial_reference_audit_v1 \
   --repository-root /data/repo \
   --config /data/repo/code/configs/spatial_reference_audit_v1.json \
-  --source-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --source-git-commit c093bd8f92ab97427acb427bd2d66fb6b20b556a \
   --audit-root /data/experiments/causalcache/spatial-reference-audit-v1 \
   --global-attempt-ledger /data/experiments/causalcache/.spatial-reference-audit-v1.attempt.json \
   --output /data/experiments/causalcache/spatial-reference-audit-v1.tar

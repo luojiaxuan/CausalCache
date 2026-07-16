@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "spatial_reference_audit_v1_validation_repair_v1",
+  "status": "source_only_offline_validation_repair_frozen_before_execution",
+  "repair_scope": {
+    "purpose": "repair_two_validator_only_shape_contract_defects_without_reexecuting_the_completed_policy_attempt",
+    "original_audit_source_git_commit": "c093bd8f92ab97427acb427bd2d66fb6b20b556a",
+    "parent_v2_1_outcome_remains_final": "NO_GO_V2_1_FULL_45_SUBSTRATE",
+    "policy_or_model_forward_allowed": false,
+    "profile_reexecution_allowed": false,
+    "profile_or_ledger_mutation_allowed": false,
+    "confirm_policy_output_access_allowed": false,
+    "restoration_allowed": false,
+    "gate_training_allowed": false
+  },
+  "frozen_source": {
+    "original_config": {
+      "path": "code/configs/spatial_reference_audit_v1.json",
+      "sha256": "7c93709b82b534419199a8c19a0c7bbb1c8b5ae1a2132c55c78808bae7863c2c"
+    },
+    "original_validator": {
+      "path": "code/scripts/validate_spatial_reference_audit_v1.py",
+      "sha256": "aef39332a2b8c372caf3f66351e281585083df25fca0b9ce8198e6ce3ef84f89"
+    },
+    "required_repository_state": "clean_pushed_main",
+    "repair_git_commit_capture_required": true
+  },
+  "parent_v2_1_archive": {
+    "path": "/data/artifacts/spatial-reference-audit-v1/restoration-v2-1-full-45-substrate-v1.tar",
+    "sha256": "8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4",
+    "size_bytes": 962560,
+    "source_git_commit": "7a5b6d5710fe4d054936b5aa474648149f725edb",
+    "required_outcome": "NO_GO_V2_1_FULL_45_SUBSTRATE",
+    "native_generation_repeat_count": 2
+  },
+  "pre_repair_evidence": {
+    "audit_root": "/data/experiments/causalcache/spatial-reference-audit-v1",
+    "root_tree_inventory": {
+      "algorithm": "spatial_reference_audit_v1_artifact._tree_inventory_sha256_over_root_regular_files",
+      "includes_reserved_global_attempt_ledger": false,
+      "file_count": 70,
+      "sha256": "4e7d05c3f8a485a52aa32d4600129b832c13fbc7323c58849d1be3f69fbd140b"
+    },
+    "packaging_tree_inventory": {
+      "algorithm": "spatial_reference_audit_v1_artifact._tree_inventory_sha256_over_root_regular_files_plus_reserved_global_attempt_ledger",
+      "includes_reserved_global_attempt_ledger": true,
+      "file_count": 71,
+      "sha256": "f511fa2eb1c6d7a3f8996de42759694f1c710fa4c0369c2b8e581c8c51dfcd5a"
+    },
+    "global_attempt_ledger": {
+      "path": "/data/experiments/causalcache/.spatial-reference-audit-v1.attempt.json",
+      "sha256": "98b4d6e48a69feb21d1d8c52747a133a9898132385ecbac7ce42d4d0927372f5",
+      "size_bytes": 31228
+    },
+    "original_formal_log": {
+      "path": "/data/logs/spatial-reference-audit-v1-formal.log",
+      "sha256": "bcea26499e29b6e4911831693d12f34d6c0864b6fa7a1d2032839b1a47c1f3c5",
+      "size_bytes": 23905
+    },
+    "original_formal_exit": {
+      "path": "/data/logs/spatial-reference-audit-v1-formal.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "size_bytes": 2,
+      "utf8_content": "1\n"
+    },
+    "original_failure": {
+      "stage": "independent_validator_before_summary_and_packaging",
+      "exception_type": "ValueError",
+      "message": "generation per-image effective visual token count drifted"
+    },
+    "profile_terminals": [
+      {
+        "profile_id": "bf16_auto",
+        "path": "/data/experiments/causalcache/spatial-reference-audit-v1/profiles/000-bf16_auto/terminal.json",
+        "sha256": "bcde7a728caacb8d847f9e667572c18a92c71abb9a63b22d2d4a8fd07c2773da",
+        "size_bytes": 385029
+      },
+      {
+        "profile_id": "bf16_eager_control",
+        "path": "/data/experiments/causalcache/spatial-reference-audit-v1/profiles/001-bf16_eager_control/terminal.json",
+        "sha256": "17f7ad5cef19553b689be4526eb65f15664fa32a01d10094fe6cb895f02db08d",
+        "size_bytes": 385431
+      },
+      {
+        "profile_id": "fp32_eager_control",
+        "path": "/data/experiments/causalcache/spatial-reference-audit-v1/profiles/002-fp32_eager_control/terminal.json",
+        "sha256": "0160d042537bbed2ff7ee56b3f61911a2846470f952c3672b67594d80cae462f",
+        "size_bytes": 130375
+      }
+    ]
+  },
+  "repair_contract": {
+    "validator_only_defects": [
+      "observed_original_failure_validator_hard_coded_2560_effective_visual_tokens_per_image_instead_of_validating_realized_grid_accounting",
+      "latent_read_only_dry_run_finding_validator_expected_input_ids_in_teacher_prompt_alignment_instead_of_the_runtime_emitted_mm_token_type_ids"
+    ],
+    "observed_pre_repair_effective_visual_tokens_per_image": [2516, 2560, 2584],
+    "observed_effective_visual_token_set_used_as_acceptance_whitelist": false,
+    "dynamic_grid_formula": "temporal_times_height_times_width_integer_divided_by_four_after_even_spatial_merge_validation",
+    "teacher_extended_prompt_aligned_inputs": [
+      "attention_mask",
+      "mm_token_type_ids"
+    ],
+    "parent_native_generation_shape_keys": [
+      "image_count",
+      "image_grid_thw",
+      "effective_visual_tokens",
+      "policy_visible_text_tokens",
+      "prompt_input_tokens"
+    ],
+    "all_shape_node_parent_binding_keys": [
+      "image_count",
+      "image_grid_thw",
+      "effective_visual_tokens"
+    ],
+    "generation_shape_node_count": 60,
+    "teacher_shape_node_count": 120,
+    "total_shape_node_count": 180,
+    "generation_requires_full_parent_native_shape_match": true,
+    "teacher_requires_parent_grid_and_effective_match": true,
+    "original_validate_profile_required": true,
+    "original_validate_attempt_ledger_required": true,
+    "original_aggregate_profiles_required": true
+  },
+  "outputs": {
+    "summary": "/data/experiments/causalcache/spatial-reference-audit-v1/summary.json",
+    "new_outputs_only": true,
+    "write_only_after_all_validation_succeeds": true
+  }
+}

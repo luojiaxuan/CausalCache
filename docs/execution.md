@@ -619,6 +619,23 @@ validation 完成后，唯一 raw archive 是
 只接受 terminal ledger，以 exclusive-create 写 deterministic USTAR，拒绝 symlink/non-regular member，并在写前、
 写后重建 archive bytes。已有 archive 不能覆盖或删除后重包。
 
+本次唯一 attempt 的原 validator 已在 summary 前 fail closed，profile/state 不得重跑。纯离线 repair 必须先从
+新的 clean pushed `main` 执行，且只能使用下面的 canonical config/path：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.validate_spatial_reference_audit_v1_validation_repair_v1 \
+  --repository-root /data/CausalCache \
+  --config /data/CausalCache/code/configs/spatial_reference_audit_v1_validation_repair_v1.json
+```
+
+repair 会在任何写入前重新绑定 pre-repair root/ledger、三个 terminal、原 formal log/exit、旧 source/config 与
+parent v2.1 USTAR；它不加载 processor/model，不调用 GPU。只有 dynamic grid accounting、parent shape witness、
+teacher aligned-input inventory 和原 validator 的其余全链全部通过后，才 exclusive-create canonical
+`summary.json`。已有 summary 或 archive 时必须拒绝，不复制或改写原 formal log/exit。随后仍使用上述旧
+packager，`--source-git-commit` 必须传产生 raw 的 `c093bd8f92ab97427acb427bd2d66fb6b20b556a`，不能传
+repair commit；repair commit 由 summary 内部单独记录。
+
 严格 CUDA deterministic GEMM 需要 `CUBLAS_WORKSPACE_CONFIG`，与本项目“不用 environment variable 传
 scientific 参数”的规则冲突。因此 v1 不启用 `torch.use_deterministic_algorithms(True)`，只比较 legacy auto 与
 eager fixed-seed/TF32-off numerical control；文档和结果不得把后者写成数学 deterministic。confirm input/output、

@@ -8,6 +8,12 @@ restoration coalition，不训练
 gate，也不允许据此调 coordinate radius。父结论
 `NO_GO_V2_1_FULL_45_SUBSTRATE` 永久保留；本审计不是对 v2.1 的事后重算。
 
+唯一 Hyper01 attempt 已完成全部三个 profile，但原 independent validator 在 summary 写入前 fail closed：它把
+processor target `2560` 误当成固定 realized grid token 数，并错误要求 teacher aligned inputs 包含主
+`input_ids`。已有 profile/state evidence 不删除、不重跑；纯离线 repair 的证据、边界与当前状态见
+[`spatial_reference_audit_v1_validation_repair.md`](spatial_reference_audit_v1_validation_repair.md)。在 repaired
+validation、artifact packaging 和 immutable HF verification 闭合前，本页的 decision rule 不提前宣布正式结果。
+
 源合约位于 [`code/configs/spatial_reference_audit_v1.json`](../code/configs/spatial_reference_audit_v1.json)，
 父 mismatch 投影位于
 [`data/fixtures/spatial_reference_audit_v1_parent_mismatches.json`](../data/fixtures/spatial_reference_audit_v1_parent_mismatches.json)，
@@ -110,10 +116,11 @@ policy-visible text tokens、prompt tokens 与 aligned-input inventory exact 相
 
 ## Artifact 与 source of truth
 
-三份 raw profile JSON 和聚合 raw evidence 的计划 canonical 位置是 private HF dataset
+三份 raw profile JSON 已在 canonical local attempt root 耐久完成；原 validator 失败后尚未生成正式聚合 summary。
+repaired validation 通过后的 raw profile 与聚合 evidence 计划 canonical 位置是 private HF dataset
 `gavinlaw/causalcache-spatial-reference-audit-mobile`；上传后必须记录 immutable revision、path、archive SHA、schema、
 source command 并 fresh-download 复核。Git 只保存 source/config/tests、exposure ledger、compact summary/artifact
-manifest 和进展结论。正式运行前 HF path 仍是 planned，不能写成已上传。
+manifest 和进展结论。当前 HF path 仍是 planned，不能写成已上传。
 
 本地 archive 路径固定为 `/data/experiments/causalcache/spatial-reference-audit-v1.tar`。冻结 packager 只接受
 canonical audit root 与 root 外 sibling ledger；二者会放在同一 `spatial-reference-audit-v1/` USTAR prefix 下，
