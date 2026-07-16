@@ -1,0 +1,88 @@
+{
+  "schema_version": "0.2.0",
+  "protocol_id": "causalcache_restoration_v2_2_selector_geometry_v2_repair",
+  "repair_status": "source_only_frozen_before_v2_repair_reduction",
+  "parent_contract": {
+    "path": "code/configs/causalcache_restoration_v2_2_selector_geometry.json",
+    "sha256": "8022dcdec272916b7975d696a3ce6b54022c7414cd348a715c55b0d3d694dad5",
+    "protocol_id": "causalcache_restoration_v2_2_selector_geometry_v1",
+    "source_git_commit": "7a1a8cc28a9a8f6a745f372406fe751b9bf4ff53"
+  },
+  "repair_scope": {
+    "reporting_only": true,
+    "selector_algorithms_changed": false,
+    "selector_scientific_values_changed": false,
+    "bootstrap_values_changed": false,
+    "required_interaction_factor_cross_product": [
+      "role",
+      "candidate_event_count",
+      "budget",
+      "interaction_strength_stratum",
+      "has_strict_negative_deployment_marginal"
+    ],
+    "required_roles": [
+      "v2_label_train",
+      "v2_development"
+    ],
+    "required_candidate_event_counts": [
+      2,
+      3,
+      4
+    ],
+    "required_interaction_strength_strata": [
+      "low",
+      "mid",
+      "high"
+    ],
+    "required_negative_marginal_flags": [
+      false,
+      true
+    ],
+    "expected_interaction_factor_cell_count": 144,
+    "empty_cells_materialized": true,
+    "empty_cell_numeric_values": null,
+    "required_selectors_per_cell": [
+      "exact_subset",
+      "exact_cardinality_oracle",
+      "true_conditional_greedy",
+      "forced_fill_true_conditional_greedy",
+      "budget_conditioned_independent",
+      "forced_fill_budget_conditioned_independent",
+      "full_shapley_independent",
+      "forced_fill_full_shapley_independent",
+      "dynamic_recent",
+      "analytic_exact_cardinality_random"
+    ],
+    "analytic_random_required_metrics": [
+      "exact_cardinality",
+      "expected_exact_coalition_match",
+      "expected_jaccard_to_exact_coalition"
+    ],
+    "analytic_random_match_definition": "one_over_n_choose_B_if_exact_subset_cardinality_equals_B_else_zero",
+    "analytic_random_jaccard_definition": "uniform_mean_over_all_exact_B_coalitions",
+    "analytic_random_budget_zero_rule": {
+      "exact_cardinality": 0,
+      "expected_exact_coalition_match": 1.0,
+      "expected_jaccard_to_exact_coalition": 1.0
+    }
+  },
+  "authorization": {
+    "policy_free_reduction_allowed": true,
+    "restoration_teacher_forward_allowed": false,
+    "new_kl_measurement_allowed": false,
+    "gate_training_allowed": false,
+    "matched_nll_allowed": false,
+    "closed_loop_allowed": false,
+    "confirm_access_allowed": false,
+    "sealed_test_access_allowed": false,
+    "policy_vision_feature_extraction_allowed": false
+  },
+  "output_contract": {
+    "canonical_result_directory": "data/results/restoration_v2_2_selector_geometry_v2_repair",
+    "superseded_result_directory": "data/results/restoration_v2_2_selector_geometry_v1",
+    "superseded_result_must_not_be_modified": true,
+    "raw_labels_or_images_copied_to_git": false,
+    "result_must_bind_parent_contract_and_immutable_labels": true,
+    "result_status_before_execution": "not_generated"
+  }
+}

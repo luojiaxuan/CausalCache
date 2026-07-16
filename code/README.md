@@ -821,14 +821,18 @@ artifact tests 21/21 PASS，`compileall` 与 `git diff --check` 通过；formal 
 ## Restoration v2.2 selector geometry
 
 45-state v2 replacement label run 已完成并上传 private HF immutable artifact。训练 gate 前先运行独立的
-policy-free selector geometry；machine-readable contract 是
+policy-free selector geometry。parent v1 contract 是
 `configs/causalcache_restoration_v2_2_selector_geometry.json`，SHA256 为
-`8022dcdec272916b7975d696a3ce6b54022c7414cd348a715c55b0d3d694dad5`。source-only validator：
+`8022dcdec272916b7975d696a3ce6b54022c7414cd348a715c55b0d3d694dad5`。第一次 replay 的核心 selector
+数值正确，但 reporting-completeness audit 发现 interaction joint cells 与 analytic-random 集合几何没有完整
+落盘，旧 output 未提交。versioned repair contract 是
+`configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json`，SHA256 为
+`2d312f54559f67aafe7efec2656d23171000e8b0f41d2d3c923f6a3c8b43be4c`。source-only validator：
 
 ```bash
 cd /absolute/path/to/CausalCache/code
-python3 -m scripts.validate_restoration_v2_2_selector_geometry_contract \
-  --contract configs/causalcache_restoration_v2_2_selector_geometry.json \
+python3 -m scripts.validate_restoration_v2_2_selector_geometry_v2_contract \
+  --contract configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json \
   --repository-root ..
 ```
 
@@ -845,12 +849,12 @@ closed-loop、confirm/test access 和 policy-vision feature forward 均固定为
 source commit push 后运行：
 
 ```bash
-python3 -m scripts.run_restoration_v2_2_selector_geometry run \
+python3 -m scripts.run_restoration_v2_2_selector_geometry_v2 run \
   --repository-root /absolute/path/to/CausalCache \
-  --contract /absolute/path/to/CausalCache/code/configs/causalcache_restoration_v2_2_selector_geometry.json \
+  --contract /absolute/path/to/CausalCache/code/configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json \
   --labels-archive /fresh/immutable/raw/v2.2-eager-train-dev-exact-v2.tar \
   --source-git-commit <CLEAN_PUSHED_MAIN_SHA> \
-  --output-dir /absolute/path/to/CausalCache/data/results/restoration_v2_2_selector_geometry_v1
+  --output-dir /absolute/path/to/CausalCache/data/results/restoration_v2_2_selector_geometry_v2_repair
 ```
 
 result commit/push 后把 subcommand 改为 `validate`，会从 raw table 重算并逐 byte 验证三份 Git result files。

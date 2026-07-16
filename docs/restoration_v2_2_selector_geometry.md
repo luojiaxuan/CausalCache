@@ -1,6 +1,8 @@
 # Restoration v2.2 selector geometry
 
-> 状态：source-freeze in progress；本页与 machine-readable contract 在任何 selector aggregate 生成前冻结。
+> 状态：v1 table-only reduction 的核心 selector 数值已通过独立 raw-table 重算，但 reporting-completeness
+> audit 发现冻结的 interaction 联合分层与 analytic-random 集合几何没有完整落盘；v1 output 未提交，正在按
+> versioned v2 repair contract 修复。OCR/RGB 与 policy-vision feature baselines 仍待补齐。
 > 本阶段只消费已经闭合的 train/development raw $D(S)$，不训练 gate、不读取 confirm/test，也不运行
 > action policy、matched-NLL 或 closed-loop episode。
 
@@ -183,3 +185,72 @@ runner 要求当前 `main` clean、`HEAD == origin/main == source_git_commit`，
 101-file label evidence。输出只允许 `README.md`、`summary.json` 和单个 canonical JSONL state-budget shard。
 result commit/push 后用同一 argv 把 `run` 改为 `validate`；validator 从 immutable raw table 重算完整 payload，逐
 byte 比较三份文件，并要求 formal reducer source 相对 execution commit 没有变化。
+
+## V1 preliminary replay 与 versioned reporting repair
+
+第一次 table replay 从 clean pushed `main@7a1a8cc28a9a8f6a745f372406fe751b9bf4ff53` 读取 immutable label
+revision `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，101-file label validator 与 180 条 state-budget
+records 的 selector 数值均通过。随后 independent contract-completeness audit 发现两个 output-schema 缺口：
+
+1. 冻结 contract 要求联合报告
+   `role × n × B × interaction-strength × has-negative-marginal`，旧 reducer 只在 primary `n=4,B=2`
+   分别给出 strength 与 negative-marginal 两张边际 gap 表；
+2. analytic exact-cardinality random 已知精确 cardinality，并可解析计算 exact-match probability 与 expected
+   Jaccard；旧 compact reducer 却把这些字段省略。
+
+这两个缺口不改变任何 selector coalition、utility、recovery、bootstrap 或 method-shaping 数值，但属于预冻结
+reporting contract 没有完整实现。按预先写下的 bug 边界，旧 v1 output 不进入 Git source of truth，也不能静默
+覆盖。repair 使用独立 protocol/config/module/output identity，必须显式物化 train/development 共 144 个联合 cells
+（包括统一 empty schema），并为 random 报告解析集合几何；正式 v2 result 仍须从 clean pushed source 重新生成、
+逐 byte replay，并再次接受 implementation-independent coverage audit。
+
+repair machine-readable config 为
+[`../code/configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json`](../code/configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json)，
+SHA256 `2d312f54559f67aafe7efec2656d23171000e8b0f41d2d3c923f6a3c8b43be4c`。source-only validation：
+
+```bash
+cd code
+python3 -m scripts.validate_restoration_v2_2_selector_geometry_v2_contract \
+  --contract configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json \
+  --repository-root ..
+```
+
+primary `n=4,B=2` 的 trajectory-weighted normalized recovery 为：
+
+| Selector | Train | Development | Overall |
+| --- | ---: | ---: | ---: |
+| Exact subset | 0.877376 | 0.925342 | 0.893364 |
+| True conditional greedy | 0.877376 | 0.925342 | 0.893364 |
+| Budget-conditioned independent | 0.835977 | 0.766303 | 0.812753 |
+| Full-path Shapley independent | 0.815367 | 0.884128 | 0.838287 |
+| Recent | 0.554136 | 0.019666 | 0.375979 |
+| Random exact expectation | 0.430032 | 0.139471 | 0.333178 |
+
+true greedy 在 primary 15/15 states 与 exact subset 的 coalition 完全一致，因此 train/development/overall search
+gap 都是 0。budget-conditioned independent 只在 7/15 states 命中 exact coalition，development 是 0/5；其
+development objective-projection gap 为 `0.159039`，5/5 trajectories 同方向，冻结的 90% trajectory-bootstrap
+interval 为 `[0.007836, 0.355867]`。按预先冻结的规则，method-shaping 输出
+`set_conditioned_main_candidate + online_greedy_sufficient`。
+
+这个 green 结论必须保留两个 caveat：
+
+1. development 只有 5 条 trajectories；normalized gap 的 74.1% 来自一个
+   `D(empty)=0.000616` 的 state。删除它后其余 4 条仍为 4/4 同方向、mean gap `0.05152`，但这只能作
+   sensitivity，不能包装成显著性或普遍稳定效应；
+2. 更强的 static comparator 会缩小差距。full-path Shapley 与 forced-fill budget-conditioned independent 在
+   development 都达到 `0.884128`，相对 greedy 的 normalized gap 是 `0.041214`；预算条件 independent 的
+   primary raw-utility gap 也只有 `0.0021944`。因此本结果支持“set-conditioned student 值得进入主候选”，
+   尚不能证明任意 independent gate 必然明显更差。
+
+secondary `n=3,B=2` 的 independent/recent/random normalized mean 会被一个极小 `D(empty)` state 放大为负值。
+独立 raw-table audit 证明这不是实现错误：该 state 的所有 singleton/pair 都比 empty 差，exact/greedy 正确停在
+空集；但在 singleton bases 上平均的 conditional event scores 都为正，static independent 因而选入负 utility
+pair。这是 objective projection 的真实 pathology，同时也是报告 raw utility 与逐 trajectory delta 的理由，不能
+概括为所有 n=3 states 普遍崩溃。
+
+旧 v1 核心表由两个不 import 新 selector/result reducer 的独立实现重算：primary 225 个 state-level fields、
+15 个 aggregate fields 与全部 selected coalitions 的 mismatch 都为 0；第三个审计独立复算了 180 rows、
+budget grid、paired bootstrap 与 method-shaping，数值也完全一致。上述 primary 数字因此可以用于 repair 前后
+invariance check，但在 v2 repaired artifact commit/push 并通过 clean-descendant validation 前，不把它们称为最终
+formal result。新 policy forward、generation、teacher/KL、gate、matched-NLL、closed-loop、confirm/test 和
+policy-vision forward 仍全为 0。

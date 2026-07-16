@@ -12,8 +12,9 @@ preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replaceme
 420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
 HF immutable artifact。当前已有 offline teacher labels 和 oracle 上界，但仍没有 learned gate checkpoint、
 matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一步不是直接训练 set-conditioned gate，而是
-先冻结并运行 selector geometry：把 `n=2,B=2` ceiling 与 `n=4,B=2` primary compression 分开，测量
-exact-to-greedy search gap 和 greedy-to-independent objective-projection gap，再据此决定 student contract。
+先完成 selector geometry 的 versioned reporting-repair formal rerun：把 `n=2,B=2` ceiling 与 `n=4,B=2`
+primary compression 分开，完整报告 exact-to-greedy search gap、greedy-to-independent objective-projection gap
+与 interaction joint strata，再据此决定 student contract。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1652,13 +1653,33 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   training、matched-NLL、closed-loop、confirm/test 和 policy-vision feature forward 均为 0；正式 table aggregate
   只能从本 source push 后生成。
 
+### 2026-07-16：Selector-geometry reporting-completeness audit 与 v2 repair source
+
+- v1 table replay 从 clean pushed `main@7a1a8cc28a9a8f6a745f372406fe751b9bf4ff53` 生成 180 条
+  state-budget records；两套独立 raw-table reducer 对 primary 225 个 state-level fields、15 个 aggregates 与
+  selected coalitions 的 mismatch 均为 0，第三套审计也复算了 budget grid、bootstrap 和 shaping；
+- contract-completeness audit 发现 v1 output 不完整：冻结 contract 要求联合报告
+  `role × n × B × interaction-strength × has-negative-marginal`，旧 reducer 只给 primary 的两个边际 gap 表；
+  analytic exact-cardinality random 也缺少已知 cardinality、exact-match probability 与 expected Jaccard；
+- 该问题不改变 selector coalition、utility/recovery、bootstrap 或 method-shaping，但按预先冻结的 bug 边界不能
+  静默修改 v1。旧 result 未提交，临时 bytes 不属于 source of truth；
+- 新增 versioned repair config
+  `code/configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json`，SHA256 为
+  `2d312f54559f67aafe7efec2656d23171000e8b0f41d2d3c923f6a3c8b43be4c`。它 exact-bind parent v1 config/source，
+  固定 train/development 共 144 个 joint Cartesian cells（含统一 empty schema、每 cell 全 10 selectors）与
+  analytic-random 的 `k=B` / expected match / expected Jaccard；
+- v2 reducer 同时重建 legacy payload 并逐字段验证 selector/utility/recovery/bootstrap/shaping 不变；独立 contract
+  validator 从 180 rows 重算 train-only per-`n` tertiles、development assignment、random expectations 与完整
+  cell key inventory。source-only targeted regression 为 43/43 PASS，全量回归为 636 tests PASS（skipped 11），
+  `compileall`、`git diff --check` 与 AAAI LaTeX 编译通过；正式 v2 result 仍未生成。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
-offline oracle/labels 与 private HF immutable artifact 已闭合。下一步先完成
-`docs/restoration_v2_2_selector_geometry.md` 的 policy-free table reduction，再补齐 primary `n=4,B=2` 的
+offline oracle/labels 与 private HF immutable artifact 已闭合。下一步先从 clean pushed source 完成
+`docs/restoration_v2_2_selector_geometry.md` 的 versioned reporting-repair reduction，再补齐 primary `n=4,B=2` 的
 OCR/RGB 与 vision-only similarity baselines。只有 geometry 明确 objective-projection gap 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
 sampling、encoder、checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate。confirm 与
