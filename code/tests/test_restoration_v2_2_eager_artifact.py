@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import copy
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -53,6 +55,26 @@ def _json_bytes_mutation(payload: bytes, mutate: object) -> bytes:
 
 
 class V22ArtifactTest(unittest.TestCase):
+    def test_artifact_import_does_not_import_policy_runtime(self) -> None:
+        script = """
+import builtins
+real_import = builtins.__import__
+def guarded_import(name, *args, **kwargs):
+    if name == 'causalcache.policy.gui_owl_v2_1_runtime':
+        raise RuntimeError('policy runtime imported before global claim')
+    return real_import(name, *args, **kwargs)
+builtins.__import__ = guarded_import
+import causalcache.restoration_v2_2_eager_artifact
+"""
+        result = subprocess.run(
+            [sys.executable, "-c", script],
+            cwd=Path(__file__).resolve().parents[1],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_prebound_only_invalid_evidence_is_packageable(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)

@@ -18,9 +18,6 @@ from typing import Any
 
 from causalcache.policy.gui_owl_v2 import gui_owl_v2_action_to_androidworld
 from causalcache.policy.gui_owl_v2_1 import parse_gui_owl_v2_1_output
-from causalcache.policy.gui_owl_v2_1_runtime import (
-    GUI_OWL_V2_1_EXPECTED_STANDARD_EOS_TOKEN_IDS,
-)
 from causalcache.restoration_v2_2_eager_contract import (
     CANONICAL_ARCHIVE_PATH,
     CANONICAL_ATTEMPT_ID,
@@ -71,6 +68,14 @@ REPEAT_NOISE_MULTIPLIER = 10.0
 SHA256_PATTERN = re.compile(r"[0-9a-f]{64}")
 GIT_SHA_PATTERN = re.compile(r"[0-9a-f]{40}")
 BFLOAT16_MIN_FINITE = -3.3895313892515355e38
+
+
+def _expected_standard_eos_token_ids() -> tuple[int, ...]:
+    from causalcache.policy.gui_owl_v2_1_runtime import (
+        GUI_OWL_V2_1_EXPECTED_STANDARD_EOS_TOKEN_IDS,
+    )
+
+    return GUI_OWL_V2_1_EXPECTED_STANDARD_EOS_TOKEN_IDS
 
 STATE_OUTCOME_VALID = "VALID_V2_2_EAGER_FULL_45_SUBSTRATE_STATE"
 STATE_OUTCOME_FAILED = "FAILED_V2_2_EAGER_FULL_45_SUBSTRATE_STATE"
@@ -712,7 +717,7 @@ def _validate_teacher_metadata_v22(
     }
     if not required.issubset(teacher):
         raise ValueError("teacher suppression metadata is incomplete")
-    suppressed_ids = list(GUI_OWL_V2_1_EXPECTED_STANDARD_EOS_TOKEN_IDS)
+    suppressed_ids = list(_expected_standard_eos_token_ids())
     samples = teacher.get("samples")
     if (
         teacher.get("batch_size") != 1
