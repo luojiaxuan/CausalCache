@@ -1,10 +1,12 @@
 # Interaction-aware Memory Gate Ablation
 
-> 状态：source-only design proposal；尚未实现、尚未冻结、没有实验授权。
+> 状态：v2.2 已生成完整 train/development $D(S)$ table；gate 仍未训练。先按
+> [`../docs/restoration_v2_2_selector_geometry.md`](../docs/restoration_v2_2_selector_geometry.md) 测量真实
+> search gap 与 objective-projection gap，再决定 set-conditioned student 是否进入主方法。
 >
-> 边界：本文档不修改 v2.1 的 `NO_GO_V2_1_FULL_45_SUBSTRATE`，不授权 restoration、gate training、
-> untouched confirm 或 AndroidWorld test inference。当前已观察的 45 states 只能作为 development evidence，
-> 不能被重新包装成新 selector 的 confirmatory pass。
+> 边界：本文档不修改 v2.1 的 `NO_GO_V2_1_FULL_45_SUBSTRATE`；后续独立的 v2.2-eager substrate 与 exact-label
+> run 已各自闭合。本文仍不授权 gate training、untouched confirm 或 AndroidWorld test inference。现有 30 个
+> label-train 与 15 个 development states 只能做 teacher/selector development，不能包装成 confirmatory pass。
 
 ## 合作方问题与结论
 
@@ -134,11 +136,11 @@ distance D(S) and D(S union {j})
 target marginal Delta_j(S)
 ```
 
-但当前 frozen v2 attribution distribution 主要围绕 maximal near-budget coalitions 定义，且 v2.1 并未生成
-restoration labels；不能把“接口能够产生”写成“现有训练数据已经覆盖”。未来 label contract 必须显式覆盖
-$|S|=0,1,\ldots,b-1$ 的推理前缀，并预先固定 random/oracle/student roll-in mixture，避免 iterative gate 在早期
-selection rounds 上 out-of-distribution。取得这些 edges 后，marginal regression 才能直接使用
-$(S,j,\Delta_j(S))$，而不先平均成 $G^{(B)}_j$。候选损失为：
+v2.2 exact-label run 现在已经为 $n\in\{2,3,4\}$ 枚举完整 power set：420 条 raw $D(S)$ 可离线重建 720 条
+full-hypercube edges，其中 primary $B=2$ 可达 435 条。因而当前小规模实验确实覆盖
+$|S|=0,1,\ldots,b-1$ 的全部推理前缀，不需要用 sampled roll-in 猜测缺失 edge。未来扩展到更长 history 时仍须
+另行冻结 random/oracle/student roll-in mixture；不能把本次 $n\le4$ 的 exact coverage 外推成普遍免费。
+现有 marginal regression 可以直接使用 $(S,j,\Delta_j(S))$，而不先平均成 $G^{(B)}_j$。候选损失为：
 
 $$
 L=L_{\mathrm{marginal}}
@@ -241,14 +243,15 @@ trajectory/app 层先划分，同一 decision state 的所有 coalitions/edges �
 
 1. Synthetic 四类 set function：additive、redundant、complementary、mixed/non-monotone；验证符号、停止规则、
    greedy failure case 与 exact oracle。
-2. 在允许的 label-train/development states 上按全部前缀 cardinalities 和冻结 roll-in mixture 生成 conditional
-   edges；当前 $N=4$ 时优先 exact enumeration，同时模拟 $K=4/16$ sampled labels。
-3. 固定 encoder、loss weights、interaction strata、提前停止阈值与是否启用 pair seed。
-4. 冻结新的 versioned contract 后，才允许在 untouched confirm 上比较上述 gate。
+2. 在已经闭合的 v2.2 label-train/development tables 上，先比较 exact subset、true conditional greedy、
+   budget-conditioned independent score 与 full-path Shapley score；只有 objective-projection gap 有稳定规模才保留
+   set-conditioned 主线。
+3. 固定 encoder、loss weights、edge weighting、interaction strata、提前停止阈值与是否启用 pair seed。
+4. 冻结新的 versioned gate contract 后，才允许训练 student；untouched confirm 的开放仍需单独 admission。
 5. 只有 offline oracle 与 distilled gate 均通过预注册 gate，才进入 closed-loop。
 
-当前 v2.1 substrate 已按 exact-coordinate stability gate 判 NO-GO，所以步骤 2--5 目前都未授权。必须先独立完成
-新的 executable/UI-element equivalence substrate contract；本 ablation 文档不能替代该 gate。
+v2.2-eager substrate 和 exact labels 已闭合，但步骤 3--5 仍未授权；selector geometry 只是 gate-contract 的前置
+method-shaping analysis，不能替代该 gate。
 
 ## 论文可用表述
 

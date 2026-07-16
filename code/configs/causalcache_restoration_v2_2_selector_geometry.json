@@ -1,0 +1,348 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "causalcache_restoration_v2_2_selector_geometry_v1",
+  "preregistration_status": "source_only_frozen_before_selector_geometry_reduction_or_policy_vision_feature_extraction",
+  "authorization": {
+    "policy_free_selector_geometry_allowed": true,
+    "restoration_teacher_forward_allowed": false,
+    "new_kl_measurement_allowed": false,
+    "gate_training_allowed": false,
+    "matched_nll_allowed": false,
+    "closed_loop_allowed": false,
+    "confirm_access_allowed": false,
+    "sealed_test_access_allowed": false,
+    "policy_vision_feature_extraction_allowed_in_this_stage": false,
+    "policy_vision_requires_separate_feature_only_source_freeze": true
+  },
+  "immutable_inputs": {
+    "restoration_labels": {
+      "binding_path": "data/results/restoration_v2_2_eager_labels_v2/artifact.json",
+      "binding_sha256": "de2960a73399327871a6472315d543b3de60ce2ad13136166ce5bbeb609f1777",
+      "summary_path": "data/results/restoration_v2_2_eager_labels_v2/summary.json",
+      "summary_sha256": "0bacfe08b487e9ddc37a7214dde6d3b8e8f4b6523f64d0b420731655ddd2ffa0",
+      "attempt_id": "restoration-v2-2-eager-labels-v2",
+      "attempt_revision": "v2_preclaim_repair",
+      "required_status": "VERIFIED_RESTORATION_V2_2_EAGER_LABEL_ARTIFACT",
+      "required_outcome": "PASS_RESTORATION_V2_2_EAGER_LABELS_V2",
+      "hf_repo": "gavinlaw/causalcache-restoration-labels-mobile",
+      "hf_revision": "8f6baae5c0b23b08915fa1b0fb848dd519b4c8db",
+      "hf_tag": "v2.2-eager-train-dev-exact-v2",
+      "hf_path": "raw/v2.2-eager-train-dev-exact-v2.tar",
+      "raw_archive_sha256": "99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e",
+      "raw_archive_size_bytes": 3747840,
+      "raw_archive_file_count": 101,
+      "raw_tree_inventory_sha256": "c5104594b0741810f3d49d007a63a74f16ee4236dd137d1dea92b9373065c45f",
+      "source_git_commit": "5ae40d4aed4eb20b931216776b379bc6ae55629d",
+      "run_contract_sha256": "b78ca1e70652c7eef68efc3472adf78cec4510e507a0c00cfcee2c2cf05285d9"
+    },
+    "derived_dataset": {
+      "binding_path": "data/manifests/restoration_v2_derived_artifact.json",
+      "binding_sha256": "1f155a90af33da21947c89ac12f30f873f18e15e4efc82e5759f648114f25f7c",
+      "required_status": "hf_immutable_verified_two_materializations_and_three_exact_replays_passed",
+      "hf_repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "hf_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+      "hf_tag": "restoration-v2-derived-v1.0.0",
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "trajectory_count": 35,
+      "state_count": 65,
+      "event_count": 175,
+      "image_member_count": 210,
+      "ocr_record_count": 210
+    },
+    "visual_baseline_identity": {
+      "binding_path": "data/manifests/restoration_v2_baselines.json",
+      "binding_sha256": "bd6f4d620d02bde478bf765c6fa3605bb86e20ebf449e999654e7a6766ba5710",
+      "artifact_id": "causalcache-restoration-v2-baselines-v1",
+      "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+      "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+    }
+  },
+  "analysis_denominator": {
+    "fixed_state_count": 45,
+    "fixed_trajectory_count": 15,
+    "states_per_trajectory": 3,
+    "role_state_counts": {
+      "v2_label_train": 30,
+      "v2_development": 15
+    },
+    "role_trajectory_counts": {
+      "v2_label_train": 10,
+      "v2_development": 5
+    },
+    "candidate_event_count_histogram": {
+      "2": 15,
+      "3": 15,
+      "4": 15
+    },
+    "decision_step_histogram": {
+      "4": 15,
+      "5": 15,
+      "6": 15
+    },
+    "candidate_count_identity": "n_equals_decision_step_id_minus_2",
+    "canonical_scientific_truth": "raw_complete_power_set_D_of_S",
+    "raw_distance_row_count": 420,
+    "confirm_state_count": 0,
+    "sealed_test_state_count": 0
+  },
+  "normalization": {
+    "utility": "D_empty_minus_D_S",
+    "epsilon": 1e-12,
+    "normalized_recovery": "utility_divided_by_D_empty_when_D_empty_gt_epsilon_else_null",
+    "negative_utility_clamped": false,
+    "negative_marginal_clamped": false,
+    "state_weighting": "equal_within_each_reported_stratum",
+    "trajectory_is_the_inference_unit": true
+  },
+  "analysis_grid": {
+    "primary_setting": {
+      "candidate_event_count": 4,
+      "decision_step_id": 6,
+      "budget_event_capacity": 2,
+      "compression_ratio": 0.5,
+      "required_role_reports": [
+        "v2_label_train",
+        "v2_development"
+      ]
+    },
+    "candidate_event_counts": [
+      2,
+      3,
+      4
+    ],
+    "decision_step_ids": [
+      4,
+      5,
+      6
+    ],
+    "budget_curve": {
+      "per_state_integer_range": "0_through_n_inclusive",
+      "budgets_are_event_slot_capacities": true,
+      "report_by_candidate_count_and_role": true,
+      "n_equals_2_B_equals_2_is_sanity_ceiling": true,
+      "n_greater_than_or_equal_to_3_B_equals_2_is_hard_case_aggregate": true
+    }
+  },
+  "selectors": {
+    "exact_subset_oracle": {
+      "eligible_coalitions": "all_S_with_cardinality_at_most_B",
+      "allows_early_stop": true,
+      "objective": "minimum_D_S",
+      "tie_epsilon": 0.0,
+      "tie_break": [
+        "lower_D_S",
+        "smaller_cardinality",
+        "lexicographically_smaller_sorted_event_step_ids"
+      ]
+    },
+    "exact_cardinality_oracle": {
+      "role": "forced_fill_nonmonotonicity_sensitivity",
+      "eligible_coalitions": "all_S_with_cardinality_exactly_B",
+      "objective": "minimum_D_S",
+      "tie_break": "lexicographically_smaller_sorted_event_step_ids"
+    },
+    "true_conditional_marginal_greedy": {
+      "initial_coalition": [],
+      "marginal_gain": "D_S_minus_D_S_union_j",
+      "candidate_rescoring_after_every_selection": true,
+      "selection": "maximum_true_conditional_marginal_gain",
+      "event_tie_break": "lower_event_step_id",
+      "continue_condition": "strict_gain_greater_than_0_and_cardinality_less_than_B",
+      "allows_early_stop": true
+    },
+    "forced_fill_true_conditional_marginal_greedy": {
+      "role": "early_stop_sensitivity",
+      "selection": "maximum_true_conditional_marginal_gain_recomputed_after_every_selection",
+      "event_tie_break": "lower_event_step_id",
+      "stop_condition": "cardinality_equals_B_even_if_gain_is_nonpositive"
+    },
+    "budget_conditioned_independent": {
+      "role": "primary_independent_objective_projection_baseline",
+      "event_score": "mean_true_marginal_over_all_base_coalitions_of_cardinality_B_minus_1_that_exclude_event",
+      "budget_zero_rule": "all_scores_zero_and_select_empty",
+      "score_uses_only_same_state_D_table": true,
+      "selection": "up_to_B_strictly_positive_scores",
+      "score_tie_break": "lower_event_step_id",
+      "selected_coalition_serialization": "chronological_sorted_event_step_ids",
+      "allows_early_stop": true
+    },
+    "forced_fill_budget_conditioned_independent": {
+      "role": "early_stop_sensitivity",
+      "score_source": "same_budget_conditioned_independent_scores",
+      "selection": "exactly_B_highest_additive_score_events",
+      "score_tie_break": "lower_event_step_id"
+    },
+    "full_shapley_independent": {
+      "role": "secondary_independent_ablation",
+      "event_score": "exact_uniform_average_of_predecessor_marginals_over_all_n_factorial_permutations",
+      "selection": "up_to_B_strictly_positive_scores",
+      "score_tie_break": "lower_event_step_id",
+      "allows_early_stop": true
+    },
+    "forced_fill_full_shapley_independent": {
+      "role": "early_stop_sensitivity",
+      "score_source": "same_full_shapley_independent_scores",
+      "selection": "exactly_B_highest_additive_score_events",
+      "score_tie_break": "lower_event_step_id"
+    },
+    "dynamic_recent": {
+      "selection": "last_min_B_n_chronological_candidate_event_step_ids",
+      "exact_cardinality": "min_B_n",
+      "allows_early_stop": false
+    },
+    "uniform_random_exact_expectation": {
+      "selection_domain": "all_exact_k_subsets_where_k_equals_min_B_n",
+      "aggregation": "arithmetic_mean_of_actual_normalized_recovery_within_state",
+      "sampled": false,
+      "seed": null,
+      "allows_early_stop": false
+    },
+    "ocr_and_rgb_similarity": {
+      "scope": "n_equals_4_B_equals_2_only",
+      "selection": "top_2_by_frozen_similarity_then_lower_event_step_id",
+      "requires_immutable_derived_dataset": true,
+      "new_policy_forward_required": false
+    },
+    "frozen_policy_vision_similarity": {
+      "scope": "n_equals_4_B_equals_2_only",
+      "selection": "top_2_by_frozen_similarity_then_lower_event_step_id",
+      "feature": "mean_L2_normalized_final_main_vision_merger_pooler_output",
+      "language_model_called": false,
+      "generation_called": false,
+      "embedding_cache_present_in_labels_or_derived_artifact": false,
+      "execution": "separate_feature_only_stage_after_its_own_source_freeze"
+    }
+  },
+  "primary_metrics": {
+    "per_selector": [
+      "trajectory_weighted_mean_actual_utility",
+      "trajectory_weighted_mean_normalized_recovery",
+      "trajectory_weighted_recovery_ratio_of_means_to_exact_subset_oracle",
+      "exact_coalition_match_rate",
+      "selected_cardinality_histogram"
+    ],
+    "paired_gaps": {
+      "search_gap": "exact_subset_oracle_minus_true_conditional_marginal_greedy",
+      "objective_projection_gap": "true_conditional_marginal_greedy_minus_budget_conditioned_independent",
+      "full_shapley_projection_gap": "true_conditional_marginal_greedy_minus_full_shapley_independent"
+    },
+    "aggregation_order": "state_equal_within_trajectory_then_trajectory_equal_within_reported_stratum",
+    "ratio_definition": "trajectory_weighted_mean_selector_recovery_divided_by_trajectory_weighted_mean_exact_recovery",
+    "utility_ratio_zero_denominator_rule": "null_when_trajectory_weighted_mean_exact_recovery_is_at_most_epsilon",
+    "per_state_ratio_is_primary": false,
+    "per_state_nonpositive_exact_ratio_rule": "null_and_excluded_from_any_secondary_ratio_summary",
+    "score_sum_may_replace_actual_set_utility": false
+  },
+  "interaction_analysis": {
+    "pair_interaction": "Delta_i_S_union_j_minus_Delta_i_S",
+    "pair_interaction_equivalent": "D_S_union_j_minus_D_S_union_i_j_minus_D_S_plus_D_S_union_i",
+    "per_state_metrics": [
+      "positive_interaction_count",
+      "negative_interaction_count",
+      "mean_absolute_interaction",
+      "normalized_mean_absolute_interaction",
+      "redundancy_share",
+      "strict_negative_deployment_marginal_count_and_rate",
+      "epsilon_1e12_negative_deployment_marginal_count_and_rate"
+    ],
+    "normalized_interaction_mass": "mean_abs_pair_interactions_divided_by_max_D_empty_epsilon",
+    "strength_strata": {
+      "cutpoint_source": "v2_label_train_tertiles_computed_separately_within_each_candidate_event_count",
+      "development_application": "apply_frozen_train_cutpoints_within_matching_candidate_event_count",
+      "labels": [
+        "low",
+        "mid",
+        "high"
+      ]
+    },
+    "required_selector_reports_by": [
+      "role",
+      "candidate_event_count",
+      "budget",
+      "interaction_strength_stratum",
+      "has_strict_negative_deployment_marginal"
+    ]
+  },
+  "uncertainty": {
+    "method": "paired_cluster_bootstrap",
+    "resampling_unit": "trajectory_id",
+    "replicate_count": 10000,
+    "seed": 271828,
+    "confidence_level": 0.9,
+    "interval": "percentile",
+    "quantiles": [
+      0.05,
+      0.95
+    ],
+    "pairing": "reuse_identical_sampled_trajectory_multiplicities_for_all_selectors_in_a_comparison",
+    "role_handling": "resample_trajectories_with_replacement_within_role_and_keep_all_eligible_states",
+    "primary_inference_role": "v2_development",
+    "training_role_is_descriptive": true
+  },
+  "internal_method_shaping": {
+    "paper_claim_gate": false,
+    "confirm_unlock_gate": false,
+    "set_conditioning_materiality": {
+      "scope": "v2_development_n_equals_4_B_equals_2",
+      "green_minimum_mean_normalized_recovery_advantage_over_budget_conditioned_independent": 0.05,
+      "green_minimum_same_direction_trajectory_count_out_of_5": 4,
+      "paired_90_percent_bootstrap_lower_bound_must_exceed": 0.0,
+      "green_requires_all_conditions": true
+    },
+    "set_conditioning_yellow_band": {
+      "definition": "neither_green_nor_independent_simplification"
+    },
+    "independent_simplification": {
+      "maximum_mean_normalized_recovery_advantage_for_simplification": 0.01
+    },
+    "greedy_search_sufficiency": {
+      "scope": "v2_development_n_equals_4_B_equals_2",
+      "green_minimum_mean_true_greedy_to_exact_recovery_ratio": 0.9,
+      "green_maximum_mean_normalized_recovery_search_gap": 0.05,
+      "strong_diagnosis_ratio_strictly_less_than": 0.85,
+      "strong_diagnosis_gap_strictly_greater_than": 0.1,
+      "intermediate_region": "yellow",
+      "strong_diagnosis_action": "add_existing_swap_and_beam_only_as_train_development_offline_diagnostics"
+    },
+    "visual_baseline_requirement": {
+      "scope": "n_equals_4_B_equals_2",
+      "required_before_gate_training_claims": true,
+      "policy_vision_result_not_required_for_policy_free_core_reduction": true
+    },
+    "decision_labels": {
+      "set_conditioned_main_candidate": "green_materiality_passes",
+      "dual_architecture_ablation_required": "yellow_materiality",
+      "prefer_independent_gate": "independent_simplification_applies",
+      "online_greedy_sufficient": "greedy_search_sufficiency_green",
+      "search_gap_yellow": "greedy_search_sufficiency_intermediate",
+      "search_gap_requires_strong_diagnosis": "greedy_search_strong_diagnosis"
+    }
+  },
+  "operation_ceiling": {
+    "policy_free_reducer_runs_unbounded_but_deterministic": true,
+    "restoration_teacher_forward_count": 0,
+    "kl_measurement_count": 0,
+    "generation_count": 0,
+    "gate_training_example_count": 0,
+    "gate_model_forward_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0,
+    "confirm_state_access_count": 0,
+    "sealed_test_state_access_count": 0,
+    "policy_vision_feature_forward_count": 0
+  },
+  "future_policy_vision_stage": {
+    "input_scope": "label_train_and_development_n_equals_4_B_equals_2_images",
+    "expected_unique_image_upper_bound": 75,
+    "cache_must_bind_image_sha_model_revision_extractor_source_and_tensor_schema": true,
+    "feature_only_no_language_model_or_generation": true,
+    "must_not_read_confirm_or_test": true
+  },
+  "output_contract": {
+    "canonical_result_directory": "data/results/restoration_v2_2_selector_geometry_v1",
+    "raw_labels_or_images_copied_to_git": false,
+    "result_must_bind_input_revisions_and_contract_sha256": true,
+    "result_status_before_execution": "not_generated"
+  }
+}

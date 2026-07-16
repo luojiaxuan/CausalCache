@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry source freeze in progress / confirm locked
 
 ## 团队交接入口
 
@@ -16,6 +16,13 @@ policy output 前冻结，SHA256 为
 go/no-go 阈值见 [`docs/restoration_v2.md`](docs/restoration_v2.md)。第一次固定 development screening 已产生
 45 个 v2 native policy outputs，但 strict parse 为 0/45，因此没有 teacher forward、KL、restoration label、
 gate checkpoint 或方法效果结果；confirm 仍 locked。
+
+当前最靠前的有效里程碑是 v2.2 exact labels：30 个 label-train + 15 个 development states 已得到完整
+420-row $D(S)$ table、435 条部署可达 conditional edges 与 exact-subset oracle，raw artifact 已绑定 private HF
+immutable revision。训练 gate 前先执行
+[`docs/restoration_v2_2_selector_geometry.md`](docs/restoration_v2_2_selector_geometry.md) 的 policy-free geometry：
+把 `n=2,B=2` ceiling 与 `n=4,B=2` primary compression 分开，并分别测量 exact-to-greedy search gap 与
+greedy-to-independent objective-projection gap。该步骤不读取 confirm/test，也不运行新 policy forward。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -559,7 +566,8 @@ $$
 - [x] formal v1 attempt 按 contract 永久封存为 zero-forward `INVALID`；根因是 model snapshot existence 校验晚于 durable claim，而非 restoration estimand 结果；
 - [x] 冻结 replacement v2 attempt identity、独立 outcome/HF path 与 pre-claim model snapshot validator；
 - [x] 在固定双 H200 23/22 parity、microbatch 1 下完成 v2 formal labels，并闭合 private HF immutable artifact；
-- [ ] 冻结 set-conditioned gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
+- [ ] 冻结并执行 v2.2 selector geometry；主切片为 `n=4,B=2`，先验证 set conditioning 是否真的缩小 objective-projection gap；
+- [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -593,6 +601,9 @@ $$
 - Restoration v2.2 label artifact manager: [`code/scripts/manage_restoration_v2_2_label_artifact.py`](code/scripts/manage_restoration_v2_2_label_artifact.py)
 - Restoration v2.2 label v1 zero-forward failure: [`data/results/restoration_v2_2_eager_labels_v1_attempt/`](data/results/restoration_v2_2_eager_labels_v1_attempt/)
 - Restoration v2.2 label v2 canonical result: [`data/results/restoration_v2_2_eager_labels_v2/`](data/results/restoration_v2_2_eager_labels_v2/)
+- Restoration v2.2 selector-geometry protocol: [`docs/restoration_v2_2_selector_geometry.md`](docs/restoration_v2_2_selector_geometry.md)
+- Restoration v2.2 selector-geometry machine-readable contract: [`code/configs/causalcache_restoration_v2_2_selector_geometry.json`](code/configs/causalcache_restoration_v2_2_selector_geometry.json)
+- Restoration v2.2 selector-geometry validator: [`code/scripts/validate_restoration_v2_2_selector_geometry_contract.py`](code/scripts/validate_restoration_v2_2_selector_geometry_contract.py)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)
@@ -717,7 +728,7 @@ $$
 | Restoration v2.1 full-45 substrate trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile> | `v2.1-full-45-substrate-v1` / `814506ef1450838d4bc6ed3d89fe53e0773d92fb`，private | 45/45 parse、32/45 exact repeat agreement、32 memory-sensitive；`NO_GO_V2_1_FULL_45_SUBSTRATE`；raw USTAR SHA256 `8cd53d6e...f4fa4`、962,560 bytes；fresh immutable download verified |
 | Spatial reference audit trace | <https://huggingface.co/datasets/gavinlaw/causalcache-spatial-reference-audit-mobile> | `spatial-reference-audit-v1` / `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，private | auto 7/13、eager 13/13、FP32 4/4 descriptive；`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR SHA256 `d62ad05f...e5ecc`；fresh immutable canonical rebuild verified |
 | Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | `v2.2-eager-full-45-substrate-v1` / `3577099d505b8c652d764f41269df911128ec767`，private | 45/45 parse/repeat/finite logits、45 memory-sensitive；`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw USTAR SHA256 `b22827e6...09fb5`、fresh immutable download verified |
-| Restoration v2.2 exact labels（v2 planned） | `gavinlaw/causalcache-restoration-labels-mobile` | tag `v2.2-eager-train-dev-exact-v2`；repo/artifact not created | v1 zero-forward `INVALID`；v2 pre-claim repair source frozen，预期 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals 尚未生成 |
+| Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent

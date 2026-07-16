@@ -817,3 +817,40 @@ Transformers source。missing path、wrong basename、symlink、partial shard �
 worker rebuild、state/worker/global terminal、aggregate、USTAR prefix 与 artifact manifest 全部按 v1/v2 profile
 验证，避免 replacement 结果泄漏 v1 identity。完整回归 580 tests PASS（skipped 11），targeted repair/runner/
 artifact tests 21/21 PASS，`compileall` 与 `git diff --check` 通过；formal v2 GPU attempt 尚未运行。
+
+## Restoration v2.2 selector geometry
+
+45-state v2 replacement label run 已完成并上传 private HF immutable artifact。训练 gate 前先运行独立的
+policy-free selector geometry；machine-readable contract 是
+`configs/causalcache_restoration_v2_2_selector_geometry.json`，SHA256 为
+`8022dcdec272916b7975d696a3ce6b54022c7414cd348a715c55b0d3d694dad5`。source-only validator：
+
+```bash
+cd /absolute/path/to/CausalCache/code
+python3 -m scripts.validate_restoration_v2_2_selector_geometry_contract \
+  --contract configs/causalcache_restoration_v2_2_selector_geometry.json \
+  --repository-root ..
+```
+
+本分析固定 45 states / 15 trajectories，逐 `n=2/3/4` 报告 `B=0..n`；primary slice 是
+`n=4,B=2`，`n=2,B=2` 只作无压缩 ceiling。selector matrix 包含 exact at-most-B、true conditional greedy、
+budget-conditioned independent、full-path Shapley independent、dynamic recent、analytic random，以及
+exact-cardinality/forced-fill sensitivity。统计先在 trajectory 内等权，再让 trajectory 等权；paired bootstrap
+固定 10,000 次、seed 271828、90% percentile interval。
+
+本阶段只读取 immutable raw $D(S)$ 并做 CPU reduction；policy/generation/teacher/KL、gate training、matched-NLL、
+closed-loop、confirm/test access 和 policy-vision feature forward 均固定为 0。OCR/RGB 与 policy-vision baseline
+只允许在 primary slice 的后续独立 feature stage 中加入，policy-vision 还必须先做新的 feature-only source freeze。
+
+source commit push 后运行：
+
+```bash
+python3 -m scripts.run_restoration_v2_2_selector_geometry run \
+  --repository-root /absolute/path/to/CausalCache \
+  --contract /absolute/path/to/CausalCache/code/configs/causalcache_restoration_v2_2_selector_geometry.json \
+  --labels-archive /fresh/immutable/raw/v2.2-eager-train-dev-exact-v2.tar \
+  --source-git-commit <CLEAN_PUSHED_MAIN_SHA> \
+  --output-dir /absolute/path/to/CausalCache/data/results/restoration_v2_2_selector_geometry_v1
+```
+
+result commit/push 后把 subcommand 改为 `validate`，会从 raw table 重算并逐 byte 验证三份 Git result files。

@@ -11,8 +11,10 @@ USTAR 与 private HF immutable revision 已完成 fresh-download 复核。restor
 preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replacement v2 已完成 45/45 states，并闭合
 420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
 HF immutable artifact。当前已有 offline teacher labels 和 oracle 上界，但仍没有 learned gate checkpoint、
-matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一步先冻结独立的 set-conditioned
-gate-training/evaluation contract；confirm 和 AndroidWorld sealed test split 仍保持 locked。
+matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一步不是直接训练 set-conditioned gate，而是
+先冻结并运行 selector geometry：把 `n=2,B=2` ceiling 与 `n=4,B=2` primary compression 分开，测量
+exact-to-greedy search gap 和 greedy-to-independent objective-projection gap，再据此决定 student contract。
+confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
 
@@ -1629,13 +1631,36 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - Git compact result 位于 `data/results/restoration_v2_2_eager_labels_v2/`。当前只闭合 offline oracle/labels；
   gate checkpoint、matched-NLL pairs、closed-loop episodes 和 confirm artifact 均不存在，confirm 保持 locked。
 
+### 2026-07-16：Restoration v2.2 selector-geometry source freeze
+
+- 新增 machine-readable contract
+  `code/configs/causalcache_restoration_v2_2_selector_geometry.json`，SHA256 为
+  `8022dcdec272916b7975d696a3ce6b54022c7414cd348a715c55b0d3d694dad5`；它绑定 exact-label raw
+  `8f6baae5...`、derived dataset `89f136ab...` 与既有 baseline formula identity；
+- 主切片固定为 decision step 6 / `n=4,B=2`，step 5 / `n=3,B=2` 为 secondary，step 4 /
+  `n=2,B=2` 明确只作无压缩 ceiling；budget curve 按 n 分开报告 `B=0..n`；
+- selector 固定为 exact at-most-B、true conditional greedy、budget-conditioned independent、full-path Shapley
+  independent、recent 和 analytic exact-cardinality random，并增加 exact-cardinality 与三类 forced-fill
+  non-monotonicity sensitivity；actual $U(S)$ 是唯一评价值，score sum 不能替代；
+- 统计单位固定为 trajectory：train/development 分别整块 bootstrap，overall 按 split 分层，10,000 次、seed
+  271828、90% percentile interval。primary 分开报告 search gap 与 objective-projection gap；interaction strength
+  使用 `mean(abs(I))/D(empty)`，只从 train 按 n 取 tertiles，再应用 development；
+- 内部 method-shaping 规则已在读取 selector aggregate 前固定：set-conditioning green 需要 development primary
+  gap 至少 0.05、至少 4/5 trajectories 同方向且 bootstrap lower bound 大于 0；gap 不超过 0.01 时优先
+  independent；search 则分 green/yellow/strong-diagnosis 三档。它们都不是 paper success 或 confirm unlock gate；
+- 本里程碑只实现 contract、policy-free reducer primitives、统计与 tests。新 policy/generation/teacher/KL、gate
+  training、matched-NLL、closed-loop、confirm/test 和 policy-vision feature forward 均为 0；正式 table aggregate
+  只能从本 source push 后生成。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
-offline oracle/labels 与 private HF immutable artifact 已闭合。下一步先冻结独立的 set-conditioned gate-training 与
-evaluation contract，明确 train/development 使用、conditional-edge sampling、set encoder、greedy/search baselines、
-checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate，再开始任何训练或效果评估。confirm 与
-AndroidWorld sealed test split 仍 locked；新 contract 通过前不得直接运行 gate、matched-NLL、closed-loop 或读取
-confirm/test。
+offline oracle/labels 与 private HF immutable artifact 已闭合。下一步先完成
+`docs/restoration_v2_2_selector_geometry.md` 的 policy-free table reduction，再补齐 primary `n=4,B=2` 的
+OCR/RGB 与 vision-only similarity baselines。只有 geometry 明确 objective-projection gap 后，才冻结
+set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
+sampling、encoder、checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate。confirm 与
+AndroidWorld sealed test split 仍 locked；新 gate contract 通过前不得直接运行 gate、matched-NLL、closed-loop
+或读取 confirm/test。
