@@ -43,6 +43,15 @@ from causalcache.restoration_v2_baselines import CANDIDATE_EVENT_STEP_IDS
 GUI_OWL_V2_2_VISION_RUNTIME_ID = (
     "causalcache_restoration_v2_2_policy_vision_feature_only_runtime"
 )
+GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID = (
+    "causalcache_restoration_v2_2_policy_vision_feature_only_runtime_"
+    "uuid_type_only_v2"
+)
+GPU_UUID_TYPE_PROFILE_V1 = "cuda_device_property_uuid_str_bytes_v1"
+GPU_UUID_TYPE_PROFILE_V2 = "cuda_device_property_uuid_torch_c_cuuuid_v2"
+GPU_UUID_TYPE_PROFILES = frozenset(
+    {GPU_UUID_TYPE_PROFILE_V1, GPU_UUID_TYPE_PROFILE_V2}
+)
 GUI_OWL_V2_2_VISION_IMAGE_COUNT = 5
 GUI_OWL_V2_2_VISION_MAX_FEATURE_REPEATS = 2
 GUI_OWL_V2_2_VISION_IMAGE_PROCESSOR_CLASS = "Qwen2VLImageProcessor"
@@ -73,13 +82,47 @@ def _json_copy(value: Mapping[str, Any]) -> dict[str, Any]:
     return decoded
 
 
-def _canonical_gpu_uuid(value: Any) -> str:
-    if isinstance(value, bytes):
+def _runtime_profile_id(gpu_uuid_type_profile: str) -> str:
+    if gpu_uuid_type_profile == GPU_UUID_TYPE_PROFILE_V1:
+        return GUI_OWL_V2_2_VISION_RUNTIME_ID
+    if gpu_uuid_type_profile == GPU_UUID_TYPE_PROFILE_V2:
+        return GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID
+    raise ValueError("GPU UUID type profile is not frozen")
+
+
+def _canonical_gpu_uuid(
+    value: Any,
+    *,
+    gpu_uuid_type_profile: str = GPU_UUID_TYPE_PROFILE_V1,
+    loaded_torch_c_cuuuid_type: type[Any] | None = None,
+) -> str:
+    _runtime_profile_id(gpu_uuid_type_profile)
+    if gpu_uuid_type_profile == GPU_UUID_TYPE_PROFILE_V1:
+        if isinstance(value, bytes):
+            try:
+                value = value.decode("ascii")
+            except UnicodeDecodeError as error:
+                raise ValueError("GPU UUID bytes must be ASCII") from error
+        if not isinstance(value, str):
+            raise ValueError("v1 GPU UUID must be str or bytes")
+    else:
+        if not isinstance(loaded_torch_c_cuuuid_type, type):
+            raise ValueError("v2 GPU UUID requires the loaded torch._C._CUuuid type")
+        value_type = type(value)
+        if value_type is not loaded_torch_c_cuuuid_type:
+            raise ValueError(
+                "v2 GPU UUID must have the exact loaded torch._C._CUuuid type"
+            )
+        if (
+            value_type.__module__ != "torch._C"
+            or value_type.__name__ != "_CUuuid"
+        ):
+            raise ValueError("v2 GPU UUID must have the exact torch._C._CUuuid type")
         try:
-            value = value.decode("ascii")
-        except UnicodeDecodeError as error:
-            raise ValueError("GPU UUID bytes must be ASCII") from error
-    if not isinstance(value, str) or not value.strip():
+            value = str(value)
+        except BaseException as error:
+            raise ValueError("torch GPU UUID could not be converted to string") from error
+    if not value.strip():
         raise ValueError("GPU UUID must be a non-empty string")
     normalized = value.strip()
     if normalized.lower().startswith("gpu-"):
@@ -134,10 +177,26 @@ def _validated_gpu_identity(
     torch: Any,
     device: Any,
     expected_gpu_uuid: str,
+    gpu_uuid_type_profile: str,
 ) -> dict[str, Any]:
     expected = _canonical_gpu_uuid(expected_gpu_uuid)
     properties = torch.cuda.get_device_properties(device)
-    observed = _canonical_gpu_uuid(getattr(properties, "uuid", None))
+    observed_value = getattr(properties, "uuid", None)
+    exact_uuid_type = None
+    if gpu_uuid_type_profile == GPU_UUID_TYPE_PROFILE_V2:
+        torch_c = getattr(torch, "_C", None)
+        exact_uuid_type = getattr(torch_c, "_CUuuid", None)
+        if not isinstance(exact_uuid_type, type):
+            raise RuntimeError("torch._C._CUuuid type is unavailable")
+        if type(observed_value) is not exact_uuid_type:
+            raise ValueError(
+                "v2 GPU UUID must have the exact loaded torch._C._CUuuid type"
+            )
+    observed = _canonical_gpu_uuid(
+        observed_value,
+        gpu_uuid_type_profile=gpu_uuid_type_profile,
+        loaded_torch_c_cuuuid_type=exact_uuid_type,
+    )
     if observed != expected:
         raise RuntimeError("selected CUDA device UUID differs from expected_gpu_uuid")
     identity = _nvidia_smi_gpu_identity(expected)
@@ -257,10 +316,12 @@ class GUIOwlV22VisionFeatureRuntime:
         expected_snapshot_manifest: str | Path,
         device: str,
         expected_gpu_uuid: str,
+        gpu_uuid_type_profile: str = GPU_UUID_TYPE_PROFILE_V1,
         target_effective_visual_tokens_per_image: int = (
             FROZEN_GUI_OWL_V2_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE
         ),
     ) -> None:
+        runtime_profile_id = _runtime_profile_id(gpu_uuid_type_profile)
         if re.fullmatch(r"cuda:[0-9]+", device) is None:
             raise ValueError("policy-vision runtime requires one explicit CUDA device")
         if (
@@ -296,6 +357,7 @@ class GUIOwlV22VisionFeatureRuntime:
             torch=torch,
             device=selected_device,
             expected_gpu_uuid=expected_gpu_uuid,
+            gpu_uuid_type_profile=gpu_uuid_type_profile,
         )
         numerical_controls = _configure_and_validate_numerical_controls(torch)
 
@@ -365,7 +427,7 @@ class GUIOwlV22VisionFeatureRuntime:
         self.metadata = _json_copy(
             {
                 **identity_metadata,
-                "runtime_profile_id": GUI_OWL_V2_2_VISION_RUNTIME_ID,
+                "runtime_profile_id": runtime_profile_id,
                 "dtype": FROZEN_GUI_OWL_V2_DTYPE,
                 "device": str(selected_device),
                 "frozen": True,

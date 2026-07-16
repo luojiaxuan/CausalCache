@@ -8,7 +8,10 @@ from unittest import mock
 
 import causalcache.policy.gui_owl_v2_2_vision_runtime as runtime_module
 from causalcache.policy.gui_owl_v2_2_vision_runtime import (
+    GPU_UUID_TYPE_PROFILE_V1,
+    GPU_UUID_TYPE_PROFILE_V2,
     GUI_OWL_V2_2_VISION_RUNTIME_ID,
+    GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
     GUIOwlV22VisionFeatureRuntime,
     _canonical_gpu_uuid,
     _nvidia_smi_gpu_identity,
@@ -19,6 +22,16 @@ from causalcache.restoration_v2_baselines import BaselineSelection
 
 class _FakeDType:
     pass
+
+
+class _CUuuid:
+    __module__ = "torch._C"
+
+    def __init__(self, value: str) -> None:
+        self.value = value
+
+    def __str__(self) -> str:
+        return self.value
 
 
 class _FakeDevice:
@@ -101,6 +114,7 @@ class _FakeTorch(types.ModuleType):
         self.float32 = _FakeDType()
         self.int64 = _FakeDType()
         self.cuda = _FakeCuda()
+        self._C = types.SimpleNamespace(_CUuuid=_CUuuid)
 
     def device(self, value: str) -> _FakeDevice:
         return _FakeDevice(value)
@@ -233,6 +247,7 @@ class GUIOwlV22VisionFeatureRuntimeTest(unittest.TestCase):
         self,
         *,
         pillow_version: str = "12.2.0",
+        gpu_uuid_type_profile: str = GPU_UUID_TYPE_PROFILE_V1,
     ) -> GUIOwlV22VisionFeatureRuntime:
         transformers = types.ModuleType("transformers")
         transformers.AutoImageProcessor = _FakeAutoImageProcessor
@@ -299,6 +314,7 @@ class GUIOwlV22VisionFeatureRuntimeTest(unittest.TestCase):
                 expected_snapshot_manifest="/manifest",
                 device="cuda:1",
                 expected_gpu_uuid="GPU-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE",
+                gpu_uuid_type_profile=gpu_uuid_type_profile,
             )
 
     @staticmethod
@@ -410,6 +426,85 @@ class GUIOwlV22VisionFeatureRuntimeTest(unittest.TestCase):
             },
         )
         self.assertEqual(run.call_args.kwargs["timeout"], 10)
+
+    def test_uuid_type_profiles_are_exact_and_default_remains_v1(self) -> None:
+        expected = "GPU-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        self.assertEqual(
+            _canonical_gpu_uuid(expected.upper()),
+            expected,
+        )
+        self.assertEqual(
+            _canonical_gpu_uuid(expected.encode("ascii")),
+            expected,
+        )
+        with self.assertRaisesRegex(ValueError, "v1 GPU UUID"):
+            _canonical_gpu_uuid(_CUuuid(expected))
+
+        self.assertEqual(
+            _canonical_gpu_uuid(
+                _CUuuid(expected.upper()),
+                gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+                loaded_torch_c_cuuuid_type=_CUuuid,
+            ),
+            expected,
+        )
+        for value in (expected, expected.encode("ascii"), object()):
+            with self.subTest(value_type=type(value)), self.assertRaises(ValueError):
+                _canonical_gpu_uuid(
+                    value,
+                    gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+                    loaded_torch_c_cuuuid_type=_CUuuid,
+                )
+        with self.assertRaisesRegex(ValueError, "UUID format"):
+            _canonical_gpu_uuid(
+                _CUuuid("not-a-gpu-uuid"),
+                gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+                loaded_torch_c_cuuuid_type=_CUuuid,
+            )
+
+        self.torch.cuda.uuid = _CUuuid(expected.upper())
+        runtime = self._construct(gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2)
+        self.assertEqual(runtime.metadata["gpu_uuid"], expected)
+        self.assertEqual(
+            runtime.metadata["runtime_profile_id"],
+            GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+        )
+
+    def test_uuid_v2_rejects_same_shape_spoof_and_wrong_loaded_type(self) -> None:
+        expected = "GPU-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        spoof_type = type(
+            "_CUuuid",
+            (),
+            {
+                "__module__": "torch._C",
+                "__str__": lambda _: expected,
+            },
+        )
+        with self.assertRaisesRegex(ValueError, "exact loaded torch"):
+            _canonical_gpu_uuid(
+                spoof_type(),
+                gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+                loaded_torch_c_cuuuid_type=_CUuuid,
+            )
+        with self.assertRaisesRegex(ValueError, "requires the loaded torch"):
+            _canonical_gpu_uuid(
+                _CUuuid(expected),
+                gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+            )
+        self.torch.cuda.uuid = spoof_type()
+        with self.assertRaisesRegex(ValueError, "exact loaded torch"):
+            self._construct(gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2)
+
+        self.setUp()
+        self.torch.cuda.uuid = _CUuuid(expected)
+        self.torch._C = types.SimpleNamespace()
+        with self.assertRaisesRegex(RuntimeError, "type is unavailable"):
+            self._construct(gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2)
+
+        self.setUp()
+        self.torch.cuda.uuid = expected
+        with self.assertRaisesRegex(ValueError, "exact loaded torch"):
+            self._construct(gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2)
 
     def test_constructor_rejects_pillow_gpu_or_image_processor_drift(self) -> None:
         with self.assertRaisesRegex(RuntimeError, "Pillow version"):

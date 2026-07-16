@@ -26,6 +26,7 @@ from scripts.run_restoration_v2_2_policy_vision_baseline import (
     _validate_runtime_metadata,
     _validate_source_unchanged,
     _write_new_result,
+    main,
 )
 
 
@@ -88,6 +89,27 @@ class _Executor:
 
 
 class RunRestorationV22PolicyVisionBaselineTest(unittest.TestCase):
+    def test_invalid_v1_run_is_tombstoned_before_any_input_or_gpu_access(self) -> None:
+        with patch(
+            "scripts.run_restoration_v2_2_policy_vision_baseline."
+            "_run_feature_workers",
+            side_effect=AssertionError("tombstoned v1 entered GPU path"),
+        ) as gpu_path, self.assertRaisesRegex(ValueError, "cannot be rerun"):
+            main(
+                [
+                    "run",
+                    "--repository-root",
+                    "/does-not-exist",
+                    "--contract",
+                    "/does-not-exist/v1.json",
+                    "--labels-archive",
+                    "/does-not-exist/labels.tar",
+                    "--source-git-commit",
+                    "a" * 40,
+                ]
+            )
+        gpu_path.assert_not_called()
+
     def test_workers_receive_two_shards_and_never_receive_labels(self) -> None:
         items = _work_items()
         with patch(

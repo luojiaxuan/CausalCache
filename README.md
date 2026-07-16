@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature `INVALID`、GPU UUID type-only v2 repair pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature `INVALID`、GPU UUID type-only v2 source frozen / confirm locked
 
 ## 团队交接入口
 
@@ -77,8 +77,16 @@ feature worker 不接收 (D(S))；GPU 前只验证 raw label archive 的 byte id
 才解析并 join labels。唯一 v1 formal attempt 因 PyTorch 返回 `torch._C._CUuuid`、而冻结 parser 只接受
 `str/bytes`，在 model/processor load 与 feature forward 前 zero-output fail closed，轻量证据见
 [`data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/`](data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/)。
-因此这里仍不报告任何 policy-vision recovery 或 comparator conclusion，也不解锁 gate/confirm；下一步先冻结
-GPU UUID type-only 的 versioned replacement。
+因此这里仍不报告任何 policy-vision recovery 或 comparator conclusion，也不解锁 gate/confirm。versioned v2
+repair contract 已冻结为
+[`code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json`](code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json)，
+SHA256 `23733169ef5ba60a84f4447080ef12e1893858aa375ff50d8d4e3595699e774e`。它只让 pinned
+PyTorch `2.11.0+cu130` 的真实 `torch._C._CUuuid` 经过 exact loaded-type identity 后转成字符串；原
+`str/bytes` v1 path、UUID regex、expected UUID、`nvidia-smi` 与 PCI binding、15-state denominator、31-forward
+schedule、feature/statistics contract 全部不变。v2 使用新 protocol/output identity，不能复用 v1 canonical
+path。v1 `run` 已 tombstone；v2 在 model/feature access 前以固定路径 `O_EXCL` durable ledger 锁定唯一 attempt，
+并要求 source commit 相对 failure commit 精确匹配冻结 changed-path inventory。source freeze 不能写成 comparator
+已通过；下一步是从 clean pushed `main` 在全新双 H200 容器完成唯一 formal run。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -632,7 +640,8 @@ $$
 - [x] 在 Hyper00 执行 OCR/RGB v2 aggregate、逐 byte replay与独立数值审计，并锁定 15-row artifact regression；
 - [x] 冻结 policy-vision feature-only source/config、双 H200 worker isolation 与 replay contract；
 - [x] 执行 policy-vision v1 formal attempt；在 0 feature 时因 pinned PyTorch UUID object type drift fail closed并留证；
-- [ ] 冻结并执行只修 `torch._C._CUuuid` normalization 的 policy-vision v2，再完成独立 CPU artifact audit；
+- [x] 冻结只修 `torch._C._CUuuid` normalization 的 policy-vision v2 source；v1 default 与 failure bytes 保持不变；
+- [ ] 执行 policy-vision v2 formal feature/replay/result，再完成 committed replay 与独立 CPU artifact audit；
 - [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -713,6 +722,9 @@ $$
 - Restoration-v2.2 policy-vision source contract: [`code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json`](code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json)
 - Restoration-v2.2 policy-vision source validator: [`code/scripts/validate_restoration_v2_2_policy_vision_contract.py`](code/scripts/validate_restoration_v2_2_policy_vision_contract.py)
 - Restoration-v2.2 policy-vision formal runner: [`code/scripts/run_restoration_v2_2_policy_vision_baseline.py`](code/scripts/run_restoration_v2_2_policy_vision_baseline.py)
+- Restoration-v2.2 policy-vision UUID repair contract: [`code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json`](code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json)
+- Restoration-v2.2 policy-vision UUID repair validator: [`code/scripts/validate_restoration_v2_2_policy_vision_v2_contract.py`](code/scripts/validate_restoration_v2_2_policy_vision_v2_contract.py)
+- Restoration-v2.2 policy-vision v2 formal runner: [`code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py`](code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py)
 - Restoration-v2.2 policy-vision reducer: [`code/causalcache/restoration_v2_2_policy_vision.py`](code/causalcache/restoration_v2_2_policy_vision.py)
 - Restoration-v2.2 policy-vision regressions: [`code/tests/test_restoration_v2_2_policy_vision.py`](code/tests/test_restoration_v2_2_policy_vision.py)、[`code/tests/test_run_restoration_v2_2_policy_vision_baseline.py`](code/tests/test_run_restoration_v2_2_policy_vision_baseline.py)
 - Restoration-v2.2 policy-vision v1 invalid attempt: [`data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/`](data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/)

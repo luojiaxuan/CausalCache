@@ -258,3 +258,68 @@ closed；轻量证据见
 [`../data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/`](../data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/)。
 同一 v1 不重试，必须先冻结只扩展 pinned UUID object normalization 的 versioned replacement。当前不能把本
 source freeze 写成 comparator 已通过，也不能据此开始 gate training。
+
+## 7. GPU UUID type-only v2 repair
+
+v2 overlay 位于
+`code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json`，SHA256 为
+`23733169ef5ba60a84f4447080ef12e1893858aa375ff50d8d4e3595699e774e`。它严格绑定 parent v1 contract、
+`main@a809a908207768759f6a15874aeac552a7fd5e08` 的 exact-two failure files、zero-feature failure stage 与 v1
+canonical/staging absent。v2 没有修改任何 comparator science，只新增显式 runtime profile：
+
+```text
+cuda_device_property_uuid_torch_c_cuuuid_v2
+```
+
+该 profile 必须从当前 loaded PyTorch 取得 `torch._C._CUuuid` type object，并要求
+`type(observed_value) is torch._C._CUuuid`；通过后只做 `str(value)`，再进入原 canonical UUID parser。仅伪造
+`__module__`/`__name__`、普通字符串、bytes、其他 object 或缺少 loaded type 都会 fail closed。UUID format、
+expected UUID、`nvidia-smi` exact-one-row、PCI bus ID 与 logical-device binding 不变。v1 默认 profile 仍只接受
+`str/bytes`，因此 repair 不是对 v1 source 的静默放宽。
+
+source-only validator：
+
+```bash
+cd /absolute/path/to/CausalCache/code
+python3 -m scripts.validate_restoration_v2_2_policy_vision_v2_contract \
+  --repository-root .. \
+  --contract configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json
+```
+
+正式执行必须重新做 GPU preflight，并创建全新 timestamp container；不得复用 v1 container 或 v1 output
+identity。其余 immutable paths、两个 logical GPU UUID 的顺序和宿主 evidence 规则继承第 6 节：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.run_restoration_v2_2_policy_vision_baseline_v2 run \
+  --repository-root /data/CausalCache \
+  --contract /data/CausalCache/code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json \
+  --labels-archive /data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar \
+  --derived-root /data/tmp/causalcache-restoration-labels-v2-derived \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --snapshot-manifest /data/CausalCache/code/configs/gui_owl_1_5_8b_snapshot.json \
+  --source-git-commit <V2_SOURCE_COMMIT> \
+  --expected-gpu-uuid <GPU_UUID_0> \
+  --expected-gpu-uuid <GPU_UUID_1> \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-hostname "$(hostname)" \
+  --container-name <NEW_SGLANG_OMNI_JAXAN_TIMESTAMP_NAME> \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --nvidia-driver-version 570.172.08 \
+  --host-evidence /data/tmp/policy-vision-v2-host-evidence.json \
+  --attempt-ledger /data/experiments/causalcache/restoration-v2-2-policy-vision-v2-gpu-uuid-repair-attempt.json \
+  --output-dir /data/CausalCache/data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair
+```
+
+runner 在所有 path/source/host/label-byte/derived/snapshot preflight 通过后、任何 model hash/load 或 feature forward
+之前，以 `O_CREAT|O_EXCL` 和 mode `0600` 创建上述固定 ledger，并 `fsync` 文件与父目录。ledger 一旦存在，
+同一 v2 protocol 永久拒绝第二次 claim；异常不得删除或换路径。v1 旧入口也已 tombstone，`run` 会在读取任何
+input 或进入 GPU path 前拒绝。
+
+v2 仍是一次 attempt、无 resume、失败不得同 protocol 静默重试。result 未生成前，`VALID_*_SOURCE_CONTRACT`
+只表示 repair 边界自洽；它不表示 feature replay、recovery、exact match 或任何 paper gate 已通过。result commit
+后只能从 clean descendant checkout 用同一个 `<V2_SOURCE_COMMIT>` 执行 `validate`，逐 byte 重建 exact-three
+artifact。这里的重建以 committed `state_scores.jsonl` 中记录的 feature rows、immutable labels 和 identity
+witness 为输入；CPU `validate` 不重新加载模型或重算 vision features。随后再做不 import 项目 reducer 的独立
+reducer/math 审计，二者都不能替代 formal GPU replay checks。

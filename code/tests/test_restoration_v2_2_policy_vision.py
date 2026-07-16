@@ -10,12 +10,22 @@ from collections import Counter
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+from unittest import mock
 
+import causalcache.policy.gui_owl_v2_2_vision_runtime as vision_runtime_module
+import causalcache.restoration_v2_2_policy_vision as policy_vision_module
+from causalcache.policy.gui_owl_v2_2_vision_runtime import (
+    GPU_UUID_TYPE_PROFILE_V1,
+    GPU_UUID_TYPE_PROFILE_V2,
+    GUI_OWL_V2_2_VISION_RUNTIME_ID,
+    GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+)
 from causalcache.restoration_v2_2_label_table import (
     validate_complete_distance_table,
 )
 from causalcache.restoration_v2_2_ocr_rgb import COMPARATOR_METHODS
 from causalcache.restoration_v2_2_policy_vision import (
+    DEFAULT_GPU_UUID_TYPE_PROFILE,
     EXPECTED_CANDIDATE_SCORE_COUNT,
     EXPECTED_DEVELOPMENT_COUNT,
     EXPECTED_STATE_COUNT,
@@ -28,6 +38,7 @@ from causalcache.restoration_v2_2_policy_vision import (
     feature_worker_shards,
     load_identity_witness,
     merge_policy_vision_workers,
+    run_policy_vision_worker,
     summarize_policy_vision_records,
     validate_feature_worker_provenance,
 )
@@ -379,6 +390,153 @@ class RestorationV22PolicyVisionTest(unittest.TestCase):
         feature = _feature_record(item, worker_id="even", scores=scores)
         self.assertEqual(feature["ranked_event_step_ids"], [1, 2, 3, 4])
         self.assertEqual(feature["selected_coalition"], [1, 2])
+
+    def test_worker_explicitly_propagates_uuid_profile_without_data_leakage(
+        self,
+    ) -> None:
+        expected_uuid = "GPU-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        constructor_calls: list[dict[str, Any]] = []
+
+        class FakeRuntime:
+            def __init__(self, **kwargs: Any) -> None:
+                constructor_calls.append(kwargs)
+                profile = kwargs["gpu_uuid_type_profile"]
+                runtime_profile_id = {
+                    GPU_UUID_TYPE_PROFILE_V1: GUI_OWL_V2_2_VISION_RUNTIME_ID,
+                    GPU_UUID_TYPE_PROFILE_V2: (
+                        GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID
+                    ),
+                }[profile]
+                self.metadata = {
+                    "gpu_uuid": expected_uuid,
+                    "runtime_profile_id": runtime_profile_id,
+                }
+                self.operation_counts = {
+                    "image_processor_batch_count": 0,
+                    "policy_vision_feature_forward_count": 0,
+                }
+                self.device = kwargs["device"]
+                self.torch = SimpleNamespace(
+                    cuda=SimpleNamespace(
+                        max_memory_allocated=lambda _: 1,
+                        max_memory_reserved=lambda _: 2,
+                    )
+                )
+
+            def score_five_images(
+                self,
+                images: Any,
+                *,
+                feature_repeats: int,
+            ) -> dict[str, Any]:
+                self.assert_five_images(images)
+                return {
+                    "scores_by_event_step": {
+                        "1": 0.9,
+                        "2": 0.8,
+                        "3": 0.7,
+                        "4": 0.6,
+                    },
+                    "ranked_event_step_ids": [1, 2, 3, 4],
+                    "selected_event_step_ids": [1, 2],
+                    "image_grid_thw": [[1, 2, 2]] * 5,
+                    "merged_token_counts": [1] * 5,
+                    "normalized_embedding_norm_range": {
+                        "minimum": 1.0,
+                        "maximum": 1.0,
+                    },
+                    "feature_repeats": feature_repeats,
+                    "same_device_replay": {
+                        "performed": feature_repeats == 2,
+                        "ranking_equal": True,
+                        "selection_equal": True,
+                        "max_abs_score_difference": 0.0,
+                    },
+                    "repeat_results": [{"repeat_index": 0}],
+                }
+
+            @staticmethod
+            def assert_five_images(images: Any) -> None:
+                if len(images) != 5:
+                    raise AssertionError("fake worker expected exactly five images")
+
+        item = self.work_items[0]
+        common = {
+            "worker_id": "even",
+            "device": "cuda:0",
+            "expected_gpu_uuid": expected_uuid.upper(),
+            "canonical_items": (item,),
+            "sentinel_item": None,
+            "derived_root": ROOT,
+            "derived_payload_prefix": "unused",
+            "expected_tar_member_count": 1,
+            "model_dir": ROOT,
+            "snapshot_manifest": ROOT / "unused.json",
+        }
+        payloads = {"one": b"payload"}
+        with (
+            mock.patch.object(
+                vision_runtime_module,
+                "GUIOwlV22VisionFeatureRuntime",
+                FakeRuntime,
+            ),
+            mock.patch.object(
+                policy_vision_module,
+                "extract_worker_image_payloads",
+                return_value=payloads,
+            ) as extract,
+            mock.patch.object(
+                policy_vision_module,
+                "decode_rgb_images",
+                return_value=(object(),) * 5,
+            ),
+            mock.patch.object(policy_vision_module, "close_images"),
+        ):
+            default_output = run_policy_vision_worker(**common)
+            v2_output = run_policy_vision_worker(
+                **common,
+                gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+            )
+
+        self.assertEqual(DEFAULT_GPU_UUID_TYPE_PROFILE, GPU_UUID_TYPE_PROFILE_V1)
+        self.assertEqual(
+            [call["gpu_uuid_type_profile"] for call in constructor_calls],
+            [GPU_UUID_TYPE_PROFILE_V1, GPU_UUID_TYPE_PROFILE_V2],
+        )
+        self.assertEqual(
+            default_output["runtime_metadata"]["runtime_profile_id"],
+            GUI_OWL_V2_2_VISION_RUNTIME_ID,
+        )
+        self.assertEqual(
+            v2_output["runtime_metadata"]["runtime_profile_id"],
+            GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+        )
+        self.assertEqual(extract.call_count, 2)
+        for call in extract.call_args_list:
+            self.assertEqual(call.kwargs["work_items"], (item,))
+            self.assertNotIn("gpu_uuid_type_profile", call.kwargs)
+
+    def test_worker_rejects_unknown_uuid_profile_before_reading_payloads(self) -> None:
+        item = self.work_items[0]
+        with mock.patch.object(
+            policy_vision_module,
+            "extract_worker_image_payloads",
+        ) as extract:
+            with self.assertRaisesRegex(ValueError, "profile is not frozen"):
+                run_policy_vision_worker(
+                    worker_id="even",
+                    device="cuda:0",
+                    expected_gpu_uuid="GPU-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                    canonical_items=(item,),
+                    sentinel_item=None,
+                    derived_root=ROOT,
+                    derived_payload_prefix="unused",
+                    expected_tar_member_count=1,
+                    model_dir=ROOT,
+                    snapshot_manifest=ROOT / "unused.json",
+                    gpu_uuid_type_profile="unregistered-profile",
+                )
+        extract.assert_not_called()
 
     def test_worker_merger_accepts_exact_ledger_and_both_replay_levels(self) -> None:
         outputs = _worker_outputs(self.work_items)

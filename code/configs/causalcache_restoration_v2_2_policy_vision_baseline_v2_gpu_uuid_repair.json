@@ -1,0 +1,184 @@
+{
+  "schema_version": "0.2.0",
+  "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair",
+  "preregistration_status": "source_only_frozen_before_any_v2_gpu_uuid_repair_feature_or_score",
+  "parent_contract": {
+    "path": "code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json",
+    "sha256": "a2319f8ea52d53fa01487cdbcbfef20b86ac81dcfab1c8a36ce4583b0b503023",
+    "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v1",
+    "source_git_commit": "c0937056e94d110cd67e593288f9e0c3a3b24809"
+  },
+  "failed_attempt": {
+    "git_ref": "main",
+    "git_commit": "a809a908207768759f6a15874aeac552a7fd5e08",
+    "directory": "data/results/restoration_v2_2_policy_vision_baseline_v1_attempt",
+    "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v1",
+    "status": "INVALID_POLICY_VISION_V1_ZERO_FEATURE_GPU_UUID_TYPE",
+    "source_git_commit": "c0937056e94d110cd67e593288f9e0c3a3b24809",
+    "contract_sha256": "a2319f8ea52d53fa01487cdbcbfef20b86ac81dcfab1c8a36ce4583b0b503023",
+    "failure_stage": "runtime_gpu_identity_before_model_snapshot_hash_processor_or_model_load",
+    "observed_python_type": "torch._C._CUuuid",
+    "policy_vision_feature_forward_count": 0,
+    "result_file_count": 0,
+    "same_protocol_retry_allowed": false,
+    "exact_files": [
+      {
+        "path": "README.md",
+        "size_bytes": 1386,
+        "sha256": "50dada41703c45523839c2904ec5d32f86553a71d48b46c815dd5d4dbfb9e144"
+      },
+      {
+        "path": "failure.json",
+        "size_bytes": 4308,
+        "sha256": "1cea24506b14b9dcd4bdfff77c82024417f65e1416a418caeec0d1192c2b0311"
+      }
+    ]
+  },
+  "repair_scope": {
+    "gpu_uuid_value_type_only": true,
+    "value_type_profile": "torch_C_CUuuid_v2",
+    "runtime_type_profile": "cuda_device_property_uuid_torch_c_cuuuid_v2",
+    "contract_to_runtime_profile_mapping": "torch_C_CUuuid_v2 -> cuda_device_property_uuid_torch_c_cuuuid_v2",
+    "pinned_torch_version": "2.11.0+cu130",
+    "semantic_repair": {
+      "newly_accepted_runtime_type": "torch._C._CUuuid",
+      "acceptance_predicate": "type(value) is loaded torch._C._CUuuid",
+      "conversion": "value = str(value)",
+      "conversion_before_existing_parser": true,
+      "existing_str_and_bytes_paths_unchanged": true,
+      "all_other_runtime_types_rejected": true,
+      "post_conversion_checks_reused_exactly": [
+        "canonical_gpu_uuid_format_and_lowercase_GPU_prefix",
+        "observed_uuid_equals_expected_gpu_uuid",
+        "nvidia_smi_uuid_matches_exactly_one_row",
+        "nvidia_smi_pci_bus_id_matches_frozen_format",
+        "nvidia_smi_index_is_nonnegative_integer"
+      ]
+    },
+    "implementation_boundary": {
+      "parent_existing_sources": [
+        {
+          "path": "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+          "sha256": "59d3527a7ec066e112330f1b8c112fafa093f3ef52030f563a67e2c371feb55d"
+        },
+        {
+          "path": "code/causalcache/restoration_v2_2_policy_vision.py",
+          "sha256": "d3208c0c8e694076b4a54a4c80abf12ef1fbb5d8eba1384532200024d8d79ae0"
+        },
+        {
+          "path": "code/scripts/run_restoration_v2_2_policy_vision_baseline.py",
+          "sha256": "a5cf7b198702b4ad56ef1aedadbbaf3c9053996ea63f0eb8d3260d8b91980b73"
+        }
+      ],
+      "existing_symbols_allowed_to_change": {
+        "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py": [
+          "GPU_UUID type profile constants",
+          "_runtime_profile_id",
+          "_canonical_gpu_uuid",
+          "_validated_gpu_identity",
+          "GUIOwlV22VisionFeatureRuntime.__init__",
+          "GUIOwlV22VisionFeatureRuntime.metadata.runtime_profile_id"
+        ],
+        "code/causalcache/restoration_v2_2_policy_vision.py": [
+          "DEFAULT_GPU_UUID_TYPE_PROFILE",
+          "run_policy_vision_worker"
+        ],
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline.py": [
+          "PolicyVisionRunnerProtocol",
+          "V1_RUNNER_PROTOCOL",
+          "_claim_formal_attempt",
+          "_validate_run_source_snapshot",
+          "_validate_source_unchanged",
+          "_run_feature_workers",
+          "_expected_runtime_metadata",
+          "_validate_runtime_metadata",
+          "_validate_worker_outputs",
+          "_execution_record",
+          "_validate_recorded_execution",
+          "_validate_formal_attempt_claim",
+          "_readme",
+          "_source_execution",
+          "_expected_files_from_features",
+          "_write_new_result",
+          "_validate_existing_result",
+          "_validate_mode",
+          "_parser",
+          "_validate_runner_protocol",
+          "run_protocol_main",
+          "main"
+        ]
+      },
+      "new_protocol_plumbing_paths_allowed": [
+        "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json",
+        "code/causalcache/restoration_v2_2_policy_vision_v2_contract.py",
+        "code/scripts/validate_restoration_v2_2_policy_vision_v2_contract.py",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py",
+        "code/tests/test_restoration_v2_2_policy_vision_v2_contract.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline_v2.py"
+      ],
+      "formal_runner_change_limited_to": [
+        "permanent v1 run tombstone",
+        "v2 protocol output and status constants",
+        "explicit v2 GPU UUID runtime profile threading",
+        "exact v2 runtime metadata profile validation",
+        "repair identity summary provenance",
+        "durable exclusive v2 attempt claim before feature or model access"
+      ],
+      "formal_source_changed_paths_exact": [
+        "README.md",
+        "code/README.md",
+        "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+        "code/causalcache/restoration_v2_2_policy_vision.py",
+        "code/causalcache/restoration_v2_2_policy_vision_v2_contract.py",
+        "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline.py",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py",
+        "code/scripts/validate_restoration_v2_2_policy_vision_v2_contract.py",
+        "code/tests/test_gui_owl_v2_2_vision_runtime.py",
+        "code/tests/test_restoration_v2_2_policy_vision.py",
+        "code/tests/test_restoration_v2_2_policy_vision_v2_contract.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline_v2.py",
+        "data/README.md",
+        "docs/progress.md",
+        "docs/restoration_v2_2_policy_vision_baseline.md"
+      ],
+      "source_freeze_must_match_exact_changed_paths_before_formal_run": true
+    },
+    "parent_scientific_contract_changed": false,
+    "authorization_changed": false,
+    "immutable_inputs_changed": false,
+    "scope_or_denominator_changed": false,
+    "preprocessing_changed": false,
+    "runtime_stack_or_worker_schedule_changed": false,
+    "verification_schedule_or_tolerance_changed": false,
+    "feature_pooling_similarity_or_selection_changed": false,
+    "operation_ceiling_changed": false,
+    "statistics_contract_changed": false,
+    "confirm_or_sealed_test_access_changed": false
+  },
+  "output_contract": {
+    "canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair",
+    "exact_files": [
+      "README.md",
+      "state_scores.jsonl",
+      "summary.json"
+    ],
+    "run_status": "COMPLETED_RESTORATION_V2_2_POLICY_VISION_BASELINE_V2_GPU_UUID_REPAIR",
+    "valid_status": "VALID_RESTORATION_V2_2_POLICY_VISION_BASELINE_V2_GPU_UUID_REPAIR",
+    "invalid_v1_canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v1",
+    "invalid_v1_output_and_staging_must_remain_absent": true,
+    "failed_attempt_directory_must_remain_byte_unchanged": true,
+    "raw_labels_images_features_or_model_parameters_copied_to_git": false,
+    "formal_run_requires_clean_pushed_main": true,
+    "run_requires_exclusive_new_output_directory": true,
+    "atomic_directory_publish_required": true,
+    "validate_rebuilds_every_output_byte_from_recorded_feature_rows_and_immutable_labels_witness": true,
+    "validate_recomputes_policy_vision_features": false,
+    "formal_attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v2-gpu-uuid-repair-attempt.json",
+    "formal_attempt_ledger_created_with_o_excl_before_model_or_feature_access": true,
+    "retry_allowed": false,
+    "resume_allowed": false,
+    "formal_result_status_before_execution": "not_generated"
+  }
+}

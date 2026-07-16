@@ -17,10 +17,15 @@ import tempfile
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from concurrent.futures import ProcessPoolExecutor
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+from causalcache.policy.gui_owl_v2_2_vision_runtime import (
+    GUI_OWL_V2_2_VISION_RUNTIME_ID,
+)
 from causalcache.restoration_v2_2_policy_vision import (
+    DEFAULT_GPU_UUID_TYPE_PROFILE,
     STATUS,
     PolicyVisionWorkItem,
     evaluate_feature_records,
@@ -88,6 +93,41 @@ AUDITED_SCIENTIFIC_ENVIRONMENT_VARIABLES = (
 )
 
 
+@dataclass(frozen=True)
+class PolicyVisionRunnerProtocol:
+    """Protocol-specific identity threaded through the shared frozen runner."""
+
+    protocol_id: str
+    run_status: str
+    valid_status: str
+    contract_class: type[Any]
+    expected_output_files: tuple[str, ...]
+    expected_operation_ceiling: Mapping[str, int]
+    formal_source_paths: tuple[str, ...]
+    runtime_profile_id: str
+    gpu_uuid_type_profile: str | None
+    readme_title: str
+    formal_run_allowed: bool
+    formal_attempt_ledger_path: str | None
+    include_repair_identity: bool = False
+
+
+V1_RUNNER_PROTOCOL = PolicyVisionRunnerProtocol(
+    protocol_id=PROTOCOL_ID,
+    run_status=RUN_STATUS,
+    valid_status=VALID_STATUS,
+    contract_class=RestorationV22PolicyVisionContract,
+    expected_output_files=tuple(EXPECTED_OUTPUT_FILES),
+    expected_operation_ceiling=EXPECTED_OPERATION_CEILING,
+    formal_source_paths=FORMAL_SOURCE_PATHS,
+    runtime_profile_id=GUI_OWL_V2_2_VISION_RUNTIME_ID,
+    gpu_uuid_type_profile=None,
+    readme_title="Restoration v2.2 policy-vision baseline v1",
+    formal_run_allowed=False,
+    formal_attempt_ledger_path=None,
+)
+
+
 def _pretty_json_bytes(value: Any) -> bytes:
     return (
         json.dumps(
@@ -133,14 +173,23 @@ def _validate_run_git(root: Path, source_commit: str) -> None:
         raise ValueError("formal policy-vision source must already be pushed")
 
 
-def _validate_run_source_snapshot(root: Path, source_commit: str) -> None:
+def _validate_run_source_snapshot(
+    root: Path,
+    source_commit: str,
+    *,
+    formal_source_paths: Sequence[str] = FORMAL_SOURCE_PATHS,
+) -> None:
     if (
         _git(root, "rev-parse", "HEAD") != source_commit
         or _git(root, "symbolic-ref", "--short", "HEAD") != "main"
         or _git(root, "rev-parse", "origin/main") != source_commit
     ):
         raise ValueError("formal policy-vision source snapshot drifted during run")
-    _validate_source_unchanged(root, source_commit)
+    _validate_source_unchanged(
+        root,
+        source_commit,
+        formal_source_paths=formal_source_paths,
+    )
 
 
 def _formal_python_source_closure(
@@ -180,7 +229,12 @@ def _formal_python_source_closure(
     }
 
 
-def _validate_source_unchanged(root: Path, source_commit: str) -> None:
+def _validate_source_unchanged(
+    root: Path,
+    source_commit: str,
+    *,
+    formal_source_paths: Sequence[str] = FORMAL_SOURCE_PATHS,
+) -> None:
     if (
         GIT_COMMIT_PATTERN.fullmatch(source_commit) is None
         or _git(root, "cat-file", "-t", source_commit) != "commit"
@@ -216,7 +270,7 @@ def _validate_source_unchanged(root: Path, source_commit: str) -> None:
     )
     if current_python_paths != tuple(sorted(closure["paths"])):
         raise ValueError("formal policy-vision Python source closure drifted")
-    protected = tuple(sorted(set(FORMAL_SOURCE_PATHS) | set(closure["paths"])))
+    protected = tuple(sorted(set(formal_source_paths) | set(closure["paths"])))
     if _git(root, "diff", "--name-only", source_commit, "--", *protected):
         raise ValueError("formal policy-vision source changed after execution")
     untracked = _git(
@@ -328,6 +382,47 @@ def _load_host_evidence(
     return validated, sha256_bytes(payload)
 
 
+def _claim_formal_attempt(path: Path, claim: Mapping[str, Any]) -> tuple[dict[str, Any], str]:
+    if not path.is_absolute() or not path.parent.is_dir() or path.parent.is_symlink():
+        raise ValueError("formal attempt ledger parent must be an existing real directory")
+    detached = _json_copy(claim)
+    payload = _pretty_json_bytes(detached)
+    flags = (
+        os.O_WRONLY
+        | os.O_CREAT
+        | os.O_EXCL
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    try:
+        descriptor = os.open(path, flags, 0o600)
+    except FileExistsError as error:
+        raise FileExistsError(
+            "formal policy-vision attempt was already claimed"
+        ) from error
+    try:
+        offset = 0
+        while offset < len(payload):
+            written = os.write(descriptor, payload[offset:])
+            if written <= 0:
+                raise OSError("formal attempt ledger write made no progress")
+            offset += written
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+    directory_flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(
+        os,
+        "O_DIRECTORY",
+        0,
+    )
+    directory_descriptor = os.open(path.parent, directory_flags)
+    try:
+        os.fsync(directory_descriptor)
+    finally:
+        os.close(directory_descriptor)
+    return detached, sha256_bytes(payload)
+
+
 def _read_verified_labels_bytes(
     contract: RestorationV22PolicyVisionContract,
     labels_archive: Path,
@@ -407,6 +502,7 @@ def _run_feature_workers(
     model_dir: Path,
     snapshot_manifest: Path,
     expected_gpu_uuids: Sequence[str],
+    gpu_uuid_type_profile: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Launch exactly two spawn workers without giving either worker D(S)."""
     if len(expected_gpu_uuids) != 2 or len(set(expected_gpu_uuids)) != 2:
@@ -435,6 +531,8 @@ def _run_feature_workers(
         "model_dir": model_dir,
         "snapshot_manifest": snapshot_manifest,
     }
+    if gpu_uuid_type_profile is not None:
+        common["gpu_uuid_type_profile"] = gpu_uuid_type_profile
     context = multiprocessing.get_context("spawn")
     with ProcessPoolExecutor(max_workers=2, mp_context=context) as executor:
         futures = [
@@ -459,6 +557,7 @@ def _expected_runtime_metadata(
     contract: RestorationV22PolicyVisionContract,
     device: str,
     gpu_uuid: str,
+    runtime_profile_id: str = GUI_OWL_V2_2_VISION_RUNTIME_ID,
 ) -> dict[str, Any]:
     runtime = contract.data["execution_contract"]["runtime"]
     stack = runtime["expected_execution_stack"]
@@ -473,9 +572,7 @@ def _expected_runtime_metadata(
     controls = runtime["eager_control_flags"]
     pixels_per_image = 2_621_440
     return {
-        "runtime_profile_id": (
-            "causalcache_restoration_v2_2_policy_vision_feature_only_runtime"
-        ),
+        "runtime_profile_id": runtime_profile_id,
         "device": device,
         "gpu_uuid": gpu_uuid,
         "gpu_name": stack["gpu_name"],
@@ -551,6 +648,7 @@ def _validate_runtime_metadata(
     worker_id: str,
     device: str,
     gpu_uuid: str,
+    runtime_profile_id: str = GUI_OWL_V2_2_VISION_RUNTIME_ID,
 ) -> None:
     if not isinstance(metadata, Mapping):
         raise ValueError("policy-vision runtime metadata is absent")
@@ -559,6 +657,7 @@ def _validate_runtime_metadata(
         contract=contract,
         device=device,
         gpu_uuid=gpu_uuid,
+        runtime_profile_id=runtime_profile_id,
     )
     dynamic_keys = {
         "gpu_pci_bus_id",
@@ -593,6 +692,7 @@ def _validate_worker_outputs(
     outputs: Sequence[Mapping[str, Any]],
     contract: RestorationV22PolicyVisionContract,
     expected_gpu_uuids: Sequence[str],
+    runtime_profile_id: str = GUI_OWL_V2_2_VISION_RUNTIME_ID,
 ) -> None:
     if len(outputs) != 2:
         raise ValueError("policy-vision must return exactly two worker outputs")
@@ -611,6 +711,7 @@ def _validate_worker_outputs(
             worker_id=worker_id,
             device=device,
             gpu_uuid=uuid,
+            runtime_profile_id=runtime_profile_id,
         )
         counts = output.get("runtime_operation_counts")
         expected_counts = {
@@ -656,6 +757,10 @@ def _execution_record(
     expected_gpu_uuids: Sequence[str],
     host_evidence: Mapping[str, Any],
     host_evidence_sha256: str,
+    formal_attempt_claim: Mapping[str, Any],
+    formal_attempt_claim_sha256: str,
+    runtime_profile_id: str = GUI_OWL_V2_2_VISION_RUNTIME_ID,
+    expected_operation_ceiling: Mapping[str, int] = EXPECTED_OPERATION_CEILING,
 ) -> dict[str, Any]:
     runtime = contract.data["execution_contract"]["runtime"]
     expected_stack = runtime["expected_execution_stack"]
@@ -691,6 +796,13 @@ def _execution_record(
         or re.fullmatch(r"[0-9a-f]{64}", host_evidence_sha256) is None
     ):
         raise ValueError("host-side evidence SHA256 is invalid")
+    detached_attempt_claim = _json_copy(formal_attempt_claim)
+    if (
+        not isinstance(formal_attempt_claim_sha256, str)
+        or sha256_bytes(_pretty_json_bytes(detached_attempt_claim))
+        != formal_attempt_claim_sha256
+    ):
+        raise ValueError("formal attempt claim SHA256 is invalid")
     observed_drivers = {
         line.strip()
         for line in subprocess.run(
@@ -712,6 +824,7 @@ def _execution_record(
         outputs=worker_outputs,
         contract=contract,
         expected_gpu_uuids=expected_gpu_uuids,
+        runtime_profile_id=runtime_profile_id,
     )
     replay_record = _json_copy(replay)
     by_id = {output["worker_id"]: output for output in worker_outputs}
@@ -760,7 +873,11 @@ def _execution_record(
             for ordinal, worker_id in enumerate(("even", "odd"))
         ],
         "verification": replay_record,
-        "operation_ledger": dict(EXPECTED_OPERATION_CEILING),
+        "operation_ledger": dict(expected_operation_ceiling),
+        "formal_attempt_claim": {
+            "record": detached_attempt_claim,
+            "sha256": formal_attempt_claim_sha256,
+        },
         "selection_completed_before_restoration_labels_loaded": True,
         "feature_worker_received_restoration_labels": False,
         "feature_worker_received_goal_text_or_ocr": False,
@@ -1022,17 +1139,57 @@ def _validate_cross_device_replay(
         raise ValueError("recorded cross-device preprocessing geometry drifted")
 
 
+def _validate_formal_attempt_claim(
+    raw_claim: Any,
+    *,
+    contract: RestorationV22PolicyVisionContract,
+    source_git_commit: str,
+    host: Mapping[str, Any],
+    expected_gpu_uuids: Sequence[str],
+) -> None:
+    if not isinstance(raw_claim, Mapping) or set(raw_claim) != {"record", "sha256"}:
+        raise ValueError("recorded formal attempt claim schema drifted")
+    record = raw_claim["record"]
+    digest = raw_claim["sha256"]
+    expected = {
+        "schema_version": "1.0.0",
+        "status": "CLAIMED_POLICY_VISION_FORMAL_ATTEMPT",
+        "protocol_id": contract.data["protocol_id"],
+        "source_git_commit": source_git_commit,
+        "contract_sha256": contract.sha256,
+        "canonical_result_directory": contract.data["output_contract"][
+            "canonical_result_directory"
+        ],
+        "formal_attempt_ledger_path": contract.data["output_contract"][
+            "formal_attempt_ledger_path"
+        ],
+        "host_alias": host["host_alias"],
+        "host_hostname": host["host_hostname"],
+        "container_hostname": host["container_hostname"],
+        "container_name": host["container_name"],
+        "container_image_digest": host["container_image_digest"],
+        "nvidia_driver_version": host["nvidia_driver_version"],
+        "expected_gpu_uuids": list(expected_gpu_uuids),
+    }
+    if record != expected or digest != sha256_bytes(_pretty_json_bytes(expected)):
+        raise ValueError("recorded formal attempt claim identity drifted")
+
+
 def _validate_recorded_execution(
     *,
     execution: Any,
     contract: RestorationV22PolicyVisionContract,
     feature_records: Sequence[Mapping[str, Any]],
+    source_git_commit: str,
+    expected_operation_ceiling: Mapping[str, int] = EXPECTED_OPERATION_CEILING,
+    runtime_profile_id: str = GUI_OWL_V2_2_VISION_RUNTIME_ID,
 ) -> None:
     expected_keys = {
         "host_runtime",
         "worker_bindings",
         "verification",
         "operation_ledger",
+        "formal_attempt_claim",
         "selection_completed_before_restoration_labels_loaded",
         "feature_worker_received_restoration_labels",
         "feature_worker_received_goal_text_or_ocr",
@@ -1044,7 +1201,7 @@ def _validate_recorded_execution(
         is not True
         or execution["feature_worker_received_restoration_labels"] is not False
         or execution["feature_worker_received_goal_text_or_ocr"] is not False
-        or execution["operation_ledger"] != EXPECTED_OPERATION_CEILING
+        or execution["operation_ledger"] != expected_operation_ceiling
     ):
         raise ValueError("recorded policy-vision execution boundary drifted")
     host = execution["host_runtime"]
@@ -1103,6 +1260,13 @@ def _validate_recorded_execution(
         uuids.append(uuid)
     if len(set(uuids)) != 2:
         raise ValueError("recorded workers must bind two distinct GPUs")
+    _validate_formal_attempt_claim(
+        execution["formal_attempt_claim"],
+        contract=contract,
+        source_git_commit=source_git_commit,
+        host=host,
+        expected_gpu_uuids=uuids,
+    )
     verification = execution["verification"]
     if not isinstance(verification, Mapping):
         raise ValueError("recorded replay verification is absent")
@@ -1154,6 +1318,7 @@ def _validate_recorded_execution(
             worker_id=worker_id,
             device=f"cuda:{ordinal}",
             gpu_uuid=uuids[ordinal],
+            runtime_profile_id=runtime_profile_id,
         )
         expected_inputs = {
             "canonical_state_count": 8 if worker_id == "even" else 7,
@@ -1192,7 +1357,11 @@ def _input_identity(contract: RestorationV22PolicyVisionContract) -> dict[str, A
     return _json_copy(contract.data["immutable_inputs"])
 
 
-def _readme(summary: Mapping[str, Any]) -> bytes:
+def _readme(
+    summary: Mapping[str, Any],
+    *,
+    title: str = "Restoration v2.2 policy-vision baseline v1",
+) -> bytes:
     aggregate = summary["aggregate"]["by_role"]
     rows = []
     for role, label in (
@@ -1208,7 +1377,7 @@ def _readme(summary: Mapping[str, Any]) -> bytes:
             f"{row['exact_cardinality_coalition_match_rate']:.6f} |"
         )
     outlier = summary["aggregate"]["pre_registered_outlier"]
-    text = f"""# Restoration v2.2 policy-vision baseline v1
+    text = f"""# {title}
 
 本结果完成 frozen GUI-Owl policy-vision feature-only comparator。15 条 primary `n=4,B=2`
 train/development states 只把 event 1--4 的 post-action screenshot 与 decision-step-6 current screenshot
@@ -1233,6 +1402,36 @@ matched-NLL、closed-loop 与 confirm/test access 全部为 0。
     return text.encode("utf-8")
 
 
+def _source_execution(
+    *,
+    contract: RestorationV22PolicyVisionContract,
+    source_commit: str,
+    protocol: PolicyVisionRunnerProtocol = V1_RUNNER_PROTOCOL,
+) -> dict[str, Any]:
+    source_closure = _formal_python_source_closure(
+        contract.repository_root,
+        source_commit,
+    )
+    result = {
+        "source_git_commit": source_commit,
+        "contract_sha256": contract.sha256,
+        "formal_source_paths": list(protocol.formal_source_paths),
+        "formal_python_source_closure": {
+            key: source_closure[key]
+            for key in ("rule", "path_count", "inventory_sha256")
+        },
+    }
+    if protocol.include_repair_identity:
+        repair_identity = getattr(contract, "repair_identity", None)
+        if (
+            not isinstance(repair_identity, Mapping)
+            or contract.data.get("repair_identity") != repair_identity
+        ):
+            raise ValueError("policy-vision repair identity is absent or inconsistent")
+        result["repair_identity"] = _json_copy(repair_identity)
+    return result
+
+
 def _expected_files_from_features(
     *,
     contract: RestorationV22PolicyVisionContract,
@@ -1242,12 +1441,16 @@ def _expected_files_from_features(
     witness_by_state: Mapping[str, Mapping[str, Any]],
     feature_records: Sequence[Mapping[str, Any]],
     execution: Mapping[str, Any],
+    protocol: PolicyVisionRunnerProtocol = V1_RUNNER_PROTOCOL,
 ) -> dict[str, bytes]:
     _validate_preprocessing_geometry(feature_records, contract)
     _validate_recorded_execution(
         execution=execution,
         contract=contract,
         feature_records=feature_records,
+        source_git_commit=source_commit,
+        expected_operation_ceiling=protocol.expected_operation_ceiling,
+        runtime_profile_id=protocol.runtime_profile_id,
     )
     primary_labels = _load_primary_labels_from_verified_bytes(
         contract=contract,
@@ -1259,29 +1462,21 @@ def _expected_files_from_features(
         work_items=work_items,
         witness_by_state=witness_by_state,
         primary_label_states=primary_labels,
-        protocol_id=PROTOCOL_ID,
+        protocol_id=protocol.protocol_id,
     )
     aggregate = summarize_policy_vision_records(
         records,
-        operation_counts=EXPECTED_OPERATION_CEILING,
+        operation_counts=protocol.expected_operation_ceiling,
     )
     record_bytes = _jsonl_bytes(records)
-    source_closure = _formal_python_source_closure(
-        contract.repository_root,
-        source_commit,
-    )
     input_identity = _input_identity(contract)
-    source_execution = {
-        "source_git_commit": source_commit,
-        "contract_sha256": contract.sha256,
-        "formal_source_paths": list(FORMAL_SOURCE_PATHS),
-        "formal_python_source_closure": {
-            key: source_closure[key]
-            for key in ("rule", "path_count", "inventory_sha256")
-        },
-    }
+    source_execution = _source_execution(
+        contract=contract,
+        source_commit=source_commit,
+        protocol=protocol,
+    )
     scientific_payload = {
-        "protocol_id": PROTOCOL_ID,
+        "protocol_id": protocol.protocol_id,
         "source_execution": source_execution,
         "input_identity": input_identity,
         "feature_contract": _json_copy(contract.data["feature_contract"]),
@@ -1292,8 +1487,8 @@ def _expected_files_from_features(
     }
     summary = {
         "schema_version": "1.0.0",
-        "status": RUN_STATUS,
-        "protocol_id": PROTOCOL_ID,
+        "status": protocol.run_status,
+        "protocol_id": protocol.protocol_id,
         "source_execution": source_execution,
         "input_identity": input_identity,
         "execution": _json_copy(execution),
@@ -1312,7 +1507,7 @@ def _expected_files_from_features(
         },
     }
     return {
-        "README.md": _readme(summary),
+        "README.md": _readme(summary, title=protocol.readme_title),
         "state_scores.jsonl": record_bytes,
         "summary.json": _pretty_json_bytes(summary),
     }
@@ -1344,6 +1539,7 @@ def _write_new_result(
     files: Mapping[str, bytes],
     *,
     pre_publish_check: Callable[[], None] | None = None,
+    expected_output_files: Sequence[str] = EXPECTED_OUTPUT_FILES,
 ) -> None:
     if output_dir.exists():
         raise FileExistsError("canonical policy-vision output already exists")
@@ -1352,7 +1548,7 @@ def _write_new_result(
         raise FileExistsError("policy-vision staging output already exists")
     staging.mkdir(parents=False)
     try:
-        for name in EXPECTED_OUTPUT_FILES:
+        for name in expected_output_files:
             (staging / name).write_bytes(files[name])
         if pre_publish_check is not None:
             pre_publish_check()
@@ -1362,15 +1558,20 @@ def _write_new_result(
         raise
 
 
-def _validate_existing_result(output_dir: Path, files: Mapping[str, bytes]) -> None:
+def _validate_existing_result(
+    output_dir: Path,
+    files: Mapping[str, bytes],
+    *,
+    expected_output_files: Sequence[str] = EXPECTED_OUTPUT_FILES,
+) -> None:
     if not output_dir.is_dir() or output_dir.is_symlink():
         raise ValueError("canonical policy-vision output is missing or symlinked")
     children = tuple(output_dir.iterdir())
     if any(path.is_symlink() or not path.is_file() for path in children):
         raise ValueError("policy-vision output contains a non-regular file")
-    if sorted(path.name for path in children) != sorted(EXPECTED_OUTPUT_FILES):
+    if sorted(path.name for path in children) != sorted(expected_output_files):
         raise ValueError("policy-vision output exact-three inventory drifted")
-    for name in EXPECTED_OUTPUT_FILES:
+    for name in expected_output_files:
         if (output_dir / name).read_bytes() != files[name]:
             raise ValueError(f"policy-vision output bytes drifted: {name}")
 
@@ -1381,9 +1582,14 @@ def _validate_mode(
     output_dir: Path,
     labels_archive: Path,
     source_commit: str,
+    protocol: PolicyVisionRunnerProtocol = V1_RUNNER_PROTOCOL,
 ) -> dict[str, bytes]:
     """Rebuild every scientific field from recorded scores, labels, and witness."""
-    _validate_source_unchanged(contract.repository_root, source_commit)
+    _validate_source_unchanged(
+        contract.repository_root,
+        source_commit,
+        formal_source_paths=protocol.formal_source_paths,
+    )
     _validate_labels_archive(contract, labels_archive)
     rows = _read_recorded_rows(output_dir)
     feature_records = tuple(_feature_record_from_evaluated_row(row) for row in rows)
@@ -1392,8 +1598,8 @@ def _validate_mode(
         label="recorded policy-vision summary",
     )
     if (
-        summary.get("status") != RUN_STATUS
-        or summary.get("protocol_id") != PROTOCOL_ID
+        summary.get("status") != protocol.run_status
+        or summary.get("protocol_id") != protocol.protocol_id
         or summary.get("source_execution", {}).get("source_git_commit")
         != source_commit
     ):
@@ -1407,8 +1613,13 @@ def _validate_mode(
         witness_by_state=witness_by_state,
         feature_records=feature_records,
         execution=summary["execution"],
+        protocol=protocol,
     )
-    _validate_existing_result(output_dir, files)
+    _validate_existing_result(
+        output_dir,
+        files,
+        expected_output_files=protocol.expected_output_files,
+    )
     return files
 
 
@@ -1431,17 +1642,86 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--container-image-digest")
     parser.add_argument("--nvidia-driver-version")
     parser.add_argument("--host-evidence", type=Path)
+    parser.add_argument("--attempt-ledger", type=Path)
     return parser
 
 
-def main(argv: Sequence[str] | None = None) -> None:
+def _validate_runner_protocol(
+    protocol: PolicyVisionRunnerProtocol,
+    contract: RestorationV22PolicyVisionContract,
+) -> None:
+    output_contract = contract.data["output_contract"]
+    try:
+        contract_relative_path = contract.path.relative_to(
+            contract.repository_root
+        ).as_posix()
+    except ValueError as error:
+        raise ValueError("policy-vision contract is outside the repository") from error
+    if (
+        contract.data.get("protocol_id") != protocol.protocol_id
+        or tuple(output_contract["exact_files"]) != protocol.expected_output_files
+        or contract.data.get("operation_ceiling")
+        != protocol.expected_operation_ceiling
+        or not protocol.formal_source_paths
+        or len(set(protocol.formal_source_paths))
+        != len(protocol.formal_source_paths)
+        or contract_relative_path not in protocol.formal_source_paths
+    ):
+        raise ValueError("policy-vision runner protocol identity drifted")
+    if protocol.gpu_uuid_type_profile is None:
+        if (
+            protocol.runtime_profile_id != GUI_OWL_V2_2_VISION_RUNTIME_ID
+            or protocol.include_repair_identity
+            or protocol.formal_run_allowed
+            or protocol.formal_attempt_ledger_path is not None
+        ):
+            raise ValueError("default policy-vision runtime profile drifted")
+        return
+    repair_identity = getattr(contract, "repair_identity", None)
+    if (
+        protocol.gpu_uuid_type_profile == DEFAULT_GPU_UUID_TYPE_PROFILE
+        or not protocol.include_repair_identity
+        or not isinstance(repair_identity, Mapping)
+        or repair_identity.get("gpu_uuid_runtime_type_profile")
+        != protocol.gpu_uuid_type_profile
+        or repair_identity.get("run_status") != protocol.run_status
+        or repair_identity.get("valid_status") != protocol.valid_status
+        or repair_identity.get("canonical_output_directory")
+        != output_contract["canonical_result_directory"]
+        or output_contract.get("run_status") != protocol.run_status
+        or output_contract.get("valid_status") != protocol.valid_status
+        or not protocol.formal_run_allowed
+        or not isinstance(protocol.formal_attempt_ledger_path, str)
+        or not Path(protocol.formal_attempt_ledger_path).is_absolute()
+        or output_contract.get("formal_attempt_ledger_path")
+        != protocol.formal_attempt_ledger_path
+    ):
+        raise ValueError("repaired policy-vision runner identity drifted")
+
+
+def run_protocol_main(
+    protocol: PolicyVisionRunnerProtocol,
+    argv: Sequence[str] | None = None,
+) -> None:
     args = _parser().parse_args(argv)
+    if args.mode == "run" and not protocol.formal_run_allowed:
+        raise ValueError("invalid policy-vision v1 protocol cannot be rerun")
     root = args.repository_root.resolve()
-    contract = RestorationV22PolicyVisionContract.load(
+    contract = protocol.contract_class.load(
         args.contract.resolve(),
         repository_root=root,
         validate_bound_sources=True,
     )
+    _validate_runner_protocol(protocol, contract)
+    if protocol.include_repair_identity:
+        validate_source_diff = getattr(
+            contract,
+            "validate_formal_source_diff",
+            None,
+        )
+        if not callable(validate_source_diff):
+            raise ValueError("repaired policy-vision source-diff validator is absent")
+        validate_source_diff(args.source_git_commit)
     canonical_output = (
         root / contract.data["output_contract"]["canonical_result_directory"]
     ).resolve()
@@ -1465,6 +1745,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             "container_image_digest": args.container_image_digest,
             "nvidia_driver_version": args.nvidia_driver_version,
             "host_evidence": args.host_evidence,
+            "attempt_ledger": args.attempt_ledger,
         }
         missing = sorted(key for key, value in required.items() if value is None)
         if missing:
@@ -1504,6 +1785,31 @@ def main(argv: Sequence[str] | None = None) -> None:
             if record["path"].endswith("images-00000-of-00001.tar")
         )
         _validate_run_git(root, args.source_git_commit)
+        attempt_ledger = args.attempt_ledger.resolve()
+        expected_attempt_ledger = Path(protocol.formal_attempt_ledger_path).resolve()
+        if attempt_ledger != expected_attempt_ledger:
+            raise ValueError("formal policy-vision attempt ledger path drifted")
+        formal_attempt_claim, formal_attempt_claim_sha256 = _claim_formal_attempt(
+            attempt_ledger,
+            {
+                "schema_version": "1.0.0",
+                "status": "CLAIMED_POLICY_VISION_FORMAL_ATTEMPT",
+                "protocol_id": protocol.protocol_id,
+                "source_git_commit": args.source_git_commit,
+                "contract_sha256": contract.sha256,
+                "canonical_result_directory": contract.data["output_contract"][
+                    "canonical_result_directory"
+                ],
+                "formal_attempt_ledger_path": protocol.formal_attempt_ledger_path,
+                "host_alias": args.host_alias,
+                "host_hostname": args.host_hostname,
+                "container_hostname": args.container_hostname,
+                "container_name": args.container_name,
+                "container_image_digest": args.container_image_digest,
+                "nvidia_driver_version": args.nvidia_driver_version,
+                "expected_gpu_uuids": list(gpu_uuids),
+            },
+        )
         worker_outputs = _run_feature_workers(
             work_items=work_items,
             derived_root=derived_root,
@@ -1512,6 +1818,7 @@ def main(argv: Sequence[str] | None = None) -> None:
             model_dir=model_dir,
             snapshot_manifest=snapshot_manifest,
             expected_gpu_uuids=gpu_uuids,
+            gpu_uuid_type_profile=protocol.gpu_uuid_type_profile,
         )
         _validate_run_git(root, args.source_git_commit)
         if image_tar_record["size_bytes"] <= 0:
@@ -1520,11 +1827,12 @@ def main(argv: Sequence[str] | None = None) -> None:
             outputs=worker_outputs,
             contract=contract,
             expected_gpu_uuids=gpu_uuids,
+            runtime_profile_id=protocol.runtime_profile_id,
         )
         feature_records, replay = merge_policy_vision_workers(
             worker_outputs=worker_outputs,
             work_items=work_items,
-            operation_ceiling=EXPECTED_OPERATION_CEILING,
+            operation_ceiling=protocol.expected_operation_ceiling,
         )
         execution = _execution_record(
             contract=contract,
@@ -1539,6 +1847,10 @@ def main(argv: Sequence[str] | None = None) -> None:
             expected_gpu_uuids=gpu_uuids,
             host_evidence=host_evidence,
             host_evidence_sha256=host_evidence_sha256,
+            formal_attempt_claim=formal_attempt_claim,
+            formal_attempt_claim_sha256=formal_attempt_claim_sha256,
+            runtime_profile_id=protocol.runtime_profile_id,
+            expected_operation_ceiling=protocol.expected_operation_ceiling,
         )
         files = _expected_files_from_features(
             contract=contract,
@@ -1548,25 +1860,33 @@ def main(argv: Sequence[str] | None = None) -> None:
             witness_by_state=witness_by_state,
             feature_records=feature_records,
             execution=execution,
+            protocol=protocol,
         )
+
         def pre_publish_check() -> None:
-            _validate_run_source_snapshot(root, args.source_git_commit)
+            _validate_run_source_snapshot(
+                root,
+                args.source_git_commit,
+                formal_source_paths=protocol.formal_source_paths,
+            )
             _validate_labels_archive(contract, labels_archive)
 
         _write_new_result(
             output_dir,
             files,
             pre_publish_check=pre_publish_check,
+            expected_output_files=protocol.expected_output_files,
         )
-        status = RUN_STATUS
+        status = protocol.run_status
     else:
         files = _validate_mode(
             contract=contract,
             output_dir=output_dir,
             labels_archive=labels_archive,
             source_commit=args.source_git_commit,
+            protocol=protocol,
         )
-        status = VALID_STATUS
+        status = protocol.valid_status
     print(
         json.dumps(
             {
@@ -1589,7 +1909,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                         "size_bytes": len(files[name]),
                         "sha256": sha256_bytes(files[name]),
                     }
-                    for name in EXPECTED_OUTPUT_FILES
+                    for name in protocol.expected_output_files
                 },
             },
             ensure_ascii=False,
@@ -1597,6 +1917,10 @@ def main(argv: Sequence[str] | None = None) -> None:
             sort_keys=True,
         )
     )
+
+
+def main(argv: Sequence[str] | None = None) -> None:
+    run_protocol_main(V1_RUNNER_PROTOCOL, argv)
 
 
 if __name__ == "__main__":

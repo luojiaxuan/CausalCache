@@ -96,6 +96,22 @@ stable self-behavior reference、post-state-only intervention、八字段 strong
 inventory、exact 8+10+5 历史 exposure 边界、fixed 20-state confirm 与两级 gate。它不替代历史
 `phase0_contract.json` validator；两者代表不同版本的 estimand，必须分别通过。
 
+policy-vision comparator 的 v1 formal attempt 已在 feature/model load 前封存为 `INVALID`。当前可执行协议是
+`causalcache.restoration_v2_2_policy_vision_v2_contract`，其 source-only validator 为：
+
+```bash
+cd code
+python3 -m scripts.validate_restoration_v2_2_policy_vision_v2_contract \
+  --repository-root .. \
+  --contract configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json
+```
+
+该 repair 只接受 pinned runtime 实际加载的 `torch._C._CUuuid` exact type；正式 runner 必须显式使用 v2
+GPU UUID profile、新 canonical output，且从 clean pushed `main` 启动。v1 `run` 永久拒绝；v2 必须在
+`/data/experiments/causalcache/restoration-v2-2-policy-vision-v2-gpu-uuid-repair-attempt.json` 做 exclusive durable
+claim，不能换 ledger 路径重试。source-only PASS 不是 comparator result；CPU validate 只重建 recorded feature
+rows 的 reducer/output bytes，不重新计算 vision features。
+
 v2 executable interface 使用显式 versioned 模块 `causalcache.policy.gui_owl_v2` 与
 `causalcache.low_fidelity_v2`，不修改历史 v1 parser/prompt/schema。CPU validator 对 restricted grammar、
 canonical teacher target、AndroidWorld payload、八字段 serialization 和 steps 4/5/6 共 28 个 prompt

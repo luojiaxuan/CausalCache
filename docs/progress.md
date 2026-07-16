@@ -18,7 +18,8 @@ Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行
 v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00 完成 15-state formal aggregate、
 逐 byte replay 与独立复算。它的 development mean recovery 为 `0.019571`、exact match 为 `0/5`，因此是已闭合
 但不稳定的弱 similarity comparator；这不构成 learned gate 的负结论。policy-vision v1 formal attempt 又因
-PyTorch UUID object type 在 0 feature 时 `INVALID`，尚无 policy-vision scientific result。
+PyTorch UUID object type 在 0 feature 时 `INVALID`。UUID type-only v2 source 已冻结，但尚未执行，因此仍无
+policy-vision scientific result。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1838,16 +1839,35 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/`；下一步先冻结只接受 pinned
   `torch._C._CUuuid` 后继续原 UUID/PCI/`nvidia-smi` cross-check 的 versioned replacement，科学契约不变。
 
+### 2026-07-16：policy-vision GPU UUID type-only v2 source freeze
+
+- 新 repair contract 为
+  `code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json`，SHA256
+  `23733169ef5ba60a84f4447080ef12e1893858aa375ff50d8d4e3595699e774e`；它绑定 parent v1 source、
+  `a809a908` failure exact bytes、zero-feature 计数与 v1 canonical/staging 必须继续不存在；
+- semantic repair 只有一项：在显式 v2 profile 下要求
+  `type(observed_uuid) is torch._C._CUuuid`，再执行 `str(value)`，随后复用原 UUID format、expected UUID、
+  `nvidia-smi` exact-one-row 与 PCI/index checks；同 module/name 的伪造类、普通 `str/bytes`、未知 profile 均拒绝；
+- v1 默认 profile 与旧 runtime identity 保持不变。v2 runtime profile、protocol、run/valid status 和 canonical
+  output 全部使用新 identity；15 states、75 images、双 H200 8/7 worker、31 feature forwards、replay tolerance、
+  feature/statistics contract 均继承 parent；
+- 共享 runner 的 v1 `run` 已永久 tombstone；v2 在 model/feature access 前对固定 persistent ledger 做
+  `O_EXCL` durable claim。formal source commit 还必须相对 `a809a908` exact 匹配冻结的 17-path diff，不能用
+  未声明的实现改动进入 H200；
+- committed-result `validate` 从 recorded feature rows、immutable labels 与 witness 重建 exact-three bytes，不
+  重新执行 vision features；独立审计的边界是 reducer/math，而不是第二次模型 forward；
+- source validator 与 focused regression 已通过；这只授权一次新的 clean/pushed-main formal run，不是
+  comparator recovery，也不解锁 gate、confirm、matched-NLL 或 closed-loop。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
 offline oracle/labels、private HF immutable artifact、selector-geometry v2 repaired result 与 OCR/RGB v2
-comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision v1 source contract 已冻结且
-唯一 invocation 在 zero-feature UUID type probe 阶段 `INVALID`；下一步先冻结 type-only v2 replacement，再从
-新的 clean pushed `main` 在两张 H200 上执行 feature/replay/result，并在 result commit 后做独立 CPU artifact
-audit。
+comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision v1 唯一 invocation 在
+zero-feature UUID type probe 阶段 `INVALID`；type-only v2 replacement source 已冻结，下一步从新的 clean pushed
+`main` 在两张 H200 上执行 feature/replay/result，并在 result commit 后做独立 CPU artifact audit。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
