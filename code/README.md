@@ -858,8 +858,8 @@ python3 -m scripts.run_restoration_v2_2_selector_geometry_v2 run \
 ```
 
 result commit/push 后把 subcommand 改为 `validate`，会从 raw table 重算并逐 byte 验证三份 Git result files。
-canonical v2 repair 已从 clean pushed `main@9a4eca5a53c2a9a3340c6274b9fa5ff9012a5a64` 生成，pre-commit
-replay 返回 `VALID_RESTORATION_V2_2_SELECTOR_GEOMETRY_V2_REPAIR`。结果位于
+canonical v2 repair 已从 clean pushed `main@9a4eca5a53c2a9a3340c6274b9fa5ff9012a5a64` 生成。结果 commit
+`d0f25d812869d5fc7b58284a25abe3aa8049b0aa` push 后，clean descendant replay 返回
+`VALID_RESTORATION_V2_2_SELECTOR_GEOMETRY_V2_REPAIR`。结果位于
 `data/results/restoration_v2_2_selector_geometry_v2_repair/`；180 rows、144 joint cells（83 nonempty / 61
-empty）和全部 0-operation declarations 已闭合。提交 result 后仍须在 clean descendant `main` 再运行同一
-`validate` 命令。
+empty）和全部 0-operation declarations 已闭合。

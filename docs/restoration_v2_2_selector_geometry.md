@@ -1,6 +1,7 @@
 # Restoration v2.2 selector geometry
 
-> 状态：v2 reporting-only repair 已从 clean pushed source 完成并通过 pre-commit byte replay；v1 output 未提交。
+> 状态：v2 reporting-only repair 已从 clean pushed source 完成；result push 后已通过 clean-descendant
+> committed-byte replay。v1 output 未提交。
 > OCR/RGB 与 policy-vision feature baselines 仍待补齐。
 > 本阶段只消费已经闭合的 train/development raw $D(S)$，不训练 gate、不读取 confirm/test，也不运行
 > action policy、matched-NLL 或 closed-loop episode。
@@ -249,10 +250,9 @@ pair。这是 objective projection 的真实 pathology，同时也是报告 raw 
 
 旧 v1 核心表由两个不 import 新 selector/result reducer 的独立实现重算：primary 225 个 state-level fields、
 15 个 aggregate fields 与全部 selected coalitions 的 mismatch 都为 0；第三个审计独立复算了 180 rows、
-budget grid、paired bootstrap 与 method-shaping，数值也完全一致。上述 primary 数字因此可以用于 repair 前后
-invariance check，但在 v2 repaired artifact commit/push 并通过 clean-descendant validation 前，不把它们称为最终
-formal result。新 policy forward、generation、teacher/KL、gate、matched-NLL、closed-loop、confirm/test 和
-policy-vision forward 仍全为 0。
+budget grid、paired bootstrap 与 method-shaping，数值也完全一致。上述 primary 数字已用于 repair 前后
+invariance check；v2 repaired artifact commit/push 后又通过 clean-descendant validation。新 policy forward、
+generation、teacher/KL、gate、matched-NLL、closed-loop、confirm/test 和 policy-vision forward 仍全为 0。
 
 ## V2 repaired formal result
 
@@ -268,3 +268,6 @@ primary selector recovery、search/objective-projection gap 与旧 v1 independen
 method-shaping 仍为 `set_conditioned_main_candidate + online_greedy_sufficient`。该决定只授权下一步把
 set-conditioned student 放入主候选，不授权 gate training、confirm 或 paper claim。development 小样本、
 small-`D(empty)` normalized amplification 和 stronger static comparator caveat 均继续适用。
+
+result commit `d0f25d812869d5fc7b58284a25abe3aa8049b0aa` push 后，clean descendant validator 从 immutable raw
+labels 重建并逐 byte 验证三份 files，返回 `VALID_RESTORATION_V2_2_SELECTOR_GEOMETRY_V2_REPAIR`。

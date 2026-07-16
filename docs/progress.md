@@ -1683,6 +1683,9 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `VALID_RESTORATION_V2_2_SELECTOR_GEOMETRY_V2_REPAIR`；complete scientific payload SHA256 为
   `cc505443a7efdc68c8eeca754f24c9143cabf72a090f024fde05011e783cbb21`，180-row JSONL SHA256 为
   `b3f67714bb5667ceda945a3cb953b8987108aef607d5819a617272d48450cb03`；
+- result 与 artifact invariant test 已 commit/push 为
+  `d0f25d812869d5fc7b58284a25abe3aa8049b0aa`；clean descendant `main` 再从 immutable raw labels 重建三份
+  files 并逐 byte 比较，返回同一 `VALID_RESTORATION_V2_2_SELECTOR_GEOMETRY_V2_REPAIR`；
 - v2 显式物化 144 个 joint cells，其中 83 nonempty、61 empty；每 cell 都有 10 selectors，random 在所有
   `B=0..n` 上报告 exact cardinality、analytic match probability 与 expected Jaccard。selector、utility、
   recovery、bootstrap 与 shaping 相对 v1 invariance validator 全部通过；
