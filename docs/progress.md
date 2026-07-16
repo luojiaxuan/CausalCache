@@ -1921,6 +1921,25 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `0.404691` mean 并列解释。`exact_coalition_overlap_with_*` 表示 policy-vision selection 与对应 comparator
   selection 完全相同，不得误读为 comparator 与 exact-subset oracle 相同。
 
+### 2026-07-16：policy-vision v3 validation-repair v1 source freeze
+
+- 新协议只修 evaluated row 七键 state 到 feature provenance 四键 state 的反投影；旧
+  `_feature_record_from_evaluated_row`、producer runner/config、exact-three artifact、failure evidence 与 GPU ledger
+  均不修改；
+- producer source=`a935a3cf5efb1fa7a952ca6f45a5994609b367e9`，artifact commit=
+  `597f050297342d9f29eb383985c2014f5782b2bb`。repair contract SHA256 是
+  `64f63ab7563c227423c15ef82d5fd74d8be11579248908c7ec2880137e5d6ddf`，formal source diff 从 artifact commit
+  起精确锁定 13 paths，并记录 producer 与 validation 两套 Python closure；
+- source tests 复现 legacy provenance failure，验证 exact 7-key→4-key projection、producer/failure/artifact Git
+  binding、tamper/extra/symlink rejection、mock exact-three replay、无 GPU/model CLI、`0600` O_EXCL ledger、atomic
+  sibling staging 与 repair-ledger readback；completion seal 在 publish 前另以 `0600` O_EXCL 创建，锁定 runtime
+  identity、finished time 与两份 final output 的 exact size/SHA，并有 hostname/cwd/finished/output tamper tests；
+- formal `run` 必须位于不暴露任何 `/dev/nvidia*` 的新 CPU-only container。它从 immutable raw labels 重建三份
+  producer files，要求逐 byte 相同；新 result 只允许 `README.md/summary.json`，新 ledger 固定在
+  `/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-attempt.json`，completion seal 固定在
+  `/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-completion-seal.json`。source PASS 不把
+  pending artifact 提前升级为 `VALID`。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
@@ -1930,7 +1949,8 @@ offline oracle/labels、private HF immutable artifact、selector-geometry v2 rep
 comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision v1 唯一 invocation 在
 zero-feature UUID type probe 阶段 `INVALID`；type-only v2 跨过 UUID 后又在 zero-feature SizeDict interface check
 阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 GPU artifact 已完成且不得重跑；下一步先
-提交 exact bytes/failure binding，再冻结 state-projection-only CPU validation repair并完成独立数值审计。
+从新的 clean pushed source 在 CPU-only container 执行 state-projection validation repair，提交 sibling audit 后做
+clean-descendant replay。独立数值审计已经完成且无 blocker，但在 formal repair 通过前不升级 comparator lifecycle。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge

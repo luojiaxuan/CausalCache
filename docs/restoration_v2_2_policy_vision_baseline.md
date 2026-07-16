@@ -426,3 +426,43 @@ witness，逐 byte 重建三份 artifact 均 exact match。当前 artifact 因�
 overall mean normalized recovery 是 `0.404691`；由于小 summary-only distance 的负 outlier 对逐状态 ratio 的
 影响较大，同时保留 ratio-of-sums `0.703501`。artifact 中 `exact_coalition_overlap_with_*` 的语义是
 policy-vision selection 与该 comparator selection 完全相同，并非与 exact-subset oracle 相同。
+
+### v3 validation-repair v1 source freeze
+
+repair v1 使用独立 config/module/runner，不编辑旧 v3 reconstructor。唯一修复是先严格要求 recorded evaluated
+state 恰好包含七键，再按固定顺序投影为 `index/role/trajectory_id/state_id` 四键；其余 feature record 字段仍由
+producer `a935a3cf` 的原函数重建。config SHA256 为
+`64f63ab7563c227423c15ef82d5fd74d8be11579248908c7ec2880137e5d6ddf`，artifact commit 固定为
+`597f050297342d9f29eb383985c2014f5782b2bb`。
+
+source-only validator：
+
+```bash
+cd /absolute/path/to/CausalCache/code
+python3 -m scripts.validate_restoration_v2_2_policy_vision_v3_validation_repair_v1_contract \
+  --repository-root .. \
+  --contract configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json \
+  --validation-source-git-commit <CLEAN_PUSHED_REPAIR_SOURCE_COMMIT>
+```
+
+formal CPU-only runner：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.run_restoration_v2_2_policy_vision_v3_validation_repair_v1 run \
+  --repository-root /data/CausalCache \
+  --contract /data/CausalCache/code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json \
+  --labels-archive /data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar \
+  --producer-attempt-ledger /data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json \
+  --validation-source-git-commit <CLEAN_PUSHED_REPAIR_SOURCE_COMMIT> \
+  --output-dir /data/CausalCache/data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1 \
+  --attempt-ledger /data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-attempt.json \
+  --completion-seal /data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-completion-seal.json
+```
+
+formal container 不传 `--gpus`，且 runner 必须观察到零 NVIDIA device node。它在 claim 新 CPU ledger 前只做 raw
+archive byte identity validation；claim 后才做 label semantic parse/reconstruction。它在 atomic publish 前创建独立
+`0600` O_EXCL completion seal，把 claim SHA、runtime identity、finished time 与两份输出的 exact size/SHA 锁在
+result 之外；seal 已存在但 exact output 未完整发布时，该次 protocol 永久 invalid。全部 producer files、原 GPU
+ledger、claim ledger、completion seal 与 source 在 publication 前后重验。正式 sibling result 尚未生成，因此 source-only PASS 不能写成
+`VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。

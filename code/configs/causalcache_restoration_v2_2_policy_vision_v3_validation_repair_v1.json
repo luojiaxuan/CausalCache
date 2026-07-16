@@ -1,0 +1,168 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1",
+  "preregistration_status": "source_only_frozen_before_any_versioned_cpu_replay_or_audit_result",
+  "repair_scope": {
+    "purpose": "repair_only_the_evaluated_state_to_feature_state_projection_in_the_v3_cpu_validator",
+    "producer_artifact_or_scientific_value_mutation_allowed": false,
+    "producer_gpu_retry_allowed": false,
+    "policy_or_vision_model_load_allowed": false,
+    "image_decode_or_processor_batch_allowed": false,
+    "gpu_query_or_cuda_operation_allowed": false,
+    "policy_feature_or_language_forward_allowed": false,
+    "restoration_label_regeneration_allowed": false,
+    "reconstruction_must_match_all_producer_artifact_bytes": true
+  },
+  "producer": {
+    "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+    "run_status": "COMPLETED_RESTORATION_V2_2_POLICY_VISION_BASELINE_V3_SIZE_DICT_INTERFACE_REPAIR",
+    "producer_source_git_commit": "a935a3cf5efb1fa7a952ca6f45a5994609b367e9",
+    "artifact_git_commit": "597f050297342d9f29eb383985c2014f5782b2bb",
+    "v3_contract": {
+      "path": "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json",
+      "size_bytes": 11037,
+      "sha256": "794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f"
+    },
+    "formal_python_source_closure": {
+      "rule": "all_tracked_python_under_code_causalcache_and_code_scripts_at_source_commit",
+      "path_count": 151,
+      "inventory_sha256": "91f380916ca54fd8baf8987d0c06c18e5728d6b5db99fb86b06cb1ff85114b6d"
+    }
+  },
+  "producer_artifact": {
+    "directory": "data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+    "exact_files": [
+      {
+        "path": "README.md",
+        "size_bytes": 1504,
+        "sha256": "70ce9496983bfafeab04dd5184e5b7d5c8f02a70df9812893af0fe0aed47ed1f"
+      },
+      {
+        "path": "state_scores.jsonl",
+        "size_bytes": 68269,
+        "sha256": "8c5977260bb1a8618b43cd877d963bd637c197e589db532c7ccbcab9c55f58b9"
+      },
+      {
+        "path": "summary.json",
+        "size_bytes": 66273,
+        "sha256": "5ed21d6c397839bc60987bb3ee1db3a0560b6e923557cc1e8e524de921af1c0e"
+      }
+    ],
+    "scientific_payload_sha256": "811e59c780851c19b7fe21314be1e52c1dbfcfa002e63a9857fd34d90ba94f48",
+    "formal_state_count": 15,
+    "candidate_score_count": 60,
+    "unique_image_count": 75
+  },
+  "immutable_inputs": {
+    "restoration_labels": {
+      "raw_archive_size_bytes": 3747840,
+      "raw_archive_sha256": "99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e",
+      "hf_repo": "gavinlaw/causalcache-restoration-labels-mobile",
+      "hf_revision": "8f6baae5c0b23b08915fa1b0fb848dd519b4c8db",
+      "hf_path": "raw/v2.2-eager-train-dev-exact-v2.tar"
+    },
+    "ocr_rgb_identity_witness": {
+      "directory": "data/results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair",
+      "git_commit": "7e59591573cb31f178dfd07422cc2e3c8aeff573",
+      "scientific_payload_sha256": "5942519bdff8f3e8a64bbc8b32a5d42a64abff37daf0804fcce0f098a63765b2"
+    }
+  },
+  "failure_evidence": {
+    "status": "INVALID_POLICY_VISION_V3_CPU_VALIDATE_STATE_PROJECTION",
+    "exception_type": "ValueError",
+    "exception_message": "policy-vision row-to-worker provenance drifted",
+    "files": [
+      {
+        "path": "data/results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/README.md",
+        "size_bytes": 2208,
+        "sha256": "7caad61e23f51038b577906906c2e0004624bcff372db3bcfbe14512125ecc2a"
+      },
+      {
+        "path": "data/results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/failure.json",
+        "size_bytes": 6344,
+        "sha256": "8b1c517838256665d378d100df1b0023b6360a71fe30f08296c54805f3443c29"
+      }
+    ],
+    "bounded_diagnostic_source": {
+      "path": "code/scripts/diagnose_restoration_v2_2_policy_vision_v3_cpu_replay.py",
+      "size_bytes": 1866,
+      "sha256": "84e12ce1ccff68667e7008d9eb76f080230369bd75c0f4b3b04249cdf2f778e4"
+    },
+    "producer_gpu_attempt_ledger": {
+      "canonical_container_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json",
+      "size_bytes": 1030,
+      "sha256": "6aabf8dc07dd45d422e8f21ee30538eded2e5b2a5eed2c36675338bdd15891ef",
+      "mode": "0600"
+    },
+    "diagnostic_exact_file_matches": {
+      "README.md": true,
+      "state_scores.jsonl": true,
+      "summary.json": true
+    }
+  },
+  "projection_contract": {
+    "evaluated_state_keys_exact": [
+      "budget_event_capacity",
+      "candidate_event_step_ids",
+      "decision_step_id",
+      "index",
+      "role",
+      "state_id",
+      "trajectory_id"
+    ],
+    "feature_state_keys_exact_in_output_order": [
+      "index",
+      "role",
+      "trajectory_id",
+      "state_id"
+    ],
+    "budget_event_capacity": 2,
+    "candidate_event_step_ids": [1, 2, 3, 4],
+    "decision_step_id": 6,
+    "all_non_state_fields_must_use_frozen_v3_reconstruction_unchanged": true
+  },
+  "validation_source": {
+    "validation_source_git_commit_is_distinct_from_producer_source_git_commit": true,
+    "required_repository_state": "clean_pushed_main",
+    "source_diff_baseline_git_commit": "597f050297342d9f29eb383985c2014f5782b2bb",
+    "formal_source_changed_paths_exact": [
+      "README.md",
+      "code/README.md",
+      "code/causalcache/restoration_v2_2_policy_vision_v3_validation_repair.py",
+      "code/causalcache/restoration_v2_2_policy_vision_v3_validation_repair_contract.py",
+      "code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json",
+      "code/scripts/run_restoration_v2_2_policy_vision_v3_validation_repair_v1.py",
+      "code/scripts/validate_restoration_v2_2_policy_vision_v3_validation_repair_v1_contract.py",
+      "code/tests/test_restoration_v2_2_policy_vision_v3_validation_repair.py",
+      "code/tests/test_restoration_v2_2_policy_vision_v3_validation_repair_contract.py",
+      "code/tests/test_run_restoration_v2_2_policy_vision_v3_validation_repair_v1.py",
+      "data/README.md",
+      "docs/progress.md",
+      "docs/restoration_v2_2_policy_vision_baseline.md"
+    ],
+    "producer_python_paths_must_remain_byte_identical_to_producer_commit": true,
+    "validation_python_source_closure_must_be_recorded": true,
+    "runtime_source_paths_protected_after_source_freeze": [
+      "code/causalcache/restoration_v2_2_policy_vision_v3_validation_repair.py",
+      "code/causalcache/restoration_v2_2_policy_vision_v3_validation_repair_contract.py",
+      "code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json",
+      "code/scripts/run_restoration_v2_2_policy_vision_v3_validation_repair_v1.py",
+      "code/scripts/validate_restoration_v2_2_policy_vision_v3_validation_repair_v1_contract.py"
+    ]
+  },
+  "output_contract": {
+    "canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1",
+    "exact_files": ["README.md", "summary.json"],
+    "run_status": "VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1",
+    "validate_status": "REVALIDATED_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1",
+    "formal_attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-attempt.json",
+    "formal_attempt_ledger_mode": "0600",
+    "formal_attempt_ledger_creation": "O_CREAT_O_EXCL_before_label_parse_or_reconstruction",
+    "formal_completion_seal_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-completion-seal.json",
+    "formal_completion_seal_mode": "0600",
+    "formal_completion_seal_creation": "O_CREAT_O_EXCL_after_exact_audit_bytes_before_atomic_publish",
+    "source_freeze_requires_result_staging_ledgers_and_seal_absent": true,
+    "incomplete_seal_without_published_exact_output_is_permanently_invalid": true,
+    "producer_artifact_must_remain_read_only": true
+  }
+}

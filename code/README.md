@@ -138,6 +138,15 @@ evaluated output row 的七键 state 被原样当成四键 feature-state，导�
 exact bytes。当前状态是 `COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，下一步只允许冻结纯 CPU
 validation repair，不加载 model、不重算 feature。
 
+该 repair 已冻结为
+`configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json`，SHA256
+`64f63ab7563c227423c15ef82d5fd74d8be11579248908c7ec2880137e5d6ddf`。独立 contract/core/runner 不修改旧
+v3 helper；producer=`a935a3cf`、artifact=`597f0502`，repair source 使用后续 clean pushed commit。formal runner
+只接受 labels、producer GPU ledger、repair ledger、source commit 与 sibling output，不接受 model、derived images、
+GPU UUID 或 device 参数。`run` 使用新 `0600` O_EXCL ledger，并在 atomic publish 前写入另一个
+`0600` O_EXCL completion seal，锁定 runtime identity、finished time 和 exact output size/SHA；`validate` 只读核对
+同 ledger/seal、重建 exact-three 并要求 clean pushed descendant。source freeze 尚未生成 audit result。
+
 v2 executable interface 使用显式 versioned 模块 `causalcache.policy.gui_owl_v2` 与
 `causalcache.low_fidelity_v2`，不修改历史 v1 parser/prompt/schema。CPU validator 对 restricted grammar、
 canonical teacher target、AndroidWorld payload、八字段 serialization 和 steps 4/5/6 共 28 个 prompt

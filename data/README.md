@@ -191,6 +191,11 @@ restoration v2 exact selection/exposure 产物：
   recorded evaluated-state 未投影回四键 feature-state 而 fail closed；failure binding 位于
   `results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/`。当前 artifact 是
   `COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，不得写成 `VALID`，也没有新的 HF artifact。
+  versioned CPU repair v1 source 已冻结；预留的 sibling result
+  `results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1/` 在 source freeze 时必须不存在。它只会保存
+  `README.md/summary.json` 两份轻量 Git audit，不产生新 dataset/model；raw labels 继续引用既有 private HF
+  immutable revision `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`。正式运行时由外部 `0600` O_EXCL attempt
+  ledger 与 completion seal 共同绑定 runtime 和 exact output bytes，两者都不进入 Git。
 
 最新轻量运行记录：
 
