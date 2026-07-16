@@ -663,11 +663,13 @@ python3 -m scripts.package_spatial_reference_audit_v1 \
 packager 拒绝 symlink、FIFO/device/socket 等 non-regular member，按路径排序并将 USTAR metadata 统一为
 mode `0644`、uid/gid/mtime `0`；写前和写后都会重新读取全部 members 并重建 canonical bytes，要求 byte identity。
 raw archive 随后上传 private HF dataset
-`gavinlaw/causalcache-spatial-reference-audit-mobile@spatial-reference-audit-v1` 并 fresh immutable download；Git
-只回写 compact summary/artifact binding。严格 CUDA deterministic mode 需要项目禁止的 scientific environment
+`gavinlaw/causalcache-spatial-reference-audit-mobile@spatial-reference-audit-v1` 并 fresh immutable download；
+canonical revision 为 `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，archive SHA256 为
+`d62ad05f6fdef06a3551f2ebe9f83f28327068f0020ff3e61891da4f46ce5ecc`。Git 只回写 compact
+summary/artifact binding。严格 CUDA deterministic mode 需要项目禁止的 scientific environment
 variable，因此 profile 只声称 eager fixed-seed/TF32-off numerical control，不声称数学确定性。所有命令的
 confirm/restoration/gate operation count 必须为 0。
 
 最终判定为三分支：eager 不稳定则进入 semantic reference；只有 eager 13/13 且 auto 非 13/13 才称为
 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；若两者均 13/13，则结论是本次 numerical audit inconclusive，
-不得把稳定性归因给 eager。FP32 永不参与 pass/fail。
+不得把稳定性归因给 eager。FP32 永不参与 pass/fail。本次 repaired artifact 落在 eager-specific 分支。

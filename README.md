@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit profiles complete (auto 7/13、eager 13/13、FP32 4/4), original validator failed closed, offline repair pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / confirm locked
 
 ## 团队交接入口
 
@@ -70,11 +70,13 @@ recovery、两者均 stable→本次 numerical audit inconclusive；FP32 与 tea
 BF16 auto 为 7/13 exact stable、BF16 eager-control 为 13/13、FP32 描述性 probe 为 4/4；confirm、restoration
 和 gate 均为 0。原独立 validator 随后因把 processor target `2560` 误当成所有 realized grid 的固定 token 数而
 fail closed，且还把 teacher aligned inventory 错写为 `attention_mask + input_ids`。raw profile 与 terminal
-ledger 已冻结，不允许重跑；新的纯离线 validation repair 只修这两个读取契约，并要求所有 shape metadata 与
-固定 parent raw witness exact，见
+ledger 已冻结且未重跑；纯离线 validation repair 只修这两个读取契约，并要求所有 shape metadata 与固定 parent
+raw witness exact，见
 [`docs/spatial_reference_audit_v1_validation_repair.md`](docs/spatial_reference_audit_v1_validation_repair.md)。
-在 repaired validator、deterministic USTAR、HF immutable fresh-download 和 Git result 全部闭合前，
-`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` 仍只是 raw-derived candidate decision；v2.1 NO-GO 不变。
+repair、72-member deterministic USTAR 与 private HF immutable fresh-download 已全部闭合，正式归约为
+`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；这只支持冻结新的 `v2.2-eager` runtime，不改写 v2.1 NO-GO，
+也尚未授权 restoration 或 confirm。轻量结果见
+[`data/results/spatial_reference_audit_v1/`](data/results/spatial_reference_audit_v1/)。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变
@@ -515,7 +517,9 @@ $$
 - [x] 首次 subset-search CPU attempt 在 pre-commit JSON round-trip validation fail closed；output 未保留；
 - [x] push serialization fix 后从新 clean source canonical rerun；pre-commit scientific replay 通过；
 - [x] 提交/push subset-search result，并从 clean descendant main 通过 committed full-payload validator；
-- [ ] 在不读取 confirm policy output 的前提下，决定是否冻结新的 executable/UI-element equivalence protocol；
+- [x] 完成 bounded spatial audit、离线 validator repair、deterministic USTAR 与 private HF immutable binding；
+- [ ] 冻结新的 `v2.2-eager` runtime/source，并运行 fresh 45-state substrate；
+- [ ] 只有 `v2.2-eager` 仍不稳定时，才决定是否冻结 executable/UI-element equivalence protocol；
 - [ ] 只有新 substrate gate 通过后，才构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -534,6 +538,10 @@ $$
 - Subset-search contract and interpretation: [`ablations/subset_search.md`](ablations/subset_search.md)
 - Frozen subset-search config: [`code/configs/subset_search_ablation_v1.json`](code/configs/subset_search_ablation_v1.json)
 - Subset-search canonical CPU result: [`data/results/subset_search_ablation_v1/`](data/results/subset_search_ablation_v1/)
+- Spatial reference audit protocol: [`docs/spatial_reference_audit_v1.md`](docs/spatial_reference_audit_v1.md)
+- Spatial validator-repair contract: [`docs/spatial_reference_audit_v1_validation_repair.md`](docs/spatial_reference_audit_v1_validation_repair.md)
+- Spatial validator-repair config: [`code/configs/spatial_reference_audit_v1_validation_repair_v1.json`](code/configs/spatial_reference_audit_v1_validation_repair_v1.json)
+- Spatial reference audit canonical result: [`data/results/spatial_reference_audit_v1/`](data/results/spatial_reference_audit_v1/)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)
@@ -624,8 +632,10 @@ $$
   90-prompt processor preflight 与唯一 fixed-15 pilot 均已正式通过；后者 15/15 parse/closer/bridge，raw
   artifact 已绑定 private HF immutable revision。唯一 full-45 formal attempt 得到 45/45 parse、32/45 exact
   canonical repeat agreement、32/45 finite-logit coverage 与 32 个 memory-sensitive states，正式为
-  `NO_GO_V2_1_FULL_45_SUBSTRATE`。没有 restoration、baseline selection、gate training 或 confirm work；当前
-  v2.1 路线已停止，confirm 仍 locked。
+  `NO_GO_V2_1_FULL_45_SUBSTRATE`。bounded spatial audit 随后得到 auto 7/13、eager 13/13，并在不重跑
+  profile 的离线 repair 后正式归约为 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；private HF immutable
+  artifact 已 fresh-download 复核。没有 restoration、baseline selection、gate training 或 confirm work；下一步是
+  新的 `v2.2-eager` substrate，confirm 仍 locked。
 
 ### Data and Models
 
@@ -647,6 +657,7 @@ $$
 | Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |
 | Restoration v2.1 full-45 substrate trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile> | `v2.1-full-45-substrate-v1` / `814506ef1450838d4bc6ed3d89fe53e0773d92fb`，private | 45/45 parse、32/45 exact repeat agreement、32 memory-sensitive；`NO_GO_V2_1_FULL_45_SUBSTRATE`；raw USTAR SHA256 `8cd53d6e...f4fa4`、962,560 bytes；fresh immutable download verified |
+| Spatial reference audit trace | <https://huggingface.co/datasets/gavinlaw/causalcache-spatial-reference-audit-mobile> | `spatial-reference-audit-v1` / `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，private | auto 7/13、eager 13/13、FP32 4/4 descriptive；`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR SHA256 `d62ad05f...e5ecc`；fresh immutable canonical rebuild verified |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent

@@ -1,0 +1,97 @@
+{
+  "artifact_type": "private_hf_spatial_reference_audit_v1_raw_evidence",
+  "execution": {
+    "container_id": "7ca0845bbaa5f35744fa462a1d7a57e2ff644dda9f99f1f62f15ef845134ff4b",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "device": "cuda:0",
+    "gpu": {
+      "name": "NVIDIA H200",
+      "nvidia_smi_index": 0,
+      "pci_bus_id": "00000000:08:00.0",
+      "uuid": "GPU-166288d3-a850-bcc1-8716-96c33d3a5679",
+      "visible_gpu_count": 1
+    },
+    "host_alias": "hyper01",
+    "hostname": "node-radixark-16-0001",
+    "profiles": [
+      {
+        "ended_at_utc": "2026-07-16T03:50:21.713221Z",
+        "profile_id": "bf16_auto",
+        "started_at_utc": "2026-07-16T03:48:03.463535Z",
+        "terminal_sha256": "bcde7a728caacb8d847f9e667572c18a92c71abb9a63b22d2d4a8fd07c2773da"
+      },
+      {
+        "ended_at_utc": "2026-07-16T03:58:26.317974Z",
+        "profile_id": "bf16_eager_control",
+        "started_at_utc": "2026-07-16T03:50:44.525072Z",
+        "terminal_sha256": "17f7ad5cef19553b689be4526eb65f15664fa32a01d10094fe6cb895f02db08d"
+      },
+      {
+        "ended_at_utc": "2026-07-16T04:03:56.643983Z",
+        "profile_id": "fp32_eager_control",
+        "started_at_utc": "2026-07-16T03:58:50.566816Z",
+        "terminal_sha256": "0160d042537bbed2ff7ee56b3f61911a2846470f952c3672b67594d80cae462f"
+      }
+    ],
+    "software": {
+      "cudnn_version": 91900,
+      "nvidia_driver_version": "570.172.08",
+      "python_version": "3.12.3",
+      "torch_cuda_version": "13.0",
+      "torch_version": "2.11.0+cu130",
+      "transformers_version": "5.6.0"
+    }
+  },
+  "formal_failure_and_repair": {
+    "original_exit_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "original_failure": "ValueError: generation per-image effective visual token count drifted",
+    "original_log_sha256": "bcea26499e29b6e4911831693d12f34d6c0864b6fa7a1d2032839b1a47c1f3c5",
+    "raw_audit_git_commit": "c093bd8f92ab97427acb427bd2d66fb6b20b556a",
+    "repair_added_operation_counts": {
+      "confirm_state_accesses": 0,
+      "gate_training_examples": 0,
+      "generation_calls": 0,
+      "restoration_coalition_constructions": 0,
+      "teacher_forwards": 0
+    },
+    "repair_git_commit": "a2528d7e95e73c25639568650f63abce58e4e491",
+    "repair_status": "VALID_SPATIAL_REFERENCE_AUDIT_V1_VALIDATION_REPAIR_V1"
+  },
+  "git_result": {
+    "readme_path": "data/results/spatial_reference_audit_v1/README.md",
+    "readme_sha256": "b2c0ce7af0e4a85771189c06748d5cfa51dc86e83b7e600d4781d64a833f5200",
+    "summary_path": "data/results/spatial_reference_audit_v1/summary.json",
+    "summary_sha256": "910d4bdf0c22f57058a505c46b4af04ce7f0ebaf5e316e6d6a5cf963a8e8f21c"
+  },
+  "hf_artifact": {
+    "exact_file_allowlist": [
+      "README.md",
+      "manifest.json",
+      "raw/spatial-reference-audit-v1.tar"
+    ],
+    "immutable_revision": "d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1",
+    "manifest_sha256": "37f89b40e5a75b6c3073d32b2d3b4aeff90c07b3ada20075a21e428d99cbcf1a",
+    "path": "raw/spatial-reference-audit-v1.tar",
+    "readme_sha256": "c8d86701f6eb28c43e181b386a77fee7cfe69a0070228adac255be82690a4c92",
+    "repo": "gavinlaw/causalcache-spatial-reference-audit-mobile",
+    "repo_type": "dataset",
+    "tag": "spatial-reference-audit-v1",
+    "tag_resolution_verified": true,
+    "url": "https://huggingface.co/datasets/gavinlaw/causalcache-spatial-reference-audit-mobile",
+    "visibility": "private"
+  },
+  "protocol_id": "spatial_reference_audit_v1",
+  "raw_archive": {
+    "file_count": 72,
+    "format": "ustar",
+    "fresh_immutable_download_hash_verified": true,
+    "fresh_immutable_download_rebuilt_canonical_bytes": true,
+    "sha256": "d62ad05f6fdef06a3551f2ebe9f83f28327068f0020ff3e61891da4f46ce5ecc",
+    "size_bytes": 1873920,
+    "summary_scientific_payload_sha256": "2d73e395d5ee91349adf904b344b7ae25569e79ce8bfa35be9df7902ab8dc79e",
+    "summary_sha256": "1d6dc90c602a3cb97ff58da8fafe03eefe31b19d1673084a132cc328c9229bf4",
+    "tree_inventory_sha256": "6423c13f4b7067f5a2139442bab0be11a1ef5da9f880f51a1131768afa963b82"
+  },
+  "schema_version": "1.0.0",
+  "status": "VERIFIED_SPATIAL_REFERENCE_AUDIT_V1_ARTIFACT"
+}

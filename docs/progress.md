@@ -1470,11 +1470,31 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   execution、旧 deterministic USTAR、HF immutable fresh-download 与 Git result 尚未闭合，因此 candidate decision
   暂不提升为正式 artifact verdict。
 
+### 2026-07-15：Spatial reference audit v1 artifact 闭合
+
+- validation-repair source 在 clean pushed `main@a2528d7e95e73c25639568650f63abce58e4e491` 冻结，full
+  CPU suite 为 482 passed / 11 optional-dependency skips；唯一 Hyper01 offline repair exit 0，只新增 canonical
+  `summary.json`，未加载 processor/model，也没有新增 generation、teacher、confirm、restoration 或 gate operation；
+- repaired validator 复用旧 validator 全链，并把旧 config + 33-file source inventory 逐 blob 绑定回 raw commit
+  `c093bd8f...`。60/60 generation shape、120/120 teacher shape 与 parent witness 通过；observed per-image effective
+  visual tokens 为 2516/2560/2584，但只作 evidence inventory，不作 acceptance whitelist；
+- 正式 decision 为 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`：BF16 eager-control 13/13 exact stable，BF16
+  auto 7/13；FP32 4/4 仍是 descriptive probe，不控制结论。原 `NO_GO_V2_1_FULL_45_SUBSTRATE` 永久不变；
+- deterministic USTAR 含 72 members，1,873,920 bytes，SHA256
+  `d62ad05f6fdef06a3551f2ebe9f83f28327068f0020ff3e61891da4f46ce5ecc`，tree inventory SHA256
+  `6423c13f4b7067f5a2139442bab0be11a1ef5da9f880f51a1131768afa963b82`；
+- private HF dataset `gavinlaw/causalcache-spatial-reference-audit-mobile` 的 canonical immutable revision 为
+  `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，tag `spatial-reference-audit-v1` exact 解析到该 revision。
+  从全新 cache 强制下载后，README/manifest/raw 三文件 allowlist、archive hash/size、canonical USTAR rebuild、
+  72-member tree、summary SHA 与 scientific payload hash 均 exact；
+- Git 只回写 `data/results/spatial_reference_audit_v1/` 的 compact summary/artifact binding。下一步不是
+  restoration，而是先冻结一个全新 `v2.2-eager` source 与 fresh 45-state attempt；任何失败都不回写本 audit。
+
 ## 下一步
 
-Subset-search v1 已闭合，不继续为 optimizer 本身追加算法。先完成 spatial audit 的纯离线 validation repair、
-deterministic USTAR、private HF immutable binding 与 Git result；不得重跑任何 profile。若 repaired artifact
-保持 BF16 eager-control 13/13 且 BF16 auto 7/13，才冻结新的 `v2.2-eager` runtime 和全新 45-state attempt；
-只有 eager 不稳定才进入独立 source-only semantic-key / canonical-representative protocol。任何 semantic protocol 都不能用当前 13 个 delta 调 radius，且必须在 synthetic
+Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
+profile。下一步冻结新的 `v2.2-eager` runtime 与全新 45-state attempt；若新 substrate 仍不稳定，再进入独立
+source-only semantic-key / canonical-representative protocol。任何 semantic protocol 都不能用当前 13 个 delta
+调 radius，且必须在 synthetic
 邻接控件 negative fixture 与独立 AndroidWorld UI-node calibration artifact 上先验证。之后只有新的 versioned
 45-state substrate gate 通过，才允许 exact restoration；全部选择和阈值冻结后，最后才能打开 confirm。

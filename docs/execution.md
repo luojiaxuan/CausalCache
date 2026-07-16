@@ -636,6 +636,14 @@ teacher aligned-input inventory 和原 validator 的其余全链全部通过后�
 packager，`--source-git-commit` 必须传产生 raw 的 `c093bd8f92ab97427acb427bd2d66fb6b20b556a`，不能传
 repair commit；repair commit 由 summary 内部单独记录。
 
+2026-07-15 该流程已从 clean `main@a2528d7e95e73c25639568650f63abce58e4e491` 一次完成。repair
+summary SHA256 为 `1d6dc90c602a3cb97ff58da8fafe03eefe31b19d1673084a132cc328c9229bf4`，scientific payload
+SHA256 为 `2d73e395d5ee91349adf904b344b7ae25569e79ce8bfa35be9df7902ab8dc79e`。冻结 packager 产生
+1,873,920-byte / 72-member USTAR，SHA256
+`d62ad05f6fdef06a3551f2ebe9f83f28327068f0020ff3e61891da4f46ce5ecc`。private HF immutable revision
+`d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1` 已从全新 cache 下载并完成 byte identity、canonical rebuild
+与 exact file allowlist 检查；tag `spatial-reference-audit-v1` 解析到同一 revision。
+
 严格 CUDA deterministic GEMM 需要 `CUBLAS_WORKSPACE_CONFIG`，与本项目“不用 environment variable 传
 scientific 参数”的规则冲突。因此 v1 不启用 `torch.use_deterministic_algorithms(True)`，只比较 legacy auto 与
 eager fixed-seed/TF32-off numerical control；文档和结果不得把后者写成数学 deterministic。confirm input/output、

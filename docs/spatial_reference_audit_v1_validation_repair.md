@@ -13,7 +13,9 @@
 
 三个 profile terminal 与 sibling attempt ledger 都已 durable terminal，ledger 状态为
 `COMPLETED_SPATIAL_REFERENCE_AUDIT_ATTEMPT`。原 formal wrapper 随后在独立 validator 阶段以 exit code 1
-fail closed，因此尚未生成 summary、USTAR 或 HF artifact，也尚不能把上述 raw reduction写成正式结论。
+fail closed。随后从 clean pushed `main@a2528d7e95e73c25639568650f63abce58e4e491` 执行唯一一次纯离线
+repair，exit 0；72-member USTAR 与 private HF immutable fresh-download 也已闭合。正式 decision 是
+`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`，但原 v2.1 NO-GO 不变。
 
 ## 失败原因
 
@@ -72,11 +74,17 @@ policy-operation boundary 纳入 scientific payload hash。
 
 ## Artifact
 
-repair 通过后仍使用 policy attempt 前已冻结的 deterministic USTAR packager；它会打包 canonical audit root
-（包括 repair provenance）与 root 外 sibling ledger。packager 的 `source_git_commit` 仍是产生 raw 的
-`c093bd8f...`，不能改写成 repair commit。上传 private HF、按 immutable revision fresh-download、canonical
-USTAR rebuild 和逐 member tree hash 全部通过后，才在 Git 写回正式 result。
+repair 后仍使用 policy attempt 前已冻结的 deterministic USTAR packager；它打包 canonical audit root（包括
+repair provenance）与 root 外 sibling ledger。packager 的 `source_git_commit` 保持产生 raw 的 `c093bd8f...`，
+没有改写成 repair commit。canonical private HF artifact 为：
 
-原 v2.1 结论 `NO_GO_V2_1_FULL_45_SUBSTRATE` 永久不变。只有 repaired independent validation 与 artifact
-闭合后，才能依据冻结三分支 rule 把 eager 13/13、auto 7/13 归约为
-`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`，再单独冻结 `v2.2-eager` source。
+- repo：`gavinlaw/causalcache-spatial-reference-audit-mobile`；
+- immutable revision：`d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`；
+- tag / path：`spatial-reference-audit-v1` / `raw/spatial-reference-audit-v1.tar`；
+- archive：1,873,920 bytes、72 members、SHA256
+  `d62ad05f6fdef06a3551f2ebe9f83f28327068f0020ff3e61891da4f46ce5ecc`；
+- fresh-download canonical rebuild 与逐 member tree hash：通过。
+
+原 v2.1 结论 `NO_GO_V2_1_FULL_45_SUBSTRATE` 永久不变。repaired independent validation 与 artifact 已闭合，
+依据冻结三分支 rule 将 eager 13/13、auto 7/13 归约为
+`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`。下一步必须单独冻结 `v2.2-eager` source；不能复用本次 raw。

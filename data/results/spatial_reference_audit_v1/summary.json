@@ -1,0 +1,91 @@
+{
+  "artifact_id": "spatial-reference-audit-v1",
+  "claim_boundary": {
+    "fp32_eager_control_is_descriptive_only": true,
+    "parent_v2_1_outcome_unchanged": "NO_GO_V2_1_FULL_45_SUBSTRATE",
+    "strict_cuda_determinism_claimed": false
+  },
+  "decision": "EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY",
+  "git": {
+    "raw_audit_commit": "c093bd8f92ab97427acb427bd2d66fb6b20b556a",
+    "validation_repair_commit": "a2528d7e95e73c25639568650f63abce58e4e491"
+  },
+  "hf_artifact": {
+    "archive": {
+      "member_count": 72,
+      "path": "raw/spatial-reference-audit-v1.tar",
+      "sha256": "d62ad05f6fdef06a3551f2ebe9f83f28327068f0020ff3e61891da4f46ce5ecc",
+      "size_bytes": 1873920,
+      "tree_inventory_sha256": "6423c13f4b7067f5a2139442bab0be11a1ef5da9f880f51a1131768afa963b82",
+      "type": "deterministic_ustar"
+    },
+    "fresh_download_verification": {
+      "canonical_ustar_rebuild_verified": true,
+      "exact_file_allowlist": [
+        "README.md",
+        "manifest.json",
+        "raw/spatial-reference-audit-v1.tar"
+      ],
+      "exact_file_allowlist_verified": true,
+      "immutable_revision_verified": true
+    },
+    "manifest_sha256": "37f89b40e5a75b6c3073d32b2d3b4aeff90c07b3ada20075a21e428d99cbcf1a",
+    "private": true,
+    "readme_sha256": "c8d86701f6eb28c43e181b386a77fee7cfe69a0070228adac255be82690a4c92",
+    "repo_id": "gavinlaw/causalcache-spatial-reference-audit-mobile",
+    "repo_type": "dataset",
+    "revision": "d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1",
+    "tag": "spatial-reference-audit-v1"
+  },
+  "next_step": "FREEZE_NEW_V2_2_EAGER_SOURCE",
+  "operation_counts": {
+    "confirm_state_accesses": 0,
+    "gate_training_examples": 0,
+    "generation_calls": 60,
+    "restoration_coalition_constructions": 0,
+    "teacher_forwards": 120
+  },
+  "profiles": [
+    {
+      "duration_seconds": 138.2496873100754,
+      "exact_canonical_action_stable_count": 7,
+      "exact_generated_token_sequence_stable_count": 7,
+      "peak_gpu_memory_allocated_bytes": 22299479040,
+      "profile_id": "bf16_auto",
+      "state_count": 13
+    },
+    {
+      "duration_seconds": 461.7929090599064,
+      "exact_canonical_action_stable_count": 13,
+      "exact_generated_token_sequence_stable_count": 13,
+      "peak_gpu_memory_allocated_bytes": 91697764864,
+      "profile_id": "bf16_eager_control",
+      "state_count": 13
+    },
+    {
+      "decision_role": "descriptive_only",
+      "duration_seconds": 306.0771639288869,
+      "exact_canonical_action_stable_count": 4,
+      "exact_generated_token_sequence_stable_count": 4,
+      "peak_gpu_memory_allocated_bytes": 99273054208,
+      "profile_id": "fp32_eager_control",
+      "state_count": 4
+    }
+  ],
+  "raw_summary": {
+    "scientific_payload_sha256": "2d73e395d5ee91349adf904b344b7ae25569e79ce8bfa35be9df7902ab8dc79e",
+    "sha256": "1d6dc90c602a3cb97ff58da8fafe03eefe31b19d1673084a132cc328c9229bf4"
+  },
+  "schema_version": "1.0.0",
+  "shape_validation": {
+    "generation_shape_node_count": 60,
+    "observed_effective_visual_tokens_per_image": [
+      2516,
+      2560,
+      2584
+    ],
+    "teacher_shape_node_count": 120,
+    "total_shape_node_count": 180
+  },
+  "status": "VALID_SPATIAL_REFERENCE_AUDIT_V1_VALIDATION_REPAIR_V1"
+}

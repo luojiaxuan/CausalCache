@@ -135,16 +135,23 @@ restoration v2 exact selection/exposure 产物：
   (`814506ef1450838d4bc6ed3d89fe53e0773d92fb`)；94-file deterministic USTAR SHA256
   `8cd53d6e...f4fa4`、962,560 bytes，fresh immutable download verified；verdict
   `NO_GO_V2_1_FULL_45_SUBSTRATE`；clean `main@554c51e` committed-binding validation passed。
-- Spatial reference audit v1：planned private HF dataset
-  `gavinlaw/causalcache-spatial-reference-audit-mobile@spatial-reference-audit-v1`；当前只有 Git-tracked
-  source/config、`fixtures/spatial_reference_audit_v1_parent_mismatches.json` 和
+- Spatial reference audit v1：canonical private HF dataset
+  `gavinlaw/causalcache-spatial-reference-audit-mobile@spatial-reference-audit-v1`；Git-tracked source/config、
+  `fixtures/spatial_reference_audit_v1_parent_mismatches.json` 和
   `manifests/spatial_reference_audit_v1_exposure.json`。旧 `restoration_v2_exposure.json` 是 immutable
   historical pre-output snapshot；新 child ledger 记录已经发生的 v2/v2.1 output 与本 audit 的零新-output freeze。
-  唯一 GPU attempt 的三个 raw profile 已完成（auto 7/13、eager 13/13、FP32 4/4），但原 validator 在 summary
-  前因 realized-grid 与 aligned-input 两个读取契约错误 fail closed；profile 不重跑，纯离线 repair 仍 pending。
-  HF immutable revision 和 compact result 尚未产生，不能写成已完成 artifact。
+  唯一 GPU attempt 的三个 raw profile 为 auto 7/13、eager 13/13、FP32 4/4；原 validator 在 summary 前因
+  realized-grid 与 aligned-input 两个读取契约错误 fail closed，profile 未重跑。纯离线 repair、72-member
+  deterministic USTAR 与 private HF immutable fresh-download 已闭合，正式 decision 为
+  `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`。Git 轻量结果位于
+  `results/spatial_reference_audit_v1/`，raw canonical artifact 位于
+  `gavinlaw/causalcache-spatial-reference-audit-mobile@d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`。
 
 最新轻量运行记录：
+
+- `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
+  auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private
+  HF immutable revision `d6b2312e...45c1` fresh-download 并完成 canonical rebuild；v2.1 NO-GO 不变；
 
 - `results/restoration_v2_ocr_backend/`：保留首次 package-source key 冲突与 mutable-status 两个 superseded
   attempt；最终 static fixture 已从 pushed commit 两次通过 `validate-golden` 且 byte-identical。synthetic
