@@ -755,3 +755,41 @@ logits、45 memory-sensitive states，正式 `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`
 private HF revision 为 `3577099d505b8c652d764f41269df911128ec767`，fresh immutable download 已逐 byte
 复核。Git compact result 见 `data/results/restoration_v2_2_eager_full_45_substrate/`，完整边界见
 `docs/restoration_v2_2_eager.md`。
+
+## Restoration v2.2 label source freeze
+
+`configs/causalcache_restoration_v2_2_labels.json`、
+`scripts.validate_restoration_v2_2_label_contract`、`scripts.run_restoration_v2_2_labels` 与
+`scripts.manage_restoration_v2_2_label_artifact` 已在 clean pushed
+`main@3942d687d03bf63ea683fe8ad906a161eb10dc27` 冻结。contract SHA256 为
+`56b29f6879ef14167b20a39d0d61ebd0e698e3bbf0457062b63453180e71cf87`，29-file source inventory
+SHA256 为 `8d0ecf6b0df75f9fa7753631b8fca5efd98c71a7953007e684393e6e8fe52d9b`。source-only validation：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.validate_restoration_v2_2_label_contract \
+  --contract configs/causalcache_restoration_v2_2_labels.json \
+  --repository-root ..
+```
+
+冻结的正式 schedule 为 45 states、420 条 raw `D(S)`、45 个 primary exact-subset oracle、435 条
+deployment conditional-marginal labels、465 次 teacher forward、420 次 GPU KL 与 0 generation。双 H200
+worker 固定 23/22 parity，microbatch 固定为 1；confirm、gate training、matched-NLL 与 closed-loop counter
+必须为 0。canonical root、sibling ledger 与 raw archive 分别为：
+
+```text
+/data/experiments/causalcache/restoration-v2-2-eager-labels-v1
+/data/experiments/causalcache/.restoration-v2-2-eager-labels-v1.attempt.json
+/data/experiments/causalcache/restoration-v2-2-eager-labels-v1.raw.tar
+```
+
+正式 runner 的完整显式 argv、fresh immutable parent/derived inputs 与 lifecycle 见
+`docs/restoration_v2_2_labels.md`；不得通过 alternate path、resume、retry 或 top-up 绕过唯一 attempt。terminal
+后才可用 artifact manager 生成 deterministic USTAR、上传 planned private HF dataset
+`gavinlaw/causalcache-restoration-labels-mobile@v2.2-eager-train-dev-exact-v1` 并从 immutable revision fresh
+download 验证。formal v1 attempt 已因指定 model snapshot directory 不存在而 fail closed；两个 worker 都在
+state marker、teacher forward 与 KL 前退出，attempted/completed states 为 0/0，原 identity 不得 retry/resume。
+没有 raw labels 或 HF repo/revision；compact failure binding 位于
+`data/results/restoration_v2_2_eager_labels_v1_attempt/`。replacement 必须使用新 attempt identity，并把 model
+snapshot existence/revision/inventory validation 前移到 durable claim 之前。source-freeze 完整回归为 575 tests
+OK（skipped 11），`make paper` 通过。

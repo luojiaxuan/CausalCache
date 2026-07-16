@@ -11,6 +11,16 @@ machine-readable contract 是
 任何 restoration teacher forward 前必须先 commit/push source，并从 clean `main` 验证 contract、source inventory、
 immutable v2.2 parent raw 和 immutable derived artifact。
 
+v1 source freeze 已完成并推送：clean `main@3942d687d03bf63ea683fe8ad906a161eb10dc27`，contract SHA256
+`56b29f6879ef14167b20a39d0d61ebd0e698e3bbf0457062b63453180e71cf87`，29-file source inventory
+SHA256 `8d0ecf6b0df75f9fa7753631b8fca5efd98c71a7953007e684393e6e8fe52d9b`。完整回归为 575 tests
+OK（skipped 11），`make paper` 通过。该状态只证明 source、schema、schedule 与 fail-closed lifecycle 已冻结；
+formal v1 随后因指定 model snapshot directory 不存在，在两个 worker 都尚未写 state marker、teacher forward 或
+KL 时 fail closed：attempted/completed states 为 0/0，原 identity 的 retry/resume 均永久禁止。没有 raw `D(S)`、
+exact-subset oracle、conditional-marginal rows 或 HF repo/tag/revision；compact failure binding 位于
+`data/results/restoration_v2_2_eager_labels_v1_attempt/`。confirm、gate training、matched-NLL 与 closed-loop 仍未
+运行，且本协议禁止把它们混入 label attempt。
+
 ## Reference identity
 
 parent 是已经闭合的 v2.2 artifact：
@@ -157,6 +167,13 @@ utilization monitor。
 raw root 与 sibling ledgers 打包为 deterministic USTAR，目标 private HF dataset：
 
 `gavinlaw/causalcache-restoration-labels-mobile@v2.2-eager-train-dev-exact-v1`
+
+这是 v1 planned target，不是现有 artifact：formal v1 已 zero-forward `INVALID`，因此 repo/tag/immutable revision
+与 raw archive 均未创建。v1 canonical local output、ledger 与 archive 分别是
+`/data/experiments/causalcache/restoration-v2-2-eager-labels-v1`、
+`/data/experiments/causalcache/.restoration-v2-2-eager-labels-v1.attempt.json` 和
+`/data/experiments/causalcache/restoration-v2-2-eager-labels-v1.raw.tar`；前两个现作为不可重试的 failure evidence
+保留，archive 不存在。replacement 必须由新 contract 冻结不同的 attempt/output/ledger/archive/tag identity。
 
 上传后必须从 immutable revision 下载到独立路径，重新运行完整 raw reducer，并要求 fresh archive 与 source
 archive 逐 byte 相同。Git 只保存 compact artifact binding、summary 和文档，不保存 raw labels。confirm artifact、

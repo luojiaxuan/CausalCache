@@ -1,0 +1,52 @@
+{
+  "attempt_id": "restoration-v2-2-eager-labels-v1",
+  "attempted_state_count": 0,
+  "claimed_at_utc": "2026-07-16T16:39:43.874890Z",
+  "completed_state_count": 0,
+  "container_id": "39749a3bd0875f3c15216211f875220a4934fe62313487b537c1116e82040ff0",
+  "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+  "ended_at_utc": "2026-07-16T16:40:14.012087Z",
+  "evidence_sha256": {
+    "even_sibling_ledger": "73c6b6ec505349cec922c38020b89f177670c0a41b5bb7bcc7deed36e280201d",
+    "even_terminal": "baf06414e766571991d99fe471eb8f2aacb9408dfbf6839e5709d34586ae0603",
+    "global_ledger": "36afef01861304647290bbac5f7ef9d662c8a92e42aabcd02c54835a41233af6",
+    "odd_sibling_ledger": "12041df247d302505e6a5e2615ea3fcc5cafea3561b704e7b2073084a4ddb20b",
+    "odd_terminal": "499df2158da84afb3092d11fd6042161578f6440c42191bd4fc0978ddcbd77e9",
+    "run_manifest": "0b9a4a826364b8d4a4260b31ba24a0b21bba8c9771e39acfdb3e09f47fe70a66"
+  },
+  "failure": {
+    "category": "missing_model_snapshot_preflight_gap",
+    "failed_path": "/root/.cache/huggingface/hub/models--mPLUG--GUI-Owl-1.5-8B-Instruct/snapshots/06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "message": "GUI-Owl model directory does not exist",
+    "stage": "worker_runtime_load_after_durable_claim",
+    "worker_process_exitcodes": {
+      "even": 1,
+      "odd": 1
+    }
+  },
+  "formal_outputs": {
+    "conditional_marginal_label_count": 0,
+    "exact_subset_oracle_count": 0,
+    "kl_measurement_count": 0,
+    "raw_distance_row_count": 0,
+    "teacher_forward_count": 0
+  },
+  "git_source_commit": "3942d687d03bf63ea683fe8ad906a161eb10dc27",
+  "hf_artifact_created": false,
+  "host_alias": "hyper00",
+  "host_hostname": "node-radixark-16-0000",
+  "outcome": "INVALID_RESTORATION_V2_2_EAGER_LABELS_V1",
+  "prohibited_work_performed": {
+    "closed_loop": false,
+    "confirm": false,
+    "gate": false,
+    "matched_nll": false
+  },
+  "protocol_id": "causalcache_restoration_v2_2_eager_labels_v1",
+  "resume_allowed": false,
+  "retry_allowed": false,
+  "run_contract_sha256": "4dd470cbde3184decb0f38133dc9347b528304f44b13762c881540aefa4ccebf",
+  "schema_version": "1.0.0",
+  "status": "LABEL_ATTEMPT_INVALID",
+  "top_up_count": 0
+}

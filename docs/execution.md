@@ -705,3 +705,51 @@ execution 的独立 global claim 才授权并记录了正式 policy operations�
 high-water 与 forensic inventory 封存为 `INVALID`；不得重新调用 production runner。root ledger 缺失或落后
 只在它是 sibling prefix 时合法封存，root 超前/non-prefix 仍 fail closed。HF manifest 必须比较 canonical source
 archive 与独立 fresh-download path 的完整 bytes，并绑定 exact repo/path/immutable revision。
+
+## Restoration v2.2 exact-label 执行边界
+
+label source 已在 clean pushed `main@3942d687d03bf63ea683fe8ad906a161eb10dc27` 冻结；contract
+`code/configs/causalcache_restoration_v2_2_labels.json` 的 SHA256 为
+`56b29f6879ef14167b20a39d0d61ebd0e698e3bbf0457062b63453180e71cf87`，29-file source inventory
+SHA256 为 `8d0ecf6b0df75f9fa7753631b8fca5efd98c71a7953007e684393e6e8fe52d9b`。完整回归 575 tests
+通过（skipped 11），`make paper` 通过；这些只证明 source freeze，不代表 raw labels 已生成。
+
+正式运行前先按本文件通用流程完成 Hyper host/GPU/disk/container 检查、至少 10 秒 idle cleanup，并只向新
+container 暴露两张 preflight 选出的 H200；启动后必须核对 `torch.cuda.device_count()==2` 并运行 utilization
+monitor。同机同容器内 `even` worker 固定处理 23 states，`odd` worker 固定处理 22 states，microbatch 固定为
+1；禁止 state stealing、动态 batch、跨 host/container、resume、retry 与 top-up。parent v2.2 raw 和 derived
+artifact 必须从各自 immutable revision fresh materialize 并逐 byte/hash 验证，不能直接复用旧共享盘 output。
+
+canonical 路径由 contract 固定为：
+
+```text
+output root: /data/experiments/causalcache/restoration-v2-2-eager-labels-v1
+global ledger: /data/experiments/causalcache/.restoration-v2-2-eager-labels-v1.attempt.json
+raw archive: /data/experiments/causalcache/restoration-v2-2-eager-labels-v1.raw.tar
+```
+
+唯一 scientific schedule 是 45 states、420 条 raw `D(S)`、45 个 primary exact-subset oracle、435 条
+deployment conditional-marginal labels、465 teacher forwards、420 GPU KL measurements 与 0 generation。
+confirm、gate training/selection、matched-NLL 与 closed-loop 的 operation count 必须全部为 0；任一混入、缺失/
+重复 coalition、non-finite distance、worker/aggregate failure 或路径/identity drift 都将唯一 attempt 原地封存为
+`LABEL_ATTEMPT_INVALID`，不得删除后重跑。
+
+正式 argv 以 `docs/restoration_v2_2_labels.md` 为唯一说明入口。terminal 后才可用
+`scripts.manage_restoration_v2_2_label_artifact` 将 root 与 sibling ledgers 打成 deterministic USTAR。planned
+private HF target 是 `gavinlaw/causalcache-restoration-labels-mobile`。v1 原计划 tag 为
+`v2.2-eager-train-dev-exact-v1`，但 zero-forward invalid attempt 没有创建 repo/tag/artifact；replacement tag 必须由
+新 contract 另行冻结。成功 attempt 必须 upload 后取得 immutable revision，再下载到不同路径，重跑 raw reducer并
+验证 archive byte identity，最后才能回写 Git compact summary/artifact binding。
+
+### v1 zero-forward failure 与 replacement 前置条件
+
+2026-07-16 的 v1 formal attempt 已 durable claim，但两个 worker 在加载任何 model/runtime 或写 state marker 前发现
+`--model-dir` 指向的 immutable snapshot directory 不存在；global ledger 因此以 0 attempted / 0 completed states
+封存为 `LABEL_ATTEMPT_INVALID`。teacher forward、KL、raw label、oracle、conditional marginal 与所有 prohibited
+work count 均为 0。原 output/root/三个 ledger 必须永久保留，禁止删除后重跑；轻量 binding 位于
+`data/results/restoration_v2_2_eager_labels_v1_attempt/`。
+
+replacement 必须使用全新的 attempt/output/ledger/archive/HF tag identity，并在任何 durable claim 前验证：model
+root 是非 symlink 的 real directory、basename 精确等于 snapshot revision、manifest 要求的文件 inventory/size/hash
+完整、两 worker 能看到相同路径。shell smoke 必须用 fail-fast 或显式读取 exit code，禁止在失败的 `test` 后无条件
+打印 success。只有新 source/config/tests commit 并 push clean `main` 后，replacement formal run 才获授权。

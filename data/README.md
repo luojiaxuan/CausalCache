@@ -155,6 +155,17 @@ restoration v2 exact selection/exposure 产物：
   SHA256 为 `b22827e6...09fb5`，fresh immutable download 已逐 byte 复核。confirm、restoration 与 gate artifact
   count 当前仍均为 0。
 
+- Restoration v2.2 exact labels（replacement planned）：v1 source contract 已在
+  `main@3942d687d03bf63ea683fe8ad906a161eb10dc27` 冻结；formal v1 attempt 因 model snapshot directory 不存在，
+  在 0 state marker / 0 teacher forward / 0 KL 时永久封存为 `INVALID`。轻量 binding 位于
+  `results/restoration_v2_2_eager_labels_v1_attempt/`，原 Hyper00 root/ledger 不删除、不重跑。planned private HF
+  target 仍为 `gavinlaw/causalcache-restoration-labels-mobile`，但 repo、replacement tag、immutable revision 与 raw
+  archive 当前均未创建；model snapshot 正在 local cache staging，不能视为 label artifact。预期 schema/count 仍为
+  45 states、420 条 canonical raw `D(S)`、45 个 exact-subset oracle、
+  435 条 deployment conditional-marginal labels；Git 只会在 immutable fresh-download 闭合后保存 compact
+  summary/artifact binding。gate checkpoint、matched-NLL pairs、closed-loop episodes 与 confirm artifact 不属于
+  该 planned dataset。
+
 最新轻量运行记录：
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
