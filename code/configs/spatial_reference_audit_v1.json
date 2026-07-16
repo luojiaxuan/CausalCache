@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "spatial_reference_audit_v1",
+  "status": "source_only_frozen_before_any_audit_policy_forward",
+  "scope": {
+    "purpose": "diagnose_numerical_origin_of_the_13_already_exposed_v2_1_coordinate_mismatches",
+    "parent_v2_1_outcome_remains_final": "NO_GO_V2_1_FULL_45_SUBSTRATE",
+    "confirm_policy_output_access_allowed": false,
+    "restoration_allowed": false,
+    "gate_training_allowed": false,
+    "semantic_equivalence_promotion_allowed": false,
+    "coordinate_radius_tuning_allowed": false
+  },
+  "inputs": {
+    "parent_result_artifact": {
+      "path": "data/results/restoration_v2_1_full_45_substrate/artifact.json",
+      "sha256": "9aa7fd6bdc20173532649a4133faf565e99975af51e38d57cf9612f29af996be"
+    },
+    "parent_raw_archive": {
+      "hf_repo": "gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile",
+      "hf_repo_type": "dataset",
+      "hf_revision": "814506ef1450838d4bc6ed3d89fe53e0773d92fb",
+      "hf_path": "raw/restoration-v2-1-full-45-substrate-v1.tar",
+      "sha256": "8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4",
+      "size_bytes": 962560,
+      "source_git_commit": "7a5b6d5710fe4d054936b5aa474648149f725edb"
+    },
+    "parent_mismatch_fixture": {
+      "path": "data/fixtures/spatial_reference_audit_v1_parent_mismatches.json",
+      "sha256": "660ceaa19bbc0ba0945a014d1763d011acef7d0281565c5dd85f48d5ac84b426"
+    },
+    "exposure_ledger": {
+      "path": "data/manifests/spatial_reference_audit_v1_exposure.json",
+      "sha256": "277613bd0b0a771c0ff18d234f151459cb0dd03672112a521e67889c0165966a"
+    },
+    "derived_artifact": {
+      "hf_repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "hf_repo_type": "dataset",
+      "hf_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "manifest_path": "data/manifests/restoration_v2_derived_artifact.json",
+      "manifest_sha256": "1f155a90af33da21947c89ac12f30f873f18e15e4efc82e5759f648114f25f7c"
+    },
+    "selection_manifest": {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    },
+    "scientific_config": {
+      "path": "code/configs/causalcache_restoration_v2.json",
+      "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+    },
+    "ocr_backend_config": {
+      "path": "code/configs/restoration_v2_ocr_backend.json",
+      "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+    },
+    "model_snapshot_manifest": {
+      "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+    }
+  },
+  "mismatch_denominator": {
+    "fixed_state_count": 13,
+    "state_indices": [1, 10, 16, 17, 20, 23, 24, 25, 26, 28, 30, 35, 39],
+    "role_counts": {"v2_label_train": 10, "v2_development": 3},
+    "action_type_counts": {"click": 12, "swipe": 1},
+    "canonical_parent_projection_sha256": "5b0cb39033a1ce5d73ce7bb50fd64ec7131dce2977d9dae32283524ba43c8c4a",
+    "state_filtering_allowed": false,
+    "top_up_allowed": false
+  },
+  "profiles": [
+    {
+      "profile_id": "bf16_auto",
+      "dtype": "bfloat16",
+      "attention_implementation": "default",
+      "deterministic_algorithms": false,
+      "eager_numerical_controls": false,
+      "seed": 0,
+      "state_indices": [1, 10, 16, 17, 20, 23, 24, 25, 26, 28, 30, 35, 39],
+      "generation_repeat_count": 2,
+      "shared_prefix_forward_repeat_count": 2,
+      "full_parent_action_forward_count": 2
+    },
+    {
+      "profile_id": "bf16_eager_control",
+      "dtype": "bfloat16",
+      "attention_implementation": "eager",
+      "deterministic_algorithms": false,
+      "eager_numerical_controls": true,
+      "seed": 0,
+      "state_indices": [1, 10, 16, 17, 20, 23, 24, 25, 26, 28, 30, 35, 39],
+      "generation_repeat_count": 2,
+      "shared_prefix_forward_repeat_count": 2,
+      "full_parent_action_forward_count": 2
+    },
+    {
+      "profile_id": "fp32_eager_control",
+      "dtype": "float32",
+      "attention_implementation": "eager",
+      "deterministic_algorithms": false,
+      "eager_numerical_controls": true,
+      "seed": 0,
+      "state_indices": [10, 17, 26, 39],
+      "state_selection_rule": "largest_normalized_click_delta_smallest_nonzero_click_delta_largest_prompt_visual_load_and_only_swipe",
+      "generation_repeat_count": 2,
+      "shared_prefix_forward_repeat_count": 2,
+      "full_parent_action_forward_count": 2
+    }
+  ],
+  "backend_constraints": {
+    "scientific_environment_variables_allowed": false,
+    "cublas_workspace_config_allowed": false,
+    "pytorch_strict_deterministic_algorithms_enabled": false,
+    "reason": "strict_cuda_deterministic_gemm_requires_an_environment_variable_forbidden_by_project_execution_rules",
+    "eager_control_flags": {
+      "cudnn_deterministic": true,
+      "cudnn_benchmark": false,
+      "cuda_matmul_allow_tf32": false,
+      "cudnn_allow_tf32": false,
+      "float32_matmul_precision": "highest",
+      "seed": 0
+    },
+    "claim": "eager_fixed_seed_tf32_disabled_numerical_control_not_strict_cuda_determinism"
+  },
+  "runtime_constraints": {
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "python_version": "3.12.3",
+    "torch_version": "2.11.0+cu130",
+    "torch_cuda_version": "13.0",
+    "cudnn_version": 91900,
+    "transformers_version": "5.6.0",
+    "nvidia_driver_version": "570.172.08",
+    "audited_scientific_environment_variables": [
+      "CUBLAS_WORKSPACE_CONFIG",
+      "NVIDIA_TF32_OVERRIDE",
+      "TORCH_ALLOW_TF32_CUBLAS_OVERRIDE",
+      "PYTORCH_CUDA_ALLOC_CONF",
+      "PYTORCH_ALLOC_CONF",
+      "CUDA_LAUNCH_BLOCKING",
+      "CUDA_DEVICE_MAX_CONNECTIONS",
+      "FLASH_ATTENTION_DETERMINISTIC",
+      "TORCH_CUDNN_V8_API_LRU_CACHE_LIMIT",
+      "TORCH_CUDNN_V8_API_DISABLED",
+      "TORCH_CUDNN_V8_API_ENABLED"
+    ]
+  },
+  "attempt_identity": {
+    "attempt_id": "spatial-reference-audit-v1",
+    "canonical_persistent_output_dir": "/data/experiments/causalcache/spatial-reference-audit-v1",
+    "canonical_global_attempt_ledger": "/data/experiments/causalcache/.spatial-reference-audit-v1.attempt.json",
+    "canonical_host_alias": "hyper01",
+    "canonical_host_hostname": "node-radixark-16-0001",
+    "canonical_device": "cuda:0",
+    "profile_order": [
+      "bf16_auto",
+      "bf16_eager_control",
+      "fp32_eager_control"
+    ],
+    "alternate_output_or_ledger_allowed": false,
+    "incomplete_attempt_retry_allowed": false,
+    "profile_retry_allowed": false,
+    "state_retry_allowed": false,
+    "output_or_ledger_deletion_after_claim_allowed": false
+  },
+  "artifact_packaging": {
+    "format": "ustar",
+    "archive_member_prefix": "spatial-reference-audit-v1",
+    "global_attempt_ledger_member": "global_attempt_ledger.json",
+    "canonical_local_archive_path": "/data/experiments/causalcache/spatial-reference-audit-v1.tar",
+    "normalized_file_mode": "0644",
+    "normalized_uid": 0,
+    "normalized_gid": 0,
+    "normalized_mtime": 0,
+    "new_output_only": true,
+    "symlinks_or_nonregular_files_allowed": false,
+    "byte_identity_rebuild_required": true
+  },
+  "operation_limits": {
+    "generation_calls": 60,
+    "teacher_forwards": 120,
+    "confirm_state_accesses": 0,
+    "restoration_coalition_constructions": 0,
+    "gate_training_examples": 0
+  },
+  "diagnostics": {
+    "record_generated_token_ids": true,
+    "instrumented_generation_with_output_scores_allowed": false,
+    "validate_parent_output_retokenization_sha256": true,
+    "record_parent_pair_first_divergent_token": true,
+    "teacher_force_both_parent_actions": true,
+    "record_shared_prefix_competing_parent_token_logits_and_margin": true,
+    "record_full_parent_action_branch_diagnostics": true,
+    "teacher_margin_interpretation": "post_hoc_teacher_forced_margin_at_the_first_common_prefix_divergence_not_original_generation_time_margin",
+    "record_normalized_and_pixel_coordinate_delta": true,
+    "full_vocabulary_logits_host_transfer_allowed": false
+  },
+  "decision_rule": {
+    "exact_stability_criterion": "all_profile_states_have_one_exact_generated_token_sequence_across_two_repeats",
+    "if_bf16_eager_unstable": "PERSISTENT_INSTABILITY_REQUIRES_SEMANTIC_REFERENCE",
+    "if_bf16_eager_stable_and_bf16_auto_unstable": "EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY",
+    "if_bf16_eager_stable_and_bf16_auto_stable": "BOTH_BF16_PROFILES_STABLE_THIS_ATTEMPT_NUMERICAL_AUDIT_INCONCLUSIVE",
+    "both_stable_allows_eager_recovery_attribution": false,
+    "strict_cuda_determinism_claimed": false,
+    "margin_threshold_used_for_pass_fail": false,
+    "fp32_probe_used_for_pass_fail": false
+  },
+  "source_inventory": {
+    "code/causalcache/spatial_reference_audit_v1.py": "6a8f298180074c9fca49929ecb3a4d425810ea8d624bf6b029e89a89174c5a4b",
+    "code/causalcache/policy/gui_owl_spatial_audit_runtime.py": "b4d516711c3fa70f12ca36334c40b13d206f544435fdb966d9821a4351735e1a",
+    "code/causalcache/spatial_reference_audit_v1_artifact.py": "b056db47dc759612f7945469e13926cea2428f1b9ac410d84804063a2160d948",
+    "code/scripts/run_spatial_reference_audit_v1.py": "2fb2d29bef7ec3325825612aa74fea18003e2edb27a9ea8015956e88c906c68e",
+    "code/scripts/validate_spatial_reference_audit_v1.py": "aef39332a2b8c372caf3f66351e281585083df25fca0b9ce8198e6ce3ef84f89",
+    "code/scripts/package_spatial_reference_audit_v1.py": "e793c8cb20ec44f271c0ffcfee687c46eff00a26bd2ad37d8e486ac76af39d9c",
+    "code/causalcache/data/guiodyssey_restoration_v2.py": "8caf9418e4212c760b789f660b8b67c9b23a5b88d08a8434d4a1e718f7a0e4ee",
+    "code/causalcache/data/guiodyssey.py": "c8630f36fe343c63e5f1bf4b6401c4eb049dc4e8457abc761ed41011f4efc1c4",
+    "code/causalcache/data/guiodyssey_independent.py": "1beb1333a4f016a0cca5457fe02acc910b35fd621604e7aa588a7b7f61c11b9b",
+    "code/causalcache/data/restoration_v2_selection.py": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a",
+    "code/causalcache/restoration_v2_contract.py": "f83ae8ececfaafb5cfb3cef9bb617945353c34f6659a74b6080ae9798784c4b3",
+    "code/causalcache/restoration_v2_text_backend.py": "f2ed121f290095514ec0f54b83217188f3f9496e5b68da5216f2f19c0d43206e",
+    "code/causalcache/low_fidelity_v2.py": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a",
+    "code/causalcache/policy/gui_owl_v2.py": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a",
+    "code/causalcache/policy/gui_owl_v2_runtime.py": "7cc0299b1b1679def61a3e2e30017d2f7812a47114b5a286afdf3979536c9c41",
+    "code/causalcache/policy/gui_owl_v2_1_runtime.py": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5",
+    "code/causalcache/policy/gui_owl_v2_1.py": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
+    "code/causalcache/policy/gui_owl_v2_vision.py": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24",
+    "code/causalcache/data/restoration_v2_screening.py": "e4574c2d0c29f8bffae77bde7ea7fa0e441d49d4c128b443ed50208a711a2b61",
+    "code/causalcache/data/restoration_v2_1_processor_inputs.py": "fe1ea67e32c24ac415c3f51a99a578e03d87e045b074071987b9c90716fdbb36",
+    "code/causalcache/restoration_v2_1_contract.py": "98b5cfd33a6dc69b846a929e45e12a8da55341a0260ea129e1a6ba51cefc52d7",
+    "code/causalcache/restoration_v2_1_full_45_contract.py": "1293daac9fc21f0c8afc23d9d5e8f281571b93fb46f09ca4db50804df8f630ff",
+    "code/causalcache/restoration_v2_1_full_45_artifact.py": "432cc7862d4a3fe15fd7540618f12867fa7614ae70e31569bd5e6030b5ea4820",
+    "code/causalcache/restoration_v2_1_pilot_artifact.py": "2f671bb632ef7ebd80c6c069526d45c0faae10be77386d4ab84219ab0908a662",
+    "code/causalcache/restoration_v2_1_processor_audit.py": "cdd0308852e69bf3823f6cd258bc3d6eec65321c8e017943518de1c72d51081b",
+    "code/causalcache/restoration_v2_gpu_kl.py": "6227375fdb61a32bc71d22c1e77f1c62eb211cfb043984351512077fd1fec5ce",
+    "code/scripts/run_restoration_v2_1_interface_pilot.py": "55c71de309312557ca65353ae27085cbf06a889f121e4856a8b0e6a0563aa053",
+    "code/scripts/run_restoration_v2_1_full_45_substrate.py": "b53582b78e80762a3f3cc48bb454281f26536e6b20b34f1a5ea1c2b47bd4f2c1",
+    "code/tests/test_spatial_reference_audit_v1.py": "260429e1c56a82fa28d45e5eac229ecafe42e394496477377d684f57fb5a44a0",
+    "code/tests/test_gui_owl_spatial_audit_runtime.py": "5a3e651e4556a6ef0f462f8a4b98ae4724c40e33b9bd46717d12e5e5078e556b",
+    "code/tests/test_run_spatial_reference_audit_v1.py": "78e2aa795c11a3ce0b4c2d12225ba16aff3d8c8ae28e9ee7f3f4d1d053b7319b",
+    "code/tests/test_validate_spatial_reference_audit_v1.py": "0285a0ca25cb8910ea5c0c6cc78b2530b192e6a9c5f19e8752143a659fde5776",
+    "code/tests/test_spatial_reference_audit_v1_artifact.py": "bbf00e78e6e87c2078621017659984596b06f6eddccba54a4bf02ff567a5d186"
+  }
+}

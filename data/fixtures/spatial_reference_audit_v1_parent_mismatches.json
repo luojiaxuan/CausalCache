@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "spatial_reference_audit_v1",
+  "source": {
+    "hf_repo": "gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile",
+    "hf_revision": "814506ef1450838d4bc6ed3d89fe53e0773d92fb",
+    "hf_path": "raw/restoration-v2-1-full-45-substrate-v1.tar",
+    "raw_archive_sha256": "8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4",
+    "parent_outcome": "NO_GO_V2_1_FULL_45_SUBSTRATE"
+  },
+  "mismatches": [
+    {
+      "index": 1,
+      "role": "v2_label_train",
+      "state_id": "0131649930078879:decision_step:005",
+      "screen_dimensions": {"width": 720, "height": 1280},
+      "actions": [
+        {"action": "click", "coordinate": [306, 607]},
+        {"action": "click", "coordinate": [285, 607]}
+      ]
+    },
+    {
+      "index": 10,
+      "role": "v2_label_train",
+      "state_id": "0021006740023566:decision_step:005",
+      "screen_dimensions": {"width": 1080, "height": 2400},
+      "actions": [
+        {"action": "click", "coordinate": [390, 820]},
+        {"action": "click", "coordinate": [360, 816]}
+      ]
+    },
+    {
+      "index": 16,
+      "role": "v2_label_train",
+      "state_id": "0217738978329323:decision_step:005",
+      "screen_dimensions": {"width": 1440, "height": 3120},
+      "actions": [
+        {"action": "click", "coordinate": [611, 515]},
+        {"action": "click", "coordinate": [622, 516]}
+      ]
+    },
+    {
+      "index": 17,
+      "role": "v2_label_train",
+      "state_id": "0217738978329323:decision_step:006",
+      "screen_dimensions": {"width": 1440, "height": 3120},
+      "actions": [
+        {"action": "click", "coordinate": [249, 342]},
+        {"action": "click", "coordinate": [250, 342]}
+      ]
+    },
+    {
+      "index": 20,
+      "role": "v2_label_train",
+      "state_id": "0139141460497671:decision_step:006",
+      "screen_dimensions": {"width": 2560, "height": 1600},
+      "actions": [
+        {"action": "click", "coordinate": [138, 115]},
+        {"action": "click", "coordinate": [138, 102]}
+      ]
+    },
+    {
+      "index": 23,
+      "role": "v2_label_train",
+      "state_id": "0122136372603148:decision_step:006",
+      "screen_dimensions": {"width": 1440, "height": 3120},
+      "actions": [
+        {"action": "click", "coordinate": [916, 598]},
+        {"action": "click", "coordinate": [916, 595]}
+      ]
+    },
+    {
+      "index": 24,
+      "role": "v2_label_train",
+      "state_id": "0214300008821039:decision_step:004",
+      "screen_dimensions": {"width": 2560, "height": 1600},
+      "actions": [
+        {"action": "click", "coordinate": [940, 750]},
+        {"action": "click", "coordinate": [943, 757]}
+      ]
+    },
+    {
+      "index": 25,
+      "role": "v2_label_train",
+      "state_id": "0214300008821039:decision_step:005",
+      "screen_dimensions": {"width": 2560, "height": 1600},
+      "actions": [
+        {"action": "click", "coordinate": [915, 232]},
+        {"action": "click", "coordinate": [915, 237]}
+      ]
+    },
+    {
+      "index": 26,
+      "role": "v2_label_train",
+      "state_id": "0214300008821039:decision_step:006",
+      "screen_dimensions": {"width": 2560, "height": 1600},
+      "actions": [
+        {"action": "click", "coordinate": [850, 320]},
+        {"action": "click", "coordinate": [865, 310]}
+      ]
+    },
+    {
+      "index": 28,
+      "role": "v2_label_train",
+      "state_id": "0050955459888018:decision_step:005",
+      "screen_dimensions": {"width": 1080, "height": 2400},
+      "actions": [
+        {"action": "click", "coordinate": [505, 511]},
+        {"action": "click", "coordinate": [505, 514]}
+      ]
+    },
+    {
+      "index": 30,
+      "role": "v2_development",
+      "state_id": "0119685762769531:decision_step:004",
+      "screen_dimensions": {"width": 2560, "height": 1600},
+      "actions": [
+        {"action": "click", "coordinate": [930, 750]},
+        {"action": "click", "coordinate": [939, 760]}
+      ]
+    },
+    {
+      "index": 35,
+      "role": "v2_development",
+      "state_id": "0126163828013448:decision_step:006",
+      "screen_dimensions": {"width": 1440, "height": 3120},
+      "actions": [
+        {"action": "click", "coordinate": [191, 373]},
+        {"action": "click", "coordinate": [191, 377]}
+      ]
+    },
+    {
+      "index": 39,
+      "role": "v2_development",
+      "state_id": "0141544666483837:decision_step:004",
+      "screen_dimensions": {"width": 720, "height": 1280},
+      "actions": [
+        {"action": "swipe", "coordinate": [529, 837], "coordinate2": [511, 334]},
+        {"action": "swipe", "coordinate": [529, 862], "coordinate2": [511, 373]}
+      ]
+    }
+  ]
+}

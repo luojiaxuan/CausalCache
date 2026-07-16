@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial determinism audit = source frozen, GPU result pending / confirm locked
 
 ## 团队交接入口
 
@@ -55,6 +55,18 @@ agreement 都是硬门槛，且至少 8 个 states 的 summary KL 必须超过 r
 `VALID_RESTORATION_V2_1_FULL_45_ARTIFACT` 与同一 NO-GO。轻量结论见
 [`data/results/restoration_v2_1_full_45_substrate/`](data/results/restoration_v2_1_full_45_substrate/)，完整契约与
 resume/INVALID/artifact 边界见 [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)。
+
+针对 13 个已暴露 coordinate mismatch 的 bounded numerical audit 已完成 source-only 冻结，见
+[`docs/spatial_reference_audit_v1.md`](docs/spatial_reference_audit_v1.md) 与
+[`code/configs/spatial_reference_audit_v1.json`](code/configs/spatial_reference_audit_v1.json)。它只比较同一 H200 上的
+BF16 auto、BF16 eager numerical control 和 4-state FP32 descriptive probe，总上限为 60 次 generation、120 次
+teacher forward；confirm、restoration、gate training 与 coordinate radius tuning 均为 0。旧 raw archive、13-state
+父投影、source inventory、唯一 no-retry attempt ledger 和 append-only exposure child ledger 都由 hash fail closed。
+严格 CUDA determinism 因需要项目禁止的 `CUBLAS_WORKSPACE_CONFIG` 而不作声称；image digest、Python、
+PyTorch/CUDA/cuDNN、Transformers、driver、scientific environment absence 和 observed attention backend 都在
+durable claim 前 exact 核对。判定分为 eager unstable→semantic、eager stable/auto unstable→eager-specific
+recovery、两者均 stable→本次 numerical audit inconclusive；FP32 与 teacher-forced margin 都不控制结论，后者也
+不是旧 generation-time margin。当前只完成 source/CPU validation，尚无新 GPU 结果，v2.1 NO-GO 不变。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变

@@ -577,3 +577,82 @@ packager 会重新验证 summary、冻结 plan、所有 episode instance/index/f
 数学确定 early-stop 计数，然后按 `plan_index` 写一个 `mtime=0` 的 deterministic gzip JSONL。HF 布局
 固定为 `data/<policy-slug>/...` 与 `runs/<policy-slug>/...`；输出目录必须为空，payload manifest 只记录
 预期 repo/tag 和内容 hash，不记录尚未产生的 HF OID。
+
+## Spatial reference audit v1
+
+该 audit 只诊断 v2.1 已暴露的 13 个 mismatch。source/config、operation budget、父 raw archive 和 exposure
+ledger 见 `docs/spatial_reference_audit_v1.md`。正式 runner 每次只接受一个 frozen profile，要求
+`HEAD == origin/main == --source-git-commit`、clean worktree、绝对路径和 canonical output root：
+
+```bash
+cd /data/repo/code
+python3 -m scripts.run_spatial_reference_audit_v1 \
+  --repository-root /data/repo \
+  --config /data/repo/code/configs/spatial_reference_audit_v1.json \
+  --source-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --parent-raw-archive /data/artifacts/spatial-reference-audit-v1/restoration-v2-1-full-45-substrate-v1.tar \
+  --derived-artifact-root /data/artifacts/causalcache-restoration-v2-derived-v1 \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --device cuda:0 \
+  --profile-id bf16_auto \
+  --host-alias hyper01 \
+  --host-hostname node-radixark-16-0001 \
+  --container-id <FULL_CONTAINER_ID> \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa
+```
+
+在同一 container/device 中依次运行 `bf16_auto`、`bf16_eager_control`、`fp32_eager_control`。首个命令会
+exclusive-create sibling ledger `/data/experiments/causalcache/.spatial-reference-audit-v1.attempt.json`；每个
+profile/state 在 forward 前创建 durable no-retry marker，terminal record 也逐 state durable 写入。alternate
+root、删除 ledger/root、profile/state retry 和顺序跳跃都必须 fail closed。中断后不得换路径或重新挑选 eager
+结果，只能保留为 invalid 并另行冻结 versioned amendment。
+
+在创建 sibling ledger 前，runner 必须核对上述 exact image digest，以及 Python `3.12.3`、PyTorch
+`2.11.0+cu130` / CUDA `13.0`、cuDNN `91900`、Transformers `5.6.0`、driver `570.172.08`。固定的
+behavior-changing environment-variable 名单必须全部 absent；cache 和 GPU routing variables 不受此规则影响。
+auto profile 的 observed attention 必须非 eager，eager profiles 的所有 non-null observed implementations 必须
+为 eager。任一项漂移都发生在 durable attempt claim 前并 fail closed。
+
+三个 profile 都完成后，在同一 clean pushed descendant 上独立聚合：
+
+```bash
+cd /data/repo/code
+python3 -m scripts.validate_spatial_reference_audit_v1 \
+  --repository-root /data/repo \
+  --config /data/repo/code/configs/spatial_reference_audit_v1.json \
+  --bf16-auto /data/experiments/causalcache/spatial-reference-audit-v1/profiles/000-bf16_auto/terminal.json \
+  --bf16-eager /data/experiments/causalcache/spatial-reference-audit-v1/profiles/001-bf16_eager_control/terminal.json \
+  --fp32-eager /data/experiments/causalcache/spatial-reference-audit-v1/profiles/002-fp32_eager_control/terminal.json \
+  --summary-output /data/experiments/causalcache/spatial-reference-audit-v1/summary.json
+```
+
+validator 会独立重开父 raw archive 并重建 13-state evidence，不信任 profile 中复制的父字段；它还逐个验证
+attempt start、隐藏 profile claims、全部 profile/state starts 与 ledger/terminals 的 exact schema、argv、路径、顺序和
+operation counts。shared-prefix 两次 forward 的 image grid/prompt/aligned-input shape 必须 exact 一致，full branches
+分别验证 action-token length 且共享同一 base image/prompt shape。runner/validator 的设备名都严格要求
+`NVIDIA H200`。
+
+validator 完成后，用冻结 packager 将 canonical root 与 root 外 sibling ledger 一并封装；所有路径和 source commit
+都显式传入，archive 只能 exclusive-create，不能覆盖或换名重试：
+
+```bash
+python3 -m scripts.package_spatial_reference_audit_v1 \
+  --repository-root /data/repo \
+  --config /data/repo/code/configs/spatial_reference_audit_v1.json \
+  --source-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
+  --audit-root /data/experiments/causalcache/spatial-reference-audit-v1 \
+  --global-attempt-ledger /data/experiments/causalcache/.spatial-reference-audit-v1.attempt.json \
+  --output /data/experiments/causalcache/spatial-reference-audit-v1.tar
+```
+
+packager 拒绝 symlink、FIFO/device/socket 等 non-regular member，按路径排序并将 USTAR metadata 统一为
+mode `0644`、uid/gid/mtime `0`；写前和写后都会重新读取全部 members 并重建 canonical bytes，要求 byte identity。
+raw archive 随后上传 private HF dataset
+`gavinlaw/causalcache-spatial-reference-audit-mobile@spatial-reference-audit-v1` 并 fresh immutable download；Git
+只回写 compact summary/artifact binding。严格 CUDA deterministic mode 需要项目禁止的 scientific environment
+variable，因此 profile 只声称 eager fixed-seed/TF32-off numerical control，不声称数学确定性。所有命令的
+confirm/restoration/gate operation count 必须为 0。
+
+最终判定为三分支：eager 不稳定则进入 semantic reference；只有 eager 13/13 且 auto 非 13/13 才称为
+`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；若两者均 13/13，则结论是本次 numerical audit inconclusive，
+不得把稳定性归因给 eager。FP32 永不参与 pass/fail。

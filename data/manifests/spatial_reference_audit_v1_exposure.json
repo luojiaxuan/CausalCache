@@ -1,0 +1,152 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "spatial_reference_audit_v1",
+  "status": "FROZEN_SOURCE_ONLY_BEFORE_AUDIT_POLICY_FORWARD",
+  "parent_exposure": {
+    "path": "data/manifests/restoration_v2_exposure.json",
+    "sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95",
+    "mutation_allowed": false
+  },
+  "selection_manifest": {
+    "path": "data/manifests/restoration_v2_selection.json",
+    "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+  },
+  "known_policy_output_events": [
+    {
+      "event_id": "restoration-v2-fixed-45-substrate-screening-v1",
+      "roles": [
+        "v2_label_train",
+        "v2_development"
+      ],
+      "fixed_state_count": 45,
+      "generation_call_count": 45,
+      "teacher_forward_count": 0,
+      "restoration_output_count": 0,
+      "outcome": "NO_GO_V2_SUBSTRATE",
+      "evidence": {
+        "summary_path": "data/results/restoration_v2_substrate_screening/summary.json",
+        "summary_sha256": "57a00ac2363890bc2b45b0681dee6f785d05abeb90b4d98499d52d5f16e5c7e6",
+        "artifact_manifest_path": "data/results/restoration_v2_substrate_screening/artifact_manifest.json",
+        "artifact_manifest_sha256": "ce817c5047484d1f9cecb6b60423e318a6509f4480477c5a1504cff58bc456f2"
+      }
+    },
+    {
+      "event_id": "restoration-v2-1-interface-pilot-v1",
+      "roles": [
+        "v2_development"
+      ],
+      "fixed_state_count": 15,
+      "generation_call_count": 15,
+      "teacher_forward_count": 0,
+      "restoration_output_count": 0,
+      "outcome": "PASS_V2_1_INTERFACE_PILOT",
+      "evidence": {
+        "artifact_path": "data/results/restoration_v2_1_interface_pilot/artifact.json",
+        "artifact_sha256": "e7a92a0469e3b66113158d5c2ce713c363ecaff97f95498f3ef84f02a4a6bed8",
+        "hf_repo": "gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile",
+        "hf_revision": "bdff8ca71f150afd80d6291b4ecec76cbf9e7432",
+        "hf_path": "raw/restoration-v2-1-interface-pilot-v1.tar"
+      }
+    },
+    {
+      "event_id": "restoration-v2-1-full-45-substrate-v1",
+      "roles": [
+        "v2_label_train",
+        "v2_development"
+      ],
+      "fixed_state_count": 45,
+      "generation_call_count": 90,
+      "teacher_forward_count": 96,
+      "restoration_output_count": 0,
+      "outcome": "NO_GO_V2_1_FULL_45_SUBSTRATE",
+      "evidence": {
+        "artifact_path": "data/results/restoration_v2_1_full_45_substrate/artifact.json",
+        "artifact_sha256": "9aa7fd6bdc20173532649a4133faf565e99975af51e38d57cf9612f29af996be",
+        "summary_path": "data/results/restoration_v2_1_full_45_substrate/summary.json",
+        "summary_sha256": "f385baf261510dd82e510c8b40a05e5c2a5b91ef7e2329b4a4771b938644c6b8",
+        "hf_repo": "gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile",
+        "hf_revision": "814506ef1450838d4bc6ed3d89fe53e0773d92fb",
+        "hf_path": "raw/restoration-v2-1-full-45-substrate-v1.tar"
+      }
+    }
+  ],
+  "planned_audit_event": {
+    "event_id": "spatial-reference-audit-v1",
+    "roles": [
+      "v2_label_train",
+      "v2_development"
+    ],
+    "fixed_parent_mismatch_state_indices": [
+      1,
+      10,
+      16,
+      17,
+      20,
+      23,
+      24,
+      25,
+      26,
+      28,
+      30,
+      35,
+      39
+    ],
+    "fixed_parent_mismatch_projection_sha256": "5b0cb39033a1ce5d73ce7bb50fd64ec7131dce2977d9dae32283524ba43c8c4a",
+    "state_role_counts": {
+      "v2_label_train": 10,
+      "v2_development": 3
+    },
+    "planned_generation_call_count": 60,
+    "planned_teacher_forward_count": 120,
+    "planned_restoration_output_count": 0,
+    "planned_gate_training_example_count": 0,
+    "output_generated_before_freeze": false
+  },
+  "planned_artifact": {
+    "raw": {
+      "hf_repo": "gavinlaw/causalcache-spatial-reference-audit-mobile",
+      "hf_repo_type": "dataset",
+      "visibility": "private",
+      "tag": "spatial-reference-audit-v1",
+      "path": "raw/spatial-reference-audit-v1.tar",
+      "format": "ustar",
+      "immutable_revision": null,
+      "upload_status": "pending"
+    },
+    "git_compact_result": {
+      "directory": "data/results/spatial_reference_audit_v1",
+      "status": "pending_until_raw_hf_immutable_verification"
+    }
+  },
+  "role_state": {
+    "v2_label_train": {
+      "source_id_count": 10,
+      "known_policy_output": true,
+      "known_restoration_output": false
+    },
+    "v2_development": {
+      "source_id_count": 5,
+      "known_policy_output": true,
+      "known_restoration_output": false
+    },
+    "v2_confirm_primary": {
+      "source_id_count": 20,
+      "known_policy_output": false,
+      "known_restoration_output": false,
+      "policy_output_access_allowed_by_this_protocol": false
+    }
+  },
+  "freeze_declaration": {
+    "parent_exposure_manifest_modified": false,
+    "spatial_audit_policy_output_generated": false,
+    "confirm_policy_output_generated": false,
+    "restoration_output_generated": false,
+    "semantic_equivalence_result_generated": false
+  },
+  "semantics": {
+    "append_only_child_ledger": true,
+    "confirm_terminology": "policy-output untouched; not raw-unseen",
+    "negative_output_claim": "process declaration at freeze, not cryptographic proof",
+    "v2_1_no_go_is_immutable": true
+  }
+}

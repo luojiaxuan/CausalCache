@@ -592,3 +592,37 @@ preflight → run/smoke → verify → upload reusable artifacts to HF
 ```
 
 任何一步尚未上传或 push，都必须在 README/docs 标记为 local staging，不能口头视为完成。
+
+## Spatial reference audit v1 执行边界
+
+该审计计划在 Hyper01 单张 H200 上运行；只有 live preflight 确认资源后才能把 host 写成正式结果。GPU job 前必须
+重跑 host/GPU/disk/container preflight 和至少 10 秒 continuous-zero cleanup；三个 profile 必须使用同一
+container、同一 visible physical GPU 和同一 clean pushed source commit。运行中启动 utilization monitor；由于
+protocol 固定 batch-1，低利用率窗口需要记录 model load、CPU processor 或 teacher/generation 的归因，不能为
+提高利用率改变 scientific schedule。
+
+父 v2.1 raw archive 与 derived artifact 必须先从其 immutable HF revision materialize 到 `/data/artifacts` 并逐
+hash 验证。唯一 canonical output root 是 `/data/experiments/causalcache/spatial-reference-audit-v1`，sibling ledger
+是 `/data/experiments/causalcache/.spatial-reference-audit-v1.attempt.json`。profile 和 state 都在首个 forward 前
+durable claim；incomplete attempt、删除 root/ledger、换路径或重跑均不能用于继续同一 v1。
+
+不可重试 ledger 创建前还必须通过 exact runtime preflight：image digest
+`sha256:6a8f60af...d349acfa`、Python `3.12.3`、PyTorch `2.11.0+cu130`、CUDA `13.0`、cuDNN
+`91900`、Transformers `5.6.0`、driver `570.172.08`。runner 记录完整 live 值；CLI image digest 只要与 config
+不同就必须在 durable claim 前拒绝。固定 scientific environment audit 名单必须全部 absent，允许的 cache/device
+routing variables 不受影响。auto attention 必须实际解析为 non-eager；eager profiles 所有 non-null observed
+implementation 必须为 eager。
+
+validation 完成后，唯一 raw archive 是
+`/data/experiments/causalcache/spatial-reference-audit-v1.tar`。必须调用
+`scripts.package_spatial_reference_audit_v1` 并显式传入 repo/config/source commit/root/ledger/output；packager
+只接受 terminal ledger，以 exclusive-create 写 deterministic USTAR，拒绝 symlink/non-regular member，并在写前、
+写后重建 archive bytes。已有 archive 不能覆盖或删除后重包。
+
+严格 CUDA deterministic GEMM 需要 `CUBLAS_WORKSPACE_CONFIG`，与本项目“不用 environment variable 传
+scientific 参数”的规则冲突。因此 v1 不启用 `torch.use_deterministic_algorithms(True)`，只比较 legacy auto 与
+eager fixed-seed/TF32-off numerical control；文档和结果不得把后者写成数学 deterministic。confirm input/output、
+restoration coalition、baseline、selector 和 gate training 都不属于本 job。
+
+聚合判定不能只看 eager：eager 不稳定进入 semantic；eager 稳定而 auto 不稳定才是 eager-specific recovery；若
+两者都稳定，只能报告本次两个 backend 都稳定且 numerical attribution inconclusive。FP32 与 margin 不改变分支。

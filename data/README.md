@@ -135,6 +135,12 @@ restoration v2 exact selection/exposure 产物：
   (`814506ef1450838d4bc6ed3d89fe53e0773d92fb`)；94-file deterministic USTAR SHA256
   `8cd53d6e...f4fa4`、962,560 bytes，fresh immutable download verified；verdict
   `NO_GO_V2_1_FULL_45_SUBSTRATE`；clean `main@554c51e` committed-binding validation passed。
+- Spatial reference audit v1：planned private HF dataset
+  `gavinlaw/causalcache-spatial-reference-audit-mobile@spatial-reference-audit-v1`；当前只有 Git-tracked
+  source/config、`fixtures/spatial_reference_audit_v1_parent_mismatches.json` 和
+  `manifests/spatial_reference_audit_v1_exposure.json`。旧 `restoration_v2_exposure.json` 是 immutable
+  historical pre-output snapshot；新 child ledger 记录已经发生的 v2/v2.1 output 与本 audit 的零新-output freeze。
+  GPU profile、HF immutable revision 和 compact result 都仍为 pending，不能写成已完成 artifact。
 
 最新轻量运行记录：
 

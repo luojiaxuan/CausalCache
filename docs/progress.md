@@ -1410,10 +1410,44 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   true-utility offline diagnostics。旧 real table 中 greedy/exact 比为 1，尚无证据为线上 stronger search
   增加复杂度。
 
+### 2026-07-15：Spatial reference audit v1 source-only 合约冻结中
+
+- subset-search 支线保持闭合，主线回到 reference substrate；本 audit 只使用 v2.1 已暴露的 13 个
+  `CANONICAL_ACTION_MISMATCH`（10 label-train、3 development；12 click、1 swipe），v2.1 的
+  `NO_GO_V2_1_FULL_45_SUBSTRATE` 不重算、不改写；
+- parent raw archive、13-state canonical projection、actual action/token hashes、derived artifact、selection、OCR、
+  model snapshot、source inventory 和 append-only child exposure ledger 均进入 fail-closed config；旧
+  `restoration_v2_exposure.json@bc122482...` 保持 byte-immutable，confirm 20 仍为 policy-output untouched；
+- 严格 CUDA deterministic GEMM 需要项目规则禁止的 `CUBLAS_WORKSPACE_CONFIG`，因此 profile 诚实冻结为 BF16
+  auto、BF16 eager-control 与 4-state FP32 eager-control，不声称数学 deterministic。eager-control 固定 seed、
+  eager attention、cuDNN deterministic/benchmark off、TF32 off 和最高 float32 matmul precision；
+- formal runtime 进一步在 durable attempt claim 前 exact 锁定 image digest
+  `sha256:6a8f60af...d349acfa`、Python `3.12.3`、PyTorch `2.11.0+cu130`、CUDA `13.0`、cuDNN
+  `91900`、Transformers `5.6.0`、driver `570.172.08`，并要求固定 behavior-changing environment-variable
+  名单全部 absent；auto observed attention 必须 non-eager，eager profiles 的 non-null observation 必须全为 eager；
+- operation ceiling 仍为 generation 60、teacher forward 120。每 state 的 teacher diagnostic 改为 2 次相同
+  shape shared-prefix forward，从同一 vector 比较两个竞争 token；另对两条父 action 各做 1 次 full-branch
+  diagnostic。margin 明确不是旧 generation-time score，也不进入 pass/fail；
+- canonical root 与 root 外 sibling ledger 已冻结；profile/state 都必须在 forward 前 durable claim，alternate
+  output、删除、retry、top-up 和跳过 profile 顺序全部禁止。raw root 计划上传 private HF dataset
+  `gavinlaw/causalcache-spatial-reference-audit-mobile@spatial-reference-audit-v1`，当前 revision 仍 pending；
+- raw packager 已在任何 audit forward 前冻结：它把 canonical root 与 sibling ledger 封装为单个按 path 排序、
+  metadata 归一化的 deterministic USTAR，拒绝 symlink/non-regular member，exclusive-create 后重新读回并要求
+  canonical-byte identity；本地 archive 固定为
+  `/data/experiments/causalcache/spatial-reference-audit-v1.tar`，当前尚未生成；
+- 未来 exact restoration 的 subset 计数已纠正：step-4/5/6 为 4/7/11，label-train 220 rows、development
+  110 rows，总计 330；它只是新 substrate gate 通过后的 prospective table，不是当前 policy-forward 数，也未运行；
+- 当前仍是 source-only：没有新 audit GPU profile、semantic result、restoration、gate training 或 confirm policy
+  input/output。完成 source tests、commit/push 和 clean descendant validation 后，才允许 Hyper01 单张 H200
+  preflight 与唯一 audit attempt。
+- 聚合判定修正为三分支：eager unstable 才直接进入 semantic；eager 13/13 且 auto 非 13/13 才能称
+  eager-specific recovery；若两个 BF16 profile 都是 13/13，只报告本次 numerical audit inconclusive，不归因于
+  eager。FP32 与 margin 始终不决定分支。
+
 ## 下一步
 
-Subset-search v1 已闭合，不继续为 optimizer 本身追加算法。主路线回到 substrate：v2.1 已按冻结 gate 停止，
-不运行 restoration、gate training 或 confirm；下一步只能先冻结不依赖本次 32/45 结果调参的新
-executable/UI-element equivalence protocol，并在新的 versioned development gate 上验证。只有该 gate 通过后才允许
-后续 restoration/confirm。必须永久保留 exact-coordinate NO-GO，不能在当前 45 states 上事后加容差
-retroactive PASS。
+Subset-search v1 已闭合，不继续为 optimizer 本身追加算法。先完成 13-state bounded numerical audit；只有 BF16
+eager-control 13/13 且 BF16 auto 非 13/13 才冻结新的 eager runtime；eager 不稳定才进入独立 source-only
+semantic-key / canonical-representative protocol；两者都稳定则本次数值归因不充分。任何 semantic protocol 都不能用当前 13 个 delta 调 radius，且必须在 synthetic
+邻接控件 negative fixture 与独立 AndroidWorld UI-node calibration artifact 上先验证。之后只有新的 versioned
+45-state substrate gate 通过，才允许 exact restoration；全部选择和阈值冻结后，最后才能打开 confirm。
