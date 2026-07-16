@@ -12,9 +12,9 @@ preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replaceme
 420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
 HF immutable artifact。当前已有 offline teacher labels 和 oracle 上界，但仍没有 learned gate checkpoint、
 matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一步不是直接训练 set-conditioned gate，而是
-先完成 selector geometry 的 versioned reporting-repair formal rerun：把 `n=2,B=2` ceiling 与 `n=4,B=2`
-primary compression 分开，完整报告 exact-to-greedy search gap、greedy-to-independent objective-projection gap
-与 interaction joint strata，再据此决定 student contract。
+先补齐 visual comparator matrix。selector geometry 的 versioned reporting repair 已完成并支持
+`set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline 已完成
+source-only freeze，Hyper00 CPU formal aggregate 尚未运行，policy-vision stage 也仍 pending。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1710,13 +1710,33 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   但 formal `validate` 会从 immutable raw labels 重建三文件并逐 byte 比较；该 coverage boundary 已记录，当前
   artifact 未发现自相矛盾。
 
+### 2026-07-16：OCR/RGB baseline v1 source-only freeze
+
+- 新增 machine-readable contract
+  `code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json`，SHA256 为
+  `08f57505d71e603d81d6915ef27cf008d0fe097a56d70a05f8b3519211e2e6f9`；当前没有 formal aggregate 或
+  OCR/RGB result 数值；
+- reducer 会验证完整 45-state / 420-row immutable label archive，只消费 15-state / 240-row primary
+  `n=4,B=2` slice；固定 10 train + 5 development trajectories、75 张 unique images 与 60 个 candidate scores；
+- archived OCR-token Jaccard 与 deterministic 256×256 RGB 16³ joint-histogram cosine 各占 0.5，固定选满 top-2；
+  同时报告允许少选的 exact at-most-2 oracle 与 cardinality-matched exact-2 oracle；
+- paired statistics 以 trajectory 为单位，固定 10,000 次、seed 271828、90% percentile interval；development
+  五条 paired deltas 逐 trajectory 保留；
+- 完整 derived files 会 hash/inventory，并对 nonselected identity 做 opaque scan；只有 allowlisted
+  train/development records 做 semantic parse。confirm prompt/image/OCR 不解析、不提取、不评分，confirm/test
+  feature access 为 0；
+- GPU、OCR inference/model load、policy/policy-vision forward、teacher/KL、gate、matched-NLL 与 closed-loop
+  全为 0。正式工作只允许 Hyper00 CPU reduction，当前 formal run 仍 pending；完整协议见
+  `docs/restoration_v2_2_ocr_rgb_baseline.md`。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
-offline oracle/labels、private HF immutable artifact 与 selector-geometry v2 repaired result 已闭合。下一步先
-补齐 primary `n=4,B=2` 的 OCR/RGB 与 vision-only similarity baselines。只有 visual comparators 完整、geometry
+offline oracle/labels、private HF immutable artifact 与 selector-geometry v2 repaired result 已闭合。OCR/RGB
+source 已冻结；下一步先在 clean pushed `main` 上完成 Hyper00 CPU formal aggregate、byte replay 与 Git 回写，
+再单独冻结 vision-only similarity baseline。只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
 sampling、encoder、checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate。confirm 与

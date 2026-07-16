@@ -863,3 +863,44 @@ canonical v2 repair 已从 clean pushed `main@9a4eca5a53c2a9a3340c6274b9fa5ff901
 `VALID_RESTORATION_V2_2_SELECTOR_GEOMETRY_V2_REPAIR`。结果位于
 `data/results/restoration_v2_2_selector_geometry_v2_repair/`；180 rows、144 joint cells（83 nonempty / 61
 empty）和全部 0-operation declarations 已闭合。
+
+## Restoration v2.2 OCR/RGB baseline
+
+primary `n=4,B=2` OCR/RGB stage 已完成 source-only freeze，contract 为
+`configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json`，SHA256
+`08f57505d71e603d81d6915ef27cf008d0fe097a56d70a05f8b3519211e2e6f9`。它验证完整 45-state / 420-row
+label artifact，只计算其中 15-state / 240-row primary slice；输入为 75 张 unique images，产生 60 组 archived
+OCR-token Jaccard、256×256 RGB 16³ joint-histogram cosine 与 0.5/0.5 combined scores。selector 固定 top-2，
+同时报告 exact at-most-2 与 exact-cardinality-2 oracle，并对七个 comparator 做 trajectory-level 10,000 次 paired
+bootstrap。
+
+完整 derived projection 只做 hash/inventory 与 nonselected identity opaque scan；只有 allowlisted train/development
+records 做 semantic parse。confirm prompt/image/OCR 不进入 scorer，GPU、OCR inference/model load、policy/
+policy-vision forward、gate、matched-NLL、closed-loop、confirm/test operation 全为 0。详细 contract 见
+`docs/restoration_v2_2_ocr_rgb_baseline.md`。
+
+source-only validation：
+
+```bash
+cd /absolute/path/to/CausalCache/code
+python3 -m scripts.validate_restoration_v2_2_ocr_rgb_contract \
+  --repository-root .. \
+  --contract configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json
+```
+
+Hyper00 CPU formal aggregate 尚未运行。source push 后使用 clean `main`、immutable label archive 与 exact-six
+derived projection 调用：
+
+```bash
+/data02/jaxan/.venv/causalcache-ocr-v2/bin/python \
+  -m scripts.run_restoration_v2_2_ocr_rgb_baseline run \
+  --repository-root /absolute/path/to/CausalCache \
+  --contract /absolute/path/to/CausalCache/code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json \
+  --labels-archive /immutable/raw/v2.2-eager-train-dev-exact-v2.tar \
+  --derived-root /immutable/restoration-v2-derived-exact-six \
+  --source-git-commit <CLEAN_PUSHED_MAIN_SHA> \
+  --output-dir /absolute/path/to/CausalCache/data/results/restoration_v2_2_ocr_rgb_baseline_v1
+```
+
+result commit/push 后把 `run` 改为 `validate`，会从 immutable inputs 重建并逐 byte 比较 canonical
+`README.md`、`state_scores.jsonl`、`summary.json`。

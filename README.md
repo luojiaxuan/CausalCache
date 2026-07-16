@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB、policy-vision pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB source frozen、formal pending / policy-vision pending / confirm locked
 
 ## 团队交接入口
 
@@ -35,6 +35,13 @@ objective-projection gap（greedy - budget-conditioned independent）为 `0.1590
 90% method-shaping interval `[0.007836, 0.355867]`。冻结规则输出
 `set_conditioned_main_candidate + online_greedy_sufficient`，但它不是 paper success gate，且 OCR/RGB 与
 policy-vision comparator 尚未补齐。
+
+primary `n=4,B=2` OCR/RGB baseline 已完成 source-only freeze，见
+[`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
+`08f57505d71e603d81d6915ef27cf008d0fe097a56d70a05f8b3519211e2e6f9`，固定 15 states、75 unique images 与
+60 个 candidate scores，同时报告 at-most-$B$ exact oracle 和 exact-cardinality oracle，并按 trajectory 做 paired
+bootstrap。它只允许 CPU reduction；GPU、OCR inference、policy/gate/confirm/test operation 均为 0。Hyper00
+formal aggregate 尚未运行，当前没有可报告的 OCR/RGB recovery 或 match-rate result。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -281,16 +288,17 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 3. [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)：full-45 stable-reference substrate、gate 与一次性执行边界；
 4. [`docs/restoration_v2_2_eager.md`](docs/restoration_v2_2_eager.md)：只改 eager runtime 的 fresh-45 双 H200 source-only contract；
 5. [`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)：已闭合的 attribution run、exact subset oracle、conditional-marginal labels 与 artifact identity；
-6. [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)：interaction-aware student 的设计、能力边界与 ablation matrix；
-7. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
+6. [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)：OCR/RGB source freeze、confirm-safe reduction 与待执行 formal run；
+7. [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)：interaction-aware student 的设计、能力边界与 ablation matrix；
+8. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
    post-state-only prompt 的冻结实现；
-8. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
-9. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
-10. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-11. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-12. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-13. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-14. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+9. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+10. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
+11. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+12. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+13. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+14. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+15. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -580,7 +588,8 @@ $$
 - [x] 在固定双 H200 23/22 parity、microbatch 1 下完成 v2 formal labels，并闭合 private HF immutable artifact；
 - [x] 冻结 v2.2 selector geometry v1 source；preliminary replay 的核心数值已独立复算，但 reporting contract 不完整，旧 output 未提交；
 - [x] 从 clean pushed source 执行并验证 v2 reporting-only repair；144 个 interaction joint cells 与 analytic-random 集合几何完整落盘；
-- [ ] 冻结并执行 primary `n=4,B=2` OCR/RGB baseline，再单独冻结 policy-vision feature-only stage；
+- [x] 冻结 primary `n=4,B=2` OCR/RGB source-only contract；
+- [ ] 在 Hyper00 CPU-only runtime 执行并验证 OCR/RGB aggregate，再单独冻结 policy-vision feature-only stage；
 - [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -622,6 +631,10 @@ $$
 - Restoration v2.2 selector-geometry v2 source validator: [`code/scripts/validate_restoration_v2_2_selector_geometry_v2_contract.py`](code/scripts/validate_restoration_v2_2_selector_geometry_v2_contract.py)
 - Restoration v2.2 selector-geometry v2 runner: [`code/scripts/run_restoration_v2_2_selector_geometry_v2.py`](code/scripts/run_restoration_v2_2_selector_geometry_v2.py)
 - Restoration v2.2 selector-geometry v2 canonical result: [`data/results/restoration_v2_2_selector_geometry_v2_repair/`](data/results/restoration_v2_2_selector_geometry_v2_repair/)
+- Restoration v2.2 OCR/RGB source-only protocol: [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)
+- Restoration v2.2 OCR/RGB machine-readable contract: [`code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json`](code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json)
+- Restoration v2.2 OCR/RGB source validator: [`code/scripts/validate_restoration_v2_2_ocr_rgb_contract.py`](code/scripts/validate_restoration_v2_2_ocr_rgb_contract.py)
+- Restoration v2.2 OCR/RGB formal reducer: [`code/scripts/run_restoration_v2_2_ocr_rgb_baseline.py`](code/scripts/run_restoration_v2_2_ocr_rgb_baseline.py)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)
