@@ -27,9 +27,9 @@ gate。它不是 CausalCache 方法效果实验，也不读取 AndroidWorld seal
   `raw/restoration-v2-2-eager-full-45-substrate-v1.tar`。
 
 formal source freeze 已从 clean pushed
-`main@59b21380c71c42eb14544d9e54a904e10ceea85f` 建立。config SHA256 为
+`main@b3a6303d69b1145fbf195e0bd18b9b3065a6f213` 建立。config SHA256 为
 `f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7`；50-file formal inventory SHA256 为
-`23590458aa669f37b1d6bd670f9fcd03b3fed20841873f00a9be4db51f539f56`。source-only validation 不读取
+`bb6351e4dd5b4470ed1add86dbcbaa714a56063ba8ecf07268b6f13f630f9e54`。source-only validation 不读取
 processor/model，不运行 GPU，也不授权正式 policy execution。
 
 ## 唯一允许的 scientific delta

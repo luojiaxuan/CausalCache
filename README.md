@@ -87,11 +87,11 @@ index 23 states / 奇数 index 22 states 分工。global sibling ledger 必须�
 claim；旧 v2.1 raw/ledger/state output 不能复用。当前 confirm、restoration 与 gate work 仍全为 0，planned
 private HF dataset 尚无 revision。
 
-正式 source freeze 已在 clean pushed `main@59b21380c71c42eb14544d9e54a904e10ceea85f`
+正式 source freeze 已在 clean pushed `main@b3a6303d69b1145fbf195e0bd18b9b3065a6f213`
 建立：contract SHA256 为
 `f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7`，50-file formal inventory
-SHA256 为 `23590458aa669f37b1d6bd670f9fcd03b3fed20841873f00a9be4db51f539f56`。全仓
-537 tests 通过、11 skipped；该验证未调用 GPU 或 policy，fresh-45 artifact 仍为 pending。
+SHA256 为 `bb6351e4dd5b4470ed1add86dbcbaa714a56063ba8ecf07268b6f13f630f9e54`。全仓
+538 tests 通过、11 skipped；该验证未调用 GPU 或 policy，fresh-45 artifact 仍为 pending。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变
