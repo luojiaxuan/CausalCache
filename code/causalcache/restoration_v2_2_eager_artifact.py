@@ -670,6 +670,30 @@ def validate_worker_runtime_pair(
     _validate_runtime_pair(runtimes)
 
 
+def validate_v22_teacher_metadata(
+    metadata: Any,
+    *,
+    spec: WorkerSpec,
+    runtime_metadata: Mapping[str, Any] | None,
+) -> None:
+    """Validate one persisted v2.2 teacher-forward metadata envelope."""
+    _validate_teacher_metadata_v22(
+        metadata,
+        spec=spec,
+        runtime_metadata=runtime_metadata,
+    )
+
+
+def validate_v22_distance_audit(
+    value: Any,
+    *,
+    teacher: Mapping[str, Any],
+    spec: WorkerSpec,
+) -> None:
+    """Validate one persisted v2.2 GPU full-vocabulary KL audit."""
+    _validate_distance_audit_v22(value, teacher=teacher, spec=spec)
+
+
 def _validate_inner_device(inner: Mapping[str, Any], *, spec: WorkerSpec) -> None:
     generations = _sequence(inner.get("native_generations"), "native generations")
     if len(generations) != 2:
