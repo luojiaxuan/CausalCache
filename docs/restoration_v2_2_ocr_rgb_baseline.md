@@ -2,13 +2,21 @@
 
 ## 当前状态
 
-本阶段已经完成 **source-only freeze**，尚未生成任何正式 OCR/RGB aggregate。machine-readable contract 是
+v1 已完成 **source-only freeze**，但第一次正式 attempt 已在零 feature-score 阶段 fail closed。machine-readable contract 是
 [`../code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json`](../code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json)，
 SHA256 固定为
 `08f57505d71e603d81d6915ef27cf008d0fe097a56d70a05f8b3519211e2e6f9`；protocol ID 是
 `causalcache_restoration_v2_2_ocr_rgb_baseline_v1`。正式结果目录
-`data/results/restoration_v2_2_ocr_rgb_baseline_v1/` 目前不存在，任何 recovery、match rate 或 paired delta
-都还不能报告为结果。
+`data/results/restoration_v2_2_ocr_rgb_baseline_v1/` 与 staging 均不存在，任何 recovery、match rate 或 paired
+delta 都还不能报告为结果。compact failure binding 见
+[`../data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/`](../data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/)；
+replacement 必须使用新 protocol/output identity。
+
+clean pushed `main@aa5898f25e2e7d647363fe701ac90134bf744a5c` 的 formal runner 在第 0 条 derived trajectory
+identity scan 失败。每条 trajectory 的同一个 `source_id` 合法地出现在 top-level 与 nested selection metadata，
+两个 raw value 完全相同；v1 byte lexer 却要求该字段整行只能出现一次。失败早于 selected trajectory semantic
+parse、OCR record parse、image payload extract、decode-resize 和全部 OCR/RGB/combined score，所以这些 operation
+全为 0；GPU、policy、gate、confirm/test 也全为 0。这不是 OCR/RGB baseline 的负结果。
 
 这一步回答一个有限问题：在已经冻结的 primary `n=4,B=2` selector slice 上，只用 OCR 与低级 RGB
 相似度选择两个历史 event，能够恢复多少 frozen-policy behavior。它不是 learned gate、policy-vision baseline、
@@ -99,7 +107,7 @@ confirm prompt、image 或 OCR 内容，不会提取 confirm image payload，也
 
 因此正式工作是 CPU feature reduction，不需要申请 GPU，也不能借本阶段打开 confirm。
 
-## Source validation 与待执行 formal run
+## Source validation 与 v1 invalid attempt
 
 source-only validator 不生成 aggregate：
 
@@ -110,9 +118,8 @@ python3 -m scripts.validate_restoration_v2_2_ocr_rgb_contract \
   --contract configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json
 ```
 
-source commit push 后，正式 run 计划在 Hyper00 已验证的 Python 3.12 / Pillow 12.2.0 CPU runtime 上执行；当前仍
-**pending**。runner 要求 `HEAD == origin/main == --source-git-commit`、branch 为 `main`、worktree clean，并且
-只接受 canonical 新目录。显式命令为：
+source commit push 后，v1 已在 Hyper00 的 Python 3.12 / Pillow 12.2.0 CPU runtime 执行一次并永久
+fail closed。下列命令只作为 v1 provenance，**不得再次运行**：
 
 ```bash
 cd /absolute/path/to/CausalCache/code
@@ -126,16 +133,20 @@ cd /absolute/path/to/CausalCache/code
   --output-dir /absolute/path/to/CausalCache/data/results/restoration_v2_2_ocr_rgb_baseline_v1
 ```
 
-canonical output 只允许 `README.md`、`state_scores.jsonl`、`summary.json`。formal result commit/push 后，用完全
-相同 argv 把 `run` 改为 `validate`；validator 从 immutable inputs 重建全部输出 bytes，并检查 formal Python
-source closure 自执行 commit 起没有变化。
+v1 canonical output 从未创建。replacement 只能修 identity lexer：trajectory 每行必须恰有两个相同的
+unescaped `source_id`，OCR 每行必须恰有一个 `image_member_path`；同一行全部 occurrence 的 UTF-8 decoded
+value 必须完全一致，零 occurrence、escaped identity、数量漂移或不一致值仍 fail closed。allowed identities、
+opaque nonselected semantics、feature/selector/statistics、operation ceiling、
+immutable input identity 与 source-closure 规则全部保持不变。replacement 必须使用新的
+config/protocol/output directory 并绑定 v1 failure record。
 
 ## 下一步
 
-1. 完成 source tests、commit/push，并在 clean pushed `main` 上通过 source-only validator；
-2. 在 Hyper00 CPU-only runtime 运行唯一 canonical aggregate，做 pre-commit byte replay 与独立数值审计；
-3. commit/push 轻量 Git result，再从 clean descendant `main` 做 committed replay；
-4. 单独冻结并执行 policy-vision feature-only baseline；
-5. visual comparator matrix 完整后，才冻结 gate training、matched-NLL 与 closed-loop contract。
+1. commit/push v1 zero-score failure binding；
+2. 冻结新 identity 的 exact-occurrence/equal-value lexer repair，通过 source validator 与 tests 后 commit/push；
+3. 在 Hyper00 CPU-only runtime 运行 replacement canonical aggregate，做 pre-commit byte replay 与独立数值审计；
+4. commit/push 轻量 Git result，再从 clean descendant `main` 做 committed replay；
+5. 单独冻结并执行 policy-vision feature-only baseline；
+6. visual comparator matrix 完整后，才冻结 gate training、matched-NLL 与 closed-loop contract。
 
 上述任何步骤都不授权读取 confirm/test 或训练 gate。

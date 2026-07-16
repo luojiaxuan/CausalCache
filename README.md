@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB source frozen、formal pending / policy-vision pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、versioned lexer repair pending / policy-vision pending / confirm locked
 
 ## 团队交接入口
 
@@ -36,12 +36,18 @@ objective-projection gap（greedy - budget-conditioned independent）为 `0.1590
 `set_conditioned_main_candidate + online_greedy_sufficient`，但它不是 paper success gate，且 OCR/RGB 与
 policy-vision comparator 尚未补齐。
 
-primary `n=4,B=2` OCR/RGB baseline 已完成 source-only freeze，见
+primary `n=4,B=2` OCR/RGB baseline v1 已完成 source-only freeze，见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
 `08f57505d71e603d81d6915ef27cf008d0fe097a56d70a05f8b3519211e2e6f9`，固定 15 states、75 unique images 与
 60 个 candidate scores，同时报告 at-most-$B$ exact oracle 和 exact-cardinality oracle，并按 trajectory 做 paired
 bootstrap。它只允许 CPU reduction；GPU、OCR inference、policy/gate/confirm/test operation 均为 0。Hyper00
-formal aggregate 尚未运行，当前没有可报告的 OCR/RGB recovery 或 match-rate result。
+首次 Hyper00 formal attempt 在任何 trajectory semantic parse、image decode 或 feature score 之前，因 identity
+lexer 不接受同一 JSONL 中 top-level 与 nested metadata 的两个相同 `source_id` occurrence 而 fail closed；
+canonical output 与 staging 均不存在，见
+[`data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/`](data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/)。
+它是零分 implementation failure，不产生 scientific conclusion；当前仍没有可报告的 OCR/RGB recovery 或
+match-rate result。下一步只允许冻结新 identity 的 exact-occurrence/equal-value lexer repair（trajectory 每行
+两个、OCR 每行一个），科学契约与 immutable inputs 不变。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -589,7 +595,8 @@ $$
 - [x] 冻结 v2.2 selector geometry v1 source；preliminary replay 的核心数值已独立复算，但 reporting contract 不完整，旧 output 未提交；
 - [x] 从 clean pushed source 执行并验证 v2 reporting-only repair；144 个 interaction joint cells 与 analytic-random 集合几何完整落盘；
 - [x] 冻结 primary `n=4,B=2` OCR/RGB source-only contract；
-- [ ] 在 Hyper00 CPU-only runtime 执行并验证 OCR/RGB aggregate，再单独冻结 policy-vision feature-only stage；
+- [x] OCR/RGB v1 首次 Hyper00 attempt 在 zero-score identity scan 阶段 fail closed，并记录 canonical output absent；
+- [ ] 冻结并执行新 identity 的 exact-occurrence/equal-value lexer repair，再单独冻结 policy-vision feature-only stage；
 - [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -632,6 +639,7 @@ $$
 - Restoration v2.2 selector-geometry v2 runner: [`code/scripts/run_restoration_v2_2_selector_geometry_v2.py`](code/scripts/run_restoration_v2_2_selector_geometry_v2.py)
 - Restoration v2.2 selector-geometry v2 canonical result: [`data/results/restoration_v2_2_selector_geometry_v2_repair/`](data/results/restoration_v2_2_selector_geometry_v2_repair/)
 - Restoration v2.2 OCR/RGB source-only protocol: [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)
+- Restoration v2.2 OCR/RGB v1 zero-score failure: [`data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/`](data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/)
 - Restoration v2.2 OCR/RGB machine-readable contract: [`code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json`](code/configs/causalcache_restoration_v2_2_ocr_rgb_baseline.json)
 - Restoration v2.2 OCR/RGB source validator: [`code/scripts/validate_restoration_v2_2_ocr_rgb_contract.py`](code/scripts/validate_restoration_v2_2_ocr_rgb_contract.py)
 - Restoration v2.2 OCR/RGB formal reducer: [`code/scripts/run_restoration_v2_2_ocr_rgb_baseline.py`](code/scripts/run_restoration_v2_2_ocr_rgb_baseline.py)

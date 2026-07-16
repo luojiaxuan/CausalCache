@@ -13,8 +13,9 @@ preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replaceme
 HF immutable artifact。当前已有 offline teacher labels 和 oracle 上界，但仍没有 learned gate checkpoint、
 matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一步不是直接训练 set-conditioned gate，而是
 先补齐 visual comparator matrix。selector geometry 的 versioned reporting repair 已完成并支持
-`set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline 已完成
-source-only freeze，Hyper00 CPU formal aggregate 尚未运行，policy-vision stage 也仍 pending。
+`set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 已完成
+source-only freeze，但首次 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次
+而 `INVALID`。replacement lexer repair 与 policy-vision stage 仍 pending。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1729,14 +1730,30 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   全为 0。正式工作只允许 Hyper00 CPU reduction，当前 formal run 仍 pending；完整协议见
   `docs/restoration_v2_2_ocr_rgb_baseline.md`。
 
+### 2026-07-16：OCR/RGB baseline v1 zero-score invalid attempt
+
+- clean pushed `main@aa5898f25e2e7d647363fe701ac90134bf744a5c` 与 immutable input preflight 通过后，formal
+  reducer 在 derived trajectories 第 0 行 identity scan fail closed；
+- v1 lexer 错误地要求整行 `source_id` 恰好出现一次；immutable schema 在 top-level 和 nested selection
+  metadata 合法地保存两个完全相同的值。这是 execution-contract bug，不是 scientific estimand 失败；
+- byte-only forensic 确认 35/35 trajectory lines 各有两个相同 `source_id`，210/210 OCR lines 各有一个
+  `image_member_path`；没有 semantic parse record content；
+- selected trajectory/OCR semantic parse、image extract/decode、OCR/RGB/combined score、distance lookup 与 formal
+  state row 均为 0；GPU/policy/gate/confirm/test operation 也全部为 0；
+- canonical output 与 staging directory 均不存在；v1 identity 不得重跑。compact evidence 见
+  `data/results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/`；
+- replacement 必须使用新 protocol/config/output identity，只修 exact per-file occurrence 和 equal-value validation，
+  scientific inputs、feature、selection、statistics 与 operation ceiling 不变。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
-offline oracle/labels、private HF immutable artifact 与 selector-geometry v2 repaired result 已闭合。OCR/RGB
-source 已冻结；下一步先在 clean pushed `main` 上完成 Hyper00 CPU formal aggregate、byte replay 与 Git 回写，
-再单独冻结 vision-only similarity baseline。只有 visual comparators 完整、geometry
+offline oracle/labels、private HF immutable artifact 与 selector-geometry v2 repaired result 已闭合。OCR/RGB v1
+source 已冻结但首次 attempt 已 zero-score `INVALID`；下一步先 commit/push failure binding，再冻结 exact-occurrence /
+equal-value versioned repair，并在新的 clean pushed `main` 上完成 Hyper00 CPU formal aggregate、byte replay 与 Git
+回写，再单独冻结 vision-only similarity baseline。只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
 sampling、encoder、checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate。confirm 与
