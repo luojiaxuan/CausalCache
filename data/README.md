@@ -147,6 +147,13 @@ restoration v2 exact selection/exposure 产物：
   `results/spatial_reference_audit_v1/`，raw canonical artifact 位于
   `gavinlaw/causalcache-spatial-reference-audit-mobile@d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`。
 
+- Restoration v2.2-eager：当前只有 source-only contract，计划 private HF dataset 为
+  `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile@v2.2-eager-full-45-substrate-v1`。
+  fresh 45-state run、raw USTAR、immutable revision 与 Git result 目录都尚未产生；旧 v2.1 full-45 raw、
+  spatial audit raw 或其 aggregate/state records 不得复制或计入新 artifact。两个 H200 worker 共享一个独立
+  global attempt ledger，固定 even 23 / odd 22 state inventory。confirm、restoration 与 gate artifact count
+  当前均为 0。
+
 最新轻量运行记录：
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到

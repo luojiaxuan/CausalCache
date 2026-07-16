@@ -651,3 +651,52 @@ restoration coalition、baseline、selector 和 gate training 都不属于本 jo
 
 聚合判定不能只看 eager：eager 不稳定进入 semantic；eager 稳定而 auto 不稳定才是 eager-specific recovery；若
 两者都稳定，只能报告本次两个 backend 都稳定且 numerical attribution inconclusive。FP32 与 margin 不改变分支。
+
+## Restoration v2.2-eager fresh-45 执行边界
+
+本阶段是 source-only freeze，完整 contract 见 `docs/restoration_v2_2_eager.md` 和
+`code/configs/causalcache_restoration_v2_2_eager.json`。spatial audit 的正式父结论是
+`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`，只授权冻结 eager runtime；v2.1 的
+`NO_GO_V2_1_FULL_45_SUBSTRATE` 不变，confirm 仍 locked。config SHA 与 source commit 必须等最终 clean
+`main` freeze 后记录真实值，不能预填。
+
+正式 run 前按本文件通用 GPU preflight 检查同一 Hyper host 的两张 H200、磁盘、container 与至少 10 秒 idle
+window，并启动 utilization monitor。拓扑不能根据 live 速度动态改变：同一 container 中 logical `cuda:0` 的
+`even` worker 固定 23 个 even-index states，logical `cuda:1` 的 `odd` worker 固定 22 个 odd-index states；
+禁止 state stealing、跨 host 和跨 container。两个 worker 的 scientific runtime metadata 与 image digest 必须
+一致，只允许 device/UUID/PCI/logical index 不同。
+
+coordinator 在任一 worker import policy runtime 或构造 model 前，必须先 fresh-download 并验证 parent spatial、
+v2.1 full-45、pilot、processor 与 derived evidence，再 exclusive-create global sibling ledger
+`/data/experiments/causalcache/.restoration-v2-2-eager-full-45-substrate-v1.attempt.json`，统一 claim canonical root
+`/data/experiments/causalcache/restoration-v2-2-eager-full-45-substrate-v1`。该 ledger/root 与 v2.1 完全独立；旧 raw、
+state records、aggregate、terminal 或 ledger 不能复制、resume 或计入 fresh 45-state denominator。任一 worker
+失败、parity inventory 重叠/缺失或 marker 无 terminal 都使整个 attempt `INVALID`。
+
+v2.2 双 worker lifecycle 明确不支持 `--resume`。任一进程、coordinator、model construction 或主机中断后，
+canonical attempt 只能封存为 `INVALID`；即使已有完整 terminal prefix，也不能由新 invocation 跳过后续补跑。
+两个 worker 的独立 sibling high-water ledger 必须在 global claim 时预绑定，并在每个正式 state 前后 durable
+更新，防止删除 worker root 或局部 ledger 后伪造“尚未尝试”。
+
+scientific delta 只能是 BF16 eager fixed-seed/TF32-off numerical control 与双 worker transport，不声称 strict
+CUDA determinism。official-tool interface、45-state projection、per-state 两次 generation/三次 teacher/two-KL
+schedule、gate 和全 attempt 90/135/90 ceilings 均保持 v2.1 不变。confirm、expert、restoration、baseline 与
+gate construction/training/selection 的计数必须为 0。
+
+两个 worker 还必须同时 exact 匹配 spatial audit 的 container digest、Python `3.12.3`、PyTorch
+`2.11.0+cu130`、CUDA `13.0`、cuDNN `91900`、Transformers `5.6.0`、driver `570.172.08` 和 H200 型号；
+只允许 logical device、container-visible NVML index、UUID 与 PCI bus ID 不同。logical device 固定为 0/1；
+NVML index 可以是 preflight 选中的任意两个不同非负编号。两份 runtime identity 必须在 coordinator barrier
+中先证明 stack 相同且 UUID/PCI/NVML identity 不同，之后才允许首个 state marker 或 generation。任一 stack
+或双卡 identity 漂移都必须在 model forward 前使 attempt `INVALID`。
+
+terminal 后才允许从 global ledger、canonical root 与两个 disjoint worker inventories 构建 deterministic USTAR。
+planned private HF dataset 为
+`gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，tag 计划为
+`v2.2-eager-full-45-substrate-v1`。当前没有 raw archive 或 immutable revision；必须完成 fresh immutable download、
+byte hash 和 exact inventory 验证后，才能向 Git 写轻量 result。source-only validator 通过本身不授权 GPU run。
+
+若 coordinator 在 aggregate 前硬中断，只能执行 policy-free `seal-interrupted` 将 existing claim、两个 sibling
+high-water 与 forensic inventory 封存为 `INVALID`；不得重新调用 production runner。root ledger 缺失或落后
+只在它是 sibling prefix 时合法封存，root 超前/non-prefix 仍 fail closed。HF manifest 必须比较 canonical source
+archive 与独立 fresh-download path 的完整 bytes，并绑定 exact repo/path/immutable revision。

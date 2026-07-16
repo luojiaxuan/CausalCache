@@ -8,8 +8,9 @@ official-tools processor preflight 与 fixed-15 interface pilot 均已闭合；�
 32 个 memory-sensitive states，但 exact canonical repeat agreement 只有 32/45，因此正式为
 `NO_GO_V2_1_FULL_45_SUBSTRATE`。没有生成 restoration label、baseline selection、gate checkpoint、confirm
 policy output 或 CausalCache 方法效果结果。该 NO-GO 的 Git/HF committed binding 已在 clean
-`main@554c51e` 闭合；当前 operational objective 只剩 source-only design review。在新的 versioned protocol
-明确授权前，不运行 restoration、confirm 或 AndroidWorld test split。
+`main@554c51e` 闭合；bounded spatial audit 随后正式得到 eager-specific exact-stability recovery，新的
+v2.2-eager 已完成 source-only contract freeze，但 fresh-45 尚未运行。在该 substrate gate 明确 PASS 前，
+不运行 restoration、confirm 或 AndroidWorld test split。
 
 ## 已完成里程碑
 
@@ -1490,11 +1491,44 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - Git 只回写 `data/results/spatial_reference_audit_v1/` 的 compact summary/artifact binding。下一步不是
   restoration，而是先冻结一个全新 `v2.2-eager` source 与 fresh 45-state attempt；任何失败都不回写本 audit。
 
+### 2026-07-15：Restoration v2.2-eager fresh-45 source-only freeze
+
+- parent spatial artifact 固定为 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`（BF16 auto 7/13、BF16
+  eager-control 13/13）；它只授权新的 eager substrate，不改写
+  `NO_GO_V2_1_FULL_45_SUBSTRATE`；
+- machine-readable contract 为 `code/configs/causalcache_restoration_v2_2_eager.json`，完整说明为
+  `docs/restoration_v2_2_eager.md`。config SHA256 与 clean pushed source commit 留待最终 freeze 后记录真实值，
+  本 source-only milestone 不填预测值；
+- scientific contract 只改变 runtime：BF16 eager、seed 0、TF32 off、cuDNN deterministic on/benchmark off、
+  float32 matmul `highest`；明确不声称 strict CUDA determinism。official-tool interface、prompt/parser、teacher
+  target、45-state projection、gate 与 per-state schedule 均继承 v2.1；container/Python/PyTorch/CUDA/cuDNN/
+  Transformers/driver/H200 stack 则 exact 绑定回 spatial audit，避免引入第二个 runtime 变量；
+- formal attempt 必须 fresh 运行全部 45 states，旧 v2.1 raw、state records、aggregate、terminal 与 ledger
+  均不可复用或计数。全 attempt generation/teacher/KL 计划与硬上限仍为 90/135/90；
+- worker topology 固定为同机同容器两张 H200：even worker 23 states，odd worker 22 states，不允许 state
+  stealing。coordinator 必须在任一 runtime import/model construction 前，以独立于 v2.1 的 global sibling
+  ledger 对整个 attempt 做 exclusive durable claim；任一 worker failure 或 parity inventory drift 都使 attempt
+  `INVALID`；
+- 两个 runtime identity 在首个 marker/generation 前经过 coordinator barrier；logical device 固定为 0/1，
+  preflight 选择的 physical/NVML index 可为任意两个不同非负编号，并由 distinct UUID/PCI 交叉证明；
+- v2.2 lifecycle 不支持 resume；任一 worker/coordinator/主机中断都会把唯一 attempt 终止为 `INVALID`，已有
+  terminal prefix 也不能由新 invocation 跳过并补齐。global claim 会预绑定两个 worker 的 root 外 sibling
+  high-water ledger，每个 state 前后都必须 durable 更新；stale/missing root mirror、orphan/missing state files
+  只按 sibling truth 形成 forensic inventory，policy-free `seal-interrupted` 可封存但绝不 retry；
+- confirm state/prompt/image/decoder/generation/teacher、restoration coalition/label、baseline 与 gate
+  construction/training/selection 的计数全部固定为 0。planned private HF dataset 为
+  `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，当前没有 raw archive、immutable revision
+  或 result verdict；
+- 本里程碑没有调用 GPU、没有加载 processor/model、没有产生 v2.2 policy output。source-only validator 通过
+  也不自动授权正式 run；执行仍需 clean pushed main、双 GPU preflight、fresh parent evidence 和独立 global
+  claim。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
-profile。下一步冻结新的 `v2.2-eager` runtime 与全新 45-state attempt；若新 substrate 仍不稳定，再进入独立
-source-only semantic-key / canonical-representative protocol。任何 semantic protocol 都不能用当前 13 个 delta
-调 radius，且必须在 synthetic
+profile。v2.2-eager source-only freeze 已完成；下一步只运行唯一 fresh 45-state 双 H200 substrate attempt，并
+在 terminal 后闭合 deterministic USTAR、private HF immutable fresh-download 与 Git result。若新 substrate 仍
+不稳定，再进入独立 source-only semantic-key / canonical-representative protocol。任何 semantic protocol 都不能
+用当前 13 个 delta 调 radius，且必须在 synthetic
 邻接控件 negative fixture 与独立 AndroidWorld UI-node calibration artifact 上先验证。之后只有新的 versioned
 45-state substrate gate 通过，才允许 exact restoration；全部选择和阈值冻结后，最后才能打开 confirm。

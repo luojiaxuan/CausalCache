@@ -1,0 +1,372 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "causalcache_restoration_v2_2_eager_full_45_substrate",
+  "preregistration_status": "source_only_frozen_before_any_v2_2_eager_policy_output",
+  "authorization": {
+    "source_parent_git_commit": "8a88b530bd72bb65f35d569aac1ea6e9263cc1a6",
+    "spatial_reference_artifact": {
+      "path": "data/results/spatial_reference_audit_v1/artifact.json",
+      "sha256": "10a0a0e4f5822197d0ec5604601a1d66864c48cf65b0240836e6302c16054e5d",
+      "required_status": "VERIFIED_SPATIAL_REFERENCE_AUDIT_V1_ARTIFACT",
+      "required_protocol_id": "spatial_reference_audit_v1",
+      "required_hf_immutable_revision": "d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1",
+      "required_raw_archive_sha256": "d62ad05f6fdef06a3551f2ebe9f83f28327068f0020ff3e61891da4f46ce5ecc"
+    },
+    "spatial_reference_summary": {
+      "path": "data/results/spatial_reference_audit_v1/summary.json",
+      "sha256": "910d4bdf0c22f57058a505c46b4af04ce7f0ebaf5e316e6d6a5cf963a8e8f21c",
+      "required_status": "VALID_SPATIAL_REFERENCE_AUDIT_V1_VALIDATION_REPAIR_V1",
+      "required_decision": "EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY",
+      "required_parent_v2_1_outcome": "NO_GO_V2_1_FULL_45_SUBSTRATE",
+      "required_bf16_eager_stable_state_count": 13,
+      "strict_cuda_determinism_claimed": false
+    },
+    "v2_1_full_45_contract": {
+      "path": "code/configs/causalcache_restoration_v2_1_full_45.json",
+      "sha256": "0924dd66fab9440bed66585765e9b1f5ab6fb80fbdf65a1492efba7ae81e116b",
+      "protocol_id": "causalcache_restoration_v2_1_full_45_substrate"
+    },
+    "v2_1_full_45_no_go_artifact": {
+      "path": "data/results/restoration_v2_1_full_45_substrate/artifact.json",
+      "sha256": "9aa7fd6bdc20173532649a4133faf565e99975af51e38d57cf9612f29af996be",
+      "required_status": "COMPLETED_FIXED_45_STATE_V2_1_SUBSTRATE",
+      "required_outcome": "NO_GO_V2_1_FULL_45_SUBSTRATE",
+      "required_fixed_state_denominator": 45,
+      "required_completed_state_count": 45,
+      "hf_immutable_revision": "814506ef1450838d4bc6ed3d89fe53e0773d92fb",
+      "raw_archive_sha256": "8cd53d6e56d5ad509da2af91d73d9e83b4db989ffc26aa18e1bca84e4c4f4fa4"
+    },
+    "v2_1_full_45_no_go_summary": {
+      "path": "data/results/restoration_v2_1_full_45_substrate/summary.json",
+      "sha256": "f385baf261510dd82e510c8b40a05e5c2a5b91ef7e2329b4a4771b938644c6b8",
+      "required_status": "COMPLETED_FIXED_45_STATE_V2_1_SUBSTRATE",
+      "required_outcome": "NO_GO_V2_1_FULL_45_SUBSTRATE",
+      "required_fixed_state_denominator": 45
+    },
+    "v2_1_pilot_artifact": {
+      "path": "data/results/restoration_v2_1_interface_pilot/artifact.json",
+      "sha256": "e7a92a0469e3b66113158d5c2ce713c363ecaff97f95498f3ef84f02a4a6bed8",
+      "required_status": "COMPLETED_FIXED_15_STATE_INTERFACE_PILOT",
+      "required_outcome": "PASS_V2_1_INTERFACE_PILOT",
+      "required_completed_state_count": 15,
+      "hf_immutable_revision": "bdff8ca71f150afd80d6291b4ecec76cbf9e7432"
+    },
+    "v2_1_processor_artifact": {
+      "path": "data/results/restoration_v2_1_processor_preflight/artifact.json",
+      "sha256": "2689fe984215f308e5f5230de9656cfe0439bfd2df5e5f061ebac1a1cbc8299b",
+      "required_status": "PASSED_RESTORATION_V2_1_90_PROMPT_PROCESSOR_PREFLIGHT",
+      "required_state_count": 45,
+      "required_prompt_count": 90,
+      "hf_immutable_revision": "85576161b7cb8bbae14e46a482c42b5be5bf1d7e"
+    },
+    "fresh_immutable_parent_evidence_validation_required_before_runtime_import": true,
+    "authorization_scope": "fresh_v2_2_eager_full_45_substrate_only"
+  },
+  "scientific_inheritance": {
+    "unchanged_components": [
+      "official_tool_schema",
+      "system_prompt_bytes",
+      "chat_template_mode",
+      "prompt_builder",
+      "canonical_action_parser",
+      "teacher_target_serialization",
+      "teacher_forced_distance_span",
+      "masked_token_kl",
+      "substrate_gate_thresholds",
+      "per_state_operation_schedule"
+    ],
+    "allowed_change_scope": [
+      "attention_backend_eager",
+      "fixed_numerical_controls",
+      "two_worker_transport",
+      "non_resumable_attempt_lifecycle",
+      "attempt_and_artifact_identity"
+    ],
+    "source_files": [
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_1.py",
+        "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964"
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_1_runtime.py",
+        "sha256": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5"
+      },
+      {
+        "path": "code/causalcache/data/restoration_v2_1_processor_inputs.py",
+        "sha256": "fe1ea67e32c24ac415c3f51a99a578e03d87e045b074071987b9c90716fdbb36"
+      },
+      {
+        "path": "code/causalcache/restoration_v2_1_processor_audit.py",
+        "sha256": "cdd0308852e69bf3823f6cd258bc3d6eec65321c8e017943518de1c72d51081b"
+      },
+      {
+        "path": "code/causalcache/restoration_v2_1_pilot_artifact.py",
+        "sha256": "2f671bb632ef7ebd80c6c069526d45c0faae10be77386d4ab84219ab0908a662"
+      },
+      {
+        "path": "code/scripts/run_restoration_v2_1_interface_pilot.py",
+        "sha256": "55c71de309312557ca65353ae27085cbf06a889f121e4856a8b0e6a0563aa053"
+      },
+      {
+        "path": "code/causalcache/restoration_v2_gpu_kl.py",
+        "sha256": "6227375fdb61a32bc71d22c1e77f1c62eb211cfb043984351512077fd1fec5ce"
+      },
+      {
+        "path": "code/causalcache/data/guiodyssey_restoration_v2.py",
+        "sha256": "8caf9418e4212c760b789f660b8b67c9b23a5b88d08a8434d4a1e718f7a0e4ee"
+      },
+      {
+        "path": "code/causalcache/low_fidelity_v2.py",
+        "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a"
+      }
+    ],
+    "formal_run_source_inventory_paths": [
+      "code/configs/causalcache_restoration_v2_2_eager.json",
+      "code/causalcache/restoration_v2_2_eager_contract.py",
+      "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+      "code/causalcache/restoration_v2_2_eager_artifact.py",
+      "code/scripts/run_restoration_v2_2_eager_substrate.py",
+      "code/scripts/manage_restoration_v2_2_eager_artifact.py",
+      "code/scripts/validate_restoration_v2_2_eager_contract.py",
+      "code/configs/causalcache_restoration_v2_1_full_45.json",
+      "code/causalcache/restoration_v2_1_full_45_contract.py",
+      "code/causalcache/restoration_v2_1_full_45_artifact.py",
+      "code/scripts/run_restoration_v2_1_full_45_substrate.py",
+      "code/scripts/manage_restoration_v2_1_full_45_artifact.py",
+      "code/scripts/validate_restoration_v2_1_full_45_contract.py",
+      "code/scripts/run_restoration_v2_1_interface_pilot.py",
+      "code/causalcache/restoration_v2_1_contract.py",
+      "code/causalcache/restoration_v2_1_pilot_artifact.py",
+      "code/scripts/manage_restoration_v2_1_pilot_artifact.py",
+      "code/causalcache/restoration_v2_1_processor_audit.py",
+      "code/scripts/audit_gui_owl_v2_1_processor.py",
+      "code/causalcache/data/restoration_v2_1_processor_inputs.py",
+      "code/causalcache/data/restoration_v2_screening.py",
+      "code/causalcache/policy/gui_owl_v2_1.py",
+      "code/causalcache/policy/gui_owl_v2_1_runtime.py",
+      "code/causalcache/restoration_v2_gpu_kl.py",
+      "code/causalcache/data/guiodyssey_restoration_v2.py",
+      "code/causalcache/data/restoration_v2_selection.py",
+      "code/causalcache/data/guiodyssey.py",
+      "code/causalcache/data/guiodyssey_independent.py",
+      "code/causalcache/low_fidelity_v2.py",
+      "code/causalcache/restoration_v2_contract.py",
+      "code/causalcache/restoration_v2_text_backend.py",
+      "code/causalcache/schema.py",
+      "code/causalcache/policy/gui_owl_v2.py",
+      "code/causalcache/policy/gui_owl_v2_runtime.py",
+      "code/causalcache/policy/gui_owl_v2_vision.py",
+      "code/causalcache/restoration_v2_baselines.py",
+      "code/configs/causalcache_restoration_v2_1_pilot.json",
+      "code/configs/causalcache_restoration_v2.json",
+      "code/configs/restoration_v2_ocr_backend.json",
+      "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "data/manifests/restoration_v2_selection.json",
+      "data/manifests/restoration_v2_ocr_backend.json",
+      "data/manifests/restoration_v2_derived_artifact.json",
+      "data/manifests/restoration_v2_real_screen_source.json",
+      "data/results/restoration_v2_1_interface_pilot/artifact.json",
+      "data/results/restoration_v2_1_processor_preflight/artifact.json",
+      "data/results/restoration_v2_1_full_45_substrate/artifact.json",
+      "data/results/restoration_v2_1_full_45_substrate/summary.json",
+      "data/results/spatial_reference_audit_v1/artifact.json",
+      "data/results/spatial_reference_audit_v1/summary.json"
+    ],
+    "formal_run_must_bind_clean_pushed_main_git_commit": true,
+    "scientific_source_change_after_first_attempt_allowed": false
+  },
+  "data": {
+    "derived_artifact": {
+      "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "immutable_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e"
+    },
+    "selection_manifest": {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    },
+    "roles_in_exact_order": ["v2_label_train", "v2_development"],
+    "role_state_counts": {"v2_label_train": 30, "v2_development": 15},
+    "fixed_state_denominator": 45,
+    "state_projection_sha256": "65e7085f01bc26e425bab7f5148c6729bc8c6d0a62802ebc5e8dfeaed6439249",
+    "fresh_state_output_required": true,
+    "v2_1_raw_state_or_aggregate_output_may_be_imported": false,
+    "v2_1_raw_output_may_count_toward_denominator": false,
+    "v2_1_state_output_reuse_count": 0,
+    "pilot_output_may_count_toward_denominator": false,
+    "state_filtering_or_top_up_allowed": false,
+    "confirm_prompt_image_or_state_exposure_allowed": false
+  },
+  "runtime": {
+    "runtime_source": {
+      "path": "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+      "sha256": "6ce88c00358d0ab03f0417957f434a8553330f27b49b8c18da15f7817b799cc1"
+    },
+    "dtype": "bfloat16",
+    "attention_implementation_requested": "eager",
+    "attention_implementation_observed_must_equal": "eager",
+    "eager_control_flags": {
+      "cudnn_deterministic": true,
+      "cudnn_benchmark": false,
+      "cuda_matmul_allow_tf32": false,
+      "cudnn_allow_tf32": false,
+      "float32_matmul_precision": "highest",
+      "seed": 0
+    },
+    "pytorch_strict_deterministic_algorithms_enabled": false,
+    "scientific_environment_variables_allowed": false,
+    "claim": "eager_fixed_seed_tf32_disabled_numerical_control_not_strict_cuda_determinism",
+    "expected_execution_stack": {
+      "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "python_version": "3.12.3",
+      "torch_version": "2.11.0+cu130",
+      "torch_cuda_version": "13.0",
+      "cudnn_version": 91900,
+      "transformers_version": "5.6.0",
+      "nvidia_driver_version": "570.172.08",
+      "gpu_name": "NVIDIA H200"
+    },
+    "scientific_runtime_metadata_must_be_equal_across_workers": true,
+    "worker_identity_fields_required": [
+      "device",
+      "gpu_name",
+      "gpu_uuid",
+      "gpu_pci_bus_id",
+      "logical_device_index",
+      "nvidia_smi_index"
+    ],
+    "worker_identity_fields_allowed_to_differ": [
+      "device",
+      "gpu_uuid",
+      "gpu_pci_bus_id",
+      "logical_device_index",
+      "nvidia_smi_index"
+    ],
+    "container_image_digest_must_be_equal_across_workers": true
+  },
+  "computation_schedule": {
+    "per_state_maximum": {
+      "full_history_generation_calls": 2,
+      "teacher_forward_calls_on_success": 3,
+      "kl_measurements_on_success": 2
+    },
+    "planned_counts_if_all_45_states_reach_success_stage": {
+      "generation_call_count": 90,
+      "teacher_forward_count": 135,
+      "kl_measurement_count": 90
+    },
+    "maximum_counts_for_entire_attempt": {
+      "generation_call_count": 90,
+      "teacher_forward_count": 135,
+      "kl_measurement_count": 90
+    },
+    "generation_order_per_state": [
+      "full_history_reference_repeat_1",
+      "full_history_reference_repeat_2"
+    ],
+    "teacher_order_on_success_per_state": [
+      "full_history_reference_1",
+      "full_history_reference_2",
+      "summary_only"
+    ],
+    "kl_order_on_success_per_state": [
+      "repeat_reference_kl",
+      "summary_reference_kl"
+    ],
+    "automatic_retry_allowed": false,
+    "state_retry_count": 0,
+    "top_up_count": 0,
+    "resume_allowed": false,
+    "resume_only_skips_existing_terminal_state_records": false,
+    "resume_may_attempt_only_states_without_any_attempt_marker": false,
+    "attempt_marker_without_terminal_state_invalidates_entire_attempt": true,
+    "completed_state_regeneration_allowed": false,
+    "incomplete_attempt_retry_allowed": false,
+    "sample_mutation_allowed": false
+  },
+  "substrate_gate": {
+    "fixed_state_denominator": 45,
+    "minimum_screening_states": 20,
+    "minimum_parse_coverage": 0.99,
+    "derived_required_parse_success_count": 45,
+    "minimum_finite_logit_coverage": 1.0,
+    "derived_required_finite_logit_state_count": 45,
+    "minimum_repeat_canonical_action_agreement": 1.0,
+    "derived_required_repeat_agreement_count": 45,
+    "minimum_memory_sensitive_states": 8,
+    "memory_sensitive_definition": "summary_reference_kl_greater_than_repeat_noise_epsilon",
+    "repeat_noise_epsilon": "max(1e-4,10*mean_repeat_kl)",
+    "failed_states_remain_in_fixed_denominator": true,
+    "pass_outcome": "PASS_V2_2_EAGER_FULL_45_SUBSTRATE",
+    "fail_outcome": "NO_GO_V2_2_EAGER_FULL_45_SUBSTRATE",
+    "invalid_outcome": "INVALID_V2_2_EAGER_FULL_45_SUBSTRATE"
+  },
+  "prohibited_work": {
+    "maximum_confirm_state_access_count": 0,
+    "maximum_confirm_processor_prompt_count": 0,
+    "maximum_confirm_decoder_input_count": 0,
+    "maximum_confirm_generation_count": 0,
+    "maximum_confirm_teacher_forward_count": 0,
+    "maximum_expert_action_read_count": 0,
+    "maximum_restoration_coalition_construction_count": 0,
+    "maximum_restoration_candidate_prompt_count": 0,
+    "maximum_restoration_label_count": 0,
+    "maximum_baseline_selection_count": 0,
+    "maximum_gate_training_example_count": 0,
+    "maximum_gate_model_forward_count": 0,
+    "maximum_gate_selection_count": 0,
+    "androidworld_test_split_access_allowed": false
+  },
+  "execution": {
+    "attempt_id": "restoration-v2-2-eager-full-45-substrate-v1",
+    "canonical_persistent_output_dir": "/data/experiments/causalcache/restoration-v2-2-eager-full-45-substrate-v1",
+    "canonical_global_attempt_ledger": "/data/experiments/causalcache/.restoration-v2-2-eager-full-45-substrate-v1.attempt.json",
+    "canonical_raw_archive": "/data/experiments/causalcache/restoration-v2-2-eager-full-45-substrate-v1.raw.tar",
+    "required_host_class": "Hyper_H200",
+    "worker_topology": {
+      "worker_count": 2,
+      "gpu_model": "NVIDIA H200",
+      "one_process_per_device": true,
+      "workers": [
+        {
+          "worker_id": "even",
+          "device": "cuda:0",
+          "index_parity": 0,
+          "state_indices": [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44]
+        },
+        {
+          "worker_id": "odd",
+          "device": "cuda:1",
+          "index_parity": 1,
+          "state_indices": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43]
+        }
+      ],
+      "cross_worker_state_stealing_allowed": false,
+      "worker_failure_invalidates_entire_attempt": true,
+      "worker_outputs_must_be_disjoint": true,
+      "worker_union_must_equal_fixed_denominator": true
+    },
+    "same_host_and_container_required_for_both_workers": true,
+    "cross_host_attempt_allowed": false,
+    "alternate_output_or_ledger_allowed": false,
+    "output_or_ledger_deletion_after_first_attempt_allowed": false,
+    "state_attempt_marker_written_before_first_generation": true,
+    "runtime_import_requires_fresh_parent_evidence_validation": true
+  },
+  "artifact_destination": {
+    "repo": "gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile",
+    "repo_type": "dataset",
+    "visibility": "private",
+    "tag": "v2.2-eager-full-45-substrate-v1",
+    "path": "raw/restoration-v2-2-eager-full-45-substrate-v1.tar",
+    "git_result_dir": "data/results/restoration_v2_2_eager_full_45_substrate",
+    "fresh_immutable_download_and_byte_hash_required_before_git_manifest": true
+  },
+  "promotion": {
+    "pass_authorizes_only": "freeze_and_audit_independent_v2_2_restoration_confirm_source",
+    "pass_does_not_authorize_automatic_confirm_execution": true,
+    "confirm_remains_locked_until_new_source_is_committed_and_pushed": true,
+    "no_go_stops_v2_2_restoration_confirm": true,
+    "source_only_validator_authorizes_policy_or_gpu_execution": false
+  }
+}

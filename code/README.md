@@ -673,3 +673,78 @@ confirm/restoration/gate operation count 必须为 0。
 最终判定为三分支：eager 不稳定则进入 semantic reference；只有 eager 13/13 且 auto 非 13/13 才称为
 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；若两者均 13/13，则结论是本次 numerical audit inconclusive，
 不得把稳定性归因给 eager。FP32 永不参与 pass/fail。本次 repaired artifact 落在 eager-specific 分支。
+
+## Restoration v2.2-eager source-only freeze
+
+`configs/causalcache_restoration_v2_2_eager.json` 冻结 fresh-45 child contract。它只继承 v2.1 full-45 的
+official-tool interface、prompt/parser/teacher/KL、45-state projection、gate 与 90/135/90 operation ceiling，并将
+runtime 固定为 BF16 eager、seed 0、TF32 off、cuDNN deterministic on/benchmark off 和 float32 matmul
+`highest`。同时 exact 绑定 spatial audit 的 container image、Python/PyTorch/CUDA/cuDNN/Transformers/driver 与
+H200 stack。这不是 strict CUDA determinism，也不能把 spatial audit 的 13 个 mismatch 直接计为本轮 stable。
+
+execution 固定同一 Hyper H200 host/container 内两个 worker：logical `cuda:0` 处理 even indices 0--44 的
+23 states，logical `cuda:1` 处理 odd indices 1--43 的 22 states；禁止 state stealing。coordinator 必须在两个
+worker import policy runtime 前 exclusive-create 独立于 v2.1 的 global sibling ledger
+`/data/experiments/causalcache/.restoration-v2-2-eager-full-45-substrate-v1.attempt.json`，并绑定 canonical root
+`/data/experiments/causalcache/restoration-v2-2-eager-full-45-substrate-v1`。旧 v2.1 root、ledger、state records、
+terminal、aggregate 与 raw archive 都不能导入、复制或计入新 45-state denominator。
+
+两张物理卡由 preflight 选择后映射为 container logical `cuda:0/1`；container-visible `nvidia-smi` index 不要求
+等于 0/1，但必须是两个不同非负整数，且 UUID/PCI bus ID 都不同。两个 worker 写完 runtime identity 后先在
+coordinator barrier 中验证 exact stack 与 distinct physical identity，barrier release 前不得写 marker 或执行
+generation。generation success 与 strict-parse failure 都只额外记录实际 `device` provenance，不改变 v2.1
+output/action/logits。
+
+source commit push 后，唯一可建立 formal source freeze 的 validator 命令必须显式带 strict flag：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.validate_restoration_v2_2_eager_contract \
+  --repository-root /data/CausalCache \
+  --config /data/CausalCache/code/configs/causalcache_restoration_v2_2_eager.json \
+  --require-clean-pushed-main
+```
+
+production runner 的固定参数面如下；尖括号只在 preflight 后替换为 fresh immutable evidence path、实际 model
+path 与 64-hex container ID，canonical output/ledger 和 image digest 不能改：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.run_restoration_v2_2_eager_substrate \
+  --repository-root /data/CausalCache \
+  --contract /data/CausalCache/code/configs/causalcache_restoration_v2_2_eager.json \
+  --spatial-reference-evidence <FRESH_SPATIAL_RAW_TAR> \
+  --v2-1-full-45-evidence <FRESH_V2_1_FULL_45_RAW_TAR> \
+  --pilot-evidence <FRESH_V2_1_PILOT_RAW_TAR> \
+  --processor-evidence <FRESH_PROCESSOR_FORMAL_RESULT_JSON> \
+  --derived-artifact-root <VALIDATED_DERIVED_ARTIFACT_ROOT> \
+  --scientific-config /data/CausalCache/code/configs/causalcache_restoration_v2.json \
+  --selection-manifest /data/CausalCache/data/manifests/restoration_v2_selection.json \
+  --ocr-backend-config /data/CausalCache/code/configs/restoration_v2_ocr_backend.json \
+  --snapshot-manifest /data/CausalCache/code/configs/gui_owl_1_5_8b_snapshot.json \
+  --model-dir <GUI_OWL_1_5_8B_INSTRUCT_MODEL_DIR> \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id <FULL_64_HEX_CONTAINER_ID> \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --output-dir /data/experiments/causalcache/restoration-v2-2-eager-full-45-substrate-v1 \
+  --global-ledger /data/experiments/causalcache/.restoration-v2-2-eager-full-45-substrate-v1.attempt.json
+```
+
+v2.2 没有 `--resume`。若 coordinator 在 aggregate 前硬中断，只能用下列 policy-free 命令封存 existing
+attempt；它读取 root 外 sibling high-water，不 import model、不补 state：
+
+```bash
+python3 -m scripts.manage_restoration_v2_2_eager_artifact seal-interrupted \
+  --raw-output-dir /data/experiments/causalcache/restoration-v2-2-eager-full-45-substrate-v1 \
+  --global-attempt-ledger /data/experiments/causalcache/.restoration-v2-2-eager-full-45-substrate-v1.attempt.json
+```
+
+terminal 后先执行 `archive`，上传 private HF，再把 canonical source archive 与不同路径的 fresh immutable
+download 同时交给 `create-manifest`；同一路径、byte drift、非 frozen repo/path 或非 40-hex revision 都会拒绝。
+
+本阶段只有 source-only freeze；source validator 不加载 processor/model、不调用 GPU，也不授权正式 attempt。
+config SHA256 与 source commit 在最终 clean-main freeze 后记录真实值。当前没有 v2.2 generation、teacher、KL、
+restoration、gate 或 confirm output；confirm/restoration/gate access counts 必须保持 0。正式 raw 的 planned private
+HF destination 是 `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，但 archive、tag 对应的
+immutable revision 与 Git result 尚未产生。完整边界见 `docs/restoration_v2_2_eager.md`。
