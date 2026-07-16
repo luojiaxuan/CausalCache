@@ -11,10 +11,14 @@ from causalcache.policy.gui_owl_v2_2_vision_runtime import (
     GPU_UUID_TYPE_PROFILE_V1,
     GPU_UUID_TYPE_PROFILE_V2,
     GUI_OWL_V2_2_VISION_RUNTIME_ID,
+    GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
     GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+    IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+    IMAGE_PROCESSOR_SIZE_PROFILE_V3,
     GUIOwlV22VisionFeatureRuntime,
     _canonical_gpu_uuid,
     _nvidia_smi_gpu_identity,
+    _runtime_profile_id,
     _validate_cpu_image_processor_output,
 )
 from causalcache.restoration_v2_baselines import BaselineSelection
@@ -193,6 +197,43 @@ class Qwen2VLImageProcessor:
         return self.output
 
 
+class SizeDict:
+    __module__ = "transformers.image_utils"
+
+    def __init__(
+        self,
+        *,
+        shortest_edge: int = 2_621_440,
+        longest_edge: int = 2_621_440,
+        height: object | None = None,
+        width: object | None = None,
+        max_height: object | None = None,
+        max_width: object | None = None,
+        extra_items: tuple[tuple[str, object], ...] = (),
+    ) -> None:
+        self.shortest_edge = shortest_edge
+        self.longest_edge = longest_edge
+        self.height = height
+        self.width = width
+        self.max_height = max_height
+        self.max_width = max_width
+        self.extra_items = extra_items
+
+    def __iter__(self) -> object:
+        for name in (
+            "height",
+            "width",
+            "longest_edge",
+            "shortest_edge",
+            "max_height",
+            "max_width",
+        ):
+            value = getattr(self, name)
+            if value is not None:
+                yield name, value
+        yield from self.extra_items
+
+
 class _FakeAutoImageProcessor:
     calls: list[tuple[str, dict[str, object]]] = []
     processor = Qwen2VLImageProcessor()
@@ -248,14 +289,22 @@ class GUIOwlV22VisionFeatureRuntimeTest(unittest.TestCase):
         *,
         pillow_version: str = "12.2.0",
         gpu_uuid_type_profile: str = GPU_UUID_TYPE_PROFILE_V1,
+        image_processor_size_profile: str = IMAGE_PROCESSOR_SIZE_PROFILE_V1,
     ) -> GUIOwlV22VisionFeatureRuntime:
         transformers = types.ModuleType("transformers")
         transformers.AutoImageProcessor = _FakeAutoImageProcessor
         transformers.AutoModelForImageTextToText = _FakeAutoModel
+        image_utils = types.ModuleType("transformers.image_utils")
+        image_utils.SizeDict = SizeDict
+        transformers.image_utils = image_utils
         with (
             mock.patch.dict(
                 sys.modules,
-                {"torch": self.torch, "transformers": transformers},
+                {
+                    "torch": self.torch,
+                    "transformers": transformers,
+                    "transformers.image_utils": image_utils,
+                },
             ),
             mock.patch.object(
                 runtime_module,
@@ -315,6 +364,7 @@ class GUIOwlV22VisionFeatureRuntimeTest(unittest.TestCase):
                 device="cuda:1",
                 expected_gpu_uuid="GPU-AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE",
                 gpu_uuid_type_profile=gpu_uuid_type_profile,
+                image_processor_size_profile=image_processor_size_profile,
             )
 
     @staticmethod
@@ -336,6 +386,23 @@ class GUIOwlV22VisionFeatureRuntimeTest(unittest.TestCase):
             data=[[1, 2, 2]] * 5,
         )
         return pixels, grid
+
+    def _assert_v3_size_rejected(
+        self,
+        value: object,
+        message: str,
+    ) -> None:
+        self.setUp()
+        self.torch.cuda.uuid = _CUuuid(
+            "GPU-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        )
+        _FakeAutoImageProcessor.processor.size = value
+        with self.assertRaisesRegex(ValueError, message):
+            self._construct(
+                gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+                image_processor_size_profile=IMAGE_PROCESSOR_SIZE_PROFILE_V3,
+            )
+        self.assertEqual(_FakeAutoModel.calls, [])
 
     def test_constructor_uses_direct_image_processor_and_exact_eager_profile(self) -> None:
         runtime = self._construct()
@@ -469,6 +536,116 @@ class GUIOwlV22VisionFeatureRuntimeTest(unittest.TestCase):
             runtime.metadata["runtime_profile_id"],
             GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
         )
+
+    def test_runtime_profile_tuple_truth_table_is_exact(self) -> None:
+        self.assertEqual(
+            _runtime_profile_id(
+                GPU_UUID_TYPE_PROFILE_V1,
+                IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+            ),
+            GUI_OWL_V2_2_VISION_RUNTIME_ID,
+        )
+        self.assertEqual(
+            _runtime_profile_id(
+                GPU_UUID_TYPE_PROFILE_V2,
+                IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+            ),
+            GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+        )
+        self.assertEqual(
+            _runtime_profile_id(
+                GPU_UUID_TYPE_PROFILE_V2,
+                IMAGE_PROCESSOR_SIZE_PROFILE_V3,
+            ),
+            GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
+        )
+        with self.assertRaisesRegex(ValueError, "profile tuple is not frozen"):
+            _runtime_profile_id(
+                GPU_UUID_TYPE_PROFILE_V1,
+                IMAGE_PROCESSOR_SIZE_PROFILE_V3,
+            )
+        with self.assertRaisesRegex(ValueError, "GPU UUID type profile"):
+            _runtime_profile_id(
+                "unregistered-uuid",
+                IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+            )
+        with self.assertRaisesRegex(ValueError, "size profile is not frozen"):
+            _runtime_profile_id(
+                GPU_UUID_TYPE_PROFILE_V2,
+                "unregistered-size",
+            )
+
+    def test_v3_accepts_only_exact_loaded_size_dict_without_metadata_drift(self) -> None:
+        expected_uuid = "GPU-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+        self.torch.cuda.uuid = _CUuuid(expected_uuid)
+        v2_runtime = self._construct(
+            gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+        )
+        expected_metadata = dict(v2_runtime.metadata)
+        expected_metadata["runtime_profile_id"] = (
+            GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID
+        )
+
+        self.setUp()
+        self.torch.cuda.uuid = _CUuuid(expected_uuid)
+        _FakeAutoImageProcessor.processor.size = SizeDict()
+        v3_runtime = self._construct(
+            gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+            image_processor_size_profile=IMAGE_PROCESSOR_SIZE_PROFILE_V3,
+        )
+        self.assertEqual(v3_runtime.metadata, expected_metadata)
+        self.assertEqual(
+            v3_runtime.metadata["processor_size"],
+            {"shortest_edge": 2_621_440, "longest_edge": 2_621_440},
+        )
+
+    def test_v3_rejects_size_dict_impostor_subclass_and_mapping(self) -> None:
+        impostor_type = type(
+            "SizeDict",
+            (),
+            {
+                "__module__": "transformers.image_utils",
+                "__init__": SizeDict.__init__,
+                "__iter__": SizeDict.__iter__,
+            },
+        )
+
+        class SizeDictSubclass(SizeDict):
+            pass
+
+        cases = (
+            ("same-module-name impostor", impostor_type()),
+            ("subclass", SizeDictSubclass()),
+            (
+                "Mapping",
+                {"shortest_edge": 2_621_440, "longest_edge": 2_621_440},
+            ),
+        )
+        for label, value in cases:
+            with self.subTest(label=label):
+                self._assert_v3_size_rejected(value, "exact loaded Transformers")
+
+    def test_v3_rejects_extra_wrong_and_non_edge_size_dict_values(self) -> None:
+        cases = (
+            (
+                "extra",
+                SizeDict(extra_items=(("unexpected", 1),)),
+                "processor size drifted",
+            ),
+            (
+                "wrong edge",
+                SizeDict(shortest_edge=2_621_439),
+                "edge fields drifted",
+            ),
+            (
+                "non-edge",
+                SizeDict(height=1),
+                "non-edge fields drifted",
+            ),
+        )
+        for label, value, message in cases:
+            with self.subTest(label=label):
+                self._assert_v3_size_rejected(value, message)
 
     def test_uuid_v2_rejects_same_shape_spoof_and_wrong_loaded_type(self) -> None:
         expected = "GPU-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"

@@ -184,7 +184,9 @@ restoration v2 exact selection/exposure 产物：
   唯一 v2 attempt 跨过 UUID check 后，又因 pinned `SizeDict` 可转成冻结数值但不是 `Mapping` 而在 0 feature
   fail closed。failure binding 位于
   `results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`；canonical result 仍不存在，因而
-  这里不登记 recovery、feature cache 或新 HF artifact。
+  这里不登记 recovery、feature cache 或新 HF artifact。v3 exact-SizeDict repair 已使用新的
+  `results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/` canonical identity；source freeze
+  时该目录与 staging 均不存在，只有正式 run 成功后才允许登记 result。
 
 最新轻量运行记录：
 

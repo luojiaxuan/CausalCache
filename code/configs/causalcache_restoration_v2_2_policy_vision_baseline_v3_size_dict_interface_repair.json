@@ -1,0 +1,214 @@
+{
+  "schema_version": "0.2.0",
+  "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+  "preregistration_status": "source_only_frozen_before_any_v3_size_dict_interface_repair_feature_or_score",
+  "parent_contract": {
+    "path": "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json",
+    "sha256": "23733169ef5ba60a84f4447080ef12e1893858aa375ff50d8d4e3595699e774e",
+    "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair",
+    "source_git_commit": "fe7640395d3b6aea2e5e3a8cc34a49efc5ba2d2f"
+  },
+  "failed_attempt": {
+    "git_ref": "main",
+    "git_commit": "b1d07551aace6f9242d9754cc0e2d0ce84bbdd90",
+    "directory": "data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt",
+    "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair",
+    "status": "INVALID_POLICY_VISION_V2_ZERO_FEATURE_SIZE_DICT_INTERFACE",
+    "source_git_commit": "fe7640395d3b6aea2e5e3a8cc34a49efc5ba2d2f",
+    "contract_sha256": "23733169ef5ba60a84f4447080ef12e1893858aa375ff50d8d4e3595699e774e",
+    "failure_stage": "after_gpu_uuid_snapshot_verification_and_image_processor_construction_before_policy_model_load_or_feature_forward",
+    "observed_python_type": "transformers.image_utils.SizeDict",
+    "observed_mapping_membership": false,
+    "observed_dict_conversion_equals_expected": true,
+    "policy_model_load_count": 0,
+    "image_processor_batch_count": 0,
+    "policy_vision_feature_forward_count": 0,
+    "result_file_count": 0,
+    "same_protocol_retry_allowed": false,
+    "attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v2-gpu-uuid-repair-attempt.json",
+    "attempt_ledger_sha256": "492e7c7aea0539fc5bc65c0d0be41b5659563a140d8e411a3b347b4c18584502",
+    "exact_files": [
+      {
+        "path": "README.md",
+        "size_bytes": 1624,
+        "sha256": "9ddcf6eb8374a76c053622d3e16b772246f4c9aea17bc2578fe43f73762e3e90"
+      },
+      {
+        "path": "failure.json",
+        "size_bytes": 4910,
+        "sha256": "3fe5c7fd6ea082501627fcbe52d4ca2751dc00f6f9a2270a9fdf20987097e5b7"
+      }
+    ]
+  },
+  "repair_scope": {
+    "image_processor_size_interface_only": true,
+    "gpu_uuid_value_type_profile": "torch_C_CUuuid_v2",
+    "gpu_uuid_runtime_type_profile": "cuda_device_property_uuid_torch_c_cuuuid_v2",
+    "gpu_uuid_contract_to_runtime_profile_mapping": "torch_C_CUuuid_v2 -> cuda_device_property_uuid_torch_c_cuuuid_v2",
+    "image_processor_size_value_type_profile": "transformers_image_utils_SizeDict_exact_type_v3",
+    "image_processor_size_runtime_type_profile": "transformers_image_utils_size_dict_exact_edges_v3",
+    "image_processor_size_contract_to_runtime_profile_mapping": "transformers_image_utils_SizeDict_exact_type_v3 -> transformers_image_utils_size_dict_exact_edges_v3",
+    "combined_runtime_profile_id": "causalcache_restoration_v2_2_policy_vision_feature_only_runtime_uuid_type_v2_size_dict_interface_v3",
+    "pinned_torch_version": "2.11.0+cu130",
+    "pinned_transformers_version": "5.6.0",
+    "semantic_repair": {
+      "newly_accepted_runtime_type": "transformers.image_utils.SizeDict",
+      "acceptance_predicate": "type(value) is loaded transformers.image_utils.SizeDict",
+      "mapping_membership_required": false,
+      "mapping_implementation_explicitly_rejected_for_v3": true,
+      "non_edge_fields_required_none": [
+        "height",
+        "width",
+        "max_height",
+        "max_width"
+      ],
+      "edge_attributes_required_exact_int": [
+        "shortest_edge",
+        "longest_edge"
+      ],
+      "conversion": "normalized = dict(value)",
+      "conversion_after_exact_type_and_attribute_checks": true,
+      "exact_normalized_keys": [
+        "longest_edge",
+        "shortest_edge"
+      ],
+      "exact_normalized_values": {
+        "longest_edge": 2621440,
+        "shortest_edge": 2621440
+      },
+      "existing_v1_mapping_profile_unchanged": true,
+      "existing_v2_gpu_uuid_profile_unchanged": true,
+      "all_other_v3_runtime_types_rejected": true,
+      "metadata_processor_size_remains_plain_json_object": true
+    },
+    "implementation_boundary": {
+      "source_diff_baseline_git_commit": "b1d07551aace6f9242d9754cc0e2d0ce84bbdd90",
+      "baseline_existing_sources": [
+        {
+          "path": "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+          "sha256": "ed5efae5b1201181f3dec1e56eb6e49de7921355dc903478d6c3b6a8a4990a00"
+        },
+        {
+          "path": "code/causalcache/restoration_v2_2_policy_vision.py",
+          "sha256": "38c90f17da63999399ea21d11e63591c016e2818feb5dd7a041ded92021f5af1"
+        },
+        {
+          "path": "code/scripts/run_restoration_v2_2_policy_vision_baseline.py",
+          "sha256": "6b90b7f48e99c293fe519bb4c5315b3e680c3f54a5a99a891c85bb7280b60708"
+        },
+        {
+          "path": "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py",
+          "sha256": "18fa616c55e8c5dad89981de40bf1ccdf570b4bba6217b25894f82f854f3ba4d"
+        }
+      ],
+      "existing_symbols_allowed_to_change": {
+        "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py": [
+          "image processor size profile constants",
+          "combined runtime profile constant",
+          "_runtime_profile_id",
+          "_normalize_image_processor_size",
+          "GUIOwlV22VisionFeatureRuntime.__init__",
+          "GUIOwlV22VisionFeatureRuntime.metadata.runtime_profile_id",
+          "GUIOwlV22VisionFeatureRuntime.metadata.processor_size"
+        ],
+        "code/causalcache/restoration_v2_2_policy_vision.py": [
+          "DEFAULT_IMAGE_PROCESSOR_SIZE_PROFILE",
+          "run_policy_vision_worker"
+        ],
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline.py": [
+          "PolicyVisionRunnerProtocol",
+          "V1_RUN_TOMBSTONE_STATUS",
+          "V1_RUNNER_PROTOCOL",
+          "_run_feature_workers",
+          "_validate_runner_protocol",
+          "run_protocol_main"
+        ],
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py": [
+          "V2_RUN_TOMBSTONE_STATUS",
+          "V2_RUNNER_PROTOCOL.formal_run_allowed",
+          "V2_RUNNER_PROTOCOL.image_processor_size_profile",
+          "V2_RUNNER_PROTOCOL.run_tombstone_status"
+        ]
+      },
+      "new_protocol_plumbing_paths_allowed": [
+        "code/causalcache/restoration_v2_2_policy_vision_v3_contract.py",
+        "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v3.py",
+        "code/scripts/validate_restoration_v2_2_policy_vision_v3_contract.py",
+        "code/tests/test_restoration_v2_2_policy_vision_v3_contract.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline_v3.py",
+        "code/tests/test_validate_restoration_v2_2_policy_vision_v3_contract.py"
+      ],
+      "formal_runner_change_limited_to": [
+        "exact v1 tombstone status identity without changing its prior run prohibition",
+        "permanent v2 run tombstone",
+        "v3 protocol output and status constants",
+        "reuse exact v2 GPU UUID runtime profile",
+        "explicit v3 image processor SizeDict runtime profile threading",
+        "exact v3 runtime metadata profile validation",
+        "repair identity summary provenance",
+        "durable exclusive v3 attempt claim before model or feature access"
+      ],
+      "formal_source_changed_paths_exact": [
+        "README.md",
+        "code/README.md",
+        "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+        "code/causalcache/restoration_v2_2_policy_vision.py",
+        "code/causalcache/restoration_v2_2_policy_vision_v3_contract.py",
+        "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline.py",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v3.py",
+        "code/scripts/validate_restoration_v2_2_policy_vision_v3_contract.py",
+        "code/tests/test_gui_owl_v2_2_vision_runtime.py",
+        "code/tests/test_restoration_v2_2_policy_vision.py",
+        "code/tests/test_restoration_v2_2_policy_vision_v3_contract.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline_v2.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline_v3.py",
+        "code/tests/test_validate_restoration_v2_2_policy_vision_v3_contract.py",
+        "data/README.md",
+        "docs/progress.md",
+        "docs/restoration_v2_2_policy_vision_baseline.md"
+      ],
+      "source_freeze_must_match_exact_changed_paths_before_formal_run": true
+    },
+    "parent_scientific_contract_changed": false,
+    "authorization_changed": false,
+    "immutable_inputs_changed": false,
+    "scope_or_denominator_changed": false,
+    "preprocessing_geometry_or_values_changed": false,
+    "runtime_stack_or_worker_schedule_changed": false,
+    "gpu_uuid_semantics_changed": false,
+    "verification_schedule_or_tolerance_changed": false,
+    "feature_pooling_similarity_or_selection_changed": false,
+    "operation_ceiling_changed": false,
+    "statistics_contract_changed": false,
+    "confirm_or_sealed_test_access_changed": false
+  },
+  "output_contract": {
+    "canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+    "exact_files": [
+      "README.md",
+      "state_scores.jsonl",
+      "summary.json"
+    ],
+    "run_status": "COMPLETED_RESTORATION_V2_2_POLICY_VISION_BASELINE_V3_SIZE_DICT_INTERFACE_REPAIR",
+    "valid_status": "VALID_RESTORATION_V2_2_POLICY_VISION_BASELINE_V3_SIZE_DICT_INTERFACE_REPAIR",
+    "invalid_v1_canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v1",
+    "invalid_v2_canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair",
+    "invalid_v1_and_v2_output_and_staging_must_remain_absent": true,
+    "failed_attempt_directory_must_remain_byte_unchanged": true,
+    "raw_labels_images_features_or_model_parameters_copied_to_git": false,
+    "formal_run_requires_clean_pushed_main": true,
+    "run_requires_exclusive_new_output_directory": true,
+    "atomic_directory_publish_required": true,
+    "validate_rebuilds_every_output_byte_from_recorded_feature_rows_and_immutable_labels_witness": true,
+    "validate_recomputes_policy_vision_features": false,
+    "formal_attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json",
+    "formal_attempt_ledger_created_with_o_excl_before_model_or_feature_access": true,
+    "retry_allowed": false,
+    "resume_allowed": false,
+    "formal_result_status_before_execution": "not_generated"
+  }
+}

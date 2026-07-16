@@ -337,3 +337,66 @@ canonical output/staging 均不存在。
 ledger 禁止；若继续，必须先提交
 `data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`，再冻结新的 versioned
 SizeDict-interface repair。不能事后修改 v2，也不能据此开始 gate/confirm。
+
+## 8. Exact SizeDict-interface v3 repair
+
+v3 使用新 protocol
+`causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair`，并把 v2 failure commit
+`main@b1d0755` 与 failure README/JSON exact bytes 作为 parent evidence。它继承 v2 的 UUID exact-type repair，
+只替换 image-processor size interface profile。config SHA256 为
+`794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f`。合法 tuple 只有：
+
+```text
+(cuda_device_property_uuid_torch_c_cuuuid_v2,
+ transformers_image_utils_size_dict_exact_edges_v3)
+```
+
+v3 必须从当前 loaded Transformers 取得 `transformers.image_utils.SizeDict` type，并要求
+`type(value) is loaded SizeDict`、type module/name 精确、`isinstance(value, Mapping)` 为 false，且
+`height/width/max_height/max_width` 四个 fields 都存在并为 `None`。随后 `dict(value)` 必须是 built-in `dict`，
+key set 恰为 `shortest_edge/longest_edge`，两值都等于 `2621440`。同名伪造类、subclass、Mapping、generic
+iterable、缺失/额外/错误 field 或 key 一律在 policy model load 前拒绝。v1/v2 profile、runtime ID 和 metadata
+schema 不变。
+
+v1/v2 runner 均已永久 tombstone。v3 canonical output 固定为
+`data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair`，唯一 attempt ledger 固定为
+`/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json`。ledger 在
+任何 model/feature access 前以 `O_CREAT|O_EXCL`、mode `0600` durable claim；异常不得删 ledger、换路径、resume
+或 same-protocol retry。
+
+source-only validator：
+
+```bash
+cd /absolute/path/to/CausalCache/code
+python3 -m scripts.validate_restoration_v2_2_policy_vision_v3_contract \
+  --repository-root .. \
+  --contract configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json
+```
+
+正式入口沿用冻结的双 worker 参数，只替换 v3 identity：
+
+```bash
+cd /data/CausalCache/code
+python3 -m scripts.run_restoration_v2_2_policy_vision_baseline_v3 run \
+  --repository-root /data/CausalCache \
+  --contract /data/CausalCache/code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json \
+  --labels-archive /data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar \
+  --derived-root /data/tmp/causalcache-restoration-labels-v2-derived \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --snapshot-manifest /data/CausalCache/code/configs/gui_owl_1_5_8b_snapshot.json \
+  --source-git-commit <V3_SOURCE_COMMIT> \
+  --expected-gpu-uuid <GPU_UUID_0> \
+  --expected-gpu-uuid <GPU_UUID_1> \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-hostname "$(hostname)" \
+  --container-name <NEW_SGLANG_OMNI_JAXAN_TIMESTAMP_NAME> \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --nvidia-driver-version 570.172.08 \
+  --host-evidence /data/tmp/policy-vision-v3-host-evidence.json \
+  --attempt-ledger /data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json \
+  --output-dir /data/CausalCache/data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair
+```
+
+该 PASS 只证明修复边界和 source inventory 自洽；在新的 clean pushed source 完成正式 run 之前，不报告
+policy-vision feature、recovery 或 comparator 结论，也不运行 gate、matched-NLL、closed-loop 或 confirm/test。

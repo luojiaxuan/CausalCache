@@ -116,6 +116,22 @@ rows 的 reducer/output bytes，不重新计算 vision features。
 `transformers.image_utils.SizeDict` 不实现 `collections.abc.Mapping`，尽管 `dict(size)` 与冻结两键数值完全
 一致。v2 入口不得再次执行；后续只能新增 versioned SizeDict-interface repair 与新 ledger/output identity。
 
+当前可执行 source 是 v3 exact-SizeDict repair：
+
+```bash
+cd code
+python3 -m scripts.validate_restoration_v2_2_policy_vision_v3_contract \
+  --repository-root .. \
+  --contract configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json
+```
+
+v3 同时固定 UUID-v2 与 exact loaded `transformers.image_utils.SizeDict` profile；它不接受同名伪造类、subclass、
+`Mapping` 或 generic iterable fallback。v1/v2 runtime profile 和 metadata identity 不变，v2 `run` 已在任何
+contract/input/model access 前 tombstone。v3 使用新 canonical output 与固定
+`/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json`；source-only
+PASS 不等于 feature/recovery result。冻结 config SHA256 为
+`794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f`。
+
 v2 executable interface 使用显式 versioned 模块 `causalcache.policy.gui_owl_v2` 与
 `causalcache.low_fidelity_v2`，不修改历史 v1 parser/prompt/schema。CPU validator 对 restricted grammar、
 canonical teacher target、AndroidWorld payload、八字段 serialization 和 steps 4/5/6 共 28 个 prompt

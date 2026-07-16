@@ -54,6 +54,7 @@ OCR_RGB_METHOD = "ocr_rgb"
 POLICY_VISION_METHOD = "policy_vision"
 OUTLIER_TRAJECTORY_ID = "0141544666483837"
 DEFAULT_GPU_UUID_TYPE_PROFILE = "cuda_device_property_uuid_str_bytes_v1"
+DEFAULT_IMAGE_PROCESSOR_SIZE_PROFILE = "mapping_exact_edges_v1"
 
 
 @dataclass(frozen=True)
@@ -492,22 +493,30 @@ def run_policy_vision_worker(
     model_dir: Path,
     snapshot_manifest: Path,
     gpu_uuid_type_profile: str = DEFAULT_GPU_UUID_TYPE_PROFILE,
+    image_processor_size_profile: str = DEFAULT_IMAGE_PROCESSOR_SIZE_PROFILE,
 ) -> dict[str, Any]:
     """Run one isolated feature worker; this function never receives D(S)."""
     from causalcache.policy.gui_owl_v2_2_vision_runtime import (
         GPU_UUID_TYPE_PROFILE_V1,
         GPU_UUID_TYPE_PROFILE_V2,
+        IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+        IMAGE_PROCESSOR_SIZE_PROFILE_V3,
         GUIOwlV22VisionFeatureRuntime,
         _canonical_gpu_uuid,
     )
 
     if DEFAULT_GPU_UUID_TYPE_PROFILE != GPU_UUID_TYPE_PROFILE_V1:
         raise RuntimeError("policy-vision default GPU UUID type profile drifted")
-    if gpu_uuid_type_profile not in {
-        GPU_UUID_TYPE_PROFILE_V1,
-        GPU_UUID_TYPE_PROFILE_V2,
+    if DEFAULT_IMAGE_PROCESSOR_SIZE_PROFILE != IMAGE_PROCESSOR_SIZE_PROFILE_V1:
+        raise RuntimeError(
+            "policy-vision default image processor size profile drifted"
+        )
+    if (gpu_uuid_type_profile, image_processor_size_profile) not in {
+        (GPU_UUID_TYPE_PROFILE_V1, IMAGE_PROCESSOR_SIZE_PROFILE_V1),
+        (GPU_UUID_TYPE_PROFILE_V2, IMAGE_PROCESSOR_SIZE_PROFILE_V1),
+        (GPU_UUID_TYPE_PROFILE_V2, IMAGE_PROCESSOR_SIZE_PROFILE_V3),
     }:
-        raise ValueError("policy-vision worker GPU UUID type profile is not frozen")
+        raise ValueError("policy-vision worker runtime profile tuple is not frozen")
     if worker_id not in {"even", "odd"}:
         raise ValueError("policy-vision worker id must be even or odd")
     if not canonical_items:
@@ -536,6 +545,7 @@ def run_policy_vision_worker(
         device=device,
         expected_gpu_uuid=canonical_expected_gpu_uuid,
         gpu_uuid_type_profile=gpu_uuid_type_profile,
+        image_processor_size_profile=image_processor_size_profile,
     )
     gpu_uuid = runtime.metadata.get("gpu_uuid")
     if gpu_uuid != canonical_expected_gpu_uuid:

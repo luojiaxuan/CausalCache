@@ -27,6 +27,11 @@ from scripts.run_restoration_v2_2_policy_vision_baseline import (
 )
 
 
+V2_RUN_TOMBSTONE_STATUS = (
+    "INVALID_POLICY_VISION_V2_ZERO_FEATURE_SIZE_DICT_INTERFACE"
+)
+
+
 V2_FORMAL_SOURCE_PATHS = (
     CANONICAL_CONFIG_PATH,
     *FORMAL_SOURCE_PATHS,
@@ -47,8 +52,10 @@ V2_RUNNER_PROTOCOL = PolicyVisionRunnerProtocol(
     formal_source_paths=V2_FORMAL_SOURCE_PATHS,
     runtime_profile_id=GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
     gpu_uuid_type_profile=GPU_UUID_RUNTIME_TYPE_PROFILE,
+    image_processor_size_profile=None,
     readme_title="Restoration v2.2 policy-vision baseline v2 GPU UUID repair",
-    formal_run_allowed=True,
+    formal_run_allowed=False,
+    run_tombstone_status=V2_RUN_TOMBSTONE_STATUS,
     formal_attempt_ledger_path=FORMAL_ATTEMPT_LEDGER_PATH,
     include_repair_identity=True,
 )

@@ -18,13 +18,17 @@ from causalcache.policy.gui_owl_v2_2_vision_runtime import (
     GPU_UUID_TYPE_PROFILE_V1,
     GPU_UUID_TYPE_PROFILE_V2,
     GUI_OWL_V2_2_VISION_RUNTIME_ID,
+    GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
     GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+    IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+    IMAGE_PROCESSOR_SIZE_PROFILE_V3,
 )
 from causalcache.restoration_v2_2_label_table import (
     validate_complete_distance_table,
 )
 from causalcache.restoration_v2_2_ocr_rgb import COMPARATOR_METHODS
 from causalcache.restoration_v2_2_policy_vision import (
+    DEFAULT_IMAGE_PROCESSOR_SIZE_PROFILE,
     DEFAULT_GPU_UUID_TYPE_PROFILE,
     EXPECTED_CANDIDATE_SCORE_COUNT,
     EXPECTED_DEVELOPMENT_COUNT,
@@ -400,12 +404,25 @@ class RestorationV22PolicyVisionTest(unittest.TestCase):
         class FakeRuntime:
             def __init__(self, **kwargs: Any) -> None:
                 constructor_calls.append(kwargs)
-                profile = kwargs["gpu_uuid_type_profile"]
+                profile = (
+                    kwargs["gpu_uuid_type_profile"],
+                    kwargs["image_processor_size_profile"],
+                )
                 runtime_profile_id = {
-                    GPU_UUID_TYPE_PROFILE_V1: GUI_OWL_V2_2_VISION_RUNTIME_ID,
-                    GPU_UUID_TYPE_PROFILE_V2: (
+                    (
+                        GPU_UUID_TYPE_PROFILE_V1,
+                        IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+                    ): GUI_OWL_V2_2_VISION_RUNTIME_ID,
+                    (
+                        GPU_UUID_TYPE_PROFILE_V2,
+                        IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+                    ): (
                         GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID
                     ),
+                    (
+                        GPU_UUID_TYPE_PROFILE_V2,
+                        IMAGE_PROCESSOR_SIZE_PROFILE_V3,
+                    ): GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
                 }[profile]
                 self.metadata = {
                     "gpu_uuid": expected_uuid,
@@ -497,11 +514,30 @@ class RestorationV22PolicyVisionTest(unittest.TestCase):
                 **common,
                 gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
             )
+            v3_output = run_policy_vision_worker(
+                **common,
+                gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V2,
+                image_processor_size_profile=IMAGE_PROCESSOR_SIZE_PROFILE_V3,
+            )
 
         self.assertEqual(DEFAULT_GPU_UUID_TYPE_PROFILE, GPU_UUID_TYPE_PROFILE_V1)
         self.assertEqual(
-            [call["gpu_uuid_type_profile"] for call in constructor_calls],
-            [GPU_UUID_TYPE_PROFILE_V1, GPU_UUID_TYPE_PROFILE_V2],
+            DEFAULT_IMAGE_PROCESSOR_SIZE_PROFILE,
+            IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+        )
+        self.assertEqual(
+            [
+                (
+                    call["gpu_uuid_type_profile"],
+                    call["image_processor_size_profile"],
+                )
+                for call in constructor_calls
+            ],
+            [
+                (GPU_UUID_TYPE_PROFILE_V1, IMAGE_PROCESSOR_SIZE_PROFILE_V1),
+                (GPU_UUID_TYPE_PROFILE_V2, IMAGE_PROCESSOR_SIZE_PROFILE_V1),
+                (GPU_UUID_TYPE_PROFILE_V2, IMAGE_PROCESSOR_SIZE_PROFILE_V3),
+            ],
         )
         self.assertEqual(
             default_output["runtime_metadata"]["runtime_profile_id"],
@@ -511,18 +547,24 @@ class RestorationV22PolicyVisionTest(unittest.TestCase):
             v2_output["runtime_metadata"]["runtime_profile_id"],
             GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
         )
-        self.assertEqual(extract.call_count, 2)
+        self.assertEqual(
+            v3_output["runtime_metadata"]["runtime_profile_id"],
+            GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
+        )
+        self.assertEqual(extract.call_count, 3)
         for call in extract.call_args_list:
             self.assertEqual(call.kwargs["work_items"], (item,))
             self.assertNotIn("gpu_uuid_type_profile", call.kwargs)
 
-    def test_worker_rejects_unknown_uuid_profile_before_reading_payloads(self) -> None:
+    def test_worker_rejects_unfrozen_profile_tuple_before_reading_payloads(
+        self,
+    ) -> None:
         item = self.work_items[0]
         with mock.patch.object(
             policy_vision_module,
             "extract_worker_image_payloads",
         ) as extract:
-            with self.assertRaisesRegex(ValueError, "profile is not frozen"):
+            with self.assertRaisesRegex(ValueError, "profile tuple is not frozen"):
                 run_policy_vision_worker(
                     worker_id="even",
                     device="cuda:0",
@@ -535,6 +577,21 @@ class RestorationV22PolicyVisionTest(unittest.TestCase):
                     model_dir=ROOT,
                     snapshot_manifest=ROOT / "unused.json",
                     gpu_uuid_type_profile="unregistered-profile",
+                )
+            with self.assertRaisesRegex(ValueError, "profile tuple is not frozen"):
+                run_policy_vision_worker(
+                    worker_id="even",
+                    device="cuda:0",
+                    expected_gpu_uuid="GPU-aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+                    canonical_items=(item,),
+                    sentinel_item=None,
+                    derived_root=ROOT,
+                    derived_payload_prefix="unused",
+                    expected_tar_member_count=1,
+                    model_dir=ROOT,
+                    snapshot_manifest=ROOT / "unused.json",
+                    gpu_uuid_type_profile=GPU_UUID_TYPE_PROFILE_V1,
+                    image_processor_size_profile=IMAGE_PROCESSOR_SIZE_PROFILE_V3,
                 )
         extract.assert_not_called()
 

@@ -1,37 +1,36 @@
 from __future__ import annotations
 
 import unittest
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
-from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from causalcache.policy.gui_owl_v2_2_vision_runtime import (
-    GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+    GPU_UUID_TYPE_PROFILE_V2,
+    GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
+    IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+    IMAGE_PROCESSOR_SIZE_PROFILE_V3,
 )
-from causalcache.restoration_v2_2_policy_vision_contract import (
-    CANONICAL_CONFIG_PATH as V1_CONFIG_PATH,
-)
-from causalcache.restoration_v2_2_policy_vision_v2_contract import (
+from causalcache.restoration_v2_2_policy_vision_v3_contract import (
     CANONICAL_CONFIG_PATH,
     FORMAL_ATTEMPT_LEDGER_PATH,
-    GPU_UUID_RUNTIME_TYPE_PROFILE,
     PROTOCOL_ID,
     RUN_STATUS,
     VALID_STATUS,
-    RestorationV22PolicyVisionV2Contract,
+    RestorationV22PolicyVisionV3Contract,
 )
 from scripts.run_restoration_v2_2_policy_vision_baseline import (
     _expected_runtime_metadata,
-    _claim_formal_attempt,
     _run_feature_workers,
     _source_execution,
     _validate_runner_protocol,
 )
 from scripts.run_restoration_v2_2_policy_vision_baseline_v2 import (
     V2_FORMAL_SOURCE_PATHS,
-    V2_RUN_TOMBSTONE_STATUS,
-    V2_RUNNER_PROTOCOL,
+)
+from scripts.run_restoration_v2_2_policy_vision_baseline_v3 import (
+    V3_FORMAL_SOURCE_PATHS,
+    V3_RUNNER_PROTOCOL,
     main,
 )
 
@@ -58,7 +57,7 @@ class _Executor:
 
     def __init__(self, *, max_workers: int, mp_context: object) -> None:
         if max_workers != 2 or mp_context != "spawn-context":
-            raise AssertionError("v2 runner did not preserve the two-worker schedule")
+            raise AssertionError("v3 runner changed the two-worker schedule")
 
     def __enter__(self) -> "_Executor":
         type(self).submissions = []
@@ -72,110 +71,69 @@ class _Executor:
         return _Future({"worker_id": kwargs["worker_id"]})
 
 
-class RunRestorationV22PolicyVisionBaselineV2Test(unittest.TestCase):
+class RunRestorationV22PolicyVisionBaselineV3Test(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        cls.contract = RestorationV22PolicyVisionV2Contract.load(
+        cls.contract = RestorationV22PolicyVisionV3Contract.load(
             CONFIG,
             repository_root=ROOT,
             validate_bound_sources=False,
         )
 
-    def test_runner_identity_is_exactly_v2(self) -> None:
-        protocol = V2_RUNNER_PROTOCOL
+    def test_runner_identity_is_exactly_v3(self) -> None:
+        protocol = V3_RUNNER_PROTOCOL
         self.assertEqual(protocol.protocol_id, PROTOCOL_ID)
         self.assertEqual(protocol.run_status, RUN_STATUS)
         self.assertEqual(protocol.valid_status, VALID_STATUS)
         self.assertIs(
             protocol.contract_class,
-            RestorationV22PolicyVisionV2Contract,
+            RestorationV22PolicyVisionV3Contract,
         )
         self.assertEqual(
             protocol.runtime_profile_id,
-            GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+            GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
         )
         self.assertEqual(
             protocol.gpu_uuid_type_profile,
-            GPU_UUID_RUNTIME_TYPE_PROFILE,
+            GPU_UUID_TYPE_PROFILE_V2,
         )
-        self.assertTrue(protocol.include_repair_identity)
-        self.assertFalse(protocol.formal_run_allowed)
         self.assertEqual(
-            protocol.run_tombstone_status,
-            V2_RUN_TOMBSTONE_STATUS,
+            protocol.image_processor_size_profile,
+            IMAGE_PROCESSOR_SIZE_PROFILE_V3,
         )
+        self.assertTrue(protocol.formal_run_allowed)
+        self.assertIsNone(protocol.run_tombstone_status)
+        self.assertTrue(protocol.include_repair_identity)
         self.assertEqual(
             protocol.formal_attempt_ledger_path,
             FORMAL_ATTEMPT_LEDGER_PATH,
         )
         _validate_runner_protocol(protocol, self.contract)
 
-    def test_v2_run_is_tombstoned_before_contract_or_artifact_access(self) -> None:
-        with patch.object(
-            RestorationV22PolicyVisionV2Contract,
-            "load",
-            side_effect=AssertionError("tombstoned v2 loaded its contract"),
-        ) as contract_load, patch(
-            "scripts.run_restoration_v2_2_policy_vision_baseline."
-            "_run_feature_workers",
-            side_effect=AssertionError("tombstoned v2 entered GPU path"),
-        ) as gpu_path, patch(
-            "scripts.run_restoration_v2_2_policy_vision_baseline."
-            "_load_host_evidence",
-            side_effect=AssertionError("tombstoned v2 read an artifact"),
-        ) as artifact_path, self.assertRaisesRegex(
-            ValueError,
-            V2_RUN_TOMBSTONE_STATUS,
-        ):
-            main(
-                [
-                    "run",
-                    "--repository-root",
-                    "/does-not-exist",
-                    "--contract",
-                    "/does-not-exist/v2.json",
-                    "--labels-archive",
-                    "/does-not-exist/labels.tar",
-                    "--source-git-commit",
-                    "a" * 40,
-                ]
-            )
-        contract_load.assert_not_called()
-        gpu_path.assert_not_called()
-        artifact_path.assert_not_called()
-
-    def test_attempt_claim_is_durable_and_exclusive(self) -> None:
-        with TemporaryDirectory() as temporary:
-            path = Path(temporary) / "attempt.json"
-            claim = {"schema_version": "1.0.0", "status": "CLAIMED"}
-            recorded, digest = _claim_formal_attempt(path, claim)
-            self.assertEqual(recorded, claim)
-            self.assertEqual(len(digest), 64)
-            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
-            with self.assertRaisesRegex(FileExistsError, "already claimed"):
-                _claim_formal_attempt(path, claim)
-
-    def test_v2_formal_sources_bind_parent_repair_and_failed_attempt(self) -> None:
-        self.assertEqual(len(V2_FORMAL_SOURCE_PATHS), len(set(V2_FORMAL_SOURCE_PATHS)))
-        self.assertEqual(V2_FORMAL_SOURCE_PATHS[0], CANONICAL_CONFIG_PATH)
+    def test_v3_formal_sources_bind_v2_failure_and_all_parent_sources(self) -> None:
+        self.assertEqual(len(V3_FORMAL_SOURCE_PATHS), len(set(V3_FORMAL_SOURCE_PATHS)))
+        self.assertEqual(V3_FORMAL_SOURCE_PATHS[0], CANONICAL_CONFIG_PATH)
+        for path in V2_FORMAL_SOURCE_PATHS:
+            self.assertIn(path, V3_FORMAL_SOURCE_PATHS)
         for required in (
-            V1_CONFIG_PATH,
-            "code/causalcache/restoration_v2_2_policy_vision_v2_contract.py",
-            "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py",
-            "code/scripts/validate_restoration_v2_2_policy_vision_v2_contract.py",
-            "data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/README.md",
+            "code/causalcache/restoration_v2_2_policy_vision_v3_contract.py",
+            "code/scripts/run_restoration_v2_2_policy_vision_baseline_v3.py",
+            "code/scripts/validate_restoration_v2_2_policy_vision_v3_contract.py",
             (
                 "data/results/"
-                "restoration_v2_2_policy_vision_baseline_v1_attempt/failure.json"
+                "restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_"
+                "attempt/README.md"
+            ),
+            (
+                "data/results/"
+                "restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_"
+                "attempt/failure.json"
             ),
         ):
-            self.assertIn(required, V2_FORMAL_SOURCE_PATHS)
+            self.assertIn(required, V3_FORMAL_SOURCE_PATHS)
 
-    def test_feature_workers_receive_only_the_explicit_v2_type_profile(self) -> None:
-        items = tuple(
-            _Item(state_index=index)
-            for index in range(2, 17)
-        )
+    def test_feature_workers_receive_explicit_uuid_and_size_profiles(self) -> None:
+        items = tuple(_Item(state_index=index) for index in range(2, 17))
         with patch(
             "scripts.run_restoration_v2_2_policy_vision_baseline."
             "ProcessPoolExecutor",
@@ -196,14 +154,23 @@ class RunRestorationV22PolicyVisionBaselineV2Test(unittest.TestCase):
                     "GPU-00000000-0000-0000-0000-000000000001",
                     "GPU-00000000-0000-0000-0000-000000000002",
                 ),
-                gpu_uuid_type_profile=GPU_UUID_RUNTIME_TYPE_PROFILE,
+                gpu_uuid_type_profile=(
+                    V3_RUNNER_PROTOCOL.gpu_uuid_type_profile
+                ),
+                image_processor_size_profile=(
+                    V3_RUNNER_PROTOCOL.image_processor_size_profile
+                ),
             )
         self.assertEqual([row["worker_id"] for row in outputs], ["even", "odd"])
         self.assertEqual(len(_Executor.submissions), 2)
         for submission in _Executor.submissions:
             self.assertEqual(
                 submission["gpu_uuid_type_profile"],
-                GPU_UUID_RUNTIME_TYPE_PROFILE,
+                GPU_UUID_TYPE_PROFILE_V2,
+            )
+            self.assertEqual(
+                submission["image_processor_size_profile"],
+                IMAGE_PROCESSOR_SIZE_PROFILE_V3,
             )
             self.assertFalse(
                 any(
@@ -212,16 +179,16 @@ class RunRestorationV22PolicyVisionBaselineV2Test(unittest.TestCase):
                 )
             )
 
-    def test_runtime_metadata_and_summary_provenance_use_v2_identity(self) -> None:
+    def test_runtime_metadata_and_summary_use_combined_v3_identity(self) -> None:
         metadata = _expected_runtime_metadata(
             contract=self.contract,
             device="cuda:0",
             gpu_uuid="GPU-00000000-0000-0000-0000-000000000001",
-            runtime_profile_id=V2_RUNNER_PROTOCOL.runtime_profile_id,
+            runtime_profile_id=V3_RUNNER_PROTOCOL.runtime_profile_id,
         )
         self.assertEqual(
             metadata["runtime_profile_id"],
-            GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+            GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
         )
         closure = {
             "rule": "test-rule",
@@ -236,13 +203,29 @@ class RunRestorationV22PolicyVisionBaselineV2Test(unittest.TestCase):
             source = _source_execution(
                 contract=self.contract,
                 source_commit="b" * 40,
-                protocol=V2_RUNNER_PROTOCOL,
+                protocol=V3_RUNNER_PROTOCOL,
             )
         self.assertEqual(source["repair_identity"], self.contract.repair_identity)
-        self.assertEqual(source["formal_source_paths"], list(V2_FORMAL_SOURCE_PATHS))
+        self.assertEqual(source["formal_source_paths"], list(V3_FORMAL_SOURCE_PATHS))
         self.assertEqual(source["formal_python_source_closure"], closure)
 
-    def test_v2_entrypoint_rejects_the_v1_contract(self) -> None:
+    def test_runner_rejects_non_v3_size_profile_or_disabled_run(self) -> None:
+        for protocol in (
+            replace(
+                V3_RUNNER_PROTOCOL,
+                image_processor_size_profile=IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+            ),
+            replace(V3_RUNNER_PROTOCOL, formal_run_allowed=False),
+            replace(
+                V3_RUNNER_PROTOCOL,
+                run_tombstone_status="INVALID_UNEXPECTED_V3_TOMBSTONE",
+            ),
+        ):
+            with self.assertRaisesRegex(ValueError, "identity drifted"):
+                _validate_runner_protocol(protocol, self.contract)
+
+    def test_v3_entrypoint_rejects_the_v2_contract(self) -> None:
+        v2_config = ROOT / V2_FORMAL_SOURCE_PATHS[0]
         with self.assertRaisesRegex(ValueError, "canonical config"):
             main(
                 [
@@ -250,7 +233,7 @@ class RunRestorationV22PolicyVisionBaselineV2Test(unittest.TestCase):
                     "--repository-root",
                     str(ROOT),
                     "--contract",
-                    str(ROOT / V1_CONFIG_PATH),
+                    str(v2_config),
                     "--labels-archive",
                     str(ROOT / "unused-labels.tar"),
                     "--source-git-commit",

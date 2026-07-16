@@ -25,6 +25,7 @@ from causalcache.policy.gui_owl_v2_2_vision_runtime import (
     GUI_OWL_V2_2_VISION_RUNTIME_ID,
 )
 from causalcache.restoration_v2_2_policy_vision import (
+    DEFAULT_IMAGE_PROCESSOR_SIZE_PROFILE,
     DEFAULT_GPU_UUID_TYPE_PROFILE,
     STATUS,
     PolicyVisionWorkItem,
@@ -53,6 +54,7 @@ from causalcache.restoration_v2_baselines import select_top_two
 
 RUN_STATUS = STATUS
 VALID_STATUS = "VALID_RESTORATION_V2_2_POLICY_VISION_BASELINE_V1"
+V1_RUN_TOMBSTONE_STATUS = "INVALID_POLICY_VISION_V1_ZERO_FEATURE_GPU_UUID_TYPE"
 FORMAL_SOURCE_PATHS = (
     CANONICAL_CONFIG_PATH,
     "code/configs/gui_owl_1_5_8b_snapshot.json",
@@ -106,8 +108,10 @@ class PolicyVisionRunnerProtocol:
     formal_source_paths: tuple[str, ...]
     runtime_profile_id: str
     gpu_uuid_type_profile: str | None
+    image_processor_size_profile: str | None
     readme_title: str
     formal_run_allowed: bool
+    run_tombstone_status: str | None
     formal_attempt_ledger_path: str | None
     include_repair_identity: bool = False
 
@@ -122,8 +126,10 @@ V1_RUNNER_PROTOCOL = PolicyVisionRunnerProtocol(
     formal_source_paths=FORMAL_SOURCE_PATHS,
     runtime_profile_id=GUI_OWL_V2_2_VISION_RUNTIME_ID,
     gpu_uuid_type_profile=None,
+    image_processor_size_profile=None,
     readme_title="Restoration v2.2 policy-vision baseline v1",
     formal_run_allowed=False,
+    run_tombstone_status=V1_RUN_TOMBSTONE_STATUS,
     formal_attempt_ledger_path=None,
 )
 
@@ -503,6 +509,7 @@ def _run_feature_workers(
     snapshot_manifest: Path,
     expected_gpu_uuids: Sequence[str],
     gpu_uuid_type_profile: str | None = None,
+    image_processor_size_profile: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     """Launch exactly two spawn workers without giving either worker D(S)."""
     if len(expected_gpu_uuids) != 2 or len(set(expected_gpu_uuids)) != 2:
@@ -533,6 +540,8 @@ def _run_feature_workers(
     }
     if gpu_uuid_type_profile is not None:
         common["gpu_uuid_type_profile"] = gpu_uuid_type_profile
+    if image_processor_size_profile is not None:
+        common["image_processor_size_profile"] = image_processor_size_profile
     context = multiprocessing.get_context("spawn")
     with ProcessPoolExecutor(max_workers=2, mp_context=context) as executor:
         futures = [
@@ -1651,6 +1660,7 @@ def _validate_runner_protocol(
     contract: RestorationV22PolicyVisionContract,
 ) -> None:
     output_contract = contract.data["output_contract"]
+    tombstone = protocol.run_tombstone_status
     try:
         contract_relative_path = contract.path.relative_to(
             contract.repository_root
@@ -1666,20 +1676,35 @@ def _validate_runner_protocol(
         or len(set(protocol.formal_source_paths))
         != len(protocol.formal_source_paths)
         or contract_relative_path not in protocol.formal_source_paths
+        or protocol.formal_run_allowed == (tombstone is not None)
+        or (
+            tombstone is not None
+            and (
+                not tombstone
+                or re.fullmatch(r"[A-Z0-9_]+", tombstone) is None
+            )
+        )
     ):
         raise ValueError("policy-vision runner protocol identity drifted")
     if protocol.gpu_uuid_type_profile is None:
         if (
             protocol.runtime_profile_id != GUI_OWL_V2_2_VISION_RUNTIME_ID
+            or protocol.image_processor_size_profile is not None
             or protocol.include_repair_identity
             or protocol.formal_run_allowed
+            or protocol.run_tombstone_status != V1_RUN_TOMBSTONE_STATUS
             or protocol.formal_attempt_ledger_path is not None
         ):
             raise ValueError("default policy-vision runtime profile drifted")
         return
     repair_identity = getattr(contract, "repair_identity", None)
+    image_processor_profile_is_repaired = (
+        protocol.image_processor_size_profile is not None
+    )
     if (
         protocol.gpu_uuid_type_profile == DEFAULT_GPU_UUID_TYPE_PROFILE
+        or protocol.image_processor_size_profile
+        == DEFAULT_IMAGE_PROCESSOR_SIZE_PROFILE
         or not protocol.include_repair_identity
         or not isinstance(repair_identity, Mapping)
         or repair_identity.get("gpu_uuid_runtime_type_profile")
@@ -1690,11 +1715,21 @@ def _validate_runner_protocol(
         != output_contract["canonical_result_directory"]
         or output_contract.get("run_status") != protocol.run_status
         or output_contract.get("valid_status") != protocol.valid_status
-        or not protocol.formal_run_allowed
         or not isinstance(protocol.formal_attempt_ledger_path, str)
         or not Path(protocol.formal_attempt_ledger_path).is_absolute()
         or output_contract.get("formal_attempt_ledger_path")
         != protocol.formal_attempt_ledger_path
+        or (
+            image_processor_profile_is_repaired
+            and (
+                repair_identity.get(
+                    "image_processor_size_runtime_type_profile"
+                )
+                != protocol.image_processor_size_profile
+                or repair_identity.get("combined_runtime_profile_id")
+                != protocol.runtime_profile_id
+            )
+        )
     ):
         raise ValueError("repaired policy-vision runner identity drifted")
 
@@ -1705,7 +1740,20 @@ def run_protocol_main(
 ) -> None:
     args = _parser().parse_args(argv)
     if args.mode == "run" and not protocol.formal_run_allowed:
-        raise ValueError("invalid policy-vision v1 protocol cannot be rerun")
+        if (
+            not isinstance(protocol.run_tombstone_status, str)
+            or not protocol.run_tombstone_status
+            or re.fullmatch(
+                r"[A-Z0-9_]+",
+                protocol.run_tombstone_status,
+            )
+            is None
+        ):
+            raise ValueError("policy-vision run tombstone identity drifted")
+        raise ValueError(
+            f"{protocol.run_tombstone_status}: invalid policy-vision protocol "
+            f"{protocol.protocol_id} cannot be rerun"
+        )
     root = args.repository_root.resolve()
     contract = protocol.contract_class.load(
         args.contract.resolve(),
@@ -1819,6 +1867,7 @@ def run_protocol_main(
             snapshot_manifest=snapshot_manifest,
             expected_gpu_uuids=gpu_uuids,
             gpu_uuid_type_profile=protocol.gpu_uuid_type_profile,
+            image_processor_size_profile=protocol.image_processor_size_profile,
         )
         _validate_run_git(root, args.source_git_commit)
         if image_tar_record["size_bytes"] <= 0:

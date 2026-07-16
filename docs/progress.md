@@ -1876,6 +1876,22 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   同一 protocol 不重跑；轻量 evidence 位于
   `data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`。
 
+### 2026-07-16：policy-vision exact SizeDict-interface v3 source freeze
+
+- v3 overlay config SHA256 为 `794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f`，
+  绑定 v2 config、`main@b1d0755` failure commit 与两份 failure files exact bytes；formal source diff
+  也必须以 `b1d0755` 为唯一 baseline。v1/v2 canonical output/staging 与新的 v3 output/staging 必须同时不存在；
+- runtime 只新增 `(UUID-v2, SizeDict-v3)` profile tuple：要求当前 loaded
+  `transformers.image_utils.SizeDict` exact type、精确 module/name、非 `Mapping`、四个 non-edge fields 为 `None`，
+  且 `dict(size)` 恰为冻结的两个 edge keys/values；subclass、同名伪造类、generic iterable、extra/wrong key 都
+  在 model load 前 fail closed；
+- v1/v2 profile、runtime identity 与 metadata schema 保持不变。v2 runner 在 contract/input/model access 前永久
+  tombstone；v3 使用全新 protocol、canonical output 与 fixed mode-0600 `O_EXCL` ledger，失败同样不能 resume 或
+  same-protocol retry；
+- 本里程碑没有运行 v3 model/feature、没有 comparator recovery，也不解锁 gate、matched-NLL、closed-loop 或
+  confirm/test。下一步只能从包含本 source freeze 的 clean pushed `main` 做新的 Hyper00 GPU preflight 和唯一
+  formal attempt。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
@@ -1884,8 +1900,8 @@ canonical-representative 补救分支；formal label v1 已 zero-forward fail cl
 offline oracle/labels、private HF immutable artifact、selector-geometry v2 repaired result 与 OCR/RGB v2
 comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision v1 唯一 invocation 在
 zero-feature UUID type probe 阶段 `INVALID`；type-only v2 跨过 UUID 后又在 zero-feature SizeDict interface check
-阶段 `INVALID`，且 durable ledger 已阻止重跑。下一步先冻结只修 exact loaded `SizeDict` interface normalization
-的新版本，再从新的 clean pushed `main` 执行；若产生 result，才做 committed replay 与独立 CPU artifact audit。
+阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 source 已冻结；下一步从新的 clean
+pushed `main` 执行唯一 v3 attempt，若产生 result，才做 committed replay 与独立 CPU artifact audit。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge

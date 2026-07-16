@@ -15,6 +15,8 @@ from causalcache.restoration_v2_2_policy_vision import (
 )
 from scripts.run_restoration_v2_2_policy_vision_baseline import (
     HOST_EVIDENCE_COLLECTOR,
+    V1_RUN_TOMBSTONE_STATUS,
+    V1_RUNNER_PROTOCOL,
     _expected_runtime_metadata,
     _load_primary_labels_from_verified_bytes,
     _run_feature_workers,
@@ -90,6 +92,13 @@ class _Executor:
 
 class RunRestorationV22PolicyVisionBaselineTest(unittest.TestCase):
     def test_invalid_v1_run_is_tombstoned_before_any_input_or_gpu_access(self) -> None:
+        self.assertIsNone(V1_RUNNER_PROTOCOL.gpu_uuid_type_profile)
+        self.assertIsNone(V1_RUNNER_PROTOCOL.image_processor_size_profile)
+        self.assertFalse(V1_RUNNER_PROTOCOL.formal_run_allowed)
+        self.assertEqual(
+            V1_RUNNER_PROTOCOL.run_tombstone_status,
+            V1_RUN_TOMBSTONE_STATUS,
+        )
         with patch(
             "scripts.run_restoration_v2_2_policy_vision_baseline."
             "_run_feature_workers",

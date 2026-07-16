@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID` / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 exact-SizeDict source frozen / confirm locked
 
 ## 团队交接入口
 
@@ -91,6 +91,14 @@ repair，但 pinned `SizeDict` 可精确转成冻结两键几何、却不实现 
 时 fail closed；证据见
 [`data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`](data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/)。
 v2 ledger 已永久 claim，不能重跑；下一步只能冻结新的 SizeDict-interface versioned repair。
+
+versioned v3 只新增 `(UUID-v2, exact loaded SizeDict-v3)` runtime profile。它要求
+`type(size) is transformers.image_utils.SizeDict`、module/name 精确、不是 `Mapping`、四个 non-edge fields 均为
+`None`，再要求 `dict(size)` 恰好只有冻结的 `shortest_edge/longest_edge` 两键；同名伪造类、subclass、generic
+iterable、额外键和数值漂移均拒绝。v1/v2 profile 与 runtime ID 保持原样，v2 `run` 永久 tombstone；v3 使用新
+protocol、output 和 fixed `O_EXCL` ledger。v3 config SHA256 为
+`794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f`；该 source freeze 只授权一次新的
+formal attempt，不是 comparator result，也不解锁 gate、matched-NLL、closed-loop 或 confirm。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -646,7 +654,8 @@ $$
 - [x] 执行 policy-vision v1 formal attempt；在 0 feature 时因 pinned PyTorch UUID object type drift fail closed并留证；
 - [x] 冻结只修 `torch._C._CUuuid` normalization 的 policy-vision v2 source；v1 default 与 failure bytes 保持不变；
 - [x] 执行唯一 policy-vision v2 attempt；UUID repair 通过，但在 0 feature 的 SizeDict-interface check fail closed并留证；
-- [ ] 冻结并执行新的 SizeDict-interface repair，再完成 committed replay 与独立 CPU artifact audit；
+- [x] 冻结新的 exact loaded SizeDict-interface v3 repair；v1/v2 identity 与失败证据保持不变；
+- [ ] 执行唯一 policy-vision v3 formal attempt，再完成 committed replay 与独立 CPU artifact audit；
 - [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -730,6 +739,9 @@ $$
 - Restoration-v2.2 policy-vision UUID repair contract: [`code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json`](code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json)
 - Restoration-v2.2 policy-vision UUID repair validator: [`code/scripts/validate_restoration_v2_2_policy_vision_v2_contract.py`](code/scripts/validate_restoration_v2_2_policy_vision_v2_contract.py)
 - Restoration-v2.2 policy-vision v2 formal runner: [`code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py`](code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py)
+- Restoration-v2.2 policy-vision SizeDict repair contract: [`code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json`](code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json)
+- Restoration-v2.2 policy-vision SizeDict repair validator: [`code/scripts/validate_restoration_v2_2_policy_vision_v3_contract.py`](code/scripts/validate_restoration_v2_2_policy_vision_v3_contract.py)
+- Restoration-v2.2 policy-vision v3 formal runner: [`code/scripts/run_restoration_v2_2_policy_vision_baseline_v3.py`](code/scripts/run_restoration_v2_2_policy_vision_baseline_v3.py)
 - Restoration-v2.2 policy-vision reducer: [`code/causalcache/restoration_v2_2_policy_vision.py`](code/causalcache/restoration_v2_2_policy_vision.py)
 - Restoration-v2.2 policy-vision regressions: [`code/tests/test_restoration_v2_2_policy_vision.py`](code/tests/test_restoration_v2_2_policy_vision.py)、[`code/tests/test_run_restoration_v2_2_policy_vision_baseline.py`](code/tests/test_run_restoration_v2_2_policy_vision_baseline.py)
 - Restoration-v2.2 policy-vision v1 invalid attempt: [`data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/`](data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/)

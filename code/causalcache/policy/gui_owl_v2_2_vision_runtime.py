@@ -47,10 +47,21 @@ GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID = (
     "causalcache_restoration_v2_2_policy_vision_feature_only_runtime_"
     "uuid_type_only_v2"
 )
+GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID = (
+    "causalcache_restoration_v2_2_policy_vision_feature_only_runtime_"
+    "uuid_type_v2_size_dict_interface_v3"
+)
 GPU_UUID_TYPE_PROFILE_V1 = "cuda_device_property_uuid_str_bytes_v1"
 GPU_UUID_TYPE_PROFILE_V2 = "cuda_device_property_uuid_torch_c_cuuuid_v2"
 GPU_UUID_TYPE_PROFILES = frozenset(
     {GPU_UUID_TYPE_PROFILE_V1, GPU_UUID_TYPE_PROFILE_V2}
+)
+IMAGE_PROCESSOR_SIZE_PROFILE_V1 = "mapping_exact_edges_v1"
+IMAGE_PROCESSOR_SIZE_PROFILE_V3 = (
+    "transformers_image_utils_size_dict_exact_edges_v3"
+)
+IMAGE_PROCESSOR_SIZE_PROFILES = frozenset(
+    {IMAGE_PROCESSOR_SIZE_PROFILE_V1, IMAGE_PROCESSOR_SIZE_PROFILE_V3}
 )
 GUI_OWL_V2_2_VISION_IMAGE_COUNT = 5
 GUI_OWL_V2_2_VISION_MAX_FEATURE_REPEATS = 2
@@ -82,12 +93,97 @@ def _json_copy(value: Mapping[str, Any]) -> dict[str, Any]:
     return decoded
 
 
-def _runtime_profile_id(gpu_uuid_type_profile: str) -> str:
-    if gpu_uuid_type_profile == GPU_UUID_TYPE_PROFILE_V1:
-        return GUI_OWL_V2_2_VISION_RUNTIME_ID
-    if gpu_uuid_type_profile == GPU_UUID_TYPE_PROFILE_V2:
-        return GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID
-    raise ValueError("GPU UUID type profile is not frozen")
+def _runtime_profile_id(
+    gpu_uuid_type_profile: str,
+    image_processor_size_profile: str = IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+) -> str:
+    if gpu_uuid_type_profile not in (
+        GPU_UUID_TYPE_PROFILE_V1,
+        GPU_UUID_TYPE_PROFILE_V2,
+    ):
+        raise ValueError("GPU UUID type profile is not frozen")
+    if image_processor_size_profile not in (
+        IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+        IMAGE_PROCESSOR_SIZE_PROFILE_V3,
+    ):
+        raise ValueError("image processor size profile is not frozen")
+    profiles = (gpu_uuid_type_profile, image_processor_size_profile)
+    runtime_ids = {
+        (
+            GPU_UUID_TYPE_PROFILE_V1,
+            IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+        ): GUI_OWL_V2_2_VISION_RUNTIME_ID,
+        (
+            GPU_UUID_TYPE_PROFILE_V2,
+            IMAGE_PROCESSOR_SIZE_PROFILE_V1,
+        ): GUI_OWL_V2_2_VISION_RUNTIME_UUID_TYPE_ONLY_V2_ID,
+        (
+            GPU_UUID_TYPE_PROFILE_V2,
+            IMAGE_PROCESSOR_SIZE_PROFILE_V3,
+        ): GUI_OWL_V2_2_VISION_RUNTIME_UUID_SIZE_DICT_V3_ID,
+    }
+    try:
+        return runtime_ids[profiles]
+    except KeyError as error:
+        raise ValueError("policy-vision runtime profile tuple is not frozen") from error
+
+
+def _normalize_image_processor_size(
+    value: Any,
+    *,
+    pixels_per_image: int,
+    image_processor_size_profile: str,
+    loaded_transformers_size_dict_type: type[Any] | None = None,
+) -> dict[str, int]:
+    expected = {
+        "shortest_edge": pixels_per_image,
+        "longest_edge": pixels_per_image,
+    }
+    if image_processor_size_profile == IMAGE_PROCESSOR_SIZE_PROFILE_V1:
+        if not isinstance(value, Mapping):
+            raise ValueError("policy-vision image processor size drifted")
+        normalized = dict(value)
+        if normalized != expected:
+            raise ValueError("policy-vision image processor size drifted")
+        return normalized
+    elif image_processor_size_profile == IMAGE_PROCESSOR_SIZE_PROFILE_V3:
+        if not isinstance(loaded_transformers_size_dict_type, type):
+            raise ValueError(
+                "v3 image processor size requires the loaded Transformers SizeDict type"
+            )
+        loaded_type = loaded_transformers_size_dict_type
+        if (
+            loaded_type.__module__ != "transformers.image_utils"
+            or loaded_type.__name__ != "SizeDict"
+            or type(value) is not loaded_type
+        ):
+            raise ValueError(
+                "v3 image processor size must have the exact loaded Transformers "
+                "SizeDict type"
+            )
+        if isinstance(value, Mapping):
+            raise ValueError("v3 image processor SizeDict must not be a Mapping")
+        missing = object()
+        for name in ("height", "width", "max_height", "max_width"):
+            if getattr(value, name, missing) is not None:
+                raise ValueError(
+                    "v3 image processor SizeDict non-edge fields drifted"
+                )
+        for name, expected_value in expected.items():
+            observed = getattr(value, name, missing)
+            if type(observed) is not int or observed != expected_value:
+                raise ValueError("v3 image processor SizeDict edge fields drifted")
+    try:
+        normalized = dict(value)
+    except (TypeError, ValueError) as error:
+        raise ValueError("policy-vision image processor size drifted") from error
+    if (
+        set(normalized) != set(expected)
+        or any(type(normalized[key]) is not int for key in expected)
+        or normalized != expected
+    ):
+        raise ValueError("policy-vision image processor size drifted")
+    return normalized
 
 
 def _canonical_gpu_uuid(
@@ -317,11 +413,15 @@ class GUIOwlV22VisionFeatureRuntime:
         device: str,
         expected_gpu_uuid: str,
         gpu_uuid_type_profile: str = GPU_UUID_TYPE_PROFILE_V1,
+        image_processor_size_profile: str = IMAGE_PROCESSOR_SIZE_PROFILE_V1,
         target_effective_visual_tokens_per_image: int = (
             FROZEN_GUI_OWL_V2_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE
         ),
     ) -> None:
-        runtime_profile_id = _runtime_profile_id(gpu_uuid_type_profile)
+        runtime_profile_id = _runtime_profile_id(
+            gpu_uuid_type_profile,
+            image_processor_size_profile,
+        )
         if re.fullmatch(r"cuda:[0-9]+", device) is None:
             raise ValueError("policy-vision runtime requires one explicit CUDA device")
         if (
@@ -338,6 +438,15 @@ class GUIOwlV22VisionFeatureRuntime:
             raise RuntimeError(
                 "policy-vision runtime requires PyTorch and Transformers"
             ) from error
+        loaded_transformers_size_dict_type = None
+        if image_processor_size_profile == IMAGE_PROCESSOR_SIZE_PROFILE_V3:
+            try:
+                from transformers.image_utils import SizeDict
+            except (ImportError, ModuleNotFoundError) as error:
+                raise RuntimeError(
+                    "policy-vision v3 runtime requires Transformers SizeDict"
+                ) from error
+            loaded_transformers_size_dict_type = SizeDict
 
         selected_device = torch.device(device)
         if (
@@ -380,12 +489,14 @@ class GUIOwlV22VisionFeatureRuntime:
             image_processor, "apply_chat_template"
         ):
             raise RuntimeError("policy-vision runtime forbids tokenizer/chat interfaces")
-        processor_size = getattr(image_processor, "size", None)
-        if not isinstance(processor_size, Mapping) or dict(processor_size) != {
-            "shortest_edge": pixels_per_image,
-            "longest_edge": pixels_per_image,
-        }:
-            raise ValueError("policy-vision image processor size drifted")
+        processor_size = _normalize_image_processor_size(
+            getattr(image_processor, "size", None),
+            pixels_per_image=pixels_per_image,
+            image_processor_size_profile=image_processor_size_profile,
+            loaded_transformers_size_dict_type=(
+                loaded_transformers_size_dict_type
+            ),
+        )
         if int(image_processor.merge_size) != VISION_SPATIAL_MERGE_SIZE:
             raise ValueError("policy-vision image processor merge size drifted")
         model = AutoModelForImageTextToText.from_pretrained(
@@ -458,7 +569,7 @@ class GUIOwlV22VisionFeatureRuntime:
                 "processor_output_keys": sorted(
                     GUI_OWL_V2_2_VISION_PROCESSOR_KEYS
                 ),
-                "processor_size": dict(processor_size),
+                "processor_size": processor_size,
                 "tokenizer_loaded": False,
                 "chat_template_called": False,
                 "forbidden_operation_guards_installed": list(
