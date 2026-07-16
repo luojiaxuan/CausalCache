@@ -208,6 +208,27 @@ def _canonical_repo_input(
     return actual
 
 
+def _repaired_spatial_eager_stable_count(
+    summary: Mapping[str, Any],
+) -> int | None:
+    profiles = summary.get("profile_summaries")
+    if not isinstance(profiles, list):
+        return None
+    for profile in profiles:
+        if not isinstance(profile, Mapping):
+            return None
+        if profile.get("profile_id") != "bf16_eager_control":
+            continue
+        metrics = profile.get("metrics")
+        if not isinstance(metrics, Mapping):
+            return None
+        count = metrics.get("exact_canonical_action_stable_count")
+        if isinstance(count, bool) or not isinstance(count, int):
+            return None
+        return count
+    return None
+
+
 def _validate_parent_evidence(
     args: argparse.Namespace,
     *,
@@ -253,15 +274,7 @@ def _validate_parent_evidence(
             "strict_cuda_determinism_claimed"
         )
         is not False
-        or next(
-            (
-                profile.get("exact_canonical_action_stable_count")
-                for profile in spatial_summary.get("profiles", [])
-                if profile.get("profile_id") == "bf16_eager_control"
-            ),
-            None,
-        )
-        != 13
+        or _repaired_spatial_eager_stable_count(spatial_summary) != 13
     ):
         raise PermissionError("fresh spatial-reference evidence conclusion drifted")
     spatial = _external_record(

@@ -495,6 +495,33 @@ def deleted_root_ledger_attempt(
 
 
 class TwoWorkerRunnerTest(unittest.TestCase):
+    def test_repaired_spatial_parent_uses_raw_profile_summary_schema(self) -> None:
+        summary = {
+            "profile_summaries": [
+                {
+                    "profile_id": "bf16_auto",
+                    "metrics": {"exact_canonical_action_stable_count": 7},
+                },
+                {
+                    "profile_id": "bf16_eager_control",
+                    "metrics": {"exact_canonical_action_stable_count": 13},
+                },
+            ]
+        }
+        self.assertEqual(runner._repaired_spatial_eager_stable_count(summary), 13)
+        self.assertIsNone(
+            runner._repaired_spatial_eager_stable_count(
+                {
+                    "profiles": [
+                        {
+                            "profile_id": "bf16_eager_control",
+                            "exact_canonical_action_stable_count": 13,
+                        }
+                    ]
+                }
+            )
+        )
+
     def test_parity_shards_are_exact_and_disjoint(self) -> None:
         even, odd = expected_worker_specs()
         self.assertEqual(len(even.state_indices), 23)
