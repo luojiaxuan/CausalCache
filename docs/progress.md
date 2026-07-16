@@ -1794,14 +1794,45 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 本结果的结论是 OCR/RGB 已闭合但 development 不稳的弱 non-learned comparator。没有新增 HF artifact；
   policy-vision、gate checkpoint、matched-NLL、closed-loop 与 confirm output 仍不存在。
 
+### 2026-07-16：policy-vision feature-only source freeze
+
+- 新增独立 machine-readable contract
+  `code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json`，SHA256 为
+  `a2319f8ea52d53fa01487cdbcbfef20b86ac81dcfab1c8a36ce4583b0b503023`；formal feature/result 尚未生成；
+- 准确 comparator 名称固定为 frozen-policy-backbone vision similarity。events 1--4 post-state 与 event-5/current
+  只走 GUI-Owl 27 层 vision tower 和 final main spatial merger `pooler_output`，逐图 BF16 token rows 转 FP32
+  mean/L2 后做 cosine top-2；不输入 goal、text、OCR、action/history summary；
+- 新 feature-only runtime 使用 direct `AutoImageProcessor` exact-two tensor keys，禁止 tokenizer/chat template；
+  H200/BF16/eager/TF32-off/eval/frozen/single-device、GPU UUID/PCI/nvidia-smi、Pillow/Transformers/model snapshot
+  均 fail closed。top model、language model、LM head 与 generation 路径安装 poison guard，正式 operation 为 0；
+- identity 直接绑定已验证 OCR/RGB exact-three 的 15 states/75 images，但不复用其 feature/score/selection。
+  feature worker 的参数类型不含 restoration labels 或 geometry utility；只有 60 个 canonical cosine 和 coalition
+  合并完成后，CPU reducer 才解析 immutable 45-state/420-row raw labels 做 15 次 selected-coalition distance
+  lookup；GPU 前只做 raw archive path/size/SHA256 byte-identity verification；
+- 双 H200、无 DDP，按原 primary state index parity 固定 8/7 shards。15 个 canonical batches 各只预处理一次，
+  复用同一 CUDA tensors 做 canonical + same-device replay；odd worker 另跑 ordinal-0 cross-device sentinel。
+  总 schedule 为 16 processor batches、80 image assignments、31 vision forwards、124 cosine scalar transfers；
+  replay tolerance 预注册为 absolute `1e-6` 且 ranking/coalition 必须 exact match；
+- processor-only、zero-model-forward 输入检查固定 75 图 grid histogram、767,020 raw patches 与 191,755 merged
+  tokens；这些只作为输入 identity，不是 policy-vision scientific output；
+- 输出仅允许 Git exact-three lightweight files，不保存 4096-d embeddings。统计将包含 train/dev/overall
+  recovery、small-denominator sensitivity、exact/exact-B geometry、对 restoration-aware/recent/random/OCR-RGB
+  的 paired bootstrap、cosine saturation/margin 与预注册 OCR 异常点；负 recovery 不删、不 clamp；
+- confirm/test、gate、matched-NLL 与 closed-loop 仍为 0。source-only validation 和正式执行边界见
+  `docs/restoration_v2_2_policy_vision_baseline.md`；source push 后才允许 formal GPU run。正式入口为
+  `code/scripts/run_restoration_v2_2_policy_vision_baseline.py` 的 `run` 模式，显式区分 Hyper SSH alias、宿主
+  hostname、容器内 hostname 与 Docker object name，并读取宿主 `docker inspect`/`nvidia-smi` 生成的 evidence
+  JSON；结果 commit 后只用其 `validate` 模式做 CPU reconstruction。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
 offline oracle/labels、private HF immutable artifact、selector-geometry v2 repaired result 与 OCR/RGB v2
-comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。下一步单独冻结 policy-vision feature-only
-similarity baseline。
+comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision feature-only source contract
+已经冻结，下一步从 clean pushed `main` 在两张 H200 上执行 formal feature/replay/result，并在 result commit 后做
+独立 CPU artifact audit。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge

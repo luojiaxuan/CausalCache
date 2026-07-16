@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision source frozen、formal result pending / confirm locked
 
 ## 团队交接入口
 
@@ -33,8 +33,8 @@ cells 与 random 集合几何。正式 repaired result 已从 clean pushed `main
 primary `n=4,B=2` 上 exact 与 true greedy 在 15/15 states 完全一致；development normalized
 objective-projection gap（greedy - budget-conditioned independent）为 `0.159039`，5/5 trajectories 同方向，
 90% method-shaping interval `[0.007836, 0.355867]`。冻结规则输出
-`set_conditioned_main_candidate + online_greedy_sufficient`，但它不是 paper success gate，且 OCR/RGB 与
-policy-vision comparator 尚未补齐。
+`set_conditioned_main_candidate + online_greedy_sufficient`，但它不是 paper success gate。OCR/RGB 已闭合；
+policy-vision 只完成 source-only contract，尚无正式 feature/result。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
@@ -63,6 +63,19 @@ restoration attribution，也不构成 gate、matched-NLL 或 closed-loop 证据
 exact-three result 与 artifact regression 已 commit/push 为
 `main@7e59591573cb31f178dfd07422cc2e3c8aeff573`；Hyper00 随后从该 clean descendant checkout 重建三份
 files 并返回 `VALID_RESTORATION_V2_2_OCR_RGB_BASELINE_V2_IDENTITY_REPAIR`。
+
+最后一个非学习视觉 comparator 的独立协议见
+[`docs/restoration_v2_2_policy_vision_baseline.md`](docs/restoration_v2_2_policy_vision_baseline.md)，machine-readable
+contract 为
+[`code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json`](code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json)，
+SHA256 `a2319f8ea52d53fa01487cdbcbfef20b86ac81dcfab1c8a36ce4583b0b503023`。准确方法名是
+frozen-policy-backbone vision similarity：events 1--4 post-state 与 event-5/current 都只经过 frozen GUI-Owl
+vision tower/final main merger，BF16 token rows 转 FP32 mean/L2 后做 cosine top-2。它不输入 goal/text/OCR，
+不调用 language model、LM head 或 generation，不能写成 behavioral policy-aware。正式 schedule 固定双 H200
+8/7 parity、15 canonical + 15 same-device replay + 1 cross-device sentinel，共 31 次 vision feature forwards；
+feature worker 不接收 (D(S))；GPU 前只验证 raw label archive 的 byte identity，selection 完成后 CPU reducer
+才解析并 join labels。当前 canonical output 不存在，
+因此这里不报告任何 policy-vision recovery 或 comparator conclusion，也不解锁 gate/confirm。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -614,7 +627,8 @@ $$
 - [x] OCR/RGB v1 首次 Hyper00 attempt 在 zero-score identity scan 阶段 fail closed，并记录 canonical output absent；
 - [x] 冻结新 identity 的 exact-occurrence/equal-value lexer repair source；v1 default semantics 与 failure binding 保持不变；
 - [x] 在 Hyper00 执行 OCR/RGB v2 aggregate、逐 byte replay与独立数值审计，并锁定 15-row artifact regression；
-- [ ] 单独冻结并执行 policy-vision feature-only stage；
+- [x] 冻结 policy-vision feature-only source/config、双 H200 worker isolation 与 replay contract；
+- [ ] 从 clean pushed source 执行 policy-vision formal feature/result，并完成独立 CPU artifact audit；
 - [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -691,6 +705,13 @@ $$
 - Passed real-screen run/HF summary: [`data/results/restoration_v2_ocr_backend/real_screen_summary.json`](data/results/restoration_v2_ocr_backend/real_screen_summary.json)
 - Restoration-v2 deterministic baseline formulas: [`code/causalcache/restoration_v2_baselines.py`](code/causalcache/restoration_v2_baselines.py)
 - Restoration-v2 policy-vision extractor: [`code/causalcache/policy/gui_owl_v2_vision.py`](code/causalcache/policy/gui_owl_v2_vision.py)
+- Restoration-v2.2 policy-vision protocol: [`docs/restoration_v2_2_policy_vision_baseline.md`](docs/restoration_v2_2_policy_vision_baseline.md)
+- Restoration-v2.2 policy-vision source contract: [`code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json`](code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json)
+- Restoration-v2.2 policy-vision source validator: [`code/scripts/validate_restoration_v2_2_policy_vision_contract.py`](code/scripts/validate_restoration_v2_2_policy_vision_contract.py)
+- Restoration-v2.2 policy-vision formal runner: [`code/scripts/run_restoration_v2_2_policy_vision_baseline.py`](code/scripts/run_restoration_v2_2_policy_vision_baseline.py)
+- Restoration-v2.2 policy-vision reducer: [`code/causalcache/restoration_v2_2_policy_vision.py`](code/causalcache/restoration_v2_2_policy_vision.py)
+- Restoration-v2.2 policy-vision regressions: [`code/tests/test_restoration_v2_2_policy_vision.py`](code/tests/test_restoration_v2_2_policy_vision.py)、[`code/tests/test_run_restoration_v2_2_policy_vision_baseline.py`](code/tests/test_run_restoration_v2_2_policy_vision_baseline.py)
+- Restoration-v2.2 feature-only runtime: [`code/causalcache/policy/gui_owl_v2_2_vision_runtime.py`](code/causalcache/policy/gui_owl_v2_2_vision_runtime.py)
 - Restoration-v2 baseline source manifest: [`data/manifests/restoration_v2_baselines.json`](data/manifests/restoration_v2_baselines.json)
 - Restoration-v2 derived dataset builder: [`code/scripts/build_guiodyssey_restoration_v2.py`](code/scripts/build_guiodyssey_restoration_v2.py)
 - Restoration-v2 derived dataset validator: [`code/scripts/validate_guiodyssey_restoration_v2.py`](code/scripts/validate_guiodyssey_restoration_v2.py)

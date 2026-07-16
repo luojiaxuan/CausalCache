@@ -923,3 +923,36 @@ failure，不做删除或 clamp。
 exact-three result 已 commit/push 为 `main@7e59591573cb31f178dfd07422cc2e3c8aeff573`；同一 Hyper00
 runtime 从该 clean descendant checkout 执行上述 `validate`，已返回
 `VALID_RESTORATION_V2_2_OCR_RGB_BASELINE_V2_IDENTITY_REPAIR` 且 worktree 保持 clean。
+
+## Restoration v2.2 policy-vision feature-only baseline
+
+最后一个非学习视觉 comparator 的 source contract 是
+`configs/causalcache_restoration_v2_2_policy_vision_baseline.json`，SHA256 为
+`a2319f8ea52d53fa01487cdbcbfef20b86ac81dcfab1c8a36ce4583b0b503023`。source-only validator：
+
+```bash
+cd /absolute/path/to/CausalCache/code
+python3 -m scripts.validate_restoration_v2_2_policy_vision_contract \
+  --repository-root .. \
+  --contract configs/causalcache_restoration_v2_2_policy_vision_baseline.json
+```
+
+runtime `causalcache.policy.gui_owl_v2_2_vision_runtime.GUIOwlV22VisionFeatureRuntime` 只允许 direct
+`AutoImageProcessor` 和 `model.get_image_features(...).pooler_output`。每 state 输入 events 1--4 post-state 与
+event-5/current 共 5 张 RGB 图，BF16 final-main-merger token rows 在 GPU 上转 FP32 mean/L2，再做四个 cosine。
+tokenizer/chat template、goal/text/OCR、top-policy forward、language model、LM head 与 generation 全部禁止；
+4096-d embedding 不离开 accelerator。
+
+双 H200 worker 固定原 state-index even/odd 的 8/7 shards，无 DDP。每个 canonical state 一次 processor batch，
+在同一 CUDA tensors 上做 canonical 与 same-device replay；odd worker 另跑 state index 2 cross-device sentinel。
+总计 16 processor batches、80 image assignments、31 feature forwards 与 124 cosine scalar transfers。score absolute
+difference 必须不超过 `1e-6`，ranking/coalition 必须 exact match。feature worker 不接收 (D(S))；只有 selection
+完成后 CPU reducer 才解析并加载 immutable labels 做评价。GPU 前只对 raw label archive 做 path/size/SHA256
+byte-identity verification，不向 worker 暴露其内容。
+
+正式 output 固定为 `data/results/restoration_v2_2_policy_vision_baseline_v1/` exact-three files。当前 source-only
+阶段没有 policy-vision result 数值；正式 runner 要求显式传入 source commit、两个 GPU UUID、Hyper SSH alias/
+宿主 hostname、容器内 hostname、Docker container name、container image digest、driver version，以及由宿主
+`docker inspect`/`nvidia-smi` 生成的只读 evidence JSON。完整 argv、统计与 failure boundary 见
+`docs/restoration_v2_2_policy_vision_baseline.md`。source commit push 前不得启动 GPU formal run，result 产生后
+source-only validator 不再作为 artifact validator。
