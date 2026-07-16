@@ -744,7 +744,10 @@ terminal 后先执行 `archive`，上传 private HF，再把 canonical source ar
 download 同时交给 `create-manifest`；同一路径、byte drift、非 frozen repo/path 或非 40-hex revision 都会拒绝。
 
 本阶段只有 source-only freeze；source validator 不加载 processor/model、不调用 GPU，也不授权正式 attempt。
-config SHA256 与 source commit 在最终 clean-main freeze 后记录真实值。当前没有 v2.2 generation、teacher、KL、
-restoration、gate 或 confirm output；confirm/restoration/gate access counts 必须保持 0。正式 raw 的 planned private
-HF destination 是 `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，但 archive、tag 对应的
-immutable revision 与 Git result 尚未产生。完整边界见 `docs/restoration_v2_2_eager.md`。
+formal freeze 已在 clean pushed `main@350a52e14b034986d6ad508f231e543c8b151251` 建立：config SHA256
+`f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7`，50-file formal inventory SHA256
+`ca64b482df3060e0d36d97de5ad3ecd3610da2d94e4d7383195f1da4113cebfa`。当前没有 v2.2 generation、
+teacher、KL、restoration、gate 或 confirm output；confirm/restoration/gate access counts 必须保持 0。正式 raw 的
+planned private HF destination 是 `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，但
+archive、tag 对应的 immutable revision 与 Git result 尚未产生。完整边界见
+`docs/restoration_v2_2_eager.md`。

@@ -1497,8 +1497,10 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   eager-control 13/13）；它只授权新的 eager substrate，不改写
   `NO_GO_V2_1_FULL_45_SUBSTRATE`；
 - machine-readable contract 为 `code/configs/causalcache_restoration_v2_2_eager.json`，完整说明为
-  `docs/restoration_v2_2_eager.md`。config SHA256 与 clean pushed source commit 留待最终 freeze 后记录真实值，
-  本 source-only milestone 不填预测值；
+  `docs/restoration_v2_2_eager.md`。formal freeze 已从 clean pushed
+  `main@350a52e14b034986d6ad508f231e543c8b151251` 建立；config SHA256 为
+  `f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7`，50-file formal inventory SHA256 为
+  `ca64b482df3060e0d36d97de5ad3ecd3610da2d94e4d7383195f1da4113cebfa`；
 - scientific contract 只改变 runtime：BF16 eager、seed 0、TF32 off、cuDNN deterministic on/benchmark off、
   float32 matmul `highest`；明确不声称 strict CUDA determinism。official-tool interface、prompt/parser、teacher
   target、45-state projection、gate 与 per-state schedule 均继承 v2.1；container/Python/PyTorch/CUDA/cuDNN/
@@ -1521,7 +1523,8 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   或 result verdict；
 - 本里程碑没有调用 GPU、没有加载 processor/model、没有产生 v2.2 policy output。source-only validator 通过
   也不自动授权正式 run；执行仍需 clean pushed main、双 GPU preflight、fresh parent evidence 和独立 global
-  claim。
+  claim。v2.2 定向 52 tests 与全仓 536 tests 均通过（全仓 11 skipped）；planned HF repo 仍为空，raw archive、
+  immutable revision 与 Git compact result 均尚未产生。
 
 ## 下一步
 
