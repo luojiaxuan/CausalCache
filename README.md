@@ -64,10 +64,13 @@ post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修
 [`ablations/subset_search.md`](ablations/subset_search.md)。v1 source/config/CPU runner 已冻结：小规模 exact
 subset oracle、true conditional-marginal greedy、2x2 bounded exchange、true-utility beam-$2/4/8$ 分别报告
 actual utility、greedy/exact ratio 与全部 coalition query cost；同时把既有 phase-0 的 averaged-score
-objective-projection gap 与真正 search regret 分开。首次 CPU attempt 的数值复算完成，但 pre-commit replay
-发现 in-memory trace coalition 是 tuple、JSON round-trip 后是 list，导致 validator payload equality fail closed；
-该 output 已删除，未作为正式结果。source 已补 JSON-normalization regression，待 commit/push 后从新 clean main
-重跑。整个 attempt 为零新 policy/GPU/confirm access，v2.1 不重开。
+objective-projection gap 与真正 search regret 分开。首次 CPU attempt 因 tuple/list JSON boundary 在 pre-commit
+replay fail closed，output 未保留；修复 push 后，canonical rerun 与独立 pre-commit replay 已逐项通过。正式
+结果中 phase-0 averaged-score / true-greedy ratio 为 0.858594/1.0；complementary trap 的 raw greedy/beam-2
+为 0.5，exchange/beam-4 为 1.0；旧 v1 cached table 的四个 state/budget cases 中 greedy 全部等于 exact。
+这支持保留 set-conditioned greedy 主线与 offline stronger-search diagnostics，但不是新 real-policy generalization
+evidence。全程零新 policy/GPU/confirm access，v2.1 不重开。轻量结果见
+[`data/results/subset_search_ablation_v1/`](data/results/subset_search_ablation_v1/)。
 
 official Jinja/tojson compatibility 已在输出前冻结：teacher target 与 official assistant `tool_calls` JSON
 逐字节一致，包括 canonical insertion order 与原始 Unicode UTF-8；解码后的 text argument 仍须严格满足 NFKC。
@@ -490,7 +493,8 @@ $$
 - [x] 记录 prospective interaction-aware gate ablation；仅 source-only proposal，不重开 v2.1；
 - [x] 冻结 subset-search v1 source/config/CPU runner；formal synthetic + cached-table replay 待 clean pushed source；
 - [x] 首次 subset-search CPU attempt 在 pre-commit JSON round-trip validation fail closed；output 未保留；
-- [ ] push serialization fix 后从新 clean source 重跑并提交轻量 result/validator evidence；
+- [x] push serialization fix 后从新 clean source canonical rerun；pre-commit scientific replay 通过；
+- [ ] 提交/push subset-search result，并从 clean descendant main 运行 committed validator；
 - [ ] 在不读取 confirm policy output 的前提下，决定是否冻结新的 executable/UI-element equivalence protocol；
 - [ ] 只有新 substrate gate 通过后，才构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -509,6 +513,7 @@ $$
 - Interaction-aware gate proposal: [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)
 - Subset-search contract and interpretation: [`ablations/subset_search.md`](ablations/subset_search.md)
 - Frozen subset-search config: [`code/configs/subset_search_ablation_v1.json`](code/configs/subset_search_ablation_v1.json)
+- Subset-search canonical CPU result: [`data/results/subset_search_ablation_v1/`](data/results/subset_search_ablation_v1/)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)

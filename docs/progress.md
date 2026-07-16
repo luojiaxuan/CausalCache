@@ -1372,10 +1372,33 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   commit/push 该 fix，再从新的 clean source canonical rerun；不能沿用首次 output 或放宽 validator。上述数值在
   canonical rerun 前只算 provisional diagnostics。
 
+### 2026-07-15：Subset-search v1 canonical CPU rerun 与 pre-commit replay 通过
+
+- JSON serialization fix 已作为 `main@7569ce2ac1e63f565be4e0d4dcc9626285aa355c` push；全仓 440 tests
+  （10 skips）通过后，从该 clean canonical source 重新运行 frozen CLI；
+- canonical run 于 `2026-07-15T23:58:44.535445Z`--`23:59:38.142234Z` 在 CPU 上完成，wall time
+  53.606 秒，14 个 scenarios 的 scientific payload SHA256 为
+  `26846d509d421dcb49f2d1554598893a65829c6a25610ef399ce69b383274edf`；policy/GPU operation 均为 0，
+  未访问外部/untouched data 或 confirm；
+- 写出后、任何 result commit 前再次从 config/input 构造完整 payload；`json.loads(json.dumps(payload)) ==
+  payload`、与 summary scientific payload 的完整 equality 和 canonical SHA256 三项全部通过，输出
+  `PRECOMMIT_SCIENTIFIC_REPLAY_MATCH`；
+- canonical result 逐项复现首次 provisional 数值：phase-0 projection/true-greedy ratio 0.858594/1.0；
+  complementary trap raw/beam-2 0.5、exchange/beam-4 1.0；mixed raw 0.666667、exchange/beam-4 1.0；
+  variable-cost raw/density 0.833333/1.0；
+- scale sweep exact queries 93/299/697/2325；raw greedy queries 22/34/46/70、ratio
+  1.0/0.95098/0.95098/0.970588；beam-4 queries 51/88/125/197 且在本 generator 全部 exact；exchange
+  到 $n=24$ 需要 1,185 queries；
+- 旧 cached real table 的四个 cases 仍全部 greedy=exact；step 8 / 1024 的 2 positive + 19 negative pair
+  interactions 没有形成 greedy trap。正式结论仍是保留 set-conditioned greedy 主线，stronger search 只作
+  offline diagnostic；
+- 轻量 summary/report 位于 `data/results/subset_search_ablation_v1/`。下一步 commit/push result，再从 clean
+  descendant main 运行正式 committed validator。
+
 ## 下一步
 
-先 commit/push subset-search JSON serialization fix，再从新 clean main canonical rerun、提交 result，并从 clean
-descendant main 复算验证 committed summary；这些步骤不需要 GPU，也不改变 v2.1。并行的主路线仍是：
+先 commit/push subset-search result，再从 clean descendant main 复算验证 committed summary；该步骤不需要 GPU，
+也不改变 v2.1。并行的主路线仍是：
 v2.1 已按冻结 gate 停止，不运行 restoration、gate training 或 confirm；只有先冻结不依赖本次 32/45 结果调参的
 新 executable/UI-element equivalence protocol 并通过新 substrate gate，才允许后续 restoration/confirm。必须永久
 保留 exact-coordinate NO-GO，不能在当前 45 states 上事后加容差 retroactive PASS。

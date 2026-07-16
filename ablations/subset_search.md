@@ -1,6 +1,7 @@
 # Subset Search Ablation
 
-> 状态：首次 CPU attempt 在 pre-commit JSON round-trip replay fail closed；serialization fix 待 push 后 canonical rerun。
+> 状态：canonical CPU result 与 pre-commit scientific replay 已通过；result commit 后的 clean-descendant
+> validation 待执行。
 >
 > 范围：synthetic implementation validation，加上旧 v1 selection-biased development coalition table 的
 > post-hoc replay。零新 policy/GPU operation；不训练 gate、不读取 confirm、不修改
@@ -193,7 +194,7 @@ payload equality，因此按设计 fail closed。该 attempt 的 result 目录�
 已在 `_trace` serialization boundary 显式转换 list，并加入 `json.loads(json.dumps(result)) == result` regression。
 必须先把该 source fix commit/push，再从新的 clean source 重新生成；不能沿用旧 output 或只放宽 validator。
 
-以下只记录 failed attempt 的 provisional diagnostics，canonical rerun 前不能称为 formal result：
+首次 attempt 的 provisional diagnostics 如下；canonical rerun 已在下一节逐项复现：
 
 - 既有 phase-0 中，exact averaged-marginal knapsack / exact subset ratio 为 `0.858594`，而 true conditional
   greedy 为 `1.0`。因此这里的已知缺口确实来自 value projection，不是 greedy optimization；
@@ -210,7 +211,17 @@ payload equality，因此按设计 fail closed。该 attempt 的 result 目录�
 - 若把旧 state sensitivity threshold `1e-4` 混作 search stopping threshold，step 4 / 1024 会从 exact
   `[1,3]` 提前停在 `[3]`，ratio `0.944896`。这属于 abstention-threshold sensitivity，不是 search regret。
 
-若 canonical rerun 逐项复现，最稳妥的方法决策仍是：主线上使用 set-conditioned greedy；exact 只作小规模 ceiling；beam/local 是
+## Canonical CPU result（2026-07-15）
+
+serialization fix commit `7569ce2ac1e63f565be4e0d4dcc9626285aa355c` push 后，从 clean canonical
+main 重新运行 exact CLI。14 个 scenarios 在 53.606 秒完成，scientific payload SHA256 仍为
+`26846d509d421dcb49f2d1554598893a65829c6a25610ef399ce69b383274edf`。随后在未修改 source/config 的
+情况下重新构造完整 payload，JSON round-trip identity、完整 dict equality 与 canonical hash 全部通过，输出
+`PRECOMMIT_SCIENTIFIC_REPLAY_MATCH`。正式轻量结果见
+[`../data/results/subset_search_ablation_v1/`](../data/results/subset_search_ablation_v1/)。
+
+canonical result 逐项复现上一节全部数值，因此当前最稳妥的方法决策是：主线上使用 set-conditioned greedy；
+exact 只作小规模 ceiling；beam/local 是
 可替换的 offline diagnostics。synthetic 已证明 stronger search 可能修复 greedy trap，但旧 real table 没有证明
 它值得增加线上复杂度。只有未来 development data 出现稳定真实 search regret，且 direct set-utility contract
 闭合后，才考虑 learned beam/local。

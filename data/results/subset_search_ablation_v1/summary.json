@@ -1,0 +1,5436 @@
+{
+  "experiment_id": "subset-search-ablation-v1",
+  "provenance": {
+    "argv": [
+      "/Users/luojiaxuan/Documents/CausalCache/code/scripts/run_subset_search_ablation.py",
+      "--repository-root",
+      "/Users/luojiaxuan/Documents/CausalCache",
+      "--config",
+      "/Users/luojiaxuan/Documents/CausalCache/code/configs/subset_search_ablation_v1.json",
+      "--source-git-commit",
+      "7569ce2ac1e63f565be4e0d4dcc9626285aa355c",
+      "--output-dir",
+      "/Users/luojiaxuan/Documents/CausalCache/data/results/subset_search_ablation_v1"
+    ],
+    "completed_at_utc": "2026-07-15T23:59:38.142234Z",
+    "device": "cpu",
+    "existing_git_inputs_read": true,
+    "git": {
+      "branch": "main",
+      "commit": "7569ce2ac1e63f565be4e0d4dcc9626285aa355c",
+      "origin_main": "7569ce2ac1e63f565be4e0d4dcc9626285aa355c",
+      "remote_main": "7569ce2ac1e63f565be4e0d4dcc9626285aa355c",
+      "remote_url": "https://github.com/luojiaxuan/CausalCache.git",
+      "worktree": "clean_including_untracked"
+    },
+    "gpu_operations_executed": 0,
+    "host": "MacBookPro",
+    "new_external_or_untouched_data_accessed": false,
+    "pid": 83187,
+    "platform": "macOS-15.3.2-arm64-arm-64bit-Mach-O",
+    "policy_operations_executed": 0,
+    "python_version": "3.14.6",
+    "seed": "not_applicable_deterministic",
+    "source_files": [
+      {
+        "path": "code/causalcache/subset_search.py",
+        "sha256": "8ccd66d6ec7d43609f18bef0ce3cb8099ccf7a8ed807e151f788795a3a643e77"
+      },
+      {
+        "path": "code/causalcache/subset_search_ablation.py",
+        "sha256": "18cd69ef99ec7df1e2cbc860474243c8bd5db0462fbbcf07ff5014db32945fc4"
+      },
+      {
+        "path": "code/scripts/run_subset_search_ablation.py",
+        "sha256": "eced5db3008a655642e4f00d66ae97e6b83713e2d0071927419fadf9db4c63e6"
+      },
+      {
+        "path": "code/scripts/validate_subset_search_ablation.py",
+        "sha256": "3f9c73085045bb9d04cf028a3bb00e48eac18e2fd8adb769daa12ff9408f612d"
+      },
+      {
+        "path": "code/configs/subset_search_ablation_v1.json",
+        "sha256": "161518c3e951829528b63b9146878236d918d4d620b4a6acbecc53f7c4db921f"
+      },
+      {
+        "path": "data/fixtures/subset_search_scenarios_v1.json",
+        "sha256": "0583827b4f8247acacfa58229f7f5eda5020faf858010e6d1fb8d2d7ea332f3a"
+      }
+    ],
+    "started_at_utc": "2026-07-15T23:58:44.535445Z",
+    "wall_time_seconds": 53.606007
+  },
+  "schema_version": "1.0.0",
+  "scientific_payload": {
+    "claim_boundary": {
+      "can_reopen_v2_1_no_go": false,
+      "closed_loop_success_evaluated": false,
+      "learned_gate_evaluated": false,
+      "new_policy_or_gpu_operations": false,
+      "real_table_is_selection_biased_development_evidence": true,
+      "true_utility_search_is_offline_oracle_diagnostic": true
+    },
+    "config": {
+      "allow_nonpositive_prefixes": true,
+      "beam_widths": [
+        2,
+        4,
+        8
+      ],
+      "exact_max_feasible_coalitions": 5000,
+      "greedy_stopping_threshold": 0.0,
+      "local_exchange": {
+        "max_add": 2,
+        "max_passes": 8,
+        "max_remove": 2,
+        "seed": "true_conditional_greedy_raw_gain"
+      },
+      "path": "code/configs/subset_search_ablation_v1.json",
+      "sha256": "161518c3e951829528b63b9146878236d918d4d620b4a6acbecc53f7c4db921f",
+      "utility_epsilon": 1e-12
+    },
+    "experiment_id": "subset-search-ablation-v1",
+    "input_bindings": {
+      "controlled_scenarios": {
+        "path": "data/fixtures/subset_search_scenarios_v1.json",
+        "sha256": "0583827b4f8247acacfa58229f7f5eda5020faf858010e6d1fb8d2d7ea332f3a"
+      },
+      "phase0_scenario": {
+        "path": "code/configs/synthetic_phase0.json",
+        "sha256": "560fb40ac7d5ee513c1acddc7efe62237c8a940a8d00968af90cc5cec1c55f8d"
+      },
+      "real_policy_coalition_table": {
+        "path": "data/results/go_no_go_diagnostic_v1/coalition_distances.csv",
+        "sha256": "3679d990166c6907e20f1eb141152fee221fcb2bf72f5392f6c8210a505dbed2"
+      },
+      "real_policy_compact_summary": {
+        "path": "data/results/go_no_go_diagnostic_v1/summary.json",
+        "sha256": "8180c749a4de11208f780c0bc0d2f1739e6d375280de2b44c595b71800261489"
+      }
+    },
+    "scenarios": [
+      {
+        "budget": 2,
+        "event_costs": {
+          "0": 1,
+          "1": 1,
+          "2": 1,
+          "3": 1
+        },
+        "event_count": 4,
+        "feasible_coalition_count": 11,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 0.0,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 0.0,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 6,
+          "near_zero_pair_count": 6,
+          "negative_pair_count": 0,
+          "normalized_interaction_mass": 0.0,
+          "positive_pair_count": 0,
+          "redundancy_mass": 0.0,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                0,
+                1
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": 0.0
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                0,
+                1
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": 0.0
+            }
+          ]
+        },
+        "metadata": {
+          "utility_family": "linear_plus_pairwise"
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 7.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 7.0,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": 4.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": 3.0,
+                "round_index": 2,
+                "selected_event": 1,
+                "utility": 7.0
+              }
+            ],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 7.0,
+            "candidate_score_evaluations": 17,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": 4.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": 3.0,
+                "round_index": 2,
+                "selected_event": 1,
+                "utility": 7.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 7.0,
+            "candidate_score_evaluations": 10,
+            "converged": true,
+            "frontier_expansions": 3,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 2,
+                "evaluated_candidates": 5,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 7.0
+              }
+            ],
+            "unique_set_utility_evaluations": 10,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 7.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 2,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 7.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 7.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 2,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 7.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "controlled_additive",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "controlled_synthetic",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 2,
+        "event_costs": {
+          "0": 1,
+          "1": 1,
+          "2": 1,
+          "3": 1
+        },
+        "event_count": 4,
+        "feasible_coalition_count": 11,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 9.0,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 0.0,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 6,
+          "near_zero_pair_count": 5,
+          "negative_pair_count": 1,
+          "normalized_interaction_mass": 0.290322580645161,
+          "positive_pair_count": 0,
+          "redundancy_mass": 9.0,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                0,
+                1
+              ],
+              "interaction": -9.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": 0.0
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                2,
+                3
+              ],
+              "interaction": 0.0
+            }
+          ]
+        },
+        "metadata": {
+          "utility_family": "linear_plus_pairwise"
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 16.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              0,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 16.0,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": 10.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 10.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": 6.0,
+                "round_index": 2,
+                "selected_event": 2,
+                "utility": 16.0
+              }
+            ],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 16.0,
+            "candidate_score_evaluations": 17,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              0,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": 10.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 10.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": 6.0,
+                "round_index": 2,
+                "selected_event": 2,
+                "utility": 16.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 16.0,
+            "candidate_score_evaluations": 10,
+            "converged": true,
+            "frontier_expansions": 3,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 10.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 5,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.0
+              }
+            ],
+            "unique_set_utility_evaluations": 10,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 16.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              0,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 10.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 16.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              0,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 10.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "controlled_redundant",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "controlled_synthetic",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 2,
+        "event_costs": {
+          "0": 1,
+          "1": 1,
+          "2": 1,
+          "3": 1
+        },
+        "event_count": 4,
+        "feasible_coalition_count": 11,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 12.0,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 10.0,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 6,
+          "near_zero_pair_count": 4,
+          "negative_pair_count": 1,
+          "normalized_interaction_mass": 1.714285714285714,
+          "positive_pair_count": 1,
+          "redundancy_mass": 2.0,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                0,
+                1
+              ],
+              "interaction": -2.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": 0.0
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                2,
+                3
+              ],
+              "interaction": 10.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": 0.0
+            }
+          ]
+        },
+        "metadata": {
+          "utility_family": "linear_plus_pairwise"
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 10.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              2,
+              3
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 5.0,
+            "actual_utility": 5.0,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": 4.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": 1.0,
+                "round_index": 2,
+                "selected_event": 1,
+                "utility": 5.0
+              }
+            ],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.5,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 10.0,
+            "candidate_score_evaluations": 27,
+            "converged": true,
+            "frontier_expansions": 2,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              2,
+              3
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 4,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": 4.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": 1.0,
+                "round_index": 2,
+                "selected_event": 1,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  2,
+                  3
+                ],
+                "cost": 2,
+                "evaluated_candidates": 10,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 10.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 5.0,
+            "actual_utility": 5.0,
+            "candidate_score_evaluations": 10,
+            "converged": true,
+            "frontier_expansions": 3,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 2,
+                "evaluated_candidates": 5,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 5.0
+              }
+            ],
+            "unique_set_utility_evaluations": 10,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.5,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 10.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              2,
+              3
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  2,
+                  3
+                ],
+                "cost": 2,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 10.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 10.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              2,
+              3
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 4.0
+              },
+              {
+                "coalition": [
+                  2,
+                  3
+                ],
+                "cost": 2,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 10.0
+              }
+            ],
+            "unique_set_utility_evaluations": 11,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "controlled_complementary_trap",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "controlled_synthetic",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 3,
+        "event_costs": {
+          "0": 1,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1
+        },
+        "event_count": 6,
+        "feasible_coalition_count": 42,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 38.0,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 21.0,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 15,
+          "near_zero_pair_count": 10,
+          "negative_pair_count": 2,
+          "normalized_interaction_mass": 2.0,
+          "positive_pair_count": 3,
+          "redundancy_mass": 17.0,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                4,
+                5
+              ],
+              "interaction": -10.0
+            },
+            {
+              "events": [
+                0,
+                1
+              ],
+              "interaction": -7.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                5
+              ],
+              "interaction": 0.0
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                2,
+                3
+              ],
+              "interaction": 8.0
+            },
+            {
+              "events": [
+                1,
+                5
+              ],
+              "interaction": 7.0
+            },
+            {
+              "events": [
+                0,
+                4
+              ],
+              "interaction": 6.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            }
+          ]
+        },
+        "metadata": {
+          "utility_family": "linear_plus_pairwise"
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 18.0,
+            "candidate_score_evaluations": 42,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              0,
+              2,
+              3
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 42,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 6.0,
+            "actual_utility": 12.0,
+            "candidate_score_evaluations": 15,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              2,
+              4
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 6,
+                "marginal_gain": 5.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 5,
+                "marginal_gain": 4.0,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 9.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2,
+                  4
+                ],
+                "cost": 3,
+                "evaluated_candidates": 4,
+                "marginal_gain": 3.0,
+                "round_index": 3,
+                "selected_event": 2,
+                "utility": 12.0
+              }
+            ],
+            "unique_set_utility_evaluations": 16,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.666666666666667,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 18.0,
+            "candidate_score_evaluations": 81,
+            "converged": true,
+            "frontier_expansions": 2,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              0,
+              2,
+              3
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 5,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 6,
+                "marginal_gain": 5.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 5,
+                "marginal_gain": 4.0,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 9.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2,
+                  4
+                ],
+                "cost": 3,
+                "evaluated_candidates": 4,
+                "marginal_gain": 3.0,
+                "round_index": 3,
+                "selected_event": 2,
+                "utility": 12.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2,
+                  3
+                ],
+                "cost": 3,
+                "evaluated_candidates": 33,
+                "marginal_gain": null,
+                "round_index": 4,
+                "selected_event": null,
+                "utility": 18.0
+              }
+            ],
+            "unique_set_utility_evaluations": 41,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 18.0,
+            "candidate_score_evaluations": 23,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              2,
+              3
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 9,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 9.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2,
+                  3
+                ],
+                "cost": 3,
+                "evaluated_candidates": 7,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 18.0
+              }
+            ],
+            "unique_set_utility_evaluations": 23,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 18.0,
+            "candidate_score_evaluations": 35,
+            "converged": true,
+            "frontier_expansions": 9,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              0,
+              2,
+              3
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  2,
+                  3
+                ],
+                "cost": 2,
+                "evaluated_candidates": 14,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 13.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2,
+                  3
+                ],
+                "cost": 3,
+                "evaluated_candidates": 14,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 18.0
+              }
+            ],
+            "unique_set_utility_evaluations": 35,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 18.0,
+            "candidate_score_evaluations": 40,
+            "converged": true,
+            "frontier_expansions": 15,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              0,
+              2,
+              3
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  2,
+                  3
+                ],
+                "cost": 2,
+                "evaluated_candidates": 15,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 13.0
+              },
+              {
+                "coalition": [
+                  0,
+                  2,
+                  3
+                ],
+                "cost": 3,
+                "evaluated_candidates": 18,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 18.0
+              }
+            ],
+            "unique_set_utility_evaluations": 40,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "controlled_mixed_nonmonotone",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "controlled_synthetic",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 2,
+        "event_costs": {
+          "0": 2,
+          "1": 1,
+          "2": 1
+        },
+        "event_count": 3,
+        "feasible_coalition_count": 5,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 0.0,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 0.0,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 1,
+          "near_zero_pair_count": 1,
+          "negative_pair_count": 0,
+          "normalized_interaction_mass": 0.0,
+          "positive_pair_count": 0,
+          "redundancy_mass": 0.0,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": 0.0
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": 0.0
+            }
+          ]
+        },
+        "metadata": {
+          "utility_family": "linear_plus_pairwise"
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 6.0,
+            "candidate_score_evaluations": 5,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              1,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 5,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 1.0,
+            "actual_utility": 5.0,
+            "candidate_score_evaluations": 3,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": 5.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 5.0
+              }
+            ],
+            "unique_set_utility_evaluations": 4,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.833333333333333,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 6.0,
+            "candidate_score_evaluations": 4,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_gain_per_cost",
+            "selected_coalition": [
+              1,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 1,
+                "evaluated_candidates": 3,
+                "marginal_gain": 3.0,
+                "round_index": 1,
+                "selected_event": 1,
+                "utility": 3.0
+              },
+              {
+                "coalition": [
+                  1,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 1,
+                "marginal_gain": 3.0,
+                "round_index": 2,
+                "selected_event": 2,
+                "utility": 6.0
+              }
+            ],
+            "unique_set_utility_evaluations": 5,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 6.0,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 2,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              1,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": 5.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  1,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 4,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 6.0
+              }
+            ],
+            "unique_set_utility_evaluations": 5,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 6.0,
+            "candidate_score_evaluations": 5,
+            "converged": true,
+            "frontier_expansions": 3,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              1,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  1,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 1,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 6.0
+              }
+            ],
+            "unique_set_utility_evaluations": 5,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 6.0,
+            "candidate_score_evaluations": 5,
+            "converged": true,
+            "frontier_expansions": 4,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              1,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  1,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 1,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 6.0
+              }
+            ],
+            "unique_set_utility_evaluations": 5,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 6.0,
+            "candidate_score_evaluations": 5,
+            "converged": true,
+            "frontier_expansions": 4,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              1,
+              2
+            ],
+            "selected_cost": 2,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 2,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 5.0
+              },
+              {
+                "coalition": [
+                  1,
+                  2
+                ],
+                "cost": 2,
+                "evaluated_candidates": 1,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 6.0
+              }
+            ],
+            "unique_set_utility_evaluations": 5,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "controlled_variable_cost_density",
+        "skipped_methods": [],
+        "source_type": "controlled_synthetic",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 512,
+        "event_costs": {
+          "0": 256,
+          "1": 256,
+          "2": 128,
+          "3": 128,
+          "4": 256,
+          "5": 128,
+          "6": 256,
+          "7": 128
+        },
+        "event_count": 8,
+        "feasible_coalition_count": 66,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 110.41999999999994,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 80.34600000000005,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 28,
+          "near_zero_pair_count": 7,
+          "negative_pair_count": 11,
+          "normalized_interaction_mass": 0.703177736738203,
+          "positive_pair_count": 10,
+          "redundancy_mass": 30.0739999999999,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": -9.319999999999993
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": -4.779999999999987
+            },
+            {
+              "events": [
+                0,
+                4
+              ],
+              "interaction": -3.823999999999991
+            },
+            {
+              "events": [
+                1,
+                4
+              ],
+              "interaction": -3.255999999999979
+            },
+            {
+              "events": [
+                3,
+                4
+              ],
+              "interaction": -2.919999999999987
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                0,
+                5
+              ],
+              "interaction": 34.129999999999995
+            },
+            {
+              "events": [
+                1,
+                6
+              ],
+              "interaction": 20.376000000000005
+            },
+            {
+              "events": [
+                0,
+                1
+              ],
+              "interaction": 9.22400000000001
+            },
+            {
+              "events": [
+                3,
+                5
+              ],
+              "interaction": 6.599999999999994
+            },
+            {
+              "events": [
+                3,
+                6
+              ],
+              "interaction": 2.88000000000001
+            }
+          ]
+        },
+        "metadata": {
+          "base_distance": 77.19399999999999
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 63.00999999999999,
+            "candidate_score_evaluations": 66,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 512,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 66,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 63.00999999999999,
+            "candidate_score_evaluations": 15,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 512,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 256,
+                "evaluated_candidates": 8,
+                "marginal_gain": 31.88799999999999,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 31.88799999999999
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 512,
+                "evaluated_candidates": 7,
+                "marginal_gain": 31.122,
+                "round_index": 2,
+                "selected_event": 1,
+                "utility": 63.00999999999999
+              }
+            ],
+            "unique_set_utility_evaluations": 16,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 8.909999999999997,
+            "actual_utility": 54.099999999999994,
+            "candidate_score_evaluations": 18,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_gain_per_cost",
+            "selected_coalition": [
+              0,
+              2,
+              3
+            ],
+            "selected_cost": 512,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 128,
+                "evaluated_candidates": 8,
+                "marginal_gain": 26.049999999999997,
+                "round_index": 1,
+                "selected_event": 3,
+                "utility": 26.049999999999997
+              },
+              {
+                "coalition": [
+                  0,
+                  3
+                ],
+                "cost": 384,
+                "evaluated_candidates": 7,
+                "marginal_gain": 22.567999999999998,
+                "round_index": 2,
+                "selected_event": 0,
+                "utility": 48.617999999999995
+              },
+              {
+                "coalition": [
+                  0,
+                  2,
+                  3
+                ],
+                "cost": 512,
+                "evaluated_candidates": 3,
+                "marginal_gain": 5.481999999999999,
+                "round_index": 3,
+                "selected_event": 2,
+                "utility": 54.099999999999994
+              }
+            ],
+            "unique_set_utility_evaluations": 19,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.858593873988256,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 63.00999999999999,
+            "candidate_score_evaluations": 63,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 512,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 256,
+                "evaluated_candidates": 8,
+                "marginal_gain": 31.88799999999999,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 31.88799999999999
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 512,
+                "evaluated_candidates": 7,
+                "marginal_gain": 31.122,
+                "round_index": 2,
+                "selected_event": 1,
+                "utility": 63.00999999999999
+              }
+            ],
+            "unique_set_utility_evaluations": 49,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 63.00999999999999,
+            "candidate_score_evaluations": 25,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 512,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 256,
+                "evaluated_candidates": 8,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 31.88799999999999
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 512,
+                "evaluated_candidates": 13,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 63.00999999999999
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 512,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 63.00999999999999
+              }
+            ],
+            "unique_set_utility_evaluations": 25,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 63.00999999999999,
+            "candidate_score_evaluations": 37,
+            "converged": true,
+            "frontier_expansions": 9,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 512,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 256,
+                "evaluated_candidates": 8,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 31.88799999999999
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 512,
+                "evaluated_candidates": 22,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 63.00999999999999
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 512,
+                "evaluated_candidates": 6,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 63.00999999999999
+              }
+            ],
+            "unique_set_utility_evaluations": 37,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 63.00999999999999,
+            "candidate_score_evaluations": 49,
+            "converged": true,
+            "frontier_expansions": 17,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              0,
+              1
+            ],
+            "selected_cost": 512,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 256,
+                "evaluated_candidates": 8,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 31.88799999999999
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 512,
+                "evaluated_candidates": 28,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 63.00999999999999
+              },
+              {
+                "coalition": [
+                  0,
+                  1
+                ],
+                "cost": 512,
+                "evaluated_candidates": 12,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 63.00999999999999
+              }
+            ],
+            "unique_set_utility_evaluations": 49,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 8.909999999999997,
+            "actual_utility": 54.099999999999994,
+            "candidate_score_evaluations": 8,
+            "converged": true,
+            "interpretation": "projection_objective_gap_not_greedy_search_gap",
+            "method": "exact_average_marginal_positive_value_knapsack",
+            "selected_coalition": [
+              0,
+              2,
+              3
+            ],
+            "selected_cost": 512,
+            "sequential_rounds": 1,
+            "teacher_distance_evaluations": 61,
+            "trace": [],
+            "unique_set_utility_evaluations": null,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.858593873988256,
+            "value_source": "exact_budget_conditioned_average_marginal"
+          }
+        ],
+        "scenario_id": "existing_synthetic_phase0_mixed",
+        "skipped_methods": [],
+        "source_type": "existing_synthetic_phase0",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 512,
+        "event_costs": {
+          "1": 476,
+          "2": 476,
+          "3": 476
+        },
+        "event_count": 3,
+        "feasible_coalition_count": 4,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 0.0,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 0.0,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 0,
+          "near_zero_pair_count": 0,
+          "negative_pair_count": 0,
+          "normalized_interaction_mass": 0.0,
+          "positive_pair_count": 0,
+          "redundancy_mass": 0.0,
+          "strongest_negative_pairs": [],
+          "strongest_positive_pairs": []
+        },
+        "metadata": {
+          "base_distance": 0.000348740904280566,
+          "decision_step_id": 4,
+          "new_policy_forwards": 0,
+          "replay_only": true
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000328330412957,
+            "candidate_score_evaluations": 4,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              3
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 4,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000328330412957,
+            "candidate_score_evaluations": 3,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              3
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": 0.000328330412957,
+                "round_index": 1,
+                "selected_event": 3,
+                "utility": 0.000328330412957
+              }
+            ],
+            "unique_set_utility_evaluations": 4,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000328330412957,
+            "candidate_score_evaluations": 6,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              3
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": 0.000328330412957,
+                "round_index": 1,
+                "selected_event": 3,
+                "utility": 0.000328330412957
+              }
+            ],
+            "unique_set_utility_evaluations": 4,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000328330412957,
+            "candidate_score_evaluations": 4,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              3
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.000328330412957
+              }
+            ],
+            "unique_set_utility_evaluations": 4,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000328330412957,
+            "candidate_score_evaluations": 4,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              3
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.000328330412957
+              }
+            ],
+            "unique_set_utility_evaluations": 4,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000328330412957,
+            "candidate_score_evaluations": 4,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              3
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.000328330412957
+              }
+            ],
+            "unique_set_utility_evaluations": 4,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000328330412957,
+            "candidate_score_evaluations": 3,
+            "converged": true,
+            "interpretation": "projection_objective_gap_not_greedy_search_gap",
+            "method": "exact_average_marginal_positive_value_knapsack",
+            "selected_coalition": [
+              3
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "teacher_distance_evaluations": 4,
+            "trace": [],
+            "unique_set_utility_evaluations": null,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "exact_budget_conditioned_average_marginal"
+          }
+        ],
+        "scenario_id": "real_v1_step_4_budget_512",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "selection_biased_v1_cached_policy_table",
+        "threshold_sensitivity": {
+          "absolute_regret_to_exact_subset": 0.0,
+          "actual_utility": 0.000328330412957,
+          "candidate_score_evaluations": 3,
+          "converged": true,
+          "frontier_expansions": 0,
+          "interpretation": "abstention_threshold_sensitivity_not_search_regret",
+          "method": "threshold_sensitivity_true_greedy_raw_gain",
+          "selected_coalition": [
+            3
+          ],
+          "selected_cost": 476,
+          "sequential_rounds": 1,
+          "stopping_threshold": 0.0001,
+          "trace": [
+            {
+              "coalition": [
+                3
+              ],
+              "cost": 476,
+              "evaluated_candidates": 3,
+              "marginal_gain": 0.000328330412957,
+              "round_index": 1,
+              "selected_event": 3,
+              "utility": 0.000328330412957
+            }
+          ],
+          "unique_set_utility_evaluations": 4,
+          "utility_ratio_status": "informative_positive_oracle",
+          "utility_ratio_to_exact_subset": 1.0,
+          "value_source": "true_conditional_marginal"
+        }
+      },
+      {
+        "budget": 1024,
+        "event_costs": {
+          "1": 476,
+          "2": 476,
+          "3": 476
+        },
+        "event_count": 3,
+        "feasible_coalition_count": 7,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 0.000737270267367,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 0.0,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 3,
+          "near_zero_pair_count": 0,
+          "negative_pair_count": 3,
+          "normalized_interaction_mass": 0.854750750226772,
+          "positive_pair_count": 0,
+          "redundancy_mass": 0.000737270267367,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": -0.000274397208759
+            },
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": -0.000238861449578
+            },
+            {
+              "events": [
+                2,
+                3
+              ],
+              "interaction": -0.00022401160903
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                2,
+                3
+              ],
+              "interaction": -0.00022401160903
+            },
+            {
+              "events": [
+                1,
+                2
+              ],
+              "interaction": -0.000238861449578
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": -0.000274397208759
+            }
+          ]
+        },
+        "metadata": {
+          "base_distance": 0.000348740904280566,
+          "decision_step_id": 4,
+          "new_policy_forwards": 0,
+          "replay_only": true
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000347477991786,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              1,
+              3
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 7,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000347477991786,
+            "candidate_score_evaluations": 5,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              1,
+              3
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": 0.000328330412957,
+                "round_index": 1,
+                "selected_event": 3,
+                "utility": 0.000328330412957
+              },
+              {
+                "coalition": [
+                  1,
+                  3
+                ],
+                "cost": 952,
+                "evaluated_candidates": 2,
+                "marginal_gain": 1.9147578829e-05,
+                "round_index": 2,
+                "selected_event": 1,
+                "utility": 0.000347477991786
+              }
+            ],
+            "unique_set_utility_evaluations": 6,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000347477991786,
+            "candidate_score_evaluations": 11,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              1,
+              3
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": 0.000328330412957,
+                "round_index": 1,
+                "selected_event": 3,
+                "utility": 0.000328330412957
+              },
+              {
+                "coalition": [
+                  1,
+                  3
+                ],
+                "cost": 952,
+                "evaluated_candidates": 2,
+                "marginal_gain": 1.9147578829e-05,
+                "round_index": 2,
+                "selected_event": 1,
+                "utility": 0.000347477991786
+              }
+            ],
+            "unique_set_utility_evaluations": 7,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000347477991786,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "frontier_expansions": 3,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              1,
+              3
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.000328330412957
+              },
+              {
+                "coalition": [
+                  1,
+                  3
+                ],
+                "cost": 952,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 0.000347477991786
+              }
+            ],
+            "unique_set_utility_evaluations": 7,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000347477991786,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "frontier_expansions": 4,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              1,
+              3
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.000328330412957
+              },
+              {
+                "coalition": [
+                  1,
+                  3
+                ],
+                "cost": 952,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 0.000347477991786
+              }
+            ],
+            "unique_set_utility_evaluations": 7,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000347477991786,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "frontier_expansions": 4,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              1,
+              3
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  3
+                ],
+                "cost": 476,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.000328330412957
+              },
+              {
+                "coalition": [
+                  1,
+                  3
+                ],
+                "cost": 952,
+                "evaluated_candidates": 3,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 0.000347477991786
+              }
+            ],
+            "unique_set_utility_evaluations": 7,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.000347477991786,
+            "candidate_score_evaluations": 3,
+            "converged": true,
+            "interpretation": "projection_objective_gap_not_greedy_search_gap",
+            "method": "exact_average_marginal_positive_value_knapsack",
+            "selected_coalition": [
+              1,
+              3
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 1,
+            "teacher_distance_evaluations": 6,
+            "trace": [],
+            "unique_set_utility_evaluations": null,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "exact_budget_conditioned_average_marginal"
+          }
+        ],
+        "scenario_id": "real_v1_step_4_budget_1024",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "selection_biased_v1_cached_policy_table",
+        "threshold_sensitivity": {
+          "absolute_regret_to_exact_subset": 1.9147578829e-05,
+          "actual_utility": 0.000328330412957,
+          "candidate_score_evaluations": 5,
+          "converged": true,
+          "frontier_expansions": 0,
+          "interpretation": "abstention_threshold_sensitivity_not_search_regret",
+          "method": "threshold_sensitivity_true_greedy_raw_gain",
+          "selected_coalition": [
+            3
+          ],
+          "selected_cost": 476,
+          "sequential_rounds": 2,
+          "stopping_threshold": 0.0001,
+          "trace": [
+            {
+              "coalition": [
+                3
+              ],
+              "cost": 476,
+              "evaluated_candidates": 3,
+              "marginal_gain": 0.000328330412957,
+              "round_index": 1,
+              "selected_event": 3,
+              "utility": 0.000328330412957
+            }
+          ],
+          "unique_set_utility_evaluations": 6,
+          "utility_ratio_status": "informative_positive_oracle",
+          "utility_ratio_to_exact_subset": 0.944895563801451,
+          "value_source": "true_conditional_marginal"
+        }
+      },
+      {
+        "budget": 512,
+        "event_costs": {
+          "1": 476,
+          "2": 476,
+          "3": 476,
+          "4": 476,
+          "5": 476,
+          "6": 476,
+          "7": 476
+        },
+        "event_count": 7,
+        "feasible_coalition_count": 8,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 0.0,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 0.0,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 0,
+          "near_zero_pair_count": 0,
+          "negative_pair_count": 0,
+          "normalized_interaction_mass": 0.0,
+          "positive_pair_count": 0,
+          "redundancy_mass": 0.0,
+          "strongest_negative_pairs": [],
+          "strongest_positive_pairs": []
+        },
+        "metadata": {
+          "base_distance": 0.109727366694855,
+          "decision_step_id": 8,
+          "new_policy_forwards": 0,
+          "replay_only": true
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.057689909511482,
+            "candidate_score_evaluations": 8,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              1
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.057689909511482,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              1
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": 0.057689909511482,
+                "round_index": 1,
+                "selected_event": 1,
+                "utility": 0.057689909511482
+              }
+            ],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.057689909511482,
+            "candidate_score_evaluations": 14,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              1
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": 0.057689909511482,
+                "round_index": 1,
+                "selected_event": 1,
+                "utility": 0.057689909511482
+              }
+            ],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.057689909511482,
+            "candidate_score_evaluations": 8,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              1
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.057689909511482
+              }
+            ],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.057689909511482,
+            "candidate_score_evaluations": 8,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              1
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.057689909511482
+              }
+            ],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.057689909511482,
+            "candidate_score_evaluations": 8,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              1
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.057689909511482
+              }
+            ],
+            "unique_set_utility_evaluations": 8,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.057689909511482,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "interpretation": "projection_objective_gap_not_greedy_search_gap",
+            "method": "exact_average_marginal_positive_value_knapsack",
+            "selected_coalition": [
+              1
+            ],
+            "selected_cost": 476,
+            "sequential_rounds": 1,
+            "teacher_distance_evaluations": 8,
+            "trace": [],
+            "unique_set_utility_evaluations": null,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "exact_budget_conditioned_average_marginal"
+          }
+        ],
+        "scenario_id": "real_v1_step_8_budget_512",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "selection_biased_v1_cached_policy_table",
+        "threshold_sensitivity": {
+          "absolute_regret_to_exact_subset": 0.0,
+          "actual_utility": 0.057689909511482,
+          "candidate_score_evaluations": 7,
+          "converged": true,
+          "frontier_expansions": 0,
+          "interpretation": "abstention_threshold_sensitivity_not_search_regret",
+          "method": "threshold_sensitivity_true_greedy_raw_gain",
+          "selected_coalition": [
+            1
+          ],
+          "selected_cost": 476,
+          "sequential_rounds": 1,
+          "stopping_threshold": 0.0001,
+          "trace": [
+            {
+              "coalition": [
+                1
+              ],
+              "cost": 476,
+              "evaluated_candidates": 7,
+              "marginal_gain": 0.057689909511482,
+              "round_index": 1,
+              "selected_event": 1,
+              "utility": 0.057689909511482
+            }
+          ],
+          "unique_set_utility_evaluations": 8,
+          "utility_ratio_status": "informative_positive_oracle",
+          "utility_ratio_to_exact_subset": 1.0,
+          "value_source": "true_conditional_marginal"
+        }
+      },
+      {
+        "budget": 1024,
+        "event_costs": {
+          "1": 476,
+          "2": 476,
+          "3": 476,
+          "4": 476,
+          "5": 476,
+          "6": 476,
+          "7": 476
+        },
+        "event_count": 7,
+        "feasible_coalition_count": 29,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 0.366115364644798,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 0.004962102543133,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 21,
+          "near_zero_pair_count": 0,
+          "negative_pair_count": 19,
+          "normalized_interaction_mass": 1.296048085272452,
+          "positive_pair_count": 2,
+          "redundancy_mass": 0.361153262101665,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                3,
+                4
+              ],
+              "interaction": -0.037521648085565
+            },
+            {
+              "events": [
+                1,
+                4
+              ],
+              "interaction": -0.0336334629964
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": -0.032814224121499
+            },
+            {
+              "events": [
+                2,
+                3
+              ],
+              "interaction": -0.031416050833129
+            },
+            {
+              "events": [
+                2,
+                4
+              ],
+              "interaction": -0.030079089420164
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                1,
+                6
+              ],
+              "interaction": 0.003574010696827
+            },
+            {
+              "events": [
+                3,
+                7
+              ],
+              "interaction": 0.001388091846306
+            },
+            {
+              "events": [
+                1,
+                7
+              ],
+              "interaction": -0.001627907302163
+            },
+            {
+              "events": [
+                6,
+                7
+              ],
+              "interaction": -0.001755900842448
+            },
+            {
+              "events": [
+                3,
+                6
+              ],
+              "interaction": -0.004532714377776
+            }
+          ]
+        },
+        "metadata": {
+          "base_distance": 0.109727366694855,
+          "decision_step_id": 8,
+          "new_policy_forwards": 0,
+          "replay_only": true
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.092438611497739,
+            "candidate_score_evaluations": 29,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              1,
+              7
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 29,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.092438611497739,
+            "candidate_score_evaluations": 13,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              1,
+              7
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": 0.057689909511482,
+                "round_index": 1,
+                "selected_event": 1,
+                "utility": 0.057689909511482
+              },
+              {
+                "coalition": [
+                  1,
+                  7
+                ],
+                "cost": 952,
+                "evaluated_candidates": 6,
+                "marginal_gain": 0.034748701986258,
+                "round_index": 2,
+                "selected_event": 7,
+                "utility": 0.092438611497739
+              }
+            ],
+            "unique_set_utility_evaluations": 14,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.092438611497739,
+            "candidate_score_evaluations": 41,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              1,
+              7
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": 0.057689909511482,
+                "round_index": 1,
+                "selected_event": 1,
+                "utility": 0.057689909511482
+              },
+              {
+                "coalition": [
+                  1,
+                  7
+                ],
+                "cost": 952,
+                "evaluated_candidates": 6,
+                "marginal_gain": 0.034748701986258,
+                "round_index": 2,
+                "selected_event": 7,
+                "utility": 0.092438611497739
+              }
+            ],
+            "unique_set_utility_evaluations": 29,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.092438611497739,
+            "candidate_score_evaluations": 19,
+            "converged": true,
+            "frontier_expansions": 3,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              1,
+              7
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.057689909511482
+              },
+              {
+                "coalition": [
+                  1,
+                  7
+                ],
+                "cost": 952,
+                "evaluated_candidates": 11,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 0.092438611497739
+              }
+            ],
+            "unique_set_utility_evaluations": 19,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.092438611497739,
+            "candidate_score_evaluations": 26,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              1,
+              7
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.057689909511482
+              },
+              {
+                "coalition": [
+                  1,
+                  7
+                ],
+                "cost": 952,
+                "evaluated_candidates": 18,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 0.092438611497739
+              }
+            ],
+            "unique_set_utility_evaluations": 26,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.092438611497739,
+            "candidate_score_evaluations": 29,
+            "converged": true,
+            "frontier_expansions": 8,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              1,
+              7
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 2,
+            "trace": [
+              {
+                "coalition": [
+                  1
+                ],
+                "cost": 476,
+                "evaluated_candidates": 7,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 0.057689909511482
+              },
+              {
+                "coalition": [
+                  1,
+                  7
+                ],
+                "cost": 952,
+                "evaluated_candidates": 21,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 0.092438611497739
+              }
+            ],
+            "unique_set_utility_evaluations": 29,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 0.092438611497739,
+            "candidate_score_evaluations": 7,
+            "converged": true,
+            "interpretation": "projection_objective_gap_not_greedy_search_gap",
+            "method": "exact_average_marginal_positive_value_knapsack",
+            "selected_coalition": [
+              1,
+              7
+            ],
+            "selected_cost": 952,
+            "sequential_rounds": 1,
+            "teacher_distance_evaluations": 28,
+            "trace": [],
+            "unique_set_utility_evaluations": null,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "exact_budget_conditioned_average_marginal"
+          }
+        ],
+        "scenario_id": "real_v1_step_8_budget_1024",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "selection_biased_v1_cached_policy_table",
+        "threshold_sensitivity": {
+          "absolute_regret_to_exact_subset": 0.0,
+          "actual_utility": 0.092438611497739,
+          "candidate_score_evaluations": 13,
+          "converged": true,
+          "frontier_expansions": 0,
+          "interpretation": "abstention_threshold_sensitivity_not_search_regret",
+          "method": "threshold_sensitivity_true_greedy_raw_gain",
+          "selected_coalition": [
+            1,
+            7
+          ],
+          "selected_cost": 952,
+          "sequential_rounds": 2,
+          "stopping_threshold": 0.0001,
+          "trace": [
+            {
+              "coalition": [
+                1
+              ],
+              "cost": 476,
+              "evaluated_candidates": 7,
+              "marginal_gain": 0.057689909511482,
+              "round_index": 1,
+              "selected_event": 1,
+              "utility": 0.057689909511482
+            },
+            {
+              "coalition": [
+                1,
+                7
+              ],
+              "cost": 952,
+              "evaluated_candidates": 6,
+              "marginal_gain": 0.034748701986258,
+              "round_index": 2,
+              "selected_event": 7,
+              "utility": 0.092438611497739
+            }
+          ],
+          "unique_set_utility_evaluations": 14,
+          "utility_ratio_status": "informative_positive_oracle",
+          "utility_ratio_to_exact_subset": 1.0,
+          "value_source": "true_conditional_marginal"
+        }
+      },
+      {
+        "budget": 3,
+        "event_costs": {
+          "0": 1,
+          "1": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1
+        },
+        "event_count": 8,
+        "feasible_coalition_count": 93,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 8.25,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 4.5,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 28,
+          "near_zero_pair_count": 23,
+          "negative_pair_count": 2,
+          "normalized_interaction_mass": 0.175531914893617,
+          "positive_pair_count": 3,
+          "redundancy_mass": 3.75,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": -2.25
+            },
+            {
+              "events": [
+                2,
+                6
+              ],
+              "interaction": -1.5
+            },
+            {
+              "events": [
+                0,
+                1
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                3
+              ],
+              "interaction": 0.0
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                3,
+                5
+              ],
+              "interaction": 2.25
+            },
+            {
+              "events": [
+                1,
+                7
+              ],
+              "interaction": 1.5
+            },
+            {
+              "events": [
+                0,
+                4
+              ],
+              "interaction": 0.75
+            },
+            {
+              "events": [
+                0,
+                1
+              ],
+              "interaction": 0.0
+            },
+            {
+              "events": [
+                0,
+                2
+              ],
+              "interaction": 0.0
+            }
+          ]
+        },
+        "metadata": {
+          "event_count": 8,
+          "generator": "deterministic_linear_pairwise_v1",
+          "slot_budget": 3
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 22.75,
+            "candidate_score_evaluations": 93,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              0,
+              3,
+              4
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 93,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 22.75,
+            "candidate_score_evaluations": 21,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              3,
+              4
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 8,
+                "marginal_gain": 8.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 7,
+                "marginal_gain": 8.25,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  3,
+                  4
+                ],
+                "cost": 3,
+                "evaluated_candidates": 6,
+                "marginal_gain": 6.5,
+                "round_index": 3,
+                "selected_event": 3,
+                "utility": 22.75
+              }
+            ],
+            "unique_set_utility_evaluations": 22,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 22.75,
+            "candidate_score_evaluations": 87,
+            "converged": true,
+            "frontier_expansions": 1,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              0,
+              3,
+              4
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 4,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 8,
+                "marginal_gain": 8.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 7,
+                "marginal_gain": 8.25,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  3,
+                  4
+                ],
+                "cost": 3,
+                "evaluated_candidates": 6,
+                "marginal_gain": 6.5,
+                "round_index": 3,
+                "selected_event": 3,
+                "utility": 22.75
+              }
+            ],
+            "unique_set_utility_evaluations": 73,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 22.75,
+            "candidate_score_evaluations": 33,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              3,
+              4
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 8,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 13,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  3,
+                  4
+                ],
+                "cost": 3,
+                "evaluated_candidates": 11,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 22.75
+              }
+            ],
+            "unique_set_utility_evaluations": 33,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 22.75,
+            "candidate_score_evaluations": 51,
+            "converged": true,
+            "frontier_expansions": 9,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              0,
+              3,
+              4
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 8,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 22,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  3,
+                  4
+                ],
+                "cost": 3,
+                "evaluated_candidates": 20,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 22.75
+              }
+            ],
+            "unique_set_utility_evaluations": 51,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 22.75,
+            "candidate_score_evaluations": 69,
+            "converged": true,
+            "frontier_expansions": 17,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              0,
+              3,
+              4
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 8,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 28,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  3,
+                  4
+                ],
+                "cost": 3,
+                "evaluated_candidates": 32,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 22.75
+              }
+            ],
+            "unique_set_utility_evaluations": 69,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "scale_n8_slots3",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "deterministic_synthetic_scale_sweep",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 3,
+        "event_costs": {
+          "0": 1,
+          "1": 1,
+          "10": 1,
+          "11": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1,
+          "9": 1
+        },
+        "event_count": 12,
+        "feasible_coalition_count": 299,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 26.25,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 12.75,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 66,
+          "near_zero_pair_count": 52,
+          "negative_pair_count": 7,
+          "normalized_interaction_mass": 0.364583333333333,
+          "positive_pair_count": 7,
+          "redundancy_mass": 13.5,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                5,
+                11
+              ],
+              "interaction": -3.0
+            },
+            {
+              "events": [
+                0,
+                8
+              ],
+              "interaction": -2.25
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": -2.25
+            },
+            {
+              "events": [
+                7,
+                9
+              ],
+              "interaction": -2.25
+            },
+            {
+              "events": [
+                1,
+                11
+              ],
+              "interaction": -1.5
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                4,
+                8
+              ],
+              "interaction": 3.0
+            },
+            {
+              "events": [
+                2,
+                10
+              ],
+              "interaction": 2.25
+            },
+            {
+              "events": [
+                3,
+                5
+              ],
+              "interaction": 2.25
+            },
+            {
+              "events": [
+                9,
+                11
+              ],
+              "interaction": 2.25
+            },
+            {
+              "events": [
+                1,
+                7
+              ],
+              "interaction": 1.5
+            }
+          ]
+        },
+        "metadata": {
+          "event_count": 12,
+          "generator": "deterministic_linear_pairwise_v1",
+          "slot_budget": 3
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 299,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 299,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 1.25,
+            "actual_utility": 24.25,
+            "candidate_score_evaluations": 33,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              4,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 12,
+                "marginal_gain": 8.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 11,
+                "marginal_gain": 8.25,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 10,
+                "marginal_gain": 8.0,
+                "round_index": 3,
+                "selected_event": 9,
+                "utility": 24.25
+              }
+            ],
+            "unique_set_utility_evaluations": 34,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.950980392156863,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 369,
+            "converged": true,
+            "frontier_expansions": 2,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 5,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 12,
+                "marginal_gain": 8.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 11,
+                "marginal_gain": 8.25,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 10,
+                "marginal_gain": 8.0,
+                "round_index": 3,
+                "selected_event": 9,
+                "utility": 24.25
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 168,
+                "marginal_gain": null,
+                "round_index": 4,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 215,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 1.25,
+            "actual_utility": 24.25,
+            "candidate_score_evaluations": 53,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              4,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 12,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 21,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 19,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 24.25
+              }
+            ],
+            "unique_set_utility_evaluations": 53,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.950980392156863,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 88,
+            "converged": true,
+            "frontier_expansions": 9,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 12,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  4,
+                  8
+                ],
+                "cost": 2,
+                "evaluated_candidates": 38,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 17.5
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 37,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 88,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 139,
+            "converged": true,
+            "frontier_expansions": 17,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 12,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  4,
+                  8
+                ],
+                "cost": 2,
+                "evaluated_candidates": 60,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 17.5
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 66,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 139,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "scale_n12_slots3",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "deterministic_synthetic_scale_sweep",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 3,
+        "event_costs": {
+          "0": 1,
+          "1": 1,
+          "10": 1,
+          "11": 1,
+          "12": 1,
+          "13": 1,
+          "14": 1,
+          "15": 1,
+          "2": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1,
+          "9": 1
+        },
+        "event_count": 16,
+        "feasible_coalition_count": 697,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 45.75,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 24.75,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 120,
+          "near_zero_pair_count": 95,
+          "negative_pair_count": 12,
+          "normalized_interaction_mass": 0.481578947368421,
+          "positive_pair_count": 13,
+          "redundancy_mass": 21.0,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                5,
+                11
+              ],
+              "interaction": -3.0
+            },
+            {
+              "events": [
+                0,
+                8
+              ],
+              "interaction": -2.25
+            },
+            {
+              "events": [
+                1,
+                3
+              ],
+              "interaction": -2.25
+            },
+            {
+              "events": [
+                6,
+                14
+              ],
+              "interaction": -2.25
+            },
+            {
+              "events": [
+                7,
+                9
+              ],
+              "interaction": -2.25
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                3,
+                13
+              ],
+              "interaction": 3.0
+            },
+            {
+              "events": [
+                4,
+                8
+              ],
+              "interaction": 3.0
+            },
+            {
+              "events": [
+                10,
+                14
+              ],
+              "interaction": 3.0
+            },
+            {
+              "events": [
+                1,
+                15
+              ],
+              "interaction": 2.25
+            },
+            {
+              "events": [
+                2,
+                10
+              ],
+              "interaction": 2.25
+            }
+          ]
+        },
+        "metadata": {
+          "event_count": 16,
+          "generator": "deterministic_linear_pairwise_v1",
+          "slot_budget": 3
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 697,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 697,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 1.25,
+            "actual_utility": 24.25,
+            "candidate_score_evaluations": 45,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              4,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 16,
+                "marginal_gain": 8.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 15,
+                "marginal_gain": 8.25,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 14,
+                "marginal_gain": 8.0,
+                "round_index": 3,
+                "selected_event": 9,
+                "utility": 24.25
+              }
+            ],
+            "unique_set_utility_evaluations": 46,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.950980392156863,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 681,
+            "converged": true,
+            "frontier_expansions": 2,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 5,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 16,
+                "marginal_gain": 8.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 15,
+                "marginal_gain": 8.25,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 14,
+                "marginal_gain": 8.0,
+                "round_index": 3,
+                "selected_event": 9,
+                "utility": 24.25
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 318,
+                "marginal_gain": null,
+                "round_index": 4,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 411,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 1.25,
+            "actual_utility": 24.25,
+            "candidate_score_evaluations": 73,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              4,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 16,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 29,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 27,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 24.25
+              }
+            ],
+            "unique_set_utility_evaluations": 73,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.950980392156863,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 125,
+            "converged": true,
+            "frontier_expansions": 9,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 16,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  4,
+                  8
+                ],
+                "cost": 2,
+                "evaluated_candidates": 54,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 17.5
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 54,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 125,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 209,
+            "converged": true,
+            "frontier_expansions": 17,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 16,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  4,
+                  8
+                ],
+                "cost": 2,
+                "evaluated_candidates": 92,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 17.5
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 100,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 209,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "scale_n16_slots3",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "deterministic_synthetic_scale_sweep",
+        "threshold_sensitivity": null
+      },
+      {
+        "budget": 3,
+        "event_costs": {
+          "0": 1,
+          "1": 1,
+          "10": 1,
+          "11": 1,
+          "12": 1,
+          "13": 1,
+          "14": 1,
+          "15": 1,
+          "16": 1,
+          "17": 1,
+          "18": 1,
+          "19": 1,
+          "2": 1,
+          "20": 1,
+          "21": 1,
+          "22": 1,
+          "23": 1,
+          "3": 1,
+          "4": 1,
+          "5": 1,
+          "6": 1,
+          "7": 1,
+          "8": 1,
+          "9": 1
+        },
+        "event_count": 24,
+        "feasible_coalition_count": 2325,
+        "interaction_at_empty": {
+          "absolute_interaction_mass": 110.25,
+          "boundary": "second_order_at_empty_only",
+          "complementarity_mass": 57.75,
+          "conditioning_coalition": [],
+          "feasible_pair_count": 276,
+          "near_zero_pair_count": 218,
+          "negative_pair_count": 28,
+          "normalized_interaction_mass": 0.765625,
+          "positive_pair_count": 30,
+          "redundancy_mass": 52.5,
+          "strongest_negative_pairs": [
+            {
+              "events": [
+                3,
+                21
+              ],
+              "interaction": -3.0
+            },
+            {
+              "events": [
+                4,
+                16
+              ],
+              "interaction": -3.0
+            },
+            {
+              "events": [
+                5,
+                11
+              ],
+              "interaction": -3.0
+            },
+            {
+              "events": [
+                10,
+                22
+              ],
+              "interaction": -3.0
+            },
+            {
+              "events": [
+                11,
+                17
+              ],
+              "interaction": -3.0
+            }
+          ],
+          "strongest_positive_pairs": [
+            {
+              "events": [
+                1,
+                23
+              ],
+              "interaction": 3.0
+            },
+            {
+              "events": [
+                2,
+                18
+              ],
+              "interaction": 3.0
+            },
+            {
+              "events": [
+                3,
+                13
+              ],
+              "interaction": 3.0
+            },
+            {
+              "events": [
+                4,
+                8
+              ],
+              "interaction": 3.0
+            },
+            {
+              "events": [
+                9,
+                19
+              ],
+              "interaction": 3.0
+            }
+          ]
+        },
+        "metadata": {
+          "event_count": 24,
+          "generator": "deterministic_linear_pairwise_v1",
+          "slot_budget": 3
+        },
+        "methods": [
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 2325,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "exact_subset",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 1,
+            "trace": [],
+            "unique_set_utility_evaluations": 2325,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.75,
+            "actual_utility": 24.75,
+            "candidate_score_evaluations": 69,
+            "converged": true,
+            "frontier_expansions": 0,
+            "method": "true_conditional_greedy_raw_gain",
+            "selected_coalition": [
+              0,
+              4,
+              20
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 24,
+                "marginal_gain": 8.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 23,
+                "marginal_gain": 8.25,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  20
+                ],
+                "cost": 3,
+                "evaluated_candidates": 22,
+                "marginal_gain": 8.5,
+                "round_index": 3,
+                "selected_event": 20,
+                "utility": 24.75
+              }
+            ],
+            "unique_set_utility_evaluations": 70,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.970588235294118,
+            "value_source": "true_conditional_marginal"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 1593,
+            "converged": true,
+            "frontier_expansions": 2,
+            "method": "true_conditional_greedy_raw_gain_exchange_2x2",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 5,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 24,
+                "marginal_gain": 8.0,
+                "round_index": 1,
+                "selected_event": 0,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 23,
+                "marginal_gain": 8.25,
+                "round_index": 2,
+                "selected_event": 4,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  20
+                ],
+                "cost": 3,
+                "evaluated_candidates": 22,
+                "marginal_gain": 8.5,
+                "round_index": 3,
+                "selected_event": 20,
+                "utility": 24.75
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 762,
+                "marginal_gain": null,
+                "round_index": 4,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 1185,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility_with_true_raw_greedy_seed"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.75,
+            "actual_utility": 24.75,
+            "candidate_score_evaluations": 113,
+            "converged": true,
+            "frontier_expansions": 5,
+            "method": "true_utility_beam_2",
+            "selected_coalition": [
+              0,
+              4,
+              20
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 24,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  0,
+                  4
+                ],
+                "cost": 2,
+                "evaluated_candidates": 45,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 16.25
+              },
+              {
+                "coalition": [
+                  0,
+                  4,
+                  20
+                ],
+                "cost": 3,
+                "evaluated_candidates": 43,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 24.75
+              }
+            ],
+            "unique_set_utility_evaluations": 113,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 0.970588235294118,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 197,
+            "converged": true,
+            "frontier_expansions": 9,
+            "method": "true_utility_beam_4",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 24,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  4,
+                  8
+                ],
+                "cost": 2,
+                "evaluated_candidates": 86,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 17.5
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 86,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 197,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          },
+          {
+            "absolute_regret_to_exact_subset": 0.0,
+            "actual_utility": 25.5,
+            "candidate_score_evaluations": 347,
+            "converged": true,
+            "frontier_expansions": 17,
+            "method": "true_utility_beam_8",
+            "selected_coalition": [
+              4,
+              8,
+              9
+            ],
+            "selected_cost": 3,
+            "sequential_rounds": 3,
+            "trace": [
+              {
+                "coalition": [
+                  0
+                ],
+                "cost": 1,
+                "evaluated_candidates": 24,
+                "marginal_gain": null,
+                "round_index": 1,
+                "selected_event": null,
+                "utility": 8.0
+              },
+              {
+                "coalition": [
+                  4,
+                  8
+                ],
+                "cost": 2,
+                "evaluated_candidates": 156,
+                "marginal_gain": null,
+                "round_index": 2,
+                "selected_event": null,
+                "utility": 17.5
+              },
+              {
+                "coalition": [
+                  4,
+                  8,
+                  9
+                ],
+                "cost": 3,
+                "evaluated_candidates": 166,
+                "marginal_gain": null,
+                "round_index": 3,
+                "selected_event": null,
+                "utility": 25.5
+              }
+            ],
+            "unique_set_utility_evaluations": 347,
+            "utility_ratio_status": "informative_positive_oracle",
+            "utility_ratio_to_exact_subset": 1.0,
+            "value_source": "true_set_utility"
+          }
+        ],
+        "scenario_id": "scale_n24_slots3",
+        "skipped_methods": [
+          {
+            "method": "true_conditional_greedy_gain_per_cost",
+            "reason": "identical_to_raw_gain_under_equal_event_costs"
+          }
+        ],
+        "source_type": "deterministic_synthetic_scale_sweep",
+        "threshold_sensitivity": null
+      }
+    ],
+    "schema_version": "1.0.0",
+    "scope": "synthetic_implementation_validation_and_posthoc_development_table_replay",
+    "terminology": {
+      "exact_average_marginal_knapsack_gap": "interaction_or_objective_projection_gap",
+      "exact_subset_optimality_scope": "single_step_restoration_utility_not_terminal_success",
+      "learned_selector_residual": "not_measured",
+      "true_utility_greedy_to_exact_gap": "search_regret",
+      "true_utility_search_cost": "offline_policy_rerun_equivalent_queries_not_online_gate_latency"
+    },
+    "v2_1_outcome_unchanged": "NO_GO_V2_1_FULL_45_SUBSTRATE"
+  },
+  "scientific_payload_sha256": "26846d509d421dcb49f2d1554598893a65829c6a25610ef399ce69b383274edf"
+}
