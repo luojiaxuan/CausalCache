@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting-repair source frozen、formal rerun pending / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB、policy-vision pending / confirm locked
 
 ## 团队交接入口
 
@@ -29,7 +29,12 @@ greedy-to-independent objective-projection gap。该步骤不读取 confirm/test
 cardinality/match/Jaccard。旧 output 因此未进入 Git。versioned repair contract
 [`code/configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json`](code/configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json)
 固定为 reporting-only：保留所有 selector/utility/bootstrap/shaping 数值，补齐 train/development 共 144 个联合
-cells 与 random 集合几何；正式 repaired result 必须从 clean pushed source 重新生成。
+cells 与 random 集合几何。正式 repaired result 已从 clean pushed `main@9a4eca5a` 生成并逐 byte replay：
+primary `n=4,B=2` 上 exact 与 true greedy 在 15/15 states 完全一致；development normalized
+objective-projection gap（greedy - budget-conditioned independent）为 `0.159039`，5/5 trajectories 同方向，
+90% method-shaping interval `[0.007836, 0.355867]`。冻结规则输出
+`set_conditioned_main_candidate + online_greedy_sufficient`，但它不是 paper success gate，且 OCR/RGB 与
+policy-vision comparator 尚未补齐。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -574,7 +579,8 @@ $$
 - [x] 冻结 replacement v2 attempt identity、独立 outcome/HF path 与 pre-claim model snapshot validator；
 - [x] 在固定双 H200 23/22 parity、microbatch 1 下完成 v2 formal labels，并闭合 private HF immutable artifact；
 - [x] 冻结 v2.2 selector geometry v1 source；preliminary replay 的核心数值已独立复算，但 reporting contract 不完整，旧 output 未提交；
-- [ ] 从 clean pushed source 执行 v2 reporting-only repair；补齐 144 个 interaction joint cells 与 analytic-random 集合几何后再接受 formal result；
+- [x] 从 clean pushed source 执行并验证 v2 reporting-only repair；144 个 interaction joint cells 与 analytic-random 集合几何完整落盘；
+- [ ] 冻结并执行 primary `n=4,B=2` OCR/RGB baseline，再单独冻结 policy-vision feature-only stage；
 - [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -615,6 +621,7 @@ $$
 - Restoration v2.2 selector-geometry v2 reporting-repair contract: [`code/configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json`](code/configs/causalcache_restoration_v2_2_selector_geometry_v2_repair.json)
 - Restoration v2.2 selector-geometry v2 source validator: [`code/scripts/validate_restoration_v2_2_selector_geometry_v2_contract.py`](code/scripts/validate_restoration_v2_2_selector_geometry_v2_contract.py)
 - Restoration v2.2 selector-geometry v2 runner: [`code/scripts/run_restoration_v2_2_selector_geometry_v2.py`](code/scripts/run_restoration_v2_2_selector_geometry_v2.py)
+- Restoration v2.2 selector-geometry v2 canonical result: [`data/results/restoration_v2_2_selector_geometry_v2_repair/`](data/results/restoration_v2_2_selector_geometry_v2_repair/)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)

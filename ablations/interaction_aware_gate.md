@@ -253,6 +253,19 @@ trajectory/app 层先划分，同一 decision state 的所有 coalitions/edges �
 v2.2-eager substrate 和 exact labels 已闭合，但步骤 3--5 仍未授权；selector geometry 只是 gate-contract 的前置
 method-shaping analysis，不能替代该 gate。
 
+## 2026-07-16 policy-free geometry 结果
+
+versioned repaired result 在 primary `n=4,B=2` 上得到：exact subset 与 true conditional greedy 15/15 states
+相同，development search gap 为 0；budget-conditioned independent 的 development normalized recovery 为
+`0.766303`，true greedy 为 `0.925342`，差值 `0.159039`，5/5 trajectories 同方向，冻结的 90% method-shaping
+interval 为 `[0.007836, 0.355867]`。因此预登记规则选择 `set_conditioned_main_candidate`，线上 search 仍选择
+`online_greedy_sufficient`。
+
+该结果不是“所有 independent gate 都失败”：full-path Shapley / forced-fill independent 的 development recovery
+为 `0.884128`，相对 greedy gap 只有 `0.041214`；5 条 development trajectories 也不足以支持显著性声称，且一个
+small-`D(empty)` state 放大了 normalized mean。当前结论只是：set-conditioned student 值得进入主候选并与最强
+static comparator 正面对照。OCR/RGB、policy-vision、learned gate、matched-NLL 和 closed-loop 尚未完成。
+
 ## 论文可用表述
 
 > CausalCache does not assume that GUI events contribute independently. Restoration attribution measures the

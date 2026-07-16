@@ -1673,14 +1673,48 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   cell key inventory。source-only targeted regression 为 43/43 PASS，全量回归为 636 tests PASS（skipped 11），
   `compileall`、`git diff --check` 与 AAAI LaTeX 编译通过；正式 v2 result 仍未生成。
 
+### 2026-07-16：Selector-geometry v2 repaired formal result
+
+- repair source 已 commit/push 为 `main@9a4eca5a53c2a9a3340c6274b9fa5ff9012a5a64`。一次手写错误 full SHA 的
+  invocation 被 clean-Git gate 在读取/写入前拒绝，canonical output 仍不存在；随后 exact `git rev-parse HEAD`
+  invocation 才生成唯一 canonical result；
+- canonical result 位于 `data/results/restoration_v2_2_selector_geometry_v2_repair/`，status 为
+  `COMPLETED_RESTORATION_V2_2_SELECTOR_GEOMETRY_V2_REPAIR`，pre-commit byte replay 返回
+  `VALID_RESTORATION_V2_2_SELECTOR_GEOMETRY_V2_REPAIR`；complete scientific payload SHA256 为
+  `cc505443a7efdc68c8eeca754f24c9143cabf72a090f024fde05011e783cbb21`，180-row JSONL SHA256 为
+  `b3f67714bb5667ceda945a3cb953b8987108aef607d5819a617272d48450cb03`；
+- v2 显式物化 144 个 joint cells，其中 83 nonempty、61 empty；每 cell 都有 10 selectors，random 在所有
+  `B=0..n` 上报告 exact cardinality、analytic match probability 与 expected Jaccard。selector、utility、
+  recovery、bootstrap 与 shaping 相对 v1 invariance validator 全部通过；
+- primary `n=4,B=2` 的 train/development/overall normalized recovery：exact 与 true greedy 均为
+  `0.877376 / 0.925342 / 0.893364`，budget-conditioned independent 为
+  `0.835977 / 0.766303 / 0.812753`，full-path Shapley independent 为
+  `0.815367 / 0.884128 / 0.838287`，recent 为 `0.554136 / 0.019666 / 0.375979`，analytic random 为
+  `0.430032 / 0.139471 / 0.333178`；
+- exact 与 true greedy 在 primary 15/15 states 相同，development search gap 为 0；budget-conditioned
+  independent development objective-projection gap 为 `0.159039`，5/5 同方向，90% interval
+  `[0.007836, 0.355867]`。冻结 decision 是
+  `set_conditioned_main_candidate + online_greedy_sufficient`，不打开 confirm，也不是 paper success gate；
+- caveat 保持不变：development 只有 5 条 trajectories；normalized gap 受一个小 `D(empty)` state 放大；
+  full-path Shapley / forced-fill independent 把 development gap 缩到 `0.041214`。因此当前只决定 gate
+  architecture 候选，不声称 independent selector 普遍失败；
+- 一套不 import v2 reducer/contract 的独立审计对 180 rows、144 cells、45 个 interaction assignments、全部
+  analytic-random endpoints 与 pre/post legacy projection 重算，`mismatch_count=0`；preserved selector
+  projection SHA256 为 `d99066c850ce836f5ac851783568455499bfbb1b60f202a9d9bbcf935eb263bb`，bootstrap
+  projection SHA256 为 `9d17311f1b2291a4a58da9a64013f2487a329630749dfc8757c1d3026b66a61c`；
+- 第二套 stdlib artifact audit 还独立重建 complete payload hash、三组 10k bootstrap 与 83×10 个 nonempty
+  cell-method summaries，全部一致。独立 scientific helper 本身不从 records 重聚合每个 cell 数值或顶层 wrapper，
+  但 formal `validate` 会从 immutable raw labels 重建三文件并逐 byte 比较；该 coverage boundary 已记录，当前
+  artifact 未发现自相矛盾。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
 canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
-offline oracle/labels 与 private HF immutable artifact 已闭合。下一步先从 clean pushed source 完成
-`docs/restoration_v2_2_selector_geometry.md` 的 versioned reporting-repair reduction，再补齐 primary `n=4,B=2` 的
-OCR/RGB 与 vision-only similarity baselines。只有 geometry 明确 objective-projection gap 后，才冻结
+offline oracle/labels、private HF immutable artifact 与 selector-geometry v2 repaired result 已闭合。下一步先
+补齐 primary `n=4,B=2` 的 OCR/RGB 与 vision-only similarity baselines。只有 visual comparators 完整、geometry
+结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
 sampling、encoder、checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate。confirm 与
 AndroidWorld sealed test split 仍 locked；新 gate contract 通过前不得直接运行 gate、matched-NLL、closed-loop

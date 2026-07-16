@@ -1,8 +1,7 @@
 # Restoration v2.2 selector geometry
 
-> 状态：v1 table-only reduction 的核心 selector 数值已通过独立 raw-table 重算，但 reporting-completeness
-> audit 发现冻结的 interaction 联合分层与 analytic-random 集合几何没有完整落盘；v1 output 未提交，正在按
-> versioned v2 repair contract 修复。OCR/RGB 与 policy-vision feature baselines 仍待补齐。
+> 状态：v2 reporting-only repair 已从 clean pushed source 完成并通过 pre-commit byte replay；v1 output 未提交。
+> OCR/RGB 与 policy-vision feature baselines 仍待补齐。
 > 本阶段只消费已经闭合的 train/development raw $D(S)$，不训练 gate、不读取 confirm/test，也不运行
 > action policy、matched-NLL 或 closed-loop episode。
 
@@ -254,3 +253,18 @@ budget grid、paired bootstrap 与 method-shaping，数值也完全一致。上�
 invariance check，但在 v2 repaired artifact commit/push 并通过 clean-descendant validation 前，不把它们称为最终
 formal result。新 policy forward、generation、teacher/KL、gate、matched-NLL、closed-loop、confirm/test 和
 policy-vision forward 仍全为 0。
+
+## V2 repaired formal result
+
+canonical result 位于
+[`../data/results/restoration_v2_2_selector_geometry_v2_repair/`](../data/results/restoration_v2_2_selector_geometry_v2_repair/)，
+execution source 为 `9a4eca5a53c2a9a3340c6274b9fa5ff9012a5a64`。complete payload SHA256 是
+`cc505443a7efdc68c8eeca754f24c9143cabf72a090f024fde05011e783cbb21`；180-row JSONL SHA256 是
+`b3f67714bb5667ceda945a3cb953b8987108aef607d5819a617272d48450cb03`。144 个联合 cells 已全部物化，
+83 nonempty / 61 empty；random 在 primary overall 的 selected cardinality、exact-match probability 与 expected
+Jaccard 分别是 `2.0 / 0.155556 / 0.379630`（development 为 `2.0 / 0.166667 / 0.388889`）。
+
+primary selector recovery、search/objective-projection gap 与旧 v1 independent audits 完全一致；冻结
+method-shaping 仍为 `set_conditioned_main_candidate + online_greedy_sufficient`。该决定只授权下一步把
+set-conditioned student 放入主候选，不授权 gate training、confirm 或 paper claim。development 小样本、
+small-`D(empty)` normalized amplification 和 stronger static comparator caveat 均继续适用。
