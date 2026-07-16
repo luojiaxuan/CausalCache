@@ -400,3 +400,29 @@ python3 -m scripts.run_restoration_v2_2_policy_vision_baseline_v3 run \
 
 该 PASS 只证明修复边界和 source inventory 自洽；在新的 clean pushed source 完成正式 run 之前，不报告
 policy-vision feature、recovery 或 comparator 结论，也不运行 gate、matched-NLL、closed-loop 或 confirm/test。
+
+### v3 formal outcome 与 CPU validation 边界
+
+唯一 v3 GPU attempt 从 `main@a935a3cf5efb1fa7a952ca6f45a5994609b367e9` 完成全部冻结 schedule：15 个
+canonical states、75 unique images、15 canonical + 15 same-device replay + 1 cross-device sentinel vision
+forwards。两级 replay 的 maximum absolute score difference 都是 0；policy、language model、LM head、
+generation、gate、matched-NLL、closed-loop 和 confirm/test operation 都是 0。exact-three artifact 已原子发布，
+scientific payload SHA256 为 `811e59c780851c19b7fe21314be1e52c1dbfcfa002e63a9857fd34d90ba94f48`。
+raw restoration-label archive bytes 在 GPU 前仅做 immutable SHA 验证；只有 selection 完成后才做 semantic
+parse/join，feature workers 未接收 label semantics。
+
+首次 CPU `validate` 随后在 row provenance 重建处 fail closed。formal feature record 的 state 是
+`index/role/trajectory_id/state_id` 四键；evaluated output row 按 frozen output schema 保存同四键加
+`decision_step_id/candidate_event_step_ids/budget_event_capacity`。reconstructor 使用 `dict(row["state"])`，没有
+投影回 feature-state，导致严格相等检查报 `policy-vision row-to-worker provenance drifted`；worker/device/GPU
+字段本身没有漂移。
+
+同一 source 上的 bounded CPU diagnostic 只做四键 projection，复用原 rows、execution、immutable labels 与
+witness，逐 byte 重建三份 artifact 均 exact match。当前 artifact 因而记为
+`COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，不是 scientific `INVALID`，也暂不标为 `VALID`。后续只能
+冻结 reporting-only CPU validation repair；不得修改 artifact bytes、重跑 GPU 或提前解锁 gate/confirm。
+
+独立数值审计已复算所有 15-state selection、utility、comparator delta 与 hash，没有发现 scientific blocker。
+overall mean normalized recovery 是 `0.404691`；由于小 summary-only distance 的负 outlier 对逐状态 ratio 的
+影响较大，同时保留 ratio-of-sums `0.703501`。artifact 中 `exact_coalition_overlap_with_*` 的语义是
+policy-vision selection 与该 comparator selection 完全相同，并非与 exact-subset oracle 相同。

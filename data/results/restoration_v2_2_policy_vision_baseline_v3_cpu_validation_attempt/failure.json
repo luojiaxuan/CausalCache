@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0.0",
+  "status": "INVALID_POLICY_VISION_V3_CPU_VALIDATE_STATE_PROJECTION",
+  "artifact_status": "COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION",
+  "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+  "source_git_commit": "a935a3cf5efb1fa7a952ca6f45a5994609b367e9",
+  "contract_sha256": "794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f",
+  "formal_artifact": {
+    "directory": "data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+    "scientific_payload_sha256": "811e59c780851c19b7fe21314be1e52c1dbfcfa002e63a9857fd34d90ba94f48",
+    "exact_files": [
+      {
+        "path": "README.md",
+        "size_bytes": 1504,
+        "sha256": "70ce9496983bfafeab04dd5184e5b7d5c8f02a70df9812893af0fe0aed47ed1f"
+      },
+      {
+        "path": "state_scores.jsonl",
+        "size_bytes": 68269,
+        "sha256": "8c5977260bb1a8618b43cd877d963bd637c197e589db532c7ccbcab9c55f58b9"
+      },
+      {
+        "path": "summary.json",
+        "size_bytes": 66273,
+        "sha256": "5ed21d6c397839bc60987bb3ee1db3a0560b6e923557cc1e8e524de921af1c0e"
+      }
+    ],
+    "formal_state_count": 15,
+    "unique_image_count": 75,
+    "policy_vision_feature_forward_count": 31,
+    "same_device_max_abs_score_difference": 0.0,
+    "cross_device_max_abs_score_difference": 0.0,
+    "policy_language_generation_confirm_or_test_operation_count": 0
+  },
+  "formal_attempt": {
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "container_name": "sglang-omni-jaxan-07170635",
+    "container_id": "99702b15e4b11cc9ad8af6ad4759beee105660e65d897fffeac82f7aaba18cad",
+    "container_hostname": "99702b15e4b1",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_started_at_utc": "2026-07-16T22:35:36.763383008Z",
+    "container_stopped_at_utc": "2026-07-16T22:43:35.010921229Z",
+    "gpu_uuids_in_logical_order": [
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c"
+    ],
+    "host_evidence_sha256": "85e9b58c750960bbdcfd6a2e8673bd9841643a11721214bccdfa1b92e9baf462",
+    "attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json",
+    "attempt_ledger_sha256": "6aabf8dc07dd45d422e8f21ee30538eded2e5b2a5eed2c36675338bdd15891ef",
+    "attempt_ledger_mode": "0600",
+    "container_preserved_stopped": true
+  },
+  "validation_failure": {
+    "mode": "cpu_validate_from_recorded_rows_labels_and_witness",
+    "working_directory": "/data/CausalCache/code",
+    "argv_record_status": "operator_reconstructed_from_immediate_command_not_machine_logged",
+    "argv": [
+      "python3",
+      "-m",
+      "scripts.run_restoration_v2_2_policy_vision_baseline_v3",
+      "validate",
+      "--repository-root",
+      "/data/CausalCache",
+      "--contract",
+      "/data/CausalCache/code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json",
+      "--labels-archive",
+      "/data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar",
+      "--source-git-commit",
+      "a935a3cf5efb1fa7a952ca6f45a5994609b367e9",
+      "--output-dir",
+      "/data/CausalCache/data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair"
+    ],
+    "observed_utc_bracket": {
+      "not_before": "2026-07-16T22:38:40.195235601Z",
+      "not_before_evidence": "canonical output exact-three creation time",
+      "not_after": "2026-07-16T22:42:08.942677986Z",
+      "not_after_evidence": "bounded diagnostic source birth time"
+    },
+    "runtime": {
+      "host_alias": "hyper00",
+      "host_hostname": "node-radixark-16-0000",
+      "container_name": "sglang-omni-jaxan-07170635",
+      "container_id": "99702b15e4b11cc9ad8af6ad4759beee105660e65d897fffeac82f7aaba18cad",
+      "container_hostname": "99702b15e4b1",
+      "python_version": "3.12.3"
+    },
+    "exception_type": "ValueError",
+    "exception_message": "policy-vision row-to-worker provenance drifted",
+    "failure_function": "validate_feature_worker_provenance",
+    "gpu_model_or_feature_operation_count": 0,
+    "artifact_bytes_modified": false
+  },
+  "root_cause": {
+    "recorded_evaluated_state_keys": [
+      "budget_event_capacity",
+      "candidate_event_step_ids",
+      "decision_step_id",
+      "index",
+      "role",
+      "state_id",
+      "trajectory_id"
+    ],
+    "expected_feature_state_keys": [
+      "index",
+      "role",
+      "trajectory_id",
+      "state_id"
+    ],
+    "reconstructor_behavior": "dict(evaluated_row_state) without projection",
+    "worker_device_or_gpu_value_drift_observed": false,
+    "scientific_value_drift_observed": false
+  },
+  "bounded_cpu_diagnostic": {
+    "repair_candidate": "project recorded evaluated state to the exact four feature-state keys before provenance validation",
+    "claim_status": "operator_recorded_source_bound_diagnostic_not_versioned_formal_validation",
+    "working_directory": "/data/CausalCache",
+    "argv": [
+      "python3",
+      "/data/tmp/causalcache_policy_vision_v3_replay_diagnostic.py"
+    ],
+    "source": {
+      "container_path": "/data/tmp/causalcache_policy_vision_v3_replay_diagnostic.py",
+      "host_path": "/data02/jaxan/tmp/causalcache_policy_vision_v3_replay_diagnostic.py",
+      "git_copy_path": "code/scripts/diagnose_restoration_v2_2_policy_vision_v3_cpu_replay.py",
+      "size_bytes": 1866,
+      "sha256": "84e12ce1ccff68667e7008d9eb76f080230369bd75c0f4b3b04249cdf2f778e4",
+      "host_birth_time_utc": "2026-07-16T22:42:08.942677986Z"
+    },
+    "other_recorded_fields_changed": false,
+    "policy_or_vision_model_loaded": false,
+    "labels_and_witness_reused": true,
+    "rebuilt_exact_file_matches": {
+      "README.md": true,
+      "state_scores.jsonl": true,
+      "summary.json": true
+    },
+    "stdout": "{\"README.md\": true, \"state_scores.jsonl\": true, \"summary.json\": true}"
+  },
+  "retry_boundary": {
+    "same_gpu_protocol_retry_allowed": false,
+    "attempt_ledger_must_be_preserved": true,
+    "formal_artifact_bytes_must_be_preserved": true,
+    "next_permissible_action": "commit exact artifact and failure binding, then freeze a versioned CPU-only state-projection validation repair"
+  }
+}

@@ -1,0 +1,1659 @@
+{
+  "aggregate": {
+    "by_role": {
+      "overall_stratified": {
+        "exact_cardinality_coalition_match_rate": 0.2,
+        "exact_coalition_match_rate": 0.2,
+        "maximum_normalized_recovery": 0.957551457228473,
+        "mean_actual_utility": 0.028554639701421063,
+        "mean_baseline_summary_only_distance": 0.04058933926668639,
+        "mean_jaccard_to_exact_cardinality_coalition": 0.4222222222222222,
+        "mean_jaccard_to_exact_coalition": 0.43333333333333335,
+        "mean_normalized_recovery": 0.40469050431783704,
+        "mean_recovery_delta_by_comparator": {
+          "analytic_exact_cardinality_random": 0.07151207533983119,
+          "budget_conditioned_independent": -0.40806225203419044,
+          "dynamic_recent": 0.028711107570939486,
+          "exact_cardinality_oracle": -0.4872612347255253,
+          "exact_subset": -0.48867387331101586,
+          "full_shapley_independent": -0.433596812093688,
+          "ocr_rgb": -0.115959021669773,
+          "true_conditional_greedy": -0.48867387331101586
+        },
+        "mean_selected_cardinality": 2.0,
+        "median_normalized_recovery": 0.7997892474044858,
+        "minimum_normalized_recovery": -2.6411632464494317,
+        "negative_normalized_recovery_count": 2,
+        "ratio_of_sums_utility_to_baseline_distance": 0.7035009738347039,
+        "recovery_ratio_of_means_to_exact_subset": 0.4529960164652605,
+        "selected_cardinality_histogram": {
+          "2": 15
+        },
+        "state_count": 15,
+        "trajectory_count": 15
+      },
+      "v2_development": {
+        "exact_cardinality_coalition_match_rate": 0.0,
+        "exact_coalition_match_rate": 0.0,
+        "maximum_normalized_recovery": 0.9524377501910339,
+        "mean_actual_utility": 0.03339859483530745,
+        "mean_baseline_summary_only_distance": 0.04137750979280099,
+        "mean_jaccard_to_exact_cardinality_coalition": 0.26666666666666666,
+        "mean_jaccard_to_exact_coalition": 0.26666666666666666,
+        "mean_normalized_recovery": 0.14361493361747044,
+        "mean_recovery_delta_by_comparator": {
+          "analytic_exact_cardinality_random": 0.004144046199099427,
+          "budget_conditioned_independent": -0.6226884319507298,
+          "dynamic_recent": 0.12394900014319883,
+          "exact_cardinality_oracle": -0.7817270248949231,
+          "exact_subset": -0.7817270248949231,
+          "full_shapley_independent": -0.7405133574698377,
+          "ocr_rgb": 0.12404392051492441,
+          "true_conditional_greedy": -0.7817270248949231
+        },
+        "mean_selected_cardinality": 2.0,
+        "median_normalized_recovery": 0.8159676280450258,
+        "minimum_normalized_recovery": -2.6411632464494317,
+        "negative_normalized_recovery_count": 1,
+        "ratio_of_sums_utility_to_baseline_distance": 0.80716783108872,
+        "recovery_ratio_of_means_to_exact_subset": 0.15520201185770277,
+        "selected_cardinality_histogram": {
+          "2": 5
+        },
+        "state_count": 5,
+        "trajectory_count": 5
+      },
+      "v2_label_train": {
+        "exact_cardinality_coalition_match_rate": 0.3,
+        "exact_coalition_match_rate": 0.3,
+        "maximum_normalized_recovery": 0.957551457228473,
+        "mean_actual_utility": 0.026132662134477867,
+        "mean_baseline_summary_only_distance": 0.04019525400362909,
+        "mean_jaccard_to_exact_cardinality_coalition": 0.5,
+        "mean_jaccard_to_exact_coalition": 0.5166666666666667,
+        "mean_normalized_recovery": 0.5352282896680204,
+        "mean_recovery_delta_by_comparator": {
+          "analytic_exact_cardinality_random": 0.10519608991019706,
+          "budget_conditioned_independent": -0.30074916207592084,
+          "dynamic_recent": -0.018907838715190185,
+          "exact_cardinality_oracle": -0.34002833964082635,
+          "exact_subset": -0.3421472975190622,
+          "full_shapley_independent": -0.2801385394056131,
+          "ocr_rgb": -0.23596049276212172,
+          "true_conditional_greedy": -0.3421472975190622
+        },
+        "mean_selected_cardinality": 2.0,
+        "median_normalized_recovery": 0.728593243616763,
+        "minimum_normalized_recovery": -1.3673672632680558,
+        "negative_normalized_recovery_count": 1,
+        "ratio_of_sums_utility_to_baseline_distance": 0.6501429778778968,
+        "recovery_ratio_of_means_to_exact_subset": 0.6100332599679387,
+        "selected_cardinality_histogram": {
+          "2": 10
+        },
+        "state_count": 10,
+        "trajectory_count": 10
+      }
+    },
+    "candidate_comparison_count": 60,
+    "development_paired_deltas": {
+      "analytic_exact_cardinality_random": [
+        {
+          "comparator_normalized_recovery": 0.8036613537561015,
+          "paired_delta": 0.13211223869609523,
+          "policy_vision_normalized_recovery": 0.9357735924521967,
+          "trajectory_id": "0035782072567389"
+        },
+        {
+          "comparator_normalized_recovery": 0.4884023488059481,
+          "paired_delta": 0.16665659504257935,
+          "policy_vision_normalized_recovery": 0.6550589438485275,
+          "trajectory_id": "0106443124024468"
+        },
+        {
+          "comparator_normalized_recovery": 0.947422132369237,
+          "paired_delta": 0.005015617821796936,
+          "policy_vision_normalized_recovery": 0.9524377501910339,
+          "trajectory_id": "0119685762769531"
+        },
+        {
+          "comparator_normalized_recovery": 0.639412231146343,
+          "paired_delta": 0.17655539689868271,
+          "policy_vision_normalized_recovery": 0.8159676280450258,
+          "trajectory_id": "0126163828013448"
+        },
+        {
+          "comparator_normalized_recovery": -2.1815436289857746,
+          "paired_delta": -0.4596196174636571,
+          "policy_vision_normalized_recovery": -2.6411632464494317,
+          "trajectory_id": "0141544666483837"
+        }
+      ],
+      "budget_conditioned_independent": [
+        {
+          "comparator_normalized_recovery": 0.9357735924521967,
+          "paired_delta": 0.0,
+          "policy_vision_normalized_recovery": 0.9357735924521967,
+          "trajectory_id": "0035782072567389"
+        },
+        {
+          "comparator_normalized_recovery": 0.7654264435977418,
+          "paired_delta": -0.11036749974921434,
+          "policy_vision_normalized_recovery": 0.6550589438485275,
+          "trajectory_id": "0106443124024468"
+        },
+        {
+          "comparator_normalized_recovery": 0.9628736128393306,
+          "paired_delta": -0.010435862648296657,
+          "policy_vision_normalized_recovery": 0.9524377501910339,
+          "trajectory_id": "0119685762769531"
+        },
+        {
+          "comparator_normalized_recovery": 0.8329282833874961,
+          "paired_delta": -0.016960655342470377,
+          "policy_vision_normalized_recovery": 0.8159676280450258,
+          "trajectory_id": "0126163828013448"
+        },
+        {
+          "comparator_normalized_recovery": 0.33451489556423547,
+          "paired_delta": -2.9756781420136673,
+          "policy_vision_normalized_recovery": -2.6411632464494317,
+          "trajectory_id": "0141544666483837"
+        }
+      ],
+      "dynamic_recent": [
+        {
+          "comparator_normalized_recovery": 0.9357735924521967,
+          "paired_delta": 0.0,
+          "policy_vision_normalized_recovery": 0.9357735924521967,
+          "trajectory_id": "0035782072567389"
+        },
+        {
+          "comparator_normalized_recovery": 0.007442823283138355,
+          "paired_delta": 0.6476161205653891,
+          "policy_vision_normalized_recovery": 0.6550589438485275,
+          "trajectory_id": "0106443124024468"
+        },
+        {
+          "comparator_normalized_recovery": 0.9633482146979585,
+          "paired_delta": -0.010910464506924566,
+          "policy_vision_normalized_recovery": 0.9524377501910339,
+          "trajectory_id": "0119685762769531"
+        },
+        {
+          "comparator_normalized_recovery": 0.8329282833874961,
+          "paired_delta": -0.016960655342470377,
+          "policy_vision_normalized_recovery": 0.8159676280450258,
+          "trajectory_id": "0126163828013448"
+        },
+        {
+          "comparator_normalized_recovery": -2.6411632464494317,
+          "paired_delta": 0.0,
+          "policy_vision_normalized_recovery": -2.6411632464494317,
+          "trajectory_id": "0141544666483837"
+        }
+      ],
+      "exact_cardinality_oracle": [
+        {
+          "comparator_normalized_recovery": 0.9510360225116007,
+          "paired_delta": -0.015262430059403975,
+          "policy_vision_normalized_recovery": 0.9357735924521967,
+          "trajectory_id": "0035782072567389"
+        },
+        {
+          "comparator_normalized_recovery": 0.9497778700099999,
+          "paired_delta": -0.29471892616147244,
+          "policy_vision_normalized_recovery": 0.6550589438485275,
+          "trajectory_id": "0106443124024468"
+        },
+        {
+          "comparator_normalized_recovery": 0.9633482146979585,
+          "paired_delta": -0.010910464506924566,
+          "policy_vision_normalized_recovery": 0.9524377501910339,
+          "trajectory_id": "0119685762769531"
+        },
+        {
+          "comparator_normalized_recovery": 0.838908162182633,
+          "paired_delta": -0.022940534137607216,
+          "policy_vision_normalized_recovery": 0.8159676280450258,
+          "trajectory_id": "0126163828013448"
+        },
+        {
+          "comparator_normalized_recovery": 0.9236395231597756,
+          "paired_delta": -3.5648027696092073,
+          "policy_vision_normalized_recovery": -2.6411632464494317,
+          "trajectory_id": "0141544666483837"
+        }
+      ],
+      "exact_subset": [
+        {
+          "comparator_normalized_recovery": 0.9510360225116007,
+          "paired_delta": -0.015262430059403975,
+          "policy_vision_normalized_recovery": 0.9357735924521967,
+          "trajectory_id": "0035782072567389"
+        },
+        {
+          "comparator_normalized_recovery": 0.9497778700099999,
+          "paired_delta": -0.29471892616147244,
+          "policy_vision_normalized_recovery": 0.6550589438485275,
+          "trajectory_id": "0106443124024468"
+        },
+        {
+          "comparator_normalized_recovery": 0.9633482146979585,
+          "paired_delta": -0.010910464506924566,
+          "policy_vision_normalized_recovery": 0.9524377501910339,
+          "trajectory_id": "0119685762769531"
+        },
+        {
+          "comparator_normalized_recovery": 0.838908162182633,
+          "paired_delta": -0.022940534137607216,
+          "policy_vision_normalized_recovery": 0.8159676280450258,
+          "trajectory_id": "0126163828013448"
+        },
+        {
+          "comparator_normalized_recovery": 0.9236395231597756,
+          "paired_delta": -3.5648027696092073,
+          "policy_vision_normalized_recovery": -2.6411632464494317,
+          "trajectory_id": "0141544666483837"
+        }
+      ],
+      "full_shapley_independent": [
+        {
+          "comparator_normalized_recovery": 0.9357735924521967,
+          "paired_delta": 0.0,
+          "policy_vision_normalized_recovery": 0.9357735924521967,
+          "trajectory_id": "0035782072567389"
+        },
+        {
+          "comparator_normalized_recovery": 0.7654264435977418,
+          "paired_delta": -0.11036749974921434,
+          "policy_vision_normalized_recovery": 0.6550589438485275,
+          "trajectory_id": "0106443124024468"
+        },
+        {
+          "comparator_normalized_recovery": 0.9628736128393306,
+          "paired_delta": -0.010435862648296657,
+          "policy_vision_normalized_recovery": 0.9524377501910339,
+          "trajectory_id": "0119685762769531"
+        },
+        {
+          "comparator_normalized_recovery": 0.8329282833874961,
+          "paired_delta": -0.016960655342470377,
+          "policy_vision_normalized_recovery": 0.8159676280450258,
+          "trajectory_id": "0126163828013448"
+        },
+        {
+          "comparator_normalized_recovery": 0.9236395231597756,
+          "paired_delta": -3.5648027696092073,
+          "policy_vision_normalized_recovery": -2.6411632464494317,
+          "trajectory_id": "0141544666483837"
+        }
+      ],
+      "ocr_rgb": [
+        {
+          "comparator_normalized_recovery": 0.9357735924521967,
+          "paired_delta": 0.0,
+          "policy_vision_normalized_recovery": 0.9357735924521967,
+          "trajectory_id": "0035782072567389"
+        },
+        {
+          "comparator_normalized_recovery": 0.007442823283138355,
+          "paired_delta": 0.6476161205653891,
+          "policy_vision_normalized_recovery": 0.6550589438485275,
+          "trajectory_id": "0106443124024468"
+        },
+        {
+          "comparator_normalized_recovery": 0.9628736128393306,
+          "paired_delta": -0.010435862648296657,
+          "policy_vision_normalized_recovery": 0.9524377501910339,
+          "trajectory_id": "0119685762769531"
+        },
+        {
+          "comparator_normalized_recovery": 0.8329282833874961,
+          "paired_delta": -0.016960655342470377,
+          "policy_vision_normalized_recovery": 0.8159676280450258,
+          "trajectory_id": "0126163828013448"
+        },
+        {
+          "comparator_normalized_recovery": -2.6411632464494317,
+          "paired_delta": 0.0,
+          "policy_vision_normalized_recovery": -2.6411632464494317,
+          "trajectory_id": "0141544666483837"
+        }
+      ],
+      "true_conditional_greedy": [
+        {
+          "comparator_normalized_recovery": 0.9510360225116007,
+          "paired_delta": -0.015262430059403975,
+          "policy_vision_normalized_recovery": 0.9357735924521967,
+          "trajectory_id": "0035782072567389"
+        },
+        {
+          "comparator_normalized_recovery": 0.9497778700099999,
+          "paired_delta": -0.29471892616147244,
+          "policy_vision_normalized_recovery": 0.6550589438485275,
+          "trajectory_id": "0106443124024468"
+        },
+        {
+          "comparator_normalized_recovery": 0.9633482146979585,
+          "paired_delta": -0.010910464506924566,
+          "policy_vision_normalized_recovery": 0.9524377501910339,
+          "trajectory_id": "0119685762769531"
+        },
+        {
+          "comparator_normalized_recovery": 0.838908162182633,
+          "paired_delta": -0.022940534137607216,
+          "policy_vision_normalized_recovery": 0.8159676280450258,
+          "trajectory_id": "0126163828013448"
+        },
+        {
+          "comparator_normalized_recovery": 0.9236395231597756,
+          "paired_delta": -3.5648027696092073,
+          "policy_vision_normalized_recovery": -2.6411632464494317,
+          "trajectory_id": "0141544666483837"
+        }
+      ]
+    },
+    "feature_diagnostics": {
+      "cosine_count": 60,
+      "cosine_maximum": 0.9999691843986511,
+      "cosine_mean": 0.8893157054980596,
+      "cosine_minimum": 0.7611994743347168,
+      "exact_coalition_overlap_with_ocr_rgb_count": 6,
+      "exact_coalition_overlap_with_recent_count": 5,
+      "image_grid_thw_histogram": {
+        "[1, 136, 76]": 15,
+        "[1, 148, 68]": 15,
+        "[1, 150, 66]": 5,
+        "[1, 152, 68]": 20,
+        "[1, 80, 128]": 20
+      },
+      "merged_token_total": 191755,
+      "near_tie_state_count": 0,
+      "raw_patch_total": 767020,
+      "selected_event_frequency": {
+        "1": 8,
+        "2": 3,
+        "3": 7,
+        "4": 12
+      },
+      "top2_minus_top3_margin_mean": 0.043993612130482994,
+      "top2_minus_top3_margin_minimum": 0.0002014636993408203,
+      "within_state_cosine_range_maximum": 0.22575736045837402,
+      "within_state_cosine_range_mean": 0.11665717760721843,
+      "within_state_cosine_range_minimum": 0.001581430435180664
+    },
+    "operation_counts": {
+      "canonical_cosine_scalar_transfer_count": 60,
+      "canonical_image_decode_count": 75,
+      "canonical_image_payload_extract_count": 75,
+      "canonical_image_processing_assignment_count": 75,
+      "canonical_image_processor_batch_count": 15,
+      "canonical_state_score_count": 15,
+      "canonical_vision_feature_forward_count": 15,
+      "closed_loop_episode_count": 0,
+      "confirm_state_access_count": 0,
+      "cosine_scalar_transfer_count": 124,
+      "cross_device_sentinel_vision_feature_forward_count": 1,
+      "gate_model_forward_count": 0,
+      "gate_training_example_count": 0,
+      "generation_count": 0,
+      "geometry_primary_record_count": 15,
+      "identity_witness_state_count": 15,
+      "identity_witness_unique_image_count": 75,
+      "image_decode_count": 80,
+      "image_payload_extract_count": 80,
+      "image_processing_assignment_count": 80,
+      "image_processor_batch_count": 16,
+      "image_processor_load_count": 2,
+      "kl_measurement_count": 0,
+      "language_model_forward_count": 0,
+      "lm_head_forward_count": 0,
+      "matched_nll_evaluation_count": 0,
+      "policy_forward_count": 0,
+      "policy_model_load_count": 2,
+      "policy_vision_feature_forward_count": 31,
+      "primary_label_distance_row_count": 240,
+      "primary_label_state_count": 15,
+      "restoration_label_post_selection_evaluation_count": 15,
+      "same_device_replay_vision_feature_forward_count": 15,
+      "sealed_test_state_access_count": 0,
+      "teacher_forward_count": 0,
+      "validated_label_distance_row_count": 420,
+      "validated_label_state_count": 45,
+      "verification_cosine_scalar_transfer_count": 64,
+      "verification_image_decode_count": 5,
+      "verification_image_payload_extract_count": 5,
+      "verification_image_processing_assignment_count": 5,
+      "verification_image_processor_batch_count": 1
+    },
+    "paired_trajectory_bootstrap": {
+      "analytic_exact_cardinality_random": {
+        "confidence": 0.9,
+        "development": {
+          "left_mean": 0.14361493361747044,
+          "left_to_right_ratio_of_means": 1.0297126251636193,
+          "mean_difference": 0.004144046199099416,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.2071293720899418,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.15679837324642704
+          },
+          "right_mean": 0.13947088741837102,
+          "role": "v2_development",
+          "state_count": 5,
+          "trajectory_count": 5,
+          "win_tie_loss": {
+            "count": 5,
+            "losses": 1,
+            "ties": 0,
+            "wins": 4
+          }
+        },
+        "left_metric": "policy_vision",
+        "overall_stratified": {
+          "left_mean": 0.40469050431783704,
+          "left_to_right_ratio_of_means": 1.2146359701592564,
+          "mean_difference": 0.07151207533983117,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.030668161024478686,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.17524563548664096
+          },
+          "right_mean": 0.33317842897800587,
+          "role": "overall_stratified",
+          "state_count": 15,
+          "trajectory_count": 15,
+          "win_tie_loss": {
+            "count": 15,
+            "losses": 4,
+            "ties": 0,
+            "wins": 11
+          }
+        },
+        "resamples": 10000,
+        "right_metric": "analytic_exact_cardinality_random",
+        "seed": 271828,
+        "train": {
+          "left_mean": 0.5352282896680204,
+          "left_to_right_ratio_of_means": 1.2446237513596408,
+          "mean_difference": 0.10519608991019713,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.015298606267465889,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.23929640715423747
+          },
+          "right_mean": 0.43003219975782325,
+          "role": "v2_label_train",
+          "state_count": 10,
+          "trajectory_count": 10,
+          "win_tie_loss": {
+            "count": 10,
+            "losses": 3,
+            "ties": 0,
+            "wins": 7
+          }
+        }
+      },
+      "budget_conditioned_independent": {
+        "confidence": 0.9,
+        "development": {
+          "left_mean": 0.14361493361747044,
+          "left_to_right_ratio_of_means": 0.1874126358703678,
+          "mean_difference": -0.6226884319507296,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -1.78749405773786,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.010176393205482226
+          },
+          "right_mean": 0.7663033655682001,
+          "role": "v2_development",
+          "state_count": 5,
+          "trajectory_count": 5,
+          "win_tie_loss": {
+            "count": 5,
+            "losses": 4,
+            "ties": 1,
+            "wins": 0
+          }
+        },
+        "left_metric": "policy_vision",
+        "overall_stratified": {
+          "left_mean": 0.40469050431783704,
+          "left_to_right_ratio_of_means": 0.4979257236041332,
+          "mean_difference": -0.40806225203419044,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.8022632516634236,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.05475035194431241
+          },
+          "right_mean": 0.8127527563520275,
+          "role": "overall_stratified",
+          "state_count": 15,
+          "trajectory_count": 15,
+          "win_tie_loss": {
+            "count": 15,
+            "losses": 9,
+            "ties": 6,
+            "wins": 0
+          }
+        },
+        "resamples": 10000,
+        "right_metric": "budget_conditioned_independent",
+        "seed": 271828,
+        "train": {
+          "left_mean": 0.5352282896680204,
+          "left_to_right_ratio_of_means": 0.6402424952389267,
+          "mean_difference": -0.30074916207592084,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.7454329275311753,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.03466098262677113
+          },
+          "right_mean": 0.8359774517439412,
+          "role": "v2_label_train",
+          "state_count": 10,
+          "trajectory_count": 10,
+          "win_tie_loss": {
+            "count": 10,
+            "losses": 5,
+            "ties": 5,
+            "wins": 0
+          }
+        }
+      },
+      "dynamic_recent": {
+        "confidence": 0.9,
+        "development": {
+          "left_mean": 0.14361493361747044,
+          "left_to_right_ratio_of_means": 7.302726504457968,
+          "mean_difference": 0.12394900014319883,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.010176393205482226,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.38299544836935445
+          },
+          "right_mean": 0.019665933474271608,
+          "role": "v2_development",
+          "state_count": 5,
+          "trajectory_count": 5,
+          "win_tie_loss": {
+            "count": 5,
+            "losses": 2,
+            "ties": 2,
+            "wins": 1
+          }
+        },
+        "left_metric": "policy_vision",
+        "overall_stratified": {
+          "left_mean": 0.40469050431783704,
+          "left_to_right_ratio_of_means": 1.0763635130524647,
+          "mean_difference": 0.028711107570939476,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.04317850631477602,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.10889760036428786
+          },
+          "right_mean": 0.37597939674689757,
+          "role": "overall_stratified",
+          "state_count": 15,
+          "trajectory_count": 15,
+          "win_tie_loss": {
+            "count": 15,
+            "losses": 5,
+            "ties": 5,
+            "wins": 5
+          }
+        },
+        "resamples": 10000,
+        "right_metric": "dynamic_recent",
+        "seed": 271828,
+        "train": {
+          "left_mean": 0.5352282896680204,
+          "left_to_right_ratio_of_means": 0.9658787114813158,
+          "mean_difference": -0.018907838715190195,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.08722314815318462,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.04012499663674377
+          },
+          "right_mean": 0.5541361283832106,
+          "role": "v2_label_train",
+          "state_count": 10,
+          "trajectory_count": 10,
+          "win_tie_loss": {
+            "count": 10,
+            "losses": 3,
+            "ties": 3,
+            "wins": 4
+          }
+        }
+      },
+      "exact_cardinality_oracle": {
+        "confidence": 0.9,
+        "development": {
+          "left_mean": 0.14361493361747044,
+          "left_to_right_ratio_of_means": 0.15520201185770277,
+          "mean_difference": -0.7817270248949232,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -2.14411624067879,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.016798050875044622
+          },
+          "right_mean": 0.9253419585123936,
+          "role": "v2_development",
+          "state_count": 5,
+          "trajectory_count": 5,
+          "win_tie_loss": {
+            "count": 5,
+            "losses": 5,
+            "ties": 0,
+            "wins": 0
+          }
+        },
+        "left_metric": "policy_vision",
+        "overall_stratified": {
+          "left_mean": 0.40469050431783704,
+          "left_to_right_ratio_of_means": 0.45371345399458096,
+          "mean_difference": -0.4872612347255253,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.94180414215168,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.10157977073602305
+          },
+          "right_mean": 0.8919517390433623,
+          "role": "overall_stratified",
+          "state_count": 15,
+          "trajectory_count": 15,
+          "win_tie_loss": {
+            "count": 15,
+            "losses": 12,
+            "ties": 3,
+            "wins": 0
+          }
+        },
+        "resamples": 10000,
+        "right_metric": "exact_cardinality_oracle",
+        "seed": 271828,
+        "train": {
+          "left_mean": 0.5352282896680204,
+          "left_to_right_ratio_of_means": 0.6115101237115651,
+          "mean_difference": -0.34002833964082635,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.7733299687765602,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.0740210290045286
+          },
+          "right_mean": 0.8752566293088467,
+          "role": "v2_label_train",
+          "state_count": 10,
+          "trajectory_count": 10,
+          "win_tie_loss": {
+            "count": 10,
+            "losses": 7,
+            "ties": 3,
+            "wins": 0
+          }
+        }
+      },
+      "exact_subset": {
+        "confidence": 0.9,
+        "development": {
+          "left_mean": 0.14361493361747044,
+          "left_to_right_ratio_of_means": 0.15520201185770277,
+          "mean_difference": -0.7817270248949232,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -2.14411624067879,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.016798050875044622
+          },
+          "right_mean": 0.9253419585123936,
+          "role": "v2_development",
+          "state_count": 5,
+          "trajectory_count": 5,
+          "win_tie_loss": {
+            "count": 5,
+            "losses": 5,
+            "ties": 0,
+            "wins": 0
+          }
+        },
+        "left_metric": "policy_vision",
+        "overall_stratified": {
+          "left_mean": 0.40469050431783704,
+          "left_to_right_ratio_of_means": 0.4529960164652605,
+          "mean_difference": -0.48867387331101586,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.9433138060863794,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.103143011226602
+          },
+          "right_mean": 0.8933643776288529,
+          "role": "overall_stratified",
+          "state_count": 15,
+          "trajectory_count": 15,
+          "win_tie_loss": {
+            "count": 15,
+            "losses": 12,
+            "ties": 3,
+            "wins": 0
+          }
+        },
+        "resamples": 10000,
+        "right_metric": "exact_subset",
+        "seed": 271828,
+        "train": {
+          "left_mean": 0.5352282896680204,
+          "left_to_right_ratio_of_means": 0.6100332599679387,
+          "mean_difference": -0.34214729751906214,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.7741809273178663,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.07530192587469862
+          },
+          "right_mean": 0.8773755871870825,
+          "role": "v2_label_train",
+          "state_count": 10,
+          "trajectory_count": 10,
+          "win_tie_loss": {
+            "count": 10,
+            "losses": 7,
+            "ties": 3,
+            "wins": 0
+          }
+        }
+      },
+      "full_shapley_independent": {
+        "confidence": 0.9,
+        "development": {
+          "left_mean": 0.14361493361747044,
+          "left_to_right_ratio_of_means": 0.16243675840397734,
+          "mean_difference": -0.7405133574698377,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -2.140968834295184,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.010176393205482226
+          },
+          "right_mean": 0.8841282910873082,
+          "role": "v2_development",
+          "state_count": 5,
+          "trajectory_count": 5,
+          "win_tie_loss": {
+            "count": 5,
+            "losses": 4,
+            "ties": 1,
+            "wins": 0
+          }
+        },
+        "left_metric": "policy_vision",
+        "overall_stratified": {
+          "left_mean": 0.40469050431783704,
+          "left_to_right_ratio_of_means": 0.48275871099923656,
+          "mean_difference": -0.43359681209368806,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.8978897216635736,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.040192666502936264
+          },
+          "right_mean": 0.8382873164115251,
+          "role": "overall_stratified",
+          "state_count": 15,
+          "trajectory_count": 15,
+          "win_tie_loss": {
+            "count": 15,
+            "losses": 9,
+            "ties": 5,
+            "wins": 1
+          }
+        },
+        "resamples": 10000,
+        "right_metric": "full_shapley_independent",
+        "seed": 271828,
+        "train": {
+          "left_mean": 0.5352282896680204,
+          "left_to_right_ratio_of_means": 0.6564263722576399,
+          "mean_difference": -0.28013853940561306,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.7275693472022307,
+            "method": "percentile_linear_interpolation",
+            "upper": -6.196466607481437e-05
+          },
+          "right_mean": 0.8153668290736334,
+          "role": "v2_label_train",
+          "state_count": 10,
+          "trajectory_count": 10,
+          "win_tie_loss": {
+            "count": 10,
+            "losses": 5,
+            "ties": 4,
+            "wins": 1
+          }
+        }
+      },
+      "ocr_rgb": {
+        "confidence": 0.9,
+        "development": {
+          "left_mean": 0.14361493361747044,
+          "left_to_right_ratio_of_means": 7.33814508553915,
+          "mean_difference": 0.12404392051492441,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.010176393205482226,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.38309036874108005
+          },
+          "right_mean": 0.019571013102546025,
+          "role": "v2_development",
+          "state_count": 5,
+          "trajectory_count": 5,
+          "win_tie_loss": {
+            "count": 5,
+            "losses": 2,
+            "ties": 2,
+            "wins": 1
+          }
+        },
+        "left_metric": "policy_vision",
+        "overall_stratified": {
+          "left_mean": 0.40469050431783704,
+          "left_to_right_ratio_of_means": 0.777280078283347,
+          "mean_difference": -0.11595902166977301,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.41670607264372495,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.09160761943388897
+          },
+          "right_mean": 0.52064952598761,
+          "role": "overall_stratified",
+          "state_count": 15,
+          "trajectory_count": 15,
+          "win_tie_loss": {
+            "count": 15,
+            "losses": 6,
+            "ties": 6,
+            "wins": 3
+          }
+        },
+        "resamples": 10000,
+        "right_metric": "ocr_rgb",
+        "seed": 271828,
+        "train": {
+          "left_mean": 0.5352282896680204,
+          "left_to_right_ratio_of_means": 0.694030180238655,
+          "mean_difference": -0.2359604927621216,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.6982510907028265,
+            "method": "percentile_linear_interpolation",
+            "upper": 0.03596052122792931
+          },
+          "right_mean": 0.771188782430142,
+          "role": "v2_label_train",
+          "state_count": 10,
+          "trajectory_count": 10,
+          "win_tie_loss": {
+            "count": 10,
+            "losses": 4,
+            "ties": 4,
+            "wins": 2
+          }
+        }
+      },
+      "true_conditional_greedy": {
+        "confidence": 0.9,
+        "development": {
+          "left_mean": 0.14361493361747044,
+          "left_to_right_ratio_of_means": 0.15520201185770277,
+          "mean_difference": -0.7817270248949232,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -2.14411624067879,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.016798050875044622
+          },
+          "right_mean": 0.9253419585123936,
+          "role": "v2_development",
+          "state_count": 5,
+          "trajectory_count": 5,
+          "win_tie_loss": {
+            "count": 5,
+            "losses": 5,
+            "ties": 0,
+            "wins": 0
+          }
+        },
+        "left_metric": "policy_vision",
+        "overall_stratified": {
+          "left_mean": 0.40469050431783704,
+          "left_to_right_ratio_of_means": 0.4529960164652605,
+          "mean_difference": -0.48867387331101586,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.9433138060863794,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.103143011226602
+          },
+          "right_mean": 0.8933643776288529,
+          "role": "overall_stratified",
+          "state_count": 15,
+          "trajectory_count": 15,
+          "win_tie_loss": {
+            "count": 15,
+            "losses": 12,
+            "ties": 3,
+            "wins": 0
+          }
+        },
+        "resamples": 10000,
+        "right_metric": "true_conditional_greedy",
+        "seed": 271828,
+        "train": {
+          "left_mean": 0.5352282896680204,
+          "left_to_right_ratio_of_means": 0.6100332599679387,
+          "mean_difference": -0.34214729751906214,
+          "mean_difference_interval": {
+            "confidence": 0.9,
+            "lower": -0.7741809273178663,
+            "method": "percentile_linear_interpolation",
+            "upper": -0.07530192587469862
+          },
+          "right_mean": 0.8773755871870825,
+          "role": "v2_label_train",
+          "state_count": 10,
+          "trajectory_count": 10,
+          "win_tie_loss": {
+            "count": 10,
+            "losses": 7,
+            "ties": 3,
+            "wins": 0
+          }
+        }
+      }
+    },
+    "pre_registered_outlier": {
+      "baseline_summary_only_distance": 0.0006160458433441818,
+      "exact_subset_coalition": [
+        1,
+        2
+      ],
+      "exact_subset_distance": 4.70415543531999e-05,
+      "exact_subset_normalized_recovery": 0.9236395231597756,
+      "negative_recovery_preserved_without_clamp": true,
+      "normalized_recovery": -2.6411632464494317,
+      "ocr_rgb_selected_coalition": [
+        3,
+        4
+      ],
+      "selected_coalition": [
+        3,
+        4
+      ],
+      "selected_distance": 0.002243123482912779,
+      "trajectory_id": "0141544666483837"
+    },
+    "scope": "primary_n4_b2_only",
+    "state_count": 15,
+    "trajectory_count": 15,
+    "unique_image_count": 75
+  },
+  "execution": {
+    "feature_worker_received_goal_text_or_ocr": false,
+    "feature_worker_received_restoration_labels": false,
+    "formal_attempt_claim": {
+      "record": {
+        "canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+        "container_hostname": "99702b15e4b1",
+        "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+        "container_name": "sglang-omni-jaxan-07170635",
+        "contract_sha256": "794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f",
+        "expected_gpu_uuids": [
+          "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+          "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c"
+        ],
+        "formal_attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json",
+        "host_alias": "hyper00",
+        "host_hostname": "node-radixark-16-0000",
+        "nvidia_driver_version": "570.172.08",
+        "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+        "schema_version": "1.0.0",
+        "source_git_commit": "a935a3cf5efb1fa7a952ca6f45a5994609b367e9",
+        "status": "CLAIMED_POLICY_VISION_FORMAL_ATTEMPT"
+      },
+      "sha256": "6aabf8dc07dd45d422e8f21ee30538eded2e5b2a5eed2c36675338bdd15891ef"
+    },
+    "host_runtime": {
+      "container_hostname": "99702b15e4b1",
+      "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "container_name": "sglang-omni-jaxan-07170635",
+      "host_alias": "hyper00",
+      "host_class": "Hyper_H200",
+      "host_container_id": "99702b15e4b11cc9ad8af6ad4759beee105660e65d897fffeac82f7aaba18cad",
+      "host_evidence_collector": "docker_inspect_and_nvidia_smi_on_host_v1",
+      "host_evidence_sha256": "85e9b58c750960bbdcfd6a2e8673bd9841643a11721214bccdfa1b92e9baf462",
+      "host_hostname": "node-radixark-16-0000",
+      "nvidia_driver_version": "570.172.08"
+    },
+    "operation_ledger": {
+      "canonical_cosine_scalar_transfer_count": 60,
+      "canonical_image_decode_count": 75,
+      "canonical_image_payload_extract_count": 75,
+      "canonical_image_processing_assignment_count": 75,
+      "canonical_image_processor_batch_count": 15,
+      "canonical_state_score_count": 15,
+      "canonical_vision_feature_forward_count": 15,
+      "closed_loop_episode_count": 0,
+      "confirm_state_access_count": 0,
+      "cosine_scalar_transfer_count": 124,
+      "cross_device_sentinel_vision_feature_forward_count": 1,
+      "gate_model_forward_count": 0,
+      "gate_training_example_count": 0,
+      "generation_count": 0,
+      "geometry_primary_record_count": 15,
+      "identity_witness_state_count": 15,
+      "identity_witness_unique_image_count": 75,
+      "image_decode_count": 80,
+      "image_payload_extract_count": 80,
+      "image_processing_assignment_count": 80,
+      "image_processor_batch_count": 16,
+      "image_processor_load_count": 2,
+      "kl_measurement_count": 0,
+      "language_model_forward_count": 0,
+      "lm_head_forward_count": 0,
+      "matched_nll_evaluation_count": 0,
+      "policy_forward_count": 0,
+      "policy_model_load_count": 2,
+      "policy_vision_feature_forward_count": 31,
+      "primary_label_distance_row_count": 240,
+      "primary_label_state_count": 15,
+      "restoration_label_post_selection_evaluation_count": 15,
+      "same_device_replay_vision_feature_forward_count": 15,
+      "sealed_test_state_access_count": 0,
+      "teacher_forward_count": 0,
+      "validated_label_distance_row_count": 420,
+      "validated_label_state_count": 45,
+      "verification_cosine_scalar_transfer_count": 64,
+      "verification_image_decode_count": 5,
+      "verification_image_payload_extract_count": 5,
+      "verification_image_processing_assignment_count": 5,
+      "verification_image_processor_batch_count": 1
+    },
+    "selection_completed_before_restoration_labels_loaded": true,
+    "verification": {
+      "cross_device_sentinel": {
+        "absolute_tolerance": 1e-06,
+        "maximum_absolute_score_difference": 0.0,
+        "per_event_absolute_score_difference": {
+          "1": 0.0,
+          "2": 0.0,
+          "3": 0.0,
+          "4": 0.0
+        },
+        "primary_ordinal": 0,
+        "ranking_equal": true,
+        "selection_equal": true,
+        "source_worker": "even",
+        "state_id": "0131649930078879:decision_step:006",
+        "state_index": 2,
+        "verification_image_grid_thw": [
+          [
+            1,
+            136,
+            76
+          ],
+          [
+            1,
+            136,
+            76
+          ],
+          [
+            1,
+            136,
+            76
+          ],
+          [
+            1,
+            136,
+            76
+          ],
+          [
+            1,
+            136,
+            76
+          ]
+        ],
+        "verification_merged_token_counts": [
+          2584,
+          2584,
+          2584,
+          2584,
+          2584
+        ],
+        "verification_ranked_event_step_ids": [
+          4,
+          1,
+          2,
+          3
+        ],
+        "verification_scores_by_event_step": {
+          "1": 0.8876184225082397,
+          "2": 0.8700988292694092,
+          "3": 0.8354654312133789,
+          "4": 0.8904567360877991
+        },
+        "verification_selected_coalition": [
+          1,
+          4
+        ],
+        "verification_worker": "odd"
+      },
+      "runtime_operation_counts": {
+        "generation_count": 0,
+        "image_processor_batch_count": 16,
+        "language_model_forward_count": 0,
+        "lm_head_forward_count": 0,
+        "policy_vision_feature_forward_count": 31,
+        "top_model_forward_count": 0
+      },
+      "same_device": {
+        "absolute_tolerance": 1e-06,
+        "all_rankings_equal": true,
+        "all_selections_equal": true,
+        "maximum_absolute_score_difference": 0.0,
+        "state_count": 15
+      },
+      "workers": [
+        {
+          "device": "cuda:0",
+          "elapsed_seconds": 73.35386600694619,
+          "gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+          "peak_cuda_memory": {
+            "max_memory_allocated_bytes": 36571038208,
+            "max_memory_reserved_bytes": 41232105472
+          },
+          "runtime_metadata": {
+            "chat_template_called": false,
+            "cuda_matmul_allow_tf32": false,
+            "cudnn_allow_tf32": false,
+            "cudnn_benchmark": false,
+            "cudnn_deterministic": true,
+            "cudnn_version": 91900,
+            "deterministic_algorithms_enabled": false,
+            "deterministic_warn_only_enabled": false,
+            "device": "cuda:0",
+            "dtype": "torch.bfloat16",
+            "feature_only": true,
+            "float32_matmul_precision": "highest",
+            "forbidden_operation_guards_installed": [
+              "top_model_forward_count",
+              "language_model_forward_count",
+              "lm_head_forward_count",
+              "generation_count"
+            ],
+            "frozen": true,
+            "gpu_name": "NVIDIA H200",
+            "gpu_pci_bus_id": "00000000:08:00.0",
+            "gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+            "image_processor_class": "Qwen2VLImageProcessor",
+            "logical_device_index": 0,
+            "max_pixels": 2621440,
+            "min_pixels": 2621440,
+            "model_class": "Qwen3VLForConditionalGeneration",
+            "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+            "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+            "numerical_control_claim": "eager_fixed_seed_tf32_disabled_numerical_control_not_strict_cuda_determinism",
+            "nvidia_smi_index": 0,
+            "observed_attention_implementation": {
+              "text": "eager",
+              "top": "eager",
+              "vision": "eager"
+            },
+            "pillow_version": "12.2.0",
+            "processor_interface": "AutoImageProcessor.__call__",
+            "processor_output_keys": [
+              "image_grid_thw",
+              "pixel_values"
+            ],
+            "processor_size": {
+              "longest_edge": 2621440,
+              "shortest_edge": 2621440
+            },
+            "python_version": "3.12.3",
+            "requested_attention_implementation": "eager",
+            "runtime_profile_id": "causalcache_restoration_v2_2_policy_vision_feature_only_runtime_uuid_type_v2_size_dict_interface_v3",
+            "scientific_environment_audit": {
+              "all_absent": true,
+              "audited_names": [
+                "CUBLAS_WORKSPACE_CONFIG",
+                "NVIDIA_TF32_OVERRIDE",
+                "TORCH_ALLOW_TF32_CUBLAS_OVERRIDE",
+                "PYTORCH_CUDA_ALLOC_CONF",
+                "PYTORCH_ALLOC_CONF",
+                "CUDA_LAUNCH_BLOCKING",
+                "CUDA_DEVICE_MAX_CONNECTIONS",
+                "FLASH_ATTENTION_DETERMINISTIC",
+                "TORCH_CUDNN_V8_API_LRU_CACHE_LIMIT",
+                "TORCH_CUDNN_V8_API_DISABLED",
+                "TORCH_CUDNN_V8_API_ENABLED"
+              ],
+              "present_names": []
+            },
+            "scientific_environment_variables_set_by_runtime": false,
+            "seed": 0,
+            "single_device": true,
+            "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+            "strict_cuda_determinism_claimed": false,
+            "target_effective_visual_tokens_per_image": 2560,
+            "tokenizer_loaded": false,
+            "torch_cuda_version": "13.0",
+            "torch_version": "2.11.0+cu130",
+            "transformers_source_sha256": {
+              "image_processing_qwen2_vl.py": "de5859892f04c64f3e79c9d318842ac0040000788e43870997bd1ec6565c02bb",
+              "modeling_qwen3_vl.py": "c37abc40a3744dc116cf1e06eceb7ff79bd384cfbfe0d41773f5efc074f31523",
+              "processing_qwen3_vl.py": "b51f77d783b4a88d503bf9198828d46f71e3ead3833da2631748188b159253ba"
+            },
+            "transformers_version": "5.6.0",
+            "verified_model_file_count": 14,
+            "verified_model_total_bytes": 17545907171
+          },
+          "worker_id": "even",
+          "worker_input_counts": {
+            "canonical_state_count": 8,
+            "image_payload_count": 40,
+            "sentinel_state_count": 0
+          }
+        },
+        {
+          "device": "cuda:1",
+          "elapsed_seconds": 70.49010050902143,
+          "gpu_uuid": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+          "peak_cuda_memory": {
+            "max_memory_allocated_bytes": 36569948672,
+            "max_memory_reserved_bytes": 54492397568
+          },
+          "runtime_metadata": {
+            "chat_template_called": false,
+            "cuda_matmul_allow_tf32": false,
+            "cudnn_allow_tf32": false,
+            "cudnn_benchmark": false,
+            "cudnn_deterministic": true,
+            "cudnn_version": 91900,
+            "deterministic_algorithms_enabled": false,
+            "deterministic_warn_only_enabled": false,
+            "device": "cuda:1",
+            "dtype": "torch.bfloat16",
+            "feature_only": true,
+            "float32_matmul_precision": "highest",
+            "forbidden_operation_guards_installed": [
+              "top_model_forward_count",
+              "language_model_forward_count",
+              "lm_head_forward_count",
+              "generation_count"
+            ],
+            "frozen": true,
+            "gpu_name": "NVIDIA H200",
+            "gpu_pci_bus_id": "00000000:7e:00.0",
+            "gpu_uuid": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+            "image_processor_class": "Qwen2VLImageProcessor",
+            "logical_device_index": 1,
+            "max_pixels": 2621440,
+            "min_pixels": 2621440,
+            "model_class": "Qwen3VLForConditionalGeneration",
+            "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+            "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+            "numerical_control_claim": "eager_fixed_seed_tf32_disabled_numerical_control_not_strict_cuda_determinism",
+            "nvidia_smi_index": 1,
+            "observed_attention_implementation": {
+              "text": "eager",
+              "top": "eager",
+              "vision": "eager"
+            },
+            "pillow_version": "12.2.0",
+            "processor_interface": "AutoImageProcessor.__call__",
+            "processor_output_keys": [
+              "image_grid_thw",
+              "pixel_values"
+            ],
+            "processor_size": {
+              "longest_edge": 2621440,
+              "shortest_edge": 2621440
+            },
+            "python_version": "3.12.3",
+            "requested_attention_implementation": "eager",
+            "runtime_profile_id": "causalcache_restoration_v2_2_policy_vision_feature_only_runtime_uuid_type_v2_size_dict_interface_v3",
+            "scientific_environment_audit": {
+              "all_absent": true,
+              "audited_names": [
+                "CUBLAS_WORKSPACE_CONFIG",
+                "NVIDIA_TF32_OVERRIDE",
+                "TORCH_ALLOW_TF32_CUBLAS_OVERRIDE",
+                "PYTORCH_CUDA_ALLOC_CONF",
+                "PYTORCH_ALLOC_CONF",
+                "CUDA_LAUNCH_BLOCKING",
+                "CUDA_DEVICE_MAX_CONNECTIONS",
+                "FLASH_ATTENTION_DETERMINISTIC",
+                "TORCH_CUDNN_V8_API_LRU_CACHE_LIMIT",
+                "TORCH_CUDNN_V8_API_DISABLED",
+                "TORCH_CUDNN_V8_API_ENABLED"
+              ],
+              "present_names": []
+            },
+            "scientific_environment_variables_set_by_runtime": false,
+            "seed": 0,
+            "single_device": true,
+            "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+            "strict_cuda_determinism_claimed": false,
+            "target_effective_visual_tokens_per_image": 2560,
+            "tokenizer_loaded": false,
+            "torch_cuda_version": "13.0",
+            "torch_version": "2.11.0+cu130",
+            "transformers_source_sha256": {
+              "image_processing_qwen2_vl.py": "de5859892f04c64f3e79c9d318842ac0040000788e43870997bd1ec6565c02bb",
+              "modeling_qwen3_vl.py": "c37abc40a3744dc116cf1e06eceb7ff79bd384cfbfe0d41773f5efc074f31523",
+              "processing_qwen3_vl.py": "b51f77d783b4a88d503bf9198828d46f71e3ead3833da2631748188b159253ba"
+            },
+            "transformers_version": "5.6.0",
+            "verified_model_file_count": 14,
+            "verified_model_total_bytes": 17545907171
+          },
+          "worker_id": "odd",
+          "worker_input_counts": {
+            "canonical_state_count": 7,
+            "image_payload_count": 40,
+            "sentinel_state_count": 1
+          }
+        }
+      ]
+    },
+    "worker_bindings": [
+      {
+        "expected_gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+        "logical_device": "cuda:0",
+        "worker_id": "even"
+      },
+      {
+        "expected_gpu_uuid": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+        "logical_device": "cuda:1",
+        "worker_id": "odd"
+      }
+    ]
+  },
+  "input_identity": {
+    "baseline_implementation": {
+      "artifact_id": "causalcache-restoration-v2-baselines-v1",
+      "eager_runtime_source": {
+        "path": "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+        "sha256": "6ce88c00358d0ab03f0417957f434a8553330f27b49b8c18da15f7817b799cc1"
+      },
+      "manifest_path": "data/manifests/restoration_v2_baselines.json",
+      "manifest_sha256": "bd6f4d620d02bde478bf765c6fa3605bb86e20ebf449e999654e7a6766ba5710",
+      "required_status": "PASSED_PREOUTPUT_BASELINE_IMPLEMENTATION",
+      "vision_extractor_source": {
+        "path": "code/causalcache/policy/gui_owl_v2_vision.py",
+        "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24"
+      }
+    },
+    "derived_dataset": {
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e",
+      "binding_path": "data/manifests/restoration_v2_derived_artifact.json",
+      "binding_sha256": "1f155a90af33da21947c89ac12f30f873f18e15e4efc82e5759f648114f25f7c",
+      "exact_files": [
+        {
+          "path": ".gitattributes",
+          "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9",
+          "size_bytes": 42
+        },
+        {
+          "path": "README.md",
+          "sha256": "0635bba67aad567fc75427c55bd8b1778b92e60499a6c1fecb4cfd90390c0918",
+          "size_bytes": 2107
+        },
+        {
+          "path": "derived/restoration-v2-v1/images-00000-of-00001.tar",
+          "sha256": "1a383c116117d26d7a123343816187695c8312a5923359a6518d7f0051d17326",
+          "size_bytes": 155883520
+        },
+        {
+          "path": "derived/restoration-v2-v1/manifest.json",
+          "sha256": "90a48f794123b915994df9a780a0553f71f9fad26c95cae7b24d1435d1627945",
+          "size_bytes": 7382
+        },
+        {
+          "path": "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+          "sha256": "b8c96b9951d8166839dde71b4c8ca60f099b92e892bbeafde819beb96a9fc97d",
+          "size_bytes": 1897573
+        },
+        {
+          "path": "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+          "sha256": "c08ae40d0fe27783c03c00459066db43dd8610cc8b77f74babdcc97dc18b747e",
+          "size_bytes": 595807
+        }
+      ],
+      "hf_repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "hf_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+      "hf_tag": "restoration-v2-derived-v1.0.0",
+      "payload_prefix": "derived/restoration-v2-v1"
+    },
+    "model_snapshot": {
+      "file_count": 14,
+      "manifest_path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+      "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+      "total_bytes": 17545907171
+    },
+    "ocr_rgb_identity_witness": {
+      "directory": "data/results/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair",
+      "files": [
+        {
+          "path": "README.md",
+          "sha256": "526347e1928510a3b5f3791631fd35d08e6c53420b9994fd37a4b89fc592b4bf",
+          "size_bytes": 1603
+        },
+        {
+          "path": "state_scores.jsonl",
+          "sha256": "07e29538232620bbea3bb12d1c0ce2649ee505285f53daf006dea3f670ba2d0a",
+          "size_bytes": 57465
+        },
+        {
+          "path": "summary.json",
+          "sha256": "3ae9c27c93c3813f3458d31e1740ff9a97d0c9af6beab9f926f627d8611c7b29",
+          "size_bytes": 38130
+        }
+      ],
+      "git_commit": "7e59591573cb31f178dfd07422cc2e3c8aeff573",
+      "protocol_id": "causalcache_restoration_v2_2_ocr_rgb_baseline_v2_identity_repair",
+      "scientific_payload_sha256": "5942519bdff8f3e8a64bbc8b32a5d42a64abff37daf0804fcce0f098a63765b2",
+      "status": "COMPLETED_RESTORATION_V2_2_OCR_RGB_BASELINE_V2_IDENTITY_REPAIR"
+    },
+    "restoration_labels": {
+      "binding_path": "data/results/restoration_v2_2_eager_labels_v2/artifact.json",
+      "binding_sha256": "de2960a73399327871a6472315d543b3de60ce2ad13136166ce5bbeb609f1777",
+      "hf_path": "raw/v2.2-eager-train-dev-exact-v2.tar",
+      "hf_repo": "gavinlaw/causalcache-restoration-labels-mobile",
+      "hf_revision": "8f6baae5c0b23b08915fa1b0fb848dd519b4c8db",
+      "hf_tag": "v2.2-eager-train-dev-exact-v2",
+      "raw_archive_file_count": 101,
+      "raw_archive_sha256": "99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e",
+      "raw_archive_size_bytes": 3747840,
+      "raw_tree_inventory_sha256": "c5104594b0741810f3d49d007a63a74f16ee4236dd137d1dea92b9373065c45f"
+    },
+    "selector_geometry_result": {
+      "artifact_git_commit": "d0f25d812869d5fc7b58284a25abe3aa8049b0aa",
+      "directory": "data/results/restoration_v2_2_selector_geometry_v2_repair",
+      "execution_source_git_commit": "9a4eca5a53c2a9a3340c6274b9fa5ff9012a5a64",
+      "files": [
+        {
+          "path": "README.md",
+          "sha256": "dd54af30e7cb07e3661f38aadce4d9008483b2980baea4eb6d9807f07d3a9c01",
+          "size_bytes": 2094
+        },
+        {
+          "path": "state_budget_records.jsonl",
+          "sha256": "b3f67714bb5667ceda945a3cb953b8987108aef607d5819a617272d48450cb03",
+          "size_bytes": 945991
+        },
+        {
+          "path": "summary.json",
+          "sha256": "57eecbba5326cabf430f0a739118e986781a595e98ea6a32ddaeef118abc6811",
+          "size_bytes": 1529767
+        }
+      ],
+      "git_commit": "d0f25d812869d5fc7b58284a25abe3aa8049b0aa",
+      "parent_contract_sha256": "8022dcdec272916b7975d696a3ce6b54022c7414cd348a715c55b0d3d694dad5",
+      "protocol_id": "causalcache_restoration_v2_2_selector_geometry_v2_repair",
+      "repair_contract_sha256": "2d312f54559f67aafe7efec2656d23171000e8b0f41d2d3c923f6a3c8b43be4c",
+      "scientific_payload_sha256": "cc505443a7efdc68c8eeca754f24c9143cabf72a090f024fde05011e783cbb21",
+      "validation_git_commit": "5e2e45089d5bfa1a0f0e538f337a51b9b5297a4e"
+    }
+  },
+  "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+  "schema_version": "1.0.0",
+  "scientific_payload_sha256": "811e59c780851c19b7fe21314be1e52c1dbfcfa002e63a9857fd34d90ba94f48",
+  "source_execution": {
+    "contract_sha256": "794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f",
+    "formal_python_source_closure": {
+      "inventory_sha256": "91f380916ca54fd8baf8987d0c06c18e5728d6b5db99fb86b06cb1ff85114b6d",
+      "path_count": 151,
+      "rule": "all_tracked_python_under_code_causalcache_and_code_scripts_at_source_commit"
+    },
+    "formal_source_paths": [
+      "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json",
+      "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json",
+      "code/configs/causalcache_restoration_v2_2_policy_vision_baseline.json",
+      "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "data/manifests/restoration_v2_baselines.json",
+      "code/causalcache/restoration_v2_2_policy_vision_contract.py",
+      "code/causalcache/restoration_v2_2_policy_vision.py",
+      "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+      "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+      "code/causalcache/policy/gui_owl_v2_vision.py",
+      "code/scripts/validate_restoration_v2_2_policy_vision_contract.py",
+      "code/scripts/run_restoration_v2_2_policy_vision_baseline.py",
+      "code/causalcache/restoration_v2_2_policy_vision_v2_contract.py",
+      "code/scripts/validate_restoration_v2_2_policy_vision_v2_contract.py",
+      "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py",
+      "data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/README.md",
+      "data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/failure.json",
+      "code/causalcache/restoration_v2_2_policy_vision_v3_contract.py",
+      "code/scripts/validate_restoration_v2_2_policy_vision_v3_contract.py",
+      "code/scripts/run_restoration_v2_2_policy_vision_baseline_v3.py",
+      "data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/README.md",
+      "data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/failure.json"
+    ],
+    "repair_identity": {
+      "canonical_output_directory": "data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+      "combined_runtime_profile_id": "causalcache_restoration_v2_2_policy_vision_feature_only_runtime_uuid_type_v2_size_dict_interface_v3",
+      "exact_processor_size": {
+        "longest_edge": 2621440,
+        "shortest_edge": 2621440
+      },
+      "failed_attempt": {
+        "attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v2-gpu-uuid-repair-attempt.json",
+        "attempt_ledger_sha256": "492e7c7aea0539fc5bc65c0d0be41b5659563a140d8e411a3b347b4c18584502",
+        "directory": "data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt",
+        "exact_files": [
+          {
+            "path": "README.md",
+            "sha256": "9ddcf6eb8374a76c053622d3e16b772246f4c9aea17bc2578fe43f73762e3e90",
+            "size_bytes": 1624
+          },
+          {
+            "path": "failure.json",
+            "sha256": "3fe5c7fd6ea082501627fcbe52d4ca2751dc00f6f9a2270a9fdf20987097e5b7",
+            "size_bytes": 4910
+          }
+        ],
+        "git_commit": "b1d07551aace6f9242d9754cc0e2d0ce84bbdd90",
+        "git_ref": "main",
+        "status": "INVALID_POLICY_VISION_V2_ZERO_FEATURE_SIZE_DICT_INTERFACE"
+      },
+      "formal_attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json",
+      "formal_source_changed_paths_exact": [
+        "README.md",
+        "code/README.md",
+        "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+        "code/causalcache/restoration_v2_2_policy_vision.py",
+        "code/causalcache/restoration_v2_2_policy_vision_v3_contract.py",
+        "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline.py",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v3.py",
+        "code/scripts/validate_restoration_v2_2_policy_vision_v3_contract.py",
+        "code/tests/test_gui_owl_v2_2_vision_runtime.py",
+        "code/tests/test_restoration_v2_2_policy_vision.py",
+        "code/tests/test_restoration_v2_2_policy_vision_v3_contract.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline_v2.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline_v3.py",
+        "code/tests/test_validate_restoration_v2_2_policy_vision_v3_contract.py",
+        "data/README.md",
+        "docs/progress.md",
+        "docs/restoration_v2_2_policy_vision_baseline.md"
+      ],
+      "gpu_uuid_contract_to_runtime_profile_mapping": "torch_C_CUuuid_v2 -> cuda_device_property_uuid_torch_c_cuuuid_v2",
+      "gpu_uuid_runtime_type_profile": "cuda_device_property_uuid_torch_c_cuuuid_v2",
+      "gpu_uuid_value_type_profile": "torch_C_CUuuid_v2",
+      "image_processor_size_contract_to_runtime_profile_mapping": "transformers_image_utils_SizeDict_exact_type_v3 -> transformers_image_utils_size_dict_exact_edges_v3",
+      "image_processor_size_runtime_type_profile": "transformers_image_utils_size_dict_exact_edges_v3",
+      "image_processor_size_value_type_profile": "transformers_image_utils_SizeDict_exact_type_v3",
+      "implementation_changed_paths_allowlist": [
+        "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+        "code/causalcache/restoration_v2_2_policy_vision.py",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline.py",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v2.py",
+        "code/causalcache/restoration_v2_2_policy_vision_v3_contract.py",
+        "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json",
+        "code/scripts/run_restoration_v2_2_policy_vision_baseline_v3.py",
+        "code/scripts/validate_restoration_v2_2_policy_vision_v3_contract.py",
+        "code/tests/test_restoration_v2_2_policy_vision_v3_contract.py",
+        "code/tests/test_run_restoration_v2_2_policy_vision_baseline_v3.py",
+        "code/tests/test_validate_restoration_v2_2_policy_vision_v3_contract.py"
+      ],
+      "newly_accepted_processor_size_runtime_type": "transformers.image_utils.SizeDict",
+      "parent_contract": {
+        "path": "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair.json",
+        "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair",
+        "sha256": "23733169ef5ba60a84f4447080ef12e1893858aa375ff50d8d4e3595699e774e",
+        "source_git_commit": "fe7640395d3b6aea2e5e3a8cc34a49efc5ba2d2f"
+      },
+      "processor_size_acceptance_predicate": "type(value) is loaded transformers.image_utils.SizeDict",
+      "processor_size_conversion": "normalized = dict(value)",
+      "repair_config": {
+        "path": "code/configs/causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair.json",
+        "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+        "sha256": "794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f"
+      },
+      "run_status": "COMPLETED_RESTORATION_V2_2_POLICY_VISION_BASELINE_V3_SIZE_DICT_INTERFACE_REPAIR",
+      "source_diff_baseline_git_commit": "b1d07551aace6f9242d9754cc0e2d0ce84bbdd90",
+      "valid_status": "VALID_RESTORATION_V2_2_POLICY_VISION_BASELINE_V3_SIZE_DICT_INTERFACE_REPAIR"
+    },
+    "source_git_commit": "a935a3cf5efb1fa7a952ca6f45a5994609b367e9"
+  },
+  "state_scores": {
+    "candidate_score_count": 60,
+    "path": "state_scores.jsonl",
+    "record_count": 15,
+    "sha256": "8c5977260bb1a8618b43cd877d963bd637c197e589db532c7ccbcab9c55f58b9",
+    "size_bytes": 68269
+  },
+  "status": "COMPLETED_RESTORATION_V2_2_POLICY_VISION_BASELINE_V3_SIZE_DICT_INTERFACE_REPAIR"
+}

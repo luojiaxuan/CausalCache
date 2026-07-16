@@ -132,6 +132,12 @@ contract/input/model access 前 tombstone。v3 使用新 canonical output 与固
 PASS 不等于 feature/recovery result。冻结 config SHA256 为
 `794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f`。
 
+唯一 v3 GPU attempt 已完成并发布 exact-three artifact，但首次 CPU `validate` 暴露 state projection bug：
+evaluated output row 的七键 state 被原样当成四键 feature-state，导致 provenance check fail closed。GPU artifact
+与 ledger 均不得重跑或修改；只投影 `index/role/trajectory_id/state_id` 的 bounded CPU diagnostic 已重建三份
+exact bytes。当前状态是 `COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，下一步只允许冻结纯 CPU
+validation repair，不加载 model、不重算 feature。
+
 v2 executable interface 使用显式 versioned 模块 `causalcache.policy.gui_owl_v2` 与
 `causalcache.low_fidelity_v2`，不修改历史 v1 parser/prompt/schema。CPU validator 对 restricted grammar、
 canonical teacher target、AndroidWorld payload、八字段 serialization 和 steps 4/5/6 共 28 个 prompt

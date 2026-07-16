@@ -185,8 +185,12 @@ restoration v2 exact selection/exposure 产物：
   fail closed。failure binding 位于
   `results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`；canonical result 仍不存在，因而
   这里不登记 recovery、feature cache 或新 HF artifact。v3 exact-SizeDict repair 已使用新的
-  `results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/` canonical identity；source freeze
-  时该目录与 staging 均不存在，只有正式 run 成功后才允许登记 result。
+  `results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/` canonical identity。唯一 v3 GPU
+  run 已生成 exact-three bytes：README/state-scores/summary SHA256 分别为 `70ce9496...ed1f`、
+  `8c597726...58b9`、`5ed21d6c...1c0e`，scientific payload SHA256 为 `811e59c7...f48`。首次 CPU validate 因
+  recorded evaluated-state 未投影回四键 feature-state 而 fail closed；failure binding 位于
+  `results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/`。当前 artifact 是
+  `COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，不得写成 `VALID`，也没有新的 HF artifact。
 
 最新轻量运行记录：
 

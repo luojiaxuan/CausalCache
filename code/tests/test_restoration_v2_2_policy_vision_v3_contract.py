@@ -60,9 +60,13 @@ class RestorationV22PolicyVisionV3ContractTest(unittest.TestCase):
             repository_root=ROOT,
         )
 
-    def test_frozen_contract_validates_with_new_identity_and_output(self) -> None:
+    def test_frozen_contract_validates_after_canonical_output_publish(self) -> None:
         self.assertEqual(sha256_file(CONFIG), FROZEN_CONFIG_SHA256)
-        result = validate_contract(CONFIG, repository_root=ROOT)
+        result = validate_contract(
+            CONFIG,
+            repository_root=ROOT,
+            require_output_absent=False,
+        )
         self.assertEqual(result["status"], PASS_STATUS)
         self.assertEqual(result["protocol_id"], PROTOCOL_ID)
         self.assertEqual(result["run_status"], RUN_STATUS)
@@ -81,7 +85,7 @@ class RestorationV22PolicyVisionV3ContractTest(unittest.TestCase):
         )
         self.assertFalse(result["scientific_contract_changed"])
         self.assertTrue(result["prior_outputs_absent"])
-        self.assertTrue(result["output_absent"])
+        self.assertFalse(result["output_absent"])
         self.assertTrue(result["staging_output_absent"])
 
     def test_runner_data_changes_only_versioned_identity_fields(self) -> None:

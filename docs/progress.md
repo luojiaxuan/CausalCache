@@ -19,8 +19,9 @@ v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00
 逐 byte replay 与独立复算。它的 development mean recovery 为 `0.019571`、exact match 为 `0/5`，因此是已闭合
 但不稳定的弱 similarity comparator；这不构成 learned gate 的负结论。policy-vision v1 formal attempt 又因
 PyTorch UUID object type 在 0 feature 时 `INVALID`。UUID type-only v2 随后通过原失败点，但 pinned
-`SizeDict` 不满足冻结的 `Mapping` interface check，再次于 0 feature fail closed；因此仍无 policy-vision
-scientific result。
+`SizeDict` 不满足冻结的 `Mapping` interface check，再次于 0 feature fail closed。v3 已完成 formal GPU
+artifact；首次 CPU byte-replay 只因 evaluated-state projection bug fail closed，当前是
+`COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，尚不标为 `VALID`。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1892,6 +1893,34 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   confirm/test。下一步只能从包含本 source freeze 的 clean pushed `main` 做新的 Hyper00 GPU preflight 和唯一
   formal attempt。
 
+### 2026-07-16：policy-vision v3 formal artifact 与 CPU replay failure
+
+- 唯一 v3 attempt 从 clean pushed `main@a935a3cf5efb1fa7a952ca6f45a5994609b367e9` 在 Hyper00 新容器
+  `sglang-omni-jaxan-07170635` 的 GPU 0/1 启动；config SHA256 为 `794474d8...b84b7f`，host evidence SHA256
+  为 `85e9b58c...af462`，mode-0600 ledger SHA256 为 `6aabf8dc...891ef`；
+- formal GPU schedule 完成 15 states、75 unique images、31 vision feature forwards。same-device 15-state 与
+  cross-device sentinel 的 maximum absolute score difference 都是 0；policy/LM/LM-head/generation、gate、
+  matched-NLL、closed-loop 与 confirm/test operation 均为 0；
+- raw restoration-label archive bytes 在 GPU 前只做 immutable SHA 验证；selected coalition 完成后才对 labels 做
+  semantic parse/join，feature workers 从未接收 label semantics；
+- exact-three artifact 的 README/state-scores/summary SHA256 为 `70ce9496...ed1f`、`8c597726...58b9`、
+  `5ed21d6c...1c0e`，scientific payload SHA256 为 `811e59c7...f48`。overall/train/development mean normalized
+  recovery 为 `0.404691 / 0.535228 / 0.143615`，exact match 为 `3/15 / 3/10 / 0/5`；在 CPU replay repair 前
+  这些只描述 pending artifact；
+- 首次 CPU `validate` 在 `validate_feature_worker_provenance` 抛出
+  `policy-vision row-to-worker provenance drifted`。根因是 reconstructor 保留 evaluated row 的七键 state，
+  而 feature provenance 明确要求四键 `index/role/trajectory_id/state_id`；worker/device/GPU 和 scientific values
+  未观察到漂移；
+- bounded CPU diagnostic 只做上述四键 projection，其余 rows、summary、labels、witness 不变，三份 artifact
+  全部逐 byte exact match。该诊断不替代 versioned repair；GPU ledger 已 claim，formal artifact bytes 与停止的
+  container 必须保留，GPU 不重跑。failure binding 位于
+  `data/results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/`。
+- 独立 stdlib-only 数值审计复算了 15 states / 60 candidates 的 top-2、utility、recovery、exact match、所有
+  comparator delta、development paired rows、bootstrap summaries 与 scientific payload，未发现 blocker。overall
+  mean recovery 受一个小 baseline-distance 负 outlier 明显影响，ratio-of-sums 为 `0.703501`，后续与
+  `0.404691` mean 并列解释。`exact_coalition_overlap_with_*` 表示 policy-vision selection 与对应 comparator
+  selection 完全相同，不得误读为 comparator 与 exact-subset oracle 相同。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
@@ -1900,8 +1929,8 @@ canonical-representative 补救分支；formal label v1 已 zero-forward fail cl
 offline oracle/labels、private HF immutable artifact、selector-geometry v2 repaired result 与 OCR/RGB v2
 comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision v1 唯一 invocation 在
 zero-feature UUID type probe 阶段 `INVALID`；type-only v2 跨过 UUID 后又在 zero-feature SizeDict interface check
-阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 source 已冻结；下一步从新的 clean
-pushed `main` 执行唯一 v3 attempt，若产生 result，才做 committed replay 与独立 CPU artifact audit。
+阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 GPU artifact 已完成且不得重跑；下一步先
+提交 exact bytes/failure binding，再冻结 state-projection-only CPU validation repair并完成独立数值审计。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
