@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0.0",
+  "status": "INVALID_POLICY_VISION_V1_ZERO_FEATURE_GPU_UUID_TYPE",
+  "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v1",
+  "source_git_commit": "c0937056e94d110cd67e593288f9e0c3a3b24809",
+  "contract_sha256": "a2319f8ea52d53fa01487cdbcbfef20b86ac81dcfab1c8a36ce4583b0b503023",
+  "failure_stage": "runtime_gpu_identity_before_model_snapshot_hash_processor_or_model_load",
+  "exception": {
+    "type": "ValueError",
+    "message": "GPU UUID must be a non-empty string",
+    "origin": "GUIOwlV22VisionFeatureRuntime._validated_gpu_identity"
+  },
+  "root_cause": {
+    "expected_interface": "torch.cuda.get_device_properties(device).uuid is str_or_bytes",
+    "observed_python_type": "torch._C._CUuuid",
+    "post_failure_diagnostic_string_values": [
+      "e10a085b-e20e-a454-6fda-17063cf68418",
+      "2396c1ff-41ff-385f-30fe-0272d99c5d6c"
+    ],
+    "repair_boundary": "accept_only_the_pinned_torch_C_CUuuid_runtime_type_then_apply_the_existing_canonical_UUID_and_nvidia_smi_binding",
+    "scientific_selector_or_statistical_contract_changed": false
+  },
+  "execution_identity": {
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "container_name": "sglang-omni-jaxan-07170518",
+    "container_id": "84a75b723322047d056f09e238666549aa3f90a7f6c69553305f3e1bc7ef5f95",
+    "container_hostname": "84a75b723322",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "nvidia_driver_version": "570.172.08",
+    "gpu_uuids_in_logical_order": [
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c"
+    ],
+    "host_evidence_sha256": "a75aa47cbd3cfd21db052c095347d4743d0b37a920c3a87ae24abf6ec8b24f69",
+    "container_started_at_utc": "2026-07-16T21:18:26.901055894Z",
+    "failure_observed_no_later_than_utc": "2026-07-16T21:21:41Z"
+  },
+  "preflight": {
+    "gpu_idle_sample_seconds": 10,
+    "selected_physical_gpu_ids": [0, 1],
+    "selected_gpu_max_utilization_percent": [0, 0],
+    "idle_container_kill_count": 0,
+    "source_head_equals_origin_main": true,
+    "source_contract_validated": true,
+    "canonical_output_absent_before_run": true,
+    "staging_output_absent_before_run": true,
+    "raw_label_archive_byte_identity_validated": true,
+    "derived_exact_six_projection_validated": true,
+    "host_evidence_validated": true
+  },
+  "operation_counts_before_failure": {
+    "worker_process_launch_count": 2,
+    "model_snapshot_full_hash_count": 0,
+    "image_processor_load_count": 0,
+    "policy_model_load_count": 0,
+    "image_processor_batch_count": 0,
+    "image_processing_assignment_count": 0,
+    "vision_feature_forward_count": 0,
+    "cosine_scalar_transfer_count": 0,
+    "canonical_state_score_count": 0,
+    "selection_count": 0,
+    "restoration_label_semantic_load_count": 0,
+    "gate_training_example_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0,
+    "confirm_state_access_count": 0,
+    "sealed_test_state_access_count": 0,
+    "result_file_count": 0
+  },
+  "operation_count_basis": "The exception occurs before verify_frozen_vision_runtime, AutoImageProcessor.from_pretrained, AutoModelForImageTextToText.from_pretrained, score_five_images, worker merge, semantic label loading, and output staging in both fixed worker paths.",
+  "post_failure_checks": {
+    "canonical_output_absent": true,
+    "staging_output_absent": true,
+    "runner_process_absent": true,
+    "gpu_compute_process_absent": true
+  },
+  "retry_boundary": {
+    "same_protocol_retry_allowed": false,
+    "same_output_identity_reused": false,
+    "required_next_action": "freeze_a_versioned_GPU_UUID_type_only_repair_before_any_new_feature_output"
+  },
+  "traceback_tail": [
+    "File causalcache/restoration_v2_2_policy_vision.py, line 522, in run_policy_vision_worker",
+    "runtime = GUIOwlV22VisionFeatureRuntime(...) ",
+    "File causalcache/policy/gui_owl_v2_2_vision_runtime.py, line 295, in __init__",
+    "gpu_identity = _validated_gpu_identity(...) ",
+    "File causalcache/policy/gui_owl_v2_2_vision_runtime.py, line 140, in _validated_gpu_identity",
+    "observed = _canonical_gpu_uuid(getattr(properties, uuid, None))",
+    "ValueError: GPU UUID must be a non-empty string"
+  ]
+}

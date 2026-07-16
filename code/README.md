@@ -950,8 +950,11 @@ difference 必须不超过 `1e-6`，ranking/coalition 必须 exact match。featu
 完成后 CPU reducer 才解析并加载 immutable labels 做评价。GPU 前只对 raw label archive 做 path/size/SHA256
 byte-identity verification，不向 worker 暴露其内容。
 
-正式 output 固定为 `data/results/restoration_v2_2_policy_vision_baseline_v1/` exact-three files。当前 source-only
-阶段没有 policy-vision result 数值；正式 runner 要求显式传入 source commit、两个 GPU UUID、Hyper SSH alias/
+v1 正式 output 原固定为 `data/results/restoration_v2_2_policy_vision_baseline_v1/` exact-three files。唯一 v1
+formal attempt 因 pinned PyTorch 2.11 返回 `torch._C._CUuuid`、而 source parser 只接受 `str/bytes`，在 model
+snapshot full hash、processor/model load 与任何 feature forward 前 fail closed；output/staging 均不存在，证据见
+`data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/`。v1 不重试，当前没有 policy-vision result 数值。
+runner 要求显式传入 source commit、两个 GPU UUID、Hyper SSH alias/
 宿主 hostname、容器内 hostname、Docker container name、container image digest、driver version，以及由宿主
 `docker inspect`/`nvidia-smi` 生成的只读 evidence JSON。完整 argv、统计与 failure boundary 见
 `docs/restoration_v2_2_policy_vision_baseline.md`。source commit push 前不得启动 GPU formal run，result 产生后

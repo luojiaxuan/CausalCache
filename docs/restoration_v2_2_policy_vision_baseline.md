@@ -1,7 +1,7 @@
 # Restoration v2.2 policy-vision feature-only baseline
 
-> 当前状态：source-only contract 已实现，formal GPU output 尚未生成。confirm/test、gate、matched-NLL 与
-> closed-loop 仍保持锁定。
+> 当前状态：v1 source contract 已冻结；唯一 formal invocation 因 pinned PyTorch UUID object type mismatch 在
+> 0 feature 时 `INVALID`，canonical output 未生成。confirm/test、gate、matched-NLL 与 closed-loop 仍锁定。
 
 ## 1. 这个 comparator 测什么
 
@@ -251,5 +251,10 @@ python3 -m scripts.run_restoration_v2_2_policy_vision_baseline validate \
 
 这里的 `<SOURCE_COMMIT>` 必须仍是原 formal GPU run 的 source SHA，不是包含 result 的 descendant `HEAD`。
 
-source SHA 由 formal argv/result provenance 记录；formal result commit、descendant CPU audit 与最终数值将在
-执行后追加。当前不能把本 source freeze 写成 comparator 已通过，也不能据此开始 gate training。
+v1 formal invocation 从 `main@c0937056e94d110cd67e593288f9e0c3a3b24809` 启动，但
+`torch.cuda.get_device_properties().uuid` 的真实类型是 `torch._C._CUuuid`，不是 source parser 允许的
+`str/bytes`。它在 model snapshot full hash、processor/model load、feature forward 与 output staging 前 fail
+closed；轻量证据见
+[`../data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/`](../data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/)。
+同一 v1 不重试，必须先冻结只扩展 pinned UUID object normalization 的 versioned replacement。当前不能把本
+source freeze 写成 comparator 已通过，也不能据此开始 gate training。

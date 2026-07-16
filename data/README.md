@@ -176,6 +176,13 @@ restoration v2 exact selection/exposure 产物：
   matched-NLL、closed-loop 与 confirm/test operation 均为 0。result commit
   `7e59591573cb31f178dfd07422cc2e3c8aeff573` 已通过 clean descendant Hyper00 committed replay。
 
+- Restoration v2.2 policy-vision comparator：v1 formal attempt 从
+  `main@c0937056e94d110cd67e593288f9e0c3a3b24809` 启动，但 pinned PyTorch 2.11 将 device UUID 暴露为
+  `torch._C._CUuuid`，与只接受 `str/bytes` 的 v1 probe 不兼容；它在 0 feature、0 model/processor load、
+  0 semantic label load 时永久 `INVALID`，canonical output/staging 均不存在。轻量 failure binding 位于
+  `results/restoration_v2_2_policy_vision_baseline_v1_attempt/`；下一步是 UUID type-only versioned repair，不复用
+  v1 output identity。
+
 最新轻量运行记录：
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
