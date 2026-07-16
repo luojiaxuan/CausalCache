@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / v2 pre-claim repair source frozen、formal labels pending、confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / confirm locked
 
 ## 团队交接入口
 
@@ -96,20 +96,19 @@ SHA256 为 `bb6351e4dd5b4470ed1add86dbcbaa714a56063ba8ecf07268b6f13f630f9e54`。
 `3577099d505b8c652d764f41269df911128ec767` fresh-download 并逐 byte 复核。轻量结果见
 [`data/results/restoration_v2_2_eager_full_45_substrate/`](data/results/restoration_v2_2_eager_full_45_substrate/)。
 
-restoration v2.2 label v1 source 已在 clean pushed
-`main@3942d687d03bf63ea683fe8ad906a161eb10dc27` 冻结。machine-readable contract SHA256 为
-`56b29f6879ef14167b20a39d0d61ebd0e698e3bbf0457062b63453180e71cf87`，29-file source inventory
-SHA256 为 `8d0ecf6b0df75f9fa7753631b8fca5efd98c71a7953007e684393e6e8fe52d9b`；完整回归
-575 tests 通过（skipped 11），`make paper` 通过。本阶段只冻结 45-state / 420-row canonical distance
-table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 465 teacher-forward /
-420 KL / 0 generation schedule。第一次 formal attempt 已 fail closed：指定 model snapshot 目录不存在，两个 worker
-在 state marker/runtime load 前退出，attempted/completed states、teacher forward、KL、raw labels 均为 0；原 identity
-永久禁止 retry/resume。没有 HF artifact，confirm、gate、matched-NLL 和 closed-loop 也均未运行。replacement
-已以 `restoration-v2-2-eager-labels-v2` / `v2_preclaim_repair` 冻结；config SHA256 为
-`7fc96883b905a5f026c18e65c3c7e377972559c775ac7ec95030ea1f04c2f94c`。它固定 canonical model projection
-`/data/artifacts/models/GUI-Owl-1.5-8B-Instruct`，并在 durable claim 前逐 hash 验证 14 files / 17,545,907,171
-bytes、snapshot revision 与 Transformers source。完整边界与 failure binding 见
-[`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)。
+restoration v2.2 label v1 因错误 model path 在 zero-forward 阶段永久封存为 `INVALID`；replacement v2 已从
+`main@5ae40d4aed4eb20b931216776b379bc6ae55629d` 完成唯一双 H200 formal run：45/45 states `PASS`，生成
+420 条 canonical $D(S)$、435 条 deployment conditional-marginal labels、45 个 exact-subset oracle 与 465 个
+pair interactions，retry、top-up、generation 均为 0。$B=2$ exact oracle 的 normalized recovery 为 overall
+0.8735（train 0.9028 / dev 0.8149），44/45 states 获得正 oracle utility；75/435 marginals 为负且分布在
+22/45 states，说明后续 gate 需要保留 set conditioning，而不是证明 learned gate 已有效。
+
+raw label USTAR 已在 private HF
+[`gavinlaw/causalcache-restoration-labels-mobile@8f6baae5`](https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile/tree/8f6baae5c0b23b08915fa1b0fb848dd519b4c8db)
+fresh-download 闭合，tag 为 `v2.2-eager-train-dev-exact-v2`。Git compact result 见
+[`data/results/restoration_v2_2_eager_labels_v2/`](data/results/restoration_v2_2_eager_labels_v2/)，完整协议与
+artifact identity 见 [`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)。这只是 offline
+oracle/labels；gate training、matched-NLL、closed-loop 和 confirm 均未运行。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
 post-state image，八字段 strong low-fidelity summary 已实现；v2.1 只修复 versioned policy interface，不改变
@@ -262,7 +261,7 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 2. [`docs/restoration_v2_1.md`](docs/restoration_v2_1.md)：official-tool interface rescue 与固定 15-state pilot；
 3. [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)：full-45 stable-reference substrate、gate 与一次性执行边界；
 4. [`docs/restoration_v2_2_eager.md`](docs/restoration_v2_2_eager.md)：只改 eager runtime 的 fresh-45 双 H200 source-only contract；
-5. [`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)：已冻结的 attribution source、exact subset oracle、conditional-marginal label schema 与正式双 H200 边界；
+5. [`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)：已闭合的 attribution run、exact subset oracle、conditional-marginal labels 与 artifact identity；
 6. [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)：interaction-aware student 的设计、能力边界与 ablation matrix；
 7. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
    post-state-only prompt 的冻结实现；
@@ -559,8 +558,9 @@ $$
 - [x] 冻结 restoration v2.2 attribution source、exact subset oracle 与 conditional-marginal label contract；source 已 push；
 - [x] formal v1 attempt 按 contract 永久封存为 zero-forward `INVALID`；根因是 model snapshot existence 校验晚于 durable claim，而非 restoration estimand 结果；
 - [x] 冻结 replacement v2 attempt identity、独立 outcome/HF path 与 pre-claim model snapshot validator；
-- [ ] 在固定双 H200 23/22 parity、microbatch 1 下运行 v2，生成 420-row raw distance table、45 个 exact subset oracle 与 435 条 deployment conditional-marginal labels，并闭合 private HF artifact；confirm 仍 locked；
-- [ ] 构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
+- [x] 在固定双 H200 23/22 parity、microbatch 1 下完成 v2 formal labels，并闭合 private HF immutable artifact；
+- [ ] 冻结 set-conditioned gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
+- [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
 ## Source of Truth
@@ -592,6 +592,7 @@ $$
 - Restoration v2.2 formal label runner: [`code/scripts/run_restoration_v2_2_labels.py`](code/scripts/run_restoration_v2_2_labels.py)
 - Restoration v2.2 label artifact manager: [`code/scripts/manage_restoration_v2_2_label_artifact.py`](code/scripts/manage_restoration_v2_2_label_artifact.py)
 - Restoration v2.2 label v1 zero-forward failure: [`data/results/restoration_v2_2_eager_labels_v1_attempt/`](data/results/restoration_v2_2_eager_labels_v1_attempt/)
+- Restoration v2.2 label v2 canonical result: [`data/results/restoration_v2_2_eager_labels_v2/`](data/results/restoration_v2_2_eager_labels_v2/)
 - Material-run metadata schema: [`code/configs/run_manifest.schema.json`](code/configs/run_manifest.schema.json)
 - Current restoration v2 contract: [`docs/restoration_v2.md`](docs/restoration_v2.md)
 - Machine-readable v2 config: [`code/configs/causalcache_restoration_v2.json`](code/configs/causalcache_restoration_v2.json)

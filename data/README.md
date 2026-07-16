@@ -155,18 +155,16 @@ restoration v2 exact selection/exposure 产物：
   SHA256 为 `b22827e6...09fb5`，fresh immutable download 已逐 byte 复核。confirm、restoration 与 gate artifact
   count 当前仍均为 0。
 
-- Restoration v2.2 exact labels（replacement planned）：v1 source contract 已在
+- Restoration v2.2 exact labels：v1 source contract 已在
   `main@3942d687d03bf63ea683fe8ad906a161eb10dc27` 冻结；formal v1 attempt 因 model snapshot directory 不存在，
   在 0 state marker / 0 teacher forward / 0 KL 时永久封存为 `INVALID`。轻量 binding 位于
-  `results/restoration_v2_2_eager_labels_v1_attempt/`，原 Hyper00 root/ledger 不删除、不重跑。planned private HF
-  target 仍为 `gavinlaw/causalcache-restoration-labels-mobile`；replacement v2 tag 已冻结为
-  `v2.2-eager-train-dev-exact-v2`，raw path 为 `raw/v2.2-eager-train-dev-exact-v2.tar`，但 repo、immutable revision 与
-  raw archive 当前均未创建。canonical model projection 已完成 14-file full hash preflight，这不是 label artifact。
-  预期 schema/count 仍为
-  45 states、420 条 canonical raw `D(S)`、45 个 exact-subset oracle、
-  435 条 deployment conditional-marginal labels；Git 只会在 immutable fresh-download 闭合后保存 compact
-  summary/artifact binding。gate checkpoint、matched-NLL pairs、closed-loop episodes 与 confirm artifact 不属于
-  该 planned dataset。
+  `results/restoration_v2_2_eager_labels_v1_attempt/`，原 Hyper00 root/ledger 不删除、不重跑。replacement v2 已从
+  `main@5ae40d4aed4eb20b931216776b379bc6ae55629d` 完成 45/45 states，生成 420 条 canonical raw $D(S)$、
+  45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 465 个 pair interactions；0 retry、
+  0 top-up、0 generation。Git compact result 位于 `results/restoration_v2_2_eager_labels_v2/`；raw 101-file USTAR
+  位于 private HF `gavinlaw/causalcache-restoration-labels-mobile@8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`
+  （tag `v2.2-eager-train-dev-exact-v2`），fresh immutable download 已闭合。gate checkpoint、matched-NLL pairs、
+  closed-loop episodes 与 confirm artifact 仍不存在。
 
 最新轻量运行记录：
 
@@ -177,6 +175,11 @@ restoration v2 exact selection/exposure 产物：
 - `results/restoration_v2_2_eager_full_45_substrate/`：唯一 Hyper00 双 H200 fresh-45 attempt 为 45/45 exact
   repeat、45/45 finite logits、45 memory-sensitive states，正式 PASS；deterministic USTAR 与 private HF
   immutable revision `3577099d...c767` 已 fresh-download 闭合，restoration/gate/confirm count 均为 0；
+
+- `results/restoration_v2_2_eager_labels_v2/`：replacement formal label attempt 45/45 PASS；保存 immutable HF/raw
+  binding 和 policy-free scientific reduction。$B=2$ oracle normalized recovery 为 overall/train/dev
+  0.8735/0.9028/0.8149；75/435 conditional marginals 为负且覆盖 22/45 states。该目录不包含 raw labels，也不
+  声称 gate、matched-NLL 或 closed-loop 结果；
 
 - `results/restoration_v2_ocr_backend/`：保留首次 package-source key 冲突与 mutable-status 两个 superseded
   attempt；最终 static fixture 已从 pushed commit 两次通过 `validate-golden` 且 byte-identical。synthetic

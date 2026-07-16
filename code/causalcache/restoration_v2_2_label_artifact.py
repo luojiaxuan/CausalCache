@@ -51,6 +51,10 @@ from causalcache.restoration_v2_2_label_table import (
 
 SCHEMA_VERSION = "1.0.0"
 ARCHIVE_FORMAT = "ustar"
+HF_REPO_TYPE = "dataset"
+HF_VISIBILITY = "private"
+HF_README_PATH = "README.md"
+HF_DATASET_MANIFEST_PATH = "manifest.json"
 GLOBAL_LEDGER_MEMBER = "global_attempt_ledger.json"
 SIBLING_PREFIX = "worker_sibling_ledgers"
 RUN_MANIFEST_FILENAME = "run_manifest.json"
@@ -188,6 +192,80 @@ def _safe_member_name(value: str) -> str:
     ):
         raise ValueError("label evidence member path is not canonical relative POSIX")
     return value
+
+
+def _safe_hf_path(value: str) -> str:
+    path = PurePosixPath(value)
+    if (
+        not value
+        or path.is_absolute()
+        or "." in path.parts
+        or ".." in path.parts
+        or path.as_posix() != value
+    ):
+        raise ValueError("HF file path is not canonical relative POSIX")
+    return value
+
+
+def _validated_hf_file_records(
+    records: Sequence[Mapping[str, Any]],
+    *,
+    profile: RestorationLabelAttemptProfile,
+    raw_archive_sha256: str,
+    raw_archive_size_bytes: int,
+) -> list[dict[str, Any]]:
+    if isinstance(records, (str, bytes)) or not isinstance(records, Sequence):
+        raise ValueError("exact HF file records must be a sequence")
+    normalized: list[dict[str, Any]] = []
+    for record in records:
+        if not isinstance(record, Mapping) or set(record) != {
+            "path",
+            "sha256",
+            "size_bytes",
+        }:
+            raise ValueError("exact HF file record field inventory drifted")
+        path = record.get("path")
+        sha256 = record.get("sha256")
+        size_bytes = record.get("size_bytes")
+        if not isinstance(path, str):
+            raise ValueError("exact HF file record path drifted")
+        _safe_hf_path(path)
+        if not isinstance(sha256, str) or _SHA256.fullmatch(sha256) is None:
+            raise ValueError("exact HF file record SHA256 drifted")
+        if (
+            not isinstance(size_bytes, int)
+            or isinstance(size_bytes, bool)
+            or size_bytes < 0
+        ):
+            raise ValueError("exact HF file record size drifted")
+        normalized.append(
+            {"path": path, "sha256": sha256, "size_bytes": size_bytes}
+        )
+
+    paths = [record["path"] for record in normalized]
+    if paths != sorted(paths):
+        raise ValueError("exact HF file records must be sorted by path")
+    if len(paths) != len(set(paths)):
+        raise ValueError("exact HF file record paths must be unique")
+    required_paths = {
+        HF_README_PATH,
+        HF_DATASET_MANIFEST_PATH,
+        profile.hf_path,
+    }
+    if not required_paths.issubset(paths):
+        raise ValueError("exact HF file records lack a required artifact path")
+
+    by_path = {record["path"]: record for record in normalized}
+    raw_record = by_path[profile.hf_path]
+    if (
+        raw_record["sha256"] != raw_archive_sha256
+        or raw_record["size_bytes"] != raw_archive_size_bytes
+    ):
+        raise ValueError("canonical HF raw archive file record drifted")
+    for path in (HF_README_PATH, HF_DATASET_MANIFEST_PATH):
+        if by_path[path]["size_bytes"] <= 0:
+            raise ValueError("required HF metadata file must be non-empty")
+    return normalized
 
 
 def _json(files: Mapping[str, bytes], name: str) -> dict[str, Any]:
@@ -1239,19 +1317,61 @@ def build_artifact_manifest(
     source_archive: str | Path,
     fresh_immutable_archive: str | Path,
     hf_revision: str,
+    hf_tag: str,
+    hf_repo_type: str,
+    hf_visibility: str,
+    hf_private: bool,
+    tag_resolved_revision: str,
+    tag_resolution_verified: bool,
+    packaging_git_commit: str,
+    hf_file_records: Sequence[Mapping[str, Any]],
 ) -> dict[str, Any]:
     if _GIT_SHA.fullmatch(hf_revision) is None:
         raise ValueError("HF immutable revision must be a full commit SHA")
-    source = Path(source_archive).resolve()
-    fresh = Path(fresh_immutable_archive).resolve()
+    if _GIT_SHA.fullmatch(packaging_git_commit) is None:
+        raise ValueError("packaging Git commit must be a full commit SHA")
+    if _GIT_SHA.fullmatch(tag_resolved_revision) is None:
+        raise ValueError("tag-resolved revision must be a full commit SHA")
+    source_supplied = Path(source_archive)
+    fresh_supplied = Path(fresh_immutable_archive)
+    if fresh_supplied.is_symlink():
+        raise ValueError("fresh immutable archive must not be a symlink")
+    source = source_supplied.resolve()
+    fresh = fresh_supplied.resolve()
     if source == fresh:
         raise ValueError("fresh immutable archive must use an independent path")
     evidence = read_label_evidence_archive(source)
     read_label_evidence_archive(fresh)
+    if hf_tag != evidence.profile.hf_tag:
+        raise ValueError("HF tag differs from the attempt profile")
+    if hf_repo_type != HF_REPO_TYPE:
+        raise ValueError("HF repo type must be dataset")
+    if hf_visibility != HF_VISIBILITY:
+        raise ValueError("HF visibility must be private")
+    if hf_private is not True:
+        raise ValueError("HF private verification must be true")
+    if tag_resolved_revision != hf_revision:
+        raise ValueError("HF tag does not resolve to the immutable revision")
+    if tag_resolution_verified is not True:
+        raise ValueError("HF tag resolution must be explicitly verified")
+
+    source_stat = source.stat()
+    fresh_stat = fresh.stat()
+    inode_comparable = source_stat.st_dev == fresh_stat.st_dev
+    if inode_comparable and source_stat.st_ino == fresh_stat.st_ino:
+        raise ValueError("fresh immutable archive must use a different inode")
     source_payload = source.read_bytes()
     fresh_payload = fresh.read_bytes()
     if source_payload != fresh_payload:
         raise ValueError("fresh immutable label archive differs from source bytes")
+    raw_archive_sha256 = sha256_bytes(source_payload)
+    raw_archive_size_bytes = len(source_payload)
+    exact_file_records = _validated_hf_file_records(
+        hf_file_records,
+        profile=evidence.profile,
+        raw_archive_sha256=raw_archive_sha256,
+        raw_archive_size_bytes=raw_archive_size_bytes,
+    )
     return {
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
@@ -1268,20 +1388,37 @@ def build_artifact_manifest(
         "source_execution": {
             "source_git_commit": evidence.source_git_commit,
             "run_contract_sha256": evidence.run_contract_sha256,
+            "packaging_git_commit": packaging_git_commit,
         },
         "raw_archive": {
             "format": ARCHIVE_FORMAT,
-            "sha256": sha256_bytes(source_payload),
-            "size_bytes": len(source_payload),
+            "sha256": raw_archive_sha256,
+            "size_bytes": raw_archive_size_bytes,
             "file_count": len(evidence.files),
             "tree_inventory_sha256": evidence.tree_inventory_sha256,
         },
         "hf_artifact": {
             "repo": evidence.profile.hf_repo,
+            "repo_type": hf_repo_type,
+            "visibility": hf_visibility,
+            "private": hf_private,
+            "tag": hf_tag,
             "immutable_revision": hf_revision,
+            "tag_resolved_revision": tag_resolved_revision,
+            "tag_resolution_verified": tag_resolution_verified,
             "path": evidence.profile.hf_path,
+            "exact_file_records": exact_file_records,
             "fresh_immutable_download_verified": True,
             "fresh_archive_sha256": sha256_bytes(fresh_payload),
             "fresh_archive_size_bytes": len(fresh_payload),
+            "fresh_archive_identity": {
+                "non_symlink_verified": True,
+                "source_fresh_inode_comparable": inode_comparable,
+                "source_fresh_different_inode_verified": (
+                    source_stat.st_ino != fresh_stat.st_ino
+                    if inode_comparable
+                    else None
+                ),
+            },
         },
     }

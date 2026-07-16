@@ -7,12 +7,12 @@ AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gat
 `NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权
 全新的 v2.2-eager substrate。唯一 v2.2 fresh-45 attempt 已在双 H200 上取得 45/45 parse、45/45 exact repeat、
 45/45 finite logits 与 45 个 memory-sensitive states，正式为 `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；deterministic
-USTAR 与 private HF immutable revision 已完成 fresh-download 复核。当前没有 restoration label、baseline
-selection、gate checkpoint、confirm policy output 或 CausalCache 方法效果结果。restoration v2.2 label v1 source
-已冻结并 push；第一次 formal attempt 因 model snapshot preflight 缺陷在 0 state / 0 forward 时永久封存为
-`INVALID`。replacement v2 identity 与 pre-claim full snapshot validator 已冻结；正式 raw labels/HF artifact 尚未产生。
-下一步只运行固定双 H200 v2 attempt，
-confirm 和 AndroidWorld test split 仍保持 locked。
+USTAR 与 private HF immutable revision 已完成 fresh-download 复核。restoration label v1 因 model snapshot
+preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replacement v2 已完成 45/45 states，并闭合
+420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
+HF immutable artifact。当前已有 offline teacher labels 和 oracle 上界，但仍没有 learned gate checkpoint、
+matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一步先冻结独立的 set-conditioned
+gate-training/evaluation contract；confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
 
@@ -1607,14 +1607,35 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - 本里程碑仍是 source-only：v2 formal GPU attempt、raw labels、HF repo/revision、gate、matched-NLL、closed-loop 与
   confirm 均未运行。
 
+### 2026-07-16：Restoration v2.2 exact labels 与 immutable artifact 闭合
+
+- 从 source/packaging commit `5ae40d4aed4eb20b931216776b379bc6ae55629d` 在 Hyper00 同机同容器的两张
+  H200 上完成唯一 replacement attempt；run-contract SHA256 为
+  `b78ca1e70652c7eef68efc3472adf78cec4510e507a0c00cfcee2c2cf05285d9`。45/45 states `PASS`，even/odd
+  workers 分别完成 23/23 与 22/22，retry、top-up 和 generation 均为 0；
+- formal payload 包含 420 条 canonical $D(S)$、435 条 deployment conditional-marginal labels、45 个
+  exact-subset oracle 与 465 个 pair-interaction rows。exact oracle 的 mean normalized recovery 为 overall
+  `0.8735119444`、train `0.9028414853`、development `0.8148528628`；44/45 states 获得正 oracle utility，
+  oracle cardinality 0/1/2 的 state 数为 1/3/41；
+- conditional marginals 的严格正/负计数为 360/75，22/45 states 至少包含一条负 marginal；pair interactions
+  的严格正/负计数为 188/277；raw utility 的严格正/零/负计数为 338/45/37。interaction 与 non-monotonicity
+  支持后续 set-conditioned gate 设计，但不证明 distilled gate、matched-NLL 或 closed-loop 效果；
+- 101-file deterministic USTAR 的 SHA256 为
+  `99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e`，tree SHA256 为
+  `c5104594b0741810f3d49d007a63a74f16ee4236dd137d1dea92b9373065c45f`。private HF dataset
+  `gavinlaw/causalcache-restoration-labels-mobile` 的 tag `v2.2-eager-train-dev-exact-v2` 已绑定 immutable
+  revision `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`；fresh immutable download 重新通过 raw reducer 并与
+  source archive 逐 byte 相同；
+- Git compact result 位于 `data/results/restoration_v2_2_eager_labels_v2/`。当前只闭合 offline oracle/labels；
+  gate checkpoint、matched-NLL pairs、closed-loop episodes 和 confirm artifact 均不存在，confirm 保持 locked。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
-canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 identity
-与 pre-claim full model snapshot validator 已冻结；下一步只运行双 H200 23/22 parity、microbatch-1 formal label
-attempt，生成 420-row canonical distance table、45 个 exact
-subset oracle 与 435 条 deployment conditional-marginal labels；terminal 后打包、上传 planned private HF dataset，
-并用 immutable fresh download 闭合 artifact。此步完成后才能另行冻结 gate-training contract，再比较 exact subset
-oracle、oracle-marginal greedy 与 distilled greedy。matched-NLL、closed-loop 和 confirm 仍未授权；AndroidWorld
-sealed test split 仍不得读取。
+canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 的 45-state
+offline oracle/labels 与 private HF immutable artifact 已闭合。下一步先冻结独立的 set-conditioned gate-training 与
+evaluation contract，明确 train/development 使用、conditional-edge sampling、set encoder、greedy/search baselines、
+checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate，再开始任何训练或效果评估。confirm 与
+AndroidWorld sealed test split 仍 locked；新 contract 通过前不得直接运行 gate、matched-NLL、closed-loop 或读取
+confirm/test。

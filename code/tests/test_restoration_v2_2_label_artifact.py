@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import contextlib
+import copy
+import io
 import itertools
 import json
+import os
 import tarfile
 import tempfile
 import unittest
@@ -15,6 +19,8 @@ from causalcache.restoration_v2_2_eager_artifact import (
 from causalcache.restoration_v2_2_label_artifact import (
     AGGREGATE_FILENAME,
     GLOBAL_LEDGER_MEMBER,
+    HF_DATASET_MANIFEST_PATH,
+    HF_README_PATH,
     RUN_MANIFEST_FILENAME,
     SIBLING_PREFIX,
     _expected_attribution,
@@ -43,6 +49,10 @@ from tests.test_run_restoration_v2_2_eager_substrate import (
     fake_distance_audit,
     fake_runtime_metadata,
     fake_teacher_metadata,
+)
+from scripts.manage_restoration_v2_2_label_artifact import (
+    _parser as artifact_cli_parser,
+    main as artifact_cli_main,
 )
 
 
@@ -494,6 +504,41 @@ def _v2_repair_files() -> dict[str, bytes]:
     return files
 
 
+def _hf_file_records(profile: object, raw_payload: bytes) -> list[dict[str, object]]:
+    payloads = {
+        HF_README_PATH: b"# CausalCache restoration labels\n",
+        HF_DATASET_MANIFEST_PATH: b'{"schema_version":"1.0.0"}\n',
+        profile.hf_path: raw_payload,
+    }
+    return [
+        {
+            "path": path,
+            "sha256": sha256_bytes(payload),
+            "size_bytes": len(payload),
+        }
+        for path, payload in sorted(payloads.items())
+    ]
+
+
+def _artifact_manifest_kwargs(
+    profile: object,
+    raw_payload: bytes,
+    *,
+    hf_revision: str,
+) -> dict[str, object]:
+    return {
+        "hf_revision": hf_revision,
+        "hf_tag": profile.hf_tag,
+        "hf_repo_type": "dataset",
+        "hf_visibility": "private",
+        "hf_private": True,
+        "tag_resolved_revision": hf_revision,
+        "tag_resolution_verified": True,
+        "packaging_git_commit": "4" * 40,
+        "hf_file_records": _hf_file_records(profile, raw_payload),
+    }
+
+
 class RestorationV22LabelArtifactTest(unittest.TestCase):
     def test_full_raw_inventory_recomputes_all_derived_labels(self) -> None:
         files = _files()
@@ -610,19 +655,49 @@ class RestorationV22LabelArtifactTest(unittest.TestCase):
             source.write_bytes(payload)
             fresh.write_bytes(payload)
             evidence = read_label_evidence_archive(source)
+            manifest_kwargs = _artifact_manifest_kwargs(
+                evidence.profile,
+                payload,
+                hf_revision="2" * 40,
+            )
             manifest = build_artifact_manifest(
                 source_archive=source,
                 fresh_immutable_archive=fresh,
-                hf_revision="2" * 40,
+                **manifest_kwargs,
             )
             self.assertEqual(evidence.files, files)
             self.assertEqual(manifest["raw_archive"]["file_count"], 101)
+            self.assertEqual(manifest["hf_artifact"]["tag"], evidence.profile.hf_tag)
+            self.assertEqual(manifest["hf_artifact"]["repo_type"], "dataset")
+            self.assertEqual(manifest["hf_artifact"]["visibility"], "private")
+            self.assertIs(manifest["hf_artifact"]["private"], True)
+            self.assertEqual(
+                manifest["hf_artifact"]["tag_resolved_revision"], "2" * 40
+            )
+            self.assertIs(
+                manifest["hf_artifact"]["tag_resolution_verified"], True
+            )
+            self.assertEqual(
+                manifest["source_execution"]["packaging_git_commit"], "4" * 40
+            )
+            self.assertEqual(
+                manifest["hf_artifact"]["exact_file_records"],
+                manifest_kwargs["hf_file_records"],
+            )
+            self.assertEqual(
+                manifest["hf_artifact"]["fresh_archive_identity"],
+                {
+                    "non_symlink_verified": True,
+                    "source_fresh_inode_comparable": True,
+                    "source_fresh_different_inode_verified": True,
+                },
+            )
             fresh.write_bytes(payload + b"tampered")
             with self.assertRaises((ValueError, tarfile.ReadError, EOFError)):
                 build_artifact_manifest(
                     source_archive=source,
                     fresh_immutable_archive=fresh,
-                    hf_revision="2" * 40,
+                    **manifest_kwargs,
                 )
 
     def test_v2_repair_identity_survives_validation_archive_and_manifest(self) -> None:
@@ -641,13 +716,202 @@ class RestorationV22LabelArtifactTest(unittest.TestCase):
             manifest = build_artifact_manifest(
                 source_archive=source,
                 fresh_immutable_archive=fresh,
-                hf_revision="3" * 40,
+                **_artifact_manifest_kwargs(
+                    profile,
+                    payload,
+                    hf_revision="3" * 40,
+                ),
             )
         self.assertEqual(reread.profile.attempt_id, profile.attempt_id)
         self.assertEqual(manifest["attempt_id"], profile.attempt_id)
         self.assertEqual(manifest["attempt_revision"], profile.attempt_revision)
         self.assertEqual(manifest["result"]["outcome"], profile.pass_outcome)
         self.assertEqual(manifest["hf_artifact"]["path"], profile.hf_path)
+
+    def test_manifest_rejects_unverified_hf_closure_claims(self) -> None:
+        payload = deterministic_tar_bytes(_files())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.tar"
+            fresh = root / "fresh.tar"
+            source.write_bytes(payload)
+            fresh.write_bytes(payload)
+            profile = read_label_evidence_archive(source).profile
+            base = _artifact_manifest_kwargs(
+                profile,
+                payload,
+                hf_revision="2" * 40,
+            )
+            mutations = (
+                ("hf_tag", "wrong-tag", "HF tag differs"),
+                ("hf_repo_type", "model", "repo type must be dataset"),
+                ("hf_visibility", "public", "visibility must be private"),
+                ("hf_private", False, "private verification must be true"),
+                (
+                    "tag_resolved_revision",
+                    "3" * 40,
+                    "does not resolve to the immutable revision",
+                ),
+                (
+                    "tag_resolution_verified",
+                    False,
+                    "tag resolution must be explicitly verified",
+                ),
+                ("packaging_git_commit", "short", "full commit SHA"),
+            )
+            for key, value, message in mutations:
+                with self.subTest(key=key), self.assertRaisesRegex(
+                    ValueError, message
+                ):
+                    kwargs = copy.deepcopy(base)
+                    kwargs[key] = value
+                    build_artifact_manifest(
+                        source_archive=source,
+                        fresh_immutable_archive=fresh,
+                        **kwargs,
+                    )
+
+    def test_manifest_rejects_invalid_exact_hf_file_records(self) -> None:
+        payload = deterministic_tar_bytes(_files())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.tar"
+            fresh = root / "fresh.tar"
+            source.write_bytes(payload)
+            fresh.write_bytes(payload)
+            profile = read_label_evidence_archive(source).profile
+            base = _artifact_manifest_kwargs(
+                profile,
+                payload,
+                hf_revision="2" * 40,
+            )
+
+            invalid_records: list[tuple[str, list[dict[str, object]], str]] = []
+            records = _hf_file_records(profile, payload)
+            invalid_records.append(("unsorted", list(reversed(records)), "sorted"))
+            records = _hf_file_records(profile, payload)
+            records.insert(1, copy.deepcopy(records[0]))
+            invalid_records.append(("duplicate", records, "unique"))
+            records = [
+                record
+                for record in _hf_file_records(profile, payload)
+                if record["path"] != HF_README_PATH
+            ]
+            invalid_records.append(("missing-readme", records, "required artifact"))
+            records = _hf_file_records(profile, payload)
+            next(
+                record for record in records if record["path"] == profile.hf_path
+            )["sha256"] = "0" * 64
+            invalid_records.append(("raw-hash", records, "raw archive"))
+            records = _hf_file_records(profile, payload)
+            records[0]["size_bytes"] = True
+            invalid_records.append(("boolean-size", records, "size drifted"))
+
+            for name, records, message in invalid_records:
+                with self.subTest(name=name), self.assertRaisesRegex(
+                    ValueError, message
+                ):
+                    kwargs = copy.deepcopy(base)
+                    kwargs["hf_file_records"] = records
+                    build_artifact_manifest(
+                        source_archive=source,
+                        fresh_immutable_archive=fresh,
+                        **kwargs,
+                    )
+
+    def test_manifest_rejects_fresh_symlink_and_same_inode(self) -> None:
+        payload = deterministic_tar_bytes(_files())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.tar"
+            source.write_bytes(payload)
+            profile = read_label_evidence_archive(source).profile
+            kwargs = _artifact_manifest_kwargs(
+                profile,
+                payload,
+                hf_revision="2" * 40,
+            )
+
+            symlink = root / "fresh-symlink.tar"
+            symlink.symlink_to(source)
+            with self.assertRaisesRegex(ValueError, "must not be a symlink"):
+                build_artifact_manifest(
+                    source_archive=source,
+                    fresh_immutable_archive=symlink,
+                    **kwargs,
+                )
+
+            hardlink = root / "fresh-hardlink.tar"
+            os.link(source, hardlink)
+            with self.assertRaisesRegex(ValueError, "different inode"):
+                build_artifact_manifest(
+                    source_archive=source,
+                    fresh_immutable_archive=hardlink,
+                    **kwargs,
+                )
+
+    def test_create_manifest_cli_requires_and_forwards_hf_closure_receipt(self) -> None:
+        payload = deterministic_tar_bytes(_files())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "source.tar"
+            fresh = root / "fresh.tar"
+            records_path = root / "hf-file-records.json"
+            output = root / "artifact.json"
+            source.write_bytes(payload)
+            fresh.write_bytes(payload)
+            profile = read_label_evidence_archive(source).profile
+            records_path.write_text(
+                json.dumps(_hf_file_records(profile, payload)), encoding="utf-8"
+            )
+            argv = [
+                "create-manifest",
+                "--source-archive",
+                str(source),
+                "--fresh-immutable-archive",
+                str(fresh),
+                "--hf-revision",
+                "2" * 40,
+                "--hf-tag",
+                profile.hf_tag,
+                "--hf-repo-type",
+                "dataset",
+                "--hf-visibility",
+                "private",
+                "--hf-private",
+                "true",
+                "--tag-resolved-revision",
+                "2" * 40,
+                "--tag-resolution-verified",
+                "true",
+                "--packaging-git-commit",
+                "4" * 40,
+                "--hf-file-records",
+                str(records_path),
+                "--output",
+                str(output),
+            ]
+            with contextlib.redirect_stdout(io.StringIO()):
+                artifact_cli_main(argv)
+            result = json.loads(output.read_bytes())
+            self.assertEqual(result["hf_artifact"]["tag"], profile.hf_tag)
+            self.assertTrue(result["hf_artifact"]["tag_resolution_verified"])
+
+            old_unsafe_argv = [
+                "create-manifest",
+                "--source-archive",
+                str(source),
+                "--fresh-immutable-archive",
+                str(fresh),
+                "--hf-revision",
+                "2" * 40,
+                "--output",
+                str(root / "unsafe.json"),
+            ]
+            with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(
+                SystemExit
+            ):
+                artifact_cli_parser().parse_args(old_unsafe_argv)
 
 
 if __name__ == "__main__":

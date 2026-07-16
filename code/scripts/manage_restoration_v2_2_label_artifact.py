@@ -1,4 +1,4 @@
-"""Package and validate v2.2 eager restoration-label evidence."""
+"""Package, validate, and summarize v2.2 eager restoration-label evidence."""
 
 from __future__ import annotations
 
@@ -17,6 +17,21 @@ from causalcache.restoration_v2_2_label_contract import (
     CANONICAL_ATTEMPT_ID,
     label_attempt_profile_for_id,
 )
+from causalcache.restoration_v2_2_label_summary import (
+    summarize_label_evidence_archive,
+)
+
+
+def _strict_bool(value: str) -> bool:
+    if value == "true":
+        return True
+    if value == "false":
+        return False
+    raise argparse.ArgumentTypeError("expected exactly 'true' or 'false'")
+
+
+def _load_hf_file_records(path: Path) -> object:
+    return json.loads(path.read_bytes())
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -33,7 +48,20 @@ def _parser() -> argparse.ArgumentParser:
     manifest.add_argument("--source-archive", type=Path, required=True)
     manifest.add_argument("--fresh-immutable-archive", type=Path, required=True)
     manifest.add_argument("--hf-revision", required=True)
+    manifest.add_argument("--hf-tag", required=True)
+    manifest.add_argument("--hf-repo-type", required=True)
+    manifest.add_argument("--hf-visibility", required=True)
+    manifest.add_argument("--hf-private", type=_strict_bool, required=True)
+    manifest.add_argument("--tag-resolved-revision", required=True)
+    manifest.add_argument(
+        "--tag-resolution-verified", type=_strict_bool, required=True
+    )
+    manifest.add_argument("--packaging-git-commit", required=True)
+    manifest.add_argument("--hf-file-records", type=Path, required=True)
     manifest.add_argument("--output", type=Path, required=True)
+    summary = commands.add_parser("create-summary")
+    summary.add_argument("--evidence", type=Path, required=True)
+    summary.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -61,7 +89,19 @@ def main(argv: Sequence[str] | None = None) -> None:
             source_archive=args.source_archive,
             fresh_immutable_archive=args.fresh_immutable_archive,
             hf_revision=args.hf_revision,
+            hf_tag=args.hf_tag,
+            hf_repo_type=args.hf_repo_type,
+            hf_visibility=args.hf_visibility,
+            hf_private=args.hf_private,
+            tag_resolved_revision=args.tag_resolved_revision,
+            tag_resolution_verified=args.tag_resolution_verified,
+            packaging_git_commit=args.packaging_git_commit,
+            hf_file_records=_load_hf_file_records(args.hf_file_records),
         )
+        with args.output.open("xb") as destination:
+            destination.write(pretty_json_bytes(result))
+    elif args.command == "create-summary":
+        result = summarize_label_evidence_archive(args.evidence)
         with args.output.open("xb") as destination:
             destination.write(pretty_json_bytes(result))
     else:

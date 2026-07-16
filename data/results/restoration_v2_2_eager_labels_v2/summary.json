@@ -1,0 +1,226 @@
+{
+  "attempt_id": "restoration-v2-2-eager-labels-v2",
+  "attempt_revision": "v2_preclaim_repair",
+  "by_role": {
+    "v2_development": {
+      "candidate_event_count_histogram": {
+        "2": 5,
+        "3": 5,
+        "4": 5
+      },
+      "deployment_conditional_marginal": {
+        "edge_count": 145,
+        "mean_marginal_gain": 0.01149008576547454,
+        "negative_count": 32,
+        "positive_count": 113,
+        "states_with_negative_marginal_count": 9,
+        "states_with_positive_marginal_count": 15,
+        "zero_count": 0
+      },
+      "pair_interaction": {
+        "absolute_mass": 1.6706784993584733,
+        "maximum_absolute_magnitude": 0.06175649166107178,
+        "maximum_state_absolute_mass": 0.3700310931308195,
+        "mean_absolute_magnitude": 0.010778570963603054,
+        "mean_state_absolute_mass": 0.11137856662389822,
+        "negative_absolute_mass": 1.1122660542750964,
+        "negative_count": 84,
+        "positive_count": 71,
+        "positive_mass": 0.558412445083377,
+        "row_count": 155,
+        "signed_mass": -0.5538536091917194,
+        "states_with_nonzero_interaction_count": 15,
+        "zero_count": 0
+      },
+      "primary_exact_subset_oracle": {
+        "budget_event_capacity": 2,
+        "eligible_coalition_cardinality_histogram": {
+          "0": 15,
+          "1": 45,
+          "2": 50
+        },
+        "eligible_coalition_count": 110,
+        "eligible_coalition_count_histogram": {
+          "11": 5,
+          "4": 5,
+          "7": 5
+        },
+        "mean_normalized_recovery": 0.8148528627817694,
+        "mean_summary_only_distance": 0.041112675804955263,
+        "mean_utility": 0.036608879157574846,
+        "negative_utility_state_count": 0,
+        "normalization_epsilon": 1e-12,
+        "normalized_recovery_eligible_state_count": 15,
+        "normalized_recovery_excluded_state_count": 0,
+        "positive_utility_state_count": 14,
+        "selected_cardinality_histogram": {
+          "0": 1,
+          "1": 1,
+          "2": 13
+        },
+        "state_count": 15,
+        "zero_utility_state_count": 1
+      },
+      "raw_restoration_utility": {
+        "mean_utility": 0.023846831081131573,
+        "negative_count": 19,
+        "positive_count": 106,
+        "row_count": 140,
+        "states_with_negative_utility_count": 5,
+        "states_with_positive_utility_count": 15,
+        "zero_count": 15
+      },
+      "state_count": 15
+    },
+    "v2_label_train": {
+      "candidate_event_count_histogram": {
+        "2": 10,
+        "3": 10,
+        "4": 10
+      },
+      "deployment_conditional_marginal": {
+        "edge_count": 290,
+        "mean_marginal_gain": 0.014708694434927472,
+        "negative_count": 43,
+        "positive_count": 247,
+        "states_with_negative_marginal_count": 13,
+        "states_with_positive_marginal_count": 30,
+        "zero_count": 0
+      },
+      "pair_interaction": {
+        "absolute_mass": 4.338551754418404,
+        "maximum_absolute_magnitude": 0.1697198525071144,
+        "maximum_state_absolute_mass": 0.7153250575065613,
+        "mean_absolute_magnitude": 0.013995328240059368,
+        "mean_state_absolute_mass": 0.1446183918139468,
+        "negative_absolute_mass": 2.5872064692403,
+        "negative_count": 193,
+        "positive_count": 117,
+        "positive_mass": 1.751345285178104,
+        "row_count": 310,
+        "signed_mass": -0.8358611840621961,
+        "states_with_nonzero_interaction_count": 30,
+        "zero_count": 0
+      },
+      "primary_exact_subset_oracle": {
+        "budget_event_capacity": 2,
+        "eligible_coalition_cardinality_histogram": {
+          "0": 30,
+          "1": 90,
+          "2": 100
+        },
+        "eligible_coalition_count": 220,
+        "eligible_coalition_count_histogram": {
+          "11": 10,
+          "4": 10,
+          "7": 10
+        },
+        "mean_normalized_recovery": 0.9028414852633441,
+        "mean_summary_only_distance": 0.0497432838116462,
+        "mean_utility": 0.04498207196714551,
+        "negative_utility_state_count": 0,
+        "normalization_epsilon": 1e-12,
+        "normalized_recovery_eligible_state_count": 30,
+        "normalized_recovery_excluded_state_count": 0,
+        "positive_utility_state_count": 30,
+        "selected_cardinality_histogram": {
+          "1": 2,
+          "2": 28
+        },
+        "state_count": 30,
+        "zero_utility_state_count": 0
+      },
+      "raw_restoration_utility": {
+        "mean_utility": 0.026661089846451044,
+        "negative_count": 18,
+        "positive_count": 232,
+        "row_count": 280,
+        "states_with_negative_utility_count": 6,
+        "states_with_positive_utility_count": 30,
+        "zero_count": 30
+      },
+      "state_count": 30
+    }
+  },
+  "outcome": "PASS_RESTORATION_V2_2_EAGER_LABELS_V2",
+  "overall": {
+    "candidate_event_count_histogram": {
+      "2": 15,
+      "3": 15,
+      "4": 15
+    },
+    "deployment_conditional_marginal": {
+      "edge_count": 435,
+      "mean_marginal_gain": 0.013635824878443161,
+      "negative_count": 75,
+      "positive_count": 360,
+      "states_with_negative_marginal_count": 22,
+      "states_with_positive_marginal_count": 45,
+      "zero_count": 0
+    },
+    "pair_interaction": {
+      "absolute_mass": 6.009230253776877,
+      "maximum_absolute_magnitude": 0.1697198525071144,
+      "maximum_state_absolute_mass": 0.7153250575065613,
+      "mean_absolute_magnitude": 0.01292307581457393,
+      "mean_state_absolute_mass": 0.13353845008393062,
+      "negative_absolute_mass": 3.6994725235153965,
+      "negative_count": 277,
+      "positive_count": 188,
+      "positive_mass": 2.309757730261481,
+      "row_count": 465,
+      "signed_mass": -1.3897147932539156,
+      "states_with_nonzero_interaction_count": 45,
+      "zero_count": 0
+    },
+    "primary_exact_subset_oracle": {
+      "budget_event_capacity": 2,
+      "eligible_coalition_cardinality_histogram": {
+        "0": 45,
+        "1": 135,
+        "2": 150
+      },
+      "eligible_coalition_count": 330,
+      "eligible_coalition_count_histogram": {
+        "11": 15,
+        "4": 15,
+        "7": 15
+      },
+      "mean_normalized_recovery": 0.8735119444361525,
+      "mean_summary_only_distance": 0.04686641447608256,
+      "mean_utility": 0.04219100769728862,
+      "negative_utility_state_count": 0,
+      "normalization_epsilon": 1e-12,
+      "normalized_recovery_eligible_state_count": 45,
+      "normalized_recovery_excluded_state_count": 0,
+      "positive_utility_state_count": 44,
+      "selected_cardinality_histogram": {
+        "0": 1,
+        "1": 3,
+        "2": 41
+      },
+      "state_count": 45,
+      "zero_utility_state_count": 1
+    },
+    "raw_restoration_utility": {
+      "mean_utility": 0.02572300359134455,
+      "negative_count": 37,
+      "positive_count": 338,
+      "row_count": 420,
+      "states_with_negative_utility_count": 11,
+      "states_with_positive_utility_count": 45,
+      "zero_count": 45
+    },
+    "state_count": 45
+  },
+  "protocol_id": "causalcache_restoration_v2_2_eager_labels_v1",
+  "schema_version": "1.0.0",
+  "sign_rule": "strict_float_comparison_to_zero",
+  "source_evidence": {
+    "archive_validation": "read_label_evidence_archive_passed",
+    "run_contract_sha256": "b78ca1e70652c7eef68efc3472adf78cec4510e507a0c00cfcee2c2cf05285d9",
+    "source_git_commit": "5ae40d4aed4eb20b931216776b379bc6ae55629d",
+    "tree_inventory_sha256": "c5104594b0741810f3d49d007a63a74f16ee4236dd137d1dea92b9373065c45f"
+  },
+  "status": "SUMMARIZED_RESTORATION_V2_2_EAGER_LABEL_SCIENCE"
+}

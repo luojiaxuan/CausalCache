@@ -25,7 +25,12 @@ exact-subset oracle、conditional-marginal rows 或 HF repo/tag/revision；compa
 
 v2 replacement 已冻结为 `restoration-v2-2-eager-labels-v2` / `v2_preclaim_repair`，config SHA256 为
 `7fc96883b905a5f026c18e65c3c7e377972559c775ac7ec95030ea1f04c2f94c`。它不改变 estimand、state denominator、
-coalition enumeration 或 operation schedule，只修复 execution identity 和 pre-claim model validation。
+coalition enumeration 或 operation schedule，只修复 execution identity 和 pre-claim model validation。正式 v2
+现已完成闭环：45/45 states `PASS`，even/odd workers 分别完成 23/23 与 22/22，retry、top-up 和 generation 均为
+0。执行窗口是 `2026-07-16T17:13:13.360318Z`--`2026-07-16T17:27:46.202730Z`；run-contract SHA256
+为 `b78ca1e70652c7eef68efc3472adf78cec4510e507a0c00cfcee2c2cf05285d9`，source 与 packaging commit 均为
+`5ae40d4aed4eb20b931216776b379bc6ae55629d`。Git 中的 compact binding 和科学归约见
+[`data/results/restoration_v2_2_eager_labels_v2/`](../data/results/restoration_v2_2_eager_labels_v2/)；raw labels 不进入 Git。
 
 ## Reference identity
 
@@ -117,6 +122,31 @@ $$
 当 `D(empty)<=1e-12` 时 normalized recovery 写为 `null`，不能写成 1 并进入均值。oracle 只定义上界；线上
 greedy、learned gate 和 search/distillation gap 都不在本协议中运行。
 
+## 正式结果与科学归约
+
+正式 run 严格执行冻结 schedule：0 generation、465 teacher forwards、420 KL measurements，并生成 420 个
+canonical $D(S)$ rows、435 个 deployment conditional-marginal labels、45 个 exact-subset oracle rows 和 465 个
+pair-interaction rows。45/45 state denominator 全部保留，没有 retry、top-up、state filtering 或 confirm 访问。
+
+在 event-slot capacity $B=2$ 下，exact oracle 的 mean normalized recovery 为：
+
+| Split | States | Mean normalized recovery |
+| --- | ---: | ---: |
+| `v2_label_train` | 30 | 0.9028414853 |
+| `v2_development` | 15 | 0.8148528628 |
+| Overall | 45 | 0.8735119444 |
+
+45 个 states 中有 44 个获得正 oracle utility，oracle 选择 cardinality 为 0/1/2 的 state 数分别是 1/3/41。
+deployment conditional marginals 的严格正/负计数为 360/75，22 个 states 至少包含一条负 marginal。raw
+restoration utilities 的严格正/零/负计数为 338/45/37；零值包括每个 state 按定义得到的 empty-coalition
+utility。pair interactions 的严格正/负计数为 188/277，absolute mass 为 `6.009230253776877`，最大绝对值为
+`0.1697198525071144`。
+
+这些数字表明 frozen policy 的 restoration utility 存在 interaction 与 non-monotonicity，因此支持把后续 student
+设计为 set-conditioned iterative gate，而不是把 coalition-dependent teacher 压缩成独立 event score。它们不证明
+learned gate 有效，也不构成 matched-NLL 或 closed-loop success 证据：当前完成的只是 offline exact oracle 与
+conditional-marginal labels；gate training、matched-NLL、closed-loop evaluation 均未运行，confirm 仍然 locked。
+
 ## Algebraic validation
 
 raw `D(S)` 是唯一 canonical scientific truth。artifact validator 必须从 raw table 独立重算：
@@ -154,19 +184,27 @@ python -m scripts.run_restoration_v2_2_labels \
   --selection-manifest ../data/manifests/restoration_v2_selection.json \
   --ocr-backend-config configs/restoration_v2_ocr_backend.json \
   --snapshot-manifest configs/gui_owl_1_5_8b_snapshot.json \
-  --derived-artifact-root /data/tmp/causalcache-restoration-derived \
-  --parent-v22-evidence /data/tmp/restoration-v2-2-parent.raw.tar \
+  --derived-artifact-root /data/tmp/causalcache-restoration-labels-v2-derived \
+  --parent-v22-evidence /data/tmp/causalcache-restoration-labels-v2-parent/raw/restoration-v2-2-eager-full-45-substrate-v1.tar \
   --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
   --output-dir /data/experiments/causalcache/restoration-v2-2-eager-labels-v2 \
   --global-ledger /data/experiments/causalcache/.restoration-v2-2-eager-labels-v2.attempt.json \
   --host-alias hyper00 \
   --host-hostname node-radixark-16-0000 \
-  --container-id <64-hex-container-id> \
+  --container-id 39749a3bd0875f3c15216211f875220a4934fe62313487b537c1116e82040ff0 \
   --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa
 ```
 
 容器必须只暴露 preflight 选出的两张 GPU；正式 launch 后要核对 `torch.cuda.device_count()==2` 并启动 GPU
 utilization monitor。
+
+本次正式执行位于 `hyper00` / `node-radixark-16-0000`，容器只暴露 physical GPU 0/1，两路 runtime
+分别看到 `cuda:0/1` 的 NVIDIA H200。runtime 固定为 Python 3.12.3、PyTorch 2.11.0+cu130、CUDA 13.0、
+cuDNN 91900、Transformers 5.6.0、`torch.bfloat16`、seed 0、eager attention、TF32 off；不声称 strict CUDA
+determinism。容器 image digest 是
+`sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa`。完整 argv、两个 GPU UUID、
+driver 570.172.08 与逐 state runtime metadata 都保存在 immutable raw archive 的 `run_manifest.json` 和
+`workers/*/runtime_identity.json`。
 
 在 global ledger 创建前，v2 runner 必须对上述 canonical model projection 执行 full snapshot validator：root 不是
 symlink，repo slug/basename、`.snapshot.json` revision、14-file inventory、17,545,907,171 bytes、每文件 SHA 与
@@ -174,20 +212,26 @@ Transformers source 全部一致。失败时不得留下 v2 root/ledger。
 
 ## Artifact lifecycle
 
-v2 raw root 与 sibling ledgers 打包为 deterministic USTAR，目标 private HF dataset：
-
-`gavinlaw/causalcache-restoration-labels-mobile@v2.2-eager-train-dev-exact-v2`
-
-这是 v1 planned target，不是现有 artifact：formal v1 已 zero-forward `INVALID`，因此 repo/tag/immutable revision
-与 raw archive 均未创建。v1 canonical local output、ledger 与 archive 分别是
+v1 formal attempt 仍是 zero-forward `INVALID`，其 identity 不得重试。v1 canonical local output、ledger 与 archive 分别是
 `/data/experiments/causalcache/restoration-v2-2-eager-labels-v1`、
 `/data/experiments/causalcache/.restoration-v2-2-eager-labels-v1.attempt.json` 和
 `/data/experiments/causalcache/restoration-v2-2-eager-labels-v1.raw.tar`；前两个现作为不可重试的 failure evidence
-保留，archive 不存在。replacement v2 的 output、ledger、archive 分别是
+保留，archive 不存在。
+
+replacement v2 的 output、ledger、archive 分别是
 `/data/experiments/causalcache/restoration-v2-2-eager-labels-v2`、
 `/data/experiments/causalcache/.restoration-v2-2-eager-labels-v2.attempt.json`、
-`/data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar`；当前均未创建。
+`/data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar`；三者均已生成并通过完整 raw reducer。
+deterministic USTAR 包含 101 files、大小为 3,747,840 bytes，SHA256 为
+`99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e`，tree-inventory SHA256 为
+`c5104594b0741810f3d49d007a63a74f16ee4236dd137d1dea92b9373065c45f`。
 
-上传后必须从 immutable revision 下载到独立路径，重新运行完整 raw reducer，并要求 fresh archive 与 source
-archive 逐 byte 相同。Git 只保存 compact artifact binding、summary 和文档，不保存 raw labels。confirm artifact、
-gate checkpoint、matched-NLL pairs 和 closed-loop episodes 都必须使用后续独立 contract。
+raw artifact 已上传到 private HF dataset
+`gavinlaw/causalcache-restoration-labels-mobile` 的
+`raw/v2.2-eager-train-dev-exact-v2.tar`。immutable revision 是
+`8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，tag `v2.2-eager-train-dev-exact-v2` 已验证解析到同一 revision；
+从该 immutable revision 下载到独立路径后的 archive 已重新通过 reducer，并与 source archive 逐 byte 相同。
+
+Git 只保存
+[`compact artifact binding 与 scientific summary`](../data/results/restoration_v2_2_eager_labels_v2/)，不保存 raw labels。
+confirm artifact、gate checkpoint、matched-NLL pairs 和 closed-loop episodes 都必须使用后续独立 contract。

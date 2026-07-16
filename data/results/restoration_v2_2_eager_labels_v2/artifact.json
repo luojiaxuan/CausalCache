@@ -1,0 +1,67 @@
+{
+  "attempt_id": "restoration-v2-2-eager-labels-v2",
+  "attempt_revision": "v2_preclaim_repair",
+  "hf_artifact": {
+    "exact_file_records": [
+      {
+        "path": ".gitattributes",
+        "sha256": "9e75dd981de037ec3769f24f790e126bc5a160b6871f510214e68dc70649aeeb",
+        "size_bytes": 2504
+      },
+      {
+        "path": "README.md",
+        "sha256": "3fec09fbce4b2516ac0608d75bec4da29ef34df99a7e2ab8af49bfdbd8dce2b7",
+        "size_bytes": 1561
+      },
+      {
+        "path": "manifest.json",
+        "sha256": "1954d6a8d2c1b871b20c46a51468a2a4d1d8f5a1edbd50b4fbd4a9d1a36dde24",
+        "size_bytes": 1371
+      },
+      {
+        "path": "raw/v2.2-eager-train-dev-exact-v2.tar",
+        "sha256": "99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e",
+        "size_bytes": 3747840
+      }
+    ],
+    "fresh_archive_identity": {
+      "non_symlink_verified": true,
+      "source_fresh_different_inode_verified": true,
+      "source_fresh_inode_comparable": true
+    },
+    "fresh_archive_sha256": "99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e",
+    "fresh_archive_size_bytes": 3747840,
+    "fresh_immutable_download_verified": true,
+    "immutable_revision": "8f6baae5c0b23b08915fa1b0fb848dd519b4c8db",
+    "path": "raw/v2.2-eager-train-dev-exact-v2.tar",
+    "private": true,
+    "repo": "gavinlaw/causalcache-restoration-labels-mobile",
+    "repo_type": "dataset",
+    "tag": "v2.2-eager-train-dev-exact-v2",
+    "tag_resolution_verified": true,
+    "tag_resolved_revision": "8f6baae5c0b23b08915fa1b0fb848dd519b4c8db",
+    "visibility": "private"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_eager_labels_v1",
+  "raw_archive": {
+    "file_count": 101,
+    "format": "ustar",
+    "sha256": "99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e",
+    "size_bytes": 3747840,
+    "tree_inventory_sha256": "c5104594b0741810f3d49d007a63a74f16ee4236dd137d1dea92b9373065c45f"
+  },
+  "result": {
+    "deployment_conditional_label_count": 435,
+    "fixed_state_denominator": 45,
+    "outcome": "PASS_RESTORATION_V2_2_EAGER_LABELS_V2",
+    "primary_exact_subset_oracle_count": 45,
+    "raw_distance_row_count": 420
+  },
+  "schema_version": "1.0.0",
+  "source_execution": {
+    "packaging_git_commit": "5ae40d4aed4eb20b931216776b379bc6ae55629d",
+    "run_contract_sha256": "b78ca1e70652c7eef68efc3472adf78cec4510e507a0c00cfcee2c2cf05285d9",
+    "source_git_commit": "5ae40d4aed4eb20b931216776b379bc6ae55629d"
+  },
+  "status": "VERIFIED_RESTORATION_V2_2_EAGER_LABEL_ARTIFACT"
+}
