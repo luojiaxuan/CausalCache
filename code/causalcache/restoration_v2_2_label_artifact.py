@@ -26,11 +26,6 @@ from causalcache.restoration_v2_2_eager_artifact import (
     validate_worker_runtime_pair,
 )
 from causalcache.restoration_v2_2_label_contract import (
-    CANONICAL_ATTEMPT_ID,
-    CANONICAL_LEDGER_PATH,
-    CANONICAL_OUTPUT_DIR,
-    CANONICAL_HF_PATH,
-    CANONICAL_HF_REPO,
     EXPECTED_DEPLOYMENT_EDGES,
     EXPECTED_DISTANCE_ROWS,
     EXPECTED_FULL_EDGES,
@@ -38,10 +33,11 @@ from causalcache.restoration_v2_2_label_contract import (
     EXPECTED_PRIMARY_ORACLES,
     EXPECTED_STATE_COUNT,
     EXPECTED_TEACHER_FORWARDS,
-    FROZEN_CONFIG_SHA256,
-    PASS_OUTCOME,
     PROTOCOL_ID,
-    EXPECTED_SOURCE_PATHS,
+    RestorationLabelAttemptProfile,
+    V1_ATTEMPT_PROFILE,
+    label_attempt_profile_for_config_path,
+    label_attempt_profile_for_id,
 )
 from causalcache.restoration_v2_2_label_table import (
     deployment_conditional_edges,
@@ -55,7 +51,6 @@ from causalcache.restoration_v2_2_label_table import (
 
 SCHEMA_VERSION = "1.0.0"
 ARCHIVE_FORMAT = "ustar"
-ARCHIVE_PREFIX = CANONICAL_ATTEMPT_ID
 GLOBAL_LEDGER_MEMBER = "global_attempt_ledger.json"
 SIBLING_PREFIX = "worker_sibling_ledgers"
 RUN_MANIFEST_FILENAME = "run_manifest.json"
@@ -144,6 +139,7 @@ class LabelEvidence:
     aggregate: Mapping[str, Any]
     inventory: tuple[Mapping[str, Any], ...]
     tree_inventory_sha256: str
+    profile: RestorationLabelAttemptProfile = V1_ATTEMPT_PROFILE
 
 
 def sha256_bytes(payload: bytes) -> str:
@@ -204,7 +200,12 @@ def _normalized(value: float, baseline: float) -> float | None:
 
 def _validate_run_contract(
     run_contract: Mapping[str, Any],
-) -> tuple[str, list[Mapping[str, Any]], list[Mapping[str, Any]]]:
+) -> tuple[
+    RestorationLabelAttemptProfile,
+    str,
+    list[Mapping[str, Any]],
+    list[Mapping[str, Any]],
+]:
     expected_keys = {
         "schema_version",
         "protocol_id",
@@ -226,13 +227,17 @@ def _validate_run_contract(
     }
     if set(run_contract) != expected_keys:
         raise ValueError("label run contract field inventory drifted")
+    contract_source = run_contract.get("contract_source")
+    if not isinstance(contract_source, Mapping):
+        raise ValueError("label run contract source identity drifted")
+    profile = label_attempt_profile_for_config_path(str(contract_source.get("path")))
     if (
         run_contract.get("schema_version") != SCHEMA_VERSION
         or run_contract.get("protocol_id") != PROTOCOL_ID
-        or run_contract.get("contract_source")
+        or contract_source
         != {
-            "path": "code/configs/causalcache_restoration_v2_2_labels.json",
-            "sha256": FROZEN_CONFIG_SHA256,
+            "path": profile.config_path,
+            "sha256": profile.frozen_config_sha256,
         }
     ):
         raise ValueError("label run contract source identity drifted")
@@ -262,7 +267,9 @@ def _validate_run_contract(
         raise ValueError("label run contract Git identity drifted")
 
     inventory = run_contract.get("source_inventory")
-    if not isinstance(inventory, list) or len(inventory) != len(EXPECTED_SOURCE_PATHS):
+    if not isinstance(inventory, list) or len(inventory) != len(
+        profile.expected_source_paths
+    ):
         raise ValueError("label run contract source inventory length drifted")
     observed_paths = []
     for record in inventory:
@@ -276,9 +283,9 @@ def _validate_run_contract(
         ):
             raise ValueError("label run contract source inventory record drifted")
         observed_paths.append(record["path"])
-    if tuple(observed_paths) != EXPECTED_SOURCE_PATHS:
+    if tuple(observed_paths) != profile.expected_source_paths:
         raise ValueError("label run contract source paths drifted")
-    if inventory[0]["sha256"] != FROZEN_CONFIG_SHA256:
+    if inventory[0]["sha256"] != profile.frozen_config_sha256:
         raise ValueError("label run contract config source blob drifted")
 
     parent_evidence = run_contract.get("parent_evidence")
@@ -299,8 +306,38 @@ def _validate_run_contract(
         != "VALIDATED_IMMUTABLE_V2_2_EAGER_PARENT_ARCHIVE"
     ):
         raise ValueError("label run contract parent evidence drifted")
-    if run_contract.get("canonical_inputs") != _EXPECTED_CANONICAL_INPUTS:
+    canonical_inputs = run_contract.get("canonical_inputs")
+    if not isinstance(canonical_inputs, Mapping):
         raise ValueError("label run contract canonical inputs drifted")
+    base_inputs = {
+        key: canonical_inputs.get(key) for key in _EXPECTED_CANONICAL_INPUTS
+    }
+    if base_inputs != _EXPECTED_CANONICAL_INPUTS:
+        raise ValueError("label run contract canonical inputs drifted")
+    preclaim = canonical_inputs.get("model_snapshot_preclaim")
+    if profile.supersedes_attempt_id is not None:
+        expected_preclaim = {
+            "model_dir": str(profile.canonical_model_dir),
+            "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+            "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+            "snapshot_manifest_sha256": (
+                "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+            ),
+            "verified_model_file_count": 14,
+            "verified_model_total_bytes": 17_545_907_171,
+            "validation_status": (
+                "VALIDATED_FULL_MODEL_SNAPSHOT_BEFORE_GLOBAL_CLAIM"
+            ),
+        }
+        if set(canonical_inputs) != set(_EXPECTED_CANONICAL_INPUTS).union(
+            {"model_snapshot_preclaim"}
+        ) or preclaim != expected_preclaim:
+            raise ValueError("repair model snapshot preclaim identity drifted")
+    elif set(canonical_inputs) not in (
+        set(_EXPECTED_CANONICAL_INPUTS),
+        set(_EXPECTED_CANONICAL_INPUTS).union({"model_snapshot_preclaim"}),
+    ):
+        raise ValueError("v1 canonical input inventory drifted")
 
     projections = run_contract.get("states")
     parents = run_contract.get("parent_states")
@@ -374,21 +411,33 @@ def _validate_run_contract(
         "hyper00": "node-radixark-16-0000",
         "hyper01": "node-radixark-16-0001",
     }
+    rich_attempt = {
+        "attempt_id": profile.attempt_id,
+        "attempt_revision": profile.attempt_revision,
+        "supersedes_attempt_id": profile.supersedes_attempt_id,
+        "pass_outcome": profile.pass_outcome,
+        "invalid_outcome": profile.invalid_outcome,
+        "aggregate_status": profile.aggregate_status,
+        "output_dir": str(profile.output_dir),
+        "global_ledger": str(profile.ledger_path),
+        "raw_archive": str(profile.archive_path),
+        "hf_repo": profile.hf_repo,
+        "hf_tag": profile.hf_tag,
+        "hf_path": profile.hf_path,
+    }
+    common_attempt_keys = {
+        "host_alias",
+        "host_hostname",
+        "container_id",
+        "container_image_digest",
+    }
     if (
         not isinstance(attempt, Mapping)
-        or set(attempt)
-        != {
-            "attempt_id",
-            "output_dir",
-            "global_ledger",
-            "host_alias",
-            "host_hostname",
-            "container_id",
-            "container_image_digest",
-        }
-        or attempt.get("attempt_id") != CANONICAL_ATTEMPT_ID
-        or attempt.get("output_dir") != str(CANONICAL_OUTPUT_DIR)
-        or attempt.get("global_ledger") != str(CANONICAL_LEDGER_PATH)
+        or (
+            profile.supersedes_attempt_id is not None
+            and set(attempt) != set(rich_attempt).union(common_attempt_keys)
+        )
+        or any(attempt.get(key) != value for key, value in rich_attempt.items() if key in attempt or profile.supersedes_attempt_id is not None)
         or attempt.get("host_alias") not in expected_hosts
         or attempt.get("host_hostname") != expected_hosts.get(attempt.get("host_alias"))
         or not isinstance(attempt.get("container_id"), str)
@@ -401,7 +450,7 @@ def _validate_run_contract(
         not isinstance(item, str) or not item for item in argv
     ):
         raise ValueError("label run contract execution argv drifted")
-    return source_git_commit, projections, parents
+    return profile, source_git_commit, projections, parents
 
 
 def _expected_edge_payloads(table: Any, *, deployment: bool) -> list[dict[str, Any]]:
@@ -487,6 +536,28 @@ def _expected_state_operation_counts(event_count: int) -> dict[str, int]:
         "matched_nll_evaluation_count": 0,
         "closed_loop_episode_count": 0,
     }
+
+
+def _validate_profile_envelope(
+    value: Mapping[str, Any],
+    *,
+    profile: RestorationLabelAttemptProfile,
+    label: str,
+) -> None:
+    if profile.supersedes_attempt_id is not None:
+        if (
+            value.get("attempt_id") != profile.attempt_id
+            or value.get("attempt_revision") != profile.attempt_revision
+        ):
+            raise ValueError(f"{label} attempt profile drifted")
+    elif (
+        "attempt_id" in value
+        and value.get("attempt_id") != profile.attempt_id
+    ) or (
+        "attempt_revision" in value
+        and value.get("attempt_revision") != profile.attempt_revision
+    ):
+        raise ValueError(f"{label} attempt profile drifted")
 
 
 def _validate_prompt_inventory(
@@ -625,7 +696,9 @@ def _validate_state(
     run_contract_sha256: str,
     spec: Any,
     runtime_metadata: Mapping[str, Any],
+    profile: RestorationLabelAttemptProfile,
 ) -> Mapping[str, int]:
+    _validate_profile_envelope(record, profile=profile, label=f"label state {index}")
     if (
         record.get("schema_version") != SCHEMA_VERSION
         or record.get("protocol_id") != PROTOCOL_ID
@@ -772,6 +845,7 @@ def _validate_worker_evidence(
     files: Mapping[str, bytes],
     *,
     run_contract_sha256: str,
+    profile: RestorationLabelAttemptProfile,
 ) -> Mapping[str, Mapping[str, Any]]:
     runtimes: dict[str, Mapping[str, Any]] = {}
     for spec in expected_worker_specs():
@@ -791,6 +865,11 @@ def _validate_worker_evidence(
             "top_up_count": 0,
         }
         for label, ledger in (("sibling", sibling), ("root", root_ledger)):
+            _validate_profile_envelope(
+                ledger,
+                profile=profile,
+                label=f"label {spec.worker_id} {label} ledger",
+            )
             if any(
                 ledger.get(key) != value
                 for key, value in expected_ledger_fields.items()
@@ -800,6 +879,11 @@ def _validate_worker_evidence(
                 )
 
         terminal = _json(files, f"{base}/terminal.json")
+        _validate_profile_envelope(
+            terminal,
+            profile=profile,
+            label=f"label {spec.worker_id} worker terminal",
+        )
         if (
             terminal.get("schema_version") != SCHEMA_VERSION
             or terminal.get("protocol_id") != PROTOCOL_ID
@@ -814,6 +898,11 @@ def _validate_worker_evidence(
             raise ValueError(f"label {spec.worker_id} worker terminal drifted")
 
         runtime = _json(files, f"{base}/runtime_identity.json")
+        _validate_profile_envelope(
+            runtime,
+            profile=profile,
+            label=f"label {spec.worker_id} runtime",
+        )
         runtime_metadata = runtime.get("runtime_metadata")
         if (
             runtime.get("schema_version") != SCHEMA_VERSION
@@ -830,6 +919,11 @@ def _validate_worker_evidence(
 
         for index in spec.state_indices:
             marker = _json(files, f"{base}/attempts/{index:03d}.json")
+            _validate_profile_envelope(
+                marker,
+                profile=profile,
+                label=f"label attempt marker {index}",
+            )
             if (
                 marker.get("schema_version") != SCHEMA_VERSION
                 or marker.get("protocol_id") != PROTOCOL_ID
@@ -935,16 +1029,33 @@ def validate_label_evidence_files(files: Mapping[str, bytes]) -> LabelEvidence:
         or manifest.get("run_contract_sha256") != run_contract_sha256
     ):
         raise ValueError("label run contract identity drifted")
-    source_git_commit, projections, parents = _validate_run_contract(run_contract)
+    profile, source_git_commit, projections, parents = _validate_run_contract(
+        run_contract
+    )
     global_ledger = _json(normalized, GLOBAL_LEDGER_MEMBER)
     aggregate = _json(normalized, AGGREGATE_FILENAME)
+    _validate_profile_envelope(
+        manifest,
+        profile=profile,
+        label="label run manifest",
+    )
+    _validate_profile_envelope(
+        global_ledger,
+        profile=profile,
+        label="label global ledger",
+    )
+    _validate_profile_envelope(
+        aggregate,
+        profile=profile,
+        label="label aggregate",
+    )
     sibling_paths = global_ledger.get("worker_sibling_ledgers")
     if (
         global_ledger.get("schema_version") != SCHEMA_VERSION
         or global_ledger.get("protocol_id") != PROTOCOL_ID
         or global_ledger.get("status") != "LABEL_ATTEMPT_COMPLETED"
-        or global_ledger.get("attempt_id") != CANONICAL_ATTEMPT_ID
-        or global_ledger.get("outcome") != PASS_OUTCOME
+        or global_ledger.get("attempt_id") != profile.attempt_id
+        or global_ledger.get("outcome") != profile.pass_outcome
         or global_ledger.get("attempted_state_count") != EXPECTED_STATE_COUNT
         or global_ledger.get("completed_state_count") != EXPECTED_STATE_COUNT
         or global_ledger.get("retry_count") != 0
@@ -958,8 +1069,8 @@ def validate_label_evidence_files(files: Mapping[str, bytes]) -> LabelEvidence:
         or aggregate.get("schema_version") != SCHEMA_VERSION
         or aggregate.get("protocol_id") != PROTOCOL_ID
         or aggregate.get("status")
-        != "COMPLETED_RESTORATION_V2_2_EAGER_LABELS_V1"
-        or aggregate.get("outcome") != PASS_OUTCOME
+        != profile.aggregate_status
+        or aggregate.get("outcome") != profile.pass_outcome
         or aggregate.get("fixed_state_denominator") != EXPECTED_STATE_COUNT
         or aggregate.get("confirm_role_used") is not False
         or aggregate.get("gate_training_performed") is not False
@@ -972,6 +1083,7 @@ def validate_label_evidence_files(files: Mapping[str, bytes]) -> LabelEvidence:
     runtimes = _validate_worker_evidence(
         normalized,
         run_contract_sha256=run_contract_sha256,
+        profile=profile,
     )
     specs = {spec.worker_id: spec for spec in expected_worker_specs()}
     records = []
@@ -987,6 +1099,7 @@ def validate_label_evidence_files(files: Mapping[str, bytes]) -> LabelEvidence:
             run_contract_sha256=run_contract_sha256,
             spec=specs[worker],
             runtime_metadata=runtimes[worker],
+            profile=profile,
         )
         records.append(record)
         for key, value in counts.items():
@@ -1008,10 +1121,11 @@ def validate_label_evidence_files(files: Mapping[str, bytes]) -> LabelEvidence:
         files=normalized,
         source_git_commit=source_git_commit,
         run_contract_sha256=run_contract_sha256,
-        outcome=PASS_OUTCOME,
+        outcome=profile.pass_outcome,
         aggregate=aggregate,
         inventory=inventory,
         tree_inventory_sha256=tree_sha256,
+        profile=profile,
     )
 
 
@@ -1036,11 +1150,15 @@ def collect_label_evidence(
     return validate_label_evidence_files(files)
 
 
-def deterministic_tar_bytes(files: Mapping[str, bytes]) -> bytes:
+def deterministic_tar_bytes(
+    files: Mapping[str, bytes],
+    *,
+    profile: RestorationLabelAttemptProfile = V1_ATTEMPT_PROFILE,
+) -> bytes:
     output = io.BytesIO()
     with tarfile.open(fileobj=output, mode="w", format=tarfile.USTAR_FORMAT) as archive:
         for relative in sorted(files):
-            name = f"{ARCHIVE_PREFIX}/{relative}"
+            name = f"{profile.attempt_id}/{relative}"
             payload = files[relative]
             info = tarfile.TarInfo(name=name)
             info.size = len(payload)
@@ -1062,7 +1180,9 @@ def package_label_evidence(
 ) -> dict[str, Any]:
     evidence = collect_label_evidence(raw_output_dir, global_ledger)
     output = Path(output_archive)
-    payload = deterministic_tar_bytes(evidence.files)
+    if output.resolve() != evidence.profile.archive_path:
+        raise ValueError("label archive output differs from the attempt profile")
+    payload = deterministic_tar_bytes(evidence.files, profile=evidence.profile)
     with output.open("xb") as destination:
         destination.write(payload)
         destination.flush()
@@ -1080,11 +1200,18 @@ def package_label_evidence(
 
 def read_label_evidence_archive(path: str | Path) -> LabelEvidence:
     files: dict[str, bytes] = {}
+    profile: RestorationLabelAttemptProfile | None = None
     with tarfile.open(path, mode="r:") as archive:
         for member in archive.getmembers():
             if not member.isfile():
                 raise ValueError("label archive contains a non-regular member")
-            prefix = f"{ARCHIVE_PREFIX}/"
+            member_prefix = PurePosixPath(member.name).parts[0]
+            observed_profile = label_attempt_profile_for_id(member_prefix)
+            if profile is None:
+                profile = observed_profile
+            elif profile != observed_profile:
+                raise ValueError("label archive mixes attempt prefixes")
+            prefix = f"{profile.attempt_id}/"
             if not member.name.startswith(prefix):
                 raise ValueError("label archive member prefix drifted")
             relative = member.name[len(prefix) :]
@@ -1094,8 +1221,15 @@ def read_label_evidence_archive(path: str | Path) -> LabelEvidence:
             if source is None:
                 raise ValueError("label archive member cannot be read")
             files[relative] = source.read()
+    if profile is None:
+        raise ValueError("label archive is empty")
     evidence = validate_label_evidence_files(files)
-    if deterministic_tar_bytes(evidence.files) != Path(path).read_bytes():
+    if evidence.profile != profile:
+        raise ValueError("label archive prefix differs from embedded attempt profile")
+    if deterministic_tar_bytes(
+        evidence.files,
+        profile=evidence.profile,
+    ) != Path(path).read_bytes():
         raise ValueError("label archive is not canonical deterministic USTAR")
     return evidence
 
@@ -1121,6 +1255,8 @@ def build_artifact_manifest(
     return {
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
+        "attempt_id": evidence.profile.attempt_id,
+        "attempt_revision": evidence.profile.attempt_revision,
         "status": "VERIFIED_RESTORATION_V2_2_EAGER_LABEL_ARTIFACT",
         "result": {
             "outcome": evidence.outcome,
@@ -1141,9 +1277,9 @@ def build_artifact_manifest(
             "tree_inventory_sha256": evidence.tree_inventory_sha256,
         },
         "hf_artifact": {
-            "repo": CANONICAL_HF_REPO,
+            "repo": evidence.profile.hf_repo,
             "immutable_revision": hf_revision,
-            "path": CANONICAL_HF_PATH,
+            "path": evidence.profile.hf_path,
             "fresh_immutable_download_verified": True,
             "fresh_archive_sha256": sha256_bytes(fresh_payload),
             "fresh_archive_size_bytes": len(fresh_payload),

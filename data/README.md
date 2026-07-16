@@ -159,8 +159,10 @@ restoration v2 exact selection/exposure 产物：
   `main@3942d687d03bf63ea683fe8ad906a161eb10dc27` 冻结；formal v1 attempt 因 model snapshot directory 不存在，
   在 0 state marker / 0 teacher forward / 0 KL 时永久封存为 `INVALID`。轻量 binding 位于
   `results/restoration_v2_2_eager_labels_v1_attempt/`，原 Hyper00 root/ledger 不删除、不重跑。planned private HF
-  target 仍为 `gavinlaw/causalcache-restoration-labels-mobile`，但 repo、replacement tag、immutable revision 与 raw
-  archive 当前均未创建；model snapshot 正在 local cache staging，不能视为 label artifact。预期 schema/count 仍为
+  target 仍为 `gavinlaw/causalcache-restoration-labels-mobile`；replacement v2 tag 已冻结为
+  `v2.2-eager-train-dev-exact-v2`，raw path 为 `raw/v2.2-eager-train-dev-exact-v2.tar`，但 repo、immutable revision 与
+  raw archive 当前均未创建。canonical model projection 已完成 14-file full hash preflight，这不是 label artifact。
+  预期 schema/count 仍为
   45 states、420 条 canonical raw `D(S)`、45 个 exact-subset oracle、
   435 条 deployment conditional-marginal labels；Git 只会在 immutable fresh-download 闭合后保存 compact
   summary/artifact binding。gate checkpoint、matched-NLL pairs、closed-loop episodes 与 confirm artifact 不属于

@@ -1,0 +1,300 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "causalcache_restoration_v2_2_eager_labels_v1",
+  "preregistration_status": "repair_source_frozen_after_zero_forward_v1_before_any_v2_forward",
+  "repair_lineage": {
+    "supersedes_attempt_id": "restoration-v2-2-eager-labels-v1",
+    "superseded_status": "LABEL_ATTEMPT_INVALID",
+    "superseded_outcome": "INVALID_RESTORATION_V2_2_EAGER_LABELS_V1",
+    "superseded_attempted_state_count": 0,
+    "superseded_completed_state_count": 0,
+    "superseded_teacher_forward_count": 0,
+    "superseded_kl_measurement_count": 0,
+    "superseded_attempt_reuse_or_resume_allowed": false,
+    "repair_reason": "wrong_model_projection_path_and_postclaim_snapshot_validation",
+    "superseded_attempt_summary": {
+      "path": "data/results/restoration_v2_2_eager_labels_v1_attempt/summary.json",
+      "sha256": "7c03fd69229547a6865f58f72d53fd023e19def946238e6f58fc41de9c9325a8"
+    }
+  },
+  "authorization": {
+    "source_parent_git_commit": "bf9e377ceb9c656af8ae84c223ad23d730136cb1",
+    "canonical_model_projection_dir": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "v2_2_parent_artifact": {
+      "path": "data/results/restoration_v2_2_eager_full_45_substrate/artifact.json",
+      "sha256": "77cfebc01909b1a018f7fe4ab300b843695ca9726fb96d3035587803bb4c2711",
+      "required_status": "VERIFIED_RESTORATION_V2_2_EAGER_ARTIFACT",
+      "required_outcome": "PASS_V2_2_EAGER_FULL_45_SUBSTRATE",
+      "required_source_git_commit": "8ae07519f14ac3635f292ee93a7b6d624507427e",
+      "required_run_contract_sha256": "397f8da2b89b495c93ef3a034dfe16fb6d883ab4fdb7b830003397c9cc9a2727",
+      "required_hf_repo": "gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile",
+      "required_hf_revision": "3577099d505b8c652d764f41269df911128ec767",
+      "required_hf_path": "raw/restoration-v2-2-eager-full-45-substrate-v1.tar",
+      "required_raw_sha256": "b22827e6e2d8d33b03686fc177dc8f9c55c5133470fbe40f9fb3e33cce809fb5",
+      "required_raw_size_bytes": 1269760,
+      "required_raw_file_count": 102,
+      "required_raw_tree_sha256": "e7f0047b20c27bac1f4d61d7c0bff2e63c7760469cf9ccaa188dca948b7a4359"
+    },
+    "v2_2_parent_summary": {
+      "path": "data/results/restoration_v2_2_eager_full_45_substrate/summary.json",
+      "sha256": "38c53dbaa587450ef09ddbd54c483c5f6120e8ce003cfca6fd8298280cad809e",
+      "required_status": "COMPLETED_FIXED_45_STATE_V2_2_EAGER_SUBSTRATE",
+      "required_outcome": "PASS_V2_2_EAGER_FULL_45_SUBSTRATE",
+      "required_state_count": 45,
+      "required_repeat_agreement_count": 45,
+      "required_finite_logit_state_count": 45,
+      "required_restoration_label_count": 0,
+      "required_confirm_state_access_count": 0
+    },
+    "fresh_immutable_parent_archive_validation_required_before_runtime_import": true,
+    "parent_canonical_action_is_the_only_teacher_target": true,
+    "new_reference_generation_allowed": false,
+    "authorization_scope": "train_development_restoration_labels_only"
+  },
+  "data": {
+    "derived_artifact": {
+      "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "immutable_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+      "artifact_tree_sha256": "475e6cf2e8ae8d621317896fd6fd14b0cbd8f5cf6feb71da10687b7281d96a6e"
+    },
+    "selection_manifest": {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    },
+    "roles_in_exact_order": [
+      "v2_label_train",
+      "v2_development"
+    ],
+    "role_state_counts": {
+      "v2_label_train": 30,
+      "v2_development": 15
+    },
+    "fixed_state_denominator": 45,
+    "state_projection_sha256": "65e7085f01bc26e425bab7f5148c6729bc8c6d0a62802ebc5e8dfeaed6439249",
+    "decision_steps_in_each_trajectory": [4, 5, 6],
+    "candidate_event_counts_by_decision_step": {
+      "4": 2,
+      "5": 3,
+      "6": 4
+    },
+    "confirm_state_prompt_image_or_action_access_allowed": false,
+    "state_filtering_or_top_up_allowed": false,
+    "all_coalitions_from_one_state_must_remain_in_one_split": true
+  },
+  "estimand": {
+    "reference_mode": "parent_canonical_action_frozen_fresh_teacher_recompute",
+    "reference_policy_runtime": "causalcache_restoration_v2_2_eager_runtime",
+    "distance": "teacher_forced_full_vocabulary_mean_kl_on_complete_official_tool_call_span",
+    "reference_distribution": "fresh_full_history_teacher_log_probs",
+    "candidate_distribution": "fresh_mixed_fidelity_teacher_logits",
+    "high_fidelity_event_representation": "post_state_image_only",
+    "low_fidelity_event_representation": "frozen_eight_field_strong_summary",
+    "full_history_reference_coalition": "all_candidate_event_step_ids",
+    "utility": "D(empty)-D(S)",
+    "conditional_marginal": "D(S)-D(S_union_j)",
+    "negative_utility_or_marginal_clipped": false,
+    "full_tensor_logit_or_probability_host_transfer_allowed": false,
+    "distance_scalar_host_transfer_per_measurement": 1
+  },
+  "enumeration": {
+    "raw_distance_domain": "complete_power_set",
+    "event_identity": "event_step_id",
+    "event_step_ids_sorted_ascending": true,
+    "unit_slot_cost_per_event": 1,
+    "primary_deployment_budget_slots": 2,
+    "budget_is_injected_into_policy_prompt": false,
+    "coalition_order": "cardinality_then_lexicographic_event_step_ids",
+    "raw_distance_rows_by_decision_step": {
+      "4": 4,
+      "5": 8,
+      "6": 16
+    },
+    "raw_distance_row_counts": {
+      "v2_label_train": 280,
+      "v2_development": 140,
+      "total": 420
+    },
+    "deployment_conditional_edges_by_decision_step": {
+      "4": 4,
+      "5": 9,
+      "6": 16
+    },
+    "deployment_conditional_edge_counts": {
+      "v2_label_train": 290,
+      "v2_development": 145,
+      "total": 435
+    },
+    "full_hypercube_edge_counts": {
+      "v2_label_train": 480,
+      "v2_development": 240,
+      "total": 720
+    },
+    "primary_exact_subset_oracle_counts": {
+      "v2_label_train": 30,
+      "v2_development": 15,
+      "total": 45
+    },
+    "exact_permutation_event_attribution_count": 135,
+    "full_pair_interaction_count": 465
+  },
+  "reduction": {
+    "canonical_truth": "raw_state_coalition_distance_table",
+    "all_derived_rows_recomputed_policy_free_from_canonical_truth": true,
+    "exact_oracle_domain": "all_coalitions_with_cardinality_at_most_primary_budget_including_empty",
+    "exact_oracle_tie_epsilon": 0.0,
+    "exact_oracle_tie_break": [
+      "lower_distance",
+      "lower_cardinality",
+      "lexicographically_lower_sorted_event_step_ids"
+    ],
+    "greedy_stopping_threshold": 0.0,
+    "state_normalization_epsilon": 1e-12,
+    "zero_or_near_zero_oracle_utility_ratio": null,
+    "conditional_edge_weighting_for_gate_training": "deferred_to_separate_gate_training_contract",
+    "exact_permutation_attribution": "uniform_over_all_event_permutations",
+    "required_algebraic_checks": [
+      "U(empty)=0",
+      "Delta=D(S)-D(S_union_j)",
+      "edge_utility_difference_equals_D_difference",
+      "path_telescoping",
+      "pair_interaction_symmetry",
+      "exact_oracle_recomputed_from_raw_table"
+    ]
+  },
+  "runtime": {
+    "runtime_source": "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+    "dtype": "bfloat16",
+    "attention_implementation": "eager",
+    "seed": 0,
+    "cudnn_deterministic": true,
+    "cudnn_benchmark": false,
+    "cuda_matmul_allow_tf32": false,
+    "cudnn_allow_tf32": false,
+    "float32_matmul_precision": "highest",
+    "strict_cuda_determinism_claimed": false,
+    "microbatch_size": 1,
+    "expected_execution_stack": {
+      "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "python_version": "3.12.3",
+      "torch_version": "2.11.0+cu130",
+      "torch_cuda_version": "13.0",
+      "cudnn_version": 91900,
+      "transformers_version": "5.6.0",
+      "nvidia_driver_version": "570.172.08",
+      "gpu_name": "NVIDIA H200"
+    }
+  },
+  "operation_schedule": {
+    "generation_call_count": 0,
+    "reference_teacher_forward_count": 45,
+    "reference_repeat_teacher_forward_count": 45,
+    "non_reference_coalition_teacher_forward_count": 375,
+    "total_teacher_forward_call_count": 465,
+    "total_teacher_forward_example_count": 465,
+    "coalition_kl_measurement_count": 375,
+    "reference_repeat_kl_measurement_count": 45,
+    "total_kl_measurement_count": 420,
+    "maximum_reference_repeat_kl": 0.0001,
+    "raw_distance_row_count": 420,
+    "deployment_conditional_label_count": 435,
+    "primary_exact_subset_oracle_count": 45,
+    "retry_count": 0,
+    "top_up_count": 0,
+    "resume_allowed": false,
+    "completed_state_regeneration_allowed": false,
+    "incomplete_attempt_retry_allowed": false
+  },
+  "worker_topology": {
+    "worker_count": 2,
+    "gpu_model": "NVIDIA H200",
+    "one_process_per_device": true,
+    "workers": [
+      {
+        "worker_id": "even",
+        "device": "cuda:0",
+        "index_parity": 0,
+        "state_indices": [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44]
+      },
+      {
+        "worker_id": "odd",
+        "device": "cuda:1",
+        "index_parity": 1,
+        "state_indices": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35, 37, 39, 41, 43]
+      }
+    ],
+    "cross_worker_state_stealing_allowed": false,
+    "worker_failure_invalidates_entire_attempt": true,
+    "worker_outputs_must_be_disjoint": true,
+    "worker_union_must_equal_fixed_denominator": true
+  },
+  "prohibited_work": {
+    "maximum_confirm_state_access_count": 0,
+    "maximum_confirm_processor_prompt_count": 0,
+    "maximum_confirm_decoder_input_count": 0,
+    "maximum_confirm_generation_count": 0,
+    "maximum_confirm_teacher_forward_count": 0,
+    "maximum_expert_action_read_count": 0,
+    "maximum_gate_training_example_count": 0,
+    "maximum_gate_model_forward_count": 0,
+    "maximum_gate_selection_count": 0,
+    "maximum_matched_nll_evaluation_count": 0,
+    "maximum_closed_loop_episode_count": 0,
+    "androidworld_test_split_access_allowed": false
+  },
+  "execution": {
+    "attempt_id": "restoration-v2-2-eager-labels-v2",
+    "attempt_revision": "v2_preclaim_repair",
+    "canonical_persistent_output_dir": "/data/experiments/causalcache/restoration-v2-2-eager-labels-v2",
+    "canonical_global_attempt_ledger": "/data/experiments/causalcache/.restoration-v2-2-eager-labels-v2.attempt.json",
+    "canonical_raw_archive": "/data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar",
+    "required_host_class": "Hyper_H200",
+    "same_host_and_container_required_for_both_workers": true,
+    "alternate_output_or_ledger_allowed": false,
+    "output_or_ledger_deletion_after_first_attempt_allowed": false,
+    "runtime_import_requires_fresh_parent_evidence_validation": true
+  },
+  "artifact_destination": {
+    "repo": "gavinlaw/causalcache-restoration-labels-mobile",
+    "repo_type": "dataset",
+    "visibility": "private",
+    "tag": "v2.2-eager-train-dev-exact-v2",
+    "raw_path": "raw/v2.2-eager-train-dev-exact-v2.tar",
+    "immutable_revision": null,
+    "git_tracks_raw_artifact": false
+  },
+  "formal_run_source_inventory_paths": [
+    "code/configs/causalcache_restoration_v2_2_labels_v2_repair.json",
+    "code/configs/causalcache_restoration_v2_2_labels.json",
+    "code/causalcache/restoration_v2_2_label_contract.py",
+    "code/causalcache/restoration_v2_2_label_table.py",
+    "code/causalcache/restoration_v2_2_label_parent.py",
+    "code/causalcache/restoration_v2_2_label_artifact.py",
+    "code/causalcache/data/restoration_v2_2_label_inputs.py",
+    "code/scripts/run_restoration_v2_2_labels.py",
+    "code/scripts/manage_restoration_v2_2_label_artifact.py",
+    "code/scripts/validate_restoration_v2_2_label_contract.py",
+    "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+    "code/causalcache/policy/gui_owl_v2_1_runtime.py",
+    "code/causalcache/policy/gui_owl_v2_1.py",
+    "code/causalcache/policy/gui_owl_v2.py",
+    "code/causalcache/restoration_v2_gpu_kl.py",
+    "code/causalcache/data/restoration_v2_screening.py",
+    "code/causalcache/data/guiodyssey_restoration_v2.py",
+    "code/causalcache/low_fidelity_v2.py",
+    "code/causalcache/restoration_v2_2_eager_artifact.py",
+    "code/causalcache/restoration_v2_2_eager_contract.py",
+    "code/configs/causalcache_restoration_v2_2_eager.json",
+    "code/configs/causalcache_restoration_v2_1_full_45.json",
+    "code/configs/causalcache_restoration_v2_1_pilot.json",
+    "code/configs/causalcache_restoration_v2.json",
+    "code/configs/restoration_v2_ocr_backend.json",
+    "code/configs/gui_owl_1_5_8b_snapshot.json",
+    "data/manifests/restoration_v2_selection.json",
+    "data/manifests/restoration_v2_derived_artifact.json",
+    "data/results/restoration_v2_2_eager_full_45_substrate/artifact.json",
+    "data/results/restoration_v2_2_eager_full_45_substrate/summary.json",
+    "code/causalcache/policy/gui_owl_v2_vision.py",
+    "data/results/restoration_v2_2_eager_labels_v1_attempt/summary.json",
+    "data/results/restoration_v2_2_eager_labels_v1_attempt/README.md"
+  ]
+}

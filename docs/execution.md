@@ -720,7 +720,7 @@ monitor。同机同容器内 `even` worker 固定处理 23 states，`odd` worker
 1；禁止 state stealing、动态 batch、跨 host/container、resume、retry 与 top-up。parent v2.2 raw 和 derived
 artifact 必须从各自 immutable revision fresh materialize 并逐 byte/hash 验证，不能直接复用旧共享盘 output。
 
-canonical 路径由 contract 固定为：
+以下 canonical 路径是已经封存的 v1 identity：
 
 ```text
 output root: /data/experiments/causalcache/restoration-v2-2-eager-labels-v1
@@ -737,8 +737,8 @@ confirm、gate training/selection、matched-NLL 与 closed-loop 的 operation co
 正式 argv 以 `docs/restoration_v2_2_labels.md` 为唯一说明入口。terminal 后才可用
 `scripts.manage_restoration_v2_2_label_artifact` 将 root 与 sibling ledgers 打成 deterministic USTAR。planned
 private HF target 是 `gavinlaw/causalcache-restoration-labels-mobile`。v1 原计划 tag 为
-`v2.2-eager-train-dev-exact-v1`，但 zero-forward invalid attempt 没有创建 repo/tag/artifact；replacement tag 必须由
-新 contract 另行冻结。成功 attempt 必须 upload 后取得 immutable revision，再下载到不同路径，重跑 raw reducer并
+`v2.2-eager-train-dev-exact-v1`，但 zero-forward invalid attempt 没有创建 repo/tag/artifact；replacement v2 tag
+已冻结为 `v2.2-eager-train-dev-exact-v2`。成功 attempt 必须 upload 后取得 immutable revision，再下载到不同路径，重跑 raw reducer并
 验证 archive byte identity，最后才能回写 Git compact summary/artifact binding。
 
 ### v1 zero-forward failure 与 replacement 前置条件
@@ -750,6 +750,23 @@ work count 均为 0。原 output/root/三个 ledger 必须永久保留，禁止�
 `data/results/restoration_v2_2_eager_labels_v1_attempt/`。
 
 replacement 必须使用全新的 attempt/output/ledger/archive/HF tag identity，并在任何 durable claim 前验证：model
-root 是非 symlink 的 real directory、basename 精确等于 snapshot revision、manifest 要求的文件 inventory/size/hash
+root 是非 symlink 的 real directory、basename 精确等于 model repo slug、manifest 要求的 revision/file inventory/size/hash
 完整、两 worker 能看到相同路径。shell smoke 必须用 fail-fast 或显式读取 exit code，禁止在失败的 `test` 后无条件
 打印 success。只有新 source/config/tests commit 并 push clean `main` 后，replacement formal run 才获授权。
+
+replacement v2 已冻结为：
+
+```text
+contract: code/configs/causalcache_restoration_v2_2_labels_v2_repair.json
+config SHA256: 7fc96883b905a5f026c18e65c3c7e377972559c775ac7ec95030ea1f04c2f94c
+attempt/revision: restoration-v2-2-eager-labels-v2 / v2_preclaim_repair
+model projection: /data/artifacts/models/GUI-Owl-1.5-8B-Instruct
+output root: /data/experiments/causalcache/restoration-v2-2-eager-labels-v2
+global ledger: /data/experiments/causalcache/.restoration-v2-2-eager-labels-v2.attempt.json
+raw archive: /data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar
+HF tag/path: v2.2-eager-train-dev-exact-v2 / raw/v2.2-eager-train-dev-exact-v2.tar
+```
+
+pre-claim validator 复用 production snapshot verifier，逐 hash 验证 14 files / 17,545,907,171 bytes、
+`.snapshot.json` revision 和 Transformers source；它不构造 model、不初始化 CUDA，也不创建 ledger。v2 formal
+run 必须显式传以上 model/output/ledger，不能再使用 HF cache snapshot path。

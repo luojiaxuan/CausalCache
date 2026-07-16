@@ -793,3 +793,27 @@ state marker、teacher forward 与 KL 前退出，attempted/completed states 为
 `data/results/restoration_v2_2_eager_labels_v1_attempt/`。replacement 必须使用新 attempt identity，并把 model
 snapshot existence/revision/inventory validation 前移到 durable claim 之前。source-freeze 完整回归为 575 tests
 OK（skipped 11），`make paper` 通过。
+
+## Restoration v2.2 label v2 pre-claim repair
+
+replacement contract 是 `configs/causalcache_restoration_v2_2_labels_v2_repair.json`，SHA256 为
+`7fc96883b905a5f026c18e65c3c7e377972559c775ac7ec95030ea1f04c2f94c`。它保持 v1 的 scientific estimand、
+45-state denominator、coalition enumeration、23/22 parity 与 465-forward schedule 不变，只冻结新的 execution
+identity：
+
+```text
+attempt: restoration-v2-2-eager-labels-v2
+revision: v2_preclaim_repair
+output: /data/experiments/causalcache/restoration-v2-2-eager-labels-v2
+ledger: /data/experiments/causalcache/.restoration-v2-2-eager-labels-v2.attempt.json
+archive: /data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar
+HF tag/path: v2.2-eager-train-dev-exact-v2 / raw/v2.2-eager-train-dev-exact-v2.tar
+```
+
+v2 authorization 固定 `/data/artifacts/models/GUI-Owl-1.5-8B-Instruct`。在 global ledger exclusive-create 之前，
+`validate_model_snapshot_preclaim` 要求 root 为非 symlink real directory、repo slug 与 basename 一致、`.snapshot.json`
+与 Git manifest 完全一致，并复用 `verify_frozen_vision_runtime` 逐 SHA 验证 14 files / 17,545,907,171 bytes 与
+Transformers source。missing path、wrong basename、symlink、partial shard 均不得创建 output/ledger。runner、spawn
+worker rebuild、state/worker/global terminal、aggregate、USTAR prefix 与 artifact manifest 全部按 v1/v2 profile
+验证，避免 replacement 结果泄漏 v1 identity。完整回归 580 tests PASS（skipped 11），targeted repair/runner/
+artifact tests 21/21 PASS，`compileall` 与 `git diff --check` 通过；formal v2 GPU attempt 尚未运行。

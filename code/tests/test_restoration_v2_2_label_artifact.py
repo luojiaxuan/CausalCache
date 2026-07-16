@@ -35,6 +35,8 @@ from causalcache.restoration_v2_2_label_contract import (
     FROZEN_CONFIG_SHA256,
     PASS_OUTCOME,
     PROTOCOL_ID,
+    V2_REPAIR_CONFIG_PATH,
+    label_attempt_profile_for_config_path,
 )
 from causalcache.restoration_v2_2_label_table import validate_complete_distance_table
 from tests.test_run_restoration_v2_2_eager_substrate import (
@@ -422,6 +424,76 @@ def _files() -> dict[str, bytes]:
     return files
 
 
+def _v2_repair_files() -> dict[str, bytes]:
+    profile = label_attempt_profile_for_config_path(V2_REPAIR_CONFIG_PATH)
+    files = _files()
+    manifest = json.loads(files[RUN_MANIFEST_FILENAME])
+    run_contract = manifest["run_contract"]
+    run_contract["contract_source"] = {
+        "path": profile.config_path,
+        "sha256": profile.frozen_config_sha256,
+    }
+    run_contract["source_inventory"] = [
+        {
+            "path": path,
+            "sha256": profile.frozen_config_sha256 if index == 0 else "d" * 64,
+            "git_commit": SOURCE_COMMIT,
+        }
+        for index, path in enumerate(profile.expected_source_paths)
+    ]
+    run_contract["canonical_inputs"]["model_snapshot_preclaim"] = {
+        "model_dir": str(profile.canonical_model_dir),
+        "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "snapshot_manifest_sha256": (
+            "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+        ),
+        "verified_model_file_count": 14,
+        "verified_model_total_bytes": 17_545_907_171,
+        "validation_status": "VALIDATED_FULL_MODEL_SNAPSHOT_BEFORE_GLOBAL_CLAIM",
+    }
+    run_contract["attempt_identity"] = {
+        "attempt_id": profile.attempt_id,
+        "attempt_revision": profile.attempt_revision,
+        "supersedes_attempt_id": profile.supersedes_attempt_id,
+        "pass_outcome": profile.pass_outcome,
+        "invalid_outcome": profile.invalid_outcome,
+        "aggregate_status": profile.aggregate_status,
+        "output_dir": str(profile.output_dir),
+        "global_ledger": str(profile.ledger_path),
+        "raw_archive": str(profile.archive_path),
+        "hf_repo": profile.hf_repo,
+        "hf_tag": profile.hf_tag,
+        "hf_path": profile.hf_path,
+        "host_alias": "hyper00",
+        "host_hostname": "node-radixark-16-0000",
+        "container_id": "e" * 64,
+        "container_image_digest": (
+            "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa"
+        ),
+    }
+    run_sha = sha256_bytes(canonical_json_bytes(run_contract))
+    manifest["run_contract_sha256"] = run_sha
+    manifest["attempt_id"] = profile.attempt_id
+    manifest["attempt_revision"] = profile.attempt_revision
+    files[RUN_MANIFEST_FILENAME] = pretty_json_bytes(manifest)
+    for name, payload in list(files.items()):
+        if name == RUN_MANIFEST_FILENAME:
+            continue
+        value = json.loads(payload)
+        value["attempt_id"] = profile.attempt_id
+        value["attempt_revision"] = profile.attempt_revision
+        if "run_contract_sha256" in value:
+            value["run_contract_sha256"] = run_sha
+        if name == GLOBAL_LEDGER_MEMBER:
+            value["outcome"] = profile.pass_outcome
+        elif name == AGGREGATE_FILENAME:
+            value["status"] = profile.aggregate_status
+            value["outcome"] = profile.pass_outcome
+        files[name] = pretty_json_bytes(value)
+    return files
+
+
 class RestorationV22LabelArtifactTest(unittest.TestCase):
     def test_full_raw_inventory_recomputes_all_derived_labels(self) -> None:
         files = _files()
@@ -552,6 +624,30 @@ class RestorationV22LabelArtifactTest(unittest.TestCase):
                     fresh_immutable_archive=fresh,
                     hf_revision="2" * 40,
                 )
+
+    def test_v2_repair_identity_survives_validation_archive_and_manifest(self) -> None:
+        profile = label_attempt_profile_for_config_path(V2_REPAIR_CONFIG_PATH)
+        files = _v2_repair_files()
+        evidence = validate_label_evidence_files(files)
+        self.assertEqual(evidence.profile, profile)
+        self.assertEqual(evidence.outcome, profile.pass_outcome)
+        payload = deterministic_tar_bytes(files, profile=profile)
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "source.tar"
+            fresh = Path(directory) / "fresh.tar"
+            source.write_bytes(payload)
+            fresh.write_bytes(payload)
+            reread = read_label_evidence_archive(source)
+            manifest = build_artifact_manifest(
+                source_archive=source,
+                fresh_immutable_archive=fresh,
+                hf_revision="3" * 40,
+            )
+        self.assertEqual(reread.profile.attempt_id, profile.attempt_id)
+        self.assertEqual(manifest["attempt_id"], profile.attempt_id)
+        self.assertEqual(manifest["attempt_revision"], profile.attempt_revision)
+        self.assertEqual(manifest["result"]["outcome"], profile.pass_outcome)
+        self.assertEqual(manifest["hf_artifact"]["path"], profile.hf_path)
 
 
 if __name__ == "__main__":

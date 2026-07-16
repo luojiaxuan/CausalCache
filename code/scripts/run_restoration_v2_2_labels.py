@@ -15,7 +15,7 @@ from collections import Counter
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
 
 from causalcache.data.restoration_v2_2_label_inputs import (
@@ -42,9 +42,6 @@ from causalcache.restoration_v2_2_eager_artifact import (
 )
 from causalcache.restoration_v2_2_label_contract import (
     CANONICAL_ATTEMPT_ID,
-    CANONICAL_CONFIG_PATH,
-    CANONICAL_LEDGER_PATH,
-    CANONICAL_OUTPUT_DIR,
     EXPECTED_DEPLOYMENT_EDGES,
     EXPECTED_DISTANCE_ROWS,
     EXPECTED_FULL_EDGES,
@@ -52,11 +49,11 @@ from causalcache.restoration_v2_2_label_contract import (
     EXPECTED_PRIMARY_ORACLES,
     EXPECTED_STATE_COUNT,
     EXPECTED_TEACHER_FORWARDS,
-    FROZEN_CONFIG_SHA256,
-    INVALID_OUTCOME,
-    PASS_OUTCOME,
     PROTOCOL_ID,
     RestorationV22LabelContract,
+    RestorationLabelAttemptProfile,
+    V1_ATTEMPT_PROFILE,
+    label_attempt_profile_for_id,
     sha256_file,
 )
 from causalcache.restoration_v2_2_label_parent import (
@@ -71,6 +68,7 @@ from causalcache.restoration_v2_2_label_table import (
     primary_exact_subset_oracle,
     validate_complete_distance_table,
 )
+from causalcache.policy.gui_owl_v2_vision import verify_frozen_vision_runtime
 from scripts.run_restoration_v2_1_full_45_substrate import (
     GPUFullVocabularyKLBackend,
     _decode_rgb_image,
@@ -122,6 +120,7 @@ class AuthorizedLabels:
     parent_evidence: Mapping[str, Any]
     canonical_inputs: Mapping[str, Any]
     snapshot_manifest_path: Path
+    model_snapshot_preflight: Mapping[str, Any]
 
 
 @dataclass(frozen=True)
@@ -132,6 +131,7 @@ class LabelLayout:
     run_contract_sha256: str
     worker_sibling_ledgers: Mapping[str, Path]
     started_at_utc: str
+    profile: RestorationLabelAttemptProfile = V1_ATTEMPT_PROFILE
 
 
 @dataclass(frozen=True)
@@ -207,6 +207,123 @@ def _external_evidence(path: Path, *, status: str) -> dict[str, Any]:
     }
 
 
+def _safe_snapshot_relative_path(value: Any) -> str:
+    if not isinstance(value, str) or not value or "\\" in value:
+        raise ValueError("model snapshot path must be canonical relative POSIX")
+    parsed = PurePosixPath(value)
+    if parsed.is_absolute() or parsed.as_posix() != value or any(
+        part in {"", ".", ".."} for part in parsed.parts
+    ):
+        raise ValueError("model snapshot path must be canonical relative POSIX")
+    return value
+
+
+def validate_model_snapshot_preclaim(
+    *,
+    model_dir: str | Path,
+    snapshot_manifest: str | Path,
+    profile: RestorationLabelAttemptProfile,
+    snapshot_validator: Callable[..., Any] = verify_frozen_vision_runtime,
+) -> dict[str, Any]:
+    supplied = Path(model_dir)
+    if not supplied.is_absolute():
+        raise ValueError("model projection directory must be absolute")
+    if supplied.is_symlink():
+        raise ValueError("model projection directory must not be a symlink")
+    try:
+        resolved = supplied.resolve(strict=True)
+    except FileNotFoundError as error:
+        raise FileNotFoundError(
+            f"model projection directory does not exist: {supplied}"
+        ) from error
+    if resolved != supplied or not resolved.is_dir():
+        raise ValueError("model projection directory must be a real canonical directory")
+    if profile.canonical_model_dir is not None and resolved != profile.canonical_model_dir:
+        raise ValueError("model projection directory differs from the repair contract")
+
+    manifest_path = Path(snapshot_manifest).resolve()
+    manifest = _strict_json(manifest_path)
+    if set(manifest) != {"repo", "revision", "files"}:
+        raise ValueError("model snapshot manifest schema drifted")
+    repo = manifest.get("repo")
+    revision = manifest.get("revision")
+    files = manifest.get("files")
+    if (
+        not isinstance(repo, str)
+        or not repo
+        or resolved.name != repo.rsplit("/", 1)[-1]
+        or not isinstance(revision, str)
+        or re.fullmatch(r"[0-9a-f]{40}", revision) is None
+        or not isinstance(files, list)
+        or not files
+    ):
+        raise ValueError("model snapshot repo, revision, or projection basename drifted")
+
+    local_snapshot = resolved / ".snapshot.json"
+    if local_snapshot.is_symlink() or _strict_json(local_snapshot) != manifest:
+        raise ValueError("model projection .snapshot.json differs from the manifest")
+    seen: set[str] = set()
+    total_bytes = 0
+    for index, raw in enumerate(files):
+        if not isinstance(raw, Mapping) or set(raw) != {"path", "size", "sha256"}:
+            raise ValueError(f"model snapshot file record {index} drifted")
+        relative = _safe_snapshot_relative_path(raw.get("path"))
+        size = raw.get("size")
+        digest = raw.get("sha256")
+        if (
+            relative in seen
+            or type(size) is not int
+            or size < 0
+            or not isinstance(digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        ):
+            raise ValueError(f"model snapshot file record {index} is invalid")
+        path = resolved.joinpath(*PurePosixPath(relative).parts)
+        if not path.is_file() or path.stat().st_size != size:
+            raise ValueError(f"model snapshot file is missing or partial: {relative}")
+        seen.add(relative)
+        total_bytes += size
+
+    identity = snapshot_validator(
+        model_dir=resolved,
+        expected_snapshot_manifest=manifest_path,
+    )
+    observed = {
+        "model_dir": getattr(identity, "model_dir", None),
+        "model_repo": getattr(identity, "model_repo", None),
+        "model_revision": getattr(identity, "model_revision", None),
+        "snapshot_manifest_sha256": getattr(
+            identity,
+            "snapshot_manifest_sha256",
+            None,
+        ),
+        "verified_model_file_count": getattr(
+            identity,
+            "verified_model_file_count",
+            None,
+        ),
+        "verified_model_total_bytes": getattr(
+            identity,
+            "verified_model_total_bytes",
+            None,
+        ),
+    }
+    expected = {
+        "model_dir": str(resolved),
+        "model_repo": repo,
+        "model_revision": revision,
+        "snapshot_manifest_sha256": sha256_file(manifest_path),
+        "verified_model_file_count": len(files),
+        "verified_model_total_bytes": total_bytes,
+    }
+    if observed != expected:
+        raise ValueError("full model snapshot validator identity drifted")
+    return {
+        **expected,
+        "validation_status": "VALIDATED_FULL_MODEL_SNAPSHOT_BEFORE_GLOBAL_CLAIM",
+    }
+
+
 def authorize_label_run(
     args: argparse.Namespace,
     *,
@@ -220,18 +337,34 @@ def authorize_label_run(
 ) -> AuthorizedLabels:
     root = Path(args.repository_root).resolve()
     contract = RestorationV22LabelContract.load(args.contract, repository_root=root)
+    if contract.profile is None:
+        raise ValueError("restoration-label contract lacks an attempt profile")
+    profile = contract.profile
+    if args.output_dir is None:
+        args.output_dir = profile.output_dir
+    if args.global_ledger is None:
+        args.global_ledger = profile.ledger_path
+    snapshot = _canonical_repo_path(
+        args.snapshot_manifest,
+        repository_root=root,
+        relative=CANONICAL_SNAPSHOT_MANIFEST_PATH,
+    )
+    model_snapshot_preflight = validate_model_snapshot_preclaim(
+        model_dir=args.model_dir,
+        snapshot_manifest=snapshot,
+        profile=profile,
+    )
     expected_hosts = {
         "hyper00": "node-radixark-16-0000",
         "hyper01": "node-radixark-16-0001",
     }
     if (
-        Path(args.output_dir).resolve() != CANONICAL_OUTPUT_DIR
-        or Path(args.global_ledger).resolve() != CANONICAL_LEDGER_PATH
+        Path(args.output_dir).resolve() != profile.output_dir
+        or Path(args.global_ledger).resolve() != profile.ledger_path
         or args.container_image_digest != CANONICAL_IMAGE_DIGEST
         or args.host_alias not in expected_hosts
         or args.host_hostname != expected_hosts.get(args.host_alias)
         or re.fullmatch(r"[0-9a-f]{64}", args.container_id) is None
-        or not Path(args.model_dir).is_absolute()
     ):
         raise ValueError("canonical label output, Hyper host, or container identity drifted")
 
@@ -259,12 +392,6 @@ def authorize_label_run(
         repository_root=root,
         relative=CANONICAL_OCR_BACKEND_CONFIG_PATH,
     )
-    snapshot = _canonical_repo_path(
-        args.snapshot_manifest,
-        repository_root=root,
-        relative=CANONICAL_SNAPSHOT_MANIFEST_PATH,
-    )
-
     artifact = artifact_loader(
         artifact_root=args.derived_artifact_root,
         backend_config_path=ocr,
@@ -323,6 +450,7 @@ def authorize_label_run(
             "sha256": sha256_file(snapshot),
         },
         "derived_artifact": dict(contract.data["data"]["derived_artifact"]),
+        "model_snapshot_preclaim": dict(model_snapshot_preflight),
     }
     return AuthorizedLabels(
         repository_root=root,
@@ -338,6 +466,7 @@ def authorize_label_run(
         ),
         canonical_inputs=canonical_inputs,
         snapshot_manifest_path=snapshot,
+        model_snapshot_preflight=model_snapshot_preflight,
     )
 
 
@@ -345,6 +474,9 @@ def build_run_contract(
     args: argparse.Namespace,
     authorized: AuthorizedLabels,
 ) -> dict[str, Any]:
+    if authorized.contract.profile is None:
+        raise ValueError("restoration-label contract lacks an attempt profile")
+    profile = authorized.contract.profile
     parent_states = [
         {
             "index": parent.index,
@@ -363,8 +495,8 @@ def build_run_contract(
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
         "contract_source": {
-            "path": CANONICAL_CONFIG_PATH,
-            "sha256": FROZEN_CONFIG_SHA256,
+            "path": profile.config_path,
+            "sha256": profile.frozen_config_sha256,
         },
         "git_identity": dict(authorized.git_identity),
         "source_inventory": [dict(record) for record in authorized.source_inventory],
@@ -379,9 +511,18 @@ def build_run_contract(
         "operation_schedule": dict(authorized.contract.data["operation_schedule"]),
         "prohibited_work": dict(authorized.contract.data["prohibited_work"]),
         "attempt_identity": {
-            "attempt_id": CANONICAL_ATTEMPT_ID,
+            "attempt_id": profile.attempt_id,
+            "attempt_revision": profile.attempt_revision,
+            "supersedes_attempt_id": profile.supersedes_attempt_id,
+            "pass_outcome": profile.pass_outcome,
+            "invalid_outcome": profile.invalid_outcome,
+            "aggregate_status": profile.aggregate_status,
             "output_dir": str(Path(args.output_dir).resolve()),
             "global_ledger": str(Path(args.global_ledger).resolve()),
+            "raw_archive": str(profile.archive_path),
+            "hf_repo": profile.hf_repo,
+            "hf_tag": profile.hf_tag,
+            "hf_path": profile.hf_path,
             "host_alias": args.host_alias,
             "host_hostname": args.host_hostname,
             "container_id": args.container_id,
@@ -400,6 +541,29 @@ def _worker_sibling_paths(global_ledger: Path) -> dict[str, Path]:
     }
 
 
+def _profile_from_run_contract(
+    run_contract: Mapping[str, Any],
+) -> RestorationLabelAttemptProfile:
+    attempt = run_contract.get("attempt_identity")
+    if not isinstance(attempt, Mapping) or not isinstance(
+        attempt.get("attempt_id"),
+        str,
+    ):
+        raise ValueError("label run contract lacks an attempt identity")
+    profile = label_attempt_profile_for_id(attempt["attempt_id"])
+    strict_keys = {
+        "attempt_revision": profile.attempt_revision,
+        "supersedes_attempt_id": profile.supersedes_attempt_id,
+        "pass_outcome": profile.pass_outcome,
+        "invalid_outcome": profile.invalid_outcome,
+        "aggregate_status": profile.aggregate_status,
+    }
+    present = set(attempt).intersection(strict_keys)
+    if present and any(attempt.get(key) != value for key, value in strict_keys.items()):
+        raise ValueError("label run contract attempt profile drifted")
+    return profile
+
+
 def _worker_ledger(
     *,
     layout: LabelLayout,
@@ -412,6 +576,8 @@ def _worker_ledger(
     return {
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
+        "attempt_id": layout.profile.attempt_id,
+        "attempt_revision": layout.profile.attempt_revision,
         "status": status,
         "run_contract_sha256": layout.run_contract_sha256,
         "worker": spec.to_dict(),
@@ -535,7 +701,8 @@ def seal_invalid_attempt(
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
         "status": GLOBAL_INVALID_STATUS,
-        "attempt_id": CANONICAL_ATTEMPT_ID,
+        "attempt_id": layout.profile.attempt_id,
+        "attempt_revision": layout.profile.attempt_revision,
         "run_contract_sha256": layout.run_contract_sha256,
         "worker_sibling_ledgers": {
             key: str(value) for key, value in layout.worker_sibling_ledgers.items()
@@ -552,7 +719,7 @@ def seal_invalid_attempt(
         "attempted_state_count": len(attempted),
         "completed_state_count": len(completed),
         "worker_high_water": high_water,
-        "outcome": INVALID_OUTCOME,
+        "outcome": layout.profile.invalid_outcome,
         "retry_count": 0,
         "top_up_count": 0,
         "retry_allowed": False,
@@ -572,6 +739,7 @@ def claim_attempt(
 ) -> LabelLayout:
     root = Path(output_dir).resolve()
     ledger_path = Path(global_ledger).resolve()
+    profile = _profile_from_run_contract(run_contract)
     siblings = _worker_sibling_paths(ledger_path)
     forbidden = (root, ledger_path, *siblings.values())
     if any(path.exists() for path in forbidden):
@@ -582,7 +750,8 @@ def claim_attempt(
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
         "status": GLOBAL_CLAIM_STATUS,
-        "attempt_id": CANONICAL_ATTEMPT_ID,
+        "attempt_id": profile.attempt_id,
+        "attempt_revision": profile.attempt_revision,
         "run_contract_sha256": run_contract_sha256,
         "worker_sibling_ledgers": {
             worker_id: str(path) for worker_id, path in siblings.items()
@@ -599,6 +768,7 @@ def claim_attempt(
         run_contract_sha256=run_contract_sha256,
         worker_sibling_ledgers=siblings,
         started_at_utc=started,
+        profile=profile,
     )
     try:
         root.mkdir(parents=True, exist_ok=False)
@@ -611,6 +781,8 @@ def claim_attempt(
             {
                 "schema_version": SCHEMA_VERSION,
                 "protocol_id": PROTOCOL_ID,
+                "attempt_id": profile.attempt_id,
+                "attempt_revision": profile.attempt_revision,
                 "status": RUN_STATUS,
                 "run_contract_sha256": run_contract_sha256,
                 "run_contract": dict(run_contract),
@@ -688,6 +860,8 @@ def run_label_state_once(
     distance_backend: GPUFullVocabularyKLBackend,
     run_contract_sha256: str,
     image_decoder: Callable[[bytes], Any] = _decode_rgb_image,
+    attempt_id: str = CANONICAL_ATTEMPT_ID,
+    attempt_revision: str = "v1_initial",
 ) -> dict[str, Any]:
     started = time.perf_counter()
     started_at = _utc_now()
@@ -873,6 +1047,8 @@ def run_label_state_once(
     return {
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
+        "attempt_id": attempt_id,
+        "attempt_revision": attempt_revision,
         "run_contract_sha256": run_contract_sha256,
         "status": STATE_OUTCOME,
         "state": _full45_projection(state, state.index),
@@ -975,6 +1151,8 @@ def run_worker(
             {
                 "schema_version": SCHEMA_VERSION,
                 "protocol_id": PROTOCOL_ID,
+                "attempt_id": layout.profile.attempt_id,
+                "attempt_revision": layout.profile.attempt_revision,
                 "run_contract_sha256": layout.run_contract_sha256,
                 "worker": spec.to_dict(),
                 "runtime_metadata": dict(runtime.metadata),
@@ -998,6 +1176,8 @@ def run_worker(
                 {
                     "schema_version": SCHEMA_VERSION,
                     "protocol_id": PROTOCOL_ID,
+                    "attempt_id": layout.profile.attempt_id,
+                    "attempt_revision": layout.profile.attempt_revision,
                     "status": "LABEL_STATE_CLAIMED_NO_RETRY_OR_TOP_UP",
                     "run_contract_sha256": layout.run_contract_sha256,
                     "worker": spec.to_dict(),
@@ -1015,6 +1195,8 @@ def run_worker(
                 runtime=runtime.runtime,
                 distance_backend=runtime.distance_backend,
                 run_contract_sha256=layout.run_contract_sha256,
+                attempt_id=layout.profile.attempt_id,
+                attempt_revision=layout.profile.attempt_revision,
             )
             _write_json_exclusive(
                 worker_root / STATE_DIRECTORY / f"{index:03d}.json",
@@ -1054,6 +1236,8 @@ def run_worker(
     terminal = {
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
+        "attempt_id": layout.profile.attempt_id,
+        "attempt_revision": layout.profile.attempt_revision,
         "run_contract_sha256": layout.run_contract_sha256,
         "worker": spec.to_dict(),
         "outcome": outcome,
@@ -1076,11 +1260,16 @@ def _layout_from_existing(
     run_contract = manifest.get("run_contract")
     if not isinstance(run_contract, Mapping):
         raise ValueError("label run manifest lacks a run contract")
+    profile = _profile_from_run_contract(run_contract)
     run_contract_sha256 = sha256_bytes(canonical_json_bytes(run_contract))
     if (
         manifest.get("run_contract_sha256") != run_contract_sha256
+        or manifest.get("attempt_id") != profile.attempt_id
+        or manifest.get("attempt_revision") != profile.attempt_revision
         or ledger.get("run_contract_sha256") != run_contract_sha256
         or ledger.get("protocol_id") != PROTOCOL_ID
+        or ledger.get("attempt_id") != profile.attempt_id
+        or ledger.get("attempt_revision") != profile.attempt_revision
         or ledger.get("status") != GLOBAL_CLAIM_STATUS
         or ledger.get("retry_count") != 0
         or ledger.get("top_up_count") != 0
@@ -1097,6 +1286,7 @@ def _layout_from_existing(
         run_contract_sha256=run_contract_sha256,
         worker_sibling_ledgers=siblings,
         started_at_utc=str(ledger["claimed_at_utc"]),
+        profile=profile,
     )
 
 
@@ -1216,8 +1406,10 @@ def aggregate_attempt(layout: LabelLayout) -> dict[str, Any]:
     aggregate = {
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
-        "status": "COMPLETED_RESTORATION_V2_2_EAGER_LABELS_V1",
-        "outcome": PASS_OUTCOME,
+        "attempt_id": layout.profile.attempt_id,
+        "attempt_revision": layout.profile.attempt_revision,
+        "status": layout.profile.aggregate_status,
+        "outcome": layout.profile.pass_outcome,
         "run_contract_sha256": layout.run_contract_sha256,
         "fixed_state_denominator": EXPECTED_STATE_COUNT,
         "role_state_counts": dict(
@@ -1262,14 +1454,15 @@ def aggregate_attempt(layout: LabelLayout) -> dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
         "status": "LABEL_ATTEMPT_COMPLETED",
-        "attempt_id": CANONICAL_ATTEMPT_ID,
+        "attempt_id": layout.profile.attempt_id,
+        "attempt_revision": layout.profile.attempt_revision,
         "run_contract_sha256": layout.run_contract_sha256,
         "worker_sibling_ledgers": {
             key: str(value) for key, value in layout.worker_sibling_ledgers.items()
         },
         "attempted_state_count": EXPECTED_STATE_COUNT,
         "completed_state_count": EXPECTED_STATE_COUNT,
-        "outcome": PASS_OUTCOME,
+        "outcome": layout.profile.pass_outcome,
         "retry_count": 0,
         "top_up_count": 0,
         "claimed_at_utc": layout.started_at_utc,
@@ -1375,8 +1568,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--derived-artifact-root", type=Path, required=True)
     parser.add_argument("--parent-v22-evidence", type=Path, required=True)
     parser.add_argument("--model-dir", type=Path, required=True)
-    parser.add_argument("--output-dir", type=Path, default=CANONICAL_OUTPUT_DIR)
-    parser.add_argument("--global-ledger", type=Path, default=CANONICAL_LEDGER_PATH)
+    parser.add_argument("--output-dir", type=Path)
+    parser.add_argument("--global-ledger", type=Path)
     parser.add_argument("--host-alias", required=True)
     parser.add_argument("--host-hostname", required=True)
     parser.add_argument("--container-id", required=True)

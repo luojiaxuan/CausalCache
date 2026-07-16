@@ -70,6 +70,134 @@ EXPECTED_SOURCE_PATHS = (
     "data/results/restoration_v2_2_eager_full_45_substrate/artifact.json",
     "data/results/restoration_v2_2_eager_full_45_substrate/summary.json",
 )
+V2_REPAIR_CONFIG_PATH = (
+    "code/configs/causalcache_restoration_v2_2_labels_v2_repair.json"
+)
+V2_REPAIR_FROZEN_CONFIG_SHA256 = (
+    "7fc96883b905a5f026c18e65c3c7e377972559c775ac7ec95030ea1f04c2f94c"
+)
+V2_REPAIR_SOURCE_PARENT_GIT_COMMIT = "bf9e377ceb9c656af8ae84c223ad23d730136cb1"
+V2_REPAIR_ATTEMPT_ID = "restoration-v2-2-eager-labels-v2"
+V2_REPAIR_OUTPUT_DIR = Path(
+    "/data/experiments/causalcache/restoration-v2-2-eager-labels-v2"
+)
+V2_REPAIR_LEDGER_PATH = Path(
+    "/data/experiments/causalcache/.restoration-v2-2-eager-labels-v2.attempt.json"
+)
+V2_REPAIR_ARCHIVE_PATH = Path(
+    "/data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar"
+)
+V2_REPAIR_HF_TAG = "v2.2-eager-train-dev-exact-v2"
+V2_REPAIR_HF_PATH = "raw/v2.2-eager-train-dev-exact-v2.tar"
+V2_REPAIR_CANONICAL_MODEL_DIR = Path(
+    "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct"
+)
+V2_REPAIR_PASS_OUTCOME = "PASS_RESTORATION_V2_2_EAGER_LABELS_V2"
+V2_REPAIR_INVALID_OUTCOME = "INVALID_RESTORATION_V2_2_EAGER_LABELS_V2"
+V2_REPAIR_AGGREGATE_STATUS = "COMPLETED_RESTORATION_V2_2_EAGER_LABELS_V2"
+V2_REPAIR_EXPECTED_SOURCE_PATHS = (
+    V2_REPAIR_CONFIG_PATH,
+    *EXPECTED_SOURCE_PATHS,
+    "code/causalcache/policy/gui_owl_v2_vision.py",
+    "data/results/restoration_v2_2_eager_labels_v1_attempt/summary.json",
+    "data/results/restoration_v2_2_eager_labels_v1_attempt/README.md",
+)
+
+
+@dataclass(frozen=True)
+class RestorationLabelAttemptProfile:
+    config_path: str
+    frozen_config_sha256: str
+    source_parent_git_commit: str
+    attempt_id: str
+    output_dir: Path
+    ledger_path: Path
+    archive_path: Path
+    hf_repo: str
+    hf_tag: str
+    hf_path: str
+    pass_outcome: str
+    invalid_outcome: str
+    aggregate_status: str
+    attempt_revision: str
+    preregistration_status: str
+    expected_source_paths: tuple[str, ...]
+    supersedes_attempt_id: str | None = None
+    canonical_model_dir: Path | None = None
+
+
+V1_ATTEMPT_PROFILE = RestorationLabelAttemptProfile(
+    config_path=CANONICAL_CONFIG_PATH,
+    frozen_config_sha256=FROZEN_CONFIG_SHA256,
+    source_parent_git_commit=SOURCE_PARENT_GIT_COMMIT,
+    attempt_id=CANONICAL_ATTEMPT_ID,
+    output_dir=CANONICAL_OUTPUT_DIR,
+    ledger_path=CANONICAL_LEDGER_PATH,
+    archive_path=CANONICAL_ARCHIVE_PATH,
+    hf_repo=CANONICAL_HF_REPO,
+    hf_tag=CANONICAL_HF_TAG,
+    hf_path=CANONICAL_HF_PATH,
+    pass_outcome=PASS_OUTCOME,
+    invalid_outcome=INVALID_OUTCOME,
+    aggregate_status="COMPLETED_RESTORATION_V2_2_EAGER_LABELS_V1",
+    attempt_revision="v1_initial",
+    preregistration_status=(
+        "source_only_frozen_before_any_restoration_label_forward"
+    ),
+    expected_source_paths=EXPECTED_SOURCE_PATHS,
+)
+
+
+def _v2_repair_profile() -> RestorationLabelAttemptProfile:
+    return RestorationLabelAttemptProfile(
+        config_path=V2_REPAIR_CONFIG_PATH,
+        frozen_config_sha256=V2_REPAIR_FROZEN_CONFIG_SHA256,
+        source_parent_git_commit=V2_REPAIR_SOURCE_PARENT_GIT_COMMIT,
+        attempt_id=V2_REPAIR_ATTEMPT_ID,
+        output_dir=V2_REPAIR_OUTPUT_DIR,
+        ledger_path=V2_REPAIR_LEDGER_PATH,
+        archive_path=V2_REPAIR_ARCHIVE_PATH,
+        hf_repo=CANONICAL_HF_REPO,
+        hf_tag=V2_REPAIR_HF_TAG,
+        hf_path=V2_REPAIR_HF_PATH,
+        pass_outcome=V2_REPAIR_PASS_OUTCOME,
+        invalid_outcome=V2_REPAIR_INVALID_OUTCOME,
+        aggregate_status=V2_REPAIR_AGGREGATE_STATUS,
+        attempt_revision="v2_preclaim_repair",
+        preregistration_status=(
+            "repair_source_frozen_after_zero_forward_v1_before_any_v2_forward"
+        ),
+        expected_source_paths=V2_REPAIR_EXPECTED_SOURCE_PATHS,
+        supersedes_attempt_id=CANONICAL_ATTEMPT_ID,
+        canonical_model_dir=V2_REPAIR_CANONICAL_MODEL_DIR,
+    )
+
+
+def label_attempt_profile_for_config_path(
+    value: str | Path,
+    *,
+    repository_root: str | Path | None = None,
+) -> RestorationLabelAttemptProfile:
+    supplied = Path(value)
+    if repository_root is not None:
+        root = Path(repository_root).resolve()
+        resolved = supplied.resolve()
+        for profile in (V1_ATTEMPT_PROFILE, _v2_repair_profile()):
+            if resolved == (root / profile.config_path).resolve():
+                return profile
+    else:
+        normalized = supplied.as_posix()
+        for profile in (V1_ATTEMPT_PROFILE, _v2_repair_profile()):
+            if normalized == profile.config_path:
+                return profile
+    raise ValueError("restoration-label contract path is not an authorized profile")
+
+
+def label_attempt_profile_for_id(value: str) -> RestorationLabelAttemptProfile:
+    for profile in (V1_ATTEMPT_PROFILE, _v2_repair_profile()):
+        if value == profile.attempt_id:
+            return profile
+    raise ValueError("restoration-label attempt id is not authorized")
 
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _GIT_SHA = re.compile(r"[0-9a-f]{40}")
@@ -161,6 +289,7 @@ def _bound_repository_json(
     binding: Any,
     *,
     label: str,
+    source_parent_git_commit: str,
 ) -> Mapping[str, Any]:
     record = _mapping(binding, label)
     relative = _safe_relative_path(record.get("path"), f"{label}.path")
@@ -174,7 +303,7 @@ def _bound_repository_json(
     _equal(sha256_bytes(payload), digest, f"{label} SHA256")
     _equal(_git_blob(repository_root, "HEAD", relative), payload, f"{label} HEAD blob")
     _equal(
-        _git_blob(repository_root, SOURCE_PARENT_GIT_COMMIT, relative),
+        _git_blob(repository_root, source_parent_git_commit, relative),
         payload,
         f"{label} source-parent blob",
     )
@@ -187,6 +316,7 @@ class RestorationV22LabelContract:
     path: Path
     data: Mapping[str, Any]
     sha256: str
+    profile: RestorationLabelAttemptProfile | None = None
 
     @classmethod
     def load(
@@ -197,34 +327,50 @@ class RestorationV22LabelContract:
     ) -> "RestorationV22LabelContract":
         root = Path(repository_root).resolve()
         resolved = Path(path).resolve()
-        expected = (root / CANONICAL_CONFIG_PATH).resolve()
-        if resolved != expected or not resolved.is_file() or resolved.is_symlink():
-            raise ValueError("restoration-label contract must use the canonical config")
+        profile = label_attempt_profile_for_config_path(
+            resolved,
+            repository_root=root,
+        )
+        if not resolved.is_file() or resolved.is_symlink():
+            raise ValueError("restoration-label contract must use a canonical config")
         digest = sha256_file(resolved)
-        _equal(digest, FROZEN_CONFIG_SHA256, "restoration-label config SHA256")
         _equal(
-            _git_blob(root, "HEAD", CANONICAL_CONFIG_PATH),
+            digest,
+            profile.frozen_config_sha256,
+            "restoration-label config SHA256",
+        )
+        _equal(
+            _git_blob(root, "HEAD", profile.config_path),
             resolved.read_bytes(),
             "restoration-label config HEAD blob",
         )
         data = load_strict_json_object(resolved)
-        contract = cls(path=resolved, data=data, sha256=digest)
+        contract = cls(path=resolved, data=data, sha256=digest, profile=profile)
         contract.validate(repository_root=root)
         return contract
 
     def validate(self, *, repository_root: Path) -> None:
         data = self.data
+        profile = self.profile or label_attempt_profile_for_config_path(
+            self.path,
+            repository_root=repository_root,
+        )
+        _equal(
+            self.sha256,
+            profile.frozen_config_sha256,
+            "restoration-label config SHA256",
+        )
         _equal(data.get("schema_version"), "0.1.0", "schema version")
         _equal(data.get("protocol_id"), PROTOCOL_ID, "protocol id")
         _equal(
             data.get("preregistration_status"),
-            "source_only_frozen_before_any_restoration_label_forward",
+            profile.preregistration_status,
             "preregistration status",
         )
         authorization = _mapping(data.get("authorization"), "authorization")
         _equal(
             authorization.get("source_parent_git_commit"),
-            SOURCE_PARENT_GIT_COMMIT,
+            profile.source_parent_git_commit,
             "source parent commit",
         )
         for key in (
@@ -247,7 +393,10 @@ class RestorationV22LabelContract:
             authorization.get("v2_2_parent_artifact"), "parent artifact binding"
         )
         artifact = _bound_repository_json(
-            repository_root, artifact_binding, label="parent artifact"
+            repository_root,
+            artifact_binding,
+            label="parent artifact",
+            source_parent_git_commit=profile.source_parent_git_commit,
         )
         artifact_result = _mapping(artifact.get("result"), "parent artifact result")
         source = _mapping(artifact.get("source_execution"), "parent source")
@@ -285,7 +434,10 @@ class RestorationV22LabelContract:
             authorization.get("v2_2_parent_summary"), "parent summary binding"
         )
         summary = _bound_repository_json(
-            repository_root, summary_binding, label="parent summary"
+            repository_root,
+            summary_binding,
+            label="parent summary",
+            source_parent_git_commit=profile.source_parent_git_commit,
         )
         metrics = _mapping(summary.get("metrics"), "parent summary metrics")
         _equal(summary.get("status"), summary_binding.get("required_status"), "parent status")
@@ -401,27 +553,93 @@ class RestorationV22LabelContract:
 
         execution = _mapping(data.get("execution"), "execution")
         expected_execution = {
-            "attempt_id": CANONICAL_ATTEMPT_ID,
-            "canonical_persistent_output_dir": str(CANONICAL_OUTPUT_DIR),
-            "canonical_global_attempt_ledger": str(CANONICAL_LEDGER_PATH),
-            "canonical_raw_archive": str(CANONICAL_ARCHIVE_PATH),
+            "attempt_id": profile.attempt_id,
+            "canonical_persistent_output_dir": str(profile.output_dir),
+            "canonical_global_attempt_ledger": str(profile.ledger_path),
+            "canonical_raw_archive": str(profile.archive_path),
         }
+        if profile.supersedes_attempt_id is not None:
+            expected_execution["attempt_revision"] = profile.attempt_revision
         for key, expected in expected_execution.items():
             _equal(execution.get(key), expected, f"execution.{key}")
 
         destination = _mapping(data.get("artifact_destination"), "artifact destination")
-        _equal(destination.get("repo"), CANONICAL_HF_REPO, "HF repo")
-        _equal(destination.get("tag"), CANONICAL_HF_TAG, "HF tag")
-        _equal(destination.get("raw_path"), CANONICAL_HF_PATH, "HF raw path")
+        _equal(destination.get("repo"), profile.hf_repo, "HF repo")
+        _equal(destination.get("tag"), profile.hf_tag, "HF tag")
+        _equal(destination.get("raw_path"), profile.hf_path, "HF raw path")
         _equal(destination.get("immutable_revision"), None, "source-only HF revision")
 
         source_paths = tuple(data.get("formal_run_source_inventory_paths", ()))
-        _equal(source_paths, EXPECTED_SOURCE_PATHS, "formal source inventory paths")
+        _equal(
+            source_paths,
+            profile.expected_source_paths,
+            "formal source inventory paths",
+        )
         for relative in source_paths:
             _safe_relative_path(relative, "formal source path")
             path = repository_root / relative
             if not path.is_file() or path.is_symlink():
                 raise ValueError(f"formal source path is missing: {relative}")
+
+        if profile.supersedes_attempt_id is None:
+            if "repair_lineage" in data:
+                raise ValueError("v1 contract must not contain repair lineage")
+        else:
+            _equal(
+                authorization.get("canonical_model_projection_dir"),
+                str(profile.canonical_model_dir),
+                "repair canonical model projection",
+            )
+            repair = _mapping(data.get("repair_lineage"), "repair lineage")
+            expected_repair = {
+                "supersedes_attempt_id": CANONICAL_ATTEMPT_ID,
+                "superseded_status": "LABEL_ATTEMPT_INVALID",
+                "superseded_outcome": INVALID_OUTCOME,
+                "superseded_attempted_state_count": 0,
+                "superseded_completed_state_count": 0,
+                "superseded_teacher_forward_count": 0,
+                "superseded_kl_measurement_count": 0,
+                "superseded_attempt_reuse_or_resume_allowed": False,
+                "repair_reason": (
+                    "wrong_model_projection_path_and_postclaim_snapshot_validation"
+                ),
+            }
+            for key, expected in expected_repair.items():
+                _equal(repair.get(key), expected, f"repair_lineage.{key}")
+            summary_binding = repair.get("superseded_attempt_summary")
+            summary = _bound_repository_json(
+                repository_root,
+                summary_binding,
+                label="superseded attempt summary",
+                source_parent_git_commit=profile.source_parent_git_commit,
+            )
+            _equal(
+                {
+                    "status": summary.get("status"),
+                    "outcome": summary.get("outcome"),
+                    "attempt_id": summary.get("attempt_id"),
+                    "attempted_state_count": summary.get("attempted_state_count"),
+                    "completed_state_count": summary.get("completed_state_count"),
+                    "teacher_forward_count": _mapping(
+                        summary.get("formal_outputs"),
+                        "superseded formal outputs",
+                    ).get("teacher_forward_count"),
+                    "kl_measurement_count": _mapping(
+                        summary.get("formal_outputs"),
+                        "superseded formal outputs",
+                    ).get("kl_measurement_count"),
+                },
+                {
+                    "status": "LABEL_ATTEMPT_INVALID",
+                    "outcome": INVALID_OUTCOME,
+                    "attempt_id": CANONICAL_ATTEMPT_ID,
+                    "attempted_state_count": 0,
+                    "completed_state_count": 0,
+                    "teacher_forward_count": 0,
+                    "kl_measurement_count": 0,
+                },
+                "superseded attempt summary boundary",
+            )
 
 
 def validate_contract(
@@ -437,7 +655,9 @@ def validate_contract(
         "status": "VALID_RESTORATION_V2_2_EAGER_LABEL_SOURCE_CONTRACT",
         "protocol_id": PROTOCOL_ID,
         "config_sha256": contract.sha256,
-        "source_parent_git_commit": SOURCE_PARENT_GIT_COMMIT,
+        "source_parent_git_commit": contract.profile.source_parent_git_commit,
+        "attempt_id": contract.profile.attempt_id,
+        "supersedes_attempt_id": contract.profile.supersedes_attempt_id,
         "fixed_state_denominator": EXPECTED_STATE_COUNT,
         "raw_distance_row_count": EXPECTED_DISTANCE_ROWS,
         "deployment_conditional_label_count": EXPECTED_DEPLOYMENT_EDGES,

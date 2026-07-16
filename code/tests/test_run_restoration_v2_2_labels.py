@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -10,6 +12,11 @@ from unittest import mock
 from causalcache.policy.gui_owl_v2 import GUIOwlV2Action
 from causalcache.restoration_v2_2_eager_artifact import expected_worker_specs
 from causalcache.restoration_v2_2_label_parent import V22LabelParentState
+from causalcache.restoration_v2_2_label_contract import (
+    V2_REPAIR_ATTEMPT_ID,
+    V2_REPAIR_CONFIG_PATH,
+    label_attempt_profile_for_config_path,
+)
 from scripts.run_restoration_v2_2_labels import (
     ATTEMPT_DIRECTORY,
     GLOBAL_INVALID_STATUS,
@@ -22,9 +29,11 @@ from scripts.run_restoration_v2_2_labels import (
     _replace_json_durable,
     _write_json_exclusive,
     claim_attempt,
+    execute_attempt,
     execute_claimed_attempt,
     run_label_state_once,
     seal_invalid_attempt,
+    validate_model_snapshot_preclaim,
 )
 from tests.test_restoration_v2_2_label_inputs import _artifact
 
@@ -121,6 +130,42 @@ def _parent(state) -> V22LabelParentState:
 
 
 class RestorationV22LabelsRunnerTest(unittest.TestCase):
+    @staticmethod
+    def _snapshot_fixture(base: Path, *, directory_name: str = "GUI-Owl-1.5-8B-Instruct"):
+        model = base / directory_name
+        model.mkdir()
+        payload = b"model-bytes"
+        (model / "weights.bin").write_bytes(payload)
+        manifest = {
+            "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+            "revision": "a" * 40,
+            "files": [
+                {
+                    "path": "weights.bin",
+                    "size": len(payload),
+                    "sha256": hashlib.sha256(payload).hexdigest(),
+                }
+            ],
+        }
+        manifest_path = base / "snapshot.json"
+        serialized = json.dumps(manifest, sort_keys=True).encode("utf-8")
+        manifest_path.write_bytes(serialized)
+        (model / ".snapshot.json").write_bytes(serialized)
+
+        def validator(*, model_dir, expected_snapshot_manifest):
+            return SimpleNamespace(
+                model_dir=str(Path(model_dir).resolve()),
+                model_repo=manifest["repo"],
+                model_revision=manifest["revision"],
+                snapshot_manifest_sha256=hashlib.sha256(
+                    Path(expected_snapshot_manifest).read_bytes()
+                ).hexdigest(),
+                verified_model_file_count=1,
+                verified_model_total_bytes=len(payload),
+            )
+
+        return model, manifest_path, validator
+
     @staticmethod
     def _claim(base: Path) -> LabelLayout:
         return claim_attempt(
@@ -346,6 +391,111 @@ class RestorationV22LabelsRunnerTest(unittest.TestCase):
             self.assertEqual(
                 persisted["invalid_failure"]["exception_type"], "ValueError"
             )
+
+    def test_model_snapshot_preclaim_rejects_missing_without_claim_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            root = base / "raw"
+            ledger = base / "attempt.json"
+            profile = replace(
+                label_attempt_profile_for_config_path(V2_REPAIR_CONFIG_PATH),
+                canonical_model_dir=base / "missing-model",
+            )
+            args = SimpleNamespace(
+                repository_root=Path(__file__).resolve().parents[2],
+                contract=Path("unused.json"),
+                snapshot_manifest=(
+                    Path(__file__).resolve().parents[2]
+                    / "code/configs/gui_owl_1_5_8b_snapshot.json"
+                ),
+                model_dir=base / "missing-model",
+                output_dir=root,
+                global_ledger=ledger,
+            )
+            fake_contract = SimpleNamespace(profile=profile)
+            with mock.patch(
+                "scripts.run_restoration_v2_2_labels.RestorationV22LabelContract.load",
+                return_value=fake_contract,
+            ), self.assertRaisesRegex(FileNotFoundError, "does not exist"):
+                execute_attempt(args)
+            self.assertFalse(root.exists())
+            self.assertFalse(ledger.exists())
+
+    def test_model_snapshot_preclaim_rejects_wrong_basename_symlink_and_partial(self) -> None:
+        repair = label_attempt_profile_for_config_path(V2_REPAIR_CONFIG_PATH)
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            wrong, manifest, validator = self._snapshot_fixture(
+                base,
+                directory_name="wrong-name",
+            )
+            with self.assertRaisesRegex(ValueError, "basename"):
+                validate_model_snapshot_preclaim(
+                    model_dir=wrong.resolve(),
+                    snapshot_manifest=manifest,
+                    profile=replace(repair, canonical_model_dir=None),
+                    snapshot_validator=validator,
+                )
+
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            model, manifest, validator = self._snapshot_fixture(base)
+            linked = base / "linked-model"
+            linked.symlink_to(model, target_is_directory=True)
+            with self.assertRaisesRegex(ValueError, "symlink"):
+                validate_model_snapshot_preclaim(
+                    model_dir=linked,
+                    snapshot_manifest=manifest,
+                    profile=replace(repair, canonical_model_dir=None),
+                    snapshot_validator=validator,
+                )
+
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            model, manifest, validator = self._snapshot_fixture(base)
+            (model / "weights.bin").write_bytes(b"partial")
+            with self.assertRaisesRegex(ValueError, "missing or partial"):
+                validate_model_snapshot_preclaim(
+                    model_dir=model.resolve(),
+                    snapshot_manifest=manifest,
+                    profile=replace(repair, canonical_model_dir=model.resolve()),
+                    snapshot_validator=validator,
+                )
+
+    def test_v2_claim_and_invalid_terminal_keep_repair_identity(self) -> None:
+        profile = label_attempt_profile_for_config_path(V2_REPAIR_CONFIG_PATH)
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory)
+            layout = claim_attempt(
+                run_contract={
+                    "attempt_identity": {
+                        "attempt_id": profile.attempt_id,
+                        "attempt_revision": profile.attempt_revision,
+                        "supersedes_attempt_id": profile.supersedes_attempt_id,
+                        "pass_outcome": profile.pass_outcome,
+                        "invalid_outcome": profile.invalid_outcome,
+                        "aggregate_status": profile.aggregate_status,
+                    }
+                },
+                output_dir=base / "raw",
+                global_ledger=base / "attempt.json",
+            )
+            manifest = json.loads(
+                (layout.root / RUN_MANIFEST_FILENAME).read_bytes()
+            )
+            self.assertEqual(manifest["attempt_id"], V2_REPAIR_ATTEMPT_ID)
+            for sibling in layout.worker_sibling_ledgers.values():
+                value = json.loads(sibling.read_bytes())
+                self.assertEqual(value["attempt_id"], V2_REPAIR_ATTEMPT_ID)
+                self.assertEqual(value["attempt_revision"], "v2_preclaim_repair")
+            terminal = seal_invalid_attempt(
+                layout,
+                stage="test",
+                phase="identity",
+                error=RuntimeError("injected"),
+            )
+            self.assertEqual(terminal["attempt_id"], V2_REPAIR_ATTEMPT_ID)
+            self.assertEqual(terminal["outcome"], profile.invalid_outcome)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID`（model preflight 缺陷）、replacement source pending、confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / v2 pre-claim repair source frozen、formal labels pending、confirm locked
 
 ## 团队交接入口
 
@@ -105,7 +105,10 @@ table、45 个 exact-subset oracle、435 条 deployment conditional-marginal lab
 420 KL / 0 generation schedule。第一次 formal attempt 已 fail closed：指定 model snapshot 目录不存在，两个 worker
 在 state marker/runtime load 前退出，attempted/completed states、teacher forward、KL、raw labels 均为 0；原 identity
 永久禁止 retry/resume。没有 HF artifact，confirm、gate、matched-NLL 和 closed-loop 也均未运行。replacement
-attempt 必须先冻结新 identity，并把 model snapshot 校验前移到 durable claim 之前。完整边界与 failure binding 见
+已以 `restoration-v2-2-eager-labels-v2` / `v2_preclaim_repair` 冻结；config SHA256 为
+`7fc96883b905a5f026c18e65c3c7e377972559c775ac7ec95030ea1f04c2f94c`。它固定 canonical model projection
+`/data/artifacts/models/GUI-Owl-1.5-8B-Instruct`，并在 durable claim 前逐 hash 验证 14 files / 17,545,907,171
+bytes、snapshot revision 与 Transformers source。完整边界与 failure binding 见
 [`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)。
 
 这条路线与评审建议的关键映射已经冻结：reference estimand 是 stable self-behavior，高保真干预只加入
@@ -555,7 +558,8 @@ $$
 - [x] v2.2 已稳定，因此不进入 executable/UI-element equivalence 补救分支；
 - [x] 冻结 restoration v2.2 attribution source、exact subset oracle 与 conditional-marginal label contract；source 已 push；
 - [x] formal v1 attempt 按 contract 永久封存为 zero-forward `INVALID`；根因是 model snapshot existence 校验晚于 durable claim，而非 restoration estimand 结果；
-- [ ] 冻结新的 replacement attempt identity 与 pre-claim model snapshot validator；随后在固定双 H200 23/22 parity、microbatch 1 下生成 420-row raw distance table、45 个 exact subset oracle 与 435 条 deployment conditional-marginal labels，并闭合 private HF artifact；confirm 仍 locked；
+- [x] 冻结 replacement v2 attempt identity、独立 outcome/HF path 与 pre-claim model snapshot validator；
+- [ ] 在固定双 H200 23/22 parity、microbatch 1 下运行 v2，生成 420-row raw distance table、45 个 exact subset oracle 与 435 条 deployment conditional-marginal labels，并闭合 private HF artifact；confirm 仍 locked；
 - [ ] 构造 matched-NLL memory pairs、训练 query-time gate 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -583,6 +587,7 @@ $$
 - Restoration v2.2-eager canonical result: [`data/results/restoration_v2_2_eager_full_45_substrate/`](data/results/restoration_v2_2_eager_full_45_substrate/)
 - Restoration v2.2 label protocol: [`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)
 - Restoration v2.2 label machine-readable contract: [`code/configs/causalcache_restoration_v2_2_labels.json`](code/configs/causalcache_restoration_v2_2_labels.json)
+- Restoration v2.2 label v2 repair contract: [`code/configs/causalcache_restoration_v2_2_labels_v2_repair.json`](code/configs/causalcache_restoration_v2_2_labels_v2_repair.json)
 - Restoration v2.2 label source validator: [`code/scripts/validate_restoration_v2_2_label_contract.py`](code/scripts/validate_restoration_v2_2_label_contract.py)
 - Restoration v2.2 formal label runner: [`code/scripts/run_restoration_v2_2_labels.py`](code/scripts/run_restoration_v2_2_labels.py)
 - Restoration v2.2 label artifact manager: [`code/scripts/manage_restoration_v2_2_label_artifact.py`](code/scripts/manage_restoration_v2_2_label_artifact.py)
@@ -686,8 +691,8 @@ $$
   为 `56b29f6879ef14167b20a39d0d61ebd0e698e3bbf0457062b63453180e71cf87`，29-file inventory SHA256
   为 `8d0ecf6b0df75f9fa7753631b8fca5efd98c71a7953007e684393e6e8fe52d9b`。formal v1 attempt 因指定 model
   snapshot directory 不存在而在 0/45 attempted states、0 teacher forward、0 KL 时 fail closed；原 ledger/root
-  保留且不可重跑，没有 raw labels 或 HF artifact。下一步先冻结 replacement identity 与 pre-claim snapshot
-  validator，再执行固定双 H200 schedule。gate、matched-NLL、closed-loop 与 confirm 仍未运行且不属于本步。
+  保留且不可重跑，没有 raw labels 或 HF artifact。replacement v2 identity 与 pre-claim full snapshot validator 已
+  冻结；下一步只运行固定双 H200 schedule。gate、matched-NLL、closed-loop 与 confirm 仍未运行且不属于本步。
 
 ### Data and Models
 
@@ -711,7 +716,7 @@ $$
 | Restoration v2.1 full-45 substrate trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-full-45-substrate-mobile> | `v2.1-full-45-substrate-v1` / `814506ef1450838d4bc6ed3d89fe53e0773d92fb`，private | 45/45 parse、32/45 exact repeat agreement、32 memory-sensitive；`NO_GO_V2_1_FULL_45_SUBSTRATE`；raw USTAR SHA256 `8cd53d6e...f4fa4`、962,560 bytes；fresh immutable download verified |
 | Spatial reference audit trace | <https://huggingface.co/datasets/gavinlaw/causalcache-spatial-reference-audit-mobile> | `spatial-reference-audit-v1` / `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，private | auto 7/13、eager 13/13、FP32 4/4 descriptive；`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR SHA256 `d62ad05f...e5ecc`；fresh immutable canonical rebuild verified |
 | Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | `v2.2-eager-full-45-substrate-v1` / `3577099d505b8c652d764f41269df911128ec767`，private | 45/45 parse/repeat/finite logits、45 memory-sensitive；`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw USTAR SHA256 `b22827e6...09fb5`、fresh immutable download verified |
-| Restoration v2.2 exact labels（replacement planned） | `gavinlaw/causalcache-restoration-labels-mobile` | replacement tag/revision 待新 contract 冻结；repo/artifact not created | v1 attempt 在 model load 前 zero-forward `INVALID`；预期 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals 尚未生成 |
+| Restoration v2.2 exact labels（v2 planned） | `gavinlaw/causalcache-restoration-labels-mobile` | tag `v2.2-eager-train-dev-exact-v2`；repo/artifact not created | v1 zero-forward `INVALID`；v2 pre-claim repair source frozen，预期 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals 尚未生成 |
 | Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent

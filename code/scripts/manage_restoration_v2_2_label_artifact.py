@@ -14,9 +14,8 @@ from causalcache.restoration_v2_2_label_artifact import (
     read_label_evidence_archive,
 )
 from causalcache.restoration_v2_2_label_contract import (
-    CANONICAL_ARCHIVE_PATH,
-    CANONICAL_LEDGER_PATH,
-    CANONICAL_OUTPUT_DIR,
+    CANONICAL_ATTEMPT_ID,
+    label_attempt_profile_for_id,
 )
 
 
@@ -24,9 +23,10 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(dest="command", required=True)
     archive = commands.add_parser("archive")
-    archive.add_argument("--raw-output-dir", type=Path, default=CANONICAL_OUTPUT_DIR)
-    archive.add_argument("--global-ledger", type=Path, default=CANONICAL_LEDGER_PATH)
-    archive.add_argument("--output", type=Path, default=CANONICAL_ARCHIVE_PATH)
+    archive.add_argument("--attempt-id", default=CANONICAL_ATTEMPT_ID)
+    archive.add_argument("--raw-output-dir", type=Path)
+    archive.add_argument("--global-ledger", type=Path)
+    archive.add_argument("--output", type=Path)
     validate = commands.add_parser("validate")
     validate.add_argument("--evidence", type=Path, required=True)
     manifest = commands.add_parser("create-manifest")
@@ -40,10 +40,11 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: Sequence[str] | None = None) -> None:
     args = _parser().parse_args(argv)
     if args.command == "archive":
+        profile = label_attempt_profile_for_id(args.attempt_id)
         result = package_label_evidence(
-            raw_output_dir=args.raw_output_dir,
-            global_ledger=args.global_ledger,
-            output_archive=args.output,
+            raw_output_dir=args.raw_output_dir or profile.output_dir,
+            global_ledger=args.global_ledger or profile.ledger_path,
+            output_archive=args.output or profile.archive_path,
         )
     elif args.command == "validate":
         evidence = read_label_evidence_archive(args.evidence)

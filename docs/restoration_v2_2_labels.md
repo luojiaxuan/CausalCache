@@ -6,8 +6,10 @@
 `v2_label_train` 和 15 个 `v2_development` states 的 restoration attribution，不打开 confirm，不训练 gate，
 也不运行 matched-NLL 或 closed-loop evaluation。
 
-machine-readable contract 是
-[`code/configs/causalcache_restoration_v2_2_labels.json`](../code/configs/causalcache_restoration_v2_2_labels.json)。
+历史 v1 contract 是
+[`code/configs/causalcache_restoration_v2_2_labels.json`](../code/configs/causalcache_restoration_v2_2_labels.json)；
+当前唯一可执行的 replacement 是
+[`code/configs/causalcache_restoration_v2_2_labels_v2_repair.json`](../code/configs/causalcache_restoration_v2_2_labels_v2_repair.json)。
 任何 restoration teacher forward 前必须先 commit/push source，并从 clean `main` 验证 contract、source inventory、
 immutable v2.2 parent raw 和 immutable derived artifact。
 
@@ -20,6 +22,10 @@ KL 时 fail closed：attempted/completed states 为 0/0，原 identity 的 retry
 exact-subset oracle、conditional-marginal rows 或 HF repo/tag/revision；compact failure binding 位于
 `data/results/restoration_v2_2_eager_labels_v1_attempt/`。confirm、gate training、matched-NLL 与 closed-loop 仍未
 运行，且本协议禁止把它们混入 label attempt。
+
+v2 replacement 已冻结为 `restoration-v2-2-eager-labels-v2` / `v2_preclaim_repair`，config SHA256 为
+`7fc96883b905a5f026c18e65c3c7e377972559c775ac7ec95030ea1f04c2f94c`。它不改变 estimand、state denominator、
+coalition enumeration 或 operation schedule，只修复 execution identity 和 pre-claim model validation。
 
 ## Reference identity
 
@@ -142,7 +148,7 @@ attempt identity。
 ```bash
 cd /data/CausalCache/code
 python -m scripts.run_restoration_v2_2_labels \
-  --contract configs/causalcache_restoration_v2_2_labels.json \
+  --contract configs/causalcache_restoration_v2_2_labels_v2_repair.json \
   --repository-root .. \
   --scientific-config configs/causalcache_restoration_v2.json \
   --selection-manifest ../data/manifests/restoration_v2_selection.json \
@@ -150,9 +156,9 @@ python -m scripts.run_restoration_v2_2_labels \
   --snapshot-manifest configs/gui_owl_1_5_8b_snapshot.json \
   --derived-artifact-root /data/tmp/causalcache-restoration-derived \
   --parent-v22-evidence /data/tmp/restoration-v2-2-parent.raw.tar \
-  --model-dir /root/.cache/huggingface/hub/models--mPLUG--GUI-Owl-1.5-8B-Instruct/snapshots/06d5faecff74840bab2be2425e9c42667a5d04fc \
-  --output-dir /data/experiments/causalcache/restoration-v2-2-eager-labels-v1 \
-  --global-ledger /data/experiments/causalcache/.restoration-v2-2-eager-labels-v1.attempt.json \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --output-dir /data/experiments/causalcache/restoration-v2-2-eager-labels-v2 \
+  --global-ledger /data/experiments/causalcache/.restoration-v2-2-eager-labels-v2.attempt.json \
   --host-alias hyper00 \
   --host-hostname node-radixark-16-0000 \
   --container-id <64-hex-container-id> \
@@ -162,18 +168,25 @@ python -m scripts.run_restoration_v2_2_labels \
 容器必须只暴露 preflight 选出的两张 GPU；正式 launch 后要核对 `torch.cuda.device_count()==2` 并启动 GPU
 utilization monitor。
 
+在 global ledger 创建前，v2 runner 必须对上述 canonical model projection 执行 full snapshot validator：root 不是
+symlink，repo slug/basename、`.snapshot.json` revision、14-file inventory、17,545,907,171 bytes、每文件 SHA 与
+Transformers source 全部一致。失败时不得留下 v2 root/ledger。
+
 ## Artifact lifecycle
 
-raw root 与 sibling ledgers 打包为 deterministic USTAR，目标 private HF dataset：
+v2 raw root 与 sibling ledgers 打包为 deterministic USTAR，目标 private HF dataset：
 
-`gavinlaw/causalcache-restoration-labels-mobile@v2.2-eager-train-dev-exact-v1`
+`gavinlaw/causalcache-restoration-labels-mobile@v2.2-eager-train-dev-exact-v2`
 
 这是 v1 planned target，不是现有 artifact：formal v1 已 zero-forward `INVALID`，因此 repo/tag/immutable revision
 与 raw archive 均未创建。v1 canonical local output、ledger 与 archive 分别是
 `/data/experiments/causalcache/restoration-v2-2-eager-labels-v1`、
 `/data/experiments/causalcache/.restoration-v2-2-eager-labels-v1.attempt.json` 和
 `/data/experiments/causalcache/restoration-v2-2-eager-labels-v1.raw.tar`；前两个现作为不可重试的 failure evidence
-保留，archive 不存在。replacement 必须由新 contract 冻结不同的 attempt/output/ledger/archive/tag identity。
+保留，archive 不存在。replacement v2 的 output、ledger、archive 分别是
+`/data/experiments/causalcache/restoration-v2-2-eager-labels-v2`、
+`/data/experiments/causalcache/.restoration-v2-2-eager-labels-v2.attempt.json`、
+`/data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar`；当前均未创建。
 
 上传后必须从 immutable revision 下载到独立路径，重新运行完整 raw reducer，并要求 fresh archive 与 source
 archive 逐 byte 相同。Git 只保存 compact artifact binding、summary 和文档，不保存 raw labels。confirm artifact、

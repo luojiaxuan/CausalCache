@@ -10,7 +10,8 @@ AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gat
 USTAR 与 private HF immutable revision 已完成 fresh-download 复核。当前没有 restoration label、baseline
 selection、gate checkpoint、confirm policy output 或 CausalCache 方法效果结果。restoration v2.2 label v1 source
 已冻结并 push；第一次 formal attempt 因 model snapshot preflight 缺陷在 0 state / 0 forward 时永久封存为
-`INVALID`。正式 raw labels/HF artifact 尚未产生。下一步先冻结 replacement identity 和 pre-claim snapshot validator，
+`INVALID`。replacement v2 identity 与 pre-claim full snapshot validator 已冻结；正式 raw labels/HF artifact 尚未产生。
+下一步只运行固定双 H200 v2 attempt，
 confirm 和 AndroidWorld test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1590,13 +1591,29 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
 - repair 必须是全新 attempt identity，把 model snapshot existence/revision/inventory validation 前移到 claim 之前，
   并经过新 source freeze 后才可运行。
 
+### 2026-07-16：Restoration v2.2 exact-label v2 pre-claim repair source freeze
+
+- replacement contract `causalcache_restoration_v2_2_labels_v2_repair.json` 的 SHA256 为
+  `7fc96883b905a5f026c18e65c3c7e377972559c775ac7ec95030ea1f04c2f94c`；v1 config/SHA 与 invalid evidence
+  保持不变，v2 source parent 绑定 zero-forward failure SoT commit `bf9e377ceb9c656af8ae84c223ad23d730136cb1`；
+- 新 attempt/revision 为 `restoration-v2-2-eager-labels-v2` / `v2_preclaim_repair`，output、ledger、archive、
+  PASS/INVALID outcome、HF tag/path 与 v1 完全分离；scientific estimand、45 states、420/435 label denominator、
+  465 teacher forwards、23/22 parity 和 microbatch 1 不变；
+- canonical model projection 固定为 `/data/artifacts/models/GUI-Owl-1.5-8B-Instruct`。global durable claim 前先
+  完整验证 14 files / 17,545,907,171 bytes、`.snapshot.json` revision、每文件 SHA 与 Transformers source；
+  missing/wrong-basename/symlink/partial snapshot 不得创建 root 或 ledger；
+- runner、spawn worker rebuild、state/worker/global envelope、aggregate、archive prefix 和 artifact manifest 均按
+  profile 验证。targeted 21/21、full suite 580 PASS（skipped 11），`compileall` 与 `git diff --check` 通过；
+- 本里程碑仍是 source-only：v2 formal GPU attempt、raw labels、HF repo/revision、gate、matched-NLL、closed-loop 与
+  confirm 均未运行。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
 profile。v2.2-eager fresh-45 substrate 与 immutable artifact 已正式 PASS，不进入 semantic-key /
-canonical-representative 补救分支；独立 restoration attribution v1 source 也已冻结并 push，但 formal v1 已
-zero-forward fail closed，不能重跑。下一步先冻结 replacement attempt identity 与 pre-claim model snapshot
-validator，再运行双 H200 23/22 parity、microbatch-1 formal label attempt，生成 420-row canonical distance table、45 个 exact
+canonical-representative 补救分支；formal label v1 已 zero-forward fail closed，不能重跑。replacement v2 identity
+与 pre-claim full model snapshot validator 已冻结；下一步只运行双 H200 23/22 parity、microbatch-1 formal label
+attempt，生成 420-row canonical distance table、45 个 exact
 subset oracle 与 435 条 deployment conditional-marginal labels；terminal 后打包、上传 planned private HF dataset，
 并用 immutable fresh download 闭合 artifact。此步完成后才能另行冻结 gate-training contract，再比较 exact subset
 oracle、oracle-marginal greedy 与 distilled greedy。matched-NLL、closed-loop 和 confirm 仍未授权；AndroidWorld
