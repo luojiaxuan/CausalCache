@@ -658,9 +658,9 @@ restoration coalition、baseline、selector 和 gate training 都不属于本 jo
 `code/configs/causalcache_restoration_v2_2_eager.json`。spatial audit 的正式父结论是
 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`，只授权冻结 eager runtime；v2.1 的
 `NO_GO_V2_1_FULL_45_SUBSTRATE` 不变，confirm 仍 locked。formal source freeze 已在 clean pushed
-`main@350a52e14b034986d6ad508f231e543c8b151251` 建立；config SHA256 为
+`main@59b21380c71c42eb14544d9e54a904e10ceea85f` 建立；config SHA256 为
 `f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7`，50-file inventory SHA256 为
-`ca64b482df3060e0d36d97de5ad3ecd3610da2d94e4d7383195f1da4113cebfa`。
+`23590458aa669f37b1d6bd670f9fcd03b3fed20841873f00a9be4db51f539f56`。
 
 正式 run 前按本文件通用 GPU preflight 检查同一 Hyper host 的两张 H200、磁盘、container 与至少 10 秒 idle
 window，并启动 utilization monitor。拓扑不能根据 live 速度动态改变：同一 container 中 logical `cuda:0` 的

@@ -1498,9 +1498,9 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `NO_GO_V2_1_FULL_45_SUBSTRATE`；
 - machine-readable contract 为 `code/configs/causalcache_restoration_v2_2_eager.json`，完整说明为
   `docs/restoration_v2_2_eager.md`。formal freeze 已从 clean pushed
-  `main@350a52e14b034986d6ad508f231e543c8b151251` 建立；config SHA256 为
+  `main@59b21380c71c42eb14544d9e54a904e10ceea85f` 建立；config SHA256 为
   `f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7`，50-file formal inventory SHA256 为
-  `ca64b482df3060e0d36d97de5ad3ecd3610da2d94e4d7383195f1da4113cebfa`；
+  `23590458aa669f37b1d6bd670f9fcd03b3fed20841873f00a9be4db51f539f56`；
 - scientific contract 只改变 runtime：BF16 eager、seed 0、TF32 off、cuDNN deterministic on/benchmark off、
   float32 matmul `highest`；明确不声称 strict CUDA determinism。official-tool interface、prompt/parser、teacher
   target、45-state projection、gate 与 per-state schedule 均继承 v2.1；container/Python/PyTorch/CUDA/cuDNN/
@@ -1521,10 +1521,15 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   construction/training/selection 的计数全部固定为 0。planned private HF dataset 为
   `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile`，当前没有 raw archive、immutable revision
   或 result verdict；
-- 本里程碑没有调用 GPU、没有加载 processor/model、没有产生 v2.2 policy output。source-only validator 通过
+- 本里程碑没有执行 GPU policy/model forward、没有加载 processor/model、没有产生 v2.2 policy output。source-only validator 通过
   也不自动授权正式 run；执行仍需 clean pushed main、双 GPU preflight、fresh parent evidence 和独立 global
-  claim。v2.2 定向 52 tests 与全仓 536 tests 均通过（全仓 11 skipped）；planned HF repo 仍为空，raw archive、
+  claim。v2.2 定向 53 tests 与全仓 537 tests 均通过（全仓 11 skipped）；planned HF repo 仍为空，raw archive、
   immutable revision 与 Git compact result 均尚未产生。
+- Hyper00 CPU-only pre-claim authorization 先后按预期拒绝了错误 derived root、HF local-dir 自动生成的 cache
+  metadata，以及 spatial repaired raw schema 的错误读取。前两项通过 exact six-file clean materialization 解决；
+  第三项暴露 runner 错把 canonical `profile_summaries[*].metrics` 当成 compact Git `profiles[*]`，已在
+  `main@59b2138` 修复并加入 fail-closed schema 回归测试。三次均发生在 global claim/runtime import 前，canonical
+  output、ledger、generation、teacher 与 KL count 仍为 0。
 
 ## 下一步
 
