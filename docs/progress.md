@@ -2018,3 +2018,13 @@ set-conditioned iterative gate 是主方法，parameter-matched independent gate
   independent 的所有 roster weight sums 均精确为 `1/1`；
 - 本里程碑没有 expansion policy output、gate training/checkpoint、development semantic access、matched-NLL、
   closed-loop 或 confirm operation。
+
+### 2026-07-16：label expansion pre-output exposure source freeze
+
+- 新账本绑定 split config、parent selection、16-Parquet source manifest、历史 pre-output exposure 与 spatial-audit
+  prior-output exposure；structural manifest 落盘时再动态绑定其 SHA 与 generator revision；
+- expansion-64 分别与 reference-8、old-train-10、old-development-5、prior-output-union-23、sealed-confirm-20 与
+  all-reserved-union-43 做六个机械交集，预期全部为空；
+- 输出只保留 counts/digests，不发 source IDs、instruction/action、image/OCR identity 或 policy/restoration value；
+- source tests 6/6 通过，strict JSON、source drift、overlap、top-up mutation 与 overwrite 均 fail closed；
+- 当前只冻结 source；canonical exposure manifest 尚待 structural manifest 从 clean pushed main 物化后生成。

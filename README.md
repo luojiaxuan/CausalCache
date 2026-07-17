@@ -737,6 +737,8 @@ $$
 - Gate v1 preregistration: [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)
 - Gate v1 machine-readable contract: [`code/configs/causalcache_gate_v1_preregistration.json`](code/configs/causalcache_gate_v1_preregistration.json)
 - Gate v1 source validator: [`code/scripts/validate_gate_v1_contract.py`](code/scripts/validate_gate_v1_contract.py)
+- Label-expansion exposure protocol: [`docs/restoration_v2_2_label_expansion_exposure.md`](docs/restoration_v2_2_label_expansion_exposure.md)
+- Label-expansion exposure materializer: [`code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py`](code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py)
 - Restoration v2.2 selector-geometry protocol: [`docs/restoration_v2_2_selector_geometry.md`](docs/restoration_v2_2_selector_geometry.md)
 - Restoration v2.2 selector-geometry machine-readable contract: [`code/configs/causalcache_restoration_v2_2_selector_geometry.json`](code/configs/causalcache_restoration_v2_2_selector_geometry.json)
 - Restoration v2.2 selector-geometry validator: [`code/scripts/validate_restoration_v2_2_selector_geometry_contract.py`](code/scripts/validate_restoration_v2_2_selector_geometry_contract.py)

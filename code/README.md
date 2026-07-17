@@ -122,6 +122,17 @@ PYTHONPATH=. python3 -m scripts.validate_gate_v1_contract --repository-root ..
 在 48/16 exact labels immutable 之前，只允许旧 10 条、seed 0、最多两步的 trainer smoke；不得保留 checkpoint、
 报告 paper metric、读取 development 或修改模型选择。完整解释见 `docs/gate_v1_preregistration.md`。
 
+Expansion exposure 的 source-only ledger 位于
+`causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、
+sealed-confirm-20 的六组交集为空，并可动态绑定落盘后的 structural manifest。focused tests：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m unittest tests.test_restoration_v2_2_label_expansion_exposure -v
+```
+
+materialize/validate 命令与 claim boundary 见 `docs/restoration_v2_2_label_expansion_exposure.md`。
+
 policy-vision comparator 的 v1 formal attempt 已在 feature/model load 前封存为 `INVALID`。当前可执行协议是
 `causalcache.restoration_v2_2_policy_vision_v2_contract`，其 source-only validator 为：
 
