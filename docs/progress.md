@@ -2028,3 +2028,17 @@ set-conditioned iterative gate 是主方法，parameter-matched independent gate
 - 输出只保留 counts/digests，不发 source IDs、instruction/action、image/OCR identity 或 policy/restoration value；
 - source tests 6/6 通过，strict JSON、source drift、overlap、top-up mutation 与 overwrite 均 fail closed；
 - 当前只冻结 source；canonical exposure manifest 尚待 structural manifest 从 clean pushed main 物化后生成。
+
+### 2026-07-16：label expansion policy-blind derived source freeze
+
+- 新 builder 固定 64 trajectories、320 shared events、192 decision views、384 images 与 384 OCR records，输出
+  root metadata + 三个 payload 的 exact-six tree；
+- artifact 不含 policy/restoration output；共享 events 只作为多-state storage，consumer 必须按每个 decision 的
+  `history_event_step_ids` 切片，per-decision current expert action 不进入 view；
+- formal preflight 在 OCR engine 初始化前重哈希原 16 个 Parquet、reload exact 64 rows，并验证 48/16 order、
+  transport identity、mixed image extension/magic 与 observation 000--005 inventory；
+- post-write 与 standalone validator 强制 full 384-record OCR replay、payload count/schema、content witness、
+  exact-six、symlink/special-entry、generator/input bytes 与 legacy/confirm overlap fail closed；
+- independent review 的 manifest-SHA、self-consistent reorder、共享 action claim、hardcoded PNG、payload count 与
+  supplied-manifest provenance 问题均已修复；focused tests 14/14 通过；
+- 当前只有 source，没有本地 canonical artifact、HF upload/immutable revision、policy output 或 restoration label。

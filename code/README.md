@@ -133,6 +133,21 @@ PYTHONPATH=. python3 -m unittest tests.test_restoration_v2_2_label_expansion_exp
 
 materialize/validate 命令与 claim boundary 见 `docs/restoration_v2_2_label_expansion_exposure.md`。
 
+Expansion policy-blind derived artifact 由
+`causalcache.data.guiodyssey_restoration_v2_expansion` 构建。它固定 64 trajectories / 320 shared events /
+192 decision views / 384 images / 384 OCR records，并要求每个 consumer 按 `history_event_step_ids` 切片共享
+event storage。focused tests：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m unittest \
+  tests.test_guiodyssey_restoration_v2_expansion \
+  tests.test_build_guiodyssey_restoration_v2_expansion -v
+```
+
+正式 builder/validator 都要求 clean pushed `main`、canonical inputs、frozen 16-Parquet rehash、exact-six output
+和 full OCR replay。命令与 HF boundary 见 `docs/restoration_v2_2_label_expansion_derived.md`。
+
 policy-vision comparator 的 v1 formal attempt 已在 feature/model load 前封存为 `INVALID`。当前可执行协议是
 `causalcache.restoration_v2_2_policy_vision_v2_contract`，其 source-only validator 为：
 
