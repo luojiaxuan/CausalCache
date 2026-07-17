@@ -787,7 +787,7 @@ $$
 - [x] 在 Hyper00 执行 no-GPU scientific-repair runner 与完整只读 revalidation；local repaired payload 为
   `VALID + REVALIDATED`，原 producer 仍永久 `INVALID`；
 - [x] 冻结 repaired-label private-HF publication contract；annotated-tag object/resolved commit、exact-pair
-  provenance、response-loss recovery 与 completion-last 已由 24/24 focused tests 覆盖；
+  provenance、response-loss recovery 与 completion-last 已由 25/25 focused tests 覆盖；
 - [ ] 发布 repaired-label private-HF artifact 并完成 immutable fresh replay；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。

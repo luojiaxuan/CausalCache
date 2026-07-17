@@ -140,7 +140,8 @@ PYTHONPATH=code python3 -m \
   --repository-root /data/<clean-checkout>
 ```
 
-clean pushed source 上的离线 prepare：
+clean pushed source 上的 HF-offline prepare（会执行冻结要求的真实 `git ls-remote`，但不读取 token、不访问
+repaired Hub destination）：
 
 ```bash
 PYTHONPATH=code python3 -m \
@@ -166,8 +167,8 @@ model runtime。
 
 ## Source-freeze 验证
 
-- focused fake-HF recovery tests：24/24 PASS；
-- scientific-repair wildcard：72/72 PASS；
+- focused fake-HF recovery tests：25/25 PASS；
+- scientific-repair wildcard：73/73 PASS；
 - `py_compile` 与 `git diff --check`：PASS；
 - Hyper00 `huggingface_hub==1.16.1` 的真实 API signature 已核对；
 - 既有 private annotated tag 实测 `list_repo_refs().target_commit` 与 `dataset_info(tag).sha` 不同，证明本协议的

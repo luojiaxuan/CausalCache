@@ -530,6 +530,36 @@ class ScientificRepairPublicationTest(unittest.TestCase):
             manager.main(["validate-contract", "--repository-root", str(ROOT)])
         result = json.loads(output.getvalue())
         self.assertFalse(result["network_access_performed"])
+        self.assertFalse(result["git_remote_verification_performed"])
+        self.assertFalse(result["hf_network_access_performed"])
+        self.assertFalse(result["formal_label_loader_eligible"])
+        self.assertFalse(result["gate_training_unlocked"])
+
+    def test_prepare_cli_reports_git_network_but_no_hf_network(self) -> None:
+        prepared = SimpleNamespace(
+            archive_path=Path("/synthetic/repaired.tar"),
+            archive_bytes=b"archive",
+            archive_sha256="a" * 64,
+            sidecar_sha256="b" * 64,
+            producer_completion_sha256="c" * 64,
+        )
+        output = io.StringIO()
+        with (
+            mock.patch.object(manager, "_load", return_value=object()),
+            mock.patch.object(manager, "_prepare", return_value=prepared),
+            contextlib.redirect_stdout(output),
+        ):
+            manager.main(
+                [
+                    "prepare",
+                    "--repository-root",
+                    str(ROOT),
+                ]
+            )
+        result = json.loads(output.getvalue())
+        self.assertTrue(result["network_access_performed"])
+        self.assertTrue(result["git_remote_verification_performed"])
+        self.assertFalse(result["hf_network_access_performed"])
         self.assertFalse(result["formal_label_loader_eligible"])
         self.assertFalse(result["gate_training_unlocked"])
 

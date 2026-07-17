@@ -126,6 +126,8 @@ def main(argv: Sequence[str] | None = None) -> None:
             "formal_label_loader_eligible": False,
             "gate_training_unlocked": False,
             "network_access_performed": False,
+            "git_remote_verification_performed": False,
+            "hf_network_access_performed": False,
         }
     elif args.command == "prepare":
         prepared = _prepare(args, contract)
@@ -139,12 +141,15 @@ def main(argv: Sequence[str] | None = None) -> None:
             "producer_completion_sha256": prepared.producer_completion_sha256,
             "formal_label_loader_eligible": False,
             "gate_training_unlocked": False,
-            "network_access_performed": False,
+            "network_access_performed": True,
+            "git_remote_verification_performed": True,
+            "hf_network_access_performed": False,
         }
     elif args.command == "publish":
         prepared = _prepare(args, contract)
         # note (luojiaxuan): HF transport is imported only for the explicit
-        # publication command, keeping contract validation and prepare offline.
+        # publication command. Prepare still performs its required Git
+        # ls-remote check but cannot access or mutate the Hub destination.
         from huggingface_hub import CommitOperationAdd, HfApi, hf_hub_download
 
         token = _read_hf_token(args.hf_token_file)

@@ -2420,7 +2420,7 @@ closed-loop 与 confirm 均不得提前。
   durable mode-0600 no-replace 且保持 gate locked；immutable force-download、exact pair provenance 与 strict
   repaired transport readback 全部通过后，保留的 completion stage 才 hard-link 为 final seal。stage/final 必须
   same inode，final link 是最后 namespace mutation；completed replay 不允许重建已删除的 remote；
-- focused fake-HF tests 24/24、scientific-repair wildcard 72/72、`py_compile` 与 `git diff --check` 通过。为核对
+- focused fake-HF tests 25/25、scientific-repair wildcard 73/73、`py_compile` 与 `git diff --check` 通过。为核对
   当前 Hub annotated-tag 语义，仅用 token 对既有 invalid-forensic private repo 做了只读 object/resolved 查询；
   没有访问或修改 repaired destination，没有 gate fit、matched-NLL、closed-loop 或 confirm access。
   下一步先 commit/push source，再从独立 clean checkout 执行真实 publication 与幂等 immutable replay。
