@@ -1,0 +1,255 @@
+{
+  "archive": {
+    "format": "ustar",
+    "member_count": 4,
+    "member_inventory": [
+      {
+        "path": "audit.json",
+        "sha256": "080e3278880c14dd646444d007ae93110e25af0c0bbd68dd51af3dc5bd92f317",
+        "size_bytes": 149732
+      },
+      {
+        "path": "derived_labels.jsonl",
+        "sha256": "1db0a0283d9be83e33d662fcad0c596a24295115201e8df23821df7e87f615dd",
+        "size_bytes": 1733194
+      },
+      {
+        "path": "manifest.json",
+        "sha256": "0838e4a7019bc0a37d8147f433a74c378bef56d036d58e90ccd925ac22b062e9",
+        "size_bytes": 1462
+      },
+      {
+        "path": "raw_states.jsonl",
+        "sha256": "850aa0f1a6c0c6dd312573e4963384257a724ba01a3fe78ac4496cfd0fd14267",
+        "size_bytes": 1126543
+      }
+    ],
+    "path": "/data/artifacts/causalcache/restoration-v2-2-expansion-exact-labels-scientific-repair-v1.tar",
+    "scientific_payload_sha256": "b09b8b5ace8db84e224b400d9a3c5991c408284da0b63c0418ac504ee701abe9",
+    "sha256": "1a9fdcc08aeb83f88bcd50957c3d890e3b103f2063a2aecbe08610d450950e01",
+    "size_bytes": 3020800,
+    "tree_inventory_sha256": "09bb681b2715997df326ab9648d8501955ec6ba127631a97141484631a98f44b"
+  },
+  "execution": {
+    "formal_run": {
+      "claim_created": true,
+      "completion_created": true,
+      "end_utc": "2026-07-17T13:09:17.638712434Z",
+      "log_path": "/data/logs/causalcache-scientific-repair-v1-formal.log",
+      "log_sha256": "610e178dddd7f4bbf3db51d1fe65b0abea02bf4860997f2294c09a43f1f31a84",
+      "log_size_bytes": 1183,
+      "output_created": true,
+      "start_utc": "2026-07-17T13:04:35.955397836Z",
+      "status": "VALID_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1",
+      "wall_time_seconds": 281.683315
+    },
+    "read_only_validate": {
+      "claim_created": false,
+      "completion_created": false,
+      "end_utc": "2026-07-17T13:14:18.645254412Z",
+      "log_path": "/data/logs/causalcache-scientific-repair-v1-validate.log",
+      "log_sha256": "515b20f0270a26f0dfd547ed02f3979c88dda67dfdd1a4502741650cec238ffe",
+      "log_size_bytes": 1192,
+      "output_created": false,
+      "start_utc": "2026-07-17T13:09:38.380956511Z",
+      "status": "REVALIDATED_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1",
+      "wall_time_seconds": 280.264298
+    },
+    "timing_source": "persistent_log_filesystem_birth_and_mtime"
+  },
+  "external_input_replay": {
+    "byte_identical_to_embedded_run_contract": true,
+    "coalition_input_witness_count": 1792,
+    "derived_artifact_revision": "630363a6adb692d72774f16dd0653a50216313ff",
+    "derived_artifact_tree_sha256": "9394b369e2b741e6aacf9ece4fc5dae3e6337b25a7e65402307e4e7862b94abc",
+    "formal_external_input_replay_verified": true,
+    "ocr_backend_config_sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+    "parent_substrate_archive_sha256": "4e77a38be34cb2f3c084a13abd47c0530e6729ff6cca72793977c62fa78ff47d",
+    "parent_substrate_revision": "25ac19cf6ef98adc243d421cd0039ac104ddb539",
+    "parent_substrate_tree_inventory_sha256": "56f291053121ccf813698a48beb6269b1fa1d096b7e974f6eb9424f55bc45543",
+    "policy_or_model_forward_executed": false,
+    "state_count": 192,
+    "state_projections_sha256": "395f0c6bf0ab8ce313fd696b975eeda3ec327bf9fb305f806e2e03278067c825"
+  },
+  "formal_consumption": {
+    "closed_loop_unlocked": false,
+    "gate_training_unlocked": false,
+    "matched_nll_unlocked": false,
+    "original_invalid_forensic_formal_label_loader_eligible": false,
+    "repaired_local_payload_scientifically_valid_after_completion": true,
+    "unlock_requires_new_private_hf_publication_and_fresh_immutable_replay": true
+  },
+  "formal_scientific_repair_pass": true,
+  "input_forensic": {
+    "archive_sha256": "8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489",
+    "archive_size_bytes": 3880960,
+    "fresh_download_directory_started_empty": true,
+    "immutable_revision": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416",
+    "member_count": 406,
+    "p0_strict_archive_readback_passed": true,
+    "private": true,
+    "remote_mutation_call_count": 0,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile",
+    "sidecar_sha256": "c67914d05ce5e93518c710cd99132548f4bf5b51250e506c996a9450a369b561",
+    "tree_inventory_sha256": "bc481dd77e26764dad3458e91a3e0247ade6049af7adb1744672aa6f2fb437d1"
+  },
+  "monitor_validation": {
+    "acceptance_uses_numeric_gap_threshold": false,
+    "legacy_cadence_count_above_3_seconds": 5,
+    "legacy_cadence_interval_count": 3849,
+    "legacy_cadence_maximum_seconds": 3.883721,
+    "legacy_negative_control_exactly_reproduced": true,
+    "legacy_negative_control_message": "monitor did not cover the complete worker execution window at the frozen cadence",
+    "sample_gap_microseconds_sha256": "179f61cc4bb0eb32c4c95ad0dbc4b34551b4c5cc5576edddead0ec1d6c5865fd",
+    "status": "PASS_STRUCTURAL_MONITOR_LIFECYCLE_VALIDATION"
+  },
+  "operation_counts": {
+    "archived_producer": {
+      "kl_measurement_count": 1792,
+      "scalar_host_transfer_count": 1792,
+      "teacher_forward_count": 1984
+    },
+    "repair_runtime": {
+      "closed_loop_episode_count": 0,
+      "confirm_state_access_count": 0,
+      "cuda_operation_count": 0,
+      "gate_model_forward_count": 0,
+      "gate_training_example_count": 0,
+      "generation_count": 0,
+      "kl_measurement_count": 0,
+      "language_model_forward_count": 0,
+      "matched_nll_evaluation_count": 0,
+      "model_load_count": 0,
+      "nvidia_device_query_count": 0,
+      "policy_forward_count": 0,
+      "policy_vision_forward_count": 0,
+      "remote_mutation_call_count": 0,
+      "sealed_test_state_access_count": 0,
+      "teacher_forward_count": 0
+    }
+  },
+  "original_invalid_attempt": {
+    "forensic_archive_status": "ARCHIVED_INVALID_EXPANSION_EXACT_LABEL_ATTEMPT",
+    "original_formal_label_loader_eligible": false,
+    "p1_claim_sha256": "0a07692b7f29fb0e9f6a9da23925135c8911f45d4f10f2edd2d277ceed0da5de",
+    "parent_p1_completion_observed_absent": true,
+    "producer_attempt_status": "INVALID_EXPANSION_EXACT_LABEL_ATTEMPT",
+    "producer_reclassified": false,
+    "tag_resolution_claim_sha256": "3dd268f7cac895609a08b1a5c532a0992099ecdc63e409eb6bc365fa39bf3a15",
+    "tag_resolution_completion_sha256": "c0f70c53da30517c6625e90931f128a39b235a4613439ddb0520d01d48612195"
+  },
+  "outcome": "REVALIDATED_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1",
+  "planned_publication": {
+    "archive_path": "repaired/v2.2-expansion-exact-labels-scientific-repair-v1/repaired-labels-v1.tar",
+    "private": true,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile",
+    "repo_type": "dataset",
+    "sidecar_path": "repaired/v2.2-expansion-exact-labels-scientific-repair-v1/artifact-manifest-v1.json",
+    "status": "pending_publication_and_fresh_immutable_replay",
+    "tag": "v2.2-expansion-exact-labels-scientific-repair-v1"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_scientific_repair_runner_v1",
+  "runtime": {
+    "container_hostname": "e67bd5ef26b2",
+    "container_id": "e67bd5ef26b23014a530ade43dde239b366bd2bcc2f2c84a383ead2cf0f93ce9",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_name": "sglang-omni-jaxan-07172101",
+    "cuda_visible_devices": "",
+    "device": "cpu",
+    "device_requests_raw": null,
+    "docker_runtime": "runc",
+    "explicit_devices": [],
+    "forbidden_modules_imported": [],
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "huggingface_hub_version": "1.16.1",
+    "launch_receipt_mode": 384,
+    "launch_receipt_sha256": "759316894183bf492a2e276c72400c1224f942850a90c14356e59154350a2926",
+    "launch_receipt_size_bytes": 722,
+    "normalized_device_requests": [],
+    "nvidia_device_nodes": [],
+    "nvidia_visible_devices": "void",
+    "pil_allowed": true,
+    "pillow_version": "12.2.0",
+    "platform": "Linux-6.8.0-1043-aiext-x86_64-with-glibc2.39",
+    "privileged": false,
+    "python_version": "3.12.3"
+  },
+  "schema_version": "1.0.0",
+  "scientific_payload": {
+    "algebra_residual_gate_passed": true,
+    "core_report_sha256": "e447d1f01fcaddb37c2166040ae5fec0bc4587962aead258e8f5c47a451cdb8d",
+    "core_status": "PASS_LEDGER_NEUTRAL_EXPANSION_LABEL_SCIENTIFIC_REPAIR_V1",
+    "deployment_conditional_edge_count": 1856,
+    "derived_payload_sha256": "9d6481ad2204f5a2a24731b3424448f8ea410a0cee03f544fe1568b67febd8fd",
+    "derived_state_count": 192,
+    "exact_permutation_attribution_count": 576,
+    "full_hypercube_edge_count": 3072,
+    "independent_math_audit_status": "PASS_INDEPENDENT_EXPANSION_MATH_AUDIT",
+    "interaction_sign_counts": {
+      "negative": 1250,
+      "positive": 734,
+      "zero": 0
+    },
+    "marginal_sign_counts": {
+      "negative": 416,
+      "positive": 2656,
+      "zero": 0
+    },
+    "math_projection_sha256": "b16d7d2614a5dde54584a5d0a5f748c9f86007ace99fed6bb629e24bf16c99d9",
+    "maximum_shapley_efficiency_abs_residual": 4.336808689942018e-19,
+    "maximum_telescoping_abs_residual": 0.0,
+    "mean_primary_exact_oracle_utility": 0.04749858961362433,
+    "mean_summary_only_distance": 0.052278366727796545,
+    "nonmonotone_state_count": 96,
+    "pair_interaction_count": 1984,
+    "primary_exact_subset_oracle_count": 192,
+    "raw_distance_row_count": 1792,
+    "raw_state_count": 192,
+    "reference_repeat_kl_maximum": 0.0,
+    "reference_repeat_kl_mean": 0.0,
+    "role_state_counts": {
+      "gate_development_expansion": 48,
+      "gate_train_expansion": 144
+    },
+    "trajectory_count": 64
+  },
+  "source": {
+    "branch": "main",
+    "core_sha256": "6b1c022758844284a0c8364a33aa12457db1fa08dba9e5567c8fe3a48cfa744c",
+    "externally_resolved_remote_main_git_commit": "b14f489fe55b51a83917b57e6a54fb73d268342a",
+    "git_commit": "b14f489fe55b51a83917b57e6a54fb73d268342a",
+    "loaded_project_module_count": 43,
+    "loaded_project_module_inventory_sha256": "6b5e5bd9dd011eb1b4fc9d34f9ee3a7aa050aaba2b2886740836f17595d86c06",
+    "origin_main_git_commit": "b14f489fe55b51a83917b57e6a54fb73d268342a",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "runner_config_sha256": "4f4202944674192090cf3df19b864c96e7082628ab25ca8287affa32944e64c2",
+    "source_inventory_sha256": "3ac6fc2189dbc480351200bf424ee9e0ff4fe3f825ac387cd059c2c218dcf4c3",
+    "source_path_count": 11
+  },
+  "state_files": {
+    "claim": {
+      "mode": 384,
+      "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.claim.json",
+      "sha256": "f2a19d6f2b444eb000027abc8b2358e409be22713870bb7e84e62a82998d70f5",
+      "size_bytes": 7014,
+      "status": "CLAIMED_LEDGER_NEUTRAL_EXPANSION_LABEL_SCIENTIFIC_REPAIR_V1"
+    },
+    "completion": {
+      "completion_created_after_strict_output_readback": true,
+      "mode": 384,
+      "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.completion.json",
+      "sha256": "6a4775357de392aef5d9ce7d9999db6cfd3a27f8948fd532e9341c7acacb4905",
+      "size_bytes": 2524,
+      "status": "COMPLETED_LEDGER_NEUTRAL_EXPANSION_LABEL_SCIENTIFIC_REPAIR_V1"
+    },
+    "launch_receipt": {
+      "mode": 384,
+      "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.launch.json",
+      "sha256": "759316894183bf492a2e276c72400c1224f942850a90c14356e59154350a2926",
+      "size_bytes": 722,
+      "status": "VALIDATED_NO_GPU_SCIENTIFIC_REPAIR_CONTAINER_LAUNCH_V1"
+    }
+  },
+  "status": "REVALIDATED_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1"
+}

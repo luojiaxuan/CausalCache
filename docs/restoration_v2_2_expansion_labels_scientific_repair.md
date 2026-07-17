@@ -1,7 +1,8 @@
 # Restoration v2.2 expansion-label scientific repair
 
-> 状态：CPU-only validation core 与 no-GPU formal runner source 已冻结并通过回归；正式 runner 尚未执行，
-> repaired-label artifact 尚未发布到 private HF，也未做 immutable fresh replay。gate 仍保持 locked。
+> 状态：CPU-only validation core 与 no-GPU formal runner 已从 clean pushed source 完成正式 run 和完整只读
+> revalidation；local repaired payload 为 `VALID + REVALIDATED`。新 private-HF publication 与 immutable fresh
+> replay 尚未执行，因此 gate 仍保持 locked；原 producer attempt 永久 `INVALID`。
 
 ## 目标与边界
 
@@ -163,3 +164,37 @@ PYTHONPATH=code python3 \
 - runner focused tests 29/29、全部 expansion wildcard 173/173、direct-script source-only validation、
   `py_compile` 与 `git diff --check` 均通过；source-only status 为
   `VALID_SOURCE_ONLY_NO_GPU_SCIENTIFIC_REPAIR_RUNNER_V1`，其中 formal run、network、GPU/model operation 均为 0。
+
+## 正式执行结果
+
+formal run 从 clean pushed `main@b14f489fe55b51a83917b57e6a54fb73d268342a` 在 Hyper00
+`node-radixark-16-0000` 执行。container `sglang-omni-jaxan-07172101` / ID
+`e67bd5ef26b23014a530ade43dde239b366bd2bcc2f2c84a383ead2cf0f93ce9` 使用 image digest
+`sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa`、unprivileged
+`runc`、`DeviceRequests=null`、无 explicit devices、`NVIDIA_VISIBLE_DEVICES=void`、空
+`CUDA_VISIBLE_DEVICES` 且无 NVIDIA device node。Python 为 3.12.3；forbidden framework imports 为空。
+
+`run` 返回 `VALID_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1`，随后 `validate` 再次从
+immutable HF fresh-download、完整重跑 core/reducer/external replay/math audit，并返回
+`REVALIDATED_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1`。后者的 claim/output/completion
+`created=false`，三者 bytes 未改变。
+
+- archive：3,020,800 bytes，SHA256
+  `1a9fdcc08aeb83f88bcd50957c3d890e3b103f2063a2aecbe08610d450950e01`，tree
+  `09bb681b2715997df326ab9648d8501955ec6ba127631a97141484631a98f44b`，exact 4 members；
+- claim：mode 0600，7,014 bytes，SHA256
+  `f2a19d6f2b444eb000027abc8b2358e409be22713870bb7e84e62a82998d70f5`；
+- completion：mode 0600，2,524 bytes，SHA256
+  `6a4775357de392aef5d9ce7d9999db6cfd3a27f8948fd532e9341c7acacb4905`；
+- source inventory 为 11 paths / `3ac6fc21...f4c3`；loaded project closure 为 43 modules /
+  `6b5e5bd9...6c06`；local HEAD、origin/main 与实时 remote main 全部为同一 source commit；
+- 192 states、1,792 raw distances、1,856 deployment edges、3,072 full edges、1,984 interactions、576
+  attributions、192 exact oracles 全部 exact；独立 math projection SHA256 为 `b16d7d26...c99d9`；
+- 原 3 秒 cadence negative control 精确失败：5/3,849 intervals 超限、max 3.883721 秒；新 structural lifecycle
+  validation PASS 且 `acceptance_uses_numeric_gap_threshold=false`；
+- repair runtime 的 GPU/model/policy/teacher/KL/gate/matched-NLL/closed-loop/confirm/test/remote-mutation counts
+  全部为 0。原 P1 completion 仍缺失，producer 没有被重分类。
+
+轻量结果见
+[`data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/)。
+local archive 只是 staging copy；计划中的 private HF repo/tag 当前仍为 pending，不得写成 canonical artifact。

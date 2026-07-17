@@ -35,9 +35,10 @@ execution B=`bd5cc78838c09a50214b1108fb18f62139c7419e` commit/push，committed v
 authorization=true。唯一 v1 GPU attempt 随后完成 192/192 states 与全部固定 operation counts；内部 raw reducer
 得到 `PASS_V2_2_EXPANSION_EXACT_LABELS_V1`，但 source-locked monitor 有 5/3849 个 sampling gaps 超过冻结
 3 秒上限（max 3.883721 s），因此 post-worker validator 将全局 attempt 永久封为
-`INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。当前仍没有可供 formal gate 使用的 expansion labels。下一步冻结并
-执行 CPU-only child validation repair，同时把原 invalid evidence 归档到独立 private HF namespace；不重跑 GPU、
-不改 monitor 阈值、不追认原 v1 PASS。
+`INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。invalid evidence 已在独立 private HF immutable revision 闭合；
+no-GPU scientific-repair child 也已完成正式 run 和完整只读 revalidation，local payload 为 `VALID +
+REVALIDATED`，但原 producer 不重分类。当前唯一剩余 label blocker 是把 repaired archive+sidecar 发布到新的
+private HF identity 并完成 immutable fresh replay；该步骤闭合前仍没有可供 formal gate 使用的 expansion labels。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -2376,3 +2377,24 @@ closed-loop 与 confirm 均不得提前。
   `git diff --check` 通过。当前只得到 `VALID_SOURCE_ONLY_NO_GPU_SCIENTIFIC_REPAIR_RUNNER_V1`，没有 formal
   execution、network read、GPU/model operation、repaired HF artifact、gate training、matched-NLL、closed-loop 或
   confirm access；下一步在 clean pushed source 上执行正式 no-GPU child。
+
+### 2026-07-17：no-GPU scientific-repair formal VALID + REVALIDATED
+
+- 唯一 formal run 从 clean pushed `main@b14f489fe55b51a83917b57e6a54fb73d268342a` 在 Hyper00 的新
+  unprivileged no-GPU container 执行；launch receipt SHA256 为 `75931689...a2926`，DeviceRequests/explicit
+  devices/NVIDIA nodes 均为空，framework import guard 生效；
+- `run` 返回 `VALID_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1`；claim SHA256
+  `f2a19d6f...70f5`、completion SHA256 `6a477535...4905`，completion 在 strict output readback 后最后写入；
+- 4-member deterministic USTAR 为 3,020,800 bytes / `1a9fdcc0...0e01`，tree `09bb681b...f44b`。完整
+  `validate` 再次 fresh-download/recompute，返回 `REVALIDATED_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1`，
+  且 claim/output/completion 全部 `created=false`、bytes 不变；
+- 64 trajectories / 192 states、1,792 raw distances、1,856 deployment edges、3,072 full edges、1,984
+  interactions、576 attributions 与 192 exact oracles 全部重算一致；独立 math audit PASS，external state
+  projection 192/192 byte-identical；
+- 原 cadence negative control 保留 5/3,849 >3 秒、max 3.883721 秒；structural lifecycle rule PASS 且不使用
+  numeric gap threshold。原 producer 仍永久 `INVALID`，P1 completion 仍缺失；
+- repair runtime 的 GPU/model/policy/teacher/KL/gate/matched-NLL/closed-loop/confirm/test/remote-mutation operation
+  count 全部为 0。轻量结果位于
+  `data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`；local artifact 还不是 reusable SoT，
+  README/summary 分别为 2,483 bytes / `dd9e7858...dd84` 与 11,691 bytes / `4b5aaa84...0f59`。下一步冻结
+  独立 HF publication/fresh-replay contract，gate 继续 locked。

@@ -298,3 +298,17 @@ python3 -m scripts.manage_restoration_v2_2_expansion_labels_artifact create-mani
 pre-upload parent commit 防止并发覆盖，tag 使用 `exist_ok=False`。两个 fresh download 目录和 manifest output
 必须不存在或为空，不能复用第一次验证产生的非空目录。manifest 必须记录
 `external_input_replay_verified=true`，并把 runtime 独立复验标记为 false。
+
+## Versioned no-GPU scientific-repair child
+
+原 v1 producer 与本文件中的 terminal `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT` 不变，旧 PASS 回写流程仍不得
+执行。独立 versioned child 已从 immutable invalid-forensic bytes 完成 ledger-neutral no-GPU validation repair，
+正式返回 `VALID_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1`，随后完整只读重算返回
+`REVALIDATED_REPAIRED_EXPANSION_EXACT_LABEL_SCIENTIFIC_PAYLOAD_V1`。它不重跑 GPU、不修改 cadence
+阈值、不删除任何 ledger，也不把 producer 追认为 PASS。
+
+local 4-member USTAR SHA256 为 `1a9fdcc08aeb83f88bcd50957c3d890e3b103f2063a2aecbe08610d450950e01`；
+轻量证据与边界见
+[`data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/)。
+该 local payload 仍不能被 formal gate loader 消费；必须先通过新的 private-HF publication contract 和 immutable
+fresh replay。原 v1 的失效 upload 命令与 repo identity 不得复用。

@@ -66,7 +66,9 @@ Synthetic distance table 显式包含 `event-1/event-2` complementarity，因此
 ### 1. Train-only cache join
 
 只有 48+16 expansion label artifact 已上传 HF、绑定 immutable revision、fresh-download 全量验证后，才能构造
-formal train。先只加载旧 train-10 与新 train-48，共 58 trajectories / 174 states。`validate_formal_training_roster`
+formal train。local ledger-neutral scientific-repair `VALID + REVALIDATED` 只证明 payload science，不满足该
+prerequisite；在新的 repaired HF identity 完成 immutable replay 前，formal-58 training 继续 locked。随后只加载
+旧 train-10 与新 train-48，共 58 trajectories / 174 states。`validate_formal_training_roster`
 会同时验证：
 
 - source order 与 frozen formal-58 完全一致；
