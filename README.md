@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label = source-only frozen、GPU locked pending runner freeze B / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label = runner freeze B committed + validated、formal GPU attempt not started / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
 
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
 > policy-blind expansion split manifest、pre-output exposure ledger 与 gate v1 preregistration 均已冻结，
@@ -11,10 +11,13 @@
 > 192-state substrate 已从 runner source A=`1a3833d`、execution B=`642feb2` 完成唯一双 H200 formal run：
 > 192/192 states、0 failed，384/576/384 operations 精确命中，185 states memory-sensitive，正式 `PASS`；
 > raw archive 已绑定 private HF immutable revision `25ac19cf6ef98adc243d421cd0039ac104ddb539` 并 fresh-download
-> 逐 byte 复验。expansion exact-label config、coalition input、双 H200 runner 与 raw reducer 已进入 source A；
-> config SHA256 为 `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。source A
-> commit/push 后仍需单独物化、commit、push runner freeze B；B validator 通过前不授权 GPU，也尚未生成
-> expansion labels。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 expansion
+> 逐 byte 复验。expansion exact-label config、coalition input、双 H200 runner 与 raw reducer 已由 source
+> A=`2c00c9118dc00cc1bda361325d24d79d8c14f8b6` 冻结；config SHA256 为
+> `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。runner freeze SHA256
+> `c0447acda3f09bccc65461ed08092fa6b166370721767cf5f35eb19cc59583d6` 已作为 execution
+> B=`bd5cc78838c09a50214b1108fb18f62139c7419e` 单独 commit/push，committed validator 重建 76-file
+> inventory 并返回 GPU authorization=true；唯一 Hyper00 formal attempt 尚未启动，也尚未生成 expansion
+> labels。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 expansion
 > policy/restoration output、formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
 > [`docs/restoration_v2_2_expansion_exact_labels.md`](docs/restoration_v2_2_expansion_exact_labels.md)、
@@ -57,8 +60,9 @@ clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
 当前关键路径是 48/16 expansion exact labels。冻结分母为 64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
 full edges、1,984 interactions、576 attributions 与 192 exact oracles。label run 固定 1,984 teacher forwards、
-1,792 GPU KL、0 generation，并保留所有 negative marginals。当前只有 source A 实现与 config freeze；单独的
-runner freeze B commit/push/validation 是唯一 GPU authorization，不能提前训练 gate 或读取 confirm。
+1,792 GPU KL、0 generation，并保留所有 negative marginals。source A、单独 runner freeze B 与 committed
+validator 已闭合；下一步只允许在 Hyper00 做 preflight 后启动这个唯一 formal attempt，不能提前训练 gate 或
+读取 confirm。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为

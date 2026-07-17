@@ -4,10 +4,12 @@
 > `PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1` 闭合，private HF immutable revision 为
 > `25ac19cf6ef98adc243d421cd0039ac104ddb539`。expanded exact-label contract、coalition input、
 > raw-artifact reducer、双 H200 runner 与 artifact manager 已进入 source A；科学 config SHA256 为
-> `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。本阶段仍是
-> source-only：runner source A commit/push 后，还必须单独物化、commit、push runner freeze B，B 的
-> committed validator 通过前不得运行 GPU。当前没有 expansion label、gate checkpoint、matched-NLL、
-> closed-loop 或 confirm output。
+> `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。runner source
+> A=`2c00c9118dc00cc1bda361325d24d79d8c14f8b6` 与单独 execution
+> B=`bd5cc78838c09a50214b1108fb18f62139c7419e` 已 commit/push；runner freeze SHA256 为
+> `c0447acda3f09bccc65461ed08092fa6b166370721767cf5f35eb19cc59583d6`，committed validator 已返回
+> GPU authorization=true。唯一 formal attempt 尚未启动；当前没有 expansion label、gate checkpoint、
+> matched-NLL、closed-loop 或 confirm output。
 
 ## 目标与 canonical truth
 

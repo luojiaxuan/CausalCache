@@ -29,10 +29,10 @@ confirm 和 AndroidWorld sealed test split 仍保持 locked。
 views / 384 images 绑定 private HF immutable revision `630363a6adb692d72774f16dd0653a50216313ff`；唯一双 H200
 substrate 完成 192/192 states、185 memory-sensitive，并绑定 private HF immutable revision
 `25ac19cf6ef98adc243d421cd0039ac104ddb539`。expanded exact-label config、coalition input、runner 与 raw
-artifact reducer 已进入 source A，config SHA256 为
-`65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`；但 source A commit/push 后仍需
-单独物化、commit、push runner freeze B，B 的 committed validator 通过前不授权 GPU。当前仍没有 expansion
-labels 或 formal gate metric。
+artifact reducer 已由 source A=`2c00c9118dc00cc1bda361325d24d79d8c14f8b6` 冻结，config SHA256 为
+`65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`；runner freeze 已作为单独的
+execution B=`bd5cc78838c09a50214b1108fb18f62139c7419e` commit/push，committed validator 返回 GPU
+authorization=true。唯一 formal attempt 尚未启动，当前仍没有 expansion labels 或 formal gate metric。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -150,6 +150,20 @@ labels 或 formal gate metric。
 - 本里程碑仍是 source-only。source A commit/push 后必须从 clean A 确定性物化 runner freeze，再以单独的 B
   commit/push 闭合；只有 clean `main == origin/main == B` 上的 committed validator 才能授权唯一 GPU attempt。
   当前 expansion restoration label、gate checkpoint、matched-NLL、closed-loop 与 confirm output 均为 0。
+
+### 2026-07-17：expansion exact-label runner freeze B 闭合
+
+- clean pushed source A=`2c00c9118dc00cc1bda361325d24d79d8c14f8b6` 上的 source validator 重建
+  64 trajectories / 192 states、1,792 raw distances、1,856 deployment edges、1,984 teacher forwards 与
+  even/odd 96/96 worker schedule，并明确返回 GPU authorization=false；
+- 从 A 原子物化 canonical runner freeze，SHA256 为
+  `c0447acda3f09bccc65461ed08092fa6b166370721767cf5f35eb19cc59583d6`，随后只把该 freeze 作为
+  execution B=`bd5cc78838c09a50214b1108fb18f62139c7419e` commit/push；
+- committed validator 证明 A 是 B 的 ancestor、B 等于 canonical `origin/main`、freeze bytes 已提交且
+  76-file source inventory 与 A 的 Git blobs 完全一致，状态为
+  `VALID_COMMITTED_PUSHED_EXPANSION_EXACT_LABEL_RUNNER_FREEZE`，GPU authorization=true；
+- 本里程碑仍没有创建 global attempt ledger、output root 或 policy output，也没有占用 GPU。下一步只允许在
+  Hyper00 完成 host/GPU/disk/container 与 10 秒 idle preflight 后启动唯一双 H200 formal run。
 
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 
@@ -2126,9 +2140,11 @@ policy-vision comparator lifecycle 与 validation chain 均已闭合。gate v1 s
 为旧 10 + 新 48，fresh-16 是唯一 formal GO slice，旧 5 只在模型冻结后做 combined-21 compatibility guard；
 set-conditioned iterative gate 是主方法，parameter-matched independent gate 是 interaction comparator。
 
-48/16 structural selection manifest 与 pre-output exposure ledger 已物化；下一步构建 policy-blind derived
-artifact，上传同一 private HF dataset repo 的新 immutable revision，然后生成 64 条 expansion exact labels。labels 闭合前
-只允许旧 10 条的两步 trainer smoke；formal-58/21 训练评估、matched-NLL、closed-loop 与 confirm 均不得提前。
+48/16 structural selection manifest、pre-output exposure ledger、policy-blind derived artifact、192-state
+substrate、exact-label source A 与 runner freeze B 均已闭合。下一步是在 Hyper00 完成 required preflight，运行
+唯一双 H200 expansion exact-label attempt，再把 deterministic raw archive 上传 private HF 并以 immutable revision
+fresh-download/replay。labels 闭合前只允许旧 10 条的两步 trainer smoke；formal-58/21 训练评估、matched-NLL、
+closed-loop 与 confirm 均不得提前。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 
