@@ -103,7 +103,7 @@ python3 -m scripts.manage_restoration_v2_2_expansion_labels_artifact \
   materialize-runner-freeze \
   --repository-root .. \
   --runner-source-git-commit <FULL_SOURCE_A_SHA> \
-  --output ../code/configs/causalcache_restoration_v2_2_expansion_labels_runner_v1.json
+  --output code/configs/causalcache_restoration_v2_2_expansion_labels_runner_v1.json
 ```
 
 该命令只允许在 clean pushed A 上运行；返回 pending-B 状态，不授权 GPU。freeze commit/push 后再执行：
@@ -113,10 +113,11 @@ cd code
 python3 -m scripts.manage_restoration_v2_2_expansion_labels_artifact \
   validate-runner-freeze \
   --repository-root .. \
-  --runner-freeze ../code/configs/causalcache_restoration_v2_2_expansion_labels_runner_v1.json
+  --runner-freeze code/configs/causalcache_restoration_v2_2_expansion_labels_runner_v1.json
 ```
 
 只有 `VALID_COMMITTED_PUSHED_EXPANSION_EXACT_LABEL_RUNNER_FREEZE` 才是正式运行的 Git 前置条件。
+上述两个 freeze 路径由 manager 按 `--repository-root` 解析，不按 shell 当前目录解析。
 
 ## 唯一 attempt 与 artifact identity
 
