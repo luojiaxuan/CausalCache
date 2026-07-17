@@ -1,0 +1,157 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "causalcache_restoration_v2_2_label_expansion_v1",
+  "preregistration_status": "policy_blind_split_frozen_before_expansion_policy_output",
+  "parent_selection": {
+    "path": "data/manifests/restoration_v2_selection.json",
+    "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+    "protocol_id": "causalcache_restoration_v2",
+    "status": "PASSED_PREOUTPUT_SELECTION",
+    "eligible_pool_count": 111,
+    "eligible_pool_sha256": "84d6855b20227d7f884d4ce26cfae7188c1075bb7751cab78a3cf325eef192cb"
+  },
+  "selection": {
+    "eligible_order": "parent_reconstruction_eligible_pool_order",
+    "prior_roles_to_exclude": [
+      "v1_reference_contract_audit_only",
+      "v2_label_train",
+      "v2_development"
+    ],
+    "prior_excluded_trajectory_count": 23,
+    "remaining_after_prior_exclusion": 88,
+    "structural_filter": "decision_count>=5",
+    "structurally_eligible_count": 84,
+    "frozen_confirm_role_to_exclude": "v2_confirm_primary",
+    "frozen_confirm_trajectory_count": 20,
+    "expansion_rule": "structural_tail_after_exact_frozen_confirm_prefix",
+    "expansion_trajectory_count": 64,
+    "expansion_source_ids_sha256": "238a5608d08f6e4594195690b7595b1953e0865da2192e1e4b46d8b5795b3526",
+    "gate_train_expansion": {
+      "trajectory_count": 48,
+      "selection": "first_48_expansion_trajectories_in_parent_order",
+      "source_ids_sha256": "11904e1d102b69561b402bea4e42044be9572884f6168597c5f07c3ca346cb34",
+      "source_ids": [
+        "0081171303194449",
+        "0016567388192150",
+        "0081349207433064",
+        "0106001886731694",
+        "0013756686421890",
+        "0224710820406687",
+        "0096794886053450",
+        "0119022933981939",
+        "0149901478066310",
+        "0031013035186872",
+        "0156438551317768",
+        "0185503498056981",
+        "0213791829762595",
+        "0154474824404795",
+        "0026634903318160",
+        "0177467386816906",
+        "0131888848291691",
+        "0076518844281084",
+        "0072821463326485",
+        "0135431381761380",
+        "0107109187202943",
+        "0135789980944621",
+        "0114203784922462",
+        "0234089730527063",
+        "0218815826133241",
+        "0134720948350318",
+        "0204580742481366",
+        "0084888665394360",
+        "0037690483064801",
+        "0235343430658003",
+        "0206048389903107",
+        "0220943321467127",
+        "0167183648468991",
+        "0122430166514446",
+        "0119569788020140",
+        "0092302829764693",
+        "0227020388419136",
+        "0041513657979544",
+        "0192684638288967",
+        "0108772154206513",
+        "0000922671359408",
+        "0066997985759988",
+        "0137575778052679",
+        "0114247701606163",
+        "0191751033400150",
+        "0123550855207688",
+        "0157485992279511",
+        "0039770017320665"
+      ]
+    },
+    "gate_development_expansion": {
+      "trajectory_count": 16,
+      "selection": "last_16_expansion_trajectories_in_parent_order",
+      "source_ids_sha256": "1c37cbf6b67b0ddee61b3efe27d33b30c8fbfb471ced12f12e49624a10b82454",
+      "source_ids": [
+        "0113395203853614",
+        "0085973327901251",
+        "0217993280505982",
+        "0204226739513713",
+        "0027349945578994",
+        "0063414321407600",
+        "0124211143250759",
+        "0158200624694354",
+        "0104781033187528",
+        "0042582068233164",
+        "0095139503173521",
+        "0028705883346522",
+        "0069283472940099",
+        "0090192011883108",
+        "0017986853193264",
+        "0002455403270123"
+      ]
+    }
+  },
+  "label_geometry": {
+    "decision_step_ids": [4, 5, 6],
+    "candidate_event_counts": [2, 3, 4],
+    "full_subset_rows_by_candidate_count": {
+      "2": 4,
+      "3": 8,
+      "4": 16
+    },
+    "deployment_budget": 2,
+    "deployment_conditional_edges_by_candidate_count": {
+      "2": 4,
+      "3": 9,
+      "4": 16
+    },
+    "reference_forwards_per_state": 1,
+    "teacher_forwards_per_trajectory": 31
+  },
+  "expected_workload": {
+    "gate_train_expansion": {
+      "trajectories": 48,
+      "states": 144,
+      "full_subset_distance_rows": 1344,
+      "deployment_conditional_edges": 1392,
+      "teacher_forwards": 1488
+    },
+    "gate_development_expansion": {
+      "trajectories": 16,
+      "states": 48,
+      "full_subset_distance_rows": 448,
+      "deployment_conditional_edges": 464,
+      "teacher_forwards": 496
+    },
+    "total": {
+      "trajectories": 64,
+      "states": 192,
+      "full_subset_distance_rows": 1792,
+      "deployment_conditional_edges": 1856,
+      "teacher_forwards": 1984
+    }
+  },
+  "output_firewall": {
+    "structural_manifest_only": true,
+    "policy_output_generated": false,
+    "restoration_output_generated": false,
+    "include_prior_role_source_ids": false,
+    "include_parent_state_records": false,
+    "include_image_or_ocr_identity": false,
+    "include_instruction_or_action_identity": false
+  }
+}

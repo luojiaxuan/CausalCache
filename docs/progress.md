@@ -25,6 +25,20 @@ artifact；首次 CPU byte-replay 的 evaluated-state projection bug 已由独�
 `validate` 已返回 `REVALIDATED`。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
+### 2026-07-17：正式 gate 数据扩展启动
+
+- 明确旧 10 train / 5 development 只能支持 policy-free method shaping 与 trainer smoke，不能支撑 learned-gate
+  泛化 claim；
+- 从 frozen 111-trajectory eligible order 中机械排除 8 reference、15 legacy oracle 与 confirm structural prefix
+  20，得到唯一 tail-64；前 48 固定为 train expansion，后 16 固定为 fresh development；
+- 新增 64-trajectory split contract、materializer、committed validator 和 6 个 focused regression tests；
+- 每条固定 steps 4/5/6，新增总量为 192 states、1,792 个完整 $D(S)$ rows、1,856 条 deployment conditional
+  edges 与 1,984 次 planned teacher forward；
+- Hyper00 持久盘的 16 个 source Parquet 已现场逐文件重算 SHA256，全部匹配 Git source manifest；旧 derived HF
+  revision 与新 64 条交集为 0，因此下一步必须生成独立 expansion derived artifact；
+- 当前仍为 source-only：新 policy output、restoration label、gate checkpoint、matched-NLL、closed-loop 与 confirm
+  access 全为 0。
+
 ## 已完成里程碑
 
 ### 2026-07-14：论文骨架

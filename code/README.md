@@ -96,6 +96,19 @@ stable self-behavior reference、post-state-only intervention、八字段 strong
 inventory、exact 8+10+5 历史 exposure 边界、fixed 20-state confirm 与两级 gate。它不替代历史
 `phase0_contract.json` validator；两者代表不同版本的 estimand，必须分别通过。
 
+正式 gate 数据扩展的 policy-blind split source 位于
+`causalcache.restoration_v2_2_label_expansion`。它从既有 111-pool 精确重建 48/16 tail split，不读取
+instruction/action/image/OCR 或旧模型结果。focused test：
+
+```bash
+cd code
+python3 -m unittest tests.test_restoration_v2_2_label_expansion -v
+```
+
+materializer 只允许 clean pushed canonical `main`，结构 manifest 写入
+`data/manifests/restoration_v2_2_label_expansion_selection.json` 后再由独立 validator 绑定 generator commit/source
+bytes。完整边界见 `docs/restoration_v2_2_label_expansion.md`。
+
 policy-vision comparator 的 v1 formal attempt 已在 feature/model load 前封存为 `INVALID`。当前可执行协议是
 `causalcache.restoration_v2_2_policy_vision_v2_contract`，其 source-only validator 为：
 

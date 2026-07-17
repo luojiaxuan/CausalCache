@@ -48,6 +48,10 @@ cases 与 negative control 已通过独立 reducer。interface manifest 的 `pen
 
 restoration v2 exact selection/exposure 产物：
 
+- planned `manifests/restoration_v2_2_label_expansion_selection.json`：从 frozen 111-pool 机械派生的 48 train +
+  16 fresh-development structural split；当前 source 已冻结但 manifest 尚待 clean-pushed materialization，不含
+  instruction/action/image/OCR 或 policy/restoration output；
+
 - `manifests/restoration_v2_selection.json`：111-trajectory eligible pool、8/15/20 role proof、exact
   30/15/20 states 与 65 个 content witnesses，SHA256 `292c7e52...`；
 - `manifests/restoration_v2_exposure.json`：append-only pre-output exposure evidence，SHA256
