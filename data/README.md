@@ -240,7 +240,10 @@ restoration v2 exact selection/exposure 产物：
   CPU-only run 在 global claim 后的 feature transport byte check fail-closed。错误 config SHA 与实际 immutable
   SHA 都是合法 64-hex，因此 source-only lexical validation 未发现；旧 claim mode 0600、7,062 bytes、SHA256
   `a9372c7a...54b1b` 永久保留。semantic decode、cache/HF mutation 与 training 均为 0，destination repo 仍不存在；
-  当前 upload status 为 `blocked pending versioned transport repair`；
+  当前 upload status 为 `v1 permanently invalid; repair Source-A frozen, repair B absent`。repair config
+  `code/configs/causalcache_gate_v1_formal_cache_transport_repair_v1.json` 只更正一个由 Git-pinned producer
+  三重 witness 复核的 SHA leaf，并使用独立 local/HF namespace；它尚未产生任何 cache、claim、HF repo/tag 或
+  reusable artifact。详见 `docs/gate_v1_formal_cache_transport_repair.md`；
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private

@@ -9,6 +9,7 @@ import json
 import tarfile
 import unittest
 from pathlib import Path
+from typing import Literal
 from unittest import mock
 
 from causalcache.gate_v1_contract import (
@@ -48,10 +49,16 @@ from causalcache.gate_v1_formal_cache import (
     _read_cache_members,
     _strict_canonical_object,
     audit_formal_cache_join,
+    audit_formal_cache_join_transport_repair_v1,
     build_formal_feature_cache,
+    build_formal_feature_cache_transport_repair_v1,
     build_formal_label_cache,
+    build_formal_label_cache_transport_repair_v1,
     read_feature_cache,
     read_label_cache,
+    TRANSPORT_REPAIR_CORRECTED_SHA256,
+    TRANSPORT_REPAIR_FILE_PATH,
+    TRANSPORT_REPAIR_SIZE_BYTES,
 )
 
 
@@ -491,6 +498,13 @@ class GateV1FormalCacheTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.downloaded, cls.bindings, cls.rosters, cls.config = _fixture()
+        root = Path(__file__).resolve().parents[2]
+        cls.transport_repair_config = json.loads(
+            (
+                root
+                / "code/configs/causalcache_gate_v1_formal_cache_transport_repair_v1.json"
+            ).read_text()
+        )
 
     def _build_feature(self):
         expected = {name: self.bindings[name] for name in FEATURE_SOURCE_KEYS}
@@ -516,6 +530,37 @@ class GateV1FormalCacheTest(unittest.TestCase):
                 transport_bindings=expected,
                 frozen_rosters=self.rosters,
                 frozen_config=self.config,
+            )
+
+    def _repair_bindings(
+        self, *, kind: Literal["feature", "label"]
+    ) -> dict[str, dict[str, object]]:
+        return _expected_phase_bindings(self.transport_repair_config, kind=kind)
+
+    def _build_repair_feature(self):
+        expected = self._repair_bindings(kind="feature")
+        with mock.patch(
+            "causalcache.gate_v1_formal_cache._verify_downloads",
+            return_value=expected,
+        ):
+            return build_formal_feature_cache_transport_repair_v1(
+                {name: self.downloaded[name] for name in FEATURE_SOURCE_KEYS},
+                transport_bindings=expected,
+                frozen_rosters=self.rosters,
+                frozen_config=self.transport_repair_config,
+            )
+
+    def _build_repair_label(self):
+        expected = self._repair_bindings(kind="label")
+        with mock.patch(
+            "causalcache.gate_v1_formal_cache._verify_downloads",
+            return_value=expected,
+        ):
+            return build_formal_label_cache_transport_repair_v1(
+                {name: self.downloaded[name] for name in LABEL_SOURCE_KEYS},
+                transport_bindings=expected,
+                frozen_rosters=self.rosters,
+                frozen_config=self.transport_repair_config,
             )
 
     def test_selective_materialization_is_deterministic_and_separated(self) -> None:
@@ -605,6 +650,14 @@ class GateV1FormalCacheTest(unittest.TestCase):
     def test_formal_phase_apis_and_frozen_bindings_are_separate(self) -> None:
         feature_parameters = set(inspect.signature(build_formal_feature_cache).parameters)
         label_parameters = set(inspect.signature(build_formal_label_cache).parameters)
+        self.assertEqual(
+            inspect.signature(build_formal_feature_cache),
+            inspect.signature(build_formal_feature_cache_transport_repair_v1),
+        )
+        self.assertEqual(
+            inspect.signature(build_formal_label_cache),
+            inspect.signature(build_formal_label_cache_transport_repair_v1),
+        )
         self.assertIn("downloaded_features", feature_parameters)
         self.assertNotIn("downloaded_labels", feature_parameters)
         self.assertIn("downloaded_labels", label_parameters)
@@ -646,6 +699,130 @@ class GateV1FormalCacheTest(unittest.TestCase):
                 },
                 frozen_rosters=bad_rosters,
                 frozen_config=self.config,
+            )
+
+    def test_transport_repair_uses_only_the_corrected_feature_leaf(self) -> None:
+        repaired_inputs = self.transport_repair_config["input_artifacts"]
+        files = repaired_inputs["expansion_derived_features"]["files"]
+        matches = [
+            record
+            for record in files
+            if record["path"] == TRANSPORT_REPAIR_FILE_PATH
+        ]
+        self.assertEqual(
+            matches,
+            [
+                {
+                    "path": TRANSPORT_REPAIR_FILE_PATH,
+                    "sha256": TRANSPORT_REPAIR_CORRECTED_SHA256,
+                    "size_bytes": TRANSPORT_REPAIR_SIZE_BYTES,
+                }
+            ],
+        )
+        expected = self._repair_bindings(kind="feature")
+        self.assertEqual(
+            expected[EXPANSION_FEATURE_TRAJECTORIES],
+            {
+                "sha256": TRANSPORT_REPAIR_CORRECTED_SHA256,
+                "size_bytes": TRANSPORT_REPAIR_SIZE_BYTES,
+            },
+        )
+        feature = self._build_repair_feature()
+        label = self._build_repair_label()
+        joined = audit_formal_cache_join_transport_repair_v1(
+            feature.archive,
+            label.archive,
+            frozen_rosters=self.rosters,
+            frozen_config=self.transport_repair_config,
+        )
+        self.assertEqual(joined.joined_state_count, EXPECTED_STATE_COUNT)
+        feature_files = _read_cache_members(feature.archive, kind="feature")
+        feature_manifest = json.loads(feature_files["manifest.json"])
+        self.assertEqual(
+            feature_manifest["source_bindings"][EXPANSION_FEATURE_TRAJECTORIES],
+            expected[EXPANSION_FEATURE_TRAJECTORIES],
+        )
+        with tarfile.open(fileobj=io.BytesIO(feature.archive), mode="r:") as archive:
+            self.assertEqual(
+                [member.name for member in archive.getmembers()],
+                [
+                    f"{FEATURE_CACHE_PREFIX}/feature_states.jsonl",
+                    f"{FEATURE_CACHE_PREFIX}/manifest.json",
+                ],
+            )
+
+    def test_transport_repair_rejects_any_marker_or_leaf_drift(self) -> None:
+        expected = self._repair_bindings(kind="feature")
+        bad_marker = copy.deepcopy(self.transport_repair_config)
+        bad_marker["source_freeze"]["transport_repair"]["protocol_id"] = "other"
+        with self.assertRaisesRegex(ValueError, "marker protocol_id"):
+            build_formal_feature_cache_transport_repair_v1(
+                {name: self.downloaded[name] for name in FEATURE_SOURCE_KEYS},
+                transport_bindings=expected,
+                frozen_rosters=self.rosters,
+                frozen_config=bad_marker,
+            )
+
+        bad_leaf = copy.deepcopy(self.transport_repair_config)
+        for record in bad_leaf["input_artifacts"]["expansion_derived_features"][
+            "files"
+        ]:
+            if record["path"] == TRANSPORT_REPAIR_FILE_PATH:
+                record["sha256"] = "b" * 64
+        with self.assertRaisesRegex(ValueError, "corrected feature binding"):
+            build_formal_feature_cache_transport_repair_v1(
+                {name: self.downloaded[name] for name in FEATURE_SOURCE_KEYS},
+                transport_bindings=expected,
+                frozen_rosters=self.rosters,
+                frozen_config=bad_leaf,
+            )
+
+        extra_input_drift = copy.deepcopy(self.transport_repair_config)
+        extra_input_drift["input_artifacts"]["legacy_derived_features"]["repo"] = (
+            "different-repo"
+        )
+        with self.assertRaisesRegex(ValueError, "more than the allowed input leaf"):
+            build_formal_feature_cache_transport_repair_v1(
+                {name: self.downloaded[name] for name in FEATURE_SOURCE_KEYS},
+                transport_bindings=expected,
+                frozen_rosters=self.rosters,
+                frozen_config=extra_input_drift,
+            )
+
+        with self.assertRaisesRegex(ValueError, "marker is missing"):
+            build_formal_feature_cache_transport_repair_v1(
+                {name: self.downloaded[name] for name in FEATURE_SOURCE_KEYS},
+                transport_bindings=expected,
+                frozen_rosters=self.rosters,
+                frozen_config=self.config,
+            )
+
+    def test_normal_v1_builders_do_not_accept_repair_overlay(self) -> None:
+        normal_feature = self._build_feature()
+        self.assertEqual(len(read_feature_cache(normal_feature.archive)), EXPECTED_STATE_COUNT)
+        repair_expected = self._repair_bindings(kind="feature")
+        with mock.patch(
+            "causalcache.gate_v1_formal_cache._verify_downloads",
+            return_value=repair_expected,
+        ):
+            with self.assertRaisesRegex(
+                ValueError, "formal cache source contract section source_freeze drifted"
+            ):
+                build_formal_feature_cache(
+                    {name: self.downloaded[name] for name in FEATURE_SOURCE_KEYS},
+                    transport_bindings=repair_expected,
+                    frozen_rosters=self.rosters,
+                    frozen_config=self.transport_repair_config,
+                )
+
+        with self.assertRaisesRegex(ValueError, "corrected source contract"):
+            build_formal_feature_cache_transport_repair_v1(
+                {name: self.downloaded[name] for name in FEATURE_SOURCE_KEYS},
+                transport_bindings={
+                    name: self.bindings[name] for name in FEATURE_SOURCE_KEYS
+                },
+                frozen_rosters=self.rosters,
+                frozen_config=self.transport_repair_config,
             )
 
     def test_json_float_and_path_canonicality(self) -> None:

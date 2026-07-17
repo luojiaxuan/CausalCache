@@ -2211,10 +2211,12 @@ policy-vision comparator lifecycle 与 validation chain 均已闭合。gate v1 s
 set-conditioned iterative gate 是主方法，parameter-matched independent gate 是 interaction comparator。
 
 48/16 structural selection manifest、pre-output exposure ledger、policy-blind derived artifact、192-state substrate、
-exact labels、ledger-neutral repair 与 repaired-label private-HF publication 均已闭合。formal-58 cache Source-A 也已
-冻结；下一步只允许从 clean pushed A 机械生成 runner freeze B 并单独 commit/push，然后在 Hyper00 no-GPU
-runtime 构建物理分离的 feature/label cache、原子发布 exact-three private-HF bundle 并做 immutable replay。该 final
-completion 闭合前不得训练 formal-58 gate，也不得读取 fresh-16、旧 dev-5、confirm、matched-NLL 或 closed-loop。
+exact labels、ledger-neutral repair 与 repaired-label private-HF publication 均已闭合。formal-58 cache v1 的唯一
+execution 已永久 pre-semantic fail-closed；只修一个 transport SHA leaf 的独立 repair Source-A 已冻结。下一步只允许
+先 commit/push repair A，再从 clean pushed repair A 机械生成 runner freeze B 并单独 commit/push，然后在 Hyper00
+no-GPU runtime 构建物理分离的 repair feature/label cache、原子发布 exact-three private-HF bundle 并做 immutable
+replay。该 final completion 闭合前不得训练 formal-58 gate，也不得读取 fresh-16、旧 dev-5、confirm、matched-NLL
+或 closed-loop。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 
@@ -2489,3 +2491,24 @@ completion 闭合前不得训练 formal-58 gate，也不得读取 fresh-16、旧
   producer completion，只允许修复该一个 transport SHA leaf，并更换全部 local state/cache/HF tag/target namespace，
   再重新执行 Source-A → machine-generated Execution-B。轻量证据位于
   `data/results/gate_v1_formal58_cache_v1_attempt/`。
+
+### 2026-07-17：formal-58 transport-repair Source-A 冻结（尚未执行）
+
+- repair 以 parent cache contract 的独立 overlay 记录，不修改旧 v1 config、旧 A/B、旧 failure summary 或旧
+  claim。唯一允许变化是 `expansion_feature_trajectories` 的
+  `derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl` transport SHA：原错误 binding
+  `00fe93e9...353a6d` 改为实际 bytes `fe93e9de...353a6d`，size 固定为 1,245,673 bytes；data bytes 与 semantic
+  contract 均不变；
+- 正确 digest 必须同时复核 Git 固定 producer artifact 的 fresh-download、preupload、payload-manifest 三个 file
+  record。所有其他 input leaves 归一化回 parent 后必须完全相同；
+- repair `run`/`validate` 在 token、Hub client、download 或新 claim 之前，先验证旧 global claim 仍为 mode 0600 /
+  7,062 bytes / `a9372c7a...54b1b`，旧 B=`079c095...0e481`、failure summary 与旧 cache/successor-state absence
+  均未漂移。因此 repair 不能把 v1 fail-closed path 当作可 resume 的状态机；
+- repair 使用新的 local claim/cache 前缀，以及独立 private HF repo
+  `gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile`、tag
+  `gate-v1-formal58-cache-transport-repair-v1` 与 exact-three target paths；
+- 当前只冻结 Source-A。repair runner freeze
+  `causalcache_gate_v1_formal_cache_transport_repair_runner_v1.json` 尚未生成；下一步仅允许从 clean pushed repair A
+  机械生成该一个文件、单独 commit/push repair B，再按新 namespace 做 no-GPU formal cache execution。当前 repair
+  cache、HF publication/completion、gate fit、OOF、development metric、matched-NLL、closed-loop 与 confirm access
+  全部为 0。详细边界见 `docs/gate_v1_formal_cache_transport_repair.md`。

@@ -69,6 +69,22 @@ class GateV1FormalCacheContractTest(unittest.TestCase):
         self.assertEqual(contract.execution_operations["trajectory_semantic_decode_count"], 58)
         self.assertEqual(contract.execution_operations["ocr_semantic_decode_count"], 290)
 
+    def _materialize_source_a_fixture(self, destination_root: Path) -> None:
+        source_freeze = self.config["source_freeze"]
+        paths = {
+            CANONICAL_CONFIG_PATH,
+            *(record["path"] for record in source_freeze["git_prerequisites"]),
+            *source_freeze["required_source_a_paths"],
+            self.config["parent_gate_contract"]["path"],
+            self.config["publication_completion_binding"]["result_summary"]["path"],
+        }
+        self.assertNotIn(RUNNER_FREEZE_B_PATH, paths)
+        for relative in sorted(paths):
+            source = ROOT / relative
+            target = destination_root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(source, target)
+
     def test_source_only_validation_has_no_network_or_write_side_effect(self) -> None:
         write_methods = (
             "write_bytes",
@@ -89,13 +105,20 @@ class GateV1FormalCacheContractTest(unittest.TestCase):
                 mock.patch("urllib.request.urlopen", side_effect=AssertionError("network")),
             )
         )
-        for patch in patches:
-            patch.start()
-        try:
-            result = validate_source_only_contract(repository_root=ROOT)
-        finally:
-            for patch in reversed(patches):
-                patch.stop()
+        self.assertTrue((ROOT / RUNNER_FREEZE_B_PATH).is_file())
+        with self.assertRaisesRegex(ValueError, "runner freeze B must remain absent"):
+            validate_source_only_contract(repository_root=ROOT)
+
+        with tempfile.TemporaryDirectory() as directory:
+            source_a_root = Path(directory)
+            self._materialize_source_a_fixture(source_a_root)
+            for patch in patches:
+                patch.start()
+            try:
+                result = validate_source_only_contract(repository_root=source_a_root)
+            finally:
+                for patch in reversed(patches):
+                    patch.stop()
         self.assertEqual(result["status"], VALIDATION_STATUS)
         self.assertFalse(result["execution_authorized"])
         self.assertTrue(result["pending_runner_freeze"])

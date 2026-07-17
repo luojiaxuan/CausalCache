@@ -3,9 +3,11 @@
 > 当前状态：Source-A=`990f015` 与 Execution-B=`079c095` 已冻结并 push。首次 Hyper00 CPU-only run 创建 global
 > claim 后，在 feature transport byte check 发现 expansion trajectories 的合法 64-hex SHA transcription mismatch
 > 并 fail-closed；尚未执行任何 semantic decode，也没有 feature/label cache、HF repo/tag/completion、gate training、
-> OOF、checkpoint、development metric、matched-NLL、closed-loop 或 confirm access。旧 claim 永久保留；只有新的
-> versioned transport-repair Execution-B 完成 immutable HF fresh replay 与 final completion 后，formal-58 才能作为
-> training input。失败证据见 `data/results/gate_v1_formal58_cache_v1_attempt/`。
+> OOF、checkpoint、development metric、matched-NLL、closed-loop 或 confirm access。旧 claim 永久保留。后续只允许
+> 独立的 versioned transport-repair Source-A 先完成 source-only validation，再机械生成唯一 Execution-B；它完成
+> immutable HF fresh replay 与 final completion 前，formal-58 仍不能作为 training input。失败与 repair 边界见
+> `data/results/gate_v1_formal58_cache_v1_attempt/` 和
+> `docs/gate_v1_formal_cache_transport_repair.md`。
 
 ## 目标与边界
 
@@ -112,6 +114,18 @@ PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_cache \
 ```
 
 第二条命令只允许生成 runner-freeze 这一个未跟踪文件；提交并 push B 后才能调用 `run`。
+
+## v1 失败后的 transport-repair Source-A（尚未执行）
+
+v1 的 global claim 已经存在，因此不得修改原 config、删除旧 claim 或从失败点续跑。repair 不是对旧 execution
+的 retry，而是一个独立 namespace 的 Source-A：它保留 parent 的 cache format、semantic firewall、formal roster
+和 state-machine semantics，只把 `expansion_feature_trajectories` 的一个错误 transport SHA binding 改为 producer
+已三重见证的实际 bytes。其完整 fail-closed contract、旧 attempt 的 pre-claim validation、独立 local/HF namespace
+与 Source-A → 单文件 Execution-B 流程见
+`docs/gate_v1_formal_cache_transport_repair.md`。
+
+该 repair Source-A 不表示已经执行。它不生成 repair runner freeze、不读取 token 或 Hugging Face、不创建新 claim/cache/
+remote state，也不解锁 gate fit、OOF、checkpoint、fresh-16、旧 dev-5、matched-NLL、closed-loop 或 confirm。
 
 ## Local-first / HF-second 状态机
 

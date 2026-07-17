@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import hashlib
 import io
 import json
@@ -33,6 +34,22 @@ from causalcache.restoration_v2_2_label_table import (
 SCHEMA_VERSION = "1.0.0"
 PROTOCOL_ID = "causalcache_gate_v1_formal_cache_v1"
 SOURCE_STATUS = "source_only_frozen_before_formal_cache_execution"
+TRANSPORT_REPAIR_PROTOCOL_ID = "causalcache_gate_v1_formal_cache_transport_repair_v1"
+FORMAL_CACHE_SOURCE_CONFIG_SHA256 = (
+    "1d7527e8a7bede8aaab8a21f7757f786674530238ae99fe3ce5b196cbce67261"
+)
+TRANSPORT_REPAIR_INPUT_KEY = "expansion_feature_trajectories"
+TRANSPORT_REPAIR_ARTIFACT_NAME = "expansion_derived_features"
+TRANSPORT_REPAIR_FILE_PATH = (
+    "derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl"
+)
+TRANSPORT_REPAIR_WRONG_SHA256 = (
+    "00fe93e9deeeb9a3c018227fb781b29f6efefbb728db987584b650d9df353a6d"
+)
+TRANSPORT_REPAIR_CORRECTED_SHA256 = (
+    "fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d"
+)
+TRANSPORT_REPAIR_SIZE_BYTES = 1245673
 FEATURE_STATUS = "VALID_GATE_V1_FORMAL58_FEATURE_CACHE_V1"
 LABEL_STATUS = "VALID_GATE_V1_FORMAL58_LABEL_CACHE_V1"
 JOIN_AUDIT_STATUS = "VALID_GATE_V1_FORMAL58_JOIN_AUDIT_V1"
@@ -214,6 +231,18 @@ _LABEL_STATE_KEYS = {
     "distance_rows",
 }
 _LABEL_ROW_KEYS = {"coalition_event_step_ids", "distance_kl_f64_hex"}
+_TRANSPORT_REPAIR_MARKER_KEYS = {
+    "protocol_id",
+    "parent_config_sha256",
+    "input_key",
+    "artifact_name",
+    "file_path",
+    "wrong_sha256",
+    "corrected_sha256",
+    "size_bytes",
+    "data_bytes_changed",
+    "semantic_contract_changed",
+}
 
 
 @dataclass(frozen=True)
@@ -425,9 +454,7 @@ def _expected_phase_bindings(
     }
 
 
-def _validate_rosters(
-    config: Mapping[str, Any], source_rosters: Mapping[str, Sequence[str]]
-) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+def _validate_base_source_contract(config: Mapping[str, Any]) -> None:
     if (
         config.get("schema_version") != SCHEMA_VERSION
         or config.get("protocol_id") != PROTOCOL_ID
@@ -439,6 +466,108 @@ def _validate_rosters(
     for name, digest in EXPECTED_SECTION_SHA256.items():
         if sha256_bytes(canonical_json_bytes(config[name])) != digest:
             raise ValueError(f"formal cache source contract section {name} drifted")
+
+
+def _transport_repair_marker(config: Mapping[str, Any]) -> Mapping[str, Any]:
+    source_freeze = config.get("source_freeze")
+    if not isinstance(source_freeze, Mapping):
+        raise ValueError("transport repair source freeze is missing")
+    marker = source_freeze.get("transport_repair")
+    if not isinstance(marker, Mapping):
+        raise ValueError("transport repair marker is missing")
+    _exact_keys(marker, _TRANSPORT_REPAIR_MARKER_KEYS, "transport repair marker")
+    expected = {
+        "protocol_id": TRANSPORT_REPAIR_PROTOCOL_ID,
+        "parent_config_sha256": FORMAL_CACHE_SOURCE_CONFIG_SHA256,
+        "input_key": TRANSPORT_REPAIR_INPUT_KEY,
+        "artifact_name": TRANSPORT_REPAIR_ARTIFACT_NAME,
+        "file_path": TRANSPORT_REPAIR_FILE_PATH,
+        "wrong_sha256": TRANSPORT_REPAIR_WRONG_SHA256,
+        "corrected_sha256": TRANSPORT_REPAIR_CORRECTED_SHA256,
+        "size_bytes": TRANSPORT_REPAIR_SIZE_BYTES,
+        "data_bytes_changed": False,
+        "semantic_contract_changed": False,
+    }
+    for name, value in expected.items():
+        if marker.get(name) != value:
+            raise ValueError(f"transport repair marker {name} drifted")
+    if type(marker["size_bytes"]) is not int:
+        raise ValueError("transport repair marker size type drifted")
+    if (
+        marker["data_bytes_changed"] is not False
+        or marker["semantic_contract_changed"] is not False
+    ):
+        raise ValueError("transport repair marker boolean flags drifted")
+    return marker
+
+
+def _validate_transport_repair_input_leaf(config: Mapping[str, Any]) -> None:
+    inputs = config.get("input_artifacts")
+    if not isinstance(inputs, Mapping):
+        raise ValueError("transport repair input artifacts are missing")
+    normalized = copy.deepcopy(inputs)
+    if not isinstance(normalized, dict):
+        normalized = dict(normalized)
+    artifact = normalized.get(TRANSPORT_REPAIR_ARTIFACT_NAME)
+    if not isinstance(artifact, dict):
+        raise ValueError("transport repair feature artifact is missing")
+    files = artifact.get("files")
+    if not isinstance(files, list):
+        raise ValueError("transport repair feature file inventory is missing")
+    matches = [
+        record
+        for record in files
+        if isinstance(record, dict)
+        and record.get("path") == TRANSPORT_REPAIR_FILE_PATH
+    ]
+    if len(matches) != 1:
+        raise ValueError("transport repair feature file binding is missing or duplicated")
+    leaf = matches[0]
+    if (
+        leaf.get("sha256") != TRANSPORT_REPAIR_CORRECTED_SHA256
+        or leaf.get("size_bytes") != TRANSPORT_REPAIR_SIZE_BYTES
+        or type(leaf.get("size_bytes")) is not int
+    ):
+        raise ValueError("transport repair corrected feature binding drifted")
+    leaf["sha256"] = TRANSPORT_REPAIR_WRONG_SHA256
+    if (
+        sha256_bytes(canonical_json_bytes(normalized))
+        != EXPECTED_SECTION_SHA256["input_artifacts"]
+    ):
+        raise ValueError("transport repair changed more than the allowed input leaf")
+
+
+def _validate_transport_repair_source_contract(config: Mapping[str, Any]) -> None:
+    if (
+        config.get("schema_version") != SCHEMA_VERSION
+        or config.get("protocol_id") != PROTOCOL_ID
+        or config.get("status") != SOURCE_STATUS
+    ):
+        raise ValueError("transport repair source contract identity/status drifted")
+    expected_top = {"schema_version", "protocol_id", "status", *EXPECTED_SECTION_SHA256}
+    _exact_keys(config, expected_top, "transport repair source contract")
+    _transport_repair_marker(config)
+    _validate_transport_repair_input_leaf(config)
+    changed_sections = {
+        "source_freeze",
+        "input_artifacts",
+        "cache_formats",
+        "local_first_state_machine",
+        "destination",
+    }
+    for name, digest in EXPECTED_SECTION_SHA256.items():
+        if name in changed_sections:
+            continue
+        if sha256_bytes(canonical_json_bytes(config[name])) != digest:
+            raise ValueError(
+                f"transport repair source contract section {name} drifted"
+            )
+
+
+def _validate_rosters_common(
+    config: Mapping[str, Any],
+    source_rosters: Mapping[str, Sequence[str]],
+) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
     parent = config.get("parent_gate_contract")
     geometry = config.get("formal_geometry")
     formats = config.get("cache_formats")
@@ -530,6 +659,20 @@ def _validate_rosters(
     ):
         raise ValueError("formal cache serialization contract drifted")
     return legacy, expansion, formal
+
+
+def _validate_rosters(
+    config: Mapping[str, Any], source_rosters: Mapping[str, Sequence[str]]
+) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    _validate_base_source_contract(config)
+    return _validate_rosters_common(config, source_rosters)
+
+
+def _validate_transport_repair_rosters(
+    config: Mapping[str, Any], source_rosters: Mapping[str, Sequence[str]]
+) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    _validate_transport_repair_source_contract(config)
+    return _validate_rosters_common(config, source_rosters)
 
 
 def _validate_selected_trajectory(
@@ -1315,26 +1458,14 @@ def _validate_projected_roster(
             raise ValueError("formal projected state roster/order drifted")
 
 
-def build_formal_feature_cache(
+def _materialize_formal_feature_cache(
     downloaded_features: Mapping[str, bytes],
     *,
-    transport_bindings: Mapping[str, Mapping[str, Any]],
-    frozen_rosters: Mapping[str, Sequence[str]],
-    frozen_config: Mapping[str, Any],
+    normalized_bindings: Mapping[str, Mapping[str, Any]],
+    legacy_ids: Sequence[str],
+    expansion_ids: Sequence[str],
+    formal_ids: Sequence[str],
 ) -> FormalCacheArtifact:
-    """Build the feature cache without accepting any label bytes."""
-    normalized_bindings = _verify_downloads(
-        downloaded_features,
-        transport_bindings,
-        expected_keys=FEATURE_SOURCE_KEYS,
-    )
-    legacy_ids, expansion_ids, formal_ids = _validate_rosters(
-        frozen_config, frozen_rosters
-    )
-    if normalized_bindings != _expected_phase_bindings(
-        frozen_config, kind="feature"
-    ):
-        raise ValueError("feature transport bindings differ from frozen source contract")
     # note (luojiaxuan): Feature manifests share development source IDs. Their
     # frozen transport identities are verified above, but their JSON is never
     # decoded in the train-only process; selected rows prove train order again.
@@ -1388,26 +1519,74 @@ def build_formal_feature_cache(
     )
 
 
-def build_formal_label_cache(
-    downloaded_labels: Mapping[str, bytes],
+def build_formal_feature_cache(
+    downloaded_features: Mapping[str, bytes],
     *,
     transport_bindings: Mapping[str, Mapping[str, Any]],
     frozen_rosters: Mapping[str, Sequence[str]],
     frozen_config: Mapping[str, Any],
 ) -> FormalCacheArtifact:
-    """Build the label cache after the runner has sealed feature completion."""
+    """Build the v1 feature cache without accepting any label bytes."""
     normalized_bindings = _verify_downloads(
-        downloaded_labels,
+        downloaded_features,
         transport_bindings,
-        expected_keys=LABEL_SOURCE_KEYS,
+        expected_keys=FEATURE_SOURCE_KEYS,
     )
     legacy_ids, expansion_ids, formal_ids = _validate_rosters(
         frozen_config, frozen_rosters
     )
     if normalized_bindings != _expected_phase_bindings(
-        frozen_config, kind="label"
+        frozen_config, kind="feature"
     ):
-        raise ValueError("label transport bindings differ from frozen source contract")
+        raise ValueError("feature transport bindings differ from frozen source contract")
+    return _materialize_formal_feature_cache(
+        downloaded_features,
+        normalized_bindings=normalized_bindings,
+        legacy_ids=legacy_ids,
+        expansion_ids=expansion_ids,
+        formal_ids=formal_ids,
+    )
+
+
+def build_formal_feature_cache_transport_repair_v1(
+    downloaded_features: Mapping[str, bytes],
+    *,
+    transport_bindings: Mapping[str, Mapping[str, Any]],
+    frozen_rosters: Mapping[str, Sequence[str]],
+    frozen_config: Mapping[str, Any],
+) -> FormalCacheArtifact:
+    """Build the isolated transport-repair feature cache under its exact overlay."""
+    legacy_ids, expansion_ids, formal_ids = _validate_transport_repair_rosters(
+        frozen_config, frozen_rosters
+    )
+    normalized_bindings = _verify_downloads(
+        downloaded_features,
+        transport_bindings,
+        expected_keys=FEATURE_SOURCE_KEYS,
+    )
+    if normalized_bindings != _expected_phase_bindings(
+        frozen_config, kind="feature"
+    ):
+        raise ValueError(
+            "transport repair feature bindings differ from corrected source contract"
+        )
+    return _materialize_formal_feature_cache(
+        downloaded_features,
+        normalized_bindings=normalized_bindings,
+        legacy_ids=legacy_ids,
+        expansion_ids=expansion_ids,
+        formal_ids=formal_ids,
+    )
+
+
+def _materialize_formal_label_cache(
+    downloaded_labels: Mapping[str, bytes],
+    *,
+    normalized_bindings: Mapping[str, Mapping[str, Any]],
+    legacy_ids: Sequence[str],
+    expansion_ids: Sequence[str],
+    formal_ids: Sequence[str],
+) -> FormalCacheArtifact:
     labels = (
         *_legacy_label_states(downloaded_labels[LEGACY_LABEL_ARCHIVE], legacy_ids),
         *_expansion_label_states(
@@ -1458,15 +1637,72 @@ def build_formal_label_cache(
     )
 
 
-def audit_formal_cache_join(
+def build_formal_label_cache(
+    downloaded_labels: Mapping[str, bytes],
+    *,
+    transport_bindings: Mapping[str, Mapping[str, Any]],
+    frozen_rosters: Mapping[str, Sequence[str]],
+    frozen_config: Mapping[str, Any],
+) -> FormalCacheArtifact:
+    """Build the v1 label cache after the runner has sealed feature completion."""
+    normalized_bindings = _verify_downloads(
+        downloaded_labels,
+        transport_bindings,
+        expected_keys=LABEL_SOURCE_KEYS,
+    )
+    legacy_ids, expansion_ids, formal_ids = _validate_rosters(
+        frozen_config, frozen_rosters
+    )
+    if normalized_bindings != _expected_phase_bindings(
+        frozen_config, kind="label"
+    ):
+        raise ValueError("label transport bindings differ from frozen source contract")
+    return _materialize_formal_label_cache(
+        downloaded_labels,
+        normalized_bindings=normalized_bindings,
+        legacy_ids=legacy_ids,
+        expansion_ids=expansion_ids,
+        formal_ids=formal_ids,
+    )
+
+
+def build_formal_label_cache_transport_repair_v1(
+    downloaded_labels: Mapping[str, bytes],
+    *,
+    transport_bindings: Mapping[str, Mapping[str, Any]],
+    frozen_rosters: Mapping[str, Sequence[str]],
+    frozen_config: Mapping[str, Any],
+) -> FormalCacheArtifact:
+    """Build the isolated transport-repair label cache under its exact overlay."""
+    legacy_ids, expansion_ids, formal_ids = _validate_transport_repair_rosters(
+        frozen_config, frozen_rosters
+    )
+    normalized_bindings = _verify_downloads(
+        downloaded_labels,
+        transport_bindings,
+        expected_keys=LABEL_SOURCE_KEYS,
+    )
+    if normalized_bindings != _expected_phase_bindings(
+        frozen_config, kind="label"
+    ):
+        raise ValueError(
+            "transport repair label bindings differ from corrected source contract"
+        )
+    return _materialize_formal_label_cache(
+        downloaded_labels,
+        normalized_bindings=normalized_bindings,
+        legacy_ids=legacy_ids,
+        expansion_ids=expansion_ids,
+        formal_ids=formal_ids,
+    )
+
+
+def _audit_formal_cache_join(
     feature_archive: bytes,
     label_archive: bytes,
     *,
-    frozen_rosters: Mapping[str, Sequence[str]],
-    frozen_config: Mapping[str, Any],
+    formal_ids: Sequence[str],
 ) -> FormalJoinAudit:
-    """Join only the two already materialized and strictly read-back caches."""
-    _, _, formal_ids = _validate_rosters(frozen_config, frozen_rosters)
     if feature_archive == label_archive or sha256_bytes(feature_archive) == sha256_bytes(
         label_archive
     ):
@@ -1498,6 +1734,40 @@ def audit_formal_cache_join(
     )
 
 
+def audit_formal_cache_join(
+    feature_archive: bytes,
+    label_archive: bytes,
+    *,
+    frozen_rosters: Mapping[str, Sequence[str]],
+    frozen_config: Mapping[str, Any],
+) -> FormalJoinAudit:
+    """Join only the two v1 caches after strict read-back."""
+    _, _, formal_ids = _validate_rosters(frozen_config, frozen_rosters)
+    return _audit_formal_cache_join(
+        feature_archive,
+        label_archive,
+        formal_ids=formal_ids,
+    )
+
+
+def audit_formal_cache_join_transport_repair_v1(
+    feature_archive: bytes,
+    label_archive: bytes,
+    *,
+    frozen_rosters: Mapping[str, Sequence[str]],
+    frozen_config: Mapping[str, Any],
+) -> FormalJoinAudit:
+    """Join only the two transport-repair caches after strict read-back."""
+    _, _, formal_ids = _validate_transport_repair_rosters(
+        frozen_config, frozen_rosters
+    )
+    return _audit_formal_cache_join(
+        feature_archive,
+        label_archive,
+        formal_ids=formal_ids,
+    )
+
+
 __all__ = [
     "DOWNLOAD_KEYS",
     "EXPANSION_FEATURE_MANIFEST",
@@ -1522,8 +1792,11 @@ __all__ = [
     "LABEL_CACHE_PREFIX",
     "LABEL_SOURCE_KEYS",
     "audit_formal_cache_join",
+    "audit_formal_cache_join_transport_repair_v1",
     "build_formal_feature_cache",
+    "build_formal_feature_cache_transport_repair_v1",
     "build_formal_label_cache",
+    "build_formal_label_cache_transport_repair_v1",
     "read_feature_cache",
     "read_label_cache",
 ]

@@ -18,11 +18,14 @@ from causalcache.gate_v1_formal_cache_runner import (
     REMOTE_TAGGED_BYTE_IDENTICAL,
     RUNNER_FREEZE_PATH,
     SourceIdentity,
+    TRANSPORT_REPAIR_RUNNER_FREEZE_PATH,
+    _runner_freeze_path,
     execute_formal_cache,
     materialize_runner_freeze,
     sha256_bytes,
     validate_execution_b_source,
     validate_no_gpu_or_model_runtime,
+    validate_source_a,
 )
 from causalcache import gate_v1_formal_cache as cache_core
 from causalcache.gate_v1_formal_cache_contract import load_frozen_formal_cache_contract
@@ -592,6 +595,93 @@ class FormalCacheRunnerTest(unittest.TestCase):
                 ),
             )
 
+    def test_transport_repair_runner_freeze_path_is_canonical_and_selected(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            contract = _contract(root)
+            contract.data["source_freeze"]["execution_b_runner_freeze"][
+                "path"
+            ] = TRANSPORT_REPAIR_RUNNER_FREEZE_PATH
+            formal_path = root / RUNNER_FREEZE_PATH
+            formal_path.parent.mkdir(parents=True, exist_ok=True)
+            formal_path.write_text("{}\n", encoding="utf-8")
+            source = _source()
+            with (
+                mock.patch(
+                    "causalcache.gate_v1_formal_cache_runner.validate_clean_pushed_source",
+                    return_value=source,
+                ),
+                mock.patch(
+                    "causalcache.gate_v1_formal_cache_runner.validate_no_gpu_or_model_runtime",
+                    return_value={"device": "cpu"},
+                ),
+            ):
+                validation = validate_source_a(contract)
+            self.assertEqual(
+                validation["source_a"]["git_commit"], source.head
+            )
+
+            runner_freeze = root / TRANSPORT_REPAIR_RUNNER_FREEZE_PATH
+            runner_freeze.parent.mkdir(parents=True, exist_ok=True)
+            runner_freeze.write_text("{}\n", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "must be absent"):
+                validate_source_a(contract)
+
+            runner_freeze.unlink()
+            source_validation = {
+                "source_a": {
+                    "git_commit": source.head,
+                    "remote_main_git_commit": source.remote_main,
+                    "branch": source.branch,
+                    "origin_url": source.origin_url,
+                    "source_inventory": list(source.source_inventory),
+                    "loaded_module_inventory": list(source.loaded_module_inventory),
+                }
+            }
+            with (
+                mock.patch(
+                    "causalcache.gate_v1_formal_cache_runner.validate_source_a",
+                    return_value=source_validation,
+                ),
+                mock.patch(
+                    "causalcache.gate_v1_formal_cache_runner._git",
+                    return_value=(
+                        f"?? {TRANSPORT_REPAIR_RUNNER_FREEZE_PATH}\n".encode()
+                    ),
+                ),
+            ):
+                freeze = materialize_runner_freeze(contract)
+            self.assertEqual(
+                freeze["execution_b_required_unique_diff"],
+                [TRANSPORT_REPAIR_RUNNER_FREEZE_PATH],
+            )
+            self.assertTrue(runner_freeze.is_file())
+
+    def test_runner_freeze_path_rejects_noncanonical_paths(self):
+        for path in (
+            RUNNER_FREEZE_PATH,
+            TRANSPORT_REPAIR_RUNNER_FREEZE_PATH,
+        ):
+            contract = SimpleNamespace(
+                data={
+                    "source_freeze": {
+                        "execution_b_runner_freeze": {"path": path}
+                    }
+                }
+            )
+            self.assertEqual(_runner_freeze_path(contract), path)
+        invalid = SimpleNamespace(
+            data={
+                "source_freeze": {
+                    "execution_b_runner_freeze": {
+                        "path": "code/configs/arbitrary-runner-freeze.json"
+                    }
+                }
+            }
+        )
+        with self.assertRaisesRegex(ValueError, "runner-freeze path drifted"):
+            _runner_freeze_path(invalid)
+
     def test_source_only_cli_rejects_execution_arguments(self):
         with self.assertRaises(SystemExit):
             _parser().parse_args(
@@ -603,6 +693,15 @@ class FormalCacheRunnerTest(unittest.TestCase):
                     "/tmp/token",
                 ]
             )
+
+    def test_cli_does_not_expose_cache_api_override(self):
+        parser = _parser()
+        choices = next(
+            action.choices
+            for action in parser._actions
+            if getattr(action, "choices", None)
+        )
+        self.assertNotIn("--cache-api", choices["run"].format_help())
 
     def test_cli_real_input_inventory_includes_repaired_sidecar_once(self):
         root = Path(__file__).resolve().parents[2]
@@ -616,6 +715,10 @@ class FormalCacheRunnerTest(unittest.TestCase):
             contract.inputs["repaired_expansion_restoration_labels"][
                 "immutable_revision"
             ],
+        )
+        self.assertEqual(
+            _input_specs(contract),
+            _input_specs(contract, cache_api=cache_core),
         )
 
     def test_observed_operation_counts_are_derived_and_tamper_fails(self):
@@ -730,6 +833,48 @@ class FormalCacheRunnerTest(unittest.TestCase):
             "source_blob_inventory": list(source.source_inventory),
             "loaded_module_inventory": list(source.loaded_module_inventory),
         }
+        for runner_path in (
+            RUNNER_FREEZE_PATH,
+            TRANSPORT_REPAIR_RUNNER_FREEZE_PATH,
+        ):
+            contract = SimpleNamespace(
+                repository_root=Path("/tmp"),
+                data={
+                    "source_freeze": {
+                        "execution_b_runner_freeze": {"path": runner_path}
+                    }
+                },
+            )
+
+            def git_direct(_root, *arguments):
+                if arguments[:3] == ("rev-list", "--parents", "-n"):
+                    return f"{COMMIT_B} {COMMIT_A}\n".encode()
+                if arguments[:2] == ("diff", "--name-only"):
+                    return f"{runner_path}\n".encode()
+                raise AssertionError(arguments)
+
+            with (
+                mock.patch(
+                    "causalcache.gate_v1_formal_cache_runner.load_runner_freeze",
+                    return_value=freeze,
+                ),
+                mock.patch(
+                    "causalcache.gate_v1_formal_cache_runner.validate_clean_pushed_source",
+                    return_value=source,
+                ),
+                mock.patch(
+                    "causalcache.gate_v1_formal_cache_runner._git",
+                    side_effect=git_direct,
+                ),
+            ):
+                self.assertEqual(
+                    validate_execution_b_source(
+                        contract, expected_execution_b_git_commit=COMMIT_B
+                    ),
+                    source,
+                )
+
+        intervening = "5" * 40
         contract = SimpleNamespace(
             repository_root=Path("/tmp"),
             data={
@@ -745,28 +890,6 @@ class FormalCacheRunnerTest(unittest.TestCase):
             if arguments[:2] == ("diff", "--name-only"):
                 return f"{RUNNER_FREEZE_PATH}\n".encode()
             raise AssertionError(arguments)
-
-        with (
-            mock.patch(
-                "causalcache.gate_v1_formal_cache_runner.load_runner_freeze",
-                return_value=freeze,
-            ),
-            mock.patch(
-                "causalcache.gate_v1_formal_cache_runner.validate_clean_pushed_source",
-                return_value=source,
-            ),
-            mock.patch(
-                "causalcache.gate_v1_formal_cache_runner._git",
-                side_effect=git_direct,
-            ),
-        ):
-            self.assertEqual(
-                validate_execution_b_source(
-                    contract, expected_execution_b_git_commit=COMMIT_B
-                ),
-                source,
-            )
-        intervening = "5" * 40
 
         def git_intervening(_root, *arguments):
             if arguments[:3] == ("rev-list", "--parents", "-n"):

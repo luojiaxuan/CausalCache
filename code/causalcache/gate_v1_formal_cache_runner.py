@@ -40,6 +40,13 @@ TAG_MESSAGE = "Freeze CausalCache gate v1 formal-58 caches"
 RUNNER_FREEZE_PATH = (
     "code/configs/causalcache_gate_v1_formal_cache_runner_v1.json"
 )
+TRANSPORT_REPAIR_RUNNER_FREEZE_PATH = (
+    "code/configs/causalcache_gate_v1_formal_cache_transport_repair_runner_v1.json"
+)
+CANONICAL_RUNNER_FREEZE_PATHS = (
+    RUNNER_FREEZE_PATH,
+    TRANSPORT_REPAIR_RUNNER_FREEZE_PATH,
+)
 RUNNER_SOURCE_PATHS = (
     "code/causalcache/gate_v1_formal_cache_runner.py",
     "code/scripts/manage_gate_v1_formal_cache.py",
@@ -399,7 +406,7 @@ def _runner_freeze_path(contract: Any) -> str:
         source.get("execution_b_runner_freeze"), "execution-B runner freeze"
     )
     path = execution.get("path", RUNNER_FREEZE_PATH)
-    if path != RUNNER_FREEZE_PATH:
+    if path not in CANONICAL_RUNNER_FREEZE_PATHS:
         raise ValueError("runner-freeze path drifted")
     return path
 
@@ -1933,11 +1940,13 @@ __all__ = [
     "REMOTE_BYTE_IDENTICAL_UNTAGGED",
     "REMOTE_EMPTY",
     "REMOTE_TAGGED_BYTE_IDENTICAL",
+    "CANONICAL_RUNNER_FREEZE_PATHS",
     "RUNNER_FREEZE_PATH",
     "RUNNER_FREEZE_STATUS",
     "RUN_STATUS",
     "SIDECAR_STATUS",
     "SOURCE_VALIDATION_STATUS",
+    "TRANSPORT_REPAIR_RUNNER_FREEZE_PATH",
     "VALIDATE_STATUS",
     "execute_formal_cache",
     "exclusive_or_identical_bytes",

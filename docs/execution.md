@@ -835,5 +835,8 @@ publication 未申请 GPU、未重启 model，也不改变 matched-NLL、closed-
 cache v1 run 已在 feature transport byte validation 处、任何 semantic decode 前 fail-closed：旧 config 的 expansion
 trajectories SHA 与 Git-pinned immutable producer evidence 不一致。旧 mode-0600 claim 被保留，cache/HF output 均不
 存在，详见 [`../data/results/gate_v1_formal58_cache_v1_attempt/`](../data/results/gate_v1_formal58_cache_v1_attempt/)。
-下一步必须先完成独立 namespace 的 one-leaf transport-repair A→B，构建并 immutable replay train-only formal-58
-cache；完成后才按 [`gate_v1_execution.md`](gate_v1_execution.md) 训练 gate，不得提前打开 fresh-16 或 confirm。
+独立 namespace 的 one-leaf transport-repair Source-A 已冻结：它在读取 token、构造 Hub client、下载输入或创建新
+claim 前，先验证 retained v1 claim、旧 successor/cache 的缺失、failure summary 与 producer 三重 witness；repair
+Execution-B 仍未生成。执行边界见 [`gate_v1_formal_cache_transport_repair.md`](gate_v1_formal_cache_transport_repair.md)。
+只有从 clean pushed repair A 机械生成并单独 push B、随后完成 no-GPU cache build 和 immutable replay 后，才可按
+[`gate_v1_execution.md`](gate_v1_execution.md) 训练 gate；不得提前打开 fresh-16 或 confirm。

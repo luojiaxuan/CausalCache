@@ -316,15 +316,19 @@ def _rosters(contract: Any) -> Mapping[str, list[str]]:
     }
 
 
-def _input_specs(contract: Any) -> Mapping[str, tuple[Mapping[str, Any], Mapping[str, Any]]]:
+def _input_specs(
+    contract: Any,
+    *,
+    cache_api: Any = cache_core,
+) -> Mapping[str, tuple[Mapping[str, Any], Mapping[str, Any]]]:
     result: dict[str, tuple[Mapping[str, Any], Mapping[str, Any]]] = {}
     key_by_artifact_and_suffix = {
-        ("legacy_derived_features", "manifest.json"): cache_core.LEGACY_FEATURE_MANIFEST,
-        ("legacy_derived_features", "trajectories-00000-of-00001.jsonl"): cache_core.LEGACY_FEATURE_TRAJECTORIES,
-        ("legacy_derived_features", "ocr-records-00000-of-00001.jsonl"): cache_core.LEGACY_FEATURE_OCR,
-        ("expansion_derived_features", "manifest.json"): cache_core.EXPANSION_FEATURE_MANIFEST,
-        ("expansion_derived_features", "trajectories-00000-of-00001.jsonl"): cache_core.EXPANSION_FEATURE_TRAJECTORIES,
-        ("expansion_derived_features", "ocr-records-00000-of-00001.jsonl"): cache_core.EXPANSION_FEATURE_OCR,
+        ("legacy_derived_features", "manifest.json"): cache_api.LEGACY_FEATURE_MANIFEST,
+        ("legacy_derived_features", "trajectories-00000-of-00001.jsonl"): cache_api.LEGACY_FEATURE_TRAJECTORIES,
+        ("legacy_derived_features", "ocr-records-00000-of-00001.jsonl"): cache_api.LEGACY_FEATURE_OCR,
+        ("expansion_derived_features", "manifest.json"): cache_api.EXPANSION_FEATURE_MANIFEST,
+        ("expansion_derived_features", "trajectories-00000-of-00001.jsonl"): cache_api.EXPANSION_FEATURE_TRAJECTORIES,
+        ("expansion_derived_features", "ocr-records-00000-of-00001.jsonl"): cache_api.EXPANSION_FEATURE_OCR,
     }
     for artifact_name, raw_artifact in contract.inputs.items():
         artifact = dict(raw_artifact)
@@ -333,30 +337,36 @@ def _input_specs(contract: Any) -> Mapping[str, tuple[Mapping[str, Any], Mapping
             suffix = Path(file_record["path"]).name
             key = key_by_artifact_and_suffix.get((artifact_name, suffix))
             if artifact_name == "legacy_restoration_labels" and suffix.endswith(".tar"):
-                key = cache_core.LEGACY_LABEL_ARCHIVE
+                key = cache_api.LEGACY_LABEL_ARCHIVE
             if (
                 artifact_name == "repaired_expansion_restoration_labels"
                 and suffix.endswith(".tar")
             ):
-                key = cache_core.EXPANSION_LABEL_ARCHIVE
+                key = cache_api.EXPANSION_LABEL_ARCHIVE
             if (
                 artifact_name == "repaired_expansion_restoration_labels"
                 and suffix.endswith(".json")
             ):
-                key = cache_core.EXPANSION_LABEL_SIDECAR
+                key = cache_api.EXPANSION_LABEL_SIDECAR
             if key is not None:
                 if key in result:
                     raise ValueError(f"duplicate formal input binding: {key}")
                 result[key] = (artifact, file_record)
-    if set(result) != set(cache_core.DOWNLOAD_KEYS):
+    if set(result) != set(cache_api.DOWNLOAD_KEYS):
         raise ValueError("formal input binding inventory drifted")
     return result
 
 
-def _hooks(contract: Any, token: str, data_root: Path) -> FormalCacheHooks:
+def _hooks(
+    contract: Any,
+    token: str,
+    data_root: Path,
+    *,
+    cache_api: Any = cache_core,
+) -> FormalCacheHooks:
     from huggingface_hub import hf_hub_download
 
-    specs = _input_specs(contract)
+    specs = _input_specs(contract, cache_api=cache_api)
     rosters = _rosters(contract)
     formal_config = contract.data
     saved: dict[str, CacheArtifact] = {}
@@ -395,8 +405,8 @@ def _hooks(contract: Any, token: str, data_root: Path) -> FormalCacheHooks:
         }
 
     def build_feature(_contract: Any, _root: Path) -> CacheArtifact:
-        payloads, bindings = downloads(cache_core.FEATURE_SOURCE_KEYS)
-        value = cache_core.build_formal_feature_cache(
+        payloads, bindings = downloads(cache_api.FEATURE_SOURCE_KEYS)
+        value = cache_api.build_formal_feature_cache(
             payloads,
             transport_bindings=bindings,
             frozen_rosters=rosters,
@@ -407,7 +417,7 @@ def _hooks(contract: Any, token: str, data_root: Path) -> FormalCacheHooks:
         return result
 
     def read_feature(_contract: Any, payload: bytes) -> Mapping[str, Any]:
-        cache_core.read_feature_cache(payload)
+        cache_api.read_feature_cache(payload)
         return saved["feature"].audit
 
     def build_label(_contract: Any, _root: Path) -> CacheArtifact:
@@ -418,8 +428,8 @@ def _hooks(contract: Any, token: str, data_root: Path) -> FormalCacheHooks:
         if len(sidecars) != 1 or len(archives) != 1:
             raise ValueError("repaired-label archive/sidecar binding drifted")
         sidecar_record = sidecars[0]
-        payloads, bindings = downloads(cache_core.LABEL_SOURCE_KEYS)
-        sidecar_payload = payloads[cache_core.EXPANSION_LABEL_SIDECAR]
+        payloads, bindings = downloads(cache_api.LABEL_SOURCE_KEYS)
+        sidecar_payload = payloads[cache_api.EXPANSION_LABEL_SIDECAR]
         sidecar = _strict_json_bytes(
             sidecar_payload, label="repaired-label publication sidecar"
         )
@@ -450,7 +460,7 @@ def _hooks(contract: Any, token: str, data_root: Path) -> FormalCacheHooks:
                 "annotated_tag_object": repaired["annotated_tag_object"],
             }
         )
-        value = cache_core.build_formal_label_cache(
+        value = cache_api.build_formal_label_cache(
             payloads,
             transport_bindings=bindings,
             frozen_rosters=rosters,
@@ -463,7 +473,7 @@ def _hooks(contract: Any, token: str, data_root: Path) -> FormalCacheHooks:
         return result
 
     def read_label(_contract: Any, payload: bytes) -> Mapping[str, Any]:
-        cache_core.read_label_cache(payload)
+        cache_api.read_label_cache(payload)
         return saved["label"].audit
 
     def join_only(
@@ -471,7 +481,7 @@ def _hooks(contract: Any, token: str, data_root: Path) -> FormalCacheHooks:
         _feature_audit: Mapping[str, Any],
         _label_audit: Mapping[str, Any],
     ) -> Mapping[str, Any]:
-        audit = cache_core.audit_formal_cache_join(
+        audit = cache_api.audit_formal_cache_join(
             saved["feature"].payload,
             saved["label"].payload,
             frozen_rosters=rosters,

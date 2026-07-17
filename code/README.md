@@ -139,10 +139,32 @@ PYTHONPATH=. python3 -m unittest \
 
 Source-A=`990f015` 与唯一单文件 Execution-B=`079c095` 已 push。首次 Hyper00 no-GPU run 在 global claim 后、任何
 semantic decode 前发现 expansion trajectories 的合法 64-hex SHA transcription mismatch 并 fail-closed；旧 claim
-保留，cache 与 HF destination 均不存在。不得修改原 config 或续跑旧 namespace；下一步必须从 Git-pinned producer
-completion 交叉验证 transport inventory，并通过独立 transport-repair A→B 执行。失败记录见
-`data/results/gate_v1_formal58_cache_v1_attempt/`。完整解释见
-`docs/gate_v1_preregistration.md`、`docs/gate_v1_formal_cache.md` 与 `docs/gate_v1_execution.md`。
+保留，cache 与 HF destination 均不存在。不得修改原 config 或续跑旧 namespace。
+
+独立 repair Source-A config 为
+`configs/causalcache_gate_v1_formal_cache_transport_repair_v1.json`，SHA256
+`aaf82fd5e994588bc22f0f745139e349219863eee5fa8cb4cc93c4a9e48e123a`。它只把
+`expansion_feature_trajectories` 的一个已由 Git-pinned producer 三重 witness 证实的 SHA leaf 改为真实 bytes，
+并在 token、Hub client、download 或 repair claim 前验证旧 claim 与所有旧 successor/cache 的缺失。repair B 尚未
+生成；source-only validation 为：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.validate_gate_v1_formal_cache_transport_repair_contract \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_formal_cache_transport_repair_v1.json
+PYTHONPATH=. python3 -m unittest \
+  tests.test_gate_v1_formal_cache_contract \
+  tests.test_gate_v1_formal_cache \
+  tests.test_gate_v1_formal_cache_runner \
+  tests.test_gate_v1_formal_cache_transport_repair_contract \
+  tests.test_gate_v1_formal_cache_transport_repair_runner -v
+```
+
+从 clean pushed repair A 机械生成唯一
+`configs/causalcache_gate_v1_formal_cache_transport_repair_runner_v1.json` 并单独 commit/push 后，才可运行 repair
+manager。完整失败/repair 边界见 `docs/gate_v1_formal_cache_transport_repair.md`；下游 gate、OOF、fresh-16、matched-NLL、
+closed-loop 与 confirm 仍锁定。
 
 Expansion exposure 的 source-only ledger 位于
 `causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、
