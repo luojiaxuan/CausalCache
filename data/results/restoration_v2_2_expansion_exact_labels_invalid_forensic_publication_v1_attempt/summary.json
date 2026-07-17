@@ -1,0 +1,44 @@
+{
+  "archive_sha256": "8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489",
+  "claim": {
+    "mode": "0600",
+    "sha256": "0a07692b7f29fb0e9f6a9da23925135c8911f45d4f10f2edd2d277ceed0da5de",
+    "size_bytes": 1383,
+    "status": "CLAIMED_INVALID_FORENSIC_ARCHIVE_PUBLICATION_V1"
+  },
+  "completion_seal_created": false,
+  "exception": {
+    "message": "created tag does not resolve to the intended commit",
+    "type": "ValueError"
+  },
+  "formal_consumption": {
+    "formal_label_loader_eligible": false,
+    "gate_training_unlocked": false,
+    "producer_attempt_reclassified": false
+  },
+  "pair_commit": {
+    "archive_and_sidecar_first_appeared_together": true,
+    "immutable_readback_and_p0_strict_validation_passed": true,
+    "predecessor_files": [
+      ".gitattributes"
+    ],
+    "predecessor_revision": "1e1bb828d196779e4fc855890922c4865fcd6458",
+    "revision": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416",
+    "title": "Publish invalid expansion exact-label forensic archive"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1",
+  "publication_config_sha256": "affb54cf44a656394c983cebe5d004d3e1ff216537c43da942dc031fa6baaccb",
+  "publication_source_git_commit": "3941d82a8ad83daaec55726a799d4d200735428d",
+  "remote": {
+    "final_fresh_stability_attestation_completed": false,
+    "private": true,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile",
+    "repo_type": "dataset",
+    "tag": "v2.2-expansion-exact-labels-v1-attempt-1-forensic-v1",
+    "tag_object_identity": "ca652858c3d59eab066eb7b31399690a65ea5f44",
+    "tag_resolved_commit": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416"
+  },
+  "schema_version": "1.0.0",
+  "sidecar_sha256": "c67914d05ce5e93518c710cd99132548f4bf5b51250e506c996a9450a369b561",
+  "status": "INCOMPLETE_FAIL_CLOSED_INVALID_FORENSIC_PUBLICATION_V1_ATTEMPT"
+}

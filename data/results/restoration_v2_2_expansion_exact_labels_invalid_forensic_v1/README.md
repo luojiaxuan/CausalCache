@@ -24,8 +24,10 @@ archive 暂存在 Hyper00：
 
 独立的 crash-recoverable private-HF publication contract 已冻结，详见
 [`docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md`](../../../docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md)。
-下一步从 clean pushed `main` 把相同 archive SHA 与 sidecar manifest 作为一个 commit 上传到 invalid-attempt 专用
-repo，创建 no-overwrite tag，并从 immutable revision 下载到空目录逐 byte 复验。真实 P1 publication 完成前，
-CPU validation repair 与 formal gate 继续 locked。
+唯一 P1 invocation 已把相同 archive SHA 与 sidecar manifest 作为一个 commit 上传，并创建 no-overwrite tag；
+但 annotated-tag object SHA 与 tag-resolved commit SHA 的接口差异使 v1 parser 在 completion 前 fail closed，见
+[`publication v1 attempt`](../restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/README.md)。
+下一步是独立 read-only tag-resolution child；它完成 immutable fresh replay 前，CPU validation repair 与 formal
+gate 继续 locked。
 
 机器可读记录见 [`artifact.json`](artifact.json)。

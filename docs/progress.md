@@ -2291,3 +2291,18 @@ closed-loop 与 confirm 均不得提前。
   通过。本里程碑没有读取真实 token、没有访问 Hugging Face、没有上传，也没有解锁 CPU repair、formal gate、
   matched-NLL、closed-loop 或 confirm；下一步从 clean pushed `main` 保存外部 `git ls-remote` receipt 后执行
   唯一 P1 publication/fresh replay。
+
+### 2026-07-17：invalid-forensic P1真实 invocation 在 tag interface 处 fail closed
+
+- clean pushed `main@3941d82a8ad83daaec55726a799d4d200735428d` 完成离线 prepare：archive SHA
+  `8e205d73...a489`、sidecar SHA `c67914d0...b561`；claim 为 mode 0600、1,383 bytes、SHA
+  `0a07692b...a5de`；
+- private pair commit `5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416` 已创建，direct predecessor
+  `1e1bb828d196779e4fc855890922c4865fcd6458` 只有 `.gitattributes`；两目标 path 同 commit 首次出现，
+  immutable readback 与 P0 strict USTAR reader 已通过；
+- tag 已存在且 `dataset_info(tag).sha` 解析到 pair commit；但 `list_repo_refs().target_commit` 返回 annotated-tag
+  object SHA `ca652858c3d59eab066eb7b31399690a65ea5f44`。v1 parser 要求该值等于 resolved commit，故抛出 exact
+  `ValueError` 并在 completion 前停止；
+- completion seal 不存在，final tag/immutable pre-post fresh attestation 未完成。remote pair/tag 原样保留，
+  不重跑同一 P1 source、不重复 commit/tag、不改写原 expansion attempt。下一步冻结 read-only versioned
+  tag-resolution repair；其 immutable fresh replay 闭合前，CPU scientific repair 与 formal gate 继续 locked。

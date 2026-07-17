@@ -1,8 +1,8 @@
 # Restoration v2.2 invalid-forensic private-HF publication P1
 
-> 当前状态：P1 source-only contract、实现和 fake-HF recovery tests 已冻结；本步骤没有读取 token、没有访问
-> Hugging Face、没有上传。P0 local archive 仍是 staging，原 producer attempt 仍永久为
-> `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。
+> 当前状态：唯一 P1 invocation 已创建正确的 private single-pair commit 与 tag，但真实 Hub 的 annotated-tag
+> object identity 不等于 tag-resolved commit；冻结 parser 在 completion 前 fail closed。remote 原样保留，P1
+> completion 不存在，原 producer attempt 仍永久为 `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。
 
 ## 固定输入与目的地
 
@@ -157,3 +157,17 @@ P1 即使未来成功发布，也只把 invalid-attempt forensic bytes 迁移到
 claim 与 completion 中的 `formal_label_loader_eligible` 始终为 `false`；本协议不解锁 gate training、matched-NLL、
 closed-loop，也不把 producer attempt 改写成 PASS。后续 CPU-only validation repair 必须是独立 child protocol，并产生
 新的 artifact identity。
+
+## 唯一真实 invocation 的 fail-closed 结果
+
+source `3941d82a8ad83daaec55726a799d4d200735428d` 的唯一 invocation 已生成 pair commit
+`5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416`；其 predecessor
+`1e1bb828d196779e4fc855890922c4865fcd6458` 只有 `.gitattributes`，archive 与 sidecar 确实在 frozen-title 的
+同一 commit 首次出现。tag 的 `dataset_info(tag).sha` 也解析到该 pair commit。
+
+失败点是 Hub refs API 返回 `target_commit=ca652858c3d59eab066eb7b31399690a65ea5f44`，它表示 annotated-tag
+object identity，而 v1 `_tag_target` 把该字段当成 pair commit SHA，因而抛出
+`ValueError: created tag does not resolve to the intended commit`。本地 mode-0600 claim 已存在，completion seal
+不存在；同一 source 不重跑。下一步只能用独立 versioned child 同时绑定 tag-object 与 resolved-commit 两个 identity，
+做只读 fresh replay。轻量证据见
+[`data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/`](../data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/)。
