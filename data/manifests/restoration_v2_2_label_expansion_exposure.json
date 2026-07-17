@@ -1,0 +1,209 @@
+{
+  "cohort_inventory": {
+    "all_reserved_union": {
+      "source_ids_emitted": false,
+      "source_ids_sha256": "8153474e290c771fddd8b014749ab2e3f90a438dad09a2388d177756a0c0c351",
+      "trajectory_count": 43
+    },
+    "label_expansion": {
+      "gate_development_expansion": {
+        "source_ids_emitted": false,
+        "source_ids_sha256": "1c37cbf6b67b0ddee61b3efe27d33b30c8fbfb471ced12f12e49624a10b82454",
+        "trajectory_count": 16
+      },
+      "gate_train_expansion": {
+        "source_ids_emitted": false,
+        "source_ids_sha256": "11904e1d102b69561b402bea4e42044be9572884f6168597c5f07c3ca346cb34",
+        "trajectory_count": 48
+      },
+      "source_ids_emitted": false,
+      "source_ids_sha256": "238a5608d08f6e4594195690b7595b1953e0865da2192e1e4b46d8b5795b3526",
+      "trajectory_count": 64
+    },
+    "prior_output_exposed": {
+      "roles": {
+        "v1_reference_contract_audit_only": {
+          "exposure_evidence": "parent_preoutput_exposure.policy_output_event",
+          "source_ids_emitted": false,
+          "source_ids_sha256": "6522e2f9c7eb08765606250fbb480b4f46e009a892b3693a573ea07c9c10791d",
+          "trajectory_count": 8
+        },
+        "v2_development": {
+          "exposure_evidence": "prior_output_exposure.role_state",
+          "source_ids_emitted": false,
+          "source_ids_sha256": "0e3d67d79ac45392122fd9a712af43ea544445420e7fdb06df22bad7d84b05e6",
+          "trajectory_count": 5
+        },
+        "v2_label_train": {
+          "exposure_evidence": "prior_output_exposure.role_state",
+          "source_ids_emitted": false,
+          "source_ids_sha256": "97c026f4e6e48b0f748c8495c967c0c796af256ee78fdf2e81b530f54be9cb35",
+          "trajectory_count": 10
+        }
+      },
+      "union": {
+        "source_ids_emitted": false,
+        "source_ids_sha256": "4a2bb7205b8105b2e3a1211a806f3ce3cc4b2167a43a75deae267ca986fa78f0",
+        "trajectory_count": 23
+      }
+    },
+    "sealed_confirm": {
+      "exposure_evidence": "prior_output_exposure.role_state",
+      "known_policy_output": false,
+      "known_restoration_output": false,
+      "output_access_allowed_by_this_ledger": false,
+      "source_ids_emitted": false,
+      "source_ids_sha256": "c84ba8b9b705abc7ba7d6d7230b868fd4600e3a835b1c763a8aaf1f93feb052e",
+      "trajectory_count": 20
+    }
+  },
+  "generator": {
+    "cli_path": "code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py",
+    "cli_sha256": "2bc208926b0a19c1d99886c9b8f4971fb550212398010c628db5924539612480",
+    "git_revision": "50a3f739751c05f28008b3c26d365cbfa39ec093",
+    "module_path": "code/causalcache/restoration_v2_2_label_expansion_exposure.py",
+    "module_sha256": "3953afd6aa89614f24fda68d291afd45e905cef4204d3b6d5aeb06de44dba783",
+    "validator_path": "code/scripts/validate_restoration_v2_2_label_expansion_exposure.py",
+    "validator_sha256": "db30252b4614fb6fef65fcec16388d7927913a05a6c566fed5234d12d267eaab"
+  },
+  "inputs": {
+    "eligible_pool_artifact": {
+      "eligible_pool_sha256": "84d6855b20227d7f884d4ce26cfae7188c1075bb7751cab78a3cf325eef192cb",
+      "manifest_sha256": "3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949",
+      "repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+      "revision": "84c9f5a335e9612ccb4bd566f977574f359b2485"
+    },
+    "expansion_selection_manifest": {
+      "available_at_freeze": true,
+      "generator_git_revision": "d2a4705117e46cb25e0e35f0ee6b1a7fe1f94ef0",
+      "path": "data/manifests/restoration_v2_2_label_expansion_selection.json",
+      "sha256": "4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169",
+      "status": "FROZEN_POLICY_BLIND_STRUCTURAL_SPLIT"
+    },
+    "parent_preoutput_exposure": {
+      "path": "data/manifests/restoration_v2_exposure.json",
+      "sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95"
+    },
+    "parent_selection": {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    },
+    "prior_output_exposure": {
+      "path": "data/manifests/spatial_reference_audit_v1_exposure.json",
+      "sha256": "277613bd0b0a771c0ff18d234f151459cb0dd03672112a521e67889c0165966a"
+    },
+    "source_file_manifest": {
+      "file_count": 16,
+      "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+      "repo": "cua-lite/GUIOdyssey",
+      "revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+      "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+      "total_bytes": 2252923738
+    },
+    "split_config": {
+      "path": "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+      "sha256": "e74904fb75cd72429e6adb51ab7500adcaa1915fb6cebc8567a2945bc9373947"
+    }
+  },
+  "leakage_firewall": {
+    "image_or_ocr_identity_emitted": false,
+    "instructions_or_actions_emitted": false,
+    "policy_or_restoration_values_emitted": false,
+    "source_ids_emitted": false
+  },
+  "overlap_proof": {
+    "all_required_intersections_are_empty": true,
+    "comparisons": [
+      {
+        "expansion_cohort": "label_expansion_64",
+        "expansion_trajectory_count": 64,
+        "intersection_count": 0,
+        "intersection_source_ids_emitted": false,
+        "intersection_source_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reserved_cohort": "v1_reference_contract_audit_only",
+        "reserved_trajectory_count": 8
+      },
+      {
+        "expansion_cohort": "label_expansion_64",
+        "expansion_trajectory_count": 64,
+        "intersection_count": 0,
+        "intersection_source_ids_emitted": false,
+        "intersection_source_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reserved_cohort": "v2_label_train",
+        "reserved_trajectory_count": 10
+      },
+      {
+        "expansion_cohort": "label_expansion_64",
+        "expansion_trajectory_count": 64,
+        "intersection_count": 0,
+        "intersection_source_ids_emitted": false,
+        "intersection_source_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reserved_cohort": "v2_development",
+        "reserved_trajectory_count": 5
+      },
+      {
+        "expansion_cohort": "label_expansion_64",
+        "expansion_trajectory_count": 64,
+        "intersection_count": 0,
+        "intersection_source_ids_emitted": false,
+        "intersection_source_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reserved_cohort": "prior_output_exposed_union",
+        "reserved_trajectory_count": 23
+      },
+      {
+        "expansion_cohort": "label_expansion_64",
+        "expansion_trajectory_count": 64,
+        "intersection_count": 0,
+        "intersection_source_ids_emitted": false,
+        "intersection_source_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reserved_cohort": "sealed_confirm",
+        "reserved_trajectory_count": 20
+      },
+      {
+        "expansion_cohort": "label_expansion_64",
+        "expansion_trajectory_count": 64,
+        "intersection_count": 0,
+        "intersection_source_ids_emitted": false,
+        "intersection_source_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "reserved_cohort": "all_reserved_union",
+        "reserved_trajectory_count": 43
+      }
+    ],
+    "empty_intersection_source_ids_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "pre_policy_output_assertions": {
+    "confirm_policy_output_accessed": false,
+    "confirm_restoration_output_accessed": false,
+    "expansion_gate_training_started_before_freeze": false,
+    "expansion_policy_output_generated_before_freeze": false,
+    "expansion_restoration_output_generated_before_freeze": false,
+    "selection_changed_after_expansion_output": false
+  },
+  "protocol_id": "causalcache_restoration_v2_2_label_expansion_exposure_v1",
+  "schema_version": "0.1.0",
+  "selection_freeze": {
+    "development_is_remaining_expansion_suffix": 16,
+    "eligible_order": "parent_reconstruction_eligible_pool_order",
+    "eligible_order_is_salted_selection_sha256_order": true,
+    "expansion_is_exact_remaining_structural_tail": 64,
+    "policy_output_accessed_for_membership": false,
+    "prior_output_exposed_trajectories_excluded": 23,
+    "remaining_after_prior_exclusion": 88,
+    "restoration_output_accessed_for_membership": false,
+    "sealed_confirm_is_exact_first_structural_prefix": 20,
+    "semantic_content_used_for_membership": false,
+    "structural_filter": "decision_count>=5",
+    "structurally_eligible_trajectories": 84,
+    "top_up_allowed": false,
+    "top_up_performed": false,
+    "train_is_first_expansion_prefix": 48
+  },
+  "semantics": {
+    "identity_disjointness_is_mechanical_from_bound_inputs": true,
+    "negative_access_assertions_are_process_declarations_not_cryptographic_proof": true,
+    "raw_source_access_is_distinct_from_policy_or_restoration_output_access": true,
+    "sealed_confirm_is_distinct_from_prior_output_exposure": true,
+    "source_ids_are_withheld_in_favor_of_counts_and_digests": true
+  },
+  "status": "FROZEN_PRE_EXPANSION_POLICY_OUTPUT_EXPOSURE"
+}

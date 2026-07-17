@@ -51,8 +51,9 @@ restoration v2 exact selection/exposure 产物：
 - `manifests/restoration_v2_2_label_expansion_selection.json`：从 clean pushed `main@d2a4705` 对 frozen 111-pool
   机械派生的 48 train +16 fresh-development structural split，SHA256 `4aec4def...cd169`；包含 192 state skeleton，
   不含 instruction/action/image/OCR 或 policy/restoration output；
-- planned `manifests/restoration_v2_2_label_expansion_exposure.json`：只保存 prior-output-23、confirm-20、
-  expansion-64 的 counts/digests 与六组空交集，不发 source IDs 或 semantic content；
+- `manifests/restoration_v2_2_label_expansion_exposure.json`：从 clean pushed `main@50a3f73` 物化，SHA256
+  `e5f7e7b5...9a323`；只保存 prior-output-23、confirm-20、expansion-64 的 counts/digests 与六组空交集，
+  不发 source IDs 或 semantic content；
 - planned HF prefix `derived/restoration-v2-label-expansion-v1`：64 trajectories / 320 shared events / 192
   decision views / 384 images+OCR 的 policy-blind exact-six artifact；当前只有 source contract，尚未上传或分配
   immutable revision；

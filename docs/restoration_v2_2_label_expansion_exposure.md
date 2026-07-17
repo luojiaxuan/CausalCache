@@ -1,5 +1,9 @@
 # Restoration v2.2 label expansion exposure ledger
 
+> Canonical ledger 已从 clean pushed `main@50a3f73` 物化，SHA256 为
+> `e5f7e7b5ffeb71ac117b5cb4a470eb31648978a734edb9a521125d3bda29a323`；6/6 required intersections
+> 为空，structural manifest binding 已启用。它仍不授权任何 policy/restoration/gate/confirm output。
+
 本协议在 64 条 expansion trajectory 的任何 policy/restoration output 前，冻结它们与既有 output exposure、
 sealed confirm 的身份边界。source-only implementation 位于
 [`code/causalcache/restoration_v2_2_label_expansion_exposure.py`](../code/causalcache/restoration_v2_2_label_expansion_exposure.py)。

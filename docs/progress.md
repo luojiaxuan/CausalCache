@@ -2000,7 +2000,7 @@ policy-vision comparator lifecycle 与 validation chain 均已闭合。gate v1 s
 为旧 10 + 新 48，fresh-16 是唯一 formal GO slice，旧 5 只在模型冻结后做 combined-21 compatibility guard；
 set-conditioned iterative gate 是主方法，parameter-matched independent gate 是 interaction comparator。
 
-48/16 structural selection manifest 已物化；下一步按顺序物化 pre-output exposure ledger 与 policy-blind derived
+48/16 structural selection manifest 与 pre-output exposure ledger 已物化；下一步构建 policy-blind derived
 artifact，上传同一 private HF dataset repo 的新 immutable revision，然后生成 64 条 expansion exact labels。labels 闭合前
 只允许旧 10 条的两步 trainer smoke；formal-58/21 训练评估、matched-NLL、closed-loop 与 confirm 均不得提前。
 
@@ -2052,3 +2052,15 @@ artifact，上传同一 private HF dataset repo 的新 immutable revision，然�
   conditional edges 与 1984 次 planned teacher forwards；
 - `policy_output_generated=false`、`restoration_output_generated=false`、`structural_manifest_only=true`；下一步先
   绑定 exposure ledger，仍不授权 policy/gate/confirm。
+
+### 2026-07-17：label expansion exposure ledger materialized
+
+- 从 clean pushed `main@50a3f736cd83ad76ab6073a685e2f9e52e485290` 绑定已提交 structural manifest；
+- canonical ledger SHA256 为 `e5f7e7b5ffeb71ac117b5cb4a470eb31648978a734edb9a521125d3bda29a323`，
+  source validator 与 standalone validator 返回同一 summary；
+- expansion-64 对 reference-8、old-train-10、old-development-5、prior-output-union-23、sealed-confirm-20、
+  all-reserved-union-43 的交集均为 0；IDs 与 semantic content 未发出；
+- structural manifest SHA `4aec4def...cd169` 与 generator `d2a4705...4ef0` 已动态绑定；selection/top-up/output
+  access declarations保持全零；
+- 本账本只关闭 pre-output identity/exposure 边界，仍不授权 expansion policy/restoration output、gate training、
+  development evaluation 或 confirm access。
