@@ -6,8 +6,10 @@
 > Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
 
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
-> policy-blind expansion split source 已实现，planned final denominator 为 58/21/20，尚无 expansion policy output
-> 或 learned gate。详见 [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md)。
+> policy-blind expansion split 与 gate v1 preregistration source 均已冻结，planned final denominator 为 58/21/20，
+> 尚无 expansion policy output 或 learned gate。详见
+> [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
+> [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)。
 
 ## 团队交接入口
 
@@ -697,7 +699,8 @@ $$
 - [x] 冻结 state-projection-only CPU validation repair source；producer/artifact/repair commit 与 exact-byte边界已分离；
 - [x] 执行唯一 CPU-only validation-repair audit并锁定 exact-two sibling result；三份 producer artifact 逐 byte 相同；
 - [x] 从 clean pushed `main@174801112c58d831249fd54f4f8bc9af01524b44` 执行只读 `validate`，返回 `REVALIDATED`；
-- [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
+- [x] 根据 geometry 结论冻结 gate v1 training/evaluation contract：set-conditioned 为主方法、parameter-matched independent 为 comparator，fresh-16 是唯一 formal GO slice；
+- [ ] 物化 48/16 structural manifest、pre-output exposure ledger 与 policy-blind derived artifact，并生成 immutable expansion exact labels；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -731,6 +734,9 @@ $$
 - Restoration v2.2 label artifact manager: [`code/scripts/manage_restoration_v2_2_label_artifact.py`](code/scripts/manage_restoration_v2_2_label_artifact.py)
 - Restoration v2.2 label v1 zero-forward failure: [`data/results/restoration_v2_2_eager_labels_v1_attempt/`](data/results/restoration_v2_2_eager_labels_v1_attempt/)
 - Restoration v2.2 label v2 canonical result: [`data/results/restoration_v2_2_eager_labels_v2/`](data/results/restoration_v2_2_eager_labels_v2/)
+- Gate v1 preregistration: [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)
+- Gate v1 machine-readable contract: [`code/configs/causalcache_gate_v1_preregistration.json`](code/configs/causalcache_gate_v1_preregistration.json)
+- Gate v1 source validator: [`code/scripts/validate_gate_v1_contract.py`](code/scripts/validate_gate_v1_contract.py)
 - Restoration v2.2 selector-geometry protocol: [`docs/restoration_v2_2_selector_geometry.md`](docs/restoration_v2_2_selector_geometry.md)
 - Restoration v2.2 selector-geometry machine-readable contract: [`code/configs/causalcache_restoration_v2_2_selector_geometry.json`](code/configs/causalcache_restoration_v2_2_selector_geometry.json)
 - Restoration v2.2 selector-geometry validator: [`code/scripts/validate_restoration_v2_2_selector_geometry_contract.py`](code/scripts/validate_restoration_v2_2_selector_geometry_contract.py)

@@ -1,0 +1,421 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "causalcache_gate_v1_preregistration",
+  "preregistration_status": "frozen_before_any_label_expansion_policy_output",
+  "lineage": {
+    "legacy_selection": {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    },
+    "label_expansion_split": {
+      "path": "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+      "sha256": "e74904fb75cd72429e6adb51ab7500adcaa1915fb6cebc8567a2945bc9373947"
+    },
+    "legacy_labels": {
+      "repo": "gavinlaw/causalcache-restoration-labels-mobile",
+      "revision": "8f6baae5c0b23b08915fa1b0fb848dd519b4c8db",
+      "path": "raw/v2.2-eager-train-dev-exact-v2.tar",
+      "sha256": "99120d5444d31962d9f4254c3e40bc5f06d3e4d3d90a74b1749e7ccd7aefb29e"
+    }
+  },
+  "rosters": {
+    "legacy_train": {
+      "trajectory_count": 10,
+      "state_count": 30,
+      "conditional_edge_count": 290,
+      "source_ids_sha256": "97c026f4e6e48b0f748c8495c967c0c796af256ee78fdf2e81b530f54be9cb35"
+    },
+    "fresh_train_expansion": {
+      "trajectory_count": 48,
+      "state_count": 144,
+      "conditional_edge_count": 1392,
+      "source_ids_sha256": "11904e1d102b69561b402bea4e42044be9572884f6168597c5f07c3ca346cb34"
+    },
+    "formal_train": {
+      "composition": [
+        "legacy_train",
+        "fresh_train_expansion"
+      ],
+      "trajectory_count": 58,
+      "state_count": 174,
+      "conditional_edge_count": 1682,
+      "source_ids_sha256": "ccec55afb0882e602f5d2c83ec420682488e2663fe26a7c574a851825c43f225"
+    },
+    "legacy_development": {
+      "trajectory_count": 5,
+      "state_count": 15,
+      "conditional_edge_count": 145,
+      "source_ids_sha256": "0e3d67d79ac45392122fd9a712af43ea544445420e7fdb06df22bad7d84b05e6"
+    },
+    "fresh_development": {
+      "trajectory_count": 16,
+      "state_count": 48,
+      "conditional_edge_count": 464,
+      "source_ids_sha256": "1c37cbf6b67b0ddee61b3efe27d33b30c8fbfb471ced12f12e49624a10b82454"
+    },
+    "combined_development": {
+      "composition": [
+        "legacy_development",
+        "fresh_development"
+      ],
+      "trajectory_count": 21,
+      "state_count": 63,
+      "conditional_edge_count": 609,
+      "source_ids_sha256": "ac75b14490254f59b93ebbc66e15d11201a3d241f3cc59e5c34f4cf0d3b59b0c"
+    },
+    "sealed_confirm": {
+      "trajectory_count": 20,
+      "source_ids_sha256": "c84ba8b9b705abc7ba7d6d7230b868fd4600e3a835b1c763a8aaf1f93feb052e"
+    },
+    "pairwise_disjoint": [
+      "formal_train",
+      "combined_development",
+      "sealed_confirm"
+    ]
+  },
+  "access_firewall": {
+    "before_expansion_labels_are_immutable_and_validated": {
+      "legacy_train_allowed_use": "trainer_pipeline_smoke_only",
+      "legacy_development_semantic_trainer_access_count": 0,
+      "fresh_train_expansion_policy_output_count": 0,
+      "fresh_development_policy_output_count": 0
+    },
+    "formal_fit": {
+      "allowed_roster": "formal_train",
+      "development_semantic_trainer_access_count": 0,
+      "development_hyperparameter_access_count": 0,
+      "confirm_access_count": 0
+    },
+    "formal_evaluation_order": [
+      "freeze_five_seed_models_and_oof_decision",
+      "evaluate_fresh_development_as_the_only_formal_go_slice",
+      "freeze_fresh_development_outcome",
+      "evaluate_legacy_development_only_for_combined_compatibility_guard"
+    ],
+    "fresh_development_is_only_formal_go_slice": true,
+    "legacy_development_allowed_use": "post_fit_combined_compatibility_guard_only",
+    "confirm_requires_separate_post_go_contract": true
+  },
+  "label_contract": {
+    "raw_distance": "D(S)",
+    "raw_conditional_target": "D(S)-D(S_union_j)",
+    "normalization": "raw_conditional_target/max(D(empty),1e-12)",
+    "normalization_epsilon": 1e-12,
+    "normalization_eligibility": "D(empty)>1e-12",
+    "target_clipping": false,
+    "conditional_target": "normalized_raw_conditional_target",
+    "independent_raw_projection": "0.5*(raw_Delta_j(empty)+mean_i_not_j(raw_Delta_j({i})))",
+    "independent_target": "independent_raw_projection/max(D(empty),1e-12)",
+    "independent_targets_per_state_candidate": 1,
+    "independent_projection_repeated_on_conditional_edges": false,
+    "small_Dempty_state_rule": "exclude_only_from_normalized_regression_and_normalized_means_retain_raw_target_ranking_sign_raw_evaluation_and_count",
+    "deployment_budget": 2,
+    "prefix_cardinalities": [
+      0,
+      1
+    ],
+    "candidate_event_counts": [
+      2,
+      3,
+      4
+    ],
+    "edge_order": "trajectory_order_then_decision_step_then_prefix_cardinality_then_lexicographic_coalition_then_event_id",
+    "negative_targets_retained": true
+  },
+  "feature_contract": {
+    "label_blind": true,
+    "forbidden_inputs": [
+      "D(S)",
+      "conditional_marginal",
+      "exact_subset",
+      "oracle_utility",
+      "role",
+      "split",
+      "trajectory_id",
+      "state_id",
+      "policy_vision_feature"
+    ],
+    "text_normalization": "Unicode_NFKC_then_whitespace_collapse_strip_casefold",
+    "signed_hashing": {
+      "digest": "sha256",
+      "atom": "UTF8(namespace+NUL+normalized_token)",
+      "bin": "uint64_big_endian(digest[0:8])%64",
+      "sign": "plus_one_if_digest_byte_8_even_else_minus_one",
+      "aggregation": "signed_count_then_l2_normalize_if_nonzero"
+    },
+    "q64": {
+      "dimension": 64,
+      "namespaced_fields": [
+        "instruction",
+        "current_ocr_spatial_token"
+      ]
+    },
+    "h64": {
+      "dimension": 64,
+      "namespaced_fields": [
+        "step_id",
+        "action_type",
+        "action_argument",
+        "foreground_app",
+        "screen_text_added",
+        "screen_text_removed",
+        "screen_change",
+        "executor_result",
+        "candidate_post_ocr_spatial_token"
+      ],
+      "low_fidelity_fields_in_exact_order": [
+        "step_id",
+        "action_type",
+        "action_argument",
+        "foreground_app",
+        "screen_text_added",
+        "screen_text_removed",
+        "screen_change",
+        "executor_result"
+      ]
+    },
+    "g8": {
+      "dimension": 8,
+      "fields_in_exact_order": [
+        "candidate_age_over_history_length",
+        "candidate_step_over_history_length",
+        "action_argument_nfkc_character_count_capped_64_over_64",
+        "screen_text_added_count_capped_32_over_32",
+        "screen_text_removed_count_capped_32_over_32",
+        "candidate_post_ocr_token_count_capped_128_over_128",
+        "screen_change_ordinal_none_0_low_1_over_3_medium_2_over_3_high_1",
+        "executor_result_failed_0_unknown_0_5_accepted_1"
+      ],
+      "all_values_must_be_finite_in_closed_unit_interval": true
+    },
+    "selected_set_pool": "sum_h64_over_selected_events_empty_is_all_zero",
+    "cache_separation": {
+      "feature_only_cache_contains_labels": false,
+      "label_only_cache_contains_semantic_features": false,
+      "split_table_contains_labels": false,
+      "join_key": "source_id_state_id_candidate_event_id_coalition"
+    }
+  },
+  "model_contract": {
+    "conditional": {
+      "input_components": [
+        ["q64", 64],
+        ["candidate_h64", 64],
+        ["q64_elementwise_candidate_h64", 64],
+        ["candidate_g8", 8],
+        ["selected_set_sum_h64", 64],
+        ["q64_elementwise_selected_set_sum_h64", 64],
+        ["selected_cardinality_over_budget", 1],
+        ["remaining_budget_over_budget", 1]
+      ],
+      "input_dimension": 330,
+      "hidden_dimension": 64,
+      "parameter_count": 25409
+    },
+    "independent": {
+      "input_components": [
+        ["q64", 64],
+        ["candidate_h64", 64],
+        ["q64_elementwise_candidate_h64", 64],
+        ["candidate_g8", 8]
+      ],
+      "input_dimension": 200,
+      "hidden_dimension": 88,
+      "parameter_count": 25609
+    },
+    "architecture": "Linear_input_hidden_GELU_Linear_hidden_hidden_GELU_Linear_hidden_1",
+    "normalization_layer": false,
+    "dropout": 0.0,
+    "output_activation": "identity",
+    "initialization": "torch_manual_seed_then_torch_nn_Linear_default_reset_parameters_in_declared_layer_order"
+  },
+  "weighting_contract": {
+    "hierarchy": [
+      "trajectory",
+      "state",
+      "prefix_cardinality",
+      "coalition",
+      "candidate"
+    ],
+    "edge_weight_formula": "1/T * 1/3 * 1/2 * 1/choose(n,k) * 1/(n-k)",
+    "conditional_small_Dempty_reweighting": "trajectory_equal_over_trajectories_with_at_least_one_eligible_state_then_eligible_state_equal_then_prefix_cardinality_coalition_candidate_equal",
+    "independent_target_weight_formula": "1/T * 1/3 * 1/n",
+    "independent_small_Dempty_reweighting": "trajectory_equal_over_trajectories_with_at_least_one_eligible_state_then_eligible_state_equal_then_candidate_equal",
+    "trajectory_weight_sum": 1.0,
+    "states_per_trajectory": 3,
+    "prefix_cardinality_count": 2,
+    "per_trajectory_edge_counts": {
+      "n2_k0": 2,
+      "n2_k1": 2,
+      "n3_k0": 3,
+      "n3_k1": 6,
+      "n4_k0": 4,
+      "n4_k1": 12,
+      "total": 29
+    },
+    "independent_targets_per_trajectory": 9,
+    "regression_weight_sum_for_any_nonempty_trajectory_roster": 1.0,
+    "ranking_aggregation": "all_states_retained_trajectory_equal_then_state_equal_then_conditional_prefix_coalition_or_independent_state_mean_over_strict_untied_candidate_pairs_zero_if_no_strict_pair"
+  },
+  "loss_contract": {
+    "regression": "hierarchically_weighted_SmoothL1",
+    "smooth_l1_beta": 1.0,
+    "ranking": "softplus(-(prediction_a-prediction_b)*sign(target_a-target_b))_for_strict_untied_pairs",
+    "ranking_coefficient": 0.25,
+    "total": "regression+0.25*ranking",
+    "label_tie_epsilon": 1e-12
+  },
+  "optimization_contract": {
+    "device": "cpu",
+    "dtype": "float32",
+    "full_batch": true,
+    "deterministic_algorithms": true,
+    "optimizer": "AdamW",
+    "adamw_betas": [
+      0.9,
+      0.999
+    ],
+    "adamw_epsilon": 1e-8,
+    "weight_decay": 0.0001,
+    "learning_rate_candidates": [
+      0.0003,
+      0.001
+    ],
+    "maximum_epochs": 500,
+    "oof_patience_epochs": 50,
+    "scheduler": "none",
+    "gradient_clipping": "global_grad_norm_1.0",
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "oof_contract": {
+    "roster": "formal_train",
+    "fold_count": 5,
+    "fold_assignment": "sort_by_sha256_hex(UTF8('causalcache-gate-v1-oof'+NUL+source_id))_then_rank_mod_5",
+    "fold_salt": "causalcache-gate-v1-oof",
+    "fold_sizes": [
+      12,
+      12,
+      12,
+      11,
+      11
+    ],
+    "fold_source_ids_sha256": [
+      "9915d8f296dae456ece574c71eebd87c4350e9b9e3b9e8d9f4d0e9327a8b2fc1",
+      "70888ea8de1555f4deab1cf13eff7a5636bd57f20b6661a3e97bf455492c2d56",
+      "ea6d3a3176e32af059ffa2318229d5a947ada59dc312c1871e9899f655c4d1a3",
+      "bfb489b086d8840802771b8461d1e14ad966c65adc5105edec21be7f72045ba1",
+      "61194d993373471bff009bc9f588ca97d73d5fe6c927ee9233ce708e6540d467"
+    ],
+    "assignment_table_sha256": "df2703ee1af10f9a5fec6504ec9d17f26d13ed249f2b79083fcb0db62f0276bd",
+    "selection_is_separate_per_model_family": true,
+    "epoch_rollout_slice": "heldout_n4_B2_one_state_per_trajectory",
+    "epoch_rollout_metric": "trajectory_equal_sum_learned_raw_utility_divided_by_sum_exact_raw_utility",
+    "epoch_update_minimum_strict_improvement": 0.0001,
+    "epoch_tie_break": "earliest_epoch",
+    "epoch_protocol": "for_each_architecture_learning_rate_seed_score_five_fold_oof_rollout_each_epoch_up_to_500_stop_after_50_epochs_without_more_than_1e-4_improvement",
+    "learning_rate_selection": "highest_five_seed_mean_of_each_seed_best_oof_rollout_metric_per_architecture",
+    "learning_rate_tie_rule": "if_absolute_mean_difference_is_at_most_1e-4_choose_3e-4",
+    "final_fit": "for_each_architecture_choose_one_learning_rate_then_refit_each_seed_on_all_58_for_that_seed_selected_epoch",
+    "development_or_confirm_access_for_selection": false
+  },
+  "inference_contract": {
+    "ensemble": "arithmetic_mean_of_five_seed_predicted_marginals_before_selection",
+    "conditional_selector": "iterative_set_conditioned_greedy",
+    "independent_selector": "one_shot_static_positive_top_B",
+    "budget": 2,
+    "conditional_maximum_rounds": 2,
+    "conditional_rescore_all_remaining_candidates_after_each_selection": true,
+    "independent_rescoring_allowed": false,
+    "stopping_threshold": 0.0,
+    "stop_if_maximum_prediction_is_nonpositive": true,
+    "tie_break": "lower_numeric_event_step_id",
+    "nonfinite_prediction_outcome": "INVALID"
+  },
+  "current_trainer_smoke": {
+    "roster": "legacy_train",
+    "seed": 0,
+    "maximum_optimization_steps": 2,
+    "allowed_checks": [
+      "schema_and_weight_sum",
+      "input_shapes_200_330",
+      "finite_forward_backward",
+      "negative_target_not_clipped",
+      "conditional_rescoring",
+      "tau0_stop",
+      "temporary_checkpoint_save_load_exact_score",
+      "independent_one_shot",
+      "deterministic_two_step_replay"
+    ],
+    "paper_metric_count": 0,
+    "persistent_checkpoint_count": 0,
+    "development_semantic_access_count": 0,
+    "model_or_hyperparameter_decision_allowed": false
+  },
+  "evaluation_contract": {
+    "validity_prerequisites": [
+      "all_source_and_artifact_hashes_match",
+      "all_rosters_and_hierarchical_weight_sums_replay_exactly",
+      "all_features_targets_losses_and_predictions_are_finite",
+      "oof_access_log_has_zero_development_and_confirm_semantic_access",
+      "five_seed_models_and_selections_replay_exactly_on_cpu"
+    ],
+    "primary_slice": "fresh_development",
+    "primary_trajectory_count": 16,
+    "aggregation": "trajectory_equal_then_state_equal",
+    "raw_ratio_denominator_rule": "required_exact_oracle_raw_utility_sum_must_be_finite_and_strictly_greater_than_1e-12_else_INVALID",
+    "normalized_metric_small_Dempty_rule": "exclude_Dempty_less_than_or_equal_to_1e-12_states_then_report_excluded_state_and_trajectory_counts",
+    "raw_metric_small_Dempty_rule": "retain_all_states_and_count_Dempty_less_than_or_equal_to_1e-12_states",
+    "bootstrap": {
+      "unit": "trajectory",
+      "resamples": 10000,
+      "seed": 271828,
+      "confidence": 0.9,
+      "interval": "percentile",
+      "quantile": "Hyndman_Fan_type_7"
+    },
+    "heuristic_comparators_in_fixed_order": [
+      "dynamic_recent",
+      "ocr_rgb_v2",
+      "policy_vision_v3"
+    ],
+    "strongest_heuristic": "highest_fresh16_mean_normalized_recovery_then_fixed_comparator_order",
+    "go_selector_all": {
+      "ensemble_normalized_recovery_over_exact_minimum": 0.8,
+      "ensemble_raw_utility_over_exact_raw_minimum": 0.8,
+      "mean_normalized_delta_vs_each_heuristic_minimum": 0.05,
+      "strongest_heuristic_positive_trajectory_count_minimum": 12,
+      "strongest_heuristic_paired_bootstrap_lower_strictly_greater_than": 0.0,
+      "individual_seed_exact_ratio_minimum": 0.75,
+      "individual_seed_pass_count_minimum": 4,
+      "seed_mean_recovery_population_std_maximum": 0.08,
+      "hard_n3_n4_equal_trajectory_raw_utility_ratio_minimum": 0.7,
+      "selected_true_nonpositive_addition_rate_maximum": 0.1
+    },
+    "go_set_conditioning_all": {
+      "conditional_minus_independent_mean_normalized_delta_minimum": 0.02,
+      "conditional_minus_independent_raw_utility_delta_strictly_greater_than": 0.0,
+      "conditional_minus_independent_positive_trajectory_count_minimum": 12,
+      "conditional_minus_independent_paired_bootstrap_lower_strictly_greater_than": 0.0,
+      "paired_seed_positive_count_minimum": 4,
+      "combined21_conditional_minus_independent_mean_normalized_delta_minimum": 0.0
+    },
+    "hard_slice": "within_each_fresh16_trajectory_equal_mean_of_n3_and_n4_states",
+    "selected_true_nonpositive_addition_rate": "count_selected_steps_with_true_raw_conditional_marginal_less_than_or_equal_to_zero_divided_by_all_selected_steps",
+    "go_to_confirm": "GO_SELECTOR_and_GO_SET_CONDITIONING",
+    "go_does_not_authorize_confirm_access": true
+  },
+  "prohibited_work": {
+    "confirm_state_access_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0,
+    "arrival_time_gate_training_count": 0,
+    "policy_backbone_update_count": 0,
+    "post_output_roster_or_threshold_change_allowed": false
+  }
+}

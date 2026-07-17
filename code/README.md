@@ -109,6 +109,19 @@ materializer 只允许 clean pushed canonical `main`，结构 manifest 写入
 `data/manifests/restoration_v2_2_label_expansion_selection.json` 后再由独立 validator 绑定 generator commit/source
 bytes。完整边界见 `docs/restoration_v2_2_label_expansion.md`。
 
+Gate v1 的完整 preregistration 位于 `configs/causalcache_gate_v1_preregistration.json`。它冻结 formal-58、
+combined-21、fresh-16-only GO、train-only 五折 OOF、parameter-matched conditional/independent MLP、分层权重、
+tau=0 selection 和全部 GO threshold。source validator：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m unittest tests.test_gate_v1_contract -v
+PYTHONPATH=. python3 -m scripts.validate_gate_v1_contract --repository-root ..
+```
+
+在 48/16 exact labels immutable 之前，只允许旧 10 条、seed 0、最多两步的 trainer smoke；不得保留 checkpoint、
+报告 paper metric、读取 development 或修改模型选择。完整解释见 `docs/gate_v1_preregistration.md`。
+
 policy-vision comparator 的 v1 formal attempt 已在 feature/model load 前封存为 `INVALID`。当前可执行协议是
 `causalcache.restoration_v2_2_policy_vision_v2_contract`，其 source-only validator 为：
 

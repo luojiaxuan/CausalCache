@@ -1996,10 +1996,25 @@ comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。poli
 zero-feature UUID type probe 阶段 `INVALID`；type-only v2 跨过 UUID 后又在 zero-feature SizeDict interface check
 阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 GPU artifact 与 CPU state-projection repair
 现已 formal `VALID` 且从 clean descendant 完成 `REVALIDATED`，不得重跑。独立数值审计已经完成且无 blocker；
-policy-vision comparator lifecycle 与 validation chain 均已闭合。
-只有 visual comparators 完整、geometry
-结论仍支持 set conditioning 后，才冻结
-set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
-sampling、encoder、checkpoint/HF identity、matched-NLL 构造和 closed-loop admission gate。confirm 与
-AndroidWorld sealed test split 仍 locked；新 gate contract 通过前不得直接运行 gate、matched-NLL、closed-loop
-或读取 confirm/test。
+policy-vision comparator lifecycle 与 validation chain 均已闭合。gate v1 source contract 现已冻结：formal train
+为旧 10 + 新 48，fresh-16 是唯一 formal GO slice，旧 5 只在模型冻结后做 combined-21 compatibility guard；
+set-conditioned iterative gate 是主方法，parameter-matched independent gate 是 interaction comparator。
+
+下一步按顺序物化 48/16 structural selection manifest、pre-output exposure ledger 与 policy-blind derived artifact，
+上传同一 private HF dataset repo 的新 immutable revision，然后生成 64 条 expansion exact labels。labels 闭合前
+只允许旧 10 条的两步 trainer smoke；formal-58/21 训练评估、matched-NLL、closed-loop 与 confirm 均不得提前。
+
+### 2026-07-16：gate v1 preregistration source freeze
+
+- machine-readable contract 为 `code/configs/causalcache_gate_v1_preregistration.json`，SHA256
+  `37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b`；
+- formal train / combined development / primary fresh development 固定为 58/21/16 trajectories、
+  1682/609/464 conditional edges；confirm 20 条仍 sealed；
+- conditional 模型为 330→64→64→1、25,409 params，independent 为 200→88→88→1、25,609 params；后者只做
+  one-shot projected target，前者每轮读取 selected-set sum 并重打分；
+- normalization、small-`D(empty)`、负 gain、分层权重、SmoothL1+ranking、CPU FP32 AdamW、五个 seed、
+  train-only 5-fold OOF、LR/epoch tie rules 与 fresh-16 GO thresholds 已全部静态 hash；
+- focused tests 6/6 通过，validator 返回 `VALID_CAUSALCACHE_GATE_V1_PREREGISTRATION`，conditional 与
+  independent 的所有 roster weight sums 均精确为 `1/1`；
+- 本里程碑没有 expansion policy output、gate training/checkpoint、development semantic access、matched-NLL、
+  closed-loop 或 confirm operation。
