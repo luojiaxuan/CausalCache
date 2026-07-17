@@ -1,0 +1,830 @@
+{
+  "artifact_destination": {
+    "fresh_immutable_download_and_byte_hash_required_before_git_manifest": true,
+    "git_result_dir": "data/results/restoration_v2_2_label_expansion_substrate_v1",
+    "path": "raw/v2.2-label-expansion-substrate-v1.tar",
+    "repo": "gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile",
+    "repo_type": "dataset",
+    "tag": "v2.2-label-expansion-substrate-v1",
+    "visibility": "private"
+  },
+  "data_projection": {
+    "consumer_must_slice_events_by_history_event_step_ids": true,
+    "decision_steps_per_trajectory": [
+      4,
+      5,
+      6
+    ],
+    "decision_view_loader": {
+      "callable": "build_decision_view_input",
+      "canary_mechanical_action_mutation_is_not_semantic_consumption": true,
+      "canary_must_pass_before_first_generation": true,
+      "canary_mutated_current_or_future_actions_must_not_enter_request": true,
+      "canonical_action_source": "frozen_full_history_policy_native_generation_only",
+      "current_or_future_event_action_exposure_count": 0,
+      "direct_full_trajectory_events_consumption_allowed": false,
+      "each_excluded_event_action_must_be_mutated_separately": true,
+      "excluded_action_canary_mutation_count": 192,
+      "excluded_action_canary_state_count": 128,
+      "excluded_current_or_future_action_canary_must_leave_prompt_bytes_unchanged": true,
+      "expert_or_adjacent_event_action_backfill_allowed": false,
+      "included_history_action_canary_must_change_prompt_bytes": true,
+      "included_history_action_canary_mutation_count": 192,
+      "included_history_action_canary_state_count": 192,
+      "module_path": "code/causalcache/restoration_v2_2_expansion_substrate_inputs.py",
+      "raw_request_manifest_records_actual_included_event_step_ids": true,
+      "request_manifest_recomputes_included_event_payload_sha256": true,
+      "request_manifest_recomputes_included_event_step_ids": true,
+      "request_manifest_validation_requires_actual_included_events": true,
+      "request_manifest_validator_callable": "validate_request_manifest",
+      "required_call_count": 192,
+      "required_history_step_ids": "exact_range_1_to_decision_step_exclusive",
+      "runner_must_record_per_state_slice_witness": true,
+      "runner_must_validate_manifest_against_actual_slice_before_request": true,
+      "serialized_request_event_steps_must_equal_history_step_ids": true,
+      "state_id_must_bind_source_id_and_decision_step": true,
+      "strict_slice_primitive": "decision_view_events"
+    },
+    "exact_label_workload_frozen_but_not_authorized": {
+      "deployment_conditional_edges": 1856,
+      "full_subset_distance_rows": 1792,
+      "states": 192,
+      "teacher_forwards": 1984,
+      "trajectories": 64
+    },
+    "fixed_state_denominator": 192,
+    "fixed_trajectory_denominator": 64,
+    "fresh_state_output_required": true,
+    "per_decision_view_current_expert_action_payload_included": false,
+    "role_order": [
+      "gate_train_expansion",
+      "gate_development_expansion"
+    ],
+    "role_state_counts": {
+      "gate_development_expansion": 48,
+      "gate_train_expansion": 144
+    },
+    "role_trajectory_counts": {
+      "gate_development_expansion": 16,
+      "gate_train_expansion": 48
+    },
+    "shared_trajectory_storage_contains_later_event_actions": true,
+    "state_filtering_top_up_or_replacement_allowed": false,
+    "state_projection_record_count": 192,
+    "state_projection_sha256": "fc1c6bed6f069e4df28a12a835fa2a9264b532f206cc30c211e6e8f0e5f21be7"
+  },
+  "execution": {
+    "alternate_output_or_ledger_allowed": false,
+    "attempt_id": "restoration-v2-2-label-expansion-substrate-v1",
+    "canonical_global_attempt_ledger": "/data/experiments/causalcache/.restoration-v2-2-label-expansion-substrate-v1.attempt.json",
+    "canonical_persistent_output_dir": "/data/experiments/causalcache/restoration-v2-2-label-expansion-substrate-v1",
+    "cross_host_attempt_allowed": false,
+    "execution_locked_until_runner_source_is_committed_and_pushed": true,
+    "required_host_class": "Hyper_H200",
+    "runtime_import_requires_fresh_immutable_derived_validation": true,
+    "same_host_and_container_required_for_both_workers": true,
+    "same_state_repeats_must_remain_on_one_worker_device": true,
+    "state_attempt_marker_written_before_first_generation": true,
+    "worker_topology": {
+      "cross_worker_state_stealing_allowed": false,
+      "gpu_model": "NVIDIA H200",
+      "one_process_per_device": true,
+      "worker_count": 2,
+      "worker_failure_invalidates_entire_attempt": true,
+      "worker_outputs_must_be_disjoint": true,
+      "worker_union_must_equal_fixed_denominator": true,
+      "workers": [
+        {
+          "device": "cuda:0",
+          "index_parity": 0,
+          "state_indices": [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            18,
+            20,
+            22,
+            24,
+            26,
+            28,
+            30,
+            32,
+            34,
+            36,
+            38,
+            40,
+            42,
+            44,
+            46,
+            48,
+            50,
+            52,
+            54,
+            56,
+            58,
+            60,
+            62,
+            64,
+            66,
+            68,
+            70,
+            72,
+            74,
+            76,
+            78,
+            80,
+            82,
+            84,
+            86,
+            88,
+            90,
+            92,
+            94,
+            96,
+            98,
+            100,
+            102,
+            104,
+            106,
+            108,
+            110,
+            112,
+            114,
+            116,
+            118,
+            120,
+            122,
+            124,
+            126,
+            128,
+            130,
+            132,
+            134,
+            136,
+            138,
+            140,
+            142,
+            144,
+            146,
+            148,
+            150,
+            152,
+            154,
+            156,
+            158,
+            160,
+            162,
+            164,
+            166,
+            168,
+            170,
+            172,
+            174,
+            176,
+            178,
+            180,
+            182,
+            184,
+            186,
+            188,
+            190
+          ],
+          "worker_id": "even"
+        },
+        {
+          "device": "cuda:1",
+          "index_parity": 1,
+          "state_indices": [
+            1,
+            3,
+            5,
+            7,
+            9,
+            11,
+            13,
+            15,
+            17,
+            19,
+            21,
+            23,
+            25,
+            27,
+            29,
+            31,
+            33,
+            35,
+            37,
+            39,
+            41,
+            43,
+            45,
+            47,
+            49,
+            51,
+            53,
+            55,
+            57,
+            59,
+            61,
+            63,
+            65,
+            67,
+            69,
+            71,
+            73,
+            75,
+            77,
+            79,
+            81,
+            83,
+            85,
+            87,
+            89,
+            91,
+            93,
+            95,
+            97,
+            99,
+            101,
+            103,
+            105,
+            107,
+            109,
+            111,
+            113,
+            115,
+            117,
+            119,
+            121,
+            123,
+            125,
+            127,
+            129,
+            131,
+            133,
+            135,
+            137,
+            139,
+            141,
+            143,
+            145,
+            147,
+            149,
+            151,
+            153,
+            155,
+            157,
+            159,
+            161,
+            163,
+            165,
+            167,
+            169,
+            171,
+            173,
+            175,
+            177,
+            179,
+            181,
+            183,
+            185,
+            187,
+            189,
+            191
+          ],
+          "worker_id": "odd"
+        }
+      ]
+    }
+  },
+  "freeze": {
+    "clean_pushed_canonical_main_required_at_materialization": true,
+    "confirm_state_or_output_accessed": false,
+    "policy_output_accessed_to_choose_contract": false,
+    "restoration_output_accessed_to_choose_contract": false,
+    "source_git_commit": "6bf3f8c85e4f3be2ba40f1a64c3e2e05542b977d",
+    "source_only_validator_authorizes_policy_or_gpu_execution": false
+  },
+  "immutable_inputs": {
+    "derived_artifact": {
+      "artifact_file_count": 6,
+      "artifact_total_bytes": 347902778,
+      "artifact_tree_sha256": "9394b369e2b741e6aacf9ece4fc5dae3e6337b25a7e65402307e4e7862b94abc",
+      "completion_execution_sha256": "7aaae0da6ceaf5a72f5b2e231b9335e3a6895ea84ad4aad36574b88213ee69a9",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9",
+          "size_bytes": 42
+        },
+        {
+          "path": "README.md",
+          "sha256": "33f9852ae98262d94bc55337184ff7cdc83be92fc54588b2b938386151ad5a13",
+          "size_bytes": 749
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/images-00000-of-00001.tar",
+          "sha256": "9e879e3ca59e7db058a68366a4289f578f0af67dabff2f3c517809fe03cb3ecf",
+          "size_bytes": 343674880
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/manifest.json",
+          "sha256": "12d6ae78e8ef8750ee0dfb004653856316e0845bd3c498f96232b919bf8e7947",
+          "size_bytes": 8445
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/ocr-records-00000-of-00001.jsonl",
+          "sha256": "a1a0a979a74f026dd466df6c5e956c741110e34102cee0ff996695863c749dd8",
+          "size_bytes": 2972989
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl",
+          "sha256": "fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d",
+          "size_bytes": 1245673
+        }
+      ],
+      "fresh_download_validator_outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_EXPANSION_VALIDATION",
+      "immutable_revision": "630363a6adb692d72774f16dd0653a50216313ff",
+      "payload_manifest": {
+        "path": "derived/restoration-v2-label-expansion-v1/manifest.json",
+        "sha256": "12d6ae78e8ef8750ee0dfb004653856316e0845bd3c498f96232b919bf8e7947",
+        "size_bytes": 8445
+      },
+      "payload_prefix": "derived/restoration-v2-label-expansion-v1",
+      "preupload_and_fresh_download_tree_equal": true,
+      "preupload_validator_outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_EXPANSION_VALIDATION",
+      "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "tag": "restoration-v2-label-expansion-v1.0.0"
+    },
+    "derived_completion": {
+      "path": "data/results/restoration_v2_2_label_expansion_derived/artifact.json",
+      "sha256": "db518ce830fc233d6f27905fe9b341933995fc272262ccb64d8ca436e3a8e04e"
+    },
+    "exposure_ledger": {
+      "path": "data/manifests/restoration_v2_2_label_expansion_exposure.json",
+      "sha256": "e5f7e7b5ffeb71ac117b5cb4a470eb31648978a734edb9a521125d3bda29a323",
+      "size_bytes": 9293
+    },
+    "label_expansion_config": {
+      "path": "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+      "sha256": "e74904fb75cd72429e6adb51ab7500adcaa1915fb6cebc8567a2945bc9373947",
+      "size_bytes": 4963
+    },
+    "structural_selection": {
+      "path": "data/manifests/restoration_v2_2_label_expansion_selection.json",
+      "sha256": "4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169",
+      "size_bytes": 137288
+    }
+  },
+  "preregistration_status": "source_only_frozen_before_any_expansion_policy_or_restoration_output",
+  "prohibited_work": {
+    "androidworld_test_split_access_allowed": false,
+    "maximum_closed_loop_episode_count": 0,
+    "maximum_confirm_prompt_or_image_access_count": 0,
+    "maximum_confirm_state_access_count": 0,
+    "maximum_current_or_future_expert_action_semantic_consumption_count": 0,
+    "maximum_current_or_future_expert_action_target_read_count": 0,
+    "maximum_exact_subset_search_count": 0,
+    "maximum_expert_action_backfill_count": 0,
+    "maximum_gate_model_forward_count": 0,
+    "maximum_gate_training_example_count": 0,
+    "maximum_matched_nll_evaluation_count": 0,
+    "maximum_prior_policy_output_import_count": 0,
+    "maximum_restoration_candidate_prompt_count": 0,
+    "maximum_restoration_coalition_construction_count": 0,
+    "maximum_restoration_label_count": 0
+  },
+  "promotion": {
+    "gate_training_matched_nll_closed_loop_and_confirm_remain_locked": true,
+    "no_go_stops_expansion_restoration_labels": true,
+    "pass_authorizes_only": "freeze_exact_subset_and_conditional_marginal_label_execution_source",
+    "pass_does_not_authorize_automatic_restoration_label_execution": true,
+    "source_only_validator_authorizes_policy_or_gpu_execution": false
+  },
+  "protocol_id": "causalcache_restoration_v2_2_label_expansion_substrate_v1",
+  "runtime": {
+    "attention_implementation_observed_must_equal": "eager",
+    "attention_implementation_requested": "eager",
+    "container_image_digest_must_be_equal_across_workers": true,
+    "dtype": "bfloat16",
+    "eager_control_flags": {
+      "cuda_matmul_allow_tf32": false,
+      "cudnn_allow_tf32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "float32_matmul_precision": "highest",
+      "seed": 0
+    },
+    "expected_execution_stack": {
+      "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "cudnn_version": 91900,
+      "gpu_name": "NVIDIA H200",
+      "nvidia_driver_version": "570.172.08",
+      "python_version": "3.12.3",
+      "torch_cuda_version": "13.0",
+      "torch_version": "2.11.0+cu130",
+      "transformers_version": "5.6.0"
+    },
+    "scientific_runtime_metadata_must_be_equal_across_workers": true,
+    "strict_cuda_determinism_claimed": false,
+    "worker_identity_fields_allowed_to_differ": [
+      "device",
+      "gpu_uuid",
+      "gpu_pci_bus_id",
+      "logical_device_index",
+      "nvidia_smi_index"
+    ],
+    "worker_identity_fields_required": [
+      "device",
+      "gpu_name",
+      "gpu_uuid",
+      "gpu_pci_bus_id",
+      "logical_device_index",
+      "nvidia_smi_index"
+    ]
+  },
+  "schema_version": "0.1.0",
+  "scientific_source_lock": {
+    "formal_execution_requires_a_separate_committed_and_pushed_runner_freeze": true,
+    "prompt_policy_parser_teacher_kl_semantics_inherited_from_v2_2_eager": true,
+    "reserved_execution_source_paths": [
+      "code/causalcache/restoration_v2_2_expansion_substrate_artifact.py",
+      "code/scripts/run_restoration_v2_2_expansion_substrate.py",
+      "code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py"
+    ],
+    "scientific_environment_variables_allowed": false,
+    "source_files": [
+      {
+        "path": "code/configs/causalcache_restoration_v2_2_eager.json",
+        "sha256": "f473bb8a1657072235dd73bf78a93aff27b438d7baca65b7ef6096cf985effa7",
+        "size_bytes": 16980
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_eager_contract.py",
+        "sha256": "56c1676a9e16ab34f7b1990374eab82fdbfd346a38caea2d2fd8e76a6505f3da",
+        "size_bytes": 34603
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+        "sha256": "6ce88c00358d0ab03f0417957f434a8553330f27b49b8c18da15f7817b799cc1",
+        "size_bytes": 12434
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_eager_artifact.py",
+        "sha256": "f22945c040c84855cbeeb0ed5ad6145d2a3739a54a6004a966501f851dab94a6",
+        "size_bytes": 85606
+      },
+      {
+        "path": "code/scripts/run_restoration_v2_2_eager_substrate.py",
+        "sha256": "299fe4d5c28f707837be29e0c2cfd8dd06b36925e5c9d17138bf7230a648282e",
+        "size_bytes": 56057
+      },
+      {
+        "path": "code/scripts/manage_restoration_v2_2_eager_artifact.py",
+        "sha256": "cb9d7cc3616e6a6d5728998f030b05719d5a4e37ea8511d696b0bef090718063",
+        "size_bytes": 4764
+      },
+      {
+        "path": "code/scripts/validate_restoration_v2_2_eager_contract.py",
+        "sha256": "f8cbd965f06cdc613c41f45e9f521abf71c7bfd0dd23f4df3453ad2a527b3760",
+        "size_bytes": 8865
+      },
+      {
+        "path": "code/configs/causalcache_restoration_v2_1_full_45.json",
+        "sha256": "0924dd66fab9440bed66585765e9b1f5ab6fb80fbdf65a1492efba7ae81e116b",
+        "size_bytes": 14925
+      },
+      {
+        "path": "code/causalcache/restoration_v2_1_full_45_contract.py",
+        "sha256": "1293daac9fc21f0c8afc23d9d5e8f281571b93fb46f09ca4db50804df8f630ff",
+        "size_bytes": 30862
+      },
+      {
+        "path": "code/causalcache/restoration_v2_1_full_45_artifact.py",
+        "sha256": "432cc7862d4a3fe15fd7540618f12867fa7614ae70e31569bd5e6030b5ea4820",
+        "size_bytes": 91664
+      },
+      {
+        "path": "code/scripts/run_restoration_v2_1_full_45_substrate.py",
+        "sha256": "b53582b78e80762a3f3cc48bb454281f26536e6b20b34f1a5ea1c2b47bd4f2c1",
+        "size_bytes": 105759
+      },
+      {
+        "path": "code/scripts/manage_restoration_v2_1_full_45_artifact.py",
+        "sha256": "4fad1c4595e973760fc25913bba02278e99481b0c6f06bd9100e1e3dc19d118b",
+        "size_bytes": 5211
+      },
+      {
+        "path": "code/scripts/validate_restoration_v2_1_full_45_contract.py",
+        "sha256": "5fa4cab212cb10fbc9ce0a8613b2326d97657bac1f0f0c7925f0687f2332d4f8",
+        "size_bytes": 2392
+      },
+      {
+        "path": "code/scripts/run_restoration_v2_1_interface_pilot.py",
+        "sha256": "55c71de309312557ca65353ae27085cbf06a889f121e4856a8b0e6a0563aa053",
+        "size_bytes": 103249
+      },
+      {
+        "path": "code/causalcache/restoration_v2_1_contract.py",
+        "sha256": "98b5cfd33a6dc69b846a929e45e12a8da55341a0260ea129e1a6ba51cefc52d7",
+        "size_bytes": 33745
+      },
+      {
+        "path": "code/causalcache/restoration_v2_1_pilot_artifact.py",
+        "sha256": "2f671bb632ef7ebd80c6c069526d45c0faae10be77386d4ab84219ab0908a662",
+        "size_bytes": 73549
+      },
+      {
+        "path": "code/scripts/manage_restoration_v2_1_pilot_artifact.py",
+        "sha256": "b7f5f59d1deca2fe4a1183bf6cfd614fddff8322ae5a5262fcb139fdcb1386bf",
+        "size_bytes": 5077
+      },
+      {
+        "path": "code/causalcache/restoration_v2_1_processor_audit.py",
+        "sha256": "cdd0308852e69bf3823f6cd258bc3d6eec65321c8e017943518de1c72d51081b",
+        "size_bytes": 74152
+      },
+      {
+        "path": "code/scripts/audit_gui_owl_v2_1_processor.py",
+        "sha256": "944fd32f7f30b50d988460e6d435a5a0de03dcc531708335affbd1fbb2f95d6e",
+        "size_bytes": 29718
+      },
+      {
+        "path": "code/causalcache/data/restoration_v2_1_processor_inputs.py",
+        "sha256": "fe1ea67e32c24ac415c3f51a99a578e03d87e045b074071987b9c90716fdbb36",
+        "size_bytes": 3907
+      },
+      {
+        "path": "code/causalcache/data/restoration_v2_screening.py",
+        "sha256": "e4574c2d0c29f8bffae77bde7ea7fa0e441d49d4c128b443ed50208a711a2b61",
+        "size_bytes": 20016
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_1.py",
+        "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964",
+        "size_bytes": 11708
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_1_runtime.py",
+        "sha256": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5",
+        "size_bytes": 29128
+      },
+      {
+        "path": "code/causalcache/restoration_v2_gpu_kl.py",
+        "sha256": "6227375fdb61a32bc71d22c1e77f1c62eb211cfb043984351512077fd1fec5ce",
+        "size_bytes": 13986
+      },
+      {
+        "path": "code/causalcache/data/guiodyssey_restoration_v2.py",
+        "sha256": "8caf9418e4212c760b789f660b8b67c9b23a5b88d08a8434d4a1e718f7a0e4ee",
+        "size_bytes": 89362
+      },
+      {
+        "path": "code/causalcache/data/restoration_v2_selection.py",
+        "sha256": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a",
+        "size_bytes": 59728
+      },
+      {
+        "path": "code/causalcache/data/guiodyssey.py",
+        "sha256": "c8630f36fe343c63e5f1bf4b6401c4eb049dc4e8457abc761ed41011f4efc1c4",
+        "size_bytes": 12230
+      },
+      {
+        "path": "code/causalcache/data/guiodyssey_independent.py",
+        "sha256": "1beb1333a4f016a0cca5457fe02acc910b35fd621604e7aa588a7b7f61c11b9b",
+        "size_bytes": 27739
+      },
+      {
+        "path": "code/causalcache/low_fidelity_v2.py",
+        "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a",
+        "size_bytes": 14249
+      },
+      {
+        "path": "code/causalcache/restoration_v2_contract.py",
+        "sha256": "f83ae8ececfaafb5cfb3cef9bb617945353c34f6659a74b6080ae9798784c4b3",
+        "size_bytes": 33579
+      },
+      {
+        "path": "code/causalcache/restoration_v2_text_backend.py",
+        "sha256": "f2ed121f290095514ec0f54b83217188f3f9496e5b68da5216f2f19c0d43206e",
+        "size_bytes": 31285
+      },
+      {
+        "path": "code/causalcache/schema.py",
+        "sha256": "3f281fe3a646468de36f4764d20c46d1dea3867d35c819ca4ad52977d318ee5b",
+        "size_bytes": 7413
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2.py",
+        "sha256": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a",
+        "size_bytes": 21838
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_runtime.py",
+        "sha256": "7cc0299b1b1679def61a3e2e30017d2f7812a47114b5a286afdf3979536c9c41",
+        "size_bytes": 29381
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_vision.py",
+        "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24",
+        "size_bytes": 19721
+      },
+      {
+        "path": "code/causalcache/restoration_v2_baselines.py",
+        "sha256": "7df03a3478b2ba0aaaa40d1a08de54126f1211404bf3fc20470876ada735366d",
+        "size_bytes": 11616
+      },
+      {
+        "path": "code/configs/causalcache_restoration_v2_1_pilot.json",
+        "sha256": "9d51a2ed5d6cc382f297c1b8af3100d784090f72800d637136b88982763fdbf7",
+        "size_bytes": 12396
+      },
+      {
+        "path": "code/configs/causalcache_restoration_v2.json",
+        "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc",
+        "size_bytes": 17754
+      },
+      {
+        "path": "code/configs/restoration_v2_ocr_backend.json",
+        "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+        "size_bytes": 6922
+      },
+      {
+        "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+        "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+        "size_bytes": 2009
+      },
+      {
+        "path": "data/manifests/restoration_v2_selection.json",
+        "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+        "size_bytes": 218833
+      },
+      {
+        "path": "data/manifests/restoration_v2_ocr_backend.json",
+        "sha256": "107478672438b52e9c2ccc9ef8de5d13d4e16329ab1afbe95772e2d3df5bd2a9",
+        "size_bytes": 7690
+      },
+      {
+        "path": "data/manifests/restoration_v2_derived_artifact.json",
+        "sha256": "1f155a90af33da21947c89ac12f30f873f18e15e4efc82e5759f648114f25f7c",
+        "size_bytes": 11532
+      },
+      {
+        "path": "data/manifests/restoration_v2_real_screen_source.json",
+        "sha256": "374a38c997a1ee9a715a8cf6ce9b7ca26edc1cf56f503c2d42a97436afac16c5",
+        "size_bytes": 7515
+      },
+      {
+        "path": "data/results/restoration_v2_1_interface_pilot/artifact.json",
+        "sha256": "e7a92a0469e3b66113158d5c2ce713c363ecaff97f95498f3ef84f02a4a6bed8",
+        "size_bytes": 7493
+      },
+      {
+        "path": "data/results/restoration_v2_1_processor_preflight/artifact.json",
+        "sha256": "2689fe984215f308e5f5230de9656cfe0439bfd2df5e5f061ebac1a1cbc8299b",
+        "size_bytes": 1610
+      },
+      {
+        "path": "data/results/restoration_v2_1_full_45_substrate/artifact.json",
+        "sha256": "9aa7fd6bdc20173532649a4133faf565e99975af51e38d57cf9612f29af996be",
+        "size_bytes": 17618
+      },
+      {
+        "path": "data/results/restoration_v2_1_full_45_substrate/summary.json",
+        "sha256": "f385baf261510dd82e510c8b40a05e5c2a5b91ef7e2329b4a4771b938644c6b8",
+        "size_bytes": 4011
+      },
+      {
+        "path": "data/results/spatial_reference_audit_v1/artifact.json",
+        "sha256": "10a0a0e4f5822197d0ec5604601a1d66864c48cf65b0240836e6302c16054e5d",
+        "size_bytes": 4234
+      },
+      {
+        "path": "data/results/spatial_reference_audit_v1/summary.json",
+        "sha256": "910d4bdf0c22f57058a505c46b4af04ce7f0ebaf5e316e6d6a5cf963a8e8f21c",
+        "size_bytes": 3228
+      },
+      {
+        "path": "code/configs/causalcache_restoration_v2_2_label_expansion_derived_completion.schema.json",
+        "sha256": "9ace7b602d934fd326c961e4d985437a85dddea280f8a8bbc752c4d85f3e4500",
+        "size_bytes": 13869
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_expansion_substrate_contract.py",
+        "sha256": "5e9d519b7d2ebbbaa88bd83dc69eb4fd2fbc5748bc75a4e47c731de558b98863",
+        "size_bytes": 52414
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_expansion_substrate_inputs.py",
+        "sha256": "c41486e7a18a8c8951fc05dce1753ab7caedd4d602194772a06f8746d1b49acf",
+        "size_bytes": 9113
+      },
+      {
+        "path": "code/scripts/materialize_restoration_v2_2_expansion_substrate_contract.py",
+        "sha256": "01bd0d9b6ef71c27df58041f4ee3e7a9ce0d0fb23ef8651a81e4aa78bd0903e9",
+        "size_bytes": 4507
+      },
+      {
+        "path": "code/scripts/validate_restoration_v2_2_expansion_substrate_contract.py",
+        "sha256": "5fa465edddd0315e8c1434d3cbd21e7690f235070c13d96b8ab54266e06d7ddd",
+        "size_bytes": 1194
+      },
+      {
+        "path": "code/causalcache/data/guiodyssey_restoration_v2_expansion.py",
+        "sha256": "16491416b25bf297c27c0ed7dfb2c3d7ace135fc2062991ceaefea259bef44aa",
+        "size_bytes": 67613
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_label_expansion.py",
+        "sha256": "7bc6e34a98f88732532da09dd343bcfaa8b594f188f9f999f9f7479be1fea0dd",
+        "size_bytes": 30611
+      },
+      {
+        "path": "code/scripts/build_guiodyssey_restoration_v2_expansion.py",
+        "sha256": "c1365891e3feb9f74520c02be423fdea1ffc6fb574b9cf53a47f79eea332fe3f",
+        "size_bytes": 12525
+      },
+      {
+        "path": "code/scripts/validate_guiodyssey_restoration_v2_expansion.py",
+        "sha256": "145b9be55fff899ac7b8033a82d930d687e35bd28a0c466063f097ce6d67c9f6",
+        "size_bytes": 6942
+      },
+      {
+        "path": "code/scripts/validate_restoration_v2_ocr_backend.py",
+        "sha256": "fe4365eab59a8b4dca8f02e5c88a0e89c94450c6e9ea7c489d4a88ba7d62e19d",
+        "size_bytes": 30304
+      },
+      {
+        "path": "code/scripts/validate_restoration_v2_real_screen.py",
+        "sha256": "aff09c74b2181835039557a63f5e1d6091fba4a0ea23879052788762140323f4",
+        "size_bytes": 24851
+      },
+      {
+        "path": "code/configs/independent_reference_gate_v1.json",
+        "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8",
+        "size_bytes": 6441
+      },
+      {
+        "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+        "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+        "size_bytes": 3316
+      }
+    ]
+  },
+  "substrate_gate": {
+    "derived_required_finite_logit_state_count": 192,
+    "derived_required_parse_success_count": 191,
+    "derived_required_repeat_agreement_count": 192,
+    "fail_outcome": "NO_GO_V2_2_LABEL_EXPANSION_SUBSTRATE_V1",
+    "failed_states_remain_in_fixed_denominator": true,
+    "fixed_state_denominator": 192,
+    "invalid_outcome": "INVALID_V2_2_LABEL_EXPANSION_SUBSTRATE_V1",
+    "memory_sensitive_definition": "summary_reference_kl_greater_than_repeat_noise_epsilon",
+    "memory_sensitive_fraction_is_reported_not_thresholded": true,
+    "minimum_finite_logit_coverage": 1.0,
+    "minimum_memory_sensitive_states": 8,
+    "minimum_parse_coverage": 0.99,
+    "minimum_repeat_canonical_action_agreement": 1.0,
+    "pass_outcome": "PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1",
+    "repeat_noise_epsilon": "max(1e-4,10*mean_repeat_kl)"
+  },
+  "substrate_schedule": {
+    "automatic_retry_allowed": false,
+    "completed_state_regeneration_allowed": false,
+    "generation_order_per_state": [
+      "full_history_reference_repeat_1",
+      "full_history_reference_repeat_2"
+    ],
+    "kl_order_on_success_per_state": [
+      "repeat_reference_kl",
+      "summary_reference_kl"
+    ],
+    "mixed_fidelity_generation_call_count": 384,
+    "mixed_fidelity_generation_semantics": "frozen_mixed_fidelity_input_builder_with_full_history_reference_endpoint",
+    "per_state_maximum": {
+      "full_history_generation_calls": 2,
+      "kl_measurements_on_success": 2,
+      "teacher_forward_calls_on_success": 3
+    },
+    "planned_and_maximum_counts": {
+      "generation_call_count": 384,
+      "kl_measurement_count": 384,
+      "teacher_forward_count": 576
+    },
+    "resume_allowed": false,
+    "sample_mutation_allowed": false,
+    "state_retry_count": 0,
+    "teacher_order_on_success_per_state": [
+      "full_history_reference_1",
+      "full_history_reference_2",
+      "summary_only"
+    ],
+    "top_up_count": 0
+  }
+}

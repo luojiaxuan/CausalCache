@@ -6,18 +6,19 @@
 契约**。它不运行 GUI policy，不生成任何 policy/restoration output，不读取 confirm20，不构造 coalition，
 也不开始 gate training、matched-NLL 或 closed-loop。
 
-canonical config 目前有意不落盘。必须先完成 policy-blind derived artifact 的 preupload standalone
-validation、private Hugging Face upload、immutable revision 固定与 fresh-download clean projection replay，
-再从 clean、已 push 的 `main` 唯一物化：
+canonical config 已在 policy-blind derived artifact 的 preupload standalone validation、private Hugging Face
+upload、immutable revision 固定与 fresh-download clean projection replay 全部闭合后，从 clean、已 push 的
+`main@6bf3f8c85e4f3be2ba40f1a64c3e2e05542b977d` 唯一物化：
 
 ```bash
 cd code
 python3 -m scripts.materialize_restoration_v2_2_expansion_substrate_contract \
-  --source-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA>
+  --source-git-commit 6bf3f8c85e4f3be2ba40f1a64c3e2e05542b977d
 ```
 
 物化输出固定为
-`code/configs/causalcache_restoration_v2_2_expansion_substrate_v1.json`。物化器本身只写 config，输出中
+`code/configs/causalcache_restoration_v2_2_expansion_substrate_v1.json`，SHA256 为
+`42144f33e2473c787b3648c0ace18b22902fa3376615732aef8fd3aa5780a6e5`。物化器本身只写 config，输出中
 `policy_or_gpu_execution_authorized=false`；config commit/push 仍不自动授权 GPU run，runner/source inventory
 还必须作为单独 material step 冻结。
 

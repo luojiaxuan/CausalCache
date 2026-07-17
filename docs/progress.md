@@ -71,7 +71,11 @@ conditional-marginal labels；formal gate training 仍未授权。
   parent configs/artifacts 与 expansion derived loader；current/future expert target read、semantic consumption 与
   backfill 均固定为 0；
 - focused 13/13、全仓 839 tests 通过（12 skip）。本 source-only validator 明确不授权 policy/GPU；下一步必须先
-  从 clean pushed source commit 物化 canonical config，再单独冻结实际 runner 与 processor serializer binding。
+  从 clean pushed source commit 物化 canonical config，再单独冻结实际 runner 与 processor serializer binding；
+- source freeze 已推到 `main@6bf3f8c85e4f3be2ba40f1a64c3e2e05542b977d`；随后 clean-main materializer
+  生成 `causalcache_restoration_v2_2_expansion_substrate_v1.json`，SHA256
+  `42144f33e2473c787b3648c0ace18b22902fa3376615732aef8fd3aa5780a6e5`。validator 重建 96/96 worker
+  inventory 与 384/576/384 counts，同时返回 `policy_or_gpu_execution_authorized_by_this_validator=false`。
 
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 
