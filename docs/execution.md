@@ -770,3 +770,53 @@ HF tag/path: v2.2-eager-train-dev-exact-v2 / raw/v2.2-eager-train-dev-exact-v2.t
 pre-claim validator 复用 production snapshot verifier，逐 hash 验证 14 files / 17,545,907,171 bytes、
 `.snapshot.json` revision 和 Transformers source；它不构造 model、不初始化 CUDA，也不创建 ledger。v2 formal
 run 必须显式传以上 model/output/ledger，不能再使用 HF cache snapshot path。
+
+## Restoration v2.2 expansion exact-label A/B 与执行顺序
+
+expanded substrate 已以 192/192 states、185 memory-sensitive 正式 PASS，raw artifact 固定到 private HF
+immutable revision `25ac19cf6ef98adc243d421cd0039ac104ddb539`。后续 label run 使用独立 config
+`code/configs/causalcache_restoration_v2_2_expansion_labels_v1.json`，SHA256 为
+`65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。完整科学/失败边界与最终 CLI 见
+[`restoration_v2_2_expansion_exact_labels.md`](restoration_v2_2_expansion_exact_labels.md)。当前新增的是 source
+A；没有 expansion label output，source-only validator 也不授权 GPU。
+
+GPU authorization 必须按以下不可合并的 Git 顺序完成：
+
+1. contract、coalition input、parent crosswalk、runner、raw reducer/manager、tests 与 docs 作为 source A commit
+   并 push canonical `main`；
+2. 在 clean `main@A == origin/main` 上确定性物化
+   `code/configs/causalcache_restoration_v2_2_expansion_labels_runner_v1.json`；
+3. 只把 runner freeze 作为 execution B commit 并 push；
+4. formal host 必须是 clean `main == origin/main == B`，committed validator 重建 A 的 source blobs、证明 A 是
+   B 的 ancestor 并验证 freeze bytes 后，才可返回
+   `VALID_COMMITTED_PUSHED_EXPANSION_EXACT_LABEL_RUNNER_FREEZE`；
+5. A、pending-B materializer 或未 push B 的任何本地状态都不得启动 model/GPU。
+
+唯一 attempt identity 固定为：
+
+```text
+attempt: restoration-v2-2-expansion-exact-labels-v1
+output root: /data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1
+global ledger: /data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1.attempt.json
+raw archive: /data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1.tar
+HF repo: gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-mobile
+HF tag/path: v2.2-expansion-exact-labels-v1 / raw/v2.2-expansion-exact-labels-v1.tar
+```
+
+formal run 前按本文件通用 preflight 检查 Hyper host、两张 H200、disk 与 containers，执行至少 10 秒
+continuous-zero cleanup，只把选中 GPU 暴露给新容器并确认 `torch.cuda.device_count()==2`。source-locked monitor
+sidecar 必须先 ready，外部 utilization monitor 从 preclaim 前开始并保留完整原始日志。even / odd workers 固定
+处理 96 / 96 states；同一 state 的 fresh reference、repeat reference 与全部 coalitions 保持同卡，microbatch=1，
+禁止 state stealing、resume、retry、top-up 或根据利用率改变 denominator。
+
+preclaim 必须从不同 fresh paths 验证 substrate archive 与 policy-blind derived artifact；共享盘现有目录只能作为
+下载 cache。label schedule 固定 64 trajectories / 192 states、$n=2/3/4$、$B=2$、1,792 raw $D(S)$ rows、
+1,984 teacher forwards 与 1,792 KL。full logits、log-probabilities 和 KL intermediates 保持 GPU-only，每个 KL
+只把最终 scalar 搬到 host；generation、expert、gate、matched-NLL、closed-loop、confirm、retry 与 top-up 均为
+0。raw $D(S)$ 是唯一 canonical truth；1,856 deployment edges、3,072 full edges、1,984 interactions、576
+attributions 与 192 oracles 必须在 terminal 后由 policy-free validator 独立重算，所有 negative marginals 保留。
+
+PASS 后才允许 deterministic USTAR、private HF upload/tag、取得 immutable revision并下载到不同 fresh path。
+fresh archive 必须与 source archive byte-identical，并再次从 raw table 重算全部 counts；随后 Git 只记录 compact
+summary、hash 与 immutable HF binding。该 immutable artifact 闭合后才解除 formal-58 gate data blocker；它不自动
+授权 matched-NLL、closed-loop 或 confirm。

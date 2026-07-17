@@ -25,10 +25,14 @@ artifact；首次 CPU byte-replay 的 evaluated-state projection bug 已由独�
 `validate` 已返回 `REVALIDATED`。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
-48/16 label expansion 的 policy-blind derived artifact 现已闭合：64 trajectories / 192 views / 384 images 已上传
-private HF immutable revision `630363a6adb692d72774f16dd0653a50216313ff`，pre-upload 与 fresh-download exact-six
-tree、384-record OCR replay 均一致。下一步先冻结并执行 192-state substrate，再生成 exact-subset 与
-conditional-marginal labels；formal gate training 仍未授权。
+48/16 label expansion 的 policy-blind derived artifact 与 192-state substrate 均已闭合：64 trajectories / 192
+views / 384 images 绑定 private HF immutable revision `630363a6adb692d72774f16dd0653a50216313ff`；唯一双 H200
+substrate 完成 192/192 states、185 memory-sensitive，并绑定 private HF immutable revision
+`25ac19cf6ef98adc243d421cd0039ac104ddb539`。expanded exact-label config、coalition input、runner 与 raw
+artifact reducer 已进入 source A，config SHA256 为
+`65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`；但 source A commit/push 后仍需
+单独物化、commit、push runner freeze B，B 的 committed validator 通过前不授权 GPU。当前仍没有 expansion
+labels 或 formal gate metric。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -122,6 +126,30 @@ conditional-marginal labels；formal gate training 仍未授权。
 - 轻量 Git 结果位于 `data/results/restoration_v2_2_label_expansion_substrate_v1/`。本步只解锁 expansion
   exact-label source：当前仍无 1,792-row $D(S)$ table、1,856 conditional edges、formal gate、matched-NLL、
   closed-loop 或 confirm output。
+
+### 2026-07-17：expansion exact-label source A 准备完成
+
+- 科学 config
+  `code/configs/causalcache_restoration_v2_2_expansion_labels_v1.json` 固定 64 trajectories / 192 states、
+  steps 4/5/6 的 $n=2/3/4$ candidates、$B=2$，SHA256 为
+  `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`；
+- label run 固定生成 1,792 条完整 power-set raw $D(S)$，并由 policy-free reducer 独立重算 1,856 条
+  deployment edges、3,072 条 full-hypercube edges、1,984 条 pair interactions、576 条 exact-permutation
+  attributions 与 192 个 primary exact-subset oracles；raw $D(S)$ 是唯一 canonical truth，negative marginals
+  和 non-monotonicity 不得 clamp；
+- operation schedule 固定 1,984 teacher forwards 与 1,792 GPU KL measurements；generation、expert read、
+  gate、matched-NLL、closed-loop、confirm、retry 与 top-up 全部为 0。full-vocabulary logits/probabilities 和 KL
+  intermediate 保持 GPU-only，每次只允许返回最终 distance scalar；
+- even/odd 双 H200 workers 各 96 states，同一 state 的 reference、repeat 与全部 coalitions 不得拆卡；runner
+  durable claim、sibling high-water、monitor handshake、raw validator、deterministic USTAR 与 fresh immutable HF
+  validation 已实现；
+- 唯一 attempt 固定为 `restoration-v2-2-expansion-exact-labels-v1`，canonical output / ledger / archive 位于
+  `/data/experiments/causalcache/`，planned private HF target 是
+  `gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-mobile`、tag
+  `v2.2-expansion-exact-labels-v1`；
+- 本里程碑仍是 source-only。source A commit/push 后必须从 clean A 确定性物化 runner freeze，再以单独的 B
+  commit/push 闭合；只有 clean `main == origin/main == B` 上的 committed validator 才能授权唯一 GPU attempt。
+  当前 expansion restoration label、gate checkpoint、matched-NLL、closed-loop 与 confirm output 均为 0。
 
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 

@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label = source-only frozen、GPU locked pending runner freeze B / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
 
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
 > policy-blind expansion split manifest、pre-output exposure ledger 与 gate v1 preregistration 均已冻结，
@@ -11,10 +11,13 @@
 > 192-state substrate 已从 runner source A=`1a3833d`、execution B=`642feb2` 完成唯一双 H200 formal run：
 > 192/192 states、0 failed，384/576/384 operations 精确命中，185 states memory-sensitive，正式 `PASS`；
 > raw archive 已绑定 private HF immutable revision `25ac19cf6ef98adc243d421cd0039ac104ddb539` 并 fresh-download
-> 逐 byte 复验。该结果只解锁 expansion exact-label source，尚未生成 expansion labels。Gate v1
-> trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 expansion policy/restoration output、
-> formal-58 fit 或 learned-gate paper metric。详见
+> 逐 byte 复验。expansion exact-label config、coalition input、双 H200 runner 与 raw reducer 已进入 source A；
+> config SHA256 为 `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。source A
+> commit/push 后仍需单独物化、commit、push runner freeze B；B validator 通过前不授权 GPU，也尚未生成
+> expansion labels。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 expansion
+> policy/restoration output、formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
+> [`docs/restoration_v2_2_expansion_exact_labels.md`](docs/restoration_v2_2_expansion_exact_labels.md)、
 > [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)、
 > [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)。
 
@@ -30,7 +33,7 @@ go/no-go 阈值见 [`docs/restoration_v2.md`](docs/restoration_v2.md)。第一�
 45 个 v2 native policy outputs，但 strict parse 为 0/45，因此没有 teacher forward、KL、restoration label、
 gate checkpoint 或方法效果结果；confirm 仍 locked。
 
-当前最靠前的有效里程碑是 v2.2 exact labels：30 个 label-train + 15 个 development states 已得到完整
+旧 15-trajectory v2.2 exact labels 已闭合：30 个 label-train + 15 个 development states 已得到完整
 420-row $D(S)$ table、435 条部署可达 conditional edges 与 exact-subset oracle，raw artifact 已绑定 private HF
 immutable revision。训练 gate 前先执行
 [`docs/restoration_v2_2_selector_geometry.md`](docs/restoration_v2_2_selector_geometry.md) 的 policy-free geometry：
@@ -50,6 +53,12 @@ objective-projection gap（greedy - budget-conditioned independent）为 `0.1590
 policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interface mismatch 封存；v3 GPU artifact 的
 state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式状态为 `VALID`；result commit 后又从
 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
+
+当前关键路径是 48/16 expansion exact labels。冻结分母为 64 trajectories / 192 states，steps 4/5/6 对应
+$n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
+full edges、1,984 interactions、576 attributions 与 192 exact oracles。label run 固定 1,984 teacher forwards、
+1,792 GPU KL、0 generation，并保留所有 negative marginals。当前只有 source A 实现与 config freeze；单独的
+runner freeze B commit/push/validation 是唯一 GPU authorization，不能提前训练 gate 或读取 confirm。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
@@ -392,18 +401,19 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 3. [`docs/restoration_v2_1_full_45.md`](docs/restoration_v2_1_full_45.md)：full-45 stable-reference substrate、gate 与一次性执行边界；
 4. [`docs/restoration_v2_2_eager.md`](docs/restoration_v2_2_eager.md)：只改 eager runtime 的 fresh-45 双 H200 source-only contract；
 5. [`docs/restoration_v2_2_labels.md`](docs/restoration_v2_2_labels.md)：已闭合的 attribution run、exact subset oracle、conditional-marginal labels 与 artifact identity；
-6. [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)：OCR/RGB v1 source、zero-score invalid attempt 与不可重跑边界；
-7. [`docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`](docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md)：v2 exact-occurrence repair、正式 OCR/RGB comparator result 与异常点边界；
-8. [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)：interaction-aware student 的设计、能力边界与 ablation matrix；
-9. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
+6. [`docs/restoration_v2_2_expansion_exact_labels.md`](docs/restoration_v2_2_expansion_exact_labels.md)：192-state expansion labels 的 source A / runner freeze B、raw-first reduction 与唯一 attempt；
+7. [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)：OCR/RGB v1 source、zero-score invalid attempt 与不可重跑边界；
+8. [`docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md`](docs/restoration_v2_2_ocr_rgb_baseline_v2_identity_repair.md)：v2 exact-occurrence repair、正式 OCR/RGB comparator result 与异常点边界；
+9. [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)：interaction-aware student 的设计、能力边界与 ablation matrix；
+10. [`docs/restoration_v2_interfaces.md`](docs/restoration_v2_interfaces.md)：action、strong LF 与
    post-state-only prompt 的冻结实现；
-10. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
-11. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
-12. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-13. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-14. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-15. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-16. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+11. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
+12. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
+13. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+14. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+15. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+16. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+17. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 

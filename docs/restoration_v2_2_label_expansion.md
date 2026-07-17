@@ -4,8 +4,11 @@
 > validator，SHA256 为 `4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169`。policy-blind
 > derived artifact 已绑定 immutable revision `630363a6...`；192-state substrate 已完成唯一双 H200 attempt，
 > 192/192 valid、185 memory-sensitive，正式 `PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1`，raw artifact 绑定
-> private HF immutable revision `25ac19cf6ef98adc243d421cd0039ac104ddb539`。尚未生成 expansion restoration
-> labels、gate checkpoint 或 development metric；旧 20 条 confirm 继续封存。
+> private HF immutable revision `25ac19cf6ef98adc243d421cd0039ac104ddb539`。expansion exact-label source、
+> config、双 H200 runner 与 raw-artifact reducer 已进入 source A；config SHA256 为
+> `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。单独的 committed/pushed runner
+> freeze B 完成前仍不授权 GPU。尚未生成 expansion restoration labels、gate checkpoint 或 development
+> metric；旧 20 条 confirm 继续封存。
 
 ## 为什么不能直接训练
 
@@ -89,10 +92,14 @@ revision，并 fresh-download replay。
 2. expansion exposure ledger 机械证明 64 IDs 与所有既有 policy/restoration output source union 交集为空（已完成）；
 3. 只含 expansion 64 的 policy-blind derived artifact（已完成并 fresh immutable replay）；
 4. gate method family、feature、loss、OOF、tie/stop 与 fresh-16 development gate（已冻结）；
-5. expanded substrate（已 PASS 并闭合 immutable artifact）；expanded-label execution contract 仍待冻结。
+5. expanded substrate（已 PASS 并闭合 immutable artifact）；expanded-label source contract 与 runner 已实现，
+   仍需 source A commit/push 后单独物化、commit、push runner freeze B。
 
-当前只解锁 expanded-label source/freeze；仍不授权 formal gate training、development tuning、matched-NLL、
-closed-loop、confirm 或 AndroidWorld sealed test access。
+expanded-label 科学边界与唯一 attempt 见
+[`restoration_v2_2_expansion_exact_labels.md`](restoration_v2_2_expansion_exact_labels.md)。当前 source-only
+validator 明确不授权 label/GPU execution；只有 committed runner freeze B 的 validator 才能授权唯一双 H200
+attempt。formal gate training、development tuning、matched-NLL、closed-loop、confirm 与 AndroidWorld sealed
+test access 仍全部 locked。
 
 ## 验证入口
 
@@ -102,6 +109,26 @@ source-focused tests：
 cd code
 python3 -m unittest tests.test_restoration_v2_2_label_expansion -v
 ```
+
+expanded exact-label source 在 source A 中额外运行：
+
+```bash
+cd code
+python3 -m unittest \
+  tests.test_restoration_v2_2_expansion_label_inputs \
+  tests.test_restoration_v2_2_expansion_labels_contract \
+  tests.test_restoration_v2_2_expansion_labels_artifact \
+  tests.test_run_restoration_v2_2_expansion_labels -v
+```
+
+科学 config 固定为
+[`../code/configs/causalcache_restoration_v2_2_expansion_labels_v1.json`](../code/configs/causalcache_restoration_v2_2_expansion_labels_v1.json)，
+SHA256
+`65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。它固定 64 trajectories / 192
+states、$n=2/3/4$、$B=2$、1,792 raw $D(S)$ rows、1,856 deployment edges、3,072 full edges、1,984
+interactions、576 attributions、192 exact oracles、1,984 teacher forwards 与 1,792 KL；generation、expert、
+gate、matched-NLL、closed-loop 和 confirm operation 均为 0。raw $D(S)$ 是唯一 canonical truth，全部 derived
+labels 必须 policy-free 重算并保留 negative marginals。
 
 结构 manifest 必须在 source commit 已 push 后从 clean canonical `main` 生成：
 
