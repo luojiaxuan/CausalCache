@@ -29,7 +29,9 @@
 > commit provenance、no-overwrite tag、crash recovery 与 immutable fresh readback。唯一真实 invocation 已创建
 > 正确的 private pair commit `5efe1ae8...b416` 与 tag，但 Hub refs API 返回 annotated-tag object SHA、而
 > tag resolution 返回 pair commit SHA；v1 parser 将两者强制相等，因而在 completion 前 fail closed。remote
-> 原样保留，下一步是 read-only versioned tag-resolution repair，不重复 commit/tag。
+> 原样保留。read-only versioned tag-resolution child 已 source-freeze，config SHA256
+> `f257dcdebb218533a080739e8a5067cc44fe35fd533ad57808db5ce789cfd956`；它分别绑定 tag object 与 resolved
+> commit，remote mutation API 为 0，真实 replay 尚未执行。
 > Gate v1 trainer/evaluator source 与
 > synthetic-only CPU smoke 已闭合，但尚无 formal expansion
 > policy/restoration output、formal-58 fit 或 learned-gate paper metric。详见
@@ -81,8 +83,9 @@ validator 已闭合。唯一 GPU attempt 已完成全部科学计算，但因 so
 monitor 必须逐 byte 保留，不能 retry、resume 或调阈值。P1 publication protocol 见
 [`docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md`](docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md)：
 它只允许把永久 INVALID 的 P0 archive 与 sidecar 作为同一 private-HF commit 发布，不能直接供 formal loader
-消费。唯一 P1 invocation 的 pair bytes 已正确落到 private HF，但 completion 未形成；下一步先冻结并执行 read-only
-tag-resolution child，绑定 tag object 与 resolved commit 后完成 fresh replay。随后才冻结并执行独立 CPU repair，
+消费。唯一 P1 invocation 的 pair bytes 已正确落到 private HF，但 completion 未形成；read-only child 见
+[`docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md`](docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md)。
+下一步从 clean pushed source 执行该 child，绑定 tag object 与 resolved commit 后完成 fresh replay；随后才执行独立 CPU repair，
 重算全部 raw labels、operation counts 与 external inputs，把 cadence failure 作为永久 provenance。
 repair immutable fresh replay 闭合前不能训练 formal gate 或读取 confirm。
 

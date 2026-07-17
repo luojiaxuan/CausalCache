@@ -2306,3 +2306,17 @@ closed-loop 与 confirm 均不得提前。
 - completion seal 不存在，final tag/immutable pre-post fresh attestation 未完成。remote pair/tag 原样保留，
   不重跑同一 P1 source、不重复 commit/tag、不改写原 expansion attempt。下一步冻结 read-only versioned
   tag-resolution repair；其 immutable fresh replay 闭合前，CPU scientific repair 与 formal gate 继续 locked。
+
+### 2026-07-17：read-only annotated-tag resolution child source freeze
+
+- child config SHA256 为 `f257dcdebb218533a080739e8a5067cc44fe35fd533ad57808db5ce789cfd956`，
+  分别冻结 main=`5efe1ae8...b416`、annotated-tag object=`ca652858...5f44`、tag-resolved commit=
+  `5efe1ae8...b416` 与 immutable revision=`5efe1ae8...b416`，不再错误要求 object SHA 等于 commit SHA；
+- parent P1 source `3941d82...428d`、failure evidence `dcc37e5...47a`、config `affb54cf...accb`、mode-0600
+  claim `0a07692b...a5de`、原 completion 必须缺失，以及 archive/sidecar/pair/predecessor exact bytes/inventory
+  全部静态绑定；
+- remote 只允许 `dataset_info/list_repo_refs/list_repo_commits/list_repo_files` 与 force-download，mutation call
+  count 固定为 0。四身份与 exact pair provenance 在 fresh immutable download/P0 strict readback 前后均需一致；
+  child 使用独立 mode-0600 原子 claim/completion，已有 completion 的重放仍做完整 read-only replay；
+- child 专项 22/22、P0+P1+child 54/54 通过，独立审计无 blocker。本步骤没有触网、没有读 token、没有修改
+  remote 或原 P1 state，也未解锁 formal labels；下一步只允许从 clean pushed `main` 执行真实 read-only child。

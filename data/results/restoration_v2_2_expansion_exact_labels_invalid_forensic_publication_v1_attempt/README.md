@@ -22,8 +22,9 @@ Hugging Face annotated-tag ref interface 与冻结 parser 不一致而 fail clos
 ## 结论与下一步
 
 这是 publication validation-interface failure，不是 archive byte mismatch，也不是第二次 data generation。
-同一 P1 source 不重跑；remote pair commit 与 tag 原样保留。下一步冻结独立、read-only、versioned
-tag-resolution repair：同时绑定 tag object identity 与 tag-resolved commit，重新做 force-download、P0 strict
+同一 P1 source 不重跑；remote pair commit 与 tag 原样保留。独立 read-only tag-resolution child 已 source-freeze，
+详见 [`protocol`](../../../docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md)。下一步从 clean
+pushed `main` 执行 child：同时绑定 tag object identity 与 tag-resolved commit，重新做 force-download、P0 strict
 readback 和 pre/post stability，再写新的 child completion。该 child 完成前，P0 archive 仍不能作为 formal labels。
 
 机器可读记录见 [`summary.json`](summary.json)。

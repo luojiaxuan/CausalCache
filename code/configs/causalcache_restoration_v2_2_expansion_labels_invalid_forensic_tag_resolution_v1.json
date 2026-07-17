@@ -1,0 +1,110 @@
+{
+  "child_local_state": {
+    "claim_path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-tag-resolution-v1.claim.json",
+    "completion_seal_path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-tag-resolution-v1.completion.json",
+    "file_mode": 384,
+    "o_excl_first_write": true,
+    "same_bytes_reusable": true
+  },
+  "formal_consumption": {
+    "formal_label_loader_eligible": false,
+    "gate_training_unlocked": false,
+    "producer_attempt_reclassified": false,
+    "transport_validation_only": true
+  },
+  "fresh_download_contract": {
+    "download_directory_must_start_empty": true,
+    "force_download": true,
+    "fresh_parent_must_be_absolute_non_symlink": true,
+    "p0_strict_archive_readback_required": true,
+    "pre_post_remote_identity_stable": true
+  },
+  "git_source_contract": {
+    "branch": "main",
+    "failure_evidence_commit": "dcc37e5ce62b844a1814a9f0fe29ec4827f2547a",
+    "failure_evidence_path": "data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/summary.json",
+    "failure_evidence_sha256": "7dd71de55e7adc2080154caa2679d3cdd23fae96808d07a51df7db1a6a6f5c8b",
+    "head_must_equal_origin_main": true,
+    "origin_name": "origin",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "parent_publication_source_commit": "3941d82a8ad83daaec55726a799d4d200735428d",
+    "required_source_paths": [
+      "code/causalcache/restoration_v2_2_expansion_labels_invalid_forensic.py",
+      "code/causalcache/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.py",
+      "code/configs/causalcache_restoration_v2_2_expansion_labels_invalid_forensic_v1.json",
+      "code/configs/causalcache_restoration_v2_2_expansion_labels_invalid_forensic_publication_v1.json",
+      "code/configs/causalcache_restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution_v1.json",
+      "code/scripts/manage_restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.py",
+      "data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/summary.json"
+    ],
+    "worktree_must_be_clean": true
+  },
+  "p0_forensic_source": {
+    "archive_member_count": 406,
+    "archive_sha256": "8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489",
+    "archive_size_bytes": 3880960,
+    "config_path": "code/configs/causalcache_restoration_v2_2_expansion_labels_invalid_forensic_v1.json",
+    "config_sha256": "5290a51a250e31be4fcf0a970c77ef31c08c92c5892edd19a12ecb14d9d5a6a2",
+    "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_v1",
+    "required_archive_status": "ARCHIVED_INVALID_EXPANSION_EXACT_LABEL_ATTEMPT",
+    "tree_inventory_sha256": "bc481dd77e26764dad3458e91a3e0247ade6049af7adb1744672aa6f2fb437d1"
+  },
+  "parent_publication_attempt": {
+    "claim": {
+      "mode": 384,
+      "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-publication-v1.claim.json",
+      "sha256": "0a07692b7f29fb0e9f6a9da23925135c8911f45d4f10f2edd2d277ceed0da5de",
+      "size_bytes": 1383,
+      "status": "CLAIMED_INVALID_FORENSIC_ARCHIVE_PUBLICATION_V1"
+    },
+    "completion_seal": {
+      "must_be_absent": true,
+      "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-publication-v1.completion.json"
+    },
+    "config_path": "code/configs/causalcache_restoration_v2_2_expansion_labels_invalid_forensic_publication_v1.json",
+    "config_sha256": "affb54cf44a656394c983cebe5d004d3e1ff216537c43da942dc031fa6baaccb",
+    "failure_evidence_commit": "dcc37e5ce62b844a1814a9f0fe29ec4827f2547a",
+    "parent_source_inventory_sha256": "d4ec445884bc2296c824e5f90718a1ede0be13023d5d969f77adf379a1c29cfa",
+    "parent_source_path_count": 5,
+    "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1",
+    "source_git_commit": "3941d82a8ad83daaec55726a799d4d200735428d"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1",
+  "remote_evidence": {
+    "archive_path": "attempts/restoration-v2-2-expansion-exact-labels-v1/attempt-1/raw-evidence-v1.tar",
+    "archive_sha256": "8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489",
+    "main_resolved_commit": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416",
+    "pair_commit": {
+      "files": [
+        ".gitattributes",
+        "attempts/restoration-v2-2-expansion-exact-labels-v1/attempt-1/archive-manifest-v1.json",
+        "attempts/restoration-v2-2-expansion-exact-labels-v1/attempt-1/raw-evidence-v1.tar"
+      ],
+      "predecessor_commit": "1e1bb828d196779e4fc855890922c4865fcd6458",
+      "predecessor_files": [
+        ".gitattributes"
+      ],
+      "revision": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416",
+      "title": "Publish invalid expansion exact-label forensic archive"
+    },
+    "private": true,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile",
+    "repo_type": "dataset",
+    "sidecar_path": "attempts/restoration-v2-2-expansion-exact-labels-v1/attempt-1/archive-manifest-v1.json",
+    "sidecar_sha256": "c67914d05ce5e93518c710cd99132548f4bf5b51250e506c996a9450a369b561",
+    "tag": "v2.2-expansion-exact-labels-v1-attempt-1-forensic-v1",
+    "tag_object_identity": "ca652858c3d59eab066eb7b31399690a65ea5f44",
+    "tag_resolved_commit": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416"
+  },
+  "remote_operation_contract": {
+    "allowed_api_methods": [
+      "dataset_info",
+      "list_repo_commits",
+      "list_repo_files",
+      "list_repo_refs"
+    ],
+    "remote_mutation_call_count": 0
+  },
+  "schema_version": "1.0.0",
+  "status": "source_only_frozen_before_read_only_tag_resolution_validation"
+}
