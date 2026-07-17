@@ -418,16 +418,16 @@ parse/join，feature workers 未接收 label semantics。
 字段本身没有漂移。
 
 同一 source 上的 bounded CPU diagnostic 只做四键 projection，复用原 rows、execution、immutable labels 与
-witness，逐 byte 重建三份 artifact 均 exact match。当前 artifact 因而记为
-`COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，不是 scientific `INVALID`，也暂不标为 `VALID`。后续只能
-冻结 reporting-only CPU validation repair；不得修改 artifact bytes、重跑 GPU 或提前解锁 gate/confirm。
+witness，逐 byte 重建三份 artifact 均 exact match。在 versioned repair 执行前，该 artifact 记为
+`COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，不是 scientific `INVALID`；随后只能冻结 reporting-only
+CPU validation repair，不得修改 artifact bytes、重跑 GPU 或提前解锁 gate/confirm。下节记录该 repair 的正式闭合。
 
 独立数值审计已复算所有 15-state selection、utility、comparator delta 与 hash，没有发现 scientific blocker。
 overall mean normalized recovery 是 `0.404691`；由于小 summary-only distance 的负 outlier 对逐状态 ratio 的
 影响较大，同时保留 ratio-of-sums `0.703501`。artifact 中 `exact_coalition_overlap_with_*` 的语义是
 policy-vision selection 与该 comparator selection 完全相同，并非与 exact-subset oracle 相同。
 
-### v3 validation-repair v1 source freeze
+### v3 validation-repair v1 source freeze 与 formal outcome
 
 repair v1 使用独立 config/module/runner，不编辑旧 v3 reconstructor。唯一修复是先严格要求 recorded evaluated
 state 恰好包含七键，再按固定顺序投影为 `index/role/trajectory_id/state_id` 四键；其余 feature record 字段仍由
@@ -460,9 +460,32 @@ python3 -m scripts.run_restoration_v2_2_policy_vision_v3_validation_repair_v1 ru
   --completion-seal /data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-completion-seal.json
 ```
 
-formal container 不传 `--gpus`，且 runner 必须观察到零 NVIDIA device node。它在 claim 新 CPU ledger 前只做 raw
-archive byte identity validation；claim 后才做 label semantic parse/reconstruction。它在 atomic publish 前创建独立
-`0600` O_EXCL completion seal，把 claim SHA、runtime identity、finished time 与两份输出的 exact size/SHA 锁在
-result 之外；seal 已存在但 exact output 未完整发布时，该次 protocol 永久 invalid。全部 producer files、原 GPU
-ledger、claim ledger、completion seal 与 source 在 publication 前后重验。正式 sibling result 尚未生成，因此 source-only PASS 不能写成
-`VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。
+formal container 不传 `--gpus`，且 runner 必须观察到零 NVIDIA device node。它在 claim 新 CPU ledger 前固定
+runtime identity；claim 后才做 label semantic parse/reconstruction。它在 atomic publish 前创建独立 `0600`
+O_EXCL completion seal，把 claim SHA、finished time 与两份输出的 exact size/SHA 锁在 result 之外；seal 已存在但
+exact output 未完整发布时，该次 protocol 永久 invalid。全部 producer files、原 GPU ledger、claim ledger、
+completion seal 与 source 在 publication 前后重验。
+
+唯一 formal audit 已从 `main@dbb45637cf79c3573bbbc6051b8b480e3f76d69d` 完成。validation Python closure 是
+156 paths / `e8daf215ca51b4c4d9e5f8a82399ec70d7d68700351968cace3386e235160a1d`。运行环境为 Hyper00
+`node-radixark-16-0000`、container `sglang-omni-jaxan-07170735` / ID
+`02df32fa30f768217854fa12365ae81d64a7b6817f32ec36b0f9fe29bc439261`、image
+`hongccc/sglang-omni:dev@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa`；
+Docker DeviceRequests 为空。runtime 使用 Python 3.12.3，container hostname 是 `02df32fa30f7`，platform 为
+`Linux-6.8.0-1043-aiext-x86_64-with-glibc2.39`，runner 记录 CPU、零 NVIDIA device node、零 CUDA runtime
+import 与零 forbidden module import。
+
+正式 sibling result
+[`data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1/`](../data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1/)
+返回 `VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。README/summary exact-two 分别为
+836 bytes / `3492dbae9a13d3d1d70e7aacf2cd7b405d1f9cc5956af980c519c8fb3ceee7e9` 与 10461 bytes /
+`f7a5ff63a754d06d7b61dcc46516ee2ed22e0a6a3b92b8b0be8a68869cf362b1`；attempt ledger 为
+2918 bytes / `6b65bef9d6edb73ee4275e89923bfd0e6123fb275fccb2b5dda9e57245f7b5d3`，completion seal 为
+771 bytes / `837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`。三份 producer
+artifact 全部逐 byte 相同，denominator 是 15 feature records / 60 candidate scores；所有 operation count 为 0，
+唯一修复是 exact 7-key→4-key projection，其余 reconstruction fields 不变。
+
+本次 formal `VALID` 不等于 clean-descendant validation 已完成。exact-two、本文档与 artifact regression 提交并
+push 后，还必须在 clean main descendant 上用 runner `validate` 只读核对同一 source commit、attempt ledger、
+completion seal、immutable labels 和 exact-two；不得更改 frozen config 的 13-path source inventory，也不得重写
+artifact bytes 或重跑 GPU。

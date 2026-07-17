@@ -1,0 +1,217 @@
+{
+  "exact_byte_replay": {
+    "all_files_byte_equal": true,
+    "candidate_score_count": 60,
+    "feature_record_count": 15,
+    "producer_artifact_bytes_unchanged_before_after": true,
+    "producer_files": [
+      {
+        "byte_equal": true,
+        "expected_sha256": "70ce9496983bfafeab04dd5184e5b7d5c8f02a70df9812893af0fe0aed47ed1f",
+        "expected_size_bytes": 1504,
+        "path": "README.md",
+        "sha256": "70ce9496983bfafeab04dd5184e5b7d5c8f02a70df9812893af0fe0aed47ed1f",
+        "size_bytes": 1504
+      },
+      {
+        "byte_equal": true,
+        "expected_sha256": "8c5977260bb1a8618b43cd877d963bd637c197e589db532c7ccbcab9c55f58b9",
+        "expected_size_bytes": 68269,
+        "path": "state_scores.jsonl",
+        "sha256": "8c5977260bb1a8618b43cd877d963bd637c197e589db532c7ccbcab9c55f58b9",
+        "size_bytes": 68269
+      },
+      {
+        "byte_equal": true,
+        "expected_sha256": "5ed21d6c397839bc60987bb3ee1db3a0560b6e923557cc1e8e524de921af1c0e",
+        "expected_size_bytes": 66273,
+        "path": "summary.json",
+        "sha256": "5ed21d6c397839bc60987bb3ee1db3a0560b6e923557cc1e8e524de921af1c0e",
+        "size_bytes": 66273
+      }
+    ]
+  },
+  "formal_attempt_claim": {
+    "record": {
+      "argv": [
+        "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/code/scripts/run_restoration_v2_2_policy_vision_v3_validation_repair_v1.py",
+        "run",
+        "--repository-root",
+        "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo",
+        "--contract",
+        "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json",
+        "--labels-archive",
+        "/data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar",
+        "--producer-attempt-ledger",
+        "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json",
+        "--validation-source-git-commit",
+        "dbb45637cf79c3573bbbc6051b8b480e3f76d69d",
+        "--output-dir",
+        "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1",
+        "--attempt-ledger",
+        "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-attempt.json",
+        "--completion-seal",
+        "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-completion-seal.json"
+      ],
+      "artifact_git_commit": "597f050297342d9f29eb383985c2014f5782b2bb",
+      "canonical_result_directory": "data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1",
+      "contract_sha256": "64f63ab7563c227423c15ef82d5fd74d8be11579248908c7ec2880137e5d6ddf",
+      "formal_attempt_ledger_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-attempt.json",
+      "formal_completion_seal_path": "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-completion-seal.json",
+      "producer_gpu_attempt_ledger_sha256": "6aabf8dc07dd45d422e8f21ee30538eded2e5b2a5eed2c36675338bdd15891ef",
+      "producer_source_git_commit": "a935a3cf5efb1fa7a952ca6f45a5994609b367e9",
+      "protocol_id": "causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1",
+      "runtime_identity": {
+        "device": "cpu",
+        "hostname": "02df32fa30f7",
+        "no_nvidia_runtime": {
+          "cuda_runtime_import_count": 0,
+          "forbidden_runtime_modules_checked": [
+            "torch",
+            "transformers",
+            "PIL"
+          ],
+          "forbidden_runtime_modules_imported": [],
+          "nvidia_device_node_count": 0,
+          "nvidia_device_nodes": [],
+          "nvidia_smi_invocation_count": 0
+        },
+        "platform": "Linux-6.8.0-1043-aiext-x86_64-with-glibc2.39",
+        "python_version": "3.12.3",
+        "working_directory": "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/code"
+      },
+      "schema_version": "1.0.0",
+      "started_at_utc": "2026-07-16T23:53:34.740660+00:00",
+      "status": "CLAIMED_POLICY_VISION_V3_VALIDATION_REPAIR_V1_ATTEMPT",
+      "validation_source_git_commit": "dbb45637cf79c3573bbbc6051b8b480e3f76d69d"
+    },
+    "sha256": "6b65bef9d6edb73ee4275e89923bfd0e6123fb275fccb2b5dda9e57245f7b5d3"
+  },
+  "operation_counts": {
+    "closed_loop_episode_count": 0,
+    "confirm_state_access_count": 0,
+    "cuda_operation_count": 0,
+    "gate_model_forward_count": 0,
+    "gate_training_example_count": 0,
+    "generation_count": 0,
+    "image_decode_count": 0,
+    "image_processor_batch_count": 0,
+    "kl_measurement_count": 0,
+    "language_model_forward_count": 0,
+    "lm_head_forward_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "model_load_count": 0,
+    "nvidia_device_query_count": 0,
+    "policy_forward_count": 0,
+    "policy_vision_feature_forward_count": 0,
+    "producer_artifact_write_count": 0,
+    "producer_attempt_ledger_write_count": 0,
+    "restoration_attribution_count": 0,
+    "restoration_label_generation_count": 0,
+    "sealed_test_state_access_count": 0,
+    "teacher_forward_count": 0
+  },
+  "producer_identity": {
+    "artifact_git_commit": "597f050297342d9f29eb383985c2014f5782b2bb",
+    "producer_contract_sha256": "794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f",
+    "producer_gpu_attempt_ledger_sha256": "6aabf8dc07dd45d422e8f21ee30538eded2e5b2a5eed2c36675338bdd15891ef",
+    "producer_source_git_commit": "a935a3cf5efb1fa7a952ca6f45a5994609b367e9",
+    "protocol_id": "causalcache_restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair",
+    "scientific_payload_sha256": "811e59c780851c19b7fe21314be1e52c1dbfcfa002e63a9857fd34d90ba94f48"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1",
+  "repair": {
+    "all_non_state_reconstruction_fields_unchanged": true,
+    "evaluated_state_keys_exact": [
+      "budget_event_capacity",
+      "candidate_event_step_ids",
+      "decision_step_id",
+      "index",
+      "role",
+      "state_id",
+      "trajectory_id"
+    ],
+    "feature_state_keys_exact_in_output_order": [
+      "index",
+      "role",
+      "trajectory_id",
+      "state_id"
+    ],
+    "only_semantic_change": "project_exact_seven_key_evaluated_state_to_exact_four_key_feature_state"
+  },
+  "runtime": {
+    "argv": [
+      "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/code/scripts/run_restoration_v2_2_policy_vision_v3_validation_repair_v1.py",
+      "run",
+      "--repository-root",
+      "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo",
+      "--contract",
+      "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json",
+      "--labels-archive",
+      "/data/experiments/causalcache/restoration-v2-2-eager-labels-v2.raw.tar",
+      "--producer-attempt-ledger",
+      "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-size-dict-interface-repair-attempt.json",
+      "--validation-source-git-commit",
+      "dbb45637cf79c3573bbbc6051b8b480e3f76d69d",
+      "--output-dir",
+      "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1",
+      "--attempt-ledger",
+      "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-attempt.json",
+      "--completion-seal",
+      "/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-completion-seal.json"
+    ],
+    "device": "cpu",
+    "finished_at_utc": "2026-07-16T23:53:36.344206+00:00",
+    "hostname": "02df32fa30f7",
+    "no_nvidia_runtime": {
+      "cuda_runtime_import_count": 0,
+      "forbidden_runtime_modules_checked": [
+        "torch",
+        "transformers",
+        "PIL"
+      ],
+      "forbidden_runtime_modules_imported": [],
+      "nvidia_device_node_count": 0,
+      "nvidia_device_nodes": [],
+      "nvidia_smi_invocation_count": 0
+    },
+    "platform": "Linux-6.8.0-1043-aiext-x86_64-with-glibc2.39",
+    "python_version": "3.12.3",
+    "started_at_utc": "2026-07-16T23:53:34.740660+00:00",
+    "working_directory": "/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/code"
+  },
+  "schema_version": "1.0.0",
+  "source_execution": {
+    "contract_sha256": "64f63ab7563c227423c15ef82d5fd74d8be11579248908c7ec2880137e5d6ddf",
+    "formal_source_changed_paths_exact": [
+      "README.md",
+      "code/README.md",
+      "code/causalcache/restoration_v2_2_policy_vision_v3_validation_repair.py",
+      "code/causalcache/restoration_v2_2_policy_vision_v3_validation_repair_contract.py",
+      "code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json",
+      "code/scripts/run_restoration_v2_2_policy_vision_v3_validation_repair_v1.py",
+      "code/scripts/validate_restoration_v2_2_policy_vision_v3_validation_repair_v1_contract.py",
+      "code/tests/test_restoration_v2_2_policy_vision_v3_validation_repair.py",
+      "code/tests/test_restoration_v2_2_policy_vision_v3_validation_repair_contract.py",
+      "code/tests/test_run_restoration_v2_2_policy_vision_v3_validation_repair_v1.py",
+      "data/README.md",
+      "docs/progress.md",
+      "docs/restoration_v2_2_policy_vision_baseline.md"
+    ],
+    "producer_python_source_closure": {
+      "inventory_sha256": "91f380916ca54fd8baf8987d0c06c18e5728d6b5db99fb86b06cb1ff85114b6d",
+      "path_count": 151,
+      "rule": "all_tracked_python_under_code_causalcache_and_code_scripts_at_source_commit"
+    },
+    "producer_source_git_commit": "a935a3cf5efb1fa7a952ca6f45a5994609b367e9",
+    "source_diff_baseline_git_commit": "597f050297342d9f29eb383985c2014f5782b2bb",
+    "validation_python_source_closure": {
+      "inventory_sha256": "e8daf215ca51b4c4d9e5f8a82399ec70d7d68700351968cace3386e235160a1d",
+      "path_count": 156,
+      "rule": "all_tracked_python_under_code_causalcache_and_code_scripts_at_source_commit"
+    },
+    "validation_source_git_commit": "dbb45637cf79c3573bbbc6051b8b480e3f76d69d"
+  },
+  "status": "VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1",
+  "validation_payload_sha256": "47c6122d151d03980cfffe984e73f61cdc287e6bc543eb09e4db45e6a8064e6d"
+}

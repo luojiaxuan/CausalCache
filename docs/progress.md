@@ -20,8 +20,9 @@ v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00
 但不稳定的弱 similarity comparator；这不构成 learned gate 的负结论。policy-vision v1 formal attempt 又因
 PyTorch UUID object type 在 0 feature 时 `INVALID`。UUID type-only v2 随后通过原失败点，但 pinned
 `SizeDict` 不满足冻结的 `Mapping` interface check，再次于 0 feature fail closed。v3 已完成 formal GPU
-artifact；首次 CPU byte-replay 只因 evaluated-state projection bug fail closed，当前是
-`COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，尚不标为 `VALID`。
+artifact；首次 CPU byte-replay 的 evaluated-state projection bug 已由独立 versioned CPU audit exact-byte 闭合，
+当前是 `VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`，仅剩 result commit 后的
+clean-descendant `validate`。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1940,6 +1941,34 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   `/data/experiments/causalcache/restoration-v2-2-policy-vision-v3-validation-repair-v1-completion-seal.json`。source PASS 不把
   pending artifact 提前升级为 `VALID`。
 
+### 2026-07-16：policy-vision v3 validation-repair v1 formal VALID
+
+- 唯一 CPU-only audit 从 clean pushed `main@dbb45637cf79c3573bbbc6051b8b480e3f76d69d` 执行；validation
+  Python closure 固定为 156 paths / `e8daf215ca51b4c4d9e5f8a82399ec70d7d68700351968cace3386e235160a1d`。
+  运行位于 Hyper00 `node-radixark-16-0000` 的 container `sglang-omni-jaxan-07170735`（ID
+  `02df32fa30f768217854fa12365ae81d64a7b6817f32ec36b0f9fe29bc439261`），image 为
+  `hongccc/sglang-omni:dev@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa`；
+  Docker DeviceRequests 为空；
+- runtime 为 Python 3.12.3、container hostname `02df32fa30f7`、
+  `Linux-6.8.0-1043-aiext-x86_64-with-glibc2.39`，工作目录是
+  `/data/experiments/causalcache/policy-vision-v3-validation-repair-v1/repo/code`；开始/结束时间分别为
+  `2026-07-16T23:53:34.740660+00:00` / `2026-07-16T23:53:36.344206+00:00`。runner 只看到 CPU，
+  NVIDIA device nodes、`nvidia-smi`、CUDA runtime import 与 forbidden module import 均为 0；
+- sibling audit 返回 `VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。两份 exact output 是
+  README 836 bytes / `3492dbae9a13d3d1d70e7aacf2cd7b405d1f9cc5956af980c519c8fb3ceee7e9` 与 summary
+  10461 bytes / `f7a5ff63a754d06d7b61dcc46516ee2ed22e0a6a3b92b8b0be8a68869cf362b1`；summary 的
+  validation payload SHA256 为 `47c6122d151d03980cfffe984e73f61cdc287e6bc543eb09e4db45e6a8064e6d`；
+- exact-three producer files 3/3 逐 byte 相同，feature/candidate denominator 为 15/60；所有 GPU/model/image/
+  policy/teacher/KL/restoration/gate/matched-NLL/closed-loop/confirm/test operation 都为 0。唯一语义变化仍是 evaluated
+  state exact 7-key→feature state exact 4-key，所有 non-state reconstruction fields 不变；
+- mode-0600 attempt ledger 为 2918 bytes / `6b65bef9d6edb73ee4275e89923bfd0e6123fb275fccb2b5dda9e57245f7b5d3`，
+  completion seal 为 771 bytes / `837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`。
+  新 artifact regression 锁定 exact-two、canonical JSON、source/closure、replay denominator、zero-op 与 repair scope；
+  frozen config 的 13-path formal source inventory 未修改；
+- 当前里程碑已是 formal `VALID`，但还不是 committed-descendant revalidation 完成态。下一步只提交/push
+  exact-two + docs + artifact test，然后从 clean pushed descendant 对同 attempt ledger、completion seal、immutable labels
+  与 exact-two 执行 runner `validate`；不得改写结果或重跑 GPU。
+
 ## 下一步
 
 Subset-search v1 与 spatial audit artifact 均已闭合，不继续为 optimizer 本身追加算法，也不得重跑任何 audit
@@ -1948,9 +1977,9 @@ canonical-representative 补救分支；formal label v1 已 zero-forward fail cl
 offline oracle/labels、private HF immutable artifact、selector-geometry v2 repaired result 与 OCR/RGB v2
 comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision v1 唯一 invocation 在
 zero-feature UUID type probe 阶段 `INVALID`；type-only v2 跨过 UUID 后又在 zero-feature SizeDict interface check
-阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 GPU artifact 已完成且不得重跑；下一步先
-从新的 clean pushed source 在 CPU-only container 执行 state-projection validation repair，提交 sibling audit 后做
-clean-descendant replay。独立数值审计已经完成且无 blocker，但在 formal repair 通过前不升级 comparator lifecycle。
+阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 GPU artifact 与 CPU state-projection repair
+现已 formal `VALID` 且不得重跑；下一步仅从提交该 result/docs/test 的 clean pushed descendant 做只读 replay。
+独立数值审计已经完成且无 blocker；policy-vision comparator lifecycle 已升级，clean-descendant validation 尚待闭合。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge

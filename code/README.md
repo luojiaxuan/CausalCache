@@ -135,8 +135,7 @@ PASS 不等于 feature/recovery result。冻结 config SHA256 为
 唯一 v3 GPU attempt 已完成并发布 exact-three artifact，但首次 CPU `validate` 暴露 state projection bug：
 evaluated output row 的七键 state 被原样当成四键 feature-state，导致 provenance check fail closed。GPU artifact
 与 ledger 均不得重跑或修改；只投影 `index/role/trajectory_id/state_id` 的 bounded CPU diagnostic 已重建三份
-exact bytes。当前状态是 `COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，下一步只允许冻结纯 CPU
-validation repair，不加载 model、不重算 feature。
+exact bytes。该状态随后由下面的 versioned CPU repair 正式闭合；历史 failure binding 与 GPU bytes 保持不变。
 
 该 repair 已冻结为
 `configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json`，SHA256
@@ -145,7 +144,24 @@ v3 helper；producer=`a935a3cf`、artifact=`597f0502`，repair source 使用后�
 只接受 labels、producer GPU ledger、repair ledger、source commit 与 sibling output，不接受 model、derived images、
 GPU UUID 或 device 参数。`run` 使用新 `0600` O_EXCL ledger，并在 atomic publish 前写入另一个
 `0600` O_EXCL completion seal，锁定 runtime identity、finished time 和 exact output size/SHA；`validate` 只读核对
-同 ledger/seal、重建 exact-three 并要求 clean pushed descendant。source freeze 尚未生成 audit result。
+同 ledger/seal、重建 exact-three 并要求 clean pushed descendant。
+
+唯一 formal audit 已从 clean pushed `main@dbb45637cf79c3573bbbc6051b8b480e3f76d69d` 在 Hyper00 的
+CPU-only container `sglang-omni-jaxan-07170735` 完成。container ID 为
+`02df32fa30f768217854fa12365ae81d64a7b6817f32ec36b0f9fe29bc439261`，image 是
+`hongccc/sglang-omni:dev@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa`，
+Docker DeviceRequests 为空。runtime 为 Python 3.12.3、container hostname `02df32fa30f7`、
+`Linux-6.8.0-1043-aiext-x86_64-with-glibc2.39`；runner 记录 CPU、零 NVIDIA device node、零 CUDA/runtime import。
+正式结果位于
+`../data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1/`，返回
+`VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`：15 feature records、60 candidate scores、
+exact-three 3/3 byte equal，所有 operation count 为 0，唯一语义变化仍是 exact 7-key→4-key projection。
+README/summary 分别是 836 bytes / `3492dbae9a13d3d1d70e7aacf2cd7b405d1f9cc5956af980c519c8fb3ceee7e9`
+与 10461 bytes / `f7a5ff63a754d06d7b61dcc46516ee2ed22e0a6a3b92b8b0be8a68869cf362b1`；attempt
+ledger SHA256 为 `6b65bef9d6edb73ee4275e89923bfd0e6123fb275fccb2b5dda9e57245f7b5d3`，completion seal
+SHA256 为 `837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`。artifact lock 位于
+`tests/test_restoration_v2_2_policy_vision_v3_validation_repair_artifact.py`。下一步仅是提交/push descendant
+result/docs/test 后运行只读 clean-descendant `validate`，不得重写 exact-two 或重跑 GPU。
 
 v2 executable interface 使用显式 versioned 模块 `causalcache.policy.gui_owl_v2` 与
 `causalcache.low_fidelity_v2`，不修改历史 v1 parser/prompt/schema。CPU validator 对 restricted grammar、

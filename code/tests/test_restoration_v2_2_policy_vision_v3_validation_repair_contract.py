@@ -61,6 +61,10 @@ class PolicyVisionV3ValidationRepairContractTest(unittest.TestCase):
             seal = Path(temporary) / "completion.json"
             with (
                 mock.patch(
+                    "causalcache.restoration_v2_2_policy_vision_v3_validation_repair_contract.CANONICAL_RESULT_DIRECTORY",
+                    str(Path(temporary) / "result"),
+                ),
+                mock.patch(
                     "causalcache.restoration_v2_2_policy_vision_v3_validation_repair_contract.FORMAL_ATTEMPT_LEDGER_PATH",
                     str(ledger),
                 ),

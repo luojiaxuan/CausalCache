@@ -189,13 +189,18 @@ restoration v2 exact selection/exposure 产物：
   run 已生成 exact-three bytes：README/state-scores/summary SHA256 分别为 `70ce9496...ed1f`、
   `8c597726...58b9`、`5ed21d6c...1c0e`，scientific payload SHA256 为 `811e59c7...f48`。首次 CPU validate 因
   recorded evaluated-state 未投影回四键 feature-state 而 fail closed；failure binding 位于
-  `results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/`。当前 artifact 是
-  `COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`，不得写成 `VALID`，也没有新的 HF artifact。
-  versioned CPU repair v1 source 已冻结；预留的 sibling result
-  `results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1/` 在 source freeze 时必须不存在。它只会保存
-  `README.md/summary.json` 两份轻量 Git audit，不产生新 dataset/model；raw labels 继续引用既有 private HF
-  immutable revision `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`。正式运行时由外部 `0600` O_EXCL attempt
-  ledger 与 completion seal 共同绑定 runtime 和 exact output bytes，两者都不进入 Git。
+  `results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/`。versioned CPU repair v1 随后从
+  `main@dbb45637cf79c3573bbbc6051b8b480e3f76d69d` 完成 formal audit，正式 sibling result 位于
+  `results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1/`，状态为
+  `VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。该目录严格只有 `README.md/summary.json`：
+  分别为 836 bytes / `3492dbae9a13d3d1d70e7aacf2cd7b405d1f9cc5956af980c519c8fb3ceee7e9` 与
+  10461 bytes / `f7a5ff63a754d06d7b61dcc46516ee2ed22e0a6a3b92b8b0be8a68869cf362b1`。它逐 byte
+  重建原 exact-three、记录 15 states / 60 candidates、全零 operation count 与唯一 7-key→4-key projection；
+  不产生新 dataset/model，raw labels 继续引用既有 private HF immutable revision
+  `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`。外部 mode-0600 attempt ledger SHA256 为
+  `6b65bef9d6edb73ee4275e89923bfd0e6123fb275fccb2b5dda9e57245f7b5d3`，completion seal SHA256 为
+  `837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`；两者不进入 Git。提交本
+  result/docs/test 后仍需从 clean pushed descendant 做只读 `validate`。
 
 最新轻量运行记录：
 

@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 = `COMPLETED_PENDING_VERSIONED_CPU_REPLAY_VALIDATION`、validation-repair v1 source frozen / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` (exact-three 3/3 byte equal；15 states / 60 candidates；clean-descendant validate 待完成) / confirm locked
 
 ## 团队交接入口
 
@@ -34,8 +34,9 @@ primary `n=4,B=2` 上 exact 与 true greedy 在 15/15 states 完全一致；deve
 objective-projection gap（greedy - budget-conditioned independent）为 `0.159039`，5/5 trajectories 同方向，
 90% method-shaping interval `[0.007836, 0.355867]`。冻结规则输出
 `set_conditioned_main_candidate + online_greedy_sufficient`，但它不是 paper success gate。OCR/RGB 已闭合；
-policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interface mismatch 封存；v3 GPU artifact 已
-完成，但 CPU byte-replay 的 state projection bug 尚待 versioned repair，因此暂不标为 `VALID`。
+policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interface mismatch 封存；v3 GPU artifact 的
+state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式状态为 `VALID`，但 result commit 后的
+clean-descendant `validate` 仍待执行。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
@@ -105,8 +106,8 @@ vision feature forwards。same-device 和 cross-device sentinel 的 maximum abso
 policy/LM/generation/gate/matched-NLL/closed-loop/confirm/test operation 均为 0。exact-three artifact 位于
 [`data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/`](data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/)，
 scientific payload SHA256 为 `811e59c7...f48`。GPU 输出的 overall/train/development mean normalized recovery 为
-`0.404691 / 0.535228 / 0.143615`，exact match 为 `3/15 / 3/10 / 0/5`；这些数值在 CPU replay repair 完成前
-只作 pending artifact 描述，不升级为 validated comparator conclusion。overall mean 受小
+`0.404691 / 0.535228 / 0.143615`，exact match 为 `3/15 / 3/10 / 0/5`；独立 CPU repair 已逐 byte 重建
+README/state-scores/summary 三份 producer artifact，因此这些数值现已进入 validated comparator lifecycle。overall mean 受小
 summary-only distance 的负 outlier 影响，ratio-of-sums recovery 为 `0.703501`，后续报告必须与 mean 并列。
 
 首次 CPU `validate` 因 reconstructor 把 evaluated row 的七键 state 原样送入只接受四键 feature-state 的
@@ -119,9 +120,15 @@ artifact commit 固定为 `597f0502`，repair source 必须使用新的 clean pu
 [`code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json`](code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json)
 SHA256 为 `64f63ab7563c227423c15ef82d5fd74d8be11579248908c7ec2880137e5d6ddf`。它只允许 exact 7-key→4-key
 projection、immutable-label CPU reconstruction 与三份 producer artifact 的逐 byte 比较；model/GPU/feature、
-teacher/KL、gate、matched-NLL、closed-loop 与 confirm/test 均为 0。source-only PASS 不是正式 `VALID`；下一步
-必须在不暴露 NVIDIA device 的新 CPU container 中运行一次 O_EXCL-ledger audit，并在发布前用独立
-`0600` O_EXCL completion seal 锁定 runtime identity、finished time 与两份最终输出的 exact bytes。
+teacher/KL、gate、matched-NLL、closed-loop 与 confirm/test 均为 0。唯一 formal audit 已从
+`main@dbb45637cf79c3573bbbc6051b8b480e3f76d69d` 在 Hyper00 CPU-only container
+`sglang-omni-jaxan-07170735` 完成，返回
+`VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。exact-two sibling result 的 README/summary
+分别为 836 bytes / `3492dbae...ee7e9` 与 10461 bytes / `f7a5ff63...62b1`；attempt ledger SHA256 为
+`6b65bef9...b5d3`，completion seal SHA256 为 `837c52f4...a52b`。运行使用
+`hongccc/sglang-omni:dev@sha256:6a8f60af...acfa`、Python 3.12.3，container 未配置 GPU DeviceRequests 且
+runner 观察到零 NVIDIA device/runtime import。当前还必须提交本 result/docs/test，再从 clean pushed descendant
+执行只读 `validate`；这一步不改变 exact-two 或 exact-three bytes。
 
 新的 v2.1 interface rescue 已在任何 v2.1 policy output 前冻结为独立协议，machine-readable contract 是
 [`code/configs/causalcache_restoration_v2_1_pilot.json`](code/configs/causalcache_restoration_v2_1_pilot.json)，
@@ -680,7 +687,8 @@ $$
 - [x] 冻结新的 exact loaded SizeDict-interface v3 repair；v1/v2 identity 与失败证据保持不变；
 - [x] 执行唯一 policy-vision v3 formal attempt并提交 exact-three artifact；GPU schedule/replay 完成且不允许重跑；
 - [x] 冻结 state-projection-only CPU validation repair source；producer/artifact/repair commit 与 exact-byte边界已分离；
-- [ ] 执行唯一 CPU-only validation-repair audit，提交 sibling result 后做 clean-descendant replay；
+- [x] 执行唯一 CPU-only validation-repair audit并锁定 exact-two sibling result；三份 producer artifact 逐 byte 相同；
+- [ ] 从提交该 result/docs/test 的 clean pushed descendant 执行只读 `validate`；
 - [ ] 根据 geometry 结论冻结 set-conditioned 或 independent gate-training/evaluation contract；在新 contract 前不训练 gate、不构造 matched-NLL、不运行 closed-loop 或 confirm；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -771,9 +779,11 @@ $$
 - Restoration-v2.2 policy-vision regressions: [`code/tests/test_restoration_v2_2_policy_vision.py`](code/tests/test_restoration_v2_2_policy_vision.py)、[`code/tests/test_run_restoration_v2_2_policy_vision_baseline.py`](code/tests/test_run_restoration_v2_2_policy_vision_baseline.py)
 - Restoration-v2.2 policy-vision v1 invalid attempt: [`data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/`](data/results/restoration_v2_2_policy_vision_baseline_v1_attempt/)
 - Restoration-v2.2 policy-vision v2 invalid attempt: [`data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/`](data/results/restoration_v2_2_policy_vision_baseline_v2_gpu_uuid_repair_attempt/)
-- Restoration-v2.2 policy-vision v3 pending artifact: [`data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/`](data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/)
+- Restoration-v2.2 policy-vision v3 producer artifact: [`data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/`](data/results/restoration_v2_2_policy_vision_baseline_v3_size_dict_interface_repair/)
 - Restoration-v2.2 policy-vision v3 CPU validation failure: [`data/results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/`](data/results/restoration_v2_2_policy_vision_baseline_v3_cpu_validation_attempt/)
 - Restoration-v2.2 policy-vision v3 CPU repair contract: [`code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json`](code/configs/causalcache_restoration_v2_2_policy_vision_v3_validation_repair_v1.json)
+- Restoration-v2.2 policy-vision v3 VALID CPU audit: [`data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1/`](data/results/restoration_v2_2_policy_vision_baseline_v3_validation_repair_v1/)
+- Restoration-v2.2 policy-vision v3 audit regression: [`code/tests/test_restoration_v2_2_policy_vision_v3_validation_repair_artifact.py`](code/tests/test_restoration_v2_2_policy_vision_v3_validation_repair_artifact.py)
 - Restoration-v2.2 feature-only runtime: [`code/causalcache/policy/gui_owl_v2_2_vision_runtime.py`](code/causalcache/policy/gui_owl_v2_2_vision_runtime.py)
 - Restoration-v2 baseline source manifest: [`data/manifests/restoration_v2_baselines.json`](data/manifests/restoration_v2_baselines.json)
 - Restoration-v2 derived dataset builder: [`code/scripts/build_guiodyssey_restoration_v2.py`](code/scripts/build_guiodyssey_restoration_v2.py)
