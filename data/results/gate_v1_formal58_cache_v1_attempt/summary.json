@@ -1,0 +1,71 @@
+{
+  "attempt_id": "gate-v1-formal58-cache-v1-hyper00-20260717T153824Z",
+  "authorization": {
+    "closed_loop_authorized": false,
+    "confirm_access_authorized": false,
+    "formal_label_semantic_decode_count": 0,
+    "gate_training_authorized": false,
+    "matched_nll_authorized": false
+  },
+  "destination_observation": {
+    "hf_api_mutation_count": 0,
+    "repo": "gavinlaw/causalcache-gate-v1-formal58-cache-mobile",
+    "repo_type": "dataset",
+    "state_after_failure": "ABSENT"
+  },
+  "execution": {
+    "container": "sglang-omni-jaxan-07172332",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "device": "cpu",
+    "execution_b_git_commit": "079c0952017a9e2936f5741bbe15345255b0e481",
+    "exit_code": 1,
+    "host": "node-radixark-16-0000",
+    "python_implementation": "CPython",
+    "python_version": "3.12.3",
+    "run_finished_at_utc": "2026-07-17T15:38:28.534587054Z",
+    "run_started_at_utc": "2026-07-17T15:38:24.181536057Z",
+    "source_a_git_commit": "990f015b02e0dc89dedaab3853fab9f07fb0884d"
+  },
+  "failure": {
+    "exception_class": "ValueError",
+    "exception_message": "downloaded expansion_feature_trajectories transport identity drifted",
+    "failure_site": "causalcache.gate_v1_formal_cache._verify_downloads",
+    "input_key": "expansion_feature_trajectories",
+    "input_path": "derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl",
+    "observed_sha256": "fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d",
+    "observed_size_bytes": 1245673,
+    "stderr_sha256": "6ef14b55bbfba4b2de496281d0b7ba5f744d1361b71ae674737d2aeacc201a31",
+    "stderr_size_bytes": 1807,
+    "wrong_frozen_sha256": "00fe93e9deeeb9a3c018227fb781b29f6efefbb728db987584b650d9df353a6d",
+    "wrong_frozen_size_bytes": 1245673
+  },
+  "local_state": {
+    "absent_artifact_paths": [
+      "/data/artifacts/causalcache/gate-v1-formal58-feature-cache-v1.tar",
+      "/data/artifacts/causalcache/gate-v1-formal58-label-cache-v1.tar"
+    ],
+    "absent_successor_state_names": [
+      "feature_completion",
+      "label_access_claim",
+      "label_completion",
+      "remote_base_receipt",
+      "completion_staging",
+      "final_completion"
+    ],
+    "claim_mode": 384,
+    "claim_path": "/data/experiments/causalcache/.gate-v1-formal58-cache-v1.claim.json",
+    "claim_retained_unchanged": true,
+    "claim_sha256": "a9372c7a4b606323b60e27b8984c5c6d456d62ad16c297fb4737c3d4abd54b1b",
+    "claim_size_bytes": 7062
+  },
+  "provenance": {
+    "contract_sha256": "1d7527e8a7bede8aaab8a21f7757f786674530238ae99fe3ce5b196cbce67261",
+    "correct_transport_witness_path": "data/results/restoration_v2_2_label_expansion_derived/artifact.json",
+    "correct_transport_witness_sha256": "db518ce830fc233d6f27905fe9b341933995fc272262ccb64d8ca436e3a8e04e",
+    "git_checkout_bundle_sha256": "30e64ccf3f691fec14418a2c4b4c9c607d9fbbb4f6f834c8a66237d62af89b26",
+    "live_remote_main_matched_execution_b": true,
+    "runner_freeze_sha256": "9e941eaff5cc44a44784d22a7568a692d460aea9b07cfd580bf362940158f106"
+  },
+  "schema_version": "1.0.0",
+  "status": "INVALID_PRE_SEMANTIC_GATE_V1_FORMAL58_CACHE_ATTEMPT_V1"
+}

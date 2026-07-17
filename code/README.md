@@ -137,9 +137,11 @@ PYTHONPATH=. python3 -m unittest \
   tests.test_gate_v1_pipeline -v
 ```
 
-当前 Source-A 不生成 cache、不触网、不读取 formal label semantics，也不授权 gate fit。先从 clean pushed A 用
-`scripts.manage_gate_v1_formal_cache materialize-runner-freeze` 机械生成唯一 Execution-B 文件并单独 commit/push；
-随后才可在 Hyper00 no-GPU runtime 执行 exact-three private-HF publication 与 immutable replay。完整解释见
+Source-A=`990f015` 与唯一单文件 Execution-B=`079c095` 已 push。首次 Hyper00 no-GPU run 在 global claim 后、任何
+semantic decode 前发现 expansion trajectories 的合法 64-hex SHA transcription mismatch 并 fail-closed；旧 claim
+保留，cache 与 HF destination 均不存在。不得修改原 config 或续跑旧 namespace；下一步必须从 Git-pinned producer
+completion 交叉验证 transport inventory，并通过独立 transport-repair A→B 执行。失败记录见
+`data/results/gate_v1_formal58_cache_v1_attempt/`。完整解释见
 `docs/gate_v1_preregistration.md`、`docs/gate_v1_formal_cache.md` 与 `docs/gate_v1_execution.md`。
 
 Expansion exposure 的 source-only ledger 位于

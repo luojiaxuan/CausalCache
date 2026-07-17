@@ -2469,3 +2469,23 @@ completion 闭合前不得训练 formal-58 gate，也不得读取 fresh-16、旧
   validator 保持 network/write/GPU/model/training/semantic access 全零。当前未生成 runner freeze B、cache、HF
   destination/tag/completion，也没有 gate fit、development metric、matched-NLL、closed-loop 或 confirm access。
   下一步只允许从 clean pushed A 机械生成并单独 push B。
+
+### 2026-07-17：formal-58 cache v1 pre-semantic transport failure
+
+- Source-A=`990f015b02e0dc89dedaab3853fab9f07fb0884d` 已 push；从 clean A 机械生成的 runner freeze SHA256
+  `9e941eaff5cc44a44784d22a7568a692d460aea9b07cfd580bf362940158f106` 作为唯一 diff 的 direct-child
+  Execution-B=`079c0952017a9e2936f5741bbe15345255b0e481` 单独 commit/push；
+- Hyper00 container `sglang-omni-jaxan-07172332` 使用 CPython 3.12.3/x86_64、`runc`、无 GPU DeviceRequests/
+  device nodes 与冻结 thread env。live private `origin/main` 与 B 一致；
+- run 创建 mode-0600 global claim 后，在 `_verify_downloads()` 发现 `expansion_feature_trajectories` transport
+  mismatch：config 错误值为 `00fe93e9...353a6d`，immutable bytes、producer preupload/fresh-download/payload
+  witnesses 与 Hyper00 `sha256sum` 均为 `fe93e9de...353a6d`。两者都是 64 位合法 SHA；错误值误插前导 `00`
+  并漏掉真实 digest 中连续出现的第二个 `fe` byte；
+- claim 为 7,062 bytes / SHA256 `a9372c7a...54b1b`，旧 namespace 的 feature completion、label-access claim、
+  label completion、remote receipt、staged/final completion 与两个 cache 全部不存在。失败发生在任何
+  trajectory/OCR/label semantic decode 之前，因此 semantic decode、GPU/model、training、HF mutation、matched-NLL、
+  closed-loop 与 confirm operation 均为 0；read-only postcheck 证明 destination repo 仍不存在；
+- 旧 claim 不删除、不覆盖、不续跑。下一步必须用独立 transport-repair overlay 绑定旧 claim 与 Git-pinned
+  producer completion，只允许修复该一个 transport SHA leaf，并更换全部 local state/cache/HF tag/target namespace，
+  再重新执行 Source-A → machine-generated Execution-B。轻量证据位于
+  `data/results/gate_v1_formal58_cache_v1_attempt/`。

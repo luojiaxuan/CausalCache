@@ -43,9 +43,12 @@
 > `6a907ba2...a4a57`，tag-resolved immutable pair commit 为 `7a6c254b...5cef3`；archive/sidecar、exact-pair、
 > 幂等 replay 与独立只读 postflight 均通过。由此只解除 formal-58 的 label-data prerequisite；Gate v1
 > trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但 formal-58 尚未 fit，也没有 learned-gate
-> paper metric、matched-NLL、closed-loop 或 confirm 结果。formal-58 train-only cache 的 Source-A contract/core/
-> runner 已冻结（config SHA256 `1d7527e8...67261`），当前仍为 source-only：没有 cache、HF destination/tag、
-> completion 或 formal semantic read；必须先单独生成并 push Execution-B runner freeze。详见
+> paper metric、matched-NLL、closed-loop 或 confirm 结果。formal-58 train-only cache 的 Source-A
+> `990f015` 与单文件 Execution-B `079c095` 已冻结并 push；首次 Hyper00 CPU-only run 在 global claim 后的
+> feature transport byte check fail-closed：config 把 expansion trajectories SHA 错写为 `00fe93...353a6d`，
+> immutable bytes 与 Git-pinned producer witness 均为 `fe93e9...353a6d`。失败早于任何 semantic decode，未生成
+> cache/HF repo/tag/completion，也未创建 label-access claim。旧 claim 永久保留，下一步只允许独立 namespace 的
+> transport-repair A→B，详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
 > [`docs/restoration_v2_2_expansion_exact_labels.md`](docs/restoration_v2_2_expansion_exact_labels.md)、
 > [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)、
@@ -801,8 +804,10 @@ $$
   formal-58 label-data prerequisite；
 - [x] 冻结 formal-58 train-only cache Source-A：selective feature/label readers、分阶段 state machine、exact-three
   HF bundle 与 Source-A/Execution-B 边界均已实现；本项不读取 formal semantics 或生成 cache；
-- [ ] 从 clean pushed Source-A 机械生成并单独 push runner freeze B，在 Hyper00 no-GPU runtime 物化、发布并
-  immutable replay formal-58 feature/label cache；
+- [x] 从 clean pushed Source-A 机械生成并单独 push runner freeze B；首次 Hyper00 run 在 pre-semantic feature
+  transport binding 处 fail-closed，旧 claim 与失败证据已封存，HF destination 仍不存在；
+- [ ] 冻结并执行只修复一个 SHA leaf、使用独立 local/HF namespace 的 transport-repair A→B，随后 immutable
+  replay formal-58 feature/label cache；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -1037,7 +1042,7 @@ $$
 | Label-expansion substrate v1 | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile> | `v2.2-label-expansion-substrate-v1` / `25ac19cf6ef98adc243d421cd0039ac104ddb539`，private | 192/192、0 failed；185 memory-sensitive；384/576/384 exact counts；406-file USTAR SHA256 `4e77a38b...ff47d`，fresh immutable byte replay verified |
 | Expansion exact-label v1 attempt / invalid forensic | [private HF invalid-attempt dataset](https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile)；[failure binding](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/) / [transport result](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/) | `v2.2-expansion-exact-labels-v1-attempt-1-forensic-v1` / `5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416`，private | 192/192 raw body complete；406-member forensic USTAR SHA256 `8e205d73...ca489` immutable replay verified；producer 仍 `INVALID` 且 formal-ineligible |
 | Expansion exact-label scientific-repair child | [private HF repaired-label dataset](https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile)；[scientific result](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/) / [publication result](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/) | `v2.2-expansion-exact-labels-scientific-repair-v1` / annotated object `6a907ba2...a4a57` / resolved commit `7a6c254b...5cef3`，private | 4-member USTAR SHA256 `1a9fdcc0...e01` 已 `VALID + REVALIDATED` 并 immutable replay/postflight；原 producer 不重分类；仅 formal-58 label-data prerequisite cleared，gate 未训练 |
-| Gate v1 formal-58 train-only cache | planned private HF dataset `gavinlaw/causalcache-gate-v1-formal58-cache-mobile` | Source-A frozen；Execution-B / HF revision pending | 计划 exact-three feature/label/joint-manifest bundle；当前没有 local-only canonical artifact，未训练 gate |
+| Gate v1 formal-58 train-only cache | planned private HF dataset `gavinlaw/causalcache-gate-v1-formal58-cache-mobile`；[v1 failure evidence](data/results/gate_v1_formal58_cache_v1_attempt/) | A=`990f015` / B=`079c095`；v1 attempt permanently invalid；repair revision pending | 合法 64-hex transport SHA transcription mismatch 在 semantic decode 前 fail-closed；仅旧 claim 存在，cache/HF destination 均不存在；下一步为独立 namespace transport repair |
 | Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
 | Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |

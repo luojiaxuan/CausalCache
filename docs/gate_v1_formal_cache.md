@@ -1,10 +1,11 @@
 # Gate v1 formal-58 train-only cache
 
-> 当前状态：Source-A 的 source-only contract、selective cache core 与 crash-safe runner 已冻结；尚未读取 formal label
-> semantic records，尚未创建 feature/label cache、HF repo/tag/completion，也没有 gate training、OOF、checkpoint、
-> development metric、matched-NLL、closed-loop 或 confirm access。Source-A config SHA256 为
-> `1d7527e8a7bede8aaab8a21f7757f786674530238ae99fe3ce5b196cbce67261`。只有 Execution-B 的 immutable HF fresh replay
-> 与 final completion seal 同时闭合后，formal-58 才能作为 training input。
+> 当前状态：Source-A=`990f015` 与 Execution-B=`079c095` 已冻结并 push。首次 Hyper00 CPU-only run 创建 global
+> claim 后，在 feature transport byte check 发现 expansion trajectories 的合法 64-hex SHA transcription mismatch
+> 并 fail-closed；尚未执行任何 semantic decode，也没有 feature/label cache、HF repo/tag/completion、gate training、
+> OOF、checkpoint、development metric、matched-NLL、closed-loop 或 confirm access。旧 claim 永久保留；只有新的
+> versioned transport-repair Execution-B 完成 immutable HF fresh replay 与 final completion 后，formal-58 才能作为
+> training input。失败证据见 `data/results/gate_v1_formal58_cache_v1_attempt/`。
 
 ## 目标与边界
 
