@@ -936,6 +936,37 @@ class ExpansionExactLabelRunnerTest(unittest.TestCase):
         self.assertIn('multiprocessing.get_context("spawn")', source)
         self.assertNotIn('multiprocessing.get_context("fork")', source)
 
+    def test_authorization_resolves_cli_paths_before_root_bound_loaders(self) -> None:
+        args = argparse.Namespace(
+            repository_root="..",
+            contract="configs/causalcache_restoration_v2_2_expansion_labels_v1.json",
+            runner_freeze=(
+                "configs/causalcache_restoration_v2_2_expansion_labels_runner_v1.json"
+            ),
+        )
+        contract_path = Path(args.contract).resolve()
+        freeze_path = Path(args.runner_freeze).resolve()
+        observed: list[Path] = []
+
+        def load_contract(path, *, repository_root):
+            del repository_root
+            observed.append(Path(path))
+            return {}, {}
+
+        def stop_at_freeze(path, *, repository_root):
+            del repository_root
+            observed.append(Path(path))
+            raise RuntimeError("stop after loader path capture")
+
+        with (
+            patch.object(runner, "_validate_formal_args"),
+            patch.object(runner, "load_and_validate_contract", side_effect=load_contract),
+            patch.object(runner, "load_and_validate_runner_freeze", side_effect=stop_at_freeze),
+            self.assertRaisesRegex(RuntimeError, "loader path capture"),
+        ):
+            runner.authorize_expansion_label_run(args)
+        self.assertEqual(observed, [contract_path, freeze_path])
+
 
 if __name__ == "__main__":
     unittest.main()

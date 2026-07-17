@@ -644,11 +644,11 @@ def authorize_expansion_label_run(args: argparse.Namespace) -> AuthorizedExpansi
     root = Path(args.repository_root).resolve()
     _validate_formal_args(args, root)
     frozen_config, contract_validation = load_and_validate_contract(
-        args.contract,
+        Path(args.contract).resolve(),
         repository_root=root,
     )
     runner_freeze, runner_validation = load_and_validate_runner_freeze(
-        args.runner_freeze,
+        Path(args.runner_freeze).resolve(),
         repository_root=root,
     )
     if runner_validation.get("policy_or_gpu_execution_authorized") is not True:
