@@ -1,0 +1,506 @@
+{
+  "artifact": {
+    "fresh_download": {
+      "artifact_file_count": 6,
+      "artifact_total_bytes": 347902778,
+      "artifact_tree_sha256": "9394b369e2b741e6aacf9ece4fc5dae3e6337b25a7e65402307e4e7862b94abc",
+      "clean_projection_created": true,
+      "direct_repo_snapshot_validation_used": false,
+      "files": [
+        {
+          "path": ".gitattributes",
+          "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9",
+          "size_bytes": 42
+        },
+        {
+          "path": "README.md",
+          "sha256": "33f9852ae98262d94bc55337184ff7cdc83be92fc54588b2b938386151ad5a13",
+          "size_bytes": 749
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/images-00000-of-00001.tar",
+          "sha256": "9e879e3ca59e7db058a68366a4289f578f0af67dabff2f3c517809fe03cb3ecf",
+          "size_bytes": 343674880
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/manifest.json",
+          "sha256": "12d6ae78e8ef8750ee0dfb004653856316e0845bd3c498f96232b919bf8e7947",
+          "size_bytes": 8445
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/ocr-records-00000-of-00001.jsonl",
+          "sha256": "a1a0a979a74f026dd466df6c5e956c741110e34102cee0ff996695863c749dd8",
+          "size_bytes": 2972989
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl",
+          "sha256": "fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d",
+          "size_bytes": 1245673
+        }
+      ],
+      "payload_prefix_exact_six_only": true,
+      "validator_outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_EXPANSION_VALIDATION"
+    },
+    "immutable_revision": "630363a6adb692d72774f16dd0653a50216313ff",
+    "payload_prefix": "derived/restoration-v2-label-expansion-v1",
+    "preupload": {
+      "artifact_file_count": 6,
+      "artifact_total_bytes": 347902778,
+      "artifact_tree_sha256": "9394b369e2b741e6aacf9ece4fc5dae3e6337b25a7e65402307e4e7862b94abc",
+      "files": [
+        {
+          "path": ".gitattributes",
+          "sha256": "116c15b65825b94cdce725a6c380e58928b054dc861b6b7b07f5eae549a7c2e9",
+          "size_bytes": 42
+        },
+        {
+          "path": "README.md",
+          "sha256": "33f9852ae98262d94bc55337184ff7cdc83be92fc54588b2b938386151ad5a13",
+          "size_bytes": 749
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/images-00000-of-00001.tar",
+          "sha256": "9e879e3ca59e7db058a68366a4289f578f0af67dabff2f3c517809fe03cb3ecf",
+          "size_bytes": 343674880
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/manifest.json",
+          "sha256": "12d6ae78e8ef8750ee0dfb004653856316e0845bd3c498f96232b919bf8e7947",
+          "size_bytes": 8445
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/ocr-records-00000-of-00001.jsonl",
+          "sha256": "a1a0a979a74f026dd466df6c5e956c741110e34102cee0ff996695863c749dd8",
+          "size_bytes": 2972989
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl",
+          "sha256": "fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d",
+          "size_bytes": 1245673
+        }
+      ],
+      "validator_outcome": "PASSED_GUIODYSSEY_RESTORATION_V2_EXPANSION_VALIDATION"
+    },
+    "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "tag": "restoration-v2-label-expansion-v1.0.0"
+  },
+  "execution": {
+    "commands": {
+      "build": [
+        "/data/.venv/causalcache-ocr-v2/bin/python",
+        "-m",
+        "scripts.build_guiodyssey_restoration_v2_expansion",
+        "--label-expansion-config",
+        "configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+        "--parent-selection-manifest",
+        "../data/manifests/restoration_v2_selection.json",
+        "--expansion-selection-manifest",
+        "../data/manifests/restoration_v2_2_label_expansion_selection.json",
+        "--v1-config",
+        "configs/independent_reference_gate_v1.json",
+        "--source-file-manifest",
+        "../data/manifests/independent_reference_gate_v1_source_files.json",
+        "--source-root",
+        "/data/source/guiodyssey-independent-v1",
+        "--ocr-backend-config",
+        "configs/restoration_v2_ocr_backend.json",
+        "--ocr-backend-manifest",
+        "../data/manifests/restoration_v2_ocr_backend.json",
+        "--model-dir",
+        "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+        "--wheel-dir",
+        "/data/tmp/causalcache-ocr-v2-wheels",
+        "--git-revision",
+        "1f7fa28e13de79f2fb8accb45e638e36b6b68723",
+        "--output-dir",
+        "/data/experiments/causalcache/label-expansion-derived-v1/artifact"
+      ],
+      "fresh_download_validation": [
+        "/data/.venv/causalcache-ocr-v2/bin/python",
+        "-m",
+        "scripts.validate_guiodyssey_restoration_v2_expansion",
+        "--output-dir",
+        "/data/tmp/causalcache-label-expansion-hf-projection-630363a6adb692d72774f16dd0653a50216313ff",
+        "--label-expansion-config",
+        "configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+        "--parent-selection-manifest",
+        "../data/manifests/restoration_v2_selection.json",
+        "--expansion-selection-manifest",
+        "../data/manifests/restoration_v2_2_label_expansion_selection.json",
+        "--v1-config",
+        "configs/independent_reference_gate_v1.json",
+        "--source-file-manifest",
+        "../data/manifests/independent_reference_gate_v1_source_files.json",
+        "--ocr-backend-config",
+        "configs/restoration_v2_ocr_backend.json",
+        "--ocr-backend-manifest",
+        "../data/manifests/restoration_v2_ocr_backend.json",
+        "--model-dir",
+        "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+        "--wheel-dir",
+        "/data/tmp/causalcache-ocr-v2-wheels",
+        "--git-revision",
+        "1f7fa28e13de79f2fb8accb45e638e36b6b68723"
+      ],
+      "hf_download": [
+        "huggingface_hub.snapshot_download",
+        "repo_id=gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+        "repo_type=dataset",
+        "revision=630363a6adb692d72774f16dd0653a50216313ff",
+        "allow_patterns=.gitattributes,README.md,derived/restoration-v2-label-expansion-v1/images-00000-of-00001.tar,derived/restoration-v2-label-expansion-v1/manifest.json,derived/restoration-v2-label-expansion-v1/ocr-records-00000-of-00001.jsonl,derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl",
+        "local_dir=/data/tmp/causalcache-label-expansion-hf-download-630363a6adb692d72774f16dd0653a50216313ff"
+      ],
+      "hf_tag_create": [
+        "huggingface_hub.HfApi.create_tag",
+        "repo_id=gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+        "repo_type=dataset",
+        "tag=restoration-v2-label-expansion-v1.0.0",
+        "revision=630363a6adb692d72774f16dd0653a50216313ff",
+        "tag_message=CausalCache restoration v2 label expansion derived v1.0.0"
+      ],
+      "hf_upload": [
+        "huggingface_hub.HfApi.upload_folder",
+        "repo_id=gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+        "repo_type=dataset",
+        "folder_path=/data/experiments/causalcache/label-expansion-derived-v1/artifact",
+        "path_in_repo=",
+        "commit_message=Upload CausalCache restoration v2 label expansion derived v1"
+      ],
+      "standalone_preupload_validation": [
+        "/data/.venv/causalcache-ocr-v2/bin/python",
+        "-m",
+        "scripts.validate_guiodyssey_restoration_v2_expansion",
+        "--output-dir",
+        "/data/experiments/causalcache/label-expansion-derived-v1/artifact",
+        "--label-expansion-config",
+        "configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+        "--parent-selection-manifest",
+        "../data/manifests/restoration_v2_selection.json",
+        "--expansion-selection-manifest",
+        "../data/manifests/restoration_v2_2_label_expansion_selection.json",
+        "--v1-config",
+        "configs/independent_reference_gate_v1.json",
+        "--source-file-manifest",
+        "../data/manifests/independent_reference_gate_v1_source_files.json",
+        "--ocr-backend-config",
+        "configs/restoration_v2_ocr_backend.json",
+        "--ocr-backend-manifest",
+        "../data/manifests/restoration_v2_ocr_backend.json",
+        "--model-dir",
+        "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+        "--wheel-dir",
+        "/data/tmp/causalcache-ocr-v2-wheels",
+        "--git-revision",
+        "1f7fa28e13de79f2fb8accb45e638e36b6b68723"
+      ]
+    },
+    "container": {
+      "device_requests": [],
+      "gpu_used": false,
+      "id": "926afb9dc7c18c1fc8e9675ba4fd516699a75b9cf9ebe8e35dab9812be3d36e0",
+      "image": "hongccc/sglang-omni:dev",
+      "image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "name": "sglang-omni-jaxan-07170914"
+    },
+    "exit_codes": {
+      "build": 0,
+      "fresh_download_validation": 0,
+      "hf_download": 0,
+      "hf_tag_create": 0,
+      "hf_upload": 0,
+      "standalone_preupload_validation": 0
+    },
+    "exposure_ledger_sha256": "e5f7e7b5ffeb71ac117b5cb4a470eb31648978a734edb9a521125d3bda29a323",
+    "hf_repo_private": true,
+    "host": {
+      "alias": "hyper00",
+      "hostname": "node-radixark-16-0000"
+    },
+    "logs": {
+      "build": {
+        "path": "/data/logs/causalcache-label-expansion/build-1f7fa28.log",
+        "sha256": "7d76081ed4baf80f4acffdf5c4322ddc24df325f6ebf412153129c5d89a8bda4",
+        "size_bytes": 2210
+      },
+      "fresh_download_validation": {
+        "path": "/data/logs/causalcache-label-expansion/fresh-download-validator-630363a6.log",
+        "sha256": "1f23d0059becbd0b9b077a0cc4c8a0caaaa934a494af91823c1a8990983ef69a",
+        "size_bytes": 1766
+      },
+      "standalone_preupload_validation": {
+        "path": "/data/logs/causalcache-label-expansion/standalone-validator-1f7fa28.log",
+        "sha256": "735aa890f70fda70a784d67538b439c8657f988ce9511039920faa97c1fd2f59",
+        "size_bytes": 1766
+      }
+    },
+    "old_tags_preserved": [
+      {
+        "immutable_revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b",
+        "tag": "ocr-real-screen-golden-v1.0.0"
+      },
+      {
+        "immutable_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+        "tag": "restoration-v2-derived-v1.0.0"
+      },
+      {
+        "immutable_revision": "c073e143b935a79befd8ab1fd7123796792efad8",
+        "tag": "restoration-v2-substrate-screening-v1.0.0"
+      }
+    ],
+    "runtime_versions": {
+      "Pillow": "12.2.0",
+      "huggingface_hub": "1.16.1",
+      "numpy": "2.3.5",
+      "onnxruntime": "1.24.4",
+      "pyarrow": "24.0.0",
+      "python": "3.12.3",
+      "rapidocr": "3.8.4"
+    },
+    "source_preflight": {
+      "selected_row_reload_count": 64,
+      "source_file_rehash_count": 16
+    },
+    "utc": {
+      "ended_at_utc": "2026-07-17T02:31:43Z",
+      "started_at_utc": "2026-07-17T01:14:47Z"
+    }
+  },
+  "negative_declarations": {
+    "closed_loop_started": false,
+    "confirm_state_or_output_accessed": false,
+    "gate_training_started": false,
+    "matched_nll_started": false,
+    "policy_forward_called": false,
+    "policy_module_loaded": false,
+    "policy_output_generated": false,
+    "restoration_output_generated": false
+  },
+  "payload_manifest_snapshot": {
+    "artifact_id": "causalcache-guiodyssey-restoration-v2-label-expansion-mobile-v1",
+    "consumer_must_slice_events_by_history_event_step_ids": true,
+    "counts": {
+      "event_count": 320,
+      "image_member_count": 384,
+      "ocr_record_count": 384,
+      "state_count": 192,
+      "trajectory_count": 64
+    },
+    "dataset_repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "formal_counts_enforced": true,
+    "generator": {
+      "build_cli_path": "code/scripts/build_guiodyssey_restoration_v2_expansion.py",
+      "build_cli_sha256": "c1365891e3feb9f74520c02be423fdea1ffc6fb574b9cf53a47f79eea332fe3f",
+      "git_revision": "1f7fa28e13de79f2fb8accb45e638e36b6b68723",
+      "module_path": "code/causalcache/data/guiodyssey_restoration_v2_expansion.py",
+      "module_sha256": "16491416b25bf297c27c0ed7dfb2c3d7ace135fc2062991ceaefea259bef44aa",
+      "validator_path": "code/scripts/validate_guiodyssey_restoration_v2_expansion.py",
+      "validator_sha256": "145b9be55fff899ac7b8033a82d930d687e35bd28a0c466063f097ce6d67c9f6"
+    },
+    "inputs": {
+      "expansion_selection_manifest": {
+        "path": "data/manifests/restoration_v2_2_label_expansion_selection.json",
+        "sha256": "4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169"
+      },
+      "label_expansion_config": {
+        "path": "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+        "sha256": "e74904fb75cd72429e6adb51ab7500adcaa1915fb6cebc8567a2945bc9373947"
+      },
+      "ocr_backend_config": {
+        "path": "code/configs/restoration_v2_ocr_backend.json",
+        "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+      },
+      "ocr_backend_manifest": {
+        "path": "data/manifests/restoration_v2_ocr_backend.json",
+        "sha256": "107478672438b52e9c2ccc9ef8de5d13d4e16329ab1afbe95772e2d3df5bd2a9"
+      },
+      "parent_selection_manifest": {
+        "path": "data/manifests/restoration_v2_selection.json",
+        "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+      },
+      "source_file_manifest": {
+        "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+        "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc"
+      },
+      "v1_config": {
+        "path": "code/configs/independent_reference_gate_v1.json",
+        "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8"
+      }
+    },
+    "inventories": {
+      "image_members_sha256": "7b420dc143e162fb4fef755e1b8c2ebe0d60097fd05dcb89aaeb10d200edc5f9",
+      "ocr_record_aggregate_sha256": "f3423ece941224706406d4bc7e1f1eac7f2f6512616a0368c0cce37a235ec2ff",
+      "ocr_records_sha256": "f3423ece941224706406d4bc7e1f1eac7f2f6512616a0368c0cce37a235ec2ff",
+      "trajectory_index_sha256": "bd59890a71e15e585bb16036c2b19ed2376ca8007a4caa78521aec033c3aafa4"
+    },
+    "license": "cc-by-4.0",
+    "ocr_backend": {
+      "backend_config_sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+      "backend_id": "rapidocr-3.8.4-ppocrv5-mobile-en-cpu-v1",
+      "hf_model_repo": "gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en",
+      "hf_model_revision": "0dbc766a73ee88d10d52285d434dbfec58617835",
+      "hf_model_tag": "v1.0.0",
+      "real_screen_golden_dataset_revision": "9ebbbbbc4666e8a065f4ecb5240491c70f05e21b"
+    },
+    "ocr_runtime": {
+      "model_sha256": {
+        "detector": "4d97c44a20d30a81aad087d6a396b08f786c4635742afc391f6621f5c6ae78ae",
+        "inactive_classifier": "e47acedf663230f8863ff1ab0e64dd2d82b838fceb5957146dab185a89d6215c",
+        "recognizer": "c3461add59bb4323ecba96a492ab75e06dda42467c9e3d0c18db5d1d21924be8"
+      },
+      "rapidocr_package_file_sha256": {
+        "ch_ppocr_rec/main.py": "7e45ae163ae05973724943749a83b9c2ff3f8e37c838a6a3d253043f58ea5b58",
+        "config.yaml": "253abd97e27627c00925b06c33cdc8c63fd56093f9a9a80c9a258bf1a2621d18",
+        "default_models.yaml": "0d734a5024997bdbbd84d275c633285d6e0084a2514a934825fd59772c6464ab",
+        "inference_engine/onnxruntime/main.py": "f62a6aaaf7edb0b71eba65bdd5e2ae2fed6194643c44382618eaeb757827e775",
+        "utils/load_image.py": "f6de151fdce9fdf6890650dc3f7305455a2cade9bbf7652a30a558ee3fbe3f59"
+      },
+      "recognizer_character_inventory": {
+        "canonical_json_sha256": "16d149d69e1f4202e7d5a703ca26edcc04070888cd59c2353bf4cc70406ab611",
+        "entry_count": 436,
+        "metadata_key": "character",
+        "utf8_sha256": "e025a66d31f327ba0c232e03f407ae8d105e1e709e7ccb3f408aa778c24e70d6"
+      },
+      "runtime_packages": {
+        "Pillow": "12.2.0",
+        "PyYAML": "6.0.3",
+        "Shapely": "2.1.2",
+        "antlr4-python3-runtime": "4.9.3",
+        "certifi": "2026.6.17",
+        "charset-normalizer": "3.4.9",
+        "colorlog": "6.10.1",
+        "flatbuffers": "25.12.19",
+        "idna": "3.18",
+        "mpmath": "1.3.0",
+        "numpy": "2.3.5",
+        "omegaconf": "2.3.1",
+        "onnxruntime": "1.24.4",
+        "opencv-python": "4.10.0.84",
+        "packaging": "26.2",
+        "protobuf": "7.35.1",
+        "pyarrow": "24.0.0",
+        "pyclipper": "1.4.0",
+        "rapidocr": "3.8.4",
+        "requests": "2.34.2",
+        "six": "1.17.0",
+        "sympy": "1.14.0",
+        "tqdm": "4.68.4",
+        "urllib3": "2.7.0"
+      },
+      "wheel_sha256": {
+        "onnxruntime": "0d640eb9f3782689b55cfa715094474cd5662f2f137be6a6f847a594b6e9705c",
+        "rapidocr": "1a8400df99ea2348a6d1902d1c6fa64c29edcf56b3c58cecd4cf1e5ff51b7ae2"
+      }
+    },
+    "payload_files": [
+      {
+        "member_count": 384,
+        "path": "derived/restoration-v2-label-expansion-v1/images-00000-of-00001.tar",
+        "sha256": "9e879e3ca59e7db058a68366a4289f578f0af67dabff2f3c517809fe03cb3ecf",
+        "size_bytes": 343674880
+      },
+      {
+        "path": "derived/restoration-v2-label-expansion-v1/ocr-records-00000-of-00001.jsonl",
+        "record_count": 384,
+        "sha256": "a1a0a979a74f026dd466df6c5e956c741110e34102cee0ff996695863c749dd8",
+        "size_bytes": 2972989
+      },
+      {
+        "path": "derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl",
+        "record_count": 64,
+        "sha256": "fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d",
+        "size_bytes": 1245673
+      }
+    ],
+    "per_decision_view_current_expert_action_payload_included": false,
+    "policy_output_generated": false,
+    "protocol_id": "causalcache_restoration_v2_label_expansion_derived_v1",
+    "restoration_output_generated": false,
+    "role_source_ids": {
+      "gate_development_expansion": [
+        "0113395203853614",
+        "0085973327901251",
+        "0217993280505982",
+        "0204226739513713",
+        "0027349945578994",
+        "0063414321407600",
+        "0124211143250759",
+        "0158200624694354",
+        "0104781033187528",
+        "0042582068233164",
+        "0095139503173521",
+        "0028705883346522",
+        "0069283472940099",
+        "0090192011883108",
+        "0017986853193264",
+        "0002455403270123"
+      ],
+      "gate_train_expansion": [
+        "0081171303194449",
+        "0016567388192150",
+        "0081349207433064",
+        "0106001886731694",
+        "0013756686421890",
+        "0224710820406687",
+        "0096794886053450",
+        "0119022933981939",
+        "0149901478066310",
+        "0031013035186872",
+        "0156438551317768",
+        "0185503498056981",
+        "0213791829762595",
+        "0154474824404795",
+        "0026634903318160",
+        "0177467386816906",
+        "0131888848291691",
+        "0076518844281084",
+        "0072821463326485",
+        "0135431381761380",
+        "0107109187202943",
+        "0135789980944621",
+        "0114203784922462",
+        "0234089730527063",
+        "0218815826133241",
+        "0134720948350318",
+        "0204580742481366",
+        "0084888665394360",
+        "0037690483064801",
+        "0235343430658003",
+        "0206048389903107",
+        "0220943321467127",
+        "0167183648468991",
+        "0122430166514446",
+        "0119569788020140",
+        "0092302829764693",
+        "0227020388419136",
+        "0041513657979544",
+        "0192684638288967",
+        "0108772154206513",
+        "0000922671359408",
+        "0066997985759988",
+        "0137575778052679",
+        "0114247701606163",
+        "0191751033400150",
+        "0123550855207688",
+        "0157485992279511",
+        "0039770017320665"
+      ]
+    },
+    "schema_version": "1.0.0",
+    "source_dataset": {
+      "license": "cc-by-4.0",
+      "transport_repo": "cua-lite/GUIOdyssey",
+      "transport_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+      "upstream_repo": "hflqf88888/GUIOdyssey",
+      "upstream_revision": "61632d0f3f4d51d7e9561ce4f84347dd06b2019d"
+    },
+    "status": "POLICY_BLIND_LABEL_EXPANSION_DATASET_MATERIALIZED"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_label_expansion_derived_completion_v1",
+  "schema_version": "1.0.0",
+  "source": {
+    "builder_git_commit": "1f7fa28e13de79f2fb8accb45e638e36b6b68723",
+    "clean_checkout": true,
+    "head_equals_origin_main": true
+  },
+  "status": "VERIFIED_LABEL_EXPANSION_DERIVED_ARTIFACT"
+}

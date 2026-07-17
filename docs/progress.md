@@ -25,6 +25,11 @@ artifact；首次 CPU byte-replay 的 evaluated-state projection bug 已由独�
 `validate` 已返回 `REVALIDATED`。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
+48/16 label expansion 的 policy-blind derived artifact 现已闭合：64 trajectories / 192 views / 384 images 已上传
+private HF immutable revision `630363a6adb692d72774f16dd0653a50216313ff`，pre-upload 与 fresh-download exact-six
+tree、384-record OCR replay 均一致。下一步先冻结并执行 192-state substrate，再生成 exact-subset 与
+conditional-marginal labels；formal gate training 仍未授权。
+
 ### 2026-07-17：正式 gate 数据扩展启动
 
 - 明确旧 10 train / 5 development 只能支持 policy-free method shaping 与 trainer smoke，不能支撑 learned-gate
@@ -38,6 +43,19 @@ confirm 和 AndroidWorld sealed test split 仍保持 locked。
   revision 与新 64 条交集为 0，因此下一步必须生成独立 expansion derived artifact；
 - 当前仍为 source-only：新 policy output、restoration label、gate checkpoint、matched-NLL、closed-loop 与 confirm
   access 全为 0。
+
+### 2026-07-17：label-expansion policy-blind derived artifact 闭合
+
+- Hyper00 CPU-only builder 先对 16 个 source Parquet 重算 hash 并重载冻结的 64 rows，再物化 64 trajectories、
+  320 shared events、192 decision views、384 images/OCR；
+- exact-six artifact tree SHA256 为 `9394b369e2b741e6aacf9ece4fc5dae3e6337b25a7e65402307e4e7862b94abc`，
+  总大小 347,902,778 bytes；
+- generation、post-write、standalone pre-upload 与 immutable fresh-download 的 OCR aggregate 均为
+  `f3423ece941224706406d4bc7e1f1eac7f2f6512616a0368c0cce37a235ec2ff`，每次 384 records；
+- private HF `restoration-v2-label-expansion-v1.0.0` 固定到
+  `630363a6adb692d72774f16dd0653a50216313ff`；旧 OCR、derived 与 screening tags 仍解析到原 revisions；
+- completion 只证明 policy-blind data bytes 与 provenance；policy forward、restoration output、gate training、
+  matched-NLL、closed-loop 与 confirm access 仍全部为 0。
 
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 

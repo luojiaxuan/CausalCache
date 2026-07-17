@@ -84,4 +84,21 @@ python3 -m scripts.validate_guiodyssey_restoration_v2_expansion \
   --git-revision <FULL_CLEAN_PUSHED_MAIN_SHA>
 ```
 
-当前仅冻结 source；HF upload、immutable revision 与 fresh-download replay 尚未发生。
+## 完成状态（2026-07-17）
+
+Formal CPU-only build 已从 clean pushed `main@1f7fa28e13de79f2fb8accb45e638e36b6b68723` 完成：
+
+- 64 trajectories、320 shared events、192 decision views、384 images 与 384 OCR records；
+- exact-six artifact 共 347,902,778 bytes，tree SHA256
+  `9394b369e2b741e6aacf9ece4fc5dae3e6337b25a7e65402307e4e7862b94abc`；
+- generation、post-write replay、独立 pre-upload replay 与 immutable fresh-download replay 的 OCR aggregate
+  均为 `f3423ece941224706406d4bc7e1f1eac7f2f6512616a0368c0cce37a235ec2ff`，每次 384 records；
+- private HF tag `restoration-v2-label-expansion-v1.0.0` 解析到 immutable revision
+  `630363a6adb692d72774f16dd0653a50216313ff`；旧三个 tag 的 immutable revision 均保持不变；
+- build 运行在 Hyper00 CPU-only container，Docker `DeviceRequests=[]`；policy、restoration、gate training、
+  matched-NLL、closed-loop 与 confirm access 均为 0。
+
+完成态 machine-readable evidence 位于
+[`data/results/restoration_v2_2_label_expansion_derived/artifact.json`](../data/results/restoration_v2_2_label_expansion_derived/artifact.json)。
+Fresh validator 复核 artifact bytes、冻结输入与 OCR；它不重新读取 2.25 GB source Parquet。原 Parquet 的 16/16
+rehash 与 selected 64-row reload 由 builder preflight 单独证明。

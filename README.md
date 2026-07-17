@@ -7,8 +7,9 @@
 
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
 > policy-blind expansion split manifest、pre-output exposure ledger 与 gate v1 preregistration 均已冻结，
-> planned final denominator 为 58/21/20。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，
-> 但尚无 expansion policy output、formal-58 fit 或 learned-gate paper metric。详见
+> policy-blind derived artifact 已绑定 private HF immutable revision。Planned final denominator 为 58/21/20；
+> Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 expansion policy/restoration
+> output、formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
 > [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)、
 > [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)。
@@ -705,7 +706,8 @@ $$
 - [x] 实现 gate v1 label-blind feature、conditional/independent trainer、train-only OOF、严格 ensemble provenance 与 fresh-16/combined-21 evaluation source；synthetic-only CPU smoke 不产生 checkpoint 或 paper metric；
 - [x] 从 clean pushed main 物化并验证 48/16 structural manifest；192 states / 1792 distance rows / 1856 edges；
 - [x] 物化 pre-output exposure ledger；expansion-64 与 prior-output-23 / confirm-20 的六组交集全部为空；
-- [ ] 构建并上传 policy-blind derived artifact，并生成 immutable expansion exact labels；
+- [x] 构建并上传 policy-blind expansion derived artifact；64 trajectories / 192 decision views / 384 images，private HF immutable download 已完成第三遍 OCR replay；
+- [ ] 冻结并执行 192-state substrate，生成 immutable expansion exact labels；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -749,6 +751,7 @@ $$
 - Label-expansion derived-artifact protocol: [`docs/restoration_v2_2_label_expansion_derived.md`](docs/restoration_v2_2_label_expansion_derived.md)
 - Label-expansion derived builder: [`code/scripts/build_guiodyssey_restoration_v2_expansion.py`](code/scripts/build_guiodyssey_restoration_v2_expansion.py)
 - Label-expansion derived validator: [`code/scripts/validate_guiodyssey_restoration_v2_expansion.py`](code/scripts/validate_guiodyssey_restoration_v2_expansion.py)
+- Label-expansion derived completion: [`data/results/restoration_v2_2_label_expansion_derived/`](data/results/restoration_v2_2_label_expansion_derived/)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)
 - Restoration v2.2 selector-geometry protocol: [`docs/restoration_v2_2_selector_geometry.md`](docs/restoration_v2_2_selector_geometry.md)
@@ -907,6 +910,7 @@ $$
 | AndroidWorld native validation traces | <https://huggingface.co/datasets/gavinlaw/causalcache-androidworld-validation-mobile> | `v0.2.0` / `0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`，private | 42 Think traces；deterministic gzip JSONL；`v0.1.0` Instruct artifact 保持不变 |
 | Restoration v2 OCR models | <https://huggingface.co/gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en> | `v1.0.0` / `0dbc766a73ee88d10d52285d434dbfec58617835`，private | 三份 ONNX、model card 与 manifest；fresh immutable re-download 后 6/6 file hashes verified |
 | Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | `restoration-v2-derived-v1.0.0` / `89f136abaff797e14fe758a198996e51032a10a6`，private | exact 6-file derived projection 已 fresh re-download 并第三次 replay；旧 OCR golden tag 仍固定到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` |
+| Label-expansion derived dataset | 同一 private restoration-v2 dataset repo | `restoration-v2-label-expansion-v1.0.0` / `630363a6adb692d72774f16dd0653a50216313ff` | 64 trajectories / 192 views / 384 images；exact-six tree `9394b369...94abc`，immutable fresh-download OCR replay 384/384 |
 | Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
 | Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |

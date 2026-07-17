@@ -135,6 +135,11 @@ restoration v2 exact selection/exposure 产物：
   `@restoration-v2-derived-v1.0.0` (`89f136abaff797e14fe758a198996e51032a10a6`)；
   exact 6-file derived projection 已 fresh re-download，tree SHA256 `475e6cf2...a6e`，210 条 OCR replay
   通过。
+- Label-expansion policy-blind derived artifact：同一 private HF dataset
+  `@restoration-v2-label-expansion-v1.0.0` (`630363a6adb692d72774f16dd0653a50216313ff`)；64 trajectories、
+  192 decision views、384 images/OCR，exact-six tree SHA256 `9394b369...94abc` 已从 immutable revision
+  clean projection fresh-download 并完成 384-record OCR replay。Git completion 位于
+  `results/restoration_v2_2_label_expansion_derived/`。
 - Restoration v2 first substrate trace：同一 private HF dataset
   `@restoration-v2-substrate-screening-v1.0.0`
   (`c073e143b935a79befd8ab1fd7123796792efad8`)；prefix

@@ -1,0 +1,565 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "causalcache_restoration_v2_2_label_expansion_derived_completion.schema.json",
+  "additionalProperties": false,
+  "properties": {
+    "artifact": {
+      "additionalProperties": false,
+      "properties": {
+        "fresh_download": {
+          "$ref": "#/$defs/freshValidation"
+        },
+        "immutable_revision": {
+          "$ref": "#/$defs/gitSha"
+        },
+        "payload_prefix": {
+          "const": "derived/restoration-v2-label-expansion-v1"
+        },
+        "preupload": {
+          "$ref": "#/$defs/preuploadValidation"
+        },
+        "repo": {
+          "const": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile"
+        },
+        "tag": {
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "repo",
+        "tag",
+        "immutable_revision",
+        "payload_prefix",
+        "preupload",
+        "fresh_download"
+      ],
+      "type": "object"
+    },
+    "execution": {
+      "$ref": "#/$defs/executionMetadata"
+    },
+    "negative_declarations": {
+      "additionalProperties": false,
+      "properties": {
+        "closed_loop_started": {
+          "const": false
+        },
+        "confirm_state_or_output_accessed": {
+          "const": false
+        },
+        "gate_training_started": {
+          "const": false
+        },
+        "matched_nll_started": {
+          "const": false
+        },
+        "policy_forward_called": {
+          "const": false
+        },
+        "policy_module_loaded": {
+          "const": false
+        },
+        "policy_output_generated": {
+          "const": false
+        },
+        "restoration_output_generated": {
+          "const": false
+        }
+      },
+      "required": [
+        "confirm_state_or_output_accessed",
+        "policy_module_loaded",
+        "policy_forward_called",
+        "policy_output_generated",
+        "restoration_output_generated",
+        "gate_training_started",
+        "matched_nll_started",
+        "closed_loop_started"
+      ],
+      "type": "object"
+    },
+    "payload_manifest_snapshot": {
+      "properties": {
+        "consumer_must_slice_events_by_history_event_step_ids": {
+          "const": true
+        },
+        "counts": {
+          "const": {
+            "event_count": 320,
+            "image_member_count": 384,
+            "ocr_record_count": 384,
+            "state_count": 192,
+            "trajectory_count": 64
+          }
+        },
+        "dataset_repo": {
+          "const": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile"
+        },
+        "formal_counts_enforced": {
+          "const": true
+        },
+        "inputs": {
+          "type": "object"
+        },
+        "per_decision_view_current_expert_action_payload_included": {
+          "const": false
+        },
+        "policy_output_generated": {
+          "const": false
+        },
+        "protocol_id": {
+          "const": "causalcache_restoration_v2_label_expansion_derived_v1"
+        },
+        "restoration_output_generated": {
+          "const": false
+        },
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "status": {
+          "const": "POLICY_BLIND_LABEL_EXPANSION_DATASET_MATERIALIZED"
+        }
+      },
+      "required": [
+        "schema_version",
+        "protocol_id",
+        "status",
+        "dataset_repo",
+        "counts",
+        "formal_counts_enforced",
+        "policy_output_generated",
+        "restoration_output_generated",
+        "per_decision_view_current_expert_action_payload_included",
+        "consumer_must_slice_events_by_history_event_step_ids",
+        "inputs",
+        "generator"
+      ],
+      "type": "object"
+    },
+    "protocol_id": {
+      "const": "causalcache_restoration_v2_2_label_expansion_derived_completion_v1"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "source": {
+      "additionalProperties": false,
+      "properties": {
+        "builder_git_commit": {
+          "$ref": "#/$defs/gitSha"
+        },
+        "clean_checkout": {
+          "const": true
+        },
+        "head_equals_origin_main": {
+          "const": true
+        }
+      },
+      "required": [
+        "builder_git_commit",
+        "clean_checkout",
+        "head_equals_origin_main"
+      ],
+      "type": "object"
+    },
+    "status": {
+      "const": "VERIFIED_LABEL_EXPANSION_DERIVED_ARTIFACT"
+    }
+  },
+  "required": [
+    "schema_version",
+    "protocol_id",
+    "status",
+    "source",
+    "artifact",
+    "execution",
+    "payload_manifest_snapshot",
+    "negative_declarations"
+  ],
+  "type": "object",
+  "$defs": {
+    "artifactFiles": {
+      "items": {
+        "$ref": "#/$defs/fileWitness"
+      },
+      "maxItems": 6,
+      "minItems": 6,
+      "type": "array"
+    },
+    "commandMap": {
+      "additionalProperties": false,
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/nonemptyArgv"
+        },
+        "fresh_download_validation": {
+          "$ref": "#/$defs/nonemptyArgv"
+        },
+        "hf_download": {
+          "$ref": "#/$defs/nonemptyArgv"
+        },
+        "hf_tag_create": {
+          "$ref": "#/$defs/nonemptyArgv"
+        },
+        "hf_upload": {
+          "$ref": "#/$defs/nonemptyArgv"
+        },
+        "standalone_preupload_validation": {
+          "$ref": "#/$defs/nonemptyArgv"
+        }
+      },
+      "required": [
+        "build",
+        "standalone_preupload_validation",
+        "hf_upload",
+        "hf_tag_create",
+        "hf_download",
+        "fresh_download_validation"
+      ],
+      "type": "object"
+    },
+    "executionMetadata": {
+      "additionalProperties": false,
+      "properties": {
+        "commands": {
+          "$ref": "#/$defs/commandMap"
+        },
+        "container": {
+          "additionalProperties": false,
+          "properties": {
+            "device_requests": {
+              "const": []
+            },
+            "gpu_used": {
+              "const": false
+            },
+            "id": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "image": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "image_digest": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "type": "string"
+            },
+            "name": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "id",
+            "image",
+            "image_digest",
+            "device_requests",
+            "gpu_used"
+          ],
+          "type": "object"
+        },
+        "exit_codes": {
+          "$ref": "#/$defs/exitCodeMap"
+        },
+        "exposure_ledger_sha256": {
+          "const": "e5f7e7b5ffeb71ac117b5cb4a470eb31648978a734edb9a521125d3bda29a323"
+        },
+        "hf_repo_private": {
+          "const": true
+        },
+        "host": {
+          "additionalProperties": false,
+          "properties": {
+            "alias": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "hostname": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "alias",
+            "hostname"
+          ],
+          "type": "object"
+        },
+        "logs": {
+          "$ref": "#/$defs/logMap"
+        },
+        "old_tags_preserved": {
+          "contains": {
+            "const": {
+              "immutable_revision": "89f136abaff797e14fe758a198996e51032a10a6",
+              "tag": "restoration-v2-derived-v1.0.0"
+            }
+          },
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "immutable_revision": {
+                "$ref": "#/$defs/gitSha"
+              },
+              "tag": {
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "tag",
+              "immutable_revision"
+            ],
+            "type": "object"
+          },
+          "minItems": 1,
+          "type": "array"
+        },
+        "runtime_versions": {
+          "additionalProperties": false,
+          "properties": {
+            "Pillow": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "huggingface_hub": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "numpy": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "onnxruntime": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "pyarrow": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "python": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "rapidocr": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "python",
+            "rapidocr",
+            "onnxruntime",
+            "Pillow",
+            "numpy",
+            "pyarrow",
+            "huggingface_hub"
+          ],
+          "type": "object"
+        },
+        "source_preflight": {
+          "const": {
+            "selected_row_reload_count": 64,
+            "source_file_rehash_count": 16
+          }
+        },
+        "utc": {
+          "additionalProperties": false,
+          "properties": {
+            "ended_at_utc": {
+              "minLength": 1,
+              "type": "string"
+            },
+            "started_at_utc": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          "required": [
+            "started_at_utc",
+            "ended_at_utc"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "host",
+        "container",
+        "utc",
+        "commands",
+        "logs",
+        "exit_codes",
+        "runtime_versions",
+        "source_preflight",
+        "exposure_ledger_sha256",
+        "hf_repo_private",
+        "old_tags_preserved"
+      ],
+      "type": "object"
+    },
+    "exitCodeMap": {
+      "additionalProperties": false,
+      "properties": {
+        "build": {
+          "const": 0
+        },
+        "fresh_download_validation": {
+          "const": 0
+        },
+        "hf_download": {
+          "const": 0
+        },
+        "hf_tag_create": {
+          "const": 0
+        },
+        "hf_upload": {
+          "const": 0
+        },
+        "standalone_preupload_validation": {
+          "const": 0
+        }
+      },
+      "required": [
+        "build",
+        "standalone_preupload_validation",
+        "hf_upload",
+        "hf_tag_create",
+        "hf_download",
+        "fresh_download_validation"
+      ],
+      "type": "object"
+    },
+    "fileWitness": {
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "type": "object"
+    },
+    "freshValidation": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_file_count": {
+          "const": 6
+        },
+        "artifact_total_bytes": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "artifact_tree_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "clean_projection_created": {
+          "const": true
+        },
+        "direct_repo_snapshot_validation_used": {
+          "const": false
+        },
+        "files": {
+          "$ref": "#/$defs/artifactFiles"
+        },
+        "payload_prefix_exact_six_only": {
+          "const": true
+        },
+        "validator_outcome": {
+          "const": "PASSED_GUIODYSSEY_RESTORATION_V2_EXPANSION_VALIDATION"
+        }
+      },
+      "required": [
+        "artifact_tree_sha256",
+        "artifact_file_count",
+        "artifact_total_bytes",
+        "files",
+        "validator_outcome",
+        "clean_projection_created",
+        "direct_repo_snapshot_validation_used",
+        "payload_prefix_exact_six_only"
+      ],
+      "type": "object"
+    },
+    "gitSha": {
+      "pattern": "^[0-9a-f]{40}$",
+      "type": "string"
+    },
+    "logMap": {
+      "additionalProperties": false,
+      "properties": {
+        "build": {
+          "$ref": "#/$defs/fileWitness"
+        },
+        "fresh_download_validation": {
+          "$ref": "#/$defs/fileWitness"
+        },
+        "standalone_preupload_validation": {
+          "$ref": "#/$defs/fileWitness"
+        }
+      },
+      "required": [
+        "build",
+        "standalone_preupload_validation",
+        "fresh_download_validation"
+      ],
+      "type": "object"
+    },
+    "nonemptyArgv": {
+      "items": {
+        "minLength": 1,
+        "type": "string"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "preuploadValidation": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_file_count": {
+          "const": 6
+        },
+        "artifact_total_bytes": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "artifact_tree_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "files": {
+          "$ref": "#/$defs/artifactFiles"
+        },
+        "validator_outcome": {
+          "const": "PASSED_GUIODYSSEY_RESTORATION_V2_EXPANSION_VALIDATION"
+        }
+      },
+      "required": [
+        "artifact_tree_sha256",
+        "artifact_file_count",
+        "artifact_total_bytes",
+        "files",
+        "validator_outcome"
+      ],
+      "type": "object"
+    },
+    "sha256": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    }
+  }
+}
