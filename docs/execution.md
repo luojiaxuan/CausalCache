@@ -835,8 +835,19 @@ publication 未申请 GPU、未重启 model，也不改变 matched-NLL、closed-
 cache v1 run 已在 feature transport byte validation 处、任何 semantic decode 前 fail-closed：旧 config 的 expansion
 trajectories SHA 与 Git-pinned immutable producer evidence 不一致。旧 mode-0600 claim 被保留，cache/HF output 均不
 存在，详见 [`../data/results/gate_v1_formal58_cache_v1_attempt/`](../data/results/gate_v1_formal58_cache_v1_attempt/)。
-独立 namespace 的 one-leaf transport-repair Source-A 已冻结：它在读取 token、构造 Hub client、下载输入或创建新
-claim 前，先验证 retained v1 claim、旧 successor/cache 的缺失、failure summary 与 producer 三重 witness；repair
-Execution-B 仍未生成。执行边界见 [`gate_v1_formal_cache_transport_repair.md`](gate_v1_formal_cache_transport_repair.md)。
-只有从 clean pushed repair A 机械生成并单独 push B、随后完成 no-GPU cache build 和 immutable replay 后，才可按
-[`gate_v1_execution.md`](gate_v1_execution.md) 训练 gate；不得提前打开 fresh-16 或 confirm。
+独立 namespace 的 one-leaf transport-repair 已闭合：Source-A=
+`4f8c01b026167d6e9429716a082f3abd7c0c1bc9` 的 config SHA256 为
+`aaf82fd5e994588bc22f0f745139e349219863eee5fa8cb4cc93c4a9e48e123a`，唯一 direct-child Execution-B=
+`f96c197c0fd31bfd299b5ab6e9e1416f6183bc6d` 的 runner SHA256 为
+`14141d0d790c4cf4d6c12b3bc336e1e6d2ebd26fde5f4be40b58627bd86a2b34`。Hyper00 no-GPU `run` 返回
+`VALID_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1`，fresh immutable replay 后的只读 `validate` 返回
+`REVALIDATED_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1`，没有创建 claim/cache/state，remote mutation count 为 0。
+canonical private HF dataset 为
+[`gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile`](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile)，tag
+`gate-v1-formal58-cache-transport-repair-v1` → immutable commit
+`a61b31bf2e69be00f94469f4a2f2d6b336fcc386`，annotated-tag object
+`c603397b9b1b1c3ad472f49125f827b8a096997d`。cache completion 只让 formal-58 成为单独 preregistered train-only
+gate workflow 的 input；没有 gate training、OOF、checkpoint、fresh-16、旧 dev-5、matched-NLL、closed-loop 或
+confirm run。详细 execution evidence 见
+[`../data/results/gate_v1_formal58_cache_transport_repair_v1/`](../data/results/gate_v1_formal58_cache_transport_repair_v1/)
+与 [`gate_v1_formal_cache_transport_repair.md`](gate_v1_formal_cache_transport_repair.md)。

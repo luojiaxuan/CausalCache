@@ -145,8 +145,9 @@ semantic decode 前发现 expansion trajectories 的合法 64-hex SHA transcript
 `configs/causalcache_gate_v1_formal_cache_transport_repair_v1.json`，SHA256
 `aaf82fd5e994588bc22f0f745139e349219863eee5fa8cb4cc93c4a9e48e123a`。它只把
 `expansion_feature_trajectories` 的一个已由 Git-pinned producer 三重 witness 证实的 SHA leaf 改为真实 bytes，
-并在 token、Hub client、download 或 repair claim 前验证旧 claim 与所有旧 successor/cache 的缺失。repair B 尚未
-生成；source-only validation 为：
+并在 token、Hub client、download 或 repair claim 前验证旧 claim 与所有旧 successor/cache 的缺失。Source-A
+`4f8c01b` 已机械生成唯一 B=`f96c197`，其 runner SHA256 为
+`14141d0d790c4cf4d6c12b3bc336e1e6d2ebd26fde5f4be40b58627bd86a2b34`。source-only validation 为：
 
 ```bash
 cd code
@@ -161,10 +162,14 @@ PYTHONPATH=. python3 -m unittest \
   tests.test_gate_v1_formal_cache_transport_repair_runner -v
 ```
 
-从 clean pushed repair A 机械生成唯一
-`configs/causalcache_gate_v1_formal_cache_transport_repair_runner_v1.json` 并单独 commit/push 后，才可运行 repair
-manager。完整失败/repair 边界见 `docs/gate_v1_formal_cache_transport_repair.md`；下游 gate、OOF、fresh-16、matched-NLL、
-closed-loop 与 confirm 仍锁定。
+Hyper00 no-GPU `run` 已返回 `VALID_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1`，相同 B 的只读 `validate` 返回
+`REVALIDATED_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1`，未产生第二次 remote mutation。canonical cache bundle 是 private
+HF dataset `gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile` 的 tag
+`gate-v1-formal58-cache-transport-repair-v1`，resolved immutable commit
+`a61b31bf2e69be00f94469f4a2f2d6b336fcc386`。完整 completion binding 见
+`data/results/gate_v1_formal58_cache_transport_repair_v1/` 与
+`docs/gate_v1_formal_cache_transport_repair.md`；下游 gate、OOF、fresh-16、matched-NLL、closed-loop 与 confirm
+仍未运行。
 
 Expansion exposure 的 source-only ledger 位于
 `causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、

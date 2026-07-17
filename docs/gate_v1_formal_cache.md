@@ -1,12 +1,13 @@
 # Gate v1 formal-58 train-only cache
 
-> 当前状态：Source-A=`990f015` 与 Execution-B=`079c095` 已冻结并 push。首次 Hyper00 CPU-only run 创建 global
-> claim 后，在 feature transport byte check 发现 expansion trajectories 的合法 64-hex SHA transcription mismatch
-> 并 fail-closed；尚未执行任何 semantic decode，也没有 feature/label cache、HF repo/tag/completion、gate training、
-> OOF、checkpoint、development metric、matched-NLL、closed-loop 或 confirm access。旧 claim 永久保留。后续只允许
-> 独立的 versioned transport-repair Source-A 先完成 source-only validation，再机械生成唯一 Execution-B；它完成
-> immutable HF fresh replay 与 final completion 前，formal-58 仍不能作为 training input。失败与 repair 边界见
-> `data/results/gate_v1_formal58_cache_v1_attempt/` 和
+> 当前状态：原 v1 Source-A=`990f015` / Execution-B=`079c095` 的唯一 Hyper00 CPU-only invocation 仍永久
+> pre-semantic fail-closed；旧 mode-0600 claim 永不删除、覆盖或续跑。独立 transport-repair Source-A=
+> `4f8c01b` / Execution-B=`f96c197` 已完成 no-GPU cache publication 与只读 revalidation，formal-58 现可作为
+> 已 preregistered train-only gate workflow 的 input。canonical private HF bundle 固定在 tag
+> `gate-v1-formal58-cache-transport-repair-v1` → immutable commit `a61b31bf2e69be00f94469f4a2f2d6b336fcc386`。没有
+> gate training、OOF、checkpoint、development metric、matched-NLL、closed-loop 或 confirm execution；失败与 repair
+> evidence 分别见 `data/results/gate_v1_formal58_cache_v1_attempt/`、
+> `data/results/gate_v1_formal58_cache_transport_repair_v1/` 和
 > `docs/gate_v1_formal_cache_transport_repair.md`。
 
 ## 目标与边界
@@ -115,7 +116,7 @@ PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_cache \
 
 第二条命令只允许生成 runner-freeze 这一个未跟踪文件；提交并 push B 后才能调用 `run`。
 
-## v1 失败后的 transport-repair Source-A（尚未执行）
+## v1 失败后的 transport-repair（已完成并 revalidated）
 
 v1 的 global claim 已经存在，因此不得修改原 config、删除旧 claim 或从失败点续跑。repair 不是对旧 execution
 的 retry，而是一个独立 namespace 的 Source-A：它保留 parent 的 cache format、semantic firewall、formal roster
@@ -124,8 +125,16 @@ v1 的 global claim 已经存在，因此不得修改原 config、删除旧 clai
 与 Source-A → 单文件 Execution-B 流程见
 `docs/gate_v1_formal_cache_transport_repair.md`。
 
-该 repair Source-A 不表示已经执行。它不生成 repair runner freeze、不读取 token 或 Hugging Face、不创建新 claim/cache/
-remote state，也不解锁 gate fit、OOF、checkpoint、fresh-16、旧 dev-5、matched-NLL、closed-loop 或 confirm。
+repair Source-A=`4f8c01b026167d6e9429716a082f3abd7c0c1bc9` 的 config SHA256 为
+`aaf82fd5e994588bc22f0f745139e349219863eee5fa8cb4cc93c4a9e48e123a`；其唯一 direct-child
+Execution-B=`f96c197c0fd31bfd299b5ab6e9e1416f6183bc6d` 只新增 repair runner freeze，SHA256 为
+`14141d0d790c4cf4d6c12b3bc336e1e6d2ebd26fde5f4be40b58627bd86a2b34`。Hyper00 no-GPU `run` 已返回
+`VALID_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1`，随后 committed `validate` 返回
+`REVALIDATED_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1` 且 remote mutation count 为 0。
+
+repair exact-three cache bundle 已经使 `formal58_training_input_eligible=true`，但它不是 gate fit 或任何下游
+evaluation。没有 OOF、checkpoint、fresh-16、旧 dev-5、matched-NLL、closed-loop 或 confirm run；这些阶段仍由各自
+独立 contract 控制。
 
 ## Local-first / HF-second 状态机
 

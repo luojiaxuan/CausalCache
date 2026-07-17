@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import copy
+from contextlib import contextmanager
 import hashlib
 import json
+import subprocess
 import stat
 import tempfile
 import unittest
@@ -18,11 +20,50 @@ from scripts.validate_gate_v1_formal_cache_transport_repair_contract import _par
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / repair.CANONICAL_CONFIG_PATH
+SOURCE_A_GIT_COMMIT = "4f8c01b026167d6e9429716a082f3abd7c0c1bc9"
 
 
 class TransportRepairContractTests(unittest.TestCase):
     def setUp(self) -> None:
         self.config = json.loads(CONFIG.read_text(encoding="utf-8"))
+
+    @contextmanager
+    def _source_a_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source_a_root = Path(directory) / "source-a"
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(ROOT),
+                    "worktree",
+                    "add",
+                    "--detach",
+                    "--quiet",
+                    str(source_a_root),
+                    SOURCE_A_GIT_COMMIT,
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            try:
+                yield source_a_root
+            finally:
+                subprocess.run(
+                    [
+                        "git",
+                        "-C",
+                        str(ROOT),
+                        "worktree",
+                        "remove",
+                        "--force",
+                        str(source_a_root),
+                    ],
+                    check=True,
+                    capture_output=True,
+                    text=True,
+                )
 
     def test_loads_frozen_full_parent_shaped_overlay(self) -> None:
         contract = repair.load_frozen_transport_repair_contract(
@@ -68,9 +109,11 @@ class TransportRepairContractTests(unittest.TestCase):
             repair.validate_transport_repair_config(changed, repository_root=ROOT)
 
     def test_source_only_validator_cross_checks_failure_and_producer(self) -> None:
-        result = repair.validate_transport_repair_source_only_contract(
-            CONFIG, repository_root=ROOT
-        )
+        with self._source_a_snapshot() as source_a_root:
+            self.assertFalse((source_a_root / repair.RUNNER_FREEZE_B_PATH).exists())
+            result = repair.validate_transport_repair_source_only_contract(
+                repair.CANONICAL_CONFIG_PATH, repository_root=source_a_root
+            )
         self.assertEqual(result["status"], repair.VALIDATION_STATUS)
         self.assertEqual(result["config_sha256"], repair.FROZEN_CONFIG_SHA256)
         self.assertEqual(
@@ -81,12 +124,11 @@ class TransportRepairContractTests(unittest.TestCase):
 
     def test_source_validator_rejects_repair_runner_present(self) -> None:
         runner = ROOT / repair.RUNNER_FREEZE_B_PATH
-        self.assertFalse(runner.exists())
-        with mock.patch.object(repair.os.path, "lexists", return_value=True):
-            with self.assertRaisesRegex(ValueError, "runner freeze B must remain absent"):
-                repair.validate_transport_repair_source_only_contract(
-                    CONFIG, repository_root=ROOT
-                )
+        self.assertTrue(runner.is_file())
+        with self.assertRaisesRegex(ValueError, "runner freeze B must remain absent"):
+            repair.validate_transport_repair_source_only_contract(
+                CONFIG, repository_root=ROOT
+            )
 
     def test_failed_attempt_validator_securely_checks_claim_and_absence(self) -> None:
         contract = repair.load_frozen_transport_repair_contract(

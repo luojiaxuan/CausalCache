@@ -2212,11 +2212,11 @@ set-conditioned iterative gate 是主方法，parameter-matched independent gate
 
 48/16 structural selection manifest、pre-output exposure ledger、policy-blind derived artifact、192-state substrate、
 exact labels、ledger-neutral repair 与 repaired-label private-HF publication 均已闭合。formal-58 cache v1 的唯一
-execution 已永久 pre-semantic fail-closed；只修一个 transport SHA leaf 的独立 repair Source-A 已冻结。下一步只允许
-先 commit/push repair A，再从 clean pushed repair A 机械生成 runner freeze B 并单独 commit/push，然后在 Hyper00
-no-GPU runtime 构建物理分离的 repair feature/label cache、原子发布 exact-three private-HF bundle 并做 immutable
-replay。该 final completion 闭合前不得训练 formal-58 gate，也不得读取 fresh-16、旧 dev-5、confirm、matched-NLL
-或 closed-loop。
+execution 仍永久 pre-semantic fail-closed；其 one-leaf transport-repair 已从 Source-A/Execution-B 完成 Hyper00
+no-GPU cache build、exact-three private-HF publication、fresh immutable replay 与只读 revalidation。formal-58
+cache 现可作为已 preregistered train-only gate workflow 的 input，但目前仍没有 gate fit、OOF、checkpoint 或任何
+development/fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。下一步只能由独立的 train-only gate
+source/execution contract 开始；不得把 cache completion 当作任何下游评估已经发生或被授权的证据。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 
@@ -2492,7 +2492,7 @@ replay。该 final completion 闭合前不得训练 formal-58 gate，也不得�
   再重新执行 Source-A → machine-generated Execution-B。轻量证据位于
   `data/results/gate_v1_formal58_cache_v1_attempt/`。
 
-### 2026-07-17：formal-58 transport-repair Source-A 冻结（尚未执行）
+### 2026-07-17：formal-58 transport-repair Source-A 冻结（历史 source freeze）
 
 - repair 以 parent cache contract 的独立 overlay 记录，不修改旧 v1 config、旧 A/B、旧 failure summary 或旧
   claim。唯一允许变化是 `expansion_feature_trajectories` 的
@@ -2507,8 +2507,31 @@ replay。该 final completion 闭合前不得训练 formal-58 gate，也不得�
 - repair 使用新的 local claim/cache 前缀，以及独立 private HF repo
   `gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile`、tag
   `gate-v1-formal58-cache-transport-repair-v1` 与 exact-three target paths；
-- 当前只冻结 Source-A。repair runner freeze
-  `causalcache_gate_v1_formal_cache_transport_repair_runner_v1.json` 尚未生成；下一步仅允许从 clean pushed repair A
-  机械生成该一个文件、单独 commit/push repair B，再按新 namespace 做 no-GPU formal cache execution。当前 repair
-  cache、HF publication/completion、gate fit、OOF、development metric、matched-NLL、closed-loop 与 confirm access
-  全部为 0。详细边界见 `docs/gate_v1_formal_cache_transport_repair.md`。
+- 这是执行前的 historical source-freeze record；随后发生的唯一 B、formal run 与 read-only revalidation 见下一条。
+
+### 2026-07-17：formal-58 transport-repair cache 完成并 revalidated
+
+- repair Source-A=`4f8c01b026167d6e9429716a082f3abd7c0c1bc9` 的 config
+  `code/configs/causalcache_gate_v1_formal_cache_transport_repair_v1.json` SHA256 为
+  `aaf82fd5e994588bc22f0f745139e349219863eee5fa8cb4cc93c4a9e48e123a`；唯一 direct-child
+  Execution-B=`f96c197c0fd31bfd299b5ab6e9e1416f6183bc6d` 只新增 runner freeze，SHA256 为
+  `14141d0d790c4cf4d6c12b3bc336e1e6d2ebd26fde5f4be40b58627bd86a2b34`；
+- Hyper00 unprivileged `runc` no-GPU formal `run` 返回
+  `VALID_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1`。新 claim 前复核 retained v1 claim、六个旧 successor 的缺失、两份
+  旧 cache 的缺失及 producer 三重 witness；旧 v1 invocation 仍为永久 `INVALID`，没有被删除、覆盖或续跑；
+- run 物化并 strict-readback 58 trajectories、174 feature/label states、522 candidate features、1,624 raw
+  distances、1,682 conditional targets、522 independent targets 与 174-state join audit。feature/label USTAR SHA256
+  分别为 `81fded50c4450700220742d3e0be9a5585d1bc51086150515b463bbdf4b4df8e`（993,280 bytes）与
+  `4f9ef172aaa94c3ea8ce53aa43336c9fcb7800c24e181e1462d8239e31053cee`（163,840 bytes）；
+- canonical reusable artifacts 是 private HF dataset
+  [`gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile`](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile)，tag
+  `gate-v1-formal58-cache-transport-repair-v1` → immutable commit
+  `a61b31bf2e69be00f94469f4a2f2d6b336fcc386`，annotated-tag object
+  `c603397b9b1b1c3ad472f49125f827b8a096997d`；
+- 同一 committed B 的只读 `validate` 返回
+  `REVALIDATED_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1`，没有创建 claim/cache/state，remote mutation count 为 0。
+  completion 令 `formal58_cache_loader_eligible=true` 与 `formal58_training_input_eligible=true`，但运行中
+  training example、optimizer step、OOF metric、checkpoint、model load/forward、matched-NLL、closed-loop、development
+  与 confirm operation 都为 0。结果记录在
+  `data/results/gate_v1_formal58_cache_transport_repair_v1/`；下一步仍需要单独的 train-only gate source/execution
+  contract，不能提前打开任何 downstream evaluation。

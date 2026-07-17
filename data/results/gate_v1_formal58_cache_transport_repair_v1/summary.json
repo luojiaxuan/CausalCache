@@ -1,0 +1,153 @@
+{
+  "artifact": {
+    "canonical_hf": {
+      "annotated_tag_object": "c603397b9b1b1c3ad472f49125f827b8a096997d",
+      "exact_three_files": {
+        "formal58-transport-repair/v1/cache-bundle-manifest-v1.json": "15c8bf56ddad4f6f278599c32aaadcd813e0e016db0d523b4892eb47f8d9d144",
+        "formal58-transport-repair/v1/feature-cache-v1.tar": "81fded50c4450700220742d3e0be9a5585d1bc51086150515b463bbdf4b4df8e",
+        "formal58-transport-repair/v1/label-cache-v1.tar": "4f9ef172aaa94c3ea8ce53aa43336c9fcb7800c24e181e1462d8239e31053cee"
+      },
+      "private": true,
+      "repo": "gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile",
+      "repo_type": "dataset",
+      "tag": "gate-v1-formal58-cache-transport-repair-v1",
+      "tag_resolved_immutable_commit": "a61b31bf2e69be00f94469f4a2f2d6b336fcc386"
+    },
+    "local_staging": {
+      "feature_cache": {
+        "mode": "0444",
+        "path": "/data/artifacts/causalcache/gate-v1-formal58-transport-repair-feature-cache-v1.tar",
+        "sha256": "81fded50c4450700220742d3e0be9a5585d1bc51086150515b463bbdf4b4df8e",
+        "size_bytes": 993280
+      },
+      "label_cache": {
+        "mode": "0444",
+        "path": "/data/artifacts/causalcache/gate-v1-formal58-transport-repair-label-cache-v1.tar",
+        "sha256": "4f9ef172aaa94c3ea8ce53aa43336c9fcb7800c24e181e1462d8239e31053cee",
+        "size_bytes": 163840
+      },
+      "status": "staging_only_hf_is_canonical"
+    }
+  },
+  "contract": {
+    "corrected_transport_sha256": "fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d",
+    "corrected_transport_size_bytes": 1245673,
+    "parent_v1_config_sha256": "1d7527e8a7bede8aaab8a21f7757f786674530238ae99fe3ce5b196cbce67261",
+    "repair_config_path": "code/configs/causalcache_gate_v1_formal_cache_transport_repair_v1.json",
+    "repair_config_sha256": "aaf82fd5e994588bc22f0f745139e349219863eee5fa8cb4cc93c4a9e48e123a",
+    "repair_runner_path": "code/configs/causalcache_gate_v1_formal_cache_transport_repair_runner_v1.json",
+    "repair_runner_sha256": "14141d0d790c4cf4d6c12b3bc336e1e6d2ebd26fde5f4be40b58627bd86a2b34",
+    "wrong_v1_transport_sha256": "00fe93e9deeeb9a3c018227fb781b29f6efefbb728db987584b650d9df353a6d"
+  },
+  "execution": {
+    "container": {
+      "device_requests": null,
+      "id": "787f2a252224cb642e61a41b8b9b80b99d2ddf7d1e6db5201bd73ac327fd16c6",
+      "image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "privileged": false,
+      "runtime": "runc"
+    },
+    "host": "node-radixark-16-0000",
+    "no_gpu_runtime": {
+      "cuda_visible_devices": "",
+      "gpu_device_nodes": [],
+      "nvidia_visible_devices": "void"
+    },
+    "python": {
+      "implementation": "CPython",
+      "machine": "x86_64",
+      "version": "3.12.3"
+    },
+    "source": {
+      "execution_b_git_commit": "f96c197c0fd31bfd299b5ab6e9e1416f6183bc6d",
+      "source_a_git_commit": "4f8c01b026167d6e9429716a082f3abd7c0c1bc9"
+    },
+    "thread_environment": {
+      "BLIS_NUM_THREADS": "1",
+      "LC_ALL": "C.UTF-8",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONHASHSEED": "0",
+      "TZ": "UTC",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "formal_cache": {
+    "execution_operation_counts": {
+      "candidate_feature_count": 522,
+      "checkpoint_count": 0,
+      "closed_loop_episode_count": 0,
+      "conditional_edge_count": 1682,
+      "confirm_semantic_decode_count": 0,
+      "development_semantic_decode_count": 0,
+      "distance_value_decode_count": 1624,
+      "feature_state_count": 174,
+      "independent_target_count": 522,
+      "join_validation_count": 174,
+      "label_state_semantic_decode_count": 174,
+      "matched_nll_evaluation_count": 0,
+      "model_forward_count": 0,
+      "model_load_count": 0,
+      "ocr_semantic_decode_count": 290,
+      "oof_metric_count": 0,
+      "optimizer_step_count": 0,
+      "oracle_metric_count": 0,
+      "training_example_count": 0,
+      "trajectory_semantic_decode_count": 58
+    },
+    "formal58_cache_loader_eligible": true,
+    "formal58_training_input_eligible": true,
+    "gate_trained": false,
+    "gate_training_authorized": true,
+    "join_only_audit_sha256": "551e70b7e99f7a761f9c50d2adae3be72b0933044982a015a65e93372e41d77b"
+  },
+  "local_state": {
+    "completion": {
+      "mode": "0600",
+      "same_inode_as_staging": true,
+      "sha256": "29bcdcc333b8bbad1dee0ed3e5444de3ad54a11375594b49c2b01516150e2c41",
+      "size_bytes": 2745,
+      "status": "COMPLETED_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1"
+    },
+    "feature_completion_sha256": "c6a4bfc71b2e4b2efa7b0f8b82a3a6641b8eb58f5141b828f58002ec44f53fdc",
+    "global_claim_sha256": "c63d88db7201866da03c62e2df0f3118bf05e10a06fd30dbe1601ac96978f5c7",
+    "label_access_claim_sha256": "ca6c394490fceaa2976adbe31d56047f864538b08f5de302d3bed07fa85c3986",
+    "label_completion_sha256": "c4405f724ee53d59e0a6b88ffc8d9fd3558674e09501f8e6baa2be573c1f1cf1",
+    "remote_base_receipt_sha256": "63c49f76a99bdfe09d2180e4cf4f4d3b85ba8577464d599ea96ef0feaf6a07a2"
+  },
+  "old_v1_failure_boundary": {
+    "absent_old_artifact_count": 2,
+    "absent_old_successor_state_count": 6,
+    "old_claim_mode": "0600",
+    "old_claim_sha256": "a9372c7a4b606323b60e27b8984c5c6d456d62ad16c297fb4737c3d4abd54b1b",
+    "old_claim_size_bytes": 7062,
+    "status": "VALID_FAILED_GATE_V1_FORMAL58_CACHE_ATTEMPT_PRECLAIM_REPAIR_V1"
+  },
+  "revalidation": {
+    "claim_created": false,
+    "feature_cache_created": false,
+    "label_cache_created": false,
+    "remote_mutation_call_count": 0,
+    "status": "REVALIDATED_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1",
+    "window_utc": {
+      "finished": "2026-07-17T17:14:48Z",
+      "started": "2026-07-17T17:14:43Z"
+    }
+  },
+  "run": {
+    "argv": "PYTHONHASHSEED=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 BLIS_NUM_THREADS=1 TZ=UTC LC_ALL=C.UTF-8 NVIDIA_VISIBLE_DEVICES=void CUDA_VISIBLE_DEVICES='' GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=<temporary-removed> PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_cache_transport_repair run --repository-root /data/experiments/causalcache/gate-v1-formal58-transport-repair-v1/repo --contract code/configs/causalcache_gate_v1_formal_cache_transport_repair_v1.json --execution-b-git-commit f96c197c0fd31bfd299b5ab6e9e1416f6183bc6d --hf-token-file /data/.secrets/hf_key.txt --data-root /data --fresh-download-parent /data/tmp",
+    "claim_created": true,
+    "feature_cache_created": true,
+    "label_cache_created": true,
+    "remote_mutation_call_count": 2,
+    "status": "VALID_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1",
+    "window_utc": {
+      "finished": "2026-07-17T17:14:06Z",
+      "started": "2026-07-17T17:13:49Z"
+    }
+  },
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_AND_REVALIDATED_GATE_V1_FORMAL58_TRANSPORT_REPAIR_V1"
+}
