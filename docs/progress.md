@@ -2336,3 +2336,21 @@ closed-loop 与 confirm 均不得提前。
 - private HF dataset 现为 invalid-evidence reusable transport 的 canonical source，原 Hyper00 archive 只是
   staging copy。该结论保持 `formal_label_loader_eligible=false`、`gate_training_unlocked=false`、producer
   永久 `INVALID`；下一步冻结独立 CPU scientific repair core/runner，再发布新 identity 的 repaired labels。
+
+### 2026-07-17：ledger-neutral scientific-repair core source freeze
+
+- 新 core 只接受 P0 strict reader 的 `InvalidForensicEvidence` 与 explicit `InvalidForensicContract`，重跑完整 P0
+  validator 并 exact compare dataclass/manifest/inventory/tree；formal tier 在 external replay 前额外绑定 frozen P0
+  config `5290a51...d5a6a2` 与 tree `bc481dd...437d1`；
+- completed-to-invalid ledger chain、三份 worker ledger、append-only invalidation suffix 与原 exact cadence failure
+  都作为不可删除的 provenance。旧 3 秒公式仍完整重算并报告失败，新 acceptance 只使用 monitor lifecycle 的
+  identity、索引、单调时间与首尾覆盖，不使用数值 gap threshold；
+- formal external replay 独立冻结 parent/derived/OCR provenance，校验 production module/callable/source/code
+  identity，并直接调用 import-time captured production replay；dynamic executor `__call__` monkeypatch、同名 callable、
+  mutable parent/derived globals 与 synthetic P0 均在执行前 fail closed；
+- core SHA256 为 `6b1c022758844284a0c8364a33aa12457db1fa08dba9e5567c8fe3a48cfa744c`，47,044
+  bytes。focused 19/19、expansion wildcard 144/144、`py_compile` 与 diff-check 全部通过，独立 final re-audit 无
+  blocker；
+- Hyper00 read-only path exploration 在显式禁用 GPU、阻断 model-framework imports 时完成 production replay smoke：
+  192 states / 1,792 coalition witnesses，约 276 秒。它不是 formal result；下一步仍需 source-freeze 新 no-GPU
+  runner/config/state machine，并从 immutable HF invalid archive 的新空目录执行正式 child。

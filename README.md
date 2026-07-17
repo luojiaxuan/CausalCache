@@ -89,8 +89,10 @@ monitor 必须逐 byte 保留，不能 retry、resume 或调阈值。P1 publicat
 [`docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md`](docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md)。
 read-only child 已正式完成，结果见
 [`data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/`](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/)；
-下一步冻结并执行独立 CPU scientific repair，重算全部 raw labels、operation counts 与 external inputs，把 cadence
-failure 作为永久 provenance。
+ledger-neutral scientific-repair core 与 synthetic/test-only regressions 已闭合，协议见
+[`docs/restoration_v2_2_expansion_labels_scientific_repair.md`](docs/restoration_v2_2_expansion_labels_scientific_repair.md)。
+下一步冻结 no-GPU formal runner，重算全部 raw labels、operation counts 与 external inputs，把 cadence failure 作为
+永久 provenance。
 repair immutable fresh replay 闭合前不能训练 formal gate 或读取 confirm。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
@@ -769,7 +771,9 @@ $$
   与 exact oracle，并在 synthetic 192-state denominator 上逐字段匹配现有 reducer；
 - [x] 冻结并执行 invalid-evidence read-only transport child；annotated-tag object 与 resolved commit 分开绑定，
   remote mutation count 为 0；
-- [ ] 冻结并执行 CPU-only scientific validation repair，完成 repaired-label immutable HF fresh replay；
+- [x] 实现并审计 ledger-neutral CPU scientific-repair core；formal/test-only tier、captured production replay、
+  exact P0 gate 与 structural monitor rule 均已覆盖；
+- [ ] 冻结并执行 no-GPU scientific-repair runner，完成 repaired-label immutable HF fresh replay；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -828,6 +832,8 @@ $$
 - Invalid-forensic P1 fail-closed result: [`data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/`](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/)
 - Invalid-forensic read-only tag-resolution protocol: [`docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md`](docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md)
 - Invalid-forensic read-only tag-resolution result: [`data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/`](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/)
+- Expansion-label ledger-neutral scientific-repair core: [`code/causalcache/restoration_v2_2_expansion_labels_scientific_repair.py`](code/causalcache/restoration_v2_2_expansion_labels_scientific_repair.py)
+- Expansion-label scientific-repair protocol: [`docs/restoration_v2_2_expansion_labels_scientific_repair.md`](docs/restoration_v2_2_expansion_labels_scientific_repair.md)
 - Label-expansion substrate raw-artifact manager: [`code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py`](code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)
