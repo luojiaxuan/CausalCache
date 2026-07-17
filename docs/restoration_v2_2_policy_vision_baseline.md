@@ -485,7 +485,12 @@ import 与零 forbidden module import。
 artifact 全部逐 byte 相同，denominator 是 15 feature records / 60 candidate scores；所有 operation count 为 0，
 唯一修复是 exact 7-key→4-key projection，其余 reconstruction fields 不变。
 
-本次 formal `VALID` 不等于 clean-descendant validation 已完成。exact-two、本文档与 artifact regression 提交并
-push 后，还必须在 clean main descendant 上用 runner `validate` 只读核对同一 source commit、attempt ledger、
-completion seal、immutable labels 和 exact-two；不得更改 frozen config 的 13-path source inventory，也不得重写
-artifact bytes 或重跑 GPU。
+clean-descendant validation 已在独立 validation-repo 的 clean
+`main@174801112c58d831249fd54f4f8bc9af01524b44` 完成。runner 的 validation source 仍为
+`dbb45637cf79c3573bbbc6051b8b480e3f76d69d`，状态是
+`REVALIDATED_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。postflight exact-two README/summary
+仍为 mode 0644，SHA256 仍为 `3492dbae9a13d3d1d70e7aacf2cd7b405d1f9cc5956af980c519c8fb3ceee7e9` /
+`f7a5ff63a754d06d7b61dcc46516ee2ed22e0a6a3b92b8b0be8a68869cf362b1`；attempt ledger / completion seal
+仍为 mode 0600，SHA256 仍为 `6b65bef9d6edb73ee4275e89923bfd0e6123fb275fccb2b5dda9e57245f7b5d3` /
+`837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`。validate 没有 GPU operation，也没有
+修改 artifact、config、code 或 test。执行容器已停止但保留用于审计，exit code 137。

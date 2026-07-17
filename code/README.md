@@ -160,8 +160,12 @@ README/summary 分别是 836 bytes / `3492dbae9a13d3d1d70e7aacf2cd7b405d1f9cc595
 与 10461 bytes / `f7a5ff63a754d06d7b61dcc46516ee2ed22e0a6a3b92b8b0be8a68869cf362b1`；attempt
 ledger SHA256 为 `6b65bef9d6edb73ee4275e89923bfd0e6123fb275fccb2b5dda9e57245f7b5d3`，completion seal
 SHA256 为 `837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`。artifact lock 位于
-`tests/test_restoration_v2_2_policy_vision_v3_validation_repair_artifact.py`。下一步仅是提交/push descendant
-result/docs/test 后运行只读 clean-descendant `validate`，不得重写 exact-two 或重跑 GPU。
+`tests/test_restoration_v2_2_policy_vision_v3_validation_repair_artifact.py`。只读 revalidation 已在独立 validation-repo
+的 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成，仍以
+`dbb45637cf79c3573bbbc6051b8b480e3f76d69d` 为 validation source，runner 返回
+`REVALIDATED_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。postflight exact-two mode 0644 / hashes、
+attempt ledger 与 completion seal mode 0600 / hashes全部不变，且无 GPU operation。container 已停止并保留，
+exit code 137；本次 validate 没有修改 artifact、config、code 或 test。
 
 v2 executable interface 使用显式 versioned 模块 `causalcache.policy.gui_owl_v2` 与
 `causalcache.low_fidelity_v2`，不修改历史 v1 parser/prompt/schema。CPU validator 对 restricted grammar、

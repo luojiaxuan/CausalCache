@@ -199,8 +199,11 @@ restoration v2 exact selection/exposure 产物：
   不产生新 dataset/model，raw labels 继续引用既有 private HF immutable revision
   `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`。外部 mode-0600 attempt ledger SHA256 为
   `6b65bef9d6edb73ee4275e89923bfd0e6123fb275fccb2b5dda9e57245f7b5d3`，completion seal SHA256 为
-  `837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`；两者不进入 Git。提交本
-  result/docs/test 后仍需从 clean pushed descendant 做只读 `validate`。
+  `837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`；两者不进入 Git。只读 revalidation
+  已在独立 validation-repo 的 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成，validation source
+  仍是 `dbb45637cf79c3573bbbc6051b8b480e3f76d69d`，runner 返回 `REVALIDATED`。postflight exact-two mode 0644 /
+  hashes 与外部 ledger/seal mode 0600 / hashes 均未变化；无 GPU，且没有修改任何 artifact、config、code 或 test。
+  执行容器已停止并保留用于审计，exit code 137。
 
 最新轻量运行记录：
 

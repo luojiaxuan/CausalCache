@@ -21,8 +21,8 @@ v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00
 PyTorch UUID object type 在 0 feature 时 `INVALID`。UUID type-only v2 随后通过原失败点，但 pinned
 `SizeDict` 不满足冻结的 `Mapping` interface check，再次于 0 feature fail closed。v3 已完成 formal GPU
 artifact；首次 CPU byte-replay 的 evaluated-state projection bug 已由独立 versioned CPU audit exact-byte 闭合，
-当前是 `VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`，仅剩 result commit 后的
-clean-descendant `validate`。
+当前是 `VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`，且 result commit 后的 clean-descendant
+`validate` 已返回 `REVALIDATED`。
 confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 ## 已完成里程碑
@@ -1965,9 +1965,12 @@ mismatch 与 non-finite distance；contract/runtime error 不得伪装成 `NO_GO
   completion seal 为 771 bytes / `837c52f403dbb9f21bf968ff5a0ba10199d06fe36ee49431787eff5154c6a52b`。
   新 artifact regression 锁定 exact-two、canonical JSON、source/closure、replay denominator、zero-op 与 repair scope；
   frozen config 的 13-path formal source inventory 未修改；
-- 当前里程碑已是 formal `VALID`，但还不是 committed-descendant revalidation 完成态。下一步只提交/push
-  exact-two + docs + artifact test，然后从 clean pushed descendant 对同 attempt ledger、completion seal、immutable labels
-  与 exact-two 执行 runner `validate`；不得改写结果或重跑 GPU。
+- committed-descendant revalidation 已在独立 validation-repo 的 clean
+  `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成；runner 仍使用 source
+  `dbb45637cf79c3573bbbc6051b8b480e3f76d69d`，返回
+  `REVALIDATED_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`。postflight exact-two mode 0644 / hashes、
+  attempt ledger 与 completion seal mode 0600 / hashes 均与 formal run 相同，且没有 GPU operation；
+  validation 未修改 artifact、config、code 或 test。container 已停止并保留，exit code 137。
 
 ## 下一步
 
@@ -1978,8 +1981,8 @@ offline oracle/labels、private HF immutable artifact、selector-geometry v2 rep
 comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。policy-vision v1 唯一 invocation 在
 zero-feature UUID type probe 阶段 `INVALID`；type-only v2 跨过 UUID 后又在 zero-feature SizeDict interface check
 阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 GPU artifact 与 CPU state-projection repair
-现已 formal `VALID` 且不得重跑；下一步仅从提交该 result/docs/test 的 clean pushed descendant 做只读 replay。
-独立数值审计已经完成且无 blocker；policy-vision comparator lifecycle 已升级，clean-descendant validation 尚待闭合。
+现已 formal `VALID` 且从 clean descendant 完成 `REVALIDATED`，不得重跑。独立数值审计已经完成且无 blocker；
+policy-vision comparator lifecycle 与 validation chain 均已闭合。
 只有 visual comparators 完整、geometry
 结论仍支持 set conditioning 后，才冻结
 set-conditioned 或 independent gate-training/evaluation contract，明确 train/development 使用、conditional-edge
