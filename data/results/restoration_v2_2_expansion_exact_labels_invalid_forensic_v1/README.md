@@ -16,9 +16,11 @@ clean pushed `main@bb73bfee899f436ad292afb5d2d603d706001a5f` 在 Hyper00 对冻�
 - archive size：3,880,960 bytes；
 - tree inventory SHA256：`bc481dd77e26764dad3458e91a3e0247ade6049af7adb1744672aa6f2fb437d1`。
 
-archive 暂存在 Hyper00：
+archive 的原始 staging copy 仍保留在 Hyper00：
 `/data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-v1.tar`。
-它尚未上传 Hugging Face，因此仍是 staging，不是 reusable artifact 的 canonical source of truth。
+相同 bytes 已固定到 private Hugging Face dataset 的 immutable revision
+`5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416`，并由 read-only child 完成 fresh replay；HF 是该 reusable
+invalid-evidence artifact 的 canonical source of truth。它仍永久 formal-ineligible。
 
 ## 下一步
 
@@ -27,7 +29,8 @@ archive 暂存在 Hyper00：
 唯一 P1 invocation 已把相同 archive SHA 与 sidecar manifest 作为一个 commit 上传，并创建 no-overwrite tag；
 但 annotated-tag object SHA 与 tag-resolved commit SHA 的接口差异使 v1 parser 在 completion 前 fail closed，见
 [`publication v1 attempt`](../restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/README.md)。
-下一步是独立 read-only tag-resolution child；它完成 immutable fresh replay 前，CPU validation repair 与 formal
-gate 继续 locked。
+独立 read-only tag-resolution child 已完成 immutable fresh replay、P0 strict readback 与幂等复验，见
+[`result`](../restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/README.md)。下一步是独立
+CPU scientific validation repair；其新 repaired-label immutable artifact 闭合前，formal gate 继续 locked。
 
 机器可读记录见 [`artifact.json`](artifact.json)。

@@ -20,13 +20,19 @@
     "matched_nll_unlocked": false
   },
   "hf_publication": {
-    "fresh_immutable_replay_verified": false,
-    "immutable_revision": null,
-    "status": "pending_versioned_private_hf_publication"
+    "annotated_tag_object": "ca652858c3d59eab066eb7b31399690a65ea5f44",
+    "fresh_immutable_replay_verified": true,
+    "immutable_revision": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416",
+    "private": true,
+    "remote_mutation_call_count_during_read_only_child": 0,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile",
+    "status": "completed_read_only_invalid_forensic_transport",
+    "tag": "v2.2-expansion-exact-labels-v1-attempt-1-forensic-v1",
+    "tag_resolution_result": "../restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/summary.json"
   },
   "producer_attempt_status": "INVALID_EXPANSION_EXACT_LABEL_ATTEMPT",
   "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_v1",
   "schema_version": "1.0.0",
   "source_config_sha256": "5290a51a250e31be4fcf0a970c77ef31c08c92c5892edd19a12ecb14d9d5a6a2",
-  "status": "VALID_LOCAL_INVALID_FORENSIC_ARCHIVE_PENDING_HF"
+  "status": "VALID_IMMUTABLE_INVALID_FORENSIC_ARCHIVE_FORMAL_INELIGIBLE"
 }

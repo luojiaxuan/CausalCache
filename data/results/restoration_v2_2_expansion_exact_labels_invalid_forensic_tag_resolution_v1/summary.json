@@ -1,0 +1,78 @@
+{
+  "archive": {
+    "member_count": 406,
+    "p0_strict_archive_readback_passed": true,
+    "sha256": "8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489",
+    "sidecar_sha256": "c67914d05ce5e93518c710cd99132548f4bf5b51250e506c996a9450a369b561",
+    "size_bytes": 3880960,
+    "tree_inventory_sha256": "bc481dd77e26764dad3458e91a3e0247ade6049af7adb1744672aa6f2fb437d1"
+  },
+  "execution": {
+    "argv": "PYTHONPATH=. python3 -m scripts.manage_restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution validate-remote --repository-root /data/CausalCache-invalid-forensic-v1 --fresh-download-parent /data/tmp --hf-token-file /data/.secrets/hf_key.txt",
+    "container_id": "8fa31506ff8b274a304bc778b0fe5768112dbd3065c90e438d761a0e9a4154cc",
+    "container_image": "hongccc/sglang-omni:dev",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_name": "sglang-omni-jaxan-07171437",
+    "end_utc": "2026-07-17T09:37:02.891999696Z",
+    "gpu_device_ids_visible_to_container": [
+      "2",
+      "3"
+    ],
+    "gpu_or_model_operation_count": 0,
+    "host": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "huggingface_hub_version": "1.16.1",
+    "python_version": "3.12.3",
+    "start_utc": "2026-07-17T09:37:01.465982928Z"
+  },
+  "formal_consumption": {
+    "formal_label_loader_eligible": false,
+    "gate_training_unlocked": false,
+    "producer_attempt_reclassified": false,
+    "transport_validation_only": true
+  },
+  "hf": {
+    "annotated_tag_object": "ca652858c3d59eab066eb7b31399690a65ea5f44",
+    "archive_path": "attempts/restoration-v2-2-expansion-exact-labels-v1/attempt-1/raw-evidence-v1.tar",
+    "direct_predecessor": "1e1bb828d196779e4fc855890922c4865fcd6458",
+    "immutable_pair_commit": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416",
+    "private": true,
+    "remote_mutation_call_count": 0,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile",
+    "repo_type": "dataset",
+    "sidecar_path": "attempts/restoration-v2-2-expansion-exact-labels-v1/attempt-1/archive-manifest-v1.json",
+    "tag": "v2.2-expansion-exact-labels-v1-attempt-1-forensic-v1",
+    "tag_resolved_commit": "5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416"
+  },
+  "idempotent_read_only_replay": {
+    "claim_bytes_unchanged": true,
+    "completion_bytes_unchanged": true,
+    "identity_pre_equals_post": true,
+    "p0_strict_archive_readback_passed": true,
+    "remote_mutation_call_count": 0,
+    "status": "COMPLETED_READ_ONLY_INVALID_FORENSIC_TAG_RESOLUTION_V1"
+  },
+  "local_state": {
+    "claim": {
+      "mode": "0600",
+      "sha256": "3dd268f7cac895609a08b1a5c532a0992099ecdc63e409eb6bc365fa39bf3a15",
+      "size_bytes": 3205
+    },
+    "completion": {
+      "mode": "0600",
+      "sha256": "c0f70c53da30517c6625e90931f128a39b235a4613439ddb0520d01d48612195",
+      "size_bytes": 3971
+    },
+    "parent_p1_completion_absent_pre_post": true
+  },
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1",
+  "schema_version": "1.0.0",
+  "source": {
+    "branch": "main",
+    "config_sha256": "f257dcdebb218533a080739e8a5067cc44fe35fd533ad57808db5ce789cfd956",
+    "git_commit": "d61dff5857bee7815da0c40709d0e7032fb9dc86",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "source_inventory_sha256": "2f00ff8a3359042877012064e0ffb984ab2164b1d8eee27c2911d78cdd3ca739"
+  },
+  "status": "COMPLETED_READ_ONLY_INVALID_FORENSIC_TAG_RESOLUTION_V1"
+}

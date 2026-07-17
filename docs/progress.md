@@ -2320,3 +2320,19 @@ closed-loop 与 confirm 均不得提前。
   child 使用独立 mode-0600 原子 claim/completion，已有 completion 的重放仍做完整 read-only replay；
 - child 专项 22/22、P0+P1+child 54/54 通过，独立审计无 blocker。本步骤没有触网、没有读 token、没有修改
   remote 或原 P1 state，也未解锁 formal labels；下一步只允许从 clean pushed `main` 执行真实 read-only child。
+
+### 2026-07-17：invalid-forensic immutable transport read-only 闭环
+
+- 从 clean pushed `main@d61dff5857bee7815da0c40709d0e7032fb9dc86` 在 Hyper00 执行正式 read-only child，
+  status 为 `COMPLETED_READ_ONLY_INVALID_FORENSIC_TAG_RESOLUTION_V1`；随后按同一 contract 做第二次幂等
+  replay，claim/completion bytes 与 SHA 均未变化；
+- child claim 为 mode 0600、3,205 bytes、SHA `3dd268f7...3a15`；completion 为 mode 0600、3,971 bytes、
+  SHA `c0f70c53...2195`。原 P1 completion 在两次 replay 前后均不存在；
+- private HF annotated-tag object `ca652858...5f44` 与 tag-resolved / immutable pair commit
+  `5efe1ae8...b416` 被分别验证；main、tag object、tag-resolved 与 immutable identity 在 fresh download 前后
+  完全相同，pair/predecessor provenance 也无漂移；
+- archive `8e205d73...a489`、sidecar `c67914d0...b561`、3,880,960-byte size、406 members 与 tree
+  `bc481dd...437d1` 均匹配，P0 strict readback 通过，remote mutation call count 为 0；
+- private HF dataset 现为 invalid-evidence reusable transport 的 canonical source，原 Hyper00 archive 只是
+  staging copy。该结论保持 `formal_label_loader_eligible=false`、`gate_training_unlocked=false`、producer
+  永久 `INVALID`；下一步冻结独立 CPU scientific repair core/runner，再发布新 identity 的 repaired labels。

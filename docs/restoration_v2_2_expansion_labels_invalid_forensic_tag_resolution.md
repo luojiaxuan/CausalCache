@@ -1,7 +1,8 @@
 # Restoration v2.2 invalid-forensic tag-resolution child
 
-> 状态：source-only frozen，尚未执行真实 remote validation。本协议只修复 P1 对 annotated-tag 接口的建模，
-> 不修改 Hub remote、不补写原 P1 completion，也不解锁 formal labels。
+> 状态：正式 read-only validation 与第二次幂等 replay 已完成，状态
+> `COMPLETED_READ_ONLY_INVALID_FORENSIC_TAG_RESOLUTION_V1`。本协议只修复 P1 对 annotated-tag 接口的建模，
+> 没有修改 Hub remote、没有补写原 P1 completion，也不解锁 formal labels。
 
 ## 为什么需要独立 child
 
@@ -102,7 +103,25 @@ PYTHONPATH=. python3 -m scripts.manage_restoration_v2_2_expansion_labels_invalid
 
 正式执行前必须先 push child source 到 canonical `main`，并在 clean checkout 中满足
 `HEAD == origin/main`、canonical origin URL、failure/parent commits 为 ancestor、required source files 与 committed
-bytes 一致。当前 source-only 工作没有触网，也没有读取 token。
+bytes 一致。
+
+## 正式执行结果
+
+clean `main@d61dff5857bee7815da0c40709d0e7032fb9dc86` 在 Hyper00 完成正式 replay：
+
+- child claim：mode `0600`、3,205 bytes、SHA256
+  `3dd268f7cac895609a08b1a5c532a0992099ecdc63e409eb6bc365fa39bf3a15`；
+- child completion：mode `0600`、3,971 bytes、SHA256
+  `c0f70c53da30517c6625e90931f128a39b235a4613439ddb0520d01d48612195`；
+- main、tag object、tag-resolved commit、immutable resolved commit 在 download 前后完全相同；
+- force-download archive/sidecar 的 SHA、3,880,960-byte size、406 members、tree inventory 与 P0 strict reader
+  全部通过；
+- pair/predecessor title、history 与 exact file inventory 在 replay 前后相同；
+- private repo 为 true，remote mutation call count 为 0，原 P1 completion 前后均不存在；
+- 第二次 contract-allowed read-only replay 返回同一状态，child claim/completion bytes 与 SHA 未变化。
+
+轻量证据与机器可读 summary 位于
+[`data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/)。
 
 ## Claim 边界
 
