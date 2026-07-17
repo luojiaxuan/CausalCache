@@ -1,8 +1,8 @@
 # Restoration v2.2 expansion exact-label v1 invalid forensic archive
 
-> 当前状态：**source-only P0**。本协议只定义对原 v1 `INVALID` attempt 的只读、不可覆盖 transport
-> archive；没有读取真实 Hyper output、没有生成正式 archive、没有访问网络或 Hugging Face，也没有授权
-> gate training、matched-NLL 或 closed-loop。
+> 当前状态：source-only P0 已冻结，真实 local transport archive 已在 Hyper00 package/readback。archive
+> SHA256 为 `8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489`，406 members / 3,880,960
+> bytes；尚未访问 Hugging Face，仍是 staging。它不授权 gate training、matched-NLL 或 closed-loop。
 
 ## 目的与 claim 边界
 
@@ -110,7 +110,8 @@ reader 会读取全部 members、验证顺序/metadata/path/duplicate，然后�
 必须与输入 archive 完全一致。publisher 先把完整 archive 写入同目录临时文件并 `fsync`，重新读取全部 source
 证明未变后，以 hard-link no-replace 原子发布并 `fsync` parent directory。目标已存在时永久拒绝覆盖。
 
-正式 package 命令形状如下；当前 source-only P0 **没有执行该命令**：
+正式 package 已从 clean pushed `main@bb73bfee899f436ad292afb5d2d603d706001a5f` 按下面命令形状执行；
+strict readback 返回 `VALID_INVALID_EXPANSION_EXACT_LABEL_FORENSIC_ARCHIVE`：
 
 ```bash
 cd /path/to/CausalCache/code
@@ -130,6 +131,9 @@ python3 -m scripts.manage_restoration_v2_2_expansion_labels_invalid_forensic \
 P0 不包含 HF repo 创建、upload、tag 或 fresh download。后续若要发布 forensic archive，必须先另行冻结
 crash-recoverable remote publication contract；不能复用原计划 PASS repo/tag/path，也不能因为 remote path 或 tag
 已存在就静默覆盖。
+
+local artifact 的轻量记录见
+[`../data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_v1/)。
 
 forensic archive immutable fresh replay 闭合后，才可启动独立 CPU-only validation-repair child。formal loader 必须
 先检查 manifest protocol/status/class 与 `formal_label_loader_eligible`；本 forensic protocol 在读取任何 label rows

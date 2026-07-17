@@ -209,6 +209,20 @@ authorization=true。唯一 v1 GPU attempt 随后完成 192/192 states 与全部
   没有 package/upload。下一步先冻结 crash-recoverable private-HF publication contract，再从 clean pushed source
   执行只读 package 与 fresh replay。
 
+### 2026-07-17：真实 invalid-forensic local archive 闭合
+
+- 从 clean pushed `main@bb73bfee899f436ad292afb5d2d603d706001a5f` 在 Hyper00 只读收集真实 v1 bytes；
+  collect、atomic publish 前与 publish/readback 后三次 source snapshot 完全一致；
+- 402 个 producer-root files、3 个 external ledgers 与 1 个 manifest 组成 406-member deterministic USTAR，
+  archive SHA256 为 `8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489`，size
+  3,880,960 bytes，tree inventory SHA256 为
+  `bc481dd77e26764dad3458e91a3e0247ade6049af7adb1744672aa6f2fb437d1`；
+- strict reader 从 archive 全量重建 USTAR 并逐 byte 相等；producer status 仍为 `INVALID`，manifest 仍
+  `formal_label_loader_eligible=false`，model/GPU/network operations 均为 0；
+- 当前 archive 只在 Hyper00 staging，尚不是 reusable SoT。下一步冻结 P1 private-HF publication，完成
+  no-overwrite upload/tag、immutable fresh download 与 byte replay；结果见
+  `data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_v1/`。
+
 ### 2026-07-17：独立 expansion math audit 闭合
 
 - 新增仅依赖 Python stdlib 的 raw-$D(S)$ audit，不 import production reducer；独立重算 deployment/full edges、

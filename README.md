@@ -22,8 +22,10 @@
 > `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。这些 bytes 当前不能作为 formal expansion labels。下一步是独立
 > CPU-only child validation repair 与 separate invalid-evidence immutable archive；不重跑 GPU、不改阈值、不追认
 > v1 formal PASS。invalid-forensic source-only P0 已冻结：402 root files 与 3 external ledgers 使用双 namespace、
-> 406-member deterministic USTAR、append-only failure chain 和 permanent formal-ineligible manifest；当前尚未
-> package/upload。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 formal expansion
+> 406-member deterministic USTAR、append-only failure chain 和 permanent formal-ineligible manifest。真实
+> local archive 已在 Hyper00 package/readback：SHA256 `8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489`，
+> 3,880,960 bytes；private HF publication/fresh replay 尚未完成。Gate v1 trainer/evaluator source 与
+> synthetic-only CPU smoke 已闭合，但尚无 formal expansion
 > policy/restoration output、formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
 > [`docs/restoration_v2_2_expansion_exact_labels.md`](docs/restoration_v2_2_expansion_exact_labels.md)、
@@ -743,6 +745,8 @@ $$
   违规，formal attempt 永久 `INVALID`；
 - [x] 冻结 source-only invalid-forensic transport：双 ledger namespace、strict USTAR、406 members、永久
   formal-ineligible；
+- [x] 从真实 v1 bytes 生成并 readback 验证 local invalid-forensic archive；
+- [ ] 将 invalid-forensic archive crash-recoverably 发布到独立 private HF repo 并 fresh replay；
 - [x] 实现 stdlib-only independent expansion math audit；从 raw $D(S)$ 独立重算 edges、interactions、Shapley
   与 exact oracle，并在 synthetic 192-state denominator 上逐字段匹配现有 reducer；
 - [ ] 冻结并执行 CPU-only child validation repair，完成 separate invalid-evidence archive 与 repair immutable HF
@@ -800,6 +804,7 @@ $$
 - Label-expansion substrate canonical result: [`data/results/restoration_v2_2_label_expansion_substrate_v1/`](data/results/restoration_v2_2_label_expansion_substrate_v1/)
 - Expansion exact-label v1 invalid attempt: [`data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/`](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/)
 - Expansion exact-label invalid-forensic protocol: [`docs/restoration_v2_2_expansion_labels_invalid_forensic.md`](docs/restoration_v2_2_expansion_labels_invalid_forensic.md)
+- Expansion exact-label invalid-forensic result: [`data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_v1/`](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_v1/)
 - Label-expansion substrate raw-artifact manager: [`code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py`](code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)
@@ -961,7 +966,7 @@ $$
 | Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | `restoration-v2-derived-v1.0.0` / `89f136abaff797e14fe758a198996e51032a10a6`，private | exact 6-file derived projection 已 fresh re-download 并第三次 replay；旧 OCR golden tag 仍固定到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` |
 | Label-expansion derived dataset | 同一 private restoration-v2 dataset repo | `restoration-v2-label-expansion-v1.0.0` / `630363a6adb692d72774f16dd0653a50216313ff` | 64 trajectories / 192 views / 384 images；exact-six tree `9394b369...94abc`，immutable fresh-download OCR replay 384/384 |
 | Label-expansion substrate v1 | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile> | `v2.2-label-expansion-substrate-v1` / `25ac19cf6ef98adc243d421cd0039ac104ddb539`，private | 192/192、0 failed；185 memory-sensitive；384/576/384 exact counts；406-file USTAR SHA256 `4e77a38b...ff47d`，fresh immutable byte replay verified |
-| Expansion exact-label v1 attempt | Hyper00 staging only；[Git failure binding](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/) | `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`；HF pending | 192/192 raw body complete、stored aggregate `PASS_V2_2_EXPANSION_EXACT_LABELS_V1`，但 monitor cadence 5/3849 gaps >3 s；不能作为 formal gate input |
+| Expansion exact-label v1 attempt / invalid forensic | Hyper00 archive staging；[failure binding](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/) / [forensic result](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_v1/) | `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`；HF pending | 192/192 raw body complete；406-member forensic USTAR SHA256 `8e205d73...ca489` 已 local readback，仍 formal-ineligible |
 | Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
 | Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |

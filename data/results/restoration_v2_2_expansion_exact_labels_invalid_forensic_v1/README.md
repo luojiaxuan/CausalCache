@@ -1,0 +1,29 @@
+# Expansion exact-label v1 invalid forensic archive
+
+本目录记录原 v1 `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT` 的只读 transport archive。它只保全历史 bytes，
+不会把原 attempt 追认为 PASS，也永远不能直接作为 formal gate input。
+
+## 当前状态
+
+clean pushed `main@bb73bfee899f436ad292afb5d2d603d706001a5f` 在 Hyper00 对冻结 source 做了三次一致性
+读取（collect、pre-publish、post-publish），随后生成并 readback 验证 deterministic USTAR：
+
+- 402 个 `attempt_root/**` files；
+- 3 个 `terminal_external_ledgers/**` files；
+- 1 个 `forensic_manifest.json`；
+- 共 406 regular-file members；
+- archive SHA256：`8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489`；
+- archive size：3,880,960 bytes；
+- tree inventory SHA256：`bc481dd77e26764dad3458e91a3e0247ade6049af7adb1744672aa6f2fb437d1`。
+
+archive 暂存在 Hyper00：
+`/data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-v1.tar`。
+它尚未上传 Hugging Face，因此仍是 staging，不是 reusable artifact 的 canonical source of truth。
+
+## 下一步
+
+先冻结独立的 crash-recoverable private-HF publication contract，再把相同 archive SHA 与 sidecar manifest
+作为一个 commit 上传到 invalid-attempt 专用 repo，创建 no-overwrite tag，并从 immutable revision 下载到空目录
+逐 byte 复验。P1 完成前，CPU validation repair 与 formal gate 继续 locked。
+
+机器可读记录见 [`artifact.json`](artifact.json)。

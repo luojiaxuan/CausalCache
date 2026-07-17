@@ -1,0 +1,32 @@
+{
+  "archive": {
+    "member_count": 406,
+    "path": "/data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-v1.tar",
+    "sha256": "8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489",
+    "size_bytes": 3880960,
+    "tree_inventory_sha256": "bc481dd77e26764dad3458e91a3e0247ade6049af7adb1744672aa6f2fb437d1"
+  },
+  "artifact_class": "invalid_attempt_forensics",
+  "execution": {
+    "git_commit": "bb73bfee899f436ad292afb5d2d603d706001a5f",
+    "host_alias": "hyper00",
+    "model_or_gpu_operation_count": 0,
+    "network_access_count": 0
+  },
+  "formal_consumption": {
+    "closed_loop_unlocked": false,
+    "formal_label_loader_eligible": false,
+    "gate_training_unlocked": false,
+    "matched_nll_unlocked": false
+  },
+  "hf_publication": {
+    "fresh_immutable_replay_verified": false,
+    "immutable_revision": null,
+    "status": "pending_versioned_private_hf_publication"
+  },
+  "producer_attempt_status": "INVALID_EXPANSION_EXACT_LABEL_ATTEMPT",
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_v1",
+  "schema_version": "1.0.0",
+  "source_config_sha256": "5290a51a250e31be4fcf0a970c77ef31c08c92c5892edd19a12ecb14d9d5a6a2",
+  "status": "VALID_LOCAL_INVALID_FORENSIC_ARCHIVE_PENDING_HF"
+}
