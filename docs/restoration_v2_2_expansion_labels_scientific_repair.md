@@ -1,8 +1,9 @@
 # Restoration v2.2 expansion-label scientific repair
 
 > 状态：CPU-only validation core 与 no-GPU formal runner 已从 clean pushed source 完成正式 run 和完整只读
-> revalidation；local repaired payload 为 `VALID + REVALIDATED`。新 private-HF publication 与 immutable fresh
-> replay 尚未执行，因此 gate 仍保持 locked；原 producer attempt 永久 `INVALID`。
+> revalidation；local repaired payload 为 `VALID + REVALIDATED`。独立 private-HF publication contract 已
+> source-freeze，但真实 publication 与 immutable fresh replay 尚未执行，因此 gate 仍保持 locked；原 producer
+> attempt 永久 `INVALID`。
 
 ## 目标与边界
 
@@ -127,9 +128,13 @@ formal output 与状态文件固定为：
 /data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.completion.json
 ```
 
-计划中的独立 artifact identity 是 private dataset
+独立 publication contract 已冻结，见
+[`restoration_v2_2_expansion_labels_scientific_repair_publication.md`](restoration_v2_2_expansion_labels_scientific_repair_publication.md)，
+config SHA256 为 `547b291022e2430fe6af5158d9350132f405c4b6019198488386dd7fb50be0aa`。目标 artifact
+identity 是 private dataset
 `gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`，tag
-`v2.2-expansion-exact-labels-scientific-repair-v1`。source freeze 不表示该 repo、tag 或 repaired artifact 已存在。
+`v2.2-expansion-exact-labels-scientific-repair-v1`。publication source freeze 不表示该 repo、tag 或 repaired
+artifact 已存在。
 
 formal CLI 必须直接执行 bootstrap script，不能用 `python -m`：
 
@@ -198,3 +203,5 @@ immutable HF fresh-download、完整重跑 core/reducer/external replay/math aud
 轻量结果见
 [`data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/)。
 local archive 只是 staging copy；计划中的 private HF repo/tag 当前仍为 pending，不得写成 canonical artifact。
+publication protocol 已冻结；下一步从 clean pushed checkout 执行 exact-pair upload、annotated tag 与 immutable
+fresh replay。闭环结果必须写入独立 publication result，不能修改已被 config 绑定的本 summary。

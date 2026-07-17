@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED` (192 states；local artifact complete；repaired HF publication pending) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED` (192 states；local artifact complete；repaired publication source frozen、remote pending) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
 
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
 > policy-blind expansion split manifest、pre-output exposure ledger 与 gate v1 preregistration 均已冻结，
@@ -37,7 +37,8 @@
 > ledger-neutral no-GPU child 随后从 clean `main@b14f489` 完成正式 run 和完整只读 revalidation；192 raw /
 > 192 derived states、1,792 distances、1,856 deployment edges、3,072 full edges、1,984 interactions、576
 > attributions 与 192 exact oracles 全部重算一致。4-member local USTAR SHA256 为 `1a9fdcc0...e01`，原
-> producer 仍永久 INVALID；新的 repaired private-HF publication/fresh replay 尚未完成，因此 gate 继续 locked。
+> producer 仍永久 INVALID；新的 repaired private-HF publication contract 已 source-freeze（config SHA256
+> `547b2910...e0aa`），但真实 publication/fresh replay 尚未完成，因此 gate 继续 locked。
 > Gate v1 trainer/evaluator source 与
 > synthetic-only CPU smoke 已闭合；local repaired labels 已科学有效但尚未成为 HF-consumable formal input，因此
 > 仍无 formal-58 fit 或 learned-gate paper metric。详见
@@ -79,7 +80,8 @@ policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interf
 state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式状态为 `VALID`；result commit 后又从
 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
 
-当前关键路径是 48/16 expansion exact-label v1 的 versioned CPU-only child validation repair。冻结分母为
+当前关键路径是把已完成的 48/16 expansion exact-label CPU-only child 发布为 immutable private-HF formal
+input。该 child 的冻结分母为
 64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
 full edges、1,984 interactions、576 attributions 与 192 exact oracles。label run 固定 1,984 teacher forwards、
@@ -97,8 +99,10 @@ ledger-neutral scientific-repair core、no-GPU formal runner、正式 local arti
 [`docs/restoration_v2_2_expansion_labels_scientific_repair.md`](docs/restoration_v2_2_expansion_labels_scientific_repair.md)。
 结果见
 [`data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/)。
-下一步只冻结独立 publication contract，把 repaired archive+sidecar 发布到新 private HF identity 并做 immutable
-fresh replay；闭合前不能训练 formal gate 或读取 confirm。
+独立 publication contract 已冻结，见
+[`docs/restoration_v2_2_expansion_labels_scientific_repair_publication.md`](docs/restoration_v2_2_expansion_labels_scientific_repair_publication.md)。
+下一步从 clean pushed source 把 repaired archive+sidecar 发布到新 private HF identity 并做 immutable fresh
+replay；闭合前不能训练 formal gate 或读取 confirm。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
@@ -782,6 +786,8 @@ $$
   regression 通过；source-freeze 时未执行 formal run，现已由下一项闭合；
 - [x] 在 Hyper00 执行 no-GPU scientific-repair runner 与完整只读 revalidation；local repaired payload 为
   `VALID + REVALIDATED`，原 producer 仍永久 `INVALID`；
+- [x] 冻结 repaired-label private-HF publication contract；annotated-tag object/resolved commit、exact-pair
+  provenance、response-loss recovery 与 completion-last 已由 24/24 focused tests 覆盖；
 - [ ] 发布 repaired-label private-HF artifact 并完成 immutable fresh replay；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -847,6 +853,9 @@ $$
 - Expansion-label scientific-repair runner: [`code/causalcache/restoration_v2_2_expansion_labels_scientific_repair_runner.py`](code/causalcache/restoration_v2_2_expansion_labels_scientific_repair_runner.py)
 - Expansion-label scientific-repair direct bootstrap: [`code/scripts/run_restoration_v2_2_expansion_labels_scientific_repair.py`](code/scripts/run_restoration_v2_2_expansion_labels_scientific_repair.py)
 - Expansion-label scientific-repair local result: [`data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/)
+- Expansion-label repaired publication protocol: [`docs/restoration_v2_2_expansion_labels_scientific_repair_publication.md`](docs/restoration_v2_2_expansion_labels_scientific_repair_publication.md)
+- Expansion-label repaired publication contract: [`code/configs/causalcache_restoration_v2_2_expansion_labels_scientific_repair_publication_v1.json`](code/configs/causalcache_restoration_v2_2_expansion_labels_scientific_repair_publication_v1.json)
+- Expansion-label repaired publication manager: [`code/scripts/manage_restoration_v2_2_expansion_labels_scientific_repair_publication.py`](code/scripts/manage_restoration_v2_2_expansion_labels_scientific_repair_publication.py)
 - Label-expansion substrate raw-artifact manager: [`code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py`](code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)
@@ -1009,7 +1018,7 @@ $$
 | Label-expansion derived dataset | 同一 private restoration-v2 dataset repo | `restoration-v2-label-expansion-v1.0.0` / `630363a6adb692d72774f16dd0653a50216313ff` | 64 trajectories / 192 views / 384 images；exact-six tree `9394b369...94abc`，immutable fresh-download OCR replay 384/384 |
 | Label-expansion substrate v1 | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile> | `v2.2-label-expansion-substrate-v1` / `25ac19cf6ef98adc243d421cd0039ac104ddb539`，private | 192/192、0 failed；185 memory-sensitive；384/576/384 exact counts；406-file USTAR SHA256 `4e77a38b...ff47d`，fresh immutable byte replay verified |
 | Expansion exact-label v1 attempt / invalid forensic | [private HF invalid-attempt dataset](https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile)；[failure binding](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/) / [transport result](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/) | `v2.2-expansion-exact-labels-v1-attempt-1-forensic-v1` / `5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416`，private | 192/192 raw body complete；406-member forensic USTAR SHA256 `8e205d73...ca489` immutable replay verified；producer 仍 `INVALID` 且 formal-ineligible |
-| Expansion exact-label scientific-repair child | planned private HF dataset `gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`；[local result](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/) | pending publication / immutable revision not created | local 4-member USTAR SHA256 `1a9fdcc0...e01` 已 `VALID + REVALIDATED`；原 producer 不重分类；HF fresh replay 前 gate locked |
+| Expansion exact-label scientific-repair child | planned private HF dataset `gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`；[local result](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/) | publication contract `547b2910...e0aa` frozen；immutable revision not created | local 4-member USTAR SHA256 `1a9fdcc0...e01` 已 `VALID + REVALIDATED`；原 producer 不重分类；HF fresh replay 前 gate locked |
 | Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
 | Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |

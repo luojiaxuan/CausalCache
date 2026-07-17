@@ -820,3 +820,13 @@ PASS 后才允许 deterministic USTAR、private HF upload/tag、取得 immutable
 fresh archive 必须与 source archive byte-identical，并再次从 raw table 重算全部 counts；随后 Git 只记录 compact
 summary、hash 与 immutable HF binding。该 immutable artifact 闭合后才解除 formal-58 gate data blocker；它不自动
 授权 matched-NLL、closed-loop 或 confirm。
+
+原 GPU attempt 已永久 INVALID，后续 repaired-label publication 必须使用独立的 CPU/network-only 协议
+[`restoration_v2_2_expansion_labels_scientific_repair_publication.md`](restoration_v2_2_expansion_labels_scientific_repair_publication.md)。
+publisher 只接受 completed no-GPU child 的 frozen archive/claim/completion；从 clean pushed `main` 以
+archive+sidecar exact-pair commit、annotated tag 和 immutable fresh replay 闭合。publication claim/sidecar 不能
+解锁 gate。content mutation 前还必须以 mode-0600 remote-base receipt 绑定完整 reachable history 与 recursive
+blob tree；pair 只能在该 base 上增加两个 target，不能改动任何既有 blob。fresh replay 后先保留 completion
+staging，再以 same-inode hard-link 创建 final completion；该 link 是最后 namespace mutation。只有 final seal 才
+清除 formal-58 label-data blocker。该步骤不申请 GPU，不重启 model，也不改变 matched-NLL、closed-loop 与
+confirm 的独立锁。

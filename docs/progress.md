@@ -2398,3 +2398,29 @@ closed-loop 与 confirm 均不得提前。
   `data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`；local artifact 还不是 reusable SoT，
   README/summary 分别为 2,483 bytes / `dd9e7858...dd84` 与 11,691 bytes / `4b5aaa84...0f59`。下一步冻结
   独立 HF publication/fresh-replay contract，gate 继续 locked。
+
+### 2026-07-17：repaired-label private-HF publication source freeze
+
+- publication config SHA256 为
+  `547b291022e2430fe6af5158d9350132f405c4b6019198488386dd7fb50be0aa`，唯一 destination 是 private dataset
+  `gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile` 与 tag
+  `v2.2-expansion-exact-labels-scientific-repair-v1`；本 source-freeze 没有创建或读取该 destination；
+- producer binding 固定 local archive `1a9fdcc0...0e01` / 3,020,800 bytes / four-member tree
+  `09bb681b...f44b`、mode-0600 claim `f2a19d6f...70f5`、mode-0600 completion
+  `6a477535...4905`、repair source `b14f489f...342a` 与 lightweight result `534bd7ae...89e7`；
+- remote state machine 只接受 `EMPTY`、`BYTE_IDENTICAL_UNTAGGED`、`TAGGED_BYTE_IDENTICAL`。mode-0600
+  remote-base receipt 在 content mutation 前绑定 base main、完整 reachable history 与 recursive tree/blob
+  inventory；pair history 必须只多一个 commit，去掉两 target 后既有 blob identity 必须完全不变；
+  partial/mismatch/split/interposed/extra-path、existing-blob modification、overwrite、CAS conflict 和 tag conflict
+  均 fail closed；
+- annotated-tag object 与 tag-resolved commit 分开绑定。Hyper00 的 `huggingface_hub==1.16.1` API signature 已
+  核对，并在既有 private annotated tag 上实测 refs target 与 resolved commit 确实不同；publication completion
+  同时记录两者，要求 resolved commit 等于 immutable exact-pair commit；
+- create-repo/commit/tag response-loss 只能通过 readback 恢复。publication claim 与 remote-base receipt 均为
+  durable mode-0600 no-replace 且保持 gate locked；immutable force-download、exact pair provenance 与 strict
+  repaired transport readback 全部通过后，保留的 completion stage 才 hard-link 为 final seal。stage/final 必须
+  same inode，final link 是最后 namespace mutation；completed replay 不允许重建已删除的 remote；
+- focused fake-HF tests 24/24、scientific-repair wildcard 72/72、`py_compile` 与 `git diff --check` 通过。为核对
+  当前 Hub annotated-tag 语义，仅用 token 对既有 invalid-forensic private repo 做了只读 object/resolved 查询；
+  没有访问或修改 repaired destination，没有 gate fit、matched-NLL、closed-loop 或 confirm access。
+  下一步先 commit/push source，再从独立 clean checkout 执行真实 publication 与幂等 immutable replay。

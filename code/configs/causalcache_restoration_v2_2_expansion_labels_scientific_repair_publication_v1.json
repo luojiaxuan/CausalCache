@@ -1,0 +1,133 @@
+{
+  "destination": {
+    "annotated_tag_required": true,
+    "archive_path": "repaired/v2.2-expansion-exact-labels-scientific-repair-v1/repaired-labels-v1.tar",
+    "archive_sidecar_same_commit_required": true,
+    "private": true,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile",
+    "repo_type": "dataset",
+    "sidecar_path": "repaired/v2.2-expansion-exact-labels-scientific-repair-v1/artifact-manifest-v1.json",
+    "tag": "v2.2-expansion-exact-labels-scientific-repair-v1"
+  },
+  "formal_consumption": {
+    "gate_training_unlocked_before_publication_completion": false,
+    "gate_training_unlocked_by_sidecar_alone": false,
+    "original_invalid_forensic_formal_label_loader_eligible": false,
+    "producer_attempt_reclassified": false,
+    "repaired_payload_formal_label_loader_eligible_after_publication_completion": true
+  },
+  "fresh_download_contract": {
+    "download_directory_must_start_empty": true,
+    "force_download": true,
+    "immutable_revision_pre_post_stable": true,
+    "main_revision_pre_post_stable": true,
+    "strict_repaired_transport_readback_required": true,
+    "tag_object_and_resolved_commit_pre_post_stable": true
+  },
+  "git_source_contract": {
+    "branch": "main",
+    "head_must_equal_origin_main": true,
+    "origin_name": "origin",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "real_ls_remote_main_required": true,
+    "required_source_paths": [
+      "code/causalcache/restoration_v2_2_expansion_labels_scientific_repair_publication.py",
+      "code/configs/causalcache_restoration_v2_2_expansion_labels_scientific_repair_publication_v1.json",
+      "code/scripts/manage_restoration_v2_2_expansion_labels_scientific_repair_publication.py",
+      "code/causalcache/restoration_v2_2_expansion_labels_scientific_repair_runner.py",
+      "code/configs/causalcache_restoration_v2_2_expansion_labels_scientific_repair_runner_v1.json",
+      "data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/summary.json"
+    ],
+    "worktree_must_be_clean": true
+  },
+  "local_state": {
+    "claim_path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-publication-v1.claim.json",
+    "completion_seal_path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-publication-v1.completion.json",
+    "completion_staging_path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-publication-v1.completion.staged.json",
+    "file_mode": 384,
+    "o_excl_first_write": true,
+    "remote_base_receipt_path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-publication-v1.remote-base.json",
+    "retained_completion_staging_required": true,
+    "same_bytes_reusable": true
+  },
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1",
+  "publication_contract": {
+    "allowed_remote_states": [
+      "EMPTY",
+      "BYTE_IDENTICAL_UNTAGGED",
+      "TAGGED_BYTE_IDENTICAL"
+    ],
+    "commit_title": "Publish repaired expansion exact-label scientific payload",
+    "completion_is_last_local_mutation": true,
+    "conflict_action": "FAIL_CLOSED",
+    "exact_pair_diff_required": true,
+    "no_overwrite": true,
+    "remote_base_receipt_required_before_content_mutation": true,
+    "remote_history_comparison_is_set_based": true,
+    "remote_recursive_tree_inventory_required": true,
+    "response_loss_requery_required": true,
+    "sidecar_status": "IMMUTABLE_REPAIRED_EXPANSION_LABELS_PUBLICATION_MANIFEST_V1"
+  },
+  "schema_version": "1.0.0",
+  "scientific_repair_source": {
+    "archive": {
+      "archive_member_prefix": "restoration-v2-2-expansion-exact-labels-scientific-repair-v1",
+      "member_count": 4,
+      "member_inventory": [
+        {
+          "path": "audit.json",
+          "sha256": "080e3278880c14dd646444d007ae93110e25af0c0bbd68dd51af3dc5bd92f317",
+          "size_bytes": 149732
+        },
+        {
+          "path": "derived_labels.jsonl",
+          "sha256": "1db0a0283d9be83e33d662fcad0c596a24295115201e8df23821df7e87f615dd",
+          "size_bytes": 1733194
+        },
+        {
+          "path": "manifest.json",
+          "sha256": "0838e4a7019bc0a37d8147f433a74c378bef56d036d58e90ccd925ac22b062e9",
+          "size_bytes": 1462
+        },
+        {
+          "path": "raw_states.jsonl",
+          "sha256": "850aa0f1a6c0c6dd312573e4963384257a724ba01a3fe78ac4496cfd0fd14267",
+          "size_bytes": 1126543
+        }
+      ],
+      "path": "/data/artifacts/causalcache/restoration-v2-2-expansion-exact-labels-scientific-repair-v1.tar",
+      "sha256": "1a9fdcc08aeb83f88bcd50957c3d890e3b103f2063a2aecbe08610d450950e01",
+      "size_bytes": 3020800,
+      "tree_inventory_sha256": "09bb681b2715997df326ab9648d8501955ec6ba127631a97141484631a98f44b"
+    },
+    "claim": {
+      "mode": 384,
+      "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.claim.json",
+      "sha256": "f2a19d6f2b444eb000027abc8b2358e409be22713870bb7e84e62a82998d70f5",
+      "size_bytes": 7014,
+      "status": "CLAIMED_LEDGER_NEUTRAL_EXPANSION_LABEL_SCIENTIFIC_REPAIR_V1"
+    },
+    "completion": {
+      "mode": 384,
+      "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.completion.json",
+      "sha256": "6a4775357de392aef5d9ce7d9999db6cfd3a27f8948fd532e9341c7acacb4905",
+      "size_bytes": 2524,
+      "status": "COMPLETED_LEDGER_NEUTRAL_EXPANSION_LABEL_SCIENTIFIC_REPAIR_V1"
+    },
+    "formal_audit_status": "VALIDATED_EXPANSION_LABEL_SCIENTIFIC_REPAIR_AUDIT_V1",
+    "manifest_status": "IMMUTABLE_REPAIRED_EXPANSION_LABEL_PAYLOAD_MANIFEST_V1",
+    "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_scientific_repair_runner_v1",
+    "result_commit": "534bd7aecdb858decf4756b3934fe4f6acc989e7",
+    "result_summary": {
+      "path": "data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/summary.json",
+      "sha256": "4b5aaa84e343396b6e6e2a1aad1b5cd9f94f854e1b701cf0c0f7d4ba31c20f59",
+      "size_bytes": 11691
+    },
+    "runner_config": {
+      "path": "code/configs/causalcache_restoration_v2_2_expansion_labels_scientific_repair_runner_v1.json",
+      "sha256": "4f4202944674192090cf3df19b864c96e7082628ab25ca8287affa32944e64c2"
+    },
+    "source_git_commit": "b14f489fe55b51a83917b57e6a54fb73d268342a"
+  },
+  "status": "source_only_frozen_before_repaired_private_hf_publication"
+}
