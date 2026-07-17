@@ -209,6 +209,16 @@ authorization=true。唯一 v1 GPU attempt 随后完成 192/192 states 与全部
   没有 package/upload。下一步先冻结 crash-recoverable private-HF publication contract，再从 clean pushed source
   执行只读 package 与 fresh replay。
 
+### 2026-07-17：独立 expansion math audit 闭合
+
+- 新增仅依赖 Python stdlib 的 raw-$D(S)$ audit，不 import production reducer；独立重算 deployment/full edges、
+  pair interactions、exact-permutation Shapley、$B=2$ at-most-budget exact oracle、符号/非单调统计与 algebra
+  residual；
+- comparator 对 reducer 的 math state/summary/count projection 逐字段 exact compare，并对 audit payload 自身做
+  canonical hash；1e-15 的 injected marginal drift 会 fail closed；
+- 5 个 focused tests 与原 expansion artifact suite 联合 36/36 通过；其中 synthetic fixed denominator 为完整
+  192 states。该 audit 将作为 CPU validation repair 的第二套数学实现，不改变原 v1 attempt 的 INVALID 状态。
+
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 
 - 实现 label-blind signed-hash feature、330/200 维 conditional/independent MLP、层级加权 SmoothL1 + ranking、

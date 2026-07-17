@@ -743,6 +743,8 @@ $$
   违规，formal attempt 永久 `INVALID`；
 - [x] 冻结 source-only invalid-forensic transport：双 ledger namespace、strict USTAR、406 members、永久
   formal-ineligible；
+- [x] 实现 stdlib-only independent expansion math audit；从 raw $D(S)$ 独立重算 edges、interactions、Shapley
+  与 exact oracle，并在 synthetic 192-state denominator 上逐字段匹配现有 reducer；
 - [ ] 冻结并执行 CPU-only child validation repair，完成 separate invalid-evidence archive 与 repair immutable HF
   fresh replay；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
