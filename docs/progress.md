@@ -96,6 +96,33 @@ conditional-marginal labels；formal gate training 仍未授权。
   为 858 tests PASS（12 skip），`compileall` 与 diff check 也在 commit A 前执行。本里程碑仍未执行 policy/GPU，也未生成
   restoration labels、gate checkpoint、matched-NLL、closed-loop 或 confirm output。
 
+### 2026-07-17：192-state label-expansion substrate 与 immutable artifact 闭合
+
+- runner source commit A=`1a3833d6951c768ce1bdd5f976d1044c291d002e`；从 clean pushed A 确定性物化
+  67-file freeze（SHA256 `91a768202f653f4e2ca2960adf27a6c6c4f3a288d79c44345a865a1d53010040`），
+  execution commit B=`642feb28b4f7ce4e7bf9f7791f7fb0f6919c1839` 只新增 freeze。正式 validator 在 Hyper00
+  clean checkout 重建全部 source blobs 并授权唯一双 H200 attempt；
+- 全局 processor canary 在任何 generation 前通过 192 included-history mutations、128 excluded states 与
+  192 excluded-event mutations。even/odd workers 各完成固定 96 states，192/192 completed、0 failed，
+  retry/top-up/forbidden operations 全为 0；run-contract SHA256 为
+  `b467113130da74d943a00c2f11d7cad242204e475b7b806e76f666e670a1ed6a`；
+- 实际 384 generation、576 teacher forward、384 KL measurement 与计划精确相等；parse coverage、finite-logit
+  coverage、exact repeat canonical-action agreement 均为 1.0，mean repeat KL=0，185/192 states 的
+  reference-vs-summary KL 超过冻结 epsilon，正式 outcome 为 `PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1`；
+- source-locked monitor 从 preclaim 前覆盖模型加载、processor-only canary、state 间隙与 forward，共 2,368
+  samples、803 个低于 90% 的 incident；进入 state kernel 后外部 10 秒连续窗口多数为 90%--100%。raw evidence
+  原样保留全部 incident，不做事后过滤；
+- 406-file deterministic USTAR SHA256 为
+  `4e77a38be34cb2f3c084a13abd47c0530e6729ff6cca72793977c62fa78ff47d`，tree SHA256 为
+  `56f291053121ccf813698a48beb6269b1fa1d096b7e974f6eb9424f55bc45543`。private HF dataset
+  `gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile` 的 tag
+  `v2.2-label-expansion-substrate-v1` 绑定 immutable revision
+  `25ac19cf6ef98adc243d421cd0039ac104ddb539`；fresh-download 与 source archive 逐 byte 相同，并由 raw
+  reducer 再次返回 PASS；
+- 轻量 Git 结果位于 `data/results/restoration_v2_2_label_expansion_substrate_v1/`。本步只解锁 expansion
+  exact-label source：当前仍无 1,792-row $D(S)$ table、1,856 conditional edges、formal gate、matched-NLL、
+  closed-loop 或 confirm output。
+
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 
 - 实现 label-blind signed-hash feature、330/200 维 conditional/independent MLP、层级加权 SmoothL1 + ranking、

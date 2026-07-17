@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "status": "VERIFIED_IMMUTABLE_LABEL_EXPANSION_SUBSTRATE_SUMMARY",
+  "outcome": "PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1",
+  "source": {
+    "runner_source_git_commit": "1a3833d6951c768ce1bdd5f976d1044c291d002e",
+    "execution_git_commit": "642feb28b4f7ce4e7bf9f7791f7fb0f6919c1839",
+    "config_sha256": "42144f33e2473c787b3648c0ace18b22902fa3376615732aef8fd3aa5780a6e5",
+    "runner_freeze_sha256": "91a768202f653f4e2ca2960adf27a6c6c4f3a288d79c44345a865a1d53010040",
+    "run_contract_sha256": "b467113130da74d943a00c2f11d7cad242204e475b7b806e76f666e670a1ed6a"
+  },
+  "execution": {
+    "host_alias": "hyper00",
+    "gpu_model": "NVIDIA H200",
+    "worker_count": 2,
+    "started_at_utc": "2026-07-17T04:37:01.017582Z",
+    "ended_at_utc": "2026-07-17T05:18:58.983283Z",
+    "wall_time_seconds": 2517.965701,
+    "fixed_state_denominator": 192,
+    "attempted_state_count": 192,
+    "completed_state_count": 192,
+    "failed_state_count": 0,
+    "retry_count": 0,
+    "top_up_count": 0
+  },
+  "processor_canary": {
+    "state_count": 192,
+    "included_history_mutation_count": 192,
+    "excluded_state_count": 128,
+    "excluded_event_mutation_count": 192,
+    "passed": true
+  },
+  "operation_counts": {
+    "planned": {
+      "generation_call_count": 384,
+      "teacher_forward_count": 576,
+      "kl_measurement_count": 384
+    },
+    "actual": {
+      "generation_call_count": 384,
+      "teacher_forward_count": 576,
+      "kl_measurement_count": 384
+    }
+  },
+  "gate": {
+    "gate_passed": true,
+    "parse_coverage": 1.0,
+    "finite_logit_coverage": 1.0,
+    "repeat_canonical_action_agreement": 1.0,
+    "mean_repeat_kl": 0.0,
+    "repeat_noise_epsilon": 0.0001,
+    "memory_sensitive_state_count": 185,
+    "memory_sensitive_state_fraction": 0.9635416666666666,
+    "minimum_memory_sensitive_states": 8
+  },
+  "monitor": {
+    "visible_gpu_count": 2,
+    "minimum_gpu_utilization_percent": 90,
+    "sample_count": 2368,
+    "low_utilization_incident_count": 803,
+    "started_before_first_generation": true,
+    "interpretation": "The source-locked monitor covers CPU-heavy preclaim and processor-only canary work in addition to generation; low-utilization incidents are retained without post-hoc filtering."
+  },
+  "raw_archive": {
+    "hf_repo": "gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile",
+    "hf_tag": "v2.2-label-expansion-substrate-v1",
+    "hf_immutable_revision": "25ac19cf6ef98adc243d421cd0039ac104ddb539",
+    "hf_path": "raw/v2.2-label-expansion-substrate-v1.tar",
+    "sha256": "4e77a38be34cb2f3c084a13abd47c0530e6729ff6cca72793977c62fa78ff47d",
+    "size_bytes": 7475200,
+    "file_count": 406,
+    "tree_inventory_sha256": "56f291053121ccf813698a48beb6269b1fa1d096b7e974f6eb9424f55bc45543",
+    "aggregate_sha256": "645c18edf104c4d174af357362bdaa380c0daba5bcd543f668f75b8c061857fc",
+    "fresh_download_byte_identical": true,
+    "fresh_download_validated": true
+  },
+  "scope_firewall": {
+    "restoration_labels_generated": false,
+    "gate_trained": false,
+    "matched_nll_run": false,
+    "closed_loop_run": false,
+    "confirm_split_accessed": false
+  }
+}

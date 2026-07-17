@@ -1,8 +1,11 @@
 # Restoration v2.2 label expansion
 
 > 当前状态：48/16 policy-blind structural manifest 已从 clean pushed `main@d2a4705` 物化并通过 committed
-> validator，SHA256 为 `4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169`。尚未生成
-> expansion policy output、restoration label、gate checkpoint 或 development metric；旧 20 条 confirm 继续封存。
+> validator，SHA256 为 `4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169`。policy-blind
+> derived artifact 已绑定 immutable revision `630363a6...`；192-state substrate 已完成唯一双 H200 attempt，
+> 192/192 valid、185 memory-sensitive，正式 `PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1`，raw artifact 绑定
+> private HF immutable revision `25ac19cf6ef98adc243d421cd0039ac104ddb539`。尚未生成 expansion restoration
+> labels、gate checkpoint 或 development metric；旧 20 条 confirm 继续封存。
 
 ## 为什么不能直接训练
 
@@ -80,16 +83,16 @@ $D(S)$ 仍是唯一 canonical truth，oracle、marginal、interaction 与 attrib
 projection，但本地盘只作 staging；新 reusable derived artifact 仍要上传 private Hugging Face、取得 immutable
 revision，并 fresh-download replay。
 
-在任何新 policy output 前还必须：
+扩展 substrate 前的五项前置状态为：
 
 1. 从 clean pushed `main` 物化 structural split manifest（已完成）；
-2. 新建 expansion exposure ledger，机械证明 64 IDs 与所有既有 policy/restoration output source union 交集为空；
-3. 生成只含 expansion 64 的 policy-blind derived artifact；
-4. 冻结 gate method family、feature、loss、OOF、tie/stop 与 fresh-16 development gate；
-5. 再分别冻结 expanded substrate 和 expanded-label execution contract。
+2. expansion exposure ledger 机械证明 64 IDs 与所有既有 policy/restoration output source union 交集为空（已完成）；
+3. 只含 expansion 64 的 policy-blind derived artifact（已完成并 fresh immutable replay）；
+4. gate method family、feature、loss、OOF、tie/stop 与 fresh-16 development gate（已冻结）；
+5. expanded substrate（已 PASS 并闭合 immutable artifact）；expanded-label execution contract 仍待冻结。
 
-当前 source milestone 不授权 formal gate training、development tuning、matched-NLL、closed-loop、confirm 或
-AndroidWorld sealed test access。
+当前只解锁 expanded-label source/freeze；仍不授权 formal gate training、development tuning、matched-NLL、
+closed-loop、confirm 或 AndroidWorld sealed test access。
 
 ## 验证入口
 

@@ -151,6 +151,30 @@ ledger。INVALID 允许保留有界 crash window，但不允许自动重跑或�
 代码与轻量结果进入 Git；正式 raw artifact 打包后进入 frozen HF dataset path。runner/source freeze 未完成
 commit A/B 并 push 之前，本文件不构成 GPU 执行授权。
 
+## 正式执行结果
+
+唯一 formal attempt 已从 runner source A=`1a3833d6951c768ce1bdd5f976d1044c291d002e`、execution
+B=`642feb28b4f7ce4e7bf9f7791f7fb0f6919c1839` 在 Hyper00 两张 H200 上完成。全局 processor canary
+192/128/192 通过后，even/odd 各完成 96 states；192/192 valid、0 failed，384 generation、576 teacher
+forward、384 KL measurement 精确命中计划。parse、finite logits、repeat agreement 均为 1.0，mean repeat
+KL 为 0，185/192 states memory-sensitive，正式 outcome 为
+`PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1`。
+
+raw 406-file deterministic USTAR 位于 private HF dataset
+`gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile`，tag
+`v2.2-label-expansion-substrate-v1`，immutable revision
+`25ac19cf6ef98adc243d421cd0039ac104ddb539`。archive SHA256 为
+`4e77a38be34cb2f3c084a13abd47c0530e6729ff6cca72793977c62fa78ff47d`；fresh immutable download 已逐
+byte 相同并通过同一 raw reducer。轻量结果见
+`data/results/restoration_v2_2_label_expansion_substrate_v1/`。
+
+monitor 的 2,368 samples 中 803 个低于 90%；它按冻结协议从 preclaim 前开始，覆盖模型加载和明确禁止
+policy forward 的 processor canary，因此不能把该全窗口计数直接解释为 state-kernel 利用率。所有 sample
+原样保留；进入真实 state kernel 后，外部连续 10 秒监控多数窗口为 90%--100%。
+
+该 PASS 只授权后续 expansion-label source/freeze 工作，不表示 restoration labels、gate、matched-NLL 或
+closed-loop 已完成。
+
 ## 本地验证
 
 ```bash

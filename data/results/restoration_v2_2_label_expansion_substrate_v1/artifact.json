@@ -1,0 +1,115 @@
+{
+  "hf_artifact": {
+    "fresh_download_archive_sha256": "4e77a38be34cb2f3c084a13abd47c0530e6729ff6cca72793977c62fa78ff47d",
+    "fresh_download_archive_size_bytes": 7475200,
+    "fresh_download_byte_identical": true,
+    "fresh_download_file_count": 406,
+    "fresh_download_tree_inventory_sha256": "56f291053121ccf813698a48beb6269b1fa1d096b7e974f6eb9424f55bc45543",
+    "fresh_download_validated": true,
+    "immutable_revision": "25ac19cf6ef98adc243d421cd0039ac104ddb539",
+    "path": "raw/v2.2-label-expansion-substrate-v1.tar",
+    "repo": "gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile",
+    "repo_type": "dataset",
+    "tag": "v2.2-label-expansion-substrate-v1",
+    "visibility": "private"
+  },
+  "input_artifacts": {
+    "derived_artifact_tree_sha256": "9394b369e2b741e6aacf9ece4fc5dae3e6337b25a7e65402307e4e7862b94abc",
+    "derived_immutable_revision": "630363a6adb692d72774f16dd0653a50216313ff",
+    "derived_payload_prefix": "derived/restoration-v2-label-expansion-v1",
+    "derived_repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "derived_tag": "restoration-v2-label-expansion-v1.0.0"
+  },
+  "negative_declarations": {
+    "closed_loop_started": false,
+    "confirm_accessed": false,
+    "failure_messages_copied_into_git_manifest": false,
+    "gate_training_started": false,
+    "matched_nll_started": false,
+    "native_generation_text_copied_into_git_manifest": false,
+    "restoration_labels_generated": false,
+    "retry_performed": false,
+    "state_records_copied_into_git_manifest": false,
+    "top_up_performed": false
+  },
+  "protocol_id": "causalcache_restoration_v2_2_label_expansion_substrate_artifact_v1",
+  "provenance": {
+    "log_inventory_sha256": "df373622b8d82c4643e0bae7582b671da4c30139de18f6154aa5e00e91bbb985",
+    "monitor_summary_sha256": "8ff65391e47009545e6229087accfc72471b1916c4f2a24a0e623b479f27c615",
+    "runtime_identity_sha256": "858a39a268aba452ab86c432fa12c956501c747ddc5bf4e7c8c0ab5d9914f6fd",
+    "worker_identity_sha256": "cb399597fa282f80b4775c25cb1f508d22a3b4da892ee865ca24ee2c0bb8adcb"
+  },
+  "raw_archive": {
+    "aggregate_sha256": "645c18edf104c4d174af357362bdaa380c0daba5bcd543f668f75b8c061857fc",
+    "file_count": 406,
+    "format": "ustar",
+    "member_prefix": "restoration-v2-2-label-expansion-substrate-v1",
+    "sha256": "4e77a38be34cb2f3c084a13abd47c0530e6729ff6cca72793977c62fa78ff47d",
+    "size_bytes": 7475200,
+    "tree_inventory_sha256": "56f291053121ccf813698a48beb6269b1fa1d096b7e974f6eb9424f55bc45543"
+  },
+  "result": {
+    "actual_counts": {
+      "generation_call_count": 384,
+      "kl_measurement_count": 384,
+      "teacher_forward_count": 576
+    },
+    "attempted_state_count": 192,
+    "completed_state_count": 192,
+    "failed_state_count": 0,
+    "failure_category_counts": {},
+    "fixed_state_denominator": 192,
+    "gate_summary": {
+      "checks": {
+        "fixed_denominator_preserved": true,
+        "maximum_generation_calls": true,
+        "maximum_kl_measurements": true,
+        "maximum_teacher_forwards": true,
+        "minimum_finite_logit_coverage": true,
+        "minimum_memory_sensitive_states": true,
+        "minimum_parse_coverage": true,
+        "minimum_repeat_canonical_action_agreement": true
+      },
+      "derived_outcome": "PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1",
+      "gate_passed": true,
+      "metrics": {
+        "finite_logit_coverage": 1.0,
+        "finite_logit_state_count": 192,
+        "finite_repeat_kl_count": 192,
+        "fixed_state_denominator": 192,
+        "generation_call_count": 384,
+        "kl_measurement_count": 384,
+        "mean_repeat_kl": 0.0,
+        "memory_sensitive_state_count": 185,
+        "memory_sensitive_state_fraction": 0.9635416666666666,
+        "parse_coverage": 1.0,
+        "parse_success_count": 192,
+        "repeat_canonical_action_agreement": 1.0,
+        "repeat_canonical_action_agreement_count": 192,
+        "repeat_noise_epsilon": 0.0001,
+        "teacher_forward_count": 576
+      }
+    },
+    "outcome": "PASS_V2_2_LABEL_EXPANSION_SUBSTRATE_V1",
+    "planned_counts": {
+      "generation_call_count": 384,
+      "kl_measurement_count": 384,
+      "teacher_forward_count": 576
+    },
+    "valid_state_count": 192
+  },
+  "schema_version": "1.0.0",
+  "source": {
+    "completion_manifest_path": "data/results/restoration_v2_2_label_expansion_derived/artifact.json",
+    "completion_manifest_sha256": "db518ce830fc233d6f27905fe9b341933995fc272262ccb64d8ca436e3a8e04e",
+    "config_path": "code/configs/causalcache_restoration_v2_2_expansion_substrate_v1.json",
+    "config_sha256": "42144f33e2473c787b3648c0ace18b22902fa3376615732aef8fd3aa5780a6e5",
+    "derived_immutable_revision": "630363a6adb692d72774f16dd0653a50216313ff",
+    "execution_git_commit": "642feb28b4f7ce4e7bf9f7791f7fb0f6919c1839",
+    "run_contract_sha256": "b467113130da74d943a00c2f11d7cad242204e475b7b806e76f666e670a1ed6a",
+    "runner_freeze_path": "code/configs/causalcache_restoration_v2_2_expansion_substrate_runner_v1.json",
+    "runner_freeze_sha256": "91a768202f653f4e2ca2960adf27a6c6c4f3a288d79c44345a865a1d53010040",
+    "runner_source_git_commit": "1a3833d6951c768ce1bdd5f976d1044c291d002e"
+  },
+  "status": "VERIFIED_IMMUTABLE_LABEL_EXPANSION_SUBSTRATE_ARTIFACT"
+}
