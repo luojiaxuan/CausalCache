@@ -2000,8 +2000,8 @@ policy-vision comparator lifecycle 与 validation chain 均已闭合。gate v1 s
 为旧 10 + 新 48，fresh-16 是唯一 formal GO slice，旧 5 只在模型冻结后做 combined-21 compatibility guard；
 set-conditioned iterative gate 是主方法，parameter-matched independent gate 是 interaction comparator。
 
-下一步按顺序物化 48/16 structural selection manifest、pre-output exposure ledger 与 policy-blind derived artifact，
-上传同一 private HF dataset repo 的新 immutable revision，然后生成 64 条 expansion exact labels。labels 闭合前
+48/16 structural selection manifest 已物化；下一步按顺序物化 pre-output exposure ledger 与 policy-blind derived
+artifact，上传同一 private HF dataset repo 的新 immutable revision，然后生成 64 条 expansion exact labels。labels 闭合前
 只允许旧 10 条的两步 trainer smoke；formal-58/21 训练评估、matched-NLL、closed-loop 与 confirm 均不得提前。
 
 ### 2026-07-16：gate v1 preregistration source freeze
@@ -2042,3 +2042,13 @@ set-conditioned iterative gate 是主方法，parameter-matched independent gate
 - independent review 的 manifest-SHA、self-consistent reorder、共享 action claim、hardcoded PNG、payload count 与
   supplied-manifest provenance 问题均已修复；focused tests 14/14 通过；
 - 当前只有 source，没有本地 canonical artifact、HF upload/immutable revision、policy output 或 restoration label。
+
+### 2026-07-17：48/16 structural manifest materialized
+
+- 从 clean pushed `main@d2a4705117e46cb25e0e35f0ee6b1a7fe1f94ef0` 运行唯一 policy-blind materializer；
+- canonical manifest SHA256 为 `4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169`，
+  committed validator 重建得到同一 bytes/summary；
+- 固定 48 train +16 fresh development、192 states、1792 个完整 subset-distance slots、1856 条 deployment
+  conditional edges 与 1984 次 planned teacher forwards；
+- `policy_output_generated=false`、`restoration_output_generated=false`、`structural_manifest_only=true`；下一步先
+  绑定 exposure ledger，仍不授权 policy/gate/confirm。

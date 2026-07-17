@@ -1,0 +1,4738 @@
+{
+  "derivation": {
+    "eligible_order": "parent_reconstruction_eligible_pool_order",
+    "eligible_pool_count": 111,
+    "eligible_pool_sha256": "84d6855b20227d7f884d4ce26cfae7188c1075bb7751cab78a3cf325eef192cb",
+    "expansion_global_order_indices": [
+      44,
+      45,
+      46,
+      47,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110
+    ],
+    "expansion_rule": "structural_tail_after_exact_frozen_confirm_prefix",
+    "expansion_source_ids_sha256": "238a5608d08f6e4594195690b7595b1953e0865da2192e1e4b46d8b5795b3526",
+    "expansion_trajectory_count": 64,
+    "frozen_confirm_prefix": {
+      "source_ids_emitted": false,
+      "source_ids_sha256": "c84ba8b9b705abc7ba7d6d7230b868fd4600e3a835b1c763a8aaf1f93feb052e",
+      "trajectory_count": 20
+    },
+    "prior_excluded_union_count": 23,
+    "prior_excluded_union_sha256": "4a2bb7205b8105b2e3a1211a806f3ce3cc4b2167a43a75deae267ca986fa78f0",
+    "prior_roles_excluded": [
+      {
+        "role": "v1_reference_contract_audit_only",
+        "source_ids_sha256": "6522e2f9c7eb08765606250fbb480b4f46e009a892b3693a573ea07c9c10791d",
+        "trajectory_count": 8
+      },
+      {
+        "role": "v2_label_train",
+        "source_ids_sha256": "97c026f4e6e48b0f748c8495c967c0c796af256ee78fdf2e81b530f54be9cb35",
+        "trajectory_count": 10
+      },
+      {
+        "role": "v2_development",
+        "source_ids_sha256": "0e3d67d79ac45392122fd9a712af43ea544445420e7fdb06df22bad7d84b05e6",
+        "trajectory_count": 5
+      }
+    ],
+    "remaining_after_prior_exclusion": 88,
+    "structural_filter": "decision_count>=5",
+    "structurally_eligible_count": 84
+  },
+  "expected_workload": {
+    "gate_development_expansion": {
+      "deployment_conditional_edges": 464,
+      "full_subset_distance_rows": 448,
+      "states": 48,
+      "teacher_forwards": 496,
+      "trajectories": 16
+    },
+    "gate_train_expansion": {
+      "deployment_conditional_edges": 1392,
+      "full_subset_distance_rows": 1344,
+      "states": 144,
+      "teacher_forwards": 1488,
+      "trajectories": 48
+    },
+    "total": {
+      "deployment_conditional_edges": 1856,
+      "full_subset_distance_rows": 1792,
+      "states": 192,
+      "teacher_forwards": 1984,
+      "trajectories": 64
+    }
+  },
+  "generator": {
+    "cli_path": "code/scripts/materialize_restoration_v2_2_label_expansion.py",
+    "cli_sha256": "76770d4363f262e1e326d53008f294df74269728e87ff6f3284ff1e9dab1c9ff",
+    "git_revision": "d2a4705117e46cb25e0e35f0ee6b1a7fe1f94ef0",
+    "module_path": "code/causalcache/restoration_v2_2_label_expansion.py",
+    "module_sha256": "7bc6e34a98f88732532da09dd343bcfaa8b594f188f9f999f9f7479be1fea0dd",
+    "validator_path": "code/scripts/validate_restoration_v2_2_label_expansion.py",
+    "validator_sha256": "e98e74f46dd63b1cbf1b63bb85359d94e28cfdfb7eff4b4ad3a729fcc8aed61d"
+  },
+  "inputs": {
+    "parent_selection": {
+      "eligible_pool_count": 111,
+      "eligible_pool_sha256": "84d6855b20227d7f884d4ce26cfae7188c1075bb7751cab78a3cf325eef192cb",
+      "generator_git_revision": "30879c09e896a61929c66935f98c21e6c3fc7ff5",
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b"
+    },
+    "source_identities": {
+      "eligible_pool_artifact": {
+        "eligible_pool_sha256": "84d6855b20227d7f884d4ce26cfae7188c1075bb7751cab78a3cf325eef192cb",
+        "manifest_sha256": "3870900442dd0c8f037c9127e0c61c53c9d08c3735164c3c57c857f2c65eb949",
+        "repo": "gavinlaw/causalcache-guiodyssey-independent-mobile",
+        "revision": "84c9f5a335e9612ccb4bd566f977574f359b2485"
+      },
+      "scientific_contract": {
+        "path": "code/configs/causalcache_restoration_v2.json",
+        "sha256": "9b9b78d9e1902d6ba7c648c939809c56fe55cccc17de58d4e6eed8d9ddf746cc"
+      },
+      "source_file_manifest": {
+        "file_count": 16,
+        "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+        "repo": "cua-lite/GUIOdyssey",
+        "revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+        "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+        "total_bytes": 2252923738
+      }
+    },
+    "split_config": {
+      "path": "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+      "sha256": "e74904fb75cd72429e6adb51ab7500adcaa1915fb6cebc8567a2945bc9373947"
+    }
+  },
+  "leakage_firewall": {
+    "image_or_ocr_identity_emitted": false,
+    "instruction_or_action_identity_emitted": false,
+    "parent_state_records_emitted": false,
+    "prior_role_source_ids_emitted": false
+  },
+  "policy_output_generated": false,
+  "protocol_id": "causalcache_restoration_v2_2_label_expansion_v1",
+  "restoration_output_generated": false,
+  "schema_version": "0.1.0",
+  "splits": {
+    "gate_development_expansion": {
+      "states": [
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0113395203853614",
+          "state_id": "0113395203853614:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0113395203853614",
+          "state_id": "0113395203853614:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0113395203853614",
+          "state_id": "0113395203853614:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0085973327901251",
+          "state_id": "0085973327901251:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0085973327901251",
+          "state_id": "0085973327901251:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0085973327901251",
+          "state_id": "0085973327901251:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0217993280505982",
+          "state_id": "0217993280505982:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0217993280505982",
+          "state_id": "0217993280505982:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0217993280505982",
+          "state_id": "0217993280505982:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0204226739513713",
+          "state_id": "0204226739513713:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0204226739513713",
+          "state_id": "0204226739513713:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0204226739513713",
+          "state_id": "0204226739513713:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0027349945578994",
+          "state_id": "0027349945578994:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0027349945578994",
+          "state_id": "0027349945578994:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0027349945578994",
+          "state_id": "0027349945578994:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0063414321407600",
+          "state_id": "0063414321407600:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0063414321407600",
+          "state_id": "0063414321407600:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0063414321407600",
+          "state_id": "0063414321407600:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0124211143250759",
+          "state_id": "0124211143250759:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0124211143250759",
+          "state_id": "0124211143250759:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0124211143250759",
+          "state_id": "0124211143250759:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0158200624694354",
+          "state_id": "0158200624694354:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0158200624694354",
+          "state_id": "0158200624694354:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0158200624694354",
+          "state_id": "0158200624694354:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0104781033187528",
+          "state_id": "0104781033187528:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0104781033187528",
+          "state_id": "0104781033187528:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0104781033187528",
+          "state_id": "0104781033187528:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0042582068233164",
+          "state_id": "0042582068233164:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0042582068233164",
+          "state_id": "0042582068233164:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0042582068233164",
+          "state_id": "0042582068233164:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0095139503173521",
+          "state_id": "0095139503173521:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0095139503173521",
+          "state_id": "0095139503173521:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0095139503173521",
+          "state_id": "0095139503173521:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0028705883346522",
+          "state_id": "0028705883346522:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0028705883346522",
+          "state_id": "0028705883346522:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0028705883346522",
+          "state_id": "0028705883346522:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0069283472940099",
+          "state_id": "0069283472940099:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0069283472940099",
+          "state_id": "0069283472940099:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0069283472940099",
+          "state_id": "0069283472940099:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0090192011883108",
+          "state_id": "0090192011883108:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0090192011883108",
+          "state_id": "0090192011883108:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0090192011883108",
+          "state_id": "0090192011883108:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0017986853193264",
+          "state_id": "0017986853193264:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0017986853193264",
+          "state_id": "0017986853193264:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0017986853193264",
+          "state_id": "0017986853193264:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0002455403270123",
+          "state_id": "0002455403270123:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0002455403270123",
+          "state_id": "0002455403270123:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0002455403270123",
+          "state_id": "0002455403270123:decision_step:006",
+          "teacher_forwards": 17
+        }
+      ],
+      "trajectories": [
+        {
+          "decision_count": 8,
+          "eligible_order_index": 95,
+          "selection_sha256": "d5f92ca09fd4df2fb94e48131073e448efa7d2629e345d9612532a6f5a7f204c",
+          "source_id": "0113395203853614",
+          "transport_file": "mobile/use/train/shard-00007-of-00610.parquet",
+          "transport_row_index": 10
+        },
+        {
+          "decision_count": 5,
+          "eligible_order_index": 96,
+          "selection_sha256": "d6ebb20a96611d5894aa34a58ef2d43497cca3bd689d50915d8fe2926604125c",
+          "source_id": "0085973327901251",
+          "transport_file": "mobile/use/train/shard-00006-of-00610.parquet",
+          "transport_row_index": 4
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 97,
+          "selection_sha256": "d8efb0228af56898276baa3428994d7c2fcada3556f33d5e01f8473ef28ba202",
+          "source_id": "0217993280505982",
+          "transport_file": "mobile/use/train/shard-00014-of-00610.parquet",
+          "transport_row_index": 10
+        },
+        {
+          "decision_count": 5,
+          "eligible_order_index": 98,
+          "selection_sha256": "dc7585bc4d192984fe7d0a332e754a606feafd42bd334ed68c6a8bf601ab5047",
+          "source_id": "0204226739513713",
+          "transport_file": "mobile/use/train/shard-00013-of-00610.parquet",
+          "transport_row_index": 6
+        },
+        {
+          "decision_count": 5,
+          "eligible_order_index": 99,
+          "selection_sha256": "ddd713b2c0bf0fbcf0e35ff7144b27953d4af50aa4bdac163fc47434d2f4d8d9",
+          "source_id": "0027349945578994",
+          "transport_file": "mobile/use/train/shard-00001-of-00610.parquet",
+          "transport_row_index": 13
+        },
+        {
+          "decision_count": 11,
+          "eligible_order_index": 100,
+          "selection_sha256": "e111d14aa52e04890f0f38f37fdccc9e378b16ad40f35ee42f27f13c4d38b994",
+          "source_id": "0063414321407600",
+          "transport_file": "mobile/use/train/shard-00004-of-00610.parquet",
+          "transport_row_index": 9
+        },
+        {
+          "decision_count": 5,
+          "eligible_order_index": 101,
+          "selection_sha256": "e2a440dfe363544202779335b5ef53451126a299717482bcba6f0e48e1d4a782",
+          "source_id": "0124211143250759",
+          "transport_file": "mobile/use/train/shard-00008-of-00610.parquet",
+          "transport_row_index": 11
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 102,
+          "selection_sha256": "e54e5f4c184782570d194b7a26b972429099ae662843a7fed17ccae71fc0a2c1",
+          "source_id": "0158200624694354",
+          "transport_file": "mobile/use/train/shard-00011-of-00610.parquet",
+          "transport_row_index": 0
+        },
+        {
+          "decision_count": 7,
+          "eligible_order_index": 103,
+          "selection_sha256": "e98a8b9ff54ae7b8006aec769b9e4879779fe869c3700521d0ee25b4daea26f1",
+          "source_id": "0104781033187528",
+          "transport_file": "mobile/use/train/shard-00007-of-00610.parquet",
+          "transport_row_index": 3
+        },
+        {
+          "decision_count": 7,
+          "eligible_order_index": 104,
+          "selection_sha256": "ea2b37d56ddd7d58eb14fb747e7b554839aef973ffa294a5bbabfedf338e3857",
+          "source_id": "0042582068233164",
+          "transport_file": "mobile/use/train/shard-00002-of-00610.parquet",
+          "transport_row_index": 9
+        },
+        {
+          "decision_count": 5,
+          "eligible_order_index": 105,
+          "selection_sha256": "ed85f154959e92bc877aa432902fd34145461d93509aa02b6029bc0a3b6865da",
+          "source_id": "0095139503173521",
+          "transport_file": "mobile/use/train/shard-00006-of-00610.parquet",
+          "transport_row_index": 13
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 106,
+          "selection_sha256": "fb53eb644b9d286a3ff80b3920a16916c255a76064bf9d189d4d97d099352099",
+          "source_id": "0028705883346522",
+          "transport_file": "mobile/use/train/shard-00001-of-00610.parquet",
+          "transport_row_index": 14
+        },
+        {
+          "decision_count": 7,
+          "eligible_order_index": 107,
+          "selection_sha256": "fc5bd5180d16f0add8e0f1c322ce04cfdf1afe77be9f9bb52d6ea7dd342a1a67",
+          "source_id": "0069283472940099",
+          "transport_file": "mobile/use/train/shard-00005-of-00610.parquet",
+          "transport_row_index": 2
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 108,
+          "selection_sha256": "fd01658f8a8c6cd9ac81fc7802091af90b497bc0206d2a0aa1b3400dd05bfc6e",
+          "source_id": "0090192011883108",
+          "transport_file": "mobile/use/train/shard-00006-of-00610.parquet",
+          "transport_row_index": 6
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 109,
+          "selection_sha256": "fd75aae19871c6f10b67636cbea3acb3425495605e8347e6d64eac7a5152a278",
+          "source_id": "0017986853193264",
+          "transport_file": "mobile/use/train/shard-00001-of-00610.parquet",
+          "transport_row_index": 5
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 110,
+          "selection_sha256": "ff0c1973aba00fd6538ff4367b6b8b7b8a7c5afa1f5b39dbcd3e4ae8fec9e9a4",
+          "source_id": "0002455403270123",
+          "transport_file": "mobile/use/train/shard-00000-of-00610.parquet",
+          "transport_row_index": 4
+        }
+      ]
+    },
+    "gate_train_expansion": {
+      "states": [
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0081171303194449",
+          "state_id": "0081171303194449:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0081171303194449",
+          "state_id": "0081171303194449:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0081171303194449",
+          "state_id": "0081171303194449:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0016567388192150",
+          "state_id": "0016567388192150:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0016567388192150",
+          "state_id": "0016567388192150:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0016567388192150",
+          "state_id": "0016567388192150:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0081349207433064",
+          "state_id": "0081349207433064:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0081349207433064",
+          "state_id": "0081349207433064:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0081349207433064",
+          "state_id": "0081349207433064:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0106001886731694",
+          "state_id": "0106001886731694:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0106001886731694",
+          "state_id": "0106001886731694:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0106001886731694",
+          "state_id": "0106001886731694:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0013756686421890",
+          "state_id": "0013756686421890:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0013756686421890",
+          "state_id": "0013756686421890:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0013756686421890",
+          "state_id": "0013756686421890:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0224710820406687",
+          "state_id": "0224710820406687:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0224710820406687",
+          "state_id": "0224710820406687:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0224710820406687",
+          "state_id": "0224710820406687:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0096794886053450",
+          "state_id": "0096794886053450:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0096794886053450",
+          "state_id": "0096794886053450:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0096794886053450",
+          "state_id": "0096794886053450:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0119022933981939",
+          "state_id": "0119022933981939:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0119022933981939",
+          "state_id": "0119022933981939:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0119022933981939",
+          "state_id": "0119022933981939:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0149901478066310",
+          "state_id": "0149901478066310:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0149901478066310",
+          "state_id": "0149901478066310:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0149901478066310",
+          "state_id": "0149901478066310:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0031013035186872",
+          "state_id": "0031013035186872:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0031013035186872",
+          "state_id": "0031013035186872:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0031013035186872",
+          "state_id": "0031013035186872:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0156438551317768",
+          "state_id": "0156438551317768:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0156438551317768",
+          "state_id": "0156438551317768:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0156438551317768",
+          "state_id": "0156438551317768:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0185503498056981",
+          "state_id": "0185503498056981:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0185503498056981",
+          "state_id": "0185503498056981:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0185503498056981",
+          "state_id": "0185503498056981:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0213791829762595",
+          "state_id": "0213791829762595:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0213791829762595",
+          "state_id": "0213791829762595:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0213791829762595",
+          "state_id": "0213791829762595:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0154474824404795",
+          "state_id": "0154474824404795:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0154474824404795",
+          "state_id": "0154474824404795:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0154474824404795",
+          "state_id": "0154474824404795:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0026634903318160",
+          "state_id": "0026634903318160:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0026634903318160",
+          "state_id": "0026634903318160:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0026634903318160",
+          "state_id": "0026634903318160:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0177467386816906",
+          "state_id": "0177467386816906:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0177467386816906",
+          "state_id": "0177467386816906:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0177467386816906",
+          "state_id": "0177467386816906:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0131888848291691",
+          "state_id": "0131888848291691:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0131888848291691",
+          "state_id": "0131888848291691:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0131888848291691",
+          "state_id": "0131888848291691:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0076518844281084",
+          "state_id": "0076518844281084:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0076518844281084",
+          "state_id": "0076518844281084:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0076518844281084",
+          "state_id": "0076518844281084:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0072821463326485",
+          "state_id": "0072821463326485:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0072821463326485",
+          "state_id": "0072821463326485:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0072821463326485",
+          "state_id": "0072821463326485:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0135431381761380",
+          "state_id": "0135431381761380:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0135431381761380",
+          "state_id": "0135431381761380:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0135431381761380",
+          "state_id": "0135431381761380:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0107109187202943",
+          "state_id": "0107109187202943:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0107109187202943",
+          "state_id": "0107109187202943:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0107109187202943",
+          "state_id": "0107109187202943:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0135789980944621",
+          "state_id": "0135789980944621:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0135789980944621",
+          "state_id": "0135789980944621:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0135789980944621",
+          "state_id": "0135789980944621:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0114203784922462",
+          "state_id": "0114203784922462:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0114203784922462",
+          "state_id": "0114203784922462:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0114203784922462",
+          "state_id": "0114203784922462:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0234089730527063",
+          "state_id": "0234089730527063:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0234089730527063",
+          "state_id": "0234089730527063:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0234089730527063",
+          "state_id": "0234089730527063:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0218815826133241",
+          "state_id": "0218815826133241:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0218815826133241",
+          "state_id": "0218815826133241:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0218815826133241",
+          "state_id": "0218815826133241:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0134720948350318",
+          "state_id": "0134720948350318:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0134720948350318",
+          "state_id": "0134720948350318:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0134720948350318",
+          "state_id": "0134720948350318:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0204580742481366",
+          "state_id": "0204580742481366:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0204580742481366",
+          "state_id": "0204580742481366:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0204580742481366",
+          "state_id": "0204580742481366:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0084888665394360",
+          "state_id": "0084888665394360:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0084888665394360",
+          "state_id": "0084888665394360:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0084888665394360",
+          "state_id": "0084888665394360:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0037690483064801",
+          "state_id": "0037690483064801:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0037690483064801",
+          "state_id": "0037690483064801:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0037690483064801",
+          "state_id": "0037690483064801:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0235343430658003",
+          "state_id": "0235343430658003:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0235343430658003",
+          "state_id": "0235343430658003:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0235343430658003",
+          "state_id": "0235343430658003:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0206048389903107",
+          "state_id": "0206048389903107:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0206048389903107",
+          "state_id": "0206048389903107:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0206048389903107",
+          "state_id": "0206048389903107:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0220943321467127",
+          "state_id": "0220943321467127:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0220943321467127",
+          "state_id": "0220943321467127:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0220943321467127",
+          "state_id": "0220943321467127:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0167183648468991",
+          "state_id": "0167183648468991:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0167183648468991",
+          "state_id": "0167183648468991:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0167183648468991",
+          "state_id": "0167183648468991:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0122430166514446",
+          "state_id": "0122430166514446:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0122430166514446",
+          "state_id": "0122430166514446:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0122430166514446",
+          "state_id": "0122430166514446:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0119569788020140",
+          "state_id": "0119569788020140:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0119569788020140",
+          "state_id": "0119569788020140:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0119569788020140",
+          "state_id": "0119569788020140:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0092302829764693",
+          "state_id": "0092302829764693:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0092302829764693",
+          "state_id": "0092302829764693:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0092302829764693",
+          "state_id": "0092302829764693:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0227020388419136",
+          "state_id": "0227020388419136:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0227020388419136",
+          "state_id": "0227020388419136:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0227020388419136",
+          "state_id": "0227020388419136:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0041513657979544",
+          "state_id": "0041513657979544:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0041513657979544",
+          "state_id": "0041513657979544:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0041513657979544",
+          "state_id": "0041513657979544:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0192684638288967",
+          "state_id": "0192684638288967:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0192684638288967",
+          "state_id": "0192684638288967:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0192684638288967",
+          "state_id": "0192684638288967:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0108772154206513",
+          "state_id": "0108772154206513:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0108772154206513",
+          "state_id": "0108772154206513:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0108772154206513",
+          "state_id": "0108772154206513:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0000922671359408",
+          "state_id": "0000922671359408:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0000922671359408",
+          "state_id": "0000922671359408:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0000922671359408",
+          "state_id": "0000922671359408:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0066997985759988",
+          "state_id": "0066997985759988:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0066997985759988",
+          "state_id": "0066997985759988:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0066997985759988",
+          "state_id": "0066997985759988:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0137575778052679",
+          "state_id": "0137575778052679:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0137575778052679",
+          "state_id": "0137575778052679:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0137575778052679",
+          "state_id": "0137575778052679:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0114247701606163",
+          "state_id": "0114247701606163:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0114247701606163",
+          "state_id": "0114247701606163:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0114247701606163",
+          "state_id": "0114247701606163:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0191751033400150",
+          "state_id": "0191751033400150:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0191751033400150",
+          "state_id": "0191751033400150:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0191751033400150",
+          "state_id": "0191751033400150:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0123550855207688",
+          "state_id": "0123550855207688:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0123550855207688",
+          "state_id": "0123550855207688:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0123550855207688",
+          "state_id": "0123550855207688:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0157485992279511",
+          "state_id": "0157485992279511:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0157485992279511",
+          "state_id": "0157485992279511:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0157485992279511",
+          "state_id": "0157485992279511:decision_step:006",
+          "teacher_forwards": 17
+        },
+        {
+          "candidate_event_count": 2,
+          "candidate_event_step_ids": [
+            1,
+            2
+          ],
+          "current_equivalent_event_step_id": 3,
+          "decision_step_id": 4,
+          "deployment_conditional_edges": 4,
+          "full_subset_distance_rows": 4,
+          "history_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "source_id": "0039770017320665",
+          "state_id": "0039770017320665:decision_step:004",
+          "teacher_forwards": 5
+        },
+        {
+          "candidate_event_count": 3,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3
+          ],
+          "current_equivalent_event_step_id": 4,
+          "decision_step_id": 5,
+          "deployment_conditional_edges": 9,
+          "full_subset_distance_rows": 8,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "source_id": "0039770017320665",
+          "state_id": "0039770017320665:decision_step:005",
+          "teacher_forwards": 9
+        },
+        {
+          "candidate_event_count": 4,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "current_equivalent_event_step_id": 5,
+          "decision_step_id": 6,
+          "deployment_conditional_edges": 16,
+          "full_subset_distance_rows": 16,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "source_id": "0039770017320665",
+          "state_id": "0039770017320665:decision_step:006",
+          "teacher_forwards": 17
+        }
+      ],
+      "trajectories": [
+        {
+          "decision_count": 10,
+          "eligible_order_index": 44,
+          "selection_sha256": "65e76596aa4585d98834d045d223c5ecd0673364001ae08c274454674a79be8c",
+          "source_id": "0081171303194449",
+          "transport_file": "mobile/use/train/shard-00005-of-00610.parquet",
+          "transport_row_index": 11
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 45,
+          "selection_sha256": "68e8fd4ffc68eec413a89541fc6c2f087dac04fa933637a1b1279b8743bf895f",
+          "source_id": "0016567388192150",
+          "transport_file": "mobile/use/train/shard-00001-of-00610.parquet",
+          "transport_row_index": 3
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 46,
+          "selection_sha256": "697cd6253e955388956525f5e931053a71b8cfea0cac4fd79e39d57a900ccec9",
+          "source_id": "0081349207433064",
+          "transport_file": "mobile/use/train/shard-00006-of-00610.parquet",
+          "transport_row_index": 1
+        },
+        {
+          "decision_count": 11,
+          "eligible_order_index": 47,
+          "selection_sha256": "6d8f435b1ef0a72a0ab348706ca2b3ffab580443610a24e0440e8b82e2693e38",
+          "source_id": "0106001886731694",
+          "transport_file": "mobile/use/train/shard-00007-of-00610.parquet",
+          "transport_row_index": 4
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 49,
+          "selection_sha256": "71fd9bdef9751e993c3a5c3892170c5f1d0dea4a8f6d65b023d843411eb9968e",
+          "source_id": "0013756686421890",
+          "transport_file": "mobile/use/train/shard-00001-of-00610.parquet",
+          "transport_row_index": 1
+        },
+        {
+          "decision_count": 11,
+          "eligible_order_index": 50,
+          "selection_sha256": "7222daaad41c75739e77c26df3518cb8dd4eda18f8138e8607dc653d698161fa",
+          "source_id": "0224710820406687",
+          "transport_file": "mobile/use/train/shard-00015-of-00610.parquet",
+          "transport_row_index": 4
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 51,
+          "selection_sha256": "7755a60937a95ebe4e3bfc4e03e5ef20584db834140d42ebb290df1bc0b2d33f",
+          "source_id": "0096794886053450",
+          "transport_file": "mobile/use/train/shard-00006-of-00610.parquet",
+          "transport_row_index": 14
+        },
+        {
+          "decision_count": 11,
+          "eligible_order_index": 52,
+          "selection_sha256": "77751968b6c15c466619cacee0a5e7bbc0427c66494a05af3cee9b4ac9d3a7cf",
+          "source_id": "0119022933981939",
+          "transport_file": "mobile/use/train/shard-00008-of-00610.parquet",
+          "transport_row_index": 1
+        },
+        {
+          "decision_count": 7,
+          "eligible_order_index": 53,
+          "selection_sha256": "78ea4bf7eed4080a4fc86d57c1dab62d2c5c7b352720d375d03fecc99ab9c9bc",
+          "source_id": "0149901478066310",
+          "transport_file": "mobile/use/train/shard-00010-of-00610.parquet",
+          "transport_row_index": 9
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 54,
+          "selection_sha256": "7d938fa89e3d2e988a54f8fc80f8e04d48b289c420437f6141a71a90d401868d",
+          "source_id": "0031013035186872",
+          "transport_file": "mobile/use/train/shard-00002-of-00610.parquet",
+          "transport_row_index": 1
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 55,
+          "selection_sha256": "7e8d0354fc099e8a86cd59bcbe8e82eb7cb73f649f0b4f686ee0439394250cf5",
+          "source_id": "0156438551317768",
+          "transport_file": "mobile/use/train/shard-00010-of-00610.parquet",
+          "transport_row_index": 14
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 56,
+          "selection_sha256": "809043fde0cd7b4f4dd46fd86e0e2ab625e804135acf61601e5853b2ab18418b",
+          "source_id": "0185503498056981",
+          "transport_file": "mobile/use/train/shard-00012-of-00610.parquet",
+          "transport_row_index": 6
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 57,
+          "selection_sha256": "81c4e4cafffecdcbf79f36c32c4102b8a33c5eb54fd9421fef3f0a77b11ec6bb",
+          "source_id": "0213791829762595",
+          "transport_file": "mobile/use/train/shard-00014-of-00610.parquet",
+          "transport_row_index": 4
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 58,
+          "selection_sha256": "81e4c621f969f3a6be628a1c5896a858a66e816b10ddd20572a24ac7b9662a08",
+          "source_id": "0154474824404795",
+          "transport_file": "mobile/use/train/shard-00010-of-00610.parquet",
+          "transport_row_index": 13
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 59,
+          "selection_sha256": "827e9e56f68492c24fb2646f099de0c438e4ed7ff816627f361faa0d8e0dbdf5",
+          "source_id": "0026634903318160",
+          "transport_file": "mobile/use/train/shard-00001-of-00610.parquet",
+          "transport_row_index": 12
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 60,
+          "selection_sha256": "849e3b19c07dc0b347ec6d3a71fab1f766ae751a5cdf8f8abcef7f3d97367f57",
+          "source_id": "0177467386816906",
+          "transport_file": "mobile/use/train/shard-00011-of-00610.parquet",
+          "transport_row_index": 12
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 61,
+          "selection_sha256": "8b29927b5c80fe2519c3e9c9cf29897af40e31750f66ce1714ef8d947753dbfd",
+          "source_id": "0131888848291691",
+          "transport_file": "mobile/use/train/shard-00009-of-00610.parquet",
+          "transport_row_index": 6
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 62,
+          "selection_sha256": "8d1c8c27f070cbe11069d5d4c788c5aad5b5c9953b443001e5f78d916b4377d2",
+          "source_id": "0076518844281084",
+          "transport_file": "mobile/use/train/shard-00005-of-00610.parquet",
+          "transport_row_index": 8
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 63,
+          "selection_sha256": "9134feadeb68295279a928b6b54995b4293dac5f7beeee3e12c7170587f80333",
+          "source_id": "0072821463326485",
+          "transport_file": "mobile/use/train/shard-00005-of-00610.parquet",
+          "transport_row_index": 4
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 64,
+          "selection_sha256": "93709476084a4e74d67ce1bdf54efaa3a07b1a7c2518faeb1c67480a328a2c79",
+          "source_id": "0135431381761380",
+          "transport_file": "mobile/use/train/shard-00009-of-00610.parquet",
+          "transport_row_index": 10
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 65,
+          "selection_sha256": "943af410cc3d08fef1d4fa58b7580537591e2f74b6497ab7c90e13ac418d3e76",
+          "source_id": "0107109187202943",
+          "transport_file": "mobile/use/train/shard-00007-of-00610.parquet",
+          "transport_row_index": 6
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 66,
+          "selection_sha256": "95455740b63d2a63b466931adafc8637175d7e7676b5ac42691a570ec420fde5",
+          "source_id": "0135789980944621",
+          "transport_file": "mobile/use/train/shard-00009-of-00610.parquet",
+          "transport_row_index": 12
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 68,
+          "selection_sha256": "9930dfc40eb8dd6a5f6079ba6b6a1f5a45d71d3805c6a4cc2eff47e53e7ccfd5",
+          "source_id": "0114203784922462",
+          "transport_file": "mobile/use/train/shard-00007-of-00610.parquet",
+          "transport_row_index": 12
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 69,
+          "selection_sha256": "9bf5bb272791f5805fd805d072b044bc2869df9ca3859d6b5fd552779445de34",
+          "source_id": "0234089730527063",
+          "transport_file": "mobile/use/train/shard-00015-of-00610.parquet",
+          "transport_row_index": 9
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 70,
+          "selection_sha256": "9cbd8a4c4fcb386eb2795ede5fbb6a72e059a48bd7eeb30eb02c54cc61b721e4",
+          "source_id": "0218815826133241",
+          "transport_file": "mobile/use/train/shard-00015-of-00610.parquet",
+          "transport_row_index": 0
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 71,
+          "selection_sha256": "9ee0b79360df34021a383b0c9c61b6a15afaa2228d60456714c3d2ac8e42058a",
+          "source_id": "0134720948350318",
+          "transport_file": "mobile/use/train/shard-00009-of-00610.parquet",
+          "transport_row_index": 9
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 72,
+          "selection_sha256": "a06d9c8efaeb6daac5340529c1027476293970dedc583afc2ec05c370c0bb7fb",
+          "source_id": "0204580742481366",
+          "transport_file": "mobile/use/train/shard-00013-of-00610.parquet",
+          "transport_row_index": 7
+        },
+        {
+          "decision_count": 6,
+          "eligible_order_index": 73,
+          "selection_sha256": "a0e4dac810cb2d632378ba89697190e928af1dad725cf7e4eac50587f8561566",
+          "source_id": "0084888665394360",
+          "transport_file": "mobile/use/train/shard-00006-of-00610.parquet",
+          "transport_row_index": 3
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 74,
+          "selection_sha256": "ab1266913ca5931b4560dd579cb393a94f2570fa764a3dddc6baf342c49c3d5e",
+          "source_id": "0037690483064801",
+          "transport_file": "mobile/use/train/shard-00002-of-00610.parquet",
+          "transport_row_index": 4
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 75,
+          "selection_sha256": "ab2eb43c7e3c294417f91939233065bfcdbec48eebabc9d48791c8d2eada2f0d",
+          "source_id": "0235343430658003",
+          "transport_file": "mobile/use/train/shard-00015-of-00610.parquet",
+          "transport_row_index": 11
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 76,
+          "selection_sha256": "ab500f8c0c542d8386f123e1e5824ac93c4e0c887a710403e83040bf3a25cd1e",
+          "source_id": "0206048389903107",
+          "transport_file": "mobile/use/train/shard-00013-of-00610.parquet",
+          "transport_row_index": 9
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 77,
+          "selection_sha256": "acbc8aa1b71c57d2e74b69959ec0400bbc42d5c9f8c6babb26573b629ea495a7",
+          "source_id": "0220943321467127",
+          "transport_file": "mobile/use/train/shard-00015-of-00610.parquet",
+          "transport_row_index": 3
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 78,
+          "selection_sha256": "b059556505da21146b618bda9f59880a5cc0ada2bde0d03f854559a8df3678a9",
+          "source_id": "0167183648468991",
+          "transport_file": "mobile/use/train/shard-00011-of-00610.parquet",
+          "transport_row_index": 5
+        },
+        {
+          "decision_count": 11,
+          "eligible_order_index": 79,
+          "selection_sha256": "b19b5d17243547993f7d54bb05557690c1dafd0ad4e7241a538109b3b67b78d6",
+          "source_id": "0122430166514446",
+          "transport_file": "mobile/use/train/shard-00008-of-00610.parquet",
+          "transport_row_index": 8
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 80,
+          "selection_sha256": "b23077319aa27ae474264d3858f79fc2de1336ba13934b24f5821773872b79c7",
+          "source_id": "0119569788020140",
+          "transport_file": "mobile/use/train/shard-00008-of-00610.parquet",
+          "transport_row_index": 3
+        },
+        {
+          "decision_count": 5,
+          "eligible_order_index": 81,
+          "selection_sha256": "b5a1257e3e9d33d56826e6a11dabf6a2ccb005e9833449f93ab139eaf8848a04",
+          "source_id": "0092302829764693",
+          "transport_file": "mobile/use/train/shard-00006-of-00610.parquet",
+          "transport_row_index": 11
+        },
+        {
+          "decision_count": 5,
+          "eligible_order_index": 82,
+          "selection_sha256": "b658548487d4d279bdf238a7ffe48b9e6d9f3a15a4257516778df70a923bb4b7",
+          "source_id": "0227020388419136",
+          "transport_file": "mobile/use/train/shard-00015-of-00610.parquet",
+          "transport_row_index": 5
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 83,
+          "selection_sha256": "c0ff4527424b5b9a8c7280f10ab3e3d4cb3e78a662010363b460e20b6952c844",
+          "source_id": "0041513657979544",
+          "transport_file": "mobile/use/train/shard-00002-of-00610.parquet",
+          "transport_row_index": 8
+        },
+        {
+          "decision_count": 11,
+          "eligible_order_index": 84,
+          "selection_sha256": "c6e06444ea4d0bc030a99df84f881ff381526abe0f665e1fb18235c7acef719a",
+          "source_id": "0192684638288967",
+          "transport_file": "mobile/use/train/shard-00012-of-00610.parquet",
+          "transport_row_index": 12
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 85,
+          "selection_sha256": "c7fb96e30bc98d2d80ab62e8ff4566f25976aed192a5469ee3d8a30cc4b99ef9",
+          "source_id": "0108772154206513",
+          "transport_file": "mobile/use/train/shard-00007-of-00610.parquet",
+          "transport_row_index": 8
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 86,
+          "selection_sha256": "c91eb99f8937b258b879bad07e434d9f5d09802a728a3c6ece625dfffa7ce830",
+          "source_id": "0000922671359408",
+          "transport_file": "mobile/use/train/shard-00000-of-00610.parquet",
+          "transport_row_index": 2
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 88,
+          "selection_sha256": "d0397cb0db10a1991c6bd49543e1070f3d5f4bb9714f234224b7150a796f4d14",
+          "source_id": "0066997985759988",
+          "transport_file": "mobile/use/train/shard-00005-of-00610.parquet",
+          "transport_row_index": 1
+        },
+        {
+          "decision_count": 7,
+          "eligible_order_index": 89,
+          "selection_sha256": "d1b141884f49013a94936a74035b93e548198c0700ebbfc80a0952014783d32b",
+          "source_id": "0137575778052679",
+          "transport_file": "mobile/use/train/shard-00009-of-00610.parquet",
+          "transport_row_index": 13
+        },
+        {
+          "decision_count": 12,
+          "eligible_order_index": 90,
+          "selection_sha256": "d1b7edf263d4700fa9bb6942cc903efbaf4d1310251fe7eb182ef3470c8fd775",
+          "source_id": "0114247701606163",
+          "transport_file": "mobile/use/train/shard-00007-of-00610.parquet",
+          "transport_row_index": 13
+        },
+        {
+          "decision_count": 5,
+          "eligible_order_index": 91,
+          "selection_sha256": "d278737a1698d2dd815f81a6c61dec9467aada8931d99987bab4dd78a4f10e6c",
+          "source_id": "0191751033400150",
+          "transport_file": "mobile/use/train/shard-00012-of-00610.parquet",
+          "transport_row_index": 10
+        },
+        {
+          "decision_count": 8,
+          "eligible_order_index": 92,
+          "selection_sha256": "d27a6965d76ac84e5fffc8daca437cee66337cc42a3bd54983e98f9bbeef3a60",
+          "source_id": "0123550855207688",
+          "transport_file": "mobile/use/train/shard-00008-of-00610.parquet",
+          "transport_row_index": 9
+        },
+        {
+          "decision_count": 9,
+          "eligible_order_index": 93,
+          "selection_sha256": "d2bd110b093a723a6c58b48567e2c79bce5240a3b1da0bce1735487656526540",
+          "source_id": "0157485992279511",
+          "transport_file": "mobile/use/train/shard-00010-of-00610.parquet",
+          "transport_row_index": 15
+        },
+        {
+          "decision_count": 10,
+          "eligible_order_index": 94,
+          "selection_sha256": "d37a602e0f7a45275656696b958f087a92a7d751e24ffc7e3dc7e17f29c6f289",
+          "source_id": "0039770017320665",
+          "transport_file": "mobile/use/train/shard-00002-of-00610.parquet",
+          "transport_row_index": 5
+        }
+      ]
+    }
+  },
+  "status": "FROZEN_POLICY_BLIND_STRUCTURAL_SPLIT",
+  "structural_manifest_only": true
+}

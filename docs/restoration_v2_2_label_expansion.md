@@ -1,7 +1,8 @@
 # Restoration v2.2 label expansion
 
-> 当前状态：48/16 policy-blind split 的 source contract 已实现，尚未生成 expansion policy output、
-> restoration label、gate checkpoint 或 development metric。旧 20 条 confirm 继续封存。
+> 当前状态：48/16 policy-blind structural manifest 已从 clean pushed `main@d2a4705` 物化并通过 committed
+> validator，SHA256 为 `4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169`。尚未生成
+> expansion policy output、restoration label、gate checkpoint 或 development metric；旧 20 条 confirm 继续封存。
 
 ## 为什么不能直接训练
 
@@ -81,7 +82,7 @@ revision，并 fresh-download replay。
 
 在任何新 policy output 前还必须：
 
-1. 从 clean pushed `main` 物化 structural split manifest；
+1. 从 clean pushed `main` 物化 structural split manifest（已完成）；
 2. 新建 expansion exposure ledger，机械证明 64 IDs 与所有既有 policy/restoration output source union 交集为空；
 3. 生成只含 expansion 64 的 policy-blind derived artifact；
 4. 冻结 gate method family、feature、loss、OOF、tie/stop 与 fresh-16 development gate；
