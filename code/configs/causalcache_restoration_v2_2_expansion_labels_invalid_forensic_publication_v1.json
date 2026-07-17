@@ -1,0 +1,66 @@
+{
+  "destination": {
+    "archive_path": "attempts/restoration-v2-2-expansion-exact-labels-v1/attempt-1/raw-evidence-v1.tar",
+    "archive_sidecar_single_commit_required": true,
+    "private": true,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile",
+    "repo_type": "dataset",
+    "sidecar_path": "attempts/restoration-v2-2-expansion-exact-labels-v1/attempt-1/archive-manifest-v1.json",
+    "tag": "v2.2-expansion-exact-labels-v1-attempt-1-forensic-v1"
+  },
+  "formal_consumption": {
+    "formal_label_loader_eligible": false,
+    "gate_training_unlocked": false,
+    "producer_attempt_reclassified": false
+  },
+  "fresh_download_contract": {
+    "download_directory_must_start_empty": true,
+    "force_download": true,
+    "immutable_revision_pre_post_stable": true,
+    "p0_strict_archive_readback_required": true,
+    "tag_revision_pre_post_stable": true
+  },
+  "git_source_contract": {
+    "branch": "main",
+    "head_must_equal_origin_main": true,
+    "origin_name": "origin",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "required_source_paths": [
+      "code/causalcache/restoration_v2_2_expansion_labels_invalid_forensic.py",
+      "code/causalcache/restoration_v2_2_expansion_labels_invalid_forensic_publication.py",
+      "code/configs/causalcache_restoration_v2_2_expansion_labels_invalid_forensic_v1.json",
+      "code/configs/causalcache_restoration_v2_2_expansion_labels_invalid_forensic_publication_v1.json",
+      "code/scripts/manage_restoration_v2_2_expansion_labels_invalid_forensic_publication.py"
+    ],
+    "worktree_must_be_clean": true
+  },
+  "local_state": {
+    "claim_path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-publication-v1.claim.json",
+    "completion_seal_path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-publication-v1.completion.json",
+    "file_mode": 384,
+    "o_excl_first_write": true,
+    "same_bytes_reusable": true
+  },
+  "p0_forensic_source": {
+    "artifact_class": "invalid_attempt_forensics",
+    "config_path": "code/configs/causalcache_restoration_v2_2_expansion_labels_invalid_forensic_v1.json",
+    "config_sha256": "5290a51a250e31be4fcf0a970c77ef31c08c92c5892edd19a12ecb14d9d5a6a2",
+    "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_v1",
+    "required_archive_status": "ARCHIVED_INVALID_EXPANSION_EXACT_LABEL_ATTEMPT"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1",
+  "publication_contract": {
+    "allowed_remote_states": [
+      "EMPTY",
+      "BYTE_IDENTICAL_UNTAGGED",
+      "TAGGED_BYTE_IDENTICAL"
+    ],
+    "commit_title": "Publish invalid expansion exact-label forensic archive",
+    "conflict_action": "FAIL_CLOSED",
+    "no_overwrite": true,
+    "sidecar_status": "IMMUTABLE_INVALID_FORENSIC_ARCHIVE_PUBLICATION_MANIFEST_V1",
+    "tag_response_loss_requery_required": true
+  },
+  "schema_version": "1.0.0",
+  "status": "source_only_frozen_before_any_private_hf_publication"
+}

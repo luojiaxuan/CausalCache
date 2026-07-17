@@ -24,7 +24,10 @@
 > v1 formal PASS。invalid-forensic source-only P0 已冻结：402 root files 与 3 external ledgers 使用双 namespace、
 > 406-member deterministic USTAR、append-only failure chain 和 permanent formal-ineligible manifest。真实
 > local archive 已在 Hyper00 package/readback：SHA256 `8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489`，
-> 3,880,960 bytes；private HF publication/fresh replay 尚未完成。Gate v1 trainer/evaluator source 与
+> 3,880,960 bytes。独立 P1 private-HF publication contract 已 source-freeze：config SHA256
+> `affb54cf44a656394c983cebe5d004d3e1ff216537c43da942dc031fa6baaccb`，固定 claim-first、single-pair
+> commit provenance、no-overwrite tag、crash recovery 与 immutable fresh readback；真实 publication 尚未执行。
+> Gate v1 trainer/evaluator source 与
 > synthetic-only CPU smoke 已闭合，但尚无 formal expansion
 > policy/restoration output、formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
@@ -72,9 +75,12 @@ full edges、1,984 interactions、576 attributions 与 192 exact oracles。label
 1,792 GPU KL、0 generation，并保留所有 negative marginals。source A、单独 runner freeze B 与 committed
 validator 已闭合。唯一 GPU attempt 已完成全部科学计算，但因 source-locked monitor cadence gate 违规而正式
 `INVALID`：monitor 首尾覆盖和索引连续均成立，仍有 5/3849 gaps >3 s，max 3.883721 s。原 ledger、root 与
-monitor 必须逐 byte 保留，不能 retry、resume 或调阈值。下一步只允许先冻结并执行独立 CPU repair：重算全部
-raw labels、operation counts 与 external inputs，把 cadence failure 作为永久 provenance；repair immutable fresh
-replay 闭合前不能训练 formal gate 或读取 confirm。
+monitor 必须逐 byte 保留，不能 retry、resume 或调阈值。P1 publication protocol 见
+[`docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md`](docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md)：
+它只允许把永久 INVALID 的 P0 archive 与 sidecar 作为同一 private-HF commit 发布，不能直接供 formal loader
+消费。下一步先从 clean pushed source 执行 P1、记录 immutable revision 并 fresh replay；随后才冻结并执行独立
+CPU repair，重算全部 raw labels、operation counts 与 external inputs，把 cadence failure 作为永久 provenance。
+repair immutable fresh replay 闭合前不能训练 formal gate 或读取 confirm。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为

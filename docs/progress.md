@@ -2274,3 +2274,20 @@ closed-loop 与 confirm 均不得提前。
   access declarations保持全零；
 - 本账本只关闭 pre-output identity/exposure 边界，仍不授权 expansion policy/restoration output、gate training、
   development evaluation 或 confirm access。
+
+### 2026-07-17：invalid expansion-label forensic P1 publication source freeze
+
+- P0 deterministic USTAR 保持不变：406 members、3,880,960 bytes、archive SHA256
+  `8e205d73196604c0d8d342f9415755b090b96e83555ca55c386b12b8427ca489`、tree inventory SHA256
+  `bc481dd77e26764dad3458e91a3e0247ade6049af7adb1744672aa6f2fb437d1`；原 v1 attempt 仍永久
+  `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`，formal loader eligibility 仍为 false；
+- P1 config SHA256 为 `affb54cf44a656394c983cebe5d004d3e1ff216537c43da942dc031fa6baaccb`，固定 private
+  dataset repo、archive/sidecar path、no-overwrite tag 与三态 crash recovery。claim 在任何网络 mutation 前以
+  mode-0600 原子 no-replace 写入；已有 completion 的 replay 不允许重建已删除的 remote；
+- archive 与 sidecar 必须在 frozen-title 的同一个 commit 首次出现；恢复时同时核对 immutable head、direct
+  predecessor 两 path 均缺失、tag target 与 immutable revision。split-commit、partial/mismatch、response-loss、
+  tag drift、intermediate symlink 与 relative fresh root 均 fail closed；
+- P1 专项 22/22、全部 expansion-label wildcard 79/79 通过，config canonical JSON、compileall 与 diff-check
+  通过。本里程碑没有读取真实 token、没有访问 Hugging Face、没有上传，也没有解锁 CPU repair、formal gate、
+  matched-NLL、closed-loop 或 confirm；下一步从 clean pushed `main` 保存外部 `git ls-remote` receipt 后执行
+  唯一 P1 publication/fresh replay。

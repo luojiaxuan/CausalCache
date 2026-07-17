@@ -22,8 +22,10 @@ archive 暂存在 Hyper00：
 
 ## 下一步
 
-先冻结独立的 crash-recoverable private-HF publication contract，再把相同 archive SHA 与 sidecar manifest
-作为一个 commit 上传到 invalid-attempt 专用 repo，创建 no-overwrite tag，并从 immutable revision 下载到空目录
-逐 byte 复验。P1 完成前，CPU validation repair 与 formal gate 继续 locked。
+独立的 crash-recoverable private-HF publication contract 已冻结，详见
+[`docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md`](../../../docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md)。
+下一步从 clean pushed `main` 把相同 archive SHA 与 sidecar manifest 作为一个 commit 上传到 invalid-attempt 专用
+repo，创建 no-overwrite tag，并从 immutable revision 下载到空目录逐 byte 复验。真实 P1 publication 完成前，
+CPU validation repair 与 formal gate 继续 locked。
 
 机器可读记录见 [`artifact.json`](artifact.json)。
