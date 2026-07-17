@@ -1,0 +1,91 @@
+{
+  "archive_contract": {
+    "archive_format": "ustar",
+    "archive_member_prefix": "restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-v1",
+    "attempt_root_namespace": "attempt_root",
+    "canonical_archive_path": "/data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1-invalid-forensic-v1.tar",
+    "deterministic_regular_file_metadata": {
+      "gid": 0,
+      "gname": "",
+      "mode": 420,
+      "mtime": 0,
+      "pax_headers": {},
+      "uid": 0,
+      "uname": ""
+    },
+    "expected_member_count": 406,
+    "expected_payload_file_count_before_manifest": 405,
+    "forensic_manifest_path": "forensic_manifest.json",
+    "overwrite_allowed": false,
+    "terminal_external_ledger_namespace": "terminal_external_ledgers"
+  },
+  "artifact_class": "invalid_attempt_forensics",
+  "failure_contract": {
+    "exception_type": "ValueError",
+    "message": "monitor did not cover the complete worker execution window at the frozen cadence",
+    "original_attempt_status": "INVALID_EXPANSION_EXACT_LABEL_ATTEMPT",
+    "root_embedded_snapshot_status": "COMPLETED_EXPANSION_EXACT_LABEL_ATTEMPT"
+  },
+  "formal_consumption": {
+    "closed_loop_unlocked": false,
+    "formal_label_loader_eligible": false,
+    "gate_training_unlocked": false,
+    "matched_nll_unlocked": false,
+    "reason": "forensic transport preserves an operationally invalid producer attempt and is never a formal label artifact"
+  },
+  "network_contract": {
+    "hf_publish_authorized": false,
+    "network_access_required": false,
+    "upload_command_present": false
+  },
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_v1",
+  "schema_version": "1.0.0",
+  "source_attempt": {
+    "append_only_execution_log": {
+      "execution_evidence_path": "execution_evidence.json",
+      "execution_evidence_sha256": "49f80684f6ba0bf6d8df8e68995b37094bb0663fbf15297e484fa5e26d9e9aac",
+      "final_log_path": "logs/execution.log",
+      "final_log_sha256": "7c0e6a369652a188fda78d9bf5d3ade3bf15749150136bc0caa922e92d59bfed",
+      "final_log_size_bytes": 292,
+      "pre_failure_prefix_sha256": "c765cd854bf5b76fd58a8b0065321998aa4f610d50da8a0cebe926a3a301a44a",
+      "pre_failure_prefix_size_bytes": 162,
+      "terminal_suffix_sha256": "91d9a755bf78da36c0600f19d7284b4fe851a66eb154dc3cd9b901dcbf3ef1aa",
+      "terminal_suffix_size_bytes": 130
+    },
+    "attempt_id": "restoration-v2-2-expansion-exact-labels-v1",
+    "critical_root_file_sha256": {
+      "aggregate.json": "b56126fa2dfd8b7a5ba40739abcc6cc36625e94352c8e420b2512a20f76d32fa",
+      "execution_evidence.json": "49f80684f6ba0bf6d8df8e68995b37094bb0663fbf15297e484fa5e26d9e9aac",
+      "global_attempt_ledger.json": "c107f4b77d6dabb4c0123028ee0e5e911751c47f00a938fb108e55af6bfc4b01",
+      "logs/execution.log": "7c0e6a369652a188fda78d9bf5d3ade3bf15749150136bc0caa922e92d59bfed",
+      "logs/gpu_utilization_monitor.log": "da2c3281fd68236ccfae4dcb6d34a51d3dd1deb95e2c11fe725714195344cf4b",
+      "monitor_summary.json": "56c017833a0e086ce603d76cdb9b8b1f5c2f87c9f2acb83eba399b4289bd6644",
+      "run_manifest.json": "9e48f0048cd54316f4be4584484eba8938dbef0f196c3a787f6174ce853cbcb9"
+    },
+    "expected_state_count": 192,
+    "external_global_ledger": {
+      "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1.attempt.json",
+      "sha256": "77d3ad318a9c57e78a15edac0bb5273ade9ceeb95858cc6b33c731a6ee66a120",
+      "size_bytes": 4349
+    },
+    "external_worker_ledgers": {
+      "even": {
+        "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1.even.attempt.json",
+        "sha256": "b8199b030bbf74869501ca6caa8da98a2f071e7f76478514fd98f4d265582f0e",
+        "size_bytes": 3208
+      },
+      "odd": {
+        "path": "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1.odd.attempt.json",
+        "sha256": "b60ed68f26d6224668ef7a04b8238b1c12efa375922d6ff277bb2d7e06f06d44",
+        "size_bytes": 3207
+      }
+    },
+    "output_root": "/data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1",
+    "producer_protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_v1",
+    "root_file_count": 402,
+    "root_inventory_sha256": "655c5d946b6a2fac448c2b144631f101fdf03d196945b8bea1f0047dd5916aba",
+    "root_total_file_bytes": 3579535,
+    "run_contract_sha256": "63cddd712d9fa22bbd68110966161f36318d5fe1962b9b1477bae342da4180b8"
+  },
+  "status": "source_only_frozen_before_any_invalid_forensic_packaging_or_upload"
+}

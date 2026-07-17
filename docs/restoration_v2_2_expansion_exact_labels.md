@@ -35,6 +35,9 @@ CPU repair NO-GO，并触发全新 v2 identity 的完整 192-state GPU run，而
 
 轻量 failure binding 见
 [`../data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/`](../data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/)。
+原始 bytes 的双-ledger、formal-ineligible transport contract 已作为 source-only P0 冻结，见
+[`restoration_v2_2_expansion_labels_invalid_forensic.md`](restoration_v2_2_expansion_labels_invalid_forensic.md)；
+它当前不授权 HF upload，也不能替代 CPU scientific repair。
 
 ## 目标与 canonical truth
 

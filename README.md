@@ -21,7 +21,9 @@
 > intervals 中 5 个超过冻结 3 秒上限（max 3.883721 s），post-worker validator 因而将全局 attempt 永久封为
 > `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。这些 bytes 当前不能作为 formal expansion labels。下一步是独立
 > CPU-only child validation repair 与 separate invalid-evidence immutable archive；不重跑 GPU、不改阈值、不追认
-> v1 formal PASS。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 formal expansion
+> v1 formal PASS。invalid-forensic source-only P0 已冻结：402 root files 与 3 external ledgers 使用双 namespace、
+> 406-member deterministic USTAR、append-only failure chain 和 permanent formal-ineligible manifest；当前尚未
+> package/upload。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 formal expansion
 > policy/restoration output、formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
 > [`docs/restoration_v2_2_expansion_exact_labels.md`](docs/restoration_v2_2_expansion_exact_labels.md)、
@@ -739,6 +741,8 @@ $$
 - [x] push runner source commit A、物化并 push 67-file runner freeze commit B，并完成唯一双 H200 substrate 与 immutable HF 闭环；
 - [x] 执行唯一 expansion exact-label v1 GPU attempt；192/192 scientific payload 完整，但 monitor cadence gate
   违规，formal attempt 永久 `INVALID`；
+- [x] 冻结 source-only invalid-forensic transport：双 ledger namespace、strict USTAR、406 members、永久
+  formal-ineligible；
 - [ ] 冻结并执行 CPU-only child validation repair，完成 separate invalid-evidence archive 与 repair immutable HF
   fresh replay；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
@@ -793,6 +797,7 @@ $$
 - Label-expansion substrate runner: [`code/scripts/run_restoration_v2_2_expansion_substrate.py`](code/scripts/run_restoration_v2_2_expansion_substrate.py)
 - Label-expansion substrate canonical result: [`data/results/restoration_v2_2_label_expansion_substrate_v1/`](data/results/restoration_v2_2_label_expansion_substrate_v1/)
 - Expansion exact-label v1 invalid attempt: [`data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/`](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/)
+- Expansion exact-label invalid-forensic protocol: [`docs/restoration_v2_2_expansion_labels_invalid_forensic.md`](docs/restoration_v2_2_expansion_labels_invalid_forensic.md)
 - Label-expansion substrate raw-artifact manager: [`code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py`](code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)

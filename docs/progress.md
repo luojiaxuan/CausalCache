@@ -192,6 +192,23 @@ authorization=true。唯一 v1 GPU attempt 随后完成 192/192 states 与全部
   独立重算 raw labels、operation counts 与 external inputs，并把 cadence failure 永久保留为 provenance。repair
   immutable fresh replay 之前，formal-58 gate、fresh-16、matched-NLL、closed-loop 与 confirm 全部 locked。
 
+### 2026-07-17：invalid-forensic source-only P0 冻结
+
+- 新增独立 protocol `causalcache_restoration_v2_2_expansion_exact_labels_invalid_forensic_v1`，frozen config
+  SHA256 为 `5290a51a250e31be4fcf0a970c77ef31c08c92c5892edd19a12ecb14d9d5a6a2`；它只保全
+  original `INVALID` bytes，不调用旧 formal PASS packager；
+- archive layout 将 402-file producer root 放入 `attempt_root/**`，将 external INVALID global ledger 与两个
+  worker high-water ledgers放入 `terminal_external_ledgers/**`，再加 manifest 后固定为 406 regular members；
+- validator 强制 external INVALID ledger 的 `claimed_ledger_sha256` 指向 root 内 completed snapshot，并要求
+  worker root/sibling/external 三份 ledger逐 byte 相等；
+- final execution log 被验证为 162-byte pre-failure prefix 加唯一 130-byte invalidation line；execution evidence
+  只绑定 prefix，不能错误要求 append 后 final log hash 相同；
+- strict deterministic USTAR、`O_NOFOLLOW + fstat`、pre/post source recollection 与 hard-link no-replace 已由
+  10 个 focused tests覆盖；与原 expansion artifact 联合 41/41 tests 通过；
+- 本 P0 明确 `formal_label_loader_eligible=false`、`hf_publish_authorized=false`，没有读取真实 Hyper output，
+  没有 package/upload。下一步先冻结 crash-recoverable private-HF publication contract，再从 clean pushed source
+  执行只读 package 与 fresh replay。
+
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 
 - 实现 label-blind signed-hash feature、330/200 维 conditional/independent MLP、层级加权 SmoothL1 + ranking、
