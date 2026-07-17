@@ -1,0 +1,217 @@
+{
+  "contract_sha256": "1d7527e8a7bede8aaab8a21f7757f786674530238ae99fe3ce5b196cbce67261",
+  "execution_authorized_after_clean_pushed_b_only": true,
+  "execution_b_required_unique_diff": [
+    "code/configs/causalcache_gate_v1_formal_cache_runner_v1.json"
+  ],
+  "git_prerequisites": [
+    {
+      "path": "code/configs/causalcache_gate_v1_preregistration.json",
+      "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+      "size_bytes": 16207
+    },
+    {
+      "path": "code/causalcache/gate_v1_contract.py",
+      "sha256": "c139cca62ba04d609726a652390fa495a9a368c5b2b48e52b988c1b12ea753b0",
+      "size_bytes": 26383
+    },
+    {
+      "path": "code/causalcache/gate_v1_data.py",
+      "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+      "size_bytes": 26772
+    },
+    {
+      "path": "code/causalcache/low_fidelity_v2.py",
+      "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a",
+      "size_bytes": 14249
+    },
+    {
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    },
+    {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+      "size_bytes": 218833
+    },
+    {
+      "path": "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+      "sha256": "e74904fb75cd72429e6adb51ab7500adcaa1915fb6cebc8567a2945bc9373947",
+      "size_bytes": 4963
+    },
+    {
+      "path": "data/manifests/restoration_v2_derived_artifact.json",
+      "sha256": "1f155a90af33da21947c89ac12f30f873f18e15e4efc82e5759f648114f25f7c",
+      "size_bytes": 11532
+    },
+    {
+      "path": "data/results/restoration_v2_2_label_expansion_derived/artifact.json",
+      "sha256": "db518ce830fc233d6f27905fe9b341933995fc272262ccb64d8ca436e3a8e04e",
+      "size_bytes": 20707
+    },
+    {
+      "path": "data/results/restoration_v2_2_eager_labels_v2/artifact.json",
+      "sha256": "de2960a73399327871a6472315d543b3de60ce2ad13136166ce5bbeb609f1777",
+      "size_bytes": 2536
+    },
+    {
+      "path": "data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/summary.json",
+      "sha256": "32ac14354d5efdadd3f68f842ba3fe376de557479c3c8b6a9177654446033757",
+      "size_bytes": 7332
+    }
+  ],
+  "git_prerequisites_sha256": "a2195bd5e9f351c34f76843ac60c64999a5134f27dd7005074d9964fa8fcbb0d",
+  "loaded_module_inventory": [
+    {
+      "module": "causalcache",
+      "path": "code/causalcache/__init__.py",
+      "sha256": "9a2ea6d762bf31ccf6ee2126b698017507ffb9c370f067da56fc31e236529ffa",
+      "size_bytes": 517
+    },
+    {
+      "module": "causalcache.attribution",
+      "path": "code/causalcache/attribution.py",
+      "sha256": "7c7b59992a6e2ef6b0b31797953059b523031e749e4e4ccbd8a51fc192088f9c",
+      "size_bytes": 6212
+    },
+    {
+      "module": "causalcache.contracts",
+      "path": "code/causalcache/contracts.py",
+      "sha256": "eb00c333f4589baa78d4bc296e2af5d8414b2b4a5ba8517ee44f69c0d9af5714",
+      "size_bytes": 9176
+    },
+    {
+      "module": "causalcache.gate_v1_contract",
+      "path": "code/causalcache/gate_v1_contract.py",
+      "sha256": "c139cca62ba04d609726a652390fa495a9a368c5b2b48e52b988c1b12ea753b0",
+      "size_bytes": 26383
+    },
+    {
+      "module": "causalcache.gate_v1_data",
+      "path": "code/causalcache/gate_v1_data.py",
+      "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+      "size_bytes": 26772
+    },
+    {
+      "module": "causalcache.gate_v1_formal_cache",
+      "path": "code/causalcache/gate_v1_formal_cache.py",
+      "sha256": "e306c9d7e58e8b031ea531d78c4149a365b9b8473f5ae0f922deb212dac8cb5a",
+      "size_bytes": 61090
+    },
+    {
+      "module": "causalcache.gate_v1_formal_cache_contract",
+      "path": "code/causalcache/gate_v1_formal_cache_contract.py",
+      "sha256": "30ffa34054644ae4b06ef2dd6b64cd9ec5962b3665a778f3e9a8923ddf6abb6f",
+      "size_bytes": 29803
+    },
+    {
+      "module": "causalcache.gate_v1_formal_cache_runner",
+      "path": "code/causalcache/gate_v1_formal_cache_runner.py",
+      "sha256": "053c8ef9086a375e7487440481fa65c3eb71a4f5656f2156c0e3fe967a4efb28",
+      "size_bytes": 72901
+    },
+    {
+      "module": "causalcache.low_fidelity_v2",
+      "path": "code/causalcache/low_fidelity_v2.py",
+      "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a",
+      "size_bytes": 14249
+    },
+    {
+      "module": "causalcache.restoration_v2_2_label_table",
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    },
+    {
+      "module": "causalcache.schema",
+      "path": "code/causalcache/schema.py",
+      "sha256": "3f281fe3a646468de36f4764d20c46d1dea3867d35c819ca4ad52977d318ee5b",
+      "size_bytes": 7413
+    },
+    {
+      "module": "scripts",
+      "path": "code/scripts/__init__.py",
+      "sha256": "9fa01154ac0639c2ce9e4538cf57d9c0e12a53406c0a154ec809fcc360f241ce",
+      "size_bytes": 72
+    }
+  ],
+  "loaded_module_inventory_sha256": "efdb98f7034c5a9af13548f5070c540da0b630c4f7de19edc556a9ed15f7e1be",
+  "protocol_id": "causalcache_gate_v1_formal_cache_runner_v1",
+  "required_source_a_paths": [
+    "code/configs/causalcache_gate_v1_formal_cache_v1.json",
+    "code/causalcache/gate_v1_formal_cache_contract.py",
+    "code/causalcache/gate_v1_formal_cache.py",
+    "code/scripts/validate_gate_v1_formal_cache_contract.py",
+    "code/tests/test_gate_v1_formal_cache_contract.py",
+    "code/tests/test_gate_v1_formal_cache.py",
+    "code/causalcache/gate_v1_data.py",
+    "code/tests/test_gate_v1_pipeline.py",
+    "code/causalcache/gate_v1_formal_cache_runner.py",
+    "code/scripts/manage_gate_v1_formal_cache.py",
+    "code/tests/test_gate_v1_formal_cache_runner.py"
+  ],
+  "required_source_a_paths_sha256": "7cd05a79dd5a2a9772e598c41bd8ad59f48531d7b921729848d4caf5edcb1672",
+  "schema_version": "1.0.0",
+  "source_a_git_commit": "990f015b02e0dc89dedaab3853fab9f07fb0884d",
+  "source_a_inventory_sha256": "5ef945d158ceec49147ee353797d5083b2a945f3a05ea108335e1b099cdee45f",
+  "source_blob_inventory": [
+    {
+      "path": "code/configs/causalcache_gate_v1_formal_cache_v1.json",
+      "sha256": "1d7527e8a7bede8aaab8a21f7757f786674530238ae99fe3ce5b196cbce67261",
+      "size_bytes": 21044
+    },
+    {
+      "path": "code/causalcache/gate_v1_formal_cache_contract.py",
+      "sha256": "30ffa34054644ae4b06ef2dd6b64cd9ec5962b3665a778f3e9a8923ddf6abb6f",
+      "size_bytes": 29803
+    },
+    {
+      "path": "code/causalcache/gate_v1_formal_cache.py",
+      "sha256": "e306c9d7e58e8b031ea531d78c4149a365b9b8473f5ae0f922deb212dac8cb5a",
+      "size_bytes": 61090
+    },
+    {
+      "path": "code/scripts/validate_gate_v1_formal_cache_contract.py",
+      "sha256": "d009b6c596580dd0c78561fe3e509a84f9e329612a7c3b72cdc76c1691ce274f",
+      "size_bytes": 916
+    },
+    {
+      "path": "code/tests/test_gate_v1_formal_cache_contract.py",
+      "sha256": "bc0a7914ad43f5e4894be37b0ff98c6617ff2fab8bb14250c26b9a8ef491a193",
+      "size_bytes": 13794
+    },
+    {
+      "path": "code/tests/test_gate_v1_formal_cache.py",
+      "sha256": "e2348657bdd75f659d5f2f27c4d4e89b87c6309cea9f269e55bb6a75d5fd06a0",
+      "size_bytes": 28444
+    },
+    {
+      "path": "code/causalcache/gate_v1_data.py",
+      "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+      "size_bytes": 26772
+    },
+    {
+      "path": "code/tests/test_gate_v1_pipeline.py",
+      "sha256": "12ef0698bf36ae1d3a7a92f5100e2bb574e541c1875b7a985f872ece09919277",
+      "size_bytes": 33833
+    },
+    {
+      "path": "code/causalcache/gate_v1_formal_cache_runner.py",
+      "sha256": "053c8ef9086a375e7487440481fa65c3eb71a4f5656f2156c0e3fe967a4efb28",
+      "size_bytes": 72901
+    },
+    {
+      "path": "code/scripts/manage_gate_v1_formal_cache.py",
+      "sha256": "0082e4c6f358523a201758745be53e3ebe97e4091aae5bad457d80fbac55914b",
+      "size_bytes": 20835
+    },
+    {
+      "path": "code/tests/test_gate_v1_formal_cache_runner.py",
+      "sha256": "84e3b3f73db38e436bfa5a0bffa8046d749c1b2c088b5aadacb19bbaade41f92",
+      "size_bytes": 30416
+    }
+  ],
+  "source_blob_inventory_sha256": "5ef945d158ceec49147ee353797d5083b2a945f3a05ea108335e1b099cdee45f",
+  "status": "FROZEN_GATE_V1_FORMAL_CACHE_EXECUTION_B_RUNNER_V1"
+}
