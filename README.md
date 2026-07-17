@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = 192/192 scientific payload complete、formal attempt `INVALID` (source-locked monitor cadence 5/3849 intervals >3 s；invalid-forensic immutable transport closed；CPU scientific repair pending) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = 192/192 scientific payload complete、formal attempt `INVALID` (source-locked monitor cadence 5/3849 intervals >3 s；invalid-forensic immutable transport closed；no-GPU repair runner source frozen、formal run pending) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
 
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
 > policy-blind expansion split manifest、pre-output exposure ledger 与 gate v1 preregistration 均已冻结，
@@ -89,11 +89,12 @@ monitor 必须逐 byte 保留，不能 retry、resume 或调阈值。P1 publicat
 [`docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md`](docs/restoration_v2_2_expansion_labels_invalid_forensic_tag_resolution.md)。
 read-only child 已正式完成，结果见
 [`data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/`](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/)；
-ledger-neutral scientific-repair core 与 synthetic/test-only regressions 已闭合，协议见
+ledger-neutral scientific-repair core、no-GPU formal runner source 与回归已闭合，协议见
 [`docs/restoration_v2_2_expansion_labels_scientific_repair.md`](docs/restoration_v2_2_expansion_labels_scientific_repair.md)。
-下一步冻结 no-GPU formal runner，重算全部 raw labels、operation counts 与 external inputs，把 cadence failure 作为
-永久 provenance。
-repair immutable fresh replay 闭合前不能训练 formal gate 或读取 confirm。
+下一步从 clean pushed `main` 在 Hyper00 no-GPU container 执行正式 child，重算全部 raw labels、operation
+counts 与 external inputs，并把 cadence failure 作为永久 provenance。随后用独立 publication contract 把 repaired
+archive+sidecar 发布到新 private HF identity 并做 immutable fresh replay；闭合前不能训练 formal gate 或读取
+confirm。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
@@ -773,7 +774,9 @@ $$
   remote mutation count 为 0；
 - [x] 实现并审计 ledger-neutral CPU scientific-repair core；formal/test-only tier、captured production replay、
   exact P0 gate 与 structural monitor rule 均已覆盖；
-- [ ] 冻结并执行 no-GPU scientific-repair runner，完成 repaired-label immutable HF fresh replay；
+- [x] 冻结 no-GPU scientific-repair runner/config/bootstrap/state machine；29/29 focused、173/173 expansion
+  regression 通过，formal run 尚未执行；
+- [ ] 执行 no-GPU scientific-repair runner，并完成 repaired-label private-HF immutable fresh replay；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -834,6 +837,9 @@ $$
 - Invalid-forensic read-only tag-resolution result: [`data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/`](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/)
 - Expansion-label ledger-neutral scientific-repair core: [`code/causalcache/restoration_v2_2_expansion_labels_scientific_repair.py`](code/causalcache/restoration_v2_2_expansion_labels_scientific_repair.py)
 - Expansion-label scientific-repair protocol: [`docs/restoration_v2_2_expansion_labels_scientific_repair.md`](docs/restoration_v2_2_expansion_labels_scientific_repair.md)
+- Expansion-label scientific-repair runner contract: [`code/configs/causalcache_restoration_v2_2_expansion_labels_scientific_repair_runner_v1.json`](code/configs/causalcache_restoration_v2_2_expansion_labels_scientific_repair_runner_v1.json)
+- Expansion-label scientific-repair runner: [`code/causalcache/restoration_v2_2_expansion_labels_scientific_repair_runner.py`](code/causalcache/restoration_v2_2_expansion_labels_scientific_repair_runner.py)
+- Expansion-label scientific-repair direct bootstrap: [`code/scripts/run_restoration_v2_2_expansion_labels_scientific_repair.py`](code/scripts/run_restoration_v2_2_expansion_labels_scientific_repair.py)
 - Label-expansion substrate raw-artifact manager: [`code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py`](code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)

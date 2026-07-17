@@ -1,7 +1,7 @@
-# Restoration v2.2 expansion-label scientific repair core
+# Restoration v2.2 expansion-label scientific repair
 
-> 状态：CPU-only validation core 已实现并通过 synthetic/test-only regression；formal runner、durable
-> claim/completion、repaired-label artifact 与 immutable HF fresh replay 尚未冻结或执行。本 core 不能单独解锁 gate。
+> 状态：CPU-only validation core 与 no-GPU formal runner source 已冻结并通过回归；正式 runner 尚未执行，
+> repaired-label artifact 尚未发布到 private HF，也未做 immutable fresh replay。gate 仍保持 locked。
 
 ## 目标与边界
 
@@ -84,9 +84,9 @@ first claim、last worker terminal、stop request 与 terminal tail 全部进入
 新 rule 明确记录 `acceptance_uses_numeric_gap_threshold=false`。它修复的是 validation semantics，不是降低、修改或
 重新解释原 3 秒阈值。
 
-## 仍由 formal runner 负责
+## no-GPU formal runner
 
-core 不声明全局 GPU/model operation count 为 0。下一层 runner 必须另外证明：
+core 不声明全局 GPU/model operation count 为 0。正式 runner 已把下列条件冻结为执行契约：
 
 - new no-GPU container、Docker `DeviceRequests=[]`、`NVIDIA_VISIBLE_DEVICES=void`、无 `/dev/nvidia*`；
 - `torch`、`transformers`、`accelerate`、`triton`、`bitsandbytes`、`xformers` 等 model/runtime import 被阻断；
@@ -94,6 +94,57 @@ core 不声明全局 GPU/model operation count 为 0。下一层 runner 必须�
   tag-resolution child；
 - claim/completion 使用新 versioned paths 和 `O_EXCL`/no-replace 状态机，原 P1/producer state 不变；
 - repaired labels 使用 shard-oriented artifact，重新 fresh replay 后才可解锁 gate training。
+
+machine-readable contract 为
+`code/configs/causalcache_restoration_v2_2_expansion_labels_scientific_repair_runner_v1.json`，SHA256 为
+`4f4202944674192090cf3df19b864c96e7082628ab25ca8287affa32944e64c2`。它固定：
+
+- clean `main` checkout 必须满足 local HEAD = `origin/main` = 实时 `git ls-remote origin refs/heads/main`，且
+  parent core commit `c537a1f1c12b9afe1b324cb481a9af7e596e9c5f` 是祖先；所有运行时加载的
+  `causalcache.*` / `scripts.*` 模块必须是 Git tracked、非 symlink、且 bytes 等于该 HEAD；
+- formal container 只能在 Hyper00 上以 unprivileged `runc`、空 Docker `DeviceRequests`、无 explicit device、
+  `NVIDIA_VISIBLE_DEVICES=void`、空 `CUDA_VISIBLE_DEVICES` 和无 `/dev/nvidia*` 运行；bootstrap 在任何项目
+  package import 前阻断 13 个 model-framework roots，但允许 PIL 做输入重放；
+- invalid forensic 输入只从 private HF immutable commit
+  `5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416` force-download 到新的空目录；remote mutation count 固定为
+  0，并在 durable claim 前完成 private/identity/P0 strict readback；
+- 原 producer root、P1 claim、缺失的 P1 completion、tag-resolution claim/completion 和本地 forensic archive
+  在 formal run 前后都必须逐 byte 不变；
+- 状态顺序固定为 `fresh immutable read -> claim -> full core recompute -> strict output readback -> completion`。
+  completion 是唯一终态 mutation；`completion-without-output` 永久 invalid，`output-without-completion` 只能在
+  同一 claim 下完整重算并逐 byte exact match 后恢复；
+- deterministic USTAR 只有 `audit.json`、`derived_labels.jsonl`、`manifest.json`、`raw_states.jsonl` 四个成员。
+  formal reader 从 raw rows 重新执行 projection validation、reducer 与独立 math audit，而不是相信 stored summary；
+- 本 runner 只生成本地 scientifically valid child。它不授权 HF publication；gate、matched-NLL 与 closed-loop
+  只有在新的 private HF repo 完成 archive+sidecar same-commit publication 和 immutable fresh replay 后才解锁。
+
+formal output 与状态文件固定为：
+
+```text
+/data/artifacts/causalcache/restoration-v2-2-expansion-exact-labels-scientific-repair-v1.tar
+/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.claim.json
+/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.completion.json
+```
+
+计划中的独立 artifact identity 是 private dataset
+`gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`，tag
+`v2.2-expansion-exact-labels-scientific-repair-v1`。source freeze 不表示该 repo、tag 或 repaired artifact 已存在。
+
+formal CLI 必须直接执行 bootstrap script，不能用 `python -m`：
+
+```bash
+PYTHONPATH=code python3 \
+  code/scripts/run_restoration_v2_2_expansion_labels_scientific_repair.py run \
+  --repository-root /data/<clean-checkout> \
+  --source-git-commit <clean-pushed-main-commit> \
+  --launch-receipt \
+    /data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-scientific-repair-v1.launch.json \
+  --hf-token-file /data/.secrets/hf_key.txt \
+  --fresh-download-parent /data/tmp/<new-empty-parent>
+```
+
+`validate` 使用同一显式参数并重新读取已完成的 claim/output/completion；它仍执行 immutable remote read，不能
+被当作纯离线 shortcut。
 
 ## 当前验证
 
@@ -104,3 +155,11 @@ core 不声明全局 GPU/model operation count 为 0。下一层 runner 必须�
 - `py_compile` 与 `git diff --check`：通过；
 - formal external replay 的路径探索 smoke 在禁用 GPU、阻断 model-framework imports 条件下得到 192 states / 1,792
   coalition witnesses，wall time 约 276 秒；该 smoke 不是 formal repair result。
+- runner/config/CLI/test SHA256 分别为
+  `f3e86d90488e5e86f6a04cf0d8122e353a9891693e7c68e7400339a791fe2205` /
+  `4f4202944674192090cf3df19b864c96e7082628ab25ca8287affa32944e64c2` /
+  `8d0f6434120c2969172841ef403c7e9d6f30add1f409fa3be68ae114b53f97b6` /
+  `d05c6fbe4f6417834031a2bc9a3cb37f627d85a49786552b1a2b690b82277786`；
+- runner focused tests 29/29、全部 expansion wildcard 173/173、direct-script source-only validation、
+  `py_compile` 与 `git diff --check` 均通过；source-only status 为
+  `VALID_SOURCE_ONLY_NO_GPU_SCIENTIFIC_REPAIR_RUNNER_V1`，其中 formal run、network、GPU/model operation 均为 0。

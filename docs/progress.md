@@ -2354,3 +2354,25 @@ closed-loop 与 confirm 均不得提前。
 - Hyper00 read-only path exploration 在显式禁用 GPU、阻断 model-framework imports 时完成 production replay smoke：
   192 states / 1,792 coalition witnesses，约 276 秒。它不是 formal result；下一步仍需 source-freeze 新 no-GPU
   runner/config/state machine，并从 immutable HF invalid archive 的新空目录执行正式 child。
+
+### 2026-07-17：no-GPU scientific-repair runner source freeze
+
+- runner contract SHA256 为 `4f4202944674192090cf3df19b864c96e7082628ab25ca8287affa32944e64c2`；
+  runner/config/CLI/test bytes 分别为 99,238 / 10,974 / 6,963 / 39,190，代码 SHA 分别为
+  `f3e86d90...2205` / `4f420294...64c2` / `8d0f6434...97b6` / `d05c6fbe...7786`；
+- formal source 必须 clean-pushed 且 local HEAD、`origin/main` 与实时 `git ls-remote` 相同；runtime 加载的全部
+  `causalcache.*` / `scripts.*` 模块逐个绑定 Git tracked bytes，允许执行中 lazy-import closure 增长，但每次
+  revalidation 都重新校验完整闭包；
+- formal runtime 固定为 Hyper00 新建 unprivileged no-GPU container：Docker `DeviceRequests=[]`、无 explicit
+  device、`NVIDIA_VISIBLE_DEVICES=void`、空 `CUDA_VISIBLE_DEVICES`、无 `/dev/nvidia*`。direct bootstrap 在
+  package import 前安装 fail-closed framework import guard；PIL 是唯一允许的 image decode library；
+- private HF invalid evidence 必须从 immutable commit `5efe1ae8...b416` force-download 到新空目录，并在 durable
+  claim 前完成 identity、sidecar 与 P0 strict readback。正式状态顺序固定为 fresh read→claim→full core
+  recompute→strict four-member USTAR readback→completion-last；crash-recovery 和 no-replace 规则已覆盖；
+- artifact formal reader 从 192 raw states / 1,792 rows 重跑 projection validation、existing reducer 与独立 math
+  audit，精确校验 1,856 deployment edges、3,072 full edges、1,984 interactions、576 attributions 和 192 exact
+  oracles；不信任 stored summary，negative values 保留；
+- focused 29/29、全部 expansion wildcard 173/173、direct-script source-only validation、`py_compile` 与
+  `git diff --check` 通过。当前只得到 `VALID_SOURCE_ONLY_NO_GPU_SCIENTIFIC_REPAIR_RUNNER_V1`，没有 formal
+  execution、network read、GPU/model operation、repaired HF artifact、gate training、matched-NLL、closed-loop 或
+  confirm access；下一步在 clean pushed source 上执行正式 no-GPU child。
