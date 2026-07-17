@@ -1,0 +1,157 @@
+{
+  "artifact": {
+    "archive": {
+      "format": "ustar",
+      "member_count": 4,
+      "remote_blob_id": "0b2eb1ab9d722f54e16094c2c3987bbb9d81c4b7",
+      "remote_lfs_oid_sha256": "1a9fdcc08aeb83f88bcd50957c3d890e3b103f2063a2aecbe08610d450950e01",
+      "remote_lfs_pointer_size_bytes": 132,
+      "sha256": "1a9fdcc08aeb83f88bcd50957c3d890e3b103f2063a2aecbe08610d450950e01",
+      "size_bytes": 3020800,
+      "tree_inventory_sha256": "09bb681b2715997df326ab9648d8501955ec6ba127631a97141484631a98f44b"
+    },
+    "member_inventory": [
+      {
+        "path": "audit.json",
+        "sha256": "080e3278880c14dd646444d007ae93110e25af0c0bbd68dd51af3dc5bd92f317",
+        "size_bytes": 149732
+      },
+      {
+        "path": "derived_labels.jsonl",
+        "sha256": "1db0a0283d9be83e33d662fcad0c596a24295115201e8df23821df7e87f615dd",
+        "size_bytes": 1733194
+      },
+      {
+        "path": "manifest.json",
+        "sha256": "0838e4a7019bc0a37d8147f433a74c378bef56d036d58e90ccd925ac22b062e9",
+        "size_bytes": 1462
+      },
+      {
+        "path": "raw_states.jsonl",
+        "sha256": "850aa0f1a6c0c6dd312573e4963384257a724ba01a3fe78ac4496cfd0fd14267",
+        "size_bytes": 1126543
+      }
+    ],
+    "sidecar": {
+      "remote_blob_id": "7593544f1fe20333874ea407d870faecce6b9c9e",
+      "sha256": "9d86c75597a2a65eae952dd311373a7adbb0536d56d88e7fdb00d674f8dc4ee5",
+      "size_bytes": 3641
+    }
+  },
+  "execution": {
+    "argv": "PYTHONPATH=code python3 -m scripts.manage_restoration_v2_2_expansion_labels_scientific_repair_publication publish --repository-root /data/experiments/causalcache/scientific-repair-publication-v1/repo --hf-token-file /data/.secrets/hf_key.txt --fresh-download-parent /data/tmp",
+    "container_id": "e67bd5ef26b23014a530ade43dde239b366bd2bcc2f2c84a383ead2cf0f93ce9",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_name": "sglang-omni-jaxan-07172101",
+    "device": "cpu",
+    "end_utc": "2026-07-17T14:21:14.296303376Z",
+    "gpu_or_model_operation_count": 0,
+    "host": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "huggingface_hub_version": "1.16.1",
+    "python_version": "3.12.3",
+    "start_utc": "2026-07-17T14:21:08.324233422Z"
+  },
+  "formal_consumption": {
+    "closed_loop_unlocked": false,
+    "formal_label_loader_eligible": true,
+    "gate_trained": false,
+    "gate_training_unlocked": true,
+    "matched_nll_unlocked": false,
+    "original_invalid_forensic_formal_label_loader_eligible": false,
+    "producer_attempt_reclassified": false
+  },
+  "hf": {
+    "annotated_tag_object": "6a907ba2a3dce07c9f0810a84a8755c389da4a57",
+    "archive_path": "repaired/v2.2-expansion-exact-labels-scientific-repair-v1/repaired-labels-v1.tar",
+    "base_commit": "1a070e603639ace6ab713eaba039a8d751310c25",
+    "base_history_sha256": "948a0393d3b7b7035a82511dcb3a577311d9bcfdd4a7db99e683373571c32dbc",
+    "base_recursive_blob_inventory_sha256": "ef4c5eb5f271fd7b091958e9ea938179febd1ae883e813743742cbaeafd22f95",
+    "immutable_pair_commit": "7a6c254b8cec0dd3d8111dfc9c080de357e5cef3",
+    "main_commit_after_publication": "7a6c254b8cec0dd3d8111dfc9c080de357e5cef3",
+    "pair_commit_title": "Publish repaired expansion exact-label scientific payload",
+    "pair_history_sha256": "b5b3031b1ad49248ac4bda8b3f2a1fef771b696d071e0434f4bb0174f8a13c20",
+    "pair_non_target_blob_inventory_sha256": "ef4c5eb5f271fd7b091958e9ea938179febd1ae883e813743742cbaeafd22f95",
+    "private": true,
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile",
+    "repo_type": "dataset",
+    "sidecar_path": "repaired/v2.2-expansion-exact-labels-scientific-repair-v1/artifact-manifest-v1.json",
+    "tag": "v2.2-expansion-exact-labels-scientific-repair-v1",
+    "tag_resolved_commit": "7a6c254b8cec0dd3d8111dfc9c080de357e5cef3",
+    "url": "https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile"
+  },
+  "idempotent_replay": {
+    "completion_bytes_unchanged": true,
+    "completion_sha256": "995b3ee25b643550de3df680b52382ef8b6b1373a3aad4c00bdc9caa34cfa2ff",
+    "end_utc": "2026-07-17T14:21:43.937650583Z",
+    "local_state_identity_unchanged": true,
+    "remote_mutation_performed": false,
+    "status": "COMPLETED_REPAIRED_EXPANSION_LABELS_PUBLICATION_V1"
+  },
+  "local_state": {
+    "claim": {
+      "inode": 33040444,
+      "link_count": 1,
+      "mode": "0600",
+      "sha256": "49f3615ab9ece102b74cc081bad295bfbdf3909d60eadaa76531bdeb044a2434",
+      "size_bytes": 2024
+    },
+    "completion": {
+      "inode": 33040530,
+      "link_count": 2,
+      "mode": "0600",
+      "same_inode_as_retained_staging": true,
+      "sha256": "995b3ee25b643550de3df680b52382ef8b6b1373a3aad4c00bdc9caa34cfa2ff",
+      "size_bytes": 7948
+    },
+    "remote_base_receipt": {
+      "inode": 33040529,
+      "link_count": 1,
+      "mode": "0600",
+      "sha256": "cc8324bb6b7f565050e863fc289102d8c93789c11b71d4568d55bc3d0df244fd",
+      "size_bytes": 1934
+    },
+    "retained_completion_staging": {
+      "inode": 33040530,
+      "link_count": 2,
+      "mode": "0600",
+      "sha256": "995b3ee25b643550de3df680b52382ef8b6b1373a3aad4c00bdc9caa34cfa2ff",
+      "size_bytes": 7948
+    }
+  },
+  "postflight": {
+    "archive_strict_four_member_readback_passed": true,
+    "end_utc": "2026-07-17T14:22:38.971295225Z",
+    "fresh_download_directory_started_empty": true,
+    "force_download_used": true,
+    "log_sha256": "537193173a1aad25f6c77bb76fc72216bffa89bee745188be34e9d84c9022c2b",
+    "remote_mutation_performed": false,
+    "status": "PASS_INDEPENDENT_READ_ONLY_REPAIRED_PUBLICATION_POSTFLIGHT_V1"
+  },
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1",
+  "publication": {
+    "initial_remote_state": "EMPTY",
+    "remote_base_receipt_sha256": "cc8324bb6b7f565050e863fc289102d8c93789c11b71d4568d55bc3d0df244fd",
+    "status": "COMPLETED_REPAIRED_EXPANSION_LABELS_PUBLICATION_V1"
+  },
+  "schema_version": "1.0.0",
+  "source": {
+    "api_shape_smoke_log_sha256": "869aa8bbbfc0a895deb14a325e64d6e6b3af952cf626c7bf4fc79630570993c9",
+    "branch": "main",
+    "config_sha256": "547b291022e2430fe6af5158d9350132f405c4b6019198488386dd7fb50be0aa",
+    "formal_source_inventory_count": 6,
+    "formal_source_inventory_sha256": "123704c9656fc3c46d532247f340cceeccb15cbaca377b23cd8ea3bda643bd49",
+    "git_commit": "e47c50665c24fed5d9886665233962f85c1210e0",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "prepare_log_sha256": "6ac33b5f2b1b1567df2cbde417aa68b1e3241c557221c209e5a5f92690f4e15",
+    "repair_result_git_commit": "534bd7aecdb858decf4756b3934fe4f6acc989e7",
+    "repair_source_git_commit": "b14f489fe55b51a83917b57e6a54fb73d268342a",
+    "validation_logs": {
+      "focused_25_of_25_sha256": "598967599023ccc7498eb838c24265d9d7df709ddcafc9964738848f22b8675a",
+      "scientific_repair_wildcard_73_of_73_sha256": "b2ca0237abe991776216db882a3d97790c4fd956c74d27fe83cc55784ecfa79d",
+      "validate_contract_sha256": "b83c228d8d5f1771020420ad38afc67150679a5acac64d64f83c5df1d3d967ed"
+    }
+  },
+  "state_snapshot_log_sha256": "03eba7a003b62017fa7cab2a5f8d9c22a541d14faabfcbaceeef668863ca200a",
+  "status": "COMPLETED_REPAIRED_EXPANSION_LABELS_PUBLICATION_V1"
+}

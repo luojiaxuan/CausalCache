@@ -1,8 +1,8 @@
 # Restoration v2.2 expansion-label scientific repair
 
 > 状态：CPU-only validation core 与 no-GPU formal runner 已从 clean pushed source 完成正式 run 和完整只读
-> revalidation；local repaired payload 为 `VALID + REVALIDATED`。独立 private-HF publication contract 已
-> source-freeze，但真实 publication 与 immutable fresh replay 尚未执行，因此 gate 仍保持 locked；原 producer
+> revalidation；local repaired payload 为 `VALID + REVALIDATED`。独立 private-HF publication、幂等 immutable
+> replay 与只读 postflight 已闭合，formal-58 label-data prerequisite 已满足；gate 尚未训练。原 producer
 > attempt 永久 `INVALID`。
 
 ## 目标与边界
@@ -202,6 +202,11 @@ immutable HF fresh-download、完整重跑 core/reducer/external replay/math aud
 
 轻量结果见
 [`data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/)。
-local archive 只是 staging copy；计划中的 private HF repo/tag 当前仍为 pending，不得写成 canonical artifact。
-publication protocol 已冻结；下一步从 clean pushed checkout 执行 exact-pair upload、annotated tag 与 immutable
-fresh replay。闭环结果必须写入独立 publication result，不能修改已被 config 绑定的本 summary。
+local archive 只是 staging copy；canonical reusable artifact 已发布到 private HF repo
+`gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`，tag
+`v2.2-expansion-exact-labels-scientific-repair-v1` 的 resolved immutable commit 为
+`7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`。exact-pair upload、annotated tag、幂等 replay 与独立只读
+postflight 已闭合，结果见
+[`data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/)。
+publication 只解除 formal-58 label-data prerequisite；不能修改已被 config 绑定的本 scientific summary，也不
+代表 gate 已训练。

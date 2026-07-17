@@ -10,9 +10,9 @@
 > `c0447acda3f09bccc65461ed08092fa6b166370721767cf5f35eb19cc59583d6`，committed validator 已返回
 > GPU authorization=true。唯一 v1 GPU attempt 已完成 192/192 scientific states，但 source-locked monitor 的
 > 5/3849 个 sampling intervals 超过冻结 3 秒上限，global attempt 因而永久
-> `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。内部 aggregate PASS 不能当作 formal labels。下一步是独立 CPU-only
-> child validation repair 与 separate invalid-evidence archive；gate、matched-NLL、closed-loop 与 confirm 继续
-> locked。
+> `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。内部 aggregate PASS 不能当作 formal labels。独立 CPU-only child 已
+> `VALID + REVALIDATED`，repaired private-HF identity 的 immutable replay/postflight 已闭合，因此 formal-58
+> label-data prerequisite 已满足；gate 尚未训练，matched-NLL、closed-loop 与 confirm 继续 locked。
 
 ## v1 terminal result 与修复边界
 
@@ -221,8 +221,9 @@ runner 对 argv 的 option order、canonical repository inputs、model path、ho
 4. 下载到不同 fresh path，验证 archive byte identity，再独立重算 1,792 raw rows 与全部 derived counts；
 5. 只把 compact summary、artifact manifest、HF immutable revision 与下一步写入 Git；raw tensor/evidence 不进 Git。
 
-immutable expansion labels 完成前，formal-58 gate training 继续 locked。完成后也只能按已冻结 gate contract 训练；
-matched-NLL、closed-loop 与 confirm 仍各自需要后续独立 freeze，不能由本次 label PASS 自动解锁。
+repaired expansion labels 已通过新的 private-HF immutable identity、幂等 replay 与独立 postflight 闭合，因此
+formal-58 label-data prerequisite 已满足。现在也只能按已冻结 gate contract 训练；matched-NLL、closed-loop 与
+confirm 仍各自需要后续独立 freeze，不能由本次 label publication 自动解锁。
 
 以下命令是完整的 formal package、upload、fresh-download 和 manifest 流程。所有命令中的
 `--source-git-commit <SOURCE_A_SHA>` 都必须填写 runner freeze 所绑定的完整 40 位 **source A** SHA，不能填写

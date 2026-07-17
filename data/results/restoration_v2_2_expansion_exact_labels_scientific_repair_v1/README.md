@@ -30,9 +30,12 @@ teacher、KL、gate、matched-NLL、closed-loop、confirm/test 和 remote-mutati
 
 ## 边界与下一步
 
-当前 artifact 只暂存在 Hyper00：
-`/data/artifacts/causalcache/restoration-v2-2-expansion-exact-labels-scientific-repair-v1.tar`。它尚未成为可复用
-SoT。下一步必须用独立 publication contract 把 archive 与 sidecar 同 commit 发布到计划中的 private HF dataset
-`gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`，再从 immutable revision fresh
-download 并重算。该闭环之前，`gate_training_unlocked=false`，matched-NLL、closed-loop 与 confirm 也保持
-locked。完整轻量证据见 [`summary.json`](summary.json)。
+Hyper00 路径
+`/data/artifacts/causalcache/restoration-v2-2-expansion-exact-labels-scientific-repair-v1.tar` 只保留为 staging。
+archive 与 sidecar 后续已同 commit 发布到 private HF dataset
+`gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`；tag
+`v2.2-expansion-exact-labels-scientific-repair-v1` 的 resolved immutable commit 为
+`7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`。幂等 replay 与独立只读 postflight 已闭合，正式 publication 记录见
+[`../restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`](../restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/)。
+这只令 `gate_training_unlocked=true`；gate 尚未训练，matched-NLL、closed-loop 与 confirm 仍 locked。本阶段的
+完整轻量证据见 [`summary.json`](summary.json)。

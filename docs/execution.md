@@ -818,8 +818,9 @@ attributions 与 192 oracles 必须在 terminal 后由 policy-free validator 独
 
 PASS 后才允许 deterministic USTAR、private HF upload/tag、取得 immutable revision并下载到不同 fresh path。
 fresh archive 必须与 source archive byte-identical，并再次从 raw table 重算全部 counts；随后 Git 只记录 compact
-summary、hash 与 immutable HF binding。该 immutable artifact 闭合后才解除 formal-58 gate data blocker；它不自动
-授权 matched-NLL、closed-loop 或 confirm。
+summary、hash 与 immutable HF binding。该 immutable artifact 已在 repaired-label private dataset 的 resolved
+commit `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3` 闭合，因此 formal-58 gate data blocker 已解除；它不自动
+授权 matched-NLL、closed-loop 或 confirm，也不代表 gate 已训练。
 
 原 GPU attempt 已永久 INVALID，后续 repaired-label publication 必须使用独立的 CPU/network-only 协议
 [`restoration_v2_2_expansion_labels_scientific_repair_publication.md`](restoration_v2_2_expansion_labels_scientific_repair_publication.md)。
@@ -828,5 +829,7 @@ archive+sidecar exact-pair commit、annotated tag 和 immutable fresh replay 闭
 解锁 gate。content mutation 前还必须以 mode-0600 remote-base receipt 绑定完整 reachable history 与 recursive
 blob tree；pair 只能在该 base 上增加两个 target，不能改动任何既有 blob。fresh replay 后先保留 completion
 staging，再以 same-inode hard-link 创建 final completion；该 link 是最后 namespace mutation。只有 final seal 才
-清除 formal-58 label-data blocker。该步骤不申请 GPU，不重启 model，也不改变 matched-NLL、closed-loop 与
-confirm 的独立锁。
+清除 formal-58 label-data blocker。该 final seal、幂等 replay 与独立只读 postflight 现已完成，正式记录见
+[`../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/)。
+publication 未申请 GPU、未重启 model，也不改变 matched-NLL、closed-loop 与 confirm 的独立锁。下一步按
+[`gate_v1_execution.md`](gate_v1_execution.md) 构建 train-only formal-58 cache；不得提前打开 fresh-16 或 confirm。

@@ -8,9 +8,10 @@
 > config、双 H200 runner 与 raw-artifact reducer 已进入 source A；config SHA256 为
 > `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。单独的 committed/pushed runner
 > freeze B 已闭合。唯一 v1 GPU attempt 完成 192/192 scientific states，但因 source-locked monitor cadence
-> 5/3849 gaps 超过冻结 3 秒上限而永久 `INVALID`；内部 aggregate 不能直接作为 formal labels。当前先执行
-> versioned CPU-only child validation repair 与 separate invalid-evidence archive，完成 immutable fresh replay 前
-> 不训练 formal gate，也没有 development metric；旧 20 条 confirm 继续封存。
+> 5/3849 gaps 超过冻结 3 秒上限而永久 `INVALID`；内部 aggregate 不能直接作为 formal labels。versioned
+> CPU-only child 已 `VALID + REVALIDATED`，新 private-HF repaired-label identity 的 immutable replay 与独立
+> postflight 也已闭合。formal-58 label-data prerequisite 已满足，但 gate 尚未训练、没有 development metric；
+> 旧 20 条 confirm 继续封存。
 
 ## 为什么不能直接训练
 
@@ -21,7 +22,8 @@ $D(S)$ rows 和 435 条 conditional edges，但 edge 共享 trajectory、instruc
 
 因此现有角色边界改为：
 
-- 旧 10 train：只允许 trainer/algebra smoke，不进入当前 source milestone 的新输出；
+- 旧 10 train：label closure 前只允许 trainer/algebra smoke；现在只允许与新 48 train 合并为 formal-58，不能
+  单独产出 metric；
 - 旧 5 development：已经用于 method shaping，不能再选择模型、epoch、threshold 或 loss；
 - 新 48 train + 16 fresh development：正式 gate 数据扩展；
 - 旧 20 confirm：只有在 gate、checkpoint、threshold、matched-NLL 和 confirm runner 全部冻结后才允许打开。

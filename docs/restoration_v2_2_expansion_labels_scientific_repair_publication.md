@@ -1,8 +1,8 @@
 # Restoration v2.2 repaired-label private-HF publication
 
-> 当前状态：publication source 已冻结并完成本地 fake-HF recovery 验证；尚未执行真实 remote mutation，
-> `formal_label_loader_eligible=false`、`gate_training_unlocked=false`。只有本协议的 completion seal 与 immutable
-> fresh replay 同时闭合后，才解除 formal-58 的 label-data prerequisite。
+> 当前状态：真实 private-HF publication、completion seal、幂等 immutable replay 与独立只读 postflight 已闭合。
+> `formal_label_loader_eligible=true`、`gate_training_unlocked=true`；这只解除 formal-58 的 label-data
+> prerequisite，gate 尚未训练，matched-NLL、closed-loop 与 confirm 仍 locked。
 
 ## 目标与边界
 
@@ -173,7 +173,33 @@ model runtime。
 - Hyper00 `huggingface_hub==1.16.1` 的真实 API signature 已核对；
 - 既有 private annotated tag 实测 `list_repo_refs().target_commit` 与 `dataset_info(tag).sha` 不同，证明本协议的
   object/resolved 双 identity 处理符合当前 Hub 行为；
-- 本里程碑没有读取 repaired destination、没有创建 repo/commit/tag，也没有写 publication claim/completion。
+- source-freeze 里程碑没有读取 repaired destination、没有创建 repo/commit/tag，也没有写 publication
+  claim/completion；随后的正式 execution 结果单独记录如下。
 
-下一步必须先 commit/push 本 source freeze，再从独立 clean checkout 执行 prepare 和 publish。真实 immutable
-revision、tag object、claim/completion SHA 与幂等 replay 结果只能在 execution milestone 中回写。
+## 正式 execution 结果
+
+从 clean pushed `main@e47c50665c24fed5d9886665233962f85c1210e0` 在 Hyper00
+`node-radixark-16-0000` 的 no-GPU container `sglang-omni-jaxan-07172101` 执行 `publish`。Python 为 3.12.3，
+`huggingface_hub==1.16.1`；GPU/model operation count 为 0。
+
+- private dataset：
+  <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile>；
+- tag：`v2.2-expansion-exact-labels-scientific-repair-v1`；
+- annotated-tag object：`6a907ba2a3dce07c9f0810a84a8755c389da4a57`；
+- tag-resolved / immutable pair commit：`7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`；
+- base commit：`1a070e603639ace6ab713eaba039a8d751310c25`；base recursive blob inventory 与 pair
+  non-target inventory SHA256 均为 `ef4c5eb5f271fd7b091958e9ea938179febd1ae883e813743742cbaeafd22f95`；
+- archive SHA256 / LFS oid：
+  `1a9fdcc08aeb83f88bcd50957c3d890e3b103f2063a2aecbe08610d450950e01`，3,020,800 bytes；
+- sidecar SHA256：`9d86c75597a2a65eae952dd311373a7adbb0536d56d88e7fdb00d674f8dc4ee5`；
+- final completion：mode 0600、7,948 bytes、SHA256
+  `995b3ee25b643550de3df680b52382ef8b6b1373a3aad4c00bdc9caa34cfa2ff`，与 retained stage 同 inode；
+- 第二次 invocation 的 completion 与全部 local-state identities 未变化，remote mutation 为 0；
+- 独立新空目录 force-download postflight 返回
+  `PASS_INDEPENDENT_READ_ONLY_REPAIRED_PUBLICATION_POSTFLIGHT_V1`，log SHA256
+  `537193173a1aad25f6c77bb76fc72216bffa89bee745188be34e9d84c9022c2b`。
+
+正式轻量证据见
+[`../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/)。
+下一步按 [`gate_v1_execution.md`](gate_v1_execution.md) 只构建 formal-58 train cache、完成 OOF/model selection 与
+final fit；在 checkpoint/provenance 封存前不得打开 fresh-16、旧 dev-5 或 confirm。

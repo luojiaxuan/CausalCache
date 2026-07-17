@@ -226,9 +226,15 @@ restoration v2 exact selection/exposure 产物：
   `main@b14f489fe55b51a83917b57e6a54fb73d268342a` 的 no-GPU child 已 `VALID + REVALIDATED`；192-state
   payload、1,792 distances、1,856 deployment edges、3,072 full edges、1,984 interactions、576 attributions 与
   192 exact oracles 全部重算一致。local 4-member USTAR SHA256 为 `1a9fdcc0...0e01`；原 producer 仍永久
-  `INVALID`。新的 private-HF publication contract 已 source-freeze，但真实 publication/fresh replay 尚未完成，
-  因此本地 staging 不是 reusable SoT，gate 继续 locked；protocol 见
+  `INVALID`。本地文件仍只是 staging；protocol 见
   `docs/restoration_v2_2_expansion_labels_scientific_repair_publication.md`；
+
+- `results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`：repaired archive/sidecar 已
+  发布到 private HF dataset
+  `gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`，tag
+  `v2.2-expansion-exact-labels-scientific-repair-v1`，resolved immutable commit
+  `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`；幂等 replay 与独立只读 postflight 通过。该记录只解除
+  formal-58 label-data prerequisite；gate 尚未训练；
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private

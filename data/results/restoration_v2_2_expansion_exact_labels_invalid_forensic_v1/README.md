@@ -22,7 +22,7 @@ archive 的原始 staging copy 仍保留在 Hyper00：
 `5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416`，并由 read-only child 完成 fresh replay；HF 是该 reusable
 invalid-evidence artifact 的 canonical source of truth。它仍永久 formal-ineligible。
 
-## 下一步
+## 后续链路
 
 独立的 crash-recoverable private-HF publication contract 已冻结，详见
 [`docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md`](../../../docs/restoration_v2_2_expansion_labels_invalid_forensic_publication.md)。
@@ -30,7 +30,9 @@ invalid-evidence artifact 的 canonical source of truth。它仍永久 formal-in
 但 annotated-tag object SHA 与 tag-resolved commit SHA 的接口差异使 v1 parser 在 completion 前 fail closed，见
 [`publication v1 attempt`](../restoration_v2_2_expansion_exact_labels_invalid_forensic_publication_v1_attempt/README.md)。
 独立 read-only tag-resolution child 已完成 immutable fresh replay、P0 strict readback 与幂等复验，见
-[`result`](../restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/README.md)。下一步是独立
-CPU scientific validation repair；其新 repaired-label immutable artifact 闭合前，formal gate 继续 locked。
+[`result`](../restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/README.md)。随后独立 CPU
+scientific validation repair 与新的 repaired-label private-HF publication 均已闭合，见
+[`publication result`](../restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/README.md)。该链路只
+解除 formal-58 label-data prerequisite；本 invalid-forensic artifact 仍永久 formal-ineligible，gate 尚未训练。
 
 机器可读记录见 [`artifact.json`](artifact.json)。

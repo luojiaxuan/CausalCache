@@ -2,6 +2,8 @@
 
 > 当前状态：trainer/evaluator source 与 synthetic/unit smoke 已实现；**尚未运行 formal-58 训练，尚未读取
 > fresh-16、旧 dev-5 或 confirm-20，也没有正式 checkpoint、GO metric、matched-NLL 或 closed-loop 结果。**
+> repaired expansion labels 已在 private HF immutable revision 闭合，因此 formal-58 的 label-data prerequisite
+> 已满足；这不等于 gate 已训练。
 
 本文件是 [`gate_v1_preregistration.md`](gate_v1_preregistration.md) 的执行说明。冻结阈值、roster、模型、loss、
 OOF 与访问顺序仍以
@@ -41,7 +43,7 @@ machine-readable contract；本次实现不改变任何已冻结选择。
 
 ## Formal 执行顺序
 
-### 0. Expansion labels 闭合前
+### 0. Expansion labels 闭合前（历史阶段，已完成）
 
 只运行 synthetic smoke。旧 train-10 即使可用，也不能用于 metric、模型选择或持久 checkpoint；当前实现的
 默认 smoke 完全不读取旧 artifact。
@@ -65,10 +67,11 @@ Synthetic distance table 显式包含 `event-1/event-2` complementarity，因此
 
 ### 1. Train-only cache join
 
-只有 48+16 expansion label artifact 已上传 HF、绑定 immutable revision、fresh-download 全量验证后，才能构造
-formal train。local ledger-neutral scientific-repair `VALID + REVALIDATED` 只证明 payload science，不满足该
-prerequisite；在新的 repaired HF identity 完成 immutable replay 前，formal-58 training 继续 locked。随后只加载
-旧 train-10 与新 train-48，共 58 trajectories / 174 states。`validate_formal_training_roster`
+48+16 expansion label artifact 已上传 private HF、绑定 immutable resolved commit
+`7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，并完成幂等 immutable replay 与独立只读 postflight；正式记录见
+[`../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/)。
+因此现在可以构造 formal train，但只能加载旧 train-10 与新 train-48，共 58 trajectories / 174 states。
+`validate_formal_training_roster`
 会同时验证：
 
 - source order 与 frozen formal-58 完全一致；

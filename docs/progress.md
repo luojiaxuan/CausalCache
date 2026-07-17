@@ -11,8 +11,7 @@ USTAR 与 private HF immutable revision 已完成 fresh-download 复核。restor
 preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replacement v2 已完成 45/45 states，并闭合
 420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
 HF immutable artifact。当前已有 offline teacher labels 和 oracle 上界，但仍没有 learned gate checkpoint、
-matched-NLL pairs、closed-loop 方法效果或 confirm policy output。下一步不是直接训练 set-conditioned gate，而是
-先补齐 visual comparator matrix。selector geometry 的 versioned reporting repair 已完成并支持
+matched-NLL pairs、closed-loop 方法效果或 confirm policy output。selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
 v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00 完成 15-state formal aggregate、
@@ -37,8 +36,10 @@ authorization=true。唯一 v1 GPU attempt 随后完成 192/192 states 与全部
 3 秒上限（max 3.883721 s），因此 post-worker validator 将全局 attempt 永久封为
 `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。invalid evidence 已在独立 private HF immutable revision 闭合；
 no-GPU scientific-repair child 也已完成正式 run 和完整只读 revalidation，local payload 为 `VALID +
-REVALIDATED`，但原 producer 不重分类。当前唯一剩余 label blocker 是把 repaired archive+sidecar 发布到新的
-private HF identity 并完成 immutable fresh replay；该步骤闭合前仍没有可供 formal gate 使用的 expansion labels。
+REVALIDATED`，但原 producer 不重分类。repaired archive+sidecar 已发布到新的 private HF identity，tag-resolved
+immutable commit 为 `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，幂等 replay 与独立只读 postflight 均通过。
+formal-58 label-data prerequisite 已满足；当前目标是严格按冻结 contract 构建 train-only cache、训练 gate 和封存
+OOF/provenance，尚未打开 fresh-16、旧 dev-5 或 confirm。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -2424,3 +2425,25 @@ closed-loop 与 confirm 均不得提前。
   当前 Hub annotated-tag 语义，仅用 token 对既有 invalid-forensic private repo 做了只读 object/resolved 查询；
   没有访问或修改 repaired destination，没有 gate fit、matched-NLL、closed-loop 或 confirm access。
   下一步先 commit/push source，再从独立 clean checkout 执行真实 publication 与幂等 immutable replay。
+
+### 2026-07-17：repaired-label private-HF publication 与独立 postflight 闭合
+
+- 从 clean pushed `main@e47c50665c24fed5d9886665233962f85c1210e0` 在 Hyper00 CPU-only container 执行唯一
+  publication；没有 GPU/model/policy/gate/matched-NLL/closed-loop/confirm operation；
+- 新 private dataset
+  `gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile` 的 tag
+  `v2.2-expansion-exact-labels-scientific-repair-v1` 分别绑定 annotated-tag object
+  `6a907ba2a3dce07c9f0810a84a8755c389da4a57` 与 tag-resolved immutable pair commit
+  `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`；
+- 3,020,800-byte 4-member USTAR 的 SHA256/LFS oid 均为 `1a9fdcc0...0e01`；sidecar SHA256 为
+  `9d86c755...c4ee5`。base recursive blob inventory 与 pair non-target inventory 完全相同，证明 pair commit
+  只新增两个冻结目标；
+- completion mode 0600、7,948 bytes、SHA256 `995b3ee2...a2ff`，retained stage 与 final 为同一 inode。
+  第二次 invocation 返回 byte-identical completion 且不执行 remote mutation；
+- 新空目录的独立 force-download postflight 返回
+  `PASS_INDEPENDENT_READ_ONLY_REPAIRED_PUBLICATION_POSTFLIGHT_V1`，重新验证 private visibility、tag/main/
+  immutable identity、exact pair、remote blob/LFS 与 strict 4-member archive；
+- 该里程碑令 `formal_label_loader_eligible=true`、`gate_training_unlocked=true`，但只清除 formal-58
+  label-data prerequisite。原 producer 和 invalid-forensic payload 不重分类；gate 未训练，fresh-16、matched-NLL、
+  closed-loop 与 confirm 仍未解锁。轻量结果位于
+  `data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`。
