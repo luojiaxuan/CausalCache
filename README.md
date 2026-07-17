@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label = runner freeze B committed + validated、formal GPU attempt not started / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = 192/192 scientific payload complete、formal attempt `INVALID` (source-locked monitor cadence 5/3849 intervals >3 s；CPU validation repair pending) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / confirm locked
 
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
 > policy-blind expansion split manifest、pre-output exposure ledger 与 gate v1 preregistration 均已冻结，
@@ -16,8 +16,12 @@
 > `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。runner freeze SHA256
 > `c0447acda3f09bccc65461ed08092fa6b166370721767cf5f35eb19cc59583d6` 已作为 execution
 > B=`bd5cc78838c09a50214b1108fb18f62139c7419e` 单独 commit/push，committed validator 重建 76-file
-> inventory 并返回 GPU authorization=true；唯一 Hyper00 formal attempt 尚未启动，也尚未生成 expansion
-> labels。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 expansion
+> inventory 并返回 GPU authorization=true。唯一 Hyper00 v1 attempt 已完成 192/192 states 与全部固定 operation
+> counts，内部 raw reducer 得到 `PASS_V2_2_EXPANSION_EXACT_LABELS_V1`；但 source-locked monitor 的 3,849 个
+> intervals 中 5 个超过冻结 3 秒上限（max 3.883721 s），post-worker validator 因而将全局 attempt 永久封为
+> `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。这些 bytes 当前不能作为 formal expansion labels。下一步是独立
+> CPU-only child validation repair 与 separate invalid-evidence immutable archive；不重跑 GPU、不改阈值、不追认
+> v1 formal PASS。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 formal expansion
 > policy/restoration output、formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
 > [`docs/restoration_v2_2_expansion_exact_labels.md`](docs/restoration_v2_2_expansion_exact_labels.md)、
@@ -57,12 +61,16 @@ policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interf
 state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式状态为 `VALID`；result commit 后又从
 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
 
-当前关键路径是 48/16 expansion exact labels。冻结分母为 64 trajectories / 192 states，steps 4/5/6 对应
+当前关键路径是 48/16 expansion exact-label v1 的 versioned CPU-only child validation repair。冻结分母为
+64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
 full edges、1,984 interactions、576 attributions 与 192 exact oracles。label run 固定 1,984 teacher forwards、
 1,792 GPU KL、0 generation，并保留所有 negative marginals。source A、单独 runner freeze B 与 committed
-validator 已闭合；下一步只允许在 Hyper00 做 preflight 后启动这个唯一 formal attempt，不能提前训练 gate 或
-读取 confirm。
+validator 已闭合。唯一 GPU attempt 已完成全部科学计算，但因 source-locked monitor cadence gate 违规而正式
+`INVALID`：monitor 首尾覆盖和索引连续均成立，仍有 5/3849 gaps >3 s，max 3.883721 s。原 ledger、root 与
+monitor 必须逐 byte 保留，不能 retry、resume 或调阈值。下一步只允许先冻结并执行独立 CPU repair：重算全部
+raw labels、operation counts 与 external inputs，把 cadence failure 作为永久 provenance；repair immutable fresh
+replay 闭合前不能训练 formal gate 或读取 confirm。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
@@ -729,7 +737,10 @@ $$
 - [x] 从 clean pushed `main@6bf3f8c` 物化 canonical substrate config；SHA256 `42144f33...a6e5`，source-only validator 明确不授权 GPU；
 - [x] 实现实际 processor serializer、双 worker runner、raw artifact manager 与 source-locked monitor sidecar；
 - [x] push runner source commit A、物化并 push 67-file runner freeze commit B，并完成唯一双 H200 substrate 与 immutable HF 闭环；
-- [ ] substrate PASS 后冻结并生成 immutable expansion exact labels；
+- [x] 执行唯一 expansion exact-label v1 GPU attempt；192/192 scientific payload 完整，但 monitor cadence gate
+  违规，formal attempt 永久 `INVALID`；
+- [ ] 冻结并执行 CPU-only child validation repair，完成 separate invalid-evidence archive 与 repair immutable HF
+  fresh replay；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -781,6 +792,7 @@ $$
 - Label-expansion substrate runner protocol: [`docs/restoration_v2_2_expansion_substrate_runner.md`](docs/restoration_v2_2_expansion_substrate_runner.md)
 - Label-expansion substrate runner: [`code/scripts/run_restoration_v2_2_expansion_substrate.py`](code/scripts/run_restoration_v2_2_expansion_substrate.py)
 - Label-expansion substrate canonical result: [`data/results/restoration_v2_2_label_expansion_substrate_v1/`](data/results/restoration_v2_2_label_expansion_substrate_v1/)
+- Expansion exact-label v1 invalid attempt: [`data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/`](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/)
 - Label-expansion substrate raw-artifact manager: [`code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py`](code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)
@@ -942,6 +954,7 @@ $$
 | Restoration v2 derived dataset | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile> | `restoration-v2-derived-v1.0.0` / `89f136abaff797e14fe758a198996e51032a10a6`，private | exact 6-file derived projection 已 fresh re-download 并第三次 replay；旧 OCR golden tag 仍固定到 `9ebbbbbc4666e8a065f4ecb5240491c70f05e21b` |
 | Label-expansion derived dataset | 同一 private restoration-v2 dataset repo | `restoration-v2-label-expansion-v1.0.0` / `630363a6adb692d72774f16dd0653a50216313ff` | 64 trajectories / 192 views / 384 images；exact-six tree `9394b369...94abc`，immutable fresh-download OCR replay 384/384 |
 | Label-expansion substrate v1 | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile> | `v2.2-label-expansion-substrate-v1` / `25ac19cf6ef98adc243d421cd0039ac104ddb539`，private | 192/192、0 failed；185 memory-sensitive；384/576/384 exact counts；406-file USTAR SHA256 `4e77a38b...ff47d`，fresh immutable byte replay verified |
+| Expansion exact-label v1 attempt | Hyper00 staging only；[Git failure binding](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/) | `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`；HF pending | 192/192 raw body complete、stored aggregate `PASS_V2_2_EXPANSION_EXACT_LABELS_V1`，但 monitor cadence 5/3849 gaps >3 s；不能作为 formal gate input |
 | Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
 | Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |

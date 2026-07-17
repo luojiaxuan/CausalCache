@@ -8,8 +8,33 @@
 > A=`2c00c9118dc00cc1bda361325d24d79d8c14f8b6` 与单独 execution
 > B=`bd5cc78838c09a50214b1108fb18f62139c7419e` 已 commit/push；runner freeze SHA256 为
 > `c0447acda3f09bccc65461ed08092fa6b166370721767cf5f35eb19cc59583d6`，committed validator 已返回
-> GPU authorization=true。唯一 formal attempt 尚未启动；当前没有 expansion label、gate checkpoint、
-> matched-NLL、closed-loop 或 confirm output。
+> GPU authorization=true。唯一 v1 GPU attempt 已完成 192/192 scientific states，但 source-locked monitor 的
+> 5/3849 个 sampling intervals 超过冻结 3 秒上限，global attempt 因而永久
+> `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。内部 aggregate PASS 不能当作 formal labels。下一步是独立 CPU-only
+> child validation repair 与 separate invalid-evidence archive；gate、matched-NLL、closed-loop 与 confirm 继续
+> locked。
+
+## v1 terminal result 与修复边界
+
+Hyper00 的 even/odd workers 各完成固定 96 states；1,984 teacher forwards、1,792 KL、1,792 scalar transfers
+与全部 zero-prohibited-operation counts 精确命中。raw reducer 在 monitor gate 前得到
+`PASS_V2_2_EXPANSION_EXACT_LABELS_V1`，覆盖 192 states、1,792 条 $D(S)$、1,856 deployment edges、3,072
+full edges、1,984 interactions、576 attributions 与 192 exact oracles；repeat KL 最大值为 0。
+
+formal validity 没有因此通过。monitor 共 3,850 个连续 samples，首个 sample 早于两个 worker，最后 sample 晚于
+两个 worker，index 0--3849 无缺口；但冻结 `maximum_sample_gap_seconds=3.0`，实际有 5 个 intervals 超限，
+max=3.883721 s、p99=2.292645 s。最终 validator 在所有 worker terminal 之后 fail closed，外部 ledger SHA256
+为 `77d3ad318a9c57e78a15edac0bb5273ade9ceeb95858cc6b33c731a6ee66a120`；其绑定的 prior completed snapshot
+SHA256 为 `c107f4b77d6dabb4c0123028ee0e5e911751c47f00a938fb108e55af6bfc4b01`。
+
+原 v1 output、ledger、monitor 与 worker bytes 必须逐 byte 保留，禁止 retry、resume、删除后重跑、调阈值或把
+completed snapshot 替换成 terminal ledger。versioned CPU child 将独立重算 raw table、derived labels、operation
+accounting 与 external inputs；cadence failure 仍作为原 attempt 的永久 provenance。child 只能声称“来自 invalid
+monitor envelope 的 scientific payload 已验证”，不能追认原 v1 formal PASS。任一科学 replay mismatch 都会使
+CPU repair NO-GO，并触发全新 v2 identity 的完整 192-state GPU run，而不是补跑。
+
+轻量 failure binding 见
+[`../data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/`](../data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/)。
 
 ## 目标与 canonical truth
 
@@ -121,7 +146,7 @@ python3 -m scripts.manage_restoration_v2_2_expansion_labels_artifact \
 只有 `VALID_COMMITTED_PUSHED_EXPANSION_EXACT_LABEL_RUNNER_FREEZE` 才是正式运行的 Git 前置条件。
 上述两个 freeze 路径由 manager 按 `--repository-root` 解析，不按 shell 当前目录解析。
 
-## 唯一 attempt 与 artifact identity
+## 已消费的唯一 v1 attempt 与 artifact identity
 
 ```text
 attempt: restoration-v2-2-expansion-exact-labels-v1
@@ -139,7 +164,10 @@ output root、global ledger、两个 sibling ledgers、publication staging 或�
 不超过 $10^{-4}$、zero prohibited operations 和 raw-table independent reduction 全部通过，才能返回
 `PASS_V2_2_EXPANSION_EXACT_LABELS_V1`。
 
-## Formal 双 H200 顺序
+上述 identity 已被 terminal `INVALID` attempt 消费。planned PASS archive、HF repo/tag/path 均未创建，不得再用
+下面历史命令重跑或把 raw root 送入 formal PASS packager。
+
+## Historical v1 双 H200 顺序（禁止重跑）
 
 正式执行必须先遵循 [`execution.md`](execution.md) 的 host/GPU/disk/container preflight、至少 10 秒
 continuous-zero cleanup，并只向容器暴露两张选定的 H200。容器内要求 `torch.cuda.device_count()==2`；even / odd
@@ -180,9 +208,9 @@ python3 -m scripts.run_restoration_v2_2_expansion_labels \
 runner 对 argv 的 option order、canonical repository inputs、model path、host identity、image digest、attempt path
 与 ledger path 都做 exact validation；不要重排参数或另加未冻结 option。
 
-## 成功后的回写顺序
+## 原计划 PASS 回写顺序（v1 已失效）
 
-terminal PASS 后才允许：
+以下流程只适用于 terminal PASS；v1 没有满足前提，因此 **不得执行**。本节保留用于审计冻结 contract：
 
 1. 用 artifact manager 对 canonical root、global/sibling ledgers 和 monitor evidence 做 independent raw reduction；
 2. 生成 deterministic USTAR 到 canonical archive path，并记录 archive/tree/payload hashes；

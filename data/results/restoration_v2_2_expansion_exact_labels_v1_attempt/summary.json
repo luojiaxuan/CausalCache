@@ -1,0 +1,185 @@
+{
+  "artifact_status": "operational_monitor_cadence_invalid_after_complete_scientific_payload",
+  "attempt_id": "restoration-v2-2-expansion-exact-labels-v1",
+  "config_sha256": "65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5",
+  "execution_argv": [
+    "python3",
+    "-m",
+    "scripts.run_restoration_v2_2_expansion_labels",
+    "--repository-root",
+    "..",
+    "--contract",
+    "configs/causalcache_restoration_v2_2_expansion_labels_v1.json",
+    "--runner-freeze",
+    "configs/causalcache_restoration_v2_2_expansion_labels_runner_v1.json",
+    "--parent-substrate-archive",
+    "/data/artifacts/fresh/v2.2-label-expansion-substrate-v1.tar",
+    "--derived-artifact-root",
+    "/data/artifacts/fresh/restoration-v2-label-expansion-v1",
+    "--ocr-backend-config",
+    "configs/restoration_v2_ocr_backend.json",
+    "--snapshot-manifest",
+    "configs/gui_owl_1_5_8b_snapshot.json",
+    "--model-dir",
+    "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "--host-alias",
+    "hyper00",
+    "--host-hostname",
+    "node-radixark-16-0000",
+    "--container-id",
+    "8fa31506ff8b274a304bc778b0fe5768112dbd3065c90e438d761a0e9a4154cc",
+    "--container-image-digest",
+    "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "--output-dir",
+    "/data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1",
+    "--global-ledger",
+    "/data/experiments/causalcache/.restoration-v2-2-expansion-exact-labels-v1.attempt.json",
+    "--preflight-log",
+    "/data/tmp/expansion-exact-labels-preflight.log",
+    "--utilization-monitor-log",
+    "/data/tmp/expansion-exact-labels-monitor.jsonl",
+    "--monitor-ready-file",
+    "/data/tmp/expansion-exact-labels-monitor.ready.json",
+    "--monitor-summary",
+    "/data/tmp/expansion-exact-labels-monitor.summary.json"
+  ],
+  "execution_git_commit": "bccaab394ccbade6c9abf6281ab4d6e03820a362",
+  "execution_working_directory": "/data/CausalCache-expansion-exact-labels-v1/code",
+  "failure": {
+    "category": "source_locked_monitor_max_gap_exceeded",
+    "class": "ValueError",
+    "failure_object_sha256": "2adfea16dcc941158772135f0bcf31f644a24f8523d8b65b6756c3ad9abf6e4f",
+    "stage": "post_worker_terminal_execution_evidence_validation"
+  },
+  "formal_validity": {
+    "formal_expansion_labels_available": false,
+    "gate_training_unlocked": false,
+    "global_attempt_status": "INVALID_EXPANSION_EXACT_LABEL_ATTEMPT",
+    "scientific_payload_may_be_reported_as_formal_pass": false
+  },
+  "git_source_commit": "2c00c9118dc00cc1bda361325d24d79d8c14f8b6",
+  "host": {
+    "alias": "hyper00",
+    "container_id": "8fa31506ff8b274a304bc778b0fe5768112dbd3065c90e438d761a0e9a4154cc",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "hostname": "node-radixark-16-0000",
+    "physical_gpu_ids": [
+      2,
+      3
+    ],
+    "visible_gpu_uuids": [
+      "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+      "GPU-f2d88c45-534f-b4cb-b9b9-65a9888c3617"
+    ]
+  },
+  "monitor_evidence": {
+    "any_gpu_below_90_sample_count": 1351,
+    "first_sample_at_utc": "2026-07-17T06:51:41.996955Z",
+    "gap_count_above_2_seconds": 75,
+    "gap_count_above_frozen_3_seconds": 5,
+    "index_break_count": 0,
+    "last_sample_at_utc": "2026-07-17T08:01:07.393719Z",
+    "maximum_sample_gap_seconds": 3.883721,
+    "p99_sample_gap_seconds": 2.292645,
+    "sample_count": 3850,
+    "sample_index_range": [
+      0,
+      3849
+    ],
+    "started_before_both_workers": true,
+    "stopped_after_both_workers": true,
+    "summary_sha256": "56c017833a0e086ce603d76cdb9b8b1f5c2f87c9f2acb83eba399b4289bd6644"
+  },
+  "negative_operation_counts": {
+    "closed_loop_episode_count": 0,
+    "confirm_access_count": 0,
+    "expert_action_read_count": 0,
+    "full_logit_tensor_host_transfer_count": 0,
+    "gate_model_forward_count": 0,
+    "gate_training_example_count": 0,
+    "generation_call_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "retry_count": 0,
+    "top_up_count": 0
+  },
+  "outcome": "INVALID_EXPANSION_EXACT_LABEL_ATTEMPT",
+  "protocol_id": "causalcache_restoration_v2_2_expansion_exact_labels_v1",
+  "raw_staging": {
+    "aggregate_sha256": "b56126fa2dfd8b7a5ba40739abcc6cc36625e94352c8e420b2512a20f76d32fa",
+    "canonical_archive_created": false,
+    "canonical_hf_target_created": false,
+    "execution_evidence_sha256": "49f80684f6ba0bf6d8df8e68995b37094bb0663fbf15297e484fa5e26d9e9aac",
+    "file_count": 402,
+    "global_ledger_sha256": "77d3ad318a9c57e78a15edac0bb5273ade9ceeb95858cc6b33c731a6ee66a120",
+    "prior_completed_global_ledger_sha256": "c107f4b77d6dabb4c0123028ee0e5e911751c47f00a938fb108e55af6bfc4b01",
+    "claimed_prior_ledger_sha256_matches": true,
+    "monitor_log_sha256": "da2c3281fd68236ccfae4dcb6d34a51d3dd1deb95e2c11fe725714195344cf4b",
+    "path": "/data/experiments/causalcache/restoration-v2-2-expansion-exact-labels-v1",
+    "raw_file_bytes": 3579535,
+    "run_manifest_sha256": "9e48f0048cd54316f4be4584484eba8938dbef0f196c3a787f6174ce853cbcb9",
+    "worker_sibling_ledger_sha256": {
+      "even": "b8199b030bbf74869501ca6caa8da98a2f071e7f76478514fd98f4d265582f0e",
+      "odd": "b60ed68f26d6224668ef7a04b8238b1c12efa375922d6ff277bb2d7e06f06d44"
+    },
+    "upload_status": "pending_versioned_invalid_evidence_archival"
+  },
+  "replacement_constraints": {
+    "new_protocol_and_attempt_identity_required": true,
+    "original_invalid_ledger_must_remain_unchanged": true,
+    "resume_allowed": false,
+    "retry_allowed": false,
+    "scientific_config_must_remain_unchanged": true,
+    "top_up_allowed": false
+  },
+  "run_contract_sha256": "63cddd712d9fa22bbd68110966161f36318d5fe1962b9b1477bae342da4180b8",
+  "runner_freeze_sha256": "c0447acda3f09bccc65461ed08092fa6b166370721767cf5f35eb19cc59583d6",
+  "runtime": {
+    "attention_implementation": "eager",
+    "cudnn_version": 91900,
+    "dtype": "torch.bfloat16",
+    "python_version": "3.12.3",
+    "seed": 0,
+    "torch_cuda_version": "13.0",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0"
+  },
+  "schema_version": "1.0.0",
+  "scientific_payload": {
+    "actual_counts": {
+      "deployment_conditional_edge_count": 1856,
+      "exact_permutation_attribution_count": 576,
+      "full_hypercube_edge_count": 3072,
+      "full_logit_tensor_host_transfer_count": 0,
+      "kl_measurement_count": 1792,
+      "pair_interaction_count": 1984,
+      "primary_exact_subset_oracle_count": 192,
+      "raw_distance_row_count": 1792,
+      "retry_count": 0,
+      "scalar_host_transfer_count": 1792,
+      "state_count": 192,
+      "teacher_forward_count": 1984,
+      "top_up_count": 0,
+      "trajectory_count": 64
+    },
+    "aggregate_outcome_before_global_monitor_gate": "PASS_V2_2_EXPANSION_EXACT_LABELS_V1",
+    "algebra_residual_gate_passed": true,
+    "derived_payload_sha256": "9d6481ad2204f5a2a24731b3424448f8ea410a0cee03f544fe1568b67febd8fd",
+    "interaction_sign_counts": {
+      "negative": 1250,
+      "positive": 734,
+      "zero": 0
+    },
+    "marginal_sign_counts": {
+      "negative": 416,
+      "positive": 2656,
+      "zero": 0
+    },
+    "maximum_reference_repeat_kl": 0.0,
+    "mean_primary_exact_oracle_utility": 0.04749858961362433,
+    "mean_summary_only_distance": 0.052278366727796545,
+    "nonmonotone_state_count": 96,
+    "valid_for_formal_gate_training": false
+  },
+  "started_at_utc": "2026-07-17T06:57:02.359556Z",
+  "ended_at_utc": "2026-07-17T08:01:07.769249Z"
+}

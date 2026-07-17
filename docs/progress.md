@@ -32,7 +32,12 @@ substrate 完成 192/192 states、185 memory-sensitive，并绑定 private HF im
 artifact reducer 已由 source A=`2c00c9118dc00cc1bda361325d24d79d8c14f8b6` 冻结，config SHA256 为
 `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`；runner freeze 已作为单独的
 execution B=`bd5cc78838c09a50214b1108fb18f62139c7419e` commit/push，committed validator 返回 GPU
-authorization=true。唯一 formal attempt 尚未启动，当前仍没有 expansion labels 或 formal gate metric。
+authorization=true。唯一 v1 GPU attempt 随后完成 192/192 states 与全部固定 operation counts；内部 raw reducer
+得到 `PASS_V2_2_EXPANSION_EXACT_LABELS_V1`，但 source-locked monitor 有 5/3849 个 sampling gaps 超过冻结
+3 秒上限（max 3.883721 s），因此 post-worker validator 将全局 attempt 永久封为
+`INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。当前仍没有可供 formal gate 使用的 expansion labels。下一步冻结并
+执行 CPU-only child validation repair，同时把原 invalid evidence 归档到独立 private HF namespace；不重跑 GPU、
+不改 monitor 阈值、不追认原 v1 PASS。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -164,6 +169,28 @@ authorization=true。唯一 formal attempt 尚未启动，当前仍没有 expans
   `VALID_COMMITTED_PUSHED_EXPANSION_EXACT_LABEL_RUNNER_FREEZE`，GPU authorization=true；
 - 本里程碑仍没有创建 global attempt ledger、output root 或 policy output，也没有占用 GPU。下一步只允许在
   Hyper00 完成 host/GPU/disk/container 与 10 秒 idle preflight 后启动唯一双 H200 formal run。
+
+### 2026-07-17：expansion exact-label v1 full-forward monitor-cadence INVALID
+
+- Hyper00 在 clean execution head=`bccaab394ccbade6c9abf6281ab4d6e03820a362` 上完成唯一双 H200 attempt；
+  even/odd workers 各完成 96/96 states，retry/top-up/forbidden operations 全为 0，1,984 teacher forwards、
+  1,792 KL 与 1,792 scalar host transfers 精确命中；
+- raw body 含 192 states、1,792 条 $D(S)$、1,856 deployment edges、3,072 full edges、1,984 interactions、
+  576 attributions 与 192 exact oracles；repeat KL max/mean 均为 0，internal aggregate 为
+  `PASS_V2_2_EXPANSION_EXACT_LABELS_V1`，derived payload SHA256 为
+  `9d6481ad2204f5a2a24731b3424448f8ea410a0cee03f544fe1568b67febd8fd`；
+- source-locked monitor 从两个 worker 启动前覆盖到终止后，共 3,850 个连续 samples、index 0--3849；冻结
+  max-gap 为 3.0 秒，实际 5/3849 intervals 超限，max=3.883721 s、p99=2.292645 s。post-worker execution-
+  evidence validator 因而正确 fail closed，外部 ledger 永久为 `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`；
+- 外部 INVALID ledger SHA256 为 `77d3ad318a9c57e78a15edac0bb5273ade9ceeb95858cc6b33c731a6ee66a120`，它声明的
+  prior completed ledger SHA256 与 raw root 内 snapshot 的
+  `c107f4b77d6dabb4c0123028ee0e5e911751c47f00a938fb108e55af6bfc4b01` 一致；原 root 共 402 files /
+  3,579,535 bytes，继续保留在 Hyper00 staging；
+- 原 v1 不得 retry/resume、调阈值或追认为 formal PASS；canonical PASS archive/HF repo/tag 均未创建。轻量
+  failure binding 位于 `data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/`；
+- 下一步先冻结独立 CPU-only child validation repair：保持 producer bytes 与 original INVALID tombstone 不变，
+  独立重算 raw labels、operation counts 与 external inputs，并把 cadence failure 永久保留为 provenance。repair
+  immutable fresh replay 之前，formal-58 gate、fresh-16、matched-NLL、closed-loop 与 confirm 全部 locked。
 
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 

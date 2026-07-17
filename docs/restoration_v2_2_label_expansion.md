@@ -7,8 +7,10 @@
 > private HF immutable revision `25ac19cf6ef98adc243d421cd0039ac104ddb539`。expansion exact-label source、
 > config、双 H200 runner 与 raw-artifact reducer 已进入 source A；config SHA256 为
 > `65f7fa1d35a0b1fdd4fa09fe09120e858252406a3b850d85d9415ab34d6feed5`。单独的 committed/pushed runner
-> freeze B 完成前仍不授权 GPU。尚未生成 expansion restoration labels、gate checkpoint 或 development
-> metric；旧 20 条 confirm 继续封存。
+> freeze B 已闭合。唯一 v1 GPU attempt 完成 192/192 scientific states，但因 source-locked monitor cadence
+> 5/3849 gaps 超过冻结 3 秒上限而永久 `INVALID`；内部 aggregate 不能直接作为 formal labels。当前先执行
+> versioned CPU-only child validation repair 与 separate invalid-evidence archive，完成 immutable fresh replay 前
+> 不训练 formal gate，也没有 development metric；旧 20 条 confirm 继续封存。
 
 ## 为什么不能直接训练
 
