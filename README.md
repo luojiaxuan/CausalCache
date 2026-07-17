@@ -707,7 +707,9 @@ $$
 - [x] 从 clean pushed main 物化并验证 48/16 structural manifest；192 states / 1792 distance rows / 1856 edges；
 - [x] 物化 pre-output exposure ledger；expansion-64 与 prior-output-23 / confirm-20 的六组交集全部为空；
 - [x] 构建并上传 policy-blind expansion derived artifact；64 trajectories / 192 decision views / 384 images，private HF immutable download 已完成第三遍 OCR replay；
-- [ ] 冻结并执行 192-state substrate，生成 immutable expansion exact labels；
+- [x] 冻结 192-state substrate source-only contract：双 H200 96/96 parity、384 generation / 576 teacher forward / 384 KL、逐 excluded-event action canary 与完整 transitive source lock；
+- [ ] 从 clean pushed source commit 物化 canonical substrate config，随后另立 runner freeze 并执行 substrate；
+- [ ] substrate PASS 后冻结并生成 immutable expansion exact labels；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
 
@@ -752,6 +754,9 @@ $$
 - Label-expansion derived builder: [`code/scripts/build_guiodyssey_restoration_v2_expansion.py`](code/scripts/build_guiodyssey_restoration_v2_expansion.py)
 - Label-expansion derived validator: [`code/scripts/validate_guiodyssey_restoration_v2_expansion.py`](code/scripts/validate_guiodyssey_restoration_v2_expansion.py)
 - Label-expansion derived completion: [`data/results/restoration_v2_2_label_expansion_derived/`](data/results/restoration_v2_2_label_expansion_derived/)
+- Label-expansion substrate source freeze: [`docs/restoration_v2_2_label_expansion_substrate.md`](docs/restoration_v2_2_label_expansion_substrate.md)
+- Label-expansion substrate materializer: [`code/scripts/materialize_restoration_v2_2_expansion_substrate_contract.py`](code/scripts/materialize_restoration_v2_2_expansion_substrate_contract.py)
+- Label-expansion substrate source validator: [`code/scripts/validate_restoration_v2_2_expansion_substrate_contract.py`](code/scripts/validate_restoration_v2_2_expansion_substrate_contract.py)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)
 - Restoration v2.2 selector-geometry protocol: [`docs/restoration_v2_2_selector_geometry.md`](docs/restoration_v2_2_selector_geometry.md)

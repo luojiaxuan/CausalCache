@@ -57,6 +57,22 @@ conditional-marginal labels；formal gate training 仍未授权。
 - completion 只证明 policy-blind data bytes 与 provenance；policy forward、restoration output、gate training、
   matched-NLL、closed-loop 与 confirm access 仍全部为 0。
 
+### 2026-07-17：192-state substrate source-only freeze
+
+- 固定 64 trajectories / 192 states，双 H200 even/odd 各 96 states；同一 state 的 generation、teacher 与 KL
+  只能在同一 worker/device 完成，禁止 stealing、retry、resume、top-up 或 replacement；
+- substrate reference schedule 固定为 384 generation、576 teacher forward 与 384 KL；1,792 subset distances、
+  1,856 deployment edges 与 1,984 label teacher forwards 只记录 workload，本 contract 不授权执行；
+- decision-view loader 强制 canonical source/state/step identity 与严格 history slice；request manifest 必须从实际
+  included events 重算 step IDs 和 payload SHA；
+- processor-byte canary 对 128 个含 excluded events 的 states 执行 192 次逐 event mutation，同时对 192 个 states
+  验证合法 history action 会改变 bytes；只泄漏 step-4 future event 5 的 serializer 会 fail closed；
+- source lock 扩展到 63 个 direct/transitive files，覆盖 v2.2 eager prompt/runtime/parser/teacher/KL、model snapshot、
+  parent configs/artifacts 与 expansion derived loader；current/future expert target read、semantic consumption 与
+  backfill 均固定为 0；
+- focused 13/13、全仓 839 tests 通过（12 skip）。本 source-only validator 明确不授权 policy/GPU；下一步必须先
+  从 clean pushed source commit 物化 canonical config，再单独冻结实际 runner 与 processor serializer binding。
+
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 
 - 实现 label-blind signed-hash feature、330/200 维 conditional/independent MLP、层级加权 SmoothL1 + ranking、
