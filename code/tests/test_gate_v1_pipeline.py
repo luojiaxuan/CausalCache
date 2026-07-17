@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import inspect
 import itertools
+import json
 import math
 import unittest
 from dataclasses import replace
@@ -247,7 +248,7 @@ class GateV1DataTest(unittest.TestCase):
         expected = tuple(value / norm for value in expected)
         self.assertEqual(observed, expected)
 
-    def test_feature_builder_uses_only_frozen_semantic_fields(self) -> None:
+    def test_feature_builder_accepts_canonical_json_field_order(self) -> None:
         low = {
             "step_id": 1,
             "action_type": "click",
@@ -282,6 +283,11 @@ class GateV1DataTest(unittest.TestCase):
             f"obs-{step}": {"full_spatial_tokens": ["token", str(step)]}
             for step in range(1, 4)
         }
+        trajectory = json.loads(json.dumps(trajectory, sort_keys=True))
+        self.assertEqual(
+            tuple(trajectory["events"][0]["low_fidelity_v2"]),
+            tuple(sorted(low)),
+        )
         feature = feature_state_from_derived(
             trajectory, decision, ocr_records_by_path=ocr
         )
@@ -289,6 +295,22 @@ class GateV1DataTest(unittest.TestCase):
         self.assertEqual(len(feature.q64), 64)
         self.assertEqual(len(feature.candidates[0].h64), 64)
         self.assertEqual(len(feature.candidates[0].g8), 8)
+        for mutation in ("missing", "extra"):
+            malformed = copy.deepcopy(trajectory)
+            candidate = malformed["events"][0]["low_fidelity_v2"]
+            if mutation == "missing":
+                candidate.pop("action_type")
+            else:
+                candidate["unexpected"] = "forbidden"
+            with self.subTest(mutation=mutation), self.assertRaisesRegex(
+                ValueError,
+                "field inventory",
+            ):
+                feature_state_from_derived(
+                    malformed,
+                    decision,
+                    ocr_records_by_path=ocr,
+                )
 
     def test_join_and_hierarchical_batches_are_exact(self) -> None:
         states = _roster(2, negative=True)
@@ -388,6 +410,154 @@ class GateV1DataTest(unittest.TestCase):
         self.assertEqual(projected.source_id, "source")
         self.assertEqual(projected.table, table)
         self.assertFalse(hasattr(projected, "role"))
+
+    def test_label_projection_explicitly_selects_expansion_source_id(self) -> None:
+        table = _table(2)
+        record = {
+            "state": {
+                "source_id": "expansion-source",
+                "state_id": "expansion-source:decision_step:004",
+                "decision_step_id": 4,
+                "candidate_event_step_ids": [1, 2],
+            },
+            "distance_rows": [
+                {
+                    "coalition": list(row.coalition),
+                    "distance": row.distance,
+                }
+                for row in table.rows
+            ],
+        }
+        projected = label_state_from_restoration_record(
+            record,
+            record_schema="expansion",
+        )
+        self.assertEqual(projected.source_id, "expansion-source")
+        self.assertEqual(projected.table, table)
+        with self.assertRaisesRegex(ValueError, "identity"):
+            label_state_from_restoration_record(record)
+
+    def test_label_projection_never_falls_back_between_identity_schemas(self) -> None:
+        table = _table(2)
+        rows = [
+            {
+                "coalition_event_step_ids": list(row.coalition),
+                "distance_kl": row.distance,
+            }
+            for row in table.rows
+        ]
+        legacy_only = {
+            "state": {
+                "trajectory_id": "legacy-source",
+                "state_id": "legacy-source:decision_step:004",
+                "decision_step_id": 4,
+                "candidate_event_step_ids": [1, 2],
+            },
+            "distance_rows": rows,
+        }
+        with self.assertRaisesRegex(ValueError, "identity"):
+            label_state_from_restoration_record(
+                legacy_only,
+                record_schema="expansion",
+            )
+        for invalid_record_schema in ("automatic", None, []):
+            with self.subTest(
+                invalid_record_schema=invalid_record_schema
+            ), self.assertRaisesRegex(ValueError, "unsupported"):
+                label_state_from_restoration_record(
+                    legacy_only,
+                    record_schema=invalid_record_schema,
+                )
+
+    def test_label_projection_rejects_dual_identity_schemas(self) -> None:
+        table = _table(2)
+        record = {
+            "state": {
+                "trajectory_id": "legacy-source",
+                "source_id": "expansion-source",
+                "state_id": "legacy-source:decision_step:004",
+                "decision_step_id": 4,
+                "candidate_event_step_ids": [1, 2],
+            },
+            "distance_rows": [
+                {
+                    "coalition_event_step_ids": list(row.coalition),
+                    "distance_kl": row.distance,
+                }
+                for row in table.rows
+            ],
+        }
+        for record_schema in ("legacy", "expansion"):
+            with self.subTest(record_schema=record_schema), self.assertRaisesRegex(
+                ValueError,
+                "mixes identity schemas",
+            ):
+                label_state_from_restoration_record(
+                    record,
+                    record_schema=record_schema,
+                )
+        record["state"]["source_id"] = "legacy-source"
+        with self.assertRaisesRegex(ValueError, "mixes identity schemas"):
+            label_state_from_restoration_record(record)
+        record["distance_rows"] = [
+            {
+                "coalition": list(row.coalition),
+                "distance": row.distance,
+            }
+            for row in table.rows
+        ]
+        with self.assertRaisesRegex(ValueError, "mixes identity schemas"):
+            label_state_from_restoration_record(
+                record,
+                record_schema="expansion",
+            )
+
+    def test_label_projection_rejects_mixed_distance_row_schemas(self) -> None:
+        table = _table(2)
+        record = {
+            "state": {
+                "trajectory_id": "source",
+                "source_id": "source",
+                "state_id": "source:decision_step:004",
+                "decision_step_id": 4,
+                "candidate_event_step_ids": [1, 2],
+            },
+            "distance_rows": [
+                {
+                    "coalition_event_step_ids": list(row.coalition),
+                    "distance_kl": row.distance,
+                    "coalition": list(row.coalition),
+                }
+                for row in table.rows
+            ],
+        }
+        with self.assertRaisesRegex(ValueError, "mixes"):
+            label_state_from_restoration_record(record)
+        record["distance_rows"] = [
+            {
+                "coalition": list(row.coalition),
+                "distance": row.distance,
+                "distance_kl": row.distance,
+            }
+            for row in table.rows
+        ]
+        with self.assertRaisesRegex(ValueError, "mixes"):
+            label_state_from_restoration_record(
+                record,
+                record_schema="expansion",
+            )
+        record["distance_rows"] = [
+            {
+                "coalition_event_step_ids": list(row.coalition),
+                "distance_kl": row.distance,
+            }
+            for row in table.rows
+        ]
+        with self.assertRaisesRegex(ValueError, "mixes"):
+            label_state_from_restoration_record(
+                record,
+                record_schema="expansion",
+            )
 
     def test_selectors_rescore_stop_and_tie_break(self) -> None:
         state = _state("source", 4)

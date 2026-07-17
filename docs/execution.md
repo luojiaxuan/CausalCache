@@ -831,5 +831,6 @@ blob tree；pair 只能在该 base 上增加两个 target，不能改动任何�
 staging，再以 same-inode hard-link 创建 final completion；该 link 是最后 namespace mutation。只有 final seal 才
 清除 formal-58 label-data blocker。该 final seal、幂等 replay 与独立只读 postflight 现已完成，正式记录见
 [`../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`](../data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/)。
-publication 未申请 GPU、未重启 model，也不改变 matched-NLL、closed-loop 与 confirm 的独立锁。下一步按
-[`gate_v1_execution.md`](gate_v1_execution.md) 构建 train-only formal-58 cache；不得提前打开 fresh-16 或 confirm。
+publication 未申请 GPU、未重启 model，也不改变 matched-NLL、closed-loop 与 confirm 的独立锁。下一步先按
+[`gate_v1_formal_cache.md`](gate_v1_formal_cache.md) 构建并 immutable replay train-only formal-58 cache；完成后才按
+[`gate_v1_execution.md`](gate_v1_execution.md) 训练 gate，不得提前打开 fresh-16 或 confirm。

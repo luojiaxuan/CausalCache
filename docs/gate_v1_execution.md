@@ -3,7 +3,9 @@
 > 当前状态：trainer/evaluator source 与 synthetic/unit smoke 已实现；**尚未运行 formal-58 训练，尚未读取
 > fresh-16、旧 dev-5 或 confirm-20，也没有正式 checkpoint、GO metric、matched-NLL 或 closed-loop 结果。**
 > repaired expansion labels 已在 private HF immutable revision 闭合，因此 formal-58 的 label-data prerequisite
-> 已满足；这不等于 gate 已训练。
+> 已满足；这不等于 gate 已训练。正式训练前还必须按
+> [`gate_v1_formal_cache.md`](gate_v1_formal_cache.md) 闭合 train-only feature/label cache 与 immutable HF
+> completion；当前该 consumer/runner 正在 source-freeze，不能用临时 Python 直接调用 `run_formal_oof`。
 
 本文件是 [`gate_v1_preregistration.md`](gate_v1_preregistration.md) 的执行说明。冻结阈值、roster、模型、loss、
 OOF 与访问顺序仍以
@@ -79,6 +81,12 @@ Synthetic distance table 显式包含 `event-1/event-2` complementarity，因此
 - 12/12/12/11/11 五折的每个 fold digest 与 assignment digest 和 preregistration 完全一致。
 
 任何 development 或 confirm cache 都不得在此进程提前打开。
+
+四个 parent artifacts 都把 train/development records 共置在同一 transport 中；formal cache materializer 必须先
+验证 immutable bytes，再只 semantic-decode formal train allowlist。禁止调用会全量 decode legacy/expansion
+artifact 的 generic readers。feature cache 与 label cache 必须是两个独立 artifact；只有 exact-three HF commit、
+annotated tag、fresh immutable replay 与 final completion seal 完成后，trainer 才能 join。该 cache milestone 不
+执行 optimizer、OOF、model forward 或 development metric。
 
 ### 2. Train-only OOF 与 final fit
 

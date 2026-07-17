@@ -119,8 +119,28 @@ PYTHONPATH=. python3 -m unittest tests.test_gate_v1_contract -v
 PYTHONPATH=. python3 -m scripts.validate_gate_v1_contract --repository-root ..
 ```
 
-在 48/16 exact labels immutable 之前，只允许旧 10 条、seed 0、最多两步的 trainer smoke；不得保留 checkpoint、
-报告 paper metric、读取 development 或修改模型选择。完整解释见 `docs/gate_v1_preregistration.md`。
+48/16 repaired exact labels 已在 private HF immutable revision 闭合，但 formal training 还必须先经过独立的
+train-only cache 协议。Source-A config 为 `configs/causalcache_gate_v1_formal_cache_v1.json`，SHA256
+`1d7527e8a7bede8aaab8a21f7757f786674530238ae99fe3ce5b196cbce67261`；它把 58 条 train records 投影为物理分离的
+feature/label deterministic USTAR，并在 durable feature completion 与 label-access claim 之间建立强制调用边界。
+Source-A validator 与 focused tests：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.validate_gate_v1_formal_cache_contract \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_formal_cache_v1.json
+PYTHONPATH=. python3 -m unittest \
+  tests.test_gate_v1_formal_cache_contract \
+  tests.test_gate_v1_formal_cache \
+  tests.test_gate_v1_formal_cache_runner \
+  tests.test_gate_v1_pipeline -v
+```
+
+当前 Source-A 不生成 cache、不触网、不读取 formal label semantics，也不授权 gate fit。先从 clean pushed A 用
+`scripts.manage_gate_v1_formal_cache materialize-runner-freeze` 机械生成唯一 Execution-B 文件并单独 commit/push；
+随后才可在 Hyper00 no-GPU runtime 执行 exact-three private-HF publication 与 immutable replay。完整解释见
+`docs/gate_v1_preregistration.md`、`docs/gate_v1_formal_cache.md` 与 `docs/gate_v1_execution.md`。
 
 Expansion exposure 的 source-only ledger 位于
 `causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、

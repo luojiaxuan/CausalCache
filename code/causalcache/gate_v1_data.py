@@ -164,8 +164,8 @@ def _finite_vector(values: Sequence[float], dimension: int, label: str) -> None:
 def _candidate_h64(
     low_fidelity: Mapping[str, Any], post_ocr_tokens: Sequence[str]
 ) -> tuple[float, ...]:
-    if tuple(low_fidelity) != LOW_FIDELITY_V2_KEYS:
-        raise ValueError("low-fidelity field order drifted from gate v1")
+    if set(low_fidelity) != set(LOW_FIDELITY_V2_KEYS):
+        raise ValueError("low-fidelity field inventory drifted from gate v1")
     fields: list[tuple[str, str | Sequence[Any]]] = []
     for name in LOW_FIDELITY_V2_KEYS:
         fields.append((name, low_fidelity[name]))
@@ -283,13 +283,43 @@ def feature_state_from_derived(
     )
 
 
-def label_state_from_restoration_record(record: Mapping[str, Any]) -> LabelState:
-    """Project a validated restoration state into a semantic-free label record."""
+def label_state_from_restoration_record(
+    record: Mapping[str, Any],
+    *,
+    record_schema: str = "legacy",
+) -> LabelState:
+    """Project a validated restoration state using one explicit identity schema."""
+    schemas = {
+        "legacy": {
+            "identity": "trajectory_id",
+            "other_identity": "source_id",
+            "coalition": "coalition_event_step_ids",
+            "distance": "distance_kl",
+            "other_row_fields": {"coalition", "distance"},
+        },
+        "expansion": {
+            "identity": "source_id",
+            "other_identity": "trajectory_id",
+            "coalition": "coalition",
+            "distance": "distance",
+            "other_row_fields": {
+                "coalition_event_step_ids",
+                "distance_kl",
+            },
+        },
+    }
+    if not isinstance(record_schema, str) or record_schema not in schemas:
+        raise ValueError("restoration label record schema is unsupported")
+    schema = schemas[record_schema]
     state = record.get("state")
     rows = record.get("distance_rows")
     if not isinstance(state, Mapping) or not isinstance(rows, list):
         raise ValueError("restoration label state or distance rows are missing")
-    source_id = state.get("trajectory_id")
+    identity_field = schema["identity"]
+    other_identity_field = schema["other_identity"]
+    source_id = state.get(identity_field)
+    if other_identity_field in state:
+        raise ValueError("restoration label state mixes identity schemas")
     state_id = state.get("state_id")
     decision_step_id = state.get("decision_step_id")
     event_ids = state.get("candidate_event_step_ids")
@@ -305,14 +335,18 @@ def label_state_from_restoration_record(record: Mapping[str, Any]) -> LabelState
         raise ValueError("restoration label state identity is malformed")
     distances: dict[tuple[int, ...], Any] = {}
     for row in rows:
-        if not isinstance(row, Mapping) or not isinstance(
-            row.get("coalition_event_step_ids"), list
-        ):
+        if not isinstance(row, Mapping):
             raise ValueError("restoration distance row is malformed")
-        coalition = tuple(row["coalition_event_step_ids"])
+        if set(row) & schema["other_row_fields"]:
+            raise ValueError("restoration distance row mixes record schemas")
+        coalition_field = schema["coalition"]
+        distance_field = schema["distance"]
+        if not isinstance(row.get(coalition_field), list) or distance_field not in row:
+            raise ValueError("restoration distance row is malformed")
+        coalition = tuple(row[coalition_field])
         if coalition in distances:
             raise ValueError("restoration distance rows contain duplicate coalitions")
-        distances[coalition] = row.get("distance_kl")
+        distances[coalition] = row[distance_field]
     table = validate_complete_distance_table(tuple(event_ids), distances)
     return LabelState(
         source_id=source_id,

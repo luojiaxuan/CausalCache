@@ -2210,11 +2210,11 @@ policy-vision comparator lifecycle 与 validation chain 均已闭合。gate v1 s
 为旧 10 + 新 48，fresh-16 是唯一 formal GO slice，旧 5 只在模型冻结后做 combined-21 compatibility guard；
 set-conditioned iterative gate 是主方法，parameter-matched independent gate 是 interaction comparator。
 
-48/16 structural selection manifest、pre-output exposure ledger、policy-blind derived artifact、192-state
-substrate、exact-label source A 与 runner freeze B 均已闭合。下一步是在 Hyper00 完成 required preflight，运行
-唯一双 H200 expansion exact-label attempt，再把 deterministic raw archive 上传 private HF 并以 immutable revision
-fresh-download/replay。labels 闭合前只允许旧 10 条的两步 trainer smoke；formal-58/21 训练评估、matched-NLL、
-closed-loop 与 confirm 均不得提前。
+48/16 structural selection manifest、pre-output exposure ledger、policy-blind derived artifact、192-state substrate、
+exact labels、ledger-neutral repair 与 repaired-label private-HF publication 均已闭合。formal-58 cache Source-A 也已
+冻结；下一步只允许从 clean pushed A 机械生成 runner freeze B 并单独 commit/push，然后在 Hyper00 no-GPU
+runtime 构建物理分离的 feature/label cache、原子发布 exact-three private-HF bundle 并做 immutable replay。该 final
+completion 闭合前不得训练 formal-58 gate，也不得读取 fresh-16、旧 dev-5、confirm、matched-NLL 或 closed-loop。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 
@@ -2447,3 +2447,25 @@ closed-loop 与 confirm 均不得提前。
   label-data prerequisite。原 producer 和 invalid-forensic payload 不重分类；gate 未训练，fresh-16、matched-NLL、
   closed-loop 与 confirm 仍未解锁。轻量结果位于
   `data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`。
+
+### 2026-07-17：gate v1 formal-58 train-only cache Source-A freeze
+
+- 新 source-only config 为 `code/configs/causalcache_gate_v1_formal_cache_v1.json`，SHA256
+  `1d7527e8a7bede8aaab8a21f7757f786674530238ae99fe3ce5b196cbce67261`；固定 legacy train-10 + expansion
+  train-48、58 trajectories / 174 states / 522 candidate features / 1,624 raw distances / 1,682 conditional
+  targets / 522 independent targets；
+- selective core 把调用边界拆成 feature-only build、label-only build 与 join-only audit。feature completion
+  durable 落盘后才能创建 label-access claim；claim 前 label transport download 与 semantic decode 均为 0，claim
+  后也只 decode 30 个 legacy train states、144 个 expansion train states 与 290 条 selected OCR records；
+  development/confirm semantic decode 为 0；
+- feature/label cache 是两个独立 deterministic USTAR，float 使用 big-endian binary64 lowercase hex。cache rows
+  不保存 role/split/raw text；label cache 不含 q64/h64/g8，feature cache 不含 D(S)。repaired label 必须联合绑定
+  immutable archive、sidecar 与 mode-0600 publication completion；
+- Source-A/Execution-B 分离：A 包含 config/contract/core/runner/CLI/tests，B 只能新增机械生成的
+  `causalcache_gate_v1_formal_cache_runner_v1.json`，且必须是 A 的 direct single-parent child。正式 execution 还要求
+  HEAD、origin/main 与 live `git ls-remote` 一致，并固定 Hyper00 no-GPU CPython/runtime/env；
+- gate wildcard focused suite 共运行 61 tests，结果 OK（1 个本机缺 PyTorch 的 optional skip）；显式绑定仓库
+  `code/` source path 的全量 suite 共运行 1,089 tests，结果 OK（12 个 optional runtime skips）。source-only
+  validator 保持 network/write/GPU/model/training/semantic access 全零。当前未生成 runner freeze B、cache、HF
+  destination/tag/completion，也没有 gate fit、development metric、matched-NLL、closed-loop 或 confirm access。
+  下一步只允许从 clean pushed A 机械生成并单独 push B。

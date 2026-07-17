@@ -236,6 +236,12 @@ restoration v2 exact selection/exposure 产物：
   `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`；幂等 replay 与独立只读 postflight 通过。该记录只解除
   formal-58 label-data prerequisite；gate 尚未训练；
 
+- planned formal-58 cache bundle：Source-A 已冻结，但尚无 local/HF artifact。目标 private dataset 为
+  `gavinlaw/causalcache-gate-v1-formal58-cache-mobile@gate-v1-formal58-cache-v1`，计划由同一 commit 原子加入
+  `formal58/v1/feature-cache-v1.tar`、`formal58/v1/label-cache-v1.tar` 与
+  `formal58/v1/cache-bundle-manifest-v1.json`。只有 immutable fresh replay 与本地 final completion 同时闭合后，
+  它才可成为 formal training input；当前 upload status 为 `pending Execution-B`；
+
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private
   HF immutable revision `d6b2312e...45c1` fresh-download 并完成 canonical rebuild；v2.1 NO-GO 不变；
