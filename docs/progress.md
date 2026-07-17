@@ -39,6 +39,20 @@ confirm 和 AndroidWorld sealed test split 仍保持 locked。
 - 当前仍为 source-only：新 policy output、restoration label、gate checkpoint、matched-NLL、closed-loop 与 confirm
   access 全为 0。
 
+### 2026-07-17：gate v1 trainer/evaluator source 闭合
+
+- 实现 label-blind signed-hash feature、330/200 维 conditional/independent MLP、层级加权 SmoothL1 + ranking、
+  CPU FP32 full-batch AdamW、固定 2 LR × 5 seeds train-only OOF、final refit 与 deployment selector；
+- formal roster 机械锁定 source-major step 4/5/6、canonical state/candidate geometry 和冻结五折 digest；
+- 新增 frozen ensemble provenance，绑定 gate config、formal-58 feature/label、完整 OOF selection、10 个 checkpoint
+  artifact/model-state digest；fresh-16 与 combined-21 必须复用同一 ensemble identity；
+- formal evaluation 不接受裸 scorer 或 bootstrap override；10,000 trajectory bootstrap、seed 271828、90% type-7
+  interval 与所有 GO threshold 仍由 preregistration 固定；
+- 26 个 focused tests 通过，本机仅 PyTorch optimizer smoke 跳过；Hyper00 CPU-only source overlay 上的 deterministic
+  two-step smoke 通过，覆盖 coalition interaction、负 target、checkpoint memory roundtrip、conditional rescore 与
+  independent one-shot；paper metric、持久 checkpoint、formal label/dev/confirm access 均为 0；
+- formal-58 训练仍被 expansion exact-label immutable artifact 阻断，本里程碑不构成 learned-gate 效果证据。
+
 ## 已完成里程碑
 
 ### 2026-07-14：论文骨架

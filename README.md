@@ -7,9 +7,11 @@
 
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
 > policy-blind expansion split manifest、pre-output exposure ledger 与 gate v1 preregistration 均已冻结，
-> planned final denominator 为 58/21/20，尚无 expansion policy output 或 learned gate。详见
+> planned final denominator 为 58/21/20。Gate v1 trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，
+> 但尚无 expansion policy output、formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
-> [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)。
+> [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)、
+> [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)。
 
 ## 团队交接入口
 
@@ -700,6 +702,7 @@ $$
 - [x] 执行唯一 CPU-only validation-repair audit并锁定 exact-two sibling result；三份 producer artifact 逐 byte 相同；
 - [x] 从 clean pushed `main@174801112c58d831249fd54f4f8bc9af01524b44` 执行只读 `validate`，返回 `REVALIDATED`；
 - [x] 根据 geometry 结论冻结 gate v1 training/evaluation contract：set-conditioned 为主方法、parameter-matched independent 为 comparator，fresh-16 是唯一 formal GO slice；
+- [x] 实现 gate v1 label-blind feature、conditional/independent trainer、train-only OOF、严格 ensemble provenance 与 fresh-16/combined-21 evaluation source；synthetic-only CPU smoke 不产生 checkpoint 或 paper metric；
 - [x] 从 clean pushed main 物化并验证 48/16 structural manifest；192 states / 1792 distance rows / 1856 edges；
 - [x] 物化 pre-output exposure ledger；expansion-64 与 prior-output-23 / confirm-20 的六组交集全部为空；
 - [ ] 构建并上传 policy-blind derived artifact，并生成 immutable expansion exact labels；
@@ -739,6 +742,8 @@ $$
 - Gate v1 preregistration: [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)
 - Gate v1 machine-readable contract: [`code/configs/causalcache_gate_v1_preregistration.json`](code/configs/causalcache_gate_v1_preregistration.json)
 - Gate v1 source validator: [`code/scripts/validate_gate_v1_contract.py`](code/scripts/validate_gate_v1_contract.py)
+- Gate v1 trainer/evaluator execution: [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)
+- Gate v1 synthetic-only smoke: [`code/scripts/run_gate_v1_trainer_smoke.py`](code/scripts/run_gate_v1_trainer_smoke.py)
 - Label-expansion exposure protocol: [`docs/restoration_v2_2_label_expansion_exposure.md`](docs/restoration_v2_2_label_expansion_exposure.md)
 - Label-expansion exposure materializer: [`code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py`](code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py)
 - Label-expansion derived-artifact protocol: [`docs/restoration_v2_2_label_expansion_derived.md`](docs/restoration_v2_2_label_expansion_derived.md)
