@@ -8,7 +8,9 @@
 > Gate data status: 旧 10/5 trajectories 只保留为 method-shaping/trainer-smoke；新的 48 train +16 fresh-dev
 > policy-blind expansion split manifest、pre-output exposure ledger 与 gate v1 preregistration 均已冻结，
 > policy-blind derived artifact 已绑定 private HF immutable revision。Planned final denominator 为 58/21/20；
-> 192-state substrate canonical source-only config 也已物化，但在 runner 单独冻结前不授权 GPU。Gate v1
+> 192-state substrate canonical source-only config 已物化，实际双 worker runner、raw-artifact manager、全局
+> processor canary/barrier 与 source-locked GPU monitor sidecar 也已实现；在 commit A/B runner freeze 完成前仍
+> 不授权 GPU。Gate v1
 > trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但尚无 expansion policy/restoration output、
 > formal-58 fit 或 learned-gate paper metric。详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
@@ -710,7 +712,8 @@ $$
 - [x] 构建并上传 policy-blind expansion derived artifact；64 trajectories / 192 decision views / 384 images，private HF immutable download 已完成第三遍 OCR replay；
 - [x] 冻结 192-state substrate source-only contract：双 H200 96/96 parity、384 generation / 576 teacher forward / 384 KL、逐 excluded-event action canary 与完整 transitive source lock；
 - [x] 从 clean pushed `main@6bf3f8c` 物化 canonical substrate config；SHA256 `42144f33...a6e5`，source-only validator 明确不授权 GPU；
-- [ ] 单独冻结实际 processor serializer、runner 与 raw artifact manager，随后执行 substrate；
+- [x] 实现实际 processor serializer、双 worker runner、raw artifact manager 与 source-locked monitor sidecar；
+- [ ] push runner source commit A，物化并 push 67-file runner freeze commit B，随后执行 substrate；
 - [ ] substrate PASS 后冻结并生成 immutable expansion exact labels；
 - [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
 - [ ] 整理论文与复现实验配置。
@@ -760,6 +763,9 @@ $$
 - Label-expansion substrate materializer: [`code/scripts/materialize_restoration_v2_2_expansion_substrate_contract.py`](code/scripts/materialize_restoration_v2_2_expansion_substrate_contract.py)
 - Label-expansion substrate source validator: [`code/scripts/validate_restoration_v2_2_expansion_substrate_contract.py`](code/scripts/validate_restoration_v2_2_expansion_substrate_contract.py)
 - Label-expansion substrate canonical config: [`code/configs/causalcache_restoration_v2_2_expansion_substrate_v1.json`](code/configs/causalcache_restoration_v2_2_expansion_substrate_v1.json)
+- Label-expansion substrate runner protocol: [`docs/restoration_v2_2_expansion_substrate_runner.md`](docs/restoration_v2_2_expansion_substrate_runner.md)
+- Label-expansion substrate runner: [`code/scripts/run_restoration_v2_2_expansion_substrate.py`](code/scripts/run_restoration_v2_2_expansion_substrate.py)
+- Label-expansion substrate raw-artifact manager: [`code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py`](code/scripts/manage_restoration_v2_2_expansion_substrate_artifact.py)
 - Frozen label-expansion structural manifest: [`data/manifests/restoration_v2_2_label_expansion_selection.json`](data/manifests/restoration_v2_2_label_expansion_selection.json)
 - Frozen label-expansion exposure ledger: [`data/manifests/restoration_v2_2_label_expansion_exposure.json`](data/manifests/restoration_v2_2_label_expansion_exposure.json)
 - Restoration v2.2 selector-geometry protocol: [`docs/restoration_v2_2_selector_geometry.md`](docs/restoration_v2_2_selector_geometry.md)

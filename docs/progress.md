@@ -77,6 +77,25 @@ conditional-marginal labels；formal gate training 仍未授权。
   `42144f33e2473c787b3648c0ace18b22902fa3376615732aef8fd3aa5780a6e5`。validator 重建 96/96 worker
   inventory 与 384/576/384 counts，同时返回 `policy_or_gpu_execution_authorized_by_this_validator=false`。
 
+### 2026-07-17：192-state substrate runner source 闭合
+
+- 实现双进程 `cuda:0/cuda:1` parity runner；每个 state 的 2 generation / 3 teacher / 2 KL 保持同卡完成，
+  root/sibling ledger、state marker、runtime、canary、terminal 与 aggregate 均禁止 retry、resume 和 top-up；
+- processor canary 使用真实 `apply_chat_template` 与 `_encode_exact_batch`，绑定 rendered prompt、input IDs、
+  attention mask、pixel values、image grid 的 bytes/shape/dtype；全局 barrier 要求 192 次 included mutation、
+  128 个 excluded states 和 192 次 excluded mutation全部通过后才允许第一个 generation marker；
+- runner freeze 固定 parent 63 + canonical base config 1 + reserved execution source 3，共 67 个文件，并分离
+  runner source commit A 与包含 freeze 的 execution commit B；formal run 要求 clean `main == origin/main == B`
+  且 A 是 B 的 ancestor；
+- raw-artifact reducer 从原始 state/kernel/runtime/ledger 重新计算固定 192-state gate，不信任 aggregate headline；
+  deterministic USTAR、fresh immutable HF validation、失败 high-water 与 bounded crash window 均已实现；
+- 同一 frozen runner 内新增 `monitor-sidecar`：只观察容器内两张可见 GPU，ready、JSONL samples、带 run hash
+  的 stop request 与 terminal summary 形成可归档握手；summary GPU UUID 集合必须与两个 worker runtime UUID
+  精确相等，monitor 证据不进入 scientific gate；
+- expansion 联合 focused tests 32/32 通过；包含 monitor/worker GPU UUID cross-binding 回归后的完整本机 suite
+  为 858 tests PASS（12 skip），`compileall` 与 diff check 也在 commit A 前执行。本里程碑仍未执行 policy/GPU，也未生成
+  restoration labels、gate checkpoint、matched-NLL、closed-loop 或 confirm output。
+
 ### 2026-07-17：gate v1 trainer/evaluator source 闭合
 
 - 实现 label-blind signed-hash feature、330/200 维 conditional/independent MLP、层级加权 SmoothL1 + ranking、

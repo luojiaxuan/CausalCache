@@ -148,6 +148,24 @@ PYTHONPATH=. python3 -m unittest \
 正式 builder/validator 都要求 clean pushed `main`、canonical inputs、frozen 16-Parquet rehash、exact-six output
 和 full OCR replay。命令与 HF boundary 见 `docs/restoration_v2_2_label_expansion_derived.md`。
 
+192-state reference substrate 的实际执行入口为
+`scripts.run_restoration_v2_2_expansion_substrate`，raw evidence/freeze manager 为
+`scripts.manage_restoration_v2_2_expansion_substrate_artifact`。正式 GPU run 前必须先提交并 push runner source
+commit A，再由 clean A 物化 67-file runner freeze，最后提交并 push execution commit B；A/B 之间这 67 个
+source/config bytes 不得变化。focused tests：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m unittest \
+  tests.test_restoration_v2_2_expansion_substrate_contract \
+  tests.test_restoration_v2_2_expansion_substrate_artifact \
+  tests.test_run_restoration_v2_2_expansion_substrate -v
+```
+
+同一 runner 的 `monitor-sidecar` 子命令生产 ready/log/stop/summary 握手，并要求 monitor 的两张 GPU UUID
+与两个 policy worker runtime 精确相同；可复制启动顺序见
+`docs/restoration_v2_2_expansion_substrate_runner.md`。source-only 或未 push 的 freeze 不授权 GPU。
+
 policy-vision comparator 的 v1 formal attempt 已在 feature/model load 前封存为 `INVALID`。当前可执行协议是
 `causalcache.restoration_v2_2_policy_vision_v2_contract`，其 source-only validator 为：
 
