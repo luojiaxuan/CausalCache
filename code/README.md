@@ -278,8 +278,40 @@ PYTHONPATH=. python3 -m scripts.manage_gate_v1_fresh16_inventory_repair material
 ```
 
 B 只能新增 `configs/causalcache_gate_v1_fresh16_inventory_repair_runner_v1.json`，必须作为 A 的 direct
-single-parent child 单独 commit/push。当前仍没有新的 fresh-16 semantic access 或 GO result；新的 namespace、
-HF destination、双 H200 `capture-runtime/run/validate` argv 以 repair 文档为准。
+single-parent child 单独 commit/push。该 B 随后已被唯一 formal attempt 消费并永久 fail closed；不能再调用其
+`run`/`validate`。完整失败 evidence 位于 `data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`。
+
+claim-serialization repair 的 Source-A config 是
+`configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`，完整边界见
+`../docs/gate_v1_fresh16_claim_serialization_repair.md`。它只允许把 `LabelAccessClaim.claim` 从不可 JSON serialize
+的 `mappingproxy` 改成 canonical-JSON deep snapshot；formal model、full-15 derived inventory、labels、geometry、
+evaluation、9+4 output relative paths 与全部 thresholds 不变。Source-A validator/focused test 命令为：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.validate_gate_v1_fresh16_claim_serialization_repair_contract \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json
+PYTHONPATH=. python3 -m pytest -q \
+  tests/test_gate_v1_fresh16_claim_serialization_repair_contract.py \
+  tests/test_gate_v1_fresh16_claim_serialization_repair_runner.py \
+  tests/test_gate_v1_fresh16_evaluation_runner.py
+```
+
+Source-A source-only 已冻结：config SHA256 为
+`3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7`，57-path source inventory SHA256 为
+`572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`。focused regression 为 99 passed +
+7 subtests passed（新增 repair 为 30 + 7）；全仓为 1263 passed、16 skipped、4 deselected、617 subtests passed，
+4 个 deselect 都是已完成历史 A/B 的 B-absence lifecycle tests。network/write/torch/fresh semantic/label/model/
+report/HF mutation 全为 0，`evaluation_executed=false`、`execution_authorized=false`，runner freeze B absent；本
+milestone commit/push 后成为 canonical。
+
+后续顺序固定为 A commit/push → clean A `validate-source` → mechanical B separate commit/push → Hyper
+exact-two-H200 preflight/runtime receipt → 全新 namespace 的唯一 `run` → immutable `validate`。token 前只验证
+Execution-B、local retained evidence 与新 local roots；读取 token/构造 HF API 后、任何 fresh semantics/new-root/
+HF mutation 前，先验证 owner `gavinlaw` 与 write role，再验证 parent、inventory-repair、claim-repair 三个 repo/tag
+identities absent；private 404 只有在 owner/write-role check 通过后才能解释为 absence。
+在 B push 前没有执行权限。
 
 Expansion exposure 的 source-only ledger 位于
 `causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、

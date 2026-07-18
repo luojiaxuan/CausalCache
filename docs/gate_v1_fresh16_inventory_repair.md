@@ -5,6 +5,8 @@
 > full-15 inventory、label-blind semantic materialization、checkpoint replay 与双 H200 workers，但在
 > `label-access-claim` 落盘前因 `mappingproxy` serialization 永久 `INVALID`。label decode、report、HF mutation
 > 均为 0，没有 fresh-16 GO、旧 dev-5、confirm、matched-NLL 或 closed-loop 结果；旧 namespace 不得续跑。
+> 独立 claim-serialization repair Source-A source-only 已冻结，本 milestone commit/push 后成为 canonical；B
+> absent、未执行。
 
 本协议是
 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md) 的 versioned operational repair。父协议的
@@ -43,6 +45,10 @@ artifact directory 为空，原 planned HF repo/tag 仍不存在。Git 中的轻
   `code/configs/causalcache_gate_v1_fresh16_inventory_repair_runner_v1.json`；
 - repair v1 failure evidence：
   [`data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)；
+- repair v1 failure evidence commit：`7fbfe1b8314ea61d7d646a47be902fdf1c6d4af9`；
+- claim-serialization repair Source-A：
+  [`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md) 与
+  [`causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`](../code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json)；
 - repair planned private HF dataset：
   `gavinlaw/causalcache-gate-v1-fresh16-inventory-repair-mobile`，tag
   `gate-v1-fresh16-inventory-repair-v1`。唯一 attempt 后仍未创建，不能写成已发布 artifact。
@@ -66,8 +72,11 @@ Docker receipt。失败执行器冻结/报告的 artifact canonical inventory SH
 原 v1 与 repair v1 的 planned HF repositories 都不存在，remote mutation 为 0。
 
 本协议以下 source/runtime argv 仅作为已消费 A/B 的历史冻结形状，**不得再次调用 `run` 或 `validate`**。
-下一步只能冻结独立 versioned claim-serialization repair：先验证本 attempt 的 receipts、seal、artifact、logs、
-runtime 与 successor absence，再使用全新的 state/artifact/runtime-receipt/HF identities。
+独立 versioned claim-serialization repair Source-A source-only 已冻结：它绑定本 attempt 的 receipts、seal、
+artifact、logs、runtime 与 successor absence，并使用全新的 state/artifact/runtime-receipt/HF identities；唯一代码
+语义变化是 JSON-safe deep snapshot。Execution-B 尚不存在，不能运行。未来 B 在 token 前只验证
+Execution-B/local evidence/new roots；读取 token/构造 HF API 后先验证 owner/write role，再验证三个 private
+repo/tag identities absent，之后才能创建新 root 或访问 fresh semantics。
 
 ## 精确 15-path 远端树
 

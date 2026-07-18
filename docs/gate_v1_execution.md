@@ -10,7 +10,9 @@
 > `run_formal_oof` 或据 train-only OOF 调整模型。fresh-16 parent A/B 与 full-inventory repair A/B 也均已
 > commit/push；parent v1 在 pre-semantic inventory fail closed，repair v1 则跨过 label-blind semantic/GPU phase，
 > 在 label claim 落盘前因 `mappingproxy` serialization 永久 `INVALID`。fresh label decode/paper metric/HF mutation
-> 仍为 0，旧 repair namespace 不得续跑。
+> 仍为 0，旧 repair namespace 不得续跑。claim-serialization repair Source-A source-only 已冻结，本 milestone
+> commit/push 后成为 canonical；它只修 JSON-safe deep snapshot，Execution-B absent、execution unauthorized，
+> 尚未重跑。
 
 本文件是 [`gate_v1_preregistration.md`](gate_v1_preregistration.md) 的执行说明。冻结阈值、roster、模型、loss、
 OOF 与访问顺序仍以
@@ -244,8 +246,11 @@ inventory-repair v1 A=`6fb3e868e293bce191ce30a5c6a15ecc544c4591`、B=
 `c22734ffc85935882f57ddb081c9194d6dae92d0` 的 pre-label claim-serialization failure 见
 [`../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)。
 repair v1 完成 16 trajectory / 80 OCR decode、48 feature states、144 candidates、10 checkpoint loads、2 policy
-workers / 97 vision forwards；fresh label decode、label claim write、report 与 HF mutation 均为 0。下一步必须另立
-claim-serialization repair 与新 namespace，不能调用旧 repair v1 入口续跑。
+workers / 97 vision forwards；fresh label decode、label claim write、report 与 HF mutation 均为 0。独立
+claim-serialization repair Source-A 与新 namespace 已冻结，但仍不能调用旧 repair v1 入口续跑；下一步是从
+clean pushed A 验证并机械生成唯一 B。Source-A freeze 与唯一后续顺序见
+[`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md)；其 failure-evidence
+parent commit 固定为 `7fbfe1b8314ea61d7d646a47be902fdf1c6d4af9`。
 
 ### 4. 旧 dev-5 compatibility guard
 
@@ -302,8 +307,14 @@ runtime 再执行；它不需要 GPU，也不能作为 paper result。
 formal-train Source-A validator 也不需要 PyTorch；它只验证 config/source/hash、上游 immutable bindings、
 Execution-B absence 与访问边界；repo/tag absence 是单独的只读 Hub preflight，不由这个零网络 validator 声称。
 该历史 formal-train A 中唯一合法状态仍是 `training_executed=false` 与 `execution_authorized=false`；完成态以
-formal B 的 immutable model seal 为准。fresh Source-A 同样只能返回 `evaluation_executed=false`、
-`fresh16_access_authorized=false` 与 `execution_authorized=false`。当前 fresh config SHA256 为
-`c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e`，config-only validator 已返回 37-path
-inventory 与全部 operation=0；下一步是 commit/push fresh A，再从 clean pushed A 机械 freeze 并单独 push B。
-这不是修改或重跑 formal trainer，也不能在 B 前试读 fresh data。
+formal B 的 immutable model seal 为准。
+
+当前 claim-serialization repair Source-A 同样只能返回 `evaluation_executed=false`、
+`fresh16_access_authorized=false` 与 `execution_authorized=false`。config SHA256 为
+`3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7`；57-path source inventory SHA256 为
+`572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`；focused/full regression 分别为
+99 passed + 7 subtests 与 1263 passed、16 skipped、4 deselected、617 subtests，4 个 deselect 均为已完成历史
+A/B 的 B-absence lifecycle tests。runner-freeze B absent。只有 A commit/push 并从 clean A 重验后，才能机械
+生成 B 并单独 push；token 前只验证 Execution-B/local retained evidence/new roots。读取 token/构造 HF API 后先
+验证 owner `gavinlaw` 与 write role，再把三个 private repo/tag 的 404 解释为 absence；所有检查都必须早于 fresh
+semantics/new root/HF mutation。这不是修改或重跑 formal trainer。

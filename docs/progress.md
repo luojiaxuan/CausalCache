@@ -49,11 +49,31 @@ immutable commit 为 `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，幂等 replay 
 formal-58 label-data prerequisite 已满足，train-only repair cache 与 formal training 均完成 private-HF immutable
 replay。Source-A=`e20f004…b9`、唯一 Execution-B=`bad28b7…a2f2` 已闭合 20 个 OOF trials、100 条 fold
 tracks 与 10 个 final checkpoint。fresh-16 parent v1 与 inventory-repair v1 的 A/B、失败 evidence 均已封存；
-当前步骤是另立 versioned claim-serialization repair，使用新的 local/HF namespace，并先验证 repair v1 的
-ordinal 0..7 receipts、seal、artifact/log/runtime bytes 与 successor absence。fresh labels、旧 dev-5 与 confirm
-尚未打开。父协议与 repair 说明分别见
+独立 claim-serialization repair Source-A source-only 已冻结；本 milestone commit/push 后成为 canonical。唯一代码
+语义变化是让
+`LabelAccessClaim.claim` 返回 canonical-JSON deep snapshot，并绑定 failure evidence commit `7fbfe1b…af9`、repair
+v1 ordinal 0..7 receipts、seal、artifact/log/runtime bytes 与 successor absence。新 local/HF identity 已规划，但
+Execution-B 当前 absent、execution unauthorized、尚未重跑；fresh labels、旧 dev-5 与 confirm 尚未打开。
+父协议与两层 repair 说明分别见
 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md) 和
-[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)；旧 repair v1 namespace 不得续跑。
+[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)、
+[`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md)；旧 repair v1
+namespace 不得续跑。
+
+### 2026-07-18：fresh-16 claim-serialization repair Source-A freeze
+
+- formal-58 training/model seal 已完成，本 repair 不重训 gate；
+- 只修 `mappingproxy` public claim view 为 JSON-safe、non-aliasing deep snapshot；canonical claim payload 不变；
+- full-15 derived inventory、4-file consumption、model/labels、16/48/144/448 geometry、evaluation/output/threshold
+  全部继承 inventory-repair v1；
+- 新 state/artifact/runtime receipt/HF identities 已分配，旧 roots 必须保留；未来 B 读取 token/构造 API 后、
+  任何 fresh semantics/new-root/HF mutation 前必须先验证 HF owner/write role，再验证三个 repo/tag absence；
+  private 404 只有在 owner/write-role check 通过后才能解释为 absence；
+- config SHA256 为 `3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7`；57-path source
+  inventory SHA256 为 `572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`；
+- focused regression 为 99 passed + 7 subtests passed（新增 repair 为 30 + 7）；全仓为 1263 passed、16 skipped、
+  4 deselected、617 subtests passed。4 个 deselect 均为已完成历史 A/B 的 B-absence lifecycle tests；
+- 当前仍是 source-only：B absent，fresh label/report/HF mutation/GO operation 全为 0。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -2716,5 +2736,6 @@ architecture、LR、epoch、loss、threshold 或 seed，也不得把 combined-21
   `5443db6df16234c29b32501bc9f766670d428141fb02c4a665be936e1ca2587c`。旧 v1 与 repair planned HF repos
   均不存在，remote mutation 为 0；
 - 轻量证据见 `data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`。旧 state/artifact/runtime-receipt
-  namespace 不删除、不覆盖、不续跑；下一步必须另立 claim-serialization repair、验证旧 bytes/successor absence，
-  并使用新的 local/HF identities。
+  namespace 不删除、不覆盖、不续跑；claim-serialization repair Source-A 已冻结旧 bytes/successor absence 的
+  expected bindings、未来 B read-only revalidation 与新的 local/HF identities。下一步是 commit/push A 后从 clean
+  A 机械生成唯一 B。

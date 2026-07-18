@@ -402,6 +402,60 @@ def test_heuristic_seal_is_immutable_and_claim_rebinds_payload():
         runner.validate_claim_against_payload(claim, seal, payload)
 
 
+def _label_access_claim():
+    seal = runner.seal_label_blind_files(_label_blind_files())
+    claim = runner.claim_label_access(
+        seal,
+        source_git_commit="a" * 40,
+        contract_sha256="b" * 64,
+    )
+    return seal, claim
+
+
+def test_label_access_claim_snapshot_is_json_serializable_and_canonical():
+    seal, claim = _label_access_claim()
+    expected = {
+        "schema_version": runner.SCHEMA_VERSION,
+        "protocol_id": runner.PROTOCOL_ID,
+        "status": runner.LABEL_CLAIM_STATUS,
+        "source_git_commit": "a" * 40,
+        "contract_sha256": "b" * 64,
+        "label_blind_file_count": 8,
+        "label_blind_inventory": list(seal.inventory),
+        "label_blind_inventory_sha256": seal.inventory_sha256,
+        "label_access_authorized": True,
+        "legacy_dev5_access_authorized": False,
+        "confirm20_access_authorized": False,
+        "matched_nll_authorized": False,
+        "closed_loop_authorized": False,
+    }
+    snapshot = claim.claim
+    assert json.loads(runner.pretty_json_bytes(snapshot)) == expected
+    assert runner.canonical_json_bytes(snapshot) == runner.canonical_json_bytes(
+        expected
+    )
+
+
+def test_label_access_claim_snapshot_isolates_top_and_nested_mutations():
+    _, claim = _label_access_claim()
+    snapshot = claim.claim
+    expected = copy.deepcopy(snapshot)
+    snapshot["label_access_authorized"] = False
+    snapshot["label_blind_inventory"][0]["sha256"] = "0" * 64
+    snapshot["label_blind_inventory"].append({"path": "unexpected"})
+    assert claim.claim == expected
+
+
+def test_label_access_claim_repeated_snapshots_are_independent_objects():
+    _, claim = _label_access_claim()
+    first = claim.claim
+    second = claim.claim
+    assert first == second
+    assert first is not second
+    assert first["label_blind_inventory"] is not second["label_blind_inventory"]
+    assert first["label_blind_inventory"][0] is not second["label_blind_inventory"][0]
+
+
 def test_heuristic_seal_rejects_score_selection_contradiction():
     files = _label_blind_files()
     lines = files[runner.OCR_SCORE_PATH].splitlines()

@@ -904,6 +904,40 @@ repair v1 的 state/artifact/runtime-receipt/log bytes 必须保留；88-file / 
 均不存在。完整 binding 见
 [`../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)。
 
-当前固定下一步是独立 versioned claim-serialization repair：先验证 repair v1 receipts/seal/artifact/log/runtime
-与 successor absence，再切换全新的 state/artifact/runtime-receipt/HF identities。禁止再次调用 repair v1 的
-`run`/`validate`，也禁止删除旧 roots 后在同一 namespace 续跑。
+独立 versioned claim-serialization repair Source-A 已冻结 repair v1 receipts/seal/artifact/log/runtime、successor
+absence 的 exact expected bindings 与未来 B read-only revalidation，并冻结全新的 state/artifact/runtime-receipt/HF
+identities。下一步是 commit/push A 后从 clean A 机械生成唯一 B。禁止再次调用 repair v1 的 `run`/`validate`，
+也禁止删除旧 roots 后在同一 namespace 续跑。
+
+## fresh-16 claim-serialization repair Source-A 边界
+
+Source-A protocol 见
+[`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md)，config 为
+`code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`。本层只允许把
+`LabelAccessClaim.claim` 改为 canonical-JSON deep snapshot；formal training 已完成，full-15 inventory、实际消费的
+4 files、GUI-Owl projection、10 checkpoints、label bytes、16/48/144/448 geometry、evaluation、output relative
+paths 与 GO thresholds 全部不变。
+
+Source-A source-only 已冻结并保持 network/write/torch/fresh semantic/label/model/report/HF mutation 全 0，且
+`evaluation_executed=false`、`execution_authorized=false`、runner-freeze B absent。config SHA256 为
+`3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7`，57-path source inventory SHA256 为
+`572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`；focused regression 为 99 passed +
+7 subtests passed，全仓为 1263 passed、16 skipped、4 deselected、617 subtests passed。4 个 deselect 均为已完成
+历史 A/B 的 B-absence lifecycle tests。本 milestone commit/push 后成为 canonical；当前未执行。
+
+新 identity 固定为：
+
+| 项目 | value |
+| --- | --- |
+| state root | `/data/experiments/causalcache/gate-v1-fresh16-evaluation-claim-serialization-repair-v1` |
+| artifact root | `/data/artifacts/causalcache/gate-v1-fresh16-evaluation-claim-serialization-repair-v1` |
+| Docker receipt | `/data/experiments/causalcache/.gate-v1-fresh16-evaluation-claim-serialization-repair-v1.docker-inspect.json` |
+| planned HF dataset | `gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile` |
+| planned tag | `gate-v1-fresh16-claim-serialization-repair-v1` |
+
+旧 parent/inventory-repair roots、mode-0600 receipts/seal/artifact/log/runtime bytes 必须原样保留；failure evidence
+Git commit 固定为 `7fbfe1b8314ea61d7d646a47be902fdf1c6d4af9`。唯一后续顺序为：Source-A push → clean A
+validation → mechanical direct-child B separate push → Hyper preflight + exact 2 H200 → new runtime receipt →
+token 前验证 Execution-B/local evidence/new roots → 读取 token并构造 HF API → 验证 owner `gavinlaw` 及其 write
+role → 验证三个 repo/tag identities absent → unique run → immutable validate。private repo 的 404 只有在 owner 与
+write role 验证通过后才能解释为 absence。B push 前不能访问 token、打开 fresh semantics 或启动 GPU。

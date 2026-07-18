@@ -272,12 +272,14 @@ class LabelAccessClaim:
         if _token is not _LABEL_CLAIM_TOKEN:
             raise TypeError("label claims must be constructed from a heuristic seal")
         self.heuristic_inventory_sha256 = heuristic_inventory_sha256
-        self._claim = MappingProxyType(dict(claim))
+        self._claim = MappingProxyType(
+            json.loads(canonical_json_bytes(dict(claim)))
+        )
         self._token = _token
 
     @property
     def claim(self) -> Mapping[str, Any]:
-        return self._claim
+        return json.loads(canonical_json_bytes(dict(self._claim)))
 
 
 class DurableStateChain:

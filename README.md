@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 v1 = pre-semantic inventory `INVALID`; full-inventory repair v1 = pre-label claim-serialization `INVALID` / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 v1 = pre-semantic inventory `INVALID`; full-inventory repair v1 = pre-label claim-serialization `INVALID`; claim-serialization repair Source-A = source-only frozen / confirm locked
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；旧 dev-5 只允许在
 > fresh-16 outcome 冻结后用于 combined-21 compatibility guard。新的 48 train +16 fresh-dev
@@ -71,9 +71,12 @@
 > `c22734ffc85935882f57ddb081c9194d6dae92d0` 已冻结并执行；它完成 16 trajectory / 80 OCR decode、48 feature
 > states、144 candidates、10 checkpoint loads、双 H200 2 workers / 97 forwards 后，在写入 label-access claim 前因
 > `mappingproxy` 序列化失败永久 `INVALID`。label decode、report、HF mutation 仍为 0，因此没有 GO/NO-GO。
-> 下一步只能另立 claim-serialization repair 与全新 namespace，不能续跑旧 repair v1。
+> claim-serialization repair 的 Source-A source-only 已冻结，本 milestone commit/push 后成为 canonical：只允许把
+> `LabelAccessClaim.claim` 改成 canonical-JSON deep snapshot，并切换全新 namespace；Execution-B 当前 absent、
+> execution unauthorized，尚未重跑或打开 fresh labels，不能续跑旧 repair v1。
 > 完整边界见 [`docs/gate_v1_fresh16_evaluation.md`](docs/gate_v1_fresh16_evaluation.md) 与
-> [`docs/gate_v1_fresh16_inventory_repair.md`](docs/gate_v1_fresh16_inventory_repair.md)。
+> [`docs/gate_v1_fresh16_inventory_repair.md`](docs/gate_v1_fresh16_inventory_repair.md)、
+> [`docs/gate_v1_fresh16_claim_serialization_repair.md`](docs/gate_v1_fresh16_claim_serialization_repair.md)。
 
 ## 团队交接入口
 
@@ -117,7 +120,9 @@ targets 后接 4 个 report targets 的 direct two-commit chain。原 A/B 的唯
 remote-tree allowlist 处 fail closed；repair A/B 只补齐 exact 15-path inventory、保持只下载 4 个 consumed files，
 并切换新 namespace。唯一 repair v1 attempt 已完成 label-blind fresh semantics 与双 H200 97 forwards，但在
 label claim 写入前因 `mappingproxy` serialization 失败；fresh label decode/paper metric/HF mutation 仍为 0，
-也没有 GO 结果。下一步必须另立 versioned repair 与新 namespace。已发布 child 的冻结分母为
+也没有 GO 结果。claim-serialization repair Source-A source/config/evidence contract 已冻结；本 milestone
+commit/push 后成为 canonical，B absent、未执行。
+已发布 child 的冻结分母为
 64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
 full edges、1,984 interactions、576 attributions 与 192 exact oracles。label run 固定 1,984 teacher forwards、
@@ -494,12 +499,14 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 13. [`docs/gate_v1_fresh16_evaluation.md`](docs/gate_v1_fresh16_evaluation.md)：formal model seal 后的
     fresh-16 父科学协议、v1 pre-semantic failure 与不可续跑边界；
 14. [`docs/gate_v1_fresh16_inventory_repair.md`](docs/gate_v1_fresh16_inventory_repair.md)：精确 15-path
-    operational repair、Source-A/B 与新 namespace 执行入口；
-15. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-16. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-17. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-18. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-19. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+    operational repair、Source-A/B、永久失败与不可续跑边界；
+15. [`docs/gate_v1_fresh16_claim_serialization_repair.md`](docs/gate_v1_fresh16_claim_serialization_repair.md)：
+    JSON-safe deep-snapshot Source-A、新 identity 与后续唯一执行顺序；
+16. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+17. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+18. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+19. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+20. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -853,7 +860,10 @@ $$
 - [x] 完成 full-inventory repair Source-A 的实现、回归、source-only freeze，并随本 milestone commit/push；
 - [x] 从 clean pushed repair A 重放 validator，机械生成并单独 push 唯一 repair B；唯一 Hyper00 attempt 在
   label-blind semantic/GPU phase 后、label claim 持久化前因 `mappingproxy` serialization 永久 fail closed；
-- [ ] 冻结 claim-serialization repair，验证旧 repair evidence/successor absence 并使用全新 namespace；
+- [x] 冻结 claim-serialization repair Source-A：只修 JSON-safe deep snapshot，绑定旧 repair
+  evidence/successor absence 与全新 namespace；57-path source inventory、focused/full regression 已闭合，B
+  absent、未执行；本 milestone commit/push 后成为 canonical；
+- [ ] 从 clean pushed claim-repair A 重放 source validation，机械生成唯一 direct-child B 并单独 commit/push；
 - [ ] 对已冻结 ensemble 执行一次性 fresh-16 primary GO，报告封存后再做 combined-21 compatibility guard；
 - [ ] 仅在 selector/set-conditioning GO 后冻结 post-GO contract，再运行 matched-NLL、closed-loop 与 confirm；
 - [ ] 整理论文与复现实验配置。
@@ -912,6 +922,8 @@ $$
 - Gate v1 fresh-16 inventory-repair Source-A config: [`code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json`](code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json)
 - Gate v1 fresh-16 inventory-repair manager: [`code/scripts/manage_gate_v1_fresh16_inventory_repair.py`](code/scripts/manage_gate_v1_fresh16_inventory_repair.py)
 - Gate v1 fresh-16 inventory-repair v1 failure: [`data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)
+- Gate v1 fresh-16 claim-serialization repair protocol: [`docs/gate_v1_fresh16_claim_serialization_repair.md`](docs/gate_v1_fresh16_claim_serialization_repair.md)
+- Gate v1 fresh-16 claim-serialization repair Source-A config: [`code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`](code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json)，SHA256 `3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7`；57-path source inventory SHA256 `572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`
 - Gate v1 synthetic-only smoke: [`code/scripts/run_gate_v1_trainer_smoke.py`](code/scripts/run_gate_v1_trainer_smoke.py)
 - Label-expansion exposure protocol: [`docs/restoration_v2_2_label_expansion_exposure.md`](docs/restoration_v2_2_label_expansion_exposure.md)
 - Label-expansion exposure materializer: [`code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py`](code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py)
@@ -1115,7 +1127,7 @@ $$
 | Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | `v2.2-eager-full-45-substrate-v1` / `3577099d505b8c652d764f41269df911128ec767`，private | 45/45 parse/repeat/finite logits、45 memory-sensitive；`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw USTAR SHA256 `b22827e6...09fb5`、fresh immutable download verified |
 | Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
 | Gate v1 formal-58 selector ensemble | [private HF model](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)；[completion record](data/results/gate_v1_formal58_train_v1/) | tag `gate-v1-formal58-train-v1` → manifest commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；annotated tag `fa85e746...b4d6` | 5 conditional + 5 independent checkpoints、2 full OOF reports、4 manifests；immutable replay 0 mutation；fresh-16/legacy dev-5/confirm/matched-NLL/closed-loop 仍 locked |
-| Gate v1 fresh-16 primary evaluation | [parent protocol](docs/gate_v1_fresh16_evaluation.md)；[v1 pre-semantic failure](data/results/gate_v1_fresh16_evaluation_v1_attempt/)；[inventory-repair protocol](docs/gate_v1_fresh16_inventory_repair.md)；[repair v1 failure](data/results/gate_v1_fresh16_inventory_repair_v1_attempt/) | parent v1 A=`97694ef` / B=`a8bb27c` permanently invalid；repair v1 A=`6fb3e86` / B=`c22734f` permanently invalid；旧/repair planned repos 均不存在 | repair v1 跨过 full-15 inventory、label-blind semantic materialization、10-checkpoint replay 与双 H200 97 forwards，但在 label claim 落盘前因 `mappingproxy` serialization fail closed。label decode/report/HF mutation=0，无 GO/NO-GO；下一步另立 versioned claim-serialization repair 与新 namespace |
+| Gate v1 fresh-16 primary evaluation | [parent protocol](docs/gate_v1_fresh16_evaluation.md)；[v1 pre-semantic failure](data/results/gate_v1_fresh16_evaluation_v1_attempt/)；[inventory-repair protocol](docs/gate_v1_fresh16_inventory_repair.md)；[repair v1 failure](data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)；[claim repair Source-A](docs/gate_v1_fresh16_claim_serialization_repair.md) | parent v1 A=`97694ef` / B=`a8bb27c` permanently invalid；repair v1 A=`6fb3e86` / B=`c22734f` permanently invalid；旧/repair planned repos 均不存在；claim repair Source-A source-only frozen、B absent | repair v1 跨过 full-15 inventory、label-blind semantics、10-checkpoint replay 与双 H200 97 forwards，但在 label claim 前因 `mappingproxy` serialization fail closed。claim repair Source-A 只修 JSON-safe deep snapshot；尚未重跑，label/report/HF mutation=0，无 GO/NO-GO |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

@@ -270,6 +270,16 @@ restoration v2 exact selection/exposure 产物：
   均为 0。该目录只保存 receipts/seal/artifact/log/runtime 的轻量 binding，不复制 88-file artifact；旧/repair
   planned HF repos 都不存在。失败不是 GO/NO-GO，旧 repair namespace 不得续跑；
 
+- claim-serialization repair 当前没有 `results/` 目录，也没有 reusable artifact。Source-A source-only 已冻结，只绑定上述
+  Git failure evidence commit `7fbfe1b…af9`，并计划使用 private HF dataset
+  `gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile` / tag
+  `gate-v1-fresh16-claim-serialization-repair-v1`。Source-A 不联网，不能把 remote absence 写成 source-only validator
+  结论；未来 B 只能在读取 token/构造 HF API 后、任何 fresh semantics/new-root/HF mutation 前先验证 owner 与
+  write role，再验证三个 repo/tag identities absent；private 404 只有在前两项通过后才能解释为 absence。
+  Execution-B absent，fresh label semantic access、report、HF mutation 与 GO/NO-GO
+  仍为 0；协议见
+  `../docs/gate_v1_fresh16_claim_serialization_repair.md`；
+
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private
   HF immutable revision `d6b2312e...45c1` fresh-download 并完成 canonical rebuild；v2.1 NO-GO 不变；
