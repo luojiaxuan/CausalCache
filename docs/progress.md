@@ -66,6 +66,20 @@
   skipped；全仓为 1,364 passed / 13 skipped / 6 个已知历史 failure / 620 subtests，isolation-sensitive CPU
   test 单独复跑 1 passed，compileall 与 diff-check 通过。下一步 commit/push Source-A，再机械生成唯一 B。
 
+### 2026-07-18：parser-repair v1 在第二次 label decode 前 fail closed
+
+- repair Source-A=`e34320da160f9fd93a6b28cdd4113fa7b6868feb`，唯一单文件 Execution-B=
+  `f53954f9e2c142738c77ffa150f8ddc8c7088ff2`，runner SHA256=`aae47dd8...ce65`；source/live-remote
+  validation 与 Hyper00 7 项专项测试均通过；
+- pre-label dry-run 成功接受 exact producer protocol，但 v1 仍错误要求 historical records 与 feature JSONL
+  positional zip 同序。两边均为 48 个唯一 state 且 state-id set 完全相同；historical 按 state-id 字典序，feature
+  使用 trajectory roster 顺序，导致 45/48 positional mismatch；
+- attempt 在读取/解析 repair label 前停止，故 repair decode=0、全流程累计 label semantic decode 仍为 1；report、
+  metric、checkpoint/prediction change 均为 0，confirm 仍为 0。证据见
+  `data/results/set_conditioned_v3_parser_repair_v1_attempt/`；
+- v1 永久 `INVALID_PRE_LABEL_STATE_ORDER_PARSER_REPAIR_V1`。后续 v2 只能把 positional zip 改成 exact unique
+  `state_id` join，并继续要求 set equality；其余 schema、seed feasibility、selection digest 和 sealed bytes 不变。
+
 AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
 与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
 `NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权

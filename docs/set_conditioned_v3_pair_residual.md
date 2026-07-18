@@ -263,6 +263,12 @@ completion total=1；所有 confirm/GPU/policy/legacy/matched-NLL/closed-loop co
 `fresh16-development-report.json` 永久保持不存在，repair 只创建
 `fresh16-development-report-parser-repair-v1.json`。
 
+parser-repair v1 的 pre-label dry-run 又暴露出 positional-order contract 错误：historical 与 feature 都有相同的
+48 个唯一 state-id，但前者按字典序、后者按 trajectory roster 顺序，因此不能用 `zip` 断言同序。v1 在第二次
+label decode 前停止，累计 semantic decode 仍为 1。后续 v2 只允许改成 exact unique-state-id join，同时必须
+继续验证两边 set equality；不能放松任一 record/seed/selection-digest 检查。失败证据见
+`data/results/set_conditioned_v3_parser_repair_v1_attempt/`。
+
 输入都绑定 immutable HF revision 和逐文件 SHA-256。v3 的本地 staging 只允许写：
 
 ```text
