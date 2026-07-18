@@ -313,6 +313,26 @@ HF mutation 前，先验证 owner `gavinlaw` 与 write role，再验证 parent�
 identities absent；private 404 只有在 owner/write-role check 通过后才能解释为 absence。
 在 B push 前没有执行权限。
 
+fresh-16 primary `NO-GO` 之后的只读 failure decomposition 使用
+`configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json`，完整契约见
+`../docs/gate_v1_fresh16_failure_decomposition.md`。Source-A/Execution-B 命令为：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.manage_gate_v1_fresh16_failure_decomposition validate-source \
+  --repository-root .. \
+  --contract configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json \
+  --source-a-git-commit <CLEAN_PUSHED_SOURCE_A_SHA>
+PYTHONPATH=. python3 -m scripts.manage_gate_v1_fresh16_failure_decomposition materialize-runner-freeze \
+  --repository-root .. \
+  --contract configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json \
+  --source-a-git-commit <CLEAN_PUSHED_SOURCE_A_SHA>
+```
+
+该 source 只消费 parent private-HF report commit 上的 bundle、label states 与 primary state records 三个文件；
+不加载 model/checkpoint，不使用 GPU，也不打开 raw fresh-16、旧 dev-5、confirm、matched-NLL 或 closed-loop。
+Execution-B 只能新增一个 runner-freeze JSON；正式 `run`/`validate` 参数与持久路径见协议文档。
+
 Expansion exposure 的 source-only ledger 位于
 `causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、
 sealed-confirm-20 的六组交集为空，并可动态绑定落盘后的 structural manifest。focused tests：

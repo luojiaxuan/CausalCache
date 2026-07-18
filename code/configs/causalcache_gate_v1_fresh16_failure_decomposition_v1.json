@@ -1,0 +1,462 @@
+{
+  "analysis_contract": {
+    "budget": 2,
+    "candidate_event_counts": [
+      2,
+      3,
+      4
+    ],
+    "decomposition_identity": "exact_minus_student_equals_search_plus_distillation",
+    "diagnostic_only": true,
+    "distillation_gap": "true_conditional_greedy_utility_minus_sealed_student_utility",
+    "exact_subset": {
+      "allow_early_stop": true,
+      "objective": "minimize_D_S_subject_to_cardinality_at_most_B",
+      "tie_break": [
+        "exact_float_distance",
+        "smaller_cardinality",
+        "lexicographically_lower_event_step_ids"
+      ]
+    },
+    "interaction_mass": {
+      "definition": "mean_abs_second_order_interaction_divided_by_max_D_empty_1e-12",
+      "historical_train_only_tertile_cutpoints_by_n": {
+        "2": [
+          0.2909362464858063,
+          0.42337624776450483
+        ],
+        "3": [
+          0.2760179595936389,
+          0.3818779740249449
+        ],
+        "4": [
+          0.19346783303918597,
+          0.21532511632530205
+        ]
+      },
+      "threshold_source": {
+        "git_commit": "d0f25d812869d5fc7b58284a25abe3aa8049b0aa",
+        "path": "data/results/restoration_v2_2_selector_geometry_v2_repair/summary.json",
+        "sha256": "57eecbba5326cabf430f0a739118e986781a595e98ea6a32ddaeef118abc6811",
+        "size_bytes": 1529767
+      }
+    },
+    "normalization": {
+      "denominator": "D_empty",
+      "eligible_only_when_strictly_greater_than": 1e-12,
+      "ineligible_value": null
+    },
+    "report_strata": {
+      "candidate_event_count": true,
+      "decision_step_ids": [
+        4,
+        5,
+        6
+      ],
+      "denominator_bins": [
+        {
+          "lower_exclusive": null,
+          "name": "normalization_ineligible",
+          "upper_inclusive": 1e-12
+        },
+        {
+          "lower_exclusive": 1e-12,
+          "name": "tiny",
+          "upper_inclusive": 0.001
+        },
+        {
+          "lower_exclusive": 0.001,
+          "name": "small",
+          "upper_inclusive": 0.01
+        },
+        {
+          "lower_exclusive": 0.01,
+          "name": "regular",
+          "upper_inclusive": null
+        }
+      ],
+      "interaction_strength": true,
+      "selection_rounds": [
+        0,
+        1
+      ],
+      "student_error_types": [
+        "agree",
+        "wrong_event",
+        "premature_stop",
+        "nonpositive_addition",
+        "unreached_after_prior_divergence"
+      ]
+    },
+    "search_gap": "exact_subset_utility_minus_true_conditional_greedy_utility",
+    "student": "sealed_parent_conditional_ensemble_decisions_only",
+    "total_gap": "exact_subset_utility_minus_sealed_student_utility",
+    "trajectory_equal_aggregation": true,
+    "true_conditional_greedy": {
+      "allow_early_stop": true,
+      "rescore_after_each_addition": true,
+      "strictly_positive_gain_required": true,
+      "tie_break": "lower_event_step_id"
+    }
+  },
+  "authorization": {
+    "child_hf_publication_authorized": false,
+    "closed_loop_authorized": false,
+    "confirm20_access_authorized": false,
+    "execution_allowed_without_machine_generated_runner_freeze_b": false,
+    "failure_decomposition_executed": false,
+    "fresh16_raw_source_access_authorized": false,
+    "gate_training_authorized": false,
+    "legacy_dev5_access_authorized": false,
+    "matched_nll_authorized": false,
+    "model_or_checkpoint_access_authorized": false,
+    "parent_hf_read_authorized": false,
+    "sealed_parent_artifact_decode_authorized": false
+  },
+  "destination": {
+    "allowed_remote_states": [
+      "ABSENT",
+      "EMPTY",
+      "COMPLETE"
+    ],
+    "annotated_tag_required": true,
+    "commit_title": "Publish CausalCache fresh16 failure decomposition",
+    "completed_replay_remote_mutation_count": 0,
+    "conflict_action": "FAIL_CLOSED",
+    "private": true,
+    "remote_base_receipt_before_first_mutation": true,
+    "repo": "gavinlaw/causalcache-gate-v1-fresh16-failure-decomposition-mobile",
+    "repo_type": "dataset",
+    "single_exact_report_commit": true,
+    "tag": "gate-v1-fresh16-failure-decomposition-v1",
+    "tag_message": "Freeze CausalCache gate v1 fresh16 failure decomposition",
+    "tag_must_resolve_to_report_commit": true
+  },
+  "execution_fixed_operation_contract": {
+    "child_exact_target_count": 3,
+    "closed_loop_episode_count": 0,
+    "confirm20_access_count": 0,
+    "fresh16_raw_source_access_count": 0,
+    "gate_checkpoint_load_count": 0,
+    "gate_training_step_count": 0,
+    "legacy_dev5_semantic_decode_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "model_forward_count": 0,
+    "parent_force_download_count": 3,
+    "parent_hf_mutation_count": 0,
+    "policy_generation_count": 0,
+    "restoration_teacher_forward_count": 0,
+    "sealed_fresh16_state_decode_count": 48,
+    "state_decomposition_record_count": 48,
+    "trajectory_decomposition_record_count": 16
+  },
+  "input_contract": {
+    "allowed_parent_hf_api_methods": [
+      "dataset_info",
+      "list_repo_commits",
+      "list_repo_files",
+      "list_repo_refs"
+    ],
+    "exact_force_download_targets": [
+      {
+        "identity": "direct_frozen_identity",
+        "path": "fresh16-eval/v1/manifests/bundle-manifest-v1.json",
+        "sha256": "a11e9d693c2fa33f5f5f97b123649608bdf98583693caa818e166d8009382844",
+        "size_bytes": 2133
+      },
+      {
+        "expected_record_count": 48,
+        "identity": "bound_by_frozen_bundle_payload_inventory",
+        "path": "fresh16-eval/v1/caches/label-states-v1.jsonl"
+      },
+      {
+        "expected_record_count": 48,
+        "identity": "bound_by_frozen_bundle_report_inventory",
+        "path": "fresh16-eval/v1/reports/primary-state-records-v1.jsonl"
+      }
+    ],
+    "fresh_download_directory_must_start_empty": true,
+    "force_download": true,
+    "parent_commit_chain": [
+      "9f0c61b9437773ca5d3f7e0cabd6e2a987e3c908",
+      "3541fe1ea2c46e555c29cc53483e6f3b809f8f81"
+    ],
+    "parent_remote_mutation_call_count": 0,
+    "pre_post_parent_identity_stable": true,
+    "selective_reader_only": true
+  },
+  "local_first_state_machine": {
+    "artifact_directory": "/data/artifacts/causalcache/gate-v1-fresh16-failure-decomposition-v1",
+    "artifact_file_mode": 292,
+    "completion_is_last_first_execution_local_mutation": true,
+    "crash_recovery_after_remote_mutation": false,
+    "final_completion_is_hard_link_to_staging": true,
+    "no_overwrite": true,
+    "o_excl_or_byte_identical_reuse": true,
+    "partial_attempt_requires_versioned_repair": true,
+    "pre_mutation_byte_identical_restart_only": true,
+    "ordered_states": [
+      "global_claim",
+      "parent_readonly_attestation",
+      "local_report_completion",
+      "child_remote_base_receipt",
+      "child_report_commit_receipt",
+      "child_tag_receipt",
+      "immutable_replay_completion",
+      "completion_staging",
+      "final_completion"
+    ],
+    "state_directory": "/data/experiments/causalcache/gate-v1-fresh16-failure-decomposition-v1",
+    "state_file_mode": 384
+  },
+  "output_contract": {
+    "exact_targets": [
+      "fresh16-failure-decomposition/v1/state-decomposition-v1.jsonl",
+      "fresh16-failure-decomposition/v1/failure-decomposition-report-v1.json",
+      "fresh16-failure-decomposition/v1/bundle-manifest-v1.json"
+    ],
+    "report_inherits_v1_verdict_without_reclassification": true,
+    "state_record_count": 48,
+    "trajectory_record_count_embedded_in_report": 16
+  },
+  "parent_primary": {
+    "execution_b_git_commit": "ce523ff54ebfdc19a9c2bd49ad21548f0934a634",
+    "execution_b_runner_freeze": {
+      "path": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_runner_v1.json",
+      "sha256": "c35dccd0d540cd01bd0f93fce11289c40dbada577e856e997a9dcd52347403d8",
+      "size_bytes": 28936
+    },
+    "hf": {
+      "annotated_tag_object": "34d5928db4e82532f46f7596702aec3f018c4339",
+      "bundle_manifest": {
+        "path": "fresh16-eval/v1/manifests/bundle-manifest-v1.json",
+        "sha256": "a11e9d693c2fa33f5f5f97b123649608bdf98583693caa818e166d8009382844",
+        "size_bytes": 2133
+      },
+      "payload_commit": "9f0c61b9437773ca5d3f7e0cabd6e2a987e3c908",
+      "private": true,
+      "report_commit": "3541fe1ea2c46e555c29cc53483e6f3b809f8f81",
+      "repo": "gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile",
+      "repo_type": "dataset",
+      "tag": "gate-v1-fresh16-claim-serialization-repair-v1",
+      "tag_resolved_commit": "3541fe1ea2c46e555c29cc53483e6f3b809f8f81"
+    },
+    "parent_contract": {
+      "path": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json",
+      "sha256": "3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7",
+      "size_bytes": 11723
+    },
+    "result_git_commit": "a04049e3b9a314dcbeb478210cb53cd20a207d32",
+    "result_summary": {
+      "path": "data/results/gate_v1_fresh16_claim_serialization_repair_v1/summary.json",
+      "sha256": "621c09d13c027bfbc2835be894dd3de8fbc69c2f03a8605ab3a951cba753e626",
+      "size_bytes": 9419,
+      "status": "REVALIDATED_GATE_V1_FRESH16_PRIMARY_EVALUATION_V1"
+    },
+    "source_a_git_commit": "f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1",
+    "verdict": {
+      "go_selector": false,
+      "go_set_conditioning_primary": false,
+      "implementation_valid": true,
+      "reclassification_allowed": false
+    }
+  },
+  "protocol_id": "causalcache_gate_v1_fresh16_failure_decomposition_v1",
+  "runtime_contract": {
+    "cpu_only": true,
+    "gpu_count": 0,
+    "gpu_preflight_required": false,
+    "model_runtime_allowed": false,
+    "network_scope": "parent_read_only_then_new_child_publication_only",
+    "torch_import_required": false
+  },
+  "routing_contract": {
+    "bootstrap": {
+      "confidence": 0.9,
+      "interval": "percentile",
+      "resamples": 10000,
+      "seed": 271828,
+      "unit": "trajectory"
+    },
+    "denominator_diagnostic": {
+      "bottom_within_n_quartile_exact_raw_utility_share_maximum": 0.2,
+      "bottom_within_n_quartile_positive_normalized_regret_share_minimum": 0.5,
+      "diagnostic_only_cannot_change_routing": true,
+      "raw_minus_normalized_ratio_gap_minimum": 0.15,
+      "raw_utility_over_exact_raw_minimum": 0.9,
+      "remove_bottom_within_n_quartile_normalized_ratio_improvement_minimum": 0.1
+    },
+    "final_routing": {
+      "all_required": [
+        "search_pass",
+        "oracle_set_headroom_pass",
+        "material_student_gap"
+      ],
+      "diagnostics_not_routing_gates": [
+        "prefix_completion_dominance",
+        "denominator_diagnostic",
+        "seed_isolated_diagnostic",
+        "learned_C_vs_I_replay"
+      ],
+      "fail_status": "NO_V2_CONDITIONAL_RESCUE",
+      "fresh16_already_consumed": true,
+      "fresh16_may_be_used_as_v2_holdout": false,
+      "parent_v1_verdict_may_change": false,
+      "pass_status": "ONE_V2_CONDITIONAL_RESCUE"
+    },
+    "learned_C_vs_I_replay": {
+      "diagnostic_only": true,
+      "must_equal_parent_sealed_report": true
+    },
+    "material_student_gap": {
+      "any_required": [
+        "C_over_G_normalized_strictly_below_0_90",
+        "C_over_G_raw_strictly_below_0_95"
+      ],
+      "normalized_recovery_C_over_G_maximum_exclusive": 0.9,
+      "raw_utility_C_over_G_maximum_exclusive": 0.95
+    },
+    "method_aliases": {
+      "C": "sealed_learned_conditional_ensemble",
+      "E": "exact_subset_oracle",
+      "G": "true_conditional_marginal_greedy",
+      "I": "sealed_learned_independent_ensemble",
+      "J": {
+        "budget": 2,
+        "definition": "oracle_budget_conditioned_independent",
+        "event_score": "0.5_times_empty_marginal_plus_mean_of_other_singleton_base_conditional_marginals",
+        "strictly_positive_score_required": true,
+        "tie_break": "lower_event_step_id",
+        "top_b": true
+      }
+    },
+    "oracle_set_headroom_pass": {
+      "all_required": [
+        "normalized_mean_G_minus_J_at_least_0_02",
+        "paired_trajectory_bootstrap_90_lower_strictly_positive",
+        "positive_trajectory_count_at_least_12_of_16"
+      ],
+      "normalized_mean_delta_G_minus_J_minimum": 0.02,
+      "paired_trajectory_bootstrap_lower_strictly_greater_than": 0.0,
+      "positive_trajectory_count_minimum": 12,
+      "trajectory_count": 16
+    },
+    "prefix_completion_dominance": {
+      "diagnostic_only": true,
+      "minimum_share": 0.6,
+      "share_definition": "positive_distillation_regret_from_prefix_or_completion_errors_divided_by_total_positive_distillation_regret"
+    },
+    "search_pass": {
+      "all_required": [
+        "normalized_recovery_G_over_E_at_least_0_95",
+        "raw_utility_G_over_E_at_least_0_95",
+        "n3_raw_utility_G_over_E_at_least_0_90",
+        "n4_raw_utility_G_over_E_at_least_0_90"
+      ],
+      "n3_raw_utility_G_over_E_minimum": 0.9,
+      "n4_raw_utility_G_over_E_minimum": 0.9,
+      "normalized_recovery_G_over_E_minimum": 0.95,
+      "raw_utility_G_over_E_minimum": 0.95
+    },
+    "seed_isolated_diagnostic": {
+      "drop_worst_seed_population_std_maximum": 0.08,
+      "individual_seed_E_ratio_minimum": 0.75,
+      "individual_seed_pass_count_minimum": 4,
+      "individual_seed_total_count": 5,
+      "median_individual_seed_E_ratio_minimum": 0.75,
+      "not_a_routing_gate": true
+    }
+  },
+  "schema_version": "1.0.0",
+  "source_freeze": {
+    "branch": "main",
+    "execution_b_runner_freeze": {
+      "bind_git_prerequisites": true,
+      "bind_loaded_module_inventory_sha256": true,
+      "bind_required_source_a_paths": true,
+      "bind_source_a_inventory_sha256": true,
+      "direct_single_parent_child_of_source_a": true,
+      "must_be_absent_during_source_only_validation": true,
+      "only_allowed_execution_b_source_tree_diff": true,
+      "path": "code/configs/causalcache_gate_v1_fresh16_failure_decomposition_runner_v1.json"
+    },
+    "git_prerequisites": [
+      {
+        "git_commit": "f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1",
+        "path": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json",
+        "sha256": "3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7",
+        "size_bytes": 11723
+      },
+      {
+        "git_commit": "ce523ff54ebfdc19a9c2bd49ad21548f0934a634",
+        "path": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_runner_v1.json",
+        "sha256": "c35dccd0d540cd01bd0f93fce11289c40dbada577e856e997a9dcd52347403d8",
+        "size_bytes": 28936
+      },
+      {
+        "git_commit": "a04049e3b9a314dcbeb478210cb53cd20a207d32",
+        "path": "data/results/gate_v1_fresh16_claim_serialization_repair_v1/summary.json",
+        "sha256": "621c09d13c027bfbc2835be894dd3de8fbc69c2f03a8605ab3a951cba753e626",
+        "size_bytes": 9419
+      },
+      {
+        "git_commit": "d0f25d812869d5fc7b58284a25abe3aa8049b0aa",
+        "path": "data/results/restoration_v2_2_selector_geometry_v2_repair/summary.json",
+        "sha256": "57eecbba5326cabf430f0a739118e986781a595e98ea6a32ddaeef118abc6811",
+        "size_bytes": 1529767
+      },
+      {
+        "path": "code/causalcache/gate_v1_fresh16.py",
+        "sha256": "88525a8cc1be373b14983447ded1703849527b6913bcf9e9a979645d8c024dc6",
+        "size_bytes": 32208
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_label_table.py",
+        "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+        "size_bytes": 12732
+      }
+    ],
+    "head_must_equal_origin_main": true,
+    "origin_name": "origin",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "required_source_a_paths": [
+      "code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json",
+      "code/causalcache/gate_v1_fresh16_failure_decomposition_contract.py",
+      "code/causalcache/gate_v1_fresh16_failure_decomposition.py",
+      "code/causalcache/gate_v1_fresh16_failure_decomposition_runner.py",
+      "code/scripts/manage_gate_v1_fresh16_failure_decomposition.py",
+      "code/tests/test_gate_v1_fresh16_failure_decomposition_contract.py",
+      "code/tests/test_gate_v1_fresh16_failure_decomposition.py",
+      "code/tests/test_gate_v1_fresh16_failure_decomposition_runner.py",
+      "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json",
+      "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_runner_v1.json",
+      "data/results/gate_v1_fresh16_claim_serialization_repair_v1/summary.json",
+      "data/results/restoration_v2_2_selector_geometry_v2_repair/summary.json",
+      "code/causalcache/gate_v1_fresh16.py",
+      "code/causalcache/gate_v1_data.py",
+      "code/causalcache/low_fidelity_v2.py",
+      "code/causalcache/restoration_v2_2_label_table.py"
+    ],
+    "source_a_local_tracking_validation_network_call_count": 0,
+    "worktree_must_be_clean": true
+  },
+  "source_only_operation_contract": {
+    "child_hf_mutation_count": 0,
+    "closed_loop_episode_count": 0,
+    "confirm20_access_count": 0,
+    "file_write_count": 0,
+    "fresh16_raw_source_access_count": 0,
+    "gate_checkpoint_load_count": 0,
+    "gate_training_step_count": 0,
+    "legacy_dev5_semantic_decode_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "model_forward_count": 0,
+    "network_call_count": 0,
+    "parent_hf_api_call_count": 0,
+    "policy_generation_count": 0,
+    "restoration_teacher_forward_count": 0,
+    "sealed_fresh16_state_decode_count": 0,
+    "torch_import_count": 0
+  },
+  "status": "source_only_frozen_before_fresh16_failure_decomposition"
+}

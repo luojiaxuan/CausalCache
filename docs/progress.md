@@ -61,6 +61,27 @@ fresh-16 已消费，旧 dev-5 与 confirm 尚未打开。
 [`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md)；旧 repair v1
 namespace 不得续跑。
 
+### 2026-07-18：fresh-16 failure-decomposition Source-A freeze
+
+- 新 reporting-only child 将 parent primary 固定拆为 `E-C=(E-G)+(G-C)`；`E/G/J/C/I` 分别是 exact、
+  true conditional greedy、oracle budget-conditioned independent、sealed conditional 与 sealed independent。
+  `J` 精确复刻 independent raw target，不把 learned `I` 当 oracle teacher；
+- 输入面只允许 parent report commit `3541fe1ea2c46e555c29cc53483e6f3b809f8f81` 上的 bundle manifest、
+  48-row label table 与 48-row primary state records。raw trajectory、截图/OCR、feature、GUI-Owl、gate checkpoint、
+  上游 raw labels、旧 dev-5、confirm、matched-NLL 与 closed-loop 均不可访问；
+- config SHA256 为 `fa2cd3759150f838fce78b72a987d7a889ef23f5eec5ec41286ae69090104f1f`；
+  Source-A validator 绑定 source blobs 与 transitive reducer dependencies，要求 runner-freeze B absent，且
+  network/write/sealed semantic/model/HF mutation 全为 0；
+- routing 固定为：`G/E` normalized/raw 均至少 `0.95` 且 n3/n4 raw 各至少 `0.90`；`G-J`
+  normalized delta 至少 `0.02`、90% trajectory-bootstrap lower 大于 0、positive support 至少 `12/16`；同时
+  `C/G` normalized 严格低于 `0.90` 或 raw 严格低于 `0.95`，才允许一次 conditional v2 rescue；
+- focused contract/reducer/runner 为 50/50 passed；全仓为 1,312 passed、16 skipped、5 deselected、617
+  subtests passed。5 个 deselect 均为已完成历史 A/B 中只在旧 Source-A 时要求 runner-freeze B absent 的 lifecycle
+  tests；其余 suite 全绿；
+- source 阶段没有正式 diagnostic result。开发期只读 byte replay 只用于验证 reducer/contract plumbing，不能作为
+  canonical result；唯一正式结论必须在 clean pushed Execution-B 上发布 private-HF exact-three 并 immutable
+  replay 后形成。fresh-16 已消费，后续不能再把它当 v2 holdout。
+
 ### 2026-07-18：fresh-16 claim-repair primary 完成并判定 NO-GO
 
 - Source-A=`f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1`；机械生成的唯一 Execution-B=

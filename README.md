@@ -5,6 +5,10 @@
 > Target venue: AAAI
 > Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 parent v1 = pre-semantic inventory `INVALID`; full-inventory repair v1 = pre-label claim-serialization `INVALID`; claim-serialization repair = `COMPLETED` + `REVALIDATED`, selector `NO-GO`, set-conditioning `NO-GO` / confirm、matched-NLL、closed-loop locked
 
+> Current diagnostic: fresh-16 failure-decomposition Source-A 随本 milestone 冻结；当前没有新的 scientific result、HF child
+> 或 execution authorization。该 child 只允许读取 parent 的 exact-three sealed files，并按冻结规则路由
+> `ONE_V2_CONDITIONAL_RESCUE` 或停止 set-conditioned 主张；不会翻转 v1 `NO-GO`。
+
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
 > 新的 48 train +16 fresh-dev
@@ -82,7 +86,9 @@
 > 这是否定 frozen v1 gate 与 set-conditioning claim 的科学 `NO-GO`，不是实现失败。
 > 完整边界见 [`docs/gate_v1_fresh16_evaluation.md`](docs/gate_v1_fresh16_evaluation.md) 与
 > [`docs/gate_v1_fresh16_inventory_repair.md`](docs/gate_v1_fresh16_inventory_repair.md)、
-> [`docs/gate_v1_fresh16_claim_serialization_repair.md`](docs/gate_v1_fresh16_claim_serialization_repair.md)。
+> [`docs/gate_v1_fresh16_claim_serialization_repair.md`](docs/gate_v1_fresh16_claim_serialization_repair.md)。只读
+> failure-decomposition 的 input、estimand、routing 与 split-consumption 边界见
+> [`docs/gate_v1_fresh16_failure_decomposition.md`](docs/gate_v1_fresh16_failure_decomposition.md)。
 
 ## 团队交接入口
 
@@ -870,7 +876,8 @@ $$
 - [x] 从 clean pushed claim-repair A 重放 source validation，机械生成唯一 direct-child B 并单独 commit/push；
 - [x] 对已冻结 ensemble 执行一次性 fresh-16 primary，完成 13-target private-HF publication 与独立 immutable
   validate；结果为 selector `NO-GO`、set-conditioning `NO-GO`；
-- [ ] 冻结并执行只读 fresh-16 failure decomposition；项目选择不执行 post-primary combined-21 compatibility；
+- [ ] 完成只读 fresh-16 failure-decomposition Source-A/Execution-B、private-HF exact-three publication 与
+  immutable replay；项目选择不执行 post-primary combined-21 compatibility；
   confirm、matched-NLL 与 closed-loop 的 post-GO 权限继续保持 locked；
 - [ ] 整理论文与复现实验配置。
 
@@ -931,6 +938,8 @@ $$
 - Gate v1 fresh-16 claim-serialization repair protocol: [`docs/gate_v1_fresh16_claim_serialization_repair.md`](docs/gate_v1_fresh16_claim_serialization_repair.md)
 - Gate v1 fresh-16 claim-serialization repair Source-A config: [`code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`](code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json)，SHA256 `3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7`；57-path source inventory SHA256 `572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`
 - Gate v1 fresh-16 primary result: [`data/results/gate_v1_fresh16_claim_serialization_repair_v1/`](data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；private HF tag `gate-v1-fresh16-claim-serialization-repair-v1` → `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`
+- Gate v1 fresh-16 failure-decomposition protocol: [`docs/gate_v1_fresh16_failure_decomposition.md`](docs/gate_v1_fresh16_failure_decomposition.md)
+- Gate v1 fresh-16 failure-decomposition Source-A config: [`code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json`](code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json)，SHA256 `fa2cd3759150f838fce78b72a987d7a889ef23f5eec5ec41286ae69090104f1f`；当前 source-only，private-HF child 尚未创建
 - Gate v1 synthetic-only smoke: [`code/scripts/run_gate_v1_trainer_smoke.py`](code/scripts/run_gate_v1_trainer_smoke.py)
 - Label-expansion exposure protocol: [`docs/restoration_v2_2_label_expansion_exposure.md`](docs/restoration_v2_2_label_expansion_exposure.md)
 - Label-expansion exposure materializer: [`code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py`](code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py)
