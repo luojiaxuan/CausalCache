@@ -1,0 +1,262 @@
+{
+  "contract_sha256": "bff920266b3f691618005b239c8a0aaa99369b45c0612ae628eec1a8f7eebf2f",
+  "execution_authorized_after_clean_pushed_b_only": true,
+  "execution_b_required_unique_diff": [
+    "code/configs/causalcache_gate_v1_formal_train_runner_v1.json"
+  ],
+  "git_prerequisites": [
+    {
+      "path": "code/configs/causalcache_gate_v1_preregistration.json",
+      "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+      "size_bytes": 16207
+    },
+    {
+      "path": "data/results/gate_v1_formal58_cache_transport_repair_v1/summary.json",
+      "sha256": "67d0bb81737b4755925ae2744d4af59e2638f69fe0bf9ba1c19c3ba3b89c38b2",
+      "size_bytes": 6945
+    },
+    {
+      "path": "code/causalcache/gate_v1_contract.py",
+      "sha256": "c139cca62ba04d609726a652390fa495a9a368c5b2b48e52b988c1b12ea753b0",
+      "size_bytes": 26383
+    },
+    {
+      "path": "code/causalcache/gate_v1_data.py",
+      "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+      "size_bytes": 26772
+    },
+    {
+      "path": "code/causalcache/gate_v1_training.py",
+      "sha256": "c64f8cf8ce921f40fcab8e8d3457150e1d821fa4669844edce1c90c21d3be345",
+      "size_bytes": 30392
+    },
+    {
+      "path": "code/causalcache/gate_v1_provenance.py",
+      "sha256": "6bc827d76f509a90f859fc19fb8bce75e05a5f057a9bb60c2ec1ed8c7c97dd74",
+      "size_bytes": 17178
+    },
+    {
+      "path": "code/causalcache/gate_v1_formal_cache.py",
+      "sha256": "87ddadf76cb3a01da8b2334ff12704d080fcbf08286cfa7e534275f443593d65",
+      "size_bytes": 70886
+    },
+    {
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    }
+  ],
+  "git_prerequisites_sha256": "8500455428b6c2ab30918bceaf8f28c472da9a04688e06877c93af1814e8f9db",
+  "loaded_module_inventory": [
+    {
+      "module": "causalcache",
+      "path": "code/causalcache/__init__.py",
+      "sha256": "9a2ea6d762bf31ccf6ee2126b698017507ffb9c370f067da56fc31e236529ffa",
+      "size_bytes": 517
+    },
+    {
+      "module": "causalcache.attribution",
+      "path": "code/causalcache/attribution.py",
+      "sha256": "7c7b59992a6e2ef6b0b31797953059b523031e749e4e4ccbd8a51fc192088f9c",
+      "size_bytes": 6212
+    },
+    {
+      "module": "causalcache.contracts",
+      "path": "code/causalcache/contracts.py",
+      "sha256": "eb00c333f4589baa78d4bc296e2af5d8414b2b4a5ba8517ee44f69c0d9af5714",
+      "size_bytes": 9176
+    },
+    {
+      "module": "causalcache.gate_v1_contract",
+      "path": "code/causalcache/gate_v1_contract.py",
+      "sha256": "c139cca62ba04d609726a652390fa495a9a368c5b2b48e52b988c1b12ea753b0",
+      "size_bytes": 26383
+    },
+    {
+      "module": "causalcache.gate_v1_data",
+      "path": "code/causalcache/gate_v1_data.py",
+      "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+      "size_bytes": 26772
+    },
+    {
+      "module": "causalcache.gate_v1_formal_cache",
+      "path": "code/causalcache/gate_v1_formal_cache.py",
+      "sha256": "87ddadf76cb3a01da8b2334ff12704d080fcbf08286cfa7e534275f443593d65",
+      "size_bytes": 70886
+    },
+    {
+      "module": "causalcache.gate_v1_formal_cache_contract",
+      "path": "code/causalcache/gate_v1_formal_cache_contract.py",
+      "sha256": "30ffa34054644ae4b06ef2dd6b64cd9ec5962b3665a778f3e9a8923ddf6abb6f",
+      "size_bytes": 29803
+    },
+    {
+      "module": "causalcache.gate_v1_formal_train",
+      "path": "code/causalcache/gate_v1_formal_train.py",
+      "sha256": "eed85d6b02829dd0eeb9335971d9ce5dd48f452157a6ac441d6a735a32b36fac",
+      "size_bytes": 20080
+    },
+    {
+      "module": "causalcache.gate_v1_formal_train_contract",
+      "path": "code/causalcache/gate_v1_formal_train_contract.py",
+      "sha256": "512b0e34d5a268e9ad66258a5526b230cb16cb40e25d7a4a8a80ba3785dc2699",
+      "size_bytes": 29579
+    },
+    {
+      "module": "causalcache.gate_v1_formal_train_runner",
+      "path": "code/causalcache/gate_v1_formal_train_runner.py",
+      "sha256": "25a9b274078fd0477fa9be80b24369bfbbc246961d8ef444e3cfbe955c9d3f36",
+      "size_bytes": 101981
+    },
+    {
+      "module": "causalcache.gate_v1_provenance",
+      "path": "code/causalcache/gate_v1_provenance.py",
+      "sha256": "6bc827d76f509a90f859fc19fb8bce75e05a5f057a9bb60c2ec1ed8c7c97dd74",
+      "size_bytes": 17178
+    },
+    {
+      "module": "causalcache.gate_v1_training",
+      "path": "code/causalcache/gate_v1_training.py",
+      "sha256": "c64f8cf8ce921f40fcab8e8d3457150e1d821fa4669844edce1c90c21d3be345",
+      "size_bytes": 30392
+    },
+    {
+      "module": "causalcache.low_fidelity_v2",
+      "path": "code/causalcache/low_fidelity_v2.py",
+      "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a",
+      "size_bytes": 14249
+    },
+    {
+      "module": "causalcache.restoration_v2_2_label_table",
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    },
+    {
+      "module": "causalcache.schema",
+      "path": "code/causalcache/schema.py",
+      "sha256": "3f281fe3a646468de36f4764d20c46d1dea3867d35c819ca4ad52977d318ee5b",
+      "size_bytes": 7413
+    },
+    {
+      "module": "scripts",
+      "path": "code/scripts/__init__.py",
+      "sha256": "9fa01154ac0639c2ce9e4538cf57d9c0e12a53406c0a154ec809fcc360f241ce",
+      "size_bytes": 72
+    }
+  ],
+  "loaded_module_inventory_sha256": "2f56ff9b0a8afd5760cac9f44866813c4ff8893b9869327fd9445cc922c32368",
+  "protocol_id": "causalcache_gate_v1_formal_train_v1",
+  "required_source_a_paths": [
+    "code/configs/causalcache_gate_v1_formal_train_v1.json",
+    "code/causalcache/gate_v1_formal_train_contract.py",
+    "code/causalcache/gate_v1_formal_train.py",
+    "code/causalcache/gate_v1_formal_train_runner.py",
+    "code/scripts/validate_gate_v1_formal_train_contract.py",
+    "code/scripts/manage_gate_v1_formal_train.py",
+    "code/tests/test_gate_v1_formal_train_contract.py",
+    "code/tests/test_gate_v1_formal_train.py",
+    "code/tests/test_gate_v1_formal_train_runner.py",
+    "code/configs/causalcache_gate_v1_preregistration.json",
+    "data/results/gate_v1_formal58_cache_transport_repair_v1/summary.json",
+    "code/causalcache/gate_v1_contract.py",
+    "code/causalcache/gate_v1_data.py",
+    "code/causalcache/gate_v1_training.py",
+    "code/causalcache/gate_v1_provenance.py",
+    "code/causalcache/gate_v1_formal_cache.py",
+    "code/causalcache/restoration_v2_2_label_table.py"
+  ],
+  "required_source_a_paths_sha256": "68d9e3acc07a9dab86b2b645d38899de843f9f0c2a79ce2e9b07305b070542b9",
+  "schema_version": "1.0.0",
+  "source_a_git_commit": "e20f004ab79afaba4a04a108e70779d49087b2b9",
+  "source_a_inventory_sha256": "b111e33b540a2aeef406e3d5a01c7f7a7f0ec440ab1ae50b16c526585285c8df",
+  "source_blob_inventory": [
+    {
+      "path": "code/configs/causalcache_gate_v1_formal_train_v1.json",
+      "sha256": "bff920266b3f691618005b239c8a0aaa99369b45c0612ae628eec1a8f7eebf2f",
+      "size_bytes": 18477
+    },
+    {
+      "path": "code/causalcache/gate_v1_formal_train_contract.py",
+      "sha256": "512b0e34d5a268e9ad66258a5526b230cb16cb40e25d7a4a8a80ba3785dc2699",
+      "size_bytes": 29579
+    },
+    {
+      "path": "code/causalcache/gate_v1_formal_train.py",
+      "sha256": "eed85d6b02829dd0eeb9335971d9ce5dd48f452157a6ac441d6a735a32b36fac",
+      "size_bytes": 20080
+    },
+    {
+      "path": "code/causalcache/gate_v1_formal_train_runner.py",
+      "sha256": "25a9b274078fd0477fa9be80b24369bfbbc246961d8ef444e3cfbe955c9d3f36",
+      "size_bytes": 101981
+    },
+    {
+      "path": "code/scripts/validate_gate_v1_formal_train_contract.py",
+      "sha256": "a9fdecc89925323b455fe8fc63e7e6ee330bf74e376cd093c49abce8582d8755",
+      "size_bytes": 952
+    },
+    {
+      "path": "code/scripts/manage_gate_v1_formal_train.py",
+      "sha256": "293f30595c539e1a31fc6094a2b7dfd2f159dcdf18446d3dd9056939c18a1846",
+      "size_bytes": 5842
+    },
+    {
+      "path": "code/tests/test_gate_v1_formal_train_contract.py",
+      "sha256": "cfe78de0a63058f2bf09a6ea5e891caa6a45d9724630f2fbde1bcf08dabfcb03",
+      "size_bytes": 11636
+    },
+    {
+      "path": "code/tests/test_gate_v1_formal_train.py",
+      "sha256": "03444f0cc3ce5dceb8085b90acb776a2fbd837cd9cab23b60cf796307461fd16",
+      "size_bytes": 10985
+    },
+    {
+      "path": "code/tests/test_gate_v1_formal_train_runner.py",
+      "sha256": "0da9478ac7935cc31d63ef5ab25611de11fbf155629e15e35676af8d0ba27650",
+      "size_bytes": 50921
+    },
+    {
+      "path": "code/configs/causalcache_gate_v1_preregistration.json",
+      "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+      "size_bytes": 16207
+    },
+    {
+      "path": "data/results/gate_v1_formal58_cache_transport_repair_v1/summary.json",
+      "sha256": "67d0bb81737b4755925ae2744d4af59e2638f69fe0bf9ba1c19c3ba3b89c38b2",
+      "size_bytes": 6945
+    },
+    {
+      "path": "code/causalcache/gate_v1_contract.py",
+      "sha256": "c139cca62ba04d609726a652390fa495a9a368c5b2b48e52b988c1b12ea753b0",
+      "size_bytes": 26383
+    },
+    {
+      "path": "code/causalcache/gate_v1_data.py",
+      "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+      "size_bytes": 26772
+    },
+    {
+      "path": "code/causalcache/gate_v1_training.py",
+      "sha256": "c64f8cf8ce921f40fcab8e8d3457150e1d821fa4669844edce1c90c21d3be345",
+      "size_bytes": 30392
+    },
+    {
+      "path": "code/causalcache/gate_v1_provenance.py",
+      "sha256": "6bc827d76f509a90f859fc19fb8bce75e05a5f057a9bb60c2ec1ed8c7c97dd74",
+      "size_bytes": 17178
+    },
+    {
+      "path": "code/causalcache/gate_v1_formal_cache.py",
+      "sha256": "87ddadf76cb3a01da8b2334ff12704d080fcbf08286cfa7e534275f443593d65",
+      "size_bytes": 70886
+    },
+    {
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    }
+  ],
+  "source_blob_inventory_sha256": "b111e33b540a2aeef406e3d5a01c7f7a7f0ec440ab1ae50b16c526585285c8df",
+  "status": "FROZEN_GATE_V1_FORMAL58_TRAIN_EXECUTION_B_V1"
+}
