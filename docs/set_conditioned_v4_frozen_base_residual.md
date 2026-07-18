@@ -11,6 +11,12 @@
 Fresh16 结果只能称为 consumed development evidence，不能称为 holdout、test、confirmation 或 paper GO。
 confirm20、legacy dev-5、matched-NLL、closed-loop、policy forward 和 GPU 仍保持零访问。
 
+最终执行状态：`NO_DEVELOPMENT_EVIDENCE_FOR_FROZEN_BASE_RESIDUAL`。正式 Source-A=`ea3d53b…`、唯一
+Execution-B=`8e8bfd9…`；safe residual 在 Fresh16 的 48/48 state 都等于 frozen base，五项继续条件全部失败。
+完整指标与 immutable HF revisions 见
+`data/results/set_conditioned_v4_frozen_base_residual_dev_v1/`。本实验已封存，不允许在相同 Formal58/Fresh16
+上继续调 v5。
+
 机器可读 Source-A 是
 `code/configs/causalcache_set_conditioned_v4_frozen_base_residual_development_v1.json`。正式执行前，主任务必须在
 所有 Source-A 文件完成后机械冻结 config SHA-256。本 Source-A 的固定值为

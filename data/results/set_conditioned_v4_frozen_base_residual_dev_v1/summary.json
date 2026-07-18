@@ -1,0 +1,236 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_set_conditioned_v4_frozen_base_residual_development_summary_v1",
+  "status": "NO_DEVELOPMENT_EVIDENCE_FOR_FROZEN_BASE_RESIDUAL",
+  "date": "2026-07-18",
+  "scope": "non_mainline_consumed_development_not_holdout_not_test",
+  "git_lineage": {
+    "branch": "luojiaxuan/set-conditioned-v4-frozen-base-residual",
+    "base_git_commit": "a50245b0edc681ec3c7f9ec06277d789586d32a8",
+    "source_a_git_commit": "ea3d53bd87e3d0af8d03ad8ec599a4d6ed99dd7e",
+    "execution_b_git_commit": "8e8bfd9cb65a3a943b5fdfa082d9fb39d49ccb6c",
+    "source_inventory_sha256": "033bae2bb10afe585e69a117b80bf0ffdbe9148ba6190176ecac1a4d18cd00c2",
+    "contract_sha256": "474df3cfebad7b3a6de9a31769650c1695a0939008f542ec4fd8f31db2aa6c3f",
+    "runner_freeze_sha256": "429fec9573bdfd170b9914cdbfe3a4fb5d85088bbc3ffda21e1f02782a147e29"
+  },
+  "runtime": {
+    "host_alias": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "container": "sglang-omni-jaxan-07181414",
+    "container_image": "hongccc/sglang-omni:dev",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "device": "cpu",
+    "gpu_count": 0,
+    "docker_device_requests": [],
+    "thread_count_set_by_training_runtime": 1,
+    "python": "3.12.3",
+    "numpy": "2.3.5",
+    "torch": "2.11.0+cu130",
+    "dtype": "float32",
+    "train_seal_start_utc": "2026-07-18T11:18:03.047762078Z",
+    "train_seal_end_utc": "2026-07-18T11:25:58.168324932Z",
+    "evaluate_start_utc": "2026-07-18T11:29:44.468973902Z",
+    "evaluate_end_utc": "2026-07-18T11:29:45.240982938Z",
+    "failure_classification": "none"
+  },
+  "commands": {
+    "train_seal": "PYTHONPATH=code python -u code/scripts/run_set_conditioned_v4_exploration.py train-seal --repository-root . --source-a-git-commit ea3d53bd87e3d0af8d03ad8ec599a4d6ed99dd7e --execution-b-git-commit 8e8bfd9cb65a3a943b5fdfa082d9fb39d49ccb6c --input-dir /data/experiments/causalcache/set-conditioned-v4-frozen-base-residual-development-v1/input --output-dir /data/experiments/causalcache/set-conditioned-v4-frozen-base-residual-development-v1/output",
+    "evaluate": "PYTHONPATH=code python -u code/scripts/run_set_conditioned_v4_exploration.py evaluate --repository-root . --source-a-git-commit ea3d53bd87e3d0af8d03ad8ec599a4d6ed99dd7e --execution-b-git-commit 8e8bfd9cb65a3a943b5fdfa082d9fb39d49ccb6c --input-dir /data/experiments/causalcache/set-conditioned-v4-frozen-base-residual-development-v1/input --output-dir /data/experiments/causalcache/set-conditioned-v4-frozen-base-residual-development-v1/output",
+    "report_only_validate": "PYTHONPATH=code python code/scripts/run_set_conditioned_v4_exploration.py validate --output-dir /data/experiments/causalcache/set-conditioned-v4-frozen-base-residual-development-v1/output"
+  },
+  "source_inputs": {
+    "formal58": {
+      "repo_id": "gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile",
+      "revision": "a61b31bf2e69be00f94469f4a2f2d6b336fcc386",
+      "feature_cache_sha256": "81fded50c4450700220742d3e0be9a5585d1bc51086150515b463bbdf4b4df8e",
+      "label_cache_sha256": "4f9ef172aaa94c3ea8ce53aa43336c9fcb7800c24e181e1462d8239e31053cee"
+    },
+    "fresh16": {
+      "repo_id": "gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile",
+      "revision": "3541fe1ea2c46e555c29cc53483e6f3b809f8f81",
+      "role": "consumed_development_not_holdout_not_test",
+      "feature_sha256": "deacc63480ed706d44e7690d974250860d1bc3e5967d4c2a3315090fe4b93939",
+      "label_sha256": "832096b98011264a6b7fee74b2e78798876ea0d5ffc5c9c9baf7642be8e92382",
+      "historical_independent_sha256": "2359c0f4b03e7009291c8912bea7193a4dfebd5f01d4876efd312bc595404dd2"
+    },
+    "frozen_base": {
+      "repo_id": "gavinlaw/causalcache-gate-v1-formal58-selector-mobile",
+      "revision": "23f6786075c7bff91f93fd7e8a878e070efb72a9",
+      "manifest_sha256": "38809f1ef4da9636ef6779733cee4926b36b38e3bd86eab199450e685c63da24",
+      "checkpoint_count": 5
+    }
+  },
+  "canonical_artifacts": {
+    "tag": "set-conditioned-v4-frozen-base-residual-development-v1",
+    "model": {
+      "repo_id": "gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-exploration-mobile",
+      "revision": "1641b90a4ebb05037e4710738a78e2c79f81cdc3",
+      "private": true,
+      "manifest_sha256": "3ecc5e0a27e8ff57774788d71da6dbe4ff2a3bf08001747ab9a0de79607b9544",
+      "readme_sha256": "e6638c7261b5df64e61284453897cd2f063cfe8a937d832d2345d1f9f4ffa6b3",
+      "manifest_payload_count_verified": 9
+    },
+    "development": {
+      "repo_id": "gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-development-mobile",
+      "revision": "d38513e4c3a22e02dcef1277472c5adf8667e73f",
+      "private": true,
+      "manifest_sha256": "20fe781418c3b91670760802c91773320f415f5f2c98cad89f24bd6dabee96a5",
+      "readme_sha256": "7c54a60d0148215a36cd8cb94d8b4e0d3578637e7ed33c34180111eff4be5b48",
+      "manifest_payload_count_verified": 4
+    },
+    "immutable_tag_resolution_verified": true,
+    "fresh_force_download_sha256_size_and_byte_identity_verified": true
+  },
+  "artifact_integrity": {
+    "execution_b_validation_stdout_sha256": "b4d511c45b60b0378d52dd2c69692f941abc63ace6ef3a40eccd36658e6b9907",
+    "train_seal_stdout_sha256": "8a17f5ba61263e5aa4589fdfe487eb43bc83aa6f7900c158ce2ac8b12f03361f",
+    "train_seal_validate_stdout_sha256": "bc043b7d1b5362b97f6dc2eba9923c7885c44dc6cc9dbb43ed67f809fb052fd3",
+    "formal_training_report_sha256": "a263c22dee3360e6de8e8efc7623370606fc09e30a2cd33ed5f2cd25c21a6be9",
+    "base_invariant_report_sha256": "18c572b105189fe0039bb9cd7b9d5c8ab55525679f95b62a9149404b26d1d3f6",
+    "fresh_feature_only_predictions_sha256": "8c306a131facf468c6443b421a06af298b9d7dfd7711b087b4f27fd00d3afb36",
+    "label_blind_seal_sha256": "02b4b41eb9d180dd22e3c51575bfcdb9a0fca470d51fff3a7ee9cec38faa4439",
+    "fresh_label_access_claim_sha256": "14b5b7629436006c377db8d55ad34a781b36bb3884bfd4e61eccf494c6049f1a",
+    "development_report_internal_sha256": "f025aa22f8893f7f7e96495043ca9732201e0bd83d74e2b09fc79ff72ad49cc3",
+    "development_report_file_sha256": "c00333ebeaaf04ac8513611e6b4982810286696af8f50fbd3107786bf826cf13",
+    "development_report_size_bytes": 60613,
+    "evaluate_stdout_sha256": "517d718b35447c728d1d61d6627956961291b90e3747765c34270aabe9354a5e",
+    "report_only_validate_stdout_sha256": "77bf39d82881ba0b25e0b28382d6a615b58f753600713d083a6a99dbe07ae750",
+    "report_only_validate_stdout_size_bytes": 122581,
+    "two_report_only_validations_byte_identical": true,
+    "residual_checkpoint_sha256_by_seed": [
+      "cd11c4abd190e267e46772fa70769553c91e9073b2d00ef665bd3d30e0c67db0",
+      "ccd9c0987040b78f95ae71977e2b165d17188ee5ad7d7f3cb8af5daa1b7d3605",
+      "7878af92695d069e2d415ae7b89c8c4084cc2d3a26385d4d679601e629dd11c8",
+      "d5bf290769c13d7ab240c5206b7de57e5019814502d6b5ccf2e1a0e09c6b8788",
+      "1726321b3b3ca88f07e84280d556d5a7d0ccbe7eb1d6753c9354971417688ba9"
+    ]
+  },
+  "access_accounting": {
+    "accounting_scope": "v3_to_v4_lineage_not_project_global",
+    "v4_fresh_label_access_claim_count": 1,
+    "v4_fresh_label_semantic_decode_attempt_count": 1,
+    "v4_fresh_decoded_state_count": 48,
+    "v4_historical_parse_attempt_count": 1,
+    "v3_to_v4_lineage_claim_count": 2,
+    "v3_to_v4_lineage_semantic_decode_attempt_count": 3,
+    "training_run_count": 1,
+    "prediction_generation_count": 1,
+    "development_report_completion_count": 1,
+    "confirm20_access_count": 0,
+    "legacy_dev5_access_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0,
+    "policy_forward_count": 0,
+    "gpu_operation_count": 0
+  },
+  "base_invariant": {
+    "frozen_base_trainable_parameter_count": 0,
+    "canonical_full_fit_frozen_base_optimizer_step_count": 0,
+    "pre_post_checkpoint_bytes_identical": true,
+    "post_training_model_state_sha256_identical": true,
+    "fresh_zero_residual_replay_state_count": 48,
+    "fresh_historical_ensemble_replay_state_count": 48,
+    "fresh_historical_seed_replay_decision_count": 240
+  },
+  "formal58_diagnostics": {
+    "selected_learning_rate": 0.001,
+    "selected_epochs_by_seed": [66, 0, 17, 40, 0],
+    "five_seed_mean_selected_oof_score": 0.757210806471905,
+    "selected_oof_scores_by_seed": [0.8294286312882332, 0.7871413914246023, 0.83003182275872, 0.660092966331755, 0.6793592205562144],
+    "fold_clean_base_replay_five_seed_mean_raw_ratio_to_exact": 0.9063764691683989,
+    "selected_epoch_zero_count": 2,
+    "n4_oof": {
+      "frozen_base_normalized_ratio_to_exact": 0.663144672113282,
+      "frozen_base_raw_ratio_to_exact": 0.9038160541952248,
+      "safe_normalized_ratio_to_exact": 0.663144672113282,
+      "safe_raw_ratio_to_exact": 0.9038160541952248,
+      "unguarded_normalized_ratio_to_exact": 0.6627514817461128,
+      "unguarded_raw_ratio_to_exact": 0.9037870129943935,
+      "safe_accepted_pair_count": 0,
+      "safe_fallback_count": 3,
+      "state_count": 58
+    }
+  },
+  "fresh16_development": {
+    "trajectory_count": 16,
+    "state_count": 48,
+    "development_interpretation": "NO_DEVELOPMENT_EVIDENCE_FOR_FROZEN_BASE_RESIDUAL",
+    "primary_contrast": "v4_safe_minus_frozen_base",
+    "frozen_checks": {
+      "mean_normalized_delta_at_least_0_01": false,
+      "normalized_bootstrap_lower_strictly_positive": false,
+      "mean_raw_delta_strictly_positive": false,
+      "n4_mean_normalized_delta_strictly_positive": false,
+      "at_least_8_positive_trajectories": false
+    },
+    "overall": {
+      "exact": {
+        "mean_normalized_recovery": 0.8498409020600457,
+        "mean_raw_utility": 0.0430141145388158
+      },
+      "frozen_base": {
+        "mean_normalized_recovery": 0.7123785840017873,
+        "mean_raw_utility": 0.04046445946535945,
+        "normalized_ratio_to_exact": 0.8382493502901018,
+        "raw_ratio_to_exact": 0.9407251526436619
+      },
+      "safe_frozen_base_residual": {
+        "mean_normalized_recovery": 0.7123785840017873,
+        "mean_raw_utility": 0.04046445946535945,
+        "normalized_ratio_to_exact": 0.8382493502901018,
+        "raw_ratio_to_exact": 0.9407251526436619
+      },
+      "unguarded_frozen_base_residual": {
+        "mean_normalized_recovery": 0.7123776763840988,
+        "mean_raw_utility": 0.04046441983564364,
+        "normalized_ratio_to_exact": 0.8382482823046866,
+        "raw_ratio_to_exact": 0.9407242313247824
+      }
+    },
+    "n4": {
+      "exact_mean_normalized_recovery": 0.7593559781529126,
+      "exact_mean_raw_utility": 0.03358023351188422,
+      "frozen_base_normalized_ratio_to_exact": 0.545451986240978,
+      "frozen_base_raw_ratio_to_exact": 0.8414477915752268,
+      "safe_normalized_ratio_to_exact": 0.545451986240978,
+      "safe_raw_ratio_to_exact": 0.8414477915752268,
+      "unguarded_normalized_ratio_to_exact": 0.5454484005010299,
+      "unguarded_raw_ratio_to_exact": 0.8414442511249385
+    },
+    "paired_bootstrap": {
+      "safe_minus_frozen_base": {
+        "mean_normalized_delta": 0.0,
+        "normalized_90_interval": [0.0, 0.0],
+        "mean_raw_delta": 0.0,
+        "raw_90_interval": [0.0, 0.0],
+        "positive_trajectory_count": 0,
+        "negative_trajectory_count": 0,
+        "zero_trajectory_count": 16
+      },
+      "unguarded_minus_frozen_base": {
+        "mean_normalized_delta": -9.076176885394025e-07,
+        "normalized_90_interval": [-2.7228530656182075e-06, 0.0],
+        "mean_raw_delta": -3.9629715805252395e-08,
+        "raw_90_interval": [-1.1888914741575718e-07, 0.0],
+        "positive_trajectory_count": 0,
+        "negative_trajectory_count": 1,
+        "zero_trajectory_count": 15
+      }
+    },
+    "switch_diagnostics": {
+      "safe_changed_base_count": 0,
+      "used_pair_candidate_count": 0,
+      "pair_candidate_equals_base_count": 47,
+      "safe_fallback_count": 1,
+      "unguarded_changed_base_count": 1,
+      "state_count": 48
+    }
+  },
+  "claim_boundaries": {
+    "may_authorize_confirm20": false,
+    "may_change_v1_or_v3_verdict": false,
+    "may_support_v5_retune_on_same_formal58_fresh16": false,
+    "may_be_called_holdout_test_or_confirmation": false,
+    "paper_mainline_changed": false
+  }
+}

@@ -2973,3 +2973,24 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   的 direct-child Execution-B 执行。planned private HF
   repos 为 `gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-exploration-mobile` 和
   `gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-development-mobile`；两者在 freeze 前均确认不存在。
+
+### 2026-07-18：set-conditioned v4 Frozen-base residual 完成并 NO-GO
+
+- 正式 Source-A=`ea3d53bd87e3d0af8d03ad8ec599a4d6ed99dd7e`，唯一 direct-child Execution-B=
+  `8e8bfd9cb65a3a943b5fdfa082d9fb39d49ccb6c`；B 只新增 canonical runner freeze，live-remote validation
+  返回 direct-single-parent/unique-diff，runner SHA256=`429fec95...7e29`；
+- Hyper00 CPU-only train-seal 用时约 7m55s，选择 LR=`0.001`、seed epochs=`[66,0,17,40,0]`。25 个
+  fold-clean base 复现历史 mean raw ratio=`0.9063764691683989`；五个 full-fit base checkpoint 训练前后 bytes
+  与 model-state SHA 全相同，Fresh feature zero-residual replay 48/48；
+- Formal58 OOF 上 safe residual 接受 pair candidate 为 0，normalized/raw ratio 与 frozen base 完全相同；
+  unguarded 略低。Fresh16 唯一 consumed-development join 后，safe 仍在 48/48 state 等于 frozen base：overall
+  mean normalized/raw delta=`0/0`，n=4 normalized delta=`0`，bootstrap 90% interval=`[0,0]`，0/16 positive
+  trajectories；五项判据全失败；
+- unguarded 只改变一个 n=4 state，mean normalized delta=`-9.076176885394025e-07`、negative trajectory=1、
+  positive=0。冻结结论为 `NO_DEVELOPMENT_EVIDENCE_FOR_FROZEN_BASE_RESIDUAL`；不改 v1/v3 verdict，不打开
+  confirm20，不再用相同 Formal58/Fresh16 调 v5；
+- private HF model tag 解析到 `1641b90a4ebb05037e4710738a78e2c79f81cdc3`，development tag 解析到
+  `d38513e4c3a22e02dcef1277472c5adf8667e73f`；新目录 force-download 后分别复核 9/9 与 4/4 manifest
+  payload 的 SHA256、size 和 byte identity。Git compact result 位于
+  `data/results/set_conditioned_v4_frozen_base_residual_dev_v1/`；confirm、legacy dev-5、matched-NLL、
+  closed-loop、policy forward、GPU 均为 0。
