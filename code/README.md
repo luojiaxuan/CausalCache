@@ -171,6 +171,32 @@ HF dataset `gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile`
 `docs/gate_v1_formal_cache_transport_repair.md`；下游 gate、OOF、fresh-16、matched-NLL、closed-loop 与 confirm
 仍未运行。
 
+Gate v1 formal training 现已冻结为独立 Source-A，协议见
+`docs/gate_v1_formal_train.md`。machine-readable config 为
+`configs/causalcache_gate_v1_formal_train_v1.json`，SHA256
+`bff920266b3f691618005b239c8a0aaa99369b45c0612ae628eec1a8f7eebf2f`。它精确绑定 repair cache 的 feature/label/manifest SHA256、HF
+immutable commit/tag、formal-58 join audit 与 gate v1 preregistration SHA256，且把 formal semantic access 限制为
+58 trajectories / 174 states；`fresh-16`、legacy dev-5、confirm-20、matched-NLL 与 closed-loop 全部为 0。
+
+Source-A validator 只验证 source/config/hash 与 Execution-B 缺失边界：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_train validate-source \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_formal_train_v1.json
+```
+
+它必须明确返回 `training_executed=false` 与 `execution_authorized=false`。当前没有 Execution-B、optimizer
+step、OOF grid、checkpoint、training/ensemble/run manifest 或 HF model artifact。已冻结的 private model destination
+是 `gavinlaw/causalcache-gate-v1-formal58-selector-mobile`，tag 是 `gate-v1-formal58-train-v1`；repo、tag、
+revision 与 artifact 已验证为 absent。下一步只能从 clean pushed Source-A 机械生成唯一 runner-freeze
+Execution-B；B 只允许新增冻结 runner，不能修改 trainer。计划执行将产生 conditional/independent
+各 `2 LR × 5 seed` 完整 OOF grid、100 条 fold-training track 与 10 个 final checkpoint，但这些输出在
+Source-A 里全部不存在。B 正式执行前还必须由 host 侧 `docker inspect` 生成固定 mode-0600 receipt，绑定
+`DeviceRequests=[]`、非 privileged `runc`、container/image identity 与 `/data` bind mount；runner 会把 receipt
+digest 写入 run manifest，并再次检查进程内无 GPU、CPU FP32 与单线程 runtime。
+
 Expansion exposure 的 source-only ledger 位于
 `causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、
 sealed-confirm-20 的六组交集为空，并可动态绑定落盘后的 structural manifest。focused tests：

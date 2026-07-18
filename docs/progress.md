@@ -38,8 +38,10 @@ authorization=true。唯一 v1 GPU attempt 随后完成 192/192 states 与全部
 no-GPU scientific-repair child 也已完成正式 run 和完整只读 revalidation，local payload 为 `VALID +
 REVALIDATED`，但原 producer 不重分类。repaired archive+sidecar 已发布到新的 private HF identity，tag-resolved
 immutable commit 为 `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，幂等 replay 与独立只读 postflight 均通过。
-formal-58 label-data prerequisite 已满足；当前目标是严格按冻结 contract 构建 train-only cache、训练 gate 和封存
-OOF/provenance，尚未打开 fresh-16、旧 dev-5 或 confirm。
+formal-58 label-data prerequisite 已满足，train-only repair cache 已完成 private-HF immutable replay，formal-train
+Source-A 也已冻结。当前 `training_executed=false`、`execution_authorized=false`，下一步只能机械生成
+并单独 push Execution-B，再从 clean B 完成 OOF/final fit 和 provenance 封存；尚未打开 fresh-16、旧
+dev-5 或 confirm。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -1156,7 +1158,9 @@ OOF/provenance，尚未打开 fresh-16、旧 dev-5 或 confirm。
   验 hash，Hyper00 `/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1` 只是可重建 cache；
 - selection-biased go/no-go compact result：Git `data/results/go_no_go_diagnostic_v1/`；raw 209 KiB debug
   summary 只含可丢弃的 per-token/runtime 展开，canonical distances 与结论已压缩进 Git；
-- gate checkpoint：尚未生成，目标 Hugging Face model repo 待 owner 确认；
+- gate v1 formal selector checkpoint：尚未生成；Source-A 已冻结 private Hugging Face model destination
+  `gavinlaw/causalcache-gate-v1-formal58-selector-mobile` 和 tag `gate-v1-formal58-train-v1`，但
+  repo/tag/revision/artifact 均已验证为 absent；
 - 当前没有仅存在共享机器或本地磁盘上的正式实验 output；Taurus/Aries/Hyper 目录只作为 Git/HF artifact
   的 staging/cache。
 
@@ -2214,9 +2218,11 @@ set-conditioned iterative gate 是主方法，parameter-matched independent gate
 exact labels、ledger-neutral repair 与 repaired-label private-HF publication 均已闭合。formal-58 cache v1 的唯一
 execution 仍永久 pre-semantic fail-closed；其 one-leaf transport-repair 已从 Source-A/Execution-B 完成 Hyper00
 no-GPU cache build、exact-three private-HF publication、fresh immutable replay 与只读 revalidation。formal-58
-cache 现可作为已 preregistered train-only gate workflow 的 input，但目前仍没有 gate fit、OOF、checkpoint 或任何
-development/fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。下一步只能由独立的 train-only gate
-source/execution contract 开始；不得把 cache completion 当作任何下游评估已经发生或被授权的证据。
+cache 现是已 preregistered train-only gate workflow 的 immutable input，且独立 formal-train Source-A 已冻结它的
+exact bindings、CPU-only training contract、输出 schema 与 private HF model destination。当前 Execution-B 不存在，
+`training_executed=false`、`execution_authorized=false`，仍没有 gate fit、OOF、checkpoint 或任何
+development/fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。下一步只能从 clean pushed Source-A
+机械生成并单独 push 唯一 Execution-B；不得把 Source-A 当作任何训练或下游评估已发生的证据。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 
@@ -2535,3 +2541,37 @@ source/execution contract 开始；不得把 cache completion 当作任何下游
   与 confirm operation 都为 0。结果记录在
   `data/results/gate_v1_formal58_cache_transport_repair_v1/`；下一步仍需要单独的 train-only gate source/execution
   contract，不能提前打开任何 downstream evaluation。
+
+### 2026-07-17：gate v1 formal-train Source-A 冻结
+
+- machine-readable config 为 `code/configs/causalcache_gate_v1_formal_train_v1.json`，SHA256
+  `bff920266b3f691618005b239c8a0aaa99369b45c0612ae628eec1a8f7eebf2f`。Source-A 精确绑定 repair feature cache
+  `81fded50c4450700220742d3e0be9a5585d1bc51086150515b463bbdf4b4df8e`、label cache
+  `4f9ef172aaa94c3ea8ce53aa43336c9fcb7800c24e181e1462d8239e31053cee`、bundle manifest
+  `15c8bf56ddad4f6f278599c32aaadcd813e0e016db0d523b4892eb47f8d9d144`、HF tag
+  `gate-v1-formal58-cache-transport-repair-v1` 与 resolved immutable commit
+  `a61b31bf2e69be00f94469f4a2f2d6b336fcc386`；
+- formal-58 join audit SHA256 为
+  `551e70b7e99f7a761f9c50d2adae3be72b0933044982a015a65e93372e41d77b`，gate v1 preregistration
+  SHA256 为 `37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b`；任一上游 hash、
+  roster、fold assignment 或 training contract 漂移都 fail closed；
+- access firewall 只允许 formal-58 semantic decode。Source-A 本身 semantic decode 为 0；未来 B 训练也必须保持
+  fresh-16 semantic decode=0、legacy dev-5 semantic decode=0、confirm-20 access=0、matched-NLL=0 与
+  closed-loop=0；
+- OOF/final-fit 输出 schema 已冻结：conditional 和 independent 各 `2 LR × 5 seed` 的完整
+  OOF grid，每 trial 五个 fold model，合计 100 条 fold-training track；每 family 用选定 LR 和每
+  seed selected epoch 在全部 58 trajectories 上 final refit，最终计划 5 conditional + 5 independent
+  checkpoints；
+- 预期 completion 必须保存完整 OOF grids、selected LR/epochs、selection SHA、十个 canonical
+  model-state/checkpoint artifact SHA、family training reports、ensemble manifests、run manifest、operation counts 与
+  cache/source/runtime provenance。这些都是未来输出，Source-A 里不存在；
+- private HF model destination 已冻结为 `gavinlaw/causalcache-gate-v1-formal58-selector-mobile`，tag
+  `gate-v1-formal58-train-v1`，当前 repo/tag/revision/artifact 均已验证 absent；
+- Source-A validator 只做 source/config/hash 与 absence validation，明确返回 `training_executed=false` 与
+  `execution_authorized=false`。Execution-B 尚未生成，optimizer/OOF/checkpoint/model upload/fresh-16/旧
+  dev-5/confirm/matched-NLL/closed-loop 均未执行；source-only replay 验证 17 个 Source-A paths，network/HF/
+  write/torch/semantic-decode 计数全为 0。显式绑定仓库 `code/` 的全量 suite 为 1,138 tests，结果 OK
+  （13 个本机 optional runtime skips）；Hyper00 pinned no-GPU container 的 54 个 formal-train/pipeline tests
+  全部通过且无 skip，包含真实 PyTorch/safetensors checkpoint canonical replay。host `docker inspect` 也确认
+  `DeviceRequests=null`、unprivileged `runc`、container hostname/image identity 与唯一 `/data02/jaxan:/data`
+  bind。下一步只能从 clean pushed Source-A 机械生成唯一 runner-freeze B，不得修改 trainer。

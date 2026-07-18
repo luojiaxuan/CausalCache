@@ -87,6 +87,14 @@ def configure_deterministic_cpu(seed: int) -> Any:
     if type(seed) is not int or seed < 0:
         raise ValueError("gate seed must be a non-negative integer")
     torch = _torch()
+    torch.set_num_threads(1)
+    try:
+        torch.set_num_interop_threads(1)
+    except RuntimeError as error:
+        if torch.get_num_interop_threads() != 1:
+            raise RuntimeError(
+                "gate v1 requires one PyTorch inter-op thread"
+            ) from error
     torch.manual_seed(seed)
     torch.use_deterministic_algorithms(True)
     return torch
@@ -103,9 +111,9 @@ def build_model(family: str, *, seed: int) -> Any:
     )
     model = torch.nn.Sequential(
         torch.nn.Linear(input_dimension, hidden_dimension),
-        torch.nn.GELU(),
+        torch.nn.GELU(approximate="none"),
         torch.nn.Linear(hidden_dimension, hidden_dimension),
-        torch.nn.GELU(),
+        torch.nn.GELU(approximate="none"),
         torch.nn.Linear(hidden_dimension, 1),
     )
     model.to(device="cpu", dtype=torch.float32)
@@ -191,6 +199,11 @@ def build_optimizer(model: Any, *, learning_rate: float) -> Any:
         betas=(0.9, 0.999),
         eps=1e-8,
         weight_decay=WEIGHT_DECAY,
+        foreach=False,
+        maximize=False,
+        capturable=False,
+        differentiable=False,
+        fused=False,
     )
 
 

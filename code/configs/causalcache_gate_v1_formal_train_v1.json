@@ -1,0 +1,475 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_gate_v1_formal_train_v1",
+  "status": "source_only_frozen_before_formal58_train_execution",
+  "lineage": {
+    "gate_preregistration": {
+      "path": "code/configs/causalcache_gate_v1_preregistration.json",
+      "protocol_id": "causalcache_gate_v1_preregistration",
+      "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+      "size_bytes": 16207
+    },
+    "formal_cache_completion_result": {
+      "path": "data/results/gate_v1_formal58_cache_transport_repair_v1/summary.json",
+      "status": "COMPLETED_AND_REVALIDATED_GATE_V1_FORMAL58_TRANSPORT_REPAIR_V1",
+      "sha256": "67d0bb81737b4755925ae2744d4af59e2638f69fe0bf9ba1c19c3ba3b89c38b2",
+      "size_bytes": 6945,
+      "git_commit": "345180d66e6a8df7f84c0f932f8658d9f3ab6952"
+    },
+    "formal_cache_completion": {
+      "status": "COMPLETED_GATE_V1_FORMAL58_CACHE_PUBLICATION_V1",
+      "sha256": "29bcdcc333b8bbad1dee0ed3e5444de3ad54a11375594b49c2b01516150e2c41",
+      "mode": 384,
+      "same_inode_as_retained_staging": true,
+      "formal58_training_input_eligible": true,
+      "gate_training_authorized": true,
+      "gate_trained": false
+    }
+  },
+  "source_freeze": {
+    "branch": "main",
+    "origin_name": "origin",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "source_a_remote_validation": {
+      "network_call_count": 0,
+      "remote_tracking_ref": "refs/remotes/origin/main",
+      "required_equalities": [
+        "HEAD",
+        "origin/main"
+      ]
+    },
+    "execution_b_live_remote_validation": {
+      "required": true,
+      "network_call_count": 1,
+      "argv": [
+        "git",
+        "ls-remote",
+        "--exit-code",
+        "origin",
+        "refs/heads/main"
+      ],
+      "expected_stdout_record_count": 1,
+      "expected_ref": "refs/heads/main",
+      "required_equalities": [
+        "HEAD",
+        "origin/main",
+        "live origin refs/heads/main"
+      ]
+    },
+    "required_source_a_paths": [
+      "code/configs/causalcache_gate_v1_formal_train_v1.json",
+      "code/causalcache/gate_v1_formal_train_contract.py",
+      "code/causalcache/gate_v1_formal_train.py",
+      "code/causalcache/gate_v1_formal_train_runner.py",
+      "code/scripts/validate_gate_v1_formal_train_contract.py",
+      "code/scripts/manage_gate_v1_formal_train.py",
+      "code/tests/test_gate_v1_formal_train_contract.py",
+      "code/tests/test_gate_v1_formal_train.py",
+      "code/tests/test_gate_v1_formal_train_runner.py",
+      "code/configs/causalcache_gate_v1_preregistration.json",
+      "data/results/gate_v1_formal58_cache_transport_repair_v1/summary.json",
+      "code/causalcache/gate_v1_contract.py",
+      "code/causalcache/gate_v1_data.py",
+      "code/causalcache/gate_v1_training.py",
+      "code/causalcache/gate_v1_provenance.py",
+      "code/causalcache/gate_v1_formal_cache.py",
+      "code/causalcache/restoration_v2_2_label_table.py"
+    ],
+    "git_prerequisites": [
+      {
+        "path": "code/configs/causalcache_gate_v1_preregistration.json",
+        "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+        "size_bytes": 16207
+      },
+      {
+        "path": "data/results/gate_v1_formal58_cache_transport_repair_v1/summary.json",
+        "sha256": "67d0bb81737b4755925ae2744d4af59e2638f69fe0bf9ba1c19c3ba3b89c38b2",
+        "size_bytes": 6945
+      },
+      {
+        "path": "code/causalcache/gate_v1_contract.py",
+        "sha256": "c139cca62ba04d609726a652390fa495a9a368c5b2b48e52b988c1b12ea753b0",
+        "size_bytes": 26383
+      },
+      {
+        "path": "code/causalcache/gate_v1_data.py",
+        "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+        "size_bytes": 26772
+      },
+      {
+        "path": "code/causalcache/gate_v1_training.py",
+        "sha256": "c64f8cf8ce921f40fcab8e8d3457150e1d821fa4669844edce1c90c21d3be345",
+        "size_bytes": 30392
+      },
+      {
+        "path": "code/causalcache/gate_v1_provenance.py",
+        "sha256": "6bc827d76f509a90f859fc19fb8bce75e05a5f057a9bb60c2ec1ed8c7c97dd74",
+        "size_bytes": 17178
+      },
+      {
+        "path": "code/causalcache/gate_v1_formal_cache.py",
+        "sha256": "87ddadf76cb3a01da8b2334ff12704d080fcbf08286cfa7e534275f443593d65",
+        "size_bytes": 70886
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_label_table.py",
+        "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+        "size_bytes": 12732
+      }
+    ],
+    "execution_b_runner_freeze": {
+      "path": "code/configs/causalcache_gate_v1_formal_train_runner_v1.json",
+      "status": "pending_machine_generated_after_source_a",
+      "must_be_absent_during_source_only_validation": true,
+      "only_allowed_execution_b_source_tree_diff": true,
+      "bind_required_source_a_paths": true,
+      "bind_git_prerequisites": true,
+      "bind_source_a_inventory_sha256": true,
+      "bind_loaded_module_inventory_sha256": true
+    }
+  },
+  "formal_cache_input": {
+    "repo": "gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile",
+    "repo_type": "dataset",
+    "private": true,
+    "tag": "gate-v1-formal58-cache-transport-repair-v1",
+    "immutable_revision": "a61b31bf2e69be00f94469f4a2f2d6b336fcc386",
+    "annotated_tag_object": "c603397b9b1b1c3ad472f49125f827b8a096997d",
+    "exact_three_files": [
+      {
+        "kind": "feature_cache",
+        "path": "formal58-transport-repair/v1/feature-cache-v1.tar",
+        "sha256": "81fded50c4450700220742d3e0be9a5585d1bc51086150515b463bbdf4b4df8e",
+        "size_bytes": 993280
+      },
+      {
+        "kind": "label_cache",
+        "path": "formal58-transport-repair/v1/label-cache-v1.tar",
+        "sha256": "4f9ef172aaa94c3ea8ce53aa43336c9fcb7800c24e181e1462d8239e31053cee",
+        "size_bytes": 163840
+      },
+      {
+        "kind": "bundle_manifest",
+        "path": "formal58-transport-repair/v1/cache-bundle-manifest-v1.json",
+        "sha256": "15c8bf56ddad4f6f278599c32aaadcd813e0e016db0d523b4892eb47f8d9d144",
+        "size_bytes": 13856
+      }
+    ],
+    "join_only_audit_sha256": "551e70b7e99f7a761f9c50d2adae3be72b0933044982a015a65e93372e41d77b",
+    "fresh_force_download_to_new_empty_directory": true,
+    "tag_revision_stable_before_after_download": true,
+    "generic_parent_artifact_readers_allowed": false,
+    "required_readers": [
+      "read_feature_cache",
+      "read_label_cache"
+    ],
+    "join_after_separate_cache_validation_only": true
+  },
+  "formal_geometry": {
+    "roster": "formal_train",
+    "trajectory_count": 58,
+    "state_count": 174,
+    "candidate_feature_count": 522,
+    "distance_value_count": 1624,
+    "conditional_edge_count": 1682,
+    "independent_target_count": 522,
+    "source_ids_sha256": "ccec55afb0882e602f5d2c83ec420682488e2663fe26a7c574a851825c43f225",
+    "state_order": "formal_source_order_then_decision_step_4_5_6",
+    "candidate_event_counts": [
+      2,
+      3,
+      4
+    ],
+    "oof_fold_sizes": [
+      12,
+      12,
+      12,
+      11,
+      11
+    ],
+    "oof_fold_source_ids_sha256": [
+      "9915d8f296dae456ece574c71eebd87c4350e9b9e3b9e8d9f4d0e9327a8b2fc1",
+      "70888ea8de1555f4deab1cf13eff7a5636bd57f20b6661a3e97bf455492c2d56",
+      "ea6d3a3176e32af059ffa2318229d5a947ada59dc312c1871e9899f655c4d1a3",
+      "bfb489b086d8840802771b8461d1e14ad966c65adc5105edec21be7f72045ba1",
+      "61194d993373471bff009bc9f588ca97d73d5fe6c927ee9233ce708e6540d467"
+    ],
+    "oof_assignment_table_sha256": "df2703ee1af10f9a5fec6504ec9d17f26d13ed249f2b79083fcb0db62f0276bd"
+  },
+  "access_firewall": {
+    "transport_byte_possession_is_not_semantic_decode": true,
+    "source_a_formal58_semantic_decode_count": 0,
+    "source_a_fresh16_semantic_decode_count": 0,
+    "source_a_legacy_dev5_semantic_decode_count": 0,
+    "source_a_confirm20_access_count": 0,
+    "source_a_matched_nll_evaluation_count": 0,
+    "source_a_closed_loop_episode_count": 0,
+    "execution_b_allowed_semantic_roster": "formal_train",
+    "execution_b_formal58_trajectory_semantic_decode_count": 58,
+    "execution_b_formal58_feature_state_semantic_decode_count": 174,
+    "execution_b_formal58_label_state_semantic_decode_count": 174,
+    "execution_b_fresh16_semantic_decode_count": 0,
+    "execution_b_legacy_dev5_semantic_decode_count": 0,
+    "execution_b_confirm20_access_count": 0,
+    "execution_b_matched_nll_evaluation_count": 0,
+    "execution_b_closed_loop_episode_count": 0,
+    "formal_checkpoint_completion_before_any_development_access": true,
+    "role_or_split_allowed_in_training_tensor": false,
+    "source_id_or_state_id_allowed_in_training_tensor": false
+  },
+  "training_contract": {
+    "device": "cpu",
+    "dtype": "float32",
+    "families_in_execution_order": [
+      "conditional",
+      "independent"
+    ],
+    "learning_rates_in_grid_order": [
+      0.0003,
+      0.001
+    ],
+    "seeds_in_grid_order": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "fold_count": 5,
+    "oof_trial_count_per_family": 10,
+    "oof_trial_count_total": 20,
+    "fold_training_track_count_total": 100,
+    "heldout_state_rule": "unique_n4_B2_state_per_trajectory",
+    "epoch_selection_metric": "heldout_raw_utility_over_exact_subset_oracle_ratio",
+    "epoch_improvement_epsilon": 0.0001,
+    "patience_epochs": 50,
+    "maximum_epochs": 500,
+    "learning_rate_selection_metric": "five_seed_mean_best_oof_ratio",
+    "learning_rate_tie_epsilon": 0.0001,
+    "learning_rate_tie_choice": 0.0003,
+    "final_fit_scope": "all_formal58_trajectories",
+    "final_fit_seed_initialization_matches_oof_seed": true,
+    "final_fit_epoch_per_seed_from_selected_lr_oof": true,
+    "final_fit_track_count_total": 10,
+    "model_initialization_count_total": 110,
+    "persistent_checkpoint_count": 10,
+    "checkpoint_format": "safetensors",
+    "checkpoint_metadata_allowed": false,
+    "canonical_model_state_sha256_required": true,
+    "complete_metric_by_epoch_required": true
+  },
+  "output_contract": {
+    "payload_commit": {
+      "commit_title": "Publish CausalCache gate v1 formal-58 payload",
+      "exact_twelve_targets": [
+        "formal58-train/v1/checkpoints/conditional-seed-0.safetensors",
+        "formal58-train/v1/checkpoints/conditional-seed-1.safetensors",
+        "formal58-train/v1/checkpoints/conditional-seed-2.safetensors",
+        "formal58-train/v1/checkpoints/conditional-seed-3.safetensors",
+        "formal58-train/v1/checkpoints/conditional-seed-4.safetensors",
+        "formal58-train/v1/checkpoints/independent-seed-0.safetensors",
+        "formal58-train/v1/checkpoints/independent-seed-1.safetensors",
+        "formal58-train/v1/checkpoints/independent-seed-2.safetensors",
+        "formal58-train/v1/checkpoints/independent-seed-3.safetensors",
+        "formal58-train/v1/checkpoints/independent-seed-4.safetensors",
+        "formal58-train/v1/reports/conditional-full-oof-report.json",
+        "formal58-train/v1/reports/independent-full-oof-report.json"
+      ],
+      "checkpoint_count": 10,
+      "full_oof_report_count": 2,
+      "complete_grid_required": true
+    },
+    "manifest_commit": {
+      "commit_title": "Publish CausalCache gate v1 formal-58 manifests",
+      "parent_must_equal_payload_commit": true,
+      "exact_four_new_targets": [
+        "formal58-train/v1/manifests/conditional-ensemble-manifest.json",
+        "formal58-train/v1/manifests/independent-ensemble-manifest.json",
+        "formal58-train/v1/manifests/run-manifest.json",
+        "formal58-train/v1/manifests/bundle-manifest.json"
+      ],
+      "ensemble_checkpoint_bindings_must_use_payload_commit": true,
+      "manifest_files_must_not_embed_manifest_commit": true
+    },
+    "final_tree_target_count": 16,
+    "payload_and_manifest_commits_must_differ": true,
+    "conditional_ensemble_manifest_count": 1,
+    "independent_ensemble_manifest_count": 1,
+    "run_manifest_count": 1,
+    "bundle_manifest_count": 1,
+    "selection_sha256_count": 2,
+    "canonical_model_state_sha256_count": 10,
+    "checkpoint_artifact_sha256_count": 10,
+    "operation_counts_required": true,
+    "gate_trained_after_final_completion_only": true
+  },
+  "destination": {
+    "repo": "gavinlaw/causalcache-gate-v1-formal58-selector-mobile",
+    "repo_type": "model",
+    "private": true,
+    "tag": "gate-v1-formal58-train-v1",
+    "annotated_tag_required": true,
+    "tag_message": "Freeze CausalCache gate v1 formal-58 selector",
+    "tag_must_resolve_to_manifest_commit": true,
+    "remote_base_receipt_before_first_mutation": true,
+    "allowed_remote_states": [
+      "EMPTY",
+      "PAYLOAD_BYTE_IDENTICAL_UNMANIFESTED",
+      "MANIFEST_BYTE_IDENTICAL_UNTAGGED",
+      "TAGGED_BYTE_IDENTICAL"
+    ],
+    "partial_or_conflicting_remote_state_action": "FAIL_CLOSED",
+    "fresh_force_download_to_new_empty_directory": true,
+    "payload_revision_and_final_tag_stable_pre_post_replay": true,
+    "completed_replay_remote_mutation_count": 0
+  },
+  "local_first_state_machine": {
+    "state_file_mode": 384,
+    "artifact_file_mode": 292,
+    "state_directory": "/data/experiments/causalcache",
+    "artifact_directory": "/data/artifacts/causalcache/gate-v1-formal58-train-v1",
+    "o_excl_or_byte_identical_reuse": true,
+    "no_overwrite": true,
+    "completion_staging_retained": true,
+    "final_completion_is_hard_link_to_staging": true,
+    "final_completion_is_last_first_execution_mutation": true,
+    "ordered_states": [
+      {
+        "name": "global_claim",
+        "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.claim.json",
+        "status": "CLAIMED_GATE_V1_FORMAL58_TRAIN_V1"
+      },
+      {
+        "name": "cache_input_completion",
+        "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.cache-input.completion.json",
+        "status": "COMPLETED_GATE_V1_FORMAL58_TRAIN_INPUT_V1"
+      },
+      {
+        "name": "training_artifact_completion",
+        "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.training-artifacts.completion.json",
+        "status": "COMPLETED_GATE_V1_FORMAL58_TRAIN_ARTIFACTS_V1"
+      },
+      {
+        "name": "remote_base_receipt",
+        "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.remote-base.json",
+        "status": "CAPTURED_GATE_V1_FORMAL58_TRAIN_REMOTE_BASE_V1"
+      },
+      {
+        "name": "payload_commit_receipt",
+        "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.payload-commit.json",
+        "status": "PUBLISHED_GATE_V1_FORMAL58_TRAIN_PAYLOAD_V1"
+      },
+      {
+        "name": "completion_staging",
+        "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.completion.staged.json",
+        "status": "COMPLETED_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1"
+      },
+      {
+        "name": "final_completion",
+        "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.completion.json",
+        "status": "COMPLETED_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1"
+      }
+    ]
+  },
+  "runtime_contract": {
+    "device": "cpu",
+    "dtype": "float32",
+    "gpu_required": false,
+    "normalized_device_requests": [],
+    "container_privileged": false,
+    "container_runtime": "runc",
+    "nvidia_visible_devices": "void",
+    "cuda_visible_devices": "",
+    "nvidia_device_nodes": [],
+    "torch_cuda_available": false,
+    "torch_cuda_device_count": 0,
+    "python_implementation": "CPython",
+    "python_version": "3.12.3",
+    "machine": "x86_64",
+    "torch_version": "2.11.0+cu130",
+    "safetensors_version": "0.7.0",
+    "huggingface_hub_version": "1.16.1",
+    "torch_deterministic_algorithms": true,
+    "torch_num_threads": 1,
+    "torch_num_interop_threads": 1,
+    "docker_inspect_receipt": {
+      "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.docker-inspect.json",
+      "mode": 384,
+      "schema_version": "1.0.0",
+      "status": "CAPTURED_GATE_V1_FORMAL58_TRAIN_DOCKER_INSPECT_V1",
+      "container_name_prefix": "sglang-omni-jaxan-",
+      "normalized_device_requests": [],
+      "privileged": false,
+      "runtime": "runc",
+      "data_mount_destination": "/data",
+      "data_mount_rw": true
+    },
+    "thread_environment": {
+      "PYTHONHASHSEED": "0",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "TZ": "UTC",
+      "LC_ALL": "C.UTF-8"
+    }
+  },
+  "source_only_operation_contract": {
+    "network_call_count": 0,
+    "hf_api_call_count": 0,
+    "file_write_count": 0,
+    "formal58_semantic_decode_count": 0,
+    "fresh16_semantic_decode_count": 0,
+    "legacy_dev5_semantic_decode_count": 0,
+    "confirm20_access_count": 0,
+    "torch_import_count": 0,
+    "model_load_count": 0,
+    "model_forward_count": 0,
+    "optimizer_step_count": 0,
+    "oof_metric_count": 0,
+    "checkpoint_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0
+  },
+  "execution_fixed_operation_contract": {
+    "formal58_trajectory_semantic_decode_count": 58,
+    "formal58_feature_state_semantic_decode_count": 174,
+    "formal58_label_state_semantic_decode_count": 174,
+    "cache_join_validation_count": 174,
+    "candidate_feature_count": 522,
+    "distance_value_count": 1624,
+    "conditional_training_example_schema_count": 1682,
+    "independent_training_example_schema_count": 522,
+    "training_family_count": 2,
+    "oof_trial_count": 20,
+    "fold_training_track_count": 100,
+    "final_fit_track_count": 10,
+    "model_initialization_count": 110,
+    "checkpoint_count": 10,
+    "full_oof_report_count": 2,
+    "ensemble_manifest_count": 2,
+    "run_manifest_count": 1,
+    "bundle_manifest_count": 1,
+    "fresh16_semantic_decode_count": 0,
+    "legacy_dev5_semantic_decode_count": 0,
+    "confirm20_access_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0
+  },
+  "authorization": {
+    "training_executed": false,
+    "execution_authorized": false,
+    "formal58_cache_access_authorized": false,
+    "formal58_training_authorized": false,
+    "checkpoint_publication_authorized": false,
+    "gate_trained": false,
+    "fresh16_access_authorized": false,
+    "legacy_dev5_access_authorized": false,
+    "confirm20_access_authorized": false,
+    "matched_nll_authorized": false,
+    "closed_loop_authorized": false,
+    "execution_allowed_without_machine_generated_runner_freeze_b": false
+  }
+}

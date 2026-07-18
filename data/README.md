@@ -246,6 +246,13 @@ restoration v2 exact selection/exposure 产物：
   `a61b31bf2e69be00f94469f4a2f2d6b336fcc386`；轻量 completion binding 位于
   `results/gate_v1_formal58_cache_transport_repair_v1/`。旧 v1 evidence/claim 不变，gate 尚未训练；
 
+- formal-train Source-A 是 Git-only source/config milestone，不在 `data/results/` 伪造 completion。它已冻结
+  private HF model destination `gavinlaw/causalcache-gate-v1-formal58-selector-mobile` 与 tag
+  `gate-v1-formal58-train-v1`，但当前 repo/tag/revision、OOF report、checkpoint、ensemble/run manifest
+  全部已验证 absent；
+  `training_executed=false`、`execution_authorized=false`，Execution-B 尚未生成。完成正式训练后，model
+  weights/checkpoints 必须进入该 private HF model repo，Git 只保留轻量 summary 与 immutable binding；
+
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private
   HF immutable revision `d6b2312e...45c1` fresh-download 并完成 canonical rebuild；v2.1 NO-GO 不变；

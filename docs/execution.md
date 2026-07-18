@@ -23,7 +23,8 @@ HF create/upload/tag。远端确需访问 private repo 时，由操作者通过�
 | 文档、Git、LaTeX、单测、轻量数据处理 | Mac | Aries/Taurus | 不占共享 GPU |
 | restoration v2 OCR/image materialization | Hyper00 CPU | Aries CPU | exact wheel/model SHA 和单线程 ONNX Runtime；不申请 GPU |
 | restoration v2 offline inference、attribution | Hyper00 H200 | Aries A6000 | Hyper01 当前有其他任务；v2 canonical runtime 最终由 execution config 冻结 |
-| gate training / 后续重训练 | B200 | Hyper00 H200 | 先用至多 2 GPU 达到 90% utilization，再决定是否扩展 |
+| Gate v1 formal selector training | Hyper00 CPU-only/no-GPU | Mac/Aries CPU | 25K-parameter FP32 full-batch deterministic MLP；不申请 GPU |
+| RL、大模型训练或大规模重训练 | B200 | Hyper H200 | 按实际并行度与当次空闲卡分配，非 Taurus/Aries 默认最多 4 卡 |
 | AndroidWorld emulator + policy rollout | Aries A6000 | Hyper01 H200（待解锁） | Aries stack 已验证；Hyper01 先解决 Docker root 容量并重做 environment smoke |
 | 小模型 smoke、sample-level debug | Aries/Taurus A6000 | Hyper01 | 避免为小任务占用 H200 |
 
@@ -45,7 +46,7 @@ Aries。任何 repo、virtualenv、log、checkpoint 与 cache 都不得写入根
 - decoding 参数、teacher validation、attribution sampling、selector threshold；
 - benchmark/server image digest 与 reward implementation。
 
-允许作为 host adapter 改变的只有：物理 GPU id、单/双卡映射、batch/concurrency、emulator worker
+允许作为 host adapter 改变的只有：物理 GPU id、按实际并行度选择的 device mapping、batch/concurrency、emulator worker
 数、cache/staging 绝对路径。改变这些参数后，语义输出仍需通过固定 smoke。restoration v2 confirm 的
 microbatch size 虽不改变科学 estimand，也必须在 execution config 中于 confirm output 前冻结，不能按
 结果或 OOM 选择性变化。
@@ -508,8 +509,10 @@ docker ps -a --format "{{.Names}}" | sort
 
 根据当次 `df -hT` 选择一个 local `/mnt/data*` personal directory，显式挂载为容器 `/data`；HF cache
 也选择有空间的 local disk，不能写 Aries 根盘或 Taurus/Aries cross-mount 做重 I/O。Taurus 使用相同
-原则，适合小模型 smoke、数据处理和 sample-level evaluation。A6000 默认单卡，只有明确吞吐理由才用
-第二张卡。
+原则，适合小模型 smoke、数据处理和 sample-level evaluation。GPU 数量不设固定默认：按 workload
+实际并行度与当次空闲卡选择；非 Taurus/Aries host 单任务最多 4 卡（除非用户显式授权），
+Taurus/Aries 可用尽可能多的有效空闲卡。GPU job 只在 warmup 和代表性 startup steady-state 窗口验证
+每张已分配 GPU 持续利用率至少 80%；该窗口通过后不要求持续监控。
 
 AndroidWorld emulator container 与 policy container 的权限需求不同：emulator 需要 KVM/privileged
 设备访问，policy container 不应因此继承 `--privileged`。policy container 必须使用 Docker 的显式
@@ -851,3 +854,18 @@ gate workflow 的 input；没有 gate training、OOF、checkpoint、fresh-16、�
 confirm run。详细 execution evidence 见
 [`../data/results/gate_v1_formal58_cache_transport_repair_v1/`](../data/results/gate_v1_formal58_cache_transport_repair_v1/)
 与 [`gate_v1_formal_cache_transport_repair.md`](gate_v1_formal_cache_transport_repair.md)。
+
+formal-train Source-A 现已在不读 semantic cache、不加载 PyTorch、不创建 local state 与不访问 HF 的
+source-only 边界下冻结，config 为
+`code/configs/causalcache_gate_v1_formal_train_v1.json`，SHA256
+`bff920266b3f691618005b239c8a0aaa99369b45c0612ae628eec1a8f7eebf2f`。它绑定上述 repair cache 的 feature/label/manifest SHA256、tag、
+resolved commit、join audit，以及 gate preregistration SHA256
+`37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b`。详细 contract 见
+[`gate_v1_formal_train.md`](gate_v1_formal_train.md)。
+
+当前 Execution-B 不存在，source validator 的固定输出是 `training_executed=false` 与
+`execution_authorized=false`。private HF model destination
+`gavinlaw/causalcache-gate-v1-formal58-selector-mobile` 及 tag `gate-v1-formal58-train-v1` 已验证
+absent；没有 repo、revision、checkpoint 或 model artifact。下一步只能从 clean pushed A 机械生成并单独
+push 唯一 runner-freeze B，然后在 CPU-only/no-GPU runtime 运行 formal-58 OOF 与 final fit。整个训练
+process 必须保持 fresh-16、legacy dev-5、confirm-20、matched-NLL 与 closed-loop access 为 0。

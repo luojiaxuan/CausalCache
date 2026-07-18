@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal gate not trained / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-train Source-A frozen, Execution-B absent / formal gate not trained / confirm locked
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；旧 dev-5 只允许在
 > fresh-16 outcome 冻结后用于 combined-21 compatibility guard。新的 48 train +16 fresh-dev
@@ -56,6 +56,10 @@
 > [`docs/gate_v1_formal_cache.md`](docs/gate_v1_formal_cache.md)、
 > [`docs/gate_v1_formal_cache_transport_repair.md`](docs/gate_v1_formal_cache_transport_repair.md)、
 > [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)。
+> formal-train Source-A 现已冻结：它精确绑定上述 cache、join audit 与 gate v1 preregistration，且 source-only
+> validator 固定 `training_executed=false` 与 `execution_authorized=false`。Execution-B 尚不存在，
+> `gavinlaw/causalcache-gate-v1-formal58-selector-mobile` 及 tag `gate-v1-formal58-train-v1` 仅是已冻结的
+> private HF model destination，repo、tag、revision、checkpoint 与 model artifact 均已验证 absent。
 
 ## 团队交接入口
 
@@ -90,10 +94,11 @@ policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interf
 state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式状态为 `VALID`；result commit 后又从
 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
 
-当前关键路径已切换为按冻结 gate v1 contract 构建 formal-58 train-only cache、完成 OOF/model selection 与 final
-fit；v1 cache execution 已永久 fail-closed，独立 transport-repair 已完成 exact-three private-HF publication 与只读
-immutable replay。下一步是严格按 preregistration 用这两个 formal-58 cache 做 train-only OOF/model selection 与
-final fit；fresh-16 只能在所有 train-only checkpoint/provenance 封存后一次性读取。已发布 child 的冻结分母为
+当前关键路径已切换为 formal-train Source-A → 唯一机械 Execution-B → formal-58 OOF/model
+selection → final fit。v1 cache execution 已永久 fail-closed，独立 transport-repair 已完成 exact-three
+private-HF publication 与只读 immutable replay；formal-train Source-A 只冻结输入、训练、输出与访问边界，没有执行
+optimizer。下一步只能从 clean pushed Source-A 机械生成并单独 push B，再从 clean B 完成 OOF 与 final
+fit；fresh-16 只能在所有 train-only checkpoint/provenance 封存后一次性读取。已发布 child 的冻结分母为
 64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
 full edges、1,984 interactions、576 attributions 与 192 exact oracles。label run 固定 1,984 teacher forwards、
@@ -812,7 +817,12 @@ $$
   claim 前绑定旧 claim、旧输出缺失和 producer 三重 witness；
 - [x] 从 clean pushed repair Source-A 机械生成唯一 Execution-B，并在 Hyper00 no-GPU runtime materialize +
   immutable replay formal-58 feature/label cache；v1 claim 保留，repair cache 已绑定 private HF immutable commit；
-- [ ] 按冻结 contract 训练 gate、构造 matched-NLL memory pairs 并运行 closed-loop；
+- [x] 冻结 formal-train Source-A：精确绑定 repair cache/preregistration、train-only OOF/final-fit、十个输出
+  checkpoint 与 private HF model destination；source-only validator 不授权执行；
+- [ ] 从 clean pushed Source-A 机械生成唯一 Execution-B，完成 formal-58 OOF/final fit，封存十个
+  checkpoint 并完成 private HF immutable model replay；
+- [ ] 对已冻结 ensemble 执行一次性 fresh-16 primary GO，报告封存后再做 combined-21 compatibility guard；
+- [ ] 仅在 selector/set-conditioning GO 后冻结 post-GO contract，再运行 matched-NLL、closed-loop 与 confirm；
 - [ ] 整理论文与复现实验配置。
 
 ## Source of Truth
@@ -856,6 +866,10 @@ $$
 - Gate v1 formal-58 transport-repair Execution-B: [`code/configs/causalcache_gate_v1_formal_cache_transport_repair_runner_v1.json`](code/configs/causalcache_gate_v1_formal_cache_transport_repair_runner_v1.json)
 - Gate v1 formal-58 transport-repair manager: [`code/scripts/manage_gate_v1_formal_cache_transport_repair.py`](code/scripts/manage_gate_v1_formal_cache_transport_repair.py)
 - Gate v1 formal-58 transport-repair result: [`data/results/gate_v1_formal58_cache_transport_repair_v1/`](data/results/gate_v1_formal58_cache_transport_repair_v1/)
+- Gate v1 formal-train Source-A protocol: [`docs/gate_v1_formal_train.md`](docs/gate_v1_formal_train.md)
+- Gate v1 formal-train Source-A config: [`code/configs/causalcache_gate_v1_formal_train_v1.json`](code/configs/causalcache_gate_v1_formal_train_v1.json)
+- Gate v1 formal-train source validator: [`code/scripts/validate_gate_v1_formal_train_contract.py`](code/scripts/validate_gate_v1_formal_train_contract.py)
+- Gate v1 formal-train manager: [`code/scripts/manage_gate_v1_formal_train.py`](code/scripts/manage_gate_v1_formal_train.py)
 - Gate v1 trainer/evaluator execution: [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)
 - Gate v1 synthetic-only smoke: [`code/scripts/run_gate_v1_trainer_smoke.py`](code/scripts/run_gate_v1_trainer_smoke.py)
 - Label-expansion exposure protocol: [`docs/restoration_v2_2_label_expansion_exposure.md`](docs/restoration_v2_2_label_expansion_exposure.md)
@@ -1059,7 +1073,7 @@ $$
 | Spatial reference audit trace | <https://huggingface.co/datasets/gavinlaw/causalcache-spatial-reference-audit-mobile> | `spatial-reference-audit-v1` / `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，private | auto 7/13、eager 13/13、FP32 4/4 descriptive；`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR SHA256 `d62ad05f...e5ecc`；fresh immutable canonical rebuild verified |
 | Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | `v2.2-eager-full-45-substrate-v1` / `3577099d505b8c652d764f41269df911128ec767`，private | 45/45 parse/repeat/finite logits、45 memory-sensitive；`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw USTAR SHA256 `b22827e6...09fb5`、fresh immutable download verified |
 | Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
-| Gate checkpoints/adapters | Hugging Face model repo（待创建） | not created | 记录 policy backbone、训练配置与评测 provenance |
+| Gate v1 formal-58 selector ensemble（planned） | [private HF model destination](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile) | destination/tag `gate-v1-formal58-train-v1` 已由 Source-A 冻结；repo/tag/revision/artifact 均已验证 absent | 计划 5 conditional + 5 independent checkpoints、两个完整 OOF grid、selection/model-state/checkpoint digests、ensemble/run manifests；`training_executed=false` |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。
