@@ -1,0 +1,182 @@
+{
+  "child_repo": "gavinlaw/causalcache-gate-v1-fresh16-failure-decomposition-mobile",
+  "child_tag": "gate-v1-fresh16-failure-decomposition-v1",
+  "closed_loop_authorized": false,
+  "confirm20_access_authorized": false,
+  "contract_sha256": "fa2cd3759150f838fce78b72a987d7a889ef23f5eec5ec41286ae69090104f1f",
+  "execution_authorized_after_clean_pushed_b_only": true,
+  "execution_b_direct_parent_required": "718a08b3d1ab78d5c2770e870cefabb2a8667f08",
+  "execution_b_required_unique_diff": [
+    "code/configs/causalcache_gate_v1_fresh16_failure_decomposition_runner_v1.json"
+  ],
+  "git_prerequisites": [
+    {
+      "git_commit": "f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1",
+      "path": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json",
+      "sha256": "3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7",
+      "size_bytes": 11723
+    },
+    {
+      "git_commit": "ce523ff54ebfdc19a9c2bd49ad21548f0934a634",
+      "path": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_runner_v1.json",
+      "sha256": "c35dccd0d540cd01bd0f93fce11289c40dbada577e856e997a9dcd52347403d8",
+      "size_bytes": 28936
+    },
+    {
+      "git_commit": "a04049e3b9a314dcbeb478210cb53cd20a207d32",
+      "path": "data/results/gate_v1_fresh16_claim_serialization_repair_v1/summary.json",
+      "sha256": "621c09d13c027bfbc2835be894dd3de8fbc69c2f03a8605ab3a951cba753e626",
+      "size_bytes": 9419
+    },
+    {
+      "git_commit": "d0f25d812869d5fc7b58284a25abe3aa8049b0aa",
+      "path": "data/results/restoration_v2_2_selector_geometry_v2_repair/summary.json",
+      "sha256": "57eecbba5326cabf430f0a739118e986781a595e98ea6a32ddaeef118abc6811",
+      "size_bytes": 1529767
+    },
+    {
+      "path": "code/causalcache/gate_v1_fresh16.py",
+      "sha256": "88525a8cc1be373b14983447ded1703849527b6913bcf9e9a979645d8c024dc6",
+      "size_bytes": 32208
+    },
+    {
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    }
+  ],
+  "git_prerequisites_sha256": "c91649ca8c16da5626b8404aa2e0abd220e29b9502f6d6a339181a1d9a0f95a7",
+  "legacy_dev5_access_authorized": false,
+  "loaded_module_inventory": [
+    {
+      "module": "__main__",
+      "path": "code/scripts/manage_gate_v1_fresh16_failure_decomposition.py",
+      "sha256": "5cf4e75fd56c73641151d55f150f5b498f5806719a75a29cc41b86acf2e27250",
+      "size_bytes": 5802
+    },
+    {
+      "module": "causalcache.gate_v1_fresh16_failure_decomposition_contract",
+      "path": "code/causalcache/gate_v1_fresh16_failure_decomposition_contract.py",
+      "sha256": "f84feb9b426fad9fcd00ad9c376e24beee0a668315ed0aacef909f40464579a3",
+      "size_bytes": 49121
+    }
+  ],
+  "loaded_module_inventory_sha256": "d588833dd93bb7aa7cc2a840d46ee0ee2c5c3cdf754c0124eb53f82c60221087",
+  "matched_nll_authorized": false,
+  "parent_exact_download_paths": [
+    "fresh16-eval/v1/manifests/bundle-manifest-v1.json",
+    "fresh16-eval/v1/caches/label-states-v1.jsonl",
+    "fresh16-eval/v1/reports/primary-state-records-v1.jsonl"
+  ],
+  "parent_report_commit": "3541fe1ea2c46e555c29cc53483e6f3b809f8f81",
+  "parent_result_git_commit": "a04049e3b9a314dcbeb478210cb53cd20a207d32",
+  "protocol_id": "causalcache_gate_v1_fresh16_failure_decomposition_v1",
+  "required_source_a_paths": [
+    "code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json",
+    "code/causalcache/gate_v1_fresh16_failure_decomposition_contract.py",
+    "code/causalcache/gate_v1_fresh16_failure_decomposition.py",
+    "code/causalcache/gate_v1_fresh16_failure_decomposition_runner.py",
+    "code/scripts/manage_gate_v1_fresh16_failure_decomposition.py",
+    "code/tests/test_gate_v1_fresh16_failure_decomposition_contract.py",
+    "code/tests/test_gate_v1_fresh16_failure_decomposition.py",
+    "code/tests/test_gate_v1_fresh16_failure_decomposition_runner.py",
+    "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json",
+    "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_runner_v1.json",
+    "data/results/gate_v1_fresh16_claim_serialization_repair_v1/summary.json",
+    "data/results/restoration_v2_2_selector_geometry_v2_repair/summary.json",
+    "code/causalcache/gate_v1_fresh16.py",
+    "code/causalcache/gate_v1_data.py",
+    "code/causalcache/low_fidelity_v2.py",
+    "code/causalcache/restoration_v2_2_label_table.py"
+  ],
+  "required_source_a_paths_sha256": "62e04fd4c3fb18df37bbc7d34a7da3406e7ed1ebb12ab67cd090e02ad5c00327",
+  "schema_version": "1.0.0",
+  "source_a_git_commit": "718a08b3d1ab78d5c2770e870cefabb2a8667f08",
+  "source_a_inventory_sha256": "0d7eebdafe2600db2f6065f6f619e074318a34a68f1f660d3c10d7b1063cdec4",
+  "source_a_origin_main_git_commit": "718a08b3d1ab78d5c2770e870cefabb2a8667f08",
+  "source_blob_inventory": [
+    {
+      "path": "code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json",
+      "sha256": "fa2cd3759150f838fce78b72a987d7a889ef23f5eec5ec41286ae69090104f1f",
+      "size_bytes": 17423
+    },
+    {
+      "path": "code/causalcache/gate_v1_fresh16_failure_decomposition_contract.py",
+      "sha256": "f84feb9b426fad9fcd00ad9c376e24beee0a668315ed0aacef909f40464579a3",
+      "size_bytes": 49121
+    },
+    {
+      "path": "code/causalcache/gate_v1_fresh16_failure_decomposition.py",
+      "sha256": "b17d87ae504c4f6c004a99406460709b7982a6aa5ae1a51ae1440d74988ff457",
+      "size_bytes": 60405
+    },
+    {
+      "path": "code/causalcache/gate_v1_fresh16_failure_decomposition_runner.py",
+      "sha256": "4aa5ab791245a3f72ca01cbb7108ba6db1441bcc6658b81a298fe9e0e120abc4",
+      "size_bytes": 58575
+    },
+    {
+      "path": "code/scripts/manage_gate_v1_fresh16_failure_decomposition.py",
+      "sha256": "5cf4e75fd56c73641151d55f150f5b498f5806719a75a29cc41b86acf2e27250",
+      "size_bytes": 5802
+    },
+    {
+      "path": "code/tests/test_gate_v1_fresh16_failure_decomposition_contract.py",
+      "sha256": "3fce358b9a72c3db1bd4de2ed9a6f4ba0f7cf8b42a0e0cc3d59a8bfa798be472",
+      "size_bytes": 24012
+    },
+    {
+      "path": "code/tests/test_gate_v1_fresh16_failure_decomposition.py",
+      "sha256": "257fe728dd1266a8414675691017f380b5fac98d9ac8c97ffb7695e4934b4533",
+      "size_bytes": 14746
+    },
+    {
+      "path": "code/tests/test_gate_v1_fresh16_failure_decomposition_runner.py",
+      "sha256": "5bbe21599a5c425355d88cc2dc872f8d47cb6d7c65bfe06ec6f0fe9a1298d852",
+      "size_bytes": 29109
+    },
+    {
+      "path": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json",
+      "sha256": "3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7",
+      "size_bytes": 11723
+    },
+    {
+      "path": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_runner_v1.json",
+      "sha256": "c35dccd0d540cd01bd0f93fce11289c40dbada577e856e997a9dcd52347403d8",
+      "size_bytes": 28936
+    },
+    {
+      "path": "data/results/gate_v1_fresh16_claim_serialization_repair_v1/summary.json",
+      "sha256": "621c09d13c027bfbc2835be894dd3de8fbc69c2f03a8605ab3a951cba753e626",
+      "size_bytes": 9419
+    },
+    {
+      "path": "data/results/restoration_v2_2_selector_geometry_v2_repair/summary.json",
+      "sha256": "57eecbba5326cabf430f0a739118e986781a595e98ea6a32ddaeef118abc6811",
+      "size_bytes": 1529767
+    },
+    {
+      "path": "code/causalcache/gate_v1_fresh16.py",
+      "sha256": "88525a8cc1be373b14983447ded1703849527b6913bcf9e9a979645d8c024dc6",
+      "size_bytes": 32208
+    },
+    {
+      "path": "code/causalcache/gate_v1_data.py",
+      "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+      "size_bytes": 26772
+    },
+    {
+      "path": "code/causalcache/low_fidelity_v2.py",
+      "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a",
+      "size_bytes": 14249
+    },
+    {
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    }
+  ],
+  "source_blob_inventory_sha256": "0d7eebdafe2600db2f6065f6f619e074318a34a68f1f660d3c10d7b1063cdec4",
+  "status": "FROZEN_GATE_V1_FRESH16_FAILURE_DECOMPOSITION_EXECUTION_B_V1",
+  "v1_verdict_reclassification_allowed": false
+}
