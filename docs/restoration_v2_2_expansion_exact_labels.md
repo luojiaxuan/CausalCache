@@ -12,7 +12,9 @@
 > 5/3849 个 sampling intervals 超过冻结 3 秒上限，global attempt 因而永久
 > `INVALID_EXPANSION_EXACT_LABEL_ATTEMPT`。内部 aggregate PASS 不能当作 formal labels。独立 CPU-only child 已
 > `VALID + REVALIDATED`，repaired private-HF identity 的 immutable replay/postflight 已闭合，因此 formal-58
-> label-data prerequisite 已满足；gate 尚未训练，matched-NLL、closed-loop 与 confirm 继续 locked。
+> label-data prerequisite 已满足；下游 train-only gate fit 已另行闭合，见
+> [`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)；matched-NLL、closed-loop
+> 与 confirm 继续 locked。
 
 ## v1 terminal result 与修复边界
 

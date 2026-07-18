@@ -10,8 +10,9 @@
 > freeze B 已闭合。唯一 v1 GPU attempt 完成 192/192 scientific states，但因 source-locked monitor cadence
 > 5/3849 gaps 超过冻结 3 秒上限而永久 `INVALID`；内部 aggregate 不能直接作为 formal labels。versioned
 > CPU-only child 已 `VALID + REVALIDATED`，新 private-HF repaired-label identity 的 immutable replay 与独立
-> postflight 也已闭合。formal-58 label-data prerequisite 已满足，但 gate 尚未训练、没有 development metric；
-> 旧 20 条 confirm 继续封存。
+> postflight 也已闭合。formal-58 label-data prerequisite 已满足；下游 train-only gate fit 已另行闭合，见
+> [`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)，但 fresh-16 development
+> metric 尚不存在，旧 20 条 confirm 继续封存。
 
 ## 为什么不能直接训练
 

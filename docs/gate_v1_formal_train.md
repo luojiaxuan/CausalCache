@@ -1,15 +1,14 @@
-# Gate v1 formal-58 train-only Source-A
+# Gate v1 formal-58 train-only training
 
-> 当前状态：formal-train Source-A 已冻结，config SHA256 为
-> `bff920266b3f691618005b239c8a0aaa99369b45c0612ae628eec1a8f7eebf2f`。该里程碑只固定 source、immutable inputs、CPU-only training
-> contract、输出 schema 与 private HF model destination。Execution-B 不存在，
-> `training_executed=false`、`execution_authorized=false`；没有 optimizer step、OOF、checkpoint、model
-> repo/revision/artifact、fresh-16、legacy dev-5、confirm-20、matched-NLL 或 closed-loop output。
+> 当前状态：Source-A=`e20f004ab79afaba4a04a108e70779d49087b2b9` 与唯一
+> Execution-B=`bad28b74c421ccf6be1ab2f4407f7bad3414a2f2` 已冻结并 push。Hyper00 CPU-only formal-58
+> OOF/final fit、private HF publication 和只读 immutable replay 均已完成；`gate_trained=true`，10 个
+> checkpoint 已封存。fresh-16、legacy dev-5、confirm-20、matched-NLL 与 closed-loop 仍是零访问/零执行。
 
 ## 目标与边界
 
-本 Source-A 把已闭合的 formal-58 train-only cache 连接到已预注册的 conditional/independent gate
-trainer，但不在 source-freeze 阶段执行任何训练。machine-readable contract 是
+历史 Source-A 把已闭合的 formal-58 train-only cache 连接到已预注册的 conditional/independent gate
+trainer，并在 source-freeze 阶段保持零训练。machine-readable contract 是
 [`causalcache_gate_v1_formal_train_v1.json`](../code/configs/causalcache_gate_v1_formal_train_v1.json)。该 config
 与下列 source 一起构成 Source-A：
 
@@ -86,9 +85,9 @@ identity 与唯一 `/data` bind mount。仅靠容器内 `torch.cuda.is_available
 这一 OOF 只用于 train-only epoch/LR selection；任一被评估 trajectory 都没有参与对应 fold model
 的训练。它不是 formal-58 in-sample paper metric。
 
-## 预期输出与 model destination
+## 正式输出与 model destination
 
-未来 B 完成时必须一次性形成：
+Execution-B 已一次性形成：
 
 - conditional 和 independent 的完整 `2 LR × 5 seed` OOF reports，不允许只保留 winner；
 - 两个 selected learning rates、每 seed selected epoch 和两个 selection SHA256；
@@ -99,27 +98,33 @@ identity 与唯一 `/data` bind mount。仅靠容器内 `torch.cuda.is_available
 
 private HF model destination 固定为：
 
-| Field | Frozen value/current status |
+| Field | Formal value/status |
 | --- | --- |
 | repo | `gavinlaw/causalcache-gate-v1-formal58-selector-mobile` |
 | repo type | `model`, private |
 | tag | `gate-v1-formal58-train-v1` |
-| Source-A status | repo/tag/revision/artifact verified absent |
-| payload commit | planned；10 checkpoints + 2 full OOF reports |
-| manifest commit | planned direct child of payload commit；2 ensemble + run + bundle manifests |
-| immutable model revision | absent |
+| Source-A preflight | repo/tag/revision/artifact verified absent |
+| payload commit | `a6c9e7f6dab6bc27794438b5b66da07fd59b2889`；10 checkpoints + 2 full OOF reports |
+| manifest commit | `23f6786075c7bff91f93fd7e8a878e070efb72a9`；payload 的 direct child；2 ensemble + run + bundle manifests |
+| annotated tag object | `fa85e74685d5ab509e60b469c6c8cae61efab4d6` |
+| immutable model revision | `23f6786075c7bff91f93fd7e8a878e070efb72a9` |
 
-Source-A 不创建该 repo、tag 或任何 checkpoint。只有训练 artifact strict-readback、两阶段 remote commit、
-annotated tag 与 fresh immutable replay 全部闭合后，final completion 才能将 `gate_trained` 设为 true。
+Source-A 没有创建该 repo、tag 或任何 checkpoint。Execution-B 的训练 artifact strict-readback、两阶段 remote
+commit、annotated tag 与 fresh immutable replay 已全部闭合，final completion 将 `gate_trained` 设为 true；完整
+SHA、OOF selection 与 operation counts 见
+[`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)。
 
 ## Source-A → Execution-B
 
 Source-A 包含 scientific config、contract、trainer adapter、runner source、manager、validator、tests 和本文档，但不包含
-generated runner freeze。Source-A commit/push 后，下一步只允许机械生成：
+generated runner freeze。Source-A commit/push 后已机械生成：
 
 ```text
 code/configs/causalcache_gate_v1_formal_train_runner_v1.json
 ```
+
+该文件 SHA256 为 `a89bb081c6a98e4da7da178e8930357773e7ee23cea211600cffea4500ba7532`；B 是 A 的 direct
+single-parent child，且它是唯一 source-tree diff。
 
 Execution-B 必须是 A 的 direct single-parent child，上述文件是唯一 source-tree diff。B 不得修改
 trainer、config、docs、tests 或任何 input/output binding。正式运行前还必须验证 clean Git、
@@ -156,7 +161,7 @@ closed_loop_authorized = false
 因此 Source-A freeze 只证明正式训练的输入、算法、输出和执行边界已经闭合，不是 learned
 gate 有效性证据。
 
-## B 生成与 runtime receipt（Source-A push 后）
+## B 生成与 runtime receipt（历史执行契约，已完成）
 
 以下命令不属于 Source-A；必须等 A clean push 后执行。第一条只生成唯一 runner-freeze B，随后 B 必须作为
 A 的 direct single-parent child 单独 commit/push：
@@ -185,3 +190,35 @@ PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_train capture-runtime \
 只有 receipt、clean pushed B、CPU/thread environment、private cache identity 全部通过后，`run` 才会创建
 global claim 并开始 formal-58 semantic decode。`validate` 只接受已存在的 terminal hard-link completion，重新
 下载 base/payload/manifest 三个 immutable revisions、重放 10 个 checkpoint，并要求 remote mutation 为 0。
+
+## Formal result 与只读 replay
+
+2026-07-18，B 在 pinned no-GPU CPU runtime 的正式 `run` 返回
+`VALID_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1`。conditional/independent 都选择 LR `3e-4`；五 seed
+mean OOF raw-utility/oracle ratio 分别为 `0.8925353801368878` / `0.9063764691683989`，final epochs 分别是
+`[62,59,98,4,13]` / `[60,51,6,56,54]`。两阶段 HF identity 是：
+
+```text
+payload commit:   a6c9e7f6dab6bc27794438b5b66da07fd59b2889
+manifest commit:  23f6786075c7bff91f93fd7e8a878e070efb72a9
+annotated tag:    fa85e74685d5ab509e60b469c6c8cae61efab4d6
+```
+
+完成态只读 replay 使用同一 B、token path、data root 与 thread/runtime binding：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_train validate \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_formal_train_v1.json \
+  --execution-b-git-commit bad28b74c421ccf6be1ab2f4407f7bad3414a2f2 \
+  --hf-token-file /data/.secrets/hf_key.txt \
+  --data-root /data \
+  --fresh-download-parent /data/tmp
+```
+
+它返回 `REVALIDATED_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1`，逐个重放 10 个 checkpoint，remote
+mutation count 为 `0`。完整 completion binding 见
+[`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)。OOF 仍只是
+train-only LR/epoch selection evidence，不是 fresh-16 泛化或 set-conditioning GO。下一步必须另立 fresh-16
+evaluation Source-A；本 trainer 不得直接打开 fresh-16、旧 dev-5、confirm、matched-NLL 或 closed-loop。

@@ -1,13 +1,12 @@
 # Gate v1 训练与评估执行逻辑
 
-> 当前状态：trainer/evaluator source 与 synthetic/unit smoke 已实现；**尚未运行 formal-58 训练，尚未读取
-> fresh-16、旧 dev-5 或 confirm-20，也没有正式 checkpoint、GO metric、matched-NLL 或 closed-loop 结果。**
+> 当前状态：trainer/evaluator source、formal-58 OOF/final fit、10-checkpoint private-HF publication 与 immutable
+> replay 已闭合；**尚未读取 fresh-16、旧 dev-5 或 confirm-20，也没有 GO metric、matched-NLL 或 closed-loop 结果。**
 > repaired expansion labels 已在 private HF immutable revision 闭合，因此 formal-58 的 label-data prerequisite
 > 已满足；formal-58 train-only feature/label cache 也已经 transport-repair Source-A/Execution-B 完成
-> private-HF publication 与只读 immutable replay，`formal58_training_input_eligible=true`。formal-train Source-A
-> 现已冻结，但其 validator 只返回 `training_executed=false` 与 `execution_authorized=false`；Execution-B、
-> model repo/tag/revision、OOF、checkpoint 与任何 evaluation output 都尚不存在。不能用临时 Python 直接调用
-> `run_formal_oof`。
+> private-HF publication 与只读 immutable replay，`formal58_training_input_eligible=true`。formal-train
+> Source-A=`e20f004…b9`、Execution-B=`bad28b7…a2f2` 与正式 model seal 已完成；不能用临时 Python 重跑
+> `run_formal_oof` 或据 train-only OOF 调整模型。
 
 本文件是 [`gate_v1_preregistration.md`](gate_v1_preregistration.md) 的执行说明。冻结阈值、roster、模型、loss、
 OOF 与访问顺序仍以
@@ -124,10 +123,10 @@ training_executed = false
 execution_authorized = false
 ```
 
-当前 Execution-B 不存在。下一步只允许从 clean pushed Source-A 机械生成唯一 runner-freeze；B
-是 A 的 direct single-parent child，只能新增一个 generated runner config，不能修改 trainer、contract、cache
-binding、训练参数或输出 schema。只有 clean B 的 `HEAD == origin/main == live origin/main`、source inventory
-和 runner-freeze 全部通过后，manager 才能进入正式训练。
+唯一 Execution-B 已由 clean pushed Source-A 机械生成；B 是 A 的 direct single-parent child，只新增
+`causalcache_gate_v1_formal_train_runner_v1.json`，SHA256 为
+`a89bb081c6a98e4da7da178e8930357773e7ee23cea211600cffea4500ba7532`。正式 manager 已验证
+`HEAD == origin/main == live origin/main == B`、source inventory 与 runner-freeze 后进入训练。
 
 训练运行是 CPU-only/no-GPU；source 固定 full-batch FP32 deterministic PyTorch，不应为这个 25K-parameter
 selector 申请 GPU。B 必须先消费 host 侧 mode-0600 Docker inspect receipt，证明
@@ -168,9 +167,8 @@ Ensemble manifest 固定 `schema_version=0.1.0` 与
 revision、路径逃逸、seed/epoch 顺序或嵌套 digest 漂移都会 fail closed。
 
 训练 tensor 全部为 CPU FP32 full batch。AdamW 参数、SmoothL1 beta、ranking coefficient、gradient clipping 与
-deterministic algorithms 均由 source 固定，不允许 development override。正式 checkpoint 属于 reusable model
-artifact，完成后应上传 private Hugging Face model repo；Git 只记录 config、manifest、immutable revision 与轻量
-summary。
+deterministic algorithms 均由 source 固定，不允许 development override。正式 checkpoint 已上传 private
+Hugging Face model repo；Git 只记录 config、manifest、immutable revision 与轻量 summary。
 
 冻结输出约定至少包含：
 
@@ -181,10 +179,11 @@ summary。
 - family training reports、ensemble manifests、top-level run manifest 与 operation counts；
 - cache/preregistration/source/runtime binding 与 private HF immutable model receipt。
 
-private model destination 已冻结为 `gavinlaw/causalcache-gate-v1-formal58-selector-mobile`，tag
-`gate-v1-formal58-train-v1`。Source-A 时已验证该 repo/tag 不存在；当前没有 checkpoint、model revision、
-ensemble manifest 或 run manifest。只有 B 训练完成、所有输出 strict-readback、payload/manifest 两阶段 commit、tag 与
-fresh immutable replay 闭合后，Git 才能记录该 model artifact 为 canonical。
+private model repo 是 `gavinlaw/causalcache-gate-v1-formal58-selector-mobile`，tag
+`gate-v1-formal58-train-v1`。Source-A 时已验证该 repo/tag 不存在；B 已完成 10 checkpoints、2 full OOF
+reports 与 4 manifests 的 strict-readback。payload commit=`a6c9e7f…2889`，其 direct-child manifest
+commit=`23f6786…72a9`，annotated-tag object=`fa85e74…b4d6`；fresh immutable replay remote mutation 为 0。
+Git completion 见 [`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)。
 
 ### 3. Fresh-16 一次性 GO
 
@@ -204,6 +203,12 @@ provenance、十个 checkpoint、fresh-16 feature/label artifact、三个 heuris
 缩短 bootstrap 的入口只存在于显式 test-only private helper，其 status 不能进入 combined-21。
 
 该 report 不授权 confirm、matched-NLL 或 closed-loop。
+
+当前实现审计发现旧 heuristic runner 只接受 `n=4,B=2`，而 fresh-16 同时包含 `n=2/3/4`。因此任何 fresh
+semantic access 前，新 Source-A 必须冻结 variable-`n` 的自然推广：recent 取最后 `min(B,n)` 个 event；
+OCR/RGB 与 policy-vision 对全部 candidate 使用原 similarity/tie rule 后取 `min(B,n)`，并用 `n=4`
+compatibility test 证明与旧 artifact 完全一致。fresh selective loader 也只能解析 expansion rows `48:64` /
+label rows `144:192`，不能复用会读取 train 或全 transport semantics 的 generic reader。
 
 ### 4. 旧 dev-5 compatibility guard
 
@@ -234,11 +239,17 @@ PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_train validate-source \
   --contract code/configs/causalcache_gate_v1_formal_train_v1.json
 ```
 
+上述 source-only 输出是历史 A 的零执行证明。正式 B `run` 已返回
+`VALID_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1`；同一 B 的完成态 `validate` 返回
+`REVALIDATED_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1`，remote mutation count 为 `0`。conditional / independent
+train-only OOF mean 分别为 `0.8925353801368878` / `0.9063764691683989`，都选择 LR `3e-4`；这些数值不构成
+fresh-16 GO。
+
 本机基础 Python 没有 PyTorch 时，schema、feature、weight、selector、OOF decision 与 GO aggregation tests 仍会
 运行，唯一需要 PyTorch 的 two-step optimizer test 会明确 skip。正式 smoke 必须在已安装 PyTorch 的 CPU
 runtime 再执行；它不需要 GPU，也不能作为 paper result。
 
 formal-train Source-A validator 也不需要 PyTorch；它只验证 config/source/hash、上游 immutable bindings、
 Execution-B absence 与访问边界；repo/tag absence 是单独的只读 Hub preflight，不由这个零网络 validator 声称。
-在 Source-A 里唯一合法的执行状态是
-`training_executed=false` 与 `execution_authorized=false`。
+该历史 A 中唯一合法状态仍是 `training_executed=false` 与 `execution_authorized=false`；完成态以 B 的 immutable
+model seal 为准。下一步是新的 fresh-16 evaluation Source-A，而不是修改或重跑 formal trainer。

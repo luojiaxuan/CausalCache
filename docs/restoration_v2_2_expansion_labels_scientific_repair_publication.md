@@ -1,8 +1,10 @@
 # Restoration v2.2 repaired-label private-HF publication
 
 > 当前状态：真实 private-HF publication、completion seal、幂等 immutable replay 与独立只读 postflight 已闭合。
-> `formal_label_loader_eligible=true`、`gate_training_unlocked=true`；这只解除 formal-58 的 label-data
-> prerequisite，gate 尚未训练，matched-NLL、closed-loop 与 confirm 仍 locked。
+> `formal_label_loader_eligible=true`、`gate_training_unlocked=true`；这一步本身只解除 formal-58 的 label-data
+> prerequisite。下游 gate training 已另行闭合，见
+> [`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)；matched-NLL、closed-loop
+> 与 confirm 仍 locked。
 
 ## 目标与边界
 

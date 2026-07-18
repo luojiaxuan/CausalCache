@@ -1,0 +1,310 @@
+{
+  "artifact": {
+    "canonical_hf": {
+      "annotated_tag_object": "fa85e74685d5ab509e60b469c6c8cae61efab4d6",
+      "bundle_manifest": {
+        "path": "formal58-train/v1/manifests/bundle-manifest.json",
+        "sha256": "5916e0a8bef8911cafe4e52db18ce595826577077857b8425ea5cb3783aa3d07",
+        "size_bytes": 3181
+      },
+      "manifest_commit": "23f6786075c7bff91f93fd7e8a878e070efb72a9",
+      "payload_commit": "a6c9e7f6dab6bc27794438b5b66da07fd59b2889",
+      "private": true,
+      "remote_base_commit": "289c38a046738eec552fe9d271fa86483c2a3187",
+      "repo": "gavinlaw/causalcache-gate-v1-formal58-selector-mobile",
+      "repo_type": "model",
+      "run_manifest": {
+        "path": "formal58-train/v1/manifests/run-manifest.json",
+        "sha256": "873dba0bdf6e1905b36bb618107fc1bb5ccaa3f4bb878c0ab2774bfd3bd1850f",
+        "size_bytes": 12208
+      },
+      "tag": "gate-v1-formal58-train-v1",
+      "tag_resolved_immutable_commit": "23f6786075c7bff91f93fd7e8a878e070efb72a9"
+    },
+    "local_staging": {
+      "artifact_root": "/data/artifacts/causalcache/gate-v1-formal58-train-v1",
+      "state_root": "/data/experiments/causalcache",
+      "status": "staging_only_hf_is_canonical"
+    }
+  },
+  "authorization": {
+    "closed_loop_authorized": false,
+    "confirm20_access_authorized": false,
+    "fresh16_access_authorized": false,
+    "gate_trained": true,
+    "legacy_dev5_access_authorized": false,
+    "matched_nll_authorized": false
+  },
+  "contract": {
+    "config_path": "code/configs/causalcache_gate_v1_formal_train_v1.json",
+    "config_sha256": "bff920266b3f691618005b239c8a0aaa99369b45c0612ae628eec1a8f7eebf2f",
+    "execution_b_git_commit": "bad28b74c421ccf6be1ab2f4407f7bad3414a2f2",
+    "execution_b_runner_path": "code/configs/causalcache_gate_v1_formal_train_runner_v1.json",
+    "execution_b_runner_sha256": "a89bb081c6a98e4da7da178e8930357773e7ee23cea211600cffea4500ba7532",
+    "loaded_module_inventory_sha256": "2f56ff9b0a8afd5760cac9f44866813c4ff8893b9869327fd9445cc922c32368",
+    "source_a_git_commit": "e20f004ab79afaba4a04a108e70779d49087b2b9",
+    "source_inventory_sha256": "b111e33b540a2aeef406e3d5a01c7f7a7f0ec440ab1ae50b16c526585285c8df"
+  },
+  "execution": {
+    "container": {
+      "device_requests": [],
+      "id": "787f2a252224cb642e61a41b8b9b80b99d2ddf7d1e6db5201bd73ac327fd16c6",
+      "image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "name": "sglang-omni-jaxan-07172332",
+      "privileged": false,
+      "runtime": "runc"
+    },
+    "docker_inspect_receipt": {
+      "mode": "0600",
+      "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.docker-inspect.json",
+      "sha256": "11c70919180de0cbd8a447423a4d154231d475fca7151ef4d17f15c95edea0cf",
+      "size_bytes": 8455
+    },
+    "host": "node-radixark-16-0000",
+    "no_gpu_runtime": {
+      "cuda_visible_devices": "",
+      "gpu_device_nodes": [],
+      "nvidia_visible_devices": "void",
+      "torch_cuda_available": false,
+      "torch_cuda_device_count": 0
+    },
+    "python": {
+      "huggingface_hub_version": "1.16.1",
+      "implementation": "CPython",
+      "machine": "x86_64",
+      "safetensors_version": "0.7.0",
+      "torch_version": "2.11.0+cu130",
+      "version": "3.12.3"
+    },
+    "thread_environment": {
+      "BLIS_NUM_THREADS": "1",
+      "LC_ALL": "C.UTF-8",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONHASHSEED": "0",
+      "TZ": "UTC",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "formal_input": {
+    "bundle_manifest_sha256": "15c8bf56ddad4f6f278599c32aaadcd813e0e016db0d523b4892eb47f8d9d144",
+    "feature_cache_sha256": "81fded50c4450700220742d3e0be9a5585d1bc51086150515b463bbdf4b4df8e",
+    "formal58_join_audit_sha256": "551e70b7e99f7a761f9c50d2adae3be72b0933044982a015a65e93372e41d77b",
+    "gate_v1_preregistration_sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+    "hf_annotated_tag_object": "c603397b9b1b1c3ad472f49125f827b8a096997d",
+    "hf_immutable_commit": "a61b31bf2e69be00f94469f4a2f2d6b336fcc386",
+    "hf_repo": "gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile",
+    "hf_tag": "gate-v1-formal58-cache-transport-repair-v1",
+    "label_cache_sha256": "4f9ef172aaa94c3ea8ce53aa43336c9fcb7800c24e181e1462d8239e31053cee"
+  },
+  "local_state": {
+    "cache_input_completion_sha256": "3d9e92b326b0d941341266b2e97333e6fd57d1f43bf68ab54d8a20f2d77bdd13",
+    "claim_sha256": "9697501df5ae15f5d3eb8f75b175ed7b824bec18a3939cd454c111e2fe962895",
+    "completion": {
+      "mode": "0600",
+      "path": "/data/experiments/causalcache/.gate-v1-formal58-train-v1.completion.json",
+      "same_inode_as_staging": true,
+      "sha256": "8e31acbabe4485904b97b7088e3e2f1541bec78fe5a588507f68d4595af2264d",
+      "size_bytes": 15899,
+      "status": "COMPLETED_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1"
+    },
+    "payload_commit_receipt_sha256": "39d9b1091762befc78e50cab07db50a622fc931f5e5cfdf4a14e0916661aaeed",
+    "remote_base_receipt_sha256": "77015fe5d734a9fd5f2cb915b402d627430a77c86a48941560a9acf7627addd7",
+    "training_artifact_completion_sha256": "1fc1b142af9f0e02654ff5ae55375380bd853fc4aabc3fc3e6a933d6cfaf7306"
+  },
+  "operation_counts": {
+    "bundle_manifest_count": 1,
+    "cache_join_validation_count": 174,
+    "candidate_feature_count": 522,
+    "checkpoint_count": 10,
+    "closed_loop_episode_count": 0,
+    "conditional_training_example_schema_count": 1682,
+    "confirm20_access_count": 0,
+    "distance_value_count": 1624,
+    "ensemble_manifest_count": 2,
+    "final_fit_model_initialization_count": 10,
+    "final_fit_optimizer_step_count": 463,
+    "final_fit_track_count": 10,
+    "fold_training_track_count": 100,
+    "formal58_feature_state_semantic_decode_count": 174,
+    "formal58_label_state_semantic_decode_count": 174,
+    "formal58_trajectory_semantic_decode_count": 58,
+    "fresh16_semantic_decode_count": 0,
+    "full_oof_report_count": 2,
+    "independent_training_example_schema_count": 522,
+    "legacy_dev5_semantic_decode_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "model_initialization_count": 110,
+    "oof_epoch_metric_count": 1694,
+    "oof_optimizer_step_count": 8470,
+    "oof_training_model_initialization_count": 100,
+    "oof_trial_count": 20,
+    "optimizer_step_count": 8933,
+    "run_manifest_count": 1,
+    "training_family_count": 2
+  },
+  "revalidation": {
+    "argv": "PYTHONHASHSEED=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 BLIS_NUM_THREADS=1 TZ=UTC LC_ALL=C.UTF-8 NVIDIA_VISIBLE_DEVICES=void CUDA_VISIBLE_DEVICES='' PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_train validate --repository-root .. --contract code/configs/causalcache_gate_v1_formal_train_v1.json --execution-b-git-commit bad28b74c421ccf6be1ab2f4407f7bad3414a2f2 --hf-token-file /data/.secrets/hf_key.txt --data-root /data --fresh-download-parent /data/tmp",
+    "gate_trained": true,
+    "remote_mutation_call_count": 0,
+    "status": "REVALIDATED_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1",
+    "training_executed": false,
+    "window_utc": {
+      "finished": "2026-07-18T02:00:17.038604538Z",
+      "started": "2026-07-18T02:00:07.250464558Z"
+    },
+    "working_directory": "/data/CausalCache-formal-train-v1/code"
+  },
+  "run": {
+    "argv": "PYTHONHASHSEED=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 BLIS_NUM_THREADS=1 TZ=UTC LC_ALL=C.UTF-8 NVIDIA_VISIBLE_DEVICES=void CUDA_VISIBLE_DEVICES='' PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_train run --repository-root .. --contract code/configs/causalcache_gate_v1_formal_train_v1.json --execution-b-git-commit bad28b74c421ccf6be1ab2f4407f7bad3414a2f2 --hf-token-file /data/.secrets/hf_key.txt --data-root /data --fresh-download-parent /data/tmp",
+    "remote_mutation_call_count": 4,
+    "status": "VALID_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1",
+    "state_creation_window_utc": {
+      "finished": "2026-07-18T01:54:48.318379Z",
+      "provenance": "claim_and_terminal_completion_filesystem_mtime",
+      "started": "2026-07-18T01:51:24.779979Z"
+    },
+    "training_executed": true,
+    "working_directory": "/data/CausalCache-formal-train-v1/code"
+  },
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_AND_REVALIDATED_GATE_V1_FORMAL58_TRAIN_V1",
+  "training": {
+    "conditional": {
+      "checkpoint_count": 5,
+      "checkpoints": [
+        {
+          "artifact_sha256": "38ef8ca44aea850f23a8594691ba85c986dcb0d06ae14f21111b9cd8098ad6c5",
+          "model_state_sha256": "4b23eb94a3726a963d572655996f5b2be0458d7398a2f38ef69b8a43bb4e036b",
+          "seed": 0,
+          "selected_epoch": 62,
+          "size_bytes": 102060
+        },
+        {
+          "artifact_sha256": "41469c21643326903673d83e2e23e977ea2c9cae5990ea88b37676e19a04313a",
+          "model_state_sha256": "0ab3a272564e8bc7f79a4dd8bf09e3e50c5099334b335fe163e72f78dc738f17",
+          "seed": 1,
+          "selected_epoch": 59,
+          "size_bytes": 102060
+        },
+        {
+          "artifact_sha256": "712fc17ae335eacffa9c40744c77a3995b2d963eb64009bcfc54ff826fb36ee4",
+          "model_state_sha256": "aa58a02b3d5a196b307ca2f576feba301bdef9351354a0669c78e0e8e95fd9c9",
+          "seed": 2,
+          "selected_epoch": 98,
+          "size_bytes": 102060
+        },
+        {
+          "artifact_sha256": "4cb6242814cbf3ae353f5d110e9954e967481b4b4173df4ec87f2baaa036fb0f",
+          "model_state_sha256": "952ef11791e39069b983b357119c09e37e4361c9b2c533f06bc37a3f5e24eb8f",
+          "seed": 3,
+          "selected_epoch": 4,
+          "size_bytes": 102060
+        },
+        {
+          "artifact_sha256": "95cdc21f83394d6ee54d7eda57d83089c180abcfad46135522ffef87e2ec970f",
+          "model_state_sha256": "b0640eb49788f45b60d9bb39e733b7b6e13114a89e73ea825a5f49629a3566af",
+          "seed": 4,
+          "selected_epoch": 13,
+          "size_bytes": 102060
+        }
+      ],
+      "ensemble_manifest_sha256": "74aec69ccdb727fa997f38bebf3383db3aa1965299fdd512fd5f47f02ebcc782",
+      "ensemble_provenance_sha256": "a56c26f7760578e6ebbc793cc25e3adadb228e7c3f90606f63e138f0220858f2",
+      "five_seed_mean_oof_ratio": 0.8925353801368878,
+      "learning_rate_grid_mean": {
+        "0.0003": 0.8925353801368878,
+        "0.001": 0.8918229182624122
+      },
+      "oof_report": {
+        "path": "formal58-train/v1/reports/conditional-full-oof-report.json",
+        "sha256": "c959f16be25ab7dba9121e00e66237408df3c0f61eb51be959c3e5025436db60",
+        "size_bytes": 29845
+      },
+      "seed_best_oof_ratios": [
+        0.8840748843850084,
+        0.9077571385806718,
+        0.8840566987138457,
+        0.8890026855849628,
+        0.8977854934199505
+      ],
+      "selected_epochs": [62, 59, 98, 4, 13],
+      "selected_learning_rate": 0.0003,
+      "selection_sha256": "d04f2946c06893e1ff73333a61ab2deac2a1978dcd10199fa5fe701e38766837"
+    },
+    "independent": {
+      "checkpoint_count": 5,
+      "checkpoints": [
+        {
+          "artifact_sha256": "7088a1cb4224dd1e7013868249ed1c99c20782eb63c2a762e3059cfb939d4a49",
+          "model_state_sha256": "0198ad3cca7bd9e4eef2f6c40c9ac6349732f21935c61ec3434f058ee40b972a",
+          "seed": 0,
+          "selected_epoch": 60,
+          "size_bytes": 102860
+        },
+        {
+          "artifact_sha256": "8a25b8bad27e4c6f20a9a93273602e82a276ee7f9275ff672d6b0ed64dd8fd79",
+          "model_state_sha256": "454b0732389eac920f2aa69edb68317e3746dc57e1d2c6c7269f792257255af7",
+          "seed": 1,
+          "selected_epoch": 51,
+          "size_bytes": 102860
+        },
+        {
+          "artifact_sha256": "b8c38619db06bd479d278da62663a3b451cff951dff0747bf156835234216211",
+          "model_state_sha256": "c4d508933928dc7c6a24501090e3afd2a7d50a4977f37b3b3cb6cd818d28eb13",
+          "seed": 2,
+          "selected_epoch": 6,
+          "size_bytes": 102860
+        },
+        {
+          "artifact_sha256": "b7b175c0b513508f10479bb228fad6ffb6b4e330b050c981d415c2a54b8c11a2",
+          "model_state_sha256": "1f0d319411319dd2348e0a3da8e7d2b18e5b566e468278853d890a761639da60",
+          "seed": 3,
+          "selected_epoch": 56,
+          "size_bytes": 102860
+        },
+        {
+          "artifact_sha256": "8e5eee31c85653a210b9bf05c4cf4d94a8b4fabdb6bdab455caa446cc655df38",
+          "model_state_sha256": "51fc5aaa157ec9feb97a7c40cd7d532cc248ecb076feacd880dc9bba38007def",
+          "seed": 4,
+          "selected_epoch": 54,
+          "size_bytes": 102860
+        }
+      ],
+      "ensemble_manifest_sha256": "38809f1ef4da9636ef6779733cee4926b36b38e3bd86eab199450e685c63da24",
+      "ensemble_provenance_sha256": "238c2e64bdb22ccebd261961200021e74a688f912d530f486b00bbb853a8ea57",
+      "five_seed_mean_oof_ratio": 0.9063764691683989,
+      "learning_rate_grid_mean": {
+        "0.0003": 0.9063764691683989,
+        "0.001": 0.904926176888751
+      },
+      "oof_report": {
+        "path": "formal58-train/v1/reports/independent-full-oof-report.json",
+        "sha256": "0b1d2cca64be7b2c992bbee291aefc8df3e77e7aa4f1228be1b04330bea1a2e8",
+        "size_bytes": 31172
+      },
+      "seed_best_oof_ratios": [
+        0.9012143403172107,
+        0.9044738982091675,
+        0.9164728647614823,
+        0.9105838341486948,
+        0.8991374084054389
+      ],
+      "selected_epochs": [60, 51, 6, 56, 54],
+      "selected_learning_rate": 0.0003,
+      "selection_sha256": "b5889a98adf08c3cf35b647a519b0d08f832879374a9ea8c4b5268c5a1c4b8dd"
+    },
+    "fold_sizes": [12, 12, 12, 11, 11],
+    "geometry": {
+      "candidate_feature_count": 522,
+      "conditional_edge_count": 1682,
+      "distance_value_count": 1624,
+      "independent_target_count": 522,
+      "state_count": 174,
+      "trajectory_count": 58
+    },
+    "oof_is_train_only_model_selection_not_generalization_evidence": true
+  }
+}

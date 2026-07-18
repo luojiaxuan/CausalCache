@@ -2,7 +2,8 @@
 
 > 状态：CPU-only validation core 与 no-GPU formal runner 已从 clean pushed source 完成正式 run 和完整只读
 > revalidation；local repaired payload 为 `VALID + REVALIDATED`。独立 private-HF publication、幂等 immutable
-> replay 与只读 postflight 已闭合，formal-58 label-data prerequisite 已满足；gate 尚未训练。原 producer
+> replay 与只读 postflight 已闭合，formal-58 label-data prerequisite 已满足；下游 train-only gate fit 已另行
+> 闭合，见 [`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)。原 producer
 > attempt 永久 `INVALID`。
 
 ## 目标与边界

@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-train Source-A frozen, Execution-B absent / formal gate not trained / confirm locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 not opened / confirm locked
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；旧 dev-5 只允许在
 > fresh-16 outcome 冻结后用于 combined-21 compatibility guard。新的 48 train +16 fresh-dev
@@ -42,24 +42,26 @@
 > dataset tag `v2.2-expansion-exact-labels-scientific-repair-v1` 的 annotated-tag object 为
 > `6a907ba2...a4a57`，tag-resolved immutable pair commit 为 `7a6c254b...5cef3`；archive/sidecar、exact-pair、
 > 幂等 replay 与独立只读 postflight 均通过。由此只解除 formal-58 的 label-data prerequisite；Gate v1
-> trainer/evaluator source 与 synthetic-only CPU smoke 已闭合，但 formal-58 尚未 fit，也没有 learned-gate
-> paper metric、matched-NLL、closed-loop 或 confirm 结果。formal-58 train-only cache 的 v1 Source-A
+> trainer/evaluator source 与 synthetic-only CPU smoke 已闭合；formal-58 OOF/model selection/final fit 现已完成并
+> immutable replay，但还没有 fresh-16 learned-gate paper metric、matched-NLL、closed-loop 或 confirm 结果。formal-58 train-only cache 的 v1 Source-A
 > `990f015` 与单文件 Execution-B `079c095` 已冻结并 push；首次 Hyper00 CPU-only run 在 global claim 后的
 > feature transport byte check fail-closed：config 把 expansion trajectories SHA 错写为 `00fe93...353a6d`，
 > immutable bytes 与 Git-pinned producer witness 均为 `fe93e9...353a6d`。失败早于任何 semantic decode，未生成
 > cache/HF repo/tag/completion，也未创建 label-access claim。旧 claim 永久保留。独立 namespace 的 transport-repair
 > 已由 Source-A `4f8c01b` 与唯一 Execution-B `f96c197` 完成；只修正该一个 SHA leaf，并完成 private-HF immutable
-> replay（tag-resolved commit `a61b31b...cc386`）。formal cache 现可作为训练输入，但 gate 尚未训练，详见
+> replay（tag-resolved commit `a61b31b...cc386`）。formal cache 已作为正式训练输入消费，训练封存结果见
+> [`data/results/gate_v1_formal58_train_v1/`](data/results/gate_v1_formal58_train_v1/)；上游数据协议详见
 > [`docs/restoration_v2_2_label_expansion.md`](docs/restoration_v2_2_label_expansion.md) 与
 > [`docs/restoration_v2_2_expansion_exact_labels.md`](docs/restoration_v2_2_expansion_exact_labels.md)、
 > [`docs/gate_v1_preregistration.md`](docs/gate_v1_preregistration.md)、
 > [`docs/gate_v1_formal_cache.md`](docs/gate_v1_formal_cache.md)、
 > [`docs/gate_v1_formal_cache_transport_repair.md`](docs/gate_v1_formal_cache_transport_repair.md)、
 > [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)。
-> formal-train Source-A 现已冻结：它精确绑定上述 cache、join audit 与 gate v1 preregistration，且 source-only
-> validator 固定 `training_executed=false` 与 `execution_authorized=false`。Execution-B 尚不存在，
-> `gavinlaw/causalcache-gate-v1-formal58-selector-mobile` 及 tag `gate-v1-formal58-train-v1` 仅是已冻结的
-> private HF model destination，repo、tag、revision、checkpoint 与 model artifact 均已验证 absent。
+> formal-train Source-A=`e20f004…b9` 与唯一单文件 Execution-B=`bad28b7…a2f2` 已 push。Hyper00 CPU-only
+> formal run 和只读 replay 均闭合；private HF model tag `gate-v1-formal58-train-v1` 指向 manifest commit
+> `23f6786…72a9`，包含 5 conditional + 5 independent checkpoints、2 full OOF reports 与 4 manifests。
+> `gate_trained=true` 只表示 train-only model seal 完成；fresh-16、旧 dev-5、confirm、matched-NLL 与
+> closed-loop 仍未打开。
 
 ## 团队交接入口
 
@@ -94,11 +96,10 @@ policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interf
 state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式状态为 `VALID`；result commit 后又从
 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
 
-当前关键路径已切换为 formal-train Source-A → 唯一机械 Execution-B → formal-58 OOF/model
-selection → final fit。v1 cache execution 已永久 fail-closed，独立 transport-repair 已完成 exact-three
-private-HF publication 与只读 immutable replay；formal-train Source-A 只冻结输入、训练、输出与访问边界，没有执行
-optimizer。下一步只能从 clean pushed Source-A 机械生成并单独 push B，再从 clean B 完成 OOF 与 final
-fit；fresh-16 只能在所有 train-only checkpoint/provenance 封存后一次性读取。已发布 child 的冻结分母为
+当前关键路径已切换为 frozen formal-58 ensemble → fresh-16 evaluation Source-A → 唯一机械 Execution-B →
+一次性 primary GO。v1 cache execution 已永久 fail-closed，独立 transport-repair 与 formal training 都已完成
+private-HF publication 和只读 immutable replay；10 个 train-only checkpoint/provenance 已封存，满足另立
+fresh-16 contract 的前置条件，但 fresh-16 semantic content 仍为零访问。已发布 child 的冻结分母为
 64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
 full edges、1,984 interactions、576 attributions 与 192 exact oracles。label run 固定 1,984 teacher forwards、
@@ -120,8 +121,8 @@ ledger-neutral scientific-repair core、no-GPU formal runner、正式 local arti
 [`docs/restoration_v2_2_expansion_labels_scientific_repair_publication.md`](docs/restoration_v2_2_expansion_labels_scientific_repair_publication.md)，
 正式结果见
 [`data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/`](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/)。
-它绑定新的 private HF immutable identity。formal-58 label-data blocker 已清除，但 gate 尚未训练；下一步仍不得提前
-读取 fresh-16、旧 dev-5 或 confirm。
+它绑定新的 private HF immutable identity。formal-58 label-data blocker 与 train-only gate fit 都已清除；下一步只能
+先冻结 fresh-16 evaluation Source-A，不能在 source freeze 前读取 fresh-16，也不能提前读取旧 dev-5 或 confirm。
 
 primary `n=4,B=2` OCR/RGB baseline v1 的 source 与失败边界见
 [`docs/restoration_v2_2_ocr_rgb_baseline.md`](docs/restoration_v2_2_ocr_rgb_baseline.md)。contract SHA256 为
@@ -819,7 +820,7 @@ $$
   immutable replay formal-58 feature/label cache；v1 claim 保留，repair cache 已绑定 private HF immutable commit；
 - [x] 冻结 formal-train Source-A：精确绑定 repair cache/preregistration、train-only OOF/final-fit、十个输出
   checkpoint 与 private HF model destination；source-only validator 不授权执行；
-- [ ] 从 clean pushed Source-A 机械生成唯一 Execution-B，完成 formal-58 OOF/final fit，封存十个
+- [x] 从 clean pushed Source-A 机械生成唯一 Execution-B，完成 formal-58 OOF/final fit，封存十个
   checkpoint 并完成 private HF immutable model replay；
 - [ ] 对已冻结 ensemble 执行一次性 fresh-16 primary GO，报告封存后再做 combined-21 compatibility guard；
 - [ ] 仅在 selector/set-conditioning GO 后冻结 post-GO contract，再运行 matched-NLL、closed-loop 与 confirm；
@@ -868,6 +869,7 @@ $$
 - Gate v1 formal-58 transport-repair result: [`data/results/gate_v1_formal58_cache_transport_repair_v1/`](data/results/gate_v1_formal58_cache_transport_repair_v1/)
 - Gate v1 formal-train Source-A protocol: [`docs/gate_v1_formal_train.md`](docs/gate_v1_formal_train.md)
 - Gate v1 formal-train Source-A config: [`code/configs/causalcache_gate_v1_formal_train_v1.json`](code/configs/causalcache_gate_v1_formal_train_v1.json)
+- Gate v1 formal-58 training completion: [`data/results/gate_v1_formal58_train_v1/`](data/results/gate_v1_formal58_train_v1/)
 - Gate v1 formal-train source validator: [`code/scripts/validate_gate_v1_formal_train_contract.py`](code/scripts/validate_gate_v1_formal_train_contract.py)
 - Gate v1 formal-train manager: [`code/scripts/manage_gate_v1_formal_train.py`](code/scripts/manage_gate_v1_formal_train.py)
 - Gate v1 trainer/evaluator execution: [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)
@@ -1065,7 +1067,7 @@ $$
 | Label-expansion substrate v1 | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-label-expansion-substrate-mobile> | `v2.2-label-expansion-substrate-v1` / `25ac19cf6ef98adc243d421cd0039ac104ddb539`，private | 192/192、0 failed；185 memory-sensitive；384/576/384 exact counts；406-file USTAR SHA256 `4e77a38b...ff47d`，fresh immutable byte replay verified |
 | Expansion exact-label v1 attempt / invalid forensic | [private HF invalid-attempt dataset](https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-invalid-attempts-mobile)；[failure binding](data/results/restoration_v2_2_expansion_exact_labels_v1_attempt/) / [transport result](data/results/restoration_v2_2_expansion_exact_labels_invalid_forensic_tag_resolution_v1/) | `v2.2-expansion-exact-labels-v1-attempt-1-forensic-v1` / `5efe1ae861d16e2ee144ed5f4c7b5ad25a28b416`，private | 192/192 raw body complete；406-member forensic USTAR SHA256 `8e205d73...ca489` immutable replay verified；producer 仍 `INVALID` 且 formal-ineligible |
 | Expansion exact-label scientific-repair child | [private HF repaired-label dataset](https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile)；[scientific result](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/) / [publication result](data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/) | `v2.2-expansion-exact-labels-scientific-repair-v1` / annotated object `6a907ba2...a4a57` / resolved commit `7a6c254b...5cef3`，private | 4-member USTAR SHA256 `1a9fdcc0...e01` 已 `VALID + REVALIDATED` 并 immutable replay/postflight；原 producer 不重分类；仅 formal-58 label-data prerequisite cleared，gate 未训练 |
-| Gate v1 formal-58 train-only cache | v1 [failure evidence](data/results/gate_v1_formal58_cache_v1_attempt/)；repair [private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile)；[completion record](data/results/gate_v1_formal58_cache_transport_repair_v1/) | v1 A=`990f015` / B=`079c095` permanently invalid；repair A=`4f8c01b` / B=`f96c197`，tag `gate-v1-formal58-cache-transport-repair-v1` → `a61b31b...cc386` | repair 只更正证实错误的 SHA leaf，旧 claim/旧输出缺失先验证；formal-58 cache 已 immutable-revalidated、可作训练输入，gate 仍未训练 |
+| Gate v1 formal-58 train-only cache | v1 [failure evidence](data/results/gate_v1_formal58_cache_v1_attempt/)；repair [private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile)；[completion record](data/results/gate_v1_formal58_cache_transport_repair_v1/) | v1 A=`990f015` / B=`079c095` permanently invalid；repair A=`4f8c01b` / B=`f96c197`，tag `gate-v1-formal58-cache-transport-repair-v1` → `a61b31b...cc386` | repair 只更正证实错误的 SHA leaf，旧 claim/旧输出缺失先验证；cache 已 immutable-revalidated 并由 formal training 消费 |
 | Restoration v2 first substrate trace | 同一 private restoration-v2 dataset repo | `restoration-v2-substrate-screening-v1.0.0` / `c073e143b935a79befd8ab1fd7123796792efad8` | fixed 45 states；strict 0/45、conservative recovery 40/45；raw shard + manifest fresh-download verified；`NO_GO_V2_SUBSTRATE` / `NO_GO_ADAPTER_ONLY` |
 | Restoration v2.1 processor preflight | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-processor-preflight-mobile> | `v2.1-processor-preflight-v1` / `85576161b7cb8bbae14e46a482c42b5be5bf1d7e`，private | 90-prompt CPU-only PASS；raw SHA256 `5349ffc6...499191`、7,609,803 bytes；fresh immutable download verified |
 | Restoration v2.1 interface pilot trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-1-interface-pilot-mobile> | `v2.1-interface-pilot-v1` / `bdff8ca71f150afd80d6291b4ecec76cbf9e7432`，private | fixed-15 PASS；raw USTAR SHA256 `f71d5fd5...32064`、133,120 bytes；fresh immutable download verified |
@@ -1073,7 +1075,7 @@ $$
 | Spatial reference audit trace | <https://huggingface.co/datasets/gavinlaw/causalcache-spatial-reference-audit-mobile> | `spatial-reference-audit-v1` / `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，private | auto 7/13、eager 13/13、FP32 4/4 descriptive；`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR SHA256 `d62ad05f...e5ecc`；fresh immutable canonical rebuild verified |
 | Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | `v2.2-eager-full-45-substrate-v1` / `3577099d505b8c652d764f41269df911128ec767`，private | 45/45 parse/repeat/finite logits、45 memory-sensitive；`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw USTAR SHA256 `b22827e6...09fb5`、fresh immutable download verified |
 | Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
-| Gate v1 formal-58 selector ensemble（planned） | [private HF model destination](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile) | destination/tag `gate-v1-formal58-train-v1` 已由 Source-A 冻结；repo/tag/revision/artifact 均已验证 absent | 计划 5 conditional + 5 independent checkpoints、两个完整 OOF grid、selection/model-state/checkpoint digests、ensemble/run manifests；`training_executed=false` |
+| Gate v1 formal-58 selector ensemble | [private HF model](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)；[completion record](data/results/gate_v1_formal58_train_v1/) | tag `gate-v1-formal58-train-v1` → manifest commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；annotated tag `fa85e746...b4d6` | 5 conditional + 5 independent checkpoints、2 full OOF reports、4 manifests；immutable replay 0 mutation；fresh-16/legacy dev-5/confirm/matched-NLL/closed-loop 仍 locked |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

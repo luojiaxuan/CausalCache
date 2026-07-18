@@ -10,8 +10,8 @@ AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gat
 USTAR 与 private HF immutable revision 已完成 fresh-download 复核。restoration label v1 因 model snapshot
 preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replacement v2 已完成 45/45 states，并闭合
 420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
-HF immutable artifact。当前已有 offline teacher labels 和 oracle 上界，但仍没有 learned gate checkpoint、
-matched-NLL pairs、closed-loop 方法效果或 confirm policy output。selector geometry 的 versioned reporting repair 已完成并支持
+HF immutable artifact。当前已有 offline teacher labels、oracle 上界与 10 个 immutable learned gate checkpoint，
+但仍没有 fresh-16 GO、matched-NLL pairs、closed-loop 方法效果或 confirm policy output。selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
 v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00 完成 15-state formal aggregate、
@@ -38,10 +38,10 @@ authorization=true。唯一 v1 GPU attempt 随后完成 192/192 states 与全部
 no-GPU scientific-repair child 也已完成正式 run 和完整只读 revalidation，local payload 为 `VALID +
 REVALIDATED`，但原 producer 不重分类。repaired archive+sidecar 已发布到新的 private HF identity，tag-resolved
 immutable commit 为 `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，幂等 replay 与独立只读 postflight 均通过。
-formal-58 label-data prerequisite 已满足，train-only repair cache 已完成 private-HF immutable replay，formal-train
-Source-A 也已冻结。当前 `training_executed=false`、`execution_authorized=false`，下一步只能机械生成
-并单独 push Execution-B，再从 clean B 完成 OOF/final fit 和 provenance 封存；尚未打开 fresh-16、旧
-dev-5 或 confirm。
+formal-58 label-data prerequisite 已满足，train-only repair cache 与 formal training 均完成 private-HF immutable
+replay。Source-A=`e20f004…b9`、唯一 Execution-B=`bad28b7…a2f2` 已闭合 20 个 OOF trials、100 条 fold
+tracks 与 10 个 final checkpoint；下一步是先冻结 fresh-16 evaluation Source-A，再进行唯一 primary GO。尚未
+打开 fresh-16、旧 dev-5 或 confirm。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -2218,11 +2218,11 @@ set-conditioned iterative gate 是主方法，parameter-matched independent gate
 exact labels、ledger-neutral repair 与 repaired-label private-HF publication 均已闭合。formal-58 cache v1 的唯一
 execution 仍永久 pre-semantic fail-closed；其 one-leaf transport-repair 已从 Source-A/Execution-B 完成 Hyper00
 no-GPU cache build、exact-three private-HF publication、fresh immutable replay 与只读 revalidation。formal-58
-cache 现是已 preregistered train-only gate workflow 的 immutable input，且独立 formal-train Source-A 已冻结它的
-exact bindings、CPU-only training contract、输出 schema 与 private HF model destination。当前 Execution-B 不存在，
-`training_executed=false`、`execution_authorized=false`，仍没有 gate fit、OOF、checkpoint 或任何
-development/fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。下一步只能从 clean pushed Source-A
-机械生成并单独 push 唯一 Execution-B；不得把 Source-A 当作任何训练或下游评估已发生的证据。
+cache 已被唯一 formal training B 消费；OOF/final fit、10-checkpoint private-HF publication 与只读 replay 均闭合。
+当前仍没有 fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。下一步先把 model seal 作为 immutable input
+绑定进新的 fresh-16 evaluation Source-A，同时冻结 variable-`n` heuristic 与 selective fresh loader；Source-A
+push 后才机械生成唯一 B 并进行一次性 primary GO。不得依据 train-only OOF 改 architecture、LR、epoch、loss、
+threshold 或 seed，也不得把 combined-21 混入同一 execution。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 
@@ -2566,12 +2566,38 @@ development/fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。下一步�
   model-state/checkpoint artifact SHA、family training reports、ensemble manifests、run manifest、operation counts 与
   cache/source/runtime provenance。这些都是未来输出，Source-A 里不存在；
 - private HF model destination 已冻结为 `gavinlaw/causalcache-gate-v1-formal58-selector-mobile`，tag
-  `gate-v1-formal58-train-v1`，当前 repo/tag/revision/artifact 均已验证 absent；
+  `gate-v1-formal58-train-v1`；在 Source-A 当时 repo/tag/revision/artifact 均已验证 absent；
 - Source-A validator 只做 source/config/hash 与 absence validation，明确返回 `training_executed=false` 与
-  `execution_authorized=false`。Execution-B 尚未生成，optimizer/OOF/checkpoint/model upload/fresh-16/旧
+  `execution_authorized=false`。该历史 source-freeze 时 Execution-B 尚未生成，optimizer/OOF/checkpoint/model upload/fresh-16/旧
   dev-5/confirm/matched-NLL/closed-loop 均未执行；source-only replay 验证 17 个 Source-A paths，network/HF/
   write/torch/semantic-decode 计数全为 0。显式绑定仓库 `code/` 的全量 suite 为 1,138 tests，结果 OK
   （13 个本机 optional runtime skips）；Hyper00 pinned no-GPU container 的 54 个 formal-train/pipeline tests
   全部通过且无 skip，包含真实 PyTorch/safetensors checkpoint canonical replay。host `docker inspect` 也确认
   `DeviceRequests=null`、unprivileged `runc`、container hostname/image identity 与唯一 `/data02/jaxan:/data`
-  bind。下一步只能从 clean pushed Source-A 机械生成唯一 runner-freeze B，不得修改 trainer。
+  bind。该历史 milestone 当时的下一步只能从 clean pushed Source-A 机械生成唯一 runner-freeze B，不得修改
+  trainer；实际 B/result 见下一条。
+
+### 2026-07-18：gate v1 formal-58 training publication + replay 闭合
+
+- Source-A=`e20f004ab79afaba4a04a108e70779d49087b2b9` 已机械生成唯一 direct-child
+  Execution-B=`bad28b74c421ccf6be1ab2f4407f7bad3414a2f2`；B 只新增 runner freeze，SHA256 为
+  `a89bb081c6a98e4da7da178e8930357773e7ee23cea211600cffea4500ba7532`；
+- Hyper00 的 pinned unprivileged `runc` container 以 no-GPU、CPU FP32、单线程执行 formal run。58
+  trajectories / 174 feature states / 174 label states 完整 join；fresh-16、legacy dev-5、confirm、matched-NLL
+  与 closed-loop operation 全为 0；
+- conditional / independent 各完成 `2 LR × 5 seed × 5 folds`。五 seed mean OOF
+  raw-utility/oracle ratio 分别为 `0.8925353801368878` / `0.9063764691683989`，两者均选 LR `3e-4`；
+  final epochs 分别为 `[62,59,98,4,13]` / `[60,51,6,56,54]`。OOF 只作 train-only LR/epoch selection，
+  不是 generalization metric；
+- 10 个 safetensors、2 个 full OOF reports 与 4 个 manifests 已发布到 private HF model
+  [`gavinlaw/causalcache-gate-v1-formal58-selector-mobile`](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)。payload
+  commit=`a6c9e7f6dab6bc27794438b5b66da07fd59b2889`，manifest commit=`23f6786075c7bff91f93fd7e8a878e070efb72a9`，
+  annotated-tag object=`fa85e74685d5ab509e60b469c6c8cae61efab4d6`；
+- 正式 `run` 返回 `VALID_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1`，完成态只读 replay 返回
+  `REVALIDATED_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1`，逐个重放全部 checkpoint 且 remote mutation count 为
+  0。completion/staging 是 mode-0600 同 inode hard-link；完整轻量记录见
+  `data/results/gate_v1_formal58_train_v1/`；
+- `gate_trained=true` 只关闭 train-only model seal，不是 selector/set-conditioning GO。现有 heuristic runner
+  硬编码 `n=4,B=2`，而 fresh-16 含 `n=2/3/4`；因此下一阶段必须在任何 fresh semantic access 前冻结
+  variable-`n` recent/OCR-RGB/policy-vision 语义与 n=4 compatibility test，并新增只解析 fresh rows 的 selective
+  loader。fresh primary 封存/replay 后，才能另立 combined-21 contract 打开旧 dev-5。

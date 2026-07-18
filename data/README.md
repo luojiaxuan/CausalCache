@@ -234,7 +234,8 @@ restoration v2 exact selection/exposure 产物：
   `gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile`，tag
   `v2.2-expansion-exact-labels-scientific-repair-v1`，resolved immutable commit
   `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`；幂等 replay 与独立只读 postflight 通过。该记录只解除
-  formal-58 label-data prerequisite；gate 尚未训练；
+  formal-58 label-data prerequisite；该历史里程碑本身没有训练 gate，下游正式训练见
+  `results/gate_v1_formal58_train_v1/`；
 
 - `results/gate_v1_formal58_cache_v1_attempt/`：Source-A=`990f015`、Execution-B=`079c095` 的首次 Hyper00
   CPU-only run 在 global claim 后的 feature transport byte check fail-closed。错误 config SHA 与实际 immutable
@@ -244,14 +245,15 @@ restoration v2 exact selection/exposure 产物：
   三重 witness 复核的 SHA leaf，并使用独立 local/HF namespace。repair 的两份 cache 与 manifest 已发布为
   private HF dataset `gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile` 的 immutable commit
   `a61b31bf2e69be00f94469f4a2f2d6b336fcc386`；轻量 completion binding 位于
-  `results/gate_v1_formal58_cache_transport_repair_v1/`。旧 v1 evidence/claim 不变，gate 尚未训练；
+  `results/gate_v1_formal58_cache_transport_repair_v1/`。旧 v1 evidence/claim 不变；该 cache 随后已由正式
+  gate training 消费；
 
-- formal-train Source-A 是 Git-only source/config milestone，不在 `data/results/` 伪造 completion。它已冻结
-  private HF model destination `gavinlaw/causalcache-gate-v1-formal58-selector-mobile` 与 tag
-  `gate-v1-formal58-train-v1`，但当前 repo/tag/revision、OOF report、checkpoint、ensemble/run manifest
-  全部已验证 absent；
-  `training_executed=false`、`execution_authorized=false`，Execution-B 尚未生成。完成正式训练后，model
-  weights/checkpoints 必须进入该 private HF model repo，Git 只保留轻量 summary 与 immutable binding；
+- `results/gate_v1_formal58_train_v1/`：历史 Source-A=`e20f004…b9` 的零执行边界保持不变；唯一
+  Execution-B=`bad28b7…a2f2` 已完成 CPU-only OOF/final fit。10 个 checkpoints、2 full OOF reports 与 4
+  manifests 位于 private HF model `gavinlaw/causalcache-gate-v1-formal58-selector-mobile`，tag
+  `gate-v1-formal58-train-v1` → manifest commit `23f6786…72a9`；Git 只保存轻量 summary 与 immutable
+  binding。只读 replay 已通过且 remote mutation 为 0；fresh-16、旧 dev-5、confirm、matched-NLL 与
+  closed-loop 仍未访问；
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private

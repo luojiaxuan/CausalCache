@@ -855,7 +855,7 @@ confirm run。详细 execution evidence 见
 [`../data/results/gate_v1_formal58_cache_transport_repair_v1/`](../data/results/gate_v1_formal58_cache_transport_repair_v1/)
 与 [`gate_v1_formal_cache_transport_repair.md`](gate_v1_formal_cache_transport_repair.md)。
 
-formal-train Source-A 现已在不读 semantic cache、不加载 PyTorch、不创建 local state 与不访问 HF 的
+formal-train Source-A 曾在不读 semantic cache、不加载 PyTorch、不创建 local state 与不访问 HF 的
 source-only 边界下冻结，config 为
 `code/configs/causalcache_gate_v1_formal_train_v1.json`，SHA256
 `bff920266b3f691618005b239c8a0aaa99369b45c0612ae628eec1a8f7eebf2f`。它绑定上述 repair cache 的 feature/label/manifest SHA256、tag、
@@ -863,9 +863,12 @@ resolved commit、join audit，以及 gate preregistration SHA256
 `37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b`。详细 contract 见
 [`gate_v1_formal_train.md`](gate_v1_formal_train.md)。
 
-当前 Execution-B 不存在，source validator 的固定输出是 `training_executed=false` 与
-`execution_authorized=false`。private HF model destination
-`gavinlaw/causalcache-gate-v1-formal58-selector-mobile` 及 tag `gate-v1-formal58-train-v1` 已验证
-absent；没有 repo、revision、checkpoint 或 model artifact。下一步只能从 clean pushed A 机械生成并单独
-push 唯一 runner-freeze B，然后在 CPU-only/no-GPU runtime 运行 formal-58 OOF 与 final fit。整个训练
-process 必须保持 fresh-16、legacy dev-5、confirm-20、matched-NLL 与 closed-loop access 为 0。
+Source-A validator 的固定输出仍是该历史时刻的 `training_executed=false` 与
+`execution_authorized=false`。随后唯一 Execution-B=`bad28b74c421ccf6be1ab2f4407f7bad3414a2f2` 已在
+CPU-only/no-GPU runtime 完成 formal-58 OOF 与 final fit；10 checkpoints、2 full OOF reports 与 4 manifests
+已发布到 private HF model `gavinlaw/causalcache-gate-v1-formal58-selector-mobile`。tag
+`gate-v1-formal58-train-v1` 解析到 manifest commit
+`23f6786075c7bff91f93fd7e8a878e070efb72a9`，完成态只读 replay remote mutation count 为 0，详见
+[`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)。整个训练保持
+fresh-16、legacy dev-5、confirm-20、matched-NLL 与 closed-loop access 为 0。下一步必须另立 fresh-16
+evaluation Source-A；不能修改 formal checkpoints 或把 combined-21 混入同一 primary execution。
