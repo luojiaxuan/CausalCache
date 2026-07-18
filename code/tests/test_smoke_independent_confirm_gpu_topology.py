@@ -49,41 +49,59 @@ def _runtime_metadata(*, device: str, gpu_uuid: str | None = None) -> dict[str, 
 
 
 def _fake_vision_target(queue: Any, **kwargs: Any) -> None:
+    record = {
+        "worker_id": kwargs["worker_id"],
+        "device": kwargs["device"],
+        "gpu_uuid": kwargs["expected_gpu_uuid"],
+        "fixed_rgb_image_set_sha256": IMAGE_SHA,
+        "runtime_identity": {"runtime_profile_id": "fake-vision"},
+        "operation_counts": {
+            "image_processor_batch_count": 1,
+            "policy_vision_feature_forward_count": 1,
+            "generation_count": 0,
+        },
+    }
+    if "continuation_challenge" in kwargs:
+        record["_continuation_challenge_response"] = (
+            smoke.continuation_topology_challenge_response(
+                challenge_sha256=kwargs["continuation_challenge"],
+                phase=kwargs["continuation_challenge_phase"],
+                worker_record=record,
+            )
+        )
     queue.put(
         {
             "ok": True,
-            "record": {
-                "worker_id": kwargs["worker_id"],
-                "device": kwargs["device"],
-                "gpu_uuid": kwargs["expected_gpu_uuid"],
-                "fixed_rgb_image_set_sha256": IMAGE_SHA,
-                "runtime_identity": {"runtime_profile_id": "fake-vision"},
-                "operation_counts": {
-                    "image_processor_batch_count": 1,
-                    "policy_vision_feature_forward_count": 1,
-                    "generation_count": 0,
-                },
-            },
+            "record": record,
         }
     )
 
 
 def _fake_teacher_target(queue: Any, **kwargs: Any) -> None:
+    record = {
+        "worker_id": kwargs["worker_id"],
+        "device": kwargs["device"],
+        "gpu_uuid": kwargs["expected_gpu_uuid"],
+        "fixed_rgb_image_set_sha256": IMAGE_SHA,
+        "runtime_identity": {"runtime_profile_id": "fake-teacher"},
+        "operation_counts": {
+            "teacher_forced_distance_logits_call_count": 1,
+            "finite_logits_validation_count": 1,
+            "policy_generation_call_count": 0,
+        },
+    }
+    if "continuation_challenge" in kwargs:
+        record["_continuation_challenge_response"] = (
+            smoke.continuation_topology_challenge_response(
+                challenge_sha256=kwargs["continuation_challenge"],
+                phase=kwargs["continuation_challenge_phase"],
+                worker_record=record,
+            )
+        )
     queue.put(
         {
             "ok": True,
-            "record": {
-                "worker_id": kwargs["worker_id"],
-                "device": kwargs["device"],
-                "gpu_uuid": kwargs["expected_gpu_uuid"],
-                "fixed_rgb_image_set_sha256": IMAGE_SHA,
-                "runtime_identity": {"runtime_profile_id": "fake-teacher"},
-                "operation_counts": {
-                    "teacher_forced_distance_logits_call_count": 1,
-                    "finite_logits_validation_count": 1,
-                    "policy_generation_call_count": 0,
-                },
-            },
+            "record": record,
         }
     )
 
@@ -381,6 +399,43 @@ class GPUTopologySmokeTest(unittest.TestCase):
         self.assertTrue(all(process.terminated for process in processes))
         self.assertTrue(all(process.joined for process in processes))
         self.assertTrue(all(not process.is_alive() for process in processes))
+
+    def test_continuation_challenge_is_echoed_by_both_actual_worker_phases(self) -> None:
+        temporary, model, manifest = self._paths()
+        self.addCleanup(temporary.cleanup)
+        events: list[str] = []
+        receipt = smoke.run_gpu_topology_smoke(
+            model_dir=model,
+            snapshot_manifest=manifest,
+            devices=DEVICES,
+            gpu_uuids=GPU_UUIDS,
+            phase_timeout_seconds=30,
+            worker_termination_grace_seconds=5,
+            spawn_context=_FakeContext("spawn", events),
+            fork_context=_FakeContext("fork", events),
+            vision_worker_target=_fake_vision_target,
+            teacher_worker_target=_fake_teacher_target,
+            continuation_execution_b_commit="b" * 40,
+            continuation_topology_nonce="c" * 64,
+        )
+
+        self.assertEqual(
+            receipt["protocol_id"], smoke.CONTINUATION_ENVELOPE_PROTOCOL_ID
+        )
+        self.assertEqual(
+            set(receipt["challenge_responses"]),
+            {"policy_vision_spawn", "teacher_forced_fork"},
+        )
+        self.assertEqual(
+            [len(rows) for rows in receipt["challenge_responses"].values()],
+            [4, 4],
+        )
+        self.assertNotIn(
+            "_continuation_challenge_response",
+            receipt["parent_receipt"]["phases"]["policy_vision_spawn"][
+                "workers"
+            ][0],
+        )
 
     def test_vision_worker_logic_is_cpu_testable_and_uses_five_fixed_rgb_images(self) -> None:
         record = smoke._vision_worker_logic(

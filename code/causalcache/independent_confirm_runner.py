@@ -31,7 +31,10 @@ from causalcache.gate_v1_provenance import (
     frozen_ensemble_provenance_from_manifest,
 )
 from causalcache.gate_v1_training import FittedEnsemble, predict_vectors
-from causalcache.independent_confirm_artifact import independent_decisions_bytes
+from causalcache.independent_confirm_artifact import (
+    independent_decisions_bytes,
+    read_independent_decisions,
+)
 from causalcache.independent_confirm_data import (
     CONFIRM_BUDGET_EVENT_CAPACITY,
     CONFIRM_CANDIDATE_EVENT_STEP_IDS,
@@ -478,6 +481,81 @@ def independent_selection_payload_bytes(bundle: IndependentSelectionBundle) -> b
     return payload
 
 
+def replay_independent_selection_bundle(payload: bytes) -> IndependentSelectionBundle:
+    """Rebuild an opaque selection bundle from exact sealed decision bytes."""
+    if not isinstance(payload, bytes):
+        raise TypeError("sealed independent decisions must be bytes")
+    replay = read_independent_decisions(payload)
+    ensemble_scores = replay["ensemble_scores"]
+    seed_scores = replay["seed_scores"]
+    canonical = independent_decisions_bytes(
+        ensemble_scores=ensemble_scores,
+        seed_scores=seed_scores,
+    )
+    if canonical != payload:
+        raise ValueError("sealed independent decisions failed canonical byte replay")
+
+    ensemble_selections: dict[str, tuple[int, ...]] = {}
+    seed_selections = [dict() for _ in range(5)]
+    records: list[dict[str, Any]] = []
+    for ordinal, source_id in enumerate(CONFIRM_SOURCE_IDS):
+        state_id = f"{source_id}:decision_step:{CONFIRM_DECISION_STEP_ID:03d}"
+        ensemble_values = tuple(
+            float(ensemble_scores[state_id][event])
+            for event in CONFIRM_CANDIDATE_EVENT_STEP_IDS
+        )
+        ensemble_selected = _positive_top_b(
+            CONFIRM_CANDIDATE_EVENT_STEP_IDS, ensemble_values
+        )
+        ensemble_selections[state_id] = ensemble_selected
+        seed_decisions = []
+        for seed in range(5):
+            values = tuple(
+                float(seed_scores[seed][state_id][event])
+                for event in CONFIRM_CANDIDATE_EVENT_STEP_IDS
+            )
+            selected = _positive_top_b(CONFIRM_CANDIDATE_EVENT_STEP_IDS, values)
+            seed_selections[seed][state_id] = selected
+            seed_decisions.append(
+                {
+                    "seed": seed,
+                    "scores_by_event_step": [
+                        {"event_step_id": event, "score": score}
+                        for event, score in zip(
+                            CONFIRM_CANDIDATE_EVENT_STEP_IDS, values, strict=True
+                        )
+                    ],
+                    "selected_event_step_ids": list(selected),
+                }
+            )
+        records.append(
+            {
+                "ordinal": ordinal,
+                "source_id": source_id,
+                "state_id": state_id,
+                "candidate_event_step_ids": list(CONFIRM_CANDIDATE_EVENT_STEP_IDS),
+                "ensemble_scores_by_event_step": [
+                    {"event_step_id": event, "score": score}
+                    for event, score in zip(
+                        CONFIRM_CANDIDATE_EVENT_STEP_IDS,
+                        ensemble_values,
+                        strict=True,
+                    )
+                ],
+                "ensemble_selected_event_step_ids": list(ensemble_selected),
+                "seed_decisions": seed_decisions,
+            }
+        )
+    return IndependentSelectionBundle(
+        ensemble_selections=ensemble_selections,
+        seed_selections=seed_selections,
+        score_records=records,
+        selection_sha256=_sha256(payload),
+        payload=payload,
+        _token=_SELECTION_TOKEN,
+    )
+
+
 def _payload_inventory(files: Mapping[str, bytes]) -> tuple[dict[str, Any], ...]:
     if not isinstance(files, Mapping) or not files:
         raise ValueError("label-blind payload must contain at least one file")
@@ -562,6 +640,50 @@ def publish_payload_commit(
         payload_commit=commit,
         inventory_sha256=seal.inventory_sha256,
         selection_sha256=seal.selection_sha256,
+        _token=_PAYLOAD_COMMIT_TOKEN,
+    )
+
+
+def authorize_adopted_payload_commit(
+    seal: PersistedLabelBlindSeal,
+    payload_commit: str,
+    verify_fn: Callable[[str, Sequence[Mapping[str, Any]]], bool],
+) -> PayloadCommitReceipt:
+    """Authorize a read-only adopted commit after exact sealed-inventory replay."""
+    if (
+        not isinstance(seal, PersistedLabelBlindSeal)
+        or seal._token is not _PERSISTED_SEAL_TOKEN
+        or _payload_inventory(seal.files) != tuple(dict(item) for item in seal.inventory)
+    ):
+        raise ValueError("payload adoption requires an intact persisted seal")
+    inventory = tuple(dict(item) for item in seal.inventory)
+    witness = seal.witness
+    inventory_sha256 = seal.inventory_sha256
+    selection_sha256 = seal.selection_sha256
+    if (
+        _sha256(canonical_json_bytes(list(inventory))) != inventory_sha256
+        or _SHA256.fullmatch(selection_sha256) is None
+        or sum(item["sha256"] == selection_sha256 for item in inventory) != 1
+        or not isinstance(witness, Mapping)
+        or witness.get("durable") is not True
+        or witness.get("file_count") != len(inventory)
+        or witness.get("inventory_sha256") != inventory_sha256
+        or not isinstance(witness.get("persistence_id"), str)
+        or not witness["persistence_id"]
+        or not isinstance(payload_commit, str)
+        or _COMMIT.fullmatch(payload_commit) is None
+    ):
+        raise ValueError("adopted payload commit or persisted seal binding is invalid")
+    verification_inventory = tuple(dict(item) for item in inventory)
+    if (
+        verify_fn(payload_commit, verification_inventory) is not True
+        or verification_inventory != inventory
+    ):
+        raise ValueError("adopted payload commit fresh replay verification failed")
+    return PayloadCommitReceipt(
+        payload_commit=payload_commit,
+        inventory_sha256=inventory_sha256,
+        selection_sha256=selection_sha256,
         _token=_PAYLOAD_COMMIT_TOKEN,
     )
 
@@ -1182,6 +1304,7 @@ __all__ = [
     "VALID_STATE_OUTCOME",
     "aggregate_independent_confirm",
     "aggregate_independent_confirm_workers",
+    "authorize_adopted_payload_commit",
     "bind_confirm_message_builder",
     "build_confirm_messages",
     "confirm_worker_assignments",
@@ -1190,6 +1313,7 @@ __all__ = [
     "load_independent_ensemble",
     "persist_and_seal_label_blind_payload",
     "publish_payload_commit",
+    "replay_independent_selection_bundle",
     "run_confirm_state_once",
     "score_and_select_independent",
 ]

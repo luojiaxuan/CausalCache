@@ -11,6 +11,7 @@ import os
 import queue as queue_module
 import re
 import stat
+import sys
 import tempfile
 import time
 from collections import Counter
@@ -33,12 +34,14 @@ from causalcache.independent_confirm_artifact import (
     FinalPublicationReceipt,
     LabelBlindPayloadSeal,
     PayloadPublicationReceipt,
+    adopt_existing_payload_commit as adopt_artifact_existing_payload_commit,
     build_label_blind_payload,
     build_report_files,
     canonical_json_bytes,
     publish_payload_commit as publish_artifact_payload_commit,
     publish_report_commit as publish_artifact_report_commit,
     read_independent_decisions,
+    reconcile_report_publication_state,
 )
 from causalcache.independent_confirm_contract import (
     PROTOCOL_ID as CONTRACT_PROTOCOL_ID,
@@ -105,6 +108,7 @@ RUN_CONTRACT_PROTOCOL_ID = (
 )
 COMPLETION_FILENAME = "completion.json"
 FAILURE_FILENAME = "failure.json"
+ATTEMPT_FILENAME = "attempt.json"
 POLICY_VISION_FEATURE_REPEATS = 2
 WORKER_COUNT = 4
 STATES_PER_WORKER = 5
@@ -200,6 +204,8 @@ class ConfirmPublisher(Protocol):
         *,
         payload_commit: str,
     ) -> Mapping[str, Any]: ...
+
+    def report_publication_audit(self) -> Mapping[str, Any]: ...
 
 
 PolicyVisionPhase = Callable[[Confirm20LabelBlindBundle], PolicyVisionPhaseResult]
@@ -435,6 +441,17 @@ class DurableConfirmOutput:
         if not supplied.is_absolute():
             raise ValueError("confirm output directory must be absolute")
         self.root = supplied
+        self._attempt_started = False
+
+    def start_attempt(self, value: Mapping[str, Any]) -> None:
+        """Claim one output identity before external or semantic access begins."""
+        if self.root.exists() or self.root.is_symlink():
+            raise FileExistsError("confirm output already exists; retry is forbidden")
+        self._write_files(
+            {ATTEMPT_FILENAME: pretty_json_bytes(dict(value))},
+            create_root=True,
+        )
+        self._attempt_started = True
 
     def _write_files(self, files: Mapping[str, bytes], *, create_root: bool) -> None:
         if create_root:
@@ -460,12 +477,12 @@ class DurableConfirmOutput:
         files: Mapping[str, bytes],
         inventory: Sequence[Mapping[str, Any]],
     ) -> Mapping[str, Any]:
-        if self.root.exists() or self.root.is_symlink():
+        if (self.root.exists() or self.root.is_symlink()) and not self._attempt_started:
             raise FileExistsError("confirm output already exists; retry is forbidden")
         copied = {path: bytes(payload) for path, payload in files.items()}
         if _inventory(copied) != tuple(dict(item) for item in inventory):
             raise ValueError("label-blind local persistence inventory drifted")
-        self._write_files(copied, create_root=True)
+        self._write_files(copied, create_root=not self._attempt_started)
         replay = {
             path: self.root.joinpath(*PurePosixPath(path).parts).read_bytes()
             for path in copied
@@ -484,14 +501,24 @@ class DurableConfirmOutput:
         self._write_files(files, create_root=False)
 
     def write_completion(self, value: Mapping[str, Any]) -> None:
+        if self.has_failure():
+            raise RuntimeError("confirm failure terminal already exists")
         self._write_files(
             {COMPLETION_FILENAME: pretty_json_bytes(dict(value))},
             create_root=False,
         )
 
     def write_failure(self, value: Mapping[str, Any]) -> None:
+        if self.has_completion():
+            raise RuntimeError("confirm completion terminal already exists")
         files = {FAILURE_FILENAME: pretty_json_bytes(dict(value))}
         self._write_files(files, create_root=not self.root.exists())
+
+    def has_failure(self) -> bool:
+        return (self.root / FAILURE_FILENAME).is_file()
+
+    def has_completion(self) -> bool:
+        return (self.root / COMPLETION_FILENAME).is_file()
 
 
 def _validate_contract_for_execution(contract: IndependentConfirmContract) -> None:
@@ -1333,6 +1360,8 @@ class HuggingFaceConfirmPublisher:
         "_payload_receipt",
         "_payload_seal",
         "_preflight_base_commit",
+        "_report_publication_attempted",
+        "_report_publication_audit",
         "_token",
     )
 
@@ -1353,6 +1382,8 @@ class HuggingFaceConfirmPublisher:
         self._payload_seal: LabelBlindPayloadSeal | None = None
         self._payload_receipt: PayloadPublicationReceipt | None = None
         self._preflight_base_commit: str | None = None
+        self._report_publication_attempted = False
+        self._report_publication_audit: Mapping[str, Any] | None = None
 
     def __repr__(self) -> str:
         return "HuggingFaceConfirmPublisher(token=<redacted>)"
@@ -1363,6 +1394,53 @@ class HuggingFaceConfirmPublisher:
         if set(seal.files) != set(PAYLOAD_TARGETS):
             raise ValueError("publisher requires the canonical eight-file payload")
         self._payload_seal = seal
+
+    def adopt_existing_payload(
+        self,
+        *,
+        expected_files: Mapping[str, bytes],
+        expected_base_commit: str,
+        expected_base_title: str,
+        expected_payload_commit: str,
+    ) -> Mapping[str, Any]:
+        """Adopt the frozen payload stage without enabling payload publication."""
+        if (
+            self._payload_seal is not None
+            or self._payload_receipt is not None
+            or self._preflight_base_commit is not None
+        ):
+            raise RuntimeError(
+                "existing payload may be adopted only by a fresh publisher"
+            )
+        fresh_parent = self._cache_dir / "adopted-payload-fresh-replay"
+        fresh_parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+
+        def download(**kwargs: Any) -> str:
+            return self._download_fn(**kwargs, token=self._token)
+
+        adopted = adopt_artifact_existing_payload_commit(
+            api=self._api,
+            download_fn=download,
+            expected_base_commit=expected_base_commit,
+            expected_base_title=expected_base_title,
+            expected_payload_commit=expected_payload_commit,
+            expected_payload_files=expected_files,
+            fresh_parent=fresh_parent,
+        )
+        self._payload_seal = adopted.payload_seal
+        self._payload_receipt = adopted.payload_receipt
+        return MappingProxyType(
+            {
+                "base_commit": adopted.payload_receipt.base_commit,
+                "payload_commit": adopted.payload_receipt.payload_commit,
+                "payload_inventory_sha256": (
+                    adopted.payload_receipt.payload_inventory_sha256
+                ),
+                "payload_file_count": len(adopted.payload_seal.files),
+                "byte_identical_fresh_replay": True,
+                "remote_mutation_performed": False,
+            }
+        )
 
     def preflight_destination(self) -> Mapping[str, Any]:
         self.ensure_destination_base()
@@ -1544,20 +1622,48 @@ class HuggingFaceConfirmPublisher:
             or payload_commit != self._payload_receipt.payload_commit
         ):
             raise PermissionError("report publication lacks the payload-stage receipt")
+        if self._report_publication_attempted:
+            raise RuntimeError("report publication may be attempted only once")
         fresh_parent = self._cache_dir / "report-fresh-replay"
         fresh_parent.mkdir(mode=0o700, parents=True, exist_ok=True)
 
         def download(**kwargs: Any) -> str:
             return self._download_fn(**kwargs, token=self._token)
 
-        final: FinalPublicationReceipt = publish_artifact_report_commit(
-            api=self._api,
-            operation_factory=self._operation_factory,
-            download_fn=download,
-            payload_seal=self._payload_seal,
-            payload_receipt=self._payload_receipt,
-            report_files=report_files,
-            fresh_parent=fresh_parent,
+        self._report_publication_attempted = True
+        try:
+            final: FinalPublicationReceipt = publish_artifact_report_commit(
+                api=self._api,
+                operation_factory=self._operation_factory,
+                download_fn=download,
+                payload_seal=self._payload_seal,
+                payload_receipt=self._payload_receipt,
+                report_files=report_files,
+                fresh_parent=fresh_parent,
+            )
+        except BaseException:
+            self._report_publication_audit = reconcile_report_publication_state(
+                api=self._api,
+                payload_receipt=self._payload_receipt,
+            )
+            raise
+        self._report_publication_audit = MappingProxyType(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "status": "REPORT_COMMIT_AND_TAG_PRESENT",
+                "payload_commit": final.payload_commit,
+                "main_commit": final.report_commit,
+                "main_tree_kind": "payload_plus_report",
+                "payload_stage_intact": True,
+                "report_commit": final.report_commit,
+                "report_direct_child_verified": True,
+                "annotated_tag_present": True,
+                "annotated_tag_object": final.annotated_tag_object,
+                "tag_resolved_commit": final.report_commit,
+                "remote_mutation_count": 2,
+                "minimum_remote_mutation_count": 2,
+                "reconciliation_error": None,
+            }
         )
         return {
             "base_commit": final.base_commit,
@@ -1567,6 +1673,40 @@ class HuggingFaceConfirmPublisher:
             "created_tag_count": final.created_tag_count,
             "byte_identical_fresh_replay": True,
         }
+
+    def report_publication_audit(self) -> Mapping[str, Any]:
+        """Return the saved read-only reconciliation result without remote access."""
+        if self._report_publication_audit is not None:
+            return MappingProxyType(
+                json.loads(canonical_json_bytes(dict(self._report_publication_audit)))
+            )
+        payload_commit = (
+            None if self._payload_receipt is None else self._payload_receipt.payload_commit
+        )
+        return MappingProxyType(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "status": (
+                    "REPORT_PUBLICATION_AUDIT_MISSING"
+                    if self._report_publication_attempted
+                    else "REPORT_PUBLICATION_NOT_ATTEMPTED"
+                ),
+                "payload_commit": payload_commit,
+                "main_commit": payload_commit,
+                "main_tree_kind": "payload" if payload_commit is not None else None,
+                "payload_stage_intact": True if payload_commit is not None else None,
+                "report_commit": None,
+                "report_direct_child_verified": None,
+                "annotated_tag_present": False,
+                "annotated_tag_object": None,
+                "tag_resolved_commit": None,
+                "remote_mutation_count": (
+                    None if self._report_publication_attempted else 0
+                ),
+                "minimum_remote_mutation_count": 0,
+                "reconciliation_error": None,
+            }
+        )
 
 
 def download_and_load_independent_ensemble(
@@ -1714,6 +1854,141 @@ def _validate_device_allocation(
     ):
         raise ValueError(f"{label} requires four explicit CUDA devices and GPU UUIDs")
     return selected_devices, selected_uuids
+
+
+class ForkParentCudaTripwire:
+    """Block parent-side CUDA initialization until forked workers exist."""
+
+    def __init__(self, torch_module: Any) -> None:
+        self.torch_module = torch_module
+        self.cuda = getattr(torch_module, "cuda", None)
+        if self.cuda is None:
+            raise RuntimeError("CUDA tripwire requires torch.cuda")
+        names = ("is_available", "device_count", "_lazy_init")
+        originals = {
+            name: getattr(self.cuda, name, None)
+            for name in names
+            if callable(getattr(self.cuda, name, None))
+        }
+        if set(originals) != set(names):
+            raise RuntimeError("CUDA tripwire entry-point inventory drifted")
+        self._originals = originals
+        self._blocked: dict[str, Callable[..., Any]] = {}
+        self._active = False
+
+    def install(self) -> None:
+        if self._active:
+            raise RuntimeError("CUDA tripwire is already active")
+
+        def blocked(*_args: Any, **_kwargs: Any) -> Any:
+            raise RuntimeError(
+                "CUDA initialization was attempted in the pre-fork parent"
+            )
+
+        self._blocked = {name: blocked for name in self._originals}
+        for name in self._originals:
+            setattr(self.cuda, name, blocked)
+        self._active = True
+        os.register_at_fork(after_in_child=self.restore_after_fork)
+
+    def restore_after_fork(self) -> None:
+        for name, function in self._originals.items():
+            setattr(self.cuda, name, function)
+        self._blocked = {}
+        self._active = False
+
+    def restore_parent(self) -> None:
+        self.restore_after_fork()
+
+    def assert_active(self) -> None:
+        if not self._active or set(self._blocked) != set(self._originals) or any(
+            getattr(self.cuda, name, None) is not self._blocked[name]
+            for name in self._originals
+        ):
+            raise RuntimeError("CUDA parent tripwire is not active")
+
+
+_ACTIVE_FORK_PARENT_CUDA_TRIPWIRE: ForkParentCudaTripwire | None = None
+
+
+def install_fork_parent_cuda_tripwire(
+    torch_module: Any | None = None,
+    *,
+    require_fresh_process: bool = False,
+) -> ForkParentCudaTripwire:
+    """Install a fork-parent tripwire before any formal preparation work."""
+    global _ACTIVE_FORK_PARENT_CUDA_TRIPWIRE
+    if _ACTIVE_FORK_PARENT_CUDA_TRIPWIRE is not None:
+        raise RuntimeError("one CUDA parent tripwire is already installed")
+    if torch_module is None:
+        if require_fresh_process and "torch" in sys.modules:
+            raise RuntimeError(
+                "formal restoration coordinator must start before torch is imported"
+            )
+        try:
+            import torch as torch_module
+        except ModuleNotFoundError as error:
+            raise RuntimeError("restoration fork tripwire requires PyTorch") from error
+    assert_fork_parent_cuda_clean(torch_module)
+    tripwire = ForkParentCudaTripwire(torch_module)
+    tripwire.install()
+    _ACTIVE_FORK_PARENT_CUDA_TRIPWIRE = tripwire
+    return tripwire
+
+
+def release_fork_parent_cuda_tripwire(tripwire: ForkParentCudaTripwire) -> None:
+    global _ACTIVE_FORK_PARENT_CUDA_TRIPWIRE
+    if tripwire is not _ACTIVE_FORK_PARENT_CUDA_TRIPWIRE:
+        raise RuntimeError("CUDA parent tripwire identity drifted")
+    tripwire.restore_parent()
+    _ACTIVE_FORK_PARENT_CUDA_TRIPWIRE = None
+
+
+def assert_fork_parent_cuda_clean(
+    torch_module: Any | None = None,
+    *,
+    require_tripwire: bool = False,
+) -> Mapping[str, bool]:
+    """Fail closed unless the process about to fork has untouched CUDA state."""
+    if torch_module is None:
+        try:
+            import torch as torch_module
+        except ModuleNotFoundError as error:
+            raise RuntimeError("restoration fork guard requires PyTorch") from error
+    cuda = getattr(torch_module, "cuda", None)
+    is_initialized = getattr(cuda, "is_initialized", None)
+    if not callable(is_initialized):
+        raise RuntimeError("restoration fork guard requires torch.cuda.is_initialized")
+    initialized = is_initialized()
+    if type(initialized) is not bool:
+        raise RuntimeError("torch.cuda.is_initialized returned a non-boolean value")
+    is_in_bad_fork = getattr(cuda, "_is_in_bad_fork", None)
+    if is_in_bad_fork is None:
+        bad_fork = False
+        bad_fork_check_available = False
+    else:
+        if not callable(is_in_bad_fork):
+            raise RuntimeError("torch.cuda._is_in_bad_fork is not callable")
+        bad_fork = is_in_bad_fork()
+        if type(bad_fork) is not bool:
+            raise RuntimeError("torch.cuda._is_in_bad_fork returned a non-boolean value")
+        bad_fork_check_available = True
+    if initialized or bad_fork:
+        raise RuntimeError(
+            "restoration POSIX fork requires a CUDA-clean parent process"
+        )
+    tripwire = _ACTIVE_FORK_PARENT_CUDA_TRIPWIRE
+    if require_tripwire:
+        if tripwire is None or tripwire.torch_module is not torch_module:
+            raise RuntimeError("formal restoration requires the active CUDA tripwire")
+        tripwire.assert_active()
+    return MappingProxyType(
+        {
+            "cuda_initialized": False,
+            "cuda_bad_fork": False,
+            "bad_fork_check_available": bad_fork_check_available,
+        }
+    )
 
 
 def _policy_vision_worker_entry(
@@ -2000,6 +2275,7 @@ def run_four_worker_restoration(
     phase_timeout_seconds: int,
     worker_termination_grace_seconds: int,
     context: Any | None = None,
+    require_parent_cuda_tripwire: bool = False,
 ) -> RestorationPhaseResult:
     frozen_assignments = tuple(assignments)
     selected_devices, selected_uuids = _validate_device_allocation(
@@ -2007,10 +2283,22 @@ def run_four_worker_restoration(
     )
     if len(frozen_assignments) != WORKER_COUNT:
         raise ValueError("restoration requires four frozen worker assignments")
+    def guard_parent() -> None:
+        if require_parent_cuda_tripwire:
+            assert_fork_parent_cuda_clean(require_tripwire=True)
+        else:
+            assert_fork_parent_cuda_clean()
+
     if context is None:
         if os.name != "posix" or "fork" not in multiprocessing.get_all_start_methods():
             raise RuntimeError("typed payload receipt fan-out requires POSIX fork")
+        guard_parent()
         context = multiprocessing.get_context("fork")
+    else:
+        get_start_method = getattr(context, "get_start_method", None)
+        if not callable(get_start_method) or get_start_method() != "fork":
+            raise RuntimeError("typed payload receipt fan-out requires a fork context")
+        guard_parent()
     result_queue = context.Queue()
     item_by_ordinal = {item.ordinal: item for item in work_items}
     processes = []
@@ -2085,6 +2373,7 @@ def make_real_restoration_phase(
     gpu_uuids: Sequence[str],
     phase_timeout_seconds: int,
     worker_termination_grace_seconds: int,
+    require_parent_cuda_tripwire: bool = False,
 ) -> RestorationPhase:
     def run(
         assignments: tuple[ConfirmWorkerAssignment, ...],
@@ -2103,6 +2392,7 @@ def make_real_restoration_phase(
             gpu_uuids=gpu_uuids,
             phase_timeout_seconds=phase_timeout_seconds,
             worker_termination_grace_seconds=worker_termination_grace_seconds,
+            require_parent_cuda_tripwire=require_parent_cuda_tripwire,
         )
 
     return run
@@ -2135,20 +2425,25 @@ def bundle_from_validated_payloads(
 
 
 __all__ = [
+    "ATTEMPT_FILENAME",
     "COMPLETION_FILENAME",
     "ConfirmExecutionResult",
     "ConfirmPublisher",
     "DurableConfirmOutput",
+    "ForkParentCudaTripwire",
     "HuggingFaceConfirmPublisher",
     "PolicyVisionPhaseResult",
     "RestorationPhaseResult",
+    "assert_fork_parent_cuda_clean",
     "build_canonical_label_blind_payload",
     "bundle_from_validated_payloads",
     "download_and_load_independent_ensemble",
     "execute_independent_confirm",
+    "install_fork_parent_cuda_tripwire",
     "make_real_policy_vision_phase",
     "make_real_restoration_phase",
     "read_hf_token_file",
+    "release_fork_parent_cuda_tripwire",
     "run_four_worker_policy_vision",
     "run_four_worker_restoration",
     "validate_policy_vision_phase",

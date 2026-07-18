@@ -958,6 +958,12 @@ class PayloadPublicationReceipt:
 
 
 @dataclass(frozen=True)
+class AdoptedPayloadCommit:
+    payload_seal: LabelBlindPayloadSeal
+    payload_receipt: PayloadPublicationReceipt
+
+
+@dataclass(frozen=True)
 class FinalPublicationReceipt:
     base_commit: str
     payload_commit: str
@@ -1131,6 +1137,258 @@ def _fresh_download_replay(
     return MappingProxyType(downloaded)
 
 
+def adopt_existing_payload_commit(
+    *,
+    api: Any,
+    download_fn: Callable[..., str],
+    expected_base_commit: str,
+    expected_base_title: str,
+    expected_payload_commit: str,
+    expected_payload_files: Mapping[str, bytes],
+    fresh_parent: Path,
+) -> AdoptedPayloadCommit:
+    """Read and adopt one already-published label-blind payload commit."""
+    if (
+        not isinstance(expected_base_commit, str)
+        or _COMMIT.fullmatch(expected_base_commit) is None
+        or not isinstance(expected_payload_commit, str)
+        or _COMMIT.fullmatch(expected_payload_commit) is None
+        or expected_base_commit == expected_payload_commit
+        or not isinstance(expected_base_title, str)
+        or not expected_base_title
+        or expected_base_title.strip() != expected_base_title
+    ):
+        raise ValueError(
+            "existing payload adoption requires distinct commits and one base title"
+        )
+    expected_seal = seal_label_blind_payload(expected_payload_files)
+
+    base_snapshot = _snapshot(api, revision=expected_base_commit)
+    payload_snapshot = _snapshot(api, revision=expected_payload_commit)
+    main_snapshot = _snapshot(api)
+    expected_tree = base_snapshot[1] | frozenset(PAYLOAD_TARGETS)
+    if (
+        base_snapshot[0] != expected_base_commit
+        or base_snapshot[1] - _ALLOWED_BASE_FILES
+        or set(base_snapshot[1]).intersection(PAYLOAD_TARGETS + REPORT_TARGETS)
+        or payload_snapshot != (expected_payload_commit, expected_tree)
+        or main_snapshot != payload_snapshot
+    ):
+        raise ValueError("existing payload destination commit or exact tree drifted")
+    if _tag_snapshot(api) is not None:
+        raise ValueError("existing payload destination already has the confirm tag")
+    history = _history(api, revision=expected_payload_commit)
+    expected_history = (
+        (
+            expected_payload_commit,
+            "independent confirm-20 label-blind payload",
+        ),
+        (expected_base_commit, expected_base_title),
+    )
+    if history != expected_history:
+        raise ValueError("existing payload exact two-commit history drifted")
+
+    downloaded = _fresh_download_replay(
+        download_fn=download_fn,
+        revision=expected_payload_commit,
+        expected=expected_seal.files,
+        fresh_parent=fresh_parent,
+    )
+    replayed_seal = seal_label_blind_payload(downloaded)
+    post_base_snapshot = _snapshot(api, revision=expected_base_commit)
+    post_payload_snapshot = _snapshot(api, revision=expected_payload_commit)
+    post_main_snapshot = _snapshot(api)
+    post_history = _history(api, revision=expected_payload_commit)
+    if (
+        replayed_seal.inventory_sha256 != expected_seal.inventory_sha256
+        or post_base_snapshot != base_snapshot
+        or post_payload_snapshot != payload_snapshot
+        or post_main_snapshot != main_snapshot
+        or post_history != history
+        or _tag_snapshot(api) is not None
+    ):
+        raise ValueError("existing payload destination drifted during fresh replay")
+    return AdoptedPayloadCommit(
+        payload_seal=replayed_seal,
+        payload_receipt=PayloadPublicationReceipt(
+            base_commit=expected_base_commit,
+            payload_commit=expected_payload_commit,
+            payload_inventory_sha256=replayed_seal.inventory_sha256,
+        ),
+    )
+
+
+def reconcile_report_publication_state(
+    *,
+    api: Any,
+    payload_receipt: PayloadPublicationReceipt,
+) -> Mapping[str, Any]:
+    """Read remote state after a report-publication error without mutating it."""
+    receipt_payload_commit = getattr(payload_receipt, "payload_commit", None)
+
+    def result(
+        *,
+        status: str,
+        main_commit: str | None,
+        main_tree_kind: str | None,
+        payload_stage_intact: bool | None,
+        report_commit: str | None,
+        report_direct_child_verified: bool | None,
+        tag: tuple[str, str] | None,
+        remote_mutation_count: int | None,
+        minimum_remote_mutation_count: int,
+        reconciliation_error: Mapping[str, str] | None = None,
+    ) -> Mapping[str, Any]:
+        return MappingProxyType(
+            {
+                "schema_version": SCHEMA_VERSION,
+                "status": status,
+                "payload_commit": receipt_payload_commit,
+                "main_commit": main_commit,
+                "main_tree_kind": main_tree_kind,
+                "payload_stage_intact": payload_stage_intact,
+                "report_commit": report_commit,
+                "report_direct_child_verified": report_direct_child_verified,
+                "annotated_tag_present": (
+                    None if reconciliation_error is not None else tag is not None
+                ),
+                "annotated_tag_object": None if tag is None else tag[0],
+                "tag_resolved_commit": None if tag is None else tag[1],
+                "remote_mutation_count": remote_mutation_count,
+                "minimum_remote_mutation_count": minimum_remote_mutation_count,
+                "reconciliation_error": (
+                    None if reconciliation_error is None else dict(reconciliation_error)
+                ),
+            }
+        )
+
+    try:
+        if (
+            not isinstance(payload_receipt, PayloadPublicationReceipt)
+            or _COMMIT.fullmatch(payload_receipt.base_commit) is None
+            or _COMMIT.fullmatch(payload_receipt.payload_commit) is None
+        ):
+            raise ValueError("report reconciliation requires an intact payload receipt")
+        base_snapshot = _snapshot(api, revision=payload_receipt.base_commit)
+        payload_snapshot = _snapshot(api, revision=payload_receipt.payload_commit)
+        main_snapshot = _snapshot(api)
+        tag = _tag_snapshot(api)
+        payload_history = _history(api, revision=payload_receipt.payload_commit)
+        expected_payload_tree = base_snapshot[1] | frozenset(PAYLOAD_TARGETS)
+        payload_stage_intact = (
+            payload_snapshot == (payload_receipt.payload_commit, expected_payload_tree)
+            and len(payload_history) == 2
+            and payload_history[0]
+            == (
+                payload_receipt.payload_commit,
+                "independent confirm-20 label-blind payload",
+            )
+            and payload_history[1][0] == payload_receipt.base_commit
+        )
+        main_commit, main_tree = main_snapshot
+        if main_snapshot == payload_snapshot and tag is None and payload_stage_intact:
+            return result(
+                status="PAYLOAD_STAGE_UNCHANGED",
+                main_commit=main_commit,
+                main_tree_kind="payload",
+                payload_stage_intact=True,
+                report_commit=None,
+                report_direct_child_verified=None,
+                tag=None,
+                remote_mutation_count=0,
+                minimum_remote_mutation_count=0,
+            )
+
+        expected_report_tree = expected_payload_tree | frozenset(REPORT_TARGETS)
+        if (
+            main_tree == expected_report_tree
+            and main_commit != payload_receipt.payload_commit
+        ):
+            report_history = _history(api, revision=main_commit)
+            direct_child = (
+                len(report_history) >= 3
+                and report_history[0]
+                == (main_commit, "independent confirm-20 fixed report")
+                and report_history[1]
+                == (
+                    payload_receipt.payload_commit,
+                    "independent confirm-20 label-blind payload",
+                )
+                and report_history[2][0] == payload_receipt.base_commit
+            )
+            if payload_stage_intact and direct_child and tag is None:
+                return result(
+                    status="REPORT_COMMIT_PRESENT_TAG_ABSENT",
+                    main_commit=main_commit,
+                    main_tree_kind="payload_plus_report",
+                    payload_stage_intact=True,
+                    report_commit=main_commit,
+                    report_direct_child_verified=True,
+                    tag=None,
+                    remote_mutation_count=1,
+                    minimum_remote_mutation_count=1,
+                )
+            if (
+                payload_stage_intact
+                and direct_child
+                and tag is not None
+                and tag[1] == main_commit
+            ):
+                return result(
+                    status="REPORT_COMMIT_AND_TAG_PRESENT",
+                    main_commit=main_commit,
+                    main_tree_kind="payload_plus_report",
+                    payload_stage_intact=True,
+                    report_commit=main_commit,
+                    report_direct_child_verified=True,
+                    tag=tag,
+                    remote_mutation_count=2,
+                    minimum_remote_mutation_count=2,
+                )
+            return result(
+                status="REMOTE_PUBLICATION_DRIFT",
+                main_commit=main_commit,
+                main_tree_kind="payload_plus_report",
+                payload_stage_intact=payload_stage_intact,
+                report_commit=main_commit,
+                report_direct_child_verified=direct_child,
+                tag=tag,
+                remote_mutation_count=None,
+                minimum_remote_mutation_count=1,
+            )
+
+        minimum = int(main_commit != payload_receipt.payload_commit or tag is not None)
+        return result(
+            status="REMOTE_PUBLICATION_DRIFT",
+            main_commit=main_commit,
+            main_tree_kind=(
+                "payload" if main_tree == expected_payload_tree else "other"
+            ),
+            payload_stage_intact=payload_stage_intact,
+            report_commit=None,
+            report_direct_child_verified=None,
+            tag=tag,
+            remote_mutation_count=None,
+            minimum_remote_mutation_count=minimum,
+        )
+    except Exception as error:
+        return result(
+            status="REPORT_PUBLICATION_RECONCILIATION_FAILED",
+            main_commit=None,
+            main_tree_kind=None,
+            payload_stage_intact=None,
+            report_commit=None,
+            report_direct_child_verified=None,
+            tag=None,
+            remote_mutation_count=None,
+            minimum_remote_mutation_count=0,
+            reconciliation_error={
+                "exception_type": error.__class__.__name__,
+                "message": str(error),
+            },
+        )
+
+
 def publish_report_commit(
     *,
     api: Any,
@@ -1222,6 +1480,7 @@ def publish_report_commit(
 
 
 __all__ = [
+    "AdoptedPayloadCommit",
     "BUNDLE_MANIFEST_PATH",
     "DESTINATION_REPO",
     "DESTINATION_TAG",
@@ -1240,12 +1499,14 @@ __all__ = [
     "STATE_RECORDS_PATH",
     "build_label_blind_payload",
     "build_report_files",
+    "adopt_existing_payload_commit",
     "canonical_json_bytes",
     "feature_states_jsonl_bytes",
     "fixed_report_bytes",
     "independent_decisions_bytes",
     "publish_payload_commit",
     "publish_report_commit",
+    "reconcile_report_publication_state",
     "read_feature_states_jsonl",
     "read_fixed_report",
     "read_independent_decisions",

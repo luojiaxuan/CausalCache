@@ -10,6 +10,11 @@
 > CUDA/fork 边界失效，永久记为 execution `INVALID`，没有科学 GO/NO-GO。既有 8-file payload 已在 private HF
 > commit `6d0cd959...9f52d` 逐字节重放；AndroidWorld closed-loop 与 sealed test 仍 locked。下一步只允许
 > versioned restoration-only continuation 采用相同 payload，不允许重算 selector 或修改阈值/数据/模型。
+> continuation Source-A 已实现并通过 source-only/状态机回归，config SHA256 为
+> `d54988fa05693a42574db2f9ec492d55405bcd2c2e902ccb79897f971c6fc7a9`；30-path source inventory 与
+> 112 项 focused regression 已通过。在本 Source-A freeze 时 runner B 尚未生成，因而没有
+> 新 restoration output。协议见
+> [`docs/independent_confirm_continuation_v1.md`](docs/independent_confirm_continuation_v1.md)。
 
 > Current route: failure decomposition 的 `NO_V2_CONDITIONAL_RESCUE` 不变；它否定 set-conditioned student，
 > 没有否定 restoration supervision 或 independent selector。fresh-16 上 independent mean normalized recovery=
@@ -925,6 +930,11 @@ mediation effect。
 - [x] 完成只读 fresh-16 failure-decomposition Source-A/Execution-B、private-HF exact-three publication 与
   immutable replay；route=`NO_V2_CONDITIONAL_RESCUE`，项目选择不执行 post-primary combined-21 compatibility；
   confirm、matched-NLL 与 closed-loop 的 post-GO 权限继续保持 locked；
+- [x] 冻结 independent confirm restoration-only continuation Source-A：只读采用既有 exact payload，加入
+  isolated snapshot verifier、fresh-exec CUDA tripwire、durable attempt terminal 与 partial-publication reconciliation；
+  112 项 focused regression 通过，Execution-B 尚不存在；
+- [ ] 从 clean pushed continuation Source-A 机械生成唯一 Execution-B，fresh preflight/topology 后仅执行原冻结
+  restoration/report；只有有效 confirm GO 才进入 paired closed-loop；
 - [ ] 整理论文与复现实验配置。
 
 ## Source of Truth
@@ -937,6 +947,10 @@ mediation effect。
 - Code layout and commands: [`code/README.md`](code/README.md)
 - Small-data policy: [`data/README.md`](data/README.md)
 - Cross-chip execution and handoff: [`docs/execution.md`](docs/execution.md)
+- Independent confirm continuation protocol: [`docs/independent_confirm_continuation_v1.md`](docs/independent_confirm_continuation_v1.md)
+- Independent confirm continuation contract and source validator:
+  [`code/configs/causalcache_independent_confirm_continuation_v1.json`](code/configs/causalcache_independent_confirm_continuation_v1.json),
+  [`code/scripts/validate_independent_confirm_continuation.py`](code/scripts/validate_independent_confirm_continuation.py)
 - Ablation index: [`ablations/README.md`](ablations/README.md)
 - Interaction-aware gate proposal: [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)
 - Subset-search contract and interpretation: [`ablations/subset_search.md`](ablations/subset_search.md)
@@ -1191,7 +1205,8 @@ mediation effect。
 | Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
 | Gate v1 formal-58 selector ensemble | [private HF model](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)；[completion record](data/results/gate_v1_formal58_train_v1/) | tag `gate-v1-formal58-train-v1` → manifest commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；annotated tag `fa85e746...b4d6` | 5 conditional + 5 independent checkpoints、2 full OOF reports、4 manifests；immutable replay 0 mutation；independent 5-seed ensemble 已冻结为新 confirm 主线，不重训 |
 | Gate v1 fresh-16 primary evaluation | [protocol](docs/gate_v1_fresh16_claim_serialization_repair.md)；[completion record](data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile) | claim repair A=`f0dd53b` / B=`ce523ff`；tag `gate-v1-fresh16-claim-serialization-repair-v1` → report commit `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`；annotated tag object `34d5928...c4339` | `COMPLETED + REVALIDATED`；conditional normalized/exact=`0.6942`、raw/exact=`0.9431`、vs strongest heuristic delta=`+0.3261`；selector `NO-GO`、set-conditioning `NO-GO`；旧 dev-5/confirm/matched-NLL/closed-loop locked |
-| Independent confirm-20 v1 attempt | [contract](code/configs/causalcache_independent_confirm_closed_loop_v1.json)；[protocol](docs/independent_confirm_closed_loop_v1.md)；[failure evidence](data/results/independent_confirm20_v1_attempt/)；private HF dataset `gavinlaw/causalcache-independent-confirm20-mobile` | A=`e1cc8b3`，B=`f1e9196`；payload `6d0cd959...9f52d`；tag/report absent | 20-state label-blind payload 已 seal/replay；restoration 在 reference output 0 时因 CUDA-after-fork 失效。永久 execution `INVALID`，无科学结论；closed-loop locked，只允许采用 exact payload 的 versioned continuation |
+| Independent confirm-20 v1 attempt | [contract](code/configs/causalcache_independent_confirm_closed_loop_v1.json)；[protocol](docs/independent_confirm_closed_loop_v1.md)；[failure evidence](data/results/independent_confirm20_v1_attempt/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-independent-confirm20-mobile) | A=`e1cc8b3`，B=`f1e9196`；payload `6d0cd959...9f52d`；tag/report absent | 20-state label-blind payload 已 seal/replay；restoration 在 reference output 0 时因 CUDA-after-fork 失效。永久 execution `INVALID`，无科学结论；closed-loop locked，只允许采用 exact payload 的 versioned continuation |
+| Independent confirm-20 restoration continuation v1 | [contract](code/configs/causalcache_independent_confirm_continuation_v1.json)；[protocol](docs/independent_confirm_continuation_v1.md)；复用同一 [private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-independent-confirm20-mobile) | config SHA256 `d54988fa...c7a9`；payload commit `6d0cd959...9f52d`；Execution-B/report/tag 在 Source-A freeze 时不存在 | Source-A 只增加 read-only payload adoption、isolated verifier、fresh-exec CUDA tripwire、fresh worker challenge + old-receipt deny、durable terminal 与 report partial-state reconciliation；selector checkpoint/scorer/policy-vision/payload publish 均为 0，等待 clean A 后机械生成 B |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

@@ -2866,3 +2866,34 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 下一步另立 restoration-only continuation Source-A/B：只采用并 fresh replay 已有 exact payload，修复
   CUDA-clean parent 边界，再运行原冻结 restoration/report。阈值、数据、模型、seed、selection 与 GO 判据全部
   不变；有效 confirm GO 前 paired closed-loop 保持 locked。
+
+### 2026-07-18：independent confirm-20 restoration continuation Source-A
+
+- 新增 restoration-only continuation contract，config SHA256 为
+  `d54988fa05693a42574db2f9ec492d55405bcd2c2e902ccb79897f971c6fc7a9`；它精确绑定父 A/B、旧 failure/summary、
+  topology receipt、private HF base→payload 两提交历史、8 个 payload file bytes 与 report/tag absence；
+- continuation 只读采用现有 payload commit `6d0cd95997186293e01c65276f3c082c11a9f52d`。fresh replay 同时检查 remote
+  tree/history、逐文件 SHA/size、semantic seal 与操作前后 remote snapshot；禁止 create repo/commit/tag、payload
+  republish、formal-58 checkpoint load、independent scorer 与 policy-vision；
+- 已定位的 CUDA/fork 错误通过三层边界修复：formal coordinator 要求 fresh exec；在任何 topology/HF/model work
+  前安装 tripwire 阻断 parent `is_available()`、`device_count()` 与 `_lazy_init()`；完整 model snapshot verification
+  在独立 `spawn` child 完成。原 restoration worker 仍采用 `fork` 传递 opaque typed receipt，child 通过 at-fork
+  handler 恢复 CUDA 入口；创建 context/Queue/Process 紧前再验证 active tripwire、`is_initialized()` 与 bad-fork；
+- fresh topology smoke 在 formal CLI 外运行；Execution-B commit、runner nonce、model/snapshot 与 device/physical
+  UUID allocation 共同生成 challenge，spawn/fork 两 phase 各 4 个实际 worker response 必须 8/8 覆盖并由 formal
+  CLI 重算。该公开摘要只作软件审计绑定，不声称硬件 attestation；旧 v1 inner receipt SHA 另行显式拒绝，不能
+  通过手工包装或重序列化复用。continuation output identity 在 formal coordinator 读取/验证 envelope 以及 HF/model/semantic access 前
+  以 `attempt.json` 独占，所有后续 failure 都 durable 落盘；
+  report commit/tag/replay 的 partial failure 会只读 reconcile remote 状态，记录精确 mutation count 或保守下界，
+  不回滚、不重试、不再硬编码 mutation=0；
+- runner 只允许执行 deterministic parent/payload replay、原冻结 restoration schedule、固定 evaluator、report
+  direct-child publication、annotated tag 与 immutable replay。`runtime_continuation_count=1`、scientific retry/top-up/
+  filter count 均为 0，旧 v1 仍永久为 execution `INVALID`；
+- 112 项 continuation/parent focused regression 已通过；30-path source-only validator 返回
+  `VALID_SOURCE_ONLY_INDEPENDENT_CONFIRM_CONTINUATION_V1`，所有 payload/HF/model/GPU/restoration access count 为
+  0。全仓回归为 1,474 passed、8 skipped；36 failures 均为已封存历史 Source-A tests 要求既有 B 不存在，或
+  既有 subprocess `PYTHONPATH` / CPU-only import-order 隔离假设；后两项独立按其正确隔离环境重放均通过。
+  Execution-B、new restoration output 与 report/tag 当前均不存在；
+- 下一步随本 milestone commit/push Source-A，从 clean pushed A 机械生成唯一 direct-child Execution-B 并单独
+  push；随后在 Hyper fresh 四卡 preflight/topology 下只运行 continuation。只有有效 confirm GO 才解锁 paired
+  closed-loop，NO-GO 或 execution INVALID 均停止该路径。

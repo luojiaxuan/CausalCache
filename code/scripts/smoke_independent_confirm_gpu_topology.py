@@ -19,6 +19,9 @@ from typing import Any
 
 
 PROTOCOL_ID = "causalcache_independent_confirm_gpu_topology_smoke_v1"
+CONTINUATION_ENVELOPE_PROTOCOL_ID = (
+    "causalcache_independent_confirm_continuation_gpu_topology_envelope_v1"
+)
 SCHEMA_VERSION = "1"
 WORKER_COUNT = 4
 IMAGE_COUNT = 5
@@ -61,6 +64,69 @@ def canonical_json_bytes(value: Any) -> bytes:
         sort_keys=True,
         separators=(",", ":"),
     ).encode("utf-8")
+
+
+def continuation_topology_challenge(
+    *,
+    execution_b_commit: str,
+    topology_nonce: str,
+    model_dir: str,
+    snapshot_manifest: str,
+    devices: Sequence[str],
+    gpu_uuids: Sequence[str],
+) -> str:
+    selected_devices, selected_uuids = _validate_allocation(devices, gpu_uuids)
+    if (
+        re.fullmatch(r"[0-9a-f]{40}", execution_b_commit) is None
+        or re.fullmatch(r"[0-9a-f]{64}", topology_nonce) is None
+        or not Path(model_dir).is_absolute()
+        or not Path(snapshot_manifest).is_absolute()
+    ):
+        raise ValueError("continuation topology challenge inputs are malformed")
+    return hashlib.sha256(
+        canonical_json_bytes(
+            {
+                "execution_b_commit": execution_b_commit,
+                "topology_nonce": topology_nonce,
+                "model_dir": model_dir,
+                "snapshot_manifest": snapshot_manifest,
+                "allocation": [
+                    {"device": device, "gpu_uuid": gpu_uuid}
+                    for device, gpu_uuid in zip(
+                        selected_devices, selected_uuids, strict=True
+                    )
+                ],
+            }
+        )
+    ).hexdigest()
+
+
+def continuation_topology_challenge_response(
+    *,
+    challenge_sha256: str,
+    phase: str,
+    worker_record: Mapping[str, Any],
+) -> str:
+    if (
+        re.fullmatch(r"[0-9a-f]{64}", challenge_sha256) is None
+        or phase not in {"policy_vision_spawn", "teacher_forced_fork"}
+        or not isinstance(worker_record, Mapping)
+    ):
+        raise ValueError("continuation topology challenge response is malformed")
+    public_record = {
+        key: value
+        for key, value in worker_record.items()
+        if key != "_continuation_challenge_response"
+    }
+    return hashlib.sha256(
+        canonical_json_bytes(
+            {
+                "challenge_sha256": challenge_sha256,
+                "phase": phase,
+                "worker_record": public_record,
+            }
+        )
+    ).hexdigest()
 
 
 def _validate_allocation(
@@ -329,10 +395,20 @@ def _teacher_worker_logic(
 
 def _vision_worker_entry(queue: Any, **kwargs: Any) -> None:
     try:
+        challenge = kwargs.pop("continuation_challenge", None)
+        challenge_phase = kwargs.pop("continuation_challenge_phase", None)
         os.environ["HF_HUB_OFFLINE"] = "1"
         os.environ["TRANSFORMERS_OFFLINE"] = "1"
         with contextlib.redirect_stdout(sys.stderr):
             record = _vision_worker_logic(**kwargs)
+        if challenge is not None:
+            record["_continuation_challenge_response"] = (
+                continuation_topology_challenge_response(
+                    challenge_sha256=challenge,
+                    phase=str(challenge_phase),
+                    worker_record=record,
+                )
+            )
         queue.put({"ok": True, "record": record})
     except BaseException as error:
         queue.put(
@@ -348,10 +424,20 @@ def _vision_worker_entry(queue: Any, **kwargs: Any) -> None:
 
 def _teacher_worker_entry(queue: Any, **kwargs: Any) -> None:
     try:
+        challenge = kwargs.pop("continuation_challenge", None)
+        challenge_phase = kwargs.pop("continuation_challenge_phase", None)
         os.environ["HF_HUB_OFFLINE"] = "1"
         os.environ["TRANSFORMERS_OFFLINE"] = "1"
         with contextlib.redirect_stdout(sys.stderr):
             record = _teacher_worker_logic(**kwargs)
+        if challenge is not None:
+            record["_continuation_challenge_response"] = (
+                continuation_topology_challenge_response(
+                    challenge_sha256=challenge,
+                    phase=str(challenge_phase),
+                    worker_record=record,
+                )
+            )
         queue.put({"ok": True, "record": record})
     except BaseException as error:
         queue.put(
@@ -460,6 +546,7 @@ def _run_phase(
     gpu_uuids: Sequence[str],
     timeout_seconds: int,
     grace_seconds: int,
+    continuation_challenge: str | None = None,
 ) -> tuple[Mapping[str, Any], ...]:
     get_start_method = getattr(context, "get_start_method", None)
     if callable(get_start_method) and get_start_method() != required_start_method:
@@ -470,16 +557,28 @@ def _run_phase(
         zip(devices, gpu_uuids, strict=True)
     ):
         worker_id = f"worker-{index}"
+        worker_kwargs = {
+            "queue": result_queue,
+            "worker_id": worker_id,
+            "device": device,
+            "expected_gpu_uuid": gpu_uuid,
+            "model_dir": model_dir,
+            "snapshot_manifest": snapshot_manifest,
+        }
+        if continuation_challenge is not None:
+            worker_kwargs.update(
+                {
+                    "continuation_challenge": continuation_challenge,
+                    "continuation_challenge_phase": (
+                        "policy_vision_spawn"
+                        if required_start_method == "spawn"
+                        else "teacher_forced_fork"
+                    ),
+                }
+            )
         process = context.Process(
             target=target,
-            kwargs={
-                "queue": result_queue,
-                "worker_id": worker_id,
-                "device": device,
-                "expected_gpu_uuid": gpu_uuid,
-                "model_dir": model_dir,
-                "snapshot_manifest": snapshot_manifest,
-            },
+            kwargs=worker_kwargs,
             name=f"causalcache-topology-{required_start_method}-{worker_id}",
         )
         processes.append(process)
@@ -507,6 +606,14 @@ def _run_phase(
             or record.get("gpu_uuid") != gpu_uuid
             or not isinstance(record.get("runtime_identity"), Mapping)
             or not isinstance(record.get("operation_counts"), Mapping)
+            or (
+                continuation_challenge is not None
+                and re.fullmatch(
+                    r"[0-9a-f]{64}",
+                    str(record.get("_continuation_challenge_response")),
+                )
+                is None
+            )
         ):
             raise RuntimeError(f"{phase_label} four-GPU identity coverage drifted")
         ordered.append(record)
@@ -548,6 +655,8 @@ def run_gpu_topology_smoke(
     fork_context: Any | None = None,
     vision_worker_target: Callable[..., None] = _vision_worker_entry,
     teacher_worker_target: Callable[..., None] = _teacher_worker_entry,
+    continuation_execution_b_commit: str | None = None,
+    continuation_topology_nonce: str | None = None,
 ) -> dict[str, Any]:
     selected_devices, selected_uuids = _validate_allocation(devices, gpu_uuids)
     if (
@@ -567,6 +676,27 @@ def run_gpu_topology_smoke(
         if os.name != "posix" or "fork" not in multiprocessing.get_all_start_methods():
             raise RuntimeError("teacher-forced topology phase requires POSIX fork")
         fork_context = multiprocessing.get_context("fork")
+    continuation_values = (
+        continuation_execution_b_commit,
+        continuation_topology_nonce,
+    )
+    if any(value is not None for value in continuation_values) and (
+        not all(isinstance(value, str) for value in continuation_values)
+        or re.fullmatch(r"[0-9a-f]{40}", str(continuation_execution_b_commit))
+        is None
+        or re.fullmatch(r"[0-9a-f]{64}", str(continuation_topology_nonce)) is None
+    ):
+        raise ValueError("continuation topology challenge binding is malformed")
+    challenge = None
+    if continuation_execution_b_commit is not None:
+        challenge = continuation_topology_challenge(
+            execution_b_commit=continuation_execution_b_commit,
+            topology_nonce=str(continuation_topology_nonce),
+            model_dir=str(model_root),
+            snapshot_manifest=str(manifest_path),
+            devices=selected_devices,
+            gpu_uuids=selected_uuids,
+        )
 
     vision_records = _run_phase(
         context=spawn_context,
@@ -579,6 +709,7 @@ def run_gpu_topology_smoke(
         gpu_uuids=selected_uuids,
         timeout_seconds=phase_timeout_seconds,
         grace_seconds=worker_termination_grace_seconds,
+        continuation_challenge=challenge,
     )
     # note (luojiaxuan): The fork phase is intentionally constructed only after
     # every spawned feature-only worker has joined. The parent never initializes
@@ -595,6 +726,7 @@ def run_gpu_topology_smoke(
         gpu_uuids=selected_uuids,
         timeout_seconds=phase_timeout_seconds,
         grace_seconds=worker_termination_grace_seconds,
+        continuation_challenge=challenge,
     )
     if (
         teacher_records[0]["fixed_rgb_image_set_sha256"]
@@ -607,6 +739,44 @@ def run_gpu_topology_smoke(
             zip(selected_devices, selected_uuids, strict=True)
         )
     ]
+    challenge_responses = None
+    if challenge is not None:
+        challenge_responses = {
+            "policy_vision_spawn": [
+                {
+                    "worker_id": record["worker_id"],
+                    "response_sha256": record[
+                        "_continuation_challenge_response"
+                    ],
+                }
+                for record in vision_records
+            ],
+            "teacher_forced_fork": [
+                {
+                    "worker_id": record["worker_id"],
+                    "response_sha256": record[
+                        "_continuation_challenge_response"
+                    ],
+                }
+                for record in teacher_records
+            ],
+        }
+    public_vision_records = tuple(
+        {
+            key: value
+            for key, value in record.items()
+            if key != "_continuation_challenge_response"
+        }
+        for record in vision_records
+    )
+    public_teacher_records = tuple(
+        {
+            key: value
+            for key, value in record.items()
+            if key != "_continuation_challenge_response"
+        }
+        for record in teacher_records
+    )
     receipt = {
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
@@ -640,19 +810,27 @@ def run_gpu_topology_smoke(
                 "worker_count": WORKER_COUNT,
                 "image_count_per_worker": IMAGE_COUNT,
                 "feature_repeats": FEATURE_REPEATS,
-                "operation_counts": _sum_operation_counts(vision_records),
-                "workers": list(vision_records),
+                "operation_counts": _sum_operation_counts(public_vision_records),
+                "workers": list(public_vision_records),
             },
             "teacher_forced_fork": {
                 "start_method": "fork",
                 "worker_count": WORKER_COUNT,
                 "image_count_per_worker": IMAGE_COUNT,
                 "canonical_teacher_action": "wait",
-                "operation_counts": _sum_operation_counts(teacher_records),
-                "workers": list(teacher_records),
+                "operation_counts": _sum_operation_counts(public_teacher_records),
+                "workers": list(public_teacher_records),
             },
         },
     }
+    if challenge is not None:
+        receipt = build_continuation_topology_envelope(
+            receipt,
+            execution_b_commit=str(continuation_execution_b_commit),
+            topology_nonce=str(continuation_topology_nonce),
+            challenge_sha256=challenge,
+            challenge_responses=challenge_responses,
+        )
     normalized = json.loads(canonical_json_bytes(receipt))
     if not isinstance(normalized, dict):
         raise TypeError("topology smoke receipt must be a JSON object")
@@ -669,7 +847,46 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--worker-termination-grace-seconds", required=True, type=int
     )
+    parser.add_argument("--continuation-execution-b-commit")
+    parser.add_argument("--continuation-topology-nonce")
     return parser
+
+
+def build_continuation_topology_envelope(
+    receipt: Mapping[str, Any],
+    *,
+    execution_b_commit: str,
+    topology_nonce: str,
+    challenge_sha256: str,
+    challenge_responses: Mapping[str, Any] | None,
+) -> dict[str, Any]:
+    if (
+        not isinstance(receipt, Mapping)
+        or re.fullmatch(r"[0-9a-f]{40}", execution_b_commit) is None
+        or re.fullmatch(r"[0-9a-f]{64}", topology_nonce) is None
+        or re.fullmatch(r"[0-9a-f]{64}", challenge_sha256) is None
+        or not isinstance(challenge_responses, Mapping)
+        or set(challenge_responses)
+        != {"policy_vision_spawn", "teacher_forced_fork"}
+    ):
+        raise ValueError("continuation topology envelope binding is malformed")
+    parent = json.loads(canonical_json_bytes(dict(receipt)))
+    if not isinstance(parent, dict):
+        raise TypeError("continuation topology parent receipt must be an object")
+    return {
+        "schema_version": "1.0.0",
+        "protocol_id": CONTINUATION_ENVELOPE_PROTOCOL_ID,
+        "execution_b_commit": execution_b_commit,
+        "topology_nonce": topology_nonce,
+        "parent_receipt_file_sha256": hashlib.sha256(
+            canonical_json_bytes(parent) + b"\n"
+        ).hexdigest(),
+        "challenge_sha256": challenge_sha256,
+        "challenge_responses": json.loads(
+            canonical_json_bytes(dict(challenge_responses))
+        ),
+        "parent_receipt": parent,
+    }
 
 
 def main() -> None:
@@ -681,6 +898,8 @@ def main() -> None:
         gpu_uuids=args.gpu_uuids,
         phase_timeout_seconds=args.phase_timeout_seconds,
         worker_termination_grace_seconds=args.worker_termination_grace_seconds,
+        continuation_execution_b_commit=args.continuation_execution_b_commit,
+        continuation_topology_nonce=args.continuation_topology_nonce,
     )
     sys.stdout.buffer.write(canonical_json_bytes(receipt) + b"\n")
 

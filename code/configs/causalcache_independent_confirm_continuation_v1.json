@@ -1,0 +1,231 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_independent_confirm20_restoration_continuation_v1",
+  "status": "source_only_frozen_before_continuation_restoration_access",
+  "scientific_contract": {
+    "parent_contract_path": "code/configs/causalcache_independent_confirm_closed_loop_v1.json",
+    "parent_contract_sha256": "33e5c0f856a9074cd5460f0d6f7cdda2108b120d50b208234253ff3136d27b63",
+    "source_a_commit": "e1cc8b3a0b8d06433674fe32652078a47b256f10",
+    "execution_b_commit": "f1e91964096dfa699c9fa930922bc2fe64c17bce",
+    "runner_freeze_sha256": "e03d6ae0ee760841eb8ff405f2fef968fc17711467eefca087c4014a3b4f7263",
+    "threshold_data_model_seed_comparator_or_go_change_allowed": false,
+    "confirm_geometry_or_denominator_change_allowed": false,
+    "old_attempt_reclassification_allowed": false
+  },
+  "failed_attempt": {
+    "evidence_commit": "9b1828d37962ca65783c5a7c98b41b98f420dbd9",
+    "failure_path": "data/results/independent_confirm20_v1_attempt/failure.json",
+    "failure_sha256": "0aab8cad795ec6aad8fb8fc0e6602e54b85a07342a07fa139cf3ae6e0a044b8d",
+    "summary_path": "data/results/independent_confirm20_v1_attempt/summary.json",
+    "summary_sha256": "f3ea04e0976114e5aec0c744db8b4e4f65d97533b887200c68c7ff9e2304e9a0",
+    "topology_receipt_sha256": "8e06034e7b485a00fe288dc824eabd538cea02dee876027d54ac8b2432e22f13",
+    "status": "INVALID_INDEPENDENT_CONFIRM20_V1_CUDA_FORK_BOUNDARY",
+    "payload_locally_sealed": true,
+    "reference_policy_output_count": 0,
+    "restoration_output_count": 0,
+    "exact_subset_oracle_count": 0,
+    "report_count": 0,
+    "retry_count": 0,
+    "top_up_count": 0,
+    "filter_count": 0,
+    "same_identity_retry_or_resume_allowed": false
+  },
+  "sealed_payload": {
+    "repo": "gavinlaw/causalcache-independent-confirm20-mobile",
+    "repo_type": "dataset",
+    "private": true,
+    "base_commit": "c66a67c3451cee7e20ed737401dc8b074151574f",
+    "payload_commit": "6d0cd95997186293e01c65276f3c082c11a9f52d",
+    "main_must_equal_payload_commit_before_continuation": true,
+    "base_commit_title": "initial commit",
+    "payload_commit_title": "independent confirm-20 label-blind payload",
+    "payload_inventory_sha256": "861fa54d2b46509a62b3cfb7d376c9ab3298c18656ae2c4e80418f86593fa779",
+    "manifest_seven_data_file_inventory_sha256": "c385359d44e546fb18feaa62c63c64038329d1d2c4cd0a17ae836c7844143c50",
+    "targets": [
+      {
+        "path": "independent-confirm20/v1/payload/dynamic-recent-v1.json",
+        "sha256": "38169732dead28fa3b331c53e56de328fdb6b9165f652f0ae5e300d4443da5ac",
+        "size_bytes": 1906
+      },
+      {
+        "path": "independent-confirm20/v1/payload/feature-states-v1.jsonl",
+        "sha256": "f766f71491b89449dbef50078bcfc4a20ae03a0b7f2498e3d1b6d8e3c0b92e51",
+        "size_bytes": 105582
+      },
+      {
+        "path": "independent-confirm20/v1/payload/independent-decisions-v1.json",
+        "sha256": "08cecaa120c66867a72aa1237c362da1b9546b472c3a32f43563c47e08ae2a98",
+        "size_bytes": 37641
+      },
+      {
+        "path": "independent-confirm20/v1/payload/ocr-rgb-v2-scores-v1.jsonl",
+        "sha256": "95298c040bf89b255e6387190139ac6ca39dbd9c428677ac67f22cb281a77323",
+        "size_bytes": 11760
+      },
+      {
+        "path": "independent-confirm20/v1/payload/ocr-rgb-v2-v1.json",
+        "sha256": "d72f1004346ab1f331bccf5bd616efe235a1fe7cc71c9cb65b5e7c31ef24b0ca",
+        "size_bytes": 1902
+      },
+      {
+        "path": "independent-confirm20/v1/payload/payload-manifest-v1.json",
+        "sha256": "494e998ff030c8407196e03311638794408270dc83da976a5448fe447a87c420",
+        "size_bytes": 1700
+      },
+      {
+        "path": "independent-confirm20/v1/payload/policy-vision-v3-scores-v1.jsonl",
+        "sha256": "c59213e062c819e74287ec6104932c7f50239535d048efa8272ffbda05905fd1",
+        "size_bytes": 11862
+      },
+      {
+        "path": "independent-confirm20/v1/payload/policy-vision-v3-v1.json",
+        "sha256": "bcfad62b7062dd409fb8ecde909355e1e3701c71848c8190293d559fe386d7b8",
+        "size_bytes": 1908
+      }
+    ],
+    "remote_file_count_before_continuation": 9,
+    "report_target_count_before_continuation": 0,
+    "tag": "independent-confirm20-v1",
+    "tag_count_before_continuation": 0,
+    "fresh_immutable_byte_replay_required": true,
+    "payload_republish_or_mutation_allowed": false,
+    "selector_checkpoint_load_allowed": false,
+    "independent_scorer_call_allowed": false,
+    "policy_vision_call_allowed": false
+  },
+  "continuation_contract": {
+    "run_contract_protocol_id": "causalcache_independent_confirm20_restoration_continuation_run_v1",
+    "scope": [
+      "adopt_existing_payload",
+      "validate_parent_and_payload_replay",
+      "isolated_model_snapshot_verification",
+      "restoration",
+      "fixed_evaluation",
+      "report_direct_child_publication",
+      "annotated_tag",
+      "immutable_replay"
+    ],
+    "runtime_continuation_count": 1,
+    "scientific_retry_count": 0,
+    "top_up_count": 0,
+    "filter_count": 0,
+    "parent_model_verification_start_method": "spawn",
+    "restoration_worker_start_method": "fork",
+    "fresh_exec_parent_required": true,
+    "pre_fork_cuda_tripwire_required": true,
+    "cuda_tripwire_entry_points": [
+      "torch.cuda.is_available",
+      "torch.cuda.device_count",
+      "torch.cuda._lazy_init"
+    ],
+    "parent_cuda_must_be_uninitialized_immediately_before_fork": true,
+    "parent_bad_fork_flag_must_be_false": true,
+    "cuda_guard_forbids_is_available_or_device_count": true,
+    "restoration_worker_count": 4,
+    "states_per_worker": 5,
+    "restoration_phase_timeout_seconds": 43200,
+    "worker_termination_grace_seconds": 30,
+    "model_verification_timeout_seconds": 7200,
+    "existing_topology_smoke_must_be_rerun_for_same_allocation": true,
+    "fresh_topology_envelope_binds_execution_b_and_nonce": true,
+    "fresh_topology_worker_challenge_required": true,
+    "old_topology_receipt_sha256_denied": true,
+    "durable_attempt_precedes_topology_hf_model_and_restoration": true,
+    "partial_report_publication_reconciliation_required": true,
+    "report_parent_must_equal_existing_payload_commit": true,
+    "old_failure_and_payload_must_remain_unchanged": true,
+    "closed_loop_requires_valid_confirm_go": true
+  },
+  "runtime_contract": {
+    "host_aliases": [
+      "hyper00",
+      "hyper01"
+    ],
+    "gpu_count": 4,
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "python_version": "3.12.3",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0",
+    "dtype": "bfloat16",
+    "thread_environment": {
+      "MKL_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "TOKENIZERS_PARALLELISM": "false"
+    }
+  },
+  "output_contract": {
+    "report_targets_and_tag_identical_to_parent": true,
+    "git_lightweight_result_directory": "data/results/independent_confirm20_continuation_v1",
+    "local_execution_namespace": "independent-confirm20-restoration-continuation/v1",
+    "completion_status": "COMPLETED_AND_PUBLISHED_INDEPENDENT_CONFIRM20_CONTINUATION_V1",
+    "failure_status": "INVALID_INDEPENDENT_CONFIRM20_CONTINUATION_V1"
+  },
+  "source_freeze": {
+    "branch": "main",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "required_source_a_paths": [
+      "code/configs/causalcache_independent_confirm_continuation_v1.json",
+      "code/configs/causalcache_independent_confirm_closed_loop_v1.json",
+      "code/causalcache/independent_confirm_continuation_contract.py",
+      "code/causalcache/independent_confirm_continuation.py",
+      "code/causalcache/independent_confirm_artifact.py",
+      "code/causalcache/independent_confirm_runner.py",
+      "code/causalcache/independent_confirm_execution.py",
+      "code/causalcache/independent_confirm_data.py",
+      "code/causalcache/independent_confirm_evaluation.py",
+      "code/scripts/validate_independent_confirm_continuation.py",
+      "code/scripts/manage_independent_confirm_continuation.py",
+      "code/scripts/run_independent_confirm_continuation.py",
+      "code/scripts/run_independent_confirm.py",
+      "code/scripts/smoke_independent_confirm_gpu_topology.py",
+      "code/tests/test_smoke_independent_confirm_gpu_topology.py",
+      "code/tests/test_independent_confirm_continuation_contract.py",
+      "code/tests/test_independent_confirm_continuation_adoption.py",
+      "code/tests/test_independent_confirm_continuation_runner.py",
+      "code/tests/test_independent_confirm_continuation_cuda.py",
+      "code/tests/test_independent_confirm_continuation.py",
+      "code/tests/test_run_independent_confirm_continuation.py",
+      "code/tests/test_independent_confirm_artifact.py",
+      "data/results/independent_confirm20_v1_attempt/failure.json",
+      "data/results/independent_confirm20_v1_attempt/summary.json",
+      "docs/independent_confirm_continuation_v1.md",
+      "docs/independent_confirm_closed_loop_v1.md",
+      "docs/execution.md",
+      "README.md",
+      "data/README.md",
+      "docs/progress.md"
+    ],
+    "required_execution_modules": [
+      "causalcache.independent_confirm_continuation_contract",
+      "causalcache.independent_confirm_continuation",
+      "causalcache.independent_confirm_artifact",
+      "causalcache.independent_confirm_runner",
+      "causalcache.independent_confirm_execution",
+      "causalcache.independent_confirm_data",
+      "causalcache.independent_confirm_evaluation",
+      "scripts.run_independent_confirm_continuation",
+      "scripts.run_independent_confirm",
+      "scripts.smoke_independent_confirm_gpu_topology",
+      "scripts.manage_independent_confirm_continuation",
+      "scripts.validate_independent_confirm_continuation"
+    ],
+    "execution_b_runner_freeze": {
+      "path": "code/configs/causalcache_independent_confirm_continuation_runner_v1.json",
+      "must_be_absent_during_source_only_validation": true,
+      "only_allowed_execution_b_source_tree_diff": true,
+      "direct_single_parent_child_of_source_a": true,
+      "bind_source_inventory": true,
+      "bind_loaded_module_inventory": true
+    }
+  },
+  "authorization": {
+    "source_a_validated": false,
+    "execution_b_frozen": false,
+    "payload_adoption_authorized": false,
+    "restoration_access_authorized": false,
+    "closed_loop_train_authorized": false,
+    "sealed_test_authorized": false,
+    "matched_nll_authorized": false
+  }
+}

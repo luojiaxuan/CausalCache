@@ -229,6 +229,11 @@ restoration v2 exact selection/exposure 产物：
   execution `INVALID`、没有科学 GO/NO-GO；report/tag absent，closed-loop locked。Git 只保存 failure、summary
   与说明，不复制 8 个 payload files；后续只允许 versioned continuation 采用 exact payload commit；
 
+- independent confirm-20 restoration continuation v1 在 Source-A freeze 时只有 Source-A：继续采用同一 private HF payload commit
+  `6d0cd95997186293e01c65276f3c082c11a9f52d`，不复制 payload、不重跑 selector、不创建新 data artifact。
+  Execution-B、continuation result directory、report child 与 tag 在该 freeze 时均不存在；协议见
+  [`../docs/independent_confirm_continuation_v1.md`](../docs/independent_confirm_continuation_v1.md)；
+
 - `results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`：clean
   `main@b14f489fe55b51a83917b57e6a54fb73d268342a` 的 no-GPU child 已 `VALID + REVALIDATED`；192-state
   payload、1,792 distances、1,856 deployment edges、3,072 full edges、1,984 interactions、576 attributions 与

@@ -73,7 +73,11 @@ docker ps -a --format "{{.Names}}" | sort
 有代表性的 steady-state 窗口；每张已分配 GPU 在该窗口应至少达到 80% 利用率，否则检查并发、batch、
 I/O 与跨机等待并调整。窗口通过后无需持续监控，除非用户另有要求或 job 出现不稳定。
 
-## Independent confirm-20 的冻结执行顺序
+## Independent confirm-20 的历史 v1 执行顺序（禁止重跑）
+
+本节只保留 Source-A=`e1cc8b3` / Execution-B=`f1e9196` 的审计记录。该 v1 已在 restoration output 0 时因
+CUDA-after-fork 永久记为 execution `INVALID`；下列 `run_independent_confirm.py` 命令不得再次执行。当前唯一
+允许路径是文末的 restoration-only continuation。
 
 Source-A 与唯一 direct-child Execution-B 都 push 到 canonical `main` 后，Hyper00 先在同一 container、
 同一 4 卡 allocation、同一 model directory 和 snapshot manifest 上执行 data-blind topology smoke：
@@ -1029,3 +1033,75 @@ mutation=`0`、local write=`0`。完整命令、log hash、state/hash 与正式 
 同一 v1、不得删除 state/artifact/HF tag，也不得打开 combined-21、旧 dev-5、confirm、matched-NLL 或
 closed-loop。任何未来 independent restoration 方向都需要新的 source/contract/untouched holdout，不继承本 child
 的执行授权。
+
+# Independent confirm continuation 的 CUDA/fork 边界
+
+independent confirm-20 v1 已证明：即使 model verification 本身没有执行 policy forward，Transformers import
+路径也可能通过 `torch.cuda.is_available()` 触发 `cuInit`，从而污染随后使用 POSIX `fork` 的 CUDA worker。
+restoration-only continuation 因此遵守以下额外规则：
+
+- 任何可能 import/verify Transformers model runtime 的完整 snapshot verification 必须放到独立 `spawn`
+  child；parent 只接收 JSON-safe identity；
+- parent 在 restoration `fork` 前只能读取 `torch.cuda.is_initialized()` 与 `_is_in_bad_fork()`；不得调用
+  `is_available()`、`device_count()` 或其他会触发 CUDA driver 初始化的探测；
+- formal coordinator 必须是尚未 import `torch` 的 fresh exec，并在任何 topology/HF/model work 前安装 tripwire；
+  parent 对 `is_available()`、`device_count()`、`_lazy_init()` 的调用会立即 fail closed，fork child 自动恢复；
+- CUDA-clean guard 与 active-tripwire 检查必须位于创建 multiprocessing context、Queue 和 Process 之前；显式
+  fork context 也不能绕过，失败时 worker start count=0；
+- 已封存 payload 的 continuation 不得复用原“score→policy-vision→publish payload”入口，而必须使用独立的
+  read-only adoption 状态机；
+- 详细 identity、零 mutation 与失败边界见
+  [`independent_confirm_continuation_v1.md`](independent_confirm_continuation_v1.md)。
+
+当前唯一允许入口必须从 clean pushed continuation Execution-B 运行，并先在同一四卡 allocation 上重新生成
+topology receipt；旧 v1 receipt 只用于绑定 failure，不能授权新 run。Execution-B commit、runner nonce、
+model/snapshot、logical devices 与 physical GPU UUID 共同生成 challenge；`policy_vision_spawn` 与
+`teacher_forced_fork` 各 4 个实际 worker 都必须返回 response，formal CLI 要求 8/8 覆盖并逐条重算。该摘要是
+软件审计绑定，不是硬件 attestation，所以 formal CLI 还显式拒绝旧 inner receipt SHA256
+`8e06034e7b485a00fe288dc824eabd538cea02dee876027d54ac8b2432e22f13`。正式 CLI 为：
+
+```bash
+TOPOLOGY_NONCE=$(jq -r '.topology_receipt_nonce' \
+  code/configs/causalcache_independent_confirm_continuation_runner_v1.json)
+PYTHONPATH=code python code/scripts/smoke_independent_confirm_gpu_topology.py \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
+  --devices cuda:0 cuda:1 cuda:2 cuda:3 \
+  --gpu-uuids <UUID0> <UUID1> <UUID2> <UUID3> \
+  --phase-timeout-seconds 7200 \
+  --worker-termination-grace-seconds 30 \
+  --continuation-execution-b-commit <FULL_CONTINUATION_EXECUTION_B_SHA> \
+  --continuation-topology-nonce "${TOPOLOGY_NONCE}" \
+  > <FRESH_TOPOLOGY_RECEIPT>
+sha256sum <FRESH_TOPOLOGY_RECEIPT>
+```
+
+receipt 必须由本次 topology smoke 直接输出；不得手工包装或重序列化旧 parent receipt。随后执行：
+
+```bash
+PYTHONHASHSEED=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 TZ=UTC LC_ALL=C.UTF-8 \
+PYTHONPATH=code python code/scripts/run_independent_confirm_continuation.py \
+  --repository-root . \
+  --contract code/configs/causalcache_independent_confirm_continuation_v1.json \
+  --runner-freeze code/configs/causalcache_independent_confirm_continuation_runner_v1.json \
+  --execution-b-git-commit <FULL_CONTINUATION_EXECUTION_B_SHA> \
+  --parent-root <IMMUTABLE_DERIVED_ROOT> \
+  --generator-source-root <PINNED_GENERATOR_CHECKOUT> \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --ocr-model-dir <PINNED_OCR_MODEL_DIR> \
+  --ocr-wheel-dir <PINNED_OCR_WHEEL_DIR> \
+  --hf-cache-dir /root/.cache/huggingface \
+  --output-dir <NEW_CONTINUATION_OUTPUT_DIR> \
+  --hf-token-file <MODE_0600_TOKEN_FILE> \
+  --gpu-topology-smoke-receipt <FRESH_TOPOLOGY_RECEIPT> \
+  --gpu-topology-smoke-receipt-sha256 <FRESH_RECEIPT_SHA256> \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id <FULL_CONTAINER_ID> \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --devices cuda:0,cuda:1,cuda:2,cuda:3 \
+  --gpu-uuids <UUID0>,<UUID1>,<UUID2>,<UUID3>
+```
+
+该入口只可采用已封存 payload 并执行原 restoration/report；禁止重新 scorer、policy-vision 或 publish payload。

@@ -155,7 +155,10 @@ one-step NLL 匹配后，保留更高 restoration mass 的 memory 更可能成�
 也不得根据 success 或实际 NLL 分布选择 caliper。这是 controller-conditioned state distribution 上的
 post-treatment mechanism association，不是 mediated causal effect。
 
-## 当前执行顺序
+## 原 v1 预注册执行顺序（已终止）
+
+下列顺序只记录已永久 `INVALID` 的原 v1，不得再次执行。当前唯一合法执行顺序是文末链接的
+restoration-only continuation。
 
 1. Source-A 全部代码、测试、阈值、closed-loop 与 matched-NLL 统计合同冻结并 push `main`；
 2. 唯一 direct-child Execution-B 只增加 runner-freeze JSON，再次 push `main`；
@@ -184,3 +187,8 @@ forward、`D(S)`、exact-subset oracle 与 report 都是 0，因此本次状态�
 failure、A/B、topology receipt、HF base/payload history、8 个 exact payload bytes、report/tag absence，并在任何
 restoration semantic access 前完成 fresh replay；不得重新运行 policy-vision/independent selector，不得修改
 threshold、dataset、model、seed、selection 或 GO contract。旧 attempt 不因 continuation 成功而重分类。
+
+该允许路径现已具体冻结为
+[`independent_confirm_continuation_v1.md`](independent_confirm_continuation_v1.md)。在 continuation 产出有效
+`GO_TO_PAIRED_CLOSED_LOOP` report 前，本文件定义的 paired closed-loop、matched-NLL 与 sealed test 仍保持
+locked。

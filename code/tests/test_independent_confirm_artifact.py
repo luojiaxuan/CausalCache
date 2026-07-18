@@ -29,10 +29,12 @@ from causalcache.independent_confirm_artifact import (
     read_independent_decisions,
     read_score_records_jsonl,
     read_selection_artifact,
+    reconcile_report_publication_state,
     seal_label_blind_payload,
     validate_report_files,
 )
 from causalcache.independent_confirm_data import CONFIRM_SOURCE_IDS
+from causalcache.independent_confirm_execution import HuggingFaceConfirmPublisher
 
 
 BASE_COMMIT = "1" * 40
@@ -193,6 +195,8 @@ class FakeRemote:
         self.tag: tuple[str, str] | None = None
         self.download_drift_path: str | None = None
         self.create_commit_calls = []
+        self.raise_after_report_commit = False
+        self.raise_after_tag_create = False
 
     def repo_info(self, repo, *, repo_type, revision):
         assert repo == DESTINATION_REPO and repo_type == "dataset"
@@ -233,6 +237,8 @@ class FakeRemote:
         self.titles[commit] = commit_message
         self.main = commit
         self.create_commit_calls.append((commit, parent_commit, commit_message))
+        if commit == REPORT_COMMIT and self.raise_after_report_commit:
+            raise RuntimeError("report commit response lost after remote mutation")
         return SimpleNamespace(oid=commit)
 
     def list_repo_commits(self, repo, *, repo_type, revision, formatted):
@@ -260,9 +266,22 @@ class FakeRemote:
         if self.tag is not None:
             raise RuntimeError("tag exists")
         self.tag = (TAG_OBJECT, revision)
+        if self.raise_after_tag_create:
+            raise RuntimeError("tag response lost after remote mutation")
 
-    def download(self, *, repo_id, repo_type, filename, revision, local_dir, force_download):
+    def download(
+        self,
+        *,
+        repo_id,
+        repo_type,
+        filename,
+        revision,
+        local_dir,
+        force_download,
+        token=None,
+    ):
         assert revision == DESTINATION_TAG and self.tag is not None
+        assert token in {None, "redacted"}
         payload = self.commits[self.tag[1]][filename]
         if filename == self.download_drift_path:
             payload += b"drift"
@@ -275,6 +294,27 @@ class FakeRemote:
 def _operation_factory(*, path_in_repo, path_or_fileobj):
     assert isinstance(path_or_fileobj, io.BytesIO)
     return SimpleNamespace(path_in_repo=path_in_repo, payload=path_or_fileobj.getvalue())
+
+
+def _adopted_publisher(
+    *,
+    remote: FakeRemote,
+    seal,
+    receipt,
+    cache_dir: Path,
+) -> HuggingFaceConfirmPublisher:
+    publisher = object.__new__(HuggingFaceConfirmPublisher)
+    publisher._api = remote
+    publisher._cache_dir = cache_dir
+    publisher._download_fn = remote.download
+    publisher._operation_factory = _operation_factory
+    publisher._payload_receipt = receipt
+    publisher._payload_seal = seal
+    publisher._preflight_base_commit = None
+    publisher._report_publication_attempted = False
+    publisher._report_publication_audit = None
+    publisher._token = "redacted"
+    return publisher
 
 
 def test_payload_inventory_is_exactly_eight_label_blind_replayable_files():
@@ -399,6 +439,121 @@ def test_two_stage_publisher_enforces_direct_parent_tag_and_fresh_replay(tmp_pat
         *PAYLOAD_TARGETS,
         *REPORT_TARGETS,
     }
+
+
+def test_read_only_report_reconciliation_observes_unchanged_payload_stage() -> None:
+    seal = _payload_seal()
+    remote = FakeRemote()
+    receipt = publish_payload_commit(
+        api=remote,
+        operation_factory=_operation_factory,
+        payload_seal=seal,
+    )
+    writes_before = tuple(remote.create_commit_calls)
+
+    audit = reconcile_report_publication_state(
+        api=remote,
+        payload_receipt=receipt,
+    )
+
+    assert audit["status"] == "PAYLOAD_STAGE_UNCHANGED"
+    assert audit["main_commit"] == PAYLOAD_COMMIT
+    assert audit["report_commit"] is None
+    assert audit["annotated_tag_present"] is False
+    assert audit["remote_mutation_count"] == 0
+    assert audit["minimum_remote_mutation_count"] == 0
+    assert tuple(remote.create_commit_calls) == writes_before
+    assert remote.tag is None
+
+
+def test_report_reconciliation_failure_is_explicitly_unknown() -> None:
+    seal = _payload_seal()
+    remote = FakeRemote()
+    receipt = publish_payload_commit(
+        api=remote,
+        operation_factory=_operation_factory,
+        payload_seal=seal,
+    )
+
+    def unavailable(*_args, **_kwargs):
+        raise ConnectionError("remote read unavailable")
+
+    remote.repo_info = unavailable
+    audit = reconcile_report_publication_state(
+        api=remote,
+        payload_receipt=receipt,
+    )
+
+    assert audit["status"] == "REPORT_PUBLICATION_RECONCILIATION_FAILED"
+    assert audit["remote_mutation_count"] is None
+    assert audit["annotated_tag_present"] is None
+    assert audit["reconciliation_error"] == {
+        "exception_type": "ConnectionError",
+        "message": "remote read unavailable",
+    }
+
+
+@pytest.mark.parametrize(
+    ("failure_stage", "expected_status", "expected_mutations"),
+    (
+        ("report_commit", "REPORT_COMMIT_PRESENT_TAG_ABSENT", 1),
+        ("annotated_tag", "REPORT_COMMIT_AND_TAG_PRESENT", 2),
+        ("fresh_replay", "REPORT_COMMIT_AND_TAG_PRESENT", 2),
+    ),
+)
+def test_publisher_reconciles_partial_report_mutations_without_retry_or_rollback(
+    tmp_path: Path,
+    failure_stage: str,
+    expected_status: str,
+    expected_mutations: int,
+) -> None:
+    seal = _payload_seal()
+    remote = FakeRemote()
+    receipt = publish_payload_commit(
+        api=remote,
+        operation_factory=_operation_factory,
+        payload_seal=seal,
+    )
+    report_files = build_report_files(
+        state_records=_state_records(),
+        fixed_report=_fixed_report(),
+        run_manifest=_run_manifest(),
+        payload_seal=seal,
+        payload_commit=receipt.payload_commit,
+    )
+    publisher = _adopted_publisher(
+        remote=remote,
+        seal=seal,
+        receipt=receipt,
+        cache_dir=tmp_path,
+    )
+    if failure_stage == "report_commit":
+        remote.raise_after_report_commit = True
+    elif failure_stage == "annotated_tag":
+        remote.raise_after_tag_create = True
+    else:
+        remote.download_drift_path = FEATURE_STATE_PATH
+
+    with pytest.raises((RuntimeError, ValueError)):
+        publisher.publish_report(report_files, payload_commit=PAYLOAD_COMMIT)
+
+    writes_after_failure = tuple(remote.create_commit_calls)
+    tag_after_failure = remote.tag
+    audit = publisher.report_publication_audit()
+    assert audit["status"] == expected_status
+    assert audit["main_commit"] == REPORT_COMMIT
+    assert audit["report_commit"] == REPORT_COMMIT
+    assert audit["report_direct_child_verified"] is True
+    assert audit["remote_mutation_count"] == expected_mutations
+    assert audit["minimum_remote_mutation_count"] == expected_mutations
+    assert audit["annotated_tag_present"] is (expected_mutations == 2)
+    assert tuple(remote.create_commit_calls) == writes_after_failure
+    assert remote.tag == tag_after_failure
+    assert len(remote.create_commit_calls) == 2
+    with pytest.raises(RuntimeError, match="attempted only once"):
+        publisher.publish_report(report_files, payload_commit=PAYLOAD_COMMIT)
+    assert tuple(remote.create_commit_calls) == writes_after_failure
+    assert remote.tag == tag_after_failure
 
 
 def test_payload_publication_rejects_nonempty_or_pretagged_destination():
