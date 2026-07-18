@@ -1,0 +1,475 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_exploratory_closed_loop_validation12_v1",
+  "status": "source_only_frozen_before_exploratory_closed_loop_execution",
+  "scientific_scope": {
+    "estimand": "terminal_success_under_repeated_online_memory_selection_by_a_fixed_gui_policy",
+    "evidence_role": "outcome_exposed_validation12_exploratory_resource_routing_only",
+    "primary_method": "restoration_guided_independent_gate",
+    "primary_contrast": "independent_B2_minus_recent_B2",
+    "offline_confirm_estimand": "single_state_restoration_quality",
+    "offline_confirm_is_closed_loop_admission_gate": false,
+    "offline_confirm_reclassified_as_pass": false,
+    "paper_primary_evidence_allowed": false,
+    "conditional_gate_role": "negative_ablation_only",
+    "conditional_may_replace_primary_after_results": false
+  },
+  "parent_no_go": {
+    "source_contract": {
+      "path": "code/configs/causalcache_independent_confirm_closed_loop_v1.json",
+      "sha256": "33e5c0f856a9074cd5460f0d6f7cdda2108b120d50b208234253ff3136d27b63"
+    },
+    "continuation_contract": {
+      "path": "code/configs/causalcache_independent_confirm_continuation_v1.json",
+      "sha256": "d54988fa05693a42574db2f9ec492d55405bcd2c2e902ccb79897f971c6fc7a9"
+    },
+    "result_summary": {
+      "path": "data/results/independent_confirm20_continuation_v1/summary.json",
+      "sha256": "ff1270f7580005c3c6e9aa4bdcf124e804efa9826023626ebcf3115d73254a74",
+      "protocol_id": "causalcache_independent_confirm20_restoration_continuation_v1",
+      "status": "COMPLETED_AND_PUBLISHED_INDEPENDENT_CONFIRM20_CONTINUATION_V1",
+      "scientific_outcome": "NO_GO_INDEPENDENT_CONFIRM",
+      "report_commit": "a0b408e58d629299be334a74ecbd0ec2fa2ed1fc"
+    },
+    "historical_result_preserved": true,
+    "historical_closed_loop_authorized": false,
+    "historical_closed_loop_executed": false,
+    "historical_matched_nll_authorized": false,
+    "historical_sealed_test_authorized": false,
+    "threshold_model_data_seed_or_comparator_change_allowed": false
+  },
+  "roster": {
+    "manifest": {
+      "path": "data/manifests/exploratory_closed_loop_validation12_v1.json",
+      "sha256": "8e68e6eb1adde5627e83ce07cf4e8d7cef4843250a2e1b58baa247af57a07a42",
+      "status": "FROZEN_EXPLORATORY_CLOSED_LOOP_VALIDATION12_ROSTER_V1",
+      "selected_instance_identity_sha256": "e0ae4ad79b33f1bce44158be5ec22f55e83fc054462407d56b2d3b9c5036199b"
+    },
+    "validation_plan": {
+      "path": "code/configs/androidworld_validation_plan.json",
+      "sha256": "6429599d9d351c396cf0da12939ed82fb84c9acb9c07b051ae92f9d2832e3b42",
+      "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+      "split": "validation",
+      "suite_seed": 271828
+    },
+    "task_partition": {
+      "path": "code/configs/androidworld_task_partition.json",
+      "sha256": "edb3ba4b03339db7c8580f58052d63813d4456030686493161f288230c787683",
+      "sorted_task_types_sha256": "185ae2019706693bd32ecc25ffd0c8f87be87331cae6f7d7e31c91674c962b89"
+    },
+    "partition": "validation",
+    "suite_seed": 271828,
+    "task_indices": [
+      0
+    ],
+    "template_count": 12,
+    "arm_count": 5,
+    "episode_count": 60,
+    "fixed_denominator": true,
+    "outcome_exposed": true,
+    "new_holdout": false,
+    "selection_key": "sha256(protocol_id+NUL+validation+NUL+271828+NUL+task_type+NUL+task_index_decimal)",
+    "take_per_stratum": 4,
+    "horizon_strata": {
+      "short": "max_steps_lte_12",
+      "medium": "13_lte_max_steps_lte_22",
+      "long": "max_steps_gte_23"
+    },
+    "horizon_stratum_template_counts": {
+      "short": 4,
+      "medium": 4,
+      "long": 4
+    },
+    "retry_count": 0,
+    "top_up_count": 0,
+    "template_or_arm_deletion_count": 0
+  },
+  "policy": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "snapshot_manifest": {
+      "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+    },
+    "prompt_and_parser": "gui_owl_v2_1_official_tools_mixed_fidelity",
+    "runtime": "GUIOwlV21OfficialToolsRuntime",
+    "dtype": "bfloat16",
+    "attention_implementation": "eager",
+    "effective_visual_tokens_per_image": 2560,
+    "current_observation_always_visible": true,
+    "current_observation_budget_cost": 0,
+    "same_policy_for_all_arms": true,
+    "policy_training_allowed": false,
+    "prompt_or_parser_change_allowed": false
+  },
+  "gate": {
+    "feature_contract": "formal_gate_v1_q64_h64_q64_times_h64_g8_200d",
+    "gate_preregistration": {
+      "path": "code/configs/causalcache_gate_v1_preregistration.json",
+      "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b"
+    },
+    "formal_train_completion": {
+      "path": "data/results/gate_v1_formal58_train_v1/summary.json",
+      "sha256": "7393fb47a0e46f75324a42abc41369331ef10da65232d840eba372a58e28925e"
+    },
+    "repo": "gavinlaw/causalcache-gate-v1-formal58-selector-mobile",
+    "repo_type": "model",
+    "private": true,
+    "payload_commit": "a6c9e7f6dab6bc27794438b5b66da07fd59b2889",
+    "manifest_commit": "23f6786075c7bff91f93fd7e8a878e070efb72a9",
+    "tag": "gate-v1-formal58-train-v1",
+    "ensemble_manifests": [
+      {
+        "family": "conditional",
+        "path": "formal58-train/v1/manifests/conditional-ensemble-manifest.json",
+        "sha256": "74aec69ccdb727fa997f38bebf3383db3aa1965299fdd512fd5f47f02ebcc782",
+        "provenance_sha256": "a56c26f7760578e6ebbc793cc25e3adadb228e7c3f90606f63e138f0220858f2"
+      },
+      {
+        "family": "independent",
+        "path": "formal58-train/v1/manifests/independent-ensemble-manifest.json",
+        "sha256": "38809f1ef4da9636ef6779733cee4926b36b38e3bd86eab199450e685c63da24",
+        "provenance_sha256": "238c2e64bdb22ccebd261961200021e74a688f912d530f486b00bbb853a8ea57"
+      }
+    ],
+    "checkpoints": [
+      {
+        "family": "conditional",
+        "seed": 0,
+        "selected_epoch": 62,
+        "path": "formal58-train/v1/checkpoints/conditional-seed-0.safetensors",
+        "sha256": "38ef8ca44aea850f23a8594691ba85c986dcb0d06ae14f21111b9cd8098ad6c5",
+        "size_bytes": 102060,
+        "model_state_sha256": "4b23eb94a3726a963d572655996f5b2be0458d7398a2f38ef69b8a43bb4e036b"
+      },
+      {
+        "family": "conditional",
+        "seed": 1,
+        "selected_epoch": 59,
+        "path": "formal58-train/v1/checkpoints/conditional-seed-1.safetensors",
+        "sha256": "41469c21643326903673d83e2e23e977ea2c9cae5990ea88b37676e19a04313a",
+        "size_bytes": 102060,
+        "model_state_sha256": "0ab3a272564e8bc7f79a4dd8bf09e3e50c5099334b335fe163e72f78dc738f17"
+      },
+      {
+        "family": "conditional",
+        "seed": 2,
+        "selected_epoch": 98,
+        "path": "formal58-train/v1/checkpoints/conditional-seed-2.safetensors",
+        "sha256": "712fc17ae335eacffa9c40744c77a3995b2d963eb64009bcfc54ff826fb36ee4",
+        "size_bytes": 102060,
+        "model_state_sha256": "aa58a02b3d5a196b307ca2f576feba301bdef9351354a0669c78e0e8e95fd9c9"
+      },
+      {
+        "family": "conditional",
+        "seed": 3,
+        "selected_epoch": 4,
+        "path": "formal58-train/v1/checkpoints/conditional-seed-3.safetensors",
+        "sha256": "4cb6242814cbf3ae353f5d110e9954e967481b4b4173df4ec87f2baaa036fb0f",
+        "size_bytes": 102060,
+        "model_state_sha256": "952ef11791e39069b983b357119c09e37e4361c9b2c533f06bc37a3f5e24eb8f"
+      },
+      {
+        "family": "conditional",
+        "seed": 4,
+        "selected_epoch": 13,
+        "path": "formal58-train/v1/checkpoints/conditional-seed-4.safetensors",
+        "sha256": "95cdc21f83394d6ee54d7eda57d83089c180abcfad46135522ffef87e2ec970f",
+        "size_bytes": 102060,
+        "model_state_sha256": "b0640eb49788f45b60d9bb39e733b7b6e13114a89e73ea825a5f49629a3566af"
+      },
+      {
+        "family": "independent",
+        "seed": 0,
+        "selected_epoch": 60,
+        "path": "formal58-train/v1/checkpoints/independent-seed-0.safetensors",
+        "sha256": "7088a1cb4224dd1e7013868249ed1c99c20782eb63c2a762e3059cfb939d4a49",
+        "size_bytes": 102860,
+        "model_state_sha256": "0198ad3cca7bd9e4eef2f6c40c9ac6349732f21935c61ec3434f058ee40b972a"
+      },
+      {
+        "family": "independent",
+        "seed": 1,
+        "selected_epoch": 51,
+        "path": "formal58-train/v1/checkpoints/independent-seed-1.safetensors",
+        "sha256": "8a25b8bad27e4c6f20a9a93273602e82a276ee7f9275ff672d6b0ed64dd8fd79",
+        "size_bytes": 102860,
+        "model_state_sha256": "454b0732389eac920f2aa69edb68317e3746dc57e1d2c6c7269f792257255af7"
+      },
+      {
+        "family": "independent",
+        "seed": 2,
+        "selected_epoch": 6,
+        "path": "formal58-train/v1/checkpoints/independent-seed-2.safetensors",
+        "sha256": "b8c38619db06bd479d278da62663a3b451cff951dff0747bf156835234216211",
+        "size_bytes": 102860,
+        "model_state_sha256": "c4d508933928dc7c6a24501090e3afd2a7d50a4977f37b3b3cb6cd818d28eb13"
+      },
+      {
+        "family": "independent",
+        "seed": 3,
+        "selected_epoch": 56,
+        "path": "formal58-train/v1/checkpoints/independent-seed-3.safetensors",
+        "sha256": "b7b175c0b513508f10479bb228fad6ffb6b4e330b050c981d415c2a54b8c11a2",
+        "size_bytes": 102860,
+        "model_state_sha256": "1f0d319411319dd2348e0a3da8e7d2b18e5b566e468278853d890a761639da60"
+      },
+      {
+        "family": "independent",
+        "seed": 4,
+        "selected_epoch": 54,
+        "path": "formal58-train/v1/checkpoints/independent-seed-4.safetensors",
+        "sha256": "8e5eee31c85653a210b9bf05c4cf4d94a8b4fabdb6bdab455caa446cc655df38",
+        "size_bytes": 102860,
+        "model_state_sha256": "51fc5aaa157ec9feb97a7c40cd7d532cc248ecb076feacd880dc9bba38007def"
+      }
+    ],
+    "model_load_device": "cpu",
+    "ensemble_rule": "arithmetic_mean_of_five_raw_scores_per_family",
+    "score_threshold": 0.0,
+    "training_or_optimizer_allowed": false,
+    "checkpoint_or_family_change_allowed": false
+  },
+  "ocr": {
+    "backend_config": {
+      "path": "code/configs/restoration_v2_ocr_backend.json",
+      "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+    },
+    "backend_manifest": {
+      "path": "data/manifests/restoration_v2_ocr_backend.json",
+      "sha256": "107478672438b52e9c2ccc9ef8de5d13d4e16329ab1afbe95772e2d3df5bd2a9"
+    },
+    "backend_id": "rapidocr-3.8.4-ppocrv5-mobile-en-cpu-v1",
+    "model_repo": "gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en",
+    "model_revision": "0dbc766a73ee88d10d52285d434dbfec58617835",
+    "provider": "CPUExecutionProvider",
+    "live_input": "original_deterministically_encoded_RGB_PNG_bytes",
+    "canonical_record_builder": "causalcache.restoration_v2_text_backend.build_ocr_record",
+    "feature_or_ocr_fallback_allowed": false
+  },
+  "memory_and_arms": {
+    "ordered_arms": [
+      "independent_B2",
+      "recent_B2",
+      "ocr_rgb_B2",
+      "conditional_B2",
+      "summary_B0"
+    ],
+    "primary_arm": "independent_B2",
+    "primary_baseline": "recent_B2",
+    "key_challenger": "ocr_rgb_B2",
+    "negative_ablation": "conditional_B2",
+    "sanity_control": "summary_B0",
+    "equal_capacity_arms": [
+      "independent_B2",
+      "recent_B2",
+      "ocr_rgb_B2",
+      "conditional_B2"
+    ],
+    "maximum_high_fidelity_events": 2,
+    "summary_B0_high_fidelity_events": 0,
+    "current_equivalent_newest_post_state_is_candidate": false,
+    "all_events_keep_same_fixed_low_fidelity_summary": true,
+    "all_candidates_rescored_at_every_policy_decision": true,
+    "history_order": "oldest_to_newest",
+    "age_rule": "history_length_minus_one_minus_chronological_index",
+    "tie_break": "ascending_step_id",
+    "independent_rule": "five_seed_mean_strictly_positive_global_top2",
+    "conditional_rule": "five_seed_mean_strictly_positive_iterative_top2_rescore_after_each_selection",
+    "recent_rule": "newest_min_2_n_eligible_events",
+    "ocr_rgb_rule": "frozen_ocr_rgb_v2_similarity_top_min_2_n",
+    "summary_rule": "empty_high_fidelity_set",
+    "requested_budget_is_gate_model_input": false,
+    "actual_input_token_equality_claimed": false,
+    "random_policy_vision_full_history_or_B4_arm_allowed": false,
+    "arm_order": {
+      "base_order": [
+        "independent_B2",
+        "recent_B2",
+        "ocr_rgb_B2",
+        "conditional_B2",
+        "summary_B0"
+      ],
+      "rotation_key": "sha256(protocol_id+NUL+validation+NUL+271828+NUL+task_type+NUL+task_index_decimal)",
+      "rotation": "digest_byte_0_mod_5_left_rotation",
+      "outcome_dependent_order_change_allowed": false
+    }
+  },
+  "online_rollout": {
+    "lifecycle": [
+      "suite_reinitialize",
+      "task_initialize",
+      "reset",
+      "rollout",
+      "score",
+      "tear_down"
+    ],
+    "each_task_arm_has_independent_lifecycle": true,
+    "fixed_trajectory_replay_across_arms_allowed": false,
+    "selector_invocation": "once_at_every_policy_decision_over_the_arm_own_complete_history",
+    "decision_order": [
+      "capture_current_screenshot_once_and_encode_deterministically",
+      "append_previous_transition_event_with_pinned_ocr_if_available",
+      "recompute_eligible_candidates_and_select_for_current_arm",
+      "build_all_summaries_selected_post_images_then_current_image",
+      "generate_parse_map_and_execute_one_policy_action",
+      "record_selection_action_environment_and_score_audits"
+    ],
+    "required_decision_audits": [
+      "selector_scores",
+      "selected_event_step_ids",
+      "candidate_event_step_ids",
+      "high_fidelity_event_count",
+      "budget_audit",
+      "current_equivalence_audit",
+      "screenshot_sha256",
+      "ocr_record_sha256",
+      "low_fidelity_summary",
+      "policy_visible_text_tokens",
+      "policy_visible_image_tokens",
+      "policy_latency",
+      "peak_gpu_memory",
+      "canonical_action",
+      "executor_response",
+      "official_task_score"
+    ],
+    "hidden_retry_allowed": false,
+    "outcome_based_early_stop_allowed": false,
+    "top_up_allowed": false,
+    "completed_episode_or_arm_deletion_allowed": false
+  },
+  "evaluation": {
+    "primary_contrast": "independent_B2_minus_recent_B2",
+    "official_terminal_success_is_primary_metric": true,
+    "report_each_arm_success_count_and_rate": true,
+    "paired_contrasts": [
+      "independent_B2_minus_recent_B2",
+      "independent_B2_minus_ocr_rgb_B2",
+      "independent_B2_minus_summary_B0",
+      "conditional_B2_minus_recent_B2",
+      "conditional_B2_minus_ocr_rgb_B2"
+    ],
+    "paired_statistics": [
+      "paired_mean_difference",
+      "win_tie_loss"
+    ],
+    "report_overall_and_each_horizon_stratum": true,
+    "bootstrap": {
+      "unit": "template_pair",
+      "resamples": 10000,
+      "seed": 271828,
+      "rng": "python_random_Random_randrange",
+      "confidence": 0.9,
+      "interval": "percentile",
+      "quantile": "Hyndman_Fan_type_7",
+      "role": "descriptive_only"
+    },
+    "discordant_pair_test": "exact_two_sided_sign_test_descriptive_only",
+    "required_diagnostics": [
+      "memory_binding_decision_count",
+      "independent_recent_first_selection_divergence",
+      "first_action_divergence",
+      "consecutive_action_repetition",
+      "consecutive_state_repetition",
+      "history_length",
+      "actual_visual_budget",
+      "latency",
+      "failure_classification"
+    ],
+    "post_treatment_episode_steps_may_redefine_horizon_stratum": false,
+    "statistical_significance_or_long_horizon_claim_allowed": false
+  },
+  "validity_and_routing": {
+    "validity": {
+      "exact_episode_record_count": 60,
+      "paired_arm_inventory_complete": true,
+      "hidden_retry_count_maximum": 0,
+      "top_up_count_maximum": 0,
+      "template_or_arm_deletion_count_maximum": 0,
+      "budget_selection_current_equivalence_ocr_and_feature_audit_coverage_minimum": 1.0,
+      "per_arm_action_parse_coverage_minimum": 0.95,
+      "per_arm_non_infrastructure_failure_episode_count_minimum": 11,
+      "all_five_arms_normal_environment_chain_template_count_minimum": 10,
+      "missing_episode_record_outcome": "INVALID_EXPLORATORY_CLOSED_LOOP_EXECUTION_V1",
+      "recorded_parse_selector_executor_or_infrastructure_failure_itt_success": 0.0,
+      "infrastructure_invalidity_is_method_failure": false,
+      "repair_requires_new_version": true
+    },
+    "advance_route": "ADVANCE_TO_NEW_TRAIN60_PROTOCOL",
+    "advance_requires": {
+      "valid_execution": true,
+      "independent_vs_recent_overall_wins_minus_losses_minimum": 2,
+      "independent_vs_recent_long_wins_minus_losses_minimum": 1,
+      "independent_vs_ocr_overall_wins_minus_losses_minimum": 0,
+      "independent_vs_ocr_long_wins_minus_losses_minimum": 0,
+      "independent_vs_summary_overall_wins_minus_losses_minimum": 0,
+      "memory_binding_decision_count_strictly_positive": true,
+      "independent_recent_selector_disagreement_count_strictly_positive": true
+    },
+    "stop_route": "STOP_CURRENT_INDEPENDENT_CLOSED_LOOP_DIRECTION",
+    "stop_requires": "independent_relative_to_recent_and_ocr_has_no_positive_wins_minus_losses_in_either_overall_or_long",
+    "fallback_route": "INCONCLUSIVE_DEVELOPMENT_ONLY",
+    "invalid_route": "INVALID_EXPLORATORY_CLOSED_LOOP_EXECUTION_V1",
+    "conditional_success_may_rescue_independent_route": false,
+    "route_is_paper_claim": false
+  },
+  "runtime": {
+    "policy_host": "aries",
+    "emulator_host": "aries",
+    "topology": "same_host_policy_and_androidworld_emulator",
+    "gpu_type": "NVIDIA_RTX_A6000",
+    "maximum_worker_count": 4,
+    "gpu_per_worker": 1,
+    "explicit_device_binding_required": true,
+    "cross_host_transport_required": false,
+    "hyper_policy_allowed_in_v1": false,
+    "gpu_preflight_and_ten_second_idle_cleanup_required": true,
+    "startup_representative_gpu_utilization_minimum": 0.8,
+    "runtime_metadata_and_container_digest_required": true
+  },
+  "locked_followups": {
+    "train60_protocol_status": "LOCKED_REQUIRES_ADVANCE_AND_NEW_VERSIONED_CONTRACT",
+    "sealed_test75_status": "LOCKED",
+    "matched_nll_status": "LOCKED",
+    "paper_primary_table_status": "LOCKED",
+    "androidworld_train_access_count": 0,
+    "sealed_androidworld_test_access_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "paper_primary_claim_count": 0,
+    "validation12_may_be_relabelled_as_train_or_test": false,
+    "advance_may_unlock_without_new_contract": false
+  },
+  "source_only_operation_contract": {
+    "network_call_count": 0,
+    "artifact_read_count": 0,
+    "artifact_write_count": 0,
+    "filesystem_write_count": 0,
+    "gpu_operation_count": 0,
+    "policy_model_load_count": 0,
+    "gate_checkpoint_load_count": 0,
+    "ocr_model_load_count": 0,
+    "androidworld_server_access_count": 0,
+    "androidworld_episode_count": 0,
+    "selector_invocation_count": 0,
+    "semantic_decode_count": 0,
+    "hf_access_count": 0,
+    "hf_mutation_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "train60_access_count": 0,
+    "sealed_test_access_count": 0
+  },
+  "authorization": {
+    "exploratory_closed_loop_execution_authorized": false,
+    "network_access_authorized": false,
+    "artifact_access_authorized": false,
+    "gpu_access_authorized": false,
+    "policy_or_gate_model_load_authorized": false,
+    "ocr_model_load_authorized": false,
+    "androidworld_server_access_authorized": false,
+    "hf_access_or_mutation_authorized": false,
+    "train60_execution_authorized": false,
+    "sealed_test_execution_authorized": false,
+    "matched_nll_execution_authorized": false,
+    "paper_claim_authorized": false
+  }
+}

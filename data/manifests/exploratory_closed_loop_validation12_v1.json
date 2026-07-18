@@ -1,0 +1,184 @@
+{
+  "protocol_id": "causalcache_exploratory_closed_loop_validation12_v1",
+  "records": [
+    {
+      "horizon_stratum": "short",
+      "instance": {
+        "complexity": 1.2,
+        "goal": "Send a message to +16657227665 with the clipboard content in Simple SMS Messenger",
+        "max_steps": 12,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "SimpleSmsSendClipboardContent",
+        "template": "Send a message to {number} with the clipboard content in Simple SMS Messenger"
+      },
+      "selection_sha256": "0e2779869f580ecc39229d2e69200a90650df7a885a6a46d7c220547ee9e12e2"
+    },
+    {
+      "horizon_stratum": "short",
+      "instance": {
+        "complexity": 1.0,
+        "goal": "Delete the note in Markor named bold_lamp_L9La.",
+        "max_steps": 10,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "MarkorDeleteNote",
+        "template": "Delete the note in Markor named {file_name}."
+      },
+      "selection_sha256": "1700b6b88fbacccba6519699e992b1d0ee14cd14dc011b7e17ecb4683dac0ad8"
+    },
+    {
+      "horizon_stratum": "short",
+      "instance": {
+        "complexity": 1.2,
+        "goal": "Update the content of 2023_02_23_real_house.txt to \"T91rjBRLhTTRlirqwmGt\" in Markor and change its name to 2023_02_25_sharp_elephant.md.",
+        "max_steps": 12,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "MarkorChangeNoteContent",
+        "template": "Update the content of {original_name} to \"{updated_content}\" in Markor and change its name to {new_name}."
+      },
+      "selection_sha256": "17ae62a446b82fac068b5ffc8ab004b584697ce0f5fff6672d4c2836be6ac881"
+    },
+    {
+      "horizon_stratum": "short",
+      "instance": {
+        "complexity": 1.2,
+        "goal": "Update the Markor note 2023_10_05_friendly_ant.md by adding the following text, along with a new blank line before the existing content: \"MatUFu2H3ELIJFHvnaWI\", and rename it to X9oP_eager_nurse.txt.",
+        "max_steps": 12,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "MarkorAddNoteHeader",
+        "template": "Update the Markor note {original_name} by adding the following text, along with a new blank line before the existing content: \"{header}\", and rename it to {new_name}."
+      },
+      "selection_sha256": "3d19a7ac2ac5eb8422493a9b6b32bd8d68506499c1b853f98a204ef671512d50"
+    },
+    {
+      "horizon_stratum": "medium",
+      "instance": {
+        "complexity": 2.0,
+        "goal": "Delete the following recipes from Broccoli app: Pesto Pasta with Peas.",
+        "max_steps": 20,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "RecipeDeleteSingleWithRecipeWithNoise",
+        "template": ""
+      },
+      "selection_sha256": "3be839e141018c10cdc0aaf998492dd981b9433172be135d769c5949c5741c0a"
+    },
+    {
+      "horizon_stratum": "medium",
+      "instance": {
+        "complexity": 2.0,
+        "goal": "Turn on Wifi, then open the dialer app",
+        "max_steps": 20,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "TurnOnWifiAndOpenApp",
+        "template": "Turn on Wifi, then open the {app_name} app"
+      },
+      "selection_sha256": "4ae40318815f2028f1a38f7b0682d8e4f0d5f010a329b23c172f11d16b2965f4"
+    },
+    {
+      "horizon_stratum": "medium",
+      "instance": {
+        "complexity": 1.4,
+        "goal": "In Simple Calendar Pro, delete all the calendar events on 2023-10-21",
+        "max_steps": 14,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "SimpleCalendarDeleteEvents",
+        "template": "In Simple Calendar Pro, delete all the calendar events on {year}-{month}-{day}"
+      },
+      "selection_sha256": "5208c55d769d27f42570a789819adf07ee5c0f325c1b1a437686a73f9d87aa4c"
+    },
+    {
+      "horizon_stratum": "medium",
+      "instance": {
+        "complexity": 1.8,
+        "goal": "Text the address of the event to Sophia Gonzalez that Carlos Ferreira just sent me in Simple SMS Messenger",
+        "max_steps": 18,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "SimpleSmsSendReceivedAddress",
+        "template": "Text the address of the event to {name1} that {name2} just sent me in Simple SMS Messenger"
+      },
+      "selection_sha256": "567d92ffeead9bdfe31a5baf8dfa5b8c27fe37606717d4b9444cb88ff9c0cd9f"
+    },
+    {
+      "horizon_stratum": "long",
+      "instance": {
+        "complexity": 6.0,
+        "goal": "Add the following expenses into the pro expense:\nname|amount_dollars|category_name|note\nNew Jacket|$319.4|Clothes|Monthly recurring\nCar Maintenance|$14.63|Transportation|Monthly recurring\nPublic Transit|$474.23|Transportation|Urgent",
+        "max_steps": 60,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "ExpenseAddMultiple",
+        "template": ""
+      },
+      "selection_sha256": "12ed0e4c3fdf6a3159ac7c5ca3bd89532e9b08a6018eca62ef51af5589f9f20c"
+    },
+    {
+      "horizon_stratum": "long",
+      "instance": {
+        "complexity": 5.0,
+        "goal": "Create a playlist in Retro Music titled \"Jazz Classics 669\" with the following songs, in order: Return to Paradise, Serenity Now, Echoes of Silence, Bright Lights, Endless Summer. Then export the playlist to the Downloads directory on the device.",
+        "max_steps": 50,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "RetroSavePlaylist",
+        "template": ""
+      },
+      "selection_sha256": "2d037ab9487188bcaa646ded484a1524c2e4121592ba7466fbcc0baf8d26f2ec"
+    },
+    {
+      "horizon_stratum": "long",
+      "instance": {
+        "complexity": 3.2,
+        "goal": "Add the following songs, in order, Falling Feathers, Through the Storm, My Heart is Yours to my playing queue in Retro music.",
+        "max_steps": 32,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "RetroPlayingQueue",
+        "template": ""
+      },
+      "selection_sha256": "321befb22028b1a66c4e92343b7a8952a5b21596c287a63e829b54905b5e9a64"
+    },
+    {
+      "horizon_stratum": "long",
+      "instance": {
+        "complexity": 6.0,
+        "goal": "Add the expenses from expenses.jpg in Simple Gallery Pro to pro expense.",
+        "max_steps": 60,
+        "start_on_home_screen": true,
+        "task_index": 0,
+        "task_type": "ExpenseAddMultipleFromGallery",
+        "template": ""
+      },
+      "selection_sha256": "4d442c49b7299798d491f953c977f2882dcde8b8869a6fe7e8869adcbddfb90f"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "selected_instance_identity_sha256": "e0ae4ad79b33f1bce44158be5ec22f55e83fc054462407d56b2d3b9c5036199b",
+  "selection": {
+    "arm_count": 5,
+    "eligible_task_index": 0,
+    "episode_count": 60,
+    "rank_key": "sha256(protocol_id+NUL+split+NUL+suite_seed_decimal+NUL+task_type+NUL+task_index_decimal)",
+    "strata": {
+      "long": "max_steps_gte_23",
+      "medium": "13_lte_max_steps_lte_22",
+      "short": "max_steps_lte_12"
+    },
+    "take_per_stratum": 4,
+    "template_count": 12
+  },
+  "source_validation_plan": {
+    "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+    "path": "code/configs/androidworld_validation_plan.json",
+    "sha256": "6429599d9d351c396cf0da12939ed82fb84c9acb9c07b051ae92f9d2832e3b42",
+    "split": "validation",
+    "suite_seed": 271828
+  },
+  "status": "FROZEN_EXPLORATORY_CLOSED_LOOP_VALIDATION12_ROSTER_V1"
+}

@@ -2,13 +2,25 @@
 
 ## 当前目标
 
-2026-07-18 起，论文主线改为 **restoration-guided independent gate**，并已完成一次性 untouched
-confirm-20。有效结果为 `NO_GO_INDEPENDENT_CONFIRM`：20/20 reference 与 memory-sensitive checks 通过，但
-independent / exact raw utility ratio=`0.821298 < 0.85`，且 independent 对三个冻结 heuristic 的 raw mean
-delta 均为负。set-conditioned v1 的 `NO_V2_CONDITIONAL_RESCUE` 同时保持不变。按冻结权限链，AndroidWorld
-paired closed-loop、matched-NLL 与 sealed test 均未执行并继续 locked。当前目标改为固化本次 negative/
-diagnostic evidence、整理论文边界，并决定是否另立新机制、新数据与新 untouched holdout；不在已消费的
-fresh-16 或 confirm-20 上继续调 feature、loss、seed、阈值或 comparator。
+2026-07-18 起，历史 independent confirm-20 的 `NO_GO_INDEPENDENT_CONFIRM`、set-conditioned v1 的
+`NO_V2_CONDITIONAL_RESCUE` 与 oracle-independent Case A 全部保持有效；它们只否定旧 projection/student
+链，不能被重写成 terminal-success 结论。当前路线暂停 closed-loop，改为扩充新的 train/development
+restoration tables，并训练 budget-agnostic set utility predictor `U_theta(S)`。预算 `B` 只约束搜索，不进入
+utility model。阶段一用 `|S|<=2` exact labels 比较 pairwise-additive、DeepSets、OCR/RGB、J 与 exact；
+阶段二用独立少量 `|S|=3/4` labels 检验 cardinality transfer。fresh-16/confirm-20 禁止进入训练或新 holdout，
+matched-NLL 与 sealed AndroidWorld test 继续 locked。
+
+### 2026-07-18：repeated-selection closed-loop P0 冻结后暂停
+
+- development-only validation-12 的 scientific contract、机械 roster、任意历史 selector/prompt 与五臂 paired
+  evaluator 已完成并通过 72 个 P0 tests；与相邻 live-feature/OCR/GUI-Owl/evaluator suite 合跑为
+  `127 passed, 28 subtests passed`；
+- roster 固定 12 templates × 5 arms，按 short/medium/long 分层，每一步重新选择 memory；manifest SHA256
+  `8e68e6eb1adde5627e83ce07cf4e8d7cef4843250a2e1b58baa247af57a07a42`；
+- P0 从未访问 live environment、gate checkpoint、GPU 或 sealed split，closed-loop episode count 为 0；
+- 路线调整后暂不实现/运行 live runner。协议与代码保留，后续只有 set-utility 离线开发通过新的门槛后才重新
+  评估是否启用，见
+  [`exploratory_closed_loop_validation12_v1.md`](exploratory_closed_loop_validation12_v1.md)。
 
 ### 2026-07-18：confirm-20 oracle-independent failure decomposition 完成
 

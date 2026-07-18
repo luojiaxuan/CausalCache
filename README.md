@@ -20,11 +20,17 @@
 > [`data/results/independent_confirm20_failure_decomposition_v1/`](data/results/independent_confirm20_failure_decomposition_v1/)，协议与边界见
 > [`docs/independent_confirm_failure_decomposition_v1.md`](docs/independent_confirm_failure_decomposition_v1.md)。
 
-> Current route: `NO_V2_CONDITIONAL_RESCUE` 与 independent confirm `NO-GO` 都保留。现有 frozen selector
-> 主线已经到达停止条件，不进入原计划的 closed-loop；exact restoration oracle 仍恢复 substantial utility，
-> 且 oracle-independent projection 本身也未在已消费 confirm 上胜过 OCR/RGB。不能再用这 20 条 holdout 对
-> 当前 objective 或 student 做 rescue。下一步是整理可发表的 negative/diagnostic evidence，或另立
-> 新机制、新数据与新 untouched holdout 的 versioned study，而不是继续调本次 confirm。完整门槛与权限链见
+> Frozen P0: 已另立并验证 development-only AndroidWorld validation-12 repeated-selection 协议、roster、纯
+> selector/prompt/evaluator 与 source-only validator；尚未接入 live environment，也没有运行任何 episode。根据
+> 2026-07-18 的路线调整，该 closed-loop P0 保留为可恢复协议但暂停执行。见
+> [`docs/exploratory_closed_loop_validation12_v1.md`](docs/exploratory_closed_loop_validation12_v1.md)。
+
+> Current route: `NO_V2_CONDITIONAL_RESCUE`、independent confirm `NO-GO` 与 Case-A failure decomposition
+> 全部保留；不再 rescue 旧 independent/conditional target，也暂不启动 closed-loop。下一版首先学习
+> budget-agnostic 的 set utility `U_theta(S)`，预算 `B` 只进入 subset search。先在新的 development 数据上用
+> `B<=2` exact labels 比较 pairwise-additive 与 DeepSets utility predictor，再用独立的小规模 `B=3/4`
+> labels 检验 zero-shot/few-shot cardinality transfer。已消费的 fresh-16/confirm-20 不用于训练、调参或新
+> holdout；matched-NLL 与 sealed test 继续 locked。历史权限链见
 > [`docs/independent_confirm_closed_loop_v1.md`](docs/independent_confirm_closed_loop_v1.md)。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration

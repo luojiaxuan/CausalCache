@@ -13,6 +13,11 @@ data/
 dataset、model weights、checkpoint、adapter。它们以 Hugging Face dataset/model repo 为 canonical
 source，并在顶层 `README.md` 和相关 result README 中记录 repo、revision/tag、schema 与生成命令。
 
+`manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
+从已 outcome-exposed 的 validation plan 中仅取 `task_index=0`，按 pre-treatment `max_steps` 分三层并以 protocol
+hash 每层机械取 4 个。它不是 rollout artifact；未来 60-episode raw traces 必须聚合成 shard 上传独立 private
+HF dataset，Git 只回写 summary、manifest 和 immutable revision。
+
 `data/cache/`、`data/raw/`、`data/staging/`、`data/local/` 与 `data/tmp/` 已被 Git 忽略，只能用于
 本地短期 staging。注意：仓库相对路径 `data/` 与容器持久挂载点绝对路径 `/data` 是两个不同概念。
 
