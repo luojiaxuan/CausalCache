@@ -17,7 +17,9 @@
 > 明确降级为已消费 development，confirm-20、legacy dev-5、matched-NLL、closed-loop、policy forward 和 GPU
 > 保持 0。协议与执行入口见
 > [`docs/set_conditioned_v3_pair_residual.md`](docs/set_conditioned_v3_pair_residual.md)；private HF model/eval
-> repo 当前均为 `pending publication`，不能把本地 staging 当 source of truth。
+> repo 当前均为 `pending publication`，不能把本地 staging 当 source of truth。preliminary Source-A=`c0de357`
+> 在首次执行前发现 A/B HEAD 契约不可满足，未读取任何 semantic data；修复版要求 `train-seal` 与 `evaluate`
+> 在任何读取/写入前共同验证唯一 clean-pushed Execution-B，并将 A、B、runner-freeze SHA 全部写入 label-blind seal。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。

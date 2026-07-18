@@ -154,11 +154,35 @@ event step tuple 字典序小者；不使用 epsilon。`safe_pair_residual` 是�
 2. formal training report；
 3. fresh-16 上三个预冻结 variant 的 feature-only predictions；
 4. `label-blind-seal.json`，状态必须为
-   `SEALED_LABEL_BLIND_SET_CONDITIONED_V3_V1`，并绑定以上全部 bytes、Source-A commit 和 contract hash。
+   `SEALED_LABEL_BLIND_SET_CONDITIONED_V3_V1`，并绑定以上全部 bytes、Source-A commit、Execution-B
+   commit、runner-freeze SHA-256 和 contract hash。
 
-预下载的 label transport bytes 不等于 semantic access；但 `evaluate` 必须先验证 seal byte-identical，
+`train-seal` 和 `evaluate` 都必须先验证同一个 clean、pushed Execution-B，且验证发生在任何输入读取或
+输出写入之前。预下载的 label transport bytes 不等于 semantic access；但 `evaluate` 还必须验证 seal
+byte-identical，
 再持久化唯一 label-access claim，之后才能 open/parse/decode label 或 join。`evaluate` 不得 retrain、
 repredict 或修改任何 sealed selection。
+
+## Source-A / Execution-B lineage
+
+第一次 preliminary Source-A `c0de357096261bcc98d2acef743f197aaf290228` 暴露出一个纯执行契约错误：
+runner commit 创建后，`HEAD` 不可能继续等于 Source-A。该 commit 没有被用于数据读取、训练或 HF mutation，
+也没有触碰 fresh-16 label 或 confirm-20；它只作为未执行的历史 freeze 保留。
+
+修复后的正式 lineage 固定为：
+
+1. Source-A 包含全部科学代码、config、测试和文档；runner-freeze 文件必须不存在，worktree clean，且
+   `HEAD == origin/luojiaxuan/set-conditioned-v3-pair-residual`；
+2. 从 Source-A inventory 机械生成 canonical compact JSON + newline 的
+   `code/configs/causalcache_set_conditioned_v3_pair_residual_runner_v1.json`；
+3. Execution-B 必须是 Source-A 的 direct single-parent child，唯一 tree diff 必须是以 mode `100644`
+   新增该 runner freeze；
+4. B validator 要求显式 Source-A/B commit、clean worktree、local tracking 和 live remote 都等于 B，并验证
+   base ancestry、runner committed blob、contract SHA 和 Source-A inventory SHA；
+5. 任何 B validation failure 都必须发生在 `_read`、training、label claim 或 evaluation 之前。
+
+runner freeze 只绑定 CPU-only execution identity、formal/fresh split role 与零 confirm/GPU 权限；它不包含
+任何训练结果或 development label，因此单文件 B 仍是机械执行提交。
 
 状态顺序固定为：
 
@@ -232,4 +256,5 @@ PYTHONPATH=. python3 -m scripts.validate_set_conditioned_v3_contract \
 ```
 
 validator 只读取 contract、Git identity 和 source inventory，不联网、不 import torch、不授权执行。
-正式 `train-seal` / `evaluate` 命令必须在 Source-A commit clean 且已 push 后由 runner 执行。
+随后必须机械创建、commit 并 push 唯一 runner-freeze Execution-B；正式 `train-seal` / `evaluate` 都只能在
+该 clean pushed B 上执行。

@@ -18,8 +18,9 @@ from causalcache.set_conditioned_v3_exploration import (
 )
 from causalcache.set_conditioned_v3_contract import (
     CANONICAL_CONFIG_PATH,
+    EXECUTION_B_RUNNER_FREEZE_PATH,
     load_frozen_set_conditioned_v3_contract,
-    validate_source_a,
+    validate_execution_b,
 )
 
 
@@ -40,10 +41,23 @@ def _parser() -> argparse.ArgumentParser:
     train.add_argument("--repository-root", type=Path, required=True)
     train.add_argument("--contract", default=CANONICAL_CONFIG_PATH)
     train.add_argument("--source-a-git-commit", required=True)
+    train.add_argument("--execution-b-git-commit", required=True)
+    train.add_argument(
+        "--execution-b-freeze",
+        default=EXECUTION_B_RUNNER_FREEZE_PATH,
+    )
 
     evaluate = subparsers.add_parser("evaluate")
     evaluate.add_argument("--input-dir", type=Path, required=True)
     evaluate.add_argument("--output-dir", type=Path, required=True)
+    evaluate.add_argument("--repository-root", type=Path, required=True)
+    evaluate.add_argument("--contract", default=CANONICAL_CONFIG_PATH)
+    evaluate.add_argument("--source-a-git-commit", required=True)
+    evaluate.add_argument("--execution-b-git-commit", required=True)
+    evaluate.add_argument(
+        "--execution-b-freeze",
+        default=EXECUTION_B_RUNNER_FREEZE_PATH,
+    )
 
     validate = subparsers.add_parser("validate")
     validate.add_argument("--output-dir", type=Path, required=True)
@@ -62,27 +76,49 @@ def _run(args: argparse.Namespace) -> Mapping[str, Any]:
             args.contract,
             repository_root=args.repository_root,
         )
-        validation = validate_source_a(
+        if args.execution_b_freeze != EXECUTION_B_RUNNER_FREEZE_PATH:
+            raise ValueError("Execution-B runner-freeze path differs from contract")
+        validation = validate_execution_b(
             args.contract,
             repository_root=args.repository_root,
+            source_a_git_commit=args.source_a_git_commit,
+            execution_b_git_commit=args.execution_b_git_commit,
         )
-        if validation["source_a"]["head"] != args.source_a_git_commit:
-            raise ValueError("requested Source-A commit differs from validated HEAD")
         return train_and_seal(
             formal_feature_archive=_read(args.input_dir / FORMAL_FEATURE_NAME),
             formal_label_archive=_read(args.input_dir / FORMAL_LABEL_NAME),
             fresh_feature_payload=_read(args.input_dir / FRESH_FEATURE_NAME),
             output_dir=args.output_dir,
             source_a_git_commit=args.source_a_git_commit,
+            execution_b_git_commit=validation["execution_b_git_commit"],
+            runner_freeze_sha256=validation["runner_freeze_sha256"],
             contract_sha256=contract.sha256,
         )
     if args.command == "evaluate":
+        if args.execution_b_freeze != EXECUTION_B_RUNNER_FREEZE_PATH:
+            raise ValueError("Execution-B runner-freeze path differs from contract")
+        validation = validate_execution_b(
+            args.contract,
+            repository_root=args.repository_root,
+            source_a_git_commit=args.source_a_git_commit,
+            execution_b_git_commit=args.execution_b_git_commit,
+        )
+        seal = verify_label_blind_seal(args.output_dir)
+        if (
+            seal.get("source_a_git_commit") != args.source_a_git_commit
+            or seal.get("execution_b_git_commit")
+            != validation["execution_b_git_commit"]
+            or seal.get("runner_freeze_sha256")
+            != validation["runner_freeze_sha256"]
+            or seal.get("contract_sha256") != validation["contract_sha256"]
+        ):
+            raise ValueError("label-blind seal differs from current Execution-B")
         if (args.output_dir / "fresh16-development-report.json").exists():
             raise ValueError(
                 "fresh16 development evaluation is already complete; use validate"
             )
-        # note (luojiaxuan): The persisted claim is verified before this process
-        # opens even one fresh-label byte, preserving the Source-A access order.
+        # note (luojiaxuan): Execution-B and the persisted claim are verified
+        # before this process opens even one fresh-label byte.
         claim_fresh_label_access(args.output_dir)
         verify_fresh_label_access_claim(args.output_dir)
         return evaluate_sealed_fresh16(

@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import itertools
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
+import scripts.run_set_conditioned_v3_exploration as v3_runner
 
 from causalcache.gate_v1_data import CandidateFeatures, FeatureState, GateState
 from causalcache.restoration_v2_2_label_table import validate_complete_distance_table
@@ -168,13 +170,112 @@ def test_label_blind_seal_precedes_access_claim(tmp_path: Path) -> None:
         {"fresh16-predictions.json": b"predictions\n"},
         training_report={"path": "training.json", "sha256": "0" * 64},
         source_a_git_commit="1" * 40,
-        contract_sha256="2" * 64,
+        execution_b_git_commit="2" * 40,
+        runner_freeze_sha256="3" * 64,
+        contract_sha256="4" * 64,
     )
     assert seal["fresh_label_access_count"] == 0
     assert verify_label_blind_seal(tmp_path)["confirm_access_count"] == 0
+    assert seal["execution_b_git_commit"] == "2" * 40
+    assert seal["runner_freeze_sha256"] == "3" * 64
     claim = claim_fresh_label_access(tmp_path)
     assert claim["fresh_label_access_claim_count"] == 1
     assert verify_fresh_label_access_claim(tmp_path)["fresh_label_decode_count"] == 0
+
+
+def test_train_lineage_failure_precedes_every_input_read(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = {"read": 0, "train": 0}
+    monkeypatch.setattr(
+        v3_runner,
+        "load_frozen_set_conditioned_v3_contract",
+        lambda *_args, **_kwargs: SimpleNamespace(sha256="1" * 64),
+    )
+    monkeypatch.setattr(
+        v3_runner,
+        "validate_execution_b",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(ValueError("bad B")),
+    )
+    monkeypatch.setattr(
+        v3_runner,
+        "_read",
+        lambda _path: calls.__setitem__("read", calls["read"] + 1),
+    )
+    monkeypatch.setattr(
+        v3_runner,
+        "train_and_seal",
+        lambda **_kwargs: calls.__setitem__("train", calls["train"] + 1),
+    )
+    args = SimpleNamespace(
+        command="train-seal",
+        input_dir=tmp_path,
+        output_dir=tmp_path / "output",
+        repository_root=tmp_path,
+        contract="contract.json",
+        source_a_git_commit="1" * 40,
+        execution_b_git_commit="2" * 40,
+        execution_b_freeze=v3_runner.EXECUTION_B_RUNNER_FREEZE_PATH,
+    )
+    with pytest.raises(ValueError, match="bad B"):
+        v3_runner._run(args)
+    assert calls == {"read": 0, "train": 0}
+
+
+def test_evaluate_lineage_or_seal_failure_precedes_claim_and_label_read(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls = {"claim": 0, "read": 0, "evaluate": 0}
+    validation = {
+        "execution_b_git_commit": "2" * 40,
+        "runner_freeze_sha256": "3" * 64,
+        "contract_sha256": "4" * 64,
+    }
+    monkeypatch.setattr(
+        v3_runner,
+        "validate_execution_b",
+        lambda *_args, **_kwargs: validation,
+    )
+    monkeypatch.setattr(
+        v3_runner,
+        "verify_label_blind_seal",
+        lambda _path: {
+            "source_a_git_commit": "1" * 40,
+            "execution_b_git_commit": "2" * 40,
+            "runner_freeze_sha256": "f" * 64,
+            "contract_sha256": "4" * 64,
+        },
+    )
+    monkeypatch.setattr(
+        v3_runner,
+        "claim_fresh_label_access",
+        lambda _path: calls.__setitem__("claim", calls["claim"] + 1),
+    )
+    monkeypatch.setattr(
+        v3_runner,
+        "_read",
+        lambda _path: calls.__setitem__("read", calls["read"] + 1),
+    )
+    monkeypatch.setattr(
+        v3_runner,
+        "evaluate_sealed_fresh16",
+        lambda **_kwargs: calls.__setitem__("evaluate", calls["evaluate"] + 1),
+    )
+    args = SimpleNamespace(
+        command="evaluate",
+        input_dir=tmp_path,
+        output_dir=tmp_path / "output",
+        repository_root=tmp_path,
+        contract="contract.json",
+        source_a_git_commit="1" * 40,
+        execution_b_git_commit="2" * 40,
+        execution_b_freeze=v3_runner.EXECUTION_B_RUNNER_FREEZE_PATH,
+    )
+    with pytest.raises(ValueError, match="seal differs"):
+        v3_runner._run(args)
+    assert calls == {"claim": 0, "read": 0, "evaluate": 0}
 
 
 def test_metrics_are_trajectory_equal_and_report_both_scales() -> None:

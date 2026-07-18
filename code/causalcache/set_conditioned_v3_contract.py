@@ -21,8 +21,12 @@ VALIDATION_STATUS = "VALID_SET_CONDITIONED_V3_PAIR_RESIDUAL_SOURCE_A_V1"
 CANONICAL_CONFIG_PATH = (
     "code/configs/causalcache_set_conditioned_v3_pair_residual_exploration_v1.json"
 )
+EXECUTION_B_RUNNER_FREEZE_PATH = (
+    "code/configs/causalcache_set_conditioned_v3_pair_residual_runner_v1.json"
+)
+EXECUTION_B_FREEZE_STATUS = "frozen_execution_b_before_v3_training"
 FROZEN_CONFIG_SHA256 = (
-    "24d5e124b74a630631d5636abcf0f2a122e24dd435e9026e48318a988cea8aaf"
+    "8e1439f981212d8d26b835f1a5994904b425f014037f8a1cebb3e364cf5bdf2f"
 )
 REQUIRED_BRANCH = "luojiaxuan/set-conditioned-v3-pair-residual"
 BASE_GIT_COMMIT = "ed8772eaa1c22794768e99e6cbe51a47f8137ce0"
@@ -218,6 +222,18 @@ def _regular_file_bytes(path: Path, *, label: str) -> bytes:
 
 
 def _validate_paths_and_prerequisites(source: Mapping[str, Any]) -> None:
+    _exact(
+        source.get("execution_b_runner_freeze_path"),
+        EXECUTION_B_RUNNER_FREEZE_PATH,
+        "Execution-B runner-freeze path",
+    )
+    for field in (
+        "execution_b_must_be_direct_single_parent_of_source_a",
+        "execution_b_runner_freeze_must_be_unique_diff",
+        "execution_b_runner_freeze_must_be_absent_during_source_a_validation",
+        "execution_b_must_be_clean_and_pushed",
+    ):
+        _exact(source.get(field), True, field)
     required = tuple(
         _safe_relative(path, "required source path")
         for path in _sequence(
@@ -585,6 +601,7 @@ def _validate_firewall_and_outputs(data: Mapping[str, Any]) -> None:
         _exact(evaluate_counts.get(forbidden_field), 0, f"evaluate {forbidden_field}")
     for field in (
         "checkpoint_and_prediction_seal_must_precede_label_access_claim",
+        "execution_b_validation_must_precede_input_read_or_output_mutation",
         "transport_byte_possession_is_not_semantic_access",
         "label_transport_download_may_precede_claim",
         "label_access_claim_must_precede_label_open_parse_or_semantic_decode",
@@ -598,6 +615,19 @@ def _validate_firewall_and_outputs(data: Mapping[str, Any]) -> None:
     seal = _mapping(machine.get("label_blind_seal"), "label-blind seal")
     _exact(seal.get("path"), "label-blind-seal.json", "seal path")
     _exact(seal.get("status"), LABEL_BLIND_SEAL_STATUS, "seal status")
+    _exact(
+        seal.get("must_bind"),
+        [
+            "five_seed_safetensors",
+            "formal_training_report",
+            "fresh_feature_only_predictions_for_all_variants",
+            "source_a_git_commit",
+            "execution_b_git_commit",
+            "runner_freeze_sha256",
+            "contract_sha256",
+        ],
+        "label-blind seal bindings",
+    )
     for counter in (
         "fresh_label_semantic_decode_count",
         "confirm20_access_count",
@@ -758,40 +788,17 @@ def _git(root: Path, *arguments: str) -> str:
     return result.stdout.strip()
 
 
-def validate_source_a(
-    path: str | Path = CANONICAL_CONFIG_PATH,
-    *,
-    repository_root: str | Path | None = None,
-) -> dict[str, Any]:
-    contract = load_frozen_set_conditioned_v3_contract(
-        path, repository_root=repository_root
-    )
-    root = contract.repository_root
-    if Path(_git(root, "rev-parse", "--show-toplevel")).resolve() != root:
-        raise ValueError("repository root differs from the Git top level")
-    branch = _git(root, "branch", "--show-current")
-    if branch != REQUIRED_BRANCH:
-        raise ValueError("v3 Source-A validation is running on the wrong branch")
-    head = _git(root, "rev-parse", "HEAD")
-    if _COMMIT.fullmatch(head) is None:
-        raise ValueError("Git HEAD is not a full lowercase commit")
-    result = subprocess.run(
-        ["git", "-C", str(root), "merge-base", "--is-ancestor", BASE_GIT_COMMIT, head],
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-    if result.returncode != 0:
-        raise ValueError("the frozen base commit is not an ancestor of Source-A")
-    if _git(root, "remote", "get-url", "origin") != ORIGIN_URL:
-        raise ValueError("origin URL differs from the frozen repository")
-
+def _source_inventory(
+    contract: SetConditionedV3Contract,
+) -> tuple[tuple[dict[str, Any], ...], str]:
     source = _mapping(contract.data["source_freeze"], "source freeze")
     inventory: list[dict[str, Any]] = []
     for relative in _sequence(source["required_source_a_paths"], "required paths"):
         path_value = _safe_relative(relative, "required source path")
-        payload = _regular_file_bytes(root / path_value, label=path_value)
+        payload = _regular_file_bytes(
+            contract.repository_root / path_value,
+            label=path_value,
+        )
         inventory.append(
             {
                 "path": path_value,
@@ -808,6 +815,129 @@ def validate_source_a(
         observed = inventory_by_path.get(relative)
         if observed != expected:
             raise ValueError(f"frozen Git prerequisite bytes drifted: {relative}")
+    frozen = tuple(inventory)
+    return frozen, sha256_bytes(canonical_json_bytes(frozen))
+
+
+def _validate_clean_pushed_branch(root: Path) -> tuple[str, str]:
+    branch = _git(root, "branch", "--show-current")
+    if branch != REQUIRED_BRANCH:
+        raise ValueError("v3 validation is running on the wrong branch")
+    head = _git(root, "rev-parse", "HEAD")
+    if _COMMIT.fullmatch(head) is None:
+        raise ValueError("Git HEAD is not a full lowercase commit")
+    dirty = _git(root, "status", "--porcelain=v1", "--untracked-files=all")
+    if dirty:
+        raise ValueError("v3 execution source must have a clean worktree")
+    tracking = _git(root, "rev-parse", f"origin/{REQUIRED_BRANCH}")
+    if tracking != head:
+        raise ValueError("v3 execution source must equal its pushed origin branch")
+    if _git(root, "remote", "get-url", "origin") != ORIGIN_URL:
+        raise ValueError("origin URL differs from the frozen repository")
+    return branch, head
+
+
+def _live_remote_branch(root: Path) -> str:
+    reference = f"refs/heads/{REQUIRED_BRANCH}"
+    output = _git(root, "ls-remote", "--exit-code", "origin", reference)
+    lines = output.splitlines()
+    suffix = f"\t{reference}"
+    if len(lines) != 1 or not lines[0].endswith(suffix):
+        raise ValueError("live origin branch response is malformed")
+    commit = lines[0][: -len(suffix)]
+    if _COMMIT.fullmatch(commit) is None:
+        raise ValueError("live origin branch commit is malformed")
+    return commit
+
+
+def _git_blob(root: Path, specification: str) -> bytes:
+    result = subprocess.run(
+        ["git", "-C", str(root), "show", specification],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if result.returncode != 0:
+        raise ValueError("committed runner-freeze blob is unavailable")
+    return result.stdout
+
+
+def execution_b_freeze_payload(
+    contract: SetConditionedV3Contract,
+    *,
+    source_a_git_commit: str,
+    source_inventory_sha256: str,
+) -> dict[str, Any]:
+    if _COMMIT.fullmatch(source_a_git_commit) is None:
+        raise ValueError("Source-A commit is malformed")
+    if _SHA256.fullmatch(source_inventory_sha256) is None:
+        raise ValueError("Source-A inventory SHA-256 is malformed")
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "protocol_id": PROTOCOL_ID,
+        "status": EXECUTION_B_FREEZE_STATUS,
+        "source_a_git_commit": source_a_git_commit,
+        "source_inventory_sha256": source_inventory_sha256,
+        "contract_sha256": contract.sha256,
+        "runner_freeze_path": EXECUTION_B_RUNNER_FREEZE_PATH,
+        "execution_b_direct_single_parent_required": True,
+        "execution_b_unique_diff": [EXECUTION_B_RUNNER_FREEZE_PATH],
+        "runtime_device": "cpu",
+        "gpu_count": 0,
+        "confirm20_access_count": 0,
+        "fresh16_role": "consumed_development_not_holdout_or_test",
+    }
+
+
+def _load_execution_b_freeze(
+    contract: SetConditionedV3Contract,
+    *,
+    source_a_git_commit: str,
+    source_inventory_sha256: str,
+) -> Mapping[str, Any]:
+    payload = _regular_file_bytes(
+        contract.repository_root / EXECUTION_B_RUNNER_FREEZE_PATH,
+        label="Execution-B runner freeze",
+    )
+    value = _strict_json(payload, label="Execution-B runner freeze")
+    expected = execution_b_freeze_payload(
+        contract,
+        source_a_git_commit=source_a_git_commit,
+        source_inventory_sha256=source_inventory_sha256,
+    )
+    if value != expected or payload != canonical_json_bytes(expected) + b"\n":
+        raise ValueError("Execution-B runner freeze differs from canonical frozen bytes")
+    return value
+
+
+def validate_source_a(
+    path: str | Path = CANONICAL_CONFIG_PATH,
+    *,
+    repository_root: str | Path | None = None,
+) -> dict[str, Any]:
+    contract = load_frozen_set_conditioned_v3_contract(
+        path, repository_root=repository_root
+    )
+    root = contract.repository_root
+    if Path(_git(root, "rev-parse", "--show-toplevel")).resolve() != root:
+        raise ValueError("repository root differs from the Git top level")
+    runner = root / EXECUTION_B_RUNNER_FREEZE_PATH
+    if runner.exists() or runner.is_symlink():
+        raise ValueError("Execution-B runner freeze must be absent from Source-A")
+    branch, head = _validate_clean_pushed_branch(root)
+    result = subprocess.run(
+        ["git", "-C", str(root), "merge-base", "--is-ancestor", BASE_GIT_COMMIT, head],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise ValueError("the frozen base commit is not an ancestor of Source-A")
+    if _git(root, "remote", "get-url", "origin") != ORIGIN_URL:
+        raise ValueError("origin URL differs from the frozen repository")
+
+    inventory, inventory_sha256 = _source_inventory(contract)
     return {
         "schema_version": SCHEMA_VERSION,
         "protocol_id": PROTOCOL_ID,
@@ -819,12 +949,95 @@ def validate_source_a(
             "base_git_commit": BASE_GIT_COMMIT,
             "origin_url": ORIGIN_URL,
             "required_path_count": len(inventory),
-            "source_inventory_sha256": sha256_bytes(canonical_json_bytes(inventory)),
-            "source_inventory": inventory,
+            "source_inventory_sha256": inventory_sha256,
+            "source_inventory": list(inventory),
         },
         "execution_authorized_by_validator": False,
         "network_call_count": 0,
         "policy_forward_count": 0,
+        "gpu_job_count": 0,
+    }
+
+
+def validate_execution_b(
+    path: str | Path = CANONICAL_CONFIG_PATH,
+    *,
+    repository_root: str | Path | None = None,
+    source_a_git_commit: str,
+    execution_b_git_commit: str,
+) -> dict[str, Any]:
+    if _COMMIT.fullmatch(source_a_git_commit) is None:
+        raise ValueError("requested Source-A commit is malformed")
+    if _COMMIT.fullmatch(execution_b_git_commit) is None:
+        raise ValueError("requested Execution-B commit is malformed")
+    contract = load_frozen_set_conditioned_v3_contract(
+        path,
+        repository_root=repository_root,
+    )
+    root = contract.repository_root
+    if Path(_git(root, "rev-parse", "--show-toplevel")).resolve() != root:
+        raise ValueError("repository root differs from the Git top level")
+    branch, head = _validate_clean_pushed_branch(root)
+    if head != execution_b_git_commit:
+        raise ValueError("requested Execution-B commit differs from validated HEAD")
+    if _live_remote_branch(root) != head:
+        raise ValueError("Execution-B differs from the live origin branch")
+    _git(root, "merge-base", "--is-ancestor", BASE_GIT_COMMIT, source_a_git_commit)
+    parents = _git(root, "rev-list", "--parents", "-n", "1", head).split()
+    if parents != [head, source_a_git_commit]:
+        raise ValueError("Execution-B must be the direct single-parent child of Source-A")
+    changed = tuple(
+        line
+        for line in _git(
+            root,
+            "diff-tree",
+            "--no-commit-id",
+            "--name-status",
+            "-r",
+            source_a_git_commit,
+            head,
+        ).splitlines()
+        if line
+    )
+    expected_change = f"A\t{EXECUTION_B_RUNNER_FREEZE_PATH}"
+    if changed != (expected_change,):
+        raise ValueError("Execution-B must differ from Source-A only by runner freeze")
+    inventory, inventory_sha256 = _source_inventory(contract)
+    freeze = _load_execution_b_freeze(
+        contract,
+        source_a_git_commit=source_a_git_commit,
+        source_inventory_sha256=inventory_sha256,
+    )
+    runner_payload = canonical_json_bytes(freeze) + b"\n"
+    if _git_blob(root, f"{head}:{EXECUTION_B_RUNNER_FREEZE_PATH}") != runner_payload:
+        raise ValueError("Execution-B runner freeze differs from its committed blob")
+    tree_record = _git(
+        root,
+        "ls-tree",
+        head,
+        "--",
+        EXECUTION_B_RUNNER_FREEZE_PATH,
+    )
+    if not tree_record.startswith("100644 blob ") or not tree_record.endswith(
+        f"\t{EXECUTION_B_RUNNER_FREEZE_PATH}"
+    ):
+        raise ValueError("Execution-B runner freeze must be a regular 100644 blob")
+    runner_freeze_sha256 = sha256_bytes(runner_payload)
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "protocol_id": PROTOCOL_ID,
+        "status": "VALID_SET_CONDITIONED_V3_PAIR_RESIDUAL_EXECUTION_B_V1",
+        "contract_sha256": contract.sha256,
+        "source_a_git_commit": source_a_git_commit,
+        "execution_b_git_commit": head,
+        "branch": branch,
+        "direct_single_parent": True,
+        "unique_diff": expected_change,
+        "runner_freeze_sha256": runner_freeze_sha256,
+        "source_inventory_sha256": inventory_sha256,
+        "required_path_count": len(inventory),
+        "runner_freeze": dict(freeze),
+        "confirm20_access_count": 0,
         "gpu_job_count": 0,
     }
 
@@ -834,6 +1047,8 @@ __all__ = [
     "CANONICAL_CONFIG_PATH",
     "EXPECTED_FORMAL_FILES",
     "EXPECTED_STATES",
+    "EXECUTION_B_FREEZE_STATUS",
+    "EXECUTION_B_RUNNER_FREEZE_PATH",
     "FORMAL_CACHE_REVISION",
     "FRESH16_FEATURE_SHA256",
     "FRESH16_LABEL_SHA256",
@@ -847,8 +1062,10 @@ __all__ = [
     "SetConditionedV3Contract",
     "VALIDATION_STATUS",
     "canonical_json_bytes",
+    "execution_b_freeze_payload",
     "load_frozen_set_conditioned_v3_contract",
     "sha256_bytes",
     "validate_contract_data",
+    "validate_execution_b",
     "validate_source_a",
 ]

@@ -1032,6 +1032,8 @@ def train_and_seal(
     fresh_feature_payload: bytes,
     output_dir: Path,
     source_a_git_commit: str,
+    execution_b_git_commit: str,
+    runner_freeze_sha256: str,
     contract_sha256: str,
     maximum_epochs: int = MAXIMUM_EPOCHS,
     patience_epochs: int = PATIENCE_EPOCHS,
@@ -1090,6 +1092,8 @@ def train_and_seal(
             "five_seed_mean_oof_score": trained.selection.five_seed_mean_score,
         },
         source_a_git_commit=source_a_git_commit,
+        execution_b_git_commit=execution_b_git_commit,
+        runner_freeze_sha256=runner_freeze_sha256,
         contract_sha256=contract_sha256,
     )
 
@@ -1401,6 +1405,8 @@ def seal_label_blind_outputs(
     *,
     training_report: Mapping[str, Any],
     source_a_git_commit: str,
+    execution_b_git_commit: str,
+    runner_freeze_sha256: str,
     contract_sha256: str,
 ) -> Mapping[str, Any]:
     """Persist model/prediction bytes and seal them before labels may be opened."""
@@ -1411,10 +1417,20 @@ def seal_label_blind_outputs(
     if (
         len(source_a_git_commit) != 40
         or any(character not in "0123456789abcdef" for character in source_a_git_commit)
+        or len(execution_b_git_commit) != 40
+        or any(
+            character not in "0123456789abcdef"
+            for character in execution_b_git_commit
+        )
+        or len(runner_freeze_sha256) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in runner_freeze_sha256
+        )
         or len(contract_sha256) != 64
         or any(character not in "0123456789abcdef" for character in contract_sha256)
     ):
-        raise ValueError("Source-A commit or contract SHA256 is malformed")
+        raise ValueError("Git or contract execution binding is malformed")
     for name in sorted(payloads):
         _write_exclusive_or_identical(output_dir / name, payloads[name])
     inventory = [
@@ -1431,6 +1447,8 @@ def seal_label_blind_outputs(
         "status": "SEALED_LABEL_BLIND_SET_CONDITIONED_V3_V1",
         "training_report": training_report,
         "source_a_git_commit": source_a_git_commit,
+        "execution_b_git_commit": execution_b_git_commit,
+        "runner_freeze_sha256": runner_freeze_sha256,
         "contract_sha256": contract_sha256,
         "payload_inventory": inventory,
         "fresh_label_access_count": 0,
@@ -1457,6 +1475,30 @@ def verify_label_blind_seal(output_dir: Path) -> Mapping[str, Any]:
         or seal.get("status") != "SEALED_LABEL_BLIND_SET_CONDITIONED_V3_V1"
         or seal.get("fresh_label_access_count") != 0
         or seal.get("confirm_access_count") != 0
+        or not isinstance(seal.get("source_a_git_commit"), str)
+        or len(seal["source_a_git_commit"]) != 40
+        or any(
+            character not in "0123456789abcdef"
+            for character in seal["source_a_git_commit"]
+        )
+        or not isinstance(seal.get("execution_b_git_commit"), str)
+        or len(seal["execution_b_git_commit"]) != 40
+        or any(
+            character not in "0123456789abcdef"
+            for character in seal["execution_b_git_commit"]
+        )
+        or not isinstance(seal.get("runner_freeze_sha256"), str)
+        or len(seal["runner_freeze_sha256"]) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in seal["runner_freeze_sha256"]
+        )
+        or not isinstance(seal.get("contract_sha256"), str)
+        or len(seal["contract_sha256"]) != 64
+        or any(
+            character not in "0123456789abcdef"
+            for character in seal["contract_sha256"]
+        )
     ):
         raise ValueError("label-blind seal schema or firewall status drifted")
     for record in seal.get("payload_inventory", ()):

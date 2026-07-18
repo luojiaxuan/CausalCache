@@ -20,6 +20,11 @@
     "required_branch": "luojiaxuan/set-conditioned-v3-pair-residual",
     "required_base_ancestor": "ed8772eaa1c22794768e99e6cbe51a47f8137ce0",
     "network_call_count": 0,
+    "execution_b_runner_freeze_path": "code/configs/causalcache_set_conditioned_v3_pair_residual_runner_v1.json",
+    "execution_b_must_be_direct_single_parent_of_source_a": true,
+    "execution_b_runner_freeze_must_be_unique_diff": true,
+    "execution_b_runner_freeze_must_be_absent_during_source_a_validation": true,
+    "execution_b_must_be_clean_and_pushed": true,
     "required_source_a_paths": [
       "README.md",
       "code/configs/causalcache_set_conditioned_v3_pair_residual_exploration_v1.json",
@@ -398,6 +403,7 @@
       "gpu_job": 0
     },
     "checkpoint_and_prediction_seal_must_precede_label_access_claim": true,
+    "execution_b_validation_must_precede_input_read_or_output_mutation": true,
     "transport_byte_possession_is_not_semantic_access": true,
     "label_transport_download_may_precede_claim": true,
     "label_access_claim_must_precede_label_open_parse_or_semantic_decode": true,
@@ -427,8 +433,10 @@
         "five_seed_safetensors",
         "formal_training_report",
         "fresh_feature_only_predictions_for_all_variants",
-        "source_a_git_commit",
-        "contract_sha256"
+      "source_a_git_commit",
+      "execution_b_git_commit",
+      "runner_freeze_sha256",
+      "contract_sha256"
       ],
       "fresh_label_semantic_decode_count": 0,
       "confirm20_access_count": 0,

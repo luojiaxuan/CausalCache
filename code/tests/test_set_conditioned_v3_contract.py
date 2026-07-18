@@ -11,12 +11,15 @@ from causalcache.set_conditioned_v3_contract import (
     CANONICAL_CONFIG_PATH,
     EXPECTED_FORMAL_FILES,
     EXPECTED_STATES,
+    EXECUTION_B_FREEZE_STATUS,
+    EXECUTION_B_RUNNER_FREEZE_PATH,
     FRESH16_FEATURE_SHA256,
     FRESH16_LABEL_SHA256,
     FROZEN_CONFIG_SHA256,
     LABEL_BLIND_SEAL_STATUS,
     PROTOCOL_ID,
     REQUIRED_BRANCH,
+    execution_b_freeze_payload,
     load_frozen_set_conditioned_v3_contract,
     validate_contract_data,
 )
@@ -50,6 +53,20 @@ class SetConditionedV3ContractTest(unittest.TestCase):
         self.assertEqual(
             lineage["v1_failure_summary"]["required_outcome"],
             "NO_V2_CONDITIONAL_RESCUE",
+        )
+        source = self.contract.data["source_freeze"]
+        self.assertEqual(
+            source["execution_b_runner_freeze_path"],
+            EXECUTION_B_RUNNER_FREEZE_PATH,
+        )
+        self.assertTrue(
+            source["execution_b_must_be_direct_single_parent_of_source_a"]
+        )
+        self.assertTrue(source["execution_b_runner_freeze_must_be_unique_diff"])
+        self.assertTrue(
+            source[
+                "execution_b_runner_freeze_must_be_absent_during_source_a_validation"
+            ]
         )
 
     def test_formal_and_consumed_development_bytes_are_exact(self) -> None:
@@ -195,6 +212,39 @@ class SetConditionedV3ContractTest(unittest.TestCase):
         )
         self.assertTrue(firewall["transport_byte_possession_is_not_semantic_access"])
         self.assertTrue(firewall["no_post_label_training_or_prediction_change"])
+        self.assertTrue(
+            firewall[
+                "execution_b_validation_must_precede_input_read_or_output_mutation"
+            ]
+        )
+        self.assertEqual(
+            machine["label_blind_seal"]["must_bind"][-4:],
+            [
+                "source_a_git_commit",
+                "execution_b_git_commit",
+                "runner_freeze_sha256",
+                "contract_sha256",
+            ],
+        )
+
+    def test_execution_b_freeze_payload_is_exact_and_non_semantic(self) -> None:
+        payload = execution_b_freeze_payload(
+            self.contract,
+            source_a_git_commit="1" * 40,
+            source_inventory_sha256="2" * 64,
+        )
+        self.assertEqual(payload["status"], EXECUTION_B_FREEZE_STATUS)
+        self.assertEqual(
+            payload["execution_b_unique_diff"],
+            [EXECUTION_B_RUNNER_FREEZE_PATH],
+        )
+        self.assertEqual(payload["runtime_device"], "cpu")
+        self.assertEqual(payload["gpu_count"], 0)
+        self.assertEqual(payload["confirm20_access_count"], 0)
+        self.assertEqual(
+            payload["fresh16_role"],
+            "consumed_development_not_holdout_or_test",
+        )
 
     def test_confirm_closed_loop_policy_gpu_and_source_operations_stay_zero(self) -> None:
         source_counts = self.contract.data["access_firewall"]["source_a_counts"]

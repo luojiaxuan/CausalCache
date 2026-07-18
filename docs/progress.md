@@ -12,18 +12,24 @@
 - safe selector 的 pair candidate 来自 five-seed mean unguarded argmax。只有至少 4/5 seed argmax 同意且至少
   4/5 seed 的 pair-minus-additive margin 严格为正才切换，否则退回同模型 additive base；
 - machine-readable config SHA256 为
-  `24d5e124b74a630631d5636abcf0f2a122e24dd435e9026e48318a988cea8aaf`。formal-58 immutable cache 是唯一
+  `8e1439f981212d8d26b835f1a5994904b425f014037f8a1cebb3e364cf5bdf2f`。formal-58 immutable cache 是唯一
   train/model-selection source；fresh-16 只允许一次 seal 后 label join，并只能输出 development interpretation；
 - `PROMISING` 需预先冻结的五项全部通过：safe-additive normalized mean delta `>=0.01`、90% bootstrap lower
   `>0`、raw mean delta `>0`、n4 normalized delta `>0`、positive trajectory 至少 `8/16`。否则输出
   `NO_DEVELOPMENT_EVIDENCE_TO_CONTINUE_SET_CONDITIONING`；两者都不能开放 confirm；
-- Source-A focused suite 为 35 passed、5 skipped；全仓为 1,354 passed、13 skipped、6 deselected、620
-  subtests passed，另将唯一 isolation-sensitive CPU test 在 clean process 单独复跑为 1 passed。5 个 lifecycle
-  deselect 是旧 A/B 已完成后仍断言 runner-freeze 不存在的历史测试，第 6 个用于避免同一 pytest process 的
-  forbidden-module 污染；skip 中 5 项 v3 test 因 Mac 未安装 PyTorch。静态 validator、compileall 与 diff-check
+- 修复后 focused suite 为 38 passed、5 skipped；全仓直接运行得到 1,357 passed、13 skipped、6 个预期历史
+  failure、620 subtests passed，另将唯一 isolation-sensitive CPU test 在 clean process 单独复跑为 1 passed。
+  5 个历史 failure 是旧 A/B 已完成后仍断言其 runner-freeze 不存在的 lifecycle test，第 6 个来自同一 pytest
+  process 的 forbidden-module 污染；skip 中 5 项 v3 test 因 Mac 未安装 PyTorch。compileall 与 diff-check
   全部通过；正式 torch suite、formal OOF 和 fresh consumed-development 尚未执行。计划 HF model
   `gavinlaw/causalcache-set-conditioned-v3-pair-residual-exploration-mobile` 与 dataset
   `gavinlaw/causalcache-set-conditioned-v3-pair-residual-development-mobile` 当前为 pending。
+- preliminary Source-A=`c0de357096261bcc98d2acef743f197aaf290228` 在执行前发现 HEAD lineage 不可满足，
+  因而从未用于数据读取、训练或 remote mutation。修复后的 contract 要求 A 上 runner freeze absent；B 为 A 的
+  direct single-parent，唯一 diff 是 canonical runner freeze。`train-seal` 与 `evaluate` 都必须在任何 input read、
+  claim 或 output write 前验证 clean pushed B；label-blind seal 进一步绑定 A、B、runner SHA 与 contract SHA。
+  修复 Source-A/Execution-B commit 尚待本次测试与 push 后回填；fresh-16 semantic label decode 与 confirm-20
+  access 仍为 0。
 
 AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
 与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
