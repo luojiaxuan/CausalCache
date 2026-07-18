@@ -10,6 +10,15 @@
 > `0.956636` normalized、`0.975350` raw，search 通过；但 oracle `G-J` positive support 只有 `10/16 < 12/16`，
 > 冻结 route 输出 `NO_V2_CONDITIONAL_RESCUE`。v1 `NO-GO` 不变，不执行 matched-NLL、closed-loop 或 confirm。
 
+> Non-mainline v3 exploration：为不干扰另一个 worktree 的 restoration-guided independent 主线，新的
+> `luojiaxuan/set-conditioned-v3-pair-residual` 分支只研究 `raw singleton utility + chronological pair
+> residual`。它在 `n<=4,B=2` 的至多 11 个 learned sets 上直接枚举，并以 4/5 seed argmax agreement +
+> 4/5 positive pair-vs-additive margin 双门决定是否退回 additive base。formal-58 是唯一训练源；fresh-16
+> 明确降级为已消费 development，confirm-20、legacy dev-5、matched-NLL、closed-loop、policy forward 和 GPU
+> 保持 0。协议与执行入口见
+> [`docs/set_conditioned_v3_pair_residual.md`](docs/set_conditioned_v3_pair_residual.md)；private HF model/eval
+> repo 当前均为 `pending publication`，不能把本地 staging 当 source of truth。
+
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
 > 新的 48 train +16 fresh-dev

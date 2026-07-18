@@ -2,6 +2,29 @@
 
 ## 当前目标
 
+### 2026-07-18：set-conditioned v3 pair-residual Source-A freeze
+
+- 这是一条与 independent paper mainline 隔离的非主线 exploration，独立 branch/worktree 为
+  `luojiaxuan/set-conditioned-v3-pair-residual` / `CausalCache-set-conditioned-v3`；原工作目录中并行出现的
+  `independent_*` 文件没有被读取、修改或纳入本分支；
+- v3 不复用失败的 iterative conditional MLP。它学习 raw singleton utility 与 chronological pair residual，
+  使用 fold-train-only RMS scale、三项 SmoothL1 与 all-feasible-set ranking；`n<=4,B=2` 最多枚举 11 个集合；
+- safe selector 的 pair candidate 来自 five-seed mean unguarded argmax。只有至少 4/5 seed argmax 同意且至少
+  4/5 seed 的 pair-minus-additive margin 严格为正才切换，否则退回同模型 additive base；
+- machine-readable config SHA256 为
+  `24d5e124b74a630631d5636abcf0f2a122e24dd435e9026e48318a988cea8aaf`。formal-58 immutable cache 是唯一
+  train/model-selection source；fresh-16 只允许一次 seal 后 label join，并只能输出 development interpretation；
+- `PROMISING` 需预先冻结的五项全部通过：safe-additive normalized mean delta `>=0.01`、90% bootstrap lower
+  `>0`、raw mean delta `>0`、n4 normalized delta `>0`、positive trajectory 至少 `8/16`。否则输出
+  `NO_DEVELOPMENT_EVIDENCE_TO_CONTINUE_SET_CONDITIONING`；两者都不能开放 confirm；
+- Source-A focused suite 为 35 passed、5 skipped；全仓为 1,354 passed、13 skipped、6 deselected、620
+  subtests passed，另将唯一 isolation-sensitive CPU test 在 clean process 单独复跑为 1 passed。5 个 lifecycle
+  deselect 是旧 A/B 已完成后仍断言 runner-freeze 不存在的历史测试，第 6 个用于避免同一 pytest process 的
+  forbidden-module 污染；skip 中 5 项 v3 test 因 Mac 未安装 PyTorch。静态 validator、compileall 与 diff-check
+  全部通过；正式 torch suite、formal OOF 和 fresh consumed-development 尚未执行。计划 HF model
+  `gavinlaw/causalcache-set-conditioned-v3-pair-residual-exploration-mobile` 与 dataset
+  `gavinlaw/causalcache-set-conditioned-v3-pair-residual-development-mobile` 当前为 pending。
+
 AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
 与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
 `NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权
