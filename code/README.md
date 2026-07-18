@@ -195,7 +195,7 @@ commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；正式 `run` /只读 replay 
 `VALID_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1` / `REVALIDATED_GATE_V1_FORMAL58_TRAIN_PUBLICATION_V1`，后者
 remote mutation count 为 `0`。完整 SHA/operation counts 见
 `data/results/gate_v1_formal58_train_v1/`。fresh-16、legacy dev-5、confirm、matched-NLL 与 closed-loop 仍 locked；
-下一步必须新建 fresh-16 evaluation Source-A，不能修改或重跑 formal trainer。
+随后已另立 fresh-16 evaluation Source-A；formal trainer 与 checkpoints 仍不可修改或重跑。
 
 fresh-16 evaluation 的 Source-A machine-readable contract 是
 `configs/causalcache_gate_v1_fresh16_evaluation_v1.json`，执行与 publication 边界见
@@ -238,8 +238,48 @@ ensemble/5-seed selections 与 conditional full decision trace 必须先 durable
 label 解封后只运行 pure sealed-decision evaluator。HF 输出必须先发布精确 9-target payload commit，
 再以 direct-child 4-target report commit + annotated tag 封存并 immutable replay；primary report 在旧 dev-5
 任何 access 之前完成。本 Source-A 的 focused suite 已通过，config-only validator 返回 37-path/全零 operation
-inventory；当前尚未读取真实 fresh-16，也没有 GO result。下一步是 commit/push A，再机械生成并单独 push 唯一
-runner-freeze B。
+inventory。原 Source-A=`97694eff…16ab` 与 Execution-B=`a8bb27cc…5645` 后续已被唯一 Hyper00 attempt 消费；
+它在任何 download/semantic decode 前因 derived repo 的 9 个历史 paths 未纳入 v1 allowlist 而永久
+pre-semantic fail closed。旧 manager 的 `run` 入口不得再次调用，且该失败不是 GO/NO-GO 结果。
+
+versioned operational repair 的 config 是
+`configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json`，SHA256
+`5ba1b2d433c01defa0faae92a163dc9a9a916d967218abdc7607bd3724829a44`；完整边界见
+`../docs/gate_v1_fresh16_inventory_repair.md`。它对 immutable derived revision 验证精确 15-path tree，但只下载原
+4 个 consumed files；scientific evaluation、roster、gate、model、labels、thresholds 与 output target paths 不变。
+正式 `run` 在 token 前验证 clean pushed B；创建新 state/artifact roots 前验证 full-15 non-label metadata、完整
+14-file GUI-Owl 本地 projection、logical `cuda:0/cuda:1` 到两张 H200 UUID 的映射与 roots absence，并把这些
+摘要写入第一条 durable runtime receipt。
+Source-A config-only 与 focused validation 为：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.validate_gate_v1_fresh16_inventory_repair_contract \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json
+PYTHONPATH=. python3 -m pytest -q \
+  tests/test_gate_v1_fresh16_inventory_repair_contract.py \
+  tests/test_gate_v1_fresh16_inventory_repair_runner.py \
+  tests/test_gate_v1_fresh16_evaluation_runner.py
+```
+
+validator 只允许返回 source-only 的 47-path inventory 与全零 semantic/network/write/model/report/HF mutation
+counts；此时 repair runner freeze 必须不存在。A push 后从 clean checkout 绑定完整 SHA，再机械生成唯一 B：
+
+```bash
+PYTHONPATH=. python3 -m scripts.manage_gate_v1_fresh16_inventory_repair validate-source \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json \
+  --source-a-git-commit <FULL_CLEAN_PUSHED_REPAIR_SOURCE_A_SHA>
+PYTHONPATH=. python3 -m scripts.manage_gate_v1_fresh16_inventory_repair materialize-runner-freeze \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json \
+  --source-a-git-commit <FULL_CLEAN_PUSHED_REPAIR_SOURCE_A_SHA>
+```
+
+B 只能新增 `configs/causalcache_gate_v1_fresh16_inventory_repair_runner_v1.json`，必须作为 A 的 direct
+single-parent child 单独 commit/push。当前仍没有新的 fresh-16 semantic access 或 GO result；新的 namespace、
+HF destination、双 H200 `capture-runtime/run/validate` argv 以 repair 文档为准。
 
 Expansion exposure 的 source-only ledger 位于
 `causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、

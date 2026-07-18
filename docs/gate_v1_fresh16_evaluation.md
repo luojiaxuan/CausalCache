@@ -3,7 +3,9 @@
 > 当前状态：formal-58 gate 已完成训练、private-HF model seal 与只读 immutable replay。fresh-16 v1
 > Source-A/Execution-B 已冻结，但 2026-07-18 的首次 formal attempt 在 derived repo exact-tree preflight
 > fail closed。**失败发生在任何 fresh trajectory/OCR/image/label semantic decode 之前；没有 fresh-16 GO、
-> 旧 dev-5、confirm、matched-NLL 或 closed-loop 结果。旧 attempt 永久保留且不可续跑。**
+> 旧 dev-5、confirm、matched-NLL 或 closed-loop 结果。旧 attempt 永久保留且不可续跑。**versioned
+> operational repair 已另立 Source-A，见
+> [`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)；当前仍无新的 semantic 结果。
 
 本协议只回答一个预注册问题：冻结的 conditional / independent ensemble 在从未参与训练或选择的
 `fresh_development` 16 条 trajectory 上，是否同时通过 `GO_SELECTOR` 与 `GO_SET_CONDITIONING`。阈值、bootstrap
@@ -34,7 +36,11 @@
   `gavinlaw/causalcache-gate-v1-fresh16-evaluation-mobile`，tag
   `gate-v1-fresh16-evaluation-v1`。v1 failure 后该 destination 仍不存在，不能把预期 URL 或 tag 写成已经发布；
 - v1 pre-semantic failure evidence：
-  [`data/results/gate_v1_fresh16_evaluation_v1_attempt/`](../data/results/gate_v1_fresh16_evaluation_v1_attempt/)。
+  [`data/results/gate_v1_fresh16_evaluation_v1_attempt/`](../data/results/gate_v1_fresh16_evaluation_v1_attempt/)；
+- versioned full-inventory repair：
+  [`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md) 与
+  [`causalcache_gate_v1_fresh16_inventory_repair_v1.json`](../code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json)，
+  SHA256 `5ba1b2d433c01defa0faae92a163dc9a9a916d967218abdc7607bd3724829a44`。
 
 ## v1 pre-semantic inventory failure
 
@@ -156,69 +162,19 @@ contract；若 fresh primary NO-GO，也必须原样保存 report，而不能先
 
 ## 当前完成度与下一步
 
-本 Source-A 已补齐 config、contract、selective loader、variable-`n` heuristics、fresh artifact builder、
-variable-image policy-vision runtime、all-selections-before-label firewall、local/remote replay、source-only validator 与
-回归测试。source-only validator 返回 37-path inventory，并明确报告 network/write/torch import/fresh semantic
-decode/model/report 全零、`evaluation_executed=false`、`execution_authorized=false`。Execution-B runner freeze 在 A 中
-仍必须不存在；这里不声称真实 fresh-16 已读取，也不声称已有 GO verdict。
+本 v1 Source-A 与其唯一 Execution-B 已成为不可重跑的历史输入。唯一 formal attempt 的状态是
+`INVALID_PRE_SEMANTIC_INPUT_INVENTORY_FAILURE`；它只证明旧 inventory allowlist 不完整，不产生 selector 或
+set-conditioning 结论。旧 37-path source-only receipt、A/B commits、两条 local receipts 与空 successor/output
+必须原样保留。
 
-唯一合法顺序是：
-
-1. 将本 Source-A 作为一个 focused commit push 到 canonical `main`；
-2. 从 clean pushed A 再运行 source/runner validator；
-3. 从 clean pushed A 机械生成唯一 runner-freeze B，验证 B 是 A 的 direct single-parent child 且只新增 runner
-   freeze，再单独 commit/push；
-4. 从 clean B 完成 Hyper H200 preflight，执行唯一 fresh-16 primary run；
-5. 先发布 9-target payload，再发布 4-target report/tag，完成 immutable replay 并将轻量 verdict 回写 Git；
-6. 只有上述步骤全部闭合，才另立 combined-21 stage；当前不读取 dev-5。
+后续执行只能走 versioned repair。repair 精确绑定 immutable derived revision 的 15-path tree，但仍只下载原来的
+4 个 consumed files；scientific contract、model、labels、roster、gate、thresholds 与 output target paths 均不变。
+新的 Source-A/B、local namespace、HF destination、验证与 Hyper00 命令统一见
+[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)。repair 完成 immutable publication
+之前，fresh-16 semantic result、GO verdict 与后续 combined-21/post-GO stages 仍全部不存在。
 
 ## 执行入口
 
-Source-A push 后，先从 clean canonical `main` 验证 A，再机械写出唯一 B 文件：
-
-```bash
-PYTHONPATH=code python3 -m scripts.manage_gate_v1_fresh16_evaluation validate-source \
-  --repository-root . \
-  --contract code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json \
-  --source-a-git-commit <SOURCE_A_SHA>
-
-PYTHONPATH=code python3 -m scripts.manage_gate_v1_fresh16_evaluation materialize-runner-freeze \
-  --repository-root . \
-  --contract code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json \
-  --source-a-git-commit <SOURCE_A_SHA>
-```
-
-B 必须作为 A 的 direct single-parent child 且唯一 diff 是 runner-freeze JSON；B push 后先在 Hyper host 调用
-`capture-runtime` 固定 Docker inspect receipt，再在同一个 unprivileged two-H200 container 内运行 `run`。科学参数
-全部显式传入，thread environment 必须等于 config；下面只保留 handoff 形状，实际 path/GPU UUID 以 preflight 与
-runtime receipt 为准：
-
-```bash
-# 在 Hyper host；host data root 必须正是 container /data 的 bind source
-PYTHONPATH=code python3 -m scripts.manage_gate_v1_fresh16_evaluation capture-runtime \
-  --repository-root . \
-  --contract code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json \
-  --execution-b-git-commit <EXECUTION_B_SHA> \
-  --container-name <SGLANG_OMNI_TIMESTAMP_CONTAINER> \
-  --host-data-root /data02/jaxan
-
-# 在上述 container 内
-PYTHONHASHSEED=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 \
-BLIS_NUM_THREADS=1 TZ=UTC LC_ALL=C.UTF-8 \
-PYTHONPATH=code python3 -m scripts.manage_gate_v1_fresh16_evaluation run \
-  --repository-root . \
-  --contract code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json \
-  --execution-b-git-commit <EXECUTION_B_SHA> \
-  --hf-token-file /data/.secrets/hf_key.txt \
-  --data-root /data \
-  --fresh-download-parent /data/tmp/gate-v1-fresh16 \
-  --model-dir <IMMUTABLE_GUI_OWL_SNAPSHOT_DIR> \
-  --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
-  --docker-inspect-receipt /data/experiments/causalcache/.gate-v1-fresh16-evaluation-v1.docker-inspect.json \
-  --device cuda:0 --gpu-uuid <GPU_UUID_0> \
-  --device cuda:1 --gpu-uuid <GPU_UUID_1>
-```
-
-完成态 `validate` 仍须使用相同 B、Docker receipt 与 two-GPU runtime，但不接收 model-dir/device 参数；它从 formal
-HF model immutable revision 重新下载 12 个文件、CPU 加载 10 checkpoint，并以 remote mutation count `0` 重放。
+原 `scripts.manage_gate_v1_fresh16_evaluation run` 入口已 tombstone，不得再次调用。所有新的 source validation、
+runner materialization、runtime capture、`run` 与 `validate` 都必须使用
+`scripts.manage_gate_v1_fresh16_inventory_repair` 及 repair contract；完整 argv 见上述 repair 文档。

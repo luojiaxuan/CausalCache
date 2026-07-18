@@ -255,6 +255,13 @@ restoration v2 exact selection/exposure 产物：
   binding。只读 replay 已通过且 remote mutation 为 0；fresh-16、旧 dev-5、confirm、matched-NLL 与
   closed-loop 仍未访问；
 
+- `results/gate_v1_fresh16_evaluation_v1_attempt/`：原 fresh-16 Source-A=`97694ef…16ab`、Execution-B=
+  `a8bb27c…5645` 的唯一 Hyper00 attempt 在 derived remote-tree preflight 永久 fail closed。immutable revision
+  实际有 15 paths，v1 allowlist 漏绑 9 个历史 paths；失败早于 download 与任何 fresh semantic decode，旧 state
+  只保留 `runtime_receipts`/`global_claim`，artifact 为空，planned HF destination 不存在。该目录只保存轻量失败
+  binding，不包含 fresh trajectory、label、feature、selection 或 report。versioned repair Source-A 见
+  `../docs/gate_v1_fresh16_inventory_repair.md`；它当前尚未生成新的 Git result 目录或 HF artifact；
+
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private
   HF immutable revision `d6b2312e...45c1` fresh-download 并完成 canonical rebuild；v2.1 NO-GO 不变；

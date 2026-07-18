@@ -870,5 +870,35 @@ CPU-only/no-GPU runtime 完成 formal-58 OOF 与 final fit；10 checkpoints、2 
 `gate-v1-formal58-train-v1` 解析到 manifest commit
 `23f6786075c7bff91f93fd7e8a878e070efb72a9`，完成态只读 replay remote mutation count 为 0，详见
 [`../data/results/gate_v1_formal58_train_v1/`](../data/results/gate_v1_formal58_train_v1/)。整个训练保持
-fresh-16、legacy dev-5、confirm-20、matched-NLL 与 closed-loop access 为 0。下一步必须另立 fresh-16
-evaluation Source-A；不能修改 formal checkpoints 或把 combined-21 混入同一 primary execution。
+fresh-16、legacy dev-5、confirm-20、matched-NLL 与 closed-loop access 为 0。后续 fresh-16 v1 A/B 已冻结，
+但其唯一 formal attempt 在 derived remote-tree preflight 永久 pre-semantic fail closed；不能修改 formal
+checkpoints、续跑 v1 或把 combined-21 混入同一 primary execution。
+
+## fresh-16 full-inventory repair 执行边界
+
+父 scientific protocol、v1 failure 与 versioned repair 的完整记录分别见
+[`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md)、
+[`../data/results/gate_v1_fresh16_evaluation_v1_attempt/`](../data/results/gate_v1_fresh16_evaluation_v1_attempt/) 和
+[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)。repair config SHA256 为
+`5ba1b2d433c01defa0faae92a163dc9a9a916d967218abdc7607bd3724829a44`。
+
+repair 的 remote metadata preflight 必须对 derived revision `630363a6adb692d72774f16dd0653a50216313ff`
+验证精确 15-path tree；下载与 byte/semantic consumption 仍只限原 4 个 label-expansion files。父协议的
+16/48/144/448 denominator、formal model、10 checkpoints、labels、gate、thresholds、bootstrap、label firewall、
+9+4 output target paths 与 49/97 双 H200 schedule全部不变。repair 只允许改变 source lineage、full-tree metadata、
+local namespace/runtime receipt 与 planned HF destination。
+
+旧 `/data/experiments/causalcache/gate-v1-fresh16-evaluation-v1`、旧空 artifact directory、旧 Docker receipt 和
+run log/start/exit 必须保留。repair `run` 先验证 clean pushed Execution-B，再在读取 token/构造 Hub client/
+创建新 state 之前 read-only 验证这些 bytes 与 14 个 successor absence；随后确认旧 HF destination 仍不存在。
+创建新 roots 前还要验证 non-label remote metadata、14-file/17,545,907,171-byte GUI-Owl 本地 projection、精确
+logical `cuda:0/cuda:1` 的 H200 UUID 映射，以及两个新 roots 均不存在；摘要进入首条 durable runtime receipt。
+新 execution namespace 是
+`gate-v1-fresh16-evaluation-inventory-repair-v1`，新 planned private HF dataset/tag 是
+`gavinlaw/causalcache-gate-v1-fresh16-inventory-repair-mobile` / `gate-v1-fresh16-inventory-repair-v1`，当前尚未创建。
+
+执行顺序固定为：source-only validation → commit/push repair A → clean-A validation → 机械生成唯一 B →
+验证 B 是只新增 runner-freeze 的 direct child 并 commit/push → Hyper preflight/精确两张 H200/runtime receipt →
+唯一 `run` → 13-target immutable `validate` → 轻量 Git result。Source-A/B、`capture-runtime`、`run` 与
+`validate` 的完整 argv 统一从 repair 文档复制，不能调用已 tombstone 的
+`scripts.manage_gate_v1_fresh16_evaluation run`。当前没有 repair semantic run、fresh GO 或 post-GO 授权。

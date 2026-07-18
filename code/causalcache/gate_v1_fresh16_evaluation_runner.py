@@ -105,6 +105,12 @@ from causalcache.gate_v1_provenance import (
     frozen_ensemble_provenance_from_manifest,
 )
 from causalcache.gate_v1_training import FittedEnsemble, ensemble_score, model_score
+from causalcache.policy.gui_owl_v2_2_vision_runtime import (
+    GUI_OWL_V2_2_EAGER_EXPECTED_GPU_NAME,
+    _canonical_gpu_uuid,
+    _validated_gpu_identity,
+)
+from causalcache.policy.gui_owl_v2_vision import verify_frozen_vision_runtime
 from causalcache.restoration_v2_2_label_table import primary_exact_subset_oracle
 
 
@@ -525,9 +531,23 @@ def _source_paths(contract: Fresh16EvaluationContract) -> tuple[str, ...]:
     if not isinstance(raw, list) or not raw:
         raise ValueError("required Source-A paths are missing")
     paths = tuple(_safe_relative(item, "Source-A path") for item in raw)
-    if len(paths) != len(set(paths)) or RUNNER_FREEZE_B_PATH in paths:
+    if len(paths) != len(set(paths)) or _runner_freeze_path(contract) in paths:
         raise ValueError("Source-A path inventory is duplicated or includes B")
     return paths
+
+
+def _runner_freeze_path(contract: Fresh16EvaluationContract) -> str:
+    """Return the Source-A-declared B path, preserving the v1 default."""
+    raw = contract.source.get("execution_b_runner_freeze")
+    if raw is None:
+        return RUNNER_FREEZE_B_PATH
+    runner = _mapping(raw, "execution-B runner freeze")
+    path = _safe_relative(runner.get("path"), "execution-B runner-freeze path")
+    if path != RUNNER_FREEZE_B_PATH and not path.startswith(
+        "code/configs/causalcache_gate_v1_fresh16_"
+    ):
+        raise ValueError("fresh16 runner-freeze path escaped the protocol namespace")
+    return path
 
 
 def _source_inventory(
@@ -655,7 +675,8 @@ def validate_source_a(
     *,
     expected_source_a_git_commit: str | None = None,
 ) -> Mapping[str, Any]:
-    runner = contract.repository_root / RUNNER_FREEZE_B_PATH
+    runner_freeze_path = _runner_freeze_path(contract)
+    runner = contract.repository_root / runner_freeze_path
     if runner.exists() or runner.is_symlink():
         raise ValueError("execution-B runner freeze must be absent from Source-A")
     source = validate_clean_pushed_source(
@@ -679,6 +700,7 @@ def _runner_freeze_payload(
     contract: Fresh16EvaluationContract,
     source: SourceIdentity,
 ) -> Mapping[str, Any]:
+    runner_freeze_path = _runner_freeze_path(contract)
     prerequisites = list(contract.source["git_prerequisites"])
     paths = list(_source_paths(contract))
     inventory_sha = sha256_bytes(canonical_json_bytes(source.source_inventory))
@@ -688,7 +710,7 @@ def _runner_freeze_payload(
         "status": RUNNER_FREEZE_STATUS,
         "contract_sha256": contract.sha256,
         "source_a_git_commit": source.head,
-        "execution_b_required_unique_diff": [RUNNER_FREEZE_B_PATH],
+        "execution_b_required_unique_diff": [runner_freeze_path],
         "required_source_a_paths": paths,
         "required_source_a_paths_sha256": sha256_bytes(canonical_json_bytes(paths)),
         "git_prerequisites": prerequisites,
@@ -723,7 +745,8 @@ def materialize_runner_freeze(
         loaded_module_inventory=tuple(record["loaded_module_inventory"]),
     )
     payload = _runner_freeze_payload(contract, source)
-    path = contract.repository_root / RUNNER_FREEZE_B_PATH
+    runner_freeze_path = _runner_freeze_path(contract)
+    path = contract.repository_root / runner_freeze_path
     _exclusive_or_identical(path, pretty_json_bytes(payload), mode=0o644)
     root = contract.repository_root
     status = tuple(
@@ -733,14 +756,15 @@ def materialize_runner_freeze(
         .splitlines()
         if line
     )
-    if status != (f"?? {RUNNER_FREEZE_B_PATH}",):
+    if status != (f"?? {runner_freeze_path}",):
         raise ValueError("runner freeze is not the unique Source-A worktree diff")
     return payload
 
 
 def load_runner_freeze(contract: Fresh16EvaluationContract) -> Mapping[str, Any]:
+    runner_freeze_path = _runner_freeze_path(contract)
     payload = _regular_file_bytes(
-        contract.repository_root / RUNNER_FREEZE_B_PATH,
+        contract.repository_root / runner_freeze_path,
         label="execution-B runner freeze",
         mode=0o644,
     )
@@ -775,7 +799,7 @@ def load_runner_freeze(contract: Fresh16EvaluationContract) -> Mapping[str, Any]
         or value.get("protocol_id") != PROTOCOL_ID
         or value.get("status") != RUNNER_FREEZE_STATUS
         or value.get("contract_sha256") != contract.sha256
-        or value.get("execution_b_required_unique_diff") != [RUNNER_FREEZE_B_PATH]
+        or value.get("execution_b_required_unique_diff") != [runner_freeze_path]
         or value.get("required_source_a_paths") != paths
         or value.get("required_source_a_paths_sha256")
         != sha256_bytes(canonical_json_bytes(paths))
@@ -827,7 +851,7 @@ def validate_execution_b_source(
         .splitlines()
         if line
     )
-    if changed != (RUNNER_FREEZE_B_PATH,):
+    if changed != (_runner_freeze_path(contract),):
         raise ValueError("Execution-B differs from Source-A outside runner freeze")
     if source.source_inventory != tuple(freeze["source_blob_inventory"]):
         raise ValueError("Execution-B source blobs differ from Source-A freeze")
@@ -3778,6 +3802,33 @@ def _configured_under_data_root(data_root: Path, configured: str, *, label: str)
     return result
 
 
+def _execution_state_namespace(contract: Fresh16EvaluationContract) -> str:
+    local = _mapping(
+        contract.data["local_first_state_machine"],
+        "fresh16 local-first state machine",
+    )
+    value = local.get("execution_namespace", "gate-v1-fresh16-evaluation-v1")
+    if not isinstance(value, str):
+        raise ValueError("fresh16 execution namespace must be text")
+    path = PurePosixPath(value)
+    if (
+        not value
+        or path.is_absolute()
+        or len(path.parts) != 1
+        or path.as_posix() != value
+        or not value.startswith("gate-v1-fresh16-evaluation-")
+    ):
+        raise ValueError("fresh16 execution namespace is not a canonical protocol name")
+    return value
+
+
+def _require_absent_run_roots(*roots: Path) -> None:
+    """Reject reused artifact or ordered-state namespaces before first write."""
+    for root in roots:
+        if os.path.lexists(root):
+            raise ValueError(f"fresh16 run root must be absent before execution: {root}")
+
+
 def _local_files(root: Path, files: Mapping[str, bytes], *, mode: int) -> Mapping[str, bytes]:
     for relative in sorted(files):
         _exclusive_or_identical(root / relative, files[relative], mode=mode)
@@ -3934,14 +3985,16 @@ def _download_primary_inputs(
 ) -> tuple[Mapping[str, bytes], Mapping[str, bytes]]:
     derived = contract.derived
     derived_records = tuple(derived["files"])
+    expected_paths, allowed_extra_paths = derived_remote_inventory(contract)
     validate_input_repo(
         api,
         repo=derived["repo"],
         repo_type=derived["repo_type"],
         revision=derived["immutable_revision"],
-        expected_paths=tuple(record["path"] for record in derived_records),
+        expected_paths=expected_paths,
         tag=derived["tag"],
         expected_private=True,
+        allowed_extra_paths=allowed_extra_paths,
     )
     with tempfile.TemporaryDirectory(prefix="gate-v1-fresh16-derived-", dir=fresh_parent) as raw:
         verified = download_verified_files(
@@ -3964,6 +4017,197 @@ def _download_primary_inputs(
         fresh_parent=fresh_parent,
     )
     return derived_payloads, model_payloads
+
+
+def derived_remote_inventory(
+    contract: Fresh16EvaluationContract,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Bind the shared derived repo without expanding the download allowlist."""
+    derived = contract.derived
+    records = tuple(derived["files"])
+    consumed = tuple(
+        _safe_relative(record["path"], "derived consumed path") for record in records
+    )
+    full_raw = derived.get("remote_tree_full_inventory_paths")
+    if full_raw is None:
+        return consumed, tuple(sorted(_ALLOWED_REPO_BASE_FILES))
+    base_raw = derived.get("remote_tree_base_paths")
+    auxiliary_raw = derived.get("remote_tree_auxiliary_paths")
+    for value, label in (
+        (full_raw, "derived full remote-tree paths"),
+        (base_raw, "derived remote-tree base paths"),
+        (auxiliary_raw, "derived remote-tree auxiliary paths"),
+    ):
+        if isinstance(value, (str, bytes, bytearray, Mapping)) or not isinstance(
+            value, Sequence
+        ):
+            raise ValueError(f"{label} must be a sequence")
+    full = tuple(
+        _safe_relative(path, "derived full remote-tree path") for path in full_raw
+    )
+    base = tuple(
+        _safe_relative(path, "derived remote-tree base path") for path in base_raw
+    )
+    auxiliary = tuple(
+        _safe_relative(path, "derived remote-tree auxiliary path")
+        for path in auxiliary_raw
+    )
+    groups = (consumed, base, auxiliary)
+    if (
+        any(len(group) != len(set(group)) for group in groups)
+        or len(full) != len(set(full))
+        or set(base) != _ALLOWED_REPO_BASE_FILES
+        or any(
+            set(left) & set(right)
+            for index, left in enumerate(groups)
+            for right in groups[index + 1 :]
+        )
+        or set(full) != set().union(*(set(group) for group in groups))
+        or tuple(sorted(full)) != full
+    ):
+        raise ValueError("derived full remote-tree inventory partition drifted")
+    return full, ()
+
+
+def validate_nonlabel_input_repos(
+    api: Any,
+    contract: Fresh16EvaluationContract,
+) -> Mapping[str, Any]:
+    """Run metadata-only input checks before creating a formal run namespace."""
+    policy = contract.data["policy_vision_input"]
+    snapshot_manifest = _strict_json(
+        _regular_file_bytes(
+            contract.repository_root / "code/configs/gui_owl_1_5_8b_snapshot.json",
+            label="GUI-Owl snapshot manifest",
+        ),
+        label="GUI-Owl snapshot manifest",
+    )
+    snapshot_files = snapshot_manifest.get("files")
+    if (
+        not isinstance(snapshot_files, list)
+        or len(snapshot_files) != policy["snapshot_file_count"]
+    ):
+        raise ValueError("GUI-Owl metadata preflight snapshot inventory drifted")
+    validate_input_repo(
+        api,
+        repo=policy["repo"],
+        repo_type="model",
+        revision=policy["immutable_revision"],
+        expected_paths=tuple(item["path"] for item in snapshot_files),
+        expected_private=False,
+    )
+
+    derived = contract.derived
+    expected_derived, allowed_derived = derived_remote_inventory(contract)
+    validate_input_repo(
+        api,
+        repo=derived["repo"],
+        repo_type=derived["repo_type"],
+        revision=derived["immutable_revision"],
+        expected_paths=expected_derived,
+        tag=derived["tag"],
+        expected_private=True,
+        allowed_extra_paths=allowed_derived,
+    )
+
+    model = contract.model
+    validate_input_repo(
+        api,
+        repo=model["repo"],
+        repo_type=model["repo_type"],
+        revision=model["manifest_commit"],
+        expected_paths=formal_model_remote_inventory(contract),
+        tag=model["tag"],
+        annotated_tag_object=model["annotated_tag_object"],
+        expected_private=True,
+    )
+    return {
+        "policy_path_count": len(snapshot_files),
+        "derived_path_count": len(expected_derived),
+        "formal_model_path_count": len(formal_model_remote_inventory(contract)),
+        "label_repo_access_count": 0,
+        "download_count": 0,
+        "semantic_decode_count": 0,
+    }
+
+
+def validate_local_policy_projection(
+    model_dir: Path,
+    snapshot_manifest: Path,
+) -> Mapping[str, Any]:
+    """Hash the complete local GUI-Owl projection before creating run state."""
+    identity = verify_frozen_vision_runtime(
+        model_dir=model_dir,
+        expected_snapshot_manifest=snapshot_manifest,
+    )
+    return {
+        "model_dir": identity.model_dir,
+        "model_repo": identity.model_repo,
+        "model_revision": identity.model_revision,
+        "snapshot_manifest_sha256": identity.snapshot_manifest_sha256,
+        "verified_model_file_count": identity.verified_model_file_count,
+        "verified_model_total_bytes": identity.verified_model_total_bytes,
+        "transformers_version": identity.transformers_version,
+        "transformers_source_sha256": dict(identity.transformers_source_sha256),
+        "model_load_count": 0,
+        "model_forward_count": 0,
+    }
+
+
+def validate_policy_gpu_assignments(
+    devices: Sequence[str],
+    gpu_uuids: Sequence[str],
+    *,
+    gpu_uuid_type_profile: str,
+    torch_module: Any | None = None,
+) -> Mapping[str, Any]:
+    """Bind logical CUDA indices to the two expected H200 UUIDs pre-state."""
+    device_values = tuple(devices)
+    uuid_values = tuple(gpu_uuids)
+    if device_values != ("cuda:0", "cuda:1"):
+        raise ValueError("fresh16 policy devices must be exact logical cuda:0/cuda:1")
+    if len(uuid_values) != 2 or len(set(uuid_values)) != 2:
+        raise ValueError("fresh16 policy GPU UUIDs must be exact and distinct")
+    if torch_module is None:
+        import torch as torch_module
+    if not torch_module.cuda.is_available() or torch_module.cuda.device_count() != 2:
+        raise RuntimeError("fresh16 policy GPU preflight requires exactly two CUDA GPUs")
+    records = []
+    for device_text, expected_uuid in zip(
+        device_values,
+        uuid_values,
+        strict=True,
+    ):
+        if _canonical_gpu_uuid(expected_uuid) != expected_uuid:
+            raise ValueError("fresh16 expected GPU UUID is not canonical")
+        device = torch_module.device(device_text)
+        if device.type != "cuda" or device.index not in {0, 1}:
+            raise ValueError("fresh16 logical CUDA device identity drifted")
+        gpu_name = torch_module.cuda.get_device_name(device)
+        if gpu_name != GUI_OWL_V2_2_EAGER_EXPECTED_GPU_NAME:
+            raise RuntimeError("fresh16 policy GPU preflight requires H200 GPUs")
+        identity = _validated_gpu_identity(
+            torch=torch_module,
+            device=device,
+            expected_gpu_uuid=expected_uuid,
+            gpu_uuid_type_profile=gpu_uuid_type_profile,
+        )
+        if identity.get("logical_device_index") != device.index:
+            raise RuntimeError("fresh16 GPU logical index mapping drifted")
+        records.append(
+            {
+                "device": device_text,
+                "gpu_name": gpu_name,
+                **identity,
+            }
+        )
+    return {
+        "assignments": records,
+        "cuda_device_count": 2,
+        "gpu_uuid_type_profile": gpu_uuid_type_profile,
+        "model_load_count": 0,
+        "model_forward_count": 0,
+    }
 
 
 def download_formal_model_payloads(
@@ -4060,6 +4304,7 @@ def execute_fresh16_evaluation(
     docker_inspect_receipt: Path | None,
     devices: Sequence[str],
     gpu_uuids: Sequence[str],
+    execution_preflight: Mapping[str, Any] | None = None,
 ) -> Mapping[str, Any]:
     """Run or replay the one sealed fresh-16 primary evaluation state machine."""
     if mode not in {"run", "validate"}:
@@ -4095,7 +4340,12 @@ def execute_fresh16_evaluation(
         or len(set(gpu_uuids)) != 2
     ):
         raise ValueError("fresh16 run mode requires exactly two distinct GPUs")
-
+    policy = contract.data["policy_vision_input"]
+    gpu_assignment_preflight = validate_policy_gpu_assignments(
+        devices,
+        gpu_uuids,
+        gpu_uuid_type_profile=policy["gpu_uuid_type_profile"],
+    )
     artifact_root = _configured_under_data_root(
         data_root,
         contract.data["local_first_state_machine"]["artifact_directory"],
@@ -4105,20 +4355,12 @@ def execute_fresh16_evaluation(
         data_root,
         contract.data["local_first_state_machine"]["state_directory"],
         label="fresh16 state directory",
-    ) / "gate-v1-fresh16-evaluation-v1"
-    image_root = artifact_root / "selected-images"
-    artifact_root.mkdir(parents=True, exist_ok=True)
-    state_root.mkdir(parents=True, exist_ok=True)
-    state_chain = DurableStateChain(
-        state_root,
-        contract.data["local_first_state_machine"]["ordered_states"],
-    )
-    if state_chain.verify_prefix():
-        raise ValueError(
-            "incomplete prior ordered-state chain requires manual audit; run is not resumable"
-        )
-    # note (luojiaxuan): Run mode is deliberately non-resumable. Completed
-    # remotes must use validate mode; any target file here is a conflicting run.
+    ) / _execution_state_namespace(contract)
+    _require_absent_run_roots(artifact_root, state_root)
+
+    # note (luojiaxuan): The operational repair preflight must finish before a
+    # new local namespace is created. These checks use metadata only and never
+    # touch the label repo, download payload bytes, or decode fresh semantics.
     try:
         _, existing_files = _repo_snapshot(api, contract)
     except Exception as error:
@@ -4130,7 +4372,6 @@ def execute_fresh16_evaluation(
             raise ValueError("existing fresh16 targets require immutable validate mode")
 
     snapshot_payload = _regular_file_bytes(snapshot_manifest, label="GUI-Owl snapshot manifest")
-    policy = contract.data["policy_vision_input"]
     if sha256_bytes(snapshot_payload) != policy["snapshot_manifest_sha256"]:
         raise ValueError("GUI-Owl snapshot manifest digest drifted")
     snapshot = _strict_json(snapshot_payload, label="GUI-Owl snapshot manifest")
@@ -4142,28 +4383,45 @@ def execute_fresh16_evaluation(
         or len(snapshot_files) != policy["snapshot_file_count"]
     ):
         raise ValueError("GUI-Owl snapshot manifest identity or inventory drifted")
-    validate_input_repo(
-        api,
-        repo=policy["repo"],
-        repo_type="model",
-        revision=policy["immutable_revision"],
-        expected_paths=tuple(item["path"] for item in snapshot_files),
-        expected_private=False,
+    metadata_preflight = validate_nonlabel_input_repos(api, contract)
+    local_policy_projection = validate_local_policy_projection(
+        model_dir,
+        snapshot_manifest,
     )
-    state_chain.append(
-        "runtime_receipts",
-        {
-            "source_git_commit": source.head,
-            "contract_sha256": contract.sha256,
-            "snapshot_manifest_sha256": sha256_bytes(snapshot_payload),
-            "snapshot_file_count": len(snapshot_files),
-            "devices": list(devices),
-            "gpu_uuids": list(gpu_uuids),
-            "policy_model_revision": policy["immutable_revision"],
-            "docker_inspect_receipt_sha256": runtime_identity.receipt_sha256,
-            "runtime": dict(runtime_identity.payload),
-        },
+
+    image_root = artifact_root / "selected-images"
+    # note (luojiaxuan): Recheck after remote/model preflight so a competing
+    # creator cannot claim either non-resumable root during the validation gap.
+    _require_absent_run_roots(artifact_root, state_root)
+    artifact_root.mkdir(parents=True, exist_ok=True)
+    state_root.mkdir(parents=True, exist_ok=True)
+    state_chain = DurableStateChain(
+        state_root,
+        contract.data["local_first_state_machine"]["ordered_states"],
     )
+    if state_chain.verify_prefix():
+        raise ValueError(
+            "incomplete prior ordered-state chain requires manual audit; run is not resumable"
+        )
+    runtime_receipt_payload = {
+        "source_git_commit": source.head,
+        "contract_sha256": contract.sha256,
+        "snapshot_manifest_sha256": sha256_bytes(snapshot_payload),
+        "snapshot_file_count": len(snapshot_files),
+        "devices": list(devices),
+        "gpu_uuids": list(gpu_uuids),
+        "policy_model_revision": policy["immutable_revision"],
+        "docker_inspect_receipt_sha256": runtime_identity.receipt_sha256,
+        "runtime": dict(runtime_identity.payload),
+        "nonlabel_metadata_preflight": dict(metadata_preflight),
+        "local_policy_projection_preflight": dict(local_policy_projection),
+        "policy_gpu_assignment_preflight": dict(gpu_assignment_preflight),
+    }
+    if execution_preflight is not None:
+        runtime_receipt_payload["execution_preflight"] = dict(
+            _mapping(execution_preflight, "fresh16 execution preflight")
+        )
+    state_chain.append("runtime_receipts", runtime_receipt_payload)
     state_chain.append(
         "global_claim",
         {
@@ -4657,6 +4915,7 @@ __all__ = [
     "download_formal_model_payloads",
     "download_labels_after_claim",
     "download_verified_files",
+    "derived_remote_inventory",
     "evaluate_and_build_report_files",
     "execute_fresh16_evaluation",
     "extract_selected_image_payloads",
@@ -4680,6 +4939,9 @@ __all__ = [
     "validate_execution_b_source",
     "validate_execution_runtime",
     "validate_input_repo",
+    "validate_nonlabel_input_repos",
+    "validate_local_policy_projection",
+    "validate_policy_gpu_assignments",
     "validate_operation_counts",
     "validate_policy_worker_results",
     "validate_source_a",

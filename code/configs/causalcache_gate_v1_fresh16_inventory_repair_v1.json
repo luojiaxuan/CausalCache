@@ -1,0 +1,222 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_gate_v1_fresh16_inventory_repair_v1",
+  "status": "source_only_frozen_before_fresh16_inventory_repair_semantic_access",
+  "parent_contract": {
+    "path": "code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json",
+    "protocol_id": "causalcache_gate_v1_fresh16_evaluation_v1",
+    "sha256": "c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e",
+    "size_bytes": 25334
+  },
+  "source_lineage": {
+    "parent_source_a_git_commit": "97694eff052ecbdc5f12f58b6f9ee10f4dd616ab",
+    "parent_execution_b_git_commit": "a8bb27ccf9b8820c1d8487f63883f813e6845645",
+    "failure_evidence_git_commit": "2d85d088591fa1c7196f2a8e220439120f64f600",
+    "parent_execution_b_runner_freeze": {
+      "path": "code/configs/causalcache_gate_v1_fresh16_evaluation_runner_v1.json",
+      "sha256": "539db6112184d169f57d6f912399cc1b159d8590a53b3f76378b455c460e211b",
+      "size_bytes": 20702
+    },
+    "failure_summary": {
+      "path": "data/results/gate_v1_fresh16_evaluation_v1_attempt/summary.json",
+      "sha256": "43f005ef6ac80f71283b4346d515a47c9ed16e552e1657b6947163f2695d2354",
+      "size_bytes": 3430
+    },
+    "failure_readme": {
+      "path": "data/results/gate_v1_fresh16_evaluation_v1_attempt/README.md",
+      "sha256": "5d4f216c509811dbee4e9d7f1f6f65af8a377a5d7d8bd20492201fbf767ee363",
+      "size_bytes": 1889
+    },
+    "repair_source_a_paths": [
+      "code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json",
+      "code/causalcache/gate_v1_fresh16_inventory_repair_contract.py",
+      "code/scripts/validate_gate_v1_fresh16_inventory_repair_contract.py",
+      "code/tests/test_gate_v1_fresh16_inventory_repair_contract.py",
+      "code/causalcache/gate_v1_fresh16_inventory_repair_runner.py",
+      "code/scripts/manage_gate_v1_fresh16_inventory_repair.py",
+      "code/tests/test_gate_v1_fresh16_inventory_repair_runner.py"
+    ],
+    "execution_b_runner_freeze": {
+      "path": "code/configs/causalcache_gate_v1_fresh16_inventory_repair_runner_v1.json",
+      "must_be_absent_during_source_only_validation": true,
+      "only_allowed_execution_b_source_tree_diff": true,
+      "direct_single_parent_child_of_source_a": true,
+      "bind_required_source_a_paths": true,
+      "bind_git_prerequisites": true,
+      "bind_source_a_inventory_sha256": true,
+      "bind_loaded_module_inventory_sha256": true
+    }
+  },
+  "inventory_repair": {
+    "scope": {
+      "failure_stage": "derived_input_inventory_validation_before_download",
+      "metadata_only_inventory_repair": true,
+      "consumed_input_bytes_changed": false,
+      "scientific_protocol_changed": false,
+      "output_target_paths_changed": false,
+      "fresh_semantic_access_before_execution_b_allowed": false
+    },
+    "parent_failure": {
+      "status": "INVALID_PRE_SEMANTIC_INPUT_INVENTORY_FAILURE",
+      "source_a_git_commit": "97694eff052ecbdc5f12f58b6f9ee10f4dd616ab",
+      "execution_b_git_commit": "a8bb27ccf9b8820c1d8487f63883f813e6845645",
+      "parent_contract_sha256": "c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e",
+      "old_state_namespace": "/data/experiments/causalcache/gate-v1-fresh16-evaluation-v1",
+      "ordered_receipts": [
+        {
+          "state_name": "runtime_receipts",
+          "path": "/data/experiments/causalcache/gate-v1-fresh16-evaluation-v1/ordered-state-receipts/00-runtime_receipts.json",
+          "mode": 384,
+          "size_bytes": 2535,
+          "sha256": "b27fbf6f80e46fdc7d50d862508783d0bec8e073d662db52ba2b3b979d037c9e"
+        },
+        {
+          "state_name": "global_claim",
+          "path": "/data/experiments/causalcache/gate-v1-fresh16-evaluation-v1/ordered-state-receipts/01-global_claim.json",
+          "mode": 384,
+          "size_bytes": 858,
+          "sha256": "23955e7cd7d81306888a11d3bbecf318339ce77d8943fc243ff239419498d6c5"
+        }
+      ],
+      "expected_absent_successor_state_names": [
+        "transport_verification",
+        "label_blind_cpu_completion",
+        "checkpoint_replay_completion",
+        "policy_worker_even_completion",
+        "policy_worker_odd_completion",
+        "heuristic_local_seal",
+        "label_access_claim",
+        "label_cache_completion",
+        "remote_base_receipt",
+        "payload_commit_receipt",
+        "primary_report_completion",
+        "report_commit_receipt",
+        "completion_staging",
+        "final_completion"
+      ],
+      "old_artifact_directory": "/data/artifacts/causalcache/gate-v1-fresh16-evaluation-v1",
+      "old_artifact_directory_expected_empty": true,
+      "run_evidence": {
+        "log": {
+          "path": "/data/logs/gate-v1-fresh16-evaluation-v1.run.log",
+          "mode": 384,
+          "size_bytes": 1386,
+          "sha256": "348d821024c3ab49f6c8d7185f18d10727b6d909aa4eb57c0061d0aa08a0a1dd"
+        },
+        "started": {
+          "path": "/data/logs/gate-v1-fresh16-evaluation-v1.run.started",
+          "mode": 384,
+          "size_bytes": 21,
+          "sha256": "f01a0bce707e6ec8c90d708a65fb668e1c6baf8e81567e93f4882f3e415ad7d1"
+        },
+        "exit": {
+          "path": "/data/logs/gate-v1-fresh16-evaluation-v1.run.exit",
+          "mode": 384,
+          "size_bytes": 2,
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        }
+      },
+      "old_runtime_receipt": {
+        "path": "/data/experiments/causalcache/.gate-v1-fresh16-evaluation-v1.docker-inspect.json",
+        "mode": 384,
+        "size_bytes": 18117,
+        "sha256": "7eccdc0cf09ec6e8e2d771b6de50793d53011daba28fc24e21d627335a1d3043"
+      },
+      "old_destination": {
+        "repo": "gavinlaw/causalcache-gate-v1-fresh16-evaluation-mobile",
+        "repo_type": "dataset",
+        "tag": "gate-v1-fresh16-evaluation-v1",
+        "expected_absent": true,
+        "remote_mutation_count": 0
+      }
+    },
+    "derived_remote_tree": {
+      "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+      "repo_type": "dataset",
+      "immutable_revision": "630363a6adb692d72774f16dd0653a50216313ff",
+      "exact_remote_path_count": 15,
+      "full_inventory_sha256": "f881b67d028dfe7ce147df0611213a2b9147b2a1432563180e68ebfaee47a202",
+      "require_exact_no_extra_paths": true,
+      "download_only_consumed_paths": true,
+      "consumed_files": [
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/images-00000-of-00001.tar",
+          "sha256": "9e879e3ca59e7db058a68366a4289f578f0af67dabff2f3c517809fe03cb3ecf",
+          "size_bytes": 343674880
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/manifest.json",
+          "sha256": "12d6ae78e8ef8750ee0dfb004653856316e0845bd3c498f96232b919bf8e7947",
+          "size_bytes": 8445
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/ocr-records-00000-of-00001.jsonl",
+          "sha256": "a1a0a979a74f026dd466df6c5e956c741110e34102cee0ff996695863c749dd8",
+          "size_bytes": 2972989
+        },
+        {
+          "path": "derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl",
+          "sha256": "fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d",
+          "size_bytes": 1245673
+        }
+      ],
+      "base_paths": [
+        ".gitattributes",
+        "README.md"
+      ],
+      "historical_auxiliary_paths": [
+        "derived/restoration-v2-v1/images-00000-of-00001.tar",
+        "derived/restoration-v2-v1/manifest.json",
+        "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+        "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+        "golden/real-screen-v1/images-00000-of-00001.tar",
+        "golden/real-screen-v1/manifest.json",
+        "golden/real-screen-v1/ocr-records-00000-of-00001.jsonl",
+        "runs/restoration-v2-substrate-screening-v1/artifact_manifest.json",
+        "runs/restoration-v2-substrate-screening-v1/restoration-v2-substrate-screening-20260715T182823Z.tar.gz"
+      ],
+      "full_inventory_paths": [
+        ".gitattributes",
+        "README.md",
+        "derived/restoration-v2-label-expansion-v1/images-00000-of-00001.tar",
+        "derived/restoration-v2-label-expansion-v1/manifest.json",
+        "derived/restoration-v2-label-expansion-v1/ocr-records-00000-of-00001.jsonl",
+        "derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl",
+        "derived/restoration-v2-v1/images-00000-of-00001.tar",
+        "derived/restoration-v2-v1/manifest.json",
+        "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+        "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+        "golden/real-screen-v1/images-00000-of-00001.tar",
+        "golden/real-screen-v1/manifest.json",
+        "golden/real-screen-v1/ocr-records-00000-of-00001.jsonl",
+        "runs/restoration-v2-substrate-screening-v1/artifact_manifest.json",
+        "runs/restoration-v2-substrate-screening-v1/restoration-v2-substrate-screening-20260715T182823Z.tar.gz"
+      ]
+    }
+  },
+  "effective_overrides": {
+    "execution_namespace": "gate-v1-fresh16-evaluation-inventory-repair-v1",
+    "artifact_directory": "/data/artifacts/causalcache/gate-v1-fresh16-evaluation-inventory-repair-v1",
+    "docker_inspect_receipt": {
+      "status": "CAPTURED_GATE_V1_FRESH16_INVENTORY_REPAIR_DOCKER_INSPECT_V1",
+      "path": "/data/experiments/causalcache/.gate-v1-fresh16-evaluation-inventory-repair-v1.docker-inspect.json"
+    },
+    "destination": {
+      "repo": "gavinlaw/causalcache-gate-v1-fresh16-inventory-repair-mobile",
+      "tag": "gate-v1-fresh16-inventory-repair-v1",
+      "tag_message": "Freeze CausalCache gate v1 fresh16 inventory-repair evaluation"
+    }
+  },
+  "source_only_contract": {
+    "network_call_count": 0,
+    "file_write_count": 0,
+    "torch_import_count": 0,
+    "fresh16_semantic_access_count": 0,
+    "model_load_count": 0,
+    "model_forward_count": 0,
+    "primary_report_count": 0,
+    "hf_mutation_count": 0,
+    "evaluation_executed": false,
+    "execution_authorized": false
+  }
+}

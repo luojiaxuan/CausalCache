@@ -11,10 +11,12 @@ USTAR 与 private HF immutable revision 已完成 fresh-download 复核。restor
 preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replacement v2 已完成 45/45 states，并闭合
 420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
 HF immutable artifact。当前已有 offline teacher labels、oracle 上界与 10 个 immutable learned gate checkpoint，
-formal model seal 已闭合；fresh-16 evaluation Source-A 已冻结 exact 16/48/144/448 denominator、variable-`n`
-heuristics、双 H200 49-batch/97-forward schedule、all-selections-before-label firewall 与 9+4 two-commit publication。
-但真实 fresh-16 semantic access 仍为 0，也仍没有 fresh-16 GO、matched-NLL pairs、closed-loop 方法效果或
-confirm policy output。selector geometry 的 versioned reporting repair 已完成并支持
+formal model seal 已闭合；fresh-16 v1 已冻结 exact 16/48/144/448 denominator、variable-`n` heuristics、双 H200
+49-batch/97-forward schedule、all-selections-before-label firewall 与 9+4 two-commit publication，但其唯一
+formal attempt 在 derived remote-tree preflight 永久 pre-semantic fail closed。versioned inventory-repair Source-A
+现已精确绑定完整 15-path tree，同时保持只下载原 4 个 consumed files 与全部科学语义不变。真实 fresh-16
+semantic access 仍为 0，也仍没有 fresh-16 GO、matched-NLL pairs、closed-loop 方法效果或 confirm policy output。
+selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
 v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00 完成 15-state formal aggregate、
@@ -43,10 +45,12 @@ REVALIDATED`，但原 producer 不重分类。repaired archive+sidecar 已发布
 immutable commit 为 `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，幂等 replay 与独立只读 postflight 均通过。
 formal-58 label-data prerequisite 已满足，train-only repair cache 与 formal training 均完成 private-HF immutable
 replay。Source-A=`e20f004…b9`、唯一 Execution-B=`bad28b7…a2f2` 已闭合 20 个 OOF trials、100 条 fold
-tracks 与 10 个 final checkpoint；fresh-16 evaluation Source-A 代码与 source-only validation 已闭合，下一步是
-commit/push A、机械 freeze/push B，再进行唯一 primary GO。尚未打开 fresh-16、旧 dev-5 或 confirm。fresh
-Source-A 的当前说明见 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md)；在 A commit/push 与机械 B freeze/push 前，
-任何真实 fresh input 都不能读取。
+tracks 与 10 个 final checkpoint。fresh-16 v1 A/B 与 pre-semantic failure evidence 已封存；当前步骤是先
+commit/push inventory-repair A，从 clean A 机械 freeze/push 唯一 repair B，再进行新的唯一 primary GO。
+尚未打开 fresh-16、旧 dev-5 或 confirm。父协议与 repair 说明分别见
+[`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md) 和
+[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)；repair B push 前任何真实 fresh
+input 都不能读取。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -2224,11 +2228,13 @@ exact labels、ledger-neutral repair 与 repaired-label private-HF publication �
 execution 仍永久 pre-semantic fail-closed；其 one-leaf transport-repair 已从 Source-A/Execution-B 完成 Hyper00
 no-GPU cache build、exact-three private-HF publication、fresh immutable replay 与只读 revalidation。formal-58
 cache 已被唯一 formal training B 消费；OOF/final fit、10-checkpoint private-HF publication 与只读 replay 均闭合。
-当前仍没有 fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。fresh-16 Source-A 当前正把 model seal
-作为 immutable input，并冻结 exact 16 trajectories / 48 states / 144 candidate features / 448 distances、
-variable-`n` heuristic、selective fresh loader、两张 H200 的 49 processor batches / 97 vision forwards、
-selection-before-label firewall 与 9-target payload + 4-target report direct chain。下一步先完成 focused/full
-regression并 commit/push A，再机械生成唯一 B 并单独 push，最后才运行一次性 primary GO。primary report 必须先
+当前仍没有 fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。fresh-16 v1 已冻结 exact 16 trajectories /
+48 states / 144 candidate features / 448 distances、variable-`n` heuristic、selective fresh loader、两张 H200 的
+49 processor batches / 97 vision forwards、selection-before-label firewall 与 9-target payload + 4-target report
+direct chain，但唯一 v1 execution 因 remote-tree allowlist 漏绑历史 paths 而在 download/semantic decode 前永久
+fail closed。现在只允许推进 inventory-repair Source-A：验证完整 15-path tree、只下载原 4 个 consumed files，
+并保持 scientific contract/model/labels/roster/gate/thresholds/output targets 不变。下一步是 commit/push repair A，
+从 clean A 机械生成唯一 repair B 并单独 push，再在新 namespace 上运行一次性 primary GO。primary report 必须先
 hash/tag/immutable replay，之后才能另立 combined-21 stage 读取旧 dev-5。不得依据 train-only OOF 改
 architecture、LR、epoch、loss、threshold 或 seed，也不得把 combined-21 混入同一 execution。
 
@@ -2659,3 +2665,32 @@ architecture、LR、epoch、loss、threshold 或 seed，也不得把 combined-21
 - 旧 v1 不删除、不覆盖、不续跑，也不解释为 selector NO-GO。轻量证据在
   `data/results/gate_v1_fresh16_evaluation_v1_attempt/`。下一步另立 full-remote-inventory repair A/B，绑定旧 failure
   receipts 与 successor absence，切换新 state/artifact/runtime-receipt namespace后才能再次授权 fresh access。
+
+### 2026-07-18：fresh-16 full-inventory repair Source-A
+
+- 新增 operational overlay
+  `code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json`，SHA256
+  `5ba1b2d433c01defa0faae92a163dc9a9a916d967218abdc7607bd3724829a44`。它绑定父 A/B、failure evidence commit、
+  旧两条 receipt、14 个 successor absence、空 artifact directory、run log/start/exit 与旧 HF destination absence；
+- immutable derived revision 的 exact tree 冻结为 15 paths，path-list SHA256 为
+  `f881b67d028dfe7ce147df0611213a2b9147b2a1432563180e68ebfaee47a202`：4 consumed + 2 base + 9
+  historical auxiliary。remote metadata preflight 验证完整树，但 download/byte check/semantic input 仍只处理原
+  4 个 consumed files；
+- effective-delta proof 保证 `evaluation_contract`、`formal_model_input`、`label_input` 与 `output_contract` 完全不变；
+  roster、gate、checkpoint、model、labels、thresholds、bootstrap、9+4 output targets 与双 H200 schedule 均未修改；
+- repair 使用新 execution namespace `gate-v1-fresh16-evaluation-inventory-repair-v1`、新 artifact/runtime-receipt
+  paths，以及 planned private HF dataset `gavinlaw/causalcache-gate-v1-fresh16-inventory-repair-mobile` / tag
+  `gate-v1-fresh16-inventory-repair-v1`。当前该 destination 尚未创建；
+- source-only validator 返回 `VALID_SOURCE_ONLY_GATE_V1_FRESH16_INVENTORY_REPAIR_V1`、47-path inventory，
+  B absent，所有 network/write/torch/fresh semantic/model/report/HF mutation counts 为 0，且 execution
+  authorization=false。focused repair/parent-runner regression 为 73 passed、8 subtests；全仓回归为 1,231
+  passed、16 skipped，另有 3 个只在历史 Source-A 阶段要求旧 formal/fresh runner-freeze B 不存在的 lifecycle
+  tests，因这些 B 已合法封存而预期失败；将这 3 项显式 deselect 后其余 suite 全绿。当前没有新的 semantic
+  result 或 GO verdict；
+- run fail-closed 顺序进一步固定为 clean pushed B → retained v1 evidence → token/HF read → parent delegate；新
+  roots 创建前还会验证 full-15 non-label metadata、14-file/17,545,907,171-byte GUI-Owl projection、精确
+  `cuda:0/cuda:1` H200 UUID 映射与 roots absence，并将这些摘要写入第一条 durable runtime receipt；
+- 本 milestone commit/push 即 repair A；随后从 clean pushed A 重放 source validator，机械生成唯一
+  `code/configs/causalcache_gate_v1_fresh16_inventory_repair_runner_v1.json` 并作为 direct-child B 单独
+  commit/push；随后才能在 Hyper00 新 namespace 上执行唯一双 H200 run 与 immutable validate。完整交接见
+  `docs/gate_v1_fresh16_inventory_repair.md`。

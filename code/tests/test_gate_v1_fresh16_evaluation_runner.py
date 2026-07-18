@@ -611,6 +611,356 @@ def test_private_formal_input_accepts_exact_sixteen_tree_only():
         )
 
 
+def test_repair_derived_inventory_requires_exact_full_tree_without_downloading_extras():
+    consumed = "derived/current/trajectories.jsonl"
+    auxiliary = ("derived/legacy/data.tar", "runs/legacy/manifest.json")
+    full = tuple(sorted((".gitattributes", "README.md", consumed, *auxiliary)))
+    contract = SimpleNamespace(
+        derived={
+            "files": [{"path": consumed}],
+            "remote_tree_base_paths": [".gitattributes", "README.md"],
+            "remote_tree_auxiliary_paths": list(auxiliary),
+            "remote_tree_full_inventory_paths": list(full),
+        }
+    )
+    assert runner.derived_remote_inventory(contract) == (full, ())
+
+    missing = SimpleNamespace(
+        derived={
+            **contract.derived,
+            "remote_tree_full_inventory_paths": list(full[:-1]),
+        }
+    )
+    with pytest.raises(ValueError, match="partition"):
+        runner.derived_remote_inventory(missing)
+
+    unexpected = SimpleNamespace(
+        derived={
+            **contract.derived,
+            "remote_tree_full_inventory_paths": [*full, "unexpected"],
+        }
+    )
+    with pytest.raises(ValueError, match="partition"):
+        runner.derived_remote_inventory(unexpected)
+
+
+def test_repair_primary_download_validates_full_tree_but_fetches_only_consumed(
+    tmp_path, monkeypatch
+):
+    payloads = {f"consumed/{index}.bin": bytes([index]) for index in range(4)}
+    records = tuple(
+        {
+            "path": path,
+            "sha256": _sha(payload),
+            "size_bytes": len(payload),
+        }
+        for path, payload in payloads.items()
+    )
+    base = (".gitattributes", "README.md")
+    auxiliary = tuple(f"history/{index}.bin" for index in range(9))
+    full = tuple(sorted((*payloads, *base, *auxiliary)))
+    contract = SimpleNamespace(
+        derived={
+            "repo": "owner/derived",
+            "repo_type": "dataset",
+            "immutable_revision": "a" * 40,
+            "tag": "derived-v1",
+            "files": records,
+            "remote_tree_base_paths": list(base),
+            "remote_tree_auxiliary_paths": list(auxiliary),
+            "remote_tree_full_inventory_paths": list(full),
+        }
+    )
+    validations = []
+    monkeypatch.setattr(
+        runner,
+        "validate_input_repo",
+        lambda *_args, **kwargs: validations.append(kwargs),
+    )
+    downloaded_records = []
+
+    def download_verified_files(**kwargs):
+        downloaded_records.extend(kwargs["records"])
+        result = {}
+        for record in kwargs["records"]:
+            path = kwargs["local_root"] / record["path"]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(payloads[record["path"]])
+            result[record["path"]] = runner.VerifiedRemoteFile(
+                path=record["path"],
+                local_path=path,
+                sha256=record["sha256"],
+                size_bytes=record["size_bytes"],
+            )
+        return result
+
+    monkeypatch.setattr(runner, "download_verified_files", download_verified_files)
+    monkeypatch.setattr(
+        runner,
+        "download_formal_model_payloads",
+        lambda **_kwargs: {},
+    )
+    derived_payloads, model_payloads = runner._download_primary_inputs(
+        api=object(),
+        download_fn=lambda **_kwargs: "",
+        contract=contract,
+        fresh_parent=tmp_path,
+    )
+    assert validations[0]["expected_paths"] == full
+    assert validations[0]["allowed_extra_paths"] == ()
+    assert tuple(item["path"] for item in downloaded_records) == tuple(payloads)
+    assert derived_payloads == payloads
+    assert model_payloads == {}
+
+
+def test_repair_execution_namespace_and_runner_freeze_path_are_contract_bound():
+    contract = SimpleNamespace(
+        data={
+            "local_first_state_machine": {
+                "execution_namespace": (
+                    "gate-v1-fresh16-evaluation-input-inventory-repair-v1"
+                )
+            }
+        },
+        source={
+            "execution_b_runner_freeze": {
+                "path": (
+                    "code/configs/causalcache_gate_v1_fresh16_"
+                    "inventory_repair_runner_v1.json"
+                )
+            }
+        },
+    )
+    assert runner._execution_state_namespace(contract).endswith("inventory-repair-v1")
+    assert runner._runner_freeze_path(contract).endswith("repair_runner_v1.json")
+
+
+def test_local_policy_projection_preflight_records_full_verified_identity(
+    tmp_path, monkeypatch
+):
+    observed = {}
+
+    def verify(**kwargs):
+        observed.update(kwargs)
+        return SimpleNamespace(
+            model_dir=str(tmp_path / "model"),
+            model_repo="MAGAer13/mplug-owl3-llama3.1-8b-240728",
+            model_revision="a" * 40,
+            snapshot_manifest_sha256="b" * 64,
+            verified_model_file_count=14,
+            verified_model_total_bytes=17_545_907_171,
+            transformers_version="4.45.2",
+            transformers_source_sha256=(("modeling.py", "c" * 64),),
+        )
+
+    monkeypatch.setattr(runner, "verify_frozen_vision_runtime", verify)
+    model_dir = tmp_path / "model"
+    manifest = tmp_path / "snapshot.json"
+    result = runner.validate_local_policy_projection(model_dir, manifest)
+    assert observed == {
+        "model_dir": model_dir,
+        "expected_snapshot_manifest": manifest,
+    }
+    assert result["verified_model_file_count"] == 14
+    assert result["verified_model_total_bytes"] == 17_545_907_171
+    assert result["transformers_source_sha256"] == {"modeling.py": "c" * 64}
+    assert result["model_load_count"] == result["model_forward_count"] == 0
+
+
+def test_fresh_run_roots_must_both_be_absent(tmp_path):
+    artifact = tmp_path / "artifact"
+    state = tmp_path / "state"
+    runner._require_absent_run_roots(artifact, state)
+    state.mkdir()
+    with pytest.raises(ValueError, match="must be absent"):
+        runner._require_absent_run_roots(artifact, state)
+
+
+def test_policy_gpu_assignment_preflight_binds_logical_indices_and_uuids(
+    monkeypatch,
+):
+    class FakeCuda:
+        @staticmethod
+        def is_available():
+            return True
+
+        @staticmethod
+        def device_count():
+            return 2
+
+        @staticmethod
+        def get_device_name(_device):
+            return runner.GUI_OWL_V2_2_EAGER_EXPECTED_GPU_NAME
+
+    fake_torch = SimpleNamespace(
+        cuda=FakeCuda(),
+        device=lambda value: SimpleNamespace(type="cuda", index=int(value[-1])),
+    )
+    monkeypatch.setattr(runner, "_canonical_gpu_uuid", lambda value: value)
+    monkeypatch.setattr(
+        runner,
+        "_validated_gpu_identity",
+        lambda **kwargs: {
+            "gpu_uuid": kwargs["expected_gpu_uuid"],
+            "gpu_pci_bus_id": f"0000:0{kwargs['device'].index}:00.0",
+            "nvidia_smi_index": kwargs["device"].index,
+            "logical_device_index": kwargs["device"].index,
+        },
+    )
+    result = runner.validate_policy_gpu_assignments(
+        ("cuda:0", "cuda:1"),
+        ("GPU-a", "GPU-b"),
+        gpu_uuid_type_profile="frozen-profile",
+        torch_module=fake_torch,
+    )
+    assert [item["logical_device_index"] for item in result["assignments"]] == [
+        0,
+        1,
+    ]
+    assert [item["gpu_uuid"] for item in result["assignments"]] == [
+        "GPU-a",
+        "GPU-b",
+    ]
+    assert result["model_load_count"] == result["model_forward_count"] == 0
+
+
+def test_policy_gpu_assignment_preflight_rejects_nonlogical_devices_before_cuda():
+    with pytest.raises(ValueError, match="cuda:0/cuda:1"):
+        runner.validate_policy_gpu_assignments(
+            ("cuda:0", "cuda:8"),
+            ("GPU-a", "GPU-b"),
+            gpu_uuid_type_profile="frozen-profile",
+            torch_module=object(),
+        )
+
+
+@pytest.mark.parametrize("failure_stage", ["gpu", "metadata", "local-model"])
+def test_run_preconditions_fail_before_artifact_or_state_namespace_creation(
+    tmp_path, monkeypatch, failure_stage
+):
+    source = runner.SourceIdentity(
+        head="a" * 40,
+        remote_main="a" * 40,
+        branch="main",
+        origin_url="origin",
+        source_inventory=(),
+        loaded_module_inventory=(),
+    )
+    runtime = runner.RuntimeIdentity(
+        payload={},
+        receipt={},
+        receipt_sha256="b" * 64,
+    )
+    monkeypatch.setattr(
+        runner,
+        "validate_execution_b_source",
+        lambda *_args, **_kwargs: source,
+    )
+    monkeypatch.setattr(
+        runner,
+        "validate_execution_runtime",
+        lambda *_args, **_kwargs: runtime,
+    )
+    if failure_stage == "gpu":
+        monkeypatch.setattr(
+            runner,
+            "validate_policy_gpu_assignments",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                ValueError("GPU assignment drifted")
+            ),
+        )
+        message = "GPU assignment drifted"
+    else:
+        monkeypatch.setattr(
+            runner,
+            "validate_policy_gpu_assignments",
+            lambda *_args, **_kwargs: {"ok": True},
+        )
+
+    class RepositoryNotFoundError(Exception):
+        pass
+
+    monkeypatch.setattr(
+        runner,
+        "_repo_snapshot",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            RepositoryNotFoundError()
+        ),
+    )
+    manifest = tmp_path / "snapshot.json"
+    manifest_payload = json.dumps(
+        {"repo": "owner/policy", "revision": "c" * 40, "files": []}
+    ).encode()
+    manifest.write_bytes(manifest_payload)
+    if failure_stage == "gpu":
+        monkeypatch.setattr(
+            runner,
+            "validate_nonlabel_input_repos",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                AssertionError("metadata preflight must not run after GPU failure")
+            ),
+        )
+    elif failure_stage == "metadata":
+        monkeypatch.setattr(
+            runner,
+            "validate_nonlabel_input_repos",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                ValueError("metadata preflight drifted")
+            ),
+        )
+        message = "metadata preflight drifted"
+    else:
+        monkeypatch.setattr(
+            runner,
+            "validate_nonlabel_input_repos",
+            lambda *_args, **_kwargs: {"ok": True},
+        )
+        monkeypatch.setattr(
+            runner,
+            "validate_local_policy_projection",
+            lambda *_args, **_kwargs: (_ for _ in ()).throw(
+                ValueError("local model projection drifted")
+            ),
+        )
+        message = "local model projection drifted"
+    artifact = tmp_path / "artifacts/repair"
+    state_base = tmp_path / "states"
+    contract = SimpleNamespace(
+        data={
+            "policy_vision_input": {
+                "gpu_uuid_type_profile": "profile",
+                "snapshot_manifest_sha256": _sha(manifest_payload),
+                "repo": "owner/policy",
+                "immutable_revision": "c" * 40,
+                "snapshot_file_count": 0,
+            },
+            "local_first_state_machine": {
+                "artifact_directory": "/data/artifacts/repair",
+                "state_directory": "/data/states",
+                "execution_namespace": "gate-v1-fresh16-evaluation-repair-test",
+            },
+        }
+    )
+    with pytest.raises(ValueError, match=message):
+        runner.execute_fresh16_evaluation(
+            mode="run",
+            contract=contract,
+            api=object(),
+            download_fn=lambda **_kwargs: "",
+            operation_factory=lambda **kwargs: kwargs,
+            expected_execution_b_git_commit="a" * 40,
+            data_root=tmp_path,
+            fresh_download_parent=tmp_path,
+            model_dir=tmp_path / "model",
+            snapshot_manifest=manifest,
+            docker_inspect_receipt=tmp_path / "runtime.json",
+            devices=("cuda:0", "cuda:1"),
+            gpu_uuids=("GPU-a", "GPU-b"),
+        )
+    assert not artifact.exists()
+    assert not (state_base / "gate-v1-fresh16-evaluation-repair-test").exists()
+
+
 def test_real_frozen_completion_derives_exact_sixteen_model_tree():
     root = Path(__file__).resolve().parents[2]
     config_path = root / "code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json"
