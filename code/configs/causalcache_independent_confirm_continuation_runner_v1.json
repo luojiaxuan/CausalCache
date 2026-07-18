@@ -1,0 +1,231 @@
+{
+  "adopt_existing_payload_authorized": true,
+  "closed_loop_requires_confirm_go": true,
+  "contract_sha256": "d54988fa05693a42574db2f9ec492d55405bcd2c2e902ccb79897f971c6fc7a9",
+  "fresh_topology_receipt_required": true,
+  "loaded_module_inventory": [
+    {
+      "path": "code/causalcache/independent_confirm_artifact.py",
+      "sha256": "cabd46bfed1b1ca75182a116eb1fe396130009e741b4849a7c87ef5d6236754b",
+      "size_bytes": 61828
+    },
+    {
+      "path": "code/causalcache/independent_confirm_continuation.py",
+      "sha256": "260919d46fc6a619dde2f92fe2592fa4832b99b063604ba7ce597c5af9510727",
+      "size_bytes": 24562
+    },
+    {
+      "path": "code/causalcache/independent_confirm_continuation_contract.py",
+      "sha256": "3ace7998f81706c9d40f5e08b7dedc66c027e8c4b575f5b92de00cfae12fcbfa",
+      "size_bytes": 26451
+    },
+    {
+      "path": "code/causalcache/independent_confirm_data.py",
+      "sha256": "96312eede3b65eb27fc05d870603c8d5582e7e9bacb91ac139292f1f28ed5586",
+      "size_bytes": 28193
+    },
+    {
+      "path": "code/causalcache/independent_confirm_evaluation.py",
+      "sha256": "4dacdc9bb4f8fc13a0c4b3d45be17e6682ce0301d56d03dd0d44d836a797dbd6",
+      "size_bytes": 18324
+    },
+    {
+      "path": "code/causalcache/independent_confirm_execution.py",
+      "sha256": "f474546a4df2c6387fa881d7d30dc44af626bf939817cf183f8b03c521e6c4e8",
+      "size_bytes": 96913
+    },
+    {
+      "path": "code/causalcache/independent_confirm_runner.py",
+      "sha256": "da50993e233eb9a657cd54824075f45b298cdcc9eb4798f0e52475828059ac85",
+      "size_bytes": 53482
+    },
+    {
+      "path": "code/scripts/manage_independent_confirm_continuation.py",
+      "sha256": "6d25648f41b6418b4fffec67579d2e2c7643dcd305ddc171a0a9e92856e71053",
+      "size_bytes": 10071
+    },
+    {
+      "path": "code/scripts/run_independent_confirm.py",
+      "sha256": "8e18d6f77e4f94088435b136e506215f5ff89d3b0e902038192f20fae9a5071f",
+      "size_bytes": 23659
+    },
+    {
+      "path": "code/scripts/run_independent_confirm_continuation.py",
+      "sha256": "c6e75a02e666e6bdafd67dbfc2313c703d1eaba864354d814309c78a8836d73e",
+      "size_bytes": 26905
+    },
+    {
+      "path": "code/scripts/smoke_independent_confirm_gpu_topology.py",
+      "sha256": "45602da22d84911438acfb70f431cdbbb0a42a97be07421b4b546c267f0bbd44",
+      "size_bytes": 33415
+    },
+    {
+      "path": "code/scripts/validate_independent_confirm_continuation.py",
+      "sha256": "7c56d5ae6bcc9cf3bedbc63bb0596c887c6762ccb8e5fe8a6acff6f13e86d77f",
+      "size_bytes": 2951
+    }
+  ],
+  "loaded_module_inventory_sha256": "90a3a2e3abc9c88f26acc2aef4c9d747bb5551c69854c81d497b076d6e50c5b3",
+  "protocol_id": "causalcache_independent_confirm20_restoration_continuation_v1",
+  "restoration_access_requires_adopted_payload_receipt": true,
+  "schema_version": "1.0.0",
+  "selector_reexecution_authorized": false,
+  "source_a_commit": "8c0d3aeb22079c77fd66a8aa70861d5e80a141ac",
+  "source_a_inventory": [
+    {
+      "path": "code/configs/causalcache_independent_confirm_continuation_v1.json",
+      "sha256": "d54988fa05693a42574db2f9ec492d55405bcd2c2e902ccb79897f971c6fc7a9",
+      "size_bytes": 10455
+    },
+    {
+      "path": "code/configs/causalcache_independent_confirm_closed_loop_v1.json",
+      "sha256": "33e5c0f856a9074cd5460f0d6f7cdda2108b120d50b208234253ff3136d27b63",
+      "size_bytes": 25128
+    },
+    {
+      "path": "code/causalcache/independent_confirm_continuation_contract.py",
+      "sha256": "3ace7998f81706c9d40f5e08b7dedc66c027e8c4b575f5b92de00cfae12fcbfa",
+      "size_bytes": 26451
+    },
+    {
+      "path": "code/causalcache/independent_confirm_continuation.py",
+      "sha256": "260919d46fc6a619dde2f92fe2592fa4832b99b063604ba7ce597c5af9510727",
+      "size_bytes": 24562
+    },
+    {
+      "path": "code/causalcache/independent_confirm_artifact.py",
+      "sha256": "cabd46bfed1b1ca75182a116eb1fe396130009e741b4849a7c87ef5d6236754b",
+      "size_bytes": 61828
+    },
+    {
+      "path": "code/causalcache/independent_confirm_runner.py",
+      "sha256": "da50993e233eb9a657cd54824075f45b298cdcc9eb4798f0e52475828059ac85",
+      "size_bytes": 53482
+    },
+    {
+      "path": "code/causalcache/independent_confirm_execution.py",
+      "sha256": "f474546a4df2c6387fa881d7d30dc44af626bf939817cf183f8b03c521e6c4e8",
+      "size_bytes": 96913
+    },
+    {
+      "path": "code/causalcache/independent_confirm_data.py",
+      "sha256": "96312eede3b65eb27fc05d870603c8d5582e7e9bacb91ac139292f1f28ed5586",
+      "size_bytes": 28193
+    },
+    {
+      "path": "code/causalcache/independent_confirm_evaluation.py",
+      "sha256": "4dacdc9bb4f8fc13a0c4b3d45be17e6682ce0301d56d03dd0d44d836a797dbd6",
+      "size_bytes": 18324
+    },
+    {
+      "path": "code/scripts/validate_independent_confirm_continuation.py",
+      "sha256": "7c56d5ae6bcc9cf3bedbc63bb0596c887c6762ccb8e5fe8a6acff6f13e86d77f",
+      "size_bytes": 2951
+    },
+    {
+      "path": "code/scripts/manage_independent_confirm_continuation.py",
+      "sha256": "6d25648f41b6418b4fffec67579d2e2c7643dcd305ddc171a0a9e92856e71053",
+      "size_bytes": 10071
+    },
+    {
+      "path": "code/scripts/run_independent_confirm_continuation.py",
+      "sha256": "c6e75a02e666e6bdafd67dbfc2313c703d1eaba864354d814309c78a8836d73e",
+      "size_bytes": 26905
+    },
+    {
+      "path": "code/scripts/run_independent_confirm.py",
+      "sha256": "8e18d6f77e4f94088435b136e506215f5ff89d3b0e902038192f20fae9a5071f",
+      "size_bytes": 23659
+    },
+    {
+      "path": "code/scripts/smoke_independent_confirm_gpu_topology.py",
+      "sha256": "45602da22d84911438acfb70f431cdbbb0a42a97be07421b4b546c267f0bbd44",
+      "size_bytes": 33415
+    },
+    {
+      "path": "code/tests/test_smoke_independent_confirm_gpu_topology.py",
+      "sha256": "bdfc171d362092871e8d5987b59acc301d28390a0f96bf960bcf8ff7b391fb4d",
+      "size_bytes": 16656
+    },
+    {
+      "path": "code/tests/test_independent_confirm_continuation_contract.py",
+      "sha256": "3322116de79f53808a365f036b50a2fcff7ccc1dca6ea23dc06d90212cb701d9",
+      "size_bytes": 6607
+    },
+    {
+      "path": "code/tests/test_independent_confirm_continuation_adoption.py",
+      "sha256": "87aec2b06149f7d456445f25ab1117ae10c91aff3f591ecdc16699c49dc6e977",
+      "size_bytes": 11439
+    },
+    {
+      "path": "code/tests/test_independent_confirm_continuation_runner.py",
+      "sha256": "cf27701cd92fa6581bc1b64aa6652d4f42e9bfd6d61454bc8ec5053407d5c768",
+      "size_bytes": 4836
+    },
+    {
+      "path": "code/tests/test_independent_confirm_continuation_cuda.py",
+      "sha256": "645ffe7bc19476723c8b1644e739fb71377ee651b2812674ad8854904c240176",
+      "size_bytes": 12302
+    },
+    {
+      "path": "code/tests/test_independent_confirm_continuation.py",
+      "sha256": "73a764d484221da0cccbf4da9f7e5036c088dc7fb07cd0f6e35255ecc95806d9",
+      "size_bytes": 11117
+    },
+    {
+      "path": "code/tests/test_run_independent_confirm_continuation.py",
+      "sha256": "067d58489e3c966494e14698da846d5ee9b17d4d51238439479cbf3e21ad6ed3",
+      "size_bytes": 8835
+    },
+    {
+      "path": "code/tests/test_independent_confirm_artifact.py",
+      "sha256": "6759c8108b863117d737e143b641c58cab18649863036308f6dddf4bb0bfc035",
+      "size_bytes": 22757
+    },
+    {
+      "path": "data/results/independent_confirm20_v1_attempt/failure.json",
+      "sha256": "0aab8cad795ec6aad8fb8fc0e6602e54b85a07342a07fa139cf3ae6e0a044b8d",
+      "size_bytes": 630
+    },
+    {
+      "path": "data/results/independent_confirm20_v1_attempt/summary.json",
+      "sha256": "f3ea04e0976114e5aec0c744db8b4e4f65d97533b887200c68c7ff9e2304e9a0",
+      "size_bytes": 6006
+    },
+    {
+      "path": "docs/independent_confirm_continuation_v1.md",
+      "sha256": "526cb480e188e7c5bb47b429dce00fb6583c8e97bc5234bb55a30ea6504e1eca",
+      "size_bytes": 5755
+    },
+    {
+      "path": "docs/independent_confirm_closed_loop_v1.md",
+      "sha256": "da05374f50d428f30a904a52d97b29e03f7963f22586f6657bc8dfa8b647cc2d",
+      "size_bytes": 14609
+    },
+    {
+      "path": "docs/execution.md",
+      "sha256": "3b49ad3b3e0dde7150ea098120397eb8d9e20e86fb99c1073f040a21062a9e30",
+      "size_bytes": 77980
+    },
+    {
+      "path": "README.md",
+      "sha256": "2a215b2e8d25bfdb1b7c6a9cb5aaa2801a6ee62c1ed5bf086de2e3304000a8e1",
+      "size_bytes": 127253
+    },
+    {
+      "path": "data/README.md",
+      "sha256": "f4ea8e796a23b92c9a8da11718faf1108bda8186be52490e911545f4c4aa26ad",
+      "size_bytes": 31040
+    },
+    {
+      "path": "docs/progress.md",
+      "sha256": "78fe7364ff27fd26b2ad7d18ba001e4f02fb168461c1543b8898775b63aa51a0",
+      "size_bytes": 250287
+    }
+  ],
+  "source_a_inventory_sha256": "dfb8bb84eb2ed9f448e62cbcc1556bdc875019fc4843139e2390085c58d9e4f1",
+  "source_a_parent_count": 1,
+  "source_a_remote_main": "8c0d3aeb22079c77fd66a8aa70861d5e80a141ac",
+  "status": "FROZEN_CAUSALCACHE_INDEPENDENT_CONFIRM_CONTINUATION_EXECUTION_B_V1",
+  "topology_receipt_nonce": "2a3c4bbf986086e5101aee9cf77eccad3ae29e3153e8c9f0f5bb20cca8dfa93f"
+}
