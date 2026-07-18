@@ -13,6 +13,12 @@ data/
 dataset、model weights、checkpoint、adapter。它们以 Hugging Face dataset/model repo 为 canonical
 source，并在顶层 `README.md` 和相关 result README 中记录 repo、revision/tag、schema 与生成命令。
 
+Set Utility v1 planned reusable dataset 为 private
+`gavinlaw/causalcache-set-utility-new-development-mobile`，用于 group-aware split manifest、feature
+cache 与 exact/cardinality-capped `D(S)` shards；当前 repo/revision 尚未创建或绑定。planned model repo
+也必须在 Freeze-B 中另行命名。Git 当前只有 source contract 和轻量 census schema，没有真实 labels 或
+checkpoint；见 `docs/set_utility_implementation_v1.md`。
+
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
 从已 outcome-exposed 的 validation plan 中仅取 `task_index=0`，按 pre-treatment `max_steps` 分三层并以 protocol
 hash 每层机械取 4 个。它不是 rollout artifact；未来 60-episode raw traces 必须聚合成 shard 上传独立 private

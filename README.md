@@ -25,17 +25,24 @@
 > 2026-07-18 的路线调整，该 closed-loop P0 保留为可恢复协议但暂停执行。见
 > [`docs/exploratory_closed_loop_validation12_v1.md`](docs/exploratory_closed_loop_validation12_v1.md)。
 
-> Current route: `NO_V2_CONDITIONAL_RESCUE`、independent confirm `NO-GO` 与 Case-A failure decomposition
-> 全部保留；旧 independent/conditional target 不再 rescue，closed-loop P0 已暂停。budget-agnostic set utility
-> Source-A 已冻结：`U_theta(q,S)` 不接收 `B`，预算只进入 at-most-`B` joint subset search；v1 固定比较
-> pairwise-additive、DeepSets、OCR/RGB、oracle-independent `J` 与 exact。predictor config SHA256=
-> `3203c53742e5d1c03d118d4c2f6a140997f907e1d063fa8c9cf04de904db71b7`。下一步先对旧 cap 隐藏的
-> 13–64 decision trajectories 做 policy-blind CPU census；该 P0 不分 split、不选 query、不访问
-> policy/restoration/OCR/gate output，config SHA256=
-> `d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957`。census 后再单独冻结 label
-> Execution-A/B。formal-58 仅可作为 legacy train-only；old-dev5、fresh-16、confirm-20 禁止进入新训练或调参。
-> matched-NLL 与 sealed test 继续 locked。新路线见
-> [`docs/set_utility_predictor_v1.md`](docs/set_utility_predictor_v1.md)。
+> Current route: 历史 conditional/independent NO-GO 与 Case-A failure decomposition 全部保留；closed-loop P0
+> 继续暂停。主线改为先扩充 restoration tables，再训练 budget-agnostic set utility predictor。
+> `U_theta(q,S)`、feature state 和 batch 都不接收 `B`；预算只进入包含 empty 的 joint at-most-`B`
+> search。当前已实现 variable-`n` features、finite non-negative `D(S)` exact capped tables、
+> group-disjoint split audit、pairwise-additive/DeepSets、recent/OCR-RGB/J、training loss、joint search 与
+> true-`U` evaluator；focused suite 为 `100 passed, 11 skipped, 5 subtests passed`，11 项仅因本机无
+> PyTorch。predictor config SHA256=
+> `ac4333055a0cc78fa229f44a6981d7804d753bb72b466872540473c85074a3b1`。
+>
+> 下一步仍是对 13–64 decision trajectories 做 policy-blind CPU census；P0 config SHA256=
+> `d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957`，manifest 只额外保存
+> normalized instruction+app group SHA256，不保存 instruction 原文，也不分 split/query。真实 census 尚未
+> 运行，因此历史的 81 条 old-cap exclusions 不能解释成 81 条 eligible。census 后才单独冻结 label
+> Execution-A/B、student feature schema 与训练网格；当前没有新 restoration labels、checkpoint 或离线效果。
+> formal-58 仅可作为 legacy train-only；old-dev5、fresh-16、confirm-20 禁止进入新训练/调参。matched-NLL
+> 与 sealed test 继续 locked。见
+> [方法契约](docs/set_utility_predictor_v1.md) 与
+> [实现交接](docs/set_utility_implementation_v1.md)。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。

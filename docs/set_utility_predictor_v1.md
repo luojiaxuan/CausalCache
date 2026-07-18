@@ -67,14 +67,16 @@ confirm-20 也不进入训练。正式 roster 尚未绑定，必须在任何 sem
 Freeze-B 固定。Freeze-B 至少需要绑定：
 
 - trajectory roster、query-state roster 与 source identity hash；
-- trajectory-level train/tune/evaluation split；
+- trajectory-level train/tune/evaluation split，并以规范化 instruction+app group 作为不可跨 role 的约束；
 - 每个 state 的 eligible candidate ids 和 `n`；
 - teacher/prompt/OCR/low-fidelity schema revision；
 - state 数、预计 teacher forward 数、shard layout 与 private HF revision；
 - training grid、seed、selection rule、runtime 和完整 argv。
 
-split 单位必须是 `trajectory_id`，同一 trajectory 或 source identity 不能跨 split。formal-58 的角色必须写成
-`legacy_train_only`，并从原始 `D(S)` 重新机械投影 set utility；不能复用旧 event-level target。已经消费的
+split 以 `trajectory_id` 为样本单位，但相同规范化 instruction+app group 的 trajectories 必须绑定到同一
+role，不能借近重复任务跨 train/tune/evaluation。group key 只用于 overlap audit，不能进入 predictor feature；
+同一 trajectory 或 source identity 也不能跨 split。formal-58 的角色必须写成 `legacy_train_only`，并从原始
+`D(S)` 重新机械投影 set utility；不能复用旧 event-level target。已经消费的
 old-dev5、fresh-16 和 confirm-20 既不能加入训练，也不能参与调参。
 
 ### P0：先做 policy-blind long-trajectory roster discovery
@@ -90,7 +92,8 @@ old-dev5、fresh-16 和 confirm-20 既不能加入训练，也不能参与调参
 - 除长度范围外，所有 eligibility 与 parser 行为保持不变。
 
 P0 是 roster inventory，不是实验。它可以输出 eligible source identity、decision-count histogram、app/action
-coverage、deterministic selection hash 和 exclusion counts，但不能分配 train/tune/evaluation，不能选 query
+coverage、deterministic selection hash、无 instruction 原文的 instruction+app group SHA256 和 exclusion
+counts，但不能分配 train/tune/evaluation，不能选 query
 state，也不能产生 `D(S)`。P0 中 policy load/forward、restoration label/distance、OCR score 和 learned gate
 score 的访问都必须为零；source dataset 自带的 terminal-success metadata 不等于新 policy rollout。
 
@@ -156,17 +159,24 @@ cardinality，且在当前数据规模下比 Set Transformer 更容易稳定训�
 utility regression 和 state 内 subset ranking；具体 loss 权重、hidden size、seed 和 early-stop rule 必须在
 Freeze-B 中一次性绑定，不能看 evaluation labels 后补。
 
+Source-A 只冻结 feature firewall，不替 Freeze-B 选择最终 student 表示。Freeze-B 必须在新 evaluation label
+access 前，从“轻量 q64/h64 + low-fidelity + OCR/RGB/recency”和“在此基础上加入 frozen GUI-Owl final-main
+normalized visual embedding”中明确选择主 schema，并把另一项的角色写清楚；不能在 evaluation 失败后再换表示。
+
 ## 阶段 1 comparator 与判断
 
 固定比较顺序：
 
 1. `pairwise_additive`；
 2. `deepsets`；
-3. `OCR/RGB`；
-4. oracle-independent `J`；
-5. exact subset oracle。
+3. `recent`；
+4. `OCR/RGB`；
+5. oracle-independent `J`；
+6. exact subset oracle。
 
-`OCR/RGB` 使用已经冻结的 event heuristic，选严格正分数的 top-`B`，不得根据新 evaluation labels 重调。
+`recent` 直接填入最近的至多 `B` 个 event。`OCR/RGB` 在 set-utility v1 中使用明确版本化的 at-most-budget
+规则：选严格正分数的 top-`B`；这不同于历史实验中无条件 fill-`B` 的实现，且不得根据新 evaluation labels
+重调。
 `J` 不是 deployable model，而是从真实 `D(S)` table 投影出的 independent teacher diagnostic：
 
 \[

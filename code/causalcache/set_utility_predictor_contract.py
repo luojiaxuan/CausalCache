@@ -19,12 +19,13 @@ SOURCE_STATUS = "source_only_frozen_before_new_development_data_access"
 VALIDATION_STATUS = "VALID_SOURCE_ONLY_SET_UTILITY_PREDICTOR_V1"
 CANONICAL_CONFIG_PATH = "code/configs/causalcache_set_utility_predictor_v1.json"
 FROZEN_CONFIG_SHA256 = (
-    "3203c53742e5d1c03d118d4c2f6a140997f907e1d063fa8c9cf04de904db71b7"
+    "ac4333055a0cc78fa229f44a6981d7804d753bb72b466872540473c85074a3b1"
 )
 MODEL_FAMILIES = ("pairwise_additive", "deepsets")
 COMPARATOR_ORDER = (
     "pairwise_additive",
     "deepsets",
+    "recent",
     "ocr_rgb",
     "oracle_independent_J",
     "exact_subset_oracle",
@@ -37,11 +38,11 @@ EXPECTED_SECTION_SHA256 = {
     "scientific_scope": "93788d092764309819d74f2ff71054695d9e06f1cda1a0bd75194c8ae86844a9",
     "utility_contract": "57fd1cba793287a6b89409788918df02b1760b79abeb26db499a50c8bc29f98f",
     "teacher_and_representation": "3385f85f88da819c6456a6067cd5779c9ab31765e22badde92f4f36cf26a61dc",
-    "new_development_data": "60f04ae9d22de04393b667d62a19383f7b57c86ada234187067f79b29c32785d",
-    "p0_policy_blind_roster_discovery": "7e113d2fa317d3d4da2e54c4b65b745523cc1c4ee50e2c813c507ef3bba15a0b",
+    "new_development_data": "8b16a00d91dda855a26856a67e207f4259f11dd8d392061e0d7f400e86b1456b",
+    "p0_policy_blind_roster_discovery": "82c1591cb03f39c13da48adb397ba3b1d7c21d99c2563db23d19d6ceeef88d56",
     "phase1_exact_b2": "d558a53fc17fce4c50fbef8f6f2ebb2ef3c787c68756d3f2491738b9b4336e6b",
-    "model_families": "97e63124f040194e65e58a16ed5bae4b2363d4e73441c1d4afa67408b0bfdb37",
-    "phase1_comparators_and_evaluation": "a9d77c70aae73b57cc68a44d14ada1286345cb2147b5b4ca98e3bb0a762516ef",
+    "model_families": "8626b0924d4cee042c62cfa90544955209f70528a23d7afc053688b1b1939ada",
+    "phase1_comparators_and_evaluation": "855df7753eb865f6230202fa0d416806f7e75392913e8e4c7cd1b7c231767b59",
     "phase2_cardinality_transfer": "81b4de991f63912171449f1e28da03aadbf5a82521a8f18e99b1b2e905e9b2b4",
     "locked_followups": "f92f0e88e3c9e02190ff8fd9a000ccf64c688006995a8ee4708c5b42d955a8b7",
     "source_only_operation_contract": "e45043745018c2a8898e1bc0652159465534f18f101ee8ee6622d7cc7b216e8b",
@@ -240,7 +241,26 @@ def _validate_teacher_and_data_firewall(config: Mapping[str, Any]) -> None:
 
     data = _section(config, "new_development_data")
     _equal(data["new_data_required"], True, "new data requirement")
-    _equal(data["split_unit"], "trajectory_id", "split unit")
+    _equal(
+        data["split_unit"],
+        "trajectory_id_grouped_by_instruction_app_group_sha256",
+        "split unit",
+    )
+    _equal(
+        data["instruction_app_group_definition"],
+        "SHA256(canonical_json({normalized_instruction,sorted_normalized_apps}))",
+        "instruction-app group definition",
+    )
+    _equal(
+        data["instruction_app_group_overlap_across_new_roles_allowed"],
+        False,
+        "instruction-app group overlap",
+    )
+    _equal(
+        data["instruction_app_group_key_is_model_feature"],
+        False,
+        "instruction-app group feature firewall",
+    )
     _equal(
         data["training_or_tuning_eligible_source"],
         "new_development_v1_plus_historical_formal58_train_only",
@@ -284,6 +304,11 @@ def _validate_policy_blind_discovery(config: Mapping[str, Any]) -> None:
         discovery["status"],
         "LOCKED_REQUIRES_SEPARATE_P0_RUNNER_FREEZE",
         "P0 discovery lock",
+    )
+    _equal(
+        discovery["separate_p0_config_sha256"],
+        "d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957",
+        "P0 source config",
     )
     historical = _mapping(discovery["historical_observation"], "P0 observation")
     _equal(
@@ -341,6 +366,11 @@ def _validate_policy_blind_discovery(config: Mapping[str, Any]) -> None:
         "P0 output-blind roster",
     )
     output = _mapping(discovery["allowed_output"], "P0 allowed output")
+    _equal(
+        output["instruction_app_group_sha256_without_instruction_content"],
+        True,
+        "P0 instruction-app group output",
+    )
     for key in (
         "train_tune_evaluation_assignment",
         "query_state_selection",
@@ -390,6 +420,24 @@ def _validate_phase1_and_models(config: Mapping[str, Any]) -> None:
     _equal(shared["permutation_invariant"], True, "permutation invariance")
     _equal(shared["variable_cardinality_input"], True, "variable cardinality")
     _equal(shared["empty_set_output_constrained_to_zero"], True, "empty output")
+    _equal(
+        shared["student_feature_schema_status"],
+        "UNBOUND_REQUIRES_SEPARATE_PRE_TRAIN_FREEZE_B",
+        "student feature freeze",
+    )
+    _equal(
+        tuple(_sequence(shared["student_feature_candidates"], "student features")),
+        (
+            "lightweight_q64_h64_ocr_rgb_recency",
+            "plus_frozen_gui_owl_final_main_normalized_visual_embedding",
+        ),
+        "student feature candidates",
+    )
+    _equal(
+        shared["feature_choice_after_new_evaluation_label_access_allowed"],
+        False,
+        "student feature outcome firewall",
+    )
     pairwise = _mapping(models["pairwise_additive"], "pairwise model")
     _equal(pairwise["maximum_explicit_interaction_order"], 2, "pairwise order")
     _equal(pairwise["higher_order_interactions_representable"], False, "pairwise limit")
@@ -404,6 +452,17 @@ def _validate_comparators_and_phase2(config: Mapping[str, Any]) -> None:
         _sequence(evaluation["ordered_methods"], "phase 1 ordered methods")
     )
     _equal(ordered, COMPARATOR_ORDER, "phase 1 comparator order")
+    recent = _mapping(evaluation["recent"], "recent comparator")
+    _equal(
+        recent["implementation"],
+        "most_recent_event_ids_fill_up_to_B",
+        "recent comparator implementation",
+    )
+    _equal(
+        recent["may_be_retuned_on_new_evaluation_labels"],
+        False,
+        "recent comparator retuning",
+    )
     oracle_j = _mapping(
         evaluation["oracle_independent_J"], "oracle independent J"
     )

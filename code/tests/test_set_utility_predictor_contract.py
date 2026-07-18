@@ -89,7 +89,7 @@ def test_policy_blind_long_trajectory_discovery_is_a_separate_locked_stage() -> 
     assert stages["p0_may_not_authorize_label_execution_A_or_B"]
 
 
-def test_phase1_is_complete_b2_exact_and_compares_the_five_frozen_methods() -> None:
+def test_phase1_is_complete_b2_exact_and_compares_the_frozen_methods() -> None:
     contract = load_frozen_set_utility_predictor_contract(repository_root=ROOT)
     assert contract.phase1["allowed_budgets"] == [1, 2]
     assert contract.phase1["labeled_cardinalities"] == [0, 1, 2]
@@ -103,6 +103,9 @@ def test_phase1_is_complete_b2_exact_and_compares_the_five_frozen_methods() -> N
     assert tuple(contract.models) == ("shared_requirements", *MODEL_FAMILIES)
     evaluation = contract.data["phase1_comparators_and_evaluation"]
     assert tuple(evaluation["ordered_methods"]) == COMPARATOR_ORDER
+    assert evaluation["recent"]["implementation"] == (
+        "most_recent_event_ids_fill_up_to_B"
+    )
     assert evaluation["oracle_independent_J"]["event_score"] == (
         "0.5*(Delta_j(empty)+mean_{i_not_equal_j}Delta_j({i}))"
     )
@@ -116,6 +119,8 @@ def test_pairwise_and_deepsets_support_variable_cardinality_without_budget_input
     assert shared["variable_cardinality_input"]
     assert not shared["budget_feature_allowed"]
     assert shared["empty_set_output_constrained_to_zero"]
+    assert shared["student_feature_schema_status"].startswith("UNBOUND_")
+    assert not shared["feature_choice_after_new_evaluation_label_access_allowed"]
     pairwise = models["pairwise_additive"]
     assert pairwise["supports_arbitrary_cardinality"]
     assert pairwise["maximum_explicit_interaction_order"] == 2
@@ -154,6 +159,11 @@ def test_phase2_freezes_zero_shot_and_few_shot_b3_b4_transfer() -> None:
 def test_new_data_firewall_and_downstream_locks_are_exact() -> None:
     contract = load_frozen_set_utility_predictor_contract(repository_root=ROOT)
     data = contract.development_data
+    assert data["split_unit"] == (
+        "trajectory_id_grouped_by_instruction_app_group_sha256"
+    )
+    assert not data["instruction_app_group_overlap_across_new_roles_allowed"]
+    assert not data["instruction_app_group_key_is_model_feature"]
     assert data["training_or_tuning_eligible_source"] == (
         "new_development_v1_plus_historical_formal58_train_only"
     )

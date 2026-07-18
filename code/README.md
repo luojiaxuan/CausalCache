@@ -102,8 +102,10 @@ oracle-independent `J` 并与 exact、learned `I`、OCR/RGB 对齐。该 CPU-onl
 不运行 selector/policy/restoration，也不授权 closed-loop；机器合同见
 `configs/causalcache_independent_confirm20_failure_decomposition_v1.json`。
 
-Set Utility Predictor v1 的 source-only contract、模型核心与 long-pool P0 census 入口如下。utility
-predictor 的 API 不接收 budget；P0 只扫描结构 metadata，不能分配 split 或产生 labels。P0 manifest\n只保留规范化 instruction+app 的 group SHA256，不保存 instruction 原文，供下一次 freeze 做 group overlap audit。
+Set Utility Predictor v1 已实现 source-only contract、long-pool P0、variable-`n` features、exact capped
+label table、group-aware split audit、Pairwise/DeepSets、training/search/evaluation primitives 和
+recent/OCR-RGB/J baselines。predictor/model/batch 不接收 budget；P0 只扫描结构 metadata，不能分配 split
+或产生 labels。P0 manifest 只保留 normalized instruction+app group SHA256，不保存 instruction 原文。
 
 ```bash
 PYTHONPATH=code .venv/bin/python code/scripts/validate_set_utility_predictor_contract.py \
@@ -112,11 +114,13 @@ PYTHONPATH=code .venv/bin/python code/scripts/validate_set_utility_predictor_con
 PYTHONPATH=code .venv/bin/python code/scripts/validate_set_utility_long_pool_contract.py \
   --repository-root . \
   --contract code/configs/causalcache_set_utility_long_pool_discovery_v1.json
-PYTHONPATH=code .venv/bin/python -m pytest -q \
-  code/tests/test_set_utility_predictor_contract.py \
-  code/tests/test_set_utility_models.py \
-  code/tests/test_set_utility_long_pool.py
+PYTHONPATH=code .venv/bin/pytest -q code/tests/test_set_utility*.py
 ```
+
+当前结果是 `100 passed, 11 skipped, 5 subtests passed`；11 个 skip 是本机无 PyTorch 的 model/tensor/
+optimizer/search integration tests，正式运行前必须在目标 runtime 补跑。真实 census、labels、trainer
+runner/checkpoint 尚未产生。完整接口与跨机器顺序见
+`docs/set_utility_implementation_v1.md`。
 
 Development-only repeated-selection probe 使用
 `configs/causalcache_exploratory_closed_loop_validation12_v1.json`。它将历史 single-state confirm NO-GO 与

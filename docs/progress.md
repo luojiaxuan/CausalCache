@@ -10,24 +10,33 @@ utility model。阶段一用 `|S|<=2` exact labels 比较 pairwise-additive、De
 阶段二用独立少量 `|S|=3/4` labels 检验 cardinality transfer。fresh-16/confirm-20 禁止进入训练或新 holdout，
 matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
-### 2026-07-18：set utility Source-A 与 long-pool census P0 冻结
+### 2026-07-18：set utility core 闭合；真实 census/labels/training 待执行
 
-- 路线改为先扩充新的 restoration tables、再训练 budget-agnostic `U_theta(q,S)`；`B` 只进入 subset
-  search，empty、singleton、pair 会被联合比较，不再学习逐轮 stop threshold；
-- 主候选固定 DeepSets，低阶强 baseline 固定 pairwise-additive；两者共享 features/split/targets，API 无
-  budget，且精确约束 `U(empty)=0`。比较器固定 OCR/RGB、oracle-independent `J` 与 exact；
-- phase-1 对每 state 完整标注 `|S|<=2`，最大 `n=16` 时 137 rows；phase-2 独立冻结
-  `B3_n6=42` 与 `B4_n8=163` 的 zero-shot/few-shot transfer，不能仅凭接口支持 B4 声称泛化；
-- formal-58 只可作为 `legacy_train_only`，必须从 raw `D(S)` 机械投影新 target；old-dev5、fresh-16 与
-  confirm-20 不进入本 v1 训练、调参或新 evaluation；
-- 前 16 个已 pin GUIOdyssey shards 有 81 rows 仅被旧 `decision_count<=12` cap 排除。已单独冻结
-  13–64 decision 的 CPU census P0；它不分 train/dev/holdout、不选 query、不访问任何 policy/restoration/OCR/
-  gate output；manifest 仅新增 normalized instruction+app group SHA256（无原文），用于下一次 freeze 前的\n  duplicate-safe overlap audit，完成后才允许另立 label Execution-A/B；
-- 两个 source-only validator、模型/contract/census focused suite 为 `35 passed, 9 skipped`；9 项仅因本机
-  无 PyTorch 跳过，GPU runtime 前必须补跑。predictor/P0 config SHA256 分别为
-  `3203c537…db71b7` / `d10484f5…a98957`。完整协议见
+- 路线固定为先扩充新的 restoration tables、再训练 budget-agnostic `U_theta(q,S)`；`B` 只进入
+  subset search，empty、singleton、pair 会被联合比较，不再学习逐轮 stop threshold；
+- predictor contract 已补齐 duplicate-safe split：trajectory 是样本单位，相同 normalized
+  instruction+app group 不得跨新 development partitions；group key 只用于 audit，禁止进入 model feature。
+  predictor/P0 config SHA256 分别为 `ac433305…74a3b1` / `d10484f5…a98957`；
+- 已实现 q64/h64+OCR/RGB/recency 的 label-blind variable-`n` features、完整 `|S|<=K`
+  label validator（`K=2/3/4`）、feature-label join、group split firewall、state/cardinality/subset 等权
+  batch、Pairwise/DeepSets、raw/normalized/ranking loss、recent/OCR-RGB/J、joint exhaustive search 与
+  trajectory-equal true-`U` evaluator；
+- 审计发现并修复两个 fail-open：weighted-KL `D(S)` 现在必须 finite non-negative，允许正负的是
+  `U(S)=D(empty)-D(S)`；训练 state 现在必须包含全部且仅有 capped subset rows，exact/evaluator 的
+  `B` 超过 label cap 会拒绝；
+- phase-1 最大 `n=16` 时 exact B2 为 137 rows；phase-2 仍锁定 `B3_n6=42` 与
+  `B4_n8=163`。正式 Freeze-B 还必须在 label access 前冻结 student representation：轻量 schema 或加
+  frozen GUI-Owl final-main normalized visual embedding，不能等 evaluation 失败后换表示；
+- 全部 `code/tests/test_set_utility*.py` 为 `100 passed, 11 skipped, 5 subtests passed`；11 项仅因本机
+  无 PyTorch，目标 runtime 必须补跑。source-only validators 返回有效，network/model/data/label/train/
+  closed-loop operation 均为 0；
+- 真实 CPU census 尚未运行：本地受限环境无法解析 Taurus SSH host，remote handoff 也没有 matching saved
+  project。因此 81 仍只是历史 old-cap exclusion count，不是 eligible count。没有新 `D(S)`、HF revision、
+  checkpoint 或效果结果；
+- 下一步顺序保持 P0 census → commit/push manifest → Freeze-B roster/group split/query/feature/grid →
+  label Execution-B → GPU exact-table production → Pairwise/DeepSets train/eval。完整交接见
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与
-  [`set_utility_long_pool_discovery_v1.md`](set_utility_long_pool_discovery_v1.md)。
+  [`set_utility_implementation_v1.md`](set_utility_implementation_v1.md)。
 
 ### 2026-07-18：repeated-selection closed-loop P0 冻结后暂停
 

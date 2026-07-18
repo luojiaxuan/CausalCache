@@ -60,8 +60,11 @@
     "roster_status": "UNBOUND_REQUIRES_SEPARATE_PRE_ACCESS_FREEZE_B",
     "state_count_status": "UNBOUND_REQUIRES_SEPARATE_PRE_ACCESS_FREEZE_B",
     "source_identity_manifest_status": "UNBOUND_REQUIRES_SEPARATE_PRE_ACCESS_FREEZE_B",
-    "split_unit": "trajectory_id",
-    "train_tune_evaluation_trajectory_disjoint": true,
+  "split_unit": "trajectory_id_grouped_by_instruction_app_group_sha256",
+  "train_tune_evaluation_trajectory_disjoint": true,
+  "instruction_app_group_definition": "SHA256(canonical_json({normalized_instruction,sorted_normalized_apps}))",
+  "instruction_app_group_overlap_across_new_roles_allowed": false,
+  "instruction_app_group_key_is_model_feature": false,
     "source_identity_overlap_across_splits_allowed": false,
     "one_state_may_not_cross_splits": true,
     "same_teacher_and_representation_required_across_splits": true,
@@ -86,6 +89,7 @@
   "p0_policy_blind_roster_discovery": {
     "purpose": "discover_the_long_trajectory_eligible_pool_before_freezing_train_tune_evaluation_counts",
     "status": "LOCKED_REQUIRES_SEPARATE_P0_RUNNER_FREEZE",
+    "separate_p0_config_sha256": "d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957",
     "historical_observation": {
       "decision_count_above_12_exclusion_count": 81,
       "interpretation": "the_old_maximum_decision_filter_may_hide_the_needed_long_trajectory_pool",
@@ -141,6 +145,7 @@
       "decision_count_histogram": true,
       "app_and_action_type_coverage_counts": true,
       "deterministic_selection_hash_per_source": true,
+      "instruction_app_group_sha256_without_instruction_content": true,
       "exclusion_reason_counts": true,
       "train_tune_evaluation_assignment": false,
       "query_state_selection": false,
@@ -192,6 +197,12 @@
         "raw_set_utility",
         "within_state_subset_ranking"
       ],
+      "student_feature_schema_status": "UNBOUND_REQUIRES_SEPARATE_PRE_TRAIN_FREEZE_B",
+      "student_feature_candidates": [
+        "lightweight_q64_h64_ocr_rgb_recency",
+        "plus_frozen_gui_owl_final_main_normalized_visual_embedding"
+      ],
+      "feature_choice_after_new_evaluation_label_access_allowed": false,
       "hyperparameter_grid_status": "UNBOUND_REQUIRES_SEPARATE_PRE_TRAIN_FREEZE_B"
     },
     "pairwise_additive": {
@@ -213,10 +224,16 @@
     "ordered_methods": [
       "pairwise_additive",
       "deepsets",
+      "recent",
       "ocr_rgb",
       "oracle_independent_J",
       "exact_subset_oracle"
     ],
+    "recent": {
+      "role": "cheap_deployable_recency_baseline",
+      "implementation": "most_recent_event_ids_fill_up_to_B",
+      "may_be_retuned_on_new_evaluation_labels": false
+    },
     "ocr_rgb": {
       "role": "cheap_deployable_heuristic",
       "implementation": "frozen_ocr_rgb_v2_event_score_then_top_positive_at_most_B",
@@ -249,6 +266,8 @@
     "required_pairwise_deltas": [
       "deepsets_minus_ocr_rgb",
       "pairwise_additive_minus_ocr_rgb",
+      "deepsets_minus_recent",
+      "pairwise_additive_minus_recent",
       "deepsets_minus_oracle_independent_J",
       "pairwise_additive_minus_oracle_independent_J",
       "deepsets_minus_pairwise_additive"
