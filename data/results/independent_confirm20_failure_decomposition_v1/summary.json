@@ -1,0 +1,203 @@
+{
+  "artifact": {
+    "annotated_tag_object": "a7d6838d32e217162d99a41a7b51939bc2c5d450",
+    "bundle_manifest": {
+      "path": "independent-confirm20-failure-decomposition/v1/bundle-manifest-v1.json",
+      "sha256": "8361bc7e3f7406d59950872a63bbfa38847860206c57bfff23c2cdcbef84724a",
+      "size_bytes": 3811
+    },
+    "failure_decomposition_report": {
+      "path": "independent-confirm20-failure-decomposition/v1/failure-decomposition-report-v1.json",
+      "sha256": "9b9c329d807c736b1c7f537178a228cf8319962db0cce1f1235cf2e63d698738",
+      "size_bytes": 6748
+    },
+    "immutable_download_count_per_validation": 6,
+    "private": true,
+    "repo": "gavinlaw/causalcache-independent-confirm20-failure-decomposition-mobile",
+    "repo_type": "dataset",
+    "report_commit": "31aa5e22c08a3d56bc729fcbc88d790cce4249c0",
+    "state_decomposition": {
+      "path": "independent-confirm20-failure-decomposition/v1/state-decomposition-v1.jsonl",
+      "sha256": "b33e79718d172fa9e520d5b9efbeafe1256fcd1942dea434ff756578e363b2e3",
+      "size_bytes": 22832
+    },
+    "tag": "independent-confirm20-failure-decomposition-v1"
+  },
+  "audit_scope": {
+    "confirm_consumed": true,
+    "formal_run_was_not_a_blind_holdout": true,
+    "pre_source_a_exploratory_numeric_read": true,
+    "user_case_split_predated_exploratory_read": true
+  },
+  "comparisons": {
+    "learned_independent_minus_ocr_rgb_v2": {
+      "raw_mean_delta": -0.003994134798929849,
+      "raw_paired_bootstrap_90_interval": [
+        -0.012737397882753927,
+        0.0025332144042501167
+      ],
+      "raw_positive_equal_negative_trajectory_count": [
+        7,
+        3,
+        10
+      ]
+    },
+    "oracle_independent_minus_learned_independent": {
+      "normalized_mean_delta": 0.24388221780566027,
+      "raw_mean_delta": 0.0030962698751437756,
+      "raw_paired_bootstrap_90_interval": [
+        0.00047739915212375195,
+        0.006532520011096493
+      ],
+      "raw_positive_equal_negative_trajectory_count": [
+        11,
+        5,
+        4
+      ]
+    },
+    "oracle_independent_minus_ocr_rgb_v2": {
+      "normalized_mean_delta": 0.03355838764886961,
+      "normalized_paired_bootstrap_90_interval": [
+        -0.02252555374142325,
+        0.08761612614874602
+      ],
+      "raw_mean_delta": -0.0008978649237860736,
+      "raw_paired_bootstrap_90_interval": [
+        -0.006369691919827574,
+        0.004145044577447833
+      ],
+      "raw_positive_equal_negative_trajectory_count": [
+        10,
+        3,
+        7
+      ]
+    }
+  },
+  "decision": {
+    "case_a_j_minus_ocr_raw_mean_at_most_zero": true,
+    "case_b_i_minus_ocr_raw_mean_strictly_negative": true,
+    "case_b_j_minus_ocr_bootstrap_lower_strictly_positive": false,
+    "case_b_j_minus_ocr_positive_trajectory_count_at_least_12": false,
+    "case_b_j_minus_ocr_raw_mean_strictly_positive": false,
+    "closed_loop_authorized": false,
+    "matched_nll_authorized": false,
+    "normalized_metrics_can_change_primary_case": false,
+    "oracle_independent_student_gap_supported": true,
+    "parent_confirm_verdict": "NO_GO_INDEPENDENT_CONFIRM",
+    "parent_confirm_verdict_locked": true,
+    "same_objective_student_rescue_supported": false,
+    "sealed_androidworld_test_authorized": false,
+    "status": "CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB"
+  },
+  "execution": {
+    "container_id": "d2c8c2aea81d60ec4094c2cf10210734bc8265e22bfd1d399cd70524eeb60140",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_name": "sglang-omni-jaxan-07190146",
+    "device_requests": null,
+    "execution_argv": [
+      "--repository-root",
+      "/data/worktrees/causalcache-confirm-j-decomp-9f20e4b",
+      "--contract",
+      "code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json",
+      "--execution-b-git-commit",
+      "9f20e4b55c5e69ae1b1c26d58cd7c52bdd5e0af3",
+      "--fresh-download-parent",
+      "/data/tmp/causalcache-confirm-j-decomp-parent-9f20e4b",
+      "--hf-token-file",
+      "/data/.secrets/hf_key.txt"
+    ],
+    "finished_at_utc": "2026-07-18T17:50:31.434480Z",
+    "gpu_count": 0,
+    "hf_hub_version": "1.16.1",
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "pre_semantic_invocations": [
+      {
+        "failure": "GIT_REMOTE_CREDENTIAL_MISSING",
+        "parent_hf_api_call_count": 0,
+        "parent_selective_download_count": 0,
+        "remote_mutation_count": 0,
+        "semantic_decode_count": 0
+      },
+      {
+        "failure": "FRESH_DOWNLOAD_PARENT_MISSING",
+        "parent_hf_metadata_snapshot_count": 1,
+        "parent_selective_download_count": 0,
+        "remote_mutation_count": 0,
+        "semantic_decode_count": 0
+      }
+    ],
+    "python_version": "3.12.3",
+    "started_at_utc": "2026-07-18T17:50:23Z",
+    "validation_finished_at_utc": "2026-07-18T17:50:48.436680Z"
+  },
+  "methods": {
+    "exact": {
+      "fixed20_zero_imputed_mean_normalized_recovery": 0.8758728915636708,
+      "normalized_ratio_to_exact": 1.0,
+      "raw_ratio_to_exact": 1.0,
+      "raw_utility_sum": 0.8564310826034784
+    },
+    "learned_independent": {
+      "fixed20_zero_imputed_mean_normalized_recovery": 0.566210126436546,
+      "normalized_ratio_to_exact": 0.6464523926818962,
+      "raw_ratio_to_exact": 0.821298047744367,
+      "raw_utility_sum": 0.7033851761698315
+    },
+    "ocr_rgb_v2": {
+      "fixed20_zero_imputed_mean_normalized_recovery": 0.7765339565933366,
+      "normalized_ratio_to_exact": 0.8865829323784787,
+      "raw_ratio_to_exact": 0.9145719813990871,
+      "raw_utility_sum": 0.7832678721484285
+    },
+    "oracle_independent": {
+      "fixed20_zero_imputed_mean_normalized_recovery": 0.8100923442422063,
+      "normalized_ratio_to_exact": 0.9248971535081668,
+      "raw_ratio_to_exact": 0.8936043882786544,
+      "raw_utility_sum": 0.765310573672707
+    }
+  },
+  "operation_counts": {
+    "checkpoint_load_count": 0,
+    "child_state_record_count": 20,
+    "closed_loop_episode_count": 0,
+    "gate_training_step_count": 0,
+    "gpu_operation_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "model_forward_count": 0,
+    "model_load_count": 0,
+    "parent_hf_mutation_count": 0,
+    "parent_selective_download_count": 3,
+    "parent_state_decode_count": 20,
+    "policy_forward_count": 0,
+    "restoration_teacher_forward_count": 0,
+    "sealed_androidworld_test_access_count": 0
+  },
+  "parent": {
+    "annotated_tag_object": "48921cafa00d7102d8b4c709d58061951f90e42c",
+    "bundle_manifest_sha256": "ccc996283b89f41db77c06f320e3b1ac88f3933bc19cfeea4c8b5b508ae4b351",
+    "fixed_report_sha256": "969729deb66e610846694b0fa1139c6b47f3927db7a58b50367f8ed93365198b",
+    "raw_state_records_sha256": "208fb36abb36b5e82eadcc8dac4ed20c5a030919902afe3e5b69cf6cad76a52a",
+    "repo": "gavinlaw/causalcache-independent-confirm20-mobile",
+    "report_commit": "a0b408e58d629299be334a74ecbd0ec2fa2ed1fc",
+    "tag": "independent-confirm20-v1"
+  },
+  "protocol_id": "causalcache_independent_confirm20_failure_decomposition_v1",
+  "schema_version": "1.0.0",
+  "source": {
+    "config_sha256": "e522f5cab8bfd359d8a869a5a21eac771ae3e81a204a872d619e51bdf31cf020",
+    "execution_b_git_commit": "9f20e4b55c5e69ae1b1c26d58cd7c52bdd5e0af3",
+    "loaded_module_inventory_sha256": "9616b27f2b1320e3683ac91c846c59cc7133cf38c86842e5fe891ab5aa7eef71",
+    "runner_freeze_sha256": "88a98b42f8750067d33285556c6099390328f4c92b99a88bdd60276ebd12b25d",
+    "source_a_git_commit": "d3451db74d7bdd415455b87a91718bbedfcd0884",
+    "source_inventory_sha256": "28b92bb29a7ab9b4ed57308b4b8c90f0dfa7e26b75b29b56ac64c86c07562564"
+  },
+  "status": "COMPLETED_AND_REVALIDATED_INDEPENDENT_CONFIRM20_FAILURE_DECOMPOSITION_V1",
+  "validation": {
+    "byte_identical_fresh_replay": true,
+    "focused_tests_passed": 26,
+    "formal_run_remote_mutation_count": 3,
+    "independent_validate_local_write_count": 0,
+    "independent_validate_remote_mutation_count": 0
+  }
+}

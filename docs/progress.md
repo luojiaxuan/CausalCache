@@ -10,16 +10,25 @@ paired closed-loop、matched-NLL 与 sealed test 均未执行并继续 locked。
 diagnostic evidence、整理论文边界，并决定是否另立新机制、新数据与新 untouched holdout；不在已消费的
 fresh-16 或 confirm-20 上继续调 feature、loss、seed、阈值或 comparator。
 
-### 2026-07-18：confirm-20 oracle-independent failure decomposition Source-A 准备
+### 2026-07-18：confirm-20 oracle-independent failure decomposition 完成
 
-- 新步骤只读重放已经消费的 confirm-20 完整 `D(S)`，比较 exact、真实 independent projected target `J`、
-  learned independent `I` 与 strongest OCR/RGB；不产生新的 policy/restoration output，不训练 gate；
+- Source-A=`d3451db74d7bdd415455b87a91718bbedfcd0884`，唯一单文件 Execution-B=
+  `9f20e4b55c5e69ae1b1c26d58cd7c52bdd5e0af3`；config/runner SHA256 分别为
+  `e522f5ca…cf020` / `88a98b42…b25d`。Hyper00 无 GPU container 只读重放已经消费的 confirm-20 完整
+  `D(S)`；不产生 policy/restoration output，不训练 gate；
 - `J` 逐字复用既有 budget-conditioned independent target：empty marginal 与其他 singleton-base conditional
   marginals 各占一半，strict-positive top-2，score 同分取较小 event id；
-- primary 继续使用父 confirm 的 raw utility。Case B 还必须同时通过 `J-OCR` raw mean、trajectory bootstrap
-  lower、`12/20` support，并保持父 learned `I` 低于 OCR；否则停止当前 independent objective rescue；
+- exact/OCR/`J`/`I` raw utility sum=`0.856431/0.783268/0.765311/0.703385`。`J-OCR` raw
+  mean=`-0.000898`、paired 90% interval=`[-0.006370,0.004145]`、support=`10/20`，正式得到
+  `CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB`；
+- `J-I` raw mean=`+0.003096`、paired 90% interval=`[+0.000477,+0.006533]`，说明 distillation gap 明确存在；
+  但修复 student 最多逼近仍低于 OCR 的 `J`，所以 projection 与 student 两层都有损失；
+- private HF child report commit=`31aa5e22c08a3d56bc729fcbc88d790cce4249c0`，annotated tag object=
+  `a7d6838d32e217162d99a41a7b51939bc2c5d450`。run/独立 validate 均完成 exact-three fresh replay，validate
+  remote mutation=`0`、local write=`0`；
 - 该分解不是新 GO，不能改变父 `NO_GO_INDEPENDENT_CONFIRM`，也不能解锁 closed-loop、matched-NLL、sealed
-  test 或复用 confirm-20 做 v2 holdout。完整边界见
+  test 或复用 confirm-20 做 v2 holdout。轻量结果见
+  [`../data/results/independent_confirm20_failure_decomposition_v1/`](../data/results/independent_confirm20_failure_decomposition_v1/)，完整边界见
   [`independent_confirm_failure_decomposition_v1.md`](independent_confirm_failure_decomposition_v1.md)。
 
 ### 2026-07-18：independent confirm-20 continuation 有效 NO-GO

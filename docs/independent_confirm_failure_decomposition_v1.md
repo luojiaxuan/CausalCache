@@ -83,3 +83,27 @@ CPU-only selective replay。正式 child 使用独立 private HF dataset
 
 child 不复制父 `D(S)` 表，只保存 derived 20-state diagnostics 与父 immutable identity。正式结果完成后，本节
 补充 Source-A、Execution-B、child commit/tag object、逐文件 SHA、完整 argv/runtime 和最终 A/B 结论。
+
+## 正式结果：情况 A
+
+Source-A=`d3451db74d7bdd415455b87a91718bbedfcd0884`，唯一 direct-child Execution-B=
+`9f20e4b55c5e69ae1b1c26d58cd7c52bdd5e0af3`；config/runner SHA256 分别为
+`e522f5cab8bfd359d8a869a5a21eac771ae3e81a204a872d619e51bdf31cf020` 与
+`88a98b42f8750067d33285556c6099390328f4c92b99a88bdd60276ebd12b25d`。正式 CPU-only run 与独立
+validate 均在 Hyper00 的无 GPU device request container 中完成。
+
+raw utility sum 为 exact=`0.856431`、OCR/RGB=`0.783268`、`J=0.765311`、learned `I=0.703385`。
+`J-OCR` raw mean=`-0.000898`，paired 90% interval=`[-0.006370,0.004145]`，positive/equal/negative=
+`10/3/7`，所以正式状态为 `CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB`。normalized mean 下 `J-OCR=
++0.033558`，但 normalized 已冻结为 descriptive，不能推翻 raw-primary 结论。
+
+`J-I` raw mean=`+0.003096`，paired 90% interval=`[+0.000477,+0.006533]`，positive/equal/negative=
+`11/5/4`。这证明 student 的 feature/distillation/generalization gap 是真实的；但即使完全修复该 gap 并达到
+`J`，仍无法超过 OCR/RGB。因此应停止 rescue 当前 independent target，而不是马上换 hidden size 或继续增加
+同一 target 的训练数据。
+
+canonical child 是 private HF dataset
+`gavinlaw/causalcache-independent-confirm20-failure-decomposition-mobile@31aa5e22c08a3d56bc729fcbc88d790cce4249c0`，
+tag object=`a7d6838d32e217162d99a41a7b51939bc2c5d450`。独立 validate 从 commit 与 tag fresh replay exact-three，
+remote mutation=`0`、local write=`0`。Git 轻量结果见
+[`../data/results/independent_confirm20_failure_decomposition_v1/`](../data/results/independent_confirm20_failure_decomposition_v1/)。

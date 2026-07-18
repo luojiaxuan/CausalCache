@@ -55,11 +55,11 @@ canonical output; expert top-1 alignment is reported only as a diagnostic and
 never used to admit or remove states. We evaluate whether restoration
 supervision improves the closed-loop success--memory frontier and whether
 retained restoration value predicts success after controlling for next-action
-likelihood, context cost, and task horizon. \pending{The frozen set-conditioned
-student failed its development criterion and remains a negative ablation. The
-independent selector is unchanged; insert no confirm or closed-loop method-effect
-claim until the untouched-output confirm and paired controller study pass their
-preregistered gates.}
+likelihood, context cost, and task horizon. The frozen set-conditioned student
+failed its development criterion. The independent selector subsequently failed
+its confirm gate, and an oracle-independent decomposition remained below the
+strongest OCR/RGB heuristic under the preregistered raw-utility metric. Thus the
+current version does not authorize a closed-loop or matched-NLL method claim.
 \end{abstract}
 
 \section{Introduction}
@@ -374,11 +374,14 @@ uses the same training states and gate capacity as a negative control.
 
 We report closed-loop task success against visual tokens and end-to-end latency,
 plus success per unit memory/compute. Restoration must improve the Pareto
-frontier rather than consume additional context. \pending{Insert main frontier
-plot and paired confidence intervals.}
+frontier rather than consume additional context. \pending{Not run: the frozen
+independent confirm gate failed.}
 
 \subsection{Matched-NLL Mechanism Test}
 
+This analysis was not authorized for the current v1 because the independent
+confirm gate failed. The following text records the frozen protocol for a
+future version with a new source and untouched holdout.
 After each authorized partition's immutable primary closed-loop report, we use
 the policy-decision states from both origin episodes without deduplicating
 across origins. At each state, both memories are
@@ -422,6 +425,20 @@ denominator; $D_t(\varnothing)>10^{-12}$ is used only to count
 memory-sensitive states. No small-denominator state is removed or promoted to a
 separate primary average.
 
+\paragraph{Current frozen outcome.}
+The confirm report covered all 20 states and retained a substantial exact
+restoration-oracle signal, but the learned independent selector reached only
+$0.8213$ of exact raw utility and did not beat the strongest heuristic. A
+read-only decomposition over the already consumed complete coalition tables
+gave raw utility sums $0.8564/0.7833/0.7653/0.7034$ for exact, OCR/RGB,
+oracle-independent projection, and learned independent selection,
+respectively. The oracle-independent minus OCR/RGB raw mean was $-0.00090$,
+whereas oracle-independent minus learned selection had a 90\% paired interval
+$[0.00048,0.00653]$. Hence both projection and distillation contribute error;
+the latter is not the only blocker. The confirm remains a consumed diagnostic,
+not a reusable holdout, and closed-loop and matched-NLL experiments were not
+run.
+
 \section{Limitations and Claim Boundary}
 
 Restoration value is a dense decision-time surrogate. It is not a direct
@@ -445,7 +462,9 @@ requirements.
 supervision for GUI memory selection. Its central empirical burden is not that
 attribution can fit a selector, but that budget-aligned restoration identifies
 high-fidelity evidence that improves executable long-horizon control beyond
-what next-action likelihood and context size explain.
+what next-action likelihood and context size explain. The current frozen
+independent version did not clear its offline confirm gate, so that long-horizon
+claim remains unsupported and the planned closed-loop study was not opened.
 
 \bibliography{references}
 

@@ -1034,6 +1034,35 @@ mutation=`0`、local write=`0`。完整命令、log hash、state/hash 与正式 
 closed-loop。任何未来 independent restoration 方向都需要新的 source/contract/untouched holdout，不继承本 child
 的执行授权。
 
+# Confirm-20 oracle-independent failure decomposition（已完成，禁止重跑）
+
+该 reporting-only child 已由 Source-A=`d3451db74d7bdd415455b87a91718bbedfcd0884` 与唯一单文件
+Execution-B=`9f20e4b55c5e69ae1b1c26d58cd7c52bdd5e0af3` 完成。正式执行位于 Hyper00 的
+`sglang-omni-jaxan-07190146`，Docker device requests=`null`，container 中没有 NVIDIA device；因此不需要 GPU
+idle preflight，也没有 GPU/model/checkpoint/policy/restoration/training operation。
+
+历史正式入口为：
+
+```bash
+PYTHONPATH=code python3 -m scripts.manage_independent_confirm_failure_decomposition run \
+  --repository-root <CLEAN_MAIN_EXECUTION_B_CHECKOUT> \
+  --contract code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json \
+  --execution-b-git-commit 9f20e4b55c5e69ae1b1c26d58cd7c52bdd5e0af3 \
+  --fresh-download-parent /data/tmp/causalcache-confirm-j-decomp-parent-9f20e4b \
+  --hf-token-file /data/.secrets/hf_key.txt
+```
+
+随后使用完全相同参数把 subcommand 改成 `validate`；它返回
+`REVALIDATED_INDEPENDENT_CONFIRM20_FAILURE_DECOMPOSITION_V1`、remote mutation=`0`、local write=`0`。run 前
+有两次 pre-semantic invocation：第一次因 private Git remote credential 缺失在 Git live-main attestation
+fail closed；第二次因 fresh-download parent 尚未创建，在 parent metadata snapshot 后、download/decode/mutation
+前 fail closed。二者不产生科学 artifact；完整记账见
+[`../data/results/independent_confirm20_failure_decomposition_v1/summary.json`](../data/results/independent_confirm20_failure_decomposition_v1/summary.json)。
+
+canonical child report commit=`31aa5e22c08a3d56bc729fcbc88d790cce4249c0`，annotated tag object=
+`a7d6838d32e217162d99a41a7b51939bc2c5d450`。该入口权限已经消费；父 confirm verdict 不变，closed-loop、
+matched-NLL 与 sealed test 继续 locked。
+
 # Independent confirm continuation 的 CUDA/fork 边界（历史完成态，禁止重跑）
 
 本入口已由 Execution-B=`68e71fd6397ee85f758fbb9e7e9332860ddf0466` 完成唯一正式调用；以下命令只保留
