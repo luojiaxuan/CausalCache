@@ -1,10 +1,11 @@
 # Set Utility Full-Pool Inventory v1
 
-> 状态：metadata-only Source-A 已冻结并通过本机验证；真实 Hugging Face inventory 尚未完成。本地受限
-> 网络在第一次调用前后均未生成 partial manifest，closed-loop、row decode、model、GPU 和 HF mutation 均为 0。
+> 状态：metadata-only P-1 已从 clean pushed `main@3a058b2` 正式完成。canonical manifest 固定
+> 610/610 shards、88,186,663,372 bytes 与 610 个唯一 LFS SHA256；closed-loop、download、row decode、
+> semantic census、model、GPU 和 HF mutation 均为 0。
 > P0 source-only skeleton 已存在，config SHA256=
 > `7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`；它已绑定 canonical
-> consumed ledger，但在本 P-1 manifest 产生和 commit 前不授权 P0 execution。
+> consumed ledger，但必须在本 P-1 manifest commit/push 后另立绑定其 SHA256 的 P0 Execution-A。
 
 ## 为什么要先做 P-1
 
@@ -48,12 +49,18 @@ PYTHONPATH=code .venv/bin/python \
 成功后必须先验证 610 个连续 shard index、总 byte 数、每个 LFS identity 和 manifest hash，再 commit/push；
 随后才能另外冻结 P0 census 的 exact input SHA。
 
-## 2026-07-18 尝试记录
+## 2026-07-18 正式结果
 
-本机已确认 key file 与 `huggingface_hub` runtime 存在，但 outbound DNS 被 sandbox 拒绝，
-`HfApi.list_repo_tree` 抛出 `httpx.ConnectError`。同一 sandbox 到 Hyper00 的 SSH 也返回
-`Operation not permitted`。失败后 canonical output 仍不存在，因此这不是一次 inventory result，也没有可追认的
-source bytes。下一步是在可联网的 Aries/Hyper checkout 从 pushed `main` 重跑上述唯一 metadata 命令。
+网络权限恢复后，从 clean pushed `main@3a058b2` 执行唯一 metadata 命令并成功落盘：
+
+- manifest SHA256：`e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`；
+- files-list SHA256：`e81e3ba6abe16f5da4d714c434e5e0879a54f747dab74bff531058ba47b978cd`；
+- shard count：610，连续覆盖 `00000..00609`；
+- total bytes：88,186,663,372；
+- unique paths / unique LFS SHA256：610 / 610。
+
+此前 DNS 失败仍是零输出的基础设施记录，不是另一次 inventory result。canonical output 使用 exclusive-create，
+本次成功后不得覆盖或重跑。
 
 ## 阶段边界
 

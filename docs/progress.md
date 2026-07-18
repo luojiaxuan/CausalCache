@@ -12,7 +12,7 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
-### 2026-07-18：full-pool source contract、consumed firewall 与 predictor core 闭合；P-1 inventory 待执行
+### 2026-07-18：full-pool P-1 inventory 正式完成
 
 - 当前数据路线不再以 16-shard / 13–64 小池子作为主入口。P-1 先对指定 revision 的
   610 个 `mobile/use/train` transport shards 只读 metadata，固定 path/size/LFS SHA256；再单独
@@ -24,7 +24,7 @@ confirm-20 禁止进入新训练、
 - canonical consumed ledger 已从六个 byte-pinned 历史输入机械重建 107 个 identity：
   `legacy_train_only=58` 与 `forbidden_consumed=49`；manifest SHA256=
   `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。P0 source 已绑定该
-  ledger，但 P-1 manifest SHA 仍故意 unbound，因此不授权 download/row decode/census/output；
+  ledger；P0 source-only config 仍故意不绑定新的 P-1 manifest，因此不授权 download/row decode/census/output；
 - split audit 已从 source identity firewall 扩展到 historical group firewall：forbidden consumed group
   不得以新 source ID 重新进入任何 role，legacy group 只能留在 effective train partition；P-1
   writer 返回的 manifest SHA 也已改为精确落盘 bytes SHA，避免末尾换行造成的错误绑定；
@@ -40,10 +40,12 @@ confirm-20 禁止进入新训练、
   PyTorch。全仓回归为 `1738 passed, 23 skipped, 38 failed, 644 subtests`；38 个失败均来自既有
   lifecycle 互斥测试、sandbox 下的 git worktree 操作和 full-suite import-order 问题，focused
   set-utility suite 无失败；
-- 本地唯一真实 P-1 尝试在 `HfApi.list_repo_tree` 时因 sandbox DNS 失败，未产生
-  partial manifest；SSH 到 Hyper00 也被 sandbox 拒绝。本路线的新 `D(S)`、HF revision、
-  predictor checkpoint 和 offline delta 均不存在；
-- 下一步严格为 P-1 metadata inventory → commit/push manifest → 绑定该 manifest SHA 的 P0
+- 真实 P-1 已从 clean pushed `main@3a058b2` 完成：610/610 shards、88,186,663,372 bytes、
+  610 unique paths/LFS SHA；manifest SHA256=
+  `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=
+  `e81e3ba6abe16f5da4d714c434e5e0879a54f747dab74bff531058ba47b978cd`。本路线的新 `D(S)`、
+  predictor checkpoint 和 offline delta 仍不存在；
+- 下一步严格为 commit/push P-1 manifest → 绑定该 manifest SHA 的 P0
   Execution-A → policy-blind census → Freeze-B roster/group split/query/feature/grid → label throughput
   pilot/Execution-B → exact-table production → Set Transformer/DeepSets/pairwise train/eval。完整交接见
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与

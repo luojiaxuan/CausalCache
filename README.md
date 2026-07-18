@@ -41,13 +41,14 @@
 > `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。P-1 metadata-only
 > contract SHA256=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；P0
 > source-only contract SHA256=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`，已绑定
-> ledger，但故意未绑定尚未产生的 P-1 manifest。
+> ledger，但故意未绑定 P-1 manifest，等待独立 Execution-A freeze。
 >
-> 本地唯一真实 P-1 尝试在调用 `HfApi.list_repo_tree` 时因 sandbox DNS 失败，未收到
-> metadata，也未生成 partial
-> manifest；因此真实 610-shard inventory、semantic census、新 restoration labels、checkpoint 和
-> offline delta 都仍不存在。下一步是在可联网 checkout 运行并 push 唯一 P-1 manifest，
-> 再单独冻结 P0 Execution-A；不使用旧 13–64 小池子替代全量数据。formal-58 仅可
+> 真实 P-1 已从 clean pushed `main@3a058b2` 完成：固定 610/610 个连续 parquet shard、
+> `88,186,663,372` bytes 与 610 个唯一 LFS SHA256；canonical manifest SHA256=
+> `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`。本步不下载 parquet，
+> row decode、semantic census、restoration label、training、GPU 和 HF mutation 均为 0。下一步是单独冻结
+> 并 push 绑定该 manifest 的 P0 Execution-A，再做 policy-blind full-pool census；不使用旧 13–64
+> 小池子替代全量数据。formal-58 仅可
 > train-only；reference8、old-dev5、fresh-16、confirm-20 永不进入新训练/调参/评估。
 > matched-NLL 与 sealed test 继续 locked。见
 > [方法契约](docs/set_utility_predictor_v1.md) 与
@@ -993,6 +994,10 @@ mediation effect。
 - Independent confirm failure-decomposition Source-A/Execution-B:
   [`code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json`](code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json),
   [`code/configs/causalcache_independent_confirm20_failure_decomposition_runner_v1.json`](code/configs/causalcache_independent_confirm20_failure_decomposition_runner_v1.json)
+- Set-utility predictor protocol/implementation/P-1 inventory:
+  [`docs/set_utility_predictor_v1.md`](docs/set_utility_predictor_v1.md),
+  [`docs/set_utility_implementation_v1.md`](docs/set_utility_implementation_v1.md),
+  [`data/manifests/set_utility_full_pool_inventory_v1.json`](data/manifests/set_utility_full_pool_inventory_v1.json)
 - Independent confirm continuation contract and source validator:
   [`code/configs/causalcache_independent_confirm_continuation_v1.json`](code/configs/causalcache_independent_confirm_continuation_v1.json),
   [`code/scripts/validate_independent_confirm_continuation.py`](code/scripts/validate_independent_confirm_continuation.py)
@@ -1224,6 +1229,7 @@ mediation effect。
 
 | Artifact | Canonical location | Revision/status | Notes |
 | --- | --- | --- | --- |
+| GUIOdyssey full train source inventory | [upstream HF dataset](https://huggingface.co/datasets/cua-lite/GUIOdyssey)；[Git manifest](data/manifests/set_utility_full_pool_inventory_v1.json) | source revision `ea08072b30e523fb4492e4f4597505879ffcd63b`；manifest SHA256 `e892e7e8...e6c5e` | metadata-only P-1 complete；610 shards / 88,186,663,372 bytes；files-list SHA256 `e81e3ba6...8cd`；no row decode/download |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |
 | Independent UI-TARS reference run | 同一 private independent dataset repo | `reference-gate-v1` / `b3e1245c6c6a1723fe2ca3a861148008df39df46` | 69/75 parsed、27/75 match、swipe 0/2；`NO_GO_CURRENT_REFERENCE_STACK`；oracle 未运行 |

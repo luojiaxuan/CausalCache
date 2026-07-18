@@ -129,8 +129,10 @@ PYTHONPATH=code .venv/bin/pytest -q code/tests/test_set_utility*.py
 当前结果是 `193 passed, 15 skipped, 24 subtests passed`；15 个 skip 是本机无 PyTorch 的
 model/tensor/optimizer/search integration tests，正式运行前必须在目标 runtime 补跑。canonical
 consumed ledger 已固定 58 条 `legacy_train_only` 与 49 条 `forbidden_consumed`；真实 P-1
-inventory 因本地 sandbox DNS 失败而未产生，因此 semantic census、labels、trainer checkpoint 与
-offline result 也都尚未产生。完整接口与跨机器顺序见
+inventory 已固定 610 shards / 88,186,663,372 bytes，manifest SHA256=
+`e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`。semantic census、labels、
+trainer checkpoint 与 offline result 仍尚未产生；下一步必须先冻结绑定该 manifest 的 P0 Execution-A。
+完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 
 Development-only repeated-selection probe 使用

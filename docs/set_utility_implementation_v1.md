@@ -2,11 +2,13 @@
 
 > 当前结论：路线已切换为“先扩全量 source pool，再生产 `|S|<=2` labels，最后训练 Set Transformer”。
 > budget-agnostic model/label/trainer 的 source core、610-shard metadata contract 与 107-identity consumed
-> firewall 已实现；真实 610-shard inventory、semantic census、新 labels、训练 checkpoint 和 offline result 尚未产生。
+> firewall 已实现；真实 610-shard P-1 inventory 已完成，semantic census、新 labels、训练 checkpoint 和
+> offline result 尚未产生。
 > closed-loop、matched-NLL 与 AndroidWorld sealed test 继续 locked。
 >
 > Canonical SHA256：predictor=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；
 > P-1 source=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；
+> P-1 manifest=`e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`；
 > consumed ledger=`b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`；
 > P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`。focused suite
 > 为 `193 passed, 15 skipped, 24 subtests passed`。
@@ -78,9 +80,9 @@ closed-loop。
   显式传入 historical legacy/forbidden group SHA256 集合，禁止新 source identity 用近重复
   instruction+app group 绕过 firewall。
 
-P0 runner 与 source-only skeleton 已存在，且 source config 已绑定 canonical consumed ledger。真实
-P-1 manifest 尚未产生，因此缺少的是 P-1 manifest hash binding 与独立 P0 Execution-A；
-当前 source-only config 不授权 download、row decode、semantic census 或 output write。
+P0 runner 与 source-only skeleton 已存在，且 source config 已绑定 canonical consumed ledger。真实 P-1 manifest
+现已产生；下一步缺少的是 binding 该 manifest SHA256 的独立 P0 Execution-A。当前 source-only config 仍不授权
+download、row decode、semantic census 或 output write。
 
 ### Label 生产
 
@@ -161,13 +163,14 @@ runtime metadata。
 evaluator 的纯 CPU tests 可运行。focused suite 为 `193 passed, 15 skipped, 24 subtests passed`。
 全仓回归为 `1738 passed, 23 skipped, 38 failed, 644 subtests`；38 个失败来自已有 lifecycle
 互斥测试、sandbox 下的 git worktree 操作与 full-suite import-order，不是 focused set-utility 回归。
-真实 P-1 尝试因 sandbox DNS 被拒绝，未创建 partial manifest；SSH 到 Hyper00 也被 sandbox 拒绝。详见
+真实 P-1 已完成 610-shard metadata inventory；manifest SHA256=
+`e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`。详见
 [P-1 记录](set_utility_full_pool_inventory_v1.md) 与
 [consumed ledger](set_utility_consumed_ledger_v1.md)。
 
 下一步严格是：
 
-1. 在可联网 checkout 从 pushed `main` 运行唯一 P-1 metadata inventory，commit/push manifest；
+1. commit/push 已完成的 P-1 manifest；
 2. 用该 manifest SHA 与 canonical consumed ledger 新立 P0 Execution-A，流式下载/校验/扫描 610 shards；
 3. 根据真实 pool/strata 冻结 Freeze-B roster、group split、每 trajectory 2–4 query states、feature/grid 与
    exact operation budget；

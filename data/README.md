@@ -22,11 +22,12 @@ cache 与 exact/cardinality-capped `D(S)` shards；当前 repo/revision 尚未�
 `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。它不含 raw trajectory、
 instruction 原文或 restoration output。
 
-`manifests/set_utility_full_pool_inventory_v1.json` 与
-`manifests/set_utility_full_pool_census_v2.json` 尚未存在；本地 P-1 在调用 `HfApi.list_repo_tree` 时因
-sandbox DNS 失败，未收到 metadata，也未写入 partial manifest。因此当前没有新 exact
-`D(S)` labels、feature cache、predictor
-checkpoint 或离线结果；见 `docs/set_utility_implementation_v1.md`。
+`manifests/set_utility_full_pool_inventory_v1.json` 已从 upstream immutable revision 完成 metadata-only
+P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
+`e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=
+`e81e3ba6abe16f5da4d714c434e5e0879a54f747dab74bff531058ba47b978cd`。
+`manifests/set_utility_full_pool_census_v2.json` 尚未产生；因此当前仍没有新 exact `D(S)` labels、
+feature cache、predictor checkpoint 或离线结果。见 `docs/set_utility_implementation_v1.md`。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
 从已 outcome-exposed 的 validation plan 中仅取 `task_index=0`，按 pre-treatment `max_steps` 分三层并以 protocol
