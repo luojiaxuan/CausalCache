@@ -12,6 +12,13 @@
 > canonical report 为 private HF commit `a0b408e58d629299be334a74ecbd0ec2fa2ed1fc`。协议见
 > [`docs/independent_confirm_continuation_v1.md`](docs/independent_confirm_continuation_v1.md)。
 
+> Active diagnostic: 正在对已经消费的 confirm-20 做一次只读 oracle-independent `J` failure
+> decomposition：用完整 `D(S)` 重放真实 independent projected target，并与 exact、OCR/RGB 和 learned
+> independent `I` 比较。该步骤只区分“projection objective ceiling”与“student
+> distillation/generalization”两类失败，不是新的 confirm GO，不会解锁 closed-loop 或 matched-NLL。冻结定义与
+> 边界见
+> [`docs/independent_confirm_failure_decomposition_v1.md`](docs/independent_confirm_failure_decomposition_v1.md)。
+
 > Current route: `NO_V2_CONDITIONAL_RESCUE` 与 independent confirm `NO-GO` 都保留。现有 frozen selector
 > 主线已经到达停止条件，不进入原计划的 closed-loop；exact restoration oracle 仍恢复 substantial utility，
 > 但当前 learned restoration supervision 未在 untouched confirm 上得到支持，

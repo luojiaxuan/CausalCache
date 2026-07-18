@@ -10,6 +10,18 @@ paired closed-loop、matched-NLL 与 sealed test 均未执行并继续 locked。
 diagnostic evidence、整理论文边界，并决定是否另立新机制、新数据与新 untouched holdout；不在已消费的
 fresh-16 或 confirm-20 上继续调 feature、loss、seed、阈值或 comparator。
 
+### 2026-07-18：confirm-20 oracle-independent failure decomposition Source-A 准备
+
+- 新步骤只读重放已经消费的 confirm-20 完整 `D(S)`，比较 exact、真实 independent projected target `J`、
+  learned independent `I` 与 strongest OCR/RGB；不产生新的 policy/restoration output，不训练 gate；
+- `J` 逐字复用既有 budget-conditioned independent target：empty marginal 与其他 singleton-base conditional
+  marginals 各占一半，strict-positive top-2，score 同分取较小 event id；
+- primary 继续使用父 confirm 的 raw utility。Case B 还必须同时通过 `J-OCR` raw mean、trajectory bootstrap
+  lower、`12/20` support，并保持父 learned `I` 低于 OCR；否则停止当前 independent objective rescue；
+- 该分解不是新 GO，不能改变父 `NO_GO_INDEPENDENT_CONFIRM`，也不能解锁 closed-loop、matched-NLL、sealed
+  test 或复用 confirm-20 做 v2 holdout。完整边界见
+  [`independent_confirm_failure_decomposition_v1.md`](independent_confirm_failure_decomposition_v1.md)。
+
 ### 2026-07-18：independent confirm-20 continuation 有效 NO-GO
 
 - restoration-only continuation Source-A=`8c0d3aeb22079c77fd66a8aa70861d5e80a141ac`，唯一 direct-child

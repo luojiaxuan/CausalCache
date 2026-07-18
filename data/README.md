@@ -41,6 +41,10 @@ SHA256 为 `26846d50...74edf`。目录只含轻量 `summary.json` 与 `README.md
 `main@45bcf7e` 通过 committed full-payload validation，状态为
 `VALID_SUBSET_SEARCH_ABLATION_V1`。
 
+confirm-20 oracle-independent failure decomposition 的正式 derived state rows 与完整 report 保存在独立
+private HF child；`results/independent_confirm20_failure_decomposition_v1/` 只保存轻量 summary、artifact
+identity 与复现入口，不复制父 20×16 `D(S)` raw records。
+
 冻结后的 constructor run 证据位于 `results/restoration_v2_constructor_preflight/`：14/14 payload 已被
 pinned `JSONAction` 接受。formal device-side result 位于 `results/restoration_v2_executor_dispatch/`：14/14
 cases 与 negative control 已通过独立 reducer。interface manifest 的 `pending` 是运行前 source snapshot，

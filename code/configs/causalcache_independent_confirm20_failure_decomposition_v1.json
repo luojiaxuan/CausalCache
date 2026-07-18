@@ -1,0 +1,347 @@
+{
+  "analysis_contract": {
+    "aggregation": {
+      "normalized_reporting_can_route": false,
+      "normalized_reporting_denominator": "D_empty",
+      "primary_comparison": "raw_utility",
+      "unit": "trajectory_equal_equivalent_to_state_equal_for_one_state_per_trajectory"
+    },
+    "budget": 2,
+    "candidate_event_step_ids": [1, 2, 3, 4],
+    "comparators": {
+      "E": "exact_subset_oracle",
+      "I": "sealed_learned_independent_ensemble",
+      "J": "oracle_independent_projected_target",
+      "O": "sealed_ocr_rgb_v2"
+    },
+    "diagnostic_only": true,
+    "exact_subset": {
+      "allow_early_stop": true,
+      "objective": "minimize_D_S_subject_to_cardinality_at_most_B",
+      "tie_break": [
+        "exact_float_distance",
+        "smaller_cardinality",
+        "lexicographically_lower_event_step_ids"
+      ]
+    },
+    "fixed_state_denominator": 20,
+    "j_selector": {
+      "definition": "0.5_times_empty_marginal_plus_mean_of_other_singleton_base_conditional_marginals",
+      "event_score": "0.5_times_D_empty_minus_D_j_plus_mean_i_not_j_of_D_i_minus_D_ij",
+      "forced_fill": false,
+      "strictly_positive_score_required": true,
+      "tie_break": "lower_event_step_id",
+      "top_b": true
+    },
+    "normalization": {
+      "denominator": "D_empty",
+      "eligible_only_when_strictly_greater_than": 1e-12,
+      "fixed20_zero_imputation": true
+    },
+    "sealed_parent_replay": {
+      "exact_selection_must_recompute": true,
+      "fixed_report_metrics_must_replay_from_D_S": true,
+      "learned_independent_selection_source": true,
+      "ocr_rgb_v2_selection_source": true
+    }
+  },
+  "audit_scope": {
+    "confirm_consumed": true,
+    "formal_run_not_yet_executed": true,
+    "not_blind_holdout": true,
+    "pre_source_a_exploratory_numeric_read": true,
+    "user_case_split_predated_exploratory_read": true
+  },
+  "authorization": {
+    "child_hf_publication_authorized": false,
+    "closed_loop_authorized": false,
+    "execution_allowed_without_machine_generated_runner_freeze_b": false,
+    "failure_decomposition_executed": false,
+    "gate_training_authorized": false,
+    "matched_nll_authorized": false,
+    "model_or_checkpoint_access_authorized": false,
+    "parent_hf_read_authorized": false,
+    "sealed_androidworld_test_authorized": false,
+    "sealed_parent_report_decode_authorized": false
+  },
+  "destination": {
+    "allowed_remote_states": ["ABSENT", "EMPTY", "COMPLETE"],
+    "annotated_tag_required": true,
+    "commit_title": "Publish CausalCache independent confirm-20 failure decomposition",
+    "completed_replay_remote_mutation_count": 0,
+    "conflict_action": "FAIL_CLOSED",
+    "private": true,
+    "remote_base_receipt_before_first_mutation": true,
+    "repo": "gavinlaw/causalcache-independent-confirm20-failure-decomposition-mobile",
+    "repo_type": "dataset",
+    "single_exact_report_commit": true,
+    "tag": "independent-confirm20-failure-decomposition-v1",
+    "tag_message": "Freeze CausalCache independent confirm-20 failure decomposition v1",
+    "tag_must_resolve_to_report_commit": true
+  },
+  "execution_fixed_operation_contract": {
+    "child_exact_target_count": 3,
+    "closed_loop_episode_count": 0,
+    "gate_checkpoint_load_count": 0,
+    "gate_training_step_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "model_forward_count": 0,
+    "parent_force_download_count": 3,
+    "parent_hf_mutation_count": 0,
+    "policy_generation_count": 0,
+    "restoration_teacher_forward_count": 0,
+    "sealed_fixed_report_decode_count": 1,
+    "sealed_raw_state_decode_count": 20,
+    "state_decomposition_record_count": 20,
+    "trajectory_decomposition_record_count": 20
+  },
+  "input_contract": {
+    "allowed_parent_hf_api_methods": [
+      "dataset_info",
+      "list_repo_commits",
+      "list_repo_files",
+      "list_repo_refs"
+    ],
+    "exact_force_download_targets": [
+      {
+        "path": "independent-confirm20/v1/report/bundle-manifest-v1.json",
+        "sha256": "ccc996283b89f41db77c06f320e3b1ac88f3933bc19cfeea4c8b5b508ae4b351",
+        "size_bytes": 2261
+      },
+      {
+        "expected_record_count": 20,
+        "path": "independent-confirm20/v1/report/raw-state-records-v1.jsonl",
+        "sha256": "208fb36abb36b5e82eadcc8dac4ed20c5a030919902afe3e5b69cf6cad76a52a",
+        "size_bytes": 1388707
+      },
+      {
+        "path": "independent-confirm20/v1/report/fixed-report-v1.json",
+        "sha256": "969729deb66e610846694b0fa1139c6b47f3927db7a58b50367f8ed93365198b",
+        "size_bytes": 36666
+      }
+    ],
+    "force_download": true,
+    "fresh_download_directory_must_start_empty": true,
+    "parent_commit_chain": [
+      "a0b408e58d629299be334a74ecbd0ec2fa2ed1fc",
+      "6d0cd95997186293e01c65276f3c082c11a9f52d",
+      "c66a67c3451cee7e20ed737401dc8b074151574f"
+    ],
+    "parent_remote_mutation_call_count": 0,
+    "pre_post_parent_identity_stable": true,
+    "selective_reader_only": true
+  },
+  "local_first_state_machine": {
+    "artifact_directory": "/data/artifacts/causalcache/independent-confirm20-failure-decomposition-v1",
+    "artifact_file_mode": 292,
+    "completion_is_last_first_execution_local_mutation": true,
+    "final_completion_is_hard_link_to_staging": true,
+    "no_overwrite": true,
+    "o_excl_or_byte_identical_reuse": true,
+    "ordered_states": [
+      "global_claim",
+      "parent_readonly_attestation",
+      "local_report_completion",
+      "child_remote_base_receipt",
+      "child_report_commit_receipt",
+      "child_tag_receipt",
+      "immutable_replay_completion",
+      "completion_staging",
+      "final_completion"
+    ],
+    "partial_attempt_requires_versioned_repair": true,
+    "pre_mutation_byte_identical_restart_only": true,
+    "state_directory": "/data/experiments/causalcache/independent-confirm20-failure-decomposition-v1",
+    "state_file_mode": 384
+  },
+  "output_contract": {
+    "exact_targets": [
+      "independent-confirm20-failure-decomposition/v1/state-decomposition-v1.jsonl",
+      "independent-confirm20-failure-decomposition/v1/failure-decomposition-report-v1.json",
+      "independent-confirm20-failure-decomposition/v1/bundle-manifest-v1.json"
+    ],
+    "parent_confirm_verdict_must_not_change": true,
+    "state_record_count": 20,
+    "trajectory_record_count_embedded_in_report": 20
+  },
+  "parent_confirm": {
+    "git": {
+      "completion": {
+        "path": "data/results/independent_confirm20_continuation_v1/completion.json",
+        "sha256": "38c659065ef069e3cd0be2cfcfe550f1e3dee81bc2ec8405c3526c80e38ccd77",
+        "size_bytes": 1068
+      },
+      "result_commit": "0a107b6fffa13c0f01dda04d775d7ba4adf48486",
+      "summary": {
+        "path": "data/results/independent_confirm20_continuation_v1/summary.json",
+        "sha256": "ff1270f7580005c3c6e9aa4bdcf124e804efa9826023626ebcf3115d73254a74",
+        "size_bytes": 9982
+      }
+    },
+    "hf": {
+      "annotated_tag_object": "48921cafa00d7102d8b4c709d58061951f90e42c",
+      "base_commit": "c66a67c3451cee7e20ed737401dc8b074151574f",
+      "payload_commit": "6d0cd95997186293e01c65276f3c082c11a9f52d",
+      "private": true,
+      "repo": "gavinlaw/causalcache-independent-confirm20-mobile",
+      "repo_type": "dataset",
+      "report_commit": "a0b408e58d629299be334a74ecbd0ec2fa2ed1fc",
+      "tag": "independent-confirm20-v1",
+      "tag_resolved_commit": "a0b408e58d629299be334a74ecbd0ec2fa2ed1fc"
+    },
+    "locked_result": {
+      "closed_loop_executed": false,
+      "fixed_state_denominator": 20,
+      "independent_raw_utility_sum": 0.7033851761698315,
+      "matched_nll_executed": false,
+      "ocr_rgb_v2_raw_utility_sum": 0.7832678721484285,
+      "sealed_androidworld_test_executed": false,
+      "status": "NO_GO_INDEPENDENT_CONFIRM"
+    }
+  },
+  "protocol_id": "causalcache_independent_confirm20_failure_decomposition_v1",
+  "routing_contract": {
+    "bootstrap": {
+      "confidence": 0.9,
+      "interval": "percentile",
+      "quantile": "Hyndman_Fan_type_7",
+      "resamples": 10000,
+      "seed": 271828,
+      "unit": "trajectory"
+    },
+    "case_a": {
+      "all_required": ["J_minus_O_raw_mean_at_most_zero"],
+      "interpretation": "independent_restoration_projection_not_a_better_confirm_selector_objective",
+      "maximum_raw_mean_delta_inclusive": 0.0,
+      "status": "CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB"
+    },
+    "case_b": {
+      "all_required": [
+        "J_minus_O_raw_mean_strictly_positive",
+        "J_minus_O_paired_bootstrap_90_lower_strictly_positive",
+        "J_minus_O_positive_trajectory_count_at_least_12_of_20",
+        "sealed_I_minus_O_raw_mean_strictly_negative"
+      ],
+      "minimum_positive_trajectory_count": 12,
+      "status": "CASE_B_TEACHER_VALID_STUDENT_DISTILLATION_GAP"
+    },
+    "inconclusive": {
+      "action": "NO_INDEPENDENT_V2_RESCUE_FROM_THIS_DIAGNOSTIC",
+      "definition": "J_raw_mean_positive_but_case_b_robustness_requirements_not_all_met",
+      "status": "INCONCLUSIVE_ORACLE_INDEPENDENT_CONFIRM_DECOMPOSITION"
+    },
+    "locked_actions": {
+      "case_a": "STOP_INDEPENDENT_STUDENT_RESCUE",
+      "case_b": "TECHNICAL_DIRECTION_IDENTIFIED_BUT_REQUIRES_NEW_SOURCE_AND_UNTOUCHED_HOLDOUT",
+      "inconclusive": "STOP_PENDING_NEW_EVIDENCE"
+    },
+    "never_authorizes": [
+      "confirm_reclassification",
+      "closed_loop",
+      "matched_nll",
+      "sealed_androidworld_test",
+      "gate_training_on_confirm20"
+    ]
+  },
+  "runtime_contract": {
+    "cpu_only": true,
+    "gpu_count": 0,
+    "gpu_preflight_required": false,
+    "model_runtime_allowed": false,
+    "network_scope": "parent_read_only_then_new_child_publication_only",
+    "torch_import_required": false
+  },
+  "schema_version": "1.0.0",
+  "source_freeze": {
+    "branch": "main",
+    "execution_b_runner_freeze": {
+      "bind_git_prerequisites": true,
+      "bind_loaded_module_inventory_sha256": true,
+      "bind_required_source_a_paths": true,
+      "bind_source_a_inventory_sha256": true,
+      "direct_single_parent_child_of_source_a": true,
+      "must_be_absent_during_source_only_validation": true,
+      "only_allowed_execution_b_source_tree_diff": true,
+      "path": "code/configs/causalcache_independent_confirm20_failure_decomposition_runner_v1.json"
+    },
+    "git_prerequisites": [
+      {
+        "git_commit": "0a107b6fffa13c0f01dda04d775d7ba4adf48486",
+        "path": "data/results/independent_confirm20_continuation_v1/summary.json",
+        "sha256": "ff1270f7580005c3c6e9aa4bdcf124e804efa9826023626ebcf3115d73254a74",
+        "size_bytes": 9982
+      },
+      {
+        "git_commit": "0a107b6fffa13c0f01dda04d775d7ba4adf48486",
+        "path": "data/results/independent_confirm20_continuation_v1/completion.json",
+        "sha256": "38c659065ef069e3cd0be2cfcfe550f1e3dee81bc2ec8405c3526c80e38ccd77",
+        "size_bytes": 1068
+      },
+      {
+        "path": "code/causalcache/independent_confirm_artifact.py",
+        "sha256": "cabd46bfed1b1ca75182a116eb1fe396130009e741b4849a7c87ef5d6236754b",
+        "size_bytes": 61828
+      },
+      {
+        "path": "code/causalcache/independent_confirm_evaluation.py",
+        "sha256": "4dacdc9bb4f8fc13a0c4b3d45be17e6682ce0301d56d03dd0d44d836a797dbd6",
+        "size_bytes": 18324
+      },
+      {
+        "path": "code/causalcache/gate_v1_fresh16_failure_decomposition.py",
+        "sha256": "b17d87ae504c4f6c004a99406460709b7982a6aa5ae1a51ae1440d74988ff457",
+        "size_bytes": 60405
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_label_table.py",
+        "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+        "size_bytes": 12732
+      }
+    ],
+    "head_must_equal_origin_main": true,
+    "origin_name": "origin",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "required_execution_modules": [
+      "causalcache.independent_confirm_failure_decomposition_contract",
+      "causalcache.independent_confirm_failure_decomposition",
+      "causalcache.independent_confirm_failure_decomposition_runner",
+      "scripts.manage_independent_confirm_failure_decomposition"
+    ],
+    "required_source_a_paths": [
+      "code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json",
+      "code/causalcache/independent_confirm_failure_decomposition_contract.py",
+      "code/causalcache/independent_confirm_failure_decomposition.py",
+      "code/causalcache/independent_confirm_failure_decomposition_runner.py",
+      "code/scripts/manage_independent_confirm_failure_decomposition.py",
+      "code/tests/test_independent_confirm_failure_decomposition_contract.py",
+      "code/tests/test_independent_confirm_failure_decomposition.py",
+      "code/tests/test_independent_confirm_failure_decomposition_runner.py",
+      "data/results/independent_confirm20_continuation_v1/summary.json",
+      "data/results/independent_confirm20_continuation_v1/completion.json",
+      "code/causalcache/independent_confirm_artifact.py",
+      "code/causalcache/independent_confirm_evaluation.py",
+      "code/causalcache/gate_v1_fresh16_failure_decomposition.py",
+      "code/causalcache/restoration_v2_2_label_table.py"
+    ],
+    "source_a_local_tracking_validation_network_call_count": 0,
+    "worktree_must_be_clean": true
+  },
+  "source_only_operation_contract": {
+    "child_hf_mutation_count": 0,
+    "closed_loop_episode_count": 0,
+    "file_write_count": 0,
+    "gate_checkpoint_load_count": 0,
+    "gate_training_step_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "model_forward_count": 0,
+    "network_call_count": 0,
+    "parent_hf_api_call_count": 0,
+    "policy_generation_count": 0,
+    "restoration_teacher_forward_count": 0,
+    "sealed_androidworld_test_access_count": 0,
+    "sealed_fixed_report_decode_count": 0,
+    "sealed_raw_state_decode_count": 0,
+    "torch_import_count": 0
+  },
+  "status": "source_only_frozen_before_independent_confirm20_failure_decomposition"
+}

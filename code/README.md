@@ -96,6 +96,12 @@ stable self-behavior reference、post-state-only intervention、八字段 strong
 inventory、exact 8+10+5 历史 exposure 边界、fixed 20-state confirm 与两级 gate。它不替代历史
 `phase0_contract.json` validator；两者代表不同版本的 estimand，必须分别通过。
 
+confirm-20 的 reporting-only failure decomposition 由
+`causalcache.independent_confirm_failure_decomposition` 重放 immutable report 中完整 `D(S)`，计算
+oracle-independent `J` 并与 exact、learned `I`、OCR/RGB 对齐。该 CPU-only child 不加载模型或 checkpoint，
+不运行 selector/policy/restoration，也不授权 closed-loop；机器合同见
+`configs/causalcache_independent_confirm20_failure_decomposition_v1.json`。
+
 正式 gate 数据扩展的 policy-blind split source 位于
 `causalcache.restoration_v2_2_label_expansion`。它从既有 111-pool 精确重建 48/16 tail split，不读取
 instruction/action/image/OCR 或旧模型结果。focused test：
