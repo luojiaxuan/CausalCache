@@ -222,6 +222,13 @@ restoration v2 exact selection/exposure 产物：
 
 最新轻量运行记录：
 
+- `results/independent_confirm20_v1_attempt/`：restoration-guided independent 主线的 Source-A=`e1cc8b3…6f10`、
+  Execution-B=`f1e9196…7bce` 唯一 v1 attempt 已完成 20-state label-blind selector payload，并发布 private HF
+  commit `6d0cd95997186293e01c65276f3c082c11a9f52d`；8 files fresh-download 逐字节一致。formal parent 在 POSIX
+  `fork` 前初始化 CUDA，restoration worker 因而在 reference/teacher forward 0 时失败。该 attempt 永久
+  execution `INVALID`、没有科学 GO/NO-GO；report/tag absent，closed-loop locked。Git 只保存 failure、summary
+  与说明，不复制 8 个 payload files；后续只允许 versioned continuation 采用 exact payload commit；
+
 - `results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`：clean
   `main@b14f489fe55b51a83917b57e6a54fb73d268342a` 的 no-GPU child 已 `VALID + REVALIDATED`；192-state
   payload、1,792 distances、1,856 deployment edges、3,072 full edges、1,984 interactions、576 attributions 与

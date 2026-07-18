@@ -1,0 +1,140 @@
+{
+  "schema_version": "1.0.0",
+  "status": "INVALID_INDEPENDENT_CONFIRM20_V1_CUDA_FORK_BOUNDARY",
+  "protocol_id": "causalcache_independent_confirm20_execution_v1",
+  "scientific_interpretation": "NO_CONFIRM_RESULT",
+  "source": {
+    "source_a_commit": "e1cc8b3a0b8d06433674fe32652078a47b256f10",
+    "execution_b_commit": "f1e91964096dfa699c9fa930922bc2fe64c17bce",
+    "contract_sha256": "33e5c0f856a9074cd5460f0d6f7cdda2108b120d50b208234253ff3136d27b63",
+    "runner_freeze_sha256": "e03d6ae0ee760841eb8ff405f2fef968fc17711467eefca087c4014a3b4f7263"
+  },
+  "formal_attempt": {
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "container_name": "sglang-omni-jaxan-07181704",
+    "container_id": "d5fa054045ed1eda6b8ce6fb154c22ba1dc234115ddbd5e73a0b6d68ebf8a318",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_created_at_utc": "2026-07-18T09:04:08.413308683Z",
+    "failure_written_at_utc": "2026-07-18T09:22:46.761368331Z",
+    "devices": [
+      "cuda:0",
+      "cuda:1",
+      "cuda:2",
+      "cuda:3"
+    ],
+    "gpu_uuids": [
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+      "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+      "GPU-f2d88c45-534f-b4cb-b9b9-65a9888c3617"
+    ],
+    "topology_receipt_sha256": "8e06034e7b485a00fe288dc824eabd538cea02dee876027d54ac8b2432e22f13",
+    "topology_receipt_status": "PASS",
+    "topology_phase_order": [
+      "policy_vision_spawn",
+      "teacher_forced_fork"
+    ]
+  },
+  "failure": {
+    "stage": "after_label_blind_payload_publication_before_first_restoration_state",
+    "type": "RuntimeError",
+    "message": "Cannot re-initialize CUDA in forked subprocess. To use CUDA with multiprocessing, you must use the 'spawn' start method",
+    "root_cause": "the formal parent initialized CUDA before the POSIX-fork restoration fan-out; the data-blind topology smoke did not reproduce that parent-process contamination",
+    "failure_json_sha256": "0aab8cad795ec6aad8fb8fc0e6602e54b85a07342a07fa139cf3ae6e0a044b8d",
+    "launch_exit_code_sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "launch_stderr_sha256": "2a25c937eea5df657bcf28e9eeec3d440dac60e1aefef493a5daff36e5f2132e",
+    "launch_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "label_blind_payload": {
+    "state_count": 20,
+    "candidate_event_count_per_state": 4,
+    "seed_count": 5,
+    "file_count": 8,
+    "seal_inventory_sha256": "861fa54d2b46509a62b3cfb7d376c9ab3298c18656ae2c4e80418f86593fa779",
+    "manifest_data_inventory_sha256": "c385359d44e546fb18feaa62c63c64038329d1d2c4cd0a17ae836c7844143c50",
+    "files": [
+      {
+        "path": "independent-confirm20/v1/payload/dynamic-recent-v1.json",
+        "sha256": "38169732dead28fa3b331c53e56de328fdb6b9165f652f0ae5e300d4443da5ac",
+        "size_bytes": 1906
+      },
+      {
+        "path": "independent-confirm20/v1/payload/feature-states-v1.jsonl",
+        "sha256": "f766f71491b89449dbef50078bcfc4a20ae03a0b7f2498e3d1b6d8e3c0b92e51",
+        "size_bytes": 105582
+      },
+      {
+        "path": "independent-confirm20/v1/payload/independent-decisions-v1.json",
+        "sha256": "08cecaa120c66867a72aa1237c362da1b9546b472c3a32f43563c47e08ae2a98",
+        "size_bytes": 37641
+      },
+      {
+        "path": "independent-confirm20/v1/payload/ocr-rgb-v2-scores-v1.jsonl",
+        "sha256": "95298c040bf89b255e6387190139ac6ca39dbd9c428677ac67f22cb281a77323",
+        "size_bytes": 11760
+      },
+      {
+        "path": "independent-confirm20/v1/payload/ocr-rgb-v2-v1.json",
+        "sha256": "d72f1004346ab1f331bccf5bd616efe235a1fe7cc71c9cb65b5e7c31ef24b0ca",
+        "size_bytes": 1902
+      },
+      {
+        "path": "independent-confirm20/v1/payload/payload-manifest-v1.json",
+        "sha256": "494e998ff030c8407196e03311638794408270dc83da976a5448fe447a87c420",
+        "size_bytes": 1700
+      },
+      {
+        "path": "independent-confirm20/v1/payload/policy-vision-v3-scores-v1.jsonl",
+        "sha256": "c59213e062c819e74287ec6104932c7f50239535d048efa8272ffbda05905fd1",
+        "size_bytes": 11862
+      },
+      {
+        "path": "independent-confirm20/v1/payload/policy-vision-v3-v1.json",
+        "sha256": "bcfad62b7062dd409fb8ecde909355e1e3701c71848c8190293d559fe386d7b8",
+        "size_bytes": 1908
+      }
+    ]
+  },
+  "hugging_face": {
+    "repo": "gavinlaw/causalcache-independent-confirm20-mobile",
+    "repo_type": "dataset",
+    "private": true,
+    "base_commit": "c66a67c3451cee7e20ed737401dc8b074151574f",
+    "payload_commit": "6d0cd95997186293e01c65276f3c082c11a9f52d",
+    "main_commit": "6d0cd95997186293e01c65276f3c082c11a9f52d",
+    "payload_commit_is_direct_child_of_base": true,
+    "remote_file_count": 9,
+    "fresh_download_all_eight_payload_files_byte_identical": true,
+    "report_target_count": 0,
+    "annotated_tag_count": 0
+  },
+  "operation_boundary": {
+    "reference_policy_output_count": 0,
+    "restoration_output_count": 0,
+    "exact_subset_oracle_count": 0,
+    "confirm_report_count": 0,
+    "closed_loop_episode_count": 0,
+    "matched_nll_state_count": 0,
+    "sealed_androidworld_test_access_count": 0,
+    "retry_count": 0,
+    "top_up_count": 0,
+    "filter_count": 0
+  },
+  "scientific_validity": {
+    "confirm_verdict": null,
+    "paper_metric_valid": false,
+    "confirm_go": null,
+    "closed_loop_authorized": false,
+    "old_attempt_permanently_invalid": true
+  },
+  "continuation_boundary": {
+    "same_protocol_retry_allowed": false,
+    "old_attempt_reclassification_allowed": false,
+    "payload_recompute_or_mutation_allowed": false,
+    "threshold_data_model_seed_or_selection_change_allowed": false,
+    "versioned_restoration_only_continuation_allowed": true,
+    "continuation_must_adopt_exact_payload_commit": "6d0cd95997186293e01c65276f3c082c11a9f52d",
+    "closed_loop_remains_locked_until_valid_confirm_go": true
+  }
+}

@@ -6,7 +6,10 @@
 > Status: conditional v1 与一次 rescue 已永久停止（`NO_V2_CONDITIONAL_RESCUE`）；论文主线已切换为
 > **restoration-guided independent gate**。formal-58 的 5 个 independent checkpoints 原样冻结，fresh-16
 > 只作已消费 development evidence。新的 confirm-20 / paired closed-loop / matched-NLL Source-A 合同已冻结；
-> confirm policy/restoration output 尚未读取，AndroidWorld sealed test 仍 locked。
+> confirm-20 v1 已完成 label-blind payload seal，但在第一个 restoration/reference forward 前因父进程
+> CUDA/fork 边界失效，永久记为 execution `INVALID`，没有科学 GO/NO-GO。既有 8-file payload 已在 private HF
+> commit `6d0cd959...9f52d` 逐字节重放；AndroidWorld closed-loop 与 sealed test 仍 locked。下一步只允许
+> versioned restoration-only continuation 采用相同 payload，不允许重算 selector 或修改阈值/数据/模型。
 
 > Current route: failure decomposition 的 `NO_V2_CONDITIONAL_RESCUE` 不变；它否定 set-conditioned student，
 > 没有否定 restoration supervision 或 independent selector。fresh-16 上 independent mean normalized recovery=
@@ -1188,7 +1191,7 @@ mediation effect。
 | Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
 | Gate v1 formal-58 selector ensemble | [private HF model](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)；[completion record](data/results/gate_v1_formal58_train_v1/) | tag `gate-v1-formal58-train-v1` → manifest commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；annotated tag `fa85e746...b4d6` | 5 conditional + 5 independent checkpoints、2 full OOF reports、4 manifests；immutable replay 0 mutation；independent 5-seed ensemble 已冻结为新 confirm 主线，不重训 |
 | Gate v1 fresh-16 primary evaluation | [protocol](docs/gate_v1_fresh16_claim_serialization_repair.md)；[completion record](data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile) | claim repair A=`f0dd53b` / B=`ce523ff`；tag `gate-v1-fresh16-claim-serialization-repair-v1` → report commit `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`；annotated tag object `34d5928...c4339` | `COMPLETED + REVALIDATED`；conditional normalized/exact=`0.6942`、raw/exact=`0.9431`、vs strongest heuristic delta=`+0.3261`；selector `NO-GO`、set-conditioning `NO-GO`；旧 dev-5/confirm/matched-NLL/closed-loop locked |
-| Independent confirm-20 v1（Source-A frozen） | [contract](code/configs/causalcache_independent_confirm_closed_loop_v1.json)；[protocol](docs/independent_confirm_closed_loop_v1.md)；planned private HF dataset `gavinlaw/causalcache-independent-confirm20-mobile` | config SHA256 `33e5c0f8...7b63`；tag `independent-confirm20-v1` 尚未创建 | 41-path/12-module Source-A 已冻结，confirm policy/restoration output 仍为 0。先发布 label-blind payload commit，再允许完整 20-state restoration/report direct child；只有 GO 才打开 paired train-60 closed-loop |
+| Independent confirm-20 v1 attempt | [contract](code/configs/causalcache_independent_confirm_closed_loop_v1.json)；[protocol](docs/independent_confirm_closed_loop_v1.md)；[failure evidence](data/results/independent_confirm20_v1_attempt/)；private HF dataset `gavinlaw/causalcache-independent-confirm20-mobile` | A=`e1cc8b3`，B=`f1e9196`；payload `6d0cd959...9f52d`；tag/report absent | 20-state label-blind payload 已 seal/replay；restoration 在 reference output 0 时因 CUDA-after-fork 失效。永久 execution `INVALID`，无科学结论；closed-loop locked，只允许采用 exact payload 的 versioned continuation |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

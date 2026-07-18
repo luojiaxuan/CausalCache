@@ -2847,3 +2847,22 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   namespace 不删除、不覆盖、不续跑；claim-serialization repair Source-A 已冻结旧 bytes/successor absence 的
   expected bindings、未来 B read-only revalidation 与新的 local/HF identities。下一步是 commit/push A 后从 clean
   A 机械生成唯一 B。
+
+### 2026-07-18：independent confirm-20 v1 在 restoration 前 execution INVALID
+
+- independent 主线 Source-A=`e1cc8b3a0b8d06433674fe32652078a47b256f10` 与唯一 direct-child
+  Execution-B=`f1e91964096dfa699c9fa930922bc2fe64c17bce` 已 push；contract SHA256 为
+  `33e5c0f856a9074cd5460f0d6f7cdda2108b120d50b208234253ff3136d27b63`；
+- Hyper00 四 H200 data-blind topology smoke 通过，receipt SHA256 为
+  `8e06034e7b485a00fe288dc824eabd538cea02dee876027d54ac8b2432e22f13`。formal attempt 完成 20-state
+  feature/independent/dynamic-recent/OCR-RGB/policy-vision label-blind payload，并发布 private HF payload commit
+  `6d0cd95997186293e01c65276f3c082c11a9f52d`；8 files fresh-download byte replay 全过；
+- restoration worker 采用 POSIX `fork` 传递不可伪造的 typed payload receipt，但 formal parent 已提前初始化
+  CUDA；四个 worker 在构造 runtime 时触发 `Cannot re-initialize CUDA in forked subprocess`。失败发生在第一条
+  reference generation/teacher forward 之前；reference/restoration/exact oracle/report/closed-loop/matched-NLL/
+  sealed-test access 全为 0；
+- 该 attempt 永久 `INVALID_INDEPENDENT_CONFIRM20_V1_CUDA_FORK_BOUNDARY`，不是 selector NO-GO；同一 identity
+  不重试，远端 payload 不覆盖。轻量证据见 `data/results/independent_confirm20_v1_attempt/`；
+- 下一步另立 restoration-only continuation Source-A/B：只采用并 fresh replay 已有 exact payload，修复
+  CUDA-clean parent 边界，再运行原冻结 restoration/report。阈值、数据、模型、seed、selection 与 GO 判据全部
+  不变；有效 confirm GO 前 paired closed-loop 保持 locked。

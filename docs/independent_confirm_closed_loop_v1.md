@@ -166,3 +166,21 @@ post-treatment mechanism association，不是 mediated causal effect。
 
 任何一步失败都保留原始 evidence 和固定 denominator，不通过改数据、阈值、模型、seed 或 comparator
 把结果调成 GO。
+
+## v1 formal attempt 结果：execution INVALID
+
+唯一 v1 formal attempt 已在 Hyper00 四张 H200 上运行。data-blind topology smoke 通过；20-state
+label-blind payload 已本地 seal，并发布为 private HF commit
+`6d0cd95997186293e01c65276f3c082c11a9f52d`。8 个 payload targets 经 fresh download 全部逐字节一致，
+report targets 与 annotated tag 均不存在。
+
+执行随后在第一个 restoration worker 创建 runtime 时失败。formal 父进程在 POSIX `fork` 前已经初始化 CUDA，
+子进程触发 PyTorch 的 `Cannot re-initialize CUDA in forked subprocess`。此时 reference generation、teacher
+forward、`D(S)`、exact-subset oracle 与 report 都是 0，因此本次状态永久为 execution `INVALID`，不是 confirm
+`NO-GO`。机器可读证据见
+[`data/results/independent_confirm20_v1_attempt/`](../data/results/independent_confirm20_v1_attempt/)。
+
+同一 v1 identity 不得重试。允许的下一步仅是独立 Source-A/B 的 restoration-only continuation：它必须绑定旧
+failure、A/B、topology receipt、HF base/payload history、8 个 exact payload bytes、report/tag absence，并在任何
+restoration semantic access 前完成 fresh replay；不得重新运行 policy-vision/independent selector，不得修改
+threshold、dataset、model、seed、selection 或 GO contract。旧 attempt 不因 continuation 成功而重分类。

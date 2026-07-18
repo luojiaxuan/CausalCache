@@ -1,0 +1,13 @@
+{
+  "exception_type": "RuntimeError",
+  "filter_count": 0,
+  "message": "restoration phase worker failed: {'ok': False, 'worker_id': 'worker-0', 'exception_type': 'RuntimeError', 'message': \"Cannot re-initialize CUDA in forked subprocess. To use CUDA with multiprocessing, you must use the 'spawn' start method\"}",
+  "payload_locally_sealed": true,
+  "protocol_id": "causalcache_independent_confirm20_execution_v1",
+  "report_locally_persisted": false,
+  "retry_count": 0,
+  "schema_version": "1.0.0",
+  "sealed_androidworld_test_access_count": 0,
+  "status": "INVALID_INDEPENDENT_CONFIRM20_EXECUTION_V1",
+  "top_up_count": 0
+}
