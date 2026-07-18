@@ -3,11 +3,12 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 parent v1 = pre-semantic inventory `INVALID`; full-inventory repair v1 = pre-label claim-serialization `INVALID`; claim-serialization repair = `COMPLETED` + `REVALIDATED`, selector `NO-GO`, set-conditioning `NO-GO` / confirm、matched-NLL、closed-loop locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 parent v1 = pre-semantic inventory `INVALID`; full-inventory repair v1 = pre-label claim-serialization `INVALID`; claim-serialization repair = `COMPLETED` + `REVALIDATED`, selector `NO-GO`, set-conditioning `NO-GO` / failure decomposition = `COMPLETED` + `REVALIDATED`, `NO_V2_CONDITIONAL_RESCUE` / confirm、matched-NLL、closed-loop locked
 
-> Current diagnostic: fresh-16 failure-decomposition Source-A 随本 milestone 冻结；当前没有新的 scientific result、HF child
-> 或 execution authorization。该 child 只允许读取 parent 的 exact-three sealed files，并按冻结规则路由
-> `ONE_V2_CONDITIONAL_RESCUE` 或停止 set-conditioned 主张；不会翻转 v1 `NO-GO`。
+> Current diagnostic: fresh-16 failure decomposition 已从 Source-A=`718a08b`、唯一 Execution-B=`21b7750`
+> 完成 CPU-only formal run、private-HF exact-three publication 与独立 immutable replay。true greedy / exact 为
+> `0.956636` normalized、`0.975350` raw，search 通过；但 oracle `G-J` positive support 只有 `10/16 < 12/16`，
+> 冻结 route 输出 `NO_V2_CONDITIONAL_RESCUE`。v1 `NO-GO` 不变，不执行 matched-NLL、closed-loop 或 confirm。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
@@ -123,15 +124,17 @@ policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interf
 state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式状态为 `VALID`；result commit 后又从
 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
 
-当前关键路径已经闭合到 frozen formal-58 ensemble → fresh-16 valid primary `NO-GO`。父 v1 与
+当前关键路径已经闭合到 frozen formal-58 ensemble → fresh-16 valid primary `NO-GO` → formal failure
+decomposition `NO_V2_CONDITIONAL_RESCUE`。父 v1 与
 full-inventory repair 的两次失败均保持永久 `INVALID`；claim-serialization repair 以独立 A/B、namespace 和 HF
 identity 完成了 16/48/144/448 denominator、双 H200 `49` processor batches / `97` vision forwards、16-receipt
 receipt chain、9+4 direct two-commit publication 与 immutable replay。primary conditional gate 虽显著优于三类
 heuristic 的 aggregate mean，但未达到 frozen oracle-proximity、seed-stability 与 trajectory-support gates；
-set-conditioned gate 也明显弱于 parameter-matched independent comparator。下一步不是打开 post-GO stages，
-而是用已 sealed fresh-16 artifact 做预先规划过的 failure decomposition：拆分 exact→true-greedy search gap 与
-true-greedy→student distillation gap，并按 `n`、interaction、denominator 与 selection step 分层。fresh-16 已消费，
-不能据此改模型后再把同一 split 当作 confirm；若另立 v2 rescue，必须预注册并使用 untouched holdout。
+set-conditioned gate 也明显弱于 parameter-matched independent comparator。failure decomposition 进一步证明
+true greedy 已接近 exact，但 oracle set-conditioning headroom 只有 `10/16` trajectories 同方向，未达到冻结的
+`12/16`；即使 student gap material，也不授权一次 conditional v2 rescue。fresh-16 已消费，不能据此改模型后
+再把同一 split 当作 confirm。当前停止 set-conditioned CausalCache 独立 AAAI 主线；若未来保留
+restoration-guided independent 前置模块，必须另立新问题、新 contract 与 untouched holdout，不能沿用本次权限。
 已发布 child 的冻结分母为
 64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
@@ -876,8 +879,8 @@ $$
 - [x] 从 clean pushed claim-repair A 重放 source validation，机械生成唯一 direct-child B 并单独 commit/push；
 - [x] 对已冻结 ensemble 执行一次性 fresh-16 primary，完成 13-target private-HF publication 与独立 immutable
   validate；结果为 selector `NO-GO`、set-conditioning `NO-GO`；
-- [ ] 完成只读 fresh-16 failure-decomposition Source-A/Execution-B、private-HF exact-three publication 与
-  immutable replay；项目选择不执行 post-primary combined-21 compatibility；
+- [x] 完成只读 fresh-16 failure-decomposition Source-A/Execution-B、private-HF exact-three publication 与
+  immutable replay；route=`NO_V2_CONDITIONAL_RESCUE`，项目选择不执行 post-primary combined-21 compatibility；
   confirm、matched-NLL 与 closed-loop 的 post-GO 权限继续保持 locked；
 - [ ] 整理论文与复现实验配置。
 
@@ -939,7 +942,8 @@ $$
 - Gate v1 fresh-16 claim-serialization repair Source-A config: [`code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`](code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json)，SHA256 `3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7`；57-path source inventory SHA256 `572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`
 - Gate v1 fresh-16 primary result: [`data/results/gate_v1_fresh16_claim_serialization_repair_v1/`](data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；private HF tag `gate-v1-fresh16-claim-serialization-repair-v1` → `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`
 - Gate v1 fresh-16 failure-decomposition protocol: [`docs/gate_v1_fresh16_failure_decomposition.md`](docs/gate_v1_fresh16_failure_decomposition.md)
-- Gate v1 fresh-16 failure-decomposition Source-A config: [`code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json`](code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json)，SHA256 `fa2cd3759150f838fce78b72a987d7a889ef23f5eec5ec41286ae69090104f1f`；当前 source-only，private-HF child 尚未创建
+- Gate v1 fresh-16 failure-decomposition Source-A config: [`code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json`](code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json)，SHA256 `fa2cd3759150f838fce78b72a987d7a889ef23f5eec5ec41286ae69090104f1f`
+- Gate v1 fresh-16 failure-decomposition result: [`data/results/gate_v1_fresh16_failure_decomposition_v1/`](data/results/gate_v1_fresh16_failure_decomposition_v1/)；private HF tag `gate-v1-fresh16-failure-decomposition-v1` → exact-three commit `9aa2540088c575f5c34dfb208e4f429fa53d355b`；route `NO_V2_CONDITIONAL_RESCUE`
 - Gate v1 synthetic-only smoke: [`code/scripts/run_gate_v1_trainer_smoke.py`](code/scripts/run_gate_v1_trainer_smoke.py)
 - Label-expansion exposure protocol: [`docs/restoration_v2_2_label_expansion_exposure.md`](docs/restoration_v2_2_label_expansion_exposure.md)
 - Label-expansion exposure materializer: [`code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py`](code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py)

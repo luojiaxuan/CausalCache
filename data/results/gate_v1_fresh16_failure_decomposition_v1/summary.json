@@ -1,0 +1,462 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_gate_v1_fresh16_failure_decomposition_v1",
+  "status": "REVALIDATED_GATE_V1_FRESH16_FAILURE_DECOMPOSITION_V1",
+  "verdict": {
+    "implementation_valid": true,
+    "outcome": "NO_V2_CONDITIONAL_RESCUE",
+    "failed_at": "oracle_set_headroom_pass",
+    "search_pass": true,
+    "oracle_set_headroom_pass": false,
+    "material_student_gap": true,
+    "v2_conditional_rescue_authorized": false,
+    "parent_v1_verdict_unchanged": true,
+    "fresh16_is_consumed_diagnostic_only": true,
+    "interpretation": "True conditional greedy is sufficiently close to the exact subset oracle, and the learned conditional student has a material normalized gap. However, oracle set-conditioning headroom is positive on only 10 of 16 trajectories, below the frozen 12-of-16 requirement, so no conditional v2 rescue is authorized."
+  },
+  "source": {
+    "source_a_git_commit": "718a08b3d1ab78d5c2770e870cefabb2a8667f08",
+    "execution_b_git_commit": "21b775020318f40941bdaa1d9fc9c8f99b1e5c40",
+    "origin_main_git_commit": "21b775020318f40941bdaa1d9fc9c8f99b1e5c40",
+    "live_origin_main_git_commit": "21b775020318f40941bdaa1d9fc9c8f99b1e5c40",
+    "execution_b_direct_single_parent": true,
+    "execution_b_unique_diff": "code/configs/causalcache_gate_v1_fresh16_failure_decomposition_runner_v1.json",
+    "contract_sha256": "fa2cd3759150f838fce78b72a987d7a889ef23f5eec5ec41286ae69090104f1f",
+    "runner_freeze_sha256": "cc43d1cf609e5851543e5a0c3e256d9a6e82441d0bc9a55f1a5a1de8c0009a0c",
+    "source_inventory_path_count": 16,
+    "source_inventory_sha256": "0d7eebdafe2600db2f6065f6f619e074318a34a68f1f660d3c10d7b1063cdec4",
+    "loaded_module_count": 2,
+    "loaded_module_inventory_sha256": "d588833dd93bb7aa7cc2a840d46ee0ee2c5c3cdf754c0124eb53f82c60221087",
+    "parent_primary_result_git_commit": "a04049e3b9a314dcbeb478210cb53cd20a207d32"
+  },
+  "parent_input": {
+    "repo_type": "dataset",
+    "repo": "gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile",
+    "private": true,
+    "tag": "gate-v1-fresh16-claim-serialization-repair-v1",
+    "immutable_revision": "3541fe1ea2c46e555c29cc53483e6f3b809f8f81",
+    "annotated_tag_object": "34d5928db4e82532f46f7596702aec3f018c4339",
+    "identity_sha256": "3f49d636092ea64b0bb19250d55d6b90efa74fc267c52ad02a85f85e8efb91ff",
+    "reachable_commits": [
+      "3541fe1ea2c46e555c29cc53483e6f3b809f8f81",
+      "9f0c61b9437773ca5d3f7e0cabd6e2a987e3c908",
+      "68f82161c66ea6bf41c71b00a44da3c5f81ae7ca"
+    ],
+    "selective_target_count": 3,
+    "selective_files": [
+      {
+        "path": "fresh16-eval/v1/manifests/bundle-manifest-v1.json",
+        "size_bytes": 2133,
+        "sha256": "a11e9d693c2fa33f5f5f97b123649608bdf98583693caa818e166d8009382844"
+      },
+      {
+        "path": "fresh16-eval/v1/caches/label-states-v1.jsonl",
+        "size_bytes": 48134,
+        "sha256": "832096b98011264a6b7fee74b2e78798876ea0d5ffc5c9c9baf7642be8e92382"
+      },
+      {
+        "path": "fresh16-eval/v1/reports/primary-state-records-v1.jsonl",
+        "size_bytes": 128914,
+        "sha256": "9aaf8ffe217872986d9f87f88ed55e92c2742bebce944f8668de9d597dc0ac3f"
+      }
+    ],
+    "pre_post_identity_stable": true,
+    "parent_hf_mutation_count": 0
+  },
+  "runtime": {
+    "host_alias": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "architecture": "x86_64",
+    "kernel": "Linux 6.8.0-1043-aiext",
+    "container_name": "sglang-omni-jaxan-07181414",
+    "container_id": "ed83f5a9ff38b67f72974a63ee11851a33dffff8c0e1319f204ac77b73a5dc5c",
+    "container_hostname": "ed83f5a9ff38",
+    "container_image": "hongccc/sglang-omni:dev",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_created_utc": "2026-07-18T06:14:20.523818727Z",
+    "container_started_utc": "2026-07-18T06:14:20.544177633Z",
+    "container_runtime": "runc",
+    "privileged": false,
+    "cpu_only": true,
+    "gpu_count": 0,
+    "docker_device_requests": null,
+    "docker_devices": [],
+    "nvidia_device_nodes_present": false,
+    "python_version": "3.12.3",
+    "python_platform": "Linux-6.8.0-1043-aiext-x86_64-with-glibc2.39",
+    "huggingface_hub_version": "1.16.1",
+    "working_directory": "/data/CausalCache-fresh16-failure-decomposition-21b7750-clean",
+    "bootstrap_seed": 271828,
+    "dtype": "not_applicable_reporting_only"
+  },
+  "execution": {
+    "run": {
+      "status": "COMPLETED_GATE_V1_FRESH16_FAILURE_DECOMPOSITION_V1",
+      "exit_code": 0,
+      "started_utc": "2026-07-18T06:16:45.690306096Z",
+      "finished_utc": "2026-07-18T06:16:50.021356852Z",
+      "time_provenance": "run_log_birth_time_to_mtime",
+      "argv": [
+        "python3",
+        "-m",
+        "scripts.manage_gate_v1_fresh16_failure_decomposition",
+        "run",
+        "--repository-root",
+        ".",
+        "--contract",
+        "code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json",
+        "--execution-b-git-commit",
+        "21b775020318f40941bdaa1d9fc9c8f99b1e5c40",
+        "--data-root",
+        "/data",
+        "--fresh-download-parent",
+        "/data/tmp/fresh16-failure-decomposition-v1",
+        "--hf-token-file",
+        "/data/.secrets/hf_key.txt"
+      ],
+      "pythonpath": "code",
+      "log": {
+        "path": "/data/logs/gate-v1-fresh16-failure-decomposition-v1.run.log",
+        "mode": 420,
+        "size_bytes": 3095,
+        "sha256": "ba4309b4d14870d3f9fee9a00415bb193eb6367bddcabb09fed7789738d4f2be"
+      }
+    },
+    "validate": {
+      "status": "REVALIDATED_GATE_V1_FRESH16_FAILURE_DECOMPOSITION_V1",
+      "exit_code": 0,
+      "started_utc": "2026-07-18T06:16:58.528456548Z",
+      "finished_utc": "2026-07-18T06:17:01.283488835Z",
+      "time_provenance": "validate_log_birth_time_to_mtime",
+      "argv": [
+        "python3",
+        "-m",
+        "scripts.manage_gate_v1_fresh16_failure_decomposition",
+        "validate",
+        "--repository-root",
+        ".",
+        "--contract",
+        "code/configs/causalcache_gate_v1_fresh16_failure_decomposition_v1.json",
+        "--execution-b-git-commit",
+        "21b775020318f40941bdaa1d9fc9c8f99b1e5c40",
+        "--data-root",
+        "/data",
+        "--fresh-download-parent",
+        "/data/tmp/fresh16-failure-decomposition-v1",
+        "--hf-token-file",
+        "/data/.secrets/hf_key.txt"
+      ],
+      "pythonpath": "code",
+      "log": {
+        "path": "/data/logs/gate-v1-fresh16-failure-decomposition-v1.validate.log",
+        "mode": 420,
+        "size_bytes": 3097,
+        "sha256": "96c653c8be5d49c9521a86267a13d767e10b4949c81777f134fbe16b03c4539e"
+      }
+    },
+    "local_state": {
+      "directory": "/data/experiments/causalcache/gate-v1-fresh16-failure-decomposition-v1",
+      "durable_state_record_count": 7,
+      "completion_hard_link_entry_count": 2,
+      "filesystem_entry_count": 9,
+      "state_file_mode": 384,
+      "completion_staging_final_same_inode": true,
+      "completion_inode": 33048677,
+      "completion_size_bytes": 2353,
+      "completion_sha256": "5284a915e4ead3fd2daa4f416806ff74dd829dbba67826ab7dbd902fe4029fc0",
+      "state_record_inventory": [
+        {"ordinal": 0, "name": "global_claim", "size_bytes": 1573, "sha256": "9464d625ed1a26595f0eacf928730d643ebad7bdbe0290e180a21332cae30ef9"},
+        {"ordinal": 1, "name": "parent_readonly_attestation", "size_bytes": 2415, "sha256": "1f4bf20c8c4db3baece9fcc9c3343111fcd6d2629c9657c6686d0eb83abf3e32"},
+        {"ordinal": 2, "name": "local_report_completion", "size_bytes": 1030, "sha256": "9d172abd4e7d5cf983676e9102f9b3533663a06b50488acda82d1a7c6b6e4ed8"},
+        {"ordinal": 3, "name": "child_remote_base_receipt", "size_bytes": 655, "sha256": "65d40e7273ba40b2bc00d06f218a230c268a464e3deec4b4f52e773613f5b889"},
+        {"ordinal": 4, "name": "child_report_commit_receipt", "size_bytes": 1215, "sha256": "7975f355aecad6fe21363f90ff11f90b92bb15fc499761d4364c1fd0abe0e04c"},
+        {"ordinal": 5, "name": "child_tag_receipt", "size_bytes": 614, "sha256": "9c3e69e8c09efd7d9b7f0709b63c5fd41f007895a159bd958ceb328ed7068f28"},
+        {"ordinal": 6, "name": "immutable_replay_completion", "size_bytes": 635, "sha256": "88f17cfe8ae022b69f6a09fcb942306790da5cac95667fe501a91eb60e07d98f"}
+      ]
+    },
+    "local_artifact": {
+      "directory": "/data/artifacts/causalcache/gate-v1-fresh16-failure-decomposition-v1",
+      "file_count": 3,
+      "file_mode": 292,
+      "total_size_bytes": 241106
+    }
+  },
+  "science": {
+    "report_status": "FROZEN_GATE_V1_FRESH16_FAILURE_DECOMPOSITION_V1",
+    "source_count": 16,
+    "state_count": 48,
+    "budget_event_capacity": 2,
+    "normalization_epsilon": 1e-12,
+    "label_tie_epsilon": 1e-12,
+    "aggregation": {
+      "unit": "trajectory_equal_then_state_equal_within_trajectory",
+      "raw_includes_small_baseline_states": true,
+      "normalized_excludes_baseline_at_or_below_epsilon": true
+    },
+    "method_aliases": {
+      "E": "exact",
+      "G": "true_greedy",
+      "J": "oracle_independent",
+      "C": "conditional",
+      "I": "independent"
+    },
+    "overall": {
+      "methods": {
+        "exact": {"mean_raw_utility": 0.0430141145388158, "mean_normalized_recovery": 0.8498409020600457, "raw_ratio_to_exact": 1.0, "normalized_ratio_to_exact": 1.0},
+        "true_greedy": {"mean_raw_utility": 0.04195383528281127, "mean_normalized_recovery": 0.812988316369032, "raw_ratio_to_exact": 0.9753504339826005, "normalized_ratio_to_exact": 0.9566359002000473},
+        "oracle_independent": {"mean_raw_utility": 0.04125120332165958, "mean_normalized_recovery": 0.7313045618365356, "raw_ratio_to_exact": 0.959015517672336, "normalized_ratio_to_exact": 0.8605193749369162},
+        "conditional": {"mean_raw_utility": 0.04056624873237524, "mean_normalized_recovery": 0.5899844546700871, "raw_ratio_to_exact": 0.94309156813558, "normalized_ratio_to_exact": 0.6942293001430538},
+        "independent": {"mean_raw_utility": 0.04046445946535945, "mean_normalized_recovery": 0.7123785840017873, "raw_ratio_to_exact": 0.9407251526436619, "normalized_ratio_to_exact": 0.8382493502901018}
+      },
+      "gaps": {
+        "raw": {
+          "exact_minus_true_greedy": 0.0010602792560045274,
+          "true_greedy_minus_conditional": 0.0013875865504360263,
+          "exact_minus_conditional": 0.0024478658064405537,
+          "additive_identity_valid": true
+        },
+        "normalized": {
+          "exact_minus_true_greedy": 0.036852585691013684,
+          "true_greedy_minus_conditional": 0.22300386169894493,
+          "exact_minus_conditional": 0.2598564473899586,
+          "additive_identity_valid": true
+        }
+      }
+    },
+    "routing": {
+      "search": {
+        "normalized_ratio_to_exact": 0.9566359002000473,
+        "raw_ratio_to_exact": 0.9753504339826005,
+        "n3_raw_ratio_to_exact": 0.9365025844342454,
+        "n4_raw_ratio_to_exact": 0.9880672524814473,
+        "pass": true
+      },
+      "oracle_set_conditioning_headroom": {
+        "mean_normalized_delta": 0.08168375453249649,
+        "paired_bootstrap_lower": 0.0028158282778573134,
+        "positive_trajectory_count": 10,
+        "required_positive_trajectory_count": 12,
+        "pass": false
+      },
+      "student": {
+        "conditional_normalized_ratio_to_true_greedy": 0.7256985651467605,
+        "conditional_raw_ratio_to_true_greedy": 0.9669258712324561,
+        "material_gap": true
+      },
+      "bootstrap": {
+        "unit": "trajectory",
+        "resamples": 10000,
+        "confidence": 0.9,
+        "interval": "percentile",
+        "seed": 271828
+      }
+    },
+    "diagnostics": {
+      "denominator": {
+        "bottom_quartile_positive_normalized_regret_share": 0.8356958801812421,
+        "bottom_quartile_exact_raw_utility_share": 0.04059604430633258,
+        "full_normalized_ratio_to_exact": 0.6942293001430538,
+        "upper_three_quartiles_normalized_ratio_to_exact": 0.9408630804968666,
+        "drop_bottom_quartile_normalized_ratio_improvement": 0.24663378035381278,
+        "raw_minus_normalized_ratio_to_exact": 0.2488622679925262,
+        "denominator_dominated": true,
+        "diagnostic_only_cannot_change_v1_verdict": true
+      },
+      "prefix_completion": {
+        "mean_positive_prefix_lock_gap_raw": 0.0005375557818751986,
+        "mean_positive_completion_stop_gap_raw": 0.0019103100245653573,
+        "mean_positive_total_exact_student_gap_raw": 0.002447865806440556,
+        "prefix_share": 0.21960181822910424,
+        "completion_share": 0.7803981817708958,
+        "prefix_dominant": false,
+        "completion_dominant": true,
+        "diagnostic_only": true
+      },
+      "seed_stability": {
+        "conditional_seed_mean_normalized_recovery": [0.5907950946391896, 0.6214509881722905, 0.5969694098271209, 0.31181104993087627, 0.6018864801486513],
+        "conditional_seed_normalized_ratio_to_exact": [0.6951831727645498, 0.7312556816997986, 0.7024484328537789, 0.36690520446242914, 0.7082343044323429],
+        "conditional_seed_raw_ratio_to_exact": [0.9463775724685147, 0.9303678353325247, 0.9467136409243212, 0.9448744498721697, 0.9171136481312154],
+        "individual_seed_pass_count": 0,
+        "median_normalized_ratio_to_exact": 0.7024484328537789,
+        "worst_seed": 3,
+        "leave_worst_seed_normalized_recovery_population_std": 0.011476116617504027,
+        "instability_classification": "systemic"
+      },
+      "learned_C_vs_I_replay": {
+        "mean_normalized_delta": -0.12239412933170021,
+        "paired_bootstrap_lower": -0.363462873965254,
+        "positive_trajectory_count": 1,
+        "mean_raw_utility_delta": 0.00010178926701579633,
+        "recomputed_from_parent_sealed_state_records": true,
+        "diagnostic_only": true
+      }
+    },
+    "round_summary": {
+      "0": {
+        "state_count": 48,
+        "trajectory_count": 16,
+        "mean_predicted_ranking_regret": 0.018233087658882142,
+        "mean_true_regret": 0.005667882541426176,
+        "mean_normalized_true_regret": 0.3002424192091581,
+        "false_add_count": 7,
+        "false_stop_count": 0,
+        "student_error_type_counts": {"agree": 17, "wrong_event": 24, "premature_stop": 0, "nonpositive_addition": 7, "unreached_after_prior_divergence": 0}
+      },
+      "1": {
+        "state_count": 48,
+        "trajectory_count": 16,
+        "mean_predicted_ranking_regret": 0.0049781409092247465,
+        "mean_true_regret": 0.0019103100245653573,
+        "mean_normalized_true_regret": 0.17857777509851394,
+        "false_add_count": 2,
+        "false_stop_count": 0,
+        "student_error_type_counts": {"agree": 11, "wrong_event": 5, "premature_stop": 0, "nonpositive_addition": 1, "unreached_after_prior_divergence": 31}
+      }
+    },
+    "heuristics": {
+      "strongest": "dynamic_recent",
+      "mean_normalized_recovery": {
+        "dynamic_recent": 0.263873188052241,
+        "ocr_rgb_v2": 0.2584464422766176,
+        "policy_vision_v3": 0.2629377919435318
+      }
+    },
+    "by_n": {
+      "2": {
+        "state_count": 16,
+        "methods": {
+          "exact": {"mean_normalized_recovery": 1.0, "mean_raw_utility": 0.05167870104560279},
+          "true_greedy": {"normalized_ratio_to_exact": 1.0, "raw_ratio_to_exact": 1.0},
+          "conditional": {"normalized_ratio_to_exact": 1.0, "raw_ratio_to_exact": 1.0}
+        }
+      },
+      "3": {
+        "state_count": 16,
+        "methods": {
+          "exact": {"mean_normalized_recovery": 0.7901667280272244, "mean_raw_utility": 0.04378340905896039},
+          "true_greedy": {"normalized_ratio_to_exact": 0.8793816404894732, "raw_ratio_to_exact": 0.9365025844342454},
+          "conditional": {"normalized_ratio_to_exact": 0.9523626833373403, "raw_ratio_to_exact": 0.9555600424831856}
+        }
+      },
+      "4": {
+        "state_count": 16,
+        "methods": {
+          "exact": {"mean_normalized_recovery": 0.7593559781529126, "mean_raw_utility": 0.03358023351188422},
+          "true_greedy": {"normalized_ratio_to_exact": 0.9799183215286074, "raw_ratio_to_exact": 0.9880672524814473},
+          "conditional": {"normalized_ratio_to_exact": 0.022951104783240465, "raw_ratio_to_exact": 0.8392547038456469}
+        }
+      }
+    },
+    "row_bindings": {
+      "state_rows_record_count": 48,
+      "state_rows_size_bytes": 173701,
+      "state_rows_sha256": "0e048b85fdd84c94b7cab2a3ad78d948b85c07e26d804bb8a7781ba3a8e84069",
+      "trajectory_rows_record_count": 16,
+      "trajectory_rows_size_bytes": 26945,
+      "trajectory_rows_sha256": "3a2a25853f0bb1286eacdb020c9daeb767ea23db43e64ba708d1ef937cb065b7",
+      "full_rows_canonical_location": "private_hf_failure_decomposition_report_and_state_jsonl",
+      "full_strata_canonical_location": "private_hf_failure_decomposition_report"
+    }
+  },
+  "operation_counts": {
+    "pure_reducer": {
+      "scope": "pure_reducer_after_two_sealed_48_record_decodes",
+      "sealed_fresh16_label_state_decode_count": 48,
+      "sealed_parent_state_record_decode_count": 48,
+      "file_read": 0,
+      "file_write": 0,
+      "network": 0,
+      "torch_import": 0,
+      "gpu": 0,
+      "model_load": 0,
+      "model_forward": 0,
+      "policy_forward": 0,
+      "fresh16_raw_source_access_count": 0,
+      "upstream_raw_label_read_count": 0,
+      "legacy_dev5_semantic_decode_count": 0,
+      "confirm20_access_count": 0,
+      "matched_nll_evaluation_count": 0,
+      "closed_loop_episode_count": 0,
+      "gate_training_step_count": 0,
+      "hf_mutation": 0
+    },
+    "run_end_to_end": {
+      "parent_selective_download_count": 3,
+      "child_immutable_download_count": 6,
+      "reducer_invocation_count": 1,
+      "local_write_count": 3,
+      "remote_mutation_call_count": 3,
+      "parent_hf_mutation_count": 0
+    },
+    "validate_end_to_end": {
+      "parent_selective_download_count": 3,
+      "child_immutable_download_count": 6,
+      "reducer_invocation_count": 1,
+      "local_write_count": 0,
+      "remote_mutation_call_count": 0,
+      "parent_hf_mutation_count": 0
+    },
+    "prohibited_access": {
+      "raw_image_read_count": 0,
+      "gui_owl_model_load_count": 0,
+      "gate_checkpoint_load_count": 0,
+      "upstream_raw_label_read_count": 0,
+      "fresh16_raw_source_access_count": 0,
+      "legacy_dev5_semantic_decode_count": 0,
+      "confirm20_access_count": 0,
+      "matched_nll_evaluation_count": 0,
+      "closed_loop_episode_count": 0,
+      "policy_generation_count": 0,
+      "restoration_teacher_forward_count": 0,
+      "gate_training_step_count": 0
+    }
+  },
+  "hugging_face": {
+    "repo_type": "dataset",
+    "repo": "gavinlaw/causalcache-gate-v1-fresh16-failure-decomposition-mobile",
+    "url": "https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-failure-decomposition-mobile",
+    "private": true,
+    "initial_remote_state": "ABSENT",
+    "base_commit": "630a3cb0e6481086d37b0304aaa33160dc4741da",
+    "report_commit": "9aa2540088c575f5c34dfb208e4f429fa53d355b",
+    "tag": "gate-v1-fresh16-failure-decomposition-v1",
+    "annotated_tag_object": "4914c5add7ea27b89b185e240ea2670abe116473",
+    "tag_resolved_commit": "9aa2540088c575f5c34dfb208e4f429fa53d355b",
+    "tag_resolves_to_report_commit": true,
+    "exact_target_count": 3,
+    "exact_targets": [
+      {
+        "path": "fresh16-failure-decomposition/v1/bundle-manifest-v1.json",
+        "size_bytes": 3796,
+        "sha256": "54fe7b7c4e7b7fc9840aefb3a59de7d77f9d9de061aa759f40abd128bd4de41b"
+      },
+      {
+        "path": "fresh16-failure-decomposition/v1/failure-decomposition-report-v1.json",
+        "size_bytes": 63609,
+        "sha256": "7a9d30015ea2476efd5fc03ab8fdc9ef6f59f3da82d700ec252de0bccd081feb"
+      },
+      {
+        "path": "fresh16-failure-decomposition/v1/state-decomposition-v1.jsonl",
+        "size_bytes": 173701,
+        "sha256": "0e048b85fdd84c94b7cab2a3ad78d948b85c07e26d804bb8a7781ba3a8e84069"
+      }
+    ],
+    "run_remote_mutation_count": 3,
+    "immutable_replay_status": "REVALIDATED_GATE_V1_FRESH16_FAILURE_DECOMPOSITION_V1",
+    "immutable_replay_remote_mutation_count": 0,
+    "immutable_replay_local_write_count": 0
+  },
+  "still_locked": {
+    "parent_go_selector": false,
+    "parent_go_set_conditioning_primary": false,
+    "parent_v1_reclassification_allowed": false,
+    "fresh16_may_be_reused_as_v2_holdout": false,
+    "legacy_dev5_access_authorized": false,
+    "confirm20_access_authorized": false,
+    "matched_nll_authorized": false,
+    "closed_loop_authorized": false,
+    "gate_training_authorized": false,
+    "model_or_checkpoint_access_authorized": false,
+    "untouched_holdout_required_before_any_post_primary_stage": true
+  }
+}

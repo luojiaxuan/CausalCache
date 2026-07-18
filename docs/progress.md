@@ -19,7 +19,10 @@ normalized recovery / exact 为 `0.694229`，5 seeds 中 `0/5` 达到 `0.75`，s
 heuristic 的 mean normalized delta=`+0.326111` 且 90% bootstrap lower=`+0.049003`，positive support 只有
 `9/16` trajectories。conditional 相对 independent 的 normalized delta=`-0.122394`，仅 `1/16` trajectories、
 `1/5` seeds 为正，因此 set-conditioning primary 也 `NO-GO`。matched-NLL、closed-loop、旧 dev-5 与 confirm
-仍未执行。
+仍未执行。随后完成的 read-only failure decomposition 得到 true-greedy / exact=`0.956636` normalized、
+`0.975350` raw，说明 search 足够接近 exact；但 oracle `G-J` positive support 只有 `10/16 < 12/16`，冻结
+route 为 `NO_V2_CONDITIONAL_RESCUE`。因此当前停止 set-conditioned CausalCache 独立 AAAI 主线，不开放任何
+post-GO stage。
 selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
@@ -81,6 +84,32 @@ namespace 不得续跑。
 - source 阶段没有正式 diagnostic result。开发期只读 byte replay 只用于验证 reducer/contract plumbing，不能作为
   canonical result；唯一正式结论必须在 clean pushed Execution-B 上发布 private-HF exact-three 并 immutable
   replay 后形成。fresh-16 已消费，后续不能再把它当 v2 holdout。
+
+### 2026-07-18：fresh-16 failure decomposition 完成并停止 conditional rescue
+
+- Source-A=`718a08b3d1ab78d5c2770e870cefabb2a8667f08`；唯一 direct-child
+  Execution-B=`21b775020318f40941bdaa1d9fc9c8f99b1e5c40` 只新增 runner-freeze，SHA256
+  `cc43d1cf609e5851543e5a0c3e256d9a6e82441d0bc9a55f1a5a1de8c0009a0c`。clean-pushed validator 绑定
+  16-path Source-A inventory SHA256 `0d7eebdafe2600db2f6065f6f619e074318a34a68f1f660d3c10d7b1063cdec4`；
+- Hyper00 新 CPU-only container `sglang-omni-jaxan-07181414` 未请求 GPU，容器内 GPU count 与
+  `/dev/nvidia*` 均为 0。formal run 只 force-download parent exact-three 中的 3 个 sealed files，解码 48 label
+  rows 与 48 primary state rows；raw image/trajectory、OCR、feature/model/checkpoint、policy/teacher forward、
+  training、旧 dev-5、confirm、matched-NLL 与 closed-loop operation 全为 0；
+- search gate 通过：`G/E` normalized/raw=`0.9566359002 / 0.9753504340`，`n=3/4` raw=`0.9365025844 /
+  0.9880672525`。student gap material：`C/G` normalized/raw=`0.7256985651 / 0.9669258712`；
+- oracle set-conditioning mean 与 bootstrap lower 虽为正（`G-J=+0.0816837545`，90% lower=`+0.0028158283`），
+  positive trajectory support 只有 `10/16`，未达到冻结的 `12/16`。decision tree 因而精确失败于
+  `oracle_set_headroom_pass`，输出 `NO_V2_CONDITIONAL_RESCUE`；不能只凭 mean positive 启动 v2；
+- denominator-dominated=true、completion share=`0.7803981818`、seed failure=`systemic` 均只作解释，不能删
+  small-denominator states 或翻转 parent v1。learned `C-I` normalized delta 仍为 `-0.1223941293`；
+- private HF dataset
+  [`gavinlaw/causalcache-gate-v1-fresh16-failure-decomposition-mobile`](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-failure-decomposition-mobile)
+  exact-three commit=`9aa2540088c575f5c34dfb208e4f429fa53d355b`，annotated-tag object=
+  `4914c5add7ea27b89b185e240ea2670abe116473`。formal run 为 `COMPLETED`、3 次预期 remote mutation；独立
+  `validate` 为 `REVALIDATED`、remote mutation=0、local write=0，三文件逐 byte 相等；
+- fresh-16 已消费且不能作为 v2 holdout。当前不执行 combined-21、matched-NLL、closed-loop 或 confirm；若未来
+  研究 restoration-guided independent 模块，必须另立新问题、预注册 contract 与 untouched holdout。轻量结果见
+  [`../data/results/gate_v1_fresh16_failure_decomposition_v1/`](../data/results/gate_v1_fresh16_failure_decomposition_v1/)。
 
 ### 2026-07-18：fresh-16 claim-repair primary 完成并判定 NO-GO
 
@@ -2300,12 +2329,12 @@ execution 仍永久 pre-semantic fail-closed；其 one-leaf transport-repair 已
 no-GPU cache build、exact-three private-HF publication、fresh immutable replay 与只读 revalidation。formal-58
 cache 已被唯一 formal training B 消费；OOF/final fit、10-checkpoint private-HF publication 与只读 replay 均闭合。
 claim-serialization repair 已生成 fresh labels、primary report、HF tag 与独立 immutable replay；完整 machine-readable
-结果见 `data/results/gate_v1_fresh16_claim_serialization_repair_v1/`。下一步先做不改变 v1 verdict 的只读 failure
-decomposition：测 true conditional-marginal greedy vs exact 的 search regret、learned conditional vs true greedy
-的 student regret、第一/第二 selection step error，并按 `n=2/3/4`、interaction strength、`D(empty)` 与 oracle
-utility 分层。若 true greedy≈exact 而 student gap 大，才允许另立一次 v2 distillation rescue；若 search gap 本身
-大或 untouched holdout 再次失败，则停止 CausalCache 独立 AAAI 投稿。fresh-16 已消费，不能依据其结果调参后
-再当作 holdout；任何 v2 必须先预注册并使用 untouched confirm/new holdout。
+结果见 `data/results/gate_v1_fresh16_claim_serialization_repair_v1/`。只读 failure decomposition 也已完成、发布并
+revalidate：search 通过且 student gap material，但 oracle set-conditioning positive support=`10/16` 未达到冻结
+`12/16`，route=`NO_V2_CONDITIONAL_RESCUE`。因此不再为当前 conditional student 追加架构、搜索或 ablation，
+也不执行 combined-21、matched-NLL、closed-loop 或 confirm。下一项是整理论文/项目复现材料，并明确把当前结果
+作为 go/no-go negative evidence；若未来转向 restoration-guided independent 前置模块，必须另立问题、contract 与
+untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 

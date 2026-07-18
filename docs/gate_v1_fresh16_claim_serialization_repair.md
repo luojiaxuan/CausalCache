@@ -225,8 +225,11 @@ runner_freeze_b_present = false
    记录到两卡多次并发 `100%`，但不声称连续窗口 minimum；
 7. run 完成后已只读验证 local completion、13-target HF publication、tag-resolved immutable fresh-download replay；
 8. primary 未通过 selector/set-conditioning GO。项目选择不另立 post-primary combined-21 compatibility 阶段；
-   confirm、matched-NLL 与 closed-loop 的 post-GO 权限保持 locked。下一步只允许先冻结 read-only
-   failure-decomposition contract；fresh-16 已消费，不能作为改模后的 confirm。
+   confirm、matched-NLL 与 closed-loop 的 post-GO 权限保持 locked。随后 read-only failure decomposition 已由
+   独立 Source-A/Execution-B 完成并输出 `NO_V2_CONDITIONAL_RESCUE`，见
+   [`gate_v1_fresh16_failure_decomposition.md`](gate_v1_fresh16_failure_decomposition.md) 与
+   [`../data/results/gate_v1_fresh16_failure_decomposition_v1/`](../data/results/gate_v1_fresh16_failure_decomposition_v1/)；
+   fresh-16 已消费，不能作为改模后的 confirm，也不再授权当前 conditional student 的 v2 rescue。
 
 第 4 步以前的授权边界已由 source/runner receipts 保留；当前完成态不得删除或覆盖旧失败 roots、完成态 state、
 artifact、runtime receipt、logs 或 HF tag。

@@ -941,3 +941,37 @@ validation → mechanical direct-child B separate push → Hyper preflight + exa
 前验证 local evidence/new roots → owner/write-role 与三个 repo absence 验证 → unique completed run → immutable
 validate。run/validate exit 0，ordinal `0..15`、9+4 publication 和 tag replay 均闭合；结果为 selector/set-conditioning
 双 `NO-GO`。当前不得重跑完成态或打开 post-GO stages；下一步只允许新的 read-only failure-decomposition contract。
+
+## fresh-16 failure decomposition 完成态
+
+reporting-only child 的 Source-A=`718a08b3d1ab78d5c2770e870cefabb2a8667f08`，唯一 direct-child
+Execution-B=`21b775020318f40941bdaa1d9fc9c8f99b1e5c40`。B 唯一新增
+`code/configs/causalcache_gate_v1_fresh16_failure_decomposition_runner_v1.json`；run/validate 均要求 clean pushed
+canonical `main` 精确停在 B。formal 执行位于 Hyper00 CPU-only container
+`sglang-omni-jaxan-07181414`：`DeviceRequests=null`、unprivileged、`torch.cuda.device_count()==0` 且没有
+`/dev/nvidia*` device nodes，因此本阶段没有 GPU preflight 或 utilization requirement。
+
+| 项目 | value |
+| --- | --- |
+| state root | `/data/experiments/causalcache/gate-v1-fresh16-failure-decomposition-v1` |
+| artifact root | `/data/artifacts/causalcache/gate-v1-fresh16-failure-decomposition-v1` |
+| temporary download parent | `/data/tmp/fresh16-failure-decomposition-v1` |
+| private HF dataset | `gavinlaw/causalcache-gate-v1-fresh16-failure-decomposition-mobile` |
+| exact-three commit | `9aa2540088c575f5c34dfb208e4f429fa53d355b` |
+| annotated tag object | `4914c5add7ea27b89b185e240ea2670abe116473` |
+| immutable tag | `gate-v1-fresh16-failure-decomposition-v1` → exact-three commit |
+
+正式 `run` 只读取 parent report commit 上的 bundle、48-row labels 与 48-row primary states；parent mutation=0。
+它先生成 local exact-three，再创建新的 private repo、单次 exact-three commit 与 annotated tag，故 remote mutation
+count=`3`。完成态包含 7 条 mode-0600 durable records，加同 bytes、同 inode 的 completion staging/final
+hard-link pair，共 9 个 filesystem entries，不是 9 条独立 records；artifact exact-three 均为 mode 0444。
+
+随后从同一 clean B 执行 `validate`：重新 force-download parent/child immutable bytes、复算 reducer、验证 local
+exact-three 与 exact-nine completion，返回 `REVALIDATED_GATE_V1_FRESH16_FAILURE_DECOMPOSITION_V1`、remote
+mutation=`0`、local write=`0`。完整命令、log hash、state/hash 与正式 route 见
+[`../data/results/gate_v1_fresh16_failure_decomposition_v1/`](../data/results/gate_v1_fresh16_failure_decomposition_v1/)。
+
+该完成态输出 `NO_V2_CONDITIONAL_RESCUE`，并使“下一步只允许 failure decomposition”的旧权限耗尽。不得重跑
+同一 v1、不得删除 state/artifact/HF tag，也不得打开 combined-21、旧 dev-5、confirm、matched-NLL 或
+closed-loop。任何未来 independent restoration 方向都需要新的 source/contract/untouched holdout，不继承本 child
+的执行授权。

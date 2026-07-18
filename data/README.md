@@ -278,6 +278,14 @@ restoration v2 exact selection/exposure 产物：
   matched-NLL 与 closed-loop 仍为 0；协议见
   `../docs/gate_v1_fresh16_claim_serialization_repair.md`；
 
+- `results/gate_v1_fresh16_failure_decomposition_v1/`：Source-A=`718a08b…7f08`、唯一 direct-child
+  Execution-B=`21b7750…5c40` 的 reporting-only completion record。完整 48-state artifact 位于 private HF dataset
+  `gavinlaw/causalcache-gate-v1-fresh16-failure-decomposition-mobile`，tag
+  `gate-v1-fresh16-failure-decomposition-v1` → exact-three commit `9aa2540088c575f5c34dfb208e4f429fa53d355b`；
+  Git 只保存 aggregate、runtime、hash 与 route。formal run=`COMPLETED`，独立 replay=`REVALIDATED` 且 remote
+  mutation=0。冻结 route 为 `NO_V2_CONDITIONAL_RESCUE`，parent v1 `NO-GO` 不变；旧 dev-5、confirm、matched-NLL
+  与 closed-loop 均未访问。协议见 `../docs/gate_v1_fresh16_failure_decomposition.md`；
+
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private
   HF immutable revision `d6b2312e...45c1` fresh-download 并完成 canonical rebuild；v2.1 NO-GO 不变；
