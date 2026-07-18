@@ -50,6 +50,22 @@
   retrain/repredict/retune，并必须披露 parent decode 1 次与 repair deterministic replay 1 次，不能称 pristine
   one-pass evaluation。repair 完成前，private HF publication 仍为 pending。
 
+### 2026-07-18：historical-protocol parser-only repair Source-A 准备
+
+- 新 repair contract SHA256=`da28f5851598703d255b5de7010002d00cb9cb7d43541d981910a67165bbbe0a`，
+  exact-only 绑定 producer protocol `causalcache_gate_v1_fresh16_evaluation_v1`，拒绝 allowlist；原 parser 的
+  canonical bytes、keys/status/name、48-state order、5-seed feasibility 与 selection digest 检查全部保留；
+- repair source 绑定原 A=`d4e7b006…`、B=`2bfd8bc3…`、失败记录 commit=`e0f70cf1…`、seal
+  `9029f0dc…`、claim `7bb9a95b…`、predictions `23235c59…` 与 10 个 parent sealed artifacts。runner 只有
+  `evaluate/validate`，没有 train/predict 入口；
+- repair 会先完整 parse historical artifact，再进行第二次 label deterministic replay，避免 parser 再次在 label
+  后失败。最终新路径必须披露 claim=1、label decode attempts=2、historical parse attempts=2、training=1、
+  prediction generation=1、report completion=1，且 confirm/GPU/policy/legacy/matched-NLL/closed-loop 全为 0；
+- 原 report path 永久 absent；repair 使用 versioned report path。当前尚处 Source-A 实现/测试阶段，没有第二次
+  label decode，也没有 development metric。repair 专项为 7 passed，v3+repair focused 为 45 passed / 5
+  skipped；全仓为 1,364 passed / 13 skipped / 6 个已知历史 failure / 620 subtests，isolation-sensitive CPU
+  test 单独复跑 1 passed，compileall 与 diff-check 通过。下一步 commit/push Source-A，再机械生成唯一 B。
+
 AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
 与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
 `NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权

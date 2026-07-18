@@ -240,6 +240,29 @@ artifact 的 protocol-id contract 写错而 fail closed。实际 SHA-pinned arti
 selector 或阈值变化，并把首次 decode 与 repair replay 的总次数如实写入结果。该 repair 仍只是 consumed
 development diagnostic，不能开放 confirm。
 
+parser-only repair 使用独立机器可读 contract
+`code/configs/causalcache_set_conditioned_v3_historical_protocol_parser_repair_v1.json`，SHA256 为
+`da28f5851598703d255b5de7010002d00cb9cb7d43541d981910a67165bbbe0a`。它只接受 exact producer protocol
+`causalcache_gate_v1_fresh16_evaluation_v1`，不使用 allowlist；其余 canonical bytes、top-level keys、status、
+48-state order、5-seed feasibility 和 selection digest 检查全部保留。
+
+repair 重新采用 Source-A / 单文件 Execution-B：A 绑定原 A/B、失败记录、seal、claim、prediction 和全部 source
+bytes；B 只能新增 canonical runner freeze。runner 只有 `evaluate` 与 `validate`，没有 training/prediction
+entrypoint。状态链为：
+
+```text
+parent seal -> unique parent claim -> parent decode attempt 1 -> protocol mismatch/no metric
+-> parser-repair Source-A/B freeze -> parent byte revalidation
+-> exact historical parse -> repair label replay attempt 2
+-> one versioned development report -> byte replay
+```
+
+最终 report 不保留容易误解的 `fresh_label_decode_count=1`，而是显式记录 claim total=1、semantic decode
+attempt total=2、historical parse attempt total=2、training total=1、prediction generation total=1、report
+completion total=1；所有 confirm/GPU/policy/legacy/matched-NLL/closed-loop count 均为 0。原
+`fresh16-development-report.json` 永久保持不存在，repair 只创建
+`fresh16-development-report-parser-repair-v1.json`。
+
 输入都绑定 immutable HF revision 和逐文件 SHA-256。v3 的本地 staging 只允许写：
 
 ```text

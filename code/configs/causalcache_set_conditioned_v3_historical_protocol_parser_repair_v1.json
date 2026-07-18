@@ -1,0 +1,134 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_set_conditioned_v3_historical_protocol_parser_repair_v1",
+  "status": "source_a_frozen_before_set_conditioned_v3_parser_repair",
+  "lineage": {
+    "branch": "luojiaxuan/set-conditioned-v3-pair-residual",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "parent_source_a_git_commit": "d4e7b0065916513d18621925c212798018960c6b",
+    "parent_execution_b_git_commit": "2bfd8bc39c760e6590f923f88c2097d164b94bb4",
+    "failure_record_git_commit": "e0f70cf17fc8d0bbc00f1ceac51224149c41cc87",
+    "parent_contract_sha256": "8e1439f981212d8d26b835f1a5994904b425f014037f8a1cebb3e364cf5bdf2f",
+    "parent_runner_freeze_sha256": "bf2511aa9cb536a4ba71f2d4d403d925102fc5544901e2c6108334084e09a0f2",
+    "failure_record": {
+      "path": "data/results/set_conditioned_v3_pair_residual_attempt_v1/summary.json",
+      "sha256": "81d5a36c22f2e36ac2c48e8a7b446b389c3e3ac30ebeb499c90fe14f03a52ce9",
+      "size_bytes": 3203,
+      "status": "INVALID_SET_CONDITIONED_V3_HISTORICAL_PROTOCOL_PARSER_ATTEMPT_V1"
+    }
+  },
+  "source_freeze": {
+    "required_branch": "luojiaxuan/set-conditioned-v3-pair-residual",
+    "required_base_ancestor": "e0f70cf17fc8d0bbc00f1ceac51224149c41cc87",
+    "execution_b_runner_freeze_path": "code/configs/causalcache_set_conditioned_v3_historical_protocol_parser_repair_runner_v1.json",
+    "execution_b_must_be_direct_single_parent_of_source_a": true,
+    "execution_b_runner_freeze_must_be_unique_added_diff": true,
+    "execution_b_runner_freeze_must_be_absent_during_source_a_validation": true,
+    "execution_b_must_be_clean_and_pushed": true,
+    "required_source_a_paths": [
+      "README.md",
+      "code/configs/causalcache_set_conditioned_v3_historical_protocol_parser_repair_v1.json",
+      "code/causalcache/set_conditioned_v3_parser_repair_contract.py",
+      "code/causalcache/set_conditioned_v3_parser_repair.py",
+      "code/scripts/run_set_conditioned_v3_parser_repair.py",
+      "code/tests/test_set_conditioned_v3_parser_repair.py",
+      "code/causalcache/set_conditioned_v3_exploration.py",
+      "code/causalcache/set_conditioned_v3_data.py",
+      "code/causalcache/set_conditioned_v3_training.py",
+      "code/causalcache/set_conditioned_v3_contract.py",
+      "code/causalcache/gate_v1_contract.py",
+      "code/causalcache/gate_v1_data.py",
+      "code/causalcache/gate_v1_formal_cache.py",
+      "code/causalcache/gate_v1_formal_train.py",
+      "code/causalcache/gate_v1_fresh16.py",
+      "code/causalcache/gate_v1_provenance.py",
+      "code/causalcache/gate_v1_training.py",
+      "code/causalcache/restoration_v2_2_label_table.py",
+      "data/results/set_conditioned_v3_pair_residual_attempt_v1/summary.json",
+      "docs/set_conditioned_v3_pair_residual.md",
+      "docs/progress.md"
+    ],
+    "source_only_network_call_count": 0,
+    "source_only_semantic_data_read_count": 0
+  },
+  "parser_repair": {
+    "failed_expected_protocol_id": "causalcache_gate_v1_fresh16_primary_v1",
+    "exact_required_protocol_id": "causalcache_gate_v1_fresh16_evaluation_v1",
+    "exact_status": "FROZEN_GATE_V1_FRESH16_LEARNED_SELECTIONS_V1",
+    "exact_name": "independent",
+    "exact_decision_contract": "FEATURE_ONLY_ALL_ENSEMBLE_AND_SEED_DECISIONS_V1",
+    "only_semantic_change": "bind_historical_decision_artifact_to_its_exact_producer_protocol_id",
+    "protocol_allowlist_forbidden": true,
+    "checkpoint_change_allowed": false,
+    "training_report_change_allowed": false,
+    "prediction_change_allowed": false,
+    "selector_change_allowed": false,
+    "threshold_change_allowed": false,
+    "bootstrap_change_allowed": false
+  },
+  "input_contract": {
+    "fresh_feature": {
+      "local_name": "fresh16-feature-states.jsonl",
+      "sha256": "deacc63480ed706d44e7690d974250860d1bc3e5967d4c2a3315090fe4b93939",
+      "size_bytes": 192113
+    },
+    "fresh_label": {
+      "local_name": "fresh16-label-states.jsonl",
+      "sha256": "832096b98011264a6b7fee74b2e78798876ea0d5ffc5c9c9baf7642be8e92382",
+      "size_bytes": 48134
+    },
+    "historical_independent": {
+      "local_name": "fresh16-historical-independent.json",
+      "sha256": "2359c0f4b03e7009291c8912bea7193a4dfebd5f01d4876efd312bc595404dd2",
+      "size_bytes": 16602
+    }
+  },
+  "parent_sealed_artifacts": [
+    {"path": "checkpoints/seed-0.safetensors", "sha256": "e25912ea96ba19b0978f66a788617b65845829efc597976086f58a3201196864", "size_bytes": 134848},
+    {"path": "checkpoints/seed-1.safetensors", "sha256": "51cf34ed9ec8c9ca83447b7780a03f7b20c61e993850f27b672fddceaeaef91f", "size_bytes": 134848},
+    {"path": "checkpoints/seed-2.safetensors", "sha256": "d07bd1d158112552c9d2309062b5b4bf2ec7afaadcca3532389bbca991cad75c", "size_bytes": 134848},
+    {"path": "checkpoints/seed-3.safetensors", "sha256": "a23036d96edd6a4877aef5adfc86d684bb4d470d660afc38c081013d982e8320", "size_bytes": 134848},
+    {"path": "checkpoints/seed-4.safetensors", "sha256": "b4e135af80dd7c4c69cda21b58da3b1cff2368930a37e5b85151a26e7ac44944", "size_bytes": 134848},
+    {"path": "formal58-training-report.json", "sha256": "bd9f7b758f535f5a620a8d8fe5fcd31ecc4ae19951b07a15b809ff1f382d8593", "size_bytes": 79852},
+    {"path": "fresh16-predictions.json", "sha256": "23235c59403abc4eef45754bbf63981c935ffacf72a51a0bd925884eedd34ec3", "size_bytes": 207031},
+    {"path": "model-metadata.json", "sha256": "a2bf8e7e358cd6ee6e63d56a1ed2ee572f821bd278b33c3fa3540682af06835d", "size_bytes": 2189},
+    {"path": "label-blind-seal.json", "sha256": "9029f0dce9f7c76d159c3c3860aa95e43fdacf6daaf8b2ee2c65d34248775470", "size_bytes": 1944},
+    {"path": "fresh-label-access-claim.json", "sha256": "7bb9a95b326b7a618875fbf975837e397aa726d193f8cfd4f27d91b7ef5077dd", "size_bytes": 654}
+  ],
+  "access_accounting": {
+    "fresh_label_access_claim_count_total": 1,
+    "parent_fresh_label_semantic_decode_attempt_count": 1,
+    "repair_fresh_label_semantic_decode_attempt_count": 1,
+    "fresh_label_semantic_decode_attempt_count_total": 2,
+    "parent_historical_parse_attempt_count": 1,
+    "repair_historical_parse_attempt_count": 1,
+    "historical_parse_attempt_count_total": 2,
+    "training_run_count_total": 1,
+    "prediction_generation_count_total": 1,
+    "development_report_completion_count_total": 1,
+    "confirm20_access_count": 0,
+    "legacy_dev5_access_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0,
+    "policy_forward_count": 0,
+    "gpu_operation_count": 0
+  },
+  "runtime_contract": {
+    "host": "hyper00",
+    "device": "cpu",
+    "gpu_count": 0,
+    "thread_count": 1,
+    "training_entrypoint_allowed": false,
+    "prediction_generation_allowed": false
+  },
+  "output_contract": {
+    "parent_development_report_path": "fresh16-development-report.json",
+    "parent_development_report_must_remain_absent": true,
+    "repair_report_path": "fresh16-development-report-parser-repair-v1.json",
+    "repair_report_exclusive_create": true,
+    "repair_report_byte_replay_required": true,
+    "fresh16_role": "consumed_development_not_holdout_not_test",
+    "may_authorize_confirm": false,
+    "may_change_v1_verdict": false
+  }
+}

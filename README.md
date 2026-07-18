@@ -23,6 +23,8 @@
 > 正式 A=`d4e7b006…` / B=`2bfd8bc3…` 的 formal train-seal 已完成；首次 evaluation 在 claim 和一次 fresh-label
 > decode 后因 historical artifact protocol-id parser 写错 fail closed，development report 未生成，因此暂无科学
 > 结果。模型与 sealed predictions 未改；只允许另立 parser-only repair，并披露总计两次 deterministic decode。
+> parser-only repair contract 已固定为 exact producer protocol（不使用 allowlist），runner 不含训练入口，原
+> report path 永久 absent；修复完成后只能生成带 access-accounting 的 versioned consumed-development report。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
