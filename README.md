@@ -3,7 +3,7 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 parent v1 = pre-semantic inventory `INVALID`; full-inventory repair v1 = pre-label claim-serialization `INVALID`; claim-serialization repair = `COMPLETED` + `REVALIDATED`, selector `NO-GO`, set-conditioning `NO-GO` / failure decomposition = `COMPLETED` + `REVALIDATED`, `NO_V2_CONDITIONAL_RESCUE` / non-mainline v3 pair-residual = `NO-GO` + private-HF immutable replay closed / confirm、matched-NLL、closed-loop locked
+> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 parent v1 = pre-semantic inventory `INVALID`; full-inventory repair v1 = pre-label claim-serialization `INVALID`; claim-serialization repair = `COMPLETED` + `REVALIDATED`, selector `NO-GO`, set-conditioning `NO-GO` / failure decomposition = `COMPLETED` + `REVALIDATED`, `NO_V2_CONDITIONAL_RESCUE` / non-mainline v3 pair-residual = `NO-GO` + private-HF immutable replay closed / non-mainline v4 frozen-base residual = `SOURCE-A FROZEN; EXECUTION-B PENDING` / confirm、matched-NLL、closed-loop locked
 
 > Current diagnostic: fresh-16 failure decomposition 已从 Source-A=`718a08b`、唯一 Execution-B=`21b7750`
 > 完成 CPU-only formal run、private-HF exact-three publication 与独立 immutable replay。true greedy / exact 为
@@ -35,6 +35,20 @@
 > 在 fresh16 的 48/48 state 都等于 additive、实际启用 pair candidate 为 0；unguarded 只改 3 state，normalized
 > delta=`-0.285271`。v3 因此永久停在 consumed-development `NO-GO`，不调 guard、不访问 confirm20。轻量结果见
 > [`data/results/set_conditioned_v3_pair_residual_dev_v1/`](data/results/set_conditioned_v3_pair_residual_dev_v1/)。
+
+> Non-mainline v4 Frozen-base residual：v3 的 learned additive base 在 Fresh16 只有 `0.590359`，弱于历史
+> independent gate 的 `0.712379`，因此 v3 不能排除 joint training 先损坏 base 的解释。隔离分支
+> `luojiaxuan/set-conditioned-v4-frozen-base-residual` 冻结历史 5-seed independent ensemble 的全部
+> `200→88→88→1` 参数，只训练 chronological pair correction
+> `[z_i,z_j,z_i*z_j,|z_i-z_j|,q64]→64→1`。末层零初始化把 epoch 0 精确定义为原 base；correction
+> target 与 base 同为 normalized score unit，不沿用 v3 raw residual。Formal58 的 model selection 重放 25 个
+> fold-clean base；真实缓存检查已在 `1e-12` 内复现五个历史 OOF ratio 和 mean=`0.9063764691683989`。
+> Fresh16 仍只是 consumed development，primary 是继承 v3 4/5 双门的 safe residual 相对 frozen base；历史
+> independent artifact 只用于逐 state/seed exact replay audit，不另定义 primary baseline。无论
+> 结果如何都不自动访问 confirm20，也不允许再在相同 Formal58/Fresh16 上调 v5。机器可读契约和执行边界见
+> [`docs/set_conditioned_v4_frozen_base_residual.md`](docs/set_conditioned_v4_frozen_base_residual.md)。planned
+> private HF model/development repos 使用独立 v4 namespace；正式 revision 只在 run、fresh-download replay 与
+> Git 结果回写完成后登记。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
@@ -911,6 +925,10 @@ $$
 - [x] 在隔离分支完成 non-mainline v3 pair-residual Source-A/Execution-B、Formal58 train、fresh16 consumed-dev
   evaluation、parser-repair v2、private-HF model/development publication 与 immutable replay；结果为 `NO-GO`，
   safe residual 48/48 等于 additive，confirm20 保持 0；
+- [x] 冻结并 push non-mainline v4 Frozen-base residual Source-A；
+- [ ] 从 clean pushed Source-A 机械生成并单独 push 唯一 Execution-B；
+- [ ] 完成 v4 Formal58 residual-only train-seal、Fresh16 consumed-development evaluation、两仓 private-HF
+  publication/fresh-download replay 与 Git compact result；confirm20、matched-NLL、closed-loop 保持 0；
 - [ ] 整理论文与复现实验配置。
 
 ## Source of Truth
@@ -977,6 +995,12 @@ $$
 - Non-mainline v3 pair-residual result: [`data/results/set_conditioned_v3_pair_residual_dev_v1/`](data/results/set_conditioned_v3_pair_residual_dev_v1/)；route `NO_GO_SET_CONDITIONED_V3_PAIR_RESIDUAL_DEVELOPMENT_V1`
 - Private v3 model artifacts: <https://huggingface.co/gavinlaw/causalcache-set-conditioned-v3-pair-residual-exploration-mobile/tree/79b53aaa6017458d92e626bc4801d3b3bef9facd>
 - Private v3 development artifacts: <https://huggingface.co/datasets/gavinlaw/causalcache-set-conditioned-v3-pair-residual-development-mobile/tree/bcf7c7c8057f60b655736b5c63ec43551b3e3121>
+- Non-mainline v4 Frozen-base residual protocol: [`docs/set_conditioned_v4_frozen_base_residual.md`](docs/set_conditioned_v4_frozen_base_residual.md)
+- Non-mainline v4 Source-A config: [`code/configs/causalcache_set_conditioned_v4_frozen_base_residual_development_v1.json`](code/configs/causalcache_set_conditioned_v4_frozen_base_residual_development_v1.json)
+- Non-mainline v4 source/Execution-B validator: [`code/scripts/validate_set_conditioned_v4_contract.py`](code/scripts/validate_set_conditioned_v4_contract.py)
+- Non-mainline v4 scientific runner: [`code/scripts/run_set_conditioned_v4_exploration.py`](code/scripts/run_set_conditioned_v4_exploration.py)
+- Planned private v4 model artifacts: <https://huggingface.co/gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-exploration-mobile>
+- Planned private v4 development artifacts: <https://huggingface.co/datasets/gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-development-mobile>
 - Gate v1 synthetic-only smoke: [`code/scripts/run_gate_v1_trainer_smoke.py`](code/scripts/run_gate_v1_trainer_smoke.py)
 - Label-expansion exposure protocol: [`docs/restoration_v2_2_label_expansion_exposure.md`](docs/restoration_v2_2_label_expansion_exposure.md)
 - Label-expansion exposure materializer: [`code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py`](code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py)
@@ -1181,6 +1205,7 @@ $$
 | Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
 | Gate v1 formal-58 selector ensemble | [private HF model](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)；[completion record](data/results/gate_v1_formal58_train_v1/) | tag `gate-v1-formal58-train-v1` → manifest commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；annotated tag `fa85e746...b4d6` | 5 conditional + 5 independent checkpoints、2 full OOF reports、4 manifests；immutable replay 0 mutation；fresh-16 已消费并 NO-GO，legacy dev-5/confirm/matched-NLL/closed-loop 仍 locked |
 | Gate v1 fresh-16 primary evaluation | [protocol](docs/gate_v1_fresh16_claim_serialization_repair.md)；[completion record](data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile) | claim repair A=`f0dd53b` / B=`ce523ff`；tag `gate-v1-fresh16-claim-serialization-repair-v1` → report commit `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`；annotated tag object `34d5928...c4339` | `COMPLETED + REVALIDATED`；conditional normalized/exact=`0.6942`、raw/exact=`0.9431`、vs strongest heuristic delta=`+0.3261`；selector `NO-GO`、set-conditioning `NO-GO`；旧 dev-5/confirm/matched-NLL/closed-loop locked |
+| Set-conditioned v4 Frozen-base residual | planned [private HF model](https://huggingface.co/gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-exploration-mobile) / [private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-development-mobile) | tag `set-conditioned-v4-frozen-base-residual-development-v1` / revisions pending | Source-A frozen、Execution-B pending；Formal58/Fresh16 scientific result 与 fresh-download replay 尚未执行；confirm20/matched-NLL/closed-loop locked |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

@@ -2943,3 +2943,33 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   namespace 不删除、不覆盖、不续跑；claim-serialization repair Source-A 已冻结旧 bytes/successor absence 的
   expected bindings、未来 B read-only revalidation 与新的 local/HF identities。下一步是 commit/push A 后从 clean
   A 机械生成唯一 B。
+
+### 2026-07-18：set-conditioned v4 Frozen-base residual Source-A
+
+- 该分支是 independent paper 主线之外、v3 `NO-GO` 之后的最后一次 set-conditioning development ablation；
+  唯一问题是 pair-conditioned correction 能否改善完全冻结的历史 strongest independent selector，不能改写
+  v1/v3 verdict；
+- historical base 精确绑定 private HF model
+  `gavinlaw/causalcache-gate-v1-formal58-selector-mobile@23f6786075c7bff91f93fd7e8a878e070efb72a9`
+  的 5 个 independent checkpoints。base event encoder、singleton head、checkpoint bytes 与 model-state SHA
+  全冻结，optimizer 只允许 residual head parameter；
+- residual head 使用 frozen base 第二个 GELU 的 88-d embedding，pair feature 为
+  `[z_i,z_j,z_i*z_j,abs(z_i-z_j),q64]`（416 dims），网络为 `Linear(416,64)→GELU→Linear(64,1)`。
+  terminal layer 零初始化，epoch 0 对所有 pair 精确为零并严格复现 positive-only top-2 independent selection；
+- independent score 是 normalized projected marginal，故 v4 不复用 v3 raw interaction residual。训练目标固定为
+  `U({i,j})/D(empty)-(g_i+g_j)`，只对 `D(empty)>1e-12`；它称为 set-utility correction residual，允许吸收
+  frozen-base prediction error，不冒充纯二阶 interaction；
+- Formal58 OOF 不允许 full-fit base 给 held-out fold 打分。实现按历史 LR=`3e-4` 和 seed epochs
+  `[60,51,6,56,54]` 重放 25 个 fold-train base，再冻结并 cross-fit residual。Hyper00 CPU-only 真实缓存
+  replay 的五个 raw OOF ratios 全部在 `1e-12` 内复现，mean 精确为 `0.9063764691683989`；
+- residual grid 固定为 LR `[3e-4,1e-3]`、seed `0..4`、maximum 500、patience 50，并把 exact frozen base
+  epoch 0 纳入选择。loss 只有 pair correction SmoothL1 与 `0.25` pair-involving all-set ranking；
+- Fresh16 已消费，只允许 seal 后新增一次 claim、一次 48-state semantic decode 和一份 development report。
+  primary contrast 是继承 v3 4/5 vote + 4/5 positive-margin guard 的 safe residual minus frozen base，五项 route
+  threshold 原样冻结；任何结果都不能自动打开 confirm20，也不能再用相同 Formal58/Fresh16 调 v5；
+- Source-A machine-readable contract 为
+  `code/configs/causalcache_set_conditioned_v4_frozen_base_residual_development_v1.json`，机械冻结 SHA256 为
+  `474df3cfebad7b3a6de9a31769650c1695a0939008f542ec4fd8f31db2aa6c3f`；随后只能以唯一新增 runner-freeze
+  的 direct-child Execution-B 执行。planned private HF
+  repos 为 `gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-exploration-mobile` 和
+  `gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-development-mobile`；两者在 freeze 前均确认不存在。

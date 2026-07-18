@@ -1,0 +1,522 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_set_conditioned_v4_frozen_base_residual_development_v1",
+  "status": "source_a_frozen_before_set_conditioned_v4_execution",
+  "lineage": {
+    "branch": "luojiaxuan/set-conditioned-v4-frozen-base-residual",
+    "base_git_commit": "a50245b0edc681ec3c7f9ec06277d789586d32a8",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "study_role": "non_mainline_final_frozen_base_set_conditioning_development_ablation",
+    "paper_mainline": "restoration_guided_independent_gate_in_separate_worktree",
+    "v3_result_is_immutable": true,
+    "v3_result": {
+      "path": "data/results/set_conditioned_v3_pair_residual_dev_v1/summary.json",
+      "sha256": "1a3fddd79d8e326f4842d008155077a4acfadbce075c3c54bc20b53286c1ad76",
+      "size_bytes": 11053,
+      "required_outcome": "stop_after_consumed_development_no_go"
+    },
+    "historical_v1_verdict_is_immutable": true
+  },
+  "source_freeze": {
+    "required_branch": "luojiaxuan/set-conditioned-v4-frozen-base-residual",
+    "required_base_ancestor": "a50245b0edc681ec3c7f9ec06277d789586d32a8",
+    "network_call_count": 0,
+    "execution_b_runner_freeze_path": "code/configs/causalcache_set_conditioned_v4_frozen_base_residual_runner_v1.json",
+    "execution_b_must_be_direct_single_parent_of_source_a": true,
+    "execution_b_runner_freeze_must_be_unique_diff": true,
+    "execution_b_runner_freeze_must_be_absent_during_source_a_validation": true,
+    "execution_b_must_be_clean_and_pushed": true,
+    "execution_requires_clean_pushed_source_a_commit": true,
+    "source_validator_authorizes_execution": false,
+    "source_inventory_sha256_location": "mechanically_computed_and_frozen_only_in_execution_b_runner",
+    "required_source_a_paths": [
+      "README.md",
+      "code/configs/causalcache_set_conditioned_v4_frozen_base_residual_development_v1.json",
+      "code/causalcache/set_conditioned_v4_contract.py",
+      "code/causalcache/set_conditioned_v4_data.py",
+      "code/causalcache/set_conditioned_v4_training.py",
+      "code/causalcache/set_conditioned_v4_exploration.py",
+      "code/scripts/validate_set_conditioned_v4_contract.py",
+      "code/scripts/run_set_conditioned_v4_exploration.py",
+      "code/tests/test_set_conditioned_v4_contract.py",
+      "code/tests/test_set_conditioned_v4_data.py",
+      "code/tests/test_set_conditioned_v4_training.py",
+      "code/tests/test_set_conditioned_v4_exploration.py",
+      "docs/set_conditioned_v4_frozen_base_residual.md",
+      "docs/progress.md",
+      "code/causalcache/gate_v1_data.py",
+      "code/causalcache/gate_v1_contract.py",
+      "code/causalcache/gate_v1_formal_cache.py",
+      "code/causalcache/gate_v1_training.py",
+      "code/causalcache/gate_v1_formal_train.py",
+      "code/causalcache/gate_v1_fresh16.py",
+      "code/causalcache/gate_v1_provenance.py",
+      "code/causalcache/restoration_v2_2_label_table.py",
+      "code/causalcache/set_conditioned_v3_data.py",
+      "code/causalcache/set_conditioned_v3_exploration.py",
+      "code/causalcache/set_conditioned_v3_parser_repair.py",
+      "code/causalcache/set_conditioned_v3_parser_repair_contract.py",
+      "code/causalcache/set_conditioned_v3_parser_repair_v2_contract.py",
+      "data/results/gate_v1_formal58_train_v1/summary.json",
+      "data/results/gate_v1_fresh16_claim_serialization_repair_v1/summary.json",
+      "data/results/set_conditioned_v3_pair_residual_dev_v1/summary.json"
+    ],
+    "git_prerequisites": [
+      {
+        "path": "code/causalcache/gate_v1_data.py",
+        "sha256": "36764937c1e9e8ed2c6e771aeecc215c7cd409d0c8e19fa5af3147412784f8e4",
+        "size_bytes": 26772
+      },
+      {
+        "path": "code/causalcache/gate_v1_training.py",
+        "sha256": "c64f8cf8ce921f40fcab8e8d3457150e1d821fa4669844edce1c90c21d3be345",
+        "size_bytes": 30392
+      },
+      {
+        "path": "code/causalcache/gate_v1_formal_train.py",
+        "sha256": "eed85d6b02829dd0eeb9335971d9ce5dd48f452157a6ac441d6a735a32b36fac",
+        "size_bytes": 20080
+      },
+      {
+        "path": "code/causalcache/gate_v1_fresh16.py",
+        "sha256": "88525a8cc1be373b14983447ded1703849527b6913bcf9e9a979645d8c024dc6",
+        "size_bytes": 32208
+      },
+      {
+        "path": "code/causalcache/restoration_v2_2_label_table.py",
+        "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+        "size_bytes": 12732
+      },
+      {
+        "path": "data/results/gate_v1_formal58_train_v1/summary.json",
+        "sha256": "7393fb47a0e46f75324a42abc41369331ef10da65232d840eba372a58e28925e",
+        "size_bytes": 13932
+      },
+      {
+        "path": "data/results/gate_v1_fresh16_claim_serialization_repair_v1/summary.json",
+        "sha256": "621c09d13c027bfbc2835be894dd3de8fbc69c2f03a8605ab3a951cba753e626",
+        "size_bytes": 9419
+      },
+      {
+        "path": "data/results/set_conditioned_v3_pair_residual_dev_v1/summary.json",
+        "sha256": "1a3fddd79d8e326f4842d008155077a4acfadbce075c3c54bc20b53286c1ad76",
+        "size_bytes": 11053
+      }
+    ]
+  },
+  "formal58_input": {
+    "role": "only_training_and_train_only_model_selection_source",
+    "repo": "gavinlaw/causalcache-gate-v1-formal58-cache-transport-repair-mobile",
+    "repo_type": "dataset",
+    "private": true,
+    "tag": "gate-v1-formal58-cache-transport-repair-v1",
+    "immutable_revision": "a61b31bf2e69be00f94469f4a2f2d6b336fcc386",
+    "exact_files": [
+      {
+        "kind": "feature_cache",
+        "path": "formal58-transport-repair/v1/feature-cache-v1.tar",
+        "sha256": "81fded50c4450700220742d3e0be9a5585d1bc51086150515b463bbdf4b4df8e",
+        "size_bytes": 993280
+      },
+      {
+        "kind": "label_cache",
+        "path": "formal58-transport-repair/v1/label-cache-v1.tar",
+        "sha256": "4f9ef172aaa94c3ea8ce53aa43336c9fcb7800c24e181e1462d8239e31053cee",
+        "size_bytes": 163840
+      },
+      {
+        "kind": "bundle_manifest",
+        "path": "formal58-transport-repair/v1/cache-bundle-manifest-v1.json",
+        "sha256": "15c8bf56ddad4f6f278599c32aaadcd813e0e016db0d523b4892eb47f8d9d144",
+        "size_bytes": 13856
+      }
+    ],
+    "trajectory_count": 58,
+    "state_count": 174,
+    "candidate_counts": [2, 3, 4],
+    "budget": 2,
+    "fold_count": 5,
+    "fold_sizes": [12, 12, 12, 11, 11]
+  },
+  "fresh16_consumed_development_input": {
+    "role": "consumed_development_evidence_not_holdout_not_test",
+    "repo": "gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile",
+    "repo_type": "dataset",
+    "private": true,
+    "tag": "gate-v1-fresh16-claim-serialization-repair-v1",
+    "immutable_revision": "3541fe1ea2c46e555c29cc53483e6f3b809f8f81",
+    "exact_files": [
+      {
+        "kind": "bundle_manifest",
+        "path": "fresh16-eval/v1/manifests/bundle-manifest-v1.json",
+        "sha256": "a11e9d693c2fa33f5f5f97b123649608bdf98583693caa818e166d8009382844",
+        "size_bytes": 2133,
+        "access_stage": "train_seal"
+      },
+      {
+        "kind": "feature_states",
+        "path": "fresh16-eval/v1/caches/feature-states-v1.jsonl",
+        "sha256": "deacc63480ed706d44e7690d974250860d1bc3e5967d4c2a3315090fe4b93939",
+        "size_bytes": 192113,
+        "record_count": 48,
+        "access_stage": "train_seal"
+      },
+      {
+        "kind": "label_states",
+        "path": "fresh16-eval/v1/caches/label-states-v1.jsonl",
+        "sha256": "832096b98011264a6b7fee74b2e78798876ea0d5ffc5c9c9baf7642be8e92382",
+        "size_bytes": 48134,
+        "record_count": 48,
+        "access_stage": "evaluate_after_v4_label_blind_seal"
+      },
+      {
+        "kind": "historical_independent_decisions",
+        "path": "fresh16-eval/v1/learned/independent-v1.json",
+        "sha256": "2359c0f4b03e7009291c8912bea7193a4dfebd5f01d4876efd312bc595404dd2",
+        "size_bytes": 16602,
+        "access_stage": "evaluate_after_v4_label_blind_seal"
+      }
+    ],
+    "trajectory_count": 16,
+    "state_count": 48,
+    "may_be_called_holdout": false,
+    "may_be_called_test": false,
+    "may_authorize_go": false,
+    "may_change_v1_or_v3_verdict": false,
+    "may_tune_after_label_join": false,
+    "maximum_new_claim_count": 1,
+    "maximum_new_semantic_decode_attempt_count": 1,
+    "maximum_new_decoded_state_count": 48,
+    "maximum_new_development_report_count": 1
+  },
+  "frozen_independent_base": {
+    "repo": "gavinlaw/causalcache-gate-v1-formal58-selector-mobile",
+    "repo_type": "model",
+    "private": true,
+    "tag": "gate-v1-formal58-train-v1",
+    "immutable_revision": "23f6786075c7bff91f93fd7e8a878e070efb72a9",
+    "selected_learning_rate": 0.0003,
+    "selected_epochs_by_seed": [60, 51, 6, 56, 54],
+    "selection_sha256": "b5889a98adf08c3cf35b647a519b0d08f832879374a9ea8c4b5268c5a1c4b8dd",
+    "ensemble_manifest_sha256": "38809f1ef4da9636ef6779733cee4926b36b38e3bd86eab199450e685c63da24",
+    "ensemble_provenance_sha256": "238c2e64bdb22ccebd261961200021e74a688f912d530f486b00bbb853a8ea57",
+    "oof_report": {
+      "path": "formal58-train/v1/reports/independent-full-oof-report.json",
+      "sha256": "0b1d2cca64be7b2c992bbee291aefc8df3e77e7aa4f1228be1b04330bea1a2e8",
+      "size_bytes": 31172,
+      "five_seed_mean_raw_ratio": 0.9063764691683989,
+      "seed_best_raw_ratios": [0.9012143403172107, 0.9044738982091675, 0.9164728647614823, 0.9105838341486948, 0.8991374084054389]
+    },
+    "checkpoints": [
+      {
+        "seed": 0,
+        "selected_epoch": 60,
+        "path": "formal58-train/v1/checkpoints/independent-seed-0.safetensors",
+        "sha256": "7088a1cb4224dd1e7013868249ed1c99c20782eb63c2a762e3059cfb939d4a49",
+        "model_state_sha256": "0198ad3cca7bd9e4eef2f6c40c9ac6349732f21935c61ec3434f058ee40b972a",
+        "size_bytes": 102860
+      },
+      {
+        "seed": 1,
+        "selected_epoch": 51,
+        "path": "formal58-train/v1/checkpoints/independent-seed-1.safetensors",
+        "sha256": "8a25b8bad27e4c6f20a9a93273602e82a276ee7f9275ff672d6b0ed64dd8fd79",
+        "model_state_sha256": "454b0732389eac920f2aa69edb68317e3746dc57e1d2c6c7269f792257255af7",
+        "size_bytes": 102860
+      },
+      {
+        "seed": 2,
+        "selected_epoch": 6,
+        "path": "formal58-train/v1/checkpoints/independent-seed-2.safetensors",
+        "sha256": "b8c38619db06bd479d278da62663a3b451cff951dff0747bf156835234216211",
+        "model_state_sha256": "c4d508933928dc7c6a24501090e3afd2a7d50a4977f37b3b3cb6cd818d28eb13",
+        "size_bytes": 102860
+      },
+      {
+        "seed": 3,
+        "selected_epoch": 56,
+        "path": "formal58-train/v1/checkpoints/independent-seed-3.safetensors",
+        "sha256": "b7b175c0b513508f10479bb228fad6ffb6b4e330b050c981d415c2a54b8c11a2",
+        "model_state_sha256": "1f0d319411319dd2348e0a3da8e7d2b18e5b566e468278853d890a761639da60",
+        "size_bytes": 102860
+      },
+      {
+        "seed": 4,
+        "selected_epoch": 54,
+        "path": "formal58-train/v1/checkpoints/independent-seed-4.safetensors",
+        "sha256": "8e5eee31c85653a210b9bf05c4cf4d94a8b4fabdb6bdab455caa446cc655df38",
+        "model_state_sha256": "51fc5aaa157ec9feb97a7c40cd7d532cc248ecb076feacd880dc9bba38007def",
+        "size_bytes": 102860
+      }
+    ],
+    "all_parameters_require_grad": false,
+    "optimizer_may_contain_base_parameter": false,
+    "training_pre_post_checkpoint_bytes_must_match": true,
+    "training_pre_post_model_state_sha256_must_match": true,
+    "zero_residual_must_replay_canonical_independent_selector": true,
+    "fresh16_historical_selection_sha256": "2359c0f4b03e7009291c8912bea7193a4dfebd5f01d4876efd312bc595404dd2",
+    "fresh16_expected_mean_normalized_recovery": 0.7123785840017873,
+    "fresh16_expected_mean_raw_utility": 0.04046445946535945
+  },
+  "scientific_contract": {
+    "question": "whether_pair_conditioned_correction_can_improve_a_fully_frozen_strong_independent_gate",
+    "utility": "U(S)=D(empty)-D(S)",
+    "base_score_unit": "predicted_normalized_budget_conditioned_projected_marginal",
+    "pair_correction_target": "r_star_m_ij=U({i,j})/D(empty)-(g_m_i+g_m_j)",
+    "target_eligibility": "D(empty)>1e-12",
+    "target_name": "set_utility_correction_residual",
+    "target_is_claimed_to_be_pure_second_order_interaction": false,
+    "target_may_absorb_frozen_base_prediction_error": true,
+    "candidate_event_maximum": 4,
+    "budget": 2,
+    "maximum_feasible_subset_count": 11,
+    "policy_rerun_count": 0,
+    "restoration_label_regeneration_count": 0
+  },
+  "model_contract": {
+    "dtype": "float32",
+    "frozen_base_layers": ["Linear(200,88)", "GELU(approximate=none)", "Linear(88,88)", "GELU(approximate=none)", "Linear(88,1)"],
+    "event_embedding": "output_of_second_frozen_base_GELU",
+    "event_embedding_dimension": 88,
+    "query_dimension": 64,
+    "pair_features": {
+      "canonical_order": "event_step_i_strictly_less_than_j",
+      "concatenation": ["z_i", "z_j", "z_i_times_z_j", "abs_z_i_minus_z_j", "q64"],
+      "dimension": 416
+    },
+    "residual_head_layers": ["Linear(416,64)", "GELU(approximate=none)", "Linear(64,1)"],
+    "trainable_parameter_count": 26753,
+    "final_linear_weight_initialization": "all_zeros",
+    "final_linear_bias_initialization": "all_zeros",
+    "epoch_zero_output": "exact_zero_for_every_pair",
+    "seed_to_base_pairing": [[0, 0], [1, 1], [2, 2], [3, 3], [4, 4]],
+    "chronological_pair_features_are_intentionally_not_permutation_invariant": true
+  },
+  "cross_fitting_contract": {
+    "fold_assignment": "reuse_frozen_formal58_five_fold_assignment",
+    "fold_sizes": [12, 12, 12, 11, 11],
+    "base_replay_scope": "one_historical_independent_fold_train_base_per_seed_and_fold",
+    "base_replay_learning_rate": 0.0003,
+    "base_replay_epochs_by_seed": [60, 51, 6, 56, 54],
+    "base_replay_must_reproduce_five_historical_raw_oof_ratios_and_mean_within_1e_12": true,
+    "base_replay_is_frozen_before_residual_optimization": true,
+    "full_fit_base_may_score_oof_heldout_fold": false,
+    "residual_head_training_partition": "same_fold_train_trajectories_as_replayed_base",
+    "residual_head_evaluation_partition": "heldout_fold_unique_n4_B2_state_per_trajectory",
+    "final_fit_base": "original_five_full_formal58_immutable_checkpoints",
+    "heldout_or_fresh_label_may_update_base": false
+  },
+  "training_contract": {
+    "device": "cpu",
+    "dtype": "float32",
+    "learning_rates_in_grid_order": [0.0003, 0.001],
+    "seeds_in_grid_order": [0, 1, 2, 3, 4],
+    "maximum_epochs": 500,
+    "patience_epochs": 50,
+    "epoch_improvement_epsilon": 0.0001,
+    "epoch_zero_is_a_model_selection_candidate": true,
+    "epoch_zero_is_exact_frozen_base": true,
+    "single_seed_early_stop_variant": "unguarded_frozen_base_residual",
+    "epoch_selection_metric": "minimum_of_n4_raw_utility_over_exact_and_n4_normalized_recovery_over_exact",
+    "learning_rate_selection_metric": "five_seed_mean_selected_epoch_metric",
+    "learning_rate_tie_epsilon": 0.0001,
+    "learning_rate_tie_choice": 0.0003,
+    "loss": {
+      "pair_correction_regression": "trajectory_then_state_then_pair_equal_weight_SmoothL1(rhat_ij,r_star_m_ij,beta=1)",
+      "set_ranking": "trajectory_then_state_then_trainable_untied_comparison_equal_weight_softplus(-sign(U_left-U_right)*(Fhat_left-Fhat_right))",
+      "ranking_comparisons": "all_unordered_feasible_set_pairs_with_at_least_one_pair_set",
+      "ranking_raw_tie_epsilon": 1e-12,
+      "ranking_weight": 0.25,
+      "singleton_regression_weight": 0.0,
+      "extra_sign_loss_weight": 0.0
+    },
+    "optimizer": {
+      "name": "AdamW",
+      "betas": [0.9, 0.999],
+      "epsilon": 1e-8,
+      "weight_decay": 0.0001,
+      "gradient_norm_clip": 1.0,
+      "parameter_scope": "residual_head_only"
+    },
+    "final_fit_scope": "all_formal58_with_corresponding_frozen_full_fit_base_seed",
+    "residual_checkpoint_count": 5,
+    "checkpoint_format": "safetensors"
+  },
+  "selection_contract": {
+    "feasible_sets": "empty_plus_all_singletons_plus_all_pairs",
+    "tie_break": ["higher_predicted_utility", "lower_cardinality", "lexicographically_lower_event_step_ids"],
+    "tie_epsilon": 0.0,
+    "variants": ["frozen_base", "unguarded_frozen_base_residual", "safe_frozen_base_residual"],
+    "base_set_score": "sum_of_frozen_independent_event_scores",
+    "pair_total_score": "base_set_score_plus_pair_residual",
+    "primary_selector": "safe_frozen_base_residual",
+    "safe_pair_candidate": "argmax_of_five_seed_mean_unguarded_set_score",
+    "safe_base_candidate": "canonical_five_seed_mean_frozen_independent_selection",
+    "safe_vote_threshold": 4,
+    "safe_vote_total": 5,
+    "safe_positive_margin_threshold": 4,
+    "safe_positive_margin_definition": "individual_seed_total(pair_candidate)-total(base_candidate)_strictly_greater_than_zero",
+    "safe_identical_candidate_rule": "if_pair_candidate_equals_base_candidate_return_that_subset_without_switch_test",
+    "fallback": "canonical_five_seed_mean_frozen_independent_selection",
+    "safe_selector_does_not_participate_in_single_seed_early_stopping": true,
+    "safe_trace_required_fields": ["pair_candidate", "base_candidate", "seedwise_unguarded_argmax", "seedwise_pair_minus_base_margins", "pair_candidate_vote_count", "strictly_positive_margin_count", "used_pair_candidate"]
+  },
+  "evaluation_contract": {
+    "fresh16_is_consumed_development_only": true,
+    "primary_contrast": "safe_frozen_base_residual_minus_frozen_base",
+    "development_interpretation_rule": {
+      "all_conditions_required_for_promising": true,
+      "minimum_mean_normalized_delta": 0.01,
+      "normalized_paired_bootstrap_lower_strictly_greater_than": 0.0,
+      "mean_raw_delta_strictly_greater_than": 0.0,
+      "n4_mean_normalized_delta_strictly_greater_than": 0.0,
+      "minimum_positive_trajectory_count": 8,
+      "failure_interpretation": "NO_DEVELOPMENT_EVIDENCE_FOR_FROZEN_BASE_RESIDUAL",
+      "pass_interpretation": "PROMISING_DEVELOPMENT_SIGNAL_FOR_A_SEPARATELY_FROZEN_FUTURE_STUDY"
+    },
+    "bootstrap": {
+      "unit": "trajectory",
+      "resamples": 10000,
+      "confidence": 0.9,
+      "interval": "percentile",
+      "seed": 271828
+    },
+    "required_secondary_reports": ["unguarded_minus_frozen_base", "safe_and_unguarded_ratio_to_exact", "n2_n3_n4", "switch_accept_fallback_improve_harm_tie", "seed_agreement_and_margins", "formal_oof_epoch_zero_and_residual"],
+    "forbidden_interpretations": ["GO", "CONFIRMED", "HELDOUT_PASS", "TEST_PASS"],
+    "result_may_automatically_open_confirm20": false,
+    "same_formal58_fresh16_may_support_another_v5_retune": false
+  },
+  "access_firewall": {
+    "source_a_counts": {
+      "formal_semantic_decode": 0,
+      "fresh_feature_semantic_decode": 0,
+      "fresh_label_semantic_decode": 0,
+      "model_load": 0,
+      "optimizer_step": 0,
+      "network_call": 0,
+      "output_write": 0,
+      "confirm20_access": 0,
+      "policy_forward": 0,
+      "gpu_job": 0
+    },
+    "train_seal_maximum_counts": {
+      "fresh16_label_access_claim": 0,
+      "fresh16_label_semantic_decode_attempt": 0,
+      "fresh16_decoded_state": 0,
+      "confirm20_access": 0,
+      "legacy_dev5_access": 0,
+      "matched_nll_evaluation": 0,
+      "closed_loop_episode": 0,
+      "raw_gui_access": 0,
+      "policy_forward": 0,
+      "gpu_job": 0
+    },
+    "evaluate_maximum_new_counts": {
+      "fresh16_label_access_claim": 1,
+      "fresh16_label_semantic_decode_attempt": 1,
+      "fresh16_decoded_state": 48,
+      "fresh16_development_join": 1,
+      "fresh16_development_report": 1,
+      "confirm20_access": 0,
+      "legacy_dev5_access": 0,
+      "matched_nll_evaluation": 0,
+      "closed_loop_episode": 0,
+      "raw_gui_access": 0,
+      "policy_forward": 0,
+      "gpu_job": 0
+    },
+    "post_report_validation_maximum_new_counts": {
+      "fresh16_label_semantic_decode_attempt": 0,
+      "fresh16_decoded_state": 0,
+      "fresh16_development_join": 0
+    },
+    "historical_accounting": {
+      "v1_primary_unit": "decoded_state_rows",
+      "v1_primary_value": 48,
+      "v3_parent_claim_count": 1,
+      "v3_parent_semantic_decode_attempt_count": 2,
+      "v3_to_v4_lineage_claim_count_after_success": 2,
+      "v3_to_v4_lineage_semantic_decode_attempt_count_after_success": 3,
+      "lineage_totals_may_be_called_project_global": false
+    },
+    "checkpoint_and_prediction_seal_must_precede_label_access_claim": true,
+    "execution_b_validation_must_precede_input_read_or_output_mutation": true,
+    "label_access_claim_must_precede_label_open_parse_or_semantic_decode": true,
+    "post_report_validation_must_not_reopen_label": true,
+    "no_post_label_training_prediction_guard_or_threshold_change": true,
+    "decode_failure_requires_versioned_repair_and_cumulative_attempt_increment": true
+  },
+  "execution_state_machine": {
+    "ordered_states": ["source_a_identity", "frozen_base_and_formal_input_identity", "fold_base_replay", "formal_residual_oof", "five_residual_checkpoint_completion", "base_zero_residual_invariant", "fresh_feature_only_prediction_completion", "label_blind_seal", "consumed_development_label_access_claim", "single_fresh_label_decode_and_join", "development_report_completion", "report_only_self_consistency_validation"],
+    "train_seal_terminal_state": "label_blind_seal",
+    "label_blind_seal": {
+      "path": "label-blind-seal.json",
+      "status": "SEALED_LABEL_BLIND_SET_CONDITIONED_V4_FROZEN_BASE_RESIDUAL_V1",
+      "must_bind": ["five_frozen_base_checkpoints", "five_residual_safetensors", "formal_oof_report", "base_invariant_report", "fresh_feature_only_predictions_for_all_three_variants", "source_a_git_commit", "execution_b_git_commit", "runner_freeze_sha256", "contract_sha256"],
+      "fresh_label_semantic_decode_attempt_count": 0,
+      "confirm20_access_count": 0,
+      "policy_forward_count": 0,
+      "gpu_job_count": 0
+    },
+    "evaluate_requires_byte_identical_label_blind_seal": true,
+    "evaluate_may_not_retrain_repredict_or_change_guard": true,
+    "validate_reads_report_only": true
+  },
+  "runtime_contract": {
+    "device": "cpu",
+    "dtype": "float32",
+    "gpu_count": 0,
+    "gpu_preflight_required": false,
+    "torch_cuda_available_required": false,
+    "policy_model_runtime_allowed": false,
+    "deterministic_algorithms_required": true,
+    "torch_thread_count": 1
+  },
+  "namespace_contract": {
+    "execution_namespace": "set-conditioned-v4-frozen-base-residual-development-v1",
+    "must_not_write_v3_or_mainline_namespaces": true,
+    "model_repo": "gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-exploration-mobile",
+    "development_dataset_repo": "gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-development-mobile",
+    "tag": "set-conditioned-v4-frozen-base-residual-development-v1"
+  },
+  "output_contract": {
+    "residual_checkpoint_count": 5,
+    "formal_oof_report_count": 1,
+    "base_invariant_report_count": 1,
+    "fresh_feature_only_prediction_artifact_count": 1,
+    "label_blind_seal_count": 1,
+    "maximum_development_report_count": 1,
+    "git_keeps_only_lightweight_summary": true,
+    "reusable_model_and_state_artifacts_go_to_private_hugging_face": true,
+    "post_report_publication_is_not_a_scientific_state_transition": true,
+    "private_hf_publication_requires_manifest_and_card_per_repo": true,
+    "tag_resolution_and_fresh_download_hash_replay_required_before_git_completion": true,
+    "model_repo_artifact_roles": ["five_residual_checkpoints", "residual_model_metadata", "formal_oof_report", "base_invariant_report", "label_blind_seal"],
+    "development_dataset_repo_artifact_roles": ["fresh_feature_only_predictions", "fresh_label_access_claim", "fresh_consumed_development_report", "label_blind_seal"]
+  },
+  "source_only_operation_contract": {
+    "formal_semantic_decode_count": 0,
+    "fresh_semantic_decode_count": 0,
+    "checkpoint_load_count": 0,
+    "model_initialization_count": 0,
+    "optimizer_step_count": 0,
+    "prediction_count": 0,
+    "label_access_claim_count": 0,
+    "development_report_count": 0,
+    "hf_mutation_count": 0,
+    "policy_forward_count": 0,
+    "gpu_job_count": 0
+  },
+  "authorization": {
+    "execution_b_formal58_training_authorized_after_clean_pushed_source_a": true,
+    "execution_b_one_fresh16_consumed_development_authorized_after_label_blind_seal": true,
+    "fresh16_may_authorize_confirm": false,
+    "confirm20_access_authorized": false,
+    "legacy_dev5_access_authorized": false,
+    "matched_nll_authorized": false,
+    "closed_loop_authorized": false,
+    "gpu_authorized": false,
+    "policy_forward_authorized": false,
+    "mainline_or_v3_artifact_mutation_authorized": false
+  }
+}
