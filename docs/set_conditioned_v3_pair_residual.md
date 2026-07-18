@@ -269,6 +269,23 @@ label decode 前停止，累计 semantic decode 仍为 1。后续 v2 只允许�
 继续验证两边 set equality；不能放松任一 record/seed/selection-digest 检查。失败证据见
 `data/results/set_conditioned_v3_parser_repair_v1_attempt/`。
 
+v2 overlay contract 为
+`code/configs/causalcache_set_conditioned_v3_historical_protocol_parser_repair_v2.json`，SHA256
+`1da7073c55437afdc8e4ca85dc59a414c6ed331619828210af54347f80b63ce4`。它不接受 arbitrary reorder：
+feature 与 historical 两边都必须恰好 48 个唯一 state-id、set 完全相同，然后才按 id join；每条 record 的
+schema、ensemble selection、5-seed selection feasibility 与全局 selection digest 继续逐项验证。v2 runner
+依然没有 train/predict 入口，并在 exact historical join 全部通过后才调用 label loader。
+
+v2 使用独立 Source-A/单文件 Execution-B 和独立 report
+`fresh16-development-report-parser-repair-v2.json`；parent report 与 v1 repair report 必须在执行前都不存在。
+access accounting 固定为：父 attempt label decode=1、v1 repair dry-run label decode=0、v2 repair replay=1、
+总计=2；historical parse attempts 为 parent/v1/v2 各 1、总计=3。无论 metric 如何，fresh-16 仍是
+consumed development，不能升级成 confirmatory evidence。
+
+为保持上述 parser count，v2 不再对真实 historical artifact 做额外 parser dry-run；执行前只验证文件 bytes/SHA，
+随后由 evaluate 唯一解析一次。validate 必须接收 evaluate 当场输出的 report SHA，并同时绑定 repair
+Source-A/Execution-B/runner、parent seal、顶层与嵌套 authority counters；它不再次读取 label。
+
 输入都绑定 immutable HF revision 和逐文件 SHA-256。v3 的本地 staging 只允许写：
 
 ```text

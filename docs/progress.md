@@ -80,6 +80,20 @@
 - v1 永久 `INVALID_PRE_LABEL_STATE_ORDER_PARSER_REPAIR_V1`。后续 v2 只能把 positional zip 改成 exact unique
   `state_id` join，并继续要求 set equality；其余 schema、seed feasibility、selection digest 和 sealed bytes 不变。
 
+### 2026-07-18：parser-repair v2 exact state-id join Source-A 准备
+
+- v2 overlay contract SHA256=`1da7073c55437afdc8e4ca85dc59a414c6ed331619828210af54347f80b63ce4`，
+  绑定 v1 repair A/B、runner 与 pre-label failure record；唯一修复是从 positional zip 改为“双方 48 个唯一 id、
+  set equality、按 id join”，不使用 reorder allowlist；
+- protocol、canonical schema、record fields、5-seed feasibility、selection digest、checkpoint/prediction/selector/
+  threshold/bootstrap 均不变。v2 evaluator 在 exact historical parse 完成后才调用 label loader；
+- v2 使用独立 Source-A/单 runner Execution-B 和 versioned report。accounting 预冻结 parent decode=1、v1
+  repair decode=0、v2 replay=1、total=2；historical parse attempts 为 parent/v1/v2 各 1、total=3；claim/
+  training/prediction/report completion 各 1，所有 confirm/GPU/policy/legacy/matched-NLL/closed-loop 为 0。
+  不再对真实 historical artifact 单独 dry-run；只做 byte/SHA preflight 后直接执行唯一 v2 parse+label replay。
+  validate 必须绑定 evaluate 当场记录的 report SHA、repair A/B/runner、parent seal 与完整 authority boundary。
+  当前尚未执行 v2 label replay 或产生 metric。
+
 AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
 与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
 `NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权

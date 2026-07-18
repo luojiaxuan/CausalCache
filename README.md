@@ -27,6 +27,8 @@
 > report path 永久 absent；修复完成后只能生成带 access-accounting 的 versioned consumed-development report。
 > parser-repair v1 又在 pre-label dry-run 发现 positional-order contract 错误：48-state set 相同但 artifact 与
 > feature 顺序不同；它在第二次 label decode 前停止。v2 只允许改为 exact unique-state-id join，其余检查不变。
+> v2 overlay Source-A 规定：双方必须各有 48 个唯一 id 且 set 完全相同，之后才按 id join；historical parse 全部通过
+> 后才允许 label replay，parent/v1 report 均须 absent，结果写入独立 v2 report。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
