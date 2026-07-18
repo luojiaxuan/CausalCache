@@ -1,11 +1,11 @@
 # Gate v1 fresh-16 claim-serialization repair v1
 
-> 当前状态：formal-58 training 已完成、封存并完成 private-HF immutable replay。本文件描述的
-> claim-serialization repair **Source-A source-only 已冻结**；本 milestone commit/push 后成为 canonical。
-> Execution-B runner freeze 当前 absent，`evaluation_executed=false`、`execution_authorized=false`。尚未重跑
-> fresh-16，没有新的 fresh label semantic
-> access、label claim、primary report、HF mutation、GO/NO-GO、旧 dev-5、confirm、matched-NLL 或 closed-loop
-> 结果。
+> 当前状态：claim-serialization repair 已由 Source-A
+> `f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1` 与唯一 direct-child Execution-B
+> `ce523ff54ebfdc19a9c2bd49ad21548f0934a634` 完成。Hyper00 双 H200 formal run、13-target private-HF
+> publication、tag-resolved immediate replay 与独立 immutable `validate` 全部通过。有效科学结果为
+> `go_selector=false`、`go_set_conditioning_primary=false`；旧 dev-5、confirm、matched-NLL 与 closed-loop
+> 仍未打开。
 
 本 repair 是
 [`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md) 的独立 versioned operational child。
@@ -54,14 +54,17 @@ repo/tag identities absent。
   `7fbfe1b8314ea61d7d646a47be902fdf1c6d4af9`；
 - 本 repair Source-A contract：
   [`causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`](../code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json)；
-- 本 repair Source-A commit：本 material step commit/push 后成为 canonical；本文件不预写未知 commit；
-- 本 repair Execution-B：当前必须 absent，不能把预期 runner-freeze 写成已生成或已授权；
-- 本 repair planned private HF dataset：
-  `gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile`，tag
-  `gate-v1-fresh16-claim-serialization-repair-v1`；当前只是 destination identity，Source-A 不联网，也不把其
-  remote absence 作为 source-only validator 结论。
+- 本 repair Source-A commit：`f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1`；
+- 本 repair Execution-B：`ce523ff54ebfdc19a9c2bd49ad21548f0934a634`；runner-freeze SHA256
+  `c35dccd0d540cd01bd0f93fce11289c40dbada577e856e997a9dcd52347403d8`；
+- completion record：
+  [`data/results/gate_v1_fresh16_claim_serialization_repair_v1/`](../data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；
+- private HF dataset：
+  [`gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile`](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile)，tag
+  `gate-v1-fresh16-claim-serialization-repair-v1` → report commit
+  `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`。
 
-### Source-A freeze evidence
+### 历史 Source-A freeze evidence
 
 最终 Source-A source tree 的冻结证据为：
 
@@ -121,22 +124,55 @@ NO-GO，也不依据失败执行中已经观察到的 label-blind selections 调
 | artifact directory | `/data/artifacts/causalcache/gate-v1-fresh16-evaluation-claim-serialization-repair-v1` |
 | Docker receipt | `/data/experiments/causalcache/.gate-v1-fresh16-evaluation-claim-serialization-repair-v1.docker-inspect.json` |
 | private HF dataset | `gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile` |
-| planned tag | `gate-v1-fresh16-claim-serialization-repair-v1` |
+| immutable tag | `gate-v1-fresh16-claim-serialization-repair-v1` |
 
-以下旧对象必须原样保留且在新 run 前继续验证：
+## 完成态与 primary verdict
+
+唯一完成态 run 在 Hyper00 container `sglang-omni-jaxan-07181130` 上使用精确两张 H200；代表性 policy
+window 两张卡均观测到 `100%` utilization。run 与独立 `validate` exit code 都是 0，形成 ordinal `0..15`
+连续 receipt chain、93-file / 51,742,977-byte local artifact、9-file payload commit
+`9f0c61b9437773ca5d3f7e0cabd6e2a987e3c908`、direct-child 4-file report commit
+`3541fe1ea2c46e555c29cc53483e6f3b809f8f81` 和 annotated tag object
+`34d5928db4e82532f46f7596702aec3f018c4339`。tag 已验证解析到 report commit；独立 immutable replay 的
+remote mutation count 为 0。
+
+冻结 primary report 的关键数值为：
+
+| 指标 | 结果 | 预注册判断 |
+| --- | ---: | --- |
+| conditional normalized recovery | `0.589984` | — |
+| exact normalized recovery | `0.849841` | — |
+| conditional / exact normalized | `0.694229` | `< 0.80`，失败 |
+| conditional / exact raw utility | `0.943092` | 通过 |
+| conditional - strongest heuristic | `+0.326111` | mean delta 通过 |
+| strongest paired-bootstrap lower | `+0.049003` | 通过 |
+| strongest positive trajectories | `9/16` | `< 12/16`，失败 |
+| individual seed ratio ≥ `0.75` | `0/5` | `< 4/5`，失败 |
+| seed population std | `0.116838` | `> 0.08`，失败 |
+| conditional - independent normalized | `-0.122394` | set-conditioning 失败 |
+| conditional - independent positive support | `1/16` trajectories，`1/5` seeds | set-conditioning 失败 |
+
+因此这是有效的 scientific `NO-GO`：restoration-supervised selector 在 aggregate 上明显优于 recency、OCR/RGB
+和 policy-vision heuristics，但 frozen conditional student 不能稳定逼近 oracle；fresh-16 也不支持
+set-conditioned student 优于 parameter-matched independent student。该结论否定 v1 student/训练契约，不否定
+offline restoration signal 或 exact oracle。本结果没有执行 matched-NLL 或 closed-loop，不能外推到长期成功率。
+
+唯一完成态 run 前已验证并在 ordinal-0 runtime receipt 中封存以下历史边界；当前只要求原样保留，不能再次
+把新 repo 解释为 absent 或启动第二次 run：
 
 - parent v1 state/artifact/runtime/log evidence；
 - inventory-repair v1 state root、88-file artifact、runtime receipt 与 run log/start/exit；
 - ordinal `0..7` receipts、heuristic seal、`label-access-claim` 和 ordinal `8..15` successor absence；
-- 新 state/artifact roots 在 token access 前 absent；新 runtime receipt 已由 clean B 的 `capture-runtime` 预先
-  捕获并绑定，不能与 run state root 混为一谈；
-- token 读取并构造 HF API 后、任何 fresh semantics/new-root/HF mutation 前，先验证 HF owner `gavinlaw` 与
-  当前凭据的 write role；只有这两项通过，private repo 的 404 才能解释为 absence。随后验证
+- 完成态 state/artifact roots 在第一次 token access 前 absent；runtime receipt 已由 clean B 的
+  `capture-runtime` 预先捕获并绑定；
+- token 读取并构造 HF API 后、任何 fresh semantics/new-root/HF mutation 前，当时先验证了 HF owner
+  `gavinlaw` 与凭据 write role，随后验证
   `causalcache-gate-v1-fresh16-evaluation-mobile`、
   `causalcache-gate-v1-fresh16-inventory-repair-mobile`、
-  `causalcache-gate-v1-fresh16-claim-serialization-repair-mobile` 三个 repo/tag identities absent。
+  `causalcache-gate-v1-fresh16-claim-serialization-repair-mobile` 三个 repo/tag identities absent。前两个当前仍
+  absent；第三个随后由本完成态发布，不得再按 pre-run absence 解释。
 
-## Source-A-only validation
+## 历史 Source-A-only validation
 
 Source-A validator 只能检查 committed source/config/hash、failure evidence bindings、runner-freeze absence 与
 effective-delta proof；它不能联网、写文件、导入 PyTorch/Hugging Face、读取 fresh semantics、加载 model 或授权
@@ -171,25 +207,26 @@ execution_authorized = false
 runner_freeze_b_present = false
 ```
 
-当前没有 Execution-B，也没有合法 `run` 权限；上面的 source-only validation 不是实验运行，不产生 fresh result。
+上述计数描述 Source-A freeze 当时的合法边界，不是当前完成态。Execution-B 后续已按独立 direct-child commit
+生成并验证；source-only validation 本身仍不构成 fresh result。
 
-## 后续唯一执行顺序
+## 已完成执行顺序与当前锁
 
-1. 把已通过 focused/full regression 的 Source-A 作为 focused commit push 到 canonical `main`；
-2. 从 clean pushed A 运行 `validate-source`，绑定完整 A SHA；
-3. 机械 materialize 唯一 runner-freeze B；B 必须是 A 的 direct single-parent child，且 tree diff 只能新增
+1. 已把通过 focused/full regression 的 Source-A 作为 focused commit push 到 canonical `main`；
+2. 已从 clean pushed A 运行 `validate-source`，绑定完整 A SHA；
+3. 已机械 materialize 唯一 runner-freeze B；B 是 A 的 direct single-parent child，且 tree diff 只新增
    `code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_runner_v1.json`；
-4. 将 B 作为独立 commit push，再从 clean B 验证 exact Git/source inventory；
-5. 在 Hyper 执行 host/GPU/disk/container preflight 与 10 秒 idle cleanup，选择精确两张 H200，捕获新的
+4. 已将 B 作为独立 commit push，并从 clean B 验证 exact Git/source inventory；
+5. 已在 Hyper00 执行 host/GPU/disk/container preflight 与 10 秒 idle cleanup，选择精确两张 H200，捕获新的
    mode-0600 Docker receipt；token 前验证 Execution-B、local retained evidence 与新 local roots absence；
-6. 读取 token、构造 HF API，随即在任何 fresh semantic access、新 root 创建或 HF mutation 前验证 owner 与
+6. 已读取 token、构造 HF API，并在任何 fresh semantic access、新 root 创建或 HF mutation 前验证 owner 与
    write role，再验证三个 repo/tag identities absent；private 404 只有在 owner/write-role check 通过后才能解释为
-   absence。之后才从全新的 state/artifact/download roots 运行唯一 formal attempt，并在
-   representative steady-state window 验证两张卡各自至少 80% utilization；
-7. run 完成后只读验证 local completion、13-target HF publication、tag-resolved immutable fresh-download replay，
-   再把轻量 result 写回 Git；
-8. 只有 sealed fresh-16 report 自身完成后，才能另立 combined-21；即使 primary GO，也不能自动打开 confirm、
-   matched-NLL 或 closed-loop。
+   absence。之后从全新的 state/artifact/download roots 运行唯一完成态 formal attempt；1 秒 host sampling
+   记录到两卡多次并发 `100%`，但不声称连续窗口 minimum；
+7. run 完成后已只读验证 local completion、13-target HF publication、tag-resolved immutable fresh-download replay；
+8. primary 未通过 selector/set-conditioning GO。项目选择不另立 post-primary combined-21 compatibility 阶段；
+   confirm、matched-NLL 与 closed-loop 的 post-GO 权限保持 locked。下一步只允许先冻结 read-only
+   failure-decomposition contract；fresh-16 已消费，不能作为改模后的 confirm。
 
-在第 4 步之前，任何 token access、fresh semantic decode、GPU model load/forward、label claim、output root 或 HF
-mutation 都是未授权操作。
+第 4 步以前的授权边界已由 source/runner receipts 保留；当前完成态不得删除或覆盖旧失败 roots、完成态 state、
+artifact、runtime receipt、logs 或 HF tag。

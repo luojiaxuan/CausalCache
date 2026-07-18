@@ -5,10 +5,10 @@
 [`code/configs/causalcache_gate_v1_preregistration.json`](../code/configs/causalcache_gate_v1_preregistration.json)，
 SHA256 为 `37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b`。
 
-本 preregistration 本身的状态仍是 `VALID_CAUSALCACHE_GATE_V1_PREREGISTRATION`。下游 formal-58 train-only cache
-已完成 private-HF immutable replay，formal-train Source-A 也已冻结；但这两个里程碑都不是训练结果。当前
-`training_executed=false`、`execution_authorized=false`，Execution-B、gate checkpoint 与 private HF model artifact
-都不存在；没有读取 fresh-16、旧 dev-5 或 confirm-20，也没有运行 matched-NLL 或 closed-loop。
+本 preregistration 本身的状态仍是 `VALID_CAUSALCACHE_GATE_V1_PREREGISTRATION`；其中 source-only 的
+`training_executed=false`、`execution_authorized=false` 历史计数不追改。下游 formal-58 training、10-checkpoint
+private-HF model seal 与 fresh-16 primary 已完成 immutable replay。fresh-16 按本文件的 frozen thresholds 得到
+selector `NO-GO`、set-conditioning `NO-GO`；旧 dev-5、confirm-20、matched-NLL 与 closed-loop 仍未执行。
 
 ## 为什么不能只用旧 10/5
 

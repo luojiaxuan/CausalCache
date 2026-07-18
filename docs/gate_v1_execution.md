@@ -1,18 +1,17 @@
 # Gate v1 训练与评估执行逻辑
 
-> 当前状态：trainer/evaluator source、formal-58 OOF/final fit、10-checkpoint private-HF publication 与 immutable
-> replay 已闭合；fresh-16 label-blind trajectory/OCR/image semantics 已由 inventory-repair v1 读取，但 fresh labels、
-> 旧 dev-5 与 confirm-20 仍未读取，也没有 GO metric、matched-NLL 或 closed-loop 结果。
+> 当前状态：trainer/evaluator source、formal-58 OOF/final fit、10-checkpoint private-HF publication、fresh-16
+> primary 与各自 immutable replay均已闭合。fresh-16 有效 verdict 为 selector `NO-GO`、set-conditioning
+> `NO-GO`；旧 dev-5、confirm-20、matched-NLL 与 closed-loop 仍未读取或执行。
 > repaired expansion labels 已在 private HF immutable revision 闭合，因此 formal-58 的 label-data prerequisite
 > 已满足；formal-58 train-only feature/label cache 也已经 transport-repair Source-A/Execution-B 完成
 > private-HF publication 与只读 immutable replay，`formal58_training_input_eligible=true`。formal-train
 > Source-A=`e20f004…b9`、Execution-B=`bad28b7…a2f2` 与正式 model seal 已完成；不能用临时 Python 重跑
 > `run_formal_oof` 或据 train-only OOF 调整模型。fresh-16 parent A/B 与 full-inventory repair A/B 也均已
 > commit/push；parent v1 在 pre-semantic inventory fail closed，repair v1 则跨过 label-blind semantic/GPU phase，
-> 在 label claim 落盘前因 `mappingproxy` serialization 永久 `INVALID`。fresh label decode/paper metric/HF mutation
-> 仍为 0，旧 repair namespace 不得续跑。claim-serialization repair Source-A source-only 已冻结，本 milestone
-> commit/push 后成为 canonical；它只修 JSON-safe deep snapshot，Execution-B absent、execution unauthorized，
-> 尚未重跑。
+> 在 label claim 落盘前因 `mappingproxy` serialization 永久 `INVALID`，两个旧 namespace 都不得续跑。独立
+> claim-serialization repair 只修 JSON-safe deep snapshot，并已由 A=`f0dd53b…0ed1`、B=`ce523ff…a634`
+> 完成 13-target private-HF publication 与 immutable replay。
 
 本文件是 [`gate_v1_preregistration.md`](gate_v1_preregistration.md) 的执行说明。冻结阈值、roster、模型、loss、
 OOF 与访问顺序仍以
@@ -247,17 +246,16 @@ inventory-repair v1 A=`6fb3e868e293bce191ce30a5c6a15ecc544c4591`、B=
 [`../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)。
 repair v1 完成 16 trajectory / 80 OCR decode、48 feature states、144 candidates、10 checkpoint loads、2 policy
 workers / 97 vision forwards；fresh label decode、label claim write、report 与 HF mutation 均为 0。独立
-claim-serialization repair Source-A 与新 namespace 已冻结，但仍不能调用旧 repair v1 入口续跑；下一步是从
-clean pushed A 验证并机械生成唯一 B。Source-A freeze 与唯一后续顺序见
-[`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md)；其 failure-evidence
-parent commit 固定为 `7fbfe1b8314ea61d7d646a47be902fdf1c6d4af9`。
+claim-serialization repair 随后完成全部 16 receipts、primary report 与 immutable replay；轻量结果见
+[`../data/results/gate_v1_fresh16_claim_serialization_repair_v1/`](../data/results/gate_v1_fresh16_claim_serialization_repair_v1/)。
+selector 与 set-conditioning 都未 GO，因此项目选择不执行 post-primary combined-21 compatibility；真正的
+post-GO stages 继续保持 locked。
 
 ### 4. 旧 dev-5 compatibility guard
 
-只有 fresh-16 report 已写成不可变轻量结果并通过自身 SHA256 replay 后，另一个阶段才能打开旧 dev-5，和
-fresh-16 组成 combined-21。`evaluate_combined21_compatibility` 会先验证 primary report binding，再验证
-21 trajectories / 63 states，最后只加入 preregistered combined delta guard。最终
-`FINAL_GATE_V1_GO_DECISION` 仍将三项 authorization 全部保持为 false。
+上位 preregistration 只允许在 fresh-16 report 写成不可变结果并通过 replay 后，由独立阶段打开旧 dev-5。
+当前 fresh-16 selector/set-conditioning 已双 `NO-GO`，项目按 falsification boundary 不执行该可选 compatibility
+guard；旧 dev-5 继续 locked。`evaluate_combined21_compatibility` 保留为历史冻结实现，不代表当前授权。
 
 Combined-21 必须再次验证 conditional/independent ensemble digest 与 fresh-16 report 完全相同；换 checkpoint、
 换 training selection 或换 artifact binding 会在 selector evaluation 前 fail closed。Final report 另外记录 combined
@@ -309,12 +307,11 @@ Execution-B absence 与访问边界；repo/tag absence 是单独的只读 Hub pr
 该历史 formal-train A 中唯一合法状态仍是 `training_executed=false` 与 `execution_authorized=false`；完成态以
 formal B 的 immutable model seal 为准。
 
-当前 claim-serialization repair Source-A 同样只能返回 `evaluation_executed=false`、
+历史 claim-serialization repair Source-A 只能返回 `evaluation_executed=false`、
 `fresh16_access_authorized=false` 与 `execution_authorized=false`。config SHA256 为
 `3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7`；57-path source inventory SHA256 为
 `572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`；focused/full regression 分别为
 99 passed + 7 subtests 与 1263 passed、16 skipped、4 deselected、617 subtests，4 个 deselect 均为已完成历史
-A/B 的 B-absence lifecycle tests。runner-freeze B absent。只有 A commit/push 并从 clean A 重验后，才能机械
-生成 B 并单独 push；token 前只验证 Execution-B/local retained evidence/new roots。读取 token/构造 HF API 后先
-验证 owner `gavinlaw` 与 write role，再把三个 private repo/tag 的 404 解释为 absence；所有检查都必须早于 fresh
-semantics/new root/HF mutation。这不是修改或重跑 formal trainer。
+A/B 的 B-absence lifecycle tests。后续 B 已按 direct-child 单文件 diff 生成并完成 formal execution；这些
+source-only 计数不改写，但当前完成态以 `REVALIDATED_GATE_V1_FRESH16_PRIMARY_EVALUATION_V1` 为准。这不是
+修改或重跑 formal trainer。

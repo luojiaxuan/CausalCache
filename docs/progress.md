@@ -11,14 +11,15 @@ USTAR 与 private HF immutable revision 已完成 fresh-download 复核。restor
 preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replacement v2 已完成 45/45 states，并闭合
 420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
 HF immutable artifact。当前已有 offline teacher labels、oracle 上界与 10 个 immutable learned gate checkpoint，
-formal model seal 已闭合；fresh-16 v1 已冻结 exact 16/48/144/448 denominator、variable-`n` heuristics、双 H200
-49-batch/97-forward schedule、all-selections-before-label firewall 与 9+4 two-commit publication，但其唯一
-formal attempt 在 derived remote-tree preflight 永久 pre-semantic fail closed。versioned inventory-repair A/B 随后
-精确绑定完整 15-path tree，并保持只下载原 4 个 consumed files 与全部科学语义不变；唯一 repair v1 attempt 已完成
-16 trajectory / 80 OCR semantic decode、80 selected images、48 feature states、144 candidates、10 checkpoint loads、
-双 H200 2 policy workers / 97 vision forwards，但在 `heuristic_local_seal` 之后、`label-access-claim` 写入之前因
-`mappingproxy` JSON serialization 失败而永久 `INVALID`。label semantic decode、report 与 HF mutation 均为 0，
-也仍没有 fresh-16 GO、matched-NLL pairs、closed-loop 方法效果或 confirm policy output。
+formal model seal 已闭合。fresh-16 parent v1 的 remote-tree failure 与 inventory-repair v1 的 claim-serialization
+failure 均永久 `INVALID`；独立 claim-serialization repair 已以全新 A/B、namespace 和 private-HF identity 完成
+exact 16/48/144/448 denominator、双 H200 49-batch/97-forward schedule、16-receipt durable chain、9+4 two-commit
+publication 与独立 immutable replay。primary result 是有效 scientific `NO-GO`：conditional ensemble 的
+normalized recovery / exact 为 `0.694229`，5 seeds 中 `0/5` 达到 `0.75`，seed std=`0.116838`；虽然相对最强
+heuristic 的 mean normalized delta=`+0.326111` 且 90% bootstrap lower=`+0.049003`，positive support 只有
+`9/16` trajectories。conditional 相对 independent 的 normalized delta=`-0.122394`，仅 `1/16` trajectories、
+`1/5` seeds 为正，因此 set-conditioning primary 也 `NO-GO`。matched-NLL、closed-loop、旧 dev-5 与 confirm
+仍未执行。
 selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
@@ -48,17 +49,42 @@ REVALIDATED`，但原 producer 不重分类。repaired archive+sidecar 已发布
 immutable commit 为 `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，幂等 replay 与独立只读 postflight 均通过。
 formal-58 label-data prerequisite 已满足，train-only repair cache 与 formal training 均完成 private-HF immutable
 replay。Source-A=`e20f004…b9`、唯一 Execution-B=`bad28b7…a2f2` 已闭合 20 个 OOF trials、100 条 fold
-tracks 与 10 个 final checkpoint。fresh-16 parent v1 与 inventory-repair v1 的 A/B、失败 evidence 均已封存；
-独立 claim-serialization repair Source-A source-only 已冻结；本 milestone commit/push 后成为 canonical。唯一代码
-语义变化是让
-`LabelAccessClaim.claim` 返回 canonical-JSON deep snapshot，并绑定 failure evidence commit `7fbfe1b…af9`、repair
-v1 ordinal 0..7 receipts、seal、artifact/log/runtime bytes 与 successor absence。新 local/HF identity 已规划，但
-Execution-B 当前 absent、execution unauthorized、尚未重跑；fresh labels、旧 dev-5 与 confirm 尚未打开。
+tracks 与 10 个 final checkpoint。fresh-16 parent v1 与 inventory-repair v1 的 A/B、失败 evidence 均已封存。
+独立 claim-serialization repair 的唯一代码语义变化是让 `LabelAccessClaim.claim` 返回 canonical-JSON deep
+snapshot；Source-A=`f0dd53b…0ed1`、Execution-B=`ce523ff…a634`、完成态/immutable replay 与 private-HF tag
+均已闭合。轻量结果见
+[`../data/results/gate_v1_fresh16_claim_serialization_repair_v1/`](../data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；
+fresh-16 已消费，旧 dev-5 与 confirm 尚未打开。
 父协议与两层 repair 说明分别见
 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md) 和
 [`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)、
 [`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md)；旧 repair v1
 namespace 不得续跑。
+
+### 2026-07-18：fresh-16 claim-repair primary 完成并判定 NO-GO
+
+- Source-A=`f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1`；机械生成的唯一 Execution-B=
+  `ce523ff54ebfdc19a9c2bd49ad21548f0934a634`，是 A 的 direct single-parent child，唯一 diff 为 runner-freeze
+  JSON。57-path source inventory 与 43-module loaded closure 均通过 clean-pushed validator；
+- Hyper00 10 秒 preflight 选中 host GPU 0/1；container `sglang-omni-jaxan-07181130` 为 unprivileged `runc`、
+  精确 2 张 H200、冻结 image digest。policy representative window 两张卡都多次达到 100% utilization；
+- 第一次 launcher invocation 因 `fresh-download-parent` 尚未预建而在 runtime validation、GPU、fresh semantics、
+  scientific state 与 HF mutation 之前 fail closed。保留 bootstrap log/hash 后预建独立 mode-0700 scratch root；
+  新 state/artifact roots 仍 absent，随后完成唯一科学 state chain；
+- formal run 与独立 immutable `validate` exit code 均为 0；ordinal `0..15` receipts、93-file /
+  51,742,977-byte artifact、9-file payload commit `9f0c61b9…c908`、direct-child 4-file report commit
+  `3541fe1e…8f81`、annotated tag object `34d5928d…c4339` 全部闭合。private HF tag
+  `gate-v1-fresh16-claim-serialization-repair-v1` 已验证解析到 report commit，独立 replay remote mutation=0；
+- selector 未 GO：conditional/exact normalized=`0.694229 < 0.80`，single-seed pass=`0/5 < 4/5`，seed
+  std=`0.116838 > 0.08`，strongest-positive trajectory=`9/16 < 12/16`。同时 raw/exact=`0.943092`、相对最强
+  heuristic mean delta=`+0.326111`、90% bootstrap lower=`+0.049003`，说明 restoration supervision 有 aggregate
+  signal，但 frozen v1 student 不够稳定；
+- set-conditioning 未 GO：conditional-independent normalized delta=`-0.122394`，bootstrap lower=`-0.363242`，
+  positive support 仅 `1/16` trajectories 与 `1/5` seeds；只有接近零的 raw delta 为正，不能支持主张；
+- 根据预注册 falsification boundary，停止当前 v1 AAAI main-method story并选择不执行 post-primary
+  combined-21；matched-NLL、closed-loop 与 confirm 的 post-GO 权限保持 locked。下一步先冻结 read-only
+  failure decomposition，区分 exact→true-greedy search gap 与
+  true-greedy→student distillation gap；fresh-16 只能作为已消费 diagnostic split。
 
 ### 2026-07-18：fresh-16 claim-serialization repair Source-A freeze
 
@@ -73,7 +99,8 @@ namespace 不得续跑。
   inventory SHA256 为 `572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689`；
 - focused regression 为 99 passed + 7 subtests passed（新增 repair 为 30 + 7）；全仓为 1263 passed、16 skipped、
   4 deselected、617 subtests passed。4 个 deselect 均为已完成历史 A/B 的 B-absence lifecycle tests；
-- 当前仍是 source-only：B absent，fresh label/report/HF mutation/GO operation 全为 0。
+- 该历史 milestone 当时仍是 source-only：B absent，fresh label/report/HF mutation/GO operation 全为 0；后续
+  Execution-B 与完成态见上一节。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -2242,26 +2269,22 @@ comparator 已闭合；OCR/RGB v1 zero-score `INVALID` 历史保持不变。poli
 zero-feature UUID type probe 阶段 `INVALID`；type-only v2 跨过 UUID 后又在 zero-feature SizeDict interface check
 阶段 `INVALID`，且 durable ledger 已阻止重跑。exact loaded SizeDict v3 GPU artifact 与 CPU state-projection repair
 现已 formal `VALID` 且从 clean descendant 完成 `REVALIDATED`，不得重跑。独立数值审计已经完成且无 blocker；
-policy-vision comparator lifecycle 与 validation chain 均已闭合。gate v1 source contract 现已冻结：formal train
-为旧 10 + 新 48，fresh-16 是唯一 formal GO slice，旧 5 只在模型冻结后做 combined-21 compatibility guard；
-set-conditioned iterative gate 是主方法，parameter-matched independent gate 是 interaction comparator。
+policy-vision comparator lifecycle 与 validation chain 均已闭合。gate v1 formal-58 training 与 fresh-16 primary
+现均已闭合；fresh-16 的 selector 与 set-conditioning gates 都是 `NO-GO`，旧 5 条 combined compatibility、
+matched-NLL、closed-loop 与 confirm 不因该结果自动打开。
 
 48/16 structural selection manifest、pre-output exposure ledger、policy-blind derived artifact、192-state substrate、
 exact labels、ledger-neutral repair 与 repaired-label private-HF publication 均已闭合。formal-58 cache v1 的唯一
 execution 仍永久 pre-semantic fail-closed；其 one-leaf transport-repair 已从 Source-A/Execution-B 完成 Hyper00
 no-GPU cache build、exact-three private-HF publication、fresh immutable replay 与只读 revalidation。formal-58
 cache 已被唯一 formal training B 消费；OOF/final fit、10-checkpoint private-HF publication 与只读 replay 均闭合。
-当前已有 inventory-repair v1 的 fresh-16 label-blind semantic/GPU run，但仍没有 fresh label、paper metric、旧
-dev-5、matched-NLL、closed-loop 或 confirm run。fresh-16 v1 已冻结 exact 16 trajectories /
-48 states / 144 candidate features / 448 distances、variable-`n` heuristic、selective fresh loader、两张 H200 的
-49 processor batches / 97 vision forwards、selection-before-label firewall 与 9-target payload + 4-target report
-direct chain，但唯一 v1 execution 因 remote-tree allowlist 漏绑历史 paths 而在 download/semantic decode 前永久
-fail closed。inventory-repair A/B 随后验证完整 15-path tree、只下载原 4 个 consumed files，并保持 scientific
-contract/model/labels/roster/gate/thresholds/output targets 不变；唯一 attempt 跨过 label-blind semantic/GPU phase，
-却在 label claim 落盘前因 `mappingproxy` serialization 永久 fail closed。下一步只能推进新的 versioned
-claim-serialization repair 与新 namespace。primary report 必须先
-hash/tag/immutable replay，之后才能另立 combined-21 stage 读取旧 dev-5。不得依据 train-only OOF 改
-architecture、LR、epoch、loss、threshold 或 seed，也不得把 combined-21 混入同一 execution。
+claim-serialization repair 已生成 fresh labels、primary report、HF tag 与独立 immutable replay；完整 machine-readable
+结果见 `data/results/gate_v1_fresh16_claim_serialization_repair_v1/`。下一步先做不改变 v1 verdict 的只读 failure
+decomposition：测 true conditional-marginal greedy vs exact 的 search regret、learned conditional vs true greedy
+的 student regret、第一/第二 selection step error，并按 `n=2/3/4`、interaction strength、`D(empty)` 与 oracle
+utility 分层。若 true greedy≈exact 而 student gap 大，才允许另立一次 v2 distillation rescue；若 search gap 本身
+大或 untouched holdout 再次失败，则停止 CausalCache 独立 AAAI 投稿。fresh-16 已消费，不能依据其结果调参后
+再当作 holdout；任何 v2 必须先预注册并使用 untouched confirm/new holdout。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 

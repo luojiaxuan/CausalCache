@@ -1,0 +1,203 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_gate_v1_fresh16_evaluation_v1",
+  "status": "REVALIDATED_GATE_V1_FRESH16_PRIMARY_EVALUATION_V1",
+  "verdict": {
+    "go_selector": false,
+    "go_set_conditioning_primary": false,
+    "implementation_valid": true,
+    "immutable_model_replay_passed": true,
+    "interpretation": "The frozen conditional ensemble beats every heuristic in mean normalized recovery, but misses the preregistered oracle-proximity, seed-stability, and trajectory-support gates. Set conditioning is not supported on fresh-16."
+  },
+  "source": {
+    "source_a_git_commit": "f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1",
+    "execution_b_git_commit": "ce523ff54ebfdc19a9c2bd49ad21548f0934a634",
+    "execution_b_direct_single_parent": true,
+    "execution_b_unique_diff": "code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_runner_v1.json",
+    "contract_sha256": "3979573be235d630ee2f46dc23be8747a843190c9b57ee81e1b3a17b4416d8c7",
+    "parent_failure_evidence_git_commit": "7fbfe1b8314ea61d7d646a47be902fdf1c6d4af9",
+    "runner_freeze_sha256": "c35dccd0d540cd01bd0f93fce11289c40dbada577e856e997a9dcd52347403d8",
+    "source_inventory_path_count": 57,
+    "source_inventory_sha256": "572992cf5ac75142cdf8f0e82bdfc2caad43ba37632c741eae277285db54d689",
+    "loaded_module_count": 43,
+    "loaded_module_inventory_sha256": "9606f32660820a6c1efcfe9c5d93423fc08b710e81f8594411f51867121edc36"
+  },
+  "runtime": {
+    "host": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "container_name": "sglang-omni-jaxan-07181130",
+    "container_id": "2b8c8464ce398036d38c870ebe9011dd295691ec77d0cdc8a840c9ed5eb8e865",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "privileged": false,
+    "gpu_model": "NVIDIA H200",
+    "host_gpu_ids": [
+      0,
+      1
+    ],
+    "logical_devices": [
+      "cuda:0",
+      "cuda:1"
+    ],
+    "gpu_uuids": [
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c"
+    ],
+    "startup_representative_window_max_gpu_utilization_percent": [
+      100,
+      100
+    ],
+    "startup_utilization_sampling_note": "One-second host samples showed repeated concurrent 100% utilization during policy forwards, with expected per-sample oscillation between asynchronous workers; no continuous-window minimum is claimed.",
+    "docker_inspect_receipt": {
+      "path": "/data/experiments/causalcache/.gate-v1-fresh16-evaluation-claim-serialization-repair-v1.docker-inspect.json",
+      "mode": 384,
+      "size_bytes": 23910,
+      "sha256": "1234364e988dd6b28970f10f74d1da95bd5e38738ed0cea4f8bb21d0f59999be"
+    },
+    "runtime_identity_sha256": "762ebd068d6b89ae303bf044502cbbee1878dc61f37bf2334bb1c47ace4192fd"
+  },
+  "execution": {
+    "run_started_utc": "2026-07-18T05:18:20Z",
+    "run_exit_code": 0,
+    "run_log": {
+      "path": "/data/logs/gate-v1-fresh16-evaluation-claim-serialization-repair-v1.run.log",
+      "mode": 384,
+      "size_bytes": 9694,
+      "sha256": "96190245fde7ed13c3aace6ab1e571db17e7978887a31373a76af2ec065e3bea"
+    },
+    "validate_started_utc": "2026-07-18T05:22:42Z",
+    "validate_exit_code": 0,
+    "validate_log": {
+      "path": "/data/logs/gate-v1-fresh16-evaluation-claim-serialization-repair-v1.validate.log",
+      "mode": 384,
+      "size_bytes": 6764,
+      "sha256": "e9ae4be89be771bc4b69e48f90bb993ccbdde4e053cb64ff1781d46c9615c776"
+    },
+    "ordered_state_receipt_count": 16,
+    "final_receipt": {
+      "path": "/data/experiments/causalcache/gate-v1-fresh16-evaluation-claim-serialization-repair-v1/ordered-state-receipts/15-final_completion.json",
+      "mode": 384,
+      "size_bytes": 4274,
+      "sha256": "ac756d1b50c00c57518b7b8dbb92d5d4819836761b124abebb60598e19088a5c"
+    },
+    "final_completion": {
+      "path": "/data/experiments/causalcache/gate-v1-fresh16-evaluation-claim-serialization-repair-v1/final-completion.json",
+      "mode": 384,
+      "size_bytes": 3811,
+      "sha256": "65b59ec681eca33e3241da38b114e73b7a0e361d3a541d1d1b003e60a31d8050"
+    },
+    "artifact_directory": "/data/artifacts/causalcache/gate-v1-fresh16-evaluation-claim-serialization-repair-v1",
+    "artifact_file_count": 93,
+    "artifact_total_file_bytes": 51742977,
+    "artifact_relative_paths_sha256": "56f7eef697cca6ac01fe56f18aa822fee0f22e4357d9f40723c6db0cd95fed54",
+    "bootstrap_preflight_failure": {
+      "started_utc": "2026-07-18T05:16:22Z",
+      "started_sha256": "3d754715d228f4706c79631f66b4050e3942800c92c0399bc8e1ec6a521e280f",
+      "exit_code": 1,
+      "exit_sha256": "741d14df730e53a5a019a710116f696db4ec23a132b74cf6fbb3cf7617e68313",
+      "scientific_state_created": false,
+      "fresh_semantic_access_count": 0,
+      "hf_mutation_count": 0,
+      "reason": "The first launcher invocation supplied a non-existent fresh-download-parent and failed before runtime validation or GPU work. The dedicated real scratch directory was then created before the unique completed run.",
+      "log_path": "/data/logs/gate-v1-fresh16-evaluation-claim-serialization-repair-v1.bootstrap-failure.log",
+      "log_sha256": "305949aee763b0735b31961db0fb5d588821abe892b131865fab5995ccd7571a"
+    }
+  },
+  "evaluation": {
+    "source_count": 16,
+    "state_count": 48,
+    "candidate_feature_count": 144,
+    "distance_value_count": 448,
+    "conditional_edge_count": 464,
+    "checkpoint_load_count": 10,
+    "policy_vision_feature_forward_count": 97,
+    "policy_vision_processor_batch_count": 49,
+    "policy_vision_cosine_scalar_transfer_count": 292,
+    "fresh16_label_semantic_decode_count": 48,
+    "exact_subset_oracle_state_count": 48,
+    "bootstrap_resamples_per_interval": 10000,
+    "bootstrap_confidence": 0.9
+  },
+  "metrics": {
+    "conditional_ensemble_normalized_recovery": 0.5899844546700871,
+    "exact_normalized_recovery": 0.8498409020600457,
+    "conditional_ensemble_normalized_recovery_over_exact": 0.6942293001430538,
+    "conditional_ensemble_raw_utility_over_exact_raw": 0.94309156813558,
+    "hard_n3_n4_raw_utility_ratio": 0.9050768917376547,
+    "conditional_minus_heuristic_mean_normalized_delta": {
+      "dynamic_recent": 0.32611126661784606,
+      "ocr_rgb_v2": 0.3315380123934695,
+      "policy_vision_v3": 0.3270466627265553
+    },
+    "strongest_heuristic": "dynamic_recent",
+    "strongest_heuristic_paired_bootstrap_lower": 0.049002886477537595,
+    "strongest_heuristic_positive_trajectory_count": 9,
+    "individual_seed_exact_normalized_ratios": [
+      0.6951831727645498,
+      0.7312556816997986,
+      0.7024484328537789,
+      0.36690520446242914,
+      0.7082343044323429
+    ],
+    "individual_seed_ratio_at_least_0_75_count": 0,
+    "seed_mean_recovery_population_std": 0.11683753746679142,
+    "selected_true_nonpositive_addition_rate": 0.09375,
+    "conditional_minus_independent_mean_normalized_delta": -0.12239412933170021,
+    "conditional_minus_independent_paired_bootstrap_lower": -0.3632418482653946,
+    "conditional_minus_independent_positive_trajectory_count": 1,
+    "conditional_minus_independent_raw_utility_delta": 0.00010178926701579633,
+    "paired_seed_positive_count": 1,
+    "derived_independent_mean_normalized_recovery": 0.7123785840017873,
+    "derived_independent_normalized_recovery_over_exact": 0.8382493502901018
+  },
+  "failed_preregistered_checks": {
+    "selector": [
+      "ensemble_normalized_recovery_over_exact",
+      "individual_seed_pass_count",
+      "seed_population_std",
+      "strongest_positive_trajectory_count"
+    ],
+    "set_conditioning": [
+      "bootstrap_lower",
+      "mean_normalized_delta",
+      "paired_seed_positive_count",
+      "positive_trajectory_count"
+    ]
+  },
+  "hugging_face": {
+    "repo_type": "dataset",
+    "repo": "gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile",
+    "url": "https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile",
+    "private": true,
+    "base_commit": "68f82161c66ea6bf41c71b00a44da3c5f81ae7ca",
+    "payload_commit": "9f0c61b9437773ca5d3f7e0cabd6e2a987e3c908",
+    "report_commit": "3541fe1ea2c46e555c29cc53483e6f3b809f8f81",
+    "tag_resolved_commit": "3541fe1ea2c46e555c29cc53483e6f3b809f8f81",
+    "payload_file_count": 9,
+    "report_file_count": 4,
+    "final_target_count": 13,
+    "tag": "gate-v1-fresh16-claim-serialization-repair-v1",
+    "annotated_tag_object": "34d5928db4e82532f46f7596702aec3f018c4339",
+    "tag_resolves_to_report_commit": true,
+    "initial_run_remote_mutation_count": 4,
+    "immutable_replay_status": "REVALIDATED_GATE_V1_FRESH16_PRIMARY_EVALUATION_V1",
+    "immutable_replay_remote_mutation_count": 0,
+    "bundle_manifest": {
+      "path": "fresh16-eval/v1/manifests/bundle-manifest-v1.json",
+      "size_bytes": 2133,
+      "sha256": "a11e9d693c2fa33f5f5f97b123649608bdf98583693caa818e166d8009382844"
+    },
+    "primary_report": {
+      "path": "fresh16-eval/v1/reports/primary-report-v1.json",
+      "size_bytes": 12942,
+      "sha256": "ee5287711cc7f8ea3bd0bbf70a4ea75612692ffdb67a15577cfc47697ca3a937",
+      "canonical_report_sha256": "326fec3ce1c2034df6b9c7721719aed93eff18fea3396f3b24c0b751ef9cefe8"
+    }
+  },
+  "still_locked": {
+    "legacy_dev5_semantic_decode_count": 0,
+    "confirm20_access_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0,
+    "combined21_compatibility_evaluated": false
+  }
+}

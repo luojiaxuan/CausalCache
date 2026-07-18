@@ -1,13 +1,10 @@
 # Gate v1 fresh-16 primary evaluation
 
-> 当前状态：formal-58 gate 已完成训练、private-HF model seal 与只读 immutable replay。fresh-16 v1
-> Source-A/Execution-B 已冻结，但 2026-07-18 的首次 formal attempt 在 derived repo exact-tree preflight
-> fail closed。该 parent 失败发生在任何 fresh semantic decode 前；versioned inventory-repair v1 随后已完成
-> label-blind trajectory/OCR/image semantics、checkpoint replay 与双 H200 workers，但在 label claim 落盘前因
-> `mappingproxy` serialization 永久 `INVALID`。**fresh label decode、paper report、HF mutation、旧 dev-5、
-> confirm、matched-NLL 与 closed-loop 仍为 0；两个旧 attempts 都不可续跑，也没有 fresh-16 GO/NO-GO。**
-> claim-serialization repair Source-A source-only 已冻结，本 milestone commit/push 后成为 canonical；B absent、
-> 未执行。
+> 当前状态：formal-58 gate 与 fresh-16 primary 均已闭合。parent v1 的 exact-tree failure 和 inventory-repair
+> v1 的 `mappingproxy` failure 都永久 `INVALID`；独立 claim-serialization repair 已完成 16/48/144/448
+> denominator、双 H200 execution、13-target private-HF publication 与独立 immutable replay。有效结果为
+> `go_selector=false`、`go_set_conditioning_primary=false`。旧 dev-5、confirm、matched-NLL 与 closed-loop
+> 仍为 0。
 
 本协议只回答一个预注册问题：冻结的 conditional / independent ensemble 在从未参与训练或选择的
 `fresh_development` 16 条 trajectory 上，是否同时通过 `GO_SELECTOR` 与 `GO_SET_CONDITIONING`。阈值、bootstrap
@@ -46,11 +43,13 @@
 - inventory-repair v1 pre-label failure evidence：
   [`data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)，
   evidence commit `7fbfe1b8314ea61d7d646a47be902fdf1c6d4af9`；
-- versioned claim-serialization repair Source-A：
+- versioned claim-serialization repair completion：
   [`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md) 与
-  [`causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`](../code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json)；
-  planned HF repo/tag 只是 destination identity，Source-A 不联网，不能写成已发布 artifact 或 source-only
-  absence 结论。
+  [`causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json`](../code/configs/causalcache_gate_v1_fresh16_claim_serialization_repair_v1.json)，
+  A=`f0dd53b9a0249f259a833b4d8ad3ff26096a0ed1`、B=`ce523ff54ebfdc19a9c2bd49ad21548f0934a634`；
+  [轻量结果](../data/results/gate_v1_fresh16_claim_serialization_repair_v1/) 与
+  [private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile)，
+  tag `gate-v1-fresh16-claim-serialization-repair-v1` → `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`。
 
 ## v1 pre-semantic inventory failure
 
@@ -183,16 +182,15 @@ consumed files，并完成 16 trajectory / 80 OCR decode、48 feature states、1
 2 policy workers / 97 vision forwards。它在 heuristic seal 后、label claim 写入前发生 claim-serialization failure；
 fresh label decode/report/HF mutation 均为 0，因此仍无 GO verdict 与 combined-21/post-GO authorization。
 
-versioned claim-serialization repair 的 Source-A 已把唯一允许的代码变化收窄为 JSON-safe deep
-snapshot，并绑定 repair v1 的 ordinal `0..7` receipts、seal、artifact、logs/runtime 与 successor absence，以及
-全新的 local/HF identities。当前 runner-freeze B absent、execution unauthorized、没有新运行；完整边界见
-[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md) 与
-[`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md)。
+versioned claim-serialization repair 只把 public claim view 收窄为 JSON-safe deep snapshot，并以全新 local/HF
+identity 完成 ordinal `0..15` chain。conditional/exact normalized=`0.694229`，相对最强 heuristic delta=
+`+0.326111`，但 single-seed pass=`0/5`、seed std=`0.116838`、positive trajectories=`9/16`，因此 selector
+`NO-GO`。conditional-independent normalized delta=`-0.122394`，因此 set-conditioning 也 `NO-GO`。完整边界与
+结果见 [`gate_v1_fresh16_claim_serialization_repair.md`](gate_v1_fresh16_claim_serialization_repair.md) 和
+[`../data/results/gate_v1_fresh16_claim_serialization_repair_v1/`](../data/results/gate_v1_fresh16_claim_serialization_repair_v1/)。
 
 ## 执行入口
 
-原 `scripts.manage_gate_v1_fresh16_evaluation run` 与 inventory-repair v1 的 `run`/`validate` 都不得再次调用。
-claim-serialization repair 在 Source-A commit/push、clean-A validation、机械 B separate push 前没有授权执行入口；
-当前 source-only freeze 不得读取 fresh semantics 或启动 GPU。未来 B 在 token 前只能验证 Execution-B/local
-retained evidence/new roots；读取 token/构造 HF API 后必须先验证 owner/write role，再验证三个 private repo/tag
-identities absent，之后才能创建新 root 或访问 fresh semantics。
+原 `scripts.manage_gate_v1_fresh16_evaluation run`、inventory-repair v1 与已完成 claim-repair 的 `run` 都不得再次
+调用；完成态 `validate` 已返回 `REVALIDATED_GATE_V1_FRESH16_PRIMARY_EVALUATION_V1`。下一执行入口只能是新的
+read-only failure-decomposition contract，且不能打开旧 dev-5、confirm、matched-NLL 或 closed-loop。
