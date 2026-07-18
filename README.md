@@ -20,7 +20,9 @@
 > [`docs/independent_confirm_closed_loop_v1.md`](docs/independent_confirm_closed_loop_v1.md)。
 
 > Long-horizon development（独立分支，不改写上述 NO-GO）：当前工作树在
-> `luojiaxuan/independent-gate-long-horizon-development` 上建立新的 development-only study。只读 trace
+> `luojiaxuan/independent-gate-long-horizon-manifest-repair` 上建立新的 development-only study。原 long-horizon
+> A/B 在 selector scoring 前发现 v4 outer manifest / inner label-blind seal 绑定错误，旧 immutable substrate
+> 只作 forensic evidence，不产生科学 verdict；修复 lineage 从旧 Source-A 分叉，不 force-push。只读 trace
 > incidence 显示，当前两个 AndroidWorld early-stopped policy stacks 中 `n>=8` 占 36.09% / 50.10%
 > decisions，`n>=16` 占 12.90% / 31.19%；这些数字只描述该 stack，不能声称为 benchmark prevalence。
 > 正式设计将 `n=8,B=2/4` 用于 exact-subset evaluation，将 `n=16,B=2/4` 用于 context-safe
@@ -28,8 +30,10 @@
 > 审计结果见 [`data/results/long_horizon_incidence_v1/`](data/results/long_horizon_incidence_v1/)，正式
 > Source-A、`n=8` exact-163、`n=16` pair-union、B2/B4 selector seal 与执行 lineage 见
 > [`docs/long_horizon_development_v1.md`](docs/long_horizon_development_v1.md)。
-> Source-A contract SHA256 已冻结为 `6bde1adf...10cd94`；当前 selection/OCR/selector/policy/restoration access
-> 均为 0，后续只允许按 A→selection-B→runner-C 的 direct-child lineage 执行。
+> 修复后的 Source-A contract SHA256 已冻结为 `82965790...67a96`，136 个 focused tests、7 skips 与 79 个
+> subtests 已通过；当前修复 lineage 的
+> selection/OCR/selector/policy/restoration access 均为 0，后续只允许按 repaired
+> A→selection-B→runner-C 的 direct-child lineage 执行。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。

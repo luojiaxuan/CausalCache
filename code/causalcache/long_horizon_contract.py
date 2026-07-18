@@ -26,7 +26,7 @@ SELECTION_MANIFEST_FREEZE_PATH = (
     "data/manifests/causalcache_long_horizon_development_v1_selection.json"
 )
 FROZEN_CONFIG_SHA256 = (
-    "6bde1adfe0b7181da1e64d85409355d7198ab281152cb8220fe52e800010cd94"
+    "82965790bf541dea348997ecd1849473d5cfb89f53da9f5a615568f57ca67a96"
 )
 SOURCE_A_INVENTORY_PLACEHOLDER = "0" * 64
 SELECTION_SALT = "causalcache-long-horizon-development-v1"
@@ -88,7 +88,7 @@ TOP_LEVEL_KEYS = {
 }
 SHA256_RE = re.compile(r"[0-9a-f]{64}")
 LEARNED_MODEL_ARTIFACTS_SHA256 = (
-    "d5be3c9b0d3cc5434291a56bd915904261df43bbfc62679825562b786d162be6"
+    "004e85603e0ddb028bf9b3f0b5c4b454b8bc05fb6ff87f84e3f85c7086367f06"
 )
 
 
@@ -1013,9 +1013,24 @@ def _validate_policy_execution_and_artifact_plan(
         "v4 revision",
     )
     _equal(
+        residual["manifest_path"],
+        "manifest.json",
+        "v4 manifest path",
+    )
+    _equal(
         residual["manifest_sha256"],
         "3ecc5e0a27e8ff57774788d71da6dbe4ff2a3bf08001747ab9a0de79607b9544",
         "v4 manifest SHA256",
+    )
+    _equal(
+        residual["label_blind_seal_path"],
+        "label-blind-seal.json",
+        "v4 label-blind seal path",
+    )
+    _equal(
+        residual["label_blind_seal_sha256"],
+        "02b4b41eb9d180dd22e3c51575bfcdb9a0fca470d51fff3a7ee9cec38faa4439",
+        "v4 label-blind seal SHA256",
     )
     _strict_bool(residual["private"], True, "v4 privacy")
     residual_checkpoints = _sequence(

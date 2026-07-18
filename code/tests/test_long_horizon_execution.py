@@ -203,7 +203,10 @@ def _contract(tmp_path: Path) -> LongHorizonContract:
                 "repo_type": "model",
                 "private": True,
                 "revision": "2" * 40,
+                "manifest_path": "manifest.json",
                 "manifest_sha256": "3" * 64,
+                "label_blind_seal_path": "label-blind-seal.json",
+                "label_blind_seal_sha256": "4" * 64,
                 "residual_checkpoints": residual_checkpoints,
             },
         },
@@ -268,8 +271,11 @@ def _model_provenance(contract: LongHorizonContract) -> dict:
         record["path"]: record["sha256"]
         for record in residual["residual_checkpoints"]
     }
-    residual_hashes["label-blind-seal.json"] = residual["manifest_sha256"]
-    residual_hashes["residual-model-metadata.json"] = "4" * 64
+    residual_hashes[residual["manifest_path"]] = residual["manifest_sha256"]
+    residual_hashes[residual["label_blind_seal_path"]] = residual[
+        "label_blind_seal_sha256"
+    ]
+    residual_hashes["residual-model-metadata.json"] = "5" * 64
     return {
         "formal58": {
             "repo": formal["repo"],
@@ -303,7 +309,8 @@ def _model_provenance(contract: LongHorizonContract) -> dict:
                 }
                 for index, path in enumerate(
                     (
-                        "label-blind-seal.json",
+                        residual["manifest_path"],
+                        residual["label_blind_seal_path"],
                         *sorted(
                             {
                                 "residual-model-metadata.json",
@@ -695,6 +702,16 @@ def test_runner_accepts_prepare_generated_manifest_and_rejects_model_mutation(
         selector_seal_payload=seal_payload,
     )
     assert validated["selector_seal"]["path"] == SELECTION_RELATIVE_PATH
+    v4_files = json.loads(preparation_payload)["models"][
+        "v4_frozen_base_residual"
+    ]["files"]
+    assert len(v4_files) == 8
+    assert {record["path"] for record in v4_files} == {
+        "manifest.json",
+        "label-blind-seal.json",
+        "residual-model-metadata.json",
+        *(f"residual-checkpoints/seed-{seed}.safetensors" for seed in range(5)),
+    }
 
     mutated_manifest = json.loads(preparation_payload)
     mutated_manifest["models"]["formal58"]["files"][0]["sha256"] = "f" * 64
@@ -709,6 +726,50 @@ def test_runner_accepts_prepare_generated_manifest_and_rejects_model_mutation(
     with pytest.raises(ValueError, match="formal58 files immutable file roster"):
         validate_runner_config(
             mutated_runner,
+            contract=_contract(tmp_path),
+            selection_manifest_payload=selection_payload,
+            selector_preparation_manifest_payload=mutated_payload,
+            selector_seal_payload=seal_payload,
+        )
+
+
+@pytest.mark.parametrize(
+    ("path", "mutation"),
+    [
+        ("manifest.json", "drop"),
+        ("label-blind-seal.json", "drop"),
+        ("manifest.json", "digest"),
+        ("label-blind-seal.json", "digest"),
+    ],
+)
+def test_runner_rejects_missing_or_misbound_v4_manifest_files(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    path: str,
+    mutation: str,
+) -> None:
+    runner, selection_payload, seal_payload, preparation_payload = (
+        _runner_validation_fixture(tmp_path)
+    )
+    monkeypatch.setattr(
+        "causalcache.long_horizon_execution.validate_long_horizon_selection_manifest",
+        lambda *_args, **_kwargs: None,
+    )
+    manifest = json.loads(preparation_payload)
+    files = manifest["models"]["v4_frozen_base_residual"]["files"]
+    record = next(record for record in files if record["path"] == path)
+    if mutation == "drop":
+        files.remove(record)
+    else:
+        record["sha256"] = "f" * 64
+    mutated_payload = pretty_json_bytes(manifest)
+    runner["selector_preparation_manifest"]["sha256"] = sha256_bytes(
+        mutated_payload
+    )
+    runner["selector_preparation_manifest"]["size_bytes"] = len(mutated_payload)
+    with pytest.raises(ValueError, match="preparation v4 immutable file roster"):
+        validate_runner_config(
+            runner,
             contract=_contract(tmp_path),
             selection_manifest_payload=selection_payload,
             selector_preparation_manifest_payload=mutated_payload,

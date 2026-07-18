@@ -753,14 +753,18 @@ def validate_selector_preparation_manifest_payload(
         residual["files"], label="preparation v4 files"
     )
     expected_residual_by_path = {
-        "label-blind-seal.json": expected_residual["manifest_sha256"],
+        expected_residual["manifest_path"]: expected_residual["manifest_sha256"],
+        expected_residual["label_blind_seal_path"]: expected_residual[
+            "label_blind_seal_sha256"
+        ],
         **{
             record["path"]: record["sha256"]
             for record in expected_residual["residual_checkpoints"]
         },
     }
     expected_residual_paths = {
-        "label-blind-seal.json",
+        expected_residual["manifest_path"],
+        expected_residual["label_blind_seal_path"],
         "residual-model-metadata.json",
         *(record["path"] for record in expected_residual["residual_checkpoints"]),
     }
@@ -768,7 +772,7 @@ def validate_selector_preparation_manifest_payload(
         record["path"]: record for record in residual_files
     }
     if (
-        len(residual_files) != 7
+        len(residual_files) != 8
         or set(observed_residual_by_path) != expected_residual_paths
         or any(
             observed_residual_by_path[path]["sha256"] != digest

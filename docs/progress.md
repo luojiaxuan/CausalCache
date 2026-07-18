@@ -2939,3 +2939,20 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 下一步冻结 GUIOdyssey long-history Source-A：24 条 development trajectories +18 条 unopened reserve；
   `n=8` 做 at-most-`B` exact subset oracle，`n=16` 因完整 17-image prompt 超过 32k context，改用预注册
   selector-pair union reference。旧 confirm、matched-NLL、closed-loop 与 sealed test 保持 0 access。
+
+### 2026-07-19：long-horizon v4 manifest binding pre-scoring failure 与 repair
+
+- 原 Source-A=`171191cfe9d2d8060e524a458d2d6a2012667f63`、selection-B=
+  `1eb61585cdfec833675eaa57ee92689d2e403178` 的 substrate 构建及 432-record OCR replay 通过，并上传 private HF
+  immutable revision `4a03584a8d3a3d97ae8ce82bf382f5e3c45391c0`；fresh download 的 7 个文件逐 byte 一致，第二次
+  432-record OCR/raw replay 也通过；
+- 首次 selector preparation 在任何 score、restoration distance 或 policy operation 前 fail closed：Source-A
+  正确冻结的是 canonical outer `manifest.json` SHA `3ecc5e0a...b9544`，但 loader 错把该 SHA 用于 inner
+  `label-blind-seal.json`，其真实 SHA 为 `02b4b41e...a4439`；
+- 旧 A/B 与 HF revision 永久标为 `INVALID_PRE_SELECTOR_V4_MANIFEST_BINDING / FORMAL_INELIGIBLE`，不删除、
+  不覆盖、不追认为负科学结果；selector scoring、restoration、policy/GPU、reserve semantic access 均为 0；
+- 从旧 Source-A 新建 `luojiaxuan/independent-gate-long-horizon-manifest-repair`。修复同时绑定 outer manifest 与
+  inner label-blind seal，并要求 outer/inner/metadata/checkpoint 三方 roster 一致；修复后必须重新冻结 A/B、
+  重建 substrate、fresh-readback、生成 576-record selector seal，再创建唯一 runner-C。修复 config SHA256 为
+  `82965790bf541dea348997ecd1849473d5cfb89f53da9f5a615568f57ca67a96`；136 个 focused tests、7 skips 与
+  79 个 subtests 通过，真实 immutable v4 artifact 的 outer/inner/五 seed ensemble smoke 通过。

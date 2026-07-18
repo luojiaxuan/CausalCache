@@ -16,8 +16,11 @@ from causalcache.long_horizon_prepare import (
     MANIFEST_RELATIVE_PATH,
     OCRRGBStateInput,
     SELECTION_RELATIVE_PATH,
+    V4_LABEL_BLIND_SEAL_PATH,
+    V4_MANIFEST_PATH,
     _generator_provenance,
     _load_formal_payloads,
+    _load_v4_payloads,
     artifact_tree_identity,
     score_and_seal_label_blind_selectors,
     validate_selector_seal_artifact,
@@ -109,6 +112,201 @@ def _fake_formal() -> SimpleNamespace:
         independent=SimpleNamespace(family="independent"),
         conditional=SimpleNamespace(family="conditional"),
     )
+
+
+def _compact_json_line(value: object) -> bytes:
+    return (
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+    ).encode("utf-8")
+
+
+def _pretty_json(value: object) -> bytes:
+    return (
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            allow_nan=False,
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n"
+    ).encode("utf-8")
+
+
+def _file_record(path: str, payload: bytes) -> dict[str, object]:
+    return {
+        "path": path,
+        "sha256": hashlib.sha256(payload).hexdigest(),
+        "size_bytes": len(payload),
+    }
+
+
+def _write_v4_fixture_metadata(fixture: dict[str, object]) -> None:
+    root = fixture["root"]
+    seal = fixture["seal"]
+    outer = fixture["outer"]
+    contract = fixture["contract"]
+    assert isinstance(root, Path)
+    assert isinstance(seal, dict)
+    assert isinstance(outer, dict)
+    assert isinstance(contract, SimpleNamespace)
+
+    seal_payload = _compact_json_line(seal)
+    (root / V4_LABEL_BLIND_SEAL_PATH).write_bytes(seal_payload)
+    seal_record = _file_record(V4_LABEL_BLIND_SEAL_PATH, seal_payload)
+    outer["files"] = [
+        seal_record if record["path"] == V4_LABEL_BLIND_SEAL_PATH else record
+        for record in outer["files"]
+    ]
+    outer_payload = _pretty_json(outer)
+    (root / V4_MANIFEST_PATH).write_bytes(outer_payload)
+    contract.data["learned_model_artifacts"]["v4_safe_frozen_base_residual"][
+        "manifest_sha256"
+    ] = hashlib.sha256(outer_payload).hexdigest()
+    contract.data["learned_model_artifacts"]["v4_safe_frozen_base_residual"][
+        "label_blind_seal_sha256"
+    ] = hashlib.sha256(seal_payload).hexdigest()
+    fixture["seal_payload"] = seal_payload
+    fixture["outer_payload"] = outer_payload
+
+
+def _v4_model_fixture(tmp_path: Path) -> dict[str, object]:
+    root = tmp_path / "v4-model"
+    root.mkdir()
+    payloads = {
+        "base-invariant-report.json": b"base-invariant\n",
+        "formal58-residual-training-report.json": b"formal-report\n",
+        "fresh16-feature-only-predictions.json": b"fresh-predictions\n",
+        "residual-model-metadata.json": b"residual-metadata\n",
+        **{
+            f"residual-checkpoints/seed-{seed}.safetensors": (
+                f"residual-seed-{seed}".encode("utf-8")
+            )
+            for seed in range(5)
+        },
+    }
+    for path in (
+        "residual-model-metadata.json",
+        *(f"residual-checkpoints/seed-{seed}.safetensors" for seed in range(5)),
+    ):
+        target = root / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(payloads[path])
+
+    records = {path: _file_record(path, payload) for path, payload in payloads.items()}
+    base_manifest_sha256 = "1" * 64
+    source_a_git_commit = "2" * 40
+    execution_b_git_commit = "3" * 40
+    contract_sha256 = "4" * 64
+    seal = {
+        "schema_version": "1.0.0",
+        "protocol_id": (
+            "causalcache_set_conditioned_v4_frozen_base_residual_development_v1"
+        ),
+        "status": (
+            "SEALED_LABEL_BLIND_SET_CONDITIONED_V4_FROZEN_BASE_RESIDUAL_V1"
+        ),
+        "training_report": {
+            "path": "formal58-residual-training-report.json",
+            "sha256": records["formal58-residual-training-report.json"]["sha256"],
+            "selected_learning_rate": 0.001,
+            "five_seed_mean_oof_score": 0.5,
+        },
+        "base_invariant_report": {
+            "path": "base-invariant-report.json",
+            "sha256": records["base-invariant-report.json"]["sha256"],
+            "fresh_zero_residual_replay_state_count": 48,
+        },
+        "frozen_base_manifest_sha256": base_manifest_sha256,
+        "frozen_base_input_inventory": [],
+        "source_a_git_commit": source_a_git_commit,
+        "execution_b_git_commit": execution_b_git_commit,
+        "runner_freeze_sha256": "5" * 64,
+        "contract_sha256": contract_sha256,
+        "payload_inventory": [dict(records[path]) for path in sorted(records)],
+        "fresh_label_access_count": 0,
+        "fresh_label_semantic_decode_attempt_count": 0,
+        "confirm20_access_count": 0,
+        "legacy_dev5_access_count": 0,
+        "raw_gui_access_count": 0,
+        "policy_forward_count": 0,
+        "gpu_operation_count": 0,
+    }
+    seal_payload = _compact_json_line(seal)
+    outer_paths = {
+        "base-invariant-report.json",
+        "formal58-residual-training-report.json",
+        "residual-model-metadata.json",
+        *(f"residual-checkpoints/seed-{seed}.safetensors" for seed in range(5)),
+    }
+    outer = {
+        "schema_version": "1.0.0",
+        "protocol_id": (
+            "causalcache_set_conditioned_v4_frozen_base_residual_development_v1"
+        ),
+        "artifact_role": "frozen_base_residual_model_outputs",
+        "repository": "owner/v4-model",
+        "tag": "set-conditioned-v4-frozen-base-residual-development-v1",
+        "source_a_git_commit": source_a_git_commit,
+        "execution_b_git_commit": execution_b_git_commit,
+        "contract_sha256": contract_sha256,
+        "base_model": f"owner/formal-model@{'6' * 40}",
+        "files": [
+            *[dict(records[path]) for path in sorted(outer_paths)],
+            _file_record(V4_LABEL_BLIND_SEAL_PATH, seal_payload),
+        ],
+    }
+    residual_checkpoints = [
+        {
+            "seed": seed,
+            "path": f"residual-checkpoints/seed-{seed}.safetensors",
+            "sha256": records[f"residual-checkpoints/seed-{seed}.safetensors"][
+                "sha256"
+            ],
+        }
+        for seed in range(5)
+    ]
+    contract = SimpleNamespace(
+        data={
+            "learned_model_artifacts": {
+                "formal58_base_and_conditional": {
+                    "repo": "owner/formal-model",
+                    "revision": "6" * 40,
+                    "ensemble_manifests": [
+                        {
+                            "family": "independent",
+                            "sha256": base_manifest_sha256,
+                        }
+                    ],
+                },
+                "v4_safe_frozen_base_residual": {
+                    "repo": "owner/v4-model",
+                    "manifest_path": V4_MANIFEST_PATH,
+                    "manifest_sha256": "0" * 64,
+                    "label_blind_seal_path": V4_LABEL_BLIND_SEAL_PATH,
+                    "label_blind_seal_sha256": "0" * 64,
+                    "residual_checkpoints": residual_checkpoints,
+                },
+            }
+        }
+    )
+    fixture: dict[str, object] = {
+        "root": root,
+        "payloads": payloads,
+        "records": records,
+        "seal": seal,
+        "outer": outer,
+        "contract": contract,
+    }
+    _write_v4_fixture_metadata(fixture)
+    return fixture
 
 
 def _patch_fast_scoring(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -429,6 +627,124 @@ def test_formal_payload_reader_verifies_exact_twelve_bound_files(
     first.write_bytes(b"tampered")
     with pytest.raises(ValueError, match="SHA256 drifted"):
         _load_formal_payloads(contract, tmp_path)  # type: ignore[arg-type]
+
+
+def test_v4_reader_verifies_outer_seal_and_six_inference_payloads(
+    tmp_path: Path,
+) -> None:
+    fixture = _v4_model_fixture(tmp_path)
+    contract = fixture["contract"]
+    root = fixture["root"]
+    assert isinstance(contract, SimpleNamespace)
+    assert isinstance(root, Path)
+
+    payloads, outer_payload, provenance = _load_v4_payloads(
+        contract, root  # type: ignore[arg-type]
+    )
+
+    assert outer_payload == fixture["outer_payload"]
+    assert set(payloads) == {
+        "residual-model-metadata.json",
+        *(f"residual-checkpoints/seed-{seed}.safetensors" for seed in range(5)),
+    }
+    assert [record["path"] for record in provenance] == [
+        V4_MANIFEST_PATH,
+        V4_LABEL_BLIND_SEAL_PATH,
+        "residual-checkpoints/seed-0.safetensors",
+        "residual-checkpoints/seed-1.safetensors",
+        "residual-checkpoints/seed-2.safetensors",
+        "residual-checkpoints/seed-3.safetensors",
+        "residual-checkpoints/seed-4.safetensors",
+        "residual-model-metadata.json",
+    ]
+    assert len(provenance) == 8
+
+
+def test_v4_reader_rejects_outer_manifest_byte_tamper(tmp_path: Path) -> None:
+    fixture = _v4_model_fixture(tmp_path)
+    root = fixture["root"]
+    contract = fixture["contract"]
+    assert isinstance(root, Path)
+    assert isinstance(contract, SimpleNamespace)
+    (root / V4_MANIFEST_PATH).write_bytes(fixture["outer_payload"] + b" ")
+
+    with pytest.raises(ValueError, match="outer artifact manifest SHA256 drifted"):
+        _load_v4_payloads(contract, root)  # type: ignore[arg-type]
+
+
+def test_v4_reader_rejects_inner_seal_byte_tamper(tmp_path: Path) -> None:
+    fixture = _v4_model_fixture(tmp_path)
+    root = fixture["root"]
+    contract = fixture["contract"]
+    assert isinstance(root, Path)
+    assert isinstance(contract, SimpleNamespace)
+    (root / V4_LABEL_BLIND_SEAL_PATH).write_bytes(fixture["seal_payload"] + b" ")
+
+    with pytest.raises(ValueError, match="label-blind seal payload SHA256 drifted"):
+        _load_v4_payloads(contract, root)  # type: ignore[arg-type]
+
+
+def test_v4_reader_rejects_outer_seal_record_source_a_drift(tmp_path: Path) -> None:
+    fixture = _v4_model_fixture(tmp_path)
+    root = fixture["root"]
+    contract = fixture["contract"]
+    assert isinstance(root, Path)
+    assert isinstance(contract, SimpleNamespace)
+    contract.data["learned_model_artifacts"]["v4_safe_frozen_base_residual"][
+        "label_blind_seal_sha256"
+    ] = "e" * 64
+
+    with pytest.raises(ValueError, match="outer manifest/Source-A seal SHA256"):
+        _load_v4_payloads(contract, root)  # type: ignore[arg-type]
+
+
+def test_v4_reader_rejects_nonzero_protected_access(tmp_path: Path) -> None:
+    fixture = _v4_model_fixture(tmp_path)
+    seal = fixture["seal"]
+    root = fixture["root"]
+    contract = fixture["contract"]
+    assert isinstance(seal, dict)
+    assert isinstance(root, Path)
+    assert isinstance(contract, SimpleNamespace)
+    seal["confirm20_access_count"] = 1
+    _write_v4_fixture_metadata(fixture)
+
+    with pytest.raises(ValueError, match="nonzero protected access"):
+        _load_v4_payloads(contract, root)  # type: ignore[arg-type]
+
+
+def test_v4_reader_rejects_outer_inner_payload_binding_drift(
+    tmp_path: Path,
+) -> None:
+    fixture = _v4_model_fixture(tmp_path)
+    seal = fixture["seal"]
+    root = fixture["root"]
+    contract = fixture["contract"]
+    assert isinstance(seal, dict)
+    assert isinstance(root, Path)
+    assert isinstance(contract, SimpleNamespace)
+    for record in seal["payload_inventory"]:
+        if record["path"] == "residual-model-metadata.json":
+            record["sha256"] = "f" * 64
+    _write_v4_fixture_metadata(fixture)
+
+    with pytest.raises(ValueError, match="outer/inner file binding drifted"):
+        _load_v4_payloads(contract, root)  # type: ignore[arg-type]
+
+
+def test_v4_reader_rejects_inference_payload_byte_tamper(tmp_path: Path) -> None:
+    fixture = _v4_model_fixture(tmp_path)
+    root = fixture["root"]
+    contract = fixture["contract"]
+    assert isinstance(root, Path)
+    assert isinstance(contract, SimpleNamespace)
+    path = root / "residual-checkpoints/seed-3.safetensors"
+    path.write_bytes(path.read_bytes() + b"tamper")
+
+    with pytest.raises(
+        ValueError, match="frozen residual input payload SHA256 drifted"
+    ):
+        _load_v4_payloads(contract, root)  # type: ignore[arg-type]
 
 
 def test_scoring_rejects_matrix_or_visual_inventory_drift(

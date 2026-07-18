@@ -364,7 +364,10 @@
       "repo_type": "model",
       "private": true,
       "revision": "1641b90a4ebb05037e4710738a78e2c79f81cdc3",
+      "manifest_path": "manifest.json",
       "manifest_sha256": "3ecc5e0a27e8ff57774788d71da6dbe4ff2a3bf08001747ab9a0de79607b9544",
+      "label_blind_seal_path": "label-blind-seal.json",
+      "label_blind_seal_sha256": "02b4b41eb9d180dd22e3c51575bfcdb9a0fca470d51fff3a7ee9cec38faa4439",
       "residual_checkpoints": [
         {"seed": 0, "path": "residual-checkpoints/seed-0.safetensors", "sha256": "cd11c4abd190e267e46772fa70769553c91e9073b2d00ef665bd3d30e0c67db0"},
         {"seed": 1, "path": "residual-checkpoints/seed-1.safetensors", "sha256": "ccd9c0987040b78f95ae71977e2b165d17188ee5ad7d7f3cb8af5daa1b7d3605"},
@@ -397,7 +400,7 @@
     "reserve_locked": true
   },
   "source_freeze": {
-    "branch": "luojiaxuan/independent-gate-long-horizon-development",
+    "branch": "luojiaxuan/independent-gate-long-horizon-manifest-repair",
     "required_source_a_paths": [
       "code/causalcache/long_horizon_contract.py",
       "code/causalcache/long_horizon_data.py",

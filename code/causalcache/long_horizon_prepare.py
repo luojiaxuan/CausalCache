@@ -71,8 +71,54 @@ SELECTION_RELATIVE_PATH = f"{PAYLOAD_PREFIX}/selector-seal.json"
 MANIFEST_RELATIVE_PATH = f"{PAYLOAD_PREFIX}/manifest.json"
 ARTIFACT_RELATIVE_PATHS = (SELECTION_RELATIVE_PATH, MANIFEST_RELATIVE_PATH)
 OCR_BACKEND_CONFIG_PATH = "code/configs/restoration_v2_ocr_backend.json"
-V4_MANIFEST_PATH = "label-blind-seal.json"
+V4_MANIFEST_PATH = "manifest.json"
+V4_LABEL_BLIND_SEAL_PATH = "label-blind-seal.json"
 V4_METADATA_PATH = "residual-model-metadata.json"
+V4_PROTOCOL_ID = "causalcache_set_conditioned_v4_frozen_base_residual_development_v1"
+V4_LABEL_BLIND_STATUS = (
+    "SEALED_LABEL_BLIND_SET_CONDITIONED_V4_FROZEN_BASE_RESIDUAL_V1"
+)
+V4_ZERO_ACCESS_FIELDS = (
+    "fresh_label_access_count",
+    "fresh_label_semantic_decode_attempt_count",
+    "confirm20_access_count",
+    "legacy_dev5_access_count",
+    "raw_gui_access_count",
+    "policy_forward_count",
+    "gpu_operation_count",
+)
+V4_OUTER_MANIFEST_KEYS = {
+    "schema_version",
+    "protocol_id",
+    "artifact_role",
+    "repository",
+    "tag",
+    "source_a_git_commit",
+    "execution_b_git_commit",
+    "contract_sha256",
+    "base_model",
+    "files",
+}
+V4_LABEL_BLIND_SEAL_KEYS = {
+    "schema_version",
+    "protocol_id",
+    "status",
+    "training_report",
+    "base_invariant_report",
+    "frozen_base_manifest_sha256",
+    "frozen_base_input_inventory",
+    "source_a_git_commit",
+    "execution_b_git_commit",
+    "runner_freeze_sha256",
+    "contract_sha256",
+    "payload_inventory",
+    *V4_ZERO_ACCESS_FIELDS,
+}
+V4_SHARED_AUDIT_PATHS = {
+    "base-invariant-report.json",
+    "formal58-residual-training-report.json",
+}
+V4_FRESH_PREDICTION_PATH = "fresh16-feature-only-predictions.json"
 BUILD_CLI_PATH = "code/scripts/build_long_horizon_selector_seal.py"
 VALIDATOR_CLI_PATH = "code/scripts/validate_long_horizon_selector_seal.py"
 MODULE_PATH = "code/causalcache/long_horizon_prepare.py"
@@ -442,14 +488,15 @@ def _load_formal_payloads(
     return payloads, tuple(inventory)
 
 
-def _v4_payload_inventory(
-    manifest: Mapping[str, Any],
+def _v4_file_inventory(
+    records: Any,
+    *,
+    label: str,
 ) -> Mapping[str, Mapping[str, Any]]:
-    records = manifest.get("payload_inventory")
     if isinstance(records, (str, bytes, bytearray, Mapping)) or not isinstance(
         records, Sequence
     ):
-        raise ValueError("v4 label-blind seal payload inventory is malformed")
+        raise ValueError(f"{label} is malformed")
     result: dict[str, Mapping[str, Any]] = {}
     for record in records:
         if not isinstance(record, Mapping) or set(record) != {
@@ -457,15 +504,164 @@ def _v4_payload_inventory(
             "sha256",
             "size_bytes",
         }:
-            raise ValueError("v4 label-blind payload record is malformed")
-        path = _safe_relative(record["path"], label="v4 payload path")
-        _require_sha256(record["sha256"], label="v4 payload SHA256")
+            raise ValueError(f"{label} record is malformed")
+        path = _safe_relative(record["path"], label=f"{label} path")
+        _require_sha256(record["sha256"], label=f"{label} SHA256")
         if type(record["size_bytes"]) is not int or record["size_bytes"] <= 0:
-            raise ValueError("v4 payload size must be positive")
+            raise ValueError(f"{label} size must be positive")
         if path in result:
-            raise ValueError("v4 payload inventory contains a duplicate path")
-        result[path] = record
+            raise ValueError(f"{label} contains a duplicate path")
+        result[path] = MappingProxyType(dict(record))
     return MappingProxyType(result)
+
+
+def _v4_inference_paths(model: Mapping[str, Any]) -> set[str]:
+    checkpoints = model.get("residual_checkpoints")
+    if isinstance(checkpoints, (str, bytes, bytearray, Mapping)) or not isinstance(
+        checkpoints, Sequence
+    ):
+        raise ValueError("v4 Source-A residual checkpoint roster is malformed")
+    paths: set[str] = {V4_METADATA_PATH}
+    for record in checkpoints:
+        if not isinstance(record, Mapping):
+            raise ValueError("v4 Source-A residual checkpoint record is malformed")
+        path = _safe_relative(
+            record.get("path"), label="v4 Source-A residual checkpoint path"
+        )
+        _require_sha256(
+            record.get("sha256"), label="v4 Source-A residual checkpoint SHA256"
+        )
+        if path in paths:
+            raise ValueError("v4 Source-A residual checkpoint path is duplicated")
+        paths.add(path)
+    if len(paths) != 6:
+        raise ValueError("v4 selector preparation requires five residuals and metadata")
+    return paths
+
+
+def _validate_v4_outer_manifest(
+    manifest: Mapping[str, Any],
+    *,
+    model: Mapping[str, Any],
+    formal_model: Mapping[str, Any],
+) -> Mapping[str, Mapping[str, Any]]:
+    if (
+        set(manifest) != V4_OUTER_MANIFEST_KEYS
+        or manifest.get("schema_version") != "1.0.0"
+        or manifest.get("protocol_id") != V4_PROTOCOL_ID
+        or manifest.get("artifact_role") != "frozen_base_residual_model_outputs"
+        or manifest.get("repository") != model.get("repo")
+        or manifest.get("tag")
+        != "set-conditioned-v4-frozen-base-residual-development-v1"
+        or manifest.get("base_model")
+        != f"{formal_model.get('repo')}@{formal_model.get('revision')}"
+        or GIT_SHA_RE.fullmatch(str(manifest.get("source_a_git_commit"))) is None
+        or GIT_SHA_RE.fullmatch(str(manifest.get("execution_b_git_commit"))) is None
+        or SHA256_RE.fullmatch(str(manifest.get("contract_sha256"))) is None
+    ):
+        raise ValueError("v4 outer artifact manifest schema or provenance drifted")
+    inventory = _v4_file_inventory(
+        manifest.get("files"), label="v4 outer manifest file inventory"
+    )
+    inference_paths = _v4_inference_paths(model)
+    expected_paths = {
+        V4_LABEL_BLIND_SEAL_PATH,
+        *V4_SHARED_AUDIT_PATHS,
+        *inference_paths,
+    }
+    if set(inventory) != expected_paths or len(inventory) != 9:
+        raise ValueError("v4 outer artifact manifest file roster drifted")
+    return inventory
+
+
+def _validate_v4_label_blind_seal(
+    seal_payload: bytes,
+    *,
+    outer_manifest: Mapping[str, Any],
+    outer_inventory: Mapping[str, Mapping[str, Any]],
+    model: Mapping[str, Any],
+    formal_model: Mapping[str, Any],
+) -> tuple[Mapping[str, Any], Mapping[str, Mapping[str, Any]]]:
+    seal = load_strict_json_bytes(seal_payload, label="v4 label-blind seal")
+    if seal_payload != _canonical_json_bytes(seal) + b"\n":
+        raise ValueError("v4 label-blind seal is not canonical JSONL")
+    if (
+        set(seal) != V4_LABEL_BLIND_SEAL_KEYS
+        or seal.get("schema_version") != "1.0.0"
+        or seal.get("protocol_id") != V4_PROTOCOL_ID
+        or seal.get("status") != V4_LABEL_BLIND_STATUS
+        or seal.get("source_a_git_commit")
+        != outer_manifest.get("source_a_git_commit")
+        or seal.get("execution_b_git_commit")
+        != outer_manifest.get("execution_b_git_commit")
+        or seal.get("contract_sha256") != outer_manifest.get("contract_sha256")
+        or SHA256_RE.fullmatch(str(seal.get("runner_freeze_sha256"))) is None
+    ):
+        raise ValueError("v4 label-blind seal schema or provenance drifted")
+    if any(
+        type(seal.get(field)) is not int or seal[field] != 0
+        for field in V4_ZERO_ACCESS_FIELDS
+    ):
+        raise ValueError("v4 label-blind seal records nonzero protected access")
+
+    independent_manifests = [
+        record
+        for record in formal_model.get("ensemble_manifests", ())
+        if isinstance(record, Mapping) and record.get("family") == "independent"
+    ]
+    if (
+        len(independent_manifests) != 1
+        or seal.get("frozen_base_manifest_sha256")
+        != independent_manifests[0].get("sha256")
+        or not isinstance(seal.get("frozen_base_input_inventory"), Sequence)
+        or isinstance(
+            seal.get("frozen_base_input_inventory"),
+            (str, bytes, bytearray, Mapping),
+        )
+    ):
+        raise ValueError("v4 label-blind seal frozen-base binding drifted")
+
+    inventory = _v4_file_inventory(
+        seal.get("payload_inventory"),
+        label="v4 label-blind seal payload inventory",
+    )
+    inference_paths = _v4_inference_paths(model)
+    expected_paths = {
+        V4_FRESH_PREDICTION_PATH,
+        *V4_SHARED_AUDIT_PATHS,
+        *inference_paths,
+    }
+    if set(inventory) != expected_paths or len(inventory) != 9:
+        raise ValueError("v4 label-blind seal payload roster drifted")
+
+    shared_paths = expected_paths - {V4_FRESH_PREDICTION_PATH}
+    if any(
+        dict(inventory[path]) != dict(outer_inventory[path])
+        for path in shared_paths
+    ):
+        raise ValueError("v4 outer/inner file binding drifted")
+    for summary_key, expected_path in (
+        ("training_report", "formal58-residual-training-report.json"),
+        ("base_invariant_report", "base-invariant-report.json"),
+    ):
+        summary = seal.get(summary_key)
+        if (
+            not isinstance(summary, Mapping)
+            or summary.get("path") != expected_path
+            or summary.get("sha256") != inventory[expected_path]["sha256"]
+        ):
+            raise ValueError(f"v4 label-blind {summary_key} binding drifted")
+
+    checkpoint_by_path = {
+        record["path"]: record
+        for record in model["residual_checkpoints"]
+    }
+    if any(
+        inventory[path]["sha256"] != record["sha256"]
+        for path, record in checkpoint_by_path.items()
+    ):
+        raise ValueError("v4 Source-A/manifest residual checkpoint binding drifted")
+    return seal, inventory
 
 
 def _load_v4_payloads(
@@ -473,41 +669,75 @@ def _load_v4_payloads(
     root: Path,
 ) -> tuple[dict[str, bytes], bytes, tuple[Mapping[str, Any], ...]]:
     model = contract.data["learned_model_artifacts"]["v4_safe_frozen_base_residual"]
+    formal_model = contract.data["learned_model_artifacts"][
+        "formal58_base_and_conditional"
+    ]
+    manifest_path = _safe_relative(
+        model.get("manifest_path"), label="v4 Source-A manifest path"
+    )
+    seal_path = _safe_relative(
+        model.get("label_blind_seal_path"),
+        label="v4 Source-A label-blind seal path",
+    )
+    seal_sha256 = _require_sha256(
+        model.get("label_blind_seal_sha256"),
+        label="v4 Source-A label-blind seal SHA256",
+    )
+    if manifest_path != V4_MANIFEST_PATH or seal_path != V4_LABEL_BLIND_SEAL_PATH:
+        raise ValueError("v4 Source-A manifest path binding drifted")
     manifest_payload = _regular_payload(
         root,
-        V4_MANIFEST_PATH,
-        label="v4 label-blind seal",
+        manifest_path,
+        label="v4 outer artifact manifest",
     )
     if _sha256_bytes(manifest_payload) != model["manifest_sha256"]:
-        raise ValueError("v4 label-blind seal SHA256 drifted")
+        raise ValueError("v4 outer artifact manifest SHA256 drifted")
     manifest = load_strict_json_bytes(
         manifest_payload,
+        label="v4 outer artifact manifest",
+    )
+    outer_inventory = _validate_v4_outer_manifest(
+        manifest,
+        model=model,
+        formal_model=formal_model,
+    )
+    if outer_inventory[seal_path]["sha256"] != seal_sha256:
+        raise ValueError("v4 outer manifest/Source-A seal SHA256 binding drifted")
+    loaded_seal_path, seal_payload, seal_record = _bound_payload(
+        root,
+        outer_inventory[seal_path],
         label="v4 label-blind seal",
     )
-    inventory = _v4_payload_inventory(manifest)
-    expected_paths = {
-        V4_METADATA_PATH,
-        *(record["path"] for record in model["residual_checkpoints"]),
-    }
-    if not expected_paths.issubset(inventory):
-        raise ValueError("v4 label-blind seal omits a frozen inference payload")
+    if loaded_seal_path != V4_LABEL_BLIND_SEAL_PATH:
+        raise RuntimeError("v4 label-blind seal path changed after verification")
+    _seal, inner_inventory = _validate_v4_label_blind_seal(
+        seal_payload,
+        outer_manifest=manifest,
+        outer_inventory=outer_inventory,
+        model=model,
+        formal_model=formal_model,
+    )
+    expected_paths = _v4_inference_paths(model)
     payloads: dict[str, bytes] = {}
     provenance: list[Mapping[str, Any]] = [
         {
             "path": V4_MANIFEST_PATH,
             "sha256": _sha256_bytes(manifest_payload),
             "size_bytes": len(manifest_payload),
-        }
+        },
+        seal_record,
     ]
     for path in sorted(expected_paths):
+        if dict(inner_inventory[path]) != dict(outer_inventory[path]):
+            raise ValueError("v4 outer/inner inference payload binding drifted")
         loaded_path, payload, file_record = _bound_payload(
             root,
-            inventory[path],
+            inner_inventory[path],
             label="v4 frozen residual input",
         )
         payloads[loaded_path] = payload
         provenance.append(file_record)
-    if len(payloads) != 6:
+    if len(payloads) != 6 or len(provenance) != 8:
         raise ValueError("v4 selector preparation requires five residuals and metadata")
     return payloads, manifest_payload, tuple(provenance)
 

@@ -1,9 +1,11 @@
 # Long-horizon development v1
 
-> 当前状态：Source-A scientific contract 与全部执行源码已通过 127 个 focused tests；config SHA256 为
-> `6bde1adfe0b7181da1e64d85409355d7198ab281152cb8220fe52e800010cd94`。deterministic selection、OCR、
-> selector scoring、policy/restoration 与 reserve semantic access 均尚未发生。下一 material step 只能从这个
-> clean pushed Source-A 生成 24-development/18-reserve selection freeze。
+> 当前状态：原 Source-A/B 在 selector scoring 前发现 v4 outer manifest 与 inner label-blind seal 的 loader
+> 绑定错误，已永久标为 formal-ineligible；没有 selector score、restoration distance 或 policy operation 产生。
+> 本文当前版本从旧 Source-A 分叉建立 manifest-repair lineage，显式绑定
+> `manifest.json@3ecc...` 与 `label-blind-seal.json@02b4...` 两层 provenance。修复后的 config SHA256 为
+> `82965790bf541dea348997ecd1849473d5cfb89f53da9f5a615568f57ca67a96`；136 个 focused tests、7 skips 与
+> 79 个 subtests 已通过。selection-B 与 repaired artifact revisions 只能在 clean pushed Source-A 后生成。
 
 ## 目标与边界
 
@@ -95,6 +97,12 @@ canonical JSON seal，并绑定 byte SHA256。
 v1 conditional 与 v4 residual 的训练合同都只定义 `B=2`，因此禁止把它们无定义地外推到 `B=4`。
 formal-58 independent/conditional checkpoints与 v4 residual-only checkpoints均按 immutable HF revision、
 file size 与 SHA256 读取；本 study 不训练或修改任何 selector 参数。
+
+v4 输入必须经过两层验证：先以 Source-A 的 `manifest_path/manifest_sha256` 验证 canonical outer
+`manifest.json`，再由其 file roster 绑定 `label-blind-seal.json`，并以 Source-A 的独立 seal path/SHA
+复核。outer manifest、inner seal 与实际 metadata/checkpoint bytes 必须三方一致；seal 还必须保持 label、
+confirm、policy、GPU access counters 全为 0。旧 lineage 错把 outer SHA 直接用于 inner seal，首次加载即
+fail closed，因此旧 substrate revision 只保留 forensic evidence，不能进入本次 formal runner。
 
 ## `n=8`：exact at-most-budget evaluation
 
