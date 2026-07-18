@@ -20,6 +20,7 @@ from causalcache.data.guiodyssey_independent import (
 from causalcache.set_utility_long_pool import (
     build_discovery_manifest,
     canonical_json_bytes,
+    instruction_app_group_sha256,
     project_candidate,
     validate_discovery_config,
 )
@@ -69,6 +70,34 @@ def _iter_rows(path: Path) -> Iterator[tuple[int, Mapping[str, Any]]]:
             raise ValueError("GUIOdyssey parquet row decoding drifted")
         yield row_index, rows[0]
         row_index += 1
+
+
+def _first_instruction_text(row: Mapping[str, Any]) -> str:
+    serialized = row.get("messages")
+    if not isinstance(serialized, str):
+        raise ValueError("included source row messages must be serialized JSON")
+    try:
+        messages = json.loads(serialized)
+    except json.JSONDecodeError as error:
+        raise ValueError("included source row messages are not valid JSON") from error
+    if not isinstance(messages, list):
+        raise ValueError("included source row messages must decode to a list")
+    for turn in messages:
+        if not isinstance(turn, Mapping) or turn.get("role") != "user":
+            continue
+        content = turn.get("content")
+        if not isinstance(content, list):
+            break
+        for item in content:
+            if (
+                isinstance(item, Mapping)
+                and item.get("type") == "text"
+                and isinstance(item.get("text"), str)
+                and item["text"]
+            ):
+                return str(item["text"])
+        break
+    raise ValueError("included source row is missing its first user instruction")
 
 
 def materialize(
@@ -133,6 +162,10 @@ def materialize(
                 candidates.append(
                     project_candidate(
                         result.candidate,
+                        instruction_app_group_sha256_value=instruction_app_group_sha256(
+                            _first_instruction_text(row),
+                            normalized_app_labels=result.candidate.normalized_app_labels,
+                        ),
                         salt=config["selection"]["salt"],
                     )
                 )

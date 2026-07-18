@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import unicodedata
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -20,7 +21,7 @@ CANONICAL_CONFIG_PATH = (
     "code/configs/causalcache_set_utility_long_pool_discovery_v1.json"
 )
 FROZEN_CONFIG_SHA256 = (
-    "5282e505b31086141b10b8a3fdccd619fa748245e0a7c5835304d581af0c39c3"
+    "d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957"
 )
 LENGTH_STRATA = (
     ("long_13_16", 13, 16),
@@ -69,8 +70,19 @@ def validate_discovery_config(config: Mapping[str, Any]) -> None:
         or selection.get("discovery_result_does_not_authorize_labels") is not True
         or selection.get("role_assignment_allowed") is not False
         or selection.get("query_state_selection_allowed") is not False
+        or selection.get("instruction_app_group_overlap_audit_required_before_label_freeze")
+        is not True
+        or selection.get("instruction_app_group_key")
+        != "SHA256(canonical_json({normalized_instruction,sorted_normalized_apps}))"
     ):
         raise ValueError("long-pool selection contract drifted")
+    output = config.get("output")
+    if (
+        not isinstance(output, Mapping)
+        or output.get("contains_instruction_or_action_content") is not False
+        or output.get("contains_hashed_normalized_instruction_app_group") is not True
+    ):
+        raise ValueError("long-pool output privacy contract drifted")
     if any(value != 0 for value in limits.values()):
         raise ValueError("long-pool discovery must prohibit every model/GPU operation")
 
@@ -113,6 +125,7 @@ class LongPoolCandidate:
     decision_count: int
     normalized_app_labels: tuple[str, ...]
     action_type_counts: tuple[tuple[str, int], ...]
+    instruction_app_group_sha256: str
     selection_sha256: str
     length_stratum: str
 
@@ -124,6 +137,7 @@ class LongPoolCandidate:
             "decision_count": self.decision_count,
             "normalized_app_labels": list(self.normalized_app_labels),
             "action_type_counts": dict(self.action_type_counts),
+            "instruction_app_group_sha256": self.instruction_app_group_sha256,
             "selection_sha256": self.selection_sha256,
             "length_stratum": self.length_stratum,
         }
@@ -159,7 +173,43 @@ def long_selection_sha256(source_id: str, *, salt: str) -> str:
     return sha256_bytes(f"{salt}\0{source_id}".encode("utf-8"))
 
 
-def project_candidate(candidate: Candidate, *, salt: str) -> LongPoolCandidate:
+def normalize_instruction(value: str) -> str:
+    if not isinstance(value, str):
+        raise TypeError("instruction must be text")
+    normalized = re.sub(r"\s+", " ", unicodedata.normalize("NFKC", value)).strip().casefold()
+    if not normalized:
+        raise ValueError("instruction must remain non-empty after normalization")
+    return normalized
+
+
+def instruction_app_group_sha256(
+    instruction: str,
+    *,
+    normalized_app_labels: Sequence[str],
+) -> str:
+    apps = tuple(normalized_app_labels)
+    if not apps or apps != tuple(sorted(set(apps))) or any(
+        not isinstance(value, str) or not value for value in apps
+    ):
+        raise ValueError("normalized app labels must be non-empty, unique, and sorted")
+    return sha256_bytes(
+        canonical_json_bytes(
+            {
+                "apps": list(apps),
+                "instruction": normalize_instruction(instruction),
+            }
+        )
+    )
+
+
+def project_candidate(
+    candidate: Candidate,
+    *,
+    instruction_app_group_sha256_value: str,
+    salt: str,
+) -> LongPoolCandidate:
+    if re.fullmatch(r"[0-9a-f]{64}", instruction_app_group_sha256_value) is None:
+        raise ValueError("instruction-app group SHA256 is malformed")
     return LongPoolCandidate(
         source_id=candidate.source_id,
         transport_file=candidate.transport_file,
@@ -167,6 +217,7 @@ def project_candidate(candidate: Candidate, *, salt: str) -> LongPoolCandidate:
         decision_count=candidate.decision_count,
         normalized_app_labels=candidate.normalized_app_labels,
         action_type_counts=candidate.action_type_counts,
+        instruction_app_group_sha256=instruction_app_group_sha256_value,
         selection_sha256=long_selection_sha256(candidate.source_id, salt=salt),
         length_stratum=length_stratum(candidate.decision_count),
     )
@@ -186,6 +237,9 @@ def _pool_summary(candidates: Sequence[LongPoolCandidate]) -> dict[str, Any]:
         "trajectory_count": len(candidates),
         "decision_count": sum(candidate.decision_count for candidate in candidates),
         "distinct_app_label_count": len(apps),
+        "distinct_instruction_app_group_count": len(
+            {candidate.instruction_app_group_sha256 for candidate in candidates}
+        ),
         "length_stratum_counts": dict(sorted(strata.items())),
         "decision_count_histogram": {
             str(key): value for key, value in sorted(decision_counts.items())
@@ -261,8 +315,10 @@ __all__ = [
     "build_discovery_manifest",
     "CANONICAL_CONFIG_PATH",
     "canonical_json_bytes",
+    "instruction_app_group_sha256",
     "length_stratum",
     "long_selection_sha256",
+    "normalize_instruction",
     "project_candidate",
     "sha256_bytes",
     "validate_discovery_source_only",

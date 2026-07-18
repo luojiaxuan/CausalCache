@@ -22,10 +22,10 @@ matched-NLL 与 sealed AndroidWorld test 继续 locked。
   confirm-20 不进入本 v1 训练、调参或新 evaluation；
 - 前 16 个已 pin GUIOdyssey shards 有 81 rows 仅被旧 `decision_count<=12` cap 排除。已单独冻结
   13–64 decision 的 CPU census P0；它不分 train/dev/holdout、不选 query、不访问任何 policy/restoration/OCR/
-  gate output，完成后才允许另立 label Execution-A/B；
-- 两个 source-only validator、模型/contract/census focused suite 为 `34 passed, 9 skipped`；9 项仅因本机
+  gate output；manifest 仅新增 normalized instruction+app group SHA256（无原文），用于下一次 freeze 前的\n  duplicate-safe overlap audit，完成后才允许另立 label Execution-A/B；
+- 两个 source-only validator、模型/contract/census focused suite 为 `35 passed, 9 skipped`；9 项仅因本机
   无 PyTorch 跳过，GPU runtime 前必须补跑。predictor/P0 config SHA256 分别为
-  `3203c537…db71b7` / `5282e505…0c39c3`。完整协议见
+  `3203c537…db71b7` / `d10484f5…a98957`。完整协议见
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与
   [`set_utility_long_pool_discovery_v1.md`](set_utility_long_pool_discovery_v1.md)。
 

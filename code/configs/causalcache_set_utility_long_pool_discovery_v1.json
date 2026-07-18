@@ -43,6 +43,7 @@
     ],
     "order": ["sha256_hex", "source_id", "transport_file", "transport_row_index"],
     "instruction_app_group_overlap_audit_required_before_label_freeze": true,
+    "instruction_app_group_key": "SHA256(canonical_json({normalized_instruction,sorted_normalized_apps}))",
     "discovery_result_does_not_authorize_labels": true,
     "role_assignment_allowed": false,
     "query_state_selection_allowed": false
@@ -52,6 +53,7 @@
     "git_tracked": true,
     "contains_images_or_ocr": false,
     "contains_instruction_or_action_content": false,
+    "contains_hashed_normalized_instruction_app_group": true,
     "contains_policy_restoration_or_gate_outputs": false
   },
   "operation_limits": {

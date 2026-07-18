@@ -16,7 +16,9 @@ parser、image 与 source-id 条件不变时，13–64 decision 的长轨迹实�
 - 复用 `independent_reference_gate_v1` 的 canonicalizer 与所有非长度 eligibility；
 - discovery 的长度范围固定为 13–64，和旧 4–12 output roles 结构不相交；
 - 候选只按新 salt 计算 deterministic SHA，并汇总 `13–16`、`17–24`、`25–64` 三个长度层；
-- 结果只含 source identity、transport row、decision count、app/action coverage、hash 与 exclusion counts。
+- 结果只含 source identity、transport row、decision count、app/action coverage、hash 与 exclusion counts；
+- 为在下一次 freeze 前做 duplicate-safe split，额外记录规范化 instruction + 排序 app labels 的 SHA256 group key，
+  但不写入 instruction 原文。该 key 只用于 group overlap audit，不分配任何 split。
 
 P0 完成后才能另立 label Execution-A。Execution-A 必须在任何 teacher output 前冻结 trajectory/group-level
 train/dev/untouched 分割、每条轨迹唯一 query state、候选数层、`|S|<=2` label inventory 与 higher-cardinality

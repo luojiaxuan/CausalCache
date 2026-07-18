@@ -32,7 +32,7 @@
 > `3203c53742e5d1c03d118d4c2f6a140997f907e1d063fa8c9cf04de904db71b7`。下一步先对旧 cap 隐藏的
 > 13–64 decision trajectories 做 policy-blind CPU census；该 P0 不分 split、不选 query、不访问
 > policy/restoration/OCR/gate output，config SHA256=
-> `5282e505b31086141b10b8a3fdccd619fa748245e0a7c5835304d581af0c39c3`。census 后再单独冻结 label
+> `d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957`。census 后再单独冻结 label
 > Execution-A/B。formal-58 仅可作为 legacy train-only；old-dev5、fresh-16、confirm-20 禁止进入新训练或调参。
 > matched-NLL 与 sealed test 继续 locked。新路线见
 > [`docs/set_utility_predictor_v1.md`](docs/set_utility_predictor_v1.md)。

@@ -12,8 +12,10 @@ from causalcache.set_utility_long_pool import (
     PROTOCOL_ID,
     build_discovery_manifest,
     canonical_json_bytes,
+    instruction_app_group_sha256,
     length_stratum,
     long_selection_sha256,
+    normalize_instruction,
     project_candidate,
     validate_discovery_config,
     validate_discovery_source_only,
@@ -78,18 +80,38 @@ def test_length_strata_reject_old_or_unbounded_rows(decision_count: int) -> None
 def test_projection_uses_new_salt_and_does_not_assign_a_role() -> None:
     projected = project_candidate(
         _candidate("trajectory-a", 18, 7),
+        instruction_app_group_sha256_value="1" * 64,
         salt="new-study",
     )
     assert projected.selection_sha256 == long_selection_sha256(
         "trajectory-a", salt="new-study"
     )
     assert projected.length_stratum == "long_17_24"
+    assert projected.instruction_app_group_sha256 == "1" * 64
     assert "role" not in projected.manifest_record()
+
+
+def test_instruction_app_group_hash_is_normalized_and_content_free() -> None:
+    left = instruction_app_group_sha256(
+        "  Open\u3000SETTINGS and enable Wi-Fi  ",
+        normalized_app_labels=("settings",),
+    )
+    right = instruction_app_group_sha256(
+        "open settings AND enable wi-fi",
+        normalized_app_labels=("settings",),
+    )
+    assert left == right
+    assert normalize_instruction(" A\n B ") == "a b"
+    assert len(left) == 64
 
 
 def test_discovery_manifest_is_a_census_not_a_split() -> None:
     candidates = tuple(
-        project_candidate(_candidate(f"trajectory-{index}", count, index), salt="study")
+        project_candidate(
+            _candidate(f"trajectory-{index}", count, index),
+            instruction_app_group_sha256_value=f"{index}" * 64,
+            salt="study",
+        )
         for index, count in enumerate((13, 16, 17, 25), start=1)
     )
     manifest = build_discovery_manifest(
@@ -111,11 +133,16 @@ def test_discovery_manifest_is_a_census_not_a_split() -> None:
         "17": 1,
         "25": 1,
     }
+    assert manifest["pool"]["summary"]["distinct_instruction_app_group_count"] == 4
     assert canonical_json_bytes(manifest) == canonical_json_bytes(manifest)
 
 
 def test_manifest_rejects_duplicate_source_ids() -> None:
-    repeated = project_candidate(_candidate("same", 13, 1), salt="study")
+    repeated = project_candidate(
+        _candidate("same", 13, 1),
+        instruction_app_group_sha256_value="1" * 64,
+        salt="study",
+    )
     with pytest.raises(ValueError, match="unique"):
         build_discovery_manifest(
             candidates=(repeated, repeated),

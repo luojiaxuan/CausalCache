@@ -103,7 +103,7 @@ oracle-independent `J` 并与 exact、learned `I`、OCR/RGB 对齐。该 CPU-onl
 `configs/causalcache_independent_confirm20_failure_decomposition_v1.json`。
 
 Set Utility Predictor v1 的 source-only contract、模型核心与 long-pool P0 census 入口如下。utility
-predictor 的 API 不接收 budget；P0 只扫描结构 metadata，不能分配 split 或产生 labels。
+predictor 的 API 不接收 budget；P0 只扫描结构 metadata，不能分配 split 或产生 labels。P0 manifest\n只保留规范化 instruction+app 的 group SHA256，不保存 instruction 原文，供下一次 freeze 做 group overlap audit。
 
 ```bash
 PYTHONPATH=code .venv/bin/python code/scripts/validate_set_utility_predictor_contract.py \
