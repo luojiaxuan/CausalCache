@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import subprocess
 from dataclasses import replace
 from pathlib import Path
 
@@ -23,6 +24,7 @@ from causalcache.independent_confirm_failure_decomposition_contract import (
     sha256_bytes,
     validate_contract_data,
 )
+from causalcache.independent_confirm_failure_decomposition_contract import _git_blob
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -43,6 +45,17 @@ def test_canonical_config_identity_and_consumed_confirm_audit_scope(contract) ->
         "pre_source_a_exploratory_numeric_read": True,
         "user_case_split_predated_exploratory_read": True,
     }
+
+
+def test_git_blob_preserves_exact_trailing_lf(tmp_path) -> None:
+    subprocess.run(("git", "init", "-q"), cwd=tmp_path, check=True)
+    subprocess.run(("git", "config", "user.email", "test@example.com"), cwd=tmp_path, check=True)
+    subprocess.run(("git", "config", "user.name", "Test"), cwd=tmp_path, check=True)
+    payload = b"exact-bytes-with-trailing-lf\n"
+    (tmp_path / "bound.txt").write_bytes(payload)
+    subprocess.run(("git", "add", "bound.txt"), cwd=tmp_path, check=True)
+    subprocess.run(("git", "commit", "-qm", "fixture"), cwd=tmp_path, check=True)
+    assert _git_blob(tmp_path, "HEAD:bound.txt") == payload
 
 
 def test_parent_identity_and_exact_three_reader_are_frozen(contract) -> None:

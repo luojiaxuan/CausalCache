@@ -528,6 +528,20 @@ def _git(root: Path, *arguments: str) -> bytes:
         raise ValueError(f"Git validation failed: {message}") from error
 
 
+def _git_blob(root: Path, revision_path: str) -> bytes:
+    try:
+        return subprocess.run(
+            ("git", "show", revision_path),
+            cwd=root,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        ).stdout
+    except subprocess.CalledProcessError as error:
+        message = error.stderr.decode("utf-8", errors="replace").strip()
+        raise ValueError(f"Git blob validation failed: {message}") from error
+
+
 def _validate_prerequisites(
     contract: IndependentConfirmFailureDecompositionContract,
     *,
@@ -544,7 +558,7 @@ def _validate_prerequisites(
         commit = record.get("git_commit")
         if commit is not None:
             _git(contract.repository_root, "merge-base", "--is-ancestor", commit, head)
-            if payload != _git(contract.repository_root, "show", f"{commit}:{relative}"):
+            if payload != _git_blob(contract.repository_root, f"{commit}:{relative}"):
                 raise ValueError(f"historical prerequisite drifted: {relative}")
 
 
@@ -558,7 +572,7 @@ def _source_inventory(
         payload = _regular_file_bytes(
             contract.repository_root / relative, label=f"Source-A path {relative}"
         )
-        if payload != _git(contract.repository_root, "show", f"{commit}:{relative}"):
+        if payload != _git_blob(contract.repository_root, f"{commit}:{relative}"):
             raise ValueError(f"Source-A blob differs from commit: {relative}")
         result.append(
             {"path": relative, "size_bytes": len(payload), "sha256": sha256_bytes(payload)}
@@ -586,7 +600,7 @@ def _loaded_module_inventory(
         payload = _regular_file_bytes(
             contract.repository_root / relative, label=f"execution module {module}"
         )
-        if payload != _git(contract.repository_root, "show", f"{commit}:{relative}"):
+        if payload != _git_blob(contract.repository_root, f"{commit}:{relative}"):
             raise ValueError(f"execution module differs from commit: {module}")
         result.append(
             {
@@ -821,9 +835,9 @@ def validate_execution_b_source(
     diff = _git(root, "diff", "--name-only", source_a, head).decode("utf-8").splitlines()
     if diff != [CANONICAL_RUNNER_FREEZE_PATH]:
         raise ValueError("Execution-B unique tree diff drifted")
-    if _regular_file_bytes(contract.runner_path, label="Execution-B freeze") != _git(
-        root, "show", f"{head}:{CANONICAL_RUNNER_FREEZE_PATH}"
-    ):
+    if _regular_file_bytes(
+        contract.runner_path, label="Execution-B freeze"
+    ) != _git_blob(root, f"{head}:{CANONICAL_RUNNER_FREEZE_PATH}"):
         raise ValueError("Execution-B freeze differs from committed bytes")
     _validate_prerequisites(contract, head=head)
     inventory = _source_inventory(contract, commit=head)
