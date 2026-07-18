@@ -2,6 +2,16 @@
 
 ## 当前目标
 
+### 2026-07-18：v3 exploration 已封存，不再继续调参
+
+- 当前状态为 `NO_GO_SET_CONDITIONED_V3_PAIR_RESIDUAL_DEVELOPMENT_V1`；safe residual 在 fresh16 48/48 state
+  与 additive 相同，冻结五项继续条件全部失败。confirm20、matched-NLL、closed-loop 均未执行；
+- 本分支不再基于已消费 fresh16 修改模型、loss 或 4/5 guard。后续论文执行回到另一个 worktree 的
+  restoration-guided independent gate 主线；本分支只保留 negative ablation 与可复现 evidence；
+- Git 轻量入口为 `data/results/set_conditioned_v3_pair_residual_dev_v1/`；私有 HF model/development immutable
+  revisions 分别为 `79b53aaa6017458d92e626bc4801d3b3bef9facd` 与
+  `bcf7c7c8057f60b655736b5c63ec43551b3e3121`。
+
 ### 2026-07-18：set-conditioned v3 pair-residual Source-A freeze
 
 - 这是一条与 independent paper mainline 隔离的非主线 exploration，独立 branch/worktree 为
@@ -21,9 +31,9 @@
   failure、620 subtests passed，另将唯一 isolation-sensitive CPU test 在 clean process 单独复跑为 1 passed。
   5 个历史 failure 是旧 A/B 已完成后仍断言其 runner-freeze 不存在的 lifecycle test，第 6 个来自同一 pytest
   process 的 forbidden-module 污染；skip 中 5 项 v3 test 因 Mac 未安装 PyTorch。compileall 与 diff-check
-  全部通过；正式 torch suite、formal OOF 和 fresh consumed-development 尚未执行。计划 HF model
+  全部通过；在该 Source-A 时点，正式 torch suite、formal OOF 和 fresh consumed-development 尚未执行。计划 HF model
   `gavinlaw/causalcache-set-conditioned-v3-pair-residual-exploration-mobile` 与 dataset
-  `gavinlaw/causalcache-set-conditioned-v3-pair-residual-development-mobile` 当前为 pending。
+  `gavinlaw/causalcache-set-conditioned-v3-pair-residual-development-mobile` 当时为 pending；最终 revisions 见上。
 - preliminary Source-A=`c0de357096261bcc98d2acef743f197aaf290228` 在执行前发现 HEAD lineage 不可满足，
   因而从未用于数据读取、训练或 remote mutation。修复后的 contract 要求 A 上 runner freeze absent；B 为 A 的
   direct single-parent，唯一 diff 是 canonical runner freeze。`train-seal` 与 `evaluate` 都必须在任何 input read、
@@ -93,6 +103,35 @@
   不再对真实 historical artifact 单独 dry-run；只做 byte/SHA preflight 后直接执行唯一 v2 parse+label replay。
   validate 必须绑定 evaluate 当场记录的 report SHA、repair A/B/runner、parent seal 与完整 authority boundary。
   当前尚未执行 v2 label replay 或产生 metric。
+
+### 2026-07-18：set-conditioned v3 pair-residual consumed-development NO-GO
+
+- parser-repair v2 Source-A=`785b542a9d538bbfc80de95d5f8d956a04234e48`，唯一单文件 Execution-B=
+  `e9262338ee96f404ca37babaa2f29a24f6c6cb17`；21-file inventory SHA256=
+  `a9bdd15d5414947a64db498108a0b3a671a93bdcafcb88e0b50bea321156398b`，runner SHA256=
+  `c9e9548b78cd832d82da769873870fce52aa4bbed6fc27bd89b547388aa4d1e5`。local 与 Hyper00 live-remote/
+  direct-parent/single-file/mode/inventory validation 全部通过；
+- Hyper00 CPU-only preflight 只验证 sealed parent、input bytes/SHA/size 与三个 report absence，没有调用真实
+  historical parser。唯一 evaluate 随后完成 v2 historical parse 与第二次累计 fresh-label semantic decode；
+  label-free validate 使用 evaluate stdout 中独立保存的 report SHA 重放。两份 stdout byte-identical，SHA256=
+  `e2e1367d710b052670e0281de756cb5ecbb99c021b68afa6d10cd9b1df6219b5`；versioned report file SHA256=
+  `02dc723bcdbb52fe10a6b0072de5970594a13a3fa1f2a23dbae09c759fbe2d11`；
+- 冻结 development route 为 `NO_DEVELOPMENT_EVIDENCE_TO_CONTINUE_SET_CONDITIONING`。safe pair residual 在
+  fresh16 48/48 state 都等于 additive，实际接受 pair candidate 为 0；45 state 的 unguarded argmax 本来就等于
+  additive，另 3 state 都只有 2/5 argmax vote 与 2/5 positive margin，因而按冻结 4/5 双门 fallback；
+- unguarded residual 的 3 个 switch 分布在 2 条 trajectory，1 个改善、2 个恶化。trajectory-equal mean raw
+  delta=`+0.00004446`，但 mean normalized delta=`-0.285271`；safe-minus-additive 两项均精确为 0。safe 相对
+  historical v1 independent 的 normalized delta=`-0.122019`，raw delta 仅 `+0.00001067`；
+- Formal58 oracle interaction headroom 仍真实存在：exact-minus-oracle-additive normalized mean=`+0.122118`，
+  90% lower=`+0.069350`，53/58 trajectory 为正。但 learned safe residual 在 Formal58 OOF 也只接受 1/58，
+  normalized ratio/exact=`0.528208`，略低于 additive 的 `0.528486`。因此失败点是 residual distillation，而非
+  exact enumeration 或 subset search；
+- 不根据 fresh16 调整 4/5 guard，不打开 confirm20，不执行 matched-NLL/closed-loop。v3 作为 non-mainline
+  negative exploration 到此停止；另一个 worktree 的 restoration-guided independent paper 主线不受影响；
+- 私有 HF model revision=`79b53aaa6017458d92e626bc4801d3b3bef9facd`，development revision=
+  `bcf7c7c8057f60b655736b5c63ec43551b3e3121`，共同 immutable tag=
+  `set-conditioned-v3-pair-residual-exploration-v1`。两个 repo 的 8/7 个 manifest payload 已 fresh-download 并
+  逐个复验 SHA256/size。轻量结果见 `data/results/set_conditioned_v3_pair_residual_dev_v1/`。
 
 AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
 与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持

@@ -293,14 +293,33 @@ Source-A/Execution-B/runner、parent seal、顶层与嵌套 authority counters�
 /data/artifacts/causalcache/set-conditioned-v3-pair-residual-exploration-v1
 ```
 
-计划中的 canonical HF 目标为：
+canonical HF 目标已闭合为：
 
-- model：`gavinlaw/causalcache-set-conditioned-v3-pair-residual-exploration-mobile`；
-- development dataset/report：`gavinlaw/causalcache-set-conditioned-v3-pair-residual-development-mobile`；
+- model：`gavinlaw/causalcache-set-conditioned-v3-pair-residual-exploration-mobile`
+  @`79b53aaa6017458d92e626bc4801d3b3bef9facd`；
+- development dataset/report：`gavinlaw/causalcache-set-conditioned-v3-pair-residual-development-mobile`
+  @`bcf7c7c8057f60b655736b5c63ec43551b3e3121`；
 - tag：`set-conditioned-v3-pair-residual-exploration-v1`。
 
-在实际 publication 完成前，上述目标状态是 pending；本地文件仍只是 staging，不得被写成 canonical。
-本分支不得写 independent paper mainline 的 Git 文件、local namespace 或 HF repo。
+两个 private repo 的 tag 都已解析到上述 commit，manifest 中 8/7 个 payload 已 fresh-download 并逐项复验
+SHA256/size。本地文件仍只是 staging，不是 canonical。本分支不得写 independent paper mainline 的 Git 文件、
+local namespace 或 HF repo。
+
+## 最终 consumed-development 结果
+
+parser-repair v2 的 Source-A 为 `785b542a9d538bbfc80de95d5f8d956a04234e48`，唯一 Execution-B 为
+`e9262338ee96f404ca37babaa2f29a24f6c6cb17`。唯一 evaluate 与 label-free validate 的 stdout byte-identical，
+SHA256=`e2e1367d710b052670e0281de756cb5ecbb99c021b68afa6d10cd9b1df6219b5`。冻结结果为
+`NO_DEVELOPMENT_EVIDENCE_TO_CONTINUE_SET_CONDITIONING`：
+
+- safe residual 在 fresh16 48/48 state 都与 additive 相同，`used_pair_candidate_count=0`；
+- unguarded residual 只改变 3/48 state，1 个改善、2 个恶化，normalized delta=`-0.285271`；
+- safe 相对 historical v1 independent 的 normalized delta=`-0.122019`；
+- Formal58 虽有显著 oracle interaction headroom，但 safe residual 在 OOF 也只接受 1/58 state，并略差于
+  additive。
+
+所以 v3 停止，不在已消费 fresh16 上调 4/5 guard，也不访问 confirm20。完整轻量结果与 failure decomposition
+见 `data/results/set_conditioned_v3_pair_residual_dev_v1/`；independent paper mainline 不受该负结果影响。
 
 ## 验证入口
 
