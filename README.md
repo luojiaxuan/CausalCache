@@ -19,6 +19,14 @@
 > 新机制、新数据与新 untouched holdout 的 versioned study，而不是继续调本次 confirm。完整门槛与权限链见
 > [`docs/independent_confirm_closed_loop_v1.md`](docs/independent_confirm_closed_loop_v1.md)。
 
+> Long-horizon development（独立分支，不改写上述 NO-GO）：当前工作树在
+> `luojiaxuan/independent-gate-long-horizon-development` 上建立新的 development-only study。只读 trace
+> incidence 显示，当前两个 AndroidWorld early-stopped policy stacks 中 `n>=8` 占 36.09% / 50.10%
+> decisions，`n>=16` 占 12.90% / 31.19%；这些数字只描述该 stack，不能声称为 benchmark prevalence。
+> 正式设计将 `n=8,B=2/4` 用于 exact-subset evaluation，将 `n=16,B=2/4` 用于 context-safe
+> selector-pair union comparison；旧 confirm、matched-NLL、closed-loop 与 sealed test 继续 locked。
+> 审计结果见 [`data/results/long_horizon_incidence_v1/`](data/results/long_horizon_incidence_v1/)。
+
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
 > 新的 48 train +16 fresh-dev

@@ -2923,3 +2923,19 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 该历史下一步随后已完成：Execution-B=`68e71fd…0466`，有效 continuation report 为
   `NO_GO_INDEPENDENT_CONFIRM`。终态与停止决定见本文顶部同日结果段；paired closed-loop、matched-NLL 与
   sealed test 均未执行。
+
+### 2026-07-19：long-horizon AndroidWorld trace incidence 审计
+
+- 在独立分支 `luojiaxuan/independent-gate-long-horizon-development` 上启动新的 development-only study；
+  它不修改或解锁 independent confirm 的有效 `NO_GO_INDEPENDENT_CONFIRM`；
+- 从 private HF immutable revisions 只读下载既有 AndroidWorld Instruct/Think early-stopped trace shards，
+  逐 byte 绑定 SHA256，并按 `n=max(0, zero_based_decision_index-1)` 重算候选历史长度；
+- Instruct 的 496 decisions 中 `n>=8` 为 179（36.09%），`n>=16` 为 64（12.90%）；38 个非空
+  episodes 中 27 个到达 `n>=8`、8 个到达 `n>=16`；
+- Think 的 513 decisions 中 `n>=8` 为 257（50.10%），`n>=16` 为 160（31.19%）；33 个非空
+  episodes 中 21 个到达 `n>=8`、8 个到达 `n>=16`；
+- 结论边界固定为 stack-specific early-stopped incidence，不外推为 benchmark prevalence。代码、复现命令与
+  轻量结果见 `data/results/long_horizon_incidence_v1/`；原始 trace 继续只存 HF；
+- 下一步冻结 GUIOdyssey long-history Source-A：24 条 development trajectories +18 条 unopened reserve；
+  `n=8` 做 at-most-`B` exact subset oracle，`n=16` 因完整 17-image prompt 超过 32k context，改用预注册
+  selector-pair union reference。旧 confirm、matched-NLL、closed-loop 与 sealed test 保持 0 access。

@@ -1,0 +1,71 @@
+{
+  "artifact_type": "androidworld_long_horizon_incidence_audit",
+  "candidate_count_definition": "max(0, zero_based_decision_index - 1)",
+  "interpretation_boundary": "stack_specific_early_stopped_trace_incidence_not_full_benchmark_prevalence",
+  "schema_version": "1.0.0",
+  "sources": {
+    "gui_owl_1_5_8b_instruct": {
+      "artifact_label": "gui_owl_1_5_8b_instruct_validation_early_stopped",
+      "canonical_repo": "gavinlaw/causalcache-androidworld-validation-mobile",
+      "canonical_revision": "3fcca45fffe9842c9fcebbf5c6c27c9540bb1515",
+      "canonical_tag": "v0.1.0",
+      "decision_count": 496,
+      "horizon_bin_counts": {
+        "n_5_8": 118,
+        "n_9_15": 88,
+        "n_ge_16": 64,
+        "n_le_4": 226
+      },
+      "n_ge_16": {
+        "decision_count": 64,
+        "decision_fraction": 0.12903225806451613,
+        "episode_count_among_nonempty": 8,
+        "episode_fraction_among_nonempty": 0.21052631578947367
+      },
+      "n_ge_8": {
+        "decision_count": 179,
+        "decision_fraction": 0.36088709677419356,
+        "episode_count_among_nonempty": 27,
+        "episode_fraction_among_nonempty": 0.7105263157894737
+      },
+      "nonempty_episode_count": 38,
+      "record_count": 47,
+      "trace_shard": "data/validation-00000-of-00001.jsonl.gz",
+      "trace_shard_sha256": "dcd61490febf65cc8ecf7cfbefea371f5c8a501f4e014a0a362e8b8431b44f90",
+      "trace_shard_size_bytes": 56659,
+      "zero_step_episode_count": 9
+    },
+    "gui_owl_1_5_8b_think": {
+      "artifact_label": "gui_owl_1_5_8b_think_validation_early_stopped",
+      "canonical_repo": "gavinlaw/causalcache-androidworld-validation-mobile",
+      "canonical_revision": "0faf767e7c1f64b5f39fde1ac6913ca93337d8f2",
+      "canonical_tag": "v0.2.0",
+      "decision_count": 513,
+      "horizon_bin_counts": {
+        "n_5_8": 91,
+        "n_9_15": 76,
+        "n_ge_16": 160,
+        "n_le_4": 186
+      },
+      "n_ge_16": {
+        "decision_count": 160,
+        "decision_fraction": 0.31189083820662766,
+        "episode_count_among_nonempty": 8,
+        "episode_fraction_among_nonempty": 0.24242424242424243
+      },
+      "n_ge_8": {
+        "decision_count": 257,
+        "decision_fraction": 0.5009746588693957,
+        "episode_count_among_nonempty": 21,
+        "episode_fraction_among_nonempty": 0.6363636363636364
+      },
+      "nonempty_episode_count": 33,
+      "record_count": 42,
+      "trace_shard": "data/gui-owl-1.5-8b-think/validation-00000-of-00001.jsonl.gz",
+      "trace_shard_sha256": "a5e9e771fde087f0684b016a884e37ec4300066c4b3a37e42e79303cd3e787fb",
+      "trace_shard_size_bytes": 92016,
+      "zero_step_episode_count": 9
+    }
+  },
+  "status": "VALID_READ_ONLY_LONG_HORIZON_INCIDENCE_AUDIT"
+}
