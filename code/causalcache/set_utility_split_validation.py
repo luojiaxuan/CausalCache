@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 
-SCHEMA_VERSION = "0.1.0"
+SCHEMA_VERSION = "0.2.0"
 PROTOCOL_ID = "causalcache_set_utility_group_aware_split_audit"
 AUDIT_STATUS = "VALID_GROUP_AWARE_SPLIT"
 LEGACY_TRAIN_ROLE = "legacy_train_only"
@@ -31,6 +31,8 @@ PASSED_CHECKS = (
     "group_partition_disjoint",
     "legacy_sources_bound_to_legacy_train_only",
     "forbidden_sources_absent",
+    "legacy_groups_bound_to_train_partition",
+    "forbidden_consumed_groups_absent",
 )
 
 SplitRole = Literal[
@@ -95,6 +97,17 @@ def _explicit_source_set(value: Any, label: str) -> tuple[str, ...]:
     return source_ids
 
 
+def _explicit_group_set(value: Any, label: str) -> tuple[str, ...]:
+    if isinstance(value, (str, bytes, bytearray, Mapping)) or not isinstance(
+        value, Set
+    ):
+        raise TypeError(f"{label} must be an explicit set of group SHA256 digests")
+    groups = tuple(sorted(_group_sha256(item) for item in value))
+    if len(groups) != len(value):
+        raise ValueError(f"{label} contains duplicate group SHA256 digests")
+    return groups
+
+
 def _effective_group_partition(role: SplitRole) -> str:
     if role == LEGACY_TRAIN_ROLE:
         return "train"
@@ -146,6 +159,8 @@ class GroupAwareSplitAudit:
     assignment_inventory_sha256: str
     legacy_source_inventory_sha256: str
     forbidden_source_inventory_sha256: str
+    legacy_group_inventory_sha256: str
+    forbidden_group_inventory_sha256: str
 
     def to_payload(self) -> dict[str, Any]:
         return {
@@ -166,11 +181,15 @@ class GroupAwareSplitAudit:
                 "instruction_app_group_partition": 0,
                 "legacy_role": 0,
                 "forbidden_source": 0,
+                "legacy_group_partition": 0,
+                "forbidden_consumed_group": 0,
             },
             "passed_checks": list(PASSED_CHECKS),
             "assignment_inventory_sha256": self.assignment_inventory_sha256,
             "legacy_source_inventory_sha256": self.legacy_source_inventory_sha256,
             "forbidden_source_inventory_sha256": self.forbidden_source_inventory_sha256,
+            "legacy_group_inventory_sha256": self.legacy_group_inventory_sha256,
+            "forbidden_group_inventory_sha256": self.forbidden_group_inventory_sha256,
         }
 
     @property
@@ -193,6 +212,8 @@ def validate_group_aware_split_assignments(
     *,
     legacy_train_only_source_ids: Set[str],
     forbidden_source_ids: Set[str],
+    legacy_train_only_group_sha256s: Set[str],
+    forbidden_consumed_group_sha256s: Set[str],
 ) -> ValidatedGroupAwareSplit:
     """Validate identities and overlaps without selecting or resizing any role."""
     if isinstance(assignments, (str, bytes, bytearray, Mapping)) or not isinstance(
@@ -212,10 +233,22 @@ def validate_group_aware_split_assignments(
         forbidden_source_ids,
         "forbidden_source_ids",
     )
+    legacy_groups = _explicit_group_set(
+        legacy_train_only_group_sha256s,
+        "legacy_train_only_group_sha256s",
+    )
+    forbidden_groups = _explicit_group_set(
+        forbidden_consumed_group_sha256s,
+        "forbidden_consumed_group_sha256s",
+    )
     legacy_set = frozenset(legacy_sources)
     forbidden_set = frozenset(forbidden_sources)
+    legacy_group_set = frozenset(legacy_groups)
+    forbidden_group_set = frozenset(forbidden_groups)
     if legacy_set & forbidden_set:
         raise ValueError("legacy and forbidden source sets must be disjoint")
+    if legacy_group_set & forbidden_group_set:
+        raise ValueError("legacy and forbidden group sets must be disjoint")
 
     canonical = tuple(
         sorted(
@@ -239,6 +272,22 @@ def validate_group_aware_split_assignments(
         raise ValueError(
             "split roster contains an explicitly forbidden source identity; "
             f"hit_count={len(forbidden_hits)}, hit_sha256={_sha256(forbidden_hits)}"
+        )
+
+    forbidden_group_hits = tuple(
+        sorted(
+            {
+                item.instruction_app_group_sha256
+                for item in canonical
+                if item.instruction_app_group_sha256 in forbidden_group_set
+            }
+        )
+    )
+    if forbidden_group_hits:
+        raise ValueError(
+            "split roster overlaps an explicitly forbidden consumed group; "
+            f"hit_count={len(forbidden_group_hits)}, "
+            f"hit_sha256={_sha256(forbidden_group_hits)}"
         )
 
     mislabeled_legacy = tuple(
@@ -290,6 +339,24 @@ def validate_group_aware_split_assignments(
             )
         partition_by_group[group_sha256] = next(iter(partitions))
 
+    mislabeled_legacy_groups = tuple(
+        item
+        for item in canonical
+        if (
+            item.role == LEGACY_TRAIN_ROLE
+            and item.instruction_app_group_sha256 not in legacy_group_set
+        )
+        or (
+            item.instruction_app_group_sha256 in legacy_group_set
+            and _effective_group_partition(item.role) != "train"
+        )
+    )
+    if mislabeled_legacy_groups:
+        raise ValueError(
+            "legacy train groups must remain in the effective train partition, "
+            "and every legacy_train_only assignment must use a declared legacy group"
+        )
+
     role_counts = tuple(
         (role, sum(item.role == role for item in canonical)) for role in SPLIT_ROLES
     )
@@ -310,6 +377,8 @@ def validate_group_aware_split_assignments(
         assignment_inventory_sha256=_sha256(payloads),
         legacy_source_inventory_sha256=_sha256(legacy_sources),
         forbidden_source_inventory_sha256=_sha256(forbidden_sources),
+        legacy_group_inventory_sha256=_sha256(legacy_groups),
+        forbidden_group_inventory_sha256=_sha256(forbidden_groups),
     )
     return ValidatedGroupAwareSplit(assignments=canonical, audit=audit)
 

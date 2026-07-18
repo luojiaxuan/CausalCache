@@ -57,11 +57,15 @@ def test_valid_split_emits_deterministic_overlap_summary_and_hash() -> None:
         assignments,
         legacy_train_only_source_ids={"formal58-1"},
         forbidden_source_ids={"old-dev5-1", "fresh16-1", "confirm20-1"},
+        legacy_train_only_group_sha256s={_group("a")},
+        forbidden_consumed_group_sha256s={_group("f")},
     )
     second = validate_group_aware_split_assignments(
         list(reversed(assignments)),
         legacy_train_only_source_ids={"formal58-1"},
         forbidden_source_ids={"confirm20-1", "fresh16-1", "old-dev5-1"},
+        legacy_train_only_group_sha256s={_group("a")},
+        forbidden_consumed_group_sha256s={_group("f")},
     )
 
     assert first.assignments == second.assignments
@@ -111,6 +115,8 @@ def test_same_trajectory_cannot_cross_roles() -> None:
             assignments,
             legacy_train_only_source_ids=set(),
             forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s=set(),
+            forbidden_consumed_group_sha256s=set(),
         )
 
 
@@ -124,6 +130,8 @@ def test_one_source_cannot_alias_two_trajectories() -> None:
             assignments,
             legacy_train_only_source_ids=set(),
             forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s=set(),
+            forbidden_consumed_group_sha256s=set(),
         )
 
 
@@ -152,6 +160,10 @@ def test_instruction_app_group_cannot_cross_development_partitions(
             assignments,
             legacy_train_only_source_ids=legacy,
             forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s=(
+                {_group("a")} if left_role == "legacy_train_only" else set()
+            ),
+            forbidden_consumed_group_sha256s=set(),
         )
 
 
@@ -164,6 +176,8 @@ def test_declared_formal58_source_is_locked_to_legacy_train_only(
             [_assignment("legacy-1", "formal58-1", "a", invalid_role)],
             legacy_train_only_source_ids={"formal58-1"},
             forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s={_group("a")},
+            forbidden_consumed_group_sha256s=set(),
         )
 
 
@@ -173,6 +187,8 @@ def test_legacy_role_cannot_hide_an_undeclared_source() -> None:
             [_assignment("legacy-1", "unknown-source", "a", "legacy_train_only")],
             legacy_train_only_source_ids={"formal58-1"},
             forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s={_group("a")},
+            forbidden_consumed_group_sha256s=set(),
         )
 
 
@@ -185,7 +201,40 @@ def test_explicit_old_development_and_confirm_identities_fail_closed(
             [_assignment("trajectory-1", forbidden, "a", "train")],
             legacy_train_only_source_ids=set(),
             forbidden_source_ids={"old-dev5-1", "fresh16-1", "confirm20-1"},
+            legacy_train_only_group_sha256s=set(),
+            forbidden_consumed_group_sha256s=set(),
         )
+
+
+def test_consumed_group_firewall_rejects_new_source_alias() -> None:
+    with pytest.raises(ValueError, match="forbidden consumed group"):
+        validate_group_aware_split_assignments(
+            [_assignment("new-trajectory", "new-source", "f", "train")],
+            legacy_train_only_source_ids=set(),
+            forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s=set(),
+            forbidden_consumed_group_sha256s={_group("f")},
+        )
+
+
+def test_legacy_group_is_locked_to_effective_train_partition() -> None:
+    with pytest.raises(ValueError, match="legacy train groups"):
+        validate_group_aware_split_assignments(
+            [_assignment("new-trajectory", "new-source", "a", "evaluation")],
+            legacy_train_only_source_ids=set(),
+            forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s={_group("a")},
+            forbidden_consumed_group_sha256s=set(),
+        )
+
+    result = validate_group_aware_split_assignments(
+        [_assignment("new-trajectory", "new-source", "a", "train")],
+        legacy_train_only_source_ids=set(),
+        forbidden_source_ids=set(),
+        legacy_train_only_group_sha256s={_group("a")},
+        forbidden_consumed_group_sha256s=set(),
+    )
+    assert result.audit.summary["overlap_counts"]["legacy_group_partition"] == 0
 
 
 def test_source_firewall_sets_are_required_to_be_explicit_and_disjoint() -> None:
@@ -195,12 +244,33 @@ def test_source_firewall_sets_are_required_to_be_explicit_and_disjoint() -> None
             [assignment],
             legacy_train_only_source_ids=[],  # type: ignore[arg-type]
             forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s=set(),
+            forbidden_consumed_group_sha256s=set(),
+        )
+
+    with pytest.raises(TypeError, match="explicit set of group SHA256"):
+        validate_group_aware_split_assignments(
+            [assignment],
+            legacy_train_only_source_ids=set(),
+            forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s=[],  # type: ignore[arg-type]
+            forbidden_consumed_group_sha256s=set(),
+        )
+    with pytest.raises(ValueError, match="group sets must be disjoint"):
+        validate_group_aware_split_assignments(
+            [assignment],
+            legacy_train_only_source_ids=set(),
+            forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s={_group("f")},
+            forbidden_consumed_group_sha256s={_group("f")},
         )
     with pytest.raises(ValueError, match="must be disjoint"):
         validate_group_aware_split_assignments(
             [assignment],
             legacy_train_only_source_ids={"shared"},
             forbidden_source_ids={"shared"},
+            legacy_train_only_group_sha256s=set(),
+            forbidden_consumed_group_sha256s=set(),
         )
 
 
@@ -210,6 +280,8 @@ def test_empty_duplicate_and_malformed_assignments_fail_closed() -> None:
             [],
             legacy_train_only_source_ids=set(),
             forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s=set(),
+            forbidden_consumed_group_sha256s=set(),
         )
 
     assignment = _assignment("trajectory-1", "source-1", "a", "train")
@@ -218,6 +290,8 @@ def test_empty_duplicate_and_malformed_assignments_fail_closed() -> None:
             [assignment, assignment],
             legacy_train_only_source_ids=set(),
             forbidden_source_ids=set(),
+            legacy_train_only_group_sha256s=set(),
+            forbidden_consumed_group_sha256s=set(),
         )
 
     with pytest.raises(ValueError, match="lowercase SHA256"):

@@ -1,5 +1,10 @@
 # Set Utility long-pool discovery v1
 
+> `SUPERSEDED_BEFORE_EXECUTION`：本 16-shard、13–64 discovery 从未运行，不再是当前数据入口。
+> 本文仅保留为历史契约；不得运行下方命令来产生当前 roster。现行流程见
+> [full-pool P-1](set_utility_full_pool_inventory_v1.md) 与
+> [set utility 实现交接](set_utility_implementation_v1.md)。
+
 ## 目的
 
 旧 GUIOdyssey selector 把 `decision_count` 限在 4–12；在已 pin 的前 16 个 shards 中，有 81 条 row

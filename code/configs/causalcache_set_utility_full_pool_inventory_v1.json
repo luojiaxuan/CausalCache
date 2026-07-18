@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_set_utility_full_pool_inventory_v1",
+  "status": "source_only_authorizes_remote_metadata_inventory_only",
+  "source": {
+    "repo_id": "cua-lite/GUIOdyssey",
+    "repo_type": "dataset",
+    "revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+    "target_directory": "mobile/use/train",
+    "target_path_regex": "^mobile/use/train/shard-(?P<index>[0-9]{5})-of-00610[.]parquet$",
+    "expected_file_count": 610,
+    "expected_first_index": 0,
+    "expected_last_index": 609,
+    "index_width": 5
+  },
+  "remote_metadata_operation": {
+    "api_method": "huggingface_hub.HfApi.list_repo_tree",
+    "path_in_repo": "mobile/use/train",
+    "recursive": true,
+    "expand": true,
+    "required_entry_kind": "LFS_file",
+    "manifest_fields": [
+      "path",
+      "size_bytes",
+      "lfs_sha256"
+    ]
+  },
+  "output": {
+    "manifest_path": "data/manifests/set_utility_full_pool_inventory_v1.json",
+    "canonical_json": true,
+    "overwrite_allowed": false,
+    "contains_file_bytes": false,
+    "contains_row_or_semantic_content": false,
+    "contains_access_token": false
+  },
+  "authorization": {
+    "remote_metadata_inventory_allowed": true,
+    "remote_file_download_allowed": false,
+    "row_decode_allowed": false,
+    "semantic_census_allowed": false,
+    "trajectory_role_assignment_allowed": false,
+    "query_state_selection_allowed": false,
+    "restoration_label_generation_allowed": false,
+    "training_allowed": false,
+    "hugging_face_mutation_allowed": false,
+    "gpu_allowed": false,
+    "model_load_allowed": false,
+    "policy_forward_allowed": false,
+    "closed_loop_allowed": false,
+    "sealed_androidworld_test_access_allowed": false
+  }
+}
