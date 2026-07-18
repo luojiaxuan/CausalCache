@@ -12,6 +12,7 @@ from typing import Any
 
 from causalcache.policy.gui_owl_v2 import (
     CANONICAL_GUI_OWL_V2_ACTIONS,
+    GUI_OWL_V2_DECISION_STEPS,
     GUI_OWL_V2_PARAMETERS_BY_ACTION,
     GUI_OWL_V2_SYSTEM_BUTTONS,
     GUIOwlV2Action,
@@ -232,6 +233,7 @@ def build_gui_owl_v2_1_mixed_fidelity_messages(
     restored_event_step_ids: Sequence[int],
     image_bytes_loader: Callable[[str], bytes],
     image_decoder: Callable[[bytes], Any],
+    allowed_decision_steps: tuple[int, ...] = GUI_OWL_V2_DECISION_STEPS,
 ) -> list[dict[str, Any]]:
     messages = build_gui_owl_v2_mixed_fidelity_messages(
         manifest,
@@ -240,6 +242,7 @@ def build_gui_owl_v2_1_mixed_fidelity_messages(
         restored_event_step_ids=restored_event_step_ids,
         image_bytes_loader=image_bytes_loader,
         image_decoder=image_decoder,
+        allowed_decision_steps=allowed_decision_steps,
     )
     user_content = messages[1]["content"]
     if not isinstance(user_content, list) or not user_content:

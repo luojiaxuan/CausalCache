@@ -140,8 +140,40 @@ class GUIOwlV2PromptTest(unittest.TestCase):
             )
 
     def test_decision_steps_outside_the_frozen_development_set_are_rejected(self) -> None:
-        with self.assertRaisesRegex(ValueError, "one of 4, 5, or 6"):
+        with self.assertRaisesRegex(ValueError, "explicit allowlist"):
             self._messages((), decision_step_id=7)
+
+    def test_explicit_decision_step_allowlist_is_strict_and_default_is_identical(self) -> None:
+        default = self._messages((1, 2), decision_step_id=6)
+        explicit = build_gui_owl_v2_mixed_fidelity_messages(
+            self.manifest,
+            trajectory_id="fixture-step-6",
+            decision_step_id=6,
+            restored_event_step_ids=(1, 2),
+            image_bytes_loader=lambda path: path.encode("utf-8"),
+            image_decoder=lambda raw: raw.decode("utf-8"),
+            allowed_decision_steps=(4, 5, 6),
+        )
+        self.assertEqual(explicit, default)
+        cases = (
+            ([], TypeError, "non-empty tuple"),
+            ((), TypeError, "non-empty tuple"),
+            ((4, 4), ValueError, "unique"),
+            ((4, 0), ValueError, "positive"),
+            ((4, True), ValueError, "positive"),
+        )
+        for allowlist, error_type, message in cases:
+            with self.subTest(allowlist=allowlist):
+                with self.assertRaisesRegex(error_type, message):
+                    build_gui_owl_v2_mixed_fidelity_messages(
+                        self.manifest,
+                        trajectory_id="fixture-step-6",
+                        decision_step_id=6,
+                        restored_event_step_ids=(),
+                        image_bytes_loader=lambda path: path.encode("utf-8"),
+                        image_decoder=lambda raw: raw.decode("utf-8"),
+                        allowed_decision_steps=allowlist,
+                    )
 
 
 if __name__ == "__main__":

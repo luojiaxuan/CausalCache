@@ -1,0 +1,471 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_long_horizon_development_v1",
+  "status": "source_a_placeholder_frozen_before_long_horizon_selection_or_semantic_access",
+  "source_pool": {
+    "parent_protocol_config": {
+      "path": "code/configs/independent_reference_gate_v1.json",
+      "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8",
+      "protocol_id": "independent_reference_gate_v1"
+    },
+    "source_file_manifest": {
+      "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+      "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+      "file_count": 16,
+      "repo": "cua-lite/GUIOdyssey",
+      "revision": "ea08072b30e523fb4492e4f4597505879ffcd63b"
+    },
+    "transport_files_must_equal_parent_exactly": true,
+    "structural_eligibility": {
+      "definition": "full_independent_reference_gate_v1_structural_validation_with_only_the_decision_count_bounds_replaced",
+      "minimum_decisions_per_trajectory": 18,
+      "maximum_decisions_per_trajectory": 60,
+      "all_other_source_platform_terminal_action_parser_app_and_embedded_image_checks_inherited_exactly": true,
+      "open_ended_exception_filtering_allowed": false,
+      "expected_eligible_trajectory_count": 42
+    }
+  },
+  "substrate_profile": {
+    "ocr_backend_config": {
+      "path": "code/configs/restoration_v2_ocr_backend.json",
+      "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+    },
+    "ocr_backend_manifest": {
+      "path": "data/manifests/restoration_v2_ocr_backend.json",
+      "sha256": "107478672438b52e9c2ccc9ef8de5d13d4e16329ab1afbe95772e2d3df5bd2a9"
+    },
+    "full_ocr_replay_required_before_upload": true,
+    "development_trajectory_count": 24,
+    "image_member_count": 432,
+    "ocr_record_count": 432,
+    "event_count": 408,
+    "state_count": 48,
+    "candidate_occurrence_count": 576,
+    "reserve_python_row_materialization_count": 0,
+    "reserve_semantic_content_access_count": 0,
+    "reserve_ocr_or_image_access_count": 0,
+    "source_transport_row_group_overread_possible": true
+  },
+  "historical_role_firewall": {
+    "manifests": [
+      {
+        "path": "data/manifests/independent_reference_gate_v1_artifact.json",
+        "sha256": "833139954e332c00a2ed06fe2c3e71e701ca9a4a381f4c41680ec57d64a827ff",
+        "extractor": "splits_source_ids",
+        "expected_source_id_count": 23,
+        "expected_source_ids_sha256": "e74fccbb832f3efcbb99ecb1fc99fd7628e037f50f4da237b2de57c5aad496a9"
+      },
+      {
+        "path": "data/manifests/restoration_v2_selection.json",
+        "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+        "extractor": "roles_trajectory_source_ids",
+        "expected_source_id_count": 43,
+        "expected_source_ids_sha256": "18e3151cb3757eee429cc3472d93831c4f8d30dcb29da68a00aabd414e2db0ba"
+      },
+      {
+        "path": "data/manifests/restoration_v2_2_label_expansion_selection.json",
+        "sha256": "4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169",
+        "extractor": "splits_trajectory_source_ids",
+        "expected_source_id_count": 64,
+        "expected_source_ids_sha256": "2b7f3b6f23308f3f50e2c1d2597c45272c8096569fb5a414278219eb36067415"
+      }
+    ],
+    "expected_union_source_id_count": 107,
+    "expected_union_source_ids_sha256": "54be8ee52248e47adcfbaea0c03a5d19793486519d6cf124474fb468f628b7b1",
+    "selected_intersection_must_be_empty": true,
+    "source_ids_must_be_parsed_from_the_bound_manifest_roles": true,
+    "literal_historical_source_id_roster_in_this_contract_allowed": false
+  },
+  "selection": {
+    "trajectory_salt": "causalcache-long-horizon-development-v1",
+    "trajectory_hash_input": "UTF8(salt + NUL + source_id)",
+    "trajectory_order": [
+      "sha256_hex",
+      "source_id",
+      "transport_file",
+      "transport_row_index"
+    ],
+    "algorithm": "sort_all_42_eligible_once_then_first_24_development_and_last_18_unopened_reserve",
+    "development_trajectory_count": 24,
+    "unopened_reserve_trajectory_count": 18,
+    "padding_allowed": false,
+    "trajectory_splicing_allowed": false,
+    "post_output_top_up_allowed": false,
+    "post_selection_filtering_allowed": false,
+    "reserve_policy_ocr_restoration_or_selector_access_allowed": false,
+    "insufficient_or_excess_eligible_pool_outcome": "INVALID_LONG_HORIZON_SOURCE_POOL"
+  },
+  "state_geometry": {
+    "development_states_per_trajectory": 2,
+    "states": [
+      {
+        "decision_step_id": 10,
+        "candidate_event_count": 8,
+        "candidate_event_step_ids": [1, 2, 3, 4, 5, 6, 7, 8],
+        "current_equivalent_event_step_id": 9
+      },
+      {
+        "decision_step_id": 18,
+        "candidate_event_count": 16,
+        "candidate_event_step_ids": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+        "current_equivalent_event_step_id": 17
+      }
+    ],
+    "history_is_strict_unspliced_prefix": true,
+    "candidate_archive_padding_allowed": false,
+    "reserve_state_materialization_allowed": false
+  },
+  "selector_matrix": {
+    "budget_2": [
+      "restoration_independent_gate",
+      "recent",
+      "ocr_rgb_v2",
+      "v1_conditional",
+      "v4_safe_frozen_base_residual",
+      "random",
+      "summary_only"
+    ],
+    "budget_4": [
+      "restoration_independent_gate",
+      "recent",
+      "ocr_rgb_v2",
+      "random",
+      "summary_only"
+    ],
+    "random_seed_roster": [271828],
+    "random_seed_roster_frozen_in_source_a": true,
+    "summary_only_high_fidelity_event_count": 0,
+    "selector_sets_must_be_label_blind_sealed_before_any_restoration_distance": true
+  },
+  "reference_contract": {
+    "n8": {
+      "reference_type": "exact_subset_oracle",
+      "evaluate_every_subset_with_cardinality_at_most_budget": true,
+      "budget_2_subset_count": 37,
+      "budget_4_subset_count": 163,
+      "global_optimum_claim_allowed_within_frozen_candidate_archive_and_budget": true
+    },
+    "n16": {
+      "reference_type": "frozen_selector_pair_union",
+      "global_oracle_or_search_claim_allowed": false,
+      "enumeration_or_shortlist_allowed": false,
+      "pair_union_definition": "after_label_blind_selector_sets_M_A_and_M_B_are_sealed_define_R_as_set_union_M_A_M_B_and_compute_D_R_of_A_and_D_R_of_B",
+      "union_cardinality_upper_bound": "B_A_plus_B_B",
+      "disjoint_selector_sets_required": false,
+      "budget_2_comparator_pairs": [
+        ["restoration_independent_gate", "recent"],
+        ["restoration_independent_gate", "ocr_rgb_v2"],
+        ["v1_conditional", "restoration_independent_gate"],
+        ["v4_safe_frozen_base_residual", "restoration_independent_gate"]
+      ],
+      "budget_4_comparator_pairs": [
+        ["restoration_independent_gate", "recent"],
+        ["restoration_independent_gate", "ocr_rgb_v2"]
+      ],
+      "random_pair_union_is_secondary_and_not_required": true,
+      "canonical_outputs": ["D_R(empty)", "D_R(A)", "D_R(B)", "D_R(R)=0"],
+      "exact_subset_oracle_count": 0
+    }
+  },
+  "validity_and_go_contract": {
+    "canonical_action_validity": {
+      "independent_parse_repetitions": 2,
+      "both_parses_must_succeed": true,
+      "canonical_actions_must_be_exactly_identical": true,
+      "n8_full_reference_applies": true,
+      "each_n16_pair_union_reference_applies_independently": true,
+      "invalid_trajectory_replacement_allowed": false,
+      "invalid_trajectory_top_up_allowed": false,
+      "invalid_counts_must_be_retained_by_state_geometry_and_comparator_pair": true
+    },
+    "policy_coverage_thresholds": {
+      "selected_development_trajectory_denominator": 24,
+      "minimum_valid_n8_trajectories": 18,
+      "minimum_valid_n16_trajectories_per_comparator_pair": 18,
+      "failure_outcome": "NO_GO_INSUFFICIENT_LONG_HORIZON_POLICY_COVERAGE",
+      "overall_go_claim_allowed_below_any_threshold": false
+    },
+    "fixed_denominator_reduction": {
+      "selected_trajectory_denominator": 24,
+      "invalid_state_contribution": 0.0,
+      "n8_paired_delta_zero_fill": true,
+      "n16_pair_delta_zero_fill": true,
+      "n8_exact_utility_ratio_zero_fill": true,
+      "zero_exact_oracle_utility_ratio": 0.0,
+      "bootstrap_uses_all_selected_trajectories": true,
+      "positive_support_uses_all_selected_trajectories": true,
+      "valid_state_missing_or_duplicate_selector_outcome": "INVALID_LONG_HORIZON_SELECTOR_JOIN"
+    },
+    "normalization": {
+      "denominator": "D(empty)",
+      "zero_threshold": 1e-12,
+      "normalized_value_when_denominator_at_or_below_threshold": 0.0,
+      "zero_denominator_record_must_be_retained": true,
+      "zero_denominator_state_filtering_allowed": false
+    },
+    "set_aware_vs_independent_development_go": {
+      "applies_to_budget": 2,
+      "set_aware_selectors": [
+        "v1_conditional",
+        "v4_safe_frozen_base_residual"
+      ],
+      "reference_selector": "restoration_independent_gate",
+      "n8_trajectory_equal_mean_normalized_delta_minimum": 0.01,
+      "n8_trajectory_equal_mean_raw_delta_must_be_strictly_positive": true,
+      "n8_paired_trajectory_bootstrap_confidence": 0.9,
+      "n8_paired_trajectory_bootstrap_iterations": 10000,
+      "n8_paired_trajectory_bootstrap_seed": 20260718,
+      "n8_paired_bootstrap_lower_bound_must_be_strictly_positive": true,
+      "n8_minimum_positive_trajectories": 14,
+      "n8_fixed_selected_trajectory_denominator": 24,
+      "corresponding_n16_pair_mean_normalized_delta_must_be_strictly_positive": true,
+      "all_n8_and_n16_conditions_are_jointly_necessary": true,
+      "conditions_apply_separately_to_each_named_set_aware_selector": true,
+      "overall_set_aware_go_requires_at_least_one_selector_to_pass_all_its_conditions": true,
+      "post_result_best_of_threshold_or_selector_redefinition_allowed": false,
+      "failure_outcome": "NO_GO_SET_AWARE_LONG_HORIZON_DEVELOPMENT_V1"
+    },
+    "independent_long_horizon_development_go": {
+      "primary_budget": 4,
+      "n8_exact_reference": "exact_subset_oracle_with_cardinality_at_most_4",
+      "n8_trajectory_equal_mean_raw_utility_ratio_to_exact_minimum": 0.85,
+      "n8_comparators": ["recent", "ocr_rgb_v2"],
+      "n8_per_comparator_trajectory_equal_mean_normalized_delta_must_be_strictly_positive": true,
+      "n8_per_comparator_trajectory_equal_mean_raw_delta_must_be_strictly_positive": true,
+      "n8_paired_trajectory_bootstrap_confidence": 0.9,
+      "n8_paired_trajectory_bootstrap_iterations": 10000,
+      "n8_paired_trajectory_bootstrap_seed": 20260718,
+      "n8_per_comparator_paired_bootstrap_lower_bound_must_be_strictly_positive": true,
+      "n8_per_comparator_minimum_positive_trajectories": 14,
+      "n8_fixed_selected_trajectory_denominator": 24,
+      "n16_budget_4_comparator_pairs": [
+        ["restoration_independent_gate", "recent"],
+        ["restoration_independent_gate", "ocr_rgb_v2"]
+      ],
+      "n16_per_pair_mean_normalized_delta_must_be_strictly_positive": true,
+      "n16_per_pair_mean_raw_delta_must_be_strictly_positive": true,
+      "budget_2_is_secondary_report_only": true,
+      "all_n8_and_n16_conditions_are_jointly_necessary": true,
+      "pass_outcome": "AUTHORIZE_NEW_CLOSED_LOOP_SOURCE_A_ONLY",
+      "old_closed_loop_or_test_direct_unlock_allowed": false,
+      "failure_outcome": "NO_GO_LONG_HORIZON_INDEPENDENT_DEVELOPMENT_V1"
+    }
+  },
+  "policy_context_profile": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "snapshot_manifest_path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+    "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+    "runtime_class": "causalcache.policy.gui_owl_v2_2_eager_runtime.GUIOwlV22EagerRuntime",
+    "runtime_id": "causalcache_restoration_v2_2_eager_runtime",
+    "official_tool_interface": "causalcache_restoration_v2_1_official_tool_interface",
+    "dtype": "torch.bfloat16",
+    "attention_implementation": "eager",
+    "effective_visual_tokens_per_image": 2560,
+    "maximum_context_tokens": 32768,
+    "generation_max_new_tokens": 256,
+    "processor_preflight_reserved_completion_tokens": 256,
+    "n8_full_reference_history_images": 8,
+    "n8_full_reference_total_images_including_current": 9,
+    "n16_full_reference_allowed": false,
+    "n16_budget_2_pair_union_maximum_history_images": 4,
+    "n16_budget_2_pair_union_maximum_total_images_including_current": 5,
+    "n16_budget_4_pair_union_maximum_history_images": 8,
+    "n16_budget_4_pair_union_maximum_total_images_including_current": 9,
+    "pair_union_limits_include_overlap_without_requiring_disjointness": true
+  },
+  "operation_accounting": {
+    "fixed_selected_trajectory_denominator": 24,
+    "n8_canonical_action_parse_attempts_per_trajectory": 2,
+    "n8_total_requested_canonical_action_parse_attempts": 48,
+    "n8_budget_2_projected_subset_rows_per_valid_trajectory": 37,
+    "n8_budget_2_total_requested_projected_subset_rows": 888,
+    "n8_budget_4_unique_subset_rows_per_valid_trajectory": 163,
+    "n8_budget_4_total_requested_unique_subset_rows": 3912,
+    "n8_budget_2_rows_are_projection_of_budget_4_rows_not_additional_forwards": true,
+    "n16_comparator_pair_count_per_trajectory": 6,
+    "n16_pair_reference_parse_attempts_per_pair": 2,
+    "n16_total_requested_pair_reference_parse_attempts": 288,
+    "n16_selector_arms_per_valid_pair": 2,
+    "n16_total_requested_selector_arm_distances": 288,
+    "n16_maximum_nonself_distance_rows_per_valid_pair": 3,
+    "n16_nonself_rows_are_unique_empty_A_B_excluding_any_row_equal_to_R": true,
+    "n16_pair_union_self_distance_is_analytic_zero": true,
+    "n16_total_requested_maximum_nonself_distances": 432,
+    "maximum_generation_attempt_count": 336,
+    "maximum_teacher_forward_count": 4512,
+    "maximum_gpu_kl_count": 4344,
+    "maximum_counts_assume_every_case_is_valid_and_no_A_B_R_duplicate_rows": true,
+    "requested_denominators_include_invalid_cases": true,
+    "invalid_cases_preserve_partial_completed_operations_and_explicit_missing_counts": true,
+    "invalid_cases_may_be_dropped_from_fixed_selected_denominator": false,
+    "invalid_cases_may_be_replaced_or_topped_up": false
+  },
+  "execution_b_plan": {
+    "host_alias": "hyper00",
+    "gpu_count": 4,
+    "worker_count": 4,
+    "development_trajectories_per_worker": 6,
+    "worker_selection_rank_ranges": [
+      [0, 5],
+      [6, 11],
+      [12, 17],
+      [18, 23]
+    ],
+    "gpu_ids_selected_only_after_required_preflight": true,
+    "each_worker_binds_one_selected_gpu": true,
+    "worker_shards_cover_each_development_trajectory_exactly_once": true,
+    "reserve_worker_count": 0,
+    "execution_b_may_change_scientific_threshold_geometry_or_comparator_semantics": false
+  },
+  "artifact_plan": {
+    "repo": "gavinlaw/causalcache-long-horizon-development-mobile",
+    "repo_type": "dataset",
+    "visibility": "private",
+    "tag": "long-horizon-development-v1",
+    "immutable_revision_and_manifest_required_before_git_result_commit": true,
+    "reserve_payload_publication_allowed": false
+  },
+  "learned_model_artifacts": {
+    "formal58_base_and_conditional": {
+      "repo": "gavinlaw/causalcache-gate-v1-formal58-selector-mobile",
+      "repo_type": "model",
+      "private": true,
+      "revision": "23f6786075c7bff91f93fd7e8a878e070efb72a9",
+      "ensemble_manifests": [
+        {
+          "family": "conditional",
+          "path": "formal58-train/v1/manifests/conditional-ensemble-manifest.json",
+          "sha256": "74aec69ccdb727fa997f38bebf3383db3aa1965299fdd512fd5f47f02ebcc782",
+          "provenance_sha256": "a56c26f7760578e6ebbc793cc25e3adadb228e7c3f90606f63e138f0220858f2"
+        },
+        {
+          "family": "independent",
+          "path": "formal58-train/v1/manifests/independent-ensemble-manifest.json",
+          "sha256": "38809f1ef4da9636ef6779733cee4926b36b38e3bd86eab199450e685c63da24",
+          "provenance_sha256": "238c2e64bdb22ccebd261961200021e74a688f912d530f486b00bbb853a8ea57"
+        }
+      ],
+      "checkpoints": [
+        {"family": "conditional", "seed": 0, "path": "formal58-train/v1/checkpoints/conditional-seed-0.safetensors", "sha256": "38ef8ca44aea850f23a8594691ba85c986dcb0d06ae14f21111b9cd8098ad6c5", "model_state_sha256": "4b23eb94a3726a963d572655996f5b2be0458d7398a2f38ef69b8a43bb4e036b"},
+        {"family": "conditional", "seed": 1, "path": "formal58-train/v1/checkpoints/conditional-seed-1.safetensors", "sha256": "41469c21643326903673d83e2e23e977ea2c9cae5990ea88b37676e19a04313a", "model_state_sha256": "0ab3a272564e8bc7f79a4dd8bf09e3e50c5099334b335fe163e72f78dc738f17"},
+        {"family": "conditional", "seed": 2, "path": "formal58-train/v1/checkpoints/conditional-seed-2.safetensors", "sha256": "712fc17ae335eacffa9c40744c77a3995b2d963eb64009bcfc54ff826fb36ee4", "model_state_sha256": "aa58a02b3d5a196b307ca2f576feba301bdef9351354a0669c78e0e8e95fd9c9"},
+        {"family": "conditional", "seed": 3, "path": "formal58-train/v1/checkpoints/conditional-seed-3.safetensors", "sha256": "4cb6242814cbf3ae353f5d110e9954e967481b4b4173df4ec87f2baaa036fb0f", "model_state_sha256": "952ef11791e39069b983b357119c09e37e4361c9b2c533f06bc37a3f5e24eb8f"},
+        {"family": "conditional", "seed": 4, "path": "formal58-train/v1/checkpoints/conditional-seed-4.safetensors", "sha256": "95cdc21f83394d6ee54d7eda57d83089c180abcfad46135522ffef87e2ec970f", "model_state_sha256": "b0640eb49788f45b60d9bb39e733b7b6e13114a89e73ea825a5f49629a3566af"},
+        {"family": "independent", "seed": 0, "path": "formal58-train/v1/checkpoints/independent-seed-0.safetensors", "sha256": "7088a1cb4224dd1e7013868249ed1c99c20782eb63c2a762e3059cfb939d4a49", "model_state_sha256": "0198ad3cca7bd9e4eef2f6c40c9ac6349732f21935c61ec3434f058ee40b972a"},
+        {"family": "independent", "seed": 1, "path": "formal58-train/v1/checkpoints/independent-seed-1.safetensors", "sha256": "8a25b8bad27e4c6f20a9a93273602e82a276ee7f9275ff672d6b0ed64dd8fd79", "model_state_sha256": "454b0732389eac920f2aa69edb68317e3746dc57e1d2c6c7269f792257255af7"},
+        {"family": "independent", "seed": 2, "path": "formal58-train/v1/checkpoints/independent-seed-2.safetensors", "sha256": "b8c38619db06bd479d278da62663a3b451cff951dff0747bf156835234216211", "model_state_sha256": "c4d508933928dc7c6a24501090e3afd2a7d50a4977f37b3b3cb6cd818d28eb13"},
+        {"family": "independent", "seed": 3, "path": "formal58-train/v1/checkpoints/independent-seed-3.safetensors", "sha256": "b7b175c0b513508f10479bb228fad6ffb6b4e330b050c981d415c2a54b8c11a2", "model_state_sha256": "1f0d319411319dd2348e0a3da8e7d2b18e5b566e468278853d890a761639da60"},
+        {"family": "independent", "seed": 4, "path": "formal58-train/v1/checkpoints/independent-seed-4.safetensors", "sha256": "8e5eee31c85653a210b9bf05c4cf4d94a8b4fabdb6bdab455caa446cc655df38", "model_state_sha256": "51fc5aaa157ec9feb97a7c40cd7d532cc248ecb076feacd880dc9bba38007def"}
+      ]
+    },
+    "v4_safe_frozen_base_residual": {
+      "repo": "gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-exploration-mobile",
+      "repo_type": "model",
+      "private": true,
+      "revision": "1641b90a4ebb05037e4710738a78e2c79f81cdc3",
+      "manifest_sha256": "3ecc5e0a27e8ff57774788d71da6dbe4ff2a3bf08001747ab9a0de79607b9544",
+      "residual_checkpoints": [
+        {"seed": 0, "path": "residual-checkpoints/seed-0.safetensors", "sha256": "cd11c4abd190e267e46772fa70769553c91e9073b2d00ef665bd3d30e0c67db0"},
+        {"seed": 1, "path": "residual-checkpoints/seed-1.safetensors", "sha256": "ccd9c0987040b78f95ae71977e2b165d17188ee5ad7d7f3cb8af5daa1b7d3605"},
+        {"seed": 2, "path": "residual-checkpoints/seed-2.safetensors", "sha256": "7878af92695d069e2d415ae7b89c8c4084cc2d3a26385d4d679601e629dd11c8"},
+        {"seed": 3, "path": "residual-checkpoints/seed-3.safetensors", "sha256": "d5bf290769c13d7ab240c5206b7de57e5019814502d6b5ccf2e1a0e09c6b8788"},
+        {"seed": 4, "path": "residual-checkpoints/seed-4.safetensors", "sha256": "1726321b3b3ca88f07e84280d556d5a7d0ccbe7eb1d6753c9354971417688ba9"}
+      ]
+    },
+    "execution_b_must_fresh_download_and_verify_exact_rosters_before_selector_scoring": true,
+    "training_optimizer_or_artifact_substitution_allowed": false
+  },
+  "access_firewall": {
+    "source_a_allowed_operations": [
+      "strict_contract_validation",
+      "pinned_raw_parquet_structural_scan",
+      "deterministic_selection_manifest_construction"
+    ],
+    "source_a_forbidden_operations": [
+      "policy_load_or_forward",
+      "ocr_generation_or_access",
+      "restoration_distance_or_label_access",
+      "selector_scoring_or_training",
+      "exact_subset_evaluation",
+      "pair_union_distance_evaluation"
+    ],
+    "old_confirm_locked": true,
+    "old_closed_loop_locked": true,
+    "sealed_test_locked": true,
+    "matched_nll_locked": true,
+    "reserve_locked": true
+  },
+  "source_freeze": {
+    "branch": "luojiaxuan/independent-gate-long-horizon-development",
+    "required_source_a_paths": [
+      "code/causalcache/long_horizon_contract.py",
+      "code/causalcache/long_horizon_data.py",
+      "code/causalcache/long_horizon_evaluation.py",
+      "code/causalcache/long_horizon_execution.py",
+      "code/causalcache/long_horizon_prepare.py",
+      "code/causalcache/long_horizon_runtime.py",
+      "code/causalcache/long_horizon_selection.py",
+      "code/causalcache/long_horizon_selectors.py",
+      "code/causalcache/long_horizon_v4.py",
+      "code/causalcache/policy/gui_owl_v2.py",
+      "code/causalcache/policy/gui_owl_v2_1.py",
+      "code/configs/causalcache_long_horizon_development_v1.json",
+      "code/scripts/build_long_horizon_selection.py",
+      "code/scripts/build_long_horizon_selector_seal.py",
+      "code/scripts/build_long_horizon_substrate.py",
+      "code/scripts/manage_long_horizon_execution.py",
+      "code/scripts/run_long_horizon_worker.py",
+      "code/scripts/validate_long_horizon_contract.py",
+      "code/scripts/validate_long_horizon_selector_seal.py",
+      "code/scripts/validate_long_horizon_substrate.py",
+      "code/tests/test_gui_owl_v2_1.py",
+      "code/tests/test_gui_owl_v2_prompt.py",
+      "code/tests/test_long_horizon_contract.py",
+      "code/tests/test_long_horizon_data.py",
+      "code/tests/test_long_horizon_evaluation.py",
+      "code/tests/test_long_horizon_execution.py",
+      "code/tests/test_long_horizon_prepare.py",
+      "code/tests/test_long_horizon_runtime.py",
+      "code/tests/test_long_horizon_selection.py",
+      "code/tests/test_long_horizon_selectors.py",
+      "code/tests/test_long_horizon_v4.py"
+    ],
+    "source_a_inventory_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "source_a_inventory_hash_status": "placeholder_must_be_bound_by_execution_b_runner_without_mutating_source_a",
+    "selection_manifest_freeze": {
+      "path": "data/manifests/causalcache_long_horizon_development_v1_selection.json",
+      "must_be_absent_during_source_a_validation": true,
+      "only_allowed_selection_freeze_diff": true,
+      "direct_single_parent_child_of_source_a": true,
+      "bind_source_a_git_commit": true,
+      "bind_contract_sha256": true,
+      "bind_required_source_a_inventory_sha256": true
+    },
+    "execution_b_runner_freeze": {
+      "path": "code/configs/causalcache_long_horizon_development_runner_v1.json",
+      "must_be_absent_during_source_a_validation": true,
+      "only_allowed_execution_b_source_tree_diff": true,
+      "direct_single_parent_child_of_selection_freeze": true,
+      "bind_source_a_git_commit": true,
+      "bind_contract_sha256": true,
+      "bind_required_source_a_inventory_sha256": true,
+      "bind_selection_freeze_git_commit": true,
+      "bind_selection_manifest_sha256": true,
+      "bind_substrate_immutable_revision_and_manifest": true,
+      "bind_selector_preparation_manifest_immutable_revision_and_sha256": true,
+      "bind_label_blind_seal_immutable_revision_and_sha256": true
+    }
+  },
+  "authorization": {
+    "source_a_validated": false,
+    "execution_b_frozen": false,
+    "development_policy_access": false,
+    "development_ocr_access": false,
+    "development_restoration_access": false,
+    "reserve_access": false,
+    "old_confirm_access": false,
+    "closed_loop_access": false,
+    "sealed_test_access": false
+  }
+}

@@ -25,7 +25,11 @@
 > decisions，`n>=16` 占 12.90% / 31.19%；这些数字只描述该 stack，不能声称为 benchmark prevalence。
 > 正式设计将 `n=8,B=2/4` 用于 exact-subset evaluation，将 `n=16,B=2/4` 用于 context-safe
 > selector-pair union comparison；旧 confirm、matched-NLL、closed-loop 与 sealed test 继续 locked。
-> 审计结果见 [`data/results/long_horizon_incidence_v1/`](data/results/long_horizon_incidence_v1/)。
+> 审计结果见 [`data/results/long_horizon_incidence_v1/`](data/results/long_horizon_incidence_v1/)，正式
+> Source-A、`n=8` exact-163、`n=16` pair-union、B2/B4 selector seal 与执行 lineage 见
+> [`docs/long_horizon_development_v1.md`](docs/long_horizon_development_v1.md)。
+> Source-A contract SHA256 已冻结为 `6bde1adf...10cd94`；当前 selection/OCR/selector/policy/restoration access
+> 均为 0，后续只允许按 A→selection-B→runner-C 的 direct-child lineage 执行。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。

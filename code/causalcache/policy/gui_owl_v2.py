@@ -399,6 +399,16 @@ def _validated_summary(event: Mapping[str, Any], *, expected_step_id: int) -> st
     return stored
 
 
+def _validated_decision_steps(value: Any) -> tuple[int, ...]:
+    if not isinstance(value, tuple) or not value:
+        raise TypeError("allowed decision steps must be a non-empty tuple")
+    if any(type(step_id) is not int or step_id <= 0 for step_id in value):
+        raise ValueError("allowed decision steps must contain positive integers")
+    if len(set(value)) != len(value):
+        raise ValueError("allowed decision steps must be unique")
+    return value
+
+
 def build_gui_owl_v2_mixed_fidelity_messages(
     manifest: Mapping[str, Any],
     *,
@@ -407,9 +417,11 @@ def build_gui_owl_v2_mixed_fidelity_messages(
     restored_event_step_ids: Sequence[int],
     image_bytes_loader: Callable[[str], bytes],
     image_decoder: Callable[[bytes], Any],
+    allowed_decision_steps: tuple[int, ...] = GUI_OWL_V2_DECISION_STEPS,
 ) -> list[dict[str, Any]]:
-    if decision_step_id not in GUI_OWL_V2_DECISION_STEPS:
-        raise ValueError("v2 decision step must be one of 4, 5, or 6")
+    allowed_steps = _validated_decision_steps(allowed_decision_steps)
+    if decision_step_id not in allowed_steps:
+        raise ValueError("v2 decision step is absent from the explicit allowlist")
     if not isinstance(manifest["trajectories"], list):
         raise ValueError("v2 trajectories must be a JSON array")
     trajectory_records = tuple(manifest["trajectories"])

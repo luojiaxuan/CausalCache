@@ -166,6 +166,23 @@ class GUIOwlV21InterfaceTest(unittest.TestCase):
             ],
         )
 
+    def test_v21_default_allowlist_output_is_identical_to_explicit_default(self) -> None:
+        manifest = json.loads(PROMPT_FIXTURE.read_text(encoding="utf-8"))
+        kwargs = {
+            "trajectory_id": "fixture-step-6",
+            "decision_step_id": 6,
+            "restored_event_step_ids": (1, 3),
+            "image_bytes_loader": lambda path: path.encode("utf-8"),
+            "image_decoder": lambda raw: raw.decode("utf-8"),
+        }
+        implicit = build_gui_owl_v2_1_mixed_fidelity_messages(manifest, **kwargs)
+        explicit = build_gui_owl_v2_1_mixed_fidelity_messages(
+            manifest,
+            **kwargs,
+            allowed_decision_steps=(4, 5, 6),
+        )
+        self.assertEqual(implicit, explicit)
+
     def test_native_message_validation_is_fail_closed(self) -> None:
         manifest = json.loads(PROMPT_FIXTURE.read_text(encoding="utf-8"))
         messages = build_gui_owl_v2_1_mixed_fidelity_messages(
