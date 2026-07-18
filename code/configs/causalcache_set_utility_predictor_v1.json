@@ -23,15 +23,17 @@
     "teacher_distance": "D_t(S)",
     "target_definition": "U_t(S)=D_t(empty)-D_t(S)",
     "empty_set_utility": 0.0,
-    "predictor_signature": "U_theta(query_state,event_set)",
+    "predictor_signature": "U_theta(query_state,candidate_universe,selection_mask)",
     "predictor_receives_budget": false,
     "predictor_receives_remaining_budget": false,
     "predictor_receives_selection_order": false,
     "utility_is_budget_agnostic": true,
-    "selector_definition": "argmax_{S_subseteq_candidates,cardinality(S)<=B} U_theta(S)",
+    "selector_definition": "argmax_{S_subseteq_C,cardinality(S)<=B} U_theta(query_state,C,mask_S)",
     "budget_enters_search_constraint_only": true,
     "empty_set_is_always_search_eligible": true,
     "selection_is_joint_subset_scoring": true,
+    "all_low_fidelity_candidate_tokens_visible_to_predictor": true,
+    "selection_mask_is_selected_vs_unselected_type_not_padding": true,
     "iterative_conditional_greedy_is_primary": false,
     "learned_roundwise_stop_threshold_used": false,
     "tie_break_order": [
@@ -51,7 +53,10 @@
     "low_fidelity_event": "fixed_structured_event_summary",
     "policy_training_allowed": false,
     "cross_layer_kv_surgery_allowed": false,
-    "candidate_order_semantics": "chronological_inside_each_set",
+    "candidate_order_semantics": "chronological_for_policy_rerun_and_unordered_for_predictor",
+    "noncandidate_history_semantics": "always_low_fidelity_in_reference_and_interventions",
+    "current_equivalent_history_event_is_candidate": false,
+    "full_reference_semantics": "all_frozen_candidates_high_fidelity_not_all_trajectory_events",
     "set_identity_semantics": "unordered_for_utility_and_model_loss"
   },
   "new_development_data": {
@@ -77,6 +82,10 @@
     "consumed_fresh16_tuning_rows_eligible": false,
     "consumed_confirm20_training_rows_eligible": false,
     "consumed_confirm20_tuning_rows_eligible": false,
+    "consumed_reference8_training_rows_eligible": false,
+    "consumed_reference8_tuning_rows_eligible": false,
+    "evaluation_role": "one_shot_untouched_offline_evaluation",
+    "evaluation_may_be_reopened_for_model_selection": false,
     "data_access_before_freeze_b_allowed": false,
     "reusable_artifact_destination": {
       "repo_type": "dataset",
@@ -87,9 +96,10 @@
     }
   },
   "p0_policy_blind_roster_discovery": {
-    "purpose": "discover_the_long_trajectory_eligible_pool_before_freezing_train_tune_evaluation_counts",
-    "status": "LOCKED_REQUIRES_SEPARATE_P0_RUNNER_FREEZE",
-    "separate_p0_config_sha256": "d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957",
+    "purpose": "inventory_all_610_transport_train_shards_then_run_policy_blind_decision_count_ge_6_census",
+    "status": "LOCKED_REQUIRES_FULL_POOL_METADATA_INVENTORY_THEN_SEPARATE_CENSUS_FREEZE",
+    "previous_16_shard_p0_config_sha256": "d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957",
+    "previous_16_shard_p0_execution_status": "SUPERSEDED_BEFORE_EXECUTION",
     "historical_observation": {
       "decision_count_above_12_exclusion_count": 81,
       "interpretation": "the_old_maximum_decision_filter_may_hide_the_needed_long_trajectory_pool",
@@ -100,14 +110,17 @@
       "upstream_revision": "61632d0f3f4d51d7e9561ce4f84347dd06b2019d",
       "transport_repo": "cua-lite/GUIOdyssey",
       "transport_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
-      "transport_file_inventory_status": "BOUND_BY_SEPARATE_P0_SOURCE_CONFIG"
+      "expected_transport_train_shard_count": 610,
+      "transport_train_shard_regex": "^mobile/use/train/shard-[0-9]{5}-of-00610[.]parquet$",
+      "transport_file_inventory_status": "UNBOUND_REQUIRES_METADATA_ONLY_INVENTORY_COMMIT",
+      "previous_16_shard_inventory_is_sufficient": false
     },
     "eligibility_inherited_unchanged": {
       "platform": "mobile",
       "terminal_status": "success",
       "terminal_signal_must_be_last": true,
       "executable_actions_per_observation": 1,
-      "minimum_decisions_per_trajectory": 13,
+      "minimum_decisions_per_trajectory": 6,
       "source_id_regex": "^[A-Za-z0-9._-]+$",
       "require_unique_source_id": true,
       "require_embedded_supported_images": true,
@@ -123,11 +136,16 @@
       ],
       "open_ended_exception_filtering_forbidden": true
     },
-    "long_trajectory_change_only": {
+    "full_pool_change_only": {
       "old_maximum_decisions_per_trajectory": 12,
-      "discovery_minimum_decisions_per_trajectory": 13,
-      "discovery_maximum_decisions_per_trajectory": 64,
+      "discovery_minimum_decisions_per_trajectory": 6,
+      "discovery_maximum_decisions_per_trajectory": null,
       "decision_count_above_12_is_an_exclusion": false,
+      "candidate_capacity_strata": [
+        "decision_count_6_9_supports_prefilter_n4",
+        "decision_count_10_17_supports_prefilter_n8",
+        "decision_count_ge_18_supports_prefilter_n16"
+      ],
       "all_non_length_eligibility_rules_must_be_byte_equivalent_to_inherited_parser": true
     },
     "policy_blindness": {
@@ -153,6 +171,8 @@
     },
     "stage_boundaries": {
       "p0_output_only_informs_pool_size_and_feasible_strata": true,
+      "full_610_shard_metadata_inventory_must_be_committed_first": true,
+      "canonical_consumed_58_49_identity_ledger_must_be_committed_first": true,
       "concrete_split_counts_require_new_committed_freeze": true,
       "label_execution_A_source_and_roster_freeze_is_separate": true,
       "label_execution_B_teacher_run_is_separate": true,
@@ -176,7 +196,13 @@
     "missing_exact_subset_label_allowed": false,
     "exact_label_count_formula": "1+n+binom(n,2)",
     "candidate_count_maximum": 16,
-    "candidate_truncation_rule": "most_recent_16_eligible_historical_events_before_any_label_forward",
+    "candidate_count_maximum_is_prefilter_not_guaranteed_executable_n": true,
+    "candidate_truncation_rule": "exclude_current_equivalent_event_take_recent_16_then_processor_only_drop_oldest_until_full_reference_plus_256_tokens_fits_32768",
+    "context_limit_tokens": 32768,
+    "reserved_action_tokens": 256,
+    "actual_candidate_ids_frozen_before_generation_or_teacher_forward": true,
+    "n16_execution_may_be_assumed_without_processor_preflight": false,
+    "query_states_per_trajectory_status": "UNBOUND_TARGET_2_TO_4_REQUIRES_FREEZE_B",
     "label_count_at_candidate_maximum": 137,
     "candidate_or_label_selection_using_outcomes_allowed": false,
     "model_selection_split": "new_development_tune",
@@ -189,6 +215,9 @@
     "shared_requirements": {
       "same_query_and_event_features": true,
       "same_train_tune_evaluation_rows": true,
+      "all_candidate_tokens_visible": true,
+      "selection_mask_semantics": "selected_vs_unselected_type_bit",
+      "only_true_padding_is_attention_masked": true,
       "permutation_invariant": true,
       "variable_cardinality_input": true,
       "budget_feature_allowed": false,
@@ -207,23 +236,32 @@
     },
     "pairwise_additive": {
       "role": "strong_low_order_baseline",
-      "formula": "sum_{i_in_S}u_theta(q,h_i)+sum_{i<j_in_S}r_theta(q,h_i,h_j)",
+      "formula": "sum_{i_in_S}u_theta(q,C,h_i)+sum_{i<j_in_S}r_theta(q,C,h_i,h_j)",
       "supports_arbitrary_cardinality": true,
       "maximum_explicit_interaction_order": 2,
       "higher_order_interactions_representable": false
     },
     "deepsets": {
-      "role": "main_candidate",
-      "formula": "rho_theta(q,sum_{i_in_S}phi_theta(q,h_i))-rho_theta(q,zero)",
+      "role": "simple_set_baseline",
+      "formula": "rho_theta(q,pool_selected(C,mask_S),pool_unselected(C,mask_S))-empty_baseline(q,C)",
       "supports_arbitrary_cardinality": true,
-      "maximum_explicit_interaction_order": "unbounded_by_formula",
-      "set_transformer_allowed_in_v1": false
+      "maximum_explicit_interaction_order": "unbounded_by_formula"
+    },
+    "set_transformer": {
+      "role": "main_candidate_after_full_pool_expansion",
+      "formula": "query_token_transformer({event_token_i+selected_unselected_embedding(mask_S_i):i_in_C})-empty_baseline(q,C)",
+      "supports_arbitrary_cardinality": true,
+      "all_candidate_tokens_visible": true,
+      "positional_embedding_used": false,
+      "only_padding_attention_masked": true,
+      "architecture_grid_status": "UNBOUND_REQUIRES_SEPARATE_PRE_TRAIN_FREEZE_B"
     }
   },
   "phase1_comparators_and_evaluation": {
     "ordered_methods": [
-      "pairwise_additive",
+      "set_transformer",
       "deepsets",
+      "pairwise_additive",
       "recent",
       "ocr_rgb",
       "oracle_independent_J",
@@ -264,6 +302,11 @@
       "within_state_subset_ranking_quality"
     ],
     "required_pairwise_deltas": [
+      "set_transformer_minus_ocr_rgb",
+      "set_transformer_minus_recent",
+      "set_transformer_minus_oracle_independent_J",
+      "set_transformer_minus_deepsets",
+      "set_transformer_minus_pairwise_additive",
       "deepsets_minus_ocr_rgb",
       "pairwise_additive_minus_ocr_rgb",
       "deepsets_minus_recent",
@@ -330,6 +373,7 @@
       "B3_few_shot",
       "B4_zero_shot",
       "B4_few_shot",
+      "set_transformer_vs_deepsets_vs_pairwise_additive",
       "pairwise_additive_vs_deepsets",
       "ocr_rgb_vs_oracle_independent_J_vs_exact"
     ],

@@ -19,12 +19,13 @@ SOURCE_STATUS = "source_only_frozen_before_new_development_data_access"
 VALIDATION_STATUS = "VALID_SOURCE_ONLY_SET_UTILITY_PREDICTOR_V1"
 CANONICAL_CONFIG_PATH = "code/configs/causalcache_set_utility_predictor_v1.json"
 FROZEN_CONFIG_SHA256 = (
-    "ac4333055a0cc78fa229f44a6981d7804d753bb72b466872540473c85074a3b1"
+    "9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4"
 )
-MODEL_FAMILIES = ("pairwise_additive", "deepsets")
+MODEL_FAMILIES = ("pairwise_additive", "deepsets", "set_transformer")
 COMPARATOR_ORDER = (
-    "pairwise_additive",
+    "set_transformer",
     "deepsets",
+    "pairwise_additive",
     "recent",
     "ocr_rgb",
     "oracle_independent_J",
@@ -36,14 +37,14 @@ PHASE2_TRACKS = (
 )
 EXPECTED_SECTION_SHA256 = {
     "scientific_scope": "93788d092764309819d74f2ff71054695d9e06f1cda1a0bd75194c8ae86844a9",
-    "utility_contract": "57fd1cba793287a6b89409788918df02b1760b79abeb26db499a50c8bc29f98f",
-    "teacher_and_representation": "3385f85f88da819c6456a6067cd5779c9ab31765e22badde92f4f36cf26a61dc",
-    "new_development_data": "8b16a00d91dda855a26856a67e207f4259f11dd8d392061e0d7f400e86b1456b",
-    "p0_policy_blind_roster_discovery": "82c1591cb03f39c13da48adb397ba3b1d7c21d99c2563db23d19d6ceeef88d56",
-    "phase1_exact_b2": "d558a53fc17fce4c50fbef8f6f2ebb2ef3c787c68756d3f2491738b9b4336e6b",
-    "model_families": "8626b0924d4cee042c62cfa90544955209f70528a23d7afc053688b1b1939ada",
-    "phase1_comparators_and_evaluation": "855df7753eb865f6230202fa0d416806f7e75392913e8e4c7cd1b7c231767b59",
-    "phase2_cardinality_transfer": "81b4de991f63912171449f1e28da03aadbf5a82521a8f18e99b1b2e905e9b2b4",
+    "utility_contract": "85af09a58051f296223c33fd797da08f443bc7ed046e4901cd2970bd6f398b60",
+    "teacher_and_representation": "9048f5ff2cde7b5f24dc6c278eb68231031a92c51914f9586f0bb358354f7751",
+    "new_development_data": "37993d73ced11bb770081fcf7473a16471b6f2c65c1b4d1d4c555f095f385f45",
+    "p0_policy_blind_roster_discovery": "b8e09cc12031b18f1a39d5a00bb9b74bdce5d35f8a340c68a62bec5636d7bfbe",
+    "phase1_exact_b2": "4cb50d11bbd471b4c77a718bc9effe87715a1bd1bd704763701c7399eae1ef35",
+    "model_families": "b4483708d0c847e8179af066918ef61c5548365ee17d9e789846a6c332c2b55d",
+    "phase1_comparators_and_evaluation": "29ceeea88f72347d51fe71d4dc0de89697de31717349e67dc7aef4c4973604dc",
+    "phase2_cardinality_transfer": "960b001a0bf05e32af51984fff7711441eb476df1d4ea78a5265c0beb2e7bd5b",
     "locked_followups": "f92f0e88e3c9e02190ff8fd9a000ccf64c688006995a8ee4708c5b42d955a8b7",
     "source_only_operation_contract": "e45043745018c2a8898e1bc0652159465534f18f101ee8ee6622d7cc7b216e8b",
     "authorization": "5f7ab664fbe928741735259b422003202068e675244f96ec87813c33c6bb73b8",
@@ -220,6 +221,8 @@ def _validate_scope_and_utility(config: Mapping[str, Any]) -> None:
         "budget_enters_search_constraint_only",
         "empty_set_is_always_search_eligible",
         "selection_is_joint_subset_scoring",
+        "all_low_fidelity_candidate_tokens_visible_to_predictor",
+        "selection_mask_is_selected_vs_unselected_type_not_padding",
     ):
         _equal(utility[key], True, f"utility invariant {key}")
 
@@ -283,6 +286,9 @@ def _validate_teacher_and_data_firewall(config: Mapping[str, Any]) -> None:
         "consumed_fresh16_tuning_rows_eligible",
         "consumed_confirm20_training_rows_eligible",
         "consumed_confirm20_tuning_rows_eligible",
+        "consumed_reference8_training_rows_eligible",
+        "consumed_reference8_tuning_rows_eligible",
+        "evaluation_may_be_reopened_for_model_selection",
         "data_access_before_freeze_b_allowed",
     ):
         _equal(data[key], False, f"data firewall {key}")
@@ -302,13 +308,18 @@ def _validate_policy_blind_discovery(config: Mapping[str, Any]) -> None:
     discovery = _section(config, "p0_policy_blind_roster_discovery")
     _equal(
         discovery["status"],
-        "LOCKED_REQUIRES_SEPARATE_P0_RUNNER_FREEZE",
+        "LOCKED_REQUIRES_FULL_POOL_METADATA_INVENTORY_THEN_SEPARATE_CENSUS_FREEZE",
         "P0 discovery lock",
     )
     _equal(
-        discovery["separate_p0_config_sha256"],
+        discovery["previous_16_shard_p0_config_sha256"],
         "d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957",
-        "P0 source config",
+        "previous P0 source config",
+    )
+    _equal(
+        discovery["previous_16_shard_p0_execution_status"],
+        "SUPERSEDED_BEFORE_EXECUTION",
+        "previous P0 execution status",
     )
     historical = _mapping(discovery["historical_observation"], "P0 observation")
     _equal(
@@ -316,10 +327,21 @@ def _validate_policy_blind_discovery(config: Mapping[str, Any]) -> None:
         81,
         "historical long-trajectory exclusion count",
     )
+    source_pool = _mapping(discovery["source_pool"], "P0 source pool")
+    _equal(
+        source_pool["expected_transport_train_shard_count"],
+        610,
+        "P0 full transport shard count",
+    )
+    _equal(
+        source_pool["previous_16_shard_inventory_is_sufficient"],
+        False,
+        "P0 previous shard inventory sufficiency",
+    )
     inherited = _mapping(
         discovery["eligibility_inherited_unchanged"], "P0 inherited eligibility"
     )
-    _equal(inherited["minimum_decisions_per_trajectory"], 13, "P0 minimum length")
+    _equal(inherited["minimum_decisions_per_trajectory"], 6, "P0 minimum length")
     _equal(inherited["terminal_status"], "success", "P0 terminal status")
     _equal(inherited["terminal_signal_must_be_last"], True, "P0 terminal order")
     _equal(inherited["require_embedded_supported_images"], True, "P0 images")
@@ -328,16 +350,16 @@ def _validate_policy_blind_discovery(config: Mapping[str, Any]) -> None:
         ("back", "home", "long_press", "stop", "swipe", "tap", "type_text", "wait"),
         "P0 parser-compatible actions",
     )
-    changed = _mapping(discovery["long_trajectory_change_only"], "P0 long change")
+    changed = _mapping(discovery["full_pool_change_only"], "P0 full-pool change")
     _equal(changed["old_maximum_decisions_per_trajectory"], 12, "old P0 cap")
     _equal(
         changed["discovery_minimum_decisions_per_trajectory"],
-        13,
+        6,
         "P0 discovery minimum",
     )
     _equal(
         changed["discovery_maximum_decisions_per_trajectory"],
-        64,
+        None,
         "P0 discovery maximum",
     )
     _equal(
@@ -379,6 +401,8 @@ def _validate_policy_blind_discovery(config: Mapping[str, Any]) -> None:
         _equal(output[key], False, f"P0 output exclusion {key}")
     stages = _mapping(discovery["stage_boundaries"], "P0 stage boundaries")
     for key in (
+        "full_610_shard_metadata_inventory_must_be_committed_first",
+        "canonical_consumed_58_49_identity_ledger_must_be_committed_first",
         "concrete_split_counts_require_new_committed_freeze",
         "label_execution_A_source_and_roster_freeze_is_separate",
         "label_execution_B_teacher_run_is_separate",
@@ -411,6 +435,23 @@ def _validate_phase1_and_models(config: Mapping[str, Any]) -> None:
         expected_count,
         "phase 1 exact label count",
     )
+    _equal(
+        phase1["candidate_count_maximum_is_prefilter_not_guaranteed_executable_n"],
+        True,
+        "candidate prefilter semantics",
+    )
+    _equal(phase1["context_limit_tokens"], 32768, "teacher context limit")
+    _equal(phase1["reserved_action_tokens"], 256, "action-token reserve")
+    _equal(
+        phase1["actual_candidate_ids_frozen_before_generation_or_teacher_forward"],
+        True,
+        "pre-forward candidate freeze",
+    )
+    _equal(
+        phase1["n16_execution_may_be_assumed_without_processor_preflight"],
+        False,
+        "n16 processor preflight",
+    )
 
     models = _section(config, "model_families")
     if set(models) != {"shared_requirements", *MODEL_FAMILIES}:
@@ -420,6 +461,17 @@ def _validate_phase1_and_models(config: Mapping[str, Any]) -> None:
     _equal(shared["permutation_invariant"], True, "permutation invariance")
     _equal(shared["variable_cardinality_input"], True, "variable cardinality")
     _equal(shared["empty_set_output_constrained_to_zero"], True, "empty output")
+    _equal(shared["all_candidate_tokens_visible"], True, "candidate visibility")
+    _equal(
+        shared["selection_mask_semantics"],
+        "selected_vs_unselected_type_bit",
+        "selection-mask semantics",
+    )
+    _equal(
+        shared["only_true_padding_is_attention_masked"],
+        True,
+        "attention padding semantics",
+    )
     _equal(
         shared["student_feature_schema_status"],
         "UNBOUND_REQUIRES_SEPARATE_PRE_TRAIN_FREEZE_B",
@@ -442,8 +494,30 @@ def _validate_phase1_and_models(config: Mapping[str, Any]) -> None:
     _equal(pairwise["maximum_explicit_interaction_order"], 2, "pairwise order")
     _equal(pairwise["higher_order_interactions_representable"], False, "pairwise limit")
     deepsets = _mapping(models["deepsets"], "DeepSets model")
-    _equal(deepsets["role"], "main_candidate", "DeepSets role")
-    _equal(deepsets["set_transformer_allowed_in_v1"], False, "Set Transformer lock")
+    _equal(deepsets["role"], "simple_set_baseline", "DeepSets role")
+    set_transformer = _mapping(
+        models["set_transformer"], "Set Transformer model"
+    )
+    _equal(
+        set_transformer["role"],
+        "main_candidate_after_full_pool_expansion",
+        "Set Transformer role",
+    )
+    _equal(
+        set_transformer["all_candidate_tokens_visible"],
+        True,
+        "Set Transformer candidate visibility",
+    )
+    _equal(
+        set_transformer["positional_embedding_used"],
+        False,
+        "Set Transformer positional embedding",
+    )
+    _equal(
+        set_transformer["only_padding_attention_masked"],
+        True,
+        "Set Transformer attention masking",
+    )
 
 
 def _validate_comparators_and_phase2(config: Mapping[str, Any]) -> None:
@@ -579,7 +653,7 @@ def validate_set_utility_predictor_contract(
         "phase2_tracks": [track[0] for track in PHASE2_TRACKS],
         "new_development_data_required": True,
         "p0_policy_blind_roster_discovery_required": True,
-        "p0_discovery_decision_range": [13, 64],
+        "p0_discovery_decision_range": [6, None],
         "fresh16_training_or_tuning_allowed": False,
         "confirm20_training_or_tuning_allowed": False,
         "closed_loop_locked": True,

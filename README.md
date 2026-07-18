@@ -26,21 +26,30 @@
 > [`docs/exploratory_closed_loop_validation12_v1.md`](docs/exploratory_closed_loop_validation12_v1.md)。
 
 > Current route: 历史 conditional/independent NO-GO 与 Case-A failure decomposition 全部保留；closed-loop P0
-> 继续暂停。主线改为先扩充 restoration tables，再训练 budget-agnostic set utility predictor。
-> `U_theta(q,S)`、feature state 和 batch 都不接收 `B`；预算只进入包含 empty 的 joint at-most-`B`
-> search。当前已实现 variable-`n` features、finite non-negative `D(S)` exact capped tables、
-> group-disjoint split audit、pairwise-additive/DeepSets、recent/OCR-RGB/J、training loss、joint search 与
-> true-`U` evaluator；focused suite 为 `100 passed, 11 skipped, 5 subtests passed`，11 项仅因本机无
-> PyTorch。predictor config SHA256=
-> `ac4333055a0cc78fa229f44a6981d7804d753bb72b466872540473c85074a3b1`。
+> 继续暂停。主线改为先清点全部 610 个 GUIOdyssey transport train shards，扩充 exact
+> restoration tables，再训练 budget-agnostic set utility predictor。`U_theta(q,C,m_S)` 永远看到
+> 全部有效候选与 selected/unselected bit，不接收 `B`；预算只进入包含 empty 的
+> joint at-most-`B` search。Set Transformer 是主模型，DeepSets 和 pairwise-additive 是对照。
 >
-> 下一步仍是对 13–64 decision trajectories 做 policy-blind CPU census；P0 config SHA256=
-> `d10484f53f579bf26012ba6fdd3e7e701c90d7e760db6667ebf7e74c75a98957`，manifest 只额外保存
-> normalized instruction+app group SHA256，不保存 instruction 原文，也不分 split/query。真实 census 尚未
-> 运行，因此历史的 81 条 old-cap exclusions 不能解释成 81 条 eligible。census 后才单独冻结 label
-> Execution-A/B、student feature schema 与训练网格；当前没有新 restoration labels、checkpoint 或离线效果。
-> formal-58 仅可作为 legacy train-only；old-dev5、fresh-16、confirm-20 禁止进入新训练/调参。matched-NLL
-> 与 sealed test 继续 locked。见
+> 当前已实现 variable-`n` features、`|S|<=K` exact label schedule/producer、Set Transformer/
+> DeepSets/pairwise 模型、trajectory-uniform trainer、joint search 与 true-`U` evaluator。predictor config
+> SHA256=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；focused suite 为
+> `193 passed, 15 skipped, 24 subtests passed`，skip 仅因本机无 PyTorch。
+>
+> 数据防火墙已机械物化 107 个历史 identity：58 条 `legacy_train_only` + 49 条
+> `forbidden_consumed`，ledger SHA256=
+> `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。P-1 metadata-only
+> contract SHA256=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；P0
+> source-only contract SHA256=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`，已绑定
+> ledger，但故意未绑定尚未产生的 P-1 manifest。
+>
+> 本地唯一真实 P-1 尝试在调用 `HfApi.list_repo_tree` 时因 sandbox DNS 失败，未收到
+> metadata，也未生成 partial
+> manifest；因此真实 610-shard inventory、semantic census、新 restoration labels、checkpoint 和
+> offline delta 都仍不存在。下一步是在可联网 checkout 运行并 push 唯一 P-1 manifest，
+> 再单独冻结 P0 Execution-A；不使用旧 13–64 小池子替代全量数据。formal-58 仅可
+> train-only；reference8、old-dev5、fresh-16、confirm-20 永不进入新训练/调参/评估。
+> matched-NLL 与 sealed test 继续 locked。见
 > [方法契约](docs/set_utility_predictor_v1.md) 与
 > [实现交接](docs/set_utility_implementation_v1.md)。
 

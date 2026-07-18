@@ -25,6 +25,11 @@ class UtilityLossWeights:
             self.within_state_ranking,
         )
         if any(
+            isinstance(value, bool) or not isinstance(value, (int, float))
+            for value in (*coefficients, self.smooth_l1_beta)
+        ):
+            raise TypeError("utility loss weights must be numeric")
+        if any(
             not math.isfinite(float(value)) or float(value) < 0.0
             for value in coefficients
         ):
@@ -154,6 +159,7 @@ def utility_optimization_step(
     *,
     weights: UtilityLossWeights,
     maximum_gradient_norm: float,
+    objective_scale: float = 1.0,
 ) -> dict[str, float]:
     """Run one explicit optimizer step without binding an optimizer or schedule."""
     if (
@@ -161,11 +167,19 @@ def utility_optimization_step(
         or float(maximum_gradient_norm) <= 0.0
     ):
         raise ValueError("maximum gradient norm must be finite and positive")
+    if (
+        isinstance(objective_scale, bool)
+        or not isinstance(objective_scale, (int, float))
+        or not math.isfinite(float(objective_scale))
+        or float(objective_scale) <= 0.0
+    ):
+        raise ValueError("objective scale must be finite and positive")
     torch = _torch()
     model.train()
     optimizer.zero_grad(set_to_none=True)
     loss, metrics = utility_predictor_loss(model, batch, weights=weights)
-    loss.backward()
+    scaled_loss = loss * float(objective_scale)
+    scaled_loss.backward()
     norm = torch.nn.utils.clip_grad_norm_(
         model.parameters(), float(maximum_gradient_norm)
     )
@@ -176,7 +190,12 @@ def utility_optimization_step(
         not bool(torch.isfinite(parameter).all()) for parameter in model.parameters()
     ):
         raise ValueError("set-utility parameter became non-finite")
-    return {**metrics, "preclip_gradient_norm": float(norm)}
+    return {
+        **metrics,
+        "objective_scale": float(objective_scale),
+        "scaled_total": float(scaled_loss.detach()),
+        "preclip_gradient_norm": float(norm),
+    }
 
 
 __all__ = [

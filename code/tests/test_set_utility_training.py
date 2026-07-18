@@ -297,8 +297,11 @@ class UtilityTrainingTorchTest(unittest.TestCase):
             batch,
             weights=weights,
             maximum_gradient_norm=1.0,
+            objective_scale=0.5,
         )
         self.assertTrue(all(math.isfinite(value) for value in step.values()))
+        self.assertEqual(step["objective_scale"], 0.5)
+        self.assertAlmostEqual(step["scaled_total"], step["total"] * 0.5)
 
 
 if __name__ == "__main__":

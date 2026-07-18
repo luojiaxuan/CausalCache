@@ -55,18 +55,22 @@ def test_frozen_identity_and_budget_agnostic_public_contract() -> None:
     assert not contract.utility["learned_roundwise_stop_threshold_used"]
 
 
-def test_policy_blind_long_trajectory_discovery_is_a_separate_locked_stage() -> None:
+def test_policy_blind_full_pool_discovery_is_a_separate_locked_stage() -> None:
     discovery = _config()["p0_policy_blind_roster_discovery"]
     assert discovery["historical_observation"][
         "decision_count_above_12_exclusion_count"
     ] == 81
-    assert discovery["long_trajectory_change_only"][
+    assert discovery["source_pool"]["expected_transport_train_shard_count"] == 610
+    assert not discovery["source_pool"][
+        "previous_16_shard_inventory_is_sufficient"
+    ]
+    assert discovery["full_pool_change_only"][
         "discovery_minimum_decisions_per_trajectory"
-    ] == 13
-    assert discovery["long_trajectory_change_only"][
+    ] == 6
+    assert discovery["full_pool_change_only"][
         "discovery_maximum_decisions_per_trajectory"
-    ] == 64
-    assert not discovery["long_trajectory_change_only"][
+    ] is None
+    assert not discovery["full_pool_change_only"][
         "decision_count_above_12_is_an_exclusion"
     ]
     assert discovery["eligibility_inherited_unchanged"][
@@ -112,13 +116,16 @@ def test_phase1_is_complete_b2_exact_and_compares_the_frozen_methods() -> None:
     assert not evaluation["phase1_result_may_unlock_closed_loop_directly"]
 
 
-def test_pairwise_and_deepsets_support_variable_cardinality_without_budget_input() -> None:
+def test_set_transformer_is_main_and_sees_full_candidate_context_without_budget() -> None:
     models = _config()["model_families"]
     shared = models["shared_requirements"]
     assert shared["permutation_invariant"]
     assert shared["variable_cardinality_input"]
     assert not shared["budget_feature_allowed"]
     assert shared["empty_set_output_constrained_to_zero"]
+    assert shared["all_candidate_tokens_visible"]
+    assert shared["selection_mask_semantics"] == "selected_vs_unselected_type_bit"
+    assert shared["only_true_padding_is_attention_masked"]
     assert shared["student_feature_schema_status"].startswith("UNBOUND_")
     assert not shared["feature_choice_after_new_evaluation_label_access_allowed"]
     pairwise = models["pairwise_additive"]
@@ -126,9 +133,13 @@ def test_pairwise_and_deepsets_support_variable_cardinality_without_budget_input
     assert pairwise["maximum_explicit_interaction_order"] == 2
     assert not pairwise["higher_order_interactions_representable"]
     deepsets = models["deepsets"]
-    assert deepsets["role"] == "main_candidate"
+    assert deepsets["role"] == "simple_set_baseline"
     assert deepsets["supports_arbitrary_cardinality"]
-    assert not deepsets["set_transformer_allowed_in_v1"]
+    set_transformer = models["set_transformer"]
+    assert set_transformer["role"] == "main_candidate_after_full_pool_expansion"
+    assert set_transformer["all_candidate_tokens_visible"]
+    assert not set_transformer["positional_embedding_used"]
+    assert set_transformer["only_padding_attention_masked"]
 
 
 def test_phase2_freezes_zero_shot_and_few_shot_b3_b4_transfer() -> None:
@@ -178,6 +189,9 @@ def test_new_data_firewall_and_downstream_locks_are_exact() -> None:
         "consumed_fresh16_tuning_rows_eligible",
         "consumed_confirm20_training_rows_eligible",
         "consumed_confirm20_tuning_rows_eligible",
+        "consumed_reference8_training_rows_eligible",
+        "consumed_reference8_tuning_rows_eligible",
+        "evaluation_may_be_reopened_for_model_selection",
         "data_access_before_freeze_b_allowed",
     ):
         assert not data[key]
@@ -199,16 +213,16 @@ def test_new_data_firewall_and_downstream_locks_are_exact() -> None:
             {"consumed_fresh16_training_rows_eligible": True}
         ),
         lambda value: value["p0_policy_blind_roster_discovery"][
-            "long_trajectory_change_only"
-        ].update({"discovery_maximum_decisions_per_trajectory": 12}),
+            "full_pool_change_only"
+        ].update({"discovery_maximum_decisions_per_trajectory": 64}),
         lambda value: value["p0_policy_blind_roster_discovery"][
             "policy_blindness"
         ].update({"policy_forward_count": 1}),
         lambda value: value["phase1_exact_b2"].update(
             {"subset_sampling_allowed": True}
         ),
-        lambda value: value["model_families"]["deepsets"].update(
-            {"set_transformer_allowed_in_v1": True}
+        lambda value: value["model_families"]["set_transformer"].update(
+            {"all_candidate_tokens_visible": False}
         ),
         lambda value: value["phase1_comparators_and_evaluation"][
             "ordered_methods"

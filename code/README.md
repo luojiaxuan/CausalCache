@@ -102,24 +102,35 @@ oracle-independent `J` 并与 exact、learned `I`、OCR/RGB 对齐。该 CPU-onl
 不运行 selector/policy/restoration，也不授权 closed-loop；机器合同见
 `configs/causalcache_independent_confirm20_failure_decomposition_v1.json`。
 
-Set Utility Predictor v1 已实现 source-only contract、long-pool P0、variable-`n` features、exact capped
-label table、group-aware split audit、Pairwise/DeepSets、training/search/evaluation primitives 和
-recent/OCR-RGB/J baselines。predictor/model/batch 不接收 budget；P0 只扫描结构 metadata，不能分配 split
-或产生 labels。P0 manifest 只保留 normalized instruction+app group SHA256，不保存 instruction 原文。
+Set Utility Predictor v1 已实现 budget-agnostic source contract、610-shard P-1 metadata inventory
+contract、107-identity consumed firewall、policy-blind full-pool P0 source core、variable-`n` features、exact
+capped label schedule/producer、group-aware split audit、Pairwise/DeepSets/Set Transformer、trainer、
+search/evaluation primitives 和 recent/OCR-RGB/J baselines。predictor/model/batch/checkpoint 不接收 budget；
+P0 只能扫描 policy-blind source semantics，不能分配 split/query 或产生 labels。P0 manifest 只保留
+normalized instruction+app group SHA256，不保存 instruction 原文。
+Freeze-B 还必须将 P0 产生的 historical legacy/forbidden group SHA256 集合传给 split
+validator：forbidden group 完全不得出现，legacy group 只能位于 effective train partition。label batch
+validator 同时要求显式冻结 maximum reference-repeat KL，不接受事后阈值。
 
 ```bash
 PYTHONPATH=code .venv/bin/python code/scripts/validate_set_utility_predictor_contract.py \
   --repository-root . \
   --contract code/configs/causalcache_set_utility_predictor_v1.json
-PYTHONPATH=code .venv/bin/python code/scripts/validate_set_utility_long_pool_contract.py \
+PYTHONPATH=code .venv/bin/python code/scripts/run_set_utility_full_pool_inventory_v1.py \
   --repository-root . \
-  --contract code/configs/causalcache_set_utility_long_pool_discovery_v1.json
+  --contract code/configs/causalcache_set_utility_full_pool_inventory_v1.json \
+  validate-source
+PYTHONPATH=code .venv/bin/python \
+  code/scripts/validate_set_utility_full_pool_census_v2_source.py \
+  --repository-root .
 PYTHONPATH=code .venv/bin/pytest -q code/tests/test_set_utility*.py
 ```
 
-当前结果是 `100 passed, 11 skipped, 5 subtests passed`；11 个 skip 是本机无 PyTorch 的 model/tensor/
-optimizer/search integration tests，正式运行前必须在目标 runtime 补跑。真实 census、labels、trainer
-runner/checkpoint 尚未产生。完整接口与跨机器顺序见
+当前结果是 `193 passed, 15 skipped, 24 subtests passed`；15 个 skip 是本机无 PyTorch 的
+model/tensor/optimizer/search integration tests，正式运行前必须在目标 runtime 补跑。canonical
+consumed ledger 已固定 58 条 `legacy_train_only` 与 49 条 `forbidden_consumed`；真实 P-1
+inventory 因本地 sandbox DNS 失败而未产生，因此 semantic census、labels、trainer checkpoint 与
+offline result 也都尚未产生。完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 
 Development-only repeated-selection probe 使用

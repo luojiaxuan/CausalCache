@@ -4,37 +4,48 @@
 
 2026-07-18 起，历史 independent confirm-20 的 `NO_GO_INDEPENDENT_CONFIRM`、set-conditioned v1 的
 `NO_V2_CONDITIONAL_RESCUE` 与 oracle-independent Case A 全部保持有效；它们只否定旧 projection/student
-链，不能被重写成 terminal-success 结论。当前路线暂停 closed-loop，改为扩充新的 train/development
-restoration tables，并训练 budget-agnostic set utility predictor `U_theta(S)`。预算 `B` 只约束搜索，不进入
-utility model。阶段一用 `|S|<=2` exact labels 比较 pairwise-additive、DeepSets、OCR/RGB、J 与 exact；
-阶段二用独立少量 `|S|=3/4` labels 检验 cardinality transfer。fresh-16/confirm-20 禁止进入训练或新 holdout，
-matched-NLL 与 sealed AndroidWorld test 继续 locked。
+链，不能被重写成 terminal-success 结论。当前路线暂停 closed-loop，改为先扩充新的
+restoration tables，再训练 budget-agnostic set utility predictor `U_theta(q,C,m_S)`。预算 `B`
+只约束搜索，不进入 utility model。阶段一用 `|S|<=2` exact labels 比较 Set Transformer、
+DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 B3/B4 capped exact tables
+（分别为 `|S|<=3` 与 `|S|<=4`）检验 cardinality transfer。reference8、old-dev5、fresh-16 和
+confirm-20 禁止进入新训练、
+调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
-### 2026-07-18：set utility core 闭合；真实 census/labels/training 待执行
+### 2026-07-18：full-pool source contract、consumed firewall 与 predictor core 闭合；P-1 inventory 待执行
 
-- 路线固定为先扩充新的 restoration tables、再训练 budget-agnostic `U_theta(q,S)`；`B` 只进入
-  subset search，empty、singleton、pair 会被联合比较，不再学习逐轮 stop threshold；
-- predictor contract 已补齐 duplicate-safe split：trajectory 是样本单位，相同 normalized
-  instruction+app group 不得跨新 development partitions；group key 只用于 audit，禁止进入 model feature。
-  predictor/P0 config SHA256 分别为 `ac433305…74a3b1` / `d10484f5…a98957`；
-- 已实现 q64/h64+OCR/RGB/recency 的 label-blind variable-`n` features、完整 `|S|<=K`
-  label validator（`K=2/3/4`）、feature-label join、group split firewall、state/cardinality/subset 等权
-  batch、Pairwise/DeepSets、raw/normalized/ranking loss、recent/OCR-RGB/J、joint exhaustive search 与
-  trajectory-equal true-`U` evaluator；
-- 审计发现并修复两个 fail-open：weighted-KL `D(S)` 现在必须 finite non-negative，允许正负的是
-  `U(S)=D(empty)-D(S)`；训练 state 现在必须包含全部且仅有 capped subset rows，exact/evaluator 的
-  `B` 超过 label cap 会拒绝；
-- phase-1 最大 `n=16` 时 exact B2 为 137 rows；phase-2 仍锁定 `B3_n6=42` 与
-  `B4_n8=163`。正式 Freeze-B 还必须在 label access 前冻结 student representation：轻量 schema 或加
-  frozen GUI-Owl final-main normalized visual embedding，不能等 evaluation 失败后换表示；
-- 全部 `code/tests/test_set_utility*.py` 为 `100 passed, 11 skipped, 5 subtests passed`；11 项仅因本机
-  无 PyTorch，目标 runtime 必须补跑。source-only validators 返回有效，network/model/data/label/train/
-  closed-loop operation 均为 0；
-- 真实 CPU census 尚未运行：本地受限环境无法解析 Taurus SSH host，remote handoff 也没有 matching saved
-  project。因此 81 仍只是历史 old-cap exclusion count，不是 eligible count。没有新 `D(S)`、HF revision、
-  checkpoint 或效果结果；
-- 下一步顺序保持 P0 census → commit/push manifest → Freeze-B roster/group split/query/feature/grid →
-  label Execution-B → GPU exact-table production → Pairwise/DeepSets train/eval。完整交接见
+- 当前数据路线不再以 16-shard / 13–64 小池子作为主入口。P-1 先对指定 revision 的
+  610 个 `mobile/use/train` transport shards 只读 metadata，固定 path/size/LFS SHA256；再单独
+  冻结 P0 Execution-A 进行 policy-blind semantic census；
+- budget-agnostic predictor config SHA256=
+  `9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；P-1 source config
+  SHA256=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；P0 source-only
+  config SHA256=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`；
+- canonical consumed ledger 已从六个 byte-pinned 历史输入机械重建 107 个 identity：
+  `legacy_train_only=58` 与 `forbidden_consumed=49`；manifest SHA256=
+  `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。P0 source 已绑定该
+  ledger，但 P-1 manifest SHA 仍故意 unbound，因此不授权 download/row decode/census/output；
+- split audit 已从 source identity firewall 扩展到 historical group firewall：forbidden consumed group
+  不得以新 source ID 重新进入任何 role，legacy group 只能留在 effective train partition；P-1
+  writer 返回的 manifest SHA 也已改为精确落盘 bytes SHA，避免末尾换行造成的错误绑定；
+- 已实现 processor-only candidate freeze（排除 current-equivalent，recent `<=16`，超出 32k
+  context 时逐个丢弃最旧 event）、`K=2/3/4` exact capped label schedule/producer、variable-`n`
+  features、complete-table validator、group split firewall、joint search 与 trajectory-equal evaluator；
+- Set Transformer 是 main，DeepSets 和 pairwise-additive 是 comparator。三者共享同一 feature/label/split；
+  strict `UtilityModelConfig` 禁止 budget key，Set Transformer 必须显式冻结
+  `num_heads/num_layers/dropout`，checkpoint 保存 model config 与 hash。CPU reference trainer 按 trajectory
+  均匀训练，tune model selection 按 trajectory-equal objective；label batch validator 要求 Freeze-B
+  显式传入 maximum reference-repeat KL，超阈 state fail closed；
+- focused suite 为 `193 passed, 15 skipped, 24 subtests passed`；15 个 skip 仅因本机无
+  PyTorch。全仓回归为 `1738 passed, 23 skipped, 38 failed, 644 subtests`；38 个失败均来自既有
+  lifecycle 互斥测试、sandbox 下的 git worktree 操作和 full-suite import-order 问题，focused
+  set-utility suite 无失败；
+- 本地唯一真实 P-1 尝试在 `HfApi.list_repo_tree` 时因 sandbox DNS 失败，未产生
+  partial manifest；SSH 到 Hyper00 也被 sandbox 拒绝。本路线的新 `D(S)`、HF revision、
+  predictor checkpoint 和 offline delta 均不存在；
+- 下一步严格为 P-1 metadata inventory → commit/push manifest → 绑定该 manifest SHA 的 P0
+  Execution-A → policy-blind census → Freeze-B roster/group split/query/feature/grid → label throughput
+  pilot/Execution-B → exact-table production → Set Transformer/DeepSets/pairwise train/eval。完整交接见
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与
   [`set_utility_implementation_v1.md`](set_utility_implementation_v1.md)。
 

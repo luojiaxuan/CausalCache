@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_set_utility_full_pool_census_v2_source",
+  "status": "SOURCE_ONLY_NOT_EXECUTION_AUTHORIZED",
+  "immutable_inputs": {
+    "base_parser_config": {
+      "path": "code/configs/independent_reference_gate_v1.json",
+      "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8"
+    },
+    "p1_inventory_contract": {
+      "path": "code/configs/causalcache_set_utility_full_pool_inventory_v1.json",
+      "sha256": "1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96"
+    },
+    "p1_inventory_manifest_requirement": {
+      "path": "data/manifests/set_utility_full_pool_inventory_v1.json",
+      "schema_version": "1.0.0",
+      "protocol_id": "causalcache_set_utility_full_pool_inventory_v1",
+      "status": "COMPLETE_METADATA_ONLY_FULL_POOL_INVENTORY_V1",
+      "sha256": "UNBOUND_REQUIRES_P1_COMMIT"
+    },
+    "consumed_ledger_requirement": {
+      "path": "data/manifests/set_utility_consumed_identity_ledger_v1.json",
+      "schema_version": "0.1.0",
+      "protocol_id": "causalcache_set_utility_consumed_ledger_v1",
+      "status": "VALID_SET_UTILITY_CONSUMED_IDENTITY_LEDGER_V1",
+      "sha256": "b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad",
+      "partition_counts": {
+        "legacy_train_only": 58,
+        "forbidden_consumed": 49
+      },
+      "union_count": 107
+    },
+    "execution_runner": {
+      "path": "code/scripts/materialize_set_utility_full_pool.py",
+      "sha256": "ec43e7da837835a1208580e236b3b268cf48b5b69af2d2921f97d24ccbfb01e4"
+    }
+  },
+  "science": {
+    "minimum_decision_count": 6,
+    "scientific_maximum_decision_count": null,
+    "format_safety_maximum_decisions": null,
+    "candidate_capacity_strata": [
+      {
+        "name": "decisions_6_9",
+        "minimum": 6,
+        "maximum": 9
+      },
+      {
+        "name": "decisions_10_17",
+        "minimum": 10,
+        "maximum": 17
+      },
+      {
+        "name": "decisions_18_plus",
+        "minimum": 18,
+        "maximum": null
+      }
+    ],
+    "candidate_scope": "UNCONSUMED_ELIGIBLE_TRAJECTORIES_ONLY",
+    "consumed_group_audit_required": true,
+    "train_tune_evaluation_assignment_allowed": false,
+    "query_state_selection_allowed": false
+  },
+  "output": {
+    "future_manifest_path": "data/manifests/set_utility_full_pool_census_v2.json",
+    "canonical_json": true,
+    "overwrite_allowed": false
+  },
+  "authorization": {
+    "execution_config_present": false,
+    "source_manifest_hash_bound": false,
+    "consumed_ledger_hash_bound": true,
+    "remote_file_download_allowed": false,
+    "row_decode_allowed": false,
+    "semantic_census_allowed": false,
+    "output_write_allowed": false,
+    "trajectory_role_assignment_allowed": false,
+    "query_state_selection_allowed": false,
+    "ocr_allowed": false,
+    "policy_or_model_load_allowed": false,
+    "restoration_label_generation_allowed": false,
+    "gate_training_allowed": false,
+    "gpu_allowed": false,
+    "closed_loop_allowed": false,
+    "sealed_androidworld_test_access_allowed": false
+  }
+}

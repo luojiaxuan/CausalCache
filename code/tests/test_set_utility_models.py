@@ -8,8 +8,10 @@ from causalcache.set_utility_models import (
     DeepSetsUtilityPredictor,
     PairwiseAdditiveUtilityPredictor,
     SetUtilityDimensions,
+    SetTransformerUtilityPredictor,
     build_deepsets_utility_predictor,
     build_pairwise_additive_utility_predictor,
+    build_set_transformer_utility_predictor,
 )
 
 
@@ -47,6 +49,7 @@ class SetUtilityDimensionsTest(unittest.TestCase):
         builders = (
             build_pairwise_additive_utility_predictor,
             build_deepsets_utility_predictor,
+            build_set_transformer_utility_predictor,
         )
         if TORCH_AVAILABLE:
             for builder in builders:
@@ -100,6 +103,7 @@ class SetUtilityModelTest(unittest.TestCase):
         return (
             PairwiseAdditiveUtilityPredictor(self.dimensions),
             DeepSetsUtilityPredictor(self.dimensions),
+            SetTransformerUtilityPredictor(self.dimensions),
         )
 
     def test_batched_and_single_subset_shapes_and_empty_utility(self) -> None:
@@ -198,6 +202,27 @@ class SetUtilityModelTest(unittest.TestCase):
             )
             self.assertFalse(self.torch.allclose(baseline, changed_query))
             self.assertFalse(self.torch.allclose(baseline, changed_context))
+
+    def test_unselected_candidate_context_conditions_subset_utility(self) -> None:
+        subsets = self.subsets[:, 1:2]
+        changed_events = self.events.clone()
+        changed_events[:, 1] += 7.0
+        for model in self._models():
+            baseline = model(
+                self.query,
+                self.context,
+                self.events,
+                subsets,
+                self.event_mask,
+            )
+            changed = model(
+                self.query,
+                self.context,
+                changed_events,
+                subsets,
+                self.event_mask,
+            )
+            self.assertFalse(self.torch.allclose(baseline, changed))
 
     def test_arbitrary_cardinality_outputs_are_differentiable(self) -> None:
         for model in self._models():
@@ -345,6 +370,7 @@ class SetUtilityModelTest(unittest.TestCase):
         for model_class in (
             PairwiseAdditiveUtilityPredictor,
             DeepSetsUtilityPredictor,
+            SetTransformerUtilityPredictor,
         ):
             parameters = inspect.signature(model_class.forward).parameters
             self.assertNotIn("budget", parameters)
@@ -359,6 +385,14 @@ class SetUtilityModelTest(unittest.TestCase):
                     self.event_mask,
                     budget=2,
                 )
+
+    def test_set_transformer_hyperparameters_fail_closed(self) -> None:
+        with self.assertRaises(ValueError):
+            SetTransformerUtilityPredictor(self.dimensions, num_heads=5)
+        with self.assertRaises(ValueError):
+            SetTransformerUtilityPredictor(self.dimensions, num_layers=0)
+        with self.assertRaises(ValueError):
+            SetTransformerUtilityPredictor(self.dimensions, dropout=1.0)
 
 
 if __name__ == "__main__":
