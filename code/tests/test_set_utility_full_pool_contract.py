@@ -19,6 +19,9 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE_CONFIG = (
     ROOT / "code/configs/causalcache_set_utility_full_pool_census_v2_source.json"
 )
+EXECUTION_CONFIG = (
+    ROOT / "code/configs/causalcache_set_utility_full_pool_census_v2_execution.json"
+)
 
 
 def test_source_contract_is_byte_frozen_and_authorizes_no_execution() -> None:
@@ -51,9 +54,23 @@ def test_source_contract_rejects_ad_hoc_execution_authorization() -> None:
         validate_source_config(changed)
 
 
-def test_materialization_requires_a_separate_future_execution_config() -> None:
-    missing = ROOT / "code/configs/causalcache_set_utility_full_pool_census_v2_execution.json"
-    assert not missing.exists()
+def test_materialization_requires_a_separate_committed_execution_config() -> None:
+    contract = load_execution_contract(
+        repository_root=ROOT,
+        execution_config_path=EXECUTION_CONFIG,
+    )
+    assert contract.binding_sha256("p1_inventory_manifest") == (
+        "e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e"
+    )
+    assert contract.binding_sha256("consumed_ledger") == (
+        "b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad"
+    )
+    assert contract.data["authorization"]["semantic_census_allowed"] is True
+    assert contract.data["authorization"]["trajectory_role_assignment_allowed"] is False
+    assert contract.data["authorization"]["restoration_label_generation_allowed"] is False
+    assert contract.data["authorization"]["gate_training_allowed"] is False
+
+    missing = ROOT / "code/configs/missing_set_utility_execution.json"
     with pytest.raises(ValueError, match="execution config is required"):
         load_execution_contract(
             repository_root=ROOT,

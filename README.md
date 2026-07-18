@@ -46,8 +46,11 @@
 > 真实 P-1 已从 clean pushed `main@3a058b2` 完成：固定 610/610 个连续 parquet shard、
 > `88,186,663,372` bytes 与 610 个唯一 LFS SHA256；canonical manifest SHA256=
 > `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`。本步不下载 parquet，
-> row decode、semantic census、restoration label、training、GPU 和 HF mutation 均为 0。下一步是单独冻结
-> 并 push 绑定该 manifest 的 P0 Execution-A，再做 policy-blind full-pool census；不使用旧 13–64
+> row decode、semantic census、restoration label、training、GPU 和 HF mutation 均为 0。绑定该 manifest 的
+> P0 Execution-A 已冻结，config SHA256=
+> `f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`；它只授权本地 pinned source
+> row decode、policy-blind census 与单一 output write。下一步是先 push Execution-A，再执行 full-pool census；
+> 不使用旧 13–64
 > 小池子替代全量数据。formal-58 仅可
 > train-only；reference8、old-dev5、fresh-16、confirm-20 永不进入新训练/调参/评估。
 > matched-NLL 与 sealed test 继续 locked。见
@@ -998,6 +1001,9 @@ mediation effect。
   [`docs/set_utility_predictor_v1.md`](docs/set_utility_predictor_v1.md),
   [`docs/set_utility_implementation_v1.md`](docs/set_utility_implementation_v1.md),
   [`data/manifests/set_utility_full_pool_inventory_v1.json`](data/manifests/set_utility_full_pool_inventory_v1.json)
+- Set-utility full-pool P0 Execution-A/validator:
+  [`code/configs/causalcache_set_utility_full_pool_census_v2_execution.json`](code/configs/causalcache_set_utility_full_pool_census_v2_execution.json),
+  [`code/scripts/validate_set_utility_full_pool_census_v2_execution.py`](code/scripts/validate_set_utility_full_pool_census_v2_execution.py)
 - Independent confirm continuation contract and source validator:
   [`code/configs/causalcache_independent_confirm_continuation_v1.json`](code/configs/causalcache_independent_confirm_continuation_v1.json),
   [`code/scripts/validate_independent_confirm_continuation.py`](code/scripts/validate_independent_confirm_continuation.py)

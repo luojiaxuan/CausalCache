@@ -45,8 +45,11 @@ confirm-20 禁止进入新训练、
   `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=
   `e81e3ba6abe16f5da4d714c434e5e0879a54f747dab74bff531058ba47b978cd`。本路线的新 `D(S)`、
   predictor checkpoint 和 offline delta 仍不存在；
-- 下一步严格为 commit/push P-1 manifest → 绑定该 manifest SHA 的 P0
-  Execution-A → policy-blind census → Freeze-B roster/group split/query/feature/grid → label throughput
+- P0 Execution-A 已绑定 P-1 manifest、consumed ledger、base parser 与 runner，config SHA256=
+  `f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`；validator 返回
+  `VALID_SET_UTILITY_FULL_POOL_CENSUS_V2_EXECUTION`，并确认 role/query/model/label/training/GPU/closed-loop/test
+  counts 全为 0；
+- 下一步严格为 commit/push P0 Execution-A → policy-blind census → Freeze-B roster/group split/query/feature/grid → label throughput
   pilot/Execution-B → exact-table production → Set Transformer/DeepSets/pairwise train/eval。完整交接见
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与
   [`set_utility_implementation_v1.md`](set_utility_implementation_v1.md)。

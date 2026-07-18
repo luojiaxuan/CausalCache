@@ -9,6 +9,7 @@
 > Canonical SHA256：predictor=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；
 > P-1 source=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；
 > P-1 manifest=`e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`；
+> P0 Execution-A=`f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`；
 > consumed ledger=`b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`；
 > P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`。focused suite
 > 为 `193 passed, 15 skipped, 24 subtests passed`。
@@ -81,8 +82,9 @@ closed-loop。
   instruction+app group 绕过 firewall。
 
 P0 runner 与 source-only skeleton 已存在，且 source config 已绑定 canonical consumed ledger。真实 P-1 manifest
-现已产生；下一步缺少的是 binding 该 manifest SHA256 的独立 P0 Execution-A。当前 source-only config 仍不授权
-download、row decode、semantic census 或 output write。
+现已产生，独立 P0 Execution-A 也已绑定其 SHA256。Execution-A 只授权读取本地 pinned shards、row decode、
+policy-blind semantic census 和一次 output write；source-only config 本身仍不授权任何 execution，role/split、query、
+OCR/model、labels、training、GPU、closed-loop 与 sealed test 继续为 0。
 
 ### Label 生产
 
@@ -170,8 +172,8 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `193 passed, 15 skipped
 
 下一步严格是：
 
-1. commit/push 已完成的 P-1 manifest；
-2. 用该 manifest SHA 与 canonical consumed ledger 新立 P0 Execution-A，流式下载/校验/扫描 610 shards；
+1. commit/push 已冻结的 P0 Execution-A；
+2. 从 clean pushed main 流式下载/校验/扫描 610 shards；
 3. 根据真实 pool/strata 冻结 Freeze-B roster、group split、每 trajectory 2–4 query states、feature/grid 与
    exact operation budget；
 4. 先做 label-throughput pilot，再立 Execution-B 生产 phase-1 `|S|<=2` tables；

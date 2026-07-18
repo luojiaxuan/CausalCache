@@ -5,7 +5,9 @@
 > semantic census、model、GPU 和 HF mutation 均为 0。
 > P0 source-only skeleton 已存在，config SHA256=
 > `7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`；它已绑定 canonical
-> consumed ledger，但必须在本 P-1 manifest commit/push 后另立绑定其 SHA256 的 P0 Execution-A。
+> consumed ledger。P0 Execution-A 现已绑定本 P-1 manifest，config SHA256=
+> `f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`；只有该 config commit/push
+> 后才授权实际 census。
 
 ## 为什么要先做 P-1
 
@@ -65,5 +67,6 @@ PYTHONPATH=code .venv/bin/python \
 ## 阶段边界
 
 P-1 完成只授权建立 byte-pinned source inventory。它不自动授权 full-pool semantic census、roster/split、
-query-state selection、label generation 或训练。P0 必须在 P-1 manifest commit 后另立 versioned execution
-contract，并绑定 consumed ledger 与 P-1 manifest 的完整 SHA256。
+query-state selection、label generation 或训练。独立 P0 Execution-A 已绑定 consumed ledger 与 P-1 manifest
+的完整 SHA256；它只授权本地 pinned shard access、row decode、policy-blind census 和一次 output write，继续禁止
+role/split、query、OCR/model、labels、training、GPU、closed-loop 与 sealed test。

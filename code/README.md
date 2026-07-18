@@ -123,6 +123,10 @@ PYTHONPATH=code .venv/bin/python code/scripts/run_set_utility_full_pool_inventor
 PYTHONPATH=code .venv/bin/python \
   code/scripts/validate_set_utility_full_pool_census_v2_source.py \
   --repository-root .
+PYTHONPATH=code .venv/bin/python \
+  code/scripts/validate_set_utility_full_pool_census_v2_execution.py \
+  --repository-root . \
+  --execution-config code/configs/causalcache_set_utility_full_pool_census_v2_execution.json
 PYTHONPATH=code .venv/bin/pytest -q code/tests/test_set_utility*.py
 ```
 
@@ -131,7 +135,8 @@ model/tensor/optimizer/search integration tests，正式运行前必须在目标
 consumed ledger 已固定 58 条 `legacy_train_only` 与 49 条 `forbidden_consumed`；真实 P-1
 inventory 已固定 610 shards / 88,186,663,372 bytes，manifest SHA256=
 `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`。semantic census、labels、
-trainer checkpoint 与 offline result 仍尚未产生；下一步必须先冻结绑定该 manifest 的 P0 Execution-A。
+trainer checkpoint 与 offline result 仍尚未产生；绑定该 manifest 的 P0 Execution-A 已冻结，config
+SHA256=`f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`，提交后才可执行 census。
 完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 

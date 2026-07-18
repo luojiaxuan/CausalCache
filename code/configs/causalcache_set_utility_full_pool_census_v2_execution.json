@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_set_utility_full_pool_census_v2_execution",
+  "status": "EXECUTION_AUTHORIZED_AFTER_P1_AND_LEDGER_COMMIT",
+  "bindings": {
+    "source_contract": {
+      "path": "code/configs/causalcache_set_utility_full_pool_census_v2_source.json",
+      "sha256": "7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b"
+    },
+    "base_parser_config": {
+      "path": "code/configs/independent_reference_gate_v1.json",
+      "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8"
+    },
+    "p1_inventory_manifest": {
+      "path": "data/manifests/set_utility_full_pool_inventory_v1.json",
+      "sha256": "e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e"
+    },
+    "consumed_ledger": {
+      "path": "data/manifests/set_utility_consumed_identity_ledger_v1.json",
+      "sha256": "b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad"
+    },
+    "execution_runner": {
+      "path": "code/scripts/materialize_set_utility_full_pool.py",
+      "sha256": "ec43e7da837835a1208580e236b3b268cf48b5b69af2d2921f97d24ccbfb01e4"
+    }
+  },
+  "science": {
+    "minimum_decision_count": 6,
+    "scientific_maximum_decision_count": null,
+    "format_safety_maximum_decisions": null,
+    "candidate_capacity_strata": [
+      {
+        "name": "decisions_6_9",
+        "minimum": 6,
+        "maximum": 9
+      },
+      {
+        "name": "decisions_10_17",
+        "minimum": 10,
+        "maximum": 17
+      },
+      {
+        "name": "decisions_18_plus",
+        "minimum": 18,
+        "maximum": null
+      }
+    ],
+    "candidate_scope": "UNCONSUMED_ELIGIBLE_TRAJECTORIES_ONLY",
+    "consumed_group_audit_required": true,
+    "train_tune_evaluation_assignment_allowed": false,
+    "query_state_selection_allowed": false
+  },
+  "infrastructure": {
+    "parquet_batch_size": 32,
+    "source_bytes_location": "EXTERNAL_LOCAL_PINNED_SHARDS"
+  },
+  "output": {
+    "manifest_path": "data/manifests/set_utility_full_pool_census_v2.json",
+    "canonical_json": true,
+    "overwrite_allowed": false
+  },
+  "authorization": {
+    "p1_manifest_hash_bound": true,
+    "consumed_ledger_hash_bound": true,
+    "local_pinned_source_file_access_allowed": true,
+    "row_decode_allowed": true,
+    "semantic_census_allowed": true,
+    "output_write_allowed": true,
+    "trajectory_role_assignment_allowed": false,
+    "query_state_selection_allowed": false,
+    "ocr_allowed": false,
+    "policy_or_model_load_allowed": false,
+    "restoration_label_generation_allowed": false,
+    "gate_training_allowed": false,
+    "gpu_allowed": false,
+    "closed_loop_allowed": false,
+    "sealed_androidworld_test_access_allowed": false
+  }
+}
