@@ -15,8 +15,9 @@ source，并在顶层 `README.md` 和相关 result README 中记录 repo、revis
 
 Set Utility v1 planned reusable dataset 为 private
 `gavinlaw/causalcache-set-utility-new-development-mobile`，用于 group-aware split manifest、feature
-cache 与 exact/cardinality-capped `D(S)` shards；当前 repo/revision 尚未创建或绑定。planned model repo
-也必须在 Freeze-B 中另行命名。Git 当前已保存 canonical
+cache 与 exact/cardinality-capped `D(S)` shards；当前 repo/revision 尚未创建或绑定。Freeze-B/A 已将 planned
+model repo 固定为 private `gavinlaw/causalcache-set-utility-predictors-mobile:phase1-b2-v1`，同样尚未创建或绑定
+revision。Git 当前已保存 canonical
 `manifests/set_utility_consumed_identity_ledger_v1.json`：58 条 `legacy_train_only` + 49 条
 `forbidden_consumed`，合计 107 个 source identity，SHA256=
 `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。它不含 raw trajectory、
@@ -29,7 +30,10 @@ P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
 `manifests/set_utility_full_pool_census_v2.json` 已从 Hyper00 正式产生：8,146 source rows 中得到 6,933
 未消费 eligible trajectories / 6,928 instruction-app groups，manifest SHA256=
 `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。当前仍没有新 exact `D(S)`
-labels、feature cache、predictor checkpoint 或 offline method delta；Freeze-B 尚未冻结。见
+labels、feature cache、predictor checkpoint 或 offline method delta。`manifests/set_utility_freeze_b_v1.json`
+已固定 1,200 trajectory / 2,400 query 的 group-disjoint roster，manifest SHA256=
+`144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`；最终 candidates 与 exact operation
+budget 仍等待 processor-only freeze。见
 `docs/set_utility_implementation_v1.md`。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：

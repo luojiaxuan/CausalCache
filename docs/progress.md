@@ -36,7 +36,7 @@ confirm-20 禁止进入新训练、
   `num_heads/num_layers/dropout`，checkpoint 保存 model config 与 hash。CPU reference trainer 按 trajectory
   均匀训练，tune model selection 按 trajectory-equal objective；label batch validator 要求 Freeze-B
   显式传入 maximum reference-repeat KL，超阈 state fail closed；
-- focused suite 为 `193 passed, 15 skipped, 24 subtests passed`；15 个 skip 仅因本机无
+- focused suite 为 `204 passed, 15 skipped, 24 subtests passed`；15 个 skip 仅因本机无
   PyTorch。全仓回归为 `1738 passed, 23 skipped, 38 failed, 644 subtests`；38 个失败均来自既有
   lifecycle 互斥测试、sandbox 下的 git worktree 操作和 full-suite import-order 问题，focused
   set-utility suite 无失败；
@@ -53,8 +53,12 @@ confirm-20 禁止进入新训练、
   unconsumed eligible trajectories / 6,928 groups；strata=`1,736/3,601/1,596`，decision range=6–54；
   107 个 consumed identity 全部观测并隔离；census manifest SHA256=
   `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`；
-- 下一步严格为 commit/push P0 result → Freeze-B roster/group split/query/feature/grid → label throughput
-  pilot/Execution-B → exact-table production → Set Transformer/DeepSets/pairwise train/eval。完整交接见
+- Freeze-B/A 已从 P0 机械固定 1,200 trajectory / 2,400 query：`train/tune/evaluation=1000/100/100`，
+  三个 capacity stratum 各 400 条，source/trajectory/group overlap 全为 0；config SHA256=
+  `df8c00bfddda7589e3c9b58cc36f5cbe305ad3fee9c6a8bc4272888a6c648440`，manifest SHA256=
+  `144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`；本步 model/label/training 均为 0；
+- 下一步严格为 commit/push Freeze-B/A → processor-only candidate freeze/exact operation budget → train-only
+  throughput pilot/Execution-B → exact-table production → Set Transformer/DeepSets/pairwise train/eval。完整交接见
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与
   [`set_utility_implementation_v1.md`](set_utility_implementation_v1.md)。
 

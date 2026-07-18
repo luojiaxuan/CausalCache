@@ -1,0 +1,56 @@
+{
+  "assignment_inventory_sha256": "d9d58f40b2b40f537eb719b3071369f5cffd1b3a181fe645ffdb5f6260f2a660",
+  "config_sha256": "df8c00bfddda7589e3c9b58cc36f5cbe305ad3fee9c6a8bc4272888a6c648440",
+  "feature_schema_id": "lightweight_q64_h75_pair8_plus_gui_owl_final_main_normalized_visual4096_v1",
+  "initial_candidate_count_histogram": {
+    "10": 70,
+    "11": 63,
+    "12": 75,
+    "13": 49,
+    "14": 38,
+    "15": 27,
+    "16": 800,
+    "4": 400,
+    "5": 81,
+    "6": 119,
+    "7": 200,
+    "8": 400,
+    "9": 78
+  },
+  "manifest_sha256": "144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5",
+  "maximum_raw_label_row_ceiling": 328800,
+  "maximum_total_model_operation_ceiling": 338400,
+  "p0_census_manifest_sha256": "729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b",
+  "query_plan_inventory_sha256": "9e96681dc3ce5befc838545dbae249d219fbd8e27343e622072d08b655f5fa52",
+  "query_state_count": 2400,
+  "role_query_state_counts": {
+    "evaluation": 200,
+    "train": 2000,
+    "tune": 200
+  },
+  "role_trajectory_counts": {
+    "evaluation": 100,
+    "train": 1000,
+    "tune": 100
+  },
+  "schema_version": "1.0.0",
+  "status": "POLICY_BLIND_FREEZE_B_ROSTER_AND_QUERY_PLAN_COMPLETED",
+  "stratum_trajectory_counts": {
+    "decisions_10_17": 400,
+    "decisions_18_plus": 400,
+    "decisions_6_9": 400
+  },
+  "training_seeds": [
+    17,
+    29,
+    43
+  ],
+  "trajectory_count": 1200,
+  "unlocked_operations": [],
+  "waiting_for": [
+    "processor_only_candidate_freeze",
+    "exact_operation_budget",
+    "train_only_throughput_pilot_execution_contract",
+    "phase1_label_execution_contract"
+  ]
+}

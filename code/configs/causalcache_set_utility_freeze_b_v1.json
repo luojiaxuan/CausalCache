@@ -1,0 +1,345 @@
+{
+  "artifacts": {
+    "dataset": {
+      "canonical_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+      "planned_tag": "phase1-b2-v1",
+      "private": true,
+      "revision_status": "UNCREATED_AND_UNBOUND_UNTIL_EXECUTION",
+      "shard_layout": {
+        "feature_cache": "features/phase1-b2/part-{worker:05d}-of-00004.parquet",
+        "label_tables": "labels/phase1-b2/part-{worker:05d}-of-00004.parquet",
+        "manifests": "manifests/*.json"
+      }
+    },
+    "git_keeps_only": [
+      "source_and_execution_configs",
+      "roster_and_query_manifests_without_raw_instruction",
+      "lightweight_aggregate_results",
+      "hf_repo_revision_and_file_hash_index"
+    ],
+    "model": {
+      "canonical_repo": "gavinlaw/causalcache-set-utility-predictors-mobile",
+      "planned_tag": "phase1-b2-v1",
+      "private": true,
+      "revision_status": "UNCREATED_AND_UNBOUND_UNTIL_TRAINING"
+    }
+  },
+  "authorization": {
+    "access_one_shot_evaluation_labels": false,
+    "access_sealed_test": false,
+    "generate_restoration_labels": false,
+    "load_policy_or_vision_model": false,
+    "materialize_policy_blind_query_plan": true,
+    "materialize_policy_blind_roster": true,
+    "mutate_hugging_face": false,
+    "read_committed_p0_census": true,
+    "read_raw_source_shards": false,
+    "run_closed_loop": false,
+    "select_candidates_with_processor": false,
+    "train_predictor": false,
+    "write_one_git_manifest": true
+  },
+  "candidate_freeze": {
+    "context_limit_tokens": 32768,
+    "drop_rule": "drop_one_oldest_candidate_until_full_reference_fits",
+    "initial_candidate_rule": "newest_16_non_current_equivalent_history_events",
+    "minimum_final_candidate_count": 4,
+    "processor_only": true,
+    "reserved_action_tokens": 256,
+    "status": "PENDING_SEPARATE_PROCESSOR_EXECUTION_AFTER_ROSTER_COMMIT",
+    "utility_or_outcome_access_allowed": false
+  },
+  "evaluation": {
+    "budgets": [
+      1,
+      2
+    ],
+    "comparators_in_report_order": [
+      "set_transformer",
+      "deepsets",
+      "pairwise_additive",
+      "recent",
+      "ocr_rgb_v2_positive_top_b",
+      "oracle_independent_J",
+      "exact_subset_oracle"
+    ],
+    "evaluation_role": "one_shot_untouched_offline_evaluation",
+    "learned_prediction_aggregation": "arithmetic_mean_across_three_frozen_seeds_before_subset_search",
+    "model_selection_role": "tune",
+    "one_shot_evaluation_may_be_reopened_for_selection": false,
+    "primary_budget": 2,
+    "selected_set_is_rescored_by_true_utility": true,
+    "tune_selection": {
+      "primary": "mean_of_trajectory_equal_true_selected_utility_at_B1_and_B2",
+      "tie_break_order": [
+        "higher_primary",
+        "higher_within_state_ranking_accuracy",
+        "lower_raw_utility_rmse",
+        "smaller_parameter_count",
+        "lexicographically_smaller_config_id"
+      ]
+    }
+  },
+  "features": {
+    "budget_is_feature": false,
+    "deepstack_visual_features_included": false,
+    "event_dimension": 4171,
+    "gui_owl_visual_embedding": {
+      "dimension": 4096,
+      "extraction": "final_main_spatial_merger_output_mean_pool_then_float32_l2_normalize",
+      "feature_field": "pooler_output",
+      "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+      "storage_dtype": "float32",
+      "transformers_version": "5.6.0"
+    },
+    "identity_or_group_hash_is_feature": false,
+    "pair_dimension": 8,
+    "query_dimension": 4160,
+    "schema_id": "lightweight_q64_h75_pair8_plus_gui_owl_final_main_normalized_visual4096_v1",
+    "source_files": [
+      {
+        "path": "code/causalcache/set_utility_features.py",
+        "sha256": "50868a69e2957599b5f78ffa29533339e4809827732b47249941c482a333a206"
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_vision.py",
+        "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24"
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+        "sha256": "cbbf3e406d658a06e02f45589edd1bd3ab4d7db40dc869df273886718f36a10d"
+      }
+    ],
+    "student_families_share_identical_feature_bytes": true
+  },
+  "operation_ceiling": {
+    "canonical_action_generations": 4800,
+    "identical_reference_repeat_teacher_forwards": 2400,
+    "maximum_candidate_count": 16,
+    "maximum_capped_candidate_teacher_forwards": 328800,
+    "maximum_kl_measurements": 331200,
+    "maximum_raw_label_rows": 328800,
+    "maximum_total_model_operations": 338400,
+    "maximum_total_teacher_forwards": 333600,
+    "query_state_count": 2400,
+    "reference_teacher_forwards": 2400,
+    "trajectory_count": 1200,
+    "worker_count": 4
+  },
+  "protocol_id": "causalcache_set_utility_freeze_b_v1",
+  "query_plan": {
+    "maximum_labeled_cardinality": 2,
+    "outcome_or_utility_may_select_query": false,
+    "second_state": "terminal_decision_step",
+    "state_id_format": "{source_id}:decision:{decision_step_id:03d}",
+    "states_per_trajectory": 2,
+    "stratum_anchor_decision_step": {
+      "decisions_10_17": 10,
+      "decisions_18_plus": 18,
+      "decisions_6_9": 6
+    }
+  },
+  "schema_version": "1.0.0",
+  "selection": {
+    "exclude_all_historical_consumed_groups": true,
+    "one_representative_per_instruction_app_group": true,
+    "representative_rule": "minimum_sha256_of_salt_group_source_and_p0_selection",
+    "role_assignment_order": [
+      "evaluation",
+      "tune",
+      "train"
+    ],
+    "role_stratum_trajectory_counts": {
+      "evaluation": {
+        "decisions_10_17": 33,
+        "decisions_18_plus": 34,
+        "decisions_6_9": 33
+      },
+      "train": {
+        "decisions_10_17": 333,
+        "decisions_18_plus": 333,
+        "decisions_6_9": 334
+      },
+      "tune": {
+        "decisions_10_17": 34,
+        "decisions_18_plus": 33,
+        "decisions_6_9": 33
+      }
+    },
+    "salt": "causalcache-set-utility-freeze-b-v1-20260718",
+    "stratum_minimum_decision_count_for_two_distinct_queries": {
+      "decisions_10_17": 11,
+      "decisions_18_plus": 19,
+      "decisions_6_9": 7
+    }
+  },
+  "source": {
+    "candidate_count": 6933,
+    "candidate_inventory_sha256": "b1eccb42df2e8cd7502c56c007ba01e5ddbebda72086f4b0d487c8865d68c11d",
+    "consumed_ledger_sha256": "b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad",
+    "p0_census_manifest_path": "data/manifests/set_utility_full_pool_census_v2.json",
+    "p0_census_manifest_sha256": "729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b",
+    "p1_manifest_sha256": "e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e",
+    "source_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b"
+  },
+  "status": "SOURCE_FREEZE_REQUIRES_ROSTER_MATERIALIZATION",
+  "teacher": {
+    "distance": "weighted_teacher_forced_action_token_KL",
+    "maximum_reference_repeat_kl": 0.0001,
+    "maximum_reference_repeat_kl_is_post_label_tunable": false,
+    "policy_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "policy_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "reference": "all_frozen_candidates_high_fidelity_noncandidates_low_fidelity",
+    "source_files": [
+      {
+        "path": "code/causalcache/set_utility_label_producer.py",
+        "sha256": "6fed78a094e06d38572aa465110186e9dc7cc0a8a71f3fa296d5b73472bc35d3"
+      },
+      {
+        "path": "code/causalcache/set_utility_label_schedule.py",
+        "sha256": "57a656cbf8574fa2225a9fa38f933a067c1d42e3dd758f8168f07bde3f75adde"
+      },
+      {
+        "path": "code/causalcache/low_fidelity_v2.py",
+        "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a"
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2.py",
+        "sha256": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a"
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_1.py",
+        "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964"
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_1_runtime.py",
+        "sha256": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5"
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+        "sha256": "6ce88c00358d0ab03f0417957f434a8553330f27b49b8c18da15f7817b799cc1"
+      },
+      {
+        "path": "code/causalcache/policy/gui_owl_v2_runtime.py",
+        "sha256": "7cc0299b1b1679def61a3e2e30017d2f7812a47114b5a286afdf3979536c9c41"
+      },
+      {
+        "path": "code/causalcache/policy/prompt.py",
+        "sha256": "d7ffe6c2b3b8624244fbf941139ff3d5a1636572f949995db6f88b322d5fe1cb"
+      },
+      {
+        "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+        "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+      },
+      {
+        "path": "code/configs/restoration_v2_ocr_backend.json",
+        "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036"
+      },
+      {
+        "path": "data/manifests/restoration_v2_ocr_backend.json",
+        "sha256": "107478672438b52e9c2ccc9ef8de5d13d4e16329ab1afbe95772e2d3df5bd2a9"
+      }
+    ],
+    "target": "U_t(S)=D_t(empty)-D_t(S)"
+  },
+  "training": {
+    "budget_is_model_feature": false,
+    "common": {
+      "batch_strategy": "trajectory_uniform_cycle",
+      "early_stopping_minimum_delta": 1e-05,
+      "early_stopping_patience": 10,
+      "epochs": 100,
+      "loss": {
+        "normalized_regression": 0.5,
+        "raw_regression": 1.0,
+        "smooth_l1_beta": 0.05,
+        "within_state_ranking": 0.2
+      },
+      "maximum_gradient_norm": 1.0,
+      "states_per_trajectory_per_epoch": 2,
+      "trajectories_per_batch": 16,
+      "weight_decay": 0.0001
+    },
+    "grid": {
+      "deepsets": {
+        "hidden_dimension": [
+          256,
+          512
+        ],
+        "learning_rate": [
+          0.0001,
+          0.0003
+        ]
+      },
+      "pairwise_additive": {
+        "hidden_dimension": [
+          256,
+          512
+        ],
+        "learning_rate": [
+          0.0001,
+          0.0003
+        ]
+      },
+      "set_transformer": {
+        "dropout": [
+          0.1
+        ],
+        "hidden_dimension": [
+          256,
+          512
+        ],
+        "learning_rate": [
+          0.0001,
+          0.0003
+        ],
+        "num_heads": [
+          8
+        ],
+        "num_layers": [
+          2,
+          3
+        ]
+      }
+    },
+    "model_families": [
+      "set_transformer",
+      "deepsets",
+      "pairwise_additive"
+    ],
+    "optimizer": "AdamW",
+    "scheduler": "none",
+    "seeds": [
+      17,
+      29,
+      43
+    ],
+    "source_files": [
+      {
+        "path": "code/causalcache/set_utility_models.py",
+        "sha256": "9412fa1f228fcf4cfe7968fdb2d5dd0d5c15256b3110fd96b75f3329734dc761"
+      },
+      {
+        "path": "code/causalcache/set_utility_trainer_runner.py",
+        "sha256": "175b322bab78cbc8b9272de3f9497c34e421168fb38fe4593bf7c342aef177c8"
+      },
+      {
+        "path": "code/causalcache/set_utility_training.py",
+        "sha256": "6be8a7f04c4b9e496b06aa944425f027844d4fff348e649fd5aab65080c04fb3"
+      },
+      {
+        "path": "code/causalcache/set_utility_evaluation.py",
+        "sha256": "326146f299b4758d07028ae6fb8307faf8296b16da76029b4bd351fdd928a793"
+      },
+      {
+        "path": "code/causalcache/set_utility_baselines.py",
+        "sha256": "d4f6600b0ea01bef257e85fa0dd450e90d1c922299b359cfccfb98cdcd20f9e1"
+      },
+      {
+        "path": "code/causalcache/set_utility_search.py",
+        "sha256": "3d444d1876f36a73a6ced4d163860016507d9919e59e76bc26673d745e667917"
+      }
+    ]
+  }
+}

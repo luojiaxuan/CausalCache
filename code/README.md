@@ -127,10 +127,13 @@ PYTHONPATH=code .venv/bin/python \
   code/scripts/validate_set_utility_full_pool_census_v2_execution.py \
   --repository-root . \
   --execution-config code/configs/causalcache_set_utility_full_pool_census_v2_execution.json
+PYTHONPATH=code .venv/bin/python \
+  code/scripts/validate_set_utility_freeze_b_v1.py \
+  --repository-root .
 PYTHONPATH=code .venv/bin/pytest -q code/tests/test_set_utility*.py
 ```
 
-当前结果是 `193 passed, 15 skipped, 24 subtests passed`；15 个 skip 是本机无 PyTorch 的
+当前结果是 `204 passed, 15 skipped, 24 subtests passed`；15 个 skip 是本机无 PyTorch 的
 model/tensor/optimizer/search integration tests，正式运行前必须在目标 runtime 补跑。canonical
 consumed ledger 已固定 58 条 `legacy_train_only` 与 49 条 `forbidden_consumed`；真实 P-1
 inventory 已固定 610 shards / 88,186,663,372 bytes，manifest SHA256=
@@ -138,7 +141,9 @@ inventory 已固定 610 shards / 88,186,663,372 bytes，manifest SHA256=
 trainer checkpoint 与 offline result 中，P0 semantic census 已正式完成：8,146 rows → 6,933 eligible
 trajectories / 6,928 groups，manifest SHA256=
 `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。restoration labels、checkpoint 与
-offline method delta 仍未产生；下一步必须单独冻结 Freeze-B。
+offline method delta 仍未产生。Freeze-B/A 已固定 1,200 trajectories / 2,400 queries、rich visual schema 与
+training grid，manifest SHA256=`144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`；
+下一步必须另立 processor-only candidate-freeze execution，得到 exact operation budget 后才可生成 labels。
 完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 

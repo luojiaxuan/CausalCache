@@ -1,16 +1,15 @@
 # Set Utility Predictor v1：先扩数据，再验证预算泛化
 
-> 当前状态：Source-A 已按“先扩全量数据、再训练 Set Transformer”修订，budget-agnostic 模型、
-> capped-label 结构接口与 trainer core 已实现；canonical consumed ledger 也已机械固定
-> 58 条 `legacy_train_only` 与 49 条 `forbidden_consumed`。没有读取新 trajectory、生成本路线新
-> label、训练 predictor，也没有执行 closed-loop、matched-NLL 或 sealed test。此前只覆盖
-> 16 shards 的 P0 在执行前被 supersede；下一步是生成和提交 610-shard metadata inventory。
+> 当前状态：全量 610-shard P-1、8,146-row P0 与 Freeze-B/A policy-blind roster 已完成。Freeze-B/A 固定
+> 1,200 trajectories / 2,400 queries、`1000/100/100` train/tune/evaluation、rich visual feature 与 training
+> grid；没有生成本路线新 label、训练 predictor，也没有执行 closed-loop、matched-NLL 或 sealed test。
 >
 > Canonical SHA256：predictor=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；
 > P-1 source=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；
 > consumed ledger=`b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`；
-> P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`。focused suite
-> 为 `193 passed, 15 skipped, 24 subtests passed`。
+> P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`；Freeze-B/A manifest=
+> `144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`。focused suite
+> 为 `204 passed, 15 skipped, 24 subtests passed`。
 
 ## 路线调整
 

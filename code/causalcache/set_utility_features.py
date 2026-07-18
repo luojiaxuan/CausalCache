@@ -17,6 +17,7 @@ from causalcache.restoration_v2_baselines import (
 
 
 MAX_CANDIDATE_EVENTS = 16
+GUI_OWL_VISUAL_EMBEDDING_DIMENSION = 4096
 QUERY_FEATURE_DIMENSION = HASH_DIMENSION
 CONTEXT_FEATURE_NAMES = (
     "candidate_count_fraction",
@@ -181,6 +182,77 @@ class SetUtilityFeatureState:
             )
             raise KeyError(missing) from error
         return self.pair_features[left][right]
+
+
+def _normalized_visual_embedding(
+    value: Sequence[float],
+    *,
+    label: str,
+) -> tuple[float, ...]:
+    if isinstance(value, (str, bytes, bytearray, Mapping)) or not isinstance(
+        value, Sequence
+    ):
+        raise TypeError(f"{label} must be an ordered numeric sequence")
+    embedding = tuple(float(item) for item in value)
+    if len(embedding) != GUI_OWL_VISUAL_EMBEDDING_DIMENSION:
+        raise ValueError(
+            f"{label} must contain exactly {GUI_OWL_VISUAL_EMBEDDING_DIMENSION} values"
+        )
+    if any(not math.isfinite(item) for item in embedding):
+        raise ValueError(f"{label} contains a non-finite value")
+    norm = math.sqrt(math.fsum(item * item for item in embedding))
+    if not math.isclose(norm, 1.0, rel_tol=0.0, abs_tol=1e-5):
+        raise ValueError(f"{label} must be L2-normalized")
+    return embedding
+
+
+def augment_set_utility_feature_state_with_gui_owl_visual_embeddings(
+    base: SetUtilityFeatureState,
+    *,
+    current_visual_embedding: Sequence[float],
+    event_visual_embeddings: Mapping[int, Sequence[float]],
+) -> SetUtilityFeatureState:
+    """Append frozen GUI-Owl image embeddings without changing pair semantics."""
+    if not isinstance(base, SetUtilityFeatureState):
+        raise TypeError("base set-utility feature state is invalid")
+    if not isinstance(event_visual_embeddings, Mapping):
+        raise TypeError("event visual embeddings must be keyed by event step id")
+    if set(event_visual_embeddings) != set(base.event_step_ids):
+        raise ValueError(
+            "event visual embedding keys differ from the frozen candidate universe"
+        )
+    current = _normalized_visual_embedding(
+        current_visual_embedding,
+        label="current GUI-Owl visual embedding",
+    )
+    by_event = {
+        step_id: _normalized_visual_embedding(
+            event_visual_embeddings[step_id],
+            label=f"event {step_id} GUI-Owl visual embedding",
+        )
+        for step_id in base.event_step_ids
+    }
+    valid_count = len(base.event_step_ids)
+    augmented_valid = tuple(
+        base.event_features[index] + by_event[step_id]
+        for index, step_id in enumerate(base.event_step_ids)
+    )
+    padded_dimension = EVENT_FEATURE_DIMENSION + GUI_OWL_VISUAL_EMBEDDING_DIMENSION
+    padded_rows = tuple(
+        (0.0,) * padded_dimension
+        for _ in range(base.padded_event_count - valid_count)
+    )
+    return SetUtilityFeatureState(
+        source_id=base.source_id,
+        state_id=base.state_id,
+        decision_step_id=base.decision_step_id,
+        event_step_ids=base.event_step_ids,
+        query_features=base.query_features + current,
+        context_features=base.context_features,
+        event_features=augmented_valid + padded_rows,
+        pair_features=base.pair_features,
+        event_mask=base.event_mask,
+    )
 
 
 def _semantic_hash(event: SetUtilityEventInput) -> tuple[float, ...]:
@@ -440,7 +512,10 @@ def build_set_utility_feature_state(
 
 def event_ocr_rgb_score(event_features: Sequence[float]) -> float:
     """Recover the frozen equal-weight OCR/RGB heuristic from one event row."""
-    if len(event_features) != EVENT_FEATURE_DIMENSION:
+    if len(event_features) not in {
+        EVENT_FEATURE_DIMENSION,
+        EVENT_FEATURE_DIMENSION + GUI_OWL_VISUAL_EMBEDDING_DIMENSION,
+    }:
         raise ValueError("set-utility event feature dimension drifted")
     offset = HASH_DIMENSION
     ocr_index = EVENT_NUMERIC_FEATURE_NAMES.index("current_ocr_jaccard")
@@ -453,7 +528,10 @@ def event_ocr_rgb_score(event_features: Sequence[float]) -> float:
 
 def event_recency_score(event_features: Sequence[float]) -> float:
     """Return the explicit monotone recency scalar from one event row."""
-    if len(event_features) != EVENT_FEATURE_DIMENSION:
+    if len(event_features) not in {
+        EVENT_FEATURE_DIMENSION,
+        EVENT_FEATURE_DIMENSION + GUI_OWL_VISUAL_EMBEDDING_DIMENSION,
+    }:
         raise ValueError("set-utility event feature dimension drifted")
     index = EVENT_NUMERIC_FEATURE_NAMES.index("reciprocal_age")
     return float(event_features[HASH_DIMENSION + index])
@@ -464,12 +542,14 @@ __all__ = [
     "CONTEXT_FEATURE_NAMES",
     "EVENT_FEATURE_DIMENSION",
     "EVENT_NUMERIC_FEATURE_NAMES",
+    "GUI_OWL_VISUAL_EMBEDDING_DIMENSION",
     "MAX_CANDIDATE_EVENTS",
     "PAIR_FEATURE_DIMENSION",
     "PAIR_FEATURE_NAMES",
     "QUERY_FEATURE_DIMENSION",
     "SetUtilityEventInput",
     "SetUtilityFeatureState",
+    "augment_set_utility_feature_state_with_gui_owl_visual_embeddings",
     "build_set_utility_feature_state",
     "event_ocr_rgb_score",
     "event_recency_score",

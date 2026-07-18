@@ -15,11 +15,13 @@ from causalcache.set_utility_features import (
     CONTEXT_FEATURE_DIMENSION,
     EVENT_FEATURE_DIMENSION,
     EVENT_NUMERIC_FEATURE_NAMES,
+    GUI_OWL_VISUAL_EMBEDDING_DIMENSION,
     MAX_CANDIDATE_EVENTS,
     PAIR_FEATURE_DIMENSION,
     PAIR_FEATURE_NAMES,
     QUERY_FEATURE_DIMENSION,
     SetUtilityEventInput,
+    augment_set_utility_feature_state_with_gui_owl_visual_embeddings,
     build_set_utility_feature_state,
     event_ocr_rgb_score,
     event_recency_score,
@@ -125,6 +127,57 @@ class SetUtilityFeatureTests(unittest.TestCase):
             )
         )
 
+    def test_gui_owl_visual_embedding_augmentation_is_auditable(self) -> None:
+        base = _state(self.events, pad_to=5)
+        unit = (1.0,) + (0.0,) * (GUI_OWL_VISUAL_EMBEDDING_DIMENSION - 1)
+        enriched = augment_set_utility_feature_state_with_gui_owl_visual_embeddings(
+            base,
+            current_visual_embedding=unit,
+            event_visual_embeddings={step_id: unit for step_id in base.event_step_ids},
+        )
+        self.assertEqual(
+            len(enriched.query_features),
+            QUERY_FEATURE_DIMENSION + GUI_OWL_VISUAL_EMBEDDING_DIMENSION,
+        )
+        self.assertTrue(
+            all(
+                len(row)
+                == EVENT_FEATURE_DIMENSION + GUI_OWL_VISUAL_EMBEDDING_DIMENSION
+                for row in enriched.event_features
+            )
+        )
+        self.assertEqual(enriched.event_features[0][-len(unit) :], unit)
+        self.assertEqual(
+            enriched.event_features[3:],
+            ((0.0,) * len(enriched.event_features[0]),) * 2,
+        )
+        self.assertEqual(enriched.pair_features, base.pair_features)
+        self.assertEqual(
+            event_ocr_rgb_score(enriched.event_features[0]),
+            event_ocr_rgb_score(base.event_features[0]),
+        )
+        self.assertEqual(
+            event_recency_score(enriched.event_features[0]),
+            event_recency_score(base.event_features[0]),
+        )
+
+    def test_gui_owl_visual_embedding_augmentation_rejects_drift(self) -> None:
+        base = _state(self.events, pad_to=3)
+        unit = (1.0,) + (0.0,) * (GUI_OWL_VISUAL_EMBEDDING_DIMENSION - 1)
+        with self.assertRaisesRegex(ValueError, "keys differ"):
+            augment_set_utility_feature_state_with_gui_owl_visual_embeddings(
+                base,
+                current_visual_embedding=unit,
+                event_visual_embeddings={3: unit, 11: unit},
+            )
+        with self.assertRaisesRegex(ValueError, "L2-normalized"):
+            augment_set_utility_feature_state_with_gui_owl_visual_embeddings(
+                base,
+                current_visual_embedding=(0.0,) * len(unit),
+                event_visual_embeddings={
+                    step_id: unit for step_id in base.event_step_ids
+                },
+            )
     def test_query_and_event_semantic_hash_replay_gate_v1(self) -> None:
         state = _state(self.events, pad_to=3)
         expected_query = signed_hash64(

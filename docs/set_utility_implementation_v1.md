@@ -2,8 +2,8 @@
 
 > 当前结论：路线已切换为“先扩全量 source pool，再生产 `|S|<=2` labels，最后训练 Set Transformer”。
 > budget-agnostic model/label/trainer 的 source core、610-shard metadata contract 与 107-identity consumed
-> firewall 已实现；真实 610-shard P-1 inventory 已完成，semantic census、新 labels、训练 checkpoint 和
-> offline result 中，P0 semantic census 已完成；新 labels、训练 checkpoint 和 offline method delta 尚未产生。
+> firewall 已实现；真实 P-1 inventory、P0 semantic census 与 Freeze-B/A roster/query freeze 已完成；新
+> labels、训练 checkpoint 和 offline method delta 尚未产生。
 > closed-loop、matched-NLL 与 AndroidWorld sealed test 继续 locked。
 >
 > Canonical SHA256：predictor=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；
@@ -11,9 +11,11 @@
 > P-1 manifest=`e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`；
 > P0 Execution-A=`f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`；
 > P0 census manifest=`729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`；
+> Freeze-B/A config=`df8c00bfddda7589e3c9b58cc36f5cbe305ad3fee9c6a8bc4272888a6c648440`；
+> Freeze-B/A manifest=`144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`；
 > consumed ledger=`b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`；
 > P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`。focused suite
-> 为 `193 passed, 15 skipped, 24 subtests passed`。
+> 为 `204 passed, 15 skipped, 24 subtests passed`。
 
 ## 最终接口
 
@@ -168,7 +170,7 @@ runtime metadata。
 ## 当前验证、失败与下一步
 
 本机没有 PyTorch，因此 torch-dependent tests 被明确 skip；source/config/inventory/ledger/label/split/search/
-evaluator 的纯 CPU tests 可运行。focused suite 为 `193 passed, 15 skipped, 24 subtests passed`。
+evaluator 的纯 CPU tests 可运行。focused suite 为 `204 passed, 15 skipped, 24 subtests passed`。
 全仓回归为 `1738 passed, 23 skipped, 38 failed, 644 subtests`；38 个失败来自已有 lifecycle
 互斥测试、sandbox 下的 git worktree 操作与 full-suite import-order，不是 focused set-utility 回归。
 真实 P-1 已完成 610-shard metadata inventory；manifest SHA256=
@@ -178,10 +180,11 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `193 passed, 15 skipped
 
 下一步严格是：
 
-1. commit/push P0 census manifest 与轻量 result summary；
-2. 根据真实 6,933-trajectory pool/strata 冻结 Freeze-B roster、group split、每 trajectory 2–4 query states、feature/grid 与
-   exact operation budget；
-3. 先做 label-throughput pilot，再立 Execution-B 生产 phase-1 `|S|<=2` tables；
+1. commit/push 已物化的 Freeze-B/A roster、query plan、rich feature 与 training grid；
+2. 从 clean pushed main 另立 execution，只读取 1,200 条 frozen row，执行 processor-only candidate freeze 并
+   生成 exact operation budget；
+3. 在预注册的 12 个 train-only state 上做不写 KL/utility 的 throughput pilot，再立 Execution-B 生产 phase-1
+   `|S|<=2` tables；
 4. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 
