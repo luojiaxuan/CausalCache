@@ -1,0 +1,3620 @@
+{
+  "access_accounting": {
+    "closed_loop_access_count": 0,
+    "exact_subset_evaluation_count": 0,
+    "ocr_access_count": 0,
+    "old_confirm_access_count": 0,
+    "pair_union_distance_count": 0,
+    "policy_forward_count": 0,
+    "policy_load_count": 0,
+    "reserve_semantic_access_count": 0,
+    "restoration_distance_count": 0,
+    "restoration_label_access_count": 0,
+    "sealed_test_access_count": 0,
+    "selector_scoring_count": 0,
+    "selector_training_count": 0
+  },
+  "artifact_plan": {
+    "immutable_revision_and_manifest_required_before_git_result_commit": true,
+    "repo": "gavinlaw/causalcache-long-horizon-development-mobile",
+    "repo_type": "dataset",
+    "reserve_payload_publication_allowed": false,
+    "tag": "long-horizon-development-v1",
+    "visibility": "private"
+  },
+  "execution_b_plan": {
+    "development_trajectories_per_worker": 6,
+    "each_worker_binds_one_selected_gpu": true,
+    "execution_b_may_change_scientific_threshold_geometry_or_comparator_semantics": false,
+    "gpu_count": 4,
+    "gpu_ids_selected_only_after_required_preflight": true,
+    "host_alias": "hyper00",
+    "reserve_worker_count": 0,
+    "worker_count": 4,
+    "worker_selection_rank_ranges": [
+      [
+        0,
+        5
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        12,
+        17
+      ],
+      [
+        18,
+        23
+      ]
+    ],
+    "worker_shards_cover_each_development_trajectory_exactly_once": true
+  },
+  "generator": {
+    "cli_path": "code/scripts/build_long_horizon_selection.py",
+    "cli_sha256": "1af9d2fbc45ca25992d4b02061d9b88710afcac19f731a972df08c9b7ea8e502",
+    "contract_validator_path": "code/scripts/validate_long_horizon_contract.py",
+    "contract_validator_sha256": "85e457d436c76885a4ec601cb8db848dc36c92fec94d2d202e97805ef0ac1e12",
+    "git_revision": "90287134630eb2407582e547c246c93b9fccd55e",
+    "module_path": "code/causalcache/long_horizon_selection.py",
+    "module_sha256": "c2d823014cb96f665c88e368f492a628153a1988960af201902d9384f488a04a"
+  },
+  "historical_role_firewall": {
+    "intersection_count": 0,
+    "intersection_source_ids": [],
+    "manifests": [
+      {
+        "extractor": "splits_source_ids",
+        "path": "data/manifests/independent_reference_gate_v1_artifact.json",
+        "sha256": "833139954e332c00a2ed06fe2c3e71e701ca9a4a381f4c41680ec57d64a827ff",
+        "source_id_count": 23,
+        "source_ids": [
+          "0021006740023566",
+          "0035782072567389",
+          "0050955459888018",
+          "0062545727651092",
+          "0074966019597416",
+          "0106443124024468",
+          "0119197274492507",
+          "0119685762769531",
+          "0122136372603148",
+          "0124013985171518",
+          "0125975818276068",
+          "0126163828013448",
+          "0131649930078879",
+          "0139141460497671",
+          "0139487095063242",
+          "0141544666483837",
+          "0145589904916408",
+          "0194478440163092",
+          "0214300008821039",
+          "0214993880872733",
+          "0217738978329323",
+          "0218068002038239",
+          "0230010406789851"
+        ],
+        "source_ids_sha256": "e74fccbb832f3efcbb99ecb1fc99fd7628e037f50f4da237b2de57c5aad496a9"
+      },
+      {
+        "extractor": "roles_trajectory_source_ids",
+        "path": "data/manifests/restoration_v2_selection.json",
+        "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+        "source_id_count": 43,
+        "source_ids": [
+          "0003269005797789",
+          "0007216161758334",
+          "0015844124232805",
+          "0021006740023566",
+          "0035782072567389",
+          "0047234313779636",
+          "0050955459888018",
+          "0061317255667027",
+          "0062545727651092",
+          "0062595953452329",
+          "0074966019597416",
+          "0088916287721604",
+          "0097146299278532",
+          "0106443124024468",
+          "0107883386619316",
+          "0119197274492507",
+          "0119685762769531",
+          "0122136372603148",
+          "0124013985171518",
+          "0125033580932478",
+          "0125975818276068",
+          "0126163828013448",
+          "0126322136688861",
+          "0128873485175141",
+          "0131649930078879",
+          "0138580662882674",
+          "0139141460497671",
+          "0139487095063242",
+          "0140656067727410",
+          "0141017089161442",
+          "0141544666483837",
+          "0145589904916408",
+          "0163270032450668",
+          "0182869798349621",
+          "0194478440163092",
+          "0205621648359625",
+          "0206356317737773",
+          "0208932442851349",
+          "0214300008821039",
+          "0214993880872733",
+          "0217738978329323",
+          "0218068002038239",
+          "0230010406789851"
+        ],
+        "source_ids_sha256": "18e3151cb3757eee429cc3472d93831c4f8d30dcb29da68a00aabd414e2db0ba"
+      },
+      {
+        "extractor": "splits_trajectory_source_ids",
+        "path": "data/manifests/restoration_v2_2_label_expansion_selection.json",
+        "sha256": "4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169",
+        "source_id_count": 64,
+        "source_ids": [
+          "0000922671359408",
+          "0002455403270123",
+          "0013756686421890",
+          "0016567388192150",
+          "0017986853193264",
+          "0026634903318160",
+          "0027349945578994",
+          "0028705883346522",
+          "0031013035186872",
+          "0037690483064801",
+          "0039770017320665",
+          "0041513657979544",
+          "0042582068233164",
+          "0063414321407600",
+          "0066997985759988",
+          "0069283472940099",
+          "0072821463326485",
+          "0076518844281084",
+          "0081171303194449",
+          "0081349207433064",
+          "0084888665394360",
+          "0085973327901251",
+          "0090192011883108",
+          "0092302829764693",
+          "0095139503173521",
+          "0096794886053450",
+          "0104781033187528",
+          "0106001886731694",
+          "0107109187202943",
+          "0108772154206513",
+          "0113395203853614",
+          "0114203784922462",
+          "0114247701606163",
+          "0119022933981939",
+          "0119569788020140",
+          "0122430166514446",
+          "0123550855207688",
+          "0124211143250759",
+          "0131888848291691",
+          "0134720948350318",
+          "0135431381761380",
+          "0135789980944621",
+          "0137575778052679",
+          "0149901478066310",
+          "0154474824404795",
+          "0156438551317768",
+          "0157485992279511",
+          "0158200624694354",
+          "0167183648468991",
+          "0177467386816906",
+          "0185503498056981",
+          "0191751033400150",
+          "0192684638288967",
+          "0204226739513713",
+          "0204580742481366",
+          "0206048389903107",
+          "0213791829762595",
+          "0217993280505982",
+          "0218815826133241",
+          "0220943321467127",
+          "0224710820406687",
+          "0227020388419136",
+          "0234089730527063",
+          "0235343430658003"
+        ],
+        "source_ids_sha256": "2b7f3b6f23308f3f50e2c1d2597c45272c8096569fb5a414278219eb36067415"
+      }
+    ],
+    "selected_source_id_count": 42,
+    "selected_source_ids_sha256": "23073ba3eb3c39201a0962375bacd7711a4893d9321daa6372b4b59b7a208abe",
+    "union_source_id_count": 107,
+    "union_source_ids": [
+      "0000922671359408",
+      "0002455403270123",
+      "0003269005797789",
+      "0007216161758334",
+      "0013756686421890",
+      "0015844124232805",
+      "0016567388192150",
+      "0017986853193264",
+      "0021006740023566",
+      "0026634903318160",
+      "0027349945578994",
+      "0028705883346522",
+      "0031013035186872",
+      "0035782072567389",
+      "0037690483064801",
+      "0039770017320665",
+      "0041513657979544",
+      "0042582068233164",
+      "0047234313779636",
+      "0050955459888018",
+      "0061317255667027",
+      "0062545727651092",
+      "0062595953452329",
+      "0063414321407600",
+      "0066997985759988",
+      "0069283472940099",
+      "0072821463326485",
+      "0074966019597416",
+      "0076518844281084",
+      "0081171303194449",
+      "0081349207433064",
+      "0084888665394360",
+      "0085973327901251",
+      "0088916287721604",
+      "0090192011883108",
+      "0092302829764693",
+      "0095139503173521",
+      "0096794886053450",
+      "0097146299278532",
+      "0104781033187528",
+      "0106001886731694",
+      "0106443124024468",
+      "0107109187202943",
+      "0107883386619316",
+      "0108772154206513",
+      "0113395203853614",
+      "0114203784922462",
+      "0114247701606163",
+      "0119022933981939",
+      "0119197274492507",
+      "0119569788020140",
+      "0119685762769531",
+      "0122136372603148",
+      "0122430166514446",
+      "0123550855207688",
+      "0124013985171518",
+      "0124211143250759",
+      "0125033580932478",
+      "0125975818276068",
+      "0126163828013448",
+      "0126322136688861",
+      "0128873485175141",
+      "0131649930078879",
+      "0131888848291691",
+      "0134720948350318",
+      "0135431381761380",
+      "0135789980944621",
+      "0137575778052679",
+      "0138580662882674",
+      "0139141460497671",
+      "0139487095063242",
+      "0140656067727410",
+      "0141017089161442",
+      "0141544666483837",
+      "0145589904916408",
+      "0149901478066310",
+      "0154474824404795",
+      "0156438551317768",
+      "0157485992279511",
+      "0158200624694354",
+      "0163270032450668",
+      "0167183648468991",
+      "0177467386816906",
+      "0182869798349621",
+      "0185503498056981",
+      "0191751033400150",
+      "0192684638288967",
+      "0194478440163092",
+      "0204226739513713",
+      "0204580742481366",
+      "0205621648359625",
+      "0206048389903107",
+      "0206356317737773",
+      "0208932442851349",
+      "0213791829762595",
+      "0214300008821039",
+      "0214993880872733",
+      "0217738978329323",
+      "0217993280505982",
+      "0218068002038239",
+      "0218815826133241",
+      "0220943321467127",
+      "0224710820406687",
+      "0227020388419136",
+      "0230010406789851",
+      "0234089730527063",
+      "0235343430658003"
+    ],
+    "union_source_ids_sha256": "54be8ee52248e47adcfbaea0c03a5d19793486519d6cf124474fb468f628b7b1"
+  },
+  "inputs": {
+    "contract_path": "code/configs/causalcache_long_horizon_development_v1.json",
+    "contract_sha256": "82965790bf541dea348997ecd1849473d5cfb89f53da9f5a615568f57ca67a96",
+    "parent_protocol_config_path": "code/configs/independent_reference_gate_v1.json",
+    "parent_protocol_config_sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8",
+    "source_file_manifest_path": "data/manifests/independent_reference_gate_v1_source_files.json",
+    "source_file_manifest_sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+    "transport_file_count": 16,
+    "transport_repo": "cua-lite/GUIOdyssey",
+    "transport_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b"
+  },
+  "learned_model_artifacts": {
+    "execution_b_must_fresh_download_and_verify_exact_rosters_before_selector_scoring": true,
+    "formal58_base_and_conditional": {
+      "checkpoints": [
+        {
+          "family": "conditional",
+          "model_state_sha256": "4b23eb94a3726a963d572655996f5b2be0458d7398a2f38ef69b8a43bb4e036b",
+          "path": "formal58-train/v1/checkpoints/conditional-seed-0.safetensors",
+          "seed": 0,
+          "sha256": "38ef8ca44aea850f23a8594691ba85c986dcb0d06ae14f21111b9cd8098ad6c5"
+        },
+        {
+          "family": "conditional",
+          "model_state_sha256": "0ab3a272564e8bc7f79a4dd8bf09e3e50c5099334b335fe163e72f78dc738f17",
+          "path": "formal58-train/v1/checkpoints/conditional-seed-1.safetensors",
+          "seed": 1,
+          "sha256": "41469c21643326903673d83e2e23e977ea2c9cae5990ea88b37676e19a04313a"
+        },
+        {
+          "family": "conditional",
+          "model_state_sha256": "aa58a02b3d5a196b307ca2f576feba301bdef9351354a0669c78e0e8e95fd9c9",
+          "path": "formal58-train/v1/checkpoints/conditional-seed-2.safetensors",
+          "seed": 2,
+          "sha256": "712fc17ae335eacffa9c40744c77a3995b2d963eb64009bcfc54ff826fb36ee4"
+        },
+        {
+          "family": "conditional",
+          "model_state_sha256": "952ef11791e39069b983b357119c09e37e4361c9b2c533f06bc37a3f5e24eb8f",
+          "path": "formal58-train/v1/checkpoints/conditional-seed-3.safetensors",
+          "seed": 3,
+          "sha256": "4cb6242814cbf3ae353f5d110e9954e967481b4b4173df4ec87f2baaa036fb0f"
+        },
+        {
+          "family": "conditional",
+          "model_state_sha256": "b0640eb49788f45b60d9bb39e733b7b6e13114a89e73ea825a5f49629a3566af",
+          "path": "formal58-train/v1/checkpoints/conditional-seed-4.safetensors",
+          "seed": 4,
+          "sha256": "95cdc21f83394d6ee54d7eda57d83089c180abcfad46135522ffef87e2ec970f"
+        },
+        {
+          "family": "independent",
+          "model_state_sha256": "0198ad3cca7bd9e4eef2f6c40c9ac6349732f21935c61ec3434f058ee40b972a",
+          "path": "formal58-train/v1/checkpoints/independent-seed-0.safetensors",
+          "seed": 0,
+          "sha256": "7088a1cb4224dd1e7013868249ed1c99c20782eb63c2a762e3059cfb939d4a49"
+        },
+        {
+          "family": "independent",
+          "model_state_sha256": "454b0732389eac920f2aa69edb68317e3746dc57e1d2c6c7269f792257255af7",
+          "path": "formal58-train/v1/checkpoints/independent-seed-1.safetensors",
+          "seed": 1,
+          "sha256": "8a25b8bad27e4c6f20a9a93273602e82a276ee7f9275ff672d6b0ed64dd8fd79"
+        },
+        {
+          "family": "independent",
+          "model_state_sha256": "c4d508933928dc7c6a24501090e3afd2a7d50a4977f37b3b3cb6cd818d28eb13",
+          "path": "formal58-train/v1/checkpoints/independent-seed-2.safetensors",
+          "seed": 2,
+          "sha256": "b8c38619db06bd479d278da62663a3b451cff951dff0747bf156835234216211"
+        },
+        {
+          "family": "independent",
+          "model_state_sha256": "1f0d319411319dd2348e0a3da8e7d2b18e5b566e468278853d890a761639da60",
+          "path": "formal58-train/v1/checkpoints/independent-seed-3.safetensors",
+          "seed": 3,
+          "sha256": "b7b175c0b513508f10479bb228fad6ffb6b4e330b050c981d415c2a54b8c11a2"
+        },
+        {
+          "family": "independent",
+          "model_state_sha256": "51fc5aaa157ec9feb97a7c40cd7d532cc248ecb076feacd880dc9bba38007def",
+          "path": "formal58-train/v1/checkpoints/independent-seed-4.safetensors",
+          "seed": 4,
+          "sha256": "8e5eee31c85653a210b9bf05c4cf4d94a8b4fabdb6bdab455caa446cc655df38"
+        }
+      ],
+      "ensemble_manifests": [
+        {
+          "family": "conditional",
+          "path": "formal58-train/v1/manifests/conditional-ensemble-manifest.json",
+          "provenance_sha256": "a56c26f7760578e6ebbc793cc25e3adadb228e7c3f90606f63e138f0220858f2",
+          "sha256": "74aec69ccdb727fa997f38bebf3383db3aa1965299fdd512fd5f47f02ebcc782"
+        },
+        {
+          "family": "independent",
+          "path": "formal58-train/v1/manifests/independent-ensemble-manifest.json",
+          "provenance_sha256": "238c2e64bdb22ccebd261961200021e74a688f912d530f486b00bbb853a8ea57",
+          "sha256": "38809f1ef4da9636ef6779733cee4926b36b38e3bd86eab199450e685c63da24"
+        }
+      ],
+      "private": true,
+      "repo": "gavinlaw/causalcache-gate-v1-formal58-selector-mobile",
+      "repo_type": "model",
+      "revision": "23f6786075c7bff91f93fd7e8a878e070efb72a9"
+    },
+    "training_optimizer_or_artifact_substitution_allowed": false,
+    "v4_safe_frozen_base_residual": {
+      "label_blind_seal_path": "label-blind-seal.json",
+      "label_blind_seal_sha256": "02b4b41eb9d180dd22e3c51575bfcdb9a0fca470d51fff3a7ee9cec38faa4439",
+      "manifest_path": "manifest.json",
+      "manifest_sha256": "3ecc5e0a27e8ff57774788d71da6dbe4ff2a3bf08001747ab9a0de79607b9544",
+      "private": true,
+      "repo": "gavinlaw/causalcache-set-conditioned-v4-frozen-base-residual-exploration-mobile",
+      "repo_type": "model",
+      "residual_checkpoints": [
+        {
+          "path": "residual-checkpoints/seed-0.safetensors",
+          "seed": 0,
+          "sha256": "cd11c4abd190e267e46772fa70769553c91e9073b2d00ef665bd3d30e0c67db0"
+        },
+        {
+          "path": "residual-checkpoints/seed-1.safetensors",
+          "seed": 1,
+          "sha256": "ccd9c0987040b78f95ae71977e2b165d17188ee5ad7d7f3cb8af5daa1b7d3605"
+        },
+        {
+          "path": "residual-checkpoints/seed-2.safetensors",
+          "seed": 2,
+          "sha256": "7878af92695d069e2d415ae7b89c8c4084cc2d3a26385d4d679601e629dd11c8"
+        },
+        {
+          "path": "residual-checkpoints/seed-3.safetensors",
+          "seed": 3,
+          "sha256": "d5bf290769c13d7ab240c5206b7de57e5019814502d6b5ccf2e1a0e09c6b8788"
+        },
+        {
+          "path": "residual-checkpoints/seed-4.safetensors",
+          "seed": 4,
+          "sha256": "1726321b3b3ca88f07e84280d556d5a7d0ccbe7eb1d6753c9354971417688ba9"
+        }
+      ],
+      "revision": "1641b90a4ebb05037e4710738a78e2c79f81cdc3"
+    }
+  },
+  "operation_plan": {
+    "fixed_selected_trajectory_denominator": 24,
+    "invalid_cases_may_be_dropped_from_fixed_selected_denominator": false,
+    "invalid_cases_may_be_replaced_or_topped_up": false,
+    "invalid_cases_preserve_partial_completed_operations_and_explicit_missing_counts": true,
+    "maximum_counts_assume_every_case_is_valid_and_no_A_B_R_duplicate_rows": true,
+    "maximum_generation_attempt_count": 336,
+    "maximum_gpu_kl_count": 4344,
+    "maximum_teacher_forward_count": 4512,
+    "n16_comparator_pair_count_per_trajectory": 6,
+    "n16_maximum_nonself_distance_rows_per_valid_pair": 3,
+    "n16_nonself_rows_are_unique_empty_A_B_excluding_any_row_equal_to_R": true,
+    "n16_pair_reference_parse_attempts_per_pair": 2,
+    "n16_pair_union_self_distance_is_analytic_zero": true,
+    "n16_selector_arms_per_valid_pair": 2,
+    "n16_total_requested_maximum_nonself_distances": 432,
+    "n16_total_requested_pair_reference_parse_attempts": 288,
+    "n16_total_requested_selector_arm_distances": 288,
+    "n8_budget_2_projected_subset_rows_per_valid_trajectory": 37,
+    "n8_budget_2_rows_are_projection_of_budget_4_rows_not_additional_forwards": true,
+    "n8_budget_2_total_requested_projected_subset_rows": 888,
+    "n8_budget_4_total_requested_unique_subset_rows": 3912,
+    "n8_budget_4_unique_subset_rows_per_valid_trajectory": 163,
+    "n8_canonical_action_parse_attempts_per_trajectory": 2,
+    "n8_total_requested_canonical_action_parse_attempts": 48,
+    "requested_denominators_include_invalid_cases": true
+  },
+  "policy_context_profile": {
+    "attention_implementation": "eager",
+    "dtype": "torch.bfloat16",
+    "effective_visual_tokens_per_image": 2560,
+    "generation_max_new_tokens": 256,
+    "maximum_context_tokens": 32768,
+    "n16_budget_2_pair_union_maximum_history_images": 4,
+    "n16_budget_2_pair_union_maximum_total_images_including_current": 5,
+    "n16_budget_4_pair_union_maximum_history_images": 8,
+    "n16_budget_4_pair_union_maximum_total_images_including_current": 9,
+    "n16_full_reference_allowed": false,
+    "n8_full_reference_history_images": 8,
+    "n8_full_reference_total_images_including_current": 9,
+    "official_tool_interface": "causalcache_restoration_v2_1_official_tool_interface",
+    "pair_union_limits_include_overlap_without_requiring_disjointness": true,
+    "processor_preflight_reserved_completion_tokens": 256,
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "runtime_class": "causalcache.policy.gui_owl_v2_2_eager_runtime.GUIOwlV22EagerRuntime",
+    "runtime_id": "causalcache_restoration_v2_2_eager_runtime",
+    "snapshot_manifest_path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+    "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+  },
+  "protocol_id": "causalcache_long_horizon_development_v1",
+  "reconstruction": {
+    "eligible_pool_sha256": "7bcdf6b59ec64f3bfe4fb0245d6d50875eef6febb0402212e746184a04c05974",
+    "eligible_trajectory_count": 42,
+    "eligible_trajectory_locators": [
+      {
+        "decision_count": 19,
+        "role": "development",
+        "row_index": 4,
+        "selection_rank": 0,
+        "selection_sha256": "00c73ff52870f4952541ed5aec64b12d92582091992199bcec7d38ca9ea8d80c",
+        "shard_path": "mobile/use/train/shard-00004-of-00610.parquet",
+        "trajectory_id": "0055763512444649"
+      },
+      {
+        "decision_count": 23,
+        "role": "development",
+        "row_index": 9,
+        "selection_rank": 1,
+        "selection_sha256": "01c050b39027730cd5c4ab1e62bb77c41adf971ebb3c13484394d669172671ed",
+        "shard_path": "mobile/use/train/shard-00007-of-00610.parquet",
+        "trajectory_id": "0110997430924494"
+      },
+      {
+        "decision_count": 21,
+        "role": "development",
+        "row_index": 8,
+        "selection_rank": 2,
+        "selection_sha256": "17a77a5590c5a0bad674d9f215ef6730290d6ee70e3efc066a6106178518a984",
+        "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+        "trajectory_id": "0006223132449496"
+      },
+      {
+        "decision_count": 29,
+        "role": "development",
+        "row_index": 4,
+        "selection_rank": 3,
+        "selection_sha256": "1a600aafc85aebf74d92f67f13026f0c790711dcaf03d7148a2d539184edc73f",
+        "shard_path": "mobile/use/train/shard-00013-of-00610.parquet",
+        "trajectory_id": "0201385541141990"
+      },
+      {
+        "decision_count": 34,
+        "role": "development",
+        "row_index": 0,
+        "selection_rank": 4,
+        "selection_sha256": "1bc79738f7d965a9bbf4bf7ac5d1b52f9de624e7bc55f5b3d322620914cfc450",
+        "shard_path": "mobile/use/train/shard-00014-of-00610.parquet",
+        "trajectory_id": "0208386818158031"
+      },
+      {
+        "decision_count": 21,
+        "role": "development",
+        "row_index": 2,
+        "selection_rank": 5,
+        "selection_sha256": "22bcd98f6fa8fb3226608e80d6c0e54d771f7a6b7c12ac639b3545041b90f4c1",
+        "shard_path": "mobile/use/train/shard-00009-of-00610.parquet",
+        "trajectory_id": "0130396353236731"
+      },
+      {
+        "decision_count": 23,
+        "role": "development",
+        "row_index": 3,
+        "selection_rank": 6,
+        "selection_sha256": "2416e20eac2b6ebd8e8d11a3d63d5bbfb760e83c15b771b54844a8aedf5cf285",
+        "shard_path": "mobile/use/train/shard-00012-of-00610.parquet",
+        "trajectory_id": "0182300322856881"
+      },
+      {
+        "decision_count": 23,
+        "role": "development",
+        "row_index": 0,
+        "selection_rank": 7,
+        "selection_sha256": "258b2ea468047eabd50d27da46ca76ba6a2a81b4deae35bc544fc491bc9f23f1",
+        "shard_path": "mobile/use/train/shard-00012-of-00610.parquet",
+        "trajectory_id": "0180696773201938"
+      },
+      {
+        "decision_count": 24,
+        "role": "development",
+        "row_index": 1,
+        "selection_rank": 8,
+        "selection_sha256": "268a13ef8b8e2ca39ef0848ef0a00515af6ee7bd04cc03d1c888ef823cb3830e",
+        "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+        "trajectory_id": "0000912578932237"
+      },
+      {
+        "decision_count": 27,
+        "role": "development",
+        "row_index": 6,
+        "selection_rank": 9,
+        "selection_sha256": "28581d6acd7d934dccf7e6f0e6fc60a3056488e5c443f3d9dd5a38f738633420",
+        "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+        "trajectory_id": "0003539114117434"
+      },
+      {
+        "decision_count": 18,
+        "role": "development",
+        "row_index": 8,
+        "selection_rank": 10,
+        "selection_sha256": "2ea85f05d24000fbda1cf52d08c46ecefef592d2e466ba03de74f9e4951ecb64",
+        "shard_path": "mobile/use/train/shard-00015-of-00610.parquet",
+        "trajectory_id": "0232938451233458"
+      },
+      {
+        "decision_count": 38,
+        "role": "development",
+        "row_index": 0,
+        "selection_rank": 11,
+        "selection_sha256": "3a4c968b7f331a7f70ba3effcf7f7e9875fdeb53505f791214cafe9cbd1709cb",
+        "shard_path": "mobile/use/train/shard-00003-of-00610.parquet",
+        "trajectory_id": "0044058198676449"
+      },
+      {
+        "decision_count": 21,
+        "role": "development",
+        "row_index": 12,
+        "selection_rank": 12,
+        "selection_sha256": "42f4c546ef07b0a4fa5e132d4fb97753641061834d072d20c37139ddfe72dd05",
+        "shard_path": "mobile/use/train/shard-00010-of-00610.parquet",
+        "trajectory_id": "0153415879272729"
+      },
+      {
+        "decision_count": 18,
+        "role": "development",
+        "row_index": 8,
+        "selection_rank": 13,
+        "selection_sha256": "46dfa1c03a80fd9813be0bd1bff23c603f433f78ba9235e60a07d02a0e4cdeb1",
+        "shard_path": "mobile/use/train/shard-00009-of-00610.parquet",
+        "trajectory_id": "0134650730837716"
+      },
+      {
+        "decision_count": 39,
+        "role": "development",
+        "row_index": 2,
+        "selection_rank": 14,
+        "selection_sha256": "485762df5cd3730e7b6f90961c4ead75e1b894f249ff96b58263de9ac5d11369",
+        "shard_path": "mobile/use/train/shard-00014-of-00610.parquet",
+        "trajectory_id": "0209669493349682"
+      },
+      {
+        "decision_count": 19,
+        "role": "development",
+        "row_index": 8,
+        "selection_rank": 15,
+        "selection_sha256": "4ad037b1ba494ca083b86307f89f83773b20a3cf8c4db8cf913e170169c8b3de",
+        "shard_path": "mobile/use/train/shard-00014-of-00610.parquet",
+        "trajectory_id": "0216238331645742"
+      },
+      {
+        "decision_count": 31,
+        "role": "development",
+        "row_index": 6,
+        "selection_rank": 16,
+        "selection_sha256": "4ec066fb3b500fc45f65b708a20975f6012177abae8c27abf83af8f8f7bedb55",
+        "shard_path": "mobile/use/train/shard-00003-of-00610.parquet",
+        "trajectory_id": "0050345490833597"
+      },
+      {
+        "decision_count": 31,
+        "role": "development",
+        "row_index": 0,
+        "selection_rank": 17,
+        "selection_sha256": "5007ca5fcbe6881aa91b08a3fd8f3750d5c07b37504c182add65e7ac23d326b7",
+        "shard_path": "mobile/use/train/shard-00008-of-00610.parquet",
+        "trajectory_id": "0117550419342475"
+      },
+      {
+        "decision_count": 32,
+        "role": "development",
+        "row_index": 3,
+        "selection_rank": 18,
+        "selection_sha256": "5959e2609f6b80f0ec6d3dea6aad04ab9f590eff3b0ba71cf5cb7e7c01f551a5",
+        "shard_path": "mobile/use/train/shard-00004-of-00610.parquet",
+        "trajectory_id": "0055180990380237"
+      },
+      {
+        "decision_count": 25,
+        "role": "development",
+        "row_index": 0,
+        "selection_rank": 19,
+        "selection_sha256": "67caaee394ff85bc7667cbf6639255216fb728b6595d1e3d18e617b387fe1385",
+        "shard_path": "mobile/use/train/shard-00013-of-00610.parquet",
+        "trajectory_id": "0193478855322542"
+      },
+      {
+        "decision_count": 43,
+        "role": "development",
+        "row_index": 0,
+        "selection_rank": 20,
+        "selection_sha256": "6868a0edd34cc9d8bd3b2181d1c57c4831af11e5a841e1f294b5e236c91bc967",
+        "shard_path": "mobile/use/train/shard-00004-of-00610.parquet",
+        "trajectory_id": "0053721915679562"
+      },
+      {
+        "decision_count": 25,
+        "role": "development",
+        "row_index": 9,
+        "selection_rank": 21,
+        "selection_sha256": "6e0f6ef1cfef35e4ed7d95c40a36e402423205274d06a238bc00ce67cebf7d1a",
+        "shard_path": "mobile/use/train/shard-00011-of-00610.parquet",
+        "trajectory_id": "0173202679441530"
+      },
+      {
+        "decision_count": 20,
+        "role": "development",
+        "row_index": 10,
+        "selection_rank": 22,
+        "selection_sha256": "76fa042daa2fc27b7f9150443f3cf0f12c3b3abf3f94bf5975826927a24c70ce",
+        "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+        "trajectory_id": "0011506778189106"
+      },
+      {
+        "decision_count": 27,
+        "role": "development",
+        "row_index": 14,
+        "selection_rank": 23,
+        "selection_sha256": "903ccf43b1513d8c265304c45105706080eb4d3309fba4e6d58f8a8829d111a0",
+        "shard_path": "mobile/use/train/shard-00015-of-00610.parquet",
+        "trajectory_id": "0237057265828895"
+      },
+      {
+        "decision_count": 33,
+        "role": "unopened_reserve",
+        "row_index": 9,
+        "selection_rank": 24,
+        "selection_sha256": "998335334d18681fd9cf77c52743c1869a55e2f2446581b4e2697f984067322e",
+        "shard_path": "mobile/use/train/shard-00005-of-00610.parquet",
+        "trajectory_id": "0080420605470053"
+      },
+      {
+        "decision_count": 22,
+        "role": "unopened_reserve",
+        "row_index": 13,
+        "selection_rank": 25,
+        "selection_sha256": "9a299053e416606c9d197400ab25d29b5ee82ddc8b2cd5954d531eea5d44727a",
+        "shard_path": "mobile/use/train/shard-00015-of-00610.parquet",
+        "trajectory_id": "0237001828941270"
+      },
+      {
+        "decision_count": 20,
+        "role": "unopened_reserve",
+        "row_index": 10,
+        "selection_rank": 26,
+        "selection_sha256": "aa159aa307e5b2aecd2ac166d56bb87567f93bb0470405ea192008534cf3eaa6",
+        "shard_path": "mobile/use/train/shard-00011-of-00610.parquet",
+        "trajectory_id": "0175519266551894"
+      },
+      {
+        "decision_count": 28,
+        "role": "unopened_reserve",
+        "row_index": 7,
+        "selection_rank": 27,
+        "selection_sha256": "ac7101ef31e427f3978bd453cacd6b5618a09930509610188b343659189b781c",
+        "shard_path": "mobile/use/train/shard-00010-of-00610.parquet",
+        "trajectory_id": "0143421515237132"
+      },
+      {
+        "decision_count": 19,
+        "role": "unopened_reserve",
+        "row_index": 7,
+        "selection_rank": 28,
+        "selection_sha256": "ad01d912437e98ddd36f3c68a1cc7b5fce20facbcff05497cbad837ed21d8d7d",
+        "shard_path": "mobile/use/train/shard-00006-of-00610.parquet",
+        "trajectory_id": "0090674044557997"
+      },
+      {
+        "decision_count": 28,
+        "role": "unopened_reserve",
+        "row_index": 2,
+        "selection_rank": 29,
+        "selection_sha256": "b6a30e05f0a6d2d0c49ba0c031c941a30db8ee464c22879ad32e785a29b84a32",
+        "shard_path": "mobile/use/train/shard-00002-of-00610.parquet",
+        "trajectory_id": "0031917311796626"
+      },
+      {
+        "decision_count": 25,
+        "role": "unopened_reserve",
+        "row_index": 5,
+        "selection_rank": 30,
+        "selection_sha256": "b87f1fd6af23dc0aad75f6cb87e8ea6dfe55bd3f1a2ebf801c9ba5f5f020d031",
+        "shard_path": "mobile/use/train/shard-00005-of-00610.parquet",
+        "trajectory_id": "0073631237300890"
+      },
+      {
+        "decision_count": 27,
+        "role": "unopened_reserve",
+        "row_index": 3,
+        "selection_rank": 31,
+        "selection_sha256": "c24f448912a60c75b0fc151ec1d61cfaed72ec8ba0320be881f4e14e52c7e04a",
+        "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+        "trajectory_id": "0002412570554203"
+      },
+      {
+        "decision_count": 26,
+        "role": "unopened_reserve",
+        "row_index": 2,
+        "selection_rank": 32,
+        "selection_sha256": "c808564321fadaf4d0c56fa83bc5c6c5617e8e117b2d7f58b99d546187e833ea",
+        "shard_path": "mobile/use/train/shard-00007-of-00610.parquet",
+        "trajectory_id": "0102007049071800"
+      },
+      {
+        "decision_count": 19,
+        "role": "unopened_reserve",
+        "row_index": 8,
+        "selection_rank": 33,
+        "selection_sha256": "ca92812977abe8049eea34c375a6afa392644de1739e1800e7944bc1b076b2c1",
+        "shard_path": "mobile/use/train/shard-00006-of-00610.parquet",
+        "trajectory_id": "0091670741953474"
+      },
+      {
+        "decision_count": 24,
+        "role": "unopened_reserve",
+        "row_index": 3,
+        "selection_rank": 34,
+        "selection_sha256": "d55905d02cd121d80b0259151925f929c1142d9d25805732e64bff9418ddb8cc",
+        "shard_path": "mobile/use/train/shard-00003-of-00610.parquet",
+        "trajectory_id": "0047881550315557"
+      },
+      {
+        "decision_count": 27,
+        "role": "unopened_reserve",
+        "row_index": 7,
+        "selection_rank": 35,
+        "selection_sha256": "e0dc1264cea902e2c0674a884e4f9448b3af1d3321bdc1a16cfa0e54e0759e89",
+        "shard_path": "mobile/use/train/shard-00002-of-00610.parquet",
+        "trajectory_id": "0041381165657546"
+      },
+      {
+        "decision_count": 26,
+        "role": "unopened_reserve",
+        "row_index": 2,
+        "selection_rank": 36,
+        "selection_sha256": "e3d8a7b61b0b81f612665802e5430d026ccb405f8762548268639d0d25b82f0d",
+        "shard_path": "mobile/use/train/shard-00013-of-00610.parquet",
+        "trajectory_id": "0197987108916412"
+      },
+      {
+        "decision_count": 22,
+        "role": "unopened_reserve",
+        "row_index": 6,
+        "selection_rank": 37,
+        "selection_sha256": "e61d7087bc3b5ead354be1ee38564f02a4eea0ca5c143afb2f6821e92fb9e76e",
+        "shard_path": "mobile/use/train/shard-00001-of-00610.parquet",
+        "trajectory_id": "0018651612081817"
+      },
+      {
+        "decision_count": 30,
+        "role": "unopened_reserve",
+        "row_index": 5,
+        "selection_rank": 38,
+        "selection_sha256": "ecc02079e6f6596410d8779ba0147dc47dc86000b760102e6f42b5335d59d136",
+        "shard_path": "mobile/use/train/shard-00003-of-00610.parquet",
+        "trajectory_id": "0049784429163055"
+      },
+      {
+        "decision_count": 23,
+        "role": "unopened_reserve",
+        "row_index": 3,
+        "selection_rank": 39,
+        "selection_sha256": "f489fc618080fad5f6b7f4c7161985a6ac11c9c55f5f85d6dfa7aeb8d5c82bcd",
+        "shard_path": "mobile/use/train/shard-00005-of-00610.parquet",
+        "trajectory_id": "0072220970505843"
+      },
+      {
+        "decision_count": 37,
+        "role": "unopened_reserve",
+        "row_index": 2,
+        "selection_rank": 40,
+        "selection_sha256": "f971eb5d57999eaf7e2c249308cccaf9e0cd4c2f9996a435f7ca2d983a3259c6",
+        "shard_path": "mobile/use/train/shard-00006-of-00610.parquet",
+        "trajectory_id": "0084442481728114"
+      },
+      {
+        "decision_count": 19,
+        "role": "unopened_reserve",
+        "row_index": 11,
+        "selection_rank": 41,
+        "selection_sha256": "fb662e1d44ca120a3d72b1806a58536986436060eec340162e11cb56b77144ec",
+        "shard_path": "mobile/use/train/shard-00010-of-00610.parquet",
+        "trajectory_id": "0152590721816116"
+      }
+    ],
+    "exclusion_counts": {
+      "decision_count_below_minimum": 151,
+      "excluded_source_id": 1,
+      "invalid_executable_action": 6,
+      "terminal_status_mismatch": 12
+    },
+    "source_row_counts": {
+      "mobile/use/train/shard-00000-of-00610.parquet": 11,
+      "mobile/use/train/shard-00001-of-00610.parquet": 16,
+      "mobile/use/train/shard-00002-of-00610.parquet": 11,
+      "mobile/use/train/shard-00003-of-00610.parquet": 9,
+      "mobile/use/train/shard-00004-of-00610.parquet": 11,
+      "mobile/use/train/shard-00005-of-00610.parquet": 12,
+      "mobile/use/train/shard-00006-of-00610.parquet": 15,
+      "mobile/use/train/shard-00007-of-00610.parquet": 14,
+      "mobile/use/train/shard-00008-of-00610.parquet": 18,
+      "mobile/use/train/shard-00009-of-00610.parquet": 15,
+      "mobile/use/train/shard-00010-of-00610.parquet": 16,
+      "mobile/use/train/shard-00011-of-00610.parquet": 13,
+      "mobile/use/train/shard-00012-of-00610.parquet": 13,
+      "mobile/use/train/shard-00013-of-00610.parquet": 11,
+      "mobile/use/train/shard-00014-of-00610.parquet": 12,
+      "mobile/use/train/shard-00015-of-00610.parquet": 15
+    },
+    "total_source_rows": 212
+  },
+  "reference_plan": {
+    "n16": {
+      "budget_2_comparator_pairs": [
+        [
+          "restoration_independent_gate",
+          "recent"
+        ],
+        [
+          "restoration_independent_gate",
+          "ocr_rgb_v2"
+        ],
+        [
+          "v1_conditional",
+          "restoration_independent_gate"
+        ],
+        [
+          "v4_safe_frozen_base_residual",
+          "restoration_independent_gate"
+        ]
+      ],
+      "budget_4_comparator_pairs": [
+        [
+          "restoration_independent_gate",
+          "recent"
+        ],
+        [
+          "restoration_independent_gate",
+          "ocr_rgb_v2"
+        ]
+      ],
+      "canonical_outputs": [
+        "D_R(empty)",
+        "D_R(A)",
+        "D_R(B)",
+        "D_R(R)=0"
+      ],
+      "disjoint_selector_sets_required": false,
+      "enumeration_or_shortlist_allowed": false,
+      "exact_subset_oracle_count": 0,
+      "global_oracle_or_search_claim_allowed": false,
+      "pair_union_definition": "after_label_blind_selector_sets_M_A_and_M_B_are_sealed_define_R_as_set_union_M_A_M_B_and_compute_D_R_of_A_and_D_R_of_B",
+      "random_pair_union_is_secondary_and_not_required": true,
+      "reference_type": "frozen_selector_pair_union",
+      "union_cardinality_upper_bound": "B_A_plus_B_B"
+    },
+    "n8": {
+      "budget_2_subset_count": 37,
+      "budget_4_subset_count": 163,
+      "evaluate_every_subset_with_cardinality_at_most_budget": true,
+      "global_optimum_claim_allowed_within_frozen_candidate_archive_and_budget": true,
+      "reference_type": "exact_subset_oracle"
+    }
+  },
+  "schema_version": "1.0.0",
+  "selector_plan": {
+    "budget_2": [
+      "restoration_independent_gate",
+      "recent",
+      "ocr_rgb_v2",
+      "v1_conditional",
+      "v4_safe_frozen_base_residual",
+      "random",
+      "summary_only"
+    ],
+    "budget_4": [
+      "restoration_independent_gate",
+      "recent",
+      "ocr_rgb_v2",
+      "random",
+      "summary_only"
+    ],
+    "random_seed_roster": [
+      271828
+    ],
+    "random_seed_roster_frozen_in_source_a": true,
+    "selector_sets_must_be_label_blind_sealed_before_any_restoration_distance": true,
+    "summary_only_high_fidelity_event_count": 0
+  },
+  "semantics": {
+    "full_parent_structural_validation_except_decision_bounds": true,
+    "maximum_decisions_per_trajectory": 60,
+    "minimum_decisions_per_trajectory": 18,
+    "padding_count": 0,
+    "post_selection_filter_count": 0,
+    "structural_scan_only": true,
+    "top_up_count": 0,
+    "trajectory_salt": "causalcache-long-horizon-development-v1",
+    "trajectory_splicing_count": 0
+  },
+  "splits": {
+    "development": {
+      "action_type_counts": {
+        "back": 4,
+        "home": 51,
+        "long_press": 6,
+        "swipe": 99,
+        "tap": 412,
+        "type_text": 59
+      },
+      "decision_count": 631,
+      "distinct_app_labels": [
+        "aliexpress",
+        "amazon",
+        "ap news",
+        "booking.com",
+        "chrome",
+        "clock",
+        "duckduckgo",
+        "ebay",
+        "edge",
+        "facebook",
+        "firefox browser",
+        "gmail",
+        "google docs",
+        "google keep",
+        "google meet",
+        "google translate",
+        "instagram",
+        "messenger",
+        "microsoft to do",
+        "opera",
+        "opera news",
+        "pandora",
+        "plantin",
+        "quora",
+        "shop: all your favorite brands",
+        "simplenote",
+        "the weather channel",
+        "threads",
+        "ticktick",
+        "to-do list",
+        "traveloka",
+        "tripadvisor",
+        "tumblr",
+        "weather & radar",
+        "windy.com-weather forecast",
+        "wps office",
+        "yandex translate",
+        "youtube",
+        "zoho meeting",
+        "zoom cloud meetings"
+      ],
+      "state_count": 48,
+      "states": [
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0055763512444649:decision_step:010",
+          "trajectory_id": "0055763512444649"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0055763512444649:decision_step:018",
+          "trajectory_id": "0055763512444649"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0110997430924494:decision_step:010",
+          "trajectory_id": "0110997430924494"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0110997430924494:decision_step:018",
+          "trajectory_id": "0110997430924494"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0006223132449496:decision_step:010",
+          "trajectory_id": "0006223132449496"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0006223132449496:decision_step:018",
+          "trajectory_id": "0006223132449496"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0201385541141990:decision_step:010",
+          "trajectory_id": "0201385541141990"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0201385541141990:decision_step:018",
+          "trajectory_id": "0201385541141990"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0208386818158031:decision_step:010",
+          "trajectory_id": "0208386818158031"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0208386818158031:decision_step:018",
+          "trajectory_id": "0208386818158031"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0130396353236731:decision_step:010",
+          "trajectory_id": "0130396353236731"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0130396353236731:decision_step:018",
+          "trajectory_id": "0130396353236731"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0182300322856881:decision_step:010",
+          "trajectory_id": "0182300322856881"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0182300322856881:decision_step:018",
+          "trajectory_id": "0182300322856881"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0180696773201938:decision_step:010",
+          "trajectory_id": "0180696773201938"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0180696773201938:decision_step:018",
+          "trajectory_id": "0180696773201938"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0000912578932237:decision_step:010",
+          "trajectory_id": "0000912578932237"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0000912578932237:decision_step:018",
+          "trajectory_id": "0000912578932237"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0003539114117434:decision_step:010",
+          "trajectory_id": "0003539114117434"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0003539114117434:decision_step:018",
+          "trajectory_id": "0003539114117434"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0232938451233458:decision_step:010",
+          "trajectory_id": "0232938451233458"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0232938451233458:decision_step:018",
+          "trajectory_id": "0232938451233458"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0044058198676449:decision_step:010",
+          "trajectory_id": "0044058198676449"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0044058198676449:decision_step:018",
+          "trajectory_id": "0044058198676449"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0153415879272729:decision_step:010",
+          "trajectory_id": "0153415879272729"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0153415879272729:decision_step:018",
+          "trajectory_id": "0153415879272729"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0134650730837716:decision_step:010",
+          "trajectory_id": "0134650730837716"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0134650730837716:decision_step:018",
+          "trajectory_id": "0134650730837716"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0209669493349682:decision_step:010",
+          "trajectory_id": "0209669493349682"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0209669493349682:decision_step:018",
+          "trajectory_id": "0209669493349682"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0216238331645742:decision_step:010",
+          "trajectory_id": "0216238331645742"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0216238331645742:decision_step:018",
+          "trajectory_id": "0216238331645742"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0050345490833597:decision_step:010",
+          "trajectory_id": "0050345490833597"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0050345490833597:decision_step:018",
+          "trajectory_id": "0050345490833597"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0117550419342475:decision_step:010",
+          "trajectory_id": "0117550419342475"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0117550419342475:decision_step:018",
+          "trajectory_id": "0117550419342475"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0055180990380237:decision_step:010",
+          "trajectory_id": "0055180990380237"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0055180990380237:decision_step:018",
+          "trajectory_id": "0055180990380237"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0193478855322542:decision_step:010",
+          "trajectory_id": "0193478855322542"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0193478855322542:decision_step:018",
+          "trajectory_id": "0193478855322542"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0053721915679562:decision_step:010",
+          "trajectory_id": "0053721915679562"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0053721915679562:decision_step:018",
+          "trajectory_id": "0053721915679562"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0173202679441530:decision_step:010",
+          "trajectory_id": "0173202679441530"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0173202679441530:decision_step:018",
+          "trajectory_id": "0173202679441530"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0011506778189106:decision_step:010",
+          "trajectory_id": "0011506778189106"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0011506778189106:decision_step:018",
+          "trajectory_id": "0011506778189106"
+        },
+        {
+          "candidate_event_count": 8,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "current_equivalent_event_step_id": 9,
+          "decision_step_id": 10,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "state_id": "0237057265828895:decision_step:010",
+          "trajectory_id": "0237057265828895"
+        },
+        {
+          "candidate_event_count": 16,
+          "candidate_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16
+          ],
+          "current_equivalent_event_step_id": 17,
+          "decision_step_id": 18,
+          "history_event_step_ids": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17
+          ],
+          "state_id": "0237057265828895:decision_step:018",
+          "trajectory_id": "0237057265828895"
+        }
+      ],
+      "status": "CONSUMED_DEVELOPMENT_AFTER_EXECUTION_B_ONLY",
+      "trajectories": [
+        {
+          "action_type_counts": {
+            "home": 1,
+            "swipe": 5,
+            "tap": 11,
+            "type_text": 2
+          },
+          "decision_count": 19,
+          "normalized_app_labels": [
+            "ebay",
+            "instagram"
+          ],
+          "role": "development",
+          "row_index": 4,
+          "selection_rank": 0,
+          "selection_sha256": "00c73ff52870f4952541ed5aec64b12d92582091992199bcec7d38ca9ea8d80c",
+          "shard_path": "mobile/use/train/shard-00004-of-00610.parquet",
+          "trajectory_id": "0055763512444649"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "long_press": 1,
+            "swipe": 7,
+            "tap": 13
+          },
+          "decision_count": 23,
+          "normalized_app_labels": [
+            "ap news",
+            "simplenote",
+            "yandex translate"
+          ],
+          "role": "development",
+          "row_index": 9,
+          "selection_rank": 1,
+          "selection_sha256": "01c050b39027730cd5c4ab1e62bb77c41adf971ebb3c13484394d669172671ed",
+          "shard_path": "mobile/use/train/shard-00007-of-00610.parquet",
+          "trajectory_id": "0110997430924494"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "swipe": 3,
+            "tap": 13,
+            "type_text": 3
+          },
+          "decision_count": 21,
+          "normalized_app_labels": [
+            "chrome",
+            "messenger",
+            "weather & radar"
+          ],
+          "role": "development",
+          "row_index": 8,
+          "selection_rank": 2,
+          "selection_sha256": "17a77a5590c5a0bad674d9f215ef6730290d6ee70e3efc066a6106178518a984",
+          "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+          "trajectory_id": "0006223132449496"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "long_press": 1,
+            "swipe": 1,
+            "tap": 23,
+            "type_text": 2
+          },
+          "decision_count": 29,
+          "normalized_app_labels": [
+            "firefox browser",
+            "plantin",
+            "wps office"
+          ],
+          "role": "development",
+          "row_index": 4,
+          "selection_rank": 3,
+          "selection_sha256": "1a600aafc85aebf74d92f67f13026f0c790711dcaf03d7148a2d539184edc73f",
+          "shard_path": "mobile/use/train/shard-00013-of-00610.parquet",
+          "trajectory_id": "0201385541141990"
+        },
+        {
+          "action_type_counts": {
+            "home": 3,
+            "swipe": 9,
+            "tap": 19,
+            "type_text": 3
+          },
+          "decision_count": 34,
+          "normalized_app_labels": [
+            "clock",
+            "duckduckgo",
+            "ebay",
+            "messenger"
+          ],
+          "role": "development",
+          "row_index": 0,
+          "selection_rank": 4,
+          "selection_sha256": "1bc79738f7d965a9bbf4bf7ac5d1b52f9de624e7bc55f5b3d322620914cfc450",
+          "shard_path": "mobile/use/train/shard-00014-of-00610.parquet",
+          "trajectory_id": "0208386818158031"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "swipe": 4,
+            "tap": 11,
+            "type_text": 4
+          },
+          "decision_count": 21,
+          "normalized_app_labels": [
+            "firefox browser",
+            "google keep",
+            "youtube"
+          ],
+          "role": "development",
+          "row_index": 2,
+          "selection_rank": 5,
+          "selection_sha256": "22bcd98f6fa8fb3226608e80d6c0e54d771f7a6b7c12ac639b3545041b90f4c1",
+          "shard_path": "mobile/use/train/shard-00009-of-00610.parquet",
+          "trajectory_id": "0130396353236731"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "long_press": 1,
+            "swipe": 4,
+            "tap": 16
+          },
+          "decision_count": 23,
+          "normalized_app_labels": [
+            "ap news",
+            "google docs",
+            "google translate"
+          ],
+          "role": "development",
+          "row_index": 3,
+          "selection_rank": 6,
+          "selection_sha256": "2416e20eac2b6ebd8e8d11a3d63d5bbfb760e83c15b771b54844a8aedf5cf285",
+          "shard_path": "mobile/use/train/shard-00012-of-00610.parquet",
+          "trajectory_id": "0182300322856881"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "swipe": 2,
+            "tap": 16,
+            "type_text": 3
+          },
+          "decision_count": 23,
+          "normalized_app_labels": [
+            "chrome",
+            "facebook",
+            "windy.com-weather forecast"
+          ],
+          "role": "development",
+          "row_index": 0,
+          "selection_rank": 7,
+          "selection_sha256": "258b2ea468047eabd50d27da46ca76ba6a2a81b4deae35bc544fc491bc9f23f1",
+          "shard_path": "mobile/use/train/shard-00012-of-00610.parquet",
+          "trajectory_id": "0180696773201938"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "swipe": 2,
+            "tap": 17,
+            "type_text": 3
+          },
+          "decision_count": 24,
+          "normalized_app_labels": [
+            "ebay",
+            "microsoft to do",
+            "opera"
+          ],
+          "role": "development",
+          "row_index": 1,
+          "selection_rank": 8,
+          "selection_sha256": "268a13ef8b8e2ca39ef0848ef0a00515af6ee7bd04cc03d1c888ef823cb3830e",
+          "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+          "trajectory_id": "0000912578932237"
+        },
+        {
+          "action_type_counts": {
+            "home": 3,
+            "swipe": 2,
+            "tap": 20,
+            "type_text": 2
+          },
+          "decision_count": 27,
+          "normalized_app_labels": [
+            "clock",
+            "tumblr",
+            "zoom cloud meetings"
+          ],
+          "role": "development",
+          "row_index": 6,
+          "selection_rank": 9,
+          "selection_sha256": "28581d6acd7d934dccf7e6f0e6fc60a3056488e5c443f3d9dd5a38f738633420",
+          "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+          "trajectory_id": "0003539114117434"
+        },
+        {
+          "action_type_counts": {
+            "back": 1,
+            "home": 1,
+            "swipe": 1,
+            "tap": 13,
+            "type_text": 2
+          },
+          "decision_count": 18,
+          "normalized_app_labels": [
+            "ebay",
+            "quora"
+          ],
+          "role": "development",
+          "row_index": 8,
+          "selection_rank": 10,
+          "selection_sha256": "2ea85f05d24000fbda1cf52d08c46ecefef592d2e466ba03de74f9e4951ecb64",
+          "shard_path": "mobile/use/train/shard-00015-of-00610.parquet",
+          "trajectory_id": "0232938451233458"
+        },
+        {
+          "action_type_counts": {
+            "back": 2,
+            "home": 2,
+            "swipe": 15,
+            "tap": 16,
+            "type_text": 3
+          },
+          "decision_count": 38,
+          "normalized_app_labels": [
+            "aliexpress",
+            "instagram",
+            "shop: all your favorite brands"
+          ],
+          "role": "development",
+          "row_index": 0,
+          "selection_rank": 11,
+          "selection_sha256": "3a4c968b7f331a7f70ba3effcf7f7e9875fdeb53505f791214cafe9cbd1709cb",
+          "shard_path": "mobile/use/train/shard-00003-of-00610.parquet",
+          "trajectory_id": "0044058198676449"
+        },
+        {
+          "action_type_counts": {
+            "home": 1,
+            "long_press": 2,
+            "swipe": 1,
+            "tap": 15,
+            "type_text": 2
+          },
+          "decision_count": 21,
+          "normalized_app_labels": [
+            "duckduckgo",
+            "to-do list"
+          ],
+          "role": "development",
+          "row_index": 12,
+          "selection_rank": 12,
+          "selection_sha256": "42f4c546ef07b0a4fa5e132d4fb97753641061834d072d20c37139ddfe72dd05",
+          "shard_path": "mobile/use/train/shard-00010-of-00610.parquet",
+          "trajectory_id": "0153415879272729"
+        },
+        {
+          "action_type_counts": {
+            "home": 1,
+            "swipe": 2,
+            "tap": 13,
+            "type_text": 2
+          },
+          "decision_count": 18,
+          "normalized_app_labels": [
+            "booking.com",
+            "threads"
+          ],
+          "role": "development",
+          "row_index": 8,
+          "selection_rank": 13,
+          "selection_sha256": "46dfa1c03a80fd9813be0bd1bff23c603f433f78ba9235e60a07d02a0e4cdeb1",
+          "shard_path": "mobile/use/train/shard-00009-of-00610.parquet",
+          "trajectory_id": "0134650730837716"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "swipe": 7,
+            "tap": 26,
+            "type_text": 4
+          },
+          "decision_count": 39,
+          "normalized_app_labels": [
+            "ebay",
+            "opera",
+            "ticktick"
+          ],
+          "role": "development",
+          "row_index": 2,
+          "selection_rank": 14,
+          "selection_sha256": "485762df5cd3730e7b6f90961c4ead75e1b894f249ff96b58263de9ac5d11369",
+          "shard_path": "mobile/use/train/shard-00014-of-00610.parquet",
+          "trajectory_id": "0209669493349682"
+        },
+        {
+          "action_type_counts": {
+            "home": 1,
+            "swipe": 1,
+            "tap": 15,
+            "type_text": 2
+          },
+          "decision_count": 19,
+          "normalized_app_labels": [
+            "facebook",
+            "pandora"
+          ],
+          "role": "development",
+          "row_index": 8,
+          "selection_rank": 15,
+          "selection_sha256": "4ad037b1ba494ca083b86307f89f83773b20a3cf8c4db8cf913e170169c8b3de",
+          "shard_path": "mobile/use/train/shard-00014-of-00610.parquet",
+          "trajectory_id": "0216238331645742"
+        },
+        {
+          "action_type_counts": {
+            "home": 3,
+            "swipe": 4,
+            "tap": 21,
+            "type_text": 3
+          },
+          "decision_count": 31,
+          "normalized_app_labels": [
+            "amazon",
+            "chrome",
+            "clock",
+            "instagram"
+          ],
+          "role": "development",
+          "row_index": 6,
+          "selection_rank": 16,
+          "selection_sha256": "4ec066fb3b500fc45f65b708a20975f6012177abae8c27abf83af8f8f7bedb55",
+          "shard_path": "mobile/use/train/shard-00003-of-00610.parquet",
+          "trajectory_id": "0050345490833597"
+        },
+        {
+          "action_type_counts": {
+            "home": 3,
+            "swipe": 1,
+            "tap": 24,
+            "type_text": 3
+          },
+          "decision_count": 31,
+          "normalized_app_labels": [
+            "amazon",
+            "clock",
+            "facebook",
+            "opera"
+          ],
+          "role": "development",
+          "row_index": 0,
+          "selection_rank": 17,
+          "selection_sha256": "5007ca5fcbe6881aa91b08a3fd8f3750d5c07b37504c182add65e7ac23d326b7",
+          "shard_path": "mobile/use/train/shard-00008-of-00610.parquet",
+          "trajectory_id": "0117550419342475"
+        },
+        {
+          "action_type_counts": {
+            "home": 3,
+            "swipe": 2,
+            "tap": 22,
+            "type_text": 5
+          },
+          "decision_count": 32,
+          "normalized_app_labels": [
+            "google keep",
+            "the weather channel",
+            "traveloka",
+            "tripadvisor"
+          ],
+          "role": "development",
+          "row_index": 3,
+          "selection_rank": 18,
+          "selection_sha256": "5959e2609f6b80f0ec6d3dea6aad04ab9f590eff3b0ba71cf5cb7e7c01f551a5",
+          "shard_path": "mobile/use/train/shard-00004-of-00610.parquet",
+          "trajectory_id": "0055180990380237"
+        },
+        {
+          "action_type_counts": {
+            "back": 1,
+            "home": 3,
+            "swipe": 3,
+            "tap": 15,
+            "type_text": 3
+          },
+          "decision_count": 25,
+          "normalized_app_labels": [
+            "amazon",
+            "edge",
+            "shop: all your favorite brands"
+          ],
+          "role": "development",
+          "row_index": 0,
+          "selection_rank": 19,
+          "selection_sha256": "67caaee394ff85bc7667cbf6639255216fb728b6595d1e3d18e617b387fe1385",
+          "shard_path": "mobile/use/train/shard-00013-of-00610.parquet",
+          "trajectory_id": "0193478855322542"
+        },
+        {
+          "action_type_counts": {
+            "home": 4,
+            "swipe": 15,
+            "tap": 21,
+            "type_text": 3
+          },
+          "decision_count": 43,
+          "normalized_app_labels": [
+            "amazon",
+            "clock",
+            "duckduckgo",
+            "tumblr"
+          ],
+          "role": "development",
+          "row_index": 0,
+          "selection_rank": 20,
+          "selection_sha256": "6868a0edd34cc9d8bd3b2181d1c57c4831af11e5a841e1f294b5e236c91bc967",
+          "shard_path": "mobile/use/train/shard-00004-of-00610.parquet",
+          "trajectory_id": "0053721915679562"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "swipe": 2,
+            "tap": 19,
+            "type_text": 2
+          },
+          "decision_count": 25,
+          "normalized_app_labels": [
+            "clock",
+            "google meet",
+            "tumblr"
+          ],
+          "role": "development",
+          "row_index": 9,
+          "selection_rank": 21,
+          "selection_sha256": "6e0f6ef1cfef35e4ed7d95c40a36e402423205274d06a238bc00ce67cebf7d1a",
+          "shard_path": "mobile/use/train/shard-00011-of-00610.parquet",
+          "trajectory_id": "0173202679441530"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "long_press": 1,
+            "swipe": 2,
+            "tap": 15
+          },
+          "decision_count": 20,
+          "normalized_app_labels": [
+            "google keep",
+            "opera news",
+            "yandex translate"
+          ],
+          "role": "development",
+          "row_index": 10,
+          "selection_rank": 22,
+          "selection_sha256": "76fa042daa2fc27b7f9150443f3cf0f12c3b3abf3f94bf5975826927a24c70ce",
+          "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+          "trajectory_id": "0011506778189106"
+        },
+        {
+          "action_type_counts": {
+            "home": 2,
+            "swipe": 4,
+            "tap": 18,
+            "type_text": 3
+          },
+          "decision_count": 27,
+          "normalized_app_labels": [
+            "clock",
+            "gmail",
+            "zoho meeting"
+          ],
+          "role": "development",
+          "row_index": 14,
+          "selection_rank": 23,
+          "selection_sha256": "903ccf43b1513d8c265304c45105706080eb4d3309fba4e6d58f8a8829d111a0",
+          "shard_path": "mobile/use/train/shard-00015-of-00610.parquet",
+          "trajectory_id": "0237057265828895"
+        }
+      ],
+      "trajectory_count": 24,
+      "trajectory_ids": [
+        "0055763512444649",
+        "0110997430924494",
+        "0006223132449496",
+        "0201385541141990",
+        "0208386818158031",
+        "0130396353236731",
+        "0182300322856881",
+        "0180696773201938",
+        "0000912578932237",
+        "0003539114117434",
+        "0232938451233458",
+        "0044058198676449",
+        "0153415879272729",
+        "0134650730837716",
+        "0209669493349682",
+        "0216238331645742",
+        "0050345490833597",
+        "0117550419342475",
+        "0055180990380237",
+        "0193478855322542",
+        "0053721915679562",
+        "0173202679441530",
+        "0011506778189106",
+        "0237057265828895"
+      ],
+      "trajectory_ids_sha256": "da97d78bf8d3b7e2ea6fd00a8c2129dcc0491315c25e2284bdebfb075587b0f9"
+    },
+    "unopened_reserve": {
+      "decision_count": 455,
+      "state_count": 0,
+      "states": [],
+      "status": "STRUCTURALLY_SELECTED_BUT_UNOPENED_FOR_POLICY_OCR_RESTORATION_AND_SELECTORS",
+      "trajectories": [
+        {
+          "decision_count": 33,
+          "role": "unopened_reserve",
+          "row_index": 9,
+          "selection_rank": 24,
+          "selection_sha256": "998335334d18681fd9cf77c52743c1869a55e2f2446581b4e2697f984067322e",
+          "shard_path": "mobile/use/train/shard-00005-of-00610.parquet",
+          "trajectory_id": "0080420605470053"
+        },
+        {
+          "decision_count": 22,
+          "role": "unopened_reserve",
+          "row_index": 13,
+          "selection_rank": 25,
+          "selection_sha256": "9a299053e416606c9d197400ab25d29b5ee82ddc8b2cd5954d531eea5d44727a",
+          "shard_path": "mobile/use/train/shard-00015-of-00610.parquet",
+          "trajectory_id": "0237001828941270"
+        },
+        {
+          "decision_count": 20,
+          "role": "unopened_reserve",
+          "row_index": 10,
+          "selection_rank": 26,
+          "selection_sha256": "aa159aa307e5b2aecd2ac166d56bb87567f93bb0470405ea192008534cf3eaa6",
+          "shard_path": "mobile/use/train/shard-00011-of-00610.parquet",
+          "trajectory_id": "0175519266551894"
+        },
+        {
+          "decision_count": 28,
+          "role": "unopened_reserve",
+          "row_index": 7,
+          "selection_rank": 27,
+          "selection_sha256": "ac7101ef31e427f3978bd453cacd6b5618a09930509610188b343659189b781c",
+          "shard_path": "mobile/use/train/shard-00010-of-00610.parquet",
+          "trajectory_id": "0143421515237132"
+        },
+        {
+          "decision_count": 19,
+          "role": "unopened_reserve",
+          "row_index": 7,
+          "selection_rank": 28,
+          "selection_sha256": "ad01d912437e98ddd36f3c68a1cc7b5fce20facbcff05497cbad837ed21d8d7d",
+          "shard_path": "mobile/use/train/shard-00006-of-00610.parquet",
+          "trajectory_id": "0090674044557997"
+        },
+        {
+          "decision_count": 28,
+          "role": "unopened_reserve",
+          "row_index": 2,
+          "selection_rank": 29,
+          "selection_sha256": "b6a30e05f0a6d2d0c49ba0c031c941a30db8ee464c22879ad32e785a29b84a32",
+          "shard_path": "mobile/use/train/shard-00002-of-00610.parquet",
+          "trajectory_id": "0031917311796626"
+        },
+        {
+          "decision_count": 25,
+          "role": "unopened_reserve",
+          "row_index": 5,
+          "selection_rank": 30,
+          "selection_sha256": "b87f1fd6af23dc0aad75f6cb87e8ea6dfe55bd3f1a2ebf801c9ba5f5f020d031",
+          "shard_path": "mobile/use/train/shard-00005-of-00610.parquet",
+          "trajectory_id": "0073631237300890"
+        },
+        {
+          "decision_count": 27,
+          "role": "unopened_reserve",
+          "row_index": 3,
+          "selection_rank": 31,
+          "selection_sha256": "c24f448912a60c75b0fc151ec1d61cfaed72ec8ba0320be881f4e14e52c7e04a",
+          "shard_path": "mobile/use/train/shard-00000-of-00610.parquet",
+          "trajectory_id": "0002412570554203"
+        },
+        {
+          "decision_count": 26,
+          "role": "unopened_reserve",
+          "row_index": 2,
+          "selection_rank": 32,
+          "selection_sha256": "c808564321fadaf4d0c56fa83bc5c6c5617e8e117b2d7f58b99d546187e833ea",
+          "shard_path": "mobile/use/train/shard-00007-of-00610.parquet",
+          "trajectory_id": "0102007049071800"
+        },
+        {
+          "decision_count": 19,
+          "role": "unopened_reserve",
+          "row_index": 8,
+          "selection_rank": 33,
+          "selection_sha256": "ca92812977abe8049eea34c375a6afa392644de1739e1800e7944bc1b076b2c1",
+          "shard_path": "mobile/use/train/shard-00006-of-00610.parquet",
+          "trajectory_id": "0091670741953474"
+        },
+        {
+          "decision_count": 24,
+          "role": "unopened_reserve",
+          "row_index": 3,
+          "selection_rank": 34,
+          "selection_sha256": "d55905d02cd121d80b0259151925f929c1142d9d25805732e64bff9418ddb8cc",
+          "shard_path": "mobile/use/train/shard-00003-of-00610.parquet",
+          "trajectory_id": "0047881550315557"
+        },
+        {
+          "decision_count": 27,
+          "role": "unopened_reserve",
+          "row_index": 7,
+          "selection_rank": 35,
+          "selection_sha256": "e0dc1264cea902e2c0674a884e4f9448b3af1d3321bdc1a16cfa0e54e0759e89",
+          "shard_path": "mobile/use/train/shard-00002-of-00610.parquet",
+          "trajectory_id": "0041381165657546"
+        },
+        {
+          "decision_count": 26,
+          "role": "unopened_reserve",
+          "row_index": 2,
+          "selection_rank": 36,
+          "selection_sha256": "e3d8a7b61b0b81f612665802e5430d026ccb405f8762548268639d0d25b82f0d",
+          "shard_path": "mobile/use/train/shard-00013-of-00610.parquet",
+          "trajectory_id": "0197987108916412"
+        },
+        {
+          "decision_count": 22,
+          "role": "unopened_reserve",
+          "row_index": 6,
+          "selection_rank": 37,
+          "selection_sha256": "e61d7087bc3b5ead354be1ee38564f02a4eea0ca5c143afb2f6821e92fb9e76e",
+          "shard_path": "mobile/use/train/shard-00001-of-00610.parquet",
+          "trajectory_id": "0018651612081817"
+        },
+        {
+          "decision_count": 30,
+          "role": "unopened_reserve",
+          "row_index": 5,
+          "selection_rank": 38,
+          "selection_sha256": "ecc02079e6f6596410d8779ba0147dc47dc86000b760102e6f42b5335d59d136",
+          "shard_path": "mobile/use/train/shard-00003-of-00610.parquet",
+          "trajectory_id": "0049784429163055"
+        },
+        {
+          "decision_count": 23,
+          "role": "unopened_reserve",
+          "row_index": 3,
+          "selection_rank": 39,
+          "selection_sha256": "f489fc618080fad5f6b7f4c7161985a6ac11c9c55f5f85d6dfa7aeb8d5c82bcd",
+          "shard_path": "mobile/use/train/shard-00005-of-00610.parquet",
+          "trajectory_id": "0072220970505843"
+        },
+        {
+          "decision_count": 37,
+          "role": "unopened_reserve",
+          "row_index": 2,
+          "selection_rank": 40,
+          "selection_sha256": "f971eb5d57999eaf7e2c249308cccaf9e0cd4c2f9996a435f7ca2d983a3259c6",
+          "shard_path": "mobile/use/train/shard-00006-of-00610.parquet",
+          "trajectory_id": "0084442481728114"
+        },
+        {
+          "decision_count": 19,
+          "role": "unopened_reserve",
+          "row_index": 11,
+          "selection_rank": 41,
+          "selection_sha256": "fb662e1d44ca120a3d72b1806a58536986436060eec340162e11cb56b77144ec",
+          "shard_path": "mobile/use/train/shard-00010-of-00610.parquet",
+          "trajectory_id": "0152590721816116"
+        }
+      ],
+      "trajectory_count": 18,
+      "trajectory_ids": [
+        "0080420605470053",
+        "0237001828941270",
+        "0175519266551894",
+        "0143421515237132",
+        "0090674044557997",
+        "0031917311796626",
+        "0073631237300890",
+        "0002412570554203",
+        "0102007049071800",
+        "0091670741953474",
+        "0047881550315557",
+        "0041381165657546",
+        "0197987108916412",
+        "0018651612081817",
+        "0049784429163055",
+        "0072220970505843",
+        "0084442481728114",
+        "0152590721816116"
+      ],
+      "trajectory_ids_sha256": "0783592f77fccca024519aa761b79852004f360dd0803de86cc963d9dc48a4df"
+    }
+  },
+  "status": "SEALED_LONG_HORIZON_STRUCTURAL_SELECTION_V1",
+  "validity_and_go_plan": {
+    "canonical_action_validity": {
+      "both_parses_must_succeed": true,
+      "canonical_actions_must_be_exactly_identical": true,
+      "each_n16_pair_union_reference_applies_independently": true,
+      "independent_parse_repetitions": 2,
+      "invalid_counts_must_be_retained_by_state_geometry_and_comparator_pair": true,
+      "invalid_trajectory_replacement_allowed": false,
+      "invalid_trajectory_top_up_allowed": false,
+      "n8_full_reference_applies": true
+    },
+    "fixed_denominator_reduction": {
+      "bootstrap_uses_all_selected_trajectories": true,
+      "invalid_state_contribution": 0.0,
+      "n16_pair_delta_zero_fill": true,
+      "n8_exact_utility_ratio_zero_fill": true,
+      "n8_paired_delta_zero_fill": true,
+      "positive_support_uses_all_selected_trajectories": true,
+      "selected_trajectory_denominator": 24,
+      "valid_state_missing_or_duplicate_selector_outcome": "INVALID_LONG_HORIZON_SELECTOR_JOIN",
+      "zero_exact_oracle_utility_ratio": 0.0
+    },
+    "independent_long_horizon_development_go": {
+      "all_n8_and_n16_conditions_are_jointly_necessary": true,
+      "budget_2_is_secondary_report_only": true,
+      "failure_outcome": "NO_GO_LONG_HORIZON_INDEPENDENT_DEVELOPMENT_V1",
+      "n16_budget_4_comparator_pairs": [
+        [
+          "restoration_independent_gate",
+          "recent"
+        ],
+        [
+          "restoration_independent_gate",
+          "ocr_rgb_v2"
+        ]
+      ],
+      "n16_per_pair_mean_normalized_delta_must_be_strictly_positive": true,
+      "n16_per_pair_mean_raw_delta_must_be_strictly_positive": true,
+      "n8_comparators": [
+        "recent",
+        "ocr_rgb_v2"
+      ],
+      "n8_exact_reference": "exact_subset_oracle_with_cardinality_at_most_4",
+      "n8_fixed_selected_trajectory_denominator": 24,
+      "n8_paired_trajectory_bootstrap_confidence": 0.9,
+      "n8_paired_trajectory_bootstrap_iterations": 10000,
+      "n8_paired_trajectory_bootstrap_seed": 20260718,
+      "n8_per_comparator_minimum_positive_trajectories": 14,
+      "n8_per_comparator_paired_bootstrap_lower_bound_must_be_strictly_positive": true,
+      "n8_per_comparator_trajectory_equal_mean_normalized_delta_must_be_strictly_positive": true,
+      "n8_per_comparator_trajectory_equal_mean_raw_delta_must_be_strictly_positive": true,
+      "n8_trajectory_equal_mean_raw_utility_ratio_to_exact_minimum": 0.85,
+      "old_closed_loop_or_test_direct_unlock_allowed": false,
+      "pass_outcome": "AUTHORIZE_NEW_CLOSED_LOOP_SOURCE_A_ONLY",
+      "primary_budget": 4
+    },
+    "normalization": {
+      "denominator": "D(empty)",
+      "normalized_value_when_denominator_at_or_below_threshold": 0.0,
+      "zero_denominator_record_must_be_retained": true,
+      "zero_denominator_state_filtering_allowed": false,
+      "zero_threshold": 1e-12
+    },
+    "policy_coverage_thresholds": {
+      "failure_outcome": "NO_GO_INSUFFICIENT_LONG_HORIZON_POLICY_COVERAGE",
+      "minimum_valid_n16_trajectories_per_comparator_pair": 18,
+      "minimum_valid_n8_trajectories": 18,
+      "overall_go_claim_allowed_below_any_threshold": false,
+      "selected_development_trajectory_denominator": 24
+    },
+    "set_aware_vs_independent_development_go": {
+      "all_n8_and_n16_conditions_are_jointly_necessary": true,
+      "applies_to_budget": 2,
+      "conditions_apply_separately_to_each_named_set_aware_selector": true,
+      "corresponding_n16_pair_mean_normalized_delta_must_be_strictly_positive": true,
+      "failure_outcome": "NO_GO_SET_AWARE_LONG_HORIZON_DEVELOPMENT_V1",
+      "n8_fixed_selected_trajectory_denominator": 24,
+      "n8_minimum_positive_trajectories": 14,
+      "n8_paired_bootstrap_lower_bound_must_be_strictly_positive": true,
+      "n8_paired_trajectory_bootstrap_confidence": 0.9,
+      "n8_paired_trajectory_bootstrap_iterations": 10000,
+      "n8_paired_trajectory_bootstrap_seed": 20260718,
+      "n8_trajectory_equal_mean_normalized_delta_minimum": 0.01,
+      "n8_trajectory_equal_mean_raw_delta_must_be_strictly_positive": true,
+      "overall_set_aware_go_requires_at_least_one_selector_to_pass_all_its_conditions": true,
+      "post_result_best_of_threshold_or_selector_redefinition_allowed": false,
+      "reference_selector": "restoration_independent_gate",
+      "set_aware_selectors": [
+        "v1_conditional",
+        "v4_safe_frozen_base_residual"
+      ]
+    }
+  }
+}
