@@ -1,9 +1,9 @@
 # Gate v1 fresh-16 primary evaluation
 
-> 当前状态：formal-58 gate 已完成训练、private-HF model seal 与只读 immutable replay；本阶段只在
-> Source-A 中冻结 fresh-16 evaluation 的输入、variable-`n` comparator、访问防火墙、双 H200 schedule 与
-> 两段 publication contract。**截至本 Source-A 文档快照，尚未 semantic-decode 任何真实 fresh-16
-> trajectory/OCR/image/label，也没有 fresh-16 GO、旧 dev-5、confirm、matched-NLL 或 closed-loop 结果。**
+> 当前状态：formal-58 gate 已完成训练、private-HF model seal 与只读 immutable replay。fresh-16 v1
+> Source-A/Execution-B 已冻结，但 2026-07-18 的首次 formal attempt 在 derived repo exact-tree preflight
+> fail closed。**失败发生在任何 fresh trajectory/OCR/image/label semantic decode 之前；没有 fresh-16 GO、
+> 旧 dev-5、confirm、matched-NLL 或 closed-loop 结果。旧 attempt 永久保留且不可续跑。**
 
 本协议只回答一个预注册问题：冻结的 conditional / independent ensemble 在从未参与训练或选择的
 `fresh_development` 16 条 trajectory 上，是否同时通过 `GO_SELECTOR` 与 `GO_SET_CONDITIONING`。阈值、bootstrap
@@ -32,8 +32,23 @@
   SHA256 `c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e`；
 - fresh-16 planned private HF destination：
   `gavinlaw/causalcache-gate-v1-fresh16-evaluation-mobile`，tag
-  `gate-v1-fresh16-evaluation-v1`。在完成正式 B 之前该 destination 不是结果 SoT，也不能把预期 URL 或 tag
-  写成已经发布。
+  `gate-v1-fresh16-evaluation-v1`。v1 failure 后该 destination 仍不存在，不能把预期 URL 或 tag 写成已经发布；
+- v1 pre-semantic failure evidence：
+  [`data/results/gate_v1_fresh16_evaluation_v1_attempt/`](../data/results/gate_v1_fresh16_evaluation_v1_attempt/)。
+
+## v1 pre-semantic inventory failure
+
+Source-A=`97694eff052ecbdc5f12f58b6f9ee10f4dd616ab`，机械 direct-child
+Execution-B=`a8bb27ccf9b8820c1d8487f63883f813e6845645`。Hyper00 上的 formal run 已先验证 exact Docker receipt、
+双 H200 与 14-file GUI-Owl projection；随后在 `_download_primary_inputs()` 的第一次 derived-repo inventory
+检查中退出。冻结 revision `630363a6adb692d72774f16dd0653a50216313ff` 有 15 个 remote paths：4 个本阶段
+消费的 label-expansion paths、`.gitattributes`/`README.md` 与 9 个历史 artifact paths。v1 validator 只把前 4
+个和两个 base paths 纳入允许集合，因此错误地把同一 immutable revision 中的历史 paths 判为 drift。
+
+旧 namespace 只留下 mode-0600 `runtime_receipts` 与 `global_claim`；artifact 目录为空，label claim、policy worker、
+report、HF destination/tag 全部不存在。该 failure 不是 selector NO-GO，也没有泄露 fresh labels。repair 必须绑定
+旧两条 receipt 与旧 successor absence，显式冻结完整 15-path remote inventory，并切换到新的 local namespace；
+不能删除旧目录后重新调用 v1。
 
 ## 固定 denominator 与 selective input
 

@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "attempt_id": "gate-v1-fresh16-evaluation-v1-attempt-1",
+  "status": "INVALID_PRE_SEMANTIC_INPUT_INVENTORY_FAILURE",
+  "source_a_git_commit": "97694eff052ecbdc5f12f58b6f9ee10f4dd616ab",
+  "execution_b_git_commit": "a8bb27ccf9b8820c1d8487f63883f813e6845645",
+  "contract_sha256": "c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e",
+  "runtime": {
+    "host": "hyper00",
+    "container_name": "sglang-omni-jaxan-07181130",
+    "container_id": "2b8c8464ce398036d38c870ebe9011dd295691ec77d0cdc8a840c9ed5eb8e865",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "docker_inspect_receipt_sha256": "7eccdc0cf09ec6e8e2d771b6de50793d53011daba28fc24e21d627335a1d3043",
+    "privileged": false,
+    "runtime": "runc",
+    "gpu_count": 2,
+    "gpu_class": "NVIDIA H200",
+    "started_at_utc": "2026-07-18T03:40:39Z",
+    "exit_code": 1
+  },
+  "failure": {
+    "exception": "ValueError",
+    "message": "immutable input repo file inventory drifted",
+    "stage": "derived_input_inventory_validation_before_download",
+    "derived_repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "derived_revision": "630363a6adb692d72774f16dd0653a50216313ff",
+    "configured_consumed_path_count": 4,
+    "actual_remote_path_count": 15,
+    "allowed_base_path_count": 2,
+    "unbound_historical_artifact_path_count": 9,
+    "unbound_historical_artifact_paths": [
+      "derived/restoration-v2-v1/images-00000-of-00001.tar",
+      "derived/restoration-v2-v1/manifest.json",
+      "derived/restoration-v2-v1/ocr-records-00000-of-00001.jsonl",
+      "derived/restoration-v2-v1/trajectories-00000-of-00001.jsonl",
+      "golden/real-screen-v1/images-00000-of-00001.tar",
+      "golden/real-screen-v1/manifest.json",
+      "golden/real-screen-v1/ocr-records-00000-of-00001.jsonl",
+      "runs/restoration-v2-substrate-screening-v1/artifact_manifest.json",
+      "runs/restoration-v2-substrate-screening-v1/restoration-v2-substrate-screening-20260715T182823Z.tar.gz"
+    ],
+    "run_log_sha256": "348d821024c3ab49f6c8d7185f18d10727b6d909aa4eb57c0061d0aa08a0a1dd"
+  },
+  "retained_local_evidence": {
+    "state_namespace": "/data/experiments/causalcache/gate-v1-fresh16-evaluation-v1",
+    "ordered_state_names": [
+      "runtime_receipts",
+      "global_claim"
+    ],
+    "runtime_receipt_sha256": "b27fbf6f80e46fdc7d50d862508783d0bec8e073d662db52ba2b3b979d037c9e",
+    "global_claim_sha256": "23955e7cd7d81306888a11d3bbecf318339ce77d8943fc243ff239419498d6c5"
+  },
+  "remote": {
+    "planned_repo": "gavinlaw/causalcache-gate-v1-fresh16-evaluation-mobile",
+    "planned_tag": "gate-v1-fresh16-evaluation-v1",
+    "destination_exists_after_failure": false,
+    "remote_mutation_count": 0
+  },
+  "operation_counts": {
+    "fresh_trajectory_semantic_decode": 0,
+    "fresh_ocr_semantic_decode": 0,
+    "fresh_image_decode": 0,
+    "fresh_label_semantic_decode": 0,
+    "label_access_claim": 0,
+    "checkpoint_load": 0,
+    "policy_worker": 0,
+    "vision_forward": 0,
+    "primary_report": 0,
+    "hf_mutation": 0,
+    "legacy_dev5_access": 0,
+    "confirm_access": 0,
+    "matched_nll": 0,
+    "closed_loop": 0
+  },
+  "scientific_outcome": {
+    "go_selector": null,
+    "go_set_conditioning": null,
+    "paper_metric_valid": false
+  },
+  "next_action": "freeze a separate full-remote-inventory repair contract and use new local namespaces"
+}

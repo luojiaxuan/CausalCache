@@ -2642,3 +2642,20 @@ architecture、LR、epoch、loss、threshold 或 seed，也不得把 combined-21
 - 当前尚未读取任何真实 fresh-16 trajectory/OCR/image/label，也没有 GO verdict。下一步是 commit/push
   Source-A；随后从 clean A 机械生成唯一 runner-freeze B 并单独 commit/push，最后才在两张 H200 上运行。完整说明见
   `docs/gate_v1_fresh16_evaluation.md`。
+
+### 2026-07-18：fresh-16 v1 pre-semantic inventory failure
+
+- Source-A=`97694eff052ecbdc5f12f58b6f9ee10f4dd616ab`，机械 direct-child
+  Execution-B=`a8bb27ccf9b8820c1d8487f63883f813e6845645` 均已 push；config SHA256 为
+  `c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e`；
+- Hyper00 container `sglang-omni-jaxan-07181130` 是 unprivileged `runc`、精确 2 张 H200、冻结 image digest。
+  GUI-Owl verified projection 已重放 14 files / 17,545,907,171 bytes，logical CUDA UUID 一一匹配；
+- formal attempt 在 derived input download/semantic decode 前，由 exact-tree validator 返回
+  `immutable input repo file inventory drifted`。immutable revision 实际有 15 paths；v1 只声明 4 个消费 paths
+  并默认允许 `.gitattributes`/`README.md`，漏绑 9 个同 repo 历史 artifact paths；
+- 旧 state namespace 只保留 `runtime_receipts` 与 `global_claim`。fresh trajectory/OCR/image/label decode、label
+  claim、checkpoint load、policy worker、vision forward、report、HF mutation、旧 dev-5、confirm、matched-NLL 与
+  closed-loop operation 全为 0；planned HF destination/tag 仍不存在；
+- 旧 v1 不删除、不覆盖、不续跑，也不解释为 selector NO-GO。轻量证据在
+  `data/results/gate_v1_fresh16_evaluation_v1_attempt/`。下一步另立 full-remote-inventory repair A/B，绑定旧 failure
+  receipts 与 successor absence，切换新 state/artifact/runtime-receipt namespace后才能再次授权 fresh access。
