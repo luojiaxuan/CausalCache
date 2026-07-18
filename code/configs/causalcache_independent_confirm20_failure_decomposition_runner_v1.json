@@ -1,0 +1,198 @@
+{
+  "child_repo": "gavinlaw/causalcache-independent-confirm20-failure-decomposition-mobile",
+  "child_tag": "independent-confirm20-failure-decomposition-v1",
+  "closed_loop_authorized": false,
+  "contract_path": "code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json",
+  "contract_sha256": "e522f5cab8bfd359d8a869a5a21eac771ae3e81a204a872d619e51bdf31cf020",
+  "contract_size_bytes": 13872,
+  "diagnostic_only": true,
+  "execution_authorized_after_clean_pushed_b_only": true,
+  "execution_b_direct_parent_required": "d3451db74d7bdd415455b87a91718bbedfcd0884",
+  "execution_b_required_unique_diff": [
+    "code/configs/causalcache_independent_confirm20_failure_decomposition_runner_v1.json"
+  ],
+  "gate_training_authorized": false,
+  "git_prerequisites": [
+    {
+      "git_commit": "0a107b6fffa13c0f01dda04d775d7ba4adf48486",
+      "path": "data/results/independent_confirm20_continuation_v1/summary.json",
+      "sha256": "ff1270f7580005c3c6e9aa4bdcf124e804efa9826023626ebcf3115d73254a74",
+      "size_bytes": 9982
+    },
+    {
+      "git_commit": "0a107b6fffa13c0f01dda04d775d7ba4adf48486",
+      "path": "data/results/independent_confirm20_continuation_v1/completion.json",
+      "sha256": "38c659065ef069e3cd0be2cfcfe550f1e3dee81bc2ec8405c3526c80e38ccd77",
+      "size_bytes": 1068
+    },
+    {
+      "path": "code/causalcache/independent_confirm_artifact.py",
+      "sha256": "cabd46bfed1b1ca75182a116eb1fe396130009e741b4849a7c87ef5d6236754b",
+      "size_bytes": 61828
+    },
+    {
+      "path": "code/causalcache/independent_confirm_evaluation.py",
+      "sha256": "4dacdc9bb4f8fc13a0c4b3d45be17e6682ce0301d56d03dd0d44d836a797dbd6",
+      "size_bytes": 18324
+    },
+    {
+      "path": "code/causalcache/gate_v1_fresh16_failure_decomposition.py",
+      "sha256": "b17d87ae504c4f6c004a99406460709b7982a6aa5ae1a51ae1440d74988ff457",
+      "size_bytes": 60405
+    },
+    {
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    }
+  ],
+  "git_prerequisites_sha256": "c5e1af16a94a9b0f7a3bea822644f24ee928cc221d2f2092798f56e2d0ae0332",
+  "loaded_module_inventory": [
+    {
+      "module": "causalcache.independent_confirm_failure_decomposition_contract",
+      "path": "code/causalcache/independent_confirm_failure_decomposition_contract.py",
+      "sha256": "356263a5c1e109b1c550d26ca7a6c629385b85890153de49c3895581cc398ffc",
+      "size_bytes": 35961
+    },
+    {
+      "module": "causalcache.independent_confirm_failure_decomposition",
+      "path": "code/causalcache/independent_confirm_failure_decomposition.py",
+      "sha256": "6c680ceb1cc23422ca71dcc458a5a7ab80fda475243e9eedbcb9712e310d85fb",
+      "size_bytes": 22050
+    },
+    {
+      "module": "causalcache.independent_confirm_failure_decomposition_runner",
+      "path": "code/causalcache/independent_confirm_failure_decomposition_runner.py",
+      "sha256": "537eb36a9db7cfe6cdf5580e6c83ef233d13e03d4f1428b87fcf81f7cc1ab0ec",
+      "size_bytes": 32301
+    },
+    {
+      "module": "scripts.manage_independent_confirm_failure_decomposition",
+      "path": "code/scripts/manage_independent_confirm_failure_decomposition.py",
+      "sha256": "1059ef999530c43c926dbe6a749bbf1eaf50640eddf09119058e2a8f74f94db4",
+      "size_bytes": 5638
+    }
+  ],
+  "loaded_module_inventory_sha256": "9616b27f2b1320e3683ac91c846c59cc7133cf38c86842e5fe891ab5aa7eef71",
+  "matched_nll_authorized": false,
+  "parent_exact_force_download_targets": [
+    {
+      "path": "independent-confirm20/v1/report/bundle-manifest-v1.json",
+      "sha256": "ccc996283b89f41db77c06f320e3b1ac88f3933bc19cfeea4c8b5b508ae4b351",
+      "size_bytes": 2261
+    },
+    {
+      "expected_record_count": 20,
+      "path": "independent-confirm20/v1/report/raw-state-records-v1.jsonl",
+      "sha256": "208fb36abb36b5e82eadcc8dac4ed20c5a030919902afe3e5b69cf6cad76a52a",
+      "size_bytes": 1388707
+    },
+    {
+      "path": "independent-confirm20/v1/report/fixed-report-v1.json",
+      "sha256": "969729deb66e610846694b0fa1139c6b47f3927db7a58b50367f8ed93365198b",
+      "size_bytes": 36666
+    }
+  ],
+  "parent_repo": "gavinlaw/causalcache-independent-confirm20-mobile",
+  "parent_report_commit": "a0b408e58d629299be334a74ecbd0ec2fa2ed1fc",
+  "parent_result_git_commit": "0a107b6fffa13c0f01dda04d775d7ba4adf48486",
+  "parent_tag": "independent-confirm20-v1",
+  "parent_tag_object": "48921cafa00d7102d8b4c709d58061951f90e42c",
+  "protocol_id": "causalcache_independent_confirm20_failure_decomposition_v1",
+  "required_source_a_paths": [
+    "code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json",
+    "code/causalcache/independent_confirm_failure_decomposition_contract.py",
+    "code/causalcache/independent_confirm_failure_decomposition.py",
+    "code/causalcache/independent_confirm_failure_decomposition_runner.py",
+    "code/scripts/manage_independent_confirm_failure_decomposition.py",
+    "code/tests/test_independent_confirm_failure_decomposition_contract.py",
+    "code/tests/test_independent_confirm_failure_decomposition.py",
+    "code/tests/test_independent_confirm_failure_decomposition_runner.py",
+    "data/results/independent_confirm20_continuation_v1/summary.json",
+    "data/results/independent_confirm20_continuation_v1/completion.json",
+    "code/causalcache/independent_confirm_artifact.py",
+    "code/causalcache/independent_confirm_evaluation.py",
+    "code/causalcache/gate_v1_fresh16_failure_decomposition.py",
+    "code/causalcache/restoration_v2_2_label_table.py"
+  ],
+  "required_source_a_paths_sha256": "396d3750c161082ed90097c7a4935c4e1597587df06f0c44e2c76d3c32880d74",
+  "schema_version": "1.0.0",
+  "sealed_androidworld_test_authorized": false,
+  "source_a_git_commit": "d3451db74d7bdd415455b87a91718bbedfcd0884",
+  "source_a_inventory_sha256": "28b92bb29a7ab9b4ed57308b4b8c90f0dfa7e26b75b29b56ac64c86c07562564",
+  "source_a_origin_main_git_commit": "d3451db74d7bdd415455b87a91718bbedfcd0884",
+  "source_blob_inventory": [
+    {
+      "path": "code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json",
+      "sha256": "e522f5cab8bfd359d8a869a5a21eac771ae3e81a204a872d619e51bdf31cf020",
+      "size_bytes": 13872
+    },
+    {
+      "path": "code/causalcache/independent_confirm_failure_decomposition_contract.py",
+      "sha256": "356263a5c1e109b1c550d26ca7a6c629385b85890153de49c3895581cc398ffc",
+      "size_bytes": 35961
+    },
+    {
+      "path": "code/causalcache/independent_confirm_failure_decomposition.py",
+      "sha256": "6c680ceb1cc23422ca71dcc458a5a7ab80fda475243e9eedbcb9712e310d85fb",
+      "size_bytes": 22050
+    },
+    {
+      "path": "code/causalcache/independent_confirm_failure_decomposition_runner.py",
+      "sha256": "537eb36a9db7cfe6cdf5580e6c83ef233d13e03d4f1428b87fcf81f7cc1ab0ec",
+      "size_bytes": 32301
+    },
+    {
+      "path": "code/scripts/manage_independent_confirm_failure_decomposition.py",
+      "sha256": "1059ef999530c43c926dbe6a749bbf1eaf50640eddf09119058e2a8f74f94db4",
+      "size_bytes": 5638
+    },
+    {
+      "path": "code/tests/test_independent_confirm_failure_decomposition_contract.py",
+      "sha256": "6c77fb2ce6b2f87f0384a60fcfaf69fb04a8c52990b2e6d91279ed021034fa55",
+      "size_bytes": 9344
+    },
+    {
+      "path": "code/tests/test_independent_confirm_failure_decomposition.py",
+      "sha256": "d1e9017fa7cd06306c448e813beffd05185f6617536d1efc5283d07febcfc11a",
+      "size_bytes": 9649
+    },
+    {
+      "path": "code/tests/test_independent_confirm_failure_decomposition_runner.py",
+      "sha256": "abf918203d1a59346e1d00a6cbbd0a05c379efb38c4902dfb2b94fe949c7699a",
+      "size_bytes": 13700
+    },
+    {
+      "path": "data/results/independent_confirm20_continuation_v1/summary.json",
+      "sha256": "ff1270f7580005c3c6e9aa4bdcf124e804efa9826023626ebcf3115d73254a74",
+      "size_bytes": 9982
+    },
+    {
+      "path": "data/results/independent_confirm20_continuation_v1/completion.json",
+      "sha256": "38c659065ef069e3cd0be2cfcfe550f1e3dee81bc2ec8405c3526c80e38ccd77",
+      "size_bytes": 1068
+    },
+    {
+      "path": "code/causalcache/independent_confirm_artifact.py",
+      "sha256": "cabd46bfed1b1ca75182a116eb1fe396130009e741b4849a7c87ef5d6236754b",
+      "size_bytes": 61828
+    },
+    {
+      "path": "code/causalcache/independent_confirm_evaluation.py",
+      "sha256": "4dacdc9bb4f8fc13a0c4b3d45be17e6682ce0301d56d03dd0d44d836a797dbd6",
+      "size_bytes": 18324
+    },
+    {
+      "path": "code/causalcache/gate_v1_fresh16_failure_decomposition.py",
+      "sha256": "b17d87ae504c4f6c004a99406460709b7982a6aa5ae1a51ae1440d74988ff457",
+      "size_bytes": 60405
+    },
+    {
+      "path": "code/causalcache/restoration_v2_2_label_table.py",
+      "sha256": "56a895894a077b59dbfca1f9e946aa2305646a859ee791a2d5d18bea2f399478",
+      "size_bytes": 12732
+    }
+  ],
+  "source_blob_inventory_sha256": "28b92bb29a7ab9b4ed57308b4b8c90f0dfa7e26b75b29b56ac64c86c07562564",
+  "status": "frozen_independent_confirm20_failure_decomposition_execution_b"
+}
