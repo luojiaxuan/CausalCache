@@ -1,0 +1,234 @@
+{
+  "artifact": {
+    "annotated_tag_object": "48921cafa00d7102d8b4c709d58061951f90e42c",
+    "base_commit": "c66a67c3451cee7e20ed737401dc8b074151574f",
+    "bundle_manifest_sha256": "ccc996283b89f41db77c06f320e3b1ac88f3933bc19cfeea4c8b5b508ae4b351",
+    "fixed_report_sha256": "969729deb66e610846694b0fa1139c6b47f3927db7a58b50367f8ed93365198b",
+    "payload_commit": "6d0cd95997186293e01c65276f3c082c11a9f52d",
+    "payload_inventory_sha256": "861fa54d2b46509a62b3cfb7d376c9ab3298c18656ae2c4e80418f86593fa779",
+    "raw_state_records_sha256": "208fb36abb36b5e82eadcc8dac4ed20c5a030919902afe3e5b69cf6cad76a52a",
+    "repo": "gavinlaw/causalcache-independent-confirm20-mobile",
+    "repo_type": "dataset",
+    "report_commit": "a0b408e58d629299be334a74ecbd0ec2fa2ed1fc",
+    "report_files": [
+      {
+        "path": "independent-confirm20/v1/report/raw-state-records-v1.jsonl",
+        "sha256": "208fb36abb36b5e82eadcc8dac4ed20c5a030919902afe3e5b69cf6cad76a52a",
+        "size_bytes": 1388707
+      },
+      {
+        "path": "independent-confirm20/v1/report/fixed-report-v1.json",
+        "sha256": "969729deb66e610846694b0fa1139c6b47f3927db7a58b50367f8ed93365198b",
+        "size_bytes": 36666
+      },
+      {
+        "path": "independent-confirm20/v1/report/run-manifest-v1.json",
+        "sha256": "d6e12ff0ab00e44dd32e9d95116b0c01e2e7833db0199278c89ad50c789b5d89",
+        "size_bytes": 41316
+      },
+      {
+        "path": "independent-confirm20/v1/report/bundle-manifest-v1.json",
+        "sha256": "ccc996283b89f41db77c06f320e3b1ac88f3933bc19cfeea4c8b5b508ae4b351",
+        "size_bytes": 2261
+      }
+    ],
+    "run_manifest_sha256": "d6e12ff0ab00e44dd32e9d95116b0c01e2e7833db0199278c89ad50c789b5d89",
+    "tag": "independent-confirm20-v1"
+  },
+  "decision": {
+    "closed_loop_authorized": false,
+    "closed_loop_executed": false,
+    "matched_nll_authorized": false,
+    "matched_nll_executed": false,
+    "next_action": "STOP_PAIRED_CLOSED_LOOP_PATH",
+    "reason": "The frozen confirm gate failed; no post-hoc threshold, model, data, seed, or comparator change is authorized.",
+    "sealed_androidworld_test_authorized": false,
+    "sealed_androidworld_test_executed": false
+  },
+  "execution": {
+    "attempt_sha256": "e99c4091abad74d901f3514d57e07df02769e85fe10f26fec35f15e2885a7c99",
+    "completion_sha256": "38c659065ef069e3cd0be2cfcfe550f1e3dee81bc2ec8405c3526c80e38ccd77",
+    "config_sha256": "d54988fa05693a42574db2f9ec492d55405bcd2c2e902ccb79897f971c6fc7a9",
+    "container_id": "d5fa054045ed1eda6b8ce6fb154c22ba1dc234115ddbd5e73a0b6d68ebf8a318",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "devices": [
+      "cuda:0",
+      "cuda:1",
+      "cuda:2",
+      "cuda:3"
+    ],
+    "dtype": "torch.bfloat16",
+    "duration_seconds": 1143.949,
+    "execution_b_commit": "68e71fd6397ee85f758fbb9e7e9332860ddf0466",
+    "execution_argv": [
+      "--repository-root",
+      ".",
+      "--contract",
+      "code/configs/causalcache_independent_confirm_continuation_v1.json",
+      "--runner-freeze",
+      "code/configs/causalcache_independent_confirm_continuation_runner_v1.json",
+      "--execution-b-git-commit",
+      "68e71fd6397ee85f758fbb9e7e9332860ddf0466",
+      "--parent-root",
+      "/data/tmp/causalcache-restoration-v2-derived-1a01f23-hf-redownload",
+      "--generator-source-root",
+      "/data/worktrees/causalcache-generator-1a01f23",
+      "--model-dir",
+      "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+      "--ocr-model-dir",
+      "/data/artifacts/causalcache-ocr-ppocrv5-mobile-v1",
+      "--ocr-wheel-dir",
+      "/data/tmp/causalcache-ocr-v2-wheels",
+      "--hf-cache-dir",
+      "/root/.cache/huggingface",
+      "--output-dir",
+      "/data/tmp/independent-confirm20-restoration-continuation-v1-68e71fd-07180339/formal-output",
+      "--hf-token-file",
+      "/data/.secrets/hf_key.txt",
+      "--gpu-topology-smoke-receipt",
+      "/data/tmp/independent-confirm20-restoration-continuation-v1-68e71fd-07180339/topology.json",
+      "--gpu-topology-smoke-receipt-sha256",
+      "0c25b5b052c0050238f0bee7bb47558f750b16774f02733acfb11782c8292aeb",
+      "--host-alias",
+      "hyper00",
+      "--host-hostname",
+      "node-radixark-16-0000",
+      "--container-id",
+      "d5fa054045ed1eda6b8ce6fb154c22ba1dc234115ddbd5e73a0b6d68ebf8a318",
+      "--container-image-digest",
+      "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "--devices",
+      "cuda:0,cuda:1,cuda:2,cuda:3",
+      "--gpu-uuids",
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418,GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c,GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81,GPU-f2d88c45-534f-b4cb-b9b9-65a9888c3617"
+    ],
+    "execution_argv_sha256": "b861c7103f89cb956aa6f957edf88e0beb8d7a79065b2758fdf5e44d0a4beef8",
+    "finished_at_utc": "2026-07-18T10:51:17.941989Z",
+    "gpu_name": "NVIDIA H200",
+    "gpu_uuids": [
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+      "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+      "GPU-f2d88c45-534f-b4cb-b9b9-65a9888c3617"
+    ],
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "python_version": "3.12.3",
+    "runner_freeze_sha256": "17181c71694dd1dd98e1132f4b541f488f22668a99da6e29927f18084a63a728",
+    "source_a_commit": "8c0d3aeb22079c77fd66a8aa70861d5e80a141ac",
+    "source_a_inventory_sha256": "dfb8bb84eb2ed9f448e62cbcc1556bdc875019fc4843139e2390085c58d9e4f1",
+    "started_at_utc": "2026-07-18T10:32:13.992692Z",
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0"
+  },
+  "gate_checks": {
+    "ensemble_exact_raw_utility_ratio": false,
+    "independent_minus_every_heuristic_raw_mean": false,
+    "individual_seed_exact_ratio_pass_count": true,
+    "minimum_memory_sensitive_states": true,
+    "reference_coverage_20_of_20": true,
+    "retained_baseline_mass": true,
+    "seed_exact_ratio_population_std": true,
+    "strongest_heuristic_bootstrap_lower": false,
+    "strongest_heuristic_positive_trajectory_count": false
+  },
+  "metrics": {
+    "baseline_distance_sum": 0.9630723167219912,
+    "ensemble_exact_raw_utility_ratio": 0.821298047744367,
+    "exact_raw_utility_sum": 0.8564310826034784,
+    "fixed_state_denominator": 20,
+    "fixed20_normalized_ratio_to_exact": 0.6464523926818962,
+    "fixed20_zero_imputed_exact_mean_normalized_recovery": 0.8758728915636708,
+    "fixed20_zero_imputed_independent_mean_normalized_recovery": 0.566210126436546,
+    "heuristics": {
+      "dynamic_recent": {
+        "independent_minus_heuristic_raw_mean": -0.0010393324656689628,
+        "paired_bootstrap_lower": -0.004704671008360322,
+        "positive_trajectory_count": 9,
+        "raw_utility_sum": 0.7241718254832108
+      },
+      "ocr_rgb_v2": {
+        "independent_minus_heuristic_raw_mean": -0.003994134798929849,
+        "paired_bootstrap_lower": -0.012737397882753927,
+        "positive_trajectory_count": 7,
+        "raw_utility_sum": 0.7832678721484285
+      },
+      "policy_vision_v3": {
+        "independent_minus_heuristic_raw_mean": -0.0027588214099552033,
+        "paired_bootstrap_lower": -0.006242436636610336,
+        "positive_trajectory_count": 5,
+        "raw_utility_sum": 0.7585616043689356
+      }
+    },
+    "independent_raw_utility_sum": 0.7033851761698315,
+    "individual_seed_exact_raw_utility_ratios": [
+      0.821319091778449,
+      0.7901470840071249,
+      0.7730776298338262,
+      0.7622975569621013,
+      0.8092306831527011
+    ],
+    "memory_sensitive_state_count": 20,
+    "normalized_reporting_affects_go": false,
+    "reference_success_count": 20,
+    "retained_baseline_mass": 0.7303555132432249,
+    "seed_exact_ratio_population_std": 0.02189586414134424,
+    "strongest_heuristic": "ocr_rgb_v2"
+  },
+  "operation_counts": {
+    "coalition_kl_measurement_count": 300,
+    "filter_count": 0,
+    "generation_call_count": 40,
+    "kl_measurement_count": 320,
+    "non_reference_coalition_teacher_forward_count": 300,
+    "raw_distance_row_count": 320,
+    "reference_repeat_kl_measurement_count": 20,
+    "reference_repeat_teacher_forward_count": 20,
+    "reference_teacher_forward_count": 20,
+    "retry_count": 0,
+    "teacher_forward_call_count": 340,
+    "teacher_forward_example_count": 340,
+    "top_up_count": 0
+  },
+  "postflight": {
+    "byte_identical_fresh_replay": true,
+    "completion_preceded_stdout_error": true,
+    "hf_history_and_tag_validated": true,
+    "scientific_rerun_performed": false,
+    "stdout_error": "TypeError: Object of type mappingproxy is not JSON serializable",
+    "stdout_fix_scope": "Post-result CLI transport only; scientific execution and immutable report were not changed or rerun."
+  },
+  "protocol_id": "causalcache_independent_confirm20_restoration_continuation_v1",
+  "schema_version": "1.0.0",
+  "scientific_outcome": "NO_GO_INDEPENDENT_CONFIRM",
+  "status": "COMPLETED_AND_PUBLISHED_INDEPENDENT_CONFIRM20_CONTINUATION_V1",
+  "thresholds": {
+    "ensemble_exact_raw_utility_ratio_min": 0.85,
+    "individual_seed_exact_ratio_min": 0.75,
+    "individual_seed_pass_count_min": 4,
+    "memory_sensitive_state_count_min": 8,
+    "reference_coverage_required": 20,
+    "retained_baseline_mass_min": 0.5,
+    "seed_exact_ratio_population_std_max": 0.1,
+    "strongest_heuristic_bootstrap_lower_strict_min": 0.0,
+    "strongest_heuristic_positive_trajectory_count_min": 12
+  },
+  "validation": {
+    "full_suite": {
+      "failed": 37,
+      "historical_source_a_lifecycle_failures": 36,
+      "import_order_boundary_failures": 1,
+      "new_failure_count": 0,
+      "passed": 1474,
+      "skipped": 8,
+      "subtests_passed": 620
+    },
+    "post_b_focused_suite": {
+      "deselected_historical_source_a_lifecycle_tests": 2,
+      "passed": 78
+    },
+    "stdout_serialization_regression_file_passed": 5
+  }
+}

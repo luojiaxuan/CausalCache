@@ -25,8 +25,8 @@ HF create/upload/tag。远端确需访问 private repo 时，由操作者通过�
 | restoration v2 offline inference、attribution | Hyper00 H200 | Aries A6000 | Hyper01 当前有其他任务；v2 canonical runtime 最终由 execution config 冻结 |
 | Gate v1 formal selector training | Hyper00 CPU-only/no-GPU | Mac/Aries CPU | 25K-parameter FP32 full-batch deterministic MLP；不申请 GPU |
 | RL、大模型训练或大规模重训练 | B200 | Hyper H200 | 按实际并行度与当次空闲卡分配，非 Taurus/Aries 默认最多 4 卡 |
-| Independent confirm-20 | Hyper00 4×H200 | Hyper01 4×H200 | 先跑 data-blind topology smoke；同一 allocation 才能进入一次性 confirm |
-| AndroidWorld paired rollout | Aries emulator + Hyper H200 policy | 新合同后调整 | 仅 confirm GO 后解锁；不得把 policy 静默降级到 A6000 |
+| Independent confirm-20 | Hyper00 4×H200 | Hyper01 4×H200 | 已在 Hyper00 完成唯一 continuation，结果 `NO_GO_INDEPENDENT_CONFIRM`；禁止重跑 |
+| AndroidWorld paired rollout | Aries emulator + Hyper H200 policy | 新合同后调整 | 本 v1 因 confirm NO-GO 未解锁、未执行；不得把 policy 静默降级到 A6000 |
 | 小模型 smoke、sample-level debug | Aries/Taurus A6000 | Hyper01 | 避免为小任务占用 H200 |
 
 2026-07-14 实测 Hyper01：8×NVIDIA H200（每卡 143,771 MiB）、x86_64、`/dev/kvm` 可用；
@@ -1034,7 +1034,15 @@ mutation=`0`、local write=`0`。完整命令、log hash、state/hash 与正式 
 closed-loop。任何未来 independent restoration 方向都需要新的 source/contract/untouched holdout，不继承本 child
 的执行授权。
 
-# Independent confirm continuation 的 CUDA/fork 边界
+# Independent confirm continuation 的 CUDA/fork 边界（历史完成态，禁止重跑）
+
+本入口已由 Execution-B=`68e71fd6397ee85f758fbb9e7e9332860ddf0466` 完成唯一正式调用；以下命令只保留
+执行审计，不再授权运行。有效 report 为 `NO_GO_INDEPENDENT_CONFIRM`，因此 paired closed-loop、matched-NLL
+与 sealed AndroidWorld test 均未执行。canonical report 为 private HF commit
+`a0b408e58d629299be334a74ecbd0ec2fa2ed1fc`，轻量完成记录见
+[`../data/results/independent_confirm20_continuation_v1/`](../data/results/independent_confirm20_continuation_v1/)。
+formal durable completion 与 HF publication/replay 成功后，最后 stdout serialization 因 `mappingproxy` 非零退出；
+这是 post-terminal CLI transport bug，已用最小代码修复和 CPU regression 覆盖，不重跑科学实验。
 
 independent confirm-20 v1 已证明：即使 model verification 本身没有执行 policy forward，Transformers import
 路径也可能通过 `torch.cuda.is_available()` 触发 `cuInit`，从而污染随后使用 POSIX `fork` 的 CUDA worker。
@@ -1053,12 +1061,12 @@ restoration-only continuation 因此遵守以下额外规则：
 - 详细 identity、零 mutation 与失败边界见
   [`independent_confirm_continuation_v1.md`](independent_confirm_continuation_v1.md)。
 
-当前唯一允许入口必须从 clean pushed continuation Execution-B 运行，并先在同一四卡 allocation 上重新生成
-topology receipt；旧 v1 receipt 只用于绑定 failure，不能授权新 run。Execution-B commit、runner nonce、
+当时唯一允许入口必须从 clean pushed continuation Execution-B 运行，并先在同一四卡 allocation 上重新生成
+topology receipt；该授权现已消费。旧 v1 receipt 只用于绑定 failure，不能授权新 run。Execution-B commit、runner nonce、
 model/snapshot、logical devices 与 physical GPU UUID 共同生成 challenge；`policy_vision_spawn` 与
 `teacher_forced_fork` 各 4 个实际 worker 都必须返回 response，formal CLI 要求 8/8 覆盖并逐条重算。该摘要是
 软件审计绑定，不是硬件 attestation，所以 formal CLI 还显式拒绝旧 inner receipt SHA256
-`8e06034e7b485a00fe288dc824eabd538cea02dee876027d54ac8b2432e22f13`。正式 CLI 为：
+`8e06034e7b485a00fe288dc824eabd538cea02dee876027d54ac8b2432e22f13`。历史正式 CLI 为：
 
 ```bash
 TOPOLOGY_NONCE=$(jq -r '.topology_receipt_nonce' \
@@ -1076,7 +1084,7 @@ PYTHONPATH=code python code/scripts/smoke_independent_confirm_gpu_topology.py \
 sha256sum <FRESH_TOPOLOGY_RECEIPT>
 ```
 
-receipt 必须由本次 topology smoke 直接输出；不得手工包装或重序列化旧 parent receipt。随后执行：
+receipt 必须由该次 topology smoke 直接输出；不得手工包装或重序列化旧 parent receipt。随后执行：
 
 ```bash
 PYTHONHASHSEED=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \

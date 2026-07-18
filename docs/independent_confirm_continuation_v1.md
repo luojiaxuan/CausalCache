@@ -71,3 +71,31 @@ Execution-B 必须是 Source-A 的单一 direct child，且只新增
 `code/configs/causalcache_independent_confirm_continuation_runner_v1.json`。它绑定 Source-A source/module
 inventory，并只授权：采用 exact payload 后运行 restoration/report。selector reexecution authorization 固定为
 false。
+
+## 执行结果：有效 NO-GO
+
+Source-A=`8c0d3aeb22079c77fd66a8aa70861d5e80a141ac`，唯一 direct-child
+Execution-B=`68e71fd6397ee85f758fbb9e7e9332860ddf0466`。Hyper00 四张 H200 上的 fresh topology envelope SHA256 为
+`0c25b5b052c0050238f0bee7bb47558f750b16774f02733acfb11782c8292aeb`；旧 inner receipt 被拒绝，新 inner
+receipt SHA256 为 `ba7bd83713c4eb39303d673adb680e86755e3aecfca4848139c853397b15df2a`。4 个 restoration worker 各完成
+5 states；正式 operation counts 为 40 generations、340 teacher forwards、320 KL measurements 与 320 raw
+distance rows，scientific retry/top-up/filter 均为 0。
+
+20/20 states reference 成功且 memory-sensitive。exact raw utility sum=`0.856431`，independent raw utility
+sum=`0.703385`，因此 independent/exact raw ratio=`0.821298`，低于冻结门槛 `0.85`。retained baseline mass
+`0.730356` 通过；5 个 seed 的 exact raw ratios 均超过 `0.75`，population std=`0.021896` 也通过。但
+independent 相对 dynamic-recent、policy-vision、OCR/RGB 的 mean raw delta 分别为
+`-0.001039/-0.002759/-0.003994`；最强 heuristic 是 OCR/RGB，其 paired 90% bootstrap lower=`-0.012737`，
+positive support=`7/20`。有效 verdict 因而是 `NO_GO_INDEPENDENT_CONFIRM`，`confirm_go=false`。
+
+canonical report 位于 private HF dataset
+[`gavinlaw/causalcache-independent-confirm20-mobile@a0b408e`](https://huggingface.co/datasets/gavinlaw/causalcache-independent-confirm20-mobile/tree/a0b408e58d629299be334a74ecbd0ec2fa2ed1fc/independent-confirm20/v1/report)。report commit
+`a0b408e58d629299be334a74ecbd0ec2fa2ed1fc` 是原 payload commit
+`6d0cd95997186293e01c65276f3c082c11a9f52d` 的 direct child；tag `independent-confirm20-v1` 的 annotated
+object 为 `48921cafa00d7102d8b4c709d58061951f90e42c`，immutable fresh replay 逐字节一致。Git 轻量结果见
+[`../data/results/independent_confirm20_continuation_v1/`](../data/results/independent_confirm20_continuation_v1/)。
+
+durable completion、HF report/tag 与 replay 全部成功后，CLI 在最后把 immutable completion 打印到 stdout 时
+因 `json.dumps(mappingproxy)` 抛出 `TypeError` 并非零退出。该 post-terminal transport bug 不改变已经持久化和
+发布的科学终态；后续只修 CLI 序列化并加回归测试，没有重跑 confirm。按父合同，paired closed-loop、
+matched-NLL 与 sealed AndroidWorld test 均未执行并继续 locked。本 v1 路径到此停止。

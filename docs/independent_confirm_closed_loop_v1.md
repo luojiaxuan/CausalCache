@@ -188,7 +188,10 @@ failure、A/B、topology receipt、HF base/payload history、8 个 exact payload
 restoration semantic access 前完成 fresh replay；不得重新运行 policy-vision/independent selector，不得修改
 threshold、dataset、model、seed、selection 或 GO contract。旧 attempt 不因 continuation 成功而重分类。
 
-该允许路径现已具体冻结为
-[`independent_confirm_continuation_v1.md`](independent_confirm_continuation_v1.md)。在 continuation 产出有效
-`GO_TO_PAIRED_CLOSED_LOOP` report 前，本文件定义的 paired closed-loop、matched-NLL 与 sealed test 仍保持
-locked。
+该允许路径随后具体冻结并执行，见
+[`independent_confirm_continuation_v1.md`](independent_confirm_continuation_v1.md) 与
+[`../data/results/independent_confirm20_continuation_v1/`](../data/results/independent_confirm20_continuation_v1/)。
+continuation 有效 report 为 `NO_GO_INDEPENDENT_CONFIRM`、`confirm_go=false`：independent/exact raw ratio
+`0.821298 < 0.85`，且 independent 对三个冻结 heuristic 的 raw mean delta 均为负。因此本文件定义的 paired
+closed-loop、matched-NLL 与 sealed test 没有执行授权，均未运行；该 v1 路径停止。旧 v1 attempt 仍永久为
+execution `INVALID`，不会被 continuation 的有效科学 NO-GO 重分类。

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from types import SimpleNamespace
+from types import MappingProxyType, SimpleNamespace
 
 import pytest
 
@@ -280,3 +280,24 @@ def test_formal_execute_persists_tripwire_failure_before_external_access(
     assert failure["remote_mutation_count"] == 0
     with pytest.raises(FileExistsError, match="already exists"):
         run_module.execute(args)
+
+
+def test_main_serializes_immutable_durable_completion(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    parsed = SimpleNamespace()
+    parser = SimpleNamespace(parse_args=lambda _argv: parsed)
+    completion = MappingProxyType(
+        {
+            "status": "COMPLETED_AND_PUBLISHED_INDEPENDENT_CONFIRM20_CONTINUATION_V1",
+            "confirm_go": False,
+        }
+    )
+    monkeypatch.setattr(run_module, "_parser", lambda: parser)
+    monkeypatch.setattr(run_module, "execute", lambda _args: completion)
+
+    run_module.main([])
+
+    assert parsed.execution_argv == []
+    assert json.loads(capsys.readouterr().out) == dict(completion)

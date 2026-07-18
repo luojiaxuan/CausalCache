@@ -654,7 +654,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = _parser().parse_args(effective)
     args.execution_argv = effective
     result = execute(args)
-    print(json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2))
+    print(json.dumps(dict(result), ensure_ascii=False, sort_keys=True, indent=2))
 
 
 if __name__ == "__main__":

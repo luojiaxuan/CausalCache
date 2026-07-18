@@ -167,8 +167,8 @@ restoration v2 exact selection/exposure 产物：
   `gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile@3577099d505b8c652d764f41269df911128ec767`
   （tag `v2.2-eager-full-45-substrate-v1`）。两个 H200 worker 共享独立 global ledger，固定 even 23 / odd 22
   inventory；45/45 parse/repeat/finite logits，正式为 `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`。102-file USTAR
-  SHA256 为 `b22827e6...09fb5`，fresh immutable download 已逐 byte 复核。confirm、restoration 与 gate artifact
-  count 当前仍均为 0。
+  SHA256 为 `b22827e6...09fb5`，fresh immutable download 已逐 byte 复核。在该 historical milestone 当时，
+  confirm、restoration 与 gate artifact count 均为 0。
 
 - Restoration v2.2 exact labels：v1 source contract 已在
   `main@3942d687d03bf63ea683fe8ad906a161eb10dc27` 冻结；formal v1 attempt 因 model snapshot directory 不存在，
@@ -179,7 +179,7 @@ restoration v2 exact selection/exposure 产物：
   0 top-up、0 generation。Git compact result 位于 `results/restoration_v2_2_eager_labels_v2/`；raw 101-file USTAR
   位于 private HF `gavinlaw/causalcache-restoration-labels-mobile@8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`
   （tag `v2.2-eager-train-dev-exact-v2`），fresh immutable download 已闭合。gate checkpoint、matched-NLL pairs、
-  closed-loop episodes 与 confirm artifact 仍不存在。
+  closed-loop episodes 与 confirm artifact 在该 historical milestone 当时仍不存在。
 
 - Restoration v2.2 OCR/RGB comparator：v1 formal attempt 在 0 score 时因 identity lexer contract 错误永久
   `INVALID`，轻量 failure binding 位于 `results/restoration_v2_2_ocr_rgb_baseline_v1_attempt/`；新 identity 的
@@ -227,11 +227,14 @@ restoration v2 exact selection/exposure 产物：
   commit `6d0cd95997186293e01c65276f3c082c11a9f52d`；8 files fresh-download 逐字节一致。formal parent 在 POSIX
   `fork` 前初始化 CUDA，restoration worker 因而在 reference/teacher forward 0 时失败。该 attempt 永久
   execution `INVALID`、没有科学 GO/NO-GO；report/tag absent，closed-loop locked。Git 只保存 failure、summary
-  与说明，不复制 8 个 payload files；后续只允许 versioned continuation 采用 exact payload commit；
+  与说明，不复制 8 个 payload files；随后 versioned continuation 已采用 exact payload commit 完成，见下一项；
 
-- independent confirm-20 restoration continuation v1 在 Source-A freeze 时只有 Source-A：继续采用同一 private HF payload commit
-  `6d0cd95997186293e01c65276f3c082c11a9f52d`，不复制 payload、不重跑 selector、不创建新 data artifact。
-  Execution-B、continuation result directory、report child 与 tag 在该 freeze 时均不存在；协议见
+- `results/independent_confirm20_continuation_v1/`：restoration-only continuation Source-A=`8c0d3ae…141ac`、
+  Execution-B=`68e71fd…0466` 已在 Hyper00 四张 H200 上完成。canonical private HF report commit 为
+  `a0b408e58d629299be334a74ecbd0ec2fa2ed1fc`，tag `independent-confirm20-v1`；20/20 states
+  memory-sensitive，但 independent/exact raw=`0.821298 < 0.85`，且 independent raw utility 低于 recent、
+  OCR/RGB 与 policy-vision，正式为 `NO_GO_INDEPENDENT_CONFIRM`。本目录只保存逐字节 completion、轻量 summary
+  与 README，不复制 raw 20-state report。closed-loop、matched-NLL 与 sealed test 均未执行；协议见
   [`../docs/independent_confirm_continuation_v1.md`](../docs/independent_confirm_continuation_v1.md)；
 
 - `results/restoration_v2_2_expansion_exact_labels_scientific_repair_v1/`：clean

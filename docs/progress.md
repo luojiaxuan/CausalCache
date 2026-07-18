@@ -2,14 +2,40 @@
 
 ## 当前目标
 
-2026-07-18 起，论文主线改为 **restoration-guided independent gate**。set-conditioned v1 与一次
-conditional rescue 永久保持 `NO_V2_CONDITIONAL_RESCUE`；不重训 formal-58 independent ensemble，也不再用
-fresh-16 调 feature、loss、seed 或阈值。当前 material step 是冻结并执行
-[`independent_confirm_closed_loop_v1`](independent_confirm_closed_loop_v1.md)：在原先冻结的 20 条
-policy/restoration-output untouched trajectory 上做一次 confirm；只有固定门槛全部通过，才解锁固定弱
-GUI-Owl Instruct backbone 下的 AndroidWorld paired train-60 controller study。已消费 validation 不能复用为
-主证据，sealed test-75 仍需 train-60 GO 后的独立授权。matched-NLL 的 0.05 nats/token 主 caliper 与
-0.02/0.10 sensitivity 也已在任何正式 closed-loop episode 前冻结。
+2026-07-18 起，论文主线改为 **restoration-guided independent gate**，并已完成一次性 untouched
+confirm-20。有效结果为 `NO_GO_INDEPENDENT_CONFIRM`：20/20 reference 与 memory-sensitive checks 通过，但
+independent / exact raw utility ratio=`0.821298 < 0.85`，且 independent 对三个冻结 heuristic 的 raw mean
+delta 均为负。set-conditioned v1 的 `NO_V2_CONDITIONAL_RESCUE` 同时保持不变。按冻结权限链，AndroidWorld
+paired closed-loop、matched-NLL 与 sealed test 均未执行并继续 locked。当前目标改为固化本次 negative/
+diagnostic evidence、整理论文边界，并决定是否另立新机制、新数据与新 untouched holdout；不在已消费的
+fresh-16 或 confirm-20 上继续调 feature、loss、seed、阈值或 comparator。
+
+### 2026-07-18：independent confirm-20 continuation 有效 NO-GO
+
+- restoration-only continuation Source-A=`8c0d3aeb22079c77fd66a8aa70861d5e80a141ac`，唯一 direct-child
+  Execution-B=`68e71fd6397ee85f758fbb9e7e9332860ddf0466`；config SHA256 为
+  `d54988fa05693a42574db2f9ec492d55405bcd2c2e902ccb79897f971c6fc7a9`；
+- Hyper00 四张 H200 的 fresh topology envelope SHA256 为
+  `0c25b5b052c0050238f0bee7bb47558f750b16774f02733acfb11782c8292aeb`，4 workers × 5 states 完成。formal
+  operation counts 为 40 generations、340 teacher forwards、320 KL measurements、320 raw rows，retry/top-up/
+  filter 均为 0；
+- 20/20 reference coverage、20/20 memory-sensitive、retained baseline mass=`0.730356`、5/5 seed ratio 与 seed
+  std checks 通过；但 ensemble/exact raw ratio=`0.821298 < 0.85`。independent raw utility=`0.703385`，低于
+  recent=`0.724172`、policy-vision=`0.758562`、OCR/RGB=`0.783268`；相对三者 raw mean delta 分别为
+  `-0.001039/-0.002759/-0.003994`；
+- 有效 report 因而输出 `NO_GO_INDEPENDENT_CONFIRM`。paired closed-loop、matched-NLL 与 sealed AndroidWorld
+  test 没有执行授权；不实施原计划 train-60 controller study；
+- canonical private HF dataset 为
+  `gavinlaw/causalcache-independent-confirm20-mobile@a0b408e58d629299be334a74ecbd0ec2fa2ed1fc`，tag
+  `independent-confirm20-v1`；payload→report 保持 direct-child，annotated tag object 为
+  `48921cafa00d7102d8b4c709d58061951f90e42c`，fresh replay 逐字节一致。轻量证据见
+  [`../data/results/independent_confirm20_continuation_v1/`](../data/results/independent_confirm20_continuation_v1/)；
+- durable `completion.json` 与 HF publication/replay 全部先于 CLI 最后的 stdout serialization。随后
+  `json.dumps(MappingProxyType)` 抛出 `TypeError`；这是 post-terminal transport bug。只修 CLI 输出并加回归测试，
+  不重跑科学实验、不改变 report 或 verdict；CLI regression file `5 passed`，post-B focused suite
+  `78 passed, 2 deselected`。全仓 canonical run 为 1,474 passed / 8 skipped / 37 failed / 620 subtests；36 项
+  failure 是已存在 Execution-B 后仍要求 B absent 的历史 Source-A lifecycle tests，1 项是 full-suite import-order
+  CPU-only boundary，隔离重放通过；本次没有新 failure。
 
 ### 2026-07-18：independent confirm / closed-loop v1 Source-A 冻结
 
@@ -30,14 +56,14 @@ GUI-Owl Instruct backbone 下的 AndroidWorld paired train-60 controller study�
 - focused Source-A suite 为 122 passed。全 `code/tests` 为 1,441 passed / 8 skipped / 620 subtests，剩余 6 项
   分别是 5 个已完成历史 A/B 仍要求旧 runner-freeze 不存在的 lifecycle test，以及一个 full-suite import-order
   下故意拒绝 GPU runtime module 的 CPU-only boundary test；显式 deselect 这 6 个历史/顺序边界 test 后其余
-  1,441 项全绿。它们不来自本次实现。confirm semantic decode、
-  policy generation、restoration forward、HF destination mutation、closed-loop 与 sealed-test access 当前均为 0；
-- 下一步只能从 clean pushed Source-A 机械生成唯一 runner-freeze Execution-B，且该 commit 只能新增一个 JSON；
-  随后才执行 Hyper00 preflight/topology smoke 与一次性 confirm。只有 `GO_TO_PAIRED_CLOSED_LOOP` 才实现并运行
-  Aries emulator + Hyper policy 的 train-60 paired study。
+  1,441 项全绿。它们不来自本次实现。在该 Source-A freeze 当时，confirm semantic decode、
+  policy generation、restoration forward、HF destination mutation、closed-loop 与 sealed-test access 均为 0；
+- 该 historical next step 随后完成了 Execution-B 与一次性 confirm；最终为 `NO_GO_INDEPENDENT_CONFIRM`，
+  因此没有实现或运行 Aries emulator + Hyper policy 的 train-60 paired study。
 
-AAAI-27 的论文目标仍是 offline restoration attribution、fixed-budget independent gate、AndroidWorld closed-loop frontier
-与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
+原始 AAAI-27 paper target 曾包括 offline restoration attribution、fixed-budget independent gate、AndroidWorld
+closed-loop frontier 与 matched-NLL mechanism test；当前 independent confirm NO-GO 后，后两项在本 v1 中未执行。
+v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
 `NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权
 全新的 v2.2-eager substrate。唯一 v2.2 fresh-45 attempt 已在双 H200 上取得 45/45 parse、45/45 exact repeat、
 45/45 finite logits 与 45 个 memory-sensitive states，正式为 `PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；deterministic
@@ -69,7 +95,7 @@ PyTorch UUID object type 在 0 feature 时 `INVALID`。UUID type-only v2 随后�
 artifact；首次 CPU byte-replay 的 evaluated-state projection bug 已由独立 versioned CPU audit exact-byte 闭合，
 当前是 `VALID_RESTORATION_V2_2_POLICY_VISION_V3_VALIDATION_REPAIR_V1`，且 result commit 后的 clean-descendant
 `validate` 已返回 `REVALIDATED`。
-confirm 和 AndroidWorld sealed test split 仍保持 locked。
+在这一 historical milestone 当时，confirm 和 AndroidWorld sealed test split 仍保持 locked。
 
 48/16 label expansion 的 policy-blind derived artifact 与 192-state substrate 均已闭合：64 trajectories / 192
 views / 384 images 绑定 private HF immutable revision `630363a6adb692d72774f16dd0653a50216313ff`；唯一双 H200
@@ -92,7 +118,7 @@ tracks 与 10 个 final checkpoint。fresh-16 parent v1 与 inventory-repair v1 
 snapshot；Source-A=`f0dd53b…0ed1`、Execution-B=`ce523ff…a634`、完成态/immutable replay 与 private-HF tag
 均已闭合。轻量结果见
 [`../data/results/gate_v1_fresh16_claim_serialization_repair_v1/`](../data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；
-fresh-16 已消费，旧 dev-5 与 confirm 尚未打开。
+fresh-16 已消费，旧 dev-5 与 confirm 在该 historical milestone 当时尚未打开。
 父协议与两层 repair 说明分别见
 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md) 和
 [`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)、
@@ -2893,7 +2919,7 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `VALID_SOURCE_ONLY_INDEPENDENT_CONFIRM_CONTINUATION_V1`，所有 payload/HF/model/GPU/restoration access count 为
   0。全仓回归为 1,474 passed、8 skipped；36 failures 均为已封存历史 Source-A tests 要求既有 B 不存在，或
   既有 subprocess `PYTHONPATH` / CPU-only import-order 隔离假设；后两项独立按其正确隔离环境重放均通过。
-  Execution-B、new restoration output 与 report/tag 当前均不存在；
-- 下一步随本 milestone commit/push Source-A，从 clean pushed A 机械生成唯一 direct-child Execution-B 并单独
-  push；随后在 Hyper fresh 四卡 preflight/topology 下只运行 continuation。只有有效 confirm GO 才解锁 paired
-  closed-loop，NO-GO 或 execution INVALID 均停止该路径。
+  Execution-B、new restoration output 与 report/tag 在该 Source-A freeze 时均不存在；
+- 该历史下一步随后已完成：Execution-B=`68e71fd…0466`，有效 continuation report 为
+  `NO_GO_INDEPENDENT_CONFIRM`。终态与停止决定见本文顶部同日结果段；paired closed-loop、matched-NLL 与
+  sealed test 均未执行。
