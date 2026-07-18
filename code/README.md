@@ -102,6 +102,22 @@ oracle-independent `J` 并与 exact、learned `I`、OCR/RGB 对齐。该 CPU-onl
 不运行 selector/policy/restoration，也不授权 closed-loop；机器合同见
 `configs/causalcache_independent_confirm20_failure_decomposition_v1.json`。
 
+Set Utility Predictor v1 的 source-only contract、模型核心与 long-pool P0 census 入口如下。utility
+predictor 的 API 不接收 budget；P0 只扫描结构 metadata，不能分配 split 或产生 labels。
+
+```bash
+PYTHONPATH=code .venv/bin/python code/scripts/validate_set_utility_predictor_contract.py \
+  --repository-root . \
+  --contract code/configs/causalcache_set_utility_predictor_v1.json
+PYTHONPATH=code .venv/bin/python code/scripts/validate_set_utility_long_pool_contract.py \
+  --repository-root . \
+  --contract code/configs/causalcache_set_utility_long_pool_discovery_v1.json
+PYTHONPATH=code .venv/bin/python -m pytest -q \
+  code/tests/test_set_utility_predictor_contract.py \
+  code/tests/test_set_utility_models.py \
+  code/tests/test_set_utility_long_pool.py
+```
+
 Development-only repeated-selection probe 使用
 `configs/causalcache_exploratory_closed_loop_validation12_v1.json`。它将历史 single-state confirm NO-GO 与
 task-level closed-loop estimand 分开，固定 12 templates / 5 arms / 60 episodes；当前 P0 只包含 roster、纯

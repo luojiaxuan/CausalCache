@@ -1,0 +1,363 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_set_utility_predictor_v1",
+  "status": "source_only_frozen_before_new_development_data_access",
+  "scientific_scope": {
+    "objective": "learn_budget_agnostic_set_utility_before_any_closed_loop_run",
+    "development_only": true,
+    "paper_primary_evidence": false,
+    "historical_independent_and_conditional_no_go_preserved": true,
+    "closed_loop_is_currently_a_downstream_stage": true,
+    "claims_allowed_by_this_source_freeze": [
+      "set_utility_predictor_design_is_frozen",
+      "new_development_label_generation_may_be_proposed_in_a_later_freeze"
+    ],
+    "claims_forbidden_by_this_source_freeze": [
+      "set_utility_predictor_is_trained",
+      "set_utility_predictor_beats_any_baseline",
+      "budget_generalization_is_demonstrated",
+      "closed_loop_success_is_improved"
+    ]
+  },
+  "utility_contract": {
+    "teacher_distance": "D_t(S)",
+    "target_definition": "U_t(S)=D_t(empty)-D_t(S)",
+    "empty_set_utility": 0.0,
+    "predictor_signature": "U_theta(query_state,event_set)",
+    "predictor_receives_budget": false,
+    "predictor_receives_remaining_budget": false,
+    "predictor_receives_selection_order": false,
+    "utility_is_budget_agnostic": true,
+    "selector_definition": "argmax_{S_subseteq_candidates,cardinality(S)<=B} U_theta(S)",
+    "budget_enters_search_constraint_only": true,
+    "empty_set_is_always_search_eligible": true,
+    "selection_is_joint_subset_scoring": true,
+    "iterative_conditional_greedy_is_primary": false,
+    "learned_roundwise_stop_threshold_used": false,
+    "tie_break_order": [
+      "higher_predicted_utility",
+      "smaller_cardinality",
+      "lexicographically_smaller_event_id_tuple"
+    ]
+  },
+  "teacher_and_representation": {
+    "policy_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "policy_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "policy_frozen": true,
+    "teacher_behavior": "full_history_canonical_action_teacher_forcing",
+    "distance": "weighted_teacher_forced_action_token_KL",
+    "subset_input": "mixed_fidelity_full_policy_rerun",
+    "high_fidelity_event": "original_visual_event_block",
+    "low_fidelity_event": "fixed_structured_event_summary",
+    "policy_training_allowed": false,
+    "cross_layer_kv_surgery_allowed": false,
+    "candidate_order_semantics": "chronological_inside_each_set",
+    "set_identity_semantics": "unordered_for_utility_and_model_loss"
+  },
+  "new_development_data": {
+    "dataset_id": "causalcache_set_utility_new_development_v1",
+    "new_data_required": true,
+    "roster_status": "UNBOUND_REQUIRES_SEPARATE_PRE_ACCESS_FREEZE_B",
+    "state_count_status": "UNBOUND_REQUIRES_SEPARATE_PRE_ACCESS_FREEZE_B",
+    "source_identity_manifest_status": "UNBOUND_REQUIRES_SEPARATE_PRE_ACCESS_FREEZE_B",
+    "split_unit": "trajectory_id",
+    "train_tune_evaluation_trajectory_disjoint": true,
+    "source_identity_overlap_across_splits_allowed": false,
+    "one_state_may_not_cross_splits": true,
+    "same_teacher_and_representation_required_across_splits": true,
+    "training_or_tuning_eligible_source": "new_development_v1_plus_historical_formal58_train_only",
+    "historical_formal58_training_rows_eligible": true,
+    "historical_formal58_role": "legacy_train_only_never_new_evaluation",
+    "consumed_old_dev5_training_rows_eligible": false,
+    "consumed_old_dev5_tuning_rows_eligible": false,
+    "consumed_fresh16_training_rows_eligible": false,
+    "consumed_fresh16_tuning_rows_eligible": false,
+    "consumed_confirm20_training_rows_eligible": false,
+    "consumed_confirm20_tuning_rows_eligible": false,
+    "data_access_before_freeze_b_allowed": false,
+    "reusable_artifact_destination": {
+      "repo_type": "dataset",
+      "private": true,
+      "repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+      "revision_status": "UNCREATED_AND_UNBOUND",
+      "git_may_store_raw_or_reusable_label_rows": false
+    }
+  },
+  "p0_policy_blind_roster_discovery": {
+    "purpose": "discover_the_long_trajectory_eligible_pool_before_freezing_train_tune_evaluation_counts",
+    "status": "LOCKED_REQUIRES_SEPARATE_P0_RUNNER_FREEZE",
+    "historical_observation": {
+      "decision_count_above_12_exclusion_count": 81,
+      "interpretation": "the_old_maximum_decision_filter_may_hide_the_needed_long_trajectory_pool",
+      "may_be_used_as_a_roster_identity_or_training_row": false
+    },
+    "source_pool": {
+      "upstream_repo": "hflqf88888/GUIOdyssey",
+      "upstream_revision": "61632d0f3f4d51d7e9561ce4f84347dd06b2019d",
+      "transport_repo": "cua-lite/GUIOdyssey",
+      "transport_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+      "transport_file_inventory_status": "BOUND_BY_SEPARATE_P0_SOURCE_CONFIG"
+    },
+    "eligibility_inherited_unchanged": {
+      "platform": "mobile",
+      "terminal_status": "success",
+      "terminal_signal_must_be_last": true,
+      "executable_actions_per_observation": 1,
+      "minimum_decisions_per_trajectory": 13,
+      "source_id_regex": "^[A-Za-z0-9._-]+$",
+      "require_unique_source_id": true,
+      "require_embedded_supported_images": true,
+      "parser_compatible_action_types": [
+        "back",
+        "home",
+        "long_press",
+        "stop",
+        "swipe",
+        "tap",
+        "type_text",
+        "wait"
+      ],
+      "open_ended_exception_filtering_forbidden": true
+    },
+    "long_trajectory_change_only": {
+      "old_maximum_decisions_per_trajectory": 12,
+      "discovery_minimum_decisions_per_trajectory": 13,
+      "discovery_maximum_decisions_per_trajectory": 64,
+      "decision_count_above_12_is_an_exclusion": false,
+      "all_non_length_eligibility_rules_must_be_byte_equivalent_to_inherited_parser": true
+    },
+    "policy_blindness": {
+      "policy_model_load_count": 0,
+      "policy_forward_count": 0,
+      "restoration_distance_access_count": 0,
+      "restoration_label_access_count": 0,
+      "ocr_score_access_count": 0,
+      "learned_gate_score_access_count": 0,
+      "terminal_success_is_source_dataset_metadata_not_a_new_policy_rollout": true,
+      "policy_or_restoration_output_may_determine_roster": false
+    },
+    "allowed_output": {
+      "eligible_pool_identity_records": true,
+      "decision_count_histogram": true,
+      "app_and_action_type_coverage_counts": true,
+      "deterministic_selection_hash_per_source": true,
+      "exclusion_reason_counts": true,
+      "train_tune_evaluation_assignment": false,
+      "query_state_selection": false,
+      "restoration_or_utility_labels": false
+    },
+    "stage_boundaries": {
+      "p0_output_only_informs_pool_size_and_feasible_strata": true,
+      "concrete_split_counts_require_new_committed_freeze": true,
+      "label_execution_A_source_and_roster_freeze_is_separate": true,
+      "label_execution_B_teacher_run_is_separate": true,
+      "p0_may_not_authorize_label_execution_A_or_B": true
+    }
+  },
+  "phase1_exact_b2": {
+    "purpose": "train_and_compare_set_utility_predictors_on_new_development_data",
+    "allowed_budgets": [
+      1,
+      2
+    ],
+    "maximum_labeled_cardinality": 2,
+    "labeled_cardinalities": [
+      0,
+      1,
+      2
+    ],
+    "label_inventory_per_state": "all_subsets_with_cardinality_at_most_2",
+    "subset_sampling_allowed": false,
+    "missing_exact_subset_label_allowed": false,
+    "exact_label_count_formula": "1+n+binom(n,2)",
+    "candidate_count_maximum": 16,
+    "candidate_truncation_rule": "most_recent_16_eligible_historical_events_before_any_label_forward",
+    "label_count_at_candidate_maximum": 137,
+    "candidate_or_label_selection_using_outcomes_allowed": false,
+    "model_selection_split": "new_development_tune",
+    "model_comparison_split": "new_development_evaluation",
+    "evaluation_split_may_train_or_tune": false,
+    "all_budgets_evaluated_separately": true,
+    "primary_budget": 2
+  },
+  "model_families": {
+    "shared_requirements": {
+      "same_query_and_event_features": true,
+      "same_train_tune_evaluation_rows": true,
+      "permutation_invariant": true,
+      "variable_cardinality_input": true,
+      "budget_feature_allowed": false,
+      "empty_set_output_constrained_to_zero": true,
+      "training_targets": [
+        "raw_set_utility",
+        "within_state_subset_ranking"
+      ],
+      "hyperparameter_grid_status": "UNBOUND_REQUIRES_SEPARATE_PRE_TRAIN_FREEZE_B"
+    },
+    "pairwise_additive": {
+      "role": "strong_low_order_baseline",
+      "formula": "sum_{i_in_S}u_theta(q,h_i)+sum_{i<j_in_S}r_theta(q,h_i,h_j)",
+      "supports_arbitrary_cardinality": true,
+      "maximum_explicit_interaction_order": 2,
+      "higher_order_interactions_representable": false
+    },
+    "deepsets": {
+      "role": "main_candidate",
+      "formula": "rho_theta(q,sum_{i_in_S}phi_theta(q,h_i))-rho_theta(q,zero)",
+      "supports_arbitrary_cardinality": true,
+      "maximum_explicit_interaction_order": "unbounded_by_formula",
+      "set_transformer_allowed_in_v1": false
+    }
+  },
+  "phase1_comparators_and_evaluation": {
+    "ordered_methods": [
+      "pairwise_additive",
+      "deepsets",
+      "ocr_rgb",
+      "oracle_independent_J",
+      "exact_subset_oracle"
+    ],
+    "ocr_rgb": {
+      "role": "cheap_deployable_heuristic",
+      "implementation": "frozen_ocr_rgb_v2_event_score_then_top_positive_at_most_B",
+      "may_be_retuned_on_new_evaluation_labels": false
+    },
+    "oracle_independent_J": {
+      "role": "non_deployable_teacher_projection_diagnostic",
+      "event_score": "0.5*(Delta_j(empty)+mean_{i_not_equal_j}Delta_j({i}))",
+      "selection": "strictly_positive_top_B",
+      "uses_true_phase1_distance_table": true
+    },
+    "exact_subset_oracle": {
+      "role": "non_deployable_upper_bound",
+      "selection": "argmax_true_U_over_all_subsets_with_cardinality_at_most_B",
+      "tie_break_order": [
+        "higher_true_utility",
+        "smaller_cardinality",
+        "lexicographically_smaller_event_id_tuple"
+      ]
+    },
+    "selected_set_scored_by_true_utility": true,
+    "reducers": [
+      "trajectory_equal_mean_raw_utility",
+      "trajectory_equal_mean_exact_recovery_ratio",
+      "paired_trajectory_win_tie_loss",
+      "selected_cardinality_distribution",
+      "prediction_regression_error",
+      "within_state_subset_ranking_quality"
+    ],
+    "required_pairwise_deltas": [
+      "deepsets_minus_ocr_rgb",
+      "pairwise_additive_minus_ocr_rgb",
+      "deepsets_minus_oracle_independent_J",
+      "pairwise_additive_minus_oracle_independent_J",
+      "deepsets_minus_pairwise_additive"
+    ],
+    "phase2_entry_requires": {
+      "at_least_one_learned_family_beats_ocr_rgb_overall_raw_utility": true,
+      "at_least_one_learned_family_beats_ocr_rgb_at_B2_raw_utility": true,
+      "winning_family_has_nonnegative_overall_delta_vs_oracle_independent_J": true
+    },
+    "phase1_result_may_unlock_closed_loop_directly": false
+  },
+  "phase2_cardinality_transfer": {
+    "status": "LOCKED_UNTIL_PHASE1_ENTRY_RULE_PASSES_AND_NEW_FREEZE_IS_PUSHED",
+    "purpose": "measure_cardinality_transfer_not_closed_loop_success",
+    "new_identity_disjoint_states_required": true,
+    "phase1_evaluation_state_reuse_allowed": false,
+    "tracks": [
+      {
+        "track_id": "B3_n6",
+        "candidate_count": 6,
+        "maximum_labeled_cardinality": 3,
+        "labeled_cardinalities": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "exact_label_count_per_state": 42
+      },
+      {
+        "track_id": "B4_n8",
+        "candidate_count": 8,
+        "maximum_labeled_cardinality": 4,
+        "labeled_cardinalities": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "exact_label_count_per_state": 163
+      }
+    ],
+    "zero_shot": {
+      "phase1_checkpoint_byte_identical": true,
+      "higher_cardinality_training_label_count": 0,
+      "hyperparameter_change_allowed": false
+    },
+    "few_shot": {
+      "calibration_and_evaluation_trajectory_disjoint": true,
+      "calibration_state_count_status": "UNBOUND_REQUIRES_PHASE2_FREEZE",
+      "evaluation_state_count_status": "UNBOUND_REQUIRES_PHASE2_FREEZE",
+      "calibration_subset_fixed_before_evaluation_label_access": true,
+      "only_higher_cardinality_calibration_labels_may_be_added": true,
+      "phase1_rows_may_remain_in_training_mix": true,
+      "new_architecture_search_allowed": false
+    },
+    "required_reports": [
+      "B3_zero_shot",
+      "B3_few_shot",
+      "B4_zero_shot",
+      "B4_few_shot",
+      "pairwise_additive_vs_deepsets",
+      "ocr_rgb_vs_oracle_independent_J_vs_exact"
+    ],
+    "architecture_accepts_B4_is_not_evidence_of_budget_generalization": true,
+    "budget_generalization_claim_requires_phase2_measured_results": true
+  },
+  "locked_followups": {
+    "closed_loop_status": "LOCKED",
+    "matched_nll_status": "LOCKED",
+    "sealed_androidworld_test_status": "LOCKED",
+    "paper_primary_table_status": "LOCKED",
+    "exploratory_closed_loop_validation12_execution_status": "SUPERSEDED_AND_NOT_AUTHORIZED",
+    "unlock_requires_new_versioned_contract_committed_and_pushed": true,
+    "phase1_labels_status": "LOCKED_REQUIRES_FREEZE_B",
+    "phase1_training_status": "LOCKED_REQUIRES_FREEZE_B",
+    "phase2_status": "LOCKED_REQUIRES_PHASE1_PASS_AND_NEW_FREEZE"
+  },
+  "source_only_operation_contract": {
+    "config_read_count": 1,
+    "network_call_count": 0,
+    "hf_api_call_count": 0,
+    "file_write_count": 0,
+    "subprocess_call_count": 0,
+    "torch_import_count": 0,
+    "model_load_count": 0,
+    "model_forward_count": 0,
+    "new_development_data_access_count": 0,
+    "p0_source_row_decode_count": 0,
+    "p0_image_eligibility_check_count": 0,
+    "p0_roster_discovery_output_count": 0,
+    "fresh16_access_count": 0,
+    "confirm20_access_count": 0,
+    "label_generation_count": 0,
+    "optimizer_step_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "closed_loop_episode_count": 0,
+    "sealed_test_access_count": 0
+  },
+  "authorization": {
+    "p0_roster_discovery_authorized": false,
+    "new_development_data_access_authorized": false,
+    "label_generation_authorized": false,
+    "training_authorized": false,
+    "phase2_authorized": false,
+    "closed_loop_authorized": false,
+    "matched_nll_authorized": false,
+    "sealed_test_authorized": false,
+    "hf_mutation_authorized": false
+  }
+}

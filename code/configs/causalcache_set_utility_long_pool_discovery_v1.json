@@ -1,0 +1,67 @@
+{
+  "schema_version": "0.1.0",
+  "protocol_id": "causalcache_set_utility_long_pool_discovery_v1",
+  "purpose": "policy-blind discovery of previously unused long GUIOdyssey trajectories before freezing set-utility label counts",
+  "immutable_inputs": {
+    "base_config": {
+      "path": "code/configs/independent_reference_gate_v1.json",
+      "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8"
+    },
+    "source_file_manifest": {
+      "path": "data/manifests/independent_reference_gate_v1_source_files.json",
+      "sha256": "46f2240a07f46b6e283cb90e1f478f0b14a2e1499c52e2cc8e144898065adffc",
+      "repo": "cua-lite/GUIOdyssey",
+      "revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+      "file_count": 16,
+      "total_bytes": 2252923738
+    },
+    "prior_source_pool_artifact": {
+      "path": "data/manifests/independent_reference_gate_v1_artifact.json",
+      "sha256": "833139954e332c00a2ed06fe2c3e71e701ca9a4a381f4c41680ec57d64a827ff",
+      "source_row_count": 212,
+      "previous_decision_count_above_maximum": 81
+    },
+    "prior_eligible_pool_manifest": {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+      "eligible_pool_count": 111
+    }
+  },
+  "eligibility_override": {
+    "minimum_decisions_per_trajectory": 13,
+    "maximum_decisions_per_trajectory": 64,
+    "all_other_eligibility_fields_inherited_exactly": true,
+    "previously_used_decision_count_range": [4, 12],
+    "range_disjoint_from_all_previous_output_roles": true
+  },
+  "selection": {
+    "salt": "causalcache-set-utility-long-pool-discovery-v1",
+    "length_strata": [
+      {"name": "long_13_16", "minimum": 13, "maximum": 16},
+      {"name": "long_17_24", "minimum": 17, "maximum": 24},
+      {"name": "long_25_64", "minimum": 25, "maximum": 64}
+    ],
+    "order": ["sha256_hex", "source_id", "transport_file", "transport_row_index"],
+    "instruction_app_group_overlap_audit_required_before_label_freeze": true,
+    "discovery_result_does_not_authorize_labels": true,
+    "role_assignment_allowed": false,
+    "query_state_selection_allowed": false
+  },
+  "output": {
+    "manifest_path": "data/manifests/set_utility_long_pool_discovery_v1.json",
+    "git_tracked": true,
+    "contains_images_or_ocr": false,
+    "contains_instruction_or_action_content": false,
+    "contains_policy_restoration_or_gate_outputs": false
+  },
+  "operation_limits": {
+    "gpu_count": 0,
+    "model_load_count": 0,
+    "policy_forward_count": 0,
+    "restoration_forward_count": 0,
+    "gate_forward_count": 0,
+    "closed_loop_episode_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "sealed_androidworld_test_access_count": 0
+  }
+}
