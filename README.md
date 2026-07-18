@@ -19,21 +19,18 @@
 > 新机制、新数据与新 untouched holdout 的 versioned study，而不是继续调本次 confirm。完整门槛与权限链见
 > [`docs/independent_confirm_closed_loop_v1.md`](docs/independent_confirm_closed_loop_v1.md)。
 
-> Long-horizon development（独立分支，不改写上述 NO-GO）：当前工作树在
-> `luojiaxuan/independent-gate-long-horizon-manifest-repair` 上建立新的 development-only study。原 long-horizon
-> A/B 在 selector scoring 前发现 v4 outer manifest / inner label-blind seal 绑定错误，旧 immutable substrate
-> 只作 forensic evidence，不产生科学 verdict；修复 lineage 从旧 Source-A 分叉，不 force-push。只读 trace
-> incidence 显示，当前两个 AndroidWorld early-stopped policy stacks 中 `n>=8` 占 36.09% / 50.10%
-> decisions，`n>=16` 占 12.90% / 31.19%；这些数字只描述该 stack，不能声称为 benchmark prevalence。
-> 正式设计将 `n=8,B=2/4` 用于 exact-subset evaluation，将 `n=16,B=2/4` 用于 context-safe
-> selector-pair union comparison；旧 confirm、matched-NLL、closed-loop 与 sealed test 继续 locked。
-> 审计结果见 [`data/results/long_horizon_incidence_v1/`](data/results/long_horizon_incidence_v1/)，正式
-> Source-A、`n=8` exact-163、`n=16` pair-union、B2/B4 selector seal 与执行 lineage 见
-> [`docs/long_horizon_development_v1.md`](docs/long_horizon_development_v1.md)。
-> 修复后的 Source-A contract SHA256 已冻结为 `82965790...67a96`，136 个 focused tests、7 skips 与 79 个
-> subtests 已通过；当前修复 lineage 的
-> selection/OCR/selector/policy/restoration access 均为 0，后续只允许按 repaired
-> A→selection-B→runner-C 的 direct-child lineage 执行。
+> Long-horizon development（已归档）：旧 `n=8/16` independent / conditional / v4 residual 协议已标记为
+> `SUPERSEDED_BEFORE_SCIENTIFIC_SCORING`，不再创建 runner-C，也不运行 restoration、matched-NLL 或
+> closed-loop。终止消息到达前，修复 lineage 已完成 24/18 split、24 条 development substrate、immutable
+> OCR replay，以及 576-record label-blind selector seal 的本地构建与验证；该 seal 只作为 forensic archive，
+> 不是科学结果。restoration distance、policy generation、teacher forward、GPU KL、closed-loop 和科学
+> GO/NO-GO verdict 均为 0。可复用 substrate 固定在 private HF revision
+> `d237271e3266a72cce7aa730d0708936f1552365`；终止清单与 selector-preparation bytes 固定在 revision
+> `5800f150f34d454ca72ae3eaeee3f30f564d834e` / tag
+> `long-horizon-development-v1-superseded-archive`，fresh 4-file byte replay 已通过。归档索引见
+> [`data/results/long_horizon_development_v1_archive/`](data/results/long_horizon_development_v1_archive/)，历史
+> 合同保留在 [`docs/long_horizon_development_v1.md`](docs/long_horizon_development_v1.md)，仅供复用数据与代码，
+> 禁止从旧 GO 入口续跑。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
@@ -1226,6 +1223,7 @@ mediation effect。
 | Gate v1 fresh-16 primary evaluation | [protocol](docs/gate_v1_fresh16_claim_serialization_repair.md)；[completion record](data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile) | claim repair A=`f0dd53b` / B=`ce523ff`；tag `gate-v1-fresh16-claim-serialization-repair-v1` → report commit `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`；annotated tag object `34d5928...c4339` | `COMPLETED + REVALIDATED`；conditional normalized/exact=`0.6942`、raw/exact=`0.9431`、vs strongest heuristic delta=`+0.3261`；selector `NO-GO`、set-conditioning `NO-GO`；当时 confirm/matched-NLL/closed-loop locked，后续 confirm 终态见下行 |
 | Independent confirm-20 v1 attempt | [contract](code/configs/causalcache_independent_confirm_closed_loop_v1.json)；[protocol](docs/independent_confirm_closed_loop_v1.md)；[failure evidence](data/results/independent_confirm20_v1_attempt/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-independent-confirm20-mobile) | A=`e1cc8b3`，B=`f1e9196`；payload `6d0cd959...9f52d`；旧 attempt tombstone 时 tag/report absent | 20-state label-blind payload 已 seal/replay；restoration 在 reference output 0 时因 CUDA-after-fork 失效。永久 execution `INVALID`，无科学结论；当时 closed-loop locked，只允许采用 exact payload 的 versioned continuation |
 | Independent confirm-20 restoration continuation v1 | [contract](code/configs/causalcache_independent_confirm_continuation_v1.json)；[protocol](docs/independent_confirm_continuation_v1.md)；[result](data/results/independent_confirm20_continuation_v1/)；[private HF report](https://huggingface.co/datasets/gavinlaw/causalcache-independent-confirm20-mobile/tree/a0b408e58d629299be334a74ecbd0ec2fa2ed1fc/independent-confirm20/v1/report) | A=`8c0d3ae`，B=`68e71fd`；payload `6d0cd959...9f52d` → report `a0b408e5...d1fc`；tag `independent-confirm20-v1` | `COMPLETED_AND_PUBLISHED`；20/20 memory-sensitive，但 independent/exact raw=`0.8213 < 0.85` 且弱于三个 heuristic；有效 `NO_GO_INDEPENDENT_CONFIRM`，closed-loop/matched-NLL/sealed test 未执行 |
+| Long-horizon development v1 archive | [Git archive index](data/results/long_horizon_development_v1_archive/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-long-horizon-development-mobile) | repaired substrate `d237271e...2365`；archive tag `long-horizon-development-v1-superseded-archive` → `5800f150...834e` | `SUPERSEDED_BEFORE_SCIENTIFIC_SCORING`；24/18 split 与 development substrate 可复用；576-record label-blind seal 仅作 forensic archive；restoration/policy/closed-loop/scientific verdict 均为 0 |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

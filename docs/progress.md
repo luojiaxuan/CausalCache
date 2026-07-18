@@ -2956,3 +2956,22 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   重建 substrate、fresh-readback、生成 576-record selector seal，再创建唯一 runner-C。修复 config SHA256 为
   `82965790bf541dea348997ecd1849473d5cfb89f53da9f5a615568f57ca67a96`；136 个 focused tests、7 skips 与
   79 个 subtests 通过，真实 immutable v4 artifact 的 outer/inner/五 seed ensemble smoke 通过。
+
+### 2026-07-19：旧 long-horizon 协议在科学 scoring 前归档
+
+- 项目决定停止旧 `n=8/16` independent / conditional / v4 residual long-horizon 链路，终态为
+  `SUPERSEDED_BEFORE_SCIENTIFIC_SCORING`，不是 GO、NO-GO 或 execution failure；不创建 runner-C，不再运行
+  restoration、matched-NLL、closed-loop 或 sealed test；
+- repaired Source-A=`90287134630eb2407582e547c246c93b9fccd55e`、Selection-B=
+  `bc611552d65e1348c6d68475da0e4a4b97c34850`。24/18 split、24 条 development substrate、432 OCR/raw replay
+  与 private HF revision `d237271e3266a72cce7aa730d0708936f1552365` 保留可复用；18 条 reserve 的 semantic
+  access 保持 0；
+- 终止消息到达前，576-record label-blind selector seal 已完成本地构建与验证。它被分类为
+  `PASSED_LABEL_BLIND_VALIDATION_BUT_SUPERSEDED`，不能解释为 selector 科学结果；restoration distance、policy
+  generation、teacher forward、GPU KL、closed-loop 和科学 verdict 计数均为 0；
+- 终止清单、selector seal、其 manifest 与 validation receipt 已作为 4-file forensic payload 上传 private HF
+  revision `5800f150f34d454ca72ae3eaeee3f30f564d834e`，tag 为
+  `long-horizon-development-v1-superseded-archive`；immutable fresh readback 的 4 个文件逐 byte 一致；
+- Git 归档索引位于 `data/results/long_horizon_development_v1_archive/`。Hyper00 的
+  `/data/long-horizon-development-v1` 只保留为 cache/staging，不是 canonical source of truth；任何新方法在新的
+  task 中另立合同与 split，不从旧 GO 入口续跑。

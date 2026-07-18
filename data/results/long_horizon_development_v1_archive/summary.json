@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_long_horizon_development_v1",
+  "status": "SUPERSEDED_BEFORE_SCIENTIFIC_SCORING",
+  "scientific_interpretation": "none",
+  "git": {
+    "branch": "luojiaxuan/independent-gate-long-horizon-manifest-repair",
+    "repaired_source_a_commit": "90287134630eb2407582e547c246c93b9fccd55e",
+    "repaired_selection_b_commit": "bc611552d65e1348c6d68475da0e4a4b97c34850"
+  },
+  "hugging_face": {
+    "repo_id": "gavinlaw/causalcache-long-horizon-development-mobile",
+    "repo_type": "dataset",
+    "repaired_substrate_revision": "d237271e3266a72cce7aa730d0708936f1552365",
+    "archive_revision": "5800f150f34d454ca72ae3eaeee3f30f564d834e",
+    "archive_tag": "long-horizon-development-v1-superseded-archive",
+    "archive_path": "archives/long-horizon-development-v1",
+    "archive_file_count": 4,
+    "immutable_exact_byte_readback_passed": true
+  },
+  "archive_payload_manifest": {
+    "path": "data/results/long_horizon_development_v1_archive/archive_payload_manifest.json",
+    "sha256": "10d1cd251279c0c3e998254db43b2d829fbbcbe058457be8cfff41dbfd04c6e5"
+  },
+  "selector_preparation": {
+    "classification": "PASSED_LABEL_BLIND_VALIDATION_BUT_SUPERSEDED",
+    "record_count": 576,
+    "canonical_use": "forensic_archive_only"
+  },
+  "access_accounting": {
+    "reserve_semantic_access_count": 0,
+    "restoration_distance_count": 0,
+    "restoration_label_access_count": 0,
+    "policy_generation_count": 0,
+    "teacher_forward_count": 0,
+    "gpu_kl_count": 0,
+    "closed_loop_task_count": 0,
+    "scientific_go_no_go_verdict_count": 0
+  },
+  "local_cache": {
+    "host": "hyper00",
+    "path": "/data/long-horizon-development-v1",
+    "canonical_source_of_truth": false
+  },
+  "new_mainline_started_by_this_archive_task": false
+}

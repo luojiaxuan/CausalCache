@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "archive_id": "causalcache_long_horizon_development_v1",
+  "archived_at_utc": "2026-07-18T21:06:08Z",
+  "status": "SUPERSEDED_BEFORE_SCIENTIFIC_SCORING",
+  "supersession_reason": "The project replaced the legacy independent/conditional/v4 long-horizon selector question with a separate set-utility-prediction research line.",
+  "git_lineage": {
+    "branch": "luojiaxuan/independent-gate-long-horizon-manifest-repair",
+    "repaired_source_a_commit": "90287134630eb2407582e547c246c93b9fccd55e",
+    "repaired_selection_b_commit": "bc611552d65e1348c6d68475da0e4a4b97c34850",
+    "contract_sha256": "82965790bf541dea348997ecd1849473d5cfb89f53da9f5a615568f57ca67a96",
+    "selection_manifest_sha256": "7c78e9d9f728b896414bb5794895be50579d10008d199dd5f105933f04c464e0"
+  },
+  "hugging_face_inputs": {
+    "dataset_repo": "gavinlaw/causalcache-long-horizon-development-mobile",
+    "repaired_substrate_revision": "d237271e3266a72cce7aa730d0708936f1552365",
+    "formal58_model_revision": "23f6786075c7bff91f93fd7e8a878e070efb72a9",
+    "v4_residual_model_revision": "1641b90a4ebb05037e4710738a78e2c79f81cdc3"
+  },
+  "reusable_substrate": {
+    "artifact_tree_sha256": "9d20e9d25aaf80bce036b0a458d583dce6331c2e6a778d440a7990d1b001f996",
+    "manifest_sha256": "849515ad62898db997a479ac8071d2d6dd9c35a2c31a5f556be799576538e04a",
+    "development_trajectory_count": 24,
+    "reserve_trajectory_count": 18,
+    "state_count": 48,
+    "event_count": 408,
+    "candidate_occurrence_count": 576,
+    "image_and_ocr_record_count": 432,
+    "immutable_readback_passed": true,
+    "full_ocr_replay_passed": true
+  },
+  "selector_preparation": {
+    "classification": "PASSED_LABEL_BLIND_VALIDATION_BUT_SUPERSEDED",
+    "canonical_use": "forensic_archive_only",
+    "validation_completed_at_utc": "2026-07-18T21:04:11Z",
+    "record_count": 576,
+    "state_count": 48,
+    "artifact_tree_sha256": "0ab3fa317ad609d05f52c57aaf4d5c5dd05227ae7604a854083bf965f89e5eab",
+    "files": [
+      {
+        "archive_path": "selector-preparation/manifest.json",
+        "sha256": "0969e06077d83186fe7d97f7ee9bf8380d1a9e0aaf15b33e9e7da5d667db4ac2",
+        "size_bytes": 15370
+      },
+      {
+        "archive_path": "selector-preparation/selector-seal.json",
+        "sha256": "c8da3f9e41e3876117ae98b7a415f31697f0c15797127cb62002d4e4093efd4f",
+        "size_bytes": 145698
+      },
+      {
+        "archive_path": "selector-preparation/validation.json",
+        "sha256": "96987da4c9d14c5bab5115d216649c1ecddef61ff41c610806ee678ec916b820",
+        "size_bytes": 962
+      }
+    ]
+  },
+  "access_accounting_at_supersession": {
+    "development_trajectory_count": 24,
+    "reserve_trajectory_count": 18,
+    "reserve_semantic_access_count": 0,
+    "label_blind_selector_record_count": 576,
+    "restoration_distance_count": 0,
+    "restoration_label_access_count": 0,
+    "policy_generation_count": 0,
+    "teacher_forward_count": 0,
+    "gpu_kl_count": 0,
+    "closed_loop_task_count": 0,
+    "scientific_go_no_go_verdict_count": 0
+  },
+  "preserved_assets": [
+    "24/18 trajectory split manifest",
+    "24 development trajectories' OCR, screenshots, events, and state substrate",
+    "repaired Source-A/Selection-B lineage",
+    "immutable Hugging Face substrate",
+    "data readers, validators, selector-preparation code, and tests",
+    "validated label-blind selector seal as forensic evidence"
+  ],
+  "prohibited_continuations_under_this_protocol": [
+    "legacy Formal58/v4 selector deployment",
+    "restoration distance generation",
+    "B=4 independent GO evaluation",
+    "B=2 conditional or v4 residual GO evaluation",
+    "matched-NLL evaluation",
+    "closed-loop evaluation"
+  ]
+}

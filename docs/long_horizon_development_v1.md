@@ -1,11 +1,33 @@
 # Long-horizon development v1
 
-> 当前状态：原 Source-A/B 在 selector scoring 前发现 v4 outer manifest 与 inner label-blind seal 的 loader
-> 绑定错误，已永久标为 formal-ineligible；没有 selector score、restoration distance 或 policy operation 产生。
-> 本文当前版本从旧 Source-A 分叉建立 manifest-repair lineage，显式绑定
-> `manifest.json@3ecc...` 与 `label-blind-seal.json@02b4...` 两层 provenance。修复后的 config SHA256 为
-> `82965790bf541dea348997ecd1849473d5cfb89f53da9f5a615568f57ca67a96`；136 个 focused tests、7 skips 与
-> 79 个 subtests 已通过。selection-B 与 repaired artifact revisions 只能在 clean pushed Source-A 后生成。
+> 归档终态：`SUPERSEDED_BEFORE_SCIENTIFIC_SCORING`。本协议已停止，禁止创建 runner-C 或继续运行旧
+> independent / conditional / v4 residual 的 restoration、GO、matched-NLL 与 closed-loop。修复后的
+> Source-A/Selection-B、24/18 split、24 条 development substrate、OCR 与读取/验证代码保留供后续独立研究复用。
+> 终止前完成的 576-record label-blind selector seal 只作 forensic archive，不构成科学结果。
+
+## 归档终态
+
+- repaired Source-A：`90287134630eb2407582e547c246c93b9fccd55e`；repaired Selection-B：
+  `bc611552d65e1348c6d68475da0e4a4b97c34850`；contract SHA256：
+  `82965790bf541dea348997ecd1849473d5cfb89f53da9f5a615568f57ca67a96`；
+- 24 条 development / 18 条 reserve 的 selection 已冻结。development 侧 408 events、48 states、576
+  candidate occurrences、432 image/OCR records 已构建并 replay；reserve semantic access 为 0；
+- repaired substrate 已由 private HF revision
+  `d237271e3266a72cce7aa730d0708936f1552365` immutable fresh-readback，并完成第二次 432-record OCR/raw replay；
+- 用户终止消息到达前，576-record label-blind seal 已本地构建且 validator 返回
+  `PASSED_LONG_HORIZON_LABEL_BLIND_SELECTOR_SEAL_VALIDATION`。这表示 preparation bytes 自洽，不表示旧 selector
+  假设得到支持；
+- archive payload 已上传 private HF revision
+  `5800f150f34d454ca72ae3eaeee3f30f564d834e`，tag 为
+  `long-horizon-development-v1-superseded-archive`。从该 immutable revision fresh-download 的 4 个文件与 staging
+  bytes 逐 byte 一致；
+- restoration distance、restoration label、policy generation、teacher forward、GPU KL、matched-NLL、
+  closed-loop 与科学 GO/NO-GO verdict 均为 0。没有生成 long-horizon 科学结果，也没有打开 sealed test；
+- 本文余下内容保留为历史协议说明，不再代表待执行计划。任何新方法必须在独立 task/branch/worktree 中另立
+  数据合同、untouched split 与评测权限，不能沿用本文 GO 入口。
+
+机器可读终止清单、HF revision 与 byte roster 见
+[`data/results/long_horizon_development_v1_archive/`](../data/results/long_horizon_development_v1_archive/)。
 
 ## 目标与边界
 
@@ -191,9 +213,11 @@ GPU job 前按仓库规则做 10 秒 idle preflight；启动后仅在 warmup 与
 ## Source of truth 与产物
 
 - Git：合同、runner、tests、轻量 selection/result summaries、本文与进度；
-- private HF dataset（planned）：`gavinlaw/causalcache-long-horizon-development-mobile`；
+- private HF dataset：`gavinlaw/causalcache-long-horizon-development-mobile`；repaired substrate revision 为
+  `d237271e3266a72cce7aa730d0708936f1552365`，superseded archive revision 为
+  `5800f150f34d454ca72ae3eaeee3f30f564d834e`；
 - private HF models：formal-58 gate 与 v4 residual checkpoints 的既有 immutable repositories；
 - raw GUIOdyssey 与 AndroidWorld traces 不复制进 Git。
 
-HF dataset 计划按三段提交：policy-blind substrate → label-blind selection seal → restoration/report；每段都
-fresh-download 做 SHA/size/byte replay，最终将 immutable revisions 回写 README、本文与结果目录。
+原计划的三段提交在 policy-blind substrate 后停止；label-blind selector preparation 仅进入显式 superseded
+archive，restoration/report 从未生成。archive 的 fresh-download SHA/size/byte replay 已完成。
