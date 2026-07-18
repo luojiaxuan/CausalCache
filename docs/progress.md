@@ -31,6 +31,25 @@
   修复 Source-A/Execution-B commit 尚待本次测试与 push 后回填；fresh-16 semantic label decode 与 confirm-20
   access 仍为 0。
 
+### 2026-07-18：set-conditioned v3 首次 CPU attempt 在 historical parser fail closed
+
+- 正式 Source-A=`d4e7b0065916513d18621925c212798018960c6b`，唯一 direct-child Execution-B=
+  `2bfd8bc39c760e6590f923f88c2097d164b94bb4`；B 只新增 mode-100644 canonical runner freeze，SHA256
+  `bf2511aa9cb536a4ba71f2d4d403d925102fc5544901e2c6108334084e09a0f2`，live-remote validator 已通过；
+- Hyper00 无 GPU container 的 torch focused suite 为 43 passed。formal-58 train-seal 完成 5 checkpoints，LR
+  选择 `0.001`，five-seed mean OOF score=`0.5852645833`；seal SHA256=`9029f0dc...75470`，fresh
+  feature-only predictions SHA256=`23235c59...4ec3`，seal 时 label/confirm/GPU/policy forward 均为 0；
+- evaluation 持久化 claim `7bb9a95b...7dd` 并首次 decode fresh label 后，在 historical independent parser
+  fail closed。实际 immutable artifact 的 protocol 是 `causalcache_gate_v1_fresh16_evaluation_v1`，代码错误复用
+  `gate_v1_fresh16.PROTOCOL_ID=causalcache_gate_v1_fresh16_primary_v1`；其余 top-level/record schema 匹配；
+- development report 不存在，本 attempt 状态为
+  `INVALID_SET_CONDITIONED_V3_HISTORICAL_PROTOCOL_PARSER_ATTEMPT_V1`，没有 scientific result。模型、预测、
+  selector 和阈值没有在 label access 后改变，confirm/matched-NLL/closed-loop 仍为 0；轻量证据见
+  `data/results/set_conditioned_v3_pair_residual_attempt_v1/`；
+- 下一步只允许独立冻结 parser-only repair：绑定原 A/B、seal、claim、predictions 与 exact historical SHA；不得
+  retrain/repredict/retune，并必须披露 parent decode 1 次与 repair deterministic replay 1 次，不能称 pristine
+  one-pass evaluation。repair 完成前，private HF publication 仍为 pending。
+
 AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
 与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
 `NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权

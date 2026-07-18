@@ -228,6 +228,18 @@ confirm-20。若要进入 confirm，必须另建版本化 study、重新冻结�
 
 ## Source of Truth 与独立 namespace
 
+### 首次 evaluation parser failure
+
+首次 formal train-seal 已完成，但 evaluation 在 claim 后首次 decode fresh label，随后因 historical independent
+artifact 的 protocol-id contract 写错而 fail closed。实际 SHA-pinned artifact 是
+`causalcache_gate_v1_fresh16_evaluation_v1`，失败 parser 错误要求
+`causalcache_gate_v1_fresh16_primary_v1`。本次没有生成 development report，也没有 scientific result；证据见
+`data/results/set_conditioned_v3_pair_residual_attempt_v1/`。
+
+后续若修复，只能是另行冻结的 parser-only continuation：必须复用原 seal 与 predictions，禁止训练、预测、
+selector 或阈值变化，并把首次 decode 与 repair replay 的总次数如实写入结果。该 repair 仍只是 consumed
+development diagnostic，不能开放 confirm。
+
 输入都绑定 immutable HF revision 和逐文件 SHA-256。v3 的本地 staging 只允许写：
 
 ```text

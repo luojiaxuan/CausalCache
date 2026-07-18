@@ -20,6 +20,9 @@
 > repo 当前均为 `pending publication`，不能把本地 staging 当 source of truth。preliminary Source-A=`c0de357`
 > 在首次执行前发现 A/B HEAD 契约不可满足，未读取任何 semantic data；修复版要求 `train-seal` 与 `evaluate`
 > 在任何读取/写入前共同验证唯一 clean-pushed Execution-B，并将 A、B、runner-freeze SHA 全部写入 label-blind seal。
+> 正式 A=`d4e7b006…` / B=`2bfd8bc3…` 的 formal train-seal 已完成；首次 evaluation 在 claim 和一次 fresh-label
+> decode 后因 historical artifact protocol-id parser 写错 fail closed，development report 未生成，因此暂无科学
+> 结果。模型与 sealed predictions 未改；只允许另立 parser-only repair，并披露总计两次 deterministic decode。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
