@@ -1,8 +1,10 @@
-# Gate v1 fresh-16 inventory repair Source-A
+# Gate v1 fresh-16 inventory repair v1
 
-> 当前状态：repair Source-A 已实现并通过本地 source-only validation；唯一 Execution-B 尚未物化，新的
-> fresh-16 semantic run 尚未执行。这里没有 fresh-16 GO、旧 dev-5、confirm、matched-NLL 或 closed-loop
-> 结果，也不能把 v1 的 operational failure 解释为 selector NO-GO。
+> 当前状态：repair Source-A=`6fb3e868e293bce191ce30a5c6a15ecc544c4591` 与唯一 Execution-B=
+> `c22734ffc85935882f57ddb081c9194d6dae92d0` 已 commit/push 并被唯一 Hyper00 attempt 消费。该 attempt 已跨过
+> full-15 inventory、label-blind semantic materialization、checkpoint replay 与双 H200 workers，但在
+> `label-access-claim` 落盘前因 `mappingproxy` serialization 永久 `INVALID`。label decode、report、HF mutation
+> 均为 0，没有 fresh-16 GO、旧 dev-5、confirm、matched-NLL 或 closed-loop 结果；旧 namespace 不得续跑。
 
 本协议是
 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md) 的 versioned operational repair。父协议的
@@ -36,11 +38,36 @@ artifact directory 为空，原 planned HF repo/tag 仍不存在。Git 中的轻
   [`gavinlaw/causalcache-guiodyssey-restoration-v2-mobile`](https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-restoration-v2-mobile)，
   immutable revision `630363a6adb692d72774f16dd0653a50216313ff`；
 - v1 failure evidence Git commit：`2d85d088591fa1c7196f2a8e220439120f64f600`；
-- repair Execution-B planned path：
-  `code/configs/causalcache_gate_v1_fresh16_inventory_repair_runner_v1.json`；Source-A validation 时必须不存在；
+- repair Source-A commit：`6fb3e868e293bce191ce30a5c6a15ecc544c4591`；
+- repair Execution-B commit：`c22734ffc85935882f57ddb081c9194d6dae92d0`，其唯一新增文件为
+  `code/configs/causalcache_gate_v1_fresh16_inventory_repair_runner_v1.json`；
+- repair v1 failure evidence：
+  [`data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)；
 - repair planned private HF dataset：
   `gavinlaw/causalcache-gate-v1-fresh16-inventory-repair-mobile`，tag
-  `gate-v1-fresh16-inventory-repair-v1`。当前尚未创建，不能写成已发布 artifact。
+  `gate-v1-fresh16-inventory-repair-v1`。唯一 attempt 后仍未创建，不能写成已发布 artifact。
+
+## 永久执行结果
+
+唯一 repair v1 formal attempt 于 `2026-07-18T04:27:04Z` 启动、exit `1`。它已完成 16 个 trajectory 与
+80 个 OCR semantic decode、80 selected-image payload、48 feature states、144 candidate features、10 个 frozen
+checkpoint loads、2 个 policy workers 与 97 次 vision forward。随后
+`pretty_json_bytes(claim.claim)` 因 `claim.claim` 为 `mappingproxy` 抛出
+`TypeError: Object of type mappingproxy is not JSON serializable`。失败发生在独立 heuristic local seal 与 ordinal
+`0..7` receipts 已持久化之后、`label-access-claim` 写入之前。
+
+因此 fresh label semantic decode、label access claim、primary report、HF mutation、旧 dev-5、confirm、
+matched-NLL 与 closed-loop operation 全为 0；本 attempt 没有合法 GO/NO-GO。Hyper00 原始 mode-0600 evidence
+保留 8 条 ordered receipts、独立 heuristic seal、88-file / 51,508,707-byte artifact tree、run log/start/exit 与
+Docker receipt。失败执行器冻结/报告的 artifact canonical inventory SHA256 为
+`5443db6df16234c29b32501bc9f766670d428141fb02c4a665be936e1ca2587c`；其输入是按 relative POSIX path 排序的
+`{path, mode=stat.S_IMODE, size_bytes, sha256}` records 的 compact/sort-keys UTF-8 JSON。完整逐文件 binding 见
+上述轻量 result。
+原 v1 与 repair v1 的 planned HF repositories 都不存在，remote mutation 为 0。
+
+本协议以下 source/runtime argv 仅作为已消费 A/B 的历史冻结形状，**不得再次调用 `run` 或 `validate`**。
+下一步只能冻结独立 versioned claim-serialization repair：先验证本 attempt 的 receipts、seal、artifact、logs、
+runtime 与 successor absence，再使用全新的 state/artifact/runtime-receipt/HF identities。
 
 ## 精确 15-path 远端树
 
@@ -98,10 +125,10 @@ repo metadata（包括 derived full-15 tree）、hash GUI-Owl 本地 verified pr
 新 artifact/state roots 必须同时不存在；通过后的 B、旧 failure/destination absence、remote metadata、本地模型与
 GPU 映射摘要会写入第一条 durable `runtime_receipts`。
 
-## Source-A validation
+## Source-A validation（历史冻结记录）
 
-从仓库根目录运行 config-only validator；它不能访问 network、导入 PyTorch/Hugging Face、写文件、读取 fresh
-semantics 或授权执行：
+冻结 Source-A 时从仓库根目录运行了 config-only validator；它不能访问 network、导入 PyTorch/Hugging Face、
+写文件、读取 fresh semantics 或授权执行：
 
 ```bash
 PYTHONPATH=code python3 -m scripts.validate_gate_v1_fresh16_inventory_repair_contract \
@@ -109,11 +136,11 @@ PYTHONPATH=code python3 -m scripts.validate_gate_v1_fresh16_inventory_repair_con
   --contract code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json
 ```
 
-当前 Source-A validator 返回
+Source-A 冻结时 validator 返回
 `VALID_SOURCE_ONLY_GATE_V1_FRESH16_INVENTORY_REPAIR_V1`、47-path source inventory，且
 `runner_freeze_b_present=false`、`evaluation_executed=false`、`execution_authorized=false`；所有 network/write/
-torch/fresh semantic/model/report/HF mutation counts 均为 0。当前 focused regression 为 73 passed、8 subtests；
-可在 `code/` 运行：
+torch/fresh semantic/model/report/HF mutation counts 均为 0。冻结时 focused regression 为 73 passed、8 subtests；
+当时在 `code/` 运行：
 
 ```bash
 cd code
@@ -132,7 +159,7 @@ PYTHONPATH=code python3 -m scripts.manage_gate_v1_fresh16_inventory_repair valid
   --source-a-git-commit <FULL_CLEAN_PUSHED_REPAIR_SOURCE_A_SHA>
 ```
 
-## 唯一 Execution-B 与 formal run
+## 唯一 Execution-B 与 formal run（历史冻结形状，已失效）
 
 在 clean pushed A 上机械生成 B：
 
@@ -193,6 +220,6 @@ PYTHONPATH=code python3 -m scripts.manage_gate_v1_fresh16_inventory_repair valid
   --docker-inspect-receipt /data/experiments/causalcache/.gate-v1-fresh16-evaluation-inventory-repair-v1.docker-inspect.json
 ```
 
-只有 13-target publication、tag-resolved immutable replay、local completion seal 与轻量 Git result 全部闭合后，
-才可以报告 fresh-16 verdict。无论 verdict 如何，本协议都不自动授权旧 dev-5、confirm、matched-NLL 或
-closed-loop；这些仍需后续独立 contract。
+原设计要求 13-target publication、tag-resolved immutable replay、local completion seal 与轻量 Git result 全部
+闭合后才可报告 fresh-16 verdict；repair v1 未到达这些阶段。任何后续 claim-serialization repair 仍不得自动
+授权旧 dev-5、confirm、matched-NLL 或 closed-loop，这些需要独立 contract。

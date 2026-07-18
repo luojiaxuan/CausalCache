@@ -13,9 +13,12 @@ preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replaceme
 HF immutable artifact。当前已有 offline teacher labels、oracle 上界与 10 个 immutable learned gate checkpoint，
 formal model seal 已闭合；fresh-16 v1 已冻结 exact 16/48/144/448 denominator、variable-`n` heuristics、双 H200
 49-batch/97-forward schedule、all-selections-before-label firewall 与 9+4 two-commit publication，但其唯一
-formal attempt 在 derived remote-tree preflight 永久 pre-semantic fail closed。versioned inventory-repair Source-A
-现已精确绑定完整 15-path tree，同时保持只下载原 4 个 consumed files 与全部科学语义不变。真实 fresh-16
-semantic access 仍为 0，也仍没有 fresh-16 GO、matched-NLL pairs、closed-loop 方法效果或 confirm policy output。
+formal attempt 在 derived remote-tree preflight 永久 pre-semantic fail closed。versioned inventory-repair A/B 随后
+精确绑定完整 15-path tree，并保持只下载原 4 个 consumed files 与全部科学语义不变；唯一 repair v1 attempt 已完成
+16 trajectory / 80 OCR semantic decode、80 selected images、48 feature states、144 candidates、10 checkpoint loads、
+双 H200 2 policy workers / 97 vision forwards，但在 `heuristic_local_seal` 之后、`label-access-claim` 写入之前因
+`mappingproxy` JSON serialization 失败而永久 `INVALID`。label semantic decode、report 与 HF mutation 均为 0，
+也仍没有 fresh-16 GO、matched-NLL pairs、closed-loop 方法效果或 confirm policy output。
 selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
@@ -45,12 +48,12 @@ REVALIDATED`，但原 producer 不重分类。repaired archive+sidecar 已发布
 immutable commit 为 `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，幂等 replay 与独立只读 postflight 均通过。
 formal-58 label-data prerequisite 已满足，train-only repair cache 与 formal training 均完成 private-HF immutable
 replay。Source-A=`e20f004…b9`、唯一 Execution-B=`bad28b7…a2f2` 已闭合 20 个 OOF trials、100 条 fold
-tracks 与 10 个 final checkpoint。fresh-16 v1 A/B 与 pre-semantic failure evidence 已封存；当前步骤是先
-commit/push inventory-repair A，从 clean A 机械 freeze/push 唯一 repair B，再进行新的唯一 primary GO。
-尚未打开 fresh-16、旧 dev-5 或 confirm。父协议与 repair 说明分别见
+tracks 与 10 个 final checkpoint。fresh-16 parent v1 与 inventory-repair v1 的 A/B、失败 evidence 均已封存；
+当前步骤是另立 versioned claim-serialization repair，使用新的 local/HF namespace，并先验证 repair v1 的
+ordinal 0..7 receipts、seal、artifact/log/runtime bytes 与 successor absence。fresh labels、旧 dev-5 与 confirm
+尚未打开。父协议与 repair 说明分别见
 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md) 和
-[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)；repair B push 前任何真实 fresh
-input 都不能读取。
+[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)；旧 repair v1 namespace 不得续跑。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -2228,13 +2231,15 @@ exact labels、ledger-neutral repair 与 repaired-label private-HF publication �
 execution 仍永久 pre-semantic fail-closed；其 one-leaf transport-repair 已从 Source-A/Execution-B 完成 Hyper00
 no-GPU cache build、exact-three private-HF publication、fresh immutable replay 与只读 revalidation。formal-58
 cache 已被唯一 formal training B 消费；OOF/final fit、10-checkpoint private-HF publication 与只读 replay 均闭合。
-当前仍没有 fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。fresh-16 v1 已冻结 exact 16 trajectories /
+当前已有 inventory-repair v1 的 fresh-16 label-blind semantic/GPU run，但仍没有 fresh label、paper metric、旧
+dev-5、matched-NLL、closed-loop 或 confirm run。fresh-16 v1 已冻结 exact 16 trajectories /
 48 states / 144 candidate features / 448 distances、variable-`n` heuristic、selective fresh loader、两张 H200 的
 49 processor batches / 97 vision forwards、selection-before-label firewall 与 9-target payload + 4-target report
 direct chain，但唯一 v1 execution 因 remote-tree allowlist 漏绑历史 paths 而在 download/semantic decode 前永久
-fail closed。现在只允许推进 inventory-repair Source-A：验证完整 15-path tree、只下载原 4 个 consumed files，
-并保持 scientific contract/model/labels/roster/gate/thresholds/output targets 不变。下一步是 commit/push repair A，
-从 clean A 机械生成唯一 repair B 并单独 push，再在新 namespace 上运行一次性 primary GO。primary report 必须先
+fail closed。inventory-repair A/B 随后验证完整 15-path tree、只下载原 4 个 consumed files，并保持 scientific
+contract/model/labels/roster/gate/thresholds/output targets 不变；唯一 attempt 跨过 label-blind semantic/GPU phase，
+却在 label claim 落盘前因 `mappingproxy` serialization 永久 fail closed。下一步只能推进新的 versioned
+claim-serialization repair 与新 namespace。primary report 必须先
 hash/tag/immutable replay，之后才能另立 combined-21 stage 读取旧 dev-5。不得依据 train-only OOF 改
 architecture、LR、epoch、loss、threshold 或 seed，也不得把 combined-21 混入同一 execution。
 
@@ -2694,3 +2699,22 @@ architecture、LR、epoch、loss、threshold 或 seed，也不得把 combined-21
   `code/configs/causalcache_gate_v1_fresh16_inventory_repair_runner_v1.json` 并作为 direct-child B 单独
   commit/push；随后才能在 Hyper00 新 namespace 上执行唯一双 H200 run 与 immutable validate。完整交接见
   `docs/gate_v1_fresh16_inventory_repair.md`。
+
+### 2026-07-18：fresh-16 inventory-repair v1 pre-label claim-serialization failure
+
+- repair Source-A=`6fb3e868e293bce191ce30a5c6a15ecc544c4591`、唯一 direct-child Execution-B=
+  `c22734ffc85935882f57ddb081c9194d6dae92d0` 均已 commit/push；config SHA256 为
+  `5ba1b2d433c01defa0faae92a163dc9a9a916d967218abdc7607bd3724829a44`；
+- Hyper00 attempt 于 `2026-07-18T04:27:04Z` 启动并 exit `1`。full-15 remote inventory、4 consumed-file
+  transport、16 trajectory / 80 OCR semantic decode、80 selected images、48 feature states、144 candidates、
+  10 checkpoint loads、双 H200 2 workers / 97 vision forwards 与 label-blind heuristic seal 均已完成；
+- `pretty_json_bytes(claim.claim)` 不能序列化 `mappingproxy`，因此执行精确停在 ordinal `0..7` 之后、
+  `label-access-claim` 写入之前。fresh label semantic/access claim/report/HF mutation、旧 dev-5、confirm、
+  matched-NLL 与 closed-loop 均为 0，不能报告 GO/NO-GO；
+- mode-0600 ordered receipts、独立 heuristic seal、88-file / 51,508,707-byte artifact tree、run log/start/exit 与
+  Docker receipt 已逐字节冻结；失败执行器报告的 artifact canonical inventory SHA256 为
+  `5443db6df16234c29b32501bc9f766670d428141fb02c4a665be936e1ca2587c`。旧 v1 与 repair planned HF repos
+  均不存在，remote mutation 为 0；
+- 轻量证据见 `data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`。旧 state/artifact/runtime-receipt
+  namespace 不删除、不覆盖、不续跑；下一步必须另立 claim-serialization repair、验证旧 bytes/successor absence，
+  并使用新的 local/HF identities。

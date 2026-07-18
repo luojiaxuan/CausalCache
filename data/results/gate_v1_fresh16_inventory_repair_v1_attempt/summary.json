@@ -1,0 +1,160 @@
+{
+  "schema_version": "1.0.0",
+  "attempt_id": "gate-v1-fresh16-inventory-repair-v1-attempt-1",
+  "status": "INVALID_PRE_LABEL_CLAIM_SERIALIZATION_FAILURE",
+  "source_a_git_commit": "6fb3e868e293bce191ce30a5c6a15ecc544c4591",
+  "execution_b_git_commit": "c22734ffc85935882f57ddb081c9194d6dae92d0",
+  "contract_sha256": "5ba1b2d433c01defa0faae92a163dc9a9a916d967218abdc7607bd3724829a44",
+  "runtime": {
+    "host": "hyper00",
+    "container_name": "sglang-omni-jaxan-07181130",
+    "container_id": "2b8c8464ce398036d38c870ebe9011dd295691ec77d0cdc8a840c9ed5eb8e865",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "docker_runtime": "runc",
+    "privileged": false,
+    "gpu_count": 2,
+    "gpu_class": "NVIDIA H200",
+    "started_at_utc": "2026-07-18T04:27:04Z",
+    "exit_code": 1
+  },
+  "failure": {
+    "exception": "TypeError",
+    "message": "Object of type mappingproxy is not JSON serializable",
+    "failing_expression": "pretty_json_bytes(claim.claim)",
+    "stage": "after_heuristic_local_seal_before_label_access_claim_write",
+    "label_access_claim_path_exists": false,
+    "continuation_allowed": false
+  },
+  "completed_semantic_and_compute_counts": {
+    "fresh_trajectory_semantic_decode": 16,
+    "fresh_ocr_semantic_decode": 80,
+    "selected_image_payload": 80,
+    "feature_state": 48,
+    "candidate_feature": 144,
+    "checkpoint_load": 10,
+    "policy_worker": 2,
+    "vision_forward": 97
+  },
+  "forbidden_or_unreached_operation_counts": {
+    "fresh_label_semantic_decode": 0,
+    "label_access_claim": 0,
+    "primary_report": 0,
+    "hf_mutation": 0,
+    "legacy_dev5_access": 0,
+    "confirm_access": 0,
+    "matched_nll": 0,
+    "closed_loop": 0
+  },
+  "retained_local_evidence": {
+    "state_namespace": "/data/experiments/causalcache/gate-v1-fresh16-evaluation-inventory-repair-v1",
+    "ordered_receipts": [
+      {
+        "ordinal": 0,
+        "name": "runtime_receipts",
+        "mode": 384,
+        "size_bytes": 6790,
+        "sha256": "1febc80296005bcf107e3916c654d2915f1333f4e97cc7085291fede2f91bb03"
+      },
+      {
+        "ordinal": 1,
+        "name": "global_claim",
+        "mode": 384,
+        "size_bytes": 858,
+        "sha256": "d5d7045383b2579a2d13a52ce8290f60207919c98ecf639d9ce22c13bc95f587"
+      },
+      {
+        "ordinal": 2,
+        "name": "transport_verification",
+        "mode": 384,
+        "size_bytes": 1581,
+        "sha256": "bdd24f769bbcc399a0abec7b9ac8617e77ca66a0a6e04712480be12c072db607"
+      },
+      {
+        "ordinal": 3,
+        "name": "label_blind_cpu_completion",
+        "mode": 384,
+        "size_bytes": 821,
+        "sha256": "8038aa16e0e1f0c909a70c69ac47d5f953e7e499e8d397efc04fed97cfb3e52c"
+      },
+      {
+        "ordinal": 4,
+        "name": "checkpoint_replay_completion",
+        "mode": 384,
+        "size_bytes": 1035,
+        "sha256": "3814f9961c498cf724bac7041c5ad400716029da223c5cf5bf717544d4f5ff3c"
+      },
+      {
+        "ordinal": 5,
+        "name": "policy_worker_even_completion",
+        "mode": 384,
+        "size_bytes": 715,
+        "sha256": "0368cc17ea78eb0e3ddadc7c1b44bed17c0671a80668993e80f1ac5d3486788e"
+      },
+      {
+        "ordinal": 6,
+        "name": "policy_worker_odd_completion",
+        "mode": 384,
+        "size_bytes": 713,
+        "sha256": "7bb9f5f402a90fe601c0bef1eb4461e7ddc58de84cbd77819c843e9b604ae759"
+      },
+      {
+        "ordinal": 7,
+        "name": "heuristic_local_seal",
+        "mode": 384,
+        "size_bytes": 645,
+        "sha256": "f8202b8f0dd0945368c1c77bbf75c910d9244923493ea79813978796718cee13"
+      }
+    ],
+    "heuristic_local_seal": {
+      "mode": 384,
+      "size_bytes": 1783,
+      "sha256": "bd11c4a8220df2095023bd34d0ef7769fec4c4ee78c38df702099cec82142f0e"
+    },
+    "label_access_claim_exists": false,
+    "artifact_tree": {
+      "root": "/data/artifacts/causalcache/gate-v1-fresh16-evaluation-inventory-repair-v1",
+      "top_level_entries": [
+        "fresh16-eval",
+        "selected-images"
+      ],
+      "file_count": 88,
+      "total_bytes": 51508707,
+      "inventory_schema": "regular files sorted by relative POSIX path; records are {path,mode=stat.S_IMODE,size_bytes,sha256}; compact sort-keys UTF-8 JSON array without trailing newline",
+      "canonical_inventory_json_size_bytes": 15551,
+      "failure_executor_canonical_inventory_sha256": "5443db6df16234c29b32501bc9f766670d428141fb02c4a665be936e1ca2587c"
+    },
+    "run_log": {
+      "mode": 384,
+      "size_bytes": 2214,
+      "sha256": "a246ab63e3946c37cbc2f9e2b90c3b418acecf24bad93e0fdfc253d51357afda"
+    },
+    "run_started": {
+      "mode": 384,
+      "size_bytes": 21,
+      "sha256": "3fe1edd98f9fe4f79324c7ea2fbb95f5df6c0eea96e9dd40be69b47bf774ad58"
+    },
+    "run_exit": {
+      "mode": 384,
+      "size_bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "docker_inspect_receipt": {
+      "mode": 384,
+      "size_bytes": 21084,
+      "sha256": "07df8a6d5714e770089ca30285d4bc3a6526eb9ad023a93d8b9f181f1d12a6f4"
+    }
+  },
+  "remote": {
+    "abandoned_v1_repo": "gavinlaw/causalcache-gate-v1-fresh16-evaluation-mobile",
+    "repair_planned_repo": "gavinlaw/causalcache-gate-v1-fresh16-inventory-repair-mobile",
+    "repair_planned_tag": "gate-v1-fresh16-inventory-repair-v1",
+    "both_planned_repositories_absent_after_failure": true,
+    "remote_mutation_count": 0
+  },
+  "scientific_outcome": {
+    "go_selector": null,
+    "go_set_conditioning": null,
+    "paper_metric_valid": false
+  },
+  "next_action": "freeze a separate versioned claim-serialization repair with new local and remote namespaces"
+}

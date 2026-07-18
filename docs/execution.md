@@ -888,17 +888,22 @@ repair 的 remote metadata preflight 必须对 derived revision `630363a6adb692d
 9+4 output target paths 与 49/97 双 H200 schedule全部不变。repair 只允许改变 source lineage、full-tree metadata、
 local namespace/runtime receipt 与 planned HF destination。
 
-旧 `/data/experiments/causalcache/gate-v1-fresh16-evaluation-v1`、旧空 artifact directory、旧 Docker receipt 和
-run log/start/exit 必须保留。repair `run` 先验证 clean pushed Execution-B，再在读取 token/构造 Hub client/
-创建新 state 之前 read-only 验证这些 bytes 与 14 个 successor absence；随后确认旧 HF destination 仍不存在。
-创建新 roots 前还要验证 non-label remote metadata、14-file/17,545,907,171-byte GUI-Owl 本地 projection、精确
-logical `cuda:0/cuda:1` 的 H200 UUID 映射，以及两个新 roots 均不存在；摘要进入首条 durable runtime receipt。
-新 execution namespace 是
-`gate-v1-fresh16-evaluation-inventory-repair-v1`，新 planned private HF dataset/tag 是
-`gavinlaw/causalcache-gate-v1-fresh16-inventory-repair-mobile` / `gate-v1-fresh16-inventory-repair-v1`，当前尚未创建。
+旧 parent v1 evidence 必须继续保留。inventory-repair Source-A=
+`6fb3e868e293bce191ce30a5c6a15ecc544c4591`、唯一 Execution-B=
+`c22734ffc85935882f57ddb081c9194d6dae92d0` 已 commit/push 并被唯一 Hyper00 attempt 消费。该 attempt 已通过
+retained-v1、full-15 non-label metadata、14-file/17,545,907,171-byte GUI-Owl projection 与两张 H200 UUID
+preflight，随后完成 16 trajectory / 80 OCR semantic decode、80 selected images、48 feature states、144
+candidates、10 checkpoint loads、2 policy workers 与 97 vision forwards。
 
-执行顺序固定为：source-only validation → commit/push repair A → clean-A validation → 机械生成唯一 B →
-验证 B 是只新增 runner-freeze 的 direct child 并 commit/push → Hyper preflight/精确两张 H200/runtime receipt →
-唯一 `run` → 13-target immutable `validate` → 轻量 Git result。Source-A/B、`capture-runtime`、`run` 与
-`validate` 的完整 argv 统一从 repair 文档复制，不能调用已 tombstone 的
-`scripts.manage_gate_v1_fresh16_evaluation run`。当前没有 repair semantic run、fresh GO 或 post-GO 授权。
+执行在 `heuristic_local_seal` 后调用 `pretty_json_bytes(claim.claim)` 时因 `mappingproxy` 不可 JSON serialization
+而 exit `1`，精确停在 ordinal `0..7` receipts 之后、`label-access-claim` 写入之前。fresh label semantic/access、
+primary report、HF mutation、旧 dev-5、confirm、matched-NLL 与 closed-loop 均为 0，不能报告 GO/NO-GO。
+repair v1 的 state/artifact/runtime-receipt/log bytes 必须保留；88-file / 51,508,707-byte artifact tree 的失败
+执行器 canonical inventory SHA256 为
+`5443db6df16234c29b32501bc9f766670d428141fb02c4a665be936e1ca2587c`。旧与 repair planned HF repositories
+均不存在。完整 binding 见
+[`../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)。
+
+当前固定下一步是独立 versioned claim-serialization repair：先验证 repair v1 receipts/seal/artifact/log/runtime
+与 successor absence，再切换全新的 state/artifact/runtime-receipt/HF identities。禁止再次调用 repair v1 的
+`run`/`validate`，也禁止删除旧 roots 后在同一 namespace 续跑。

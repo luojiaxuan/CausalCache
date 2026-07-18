@@ -259,8 +259,16 @@ restoration v2 exact selection/exposure 产物：
   `a8bb27c…5645` 的唯一 Hyper00 attempt 在 derived remote-tree preflight 永久 fail closed。immutable revision
   实际有 15 paths，v1 allowlist 漏绑 9 个历史 paths；失败早于 download 与任何 fresh semantic decode，旧 state
   只保留 `runtime_receipts`/`global_claim`，artifact 为空，planned HF destination 不存在。该目录只保存轻量失败
-  binding，不包含 fresh trajectory、label、feature、selection 或 report。versioned repair Source-A 见
-  `../docs/gate_v1_fresh16_inventory_repair.md`；它当前尚未生成新的 Git result 目录或 HF artifact；
+  binding，不包含 fresh trajectory、label、feature、selection 或 report。versioned repair 协议见
+  `../docs/gate_v1_fresh16_inventory_repair.md`；
+
+- `results/gate_v1_fresh16_inventory_repair_v1_attempt/`：repair Source-A=`6fb3e86…4591`、Execution-B=
+  `c22734f…92d0` 的唯一 Hyper00 attempt 已完成 16 trajectory / 80 OCR semantic decode、80 selected images、
+  48 feature states、144 candidates、10 checkpoint loads 与双 H200 2 workers / 97 forwards，但
+  `mappingproxy` claim 在 `pretty_json_bytes` 序列化失败。ordinal `0..7` 与 heuristic seal 已落盘，
+  `label-access-claim` 不存在；fresh label decode/report/HF mutation、旧 dev-5、confirm、matched-NLL 与 closed-loop
+  均为 0。该目录只保存 receipts/seal/artifact/log/runtime 的轻量 binding，不复制 88-file artifact；旧/repair
+  planned HF repos 都不存在。失败不是 GO/NO-GO，旧 repair namespace 不得续跑；
 
 - `results/spatial_reference_audit_v1/`：唯一 Hyper01 raw attempt 经零-forward validation repair 后正式得到
   auto 7/13、eager 13/13 与 `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR 已在 private

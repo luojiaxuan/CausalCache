@@ -1,13 +1,16 @@
 # Gate v1 训练与评估执行逻辑
 
 > 当前状态：trainer/evaluator source、formal-58 OOF/final fit、10-checkpoint private-HF publication 与 immutable
-> replay 已闭合；**尚未读取 fresh-16、旧 dev-5 或 confirm-20，也没有 GO metric、matched-NLL 或 closed-loop 结果。**
+> replay 已闭合；fresh-16 label-blind trajectory/OCR/image semantics 已由 inventory-repair v1 读取，但 fresh labels、
+> 旧 dev-5 与 confirm-20 仍未读取，也没有 GO metric、matched-NLL 或 closed-loop 结果。
 > repaired expansion labels 已在 private HF immutable revision 闭合，因此 formal-58 的 label-data prerequisite
 > 已满足；formal-58 train-only feature/label cache 也已经 transport-repair Source-A/Execution-B 完成
 > private-HF publication 与只读 immutable replay，`formal58_training_input_eligible=true`。formal-train
 > Source-A=`e20f004…b9`、Execution-B=`bad28b7…a2f2` 与正式 model seal 已完成；不能用临时 Python 重跑
-> `run_formal_oof` 或据 train-only OOF 调整模型。fresh-16 evaluation Source-A 当前正在冻结，但还没有
-> commit/push A、runner-freeze B 或正式 evaluation；真实 fresh semantic access 与 GO result 仍为 0。
+> `run_formal_oof` 或据 train-only OOF 调整模型。fresh-16 parent A/B 与 full-inventory repair A/B 也均已
+> commit/push；parent v1 在 pre-semantic inventory fail closed，repair v1 则跨过 label-blind semantic/GPU phase，
+> 在 label claim 落盘前因 `mappingproxy` serialization 永久 `INVALID`。fresh label decode/paper metric/HF mutation
+> 仍为 0，旧 repair namespace 不得续跑。
 
 本文件是 [`gate_v1_preregistration.md`](gate_v1_preregistration.md) 的执行说明。冻结阈值、roster、模型、loss、
 OOF 与访问顺序仍以
@@ -215,25 +218,34 @@ provenance、十个 checkpoint、fresh-16 feature/label artifact、三个 heuris
 
 该 report 不授权 confirm、matched-NLL 或 closed-loop。
 
-当前 Source-A 正在冻结上述 variable-`n` 自然推广：recent 取最后 `min(B,n)` 个 event；OCR/RGB 与
+已冻结并 commit/push 的 fresh-16 Source-A 将上述 variable-`n` 自然推广固定为：recent 取最后 `min(B,n)` 个 event；OCR/RGB 与
 policy-vision 对全部 candidate 使用原 similarity/tie rule 后取 `min(B,n)`，并用 `n=4` compatibility test
 证明与旧 artifact 完全一致。fresh selective loader 只解析 expansion rows `[48,64)` / label rows
 `[144,192)`，不能复用会读取 train 或全 transport semantics 的 generic reader。精确 denominator 是 16
 trajectories、48 states、144 candidate feature occurrences、448 `D(S)` values 与 464 deployment conditional
 edges。
 
-Source-A 还冻结未来 B 的双 H200 policy phase：2 workers 各 24 states；48 states 各做两次 same-device
+Source-A 还冻结 B 的双 H200 policy phase：2 workers 各 24 states；48 states 各做两次 same-device
 feature replay，并加入 1 个 cross-device `n=4` sentinel，所以全局恰为 49 processor batches 与 97 vision
 forwards。80 个唯一截图会产生 80 次 CPU feature decode、192 次 primary policy decode 和 5 次 sentinel decode，
 即 277 次 PIL open；exact-subset 记录为 48 个唯一 states / 96 次实际 invocation，bootstrap 为 2 条 interval ×
-10,000 resamples。这些数字是 primary generation/publication 的 planned contract；正式 completion 还要单列
-immutable replay 的 observed CPU/model counts。它们不表示 GPU job 已经运行。
+10,000 resamples。这些数字是 primary generation/publication 的 planned contract。inventory-repair v1 已实际完成
+2 workers / 97 forwards，但在 label claim 前失败；因此 GPU phase 已运行，不等于 report completion 或 paper metric。
 
 label firewall 要求先完成 48 feature states、三组 heuristic selection、conditional/independent learned
 selection 与 score records 的 local durable seal，之后才可创建 label-access claim、读取 48 label states 与 448
 distances。publication 必须先产生精确 9-target payload commit，再产生其 direct-child、只新增 4 targets 的
 report commit，tag 指向 report commit 并对全部 13 files 做 immutable fresh-download replay。完整协议见
 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md)。
+
+唯一 parent v1 attempt 的 pre-semantic inventory failure 见
+[`../data/results/gate_v1_fresh16_evaluation_v1_attempt/`](../data/results/gate_v1_fresh16_evaluation_v1_attempt/)；
+inventory-repair v1 A=`6fb3e868e293bce191ce30a5c6a15ecc544c4591`、B=
+`c22734ffc85935882f57ddb081c9194d6dae92d0` 的 pre-label claim-serialization failure 见
+[`../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)。
+repair v1 完成 16 trajectory / 80 OCR decode、48 feature states、144 candidates、10 checkpoint loads、2 policy
+workers / 97 vision forwards；fresh label decode、label claim write、report 与 HF mutation 均为 0。下一步必须另立
+claim-serialization repair 与新 namespace，不能调用旧 repair v1 入口续跑。
 
 ### 4. 旧 dev-5 compatibility guard
 

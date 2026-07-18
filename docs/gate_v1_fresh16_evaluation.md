@@ -2,10 +2,10 @@
 
 > 当前状态：formal-58 gate 已完成训练、private-HF model seal 与只读 immutable replay。fresh-16 v1
 > Source-A/Execution-B 已冻结，但 2026-07-18 的首次 formal attempt 在 derived repo exact-tree preflight
-> fail closed。**失败发生在任何 fresh trajectory/OCR/image/label semantic decode 之前；没有 fresh-16 GO、
-> 旧 dev-5、confirm、matched-NLL 或 closed-loop 结果。旧 attempt 永久保留且不可续跑。**versioned
-> operational repair 已另立 Source-A，见
-> [`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)；当前仍无新的 semantic 结果。
+> fail closed。该 parent 失败发生在任何 fresh semantic decode 前；versioned inventory-repair v1 随后已完成
+> label-blind trajectory/OCR/image semantics、checkpoint replay 与双 H200 workers，但在 label claim 落盘前因
+> `mappingproxy` serialization 永久 `INVALID`。**fresh label decode、paper report、HF mutation、旧 dev-5、
+> confirm、matched-NLL 与 closed-loop 仍为 0；两个旧 attempts 都不可续跑，也没有 fresh-16 GO/NO-GO。**
 
 本协议只回答一个预注册问题：冻结的 conditional / independent ensemble 在从未参与训练或选择的
 `fresh_development` 16 条 trajectory 上，是否同时通过 `GO_SELECTOR` 与 `GO_SET_CONDITIONING`。阈值、bootstrap
@@ -40,7 +40,9 @@
 - versioned full-inventory repair：
   [`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md) 与
   [`causalcache_gate_v1_fresh16_inventory_repair_v1.json`](../code/configs/causalcache_gate_v1_fresh16_inventory_repair_v1.json)，
-  SHA256 `5ba1b2d433c01defa0faae92a163dc9a9a916d967218abdc7607bd3724829a44`。
+  SHA256 `5ba1b2d433c01defa0faae92a163dc9a9a916d967218abdc7607bd3724829a44`；
+- inventory-repair v1 pre-label failure evidence：
+  [`data/results/gate_v1_fresh16_inventory_repair_v1_attempt/`](../data/results/gate_v1_fresh16_inventory_repair_v1_attempt/)。
 
 ## v1 pre-semantic inventory failure
 
@@ -167,14 +169,17 @@ contract；若 fresh primary NO-GO，也必须原样保存 report，而不能先
 set-conditioning 结论。旧 37-path source-only receipt、A/B commits、两条 local receipts 与空 successor/output
 必须原样保留。
 
-后续执行只能走 versioned repair。repair 精确绑定 immutable derived revision 的 15-path tree，但仍只下载原来的
-4 个 consumed files；scientific contract、model、labels、roster、gate、thresholds 与 output target paths 均不变。
-新的 Source-A/B、local namespace、HF destination、验证与 Hyper00 命令统一见
-[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)。repair 完成 immutable publication
-之前，fresh-16 semantic result、GO verdict 与后续 combined-21/post-GO stages 仍全部不存在。
+inventory-repair v1 A=`6fb3e868e293bce191ce30a5c6a15ecc544c4591` 与唯一 B=
+`c22734ffc85935882f57ddb081c9194d6dae92d0` 已 commit/push；唯一 attempt 精确验证 15-path tree、只下载原 4 个
+consumed files，并完成 16 trajectory / 80 OCR decode、48 feature states、144 candidates、10 checkpoint loads、
+2 policy workers / 97 vision forwards。它在 heuristic seal 后、label claim 写入前发生 claim-serialization failure；
+fresh label decode/report/HF mutation 均为 0，因此仍无 GO verdict 与 combined-21/post-GO authorization。
+
+下一步只能另立 versioned claim-serialization repair，先验证 repair v1 的 ordinal `0..7` receipts、seal、artifact、
+logs/runtime 与 successor absence，再使用全新的 local/HF identities。完整失败边界见
+[`gate_v1_fresh16_inventory_repair.md`](gate_v1_fresh16_inventory_repair.md)。
 
 ## 执行入口
 
-原 `scripts.manage_gate_v1_fresh16_evaluation run` 入口已 tombstone，不得再次调用。所有新的 source validation、
-runner materialization、runtime capture、`run` 与 `validate` 都必须使用
-`scripts.manage_gate_v1_fresh16_inventory_repair` 及 repair contract；完整 argv 见上述 repair 文档。
+原 `scripts.manage_gate_v1_fresh16_evaluation run` 与 inventory-repair v1 的 `run`/`validate` 都不得再次调用。
+claim-serialization repair 尚未冻结；在其独立 Source-A/B 与新 namespace 写入 Git 前没有授权执行入口。
