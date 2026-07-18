@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0.0",
+  "status": "POLICY_BLIND_UNCONSUMED_FULL_POOL_CENSUS_COMPLETED",
+  "git_source_commit": "0e16bcf3117c26bc8aa104412f7c743506830abe",
+  "execution_config_sha256": "f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f",
+  "p1_manifest_sha256": "e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e",
+  "census_manifest_sha256": "729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b",
+  "candidate_inventory_sha256": "b1eccb42df2e8cd7502c56c007ba01e5ddbebda72086f4b0d487c8865d68c11d",
+  "source_file_count": 610,
+  "source_total_bytes": 88186663372,
+  "source_row_count": 8146,
+  "excluded_row_count": 1213,
+  "candidate_count": 6933,
+  "distinct_instruction_app_group_count": 6928,
+  "candidate_capacity_stratum_counts": {
+    "decisions_6_9": 1736,
+    "decisions_10_17": 3601,
+    "decisions_18_plus": 1596
+  },
+  "decision_count_range": [
+    6,
+    54
+  ],
+  "consumed_identity_count": 107,
+  "observed_consumed_partition_counts": {
+    "legacy_train_only": 58,
+    "forbidden_consumed": 49
+  },
+  "operation_counts": {
+    "train_tune_evaluation_assignment_count": 0,
+    "query_state_selection_count": 0,
+    "ocr_access_count": 0,
+    "policy_model_load_count": 0,
+    "policy_forward_count": 0,
+    "restoration_output_access_count": 0,
+    "restoration_forward_count": 0,
+    "gate_output_access_count": 0,
+    "gate_forward_count": 0
+  },
+  "runtime": {
+    "host_alias": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "container": "sglang-omni-jaxan-07181624",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "python": "3.12.3",
+    "pyarrow": "24.0.0",
+    "huggingface_hub": "1.16.1",
+    "gpu_count": 0,
+    "dtype": null,
+    "seed": null,
+    "started_at_utc_minute": "2026-07-18T23:33Z",
+    "completed_at_utc": "2026-07-18T23:36:29.551399214Z"
+  },
+  "source_staging": {
+    "host_alias": "hyper00",
+    "container_path": "/data/source/guiodyssey-full-pool-v1",
+    "host_path": "/data02/jaxan/source/guiodyssey-full-pool-v1",
+    "canonical_source": "https://huggingface.co/datasets/cua-lite/GUIOdyssey",
+    "canonical_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+    "status": "LOCAL_VERIFIED_CACHE_CAN_BE_REBUILT_FROM_CANONICAL_SOURCE"
+  }
+}

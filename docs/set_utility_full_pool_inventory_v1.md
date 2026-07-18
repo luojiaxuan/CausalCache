@@ -70,3 +70,11 @@ P-1 完成只授权建立 byte-pinned source inventory。它不自动授权 full
 query-state selection、label generation 或训练。独立 P0 Execution-A 已绑定 consumed ledger 与 P-1 manifest
 的完整 SHA256；它只授权本地 pinned shard access、row decode、policy-blind census 和一次 output write，继续禁止
 role/split、query、OCR/model、labels、training、GPU、closed-loop 与 sealed test。
+
+## P0 下游结果
+
+Execution-A 已从 clean pushed `main@0e16bcf` 在 Hyper00 完成。610 shards 的 size/LFS SHA 均通过 runner
+逐文件校验；8,146 rows 归约为 6,933 条未消费 eligible trajectory / 6,928 个 instruction-app group。
+canonical P0 manifest SHA256=
+`729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。详细结果见
+[`../data/results/set_utility_full_pool_census_v2/`](../data/results/set_utility_full_pool_census_v2/)。

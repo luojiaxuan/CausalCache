@@ -49,7 +49,11 @@ confirm-20 禁止进入新训练、
   `f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`；validator 返回
   `VALID_SET_UTILITY_FULL_POOL_CENSUS_V2_EXECUTION`，并确认 role/query/model/label/training/GPU/closed-loop/test
   counts 全为 0；
-- 下一步严格为 commit/push P0 Execution-A → policy-blind census → Freeze-B roster/group split/query/feature/grid → label throughput
+- P0 已从 clean pushed `main@0e16bcf` 在 Hyper00 完成：610 shards / 8,146 rows → 6,933
+  unconsumed eligible trajectories / 6,928 groups；strata=`1,736/3,601/1,596`，decision range=6–54；
+  107 个 consumed identity 全部观测并隔离；census manifest SHA256=
+  `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`；
+- 下一步严格为 commit/push P0 result → Freeze-B roster/group split/query/feature/grid → label throughput
   pilot/Execution-B → exact-table production → Set Transformer/DeepSets/pairwise train/eval。完整交接见
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与
   [`set_utility_implementation_v1.md`](set_utility_implementation_v1.md)。

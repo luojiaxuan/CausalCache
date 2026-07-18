@@ -3,13 +3,14 @@
 > 当前结论：路线已切换为“先扩全量 source pool，再生产 `|S|<=2` labels，最后训练 Set Transformer”。
 > budget-agnostic model/label/trainer 的 source core、610-shard metadata contract 与 107-identity consumed
 > firewall 已实现；真实 610-shard P-1 inventory 已完成，semantic census、新 labels、训练 checkpoint 和
-> offline result 尚未产生。
+> offline result 中，P0 semantic census 已完成；新 labels、训练 checkpoint 和 offline method delta 尚未产生。
 > closed-loop、matched-NLL 与 AndroidWorld sealed test 继续 locked。
 >
 > Canonical SHA256：predictor=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；
 > P-1 source=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；
 > P-1 manifest=`e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`；
 > P0 Execution-A=`f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`；
+> P0 census manifest=`729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`；
 > consumed ledger=`b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`；
 > P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`。focused suite
 > 为 `193 passed, 15 skipped, 24 subtests passed`。
@@ -85,6 +86,11 @@ P0 runner 与 source-only skeleton 已存在，且 source config 已绑定 canon
 现已产生，独立 P0 Execution-A 也已绑定其 SHA256。Execution-A 只授权读取本地 pinned shards、row decode、
 policy-blind semantic census 和一次 output write；source-only config 本身仍不授权任何 execution，role/split、query、
 OCR/model、labels、training、GPU、closed-loop 与 sealed test 继续为 0。
+
+正式 P0 已完成：扫描 8,146 rows，排除 1,213 rows，得到 6,933 条新 eligible trajectory / 6,928 个
+instruction-app group。candidate-capacity strata 为 `6–9=1,736`、`10–17=3,601`、`18+=1,596`；decision
+count 范围 6–54。107 个历史 consumed identity 全部被观测并隔离。该规模足以冻结新的
+train/tune/one-shot evaluation roster，但不能把 P0 pool 直接全部视为训练集。
 
 ### Label 生产
 
@@ -172,12 +178,11 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `193 passed, 15 skipped
 
 下一步严格是：
 
-1. commit/push 已冻结的 P0 Execution-A；
-2. 从 clean pushed main 流式下载/校验/扫描 610 shards；
-3. 根据真实 pool/strata 冻结 Freeze-B roster、group split、每 trajectory 2–4 query states、feature/grid 与
+1. commit/push P0 census manifest 与轻量 result summary；
+2. 根据真实 6,933-trajectory pool/strata 冻结 Freeze-B roster、group split、每 trajectory 2–4 query states、feature/grid 与
    exact operation budget；
-4. 先做 label-throughput pilot，再立 Execution-B 生产 phase-1 `|S|<=2` tables；
-5. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
+3. 先做 label-throughput pilot，再立 Execution-B 生产 phase-1 `|S|<=2` tables；
+4. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 
 截至本 commit，没有本 full-pool 路线新产生的 restoration label、predictor checkpoint、offline method

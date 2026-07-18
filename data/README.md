@@ -26,9 +26,11 @@ instruction 原文或 restoration output。
 P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
 `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=
 `e81e3ba6abe16f5da4d714c434e5e0879a54f747dab74bff531058ba47b978cd`。
-`manifests/set_utility_full_pool_census_v2.json` 尚未产生；因此当前仍没有新 exact `D(S)` labels、
-feature cache、predictor checkpoint 或离线结果。P0 Execution-A 已绑定上述 manifest，但必须先 commit/push
-其 config 后才运行。见 `docs/set_utility_implementation_v1.md`。
+`manifests/set_utility_full_pool_census_v2.json` 已从 Hyper00 正式产生：8,146 source rows 中得到 6,933
+未消费 eligible trajectories / 6,928 instruction-app groups，manifest SHA256=
+`729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。当前仍没有新 exact `D(S)`
+labels、feature cache、predictor checkpoint 或 offline method delta；Freeze-B 尚未冻结。见
+`docs/set_utility_implementation_v1.md`。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
 从已 outcome-exposed 的 validation plan 中仅取 `task_index=0`，按 pre-treatment `max_steps` 分三层并以 protocol

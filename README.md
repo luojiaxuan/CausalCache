@@ -49,8 +49,12 @@
 > row decode、semantic census、restoration label、training、GPU 和 HF mutation 均为 0。绑定该 manifest 的
 > P0 Execution-A 已冻结，config SHA256=
 > `f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`；它只授权本地 pinned source
-> row decode、policy-blind census 与单一 output write。下一步是先 push Execution-A，再执行 full-pool census；
-> 不使用旧 13–64
+> row decode、policy-blind census 与单一 output write。正式 P0 已从 clean pushed `main@0e16bcf` 在 Hyper00
+> 完成：扫描 8,146 rows，排除 1,213，得到 6,933 条未消费 eligible trajectory / 6,928 个
+> instruction-app group；census manifest SHA256=
+> `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。下一步是 Freeze-B，固定
+> group-disjoint train/tune/one-shot evaluation、每 trajectory query states、feature/grid/runtime/HF 与 exact
+> operation budget；不使用旧 13–64
 > 小池子替代全量数据。formal-58 仅可
 > train-only；reference8、old-dev5、fresh-16、confirm-20 永不进入新训练/调参/评估。
 > matched-NLL 与 sealed test 继续 locked。见
@@ -1004,6 +1008,9 @@ mediation effect。
 - Set-utility full-pool P0 Execution-A/validator:
   [`code/configs/causalcache_set_utility_full_pool_census_v2_execution.json`](code/configs/causalcache_set_utility_full_pool_census_v2_execution.json),
   [`code/scripts/validate_set_utility_full_pool_census_v2_execution.py`](code/scripts/validate_set_utility_full_pool_census_v2_execution.py)
+- Set-utility full-pool P0 result:
+  [`data/manifests/set_utility_full_pool_census_v2.json`](data/manifests/set_utility_full_pool_census_v2.json),
+  [`data/results/set_utility_full_pool_census_v2/`](data/results/set_utility_full_pool_census_v2/)
 - Independent confirm continuation contract and source validator:
   [`code/configs/causalcache_independent_confirm_continuation_v1.json`](code/configs/causalcache_independent_confirm_continuation_v1.json),
   [`code/scripts/validate_independent_confirm_continuation.py`](code/scripts/validate_independent_confirm_continuation.py)
@@ -1236,6 +1243,7 @@ mediation effect。
 | Artifact | Canonical location | Revision/status | Notes |
 | --- | --- | --- | --- |
 | GUIOdyssey full train source inventory | [upstream HF dataset](https://huggingface.co/datasets/cua-lite/GUIOdyssey)；[Git manifest](data/manifests/set_utility_full_pool_inventory_v1.json) | source revision `ea08072b30e523fb4492e4f4597505879ffcd63b`；manifest SHA256 `e892e7e8...e6c5e` | metadata-only P-1 complete；610 shards / 88,186,663,372 bytes；files-list SHA256 `e81e3ba6...8cd`；no row decode/download |
+| Set-utility full-pool P0 census | [manifest](data/manifests/set_utility_full_pool_census_v2.json)；[result](data/results/set_utility_full_pool_census_v2/) | `main@0e16bcf` execution；manifest SHA256 `729d1e10...189b` | 8,146 rows → 6,933 unconsumed eligible trajectories / 6,928 groups；107 consumed identities fully observed；no split/query/model/labels/training |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |
 | Independent UI-TARS reference run | 同一 private independent dataset repo | `reference-gate-v1` / `b3e1245c6c6a1723fe2ca3a861148008df39df46` | 69/75 parsed、27/75 match、swipe 0/2；`NO_GO_CURRENT_REFERENCE_STACK`；oracle 未运行 |

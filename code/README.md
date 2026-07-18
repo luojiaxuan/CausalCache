@@ -135,8 +135,10 @@ model/tensor/optimizer/search integration tests，正式运行前必须在目标
 consumed ledger 已固定 58 条 `legacy_train_only` 与 49 条 `forbidden_consumed`；真实 P-1
 inventory 已固定 610 shards / 88,186,663,372 bytes，manifest SHA256=
 `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`。semantic census、labels、
-trainer checkpoint 与 offline result 仍尚未产生；绑定该 manifest 的 P0 Execution-A 已冻结，config
-SHA256=`f01beae98432bae19d02f7811d94dc5fa569263b0d917188f2489e15edbf371f`，提交后才可执行 census。
+trainer checkpoint 与 offline result 中，P0 semantic census 已正式完成：8,146 rows → 6,933 eligible
+trajectories / 6,928 groups，manifest SHA256=
+`729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。restoration labels、checkpoint 与
+offline method delta 仍未产生；下一步必须单独冻结 Freeze-B。
 完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 
