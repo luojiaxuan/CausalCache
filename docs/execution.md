@@ -25,7 +25,8 @@ HF create/upload/tag。远端确需访问 private repo 时，由操作者通过�
 | restoration v2 offline inference、attribution | Hyper00 H200 | Aries A6000 | Hyper01 当前有其他任务；v2 canonical runtime 最终由 execution config 冻结 |
 | Gate v1 formal selector training | Hyper00 CPU-only/no-GPU | Mac/Aries CPU | 25K-parameter FP32 full-batch deterministic MLP；不申请 GPU |
 | RL、大模型训练或大规模重训练 | B200 | Hyper H200 | 按实际并行度与当次空闲卡分配，非 Taurus/Aries 默认最多 4 卡 |
-| AndroidWorld emulator + policy rollout | Aries A6000 | Hyper01 H200（待解锁） | Aries stack 已验证；Hyper01 先解决 Docker root 容量并重做 environment smoke |
+| Independent confirm-20 | Hyper00 4×H200 | Hyper01 4×H200 | 先跑 data-blind topology smoke；同一 allocation 才能进入一次性 confirm |
+| AndroidWorld paired rollout | Aries emulator + Hyper H200 policy | 新合同后调整 | 仅 confirm GO 后解锁；不得把 policy 静默降级到 A6000 |
 | 小模型 smoke、sample-level debug | Aries/Taurus A6000 | Hyper01 | 避免为小任务占用 H200 |
 
 2026-07-14 实测 Hyper01：8×NVIDIA H200（每卡 143,771 MiB）、x86_64、`/dev/kvm` 可用；
@@ -66,10 +67,63 @@ docker ps -a --format "{{.Names}}" | sort
 '
 ```
 
-启动任何 GPU job 前必须额外执行项目约定的 10 秒 continuous-zero idle cleanup，最多选择 2 张
-空闲 GPU，并将选中的 id 显式写进 Docker `--gpus` 或 Python `--device cuda:N`。长任务同时启动
-GPU utilization monitor；低于 90% 时检查 batching、I/O、ADB 等待或减少 GPU 数，不能无人值守地
-低效运行。
+启动任何 GPU job 前必须额外执行项目约定的 10 秒 continuous-zero idle cleanup，并按有效并行度选择
+当前空闲 GPU。非 Taurus/Aries 单任务最多 4 张，除非用户对该 run 显式授权；Taurus/Aries 可使用全部
+有效空闲卡。设备 id 必须显式写进 Docker `--gpus` 或 Python `--device cuda:N`。启动后只监控 warmup 与
+有代表性的 steady-state 窗口；每张已分配 GPU 在该窗口应至少达到 80% 利用率，否则检查并发、batch、
+I/O 与跨机等待并调整。窗口通过后无需持续监控，除非用户另有要求或 job 出现不稳定。
+
+## Independent confirm-20 的冻结执行顺序
+
+Source-A 与唯一 direct-child Execution-B 都 push 到 canonical `main` 后，Hyper00 先在同一 container、
+同一 4 卡 allocation、同一 model directory 和 snapshot manifest 上执行 data-blind topology smoke：
+
+```bash
+PYTHONPATH=code python code/scripts/smoke_independent_confirm_gpu_topology.py \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
+  --devices cuda:0 cuda:1 cuda:2 cuda:3 \
+  --gpu-uuids <UUID0> <UUID1> <UUID2> <UUID3> \
+  --phase-timeout-seconds 7200 \
+  --worker-termination-grace-seconds 30 \
+  > /data/tmp/independent-confirm20-gpu-topology-smoke.json
+sha256sum /data/tmp/independent-confirm20-gpu-topology-smoke.json
+```
+
+receipt 必须位于 Git 外，且 stdout 不能混入日志。正式 CLI 显式传 receipt 的 canonical absolute path 与
+exact SHA256；runner 会在 confirm semantic decode、model/HF access 前复验 receipt。随后执行：
+
+```bash
+PYTHONHASHSEED=0 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 TZ=UTC LC_ALL=C.UTF-8 \
+PYTHONPATH=code python code/scripts/run_independent_confirm.py \
+  --repository-root . \
+  --contract code/configs/causalcache_independent_confirm_closed_loop_v1.json \
+  --runner-freeze code/configs/causalcache_independent_confirm_runner_v1.json \
+  --execution-b-git-commit <FULL_EXECUTION_B_SHA> \
+  --parent-root <IMMUTABLE_DERIVED_ROOT> \
+  --generator-source-root <PINNED_GENERATOR_CHECKOUT> \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --ocr-model-dir <PINNED_OCR_MODEL_DIR> \
+  --ocr-wheel-dir <PINNED_OCR_WHEEL_DIR> \
+  --hf-cache-dir /root/.cache/huggingface \
+  --output-dir <NEW_EXCLUSIVE_OUTPUT_DIR> \
+  --hf-token-file <MODE_0600_TOKEN_FILE> \
+  --gpu-topology-smoke-receipt /data/tmp/independent-confirm20-gpu-topology-smoke.json \
+  --gpu-topology-smoke-receipt-sha256 <RECEIPT_SHA256> \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id <FULL_CONTAINER_ID> \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --devices cuda:0,cuda:1,cuda:2,cuda:3 \
+  --gpu-uuids <UUID0>,<UUID1>,<UUID2>,<UUID3>
+```
+
+这里的 `cuda:0..3` 是 container 内逻辑编号，必须按 Docker 显式 DeviceIDs 与四个 physical UUID 的实际
+映射填写。label-blind selector payload 必须先发布成 HF commit；该 commit 存在后 runner 才能创建 restoration
+access claim。report commit 必须是 payload commit 的 direct child，并完成 annotated tag 与 fresh immutable
+replay。任何失败都不复用 output identity、不隐藏 retry，也不能据此修改 threshold、denominator 或
+closed-loop contract。完整科学门槛见 [`independent_confirm_closed_loop_v1.md`](independent_confirm_closed_loop_v1.md)。
 
 ## Hyper00 v2 容器约定
 

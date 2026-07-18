@@ -3,12 +3,17 @@
 **Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
 
 > Target venue: AAAI
-> Status: v2 substrate = `NO_GO_V2_SUBSTRATE`; adapter-only replay = `NO_GO_ADAPTER_ONLY` (40/45 < required 45/45) / v2.1 fixed-15 interface pilot = `PASS`、full-45 substrate = `NO_GO_V2_1_FULL_45_SUBSTRATE` (32/45 exact repeat agreement) / bounded spatial audit = `EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY` (auto 7/13、eager 13/13；immutable HF closed) / v2.2-eager fresh-45 = `PASS` (45/45 exact repeat；immutable HF closed) / restoration label v1 = zero-forward `INVALID` / restoration label v2 = `PASS` (45/45；immutable HF closed) / label-expansion substrate v1 = `PASS` (192/192；185 memory-sensitive；immutable HF closed) / expansion exact-label v1 = producer permanently `INVALID`、ledger-neutral child = `VALID` + `REVALIDATED`、repaired private-HF publication = `COMPLETED` (192 states；immutable replay + independent postflight closed) / selector geometry v2 reporting repair = `VALID` / OCR-RGB v1 = zero-score implementation `INVALID`、v2 identity-repair comparator artifact = `VALID` (dev recovery 0.019571；exact 0/5；负值样本保留) / policy-vision v1 = zero-feature UUID `INVALID`、v2 = zero-feature SizeDict-interface `INVALID`、v3 validation-repair v1 = `VALID` + `REVALIDATED` (exact-three 3/3 byte equal；15 states / 60 candidates) / formal-58 gate training = `COMPLETED` + `REVALIDATED` (10 checkpoints；private HF immutable) / fresh-16 parent v1 = pre-semantic inventory `INVALID`; full-inventory repair v1 = pre-label claim-serialization `INVALID`; claim-serialization repair = `COMPLETED` + `REVALIDATED`, selector `NO-GO`, set-conditioning `NO-GO` / failure decomposition = `COMPLETED` + `REVALIDATED`, `NO_V2_CONDITIONAL_RESCUE` / confirm、matched-NLL、closed-loop locked
+> Status: conditional v1 与一次 rescue 已永久停止（`NO_V2_CONDITIONAL_RESCUE`）；论文主线已切换为
+> **restoration-guided independent gate**。formal-58 的 5 个 independent checkpoints 原样冻结，fresh-16
+> 只作已消费 development evidence。新的 confirm-20 / paired closed-loop / matched-NLL Source-A 合同已冻结；
+> confirm policy/restoration output 尚未读取，AndroidWorld sealed test 仍 locked。
 
-> Current diagnostic: fresh-16 failure decomposition 已从 Source-A=`718a08b`、唯一 Execution-B=`21b7750`
-> 完成 CPU-only formal run、private-HF exact-three publication 与独立 immutable replay。true greedy / exact 为
-> `0.956636` normalized、`0.975350` raw，search 通过；但 oracle `G-J` positive support 只有 `10/16 < 12/16`，
-> 冻结 route 输出 `NO_V2_CONDITIONAL_RESCUE`。v1 `NO-GO` 不变，不执行 matched-NLL、closed-loop 或 confirm。
+> Current route: failure decomposition 的 `NO_V2_CONDITIONAL_RESCUE` 不变；它否定 set-conditioned student，
+> 没有否定 restoration supervision 或 independent selector。fresh-16 上 independent mean normalized recovery=
+> `0.712379`、exact normalized ratio=`0.838249`、exact raw ratio=`0.940725`，因此另立一次性
+> policy/restoration-output untouched confirm-20。完整门槛、两段 HF seal、防火墙、弱-backbone closed-loop
+> estimand 与 matched-NLL caliper 见
+> [`docs/independent_confirm_closed_loop_v1.md`](docs/independent_confirm_closed_loop_v1.md)。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
 > 只允许在 fresh-16 outcome 冻结后另立旧 dev-5 combined-21 compatibility 阶段，当前因 primary NO-GO 选择不执行。
@@ -125,7 +130,7 @@ state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式�
 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
 
 当前关键路径已经闭合到 frozen formal-58 ensemble → fresh-16 valid primary `NO-GO` → formal failure
-decomposition `NO_V2_CONDITIONAL_RESCUE`。父 v1 与
+decomposition `NO_V2_CONDITIONAL_RESCUE`，并转入 restoration-guided independent 主线。父 v1 与
 full-inventory repair 的两次失败均保持永久 `INVALID`；claim-serialization repair 以独立 A/B、namespace 和 HF
 identity 完成了 16/48/144/448 denominator、双 H200 `49` processor batches / `97` vision forwards、16-receipt
 receipt chain、9+4 direct two-commit publication 与 immutable replay。primary conditional gate 虽显著优于三类
@@ -133,8 +138,10 @@ heuristic 的 aggregate mean，但未达到 frozen oracle-proximity、seed-stabi
 set-conditioned gate 也明显弱于 parameter-matched independent comparator。failure decomposition 进一步证明
 true greedy 已接近 exact，但 oracle set-conditioning headroom 只有 `10/16` trajectories 同方向，未达到冻结的
 `12/16`；即使 student gap material，也不授权一次 conditional v2 rescue。fresh-16 已消费，不能据此改模型后
-再把同一 split 当作 confirm。当前停止 set-conditioned CausalCache 独立 AAAI 主线；若未来保留
-restoration-guided independent 前置模块，必须另立新问题、新 contract 与 untouched holdout，不能沿用本次权限。
+再把同一 split 当作 confirm。当前停止的是 set-conditioned main method；现有 independent ensemble 不重训，
+改用原先冻结且 policy/restoration-output untouched 的 confirm-20 做一次性确认。新合同同时预注册弱-backbone
+paired closed-loop、train-60 到 sealed-test-75 的权限链与 matched-NLL caliper，见
+[`docs/independent_confirm_closed_loop_v1.md`](docs/independent_confirm_closed_loop_v1.md)。
 已发布 child 的冻结分母为
 64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
@@ -478,7 +485,8 @@ post-action state image，不增加 before image 或额外 action text。confirm
 step 6；events 1--4 是四个 visual candidates，event 5 的 post-state 等于 current observation，因而只保留
 summary、不重复计图且不能被选择。reference 使用四张历史 post-state 加 current，覆盖每个 non-current
 historical event 且不重复 event 5 的 current-equivalent image；
-主预算容量为四个候选中最多选两个；exact-two 作为 cardinality-matched ablation。
+主预算容量为四个候选中最多选两个；confirm 的冻结 report 只使用允许少选的 exact at-most-2
+subset oracle，不在看到 confirm 结果后追加 exact-two 或 interaction aggregate。
 
 历史 v1 结果保持有效且不回改：independent UI-TARS reference gate 得到 69/75 parsed、27/75（36.0%）
 expert executable match、swipe 0/2，输出 `NO_GO_CURRENT_REFERENCE_STACK`。这否定的是 v1 reference
@@ -606,7 +614,7 @@ $$
 q_t=\pi_0(\cdot\mid g,o_t,H_t).
 $$
 
-将所有历史事件替换为低保真版本，得到 baseline memory；随后按照共享随机排列逐个恢复事件的高保真内容。对于已恢复集合 $S$，定义与完整历史行为的距离：
+将所有历史事件替换为低保真版本，得到 baseline memory。对于已恢复集合 $S$，定义与完整历史行为的距离：
 
 $$
 D_t(S)=\sum_l w_l\,
@@ -619,40 +627,62 @@ $$
 
 其中 $a^*$ 是完整历史策略生成的 canonical action，KL 在 teacher-forced action token 上计算。这样无需枚举包含 coordinate 和 text argument 的完整 sequence action space。
 
-事件 $e_j$ 在部署预算 $B$ 附近的 restoration gain 为：
+恢复事件 $e_j$ 在 coalition $S$ 下的 conditional marginal 为：
 
 $$
-G^{(B)}_{j,t}=\mathbb{E}_{S\sim\mathcal C_B(j)}\!\left[
+\Delta_{j,t}(S)=
 D_t(S)-D_t(S\cup\{j\})
+$$
+
+正式 independent target 固定为 empty 与 singleton-conditioned marginal 的投影：
+
+$$
+G^{\mathrm{ind}}_{j,t}=\frac12\left[
+\Delta_{j,t}(\varnothing)+
+\frac{1}{|C_t|-1}\sum_{i\in C_t\setminus\{j\}}
+\Delta_{j,t}(\{i\})
 \right].
 $$
 
-其中 $\mathcal C_B(j)$ 只包含为 $e_j$ 留出容量的 maximal near-budget coalitions。该定义是 budget-conditioned Shapley-style attribution；新意不在通用 Shapley estimator，而在 GUI mixed-fidelity intervention、stable policy-behavior value 和固定预算蒸馏。实际使用共享 antithetic permutation，并报告 standard error、Spearman、top-budget Jaccard、oracle utility 与 coalition reconstruction error。
+它来自会保留 redundancy/complementarity 的 coalition-conditioned policy rerun，但部署时压缩为每个 event
+一个 query-dependent 分数，不假设集合 utility 可加。formal labels 使用已有完整 $D(S)$ table；confirm 的
+4 个候选精确计算全部 16 个 coalition，并按冻结口径报告 exact at-most-2 subset oracle。完整 coalition
+rows 作为 raw evidence 保留，但不把未预注册的 exact-two 或 interaction aggregate 临时加入 confirm 主报告。
+回归 target 是 $G^{\mathrm{ind}}_{j,t}/\max(D_t(\varnothing),10^{-12})$；当
+$D_t(\varnothing)\le10^{-12}$ 时只从 normalized regression/mean 排除，raw target、正负号、ranking、raw
+evaluation 与 state count 全部保留。
 
-### 2. 在线 Memory Gate（当前 independent baseline）
+### 2. 在线 Memory Gate（当前主方法）
 
 离线 restoration attribution 计算昂贵，因此训练轻量 gate：
 
 $$
-s_{j,t}=f_\theta(g,o_t,\tilde e_j,z_j,\Delta t,B)
+s_{j,t}=f_\theta(q_{64,t},h_{64,j},q_{64,t}\odot h_{64,j},g_{8,j,t})
 $$
 
-预测 $G_{j,t}$。这里采用 **query-time scoring**：历史事件在每个决策时刻根据当前状态重新打分，解决 arrival-time label 随未来时刻变化的契约问题。
+其中 frozen input 是固定 200d `[q64,h64,q64*h64,g8]`：`q64` 编码 instruction/current OCR，`h64`
+编码 event summary/candidate OCR，`g8` 编码 age/action/OCR/change/result geometry；不输入 policy-vision
+feature 或 requested budget。模型预测 normalized $G^{\mathrm{ind}}_{j,t}$。这里采用 **query-time scoring**：
+历史事件在每个决策时刻根据当前状态重新打分，解决 arrival-time label 随未来时刻变化的契约问题。
+AndroidWorld live adapter 同样已经在 confirm 前冻结：raw transition 通过 canonical action、pinned OCR、文本
+delta 和 256×256 RGB MAD 生成同一 `low_fidelity_v2`；history 只能 oldest→newest，age 固定为 `N-1-index`，
+最新 current-equivalent event 被排除，其余任意长度历史全部打分。RGB PNG 使用 generic image contract，且
+`foreground_app/executor_result` 继续固定为训练语义中的 `unknown`。
 
 训练目标组合为：
 
 $$
 L=L_{\text{regression}}
-+\lambda_1L_{\text{pairwise-ranking}}
-+\lambda_2L_{\text{top-}B}.
++0.25L_{\text{pairwise-ranking}}.
 $$
 
-推理时使用 positive-value knapsack；分数不超过阈值的事件不会被强制加入，因此实际选择可以少于预算容量。冻结 action policy，只训练 memory gate。
+推理时等成本 event 使用 5-seed mean score，按 `(-score, step_id)` 排序，只选择严格正分的前 2 个；
+阈值在 confirm 前固定为 0，因此实际选择可以少于预算容量。冻结 action policy，只训练 memory gate。
 
-该写法是 averaged-$G^{(B)}$ 的 independent student baseline，不表示 event utility 真正可加。prospective
-set-conditioned iterative gate、额外 conditional-edge labels、greedy 的 pure-complementarity failure 与完整
-ablation matrix 见 [`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)；它尚未进入 frozen
-v2/v2.1 contract。
+该写法是 interacting set utility 的 independent projection，不表示 event utility 真正可加。已经冻结失败的
+set-conditioned v1 永久保持 `NO_V2_CONDITIONAL_RESCUE`，只作为 negative ablation；greedy、exact subset、
+interaction 与 pure-complementarity 分析见
+[`ablations/interaction_aware_gate.md`](ablations/interaction_aware_gate.md)。
 
 ### 3. Mixed-Fidelity Memory
 
@@ -669,7 +699,7 @@ screen_change
 executor_result
 ```
 
-系统由 raw event archive、cheap summary/index（可含预计算视觉 embedding）和 policy-visible high-fidelity context 三层组成。所有 memory 中 summary 序列化 byte-identical；high fidelity 只增加一张 post-action state image。第一版不做跨层 KV surgery，而是通过 mixed-fidelity input 重新运行 policy，避免位置编码与上下文依赖导致不合法的 KV 拼接。
+系统由 raw event archive、cheap summary/index 和 policy-visible high-fidelity context 三层组成。所有 memory 中 summary 序列化 byte-identical；high fidelity 只增加一张 post-action state image。当前 formal independent gate 不使用 policy-vision embedding；该信号只属于单独 baseline。第一版不做跨层 KV surgery，而是通过 mixed-fidelity input 重新运行 policy，避免位置编码与上下文依赖导致不合法的 KV 拼接。
 
 ## 实验设计
 
@@ -717,12 +747,22 @@ $$
 
 检验 $M_1$ 是否仍显著获得更高任务成功率。这是论文最关键的证据：**restoration relevance 捕获了 one-step fidelity 无法解释的长期控制信息。**
 
+正式统计使用 paired closed-loop 两臂的 state union。在每个 state 上以
+`M_independent ∪ M_recent`（最多 4 张历史图加 current）生成 repeat-stable pair-union action，同时计算两种
+memory 的 action-token NLL 与 raw restoration mass `R=D(empty)-D(M)`。主 caliper 固定为 `0.05`
+nats/token。统计层级固定为 origin 内等 state → 两 origin 各 1/2 → template 内固定 instance 等权 →
+template 等权；test 的 `[0,1,2]` 三个 instances 必须作为同一个 template cluster。对 matched template 计算
+`sign_eps(R_ind-R_recent)*(success_ind-success_recent)`；train-60 只作 development diagnostic，只有
+sealed-test-75 至少 15 个 matched template clusters 且冻结的 90% template-bootstrap lower 大于 0 才支持
+primary mechanism association。`0.02/0.10` 只作 sensitivity，不能替代 primary，也不解释为 causal
+mediation effect。
+
 ## Ablations
 
 - permutation 数量与 attribution variance；
 - KL、JS、action log-prob recovery；
 - event、screenshot、UI element 三种粒度；
-- 去掉 pairwise ranking 或 top-$B$ loss；
+- 去掉 normalized regression 或 pairwise ranking；
 - query-time gate 对比 arrival-time gate；
 - 不同 memory budget；
 - success、NLL 与 restoration mass 的独立相关性；
@@ -764,7 +804,7 @@ $$
 
 ## Paper Story
 
-> Long-horizon GUI memory selection lacks policy-grounded supervision. CausalCache values an event by how much adding only its archived post-state image to an unchanged strong-summary history restores a frozen policy's stable self-behavior, then distills this budget-conditioned teacher into a query-time gate.
+> Long-horizon GUI memory selection lacks policy-grounded supervision. CausalCache values an event with a frozen projection of coalition-conditioned behavioral restoration, then distills that signal into a fixed-budget query-time independent gate and validates it through paired executable control.
 
 ## 初始路线图
 
@@ -1146,8 +1186,9 @@ $$
 | Spatial reference audit trace | <https://huggingface.co/datasets/gavinlaw/causalcache-spatial-reference-audit-mobile> | `spatial-reference-audit-v1` / `d6b2312e458ce3b2b1dc8463a323a8d7dbc945c1`，private | auto 7/13、eager 13/13、FP32 4/4 descriptive；`EAGER_SPECIFIC_RECOVERY_OF_EXACT_STABILITY`；72-member USTAR SHA256 `d62ad05f...e5ecc`；fresh immutable canonical rebuild verified |
 | Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | `v2.2-eager-full-45-substrate-v1` / `3577099d505b8c652d764f41269df911128ec767`，private | 45/45 parse/repeat/finite logits、45 memory-sensitive；`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw USTAR SHA256 `b22827e6...09fb5`、fresh immutable download verified |
 | Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
-| Gate v1 formal-58 selector ensemble | [private HF model](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)；[completion record](data/results/gate_v1_formal58_train_v1/) | tag `gate-v1-formal58-train-v1` → manifest commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；annotated tag `fa85e746...b4d6` | 5 conditional + 5 independent checkpoints、2 full OOF reports、4 manifests；immutable replay 0 mutation；fresh-16 已消费并 NO-GO，legacy dev-5/confirm/matched-NLL/closed-loop 仍 locked |
+| Gate v1 formal-58 selector ensemble | [private HF model](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)；[completion record](data/results/gate_v1_formal58_train_v1/) | tag `gate-v1-formal58-train-v1` → manifest commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；annotated tag `fa85e746...b4d6` | 5 conditional + 5 independent checkpoints、2 full OOF reports、4 manifests；immutable replay 0 mutation；independent 5-seed ensemble 已冻结为新 confirm 主线，不重训 |
 | Gate v1 fresh-16 primary evaluation | [protocol](docs/gate_v1_fresh16_claim_serialization_repair.md)；[completion record](data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile) | claim repair A=`f0dd53b` / B=`ce523ff`；tag `gate-v1-fresh16-claim-serialization-repair-v1` → report commit `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`；annotated tag object `34d5928...c4339` | `COMPLETED + REVALIDATED`；conditional normalized/exact=`0.6942`、raw/exact=`0.9431`、vs strongest heuristic delta=`+0.3261`；selector `NO-GO`、set-conditioning `NO-GO`；旧 dev-5/confirm/matched-NLL/closed-loop locked |
+| Independent confirm-20 v1（Source-A frozen） | [contract](code/configs/causalcache_independent_confirm_closed_loop_v1.json)；[protocol](docs/independent_confirm_closed_loop_v1.md)；planned private HF dataset `gavinlaw/causalcache-independent-confirm20-mobile` | config SHA256 `33e5c0f8...7b63`；tag `independent-confirm20-v1` 尚未创建 | 41-path/12-module Source-A 已冻结，confirm policy/restoration output 仍为 0。先发布 label-blind payload commit，再允许完整 20-state restoration/report direct child；只有 GO 才打开 paired train-60 closed-loop |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

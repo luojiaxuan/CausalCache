@@ -2,7 +2,41 @@
 
 ## 当前目标
 
-AAAI-27 的论文目标仍是 offline restoration attribution、multi-budget gate、AndroidWorld closed-loop frontier
+2026-07-18 起，论文主线改为 **restoration-guided independent gate**。set-conditioned v1 与一次
+conditional rescue 永久保持 `NO_V2_CONDITIONAL_RESCUE`；不重训 formal-58 independent ensemble，也不再用
+fresh-16 调 feature、loss、seed 或阈值。当前 material step 是冻结并执行
+[`independent_confirm_closed_loop_v1`](independent_confirm_closed_loop_v1.md)：在原先冻结的 20 条
+policy/restoration-output untouched trajectory 上做一次 confirm；只有固定门槛全部通过，才解锁固定弱
+GUI-Owl Instruct backbone 下的 AndroidWorld paired train-60 controller study。已消费 validation 不能复用为
+主证据，sealed test-75 仍需 train-60 GO 后的独立授权。matched-NLL 的 0.05 nats/token 主 caliper 与
+0.02/0.10 sensitivity 也已在任何正式 closed-loop episode 前冻结。
+
+### 2026-07-18：independent confirm / closed-loop v1 Source-A 冻结
+
+- 主方法固定为 formal-58 的原始 5-seed independent ensemble，不重训、不改 feature/loss/threshold；fresh-16
+  只保留已发布 development aggregate，conditional v1 永久保持 `NO_V2_CONDITIONAL_RESCUE` negative ablation；
+- machine-readable config SHA256 为
+  `33e5c0f856a9074cd5460f0d6f7cdda2108b120d50b208234253ff3136d27b63`，绑定 41 个 Source-A paths 与
+  12 个执行 modules。confirm 固定 20 条 decision-6 state、四个候选、`B=2`、完整 16-coalition table、
+  raw-utility GO 与 20/20 reference coverage；normalized 两套口径只作 descriptive；
+- 执行防火墙要求先封存 independent/三类 heuristic 的 label-blind payload HF commit，才允许 reference 与
+  restoration access；report 必须是 payload commit 的 direct child。正式运行前还必须在同一 container、同一
+  4×H200 allocation/model/snapshot 上完成 data-blind topology smoke，并在任何 confirm semantic decode、model/HF
+  access 前验证 receipt 的 canonical bytes、显式 SHA、GPU UUID、两阶段顺序与 operation counts；
+- AndroidWorld live adapter 已冻结 raw transition 到 exact 200d feature：oldest-to-newest、内部 age、排除唯一
+  current-equivalent newest event、pinned OCR、canonical action、文本 delta 与 256×256 RGB MAD。paired
+  closed-loop 的 ITT instance→template→partition estimator、template-cluster bootstrap，以及 matched-NLL 的
+  state→origin→instance→template 聚合、template-level caliper 与 `z` statistic 都已有 fail-closed 纯函数实现；
+- focused Source-A suite 为 122 passed。全 `code/tests` 为 1,441 passed / 8 skipped / 620 subtests，剩余 6 项
+  分别是 5 个已完成历史 A/B 仍要求旧 runner-freeze 不存在的 lifecycle test，以及一个 full-suite import-order
+  下故意拒绝 GPU runtime module 的 CPU-only boundary test；显式 deselect 这 6 个历史/顺序边界 test 后其余
+  1,441 项全绿。它们不来自本次实现。confirm semantic decode、
+  policy generation、restoration forward、HF destination mutation、closed-loop 与 sealed-test access 当前均为 0；
+- 下一步只能从 clean pushed Source-A 机械生成唯一 runner-freeze Execution-B，且该 commit 只能新增一个 JSON；
+  随后才执行 Hyper00 preflight/topology smoke 与一次性 confirm。只有 `GO_TO_PAIRED_CLOSED_LOOP` 才实现并运行
+  Aries emulator + Hyper policy 的 train-60 paired study。
+
+AAAI-27 的论文目标仍是 offline restoration attribution、fixed-budget independent gate、AndroidWorld closed-loop frontier
 与 matched-NLL mechanism test。v2.1 full-45 因 exact canonical repeat agreement 只有 32/45，正式保持
 `NO_GO_V2_1_FULL_45_SUBSTRATE`；bounded spatial audit 随后得到 eager-specific exact-stability recovery，并授权
 全新的 v2.2-eager substrate。唯一 v2.2 fresh-45 attempt 已在双 H200 上取得 45/45 parse、45/45 exact repeat、
@@ -21,8 +55,9 @@ heuristic 的 mean normalized delta=`+0.326111` 且 90% bootstrap lower=`+0.0490
 `1/5` seeds 为正，因此 set-conditioning primary 也 `NO-GO`。matched-NLL、closed-loop、旧 dev-5 与 confirm
 仍未执行。随后完成的 read-only failure decomposition 得到 true-greedy / exact=`0.956636` normalized、
 `0.975350` raw，说明 search 足够接近 exact；但 oracle `G-J` positive support 只有 `10/16 < 12/16`，冻结
-route 为 `NO_V2_CONDITIONAL_RESCUE`。因此当前停止 set-conditioned CausalCache 独立 AAAI 主线，不开放任何
-post-GO stage。
+route 为 `NO_V2_CONDITIONAL_RESCUE`。因此停止 set-conditioned main method，但保留并单独确认已有 positive
+restoration signal 的 independent selector；旧 conditional post-GO 权限不被继承，新权限完全由上述 versioned
+confirm/closed-loop contract 控制。
 selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
