@@ -1,0 +1,396 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache_gate_v1_fresh16_evaluation_v1",
+  "status": "source_only_frozen_before_fresh16_semantic_access",
+  "lineage": {
+    "gate_preregistration": {
+      "path": "code/configs/causalcache_gate_v1_preregistration.json",
+      "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+      "size_bytes": 16207
+    },
+    "label_expansion_split": {
+      "path": "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+      "sha256": "e74904fb75cd72429e6adb51ab7500adcaa1915fb6cebc8567a2945bc9373947",
+      "size_bytes": 4963
+    },
+    "label_expansion_selection": {
+      "path": "data/manifests/restoration_v2_2_label_expansion_selection.json",
+      "sha256": "4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169",
+      "size_bytes": 137288
+    },
+    "label_expansion_exposure": {
+      "path": "data/manifests/restoration_v2_2_label_expansion_exposure.json",
+      "sha256": "e5f7e7b5ffeb71ac117b5cb4a470eb31648978a734edb9a521125d3bda29a323",
+      "size_bytes": 9293
+    },
+    "formal_gate_completion": {
+      "path": "data/results/gate_v1_formal58_train_v1/summary.json",
+      "sha256": "7393fb47a0e46f75324a42abc41369331ef10da65232d840eba372a58e28925e",
+      "size_bytes": 13932,
+      "status": "COMPLETED_AND_REVALIDATED_GATE_V1_FORMAL58_TRAIN_V1",
+      "gate_trained": true
+    },
+    "derived_completion": {
+      "path": "data/results/restoration_v2_2_label_expansion_derived/artifact.json",
+      "sha256": "db518ce830fc233d6f27905fe9b341933995fc272262ccb64d8ca436e3a8e04e",
+      "size_bytes": 20707
+    },
+    "repaired_label_completion": {
+      "path": "data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/summary.json",
+      "sha256": "32ac14354d5efdadd3f68f842ba3fe376de557479c3c8b6a9177654446033757",
+      "size_bytes": 7332,
+      "status": "COMPLETED_REPAIRED_EXPANSION_LABELS_PUBLICATION_V1"
+    },
+    "gui_owl_snapshot": {
+      "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+      "size_bytes": 2009
+    }
+  },
+  "source_freeze": {
+    "branch": "main",
+    "origin_name": "origin",
+    "origin_url": "https://github.com/luojiaxuan/CausalCache.git",
+    "required_source_a_paths": [
+      "code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json",
+      "code/causalcache/gate_v1_fresh16_evaluation_contract.py",
+      "code/causalcache/gate_v1_fresh16_data.py",
+      "code/causalcache/gate_v1_fresh16_heuristics.py",
+      "code/causalcache/gate_v1_fresh16.py",
+      "code/causalcache/gate_v1_fresh16_policy_vision.py",
+      "code/causalcache/gate_v1_fresh16_evaluation_runner.py",
+      "code/scripts/validate_gate_v1_fresh16_evaluation_contract.py",
+      "code/scripts/manage_gate_v1_fresh16_evaluation.py",
+      "code/tests/test_gate_v1_fresh16_evaluation_contract.py",
+      "code/tests/test_gate_v1_fresh16_data.py",
+      "code/tests/test_gate_v1_fresh16_heuristics.py",
+      "code/tests/test_gate_v1_fresh16.py",
+      "code/tests/test_gate_v1_fresh16_policy_vision.py",
+      "code/tests/test_gate_v1_fresh16_evaluation_runner.py",
+      "code/tests/test_gate_v1_pipeline.py",
+      "code/configs/causalcache_gate_v1_preregistration.json",
+      "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+      "data/manifests/restoration_v2_2_label_expansion_selection.json",
+      "data/manifests/restoration_v2_2_label_expansion_exposure.json",
+      "data/results/gate_v1_formal58_train_v1/summary.json",
+      "data/results/restoration_v2_2_label_expansion_derived/artifact.json",
+      "data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/summary.json",
+      "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "code/configs/restoration_v2_ocr_backend.json",
+      "code/causalcache/gate_v1_contract.py",
+      "code/causalcache/gate_v1_data.py",
+      "code/causalcache/gate_v1_evaluation.py",
+      "code/causalcache/gate_v1_provenance.py",
+      "code/causalcache/gate_v1_training.py",
+      "code/causalcache/gate_v1_formal_train.py",
+      "code/causalcache/restoration_v2_2_label_table.py",
+      "code/causalcache/restoration_v2_baselines.py",
+      "code/causalcache/restoration_v2_2_ocr_rgb.py",
+      "code/causalcache/restoration_v2_text_backend.py",
+      "code/causalcache/policy/gui_owl_v2_2_vision_runtime.py",
+      "code/causalcache/policy/gui_owl_v2_vision.py"
+    ],
+    "git_prerequisites": [
+      {
+        "path": "code/configs/causalcache_gate_v1_preregistration.json",
+        "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+        "size_bytes": 16207
+      },
+      {
+        "path": "code/configs/causalcache_restoration_v2_2_label_expansion_v1.json",
+        "sha256": "e74904fb75cd72429e6adb51ab7500adcaa1915fb6cebc8567a2945bc9373947",
+        "size_bytes": 4963
+      },
+      {
+        "path": "data/manifests/restoration_v2_2_label_expansion_selection.json",
+        "sha256": "4aec4deffc6405c3d06ca3001d082e4fbd85ee44f55785708a0cee573edcd169",
+        "size_bytes": 137288
+      },
+      {
+        "path": "data/manifests/restoration_v2_2_label_expansion_exposure.json",
+        "sha256": "e5f7e7b5ffeb71ac117b5cb4a470eb31648978a734edb9a521125d3bda29a323",
+        "size_bytes": 9293
+      },
+      {
+        "path": "data/results/gate_v1_formal58_train_v1/summary.json",
+        "sha256": "7393fb47a0e46f75324a42abc41369331ef10da65232d840eba372a58e28925e",
+        "size_bytes": 13932
+      },
+      {
+        "path": "data/results/restoration_v2_2_label_expansion_derived/artifact.json",
+        "sha256": "db518ce830fc233d6f27905fe9b341933995fc272262ccb64d8ca436e3a8e04e",
+        "size_bytes": 20707
+      },
+      {
+        "path": "data/results/restoration_v2_2_expansion_exact_labels_scientific_repair_publication_v1/summary.json",
+        "sha256": "32ac14354d5efdadd3f68f842ba3fe376de557479c3c8b6a9177654446033757",
+        "size_bytes": 7332
+      },
+      {
+        "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+        "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+        "size_bytes": 2009
+      }
+    ],
+    "execution_b_runner_freeze": {
+      "path": "code/configs/causalcache_gate_v1_fresh16_evaluation_runner_v1.json",
+      "must_be_absent_during_source_only_validation": true,
+      "only_allowed_execution_b_source_tree_diff": true,
+      "direct_single_parent_child_of_source_a": true,
+      "bind_required_source_a_paths": true,
+      "bind_git_prerequisites": true,
+      "bind_source_a_inventory_sha256": true,
+      "bind_loaded_module_inventory_sha256": true
+    }
+  },
+  "formal_model_input": {
+    "repo": "gavinlaw/causalcache-gate-v1-formal58-selector-mobile",
+    "repo_type": "model",
+    "private": true,
+    "payload_commit": "a6c9e7f6dab6bc27794438b5b66da07fd59b2889",
+    "manifest_commit": "23f6786075c7bff91f93fd7e8a878e070efb72a9",
+    "tag": "gate-v1-formal58-train-v1",
+    "annotated_tag_object": "fa85e74685d5ab509e60b469c6c8cae61efab4d6",
+    "ensemble_manifests": [
+      {
+        "family": "conditional",
+        "path": "formal58-train/v1/manifests/conditional-ensemble-manifest.json",
+        "sha256": "74aec69ccdb727fa997f38bebf3383db3aa1965299fdd512fd5f47f02ebcc782",
+        "provenance_sha256": "a56c26f7760578e6ebbc793cc25e3adadb228e7c3f90606f63e138f0220858f2"
+      },
+      {
+        "family": "independent",
+        "path": "formal58-train/v1/manifests/independent-ensemble-manifest.json",
+        "sha256": "38809f1ef4da9636ef6779733cee4926b36b38e3bd86eab199450e685c63da24",
+        "provenance_sha256": "238c2e64bdb22ccebd261961200021e74a688f912d530f486b00bbb853a8ea57"
+      }
+    ],
+    "remote_tree_auxiliary_files": [
+      {
+        "kind": "conditional_full_oof_report",
+        "path": "formal58-train/v1/reports/conditional-full-oof-report.json",
+        "sha256": "c959f16be25ab7dba9121e00e66237408df3c0f61eb51be959c3e5025436db60",
+        "size_bytes": 29845
+      },
+      {
+        "kind": "independent_full_oof_report",
+        "path": "formal58-train/v1/reports/independent-full-oof-report.json",
+        "sha256": "0b1d2cca64be7b2c992bbee291aefc8df3e77e7aa4f1228be1b04330bea1a2e8",
+        "size_bytes": 31172
+      },
+      {
+        "kind": "run_manifest",
+        "path": "formal58-train/v1/manifests/run-manifest.json",
+        "sha256": "873dba0bdf6e1905b36bb618107fc1bb5ccaa3f4bb878c0ab2774bfd3bd1850f",
+        "size_bytes": 12208
+      },
+      {
+        "kind": "bundle_manifest",
+        "path": "formal58-train/v1/manifests/bundle-manifest.json",
+        "sha256": "5916e0a8bef8911cafe4e52db18ce595826577077857b8425ea5cb3783aa3d07",
+        "size_bytes": 3181
+      }
+    ],
+    "checkpoints": [
+      {"family":"conditional","seed":0,"selected_epoch":62,"path":"formal58-train/v1/checkpoints/conditional-seed-0.safetensors","sha256":"38ef8ca44aea850f23a8594691ba85c986dcb0d06ae14f21111b9cd8098ad6c5","size_bytes":102060,"model_state_sha256":"4b23eb94a3726a963d572655996f5b2be0458d7398a2f38ef69b8a43bb4e036b"},
+      {"family":"conditional","seed":1,"selected_epoch":59,"path":"formal58-train/v1/checkpoints/conditional-seed-1.safetensors","sha256":"41469c21643326903673d83e2e23e977ea2c9cae5990ea88b37676e19a04313a","size_bytes":102060,"model_state_sha256":"0ab3a272564e8bc7f79a4dd8bf09e3e50c5099334b335fe163e72f78dc738f17"},
+      {"family":"conditional","seed":2,"selected_epoch":98,"path":"formal58-train/v1/checkpoints/conditional-seed-2.safetensors","sha256":"712fc17ae335eacffa9c40744c77a3995b2d963eb64009bcfc54ff826fb36ee4","size_bytes":102060,"model_state_sha256":"aa58a02b3d5a196b307ca2f576feba301bdef9351354a0669c78e0e8e95fd9c9"},
+      {"family":"conditional","seed":3,"selected_epoch":4,"path":"formal58-train/v1/checkpoints/conditional-seed-3.safetensors","sha256":"4cb6242814cbf3ae353f5d110e9954e967481b4b4173df4ec87f2baaa036fb0f","size_bytes":102060,"model_state_sha256":"952ef11791e39069b983b357119c09e37e4361c9b2c533f06bc37a3f5e24eb8f"},
+      {"family":"conditional","seed":4,"selected_epoch":13,"path":"formal58-train/v1/checkpoints/conditional-seed-4.safetensors","sha256":"95cdc21f83394d6ee54d7eda57d83089c180abcfad46135522ffef87e2ec970f","size_bytes":102060,"model_state_sha256":"b0640eb49788f45b60d9bb39e733b7b6e13114a89e73ea825a5f49629a3566af"},
+      {"family":"independent","seed":0,"selected_epoch":60,"path":"formal58-train/v1/checkpoints/independent-seed-0.safetensors","sha256":"7088a1cb4224dd1e7013868249ed1c99c20782eb63c2a762e3059cfb939d4a49","size_bytes":102860,"model_state_sha256":"0198ad3cca7bd9e4eef2f6c40c9ac6349732f21935c61ec3434f058ee40b972a"},
+      {"family":"independent","seed":1,"selected_epoch":51,"path":"formal58-train/v1/checkpoints/independent-seed-1.safetensors","sha256":"8a25b8bad27e4c6f20a9a93273602e82a276ee7f9275ff672d6b0ed64dd8fd79","size_bytes":102860,"model_state_sha256":"454b0732389eac920f2aa69edb68317e3746dc57e1d2c6c7269f792257255af7"},
+      {"family":"independent","seed":2,"selected_epoch":6,"path":"formal58-train/v1/checkpoints/independent-seed-2.safetensors","sha256":"b8c38619db06bd479d278da62663a3b451cff951dff0747bf156835234216211","size_bytes":102860,"model_state_sha256":"c4d508933928dc7c6a24501090e3afd2a7d50a4977f37b3b3cb6cd818d28eb13"},
+      {"family":"independent","seed":3,"selected_epoch":56,"path":"formal58-train/v1/checkpoints/independent-seed-3.safetensors","sha256":"b7b175c0b513508f10479bb228fad6ffb6b4e330b050c981d415c2a54b8c11a2","size_bytes":102860,"model_state_sha256":"1f0d319411319dd2348e0a3da8e7d2b18e5b566e468278853d890a761639da60"},
+      {"family":"independent","seed":4,"selected_epoch":54,"path":"formal58-train/v1/checkpoints/independent-seed-4.safetensors","sha256":"8e5eee31c85653a210b9bf05c4cf4d94a8b4fabdb6bdab455caa446cc655df38","size_bytes":102860,"model_state_sha256":"51fc5aaa157ec9feb97a7c40cd7d532cc248ecb076feacd880dc9bba38007def"}
+    ],
+    "model_load_device": "cpu",
+    "training_or_optimizer_allowed": false
+  },
+  "derived_input": {
+    "repo": "gavinlaw/causalcache-guiodyssey-restoration-v2-mobile",
+    "repo_type": "dataset",
+    "private": true,
+    "immutable_revision": "630363a6adb692d72774f16dd0653a50216313ff",
+    "tag": "restoration-v2-label-expansion-v1.0.0",
+    "artifact_tree_sha256": "9394b369e2b741e6aacf9ece4fc5dae3e6337b25a7e65402307e4e7862b94abc",
+    "files": [
+      {"kind":"images","path":"derived/restoration-v2-label-expansion-v1/images-00000-of-00001.tar","sha256":"9e879e3ca59e7db058a68366a4289f578f0af67dabff2f3c517809fe03cb3ecf","size_bytes":343674880,"record_count":384},
+      {"kind":"manifest","path":"derived/restoration-v2-label-expansion-v1/manifest.json","sha256":"12d6ae78e8ef8750ee0dfb004653856316e0845bd3c498f96232b919bf8e7947","size_bytes":8445,"record_count":1},
+      {"kind":"ocr","path":"derived/restoration-v2-label-expansion-v1/ocr-records-00000-of-00001.jsonl","sha256":"a1a0a979a74f026dd466df6c5e956c741110e34102cee0ff996695863c749dd8","size_bytes":2972989,"record_count":384},
+      {"kind":"trajectories","path":"derived/restoration-v2-label-expansion-v1/trajectories-00000-of-00001.jsonl","sha256":"fe93e9deeeb9a3c018227fb781b29f6efefefbb728db987584b650d9df353a6d","size_bytes":1245673,"record_count":64}
+    ],
+    "trajectory_rows_allowed_for_semantic_decode": [48,64],
+    "selected_ocr_and_image_path_count": 80,
+    "generic_full_semantic_reader_allowed": false
+  },
+  "label_input": {
+    "repo": "gavinlaw/causalcache-restoration-v2-2-expansion-exact-labels-repaired-mobile",
+    "repo_type": "dataset",
+    "private": true,
+    "immutable_revision": "7a6c254b8cec0dd3d8111dfc9c080de357e5cef3",
+    "tag": "v2.2-expansion-exact-labels-scientific-repair-v1",
+    "annotated_tag_object": "6a907ba2a3dce07c9f0810a84a8755c389da4a57",
+    "archive_member_prefix": "restoration-v2-2-expansion-exact-labels-scientific-repair-v1",
+    "archive": {"path":"repaired/v2.2-expansion-exact-labels-scientific-repair-v1/repaired-labels-v1.tar","sha256":"1a9fdcc08aeb83f88bcd50957c3d890e3b103f2063a2aecbe08610d450950e01","size_bytes":3020800,"member_count":4,"tree_inventory_sha256":"09bb681b2715997df326ab9648d8501955ec6ba127631a97141484631a98f44b"},
+    "sidecar": {"path":"repaired/v2.2-expansion-exact-labels-scientific-repair-v1/artifact-manifest-v1.json","sha256":"9d86c75597a2a65eae952dd311373a7adbb0536d56d88e7fdb00d674f8dc4ee5","size_bytes":3641},
+    "raw_states_member": {"path":"raw_states.jsonl","sha256":"850aa0f1a6c0c6dd312573e4963384257a724ba01a3fe78ac4496cfd0fd14267","size_bytes":1126543,"record_count":192,"run_contract_sha256":"63cddd712d9fa22bbd68110966161f36318d5fe1962b9b1477bae342da4180b8"},
+    "raw_state_rows_allowed_for_semantic_decode": [144,192],
+    "access_requires_completed_local_heuristic_seal": true,
+    "generic_full_semantic_reader_allowed": false
+  },
+  "policy_vision_input": {
+    "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "immutable_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+    "snapshot_file_count": 14,
+    "runtime_contract_sha256": "794474d8bc60463ba10fdd772691461f5910ca5e5501f7cccff4c53542b84b7f",
+    "gpu_uuid_type_profile": "cuda_device_property_uuid_torch_c_cuuuid_v2",
+    "image_processor_size_profile": "transformers_image_utils_size_dict_exact_edges_v3",
+    "dtype": "bfloat16",
+    "attention_implementation": "eager",
+    "candidate_counts": [2,3,4],
+    "image_counts": [3,4,5],
+    "feature_repeats_per_state": 2,
+    "cross_device_n4_sentinel_count": 1,
+    "score_replay_max_abs_tolerance": 0.000001,
+    "goal_text_or_ocr_or_labels_allowed": false
+  },
+  "fresh_geometry": {
+    "roster": "fresh_development",
+    "trajectory_count": 16,
+    "state_count": 48,
+    "candidate_feature_count": 144,
+    "distance_value_count": 448,
+    "conditional_edge_count": 464,
+    "source_ids_sha256": "1c37cbf6b67b0ddee61b3efe27d33b30c8fbfb471ced12f12e49624a10b82454",
+    "source_ids": ["0113395203853614","0085973327901251","0217993280505982","0204226739513713","0027349945578994","0063414321407600","0124211143250759","0158200624694354","0104781033187528","0042582068233164","0095139503173521","0028705883346522","0069283472940099","0090192011883108","0017986853193264","0002455403270123"],
+    "decision_steps": [4,5,6],
+    "candidate_event_counts": [2,3,4],
+    "budget_event_capacity": 2,
+    "state_order": "source_order_then_decision_step_4_5_6"
+  },
+  "access_firewall": {
+    "source_a_fresh16_trajectory_semantic_decode_count": 0,
+    "source_a_fresh16_ocr_semantic_decode_count": 0,
+    "source_a_fresh16_image_decode_count": 0,
+    "source_a_fresh16_label_semantic_decode_count": 0,
+    "source_a_model_load_count": 0,
+    "source_a_model_forward_count": 0,
+    "source_a_legacy_dev5_semantic_decode_count": 0,
+    "source_a_confirm20_access_count": 0,
+    "source_a_matched_nll_evaluation_count": 0,
+    "source_a_closed_loop_episode_count": 0,
+    "execution_b_legacy_dev5_semantic_decode_count": 0,
+    "execution_b_confirm20_access_count": 0,
+    "execution_b_matched_nll_evaluation_count": 0,
+    "execution_b_closed_loop_episode_count": 0,
+    "all_heuristics_and_learned_selections_sealed_before_label_access": true,
+    "primary_report_tag_and_readback_before_any_legacy_dev5_access": true
+  },
+  "evaluation_contract": {
+    "implementation": "code/causalcache/gate_v1_evaluation.py:evaluate_primary_slice",
+    "implementation_sha256_at_source_a": "machine_bound_by_runner_freeze",
+    "aggregation": "trajectory_equal_then_state_equal",
+    "bootstrap": {"unit":"trajectory","resamples":10000,"seed":271828,"confidence":0.9,"interval":"percentile","quantile":"Hyndman_Fan_type_7"},
+    "heuristic_comparators_in_fixed_order": ["dynamic_recent","ocr_rgb_v2","policy_vision_v3"],
+    "go_selector_all": {"ensemble_normalized_recovery_over_exact_minimum":0.8,"ensemble_raw_utility_over_exact_raw_minimum":0.8,"mean_normalized_delta_vs_each_heuristic_minimum":0.05,"strongest_heuristic_positive_trajectory_count_minimum":12,"strongest_heuristic_paired_bootstrap_lower_strictly_greater_than":0.0,"individual_seed_exact_ratio_minimum":0.75,"individual_seed_pass_count_minimum":4,"seed_mean_recovery_population_std_maximum":0.08,"hard_n3_n4_equal_trajectory_raw_utility_ratio_minimum":0.7,"selected_true_nonpositive_addition_rate_maximum":0.1},
+    "go_set_conditioning_all": {"conditional_minus_independent_mean_normalized_delta_minimum":0.02,"conditional_minus_independent_raw_utility_delta_strictly_greater_than":0.0,"conditional_minus_independent_positive_trajectory_count_minimum":12,"conditional_minus_independent_paired_bootstrap_lower_strictly_greater_than":0.0,"paired_seed_positive_count_minimum":4},
+    "state_record_count": 48,
+    "combined21_compatibility_evaluated": false,
+    "confirm_access_authorized": false,
+    "matched_nll_authorized": false,
+    "closed_loop_authorized": false
+  },
+  "output_contract": {
+    "payload_commit": {
+      "commit_title": "Publish CausalCache gate v1 fresh16 payload",
+      "exact_targets": [
+        "fresh16-eval/v1/caches/feature-states-v1.jsonl",
+        "fresh16-eval/v1/caches/label-states-v1.jsonl",
+        "fresh16-eval/v1/heuristics/dynamic-recent-v1.json",
+        "fresh16-eval/v1/heuristics/ocr-rgb-v2.json",
+        "fresh16-eval/v1/heuristics/policy-vision-v3.json",
+        "fresh16-eval/v1/scores/ocr-rgb-v2.jsonl",
+        "fresh16-eval/v1/scores/policy-vision-v3.jsonl",
+        "fresh16-eval/v1/learned/conditional-v1.json",
+        "fresh16-eval/v1/learned/independent-v1.json"
+      ],
+      "heuristic_bytes_sealed_locally_before_label_access": true
+    },
+    "report_commit": {
+      "commit_title": "Publish CausalCache gate v1 fresh16 primary report",
+      "parent_must_equal_payload_commit": true,
+      "exact_new_targets": [
+        "fresh16-eval/v1/reports/primary-state-records-v1.jsonl",
+        "fresh16-eval/v1/reports/primary-report-v1.json",
+        "fresh16-eval/v1/manifests/run-manifest-v1.json",
+        "fresh16-eval/v1/manifests/bundle-manifest-v1.json"
+      ],
+      "report_artifact_bindings_must_use_payload_commit": true,
+      "manifest_files_must_not_embed_report_commit": true
+    },
+    "payload_target_count": 9,
+    "report_target_count": 4,
+    "final_target_count": 13,
+    "two_commit_direct_chain_required": true,
+    "byte_identical_fresh_download_replay_required": true
+  },
+  "destination": {
+    "repo": "gavinlaw/causalcache-gate-v1-fresh16-evaluation-mobile",
+    "repo_type": "dataset",
+    "private": true,
+    "tag": "gate-v1-fresh16-evaluation-v1",
+    "annotated_tag_required": true,
+    "tag_message": "Freeze CausalCache gate v1 fresh16 primary evaluation",
+    "tag_must_resolve_to_report_commit": true,
+    "remote_base_receipt_before_first_mutation": true,
+    "partial_or_conflicting_remote_state_action": "FAIL_CLOSED",
+    "completed_replay_remote_mutation_count": 0
+  },
+  "local_first_state_machine": {
+    "state_file_mode": 384,
+    "artifact_file_mode": 292,
+    "state_directory": "/data/experiments/causalcache",
+    "artifact_directory": "/data/artifacts/causalcache/gate-v1-fresh16-evaluation-v1",
+    "o_excl_or_byte_identical_reuse": true,
+    "no_overwrite": true,
+    "ordered_states": ["runtime_receipts","global_claim","transport_verification","label_blind_cpu_completion","checkpoint_replay_completion","policy_worker_even_completion","policy_worker_odd_completion","heuristic_local_seal","label_access_claim","label_cache_completion","remote_base_receipt","payload_commit_receipt","primary_report_completion","report_commit_receipt","completion_staging","final_completion"]
+  },
+  "runtime_contract": {
+    "host": "hyper00_or_hyper01_h200",
+    "container_image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "python_implementation": "CPython",
+    "python_version": "3.12.3",
+    "machine": "x86_64",
+    "torch_version": "2.11.0+cu130",
+    "safetensors_version": "0.7.0",
+    "huggingface_hub_version": "1.16.1",
+    "transformers_version": "5.6.0",
+    "pillow_version": "12.2.0",
+    "docker_inspect_receipt": {
+      "schema_version": "1.0.0",
+      "status": "CAPTURED_GATE_V1_FRESH16_DOCKER_INSPECT_V1",
+      "path": "/data/experiments/causalcache/.gate-v1-fresh16-evaluation-v1.docker-inspect.json",
+      "mode": 384,
+      "container_name_prefix": "sglang-omni-jaxan-",
+      "runtime": "runc",
+      "data_mount_destination": "/data",
+      "data_mount_rw": true,
+      "privileged": false,
+      "gpu_device_request_count": 1,
+      "gpu_count": 2
+    },
+    "policy_phase": {"gpu_count":2,"worker_count":2,"states_per_worker":24,"dtype":"bfloat16","feature_repeats":2,"processor_batch_count":49,"vision_forward_count":97,"cosine_scalar_transfer_count":292},
+    "finalize_phase": {"device":"cpu","torch_num_threads":1,"torch_num_interop_threads":1,"gpu_required":false},
+    "thread_environment": {"PYTHONHASHSEED":"0","OMP_NUM_THREADS":"1","MKL_NUM_THREADS":"1","OPENBLAS_NUM_THREADS":"1","NUMEXPR_NUM_THREADS":"1","VECLIB_MAXIMUM_THREADS":"1","BLIS_NUM_THREADS":"1","TZ":"UTC","LC_ALL":"C.UTF-8"}
+  },
+  "source_only_operation_contract": {
+    "network_call_count":0,"hf_api_call_count":0,"file_write_count":0,"torch_import_count":0,"fresh16_trajectory_semantic_decode_count":0,"fresh16_ocr_semantic_decode_count":0,"fresh16_unique_image_identity_count":0,"fresh16_feature_image_decode_count":0,"policy_vision_image_decode_count":0,"fresh16_image_decode_count":0,"fresh16_label_semantic_decode_count":0,"model_load_count":0,"model_forward_count":0,"heuristic_selection_count":0,"primary_report_count":0,"legacy_dev5_semantic_decode_count":0,"confirm20_access_count":0,"matched_nll_evaluation_count":0,"closed_loop_episode_count":0
+  },
+  "execution_planned_operation_contract": {
+    "fresh16_trajectory_semantic_decode_count":16,"fresh16_ocr_semantic_decode_count":80,"fresh16_unique_image_identity_count":80,"fresh16_feature_image_decode_count":80,"policy_vision_image_decode_count":197,"fresh16_image_decode_count":277,"feature_state_count":48,"candidate_feature_count":144,"dynamic_recent_selection_count":48,"ocr_rgb_selection_count":48,"policy_vision_selection_count":48,"policy_vision_processor_batch_count":49,"policy_vision_feature_forward_count":97,"policy_vision_cosine_scalar_transfer_count":292,"fresh16_label_semantic_decode_count":48,"distance_value_count":448,"conditional_edge_count":464,"checkpoint_load_count":10,"optimizer_step_count":0,"exact_subset_oracle_state_count":48,"exact_subset_oracle_invocation_count":96,"bootstrap_interval_count":2,"bootstrap_resamples_per_interval":10000,"bootstrap_resample_draw_count":20000,"primary_state_record_count":48,"primary_report_count":1,"payload_commit_count":1,"report_commit_count":1,"tag_count":1,"legacy_dev5_semantic_decode_count":0,"confirm20_access_count":0,"matched_nll_evaluation_count":0,"closed_loop_episode_count":0
+  },
+  "authorization": {
+    "evaluation_executed":false,"execution_authorized":false,"fresh16_access_authorized":false,"label_access_authorized":false,"legacy_dev5_access_authorized":false,"confirm20_access_authorized":false,"matched_nll_authorized":false,"closed_loop_authorized":false,"execution_allowed_without_machine_generated_runner_freeze_b":false
+  }
+}

@@ -100,6 +100,144 @@ def _ensemble_score(scores: Sequence[Score]) -> Score:
     return score
 
 
+def _selection_map(
+    states: Sequence[GateState],
+    value: Mapping[str, Sequence[int]],
+    *,
+    label: str,
+) -> dict[str, tuple[int, ...]]:
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{label} must be a state-indexed mapping")
+    expected_state_ids = {state.state_id for state in states}
+    if set(value) != expected_state_ids:
+        raise ValueError(f"{label} state inventory drifted")
+    result: dict[str, tuple[int, ...]] = {}
+    for state in states:
+        raw = value[state.state_id]
+        if (
+            isinstance(raw, (str, bytes, bytearray, Mapping))
+            or not isinstance(raw, Sequence)
+            or any(type(item) is not int for item in raw)
+        ):
+            raise ValueError(f"{label} contains a malformed selection")
+        selected = tuple(raw)
+        if (
+            tuple(sorted(selected)) != selected
+            or len(set(selected)) != len(selected)
+            or len(selected) > 2
+            or not set(selected).issubset(state.candidate_event_step_ids)
+        ):
+            raise ValueError(f"{label} contains an infeasible selection")
+        result[state.state_id] = selected
+    return result
+
+
+def _conditional_trace_map(
+    states: Sequence[GateState],
+    value: Mapping[str, Sequence[Any]],
+    *,
+    conditional_selections: Mapping[str, tuple[int, ...]],
+) -> dict[str, tuple[tuple[int, float], ...]]:
+    if not isinstance(value, Mapping):
+        raise ValueError("conditional traces must be a state-indexed mapping")
+    expected_state_ids = {state.state_id for state in states}
+    if set(value) != expected_state_ids:
+        raise ValueError("conditional trace state inventory drifted")
+    result: dict[str, tuple[tuple[int, float], ...]] = {}
+    for state in states:
+        raw_trace = value[state.state_id]
+        if (
+            isinstance(raw_trace, (str, bytes, bytearray, Mapping))
+            or not isinstance(raw_trace, Sequence)
+        ):
+            raise ValueError("conditional trace is malformed")
+        trace: list[tuple[int, float]] = []
+        for raw_item in raw_trace:
+            if isinstance(raw_item, Mapping):
+                if set(raw_item) != {"event_step_id", "predicted_marginal_gain"}:
+                    raise ValueError("conditional trace item schema drifted")
+                event = raw_item["event_step_id"]
+                prediction = raw_item["predicted_marginal_gain"]
+            elif (
+                isinstance(raw_item, Sequence)
+                and not isinstance(raw_item, (str, bytes, bytearray))
+                and len(raw_item) == 2
+            ):
+                event, prediction = raw_item
+            else:
+                raise ValueError("conditional trace item is malformed")
+            if (
+                type(event) is not int
+                or event not in state.candidate_event_step_ids
+                or event in (item[0] for item in trace)
+                or isinstance(prediction, bool)
+                or not isinstance(prediction, (int, float))
+                or not math.isfinite(float(prediction))
+                or float(prediction) <= 0.0
+            ):
+                raise ValueError("conditional trace item is invalid")
+            trace.append((event, float(prediction)))
+        selected = conditional_selections[state.state_id]
+        if len(trace) != len(selected) or tuple(sorted(item[0] for item in trace)) != selected:
+            raise ValueError("conditional trace does not replay its sealed selection")
+        result[state.state_id] = tuple(trace)
+    return result
+
+
+def _seed_selection_maps(
+    states: Sequence[GateState],
+    value: Sequence[Mapping[str, Sequence[int]]],
+    *,
+    label: str,
+) -> tuple[dict[str, tuple[int, ...]], ...]:
+    if (
+        isinstance(value, (str, bytes, bytearray, Mapping))
+        or not isinstance(value, Sequence)
+        or len(value) != 5
+    ):
+        raise ValueError(f"{label} requires exactly five seed selection maps")
+    return tuple(
+        _selection_map(states, seed_value, label=f"{label} seed {seed_index}")
+        for seed_index, seed_value in enumerate(value)
+    )
+
+
+def _sealed_decisions_from_scores(
+    states: Sequence[GateState],
+    conditional_scores: Sequence[Score],
+    independent_scores: Sequence[Score],
+) -> dict[str, Any]:
+    conditional_ensemble = _ensemble_score(conditional_scores)
+    independent_ensemble = _ensemble_score(independent_scores)
+    conditional_selections: dict[str, tuple[int, ...]] = {}
+    conditional_traces: dict[str, tuple[tuple[int, float], ...]] = {}
+    independent_selections: dict[str, tuple[int, ...]] = {}
+    conditional_seed_selections = [dict() for _ in range(5)]
+    independent_seed_selections = [dict() for _ in range(5)]
+    for state in states:
+        selected, trace = select_conditional(state, conditional_ensemble)
+        conditional_selections[state.state_id] = selected
+        conditional_traces[state.state_id] = trace
+        independent_selections[state.state_id] = select_independent(
+            state, independent_ensemble
+        )
+        for seed_index, score in enumerate(conditional_scores):
+            conditional_seed_selections[seed_index][state.state_id] = (
+                select_conditional(state, score)[0]
+            )
+        for seed_index, score in enumerate(independent_scores):
+            independent_seed_selections[seed_index][state.state_id] = select_independent(
+                state, score
+            )
+    return {
+        "conditional_selections": conditional_selections,
+        "conditional_traces": conditional_traces,
+        "independent_selections": independent_selections,
+        "conditional_seed_selections": tuple(conditional_seed_selections),
+        "independent_seed_selections": tuple(independent_seed_selections),
+    }
+
+
 def _trajectory_equal_mean(
     states: Sequence[GateState], values: Mapping[str, float | None]
 ) -> tuple[float, int, int]:
@@ -175,36 +313,60 @@ def _selector_records(
     independent_scores: Sequence[Score],
     heuristics: Mapping[str, Mapping[str, Sequence[int]]],
 ) -> dict[str, Any]:
-    if tuple(heuristics) != HEURISTIC_ORDER:
+    decisions = _sealed_decisions_from_scores(
+        states, conditional_scores, independent_scores
+    )
+    return _selector_records_from_sealed_decisions(
+        states,
+        heuristics=heuristics,
+        **decisions,
+    )
+
+
+def _selector_records_from_sealed_decisions(
+    states: Sequence[GateState],
+    *,
+    conditional_selections: Mapping[str, Sequence[int]],
+    conditional_traces: Mapping[str, Sequence[Any]],
+    independent_selections: Mapping[str, Sequence[int]],
+    conditional_seed_selections: Sequence[Mapping[str, Sequence[int]]],
+    independent_seed_selections: Sequence[Mapping[str, Sequence[int]]],
+    heuristics: Mapping[str, Mapping[str, Sequence[int]]],
+) -> dict[str, Any]:
+    conditional = _selection_map(
+        states, conditional_selections, label="conditional ensemble selections"
+    )
+    traces = _conditional_trace_map(
+        states,
+        conditional_traces,
+        conditional_selections=conditional,
+    )
+    independent = _selection_map(
+        states, independent_selections, label="independent ensemble selections"
+    )
+    seed_conditional = _seed_selection_maps(
+        states,
+        conditional_seed_selections,
+        label="conditional per-seed selections",
+    )
+    seed_independent = _seed_selection_maps(
+        states,
+        independent_seed_selections,
+        label="independent per-seed selections",
+    )
+    if not isinstance(heuristics, Mapping) or tuple(heuristics) != HEURISTIC_ORDER:
         raise ValueError("heuristic comparator inventory or order drifted")
-    conditional_ensemble = _ensemble_score(conditional_scores)
-    independent_ensemble = _ensemble_score(independent_scores)
+    heuristic_maps = {
+        name: _selection_map(
+            states, heuristics[name], label=f"heuristic {name} selections"
+        )
+        for name in HEURISTIC_ORDER
+    }
     records: dict[str, Any] = {}
     for state in states:
-        conditional_selected, conditional_trace = select_conditional(
-            state, conditional_ensemble
-        )
-        independent_selected = select_independent(state, independent_ensemble)
-        seed_conditional = [
-            select_conditional(state, score)[0] for score in conditional_scores
-        ]
-        seed_independent = [
-            select_independent(state, score) for score in independent_scores
-        ]
-        heuristic_selected = {}
-        for name in HEURISTIC_ORDER:
-            try:
-                selected = tuple(int(item) for item in heuristics[name][state.state_id])
-            except (KeyError, TypeError, ValueError) as error:
-                raise ValueError(f"heuristic {name} lacks a valid state selection") from error
-            if (
-                tuple(sorted(selected)) != selected
-                or len(set(selected)) != len(selected)
-                or len(selected) > 2
-                or not set(selected).issubset(state.candidate_event_step_ids)
-            ):
-                raise ValueError(f"heuristic {name} selection is infeasible")
-            heuristic_selected[name] = selected
+        conditional_selected = conditional[state.state_id]
+        conditional_trace = traces[state.state_id]
+        independent_selected = independent[state.state_id]
         baseline = state.table.distance(())
         exact = primary_exact_subset_oracle(state.table)
         eligible = baseline > 1e-12
@@ -236,10 +398,15 @@ def _selector_records(
             },
             "conditional": metric(conditional_selected),
             "independent": metric(independent_selected),
-            "seed_conditional": [metric(selected) for selected in seed_conditional],
-            "seed_independent": [metric(selected) for selected in seed_independent],
+            "seed_conditional": [
+                metric(seed_map[state.state_id]) for seed_map in seed_conditional
+            ],
+            "seed_independent": [
+                metric(seed_map[state.state_id]) for seed_map in seed_independent
+            ],
             "heuristics": {
-                name: metric(heuristic_selected[name]) for name in HEURISTIC_ORDER
+                name: metric(heuristic_maps[name][state.state_id])
+                for name in HEURISTIC_ORDER
             },
             "conditional_selected_addition_count": len(conditional_trace),
             "conditional_true_nonpositive_addition_count": nonpositive,
@@ -270,16 +437,19 @@ def _seed_metric_map(records: Mapping[str, Any], family: str, seed_index: int) -
     }
 
 
-def _evaluate_primary_slice_from_scores(
+def _evaluate_primary_slice_from_sealed_decisions(
     states: Sequence[GateState],
     *,
     expected_source_ids: Sequence[str],
-    conditional_scores: Sequence[Score],
-    independent_scores: Sequence[Score],
+    conditional_selections: Mapping[str, Sequence[int]],
+    conditional_traces: Mapping[str, Sequence[Any]],
+    independent_selections: Mapping[str, Sequence[int]],
+    conditional_seed_selections: Sequence[Mapping[str, Sequence[int]]],
+    independent_seed_selections: Sequence[Mapping[str, Sequence[int]]],
     heuristics: Mapping[str, Mapping[str, Sequence[int]]],
     bootstrap_resamples: int,
 ) -> dict[str, Any]:
-    """Unsealed metric core; it cannot emit a formal or test report status."""
+    """Pure true-distance evaluator over already sealed selector decisions."""
     validate_evaluation_roster(
         states,
         expected_source_ids,
@@ -287,8 +457,14 @@ def _evaluate_primary_slice_from_scores(
     )
     if len(expected_source_ids) != 16 or len(states) != 48:
         raise ValueError("formal primary evaluation requires fresh-16 / 48 states")
-    records = _selector_records(
-        states, conditional_scores, independent_scores, heuristics
+    records = _selector_records_from_sealed_decisions(
+        states,
+        conditional_selections=conditional_selections,
+        conditional_traces=conditional_traces,
+        independent_selections=independent_selections,
+        conditional_seed_selections=conditional_seed_selections,
+        independent_seed_selections=independent_seed_selections,
+        heuristics=heuristics,
     )
     conditional_normalized = _metric_map(
         records, "conditional", "normalized_recovery"
@@ -491,6 +667,28 @@ def _evaluate_primary_slice_from_scores(
     return report
 
 
+def _evaluate_primary_slice_from_scores(
+    states: Sequence[GateState],
+    *,
+    expected_source_ids: Sequence[str],
+    conditional_scores: Sequence[Score],
+    independent_scores: Sequence[Score],
+    heuristics: Mapping[str, Mapping[str, Sequence[int]]],
+    bootstrap_resamples: int,
+) -> dict[str, Any]:
+    """Unsealed score adapter retained for legacy and test-only callers."""
+    decisions = _sealed_decisions_from_scores(
+        states, conditional_scores, independent_scores
+    )
+    return _evaluate_primary_slice_from_sealed_decisions(
+        states,
+        expected_source_ids=expected_source_ids,
+        heuristics=heuristics,
+        bootstrap_resamples=bootstrap_resamples,
+        **decisions,
+    )
+
+
 def _state_inventory_sha256(states: Sequence[GateState]) -> str:
     payload = [
         {
@@ -637,21 +835,18 @@ def evaluate_primary_slice(
     independent_scores = tuple(
         model_score(model, "independent") for model in independent_ensemble.models
     )
-    report = _evaluate_primary_slice_from_scores(
+    decisions = _sealed_decisions_from_scores(
+        states,
+        conditional_scores,
+        independent_scores,
+    )
+    return evaluate_primary_slice_from_sealed_decisions(
         states,
         expected_source_ids=expected_source_ids,
-        conditional_scores=conditional_scores,
-        independent_scores=independent_scores,
         heuristics=heuristics,
-        bootstrap_resamples=BOOTSTRAP_RESAMPLES,
+        provenance_payload=provenance_payload,
+        **decisions,
     )
-    sealed = {
-        "status": "FROZEN_GATE_V1_FRESH16_PRIMARY_EVALUATION",
-        **report,
-        "provenance": provenance_payload,
-    }
-    sealed["report_sha256"] = canonical_report_sha256(sealed)
-    return sealed
 
 
 def _evaluate_primary_slice_test_only(
@@ -739,6 +934,54 @@ def _validate_primary_provenance_payload(value: Any) -> Mapping[str, Any]:
     if tuple(item.name for item in heuristics) != HEURISTIC_ORDER:
         raise ValueError("primary heuristic provenance order drifted")
     return value
+
+
+def evaluate_primary_slice_from_sealed_decisions(
+    states: Sequence[GateState],
+    *,
+    expected_source_ids: Sequence[str],
+    conditional_selections: Mapping[str, Sequence[int]],
+    conditional_traces: Mapping[str, Sequence[Any]],
+    independent_selections: Mapping[str, Sequence[int]],
+    conditional_seed_selections: Sequence[Mapping[str, Sequence[int]]],
+    independent_seed_selections: Sequence[Mapping[str, Sequence[int]]],
+    heuristics: Mapping[str, Mapping[str, Sequence[int]]],
+    provenance_payload: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Evaluate sealed decisions using only the states' frozen true-D tables."""
+    provenance = _validate_primary_provenance_payload(provenance_payload)
+    if provenance["state_inventory_sha256"] != _state_inventory_sha256(states):
+        raise ValueError("primary provenance is not bound to these evaluation states")
+    if not isinstance(heuristics, Mapping) or tuple(heuristics) != HEURISTIC_ORDER:
+        raise ValueError("heuristic comparator inventory or order drifted")
+    heuristic_bindings = tuple(
+        heuristic_artifact_provenance_from_manifest(item)
+        for item in provenance["heuristic_artifacts"]
+    )
+    for binding in heuristic_bindings:
+        selections = heuristics.get(binding.name)
+        if not isinstance(selections, Mapping):
+            raise ValueError(f"{binding.name} heuristic selections are missing")
+        if canonical_selection_sha256(selections) != binding.selection_sha256:
+            raise ValueError(f"{binding.name} selections differ from provenance")
+    report = _evaluate_primary_slice_from_sealed_decisions(
+        states,
+        expected_source_ids=expected_source_ids,
+        conditional_selections=conditional_selections,
+        conditional_traces=conditional_traces,
+        independent_selections=independent_selections,
+        conditional_seed_selections=conditional_seed_selections,
+        independent_seed_selections=independent_seed_selections,
+        heuristics=heuristics,
+        bootstrap_resamples=BOOTSTRAP_RESAMPLES,
+    )
+    sealed = {
+        "status": "FROZEN_GATE_V1_FRESH16_PRIMARY_EVALUATION",
+        **report,
+        "provenance": dict(provenance),
+    }
+    sealed["report_sha256"] = canonical_report_sha256(sealed)
+    return sealed
 
 
 def _validate_combined_provenance_payload(value: Any) -> Mapping[str, Any]:
@@ -935,6 +1178,7 @@ __all__ = [
     "canonical_report_sha256",
     "evaluate_combined21_compatibility",
     "evaluate_primary_slice",
+    "evaluate_primary_slice_from_sealed_decisions",
     "paired_bootstrap_lower",
     "type7_quantile",
     "validate_evaluation_roster",

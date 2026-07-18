@@ -61,7 +61,12 @@
 > formal run 和只读 replay 均闭合；private HF model tag `gate-v1-formal58-train-v1` 指向 manifest commit
 > `23f6786…72a9`，包含 5 conditional + 5 independent checkpoints、2 full OOF reports 与 4 manifests。
 > `gate_trained=true` 只表示 train-only model seal 完成；fresh-16、旧 dev-5、confirm、matched-NLL 与
-> closed-loop 仍未打开。
+> closed-loop 仍未打开。fresh-16 evaluation Source-A 已冻结 exact 16 trajectories / 48 states / 144
+> candidate features / 448 distances、variable-`n` heuristics、双 H200 49 processor batches / 97 vision
+> forwards、all-selections-before-label firewall 与 9-target payload + 4-target report 的两段 publication；config
+> SHA256 为 `c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e`。本状态仍是零真实
+> fresh semantic access、零 GO result。完整边界见
+> [`docs/gate_v1_fresh16_evaluation.md`](docs/gate_v1_fresh16_evaluation.md)。
 
 ## 团队交接入口
 
@@ -96,10 +101,13 @@ policy-vision 的 v1/v2 attempts 均在 0 feature 时因版本化 runtime interf
 state projection 已由独立 CPU-only repair exact-byte replay 闭合，正式状态为 `VALID`；result commit 后又从
 clean `main@174801112c58d831249fd54f4f8bc9af01524b44` 完成 `REVALIDATED`。
 
-当前关键路径已切换为 frozen formal-58 ensemble → fresh-16 evaluation Source-A → 唯一机械 Execution-B →
+当前关键路径已切换为 frozen formal-58 ensemble → frozen fresh-16 evaluation Source-A → 唯一机械 Execution-B →
 一次性 primary GO。v1 cache execution 已永久 fail-closed，独立 transport-repair 与 formal training 都已完成
 private-HF publication 和只读 immutable replay；10 个 train-only checkpoint/provenance 已封存，满足另立
-fresh-16 contract 的前置条件，但 fresh-16 semantic content 仍为零访问。已发布 child 的冻结分母为
+fresh-16 contract 的前置条件。当前 Source-A 已加入 selective fresh loader、`n=2/3/4,B=2` comparator、
+双 H200 `49` processor batches / `97` vision forwards schedule、ensemble/5-seed/conditional-trace seal，以及 9 个
+payload targets 后接 4 个 report targets 的 direct two-commit chain；它必须先 commit/push A，再机械生成并单独 push B。
+截至本记录，fresh-16 semantic content 仍为零访问，也没有 GO 结果。已发布 child 的冻结分母为
 64 trajectories / 192 states，steps 4/5/6 对应
 $n=2/3/4$、$B=2$；formal raw table 为 1,792 条 $D(S)$，policy-free 重算 1,856 deployment edges、3,072
 full edges、1,984 interactions、576 attributions 与 192 exact oracles。label run 固定 1,984 teacher forwards、
@@ -473,11 +481,13 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
    post-state-only prompt 的冻结实现；
 11. [`docs/execution.md`](docs/execution.md)：跨芯片执行、HF/Git 回写与 Definition of Done；
 12. [`docs/restoration_v2_ocr.md`](docs/restoration_v2_ocr.md)：OCR/image identity、schema 与 golden 状态；
-13. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
-14. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
-15. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
-16. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-17. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+13. [`docs/gate_v1_fresh16_evaluation.md`](docs/gate_v1_fresh16_evaluation.md)：formal model seal 后的
+    fresh-16 Source-A、label firewall、双 H200 schedule 与两段 publication；
+14. [`docs/progress.md`](docs/progress.md)：已完成里程碑、negative results 与下一步；
+15. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
+16. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
+17. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
+18. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
 仓库结构：
 
@@ -822,6 +832,11 @@ $$
   checkpoint 与 private HF model destination；source-only validator 不授权执行；
 - [x] 从 clean pushed Source-A 机械生成唯一 Execution-B，完成 formal-58 OOF/final fit，封存十个
   checkpoint 并完成 private HF immutable model replay；
+- [x] 完成 fresh-16 evaluation Source-A 的 focused regression、全量回归审计与 source-only validator；当前冻结
+  16/48/144/448 denominator、variable-`n` heuristics、49/97 policy schedule、all-selections-before-label firewall
+  与 9+4 two-commit publication，不代表已读取 fresh data；
+- [x] 将上述 fresh-16 Source-A 作为 focused commit push 到 canonical `main`；
+- [ ] 从 clean pushed A 机械生成并单独 push runner-freeze B；
 - [ ] 对已冻结 ensemble 执行一次性 fresh-16 primary GO，报告封存后再做 combined-21 compatibility guard；
 - [ ] 仅在 selector/set-conditioning GO 后冻结 post-GO contract，再运行 matched-NLL、closed-loop 与 confirm；
 - [ ] 整理论文与复现实验配置。
@@ -873,6 +888,9 @@ $$
 - Gate v1 formal-train source validator: [`code/scripts/validate_gate_v1_formal_train_contract.py`](code/scripts/validate_gate_v1_formal_train_contract.py)
 - Gate v1 formal-train manager: [`code/scripts/manage_gate_v1_formal_train.py`](code/scripts/manage_gate_v1_formal_train.py)
 - Gate v1 trainer/evaluator execution: [`docs/gate_v1_execution.md`](docs/gate_v1_execution.md)
+- Gate v1 fresh-16 evaluation protocol: [`docs/gate_v1_fresh16_evaluation.md`](docs/gate_v1_fresh16_evaluation.md)
+- Gate v1 fresh-16 Source-A config: [`code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json`](code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json)
+- Gate v1 fresh-16 source validator: [`code/scripts/validate_gate_v1_fresh16_evaluation_contract.py`](code/scripts/validate_gate_v1_fresh16_evaluation_contract.py)
 - Gate v1 synthetic-only smoke: [`code/scripts/run_gate_v1_trainer_smoke.py`](code/scripts/run_gate_v1_trainer_smoke.py)
 - Label-expansion exposure protocol: [`docs/restoration_v2_2_label_expansion_exposure.md`](docs/restoration_v2_2_label_expansion_exposure.md)
 - Label-expansion exposure materializer: [`code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py`](code/scripts/materialize_restoration_v2_2_label_expansion_exposure.py)
@@ -1076,6 +1094,7 @@ $$
 | Restoration v2.2-eager fresh-45 trace | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-v2-2-eager-full-45-substrate-mobile> | `v2.2-eager-full-45-substrate-v1` / `3577099d505b8c652d764f41269df911128ec767`，private | 45/45 parse/repeat/finite logits、45 memory-sensitive；`PASS_V2_2_EAGER_FULL_45_SUBSTRATE`；raw USTAR SHA256 `b22827e6...09fb5`、fresh immutable download verified |
 | Restoration v2.2 exact labels | <https://huggingface.co/datasets/gavinlaw/causalcache-restoration-labels-mobile> | `v2.2-eager-train-dev-exact-v2` / `8f6baae5c0b23b08915fa1b0fb848dd519b4c8db`，private | v1 zero-forward `INVALID`；v2 已完成 45 states、420 raw `D(S)` rows、45 exact-subset oracle、435 deployment conditional marginals；fresh immutable download verified |
 | Gate v1 formal-58 selector ensemble | [private HF model](https://huggingface.co/gavinlaw/causalcache-gate-v1-formal58-selector-mobile)；[completion record](data/results/gate_v1_formal58_train_v1/) | tag `gate-v1-formal58-train-v1` → manifest commit `23f6786075c7bff91f93fd7e8a878e070efb72a9`；annotated tag `fa85e746...b4d6` | 5 conditional + 5 independent checkpoints、2 full OOF reports、4 manifests；immutable replay 0 mutation；fresh-16/legacy dev-5/confirm/matched-NLL/closed-loop 仍 locked |
+| Gate v1 fresh-16 primary evaluation | planned private HF dataset `gavinlaw/causalcache-gate-v1-fresh16-evaluation-mobile`；[Source-A protocol](docs/gate_v1_fresh16_evaluation.md) | Source-A config `c98647...dff2e`；预定 tag `gate-v1-fresh16-evaluation-v1`，尚无 immutable revision | source-only validator 37-path/全零 operation；真实 fresh semantic access 与 GO result 都为 0。必须先 push A→机械 freeze/push B→唯一 run→9-target payload + 4-target report/replay |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

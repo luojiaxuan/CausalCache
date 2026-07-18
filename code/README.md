@@ -197,6 +197,50 @@ remote mutation count 为 `0`。完整 SHA/operation counts 见
 `data/results/gate_v1_formal58_train_v1/`。fresh-16、legacy dev-5、confirm、matched-NLL 与 closed-loop 仍 locked；
 下一步必须新建 fresh-16 evaluation Source-A，不能修改或重跑 formal trainer。
 
+fresh-16 evaluation 的 Source-A machine-readable contract 是
+`configs/causalcache_gate_v1_fresh16_evaluation_v1.json`，执行与 publication 边界见
+`../docs/gate_v1_fresh16_evaluation.md`；config SHA256 为
+`c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e`。它精确冻结 16 trajectories / 48 states / 144 candidate features /
+448 distances，derived selective rows `[48,64)`、label selective rows `[144,192)`，以及 `n=2/3/4,B=2` 的
+dynamic recent、OCR/RGB 与 policy-vision comparator。新 heuristic path 必须在 `n=4` 上与旧 artifact 完全兼容，
+不能调用 generic full-transport reader。
+
+Source-A validator 与 focused tests 为：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.validate_gate_v1_fresh16_evaluation_contract \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json
+PYTHONPATH=. python3 -m unittest \
+  tests.test_gate_v1_fresh16_evaluation_contract \
+  tests.test_gate_v1_fresh16_data \
+  tests.test_gate_v1_fresh16_heuristics \
+  tests.test_gate_v1_fresh16 \
+  tests.test_gate_v1_fresh16_policy_vision \
+  tests.test_gate_v1_fresh16_evaluation_runner \
+  tests.test_gate_v1_pipeline -v
+```
+
+config-only validator 必须保持 network/write/torch/fresh semantic access 全零并返回 execution authorization=false。
+Source-A commit push 后还必须从 clean canonical `main` 运行：
+
+```bash
+cd code
+PYTHONPATH=. python3 -m scripts.manage_gate_v1_fresh16_evaluation validate-source \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json \
+  --source-a-git-commit <FULL_CLEAN_PUSHED_SOURCE_A_SHA>
+```
+
+未来 B 的 policy phase 固定两张 H200、49 processor batches、97 vision forwards；所有 learned/heuristic
+ensemble/5-seed selections 与 conditional full decision trace 必须先 durable seal，再允许读取 48 label states；
+label 解封后只运行 pure sealed-decision evaluator。HF 输出必须先发布精确 9-target payload commit，
+再以 direct-child 4-target report commit + annotated tag 封存并 immutable replay；primary report 在旧 dev-5
+任何 access 之前完成。本 Source-A 的 focused suite 已通过，config-only validator 返回 37-path/全零 operation
+inventory；当前尚未读取真实 fresh-16，也没有 GO result。下一步是 commit/push A，再机械生成并单独 push 唯一
+runner-freeze B。
+
 Expansion exposure 的 source-only ledger 位于
 `causalcache.restoration_v2_2_label_expansion_exposure`。它按 counts/digests 证明 expansion-64 与 prior-output-23、
 sealed-confirm-20 的六组交集为空，并可动态绑定落盘后的 structural manifest。focused tests：

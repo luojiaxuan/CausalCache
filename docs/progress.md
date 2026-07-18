@@ -11,7 +11,10 @@ USTAR 与 private HF immutable revision 已完成 fresh-download 复核。restor
 preflight 缺陷在 0 state / 0 forward 时永久封存为 `INVALID`；replacement v2 已完成 45/45 states，并闭合
 420-row raw distance table、45 个 exact-subset oracle、435 条 deployment conditional-marginal labels 与 private
 HF immutable artifact。当前已有 offline teacher labels、oracle 上界与 10 个 immutable learned gate checkpoint，
-但仍没有 fresh-16 GO、matched-NLL pairs、closed-loop 方法效果或 confirm policy output。selector geometry 的 versioned reporting repair 已完成并支持
+formal model seal 已闭合；fresh-16 evaluation Source-A 已冻结 exact 16/48/144/448 denominator、variable-`n`
+heuristics、双 H200 49-batch/97-forward schedule、all-selections-before-label firewall 与 9+4 two-commit publication。
+但真实 fresh-16 semantic access 仍为 0，也仍没有 fresh-16 GO、matched-NLL pairs、closed-loop 方法效果或
+confirm policy output。selector geometry 的 versioned reporting repair 已完成并支持
 `set_conditioned_main_candidate + online_greedy_sufficient`；primary `n=4,B=2` OCR/RGB baseline v1 首次
 Hyper00 attempt 在零 feature-score 阶段因 identity lexer 错误要求每行字段只出现一次而 `INVALID`。replacement
 v2 只修 trajectory=`2` / OCR=`1` 的 exact occurrence profile，已在 Hyper00 完成 15-state formal aggregate、
@@ -40,8 +43,10 @@ REVALIDATED`，但原 producer 不重分类。repaired archive+sidecar 已发布
 immutable commit 为 `7a6c254b8cec0dd3d8111dfc9c080de357e5cef3`，幂等 replay 与独立只读 postflight 均通过。
 formal-58 label-data prerequisite 已满足，train-only repair cache 与 formal training 均完成 private-HF immutable
 replay。Source-A=`e20f004…b9`、唯一 Execution-B=`bad28b7…a2f2` 已闭合 20 个 OOF trials、100 条 fold
-tracks 与 10 个 final checkpoint；下一步是先冻结 fresh-16 evaluation Source-A，再进行唯一 primary GO。尚未
-打开 fresh-16、旧 dev-5 或 confirm。
+tracks 与 10 个 final checkpoint；fresh-16 evaluation Source-A 代码与 source-only validation 已闭合，下一步是
+commit/push A、机械 freeze/push B，再进行唯一 primary GO。尚未打开 fresh-16、旧 dev-5 或 confirm。fresh
+Source-A 的当前说明见 [`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md)；在 A commit/push 与机械 B freeze/push 前，
+任何真实 fresh input 都不能读取。
 
 ### 2026-07-17：正式 gate 数据扩展启动
 
@@ -2219,10 +2224,13 @@ exact labels、ledger-neutral repair 与 repaired-label private-HF publication �
 execution 仍永久 pre-semantic fail-closed；其 one-leaf transport-repair 已从 Source-A/Execution-B 完成 Hyper00
 no-GPU cache build、exact-three private-HF publication、fresh immutable replay 与只读 revalidation。formal-58
 cache 已被唯一 formal training B 消费；OOF/final fit、10-checkpoint private-HF publication 与只读 replay 均闭合。
-当前仍没有 fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。下一步先把 model seal 作为 immutable input
-绑定进新的 fresh-16 evaluation Source-A，同时冻结 variable-`n` heuristic 与 selective fresh loader；Source-A
-push 后才机械生成唯一 B 并进行一次性 primary GO。不得依据 train-only OOF 改 architecture、LR、epoch、loss、
-threshold 或 seed，也不得把 combined-21 混入同一 execution。
+当前仍没有 fresh-16/旧 dev-5/matched-NLL/closed-loop/confirm run。fresh-16 Source-A 当前正把 model seal
+作为 immutable input，并冻结 exact 16 trajectories / 48 states / 144 candidate features / 448 distances、
+variable-`n` heuristic、selective fresh loader、两张 H200 的 49 processor batches / 97 vision forwards、
+selection-before-label firewall 与 9-target payload + 4-target report direct chain。下一步先完成 focused/full
+regression并 commit/push A，再机械生成唯一 B 并单独 push，最后才运行一次性 primary GO。primary report 必须先
+hash/tag/immutable replay，之后才能另立 combined-21 stage 读取旧 dev-5。不得依据 train-only OOF 改
+architecture、LR、epoch、loss、threshold 或 seed，也不得把 combined-21 混入同一 execution。
 
 ### 2026-07-16：gate v1 preregistration source freeze
 
@@ -2601,3 +2609,36 @@ threshold 或 seed，也不得把 combined-21 混入同一 execution。
   硬编码 `n=4,B=2`，而 fresh-16 含 `n=2/3/4`；因此下一阶段必须在任何 fresh semantic access 前冻结
   variable-`n` recent/OCR-RGB/policy-vision 语义与 n=4 compatibility test，并新增只解析 fresh rows 的 selective
   loader。fresh primary 封存/replay 后，才能另立 combined-21 contract 打开旧 dev-5。
+
+### 2026-07-17：fresh-16 primary evaluation Source-A 冻结
+
+- 新增 machine-readable Source-A contract
+  `code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json`，精确绑定 preregistration、formal model
+  completion、10 个 checkpoint、derived input、repaired-label input 与 GUI-Owl snapshot；formal model seal 不可
+  因 fresh evaluation 修改或重训；
+- 冻结 fresh roster digest 与 16 trajectories / 48 states / 144 candidate feature occurrences / 448 distances /
+  464 deployment conditional edges。trajectory selective reader 只允许 rows `[48,64)`，label selective reader
+  只允许 rows `[144,192)`；generic full semantic reader 被拒绝；
+- 新增 `n=2/3/4,B=2` 的 dynamic recent、OCR/RGB 与 policy-vision natural extension，并要求 `n=4` 与旧
+  comparator score/order/selection 完全兼容；conditional learned selector 保持 coalition-conditioned rescore，
+  independent 保持 one-shot；
+- 冻结未来双 H200 policy phase 为 2 workers × 24 states、49 processor batches、97 vision feature forwards 与
+  292 cosine scalar transfers。这里只是 operation contract；本 Source-A 没有 model load、forward 或 GPU job；
+- label firewall 要求 feature/heuristic/learned selections 全部完成 local durable seal 后，才创建 label-access
+  claim并读取 48 label states。旧 dev-5、confirm、matched-NLL、closed-loop 在整个 primary execution 中保持
+  0；
+- publication 固定为 9-target payload commit 后接 direct-child 4-target report commit，annotated tag 只指向
+  report commit，13 files 必须 immutable fresh-download byte replay。primary report 完成、hash 与 replay 之前，
+  不得打开旧 dev-5；
+- label-firewall 进一步封存 conditional/independent ensemble 与全部五 seed decisions；conditional artifact 保存每轮
+  candidate score vector、add/stop 与 coalition transition。label 解封后只允许 pure sealed-decision evaluator；
+  report commit 前先做 local 13-file replay，远端 replay 再加载 10 checkpoints 并用刚加载的 formal provenance
+  byte-rebuild learned/report/state artifacts；
+- config SHA256 为 `c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e`；source-only
+  validator 返回 37-path inventory，network/write/torch import/fresh semantic decode/model/report 全部为 0，且
+  `evaluation_executed=false`、`execution_authorized=false`。focused fresh16/pipeline/formal suite 为 101 passed、
+  2 skipped、62 subtests；全 `code/tests` 的 1197 passed/16 skipped 后仅有两个历史 formal Source-A absence test
+  因 repo 已合法存在 formal Execution-B 而失败，与本 fresh diff 无关；
+- 当前尚未读取任何真实 fresh-16 trajectory/OCR/image/label，也没有 GO verdict。下一步是 commit/push
+  Source-A；随后从 clean A 机械生成唯一 runner-freeze B 并单独 commit/push，最后才在两张 H200 上运行。完整说明见
+  `docs/gate_v1_fresh16_evaluation.md`。

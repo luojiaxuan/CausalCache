@@ -6,7 +6,8 @@
 > 已满足；formal-58 train-only feature/label cache 也已经 transport-repair Source-A/Execution-B 完成
 > private-HF publication 与只读 immutable replay，`formal58_training_input_eligible=true`。formal-train
 > Source-A=`e20f004…b9`、Execution-B=`bad28b7…a2f2` 与正式 model seal 已完成；不能用临时 Python 重跑
-> `run_formal_oof` 或据 train-only OOF 调整模型。
+> `run_formal_oof` 或据 train-only OOF 调整模型。fresh-16 evaluation Source-A 当前正在冻结，但还没有
+> commit/push A、runner-freeze B 或正式 evaluation；真实 fresh semantic access 与 GO result 仍为 0。
 
 本文件是 [`gate_v1_preregistration.md`](gate_v1_preregistration.md) 的执行说明。冻结阈值、roster、模型、loss、
 OOF 与访问顺序仍以
@@ -34,6 +35,16 @@ machine-readable contract；本次实现不改变任何已冻结选择。
   Execution-B 上进入正式 CPU-only state machine；
 - [`validate_gate_v1_formal_train_contract.py`](../code/scripts/validate_gate_v1_formal_train_contract.py)：Source-A-only
   config/source/hash validator，不读 formal semantics、不访问 HF、不写 state 且不授权训练。
+- [`gate_v1_fresh16_data.py`](../code/causalcache/gate_v1_fresh16_data.py)：只接受 derived rows `[48,64)` 与
+  repaired-label rows `[144,192)` 的 selective reader，拒绝全 transport semantic decode；
+- [`gate_v1_fresh16_heuristics.py`](../code/causalcache/gate_v1_fresh16_heuristics.py)：`n=2/3/4,B=2` 的
+  deterministic recent/OCR-RGB/policy-vision selection 与 `n=4` compatibility；
+- [`gate_v1_fresh16.py`](../code/causalcache/gate_v1_fresh16.py) 与
+  [`gate_v1_fresh16_policy_vision.py`](../code/causalcache/gate_v1_fresh16_policy_vision.py)：48-state label-blind
+  artifact builder、80-image plan 与 variable-image-count GUI-Owl vision runtime；
+- [`gate_v1_fresh16_evaluation_contract.py`](../code/causalcache/gate_v1_fresh16_evaluation_contract.py) 与
+  [`validate_gate_v1_fresh16_evaluation_contract.py`](../code/scripts/validate_gate_v1_fresh16_evaluation_contract.py)：
+  fresh Source-A config/source/hash/operation/publication validator，零网络、零写入且不授权执行。
 
 `source_id` 与 `state_id` 只用于 cache join、roster firewall 和聚合；它们不进入输入 tensor。feature cache
 不含 `D(S)`、marginal、oracle、role 或 split；label cache 不含 instruction、OCR、low-fidelity semantic feature。
@@ -204,11 +215,25 @@ provenance、十个 checkpoint、fresh-16 feature/label artifact、三个 heuris
 
 该 report 不授权 confirm、matched-NLL 或 closed-loop。
 
-当前实现审计发现旧 heuristic runner 只接受 `n=4,B=2`，而 fresh-16 同时包含 `n=2/3/4`。因此任何 fresh
-semantic access 前，新 Source-A 必须冻结 variable-`n` 的自然推广：recent 取最后 `min(B,n)` 个 event；
-OCR/RGB 与 policy-vision 对全部 candidate 使用原 similarity/tie rule 后取 `min(B,n)`，并用 `n=4`
-compatibility test 证明与旧 artifact 完全一致。fresh selective loader 也只能解析 expansion rows `48:64` /
-label rows `144:192`，不能复用会读取 train 或全 transport semantics 的 generic reader。
+当前 Source-A 正在冻结上述 variable-`n` 自然推广：recent 取最后 `min(B,n)` 个 event；OCR/RGB 与
+policy-vision 对全部 candidate 使用原 similarity/tie rule 后取 `min(B,n)`，并用 `n=4` compatibility test
+证明与旧 artifact 完全一致。fresh selective loader 只解析 expansion rows `[48,64)` / label rows
+`[144,192)`，不能复用会读取 train 或全 transport semantics 的 generic reader。精确 denominator 是 16
+trajectories、48 states、144 candidate feature occurrences、448 `D(S)` values 与 464 deployment conditional
+edges。
+
+Source-A 还冻结未来 B 的双 H200 policy phase：2 workers 各 24 states；48 states 各做两次 same-device
+feature replay，并加入 1 个 cross-device `n=4` sentinel，所以全局恰为 49 processor batches 与 97 vision
+forwards。80 个唯一截图会产生 80 次 CPU feature decode、192 次 primary policy decode 和 5 次 sentinel decode，
+即 277 次 PIL open；exact-subset 记录为 48 个唯一 states / 96 次实际 invocation，bootstrap 为 2 条 interval ×
+10,000 resamples。这些数字是 primary generation/publication 的 planned contract；正式 completion 还要单列
+immutable replay 的 observed CPU/model counts。它们不表示 GPU job 已经运行。
+
+label firewall 要求先完成 48 feature states、三组 heuristic selection、conditional/independent learned
+selection 与 score records 的 local durable seal，之后才可创建 label-access claim、读取 48 label states 与 448
+distances。publication 必须先产生精确 9-target payload commit，再产生其 direct-child、只新增 4 targets 的
+report commit，tag 指向 report commit 并对全部 13 files 做 immutable fresh-download replay。完整协议见
+[`gate_v1_fresh16_evaluation.md`](gate_v1_fresh16_evaluation.md)。
 
 ### 4. 旧 dev-5 compatibility guard
 
@@ -237,6 +262,19 @@ PYTHONPATH=. python3 -m scripts.validate_gate_v1_contract --repository-root ..
 PYTHONPATH=. python3 -m scripts.manage_gate_v1_formal_train validate-source \
   --repository-root .. \
   --contract code/configs/causalcache_gate_v1_formal_train_v1.json
+
+# fresh-16 Source-A；零网络/零写入 config-only validation
+PYTHONPATH=. python3 -m scripts.validate_gate_v1_fresh16_evaluation_contract \
+  --repository-root .. \
+  --contract code/configs/causalcache_gate_v1_fresh16_evaluation_v1.json
+PYTHONPATH=. python3 -m unittest \
+  tests.test_gate_v1_fresh16_evaluation_contract \
+  tests.test_gate_v1_fresh16_data \
+  tests.test_gate_v1_fresh16_heuristics \
+  tests.test_gate_v1_fresh16 \
+  tests.test_gate_v1_fresh16_policy_vision \
+  tests.test_gate_v1_fresh16_evaluation_runner \
+  tests.test_gate_v1_pipeline -v
 ```
 
 上述 source-only 输出是历史 A 的零执行证明。正式 B `run` 已返回
@@ -251,5 +289,9 @@ runtime 再执行；它不需要 GPU，也不能作为 paper result。
 
 formal-train Source-A validator 也不需要 PyTorch；它只验证 config/source/hash、上游 immutable bindings、
 Execution-B absence 与访问边界；repo/tag absence 是单独的只读 Hub preflight，不由这个零网络 validator 声称。
-该历史 A 中唯一合法状态仍是 `training_executed=false` 与 `execution_authorized=false`；完成态以 B 的 immutable
-model seal 为准。下一步是新的 fresh-16 evaluation Source-A，而不是修改或重跑 formal trainer。
+该历史 formal-train A 中唯一合法状态仍是 `training_executed=false` 与 `execution_authorized=false`；完成态以
+formal B 的 immutable model seal 为准。fresh Source-A 同样只能返回 `evaluation_executed=false`、
+`fresh16_access_authorized=false` 与 `execution_authorized=false`。当前 fresh config SHA256 为
+`c98647aecf6b07e0ccccf1601b5e21289b595b7a4a45cc7ab9a542b1bd7dff2e`，config-only validator 已返回 37-path
+inventory 与全部 operation=0；下一步是 commit/push fresh A，再从 clean pushed A 机械 freeze 并单独 push B。
+这不是修改或重跑 formal trainer，也不能在 B 前试读 fresh data。

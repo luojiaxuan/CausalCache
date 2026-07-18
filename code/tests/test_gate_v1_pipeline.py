@@ -33,6 +33,7 @@ from causalcache.gate_v1_evaluation import (
     canonical_report_sha256,
     evaluate_combined21_compatibility,
     evaluate_primary_slice,
+    evaluate_primary_slice_from_sealed_decisions,
     type7_quantile,
     validate_evaluation_roster,
 )
@@ -708,6 +709,14 @@ class GateV1ProvenanceTest(unittest.TestCase):
         self.assertNotIn("conditional_scores", parameters)
         self.assertNotIn("independent_scores", parameters)
         self.assertNotIn("bootstrap_resamples", parameters)
+        pure_parameters = inspect.signature(
+            evaluate_primary_slice_from_sealed_decisions
+        ).parameters
+        self.assertNotIn("conditional_ensemble", pure_parameters)
+        self.assertNotIn("independent_ensemble", pure_parameters)
+        self.assertNotIn("conditional_scores", pure_parameters)
+        self.assertNotIn("independent_scores", pure_parameters)
+        self.assertNotIn("bootstrap_resamples", pure_parameters)
         combined_parameters = inspect.signature(
             evaluate_combined21_compatibility
         ).parameters
@@ -723,6 +732,31 @@ class GateV1EvaluationTest(unittest.TestCase):
     @staticmethod
     def _independent_score(_state, event, _coalition):
         return float(event)
+
+    @classmethod
+    def _sealed_decisions(cls, states):
+        conditional = {}
+        traces = {}
+        independent = {}
+        conditional_seeds = [dict() for _ in range(5)]
+        independent_seeds = [dict() for _ in range(5)]
+        for state in states:
+            selected, trace = select_conditional(state, cls._conditional_score)
+            conditional[state.state_id] = selected
+            traces[state.state_id] = trace
+            independent[state.state_id] = select_independent(
+                state, cls._independent_score
+            )
+            for seed in range(5):
+                conditional_seeds[seed][state.state_id] = selected
+                independent_seeds[seed][state.state_id] = independent[state.state_id]
+        return {
+            "conditional_selections": conditional,
+            "conditional_traces": traces,
+            "independent_selections": independent,
+            "conditional_seed_selections": tuple(conditional_seeds),
+            "independent_seed_selections": tuple(independent_seeds),
+        }
 
     def test_fresh16_go_statistics_and_combined_guard(self) -> None:
         primary_ids = ROSTERS["fresh_development"]
@@ -835,6 +869,57 @@ class GateV1EvaluationTest(unittest.TestCase):
                 independent_provenance=alternate_provenance,
                 evaluation_feature_artifact=_artifact("combined21-feature"),
                 evaluation_label_artifact=_artifact("combined21-label"),
+            )
+
+        decisions = self._sealed_decisions(primary_states)
+        with (
+            patch(
+                "causalcache.gate_v1_evaluation.model_score",
+                side_effect=AssertionError("pure evaluation touched a model"),
+            ),
+            patch(
+                "causalcache.gate_v1_evaluation.select_conditional",
+                side_effect=AssertionError("pure evaluation reran conditional selection"),
+            ),
+            patch(
+                "causalcache.gate_v1_evaluation.select_independent",
+                side_effect=AssertionError("pure evaluation reran independent selection"),
+            ),
+        ):
+            replayed = evaluate_primary_slice_from_sealed_decisions(
+                primary_states,
+                expected_source_ids=primary_ids,
+                heuristics=heuristics,
+                provenance_payload=primary["provenance"],
+                **decisions,
+            )
+        self.assertEqual(replayed, primary)
+
+        malformed = copy.deepcopy(decisions)
+        first_state_id = primary_states[0].state_id
+        malformed_trace = list(malformed["conditional_traces"][first_state_id])
+        malformed_trace[0] = (malformed_trace[0][0], 0.0)
+        malformed["conditional_traces"][first_state_id] = tuple(malformed_trace)
+        with self.assertRaises(ValueError):
+            evaluate_primary_slice_from_sealed_decisions(
+                primary_states,
+                expected_source_ids=primary_ids,
+                heuristics=heuristics,
+                provenance_payload=primary["provenance"],
+                **malformed,
+            )
+
+        missing_seed = dict(decisions)
+        missing_seed["conditional_seed_selections"] = missing_seed[
+            "conditional_seed_selections"
+        ][:-1]
+        with self.assertRaises(ValueError):
+            evaluate_primary_slice_from_sealed_decisions(
+                primary_states,
+                expected_source_ids=primary_ids,
+                heuristics=heuristics,
+                provenance_payload=primary["provenance"],
+                **missing_seed,
             )
 
     def test_tampered_primary_cannot_unlock_compatibility(self) -> None:
