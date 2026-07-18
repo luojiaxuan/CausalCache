@@ -12,18 +12,27 @@
 > canonical report 为 private HF commit `a0b408e58d629299be334a74ecbd0ec2fa2ed1fc`。协议见
 > [`docs/independent_confirm_continuation_v1.md`](docs/independent_confirm_continuation_v1.md)。
 
-> Active diagnostic: 正在对已经消费的 confirm-20 做一次只读 oracle-independent `J` failure
-> decomposition：用完整 `D(S)` 重放真实 independent projected target，并与 exact、OCR/RGB 和 learned
-> independent `I` 比较。该步骤只区分“projection objective ceiling”与“student
-> distillation/generalization”两类失败，不是新的 confirm GO，不会解锁 closed-loop 或 matched-NLL。冻结定义与
-> 边界见
+> Completed diagnostic: 已完成 confirm-20 的只读 oracle-independent `J` failure decomposition。raw utility
+> sum 为 exact=`0.856431`、OCR/RGB=`0.783268`、`J=0.765311`、learned `I=0.703385`；`J-OCR` raw
+> mean=`-0.000898`，因此正式为 `CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB`。`J-I` 的 paired 90%
+> interval=`[+0.000477,+0.006533]`，证明 student gap 存在，但 projection ceiling 已经低于 strongest
+> heuristic，student 不是唯一 blocker。结果见
+> [`data/results/independent_confirm20_failure_decomposition_v1/`](data/results/independent_confirm20_failure_decomposition_v1/)，协议与边界见
 > [`docs/independent_confirm_failure_decomposition_v1.md`](docs/independent_confirm_failure_decomposition_v1.md)。
 
-> Current route: `NO_V2_CONDITIONAL_RESCUE` 与 independent confirm `NO-GO` 都保留。现有 frozen selector
-> 主线已经到达停止条件，不进入原计划的 closed-loop；exact restoration oracle 仍恢复 substantial utility，
-> 但当前 learned restoration supervision 未在 untouched confirm 上得到支持，
-> 不能再用这 20 条 holdout 对当前模型做 rescue。下一步是整理可发表的 negative/diagnostic evidence，或另立
-> 新机制、新数据与新 untouched holdout 的 versioned study，而不是继续调本次 confirm。完整门槛与权限链见
+> Active direction: 已识别出旧 admission chain 的 estimand mismatch：confirm-20 测每条 trajectory 的单个
+> step-6 restoration state，不能单独替代 repeated online memory control 的 terminal success。历史 NO-GO 不变；
+> 另立 outcome-exposed、development-only 的 AndroidWorld validation-12 directional probe，固定 12 templates ×
+> 5 arms、每一步重新选 memory，并按 short/medium/long 报告。它不会打开 sealed test 或 matched-NLL；正结果也
+> 只能进入新的 train-60 contract。协议见
+> [`docs/exploratory_closed_loop_validation12_v1.md`](docs/exploratory_closed_loop_validation12_v1.md)。
+
+> Current route: `NO_V2_CONDITIONAL_RESCUE`、independent confirm `NO-GO` 与
+> `CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB` 都保留。现有 frozen selector 已到达原 v1 admission
+> chain 的停止条件，不能再用已消费的 confirm-20 调 objective、student、threshold 或 comparator；exact
+> restoration oracle 仍有 signal，但 independent projection ceiling 低于 OCR/RGB。该结论不外推为 repeated
+> closed-loop terminal-success 已被证伪。新的 validation-12 只独立测试 task-level estimand，不能替代
+> untouched holdout 或进入 paper primary table。完整历史门槛见
 > [`docs/independent_confirm_closed_loop_v1.md`](docs/independent_confirm_closed_loop_v1.md)。
 
 > Gate data status: 旧 train-10 只允许与新 train-48 合并为 formal-58，不能单独产出 metric；原 preregistration
@@ -943,6 +952,8 @@ mediation effect。
 - [x] 从 clean pushed continuation Source-A 机械生成唯一 Execution-B，并在 Hyper00 四张 H200 上完成 fresh
   topology、原冻结 restoration/report、private-HF report/tag 与 immutable replay；有效结果为
   `NO_GO_INDEPENDENT_CONFIRM`，因此 paired closed-loop、matched-NLL 与 sealed test 未执行；
+- [x] 完成 consumed confirm-20 的 oracle-independent `J` failure decomposition；`J` 显著高于 learned `I`，
+  但 raw-primary 仍低于 OCR/RGB，正式为 `CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB`；
 - [ ] 整理论文与复现实验配置。
 
 ## Source of Truth
@@ -958,6 +969,12 @@ mediation effect。
 - Independent confirm continuation protocol: [`docs/independent_confirm_continuation_v1.md`](docs/independent_confirm_continuation_v1.md)
 - Independent confirm continuation result:
   [`data/results/independent_confirm20_continuation_v1/`](data/results/independent_confirm20_continuation_v1/)
+- Independent confirm failure-decomposition protocol/result:
+  [`docs/independent_confirm_failure_decomposition_v1.md`](docs/independent_confirm_failure_decomposition_v1.md),
+  [`data/results/independent_confirm20_failure_decomposition_v1/`](data/results/independent_confirm20_failure_decomposition_v1/)
+- Independent confirm failure-decomposition Source-A/Execution-B:
+  [`code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json`](code/configs/causalcache_independent_confirm20_failure_decomposition_v1.json),
+  [`code/configs/causalcache_independent_confirm20_failure_decomposition_runner_v1.json`](code/configs/causalcache_independent_confirm20_failure_decomposition_runner_v1.json)
 - Independent confirm continuation contract and source validator:
   [`code/configs/causalcache_independent_confirm_continuation_v1.json`](code/configs/causalcache_independent_confirm_continuation_v1.json),
   [`code/scripts/validate_independent_confirm_continuation.py`](code/scripts/validate_independent_confirm_continuation.py)
@@ -1217,6 +1234,7 @@ mediation effect。
 | Gate v1 fresh-16 primary evaluation | [protocol](docs/gate_v1_fresh16_claim_serialization_repair.md)；[completion record](data/results/gate_v1_fresh16_claim_serialization_repair_v1/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-gate-v1-fresh16-claim-serialization-repair-mobile) | claim repair A=`f0dd53b` / B=`ce523ff`；tag `gate-v1-fresh16-claim-serialization-repair-v1` → report commit `3541fe1ea2c46e555c29cc53483e6f3b809f8f81`；annotated tag object `34d5928...c4339` | `COMPLETED + REVALIDATED`；conditional normalized/exact=`0.6942`、raw/exact=`0.9431`、vs strongest heuristic delta=`+0.3261`；selector `NO-GO`、set-conditioning `NO-GO`；当时 confirm/matched-NLL/closed-loop locked，后续 confirm 终态见下行 |
 | Independent confirm-20 v1 attempt | [contract](code/configs/causalcache_independent_confirm_closed_loop_v1.json)；[protocol](docs/independent_confirm_closed_loop_v1.md)；[failure evidence](data/results/independent_confirm20_v1_attempt/)；[private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-independent-confirm20-mobile) | A=`e1cc8b3`，B=`f1e9196`；payload `6d0cd959...9f52d`；旧 attempt tombstone 时 tag/report absent | 20-state label-blind payload 已 seal/replay；restoration 在 reference output 0 时因 CUDA-after-fork 失效。永久 execution `INVALID`，无科学结论；当时 closed-loop locked，只允许采用 exact payload 的 versioned continuation |
 | Independent confirm-20 restoration continuation v1 | [contract](code/configs/causalcache_independent_confirm_continuation_v1.json)；[protocol](docs/independent_confirm_continuation_v1.md)；[result](data/results/independent_confirm20_continuation_v1/)；[private HF report](https://huggingface.co/datasets/gavinlaw/causalcache-independent-confirm20-mobile/tree/a0b408e58d629299be334a74ecbd0ec2fa2ed1fc/independent-confirm20/v1/report) | A=`8c0d3ae`，B=`68e71fd`；payload `6d0cd959...9f52d` → report `a0b408e5...d1fc`；tag `independent-confirm20-v1` | `COMPLETED_AND_PUBLISHED`；20/20 memory-sensitive，但 independent/exact raw=`0.8213 < 0.85` 且弱于三个 heuristic；有效 `NO_GO_INDEPENDENT_CONFIRM`，closed-loop/matched-NLL/sealed test 未执行 |
+| Independent confirm-20 oracle-independent failure decomposition | [protocol](docs/independent_confirm_failure_decomposition_v1.md)；[result](data/results/independent_confirm20_failure_decomposition_v1/)；[private HF child](https://huggingface.co/datasets/gavinlaw/causalcache-independent-confirm20-failure-decomposition-mobile/tree/31aa5e22c08a3d56bc729fcbc88d790cce4249c0) | A=`d3451db`，B=`9f20e4b`；tag `independent-confirm20-failure-decomposition-v1` → report commit `31aa5e22...49c0`；annotated tag object `a7d6838d...d450` | `CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB`；exact/OCR/`J`/`I` raw=`0.8564/0.7833/0.7653/0.7034`；student gap 存在但 projection ceiling 已低于 OCR，停止同 objective rescue；closed-loop/matched-NLL 继续 locked |
 
 Pilot 的生成配置见 [`code/configs/guiodyssey_pilot.json`](code/configs/guiodyssey_pilot.json)，independent
 artifact 见 [`code/configs/independent_reference_gate_v1.json`](code/configs/independent_reference_gate_v1.json)。

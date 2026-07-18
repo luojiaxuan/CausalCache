@@ -2,25 +2,56 @@
 
 ## 当前目标
 
-2026-07-18 起，论文主线改为 **restoration-guided independent gate**，并已完成一次性 untouched
-confirm-20。有效结果为 `NO_GO_INDEPENDENT_CONFIRM`：20/20 reference 与 memory-sensitive checks 通过，但
-independent / exact raw utility ratio=`0.821298 < 0.85`，且 independent 对三个冻结 heuristic 的 raw mean
-delta 均为负。set-conditioned v1 的 `NO_V2_CONDITIONAL_RESCUE` 同时保持不变。按冻结权限链，AndroidWorld
-paired closed-loop、matched-NLL 与 sealed test 均未执行并继续 locked。当前目标改为固化本次 negative/
-diagnostic evidence、整理论文边界，并决定是否另立新机制、新数据与新 untouched holdout；不在已消费的
-fresh-16 或 confirm-20 上继续调 feature、loss、seed、阈值或 comparator。
+2026-07-18 起，restoration-guided independent gate 的 untouched confirm-20 与只读 oracle-independent
+`J` decomposition 均已完成。有效结果分别为 `NO_GO_INDEPENDENT_CONFIRM` 与
+`CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB`：当前 student 未稳定泛化 single-state restoration objective，
+且 independent projection ceiling 在 confirm 上低于 OCR/RGB；set-conditioned v1 的
+`NO_V2_CONDITIONAL_RESCUE` 同时保持不变。这些结论不重分类，也不再用已消费 holdout 调参。
 
-### 2026-07-18：confirm-20 oracle-independent failure decomposition Source-A 准备
+当前另立一个 outcome-exposed、development-only validation-12 closed-loop directional probe，独立检验 repeated
+memory control 的 task-level terminal-success estimand。它不访问 sealed test，不执行 matched-NLL，不进入 paper
+primary table；正结果最多支持新的 train-60 contract。
 
-- 新步骤只读重放已经消费的 confirm-20 完整 `D(S)`，比较 exact、真实 independent projected target `J`、
-  learned independent `I` 与 strongest OCR/RGB；不产生新的 policy/restoration output，不训练 gate；
+### 2026-07-18：confirm-20 oracle-independent failure decomposition 完成
+
+- Source-A=`d3451db74d7bdd415455b87a91718bbedfcd0884`，唯一单文件 Execution-B=
+  `9f20e4b55c5e69ae1b1c26d58cd7c52bdd5e0af3`；config/runner SHA256 分别为
+  `e522f5ca…cf020` / `88a98b42…b25d`。Hyper00 无 GPU container 只读重放已经消费的 confirm-20 完整
+  `D(S)`；不产生 policy/restoration output，不训练 gate；
 - `J` 逐字复用既有 budget-conditioned independent target：empty marginal 与其他 singleton-base conditional
   marginals 各占一半，strict-positive top-2，score 同分取较小 event id；
-- primary 继续使用父 confirm 的 raw utility。Case B 还必须同时通过 `J-OCR` raw mean、trajectory bootstrap
-  lower、`12/20` support，并保持父 learned `I` 低于 OCR；否则停止当前 independent objective rescue；
+- exact/OCR/`J`/`I` raw utility sum=`0.856431/0.783268/0.765311/0.703385`。`J-OCR` raw
+  mean=`-0.000898`、paired 90% interval=`[-0.006370,0.004145]`、support=`10/20`，正式得到
+  `CASE_A_ORACLE_INDEPENDENT_LOSES_TO_OCR_RGB`；
+- `J-I` raw mean=`+0.003096`、paired 90% interval=`[+0.000477,+0.006533]`，说明 distillation gap 明确存在；
+  但修复 student 最多逼近仍低于 OCR 的 `J`，所以 projection 与 student 两层都有损失；
+- private HF child report commit=`31aa5e22c08a3d56bc729fcbc88d790cce4249c0`，annotated tag object=
+  `a7d6838d32e217162d99a41a7b51939bc2c5d450`。run/独立 validate 均完成 exact-three fresh replay，validate
+  remote mutation=`0`、local write=`0`；
 - 该分解不是新 GO，不能改变父 `NO_GO_INDEPENDENT_CONFIRM`，也不能解锁 closed-loop、matched-NLL、sealed
-  test 或复用 confirm-20 做 v2 holdout。完整边界见
+  test 或复用 confirm-20 做 v2 holdout。轻量结果见
+  [`../data/results/independent_confirm20_failure_decomposition_v1/`](../data/results/independent_confirm20_failure_decomposition_v1/)，完整边界见
   [`independent_confirm_failure_decomposition_v1.md`](independent_confirm_failure_decomposition_v1.md)。
+
+### 2026-07-18：另立 development-only repeated-selection closed-loop P0
+
+- 保留 independent confirm-20 的有效 `NO_GO_INDEPENDENT_CONFIRM` 与 oracle-independent `J` 的 CASE-A；其科学含义收窄为当前 learned selector
+  未稳定泛化 single-state restoration objective，不再把它外推成 terminal-success 已被证伪；
+- 新协议把 task-level estimand 独立出来：AndroidWorld validation 中 12 templates、5 arms、60 episodes，每个
+  arm 独立 reset，并在每个 policy decision 重新构造 history、选择 at-most-2 高保真 event、生成和执行动作；
+- validation split 已用于 backbone evaluation，因此本步明确为 outcome-exposed directional probe，不能进入
+  paper primary table。正结果最多支持另立 train-60；sealed test-75 与 matched-NLL 继续 locked；
+- roster 从 fixed validation plan 的 `task_index=0` 中按 `max_steps` 分 short/medium/long，以 frozen SHA256 key
+  每层取 4 个，manifest SHA256 为
+  `8e68e6eb1adde5627e83ce07cf4e8d7cef4843250a2e1b58baa247af57a07a42`；
+- arms 固定为 independent-B2、recent-B2、OCR/RGB-B2、conditional-B2、summary-B0；conditional 只是 negative
+  ablation，不能结果后替代 independent primary；
+- source-only contract、机械 roster、任意历史 selector/prompt 与五臂 paired evaluator 已通过 72 个 P0 tests；
+  再与 live-feature、OCR/RGB、GUI-Owl v2.1 runtime 和旧 evaluator 合跑，共 `127 passed, 28 subtests passed`；
+- 当前 P0 只冻结 scientific contract、纯 selector/prompt/evaluator 和 source-only validation；live RGB OCR、
+  checkpoint loader、multi-arm runner/scheduler/package 完成 Source-A 与唯一 Execution-B 后，才可在已验证的
+  Aries 同机 policy+emulator stack 启动正式 run。完整边界见
+  [`exploratory_closed_loop_validation12_v1.md`](exploratory_closed_loop_validation12_v1.md)。
 
 ### 2026-07-18：independent confirm-20 continuation 有效 NO-GO
 

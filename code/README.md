@@ -102,6 +102,23 @@ oracle-independent `J` 并与 exact、learned `I`、OCR/RGB 对齐。该 CPU-onl
 不运行 selector/policy/restoration，也不授权 closed-loop；机器合同见
 `configs/causalcache_independent_confirm20_failure_decomposition_v1.json`。
 
+Development-only repeated-selection probe 使用
+`configs/causalcache_exploratory_closed_loop_validation12_v1.json`。它将历史 single-state confirm NO-GO 与
+task-level closed-loop estimand 分开，固定 12 templates / 5 arms / 60 episodes；当前 P0 只包含 roster、纯
+memory/prompt/evaluator 和 source-only validator，不访问 live environment、HF artifact 或 GPU。
+
+```bash
+PYTHONPATH=code .venv/bin/python \
+  code/scripts/validate_exploratory_closed_loop_contract.py \
+  --contract code/configs/causalcache_exploratory_closed_loop_validation12_v1.json \
+  --repository-root .
+PYTHONPATH=code .venv/bin/pytest -q \
+  code/tests/test_exploratory_closed_loop_contract.py \
+  code/tests/test_exploratory_closed_loop_roster.py \
+  code/tests/test_exploratory_closed_loop_memory.py \
+  code/tests/test_exploratory_closed_loop_evaluation.py
+```
+
 正式 gate 数据扩展的 policy-blind split source 位于
 `causalcache.restoration_v2_2_label_expansion`。它从既有 111-pool 精确重建 48/16 tail split，不读取
 instruction/action/image/OCR 或旧模型结果。focused test：
