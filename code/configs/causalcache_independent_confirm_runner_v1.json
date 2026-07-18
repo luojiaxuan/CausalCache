@@ -1,0 +1,284 @@
+{
+  "closed_loop_train_requires_confirm_go": true,
+  "confirm_access_authorized": true,
+  "contract_sha256": "33e5c0f856a9074cd5460f0d6f7cdda2108b120d50b208234253ff3136d27b63",
+  "loaded_module_inventory": [
+    {
+      "path": "code/causalcache/independent_closed_loop_evaluation.py",
+      "sha256": "08bf1bfa43cbfc4512e4bc441bbe496291630332f393509122da104dd3b83064",
+      "size_bytes": 20242
+    },
+    {
+      "path": "code/causalcache/independent_closed_loop_features.py",
+      "sha256": "eb6f4309d081549edda70a40292986ac04297a5153bac906f790b52003811e76",
+      "size_bytes": 14104
+    },
+    {
+      "path": "code/causalcache/independent_confirm_artifact.py",
+      "sha256": "a4352e00205e4a19f254f0d51ac3e3c98e5fcc437da5f170f90e22ea466ef8f9",
+      "size_bytes": 51118
+    },
+    {
+      "path": "code/causalcache/independent_confirm_contract.py",
+      "sha256": "ac2aa1f591e2fac1562056545131873103897739e2883a9625436b53c6271f93",
+      "size_bytes": 36665
+    },
+    {
+      "path": "code/causalcache/independent_confirm_data.py",
+      "sha256": "96312eede3b65eb27fc05d870603c8d5582e7e9bacb91ac139292f1f28ed5586",
+      "size_bytes": 28193
+    },
+    {
+      "path": "code/causalcache/independent_confirm_evaluation.py",
+      "sha256": "4dacdc9bb4f8fc13a0c4b3d45be17e6682ce0301d56d03dd0d44d836a797dbd6",
+      "size_bytes": 18324
+    },
+    {
+      "path": "code/causalcache/independent_confirm_execution.py",
+      "sha256": "84593a41752139ae01d321d6b2ec47a39d681871872c0e915e2f66fad51b7654",
+      "size_bytes": 84687
+    },
+    {
+      "path": "code/causalcache/independent_confirm_runner.py",
+      "sha256": "9dfb88bd544ff4fcff4223f32c05a4147cdcc7cc818e506900b060bf03f779e2",
+      "size_bytes": 48315
+    },
+    {
+      "path": "code/scripts/manage_independent_confirm.py",
+      "sha256": "8f51767cab9e665d172c8fc1d0900c8ebba7b5ca6107e10e70407f546cc746d4",
+      "size_bytes": 10492
+    },
+    {
+      "path": "code/scripts/run_independent_confirm.py",
+      "sha256": "8e18d6f77e4f94088435b136e506215f5ff89d3b0e902038192f20fae9a5071f",
+      "size_bytes": 23659
+    },
+    {
+      "path": "code/scripts/smoke_independent_confirm_gpu_topology.py",
+      "sha256": "02c61854227a5d5da1519342c19488acdb72433a82d755b3c4cd1be2e33dd285",
+      "size_bytes": 25221
+    },
+    {
+      "path": "code/scripts/validate_independent_confirm_contract.py",
+      "sha256": "c716bbff1142c3c38ff3005270387e9253251db023c53ecb693fc701534b242d",
+      "size_bytes": 3439
+    }
+  ],
+  "loaded_module_inventory_sha256": "5ff4368209f411157c8aadb804773a138c83b1d2e9efc40c90cd458aaf284e6b",
+  "protocol_id": "causalcache_independent_confirm_closed_loop_v1",
+  "restoration_access_requires_payload_commit": true,
+  "schema_version": "1.0.0",
+  "sealed_test_requires_development_go": true,
+  "source_a_commit": "e1cc8b3a0b8d06433674fe32652078a47b256f10",
+  "source_a_inventory": [
+    {
+      "path": "code/configs/causalcache_independent_confirm_closed_loop_v1.json",
+      "sha256": "33e5c0f856a9074cd5460f0d6f7cdda2108b120d50b208234253ff3136d27b63",
+      "size_bytes": 25128
+    },
+    {
+      "path": "code/causalcache/independent_confirm_contract.py",
+      "sha256": "ac2aa1f591e2fac1562056545131873103897739e2883a9625436b53c6271f93",
+      "size_bytes": 36665
+    },
+    {
+      "path": "code/causalcache/independent_confirm_data.py",
+      "sha256": "96312eede3b65eb27fc05d870603c8d5582e7e9bacb91ac139292f1f28ed5586",
+      "size_bytes": 28193
+    },
+    {
+      "path": "code/causalcache/independent_confirm_evaluation.py",
+      "sha256": "4dacdc9bb4f8fc13a0c4b3d45be17e6682ce0301d56d03dd0d44d836a797dbd6",
+      "size_bytes": 18324
+    },
+    {
+      "path": "code/causalcache/independent_confirm_runner.py",
+      "sha256": "9dfb88bd544ff4fcff4223f32c05a4147cdcc7cc818e506900b060bf03f779e2",
+      "size_bytes": 48315
+    },
+    {
+      "path": "code/causalcache/independent_confirm_artifact.py",
+      "sha256": "a4352e00205e4a19f254f0d51ac3e3c98e5fcc437da5f170f90e22ea466ef8f9",
+      "size_bytes": 51118
+    },
+    {
+      "path": "code/causalcache/independent_confirm_execution.py",
+      "sha256": "84593a41752139ae01d321d6b2ec47a39d681871872c0e915e2f66fad51b7654",
+      "size_bytes": 84687
+    },
+    {
+      "path": "code/causalcache/independent_closed_loop_features.py",
+      "sha256": "eb6f4309d081549edda70a40292986ac04297a5153bac906f790b52003811e76",
+      "size_bytes": 14104
+    },
+    {
+      "path": "code/causalcache/independent_closed_loop_evaluation.py",
+      "sha256": "08bf1bfa43cbfc4512e4bc441bbe496291630332f393509122da104dd3b83064",
+      "size_bytes": 20242
+    },
+    {
+      "path": "code/scripts/validate_independent_confirm_contract.py",
+      "sha256": "c716bbff1142c3c38ff3005270387e9253251db023c53ecb693fc701534b242d",
+      "size_bytes": 3439
+    },
+    {
+      "path": "code/scripts/manage_independent_confirm.py",
+      "sha256": "8f51767cab9e665d172c8fc1d0900c8ebba7b5ca6107e10e70407f546cc746d4",
+      "size_bytes": 10492
+    },
+    {
+      "path": "code/scripts/run_independent_confirm.py",
+      "sha256": "8e18d6f77e4f94088435b136e506215f5ff89d3b0e902038192f20fae9a5071f",
+      "size_bytes": 23659
+    },
+    {
+      "path": "code/scripts/smoke_independent_confirm_gpu_topology.py",
+      "sha256": "02c61854227a5d5da1519342c19488acdb72433a82d755b3c4cd1be2e33dd285",
+      "size_bytes": 25221
+    },
+    {
+      "path": "code/tests/test_independent_confirm_contract.py",
+      "sha256": "1d4be3c2c32be2913ca1554a6445d1e43f9f9ddb375a41afb1fc50d4040412de",
+      "size_bytes": 10114
+    },
+    {
+      "path": "code/tests/test_independent_confirm_data.py",
+      "sha256": "0cf503342867840c16526eb083636814a6006d7baea36a5cdee4877421f53a31",
+      "size_bytes": 12713
+    },
+    {
+      "path": "code/tests/test_independent_confirm_evaluation.py",
+      "sha256": "87ba8c221a76c7dbbb9a146f3b66bfaa6da6e1379948e0d7e7b16620df3bcfd2",
+      "size_bytes": 10161
+    },
+    {
+      "path": "code/tests/test_independent_confirm_runner.py",
+      "sha256": "fa7472989b07263139680349b5cbac0867c281bddd9781fb248fa8e713099a62",
+      "size_bytes": 22453
+    },
+    {
+      "path": "code/tests/test_independent_confirm_artifact.py",
+      "sha256": "b6c816e837f1485eaf948837fec2501ede08fa25c5a64f0269b3298040ca753d",
+      "size_bytes": 17454
+    },
+    {
+      "path": "code/tests/test_independent_confirm_execution.py",
+      "sha256": "dc05554b49baabd72054e99f36d79ba411028cb2b4acbe4a71cf7d589d7d565b",
+      "size_bytes": 43331
+    },
+    {
+      "path": "code/tests/test_gate_v1_live_history_features.py",
+      "sha256": "c4a846a639aa89e4f12b5f80e1ac9c0f5831a3f02ae88d969d7e5e9ed56a171f",
+      "size_bytes": 13525
+    },
+    {
+      "path": "code/tests/test_independent_closed_loop_evaluation.py",
+      "sha256": "dc6e688d79d73d433e26280660c83712c28a46ae536ac083f17f9765a28b4d30",
+      "size_bytes": 11033
+    },
+    {
+      "path": "code/tests/test_smoke_independent_confirm_gpu_topology.py",
+      "sha256": "770d21503ac760380e5f7e68383869beacc9c1c10de872e0552b760b2af54363",
+      "size_bytes": 14686
+    },
+    {
+      "path": "docs/independent_confirm_closed_loop_v1.md",
+      "sha256": "41a70e418f52c00aaffe50a8103be5478abf255a7d38b937e19515c7e05f5565",
+      "size_bytes": 12752
+    },
+    {
+      "path": "docs/execution.md",
+      "sha256": "2f82b2f1e0e47e9bef4a1109382bf74e16d258fab817cf74ffc2303cc4b5d41e",
+      "size_bytes": 73244
+    },
+    {
+      "path": "paper/main.tex",
+      "sha256": "0e3aaa0936c857108e7c362c971a5cadf38aeee141f93d2e3cc1af635fae81e7",
+      "size_bytes": 23176
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "961cd64ec9857a874aac3e7ca52a846e92a423bc1f3e3bb21ac72714710a10bd",
+      "size_bytes": 2341
+    },
+    {
+      "path": "README.md",
+      "sha256": "ced8caeb39212c3447552cf59453368d35302cc9ac49975d61e80e023c78c871",
+      "size_bytes": 124623
+    },
+    {
+      "path": "docs/progress.md",
+      "sha256": "4ec6d3d60112f448782e9fb0ce53059fc9aad1f6db8cace87c1b0e84ec107cdb",
+      "size_bytes": 245411
+    },
+    {
+      "path": "code/configs/causalcache_gate_v1_preregistration.json",
+      "sha256": "37be1ff7bf52fd425be85a6407100a47ec6edd724b4c1e93ddcf1b6c93e3ab1b",
+      "size_bytes": 16207
+    },
+    {
+      "path": "data/results/gate_v1_formal58_train_v1/summary.json",
+      "sha256": "7393fb47a0e46f75324a42abc41369331ef10da65232d840eba372a58e28925e",
+      "size_bytes": 13932
+    },
+    {
+      "path": "data/results/gate_v1_fresh16_failure_decomposition_v1/summary.json",
+      "sha256": "6ce62e722e6191a3f9a420ece689422d7e407baadb03e4e205fa0ded5c956a60",
+      "size_bytes": 20618
+    },
+    {
+      "path": "data/manifests/restoration_v2_selection.json",
+      "sha256": "292c7e52f76d158863b0ee76b15e76e8531f9d7291b3fd68b0d8c3fe4f05ca7b",
+      "size_bytes": 218833
+    },
+    {
+      "path": "data/manifests/restoration_v2_exposure.json",
+      "sha256": "bc1224826e0642c2374f6cfbebd676389d8c17ce6bf8a789f08903740cf97a95",
+      "size_bytes": 5621
+    },
+    {
+      "path": "data/manifests/restoration_v2_derived_artifact.json",
+      "sha256": "1f155a90af33da21947c89ac12f30f873f18e15e4efc82e5759f648114f25f7c",
+      "size_bytes": 11532
+    },
+    {
+      "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+      "size_bytes": 2009
+    },
+    {
+      "path": "code/configs/restoration_v2_ocr_backend.json",
+      "sha256": "51e08a9565f804ecb1ee7f12887cc12742b84c04996fffbbde7c0f304e4bd036",
+      "size_bytes": 6922
+    },
+    {
+      "path": "code/configs/androidworld_stack.json",
+      "sha256": "3a14ca4b1464ae4293944ef3387c6f1ad2a3a716dc8af29258a92bd4d6a22481",
+      "size_bytes": 3960
+    },
+    {
+      "path": "code/configs/androidworld_task_partition.json",
+      "sha256": "edb3ba4b03339db7c8580f58052d63813d4456030686493161f288230c787683",
+      "size_bytes": 24152
+    },
+    {
+      "path": "data/results/androidworld_environment_smoke/summary.json",
+      "sha256": "28790469ddc2710ec156e8d8466d090765bd9b88aa2feaf7357300974b20d400",
+      "size_bytes": 2089
+    },
+    {
+      "path": "data/results/gui_owl_androidworld_validation/summary.json",
+      "sha256": "09f8b3c130241efdf222bca70d247dd829a3714c42c3146250e30d2d6717d831",
+      "size_bytes": 7215
+    },
+    {
+      "path": "data/results/gui_owl_1_5_8b_think_androidworld_validation/summary.json",
+      "sha256": "d12caac81e8d2b0f611fd368a3da5746428cc83da594e8a3bfb1be4157ffc4de",
+      "size_bytes": 8105
+    }
+  ],
+  "source_a_inventory_sha256": "c63329d6c2af618b98bdad1c631d36c38b6581ac99cd53d9839d8e33659bbe63",
+  "source_a_parent_count": 1,
+  "source_a_remote_main": "e1cc8b3a0b8d06433674fe32652078a47b256f10",
+  "status": "FROZEN_CAUSALCACHE_INDEPENDENT_CONFIRM_EXECUTION_B_V1"
+}
