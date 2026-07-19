@@ -12,6 +12,20 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：formal label 物理 role firewall source core
+
+- 新增 `code/causalcache/set_utility_label_partitions.py`：execution worker 可按 state 混合处理 role，但 publication
+  必须写成 `labels/{train,tune,evaluation}/part-worker-XX.parquet`；同一 state 不能跨 execution worker；
+- trainer inventory 只包含 train/tune shard identity，evaluation inventory 只能在绑定 model-seal SHA 后释放；
+  trainer reader 不扫描 label root，因此不会先看到 evaluation path 或 payload；
+- writer/validator 固定 absolute canonical root、逐层 no-follow dir-fd、`O_NOFOLLOW|O_EXCL` no-clobber write、
+  exact three-role tree、stable inode read、固定 PyArrow schema 与 metadata-free postflight。cross-role row、跨 worker
+  state、file/ancestor/role-dir symlink 均 fail closed；
+- 本机独立 focused suite=`10 passed, 2 skipped`，skip 仅因本机未安装可选 PyArrow；JSON fixture 已覆盖完整
+  producer/postflight/trainer/evaluation firewall。正式 PyArrow roundtrip 在含依赖 runtime 另行复验；
+- 本步没有读取 processor partial、没有 policy/model forward、label execution、GPU、checkpoint 或 HF mutation；
+  正式 label 仍需等待 processor completed root、Git result 与 immutable HF revision。
+
 ### 2026-07-18（UTC 07-19）：processor publication Git SoT finalizer
 
 - publication manager 新增 `finalize`：先复用现有 remote read-only `validate-only`，只有 receipt、private repo、

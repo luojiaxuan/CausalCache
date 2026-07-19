@@ -190,6 +190,10 @@ allowlist，tune/evaluation query 不读取或 JSON decode record/image payload�
 fd 完成 SHA、tar parse 与前后 inode/metadata 复核。strict join 同时绑定 Freeze-B assignment、final candidate、
 request manifest、processor artifact/query witness，并分别保留 processor worker、label execution worker 与 role
 partition。该模块不构成 throughput pilot 或 label Execution-B 授权。
+`causalcache/set_utility_label_partitions.py` 进一步固定 formal label 的物理 role firewall：mixed execution
+worker 的结果必须拆成 `labels/{train,tune,evaluation}/part-worker-XX.parquet`；trainer inventory 只暴露
+train/tune，evaluation inventory 需先绑定 model-seal SHA。writer/validator 使用 absolute dir-fd、
+`O_NOFOLLOW|O_EXCL`、exact tree、stable inode read、固定 PyArrow schema 与 metadata-free postflight。
 processor repair 的 runner、postflight、immutable HF publication manager 与完整边界见
 `docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。publication manager 要求有效
 `PENDING_HF_UPLOAD` summary、exact 23-file root、private repo 与无冲突 tag/prefix；单次上传 25 个文件后，

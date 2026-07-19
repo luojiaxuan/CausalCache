@@ -38,7 +38,12 @@
 > processor→label 的 train-only selective reader 与 strict join 也已实现：它只语义解码显式 allowlist 的 train
 > states，tune/evaluation 仅检查 tar headers 后跳过 payload；同一 no-follow fd 完成 hash、parse 与 inode stability
 > 复核。它分别保留 processor worker、未来 label worker 与 role partition，相关 focused suite 为 `47 passed`。
-> 这只是下一阶段 source core；正式 pilot config、policy forward 与 label execution 仍未解锁。
+> formal label 的物理 role firewall 也已实现：mixed execution worker 的结果只能发布到
+> `labels/{train,tune,evaluation}/part-worker-XX.parquet`；trainer inventory 只含 train/tune，evaluation shard
+> identity 必须在 model seal 后才释放。writer/reader 使用 absolute dir-fd、`O_NOFOLLOW` 与 no-clobber write，
+> production Parquet schema 固定且禁止 metadata；本机 focused suite 为 `10 passed, 2 skipped`，skip 仅因本机
+> 没有可选 PyArrow。以上仍只是下一阶段 source core；正式 pilot config、policy forward 与 label execution
+> 尚未解锁。
 >
 > 数据防火墙已机械物化 107 个历史 identity：58 条 `legacy_train_only` + 49 条
 > `forbidden_consumed`，ledger SHA256=
