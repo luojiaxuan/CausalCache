@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
+import subprocess
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
@@ -55,7 +58,6 @@ class ParallelPostflightContractV1:
     data: Mapping[str, Any]
     repository_root: Path
     config_sha256: str
-    historical_execution_contract: ProcessorFreezeExecutionContractV2
 
 
 def _sha256(payload: bytes) -> str:
@@ -110,6 +112,49 @@ def _validate_binding(root: Path, value: Any, *, expected_path: str) -> None:
         raise ValueError(f"parallel postflight source binding drifted: {expected_path}")
 
 
+def _git_stdout(root: Path, *arguments: str) -> str:
+    result = subprocess.run(
+        ["git", "-C", str(root), *arguments],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip() or result.stdout.strip()
+        raise ValueError(f"producer repository Git inspection failed: {detail}")
+    return result.stdout.strip()
+
+
+def _validate_clean_producer_root(
+    producer_repository_root: str | Path,
+    *,
+    expected_git_revision: str,
+) -> Path:
+    supplied = Path(producer_repository_root)
+    if not supplied.is_absolute():
+        raise ValueError("producer repository root must be absolute")
+    lexical = Path(os.path.abspath(str(supplied)))
+    if supplied.is_symlink() or not supplied.is_dir():
+        raise ValueError("producer repository root must be a real directory")
+    try:
+        root = supplied.resolve(strict=True)
+    except OSError as exc:
+        raise ValueError("producer repository root cannot be resolved") from exc
+    if lexical != root:
+        raise ValueError("producer repository root must not traverse symlinks")
+    if not re.fullmatch(r"[0-9a-f]{40}", expected_git_revision):
+        raise ValueError("expected Git revision must be one lowercase full commit")
+    top_level = Path(_git_stdout(root, "rev-parse", "--show-toplevel")).resolve()
+    if top_level != root:
+        raise ValueError("producer repository root must be the Git checkout root")
+    observed_revision = _git_stdout(root, "rev-parse", "--verify", "HEAD^{commit}")
+    if observed_revision != expected_git_revision:
+        raise ValueError("producer repository HEAD differs from expected Git revision")
+    if _git_stdout(root, "status", "--porcelain=v1", "--untracked-files=all"):
+        raise ValueError("producer repository checkout must be clean")
+    return root
+
+
 def load_parallel_postflight_contract_v1(
     *,
     repository_root: str | Path,
@@ -147,17 +192,6 @@ def load_parallel_postflight_contract_v1(
         "sha256": HISTORICAL_EXECUTION_CONFIG_SHA256,
     }:
         raise ValueError("parallel postflight execution binding drifted")
-    historical_config = _repository_file(
-        root,
-        CANONICAL_EXECUTION_CONFIG_PATH,
-    ).read_bytes()
-    if _sha256(historical_config) != HISTORICAL_EXECUTION_CONFIG_SHA256:
-        raise ValueError("historical execution config bytes drifted")
-    historical_contract = load_execution_contract(
-        repository_root=root,
-        execution_config_path=root / CANONICAL_EXECUTION_CONFIG_PATH,
-    )
-
     historical = config.get("historical_postflight")
     if historical != {
         "byte_count": HISTORICAL_POSTFLIGHT_BYTE_COUNT,
@@ -165,8 +199,6 @@ def load_parallel_postflight_contract_v1(
         "sha256": HISTORICAL_POSTFLIGHT_SHA256,
     }:
         raise ValueError("parallel postflight historical source binding drifted")
-    _validate_binding(root, historical, expected_path=HISTORICAL_POSTFLIGHT_PATH)
-
     parallel = config.get("parallel_postflight")
     if parallel != {
         "aggregation_order": list(range(WORKER_COUNT)),
@@ -186,8 +218,51 @@ def load_parallel_postflight_contract_v1(
         data=config,
         repository_root=root,
         config_sha256=_sha256(payload),
-        historical_execution_contract=historical_contract,
     )
+
+
+def load_producer_execution_contract_v1(
+    parallel_contract: ParallelPostflightContractV1,
+    *,
+    producer_repository_root: str | Path,
+    execution_config_path: str | Path,
+    expected_git_revision: str,
+) -> ProcessorFreezeExecutionContractV2:
+    if not isinstance(parallel_contract, ParallelPostflightContractV1):
+        raise TypeError("parallel postflight contract is invalid")
+    producer_root = _validate_clean_producer_root(
+        producer_repository_root,
+        expected_git_revision=expected_git_revision,
+    )
+    supplied_config = Path(execution_config_path)
+    expected_config = producer_root / CANONICAL_EXECUTION_CONFIG_PATH
+    if (
+        not supplied_config.is_absolute()
+        or supplied_config != expected_config
+        or supplied_config.is_symlink()
+    ):
+        raise ValueError(
+            "execution config must be the producer repository canonical config"
+        )
+    execution_binding = parallel_contract.data["execution_contract"]
+    config_payload = _repository_file(
+        producer_root,
+        CANONICAL_EXECUTION_CONFIG_PATH,
+    ).read_bytes()
+    if _sha256(config_payload) != execution_binding["sha256"]:
+        raise ValueError("producer historical execution config bytes drifted")
+    _validate_binding(
+        producer_root,
+        parallel_contract.data["historical_postflight"],
+        expected_path=HISTORICAL_POSTFLIGHT_PATH,
+    )
+    historical_contract = load_execution_contract(
+        repository_root=producer_root,
+        execution_config_path=expected_config,
+    )
+    if historical_contract.config_sha256 != HISTORICAL_EXECUTION_CONFIG_SHA256:
+        raise ValueError("producer historical execution contract identity drifted")
+    return historical_contract
 
 
 __all__ = [
@@ -205,4 +280,5 @@ __all__ = [
     "SCHEMA_VERSION",
     "VALIDATION_STATUS",
     "load_parallel_postflight_contract_v1",
+    "load_producer_execution_contract_v1",
 ]

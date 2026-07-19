@@ -24,9 +24,9 @@
   "schema_version": "1.0.0",
   "sources": [
     {
-      "byte_count": 7729,
+      "byte_count": 10804,
       "path": "code/causalcache/set_utility_processor_postflight_parallel_contract_v1.py",
-      "sha256": "a49f97457428ddcfd22ff186118fbff2a1051d2e0fc468c404515abfdbe54d26"
+      "sha256": "d21b18aedaa918c178803ec160d5c380103276f6bbfc2f7269b46f7e400a2b79"
     },
     {
       "byte_count": 9810,
@@ -34,9 +34,9 @@
       "sha256": "ef4299adfd16811168e5943e9f76c0319db279a79e40856653109dabb53dc153"
     },
     {
-      "byte_count": 2320,
+      "byte_count": 2224,
       "path": "code/scripts/validate_set_utility_processor_freeze_v2_output_parallel_v1.py",
-      "sha256": "e12ea5e4be0b6af4bedc774d06d447e3c8cddda4914e6b2f626837cc3295dbe3"
+      "sha256": "5b88d95004ffdae97ebe635aea7d20a47f25872e9dc941cd9ae4f29faaef560a"
     }
   ]
 }

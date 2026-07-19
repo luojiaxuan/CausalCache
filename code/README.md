@@ -222,8 +222,10 @@ Git result；它内嵌 validated receipt 并绑定 committed pending summary/car
 byte-pinned historical v2。新 validator 复用相同 worker iterator、image/OCR semantic validators 与 structural
 postflight，只把 4 个 worker tar 的 v2 semantic overlay 交给 `ThreadPoolExecutor(4)`，随后按 worker 0→3
 确定性聚合，并拒绝跨 worker path overlap 或 stored⊄terminal。CLI 为
-`scripts/validate_set_utility_processor_freeze_v2_output_parallel_v1.py`；本版本 source contract 仍只授权只读
-验证，不替代历史 formal status。
+`scripts/validate_set_utility_processor_freeze_v2_output_parallel_v1.py`。`--repository-root` 只绑定 versioned
+validator source；`--producer-repository-root` 必须是 absolute、real、clean Git checkout，HEAD 精确等于 artifact
+revision，historical config/source audit 与 runtime absolute paths 只从该 producer root 构造。本版本 source
+contract 仍只授权只读验证，不替代历史 formal status。
 长任务完成后的 Git-safe 记录由
 `scripts/watch_set_utility_processor_freeze_v2_result.py` 接力：它只接受 canonical supervisor、formal/postflight
 双零和两个精确 `0\n` exit files，随后从 clean recorder checkout 调用正式 recorder；timeout、symlink、已有

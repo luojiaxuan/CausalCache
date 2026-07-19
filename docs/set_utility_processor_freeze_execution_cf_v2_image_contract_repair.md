@@ -213,10 +213,15 @@ tar，逐 image 执行 decode、SHA 与 OCR canonical reconstruction。为避免
 `e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70` 不变。四个 worker 各自只读自己的 tar；
 `executor.map` 保证按 0→3 观察结果/异常，所有 global tally、coverage 与 overlap 检查仍由主线程确定性聚合。
 source contract config SHA256=
-`6f9b329dacc1706dc37ec62e3fcc0e59318699fa4d52317045cb9d7e9d04f0e4`。fixture 已验证 concurrent=4、逆序完成
+`bea5d83324263461c6a5ef2368606e1eaf4a160aa3ce25adcc493ebee7a66365`。首次真实只读启动在 41 秒后由
+historical `_run_identity` 拒绝：旧实现错误地用 versioned validator checkout 构造 context，而 artifact 正确绑定
+原 producer checkout 的 absolute runtime paths；exit=1、无 summary、formal root 无修改。修复后
+`--repository-root` 只验证新 source，新增 `--producer-repository-root` 必须是 clean exact Git revision，historical
+config/postflight/source audit 与 context 全部从 producer root 加载。fixture 已验证 concurrent=4、逆序完成
 仍确定、最低 worker-index failure、exact tar binding、cross-worker overlap、stored⊄terminal、serial/parallel
-semantic equivalence 与全树只读。本次 `e976b99` formal 继续只认原 committed postflight；新路径必须另行从 clean
-pushed revision 对 completed root 做只读 timing/equivalence，结果未产生前不声称加速倍数。
+semantic equivalence、全树只读，以及 dual-root 的 path/symlink/dirty/HEAD/config failure。本次 `e976b99`
+formal 继续只认原 committed postflight；修复版必须另行从 clean pushed revision 对 completed root 重跑只读
+timing/equivalence，结果未产生前不声称加速倍数。
 
 ## 正式执行模板
 

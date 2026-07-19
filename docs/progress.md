@@ -22,9 +22,16 @@ confirm-20 禁止进入新训练、
 - 新 path 对四个 worker tar 使用 `ThreadPoolExecutor(4)` + ordered `map`，worker 内仍调用完全相同的 iterator、
   image/OCR validators；主线程按 worker 0→3 聚合 tally/coverage，并额外拒绝跨 worker path overlap 与
   stored-image coverage 逃出 terminal inventory；
-- config SHA256=`6f9b329dacc1706dc37ec62e3fcc0e59318699fa4d52317045cb9d7e9d04f0e4`；本机 processor/result/
-  publication focused regression=`84 passed`。fixture 验证 concurrent=4、逆序完成确定性、最低 index failure、
-  exact tar binding、serial/parallel semantic equivalence与全树只读；
+- 首次真实只读启动在 41 秒后 fail closed：versioned checkout 被错误用于构造 historical context，和 artifact
+  正确记录的 producer absolute path 不同，`_run_identity` 返回 `fixed runtime values drifted`。exit=1、无
+  summary、formal root 无修改；该失败只否定初版 parallel contract，不是 artifact verdict；
+- 修复版 config SHA256=`bea5d83324263461c6a5ef2368606e1eaf4a160aa3ce25adcc493ebee7a66365`；新增
+  `--producer-repository-root`，要求 absolute/real/non-symlink/clean Git root 与 exact HEAD，historical config、
+  postflight/source audit 和 context 全从 producer root 加载；versioned root 只绑定新 validator source；
+- 本机 processor/result/publication/watcher focused regression=`100 passed`，另有 historical v2 contract
+  regression=`14 passed`。fixture 验证 concurrent=4、逆序完成确定性、最低 index
+  failure、exact tar binding、serial/parallel equivalence、全树只读及 dual-root 的 path/symlink/dirty/HEAD/
+  config failures；
 - 本步只形成下一版只读 validator source path，不替代当前 canonical postflight，不修改 formal root，不执行
   policy/GPU/label/HF mutation。真实 completed-root timing/equivalence 必须另从 clean pushed revision运行。
 

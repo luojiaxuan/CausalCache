@@ -43,7 +43,7 @@ def _copy_contract_fixture(destination: Path) -> None:
 def test_live_parallel_contract_binds_historical_and_versioned_sources() -> None:
     contract = load_parallel_postflight_contract_v1(repository_root=ROOT)
 
-    assert contract.historical_execution_contract.config_sha256 == (
+    assert contract.data["execution_contract"]["sha256"] == (
         HISTORICAL_EXECUTION_CONFIG_SHA256
     )
     assert contract.data["historical_postflight"]["sha256"] == (
@@ -100,3 +100,4 @@ def test_parallel_postflight_cli_help() -> None:
     assert result.returncode == 0
     assert "--parallel-contract" in result.stdout
     assert "--execution-config" in result.stdout
+    assert "--producer-repository-root" in result.stdout

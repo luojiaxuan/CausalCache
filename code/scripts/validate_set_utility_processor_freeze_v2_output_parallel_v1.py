@@ -14,12 +14,10 @@ if str(_CODE_ROOT) not in sys.path:
 
 from causalcache.set_utility_processor_postflight_parallel_contract_v1 import (
     load_parallel_postflight_contract_v1,
+    load_producer_execution_contract_v1,
 )
 from causalcache.set_utility_processor_postflight_parallel_v1 import (
     validate_completed_processor_freeze_root_parallel_v1,
-)
-from causalcache.set_utility_processor_freeze_contract_v2 import (
-    CANONICAL_EXECUTION_CONFIG_PATH,
 )
 from causalcache.set_utility_processor_postflight_v2 import (
     build_processor_freeze_postflight_context_v2,
@@ -29,6 +27,7 @@ from causalcache.set_utility_processor_postflight_v2 import (
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repository-root", type=Path, required=True)
+    parser.add_argument("--producer-repository-root", type=Path, required=True)
     parser.add_argument("--execution-config", type=Path, required=True)
     parser.add_argument("--parallel-contract", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
@@ -42,15 +41,14 @@ def main() -> None:
         repository_root=args.repository_root,
         contract_path=args.parallel_contract,
     )
-    supplied_execution_config = args.execution_config.resolve()
-    canonical_execution_config = (
-        parallel_contract.repository_root
-        / CANONICAL_EXECUTION_CONFIG_PATH
-    ).resolve()
-    if supplied_execution_config != canonical_execution_config:
-        raise ValueError("--execution-config differs from the bound canonical config")
+    producer_contract = load_producer_execution_contract_v1(
+        parallel_contract,
+        producer_repository_root=args.producer_repository_root,
+        execution_config_path=args.execution_config,
+        expected_git_revision=args.expected_git_revision,
+    )
     context = build_processor_freeze_postflight_context_v2(
-        parallel_contract.historical_execution_contract,
+        producer_contract,
         expected_git_revision=args.expected_git_revision,
     )
     summary = validate_completed_processor_freeze_root_parallel_v1(
