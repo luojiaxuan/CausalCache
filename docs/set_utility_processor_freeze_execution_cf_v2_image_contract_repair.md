@@ -183,6 +183,13 @@ Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执�
   `145 passed`。已部署 source=`main@c2f6725`、persistent script SHA256=
   `26cba29f2dabf9f12756cf9c8d398ccf012754ce89a1ffe3987e6645266f33fd`，recorder checkout=
   `63734097983fa85f1470a52d1edd645b194433ab`，当前正在等待 terminal evidence；
+- publication staging：Hyper00 已从完整 Git bundle 准备 clean detached
+  `/data/worktrees/causalcache-processor-publication-450a669`，HEAD=
+  `450a6694d3fe2480127b5d9f3e9b4dfe98a11277`；persistent bundle=
+  `/data/tmp/causalcache-processor-publication-450a669.bundle`，SHA256=
+  `d26bca2747b3ce3ef68475e9616964cbed1deba5d9c6b4dab3162108c4d99cd8`。它只预置 publication/finalizer code；
+  正式 Git result commit 产生后仍须以 incremental bundle 更新到 exact revision。HF token 尚未传入，remote
+  mutation 仍为 0；
 - 四进程联合 processor smoke：32 query / 32 runtimes，joint wall=`41.26s`、effective CPU=`30.79 cores`、
   aggregate peak RSS=`50,295,324 KiB`，四进程 getter 均为 `28/1`；
 - OCR 稳定启动 snapshot：四个 logical worker lifetime CPU 分别为 `2740/2692/2837/2744%`，合计约

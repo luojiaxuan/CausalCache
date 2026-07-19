@@ -24,6 +24,11 @@ confirm-20 禁止进入新训练、
   mode check、稳定读取与 path/inode identity 复核；
 - publication tests=`29 passed`，完整 processor/result/watcher suite=`151 passed`。本步只闭合未来 publication
   的 Git SoT 交接，没有访问 HF、没有创建 tag/revision，也不改变当前 formal 的 running 状态。
+- Hyper00 已准备 clean detached publication checkout `main@450a669` 与 persistent complete-history bundle
+  `/data/tmp/causalcache-processor-publication-450a669.bundle`（SHA256=
+  `d26bca2747b3ce3ef68475e9616964cbed1deba5d9c6b4dab3162108c4d99cd8`）。当前 checkout 只用于缩短后续交接；
+  必须等 Git-safe result commit/push 后再用 incremental bundle 更新到 exact revision。HF token 尚未传入，
+  publication、tag、fresh replay 与 finalization 均未执行。
 
 ### 2026-07-18（UTC 07-19）：train-only processor→label input firewall
 
