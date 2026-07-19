@@ -84,15 +84,18 @@
 > [`data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/`](data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/)，协议见
 > [`docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md`](docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)。
 >
-> D1 action-stability diagnostic 的 versioned source core 已实现，但尚未冻结 formal source/envelope，因此当前
-> 不授权 GPU run。D1 固定 4 个 parent mismatch states 加 2 个同 stratum stable controls，比较
+> D1 action-stability diagnostic 的 formal source A 已冻结：config SHA256=
+> `e7e02bb2134cddc8075d36147cfe010180867f839a0a0c43eca4505ccf4a7f43`，51-file source inventory
+> SHA256=`717eb8921f0a94e0dc75008369badd3ba4018834d2a534dd692720c06f75474d`。独立 execution envelope B
+> 尚未物化，因此 A 本身仍不授权 GPU run。D1 固定 4 个 parent mismatch states 加 2 个同 stratum controls，比较
 > `auto_fresh_encode`、`auto_frozen_encoded`、`eager_frozen_encoded_control`，各做两次 generation；总 ceiling
 > 为 36 generation / 24 encode，teacher/KL/utility/labels/training 全为 0。输出只允许 sequence/decoded/action
 > equality、prepared-input unchanged、counts 与 class-only failure，不保存 action、text、coordinate、token、
-> output 或 logits。现有 eager profile 不是 strict CUDA determinism，文档和代码均未作该声称。3 个 CPU test
-> worker 并行得到 `13 passed`。auto 固定先 fresh 后 frozen，因此只报告 path/profile association；auto/eager
-> 分进程分 stage，任何 runtime/OOM/parse/input-mutation failure 都使 diagnostic invalid。下一步冻结 formal
-> source/runner 后再生成独立 execution envelope；详见
+> output 或 logits。auto/eager 的 actual attention identity 分别固定为 top/text/vision 全 `sdpa` / 全 `eager`；
+> 后者不是 strict CUDA determinism。四个 eager attempt 前会强制验证全部 auto terminals；`PYTHONPATH` 也绑定
+> 到 source worktree，防止旧 editable install 污染 import。四组 CPU suite 并发得到 `41 passed`。auto 固定先
+> fresh 后 frozen，因此只报告 path/profile association；condition failure 只能形成 invalid verdict，不能 top-up
+> 或重试。下一步 push A，再 fresh preflight、单独 push B，并在 Hyper00 4×H200 分两 stage 并发执行；详见
 > [`docs/set_utility_action_stability_diagnostic_v1.md`](docs/set_utility_action_stability_diagnostic_v1.md)。
 >
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新

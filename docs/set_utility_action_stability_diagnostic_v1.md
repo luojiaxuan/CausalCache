@@ -2,9 +2,12 @@
 
 ## 当前状态
 
-D1 的 versioned source core 已实现，formal source/execution envelope 尚未冻结，因此当前不授权 GPU run。它只
-定位 throughput pilot v2 的 reference-action instability，不修改 v2 结果，也不直接解锁 restoration labels、
-predictor training、matched-NLL 或 closed-loop。
+D1 的 formal source contract 已冻结，canonical config SHA256=
+`e7e02bb2134cddc8075d36147cfe010180867f839a0a0c43eca4505ccf4a7f43`，51-file source inventory
+SHA256=`717eb8921f0a94e0dc75008369badd3ba4018834d2a534dd692720c06f75474d`。本状态仍是 source A：
+独立 execution envelope B 尚未物化，因此当前 source commit 本身不授权 GPU run。D1 只定位 throughput pilot
+v2 的 reference-action instability，不修改 v2 结果，也不直接解锁 restoration labels、predictor training、
+matched-NLL 或 closed-loop。
 
 parent v2 的有效事实保持不变：12 个 pair 中 8 个 completed；3 个
 `MICROBATCH_1__REFERENCE_ACTION_MISMATCH`，1 个 `CROSS_VARIANT_REFERENCE_ACTION_MISMATCH`；formal
@@ -68,19 +71,39 @@ prepared input snapshot 同时检查 keys、shape、dtype、device 和 `torch.eq
 前两项故意只称 `ASSOCIATION`：同一 auto runtime 固定先跑 fresh、后跑 frozen，因此仍可能混入 warmup、
 allocator/autotune 或模型持久状态。default 与 eager 必须在独立进程、分 stage 执行，避免 eager numerical controls
 污染后续 auto condition。任一 OOM、parse error、unsupported op 或 input-mutation failure 都记为
-`INVALID_CONDITION_EXECUTION_FAILURE`，不能被归因为 action instability。
+`INVALID_CONDITION_EXECUTION_FAILURE`，不能被归因为 action instability。若 condition 已形成完整 metric-safe
+partial，aggregate 允许实际 calls 低于 ceiling 并返回 `INVALID_RUNTIME_FAILURE`；若 runtime 在形成该 state
+partial 前退出，则 worker terminal fail closed，不能 top-up 或重试。
 
 D1 只做 failure localization。无论得到哪一类结果，正式 labels 都不能直接启动；必须另立新的 12-state
 throughput identity，回到完整 parent roster 验证后才能决定 label Execution-B。
+
+## Formal execution boundary
+
+- B 必须是 source A 的唯一 direct child，且该 commit 只能新增
+  `code/configs/causalcache_set_utility_action_stability_diagnostic_v1_execution.json`；Git 与 `/data` envelope
+  bytes 必须一致；
+- fresh preflight 必须连续覆盖至少 10 秒，并选择同一 Hyper host、同一 container 内 4 张 H200；本实验不把
+  H100/A6000 结果合入同一 verdict；
+- parent artifact binding 必须读取旧 run 的 canonical
+  `/data/runs/causalcache-throughput-pilot-v2-key-repair-d5e0cca/execution-envelope.json`，不能传 Git 中的
+  byte-identical copy；
+- 每个 worker 是独立 OS process，且 `PYTHONPATH` 必须精确等于 execution worktree 的 `code/`，避免旧 venv
+  editable install 把 import 路由回 parent worktree；
+- 四个 auto worker 并发运行；任一 eager attempt 创建前，runner 会重新验证全部 4 个 auto terminal、attempt
+  hash、source/envelope/parent identity、roster 与实际 calls。随后四个 eager worker 并发运行；
+- aggregate 不执行 GPU work，严格合并 8 个 profile-worker terminals 与 6 个 states，并同时复核文件时间 barrier。
 
 ## Implementation and validation
 
 - runtime：`code/causalcache/policy/gui_owl_v2_1_action_stability_runtime_v1.py`；
 - adapter：`code/causalcache/set_utility_gui_owl_v2_1_action_stability_adapter_v1.py`；
 - diagnostic core：`code/causalcache/set_utility_action_stability_diagnostic_v1.py`；
-- focused tests：3 个独立 test files，按 3 个 CPU worker 并行运行，共 `13 passed`；
-- `py_compile` 通过。
+- source/envelope/runner/aggregate：`code/causalcache/set_utility_action_stability_{contract,envelope,execution}_v1.py`
+  与对应 `code/scripts/` entrypoints；
+- focused tests 按 core、source contract、runner、envelope/aggregate 四个 CPU process 并行执行，共
+  `41 passed`；source validator、`py_compile` 与 `git diff --check` 通过。
 
-下一步先完成 formal source contract、runner 与 source inventory，再 commit/push source A；随后机械生成独立
-execution envelope B，fresh GPU preflight 后在 Hyper00 四张同构 H200 上运行 default stage 与 eager stage。不能
-把 Hyper01/H100/A6000 的异构数值结果合并进同一 D1 verdict。
+下一步 commit/push 本 source A；随后 fresh 10 秒 preflight，机械生成并单独 push execution envelope B，在
+Hyper00 四张同构 H200 上运行 auto stage 与 eager stage。不能把 Hyper01/H100/A6000 的异构数值结果合并进同一
+D1 verdict。

@@ -12,6 +12,24 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：D1 formal source-A freeze
+
+- canonical source config SHA256=`e7e02bb2134cddc8075d36147cfe010180867f839a0a0c43eca4505ccf4a7f43`，
+  51-file transitive source inventory SHA256=
+  `717eb8921f0a94e0dc75008369badd3ba4018834d2a534dd692720c06f75474d`；固定 6 states、4 workers、
+  3 conditions、36 generation / 24 encode ceiling，teacher/KL/utility/labels/training/closed-loop 全为 0；
+- 新增 source contract、fresh four-H200 envelope、profile-worker runner 与 exact aggregate。B 必须是 A 的唯一
+  direct child 且只能新增 canonical execution JSON；parent 必须从旧 run-root canonical envelope 读取；
+- auto/eager 分 OS process 和 stage；四个 eager attempt 前均强制验证全部 4 个 auto terminals、attempt hash、
+  source/envelope/parent identity、roster 与实际 calls。condition failure 可在 ceiling 内聚合为
+  `INVALID_RUNTIME_FAILURE`，不被误写成 action instability，也不得 retry/top-up；
+- auto/eager observed attention 分别固定为 top/text/vision 全 `sdpa` 与全 `eager`；worker 的 `PYTHONPATH`
+  必须精确指向 source-A worktree `code/`，避免复用旧 venv 时 import 回 parent checkout；
+- focused suites 按四个本机 CPU process 并发复验，共 `41 passed`；source validator、`py_compile`、diff check
+  全通过。本步仍不授权 GPU；下一步 push source A，再做 fresh 10 秒 preflight、单独 push envelope B，最后在
+  Hyper00 4×H200 并发执行两个隔离 stage。详见
+  [`set_utility_action_stability_diagnostic_v1.md`](set_utility_action_stability_diagnostic_v1.md)。
+
 ### 2026-07-18（UTC 07-19）：D1 action-stability diagnostic source core
 
 - 不修改 v2 44-file inventory 中的 frozen runtime/adapter/core，新增 prepared-input runtime、metric-safe adapter
