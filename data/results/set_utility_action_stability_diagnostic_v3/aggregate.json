@@ -1,0 +1,170 @@
+{
+  "counts": {
+    "encode_call_ceiling": 3,
+    "encode_call_count": 3,
+    "generation_call_ceiling": 6,
+    "generation_call_count": 6,
+    "retry_count": 0,
+    "state_process_count": 3
+  },
+  "d1b_aggregate_sha256": "b419f9640cb46276b7a52e292d6feabd81311f66efb22563642ce80c4561919c",
+  "diagnostic": {
+    "counts": {
+      "encode_call_count": 3,
+      "generation_call_count": 6,
+      "retry_count": 0,
+      "state_process_count": 3
+    },
+    "metric_safe": true,
+    "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v3",
+    "schema_version": "1.0.0",
+    "states": [
+      {
+        "d1b_context": {
+          "condition": {
+            "canonical_action_equal": false,
+            "condition_id": "sdpa_numerical_control_frozen_encoded",
+            "decoded_output_equal": false,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": false,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v2",
+          "state_id": "0296753837938323:decision:006"
+        },
+        "diagnosis": "TARGET_STABILIZED_UNDER_STRICT_DETERMINISM",
+        "metric_safe": true,
+        "role": "unstable_target",
+        "state_id": "0296753837938323:decision:006",
+        "strict_condition": {
+          "canonical_action_equal": true,
+          "condition_id": "strict_determinism_sdpa_frozen_encoded",
+          "decoded_output_equal": true,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": true,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        }
+      },
+      {
+        "d1b_context": {
+          "condition": {
+            "canonical_action_equal": true,
+            "condition_id": "sdpa_numerical_control_frozen_encoded",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v2",
+          "state_id": "0336706763935531:decision:006"
+        },
+        "diagnosis": "STABLE_CONTROL_REPRODUCED_UNDER_STRICT_DETERMINISM",
+        "metric_safe": true,
+        "role": "stable_control_same_decision_stratum",
+        "state_id": "0336706763935531:decision:006",
+        "strict_condition": {
+          "canonical_action_equal": true,
+          "condition_id": "strict_determinism_sdpa_frozen_encoded",
+          "decoded_output_equal": true,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": true,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        }
+      },
+      {
+        "d1b_context": {
+          "condition": {
+            "canonical_action_equal": true,
+            "condition_id": "sdpa_numerical_control_frozen_encoded",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v2",
+          "state_id": "0268406573756492:decision:010"
+        },
+        "diagnosis": "STABLE_CONTROL_REPRODUCED_UNDER_STRICT_DETERMINISM",
+        "metric_safe": true,
+        "role": "stable_control_longer_context_stratum",
+        "state_id": "0268406573756492:decision:010",
+        "strict_condition": {
+          "canonical_action_equal": true,
+          "condition_id": "strict_determinism_sdpa_frozen_encoded",
+          "decoded_output_equal": true,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": true,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        }
+      }
+    ],
+    "verdict": "PASS_STRICT_DETERMINISM_REPEAT_STABILITY_DIAGNOSTIC"
+  },
+  "execution_envelope_sha256": "1f194b90b2bdd780478ce112d25407ca78d7a77a749713bc048aed8ffa692f53",
+  "metric_safe": true,
+  "protocol_id": "causalcache_set_utility_action_stability_aggregate_v3",
+  "schema_version": "1.0.0",
+  "source_config_sha256": "4531b1c7e8c067b28c31662ee04b210dd2009031a9f92b4689128f701074b18d",
+  "source_inventory_sha256": "86dbd5a6ed340dd46ce93709e6a7b59c07d200a04652723407e28683b917066b",
+  "state_terminal_hashes": [
+    {
+      "sha256": "ee99918741ec61805e952b35e84629bec46b1f8ee596e84982389cdd29a6872a",
+      "state_id": "0296753837938323:decision:006"
+    },
+    {
+      "sha256": "84adc019fffbe56c2640818a6690527e7c5db997f1c3fdc85f2b913cb6509716",
+      "state_id": "0336706763935531:decision:006"
+    },
+    {
+      "sha256": "f1c1724fd153124c6278647b8f8eb25e3bf92768650581ed5ea6f8c0c4ca0edd",
+      "state_id": "0268406573756492:decision:010"
+    }
+  ],
+  "status": "COMPLETED_EXACT_THREE_PROCESS_STRICT_DETERMINISM_D2_AGGREGATE",
+  "verdict": "PASS_STRICT_DETERMINISM_REPEAT_STABILITY_DIAGNOSTIC"
+}

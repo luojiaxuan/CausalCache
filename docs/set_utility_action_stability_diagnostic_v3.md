@@ -70,4 +70,18 @@ verdict 优先级固定为：
   summary 与进展记录。
 
 Source focused verification 为 `40 passed`（runtime 7、diagnostic 22、contract 11；均含相关 v2 回归），另有
-execution/aggregate/CLI v2 回归 `9 passed`；source validator 与 `py_compile` 通过。正式 D2 尚未执行。
+execution/aggregate/CLI v2 回归 `9 passed`；source validator 与 `py_compile` 通过。
+
+## Formal result
+
+Source-A=`60fd971b1614afba2601c838a34f7952d2334eb0`，direct-child Execution-B=
+`38e7f53b83c3b943e6c5a60c15c01ac382e00576`。execution envelope 为 9,563 bytes / SHA256=
+`1f194b90b2bdd780478ce112d25407ca78d7a77a749713bc048aed8ffa692f53`。唯一 formal run 完成 3/3 fresh
+processes、6/6 generation、3/3 encode、retry=0；target 与两个 controls 的三层 action equality 和 frozen-input
+checks 全部为 true，无 runtime failure。
+
+exact aggregate 为 6,643 bytes / SHA256=
+`cc8ae9e18d72002d642c9111fa7bcb78574d5f3dabc68a54d67586e62c3078e5`，独立只读 rebuild 逐 byte 相同；正式
+verdict=`PASS_STRICT_DETERMINISM_REPEAT_STABILITY_DIAGNOSTIC`。这只授权另立新的 full-roster strict-profile
+Source-A；D1b 仍保持 NO-GO，labels、training、matched-NLL 与 closed-loop 继续 locked。Git-safe 结果见
+[`../data/results/set_utility_action_stability_diagnostic_v3/`](../data/results/set_utility_action_stability_diagnostic_v3/)。

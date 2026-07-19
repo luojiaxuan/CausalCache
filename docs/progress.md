@@ -16,6 +16,25 @@ D1b 已用 memory-efficient SDPA 消除三个 `decision:010` OOM，但 6 个 sta
 repeat mismatch，正式为 `NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY`。因此新 exact tables 仍未启动，12-state
 throughput v3、labels/training/matched-NLL/closed-loop 继续 locked；不得 retry/top-up D1b 或只删除该 state。
 
+### 2026-07-19：strict-determinism D2 valid PASS
+
+- Source-A=`60fd971b1614afba2601c838a34f7952d2334eb0`，direct-child Execution-B=
+  `38e7f53b83c3b943e6c5a60c15c01ac382e00576`；execution envelope 9,563 bytes / SHA256=
+  `1f194b90b2bdd780478ce112d25407ca78d7a77a749713bc048aed8ffa692f53`；
+- 5 秒 fleet preflight 后绑定 Hyper00 host GPU 0/1/2，在同一 image/runtime 的三个 fresh processes 并行运行；
+  3/3 terminals completed、3/3 encode、6/6 generation、retry=0，无 runtime failure；
+- target `029675...:decision:006` 与两个 stable controls 的 exact sequence、decoded output、canonical action 和
+  frozen-input checks 全部 repeat-equal；diagnoses 分别为 `TARGET_STABILIZED_UNDER_STRICT_DETERMINISM` 与两个
+  `STABLE_CONTROL_REPRODUCED_UNDER_STRICT_DETERMINISM`；
+- exact aggregate 6,643 bytes / SHA256=
+  `cc8ae9e18d72002d642c9111fa7bcb78574d5f3dabc68a54d67586e62c3078e5`，独立只读 rebuild 逐 byte 相同；正式
+  verdict=`PASS_STRICT_DETERMINISM_REPEAT_STABILITY_DIAGNOSTIC`；
+- 标准 runner 首次因 Docker GPU argument parsing 在容器创建前失败；随后保持相同 allocation/image/mount/profile，
+  只修正 quoted device-list 启动语法。该 failure 发生在 B materialization/model/state process 之前，科学调用为 0；
+- D2 PASS 只授权另立新的 full-roster strict-profile source。D1b NO-GO 不变，labels/training/matched-NLL/
+  closed-loop 继续 locked。结果见
+  [`../data/results/set_utility_action_stability_diagnostic_v3/`](../data/results/set_utility_action_stability_diagnostic_v3/)。
+
 ### 2026-07-19：strict-determinism D2 Source-A freeze
 
 - D2 只诊断 `0296753837938323:decision:006`，并固定同 decision stratum control

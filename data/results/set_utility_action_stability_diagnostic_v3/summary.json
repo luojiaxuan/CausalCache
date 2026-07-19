@@ -1,0 +1,132 @@
+{
+  "aggregate": {
+    "bytes": 6643,
+    "git_path": "data/results/set_utility_action_stability_diagnostic_v3/aggregate.json",
+    "protocol_id": "causalcache_set_utility_action_stability_aggregate_v3",
+    "rebuild_bytes_equal": true,
+    "rebuild_sha256_equal": true,
+    "sha256": "cc8ae9e18d72002d642c9111fa7bcb78574d5f3dabc68a54d67586e62c3078e5",
+    "status": "COMPLETED_EXACT_THREE_PROCESS_STRICT_DETERMINISM_D2_AGGREGATE"
+  },
+  "authorization_outcome": {
+    "formal_labels_unlocked": false,
+    "matched_nll_unlocked": false,
+    "new_full_roster_strict_profile_source_freeze_authorized": true,
+    "predictor_training_unlocked": false,
+    "run_closed_loop_unlocked": false
+  },
+  "counts": {
+    "encode_call_ceiling": 3,
+    "encode_call_count": 3,
+    "generation_call_ceiling": 6,
+    "generation_call_count": 6,
+    "retry_count": 0,
+    "state_process_count": 3,
+    "terminal_count": 3
+  },
+  "execution": {
+    "container": {
+      "id": "42b7ee6ce98672da9f6d5e33455830f2472653a68b04e89464c82a6f79c5a992",
+      "image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "image_reference": "hongccc/sglang-omni:dev"
+    },
+    "envelope": {
+      "bytes": 9563,
+      "git_path": "code/configs/causalcache_set_utility_action_stability_diagnostic_v3_execution.json",
+      "sha256": "1f194b90b2bdd780478ce112d25407ca78d7a77a749713bc048aed8ffa692f53"
+    },
+    "gpus": [
+      {
+        "host_index": 0,
+        "uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418"
+      },
+      {
+        "host_index": 1,
+        "uuid": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c"
+      },
+      {
+        "host_index": 2,
+        "uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81"
+      }
+    ],
+    "host": {
+      "alias": "hyper00",
+      "driver_version": "570.172.08",
+      "gpu_name": "NVIDIA H200",
+      "hostname": "node-radixark-16-0000"
+    },
+    "preflight": {
+      "completed_at_utc": "2026-07-19T17:20:55.294797Z",
+      "fleet_json_bytes": 1688,
+      "fleet_json_sha256": "0634c646e22631151b710139c5b0676b73e084abcee38f1a1e258acf98ccdfa1",
+      "sample_seconds": 5
+    },
+    "run_finished_at_utc": "2026-07-19T17:25:38.747926Z",
+    "run_root": "/data/runs/causalcache-action-stability-d2-60fd971",
+    "run_root_status": "LOCAL_FORENSIC_NOT_UPLOADABLE",
+    "run_started_at_utc": "2026-07-19T17:24:26.502075Z",
+    "software_versions": {
+      "cuda_runtime_version": "13.0",
+      "python_version": "3.12.3",
+      "torch_version": "2.11.0+cu130",
+      "transformers_version": "5.6.0"
+    },
+    "standard_runner_launch": {
+      "container_created": false,
+      "failure": "DOCKER_GPU_ARGUMENT_PARSING_FAILURE",
+      "scientific_calls_started": false,
+      "subsequent_profile_equivalence_recorded": true
+    },
+    "state_stderr_bytes": [
+      687,
+      687,
+      687
+    ]
+  },
+  "metric_safe": true,
+  "negative_operations": {
+    "closed_loop_episode_count": 0,
+    "evaluation_state_access_count": 0,
+    "hugging_face_mutation_count": 0,
+    "matched_nll_count": 0,
+    "predictor_training_count": 0,
+    "restoration_label_count": 0,
+    "sealed_test_access_count": 0,
+    "teacher_forward_count": 0,
+    "training_example_count": 0,
+    "tune_state_access_count": 0,
+    "utility_or_kl_write_count": 0
+  },
+  "protocol_id": "causalcache_set_utility_action_stability_result_summary_v3",
+  "result_id": "set_utility_action_stability_diagnostic_v3",
+  "schema_version": "1.0.0",
+  "source": {
+    "config_sha256": "4531b1c7e8c067b28c31662ee04b210dd2009031a9f92b4689128f701074b18d",
+    "execution_b_commit": "38e7f53b83c3b943e6c5a60c15c01ac382e00576",
+    "inventory_sha256": "86dbd5a6ed340dd46ce93709e6a7b59c07d200a04652723407e28683b917066b",
+    "parent_d1b_aggregate_sha256": "b419f9640cb46276b7a52e292d6feabd81311f66efb22563642ce80c4561919c",
+    "source_a_commit": "60fd971b1614afba2601c838a34f7952d2334eb0"
+  },
+  "state_diagnoses": [
+    {
+      "diagnosis": "TARGET_STABILIZED_UNDER_STRICT_DETERMINISM",
+      "repeat_stable": true,
+      "role": "unstable_target",
+      "state_id": "0296753837938323:decision:006"
+    },
+    {
+      "diagnosis": "STABLE_CONTROL_REPRODUCED_UNDER_STRICT_DETERMINISM",
+      "repeat_stable": true,
+      "role": "stable_control_same_decision_stratum",
+      "state_id": "0336706763935531:decision:006"
+    },
+    {
+      "diagnosis": "STABLE_CONTROL_REPRODUCED_UNDER_STRICT_DETERMINISM",
+      "repeat_stable": true,
+      "role": "stable_control_longer_context_stratum",
+      "state_id": "0268406573756492:decision:010"
+    }
+  ],
+  "status": "VALID_RECORDED_STRICT_DETERMINISM_D2_PASS",
+  "verdict": "PASS_STRICT_DETERMINISM_REPEAT_STABILITY_DIAGNOSTIC"
+}
