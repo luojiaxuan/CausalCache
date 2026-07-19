@@ -33,11 +33,11 @@ def main() -> None:
     if visible and len(visible) != args.partition_count:
         raise ValueError("visible GPU count must equal the token partition count")
     output_root = args.output_root.resolve()
-    output_root.mkdir(parents=True, exist_ok=False)
+    output_root.mkdir(parents=True, exist_ok=True)
     processes = []
     logs = []
     for partition_index, gpu_uuid in enumerate(uuids):
-        log = (output_root / f"extract-part-{partition_index:02d}.log").open("xb")
+        log = (output_root / f"extract-part-{partition_index:02d}.log").open("ab")
         command = [
             sys.executable,
             "-m",

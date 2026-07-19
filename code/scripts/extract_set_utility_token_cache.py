@@ -67,6 +67,14 @@ def _save_shard(
     }
 
 
+def _sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        while chunk := handle.read(8 * 1024 * 1024):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repository-root", type=Path, required=True)
@@ -98,9 +106,9 @@ def main() -> None:
     input_root = args.input_root.resolve()
     output_root = args.output_root.resolve()
     part_root = output_root / f"part-{args.partition_index:02d}"
-    if part_root.exists():
-        raise FileExistsError(f"token cache partition already exists: {part_root}")
-    part_root.mkdir(parents=True)
+    if (part_root / "manifest.json").exists():
+        raise FileExistsError(f"token cache partition is already complete: {part_root}")
+    part_root.mkdir(parents=True, exist_ok=True)
     input_manifest = _read_json(input_root / "manifest.json")
     if (
         input_manifest.get("status") != "MATERIALIZED_SET_UTILITY_TOKEN_INPUTS"
@@ -113,7 +121,7 @@ def main() -> None:
         raise ValueError("token input states bytes drifted")
     states = _read_jsonl(state_path)
 
-    image_keys = sorted(
+    expected_image_keys = sorted(
         {
             key
             for state in states
@@ -136,7 +144,7 @@ def main() -> None:
             prior = texts.setdefault(key, text)
             if prior != text:
                 raise ValueError("text cache SHA256 collision")
-    text_keys = sorted(
+    expected_text_keys = sorted(
         key
         for key in texts
         if _partition(key, args.partition_count) == args.partition_index
@@ -145,12 +153,50 @@ def main() -> None:
     try:
         import torch
         from PIL import Image
-        from safetensors.torch import save_file
+        from safetensors.torch import load_file, save_file
         from transformers import AutoTokenizer
     except ModuleNotFoundError as error:
         raise RuntimeError(
             "token extraction requires PyTorch, Pillow, safetensors and Transformers"
         ) from error
+
+    shard_inventory = []
+    tensor_inventory: dict[str, dict[str, Any]] = {}
+    for path in sorted(part_root.glob("*.safetensors")):
+        if not (path.name.startswith("visual-") or path.name.startswith("text-")):
+            raise ValueError("token cache contains an unknown safetensors shard")
+        kind = "visual" if path.name.startswith("visual-") else "text"
+        prefix = "v_" if kind == "visual" else "t_"
+        loaded = load_file(str(path), device="cpu")
+        for tensor_name, tensor in loaded.items():
+            if not tensor_name.startswith(prefix):
+                raise ValueError("resumed token shard contains a wrong tensor prefix")
+            key = tensor_name[2:]
+            inventory_key = f"{kind}:{key}"
+            if inventory_key in tensor_inventory:
+                raise ValueError("resumed token cache key appears twice")
+            tensor_inventory[inventory_key] = {
+                "dtype": str(tensor.dtype),
+                "shape": list(tensor.shape),
+                "shard": path.name,
+                "tensor": tensor_name,
+            }
+        shard_inventory.append(
+            {
+                "byte_count": path.stat().st_size,
+                "kind": kind,
+                "path": path.name,
+                "sha256": _sha256_file(path),
+                "tensor_count": len(loaded),
+            }
+        )
+        del loaded
+    image_keys = [
+        key for key in expected_image_keys if f"visual:{key}" not in tensor_inventory
+    ]
+    text_keys = [
+        key for key in expected_text_keys if f"text:{key}" not in tensor_inventory
+    ]
 
     runtime = GUIOwlV22VisionFeatureRuntime(
         model_dir=args.model_dir.resolve(),
@@ -167,10 +213,14 @@ def main() -> None:
     )
     embedding_layer = runtime.model.model.language_model.embed_tokens
 
-    shard_inventory = []
-    tensor_inventory: dict[str, dict[str, Any]] = {}
     pending: dict[str, Any] = {}
-    visual_shard_index = 0
+    visual_shard_index = 1 + max(
+        (
+            int(path.stem.rsplit("-", 1)[1])
+            for path in part_root.glob("visual-*.safetensors")
+        ),
+        default=-1,
+    )
 
     def flush_visual() -> None:
         nonlocal pending, visual_shard_index
@@ -211,8 +261,8 @@ def main() -> None:
         batch = runtime.encode_five_image_token_sequences(images)
         for key, tensor, token_count in zip(
             actual_keys,
-            batch.token_sequences,
-            batch.merged_token_counts,
+            batch.token_sequences[: len(actual_keys)],
+            batch.merged_token_counts[: len(actual_keys)],
             strict=True,
         ):
             cpu = tensor.detach().to(device="cpu").contiguous()
@@ -229,7 +279,13 @@ def main() -> None:
     flush_visual()
 
     pending = {}
-    text_shard_index = 0
+    text_shard_index = 1 + max(
+        (
+            int(path.stem.rsplit("-", 1)[1])
+            for path in part_root.glob("text-*.safetensors")
+        ),
+        default=-1,
+    )
 
     def flush_text() -> None:
         nonlocal pending, text_shard_index
@@ -286,12 +342,12 @@ def main() -> None:
         "partition_index": args.partition_index,
         "runtime_metadata": runtime.metadata,
         "schema_version": "1.0.0",
-        "shards": shard_inventory,
+        "shards": sorted(shard_inventory, key=lambda row: row["path"]),
         "status": "COMPLETED_SET_UTILITY_TOKEN_CACHE_PARTITION",
         "tensor_inventory": tensor_inventory,
-        "text_count": len(text_keys),
+        "text_count": len(expected_text_keys),
         "tokenizer_class": tokenizer.__class__.__name__,
-        "visual_count": len(image_keys),
+        "visual_count": len(expected_image_keys),
     }
     manifest["content_sha256"] = hashlib.sha256(
         canonical_json_bytes(manifest)
