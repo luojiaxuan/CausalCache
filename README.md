@@ -100,14 +100,14 @@
 > 协议与解释边界见
 > [`docs/set_utility_action_stability_diagnostic_v1.md`](docs/set_utility_action_stability_diagnostic_v1.md)。
 >
-> D1b memory-safe SDPA numerical-control diagnostic 的 Source-A 已冻结。它只从 Git-pinned D1 aggregate
-> 投影两个 auto conditions，完全不读取 eager/OOM row；唯一新 condition 在每个 state 的 fresh OS process
-> 中运行，固定 4+2 waves、12 generation / 6 encode ceiling、no retry/top-up。canonical config SHA256=
-> `07ec807effd9a1655b0572e49a835e61aec5192503d16bd5c2ee6a3d7a18c77f`，54-file transitive source
-> inventory SHA256=`a58cbda4db59bf6f951783c94f606e9e00bb310191e371de099256c4286c55b0`；四组并发 focused/backward
-> validation 共 `75 passed`。Source-A 本身不授权 GPU；下一步只允许 fresh 10 秒 preflight 后机械物化并单独
-> push direct-child Execution-B。当前尚无 D1b formal GPU verdict，labels/training/matched-NLL/closed-loop
-> 继续 locked。协议见
+> D1b memory-safe SDPA numerical-control diagnostic 已完成 Source-A→direct-child Execution-B→唯一 formal
+> 4+2 fresh-process run。6/6 states、12/12 generation、6/6 encode 全部完成，三个 decision-10 state 不再 OOM；
+> 但 `029675...:decision:006` 在 exact frozen input 不变时仍出现三层 action repeat mismatch，其他 5/6 states
+> 稳定。因此正式 verdict=`NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY`，不满足冻结 12-state throughput v3 的
+> 唯一 PASS gate。aggregate 为 17,011 bytes / SHA256=
+> `b419f9640cb46276b7a52e292d6feabd81311f66efb22563642ce80c4561919c`；labels/training/matched-NLL/
+> closed-loop 继续 locked。结果见
+> [`data/results/set_utility_action_stability_diagnostic_v2/`](data/results/set_utility_action_stability_diagnostic_v2/)，协议见
 > [`docs/set_utility_action_stability_diagnostic_v2.md`](docs/set_utility_action_stability_diagnostic_v2.md)。
 >
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
@@ -1457,7 +1457,7 @@ mediation effect。
 | Set-utility train-only throughput pilot v1 attempt | [protocol](docs/set_utility_train_only_throughput_pilot_v1.md)；[failure result](data/results/set_utility_train_only_throughput_pilot_v1/) | source A `5158f2a`；envelope B `c7d5b31`；`INVALID_...CANONICALIZATION_CONTRACT_DRIFT` | 4/4 workers claimed；semantic-input pre-runtime failure；0/12 pairs、0/84 native calls、无 aggregate/selection；v1 不得重跑，下一步 versioned consumer repair |
 | Set-utility throughput pilot key repair v2 | [repair protocol](docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)；[formal result](data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/) | source A `d5e0cca`；envelope B `e5002d8`；aggregate `35e0c250...ff33f`；valid execution / selector `NO_GO` | 4 H200 并发；8/12 pairs、68/84 calls、retry 0；3× mb1 mismatch + 1× cross-variant mismatch；memory 30.49%；无 microbatch selection，labels/training 继续 locked |
 | Set-utility action-stability D1 | [protocol](docs/set_utility_action_stability_diagnostic_v1.md)；[formal result](data/results/set_utility_action_stability_diagnostic_v1/) | A2 `121c862`；B `5fa1fdd`；aggregate `2debde6d...77ba2`；`INVALID_RUNTIME_FAILURE` | 8/8 terminals、33/36 generation、24/24 encode、retry 0；3× decision-10 eager OOM；1× fresh-vs-frozen association；无 labels/training，下一步独立 D1b |
-| Set-utility action-stability D1b Source-A | [protocol](docs/set_utility_action_stability_diagnostic_v2.md)；[config](code/configs/causalcache_set_utility_action_stability_diagnostic_v2.json) | config `07ec807e...8c77f`；source inventory `a58cbda4...55b0`；Execution-B pending | 6 fresh state processes、4+2 waves、12 generation / 6 encode ceiling；只消费 D1 auto context；Source-A 不授权 GPU，formal result 尚未运行 |
+| Set-utility action-stability D1b | [protocol](docs/set_utility_action_stability_diagnostic_v2.md)；[formal result](data/results/set_utility_action_stability_diagnostic_v2/) | A `fe6f6b6`；B `db2c848`；aggregate `b419f964...1919c`；`NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY` | 6/6 processes、12/12 generation、6/6 encode；decision-10 OOM 已消失，但 1/6 controlled-SDPA state 仍 repeat-unstable；不授权 throughput v3/labels/training |
 | Planned set-utility dataset/model | [existing private dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile)；planned `gavinlaw/causalcache-set-utility-predictors-mobile` | dataset repo 已承载 census v2 `c1d19eb9...eae0` 与 processor v2 `c20bab8d...1ed8`；feature/label prefix 尚未发布；model repo/revision 尚未创建或绑定 | processor prerequisite 已 immutable 闭合；feature/label shards 与 checkpoints 完成后分别进入 dataset/model repo，当前不得视为已有 artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |

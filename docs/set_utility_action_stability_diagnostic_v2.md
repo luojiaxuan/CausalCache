@@ -79,5 +79,21 @@ SHA256=`a58cbda4db59bf6f951783c94f606e9e00bb310191e371de099256c4286c55b0`。runt
 envelope/execution、aggregate/CLI 与相关 v1 回归分四个 CPU process 并发运行，共 `75 passed`；source validator、
 `py_compile` 与 diff check 通过。
 
-Execution-B 与 formal result 尚未物化。它们的 commit、envelope/aggregate SHA、run root 与 observed verdict 会在对应
-milestone 完成后回写本页。在此之前，D1 的 `INVALID_RUNTIME_FAILURE` 保持当前 source of truth。
+## Formal result
+
+Source-A=`fe6f6b69adf2acd5457026835529f2ca3e682dd2`，direct-child Execution-B=
+`db2c848af310d7559247895f418f69255465eb73`。execution envelope 为 19,349 bytes / SHA256=
+`7adb460bbe65d08cc7fe2bea992cf77f544d8be18f5c43f28c84d4ee4e9171f8`。唯一 formal run 完成 6/6
+processes、12/12 generation、6/6 encode、retry=`0`；exact aggregate 为 17,011 bytes / SHA256=
+`b419f9640cb46276b7a52e292d6feabd81311f66efb22563642ce80c4561919c`，从全部 attempts/terminals 只读重建后
+逐 byte 相同。
+
+三个 decision-10 state 全部在 controlled SDPA 下完成，说明 D1 eager OOM blocker 已消失。五个 state
+repeat-stable；`0296753837938323:decision:006` 的 frozen input 三个检查点均 unchanged，但 exact generated
+sequence、decoded output 与 canonical action 都 repeat-unequal。因此正式 verdict 为
+`NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY`，不是 runtime-invalid，也不是 PASS。
+
+startup utilization sampler 因 operator shell quoting 错误没有形成有效记录，本 run 不作 throughput 或 GPU
+utilization claim；不因此重跑。根据冻结 gate，本结果不授权 12-state throughput v3、labels、training、matched-NLL
+或 closed-loop。Git-safe aggregate、summary 与解释位于
+[`../data/results/set_utility_action_stability_diagnostic_v2/`](../data/results/set_utility_action_stability_diagnostic_v2/)。

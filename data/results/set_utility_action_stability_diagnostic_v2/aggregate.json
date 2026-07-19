@@ -1,0 +1,434 @@
+{
+  "counts": {
+    "encode_call_ceiling": 6,
+    "encode_call_count": 6,
+    "generation_call_ceiling": 12,
+    "generation_call_count": 12,
+    "historical_context_calls_counted": false,
+    "retry_count": 0,
+    "state_process_count": 6
+  },
+  "diagnostic": {
+    "context": {
+      "parent_calls_counted": false,
+      "parent_condition_ids": [
+        "auto_fresh_encode",
+        "auto_frozen_encoded"
+      ],
+      "parent_protocol_id": "causalcache_set_utility_action_stability_diagnostic_v1"
+    },
+    "counts": {
+      "encode_call_ceiling": 6,
+      "encode_call_count": 6,
+      "generation_call_ceiling": 12,
+      "generation_call_count": 12,
+      "retry_count": 0,
+      "state_count": 6
+    },
+    "metric_safe": true,
+    "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v2",
+    "schema_version": "1.0.0",
+    "states": [
+      {
+        "d1_auto_context": {
+          "conditions": [
+            {
+              "canonical_action_equal": false,
+              "condition_id": "auto_fresh_encode",
+              "decoded_output_equal": false,
+              "encode_call_count": 2,
+              "encoded_input_unchanged_after": null,
+              "encoded_input_unchanged_before": null,
+              "encoded_input_unchanged_between": null,
+              "exact_generated_sequence_equal": false,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            },
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_frozen_encoded",
+              "decoded_output_equal": true,
+              "encode_call_count": 1,
+              "encoded_input_unchanged_after": true,
+              "encoded_input_unchanged_before": true,
+              "encoded_input_unchanged_between": true,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            }
+          ],
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v1"
+        },
+        "diagnosis": "MIXED_D1_FRESH_PATH_AND_SDPA_CONTROL_INSTABILITY",
+        "metric_safe": true,
+        "parent_role": "mismatch",
+        "sdpa_numerical_control_condition": {
+          "canonical_action_equal": false,
+          "condition_id": "sdpa_numerical_control_frozen_encoded",
+          "decoded_output_equal": false,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": false,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        },
+        "state_id": "0296753837938323:decision:006",
+        "wave_index": 0
+      },
+      {
+        "d1_auto_context": {
+          "conditions": [
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_fresh_encode",
+              "decoded_output_equal": true,
+              "encode_call_count": 2,
+              "encoded_input_unchanged_after": null,
+              "encoded_input_unchanged_before": null,
+              "encoded_input_unchanged_between": null,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            },
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_frozen_encoded",
+              "decoded_output_equal": true,
+              "encode_call_count": 1,
+              "encoded_input_unchanged_after": true,
+              "encoded_input_unchanged_before": true,
+              "encoded_input_unchanged_between": true,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            }
+          ],
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v1"
+        },
+        "diagnosis": "PARENT_MISMATCH_NOT_REPRODUCED_UNDER_SDPA_CONTROL",
+        "metric_safe": true,
+        "parent_role": "mismatch",
+        "sdpa_numerical_control_condition": {
+          "canonical_action_equal": true,
+          "condition_id": "sdpa_numerical_control_frozen_encoded",
+          "decoded_output_equal": true,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": true,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        },
+        "state_id": "0310939638496410:decision:006",
+        "wave_index": 1
+      },
+      {
+        "d1_auto_context": {
+          "conditions": [
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_fresh_encode",
+              "decoded_output_equal": true,
+              "encode_call_count": 2,
+              "encoded_input_unchanged_after": null,
+              "encoded_input_unchanged_before": null,
+              "encoded_input_unchanged_between": null,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            },
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_frozen_encoded",
+              "decoded_output_equal": true,
+              "encode_call_count": 1,
+              "encoded_input_unchanged_after": true,
+              "encoded_input_unchanged_before": true,
+              "encoded_input_unchanged_between": true,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            }
+          ],
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v1"
+        },
+        "diagnosis": "STABLE_CONTROL_REPRODUCED",
+        "metric_safe": true,
+        "parent_role": "stable_control",
+        "sdpa_numerical_control_condition": {
+          "canonical_action_equal": true,
+          "condition_id": "sdpa_numerical_control_frozen_encoded",
+          "decoded_output_equal": true,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": true,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        },
+        "state_id": "0336706763935531:decision:006",
+        "wave_index": 1
+      },
+      {
+        "d1_auto_context": {
+          "conditions": [
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_fresh_encode",
+              "decoded_output_equal": true,
+              "encode_call_count": 2,
+              "encoded_input_unchanged_after": null,
+              "encoded_input_unchanged_before": null,
+              "encoded_input_unchanged_between": null,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            },
+            {
+              "canonical_action_equal": false,
+              "condition_id": "auto_frozen_encoded",
+              "decoded_output_equal": false,
+              "encode_call_count": 1,
+              "encoded_input_unchanged_after": true,
+              "encoded_input_unchanged_before": true,
+              "encoded_input_unchanged_between": true,
+              "exact_generated_sequence_equal": false,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            }
+          ],
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v1"
+        },
+        "diagnosis": "AUTO_VS_CONTROLLED_SDPA_PROFILE_ASSOCIATION",
+        "metric_safe": true,
+        "parent_role": "mismatch",
+        "sdpa_numerical_control_condition": {
+          "canonical_action_equal": true,
+          "condition_id": "sdpa_numerical_control_frozen_encoded",
+          "decoded_output_equal": true,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": true,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        },
+        "state_id": "0271654003819383:decision:010",
+        "wave_index": 0
+      },
+      {
+        "d1_auto_context": {
+          "conditions": [
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_fresh_encode",
+              "decoded_output_equal": true,
+              "encode_call_count": 2,
+              "encoded_input_unchanged_after": null,
+              "encoded_input_unchanged_before": null,
+              "encoded_input_unchanged_between": null,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            },
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_frozen_encoded",
+              "decoded_output_equal": true,
+              "encode_call_count": 1,
+              "encoded_input_unchanged_after": true,
+              "encoded_input_unchanged_before": true,
+              "encoded_input_unchanged_between": true,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            }
+          ],
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v1"
+        },
+        "diagnosis": "PARENT_MISMATCH_NOT_REPRODUCED_UNDER_SDPA_CONTROL",
+        "metric_safe": true,
+        "parent_role": "mismatch",
+        "sdpa_numerical_control_condition": {
+          "canonical_action_equal": true,
+          "condition_id": "sdpa_numerical_control_frozen_encoded",
+          "decoded_output_equal": true,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": true,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        },
+        "state_id": "0279447750102246:decision:010",
+        "wave_index": 0
+      },
+      {
+        "d1_auto_context": {
+          "conditions": [
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_fresh_encode",
+              "decoded_output_equal": true,
+              "encode_call_count": 2,
+              "encoded_input_unchanged_after": null,
+              "encoded_input_unchanged_before": null,
+              "encoded_input_unchanged_between": null,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            },
+            {
+              "canonical_action_equal": true,
+              "condition_id": "auto_frozen_encoded",
+              "decoded_output_equal": true,
+              "encode_call_count": 1,
+              "encoded_input_unchanged_after": true,
+              "encoded_input_unchanged_before": true,
+              "encoded_input_unchanged_between": true,
+              "exact_generated_sequence_equal": true,
+              "failure_class": null,
+              "generation_call_count": 2,
+              "generation_completed_count": 2,
+              "metric_safe": true,
+              "repeat_count": 2
+            }
+          ],
+          "metric_safe": true,
+          "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v1"
+        },
+        "diagnosis": "STABLE_CONTROL_REPRODUCED",
+        "metric_safe": true,
+        "parent_role": "stable_control",
+        "sdpa_numerical_control_condition": {
+          "canonical_action_equal": true,
+          "condition_id": "sdpa_numerical_control_frozen_encoded",
+          "decoded_output_equal": true,
+          "encode_call_count": 1,
+          "encoded_input_unchanged_after": true,
+          "encoded_input_unchanged_before": true,
+          "encoded_input_unchanged_between": true,
+          "exact_generated_sequence_equal": true,
+          "failure_class": null,
+          "generation_call_count": 2,
+          "generation_completed_count": 2,
+          "metric_safe": true,
+          "repeat_count": 2
+        },
+        "state_id": "0268406573756492:decision:010",
+        "wave_index": 0
+      }
+    ],
+    "verdict": "NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY"
+  },
+  "execution_envelope_sha256": "7adb460bbe65d08cc7fe2bea992cf77f544d8be18f5c43f28c84d4ee4e9171f8",
+  "historical_d1": {
+    "aggregate_sha256": "2debde6de3f552e9551d0ee37d25b82fa2ca85dfb42746d389dde39eff577ba2",
+    "context_condition_ids": [
+      "auto_fresh_encode",
+      "auto_frozen_encoded"
+    ],
+    "eager_rows_consumed": false,
+    "result_commit": "a713555671d0c828b15d26f9652c7a889332cb57",
+    "status": "COMPLETED_EXACT_SIX_STATE_ACTION_STABILITY_AGGREGATE_V1",
+    "verdict": "INVALID_RUNTIME_FAILURE"
+  },
+  "metric_safe": true,
+  "protocol_id": "causalcache_set_utility_action_stability_aggregate_v2",
+  "schema_version": "1.0.0",
+  "source_config_sha256": "07ec807effd9a1655b0572e49a835e61aec5192503d16bd5c2ee6a3d7a18c77f",
+  "source_inventory_sha256": "a58cbda4db59bf6f951783c94f606e9e00bb310191e371de099256c4286c55b0",
+  "state_terminal_hashes": [
+    {
+      "process_identity_sha256": "57d527faa56e607167fdfce3df48ec4c658bf0dc72647e347db058ba57714e3b",
+      "sha256": "2a1a842702bc73c2a7bdce07ef42d79afb26a00650ae398ab45a2416e7b187cc",
+      "state_id": "0296753837938323:decision:006"
+    },
+    {
+      "process_identity_sha256": "df9f1a9f604f01f67629d1bcfdc483c3f2da78b0d6602612cc5010cbc279d236",
+      "sha256": "b9012b4d1dd3ddbc38ef44092eb27079c55ae311b86212942b2972c4f88c61da",
+      "state_id": "0310939638496410:decision:006"
+    },
+    {
+      "process_identity_sha256": "4cf76a89ab6b4d8f9d7664029ea3ded3b40174d88c93f99d9eae493364366eeb",
+      "sha256": "321e4ca29c596b2a5d5e5c8a07e21935d5ef0a02982ea70025524144cea22988",
+      "state_id": "0336706763935531:decision:006"
+    },
+    {
+      "process_identity_sha256": "d8884fc5ae640275eaa440856afa78550bdc8313c4ace4f14f564dde958c22f7",
+      "sha256": "9824acb0eb9da8d1e768042219a8d327622ec066ee574e930f5d950b5f493ea1",
+      "state_id": "0271654003819383:decision:010"
+    },
+    {
+      "process_identity_sha256": "4fec71cdc5a616738c9d60dd6d55bd8365243a60f80ed424a5c3763d980af859",
+      "sha256": "76bc698db1d80b499951ffb325b31e5df8a651f3e599a9daac5e2767436065cc",
+      "state_id": "0279447750102246:decision:010"
+    },
+    {
+      "process_identity_sha256": "1140907838b1dab97d66e2287834b1cdd338acac250d3d7a0420ab04f006b980",
+      "sha256": "5fe0eb8b922ba20668e0b02383e2cfb8171ce73beb117227a68cd8c6664d9819",
+      "state_id": "0268406573756492:decision:010"
+    }
+  ],
+  "status": "COMPLETED_EXACT_SIX_PROCESS_SDPA_CONTROL_AGGREGATE_V2",
+  "verdict": "NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY"
+}

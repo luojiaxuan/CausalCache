@@ -12,10 +12,31 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
-D1 已证明当前全-eager numerical control 对全部三个 `decision:010` input 都不可执行，formal verdict 为
-`INVALID_RUNTIME_FAILURE`。因此新 exact tables 仍未启动；当前最先执行的是独立 versioned D1b：使用
-memory-efficient SDPA numerical control、每 state fresh process，关闭 reference substrate 的 runtime blocker
-后才重建 12-state throughput identity。
+D1b 已用 memory-efficient SDPA 消除三个 `decision:010` OOM，但 6 个 state 中仍有 1 个 controlled-SDPA
+repeat mismatch，正式为 `NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY`。因此新 exact tables 仍未启动，12-state
+throughput v3、labels/training/matched-NLL/closed-loop 继续 locked；不得 retry/top-up D1b 或只删除该 state。
+
+### 2026-07-19：D1b formal execution valid，repeat-stability NO-GO
+
+- Source-A=`fe6f6b69adf2acd5457026835529f2ca3e682dd2`，唯一 direct-child Execution-B=
+  `db2c848af310d7559247895f418f69255465eb73`；execution envelope 19,349 bytes / SHA256=
+  `7adb460bbe65d08cc7fe2bea992cf77f544d8be18f5c43f28c84d4ee4e9171f8`；
+- fresh 10 秒 all-container preflight 后，在历史 D1 同一 Hyper00 container 与 host GPU `0,1,3,4` 上运行；
+  wave 0 四进程、wave 1 两进程，barrier、6 个 unique process identity、attempt/terminal/artifact/source hashes
+  全部通过；
+- 6/6 processes completed，实际 12/12 generation、6/6 encode、retry=`0`；三个 decision-10 state 均不再
+  OOM，两个 stable controls 均稳定；
+- `0296753837938323:decision:006` 的 frozen encoded input 在 before/between/after 均 exact unchanged，但两次
+  generation 的 exact sequence、decoded output 与 canonical action 全部不一致；formal diagnosis=
+  `MIXED_D1_FRESH_PATH_AND_SDPA_CONTROL_INSTABILITY`；其他 5/6 states repeat-stable；
+- exact aggregate 17,011 bytes / SHA256=
+  `b419f9640cb46276b7a52e292d6feabd81311f66efb22563642ce80c4561919c`，只读 rebuild 逐 byte 相同；正式 verdict=
+  `NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY`；
+- startup utilization sampler 因 operator shell quoting 错误未形成可用证据，所以不作 utilization/throughput claim；
+  state/terminal/aggregate 不受影响，也不因此重跑；
+- 预注册 contract 只有 PASS 才允许冻结 12-state throughput v3。本次 NO-GO，故 labels、predictor training、
+  matched-NLL、closed-loop 继续 locked。Git-safe 结果见
+  [`../data/results/set_utility_action_stability_diagnostic_v2/`](../data/results/set_utility_action_stability_diagnostic_v2/)。
 
 ### 2026-07-19：D1b memory-safe SDPA Source-A freeze
 

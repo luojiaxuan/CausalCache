@@ -55,6 +55,14 @@ generation、24/24 encode、retry 0；teacher/KL/restoration/label/training/HF m
 Hyper00 `/data/runs/causalcache-action-stability-d1-121c862`，状态为 `LOCAL_FORENSIC_NOT_UPLOADABLE`，不是
 reusable artifact，故本步不创建或更新 HF repo。
 
+D1b memory-safe SDPA diagnostic 的唯一 formal run 有效完成，Git-safe exact aggregate、summary 与解释位于
+[`results/set_utility_action_stability_diagnostic_v2/`](results/set_utility_action_stability_diagnostic_v2/)；aggregate
+为 17,011 bytes / SHA256=`b419f9640cb46276b7a52e292d6feabd81311f66efb22563642ce80c4561919c`，formal
+verdict=`NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY`。6/6 processes、12/12 generation、6/6 encode 完成，
+decision-10 OOM 已消失，但 1/6 state 仍 repeat-unstable。raw evidence 仅在 Hyper00
+`/data/runs/causalcache-action-stability-d1b-fe6f6b6`，状态 `LOCAL_FORENSIC_NOT_UPLOADABLE`；本步 HF mutation、
+restoration label、training、matched-NLL 与 closed-loop 均为 0。
+
 `manifests/set_utility_full_pool_inventory_v1.json` 已从 upstream immutable revision 完成 metadata-only
 P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
 `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=
