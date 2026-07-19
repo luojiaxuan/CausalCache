@@ -119,7 +119,7 @@ validator 读取该 artifact，必须显式使用本 v2 contract/postflight。
 
 ## Formal v2 运行状态
 
-- clean producer：`1c84dfe37f86bdc255a00184521170eeaa3b0663`；config SHA256 仍为
+- 初始 clean producer：`1c84dfe37f86bdc255a00184521170eeaa3b0663`；config SHA256 为
   `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；
 - host/container：Hyper00 `node-radixark-16-0000`，container ID=
   `a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a`，Docker
@@ -141,6 +141,27 @@ validator 读取该 artifact，必须显式使用本 v2 contract/postflight。
   contract 与 postflight module origins 也必须实际来自 recorder checkout，不能用 clean checkout 替 dirty code 背书；
 - recorder focused suite=`59 passed`；当前 all set-utility regression=
   `356 passed, 15 skipped, 24 subtests passed`，`py_compile`、CLI help、source validator 与 `git diff --check` 通过。
+
+### Execution-only 32-slot replacement
+
+初始运行暴露了一个纯执行问题：四个 logical artifact workers 各只有一个 RapidOCR engine，因此在 224 logical
+CPU 的 Hyper00 上总共只使用约 4 cores。`main@dc90664bc4c16f5f74463e10072f271843d0b316` 不改变四份 logical
+tar、query/candidate order、23-file output、operation budget 或 postflight，而在每份 logical shard 内冻结 8 路
+bounded ordered execution；每个 slot 拥有独立 engine，in-flight window 固定为 16 trajectories，yield 顺序仍与
+source schedule 一致。修订后 config SHA256=
+`c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`。
+
+真实截图 smoke 对 32 张 source PNG 同时运行串行和 8 路并发，canonical records 完全相等；engine init=1.69s、
+串行=107.66s、并发=17.05s，speedup=6.32×。accelerated formal output 为：
+
+```text
+/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-dc90664
+```
+
+它于 `2026-07-19T06:10:19Z` 启动，warmup 后四个 logical workers 各约 715--726% CPU；当前仍只有 sibling
+`.incomplete`，没有 exit/end/final。初始 run 保留作备份，不删除也不追认 partial bytes。accelerated run 只有通过
+同一 exact 23-file committed postflight 后才可成为 canonical；若两者都完成，先执行 semantic equivalence audit，
+只允许一个 immutable HF publication。并发输出一旦与串行语义漂移即 fail closed。
 
 ## 正式执行模板
 

@@ -167,16 +167,20 @@ pre-`to_pylist()` schema assertion、exact row-key assertion、selector order、
 `phase1-b2-image-format-census-v2-column-projection-repair`，revision=
 `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，fresh re-download inventory verified。Git-safe 结果见
 `data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`。processor image-contract v2
-已冻结，canonical config SHA256=
+初始冻结 config SHA256=
 `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；它只接受 census 证明的两种 exact
-signature，原 encoded bytes、OCR、prompt、candidate 与 budget contract 不变。当前状态为
-`SOURCE_FROZEN_FORMAL_RUN_PENDING`；完成 processor-only formal run 并得到 final candidates/exact operation
-budget 后才可生成 labels。原 v1 runner 为
+signature，原 encoded bytes、OCR、prompt、candidate 与 budget contract 不变。当前 4-slot 与 32-slot 两条
+processor-only run 均为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；得到 final candidates/exact operation budget
+后才可生成 labels。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`；v2 freeze 边界见
 `docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`。
 processor repair 的新 runner、postflight 与完整边界见
 `docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。
+初始 4-slot execution 后续暴露 CPU 利用不足；`main@dc90664` 已在保持四个 logical shards 与 23-file contract
+不变的前提下，将每 shard 扩为 8 个独立 OCR slots，总计 32 路。真实 32-image smoke 保持 canonical records
+byte-identical并获得 6.32× speedup；修订 config SHA256=
+`c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`，accelerated formal run 已启动但尚未完成。
 完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 

@@ -12,9 +12,28 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：processor OCR execution-only 32-slot repair 启动
+
+- 复核 Hyper00 为 112 physical / 224 logical CPU、约 1.8 TiB available RAM；初始 formal run 的四个 OCR
+  processes 各只使用约 101% CPU。根因是旧实现把 4 个稳定 logical artifact shards 同时当成 execution
+  concurrency，机器绝大多数 CPU 闲置；
+- `main@dc90664bc4c16f5f74463e10072f271843d0b316` 保留 4 个 logical shards、23-file final tree、候选顺序、
+  label schedule 与 postflight 不变，只在每个 shard 内加入 8 路 bounded ordered map 和 8 个互斥独立 RapidOCR
+  engines，总 execution slots=32；canonical config SHA256=
+  `c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`；
+- 本地 committed-HEAD focused regression=`77 passed`；Hyper00 source validator 通过，remote focused=
+  `28 passed`。从旧 run 已稳定写入的 tar 只读抽取 32 张真实截图，串行与 8 路并发 canonical records 完全一致；
+  engine init=1.69s、串行=107.66s、并发=17.05s，speedup=6.32×；
+- accelerated formal replacement 于 `2026-07-19T06:10:19Z` 从 clean detached `dc90664` 在同一 CPU-only
+  container 启动。warmup 后四个 logical worker 各约 `715--726%` CPU、RSS 2.5--3.1 GiB，合计约 29 个 CPU
+  cores；exit/end/final 尚未产生，状态仍为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；
+- 初始 `1c84dfe` run 不停止、不删除，继续作为安全备份。两次运行都没有 labels/utility/outcome exposure；预先固定
+  的采用规则是 accelerated run 只有在 exact 23-file postflight 通过后才可成为 canonical，若两者都完成则先做
+  semantic inventory/OCR/candidate 等价审计且只发布一个；若并发 records 发生任何漂移则 fail closed，不按结果挑选。
+
 ### 2026-07-18（UTC 07-19）：processor image-contract v2 formal run 启动并越过旧 witness
 
-- 唯一 formal v2 run 已于 `2026-07-19T04:58:04Z` 从 clean detached
+- 初始 4-slot formal v2 run 已于 `2026-07-19T04:58:04Z` 从 clean detached
   `main@1c84dfe37f86bdc255a00184521170eeaa3b0663` 在 Hyper00 启动；canonical config SHA256 保持
   `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；
 - container `sglang-omni-jaxan-07181624` 的 `DeviceRequests=null`；4 个 CPU OCR worker 的冻结负载为
@@ -23,6 +42,7 @@ confirm-20 禁止进入新训练、
 - `2026-07-19T05:12:26Z` 的只读 tar-header snapshot 已完成 `1,011/18,792` observations（5.38%），四 worker
   持续约 100% CPU、零 traceback；worker 0 已完整越过 v1 第 228 个 observation 所在 RGB violation
   trajectory，证明 versioned allowlist repair 通过了已知 blocker，但不提前宣告全量 VALID；
+- `2026-07-19T06:06:26Z` 的后续只读 snapshot 为 `7,009/18,792`（37.30%），四 worker 与 staging 仍健康；
 - 当前只有 persistent sibling `.incomplete`，formal output root、receipts、final candidate universe、exact operation
   budget 与 HF artifact 均未完成，状态严格为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；粗略 ETA 为总计 6--8 小时；
 - 新增 fail-closed Git-safe result recorder：它重新执行 committed v2 postflight，要求 exact 23-file tree、staging

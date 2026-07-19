@@ -89,15 +89,18 @@
 > `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`；fresh re-download 的 10-file inventory 与原件逐 byte 相同。结果见
 > [`data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)，协议见
 > [`docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。
-> processor image-contract v2 已完成独立 source freeze：只接受 census 证明的 exact opaque `PNG/RGBA` 与
-> `PNG/RGB` union，保留 source encoded bytes，并保持 v1 transient RGB AutoProcessor semantics。canonical config
-> SHA256=`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；source audit、42 项
-> v2 tests、91 项 processor regression 与 341 项 set-utility regression 均通过，12 个 v1 bound files 的 Git blob
-> hashes 未变。唯一 formal v2 run 已于 `2026-07-19T04:58:04Z` 从 clean detached
+> processor image-contract v2 只接受 census 证明的 exact opaque `PNG/RGBA` 与 `PNG/RGB` union，保留 source
+> encoded bytes，并保持 v1 transient RGB AutoProcessor semantics。初始 4-slot config SHA256=
+> `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；对应 run 于
+> `2026-07-19T04:58:04Z` 从 clean detached
 > `main@1c84dfe37f86bdc255a00184521170eeaa3b0663` 在 Hyper00 启动，状态为
-> `RUNNING_INCOMPLETE_NOT_UPLOADABLE`。运行使用 4 个 CPU worker、0 GPU；`05:12:26Z` 的 prefix-safe
-> tar-header census 为 `1,011/18,792` observations（5.38%），且 worker 0 已完整越过 v1 第 228 个
-> observation 的 RGB failure witness，error/traceback 为 0。当前仍没有 completed root、final candidates、
+> `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；`06:06:26Z` 已到 `7,009/18,792` observations（37.30%），无 fatal。
+> 该运行暴露了把 4 个逻辑 artifact shards 错当成 4 个 execution slots 的吞吐问题。execution-only repair 已在
+> `main@dc90664bc4c16f5f74463e10072f271843d0b316` 将每个逻辑 shard 扩成 8 个有界、顺序保持且 engine 独立的 OCR
+> slots，总计 32 路；新 config SHA256=
+> `c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`。真实 32-image smoke 的 canonical records
+> byte-identical，107.66s→17.05s（6.32×）。accelerated formal replacement 已于 `06:10:19Z` 启动；steady-state
+> 四个逻辑 worker 各约 715--726% CPU，旧 run 保留作备份，两者均为 0 GPU。当前仍没有 completed root、final candidates、
 > restoration labels、
 > predictor checkpoint、matched-NLL
 > 或 closed-loop result；只有 atomic publish 与 committed postflight 通过后才可进入
