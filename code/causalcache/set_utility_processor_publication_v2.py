@@ -9,6 +9,7 @@ import re
 import secrets
 import shutil
 import stat
+import subprocess
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -32,6 +33,10 @@ from causalcache.set_utility_processor_result_v2 import (
 SCHEMA_VERSION = "1.0.0"
 PROTOCOL_ID = "causalcache_set_utility_processor_freeze_v2_hf_publication"
 PUBLICATION_STATUS = "PUBLISHED_PROCESSOR_V2_IMMUTABLE_HF_VERIFIED"
+FINALIZATION_PROTOCOL_ID = (
+    "causalcache_set_utility_processor_freeze_v2_git_publication_finalization"
+)
+FINALIZATION_STATUS = "FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION"
 REPO_TYPE = "dataset"
 COMMIT_MESSAGE = "Publish processor-v2 image-contract repair artifact"
 TAG_MESSAGE = "Immutable processor-v2 image-contract repair artifact"
@@ -806,6 +811,45 @@ def _validate_receipt_mode(path: Path) -> None:
         raise ValueError("publication receipt mode must be exactly 0600")
 
 
+def _read_receipt_0600(path: Path) -> bytes:
+    if not path.is_absolute() or not hasattr(os, "O_NOFOLLOW"):
+        raise ValueError("publication receipt path must be absolute and no-follow")
+    descriptor: int | None = None
+    try:
+        path_before = os.stat(path, follow_symlinks=False)
+        descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+        before = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(before.st_mode)
+            or stat.S_IMODE(before.st_mode) != 0o600
+        ):
+            raise ValueError("publication receipt mode must be exactly 0600")
+        blocks: list[bytes] = []
+        while block := os.read(descriptor, 8 * 1024 * 1024):
+            blocks.append(block)
+        after = os.fstat(descriptor)
+        path_after = os.stat(path, follow_symlinks=False)
+    except OSError as error:
+        raise ValueError("publication receipt is missing or unsafe") from error
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+    payload = b"".join(blocks)
+    identities = {
+        (
+            metadata.st_dev,
+            metadata.st_ino,
+            metadata.st_mode,
+            metadata.st_size,
+            metadata.st_mtime_ns,
+        )
+        for metadata in (path_before, before, after, path_after)
+    }
+    if len(identities) != 1 or len(payload) != after.st_size:
+        raise RuntimeError("publication receipt changed while being read")
+    return payload
+
+
 def _verify_local_publication_sources(
     prepared: Mapping[str, Any], *, formal_root: Path
 ) -> None:
@@ -1044,8 +1088,7 @@ def validate_processor_v2_publication(
     parent = _validated_parent(fresh_download_parent, label="fresh-download parent")
     formal = Path(prepared["source"]["formal_root"])
     receipt_file = Path(receipt_path)
-    _validate_receipt_mode(receipt_file)
-    receipt_payload = _read_regular(receipt_file, label="publication receipt")
+    receipt_payload = _read_receipt_0600(receipt_file)
     receipt = _strict_json_object(receipt_payload, label="publication receipt")
     if receipt_payload != canonical_pretty_json_bytes(receipt):
         raise ValueError("publication receipt is not canonical strict JSON")
@@ -1170,13 +1213,297 @@ def validate_processor_v2_publication(
     return receipt
 
 
+def _verify_clean_git_revision(root: Path, expected_revision: str) -> None:
+    expected = _commit(expected_revision, label="finalizer Git revision")
+    try:
+        observed = subprocess.check_output(
+            ["git", "-C", str(root), "rev-parse", "HEAD"], text=True
+        ).strip()
+        status = subprocess.check_output(
+            [
+                "git",
+                "-C",
+                str(root),
+                "status",
+                "--porcelain",
+                "--untracked-files=all",
+            ],
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise ValueError(
+            "finalizer repository must be one readable Git checkout"
+        ) from error
+    if observed != expected:
+        raise ValueError("finalizer checkout HEAD differs from expected revision")
+    if status:
+        raise ValueError("finalizer checkout must be completely clean")
+
+
+def _committed_source_bytes(
+    root: Path,
+    path: Path,
+    *,
+    revision: str,
+    label: str,
+) -> tuple[str, bytes]:
+    if not path.is_absolute():
+        raise ValueError(f"{label} path must be absolute")
+    if ".." in path.parts:
+        raise ValueError(f"{label} lexical path must not contain parent traversal")
+    lexical = Path(os.path.abspath(path))
+    try:
+        relative_path = lexical.relative_to(root)
+    except ValueError as error:
+        raise ValueError(
+            f"{label} must stay inside the finalizer checkout"
+        ) from error
+    current = root
+    for index, part in enumerate(relative_path.parts):
+        current /= part
+        try:
+            metadata = current.lstat()
+        except OSError as error:
+            raise ValueError(f"{label} lexical path is missing or unsafe") from error
+        if stat.S_ISLNK(metadata.st_mode):
+            raise ValueError(f"{label} lexical path must not traverse symlinks")
+        if index < len(relative_path.parts) - 1 and not stat.S_ISDIR(
+            metadata.st_mode
+        ):
+            raise ValueError(f"{label} lexical parent must be a directory")
+    relative = relative_path.as_posix()
+    if not relative.startswith("data/results/"):
+        raise ValueError(f"{label} must stay under Git data/results")
+    live = _read_regular(lexical, label=label)
+    try:
+        committed = subprocess.run(
+            ["git", "-C", str(root), "show", f"{revision}:{relative}"],
+            check=True,
+            capture_output=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError) as error:
+        raise ValueError(f"{label} is not committed at the finalizer revision") from error
+    if live != committed:
+        raise ValueError(f"{label} differs from its committed Git blob")
+    return relative, live
+
+
+def _finalization_destination(root: Path, directory: Path) -> Path:
+    if not directory.is_absolute():
+        raise ValueError("Git finalization directory must be absolute")
+    destination = directory.resolve(strict=False)
+    expected_parent = (root / "data/results").resolve()
+    if destination == expected_parent:
+        raise ValueError("Git finalization directory must be a child of data/results")
+    try:
+        destination.relative_to(expected_parent)
+    except ValueError as error:
+        raise ValueError(
+            "Git finalization directory must stay under data/results"
+        ) from error
+    if destination.exists() or destination.is_symlink():
+        raise FileExistsError("Git finalization directory already exists")
+    staging = destination.parent / f".{destination.name}.incomplete"
+    if staging.exists() or staging.is_symlink():
+        raise FileExistsError("Git finalization staging directory already exists")
+    if destination.parent.is_symlink() or not destination.parent.is_dir():
+        raise ValueError("Git finalization parent must be one real existing directory")
+    return destination
+
+
+def _render_finalization_card(summary: Mapping[str, Any]) -> str:
+    receipt = summary["validated_publication_receipt"]
+    destination = receipt["destination"]
+    source = receipt["source"]
+    evidence = summary["receipt_evidence"]
+    return f"""# Processor v2 Immutable Publication Finalization
+
+## 正式状态
+
+```text
+{FINALIZATION_STATUS}
+```
+
+processor-v2 formal artifact 已通过 remote read-only validation、immutable revision 与 annotated tag
+解析、两份 retained fresh replay 的逐 byte 复核。Git finalizer 本身没有执行 HF mutation。
+
+## Immutable HF binding
+
+- private dataset：`{destination['repo']}`；
+- prefix：`{destination['prefix']}`；
+- annotated tag：`{destination['tag']}`；
+- immutable revision：`{destination['immutable_revision']}`；
+- remote files：`{destination['remote_file_count']}`；
+- formal inventory SHA256：`{source['formal_file_inventory_sha256']}`；
+- publication receipt SHA256：`{evidence['sha256']}`。
+
+完整 validated receipt 与 Git source binding 见 [`summary.json`](summary.json)。原始 PENDING summary/card、
+外置 `0600` receipt 和两份 fresh replay 均保持原字节与原路径，可继续使用 publication manager 的
+`validate-only` 独立复验。
+"""
+
+
+def _write_finalization(directory: Path, summary: Mapping[str, Any]) -> None:
+    staging = directory.parent / f".{directory.name}.incomplete"
+    staging.mkdir(mode=0o700, parents=False, exist_ok=False)
+    summary_bytes = canonical_pretty_json_bytes(summary)
+    card_bytes = _render_finalization_card(summary).encode("utf-8")
+    for name, payload in (("summary.json", summary_bytes), ("README.md", card_bytes)):
+        path = staging / name
+        with path.open("xb") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+    observed = frozenset(entry.name for entry in os.scandir(staging))
+    if observed != {"summary.json", "README.md"}:
+        raise RuntimeError("Git finalization staging inventory drifted")
+    if (staging / "summary.json").read_bytes() != summary_bytes or (
+        staging / "README.md"
+    ).read_bytes() != card_bytes:
+        raise RuntimeError("Git finalization staging readback drifted")
+    _fsync_directory(staging)
+    os.rename(staging, directory)
+    _fsync_directory(directory.parent)
+
+
+def write_processor_v2_publication_finalization(
+    *,
+    repository_root: str | Path,
+    expected_git_revision: str,
+    finalization_dir: str | Path,
+    git_summary: str | Path,
+    git_card: str | Path,
+    receipt_path: str | Path,
+    validated_receipt: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Bind one already validated immutable publication into a new Git result."""
+    supplied_root = Path(repository_root)
+    if (
+        not supplied_root.is_absolute()
+        or supplied_root.is_symlink()
+        or not supplied_root.is_dir()
+    ):
+        raise ValueError("finalizer repository root must be one real directory")
+    root = supplied_root.resolve()
+    _verify_clean_git_revision(root, expected_git_revision)
+    destination = _finalization_destination(root, Path(finalization_dir))
+    summary_relative, summary_bytes = _committed_source_bytes(
+        root,
+        Path(git_summary),
+        revision=expected_git_revision,
+        label="publication source Git summary",
+    )
+    card_relative, card_bytes = _committed_source_bytes(
+        root,
+        Path(git_card),
+        revision=expected_git_revision,
+        label="publication source Git card",
+    )
+    source_directory = (root / Path(summary_relative).parent).resolve()
+    if Path(card_relative).parent != Path(summary_relative).parent:
+        raise ValueError("publication source summary and card must share one directory")
+    if destination == source_directory or destination.is_relative_to(
+        source_directory
+    ):
+        raise ValueError("Git finalization must be a separate sibling result directory")
+    receipt_file = Path(receipt_path)
+    if not receipt_file.is_absolute() or receipt_file.resolve().is_relative_to(root):
+        raise ValueError("publication receipt must remain external to Git")
+    receipt_bytes = _read_receipt_0600(receipt_file)
+    receipt = _strict_json_object(receipt_bytes, label="validated publication receipt")
+    if receipt_bytes != canonical_pretty_json_bytes(receipt):
+        raise ValueError("validated publication receipt is not canonical JSON")
+    if receipt != dict(validated_receipt):
+        raise ValueError("validated receipt return value differs from receipt evidence")
+    if (
+        set(receipt)
+        != {
+            "schema_version",
+            "protocol_id",
+            "status",
+            "source",
+            "destination",
+            "remote",
+            "fresh_downloads",
+            "token_serialized",
+        }
+        or receipt.get("schema_version") != SCHEMA_VERSION
+        or receipt.get("protocol_id") != PROTOCOL_ID
+        or receipt.get("status") != PUBLICATION_STATUS
+        or receipt.get("token_serialized") is not False
+    ):
+        raise ValueError("validated publication receipt identity drifted")
+    source = receipt.get("source")
+    if not isinstance(source, Mapping) or (
+        source.get("git_summary_path") != str(Path(git_summary).resolve())
+        or source.get("git_summary_sha256") != _sha256_bytes(summary_bytes)
+        or source.get("git_summary_size_bytes") != len(summary_bytes)
+        or source.get("git_card_path") != str(Path(git_card).resolve())
+        or source.get("git_card_sha256") != _sha256_bytes(card_bytes)
+        or source.get("git_card_size_bytes") != len(card_bytes)
+    ):
+        raise ValueError("validated receipt source summary/card binding drifted")
+    receipt_destination = receipt.get("destination")
+    remote = receipt.get("remote")
+    if not isinstance(receipt_destination, Mapping) or not isinstance(
+        remote, Mapping
+    ):
+        raise ValueError("validated receipt destination or remote binding drifted")
+    immutable = _commit(
+        receipt_destination.get("immutable_revision"),
+        label="validated immutable revision",
+    )
+    if remote.get("tag_resolved_commit") != immutable:
+        raise ValueError("validated receipt tag/immutable revision binding drifted")
+    result = {
+        "schema_version": SCHEMA_VERSION,
+        "protocol_id": FINALIZATION_PROTOCOL_ID,
+        "status": FINALIZATION_STATUS,
+        "source_git": {
+            "revision": expected_git_revision,
+            "summary_path": summary_relative,
+            "summary_sha256": _sha256_bytes(summary_bytes),
+            "card_path": card_relative,
+            "card_sha256": _sha256_bytes(card_bytes),
+        },
+        "receipt_evidence": {
+            "path": str(receipt_file.resolve()),
+            "sha256": _sha256_bytes(receipt_bytes),
+            "size_bytes": len(receipt_bytes),
+            "mode": "0600",
+        },
+        "validated_publication_receipt": receipt,
+        "validation": {
+            "validate_only_completed_before_finalization": True,
+            "immutable_revision": immutable,
+            "source_summary_and_card_preserved": True,
+            "external_receipt_and_fresh_replays_preserved": True,
+            "independent_validate_only_remains_available": True,
+        },
+        "negative_operations": {"hugging_face_mutation_count": 0},
+    }
+    _write_finalization(destination, result)
+    if (
+        _read_regular(Path(git_summary), label="source Git summary after finalization")
+        != summary_bytes
+        or _read_regular(Path(git_card), label="source Git card after finalization")
+        != card_bytes
+        or _read_receipt_0600(receipt_file) != receipt_bytes
+    ):
+        raise RuntimeError("finalizer changed preserved validate-only evidence")
+    return result
+
+
 __all__ = [
     "COMMIT_MESSAGE",
     "EXPECTED_REMOTE_FILE_COUNT",
+    "FINALIZATION_PROTOCOL_ID",
+    "FINALIZATION_STATUS",
     "PROTOCOL_ID",
     "PUBLICATION_STATUS",
     "TAG_MESSAGE",
     "prepare_processor_v2_publication",
     "publish_processor_v2_artifact",
     "validate_processor_v2_publication",
+    "write_processor_v2_publication_finalization",
 ]

@@ -12,6 +12,19 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：processor publication Git SoT finalizer
+
+- publication manager 新增 `finalize`：先复用现有 remote read-only `validate-only`，只有 receipt、private repo、
+  no-overwrite commit boundary、annotated tag 与两份 retained fresh replay 全部复验后，才允许写 Git result；
+- finalizer 要求 exact clean Git revision 与 committed pending summary/card，从一个新的 sibling
+  `data/results/...` staging 原子生成 `summary.json` + `README.md`；final summary 内嵌完整 validated receipt，绑定
+  receipt SHA/size/`0600` mode、source Git blob、immutable revision/tag，且 HF mutation count=`0`；
+- 原 pending result、外置 receipt、commit/tag fresh replay 均保持原路径原字节，因此 publication manager 的
+  `validate-only` 仍可独立重复。source path 拒绝 leaf/ancestor symlink；receipt 由单个 `O_NOFOLLOW` fd 同时完成
+  mode check、稳定读取与 path/inode identity 复核；
+- publication tests=`29 passed`，完整 processor/result/watcher suite=`151 passed`。本步只闭合未来 publication
+  的 Git SoT 交接，没有访问 HF、没有创建 tag/revision，也不改变当前 formal 的 running 状态。
+
 ### 2026-07-18（UTC 07-19）：train-only processor→label input firewall
 
 - 新增 `code/causalcache/set_utility_label_inputs.py`：从 frozen processor roster 先推导全部 state/role，任何

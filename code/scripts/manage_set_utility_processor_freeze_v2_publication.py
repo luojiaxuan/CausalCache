@@ -16,10 +16,14 @@ _CODE_ROOT = Path(__file__).resolve().parents[1]
 if str(_CODE_ROOT) not in sys.path:
     sys.path.insert(0, str(_CODE_ROOT))
 
+import causalcache.set_utility_processor_publication_v2 as _publication_module
 from causalcache.set_utility_processor_publication_v2 import (
     publish_processor_v2_artifact,
     validate_processor_v2_publication,
+    write_processor_v2_publication_finalization,
 )
+
+_REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _common(parser: argparse.ArgumentParser) -> None:
@@ -40,6 +44,11 @@ def _parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
     _common(commands.add_parser("publish"))
     _common(commands.add_parser("validate-only"))
+    finalize = commands.add_parser("finalize")
+    _common(finalize)
+    finalize.add_argument("--repository-root", type=Path, required=True)
+    finalize.add_argument("--expected-git-revision", required=True)
+    finalize.add_argument("--finalization-dir", type=Path, required=True)
     return parser
 
 
@@ -110,6 +119,29 @@ def main(argv: Sequence[str] | None = None) -> None:
         )
     elif args.command == "validate-only":
         result = validate_processor_v2_publication(**common)
+    elif args.command == "finalize":
+        if args.repository_root.resolve() != _REPOSITORY_ROOT:
+            raise ValueError(
+                "--repository-root differs from the executing finalizer checkout"
+            )
+        expected_module = (
+            _REPOSITORY_ROOT
+            / "code/causalcache/set_utility_processor_publication_v2.py"
+        )
+        if Path(_publication_module.__file__).resolve() != expected_module.resolve():
+            raise ValueError(
+                "executed publication module differs from finalizer checkout"
+            )
+        validated = validate_processor_v2_publication(**common)
+        result = write_processor_v2_publication_finalization(
+            repository_root=args.repository_root,
+            expected_git_revision=args.expected_git_revision,
+            finalization_dir=args.finalization_dir,
+            git_summary=args.git_summary,
+            git_card=args.git_card,
+            receipt_path=args.receipt,
+            validated_receipt=validated,
+        )
     else:
         raise AssertionError(f"unexpected command: {args.command}")
     print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))

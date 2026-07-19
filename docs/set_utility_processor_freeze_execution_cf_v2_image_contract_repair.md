@@ -70,7 +70,9 @@ RapidOCR、写入需要的 artifact image members 并以原 SHA256 绑定；禁�
   card，创建无覆盖 annotated tag，并分别从 immutable commit 与 tag fresh-download 全部 25 files 逐 byte 验证；
   commit/tag/download/receipt 中断后只允许 exact-state reconcile，未知或 drifted prefix/tag 拒绝续跑；fresh
   replay 路径在远端 mutation 前验证，receipt 通过 `0600` temp + file/parent `fsync` + no-overwrite hard-link
-  原子发布；
+  原子发布；`finalize` 会先做完整 remote `validate-only`，再从 clean exact Git revision 写新的 sibling Git
+  result，内嵌 validated receipt 并绑定 source Git blobs、receipt SHA/mode、immutable revision 与 annotated tag；
+  原 pending result/receipt/replays 不变，finalizer 不执行 HF mutation；
 - canonical output basename：
   `causalcache-set-utility-processor-freeze-v2-image-contract-repair-<GIT7>`；
 - intended private HF tag：`phase1-b2-processor-freeze-v2-image-contract-repair`，只有 VALID postflight 与

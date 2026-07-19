@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import json
 import stat
+import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from types import SimpleNamespace
@@ -17,11 +18,13 @@ from causalcache.set_utility_processor_artifacts import (
 from causalcache.set_utility_processor_postflight_v2 import VALIDATION_STATUS
 from causalcache.set_utility_processor_publication_v2 import (
     EXPECTED_REMOTE_FILE_COUNT,
+    FINALIZATION_STATUS,
     PUBLICATION_STATUS,
     _expected_formal_paths,
     _sha256_bytes,
     publish_processor_v2_artifact,
     validate_processor_v2_publication,
+    write_processor_v2_publication_finalization,
 )
 from causalcache.set_utility_processor_result_v2 import (
     PENDING_PUBLICATION_STATUS,
@@ -256,6 +259,43 @@ def _publish(api: _FakeApi, fixture: dict[str, object]):
         operation_factory=_operation_factory,
         **fixture,
     )
+
+
+def _git_finalization_fixture(
+    tmp_path: Path,
+) -> tuple[dict[str, object], Path, str, Path]:
+    fixture = _fixture(tmp_path)
+    repository = tmp_path / "repository"
+    source = repository / "data/results/processor-v2-source"
+    source.mkdir(parents=True)
+    summary = source / "summary.json"
+    card = source / "README.md"
+    summary.write_bytes(Path(fixture["git_summary"]).read_bytes())
+    card.write_bytes(Path(fixture["git_card"]).read_bytes())
+    fixture["git_summary"] = summary
+    fixture["git_card"] = card
+    subprocess.run(["git", "init", "-q"], cwd=repository, check=True)
+    subprocess.run(
+        ["git", "config", "user.email", "fixture@example.com"],
+        cwd=repository,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Fixture"],
+        cwd=repository,
+        check=True,
+    )
+    subprocess.run(["git", "add", "."], cwd=repository, check=True)
+    subprocess.run(
+        ["git", "commit", "-qm", "fixture publication source"],
+        cwd=repository,
+        check=True,
+    )
+    revision = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repository, text=True
+    ).strip()
+    finalization = repository / "data/results/processor-v2-publication"
+    return fixture, repository, revision, finalization
 
 
 def test_success_is_one_commit_one_annotated_tag_and_two_fresh_replays(
@@ -621,3 +661,192 @@ def test_receipt_write_failure_never_exposes_partial_final_file(
 
     assert not receipt.exists()
     assert list(tmp_path.glob(f".{receipt.name}.*.tmp")) == []
+
+
+def test_git_finalizer_binds_validated_receipt_and_preserves_validate_only(
+    tmp_path: Path,
+) -> None:
+    fixture, repository, revision, finalization = _git_finalization_fixture(
+        tmp_path
+    )
+    api = _FakeApi()
+    receipt = _publish(api, fixture)
+    validated = validate_processor_v2_publication(api=api, **fixture)
+    source_summary_before = Path(fixture["git_summary"]).read_bytes()
+    source_card_before = Path(fixture["git_card"]).read_bytes()
+    receipt_before = Path(fixture["receipt_path"]).read_bytes()
+
+    result = write_processor_v2_publication_finalization(
+        repository_root=repository,
+        expected_git_revision=revision,
+        finalization_dir=finalization,
+        git_summary=fixture["git_summary"],
+        git_card=fixture["git_card"],
+        receipt_path=fixture["receipt_path"],
+        validated_receipt=validated,
+    )
+
+    assert result["status"] == FINALIZATION_STATUS
+    assert result["validated_publication_receipt"] == receipt
+    assert result["validation"] == {
+        "validate_only_completed_before_finalization": True,
+        "immutable_revision": PUBLICATION_COMMIT,
+        "source_summary_and_card_preserved": True,
+        "external_receipt_and_fresh_replays_preserved": True,
+        "independent_validate_only_remains_available": True,
+    }
+    assert result["negative_operations"] == {"hugging_face_mutation_count": 0}
+    assert {entry.name for entry in finalization.iterdir()} == {
+        "README.md",
+        "summary.json",
+    }
+    assert json.loads((finalization / "summary.json").read_text()) == result
+    assert PUBLICATION_COMMIT in (finalization / "README.md").read_text()
+    assert Path(fixture["git_summary"]).read_bytes() == source_summary_before
+    assert Path(fixture["git_card"]).read_bytes() == source_card_before
+    assert Path(fixture["receipt_path"]).read_bytes() == receipt_before
+    assert validate_processor_v2_publication(api=api, **fixture) == receipt
+
+
+def test_git_finalizer_rejects_unvalidated_or_mutated_receipt(
+    tmp_path: Path,
+) -> None:
+    fixture, repository, revision, finalization = _git_finalization_fixture(
+        tmp_path
+    )
+    api = _FakeApi()
+    validated = _publish(api, fixture)
+    unvalidated = copy.deepcopy(validated)
+    unvalidated["destination"]["immutable_revision"] = "d" * 40
+
+    with pytest.raises(ValueError, match="differs from receipt evidence"):
+        write_processor_v2_publication_finalization(
+            repository_root=repository,
+            expected_git_revision=revision,
+            finalization_dir=finalization,
+            git_summary=fixture["git_summary"],
+            git_card=fixture["git_card"],
+            receipt_path=fixture["receipt_path"],
+            validated_receipt=unvalidated,
+        )
+
+    assert not finalization.exists()
+
+
+def test_git_finalizer_requires_clean_source_and_external_receipt(
+    tmp_path: Path,
+) -> None:
+    fixture, repository, revision, finalization = _git_finalization_fixture(
+        tmp_path
+    )
+    (repository / "dirty.txt").write_text("dirty\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="completely clean"):
+        write_processor_v2_publication_finalization(
+            repository_root=repository,
+            expected_git_revision=revision,
+            finalization_dir=finalization,
+            git_summary=fixture["git_summary"],
+            git_card=fixture["git_card"],
+            receipt_path=fixture["receipt_path"],
+            validated_receipt={},
+        )
+
+    assert not finalization.exists()
+
+    (repository / "dirty.txt").unlink()
+    inside_receipt = repository / "receipt.json"
+    inside_receipt.write_text("{}\n", encoding="utf-8")
+    inside_receipt.chmod(0o600)
+    subprocess.run(["git", "add", "receipt.json"], cwd=repository, check=True)
+    subprocess.run(
+        ["git", "commit", "-qm", "fixture unsafe receipt"],
+        cwd=repository,
+        check=True,
+    )
+    new_revision = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repository, text=True
+    ).strip()
+    with pytest.raises(ValueError, match="external to Git"):
+        write_processor_v2_publication_finalization(
+            repository_root=repository,
+            expected_git_revision=new_revision,
+            finalization_dir=finalization,
+            git_summary=fixture["git_summary"],
+            git_card=fixture["git_card"],
+            receipt_path=inside_receipt,
+            validated_receipt={},
+        )
+    assert not finalization.exists()
+
+
+@pytest.mark.parametrize("symlink_kind", ["leaf", "ancestor"])
+def test_committed_source_rejects_lexical_symlink_paths(
+    tmp_path: Path,
+    symlink_kind: str,
+) -> None:
+    repository = tmp_path / "repository"
+    source = repository / "data/results/source"
+    source.mkdir(parents=True)
+    (source / "summary.json").write_text("{}\n", encoding="utf-8")
+    if symlink_kind == "leaf":
+        supplied = source / "linked-summary.json"
+        supplied.symlink_to("summary.json")
+    else:
+        alias = repository / "data/results/alias"
+        alias.symlink_to("source")
+        supplied = alias / "summary.json"
+    subprocess.run(["git", "init", "-q"], cwd=repository, check=True)
+    subprocess.run(
+        ["git", "config", "user.email", "fixture@example.com"],
+        cwd=repository,
+        check=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "Fixture"],
+        cwd=repository,
+        check=True,
+    )
+    subprocess.run(["git", "add", "."], cwd=repository, check=True)
+    subprocess.run(
+        ["git", "commit", "-qm", "fixture symlink source"],
+        cwd=repository,
+        check=True,
+    )
+    revision = subprocess.check_output(
+        ["git", "rev-parse", "HEAD"], cwd=repository, text=True
+    ).strip()
+
+    with pytest.raises(ValueError, match="must not traverse symlinks"):
+        publication_v2._committed_source_bytes(
+            repository.resolve(),
+            supplied,
+            revision=revision,
+            label="fixture source",
+        )
+
+
+def test_receipt_mode_and_read_share_one_stable_nofollow_identity(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    receipt = tmp_path / "receipt.json"
+    payload = b'{"status":"fixture"}\n'
+    receipt.write_bytes(payload)
+    receipt.chmod(0o600)
+    backup = tmp_path / "receipt-original.json"
+    original_read = publication_v2.os.read
+    swapped = False
+
+    def replace_during_read(descriptor: int, count: int) -> bytes:
+        nonlocal swapped
+        if not swapped:
+            swapped = True
+            receipt.rename(backup)
+            receipt.write_bytes(payload)
+            receipt.chmod(0o600)
+        return original_read(descriptor, count)
+
+    monkeypatch.setattr(publication_v2.os, "read", replace_during_read)
+    with pytest.raises(RuntimeError, match="changed while being read"):
+        publication_v2._read_receipt_0600(receipt)
