@@ -62,6 +62,24 @@ Aries。任何 repo、virtualenv、log、checkpoint 与 cache 都不得写入根
 I/O。后文已经 frozen 的 formal contract 若显式要求更严格 preflight、smoke 或 monitor，仍按原 contract
 执行，不追溯放宽。
 
+## 通用 CPU/data fast path
+
+CPU-only pipeline 不以单 worker 为默认值。只要输入可以按 trajectory、query、tar shard、Parquet shard 或
+独立 validation unit 拆分，就先在真实小样本上测量候选并行度，随后使用仍能增加有效吞吐、且不会超过
+RAM、文件描述符或本地 I/O 容量的最大 worker 数。必须记录 worker 数、wall time、aggregate CPU、peak RSS
+与输出等价性；若继续加 worker 已不增吞吐，才在 measured knee 停止。固定只有四个独立 tar shard 的步骤
+最多使用四个 semantic workers；query/state 数量更大的 label generation 则不能沿用这个上限。
+
+跨 host 分发只有在工作单元相互独立且数据搬运成本可被计算量摊销时才启用。大体积 CPU artifact 优先在其
+本地持久盘并行处理；不能为了使用 H100/H200 而先复制数十 GB 输入，GPU 型号也不会加速纯 CPU validation。
+policy forward、teacher inference 与 label generation 才按空闲 GPU 和显存拆到 Hyper01、H100、B200 或
+Taurus/Aries；每个 shard 保留 exact config/data/model revision 与可恢复 output identity，最后做确定性 merge。
+Mac 可并行承担单测、schema/manifest 检查和轻量文档构建，但不作为远端 formal artifact 的隐式数据源。
+
+已经启动的 committed formal path 不在运行中修改 worker topology。若发现串行瓶颈，保留其 canonical evidence，
+从新的 pushed revision 建立只读并行 validator/runner，并同时报告 canonical 与 versioned path 的语义等价和
+wall-time；后续合同再切换到已验证的并行实现。
+
 ## Independent confirm-20 的历史 v1 执行顺序（禁止重跑）
 
 本节只保留 Source-A=`e1cc8b3` / Execution-B=`f1e9196` 的审计记录。该 v1 已在 restoration output 0 时因

@@ -58,6 +58,10 @@
 > identity 已显式拆分，historical context 只能从 clean exact producer revision 构造。当前仅完成
 > fixture/source 验证，
 > 尚未替代正在运行的 canonical postflight，也没有把它的状态追认为 formal evidence。
+> 项目 CPU 调度规则也已改为 measured-parallelism first：可按 shard/query/state 拆分的步骤默认使用所有仍能
+> 提高吞吐的本地 workers，并记录 wall/RSS/等价性；跨机分发以数据本地性和可摊销计算量为前提，H100/H200
+> 留给 policy/teacher forward，而不是为纯 CPU validation 搬运大 artifact。已启动的 frozen path 只通过新的
+> versioned implementation 加速，不追溯改写 evidence。
 >
 > 数据防火墙已机械物化 107 个历史 identity：58 条 `legacy_train_only` + 49 条
 > `forbidden_consumed`，ledger SHA256=

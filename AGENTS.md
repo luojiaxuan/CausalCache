@@ -21,6 +21,9 @@ immutable revision、schema/provenance 与生成命令。
 
 - 科学参数必须由 committed config 或显式 CLI 参数传入，不用环境变量覆盖；Docker cache 路由是
   基础设施例外；
+- CPU-only 工作默认使用输入分片、可用物理核心和内存/I/O 能有效支撑的最大并行度；先用短程 scaling
+  measurement 找到吞吐拐点，再冻结 worker 数。不得仅为日志简单或实现方便把可分片工作串行化；只有
+  已 committed 的 historical/formal contract 才保持原调度，并以新的 versioned path 引入并行修复；
 - 通用 GPU 资源发现、5 秒 idle cleanup、跨机 shard 调度和单机启动遵循全局 GPU skills。正常路径直接
   使用完整选定 allocation，不要求预先单卡/双卡 smoke、广泛 host/disk/container sweep 或 startup
   utilization gate；失败、无进展、OOM 或明显过慢时再按需诊断；
