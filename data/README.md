@@ -65,8 +65,12 @@ v2 column-projection repair 已从 clean `main@1a03b7e` 重新跑完整 denomina
 `PNG/RGBA=18,768`、`PNG/RGB=24`，全部 `EXIF=false`。Git-safe 结果与完整 provenance 位于
 [`results/set_utility_selected_image_format_census_v2_column_projection_repair/`](results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
 processor image-contract v2 已完成 source freeze，config SHA256=
-`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`，当前尚无 formal processor output；
-下一步从 clean pushed commit 执行 Hyper00 CPU-only processor freeze。v1 failure 协议见
+`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`。唯一 Hyper00 CPU-only formal run
+已从 clean `main@1c84dfe` 启动，当前为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；`05:12:26Z` 的只读进度为
+`1,011/18,792` observations，已越过 v1 RGB failure witness，但尚无 completed root、VALID postflight 或可上传
+processor artifact。正式 bytes 暂存于
+`/data/artifacts/.causalcache-set-utility-processor-freeze-v2-image-contract-repair-1c84dfe.incomplete`；完成后只有
+Git-safe result commit/push 与 private HF immutable publication 才能升级 source of truth。v1 failure 协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
 边界见
 [`../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。

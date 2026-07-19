@@ -12,6 +12,27 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：processor image-contract v2 formal run 启动并越过旧 witness
+
+- 唯一 formal v2 run 已于 `2026-07-19T04:58:04Z` 从 clean detached
+  `main@1c84dfe37f86bdc255a00184521170eeaa3b0663` 在 Hyper00 启动；canonical config SHA256 保持
+  `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；
+- container `sglang-omni-jaxan-07181624` 的 `DeviceRequests=null`；4 个 CPU OCR worker 的冻结负载为
+  `4700/4700/4693/4699` observations，GPU、policy/vision forward、labels、training、matched-NLL、closed-loop 与
+  HF mutation 均为 0；
+- `2026-07-19T05:12:26Z` 的只读 tar-header snapshot 已完成 `1,011/18,792` observations（5.38%），四 worker
+  持续约 100% CPU、零 traceback；worker 0 已完整越过 v1 第 228 个 observation 所在 RGB violation
+  trajectory，证明 versioned allowlist repair 通过了已知 blocker，但不提前宣告全量 VALID；
+- 当前只有 persistent sibling `.incomplete`，formal output root、receipts、final candidate universe、exact operation
+  budget 与 HF artifact 均未完成，状态严格为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；粗略 ETA 为总计 6--8 小时；
+- 新增 fail-closed Git-safe result recorder：它重新执行 committed v2 postflight，要求 exact 23-file tree、staging
+  absent、argv/start/end/exit/log evidence 与 run identity 一致，再原子写两份轻量 Git 文件。VALID 时 publication
+  也只能先是 `PENDING_HF_UPLOAD`，不能复制 raw candidate/OCR/images/logs；producer/recorder 必须是 exact clean
+  Git HEAD，实际执行 module origins 也必须来自 recorder checkout；recorder focused=`59 passed`，all
+  set-utility=`356 passed, 15 skipped, 24 subtests passed`；
+- 下一步等待 atomic run 终态，执行 committed postflight，生成并 push completion/failure record；仅 VALID 后才可
+  上传 private HF tag `phase1-b2-processor-freeze-v2-image-contract-repair` 并 fresh-download 逐 byte 复验。
+
 ### 2026-07-18（UTC 07-19）：processor image-contract v2 source freeze
 
 - 新建独立 processor Execution-CF v2；canonical config 8,014 bytes，SHA256=

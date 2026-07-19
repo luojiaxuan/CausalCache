@@ -2,10 +2,13 @@
 
 ## 当前状态
 
-当前状态为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`。canonical Execution-CF v2 已冻结，config 为
+source freeze 已完成；唯一 formal run 当前状态为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`。canonical Execution-CF v2
+已冻结，config 为
 `code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`，8,014 bytes，
-SHA256=`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`。本 milestone 只授权从
-clean pushed producer commit 启动 processor-only formal run；尚未产生 completed root、final candidates、exact
+SHA256=`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`。run 于
+`2026-07-19T04:58:04Z` 从 clean detached
+`main@1c84dfe37f86bdc255a00184521170eeaa3b0663` 在 Hyper00 CPU-only container 启动；尚未产生 completed root、
+final candidates、exact
 operation budget、restoration labels、predictor checkpoint、matched-NLL 或 closed-loop result。
 
 v1 `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT` 与其外置 `.incomplete`、logs、hashes
@@ -56,6 +59,9 @@ RapidOCR、写入需要的 artifact image members 并以原 SHA256 绑定；禁�
 - source/config validator：`code/scripts/validate_set_utility_processor_freeze_v2_execution.py`；
 - completed-root postflight：`code/causalcache/set_utility_processor_postflight_v2.py` 与
   `code/scripts/validate_set_utility_processor_freeze_v2_output.py`；
+- Git-safe result recorder：`code/causalcache/set_utility_processor_result_v2.py` 与
+  `code/scripts/record_set_utility_processor_freeze_v2_result.py`；它要求 fresh committed postflight、exact 23-file
+  tree、staging absent、runner argv/start/end/exit/log evidence 全部闭合，且只写 `README.md` 与 `summary.json`；
 - canonical output basename：
   `causalcache-set-utility-processor-freeze-v2-image-contract-repair-<GIT7>`；
 - intended private HF tag：`phase1-b2-processor-freeze-v2-image-contract-repair`，只有 VALID postflight 与
@@ -110,6 +116,31 @@ validator 读取该 artifact，必须显式使用本 v2 contract/postflight。
 - all set-utility regression：`341 passed, 15 skipped, 24 subtests passed`；15 个 skip 是本机没有 PyTorch 的
   integration paths，目标 processor runtime 在 formal preflight 中显式绑定 PyTorch/Transformers versions；
 - `py_compile` 与 `git diff --check` 通过。
+
+## Formal v2 运行状态
+
+- clean producer：`1c84dfe37f86bdc255a00184521170eeaa3b0663`；config SHA256 仍为
+  `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；
+- host/container：Hyper00 `node-radixark-16-0000`，container ID=
+  `a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a`，Docker
+  `DeviceRequests=null`，4 个 OCR CPU workers，GPU count=0；
+- output namespace：
+  `/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-1c84dfe`；完成前只允许 sibling
+  `.incomplete` 存在，禁止上传；
+- `2026-07-19T05:12:26Z` 的 prefix-safe tar-header snapshot：worker completed records=
+  `30/34/24/34`，映射到 `1,011/18,792` observations（5.38%）；四 worker 均持续约 100% CPU，零 traceback，
+  仅一次合法 empty-detection warning；
+- worker 0 已完整完成 v1 violation 所在 trajectory，因此 v2 明确越过第 228 个 observation 的旧 RGB failure
+  boundary；这只关闭已知 blocker，不等于 formal VALID；
+- 运行 ETA 粗估为 OCR 4--5 小时、AutoProcessor 1.5--3 小时、总计 6--8 小时。正式终态只看 atomic root、
+  runner exit 与 committed v2 postflight，不看 ETA；
+- 外置 `argv.txt`、`start.json`、`outer.log`、`exit_code` 与 one-second end watcher 均在 `/data/logs`；result
+  recorder 将验证其 exact bytes/hash、start/end/elapsed、run identity、postflight 与 formal tree，成功时仍只标记
+  `PENDING_HF_UPLOAD`；recorder 明确允许 producer worktree 与 recorder worktree 不同，但 runner path 只能取自
+  formal `run-identity.runtime_cli.repository_root`；两个 checkout 都必须 exact clean Git HEAD，执行中的 recorder、
+  contract 与 postflight module origins 也必须实际来自 recorder checkout，不能用 clean checkout 替 dirty code 背书；
+- recorder focused suite=`59 passed`；当前 all set-utility regression=
+  `356 passed, 15 skipped, 24 subtests passed`，`py_compile`、CLI help、source validator 与 `git diff --check` 通过。
 
 ## 正式执行模板
 
