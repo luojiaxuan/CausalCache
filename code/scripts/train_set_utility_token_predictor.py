@@ -41,7 +41,13 @@ def _read_jsonl(path: Path) -> tuple[dict[str, Any], ...]:
 
 
 class _TokenCache:
-    def __init__(self, root: Path, manifest: dict[str, Any]) -> None:
+    def __init__(
+        self,
+        root: Path,
+        manifest: dict[str, Any],
+        *,
+        device: Any = "cpu",
+    ) -> None:
         try:
             from safetensors.torch import load_file
         except ModuleNotFoundError as error:
@@ -52,7 +58,7 @@ class _TokenCache:
             path = root / record["partition"] / record["shard"]
             by_shard[path].append((cache_key, record))
         for path in sorted(by_shard):
-            loaded = load_file(str(path), device="cpu")
+            loaded = load_file(str(path), device=str(device))
             for cache_key, record in by_shard[path]:
                 tensor = loaded[record["tensor"]]
                 if list(tensor.shape) != record["shape"] or str(tensor.dtype) != record["dtype"]:
@@ -60,6 +66,7 @@ class _TokenCache:
                 self.tensors[cache_key] = tensor
         if len(self.tensors) != len(manifest["tensor_inventory"]):
             raise ValueError("token cache preload omitted an inventory entry")
+        self.device = device
 
     def visual(self, key: str) -> Any:
         return self.tensors[f"visual:{key}"]
@@ -129,29 +136,42 @@ def _collate(
     event_visual_length = max(
         row.shape[0] for rows in event_visual_rows for row in rows
     )
+    cache_device = query_visual_rows[0].device
     query_visual = torch.zeros(
-        (batch_size, query_visual_length, hidden), dtype=torch.bfloat16
+        (batch_size, query_visual_length, hidden),
+        dtype=torch.bfloat16,
+        device=cache_device,
     )
     query_visual_mask = torch.zeros(
-        (batch_size, query_visual_length), dtype=torch.bool
+        (batch_size, query_visual_length), dtype=torch.bool, device=cache_device
     )
     event_visual = torch.zeros(
-        (batch_size, 4, event_visual_length, hidden), dtype=torch.bfloat16
+        (batch_size, 4, event_visual_length, hidden),
+        dtype=torch.bfloat16,
+        device=cache_device,
     )
     event_visual_mask = torch.zeros(
-        (batch_size, 4, event_visual_length), dtype=torch.bool
+        (batch_size, 4, event_visual_length),
+        dtype=torch.bool,
+        device=cache_device,
     )
     query_text = torch.zeros(
-        (batch_size, query_text_length, hidden), dtype=torch.bfloat16
+        (batch_size, query_text_length, hidden),
+        dtype=torch.bfloat16,
+        device=cache_device,
     )
     query_text_mask = torch.zeros(
-        (batch_size, query_text_length), dtype=torch.bool
+        (batch_size, query_text_length), dtype=torch.bool, device=cache_device
     )
     event_text = torch.zeros(
-        (batch_size, 4, event_text_length, hidden), dtype=torch.bfloat16
+        (batch_size, 4, event_text_length, hidden),
+        dtype=torch.bfloat16,
+        device=cache_device,
     )
     event_text_mask = torch.zeros(
-        (batch_size, 4, event_text_length), dtype=torch.bool
+        (batch_size, 4, event_text_length),
+        dtype=torch.bool,
+        device=cache_device,
     )
     for batch_index, row in enumerate(query_visual_rows):
         query_visual[batch_index, : row.shape[0]] = row
@@ -409,7 +429,7 @@ def main() -> None:
     if not train_states or not tune_states:
         raise ValueError("token pilot requires non-empty train and tune roles")
 
-    cache = _TokenCache(cache_root, cache_manifest)
+    cache = _TokenCache(cache_root, cache_manifest, device=args.device)
     model_config = TokenUtilityModelConfig(**variant["model"])
     model = TokenSetUtilityPredictor(model_config).to(args.device)
     training = config["training"]

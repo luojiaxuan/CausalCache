@@ -8,6 +8,7 @@
     "visual_sequence_length": "variable_patch_grid_untruncated",
     "text_feature": "frozen_input_embedding_sequence",
     "source_hidden_size": 4096,
+    "training_cache_residency": "gpu",
     "mean_pool_before_student": false,
     "backbone_frozen": true
   },
