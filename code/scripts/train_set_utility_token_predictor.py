@@ -110,15 +110,12 @@ def _collate(
     torch: Any,
 ) -> dict[str, Any]:
     batch_size = len(states)
-    query_visual = torch.stack(
-        [cache.visual(state["current_image_key"]) for state in states]
-    )
-    event_visual = torch.stack(
-        [
-            torch.stack([cache.visual(key) for key in state["event_image_keys"]])
-            for state in states
-        ]
-    )
+    query_visual_rows = [
+        cache.visual(state["current_image_key"]) for state in states
+    ]
+    event_visual_rows = [
+        [cache.visual(key) for key in state["event_image_keys"]] for state in states
+    ]
     query_text_rows = [cache.text(state["instruction_text_key"]) for state in states]
     event_text_rows = [
         [cache.text(key) for key in state["event_text_keys"]] for state in states
@@ -127,7 +124,23 @@ def _collate(
     event_text_length = max(
         row.shape[0] for rows in event_text_rows for row in rows
     )
-    hidden = query_visual.shape[-1]
+    hidden = query_visual_rows[0].shape[-1]
+    query_visual_length = max(row.shape[0] for row in query_visual_rows)
+    event_visual_length = max(
+        row.shape[0] for rows in event_visual_rows for row in rows
+    )
+    query_visual = torch.zeros(
+        (batch_size, query_visual_length, hidden), dtype=torch.bfloat16
+    )
+    query_visual_mask = torch.zeros(
+        (batch_size, query_visual_length), dtype=torch.bool
+    )
+    event_visual = torch.zeros(
+        (batch_size, 4, event_visual_length, hidden), dtype=torch.bfloat16
+    )
+    event_visual_mask = torch.zeros(
+        (batch_size, 4, event_visual_length), dtype=torch.bool
+    )
     query_text = torch.zeros(
         (batch_size, query_text_length, hidden), dtype=torch.bfloat16
     )
@@ -140,6 +153,13 @@ def _collate(
     event_text_mask = torch.zeros(
         (batch_size, 4, event_text_length), dtype=torch.bool
     )
+    for batch_index, row in enumerate(query_visual_rows):
+        query_visual[batch_index, : row.shape[0]] = row
+        query_visual_mask[batch_index, : row.shape[0]] = True
+    for batch_index, rows in enumerate(event_visual_rows):
+        for event_index, row in enumerate(rows):
+            event_visual[batch_index, event_index, : row.shape[0]] = row
+            event_visual_mask[batch_index, event_index, : row.shape[0]] = True
     for batch_index, row in enumerate(query_text_rows):
         query_text[batch_index, : row.shape[0]] = row
         query_text_mask[batch_index, : row.shape[0]] = True
@@ -151,15 +171,11 @@ def _collate(
     return {
         "model": {
             "query_visual_tokens": query_visual.to(device),
-            "query_visual_mask": torch.ones(
-                query_visual.shape[:2], dtype=torch.bool, device=device
-            ),
+            "query_visual_mask": query_visual_mask.to(device),
             "query_text_tokens": query_text.to(device),
             "query_text_mask": query_text_mask.to(device),
             "event_visual_tokens": event_visual.to(device),
-            "event_visual_mask": torch.ones(
-                event_visual.shape[:3], dtype=torch.bool, device=device
-            ),
+            "event_visual_mask": event_visual_mask.to(device),
             "event_text_tokens": event_text.to(device),
             "event_text_mask": event_text_mask.to(device),
             "event_numeric_features": torch.tensor(

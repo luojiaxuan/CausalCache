@@ -209,9 +209,19 @@ def main() -> None:
             with Image.open(path) as image:
                 images.append(image.convert("RGB"))
         batch = runtime.encode_five_image_token_sequences(images)
-        for key, tensor in zip(actual_keys, batch.token_sequences, strict=True):
+        for key, tensor, token_count in zip(
+            actual_keys,
+            batch.token_sequences,
+            batch.merged_token_counts,
+            strict=True,
+        ):
             cpu = tensor.detach().to(device="cpu").contiguous()
-            if cpu.dtype is not torch.bfloat16 or tuple(cpu.shape) != (2560, 4096):
+            if (
+                cpu.dtype is not torch.bfloat16
+                or cpu.ndim != 2
+                or tuple(cpu.shape) != (token_count, 4096)
+                or token_count <= 0
+            ):
                 raise ValueError("GUI-Owl visual token cache geometry drifted")
             pending[f"v_{key}"] = cpu
             if len(pending) >= args.visual_shard_size:

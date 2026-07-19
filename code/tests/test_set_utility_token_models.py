@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import itertools
 import unittest
 
 from causalcache.set_utility_token_models import (
     TokenSetUtilityPredictor,
     TokenUtilityModelConfig,
 )
+from scripts.train_set_utility_token_predictor import _collate
 
 
 class TokenUtilityConfigTest(unittest.TestCase):
@@ -111,6 +113,55 @@ class TokenUtilityTorchTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "padded event"):
             model(**batch)
+
+    def test_collate_pads_variable_visual_sequences_without_dropping_rows(self) -> None:
+        torch = self.torch
+
+        class Cache:
+            def visual(self, key: str) -> object:
+                length = int(key.rsplit("-", 1)[1])
+                return torch.full((length, 16), length, dtype=torch.bfloat16)
+
+            def text(self, key: str) -> object:
+                length = int(key.rsplit("-", 1)[1])
+                return torch.full((length, 16), length, dtype=torch.bfloat16)
+
+        states = []
+        event_ids = (1, 2, 3, 4)
+        subsets = tuple(
+            subset
+            for cardinality in range(3)
+            for subset in itertools.combinations(event_ids, cardinality)
+        )
+        for index in range(2):
+            states.append(
+                {
+                    "candidate_event_step_ids": list(event_ids),
+                    "current_image_key": f"query-{5 + index}",
+                    "distance_rows": [
+                        {
+                            "coalition_event_step_ids": list(subset),
+                            "distance": 1.0 - 0.1 * len(subset),
+                        }
+                        for subset in subsets
+                    ],
+                    "event_image_keys": [f"event-{length}" for length in (3, 4, 5, 6)],
+                    "event_numeric_features": [[0.0] * 5 for _ in event_ids],
+                    "event_text_keys": [f"text-{length}" for length in (1, 2, 3, 4)],
+                    "instruction_text_key": f"instruction-{2 + index}",
+                    "state_id": f"state-{index}",
+                    "trajectory_id": f"trajectory-{index}",
+                }
+            )
+        batch = _collate(states, cache=Cache(), device="cpu", torch=torch)
+        model_inputs = batch["model"]
+        self.assertEqual(tuple(model_inputs["query_visual_tokens"].shape), (2, 6, 16))
+        self.assertEqual(tuple(model_inputs["event_visual_tokens"].shape), (2, 4, 6, 16))
+        self.assertEqual(model_inputs["query_visual_mask"].sum(dim=1).tolist(), [5, 6])
+        self.assertEqual(
+            model_inputs["event_visual_mask"].sum(dim=2).tolist(),
+            [[3, 4, 5, 6], [3, 4, 5, 6]],
+        )
 
 
 if __name__ == "__main__":
