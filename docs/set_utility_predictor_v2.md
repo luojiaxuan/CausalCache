@@ -11,7 +11,8 @@ cheap-feature baseline。正式 predictor 直接学习：在当前 instruction�
 \qquad |S|\le B.
 \]
 
-模型不接收 `B`，部署时对所有 `|S|<=B` 的候选集合做 at-most-budget search。
+模型不接收 `B` 或固定 `n`，部署时对 variable-size full-history candidate universe 执行 at-most-budget search。
+正式数据与采样合同见 [`set_utility_variable_history_v1.md`](set_utility_variable_history_v1.md)。
 
 ## 完整表示
 
@@ -38,7 +39,7 @@ event visual tokens + low-fidelity text tokens + numeric delta
 
 事件表示再与 `h_q` 通过 concat、product 与 absolute difference 做 query conditioning。
 
-主模型把四个 events、selected/unselected embedding 和 query seed 输入无 positional embedding 的 Set
+主模型把全部 `n_t` events、selected/unselected embedding 和 query seed 输入无 positional embedding 的 Set
 Transformer，预测整个 subset 的 utility。相同网络对 empty mask 再算一次并作差，因此
 `U(empty)=0` 是结构约束。
 
@@ -83,7 +84,8 @@ subset ready 结束；event ingest latency 单独报告。为避免 encoder reus
 
 ## 训练目标与选择
 
-每个 `n=4` state 使用全部 11 个 `|S|<=2` labels，一次 forward 共同打分：
+每个 variable-`n_t` state 使用约 40 个分层 sampled labels；`n_t<=5` 使用 exact subsets。batch 同时 padding
+event 与 subset 两个维度，并使用 `event_mask`、`subset_mask` 排除 padding：
 
 \[
 L=L_{raw}+0.5L_{normalized}+0.25L_{ranking}.
@@ -95,13 +97,12 @@ L=L_{raw}+0.5L_{normalized}+0.25L_{ranking}.
 - AdamW、warmup + cosine decay、gradient clipping、tune early stopping；
 - model selection 只看 tune，evaluation split 在架构与超参冻结前不加载。
 
-首轮预注册的三个成熟配置是：共享输入的 `DeepSets-d256-L8`、`SetTransformer-d256-L8` 和容量更高的
+首轮比较的三个配置是：共享输入的 `DeepSets-d256-L8`、`SetTransformer-d256-L8` 和容量更高的
 `SetTransformer-d512-L16`。这里 `L8/L16` 指每个 entity 的 latent token 数，不是把原始视觉序列提前均值化。
 
-## 当前 partial-label pilot
+## 历史 recent-4 smoke
 
-label rollout 继续在 Hyper00/Hyper01 并行。与此同时，从某一时刻已经完成的 train/tune records 建立不可变
-snapshot，再执行：
+旧 rollout 从 recent-4 states 建立 snapshot 并执行：
 
 1. 从 processor substrate 恢复 snapshot states 的五张图与 exact low-fidelity text；
 2. 在空闲 H200 上分片缓存完整 GUI-Owl visual/text token sequences；
@@ -109,9 +110,8 @@ snapshot，再执行：
 4. 只检查 train/tune loss、ranking 和 optimization stability，不查看 evaluation，也不把 partial pilot 写成
    方法优劣结论。
 
-该 pilot 的通过条件是至少一个 Set Transformer 配置能稳定降低 tune objective，且小样本可以被明显拟合。
-正式科学比较必须等待扩大后的 frozen train/tune/evaluation labels，并用 at-most-`B` utility、oracle gap 与
-selector baselines 报告。
+该 pilot 已降级为 `DEPRECATED_SMOKE_ONLY_RECENT4`。它只证明 token cache、gradient 与 optimization path 能运行；
+不能用于 architecture comparison、long-horizon claim 或 GO/NO-GO。正式比较必须使用 variable-`n_t` labels。
 
 ## 后续正式 ablation
 
@@ -121,19 +121,18 @@ selector baselines 报告。
 - latent count `8/16/32`、hidden size `256/512`、set layers `2/3/4`；
 - warm shared-encoder、cold standalone-encoder 与 full-event re-encode latency；
 - greedy、greedy+swap、beam search 的 utility--latency Pareto；
-- `B=1/2` in-distribution 与扩大数据后的 `B=3/4` cardinality transfer；
+- 同一 variable-`n_t` checkpoint 的 `B=1/2/3/4` search；
 - matched next-action NLL 下 restoration mass 与 closed-loop success。
 
 cheap-feature model 仍可作为成本/信息量下界，但不能再用它的失败否定 token-level CausalCache。
 
-## 2026-07-19 partial pilot 结果
+## 2026-07-19 recent-4 smoke 结果
 
 在 label rollout 并行期间冻结了 745 个 completed train/tune states（646/99 states，67/7 trajectories），从中
 缓存 1,043 份去重 full visual token sequences 与 1,052 份 text sequences。8-state overfit objective 下降
 35.5%。三个正式配置的 best tune objective 分别为 DeepSets `0.3564`、SetTransformer-d256 `0.5753`、
 SetTransformer-d512 `0.3747`，相对首轮均下降。
 
-因此 token-level optimization/data pipeline PASS，但 architecture/evaluation 仍未 PASS：tune 只有 7 条
-trajectories，DeepSets 暂时最好，raw MAE 也没有随 composite objective 一致改善。正式结论必须等扩大后的
-train/tune/evaluation labels，先在 tune 上冻结 loss scaling，再运行 at-most-`B` selector evaluation。完整轻量
+因此只能写 token-level optimization/data pipeline smoke PASS；architecture/evaluation 未执行。正式结论必须重做
+variable-`n_t` train/tune/evaluation labels，再冻结 loss scaling 并运行 at-most-`B` selector evaluation。完整轻量
 结果见 [`data/results/set_utility_token_predictor_v2_partial/`](../data/results/set_utility_token_predictor_v2_partial/README.md)。

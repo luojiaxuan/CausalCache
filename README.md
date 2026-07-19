@@ -48,6 +48,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 - census 见 [`data/results/set_utility_dense_v1/census.json`](data/results/set_utility_dense_v1/census.json)；
 - recent-4 rollout 已在 4,033/12,792 states 时停止并封存为 smoke-only；结果见 [`data/results/set_utility_dense_recent4_smoke/`](data/results/set_utility_dense_recent4_smoke/README.md)。
 - 下一步先冻结 variable-`n_t` sampler 与 resumable high-throughput runner，再重新启动 labels；evaluation 在模型选择冻结前不加载。
+- variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 
 ## Source of Truth
 

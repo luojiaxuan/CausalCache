@@ -1,0 +1,167 @@
+{
+  "schema_version": "1.0.0",
+  "source": {
+    "transport_repo": "cua-lite/GUIOdyssey",
+    "transport_revision": "ea08072b30e523fb4492e4f4597505879ffcd63b",
+    "assignment_manifest": "data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json",
+    "trajectory_count": 1200,
+    "split_unit": "instruction_app_group",
+    "state_counts": {
+      "train": 10680,
+      "tune": 1066,
+      "evaluation": 1046,
+      "total": 12792
+    },
+    "observation_count": 18792,
+    "raw_rows_must_be_rematerialized": true
+  },
+  "state": {
+    "minimum_decision_step": 6,
+    "candidate_rule": "all_event_ids_1_through_decision_step_minus_1",
+    "candidate_count_is_data_property": true,
+    "candidate_count_input_to_model": false,
+    "include_current_equivalent_event": true,
+    "recent_candidate_truncation_allowed": false,
+    "history_bins": {
+      "short": [5, 8],
+      "medium": [9, 16],
+      "long": [17, 32],
+      "very_long": [33, 45]
+    },
+    "state_counts_by_role_and_history_bin": {
+      "train": {
+        "short": 3857,
+        "medium": 4383,
+        "long": 2337,
+        "very_long": 103
+      },
+      "tune": {
+        "short": 384,
+        "medium": 432,
+        "long": 242,
+        "very_long": 8
+      },
+      "evaluation": {
+        "short": 381,
+        "medium": 427,
+        "long": 225,
+        "very_long": 13
+      }
+    }
+  },
+  "reference": {
+    "policy": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "context_limit_tokens": 32768,
+    "reserved_action_tokens": 256,
+    "target_effective_visual_tokens_per_image": 512,
+    "full_reference_coalition": "C_t",
+    "full_reference_distance": 0.0,
+    "full_reference_must_fit_before_rollout": true,
+    "context_infeasibility_action": "BLOCK_ROLLOUT_AND_CHANGE_REFERENCE_PROFILE",
+    "drop_oldest_candidate_allowed": false,
+    "reference_action_repeat_count": 2,
+    "reference_repeat_kl_maximum": 0.0001
+  },
+  "broad_training_labels": {
+    "roles": ["train", "tune"],
+    "target_unique_subsets_per_state": 40,
+    "small_history_exact_maximum_n": 5,
+    "small_history_exact_rule": "all_subsets",
+    "age_bin_rule": "four_contiguous_quantile_bins_oldest_to_newest",
+    "seed": 20260720,
+    "components": {
+      "anchors": {
+        "count": 2,
+        "subsets": ["empty", "full_C_t"]
+      },
+      "singletons": {
+        "count": 8,
+        "rule": "two_per_age_bin_or_all_when_n_at_most_8"
+      },
+      "conditional_chains": {
+        "chain_count": 4,
+        "prefixes_per_chain": 4,
+        "count": 16,
+        "rule": "age_stratified_seeded_permutations_with_prefix_cardinalities_1_to_4"
+      },
+      "interaction_pairs": {
+        "count": 8,
+        "very_old_very_recent": 2,
+        "very_old_very_old": 1,
+        "very_recent_very_recent": 1,
+        "highest_similarity": 2,
+        "lowest_similarity_cross_age": 2,
+        "similarity_target_use_allowed": false
+      },
+      "higher_cardinality": {
+        "count": 6,
+        "counts_by_cardinality": {
+          "2": 2,
+          "3": 2,
+          "4": 2
+        },
+        "rule": "age_stratified_seeded_random"
+      }
+    },
+    "deduplication": "canonical_event_id_tuple",
+    "backfill": "same_cardinality_age_stratified_then_global_seeded_unique",
+    "similarity": {
+      "visual": "cosine_of_frozen_gui_owl_mean_embedding",
+      "text": "jaccard_of_deterministic_ocr_token_set",
+      "combined_score": "0.5_visual_plus_0.5_text",
+      "label_blind": true
+    }
+  },
+  "interaction_dense_train_extension": {
+    "enabled_after_broad_train_only_model": true,
+    "eligible_role": "train",
+    "state_fraction": 0.2,
+    "additional_labels_per_state": [40, 80],
+    "evaluation_conditioned_selection_allowed": false,
+    "signals": [
+      "deepsets_set_transformer_disagreement",
+      "predictive_uncertainty",
+      "high_similarity_redundancy_groups",
+      "cross_age_combinations",
+      "observed_train_only_nonadditivity"
+    ]
+  },
+  "evaluation": {
+    "labels_hidden_until_model_freeze": true,
+    "exact_oracle_track": {
+      "state_count": 320,
+      "selection": "trajectory_clustered_history_bin_stratified",
+      "subsets": "all_cardinality_at_most_2_plus_full_C_t",
+      "include_all_very_long_states": true
+    },
+    "large_history_track": {
+      "state_count": 720,
+      "selection": "trajectory_clustered_long_history_priority",
+      "labels": "only_subsets_selected_by_frozen_methods_and_registered_random_controls"
+    },
+    "budgets": [1, 2, 3, 4],
+    "budget_input_to_predictor": false,
+    "candidate_count_input_to_predictor": false
+  },
+  "training_sampling": {
+    "trajectory_uniform": true,
+    "history_bin_balanced": true,
+    "maximum_state_repeats_per_epoch": 8,
+    "subset_label_count_is_not_independent_sample_count": true,
+    "learning_curve_fractions": [0.1, 0.25, 0.5, 1.0]
+  },
+  "resumability": {
+    "atomic_unit": "coalition_microbatch",
+    "partial_state_progress_persisted": true,
+    "completed_coalitions_skipped_on_resume": true,
+    "scientific_config_must_match": true,
+    "dynamic_logical_shards": 256
+  },
+  "artifacts": {
+    "dataset_repo": "gavinlaw/causalcache-set-utility-variable-history-mobile",
+    "dataset_status": "PENDING_CREATION_AND_UPLOAD",
+    "model_repo": "gavinlaw/causalcache-set-utility-predictors-mobile",
+    "planned_tag": "variable-history-v1"
+  }
+}
