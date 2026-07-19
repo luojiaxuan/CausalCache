@@ -15,6 +15,7 @@
 - Dense per-step 输入已完整验证 12,792 states（10,680 train / 1,066 tune / 1,046 evaluation）。现有 artifact 复用 12,635 个，另从 pinned raw source 补回 77 张 PNG 覆盖剩余 157 个 states。
 - Predictor v2 已冻结为 full GUI-Owl visual/text token sequence + learned latent resampler；旧 64 维手工表示只保留为 cheap-feature baseline，不再代表主方法。
 - train/tune-only token pilot 已完成：745 states、1,043 unique images、22.78GB unpooled token cache；DeepSets 与两个 Set Transformer 配置的 tune objective 均下降。该结果只证明 optimization/data pipeline 可用，不是 held-out selector 结论。
+- 主部署口径已冻结为 warm shared-encoder：event embedding 在到达时计算一次、当前 query tokens 与 action policy 共享；正式方法还必须满足 warm selector p95 不超过 action-policy forward p95 的 10%，并完整报告 cold standalone latency。训练用 22.78GB full-token cache 不属于线上 memory。
 
 完整历史与失败记录保留在 [`docs/progress.md`](docs/progress.md)，但不应把历史 formal contract 当成当前 MVP 的执行清单。
 
@@ -91,6 +92,7 @@ PYTHONPATH=code python3 -m compileall -q \
 MVP 的首要判断不是 closed-loop，而是 held-out utility selection：
 
 - 若 dense predictor 稳定超过 OCR/RGB，并明显缩小 exact-oracle gap：继续扩充 `n=8,16` 数据，再做 matched-NLL 与 closed-loop。
+- 主模型除 held-out utility GO 外，还必须通过 warm p95 selector overhead `<=10%` 的部署门槛；否则只能作为 capacity ablation。最终选择依据是 utility--latency Pareto frontier，不以最大参数量为默认赢家。
 - 当前 partial token pilot 不执行上述 GO 判断；先等 dense labels 扩大完成，用更多 tune trajectories 重新冻结 loss/architecture，再首次访问 evaluation。
 - 若 oracle-independent `J` 有效但 learned models 失败：改进表示和训练数据。
 - 若 exact oracle 有 signal、但所有可学习目标和简单 baseline 持平：重新审视 predictor objective。

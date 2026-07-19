@@ -87,6 +87,33 @@
     "empty_utility_is_exact_zero": true,
     "pilot_budgets": [1, 2]
   },
+  "deployment_evaluation": {
+    "primary_profile": "warm_shared_encoder",
+    "warm_profile": {
+      "event_embedding_computed_once_at_arrival": true,
+      "full_event_source_tokens_retained_online": false,
+      "current_query_source_tokens_shared_with_action_policy": true,
+      "latency_interval": "shared_query_tokens_ready_to_selected_subset_ready"
+    },
+    "acceptance": {
+      "metric": "warm_selector_p95_seconds_divided_by_action_policy_forward_p95_seconds",
+      "maximum_ratio": 0.1,
+      "held_out_utility_improvement_required": true
+    },
+    "required_secondary_profile": "cold_standalone_encoder",
+    "required_latency_quantiles": [0.5, 0.95],
+    "required_cost_metrics": [
+      "event_ingest_latency_seconds",
+      "query_selector_latency_seconds",
+      "end_to_end_policy_step_latency_seconds",
+      "persistent_bytes_per_event",
+      "peak_gpu_memory_bytes",
+      "subset_score_count"
+    ],
+    "ranking_rule": "utility_latency_pareto_frontier",
+    "exact_subset_oracle_is_offline_only": true,
+    "failed_latency_variants_may_be_ablation_only": true
+  },
   "pilot": {
     "allowed_roles": ["train", "tune"],
     "evaluation_access": false,
