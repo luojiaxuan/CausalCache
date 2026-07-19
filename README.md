@@ -1043,6 +1043,7 @@ mediation effect。
 - Set-utility processor-only Execution-CF 与 v1 failure：
   [`code/configs/causalcache_set_utility_processor_freeze_execution_cf.json`](code/configs/causalcache_set_utility_processor_freeze_execution_cf.json),
   [`code/scripts/run_set_utility_processor_freeze.py`](code/scripts/run_set_utility_processor_freeze.py),
+  [`code/scripts/validate_set_utility_processor_freeze_output.py`](code/scripts/validate_set_utility_processor_freeze_output.py),
   [`docs/set_utility_processor_freeze_execution_cf.md`](docs/set_utility_processor_freeze_execution_cf.md),
   [`data/results/set_utility_processor_freeze_execution_cf_v1_attempt/`](data/results/set_utility_processor_freeze_execution_cf_v1_attempt/)
 - Independent confirm continuation contract and source validator:

@@ -140,6 +140,18 @@ forward、final candidates、restoration labels、training、matched-NLL、close
 下一步必须先对全部 18,792 selected images 做 read-only format census，再冻结 versioned repair；不得
 修改原 v1 bytes、跳过 observation 或把 partial tar 追认为完成结果。
 
+## 完成态只读 postflight
+
+已新增 `code/scripts/validate_set_utility_processor_freeze_output.py` 与
+`code/causalcache/set_utility_processor_postflight.py`。它只接受 atomic-published completed root，并从
+frozen roster 重建四个 shard、candidate JSONL/final schedule、exact operation budget、run identity、OCR
+format tally 与 Git-safe manifest；同时二次流式检查 tar 内每个 JSON member 的 canonical compact bytes、
+成员顺序、trailing member、symlink/partial/extra file。
+
+postflight + processor artifacts/freeze/contract focused suite 为 `40 passed`。该 validator 当前明确绑定
+v1 `load_execution_contract` 和 canonical config，不声称自动支持尚未冻结的 v2 contract。v1 attempt
+没有 completed output root，因此不能也没有被它追认为成功；未来 v2 repair 必须显式适配并重新测试。
+
 ## 外置 artifact 与恢复
 
 正式 output 必须位于 repository、source、model 和 OCR inputs 之外的绝对 persistent path，且目标目录

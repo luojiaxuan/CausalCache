@@ -3073,3 +3073,13 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `data/results/set_utility_processor_freeze_execution_cf_v1_attempt/`。下一步先做全部 18,792 selected
   images 的只读 format census，再另立 versioned repair；不得覆盖原 `.incomplete`、跳样本或静默放宽
   contract。
+
+## 2026-07-19：Completed-root read-only postflight
+
+- 新增独立 completed-root validator；从 frozen roster 重建 shard descriptors、candidate parts/final schedule、
+  exact operation budget、run identity、真实 OCR format tally 和 Git-safe manifest。
+- validator 对 tar 做第二次流式 canonical audit，拒绝 semantic-equivalent byte rewrite、错误成员顺序、
+  trailing member、partial/extra file、symlink、candidate/receipt/run-identity tamper。
+- postflight + processor artifacts/freeze/contract focused suite 为 `40 passed`，CLI help 与 py_compile 通过。
+- 当前实现明确绑定 v1 Execution-CF contract；v1 attempt 没有 completed root，仍为 INVALID。未来 v2
+  repair 必须显式适配该 validator，不能把它当作自动授权。
