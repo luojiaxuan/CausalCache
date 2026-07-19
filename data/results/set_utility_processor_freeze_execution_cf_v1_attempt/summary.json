@@ -1,0 +1,143 @@
+{
+  "schema_version": "1.0.0",
+  "status": "INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT",
+  "attempt_identity": {
+    "git_revision": "b3472bfbd0a26541a8c6f2e207b88741e256f59a",
+    "execution_config_sha256": "66fd93c64669be734f82830af7d623e9cb97263f90613a5809eb665078b2fba7",
+    "freeze_b_v2_manifest_sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30",
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "container_name": "sglang-omni-jaxan-07181624",
+    "container_id": "a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "worker_count": 4
+  },
+  "execution": {
+    "started_at_utc": "2026-07-19T02:03:17Z",
+    "primary_failure_observed_at_utc": "2026-07-19T02:14:20Z",
+    "finished_at_utc": "2026-07-19T02:16:22Z",
+    "exit_code": 1,
+    "phase": "ocr-worker",
+    "first_failing_worker": 0,
+    "remaining_worker_exit_codes": {
+      "1": -15,
+      "2": -15,
+      "3": -15
+    },
+    "remaining_worker_termination_reason": "Primary worker failure made atomic publication impossible; remaining workers received SIGTERM to avoid several hours of scientifically unusable CPU work.",
+    "generation_command_document": "docs/set_utility_processor_freeze_execution_cf.md#正式运行状态"
+  },
+  "failure": {
+    "violation_outcome": "INVALID_DERIVED_ARTIFACT_BEFORE_POLICY_OUTPUT",
+    "message": "image contract drifted",
+    "stage": "worker-00 pre-OCR selected-image validation",
+    "worker_transport_shard_ordinal": 6,
+    "worker_trajectory_ordinal": 13,
+    "sorted_image_ordinal": 16,
+    "checked_observation_ordinal": 228,
+    "transport_file": "mobile/use/train/shard-00047-of-00610.parquet",
+    "transport_row_index": 9,
+    "image_member_path": "images/0766560109090208/observation-016.png",
+    "selector_identity_sha256": "fb6fd35ccfc826257b7fc60c348ac23a804dbffeaef9ee748d4851f3375ff2bc",
+    "source_image_sha256": "c850a794771657930b5694195afc2503c9339d47ece94e09d9350829c590b9c3",
+    "decoded_rgb_sha256": "66133e0a3952014f62f6b4591d453b1ac47fca071c61cc8a1b2c9d19bb20cb16",
+    "width": 2208,
+    "height": 1840,
+    "observed": {
+      "source_format": "PNG",
+      "source_mode": "RGB",
+      "alpha_extrema": null,
+      "exif_present": false
+    },
+    "expected": {
+      "source_format": "PNG",
+      "source_mode": "RGBA",
+      "alpha_extrema": [
+        255,
+        255
+      ],
+      "exif_present": false
+    }
+  },
+  "partial_evidence": {
+    "persistent_staging_path": "/data/artifacts/.causalcache-set-utility-processor-freeze-v2-b3472bf.incomplete",
+    "intended_output_root": "/data/artifacts/causalcache-set-utility-processor-freeze-v2-b3472bf",
+    "intended_output_root_exists": false,
+    "staging_file_count": 8,
+    "staging_total_bytes": 666629393,
+    "tree_hash_scheme": "SHA256 of UTF-8 lines relative_path<TAB>byte_count<TAB>file_sha256<LF>, sorted by relative_path",
+    "staging_tree_sha256": "9190b1b140de9b507b4b396694443a5e1293848ae9b02b1309ef81a53bc57e84",
+    "completed_receipt_count": 0,
+    "completed_artifact_shard_count": 0,
+    "readable_noncanonical_partial_query_records": {
+      "worker_01": 34,
+      "worker_02": 24,
+      "worker_03": 32
+    },
+    "files": [
+      {
+        "path": "logs/ocr-worker-00.log",
+        "byte_count": 2339,
+        "sha256": "093a91e8dd0fcd7de075a2b81a1bce7c0dd15cb30aad5804927dc4a8ddebb38f"
+      },
+      {
+        "path": "logs/ocr-worker-01.log",
+        "byte_count": 732,
+        "sha256": "eea2f6050d6652a0d9249d59ca0e8bfd252b90b5cbfd60a1c5ecde3db220f6e6"
+      },
+      {
+        "path": "logs/ocr-worker-02.log",
+        "byte_count": 834,
+        "sha256": "d8ad49960f96ad8b1ade24179448a22bcfb123489645cacd374b12301bd05569"
+      },
+      {
+        "path": "logs/ocr-worker-03.log",
+        "byte_count": 732,
+        "sha256": "ccc8cd18a877d809809d551f2b41264710855ee5eb893fb8b33e98ebe77e78b5"
+      },
+      {
+        "path": "run-identity.json",
+        "byte_count": 2303,
+        "sha256": "e4750f68de052b730981196ebf0e57bc21ce6459bb0d9d2c0bae51253fa0d530"
+      },
+      {
+        "path": "substrate/.processor-substrate-worker-01.tar.partial",
+        "byte_count": 225824794,
+        "sha256": "837a64a8b2b329768ffd7c546bf325bc1c617e186573e5cd3eb4002ef7bf7c85"
+      },
+      {
+        "path": "substrate/.processor-substrate-worker-02.tar.partial",
+        "byte_count": 186040457,
+        "sha256": "eeaad998a98e02cb15e815101092857192dedb84802a90fb66524e7099c22c5b"
+      },
+      {
+        "path": "substrate/.processor-substrate-worker-03.tar.partial",
+        "byte_count": 254757202,
+        "sha256": "33b997a21aa901f4bf28ff783926ad48aecb29c62db26723b7551ae005750bee"
+      }
+    ],
+    "outer_log": {
+      "path": "/data/logs/causalcache-set-utility-processor-freeze-v2-b3472bf.outer.log",
+      "byte_count": 1212,
+      "sha256": "1da94eb40e03e78cfb1ad1ed95aeb09431b8b608b07f8da62aa7594104b5a322"
+    }
+  },
+  "scientific_boundary": {
+    "policy_or_vision_forward_count": 0,
+    "final_candidate_state_count": 0,
+    "restoration_label_count": 0,
+    "predictor_training_count": 0,
+    "matched_nll_count": 0,
+    "closed_loop_episode_count": 0,
+    "hugging_face_mutation_count": 0,
+    "threshold_or_denominator_change_count": 0,
+    "partial_ocr_work": "NONCANONICAL_AND_NOT_FORMALLY_COUNTED"
+  },
+  "publication": {
+    "status": "INVALID_FAILED_PRESERVED_NO_HF_PUBLICATION",
+    "originally_intended_private_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+    "originally_intended_tag": "phase1-b2-processor-freeze-v1",
+    "canonical_revision": null
+  },
+  "next_action": "Complete a read-only census of all 18,792 selected source images, then freeze a versioned input-format repair before any rerun."
+}

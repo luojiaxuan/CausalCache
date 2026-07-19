@@ -3055,3 +3055,21 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `gavinlaw/causalcache-set-utility-new-development-mobile:phase1-b2-processor-freeze-v1`。只有 atomic
   rename、全量只读 postflight 和 Git-safe summary 回写完成后，才会进入 `PENDING_HF_UPLOAD`；当前
   Execution-CF 明确禁止上传。
+
+## 2026-07-19：Processor-only v1 formal attempt fail closed
+
+- worker 0 在第 228 个 selected observation 的 pre-OCR validation 发现 source 为合法 `PNG/RGB`、
+  `2208x1840`、无 EXIF，而 v1 contract 只接受 `PNG/RGBA` opaque。primary failure 时间为
+  `02:14:20 UTC`，outcome=`INVALID_DERIVED_ARTIFACT_BEFORE_POLICY_OUTPUT`。
+- 因 primary failure 已使 atomic publication 不可能，worker 1--3 收到 SIGTERM 以避免继续数小时无效
+  CPU 工作；outer process 于 `02:16:22 UTC` 以 code `1` 退出。此清理不是 primary invalidity 的原因。
+- output root 未创建；0 receipt、0 completed artifact shard。外置 `.incomplete` 保留 8 files /
+  `666,629,393` bytes，path/size/file-SHA tree digest=
+  `9190b1b140de9b507b4b396694443a5e1293848ae9b02b1309ef81a53bc57e84`。
+- 正式终态为 `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT`。AutoProcessor、
+  policy/vision forward、final candidates、restoration labels、training、matched-NLL、closed-loop、
+  HF mutation 和 threshold/denominator change 全为 0；原计划 HF tag 未发布。
+- Git-safe failure evidence 位于
+  `data/results/set_utility_processor_freeze_execution_cf_v1_attempt/`。下一步先做全部 18,792 selected
+  images 的只读 format census，再另立 versioned repair；不得覆盖原 `.incomplete`、跳样本或静默放宽
+  contract。

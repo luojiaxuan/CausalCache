@@ -36,13 +36,14 @@ labels、feature cache、predictor checkpoint 或 offline method delta。旧
 group-disjoint roster，manifest SHA256=
 `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`；最终 candidates 与 exact operation
 budget 仍等待 processor-only freeze。其 Execution-CF config 已冻结，SHA256=
-`66fd93c64669be734f82830af7d623e9cb97263f90613a5809eb665078b2fba7`；本步禁止 HF mutation。正式生成
-已于 clean `main@b3472bf` 在 Hyper00 CPU-only container 启动，当前外置 sibling staging 为
-`/data/artifacts/.causalcache-set-utility-processor-freeze-v2-b3472bf.incomplete`，状态
-`RUNNING_INCOMPLETE_NOT_UPLOADABLE`；它不是完成 artifact，不复制到 Git，也不上传。完成并独立复验后会记录
-persistent output path、size/manifest、生成命令及目标 private HF tag
-`gavinlaw/causalcache-set-utility-new-development-mobile:phase1-b2-processor-freeze-v1`，状态先记为
-`PENDING_HF_UPLOAD`，上传成功后再替换为 immutable revision。见
+`66fd93c64669be734f82830af7d623e9cb97263f90613a5809eb665078b2fba7`；本步禁止 HF mutation。唯一 v1
+formal attempt 已从 clean `main@b3472bf` 在 Hyper00 CPU-only container fail closed：首个 source
+`PNG/RGB` image 不满足旧 `PNG/RGBA` opaque contract。output root 未创建；外置
+`/data/artifacts/.causalcache-set-utility-processor-freeze-v2-b3472bf.incomplete` 保留 8 files /
+`666,629,393` bytes，状态 `INVALID_FAILED_PRESERVED_NO_HF_PUBLICATION`。Git 只保存
+[`results/set_utility_processor_freeze_execution_cf_v1_attempt/`](results/set_utility_processor_freeze_execution_cf_v1_attempt/)
+中的轻量 failure metadata；raw partial tar 不进 Git/HF。下一步先完成全部 18,792 selected images 的只读
+format census，再另立 versioned repair。见
 `docs/set_utility_freeze_b_v2_terminal_index_repair.md` 与 `docs/set_utility_implementation_v1.md`。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：

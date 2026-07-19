@@ -119,7 +119,26 @@ env -u PYTHONPATH /usr/bin/python3 \
 
 启动窗口审计时四个 OCR worker 全部存活且无 error/traceback；`2026-07-19 02:08 UTC` 可完整读取
 `30/2400` 个 partial query records，约 `244 MB`。这只是运行活性证据，不是结果 denominator。
-在 atomic rename 与独立只读 postflight 前，状态为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`。
+
+## v1 正式终态
+
+worker 0 于 `2026-07-19 02:14:20 UTC` 在第 228 个 selected observation 的 pre-OCR image validation
+fail closed。该 source image 是合法 `PNG/RGB`、`2208x1840`、无 EXIF；v1 contract 只允许
+`PNG/RGBA` 且 alpha extrema=`[255,255]`。首个 violation 的 selector identity SHA256 为
+`fb6fd35ccfc826257b7fc60c348ac23a804dbffeaef9ee748d4851f3375ff2bc`，source image SHA256 为
+`c850a794771657930b5694195afc2503c9339d47ece94e09d9350829c590b9c3`。
+
+primary failure 已使 atomic publication 必然不可能；为避免另外三个 worker 继续数小时无效 CPU 工作，
+它们随后收到 SIGTERM。outer process 于 `02:16:22 UTC` 以 code `1` 退出。正式 output root 未创建，
+0 个 receipt、0 个 completed shard；8 个 staging files 共 `666,629,393` bytes 原样保留于 `.incomplete`，
+tree SHA256=`9190b1b140de9b507b4b396694443a5e1293848ae9b02b1309ef81a53bc57e84`。
+
+终态为 `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT`。AutoProcessor、policy/vision
+forward、final candidates、restoration labels、training、matched-NLL、closed-loop 和 HF mutation 全为 0。
+结构化 failure evidence 见
+[`data/results/set_utility_processor_freeze_execution_cf_v1_attempt/`](../data/results/set_utility_processor_freeze_execution_cf_v1_attempt/)。
+下一步必须先对全部 18,792 selected images 做 read-only format census，再冻结 versioned repair；不得
+修改原 v1 bytes、跳过 observation 或把 partial tar 追认为完成结果。
 
 ## 外置 artifact 与恢复
 
@@ -132,11 +151,10 @@ env -u PYTHONPATH /usr/bin/python3 \
   为正式 output root；
 - `manifest.json` 和未来 Git summary 不包含 raw instruction、OCR text、image 或 state ID。
 
-本步骤禁止 Hugging Face mutation。正式 artifact 产生后先持久化于 Hyper00 `/data`，状态记为
-`PENDING_HF_UPLOAD`，计划上传 private dataset
-`gavinlaw/causalcache-set-utility-new-development-mobile` 的 tag
-`phase1-b2-processor-freeze-v1`；上传成功前，
-本地路径只是 staging，不是 canonical publication。
+本步骤禁止 Hugging Face mutation。v1 未产生正式 artifact，原计划 private dataset tag
+`gavinlaw/causalcache-set-utility-new-development-mobile:phase1-b2-processor-freeze-v1` 没有 canonical
+revision，终态为 `INVALID_FAILED_PRESERVED_NO_HF_PUBLICATION`。只有未来 versioned repair 完成并通过
+独立只读 postflight 后，新的 output 才能进入 `PENDING_HF_UPLOAD`。
 
 ## 失败分类
 
