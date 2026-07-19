@@ -20,6 +20,7 @@ from causalcache.policy.gui_owl_v2_vision import (
     VerifiedVisionRuntimeIdentity,
     canonical_image_grid_thw,
     extract_normalized_spatial_merger_embeddings,
+    extract_spatial_merger_token_sequences,
     frozen_policy_vision_similarity_from_batch,
     visual_token_geometry,
 )
@@ -138,6 +139,31 @@ class GUIOwlV2VisionTorchTest(unittest.TestCase):
         )
         self.assertEqual(result.ranked_event_step_ids, (1, 2, 3, 4))
         self.assertEqual(result.selected_event_step_ids, (1, 2))
+
+    def test_token_extractor_preserves_every_bfloat16_merger_row(self) -> None:
+        torch = self.torch
+        grids = torch.tensor([[1, 4, 4], [1, 2, 4]], dtype=torch.int64)
+        pixels = torch.zeros((24, 1536), dtype=torch.float32)
+        features = (
+            torch.arange(4 * VISION_OUTPUT_SIZE, dtype=torch.float32)
+            .reshape(4, VISION_OUTPUT_SIZE)
+            .to(torch.bfloat16),
+            torch.full((2, VISION_OUTPUT_SIZE), 7.0, dtype=torch.bfloat16),
+        )
+        batch = extract_spatial_merger_token_sequences(
+            model=self._model(list(features)),
+            pixel_values=pixels,
+            image_grid_thw=grids,
+            runtime_identity=self._runtime_identity(),
+        )
+        self.assertEqual(batch.merged_token_counts, (4, 2))
+        self.assertEqual(batch.hidden_size, VISION_OUTPUT_SIZE)
+        self.assertEqual(batch.output_dtype, "torch.bfloat16")
+        self.assertEqual(batch.feature_field, "pooler_output")
+        self.assertTrue(batch.deepstack_features_excluded)
+        self.assertEqual(len(batch.token_sequences), 2)
+        self.assertTrue(torch.equal(batch.token_sequences[0], features[0]))
+        self.assertTrue(torch.equal(batch.token_sequences[1], features[1]))
 
     def test_extractor_rejects_wrong_pooler_shape_dtype_nonfinite_and_zero_norm(self) -> None:
         torch = self.torch

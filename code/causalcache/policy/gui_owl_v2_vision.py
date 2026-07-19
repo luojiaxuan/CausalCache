@@ -91,6 +91,21 @@ class VisionEmbeddingBatch:
     deepstack_features_excluded: bool
 
 
+@dataclass(frozen=True)
+class VisionTokenBatch:
+    """Unpooled final-merger tokens retained for learned memory prediction."""
+
+    token_sequences: tuple[Any, ...]
+    image_grid_thw: tuple[tuple[int, int, int], ...]
+    raw_patch_boundaries: tuple[int, ...]
+    merged_token_boundaries: tuple[int, ...]
+    merged_token_counts: tuple[int, ...]
+    output_dtype: str
+    hidden_size: int
+    feature_field: str
+    deepstack_features_excluded: bool
+
+
 def _positive_integer(value: Any, field: str) -> int:
     if type(value) is not int or value <= 0:
         raise ValueError(f"{field} must be a positive integer")
@@ -391,6 +406,74 @@ def extract_normalized_spatial_merger_embeddings(
         output_dtype=str(features[0].dtype),
         reduction_dtype=str(embedding_tensor.dtype),
         hidden_size=int(embedding_tensor.shape[1]),
+        feature_field="pooler_output",
+        deepstack_features_excluded=True,
+    )
+
+
+def extract_spatial_merger_token_sequences(
+    *,
+    model: Any,
+    pixel_values: Any,
+    image_grid_thw: Any,
+    runtime_identity: VerifiedVisionRuntimeIdentity,
+) -> VisionTokenBatch:
+    """Return every BF16 post-merger token without spatial pooling."""
+    try:
+        import torch
+    except ModuleNotFoundError as error:
+        raise RuntimeError("GUI-Owl token extraction requires PyTorch") from error
+
+    _validate_model_identity(model, runtime_identity)
+    geometry = visual_token_geometry(image_grid_thw)
+    grids = geometry["image_grid_thw"]
+    raw_counts = geometry["raw_patch_counts"]
+    merged_counts = geometry["merged_token_counts"]
+    assert isinstance(grids, tuple)
+    assert isinstance(raw_counts, tuple)
+    assert isinstance(merged_counts, tuple)
+    if not hasattr(pixel_values, "ndim") or pixel_values.ndim != 2:
+        raise ValueError("pixel_values must be a rank-2 packed-patch tensor")
+    if int(pixel_values.shape[0]) != sum(raw_counts):
+        raise ValueError("pixel_values patch count differs from image_grid_thw")
+    if int(pixel_values.shape[1]) != (
+        3 * VISION_TEMPORAL_PATCH_SIZE * VISION_PATCH_SIZE * VISION_PATCH_SIZE
+    ):
+        raise ValueError("pixel_values packed patch width drifted")
+
+    with torch.inference_mode():
+        outputs = model.get_image_features(
+            pixel_values=pixel_values,
+            image_grid_thw=image_grid_thw,
+            return_dict=True,
+        )
+        features = getattr(outputs, "pooler_output", None)
+        if not isinstance(features, (tuple, list)) or len(features) != len(grids):
+            raise ValueError("pooler_output must contain one tensor per input image")
+        sequences = []
+        for image_index, (feature, token_count) in enumerate(
+            zip(features, merged_counts, strict=True)
+        ):
+            if not isinstance(feature, torch.Tensor) or feature.ndim != 2:
+                raise TypeError(f"pooler_output[{image_index}] must be a rank-2 tensor")
+            if tuple(feature.shape) != (token_count, VISION_OUTPUT_SIZE):
+                raise ValueError("post-merger visual output shape drifted")
+            if feature.dtype is not torch.bfloat16:
+                raise ValueError("post-merger visual output must remain bfloat16")
+            if feature.device != pixel_values.device:
+                raise ValueError("post-merger visual output changed device")
+            if not bool(torch.isfinite(feature.float()).all()):
+                raise ValueError("post-merger visual output contains non-finite values")
+            sequences.append(feature.detach())
+
+    return VisionTokenBatch(
+        token_sequences=tuple(sequences),
+        image_grid_thw=grids,
+        raw_patch_boundaries=geometry["raw_patch_boundaries"],
+        merged_token_boundaries=geometry["merged_token_boundaries"],
+        merged_token_counts=merged_counts,
+        output_dtype=str(features[0].dtype),
+        hidden_size=VISION_OUTPUT_SIZE,
         feature_field="pooler_output",
         deepstack_features_excluded=True,
     )

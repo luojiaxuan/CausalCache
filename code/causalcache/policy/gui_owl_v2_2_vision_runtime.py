@@ -33,6 +33,7 @@ from causalcache.policy.gui_owl_v2_vision import (
     VISION_TEMPORAL_PATCH_SIZE,
     _validate_model_identity,
     extract_normalized_spatial_merger_embeddings,
+    extract_spatial_merger_token_sequences,
     frozen_policy_vision_similarity_from_batch,
     verify_frozen_vision_runtime,
     visual_token_geometry,
@@ -745,3 +746,35 @@ class GUIOwlV22VisionFeatureRuntime:
             "runtime_metadata": self.metadata,
         }
         return _json_copy(result)
+
+    def encode_five_image_token_sequences(
+        self,
+        images: Sequence[Any],
+    ) -> Any:
+        """Return the five unpooled final-merger token sequences on CUDA."""
+        self._assert_forbidden_operations_zero()
+        validated_images = _require_exact_five_rgb_pil_images(images)
+        self._image_processor_batch_count += 1
+        encoded = self.image_processor(
+            images=list(validated_images),
+            return_tensors="pt",
+        )
+        pixel_values, image_grid_thw, _ = _validate_cpu_image_processor_output(
+            encoded,
+            torch=self.torch,
+        )
+        device_pixels, device_grid = _move_exact_inputs_to_device(
+            pixel_values=pixel_values,
+            image_grid_thw=image_grid_thw,
+            device=self.device,
+            torch=self.torch,
+        )
+        self._vision_feature_forward_count += 1
+        batch = extract_spatial_merger_token_sequences(
+            model=self.model,
+            pixel_values=device_pixels,
+            image_grid_thw=device_grid,
+            runtime_identity=self.runtime_identity,
+        )
+        self._assert_forbidden_operations_zero()
+        return batch

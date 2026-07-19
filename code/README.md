@@ -91,6 +91,22 @@ canonical result 已从 clean `main@45bcf7e` 运行该 validator 并返回
 - 每个可复现实验里程碑在同一小提交中更新 code、config、result summary 和 progress，然后 push
   `main`。
 
+## Token-level Set Utility Predictor v2
+
+v2 不再使用 64 维 hash/RGB/OCR feature 代替主方法。`set_utility_token_models.py` 对完整 frozen GUI-Owl
+visual/text token sequences 做 learned latent resampling；Set Transformer 与 DeepSets 共用同一个 entity
+encoder。配置见 `configs/causalcache_set_utility_token_predictor_v2.json`，数据流程依次为：
+
+```bash
+PYTHONPATH=code python3 -m scripts.snapshot_set_utility_token_pilot ...
+PYTHONPATH=code python3 -m scripts.materialize_set_utility_token_inputs ...
+PYTHONPATH=code python3 -m scripts.extract_set_utility_token_cache ...
+PYTHONPATH=code python3 -m scripts.finalize_set_utility_token_cache ...
+PYTHONPATH=code python3 -m scripts.train_set_utility_token_predictor ...
+```
+
+snapshot、cache 与 trainer 都拒绝 evaluation role。selector 合同始终是 at-most-`B`，budget 不进入模型。
+
 当前 v2 scientific contract 由 `causalcache.restoration_v2_contract` fail closed 验证。validator 同时锁定
 stable self-behavior reference、post-state-only intervention、八字段 strong summary、restricted action
 inventory、exact 8+10+5 历史 exposure 边界、fixed 20-state confirm 与两级 gate。它不替代历史
