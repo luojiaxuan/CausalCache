@@ -39,7 +39,7 @@ U(S)=D(\varnothing)-D(S).
 - 同一 trajectory 的所有 eligible decision steps 保持在同一 split；
 - 每个 state 使用最近 4 个 non-current events，生成全部 11 个 `|S|<=2` coalition labels；
 - census 见 [`data/results/set_utility_dense_v1/census.json`](data/results/set_utility_dense_v1/census.json)；
-- Hyper00 正使用 4×H200 对 12,792 states 分片生成 labels；完成后训练 predictor。
+- Hyper00 与 Hyper01 正使用 8×H200 对 12,792 states 做 trajectory-level data-parallel label generation；分片见 [`data/manifests/set_utility_dense_v1_rollout.json`](data/manifests/set_utility_dense_v1_rollout.json)。
 
 ## Source of Truth
 
@@ -49,7 +49,7 @@ U(S)=D(\varnothing)-D(S).
 | Processor substrate | [HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair) | immutable，23 files / 18.73 GB |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | Dense image backfill | Hyper00 `/data02/jaxan/artifacts/causalcache-set-utility-dense-v1-backfill-d43a15c` | 42MB / 77 PNG；`PENDING_HF_UPLOAD` |
-| Dense labels active run | Hyper00 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-0d32187` | 4×H200；active |
+| Dense labels active run | Hyper00 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-0d32187`；Hyper01 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-9671e45-partition-01` | 8×H200；active |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |
 | Anchor-only pilot checkpoints | [HF model@365f3882](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/365f3882658b40eccb64c9565ae8639986c59e82) | deprecated pilot；仅保留复现 |
 

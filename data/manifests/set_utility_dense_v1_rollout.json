@@ -1,0 +1,78 @@
+{
+  "created_at": "2026-07-19T20:58:38.966996+00:00",
+  "hosts": {
+    "hyper00": {
+      "gpu_ids": [0, 1, 2, 3],
+      "logical_shard_ids": [0, 1, 2, 3],
+      "worker_ids": [0, 1, 2, 3]
+    },
+    "hyper01": {
+      "gpu_ids": [2, 3, 4, 5],
+      "logical_shard_ids": [4, 5, 6, 7],
+      "worker_ids": [4, 5, 6, 7]
+    }
+  },
+  "inventory_observed_at": "2026-07-19T20:58:38.882761+00:00",
+  "logical_shard_count": 8,
+  "per_host_cap": 4,
+  "run_id": "rollout-20260719T205838Z",
+  "worker_count": 8,
+  "workers": [
+    {
+      "host": "hyper00",
+      "local_rank": 0,
+      "logical_shard_ids": [0],
+      "physical_gpu_id": 0,
+      "worker_id": 0
+    },
+    {
+      "host": "hyper00",
+      "local_rank": 1,
+      "logical_shard_ids": [1],
+      "physical_gpu_id": 1,
+      "worker_id": 1
+    },
+    {
+      "host": "hyper00",
+      "local_rank": 2,
+      "logical_shard_ids": [2],
+      "physical_gpu_id": 2,
+      "worker_id": 2
+    },
+    {
+      "host": "hyper00",
+      "local_rank": 3,
+      "logical_shard_ids": [3],
+      "physical_gpu_id": 3,
+      "worker_id": 3
+    },
+    {
+      "host": "hyper01",
+      "local_rank": 0,
+      "logical_shard_ids": [4],
+      "physical_gpu_id": 2,
+      "worker_id": 4
+    },
+    {
+      "host": "hyper01",
+      "local_rank": 1,
+      "logical_shard_ids": [5],
+      "physical_gpu_id": 3,
+      "worker_id": 5
+    },
+    {
+      "host": "hyper01",
+      "local_rank": 2,
+      "logical_shard_ids": [6],
+      "physical_gpu_id": 4,
+      "worker_id": 6
+    },
+    {
+      "host": "hyper01",
+      "local_rank": 3,
+      "logical_shard_ids": [7],
+      "physical_gpu_id": 5,
+      "worker_id": 7
+    }
+  ]
+}
