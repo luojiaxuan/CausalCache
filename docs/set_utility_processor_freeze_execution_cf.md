@@ -67,6 +67,60 @@ current observation 运行 official-tools `apply_chat_template`。若 `input_tok
 `generate`。本 contract 也不授权 policy throughput pilot；后者必须等本步 commit 后另立 train-only
 contract。
 
+## 正式运行状态
+
+唯一正式 run 已从 clean detached checkout
+`b3472bfbd0a26541a8c6f2e207b88741e256f59a` 于 `2026-07-19 02:03:17 UTC` 在 Hyper00 启动。
+运行身份如下：
+
+- host alias/hostname：`hyper00` / `node-radixark-16-0000`；
+- CPU-only container：`sglang-omni-jaxan-07181624`，完整 ID
+  `a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a`；
+- image digest：`sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa`；
+- output root：`/data/artifacts/causalcache-set-utility-processor-freeze-v2-b3472bf`；
+- resumable staging：
+  `/data/artifacts/.causalcache-set-utility-processor-freeze-v2-b3472bf.incomplete`；
+- outer log/exit code：
+  `/data/logs/causalcache-set-utility-processor-freeze-v2-b3472bf.{outer.log,exit_code}`；
+- OCR runtime：Python `3.12.3`、RapidOCR `3.8.4`、PyArrow `24.0.0`；
+- processor runtime：Python `3.12.3`、Transformers `5.6.0`、PyTorch `2.11.0+cu130`、
+  Pillow `12.2.0`；
+- Docker `DeviceRequests=null`，本步 GPU allocation 和 policy/model forward 均为 0。
+
+启动命令的科学与身份参数全部显式传入：
+
+```bash
+env -u PYTHONPATH /usr/bin/python3 \
+  /data/worktrees/causalcache-processor-freeze-b3472bf/code/scripts/run_set_utility_processor_freeze.py \
+  --repository-root /data/worktrees/causalcache-processor-freeze-b3472bf \
+  --execution-config /data/worktrees/causalcache-processor-freeze-b3472bf/code/configs/causalcache_set_utility_processor_freeze_execution_cf.json \
+  --source-root /data/source/guiodyssey-full-pool-v1 \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --snapshot-manifest /data/worktrees/causalcache-processor-freeze-b3472bf/code/configs/gui_owl_1_5_8b_snapshot.json \
+  --ocr-model-dir /data/artifacts/causalcache-ocr-ppocrv5-mobile-v1 \
+  --ocr-wheel-dir /data/tmp/causalcache-ocr-v2-wheels \
+  --output-root /data/artifacts/causalcache-set-utility-processor-freeze-v2-b3472bf \
+  --ocr-python-executable /data/.venv/causalcache-ocr-v2/bin/python \
+  --processor-python-executable /usr/bin/python3 \
+  --git-revision b3472bfbd0a26541a8c6f2e207b88741e256f59a \
+  --host-alias hyper00 \
+  --host-hostname node-radixark-16-0000 \
+  --container-id a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a \
+  --container-image-digest sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa \
+  --worker-count 4 \
+  --ocr-python-version 3.12.3 \
+  --ocr-runtime-version 3.8.4 \
+  --pyarrow-version 24.0.0 \
+  --processor-python-version 3.12.3 \
+  --transformers-version 5.6.0 \
+  --torch-version 2.11.0+cu130 \
+  --pillow-version 12.2.0
+```
+
+启动窗口审计时四个 OCR worker 全部存活且无 error/traceback；`2026-07-19 02:08 UTC` 可完整读取
+`30/2400` 个 partial query records，约 `244 MB`。这只是运行活性证据，不是结果 denominator。
+在 atomic rename 与独立只读 postflight 前，状态为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`。
+
 ## 外置 artifact 与恢复
 
 正式 output 必须位于 repository、source、model 和 OCR inputs 之外的绝对 persistent path，且目标目录
@@ -80,7 +134,8 @@ contract。
 
 本步骤禁止 Hugging Face mutation。正式 artifact 产生后先持久化于 Hyper00 `/data`，状态记为
 `PENDING_HF_UPLOAD`，计划上传 private dataset
-`gavinlaw/causalcache-set-utility-new-development-mobile` 的 versioned processor-freeze tag；上传成功前，
+`gavinlaw/causalcache-set-utility-new-development-mobile` 的 tag
+`phase1-b2-processor-freeze-v1`；上传成功前，
 本地路径只是 staging，不是 canonical publication。
 
 ## 失败分类

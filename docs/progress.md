@@ -3035,3 +3035,23 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   label generation、training、evaluation outcome access 或 HF mutation。
 - 下一步：从 clean pushed `main` 在 Hyper00 CPU-only container 运行正式 4-worker OCR + AutoProcessor freeze；
   output 先落 `/data` persistent staging，随后回写 Git-safe manifest 与 `PENDING_HF_UPLOAD`。
+
+## 2026-07-19：Processor-only formal run 启动
+
+- 唯一正式 run 已从 clean detached `main@b3472bfbd0a26541a8c6f2e207b88741e256f59a` 于
+  `2026-07-19 02:03:17 UTC` 在 Hyper00 启动；Execution-CF config SHA256 仍为
+  `66fd93c64669be734f82830af7d623e9cb97263f90613a5809eb665078b2fba7`，没有改 threshold、候选规则、
+  OCR normalization、worker count 或 denominator。
+- container `sglang-omni-jaxan-07181624` 的 Docker `DeviceRequests=null`；本步是 CPU-only，GPU、
+  policy/vision forward、restoration label、training、matched-NLL、closed-loop 与 HF mutation 全为 0。
+- output root 固定为
+  `/data/artifacts/causalcache-set-utility-processor-freeze-v2-b3472bf`；当前只存在 sibling
+  `.causalcache-set-utility-processor-freeze-v2-b3472bf.incomplete`，状态为
+  `RUNNING_INCOMPLETE_NOT_UPLOADABLE`，不能视为完成 artifact。
+- 启动窗口四个 OCR worker 全部存活、error/traceback 为 0；`2026-07-19 02:08 UTC` partial tar
+  约 `244 MB`，可完整读取 `30/2400` 个 query records。该数字只证明活性，不改变正式 2,400-state
+  denominator。
+- 目标 publication 已固定为 private dataset
+  `gavinlaw/causalcache-set-utility-new-development-mobile:phase1-b2-processor-freeze-v1`。只有 atomic
+  rename、全量只读 postflight 和 Git-safe summary 回写完成后，才会进入 `PENDING_HF_UPLOAD`；当前
+  Execution-CF 明确禁止上传。
