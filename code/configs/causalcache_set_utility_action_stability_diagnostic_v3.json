@@ -1,0 +1,415 @@
+{
+  "authorization": {
+    "access_sealed_test": false,
+    "execution_authorized": false,
+    "generate_restoration_labels": false,
+    "load_policy_or_vision_model": false,
+    "mutate_hugging_face": false,
+    "read_git_bound_d1b_metric_context": true,
+    "run_closed_loop": false,
+    "run_gpu_or_cuda": false,
+    "train_predictor": false,
+    "validate_source_contract": true,
+    "write_diagnostic_result": false
+  },
+  "diagnostic": {
+    "condition": {
+      "condition_id": "strict_determinism_sdpa_frozen_encoded",
+      "cublas_workspace_config": ":4096:8",
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "deterministic_algorithms": true,
+      "deterministic_warn_only": false,
+      "encode_calls_per_state": 1,
+      "encoding_mode": "one_exact_gpu_tensor_mapping_reused_for_both_generations",
+      "float32_matmul_precision": "highest",
+      "fresh_os_process_per_state": true,
+      "generation_calls_per_state": 2,
+      "memory_efficient_sdpa_required": true,
+      "observed_attention": {
+        "text": "sdpa",
+        "top": "sdpa",
+        "vision": "sdpa"
+      },
+      "profile": "pytorch_strict_determinism_cublas_workspace_4096_8_sdpa",
+      "tf32_allowed": false
+    },
+    "encode_call_ceiling": 3,
+    "generation_call_ceiling": 6,
+    "no_retry": true,
+    "no_top_up": true,
+    "process_count": 3,
+    "roster": [
+      {
+        "parent_diagnosis": "MIXED_D1_FRESH_PATH_AND_SDPA_CONTROL_INSTABILITY",
+        "parent_repeat_stable": false,
+        "role": "unstable_target",
+        "state_id": "0296753837938323:decision:006"
+      },
+      {
+        "parent_diagnosis": "STABLE_CONTROL_REPRODUCED",
+        "parent_repeat_stable": true,
+        "role": "stable_control_same_decision_stratum",
+        "state_id": "0336706763935531:decision:006"
+      },
+      {
+        "parent_diagnosis": "STABLE_CONTROL_REPRODUCED",
+        "parent_repeat_stable": true,
+        "role": "stable_control_longer_context_stratum",
+        "state_id": "0268406573756492:decision:010"
+      }
+    ],
+    "state_ids": [
+      "0296753837938323:decision:006",
+      "0336706763935531:decision:006",
+      "0268406573756492:decision:010"
+    ],
+    "state_ids_sha256": "f3153cdc8037ecb631f4e9a69fe79d87a43632623ac04ddfdbff339e6600b77f"
+  },
+  "execution_boundary": {
+    "execution_b_must_be_direct_child_of_source_a": true,
+    "execution_b_only_changed_path": "code/configs/causalcache_set_utility_action_stability_diagnostic_v3_execution.json",
+    "fresh_five_second_fleet_preflight_required": true,
+    "max_concurrent_state_processes": 3,
+    "process_per_state": true,
+    "required_gpu_class": "NVIDIA_H200",
+    "required_host_class": "Hyper_H200",
+    "same_host_container_runtime_required": true,
+    "source_a_requires_clean_pushed_main": true
+  },
+  "immutable_inputs": {
+    "d1b_aggregate": {
+      "byte_count": 17011,
+      "path": "data/results/set_utility_action_stability_diagnostic_v2/aggregate.json",
+      "sha256": "b419f9640cb46276b7a52e292d6feabd81311f66efb22563642ce80c4561919c"
+    },
+    "d1b_projection_sha256": "4db8feef3ced8aaab5eb401646a8bcfd1cc13d64800884bd508dcc1c494f6bb0",
+    "d1b_result_commit": "abdbf8853b6da9ce73cf7f110d44256763b6756e",
+    "d1b_summary": {
+      "byte_count": 6165,
+      "path": "data/results/set_utility_action_stability_diagnostic_v2/summary.json",
+      "sha256": "78048c1bc65f036be7f15fac7435a640b24e1a1474eedd930d6c2f0e666cf367"
+    },
+    "d1b_verdict": "NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY"
+  },
+  "metric_only_result_contract": {
+    "allowed_observations": [
+      "class_only_failure",
+      "condition_and_state_identity",
+      "encode_and_generation_counts",
+      "exact_equality_booleans",
+      "prepared_input_equality_booleans",
+      "runtime_identity"
+    ],
+    "forbidden_serialized_fields": [
+      "action",
+      "action_text",
+      "coordinate",
+      "decoded_output",
+      "decoded_output_digest",
+      "generated_sequence_digest",
+      "kl",
+      "logits",
+      "messages",
+      "native_output",
+      "text_argument",
+      "token_ids",
+      "tokens",
+      "utility"
+    ],
+    "metric_safe_required": true
+  },
+  "preregistered_interpretation": {
+    "pass_authorizes_only_new_full_roster_source_freeze": true,
+    "pass_does_not_retroactively_change_d1b": true,
+    "pass_does_not_unlock_labels_training_matched_nll_or_closed_loop": true,
+    "verdict_precedence": [
+      "INVALID_RUNTIME_FAILURE",
+      "INVALID_STABLE_CONTROL_INSTABILITY",
+      "NO_GO_STRICT_DETERMINISM_REPEAT_INSTABILITY",
+      "PASS_STRICT_DETERMINISM_REPEAT_STABILITY_DIAGNOSTIC"
+    ]
+  },
+  "protocol_id": "causalcache_set_utility_action_stability_diagnostic_source_v3",
+  "schema_version": "1.0.0",
+  "scientific_locks": {
+    "d1b_is_not_retried_or_topped_up": true,
+    "formal_labels_locked": true,
+    "matched_nll_locked": true,
+    "predictor_training_locked": true,
+    "run_closed_loop_locked": true
+  },
+  "source": {
+    "file_count": 53,
+    "files": [
+      {
+        "byte_count": 12230,
+        "path": "code/causalcache/data/guiodyssey.py",
+        "sha256": "c8630f36fe343c63e5f1bf4b6401c4eb049dc4e8457abc761ed41011f4efc1c4"
+      },
+      {
+        "byte_count": 27739,
+        "path": "code/causalcache/data/guiodyssey_independent.py",
+        "sha256": "1beb1333a4f016a0cca5457fe02acc910b35fd621604e7aa588a7b7f61c11b9b"
+      },
+      {
+        "byte_count": 89362,
+        "path": "code/causalcache/data/guiodyssey_restoration_v2.py",
+        "sha256": "8caf9418e4212c760b789f660b8b67c9b23a5b88d08a8434d4a1e718f7a0e4ee"
+      },
+      {
+        "byte_count": 59728,
+        "path": "code/causalcache/data/restoration_v2_selection.py",
+        "sha256": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a"
+      },
+      {
+        "byte_count": 14249,
+        "path": "code/causalcache/low_fidelity_v2.py",
+        "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a"
+      },
+      {
+        "byte_count": 21838,
+        "path": "code/causalcache/policy/gui_owl_v2.py",
+        "sha256": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a"
+      },
+      {
+        "byte_count": 11708,
+        "path": "code/causalcache/policy/gui_owl_v2_1.py",
+        "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964"
+      },
+      {
+        "byte_count": 10553,
+        "path": "code/causalcache/policy/gui_owl_v2_1_action_stability_runtime_v1.py",
+        "sha256": "7d1a8c2eb18049b3f4ab582194d50c1b237cedcc4b64f584c9b5054352d1aeac"
+      },
+      {
+        "byte_count": 4886,
+        "path": "code/causalcache/policy/gui_owl_v2_1_action_stability_runtime_v2.py",
+        "sha256": "2aee12ab5d40512a0606b79106f785e5acb5472845e97f46c4d9d19fb3a62329"
+      },
+      {
+        "byte_count": 6637,
+        "path": "code/causalcache/policy/gui_owl_v2_1_action_stability_runtime_v3.py",
+        "sha256": "9064bd850145301445b6cac6e05885383a5d830148b77a21cb2b203e36758798"
+      },
+      {
+        "byte_count": 29128,
+        "path": "code/causalcache/policy/gui_owl_v2_1_runtime.py",
+        "sha256": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5"
+      },
+      {
+        "byte_count": 12919,
+        "path": "code/causalcache/policy/gui_owl_v2_1_throughput_runtime.py",
+        "sha256": "a2c139a1c5c73d394c34953bc1c17273656447604bdae85ce2e4a1ac0cd51c94"
+      },
+      {
+        "byte_count": 12434,
+        "path": "code/causalcache/policy/gui_owl_v2_2_eager_runtime.py",
+        "sha256": "6ce88c00358d0ab03f0417957f434a8553330f27b49b8c18da15f7817b799cc1"
+      },
+      {
+        "byte_count": 29381,
+        "path": "code/causalcache/policy/gui_owl_v2_runtime.py",
+        "sha256": "7cc0299b1b1679def61a3e2e30017d2f7812a47114b5a286afdf3979536c9c41"
+      },
+      {
+        "byte_count": 19721,
+        "path": "code/causalcache/policy/gui_owl_v2_vision.py",
+        "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24"
+      },
+      {
+        "byte_count": 11616,
+        "path": "code/causalcache/restoration_v2_baselines.py",
+        "sha256": "7df03a3478b2ba0aaaa40d1a08de54126f1211404bf3fc20470876ada735366d"
+      },
+      {
+        "byte_count": 33579,
+        "path": "code/causalcache/restoration_v2_contract.py",
+        "sha256": "f83ae8ececfaafb5cfb3cef9bb617945353c34f6659a74b6080ae9798784c4b3"
+      },
+      {
+        "byte_count": 31285,
+        "path": "code/causalcache/restoration_v2_text_backend.py",
+        "sha256": "f2ed121f290095514ec0f54b83217188f3f9496e5b68da5216f2f19c0d43206e"
+      },
+      {
+        "byte_count": 7413,
+        "path": "code/causalcache/schema.py",
+        "sha256": "3f281fe3a646468de36f4764d20c46d1dea3867d35c819ca4ad52977d318ee5b"
+      },
+      {
+        "byte_count": 24235,
+        "path": "code/causalcache/set_utility_action_stability_contract_v1.py",
+        "sha256": "68b4d55148f583929de4b9e4b7b864201191a39b26cb0a2c5d6f29c0c1977f27"
+      },
+      {
+        "byte_count": 30634,
+        "path": "code/causalcache/set_utility_action_stability_contract_v2.py",
+        "sha256": "eb1a879895f663a331fb9d2f99c30747eb93fcc3ce2ff0e79d385412c1b9e9c1"
+      },
+      {
+        "byte_count": 14858,
+        "path": "code/causalcache/set_utility_action_stability_contract_v3.py",
+        "sha256": "137be55516a16698a093bd5fdaa65c4272824fe0e4d1d4adb95941476b3621f6"
+      },
+      {
+        "byte_count": 17654,
+        "path": "code/causalcache/set_utility_action_stability_diagnostic_v1.py",
+        "sha256": "30a050e52c188baf8444c0281e7367d4951defcf97215e3139e3f5f63d053faf"
+      },
+      {
+        "byte_count": 18213,
+        "path": "code/causalcache/set_utility_action_stability_diagnostic_v2.py",
+        "sha256": "0cb1a923e4f18b2a2c4923e339642adb3a3837a0336a81e9b3aa1afb5678390f"
+      },
+      {
+        "byte_count": 12056,
+        "path": "code/causalcache/set_utility_action_stability_diagnostic_v3.py",
+        "sha256": "30e9a604844b0ac3daff96aa0d6604cf773b3e793ab0c466c63a225ec8d44cfe"
+      },
+      {
+        "byte_count": 49711,
+        "path": "code/causalcache/set_utility_action_stability_envelope_v2.py",
+        "sha256": "3e75dcf1e813fe495b6342354aafa59a258b83289444aee9ea8bd3de8be64e93"
+      },
+      {
+        "byte_count": 39256,
+        "path": "code/causalcache/set_utility_action_stability_execution_v2.py",
+        "sha256": "98265d986cc00318606ab30bf90feb19be823005f33325bcb79e0ce48978e5ad"
+      },
+      {
+        "byte_count": 29735,
+        "path": "code/causalcache/set_utility_action_stability_execution_v3.py",
+        "sha256": "d01c61b53216b4abd7d15359f4a87a3553b6b88cf949df04722c2b16e5ef168d"
+      },
+      {
+        "byte_count": 21659,
+        "path": "code/causalcache/set_utility_consumed_ledger.py",
+        "sha256": "422a8bdb3e2dae8d4c279f895cbb39b52f8c2d4b7ed79f7dc58434127e036345"
+      },
+      {
+        "byte_count": 2248,
+        "path": "code/causalcache/set_utility_consumed_ledger_contract.py",
+        "sha256": "1972454144c04ce8542e49eff16d9df33ad0d4bb90706a64753efcc152af948c"
+      },
+      {
+        "byte_count": 35068,
+        "path": "code/causalcache/set_utility_full_pool.py",
+        "sha256": "6352fd08728d5c38f98686af5712bdda24dd43a4716f6e24f74edd227dc50bf6"
+      },
+      {
+        "byte_count": 14565,
+        "path": "code/causalcache/set_utility_full_pool_inventory_v1.py",
+        "sha256": "17bf6c77fda59ff586a4ae267ca82a132dca2a5713c678ae6becfa3340f24857"
+      },
+      {
+        "byte_count": 8014,
+        "path": "code/causalcache/set_utility_gui_owl_v2_1_action_stability_adapter_v1.py",
+        "sha256": "f16cff4d075c0b77a614aaa40da7384b90379227ecf4b38fa7d37e90f3a5fc95"
+      },
+      {
+        "byte_count": 11896,
+        "path": "code/causalcache/set_utility_gui_owl_v2_1_throughput_adapter.py",
+        "sha256": "7b8f40eab4963b3327752981a1a6ebf0d75d38f5a9e24e4970d389ee8021d1b4"
+      },
+      {
+        "byte_count": 23154,
+        "path": "code/causalcache/set_utility_label_inputs.py",
+        "sha256": "04d2ac07b2774865678b30ac5208e6f44ad7f4652bbcb3e515faf4742ef57f99"
+      },
+      {
+        "byte_count": 37013,
+        "path": "code/causalcache/set_utility_label_producer.py",
+        "sha256": "6fed78a094e06d38572aa465110186e9dc7cc0a8a71f3fa296d5b73472bc35d3"
+      },
+      {
+        "byte_count": 17861,
+        "path": "code/causalcache/set_utility_label_schedule.py",
+        "sha256": "57a656cbf8574fa2225a9fa38f933a067c1d42e3dd758f8168f07bde3f75adde"
+      },
+      {
+        "byte_count": 12510,
+        "path": "code/causalcache/set_utility_long_pool.py",
+        "sha256": "e67dd7ac34770c3700b13e61736101fbdf5706ca4ac8f2ba1c3abacd6bac7095"
+      },
+      {
+        "byte_count": 61626,
+        "path": "code/causalcache/set_utility_processor_artifacts.py",
+        "sha256": "1bdcd4ab08dd897723bfeb47a1e8133b3d13ac6a2fea508ad8551c90c6cddba1"
+      },
+      {
+        "byte_count": 41943,
+        "path": "code/causalcache/set_utility_processor_freeze.py",
+        "sha256": "ba8fefa2216668aa42e8a4bfa5c3ca1321e0c525be6f3e90d46e7879478c34ab"
+      },
+      {
+        "byte_count": 2820,
+        "path": "code/causalcache/set_utility_processor_prompt.py",
+        "sha256": "e6186cf4f658d5178dceef54c29a9de132e8fa34cde89699a06ee0d47c103b6b"
+      },
+      {
+        "byte_count": 33995,
+        "path": "code/causalcache/set_utility_processor_substrate.py",
+        "sha256": "02a1f1f96041376e6c64632164b5fe484b436a01b862c90d8e9cd9ee5751cf8b"
+      },
+      {
+        "byte_count": 13953,
+        "path": "code/causalcache/set_utility_split_validation.py",
+        "sha256": "7d9965f3ece64e670da5a40384c5aa25e544d611a28c7a9be190fa378b86c64d"
+      },
+      {
+        "byte_count": 16205,
+        "path": "code/causalcache/set_utility_throughput_pilot.py",
+        "sha256": "bcbd786c06d1f3b97c6b3c4feb3224c697c4e2265ff26e4c419a22c3b9800c6d"
+      },
+      {
+        "byte_count": 40471,
+        "path": "code/causalcache/set_utility_throughput_pilot_contract_v1.py",
+        "sha256": "45a2668b8c5f0b093a8d37556c65a3fd0abd77840ccc0136857ecd0ff31a9a3b"
+      },
+      {
+        "byte_count": 85308,
+        "path": "code/causalcache/set_utility_throughput_pilot_envelope_v1.py",
+        "sha256": "cb970ec0de41e9c43d9a59bd15bd089116bfe957a4a9e7801fc95f1a5fff27dd"
+      },
+      {
+        "byte_count": 58057,
+        "path": "code/causalcache/set_utility_throughput_pilot_execution_v1.py",
+        "sha256": "66e7e6a606b081975e8b234f656bb4dbfe4be3e4682126eec5701ca3e07cf617"
+      },
+      {
+        "byte_count": 22040,
+        "path": "code/causalcache/set_utility_throughput_pilot_pair_v1.py",
+        "sha256": "9c50a6e87cd021fa4cec77e2d1aa4f101a4cd96e262ffabce2cf62f592260953"
+      },
+      {
+        "byte_count": 6947,
+        "path": "code/scripts/aggregate_set_utility_action_stability_v3.py",
+        "sha256": "db2f99e8ba2784fa379f975e7dc62040ed95ea8fcb60da9b1293cc033170de97"
+      },
+      {
+        "byte_count": 3268,
+        "path": "code/scripts/materialize_set_utility_action_stability_envelope_v3.py",
+        "sha256": "2de8c18f339ce6ff4eea04f5795ebb3096541a55c6e35a20ef0f84b620b89c68"
+      },
+      {
+        "byte_count": 1505,
+        "path": "code/scripts/run_set_utility_action_stability_state_v3.py",
+        "sha256": "541e9d0e8cf94efb31b8238da8cd2bcc1a4b7fa32f207c99867a658a878d3387"
+      },
+      {
+        "byte_count": 1287,
+        "path": "code/scripts/validate_set_utility_action_stability_contract_v3.py",
+        "sha256": "12703ea59fccd8d502be74a9dd87ae153cba95ed92338ae688c2b30c424369c8"
+      },
+      {
+        "byte_count": 940,
+        "path": "code/scripts/validate_set_utility_action_stability_envelope_v3.py",
+        "sha256": "f35476bab578eee6b0267723123660c795e85fb9c771bb031fee5b180f46ba21"
+      }
+    ],
+    "inventory_sha256": "86dbd5a6ed340dd46ce93709e6a7b59c07d200a04652723407e28683b917066b",
+    "missing_reserved_entrypoint_paths": []
+  },
+  "status": "SOURCE_ONLY_STRICT_DETERMINISM_ACTION_STABILITY_D2_FROZEN"
+}

@@ -16,6 +16,22 @@ D1b 已用 memory-efficient SDPA 消除三个 `decision:010` OOM，但 6 个 sta
 repeat mismatch，正式为 `NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY`。因此新 exact tables 仍未启动，12-state
 throughput v3、labels/training/matched-NLL/closed-loop 继续 locked；不得 retry/top-up D1b 或只删除该 state。
 
+### 2026-07-19：strict-determinism D2 Source-A freeze
+
+- D2 只诊断 `0296753837938323:decision:006`，并固定同 decision stratum control
+  `0336706763935531:decision:006` 与 longer-context control `0268406573756492:decision:010`；三进程可同波并发，
+  ceiling=3 encode / 6 generation，无 retry/top-up；
+- `strict_determinism_sdpa_frozen_encoded` 保持 parent automatic loader 与实际 top/text/vision 全 SDPA；在 CUDA
+  初始化前精确设置 cuBLAS workspace、PyTorch deterministic algorithms、seed、cuDNN、TF32 与 matmul precision；
+  unsupported deterministic operation 只能形成 class-only `INVALID_RUNTIME_FAILURE`，不能降级 backend；
+- canonical config SHA256=`4531b1c7e8c067b28c31662ee04b210dd2009031a9f92b4689128f701074b18d`；
+  53-file transitive source inventory SHA256=
+  `86dbd5a6ed340dd46ce93709e6a7b59c07d200a04652723407e28683b917066b`；focused verification 合计
+  `40 passed`，相关 execution/aggregate/CLI v2 回归另 `9 passed`，source validator 与 `py_compile` 通过；
+- Source-A 是包含本记录的 clean pushed `main`。下一步只能 fresh fleet preflight、机械生成唯一 direct-child
+  Execution-B，再运行一次 3-state D2；D2 PASS 也不追认 D1b、不直接解锁 labels/training/matched-NLL/closed-loop。
+  协议见 [`set_utility_action_stability_diagnostic_v3.md`](set_utility_action_stability_diagnostic_v3.md)。
+
 ### 2026-07-19：D1b formal execution valid，repeat-stability NO-GO
 
 - Source-A=`fe6f6b69adf2acd5457026835529f2ca3e682dd2`，唯一 direct-child Execution-B=

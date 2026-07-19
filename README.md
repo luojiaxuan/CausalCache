@@ -110,6 +110,16 @@
 > [`data/results/set_utility_action_stability_diagnostic_v2/`](data/results/set_utility_action_stability_diagnostic_v2/)，协议见
 > [`docs/set_utility_action_stability_diagnostic_v2.md`](docs/set_utility_action_stability_diagnostic_v2.md)。
 >
+> D2 strict-determinism failure-localization Source-A 已冻结：只包含 D1b 唯一不稳定 state
+> `029675...:decision:006` 与两个 stable controls；每 state fresh process、同一 H200 stack、总 ceiling 为 3 encode /
+> 6 generation。唯一新 condition 在 CUDA 前固定 `CUBLAS_WORKSPACE_CONFIG=:4096:8`、PyTorch deterministic
+> algorithms、seed、cuDNN、TF32 与 matmul precision，同时保持实际 top/text/vision 全 SDPA。config SHA256=
+> `4531b1c7e8c067b28c31662ee04b210dd2009031a9f92b4689128f701074b18d`，53-file source inventory SHA256=
+> `86dbd5a6ed340dd46ce93709e6a7b59c07d200a04652723407e28683b917066b`。当前尚未运行 GPU；下一步只允许 fresh
+> fleet preflight 后生成 direct-child Execution-B，再执行一次 3-state D2。即使 D2 PASS，也只允许另立 full-roster
+> strict-profile source，不直接解锁 labels/training/matched-NLL/closed-loop。协议见
+> [`docs/set_utility_action_stability_diagnostic_v3.md`](docs/set_utility_action_stability_diagnostic_v3.md)。
+>
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
 > `parallel_v1` 只把四个 worker tar 的 v2 semantic overlay 用 ordered 4-thread map 并行，主线程仍按 0→3
 > 聚合并额外拒绝跨 worker overlap。source contract/config SHA256=
@@ -1163,6 +1173,9 @@ mediation effect。
 - Code layout and commands: [`code/README.md`](code/README.md)
 - Small-data policy: [`data/README.md`](data/README.md)
 - Cross-chip execution and handoff: [`docs/execution.md`](docs/execution.md)
+- Strict-determinism D2 protocol/source:
+  [`docs/set_utility_action_stability_diagnostic_v3.md`](docs/set_utility_action_stability_diagnostic_v3.md),
+  [`code/configs/causalcache_set_utility_action_stability_diagnostic_v3.json`](code/configs/causalcache_set_utility_action_stability_diagnostic_v3.json)
 - Independent confirm continuation protocol: [`docs/independent_confirm_continuation_v1.md`](docs/independent_confirm_continuation_v1.md)
 - Independent confirm continuation result:
   [`data/results/independent_confirm20_continuation_v1/`](data/results/independent_confirm20_continuation_v1/)
