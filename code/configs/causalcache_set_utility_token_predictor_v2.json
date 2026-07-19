@@ -42,8 +42,8 @@
       },
       "learning_rate": 0.0003,
       "weight_decay": 0.01,
-      "batch_size": 1,
-      "gradient_accumulation_steps": 8
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
     },
     "set_transformer_d256_l8": {
       "model": {
@@ -59,8 +59,8 @@
       },
       "learning_rate": 0.0003,
       "weight_decay": 0.01,
-      "batch_size": 1,
-      "gradient_accumulation_steps": 8
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
     },
     "set_transformer_d512_l16": {
       "model": {
@@ -76,8 +76,8 @@
       },
       "learning_rate": 0.0001,
       "weight_decay": 0.01,
-      "batch_size": 1,
-      "gradient_accumulation_steps": 8
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
     }
   },
   "selection": {
