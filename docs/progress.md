@@ -12,6 +12,17 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：processor v2 自动 recorder handoff
+
+- 新增 `code/scripts/watch_set_utility_processor_freeze_v2_result.py`，把当前 CPU formal run 的结束边界机械连接到
+  Git-safe recorder；watcher 本身不修改 formal root，也不执行 HF mutation；
+- watcher 只认 canonical `supervisor.json` 的精确 4-field schema、formal/postflight 双零，以及
+  `exit_code` / `postflight-exit-code` 的精确 `0\n`。任何 timeout、symlink、非零退出、字段/格式漂移或预先存在的
+  result/staging 均 fail closed，且 recorder argv 永远不含 `--record-invalid`；
+- recorder 必须来自独立 clean checkout，watcher 在 checkout 外运行并移除 `PYTHONPATH`，避免运行证据或环境污染
+  source binding。processor/result/watcher focused suite 为 `145 passed`，`py_compile` 与 `git diff --check`
+  通过；当前 formal 科学状态仍是 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`，本步不把 partial bytes 追认为结果。
+
 ### 2026-07-18（UTC 07-19）：processor v2 replacement source freeze
 
 - `1c84dfe` 与 `dc90664` 两次 run 分别于 `2026-07-19T06:27:56Z` 和 `06:46:35Z` 主动终止，exit 均为

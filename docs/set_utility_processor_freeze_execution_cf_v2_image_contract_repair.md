@@ -174,6 +174,11 @@ Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执�
 - durable evidence：`/data/logs/causalcache-processor-v2-e976b99`；one-shot supervisor SHA256=
   `95f066f1e0df17dd0efb8e3d113cb5620306382be1c63cdb64c3c890b7ab7d03`，已预写 exact argv/start/postflight argv，
   run 结束后原子写 exit/end 并在 exit=0 时自动运行 committed postflight；
+- recorder handoff：`code/scripts/watch_set_utility_processor_freeze_v2_result.py` 只等待上述 supervisor 的原子终态，
+  严格要求 canonical 4-field evidence、formal/postflight 双零及两个精确 `0\n` exit files；随后移除
+  `PYTHONPATH`，从 clean recorder checkout 调用正式 recorder，永不使用 `--record-invalid`。timeout、symlink、
+  非零 terminal、字段漂移或已有 result/staging 均拒绝执行；processor/result/watcher focused suite 为
+  `145 passed`；
 - 四进程联合 processor smoke：32 query / 32 runtimes，joint wall=`41.26s`、effective CPU=`30.79 cores`、
   aggregate peak RSS=`50,295,324 KiB`，四进程 getter 均为 `28/1`；
 - OCR 稳定启动 snapshot：四个 logical worker lifetime CPU 分别为 `2740/2692/2837/2744%`，合计约

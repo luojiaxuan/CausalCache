@@ -193,6 +193,11 @@ receipt 任一步中断后，下一次 `publish` 只会在完整重建 absent→
 annotated tag identity 后续跑；未知或漂移 state fail closed。receipt 使用同目录 `0600` temp、file/parent
 `fsync` 与 no-overwrite atomic publish，绝不覆盖截断 legacy receipt。CLI 为
 `scripts/manage_set_utility_processor_freeze_v2_publication.py` 的 `publish` / `validate-only` 子命令。
+长任务完成后的 Git-safe 记录由
+`scripts/watch_set_utility_processor_freeze_v2_result.py` 接力：它只接受 canonical supervisor、formal/postflight
+双零和两个精确 `0\n` exit files，随后从 clean recorder checkout 调用正式 recorder；timeout、symlink、已有
+result/staging 或任一 terminal drift 都 fail closed，且永不传 `--record-invalid`。相关 processor/result/watcher
+测试为 `145 passed`。
 完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 
