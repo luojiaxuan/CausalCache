@@ -1,0 +1,53 @@
+{
+  "backfill_file_count": 77,
+  "state_count": 12792,
+  "state_count_by_role": {
+    "evaluation": 1046,
+    "train": 10680,
+    "tune": 1066
+  },
+  "status": "VALIDATED_DENSE_PER_STEP_INPUTS",
+  "trajectory_count": 1200,
+  "workers": [
+    {
+      "state_count": 3195,
+      "state_count_by_role": {
+        "evaluation": 238,
+        "train": 2612,
+        "tune": 345
+      },
+      "trajectory_count": 301,
+      "worker_index": 0
+    },
+    {
+      "state_count": 3195,
+      "state_count_by_role": {
+        "evaluation": 298,
+        "train": 2686,
+        "tune": 211
+      },
+      "trajectory_count": 301,
+      "worker_index": 1
+    },
+    {
+      "state_count": 3213,
+      "state_count_by_role": {
+        "evaluation": 322,
+        "train": 2659,
+        "tune": 232
+      },
+      "trajectory_count": 296,
+      "worker_index": 2
+    },
+    {
+      "state_count": 3189,
+      "state_count_by_role": {
+        "evaluation": 188,
+        "train": 2723,
+        "tune": 278
+      },
+      "trajectory_count": 302,
+      "worker_index": 3
+    }
+  ]
+}

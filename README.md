@@ -12,7 +12,7 @@
 - 旧的 all-or-nothing throughput / stability 协议不再阻塞探索主线。新 MVP 按 state 接受：稳定 state 产标签，不稳定 state 记录并跳过。
 - 旧 `scale-v1` 仅有 355 个 anchor states，现降级为 anchor-only pilot，不再作为扩数结果或继续调参依据。
 - Oracle-independent `J` 在 B1/B2 恢复 exact utility 的 99.39%/90.06%，证明 independent restoration objective 在这批数据上有效；learned models 仍有明显 distillation gap。
-- Dense per-step census 共 12,792 states（10,680 train / 1,066 tune / 1,046 evaluation）。现有 artifact 可复用 12,635 个；其余 157 个来自 20 条超长 trajectory 的中段截图缺口，需从 pinned raw source 补齐。
+- Dense per-step 输入已完整验证 12,792 states（10,680 train / 1,066 tune / 1,046 evaluation）。现有 artifact 复用 12,635 个，另从 pinned raw source 补回 77 张 PNG 覆盖剩余 157 个 states。
 
 完整历史与失败记录保留在 [`docs/progress.md`](docs/progress.md)，但不应把历史 formal contract 当成当前 MVP 的执行清单。
 
@@ -39,7 +39,7 @@ U(S)=D(\varnothing)-D(S).
 - 同一 trajectory 的所有 eligible decision steps 保持在同一 split；
 - 每个 state 使用最近 4 个 non-current events，生成全部 11 个 `|S|<=2` coalition labels；
 - census 见 [`data/results/set_utility_dense_v1/census.json`](data/results/set_utility_dense_v1/census.json)；
-- 先补齐 157 个 image gaps，再对 12,792 states 分片生成 labels、训练 predictor。
+- Hyper00 正使用 4×H200 对 12,792 states 分片生成 labels；完成后训练 predictor。
 
 ## Source of Truth
 
@@ -48,6 +48,8 @@ U(S)=D(\varnothing)-D(S).
 | 代码、配置、论文、轻量结果 | 本 Git 仓库 `main` | canonical |
 | Processor substrate | [HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair) | immutable，23 files / 18.73 GB |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
+| Dense image backfill | Hyper00 `/data02/jaxan/artifacts/causalcache-set-utility-dense-v1-backfill-d43a15c` | 42MB / 77 PNG；`PENDING_HF_UPLOAD` |
+| Dense labels active run | Hyper00 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-0d32187` | 4×H200；active |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |
 | Anchor-only pilot checkpoints | [HF model@365f3882](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/365f3882658b40eccb64c9565ae8639986c59e82) | deprecated pilot；仅保留复现 |
 
