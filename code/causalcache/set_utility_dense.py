@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -120,6 +121,15 @@ def dense_decision_steps(*, decision_count: int) -> tuple[int, ...]:
     if type(decision_count) is not int or decision_count < 6:
         raise ValueError("decision count must be at least six")
     return tuple(range(DENSE_MINIMUM_DECISION_STEP, decision_count + 2))
+
+
+def dense_trajectory_partition(trajectory_id: str, *, partition_count: int) -> int:
+    if not isinstance(trajectory_id, str) or not trajectory_id:
+        raise ValueError("dense trajectory id must be non-empty")
+    if type(partition_count) is not int or partition_count <= 0:
+        raise ValueError("dense trajectory partition count must be positive")
+    digest = hashlib.sha256(trajectory_id.encode("utf-8")).hexdigest()
+    return int(digest, 16) % partition_count
 
 
 def dense_required_event_step_ids(decision_step_id: int) -> frozenset[int]:
@@ -324,6 +334,7 @@ __all__ = [
     "dense_decision_steps",
     "dense_legacy_coverage",
     "dense_required_event_step_ids",
+    "dense_trajectory_partition",
     "derive_dense_states_from_query_pair",
     "legacy_available_event_step_ids",
 ]

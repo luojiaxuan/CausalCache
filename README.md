@@ -24,7 +24,7 @@
 U(S)=D(\varnothing)-D(S).
 \]
 
-训练 predictor `U_θ(q,C,m_S)` 直接预测 subset utility。模型始终看到全部候选和 selected mask；budget 只进入 at-most-`B` search，不写死在模型中。
+训练 predictor `U_θ(q,C,m_S)` 直接预测 subset utility。模型始终看到全部候选和 selected mask；正式 selector 只使用 at-most-`B` search，不再把 fixed-`B` 当作结果口径。
 
 当前比较：
 

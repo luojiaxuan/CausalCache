@@ -23,6 +23,7 @@ from causalcache.set_utility_dense import (
     build_dense_feature_state,
     build_dense_messages,
     build_dense_prompt_plan,
+    dense_trajectory_partition,
     derive_dense_states_from_query_pair,
 )
 from causalcache.set_utility_label_inputs import (
@@ -454,6 +455,10 @@ def run_dense_worker(args: argparse.Namespace) -> None:
     )
     config_sha = _sha256_file(config_path)
     worker_index = args.worker_index
+    partition_index = args.trajectory_partition_index
+    partition_count = args.trajectory_partition_count
+    if not 0 <= partition_index < partition_count:
+        raise ValueError("trajectory partition index is outside its partition count")
     artifact_path = (
         processor_root
         / "substrate"
@@ -461,7 +466,12 @@ def run_dense_worker(args: argparse.Namespace) -> None:
     )
     expected_worker = _load_expected_worker(artifact_path)
     expected_count = sum(
-        item.observation_count - 5 for item in expected_worker.trajectories
+        item.observation_count - 5
+        for item in expected_worker.trajectories
+        if dense_trajectory_partition(
+            item.trajectory_id, partition_count=partition_count
+        )
+        == partition_index
     )
     supplemental = _backfill_by_trajectory(args.backfill_root.resolve())
     runtime, _, runtime_helpers = _runtime_bundle(
@@ -489,6 +499,13 @@ def run_dense_worker(args: argparse.Namespace) -> None:
         except StopIteration:
             break
         trajectory_id = pair[0].trajectory_id
+        if (
+            dense_trajectory_partition(
+                trajectory_id, partition_count=partition_count
+            )
+            != partition_index
+        ):
+            continue
         states = derive_dense_states_from_query_pair(
             pair,
             supplemental_image_payloads=supplemental.get(trajectory_id),
@@ -542,7 +559,11 @@ def run_dense_worker(args: argparse.Namespace) -> None:
             f"dense worker state count drifted: {observed_count} != {expected_count}"
         )
     _write_json(
-        output_root / f"worker-{worker_index:02d}.json",
+        output_root
+        / (
+            f"worker-{worker_index:02d}-partition-{partition_index:02d}"
+            f"-of-{partition_count:02d}.json"
+        ),
         {
             "config_sha256": config_sha,
             "counts": dict(counts),
@@ -551,6 +572,8 @@ def run_dense_worker(args: argparse.Namespace) -> None:
             "runtime_metadata": dict(runtime.metadata),
             "selected_state_count": observed_count,
             "status": "COMPLETED_SET_UTILITY_DENSE_WORKER",
+            "trajectory_partition_count": partition_count,
+            "trajectory_partition_index": partition_index,
             "worker_index": worker_index,
         },
     )
@@ -583,7 +606,16 @@ def run_all(args: argparse.Namespace, *, worker_command: str = "worker") -> None
             str(worker_index),
         ]
         if worker_command == "dense-worker":
-            command.extend(["--backfill-root", str(args.backfill_root)])
+            command.extend(
+                [
+                    "--backfill-root",
+                    str(args.backfill_root),
+                    "--trajectory-partition-index",
+                    str(args.trajectory_partition_index),
+                    "--trajectory-partition-count",
+                    str(args.trajectory_partition_count),
+                ]
+            )
         environment = dict(os.environ)
         environment["CUDA_VISIBLE_DEVICES"] = str(worker_index)
         processes.append(
@@ -619,6 +651,12 @@ def main() -> None:
             child.add_argument("--worker-index", type=int, choices=range(4), required=True)
         if command in {"dense-worker", "dense-all"}:
             child.add_argument("--backfill-root", type=Path, required=True)
+            child.add_argument(
+                "--trajectory-partition-index", type=int, default=0
+            )
+            child.add_argument(
+                "--trajectory-partition-count", type=int, default=1
+            )
     args = parser.parse_args()
     if args.command == "worker":
         run_worker(args)

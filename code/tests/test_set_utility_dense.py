@@ -5,6 +5,7 @@ from causalcache.set_utility_dense import (
     dense_decision_steps,
     dense_legacy_coverage,
     dense_required_event_step_ids,
+    dense_trajectory_partition,
     derive_dense_states_from_query_pair,
     legacy_available_event_step_ids,
 )
@@ -122,3 +123,11 @@ def test_supplemental_images_close_long_trajectory_gap() -> None:
     )
     assert len(partial) == 26
     assert len(complete) == 34
+
+
+def test_dense_trajectory_partition_is_stable_and_disjoint() -> None:
+    ids = tuple(f"trajectory-{index}" for index in range(100))
+    first = {item: dense_trajectory_partition(item, partition_count=2) for item in ids}
+    second = {item: dense_trajectory_partition(item, partition_count=2) for item in reversed(ids)}
+    assert first == second
+    assert set(first.values()) == {0, 1}

@@ -137,9 +137,6 @@ def _evaluate(
         selections: dict[str, dict[str, tuple[int, ...]]] = {
             family: {} for family in models
         }
-        selections.update(
-            {f"{family}_fixed_B": {} for family in models}
-        )
         selections.update({"recent": {}, "ocr_rgb": {}, "oracle_independent_J": {}})
         for state in states:
             state_id = state.state_id
@@ -150,13 +147,6 @@ def _evaluate(
                     budget=budget,
                 )
                 selections[family][state_id] = search.selected_subset
-                fixed = tuple(
-                    item for item in search.scored_subsets if len(item[0]) == budget
-                )
-                selections[f"{family}_fixed_B"][state_id] = min(
-                    fixed,
-                    key=lambda item: (-item[1], item[0]),
-                )[0]
             selections["recent"][state_id] = recent_selection(
                 features[state_id], budget=budget
             )
