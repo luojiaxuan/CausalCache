@@ -3017,3 +3017,21 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 该历史下一步随后已完成：Execution-B=`68e71fd…0466`，有效 continuation report 为
   `NO_GO_INDEPENDENT_CONFIRM`。终态与停止决定见本文顶部同日结果段；paired closed-loop、matched-NLL 与
   sealed test 均未执行。
+
+## 2026-07-18：Processor-only Execution-CF source freeze
+
+- 在 Freeze-B v2 terminal repair 后冻结 processor-only candidate-freeze contract；config SHA256=
+  `66fd93c64669be734f82830af7d623e9cb97263f90613a5809eb665078b2fba7`。
+- contract byte-bind Freeze-B v2、P0 census、610-shard inventory、base parser、GUI-Owl snapshot、OCR config/
+  completion，以及 runner/import closure 的 26 个 source files；hash chain 与 live bytes 均 fail closed。
+- 1,200 trajectories / 2,400 queries 映射到 527 selected shards / 18,792 observations；whole-shard LPT 的
+  四 worker loads 为 `4700/4700/4693/4699`，不会把同一 Parquet shard 拆给多个 worker。
+- 新增 prefix-safe external artifact：每个 query 只含自己的 history prefix、validated OCR records 和
+  candidate/current images；不保存 raw row、target action、terminal outcome、policy output、KL 或 utility。
+- 新增独立 OCR/AutoProcessor runtimes、strict image contract、AutoProcessor-only AST/runtime guards、
+  newest-suffix drop、`n>=4` floor、exact subset/model-operation schedule、atomic no-overwrite 与 completed-worker
+  resume。
+- processor focused + label schedule/producer + Freeze-B v2 regression 共 `75 passed`；无 GPU、policy forward、
+  label generation、training、evaluation outcome access 或 HF mutation。
+- 下一步：从 clean pushed `main` 在 Hyper00 CPU-only container 运行正式 4-worker OCR + AutoProcessor freeze；
+  output 先落 `/data` persistent staging，随后回写 Git-safe manifest 与 `PENDING_HF_UPLOAD`。

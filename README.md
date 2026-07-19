@@ -59,7 +59,13 @@
 > training grid 与 HF destination，共 1,200 trajectories / 2,400 states；v2 manifest SHA256=
 > `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`。下一步是 processor-only
 > candidate freeze 与 exact operation budget；processor 前 B2 schedule 为 171,730 rows，generic ceiling 仍为
-> 328,800，尚不授权 label/training。
+> 328,800，尚不授权 label/training。Execution-CF source/config 已冻结：config SHA256=
+> `66fd93c64669be734f82830af7d623e9cb97263f90613a5809eb665078b2fba7`，绑定 6 项 frozen inputs 与
+> 26 个 runtime source files；真实执行固定为 Hyper00 CPU-only 的 4-worker whole-shard OCR 阶段和隔离的
+> AutoProcessor-only 阶段。527 selected shards / 18,792 observations 的 worker load 为
+> `4700/4700/4693/4699`。当前仍没有 final candidates、restoration labels、predictor checkpoint、matched-NLL
+> 或 closed-loop result。详见
+> [`docs/set_utility_processor_freeze_execution_cf.md`](docs/set_utility_processor_freeze_execution_cf.md)。
 > 不使用旧 13–64
 > 小池子替代全量数据。formal-58 仅可
 > train-only；reference8、old-dev5、fresh-16、confirm-20 永不进入新训练/调参/评估。

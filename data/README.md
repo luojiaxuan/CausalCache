@@ -35,7 +35,10 @@ labels、feature cache、predictor checkpoint 或 offline method delta。旧
 `manifests/set_utility_freeze_b_v2_terminal_index_repair.json` 固定 1,200 trajectory / 2,400 corrected query 的
 group-disjoint roster，manifest SHA256=
 `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`；最终 candidates 与 exact operation
-budget 仍等待 processor-only freeze。见
+budget 仍等待 processor-only freeze。其 Execution-CF config 已冻结，SHA256=
+`66fd93c64669be734f82830af7d623e9cb97263f90613a5809eb665078b2fba7`；本步禁止 HF mutation，真实 output
+产生后会先记录 persistent staging path、size/manifest、生成命令、目标 private HF repo/tag 与
+`PENDING_HF_UPLOAD`，上传成功后再替换为 immutable revision。见
 `docs/set_utility_freeze_b_v2_terminal_index_repair.md` 与 `docs/set_utility_implementation_v1.md`。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
