@@ -27,6 +27,7 @@ from causalcache.set_utility_processor_artifacts import (
     sha256_bytes,
 )
 from causalcache.set_utility_processor_freeze import (
+    WORKER_COUNT,
     validate_freeze_query_topology,
     validate_processor_only_source,
 )
@@ -76,6 +77,9 @@ IMAGE_CONTRACT_PATH = (
 FULL_POOL_CENSUS_PATH = "data/manifests/set_utility_full_pool_census_v2.json"
 OUTPUT_BASENAME_PREFIX = (
     "causalcache-set-utility-processor-freeze-v2-image-contract-repair-"
+)
+PROCESSOR_THREAD_RUNTIME_LOG_STATUS = (
+    "VALID_PROCESSOR_TORCH_THREAD_RUNTIME_LOG_EVIDENCE"
 )
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _FORBIDDEN_IMAGE_MUTATION_CALLS = frozenset(
@@ -879,6 +883,61 @@ def _receipt_tallies_and_contract_identity(
     return tuple(tallies)
 
 
+def _validate_processor_thread_runtime_logs(
+    root: Path,
+) -> tuple[dict[str, Any], ...]:
+    expected_runtime = {
+        "ambient_thread_environment_keys_present": [],
+        "getter_verification_passed": True,
+        "torch_interop_thread_count": PROCESSOR_TORCH_INTEROP_THREADS,
+        "torch_intraop_thread_count": PROCESSOR_TORCH_INTRAOP_THREADS,
+    }
+    expected_line = canonical_json_bytes(
+        {"processor_torch_thread_runtime": expected_runtime}
+    )
+    marker = b'"processor_torch_thread_runtime"'
+    evidence = []
+    for worker_index in range(WORKER_COUNT):
+        path = root / "logs" / f"processor-worker-{worker_index:02d}.log"
+        if path.is_symlink() or not path.is_file():
+            raise ValueError("processor thread-runtime log must be one regular file")
+        payload = path.read_bytes()
+        first_line, separator, diagnostics = payload.partition(b"\n")
+        if separator != b"\n" or first_line != expected_line:
+            raise ValueError(
+                "processor thread-runtime evidence must be the canonical first line"
+            )
+        if payload.count(marker) != 1:
+            raise ValueError(
+                "processor thread-runtime log must contain exactly one evidence marker"
+            )
+        try:
+            diagnostic_text = diagnostics.decode("utf-8")
+        except UnicodeDecodeError as error:
+            raise ValueError(
+                "processor log diagnostics after evidence must be UTF-8 text"
+            ) from error
+        if any(
+            (ord(character) < 32 and character not in "\t\r\n")
+            or ord(character) == 127
+            for character in diagnostic_text
+        ):
+            raise ValueError(
+                "processor log diagnostics contain unsafe control characters"
+            )
+        evidence.append(
+            {
+                "diagnostic_byte_count": len(diagnostics),
+                "diagnostic_line_count": len(diagnostic_text.splitlines()),
+                "evidence_sha256": sha256_bytes(expected_line),
+                "log_sha256": sha256_bytes(payload),
+                "status": PROCESSOR_THREAD_RUNTIME_LOG_STATUS,
+                "worker_index": worker_index,
+            }
+        )
+    return tuple(evidence)
+
+
 def validate_completed_processor_freeze_root_v2(
     output_root: str | Path,
     *,
@@ -899,6 +958,9 @@ def validate_completed_processor_freeze_root_v2(
     structural = _validate_completed_processor_freeze_root_v1(
         root, context=context.structural_context
     )
+    processor_thread_runtime_evidence = _validate_processor_thread_runtime_logs(
+        root
+    )
     receipt_tally = _validate_global_format_tally(
         _receipt_tallies_and_contract_identity(root, context)
     )
@@ -915,6 +977,9 @@ def validate_completed_processor_freeze_root_v2(
         "image_contract_sha256": context.image_contract_sha256,
         "metadata_only_ocr_validation_count": metadata_only_validation_count,
         "processor_image_contract_id": PROCESSOR_IMAGE_CONTRACT_V2_ID,
+        "processor_thread_runtime_evidence": list(
+            processor_thread_runtime_evidence
+        ),
         "schema_version": SCHEMA_VERSION,
         "stored_image_ocr_validation_count": stored_validation_count,
         "structural_validation_status": structural["status"],
@@ -930,10 +995,12 @@ validate_completed_processor_freeze_root = validate_completed_processor_freeze_r
 
 __all__ = [
     "ProcessorFreezePostflightContextV2",
+    "PROCESSOR_THREAD_RUNTIME_LOG_STATUS",
     "VALIDATION_STATUS",
     "build_processor_freeze_postflight_context",
     "build_processor_freeze_postflight_context_v2",
     "validate_completed_processor_freeze_root",
     "validate_completed_processor_freeze_root_v2",
     "validate_processor_only_source_v2",
+    "_validate_processor_thread_runtime_logs",
 ]

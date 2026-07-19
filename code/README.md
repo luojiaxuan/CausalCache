@@ -173,11 +173,12 @@ pre-`to_pylist()` schema assertion、exact row-key assertion、selector order、
 post-load guard 会 false-positive。两份 `.incomplete` 只作 execution forensic，不可 resume 或上传。
 
 当前 replacement config SHA256=
-`fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`；它保留 4 个 logical shards，
+`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`；它保留 4 个 logical shards，
 冻结每 shard 32 个 OCR engines 与 8 个 AutoProcessor runtimes，并显式设置 PyTorch intra-op=28 / inter-op=1。
 首个 AutoProcessor 前必须零 modeling module，之后只允许上述通用 registry；任何 architecture
 `modeling_*`、model forward 或 ambient thread env 仍 fail closed。有界 map 保留 source/query/output 顺序，
-每个 slot 使用独立 runtime。得到 exact 23-file completed root 和 committed postflight 前不可生成 labels。原 v1 runner 为
+每个 slot 使用独立 runtime；committed postflight 还要求四份 processor log 的第一行分别提供唯一 canonical
+runtime getter evidence。得到 exact 23-file completed root 和 committed postflight 前不可生成 labels。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`；v2 freeze 边界见
 `docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`。

@@ -77,8 +77,9 @@ processor image-contract v2 的 `1c84dfe` 与 `dc90664` 两次执行都在 0 rec
 HF mutation 均为 0。
 
 replacement source freeze 的 config 为 9,290 bytes，SHA256=
-`fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`。它保持 4 个 logical shards，固定每
-shard 32 路 OCR、8 路 AutoProcessor，以及 PyTorch intra-op=`28` / inter-op=`1`；新 formal run 尚未启动，
+`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。它保持 4 个 logical shards，固定每
+shard 32 路 OCR、8 路 AutoProcessor，以及 PyTorch intra-op=`28` / inter-op=`1`；postflight 会逐 worker
+重验唯一 canonical runtime getter log evidence。新 formal run 尚未启动，
 当前仍无 completed root、VALID postflight、restoration labels 或可上传 processor artifact。v1 failure 协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
 边界见

@@ -22,11 +22,12 @@ confirm-20 禁止进入新训练、
   `LOCAL_FORENSIC_NOT_UPLOADABLE`。现有 resume 只接受 completed tar+receipt pair，会删除 `.tar.partial` 后重算，
   因而不能把旧 partial 复制到新 namespace 或追认为可恢复 substrate；
 - replacement canonical config 为 9,290 bytes，SHA256=
-  `fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`。科学/输出合同、4 个 logical shards、
+  `e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。科学/输出合同、4 个 logical shards、
   2,400 queries、23-file tree 与 operation-budget 语义不变；execution 层固定每 shard 32 路 OCR、8 路独立
   AutoProcessor，总计 128/32 slots；
 - processor child 会清除 ambient thread environment，再用 runtime API 在 AutoProcessor load 前设置并 getter
-  验证 PyTorch intra-op=`28` / inter-op=`1`。首个 AutoProcessor 前 modeling modules 必须为 0，load 后只
+  验证 PyTorch intra-op=`28` / inter-op=`1`；completed-root postflight 要求四个 processor log 各有唯一
+  canonical getter evidence。首个 AutoProcessor 前 modeling modules 必须为 0，load 后只
   allowlist 通用 `modeling_auto` registry，任何 architecture `modeling_*`、model forward/generate 继续 fail closed；
 - Hyper00 真实 OCR 128-image smoke 的 8/16/32 路耗时为 `75.52/49.74/33.93s`，32 路相对 8 路为
   `2.23x`；processor 8-query smoke 的 1/4/8 路为 `85.66/28.11/26.93s`，最终 Torch 28/1 下 8 路为

@@ -32,6 +32,7 @@ from causalcache.set_utility_processor_postflight_v2 import (
     ProcessorFreezePostflightContextV2,
     VALIDATION_STATUS,
     _validate_global_format_tally,
+    _validate_processor_thread_runtime_logs,
     _validate_record_without_image,
     validate_completed_processor_freeze_root_v2,
     validate_processor_only_source_v2,
@@ -41,6 +42,23 @@ from causalcache.set_utility_processor_postflight_v2 import (
 ROOT = Path(__file__).resolve().parents[2]
 BACKEND_SHA = "a" * 64
 BACKEND_CONFIG_PATH = ROOT / "code/configs/restoration_v2_ocr_backend.json"
+
+
+def _processor_thread_evidence_line(
+    *,
+    intraop: int = 28,
+    interop: int = 1,
+) -> bytes:
+    return canonical_json_bytes(
+        {
+            "processor_torch_thread_runtime": {
+                "ambient_thread_environment_keys_present": [],
+                "getter_verification_passed": True,
+                "torch_interop_thread_count": interop,
+                "torch_intraop_thread_count": intraop,
+            }
+        }
+    )
 
 
 def _load_v1_postflight_fixture() -> ModuleType:
@@ -244,6 +262,73 @@ def test_v2_source_audit_rejects_v1_image_execution_helper_reuse(
         validate_processor_only_source_v2(tmp_path)
 
 
+def test_processor_thread_runtime_logs_accept_one_first_line_and_text_tail(
+    tmp_path: Path,
+) -> None:
+    logs = tmp_path / "logs"
+    logs.mkdir()
+    expected = _processor_thread_evidence_line()
+    for worker_index in range(4):
+        diagnostics = (
+            b'warning: downstream diagnostic only\n{"warning":"not evidence"}\n'
+            if worker_index == 0
+            else b""
+        )
+        (logs / f"processor-worker-{worker_index:02d}.log").write_bytes(
+            expected + b"\n" + diagnostics
+        )
+
+    result = _validate_processor_thread_runtime_logs(tmp_path)
+
+    assert len(result) == 4
+    assert [item["worker_index"] for item in result] == [0, 1, 2, 3]
+    assert result[0]["diagnostic_line_count"] == 2
+    assert all(item["status"].startswith("VALID_PROCESSOR") for item in result)
+
+
+@pytest.mark.parametrize(
+    "mutation,match",
+    [
+        ("warning_first", "canonical first line"),
+        ("duplicate", "exactly one evidence marker"),
+        ("wrong_intraop", "canonical first line"),
+        ("non_utf8_tail", "must be UTF-8 text"),
+        ("unsafe_tail", "unsafe control characters"),
+        ("missing_worker", "regular file"),
+    ],
+)
+def test_processor_thread_runtime_logs_fail_closed(
+    tmp_path: Path,
+    mutation: str,
+    match: str,
+) -> None:
+    logs = tmp_path / "logs"
+    logs.mkdir()
+    expected = _processor_thread_evidence_line()
+    for worker_index in range(4):
+        (logs / f"processor-worker-{worker_index:02d}.log").write_bytes(
+            expected + b"\n"
+        )
+    target = logs / "processor-worker-02.log"
+    if mutation == "warning_first":
+        target.write_bytes(b"warning before evidence\n" + expected + b"\n")
+    elif mutation == "duplicate":
+        target.write_bytes(expected + b"\n" + expected + b"\n")
+    elif mutation == "wrong_intraop":
+        target.write_bytes(_processor_thread_evidence_line(intraop=27) + b"\n")
+    elif mutation == "non_utf8_tail":
+        target.write_bytes(expected + b"\n\xff")
+    elif mutation == "unsafe_tail":
+        target.write_bytes(expected + b"\nwarning\x00")
+    elif mutation == "missing_worker":
+        target.unlink()
+    else:
+        raise AssertionError(f"unknown mutation: {mutation}")
+
+    with pytest.raises(ValueError, match=match):
+        _validate_processor_thread_runtime_logs(tmp_path)
+
+
 def test_v2_source_audit_rejects_old_guard_after_processor_load(
     tmp_path: Path,
 ) -> None:
@@ -424,6 +509,11 @@ def test_v2_postflight_wraps_v1_structure_and_rebuilds_mixed_mode_semantics(
     )
     root.rename(renamed)
     root = renamed
+    for worker_index in range(4):
+        diagnostics = b"warning: accepted diagnostic text\n" if worker_index == 0 else b""
+        (root / "logs" / f"processor-worker-{worker_index:02d}.log").write_bytes(
+            _processor_thread_evidence_line() + b"\n" + diagnostics
+        )
 
     image_contract_sha = "6" * 64
     structural = replace(
@@ -477,6 +567,10 @@ def test_v2_postflight_wraps_v1_structure_and_rebuilds_mixed_mode_semantics(
         "png_rgb_allowlist_repair"
     )
     assert result["global_format_mode_tally"] == dict(sorted(expected_tally.items()))
+    assert len(result["processor_thread_runtime_evidence"]) == 4
+    assert result["processor_thread_runtime_evidence"][0][
+        "diagnostic_line_count"
+    ] == 1
     assert result["stored_image_ocr_validation_count"] > 0
     assert result["metadata_only_ocr_validation_count"] == 4
 

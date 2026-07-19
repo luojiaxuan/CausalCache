@@ -5,7 +5,7 @@
 replacement source freeze 已完成，下一步是从该 commit 启动新的 clean formal run。canonical Execution-CF v2
 config 为
 `code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`，9,290 bytes，
-SHA256=`fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`。此前 `1c84dfe` 与
+SHA256=`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。此前 `1c84dfe` 与
 `dc90664` 两次 attempt 均已主动终止且 exit=`143`：真实 processor smoke 证明旧 runtime guard 会把
 Transformers 5.6 必需的通用 `transformers.models.auto.modeling_auto` registry 误判为 architecture model。
 两次均停在 0 receipt、0 candidate-part、0 policy output，只有不可续写的外置 partial staging；当前仍未产生
@@ -96,7 +96,9 @@ source audit 返回
 import alias 与 `getattr` 绕过；唯一图像例外是 processor replay 内 literal `source.convert("RGB")`。首个
 AutoProcessor 构造前 modeling module 数必须为 0；构造后 exact allowlist 只有
 `transformers.models.auto.modeling_auto`，任何 architecture `modeling_*` 仍 fail closed。AST audit 同时固定
-thread setter/getter、调用顺序、bounded ordered map、runtime pool 和 child environment 清理。
+thread setter/getter、调用顺序、bounded ordered map、runtime pool 和 child environment 清理。completed-root
+postflight 还要求四个 processor worker log 的第一行分别是唯一 canonical runtime getter evidence；任何缺失、
+重复、顺序错误、线程值漂移、非法 UTF-8 或控制字符都会拒绝 root。
 
 completed-root postflight 先执行既有 whole-root structural reconstruction，再执行 v2 overlay：
 

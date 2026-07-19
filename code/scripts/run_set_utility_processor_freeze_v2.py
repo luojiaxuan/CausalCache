@@ -641,7 +641,8 @@ def _launch_workers(args: argparse.Namespace, *, phase: str, staging: Path) -> N
     for worker in range(WORKER_COUNT):
         log_path = staging / "logs" / f"{phase}-{worker:02d}.log"
         log_path.parent.mkdir(parents=True, exist_ok=True)
-        log = log_path.open("ab")
+        log_mode = "wb" if phase == "processor-worker" else "ab"
+        log = log_path.open(log_mode)
         environment = dict(os.environ)
         environment.pop("PYTHONPATH", None)
         if phase == "processor-worker":
