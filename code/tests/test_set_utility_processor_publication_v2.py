@@ -9,6 +9,7 @@ from types import SimpleNamespace
 
 import pytest
 
+import causalcache.set_utility_processor_publication_v2 as publication_v2
 from causalcache.set_utility_processor_artifacts import (
     canonical_json_bytes,
     canonical_pretty_json_bytes,
@@ -48,11 +49,16 @@ class _FakeApi:
         self.private = True
         self.main = BASE_COMMIT
         self.commits = {BASE_COMMIT: {"README.md": b"existing repo\n"}}
+        self.commit_order = [BASE_COMMIT]
         self.tags: dict[str, tuple[str, str]] = {}
         self.create_commit_calls: list[dict[str, object]] = []
         self.create_tag_calls: list[dict[str, object]] = []
         self.download_calls: list[dict[str, object]] = []
         self.corrupt_download_filename: str | None = None
+        self.corrupt_download_revision: str | None = None
+        self.corrupt_download_once = False
+        self.fail_after_commit_once = False
+        self.fail_after_tag_once = False
 
     def _resolve(self, revision: str) -> str:
         if revision == "main":
@@ -81,6 +87,12 @@ class _FakeApi:
         assert (repo, repo_type) == (REPO, "dataset")
         return sorted(self.commits[self._resolve(revision)])
 
+    def list_repo_commits(
+        self, repo: str, *, repo_type: str, revision: str
+    ) -> list[SimpleNamespace]:
+        assert (repo, repo_type, revision) == (REPO, "dataset", "main")
+        return [SimpleNamespace(commit_id=commit) for commit in self.commit_order]
+
     def create_commit(
         self,
         repo: str,
@@ -108,6 +120,11 @@ class _FakeApi:
         )
         self.commits[PUBLICATION_COMMIT] = tree
         self.main = PUBLICATION_COMMIT
+        if PUBLICATION_COMMIT not in self.commit_order:
+            self.commit_order.insert(0, PUBLICATION_COMMIT)
+        if self.fail_after_commit_once:
+            self.fail_after_commit_once = False
+            raise RuntimeError("injected failure after commit")
         return SimpleNamespace(oid=PUBLICATION_COMMIT)
 
     def create_tag(
@@ -131,14 +148,25 @@ class _FakeApi:
                 "revision": revision,
             }
         )
+        if self.fail_after_tag_once:
+            self.fail_after_tag_once = False
+            raise RuntimeError("injected failure after tag")
 
     def download(self, **kwargs: object) -> str:
         self.download_calls.append(dict(kwargs))
         revision = self._resolve(str(kwargs["revision"]))
         filename = str(kwargs["filename"])
         payload = self.commits[revision][filename]
-        if self.corrupt_download_filename == filename:
+        requested_revision = str(kwargs["revision"])
+        should_corrupt = self.corrupt_download_filename == filename and (
+            self.corrupt_download_revision is None
+            or self.corrupt_download_revision == requested_revision
+        )
+        if should_corrupt:
             payload += b"drift"
+            if self.corrupt_download_once:
+                self.corrupt_download_filename = None
+                self.corrupt_download_revision = None
         path = Path(str(kwargs["local_dir"])) / filename
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(payload)
@@ -259,6 +287,13 @@ def test_success_is_one_commit_one_annotated_tag_and_two_fresh_replays(
     assert receipt["fresh_downloads"]["commit"]["remote_file_count"] == 25
     assert receipt["fresh_downloads"]["tag"]["remote_file_count"] == 25
     assert receipt["fresh_downloads"]["remote_files_verified_twice"] == 25
+    commit_replay = Path(receipt["fresh_downloads"]["commit"]["directory"])
+    tag_replay = Path(receipt["fresh_downloads"]["tag"]["directory"])
+    assert commit_replay != tag_replay
+    assert commit_replay.parent == Path(fixture["fresh_download_parent"])
+    assert tag_replay.parent == Path(fixture["fresh_download_parent"])
+    assert not commit_replay.is_relative_to(Path(fixture["formal_root"]))
+    assert not tag_replay.is_relative_to(Path(fixture["formal_root"]))
 
     before = (
         len(api.create_commit_calls),
@@ -383,3 +418,206 @@ def test_validate_only_requires_receipt_mode_0600(tmp_path: Path) -> None:
 
     with pytest.raises(ValueError, match="mode must be exactly 0600"):
         validate_processor_v2_publication(api=api, **fixture)
+
+
+@pytest.mark.parametrize("replay", ["commit", "tag"])
+def test_stale_fresh_replay_fails_before_hf_mutation(
+    tmp_path: Path, replay: str
+) -> None:
+    fixture = _fixture(tmp_path)
+    sha = str(fixture["expected_result_summary_sha256"])
+    stale = (
+        Path(fixture["fresh_download_parent"])
+        / f"processor-v2-{sha[:12]}-{replay}"
+    )
+    stale.mkdir()
+    api = _FakeApi()
+
+    with pytest.raises(FileExistsError, match="stale replay"):
+        _publish(api, fixture)
+
+    assert api.create_commit_calls == []
+    assert api.create_tag_calls == []
+
+
+def test_fresh_replays_inside_formal_root_fail_before_hf_mutation(
+    tmp_path: Path,
+) -> None:
+    fixture = _fixture(tmp_path)
+    unsafe_parent = Path(fixture["formal_root"]) / "fresh"
+    unsafe_parent.mkdir()
+    fixture["fresh_download_parent"] = unsafe_parent
+    api = _FakeApi()
+
+    with pytest.raises(ValueError, match="outside formal root"):
+        _publish(api, fixture)
+
+    assert api.create_commit_calls == []
+    assert api.create_tag_calls == []
+
+
+def test_receipt_inside_future_replay_fails_before_hf_mutation(
+    tmp_path: Path,
+) -> None:
+    fixture = _fixture(tmp_path)
+    sha = str(fixture["expected_result_summary_sha256"])
+    fixture["receipt_path"] = (
+        Path(fixture["fresh_download_parent"])
+        / f"processor-v2-{sha[:12]}-commit"
+        / "receipt.json"
+    )
+    api = _FakeApi()
+
+    with pytest.raises(ValueError, match="outside fresh replays"):
+        _publish(api, fixture)
+
+    assert api.create_commit_calls == []
+    assert api.create_tag_calls == []
+
+
+def test_publish_reconciles_commit_created_before_client_failure(
+    tmp_path: Path,
+) -> None:
+    fixture = _fixture(tmp_path)
+    api = _FakeApi()
+    api.fail_after_commit_once = True
+
+    with pytest.raises(RuntimeError, match="after commit"):
+        _publish(api, fixture)
+
+    assert api.main == PUBLICATION_COMMIT
+    assert TAG not in api.tags
+    assert not Path(fixture["receipt_path"]).exists()
+    receipt = _publish(api, fixture)
+    assert receipt["destination"]["immutable_revision"] == PUBLICATION_COMMIT
+    assert receipt["destination"]["parent_main_revision"] == BASE_COMMIT
+    assert len(api.create_commit_calls) == 1
+    assert len(api.create_tag_calls) == 1
+
+
+def test_publish_reconciles_tag_created_before_client_failure(tmp_path: Path) -> None:
+    fixture = _fixture(tmp_path)
+    api = _FakeApi()
+    api.fail_after_tag_once = True
+
+    with pytest.raises(RuntimeError, match="after tag"):
+        _publish(api, fixture)
+
+    assert api.tags[TAG] == (TAG_OBJECT, PUBLICATION_COMMIT)
+    assert not Path(fixture["receipt_path"]).exists()
+    receipt = _publish(api, fixture)
+    assert receipt["destination"]["immutable_revision"] == PUBLICATION_COMMIT
+    assert len(api.create_commit_calls) == 1
+    assert len(api.create_tag_calls) == 1
+
+
+def test_publish_reconciles_remote_after_receipt_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = _fixture(tmp_path)
+    api = _FakeApi()
+    original = publication_v2._write_receipt
+    calls = 0
+
+    def fail_once(path: Path, receipt: object) -> None:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            raise OSError("injected receipt failure")
+        original(path, receipt)
+
+    monkeypatch.setattr(publication_v2, "_write_receipt", fail_once)
+    with pytest.raises(OSError, match="receipt failure"):
+        _publish(api, fixture)
+
+    assert not Path(fixture["receipt_path"]).exists()
+    assert list(Path(fixture["fresh_download_parent"]).iterdir()) == []
+    result = _publish(api, fixture)
+    assert result["status"] == PUBLICATION_STATUS
+    assert len(api.create_commit_calls) == 1
+    assert len(api.create_tag_calls) == 1
+
+
+@pytest.mark.parametrize("relative", ["git/card.md", "git/summary.json"])
+def test_tag_replay_last_metadata_corruption_recovers_without_remote_overwrite(
+    tmp_path: Path,
+    relative: str,
+) -> None:
+    fixture = _fixture(tmp_path)
+    api = _FakeApi()
+    api.corrupt_download_filename = f"{PREFIX}/{relative}"
+    api.corrupt_download_revision = TAG
+    api.corrupt_download_once = True
+
+    with pytest.raises(ValueError, match="fresh download differs"):
+        _publish(api, fixture)
+
+    assert not Path(fixture["receipt_path"]).exists()
+    assert list(Path(fixture["fresh_download_parent"]).iterdir()) == []
+    receipt = _publish(api, fixture)
+    assert receipt["fresh_downloads"]["tag"]["remote_file_count"] == 25
+    assert len(api.create_commit_calls) == 1
+    assert len(api.create_tag_calls) == 1
+
+
+def test_reconcile_rejects_exact_tree_with_drifted_bytes_before_missing_tag(
+    tmp_path: Path,
+) -> None:
+    fixture = _fixture(tmp_path)
+    api = _FakeApi()
+    api.fail_after_commit_once = True
+    with pytest.raises(RuntimeError, match="after commit"):
+        _publish(api, fixture)
+    remote = f"{PREFIX}/formal/{_expected_formal_paths()[0]}"
+    api.commits[PUBLICATION_COMMIT][remote] += b"unknown drift"
+
+    with pytest.raises(ValueError, match="fresh download differs"):
+        _publish(api, fixture)
+
+    assert TAG not in api.tags
+    assert len(api.create_commit_calls) == 1
+    assert api.create_tag_calls == []
+
+
+def test_partial_final_receipt_is_never_replaced_or_reconciled(
+    tmp_path: Path,
+) -> None:
+    fixture = _fixture(tmp_path)
+    receipt = Path(fixture["receipt_path"])
+    receipt.write_bytes(b'{"schema_version":')
+    receipt.chmod(0o600)
+    api = _FakeApi()
+
+    with pytest.raises(FileExistsError, match="partial legacy receipt"):
+        _publish(api, fixture)
+
+    assert receipt.read_bytes() == b'{"schema_version":'
+    assert api.create_commit_calls == []
+    assert api.create_tag_calls == []
+
+    with pytest.raises(ValueError, match="strict UTF-8 JSON"):
+        validate_processor_v2_publication(api=api, **fixture)
+
+
+def test_receipt_write_failure_never_exposes_partial_final_file(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    receipt = tmp_path / "receipt.json"
+    original_write = publication_v2.os.write
+    calls = 0
+
+    def fail_after_partial_write(descriptor: int, payload: object) -> int:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return original_write(descriptor, bytes(payload)[:3])
+        raise OSError("injected receipt write interruption")
+
+    monkeypatch.setattr(publication_v2.os, "write", fail_after_partial_write)
+    with pytest.raises(OSError, match="interruption"):
+        publication_v2._write_receipt(receipt, {"status": "fixture"})
+
+    assert not receipt.exists()
+    assert list(tmp_path.glob(f".{receipt.name}.*.tmp")) == []

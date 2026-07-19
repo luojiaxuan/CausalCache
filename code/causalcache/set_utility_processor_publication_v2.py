@@ -6,6 +6,8 @@ import hashlib
 import json
 import os
 import re
+import secrets
+import shutil
 import stat
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path, PurePosixPath
@@ -470,11 +472,103 @@ def _commit_oid(response: Any) -> str:
     raise ValueError("HF commit response lacks an immutable commit id")
 
 
+def _repo_commit_ids(api: Any, *, repo: str, main_revision: str) -> tuple[str, ...]:
+    records = api.list_repo_commits(
+        repo,
+        repo_type=REPO_TYPE,
+        revision="main",
+    )
+    if not isinstance(records, list) or not records:
+        raise ValueError("HF main history is missing or invalid")
+    commits = tuple(
+        _commit(getattr(record, "commit_id", None), label="HF history commit")
+        for record in records
+    )
+    if len(set(commits)) != len(commits) or commits[0] != main_revision:
+        raise ValueError("HF main history order or identity drifted")
+    return commits
+
+
+def _locate_existing_publication_commit(
+    api: Any,
+    *,
+    repo: str,
+    main_revision: str,
+    prefix: str,
+    expected_paths: set[str],
+) -> tuple[str, str]:
+    commits = _repo_commit_ids(api, repo=repo, main_revision=main_revision)
+    states: list[str] = []
+    for revision in commits:
+        observed = _remote_paths(
+            api,
+            repo=repo,
+            revision=revision,
+            prefix=prefix,
+        )
+        if not observed:
+            states.append("absent")
+        elif observed == expected_paths:
+            states.append("exact")
+        else:
+            raise ValueError("HF publication prefix has an unknown or drifted tree")
+    transitions = [
+        index
+        for index in range(len(states) - 1)
+        if states[index] == "exact" and states[index + 1] == "absent"
+    ]
+    if (
+        not states
+        or states[0] != "exact"
+        or len(transitions) != 1
+        or any(state != "exact" for state in states[: transitions[0] + 1])
+        or any(state != "absent" for state in states[transitions[0] + 1 :])
+    ):
+        raise ValueError(
+            "HF publication prefix cannot be reconciled to one no-overwrite commit"
+        )
+    index = transitions[0]
+    return commits[index], commits[index + 1]
+
+
 def _validated_parent(path: str | Path, *, label: str) -> Path:
     parent = Path(path)
     if not parent.is_absolute() or parent.is_symlink() or not parent.is_dir():
         raise ValueError(f"{label} must be an absolute real directory")
     return parent.resolve()
+
+
+def _fresh_replay_paths(
+    *,
+    prepared: Mapping[str, Any],
+    parent: Path,
+    formal_root: Path,
+    require_absent: bool,
+) -> dict[str, Path]:
+    stem = f"processor-v2-{prepared['source']['git_summary_sha256'][:12]}"
+    paths = {
+        "commit": parent / f"{stem}-commit",
+        "tag": parent / f"{stem}-tag",
+    }
+    formal = formal_root.resolve()
+    if paths["commit"] == paths["tag"]:
+        raise ValueError("fresh replay directories must be distinct")
+    for label, path in paths.items():
+        resolved = path.resolve(strict=False)
+        if path.parent != parent or resolved.parent != parent:
+            raise ValueError(f"{label} fresh replay must remain inside its parent")
+        if resolved.is_relative_to(formal):
+            raise ValueError(f"{label} fresh replay must remain outside formal root")
+        if path.is_symlink():
+            raise ValueError(f"{label} fresh replay must not be a symlink")
+        if require_absent and path.exists():
+            raise FileExistsError(
+                f"{label} fresh replay already exists; quarantine or remove the "
+                "stale replay only after operator audit"
+            )
+        if not require_absent and (not path.is_dir() or path.resolve() != path):
+            raise ValueError(f"{label} fresh replay is not one retained real directory")
+    return paths
 
 
 def _git_download_metadata(prepared: Mapping[str, Any]) -> dict[str, Any]:
@@ -636,14 +730,25 @@ def _write_receipt(path: Path, receipt: Mapping[str, Any]) -> None:
     if not path.is_absolute() or path.parent.is_symlink() or not path.parent.is_dir():
         raise ValueError("receipt must have an absolute real existing parent")
     if path.exists() or path.is_symlink():
-        raise FileExistsError("publication receipt already exists")
+        raise FileExistsError(
+            "publication receipt already exists, including a possible partial legacy "
+            "receipt; publish will not replace it without operator audit"
+        )
     payload = canonical_pretty_json_bytes(receipt)
-    descriptor = os.open(
-        path,
-        os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
-        0o600,
+    parent = path.parent.resolve()
+    temporary = parent / (
+        f".{path.name}.{os.getpid()}.{secrets.token_hex(12)}.tmp"
     )
+    descriptor: int | None = None
     try:
+        descriptor = os.open(
+            temporary,
+            os.O_WRONLY
+            | os.O_CREAT
+            | os.O_EXCL
+            | getattr(os, "O_NOFOLLOW", 0),
+            0o600,
+        )
         os.fchmod(descriptor, 0o600)
         view = memoryview(payload)
         while view:
@@ -652,11 +757,37 @@ def _write_receipt(path: Path, receipt: Mapping[str, Any]) -> None:
                 raise OSError("publication receipt write made no progress")
             view = view[written:]
         os.fsync(descriptor)
-    finally:
         os.close(descriptor)
+        descriptor = None
+        if _read_regular(temporary, label="temporary publication receipt") != payload:
+            raise RuntimeError("temporary publication receipt readback drifted")
+        _validate_receipt_mode(temporary)
+        # note (luojiaxuan): Hard-link publication is same-directory, atomic, and
+        # no-overwrite. A crash can leave a complete final receipt or only a temp,
+        # never a partially written final receipt produced by this implementation.
+        os.link(temporary, path, follow_symlinks=False)
+        _fsync_directory(parent)
+        os.unlink(temporary)
+        _fsync_directory(parent)
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+        if temporary.exists() and not temporary.is_symlink():
+            os.unlink(temporary)
     if _read_regular(path, label="publication receipt") != payload:
         raise RuntimeError("publication receipt readback drifted")
     _validate_receipt_mode(path)
+
+
+def _fsync_directory(path: Path) -> None:
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(
+        os, "O_NOFOLLOW", 0
+    )
+    descriptor = os.open(path, flags)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
 
 
 def _validate_receipt_mode(path: Path) -> None:
@@ -673,6 +804,38 @@ def _validate_receipt_mode(path: Path) -> None:
             os.close(descriptor)
     if not stat.S_ISREG(metadata.st_mode) or stat.S_IMODE(metadata.st_mode) != 0o600:
         raise ValueError("publication receipt mode must be exactly 0600")
+
+
+def _verify_local_publication_sources(
+    prepared: Mapping[str, Any], *, formal_root: Path
+) -> None:
+    if _snapshot_formal(formal_root) != tuple(
+        prepared["source"]["formal_file_inventory"]
+    ):
+        raise RuntimeError("formal root changed during HF publication")
+    summary_sha = _sha256_bytes(
+        _read_regular(
+            Path(prepared["source"]["git_summary_path"]),
+            label="Git result summary post-publication",
+        )
+    )
+    card_sha = _sha256_bytes(
+        _read_regular(
+            Path(prepared["source"]["git_card_path"]),
+            label="Git result card post-publication",
+        )
+    )
+    if (
+        summary_sha != prepared["source"]["git_summary_sha256"]
+        or card_sha != prepared["source"]["git_card_sha256"]
+    ):
+        raise RuntimeError("Git summary or card changed during HF publication")
+
+
+def _cleanup_owned_replay_directories(paths: Mapping[str, Path]) -> None:
+    for path in paths.values():
+        if path.exists() and path.is_dir() and not path.is_symlink():
+            shutil.rmtree(path)
 
 
 def publish_processor_v2_artifact(
@@ -707,110 +870,153 @@ def publish_processor_v2_artifact(
     if receipt.is_relative_to(formal):
         raise ValueError("publication receipt must remain outside the formal root")
     if receipt.exists() or receipt.is_symlink():
-        raise FileExistsError("publication receipt already exists")
+        raise FileExistsError(
+            "publication receipt already exists, including a possible partial legacy "
+            "receipt; publish will not replace it without operator audit"
+        )
+    replay_paths = _fresh_replay_paths(
+        prepared=prepared,
+        parent=parent,
+        formal_root=formal,
+        require_absent=True,
+    )
+    if any(
+        receipt == replay or receipt.is_relative_to(replay)
+        for replay in replay_paths.values()
+    ):
+        raise ValueError("publication receipt must remain outside fresh replays")
     destination = prepared["destination"]
     repo = destination["repo"]
     tag = destination["tag"]
     prefix = destination["prefix"]
-    main_parent = _revision(api, repo, "main")
-    if _tag_snapshot(api, repo=repo, tag=tag) is not None:
-        raise ValueError("HF publication tag already exists")
-    if _remote_paths(api, repo=repo, revision="main", prefix=prefix):
-        raise ValueError("HF publication prefix already exists")
     path_map = _remote_path_map(prepared)
-    operations = [
-        operation_factory(path_in_repo=remote, path_or_fileobj=str(local))
-        for remote, local in sorted(path_map.items())
-    ]
-    response = api.create_commit(
-        repo,
-        repo_type=REPO_TYPE,
-        revision="main",
-        parent_commit=main_parent,
-        operations=operations,
-        commit_message=COMMIT_MESSAGE,
-    )
-    immutable = _commit_oid(response)
-    if _revision(api, repo, "main") != immutable:
-        raise ValueError("HF main does not resolve to the publication commit")
     expected_remote = set(path_map)
-    if _remote_paths(api, repo=repo, revision=immutable, prefix=prefix) != (
-        expected_remote
-    ):
-        raise ValueError("HF publication commit path inventory drifted")
-    api.create_tag(
-        repo,
-        repo_type=REPO_TYPE,
-        tag=tag,
-        tag_message=TAG_MESSAGE,
-        revision=immutable,
-        exist_ok=False,
-    )
-    tag_snapshot = _tag_snapshot(api, repo=repo, tag=tag)
-    if tag_snapshot is None or tag_snapshot["resolved_commit"] != immutable:
-        raise ValueError("HF annotated tag does not resolve to publication commit")
-    if _remote_paths(api, repo=repo, revision=tag, prefix=prefix) != expected_remote:
-        raise ValueError("HF tagged publication path inventory drifted")
-    stem = f"processor-v2-{prepared['source']['git_summary_sha256'][:12]}"
-    commit_download = _download_publication(
-        download_fn=download_fn,
-        prepared=prepared,
-        revision=immutable,
-        directory=parent / f"{stem}-commit",
-    )
-    tag_download = _download_publication(
-        download_fn=download_fn,
-        prepared=prepared,
-        revision=tag,
-        directory=parent / f"{stem}-tag",
-    )
-    if _tag_snapshot(api, repo=repo, tag=tag) != tag_snapshot:
-        raise ValueError("HF annotated tag drifted during fresh replay")
-    if _snapshot_formal(formal) != tuple(
-        prepared["source"]["formal_file_inventory"]
-    ):
-        raise RuntimeError("formal root changed during HF publication")
-    if _sha256_bytes(
-        _read_regular(
-            Path(prepared["source"]["git_summary_path"]),
-            label="Git result summary post-publication",
+    try:
+        main_revision = _revision(api, repo, "main")
+        tag_snapshot = _tag_snapshot(api, repo=repo, tag=tag)
+        main_paths = _remote_paths(
+            api,
+            repo=repo,
+            revision=main_revision,
+            prefix=prefix,
         )
-    ) != prepared["source"]["git_summary_sha256"] or _sha256_bytes(
-        _read_regular(
-            Path(prepared["source"]["git_card_path"]),
-            label="Git result card post-publication",
+        if not main_paths:
+            if tag_snapshot is not None:
+                raise ValueError(
+                    "HF publication tag already exists while prefix is absent"
+                )
+            operations = [
+                operation_factory(path_in_repo=remote, path_or_fileobj=str(local))
+                for remote, local in sorted(path_map.items())
+            ]
+            response = api.create_commit(
+                repo,
+                repo_type=REPO_TYPE,
+                revision="main",
+                parent_commit=main_revision,
+                operations=operations,
+                commit_message=COMMIT_MESSAGE,
+            )
+            immutable = _commit_oid(response)
+            main_parent = main_revision
+            if _revision(api, repo, "main") != immutable:
+                raise ValueError("HF main does not resolve to the publication commit")
+        elif main_paths == expected_remote:
+            immutable, main_parent = _locate_existing_publication_commit(
+                api,
+                repo=repo,
+                main_revision=main_revision,
+                prefix=prefix,
+                expected_paths=expected_remote,
+            )
+            if (
+                tag_snapshot is not None
+                and tag_snapshot["resolved_commit"] != immutable
+            ):
+                raise ValueError("HF publication tag resolves to a drifted commit")
+        else:
+            raise ValueError(
+                "HF publication prefix already exists with an unknown or drifted tree"
+            )
+        if _remote_paths(
+            api,
+            repo=repo,
+            revision=immutable,
+            prefix=prefix,
+        ) != expected_remote or _remote_paths(
+            api,
+            repo=repo,
+            revision=main_parent,
+            prefix=prefix,
+        ):
+            raise ValueError("HF publication no-overwrite commit boundary drifted")
+        commit_download = _download_publication(
+            download_fn=download_fn,
+            prepared=prepared,
+            revision=immutable,
+            directory=replay_paths["commit"],
         )
-    ) != prepared["source"]["git_card_sha256"]:
-        raise RuntimeError("Git summary or card changed during HF publication")
-    result = {
-        "schema_version": SCHEMA_VERSION,
-        "protocol_id": PROTOCOL_ID,
-        "status": PUBLICATION_STATUS,
-        "source": prepared["source"],
-        "destination": {
-            **destination,
-            "parent_main_revision": main_parent,
-            "immutable_revision": immutable,
-            "remote_file_count": EXPECTED_REMOTE_FILE_COUNT,
-        },
-        "remote": {
-            "private_repo_verified": True,
-            "single_commit_operation_count": EXPECTED_REMOTE_FILE_COUNT,
-            "single_commit_verified": True,
-            "annotated_tag_object_identity": tag_snapshot["object_identity"],
-            "tag_resolved_commit": tag_snapshot["resolved_commit"],
-            "no_overwrite_verified": True,
-        },
-        "fresh_downloads": {
-            "commit": commit_download,
-            "tag": tag_download,
-            "formal_files_verified_twice": EXPECTED_FORMAL_FILE_COUNT,
-            "remote_files_verified_twice": EXPECTED_REMOTE_FILE_COUNT,
-        },
-        "token_serialized": False,
-    }
-    _write_receipt(receipt, result)
-    return result
+        _verify_local_publication_sources(prepared, formal_root=formal)
+        if tag_snapshot is None:
+            if _tag_snapshot(api, repo=repo, tag=tag) is not None:
+                raise ValueError("HF publication tag appeared concurrently")
+            api.create_tag(
+                repo,
+                repo_type=REPO_TYPE,
+                tag=tag,
+                tag_message=TAG_MESSAGE,
+                revision=immutable,
+                exist_ok=False,
+            )
+            tag_snapshot = _tag_snapshot(api, repo=repo, tag=tag)
+        if tag_snapshot is None or tag_snapshot["resolved_commit"] != immutable:
+            raise ValueError("HF annotated tag does not resolve to publication commit")
+        if _remote_paths(api, repo=repo, revision=tag, prefix=prefix) != (
+            expected_remote
+        ):
+            raise ValueError("HF tagged publication path inventory drifted")
+        tag_download = _download_publication(
+            download_fn=download_fn,
+            prepared=prepared,
+            revision=tag,
+            directory=replay_paths["tag"],
+        )
+        if _tag_snapshot(api, repo=repo, tag=tag) != tag_snapshot:
+            raise ValueError("HF annotated tag drifted during fresh replay")
+        _verify_local_publication_sources(prepared, formal_root=formal)
+        result = {
+            "schema_version": SCHEMA_VERSION,
+            "protocol_id": PROTOCOL_ID,
+            "status": PUBLICATION_STATUS,
+            "source": prepared["source"],
+            "destination": {
+                **destination,
+                "parent_main_revision": main_parent,
+                "immutable_revision": immutable,
+                "remote_file_count": EXPECTED_REMOTE_FILE_COUNT,
+            },
+            "remote": {
+                "private_repo_verified": True,
+                "single_commit_operation_count": EXPECTED_REMOTE_FILE_COUNT,
+                "single_commit_verified": True,
+                "annotated_tag_object_identity": tag_snapshot["object_identity"],
+                "tag_resolved_commit": tag_snapshot["resolved_commit"],
+                "no_overwrite_verified": True,
+            },
+            "fresh_downloads": {
+                "commit": commit_download,
+                "tag": tag_download,
+                "formal_files_verified_twice": EXPECTED_FORMAL_FILE_COUNT,
+                "remote_files_verified_twice": EXPECTED_REMOTE_FILE_COUNT,
+            },
+            "token_serialized": False,
+        }
+        _write_receipt(receipt, result)
+        return result
+    except BaseException:
+        if not receipt.exists() and not receipt.is_symlink():
+            _cleanup_owned_replay_directories(replay_paths)
+        raise
 
 
 def validate_processor_v2_publication(
@@ -836,6 +1042,7 @@ def validate_processor_v2_publication(
         hf_prefix=hf_prefix,
     )
     parent = _validated_parent(fresh_download_parent, label="fresh-download parent")
+    formal = Path(prepared["source"]["formal_root"])
     receipt_file = Path(receipt_path)
     _validate_receipt_mode(receipt_file)
     receipt_payload = _read_regular(receipt_file, label="publication receipt")
@@ -861,6 +1068,12 @@ def validate_processor_v2_publication(
         or receipt["token_serialized"] is not False
     ):
         raise ValueError("publication receipt source or identity drifted")
+    replay_paths = _fresh_replay_paths(
+        prepared=prepared,
+        parent=parent,
+        formal_root=formal,
+        require_absent=False,
+    )
     destination = receipt["destination"]
     if (
         not isinstance(destination, Mapping)
@@ -881,7 +1094,7 @@ def validate_processor_v2_publication(
         or destination.get("remote_file_count") != EXPECTED_REMOTE_FILE_COUNT
     ):
         raise ValueError("publication receipt destination drifted")
-    _commit(
+    main_parent = _commit(
         destination.get("parent_main_revision"),
         label="receipt parent main revision",
     )
@@ -890,6 +1103,19 @@ def validate_processor_v2_publication(
     )
     if _revision(api, hf_repo, immutable) != immutable:
         raise ValueError("remote immutable revision drifted")
+    expected_paths = set(_remote_path_map(prepared))
+    if _remote_paths(
+        api,
+        repo=hf_repo,
+        revision=main_parent,
+        prefix=hf_prefix,
+    ) or _remote_paths(
+        api,
+        repo=hf_repo,
+        revision=immutable,
+        prefix=hf_prefix,
+    ) != expected_paths:
+        raise ValueError("remote publication no-overwrite commit boundary drifted")
     tag_snapshot = _tag_snapshot(api, repo=hf_repo, tag=hf_tag)
     remote = receipt["remote"]
     if (
@@ -915,7 +1141,6 @@ def validate_processor_v2_publication(
         or remote.get("tag_resolved_commit") != immutable
     ):
         raise ValueError("remote annotated tag drifted from publication receipt")
-    expected_paths = set(_remote_path_map(prepared))
     for revision in (immutable, hf_tag):
         if _remote_paths(api, repo=hf_repo, revision=revision, prefix=hf_prefix) != (
             expected_paths
@@ -933,10 +1158,11 @@ def validate_processor_v2_publication(
         raise ValueError("publication receipt fresh-download count drifted")
     if fresh["remote_files_verified_twice"] != EXPECTED_REMOTE_FILE_COUNT:
         raise ValueError("publication receipt remote replay count drifted")
-    if Path(fresh["commit"]["directory"]).parent != parent or Path(
-        fresh["tag"]["directory"]
-    ).parent != parent:
-        raise ValueError("publication receipt fresh-download parent drifted")
+    if (
+        Path(fresh["commit"]["directory"]) != replay_paths["commit"]
+        or Path(fresh["tag"]["directory"]) != replay_paths["tag"]
+    ):
+        raise ValueError("publication receipt fresh-download directory drifted")
     if fresh["commit"]["revision"] != immutable or fresh["tag"]["revision"] != hf_tag:
         raise ValueError("publication receipt fresh-download revisions drifted")
     _verify_existing_download(fresh["commit"], prepared=prepared)

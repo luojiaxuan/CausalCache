@@ -185,7 +185,10 @@ runtime getter evidence。得到 exact 23-file completed root 和 committed post
 processor repair 的 runner、postflight、immutable HF publication manager 与完整边界见
 `docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。publication manager 要求有效
 `PENDING_HF_UPLOAD` summary、exact 23-file root、private repo 与无冲突 tag/prefix；单次上传 25 个文件后，
-分别从 immutable commit 与 annotated tag fresh-download 全部 25 个文件逐 byte 复验。CLI 为
+分别从 immutable commit 与 annotated tag fresh-download 全部 25 个文件逐 byte 复验。commit/tag/download/
+receipt 任一步中断后，下一次 `publish` 只会在完整重建 absent→exact no-overwrite commit、remote bytes 与
+annotated tag identity 后续跑；未知或漂移 state fail closed。receipt 使用同目录 `0600` temp、file/parent
+`fsync` 与 no-overwrite atomic publish，绝不覆盖截断 legacy receipt。CLI 为
 `scripts/manage_set_utility_processor_freeze_v2_publication.py` 的 `publish` / `validate-only` 子命令。
 完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
