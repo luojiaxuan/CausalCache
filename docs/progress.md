@@ -12,6 +12,19 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：train-only processor→label input firewall
+
+- 新增 `code/causalcache/set_utility_label_inputs.py`：从 frozen processor roster 先推导全部 state/role，任何
+  tune/evaluation allowlist 在打开 query record 前即拒绝；对未选记录只检查 tar member header/order 并跳过 payload，
+  只有显式 train state 才进行 canonical JSON、image SHA 与 artifact provenance 校验；
+- processor artifact 用一个 absolute `O_NOFOLLOW` regular fd 完成流式 SHA、seek、tar parse，并在结束时复核
+  `dev/ino/mode/nlink/size/mtime/ctime` 与当前 path identity。symlink 和 hash 后同字节换 inode 均 fail closed；
+- strict join 绑定 processor query、Freeze-B assignment、final candidate、request manifest、artifact/query witness，
+  并分别保留 processor worker、未来 label execution worker 与 role partition。malformed UTF-8 tune/evaluation
+  payload 仍可安全读取 allowlisted train state，证明没有发生非 train semantic decode；focused suite=`47 passed`；
+- 本步只准备下一阶段 source core，不冻结真实 pilot config，不执行 policy/model forward、label、GPU 或 HF mutation；
+  正式 pilot 仍必须等待 processor completed root、Git result 与 immutable HF revision。
+
 ### 2026-07-18（UTC 07-19）：processor v2 自动 recorder handoff
 
 - 新增 `code/scripts/watch_set_utility_processor_freeze_v2_result.py`，把当前 CPU formal run 的结束边界机械连接到

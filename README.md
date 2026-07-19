@@ -35,6 +35,10 @@
 > DeepSets/pairwise 模型、trajectory-uniform trainer、joint search 与 true-`U` evaluator。predictor config
 > SHA256=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；focused suite 为
 > `204 passed, 15 skipped, 24 subtests passed`，skip 仅因本机无 PyTorch。
+> processor→label 的 train-only selective reader 与 strict join 也已实现：它只语义解码显式 allowlist 的 train
+> states，tune/evaluation 仅检查 tar headers 后跳过 payload；同一 no-follow fd 完成 hash、parse 与 inode stability
+> 复核。它分别保留 processor worker、未来 label worker 与 role partition，相关 focused suite 为 `47 passed`。
+> 这只是下一阶段 source core；正式 pilot config、policy forward 与 label execution 仍未解锁。
 >
 > 数据防火墙已机械物化 107 个历史 identity：58 条 `legacy_train_only` + 49 条
 > `forbidden_consumed`，ledger SHA256=

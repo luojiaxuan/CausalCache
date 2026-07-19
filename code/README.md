@@ -185,6 +185,11 @@ postflight 前不可生成 labels。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`；v2 freeze 边界见
 `docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`。
+下一阶段的 `causalcache/set_utility_label_inputs.py` 已提前闭合 train-only input firewall：只允许显式 train state
+allowlist，tune/evaluation query 不读取或 JSON decode record/image payload；artifact 使用单一 absolute no-follow
+fd 完成 SHA、tar parse 与前后 inode/metadata 复核。strict join 同时绑定 Freeze-B assignment、final candidate、
+request manifest、processor artifact/query witness，并分别保留 processor worker、label execution worker 与 role
+partition。该模块不构成 throughput pilot 或 label Execution-B 授权。
 processor repair 的 runner、postflight、immutable HF publication manager 与完整边界见
 `docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。publication manager 要求有效
 `PENDING_HF_UPLOAD` summary、exact 23-file root、private repo 与无冲突 tag/prefix；单次上传 25 个文件后，

@@ -109,6 +109,12 @@ train/tune/one-shot evaluation roster，但不能把 P0 pool 直接全部视为�
   `input_tokens+256<=32768`；最终 candidate ids 在 generation/teacher forward 前冻结；batch validator
   强制接收 Freeze-B 中预注册的 `maximum_reference_repeat_kl`，超限 state fail closed，
   validated batch 也回写该阈值供 result manifest 审计；
+- `set_utility_label_inputs.py`：从 completed processor shard 到 `UtilityQuerySpec` 的 train-only selective reader 与
+  strict join。reader 在打开 tar 前先由 frozen worker roster 推导 state/role，拒绝任何非 train allowlist；
+  tune/evaluation records 只检查 header/member order 后 seek 跳过，不读取或 JSON decode payload。artifact 由单一
+  absolute `O_NOFOLLOW` fd 完成流式 SHA、tar parse 和前后 inode/metadata stability 复核；join 同时绑定
+  Freeze-B assignment、final candidate、request-manifest SHA、artifact SHA 与 query-record witness SHA，并分别
+  保留 processor worker、label execution worker 和 role partition；
 - `set_utility_label_table.py`：只接受完整、finite、non-negative 的 `D(S)` capped table，机械计算可正可负的
   `U(S)`，不 clipping。
 
@@ -188,11 +194,12 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 
 1. processor image-contract v2 source freeze 已完成；从 clean pushed commit 在 Hyper00 执行 processor-only
    candidate freeze，并用 committed v2 postflight 重建 exact `18,768/24/18,792` tally 与 operation budget；
-2. processor freeze 完成后另立 train-only policy throughput pilot contract，再立 label Execution-B 生产 phase-1
-   `|S|<=2` tables；
+2. train-only selective reader/strict join source core 已提前实现并以 malformed tune/evaluation payload、symlink 与
+   inode replacement 负测；但必须等待 completed processor root/HF revision 后，才能冻结 train-only policy
+   throughput pilot contract，再立 label Execution-B 生产 phase-1 `|S|<=2` tables；
 3. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 
-截至本 commit，没有本 full-pool 路线新产生的 restoration label、predictor checkpoint、offline method
+截至本阶段，没有本 full-pool 路线新产生的 restoration label、predictor checkpoint、offline method
 delta、closed-loop episode、
 matched-NLL 或 sealed-test result。
