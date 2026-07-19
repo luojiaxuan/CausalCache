@@ -2,21 +2,51 @@
 
 ## 当前状态
 
-D1 的 formal source contract 已冻结，canonical config SHA256=
+D1 的 source A2=`121c8621bae4f56a57060ea2fb402cfa3d8c7146` 与 direct-child execution B=
+`5fa1fdd45dba1fa95c7a69ee84d6ddb5b3f5166e` 均已冻结并 push。canonical config SHA256=
 `e72b0ba226048b6a188ec5ee35e9a0d5bffa04fcc8ee48f1af2b409151fad2c6`，51-file source inventory
-SHA256=`3313f90e43b3f3dec44e1fba8502d796847f5bfba55bc8c05308e19f222cded0`。初始 source
-`e3bb7bc` 的真实 pre-policy smoke 在 model/GPU/preflight 前 fail closed：旧 parent envelope 的 worker argv
-绑定旧 absolute checkout，而初版 consumer 错误地用 D1 checkout 重建 parent argv。当前 repair 从 parent
+SHA256=`3313f90e43b3f3dec44e1fba8502d796847f5bfba55bc8c05308e19f222cded0`，execution envelope
+SHA256=`093eadeea6c05e1266c681aeea31fa48a86b6dff74d83404e115ce63c3b0a6ea`。唯一 formal run 已完成 exact
+aggregate，aggregate SHA256=`2debde6de3f552e9551d0ee37d25b82fa2ca85dfb42746d389dde39eff577ba2`，
+formal verdict=`INVALID_RUNTIME_FAILURE`。
+
+初始 source `e3bb7bc` 的真实 pre-policy smoke 在 model/GPU/preflight 前 fail closed：旧 parent envelope 的
+worker argv 绑定旧 absolute checkout，而初版 consumer 错误地用 D1 checkout 重建 parent argv。A2 从 parent
 envelope 的 4 个 worker argv 与 aggregate argv 共同推导并验证唯一 parent checkout，再只把验证后的 artifact
-projection rebind 到 D1 source。本状态仍是 source A：
-独立 execution envelope B 尚未物化，因此当前 source commit 本身不授权 GPU run。D1 只定位 throughput pilot
-v2 的 reference-action instability，不修改 v2 结果，也不直接解锁 restoration labels、predictor training、
-matched-NLL 或 closed-loop。
+projection rebind 到 D1 source。该历史 repair 已由 B 和唯一 formal run 消费，不得再重跑或 top-up D1。D1 不修改
+parent v2 结果，也不解锁 restoration labels、predictor training、matched-NLL 或 closed-loop。
 
 parent v2 的有效事实保持不变：12 个 pair 中 8 个 completed；3 个
 `MICROBATCH_1__REFERENCE_ACTION_MISMATCH`，1 个 `CROSS_VARIANT_REFERENCE_ACTION_MISMATCH`；formal
 selection=`NO_GO / MICROBATCH_1_FAILURE`。D1 绑定 parent aggregate SHA256=
 `35e0c250232efbd2b9bdccfb1b04a7c372fbed892635342cce4f9f81097ff33f`。
+
+## Formal result
+
+8/8 profile-worker attempts 与 8/8 terminals 完成，auto→eager 文件时间 barrier 通过，retry=`0`。实际调用为
+33/36 generation 与 24/24 encode；teacher/KL/restoration/label/training/HF mutation 全为 `0`。三个
+`decision:010` state 的 `eager_frozen_encoded_control` 均在第一次 generation 形成 class-only
+`OutOfMemoryError`，所以 aggregate 按预注册优先级返回 `INVALID_RUNTIME_FAILURE`，不能把这些 state 归类为
+action instability。
+
+| parent role | state_id | formal diagnosis |
+| --- | --- | --- |
+| mismatch | `0296753837938323:decision:006` | `FRESH_VS_FROZEN_PATH_ASSOCIATION` |
+| mismatch | `0310939638496410:decision:006` | `PARENT_MISMATCH_NOT_REPRODUCED` |
+| control | `0336706763935531:decision:006` | `PARENT_MISMATCH_NOT_REPRODUCED` |
+| mismatch | `0271654003819383:decision:010` | `INVALID_CONDITION_EXECUTION_FAILURE` |
+| mismatch | `0279447750102246:decision:010` | `INVALID_CONDITION_EXECUTION_FAILURE` |
+| control | `0268406573756492:decision:010` | `INVALID_CONDITION_EXECUTION_FAILURE` |
+
+`029675...:decision:006` 的 fresh encode 两次输出不一致，而 frozen encoded 与 eager frozen 都稳定；这只支持
+path association，不证明 processor/re-encode、attention backend 或 hidden state 的单一因果。三个 decision-10
+OOM 分布在三张独立 H200，其中 worker 3 没有前序 state，因此不能简单解释为同一 worker 的跨 state 累积；但
+formal artifact 没有 allocation trace，也不能把机制进一步声称为已证明的 quadratic-attention OOM。
+
+Git-safe aggregate、provenance 和解释位于
+[`../data/results/set_utility_action_stability_diagnostic_v1/`](../data/results/set_utility_action_stability_diagnostic_v1/)。
+raw attempts、terminals 与 logs 仅保留在 Hyper00
+`/data/runs/causalcache-action-stability-d1-121c862`，状态为 `LOCAL_FORENSIC_NOT_UPLOADABLE`。
 
 ## Frozen diagnostic shape
 
@@ -108,6 +138,7 @@ throughput identity，回到完整 parent roster 验证后才能决定 label Exe
 - focused tests 按 core、source contract、runner、envelope/aggregate 四个 CPU process 并行执行，共
   `41 passed`；source validator、`py_compile` 与 `git diff --check` 通过。
 
-下一步 commit/push 本 source A；随后 fresh 10 秒 preflight，机械生成并单独 push execution envelope B，在
-Hyper00 四张同构 H200 上运行 auto stage 与 eager stage。不能把 Hyper01/H100/A6000 的异构数值结果合并进同一
-D1 verdict。
+本 D1 已封存。下一步另立 D1b source：保留 exact roster/input，但把第三个 condition 改为 memory-efficient
+SDPA numerical-control profile，在新进程首次 CUDA 前冻结其控制参数；每个 state 使用 fresh OS process，按
+4+2 两波调度，避免跨 state 残留。D1b 是新 identity，不与 D1 拼接，也不能把 Hyper01/H100/A6000 的异构结果
+并入 D1 verdict。D1b 闭合前，12-state throughput、labels、training、matched-NLL 与 closed-loop 继续 locked。

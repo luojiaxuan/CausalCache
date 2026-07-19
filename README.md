@@ -84,20 +84,20 @@
 > [`data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/`](data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/)，协议见
 > [`docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md`](docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)。
 >
-> D1 action-stability diagnostic 的 formal source A 已冻结：config SHA256=
-> `e72b0ba226048b6a188ec5ee35e9a0d5bffa04fcc8ee48f1af2b409151fad2c6`，51-file source inventory
-> SHA256=`3313f90e43b3f3dec44e1fba8502d796847f5bfba55bc8c05308e19f222cded0`。初始 source
-> `e3bb7bc` 的真实 pre-policy smoke 因错误地用 D1 checkout 复验 parent 的绝对 argv 而 fail closed；本 repair
-> 改为先在 parent envelope 自身绑定的旧 checkout 验证 parent，再显式 rebind 当前 source。独立 execution envelope B
-> 尚未物化，因此 A 本身仍不授权 GPU run。D1 固定 4 个 parent mismatch states 加 2 个同 stratum controls，比较
-> `auto_fresh_encode`、`auto_frozen_encoded`、`eager_frozen_encoded_control`，各做两次 generation；总 ceiling
-> 为 36 generation / 24 encode，teacher/KL/utility/labels/training 全为 0。输出只允许 sequence/decoded/action
-> equality、prepared-input unchanged、counts 与 class-only failure，不保存 action、text、coordinate、token、
-> output 或 logits。auto/eager 的 actual attention identity 分别固定为 top/text/vision 全 `sdpa` / 全 `eager`；
-> 后者不是 strict CUDA determinism。四个 eager attempt 前会强制验证全部 auto terminals；`PYTHONPATH` 也绑定
-> 到 source worktree，防止旧 editable install 污染 import。四组 CPU suite 并发得到 `41 passed`。auto 固定先
-> fresh 后 frozen，因此只报告 path/profile association；condition failure 只能形成 invalid verdict，不能 top-up
-> 或重试。下一步 push A，再 fresh preflight、单独 push B，并在 Hyper00 4×H200 分两 stage 并发执行；详见
+> D1 action-stability diagnostic 已完成 source A2→direct-child execution B→唯一 Hyper00 4×H200 formal run。
+> A2=`121c8621bae4f56a57060ea2fb402cfa3d8c7146`，B=
+> `5fa1fdd45dba1fa95c7a69ee84d6ddb5b3f5166e`，execution envelope SHA256=
+> `093eadeea6c05e1266c681aeea31fa48a86b6dff74d83404e115ce63c3b0a6ea`。8/8 attempts 与 terminals 完成、
+> auto→eager barrier 通过、retry 0；exact aggregate 为 14,672 bytes / SHA256=
+> `2debde6de3f552e9551d0ee37d25b82fa2ca85dfb42746d389dde39eff577ba2`。实际 33/36 generation、24/24
+> encode；三个 `decision:010` state 的全-eager frozen control 在第一次 generation 发生 `OutOfMemoryError`，
+> 因而 formal verdict=`INVALID_RUNTIME_FAILURE`。完整跑完的三个 decision-6 state 中，一个 mismatch state 为
+> `FRESH_VS_FROZEN_PATH_ASSOCIATION`，另一个 mismatch 与 control 均未复现 parent mismatch；这些只是
+> invocation-level association，不是 processor/backend 的单因果。teacher/KL/restoration/labels/training/HF
+> mutation 仍全为 0，D1 不得重跑或 top-up。下一步另立每 state fresh process 的 memory-efficient SDPA
+> numerical-control D1b；在它闭合前，12-state throughput、labels/training/matched-NLL/closed-loop 继续 locked。
+> 结果见 [`data/results/set_utility_action_stability_diagnostic_v1/`](data/results/set_utility_action_stability_diagnostic_v1/)，
+> 协议与解释边界见
 > [`docs/set_utility_action_stability_diagnostic_v1.md`](docs/set_utility_action_stability_diagnostic_v1.md)。
 >
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
@@ -1446,6 +1446,7 @@ mediation effect。
 | Set-utility processor freeze v2 image-contract repair | [formal result](data/results/set_utility_processor_freeze_v2_image_contract_repair/)；[publication finalization](data/results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/)；[private HF](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair)；[Execution-CF v2](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)；[parallel postflight](data/results/set_utility_processor_postflight_parallel_v1/) | formal `main@e976b99` VALID；tag `phase1-b2-processor-freeze-v2-image-contract-repair` → `c20bab8d...1ed8`；`FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION` | 23 files / 18,730,620,511 bytes；2,400 states / 93,914 subset forwards / 103,514 operations；commit/tag fresh replay 逐 byte verified；4-worker validator 加速 `2.8063x`。labels/training 尚未开始 |
 | Set-utility train-only throughput pilot v1 attempt | [protocol](docs/set_utility_train_only_throughput_pilot_v1.md)；[failure result](data/results/set_utility_train_only_throughput_pilot_v1/) | source A `5158f2a`；envelope B `c7d5b31`；`INVALID_...CANONICALIZATION_CONTRACT_DRIFT` | 4/4 workers claimed；semantic-input pre-runtime failure；0/12 pairs、0/84 native calls、无 aggregate/selection；v1 不得重跑，下一步 versioned consumer repair |
 | Set-utility throughput pilot key repair v2 | [repair protocol](docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)；[formal result](data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/) | source A `d5e0cca`；envelope B `e5002d8`；aggregate `35e0c250...ff33f`；valid execution / selector `NO_GO` | 4 H200 并发；8/12 pairs、68/84 calls、retry 0；3× mb1 mismatch + 1× cross-variant mismatch；memory 30.49%；无 microbatch selection，labels/training 继续 locked |
+| Set-utility action-stability D1 | [protocol](docs/set_utility_action_stability_diagnostic_v1.md)；[formal result](data/results/set_utility_action_stability_diagnostic_v1/) | A2 `121c862`；B `5fa1fdd`；aggregate `2debde6d...77ba2`；`INVALID_RUNTIME_FAILURE` | 8/8 terminals、33/36 generation、24/24 encode、retry 0；3× decision-10 eager OOM；1× fresh-vs-frozen association；无 labels/training，下一步独立 D1b |
 | Planned set-utility dataset/model | [existing private dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile)；planned `gavinlaw/causalcache-set-utility-predictors-mobile` | dataset repo 已承载 census v2 `c1d19eb9...eae0` 与 processor v2 `c20bab8d...1ed8`；feature/label prefix 尚未发布；model repo/revision 尚未创建或绑定 | processor prerequisite 已 immutable 闭合；feature/label shards 与 checkpoints 完成后分别进入 dataset/model repo，当前不得视为已有 artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |

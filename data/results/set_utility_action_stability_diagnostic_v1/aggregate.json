@@ -1,0 +1,401 @@
+{
+  "counts": {
+    "encode_call_ceiling": 24,
+    "encode_call_count": 24,
+    "generation_call_ceiling": 36,
+    "generation_call_count": 33,
+    "profile_worker_terminal_count": 8,
+    "retry_count": 0,
+    "state_count": 6
+  },
+  "diagnostic": {
+    "counts": {
+      "encode_call_ceiling": 24,
+      "encode_call_count": 24,
+      "generation_call_ceiling": 36,
+      "generation_call_count": 33,
+      "retry_count": 0,
+      "state_count": 6
+    },
+    "metric_safe": true,
+    "protocol_id": "causalcache_set_utility_action_stability_diagnostic_v1",
+    "schema_version": "1.0.0",
+    "states": [
+      {
+        "conditions": [
+          {
+            "canonical_action_equal": false,
+            "condition_id": "auto_fresh_encode",
+            "decoded_output_equal": false,
+            "encode_call_count": 2,
+            "encoded_input_unchanged_after": null,
+            "encoded_input_unchanged_before": null,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": false,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_frozen_encoded",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": true,
+            "condition_id": "eager_frozen_encoded_control",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          }
+        ],
+        "diagnosis": "FRESH_VS_FROZEN_PATH_ASSOCIATION",
+        "metric_safe": true,
+        "parent_role": "mismatch",
+        "state_id": "0296753837938323:decision:006",
+        "worker_index": 0
+      },
+      {
+        "conditions": [
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_fresh_encode",
+            "decoded_output_equal": true,
+            "encode_call_count": 2,
+            "encoded_input_unchanged_after": null,
+            "encoded_input_unchanged_before": null,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_frozen_encoded",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": true,
+            "condition_id": "eager_frozen_encoded_control",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          }
+        ],
+        "diagnosis": "PARENT_MISMATCH_NOT_REPRODUCED",
+        "metric_safe": true,
+        "parent_role": "mismatch",
+        "state_id": "0310939638496410:decision:006",
+        "worker_index": 1
+      },
+      {
+        "conditions": [
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_fresh_encode",
+            "decoded_output_equal": true,
+            "encode_call_count": 2,
+            "encoded_input_unchanged_after": null,
+            "encoded_input_unchanged_before": null,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_frozen_encoded",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": true,
+            "condition_id": "eager_frozen_encoded_control",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          }
+        ],
+        "diagnosis": "PARENT_MISMATCH_NOT_REPRODUCED",
+        "metric_safe": true,
+        "parent_role": "stable_control",
+        "state_id": "0336706763935531:decision:006",
+        "worker_index": 2
+      },
+      {
+        "conditions": [
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_fresh_encode",
+            "decoded_output_equal": true,
+            "encode_call_count": 2,
+            "encoded_input_unchanged_after": null,
+            "encoded_input_unchanged_before": null,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": false,
+            "condition_id": "auto_frozen_encoded",
+            "decoded_output_equal": false,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": false,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": null,
+            "condition_id": "eager_frozen_encoded_control",
+            "decoded_output_equal": null,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": null,
+            "failure_class": "OutOfMemoryError",
+            "generation_call_count": 1,
+            "generation_completed_count": 0,
+            "metric_safe": true,
+            "repeat_count": 2
+          }
+        ],
+        "diagnosis": "INVALID_CONDITION_EXECUTION_FAILURE",
+        "metric_safe": true,
+        "parent_role": "mismatch",
+        "state_id": "0271654003819383:decision:010",
+        "worker_index": 2
+      },
+      {
+        "conditions": [
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_fresh_encode",
+            "decoded_output_equal": true,
+            "encode_call_count": 2,
+            "encoded_input_unchanged_after": null,
+            "encoded_input_unchanged_before": null,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_frozen_encoded",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": null,
+            "condition_id": "eager_frozen_encoded_control",
+            "decoded_output_equal": null,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": null,
+            "failure_class": "OutOfMemoryError",
+            "generation_call_count": 1,
+            "generation_completed_count": 0,
+            "metric_safe": true,
+            "repeat_count": 2
+          }
+        ],
+        "diagnosis": "INVALID_CONDITION_EXECUTION_FAILURE",
+        "metric_safe": true,
+        "parent_role": "mismatch",
+        "state_id": "0279447750102246:decision:010",
+        "worker_index": 3
+      },
+      {
+        "conditions": [
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_fresh_encode",
+            "decoded_output_equal": true,
+            "encode_call_count": 2,
+            "encoded_input_unchanged_after": null,
+            "encoded_input_unchanged_before": null,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": true,
+            "condition_id": "auto_frozen_encoded",
+            "decoded_output_equal": true,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": true,
+            "exact_generated_sequence_equal": true,
+            "failure_class": null,
+            "generation_call_count": 2,
+            "generation_completed_count": 2,
+            "metric_safe": true,
+            "repeat_count": 2
+          },
+          {
+            "canonical_action_equal": null,
+            "condition_id": "eager_frozen_encoded_control",
+            "decoded_output_equal": null,
+            "encode_call_count": 1,
+            "encoded_input_unchanged_after": true,
+            "encoded_input_unchanged_before": true,
+            "encoded_input_unchanged_between": null,
+            "exact_generated_sequence_equal": null,
+            "failure_class": "OutOfMemoryError",
+            "generation_call_count": 1,
+            "generation_completed_count": 0,
+            "metric_safe": true,
+            "repeat_count": 2
+          }
+        ],
+        "diagnosis": "INVALID_CONDITION_EXECUTION_FAILURE",
+        "metric_safe": true,
+        "parent_role": "stable_control",
+        "state_id": "0268406573756492:decision:010",
+        "worker_index": 1
+      }
+    ],
+    "verdict": "INVALID_RUNTIME_FAILURE"
+  },
+  "execution_envelope_sha256": "093eadeea6c05e1266c681aeea31fa48a86b6dff74d83404e115ce63c3b0a6ea",
+  "metric_safe": true,
+  "parent_execution_envelope_sha256": "dd0e64fb40bd39f839a1df91240a1e9a1a528a0bbfe9131d49ba726e8ecf4e3a",
+  "protocol_id": "causalcache_set_utility_action_stability_aggregate_v1",
+  "schema_version": "1.0.0",
+  "source_config_sha256": "e72b0ba226048b6a188ec5ee35e9a0d5bffa04fcc8ee48f1af2b409151fad2c6",
+  "source_inventory_sha256": "3313f90e43b3f3dec44e1fba8502d796847f5bfba55bc8c05308e19f222cded0",
+  "status": "COMPLETED_EXACT_SIX_STATE_ACTION_STABILITY_AGGREGATE_V1",
+  "worker_terminal_hashes": [
+    {
+      "profile": "auto",
+      "sha256": "df6322ce3b57c8642487d41aa3211d96f86960e155c4418f6099d2654783dedc",
+      "worker_index": 0
+    },
+    {
+      "profile": "auto",
+      "sha256": "05a7701aff2a00b243c34b38ae104086ffde25a46f3219416b71dc1f8bd958b8",
+      "worker_index": 1
+    },
+    {
+      "profile": "auto",
+      "sha256": "67d6029ed91f6753651f3955dc8180cbb62c1a7a02d585dbf1f0c494392a2f0e",
+      "worker_index": 2
+    },
+    {
+      "profile": "auto",
+      "sha256": "69253b3911de2c4716e1bce9757ceb3b8b7829ebc3a752c11b31a9b4821e7ae3",
+      "worker_index": 3
+    },
+    {
+      "profile": "eager",
+      "sha256": "bbf202a8fb912aaf74bd6fcf36baaa1de46fbe49bbda693bc9c1925c80ab3013",
+      "worker_index": 0
+    },
+    {
+      "profile": "eager",
+      "sha256": "bb198bddc62df134b711f7952bc3be9ca3cba02a26ca513ac60503f5e5d4a63b",
+      "worker_index": 1
+    },
+    {
+      "profile": "eager",
+      "sha256": "24eba7dad13742ae929411116848f7f2ba0e20ee0e5100df2f6212915ac28483",
+      "worker_index": 2
+    },
+    {
+      "profile": "eager",
+      "sha256": "f23c3dbea90e6435cfc0aaaf4ad8c95e5ac2d9b5826cee8260615a14383f18f0",
+      "worker_index": 3
+    }
+  ]
+}

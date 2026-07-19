@@ -47,6 +47,14 @@ summary 与解释位于
 保留在 Hyper00 `/data/runs/causalcache-throughput-pilot-v2-key-repair-d5e0cca`，仅作 local forensic；本步 HF
 mutation 为 0，restoration labels、predictor checkpoint、matched-NLL 与 closed-loop output 仍为 0。
 
+D1 action-stability diagnostic 的唯一 formal run 也已完成。Git-safe exact aggregate、provenance 与解释位于
+[`results/set_utility_action_stability_diagnostic_v1/`](results/set_utility_action_stability_diagnostic_v1/)；aggregate
+SHA256=`2debde6de3f552e9551d0ee37d25b82fa2ca85dfb42746d389dde39eff577ba2`，formal verdict=
+`INVALID_RUNTIME_FAILURE`。三个 `decision:010` state 的全-eager frozen control 均 OOM，实际 33/36
+generation、24/24 encode、retry 0；teacher/KL/restoration/label/training/HF mutation 全为 0。raw evidence 仅在
+Hyper00 `/data/runs/causalcache-action-stability-d1-121c862`，状态为 `LOCAL_FORENSIC_NOT_UPLOADABLE`，不是
+reusable artifact，故本步不创建或更新 HF repo。
+
 `manifests/set_utility_full_pool_inventory_v1.json` 已从 upstream immutable revision 完成 metadata-only
 P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
 `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=

@@ -1,0 +1,303 @@
+{
+  "aggregate": {
+    "bytes": 14672,
+    "git_path": "data/results/set_utility_action_stability_diagnostic_v1/aggregate.json",
+    "protocol_id": "causalcache_set_utility_action_stability_aggregate_v1",
+    "sha256": "2debde6de3f552e9551d0ee37d25b82fa2ca85dfb42746d389dde39eff577ba2",
+    "status": "COMPLETED_EXACT_SIX_STATE_ACTION_STABILITY_AGGREGATE_V1"
+  },
+  "artifacts": {
+    "git_result_kind": "METRIC_SAFE_LIGHTWEIGHT_RESULT",
+    "hugging_face_mutation_count": 0,
+    "raw_evidence_status": "LOCAL_FORENSIC_NOT_UPLOADABLE",
+    "reusable_artifact_created": false
+  },
+  "bindings": {
+    "artifacts": {
+      "model": {
+        "hf_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "hf_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "inventory_sha256": "6faac059bb7feae4cd350537931ff68142d575a20a9e85ec1c05dedeacc088ee",
+        "local_path": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct-causalcache-frozen-manifest-v1"
+      },
+      "processor": {
+        "hf_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+        "hf_revision": "c20bab8df424dc9e45ece1084f3d1dc035dd1ed8",
+        "hf_tag": "phase1-b2-processor-freeze-v2-image-contract-repair",
+        "inventory_sha256": "7c2a971658ad9a6bbc639446e9326e9dd4718b8d2d77186f52a17f10f3b32fc1",
+        "local_path": "/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99"
+      }
+    },
+    "execution_commit": "5fa1fdd45dba1fa95c7a69ee84d6ddb5b3f5166e",
+    "execution_envelope": {
+      "bytes": 20477,
+      "sha256": "093eadeea6c05e1266c681aeea31fa48a86b6dff74d83404e115ce63c3b0a6ea"
+    },
+    "parent": {
+      "aggregate_sha256": "35e0c250232efbd2b9bdccfb1b04a7c372fbed892635342cce4f9f81097ff33f",
+      "execution_commit": "e5002d8820b3e4c8c89343b73ba4a5d13aa117c3",
+      "execution_envelope_sha256": "dd0e64fb40bd39f839a1df91240a1e9a1a528a0bbfe9131d49ba726e8ecf4e3a",
+      "result_commit": "0779a64f95ba42333c51f224deac3790ee66a79e",
+      "source_commit": "d5e0cca5c5e05d4aeeef74a1bbfae5685a4254c9"
+    },
+    "source_commit": "121c8621bae4f56a57060ea2fb402cfa3d8c7146",
+    "source_config": {
+      "bytes": 20998,
+      "sha256": "e72b0ba226048b6a188ec5ee35e9a0d5bffa04fcc8ee48f1af2b409151fad2c6"
+    },
+    "source_inventory": {
+      "file_count": 51,
+      "sha256": "3313f90e43b3f3dec44e1fba8502d796847f5bfba55bc8c05308e19f222cded0"
+    },
+    "superseded_initial_source_commit": "e3bb7bc4835974c00dc3a918c1c53aef77f005bc"
+  },
+  "counts": {
+    "auto": {
+      "condition_count": 12,
+      "encode_call_count": 18,
+      "generation_call_count": 24,
+      "state_count": 6,
+      "worker_count": 4
+    },
+    "eager": {
+      "condition_count": 6,
+      "encode_call_count": 6,
+      "generation_call_count": 9,
+      "state_count": 6,
+      "worker_count": 4
+    },
+    "encode_call_ceiling": 24,
+    "encode_call_count": 24,
+    "generation_call_ceiling": 36,
+    "generation_call_count": 33,
+    "profile_worker_attempt_count": 8,
+    "profile_worker_terminal_count": 8,
+    "retry_count": 0,
+    "state_count": 6
+  },
+  "diagnostic": {
+    "diagnosis_histogram": {
+      "FRESH_VS_FROZEN_PATH_ASSOCIATION": 1,
+      "INVALID_CONDITION_EXECUTION_FAILURE": 3,
+      "PARENT_MISMATCH_NOT_REPRODUCED": 2
+    },
+    "runtime_failure": {
+      "affected_condition": "eager_frozen_encoded_control",
+      "affected_state_ids": [
+        "0271654003819383:decision:010",
+        "0279447750102246:decision:010",
+        "0268406573756492:decision:010"
+      ],
+      "failure_class": "OutOfMemoryError",
+      "state_count": 3
+    },
+    "states": [
+      {
+        "diagnosis": "FRESH_VS_FROZEN_PATH_ASSOCIATION",
+        "parent_role": "mismatch",
+        "state_id": "0296753837938323:decision:006"
+      },
+      {
+        "diagnosis": "PARENT_MISMATCH_NOT_REPRODUCED",
+        "parent_role": "mismatch",
+        "state_id": "0310939638496410:decision:006"
+      },
+      {
+        "diagnosis": "PARENT_MISMATCH_NOT_REPRODUCED",
+        "parent_role": "stable_control",
+        "state_id": "0336706763935531:decision:006"
+      },
+      {
+        "diagnosis": "INVALID_CONDITION_EXECUTION_FAILURE",
+        "parent_role": "mismatch",
+        "state_id": "0271654003819383:decision:010"
+      },
+      {
+        "diagnosis": "INVALID_CONDITION_EXECUTION_FAILURE",
+        "parent_role": "mismatch",
+        "state_id": "0279447750102246:decision:010"
+      },
+      {
+        "diagnosis": "INVALID_CONDITION_EXECUTION_FAILURE",
+        "parent_role": "stable_control",
+        "state_id": "0268406573756492:decision:010"
+      }
+    ],
+    "verdict": "INVALID_RUNTIME_FAILURE"
+  },
+  "downstream_locks": {
+    "closed_loop": true,
+    "formal_restoration_labels": true,
+    "matched_nll": true,
+    "predictor_training": true,
+    "sealed_test": true
+  },
+  "execution": {
+    "attention_profiles": {
+      "auto": {
+        "text": "sdpa",
+        "top": "sdpa",
+        "vision": "sdpa"
+      },
+      "eager": {
+        "text": "eager",
+        "top": "eager",
+        "vision": "eager"
+      }
+    },
+    "completed_at_utc": "2026-07-19T12:11:08.507276Z",
+    "container": {
+      "id": "d57521bda90cb1b71beecc2e7ac1482584c87f98229b5ecbc8bc3ccadec6e657",
+      "image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "image_reference": "hongccc/sglang-omni:dev",
+      "name": "sglang-omni-jaxan-07191856"
+    },
+    "gpu_host_indices": [
+      0,
+      1,
+      3,
+      4
+    ],
+    "gpu_total_memory_bytes_each": 150754820096,
+    "gpu_uuids": [
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+      "GPU-f2d88c45-534f-b4cb-b9b9-65a9888c3617",
+      "GPU-1fd4a647-1209-b833-c1a3-90335ea0300c"
+    ],
+    "host": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "python_path": "/data/worktrees/causalcache-action-stability-121c862/code",
+    "run_root": "/data/runs/causalcache-action-stability-d1-121c862",
+    "software": {
+      "cuda_runtime": "13.0",
+      "python": "3.12.3",
+      "torch": "2.11.0+cu130",
+      "transformers": "5.6.0"
+    },
+    "started_at_utc": "2026-07-19T12:04:47.338779Z",
+    "worktree": "/data/worktrees/causalcache-action-stability-121c862"
+  },
+  "forensic_evidence": {
+    "attempt_sha256": {
+      "auto": [
+        "9ed6aaf493fe2c433954494331827cf5cda86a92dc073ecb78c89a81d8f44fa4",
+        "7e2ee653b31a34f1d5d158e2511ad6fa6447f097d0d93c55704a1e895fd170cc",
+        "4e10f3822859ce16c93582e6cfa23ae5ed9e95b9b58f3e81fded2bf0925bbf7c",
+        "a6b811549516987b581ebe321ef88f8a4855e42daa02e6e508c8369fcf2cfb39"
+      ],
+      "eager": [
+        "29503262f0cb4f421ad1fdecb04c93bb94a742b28efa72672fdafb2b8abf597b",
+        "51499c079b428f5ed2392b1465f0269616c4970c2b92c032fbe079ce6ea96d65",
+        "d4de096fc3f3a6c2fdfaa1097d920debc030756e61bd96fe27d891036d3d1636",
+        "e031dbe4892eead6d2fd32e0121d40b8f260dfe9404ede602ef8e91069c879ac"
+      ]
+    },
+    "log_manifest": {
+      "aggregate_stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "aggregate_stdout": {
+        "bytes": 10676,
+        "sha256": "c75a222f0f081302205574cc2d55e60586d57de5f4b9b774faf2e4dd7edae5a6"
+      },
+      "auto_stderr_sha256": [
+        "5d3e26977a1fca77db71ec1894f143fe4e23588cc2350dbd41da8ce5dfae6e5e",
+        "d9b57ee8c5756cbf44c3cdcb17be1c36ab9fbc61770f78bf7011be255e4d75b1",
+        "6e3ef0ba90907ca8f5872bb0cf9d5f42ac5742609271fb427a1e26ddb5d6d7e7",
+        "4a81a126f6f4fd99dd284bfcc7e223982440d8b64190ced5ba2f9ed971b22b08"
+      ],
+      "auto_stdout_sha256": [
+        "7e93318aa2036c05f566ea5ded518cd8088c2453c4c8e3c3e8e2d29d3ce1b616",
+        "78ed4968bdcc012ae3dd3fe75338e0771460a7886d865f49a99b7025f296c537",
+        "c3218abf9002ad1e5526f686b5ff922ed89f2ff077777ec293ccf4f23455b4b3",
+        "a73ecd632aa8d4857417dd608601bd8f5687b4044548ce34a3e41735e63c653f"
+      ],
+      "eager_stderr_sha256": [
+        "95db8e4049f6abb5535ba68fee5621147d16cada887a6c36e07804a13b5c8935",
+        "e5d54be3db97c2e40ccca8d14924614425dc8957fccc8dd248b503ef0d1ec548",
+        "370e954fe9f1be2139386deb1d013969a689b5619a38e8b727a9cd00387b00a6",
+        "cd1aa639486691ff0a42d0fa29a06f88e9653e45ce4195670383a17fe391a244"
+      ],
+      "eager_stdout_sha256": [
+        "bfa1b8d133790c3d8f38fa2759d79eb5246d1eac776b89eaaff450786c3e26cd",
+        "6fa867c65f1c8309c2731ee4ff208e32581ff34397190defcf834a3cb491e3e9",
+        "aee34ba6559dddbfb457a0d8992332dfceb592b886b970790f9aea61007880e3",
+        "15400f351d696aa9e3f7451af559dacf7fb820aac2c21a53075f021d37afcdc6"
+      ]
+    },
+    "raw_preflight_log": {
+      "bytes": 1305,
+      "path": "/data/runs/causalcache-action-stability-d1-121c862/preflight-raw.log",
+      "sha256": "9d8ea350a8c0d116b0bd08e9e8a91743ce47d1507d18719f64e659c092e86eb2"
+    },
+    "root": "/data/runs/causalcache-action-stability-d1-121c862",
+    "runtime_identity_sha256": {
+      "auto": "f1274a06737eeb8add92b7e1d2acfe80daf6a0d578718d62a2e5bbb0014aadb6",
+      "eager": "42bea9f20170299ef20e9fcb5f5430dfbab77605b8888736fcc94153b0d35dea"
+    },
+    "terminal_sha256": {
+      "auto": [
+        "df6322ce3b57c8642487d41aa3211d96f86960e155c4418f6099d2654783dedc",
+        "05a7701aff2a00b243c34b38ae104086ffde25a46f3219416b71dc1f8bd958b8",
+        "67d6029ed91f6753651f3955dc8180cbb62c1a7a02d585dbf1f0c494392a2f0e",
+        "69253b3911de2c4716e1bce9757ceb3b8b7829ebc3a752c11b31a9b4821e7ae3"
+      ],
+      "eager": [
+        "bbf202a8fb912aaf74bd6fcf36baaa1de46fbe49bbda693bc9c1925c80ab3013",
+        "bb198bddc62df134b711f7952bc3be9ca3cba02a26ca513ac60503f5e5d4a63b",
+        "24eba7dad13742ae929411116848f7f2ba0e20ee0e5100df2f6212915ac28483",
+        "f23c3dbea90e6435cfc0aaaf4ad8c95e5ac2d9b5826cee8260615a14383f18f0"
+      ]
+    }
+  },
+  "monitoring": {
+    "auto_startup_window": {
+      "accepted_as_all_gpu_representative": false,
+      "average_container_utilization_percent": 67,
+      "maximum_utilization_percent": 100,
+      "observed_at_utc": "2026-07-19T12:05:30Z",
+      "reason": "short unequal shards left only a subset of worker GPU processes visible to the monitor"
+    },
+    "eager_startup_window": {
+      "accepted_as_all_gpu_representative": false,
+      "reason": "the short eager stage completed before a four-GPU representative window was captured"
+    },
+    "startup_utilization_gate": "TARGET_NOT_DEMONSTRATED_SHORT_UNBALANCED_DIAGNOSTIC",
+    "throughput_claim_allowed": false
+  },
+  "negative_operations": {
+    "closed_loop_episode_count": 0,
+    "hugging_face_mutation_count": 0,
+    "kl_measurement_count": 0,
+    "label_count": 0,
+    "matched_nll_evaluation_count": 0,
+    "restoration_distance_count": 0,
+    "sealed_test_access_count": 0,
+    "teacher_forward_call_count": 0,
+    "training_example_count": 0
+  },
+  "next_action": {
+    "d1_retry_allowed": false,
+    "formal_labels_unlocked": false,
+    "instruction": "Freeze a new memory-safe, versioned control diagnostic that isolates eager-attention OOM before any 12-state throughput or label execution."
+  },
+  "preflight": {
+    "completed_at_utc": "2026-07-19T12:01:38Z",
+    "evidence_bytes": 1926,
+    "evidence_sha256": "bee511eb743f203d32d54cf6955645064f2ce48d257a2ac0baa2b22b2eb4dec5",
+    "freshness_maximum_seconds": 900,
+    "minimum_window_seconds": 10,
+    "started_at_utc": "2026-07-19T12:01:24Z"
+  },
+  "result_id": "set_utility_action_stability_diagnostic_v1",
+  "schema_version": "1.0.0",
+  "stage_barrier": {
+    "gap_seconds": 190.22224432,
+    "max_auto_terminal_mtime_ns": 1784462747490488765,
+    "min_eager_attempt_mtime_ns": 1784462937712733085,
+    "satisfied": true
+  },
+  "status": "COMPLETED_EXACT_SIX_STATE_ACTION_STABILITY_AGGREGATE_V1"
+}

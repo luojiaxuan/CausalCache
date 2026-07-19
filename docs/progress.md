@@ -12,6 +12,34 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+D1 已证明当前全-eager numerical control 对全部三个 `decision:010` input 都不可执行，formal verdict 为
+`INVALID_RUNTIME_FAILURE`。因此新 exact tables 仍未启动；当前最先执行的是独立 versioned D1b：使用
+memory-efficient SDPA numerical control、每 state fresh process，关闭 reference substrate 的 runtime blocker
+后才重建 12-state throughput identity。
+
+### 2026-07-19：D1 formal execution completed，runtime-invalid
+
+- source A2=`121c8621bae4f56a57060ea2fb402cfa3d8c7146`，唯一 direct-child execution B=
+  `5fa1fdd45dba1fa95c7a69ee84d6ddb5b3f5166e`；execution envelope SHA256=
+  `093eadeea6c05e1266c681aeea31fa48a86b6dff74d83404e115ce63c3b0a6ea`；
+- fresh 10 秒 preflight 后在 Hyper00 同一 container 的 host GPU `0,1,3,4` 上运行 4 个 auto worker，再在全部
+  auto terminals 完成 190.222 秒后运行 4 个 eager worker；8/8 attempts、8/8 terminals、retry=`0`，stage
+  barrier 与 aggregate audit 均通过；
+- aggregate 14,672 bytes / SHA256=
+  `2debde6de3f552e9551d0ee37d25b82fa2ca85dfb42746d389dde39eff577ba2`；实际 33/36 generation、24/24
+  encode，teacher/KL/restoration/label/training/HF mutation 全为 0；
+- 三个 `decision:010` state 的 `eager_frozen_encoded_control` 均在第一次 generation 返回
+  `OutOfMemoryError`，包括没有前序 state 的 worker 3；因此预注册 formal verdict 为
+  `INVALID_RUNTIME_FAILURE`，不能声称全局 action-instability localization；
+- 完整的 decision-6 子集得到 1 个 `FRESH_VS_FROZEN_PATH_ASSOCIATION` 与 2 个
+  `PARENT_MISMATCH_NOT_REPRODUCED`。另一个 decision-10 mismatch 的 auto-frozen condition 本身不稳定，但其
+  eager control OOM，故该 state 仍只可归为 invalid；
+- 6-state/4-worker 不等长短任务没有捕获满足每张卡 80% 的代表性 startup window，因此本 run 不提供 throughput
+  claim；这不改变 metric-safe failure aggregate。结果见
+  [`../data/results/set_utility_action_stability_diagnostic_v1/`](../data/results/set_utility_action_stability_diagnostic_v1/)；
+- D1 封存且不得 retry/top-up。下一步另立 D1b：同 roster/input、memory-efficient SDPA numerical control、每
+  state fresh OS process、4+2 两波；D1b 闭合前 labels/training/matched-NLL/closed-loop 继续 locked。
+
 ### 2026-07-18（UTC 07-19）：D1 formal source-A freeze
 
 - canonical source config SHA256=`e72b0ba226048b6a188ec5ee35e9a0d5bffa04fcc8ee48f1af2b409151fad2c6`，
@@ -30,8 +58,7 @@ confirm-20 禁止进入新训练、
   checkout 重建。repair 由 4 个 parent worker argv 与 aggregate argv 共同锁定唯一旧 checkout，先完成旧
   envelope/stat validation，再显式 rebind D1 source；初始 source 不得执行；
 - focused suites 按四个本机 CPU process 并发复验，共 `41 passed`；source validator、`py_compile`、diff check
-  全通过。本步仍不授权 GPU；下一步 push source A，再做 fresh 10 秒 preflight、单独 push envelope B，最后在
-  Hyper00 4×H200 并发执行两个隔离 stage。详见
+  全通过。该条是 historical source milestone；后续 A2、B 与唯一 formal run 已完成，结果见上一节。详见
   [`set_utility_action_stability_diagnostic_v1.md`](set_utility_action_stability_diagnostic_v1.md)。
 
 ### 2026-07-18（UTC 07-19）：D1 action-stability diagnostic source core
