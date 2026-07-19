@@ -24,6 +24,8 @@ confirm-20 禁止进入新训练、
   error class，禁止 action/text/coordinate/token/output/logit；
 - eager condition 复用已验证 numerical-control runtime，但该 runtime 明确不是 strict CUDA determinism；如它仍
   不稳，后续 D2 才能在新进程中引入 strict deterministic algorithms/CUBLAS workspace；
+- auto 固定先 fresh 后 frozen，故 D1 的正结果只写作 path/profile association，不作单一 encoding/backend 因果
+  归因；auto 与 eager 必须分进程分 stage。runtime/OOM/parse/input-mutation failure 统一使 diagnostic invalid；
 - 3 个 focused test files 以 3 个本机 CPU worker 并行执行，共 `13 passed`，`py_compile` 通过。当前仍不是
   formal source freeze，不授权 GPU；下一步补齐 source contract/runner/inventory 后依次 push A、机械冻结 B，再在
   Hyper00 四张同构 H200 上执行。详见

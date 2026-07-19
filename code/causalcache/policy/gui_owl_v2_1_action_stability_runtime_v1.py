@@ -19,13 +19,26 @@ from causalcache.policy.gui_owl_v2_1_runtime import (
 from causalcache.policy.gui_owl_v2_1_throughput_runtime import (
     GUIOwlV21ThroughputRuntime,
 )
-from causalcache.policy.gui_owl_v2_2_eager_runtime import GUIOwlV22EagerRuntime
+from causalcache.policy.gui_owl_v2_2_eager_runtime import (
+    GUIOwlV22EagerRuntime,
+    gui_owl_v2_2_observed_attention,
+)
 from causalcache.policy.gui_owl_v2_runtime import FROZEN_GUI_OWL_V2_MAX_NEW_TOKENS
 
 
 AUTO_FRESH_ENCODE_CONDITION = "auto_fresh_encode"
 AUTO_FROZEN_ENCODED_CONDITION = "auto_frozen_encoded"
 EAGER_FROZEN_ENCODED_CONTROL = "eager_frozen_encoded_control"
+EXPECTED_AUTO_ATTENTION = {"text": "sdpa", "top": "sdpa", "vision": "sdpa"}
+
+
+def validate_auto_attention_v1(attention: Mapping[str, Any]) -> dict[str, str]:
+    observed = dict(attention)
+    if observed != EXPECTED_AUTO_ATTENTION:
+        raise RuntimeError(
+            "D1 parent-compatible automatic attention did not resolve to SDPA"
+        )
+    return dict(EXPECTED_AUTO_ATTENTION)
 
 
 @dataclass(frozen=True, slots=True)
@@ -216,6 +229,18 @@ class GUIOwlV21AutoActionStabilityRuntimeV1(
 ):
     """Parent-v2 automatic-attention runtime plus prepared-input generation."""
 
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        attention = validate_auto_attention_v1(
+            gui_owl_v2_2_observed_attention(self.model)
+        )
+        self.metadata = {
+            **self.metadata,
+            "observed_attention_implementation": attention,
+            "requested_attention_implementation": "auto_parent_default",
+            "runtime_profile_id": "causalcache_action_stability_auto_sdpa_v1",
+        }
+
 
 class GUIOwlV21EagerActionStabilityRuntimeV1(
     _PreparedInputGenerationMixin,
@@ -228,7 +253,9 @@ __all__ = [
     "AUTO_FRESH_ENCODE_CONDITION",
     "AUTO_FROZEN_ENCODED_CONDITION",
     "EAGER_FROZEN_ENCODED_CONTROL",
+    "EXPECTED_AUTO_ATTENTION",
     "GUIOwlV21AutoActionStabilityRuntimeV1",
     "GUIOwlV21EagerActionStabilityRuntimeV1",
     "PreparedExactInputV1",
+    "validate_auto_attention_v1",
 ]

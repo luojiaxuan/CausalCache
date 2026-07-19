@@ -90,7 +90,9 @@
 > 为 36 generation / 24 encode，teacher/KL/utility/labels/training 全为 0。输出只允许 sequence/decoded/action
 > equality、prepared-input unchanged、counts 与 class-only failure，不保存 action、text、coordinate、token、
 > output 或 logits。现有 eager profile 不是 strict CUDA determinism，文档和代码均未作该声称。3 个 CPU test
-> worker 并行得到 `13 passed`。下一步冻结 formal source/runner 后再生成独立 execution envelope；详见
+> worker 并行得到 `13 passed`。auto 固定先 fresh 后 frozen，因此只报告 path/profile association；auto/eager
+> 分进程分 stage，任何 runtime/OOM/parse/input-mutation failure 都使 diagnostic invalid。下一步冻结 formal
+> source/runner 后再生成独立 execution envelope；详见
 > [`docs/set_utility_action_stability_diagnostic_v1.md`](docs/set_utility_action_stability_diagnostic_v1.md)。
 >
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新

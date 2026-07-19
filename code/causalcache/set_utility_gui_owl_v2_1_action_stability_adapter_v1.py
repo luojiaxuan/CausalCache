@@ -138,7 +138,7 @@ def run_fresh_encode_condition_v1(
             result = runtime.generate_native_action(reference_input.messages)
             observations.append(_observation(result))
             del result
-        except BaseException as error:
+        except Exception as error:
             failure_class = _safe_error_class(error)
             break
     return _condition_payload(
@@ -184,12 +184,12 @@ def run_frozen_encoded_condition_v1(
             if repeat_index == 0:
                 unchanged_between = runtime.prepared_input_unchanged_v1(prepared)
         unchanged_after = runtime.prepared_input_unchanged_v1(prepared)
-    except BaseException as error:
+    except Exception as error:
         failure_class = _safe_error_class(error)
         if prepared is not None:
             try:
                 unchanged_after = runtime.prepared_input_unchanged_v1(prepared)
-            except BaseException:
+            except Exception:
                 unchanged_after = False
     return _condition_payload(
         condition_id=condition_id,

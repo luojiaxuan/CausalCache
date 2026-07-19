@@ -157,11 +157,14 @@ def _validate_condition_payload(
             payload[key] is not None for key in prepared_keys
         ):
             raise ValueError("fresh D1 condition prepared-input fields drifted")
-    elif payload["encode_call_count"] != 1 or any(
-        value is not None and type(value) is not bool
-        for value in (payload[key] for key in prepared_keys)
-    ):
-        raise ValueError("frozen D1 condition input-stability fields drifted")
+    else:
+        if payload["encode_call_count"] != 1 or any(
+            value is not None and type(value) is not bool
+            for value in (payload[key] for key in prepared_keys)
+        ):
+            raise ValueError("frozen D1 condition input-stability fields drifted")
+        if failure is None and any(payload[key] is not True for key in prepared_keys):
+            raise ValueError("successful frozen D1 condition requires unchanged inputs")
     projected = dict(payload)
     _validate_metric_safe_tree(projected)
     return projected
@@ -210,15 +213,17 @@ def _condition_stable(condition: Mapping[str, Any]) -> bool:
 
 
 def _state_diagnosis(conditions: Mapping[str, Mapping[str, Any]]) -> str:
+    if any(condition.get("failure_class") is not None for condition in conditions.values()):
+        return "INVALID_CONDITION_EXECUTION_FAILURE"
     fresh = _condition_stable(conditions[AUTO_FRESH_ENCODE_CONDITION])
     frozen = _condition_stable(conditions[AUTO_FROZEN_ENCODED_CONDITION])
     eager = _condition_stable(conditions[EAGER_FROZEN_ENCODED_CONTROL])
     if not eager:
         return "PERSISTENT_GENERATION_INSTABILITY"
     if not fresh and frozen:
-        return "ENCODING_OR_PREPARATION_PATH_IMPLICATED"
+        return "FRESH_VS_FROZEN_PATH_ASSOCIATION"
     if not frozen:
-        return "AUTO_ATTENTION_OR_NUMERICAL_CONTROL_IMPLICATED"
+        return "AUTO_VS_EAGER_PROFILE_ASSOCIATION"
     if fresh and frozen:
         return "PARENT_MISMATCH_NOT_REPRODUCED"
     return "PREPARED_PATH_OR_HIDDEN_STATE_IMPLICATED"
@@ -312,17 +317,71 @@ def merge_action_stability_state_v1(
     return payload
 
 
+def _validate_merged_state_v1(payload: Mapping[str, Any]) -> dict[str, Any]:
+    expected_keys = {
+        "conditions",
+        "diagnosis",
+        "metric_safe",
+        "parent_role",
+        "state_id",
+        "worker_index",
+    }
+    if not isinstance(payload, Mapping) or set(payload) != expected_keys:
+        raise ValueError("D1 merged-state fields drifted")
+    state_id = payload.get("state_id")
+    expected_role = (
+        "mismatch" if state_id in MISMATCH_STATE_IDS else "stable_control"
+    )
+    if (
+        state_id not in STATE_IDS
+        or payload.get("metric_safe") is not True
+        or payload.get("parent_role") != expected_role
+        or payload.get("worker_index") != WORKER_INDEX_BY_STATE[state_id]
+    ):
+        raise ValueError("D1 merged-state identity drifted")
+    raw_conditions = payload.get("conditions")
+    if (
+        isinstance(raw_conditions, (str, bytes, bytearray, Mapping))
+        or not isinstance(raw_conditions, Sequence)
+        or len(raw_conditions) != len(CONDITION_ORDER)
+    ):
+        raise ValueError("D1 merged-state condition roster drifted")
+    conditions = {
+        condition_id: _validate_condition_payload(
+            raw,
+            expected_condition_id=condition_id,
+        )
+        for condition_id, raw in zip(CONDITION_ORDER, raw_conditions, strict=True)
+    }
+    diagnosis = _state_diagnosis(conditions)
+    if payload.get("diagnosis") != diagnosis:
+        raise ValueError("D1 merged-state diagnosis drifted")
+    projected = {
+        "conditions": [conditions[condition_id] for condition_id in CONDITION_ORDER],
+        "diagnosis": diagnosis,
+        "metric_safe": True,
+        "parent_role": expected_role,
+        "state_id": state_id,
+        "worker_index": WORKER_INDEX_BY_STATE[state_id],
+    }
+    _validate_metric_safe_tree(projected)
+    return projected
+
+
 def aggregate_action_stability_diagnostic_v1(
     states: Sequence[Mapping[str, Any]],
 ) -> dict[str, Any]:
-    if isinstance(states, (str, bytes, bytearray, Mapping)):
-        raise TypeError("D1 aggregate requires a sequence of state results")
-    by_state = {str(state.get("state_id")): state for state in states}
+    if (
+        isinstance(states, (str, bytes, bytearray, Mapping))
+        or not isinstance(states, Sequence)
+        or len(states) != len(STATE_IDS)
+    ):
+        raise TypeError("D1 aggregate requires the exact six-state result sequence")
+    validated = [_validate_merged_state_v1(state) for state in states]
+    by_state = {state["state_id"]: state for state in validated}
     if len(by_state) != len(STATE_IDS) or set(by_state) != set(STATE_IDS):
         raise ValueError("D1 aggregate state roster drifted")
     ordered = [dict(by_state[state_id]) for state_id in STATE_IDS]
-    for state in ordered:
-        _validate_metric_safe_tree(state)
     controls_stable = all(
         state["diagnosis"] == "PARENT_MISMATCH_NOT_REPRODUCED"
         for state in ordered
@@ -333,20 +392,27 @@ def aggregate_action_stability_diagnostic_v1(
         for state in ordered
         if state["state_id"] in MISMATCH_STATE_IDS
     }
-    if not controls_stable:
+    any_runtime_failure = any(
+        condition["failure_class"] is not None
+        for state in ordered
+        for condition in state["conditions"]
+    )
+    if any_runtime_failure:
+        verdict = "INVALID_RUNTIME_FAILURE"
+    elif not controls_stable:
         verdict = "INVALID_STABLE_CONTROL_INSTABILITY"
     elif any(value == "PERSISTENT_GENERATION_INSTABILITY" for value in diagnoses.values()):
         verdict = "PERSISTENT_GENERATION_INSTABILITY"
     elif any(
-        value == "AUTO_ATTENTION_OR_NUMERICAL_CONTROL_IMPLICATED"
+        value == "AUTO_VS_EAGER_PROFILE_ASSOCIATION"
         for value in diagnoses.values()
     ):
-        verdict = "AUTO_ATTENTION_OR_NUMERICAL_CONTROL_IMPLICATED"
+        verdict = "AUTO_VS_EAGER_PROFILE_ASSOCIATION"
     elif any(
-        value == "ENCODING_OR_PREPARATION_PATH_IMPLICATED"
+        value == "FRESH_VS_FROZEN_PATH_ASSOCIATION"
         for value in diagnoses.values()
     ):
-        verdict = "ENCODING_OR_PREPARATION_PATH_IMPLICATED"
+        verdict = "FRESH_VS_FROZEN_PATH_ASSOCIATION"
     elif all(value == "PARENT_MISMATCH_NOT_REPRODUCED" for value in diagnoses.values()):
         verdict = "PARENT_MISMATCH_NOT_REPRODUCED"
     else:
@@ -361,6 +427,16 @@ def aggregate_action_stability_diagnostic_v1(
         for state in ordered
         for condition in state["conditions"]
     )
+    if (
+        generation_calls > EXPECTED_GENERATION_CALL_CEILING
+        or encode_calls > EXPECTED_ENCODE_CALL_CEILING
+    ):
+        raise ValueError("D1 aggregate exceeded its frozen operation ceiling")
+    if not any_runtime_failure and (
+        generation_calls != EXPECTED_GENERATION_CALL_CEILING
+        or encode_calls != EXPECTED_ENCODE_CALL_CEILING
+    ):
+        raise ValueError("complete D1 aggregate operation counts drifted")
     payload = {
         "counts": {
             "encode_call_ceiling": EXPECTED_ENCODE_CALL_CEILING,

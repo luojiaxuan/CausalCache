@@ -4,6 +4,7 @@ from causalcache.policy.gui_owl_v2_1_action_stability_runtime_v1 import (
     GUIOwlV21AutoActionStabilityRuntimeV1,
     GUIOwlV21EagerActionStabilityRuntimeV1,
     PreparedExactInputV1,
+    validate_auto_attention_v1,
 )
 from causalcache.policy.gui_owl_v2_1_throughput_runtime import (
     GUIOwlV21ThroughputRuntime,
@@ -49,3 +50,14 @@ def test_prepared_input_detects_tensor_mutation_and_wrong_owner() -> None:
         assert "different runtime" in str(error)
     else:
         raise AssertionError("wrong-owner prepared input was accepted")
+
+
+def test_auto_profile_requires_resolved_sdpa_at_all_three_levels() -> None:
+    expected = {"text": "sdpa", "top": "sdpa", "vision": "sdpa"}
+    assert validate_auto_attention_v1(expected) == expected
+    try:
+        validate_auto_attention_v1({"text": "sdpa", "top": "eager", "vision": "sdpa"})
+    except RuntimeError as error:
+        assert "resolve to SDPA" in str(error)
+    else:
+        raise AssertionError("mixed automatic attention profile was accepted")

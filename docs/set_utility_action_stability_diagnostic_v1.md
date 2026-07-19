@@ -40,6 +40,9 @@ encode/H2D 边界。
 不得把它写成 `eager_deterministic`。如果 eager control 仍不稳定，才另立 strict-determinism D2，且必须在新进程
 首次 CUDA 之前绑定 `CUBLAS_WORKSPACE_CONFIG`。
 
+auto runtime 在模型加载后必须 fail closed 验证 top/text/vision 三层实际 attention 均解析为 `sdpa`，并将
+observed mapping 纳入 runtime metadata；因此 silent fallback 不能被误写成 auto-vs-eager 结果。
+
 ## Metric firewall
 
 原始 action、coordinate、text、token ids、decoded output、logits 和它们的 digest 只允许存在于进程内 opaque
@@ -56,11 +59,16 @@ prepared input snapshot 同时检查 keys、shape、dtype、device 和 `torch.eq
 
 ## Preregistered interpretation
 
-- fresh unstable、auto frozen stable、eager stable：`ENCODING_OR_PREPARATION_PATH_IMPLICATED`；
-- auto frozen unstable、eager stable：`AUTO_ATTENTION_OR_NUMERICAL_CONTROL_IMPLICATED`；
+- fresh unstable、auto frozen stable、eager stable：`FRESH_VS_FROZEN_PATH_ASSOCIATION`；
+- auto frozen unstable、eager stable：`AUTO_VS_EAGER_PROFILE_ASSOCIATION`；
 - eager 仍不稳定：`PERSISTENT_GENERATION_INSTABILITY`；
 - parent mismatch states 全部稳定：`PARENT_MISMATCH_NOT_REPRODUCED`；
 - 任一 stable control 未能在全部三个 condition 保持稳定：`INVALID_STABLE_CONTROL_INSTABILITY`。
+
+前两项故意只称 `ASSOCIATION`：同一 auto runtime 固定先跑 fresh、后跑 frozen，因此仍可能混入 warmup、
+allocator/autotune 或模型持久状态。default 与 eager 必须在独立进程、分 stage 执行，避免 eager numerical controls
+污染后续 auto condition。任一 OOM、parse error、unsupported op 或 input-mutation failure 都记为
+`INVALID_CONDITION_EXECUTION_FAILURE`，不能被归因为 action instability。
 
 D1 只做 failure localization。无论得到哪一类结果，正式 labels 都不能直接启动；必须另立新的 12-state
 throughput identity，回到完整 parent roster 验证后才能决定 label Execution-B。

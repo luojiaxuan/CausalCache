@@ -72,8 +72,8 @@ def test_roster_and_worker_mapping_are_exact_and_balanced() -> None:
 @pytest.mark.parametrize(
     ("fresh", "frozen", "eager", "diagnosis"),
     [
-        (False, True, True, "ENCODING_OR_PREPARATION_PATH_IMPLICATED"),
-        (False, False, True, "AUTO_ATTENTION_OR_NUMERICAL_CONTROL_IMPLICATED"),
+        (False, True, True, "FRESH_VS_FROZEN_PATH_ASSOCIATION"),
+        (False, False, True, "AUTO_VS_EAGER_PROFILE_ASSOCIATION"),
         (False, False, False, "PERSISTENT_GENERATION_INSTABILITY"),
         (True, True, True, "PARENT_MISMATCH_NOT_REPRODUCED"),
     ],
@@ -88,7 +88,7 @@ def test_aggregate_classifies_backend_recovery_and_preserves_call_budget() -> No
     states = [_state(state_id) for state_id in STATE_IDS]
     states[0] = _state(STATE_IDS[0], fresh=False, frozen=False, eager=True)
     payload = aggregate_action_stability_diagnostic_v1(states)
-    assert payload["verdict"] == "AUTO_ATTENTION_OR_NUMERICAL_CONTROL_IMPLICATED"
+    assert payload["verdict"] == "AUTO_VS_EAGER_PROFILE_ASSOCIATION"
     assert payload["counts"] == {
         "encode_call_ceiling": 24,
         "encode_call_count": 24,
@@ -133,3 +133,47 @@ def test_condition_schema_and_metric_firewall_fail_closed() -> None:
     reordered["conditions"].reverse()
     with pytest.raises(ValueError, match="identity drifted"):
         merge_action_stability_state_v1(reordered, eager)
+
+
+def test_aggregate_rejects_duplicates_extra_rows_and_forged_diagnosis() -> None:
+    states = [_state(state_id) for state_id in STATE_IDS]
+    with pytest.raises(TypeError, match="exact six-state"):
+        aggregate_action_stability_diagnostic_v1([*states, states[0]])
+    duplicated = [*states[:-1], states[0]]
+    with pytest.raises(ValueError, match="roster drifted"):
+        aggregate_action_stability_diagnostic_v1(duplicated)
+    forged = copy.deepcopy(states)
+    forged[0]["diagnosis"] = "PERSISTENT_GENERATION_INSTABILITY"
+    with pytest.raises(ValueError, match="diagnosis drifted"):
+        aggregate_action_stability_diagnostic_v1(forged)
+
+
+def test_aggregate_revalidates_condition_counts_and_runtime_failure() -> None:
+    states = [_state(state_id) for state_id in STATE_IDS]
+    forged = copy.deepcopy(states)
+    forged[0]["conditions"][0]["generation_call_count"] = 3
+    with pytest.raises(ValueError, match="generation budget"):
+        aggregate_action_stability_diagnostic_v1(forged)
+
+    failed = copy.deepcopy(states)
+    condition = failed[0]["conditions"][0]
+    condition["canonical_action_equal"] = None
+    condition["decoded_output_equal"] = None
+    condition["exact_generated_sequence_equal"] = None
+    condition["failure_class"] = "RuntimeError"
+    condition["generation_call_count"] = 1
+    condition["generation_completed_count"] = 0
+    condition["encode_call_count"] = 1
+    failed[0]["diagnosis"] = "INVALID_CONDITION_EXECUTION_FAILURE"
+    assert (
+        aggregate_action_stability_diagnostic_v1(failed)["verdict"]
+        == "INVALID_RUNTIME_FAILURE"
+    )
+
+
+def test_successful_frozen_condition_requires_all_input_checks() -> None:
+    states = [_state(state_id) for state_id in STATE_IDS]
+    forged = copy.deepcopy(states)
+    forged[0]["conditions"][1]["encoded_input_unchanged_between"] = None
+    with pytest.raises(ValueError, match="requires unchanged inputs"):
+        aggregate_action_stability_diagnostic_v1(forged)
