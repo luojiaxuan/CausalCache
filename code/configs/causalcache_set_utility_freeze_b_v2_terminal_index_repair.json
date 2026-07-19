@@ -1,0 +1,77 @@
+{
+  "authorization": {
+    "access_one_shot_evaluation_labels": false,
+    "access_sealed_test": false,
+    "generate_restoration_labels": false,
+    "load_policy_or_vision_model": false,
+    "materialize_corrected_policy_blind_query_plan": true,
+    "materialize_corrected_policy_blind_roster": true,
+    "mutate_hugging_face": false,
+    "read_committed_p0_census": true,
+    "read_parent_freeze_b_v1": true,
+    "read_raw_source_shards": false,
+    "run_closed_loop": false,
+    "run_ocr": false,
+    "select_candidates_with_processor": false,
+    "train_predictor": false,
+    "write_one_git_manifest": true
+  },
+  "bindings": {
+    "p0_census": {
+      "path": "data/manifests/set_utility_full_pool_census_v2.json",
+      "sha256": "729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b"
+    },
+    "parent_config": {
+      "path": "code/configs/causalcache_set_utility_freeze_b_v1.json",
+      "sha256": "82bb8f775fcb824d228233c2009f5ab2944a4d714dc737d40a4619a09475b159"
+    },
+    "parent_manifest": {
+      "path": "data/manifests/set_utility_freeze_b_v1.json",
+      "sha256": "144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5"
+    },
+    "repair_sources": [
+      {
+        "path": "code/causalcache/set_utility_freeze_b_v2.py",
+        "sha256": "6d80cc0e9154a337c38b4d31a47b321cc6714786dbcb1dca75902743bb133afe"
+      },
+      {
+        "path": "code/scripts/materialize_set_utility_freeze_b_v2.py",
+        "sha256": "f67b220d2ccb32e2719b4938922b46b81afe1d4a2ea813e207ce5de5e95f8cc7"
+      },
+      {
+        "path": "code/scripts/validate_set_utility_freeze_b_v2.py",
+        "sha256": "b3f387ff49f3c8b14ac502b65d604d22d5c7c72f92355b5ec6f2fd48d1e71955"
+      }
+    ]
+  },
+  "output": {
+    "canonical_pretty_json": true,
+    "contains_raw_instruction": false,
+    "manifest_path": "data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json",
+    "overwrite_allowed": false
+  },
+  "protocol_id": "causalcache_set_utility_freeze_b_v2_terminal_index_repair",
+  "repair": {
+    "decision_count_semantics": "number_of_predictable_actions_after_the_initial_recorded_action",
+    "fault": "terminal_decision_step_used_decision_count_without_one_based_offset",
+    "maximum_labeled_cardinality": 2,
+    "minimum_decision_count_for_distinct_anchor_and_terminal": {
+      "decisions_10_17": 10,
+      "decisions_18_plus": 18,
+      "decisions_6_9": 6
+    },
+    "rerun_group_representative_and_role_assignment_on_corrected_eligible_universe": true,
+    "reuse_parent_selection_salt": true,
+    "states_per_trajectory": 2,
+    "stratum_anchor_decision_step": {
+      "decisions_10_17": 10,
+      "decisions_18_plus": 18,
+      "decisions_6_9": 6
+    },
+    "terminal_decision_step_formula": "decision_count_plus_1",
+    "valid_decision_step_id_range": "2..decision_count_plus_1_inclusive",
+    "worker_count": 4
+  },
+  "schema_version": "1.0.0",
+  "status": "SOURCE_REPAIR_REQUIRES_MATERIALIZATION"
+}

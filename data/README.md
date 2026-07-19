@@ -30,11 +30,13 @@ P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
 `manifests/set_utility_full_pool_census_v2.json` 已从 Hyper00 正式产生：8,146 source rows 中得到 6,933
 未消费 eligible trajectories / 6,928 instruction-app groups，manifest SHA256=
 `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。当前仍没有新 exact `D(S)`
-labels、feature cache、predictor checkpoint 或 offline method delta。`manifests/set_utility_freeze_b_v1.json`
-已固定 1,200 trajectory / 2,400 query 的 group-disjoint roster，manifest SHA256=
-`144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`；最终 candidates 与 exact operation
+labels、feature cache、predictor checkpoint 或 offline method delta。旧
+`manifests/set_utility_freeze_b_v1.json` 因 terminal off-by-one 永久 invalid，仅保留失败证据；有效
+`manifests/set_utility_freeze_b_v2_terminal_index_repair.json` 固定 1,200 trajectory / 2,400 corrected query 的
+group-disjoint roster，manifest SHA256=
+`915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`；最终 candidates 与 exact operation
 budget 仍等待 processor-only freeze。见
-`docs/set_utility_implementation_v1.md`。
+`docs/set_utility_freeze_b_v2_terminal_index_repair.md` 与 `docs/set_utility_implementation_v1.md`。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
 从已 outcome-exposed 的 validation plan 中仅取 `task_index=0`，按 pre-treatment `max_steps` 分三层并以 protocol

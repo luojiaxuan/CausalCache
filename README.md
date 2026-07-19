@@ -52,11 +52,14 @@
 > row decode、policy-blind census 与单一 output write。正式 P0 已从 clean pushed `main@0e16bcf` 在 Hyper00
 > 完成：扫描 8,146 rows，排除 1,213，得到 6,933 条未消费 eligible trajectory / 6,928 个
 > instruction-app group；census manifest SHA256=
-> `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。Freeze-B/A 现已固定
+> `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。原 Freeze-B v1 后续被确认存在
+> terminal `decision_step_id` off-by-one，状态为 `INVALID_QUERY_PLAN_TERMINAL_OFF_BY_ONE`，不得进入 processor、
+> labels 或 training。Freeze-B v2 已在相同 P0/salt/quota 和 corrected eligible universe 上重新物化
 > `1000/100/100` group-disjoint train/tune/one-shot evaluation、每 trajectory 两个 query、rich visual feature、
-> training grid 与 HF destination，共 1,200 trajectories / 2,400 states；manifest SHA256=
-> `144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`。下一步是 processor-only
-> candidate freeze 与 exact operation budget；当前最坏上限为 328,800 label rows，尚不授权 label/training。
+> training grid 与 HF destination，共 1,200 trajectories / 2,400 states；v2 manifest SHA256=
+> `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`。下一步是 processor-only
+> candidate freeze 与 exact operation budget；processor 前 B2 schedule 为 171,730 rows，generic ceiling 仍为
+> 328,800，尚不授权 label/training。
 > 不使用旧 13–64
 > 小池子替代全量数据。formal-58 仅可
 > train-only；reference8、old-dev5、fresh-16、confirm-20 永不进入新训练/调参/评估。
@@ -1018,6 +1021,10 @@ mediation effect。
   [`code/configs/causalcache_set_utility_freeze_b_v1.json`](code/configs/causalcache_set_utility_freeze_b_v1.json),
   [`data/manifests/set_utility_freeze_b_v1.json`](data/manifests/set_utility_freeze_b_v1.json),
   [`docs/set_utility_freeze_b_v1.md`](docs/set_utility_freeze_b_v1.md)
+- Set-utility Freeze-B v2 terminal-index repair：
+  [`code/configs/causalcache_set_utility_freeze_b_v2_terminal_index_repair.json`](code/configs/causalcache_set_utility_freeze_b_v2_terminal_index_repair.json),
+  [`data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json`](data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json),
+  [`docs/set_utility_freeze_b_v2_terminal_index_repair.md`](docs/set_utility_freeze_b_v2_terminal_index_repair.md)
 - Independent confirm continuation contract and source validator:
   [`code/configs/causalcache_independent_confirm_continuation_v1.json`](code/configs/causalcache_independent_confirm_continuation_v1.json),
   [`code/scripts/validate_independent_confirm_continuation.py`](code/scripts/validate_independent_confirm_continuation.py)
@@ -1251,7 +1258,8 @@ mediation effect。
 | --- | --- | --- | --- |
 | GUIOdyssey full train source inventory | [upstream HF dataset](https://huggingface.co/datasets/cua-lite/GUIOdyssey)；[Git manifest](data/manifests/set_utility_full_pool_inventory_v1.json) | source revision `ea08072b30e523fb4492e4f4597505879ffcd63b`；manifest SHA256 `e892e7e8...e6c5e` | metadata-only P-1 complete；610 shards / 88,186,663,372 bytes；files-list SHA256 `e81e3ba6...8cd`；no row decode/download |
 | Set-utility full-pool P0 census | [manifest](data/manifests/set_utility_full_pool_census_v2.json)；[result](data/results/set_utility_full_pool_census_v2/) | `main@0e16bcf` execution；manifest SHA256 `729d1e10...189b` | 8,146 rows → 6,933 unconsumed eligible trajectories / 6,928 groups；107 consumed identities fully observed；no split/query/model/labels/training |
-| Set-utility Freeze-B/A | [manifest](data/manifests/set_utility_freeze_b_v1.json)；[result](data/results/set_utility_freeze_b_v1/) | manifest SHA256 `144b0de1...73e5`；HF upload pending | 1,200 group-disjoint trajectories / 2,400 policy-blind queries；`1000/100/100` train/tune/eval；processor freeze、labels、training 均未执行 |
+| Set-utility Freeze-B v1 | [manifest](data/manifests/set_utility_freeze_b_v1.json)；[failure record](data/results/set_utility_freeze_b_v1/) | `INVALID_QUERY_PLAN_TERMINAL_OFF_BY_ONE`；manifest SHA256 `144b0de1...73e5` | terminal 实为倒数第二个 state；bytes 仅作失败证据，不得进入 processor/labels/training |
+| Set-utility Freeze-B v2 repair | [manifest](data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json)；[result](data/results/set_utility_freeze_b_v2_terminal_index_repair/) | manifest SHA256 `915892ef...581d30`；HF upload pending | 1,200 group-disjoint trajectories / 2,400 corrected policy-blind queries；`1000/100/100` train/tune/eval；processor freeze、labels、training 均未执行 |
 | Planned set-utility dataset/model | `gavinlaw/causalcache-set-utility-new-development-mobile`；`gavinlaw/causalcache-set-utility-predictors-mobile` | private `phase1-b2-v1` destinations；repos/revisions uncreated and unbound | feature/label shards 与 checkpoints 完成后上传；当前不能视为 canonical artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |

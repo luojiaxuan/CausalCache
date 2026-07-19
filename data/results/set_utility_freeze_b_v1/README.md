@@ -1,5 +1,9 @@
 # Set Utility Freeze-B v1
 
+> **历史 INVALID：** 本版本 terminal query 存在 one-based indexing off-by-one。旧 bytes 原样保留，但其
+> 2,400 个 query states 不得用于 processor、labels 或 training。有效 successor 是
+> [`../set_utility_freeze_b_v2_terminal_index_repair/`](../set_utility_freeze_b_v2_terminal_index_repair/)。
+
 本目录记录 Freeze-B/A 的 policy-blind 完成态。它从已提交的 P0 census 中固定 1,200 条新 trajectory：
 `train/tune/evaluation=1000/100/100`，三个 candidate-capacity stratum 各 400 条；每条 trajectory 固定
 一个 stratum anchor 和一个 terminal query，共 2,400 states。

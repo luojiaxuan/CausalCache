@@ -1,15 +1,16 @@
 # Set Utility Predictor v1：先扩数据，再验证预算泛化
 
-> 当前状态：全量 610-shard P-1、8,146-row P0 与 Freeze-B/A policy-blind roster 已完成。Freeze-B/A 固定
+> 当前状态：全量 610-shard P-1、8,146-row P0 与 Freeze-B v2 policy-blind roster 已完成。原 v1 terminal
+> query 有 one-based indexing off-by-one，已永久标记 invalid；v2 在 corrected eligible universe 上固定
 > 1,200 trajectories / 2,400 queries、`1000/100/100` train/tune/evaluation、rich visual feature 与 training
 > grid；没有生成本路线新 label、训练 predictor，也没有执行 closed-loop、matched-NLL 或 sealed test。
 >
 > Canonical SHA256：predictor=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；
 > P-1 source=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；
 > consumed ledger=`b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`；
-> P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`；Freeze-B/A manifest=
-> `144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`。focused suite
-> 为 `204 passed, 15 skipped, 24 subtests passed`。
+> P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`；Freeze-B v2 manifest=
+> `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`。focused suite
+> 为 `213 passed, 15 skipped, 24 subtests passed`。
 
 ## 路线调整
 

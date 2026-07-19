@@ -1,5 +1,10 @@
 # Set Utility Freeze-B v1
 
+> **历史 INVALID：** 后续审计确认本版本把 `decision_count` 直接当作 terminal
+> `decision_step_id`，实际选择了倒数第二个 state。v1 bytes 保留为失败证据，但 query states 不得用于
+> processor、labels 或 training。版本化修复见
+> [`set_utility_freeze_b_v2_terminal_index_repair.md`](set_utility_freeze_b_v2_terminal_index_repair.md)。
+
 ## 当前结论
 
 Freeze-B/A 已经完成并固定 roster、query plan、feature schema、training grid、artifact destination 与计算上限；

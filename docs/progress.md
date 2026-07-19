@@ -56,9 +56,18 @@ confirm-20 禁止进入新训练、
 - Freeze-B/A 已从 P0 机械固定 1,200 trajectory / 2,400 query：`train/tune/evaluation=1000/100/100`，
   三个 capacity stratum 各 400 条，source/trajectory/group overlap 全为 0；config SHA256=
   `df8c00bfddda7589e3c9b58cc36f5cbe305ad3fee9c6a8bc4272888a6c648440`，manifest SHA256=
-  `144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`；本步 model/label/training 均为 0；
-- 下一步严格为 commit/push Freeze-B/A → processor-only candidate freeze/exact operation budget → train-only
+  `144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`；后续审计确认它把
+  `decision_count` 错作 terminal `decision_step_id`，实际选中倒数第二个 state，因此 v1 query plan 永久
+  `INVALID_QUERY_PLAN_TERMINAL_OFF_BY_ONE`；
+- Freeze-B v2 terminal-index repair 已在相同 P0/salt/quota 上从 corrected eligible universe 重新物化。
+  terminal 固定为 `decision_count+1`，边界 count `6/10/18` 不再被错误排除；v2 仍为 1,200 trajectories /
+  2,400 queries，v1/v2 source overlap=1,008，192 出/192 入。config/manifest SHA256 分别为
+  `7d7dad8580939be67b56bb7ad5a9e06b771e6d0f25ffd3665da84d14466cbf75` /
+  `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`；processor 前 exact B2
+  schedule 为 171,730 rows，仍未授权 raw/processor/OCR/model/labels/training；
+- 下一步严格为 commit/push v2 repair → processor-only candidate freeze/exact operation budget → train-only
   throughput pilot/Execution-B → exact-table production → Set Transformer/DeepSets/pairwise train/eval。完整交接见
+  [`set_utility_freeze_b_v2_terminal_index_repair.md`](set_utility_freeze_b_v2_terminal_index_repair.md)、
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与
   [`set_utility_implementation_v1.md`](set_utility_implementation_v1.md)。
 

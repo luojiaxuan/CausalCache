@@ -1,0 +1,57 @@
+{
+  "assignment_inventory_sha256": "ac2bd0773f749fe04191ad5ac31eea83d1aa6e25bab20e78ac9e3db6ff65cec2",
+  "config_sha256": "7d7dad8580939be67b56bb7ad5a9e06b771e6d0f25ffd3665da84d14466cbf75",
+  "initial_candidate_count_histogram": {
+    "10": 63,
+    "11": 54,
+    "12": 49,
+    "13": 59,
+    "14": 42,
+    "15": 32,
+    "16": 819,
+    "4": 400,
+    "5": 56,
+    "6": 66,
+    "7": 106,
+    "8": 572,
+    "9": 82
+  },
+  "initial_exact_schedule": {
+    "execution_sha256": "ec3dc58e79fd45ca292eab80736bf7141b47f0178cb320f3da60645b84ddebf1",
+    "inventory_sha256": "ab0406e32d714c9c11d8127c1cd1782d59845d4861e127cd51e760631b78f477",
+    "raw_label_rows": 171730,
+    "subset_identity_sha256": "b64e9faeb48bda2b78fcc582cc86ce7f2691d81e671e00c2f9a89e887fb6fb97",
+    "total_model_operations": 181330
+  },
+  "manifest_sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30",
+  "parent_v1_manifest_sha256": "144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5",
+  "parent_v1_status": "INVALID_QUERY_PLAN_TERMINAL_OFF_BY_ONE",
+  "query_plan_inventory_sha256": "e38f3889f9a3a15ea59a82fbe2db91b72887f12640e3b68f090ec45e3c0e881a",
+  "query_state_count": 2400,
+  "role_query_state_counts": {
+    "evaluation": 200,
+    "train": 2000,
+    "tune": 200
+  },
+  "role_trajectory_counts": {
+    "evaluation": 100,
+    "train": 1000,
+    "tune": 100
+  },
+  "schema_version": "1.0.0",
+  "status": "POLICY_BLIND_FREEZE_B_V2_TERMINAL_INDEX_REPAIR_COMPLETED",
+  "stratum_trajectory_counts": {
+    "decisions_10_17": 400,
+    "decisions_18_plus": 400,
+    "decisions_6_9": 400
+  },
+  "trajectory_count": 1200,
+  "unlocked_operations": [],
+  "waiting_for": [
+    "processor_only_candidate_freeze_execution_contract",
+    "processor_only_candidate_freeze",
+    "exact_post_processor_operation_budget",
+    "separate_train_only_policy_throughput_pilot_contract",
+    "phase1_label_execution_contract"
+  ]
+}
