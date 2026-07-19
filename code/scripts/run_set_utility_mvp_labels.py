@@ -19,6 +19,12 @@ from typing import Any
 
 from causalcache import set_utility_processor_artifacts as processor_artifacts
 from causalcache.policy.gui_owl_v2_1 import serialize_gui_owl_v2_1_teacher_target
+from causalcache.set_utility_dense import (
+    build_dense_feature_state,
+    build_dense_messages,
+    build_dense_prompt_plan,
+    derive_dense_states_from_query_pair,
+)
 from causalcache.set_utility_label_inputs import (
     LabelExecutionPartition,
     build_joined_utility_query_input,
@@ -170,8 +176,9 @@ def _messages(
     *,
     input_builder: Any,
     image_decoder: Any,
+    plan_builder: Any = build_mixed_fidelity_prompt_plan,
 ) -> tuple[Any, ...]:
-    plan = build_mixed_fidelity_prompt_plan(joined.query, coalition)
+    plan = plan_builder(joined.query, coalition)
     built = input_builder(joined, plan, image_decoder=image_decoder)
     return built.messages
 
@@ -189,6 +196,8 @@ def _run_state(
     git_revision: str,
     config_sha256: str,
     worker_index: int,
+    plan_builder: Any = build_mixed_fidelity_prompt_plan,
+    feature_builder: Any = None,
 ) -> dict[str, Any]:
     query = joined.query
     candidates = query.candidate_event_step_ids
@@ -197,6 +206,7 @@ def _run_state(
         candidates,
         input_builder=input_builder,
         image_decoder=image_decoder,
+        plan_builder=plan_builder,
     )
     first = runtime.generate_native_action(full_messages).parsed_output.canonical_action
     second = runtime.generate_native_action(full_messages).parsed_output.canonical_action
@@ -235,6 +245,7 @@ def _run_state(
                     coalition,
                     input_builder=input_builder,
                     image_decoder=image_decoder,
+                    plan_builder=plan_builder,
                 )
                 for coalition in batch
             )
@@ -247,10 +258,13 @@ def _run_state(
             teacher_call_count += 1
     del reference_log_probs
 
-    feature = build_feature_state_from_joined(
-        joined,
-        ocr_records_by_path=selected.query.ocr_records_by_path,
-    )
+    if feature_builder is None:
+        feature = build_feature_state_from_joined(
+            joined,
+            ocr_records_by_path=selected.query.ocr_records_by_path,
+        )
+    else:
+        feature = feature_builder(joined)
     return {
         "candidate_event_step_ids": list(candidates),
         "config_sha256": config_sha256,
@@ -412,7 +426,137 @@ def run_worker(args: argparse.Namespace) -> None:
     )
 
 
-def run_all(args: argparse.Namespace) -> None:
+def _backfill_by_trajectory(root: Path) -> dict[str, dict[str, bytes]]:
+    manifest = _read_json(root / "manifest.json")
+    if manifest.get("status") != "COMPLETED_DENSE_IMAGE_BACKFILL":
+        raise ValueError("dense image backfill is incomplete")
+    result: dict[str, dict[str, bytes]] = defaultdict(dict)
+    for record in manifest["files"]:
+        reference = record["reference"]
+        payload = (root / reference).read_bytes()
+        if (
+            len(payload) != record["byte_count"]
+            or hashlib.sha256(payload).hexdigest() != record["sha256"]
+        ):
+            raise ValueError("dense image backfill payload drifted")
+        result[record["source_id"]][reference] = payload
+    return result
+
+
+def run_dense_worker(args: argparse.Namespace) -> None:
+    repository_root = args.repository_root.resolve()
+    processor_root = args.processor_root.resolve()
+    output_root = args.output_root.resolve()
+    config_path = args.config.resolve()
+    config = _read_json(config_path)
+    maximum_reference_repeat_kl, teacher_microbatch_size = validated_teacher_settings(
+        config
+    )
+    config_sha = _sha256_file(config_path)
+    worker_index = args.worker_index
+    artifact_path = (
+        processor_root
+        / "substrate"
+        / f"processor-substrate-worker-{worker_index:02d}.tar"
+    )
+    expected_worker = _load_expected_worker(artifact_path)
+    expected_count = sum(
+        item.observation_count - 5 for item in expected_worker.trajectories
+    )
+    supplemental = _backfill_by_trajectory(args.backfill_root.resolve())
+    runtime, _, runtime_helpers = _runtime_bundle(
+        repository_root, args.model_dir.resolve()
+    )
+    image_decoder, kl_kernel = runtime_helpers
+    git_revision = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repository_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    counts = Counter()
+    observed_count = 0
+    state_root = output_root / "states"
+    started = time.time()
+    iterator = processor_artifacts.iter_processor_query_artifact_records(
+        artifact_path,
+        expected_worker=expected_worker,
+    )
+    while True:
+        try:
+            pair = (next(iterator), next(iterator))
+        except StopIteration:
+            break
+        trajectory_id = pair[0].trajectory_id
+        states = derive_dense_states_from_query_pair(
+            pair,
+            supplemental_image_payloads=supplemental.get(trajectory_id),
+        )
+        trajectory_expected = len(pair[1].history_events) - 4
+        if len(states) != trajectory_expected:
+            raise RuntimeError(
+                f"dense expansion is incomplete for {trajectory_id}: "
+                f"{len(states)} != {trajectory_expected}"
+            )
+        for state in states:
+            observed_count += 1
+            path = state_root / f"{state.query.state_id.replace(':', '_')}.json"
+            if path.exists():
+                existing = _read_json(path)
+                counts[existing["status"]] += 1
+                continue
+            try:
+                result = _run_state(
+                    state,
+                    state,
+                    runtime=runtime,
+                    input_builder=build_dense_messages,
+                    image_decoder=image_decoder,
+                    kl_kernel=kl_kernel,
+                    maximum_reference_repeat_kl=maximum_reference_repeat_kl,
+                    teacher_microbatch_size=teacher_microbatch_size,
+                    git_revision=git_revision,
+                    config_sha256=config_sha,
+                    worker_index=worker_index,
+                    plan_builder=build_dense_prompt_plan,
+                    feature_builder=build_dense_feature_state,
+                )
+            except Exception as error:
+                result = {
+                    "config_sha256": config_sha,
+                    "failure_class": error.__class__.__name__,
+                    "failure_reason": str(error),
+                    "git_revision": git_revision,
+                    "role": state.query.split,
+                    "schema_version": SCHEMA_VERSION,
+                    "state_id": state.query.state_id,
+                    "status": SKIPPED_STATE_STATUS,
+                    "trajectory_id": state.query.trajectory_id,
+                    "worker_index": worker_index,
+                }
+            _write_json(path, result)
+            counts[result["status"]] += 1
+    if observed_count != expected_count:
+        raise RuntimeError(
+            f"dense worker state count drifted: {observed_count} != {expected_count}"
+        )
+    _write_json(
+        output_root / f"worker-{worker_index:02d}.json",
+        {
+            "config_sha256": config_sha,
+            "counts": dict(counts),
+            "elapsed_seconds": time.time() - started,
+            "git_revision": git_revision,
+            "runtime_metadata": dict(runtime.metadata),
+            "selected_state_count": observed_count,
+            "status": "COMPLETED_SET_UTILITY_DENSE_WORKER",
+            "worker_index": worker_index,
+        },
+    )
+
+
+def run_all(args: argparse.Namespace, *, worker_command: str = "worker") -> None:
     output_root = args.output_root.resolve()
     output_root.mkdir(parents=True, exist_ok=True)
     processes = []
@@ -424,7 +568,7 @@ def run_all(args: argparse.Namespace) -> None:
         command = [
             sys.executable,
             str(Path(__file__).resolve()),
-            "worker",
+            worker_command,
             "--repository-root",
             str(args.repository_root),
             "--processor-root",
@@ -438,6 +582,8 @@ def run_all(args: argparse.Namespace) -> None:
             "--worker-index",
             str(worker_index),
         ]
+        if worker_command == "dense-worker":
+            command.extend(["--backfill-root", str(args.backfill_root)])
         environment = dict(os.environ)
         environment["CUDA_VISIBLE_DEVICES"] = str(worker_index)
         processes.append(
@@ -462,18 +608,24 @@ def run_all(args: argparse.Namespace) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
-    for command in ("worker", "all"):
+    for command in ("worker", "all", "dense-worker", "dense-all"):
         child = subparsers.add_parser(command)
         child.add_argument("--repository-root", type=Path, required=True)
         child.add_argument("--processor-root", type=Path, required=True)
         child.add_argument("--model-dir", type=Path, required=True)
         child.add_argument("--output-root", type=Path, required=True)
         child.add_argument("--config", type=Path, required=True)
-        if command == "worker":
+        if command in {"worker", "dense-worker"}:
             child.add_argument("--worker-index", type=int, choices=range(4), required=True)
+        if command in {"dense-worker", "dense-all"}:
+            child.add_argument("--backfill-root", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "worker":
         run_worker(args)
+    elif args.command == "dense-worker":
+        run_dense_worker(args)
+    elif args.command == "dense-all":
+        run_all(args, worker_command="dense-worker")
     else:
         run_all(args)
 

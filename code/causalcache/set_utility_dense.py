@@ -142,6 +142,8 @@ def dense_legacy_coverage(*, decision_count: int) -> tuple[int, int, tuple[int, 
 
 def derive_dense_states_from_query_pair(
     queries: Sequence[ProcessorQueryArtifactRecord],
+    *,
+    supplemental_image_payloads: Mapping[str, bytes] | None = None,
 ) -> tuple[DenseUtilityStateInput, ...]:
     """Expand one legacy anchor+terminal pair into every image-covered step."""
     if len(queries) != 2 or any(
@@ -162,6 +164,12 @@ def derive_dense_states_from_query_pair(
             previous = available_images.setdefault(reference, payload)
             if previous != payload:
                 raise ValueError("duplicate dense image reference has different bytes")
+    for reference, payload in (supplemental_image_payloads or {}).items():
+        if not isinstance(reference, str) or not isinstance(payload, bytes) or not payload:
+            raise ValueError("supplemental dense image payload is invalid")
+        previous = available_images.setdefault(reference, payload)
+        if previous != payload:
+            raise ValueError("supplemental dense image differs from retained bytes")
 
     master_history = terminal.history_events
     master_ocr = terminal.ocr_records_by_path
