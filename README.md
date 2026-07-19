@@ -84,6 +84,15 @@
 > [`data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/`](data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/)，协议见
 > [`docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md`](docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)。
 >
+> D1 action-stability diagnostic 的 versioned source core 已实现，但尚未冻结 formal source/envelope，因此当前
+> 不授权 GPU run。D1 固定 4 个 parent mismatch states 加 2 个同 stratum stable controls，比较
+> `auto_fresh_encode`、`auto_frozen_encoded`、`eager_frozen_encoded_control`，各做两次 generation；总 ceiling
+> 为 36 generation / 24 encode，teacher/KL/utility/labels/training 全为 0。输出只允许 sequence/decoded/action
+> equality、prepared-input unchanged、counts 与 class-only failure，不保存 action、text、coordinate、token、
+> output 或 logits。现有 eager profile 不是 strict CUDA determinism，文档和代码均未作该声称。3 个 CPU test
+> worker 并行得到 `13 passed`。下一步冻结 formal source/runner 后再生成独立 execution envelope；详见
+> [`docs/set_utility_action_stability_diagnostic_v1.md`](docs/set_utility_action_stability_diagnostic_v1.md)。
+>
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
 > `parallel_v1` 只把四个 worker tar 的 v2 semantic overlay 用 ordered 4-thread map 并行，主线程仍按 0→3
 > 聚合并额外拒绝跨 worker overlap。source contract/config SHA256=

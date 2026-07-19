@@ -12,6 +12,23 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：D1 action-stability diagnostic source core
+
+- 不修改 v2 44-file inventory 中的 frozen runtime/adapter/core，新增 prepared-input runtime、metric-safe adapter
+  与 pure diagnostic reducer；parent aggregate 仍为 `35e0c250...ff33f`，v2 `NO_GO` 不改写；
+- roster 固定为 4 个 mismatch states + 2 个同 stratum stable controls；三个 condition 为
+  `auto_fresh_encode`、`auto_frozen_encoded`、`eager_frozen_encoded_control`，每个 condition 两次 generation，
+  ceiling=`36` generation / `24` encode，teacher/KL/utility/labels/training/HF mutation 全为 0；
+- frozen-input handle 只在进程内保留 processor tensor mapping 与 clone snapshot，before/between/after 检查
+  keys/shape/dtype/device/`torch.equal`；serialized witness 只含三层 equality、input unchanged、counts 和安全
+  error class，禁止 action/text/coordinate/token/output/logit；
+- eager condition 复用已验证 numerical-control runtime，但该 runtime 明确不是 strict CUDA determinism；如它仍
+  不稳，后续 D2 才能在新进程中引入 strict deterministic algorithms/CUBLAS workspace；
+- 3 个 focused test files 以 3 个本机 CPU worker 并行执行，共 `13 passed`，`py_compile` 通过。当前仍不是
+  formal source freeze，不授权 GPU；下一步补齐 source contract/runner/inventory 后依次 push A、机械冻结 B，再在
+  Hyper00 四张同构 H200 上执行。详见
+  [`set_utility_action_stability_diagnostic_v1.md`](set_utility_action_stability_diagnostic_v1.md)。
+
 ### 2026-07-18（UTC 07-19）：throughput pilot v2 valid execution、selection NO-GO
 
 - source A=`d5e0cca5c5e05d4aeeef74a1bbfae5685a4254c9` 与 direct-child execution-envelope B=
