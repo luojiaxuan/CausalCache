@@ -320,7 +320,24 @@ def test_parent_envelope_is_loaded_with_freshness_disabled_only_for_artifact_bin
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    parent_payload = b'{"old":"artifact-binding-only"}\n'
+    parent_repository = tmp_path / "parent-repository"
+    parent_repository.mkdir()
+    parent_worker = parent_repository / execution.PARENT_WORKER_ENTRYPOINT
+    parent_aggregate = parent_repository / execution.PARENT_AGGREGATE_ENTRYPOINT
+    parent_payload = execution.canonical_pretty_json_bytes(
+        {
+            "execution": {
+                "aggregate": {"argv": ["/python", str(parent_aggregate)]},
+                "worker_mapping": [
+                    {
+                        "argv": ["/python", str(parent_worker)],
+                        "worker_index": worker_index,
+                    }
+                    for worker_index in range(4)
+                ],
+            }
+        }
+    )
     parent_sha = execution.sha256_bytes(parent_payload)
     monkeypatch.setattr(execution, "PARENT_EXECUTION_ENVELOPE_SHA256", parent_sha)
     launch = _launch(tmp_path, profile=PROFILE_AUTO)
@@ -363,7 +380,7 @@ def test_parent_envelope_is_loaded_with_freshness_disabled_only_for_artifact_bin
     assert observed_validated is validated
     assert calls["envelope_path"] == launch.parent_envelope_path
     assert calls["envelope_kwargs"] == {
-        "repository_root": launch.repository_root,
+        "repository_root": parent_repository,
         "verify_repository": False,
         "verify_local_artifacts": "stat",
         "require_fresh_preflight": False,

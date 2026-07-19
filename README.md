@@ -85,8 +85,10 @@
 > [`docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md`](docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)。
 >
 > D1 action-stability diagnostic 的 formal source A 已冻结：config SHA256=
-> `e7e02bb2134cddc8075d36147cfe010180867f839a0a0c43eca4505ccf4a7f43`，51-file source inventory
-> SHA256=`717eb8921f0a94e0dc75008369badd3ba4018834d2a534dd692720c06f75474d`。独立 execution envelope B
+> `e72b0ba226048b6a188ec5ee35e9a0d5bffa04fcc8ee48f1af2b409151fad2c6`，51-file source inventory
+> SHA256=`3313f90e43b3f3dec44e1fba8502d796847f5bfba55bc8c05308e19f222cded0`。初始 source
+> `e3bb7bc` 的真实 pre-policy smoke 因错误地用 D1 checkout 复验 parent 的绝对 argv 而 fail closed；本 repair
+> 改为先在 parent envelope 自身绑定的旧 checkout 验证 parent，再显式 rebind 当前 source。独立 execution envelope B
 > 尚未物化，因此 A 本身仍不授权 GPU run。D1 固定 4 个 parent mismatch states 加 2 个同 stratum controls，比较
 > `auto_fresh_encode`、`auto_frozen_encoded`、`eager_frozen_encoded_control`，各做两次 generation；总 ceiling
 > 为 36 generation / 24 encode，teacher/KL/utility/labels/training 全为 0。输出只允许 sequence/decoded/action

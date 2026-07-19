@@ -3,8 +3,12 @@
 ## 当前状态
 
 D1 的 formal source contract 已冻结，canonical config SHA256=
-`e7e02bb2134cddc8075d36147cfe010180867f839a0a0c43eca4505ccf4a7f43`，51-file source inventory
-SHA256=`717eb8921f0a94e0dc75008369badd3ba4018834d2a534dd692720c06f75474d`。本状态仍是 source A：
+`e72b0ba226048b6a188ec5ee35e9a0d5bffa04fcc8ee48f1af2b409151fad2c6`，51-file source inventory
+SHA256=`3313f90e43b3f3dec44e1fba8502d796847f5bfba55bc8c05308e19f222cded0`。初始 source
+`e3bb7bc` 的真实 pre-policy smoke 在 model/GPU/preflight 前 fail closed：旧 parent envelope 的 worker argv
+绑定旧 absolute checkout，而初版 consumer 错误地用 D1 checkout 重建 parent argv。当前 repair 从 parent
+envelope 的 4 个 worker argv 与 aggregate argv 共同推导并验证唯一 parent checkout，再只把验证后的 artifact
+projection rebind 到 D1 source。本状态仍是 source A：
 独立 execution envelope B 尚未物化，因此当前 source commit 本身不授权 GPU run。D1 只定位 throughput pilot
 v2 的 reference-action instability，不修改 v2 结果，也不直接解锁 restoration labels、predictor training、
 matched-NLL 或 closed-loop。

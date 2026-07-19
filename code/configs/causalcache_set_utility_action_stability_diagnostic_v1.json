@@ -404,9 +404,9 @@
         "sha256": "2e1c283c7b42cede8f633ba9467456b37a3c6b86f39dadcce9103e3fdcf564ee"
       },
       {
-        "byte_count": 36694,
+        "byte_count": 39302,
         "path": "code/causalcache/set_utility_action_stability_execution_v1.py",
-        "sha256": "0cd2176c0148a57b20c4ad42b3ca9ddc2659757c42dc9e3162eaa56d9ec0c99b"
+        "sha256": "c137b440e70fc6a78f8962e39a90dc86075e3403de54fae14144296957342be9"
       },
       {
         "byte_count": 21659,
@@ -534,7 +534,7 @@
         "sha256": "967281d39c59a590d12b2b5bcdf255760a636ce35cc908f1a96fceaad87d2ef3"
       }
     ],
-    "inventory_sha256": "717eb8921f0a94e0dc75008369badd3ba4018834d2a534dd692720c06f75474d",
+    "inventory_sha256": "3313f90e43b3f3dec44e1fba8502d796847f5bfba55bc8c05308e19f222cded0",
     "reserved_entrypoint_paths": [
       "code/causalcache/set_utility_action_stability_contract_v1.py",
       "code/scripts/validate_set_utility_action_stability_contract_v1.py",

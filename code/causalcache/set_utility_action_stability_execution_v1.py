@@ -63,6 +63,12 @@ PROFILE_AUTO = "auto"
 PROFILE_EAGER = "eager"
 PROFILE_ORDER = (PROFILE_AUTO, PROFILE_EAGER)
 WORKER_COUNT = 4
+PARENT_WORKER_ENTRYPOINT = (
+    "code/scripts/run_set_utility_throughput_pilot_worker_v1.py"
+)
+PARENT_AGGREGATE_ENTRYPOINT = (
+    "code/scripts/aggregate_set_utility_throughput_pilot_v1.py"
+)
 
 _SHA256 = re.compile(r"[0-9a-f]{64}")
 _GPU_UUID = re.compile(r"GPU-[0-9a-fA-F-]{16,}")
@@ -337,6 +343,63 @@ def _default_parent_envelope_loader(
     return load_set_utility_throughput_pilot_execution_envelope_v1(path, **kwargs)
 
 
+def _parent_repository_root_v1(parent_envelope_path: Path) -> Path:
+    payload = _strict_regular_file_payload(
+        parent_envelope_path,
+        label="D1 parent execution envelope",
+    )
+    parent = _strict_json_object_bytes(payload, label="D1 parent execution envelope")
+    if payload != canonical_pretty_json_bytes(parent):
+        raise ValueError("D1 parent execution envelope is not canonical pretty JSON")
+    parent_execution = _mapping(parent.get("execution"), label="D1 parent execution")
+    workers = _sequence(
+        parent_execution.get("worker_mapping"),
+        label="D1 parent worker mapping",
+    )
+    aggregate = _mapping(
+        parent_execution.get("aggregate"),
+        label="D1 parent aggregate",
+    )
+    if len(workers) != WORKER_COUNT:
+        raise ValueError("D1 parent worker mapping count drifted")
+    worker_script: Path | None = None
+    for worker_index, raw in enumerate(workers):
+        worker = _mapping(raw, label="D1 parent worker")
+        argv = _sequence(worker.get("argv"), label="D1 parent worker argv")
+        if (
+            len(argv) < 2
+            or worker.get("worker_index") != worker_index
+            or not isinstance(argv[1], str)
+        ):
+            raise ValueError("D1 parent worker argv identity drifted")
+        observed = _absolute_path(argv[1], label="D1 parent worker script")
+        if worker_script is None:
+            worker_script = observed
+        elif observed != worker_script:
+            raise ValueError("D1 parent workers do not share one source checkout")
+    aggregate_argv = _sequence(
+        aggregate.get("argv"),
+        label="D1 parent aggregate argv",
+    )
+    if worker_script is None or len(aggregate_argv) < 2 or not isinstance(
+        aggregate_argv[1], str
+    ):
+        raise ValueError("D1 parent source checkout could not be derived")
+    parent_root = worker_script.parents[2]
+    if (
+        worker_script != parent_root / PARENT_WORKER_ENTRYPOINT
+        or _absolute_path(
+            aggregate_argv[1],
+            label="D1 parent aggregate script",
+        )
+        != parent_root / PARENT_AGGREGATE_ENTRYPOINT
+        or parent_root.is_symlink()
+        or not parent_root.is_dir()
+    ):
+        raise ValueError("D1 parent source checkout binding drifted")
+    return parent_root
+
+
 def launch_from_fresh_projection_v1(
     projection: Mapping[str, Any],
     *,
@@ -448,9 +511,12 @@ def load_parent_artifact_binding_v1(
         repository_root=launch.repository_root,
         config_path=PARENT_SOURCE_CONFIG_PATH,
     )
+    parent_repository_root = _parent_repository_root_v1(
+        launch.parent_envelope_path
+    )
     parent_projection = parent_envelope_loader(
         launch.parent_envelope_path,
-        repository_root=launch.repository_root,
+        repository_root=parent_repository_root,
         verify_repository=False,
         verify_local_artifacts="stat",
         require_fresh_preflight=False,
