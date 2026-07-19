@@ -217,6 +217,13 @@ annotated tag identity 后续跑；未知或漂移 state fail closed。receipt �
 Git result；它内嵌 validated receipt 并绑定 committed pending summary/card、receipt mode/SHA、immutable revision
 与 annotated tag。原 pending result、外置 `0600` receipt 和两份 fresh replay 保持原字节，可继续独立
 `validate-only`；finalizer 的 HF mutation count 固定为 0。
+`causalcache/set_utility_processor_postflight_parallel_v1.py` 与
+`set_utility_processor_postflight_parallel_contract_v1.py` 是下一版 CPU postflight 的独立 source path；它们不改
+byte-pinned historical v2。新 validator 复用相同 worker iterator、image/OCR semantic validators 与 structural
+postflight，只把 4 个 worker tar 的 v2 semantic overlay 交给 `ThreadPoolExecutor(4)`，随后按 worker 0→3
+确定性聚合，并拒绝跨 worker path overlap 或 stored⊄terminal。CLI 为
+`scripts/validate_set_utility_processor_freeze_v2_output_parallel_v1.py`；本版本 source contract 仍只授权只读
+验证，不替代历史 formal status。
 长任务完成后的 Git-safe 记录由
 `scripts/watch_set_utility_processor_freeze_v2_result.py` 接力：它只接受 canonical supervisor、formal/postflight
 双零和两个精确 `0\n` exit files，随后从 clean recorder checkout 调用正式 recorder；timeout、symlink、已有

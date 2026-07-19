@@ -12,6 +12,22 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：versioned 4-worker processor postflight source path
+
+- 当前 formal 尾部串行瓶颈已定位：historical v1 structural audit 已按 4 worker 并行，但 v2 semantic overlay
+  仍顺序重读四个 tar，并逐 image 做 decode/SHA/OCR canonical reconstruction；
+- 历史 `set_utility_processor_postflight_v2.py` 保持 37,150 bytes / SHA256=
+  `de6eb1a18ea896890efc8361e287733300c1e704887582c5f82342e69382f7cc`，旧 execution config/hash 与当前 formal
+  均未修改。新增 parallel module、fail-closed source contract/config 与独立 CLI；
+- 新 path 对四个 worker tar 使用 `ThreadPoolExecutor(4)` + ordered `map`，worker 内仍调用完全相同的 iterator、
+  image/OCR validators；主线程按 worker 0→3 聚合 tally/coverage，并额外拒绝跨 worker path overlap 与
+  stored-image coverage 逃出 terminal inventory；
+- config SHA256=`6f9b329dacc1706dc37ec62e3fcc0e59318699fa4d52317045cb9d7e9d04f0e4`；本机 processor/result/
+  publication focused regression=`84 passed`。fixture 验证 concurrent=4、逆序完成确定性、最低 index failure、
+  exact tar binding、serial/parallel semantic equivalence与全树只读；
+- 本步只形成下一版只读 validator source path，不替代当前 canonical postflight，不修改 formal root，不执行
+  policy/GPU/label/HF mutation。真实 completed-root timing/equivalence 必须另从 clean pushed revision运行。
+
 ### 2026-07-18（UTC 07-19）：versioned GUI-Owl throughput measurement seam
 
 - 只读 adapter 审计确认：现有 v2.1 generation/teacher 都在 encode/H2D/preparation 之后才 reset CUDA peak；

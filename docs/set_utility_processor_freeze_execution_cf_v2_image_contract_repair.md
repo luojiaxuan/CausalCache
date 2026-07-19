@@ -198,6 +198,26 @@ Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执�
 - Git-safe 记录：`data/results/set_utility_processor_execution_scaling_v2/`。GPU、model/policy forward、label、
   training、matched-NLL、closed-loop 与 HF mutation 均为 0。
 
+## 后续 versioned parallel postflight（不改变本次 formal）
+
+当前 canonical postflight 的 v1 structural tar audit 已有 4-thread 并行，但 v2 semantic overlay 仍串行重读四个
+tar，逐 image 执行 decode、SHA 与 OCR canonical reconstruction。为避免修改本次 config byte-pin，新增独立：
+
+- `code/causalcache/set_utility_processor_postflight_parallel_v1.py`；
+- `code/causalcache/set_utility_processor_postflight_parallel_contract_v1.py`；
+- `code/configs/causalcache_set_utility_processor_postflight_parallel_v1.json`；
+- `code/scripts/validate_set_utility_processor_freeze_v2_output_parallel_v1.py`。
+
+新路径保持 historical postflight SHA256=
+`de6eb1a18ea896890efc8361e287733300c1e704887582c5f82342e69382f7cc` 与 execution config SHA256=
+`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70` 不变。四个 worker 各自只读自己的 tar；
+`executor.map` 保证按 0→3 观察结果/异常，所有 global tally、coverage 与 overlap 检查仍由主线程确定性聚合。
+source contract config SHA256=
+`6f9b329dacc1706dc37ec62e3fcc0e59318699fa4d52317045cb9d7e9d04f0e4`。fixture 已验证 concurrent=4、逆序完成
+仍确定、最低 worker-index failure、exact tar binding、cross-worker overlap、stored⊄terminal、serial/parallel
+semantic equivalence 与全树只读。本次 `e976b99` formal 继续只认原 committed postflight；新路径必须另行从 clean
+pushed revision 对 completed root 做只读 timing/equivalence，结果未产生前不声称加速倍数。
+
 ## 正式执行模板
 
 source-freeze commit/push 后，必须从对应 clean detached checkout 启动。`<COMMIT>`、`<GIT7>` 与 container

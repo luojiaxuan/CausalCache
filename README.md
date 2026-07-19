@@ -51,6 +51,12 @@
 > 均未修改。以上仍只是下一阶段 source core；正式 pilot config、真实 adapter/policy forward 与 label execution
 > 尚未解锁。
 >
+> 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
+> `parallel_v1` 只把四个 worker tar 的 v2 semantic overlay 用 ordered 4-thread map 并行，主线程仍按 0→3
+> 聚合并额外拒绝跨 worker overlap。source contract/config SHA256=
+> `6f9b329dacc1706dc37ec62e3fcc0e59318699fa4d52317045cb9d7e9d04f0e4`；当前仅完成 fixture/source 验证，
+> 尚未替代正在运行的 canonical postflight，也没有把它的状态追认为 formal evidence。
+>
 > 数据防火墙已机械物化 107 个历史 identity：58 条 `legacy_train_only` + 49 条
 > `forbidden_consumed`，ledger SHA256=
 > `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。P-1 metadata-only

@@ -5,13 +5,17 @@ import importlib.util
 import json
 import shutil
 import sys
+import threading
 from collections import Counter
 from dataclasses import replace
 from pathlib import Path
-from types import ModuleType
+from types import ModuleType, SimpleNamespace
 
 import pytest
 from PIL import Image
+
+import causalcache.set_utility_processor_postflight_parallel_v1 as parallel_v1
+import causalcache.set_utility_processor_postflight_v2 as postflight_v2
 
 from causalcache.restoration_v2_text_backend import (
     build_ocr_record,
@@ -36,6 +40,13 @@ from causalcache.set_utility_processor_postflight_v2 import (
     _validate_record_without_image,
     validate_completed_processor_freeze_root_v2,
     validate_processor_only_source_v2,
+)
+from causalcache.set_utility_processor_postflight_parallel_v1 import (
+    PROTOCOL_ID as PARALLEL_PROTOCOL_ID,
+    VALIDATION_STATUS as PARALLEL_VALIDATION_STATUS,
+    V2ParallelWorkerSemanticAudit,
+    validate_completed_processor_freeze_root_parallel_v1,
+    validate_v2_artifact_semantics_parallel,
 )
 
 
@@ -78,6 +89,338 @@ def _png(mode: str) -> bytes:
     output = io.BytesIO()
     image.save(output, format="PNG")
     return output.getvalue()
+
+
+def _semantic_test_context() -> SimpleNamespace:
+    schedule = _load_v1_postflight_fixture()._worker_schedule()
+    return SimpleNamespace(
+        structural_context=SimpleNamespace(worker_schedule=schedule),
+        backend_config={},
+        backend_config_sha256=BACKEND_SHA,
+    )
+
+
+def _worker_semantic_audit(
+    worker_index: int,
+    *,
+    fully_validated_paths: tuple[tuple[str, str], ...] | None = None,
+    terminal_paths: tuple[tuple[str, str], ...] | None = None,
+    terminal_tally: tuple[tuple[str, int], ...] = (("PNG:RGBA", 1),),
+) -> V2ParallelWorkerSemanticAudit:
+    identity = (f"trajectory-{worker_index}", "images/observation.png")
+    return V2ParallelWorkerSemanticAudit(
+        worker_index=worker_index,
+        terminal_tally=terminal_tally,
+        fully_validated_paths=(
+            (identity,)
+            if fully_validated_paths is None
+            else fully_validated_paths
+        ),
+        terminal_paths=(identity,) if terminal_paths is None else terminal_paths,
+    )
+
+
+def _patch_four_rgba_expected_tally(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        postflight_v2,
+        "PROCESSOR_IMAGE_CONTRACT_V2_EXPECTED_FORMAT_MODE_COUNTS",
+        {"PNG:RGBA": 4},
+    )
+    monkeypatch.setattr(
+        postflight_v2,
+        "PROCESSOR_IMAGE_CONTRACT_V2_EXPECTED_TOTAL",
+        4,
+    )
+
+
+def _tree_snapshot(root: Path) -> tuple[tuple[str, str, int, str], ...]:
+    records = []
+    for path in sorted(root.rglob("*")):
+        relative = path.relative_to(root).as_posix()
+        if path.is_dir():
+            records.append(("directory", relative, 0, ""))
+        else:
+            payload = path.read_bytes()
+            records.append(("file", relative, len(payload), sha256_bytes(payload)))
+    return tuple(records)
+
+
+def _serial_v2_semantics_reference(
+    root: Path,
+    context: ProcessorFreezePostflightContextV2,
+) -> tuple[dict[str, int], int, int]:
+    terminal_tallies = []
+    fully_validated_paths: set[tuple[str, str]] = set()
+    terminal_paths: set[tuple[str, str]] = set()
+    for worker in context.structural_context.worker_schedule.workers:
+        worker_tally: Counter[str] = Counter()
+        shard = root / "substrate" / worker.filename
+        for query in postflight_v2.iter_processor_query_artifact_records(
+            shard,
+            expected_worker=worker,
+        ):
+            for path, payload in query.image_payloads.items():
+                identity = (query.trajectory_id, path)
+                if identity in fully_validated_paths:
+                    continue
+                record = query.ocr_records_by_path[path]
+                postflight_v2.validate_processor_ocr_record_v2(
+                    record,
+                    image_bytes=payload,
+                    backend_config=context.backend_config,
+                    backend_config_sha256=context.backend_config_sha256,
+                )
+                fully_validated_paths.add(identity)
+            if query.query_kind != "terminal":
+                continue
+            for path, record in query.ocr_records_by_path.items():
+                terminal_paths.add((query.trajectory_id, path))
+                source_format, source_mode = _validate_record_without_image(
+                    record,
+                    expected_path=path,
+                    backend_config_sha256=context.backend_config_sha256,
+                )
+                worker_tally[f"{source_format}:{source_mode}"] += 1
+        terminal_tallies.append(dict(sorted(worker_tally.items())))
+    if not fully_validated_paths.issubset(terminal_paths):
+        raise ValueError("serial reference coverage drifted")
+    return (
+        _validate_global_format_tally(terminal_tallies),
+        len(fully_validated_paths),
+        len(terminal_paths - fully_validated_paths),
+    )
+
+
+def test_v2_semantic_overlay_runs_all_four_worker_tars_concurrently(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    context = _semantic_test_context()
+    barrier = threading.Barrier(4, timeout=5.0)
+    lock = threading.Lock()
+    thread_ids: set[int] = set()
+    calls: list[int] = []
+
+    def inspect(
+        root: Path,
+        observed_context: object,
+        worker: object,
+    ) -> V2ParallelWorkerSemanticAudit:
+        assert root == tmp_path
+        assert observed_context is context
+        with lock:
+            thread_ids.add(threading.get_ident())
+            calls.append(worker.worker_index)
+        barrier.wait()
+        return _worker_semantic_audit(worker.worker_index)
+
+    monkeypatch.setattr(
+        parallel_v1,
+        "validate_v2_parallel_worker_artifact_semantics",
+        inspect,
+    )
+    _patch_four_rgba_expected_tally(monkeypatch)
+
+    result = validate_v2_artifact_semantics_parallel(tmp_path, context)
+
+    assert result == ({"PNG:RGBA": 4}, 4, 0)
+    assert sorted(calls) == [0, 1, 2, 3]
+    assert len(thread_ids) == 4
+
+
+def test_v2_semantic_overlay_aggregates_in_worker_order_after_reverse_completion(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    context = _semantic_test_context()
+    releases = tuple(threading.Event() for _ in range(4))
+    lock = threading.Lock()
+    completion_order: list[int] = []
+    observed_tallies: list[list[tuple[str, int]]] = []
+
+    def inspect(
+        root: Path,
+        observed_context: object,
+        worker: object,
+    ) -> V2ParallelWorkerSemanticAudit:
+        del root, observed_context
+        worker_index = worker.worker_index
+        if worker_index < 3:
+            assert releases[worker_index + 1].wait(timeout=5.0)
+        with lock:
+            completion_order.append(worker_index)
+        releases[worker_index].set()
+        return _worker_semantic_audit(
+            worker_index,
+            terminal_tally=((f"worker-{worker_index}", worker_index + 1),),
+        )
+
+    def aggregate(tallies: object) -> dict[str, int]:
+        observed_tallies.append(
+            [tuple(tally.items())[0] for tally in tallies]
+        )
+        return {"ordered-worker-count": 4}
+
+    monkeypatch.setattr(
+        parallel_v1,
+        "validate_v2_parallel_worker_artifact_semantics",
+        inspect,
+    )
+    monkeypatch.setattr(postflight_v2, "_validate_global_format_tally", aggregate)
+
+    result = validate_v2_artifact_semantics_parallel(tmp_path, context)
+
+    assert completion_order == [3, 2, 1, 0]
+    assert observed_tallies == [
+        [
+            ("worker-0", 1),
+            ("worker-1", 2),
+            ("worker-2", 3),
+            ("worker-3", 4),
+        ]
+    ]
+    assert result == ({"ordered-worker-count": 4}, 4, 0)
+
+
+def test_v2_semantic_overlay_reports_lowest_worker_index_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    context = _semantic_test_context()
+    barrier = threading.Barrier(4, timeout=5.0)
+
+    def inspect(
+        root: Path,
+        observed_context: object,
+        worker: object,
+    ) -> V2ParallelWorkerSemanticAudit:
+        del root, observed_context
+        barrier.wait()
+        if worker.worker_index in {1, 3}:
+            raise RuntimeError(f"worker-{worker.worker_index}-failure")
+        return _worker_semantic_audit(worker.worker_index)
+
+    monkeypatch.setattr(
+        parallel_v1,
+        "validate_v2_parallel_worker_artifact_semantics",
+        inspect,
+    )
+
+    with pytest.raises(RuntimeError, match="worker-1-failure"):
+        validate_v2_artifact_semantics_parallel(tmp_path, context)
+
+
+def test_v2_semantic_worker_reads_only_its_exact_bound_tar(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    context = _semantic_test_context()
+    lock = threading.Lock()
+    calls: list[tuple[str, int]] = []
+
+    def records(path: Path, *, expected_worker: object):
+        worker_index = expected_worker.worker_index
+        with lock:
+            calls.append((path.name, worker_index))
+        image_path = f"images/worker-{worker_index}.png"
+        return iter(
+            (
+                SimpleNamespace(
+                    image_payloads={image_path: b"image"},
+                    ocr_records_by_path={image_path: {"worker": worker_index}},
+                    query_kind="terminal",
+                    trajectory_id=f"trajectory-{worker_index}",
+                ),
+            )
+        )
+
+    monkeypatch.setattr(
+        parallel_v1,
+        "iter_processor_query_artifact_records",
+        records,
+    )
+    monkeypatch.setattr(
+        parallel_v1,
+        "validate_processor_ocr_record_v2",
+        lambda *args, **kwargs: None,
+    )
+    monkeypatch.setattr(
+        postflight_v2,
+        "_validate_record_without_image",
+        lambda *args, **kwargs: ("PNG", "RGBA"),
+    )
+    _patch_four_rgba_expected_tally(monkeypatch)
+
+    result = validate_v2_artifact_semantics_parallel(tmp_path, context)
+
+    expected = sorted(
+        (worker.filename, worker.worker_index)
+        for worker in context.structural_context.worker_schedule.workers
+    )
+    assert sorted(calls) == expected
+    assert len(calls) == 4
+    assert result == ({"PNG:RGBA": 4}, 4, 0)
+
+
+def test_v2_semantic_overlay_rejects_cross_worker_path_overlap(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    context = _semantic_test_context()
+    shared = (("shared-trajectory", "images/shared.png"),)
+
+    def inspect(
+        root: Path,
+        observed_context: object,
+        worker: object,
+    ) -> V2ParallelWorkerSemanticAudit:
+        del root, observed_context
+        if worker.worker_index in {0, 1}:
+            return _worker_semantic_audit(
+                worker.worker_index,
+                fully_validated_paths=shared,
+                terminal_paths=shared,
+            )
+        return _worker_semantic_audit(worker.worker_index)
+
+    monkeypatch.setattr(
+        parallel_v1,
+        "validate_v2_parallel_worker_artifact_semantics",
+        inspect,
+    )
+
+    with pytest.raises(ValueError, match="overlap across workers"):
+        validate_v2_artifact_semantics_parallel(tmp_path, context)
+
+
+def test_v2_semantic_overlay_rejects_worker_full_paths_outside_terminal(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    context = _semantic_test_context()
+
+    def inspect(
+        root: Path,
+        observed_context: object,
+        worker: object,
+    ) -> V2ParallelWorkerSemanticAudit:
+        del root, observed_context
+        if worker.worker_index == 0:
+            return _worker_semantic_audit(
+                worker.worker_index,
+                fully_validated_paths=(("trajectory-0", "images/stored.png"),),
+                terminal_paths=(("trajectory-0", "images/terminal.png"),),
+            )
+        return _worker_semantic_audit(worker.worker_index)
+
+    monkeypatch.setattr(
+        parallel_v1,
+        "validate_v2_parallel_worker_artifact_semantics",
+        inspect,
+    )
+
+    with pytest.raises(ValueError, match="escaped terminal OCR coverage"):
+        validate_v2_artifact_semantics_parallel(tmp_path, context)
 
 
 def test_v2_source_audit_recursively_binds_both_runners() -> None:
@@ -541,8 +884,6 @@ def test_v2_postflight_wraps_v1_structure_and_rebuilds_mixed_mode_semantics(
     expected_tally: Counter[str] = Counter()
     for tally in worker_tallies:
         expected_tally.update(tally)
-    import causalcache.set_utility_processor_postflight_v2 as postflight_v2
-
     monkeypatch.setattr(
         postflight_v2,
         "PROCESSOR_IMAGE_CONTRACT_V2_EXPECTED_FORMAT_MODE_COUNTS",
@@ -559,9 +900,16 @@ def test_v2_postflight_wraps_v1_structure_and_rebuilds_mixed_mode_semantics(
         backend_config_sha256="7" * 64,
         image_contract_sha256=image_contract_sha,
     )
+    serial_semantics = _serial_v2_semantics_reference(root, context)
+    tree_before = _tree_snapshot(root)
 
     result = validate_completed_processor_freeze_root_v2(root, context=context)
+    parallel_result = validate_completed_processor_freeze_root_parallel_v1(
+        root,
+        context=context,
+    )
 
+    assert _tree_snapshot(root) == tree_before
     assert result["status"] == VALIDATION_STATUS
     assert result["processor_image_contract_id"].endswith(
         "png_rgb_allowlist_repair"
@@ -573,6 +921,21 @@ def test_v2_postflight_wraps_v1_structure_and_rebuilds_mixed_mode_semantics(
     ] == 1
     assert result["stored_image_ocr_validation_count"] > 0
     assert result["metadata_only_ocr_validation_count"] == 4
+    assert (
+        result["global_format_mode_tally"],
+        result["stored_image_ocr_validation_count"],
+        result["metadata_only_ocr_validation_count"],
+    ) == serial_semantics
+    assert parallel_result["status"] == PARALLEL_VALIDATION_STATUS
+    assert parallel_result["protocol_id"] == PARALLEL_PROTOCOL_ID
+    assert parallel_result["status"] != result["status"]
+    assert (
+        parallel_result["global_format_mode_tally"],
+        parallel_result["stored_image_ocr_validation_count"],
+        parallel_result["metadata_only_ocr_validation_count"],
+    ) == serial_semantics
+    assert parallel_result["parallel_semantic_worker_count"] == 4
+    assert parallel_result["parallel_semantic_aggregation_order"] == [0, 1, 2, 3]
 
     arbitrary = root.with_name(
         "causalcache-set-utility-processor-freeze-v2-image-contract-repair-formal"
