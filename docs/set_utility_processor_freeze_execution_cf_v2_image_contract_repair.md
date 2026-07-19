@@ -6,8 +6,11 @@ replacement source freeze 已完成；clean formal run 已于 `2026-07-19T07:10:
 `main@e976b990ddb089cdea3b04ea15e5c911d5670d40` 在 Hyper00 启动。producer 于 `08:03:11Z` atomic publish，
 canonical committed postflight 于 `08:45:41Z` 双零闭合为
 `VALID_COMPLETED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`；fresh recorder 又于 `09:29:16Z` 闭合为
-`VALID_RECORDED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`。当前严格状态为 `PENDING_HF_UPLOAD`；
-尚未把本地 artifact 写成已发布。canonical Execution-CF v2 config 为
+`VALID_RECORDED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`。private-HF publication 与独立 Git
+finalization 又于 `09:46:48Z` 闭合，当前严格状态为
+`FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION`；annotated tag
+`phase1-b2-processor-freeze-v2-image-contract-repair` 指向 immutable revision
+`c20bab8df424dc9e45ece1084f3d1dc035dd1ed8`。canonical Execution-CF v2 config 为
 `code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`，9,290 bytes，
 SHA256=`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。此前 `1c84dfe` 与
 `dc90664` 两次 attempt 均已主动终止且 exit=`143`：真实 processor smoke 证明旧 runtime guard 会把
@@ -189,13 +192,13 @@ Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执�
   `63734097983fa85f1470a52d1edd645b194433ab`。watcher 已消费双零 terminal、完成旧合同要求的 fresh recorder
   validation 并退出；Git-safe exact-two result 为 1,351-byte `README.md` 与 17,673-byte `summary.json`，目录见
   [`../data/results/set_utility_processor_freeze_v2_image_contract_repair/`](../data/results/set_utility_processor_freeze_v2_image_contract_repair/)；
-- publication staging：Hyper00 已从完整 Git bundle 准备 clean detached
-  `/data/worktrees/causalcache-processor-publication-450a669`，HEAD=
-  `450a6694d3fe2480127b5d9f3e9b4dfe98a11277`；persistent bundle=
-  `/data/tmp/causalcache-processor-publication-450a669.bundle`，SHA256=
-  `d26bca2747b3ce3ef68475e9616964cbed1deba5d9c6b4dab3162108c4d99cd8`。它只预置 publication/finalizer code；
-  正式 Git result commit 产生后仍须以 incremental bundle 更新到 exact revision。HF token 尚未传入，remote
-  mutation 仍为 0；
+- immutable publication：publication checkout 已更新为 clean detached
+  `db516934315af9c71b8eabdb1586567c485a5913`。单次 25-operation HF commit、无覆盖 annotated tag、commit/tag
+  两份 fresh replay 与后续独立 `validate-only` 均成功；remote 为 25 files，其中 formal 23 files /
+  18,730,620,511 bytes，inventory SHA256=`7c2a9716...32fc1`，两份 replay 均逐 byte 相同。publication receipt 为
+  8,136 bytes / SHA256=`ad69d201...6278`，finalizer exit=`0`、stderr=`0B`，结束于
+  `2026-07-19T09:46:48Z`；Git-safe sibling result 见
+  [`../data/results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/`](../data/results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/)。临时 HF token 已从容器与本机临时路径删除；
 - 四进程联合 processor smoke：32 query / 32 runtimes，joint wall=`41.26s`、effective CPU=`30.79 cores`、
   aggregate peak RSS=`50,295,324 KiB`，四进程 getter 均为 `28/1`；
 - OCR 稳定启动 snapshot：四个 logical worker lifetime CPU 分别为 `2740/2692/2837/2744%`，合计约

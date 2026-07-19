@@ -14,10 +14,12 @@ dataset、model weights、checkpoint、adapter。它们以 Hugging Face dataset/
 source，并在顶层 `README.md` 和相关 result README 中记录 repo、revision/tag、schema 与生成命令。
 
 Set Utility reusable dataset repo 已创建为 private
-`gavinlaw/causalcache-set-utility-new-development-mobile`；当前只正式承载 selected-image census v2 的 immutable
-revision `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`。processor-freeze prefix/tag
-`phase1-b2-processor-freeze-v2-image-contract-repair` 与未来 feature/exact-cardinality-capped `D(S)` shards 尚未
-发布。Freeze-B/A 固定的 planned model repo
+`gavinlaw/causalcache-set-utility-new-development-mobile`；当前正式承载 selected-image census v2 immutable
+revision `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，以及 processor-freeze v2 prefix
+`artifacts/processor-freeze-v2-image-contract-repair`：tag
+`phase1-b2-processor-freeze-v2-image-contract-repair` 指向 immutable revision
+`c20bab8df424dc9e45ece1084f3d1dc035dd1ed8`。未来 feature/exact-cardinality-capped `D(S)` shards 尚未发布。
+Freeze-B/A 固定的 planned model repo
 `gavinlaw/causalcache-set-utility-predictors-mobile:phase1-b2-v1` 仍未创建或绑定 revision。Git 当前已保存 canonical
 `manifests/set_utility_consumed_identity_ledger_v1.json`：58 条 `legacy_train_only` + 49 条
 `forbidden_consumed`，合计 107 个 source identity，SHA256=
@@ -80,10 +82,16 @@ replacement source freeze 的 config 为 9,290 bytes，SHA256=
 `e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。它保持 4 个 logical shards，固定每
 shard 32 路 OCR、8 路 AutoProcessor，以及 PyTorch intra-op=`28` / inter-op=`1`；postflight 会逐 worker
 重验唯一 canonical runtime getter log evidence。clean formal run 已于 `2026-07-19T07:10:28Z` 从
-`main@e976b99` 启动，OCR 稳定窗口合计约 110.13 CPU cores；当前状态为
-`RUNNING_INCOMPLETE_NOT_UPLOADABLE`，仍无 completed root、VALID postflight、restoration labels 或可上传
-processor artifact。轻量 execution summary 位于
-[`results/set_utility_processor_execution_scaling_v2/`](results/set_utility_processor_execution_scaling_v2/)。v1 failure 协议见
+`main@e976b99` 启动，OCR 稳定窗口合计约 110.13 CPU cores；它随后完成 23-file root、canonical/fresh
+postflight 与 Git-safe recorder，formal status=
+`VALID_RECORDED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`。formal tree 共 18,730,620,511 bytes，
+已发布并从 immutable commit/tag 双 fresh replay 逐 byte 验证；Git finalization status=
+`FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION`。原 pending result 保持历史原字节，final sibling 见
+[`results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/`](results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/)，formal source result 见
+[`results/set_utility_processor_freeze_v2_image_contract_repair/`](results/set_utility_processor_freeze_v2_image_contract_repair/)。
+[`results/set_utility_processor_execution_scaling_v2/`](results/set_utility_processor_execution_scaling_v2/) 仅记录当时的
+running snapshot，不代表当前状态。restoration labels、predictor checkpoint、matched-NLL 与 closed-loop 仍未
+产生。v1 failure 协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
 边界见
 [`../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。

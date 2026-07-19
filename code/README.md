@@ -179,9 +179,12 @@ post-load guard 会 false-positive。两份 `.incomplete` 只作 execution foren
 `modeling_*`、model forward 或 ambient thread env 仍 fail closed。有界 map 保留 source/query/output 顺序，
 每个 slot 使用独立 runtime；committed postflight 还要求四份 processor log 的第一行分别提供唯一 canonical
 runtime getter evidence。clean formal run 已从 pushed `main@e976b99` 启动，4×32 OCR 稳定窗口合计约
-110.13 CPU cores；当前只有 `.incomplete`，详见
-`data/results/set_utility_processor_execution_scaling_v2/`。得到 exact 23-file completed root 和 committed
-postflight 前不可生成 labels。原 v1 runner 为
+110.13 CPU cores；它随后完成 exact 23-file root、canonical/fresh postflight、Git-safe pending result、private-HF
+immutable publication、commit/tag 双 fresh replay 与 sibling Git finalization。immutable revision 为
+`c20bab8df424dc9e45ece1084f3d1dc035dd1ed8`，final status=
+`FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION`，见
+`data/results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/`。历史 running snapshot 仍在
+`data/results/set_utility_processor_execution_scaling_v2/`，不得把它当作当前状态。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`；v2 freeze 边界见
 `docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`。
@@ -205,6 +208,11 @@ projection，失败调用指标仍计入 aggregate；payload 不含 action、tok
 保持原 reset/timing/metadata/output；`"caller"` 在任何 encode 前完成参数验证，并跳过内部 reset，使 adapter
 可以在调用外层 reset 后得到包含 encode/H2D/preparation/forward/decode 的 absolute CUDA peak。旧 runtime
 及其历史 config/hash 保持 exact bytes，不用新代码重解释旧 artifact。
+`causalcache/set_utility_gui_owl_v2_1_throughput_adapter.py` 把上述 seam 接到 metric-only pilot：只接受 exact
+`GUIOwlV2Action` 进程内 handle，完整外层 timing 覆盖 encode/H2D/preparation/forward/decode-or-logit-disposal，
+并保留 processor query 的 exact image payload mapping identity。失败只输出 safe class、latency 与 CUDA peak，
+不序列化 native output、message、tokens、logits、KL 或 utility。它只授权未来 12-state train-only throughput
+contract，不等于已经运行 GPU pilot 或生成 label。
 processor repair 的 runner、postflight、immutable HF publication manager 与完整边界见
 `docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。publication manager 要求有效
 `PENDING_HF_UPLOAD` summary、exact 23-file root、private repo 与无冲突 tag/prefix；单次上传 25 个文件后，

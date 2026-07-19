@@ -1,0 +1,228 @@
+{
+  "negative_operations": {
+    "hugging_face_mutation_count": 0
+  },
+  "protocol_id": "causalcache_set_utility_processor_freeze_v2_git_publication_finalization",
+  "receipt_evidence": {
+    "mode": "0600",
+    "path": "/data/publications/causalcache-processor-v2-e976b99/publication-receipt.json",
+    "sha256": "ad69d2018e4f3d52a80647427edd67245e08a92796eadf50bb2e15fd30b46278",
+    "size_bytes": 8136
+  },
+  "schema_version": "1.0.0",
+  "source_git": {
+    "card_path": "data/results/set_utility_processor_freeze_v2_image_contract_repair/README.md",
+    "card_sha256": "452f7d63eed1e44a1377f569de7dc5617548aee0ee3bb3c2a7866888803fb179",
+    "revision": "db516934315af9c71b8eabdb1586567c485a5913",
+    "summary_path": "data/results/set_utility_processor_freeze_v2_image_contract_repair/summary.json",
+    "summary_sha256": "87a9a17eb07397f8395e63a2ed088f5eedb94d39d223f0be84836416fca930a3"
+  },
+  "status": "FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION",
+  "validated_publication_receipt": {
+    "destination": {
+      "immutable_revision": "c20bab8df424dc9e45ece1084f3d1dc035dd1ed8",
+      "parent_main_revision": "c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0",
+      "prefix": "artifacts/processor-freeze-v2-image-contract-repair",
+      "remote_file_count": 25,
+      "repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+      "repo_type": "dataset",
+      "tag": "phase1-b2-processor-freeze-v2-image-contract-repair"
+    },
+    "fresh_downloads": {
+      "commit": {
+        "all_remote_files_byte_identical": true,
+        "byte_identical": true,
+        "directory": "/data/publications/causalcache-processor-v2-e976b99/replays/processor-v2-87a9a17eb073-commit",
+        "formal_file_count": 23,
+        "formal_file_inventory_sha256": "7c2a971658ad9a6bbc639446e9326e9dd4718b8d2d77186f52a17f10f3b32fc1",
+        "formal_total_byte_count": 18730620511,
+        "git_metadata": {
+          "card": {
+            "path": "artifacts/processor-freeze-v2-image-contract-repair/git/card.md",
+            "sha256": "452f7d63eed1e44a1377f569de7dc5617548aee0ee3bb3c2a7866888803fb179",
+            "size_bytes": 1351
+          },
+          "summary": {
+            "path": "artifacts/processor-freeze-v2-image-contract-repair/git/summary.json",
+            "sha256": "87a9a17eb07397f8395e63a2ed088f5eedb94d39d223f0be84836416fca930a3",
+            "size_bytes": 17673
+          }
+        },
+        "remote_file_count": 25,
+        "revision": "c20bab8df424dc9e45ece1084f3d1dc035dd1ed8"
+      },
+      "formal_files_verified_twice": 23,
+      "remote_files_verified_twice": 25,
+      "tag": {
+        "all_remote_files_byte_identical": true,
+        "byte_identical": true,
+        "directory": "/data/publications/causalcache-processor-v2-e976b99/replays/processor-v2-87a9a17eb073-tag",
+        "formal_file_count": 23,
+        "formal_file_inventory_sha256": "7c2a971658ad9a6bbc639446e9326e9dd4718b8d2d77186f52a17f10f3b32fc1",
+        "formal_total_byte_count": 18730620511,
+        "git_metadata": {
+          "card": {
+            "path": "artifacts/processor-freeze-v2-image-contract-repair/git/card.md",
+            "sha256": "452f7d63eed1e44a1377f569de7dc5617548aee0ee3bb3c2a7866888803fb179",
+            "size_bytes": 1351
+          },
+          "summary": {
+            "path": "artifacts/processor-freeze-v2-image-contract-repair/git/summary.json",
+            "sha256": "87a9a17eb07397f8395e63a2ed088f5eedb94d39d223f0be84836416fca930a3",
+            "size_bytes": 17673
+          }
+        },
+        "remote_file_count": 25,
+        "revision": "phase1-b2-processor-freeze-v2-image-contract-repair"
+      }
+    },
+    "protocol_id": "causalcache_set_utility_processor_freeze_v2_hf_publication",
+    "remote": {
+      "annotated_tag_object_identity": "7933ba4f81f95642fe26923cc63be3cb2c909e8d",
+      "no_overwrite_verified": true,
+      "private_repo_verified": true,
+      "single_commit_operation_count": 25,
+      "single_commit_verified": true,
+      "tag_resolved_commit": "c20bab8df424dc9e45ece1084f3d1dc035dd1ed8"
+    },
+    "schema_version": "1.0.0",
+    "source": {
+      "formal_file_count": 23,
+      "formal_file_inventory": [
+        {
+          "path": "candidate-parts/worker-00.jsonl",
+          "sha256": "c74107e07d7b13fdba80723e842c73ae7be02f40b2f9da41b9cce1e69b2c25e4",
+          "size_bytes": 518701
+        },
+        {
+          "path": "candidate-parts/worker-01.jsonl",
+          "sha256": "1083e2b40e5fe69f8ef15fe5e1fb573bd317621dad7417cd11bb168ae3ee6db2",
+          "size_bytes": 510563
+        },
+        {
+          "path": "candidate-parts/worker-02.jsonl",
+          "sha256": "e71d7fd0c4976ce45d9224b467b60c2f49b7f12f13a3c3ea5ac9a6420f09073b",
+          "size_bytes": 510258
+        },
+        {
+          "path": "candidate-parts/worker-03.jsonl",
+          "sha256": "2dfdb14b6f6e06e0fa250cb0dcca0ddcfdf9a341b7040ccc5a13294e1cd1e58f",
+          "size_bytes": 515086
+        },
+        {
+          "path": "logs/ocr-worker-00.log",
+          "sha256": "0f46b315b2ab1d21621e1ca4f0f795dc2a0fd1bf74bae4157ed18a287669eb5f",
+          "size_bytes": 23526
+        },
+        {
+          "path": "logs/ocr-worker-01.log",
+          "sha256": "d5a20d9b55cb6190f9a7f6cb0b2e68ba2e8e517b58df68f07a60d46c86e661ab",
+          "size_bytes": 23526
+        },
+        {
+          "path": "logs/ocr-worker-02.log",
+          "sha256": "54d441d5f83f2bcd6162e9ec0010126ce3e79959c015d5c2f94e504581214880",
+          "size_bytes": 23730
+        },
+        {
+          "path": "logs/ocr-worker-03.log",
+          "sha256": "451543a96acdcbf803c778d6f9a9e58f6b2f0adc9ce45f709b248bbd010ca51a",
+          "size_bytes": 23628
+        },
+        {
+          "path": "logs/processor-worker-00.log",
+          "sha256": "41d2f21beaef91880ac1077b46cd999b6b9604dcf2177e3f22db68cd4374e2c7",
+          "size_bytes": 233049
+        },
+        {
+          "path": "logs/processor-worker-01.log",
+          "sha256": "f0567cec1038a2f7eb6820b99ee181a7af9a172462dcb17e0d93e4993b91ba22",
+          "size_bytes": 225019
+        },
+        {
+          "path": "logs/processor-worker-02.log",
+          "sha256": "126dffe1338ade420e1b6296610a33a891dff30b2102ed7defb2d0d328758a7a",
+          "size_bytes": 229199
+        },
+        {
+          "path": "logs/processor-worker-03.log",
+          "sha256": "9032219b76e190332f0d255f5d2d5daedb6a1c336e7188bab5e5c7fe3fd559a5",
+          "size_bytes": 228539
+        },
+        {
+          "path": "manifest.json",
+          "sha256": "cfc5dfd7fb58721ec9a2200a636bb5f798e72a2c5486464431e2cbb55a44f794",
+          "size_bytes": 5164
+        },
+        {
+          "path": "processor-candidate-freeze-schedule.json",
+          "sha256": "186f2952108273672c6cdbf963094754298d23693fd6268a72b6223e99c2299d",
+          "size_bytes": 18718642
+        },
+        {
+          "path": "receipts/ocr-worker-00.json",
+          "sha256": "d795a16709ae97e6d18d97b1ebf8fc876f94db6006ef0001643da30613b3bd2f",
+          "size_bytes": 2384
+        },
+        {
+          "path": "receipts/ocr-worker-01.json",
+          "sha256": "09a43596a4a522074229b22a8b109a52d5763783dd2b5b581e204447bbfe36a3",
+          "size_bytes": 2384
+        },
+        {
+          "path": "receipts/ocr-worker-02.json",
+          "sha256": "d3563c271141677c8340d3d3140238a8b2fa1a13b1ffca4dc275be8d5631a656",
+          "size_bytes": 2384
+        },
+        {
+          "path": "receipts/ocr-worker-03.json",
+          "sha256": "4fa86655d9127c383003223e0cfc61f746d45ae3a6056f027f5c3908989a0d69",
+          "size_bytes": 2384
+        },
+        {
+          "path": "run-identity.json",
+          "sha256": "8e51284222034f2db380557d04a5b20ab66158964fe6917ffb16d0449de701b5",
+          "size_bytes": 4425
+        },
+        {
+          "path": "substrate/processor-substrate-worker-00.tar",
+          "sha256": "e7c572fcaf0bd5de5eb2397ab391b9dac0701773a572eab06e4dbfb1ab7895af",
+          "size_bytes": 4662056960
+        },
+        {
+          "path": "substrate/processor-substrate-worker-01.tar",
+          "sha256": "efc52e1cdfd9a4a9c88f78fba823c176a967a5349a203c6863773f9090708b08",
+          "size_bytes": 4482959360
+        },
+        {
+          "path": "substrate/processor-substrate-worker-02.tar",
+          "sha256": "756834080ef3935ab80c916c2916b5ab49b7e7cb091581792b75da71852a0c7d",
+          "size_bytes": 4688844800
+        },
+        {
+          "path": "substrate/processor-substrate-worker-03.tar",
+          "sha256": "d5b6b629bbe1e65072305b2981ded276c738dc6947a62da9ec35653c726c3378",
+          "size_bytes": 4874956800
+        }
+      ],
+      "formal_file_inventory_sha256": "7c2a971658ad9a6bbc639446e9326e9dd4718b8d2d77186f52a17f10f3b32fc1",
+      "formal_root": "/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99",
+      "formal_total_byte_count": 18730620511,
+      "git_card_path": "/data/worktrees/causalcache-processor-publication-450a669/data/results/set_utility_processor_freeze_v2_image_contract_repair/README.md",
+      "git_card_sha256": "452f7d63eed1e44a1377f569de7dc5617548aee0ee3bb3c2a7866888803fb179",
+      "git_card_size_bytes": 1351,
+      "git_summary_path": "/data/worktrees/causalcache-processor-publication-450a669/data/results/set_utility_processor_freeze_v2_image_contract_repair/summary.json",
+      "git_summary_sha256": "87a9a17eb07397f8395e63a2ed088f5eedb94d39d223f0be84836416fca930a3",
+      "git_summary_size_bytes": 17673
+    },
+    "status": "PUBLISHED_PROCESSOR_V2_IMMUTABLE_HF_VERIFIED",
+    "token_serialized": false
+  },
+  "validation": {
+    "external_receipt_and_fresh_replays_preserved": true,
+    "immutable_revision": "c20bab8df424dc9e45ece1084f3d1dc035dd1ed8",
+    "independent_validate_only_remains_available": true,
+    "source_summary_and_card_preserved": true,
+    "validate_only_completed_before_finalization": true
+  }
+}

@@ -211,13 +211,14 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 
 1. processor image-contract v2 已从 clean `e976b990` 完成 processor-only candidate freeze、canonical/fresh
    postflight 与 Git-safe result；exact tally=`18,768/24/18,792`，operation budget=`103,514`；
-2. processor completed root、canonical/fresh postflight 与 Git-safe `PENDING_HF_UPLOAD` result 已闭合；先完成 private
-   HF immutable publication + commit/tag fresh replay。train-only selective reader/strict join、role-partitioned
+2. processor completed root、canonical/fresh postflight、Git-safe pending result、private HF immutable publication、
+   commit/tag fresh replay 与 sibling Git finalization 均已闭合；immutable revision 为
+   `c20bab8df424dc9e45ece1084f3d1dc035dd1ed8`。train-only selective reader/strict join、role-partitioned
    publication firewall、metric-only throughput core、versioned caller-owned CUDA measurement seam 与真实 GUI-Owl
    adapter 已提前实现，并以 malformed tune/evaluation
    payload、cross-role row、symlink、inode replacement、image-inventory drift、failure-metric inclusion、sensitive-
-   error serialization 与默认路径等价性负测；但必须等待 processor HF immutable revision 后，才能冻结 12-state
-   train-only pilot execution contract，再立 label Execution-B 生产 phase-1
+   error serialization 与默认路径等价性负测；现在应冻结 12-state train-only pilot execution contract，通过
+   throughput/memory contract 后再立 label Execution-B 生产 phase-1
    `|S|<=2` tables；
 3. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。

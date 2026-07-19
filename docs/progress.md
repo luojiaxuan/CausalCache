@@ -12,7 +12,26 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
-### 2026-07-18（UTC 07-19）：processor v2 canonical result 已进入 PENDING_HF_UPLOAD
+### 2026-07-18（UTC 07-19）：processor v2 immutable HF publication 与 Git finalization 已闭合
+
+- private dataset `gavinlaw/causalcache-set-utility-new-development-mobile` 在 prefix
+  `artifacts/processor-freeze-v2-image-contract-repair` 以单次 25-operation commit 发布；annotated tag
+  `phase1-b2-processor-freeze-v2-image-contract-repair` 解析到 immutable revision
+  `c20bab8df424dc9e45ece1084f3d1dc035dd1ed8`，parent main 为 census-v2 revision `c1d19eb9...eae0`；
+- remote 共 25 files；其中 formal tree 为 23 files / 18,730,620,511 bytes，inventory SHA256=
+  `7c2a9716...32fc1`。从 commit 与 tag 各 fresh-download 一份 retained replay，25/25 remote files 与 23/23
+  formal files 均逐 byte 相同；之后独立 `validate-only` 再次 exit=`0`；
+- publication receipt 为 8,136 bytes / mode `0600` / SHA256=`ad69d201...6278`；finalizer 从 clean exact
+  `main@db51693` 先执行完整 remote validation，再于 `2026-07-19T09:46:48Z` atomic 写 exact-two sibling result，
+  status=`FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION`，自身 HF mutation count=`0`；
+- Git-safe finalization 见
+  [`../data/results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/`](../data/results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/)。原 pending card/summary、外置 receipt 与两份 replay
+  保持原字节可复验；临时 HF token 已从 Hyper00 容器和本机临时路径删除；
+- processor prerequisite 现已完整闭合。restoration labels、predictor training、matched-NLL 与 closed-loop 仍为
+  0/locked；下一步冻结 12-state train-only throughput pilot，从 fresh GPU preflight 后的 Hyper00 空闲 H200 中按
+  有效 shard 并行，不混合异构 host throughput 指标。
+
+### 2026-07-18（UTC 07-19）：processor v2 canonical result 进入 PENDING_HF_UPLOAD（历史里程碑）
 
 - `e976b990` producer 用时 3,163s、exit=`0`，atomic root 后 canonical committed postflight exit=`0`；随后
   fail-closed watcher 从 clean recorder `63734097` 运行 fresh committed postflight，并于
@@ -23,9 +42,9 @@ confirm-20 禁止进入新训练、
 - Git-safe `README.md` 为 1,351 bytes / SHA256=`452f7d63...fb179`，`summary.json` 为 17,673 bytes /
   SHA256=`87a9a17e...30a3`；从 remote recorder 到本地逐 byte `cmp` 相同，见
   [`../data/results/set_utility_processor_freeze_v2_image_contract_repair/`](../data/results/set_utility_processor_freeze_v2_image_contract_repair/)；
-- 当前严格 publication status=`PENDING_HF_UPLOAD`，HF mutation count 仍为 0。policy inference、restoration
-  labels、training、matched-NLL 与 closed-loop 也仍为 0；下一步先 commit/push 本 result，再执行单次 private-HF
-  publication、commit/tag 双 fresh replay 与独立 finalization。
+- 该历史时点的 publication status=`PENDING_HF_UPLOAD`，HF mutation count 为 0。policy inference、restoration
+  labels、training、matched-NLL 与 closed-loop 也为 0；后续 publication、commit/tag 双 fresh replay 与独立
+  finalization 已按本页顶部最新里程碑完成。
 
 ### 2026-07-18（UTC 07-19）：12-state throughput pilot host readiness
 
@@ -139,7 +158,7 @@ confirm-20 禁止进入新训练、
 - 本步没有读取 processor partial、没有 policy/model forward、label execution、GPU、checkpoint 或 HF mutation；
   正式 label 仍需等待 processor completed root、Git result 与 immutable HF revision。
 
-### 2026-07-18（UTC 07-19）：processor publication Git SoT finalizer
+### 2026-07-18（UTC 07-19）：processor publication Git SoT finalizer source（历史 source-freeze 里程碑）
 
 - publication manager 新增 `finalize`：先复用现有 remote read-only `validate-only`，只有 receipt、private repo、
   no-overwrite commit boundary、annotated tag 与两份 retained fresh replay 全部复验后，才允许写 Git result；
@@ -149,13 +168,14 @@ confirm-20 禁止进入新训练、
 - 原 pending result、外置 receipt、commit/tag fresh replay 均保持原路径原字节，因此 publication manager 的
   `validate-only` 仍可独立重复。source path 拒绝 leaf/ancestor symlink；receipt 由单个 `O_NOFOLLOW` fd 同时完成
   mode check、稳定读取与 path/inode identity 复核；
-- publication tests=`29 passed`，完整 processor/result/watcher suite=`151 passed`。本步只闭合未来 publication
-  的 Git SoT 交接，没有访问 HF、没有创建 tag/revision，也不改变当前 formal 的 running 状态。
+- publication tests=`29 passed`，完整 processor/result/watcher suite=`151 passed`。本 source-freeze 步当时只闭合
+  未来 publication 的 Git SoT 交接，没有访问 HF、没有创建 tag/revision，也不改变当时 formal 的 running 状态；
+  后续实际 publication/finalization 终态见本页顶部最新里程碑。
 - Hyper00 已准备 clean detached publication checkout `main@450a669` 与 persistent complete-history bundle
   `/data/tmp/causalcache-processor-publication-450a669.bundle`（SHA256=
   `d26bca2747b3ce3ef68475e9616964cbed1deba5d9c6b4dab3162108c4d99cd8`）。当前 checkout 只用于缩短后续交接；
-  必须等 Git-safe result commit/push 后再用 incremental bundle 更新到 exact revision。HF token 尚未传入，
-  publication、tag、fresh replay 与 finalization 均未执行。
+  当时必须等 Git-safe result commit/push 后再用 incremental bundle 更新到 exact revision；该后续步骤现已全部
+  完成，临时 HF token 也已删除，详见本页顶部最新里程碑。
 
 ### 2026-07-18（UTC 07-19）：train-only processor→label input firewall
 
@@ -168,7 +188,7 @@ confirm-20 禁止进入新训练、
   并分别保留 processor worker、未来 label execution worker 与 role partition。malformed UTF-8 tune/evaluation
   payload 仍可安全读取 allowlisted train state，证明没有发生非 train semantic decode；focused suite=`47 passed`；
 - 本步只准备下一阶段 source core，不冻结真实 pilot config，不执行 policy/model forward、label、GPU 或 HF mutation；
-  正式 pilot 仍必须等待 processor completed root、Git result 与 immutable HF revision。
+  当时正式 pilot 仍必须等待 processor completed root、Git result 与 immutable HF revision，该 prerequisite 现已闭合。
 
 ### 2026-07-18（UTC 07-19）：processor v2 自动 recorder handoff
 
@@ -212,7 +232,7 @@ confirm-20 禁止进入新训练、
   才能单次提交 25 files、创建无覆盖 annotated tag，并分别从 commit/tag fresh-download 25/25 逐 byte 验证。
   manager 支持 commit/tag/download/receipt failure 后的 exact absent→exact commit reconcile，未知 remote state
   fail closed；fresh replay 在 mutation 前检查，receipt 以 `0600` temp、fsync 与 no-overwrite atomic publish。
-  当前 processor prefix/tag 尚不存在。四进程联合 processor smoke 用 32 runtimes 处理 32 条真实 query，joint
+  该 source-freeze 时 processor prefix/tag 尚不存在。四进程联合 processor smoke 用 32 runtimes 处理 32 条真实 query，joint
   wall=`41.26s`、effective CPU=`30.79 cores`、aggregate peak RSS 约 48 GiB，四个 getter 全部为 `28/1`；
 - clean formal run 已于 `2026-07-19T07:10:28Z` 从 pushed `main@e976b99` 在 Hyper00 启动。启动前 exact
   worktree、79 项 focused tests、Execution/source/snapshot validators 均通过；4×32 OCR 稳定窗口合计约
