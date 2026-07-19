@@ -48,30 +48,19 @@ Aries。任何 repo、virtualenv、log、checkpoint 与 cache 都不得写入根
 - benchmark/server image digest 与 reward implementation。
 
 允许作为 host adapter 改变的只有：物理 GPU id、按实际并行度选择的 device mapping、batch/concurrency、emulator worker
-数、cache/staging 绝对路径。改变这些参数后，语义输出仍需通过固定 smoke。restoration v2 confirm 的
-microbatch size 虽不改变科学 estimand，也必须在 execution config 中于 confirm output 前冻结，不能按
-结果或 OOM 选择性变化。
+数、cache/staging 绝对路径。通用运行不因这些 adapter 变化默认增加 smoke；只有新 host、新 image 或已观察到兼容性
+问题时才按需执行。restoration v2 confirm 的 microbatch size 虽不改变科学 estimand，也必须在 execution config
+中于 confirm output 前冻结，不能按结果或 OOM 选择性变化。
 
-## 每次 GPU job 的 preflight
+## 通用 GPU job fast path
 
-restoration v2 当前从 Mac 非交互检查 Hyper00：
-
-```bash
-ssh -T -o RemoteCommand=none -o RequestTTY=no hyper00 '
-hostname
-uname -m
-test -e /dev/kvm && ls -l /dev/kvm
-nvidia-smi
-df -hT / /data01 /data02
-docker ps -a --format "{{.Names}}" | sort
-'
-```
-
-启动任何 GPU job 前必须额外执行项目约定的 10 秒 continuous-zero idle cleanup，并按有效并行度选择
-当前空闲 GPU。非 Taurus/Aries 单任务最多 4 张，除非用户对该 run 显式授权；Taurus/Aries 可使用全部
-有效空闲卡。设备 id 必须显式写进 Docker `--gpus` 或 Python `--device cuda:N`。启动后只监控 warmup 与
-有代表性的 steady-state 窗口；每张已分配 GPU 在该窗口应至少达到 80% 利用率，否则检查并发、batch、
-I/O 与跨机等待并调整。窗口通过后无需持续监控，除非用户另有要求或 job 出现不稳定。
+新任务使用全局 `$gpu-fleet-preflight` 并行执行 5 秒 continuous-zero cleanup，随后按有效并行度选择
+当前空闲 GPU；跨机 rollout 使用 `$orchestrate-sharded-rollout`，单机启动使用
+`$run-gpu-cluster-job`。设备 id 必须显式写进 Docker 或进程参数。正常路径直接启动完整选定 allocation，
+不先做小卡数 smoke、不要求完整 host/disk/container sweep，也不设置 startup utilization gate；只有启动
+失败、异常退出、无进展、OOM 或明显过慢时，才检查 Docker、mount、disk、GPU visibility、batch、并发与
+I/O。后文已经 frozen 的 formal contract 若显式要求更严格 preflight、smoke 或 monitor，仍按原 contract
+执行，不追溯放宽。
 
 ## Independent confirm-20 的历史 v1 执行顺序（禁止重跑）
 
@@ -551,26 +540,11 @@ full SHA，且 runner 会校验它等于 clean checkout 的实际 HEAD。
 
 ## Aries/Taurus fallback adapter
 
-Aries 是当前 AndroidWorld closed-loop MVP 的 validated host。每次运行仍需重新检查所有本地盘，不能
-把上次使用的 `/mnt/data6/jiaxuanluo/causalcache` 当作永久最佳路径：
-
-```bash
-ssh -T -o RemoteCommand=none -o RequestTTY=no aries '
-hostname
-uname -m
-test -e /dev/kvm && ls -l /dev/kvm
-nvidia-smi
-df -hT / /mnt/data /mnt/data2 /mnt/data3 /mnt/data4 /mnt/data5 /mnt/data6 /mnt/data7
-docker ps -a --format "{{.Names}}" | sort
-'
-```
-
-根据当次 `df -hT` 选择一个 local `/mnt/data*` personal directory，显式挂载为容器 `/data`；HF cache
-也选择有空间的 local disk，不能写 Aries 根盘或 Taurus/Aries cross-mount 做重 I/O。Taurus 使用相同
-原则，适合小模型 smoke、数据处理和 sample-level evaluation。GPU 数量不设固定默认：按 workload
-实际并行度与当次空闲卡选择；非 Taurus/Aries host 单任务最多 4 卡（除非用户显式授权），
-Taurus/Aries 可用尽可能多的有效空闲卡。GPU job 只在 warmup 和代表性 startup steady-state 窗口验证
-每张已分配 GPU 持续利用率至少 80%；该窗口通过后不要求持续监控。
+Aries 是当前 AndroidWorld closed-loop MVP 的 validated host。Taurus/Aries 的数据盘和 cache 候选路径由
+`$run-gpu-cluster-job` 的 A6000 reference 维护；需要选择新路径或出现磁盘问题时再检查当次 `df -hT`，不能
+把上次路径当作永久最佳。选择 local `/mnt/data*` personal directory 挂载为容器 `/data`，HF cache 也使用
+local disk，不能写根盘或用 Taurus/Aries cross-mount 做重 I/O。GPU 数量按 workload 并行度与当次空闲卡
+选择；正常路径直接启动，不设置 startup utilization gate。
 
 AndroidWorld emulator container 与 policy container 的权限需求不同：emulator 需要 KVM/privileged
 设备访问，policy container 不应因此继承 `--privileged`。policy container 必须使用 Docker 的显式
@@ -599,9 +573,10 @@ ssh -T -o RemoteCommand=none -o RequestTTY=no hyper01 \
 上传后从 Mac 用已认证的 HF client 验证 repo visibility、文件清单和 revision，再把 exact revision
 写回 Git。不得把 token 复制到 `/data` 作为长期 secret。
 
-## 跨芯片一致性 smoke
+## 按需跨芯片一致性 smoke
 
-新 host 或新镜像进入正式实验前，在同一个 committed fixture 上比较：
+常规 rollout 不默认执行本节。只有新 host、新镜像或已经出现跨芯片兼容性问题时，才在同一个 committed
+fixture 上比较：
 
 1. model/data revisions 与 SHA256；
 2. processor `image_grid_thw`、effective visual tokens、input token count；
@@ -610,8 +585,8 @@ ssh -T -o RemoteCommand=none -o RequestTTY=no hyper01 \
    记录差异，不放宽 tool-call grammar 或 executable equivalence；
 5. AndroidWorld reset、execute、score、tear-down 与 server image digest。
 
-只有 smoke 通过后才启动完整 rollout。H200 与 A6000 的 latency、peak memory 可以不同；action、grid、
-token budget、task reward 与 gate decision 不应因芯片不同而改变。
+触发 smoke 时应先通过再继续该兼容性分支。H200 与 A6000 的 latency、peak memory 可以不同；action、
+grid、token budget、task reward 与 gate decision 不应因芯片不同而改变。
 
 GUI-Owl Think 在同一 H200 上的两次 `do_sample=false` 运行已观察到一个 Action description
 句点的引号内/外位置差异，tool-call JSON 与 canonical action 不变。因此 executable gate 可按
@@ -648,7 +623,7 @@ dataset/run manifests，避免 revision 自引用。
 一个里程碑的完成顺序固定为：
 
 ```text
-preflight → run/smoke → verify → upload reusable artifacts to HF
+5-second preflight → run → failure-triggered diagnosis/smoke if needed → verify → upload reusable artifacts to HF
 → update README/docs/data summary → test → commit → push main
 ```
 

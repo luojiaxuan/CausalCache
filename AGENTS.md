@@ -21,14 +21,14 @@ immutable revision、schema/provenance 与生成命令。
 
 - 科学参数必须由 committed config 或显式 CLI 参数传入，不用环境变量覆盖；Docker cache 路由是
   基础设施例外；
-- GPU job 前执行 host/GPU/disk/container preflight 与 10 秒 idle cleanup；按有效并行度使用当前空闲卡，
-  非 Taurus/Aries 单任务最多 4 张（除非用户显式授权），Taurus/Aries 可用尽所有有效空闲卡；
-- 启动后只监控 warmup 和有代表性的 steady-state 窗口；该窗口每张已分配 GPU 利用率应至少 80%，
-  若不足则检查并发、batch 与输入瓶颈。窗口通过后无需持续监控，除非用户另有要求或任务不稳定；
+- 通用 GPU 资源发现、5 秒 idle cleanup、跨机 shard 调度和单机启动遵循全局 GPU skills。正常路径直接
+  使用完整选定 allocation，不要求预先单卡/双卡 smoke、广泛 host/disk/container sweep 或 startup
+  utilization gate；失败、无进展、OOM 或明显过慢时再按需诊断；
+- 已 committed 的 frozen formal execution contract 不因通用策略更新而被追溯修改；
 - Hyper01 默认承担 H200 policy/offline 工作；当前 AndroidWorld closed-loop MVP 留在已验证的 Aries
   stack，迁移条件见 `docs/execution.md`；
-- 不同芯片不要求 bitwise logits 一致，但必须通过固定 behavioral smoke，并分别报告 latency、显存和
-  runtime metadata。
+- 不同芯片不要求 bitwise logits 一致；正式结果分别报告 latency、显存和 runtime metadata。新 host、新
+  image 或已经出现兼容性问题时再按需执行 behavioral smoke。
 
 ## 安全与审计
 
