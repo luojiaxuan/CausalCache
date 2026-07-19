@@ -80,8 +80,25 @@
   "local_staging": {
     "path": "/data02/jaxan/runs/causalcache-set-utility-token-v2-pilot-ba1c480",
     "byte_count": 23583937671,
-    "status": "PENDING_HF_UPLOAD",
-    "dataset_destination": "gavinlaw/causalcache-set-utility-new-development-mobile",
-    "model_destination": "gavinlaw/causalcache-set-utility-predictors-mobile"
+    "status": "CACHE_AFTER_VERIFIED_HF_UPLOAD"
+  },
+  "hugging_face": {
+    "tag": "set-utility-token-v2-partial-a73cc18",
+    "dataset": {
+      "repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+      "revision": "e1240bdeff500114097b71148ba65ae19e71e6e8",
+      "path": "artifacts/set-utility-token-v2-partial-a73cc18",
+      "byte_count": 23428500440,
+      "file_count": 1878
+    },
+    "model": {
+      "repo": "gavinlaw/causalcache-set-utility-predictors-mobile",
+      "revision": "a55666c11da6b2848a6f066b4b05980704f1bf7a",
+      "path": "artifacts/set-utility-token-v2-partial-a73cc18",
+      "byte_count": 155437231,
+      "file_count": 11,
+      "checkpoint_count": 4
+    },
+    "status": "UPLOADED_AND_REVISION_VERIFIED"
   }
 }

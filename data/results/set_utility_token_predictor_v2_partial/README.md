@@ -17,14 +17,16 @@ trajectories，其中 646/67 用于 train，99/7 用于 tune；evaluation record
 也不能与 OCR/RGB、exact oracle 或 terminal success 比较。三个模型的 best raw MAE 并未同步稳定改善，正式训练
 前还需要重新检查 raw/normalized/ranking loss 的尺度权衡。
 
-大文件当前位于 Hyper00：
+大文件的本地 cache 位于 Hyper00：
 
 ```text
 /data02/jaxan/runs/causalcache-set-utility-token-v2-pilot-ba1c480
 ```
 
-总计 23,583,937,671 bytes。dataset artifacts 计划上传
-`gavinlaw/causalcache-set-utility-new-development-mobile`，checkpoints 计划上传
-`gavinlaw/causalcache-set-utility-predictors-mobile`；当前状态 `PENDING_HF_UPLOAD`。
+canonical dataset artifacts 已上传到
+[`gavinlaw/causalcache-set-utility-new-development-mobile@e1240bde`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18)，
+共 23,428,500,440 bytes / 1,878 files。四个 checkpoints 与训练 summaries 已上传到
+[`gavinlaw/causalcache-set-utility-predictors-mobile@a55666c1`](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18)，
+共 155,437,231 bytes / 11 files。两个 repo 都有 tag `set-utility-token-v2-partial-a73cc18`。
 
 机器可读结果与 hashes 见 [`summary.json`](summary.json)。

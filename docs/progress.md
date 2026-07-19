@@ -3658,5 +3658,7 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   objective 为 `0.3564/0.5753/0.3747`，三者均较首轮下降。
 - 该结果只通过 optimization/data pipeline diagnostic。tune trajectory 数仍少，DeepSets 暂时最好，raw MAE
   未一致改善；未运行 evaluation baseline、at-most-B selector、matched-NLL 或 closed-loop。
-- Git-safe summary 位于 `data/results/set_utility_token_predictor_v2_partial/`。23.58GB dataset/model artifacts
-  仍在 Hyper00 persistent staging，状态 `PENDING_HF_UPLOAD`。
+- Git-safe summary 位于 `data/results/set_utility_token_predictor_v2_partial/`。dataset artifacts 已发布到
+  `gavinlaw/causalcache-set-utility-new-development-mobile@e1240bde`，checkpoints 已发布到
+  `gavinlaw/causalcache-set-utility-predictors-mobile@a55666c1`；同名 immutable tag 为
+  `set-utility-token-v2-partial-a73cc18`。Hyper00 23.58GB root 现只作 verified local cache。
