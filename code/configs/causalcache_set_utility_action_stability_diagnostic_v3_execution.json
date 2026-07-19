@@ -1,0 +1,195 @@
+{
+  "artifacts": {
+    "d1b_aggregate": {
+      "path": "/data/worktrees/causalcache-action-stability-d2-60fd971/data/results/set_utility_action_stability_diagnostic_v2/aggregate.json",
+      "sha256": "b419f9640cb46276b7a52e292d6feabd81311f66efb22563642ce80c4561919c"
+    },
+    "model_dir": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct-causalcache-frozen-manifest-v1",
+    "model_inventory_sha256": "6faac059bb7feae4cd350537931ff68142d575a20a9e85ec1c05dedeacc088ee",
+    "parent_envelope": {
+      "path": "/data/runs/causalcache-throughput-pilot-v2-key-repair-d5e0cca/execution-envelope.json",
+      "sha256": "dd0e64fb40bd39f839a1df91240a1e9a1a528a0bbfe9131d49ba726e8ecf4e3a"
+    },
+    "processor_inventory_sha256": "7c2a971658ad9a6bbc639446e9326e9dd4718b8d2d77186f52a17f10f3b32fc1",
+    "processor_root": "/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99"
+  },
+  "authorization": {
+    "generate_restoration_labels": false,
+    "run_closed_loop": false,
+    "run_three_process_strict_determinism_d2": true,
+    "source_a_alone_authorizes_execution": false,
+    "train_predictor": false
+  },
+  "container": {
+    "id": "42b7ee6ce98672da9f6d5e33455830f2472653a68b04e89464c82a6f79c5a992",
+    "image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "image_reference": "hongccc/sglang-omni:dev"
+  },
+  "execution": {
+    "aggregate_argv": [
+      "/data/.venv/causalcache-throughput-key-repair-v2/bin/python",
+      "/data/worktrees/causalcache-action-stability-d2-60fd971/code/scripts/aggregate_set_utility_action_stability_v3.py",
+      "--execution-envelope",
+      "/data/runs/causalcache-action-stability-d2-60fd971/execution-envelope.json"
+    ],
+    "condition_id": "strict_determinism_sdpa_frozen_encoded",
+    "encode_call_ceiling": 3,
+    "generation_call_ceiling": 6,
+    "layout": {
+      "aggregate_path": "/data/runs/causalcache-action-stability-d2-60fd971/aggregate.json",
+      "envelope_path": "/data/runs/causalcache-action-stability-d2-60fd971/execution-envelope.json",
+      "run_root": "/data/runs/causalcache-action-stability-d2-60fd971",
+      "states": [
+        {
+          "attempt_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-00/attempt.json",
+          "stderr_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-00/stderr.log",
+          "stdout_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-00/stdout.log",
+          "terminal_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-00/terminal.json"
+        },
+        {
+          "attempt_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-01/attempt.json",
+          "stderr_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-01/stderr.log",
+          "stdout_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-01/stdout.log",
+          "terminal_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-01/terminal.json"
+        },
+        {
+          "attempt_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-02/attempt.json",
+          "stderr_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-02/stderr.log",
+          "stdout_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-02/stdout.log",
+          "terminal_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-02/terminal.json"
+        }
+      ]
+    },
+    "no_retry": true,
+    "no_top_up": true,
+    "state_processes": [
+      {
+        "argv": [
+          "/data/.venv/causalcache-throughput-key-repair-v2/bin/python",
+          "/data/worktrees/causalcache-action-stability-d2-60fd971/code/scripts/run_set_utility_action_stability_state_v3.py",
+          "--execution-envelope",
+          "/data/runs/causalcache-action-stability-d2-60fd971/execution-envelope.json",
+          "--state-id",
+          "0296753837938323:decision:006"
+        ],
+        "cuda_visible_devices": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+        "device": "cuda:0",
+        "gpu_uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+        "output": {
+          "attempt_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-00/attempt.json",
+          "stderr_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-00/stderr.log",
+          "stdout_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-00/stdout.log",
+          "terminal_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-00/terminal.json"
+        },
+        "process_scope": "exactly_one_state_fresh_os_process",
+        "state_id": "0296753837938323:decision:006",
+        "state_index": 0
+      },
+      {
+        "argv": [
+          "/data/.venv/causalcache-throughput-key-repair-v2/bin/python",
+          "/data/worktrees/causalcache-action-stability-d2-60fd971/code/scripts/run_set_utility_action_stability_state_v3.py",
+          "--execution-envelope",
+          "/data/runs/causalcache-action-stability-d2-60fd971/execution-envelope.json",
+          "--state-id",
+          "0336706763935531:decision:006"
+        ],
+        "cuda_visible_devices": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+        "device": "cuda:0",
+        "gpu_uuid": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+        "output": {
+          "attempt_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-01/attempt.json",
+          "stderr_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-01/stderr.log",
+          "stdout_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-01/stdout.log",
+          "terminal_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-01/terminal.json"
+        },
+        "process_scope": "exactly_one_state_fresh_os_process",
+        "state_id": "0336706763935531:decision:006",
+        "state_index": 1
+      },
+      {
+        "argv": [
+          "/data/.venv/causalcache-throughput-key-repair-v2/bin/python",
+          "/data/worktrees/causalcache-action-stability-d2-60fd971/code/scripts/run_set_utility_action_stability_state_v3.py",
+          "--execution-envelope",
+          "/data/runs/causalcache-action-stability-d2-60fd971/execution-envelope.json",
+          "--state-id",
+          "0268406573756492:decision:010"
+        ],
+        "cuda_visible_devices": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+        "device": "cuda:0",
+        "gpu_uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+        "output": {
+          "attempt_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-02/attempt.json",
+          "stderr_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-02/stderr.log",
+          "stdout_log_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-02/stdout.log",
+          "terminal_path": "/data/runs/causalcache-action-stability-d2-60fd971/states/state-02/terminal.json"
+        },
+        "process_scope": "exactly_one_state_fresh_os_process",
+        "state_id": "0268406573756492:decision:010",
+        "state_index": 2
+      }
+    ]
+  },
+  "gpus": [
+    {
+      "host_index": 0,
+      "name": "NVIDIA H200",
+      "total_memory_bytes": 150754820096,
+      "uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "visible_index": 0
+    },
+    {
+      "host_index": 1,
+      "name": "NVIDIA H200",
+      "total_memory_bytes": 150754820096,
+      "uuid": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+      "visible_index": 1
+    },
+    {
+      "host_index": 2,
+      "name": "NVIDIA H200",
+      "total_memory_bytes": 150754820096,
+      "uuid": "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+      "visible_index": 2
+    }
+  ],
+  "host": {
+    "alias": "hyper00",
+    "driver_version": "570.172.08",
+    "hostname": "node-radixark-16-0000"
+  },
+  "materialized_at_utc": "2026-07-19T17:23:32.762520Z",
+  "preflight": {
+    "completed_at_utc": "2026-07-19T17:20:55.294797Z",
+    "max_age_seconds": 900,
+    "path": "/data/runs/causalcache-action-stability-d2-60fd971/preflight-fleet.json",
+    "sha256": "0634c646e22631151b710139c5b0676b73e084abcee38f1a1e258acf98ccdfa1"
+  },
+  "protocol_id": "causalcache_set_utility_action_stability_execution_envelope_v3",
+  "run_root": "/data/runs/causalcache-action-stability-d2-60fd971",
+  "runtime": {
+    "cublas_workspace_config": ":4096:8",
+    "deterministic_algorithms": true,
+    "deterministic_warn_only": false,
+    "profile": "pytorch_strict_determinism_cublas_workspace_4096_8_sdpa",
+    "python_executable": "/data/.venv/causalcache-throughput-key-repair-v2/bin/python",
+    "software_versions": {
+      "cuda_runtime_version": "13.0",
+      "python_version": "3.12.3",
+      "torch_version": "2.11.0+cu130",
+      "transformers_version": "5.6.0"
+    }
+  },
+  "schema_version": "1.0.0",
+  "source": {
+    "branch": "main",
+    "config_path": "code/configs/causalcache_set_utility_action_stability_diagnostic_v3.json",
+    "config_sha256": "4531b1c7e8c067b28c31662ee04b210dd2009031a9f92b4689128f701074b18d",
+    "execution_config_path": "code/configs/causalcache_set_utility_action_stability_diagnostic_v3_execution.json",
+    "git_revision": "60fd971b1614afba2601c838a34f7952d2334eb0",
+    "inventory_sha256": "86dbd5a6ed340dd46ce93709e6a7b59c07d200a04652723407e28683b917066b",
+    "remote": "origin"
+  },
+  "status": "AUTHORIZED_THREE_PROCESS_STRICT_DETERMINISM_D2_EXECUTION"
+}
