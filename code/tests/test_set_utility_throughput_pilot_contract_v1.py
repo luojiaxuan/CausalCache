@@ -12,6 +12,8 @@ import pytest
 
 from causalcache.set_utility_throughput_pilot_contract_v1 import (
     ALLOWED_MICROBATCH_ORDER,
+    CANDIDATE_SCHEDULE_INTEGER_KEY_PATH,
+    CANDIDATE_SCHEDULE_KEY_REPAIR_ID,
     CANONICAL_CONFIG_PATH,
     CLI_PATH,
     EXPECTED_CANDIDATE_SCHEDULE_SHA256,
@@ -20,6 +22,11 @@ from causalcache.set_utility_throughput_pilot_contract_v1 import (
     MODEL_SNAPSHOT_MANIFEST_PATH,
     MODEL_SNAPSHOT_MANIFEST_SHA256,
     NATIVE_CALL_CEILING,
+    PARENT_FAILURE_SUMMARY_PATH,
+    PARENT_FAILURE_SUMMARY_SHA256,
+    PARENT_SOURCE_GIT_REVISION,
+    PARENT_ENVELOPE_GIT_REVISION,
+    PARENT_EXECUTION_ENVELOPE_SHA256,
     VALIDATION_STATUS,
     WORKER_COUNT,
     build_train_only_throughput_pilot_v1_config_skeleton,
@@ -47,6 +54,7 @@ def _copy_contract_tree(destination: Path) -> None:
             data["inputs"]["model_snapshot_manifest"]["path"],
             data["inputs"]["processor_formal_result_summary"]["path"],
             data["inputs"]["processor_publication"]["path"],
+            data["repair_lineage"]["parent_attempt"]["summary"]["path"],
         }
     )
     for relative in paths:
@@ -56,6 +64,19 @@ def _copy_contract_tree(destination: Path) -> None:
 
 
 def test_canonical_config_is_exact_live_skeleton() -> None:
+    assert CANONICAL_CONFIG_PATH == (
+        "code/configs/causalcache_set_utility_train_only_throughput_pilot_"
+        "v2_candidate_schedule_key_repair.json"
+    )
+    assert (
+        ROOT
+        / "code/configs/causalcache_set_utility_train_only_throughput_pilot_v1.json"
+    ).is_file()
+    assert (
+        ROOT
+        / "code/configs/causalcache_set_utility_train_only_throughput_pilot_"
+        "v1_execution.json"
+    ).is_file()
     contract = _contract()
     expected = build_train_only_throughput_pilot_v1_config_skeleton(
         repository_root=ROOT
@@ -143,6 +164,40 @@ def test_84_call_budget_and_metric_only_firewall_are_frozen() -> None:
     assert data["authorization"]["run_gpu_or_cuda"] is False
     assert data["authorization"]["read_remote_processor_artifact"] is False
     assert data["authorization"]["write_pilot_result"] is False
+
+
+def test_v2_candidate_schedule_key_repair_lineage_is_frozen() -> None:
+    lineage = _contract().data["repair_lineage"]
+
+    assert lineage["candidate_schedule_reconstruction"] == {
+        "artifact_mutation_allowed": False,
+        "integer_key_path": list(CANDIDATE_SCHEDULE_INTEGER_KEY_PATH),
+        "raw_bytes_must_equal_producer_reconstruction": True,
+        "raw_sha256": EXPECTED_CANDIDATE_SCHEDULE_SHA256,
+        "repair_id": CANDIDATE_SCHEDULE_KEY_REPAIR_ID,
+        "strict_json_unique_keys_and_finite_values_required": True,
+        "string_key_contract": "canonical_positive_base10_without_leading_zero",
+    }
+    assert lineage["new_execution_envelope_required"] is True
+    assert lineage["parent_run_retry_allowed"] is False
+    assert lineage["scientific_contract_changes"] == []
+    assert lineage["parent_attempt"] == {
+        "actual_native_calls": 0,
+        "envelope_git_revision": PARENT_ENVELOPE_GIT_REVISION,
+        "execution_envelope_sha256": PARENT_EXECUTION_ENVELOPE_SHA256,
+        "failure_reason_code": "CANDIDATE_SCHEDULE_NOT_CANONICAL_PRETTY_JSON",
+        "failure_stage": "semantic_input_load_before_runtime_factory",
+        "source_git_revision": PARENT_SOURCE_GIT_REVISION,
+        "summary": {
+            "byte_count": (ROOT / PARENT_FAILURE_SUMMARY_PATH).stat().st_size,
+            "path": PARENT_FAILURE_SUMMARY_PATH,
+            "sha256": PARENT_FAILURE_SUMMARY_SHA256,
+        },
+        "summary_status": (
+            "INVALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_V1_"
+            "CANDIDATE_SCHEDULE_CANONICALIZATION_CONTRACT_DRIFT"
+        ),
+    }
 
 
 def test_deployment_decision_rule_is_preregistered() -> None:
@@ -240,6 +295,9 @@ def test_config_mutations_fail_closed() -> None:
             "sha256", "0" * 64
         ),
         lambda value: value["source"].__setitem__("inventory_sha256", "0" * 64),
+        lambda value: value["repair_lineage"][
+            "candidate_schedule_reconstruction"
+        ].__setitem__("integer_key_path", ["drift"]),
         lambda value: value["deployment_decision_rule"].__setitem__(
             "mb2_teacher_wall_ratio_maximum_for_selection", 1.0
         ),
@@ -284,6 +342,20 @@ def test_bound_publication_sibling_drift_fails_before_config_comparison(
     path.write_bytes(path.read_bytes() + b"\n")
 
     with pytest.raises(ValueError, match="publication sibling summary SHA256 drifted"):
+        load_train_only_throughput_pilot_v1_contract(repository_root=tmp_path)
+
+
+def test_bound_parent_failure_summary_drift_fails_before_config_comparison(
+    tmp_path: Path,
+) -> None:
+    _copy_contract_tree(tmp_path)
+    path = tmp_path / PARENT_FAILURE_SUMMARY_PATH
+    path.write_bytes(path.read_bytes() + b"\n")
+
+    with pytest.raises(
+        ValueError,
+        match="parent throughput-pilot failure summary SHA256 drifted",
+    ):
         load_train_only_throughput_pilot_v1_contract(repository_root=tmp_path)
 
 

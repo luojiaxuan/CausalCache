@@ -161,6 +161,15 @@ def exact_envelope(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict:
 def test_exact_envelope_authorizes_only_the_preregistered_execution(
     exact_envelope: dict,
 ) -> None:
+    assert CANONICAL_GIT_ENVELOPE_PATH == (
+        "code/configs/causalcache_set_utility_train_only_throughput_pilot_"
+        "v2_candidate_schedule_key_repair_execution.json"
+    )
+    assert (
+        ROOT
+        / "code/configs/causalcache_set_utility_train_only_throughput_pilot_"
+        "v1_execution.json"
+    ).is_file()
     validation = validate_set_utility_throughput_pilot_envelope_v1(
         exact_envelope,
         repository_root=ROOT,
@@ -179,6 +188,9 @@ def test_exact_envelope_authorizes_only_the_preregistered_execution(
         "run_gpu_or_cuda": False,
         "write_pilot_result": False,
     }
+    assert exact_envelope["source"]["execution_config_path"] == (
+        CANONICAL_GIT_ENVELOPE_PATH
+    )
     assert exact_envelope["authorization"] == {
         "authorized_native_call_ceiling": 84,
         "exact_four_gpu_execution_only": True,

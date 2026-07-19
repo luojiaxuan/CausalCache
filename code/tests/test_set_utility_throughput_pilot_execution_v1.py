@@ -11,6 +11,7 @@ from scripts import aggregate_set_utility_throughput_pilot_v1 as aggregate_cli
 from scripts import run_set_utility_throughput_pilot_worker_v1 as worker_cli
 
 from causalcache.set_utility_throughput_pilot_contract_v1 import (
+    CANONICAL_CONFIG_PATH,
     EXPECTED_STATE_IDS,
     TrainOnlyThroughputPilotSourceContractV1,
     canonical_pretty_json_bytes,
@@ -22,6 +23,7 @@ from causalcache.set_utility_throughput_pilot_execution_v1 import (
     ValidatedExecutionEnvelopeV1,
     WorkerRuntimeBundleV1,
     aggregate_throughput_pilot_workers_v1,
+    canonical_candidate_schedule_producer_bytes_v2,
     run_throughput_pilot_worker_v1,
     select_reference_teacher_microbatch_v1,
 )
@@ -29,6 +31,56 @@ from causalcache.set_utility_throughput_pilot_pair_v1 import _paired_payload
 
 
 _DIGEST = "a" * 64
+
+
+def test_candidate_schedule_reconstructs_only_the_producer_typed_key_path() -> None:
+    producer = {
+        "candidate_inventory": {"records": []},
+        "exact_label_schedule": {
+            "state_count_by_candidate_count": {4: 400, 10: 773},
+        },
+    }
+    payload = canonical_pretty_json_bytes(producer)
+    parsed = json.loads(payload)
+
+    assert canonical_pretty_json_bytes(parsed) != payload
+    assert canonical_candidate_schedule_producer_bytes_v2(parsed) == payload
+
+    producer["other_numeric_mapping"] = {4: 1, 10: 2}
+    payload_with_unregistered_typed_path = canonical_pretty_json_bytes(producer)
+    parsed_with_unregistered_typed_path = json.loads(
+        payload_with_unregistered_typed_path
+    )
+    assert (
+        canonical_candidate_schedule_producer_bytes_v2(
+            parsed_with_unregistered_typed_path
+        )
+        != payload_with_unregistered_typed_path
+    )
+
+
+@pytest.mark.parametrize("key", ["04", "0", "-1", "four", "٤"])
+def test_candidate_schedule_rejects_noncanonical_integer_key_text(key: str) -> None:
+    schedule = {
+        "exact_label_schedule": {
+            "state_count_by_candidate_count": {key: 1},
+        }
+    }
+    with pytest.raises(ValueError, match="canonical positive base-10"):
+        canonical_candidate_schedule_producer_bytes_v2(schedule)
+
+
+def test_candidate_schedule_rejects_missing_or_empty_typed_key_mapping() -> None:
+    with pytest.raises(ValueError, match="must be a mapping"):
+        canonical_candidate_schedule_producer_bytes_v2({})
+    with pytest.raises(ValueError, match="must not be empty"):
+        canonical_candidate_schedule_producer_bytes_v2(
+            {
+                "exact_label_schedule": {
+                    "state_count_by_candidate_count": {},
+                }
+            }
+        )
 
 
 def _config() -> dict[str, object]:
@@ -66,7 +118,7 @@ def _contract(root: Path) -> TrainOnlyThroughputPilotSourceContractV1:
 def _launch(root: Path, output: Path, worker_index: int) -> ExecutionLaunchEnvelopeV1:
     return ExecutionLaunchEnvelopeV1(
         repository_root=root,
-        config_path="code/configs/causalcache_set_utility_train_only_throughput_pilot_v1.json",
+        config_path=CANONICAL_CONFIG_PATH,
         processor_root=root / "processor",
         model_dir=root / "model",
         output_root=output,
@@ -534,7 +586,7 @@ def test_worker_cli_accepts_only_exact_envelope_and_worker_flags(
     gpu_uuid = "GPU-11111111-1111-1111-1111-111111111111"
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", gpu_uuid)
     projection = {
-        "config_path": str(tmp_path / "code/configs/causalcache_set_utility_train_only_throughput_pilot_v1.json"),
+        "config_path": str(tmp_path / CANONICAL_CONFIG_PATH),
         "device_by_worker": {str(index): "cuda:0" for index in range(4)},
         "envelope": {},
         "envelope_path": str(envelope_path),
@@ -579,7 +631,7 @@ def test_aggregate_cli_has_no_independent_artifact_or_output_flags(
 ) -> None:
     envelope_path = tmp_path / "execution-envelope.json"
     projection = {
-        "config_path": str(tmp_path / "code/configs/causalcache_set_utility_train_only_throughput_pilot_v1.json"),
+        "config_path": str(tmp_path / CANONICAL_CONFIG_PATH),
         "envelope_path": str(envelope_path),
         "repository_root": str(tmp_path),
         "run_root": str(tmp_path / "run"),

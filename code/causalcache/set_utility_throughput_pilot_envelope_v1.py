@@ -44,7 +44,8 @@ HOSTNAME = "node-radixark-16-0000"
 SOURCE_BRANCH = "main"
 SOURCE_REMOTE = "origin"
 CANONICAL_GIT_ENVELOPE_PATH = (
-    "code/configs/causalcache_set_utility_train_only_throughput_pilot_v1_execution.json"
+    "code/configs/causalcache_set_utility_train_only_throughput_pilot_"
+    "v2_candidate_schedule_key_repair_execution.json"
 )
 GPU_COUNT = 4
 PREFLIGHT_MAX_AGE_SECONDS = 15 * 60

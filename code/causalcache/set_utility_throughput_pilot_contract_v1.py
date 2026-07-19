@@ -11,13 +11,23 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 
-SCHEMA_VERSION = "1.0.0"
-PROTOCOL_ID = "causalcache_set_utility_train_only_throughput_pilot_source_v1"
-STATUS = "SOURCE_ONLY_TRAIN_THROUGHPUT_PILOT_V1_FROZEN"
-VALIDATION_STATUS = "VALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_SOURCE_V1"
+SCHEMA_VERSION = "1.1.0"
+PROTOCOL_ID = (
+    "causalcache_set_utility_train_only_throughput_pilot_source_"
+    "v2_candidate_schedule_key_repair"
+)
+STATUS = (
+    "SOURCE_ONLY_TRAIN_THROUGHPUT_PILOT_V2_"
+    "CANDIDATE_SCHEDULE_KEY_REPAIR_FROZEN"
+)
+VALIDATION_STATUS = (
+    "VALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_SOURCE_V2_"
+    "CANDIDATE_SCHEDULE_KEY_REPAIR"
+)
 
 CANONICAL_CONFIG_PATH = (
-    "code/configs/causalcache_set_utility_train_only_throughput_pilot_v1.json"
+    "code/configs/causalcache_set_utility_train_only_throughput_pilot_"
+    "v2_candidate_schedule_key_repair.json"
 )
 CONTRACT_PATH = (
     "code/causalcache/set_utility_throughput_pilot_contract_v1.py"
@@ -36,6 +46,9 @@ PROCESSOR_PUBLICATION_SUMMARY_PATH = (
     "publication_v1/summary.json"
 )
 MODEL_SNAPSHOT_MANIFEST_PATH = "code/configs/gui_owl_1_5_8b_snapshot.json"
+PARENT_FAILURE_SUMMARY_PATH = (
+    "data/results/set_utility_train_only_throughput_pilot_v1/summary.json"
+)
 
 FREEZE_B_V2_MANIFEST_SHA256 = (
     "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30"
@@ -48,6 +61,26 @@ PROCESSOR_PUBLICATION_SUMMARY_SHA256 = (
 )
 MODEL_SNAPSHOT_MANIFEST_SHA256 = (
     "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3"
+)
+PARENT_FAILURE_SUMMARY_SHA256 = (
+    "d4fde65ff8c9fc1c9b67a38c980de1edd89c99b0d6958d238b6aa0417aa3f45c"
+)
+
+PARENT_SOURCE_GIT_REVISION = "5158f2ad04e456fd088765973da6a99064b4efcf"
+PARENT_ENVELOPE_GIT_REVISION = "c7d5b31f8235124699ecbee5beb5240c72eb8977"
+PARENT_EXECUTION_ENVELOPE_SHA256 = (
+    "adf50363d9b3623b84b9229d709f796d7b1971faf7e4056c468cfe3b55ce228e"
+)
+EXPECTED_PARENT_FAILURE_STATUS = (
+    "INVALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_V1_"
+    "CANDIDATE_SCHEDULE_CANONICALIZATION_CONTRACT_DRIFT"
+)
+CANDIDATE_SCHEDULE_KEY_REPAIR_ID = (
+    "candidate_schedule_state_count_integer_key_reconstruction_v2"
+)
+CANDIDATE_SCHEDULE_INTEGER_KEY_PATH = (
+    "exact_label_schedule",
+    "state_count_by_candidate_count",
 )
 
 EXPECTED_FREEZE_STATUS = (
@@ -533,6 +566,72 @@ def _model_projection(model: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def _repair_lineage_projection(
+    failure: Mapping[str, Any],
+    binding: Mapping[str, Any],
+) -> dict[str, Any]:
+    counts = _mapping(failure.get("counts"), label="parent failure counts")
+    failure_record = _mapping(
+        failure.get("failure"), label="parent failure classification"
+    )
+    bindings = _mapping(
+        failure.get("bindings"), label="parent failure source bindings"
+    )
+    repair = _mapping(failure.get("repair"), label="parent failure repair state")
+    artifacts = _mapping(
+        failure.get("artifacts"), label="parent failure artifacts"
+    )
+    if (
+        failure.get("status") != EXPECTED_PARENT_FAILURE_STATUS
+        or failure.get("result_id")
+        != "set_utility_train_only_throughput_pilot_v1"
+        or failure.get("scientific_eligibility") is not False
+        or counts.get("actual_generation_calls") != 0
+        or counts.get("actual_native_calls") != 0
+        or counts.get("actual_teacher_calls") != 0
+        or counts.get("actual_teacher_examples") != 0
+        or counts.get("pair_completed_count") != 0
+        or counts.get("retry_count") != 0
+        or failure_record.get("stage")
+        != "semantic_input_load_before_runtime_factory"
+        or failure_record.get("reason_code")
+        != "CANDIDATE_SCHEDULE_NOT_CANONICAL_PRETTY_JSON"
+        or failure_record.get("model_runtime_factory_entered") is not False
+        or repair.get("v1_retry_allowed") is not False
+        or bindings.get("source_commit_a") != PARENT_SOURCE_GIT_REVISION
+        or bindings.get("envelope_commit_b") != PARENT_ENVELOPE_GIT_REVISION
+        or bindings.get("execution_envelope_sha256")
+        != PARENT_EXECUTION_ENVELOPE_SHA256
+        or artifacts.get("candidate_schedule_sha256")
+        != EXPECTED_CANDIDATE_SCHEDULE_SHA256
+    ):
+        raise ValueError("parent throughput-pilot failure lineage drifted")
+    return {
+        "candidate_schedule_reconstruction": {
+            "artifact_mutation_allowed": False,
+            "integer_key_path": list(CANDIDATE_SCHEDULE_INTEGER_KEY_PATH),
+            "raw_bytes_must_equal_producer_reconstruction": True,
+            "raw_sha256": EXPECTED_CANDIDATE_SCHEDULE_SHA256,
+            "repair_id": CANDIDATE_SCHEDULE_KEY_REPAIR_ID,
+            "strict_json_unique_keys_and_finite_values_required": True,
+            "string_key_contract": "canonical_positive_base10_without_leading_zero",
+        },
+        "new_execution_envelope_required": True,
+        "parent_attempt": {
+            "actual_native_calls": counts["actual_native_calls"],
+            "envelope_git_revision": bindings["envelope_commit_b"],
+            "execution_envelope_sha256": bindings["execution_envelope_sha256"],
+            "failure_reason_code": failure_record["reason_code"],
+            "failure_stage": failure_record["stage"],
+            "source_git_revision": bindings["source_commit_a"],
+            "summary": dict(binding),
+            "summary_status": failure["status"],
+        },
+        "parent_run_retry_allowed": False,
+        "scientific_contract_changes": [],
+    }
+
+
 def _module_path(root: Path, module: str) -> str | None:
     if not module.startswith("causalcache"):
         return None
@@ -636,8 +735,15 @@ def build_train_only_throughput_pilot_v1_config_skeleton(
         MODEL_SNAPSHOT_MANIFEST_SHA256,
         label="GUI-Owl snapshot manifest",
     )
+    failure, failure_binding = _load_frozen_json(
+        root,
+        PARENT_FAILURE_SUMMARY_PATH,
+        PARENT_FAILURE_SUMMARY_SHA256,
+        label="parent throughput-pilot failure summary",
+    )
     roster = _freeze_roster(freeze)
     processor = _processor_projection(result, publication)
+    repair_lineage = _repair_lineage_projection(failure, failure_binding)
     worker_mapping = [
         {
             "state_ids": [
@@ -802,6 +908,7 @@ def build_train_only_throughput_pilot_v1_config_skeleton(
             "worker_mapping": worker_mapping,
         },
         "protocol_id": PROTOCOL_ID,
+        "repair_lineage": repair_lineage,
         "schema_version": SCHEMA_VERSION,
         "source": _source_projection(root),
         "status": STATUS,
@@ -865,6 +972,8 @@ def load_train_only_throughput_pilot_v1_contract(
 
 __all__ = [
     "ALLOWED_MICROBATCH_ORDER",
+    "CANDIDATE_SCHEDULE_INTEGER_KEY_PATH",
+    "CANDIDATE_SCHEDULE_KEY_REPAIR_ID",
     "CANONICAL_CONFIG_PATH",
     "CLI_PATH",
     "CONTRACT_PATH",
@@ -875,6 +984,11 @@ __all__ = [
     "MODEL_SNAPSHOT_MANIFEST_PATH",
     "MODEL_SNAPSHOT_MANIFEST_SHA256",
     "NATIVE_CALL_CEILING",
+    "PARENT_ENVELOPE_GIT_REVISION",
+    "PARENT_EXECUTION_ENVELOPE_SHA256",
+    "PARENT_FAILURE_SUMMARY_PATH",
+    "PARENT_FAILURE_SUMMARY_SHA256",
+    "PARENT_SOURCE_GIT_REVISION",
     "PROTOCOL_ID",
     "RUNTIME_ENTRYPOINT_PATHS",
     "SCHEMA_VERSION",

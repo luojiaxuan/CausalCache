@@ -34,6 +34,11 @@ metric-only attempts/terminals/logs 仅保留在 Hyper00
 `/data/runs/causalcache-throughput-pilot-v1-5158f2a`，状态为 `LOCAL_FORENSIC_NOT_UPLOADABLE`，不构成新的
 reusable HF artifact。restoration labels、feature cache、checkpoint、matched-NLL 与 closed-loop output 仍为 0。
 
+candidate-schedule key repair v2 不产生新的 data artifact，也不修改 processor HF revision。它继续绑定同一
+18,718,642-byte schedule / SHA256 `186f...2299d`，只把 producer 在固定 object path 上的整数 key 类型纳入
+consumer byte reconstruction；source config 与执行边界见
+[`../docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md`](../docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)。
+
 `manifests/set_utility_full_pool_inventory_v1.json` 已从 upstream immutable revision 完成 metadata-only
 P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
 `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=

@@ -16,6 +16,10 @@ source A=`5158f2a`，execution-envelope B=`c7d5b31`，envelope SHA256=`adf50363.
 不得重跑；下一步只能另立 versioned consumer repair，同时保持 schedule bytes/hash、roster、阈值与 84-call
 预算不变。restoration labels、predictor training、matched-NLL 与 closed-loop 仍 locked。
 
+后续 versioned repair 已冻结为
+[`set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md`](set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)；
+它保留本页 v1 evidence，只修复 producer typed integer-key reconstruction，不追溯重跑 v1。
+
 ## Immutable prerequisite
 
 pilot 唯一允许使用的 processor prerequisite 是已经完成双 fresh replay 的 private Hugging Face immutable

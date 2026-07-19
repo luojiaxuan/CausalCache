@@ -22,6 +22,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any, Protocol
 
 from causalcache.set_utility_throughput_pilot_contract_v1 import (
+    CANDIDATE_SCHEDULE_INTEGER_KEY_PATH,
     CANONICAL_CONFIG_PATH,
     EXPECTED_STATE_IDS,
     WORKER_COUNT,
@@ -264,6 +265,38 @@ def _strict_json_object(payload: bytes, *, label: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{label} must contain one JSON object")
     return value
+
+
+def canonical_candidate_schedule_producer_bytes_v2(
+    schedule: Mapping[str, Any],
+) -> bytes:
+    """Reconstruct the producer's one typed integer-key mapping exactly."""
+    root = dict(_mapping(schedule, label="candidate schedule"))
+    exact = dict(
+        _mapping(
+            root.get(CANDIDATE_SCHEDULE_INTEGER_KEY_PATH[0]),
+            label="candidate exact label schedule",
+        )
+    )
+    counts = _mapping(
+        exact.get(CANDIDATE_SCHEDULE_INTEGER_KEY_PATH[1]),
+        label="candidate state counts by candidate count",
+    )
+    typed_counts: dict[int, Any] = {}
+    for key, value in counts.items():
+        if not isinstance(key, str) or re.fullmatch(r"[1-9][0-9]*", key) is None:
+            raise ValueError(
+                "candidate-count key must be canonical positive base-10 text"
+            )
+        integer_key = int(key)
+        if integer_key in typed_counts:
+            raise ValueError("candidate-count key conversion collided")
+        typed_counts[integer_key] = value
+    if not typed_counts:
+        raise ValueError("candidate state-count mapping must not be empty")
+    exact[CANDIDATE_SCHEDULE_INTEGER_KEY_PATH[1]] = typed_counts
+    root[CANDIDATE_SCHEDULE_INTEGER_KEY_PATH[0]] = exact
+    return canonical_pretty_json_bytes(root)
 
 
 def _mapping(value: Any, *, label: str) -> Mapping[str, Any]:
@@ -670,8 +703,13 @@ def load_worker_semantic_inputs_v1(
     schedule = _strict_json_object(
         validated.candidate_schedule_bytes, label="candidate schedule"
     )
-    if canonical_pretty_json_bytes(schedule) != validated.candidate_schedule_bytes:
-        raise ValueError("candidate schedule is not canonical pretty JSON")
+    if (
+        canonical_candidate_schedule_producer_bytes_v2(schedule)
+        != validated.candidate_schedule_bytes
+    ):
+        raise ValueError(
+            "candidate schedule differs from producer-typed canonical JSON"
+        )
     processor_config = _mapping(
         _mapping(contract.data["inputs"], label="contract inputs")[
             "processor_publication"
@@ -1412,6 +1450,7 @@ __all__ = [
     "WorkerRuntimeBundleV1",
     "aggregate_throughput_pilot_workers_v1",
     "build_production_runtime_v1",
+    "canonical_candidate_schedule_producer_bytes_v2",
     "load_worker_semantic_inputs_v1",
     "run_throughput_pilot_worker_v1",
     "select_reference_teacher_microbatch_v1",

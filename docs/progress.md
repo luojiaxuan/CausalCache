@@ -12,6 +12,25 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：throughput pilot candidate-schedule key repair v2 source freeze
+
+- read-only byte audit 证明 processor candidate schedule 的 raw bytes 正确：18,718,642 bytes、SHA256=
+  `186f2952108273672c6cdbf963094754298d23693fd6268a72b6223e99c2299d`、strict JSON parse 成功。naive
+  round-trip 的 70 个 byte differences 全部来自
+  `exact_label_schedule.state_count_by_candidate_count`：producer 的 int keys `4..11` 被 JSON 转成 string 后，
+  consumer 改用字典序；
+- v2 仅在该唯一注册路径把 canonical positive decimal string keys 恢复为 int；producer-typed reconstruction
+  必须逐 byte 等于 raw。invalid UTF-8、duplicate/non-finite、leading zero、非数字、empty mapping、conversion
+  collision 与未注册 numeric-key path 继续 fail closed；HF artifact 不修改、不重发；
+- 新 canonical source config SHA256=
+  `b2e224147a70dbec14c389098a8fdcdd80b789b4f7f7cbafca15857102eb41ae`，44-file source inventory SHA256=
+  `ea3ca6dfda529ccf2cde50e7d1c577a6a8714fbbeb90415faa3c32a16456a669`；focused suite=`55 passed`，source
+  validator、py_compile 与 diff check 通过；
+- v2 source 逐 byte 绑定 v1 failure summary `d4fde65f...3f45c`、parent A=`5158f2a`、B=`c7d5b31`、parent
+  envelope `adf50363...228e` 与 `0` actual calls。旧 v1 config/envelope/result 原样保留，同一 run 不得重试；
+- 本步仍是 source-only，policy/GPU/result/label/training/HF mutation 为 0。下一步 push source A2，再以 direct-child
+  commit 新增 v2 execution envelope，fresh preflight 后四 H200 并发执行唯一 v2 attempt。
+
 ### 2026-07-18（UTC 07-19）：12-state throughput pilot v1 pre-policy contract failure
 
 - source A=`5158f2a`、execution-envelope B=`c7d5b31` 已分别 push `main`；exact envelope SHA256=
