@@ -89,4 +89,23 @@ teacher batch，并把 KL 留在 GPU 到 state 完成。目标是提高 wall-clo
   manifest、全部 state identity 的 SHA256；Git 不重复保存 12,792 行 candidate prefixes，运行时按冻结规则重建；
 - token predictor 的 batch 维度改为动态 `max(n_t)` 与动态 label 数，分别由 `event_mask`、`label_mask` 排除 padding；
 - padded events 不进入 multimodal resampler，避免全空 attention source；
-- 当前尚未物化全量 observation、执行 context census 或生成任何正式 restoration label。
+- full source materializer 以 256 个 trajectory Parquet shards 为断点单元，合并 pinned raw images 与已有 terminal
+  processor metadata；已有合法 shard/receipt 会在重启时跳过；
+- context census 只做 chat-template/tokenizer 计算，不执行 policy forward；它在 12,792 states 全部 fit 前阻塞 labels；
+- 当前代码已经就绪，但尚未完成远端 source materialization、context census 或任何正式 restoration label。
+
+```bash
+PYTHONPATH=code python code/scripts/materialize_set_utility_variable_history_source.py \
+  --config code/configs/causalcache_set_utility_variable_history_v1.json \
+  --assignments data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json \
+  --processor-root /data/artifacts/processor-freeze-v2 \
+  --source-root /data/source/guiodyssey-full-pool-v1 \
+  --output-root /data/artifacts/causalcache-variable-history-source-v1 \
+  --workers 32
+
+PYTHONPATH=code python code/scripts/census_set_utility_variable_history_context.py \
+  --config code/configs/causalcache_set_utility_variable_history_v1.json \
+  --source-root /data/artifacts/causalcache-variable-history-source-v1 \
+  --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
+  --output-root /data/runs/causalcache-variable-history-context-v1
+```

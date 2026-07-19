@@ -6,6 +6,7 @@ from causalcache.set_utility_variable_history import (
     age_quantile_bins,
     build_variable_history_states,
     combined_pair_similarity,
+    logical_shard_for_trajectory,
     sample_broad_subsets,
     select_evaluation_tracks,
 )
@@ -86,6 +87,13 @@ def test_similarity_combines_visual_cosine_and_ocr_jaccard() -> None:
     assert scores[(1, 2)] == 1.0
     assert scores[(1, 3)] == 0.0
     assert scores[(2, 3)] == 0.0
+
+
+def test_logical_shard_is_stable_and_in_range() -> None:
+    first = logical_shard_for_trajectory("trajectory", shard_count=256)
+    second = logical_shard_for_trajectory("trajectory", shard_count=256)
+    assert first == second
+    assert 0 <= first < 256
 
 
 def test_evaluation_tracks_have_frozen_counts_and_all_very_long_states() -> None:

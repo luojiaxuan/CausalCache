@@ -221,6 +221,19 @@ def _state_rng(state_id: str, seed: int) -> random.Random:
     return random.Random(int.from_bytes(digest[:8], byteorder="big"))
 
 
+def logical_shard_for_trajectory(
+    trajectory_id: str,
+    *,
+    shard_count: int,
+) -> int:
+    if not isinstance(trajectory_id, str) or not trajectory_id:
+        raise ValueError("trajectory identity must be non-empty")
+    if type(shard_count) is not int or shard_count <= 0:
+        raise ValueError("logical shard count must be positive")
+    digest = hashlib.sha256(trajectory_id.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], byteorder="big") % shard_count
+
+
 def _pair_inventory(
     events: tuple[int, ...],
     pair_similarity: Mapping[tuple[int, int], float],
@@ -453,6 +466,7 @@ __all__ = [
     "build_variable_history_states",
     "combined_pair_similarity",
     "history_bin",
+    "logical_shard_for_trajectory",
     "sample_broad_subsets",
     "select_evaluation_tracks",
     "state_count_summary",

@@ -47,7 +47,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 - 每个 state 约生成 40 个 age/interaction-stratified coalition labels，小历史可 exact，大历史只采样 subsets；
 - census 见 [`data/results/set_utility_dense_v1/census.json`](data/results/set_utility_dense_v1/census.json)；
 - recent-4 rollout 已在 4,033/12,792 states 时停止并封存为 smoke-only；结果见 [`data/results/set_utility_dense_recent4_smoke/`](data/results/set_utility_dense_recent4_smoke/README.md)。
-- 下一步先冻结 variable-`n_t` sampler 与 resumable high-throughput runner，再重新启动 labels；evaluation 在模型选择冻结前不加载。
+- 下一步先在 Hyper00 物化 256-shard full-history source 并完成 context census，再启动 resumable label runner；evaluation 在模型选择冻结前不加载。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 
