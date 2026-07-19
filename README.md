@@ -115,7 +115,8 @@
 > 或 closed-loop result；只有 atomic publish 与 committed postflight 通过后才可进入
 > `PENDING_HF_UPLOAD`。完成后的 handoff 已由 fail-closed watcher 自动衔接：只有 canonical supervisor、
 > formal/postflight 双零及精确 exit evidence 才会从 clean recorder checkout 写 Git-safe result；相关 suite
-> `145 passed`，且 watcher 永不使用 `--record-invalid`。详见
+> `145 passed`，且 watcher 永不使用 `--record-invalid`。watcher 已从 pushed `main@c2f6725` 部署到
+> Hyper00 persistent `/data/logs`，正在等待 terminal evidence；当前仍未产生 Git result 或 HF mutation。详见
 > [`docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md) 与
 > [`data/results/set_utility_processor_execution_scaling_v2/`](data/results/set_utility_processor_execution_scaling_v2/)。
 > 失败摘要见

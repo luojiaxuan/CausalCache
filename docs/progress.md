@@ -21,7 +21,13 @@ confirm-20 禁止进入新训练、
   result/staging 均 fail closed，且 recorder argv 永远不含 `--record-invalid`；
 - recorder 必须来自独立 clean checkout，watcher 在 checkout 外运行并移除 `PYTHONPATH`，避免运行证据或环境污染
   source binding。processor/result/watcher focused suite 为 `145 passed`，`py_compile` 与 `git diff --check`
-  通过；当前 formal 科学状态仍是 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`，本步不把 partial bytes 追认为结果。
+  通过；source commit `c2f6725626a67bf5b9f90135f953f998e7db9236` 已 push；
+- Hyper00 已部署 persistent watcher
+  `/data/logs/watch-set-utility-processor-freeze-v2-result-c2f6725.py`，SHA256=
+  `26cba29f2dabf9f12756cf9c8d398ccf012754ce89a1ffe3987e6645266f33fd`；它在 recorder checkout
+  `63734097983fa85f1470a52d1edd645b194433ab` 外运行，日志为
+  `/data/logs/causalcache-processor-recorder-c2f6725/watcher.log`，timeout=`172800s`。当前 formal 科学状态仍是
+  `RUNNING_INCOMPLETE_NOT_UPLOADABLE`，本步不把 partial bytes 追认为结果，也未执行 HF mutation。
 
 ### 2026-07-18（UTC 07-19）：processor v2 replacement source freeze
 

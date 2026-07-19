@@ -178,7 +178,9 @@ Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执�
   严格要求 canonical 4-field evidence、formal/postflight 双零及两个精确 `0\n` exit files；随后移除
   `PYTHONPATH`，从 clean recorder checkout 调用正式 recorder，永不使用 `--record-invalid`。timeout、symlink、
   非零 terminal、字段漂移或已有 result/staging 均拒绝执行；processor/result/watcher focused suite 为
-  `145 passed`；
+  `145 passed`。已部署 source=`main@c2f6725`、persistent script SHA256=
+  `26cba29f2dabf9f12756cf9c8d398ccf012754ce89a1ffe3987e6645266f33fd`，recorder checkout=
+  `63734097983fa85f1470a52d1edd645b194433ab`，当前正在等待 terminal evidence；
 - 四进程联合 processor smoke：32 query / 32 runtimes，joint wall=`41.26s`、effective CPU=`30.79 cores`、
   aggregate peak RSS=`50,295,324 KiB`，四进程 getter 均为 `28/1`；
 - OCR 稳定启动 snapshot：四个 logical worker lifetime CPU 分别为 `2740/2692/2837/2744%`，合计约
