@@ -17,6 +17,30 @@ D1 已证明当前全-eager numerical control 对全部三个 `decision:010` inp
 memory-efficient SDPA numerical control、每 state fresh process，关闭 reference substrate 的 runtime blocker
 后才重建 12-state throughput identity。
 
+### 2026-07-19：D1b memory-safe SDPA Source-A freeze
+
+- canonical config SHA256=`07ec807effd9a1655b0572e49a835e61aec5192503d16bd5c2ee6a3d7a18c77f`，
+  54-file transitive source inventory SHA256=
+  `a58cbda4db59bf6f951783c94f606e9e00bb310191e371de099256c4286c55b0`；固定 6 states、每 state fresh OS
+  process、非连续 4+2 waves、12 generation / 6 encode ceiling、no retry/top-up；
+- parent projection 只验证并保留 D1 的 `auto_fresh_encode` 与 `auto_frozen_encoded`；第三个 eager/OOM row、
+  旧 diagnosis 与 worker index 不参与 D1b semantic projection。D1 aggregate/summary 的完整 bytes 仍由 Git commit
+  与 SHA256 绑定；
+- 唯一新 condition 为 `sdpa_numerical_control_frozen_encoded`：numerical controls 在 CUDA 初始化前应用，
+  parent automatic loader 保持不变，模型加载后必须回读 top/text/vision 全 `sdpa`，且不声称 strict CUDA
+  determinism；
+- condition 内 failure 和 outer process failure 都只能序列化 class-only evidence；outer failure 投影为 0
+  encode/0 generation，不伪造调用，并按最高优先级形成 `INVALID_RUNTIME_FAILURE`；
+- preflight 绑定 canonical cleanup raw log、至少连续 10 秒 0% sample、四张 H200 UUID、container identity 与
+  900 秒 freshness；attempt/terminal 逐字段绑定 parent candidate/model/processor inventory、source、D1、wave 与
+  unique process identity；
+- 四个本机 CPU worker 并发复验 runtime/core、contract、envelope/execution、aggregate/CLI 以及相关 v1 回归，
+  共 `75 passed`；`py_compile`、source validator 与 diff check 通过；
+- Source-A 禁止 GPU/model load/result write。下一步只允许从 clean pushed `main` 做 fresh preflight，机械生成
+  direct-child Execution-B 且该 commit 唯一 changed path 必须是 execution JSON；formal D1b 尚未运行，
+  labels/training/matched-NLL/closed-loop 继续 locked。详见
+  [`set_utility_action_stability_diagnostic_v2.md`](set_utility_action_stability_diagnostic_v2.md)。
+
 ### 2026-07-19：D1 formal execution completed，runtime-invalid
 
 - source A2=`121c8621bae4f56a57060ea2fb402cfa3d8c7146`，唯一 direct-child execution B=
