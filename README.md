@@ -7,12 +7,12 @@
 ## 当前结论
 
 - Restoration signal 存在，但旧版 conditional gate 与 independent gate 都没有在 untouched confirm 上稳定超过廉价 heuristic。
-- GUIOdyssey 扩数 substrate 已完成：1,200 trajectories、2,400 query states；processor artifact 已在 Hugging Face immutable revision `c20bab8df424dc9e45ece1084f3d1dc035dd1ed8` 固定。
+- GUIOdyssey 已固定 1,200 trajectories。旧 processor artifact 只物化每条轨迹的 anchor/terminal 两个 query，不能算 state-level 扩数完成。
 - D2 已证明 strict-determinism runtime 可稳定复现先前的异常 state。
 - 旧的 all-or-nothing throughput / stability 协议不再阻塞探索主线。新 MVP 按 state 接受：稳定 state 产标签，不稳定 state 记录并跳过。
-- `n=4, |S|<=2` 的 scale-v1 已完成：355/356 states 可用，得到 307 train / 24 tune / 24 development-evaluation states。
+- 旧 `scale-v1` 仅有 355 个 anchor states，现降级为 anchor-only pilot，不再作为扩数结果或继续调参依据。
 - Oracle-independent `J` 在 B1/B2 恢复 exact utility 的 99.39%/90.06%，证明 independent restoration objective 在这批数据上有效；learned models 仍有明显 distillation gap。
-- 当前最好 learned 结果是 DeepSets fixed-B：B2 recovery 85.94%，略高于 OCR/RGB 85.41%，但 paired 为 12胜/1平/11负，不能声称稳定胜出。Set Transformer 没有成为最佳模型。
+- Dense per-step census 共 12,792 states（10,680 train / 1,066 tune / 1,046 evaluation）。现有 artifact 可复用 12,635 个；其余 157 个来自 20 条超长 trajectory 的中段截图缺口，需从 pinned raw source 补齐。
 
 完整历史与失败记录保留在 [`docs/progress.md`](docs/progress.md)，但不应把历史 formal contract 当成当前 MVP 的执行清单。
 
@@ -34,18 +34,12 @@ U(S)=D(\varnothing)-D(S).
 - recent、OCR/RGB、oracle-independent `J`；
 - exact subset oracle。
 
-## 当前 MVP
+## 当前执行主线
 
-配置：[`code/configs/causalcache_set_utility_mvp_v1.json`](code/configs/causalcache_set_utility_mvp_v1.json)
-
-- 每个 processor worker：12 train + 2 tune + 2 evaluation；总计 64 states；
-- 4 个候选事件，生成全部 11 个 `|S|<=2` coalition labels；
-- full-history action 重复两次，action 不同或 repeat KL 超阈值时仅跳过该 state；
-- 4 GPU 独立分片、可恢复写入；
-- CPU 训练三个 predictor；
-- 在 evaluation split 同时报 `B=1,2` 的 true-utility recovery。
-
-执行说明见 [`docs/set_utility_mvp_v1.md`](docs/set_utility_mvp_v1.md)。
+- 同一 trajectory 的所有 eligible decision steps 保持在同一 split；
+- 每个 state 使用最近 4 个 non-current events，生成全部 11 个 `|S|<=2` coalition labels；
+- census 见 [`data/results/set_utility_dense_v1/census.json`](data/results/set_utility_dense_v1/census.json)；
+- 先补齐 157 个 image gaps，再对 12,792 states 分片生成 labels、训练 predictor。
 
 ## Source of Truth
 
@@ -54,8 +48,8 @@ U(S)=D(\varnothing)-D(S).
 | 代码、配置、论文、轻量结果 | 本 Git 仓库 `main` | canonical |
 | Processor substrate | [HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair) | immutable，23 files / 18.73 GB |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
-| Scale-v1 labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | tag `set-utility-scale-v1-ac0ef27`；362 files fresh byte verified |
-| Scale-v1 predictor checkpoints | [HF model@365f3882](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/365f3882658b40eccb64c9565ae8639986c59e82) | tag `set-utility-scale-v1-ac0ef27`；3 checkpoints + config/evaluation/card fresh byte verified |
+| Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |
+| Anchor-only pilot checkpoints | [HF model@365f3882](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/365f3882658b40eccb64c9565ae8639986c59e82) | deprecated pilot；仅保留复现 |
 
 大文件若暂时无法上传 HF，必须保存在个人 persistent storage，并在本 README 或结果文档记录精确路径与 `PENDING_HF_UPLOAD`。
 
@@ -71,12 +65,13 @@ U(S)=D(\varnothing)-D(S).
 
 ```bash
 PYTHONPATH=code .venv/bin/pytest -q \
+  code/tests/test_set_utility_dense.py \
   code/tests/test_set_utility_mvp.py \
   code/tests/test_set_utility_label_inputs.py
 
 PYTHONPATH=code python3 -m compileall -q \
   code/causalcache \
-  code/scripts/run_set_utility_mvp_labels.py \
+  code/scripts/census_set_utility_dense_states.py \
   code/scripts/train_set_utility_mvp.py
 ```
 
@@ -84,7 +79,7 @@ PYTHONPATH=code python3 -m compileall -q \
 
 MVP 的首要判断不是 closed-loop，而是 held-out utility selection：
 
-- 若 Set Transformer 或较简单 predictor 稳定超过 OCR/RGB，并明显缩小 exact-oracle gap：继续扩充 `n=8,16` 数据，再做 matched-NLL 与 closed-loop。Scale-v1 目前只达到“边缘持平”，尚未满足该条件。
+- 若 dense predictor 稳定超过 OCR/RGB，并明显缩小 exact-oracle gap：继续扩充 `n=8,16` 数据，再做 matched-NLL 与 closed-loop。
 - 若 oracle-independent `J` 有效但 learned models 失败：改进表示和训练数据。
 - 若 exact oracle 有 signal、但所有可学习目标和简单 baseline 持平：重新审视 predictor objective。
 - 不因单个 near-tie / unstable state 让整个数据集归零；报告接受率和失败类别。

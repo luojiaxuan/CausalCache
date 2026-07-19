@@ -1,6 +1,8 @@
 # Set Utility Scale v1
 
-状态：`COMPLETED_EXPLORATORY_SCALE_V1`。
+状态：`DEPRECATED_ANCHOR_ONLY_PILOT`。
+
+该实验每条 trajectory 只使用一个 `stratum_anchor` state。355 个 state 不是 trajectory 内逐 step 扩数，不能作为正式 predictor 数据规模或泛化结论；结果仅保留用于复现，不再沿此数据设计调参。
 
 356 个预选 `n=4` states 中，355 个完成全部 11 个 `|S|<=2` restoration labels；1 个 train state 因 GUI-Owl action parse error 跳过。所有接受 state 的 reference repeat KL 为 0。
 

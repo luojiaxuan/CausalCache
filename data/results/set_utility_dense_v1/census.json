@@ -1,0 +1,30 @@
+{
+  "candidate_count": 4,
+  "eligible_state_count": 12792,
+  "eligible_state_count_by_role": {
+    "evaluation": 1046,
+    "train": 10680,
+    "tune": 1066
+  },
+  "legacy_artifact_covered_state_count": 12635,
+  "legacy_artifact_covered_state_count_by_role": {
+    "evaluation": 1029,
+    "train": 10548,
+    "tune": 1058
+  },
+  "legacy_artifact_missing_state_count": 157,
+  "legacy_artifact_missing_state_count_by_role": {
+    "evaluation": 17,
+    "train": 132,
+    "tune": 8
+  },
+  "legacy_artifact_missing_trajectory_count": 20,
+  "legacy_artifact_missing_trajectory_count_by_role": {
+    "evaluation": 2,
+    "train": 17,
+    "tune": 1
+  },
+  "minimum_decision_step": 6,
+  "source_trajectory_count": 1200,
+  "status": "COMPLETED_DENSE_PER_STEP_CENSUS"
+}
