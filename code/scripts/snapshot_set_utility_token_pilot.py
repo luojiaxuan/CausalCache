@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ from causalcache.set_utility_mvp import (
     COMPLETED_STATE_STATUS,
     canonical_json_bytes,
 )
+from causalcache.set_utility_dense import dense_trajectory_partition
 
 
 SNAPSHOT_STATUS = "FROZEN_SET_UTILITY_TOKEN_PILOT_SNAPSHOT"
@@ -37,14 +39,25 @@ def _write_json(path: Path, value: Any) -> None:
     os.replace(temporary, path)
 
 
-def _parse_source(value: str) -> tuple[str, Path]:
+def _parse_source(value: str) -> tuple[str, Path, int | None, int | None]:
     name, separator, raw_path = value.partition("=")
     if not separator or not name or not raw_path:
-        raise argparse.ArgumentTypeError("sources must use NAME=/absolute/state/root")
+        raise argparse.ArgumentTypeError(
+            "sources must use NAME=/absolute/state/root[@INDEX/COUNT]"
+        )
+    partition_index = None
+    partition_count = None
+    match = re.fullmatch(r"(.+)@([0-9]+)/([1-9][0-9]*)", raw_path)
+    if match is not None:
+        raw_path = match.group(1)
+        partition_index = int(match.group(2))
+        partition_count = int(match.group(3))
+        if partition_index >= partition_count:
+            raise argparse.ArgumentTypeError("source partition index is out of range")
     path = Path(raw_path).resolve()
     if not path.is_dir():
         raise argparse.ArgumentTypeError(f"state root does not exist: {path}")
-    return name, path
+    return name, path, partition_index, partition_count
 
 
 def main() -> None:
@@ -64,7 +77,7 @@ def main() -> None:
     source_by_state: dict[str, str] = {}
     observed_roles = Counter()
     observed_statuses = Counter()
-    for source_name, source_root in args.source:
+    for source_name, source_root, partition_index, partition_count in args.source:
         for path in sorted(source_root.glob("*.json")):
             payload = path.read_bytes()
             record = json.loads(payload)
@@ -72,6 +85,12 @@ def main() -> None:
                 raise ValueError(f"{path} must contain one JSON object")
             status = str(record.get("status"))
             role = str(record.get("role"))
+            trajectory_id = str(record.get("trajectory_id"))
+            if partition_index is not None and dense_trajectory_partition(
+                trajectory_id,
+                partition_count=partition_count,
+            ) != partition_index:
+                continue
             observed_statuses[status] += 1
             observed_roles[role] += 1
             if status != COMPLETED_STATE_STATUS or role not in {"train", "tune"}:
@@ -123,7 +142,13 @@ def main() -> None:
         "role_counts": dict(sorted(role_counts.items())),
         "schema_version": "1.0.0",
         "source_roots": [
-            {"name": name, "path": str(path)} for name, path in args.source
+            {
+                "name": name,
+                "path": str(path),
+                "trajectory_partition_count": count,
+                "trajectory_partition_index": index,
+            }
+            for name, path, index, count in args.source
         ],
         "state_count": len(records),
         "status": SNAPSHOT_STATUS,
