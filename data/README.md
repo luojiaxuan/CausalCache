@@ -39,6 +39,14 @@ candidate-schedule key repair v2 不产生新的 data artifact，也不修改 pr
 consumer byte reconstruction；source config 与执行边界见
 [`../docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md`](../docs/set_utility_train_only_throughput_pilot_candidate_schedule_key_repair_v2.md)。
 
+该 v2 repair 的唯一 four-H200 formal attempt 已完成并产生 exact metric-only aggregate；Git-safe aggregate、
+summary 与解释位于
+[`results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/`](results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/)。
+执行本身 valid，但 selector 因 3 个 mb1 reference-action mismatch 和 1 个 cross-variant mismatch 返回
+`NO_GO`；8/12 pairs completed、`68/84` native calls、retry=`0`，没有选择 microbatch。raw attempts/terminals/logs
+保留在 Hyper00 `/data/runs/causalcache-throughput-pilot-v2-key-repair-d5e0cca`，仅作 local forensic；本步 HF
+mutation 为 0，restoration labels、predictor checkpoint、matched-NLL 与 closed-loop output 仍为 0。
+
 `manifests/set_utility_full_pool_inventory_v1.json` 已从 upstream immutable revision 完成 metadata-only
 P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
 `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=

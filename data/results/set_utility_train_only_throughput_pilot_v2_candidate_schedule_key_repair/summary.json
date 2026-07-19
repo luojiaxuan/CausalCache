@@ -1,0 +1,224 @@
+{
+  "aggregate": {
+    "aggregate_json_created": true,
+    "cli_exit_code": 0,
+    "protocol_id": "causalcache_set_utility_throughput_pilot_execution_aggregate_v1",
+    "sha256": "35e0c250232efbd2b9bdccfb1b04a7c372fbed892635342cce4f9f81097ff33f",
+    "size_bytes": 5398,
+    "status": "COMPLETED_THROUGHPUT_PILOT_EXECUTION_AGGREGATE_V1",
+    "stderr": {
+      "byte_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "byte_count": 4726,
+      "sha256": "b9b3e2fb1ca5cf5ba1dc08e8b52c24dc31bbe57dd087ee96df12dc6bfa02a3e7"
+    }
+  },
+  "artifacts": {
+    "candidate_schedule_sha256": "186f2952108273672c6cdbf963094754298d23693fd6268a72b6223e99c2299d",
+    "freeze_manifest_sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30",
+    "model": {
+      "inventory_sha256": "6faac059bb7feae4cd350537931ff68142d575a20a9e85ec1c05dedeacc088ee",
+      "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc"
+    },
+    "processor": {
+      "hf_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+      "hf_revision": "c20bab8df424dc9e45ece1084f3d1dc035dd1ed8",
+      "inventory_sha256": "7c2a971658ad9a6bbc639446e9326e9dd4718b8d2d77186f52a17f10f3b32fc1"
+    }
+  },
+  "bindings": {
+    "config_sha256": "b2e224147a70dbec14c389098a8fdcdd80b789b4f7f7cbafca15857102eb41ae",
+    "envelope_commit_b": "e5002d8820b3e4c8c89343b73ba4a5d13aa117c3",
+    "execution_envelope_sha256": "dd0e64fb40bd39f839a1df91240a1e9a1a528a0bbfe9131d49ba726e8ecf4e3a",
+    "runtime_identity_sha256": "bcd4c0425343317e3d7a7519b262119237d0755bdf1ab21911448ae72baff336",
+    "source_commit_a": "d5e0cca5c5e05d4aeeef74a1bbfae5685a4254c9",
+    "source_inventory_sha256": "ea3ca6dfda529ccf2cde50e7d1c577a6a8714fbbeb90415faa3c32a16456a669"
+  },
+  "counts": {
+    "actual_generation_calls": 42,
+    "actual_native_calls": 68,
+    "actual_teacher_calls": 26,
+    "actual_teacher_examples": 34,
+    "cross_variant_comparison_count": 9,
+    "cross_variant_equal_count": 8,
+    "expected_success_native_calls": 84,
+    "pair_completed_count": 8,
+    "pair_expected_count": 12,
+    "retry_count": 0,
+    "worker_attempt_count": 4,
+    "worker_expected_count": 4,
+    "worker_terminal_count": 4
+  },
+  "execution": {
+    "aggregate_completed_at_utc": "2026-07-19T11:00:34Z",
+    "container_id": "d57521bda90cb1b71beecc2e7ac1482584c87f98229b5ecbc8bc3ccadec6e657",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "container_name": "sglang-omni-jaxan-07191856",
+    "envelope_materialized_at_utc": "2026-07-19T10:57:20Z",
+    "gpus": [
+      {
+        "host_index": 0,
+        "uuid": "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+        "visible_index": 0
+      },
+      {
+        "host_index": 1,
+        "uuid": "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+        "visible_index": 1
+      },
+      {
+        "host_index": 3,
+        "uuid": "GPU-f2d88c45-534f-b4cb-b9b9-65a9888c3617",
+        "visible_index": 2
+      },
+      {
+        "host_index": 4,
+        "uuid": "GPU-1fd4a647-1209-b833-c1a3-90335ea0300c",
+        "visible_index": 3
+      }
+    ],
+    "host": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "runtime": {
+      "cuda": "13.0",
+      "driver": "570.172.08",
+      "python": "3.12.3",
+      "torch": "2.11.0+cu130",
+      "transformers": "5.6.0"
+    },
+    "run_root": "/data/runs/causalcache-throughput-pilot-v2-key-repair-d5e0cca",
+    "workers_launched_at_utc": "2026-07-19T10:58:46Z",
+    "workers_terminal_by_utc": "2026-07-19T11:00:31Z"
+  },
+  "failure_breakdown": [
+    {
+      "failure_class": "CROSS_VARIANT_REFERENCE_ACTION_MISMATCH",
+      "state_id": "0296753837938323:decision:006",
+      "worker_index": 0
+    },
+    {
+      "failure_class": "MICROBATCH_1__REFERENCE_ACTION_MISMATCH",
+      "state_id": "0310939638496410:decision:006",
+      "worker_index": 1
+    },
+    {
+      "failure_class": "MICROBATCH_1__REFERENCE_ACTION_MISMATCH",
+      "state_id": "0271654003819383:decision:010",
+      "worker_index": 2
+    },
+    {
+      "failure_class": "MICROBATCH_1__REFERENCE_ACTION_MISMATCH",
+      "state_id": "0279447750102246:decision:010",
+      "worker_index": 3
+    }
+  ],
+  "forensic_evidence": {
+    "local_path": "/data/runs/causalcache-throughput-pilot-v2-key-repair-d5e0cca",
+    "preflight_evidence_sha256": "1b19f6d4e7447d7ef3da92d391d0a90c6724d65676e43cda6216b1c50d9bca4e",
+    "status": "LOCAL_FORENSIC_NOT_UPLOADABLE",
+    "worker_files": [
+      {
+        "attempt_sha256": "90c9989c421ccc5bd73ce9fa5225e88d5deed637cd2ebb5d12abc6d61b7969d4",
+        "stderr_sha256": "cdafdcd6f7896ef466491a370a00e1f664a5ccda3ccc0731119b596e3beb8bc9",
+        "stdout_sha256": "7845d7795e6aa321b18ab78bc18969ee594d5decb2c3aefb5a8a9365a5e3c1e8",
+        "terminal_sha256": "e52cd8ff1e449bf77186877e506097f719f81541a123bc13687a6175b2c2d76c",
+        "worker_index": 0
+      },
+      {
+        "attempt_sha256": "c824d636605e8b2061101f20cbd9f78be54857fe568f343aa2ae91bccc2276c7",
+        "stderr_sha256": "6188170bad2ed4560cc49ad29bae6b164e056cdca71c45c9bf90a3dff1013d02",
+        "stdout_sha256": "efa163f31569f7d67e5df5de57030c9cb7fd78704b9b67bf22190875c11d6f06",
+        "terminal_sha256": "889ea8fbac7708502757470ba2cc3578c3ee247ee961df6d3112528722b03cc5",
+        "worker_index": 1
+      },
+      {
+        "attempt_sha256": "5ad862379a63ab66cc5cc75d418f532f136f536486b33caa9d3d825c74672594",
+        "stderr_sha256": "7166a2f6cf624de1dc9fc437a582d7acefb8151f74b86fe8c8f91da3965cca5e",
+        "stdout_sha256": "dd4881aaad782356bcb30a2805a4ad6385644916436457596405a8c6ff42f3b9",
+        "terminal_sha256": "99535d3bb32641500c978ce2e1a0160268e21e801ae642008ec0b19dacd85ca4",
+        "worker_index": 2
+      },
+      {
+        "attempt_sha256": "8da7774c1957b4513274b908d1596a1c57b9ae436d6f6004f93b85cf78d6b093",
+        "stderr_sha256": "64b0ada2d7ccb679cc98a05c1e6e3d802635fad1abd6b2af1b648d34adf31824",
+        "stdout_sha256": "eb1bd29ee1565f070f5cb7297c9fb548c5242cbdf573dbf9bade37a513e99e47",
+        "terminal_sha256": "b5eb89af80f799225503aabaec05613fcf0b57ab83cab998646b06e374f0de56",
+        "worker_index": 3
+      }
+    ]
+  },
+  "hf_mutation_count": 0,
+  "latency": {
+    "all_12_pairs_comparable": false,
+    "latency_selection_not_reached": true,
+    "successful_pairs_only_descriptive": {
+      "microbatch_1_teacher_wall_seconds": 35.14888492412865,
+      "microbatch_2_over_microbatch_1_ratio": 0.9971074994552431,
+      "microbatch_2_teacher_wall_seconds": 35.04721675533801,
+      "pair_count": 8,
+      "selection_eligible": false
+    }
+  },
+  "memory": {
+    "device_total_memory_bytes_per_worker": 150121021440,
+    "full_call_cuda_allocated_max_bytes": 31267179520,
+    "full_call_cuda_reserved_max_bytes": 45770342400,
+    "observed_reserved_fraction": 0.3048896281210915,
+    "observed_reserved_peak_within_limit": true,
+    "reserved_memory_limit_fraction": 0.8
+  },
+  "monitoring": {
+    "active_window_container_aggregate": {
+      "average_utilization_percent": 84,
+      "duration_seconds": 10,
+      "per_gpu_sustained_claim": false,
+      "persistent_log_available": false
+    },
+    "in_run_snapshot": {
+      "allocated_gpu_count": 4,
+      "sustained_claim": false,
+      "utilization_percent_by_gpu": [
+        100,
+        100,
+        100,
+        100
+      ]
+    },
+    "post_completion_idle": {
+      "excluded_from_active_window_assessment": true,
+      "sampled_after_all_workers_completed": true,
+      "utilization_percent_by_gpu": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "scientific_selection_input": false
+  },
+  "preflight": {
+    "completed_at_utc": "2026-07-19T10:55:42Z",
+    "evidence_sha256": "1b19f6d4e7447d7ef3da92d391d0a90c6724d65676e43cda6216b1c50d9bca4e",
+    "sample_seconds": 10,
+    "started_at_utc": "2026-07-19T10:55:11Z",
+    "status": "PASSED_EXACT_FOUR_GPU_PREFLIGHT"
+  },
+  "result_id": "set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair",
+  "schema_version": "1.0.0",
+  "scientific_eligibility": false,
+  "selection": {
+    "outcome": "NO_GO",
+    "reason": "MICROBATCH_1_FAILURE",
+    "selected_reference_teacher_microbatch_size": null
+  },
+  "status": "VALID_COMPLETED_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_V2_SELECTION_NO_GO_REFERENCE_ACTION_INSTABILITY",
+  "unopened_downstream": {
+    "closed_loop": true,
+    "matched_nll": true,
+    "predictor_training": true,
+    "restoration_labels": true
+  }
+}

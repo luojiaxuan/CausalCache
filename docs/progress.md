@@ -12,6 +12,29 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：throughput pilot v2 valid execution、selection NO-GO
+
+- source A=`d5e0cca5c5e05d4aeeef74a1bbfae5685a4254c9` 与 direct-child execution-envelope B=
+  `e5002d8820b3e4c8c89343b73ba4a5d13aa117c3` 均已 push；envelope SHA256=
+  `dd0e64fb40bd39f839a1df91240a1e9a1a528a0bbfe9131d49ba726e8ecf4e3a`。fresh preflight 在 Hyper00 选择
+  host GPU `0,1,3,4`，四个 worker 并发处理各自三个冻结 state；
+- execution 与 aggregate 有效：4/4 attempts、4/4 terminals、retry=`0`，aggregate SHA256=
+  `35e0c250232efbd2b9bdccfb1b04a7c372fbed892635342cce4f9f81097ff33f`。只读审计确认 lineage、Git/run
+  envelope byte identity、canonical terminal、roster、freshness、hashes 和 no-top-up 全部一致；
+- 12 个 pair 全部 attempted，8 个完整 completed；实际 42 generation + 26 teacher=`68/84` native calls。
+  3 个 state 为 `MICROBATCH_1__REFERENCE_ACTION_MISMATCH`，另 1 个为
+  `CROSS_VARIANT_REFERENCE_ACTION_MISMATCH`。因此预注册 selector 正式返回 `NO_GO` /
+  `MICROBATCH_1_FAILURE`，selected microbatch=`null`；
+- full-call reserved peak=`45,770,342,400` bytes，占每 worker 可见显存 30.49%，未触发 80% bound。8 个成功
+  pair 的 mb2/mb1 teacher-wall ratio=`0.997107` 只作 incomplete-subset 描述，不能用于 formal selection；
+- operationally，10 秒 active container-level window 平均利用率 84%，另有四卡同时瞬时 100% snapshot；
+  worker 完成后的逐卡 0% sample 仅表示 post-completion idle，不参与 startup 或科学判定；
+- 正式状态为
+  `VALID_COMPLETED_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_V2_SELECTION_NO_GO_REFERENCE_ACTION_INSTABILITY`。
+  它不是 processor repair failure、OOM 或 restoration scientific negative。结果见
+  [`../data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/`](../data/results/set_utility_train_only_throughput_pilot_v2_candidate_schedule_key_repair/)；
+  labels/training/matched-NLL/closed-loop 继续 locked。下一步另立 versioned action-stability diagnostic，不重跑 v2。
+
 ### 2026-07-18（UTC 07-19）：throughput pilot candidate-schedule key repair v2 source freeze
 
 - read-only byte audit 证明 processor candidate schedule 的 raw bytes 正确：18,718,642 bytes、SHA256=

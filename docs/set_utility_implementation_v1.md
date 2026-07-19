@@ -219,9 +219,10 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
    payload、cross-role row、symlink、inode replacement、image-inventory drift、failure-metric inclusion、sensitive-
    error serialization 与默认路径等价性负测；12-state pilot v1 已冻结并消费唯一 attempt，但在 runtime/model
    load 前因 candidate schedule canonical-pretty consumer check fail closed（0/84 calls）。versioned v2 typed-key
-   reconstruction source 已冻结；现在应先完成新的 source-A→envelope-B 和唯一四卡 attempt，通过 throughput/memory
-   contract 后再立 label Execution-B 生产 phase-1
-   `|S|<=2` tables；
+   reconstruction 已完成 source-A→envelope-B 与唯一四卡 attempt；execution/aggregate 有效，但 3 个 mb1
+   repeated-generation mismatch 加 1 个 cross-variant mismatch 使 selector 返回 `NO_GO`，没有 microbatch selection。
+   下一步先另立 action-stability diagnostic，区分 repeated encoding/input mutation 与 BF16/attention-backend 数值
+   不稳定；在新的 throughput identity 通过前，不得启动 label Execution-B 或生产 phase-1 `|S|<=2` tables；
 3. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 
