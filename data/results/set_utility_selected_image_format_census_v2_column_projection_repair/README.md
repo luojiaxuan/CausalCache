@@ -41,7 +41,7 @@ v1 的 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT
 补 alpha 或重编码。v2 与 v1 forensic root 的 18,792 个 non-selector records 逐项一致；该比较仅作诊断，正式
 有效性来自 v2 contract 与 postflight。
 
-## Artifact 状态与下一步
+## Artifact publication 与下一步
 
 当前 10-file root 位于 Hyper00：
 
@@ -49,13 +49,18 @@ v1 的 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT
 /data/artifacts/causalcache-selected-image-format-census-v2-column-projection-repair-1a03b7e
 ```
 
-Git result milestone push 后状态为 `PENDING_HF_UPLOAD`，intended private destination 是：
+artifact 已发布到 private Hugging Face dataset：
 
 ```text
 gavinlaw/causalcache-set-utility-new-development-mobile
 phase1-b2-image-format-census-v2-column-projection-repair
+c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0
 ```
 
-上传并回写 immutable HF revision 前，外置 root 仍是唯一 artifact copy，不能删除。有效 census 只授权下一步
-另立 versioned processor image-contract repair；final candidates、restoration labels、predictor training、
-matched-NLL 和 closed-loop 仍未解锁。
+冻结 tag 已解析到上述 immutable revision；从该 revision fresh-download 的 10 formal files 与 Hyper00 原件逐
+byte 相同，canonical inventory SHA256 仍为
+`6c687bec18fd9bcb8f06dfd31c9a1685a6de976eed67b610de18fd3d7933bd4f`。HF 链接：
+<https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile>。
+
+有效 census 只授权下一步另立 versioned processor image-contract repair；final candidates、restoration labels、
+predictor training、matched-NLL 和 closed-loop 仍未解锁。

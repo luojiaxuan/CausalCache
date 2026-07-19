@@ -84,11 +84,13 @@
 > 正式状态为 `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`。它对全部 18,792
 > records 使用 exact `columns=["images"]`，runtime exact batch-schema/row-key assertions 均通过；final root 为
 > 10 files / 6,943,195 bytes，staging absent，GPU/OCR/model/policy/HF mutation 均为 0。有效 histogram 是
-> `PNG/RGBA=18,768`、`PNG/RGB=24`，全部无 EXIF；当前 artifact 为 `PENDING_HF_UPLOAD`。结果见
+> `PNG/RGBA=18,768`、`PNG/RGB=24`，全部无 EXIF。artifact 已发布到 private HF tag
+> `phase1-b2-image-format-census-v2-column-projection-repair`，immutable revision=
+> `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`；fresh re-download 的 10-file inventory 与原件逐 byte 相同。结果见
 > [`data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)，协议见
 > [`docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。
-> 下一步先发布 immutable HF revision，再另立同时接受原始 opaque RGBA 与 RGB 的 processor image-contract
-> repair；当前仍没有 final candidates、restoration labels、
+> 下一步另立同时接受原始 opaque RGBA 与 RGB 的 versioned processor image-contract repair；当前仍没有
+> final candidates、restoration labels、
 > predictor checkpoint、matched-NLL
 > 或 closed-loop result。详见
 > [`docs/set_utility_processor_freeze_execution_cf.md`](docs/set_utility_processor_freeze_execution_cf.md)。
@@ -1076,7 +1078,8 @@ mediation effect。
   [`code/scripts/run_set_utility_selected_image_census_v2.py`](code/scripts/run_set_utility_selected_image_census_v2.py),
   [`code/scripts/validate_set_utility_selected_image_census_v2_output.py`](code/scripts/validate_set_utility_selected_image_census_v2_output.py),
   [`docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](docs/set_utility_selected_image_format_census_v2_column_projection_repair.md),
-  [`data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)
+  [`data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/),
+  [private HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile)
 - Independent confirm continuation contract and source validator:
   [`code/configs/causalcache_independent_confirm_continuation_v1.json`](code/configs/causalcache_independent_confirm_continuation_v1.json),
   [`code/scripts/validate_independent_confirm_continuation.py`](code/scripts/validate_independent_confirm_continuation.py)
@@ -1314,7 +1317,7 @@ mediation effect。
 | Set-utility Freeze-B v2 repair | [manifest](data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json)；[result](data/results/set_utility_freeze_b_v2_terminal_index_repair/) | manifest SHA256 `915892ef...581d30`；HF upload pending | 1,200 group-disjoint trajectories / 2,400 corrected policy-blind queries；`1000/100/100` train/tune/eval；processor freeze、labels、training 均未执行 |
 | Set-utility processor-only freeze v1 attempt | [Execution-CF](docs/set_utility_processor_freeze_execution_cf.md)；[failure result](data/results/set_utility_processor_freeze_execution_cf_v1_attempt/) | `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT`；producer `main@b3472bf` | 第 228 个 observation 为合法 PNG/RGB，旧 contract 仅接受 opaque RGBA；output root absent，`.incomplete` preserved，HF/policy/labels/training 均为 0；下一步全量 image-format census |
 | Set-utility selected-image format census v1 attempt | [protocol](docs/set_utility_selected_image_format_census_v1.md)；[failure](data/results/set_utility_selected_image_format_census_v1_attempt/) | `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；producer `main@e636df1`；HF upload forbidden | PyArrow 未传 `columns=["images"]` 而物化完整 rows；10-file root 只作 forensic evidence，observed histogram formal-ineligible；下一步 versioned column-projection repair |
-| Set-utility selected-image format census v2 repair | [protocol](docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)；[result](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/) | `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`；producer `main@1a03b7e`；HF upload pending | 18,792/18,792 image-column-only records；18,768 opaque RGBA + 24 RGB；10-file root / committed postflight VALID；下一步 immutable HF upload 后另立 processor image-contract repair |
+| Set-utility selected-image format census v2 repair | [result](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)；[HF](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile) | producer `main@1a03b7e`；tag `phase1-b2-image-format-census-v2-column-projection-repair`；revision `c1d19eb9...eae0` | `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`；18,792/18,792 image-column-only records，18,768 opaque RGBA + 24 RGB；fresh immutable re-download verified；下一步 processor image-contract repair |
 | Planned set-utility dataset/model | `gavinlaw/causalcache-set-utility-new-development-mobile`；`gavinlaw/causalcache-set-utility-predictors-mobile` | private `phase1-b2-v1` destinations；repos/revisions uncreated and unbound | feature/label shards 与 checkpoints 完成后上传；当前不能视为 canonical artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |

@@ -12,6 +12,21 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：selected-image census v2 immutable HF publication
+
+- 创建 private dataset `gavinlaw/causalcache-set-utility-new-development-mobile`；13-operation payload commit=
+  `08e1b721760eb92ce8db9cb4d83ad4e01e957249`，包含原始 10-file root、artifact README 与 Git-safe summary；
+- dataset card commit=`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，冻结 tag=
+  `phase1-b2-image-format-census-v2-column-projection-repair`，tag resolution 已验证指向该 immutable revision；
+- 从 tagged revision fresh-download 14 repo files 到独立本地路径；其中 10 个 formal files 总计 6,943,195
+  bytes，与 Hyper00 原件逐 byte 相同，canonical inventory SHA256=
+  `6c687bec18fd9bcb8f06dfd31c9a1685a6de976eed67b610de18fd3d7933bd4f`；
+- Git dataset card 位于
+  [`../data/cards/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../data/cards/set_utility_selected_image_format_census_v2_column_projection_repair.md)，
+  Git result summary 已从 `PENDING_HF_UPLOAD` 更新为 `PUBLISHED_HF_IMMUTABLE_VERIFIED`；
+- 下一步已收敛为 versioned processor image-contract repair；labels、training、matched-NLL、closed-loop 与 sealed
+  test 继续 locked。
+
 ### 2026-07-18（UTC 07-19）：selected-image census v2 column-projection repair VALID
 
 - clean pushed producer=`1a03b7eb8ea2c41c8fed5213fed1bcc9d73f846b`；Hyper00 CPU-only process 从
@@ -28,8 +43,8 @@ confirm-20 禁止进入新训练、
   `EXIF=false=18,792`。non-selector records 与 v1 forensic root 逐项一致只作诊断，不作为有效性证据；
 - Git-safe result 见
   [`../data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](../data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
-  当前 artifact=`PENDING_HF_UPLOAD`；完成 immutable HF publication 后，下一步是另立同时接受原始 opaque RGBA
-  与 RGB 的 processor image-contract repair，不能重编码、补 alpha 或跳过 24 个 RGB records；
+  artifact 后续已完成上节 immutable HF publication；下一步是另立同时接受原始 opaque RGBA 与 RGB 的
+  processor image-contract repair，不能重编码、补 alpha 或跳过 24 个 RGB records；
 - final candidates、restoration labels、predictor training、matched-NLL、closed-loop 与 sealed test 仍为 0/locked。
 
 ### 2026-07-18（UTC 07-19）：selected-image census v2 column-projection repair source freeze

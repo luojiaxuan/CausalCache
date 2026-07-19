@@ -9,7 +9,7 @@
     "output_tree_snapshot_sha256": "bd5f28c19b1303cae22437ec8d6659144c7301f20dee9a3be7401adc95be5cda",
     "staging_root": "/data/artifacts/.causalcache-selected-image-format-census-v2-column-projection-repair-1a03b7e.incomplete",
     "staging_root_present_after_success": false,
-    "status": "PENDING_HF_UPLOAD",
+    "status": "PUBLISHED_HF_IMMUTABLE_VERIFIED",
     "total_byte_count": 6943195
   },
   "bindings": {
@@ -178,6 +178,22 @@
     ]
   },
   "protocol_id": "causalcache_set_utility_selected_image_format_census_v2_column_projection_repair",
+  "publication": {
+    "fresh_download_formal_inventory_sha256": "6c687bec18fd9bcb8f06dfd31c9a1685a6de976eed67b610de18fd3d7933bd4f",
+    "fresh_download_formal_total_byte_count": 6943195,
+    "fresh_download_path": "/tmp/causalcache-hf-873e28c/fresh-c1d19eb",
+    "fresh_download_verified": true,
+    "hf_payload_commit": "08e1b721760eb92ce8db9cb4d83ad4e01e957249",
+    "hf_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+    "hf_tag": "phase1-b2-image-format-census-v2-column-projection-repair",
+    "hf_tagged_revision": "c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0",
+    "payload_operation_count": 13,
+    "publication_commit_count": 2,
+    "published_utc": "2026-07-19T04:18:43Z",
+    "status": "PUBLISHED_HF_IMMUTABLE_VERIFIED",
+    "tag_creation_count": 1,
+    "url": "https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile"
+  },
   "schema_version": "2.0.0",
   "status": "VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR",
   "workers": [

@@ -4,8 +4,9 @@
 
 当前状态为 `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`。formal run 从 clean
 pushed `main@1a03b7eb8ea2c41c8fed5213fed1bcc9d73f846b` 启动，并通过同一 commit 中的 independent read-only
-completed-root postflight。有效 output 与 histogram 已产生，HF artifact 尚未上传；当前只授权 immutable HF
-publication 与随后另立 versioned processor image-contract repair，不授权 labels/training/closed-loop。
+completed-root postflight。有效 output 与 histogram 已产生，并已发布到 immutable HF revision
+`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`；fresh re-download 的 formal 10-file inventory 与原件逐 byte
+相同。当前只授权另立 versioned processor image-contract repair，不授权 labels/training/closed-loop。
 
 v1 的唯一 formal attempt 保持
 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`。其 10-file root 只能作为 forensic
@@ -94,6 +95,11 @@ runtime import closure，防止绕过 replacement 身份回退到旧 runner。
 summary 已 commit/push 后，才可在独立 SoT milestone 上传 intended private dataset/tag，并回写 immutable HF
 revision；在此之前状态不是 `PENDING_HF_UPLOAD`，而是尚未产生可发布 artifact。
 
+上述 publication gate 已完成：private dataset tag
+`phase1-b2-image-format-census-v2-column-projection-repair` 已冻结到 revision
+`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，并通过独立 fresh-download inventory 验证。该完成态只解锁
+processor image-contract repair，不改变后续 labels/training/closed-loop 的锁定状态。
+
 即使 v2 最终 VALID，也只能授权下一步另立 versioned processor image-contract repair。final candidate universe、
 exact operation budget、restoration labels、utility predictor training、matched-NLL、closed-loop 和 sealed test 仍需
 各自后续 contract，不能由 census 直接解锁。processor repair 只能依据 VALID v2 histogram，不得引用 v1
@@ -158,7 +164,7 @@ negative-operation counts 与 Git-safe provenance 见
 转码成 RGBA、补 alpha 或更改既有 OCR/AutoProcessor semantics。v2 与 v1 forensic root 的 non-selector records
 逐项一致仅作诊断；v2 的 formal eligibility 只来自新 projection contract 与 postflight。
 
-## 当前 artifact 状态
+## 当前 artifact publication 状态
 
 外置 root 当前保留于 Hyper00：
 
@@ -166,12 +172,15 @@ negative-operation counts 与 Git-safe provenance 见
 /data/artifacts/causalcache-selected-image-format-census-v2-column-projection-repair-1a03b7e
 ```
 
-本 Git result milestone push 后记为 `PENDING_HF_UPLOAD`。intended private dataset/tag 仍是：
+artifact 已发布到 private dataset/tag/revision：
 
 ```text
 gavinlaw/causalcache-set-utility-new-development-mobile
 phase1-b2-image-format-census-v2-column-projection-repair
+c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0
 ```
 
-只有上传完成并回写 immutable HF revision 后，外置 root 才不再是唯一 artifact copy。final candidates、exact
-operation budget、restoration labels、predictor training、matched-NLL 与 closed-loop 继续 locked。
+从该 frozen revision fresh-download 的 formal 10 files 共 6,943,195 bytes，canonical inventory SHA256=
+`6c687bec18fd9bcb8f06dfd31c9a1685a6de976eed67b610de18fd3d7933bd4f`，与 Hyper00 原件逐 byte 相同。外置
+root 继续保留，但已不是唯一 artifact copy。final candidates、exact operation budget、restoration labels、
+predictor training、matched-NLL 与 closed-loop 继续 locked。

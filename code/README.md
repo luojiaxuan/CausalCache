@@ -163,10 +163,11 @@ evidence、禁止 HF 上传，observed histogram 不得冻结 processor repair�
 v2 replacement 已从 clean `main@1a03b7e` 运行完整 18,792 denominator，并通过 committed postflight，状态为
 `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`。exact `columns=["images"]`、
 pre-`to_pylist()` schema assertion、exact row-key assertion、selector order、receipts、histograms 与完整 hash chain
-均闭合；有效输入分布为 18,768 opaque `PNG/RGBA` + 24 `PNG/RGB`。10-file root 当前
-`PENDING_HF_UPLOAD`，Git-safe 结果见
-`data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`。下一步先完成 immutable HF
-publication，再另立同时接受两种合法 signature 的 processor image-contract repair；得到 final
+均闭合；有效输入分布为 18,768 opaque `PNG/RGBA` + 24 `PNG/RGB`。10-file root 已发布到 private HF tag
+`phase1-b2-image-format-census-v2-column-projection-repair`，revision=
+`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，fresh re-download inventory verified。Git-safe 结果见
+`data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`。下一步另立同时接受两种合法
+signature 的 processor image-contract repair；得到 final
 candidates 和 exact operation budget 后才可生成 labels。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`；v2 freeze 边界见

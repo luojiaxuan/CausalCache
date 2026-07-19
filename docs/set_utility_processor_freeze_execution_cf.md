@@ -145,9 +145,9 @@ selected row image 的 Python field，不会把 processor v1 `.incomplete` 追�
 labels/training。其唯一 census v1 attempt 后续因 PyArrow 未传 `columns=["images"]`、实际物化完整 rows 而永久
 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；observed histogram 不得用于
 processor repair。v2 replacement 已从 clean `main@1a03b7e` 重跑完整 18,792 denominator，并通过 committed
-postflight；正式分布为 18,768 opaque `PNG/RGBA` + 24 `PNG/RGB`。下一步先完成该有效 artifact 的 immutable
-HF publication，再另立 processor image-contract v2；不得直接修改本 v1 Execution-CF、重编码、补 alpha 或跳过
-RGB observations。v2 证据见
+postflight；正式分布为 18,768 opaque `PNG/RGBA` + 24 `PNG/RGB`。HF publication 已完成，revision=
+`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`。当前严格下一步是另立 processor image-contract v2；不得直接
+修改本 v1 Execution-CF、重编码、补 alpha 或跳过 RGB observations。v2 证据见
 [`set_utility_selected_image_format_census_v2_column_projection_repair.md`](set_utility_selected_image_format_census_v2_column_projection_repair.md)。
 
 ## 完成态只读 postflight

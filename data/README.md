@@ -60,10 +60,11 @@ observed histogram formal-ineligible，禁止进入 intended private HF tag。�
 [`results/set_utility_selected_image_format_census_v1_attempt/`](results/set_utility_selected_image_format_census_v1_attempt/)。
 v2 column-projection repair 已从 clean `main@1a03b7e` 重新跑完整 denominator，并通过 committed postflight，
 状态为 `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`。10 files / 6,943,195 bytes
-保留于 Hyper00，artifact 当前为 `PENDING_HF_UPLOAD`；正式分布为 `PNG/RGBA=18,768`、`PNG/RGB=24`，全部
-`EXIF=false`。Git-safe 结果与完整 provenance 位于
+已发布到 private HF tag `phase1-b2-image-format-census-v2-column-projection-repair`，immutable revision=
+`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，fresh re-download inventory verified；正式分布为
+`PNG/RGBA=18,768`、`PNG/RGB=24`，全部 `EXIF=false`。Git-safe 结果与完整 provenance 位于
 [`results/set_utility_selected_image_format_census_v2_column_projection_repair/`](results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
-完成 immutable HF upload 后才能另立 processor image-contract repair。v1 failure 协议见
+下一步另立 processor image-contract repair。v1 failure 协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
 边界见
 [`../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。

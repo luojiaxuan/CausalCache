@@ -186,13 +186,13 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 
 下一步严格是：
 
-1. 将已 VALID 的 selected-image census v2 10-file root 上传 private HF tag，并回写 immutable revision；
-2. 根据正式 `PNG/RGBA=18,768`、`PNG/RGB=24` histogram 另立 versioned processor image-contract repair；不能
+1. 根据已发布 immutable HF revision `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0` 的正式
+   `PNG/RGBA=18,768`、`PNG/RGB=24` histogram 另立 versioned processor image-contract repair；不能
    修改旧 processor v1 contract、重编码 source image、补 alpha 或跳过 RGB observations；
-3. repair 完成后执行 processor-only candidate freeze并生成 exact operation budget；
-4. processor freeze 完成后另立 train-only policy throughput pilot contract，再立 label Execution-B 生产 phase-1
+2. repair 完成后执行 processor-only candidate freeze并生成 exact operation budget；
+3. processor freeze 完成后另立 train-only policy throughput pilot contract，再立 label Execution-B 生产 phase-1
    `|S|<=2` tables；
-5. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
+4. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 
 截至本 commit，没有本 full-pool 路线新产生的 restoration label、predictor checkpoint、offline method
