@@ -12,7 +12,7 @@
   "schema_version": "1.0.0",
   "teacher": {
     "maximum_reference_repeat_kl": 0.0001,
-    "microbatch_size": 4,
+    "microbatch_size": 2,
     "profile": "strict_determinism_sdpa"
   },
   "training": {

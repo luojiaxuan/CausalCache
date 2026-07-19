@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,24 @@ from causalcache.set_utility_processor_substrate import SPLIT_ROLES
 
 COMPLETED_STATE_STATUS = "COMPLETED_SET_UTILITY_MVP_STATE"
 SKIPPED_STATE_STATUS = "SKIPPED_SET_UTILITY_MVP_STATE"
+
+
+def validated_teacher_settings(config: Mapping[str, Any]) -> tuple[float, int]:
+    teacher = config.get("teacher") if isinstance(config, Mapping) else None
+    if not isinstance(teacher, Mapping):
+        raise ValueError("MVP config is missing teacher settings")
+    repeat_kl = teacher.get("maximum_reference_repeat_kl")
+    microbatch_size = teacher.get("microbatch_size")
+    if (
+        isinstance(repeat_kl, bool)
+        or not isinstance(repeat_kl, (int, float))
+        or not math.isfinite(float(repeat_kl))
+        or float(repeat_kl) < 0.0
+    ):
+        raise ValueError("maximum reference repeat KL must be finite and non-negative")
+    if type(microbatch_size) is not int or microbatch_size not in (1, 2):
+        raise ValueError("GUI-Owl MVP teacher microbatch size must be one or two")
+    return float(repeat_kl), microbatch_size
 
 
 def canonical_json_bytes(value: Any) -> bytes:
@@ -219,5 +238,6 @@ __all__ = [
     "read_jsonl",
     "select_worker_candidate_records",
     "state_from_completed_record",
+    "validated_teacher_settings",
     "validated_ocr_records",
 ]

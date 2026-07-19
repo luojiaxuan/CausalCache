@@ -13,6 +13,7 @@ from causalcache.set_utility_mvp import (
     feature_state_to_payload,
     select_worker_candidate_records,
     state_from_completed_record,
+    validated_teacher_settings,
 )
 from causalcache.set_utility_processor_freeze import FrozenQueryCandidateRecord
 
@@ -113,3 +114,28 @@ def test_completed_state_round_trip_builds_exact_utility_table() -> None:
     assert state.utility(()) == 0.0
     assert abs(state.utility((1, 2)) - 0.2) < 1e-12
     assert state.normalization_scale == 1.0
+
+
+def test_teacher_settings_reject_unsupported_microbatch_before_execution() -> None:
+    assert validated_teacher_settings(
+        {
+            "teacher": {
+                "maximum_reference_repeat_kl": 1e-4,
+                "microbatch_size": 2,
+            }
+        }
+    ) == (1e-4, 2)
+
+    try:
+        validated_teacher_settings(
+            {
+                "teacher": {
+                    "maximum_reference_repeat_kl": 1e-4,
+                    "microbatch_size": 4,
+                }
+            }
+        )
+    except ValueError as error:
+        assert "one or two" in str(error)
+    else:
+        raise AssertionError("unsupported microbatch was accepted")

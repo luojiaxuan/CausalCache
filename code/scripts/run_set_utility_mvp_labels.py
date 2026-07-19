@@ -38,6 +38,7 @@ from causalcache.set_utility_mvp import (
     feature_state_to_payload,
     read_jsonl,
     select_worker_candidate_records,
+    validated_teacher_settings,
 )
 from causalcache.set_utility_processor_substrate import (
     SelectedTrajectoryAssignment,
@@ -293,6 +294,9 @@ def run_worker(args: argparse.Namespace) -> None:
     output_root = args.output_root.resolve()
     config_path = args.config.resolve()
     config = _read_json(config_path)
+    maximum_reference_repeat_kl, teacher_microbatch_size = (
+        validated_teacher_settings(config)
+    )
     config_sha = _sha256_file(config_path)
     worker_index = args.worker_index
     candidate_path = (
@@ -371,10 +375,8 @@ def run_worker(args: argparse.Namespace) -> None:
                 input_builder=input_builder,
                 image_decoder=image_decoder,
                 kl_kernel=kl_kernel,
-                maximum_reference_repeat_kl=config["teacher"][
-                    "maximum_reference_repeat_kl"
-                ],
-                teacher_microbatch_size=config["teacher"]["microbatch_size"],
+                maximum_reference_repeat_kl=maximum_reference_repeat_kl,
+                teacher_microbatch_size=teacher_microbatch_size,
                 git_revision=git_revision,
                 config_sha256=config_sha,
                 worker_index=worker_index,
