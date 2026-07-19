@@ -2,15 +2,16 @@
 
 ## 当前状态
 
-replacement source freeze 已完成，下一步是从该 commit 启动新的 clean formal run。canonical Execution-CF v2
-config 为
+replacement source freeze 已完成；clean formal run 已于 `2026-07-19T07:10:28Z` 从 pushed
+`main@e976b990ddb089cdea3b04ea15e5c911d5670d40` 在 Hyper00 启动，当前严格为
+`RUNNING_INCOMPLETE_NOT_UPLOADABLE`。canonical Execution-CF v2 config 为
 `code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`，9,290 bytes，
 SHA256=`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。此前 `1c84dfe` 与
 `dc90664` 两次 attempt 均已主动终止且 exit=`143`：真实 processor smoke 证明旧 runtime guard 会把
 Transformers 5.6 必需的通用 `transformers.models.auto.modeling_auto` registry 误判为 architecture model。
-两次均停在 0 receipt、0 candidate-part、0 policy output，只有不可续写的外置 partial staging；当前仍未产生
-completed root、final candidates、exact operation budget、restoration labels、predictor checkpoint、matched-NLL
-或 closed-loop result。
+两次均停在 0 receipt、0 candidate-part、0 policy output，只有不可续写的外置 partial staging；replacement run
+使用全新 namespace，当前仍未产生 completed root、final candidates、exact operation budget、restoration labels、
+predictor checkpoint、matched-NLL 或 closed-loop result。
 
 v1 `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT` 与其外置 `.incomplete`、logs、hashes
 保持原样。v2 使用全新 source/config/output/staging identity，不修改、追认或 resume v1 bytes。
@@ -67,6 +68,9 @@ RapidOCR、写入需要的 artifact image members 并以原 SHA256 绑定；禁�
   `code/scripts/manage_set_utility_processor_freeze_v2_publication.py`；它只接受 committed
   `PENDING_HF_UPLOAD` summary 与 exact 23-file root，以单次 25-operation commit 上传 formal tree、summary 和
   card，创建无覆盖 annotated tag，并分别从 immutable commit 与 tag fresh-download 全部 25 files 逐 byte 验证；
+  commit/tag/download/receipt 中断后只允许 exact-state reconcile，未知或 drifted prefix/tag 拒绝续跑；fresh
+  replay 路径在远端 mutation 前验证，receipt 通过 `0600` temp + file/parent `fsync` + no-overwrite hard-link
+  原子发布；
 - canonical output basename：
   `causalcache-set-utility-processor-freeze-v2-image-contract-repair-<GIT7>`；
 - intended private HF tag：`phase1-b2-processor-freeze-v2-image-contract-repair`，只有 VALID postflight 与
@@ -121,7 +125,8 @@ validator 读取该 artifact，必须显式使用本 v2 contract/postflight。
   `VALID_SET_UTILITY_PROCESSOR_FREEZE_EXECUTION_CF_V2_IMAGE_CONTRACT_REPAIR`；
 - config bytes 与 live skeleton byte-for-byte 相同；
 - source audit：0 forbidden image mutation、0 forbidden v1 execution helper、1 exact transient RGB convert；
-- runner/contract/postflight/publication/result/image-contract focused suite：`83 passed`；
+- committed execution-focused suite：`79 passed`；加入 publication recovery tests 后 combined focused suite：
+  `102 passed`；
 - config validator 会重建 live skeleton，并要求与 canonical config byte-for-byte 相同；
 - `py_compile` 与 `git diff --check` 通过。
 
@@ -157,6 +162,25 @@ Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执�
 新 formal run 必须使用全新 output basename，从 replacement commit 的 clean detached checkout 全量重跑；不能
 复用上述 partial。只有 atomic root、exit=0、committed postflight 和 Git-safe result commit/push 完成后，状态才可
 进入 `PENDING_HF_UPLOAD`。
+
+## 当前 formal run
+
+- producer：clean detached `e976b990ddb089cdea3b04ea15e5c911d5670d40`；config SHA256=
+  `e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`；
+- host/container：Hyper00 `node-radixark-16-0000`，CPU-only container
+  `a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a`；
+- output：`/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99`；当前只有
+  sibling `.incomplete`，没有 final root 或 exit evidence；
+- durable evidence：`/data/logs/causalcache-processor-v2-e976b99`；one-shot supervisor SHA256=
+  `95f066f1e0df17dd0efb8e3d113cb5620306382be1c63cdb64c3c890b7ab7d03`，已预写 exact argv/start/postflight argv，
+  run 结束后原子写 exit/end 并在 exit=0 时自动运行 committed postflight；
+- 四进程联合 processor smoke：32 query / 32 runtimes，joint wall=`41.26s`、effective CPU=`30.79 cores`、
+  aggregate peak RSS=`50,295,324 KiB`，四进程 getter 均为 `28/1`；
+- OCR 稳定启动 snapshot：四个 logical worker lifetime CPU 分别为 `2740/2692/2837/2744%`，合计约
+  `110.13` physical-core equivalents；aggregate RSS=`38,560,624 KiB`，error/traceback match=0。该 snapshot 只
+  证明 execution health，不替代 final root/postflight；
+- Git-safe 记录：`data/results/set_utility_processor_execution_scaling_v2/`。GPU、model/policy forward、label、
+  training、matched-NLL、closed-loop 与 HF mutation 均为 0。
 
 ## 正式执行模板
 

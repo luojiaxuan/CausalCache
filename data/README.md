@@ -79,8 +79,11 @@ HF mutation 均为 0。
 replacement source freeze 的 config 为 9,290 bytes，SHA256=
 `e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。它保持 4 个 logical shards，固定每
 shard 32 路 OCR、8 路 AutoProcessor，以及 PyTorch intra-op=`28` / inter-op=`1`；postflight 会逐 worker
-重验唯一 canonical runtime getter log evidence。新 formal run 尚未启动，
-当前仍无 completed root、VALID postflight、restoration labels 或可上传 processor artifact。v1 failure 协议见
+重验唯一 canonical runtime getter log evidence。clean formal run 已于 `2026-07-19T07:10:28Z` 从
+`main@e976b99` 启动，OCR 稳定窗口合计约 110.13 CPU cores；当前状态为
+`RUNNING_INCOMPLETE_NOT_UPLOADABLE`，仍无 completed root、VALID postflight、restoration labels 或可上传
+processor artifact。轻量 execution summary 位于
+[`results/set_utility_processor_execution_scaling_v2/`](results/set_utility_processor_execution_scaling_v2/)。v1 failure 协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
 边界见
 [`../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。

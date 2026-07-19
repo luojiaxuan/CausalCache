@@ -1,0 +1,68 @@
+{
+  "formal_run": {
+    "config_sha256": "e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70",
+    "container_id": "a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a",
+    "evidence_root": "/data/logs/causalcache-processor-v2-e976b99",
+    "git_revision": "e976b990ddb089cdea3b04ea15e5c911d5670d40",
+    "host": "hyper00/node-radixark-16-0000",
+    "output_root": "/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99",
+    "staging_root": "/data/artifacts/.causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99.incomplete",
+    "started_at_utc": "2026-07-19T07:10:28Z",
+    "startup_snapshot": {
+      "aggregate_ocr_cpu_percent": 11013.0,
+      "aggregate_ocr_rss_kib": 38560624,
+      "elapsed_seconds": 197,
+      "error_or_traceback_match_count": 0,
+      "logical_ocr_worker_count": 4,
+      "ocr_cpu_percent_by_worker": [
+        2740.0,
+        2692.0,
+        2837.0,
+        2744.0
+      ],
+      "ocr_slots_per_logical_worker": 32,
+      "processor_slots_per_logical_worker": 8
+    },
+    "status": "RUNNING_INCOMPLETE_NOT_UPLOADABLE",
+    "supervisor_sha256": "95f066f1e0df17dd0efb8e3d113cb5620306382be1c63cdb64c3c890b7ab7d03"
+  },
+  "joint_processor_smoke": {
+    "aggregate_cpu_seconds": 1270.306331,
+    "aggregate_effective_cpu_cores": 30.789434737778002,
+    "aggregate_peak_rss_kib": 50295324,
+    "joint_wall_seconds": 41.25786464801058,
+    "process_count": 4,
+    "processor_slots_total": 32,
+    "query_count_total": 32,
+    "runtime_getter_verified_process_count": 4,
+    "script_sha256": "0bf7e25548a744897dcbb1ce7c27bf379dfb256d212e511da1e228589641cd7b",
+    "thread_contract": {
+      "ambient_thread_environment_keys_present": [],
+      "getter_verification_passed": true,
+      "torch_interop_thread_count": 1,
+      "torch_intraop_thread_count": 28
+    },
+    "worker_elapsed_seconds": [
+      35.069736659992486,
+      30.12067415518686,
+      40.757505984045565,
+      39.63624284788966
+    ],
+    "worker_output_sha256": [
+      "490915d721432ec9a9bd9c97a6525464866359b998ff1b2bab9e88f82d37a2af",
+      "a16538d60b58a2b97ca1699b4908e5da183fd2d436d0f6f8821df6da8980a533",
+      "990d5b70f492b686b58fc9b4bdd48cfdabf96f6fb258015b3a0966ee8339d13f",
+      "623ff0759cab6871c1f67c7b6c478d64442cec87c09bcbdc15c257a2e3d51792"
+    ]
+  },
+  "negative_operations": {
+    "closed_loop_episode_count": 0,
+    "hugging_face_mutation_count": 0,
+    "matched_nll_count": 0,
+    "model_or_policy_forward_count": 0,
+    "restoration_label_count": 0,
+    "training_count": 0
+  },
+  "protocol_id": "causalcache_processor_v2_execution_scaling_and_launch_record",
+  "schema_version": "1.0.0"
+}

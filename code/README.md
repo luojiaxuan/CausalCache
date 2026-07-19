@@ -178,7 +178,10 @@ post-load guard 会 false-positive。两份 `.incomplete` 只作 execution foren
 首个 AutoProcessor 前必须零 modeling module，之后只允许上述通用 registry；任何 architecture
 `modeling_*`、model forward 或 ambient thread env 仍 fail closed。有界 map 保留 source/query/output 顺序，
 每个 slot 使用独立 runtime；committed postflight 还要求四份 processor log 的第一行分别提供唯一 canonical
-runtime getter evidence。得到 exact 23-file completed root 和 committed postflight 前不可生成 labels。原 v1 runner 为
+runtime getter evidence。clean formal run 已从 pushed `main@e976b99` 启动，4×32 OCR 稳定窗口合计约
+110.13 CPU cores；当前只有 `.incomplete`，详见
+`data/results/set_utility_processor_execution_scaling_v2/`。得到 exact 23-file completed root 和 committed
+postflight 前不可生成 labels。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`；v2 freeze 边界见
 `docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`。

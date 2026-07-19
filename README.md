@@ -105,12 +105,17 @@
 > SHA256=`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。真实 OCR
 > 8/16/32 路为 75.52/49.74/33.93s，32 路比 8 路快 2.23×；Processor 串行/4/8 路为
 > 85.66/28.11/26.93s，收敛到 28-thread 后 8 路为 25.71s。两组 smoke 的 canonical outputs 均一致。
-> 当前仍没有 completed root、final candidates、
+> 四进程联合 smoke 进一步以总 32 个 AutoProcessor runtime 同时处理 32 条真实 query：joint wall=`41.26s`，
+> aggregate effective CPU=`30.79 cores`，四进程 getter 均为 `28/1`，aggregate peak RSS 约 48 GiB。clean
+> formal run 已于 `2026-07-19T07:10:28Z` 从 pushed `main@e976b99` 在 Hyper00 启动；OCR 稳定启动窗口四个
+> logical workers 合计约 `110.13` CPU cores，接近吃满 112 physical cores。当前状态严格为
+> `RUNNING_INCOMPLETE_NOT_UPLOADABLE`，仍没有 completed root、final candidates、
 > restoration labels、
 > predictor checkpoint、matched-NLL
 > 或 closed-loop result；只有 atomic publish 与 committed postflight 通过后才可进入
 > `PENDING_HF_UPLOAD`。详见
-> [`docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)。
+> [`docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md) 与
+> [`data/results/set_utility_processor_execution_scaling_v2/`](data/results/set_utility_processor_execution_scaling_v2/)。
 > 失败摘要见
 > [`data/results/set_utility_processor_freeze_execution_cf_v1_attempt/`](data/results/set_utility_processor_freeze_execution_cf_v1_attempt/)。
 > 不使用旧 13–64
@@ -1346,7 +1351,7 @@ mediation effect。
 | Set-utility processor-only freeze v1 attempt | [Execution-CF](docs/set_utility_processor_freeze_execution_cf.md)；[failure result](data/results/set_utility_processor_freeze_execution_cf_v1_attempt/) | `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT`；producer `main@b3472bf` | 第 228 个 observation 为合法 PNG/RGB，旧 contract 仅接受 opaque RGBA；output root absent，`.incomplete` preserved，HF/policy/labels/training 均为 0；下一步全量 image-format census |
 | Set-utility selected-image format census v1 attempt | [protocol](docs/set_utility_selected_image_format_census_v1.md)；[failure](data/results/set_utility_selected_image_format_census_v1_attempt/) | `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；producer `main@e636df1`；HF upload forbidden | PyArrow 未传 `columns=["images"]` 而物化完整 rows；10-file root 只作 forensic evidence，observed histogram formal-ineligible；下一步 versioned column-projection repair |
 | Set-utility selected-image format census v2 repair | [result](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)；[HF](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile) | producer `main@1a03b7e`；tag `phase1-b2-image-format-census-v2-column-projection-repair`；revision `c1d19eb9...eae0` | `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`；18,792/18,792 image-column-only records，18,768 opaque RGBA + 24 RGB；fresh immutable re-download verified；已解锁并完成 processor v2 source freeze |
-| Set-utility processor freeze v2 image-contract repair | [Execution-CF v2](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)；[config](code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json) | replacement source freeze；config SHA256 `e2c271e0...fb70`；formal rerun pending | 旧 `1c84dfe` / `dc90664` 两次均在 0 receipt/candidate/policy output 时主动终止，因为真实 smoke 提前证明 post-AutoProcessor guard 会对通用 `modeling_auto` false-positive；新合同冻结 128 OCR slots + 32 processor slots + Torch 28/1，并由 postflight 重验四 worker runtime getter evidence；completed root/postflight/HF/labels/training 仍为 0 |
+| Set-utility processor freeze v2 image-contract repair | [Execution-CF v2](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)；[execution summary](data/results/set_utility_processor_execution_scaling_v2/)；[config](code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json) | config SHA256 `e2c271e0...fb70`；formal `main@e976b99` running | 旧 `1c84dfe` / `dc90664` 两次均在 0 receipt/candidate/policy output 时主动终止；新合同冻结 128 OCR slots + 32 processor slots + Torch 28/1，启动窗口约 110.13 CPU cores；当前只有 `.incomplete`，completed root/postflight/HF/labels/training 仍为 0 |
 | Planned set-utility dataset/model | [existing private dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile)；planned `gavinlaw/causalcache-set-utility-predictors-mobile` | dataset repo 已承载 census v2 revision `c1d19eb9...eae0`；processor/feature/label prefix 尚未发布；model repo/revision 尚未创建或绑定 | processor artifact 仅在 VALID postflight 后发布；feature/label shards 与 checkpoints 完成后分别进入 dataset/model repo，当前不得视为已有 canonical artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |

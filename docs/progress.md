@@ -34,9 +34,15 @@ confirm-20 禁止进入新训练、
   `25.71s`。串行/并发 canonical outputs 全等；
 - 新增 immutable HF publication manager：只有 exact 23-file root 与 committed `PENDING_HF_UPLOAD` summary
   才能单次提交 25 files、创建无覆盖 annotated tag，并分别从 commit/tag fresh-download 25/25 逐 byte 验证。
-  当前 processor prefix/tag 尚不存在，新的 formal run 尚未启动；completed root、labels、checkpoint、matched-NLL
-  与 closed-loop 仍为 0。下一步从本 source-freeze commit 的 clean detached checkout 全量重跑并执行 committed
-  postflight。完整合同见
+  manager 支持 commit/tag/download/receipt failure 后的 exact absent→exact commit reconcile，未知 remote state
+  fail closed；fresh replay 在 mutation 前检查，receipt 以 `0600` temp、fsync 与 no-overwrite atomic publish。
+  当前 processor prefix/tag 尚不存在。四进程联合 processor smoke 用 32 runtimes 处理 32 条真实 query，joint
+  wall=`41.26s`、effective CPU=`30.79 cores`、aggregate peak RSS 约 48 GiB，四个 getter 全部为 `28/1`；
+- clean formal run 已于 `2026-07-19T07:10:28Z` 从 pushed `main@e976b99` 在 Hyper00 启动。启动前 exact
+  worktree、79 项 focused tests、Execution/source/snapshot validators 均通过；4×32 OCR 稳定窗口合计约
+  `110.13` CPU cores、约 36.8 GiB RSS，error/traceback=0。当前仅有 `.incomplete`，状态为
+  `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；completed root、labels、checkpoint、matched-NLL 与 closed-loop 仍为 0。
+  下一步等待 atomic completion，并自动执行 committed postflight。完整合同与轻量 launch record 见
   [`set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)。
 
 ### 2026-07-18（UTC 07-19）：selected-image census v2 immutable HF publication
