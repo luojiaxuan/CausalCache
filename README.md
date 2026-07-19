@@ -90,17 +90,22 @@
 > [`data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)，协议见
 > [`docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。
 > processor image-contract v2 只接受 census 证明的 exact opaque `PNG/RGBA` 与 `PNG/RGB` union，保留 source
-> encoded bytes，并保持 v1 transient RGB AutoProcessor semantics。初始 4-slot config SHA256=
-> `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；对应 run 于
-> `2026-07-19T04:58:04Z` 从 clean detached
-> `main@1c84dfe37f86bdc255a00184521170eeaa3b0663` 在 Hyper00 启动，状态为
-> `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；`06:06:26Z` 已到 `7,009/18,792` observations（37.30%），无 fatal。
-> 该运行暴露了把 4 个逻辑 artifact shards 错当成 4 个 execution slots 的吞吐问题。execution-only repair 已在
-> `main@dc90664bc4c16f5f74463e10072f271843d0b316` 将每个逻辑 shard 扩成 8 个有界、顺序保持且 engine 独立的 OCR
-> slots，总计 32 路；新 config SHA256=
-> `c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`。真实 32-image smoke 的 canonical records
-> byte-identical，107.66s→17.05s（6.32×）。accelerated formal replacement 已于 `06:10:19Z` 启动；steady-state
-> 四个逻辑 worker 各约 715--726% CPU，旧 run 保留作备份，两者均为 0 GPU。当前仍没有 completed root、final candidates、
+> encoded bytes，并保持 v1 transient RGB AutoProcessor semantics。初始 4-slot run `main@1c84dfe` 与
+> 32-slot OCR run `main@dc90664` 均在产生任何 receipt/candidate/policy output 前于
+> `2026-07-19T06:27:56Z` / `06:46:35Z` 主动终止（exit 143）。原因是提前运行真实
+> Processor smoke 发现：Transformers 5.6 的 `AutoProcessor.from_pretrained` 只会额外加载通用
+> `transformers.models.auto.modeling_auto` registry，而旧 guard 把它误判为 architecture model。两个
+> `.incomplete` 仅作 execution forensic，不是可 resume/可上传 artifact；GPU、policy forward、labels、
+> training 与 HF mutation 均为 0。
+>
+> 新 execution-only source freeze 仅修复和加速执行层：4 个 logical shards 不变，每 shard 32 个
+> 独立 OCR engine（总 128 slots）、8 个独立 AutoProcessor（总 32 slots），并显式冻结
+> PyTorch intra-op=`28` / inter-op=`1`。pre-load modeling module 必须为 0，post-load 只 allowlist
+> `transformers.models.auto.modeling_auto`，任何 architecture `modeling_*` 仍 fail closed。canonical config
+> SHA256=`fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`。真实 OCR
+> 8/16/32 路为 75.52/49.74/33.93s，32 路比 8 路快 2.23×；Processor 串行/4/8 路为
+> 85.66/28.11/26.93s，收敛到 28-thread 后 8 路为 25.71s。两组 smoke 的 canonical outputs 均一致。
+> 当前仍没有 completed root、final candidates、
 > restoration labels、
 > predictor checkpoint、matched-NLL
 > 或 closed-loop result；只有 atomic publish 与 committed postflight 通过后才可进入
@@ -633,6 +638,11 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 19. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
 20. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
 
+通用 GPU 执行采用全局 skills 的 optimistic fast path：并行 5 秒 idle cleanup 后直接在完整选定 allocation
+上启动，跨机 rollout 使用稳定 logical shards；默认不增加小卡数 smoke、完整机器 sweep 或 startup
+utilization gate，失败、无进展、OOM 或明显过慢时再诊断。已经 frozen 的 formal execution contract 继续
+按其原始要求执行，不追溯改写；项目内权威边界见 [`docs/execution.md`](docs/execution.md)。
+
 仓库结构：
 
 ```text
@@ -1083,6 +1093,7 @@ mediation effect。
   [`code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`](code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json),
   [`code/scripts/run_set_utility_processor_freeze_v2.py`](code/scripts/run_set_utility_processor_freeze_v2.py),
   [`code/scripts/validate_set_utility_processor_freeze_v2_output.py`](code/scripts/validate_set_utility_processor_freeze_v2_output.py),
+  [`code/scripts/manage_set_utility_processor_freeze_v2_publication.py`](code/scripts/manage_set_utility_processor_freeze_v2_publication.py),
   [`docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)
 - Set-utility selected-image format census v1 source freeze：
   [`code/configs/causalcache_set_utility_selected_image_format_census_v1.json`](code/configs/causalcache_set_utility_selected_image_format_census_v1.json),
@@ -1335,8 +1346,8 @@ mediation effect。
 | Set-utility processor-only freeze v1 attempt | [Execution-CF](docs/set_utility_processor_freeze_execution_cf.md)；[failure result](data/results/set_utility_processor_freeze_execution_cf_v1_attempt/) | `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT`；producer `main@b3472bf` | 第 228 个 observation 为合法 PNG/RGB，旧 contract 仅接受 opaque RGBA；output root absent，`.incomplete` preserved，HF/policy/labels/training 均为 0；下一步全量 image-format census |
 | Set-utility selected-image format census v1 attempt | [protocol](docs/set_utility_selected_image_format_census_v1.md)；[failure](data/results/set_utility_selected_image_format_census_v1_attempt/) | `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；producer `main@e636df1`；HF upload forbidden | PyArrow 未传 `columns=["images"]` 而物化完整 rows；10-file root 只作 forensic evidence，observed histogram formal-ineligible；下一步 versioned column-projection repair |
 | Set-utility selected-image format census v2 repair | [result](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)；[HF](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile) | producer `main@1a03b7e`；tag `phase1-b2-image-format-census-v2-column-projection-repair`；revision `c1d19eb9...eae0` | `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`；18,792/18,792 image-column-only records，18,768 opaque RGBA + 24 RGB；fresh immutable re-download verified；已解锁并完成 processor v2 source freeze |
-| Set-utility processor freeze v2 image-contract repair | [Execution-CF v2](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)；[config](code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json) | producer `main@1c84dfe`；`RUNNING_INCOMPLETE_NOT_UPLOADABLE`；config SHA256 `82107b02...506dc` | 4-worker Hyper00 CPU-only run 于 `2026-07-19T04:58:04Z` 启动；5.38% snapshot 已越过旧 RGB witness，零 error；completed root/postflight/HF/labels/training 仍为 0 |
-| Planned set-utility dataset/model | `gavinlaw/causalcache-set-utility-new-development-mobile`；`gavinlaw/causalcache-set-utility-predictors-mobile` | private `phase1-b2-v1` destinations；repos/revisions uncreated and unbound | feature/label shards 与 checkpoints 完成后上传；当前不能视为 canonical artifact |
+| Set-utility processor freeze v2 image-contract repair | [Execution-CF v2](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)；[config](code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json) | replacement source freeze；config SHA256 `fc201c53...3e632`；formal rerun pending | 旧 `1c84dfe` / `dc90664` 两次均在 0 receipt/candidate/policy output 时主动终止，因为真实 smoke 提前证明 post-AutoProcessor guard 会对通用 `modeling_auto` false-positive；新合同冻结 128 OCR slots + 32 processor slots + Torch 28/1；completed root/postflight/HF/labels/training 仍为 0 |
+| Planned set-utility dataset/model | [existing private dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile)；planned `gavinlaw/causalcache-set-utility-predictors-mobile` | dataset repo 已承载 census v2 revision `c1d19eb9...eae0`；processor/feature/label prefix 尚未发布；model repo/revision 尚未创建或绑定 | processor artifact 仅在 VALID postflight 后发布；feature/label shards 与 checkpoints 完成后分别进入 dataset/model repo，当前不得视为已有 canonical artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |
 | Independent UI-TARS reference run | 同一 private independent dataset repo | `reference-gate-v1` / `b3e1245c6c6a1723fe2ca3a861148008df39df46` | 69/75 parsed、27/75 match、swipe 0/2；`NO_GO_CURRENT_REFERENCE_STACK`；oracle 未运行 |

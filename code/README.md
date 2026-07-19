@@ -150,7 +150,7 @@ offline method delta 仍未产生。旧 Freeze-B v1 因 terminal off-by-one 永�
 `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`。processor-only Execution-CF v1
 随后因合法 `PNG/RGB` 与旧 opaque-RGBA 输入合同冲突而 fail closed，output root absent，不能追认或静默放宽。
 
-当前下一步是 selected-image format census v1：config SHA256=
+该 v1 failure 当时的下一步是 selected-image format census v1：config SHA256=
 `c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10`，固定 1,200 trajectories / 18,792
 observations / 527 shards / 4 CPU workers。worker 只读取 frozen row 的 `images` column，不解析
 instruction/action/outcome；OCR、AutoProcessor、model/policy、GPU、labels、training 与 HF mutation 均禁止。
@@ -167,20 +167,25 @@ pre-`to_pylist()` schema assertion、exact row-key assertion、selector order、
 `phase1-b2-image-format-census-v2-column-projection-repair`，revision=
 `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，fresh re-download inventory verified。Git-safe 结果见
 `data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`。processor image-contract v2
-初始冻结 config SHA256=
-`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；它只接受 census 证明的两种 exact
-signature，原 encoded bytes、OCR、prompt、candidate 与 budget contract 不变。当前 4-slot 与 32-slot 两条
-processor-only run 均为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；得到 final candidates/exact operation budget
-后才可生成 labels。原 v1 runner 为
+只接受 census 证明的两种 exact signature，原 encoded bytes、OCR、prompt、candidate 与 budget contract
+不变。初始 `1c84dfe` 和 32-slot `dc90664` 两轮在 0 receipt/candidate/policy output 时主动终止：
+真实 smoke 证明 Transformers 5.6 只加载通用 `transformers.models.auto.modeling_auto`，但旧
+post-load guard 会 false-positive。两份 `.incomplete` 只作 execution forensic，不可 resume 或上传。
+
+当前 replacement config SHA256=
+`fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`；它保留 4 个 logical shards，
+冻结每 shard 32 个 OCR engines 与 8 个 AutoProcessor runtimes，并显式设置 PyTorch intra-op=28 / inter-op=1。
+首个 AutoProcessor 前必须零 modeling module，之后只允许上述通用 registry；任何 architecture
+`modeling_*`、model forward 或 ambient thread env 仍 fail closed。有界 map 保留 source/query/output 顺序，
+每个 slot 使用独立 runtime。得到 exact 23-file completed root 和 committed postflight 前不可生成 labels。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`；v2 freeze 边界见
 `docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`。
-processor repair 的新 runner、postflight 与完整边界见
-`docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。
-初始 4-slot execution 后续暴露 CPU 利用不足；`main@dc90664` 已在保持四个 logical shards 与 23-file contract
-不变的前提下，将每 shard 扩为 8 个独立 OCR slots，总计 32 路。真实 32-image smoke 保持 canonical records
-byte-identical并获得 6.32× speedup；修订 config SHA256=
-`c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`，accelerated formal run 已启动但尚未完成。
+processor repair 的 runner、postflight、immutable HF publication manager 与完整边界见
+`docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。publication manager 要求有效
+`PENDING_HF_UPLOAD` summary、exact 23-file root、private repo 与无冲突 tag/prefix；单次上传 25 个文件后，
+分别从 immutable commit 与 annotated tag fresh-download 全部 25 个文件逐 byte 复验。CLI 为
+`scripts/manage_set_utility_processor_freeze_v2_publication.py` 的 `publish` / `validate-only` 子命令。
 完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 

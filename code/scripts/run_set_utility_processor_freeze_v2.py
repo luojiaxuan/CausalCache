@@ -47,6 +47,11 @@ from causalcache.set_utility_processor_freeze import (
 )
 from causalcache.set_utility_processor_freeze_contract_v2 import (
     OCR_CONCURRENCY_PER_LOGICAL_WORKER,
+    PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER,
+    PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST,
+    PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS,
+    PROCESSOR_TORCH_INTEROP_THREADS,
+    PROCESSOR_TORCH_INTRAOP_THREADS,
     REQUIRED_IDENTITY_ARGUMENTS,
     REQUIRED_PATH_ARGUMENTS,
     REQUIRED_VERSION_ARGUMENTS_BY_PHASE,
@@ -109,6 +114,33 @@ def _bounded_ordered_parallel_map(
             except StopIteration:
                 continue
             pending.append(executor.submit(function, value))
+
+
+def _bounded_ordered_runtime_map(
+    function: Callable[[Any, Any], Any],
+    values: Iterable[Any],
+    *,
+    runtimes: tuple[Any, ...],
+) -> Iterator[Any]:
+    """Run ordered bounded work with one independent runtime per active slot."""
+    if not runtimes:
+        raise ValueError("runtime pool must not be empty")
+    runtime_pool: queue.Queue[Any] = queue.Queue()
+    for runtime in runtimes:
+        runtime_pool.put(runtime)
+
+    def execute(value: Any) -> Any:
+        runtime = runtime_pool.get()
+        try:
+            return function(runtime, value)
+        finally:
+            runtime_pool.put(runtime)
+
+    yield from _bounded_ordered_parallel_map(
+        execute,
+        values,
+        max_workers=len(runtimes),
+    )
 
 
 def _load_v1_runner_module() -> ModuleType:
@@ -332,11 +364,91 @@ def _run_ocr_worker(args: argparse.Namespace, contract: Any, staging: Path) -> N
     write_once_or_verify(receipt_path, canonical_json_bytes(receipt))
 
 
+def _processor_modeling_modules() -> tuple[str, ...]:
+    return tuple(
+        sorted(
+            name
+            for name in sys.modules
+            if name.startswith("transformers.models.") and ".modeling_" in name
+        )
+    )
+
+
+def assert_processor_v2_post_load_import_state() -> None:
+    observed = _processor_modeling_modules()
+    if observed != PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST:
+        raise RuntimeError(
+            "processor-v2 post-load modeling modules drifted: "
+            f"expected={PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST!r}, "
+            f"observed={observed!r}"
+        )
+
+
+def _processor_torch_thread_contract(contract: Any) -> dict[str, Any]:
+    phase = contract.data["phases"]["auto_processor"]
+    expected = {
+        "ambient_thread_environment_allowed": False,
+        "ambient_thread_environment_keys_removed": list(
+            PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS
+        ),
+        "torch_interop_thread_count": PROCESSOR_TORCH_INTEROP_THREADS,
+        "torch_intraop_thread_count": PROCESSOR_TORCH_INTRAOP_THREADS,
+        "torch_thread_configuration_before_auto_processor_required": True,
+        "torch_thread_getter_verification_required": True,
+        "torch_thread_setter": "explicit_runtime_api",
+    }
+    observed = {key: phase.get(key) for key in expected}
+    if observed != expected:
+        raise ValueError("processor torch-thread contract drifted")
+    return expected
+
+
+def _configure_processor_torch_threads(
+    thread_contract: Mapping[str, Any],
+) -> dict[str, Any]:
+    ambient = sorted(
+        key
+        for key in PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS
+        if key in os.environ
+    )
+    if ambient:
+        raise ValueError(
+            "processor torch threading cannot consume ambient environment: "
+            f"{ambient!r}"
+        )
+    import torch
+
+    torch.set_num_threads(PROCESSOR_TORCH_INTRAOP_THREADS)
+    torch.set_num_interop_threads(PROCESSOR_TORCH_INTEROP_THREADS)
+    observed = {
+        "ambient_thread_environment_keys_present": ambient,
+        "getter_verification_passed": True,
+        "torch_interop_thread_count": int(torch.get_num_interop_threads()),
+        "torch_intraop_thread_count": int(torch.get_num_threads()),
+    }
+    if (
+        observed["torch_intraop_thread_count"]
+        != thread_contract["torch_intraop_thread_count"]
+        or observed["torch_interop_thread_count"]
+        != thread_contract["torch_interop_thread_count"]
+    ):
+        raise RuntimeError("processor torch thread getter verification failed")
+    return observed
+
+
 class ProcessorLengthRuntimeV2:
     """Processor-only replay whose image decode is owned by the v2 contract."""
 
-    def __init__(self, model_dir: Path) -> None:
-        assert_processor_only_import_state()
+    def __init__(
+        self,
+        model_dir: Path,
+        *,
+        require_pristine_import_state: bool,
+    ) -> None:
+        if require_pristine_import_state:
+            assert_processor_only_import_state()
+        else:
+            assert_processor_v2_post_load_import_state()
         from transformers import AutoProcessor
 
         self.processor = AutoProcessor.from_pretrained(
@@ -346,7 +458,7 @@ class ProcessorLengthRuntimeV2:
             min_pixels=TARGET_PIXELS_PER_IMAGE,
             max_pixels=TARGET_PIXELS_PER_IMAGE,
         )
-        assert_processor_only_import_state()
+        assert_processor_v2_post_load_import_state()
 
     def length(self, plan: Any, images: Mapping[str, bytes]) -> int:
         opened: list[Any] = []
@@ -387,48 +499,100 @@ class ProcessorLengthRuntimeV2:
         finally:
             for image in opened:
                 image.close()
-            assert_processor_only_import_state()
+            assert_processor_v2_post_load_import_state()
+
+
+def _build_processor_runtime_pool(
+    model_dir: Path,
+    *,
+    concurrency: int,
+) -> tuple[ProcessorLengthRuntimeV2, ...]:
+    if concurrency != PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER:
+        raise ValueError(
+            "processor execution concurrency differs from the frozen contract"
+        )
+    return tuple(
+        ProcessorLengthRuntimeV2(
+            model_dir,
+            require_pristine_import_state=index == 0,
+        )
+        for index in range(concurrency)
+    )
+
+
+def _freeze_processor_query(
+    runtime: ProcessorLengthRuntimeV2,
+    query: Any,
+) -> FrozenQueryCandidateRecord:
+    trajectory_payload = {
+        "trajectory_id": query.trajectory_id,
+        "source_id": query.trajectory_id,
+        "role": query.role,
+        "task_instruction": query.task_instruction,
+        "history_events": [dict(event) for event in query.history_events],
+    }
+    query_payload = {
+        "state_id": query.state_id,
+        "query_kind": query.query_kind,
+        "decision_step_id": query.decision_step_id,
+        "current_equivalent_event_step_id": (
+            query.current_equivalent_event_step_id
+        ),
+        "initial_candidate_event_step_ids": list(
+            query.initial_candidate_event_step_ids
+        ),
+        "maximum_labeled_cardinality": query.maximum_labeled_cardinality,
+        "current_observation_ref": query.current_observation_ref,
+    }
+    return freeze_query_candidates(
+        trajectory_payload,
+        query_payload,
+        processor_only_length=lambda plan: runtime.length(
+            plan,
+            query.image_payloads,
+        ),
+    )
 
 
 def _run_processor_worker(
     args: argparse.Namespace, contract: Any, staging: Path
 ) -> None:
+    thread_contract = _processor_torch_thread_contract(contract)
+    thread_runtime = _configure_processor_torch_threads(thread_contract)
+    print(
+        canonical_json_bytes(
+            {"processor_torch_thread_runtime": thread_runtime}
+        ).decode("utf-8"),
+        flush=True,
+    )
     _V1._verify_current_versions(args, phase="processor")
     _, _, _, _, schedule = _V1._load_source_inputs(contract)
     worker = schedule.workers[args.worker_index]
     shard = staging / "substrate" / worker.filename
-    runtime = ProcessorLengthRuntimeV2(args.model_dir)
-    records: list[FrozenQueryCandidateRecord] = []
-    for query in iter_processor_query_artifact_records(shard, expected_worker=worker):
-        trajectory_payload = {
-            "trajectory_id": query.trajectory_id,
-            "source_id": query.trajectory_id,
-            "role": query.role,
-            "task_instruction": query.task_instruction,
-            "history_events": [dict(event) for event in query.history_events],
-        }
-        query_payload = {
-            "state_id": query.state_id,
-            "query_kind": query.query_kind,
-            "decision_step_id": query.decision_step_id,
-            "current_equivalent_event_step_id": (
-                query.current_equivalent_event_step_id
-            ),
-            "initial_candidate_event_step_ids": list(
-                query.initial_candidate_event_step_ids
-            ),
-            "maximum_labeled_cardinality": query.maximum_labeled_cardinality,
-            "current_observation_ref": query.current_observation_ref,
-        }
-        records.append(
-            freeze_query_candidates(
-                trajectory_payload,
-                query_payload,
-                processor_only_length=lambda plan, images=query.image_payloads: runtime.length(
-                    plan, images
-                ),
-            )
+    processor_phase = contract.data["phases"]["auto_processor"]
+    concurrency = processor_phase.get("processor_concurrency_per_logical_worker")
+    if concurrency != PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER:
+        raise ValueError(
+            "processor execution concurrency differs from the frozen contract"
         )
+    if tuple(processor_phase.get("post_load_modeling_module_allowlist", ())) != (
+        PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST
+    ):
+        raise ValueError("processor import allowlist differs from the frozen contract")
+    runtimes = _build_processor_runtime_pool(
+        args.model_dir,
+        concurrency=concurrency,
+    )
+    records = list(
+        _bounded_ordered_runtime_map(
+            _freeze_processor_query,
+            iter_processor_query_artifact_records(
+                shard,
+                expected_worker=worker,
+            ),
+            runtimes=runtimes,
+        )
+    )
     payload = b"".join(
         canonical_json_bytes(record.to_payload()) + b"\n"
         for record in sorted(records, key=lambda item: item.state_id)
@@ -480,6 +644,9 @@ def _launch_workers(args: argparse.Namespace, *, phase: str, staging: Path) -> N
         log = log_path.open("ab")
         environment = dict(os.environ)
         environment.pop("PYTHONPATH", None)
+        if phase == "processor-worker":
+            for key in PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS:
+                environment.pop(key, None)
         process = subprocess.Popen(
             [
                 str(executable),

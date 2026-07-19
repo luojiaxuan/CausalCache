@@ -50,9 +50,9 @@
     },
     "repair_sources": [
       {
-        "byte_count": 31739,
+        "byte_count": 34351,
         "path": "code/causalcache/set_utility_processor_freeze_contract_v2.py",
-        "sha256": "a97a75a0716d258e539d64950b3bc1ad0d8fea8dd1424a7b83de9b5cf59a34e8"
+        "sha256": "26ca8256d9e2d9678e5796b162d30170dd528e1128e233ff84e9c3bc3edaff20"
       },
       {
         "byte_count": 7895,
@@ -60,14 +60,14 @@
         "sha256": "8611a37b2130e4acb70ee734a6b303db5d90194cca33409b57eb4877cf7ecd45"
       },
       {
-        "byte_count": 24195,
+        "byte_count": 29586,
         "path": "code/scripts/run_set_utility_processor_freeze_v2.py",
-        "sha256": "5b6f0e779b48125eb3a0fb864b9af82816f82462a7646bbdb69349d058d52697"
+        "sha256": "04d0d22a897f4327ac3a33f8a19c59f86df59e558f4f6550b5b7eda6f7fc8df3"
       },
       {
-        "byte_count": 25930,
+        "byte_count": 34473,
         "path": "code/causalcache/set_utility_processor_postflight_v2.py",
-        "sha256": "28084b527344bb244f70c271a7a22586a6bd7a0d634722d286f8a78708b1d100"
+        "sha256": "693f8f6944d1f2ba88b3cb531db0a4b3b67d45c509b3b4ce8d9f102c682e7cd6"
       },
       {
         "byte_count": 1463,
@@ -124,20 +124,44 @@
   },
   "phases": {
     "auto_processor": {
+      "ambient_thread_environment_allowed": false,
+      "ambient_thread_environment_keys_removed": [
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "TORCH_NUM_INTEROP_THREADS",
+        "TORCH_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS"
+      ],
+      "architecture_modeling_modules_allowed": false,
       "context_limit_tokens": 32768,
       "device": "cpu",
       "drop_rule": "drop_one_oldest_candidate_until_full_reference_fits",
+      "execution_concurrency_scope": "within_each_of_four_logical_artifact_workers",
       "initial_candidate_rule": "newest_16_non_current_equivalent_history_events",
       "interface": "transformers.AutoProcessor_only",
       "maximum_final_candidate_count": 16,
       "minimum_final_candidate_count": 4,
       "model_or_policy_forward_count": 0,
-      "reserved_action_tokens": 256
+      "ordered_bounded_submission_required": true,
+      "post_load_modeling_module_allowlist": [
+        "transformers.models.auto.modeling_auto"
+      ],
+      "pre_load_modeling_module_count": 0,
+      "processor_concurrency_per_logical_worker": 8,
+      "reserved_action_tokens": 256,
+      "separate_auto_processor_per_execution_slot": true,
+      "torch_interop_thread_count": 1,
+      "torch_intraop_thread_count": 28,
+      "torch_thread_configuration_before_auto_processor_required": true,
+      "torch_thread_getter_verification_required": true,
+      "torch_thread_setter": "explicit_runtime_api"
     },
     "raw_decode_and_ocr": {
       "execution_concurrency_scope": "within_each_of_four_logical_artifact_workers",
       "ocr_backend": "frozen_restoration_v2_ocr_backend",
-      "ocr_concurrency_per_logical_worker": 8,
+      "ocr_concurrency_per_logical_worker": 32,
       "ordered_bounded_submission_required": true,
       "python_environment": "cli_bound_and_may_differ_from_auto_processor",
       "raw_payload_retention_scope": "selected_rows_only",

@@ -111,7 +111,22 @@ PROCESSOR_IMAGE_CONTRACT_V2_ID = (
 EXPECTED_RGBA_COUNT = 18_768
 EXPECTED_RGB_COUNT = 24
 EXPECTED_IMAGE_COUNT = 18_792
-OCR_CONCURRENCY_PER_LOGICAL_WORKER = 8
+OCR_CONCURRENCY_PER_LOGICAL_WORKER = 32
+PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER = 8
+PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST = (
+    "transformers.models.auto.modeling_auto",
+)
+PROCESSOR_TORCH_INTRAOP_THREADS = 28
+PROCESSOR_TORCH_INTEROP_THREADS = 1
+PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS = (
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "TORCH_NUM_INTEROP_THREADS",
+    "TORCH_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+)
 
 REQUIRED_REPAIR_EVIDENCE_PATHS = {
     "selected_image_census_v2_card": CENSUS_V2_CARD_PATH,
@@ -555,6 +570,39 @@ def _expected_phases(
         }
     )
     phases["raw_decode_and_ocr"] = raw_ocr
+    auto_processor = dict(
+        _mapping(
+            phases["auto_processor"],
+            label="v1 AutoProcessor phase",
+        )
+    )
+    auto_processor.update(
+        {
+            "ambient_thread_environment_allowed": False,
+            "ambient_thread_environment_keys_removed": list(
+                PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS
+            ),
+            "architecture_modeling_modules_allowed": False,
+            "execution_concurrency_scope": (
+                "within_each_of_four_logical_artifact_workers"
+            ),
+            "ordered_bounded_submission_required": True,
+            "post_load_modeling_module_allowlist": list(
+                PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST
+            ),
+            "pre_load_modeling_module_count": 0,
+            "processor_concurrency_per_logical_worker": (
+                PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER
+            ),
+            "separate_auto_processor_per_execution_slot": True,
+            "torch_interop_thread_count": PROCESSOR_TORCH_INTEROP_THREADS,
+            "torch_intraop_thread_count": PROCESSOR_TORCH_INTRAOP_THREADS,
+            "torch_thread_configuration_before_auto_processor_required": True,
+            "torch_thread_getter_verification_required": True,
+            "torch_thread_setter": "explicit_runtime_api",
+        }
+    )
+    phases["auto_processor"] = auto_processor
     return phases
 
 
@@ -817,6 +865,17 @@ def validation_summary(
         "ocr_concurrency_per_logical_worker": (
             OCR_CONCURRENCY_PER_LOGICAL_WORKER
         ),
+        "processor_concurrency_per_logical_worker": (
+            PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER
+        ),
+        "processor_post_load_modeling_module_allowlist": list(
+            PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST
+        ),
+        "processor_torch_ambient_environment_keys_removed": list(
+            PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS
+        ),
+        "processor_torch_interop_threads": PROCESSOR_TORCH_INTEROP_THREADS,
+        "processor_torch_intraop_threads": PROCESSOR_TORCH_INTRAOP_THREADS,
         "output_namespace": OUTPUT_NAMESPACE,
         "policy_or_vision_forward_authorized": False,
         "predecessor_config_sha256": V1_EXECUTION_CONFIG_SHA256,
@@ -853,7 +912,12 @@ __all__ = [
     "OUTPUT_NAMESPACE",
     "OUTPUT_VALIDATOR_PATH",
     "POSTFLIGHT_PATH",
+    "PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER",
     "PROCESSOR_IMAGE_CONTRACT_V2_ID",
+    "PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST",
+    "PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS",
+    "PROCESSOR_TORCH_INTEROP_THREADS",
+    "PROCESSOR_TORCH_INTRAOP_THREADS",
     "ProcessorFreezeExecutionContractV2",
     "PROTOCOL_ID",
     "REQUIRED_IDENTITY_ARGUMENTS",

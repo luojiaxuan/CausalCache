@@ -2,14 +2,15 @@
 
 ## 当前状态
 
-source freeze 已完成；唯一 formal run 当前状态为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`。canonical Execution-CF v2
-已冻结，config 为
-`code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`，8,014 bytes，
-SHA256=`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`。run 于
-`2026-07-19T04:58:04Z` 从 clean detached
-`main@1c84dfe37f86bdc255a00184521170eeaa3b0663` 在 Hyper00 CPU-only container 启动；尚未产生 completed root、
-final candidates、exact
-operation budget、restoration labels、predictor checkpoint、matched-NLL 或 closed-loop result。
+replacement source freeze 已完成，下一步是从该 commit 启动新的 clean formal run。canonical Execution-CF v2
+config 为
+`code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`，9,290 bytes，
+SHA256=`fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`。此前 `1c84dfe` 与
+`dc90664` 两次 attempt 均已主动终止且 exit=`143`：真实 processor smoke 证明旧 runtime guard 会把
+Transformers 5.6 必需的通用 `transformers.models.auto.modeling_auto` registry 误判为 architecture model。
+两次均停在 0 receipt、0 candidate-part、0 policy output，只有不可续写的外置 partial staging；当前仍未产生
+completed root、final candidates、exact operation budget、restoration labels、predictor checkpoint、matched-NLL
+或 closed-loop result。
 
 v1 `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT` 与其外置 `.incomplete`、logs、hashes
 保持原样。v2 使用全新 source/config/output/staging identity，不修改、追认或 resume v1 bytes。
@@ -41,7 +42,7 @@ RapidOCR、写入需要的 artifact image members 并以原 SHA256 绑定；禁�
 `ImageOps.exif_transpose` 或跳过 24 个 RGB observations。AutoProcessor replay 仍保持 v1 行为：验证原 bytes 后，
 只在内存中执行唯一一次 `source.convert("RGB")`，不把转换结果写回 artifact。
 
-除此之外以下内容逐值等于 v1：
+除 versioned image eligibility 与后文明确冻结的 CPU execution scheduling 外，以下科学/输出内容逐值等于 v1：
 
 - Freeze-B v2 的 1,200 trajectories / 2,400 query states；
 - `1000/100/100` train/tune/evaluation role partition；
@@ -62,6 +63,10 @@ RapidOCR、写入需要的 artifact image members 并以原 SHA256 绑定；禁�
 - Git-safe result recorder：`code/causalcache/set_utility_processor_result_v2.py` 与
   `code/scripts/record_set_utility_processor_freeze_v2_result.py`；它要求 fresh committed postflight、exact 23-file
   tree、staging absent、runner argv/start/end/exit/log evidence 全部闭合，且只写 `README.md` 与 `summary.json`；
+- immutable HF publication manager：`code/causalcache/set_utility_processor_publication_v2.py` 与
+  `code/scripts/manage_set_utility_processor_freeze_v2_publication.py`；它只接受 committed
+  `PENDING_HF_UPLOAD` summary 与 exact 23-file root，以单次 25-operation commit 上传 formal tree、summary 和
+  card，创建无覆盖 annotated tag，并分别从 immutable commit 与 tag fresh-download 全部 25 files 逐 byte 验证；
 - canonical output basename：
   `causalcache-set-utility-processor-freeze-v2-image-contract-repair-<GIT7>`；
 - intended private HF tag：`phase1-b2-processor-freeze-v2-image-contract-repair`，只有 VALID postflight 与
@@ -86,9 +91,12 @@ encoded bytes。
 ## Source audit 与 completed-root postflight
 
 source audit 返回
-`VALID_PROCESSOR_ONLY_SOURCE_V2_IMAGE_CONTRACT_REPAIR`。它递归绑定 v1/v2 runner，要求恰好一个
-`AutoProcessor.from_pretrained`，禁止 model `forward/generate`、v1 image execution helper、image mutation、
-import alias 与 `getattr` 绕过；唯一例外是 processor replay 内 literal `source.convert("RGB")`。
+`VALID_PROCESSOR_ONLY_SOURCE_V2_IMAGE_CONTRACT_REPAIR`。它递归绑定 v1/v2 runner，要求 processor runtime 只从
+`AutoProcessor.from_pretrained` 构造，禁止 model `forward/generate`、v1 image execution helper、image mutation、
+import alias 与 `getattr` 绕过；唯一图像例外是 processor replay 内 literal `source.convert("RGB")`。首个
+AutoProcessor 构造前 modeling module 数必须为 0；构造后 exact allowlist 只有
+`transformers.models.auto.modeling_auto`，任何 architecture `modeling_*` 仍 fail closed。AST audit 同时固定
+thread setter/getter、调用顺序、bounded ordered map、runtime pool 和 child environment 清理。
 
 completed-root postflight 先执行既有 whole-root structural reconstruction，再执行 v2 overlay：
 
@@ -111,57 +119,42 @@ validator 读取该 artifact，必须显式使用本 v2 contract/postflight。
   `VALID_SET_UTILITY_PROCESSOR_FREEZE_EXECUTION_CF_V2_IMAGE_CONTRACT_REPAIR`；
 - config bytes 与 live skeleton byte-for-byte 相同；
 - source audit：0 forbidden image mutation、0 forbidden v1 execution helper、1 exact transient RGB convert；
-- v2 focused tests：`42 passed`；
-- processor v1/v2 focused + regression：`91 passed`；
-- all set-utility regression：`341 passed, 15 skipped, 24 subtests passed`；15 个 skip 是本机没有 PyTorch 的
-  integration paths，目标 processor runtime 在 formal preflight 中显式绑定 PyTorch/Transformers versions；
+- runner/contract/postflight/publication/result/image-contract focused suite：`83 passed`；
+- config validator 会重建 live skeleton，并要求与 canonical config byte-for-byte 相同；
 - `py_compile` 与 `git diff --check` 通过。
 
-## Formal v2 运行状态
+## 已终止 attempts 与 replacement execution contract
 
-- 初始 clean producer：`1c84dfe37f86bdc255a00184521170eeaa3b0663`；config SHA256 为
-  `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；
-- host/container：Hyper00 `node-radixark-16-0000`，container ID=
-  `a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a`，Docker
-  `DeviceRequests=null`，4 个 OCR CPU workers，GPU count=0；
-- output namespace：
-  `/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-1c84dfe`；完成前只允许 sibling
-  `.incomplete` 存在，禁止上传；
-- `2026-07-19T05:12:26Z` 的 prefix-safe tar-header snapshot：worker completed records=
-  `30/34/24/34`，映射到 `1,011/18,792` observations（5.38%）；四 worker 均持续约 100% CPU，零 traceback，
-  仅一次合法 empty-detection warning；
-- worker 0 已完整完成 v1 violation 所在 trajectory，因此 v2 明确越过第 228 个 observation 的旧 RGB failure
-  boundary；这只关闭已知 blocker，不等于 formal VALID；
-- 运行 ETA 粗估为 OCR 4--5 小时、AutoProcessor 1.5--3 小时、总计 6--8 小时。正式终态只看 atomic root、
-  runner exit 与 committed v2 postflight，不看 ETA；
-- 外置 `argv.txt`、`start.json`、`outer.log`、`exit_code` 与 one-second end watcher 均在 `/data/logs`；result
-  recorder 将验证其 exact bytes/hash、start/end/elapsed、run identity、postflight 与 formal tree，成功时仍只标记
-  `PENDING_HF_UPLOAD`；recorder 明确允许 producer worktree 与 recorder worktree 不同，但 runner path 只能取自
-  formal `run-identity.runtime_cli.repository_root`；两个 checkout 都必须 exact clean Git HEAD，执行中的 recorder、
-  contract 与 postflight module origins 也必须实际来自 recorder checkout，不能用 clean checkout 替 dirty code 背书；
-- recorder focused suite=`59 passed`；当前 all set-utility regression=
-  `356 passed, 15 skipped, 24 subtests passed`，`py_compile`、CLI help、source validator 与 `git diff --check` 通过。
+- `1c84dfe37f86bdc255a00184521170eeaa3b0663` 于 `2026-07-19T04:58:04Z` 启动、
+  `2026-07-19T06:27:56Z` 主动终止，exit=`143`；staging 为
+  `/data/artifacts/.causalcache-set-utility-processor-freeze-v2-image-contract-repair-1c84dfe.incomplete`，
+  6,110,870,181 bytes；
+- `dc90664bc4c16f5f74463e10072f271843d0b316` 于 `2026-07-19T06:10:19Z` 启动、
+  `2026-07-19T06:46:35Z` 主动终止，exit=`143`；staging 为
+  `/data/artifacts/.causalcache-set-utility-processor-freeze-v2-image-contract-repair-dc90664.incomplete`，
+  14,201,155,380 bytes / 9 files；
+- 两次均为 0 receipt、0 completed shard、0 candidate-part、0 policy output、0 HF mutation。现有 resume 只复用
+  completed tar+receipt pair，会删除 `.tar.partial` 后重算；因此两份 staging 仅作
+  `LOCAL_FORENSIC_NOT_UPLOADABLE`，不得复制到新 namespace 或追认为可续写 substrate；
+- primary blocker 不是 image contract，而是 processor-only import guard 的 false positive。旧 guard 要求 load
+  后仍有 0 个 `modeling_*` module；真实 Transformers 5.6 smoke 证明只出现通用 auto registry。replacement
+  contract 采用上述 exact allowlist，不允许 architecture model module。
 
-### Execution-only 32-slot replacement
+Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执行参数不是任意调大 worker，而是由真实
+输入 smoke 收敛并冻结：
 
-初始运行暴露了一个纯执行问题：四个 logical artifact workers 各只有一个 RapidOCR engine，因此在 224 logical
-CPU 的 Hyper00 上总共只使用约 4 cores。`main@dc90664bc4c16f5f74463e10072f271843d0b316` 不改变四份 logical
-tar、query/candidate order、23-file output、operation budget 或 postflight，而在每份 logical shard 内冻结 8 路
-bounded ordered execution；每个 slot 拥有独立 engine，in-flight window 固定为 16 trajectories，yield 顺序仍与
-source schedule 一致。修订后 config SHA256=
-`c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`。
+- OCR：128 张真实图像下，并发 `8/16/32` 分别为 `75.52/49.74/33.93s`；32 路相对 8 路为 `2.23x`，
+  canonical records 全等。因此 4 logical workers 各 32 路，总 128 OCR slots；
+- processor：8 条真实 query 下，单路/4路/8路为 `85.66/28.11/26.93s`；显式 PyTorch intra-op=`28`、
+  inter-op=`1` 后 8 路为 `25.71s`。每 process 的 28-thread pool 与 4 logical processes 对齐 112 physical
+  cores；每 process 8 个独立 AutoProcessor runtimes 共享该 process-level thread pool，总 32 processor slots；
+- 所有并发 smoke 与串行输出 canonical-equal；bounded map 只改变 execution scheduling，不改变 logical shard、
+  trajectory/query/candidate order、23-file tree 或 operation budget；processor child 会移除 ambient
+  `OMP/MKL/OpenBLAS/NUMEXPR/Torch/vecLib` thread variables，再通过 PyTorch runtime API 设置并读取校验。
 
-真实截图 smoke 对 32 张 source PNG 同时运行串行和 8 路并发，canonical records 完全相等；engine init=1.69s、
-串行=107.66s、并发=17.05s，speedup=6.32×。accelerated formal output 为：
-
-```text
-/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-dc90664
-```
-
-它于 `2026-07-19T06:10:19Z` 启动，warmup 后四个 logical workers 各约 715--726% CPU；当前仍只有 sibling
-`.incomplete`，没有 exit/end/final。初始 run 保留作备份，不删除也不追认 partial bytes。accelerated run 只有通过
-同一 exact 23-file committed postflight 后才可成为 canonical；若两者都完成，先执行 semantic equivalence audit，
-只允许一个 immutable HF publication。并发输出一旦与串行语义漂移即 fail closed。
+新 formal run 必须使用全新 output basename，从 replacement commit 的 clean detached checkout 全量重跑；不能
+复用上述 partial。只有 atomic root、exit=0、committed postflight 和 Git-safe result commit/push 完成后，状态才可
+进入 `PENDING_HF_UPLOAD`。
 
 ## 正式执行模板
 

@@ -22,7 +22,12 @@ from causalcache.set_utility_processor_freeze_contract_v2 import (
     EXPECTED_RGBA_COUNT,
     OCR_CONCURRENCY_PER_LOGICAL_WORKER,
     OUTPUT_NAMESPACE,
+    PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER,
     PROCESSOR_IMAGE_CONTRACT_V2_ID,
+    PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST,
+    PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS,
+    PROCESSOR_TORCH_INTEROP_THREADS,
+    PROCESSOR_TORCH_INTRAOP_THREADS,
     REQUIRED_REPAIR_EVIDENCE_PATHS,
     REQUIRED_REPAIR_SOURCE_PATHS,
     V1_CANONICAL_EXECUTION_CONFIG_PATH,
@@ -103,6 +108,32 @@ def test_skeleton_wraps_canonical_v1_with_image_and_execution_repair(
             "separate_ocr_engine_per_execution_slot": True,
         }
     )
+    expected_phases["auto_processor"].update(
+        {
+            "ambient_thread_environment_allowed": False,
+            "ambient_thread_environment_keys_removed": list(
+                PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS
+            ),
+            "architecture_modeling_modules_allowed": False,
+            "execution_concurrency_scope": (
+                "within_each_of_four_logical_artifact_workers"
+            ),
+            "ordered_bounded_submission_required": True,
+            "post_load_modeling_module_allowlist": list(
+                PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST
+            ),
+            "pre_load_modeling_module_count": 0,
+            "processor_concurrency_per_logical_worker": (
+                PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER
+            ),
+            "separate_auto_processor_per_execution_slot": True,
+            "torch_interop_thread_count": PROCESSOR_TORCH_INTEROP_THREADS,
+            "torch_intraop_thread_count": PROCESSOR_TORCH_INTRAOP_THREADS,
+            "torch_thread_configuration_before_auto_processor_required": True,
+            "torch_thread_getter_verification_required": True,
+            "torch_thread_setter": "explicit_runtime_api",
+        }
+    )
     assert config["phases"] == expected_phases
     assert config["authorization"] == predecessor["authorization"]
     assert config["runtime_cli"] == {
@@ -146,7 +177,16 @@ def test_skeleton_wraps_canonical_v1_with_image_and_execution_repair(
         "PNG:RGBA": 18_768,
         "total": 18_792,
     }
-    assert summary["ocr_concurrency_per_logical_worker"] == 8
+    assert summary["ocr_concurrency_per_logical_worker"] == 32
+    assert summary["processor_concurrency_per_logical_worker"] == 8
+    assert summary["processor_post_load_modeling_module_allowlist"] == [
+        "transformers.models.auto.modeling_auto"
+    ]
+    assert summary["processor_torch_ambient_environment_keys_removed"] == list(
+        PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS
+    )
+    assert summary["processor_torch_interop_threads"] == 1
+    assert summary["processor_torch_intraop_threads"] == 28
     assert summary["policy_or_vision_forward_authorized"] is False
 
 

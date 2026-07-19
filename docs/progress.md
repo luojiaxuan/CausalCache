@@ -12,64 +12,30 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
-### 2026-07-18（UTC 07-19）：processor OCR execution-only 32-slot repair 启动
+### 2026-07-18（UTC 07-19）：processor v2 replacement source freeze
 
-- 复核 Hyper00 为 112 physical / 224 logical CPU、约 1.8 TiB available RAM；初始 formal run 的四个 OCR
-  processes 各只使用约 101% CPU。根因是旧实现把 4 个稳定 logical artifact shards 同时当成 execution
-  concurrency，机器绝大多数 CPU 闲置；
-- `main@dc90664bc4c16f5f74463e10072f271843d0b316` 保留 4 个 logical shards、23-file final tree、候选顺序、
-  label schedule 与 postflight 不变，只在每个 shard 内加入 8 路 bounded ordered map 和 8 个互斥独立 RapidOCR
-  engines，总 execution slots=32；canonical config SHA256=
-  `c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`；
-- 本地 committed-HEAD focused regression=`77 passed`；Hyper00 source validator 通过，remote focused=
-  `28 passed`。从旧 run 已稳定写入的 tar 只读抽取 32 张真实截图，串行与 8 路并发 canonical records 完全一致；
-  engine init=1.69s、串行=107.66s、并发=17.05s，speedup=6.32×；
-- accelerated formal replacement 于 `2026-07-19T06:10:19Z` 从 clean detached `dc90664` 在同一 CPU-only
-  container 启动。warmup 后四个 logical worker 各约 `715--726%` CPU、RSS 2.5--3.1 GiB，合计约 29 个 CPU
-  cores；exit/end/final 尚未产生，状态仍为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；
-- 初始 `1c84dfe` run 不停止、不删除，继续作为安全备份。两次运行都没有 labels/utility/outcome exposure；预先固定
-  的采用规则是 accelerated run 只有在 exact 23-file postflight 通过后才可成为 canonical，若两者都完成则先做
-  semantic inventory/OCR/candidate 等价审计且只发布一个；若并发 records 发生任何漂移则 fail closed，不按结果挑选。
-
-### 2026-07-18（UTC 07-19）：processor image-contract v2 formal run 启动并越过旧 witness
-
-- 初始 4-slot formal v2 run 已于 `2026-07-19T04:58:04Z` 从 clean detached
-  `main@1c84dfe37f86bdc255a00184521170eeaa3b0663` 在 Hyper00 启动；canonical config SHA256 保持
-  `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`；
-- container `sglang-omni-jaxan-07181624` 的 `DeviceRequests=null`；4 个 CPU OCR worker 的冻结负载为
-  `4700/4700/4693/4699` observations，GPU、policy/vision forward、labels、training、matched-NLL、closed-loop 与
-  HF mutation 均为 0；
-- `2026-07-19T05:12:26Z` 的只读 tar-header snapshot 已完成 `1,011/18,792` observations（5.38%），四 worker
-  持续约 100% CPU、零 traceback；worker 0 已完整越过 v1 第 228 个 observation 所在 RGB violation
-  trajectory，证明 versioned allowlist repair 通过了已知 blocker，但不提前宣告全量 VALID；
-- `2026-07-19T06:06:26Z` 的后续只读 snapshot 为 `7,009/18,792`（37.30%），四 worker 与 staging 仍健康；
-- 当前只有 persistent sibling `.incomplete`，formal output root、receipts、final candidate universe、exact operation
-  budget 与 HF artifact 均未完成，状态严格为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；粗略 ETA 为总计 6--8 小时；
-- 新增 fail-closed Git-safe result recorder：它重新执行 committed v2 postflight，要求 exact 23-file tree、staging
-  absent、argv/start/end/exit/log evidence 与 run identity 一致，再原子写两份轻量 Git 文件。VALID 时 publication
-  也只能先是 `PENDING_HF_UPLOAD`，不能复制 raw candidate/OCR/images/logs；producer/recorder 必须是 exact clean
-  Git HEAD，实际执行 module origins 也必须来自 recorder checkout；recorder focused=`59 passed`，all
-  set-utility=`356 passed, 15 skipped, 24 subtests passed`；
-- 下一步等待 atomic run 终态，执行 committed postflight，生成并 push completion/failure record；仅 VALID 后才可
-  上传 private HF tag `phase1-b2-processor-freeze-v2-image-contract-repair` 并 fresh-download 逐 byte 复验。
-
-### 2026-07-18（UTC 07-19）：processor image-contract v2 source freeze
-
-- 新建独立 processor Execution-CF v2；canonical config 8,014 bytes，SHA256=
-  `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`，状态为
-  `SOURCE_FROZEN_FORMAL_RUN_PENDING`；
-- v2 byte-bind canonical v1 config、v1 failure summary、VALID census Git summary/card、HF revision
-  `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0` 与 6 个新 runtime sources；12 个 v1/OCR/failure bound files
-  的 Git blob hashes 保持不变；
-- 唯一方法变化是 accepted image union：18,768 opaque `PNG/RGBA` + 24 `PNG/RGB`，全部无 EXIF；source
-  encoded bytes 不重编码、不补 alpha、不跳样本，AutoProcessor 继续 exact transient RGB replay；
-- hostile review 发现并修复 metadata-only OCR semantic hole 与 import-alias source-audit bypass；resume receipt
-  现在校验 exact schema/backend/runtime/image-contract/shard/tally，output basename 精确绑定 producer Git7；
-- source audit 返回 `VALID_PROCESSOR_ONLY_SOURCE_V2_IMAGE_CONTRACT_REPAIR`；v2 focused=`42 passed`，processor
-  v1/v2 regression=`91 passed`，all set-utility=`341 passed, 15 skipped, 24 subtests passed`；
-- 当前无 formal root、final candidates、exact operation budget、labels、checkpoint 或 HF processor artifact。下一步
-  从 clean pushed source-freeze commit 在 Hyper00 CPU-only container 启动 4-worker formal run，随后必须运行
-  committed v2 postflight。完整合同见
+- `1c84dfe` 与 `dc90664` 两次 run 分别于 `2026-07-19T06:27:56Z` 和 `06:46:35Z` 主动终止，exit 均为
+  `143`。两次都是 0 receipt、0 completed shard、0 candidate-part、0 policy output、0 HF mutation；原因是正式
+  OCR 结束后必然遇到的 processor guard false positive 已被真实 smoke 提前证实：Transformers 5.6 只加载通用
+  `transformers.models.auto.modeling_auto`，旧 guard 却拒绝任何 `modeling_*`；
+- 两份 staging 分别为 6,110,870,181 bytes 与 14,201,155,380 bytes / 9 files，只作
+  `LOCAL_FORENSIC_NOT_UPLOADABLE`。现有 resume 只接受 completed tar+receipt pair，会删除 `.tar.partial` 后重算，
+  因而不能把旧 partial 复制到新 namespace 或追认为可恢复 substrate；
+- replacement canonical config 为 9,290 bytes，SHA256=
+  `fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`。科学/输出合同、4 个 logical shards、
+  2,400 queries、23-file tree 与 operation-budget 语义不变；execution 层固定每 shard 32 路 OCR、8 路独立
+  AutoProcessor，总计 128/32 slots；
+- processor child 会清除 ambient thread environment，再用 runtime API 在 AutoProcessor load 前设置并 getter
+  验证 PyTorch intra-op=`28` / inter-op=`1`。首个 AutoProcessor 前 modeling modules 必须为 0，load 后只
+  allowlist 通用 `modeling_auto` registry，任何 architecture `modeling_*`、model forward/generate 继续 fail closed；
+- Hyper00 真实 OCR 128-image smoke 的 8/16/32 路耗时为 `75.52/49.74/33.93s`，32 路相对 8 路为
+  `2.23x`；processor 8-query smoke 的 1/4/8 路为 `85.66/28.11/26.93s`，最终 Torch 28/1 下 8 路为
+  `25.71s`。串行/并发 canonical outputs 全等；
+- 新增 immutable HF publication manager：只有 exact 23-file root 与 committed `PENDING_HF_UPLOAD` summary
+  才能单次提交 25 files、创建无覆盖 annotated tag，并分别从 commit/tag fresh-download 25/25 逐 byte 验证。
+  当前 processor prefix/tag 尚不存在，新的 formal run 尚未启动；completed root、labels、checkpoint、matched-NLL
+  与 closed-loop 仍为 0。下一步从本 source-freeze commit 的 clean detached checkout 全量重跑并执行 committed
+  postflight。完整合同见
   [`set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)。
 
 ### 2026-07-18（UTC 07-19）：selected-image census v2 immutable HF publication

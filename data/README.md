@@ -13,11 +13,12 @@ data/
 dataset、model weights、checkpoint、adapter。它们以 Hugging Face dataset/model repo 为 canonical
 source，并在顶层 `README.md` 和相关 result README 中记录 repo、revision/tag、schema 与生成命令。
 
-Set Utility v1 planned reusable dataset 为 private
-`gavinlaw/causalcache-set-utility-new-development-mobile`，用于 group-aware split manifest、feature
-cache 与 exact/cardinality-capped `D(S)` shards；当前 repo/revision 尚未创建或绑定。Freeze-B/A 已将 planned
-model repo 固定为 private `gavinlaw/causalcache-set-utility-predictors-mobile:phase1-b2-v1`，同样尚未创建或绑定
-revision。Git 当前已保存 canonical
+Set Utility reusable dataset repo 已创建为 private
+`gavinlaw/causalcache-set-utility-new-development-mobile`；当前只正式承载 selected-image census v2 的 immutable
+revision `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`。processor-freeze prefix/tag
+`phase1-b2-processor-freeze-v2-image-contract-repair` 与未来 feature/exact-cardinality-capped `D(S)` shards 尚未
+发布。Freeze-B/A 固定的 planned model repo
+`gavinlaw/causalcache-set-utility-predictors-mobile:phase1-b2-v1` 仍未创建或绑定 revision。Git 当前已保存 canonical
 `manifests/set_utility_consumed_identity_ledger_v1.json`：58 条 `legacy_train_only` + 49 条
 `forbidden_consumed`，合计 107 个 source identity，SHA256=
 `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。它不含 raw trajectory、
@@ -42,8 +43,8 @@ formal attempt 已从 clean `main@b3472bf` 在 Hyper00 CPU-only container fail c
 `/data/artifacts/.causalcache-set-utility-processor-freeze-v2-b3472bf.incomplete` 保留 8 files /
 `666,629,393` bytes，状态 `INVALID_FAILED_PRESERVED_NO_HF_PUBLICATION`。Git 只保存
 [`results/set_utility_processor_freeze_execution_cf_v1_attempt/`](results/set_utility_processor_freeze_execution_cf_v1_attempt/)
-中的轻量 failure metadata；raw partial tar 不进 Git/HF。下一步先完成全部 18,792 selected images 的只读
-format census，再另立 versioned repair。见
+中的轻量 failure metadata；raw partial tar 不进 Git/HF。该 v1 failure 当时要求先完成全部 18,792 selected
+images 的只读 format census，再另立 versioned repair；这两步现在均已完成。见
 `docs/set_utility_freeze_b_v2_terminal_index_repair.md` 与 `docs/set_utility_implementation_v1.md`。
 
 Selected-image format census v1 已完成 source-only freeze，config SHA256=
@@ -64,15 +65,21 @@ v2 column-projection repair 已从 clean `main@1a03b7e` 重新跑完整 denomina
 `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，fresh re-download inventory verified；正式分布为
 `PNG/RGBA=18,768`、`PNG/RGB=24`，全部 `EXIF=false`。Git-safe 结果与完整 provenance 位于
 [`results/set_utility_selected_image_format_census_v2_column_projection_repair/`](results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
-processor image-contract v2 初始 config SHA256=
-`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`。Hyper00 CPU-only 初始 run
-已从 clean `main@1c84dfe` 启动，`06:06:26Z` 为 `7,009/18,792` observations；正式 bytes 暂存于
-`/data/artifacts/.causalcache-set-utility-processor-freeze-v2-image-contract-repair-1c84dfe.incomplete`；完成后只有
-Git-safe result commit/push 与 private HF immutable publication 才能升级 source of truth。execution-only 32-slot
-repair `main@dc90664` 保持四个 logical shards 不变，config SHA256=
-`c5c85f99c2f457fcff6d6ae0b096005481947220a6af17335c5f6736fc289142`；真实 32-image smoke byte-identical 且
-6.32×，accelerated run 已启动。两者当前都为 `RUNNING_INCOMPLETE_NOT_UPLOADABLE`，均无 completed root、VALID
-postflight 或可上传 processor artifact。v1 failure 协议见
+processor image-contract v2 的 `1c84dfe` 与 `dc90664` 两次执行都在 0 receipt、0 candidate-part、0 policy output
+时主动终止，exit=`143`；真实 processor smoke 证明旧 post-load guard 会把 Transformers 5.6 必需的通用
+`transformers.models.auto.modeling_auto` registry 误判为 architecture model。两份外置 staging 分别为
+`/data/artifacts/.causalcache-set-utility-processor-freeze-v2-image-contract-repair-1c84dfe.incomplete`
+（6,110,870,181 bytes）和
+`/data/artifacts/.causalcache-set-utility-processor-freeze-v2-image-contract-repair-dc90664.incomplete`
+（14,201,155,380 bytes / 9 files），状态均为 `LOCAL_FORENSIC_NOT_UPLOADABLE`。partial tar 不支持安全续写，不能
+复制、追认、上传或作为 canonical artifact；intended private HF repo/tag 仍是
+`gavinlaw/causalcache-set-utility-new-development-mobile:phase1-b2-processor-freeze-v2-image-contract-repair`，两次
+HF mutation 均为 0。
+
+replacement source freeze 的 config 为 9,290 bytes，SHA256=
+`fc201c53abe0b7d1166571feb3496c845a85ff5fefe9fda0aa60912ab5b3e632`。它保持 4 个 logical shards，固定每
+shard 32 路 OCR、8 路 AutoProcessor，以及 PyTorch intra-op=`28` / inter-op=`1`；新 formal run 尚未启动，
+当前仍无 completed root、VALID postflight、restoration labels 或可上传 processor artifact。v1 failure 协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
 边界见
 [`../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。

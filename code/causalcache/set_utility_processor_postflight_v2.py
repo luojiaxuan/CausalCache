@@ -37,6 +37,12 @@ from causalcache.set_utility_processor_freeze_contract import (
 )
 from causalcache.set_utility_processor_freeze_contract_v2 import (
     CANONICAL_EXECUTION_CONFIG_PATH,
+    OCR_CONCURRENCY_PER_LOGICAL_WORKER,
+    PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER,
+    PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST,
+    PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS,
+    PROCESSOR_TORCH_INTEROP_THREADS,
+    PROCESSOR_TORCH_INTRAOP_THREADS,
     RUNNER_PATH,
     ProcessorFreezeExecutionContractV2,
 )
@@ -129,6 +135,10 @@ class ProcessorFreezePostflightContextV2:
         identity = self.structural_context.ocr_runtime_identity
         if identity.get("image_contract_sha256") != self.image_contract_sha256:
             raise ValueError("v2 OCR identity is not bound to the image contract")
+        if identity.get("ocr_concurrency_per_logical_worker") != (
+            OCR_CONCURRENCY_PER_LOGICAL_WORKER
+        ):
+            raise ValueError("v2 OCR identity concurrency drifted")
 
 
 class _SourceCallVisitor(ast.NodeVisitor):
@@ -253,6 +263,219 @@ def _is_exact_transient_rgb_convert(
     )
 
 
+def _module_function(tree: ast.Module, name: str) -> ast.FunctionDef:
+    matches = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == name
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"v2 runner requires exactly one {name} function")
+    return matches[0]
+
+
+def _class_method(
+    tree: ast.Module,
+    *,
+    class_name: str,
+    method_name: str,
+) -> ast.FunctionDef:
+    classes = [
+        node
+        for node in tree.body
+        if isinstance(node, ast.ClassDef) and node.name == class_name
+    ]
+    if len(classes) != 1:
+        raise ValueError(f"v2 runner requires exactly one {class_name} class")
+    methods = [
+        node
+        for node in classes[0].body
+        if isinstance(node, ast.FunctionDef) and node.name == method_name
+    ]
+    if len(methods) != 1:
+        raise ValueError(
+            f"v2 runner requires exactly one {class_name}.{method_name} method"
+        )
+    return methods[0]
+
+
+def _named_call_count(node: ast.AST, name: str) -> int:
+    return sum(
+        isinstance(candidate, ast.Call)
+        and isinstance(candidate.func, ast.Name)
+        and candidate.func.id == name
+        for candidate in ast.walk(node)
+    )
+
+
+def _attribute_call_count(node: ast.AST, *, base: str, name: str) -> int:
+    return sum(
+        isinstance(candidate, ast.Call)
+        and isinstance(candidate.func, ast.Attribute)
+        and isinstance(candidate.func.value, ast.Name)
+        and candidate.func.value.id == base
+        and candidate.func.attr == name
+        for candidate in ast.walk(node)
+    )
+
+
+def _first_named_call_line(node: ast.AST, name: str) -> int:
+    lines = [
+        candidate.lineno
+        for candidate in ast.walk(node)
+        if isinstance(candidate, ast.Call)
+        and isinstance(candidate.func, ast.Name)
+        and candidate.func.id == name
+    ]
+    if len(lines) != 1:
+        raise ValueError(f"v2 runner requires exactly one {name} call at this site")
+    return lines[0]
+
+
+def _validate_processor_execution_source_v2(
+    path: Path,
+    *,
+    imported: set[str],
+) -> dict[str, Any]:
+    required_imports = {
+        "PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER",
+        "PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST",
+        "PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS",
+        "PROCESSOR_TORCH_INTEROP_THREADS",
+        "PROCESSOR_TORCH_INTRAOP_THREADS",
+    }
+    missing_imports = sorted(required_imports - imported)
+    if missing_imports:
+        raise ValueError(
+            "v2 processor execution contract imports are missing: "
+            f"{missing_imports}"
+        )
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    initializer = _class_method(
+        tree,
+        class_name="ProcessorLengthRuntimeV2",
+        method_name="__init__",
+    )
+    length = _class_method(
+        tree,
+        class_name="ProcessorLengthRuntimeV2",
+        method_name="length",
+    )
+    runtime_map = _module_function(tree, "_bounded_ordered_runtime_map")
+    thread_configure = _module_function(
+        tree,
+        "_configure_processor_torch_threads",
+    )
+    pool_builder = _module_function(tree, "_build_processor_runtime_pool")
+    worker = _module_function(tree, "_run_processor_worker")
+    launcher = _module_function(tree, "_launch_workers")
+    observed = {
+        "initializer_pre_load_guard_call_count": _named_call_count(
+            initializer,
+            "assert_processor_only_import_state",
+        ),
+        "initializer_post_load_guard_call_count": _named_call_count(
+            initializer,
+            "assert_processor_v2_post_load_import_state",
+        ),
+        "length_pre_load_guard_call_count": _named_call_count(
+            length,
+            "assert_processor_only_import_state",
+        ),
+        "length_post_load_guard_call_count": _named_call_count(
+            length,
+            "assert_processor_v2_post_load_import_state",
+        ),
+        "runtime_map_bounded_map_call_count": _named_call_count(
+            runtime_map,
+            "_bounded_ordered_parallel_map",
+        ),
+        "pool_builder_runtime_call_count": _named_call_count(
+            pool_builder,
+            "ProcessorLengthRuntimeV2",
+        ),
+        "worker_pool_builder_call_count": _named_call_count(
+            worker,
+            "_build_processor_runtime_pool",
+        ),
+        "worker_runtime_map_call_count": _named_call_count(
+            worker,
+            "_bounded_ordered_runtime_map",
+        ),
+        "worker_thread_configure_call_count": _named_call_count(
+            worker,
+            "_configure_processor_torch_threads",
+        ),
+        "thread_set_intraop_call_count": _attribute_call_count(
+            thread_configure,
+            base="torch",
+            name="set_num_threads",
+        ),
+        "thread_set_interop_call_count": _attribute_call_count(
+            thread_configure,
+            base="torch",
+            name="set_num_interop_threads",
+        ),
+        "thread_get_intraop_call_count": _attribute_call_count(
+            thread_configure,
+            base="torch",
+            name="get_num_threads",
+        ),
+        "thread_get_interop_call_count": _attribute_call_count(
+            thread_configure,
+            base="torch",
+            name="get_num_interop_threads",
+        ),
+        "launcher_environment_pop_call_count": _attribute_call_count(
+            launcher,
+            base="environment",
+            name="pop",
+        ),
+    }
+    expected = {
+        "initializer_pre_load_guard_call_count": 1,
+        "initializer_post_load_guard_call_count": 2,
+        "length_pre_load_guard_call_count": 0,
+        "length_post_load_guard_call_count": 1,
+        "runtime_map_bounded_map_call_count": 1,
+        "pool_builder_runtime_call_count": 1,
+        "worker_pool_builder_call_count": 1,
+        "worker_runtime_map_call_count": 1,
+        "worker_thread_configure_call_count": 1,
+        "thread_set_intraop_call_count": 1,
+        "thread_set_interop_call_count": 1,
+        "thread_get_intraop_call_count": 1,
+        "thread_get_interop_call_count": 1,
+        "launcher_environment_pop_call_count": 2,
+    }
+    if observed != expected:
+        raise ValueError(
+            "v2 processor execution guard or concurrency source contract drifted: "
+            f"expected={expected!r}, observed={observed!r}"
+        )
+    if _first_named_call_line(
+        worker,
+        "_configure_processor_torch_threads",
+    ) >= _first_named_call_line(worker, "_build_processor_runtime_pool"):
+        raise ValueError(
+            "v2 processor torch threads must be configured before runtime construction"
+        )
+    return {
+        **observed,
+        "processor_concurrency_per_logical_worker": (
+            PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER
+        ),
+        "processor_post_load_modeling_module_allowlist": list(
+            PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST
+        ),
+        "processor_torch_ambient_environment_keys_removed": list(
+            PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS
+        ),
+        "processor_torch_interop_threads": PROCESSOR_TORCH_INTEROP_THREADS,
+        "processor_torch_intraop_threads": PROCESSOR_TORCH_INTRAOP_THREADS,
+    }
+
+
 def validate_processor_only_source_v2(
     repository_root: str | Path,
 ) -> dict[str, Any]:
@@ -291,6 +514,10 @@ def validate_processor_only_source_v2(
             "v2 runner omitted required image-contract interfaces: "
             f"{missing_interfaces}"
         )
+    processor_execution = _validate_processor_execution_source_v2(
+        v2_path,
+        imported=imported,
+    )
     allowed_transient = [
         call for call in v2_calls if _is_exact_transient_rgb_convert(call)
     ]
@@ -369,6 +596,18 @@ def validate_processor_only_source_v2(
         "required_image_contract_interfaces": sorted(
             _REQUIRED_V2_IMAGE_INTERFACES
         ),
+        "processor_execution_source_contract": processor_execution,
+        "processor_concurrency_per_logical_worker": (
+            PROCESSOR_CONCURRENCY_PER_LOGICAL_WORKER
+        ),
+        "processor_post_load_modeling_module_allowlist": list(
+            PROCESSOR_POST_LOAD_MODELING_MODULE_ALLOWLIST
+        ),
+        "processor_torch_ambient_environment_keys_removed": list(
+            PROCESSOR_TORCH_AMBIENT_ENVIRONMENT_KEYS
+        ),
+        "processor_torch_interop_threads": PROCESSOR_TORCH_INTEROP_THREADS,
+        "processor_torch_intraop_threads": PROCESSOR_TORCH_INTRAOP_THREADS,
         "status": "VALID_PROCESSOR_ONLY_SOURCE_V2_IMAGE_CONTRACT_REPAIR",
     }
 
@@ -437,6 +676,9 @@ def build_processor_freeze_postflight_context_v2(
     runtime_identity = {
         **_ocr_runtime_identity(backend_config),
         "image_contract_sha256": image_contract_sha,
+        "ocr_concurrency_per_logical_worker": (
+            OCR_CONCURRENCY_PER_LOGICAL_WORKER
+        ),
     }
     structural = ProcessorFreezePostflightContext(
         repository_root=root,

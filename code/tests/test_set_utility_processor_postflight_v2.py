@@ -76,6 +76,52 @@ def test_v2_source_audit_recursively_binds_both_runners() -> None:
     assert result["forbidden_image_mutation_call_count"] == 0
     assert result["forbidden_v1_execution_helper_call_count"] == 0
     assert result["transient_rgb_convert_call_count"] == 1
+    assert result["processor_concurrency_per_logical_worker"] == 8
+    assert result["processor_post_load_modeling_module_allowlist"] == [
+        "transformers.models.auto.modeling_auto"
+    ]
+    assert result["processor_torch_interop_threads"] == 1
+    assert result["processor_torch_intraop_threads"] == 28
+    assert result["processor_torch_ambient_environment_keys_removed"] == [
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "TORCH_NUM_INTEROP_THREADS",
+        "TORCH_NUM_THREADS",
+        "VECLIB_MAXIMUM_THREADS",
+    ]
+    assert result["processor_execution_source_contract"] == {
+        "initializer_pre_load_guard_call_count": 1,
+        "initializer_post_load_guard_call_count": 2,
+        "length_pre_load_guard_call_count": 0,
+        "length_post_load_guard_call_count": 1,
+        "pool_builder_runtime_call_count": 1,
+        "processor_concurrency_per_logical_worker": 8,
+        "processor_post_load_modeling_module_allowlist": [
+            "transformers.models.auto.modeling_auto"
+        ],
+        "processor_torch_ambient_environment_keys_removed": [
+            "MKL_NUM_THREADS",
+            "NUMEXPR_NUM_THREADS",
+            "OMP_NUM_THREADS",
+            "OPENBLAS_NUM_THREADS",
+            "TORCH_NUM_INTEROP_THREADS",
+            "TORCH_NUM_THREADS",
+            "VECLIB_MAXIMUM_THREADS",
+        ],
+        "processor_torch_interop_threads": 1,
+        "processor_torch_intraop_threads": 28,
+        "runtime_map_bounded_map_call_count": 1,
+        "launcher_environment_pop_call_count": 2,
+        "thread_get_interop_call_count": 1,
+        "thread_get_intraop_call_count": 1,
+        "thread_set_interop_call_count": 1,
+        "thread_set_intraop_call_count": 1,
+        "worker_pool_builder_call_count": 1,
+        "worker_runtime_map_call_count": 1,
+        "worker_thread_configure_call_count": 1,
+    }
     assert result["bound_sources"]["runner_v1"]["path"] == V1_RUNNER_PATH
     assert result["bound_sources"]["runner_v2"]["path"] == RUNNER_PATH
     assert result["bound_sources"]["image_contract_v2"]["path"] == (
@@ -195,6 +241,53 @@ def test_v2_source_audit_rejects_v1_image_execution_helper_reuse(
     )
 
     with pytest.raises(ValueError, match="forbidden v1 image execution helper"):
+        validate_processor_only_source_v2(tmp_path)
+
+
+def test_v2_source_audit_rejects_old_guard_after_processor_load(
+    tmp_path: Path,
+) -> None:
+    for relative in (RUNNER_PATH, V1_RUNNER_PATH, IMAGE_CONTRACT_PATH):
+        destination = tmp_path / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, destination)
+    runner = tmp_path / RUNNER_PATH
+    source = runner.read_text(encoding="utf-8")
+    needle = (
+        "            assert_processor_v2_post_load_import_state()\n\n\n"
+        "def _build_processor_runtime_pool"
+    )
+    assert needle in source
+    runner.write_text(
+        source.replace(
+            needle,
+            "            assert_processor_only_import_state()\n\n\n"
+            "def _build_processor_runtime_pool",
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="guard or concurrency source contract"):
+        validate_processor_only_source_v2(tmp_path)
+
+
+def test_v2_source_audit_requires_bounded_ordered_processor_replay(
+    tmp_path: Path,
+) -> None:
+    for relative in (RUNNER_PATH, V1_RUNNER_PATH, IMAGE_CONTRACT_PATH):
+        destination = tmp_path / relative
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT / relative, destination)
+    runner = tmp_path / RUNNER_PATH
+    source = runner.read_text(encoding="utf-8")
+    needle = "        _bounded_ordered_runtime_map(\n"
+    assert source.count(needle) == 1
+    runner.write_text(
+        source.replace(needle, "        _unbound_runtime_map(\n"),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="guard or concurrency source contract"):
         validate_processor_only_source_v2(tmp_path)
 
 
@@ -338,6 +431,7 @@ def test_v2_postflight_wraps_v1_structure_and_rebuilds_mixed_mode_semantics(
         ocr_runtime_identity={
             **base_context.ocr_runtime_identity,
             "image_contract_sha256": image_contract_sha,
+            "ocr_concurrency_per_logical_worker": 32,
         },
     )
     for worker_index in range(4):
