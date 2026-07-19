@@ -21,8 +21,10 @@ confirm-20 禁止进入新训练、
 - writer/validator 固定 absolute canonical root、逐层 no-follow dir-fd、`O_NOFOLLOW|O_EXCL` no-clobber write、
   exact three-role tree、stable inode read、固定 PyArrow schema 与 metadata-free postflight。cross-role row、跨 worker
   state、file/ancestor/role-dir symlink 均 fail closed；
-- 本机独立 focused suite=`10 passed, 2 skipped`，skip 仅因本机未安装可选 PyArrow；JSON fixture 已覆盖完整
-  producer/postflight/trainer/evaluation firewall。正式 PyArrow roundtrip 在含依赖 runtime 另行复验；
+- 本机独立 focused suite=`10 passed, 2 skipped`，skip 仅因本机未安装可选 PyArrow；首次 Hyper00
+  PyArrow 24.0.0 复验发现默认 list-child 名 `item` 经 Parquet 2.6 readback 会变成 `element`，exact schema 因此
+  fail closed。现已把两个 list child 显式冻结为 `element`；同一 runtime 的 schema equality、row equality 与
+  metadata rejection exact nodes=`2 passed`；
 - 本步没有读取 processor partial、没有 policy/model forward、label execution、GPU、checkpoint 或 HF mutation；
   正式 label 仍需等待 processor completed root、Git result 与 immutable HF revision。
 

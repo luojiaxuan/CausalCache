@@ -227,7 +227,7 @@ class PyArrowLabelShardCodec:
                 pa.field("state_id", pa.string(), nullable=False),
                 pa.field(
                     "candidate_event_step_ids",
-                    pa.list_(pa.int64()),
+                    pa.list_(pa.field("element", pa.int64(), nullable=True)),
                     nullable=False,
                 ),
                 pa.field(
@@ -237,7 +237,7 @@ class PyArrowLabelShardCodec:
                 ),
                 pa.field(
                     "coalition_event_step_ids",
-                    pa.list_(pa.int64()),
+                    pa.list_(pa.field("element", pa.int64(), nullable=True)),
                     nullable=False,
                 ),
                 pa.field("distance", pa.float64(), nullable=False),
