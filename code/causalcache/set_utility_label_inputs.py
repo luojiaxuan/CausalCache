@@ -197,6 +197,11 @@ class SelectedProcessorQuery:
         if type(self.observation_count) is not int or self.observation_count <= 0:
             raise ValueError("observation count must be positive")
 
+    @property
+    def image_payloads(self) -> Mapping[str, bytes]:
+        """Expose the exact allowlisted payload mapping loaded from the shard."""
+        return self.query.image_payloads
+
 
 @dataclass(frozen=True)
 class LabelExecutionPartition:
@@ -215,6 +220,7 @@ class LabelExecutionPartition:
 @dataclass(frozen=True)
 class JoinedUtilityQueryInput:
     query: UtilityQuerySpec
+    image_payloads: Mapping[str, bytes]
     processor_worker_index: int
     execution_worker_index: int
     role_partition: str
@@ -243,6 +249,28 @@ class JoinedUtilityQueryInput:
             label="processor artifact SHA256",
         )
         _sha256(self.query_record_sha256, label="query record SHA256")
+        references_by_step = {
+            event.event_step_id: event.high_fidelity_observation_ref
+            for event in self.query.history_events
+        }
+        expected_image_references = {
+            self.query.current_observation_ref,
+            *(
+                references_by_step[step_id]
+                for step_id in self.query.candidate_context.initial_candidate_event_step_ids
+            ),
+        }
+        if (
+            not isinstance(self.image_payloads, Mapping)
+            or set(self.image_payloads) != expected_image_references
+        ):
+            raise ValueError(
+                "joined image inventory is not exactly initial candidates plus current"
+            )
+        for reference, payload in self.image_payloads.items():
+            _canonical_text(reference, label="joined image reference")
+            if not isinstance(payload, bytes) or not payload:
+                raise ValueError("joined image payloads must be non-empty bytes")
 
 
 def _normalized_allowlist(
@@ -558,14 +586,18 @@ def build_joined_utility_query_input(
         request_manifest_sha256=request_sha,
         slice_witness_sha256=selected.query_record_sha256,
     )
-    return JoinedUtilityQueryInput(
+    joined = JoinedUtilityQueryInput(
         query=utility_query,
+        image_payloads=selected.image_payloads,
         processor_worker_index=selected.processor_worker_index,
         execution_worker_index=execution.worker_index,
         role_partition=execution.role_partition,
         processor_artifact_sha256=selected.processor_artifact_sha256,
         query_record_sha256=selected.query_record_sha256,
     )
+    if joined.image_payloads is not selected.image_payloads:
+        raise RuntimeError("joined utility query copied or replaced image payloads")
+    return joined
 
 
 __all__ = [

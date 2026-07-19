@@ -12,6 +12,25 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：真实 GUI-Owl throughput adapter source core
+
+- 新增 `set_utility_gui_owl_v2_1_throughput_adapter.py`，只接受 versioned
+  `GUIOwlV21ThroughputRuntime`；generation/teacher 均显式使用 caller-owned CUDA peak，外层 measurement 从
+  native encode 前开始，覆盖 H2D、preparation、forward、generation decode/parse 或 teacher logits/metadata
+  disposal；
+- adapter boundary 只允许 exact `GUIOwlV2Action` 作为进程内 action handle。native output、tokens、metadata、
+  logits、KL 与 utility 均不能进入 metric-only payload；runtime 或 measurement exception 只投影安全 class id、
+  elapsed wall 与 CUDA peak，敏感 exception message 不序列化；
+- 修复 processor→label join 的真实输入缺口：`SelectedProcessorQuery` 现在显式暴露 tar allowlist 中的 exact
+  image mapping，`JoinedUtilityQueryInput` 要求 inventory 恰为 initial candidates + current，并保持同一 mapping
+  identity，避免在 join 后丢失 policy prompt 所需图像或静默扩大可见范围；
+- adapter source SHA256=`7b8f40eab4963b3327752981a1a6ebf0d75d38f5a9e24e4970d389ee8021d1b4`；adapter、
+  throughput core/runtime、label input/producer focused regression=`43 passed, 2 subtests passed`，compileall 与
+  diff audit 通过。旧 throughput runtime Git blob 仍为
+  `64c49b641e29b90047c0cb665e028af8f394ea7e`；
+- 本步没有读取 formal artifact、运行 CUDA/policy forward、冻结 12-state roster/config、生成 label 或执行 HF
+  mutation。下一步仍须等 processor Git result + immutable HF publication 后冻结 train-only pilot contract。
+
 ### 2026-07-18（UTC 07-19）：versioned 4-worker processor postflight source path
 
 - 当前 formal 尾部串行瓶颈已定位：historical v1 structural audit 已按 4 worker 并行，但 v2 semantic overlay

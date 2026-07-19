@@ -114,7 +114,8 @@ train/tune/one-shot evaluation roster，但不能把 P0 pool 直接全部视为�
   tune/evaluation records 只检查 header/member order 后 seek 跳过，不读取或 JSON decode payload。artifact 由单一
   absolute `O_NOFOLLOW` fd 完成流式 SHA、tar parse 和前后 inode/metadata stability 复核；join 同时绑定
   Freeze-B assignment、final candidate、request-manifest SHA、artifact SHA 与 query-record witness SHA，并分别
-  保留 processor worker、label execution worker 和 role partition；
+  保留 processor worker、label execution worker 和 role partition。join 还保留 tar loader 产生的同一 exact
+  image-payload mapping，并拒绝任何不等于 initial candidates + current 的 inventory；
 - `set_utility_label_partitions.py`：execution worker 可以按 state 做 mixed-role LPT，但 publication 必须拆成
   `labels/{train,tune,evaluation}/part-worker-XX.parquet`。trainer inventory 的 schema 永远只有 train/tune；
   evaluation inventory 只能在 model seal SHA 已存在后释放。writer/validator 固定 absolute canonical root、
@@ -127,6 +128,10 @@ train/tune/one-shot evaluation roster，但不能把 P0 pool 直接全部视为�
 - `policy/gui_owl_v2_1_throughput_runtime.py`：独立 versioned runtime seam，不修改 byte-pinned v2.1 base。
   `runtime` ownership 保持原 reset/timing/metadata/output，`caller` ownership 跳过内部 peak reset，使 adapter
   能在外层测量包含 encode/H2D/preparation/forward/decode-or-logit-disposal 的完整 CUDA peak；
+- `set_utility_gui_owl_v2_1_throughput_adapter.py`：真实 metric-only runtime adapter。只接受上述 versioned runtime，
+  只让 exact `GUIOwlV2Action` 作为不序列化的进程内 handle 穿过 boundary；generation 与 teacher 都由外层 reset/
+  sync/timer 计量，teacher logits/metadata 在停止计量前释放。成功和失败路径都只返回 latency、CUDA peak、safe
+  failure class 与 operation count，不能泄露 native output、token、logit、KL、utility 或 exception message；
 - `set_utility_label_table.py`：只接受完整、finite、non-negative 的 `D(S)` capped table，机械计算可正可负的
   `U(S)`，不 clipping。
 
@@ -206,11 +211,12 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 
 1. processor image-contract v2 source freeze 已完成；从 clean pushed commit 在 Hyper00 执行 processor-only
    candidate freeze，并用 committed v2 postflight 重建 exact `18,768/24/18,792` tally 与 operation budget；
-2. train-only selective reader/strict join、role-partitioned publication firewall、metric-only throughput core 与
-   versioned caller-owned CUDA measurement seam 已提前实现，并以 malformed tune/evaluation payload、cross-role
-   row、symlink、inode replacement、failure-metric inclusion、sensitive-error serialization 与默认路径等价性
-   负测；但必须等待 completed processor root/HF revision 后，才能冻结真实 adapter 与 pilot execution
-   contract，再立 label Execution-B 生产 phase-1 `|S|<=2` tables；
+2. train-only selective reader/strict join、role-partitioned publication firewall、metric-only throughput core、
+   versioned caller-owned CUDA measurement seam 与真实 GUI-Owl adapter 已提前实现，并以 malformed tune/evaluation
+   payload、cross-role row、symlink、inode replacement、image-inventory drift、failure-metric inclusion、sensitive-
+   error serialization 与默认路径等价性负测；但必须等待 completed processor root 的 Git result/HF immutable
+   revision 后，才能冻结 12-state train-only pilot execution contract，再立 label Execution-B 生产 phase-1
+   `|S|<=2` tables；
 3. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 

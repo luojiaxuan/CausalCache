@@ -355,6 +355,9 @@ def test_processor_query_strict_join_preserves_execution_and_role_partitions(
     assert joined.processor_worker_index == 2
     assert joined.execution_worker_index == 3
     assert joined.role_partition == "train"
+    assert selected.image_payloads is selected.query.image_payloads
+    assert joined.image_payloads is selected.image_payloads
+    assert joined.image_payloads == selected.query.image_payloads
 
 
 def test_processor_query_join_rejects_role_partition_drift(tmp_path: Path) -> None:

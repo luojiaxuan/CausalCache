@@ -48,8 +48,10 @@
 > disposal 的端到端 wall time 与 full-call CUDA peaks，失败调用也通过无 message/output 的安全 projection 计入。
 > 为使 full-call peak 可实现，另新增 versioned `GUIOwlV21ThroughputRuntime`：默认路径与 byte-pinned base 行为
 > 一致，caller-owned 路径只跳过内部 peak reset，允许外层覆盖完整调用；历史 runtime bytes 与 artifact contract
-> 均未修改。以上仍只是下一阶段 source core；正式 pilot config、真实 adapter/policy forward 与 label execution
-> 尚未解锁。
+> 均未修改。真实 metric-only adapter 也已接通：只允许 exact `GUIOwlV2Action` 作为进程内 handle，teacher
+> logits/metadata 在 outer stop 前释放，异常只投影 class-only metrics；processor→label join 同时保留 exact
+> initial-candidates+current image payload mapping。相关 focused regression=`43 passed, 2 subtests passed`。正式
+> 12-state pilot config、真实 policy forward 与 label execution 尚未解锁。
 >
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
 > `parallel_v1` 只把四个 worker tar 的 v2 semantic overlay 用 ordered 4-thread map 并行，主线程仍按 0→3
