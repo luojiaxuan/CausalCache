@@ -277,6 +277,7 @@ def _normalized_allowlist(
     state_ids: Sequence[str],
     *,
     expected_worker: ProcessorWorkerShard,
+    allowed_roles: Sequence[str] = ("train",),
 ) -> frozenset[str]:
     if (
         isinstance(state_ids, (str, bytes, bytearray, Mapping))
@@ -289,7 +290,14 @@ def _normalized_allowlist(
         for state_id in state_ids
     )
     if len(set(normalized)) != len(normalized):
-        raise ValueError("train state allowlist contains a duplicate")
+        raise ValueError("state allowlist contains a duplicate")
+    roles = tuple(allowed_roles)
+    if (
+        not roles
+        or any(role not in SPLIT_ROLES for role in roles)
+        or len(set(roles)) != len(roles)
+    ):
+        raise ValueError("allowed processor roles are invalid")
     known: dict[str, str] = {}
     for item in expected_worker.trajectories:
         for state_id, _, _ in _expected_query_identities(item):
@@ -298,9 +306,9 @@ def _normalized_allowlist(
             known[state_id] = item.role
     unknown = set(normalized) - set(known)
     if unknown:
-        raise ValueError("train state allowlist escaped the processor worker shard")
-    if any(known[state_id] != "train" for state_id in normalized):
-        raise ValueError("train state allowlist contains a tune or evaluation state")
+        raise ValueError("state allowlist escaped the processor worker shard")
+    if any(known[state_id] not in roles for state_id in normalized):
+        raise ValueError("state allowlist escaped its allowed role partitions")
     return frozenset(normalized)
 
 
@@ -357,6 +365,7 @@ def _read_selected_query(
     expected_decision_step_id: int,
     processor_worker_index: int,
     processor_artifact_sha256: str,
+    expected_role: str = "train",
 ) -> SelectedProcessorQuery:
     record_bytes = _artifacts._member_bytes(
         archive,
@@ -371,7 +380,7 @@ def _read_selected_query(
         query.state_id != expected_state_id
         or query.query_kind != expected_query_kind
         or query.decision_step_id != expected_decision_step_id
-        or query.role != "train"
+        or query.role != expected_role
     ):
         raise ValueError("allowlisted query differs from its header-derived identity")
     expected_count = _expected_image_count(expected_decision_step_id)
@@ -433,13 +442,35 @@ def read_allowlisted_train_processor_queries(
     state_ids: Sequence[str],
 ) -> tuple[SelectedProcessorQuery, ...]:
     """Read only explicitly allowlisted train records from one processor shard."""
+    return read_allowlisted_processor_queries(
+        path,
+        expected_worker=expected_worker,
+        expected_artifact_sha256=expected_artifact_sha256,
+        state_ids=state_ids,
+        allowed_roles=("train",),
+    )
+
+
+def read_allowlisted_processor_queries(
+    path: str | Path,
+    *,
+    expected_worker: ProcessorWorkerShard,
+    expected_artifact_sha256: str,
+    state_ids: Sequence[str],
+    allowed_roles: Sequence[str],
+) -> tuple[SelectedProcessorQuery, ...]:
+    """Read a small explicit state allowlist across declared role partitions."""
     if not isinstance(expected_worker, ProcessorWorkerShard):
         raise TypeError("expected worker must be a ProcessorWorkerShard")
     expected_sha = _sha256(
         expected_artifact_sha256,
         label="expected processor artifact SHA256",
     )
-    allowlist = _normalized_allowlist(state_ids, expected_worker=expected_worker)
+    allowlist = _normalized_allowlist(
+        state_ids,
+        expected_worker=expected_worker,
+        allowed_roles=allowed_roles,
+    )
     source = Path(path)
     handle, before, observed_sha = _open_hashed_artifact(source)
     if observed_sha != expected_sha:
@@ -486,6 +517,7 @@ def read_allowlisted_train_processor_queries(
                                 expected_decision_step_id=decision_step_id,
                                 processor_worker_index=worker.worker_index,
                                 processor_artifact_sha256=observed_sha,
+                                expected_role=item.role,
                             )
                         )
                     else:
@@ -506,7 +538,7 @@ def read_allowlisted_train_processor_queries(
                 )
         _validate_stable_artifact(source, handle=handle, before=before)
     if {item.query.state_id for item in selected} != set(allowlist):
-        raise ValueError("allowlisted train query inventory is incomplete")
+        raise ValueError("allowlisted query inventory is incomplete")
     return tuple(sorted(selected, key=lambda item: item.query.state_id))
 
 
@@ -605,5 +637,6 @@ __all__ = [
     "LabelExecutionPartition",
     "SelectedProcessorQuery",
     "build_joined_utility_query_input",
+    "read_allowlisted_processor_queries",
     "read_allowlisted_train_processor_queries",
 ]

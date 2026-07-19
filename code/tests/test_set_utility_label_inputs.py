@@ -13,6 +13,7 @@ from causalcache.low_fidelity_v2 import LowFidelityEventV2
 from causalcache.set_utility_label_inputs import (
     LabelExecutionPartition,
     build_joined_utility_query_input,
+    read_allowlisted_processor_queries,
     read_allowlisted_train_processor_queries,
 )
 from causalcache.set_utility_label_producer import (
@@ -268,13 +269,31 @@ def test_train_allowlist_rejects_non_train_identity_before_record_decode(
     poisoned = tmp_path / "poisoned.tar"
     _poison_non_train_query_json(valid, poisoned)
 
-    with pytest.raises(ValueError, match="tune or evaluation"):
+    with pytest.raises(ValueError, match="allowed role partitions"):
         read_allowlisted_train_processor_queries(
             poisoned,
             expected_worker=worker,
             expected_artifact_sha256=_sha256(poisoned),
             state_ids=("tune-first:decision:010",),
         )
+
+
+def test_role_aware_allowlist_reads_tune_and_evaluation_records(
+    tmp_path: Path,
+) -> None:
+    _, worker, artifact = _materialize_mixed_shard(tmp_path)
+    selected = read_allowlisted_processor_queries(
+        artifact,
+        expected_worker=worker,
+        expected_artifact_sha256=_sha256(artifact),
+        state_ids=(
+            "tune-first:decision:010",
+            "evaluation-last:decision:010",
+        ),
+        allowed_roles=("tune", "evaluation"),
+    )
+
+    assert tuple(item.query.role for item in selected) == ("evaluation", "tune")
 
 
 def test_train_allowlist_rejects_symlink_artifact(tmp_path: Path) -> None:
