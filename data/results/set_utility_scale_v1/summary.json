@@ -1,5 +1,19 @@
 {
-  "artifact_status": "PENDING_HF_UPLOAD",
+  "artifacts": {
+    "dataset": {
+      "commit": "a95ce68bd628daaec40a7575847c9db584f20dc4",
+      "fresh_byte_verified_file_count": 362,
+      "repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+      "tag": "set-utility-scale-v1-ac0ef27"
+    },
+    "model": {
+      "commit": "365f3882658b40eccb64c9565ae8639986c59e82",
+      "fresh_byte_verified_file_count": 6,
+      "repo": "gavinlaw/causalcache-set-utility-predictors-mobile",
+      "tag": "set-utility-scale-v1-ac0ef27"
+    },
+    "status": "IMMUTABLE_HF_PUBLISHED_AND_FRESH_BYTE_VERIFIED"
+  },
   "config_sha256": "90963a32b2ada5d4ad405d9c4d82b0e6ba8c60aa9cb660617dd2dab6a460a756",
   "evaluation": {
     "B1_exact_recovery": {

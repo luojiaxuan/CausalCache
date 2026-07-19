@@ -54,8 +54,8 @@ U(S)=D(\varnothing)-D(S).
 | 代码、配置、论文、轻量结果 | 本 Git 仓库 `main` | canonical |
 | Processor substrate | [HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair) | immutable，23 files / 18.73 GB |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
-| Scale-v1 labels/features | `gavinlaw/causalcache-set-utility-new-development-mobile` | 355 completed + 1 skipped；`PENDING_HF_UPLOAD` |
-| Scale-v1 predictor checkpoints | `gavinlaw/causalcache-set-utility-predictors-mobile` | 3 checkpoints；`PENDING_HF_UPLOAD` |
+| Scale-v1 labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | tag `set-utility-scale-v1-ac0ef27`；362 files fresh byte verified |
+| Scale-v1 predictor checkpoints | [HF model@365f3882](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/365f3882658b40eccb64c9565ae8639986c59e82) | tag `set-utility-scale-v1-ac0ef27`；3 checkpoints + config/evaluation/card fresh byte verified |
 
 大文件若暂时无法上传 HF，必须保存在个人 persistent storage，并在本 README 或结果文档记录精确路径与 `PENDING_HF_UPLOAD`。
 

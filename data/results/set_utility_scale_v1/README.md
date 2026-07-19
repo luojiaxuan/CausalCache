@@ -24,5 +24,8 @@ Raw labels、完整 evaluation summary 与 checkpoints 当前保存在 Hyper00�
 
 `/data02/jaxan/runs/causalcache-set-utility-scale-v1-ac0ef27`
 
-HF 状态：`PENDING_HF_UPLOAD`。
+HF 已发布并 fresh byte replay：
 
+- [dataset commit `a95ce68b`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27)：362 files；
+- [model commit `365f3882`](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/365f3882658b40eccb64c9565ae8639986c59e82)：3 checkpoints、config、完整 evaluation summary 和 model card；
+- 两个 repo 的 tag 均为 `set-utility-scale-v1-ac0ef27`。
