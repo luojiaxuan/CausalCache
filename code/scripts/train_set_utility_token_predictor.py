@@ -492,6 +492,7 @@ def main() -> None:
                 "tune": tune_metrics,
             }
         )
+        print(json.dumps(history[-1], sort_keys=True), flush=True)
         if tune_metrics["total"] < best_tune - float(training["minimum_delta"]):
             best_tune = tune_metrics["total"]
             best_epoch = epoch
