@@ -58,12 +58,12 @@ PyArrow `iter_batches` 未使用 `columns=["images"]`，因此完整 rows 已在
 SHA256=`973b0f1b29059fde2f7e1001559b10a38629192e8e3db6f5774d41764ff627e3` 原样保留，仅作 forensic evidence；
 observed histogram formal-ineligible，禁止进入 intended private HF tag。轻量 failure 位于
 [`results/set_utility_selected_image_format_census_v1_attempt/`](results/set_utility_selected_image_format_census_v1_attempt/)。
-v2 column-projection repair 已完成 source freeze，config SHA256=
-`eb823bd794c555265107e5edd4ff9b0be60b9c907b476a313ce5e156779a549f`，当前为
-`SOURCE_FROZEN_FORMAL_RUN_PENDING`，没有 output、HF upload 或 `PENDING_HF_UPLOAD` artifact。它以 exact
-`columns=["images"]`、runtime exact schema/row-key assertions、projection-capture regression 与 committed
-completed-root postflight 重新跑完整 denominator；只有
-postflight VALID 后才能另立 HF publication milestone。v1 failure 协议见
+v2 column-projection repair 已从 clean `main@1a03b7e` 重新跑完整 denominator，并通过 committed postflight，
+状态为 `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`。10 files / 6,943,195 bytes
+保留于 Hyper00，artifact 当前为 `PENDING_HF_UPLOAD`；正式分布为 `PNG/RGBA=18,768`、`PNG/RGB=24`，全部
+`EXIF=false`。Git-safe 结果与完整 provenance 位于
+[`results/set_utility_selected_image_format_census_v2_column_projection_repair/`](results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
+完成 immutable HF upload 后才能另立 processor image-contract repair。v1 failure 协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
 边界见
 [`../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。

@@ -160,14 +160,13 @@ attempt 从 clean `main@e636df1` 完整运行后，审计发现 `ParquetFile.ite
 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；10-file root 只作 forensic
 evidence、禁止 HF 上传，observed histogram 不得冻结 processor repair。失败记录见
 `data/results/set_utility_selected_image_format_census_v1_attempt/`。
-v2 replacement 已完成 source freeze，config SHA256=
-`eb823bd794c555265107e5edd4ff9b0be60b9c907b476a313ce5e156779a549f`，当前为
-`SOURCE_FROZEN_FORMAL_RUN_PENDING`。它使用 exact `columns=["images"]`，在 `to_pylist()` 前断言
-`batch.schema.names == ["images"]`、在 row extraction 前断言 exact `{"images"}` keys，并用 regression 实际捕获
-PyArrow projection 参数；formal root 还必须通过 committed completed-root postflight，才能进入 VALID/HF
-publication。v2-specific suites 为 `23 passed`；v1+v2 focused regression 为 `37 passed`；全部 set-utility suites 为
-`299 passed, 15 skipped, 24 subtests passed`。下一步从 clean pushed source freeze 重跑完整 18,792 denominator。
-只有有效 census 完成后才能冻结 processor repair；得到 final
+v2 replacement 已从 clean `main@1a03b7e` 运行完整 18,792 denominator，并通过 committed postflight，状态为
+`VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`。exact `columns=["images"]`、
+pre-`to_pylist()` schema assertion、exact row-key assertion、selector order、receipts、histograms 与完整 hash chain
+均闭合；有效输入分布为 18,768 opaque `PNG/RGBA` + 24 `PNG/RGB`。10-file root 当前
+`PENDING_HF_UPLOAD`，Git-safe 结果见
+`data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`。下一步先完成 immutable HF
+publication，再另立同时接受两种合法 signature 的 processor image-contract repair；得到 final
 candidates 和 exact operation budget 后才可生成 labels。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`；v2 freeze 边界见

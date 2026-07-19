@@ -135,8 +135,8 @@ negative operation counts 见
 
 该 histogram 不得用于冻结 processor repair，exact 10-file root 也禁止 HF publication。唯一允许的后继是新的
 column-projection census version：`columns=["images"]`、runtime batch-schema assertion、真实 projection regression、
-new protocol/config/output/tag identity，并重新跑完整 denominator。只有 replacement census VALID 后，才能根据其
-histogram 设计 processor repair。replacement 当前为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`，独立身份与冻结证据见
+new protocol/config/output/tag identity，并重新跑完整 denominator。replacement v2 已从 clean `main@1a03b7e`
+完成全量 run 与 committed postflight，正式 VALID；其独立身份、histogram 与结果证据见
 [`set_utility_selected_image_format_census_v2_column_projection_repair.md`](set_utility_selected_image_format_census_v2_column_projection_repair.md)。
 
 ## 验证

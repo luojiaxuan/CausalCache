@@ -2,10 +2,10 @@
 
 ## 当前状态
 
-当前状态为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`。repository source/config、projection regression、source
-validator 与 completed-root postflight 已全部落盘并通过本地验证；正式运行只允许从包含本页与冻结 config 的
-clean pushed `main` 启动。当前没有 v2 output、有效 histogram、Hugging Face artifact 或 downstream
-authorization。
+当前状态为 `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`。formal run 从 clean
+pushed `main@1a03b7eb8ea2c41c8fed5213fed1bcc9d73f846b` 启动，并通过同一 commit 中的 independent read-only
+completed-root postflight。有效 output 与 histogram 已产生，HF artifact 尚未上传；当前只授权 immutable HF
+publication 与随后另立 versioned processor image-contract repair，不授权 labels/training/closed-loop。
 
 v1 的唯一 formal attempt 保持
 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`。其 10-file root 只能作为 forensic
@@ -116,3 +116,62 @@ source freeze 已同时完成：
 本 material milestone commit/push canonical `main` 后，正式运行只从该 clean immutable commit 启动。runner
 完成时 artifact 状态必须是 `AWAITING_COMMITTED_POSTFLIGHT`；不得在 postflight 前声称 VALID 或
 `PENDING_HF_UPLOAD`。
+
+## Formal run 与 completed-root postflight
+
+正式进程在 Hyper00 no-GPU container 中从 `2026-07-19T04:02:14Z` 运行到 `04:08:52Z`，耗时 398 秒，
+exit code 0。producer、runtime 与 artifact identity 为：
+
+- Git revision：`1a03b7eb8ea2c41c8fed5213fed1bcc9d73f846b`；
+- config SHA256：`eb823bd794c555265107e5edd4ff9b0be60b9c907b476a313ce5e156779a549f`；
+- Python/PyArrow/Pillow：`3.12.3 / 24.0.0 / 12.2.0`；
+- device/GPU：`cpu / 0`；
+- worker line counts：`4700/4700/4693/4699`；
+- final root：10 files / 6,943,195 bytes；无 symlink，sibling `.incomplete` absent；
+- manifest SHA256：`83fc82ab32e7c5fde09ce79483d0da76d896830a249157883b05881bbbdfd7c6`；
+- canonical file inventory SHA256：`6c687bec18fd9bcb8f06dfd31c9a1685a6de976eed67b610de18fd3d7933bd4f`；
+- read-only tree snapshot SHA256：`bd5f28c19b1303cae22437ec8d6659144c7301f20dee9a3be7401adc95be5cda`。
+
+committed postflight 返回：
+
+```text
+VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR
+```
+
+它独立重建 exact namespace/inventory、selector order/uniqueness、records/receipts、histograms、manifest、run
+identity、projection/source/predecessor hash chains，并验证前后 tree snapshot 不变。完整 argv、worker hashes、
+negative-operation counts 与 Git-safe provenance 见
+[`../data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](../data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
+
+## 正式 histogram 与 processor repair 输入
+
+18,792 个 observation records 的有效分布为：
+
+- format：`PNG=18,792`；
+- mode：`RGBA=18,768`，`RGB=24`；
+- alpha extrema：`[255,255]=18,768`，`null=24`；
+- EXIF：`false=18,792`；
+- dimensions：9 种，完整 counts 见 Git summary。
+
+因此 processor image-contract repair 必须保留 original encoded bytes，并同时接受 exact
+`PNG/RGBA + opaque alpha + no EXIF` 与 `PNG/RGB + null alpha + no EXIF`。不得将 24 个 RGB records 跳过、
+转码成 RGBA、补 alpha 或更改既有 OCR/AutoProcessor semantics。v2 与 v1 forensic root 的 non-selector records
+逐项一致仅作诊断；v2 的 formal eligibility 只来自新 projection contract 与 postflight。
+
+## 当前 artifact 状态
+
+外置 root 当前保留于 Hyper00：
+
+```text
+/data/artifacts/causalcache-selected-image-format-census-v2-column-projection-repair-1a03b7e
+```
+
+本 Git result milestone push 后记为 `PENDING_HF_UPLOAD`。intended private dataset/tag 仍是：
+
+```text
+gavinlaw/causalcache-set-utility-new-development-mobile
+phase1-b2-image-format-census-v2-column-projection-repair
+```
+
+只有上传完成并回写 immutable HF revision 后，外置 root 才不再是唯一 artifact copy。final candidates、exact
+operation budget、restoration labels、predictor training、matched-NLL 与 closed-loop 继续 locked。

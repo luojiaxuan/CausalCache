@@ -277,14 +277,13 @@ few-shot 的 calibration/evaluation state 数、seed、步数与 checkpoint rule
 Source-A validator 只能读取一次 canonical config；network、HF API、file write、subprocess、torch import、
 model load/forward、data access、label generation、optimizer step 和所有下游评估计数必须为零。
 
-下一步不是 closed-loop 或 label GPU run。P-1、P0 与 Freeze-B v2 roster 已完成，但 census v1 因
-unprojected Parquet columns 永久 INVALID。当前必须先冻结新的 column-projection census version，要求
-`columns=["images"]`、runtime exact-schema assertion 与真实 projection regression，再从 clean pushed commit
-在 Hyper00 CPU-only runtime 重跑固定 18,792 observations。只有 replacement 的完整 histogram 与 Git-safe
-result 闭合后，才能另立 processor repair，随后冻结 final candidate universe 与 exact operation budget；在此
-之前 processor、restoration labels 和 predictor training 均保持 locked。完整 v1 failure 与 replacement 边界见
+下一步不是 closed-loop 或 label GPU run。census v1 因 unprojected Parquet columns 永久 INVALID；v2 replacement
+已从 clean `main@1a03b7e` 重跑全部 18,792 observations，并通过 committed postflight，正式分布为
+`PNG/RGBA=18,768`、`PNG/RGB=24`。当前先完成 v2 artifact 的 immutable HF publication，再另立 processor
+image-contract repair，随后冻结 final candidate universe 与 exact operation budget；在此之前 processor、
+restoration labels 和 predictor training 均保持 locked。完整 v1 failure 与 replacement 边界见
 [`../data/results/set_utility_selected_image_format_census_v1_attempt/`](../data/results/set_utility_selected_image_format_census_v1_attempt/)，
 v1 协议见
-[`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)，当前
-已 source freeze、当前 `SOURCE_FROZEN_FORMAL_RUN_PENDING` 的 v2 replacement 见
+[`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)，已 VALID 的 v2
+replacement 见
 [`set_utility_selected_image_format_census_v2_column_projection_repair.md`](set_utility_selected_image_format_census_v2_column_projection_repair.md)。

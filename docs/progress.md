@@ -12,6 +12,26 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：selected-image census v2 column-projection repair VALID
+
+- clean pushed producer=`1a03b7eb8ea2c41c8fed5213fed1bcc9d73f846b`；Hyper00 CPU-only process 从
+  `2026-07-19T04:02:14Z` 到 `04:08:52Z`，398 秒、exit code 0，4-worker line counts=
+  `4700/4700/4693/4699`；
+- exact `columns=["images"]`、batch schema=`["images"]` 与 row keys=`{"images"}` 全部运行时验证通过；
+  OCR、AutoProcessor、model/policy、GPU、labels、training、matched-NLL、closed-loop、sealed test 与 HF mutation
+  均为 0；
+- committed completed-root postflight 返回
+  `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`，重建 18,792 selector 精确顺序与
+  全局唯一性、records/receipts、histograms、manifest/run identity、projection/source/predecessor hash chains；
+  final root 为 10 files / 6,943,195 bytes，无 symlink，staging absent，postflight 前后 tree snapshot 一致；
+- 正式 histogram：`PNG=18,792`；`RGBA=18,768`、`RGB=24`；opaque alpha=`18,768`、null=`24`；
+  `EXIF=false=18,792`。non-selector records 与 v1 forensic root 逐项一致只作诊断，不作为有效性证据；
+- Git-safe result 见
+  [`../data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](../data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
+  当前 artifact=`PENDING_HF_UPLOAD`；完成 immutable HF publication 后，下一步是另立同时接受原始 opaque RGBA
+  与 RGB 的 processor image-contract repair，不能重编码、补 alpha 或跳过 24 个 RGB records；
+- final candidates、restoration labels、predictor training、matched-NLL、closed-loop 与 sealed test 仍为 0/locked。
+
 ### 2026-07-18（UTC 07-19）：selected-image census v2 column-projection repair source freeze
 
 - v1 contract drift 的唯一允许后继已完成独立 protocol/config/runner/output/tag source freeze；config 10,292
