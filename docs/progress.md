@@ -12,6 +12,25 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：processor image-contract v2 source freeze
+
+- 新建独立 processor Execution-CF v2；canonical config 8,014 bytes，SHA256=
+  `82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`，状态为
+  `SOURCE_FROZEN_FORMAL_RUN_PENDING`；
+- v2 byte-bind canonical v1 config、v1 failure summary、VALID census Git summary/card、HF revision
+  `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0` 与 6 个新 runtime sources；12 个 v1/OCR/failure bound files
+  的 Git blob hashes 保持不变；
+- 唯一方法变化是 accepted image union：18,768 opaque `PNG/RGBA` + 24 `PNG/RGB`，全部无 EXIF；source
+  encoded bytes 不重编码、不补 alpha、不跳样本，AutoProcessor 继续 exact transient RGB replay；
+- hostile review 发现并修复 metadata-only OCR semantic hole 与 import-alias source-audit bypass；resume receipt
+  现在校验 exact schema/backend/runtime/image-contract/shard/tally，output basename 精确绑定 producer Git7；
+- source audit 返回 `VALID_PROCESSOR_ONLY_SOURCE_V2_IMAGE_CONTRACT_REPAIR`；v2 focused=`42 passed`，processor
+  v1/v2 regression=`91 passed`，all set-utility=`341 passed, 15 skipped, 24 subtests passed`；
+- 当前无 formal root、final candidates、exact operation budget、labels、checkpoint 或 HF processor artifact。下一步
+  从 clean pushed source-freeze commit 在 Hyper00 CPU-only container 启动 4-worker formal run，随后必须运行
+  committed v2 postflight。完整合同见
+  [`set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)。
+
 ### 2026-07-18（UTC 07-19）：selected-image census v2 immutable HF publication
 
 - 创建 private dataset `gavinlaw/causalcache-set-utility-new-development-mobile`；13-operation payload commit=
@@ -24,8 +43,8 @@ confirm-20 禁止进入新训练、
 - Git dataset card 位于
   [`../data/cards/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../data/cards/set_utility_selected_image_format_census_v2_column_projection_repair.md)，
   Git result summary 已从 `PENDING_HF_UPLOAD` 更新为 `PUBLISHED_HF_IMMUTABLE_VERIFIED`；
-- 下一步已收敛为 versioned processor image-contract repair；labels、training、matched-NLL、closed-loop 与 sealed
-  test 继续 locked。
+- 该 publication milestone 当时将下一步收敛为 versioned processor image-contract repair；后续已完成本页上节
+  v2 source freeze。labels、training、matched-NLL、closed-loop 与 sealed test 继续 locked。
 
 ### 2026-07-18（UTC 07-19）：selected-image census v2 column-projection repair VALID
 
@@ -43,8 +62,8 @@ confirm-20 禁止进入新训练、
   `EXIF=false=18,792`。non-selector records 与 v1 forensic root 逐项一致只作诊断，不作为有效性证据；
 - Git-safe result 见
   [`../data/results/set_utility_selected_image_format_census_v2_column_projection_repair/`](../data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
-  artifact 后续已完成上节 immutable HF publication；下一步是另立同时接受原始 opaque RGBA 与 RGB 的
-  processor image-contract repair，不能重编码、补 alpha 或跳过 24 个 RGB records；
+  artifact 后续已完成上节 immutable HF publication，并进一步完成 processor image-contract v2 source freeze；
+  当前下一步是 formal processor-only run，不能重编码、补 alpha 或跳过 24 个 RGB records；
 - final candidates、restoration labels、predictor training、matched-NLL、closed-loop 与 sealed test 仍为 0/locked。
 
 ### 2026-07-18（UTC 07-19）：selected-image census v2 column-projection repair source freeze

@@ -6,7 +6,8 @@
 pushed `main@1a03b7eb8ea2c41c8fed5213fed1bcc9d73f846b` 启动，并通过同一 commit 中的 independent read-only
 completed-root postflight。有效 output 与 histogram 已产生，并已发布到 immutable HF revision
 `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`；fresh re-download 的 formal 10-file inventory 与原件逐 byte
-相同。当前只授权另立 versioned processor image-contract repair，不授权 labels/training/closed-loop。
+相同。versioned processor image-contract repair 后续已完成 source freeze；当前只授权其 formal
+processor-only run，不授权 labels/training/closed-loop。
 
 v1 的唯一 formal attempt 保持
 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`。其 10-file root 只能作为 forensic
@@ -100,10 +101,12 @@ revision；在此之前状态不是 `PENDING_HF_UPLOAD`，而是尚未产生可�
 `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，并通过独立 fresh-download inventory 验证。该完成态只解锁
 processor image-contract repair，不改变后续 labels/training/closed-loop 的锁定状态。
 
-即使 v2 最终 VALID，也只能授权下一步另立 versioned processor image-contract repair。final candidate universe、
-exact operation budget、restoration labels、utility predictor training、matched-NLL、closed-loop 和 sealed test 仍需
-各自后续 contract，不能由 census 直接解锁。processor repair 只能依据 VALID v2 histogram，不得引用 v1
-formal-ineligible histogram 作为设计依据。
+该 census 的 VALID milestone 最初只授权另立 versioned processor image-contract repair；该 repair 现已完成
+source freeze，详见
+[`set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)。
+final candidate universe、exact operation budget、restoration labels、utility predictor training、matched-NLL、
+closed-loop 和 sealed test 仍需各自后续 contract，不能由 census 直接解锁。processor repair 只能依据 VALID v2
+histogram，不得引用 v1 formal-ineligible histogram 作为设计依据。
 
 ## Source-freeze 验证结果
 

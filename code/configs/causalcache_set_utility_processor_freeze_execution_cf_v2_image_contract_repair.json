@@ -1,0 +1,219 @@
+{
+  "authorization": {
+    "access_outcome_or_utility_allowed": false,
+    "access_sealed_androidworld_test_allowed": false,
+    "apply_auto_processor_allowed": true,
+    "auto_model_load_allowed": false,
+    "closed_loop_allowed": false,
+    "decode_selected_raw_rows_allowed": true,
+    "freeze_recent_suffix_candidates_allowed": true,
+    "generate_restoration_labels_allowed": false,
+    "hugging_face_mutation_allowed": false,
+    "kl_measurement_allowed": false,
+    "load_auto_processor_allowed": true,
+    "materialize_exact_operation_budget_allowed": true,
+    "materialize_four_worker_schedule_allowed": true,
+    "one_shot_evaluation_label_access_allowed": false,
+    "policy_or_vision_forward_allowed": false,
+    "policy_throughput_pilot_allowed": false,
+    "predictor_training_allowed": false,
+    "read_frozen_v2_manifest_allowed": true,
+    "read_selected_raw_shards_allowed": true,
+    "run_ocr_allowed": true,
+    "teacher_forced_action_forward_allowed": false,
+    "unselected_row_semantic_use_allowed": false,
+    "write_external_processor_freeze_artifact_allowed": true,
+    "write_ocr_low_fidelity_substrate_allowed": true
+  },
+  "bindings": {
+    "predecessor_execution_config": {
+      "byte_count": 11391,
+      "path": "code/configs/causalcache_set_utility_processor_freeze_execution_cf.json",
+      "sha256": "66fd93c64669be734f82830af7d623e9cb97263f90613a5809eb665078b2fba7"
+    },
+    "repair_evidence": {
+      "selected_image_census_v2_card": {
+        "byte_count": 3674,
+        "path": "data/cards/set_utility_selected_image_format_census_v2_column_projection_repair.md",
+        "sha256": "b9e041c1bec6c1c4dbd4a6191555e0587e871ade3a3e1e5b44590584ef35d2c7"
+      },
+      "selected_image_census_v2_summary": {
+        "byte_count": 10217,
+        "path": "data/results/set_utility_selected_image_format_census_v2_column_projection_repair/summary.json",
+        "sha256": "58230e7e9a723b5ee98fa1045d06173792dfc6a787b2914658bef93e5e97d7a8"
+      },
+      "v1_failure_summary": {
+        "byte_count": 5865,
+        "path": "data/results/set_utility_processor_freeze_execution_cf_v1_attempt/summary.json",
+        "sha256": "baed4f5fe5eb0d75fc19c9c94b2e9535c5b533e2f567f6641825568620d8addb"
+      }
+    },
+    "repair_sources": [
+      {
+        "byte_count": 30736,
+        "path": "code/causalcache/set_utility_processor_freeze_contract_v2.py",
+        "sha256": "d1fea6f3e62bce16a3f3e133ee8b1ed7ea0d8cdd8bf7cbe5c59650d984ffa517"
+      },
+      {
+        "byte_count": 7895,
+        "path": "code/causalcache/set_utility_processor_image_contract_v2.py",
+        "sha256": "8611a37b2130e4acb70ee734a6b303db5d90194cca33409b57eb4877cf7ecd45"
+      },
+      {
+        "byte_count": 22119,
+        "path": "code/scripts/run_set_utility_processor_freeze_v2.py",
+        "sha256": "943b132f1fbc79a0c3170f9f68be899fca42a9fbe7598fdfd6b1c2de4237bb25"
+      },
+      {
+        "byte_count": 25930,
+        "path": "code/causalcache/set_utility_processor_postflight_v2.py",
+        "sha256": "28084b527344bb244f70c271a7a22586a6bd7a0d634722d286f8a78708b1d100"
+      },
+      {
+        "byte_count": 1463,
+        "path": "code/scripts/validate_set_utility_processor_freeze_v2_execution.py",
+        "sha256": "3321bafe5fba3c3bef71da9fedfcd71e8b814712facefe3ccd04a52a23476956"
+      },
+      {
+        "byte_count": 1544,
+        "path": "code/scripts/validate_set_utility_processor_freeze_v2_output.py",
+        "sha256": "90dbfcae8166f2da02cea0a96eb8529ae1666f594525d9b7f8ff75738e280683"
+      }
+    ]
+  },
+  "image_contract_repair": {
+    "accepted_source_images": [
+      {
+        "alpha_extrema": [
+          255,
+          255
+        ],
+        "census_count": 18768,
+        "exif_present": false,
+        "source_format": "PNG",
+        "source_mode": "RGBA"
+      },
+      {
+        "alpha_extrema": null,
+        "census_count": 24,
+        "exif_present": false,
+        "source_format": "PNG",
+        "source_mode": "RGB"
+      }
+    ],
+    "alpha_synthesis_allowed": false,
+    "contract_id": "causalcache_set_utility_processor_image_contract_v2_png_rgb_allowlist_repair",
+    "decoded_rgb_conversion_required": true,
+    "encoded_source_bytes_preserved": true,
+    "exif_transpose_allowed": false,
+    "expected_selected_image_count": 18792,
+    "reencode_allowed": false,
+    "repair_scope": "accept_census_observed_opaque_png_rgb_alongside_png_rgba"
+  },
+  "output": {
+    "atomic_publish_required": true,
+    "canonical_json": true,
+    "existing_output_root_allowed": false,
+    "manifest_name": "manifest.json",
+    "output_namespace": "causalcache-set-utility-processor-freeze-v2-image-contract-repair",
+    "output_root_argument": "--output-root",
+    "output_root_must_be_absolute": true,
+    "output_root_must_be_outside_repository": true,
+    "overwrite_allowed": false,
+    "role_partitioning_required": true
+  },
+  "phases": {
+    "auto_processor": {
+      "context_limit_tokens": 32768,
+      "device": "cpu",
+      "drop_rule": "drop_one_oldest_candidate_until_full_reference_fits",
+      "initial_candidate_rule": "newest_16_non_current_equivalent_history_events",
+      "interface": "transformers.AutoProcessor_only",
+      "maximum_final_candidate_count": 16,
+      "minimum_final_candidate_count": 4,
+      "model_or_policy_forward_count": 0,
+      "reserved_action_tokens": 256
+    },
+    "raw_decode_and_ocr": {
+      "ocr_backend": "frozen_restoration_v2_ocr_backend",
+      "python_environment": "cli_bound_and_may_differ_from_auto_processor",
+      "raw_payload_retention_scope": "selected_rows_only",
+      "row_identity": "transport_file_plus_transport_row_index"
+    },
+    "schedule_materialization": {
+      "exact_subset_cardinalities": [
+        0,
+        1,
+        2
+      ],
+      "materialize_exact_operation_budget": true,
+      "materialize_final_candidate_sets": true,
+      "materialize_four_worker_schedule": true,
+      "worker_count": 4
+    },
+    "throughput_pilot": {
+      "policy_forward_allowed": false,
+      "status": "EXCLUDED_REQUIRES_SEPARATE_POST_FREEZE_TRAIN_ONLY_CONTRACT"
+    }
+  },
+  "protocol_id": "causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair",
+  "runtime_cli": {
+    "ambient_environment_as_science_input_allowed": false,
+    "ocr_and_processor_may_use_distinct_python_environments": true,
+    "paths_must_be_explicit_cli_arguments": true,
+    "python_executables_must_be_absolute_with_regular_executable_targets": true,
+    "required_identity_arguments": [
+      "--git-revision",
+      "--host-alias",
+      "--host-hostname",
+      "--container-id",
+      "--container-image-digest",
+      "--worker-count"
+    ],
+    "required_path_arguments": [
+      "--repository-root",
+      "--execution-config",
+      "--source-root",
+      "--model-dir",
+      "--snapshot-manifest",
+      "--ocr-model-dir",
+      "--ocr-wheel-dir",
+      "--output-root",
+      "--ocr-python-executable",
+      "--processor-python-executable"
+    ],
+    "required_version_arguments_by_phase": {
+      "auto_processor": [
+        "--processor-python-version",
+        "--transformers-version",
+        "--torch-version",
+        "--pillow-version"
+      ],
+      "raw_decode_and_ocr": [
+        "--ocr-python-version",
+        "--ocr-runtime-version",
+        "--pyarrow-version"
+      ]
+    },
+    "runner_path": "code/scripts/run_set_utility_processor_freeze_v2.py",
+    "versions_must_be_explicit_cli_arguments": true
+  },
+  "schema_version": "2.0.0",
+  "selection": {
+    "evaluation_access": "raw_input_and_candidate_topology_only_without_label_outcome_or_utility",
+    "query_state_count": 2400,
+    "role_query_state_counts": {
+      "evaluation": 200,
+      "train": 2000,
+      "tune": 200
+    },
+    "role_trajectory_counts": {
+      "evaluation": 100,
+      "train": 1000,
+      "tune": 100
+    },
+    "row_scope": "only_rows_named_by_the_frozen_v2_assignments",
+    "trajectory_count": 1200
+  },
+  "status": "PROCESSOR_ONLY_CANDIDATE_FREEZE_EXECUTION_CF_V2_IMAGE_CONTRACT_REPAIR_AUTHORIZED"
+}

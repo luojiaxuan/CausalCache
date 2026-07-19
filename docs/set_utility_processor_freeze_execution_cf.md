@@ -146,8 +146,10 @@ labels/training。其唯一 census v1 attempt 后续因 PyArrow 未传 `columns=
 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；observed histogram 不得用于
 processor repair。v2 replacement 已从 clean `main@1a03b7e` 重跑完整 18,792 denominator，并通过 committed
 postflight；正式分布为 18,768 opaque `PNG/RGBA` + 24 `PNG/RGB`。HF publication 已完成，revision=
-`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`。当前严格下一步是另立 processor image-contract v2；不得直接
-修改本 v1 Execution-CF、重编码、补 alpha 或跳过 RGB observations。v2 证据见
+`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`。processor image-contract v2 已完成独立 source freeze；不得直接
+修改本 v1 Execution-CF、重编码、补 alpha 或跳过 RGB observations。当前下一步是从 clean pushed v2
+producer 执行 formal processor-only run。v2 合同见
+[`set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)，census 证据见
 [`set_utility_selected_image_format_census_v2_column_projection_repair.md`](set_utility_selected_image_format_census_v2_column_projection_repair.md)。
 
 ## 完成态只读 postflight

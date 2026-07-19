@@ -64,10 +64,14 @@ v2 column-projection repair 已从 clean `main@1a03b7e` 重新跑完整 denomina
 `c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`，fresh re-download inventory verified；正式分布为
 `PNG/RGBA=18,768`、`PNG/RGB=24`，全部 `EXIF=false`。Git-safe 结果与完整 provenance 位于
 [`results/set_utility_selected_image_format_census_v2_column_projection_repair/`](results/set_utility_selected_image_format_census_v2_column_projection_repair/)。
-下一步另立 processor image-contract repair。v1 failure 协议见
+processor image-contract v2 已完成 source freeze，config SHA256=
+`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`，当前尚无 formal processor output；
+下一步从 clean pushed commit 执行 Hyper00 CPU-only processor freeze。v1 failure 协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
 边界见
 [`../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。
+v2 processor contract 见
+[`../docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](../docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
 从已 outcome-exposed 的 validation plan 中仅取 `task_index=0`，按 pre-treatment `max_steps` 分三层并以 protocol

@@ -280,8 +280,9 @@ model load/forward、data access、label generation、optimizer step 和所有�
 下一步不是 closed-loop 或 label GPU run。census v1 因 unprojected Parquet columns 永久 INVALID；v2 replacement
 已从 clean `main@1a03b7e` 重跑全部 18,792 observations，并通过 committed postflight，正式分布为
 `PNG/RGBA=18,768`、`PNG/RGB=24`。artifact 已发布到 immutable HF revision
-`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`；当前另立 processor image-contract repair，随后冻结 final
-candidate universe 与 exact operation budget；在此之前 processor、
+`c1d19eb96d7fa7926f1eb9db3328dbff4e88eae0`；processor image-contract v2 已 source-frozen，config SHA256=
+`82107b02b0e25fb23e6582af0fe6bd4c3cc3d04c300fb2495d0febc8498506dc`。当前下一步是正式 processor-only
+run 与 committed postflight，随后冻结 final candidate universe 与 exact operation budget；在此之前
 restoration labels 和 predictor training 均保持 locked。完整 v1 failure 与 replacement 边界见
 [`../data/results/set_utility_selected_image_format_census_v1_attempt/`](../data/results/set_utility_selected_image_format_census_v1_attempt/)，
 v1 协议见
