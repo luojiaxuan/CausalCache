@@ -756,7 +756,9 @@ H200 anchor 和执行记录全部保留，见 [`docs/go_no_go.md`](docs/go_no_go
 17. [`docs/experiment_contract.md`](docs/experiment_contract.md)：历史 v0.3 与不变的系统边界；
 18. [`docs/go_no_go.md`](docs/go_no_go.md)：历史 v1 和当前 v2 判据；
 19. [`code/README.md`](code/README.md) 与 [`data/README.md`](data/README.md)：代码和数据边界；
-20. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source。
+20. [`paper/main.tex`](paper/main.tex)：AAAI 正文 source；
+21. [`docs/claude_code_global_gpu_handoff.md`](docs/claude_code_global_gpu_handoff.md)：把新的全局
+    `AGENTS.md` 与 GPU/SoT skills 迁移到 Claude Code 的完整交接、适配和无副作用验证协议。
 
 通用 GPU 执行采用全局 skills 的 optimistic fast path：并行 5 秒 idle cleanup 后直接在完整选定 allocation
 上启动，跨机 rollout 使用稳定 logical shards；默认不增加小卡数 smoke、完整机器 sweep 或 startup
