@@ -91,10 +91,15 @@ def main() -> None:
             "large_history_state_ids": list(tracks.large_history_state_ids),
         },
         "schema_version": "1.0.0",
+        "state_materialization": {
+            "candidate_event_ids": "range(1, decision_step_id)",
+            "decision_steps": "range(6, decision_count + 2)",
+            "implementation": "causalcache.set_utility_variable_history.states_from_assignments",
+            "rows_embedded": False,
+        },
         "state_identity_sha256": hashlib.sha256(
             json.dumps(identity_payload, separators=(",", ":")).encode("utf-8")
         ).hexdigest(),
-        "states": rows,
         "status": "FROZEN_VARIABLE_HISTORY_STATE_INVENTORY",
         "summary": summary,
     }

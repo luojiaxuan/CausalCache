@@ -85,8 +85,8 @@ teacher batch，并把 KL 留在 GPU 到 state 完成。目标是提高 wall-clo
 
 - `set_utility_variable_history.py` 已实现 full-prefix state 构造、history/age bins、label-blind similarity、40-label
   deterministic sampler 和 evaluation tracks；
-- state inventory 固定为 `data/manifests/set_utility_variable_history_v1_states.json`，绑定 config 与 assignment
-  manifest 的 SHA256；
+- state inventory 固定为 `data/manifests/set_utility_variable_history_v1_states.json`，绑定 config、assignment
+  manifest、全部 state identity 的 SHA256；Git 不重复保存 12,792 行 candidate prefixes，运行时按冻结规则重建；
 - token predictor 的 batch 维度改为动态 `max(n_t)` 与动态 label 数，分别由 `event_mask`、`label_mask` 排除 padding；
 - padded events 不进入 multimodal resampler，避免全空 attention source；
 - 当前尚未物化全量 observation、执行 context census 或生成任何正式 restoration label。
