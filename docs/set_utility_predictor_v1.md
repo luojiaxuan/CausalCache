@@ -284,5 +284,7 @@ unprojected Parquet columns 永久 INVALID。当前必须先冻结新的 column-
 result 闭合后，才能另立 processor repair，随后冻结 final candidate universe 与 exact operation budget；在此
 之前 processor、restoration labels 和 predictor training 均保持 locked。完整 v1 failure 与 replacement 边界见
 [`../data/results/set_utility_selected_image_format_census_v1_attempt/`](../data/results/set_utility_selected_image_format_census_v1_attempt/)，
-census 协议见
-[`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)。
+v1 协议见
+[`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)，当前
+已 source freeze、当前 `SOURCE_FROZEN_FORMAL_RUN_PENDING` 的 v2 replacement 见
+[`set_utility_selected_image_format_census_v2_column_projection_repair.md`](set_utility_selected_image_format_census_v2_column_projection_repair.md)。

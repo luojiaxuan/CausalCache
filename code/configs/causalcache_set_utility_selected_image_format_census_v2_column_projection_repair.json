@@ -1,0 +1,272 @@
+{
+  "artifact": {
+    "hf_mutation_during_execution": false,
+    "intended_private_hf_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+    "intended_tag": "phase1-b2-image-format-census-v2-column-projection-repair",
+    "post_execution_status": "AWAITING_COMMITTED_POSTFLIGHT"
+  },
+  "authorization": {
+    "access_outcome_or_utility_allowed": false,
+    "access_sealed_androidworld_test_allowed": false,
+    "auto_processor_allowed": false,
+    "closed_loop_allowed": false,
+    "decode_selected_images_with_pil_allowed": true,
+    "gpu_allowed": false,
+    "hugging_face_mutation_allowed": false,
+    "model_or_policy_load_allowed": false,
+    "ocr_allowed": false,
+    "read_frozen_repository_inputs_allowed": true,
+    "read_pinned_selected_source_rows_allowed": true,
+    "restoration_label_generation_allowed": false,
+    "training_allowed": false,
+    "unselected_row_semantic_use_allowed": false,
+    "write_external_pseudonymous_census_artifact_allowed": true
+  },
+  "bindings": {
+    "frozen_inputs": {
+      "freeze_b_v2_manifest": {
+        "byte_count": 2242268,
+        "path": "data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json",
+        "sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30"
+      },
+      "full_pool_inventory_manifest": {
+        "byte_count": 98373,
+        "path": "data/manifests/set_utility_full_pool_inventory_v1.json",
+        "sha256": "e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e"
+      },
+      "independent_reference_gate_base_config": {
+        "byte_count": 6441,
+        "path": "code/configs/independent_reference_gate_v1.json",
+        "sha256": "7b62aa31c80536f28bc4e8a3d684ff535bc2315d44a31cb5f002ed6dcb493fd8"
+      },
+      "invalid_v1_attempt_summary": {
+        "byte_count": 7274,
+        "path": "data/results/set_utility_selected_image_format_census_v1_attempt/summary.json",
+        "sha256": "a6419bf8d59b632d84b280b83e9f362cd3e86dbdd8c5708385b8a9facc617611"
+      },
+      "p0_census_manifest": {
+        "byte_count": 3942666,
+        "path": "data/manifests/set_utility_full_pool_census_v2.json",
+        "sha256": "729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b"
+      },
+      "v1_contract": {
+        "byte_count": 24825,
+        "path": "code/causalcache/set_utility_selected_image_census_contract.py",
+        "sha256": "fbd699f00513e81cab7f2c5e42ec4a78164e8c2f217cebb5a26861cafaaa1f82"
+      },
+      "v1_core": {
+        "byte_count": 20046,
+        "path": "code/causalcache/set_utility_selected_image_census.py",
+        "sha256": "1992727cfff3aa5f12683ea9e36179e9b08e5acca832f1ad759653c1b98c8219"
+      },
+      "v1_execution_config": {
+        "byte_count": 8583,
+        "path": "code/configs/causalcache_set_utility_selected_image_format_census_v1.json",
+        "sha256": "c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10"
+      },
+      "v1_runner": {
+        "byte_count": 21273,
+        "path": "code/scripts/run_set_utility_selected_image_census.py",
+        "sha256": "cfe11f16a29efc384f1c91d7c7ad8f35e9ed54b74f8103d58c4c62411082666e"
+      }
+    },
+    "runtime_import_closure": [
+      {
+        "byte_count": 12230,
+        "path": "code/causalcache/data/guiodyssey.py",
+        "sha256": "c8630f36fe343c63e5f1bf4b6401c4eb049dc4e8457abc761ed41011f4efc1c4"
+      },
+      {
+        "byte_count": 27739,
+        "path": "code/causalcache/data/guiodyssey_independent.py",
+        "sha256": "1beb1333a4f016a0cca5457fe02acc910b35fd621604e7aa588a7b7f61c11b9b"
+      },
+      {
+        "byte_count": 89362,
+        "path": "code/causalcache/data/guiodyssey_restoration_v2.py",
+        "sha256": "8caf9418e4212c760b789f660b8b67c9b23a5b88d08a8434d4a1e718f7a0e4ee"
+      },
+      {
+        "byte_count": 59728,
+        "path": "code/causalcache/data/restoration_v2_selection.py",
+        "sha256": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a"
+      },
+      {
+        "byte_count": 14249,
+        "path": "code/causalcache/low_fidelity_v2.py",
+        "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a"
+      },
+      {
+        "byte_count": 21838,
+        "path": "code/causalcache/policy/gui_owl_v2.py",
+        "sha256": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a"
+      },
+      {
+        "byte_count": 11708,
+        "path": "code/causalcache/policy/gui_owl_v2_1.py",
+        "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964"
+      },
+      {
+        "byte_count": 33579,
+        "path": "code/causalcache/restoration_v2_contract.py",
+        "sha256": "f83ae8ececfaafb5cfb3cef9bb617945353c34f6659a74b6080ae9798784c4b3"
+      },
+      {
+        "byte_count": 31285,
+        "path": "code/causalcache/restoration_v2_text_backend.py",
+        "sha256": "f2ed121f290095514ec0f54b83217188f3f9496e5b68da5216f2f19c0d43206e"
+      },
+      {
+        "byte_count": 7413,
+        "path": "code/causalcache/schema.py",
+        "sha256": "3f281fe3a646468de36f4764d20c46d1dea3867d35c819ca4ad52977d318ee5b"
+      },
+      {
+        "byte_count": 21659,
+        "path": "code/causalcache/set_utility_consumed_ledger.py",
+        "sha256": "422a8bdb3e2dae8d4c279f895cbb39b52f8c2d4b7ed79f7dc58434127e036345"
+      },
+      {
+        "byte_count": 2248,
+        "path": "code/causalcache/set_utility_consumed_ledger_contract.py",
+        "sha256": "1972454144c04ce8542e49eff16d9df33ad0d4bb90706a64753efcc152af948c"
+      },
+      {
+        "byte_count": 35068,
+        "path": "code/causalcache/set_utility_full_pool.py",
+        "sha256": "6352fd08728d5c38f98686af5712bdda24dd43a4716f6e24f74edd227dc50bf6"
+      },
+      {
+        "byte_count": 14565,
+        "path": "code/causalcache/set_utility_full_pool_inventory_v1.py",
+        "sha256": "17bf6c77fda59ff586a4ae267ca82a132dca2a5713c678ae6becfa3340f24857"
+      },
+      {
+        "byte_count": 37013,
+        "path": "code/causalcache/set_utility_label_producer.py",
+        "sha256": "6fed78a094e06d38572aa465110186e9dc7cc0a8a71f3fa296d5b73472bc35d3"
+      },
+      {
+        "byte_count": 17861,
+        "path": "code/causalcache/set_utility_label_schedule.py",
+        "sha256": "57a656cbf8574fa2225a9fa38f933a067c1d42e3dd758f8168f07bde3f75adde"
+      },
+      {
+        "byte_count": 12510,
+        "path": "code/causalcache/set_utility_long_pool.py",
+        "sha256": "e67dd7ac34770c3700b13e61736101fbdf5706ca4ac8f2ba1c3abacd6bac7095"
+      },
+      {
+        "byte_count": 41943,
+        "path": "code/causalcache/set_utility_processor_freeze.py",
+        "sha256": "ba8fefa2216668aa42e8a4bfa5c3ca1321e0c525be6f3e90d46e7879478c34ab"
+      },
+      {
+        "byte_count": 33995,
+        "path": "code/causalcache/set_utility_processor_substrate.py",
+        "sha256": "02a1f1f96041376e6c64632164b5fe484b436a01b862c90d8e9cd9ee5751cf8b"
+      },
+      {
+        "byte_count": 20046,
+        "path": "code/causalcache/set_utility_selected_image_census.py",
+        "sha256": "1992727cfff3aa5f12683ea9e36179e9b08e5acca832f1ad759653c1b98c8219"
+      },
+      {
+        "byte_count": 14118,
+        "path": "code/causalcache/set_utility_selected_image_census_v2.py",
+        "sha256": "07148dd367b5bc8207ad2dbbac1dfcab428e2f9221c148587900a547eced9dce"
+      },
+      {
+        "byte_count": 30498,
+        "path": "code/causalcache/set_utility_selected_image_census_contract_v2.py",
+        "sha256": "bfe84fe2daec7b75e340fe38534f871e8756c4eea336e215230f21f34a3654a8"
+      },
+      {
+        "byte_count": 13953,
+        "path": "code/causalcache/set_utility_split_validation.py",
+        "sha256": "7d9965f3ece64e670da5a40384c5aa25e544d611a28c7a9be190fa378b86c64d"
+      },
+      {
+        "byte_count": 21852,
+        "path": "code/scripts/run_set_utility_selected_image_census_v2.py",
+        "sha256": "186519efa6a19c797e5a9512551d09f6b7e7b708f1162e847333458cbfdb938d"
+      }
+    ]
+  },
+  "output": {
+    "atomic_publish_required": true,
+    "existing_output_root_allowed": false,
+    "final_manifest_contains_only_counts_histograms_and_digests": true,
+    "output_root_must_be_absolute_external_persistent_path": true,
+    "overwrite_allowed": false,
+    "record_fields": [
+      "alpha_extrema",
+      "decoded_rgb_sha256",
+      "exif_present",
+      "format",
+      "height",
+      "image_sha256",
+      "mode",
+      "selector_identity_sha256",
+      "width"
+    ],
+    "staging_suffix": ".incomplete",
+    "worker_artifact": "canonical_jsonl_plus_projection_bound_receipt"
+  },
+  "protocol_id": "causalcache_set_utility_selected_image_format_census_v2_column_projection_repair",
+  "runtime": {
+    "device": "cpu",
+    "forbidden_interfaces": [
+      "AutoModel",
+      "AutoProcessor",
+      "OCR",
+      "policy_forward",
+      "torch"
+    ],
+    "image_decoder": "PIL_via_prepare_image_bytes",
+    "parquet_projection": {
+      "batch_size": 8,
+      "columns": [
+        "images"
+      ],
+      "expected_batch_schema_names": [
+        "images"
+      ],
+      "expected_row_keys": [
+        "images"
+      ]
+    },
+    "parquet_reader": "pyarrow_projected_images_column_on_selected_rows",
+    "required_identity_arguments": [
+      "--git-revision",
+      "--host-alias",
+      "--host-hostname",
+      "--container-id",
+      "--container-image-digest",
+      "--worker-count",
+      "--python-version",
+      "--pyarrow-version",
+      "--pillow-version"
+    ],
+    "required_path_arguments": [
+      "--repository-root",
+      "--execution-config",
+      "--source-root",
+      "--output-root",
+      "--python-executable"
+    ],
+    "runner_path": "code/scripts/run_set_utility_selected_image_census_v2.py",
+    "selected_row_access": "project_images_before_materialization_assert_exact_batch_schema_and_row_keys",
+    "worker_count": 4,
+    "worker_schedule": "whole_shard_deterministic_lpt_from_processor_freeze"
+  },
+  "schema_version": "2.0.0",
+  "selection": {
+    "assignment_source": "frozen_freeze_b_v2_terminal_index_repair",
+    "observation_scope": "all_unique_observations_of_selected_trajectories",
+    "selected_observation_count": 18792,
+    "selected_trajectory_count": 1200,
+    "unselected_row_semantic_use_allowed": false
+  },
+  "status": "CPU_ONLY_READ_ONLY_SELECTED_IMAGE_CENSUS_V2_COLUMN_PROJECTION_REPAIR_AUTHORIZED"
+}

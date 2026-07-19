@@ -58,8 +58,15 @@ PyArrow `iter_batches` 未使用 `columns=["images"]`，因此完整 rows 已在
 SHA256=`973b0f1b29059fde2f7e1001559b10a38629192e8e3db6f5774d41764ff627e3` 原样保留，仅作 forensic evidence；
 observed histogram formal-ineligible，禁止进入 intended private HF tag。轻量 failure 位于
 [`results/set_utility_selected_image_format_census_v1_attempt/`](results/set_utility_selected_image_format_census_v1_attempt/)。
-下一步必须另立 column-projection versioned repair，重新跑完整 denominator。协议见
-[`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)。
+v2 column-projection repair 已完成 source freeze，config SHA256=
+`eb823bd794c555265107e5edd4ff9b0be60b9c907b476a313ce5e156779a549f`，当前为
+`SOURCE_FROZEN_FORMAL_RUN_PENDING`，没有 output、HF upload 或 `PENDING_HF_UPLOAD` artifact。它以 exact
+`columns=["images"]`、runtime exact schema/row-key assertions、projection-capture regression 与 committed
+completed-root postflight 重新跑完整 denominator；只有
+postflight VALID 后才能另立 HF publication milestone。v1 failure 协议见
+[`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)，v2
+边界见
+[`../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md`](../docs/set_utility_selected_image_format_census_v2_column_projection_repair.md)。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
 从已 outcome-exposed 的 validation plan 中仅取 `task_index=0`，按 pre-treatment `max_steps` 分三层并以 protocol

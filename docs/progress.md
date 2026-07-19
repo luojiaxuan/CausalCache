@@ -12,6 +12,28 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：selected-image census v2 column-projection repair source freeze
+
+- v1 contract drift 的唯一允许后继已完成独立 protocol/config/runner/output/tag source freeze；config 10,292
+  bytes，SHA256=`eb823bd794c555265107e5edd4ff9b0be60b9c907b476a313ce5e156779a549f`，当前状态为
+  `SOURCE_FROZEN_FORMAL_RUN_PENDING`，尚无 formal output、有效 histogram 或 HF artifact；
+- v2 保持原 1,200 trajectories / 18,792 observations / 527 selected shards / 4-worker denominator，只允许 exact
+  `ParquetFile.iter_batches(batch_size=8, columns=["images"])`；在 `to_pylist()` 前必须断言 exact batch schema，
+  每个 projected row 还必须只有 `images` key；
+- regression 实际捕获 PyArrow projection 参数，而不再仅依赖 AST 禁止字段名；formal output 必须由
+  committed completed-root postflight 独立重算 inventory、denominator、hash chains、projection witness 与全部
+  forbidden-operation counts；
+- source/contract validator 分别返回
+  `VALID_CPU_ONLY_SELECTED_IMAGE_CENSUS_V2_COLUMN_PROJECTION_REPAIR_SOURCE` 与
+  `VALID_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR_CONTRACT`；v2-specific tests=`23 passed`，
+  v1+v2 focused=`37 passed`，全量 set-utility regression=`299 passed, 15 skipped, 24 subtests passed`；
+- 本 source freeze commit/push 后授权从 clean `main` 启动正式 CPU-only run；runner manifest 只能进入
+  `AWAITING_COMMITTED_POSTFLIGHT`，postflight VALID 前禁止 HF publication，也不能把 v1 forensic histogram
+  当成 processor repair 输入；
+- processor repair、final candidates、restoration labels、predictor training、matched-NLL、closed-loop 与 sealed
+  test 全部继续 locked。完整 source-freeze contract 见
+  [`set_utility_selected_image_format_census_v2_column_projection_repair.md`](set_utility_selected_image_format_census_v2_column_projection_repair.md)。
+
 ### 2026-07-18（UTC 07-19）：selected-image format census v1 attempt 合同失败
 
 - clean pushed producer=`e636df1fa3890c0f889c99db227d6bb959d23383`；Hyper00 CPU-only process 从

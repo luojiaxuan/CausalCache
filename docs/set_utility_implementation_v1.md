@@ -187,9 +187,11 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 下一步严格是：
 
 1. 冻结 selected-image census column-projection repair：`columns=["images"]`、runtime schema assertion、
-   projection-aware tests、new protocol/config/output/tag identity；
+   projection-aware tests、new protocol/config/output/tag identity；当前状态为
+   `SOURCE_FROZEN_FORMAL_RUN_PENDING`，冻结证据见
+   [`set_utility_selected_image_format_census_v2_column_projection_repair.md`](set_utility_selected_image_format_census_v2_column_projection_repair.md)；
 2. 从 clean pushed repair 在 Hyper00 CPU-only runtime 重跑固定 1,200 trajectories / 18,792 observations，并
-   提交有效 Git-safe histogram/digests；
+   通过 committed completed-root postflight 后提交有效 Git-safe histogram/digests；postflight 前禁止 HF upload；
 3. 根据有效 census 另立 versioned processor repair；不能修改旧 processor v1 contract 或依据 invalid histogram；
 4. repair 完成后执行 processor-only candidate freeze并生成 exact operation budget；
 5. processor freeze 完成后另立 train-only policy throughput pilot contract，再立 label Execution-B 生产 phase-1
