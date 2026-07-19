@@ -1,0 +1,45 @@
+{
+  "data": {
+    "candidate_count": 4,
+    "query_kind": "stratum_anchor",
+    "quota_per_processor_worker": {
+      "evaluation": 6,
+      "train": 77,
+      "tune": 6
+    },
+    "selection_salt": "causalcache-set-utility-mvp-v1-20260719"
+  },
+  "schema_version": "1.0.0",
+  "teacher": {
+    "maximum_reference_repeat_kl": 0.0001,
+    "microbatch_size": 4,
+    "profile": "strict_determinism_sdpa"
+  },
+  "training": {
+    "early_stopping_min_delta": 0.000001,
+    "early_stopping_patience": 12,
+    "epochs": 100,
+    "hidden_dimension": 64,
+    "learning_rate": 0.0003,
+    "loss": {
+      "normalized_regression": 0.5,
+      "raw_regression": 1.0,
+      "smooth_l1_beta": 1.0,
+      "within_state_ranking": 0.25
+    },
+    "maximum_gradient_norm": 1.0,
+    "minimum_accepted_states": {
+      "evaluation": 16,
+      "train": 250,
+      "tune": 16
+    },
+    "seed": 20260719,
+    "set_transformer": {
+      "dropout": 0.1,
+      "num_heads": 4,
+      "num_layers": 2
+    },
+    "trajectories_per_batch": 16,
+    "weight_decay": 0.01
+  }
+}

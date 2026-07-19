@@ -137,15 +137,26 @@ def _evaluate(
         selections: dict[str, dict[str, tuple[int, ...]]] = {
             family: {} for family in models
         }
+        selections.update(
+            {f"{family}_fixed_B": {} for family in models}
+        )
         selections.update({"recent": {}, "ocr_rgb": {}, "oracle_independent_J": {}})
         for state in states:
             state_id = state.state_id
             for family, model in models.items():
-                selections[family][state_id] = learned_joint_at_most_budget_search(
+                search = learned_joint_at_most_budget_search(
                     model,
                     state,
                     budget=budget,
-                ).selected_subset
+                )
+                selections[family][state_id] = search.selected_subset
+                fixed = tuple(
+                    item for item in search.scored_subsets if len(item[0]) == budget
+                )
+                selections[f"{family}_fixed_B"][state_id] = min(
+                    fixed,
+                    key=lambda item: (-item[1], item[0]),
+                )[0]
             selections["recent"][state_id] = recent_selection(
                 features[state_id], budget=budget
             )
@@ -268,7 +279,7 @@ def main() -> None:
         "elapsed_training_and_evaluation_seconds": time.time() - started,
         "evaluation": evaluation,
         "failure_classes": dict(
-            Counter(record.get("failure_reason", "unknown") for record in skipped)
+            Counter(record.get("failure_class", "unknown") for record in skipped)
         ),
         "model_training": training_summaries,
         "planned_state_count": len(records),
@@ -278,7 +289,20 @@ def main() -> None:
         "utility_varying_by_role": dict(sorted(trainable_counts.items())),
     }
     _write_json(run_root / "summary.json", summary)
-    print(json.dumps(summary, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "accepted_by_role": summary["accepted_by_role"],
+                "elapsed_training_and_evaluation_seconds": summary[
+                    "elapsed_training_and_evaluation_seconds"
+                ],
+                "failure_classes": summary["failure_classes"],
+                "status": summary["status"],
+                "summary_path": str(run_root / "summary.json"),
+            },
+            sort_keys=True,
+        )
+    )
 
 
 if __name__ == "__main__":

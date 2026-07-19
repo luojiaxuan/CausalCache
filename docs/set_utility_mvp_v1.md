@@ -52,3 +52,8 @@ python3 code/scripts/train_set_utility_mvp.py \
 
 输出目录可恢复；每个 state 独立原子写入。Raw labels/features 与 checkpoints 发布到 HF，Git 只保存 summary。
 
+## Scale v1
+
+MVP-64 完成后，不改 feature、model family、hidden size 或 loss，只扩大同一 deterministic selection prefix：每 worker 77 train、6 tune、6 development-evaluation，共 356 states。Teacher microbatch 从 2 提到 4；科学输出仍逐 state 保存。
+
+除 at-most-`B` 主指标外，报告 learned fixed-`B` 诊断，用来区分 subset ranking 与负值校准失败；它不替代主指标。
