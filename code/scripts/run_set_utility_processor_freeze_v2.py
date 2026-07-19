@@ -7,11 +7,13 @@ import argparse
 import copy
 import importlib.util
 import os
+import queue
 import socket
 import subprocess
 import sys
-from collections import Counter
-from collections.abc import Iterator, Mapping
+from collections import Counter, deque
+from collections.abc import Callable, Iterable, Iterator, Mapping
+from concurrent.futures import Future, ThreadPoolExecutor
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -44,6 +46,7 @@ from causalcache.set_utility_processor_freeze import (
     write_once_or_verify,
 )
 from causalcache.set_utility_processor_freeze_contract_v2 import (
+    OCR_CONCURRENCY_PER_LOGICAL_WORKER,
     REQUIRED_IDENTITY_ARGUMENTS,
     REQUIRED_PATH_ARGUMENTS,
     REQUIRED_VERSION_ARGUMENTS_BY_PHASE,
@@ -79,6 +82,33 @@ OUTPUT_BASENAME_PREFIX = (
     "causalcache-set-utility-processor-freeze-v2-image-contract-repair-"
 )
 COMPLETED_STATUS = "PROCESSOR_ONLY_CANDIDATE_FREEZE_COMPLETED"
+
+
+def _bounded_ordered_parallel_map(
+    function: Callable[[Any], Any],
+    values: Iterable[Any],
+    *,
+    max_workers: int,
+) -> Iterator[Any]:
+    """Execute a bounded number of tasks while yielding source order."""
+    if type(max_workers) is not int or max_workers <= 0:
+        raise ValueError("parallel-map worker count must be positive")
+    iterator = iter(values)
+    pending: deque[Future[Any]] = deque()
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        for _ in range(max_workers * 2):
+            try:
+                value = next(iterator)
+            except StopIteration:
+                break
+            pending.append(executor.submit(function, value))
+        while pending:
+            yield pending.popleft().result()
+            try:
+                value = next(iterator)
+            except StopIteration:
+                continue
+            pending.append(executor.submit(function, value))
 
 
 def _load_v1_runner_module() -> ModuleType:
@@ -160,10 +190,18 @@ def _run_ocr_worker(args: argparse.Namespace, contract: Any, staging: Path) -> N
     artifact_path = staging / "substrate" / worker.filename
     receipt_path = staging / "receipts" / f"ocr-worker-{args.worker_index:02d}.json"
     contract_sha = _image_contract_sha256(contract.repository_root)
+    raw_ocr_phase = contract.data["phases"]["raw_decode_and_ocr"]
+    concurrency = raw_ocr_phase.get("ocr_concurrency_per_logical_worker")
+    if concurrency != OCR_CONCURRENCY_PER_LOGICAL_WORKER:
+        raise ValueError("OCR execution concurrency differs from the frozen contract")
     engine, backend, backend_sha, identity, _ = _V1._ocr_engine(
         args, contract.repository_root
     )
-    identity = {**identity, "image_contract_sha256": contract_sha}
+    identity = {
+        **identity,
+        "image_contract_sha256": contract_sha,
+        "ocr_concurrency_per_logical_worker": concurrency,
+    }
     if artifact_path.exists() and receipt_path.exists():
         descriptor = inspect_processor_artifact_shard(
             artifact_path, expected_worker=worker
@@ -194,7 +232,14 @@ def _run_ocr_worker(args: argparse.Namespace, contract: Any, staging: Path) -> N
     row_factory = _V1.ParquetRowFactory(args.source_root)
     worker_format_counts: Counter[tuple[str, str]] = Counter()
 
-    def records() -> Iterator[Any]:
+    from causalcache.restoration_v2_text_backend import create_rapidocr_engine
+
+    engine_pool: queue.Queue[Any] = queue.Queue()
+    engine_pool.put(engine)
+    for _ in range(concurrency - 1):
+        engine_pool.put(create_rapidocr_engine(backend, args.ocr_model_dir))
+
+    def pilots() -> Iterator[Any]:
         for shard in read_plan.shards:
             single = SelectedRowReadPlan(
                 shards=(shard,), assignment_count=len(shard.assignments)
@@ -205,48 +250,68 @@ def _run_ocr_worker(args: argparse.Namespace, contract: Any, staging: Path) -> N
                 inspection_config=base,
             )
             for loaded in sorted(
-                loaded_rows, key=lambda item: item.assignment.transport_row_index
+                loaded_rows,
+                key=lambda item: item.assignment.transport_row_index,
             ):
-                pilot = build_selected_pilot(loaded, provenance=provenance)
-                required = {
-                    str(event[field])
-                    for event in pilot.manifest["trajectory"]["events"]
-                    for field in (
-                        "observation_before_path",
-                        "observation_after_path",
-                    )
-                }
-                format_counts: Counter[tuple[str, str]] = Counter()
-                for path in sorted(required):
-                    prepared = prepare_processor_image_v2(pilot.image_payloads[path])
-                    validate_processor_image_v2(prepared)
-                    format_counts[(prepared.source_format, prepared.source_mode)] += 1
-                worker_format_counts.update(format_counts)
-                if sum(format_counts.values()) != len(required):
-                    raise RuntimeError("pre-OCR v2 image-format tally drifted")
-                captured_ocr: dict[str, Mapping[str, Any]] = {}
+                yield build_selected_pilot(loaded, provenance=provenance), queries[
+                    loaded.assignment.source_id
+                ]
 
-                def batch_builder(images: Mapping[str, bytes]) -> Any:
-                    batch = build_validated_ocr_batch_v2(
-                        images,
-                        engine=engine,
-                        backend_config=backend,
-                        backend_config_sha256=backend_sha,
-                        record_runner=run_processor_rapidocr_record_v2,
-                    )
-                    captured_ocr.update(batch.records_by_path)
-                    return batch
+    def process_pilot(value: Any) -> tuple[Any, Counter[tuple[str, str]]]:
+        pilot, query_states = value
+        required = {
+            str(event[field])
+            for event in pilot.manifest["trajectory"]["events"]
+            for field in (
+                "observation_before_path",
+                "observation_after_path",
+            )
+        }
+        format_counts: Counter[tuple[str, str]] = Counter()
+        for path in sorted(required):
+            prepared = prepare_processor_image_v2(pilot.image_payloads[path])
+            validate_processor_image_v2(prepared)
+            format_counts[(prepared.source_format, prepared.source_mode)] += 1
+        if sum(format_counts.values()) != len(required):
+            raise RuntimeError("pre-OCR v2 image-format tally drifted")
 
-                substrate = build_trajectory_processor_substrate(
-                    pilot,
-                    query_states=queries[loaded.assignment.source_id],
-                    ocr_batch_builder=batch_builder,
+        slot_engine = engine_pool.get()
+        try:
+            captured_ocr: dict[str, Mapping[str, Any]] = {}
+
+            def batch_builder(images: Mapping[str, bytes]) -> Any:
+                batch = build_validated_ocr_batch_v2(
+                    images,
+                    engine=slot_engine,
+                    backend_config=backend,
+                    backend_config_sha256=backend_sha,
+                    record_runner=run_processor_rapidocr_record_v2,
                 )
-                yield build_prefix_safe_processor_artifact_record(
-                    substrate,
-                    image_payloads=pilot.image_payloads,
-                    ocr_records_by_path=captured_ocr,
-                )
+                captured_ocr.update(batch.records_by_path)
+                return batch
+
+            substrate = build_trajectory_processor_substrate(
+                pilot,
+                query_states=query_states,
+                ocr_batch_builder=batch_builder,
+            )
+            record = build_prefix_safe_processor_artifact_record(
+                substrate,
+                image_payloads=pilot.image_payloads,
+                ocr_records_by_path=captured_ocr,
+            )
+        finally:
+            engine_pool.put(slot_engine)
+        return record, format_counts
+
+    def records() -> Iterator[Any]:
+        for record, format_counts in _bounded_ordered_parallel_map(
+            process_pilot,
+            pilots(),
+            max_workers=concurrency,
+        ):
+            worker_format_counts.update(format_counts)
+            yield record
 
     descriptor = materialize_processor_artifact_shard(
         staging / "substrate",

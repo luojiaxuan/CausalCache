@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import io
 import sys
+import threading
 from copy import deepcopy
 from pathlib import Path
 from types import ModuleType
@@ -154,6 +155,43 @@ def test_v2_output_namespace_cannot_resume_v1_staging() -> None:
     assert runner.OUTPUT_BASENAME_PREFIX + "a" * 7 == (
         "causalcache-set-utility-processor-freeze-v2-image-contract-repair-aaaaaaa"
     )
+
+
+def test_bounded_parallel_map_runs_concurrently_and_preserves_order() -> None:
+    runner = _load_runner()
+    barrier = threading.Barrier(2)
+    observed_threads: set[int] = set()
+    lock = threading.Lock()
+
+    def transform(value: int) -> int:
+        with lock:
+            observed_threads.add(threading.get_ident())
+        if value < 2:
+            barrier.wait(timeout=2)
+        return value * 10
+
+    result = list(
+        runner._bounded_ordered_parallel_map(
+            transform,
+            range(6),
+            max_workers=2,
+        )
+    )
+
+    assert result == [0, 10, 20, 30, 40, 50]
+    assert len(observed_threads) == 2
+
+
+def test_bounded_parallel_map_rejects_invalid_concurrency() -> None:
+    runner = _load_runner()
+    with pytest.raises(ValueError, match="worker count must be positive"):
+        list(
+            runner._bounded_ordered_parallel_map(
+                lambda value: value,
+                [1],
+                max_workers=0,
+            )
+        )
 
 
 def test_resumable_ocr_receipt_requires_exact_runtime_and_schema() -> None:

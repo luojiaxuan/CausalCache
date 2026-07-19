@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import copy
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
@@ -110,6 +111,7 @@ PROCESSOR_IMAGE_CONTRACT_V2_ID = (
 EXPECTED_RGBA_COUNT = 18_768
 EXPECTED_RGB_COUNT = 24
 EXPECTED_IMAGE_COUNT = 18_792
+OCR_CONCURRENCY_PER_LOGICAL_WORKER = 8
 
 REQUIRED_REPAIR_EVIDENCE_PATHS = {
     "selected_image_census_v2_card": CENSUS_V2_CARD_PATH,
@@ -528,6 +530,34 @@ def _expected_runtime_cli(
     return runtime
 
 
+def _expected_phases(
+    predecessor: ProcessorFreezeExecutionContract,
+) -> dict[str, Any]:
+    phases = copy.deepcopy(
+        dict(_mapping(predecessor.data["phases"], label="v1 phases"))
+    )
+    raw_ocr = dict(
+        _mapping(
+            phases["raw_decode_and_ocr"],
+            label="v1 raw decode and OCR phase",
+        )
+    )
+    raw_ocr.update(
+        {
+            "execution_concurrency_scope": (
+                "within_each_of_four_logical_artifact_workers"
+            ),
+            "ocr_concurrency_per_logical_worker": (
+                OCR_CONCURRENCY_PER_LOGICAL_WORKER
+            ),
+            "ordered_bounded_submission_required": True,
+            "separate_ocr_engine_per_execution_slot": True,
+        }
+    )
+    phases["raw_decode_and_ocr"] = raw_ocr
+    return phases
+
+
 def _expected_output(
     predecessor: ProcessorFreezeExecutionContract,
 ) -> dict[str, Any]:
@@ -561,7 +591,7 @@ def build_execution_config_skeleton(*, repository_root: str | Path) -> dict[str,
         },
         "image_contract_repair": _expected_image_contract_repair(),
         "output": _expected_output(predecessor),
-        "phases": dict(predecessor.data["phases"]),
+        "phases": _expected_phases(predecessor),
         "protocol_id": PROTOCOL_ID,
         "runtime_cli": _expected_runtime_cli(predecessor),
         "schema_version": SCHEMA_VERSION,
@@ -650,7 +680,7 @@ def validate_execution_config(
         "authorization": dict(predecessor.data["authorization"]),
         "image_contract_repair": _expected_image_contract_repair(),
         "output": _expected_output(predecessor),
-        "phases": dict(predecessor.data["phases"]),
+        "phases": _expected_phases(predecessor),
         "runtime_cli": _expected_runtime_cli(predecessor),
         "selection": dict(predecessor.data["selection"]),
     }
@@ -784,6 +814,9 @@ def validation_summary(
             value is False for value in authorization.values()
         ),
         "image_contract_id": PROCESSOR_IMAGE_CONTRACT_V2_ID,
+        "ocr_concurrency_per_logical_worker": (
+            OCR_CONCURRENCY_PER_LOGICAL_WORKER
+        ),
         "output_namespace": OUTPUT_NAMESPACE,
         "policy_or_vision_forward_authorized": False,
         "predecessor_config_sha256": V1_EXECUTION_CONFIG_SHA256,
@@ -816,6 +849,7 @@ __all__ = [
     "EXPECTED_RGBA_COUNT",
     "FREEZE_B_V2_MANIFEST_SHA256",
     "IMAGE_CONTRACT_PATH",
+    "OCR_CONCURRENCY_PER_LOGICAL_WORKER",
     "OUTPUT_NAMESPACE",
     "OUTPUT_VALIDATOR_PATH",
     "POSTFLIGHT_PATH",

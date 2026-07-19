@@ -50,9 +50,9 @@
     },
     "repair_sources": [
       {
-        "byte_count": 30736,
+        "byte_count": 31739,
         "path": "code/causalcache/set_utility_processor_freeze_contract_v2.py",
-        "sha256": "d1fea6f3e62bce16a3f3e133ee8b1ed7ea0d8cdd8bf7cbe5c59650d984ffa517"
+        "sha256": "a97a75a0716d258e539d64950b3bc1ad0d8fea8dd1424a7b83de9b5cf59a34e8"
       },
       {
         "byte_count": 7895,
@@ -60,9 +60,9 @@
         "sha256": "8611a37b2130e4acb70ee734a6b303db5d90194cca33409b57eb4877cf7ecd45"
       },
       {
-        "byte_count": 22119,
+        "byte_count": 24195,
         "path": "code/scripts/run_set_utility_processor_freeze_v2.py",
-        "sha256": "943b132f1fbc79a0c3170f9f68be899fca42a9fbe7598fdfd6b1c2de4237bb25"
+        "sha256": "5b6f0e779b48125eb3a0fb864b9af82816f82462a7646bbdb69349d058d52697"
       },
       {
         "byte_count": 25930,
@@ -135,10 +135,14 @@
       "reserved_action_tokens": 256
     },
     "raw_decode_and_ocr": {
+      "execution_concurrency_scope": "within_each_of_four_logical_artifact_workers",
       "ocr_backend": "frozen_restoration_v2_ocr_backend",
+      "ocr_concurrency_per_logical_worker": 8,
+      "ordered_bounded_submission_required": true,
       "python_environment": "cli_bound_and_may_differ_from_auto_processor",
       "raw_payload_retention_scope": "selected_rows_only",
-      "row_identity": "transport_file_plus_transport_row_index"
+      "row_identity": "transport_file_plus_transport_row_index",
+      "separate_ocr_engine_per_execution_slot": true
     },
     "schedule_materialization": {
       "exact_subset_cardinalities": [

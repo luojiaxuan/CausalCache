@@ -20,6 +20,7 @@ from causalcache.set_utility_processor_freeze_contract_v2 import (
     EXPECTED_IMAGE_COUNT,
     EXPECTED_RGB_COUNT,
     EXPECTED_RGBA_COUNT,
+    OCR_CONCURRENCY_PER_LOGICAL_WORKER,
     OUTPUT_NAMESPACE,
     PROCESSOR_IMAGE_CONTRACT_V2_ID,
     REQUIRED_REPAIR_EVIDENCE_PATHS,
@@ -75,7 +76,7 @@ def _materialize_config(root: Path) -> tuple[dict, Path]:
     return config, path
 
 
-def test_skeleton_wraps_canonical_v1_and_only_adds_image_repair(
+def test_skeleton_wraps_canonical_v1_with_image_and_execution_repair(
     contract_root: Path,
 ) -> None:
     config = build_execution_config_skeleton(repository_root=contract_root)
@@ -89,7 +90,20 @@ def test_skeleton_wraps_canonical_v1_and_only_adds_image_repair(
         "sha256": V1_EXECUTION_CONFIG_SHA256,
     }
     assert config["selection"] == predecessor["selection"]
-    assert config["phases"] == predecessor["phases"]
+    expected_phases = copy.deepcopy(predecessor["phases"])
+    expected_phases["raw_decode_and_ocr"].update(
+        {
+            "execution_concurrency_scope": (
+                "within_each_of_four_logical_artifact_workers"
+            ),
+            "ocr_concurrency_per_logical_worker": (
+                OCR_CONCURRENCY_PER_LOGICAL_WORKER
+            ),
+            "ordered_bounded_submission_required": True,
+            "separate_ocr_engine_per_execution_slot": True,
+        }
+    )
+    assert config["phases"] == expected_phases
     assert config["authorization"] == predecessor["authorization"]
     assert config["runtime_cli"] == {
         **predecessor["runtime_cli"],
@@ -132,6 +146,7 @@ def test_skeleton_wraps_canonical_v1_and_only_adds_image_repair(
         "PNG:RGBA": 18_768,
         "total": 18_792,
     }
+    assert summary["ocr_concurrency_per_logical_worker"] == 8
     assert summary["policy_or_vision_forward_authorized"] is False
 
 
