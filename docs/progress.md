@@ -13,19 +13,16 @@
 
 ## 当前目标
 
-2026-07-18 起，历史 independent confirm-20 的 `NO_GO_INDEPENDENT_CONFIRM`、set-conditioned v1 的
-`NO_V2_CONDITIONAL_RESCUE` 与 oracle-independent Case A 全部保持有效；它们只否定旧 projection/student
-链，不能被重写成 terminal-success 结论。当前路线暂停 closed-loop，改为先扩充新的
-restoration tables，再训练 budget-agnostic set utility predictor `U_theta(q,C,m_S)`。预算 `B`
-只约束搜索，不进入 utility model。阶段一用 `|S|<=2` exact labels 比较 Set Transformer、
-DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 B3/B4 capped exact tables
-（分别为 `|S|<=3` 与 `|S|<=4`）检验 cardinality transfer。reference8、old-dev5、fresh-16 和
-confirm-20 禁止进入新训练、
+当前路线暂停 closed-loop，先用 1,200 条 trajectory 的 12,792 个 eligible states 生成 variable-history
+restoration data，再训练 budget-agnostic `U_theta(q,C,m_S)`。每个 state 的候选是完整历史 `C_t`；只采样
+coalition，禁止 recent-`n` 截断候选。train/tune broad track 约 40 labels/state；evaluation 分 320-state exact
+`|S|<=2` track 与 720-state selected-subset track。reference8、old-dev5、fresh-16 和 confirm-20 不进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
-D1b 已用 memory-efficient SDPA 消除三个 `decision:010` OOM，但 6 个 state 中仍有 1 个 controlled-SDPA
-repeat mismatch，正式为 `NO_GO_SDPA_CONTROL_REPEAT_INSTABILITY`。因此新 exact tables 仍未启动，12-state
-throughput v3、labels/training/matched-NLL/closed-loop 继续 locked；不得 retry/top-up D1b 或只删除该 state。
+state inventory 与动态 sampler 已实现并绑定 config/assignment hash；predictor collate 已支持 variable event/label
+padding。下一步是全量 observation rematerialization、32,768-token context census、可断点 multi-state label runner，
+然后才生成正式 labels 和训练 predictor。历史 D1/D2 协议只作为诊断记录，不再阻塞新的 state-level admissibility
+生产合同。
 
 ### 2026-07-19：strict-determinism D2 valid PASS
 

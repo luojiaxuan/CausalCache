@@ -235,6 +235,10 @@ if torch is not None:
                 raise ValueError("event numeric feature shape drifted")
             if event_mask.shape != (batch_size, event_count):
                 raise ValueError("event mask shape drifted")
+            if event_mask.dtype != torch.bool:
+                raise TypeError("event mask must be boolean")
+            if bool((~event_mask).all(dim=1).any()):
+                raise ValueError("every state must contain a candidate event")
             query_roles = torch.zeros(
                 (batch_size,), dtype=torch.long, device=query_visual_tokens.device
             )
@@ -246,24 +250,41 @@ if torch is not None:
                 query_roles,
             )
             flat_count = batch_size * event_count
+            flat_event_mask = event_mask.reshape(flat_count)
+            valid_indices = flat_event_mask.nonzero(as_tuple=False).squeeze(1)
             event_roles = torch.ones(
-                (flat_count,), dtype=torch.long, device=query_visual_tokens.device
+                (valid_indices.shape[0],),
+                dtype=torch.long,
+                device=query_visual_tokens.device,
             )
-            events = self.entity_encoder(
-                event_visual_tokens.reshape(
+            flat_visual = event_visual_tokens.reshape(
                     flat_count,
                     event_visual_tokens.shape[2],
                     event_visual_tokens.shape[3],
-                ),
-                event_visual_mask.reshape(flat_count, event_visual_mask.shape[2]),
-                event_text_tokens.reshape(
+                )
+            flat_visual_mask = event_visual_mask.reshape(
+                flat_count, event_visual_mask.shape[2]
+            )
+            flat_text = event_text_tokens.reshape(
                     flat_count,
                     event_text_tokens.shape[2],
                     event_text_tokens.shape[3],
-                ),
-                event_text_mask.reshape(flat_count, event_text_mask.shape[2]),
+                )
+            flat_text_mask = event_text_mask.reshape(
+                flat_count, event_text_mask.shape[2]
+            )
+            encoded_valid_events = self.entity_encoder(
+                flat_visual.index_select(0, valid_indices),
+                flat_visual_mask.index_select(0, valid_indices),
+                flat_text.index_select(0, valid_indices),
+                flat_text_mask.index_select(0, valid_indices),
                 event_roles,
-            ).reshape(batch_size, event_count, -1)
+            )
+            flat_events = encoded_valid_events.new_zeros(
+                (flat_count, encoded_valid_events.shape[-1])
+            )
+            flat_events.index_copy_(0, valid_indices, encoded_valid_events)
+            events = flat_events.reshape(batch_size, event_count, -1)
             expanded_query = query.unsqueeze(1).expand(-1, event_count, -1)
             numeric = self.numeric_encoder(event_numeric_features)
             events = self.event_conditioner(

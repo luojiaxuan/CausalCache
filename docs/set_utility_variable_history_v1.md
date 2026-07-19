@@ -80,3 +80,13 @@ scientific config、reference profile、state/subset identities 必须一致；e
 throughput v2 必须使用 multi-state in-flight pipeline、CPU image prefetch/cache、尽可能大的 cardinality-compatible
 teacher batch，并把 KL 留在 GPU 到 state 完成。目标是提高 wall-clock throughput，不把 GPU utilization 本身当作
 科学指标。
+
+## 已实现边界
+
+- `set_utility_variable_history.py` 已实现 full-prefix state 构造、history/age bins、label-blind similarity、40-label
+  deterministic sampler 和 evaluation tracks；
+- state inventory 固定为 `data/manifests/set_utility_variable_history_v1_states.json`，绑定 config 与 assignment
+  manifest 的 SHA256；
+- token predictor 的 batch 维度改为动态 `max(n_t)` 与动态 label 数，分别由 `event_mask`、`label_mask` 排除 padding；
+- padded events 不进入 multimodal resampler，避免全空 attention source；
+- 当前尚未物化全量 observation、执行 context census 或生成任何正式 restoration label。

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import itertools
+import math
 import unittest
 
 from causalcache.set_utility_token_models import (
@@ -9,6 +9,7 @@ from causalcache.set_utility_token_models import (
 )
 from scripts.train_set_utility_token_predictor import (
     _collate,
+    _loss,
     _trajectory_uniform_epoch,
 )
 
@@ -133,7 +134,7 @@ class TokenUtilityTorchTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "padded event"):
             model(**batch)
 
-    def test_collate_pads_variable_visual_sequences_without_dropping_rows(self) -> None:
+    def test_collate_pads_variable_sets_and_labels_without_dropping_rows(self) -> None:
         torch = self.torch
 
         class Cache:
@@ -146,13 +147,13 @@ class TokenUtilityTorchTest(unittest.TestCase):
                 return torch.full((length, 16), length, dtype=torch.bfloat16)
 
         states = []
-        event_ids = (1, 2, 3, 4)
-        subsets = tuple(
-            subset
-            for cardinality in range(3)
-            for subset in itertools.combinations(event_ids, cardinality)
-        )
-        for index in range(2):
+        for index, event_count in enumerate((5, 7)):
+            event_ids = tuple(range(1, event_count + 1))
+            subsets = (
+                ((), (1,), (1, event_count))
+                if event_count == 5
+                else ((), (2,), (1, 7), (1, 3, 7))
+            )
             states.append(
                 {
                     "candidate_event_step_ids": list(event_ids),
@@ -164,9 +165,15 @@ class TokenUtilityTorchTest(unittest.TestCase):
                         }
                         for subset in subsets
                     ],
-                    "event_image_keys": [f"event-{length}" for length in (3, 4, 5, 6)],
+                    "event_image_keys": [
+                        f"event-{3 + event_index}"
+                        for event_index in range(event_count)
+                    ],
                     "event_numeric_features": [[0.0] * 5 for _ in event_ids],
-                    "event_text_keys": [f"text-{length}" for length in (1, 2, 3, 4)],
+                    "event_text_keys": [
+                        f"text-{1 + event_index}"
+                        for event_index in range(event_count)
+                    ],
                     "instruction_text_key": f"instruction-{2 + index}",
                     "state_id": f"state-{index}",
                     "trajectory_id": f"trajectory-{index}",
@@ -175,12 +182,53 @@ class TokenUtilityTorchTest(unittest.TestCase):
         batch = _collate(states, cache=Cache(), device="cpu", torch=torch)
         model_inputs = batch["model"]
         self.assertEqual(tuple(model_inputs["query_visual_tokens"].shape), (2, 6, 16))
-        self.assertEqual(tuple(model_inputs["event_visual_tokens"].shape), (2, 4, 6, 16))
+        self.assertEqual(tuple(model_inputs["event_visual_tokens"].shape), (2, 7, 9, 16))
         self.assertEqual(model_inputs["query_visual_mask"].sum(dim=1).tolist(), [5, 6])
         self.assertEqual(
             model_inputs["event_visual_mask"].sum(dim=2).tolist(),
-            [[3, 4, 5, 6], [3, 4, 5, 6]],
+            [[3, 4, 5, 6, 7, 0, 0], [3, 4, 5, 6, 7, 8, 9]],
         )
+        self.assertEqual(model_inputs["event_mask"].sum(dim=1).tolist(), [5, 7])
+        self.assertEqual(batch["label_mask"].sum(dim=1).tolist(), [3, 4])
+        self.assertFalse(bool(model_inputs["subset_masks"][0, :, 5:].any()))
+
+        model = TokenSetUtilityPredictor(
+            TokenUtilityModelConfig(
+                family="set_transformer",
+                source_hidden_size=16,
+                numeric_feature_size=5,
+                hidden_size=16,
+                latent_count=4,
+                resampler_layers=1,
+                set_layers=1,
+                num_heads=4,
+                dropout=0.0,
+            )
+        )
+        for key in (
+            "query_visual_tokens",
+            "query_text_tokens",
+            "event_visual_tokens",
+            "event_text_tokens",
+        ):
+            model_inputs[key] = model_inputs[key].float()
+        predictions = model(**model_inputs)
+        loss, metrics = _loss(
+            predictions,
+            batch,
+            loss_config={
+                "raw_smooth_l1_beta": 0.1,
+                "normalized_smooth_l1_beta": 0.1,
+                "raw_regression": 1.0,
+                "normalized_regression": 1.0,
+                "within_state_ranking": 0.2,
+            },
+            trajectory_weights=torch.ones(2),
+            torch=torch,
+        )
+        self.assertTrue(torch.isfinite(loss))
+        self.assertTrue(all(math.isfinite(value) for value in metrics.values()))
+        loss.backward()
 
 
 if __name__ == "__main__":

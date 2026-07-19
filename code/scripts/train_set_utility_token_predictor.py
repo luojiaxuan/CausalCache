@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import hashlib
-import itertools
 import json
 import math
 import os
@@ -77,23 +76,26 @@ class _TokenCache:
 
 def _targets(state: dict[str, Any], torch: Any) -> tuple[Any, Any, Any, Any]:
     event_ids = tuple(state["candidate_event_step_ids"])
-    rows = tuple(
-        sorted(
-            state["distance_rows"],
-            key=lambda row: (
-                len(row["coalition_event_step_ids"]),
-                tuple(row["coalition_event_step_ids"]),
-            ),
-        )
-    )
-    expected = tuple(
-        subset
-        for cardinality in range(3)
-        for subset in itertools.combinations(event_ids, cardinality)
-    )
+    if (
+        not event_ids
+        or event_ids != tuple(sorted(event_ids))
+        or len(event_ids) != len(set(event_ids))
+    ):
+        raise ValueError("candidate events must be sorted, unique, and non-empty")
+    rows = tuple(state["distance_rows"])
     observed = tuple(tuple(row["coalition_event_step_ids"]) for row in rows)
-    if observed != expected:
-        raise ValueError("training state does not contain the exact |S|<=2 table")
+    if not rows or observed[0] != ():
+        raise ValueError("the empty coalition must be the first distance row")
+    if len(observed) != len(set(observed)):
+        raise ValueError("distance rows contain duplicate coalitions")
+    universe = set(event_ids)
+    if any(
+        subset != tuple(sorted(subset))
+        or len(subset) != len(set(subset))
+        or not set(subset).issubset(universe)
+        for subset in observed
+    ):
+        raise ValueError("a distance-row coalition is invalid for its candidate universe")
     baseline = float(rows[0]["distance"])
     raw = torch.tensor(
         [baseline - float(row["distance"]) for row in rows], dtype=torch.float32
@@ -103,7 +105,7 @@ def _targets(state: dict[str, Any], torch: Any) -> tuple[Any, Any, Any, Any]:
     scale = baseline if scale_is_valid else 1.0
     normalized = raw / scale
     subset_masks = torch.tensor(
-        [[event_id in subset for event_id in event_ids] for subset in expected],
+        [[event_id in subset for event_id in event_ids] for subset in observed],
         dtype=torch.bool,
     )
     return subset_masks, raw, normalized, (scale, scale_is_valid)
@@ -116,6 +118,8 @@ def _collate(
     device: Any,
     torch: Any,
 ) -> dict[str, Any]:
+    if not states:
+        raise ValueError("cannot collate an empty state batch")
     batch_size = len(states)
     query_visual_rows = [
         cache.visual(state["current_image_key"]) for state in states
@@ -127,6 +131,21 @@ def _collate(
     event_text_rows = [
         [cache.text(key) for key in state["event_text_keys"]] for state in states
     ]
+    event_counts = [len(row) for row in event_visual_rows]
+    if any(count <= 0 for count in event_counts):
+        raise ValueError("every state must contain at least one candidate event")
+    for state, visual_rows, text_rows in zip(
+        states, event_visual_rows, event_text_rows, strict=True
+    ):
+        count = len(state["candidate_event_step_ids"])
+        if not (
+            len(visual_rows)
+            == len(text_rows)
+            == len(state["event_numeric_features"])
+            == count
+        ):
+            raise ValueError("event features do not align with the candidate universe")
+    event_count = max(event_counts)
     query_text_length = max(row.shape[0] for row in query_text_rows)
     event_text_length = max(
         row.shape[0] for rows in event_text_rows for row in rows
@@ -146,12 +165,12 @@ def _collate(
         (batch_size, query_visual_length), dtype=torch.bool, device=cache_device
     )
     event_visual = torch.zeros(
-        (batch_size, 4, event_visual_length, hidden),
+        (batch_size, event_count, event_visual_length, hidden),
         dtype=torch.bfloat16,
         device=cache_device,
     )
     event_visual_mask = torch.zeros(
-        (batch_size, 4, event_visual_length),
+        (batch_size, event_count, event_visual_length),
         dtype=torch.bool,
         device=cache_device,
     )
@@ -164,12 +183,12 @@ def _collate(
         (batch_size, query_text_length), dtype=torch.bool, device=cache_device
     )
     event_text = torch.zeros(
-        (batch_size, 4, event_text_length, hidden),
+        (batch_size, event_count, event_text_length, hidden),
         dtype=torch.bfloat16,
         device=cache_device,
     )
     event_text_mask = torch.zeros(
-        (batch_size, 4, event_text_length),
+        (batch_size, event_count, event_text_length),
         dtype=torch.bool,
         device=cache_device,
     )
@@ -188,6 +207,45 @@ def _collate(
             event_text[batch_index, event_index, : row.shape[0]] = row
             event_text_mask[batch_index, event_index, : row.shape[0]] = True
     target_rows = [_targets(state, torch) for state in states]
+    subset_count = max(row[0].shape[0] for row in target_rows)
+    event_numeric_features = torch.zeros(
+        (batch_size, event_count, len(states[0]["event_numeric_features"][0])),
+        dtype=torch.float32,
+        device=device,
+    )
+    event_mask = torch.zeros(
+        (batch_size, event_count), dtype=torch.bool, device=device
+    )
+    subset_masks = torch.zeros(
+        (batch_size, subset_count, event_count), dtype=torch.bool, device=device
+    )
+    raw_targets = torch.zeros(
+        (batch_size, subset_count), dtype=torch.float32, device=device
+    )
+    normalized_targets = torch.zeros_like(raw_targets)
+    label_mask = torch.zeros(
+        (batch_size, subset_count), dtype=torch.bool, device=device
+    )
+    for batch_index, (state, target_row) in enumerate(
+        zip(states, target_rows, strict=True)
+    ):
+        current_event_count = event_counts[batch_index]
+        current_subset_count = target_row[0].shape[0]
+        numeric = torch.tensor(
+            state["event_numeric_features"], dtype=torch.float32, device=device
+        )
+        if numeric.ndim != 2 or numeric.shape[1] != event_numeric_features.shape[2]:
+            raise ValueError("event numeric feature width drifted within a batch")
+        event_numeric_features[batch_index, :current_event_count] = numeric
+        event_mask[batch_index, :current_event_count] = True
+        subset_masks[
+            batch_index, :current_subset_count, :current_event_count
+        ] = target_row[0].to(device)
+        raw_targets[batch_index, :current_subset_count] = target_row[1].to(device)
+        normalized_targets[batch_index, :current_subset_count] = target_row[2].to(
+            device
+        )
+        label_mask[batch_index, :current_subset_count] = True
     return {
         "model": {
             "query_visual_tokens": query_visual.to(device),
@@ -198,18 +256,13 @@ def _collate(
             "event_visual_mask": event_visual_mask.to(device),
             "event_text_tokens": event_text.to(device),
             "event_text_mask": event_text_mask.to(device),
-            "event_numeric_features": torch.tensor(
-                [state["event_numeric_features"] for state in states],
-                dtype=torch.float32,
-                device=device,
-            ),
-            "event_mask": torch.ones(
-                (batch_size, 4), dtype=torch.bool, device=device
-            ),
-            "subset_masks": torch.stack([row[0] for row in target_rows]).to(device),
+            "event_numeric_features": event_numeric_features,
+            "event_mask": event_mask,
+            "subset_masks": subset_masks,
         },
-        "raw_targets": torch.stack([row[1] for row in target_rows]).to(device),
-        "normalized_targets": torch.stack([row[2] for row in target_rows]).to(device),
+        "raw_targets": raw_targets,
+        "normalized_targets": normalized_targets,
+        "label_mask": label_mask,
         "scales": torch.tensor(
             [row[3][0] for row in target_rows], dtype=torch.float32, device=device
         ),
@@ -233,19 +286,26 @@ def _loss(
     normalized_targets = batch["normalized_targets"]
     scales = batch["scales"]
     scale_mask = batch["scale_mask"]
-    raw_rows = torch.nn.functional.smooth_l1_loss(
+    label_mask = batch["label_mask"]
+    label_weights = label_mask.to(predictions.dtype)
+    labels_per_state = label_weights.sum(dim=1).clamp_min(1)
+    raw_terms = torch.nn.functional.smooth_l1_loss(
         predictions,
         raw_targets,
         reduction="none",
         beta=float(loss_config["raw_smooth_l1_beta"]),
-    ).mean(dim=1)
+    )
+    raw_rows = (raw_terms * label_weights).sum(dim=1) / labels_per_state
     normalized_predictions = predictions / scales.unsqueeze(1)
-    normalized_rows = torch.nn.functional.smooth_l1_loss(
+    normalized_terms = torch.nn.functional.smooth_l1_loss(
         normalized_predictions,
         normalized_targets,
         reduction="none",
         beta=float(loss_config["normalized_smooth_l1_beta"]),
-    ).mean(dim=1)
+    )
+    normalized_rows = (
+        normalized_terms * label_weights
+    ).sum(dim=1) / labels_per_state
     normalized_rows = normalized_rows * scale_mask.to(normalized_rows.dtype)
     pair_mask = torch.triu(
         torch.ones(
@@ -258,7 +318,8 @@ def _loss(
     ).unsqueeze(0)
     target_differences = normalized_targets.unsqueeze(2) - normalized_targets.unsqueeze(1)
     signs = torch.sign(target_differences)
-    untied = pair_mask & (torch.abs(target_differences) > 1e-6)
+    valid_pairs = label_mask.unsqueeze(2) & label_mask.unsqueeze(1)
+    untied = pair_mask & valid_pairs & (torch.abs(target_differences) > 1e-6)
     prediction_differences = normalized_predictions.unsqueeze(2) - normalized_predictions.unsqueeze(1)
     ranking_terms = torch.nn.functional.softplus(
         -prediction_differences * signs
@@ -280,7 +341,12 @@ def _loss(
     return total, {
         "normalized_regression": float(normalized.detach()),
         "ranking_accuracy": float(ranking_accuracy.detach()),
-        "raw_mae": float(torch.mean(torch.abs(predictions - raw_targets)).detach()),
+        "raw_mae": float(
+            (
+                (torch.abs(predictions - raw_targets) * label_weights).sum()
+                / label_weights.sum().clamp_min(1)
+            ).detach()
+        ),
         "raw_regression": float(raw.detach()),
         "total": float(total.detach()),
     }
