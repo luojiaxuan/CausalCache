@@ -21,6 +21,8 @@
 - 不删除任何 old candidate。512 v1 保留为 `BLOCK_FULL_HISTORY_CONTEXT_CENSUS`，新建只修改视觉 token profile
   的 480-token v2，下一步重跑 census；
 - source 尚未上传 HF，persistent path 与 hash 见 README，状态 `PENDING_HF_UPLOAD`。
+- 480-token v2 的 tokenizer/chat-template census 已 12,792/12,792 PASS，最大 prompt+reserve=31,764；由于
+  image processor 的实际 grid 可能有 rounding，visual-token extraction 后仍需 exact-grid context postflight。
 
 当前路线暂停 closed-loop，先用 1,200 条 trajectory 的 12,792 个 eligible states 生成 variable-history
 restoration data，再训练 budget-agnostic `U_theta(q,C,m_S)`。每个 state 的候选是完整历史 `C_t`；只采样

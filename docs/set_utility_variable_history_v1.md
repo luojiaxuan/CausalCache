@@ -29,7 +29,9 @@ context census：
 
 如果任一 state 不满足，正式 rollout 整体阻塞，必须更换 reference token profile 或 long-context policy；禁止删除
 old events。实测 512 profile 有 1 个 state 超限 468 tokens，故 v1 BLOCK；v2 将图像预算降为 480 tokens，候选、
-state 与 subset sampler 全部不变。`S=C_t` 是 reference 本身，记录 `D(C_t)=0`，无需额外 coalition forward。
+state 与 subset sampler 全部不变。v2 tokenizer census 已全部 fit，最大余量 1,004 tokens；visual-token cache
+完成后再用真实 `image_grid_thw` 做 exact postflight。`S=C_t` 是 reference 本身，记录 `D(C_t)=0`，无需额外
+coalition forward。
 
 旧 processor tar 的 prefix metadata/OCR 可复用，但它只保存 anchor/terminal image union。新 source 从
 `cua-lite/GUIOdyssey@ea08072b` 的 1,200 个 pinned raw rows 重新物化全部 18,792 observations，保证任何历史 event

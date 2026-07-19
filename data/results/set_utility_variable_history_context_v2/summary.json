@@ -1,0 +1,37 @@
+{
+  "config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+  "context_limit_tokens": 32768,
+  "fit_state_count": 12792,
+  "history_bins": {
+    "long": {
+      "maximum_prompt_input_tokens": 22537,
+      "minimum_prompt_input_tokens": 10345,
+      "state_count": 2804
+    },
+    "medium": {
+      "maximum_prompt_input_tokens": 12739,
+      "minimum_prompt_input_tokens": 5649,
+      "state_count": 5242
+    },
+    "short": {
+      "maximum_prompt_input_tokens": 7314,
+      "minimum_prompt_input_tokens": 3412,
+      "state_count": 4622
+    },
+    "very_long": {
+      "maximum_prompt_input_tokens": 31508,
+      "minimum_prompt_input_tokens": 20141,
+      "state_count": 124
+    }
+  },
+  "maximum_prompt_input_tokens": 31508,
+  "maximum_prompt_plus_action_reserve_tokens": 31764,
+  "reserved_action_tokens": 256,
+  "schema_version": "1.0.0",
+  "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+  "state_context_sha256": "a969d12fd04748a53b71ec524c9cbf9f319be21d1c1636cbc48397eb1ba22698",
+  "state_count": 12792,
+  "status": "PASS_FULL_HISTORY_CONTEXT_CENSUS",
+  "target_effective_visual_tokens_per_image": 480,
+  "unfit_state_count": 0
+}

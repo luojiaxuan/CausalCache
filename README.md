@@ -50,7 +50,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 - 下一步先在 Hyper00 物化 256-shard full-history source 并完成 context census，再启动 resumable label runner；evaluation 在模型选择冻结前不加载。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
-- full source 已在 Hyper00 完成：256 shards、1,200 trajectories、13.16GB。512-token context census 有 1/12,792 state 超限，因此该 profile BLOCK；不删历史，改用 480-token v2 profile。
+- full source 已在 Hyper00 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 12,792-state tokenizer census 已全部 fit，下一步用真实 image grids 做 exact postflight。
 
 ## Source of Truth
 
