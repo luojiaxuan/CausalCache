@@ -1,0 +1,67 @@
+{
+  "artifact": {
+    "output_root": "/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99",
+    "producer_git_revision": "e976b990ddb089cdea3b04ea15e5c911d5670d40",
+    "processor_freeze_summary_sha256": "9d29d5df03c9d63f0befca752b98b9b479410ddaea7c80f44e97d2d94dddbd27"
+  },
+  "canonical_comparison": {
+    "canonical_postflight_sha256": "208c254fb4b4b49ba773da1135144e34cf8175264a536969d6561d2e4becf3ee",
+    "canonical_status": "VALID_COMPLETED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR",
+    "canonical_wall_time_seconds": 2549.669,
+    "parallel_speedup_ratio": 2.8062809418881347,
+    "parallel_wall_time_seconds": 908.558,
+    "semantic_equivalence": {
+      "artifact_shards_equal": true,
+      "candidate_artifact_equal": true,
+      "execution_config_sha256_equal": true,
+      "global_format_mode_tally_equal": true,
+      "image_contract_sha256_equal": true,
+      "metadata_only_ocr_validation_count_equal": true,
+      "operation_budget_equal": true,
+      "processor_freeze_summary_sha256_equal": true,
+      "processor_image_contract_id_equal": true,
+      "processor_thread_runtime_evidence_equal": true,
+      "run_identity_sha256_equal": true,
+      "stored_image_ocr_validation_count_equal": true,
+      "structural_validation_status_equal": true
+    }
+  },
+  "evidence": {
+    "argv_json_sha256": "d35fc1a6545164c14be0d9f481b56127ee0fe2ddec487198cafbf1cf3c9f3be4",
+    "bundle_sha256": "40b36b1d911d434692b60196cde5b28cc099df4666477f74573b3757a439eb40",
+    "remote_evidence_root": "/data/logs/causalcache-parallel-postflight-de4c034",
+    "stderr_byte_count": 0,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_byte_count": 5490,
+    "stdout_sha256": "90185d5271bd084e73cb07ea361d03a58ef4eba40ba5ff151f8878a283d5f512"
+  },
+  "execution": {
+    "aggregation_order": [0, 1, 2, 3],
+    "ended_at_utc": "2026-07-19T09:02:14Z",
+    "exit_code": 0,
+    "parallel_semantic_worker_count": 4,
+    "started_at_utc": "2026-07-19T08:47:06Z",
+    "wall_time_ms": 908558
+  },
+  "observed_semantics": {
+    "global_format_mode_tally": {
+      "PNG:RGB": 24,
+      "PNG:RGBA": 18768
+    },
+    "metadata_only_ocr_validation_count": 1277,
+    "state_count": 2400,
+    "stored_image_ocr_validation_count": 17515,
+    "subset_forward_count": 93914,
+    "total_model_operations": 103514
+  },
+  "parallel_contract_sha256": "bea5d83324263461c6a5ef2368606e1eaf4a160aa3ce25adcc493ebee7a66365",
+  "protocol_id": "causalcache_set_utility_processor_postflight_v2_parallel_v1",
+  "read_only_audit": {
+    "formal_output_files_with_mtime_after_start": 0,
+    "producer_checkout_clean_after_run": true,
+    "validator_checkout_clean_after_run": true
+  },
+  "schema_version": "1.0.0",
+  "status": "VALID_COMPLETED_SET_UTILITY_PROCESSOR_FREEZE_V2_PARALLEL_POSTFLIGHT_V1",
+  "validator_git_revision": "de4c0348d47d2bc19b462cb49a6178d670118c7c"
+}

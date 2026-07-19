@@ -3,15 +3,17 @@
 ## 当前状态
 
 replacement source freeze 已完成；clean formal run 已于 `2026-07-19T07:10:28Z` 从 pushed
-`main@e976b990ddb089cdea3b04ea15e5c911d5670d40` 在 Hyper00 启动，当前严格为
-`RUNNING_INCOMPLETE_NOT_UPLOADABLE`。canonical Execution-CF v2 config 为
+`main@e976b990ddb089cdea3b04ea15e5c911d5670d40` 在 Hyper00 启动。producer 于 `08:03:11Z` atomic publish，
+canonical committed postflight 于 `08:45:41Z` 双零闭合为
+`VALID_COMPLETED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`；当前状态为
+`VALID_CANONICAL_POSTFLIGHT_AWAITING_GIT_SAFE_RECORDER`，尚未进入 HF publication。canonical Execution-CF v2 config 为
 `code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`，9,290 bytes，
 SHA256=`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。此前 `1c84dfe` 与
 `dc90664` 两次 attempt 均已主动终止且 exit=`143`：真实 processor smoke 证明旧 runtime guard 会把
 Transformers 5.6 必需的通用 `transformers.models.auto.modeling_auto` registry 误判为 architecture model。
 两次均停在 0 receipt、0 candidate-part、0 policy output，只有不可续写的外置 partial staging；replacement run
-使用全新 namespace，当前仍未产生 completed root、final candidates、exact operation budget、restoration labels、
-predictor checkpoint、matched-NLL 或 closed-loop result。
+使用全新 namespace，现已产生并验证 completed processor root、final candidates 与 exact operation budget，
+但仍未产生 restoration labels、predictor checkpoint、matched-NLL 或 closed-loop result。
 
 v1 `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT` 与其外置 `.incomplete`、logs、hashes
 保持原样。v2 使用全新 source/config/output/staging identity，不修改、追认或 resume v1 bytes。
@@ -171,18 +173,20 @@ Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执�
   `e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`；
 - host/container：Hyper00 `node-radixark-16-0000`，CPU-only container
   `a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a`；
-- output：`/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99`；当前只有
-  sibling `.incomplete`，没有 final root 或 exit evidence；
+- output：`/data/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99`；final root 已
+  atomic present，sibling staging absent；
 - durable evidence：`/data/logs/causalcache-processor-v2-e976b99`；one-shot supervisor SHA256=
-  `95f066f1e0df17dd0efb8e3d113cb5620306382be1c63cdb64c3c890b7ab7d03`，已预写 exact argv/start/postflight argv，
-  run 结束后原子写 exit/end 并在 exit=0 时自动运行 committed postflight；
+  `95f066f1e0df17dd0efb8e3d113cb5620306382be1c63cdb64c3c890b7ab7d03`，已预写 exact argv/start/postflight argv；
+  formal/postflight exit 均为 `0`，supervisor ended=`2026-07-19T08:45:41Z`；canonical postflight JSON SHA256=
+  `208c254fb4b4b49ba773da1135144e34cf8175264a536969d6561d2e4becf3ee`；
 - recorder handoff：`code/scripts/watch_set_utility_processor_freeze_v2_result.py` 只等待上述 supervisor 的原子终态，
   严格要求 canonical 4-field evidence、formal/postflight 双零及两个精确 `0\n` exit files；随后移除
   `PYTHONPATH`，从 clean recorder checkout 调用正式 recorder，永不使用 `--record-invalid`。timeout、symlink、
   非零 terminal、字段漂移或已有 result/staging 均拒绝执行；processor/result/watcher focused suite 为
   `145 passed`。已部署 source=`main@c2f6725`、persistent script SHA256=
   `26cba29f2dabf9f12756cf9c8d398ccf012754ce89a1ffe3987e6645266f33fd`，recorder checkout=
-  `63734097983fa85f1470a52d1edd645b194433ab`，当前正在等待 terminal evidence；
+  `63734097983fa85f1470a52d1edd645b194433ab`。watcher 已消费双零 terminal 并启动旧合同要求的 fresh recorder
+  validation；Git-safe exact-two result 尚未写出；
 - publication staging：Hyper00 已从完整 Git bundle 准备 clean detached
   `/data/worktrees/causalcache-processor-publication-450a669`，HEAD=
   `450a6694d3fe2480127b5d9f3e9b4dfe98a11277`；persistent bundle=
@@ -220,8 +224,10 @@ historical `_run_identity` 拒绝：旧实现错误地用 versioned validator ch
 config/postflight/source audit 与 context 全部从 producer root 加载。fixture 已验证 concurrent=4、逆序完成
 仍确定、最低 worker-index failure、exact tar binding、cross-worker overlap、stored⊄terminal、serial/parallel
 semantic equivalence、全树只读，以及 dual-root 的 path/symlink/dirty/HEAD/config failure。本次 `e976b99`
-formal 继续只认原 committed postflight；修复版必须另行从 clean pushed revision 对 completed root 重跑只读
-timing/equivalence，结果未产生前不声称加速倍数。
+formal 继续只认原 committed postflight；修复版已另从 clean `de4c0348` 对 completed root 完成只读复核：
+wall=`908.558s`，canonical reference=`2549.669s`，speedup=`2.8063x`，stderr=0。两者 semantic fields 逐项相同，
+formal root mtime update count=0；轻量 evidence 见
+[`../data/results/set_utility_processor_postflight_parallel_v1/`](../data/results/set_utility_processor_postflight_parallel_v1/)。
 
 ## 正式执行模板
 

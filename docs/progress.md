@@ -51,8 +51,18 @@ confirm-20 禁止进入新训练、
   regression=`14 passed`。fixture 验证 concurrent=4、逆序完成确定性、最低 index
   failure、exact tar binding、serial/parallel equivalence、全树只读及 dual-root 的 path/symlink/dirty/HEAD/
   config failures；
-- 本步只形成下一版只读 validator source path，不替代当前 canonical postflight，不修改 formal root，不执行
-  policy/GPU/label/HF mutation。真实 completed-root timing/equivalence 必须另从 clean pushed revision运行。
+- fixed path 随后从 clean detached `de4c0348` 对 producer `e976b990` 的 completed root 完成真实复核：
+  4 workers、ordered aggregation `[0,1,2,3]`、exit=`0`、stderr=`0B`，wall=`908.558s`；canonical
+  reference=`2549.669s`，speedup=`2.8063x`；
+- parallel summary 与 canonical 在 artifact shards、candidate、operation budget、tally、stored/metadata-only OCR
+  counts、image/runtime identity 与 structural status 上逐字段相同。运行开始后 formal root mtime 更新文件数为
+  0，两个 checkout 结束后均 clean；Git-safe 记录见
+  [`../data/results/set_utility_processor_postflight_parallel_v1/`](../data/results/set_utility_processor_postflight_parallel_v1/)。
+  它可作为后续合同的默认 validator，但不追溯替换 `e976b99` canonical evidence；
+- `e976b99` canonical producer 与 committed postflight 已于 `2026-07-19T08:45:41Z` 双零终止，状态为
+  `VALID_COMPLETED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`。fail-closed watcher 已进入旧合同要求的
+  fresh recorder validation；Git-safe formal result 与 HF publication 仍在等待该 recorder terminal。parallel
+  path 本身不执行 policy/GPU/label/HF mutation。
 
 ### 2026-07-18（UTC 07-19）：versioned GUI-Owl throughput measurement seam
 
@@ -145,7 +155,8 @@ confirm-20 禁止进入新训练、
   `26cba29f2dabf9f12756cf9c8d398ccf012754ce89a1ffe3987e6645266f33fd`；它在 recorder checkout
   `63734097983fa85f1470a52d1edd645b194433ab` 外运行，日志为
   `/data/logs/causalcache-processor-recorder-c2f6725/watcher.log`，timeout=`172800s`。当前 formal 科学状态仍是
-  `RUNNING_INCOMPLETE_NOT_UPLOADABLE`，本步不把 partial bytes 追认为结果，也未执行 HF mutation。
+  canonical postflight VALID、fresh recorder running；本 milestone 当时的 partial bytes 未被追认为结果，HF
+  mutation 仍未执行。
 
 ### 2026-07-18（UTC 07-19）：processor v2 replacement source freeze
 
@@ -175,9 +186,10 @@ confirm-20 禁止进入新训练、
   wall=`41.26s`、effective CPU=`30.79 cores`、aggregate peak RSS 约 48 GiB，四个 getter 全部为 `28/1`；
 - clean formal run 已于 `2026-07-19T07:10:28Z` 从 pushed `main@e976b99` 在 Hyper00 启动。启动前 exact
   worktree、79 项 focused tests、Execution/source/snapshot validators 均通过；4×32 OCR 稳定窗口合计约
-  `110.13` CPU cores、约 36.8 GiB RSS，error/traceback=0。当前仅有 `.incomplete`，状态为
-  `RUNNING_INCOMPLETE_NOT_UPLOADABLE`；completed root、labels、checkpoint、matched-NLL 与 closed-loop 仍为 0。
-  下一步等待 atomic completion，并自动执行 committed postflight。完整合同与轻量 launch record 见
+  `110.13` CPU cores、约 36.8 GiB RSS，error/traceback=0。producer 于 `08:03:11Z` atomic publish，canonical
+  committed postflight 于 `08:45:41Z` 返回 VALID，formal/postflight 双零且 stderr=0；当前 fail-closed recorder
+  正在做旧合同要求的 fresh validation。labels、checkpoint、matched-NLL、closed-loop 与 HF mutation 仍为 0。
+  下一步等待 Git-safe recorder terminal，再进入 pending publication。完整合同与轻量 launch record 见
   [`set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)。
 
 ### 2026-07-18（UTC 07-19）：selected-image census v2 immutable HF publication
