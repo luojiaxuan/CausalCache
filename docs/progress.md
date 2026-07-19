@@ -12,6 +12,28 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18：selected-image format census v1 source freeze
+
+- processor-freeze Execution-CF v1 因第 228 个 observation 是合法 `PNG/RGB`、旧 contract 只接受 opaque
+  `PNG/RGBA` 而永久 fail closed；旧 output absent、`.incomplete`/logs/hashes 保留，不修改旧 bytes、不跳样本；
+- 新 census 固定 Freeze-B v2 的 1,200 trajectories / 18,792 observations / 527 selected shards，按 whole-shard
+  deterministic LPT 使用 4 个 CPU worker，observation load=`4700/4700/4693/4699`；
+- config SHA256=`c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10`，逐 byte 绑定 4 个 frozen
+  inputs 与 23-file runtime import closure；validator 状态为
+  `VALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_CONTRACT`；
+- 针对合同审计，正式 worker 已改为 image-column-only extractor：pinned shard SHA、row count 与冻结 row
+  index 负责 source identity，只读取 selected row 的 `images`，不调用 `inspect_candidate`、
+  `load_selected_rows_once`、`build_selected_pilot`，也不解析 instruction/action/terminal outcome；
+- 每个 observation 只写九字段 pseudonymous record；不含 raw path、instruction、action、state id、image bytes
+  或 outcome。OCR、AutoProcessor、model/policy、torch/GPU、labels、training、closed-loop 与 HF mutation 全部禁止；
+- atomic staging、record/receipt paired resume、hard-link no-clobber、全局 selector uniqueness 与 no-replace final
+  publish 已实现。focused suite `30 passed`，py_compile 与 source-only validator 通过；
+- 当前仅为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`，没有 final output、HF revision 或 processor v2 repair。下一步从
+  clean pushed source commit 在 Hyper00 CPU-only container 运行正式 census，并在 Git result 记录完整 argv、
+  UTC 起止、`GPU=0`、`dtype/seed=not_applicable`；只有完成全量 histogram 后才冻结 versioned processor repair。
+  完整协议见
+  [`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)。
+
 ### 2026-07-18：full-pool P-1 inventory 正式完成
 
 - 当前数据路线不再以 16-shard / 13–64 小池子作为主入口。P-1 先对指定 revision 的
@@ -65,7 +87,8 @@ confirm-20 禁止进入新训练、
   `7d7dad8580939be67b56bb7ad5a9e06b771e6d0f25ffd3665da84d14466cbf75` /
   `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`；processor 前 exact B2
   schedule 为 171,730 rows，仍未授权 raw/processor/OCR/model/labels/training；
-- 下一步严格为 commit/push v2 repair → processor-only candidate freeze/exact operation budget → train-only
+- 当前该 historical milestone 的直接下一步已被后续 processor v1 failure supersede；现行顺序是正式
+  selected-image format census → versioned processor repair → candidate freeze/exact operation budget → train-only
   throughput pilot/Execution-B → exact-table production → Set Transformer/DeepSets/pairwise train/eval。完整交接见
   [`set_utility_freeze_b_v2_terminal_index_repair.md`](set_utility_freeze_b_v2_terminal_index_repair.md)、
   [`set_utility_predictor_v1.md`](set_utility_predictor_v1.md) 与

@@ -3,13 +3,16 @@
 > 当前状态：全量 610-shard P-1、8,146-row P0 与 Freeze-B v2 policy-blind roster 已完成。原 v1 terminal
 > query 有 one-based indexing off-by-one，已永久标记 invalid；v2 在 corrected eligible universe 上固定
 > 1,200 trajectories / 2,400 queries、`1000/100/100` train/tune/evaluation、rich visual feature 与 training
-> grid；没有生成本路线新 label、训练 predictor，也没有执行 closed-loop、matched-NLL 或 sealed test。
+> grid。processor-only Execution-CF v1 因合法 `PNG/RGB` 与旧 opaque-RGBA contract 冲突而 fail closed；
+> selected-image census v1 已 source freeze，正式全量 run 尚未执行。没有生成本路线新 label、训练 predictor，
+> 也没有执行 closed-loop、matched-NLL 或 sealed test。
 >
 > Canonical SHA256：predictor=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；
 > P-1 source=`1b2b4374d1653bcf22444d8e708c71bc41ac87fa956243ddcb9bd963eeca7e96`；
 > consumed ledger=`b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`；
 > P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`；Freeze-B v2 manifest=
-> `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`。focused suite
+> `915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`；selected-image census v1=
+> `c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10`。focused suite
 > 为 `213 passed, 15 skipped, 24 subtests passed`。
 
 ## 路线调整
@@ -273,9 +276,9 @@ few-shot 的 calibration/evaluation state 数、seed、步数与 checkpoint rule
 Source-A validator 只能读取一次 canonical config；network、HF API、file write、subprocess、torch import、
 model load/forward、data access、label generation、optimizer step 和所有下游评估计数必须为零。
 
-下一步不是 closed-loop 或 label GPU run。consumed ledger 已完成；现在必须先在可联网 checkout
-执行 P-1 metadata inventory，提交并 push 唯一 manifest，再另立绑定该 manifest SHA 的 P0
-Execution-A 运行 full-pool census。看到真实 eligible pool 前不写死 500/1000 条，也不把所有
-数据放进 train：必须保留 group-disjoint tune 和一次性 offline evaluation。只有这些 inventory
-commit 后，Freeze-B 才能绑定 roster、
-2–4 states/trajectory、训练 grid 与 HF revisions。
+下一步不是 closed-loop 或 label GPU run。P-1、P0 与 Freeze-B v2 roster 已完成；当前必须从 clean pushed
+source commit 在 Hyper00 CPU-only runtime 对固定 18,792 observations 正式运行 selected-image format census。
+census worker 只读取 selected row 的 `images` column，不解析 instruction/action/outcome。只有完整 histogram 与
+Git-safe result 闭合后，才能另立 versioned processor repair，随后冻结 final candidate universe 与 exact
+operation budget；在此之前 processor、restoration labels 和 predictor training 均保持 locked。完整 census
+协议见 [`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)。

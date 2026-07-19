@@ -139,6 +139,9 @@ forward、final candidates、restoration labels、training、matched-NLL、close
 [`data/results/set_utility_processor_freeze_execution_cf_v1_attempt/`](../data/results/set_utility_processor_freeze_execution_cf_v1_attempt/)。
 下一步必须先对全部 18,792 selected images 做 read-only format census，再冻结 versioned repair；不得
 修改原 v1 bytes、跳过 observation 或把 partial tar 追认为完成结果。
+该独立 census 的 source/config 与执行边界见
+[`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)。它只读取
+selected row 的 image column，不会把 v1 `.incomplete` 追认为有效 processor artifact，也不解锁 labels/training。
 
 ## 完成态只读 postflight
 

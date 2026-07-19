@@ -3,7 +3,9 @@
 > 当前结论：路线已切换为“先扩全量 source pool，再生产 `|S|<=2` labels，最后训练 Set Transformer”。
 > budget-agnostic model/label/trainer 的 source core、610-shard metadata contract 与 107-identity consumed
 > firewall 已实现；真实 P-1 inventory、P0 semantic census 与 Freeze-B v2 roster/query repair 已完成；原
-> Freeze-B v1 因 terminal decision off-by-one 永久 invalid；新
+> Freeze-B v1 因 terminal decision off-by-one 永久 invalid；processor-only Execution-CF v1 又因合法
+> `PNG/RGB` 与旧 opaque-RGBA contract 冲突而 fail closed。selected-image census v1 source/config 已冻结，
+> formal run 尚未执行；新
 > labels、训练 checkpoint 和 offline method delta 尚未产生。
 > closed-loop、matched-NLL 与 AndroidWorld sealed test 继续 locked。
 >
@@ -14,6 +16,7 @@
 > P0 census manifest=`729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`；
 > Freeze-B v2 config=`7d7dad8580939be67b56bb7ad5a9e06b771e6d0f25ffd3665da84d14466cbf75`；
 > Freeze-B v2 manifest=`915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`；
+> selected-image census v1=`c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10`；
 > consumed ledger=`b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`；
 > P0 source-only=`7e65227e710009d3626bd0063d425c831dfc59e9a6bbe871b9d3e4d15e085e8b`。focused suite
 > 为 `213 passed, 15 skipped, 24 subtests passed`。
@@ -50,6 +53,8 @@ P0: policy-blind full-pool semantic census
         │ exclude 107 identities; no split/query/label
         ▼
 Freeze-B: group-disjoint roster + query states + feature/grid/runtime/HF
+        ▼
+selected-image format census (image column only; no OCR/model/outcome)
         ▼
 processor-only candidate freeze (exclude current-equivalent; recent <=16; fit 32k)
         ▼
@@ -181,12 +186,13 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 
 下一步严格是：
 
-1. commit/push Freeze-B v2 terminal-index repair roster/query plan；
-2. 从 clean pushed v2 另立 execution，只读取 1,200 条 frozen row，执行 processor-only candidate freeze 并
-   生成 exact operation budget；
-3. processor freeze 完成后另立 train-only policy throughput pilot contract，再立 label Execution-B 生产 phase-1
+1. 从 clean pushed census source 在 Hyper00 CPU-only runtime 扫描固定 1,200 trajectories / 18,792
+   observations，提交 Git-safe histogram/digests；
+2. 根据完整 census 另立 versioned processor repair；不能修改旧 v1 contract 或跳过 RGB observations；
+3. repair 完成后执行 processor-only candidate freeze并生成 exact operation budget；
+4. processor freeze 完成后另立 train-only policy throughput pilot contract，再立 label Execution-B 生产 phase-1
    `|S|<=2` tables；
-4. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
+5. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 
 截至本 commit，没有本 full-pool 路线新产生的 restoration label、predictor checkpoint、offline method

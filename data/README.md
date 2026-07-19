@@ -46,6 +46,18 @@ formal attempt 已从 clean `main@b3472bf` 在 Hyper00 CPU-only container fail c
 format census，再另立 versioned repair。见
 `docs/set_utility_freeze_b_v2_terminal_index_repair.md` 与 `docs/set_utility_implementation_v1.md`。
 
+Selected-image format census v1 已完成 source-only freeze，config SHA256=
+`c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10`。它固定 Freeze-B v2 的
+1,200 trajectories / 18,792 observations / 527 shards / 4 CPU workers，只读取 selected row 的 `images`
+column；不解析 instruction、action、terminal outcome，不运行 OCR/AutoProcessor/model/policy/GPU/labels/training，
+也不在执行期间 mutation HF。每条记录只含 selector/image/RGB hashes、format/mode、alpha、EXIF 和 dimensions；
+这些记录无 raw identity，但仍可由持有 frozen manifest 的审计者关联，因此是 pseudonymous 而非不可逆匿名。
+当前状态为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`，尚无 reusable output、Git result summary 或 HF revision。
+正式完成后，四份 JSONL/receipt 预定进入 private
+`gavinlaw/causalcache-set-utility-new-development-mobile:phase1-b2-image-format-census-v1`；Git 只回写
+counts/histograms/digests 与 immutable identity。协议见
+[`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)。
+
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：
 从已 outcome-exposed 的 validation plan 中仅取 `task_index=0`，按 pre-treatment `max_steps` 分三层并以 protocol
 hash 每层机械取 4 个。它不是 rollout artifact；未来 60-episode raw traces 必须聚合成 shard 上传独立 private

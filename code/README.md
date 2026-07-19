@@ -130,6 +130,10 @@ PYTHONPATH=code .venv/bin/python \
 PYTHONPATH=code .venv/bin/python \
   code/scripts/validate_set_utility_freeze_b_v1.py \
   --repository-root .
+PYTHONPATH=code .venv/bin/python \
+  code/scripts/validate_set_utility_selected_image_census_contract.py \
+  --repository-root . \
+  --execution-config code/configs/causalcache_set_utility_selected_image_format_census_v1.json
 PYTHONPATH=code .venv/bin/pytest -q code/tests/test_set_utility*.py
 ```
 
@@ -141,9 +145,20 @@ inventory 已固定 610 shards / 88,186,663,372 bytes，manifest SHA256=
 trainer checkpoint 与 offline result 中，P0 semantic census 已正式完成：8,146 rows → 6,933 eligible
 trajectories / 6,928 groups，manifest SHA256=
 `729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b`。restoration labels、checkpoint 与
-offline method delta 仍未产生。Freeze-B/A 已固定 1,200 trajectories / 2,400 queries、rich visual schema 与
-training grid，manifest SHA256=`144b0de1e66eff1624f6bd10fa6dbebd3d215c6d3d9965d9e9cd3dae295373e5`；
-下一步必须另立 processor-only candidate-freeze execution，得到 exact operation budget 后才可生成 labels。
+offline method delta 仍未产生。旧 Freeze-B v1 因 terminal off-by-one 永久 invalid；有效 Freeze-B v2 已固定
+1,200 trajectories / 2,400 corrected queries，manifest SHA256=
+`915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30`。processor-only Execution-CF v1
+随后因合法 `PNG/RGB` 与旧 opaque-RGBA 输入合同冲突而 fail closed，output root absent，不能追认或静默放宽。
+
+当前下一步是 selected-image format census v1：config SHA256=
+`c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10`，固定 1,200 trajectories / 18,792
+observations / 527 shards / 4 CPU workers。worker 只读取 frozen row 的 `images` column，不解析
+instruction/action/outcome；OCR、AutoProcessor、model/policy、GPU、labels、training 与 HF mutation 均禁止。
+本地 focused validation 为 `30 passed`，状态仍是 `SOURCE_FROZEN_FORMAL_RUN_PENDING`。必须先从 clean pushed
+commit 在 Hyper00 正式完成 census，再据完整 histogram 另立 processor repair；得到 final candidates 和 exact
+operation budget 后才可生成 labels。正式 runner 为
+`code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
+`docs/set_utility_selected_image_format_census_v1.md`。
 完整接口与跨机器顺序见
 `docs/set_utility_implementation_v1.md`。
 
