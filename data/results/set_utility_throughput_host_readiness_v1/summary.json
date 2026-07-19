@@ -1,0 +1,124 @@
+{
+  "audit_kind": "gui_owl_12_state_throughput_host_readiness",
+  "audit_utc": {
+    "aries": "2026-07-19T09:12:32Z",
+    "h100": "2026-07-19T09:12:37Z",
+    "hyper00": "2026-07-19T09:12:33Z",
+    "hyper01": "2026-07-19T09:12:33Z"
+  },
+  "free_gpu_definition": {
+    "compute_app_count": 0,
+    "minimum_free_memory_fraction": 0.99
+  },
+  "hosts": {
+    "aries": {
+      "cpu_logical": 112,
+      "disk_available": {
+        "/": "30G",
+        "/mnt/data": "3.7G",
+        "/mnt/data2": "83G",
+        "/mnt/data3": "50G",
+        "/mnt/data4": "16G",
+        "/mnt/data5": "64G",
+        "/mnt/data6": "612G",
+        "/mnt/data7": "1.2G"
+      },
+      "free_gpu_ids": [],
+      "gpu_free_mib_by_id": [2998, 31491, 4844, 7541, 1500, 7755, 1500, 7755],
+      "gpu_model": "NVIDIA RTX A6000",
+      "gpu_total_mib": 49140,
+      "gpu_used_mib_by_id": [45673, 17180, 43827, 41130, 47171, 40916, 47171, 40916],
+      "hostname": "aries.cs.ucsb.edu",
+      "model_present": true,
+      "processor_present": false,
+      "repo_head": "f6b24f32ea5edb6e35b5e0dd2be612c1d9f9c921",
+      "repo_status_count": 56
+    },
+    "h100": {
+      "cpu_logical": 128,
+      "disk_available": {
+        "/": "474G",
+        "/data": "12T"
+      },
+      "free_gpu_ids": [1, 6, 7],
+      "gpu_free_mib_by_id": [6601, 81079, 68727, 68727, 75225, 77511, 81079, 81079],
+      "gpu_model": "NVIDIA H100 80GB HBM3",
+      "gpu_total_mib": 81559,
+      "gpu_used_mib_by_id": [74479, 0, 12353, 12353, 5855, 3569, 0, 0],
+      "hostname": "host-85-234-79-62",
+      "image_id": "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+      "image_repo_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "model_present": false,
+      "processor_present": false,
+      "repo_present": false,
+      "required_transfer_bytes": 36276530027,
+      "requires_runtime_identity_and_behavioral_check": true
+    },
+    "hyper00": {
+      "cpu_logical": 224,
+      "disk_available": {
+        "/": "419G",
+        "/data01": "2.1T",
+        "/data02": "1.5T"
+      },
+      "free_gpu_ids": [0, 1, 3, 4, 5, 6, 7],
+      "gpu_free_mib_by_id": [143167, 143167, 9700, 143167, 142638, 143164, 143164, 143164],
+      "gpu_model": "NVIDIA H200",
+      "gpu_total_mib": 143771,
+      "gpu_used_mib_by_id": [1, 1, 133467, 1, 529, 4, 4, 4],
+      "hostname": "node-radixark-16-0000",
+      "image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "model": {
+        "directory_du_bytes": 17545909516,
+        "manifest_payload_bytes": 17545907171,
+        "manifest_sha256": "65bd2377eace0e25a62542ad752dab146787c5f021bd22e62a1114589ae4265c",
+        "path": "/data02/jaxan/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+        "present": true,
+        "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc"
+      },
+      "occupied_gpu_ids": [2],
+      "processor": {
+        "du_bytes": 18730620511,
+        "file_count": 23,
+        "path": "/data02/jaxan/artifacts/causalcache-set-utility-processor-freeze-v2-image-contract-repair-e976b99",
+        "present": true
+      },
+      "required_transfer_bytes": 0
+    },
+    "hyper01": {
+      "cpu_logical": 224,
+      "disk_available": {
+        "/": "419G",
+        "/data01": "1.1T",
+        "/data02": "1.1T"
+      },
+      "free_gpu_ids": [],
+      "gpu_free_mib_by_id": [19768, 21042, 19, 1081, 27432, 8156, 1864, 16100],
+      "gpu_model": "NVIDIA H200",
+      "gpu_total_mib": 143771,
+      "gpu_used_mib_by_id": [123399, 122125, 143148, 142087, 115735, 135011, 141303, 127067],
+      "hostname": "node-radixark-16-0001",
+      "image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "model_manifest_sha256": "65bd2377eace0e25a62542ad752dab146787c5f021bd22e62a1114589ae4265c",
+      "model_present": true,
+      "processor_present": false,
+      "repo_head": "a2528d7e95e73c25639568650f63abce58e4e491",
+      "repo_status_count": 0,
+      "required_transfer_bytes": 18730620511
+    }
+  },
+  "read_only": true,
+  "recommendation": {
+    "avoid": "aries",
+    "conditional_warm_backup": "hyper01",
+    "do_not_merge_cross_host_throughput_metrics": true,
+    "immediate_cold_backup": "h100",
+    "primary": "hyper00"
+  },
+  "remote_mutation_count": 0,
+  "transfer_plan": {
+    "h100": "Download the pinned model and immutable processor artifact, then freeze a new H100 runtime identity.",
+    "hyper01": "Download only the immutable processor artifact and create a fresh exact pilot checkout after GPUs become free.",
+    "preferred": "Use immutable Hugging Face publication for cross-host transfer; do not treat local copies as source of truth."
+  }
+}

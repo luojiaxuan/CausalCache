@@ -52,6 +52,10 @@
 > logits/metadata 在 outer stop 前释放，异常只投影 class-only metrics；processor→label join 同时保留 exact
 > initial-candidates+current image payload mapping。相关 focused regression=`43 passed, 2 subtests passed`。正式
 > 12-state pilot config、真实 policy forward 与 label execution 尚未解锁。
+> `2026-07-19T09:12Z` 的只读 host snapshot 显示 Hyper00 当前有 7 张可用 H200，且 model/18.73GB processor
+> root 均已本地存在；Hyper01 8 卡均占用，H100 虽有 3 张空卡却需搬约 36.28GB 并重绑 runtime，Aries 无空卡。
+> 因此 pilot 当前首选 Hyper00；正式 launch 前仍 fresh preflight，不把本快照当资源预留，也不混合异构 host
+> throughput 指标。
 >
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
 > `parallel_v1` 只把四个 worker tar 的 v2 semantic overlay 用 ordered 4-thread map 并行，主线程仍按 0→3

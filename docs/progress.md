@@ -12,6 +12,21 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：12-state throughput pilot host readiness
+
+- 对 Hyper00、Hyper01、H100 与 Aries 做只读快照；没有 GPU launch/cleanup、container stop 或远端写入。free
+  定义为无 compute app 且显存 free>=99%，不是简单要求 used=0；
+- Hyper00 当前有 7 张符合定义的 H200（IDs `0,1,3,4,5,6,7`），本地已有 exact GUI-Owl model
+  revision `06d5faec...d04fc`、manifest SHA256=`65bd2377...4265c` 与 18,730,620,511-byte/23-file processor
+  root，额外搬运为 0；GPU 2 被现有 133,458 MiB compute process 占用，明确排除；
+- Hyper01 8 张 H200 当前均被占用，且缺 18.73GB processor root；H100 有 3 张空闲 80GB 卡，但缺 repo/model/
+  processor、local image identity 不同，需要搬约 36.28GB 并另做 runtime/behavioral binding；Aries 无空闲卡、
+  repo dirty 且本地盘紧张；
+- 当前 primary 因而是 Hyper00，H100 是 cold backup，Hyper01 仅在卡释放并下载 immutable processor artifact 后
+  才是 warm backup。正式 pilot 不合并异构 host throughput 指标，且 launch 前仍必须重新 preflight；届时从
+  sealed commit 建新的 clean checkout，不能复用普通 dirty repo 或旧 producer checkout。轻量快照见
+  [`../data/results/set_utility_throughput_host_readiness_v1/`](../data/results/set_utility_throughput_host_readiness_v1/)。
+
 ### 2026-07-18（UTC 07-19）：真实 GUI-Owl throughput adapter source core
 
 - 新增 `set_utility_gui_owl_v2_1_throughput_adapter.py`，只接受 versioned

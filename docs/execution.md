@@ -29,6 +29,13 @@ HF create/upload/tag。远端确需访问 private repo 时，由操作者通过�
 | AndroidWorld paired rollout | Aries emulator + Hyper H200 policy | 新合同后调整 | 本 v1 因 confirm NO-GO 未解锁、未执行；不得把 policy 静默降级到 A6000 |
 | 小模型 smoke、sample-level debug | Aries/Taurus A6000 | Hyper01 | 避免为小任务占用 H200 |
 
+`2026-07-19T09:12Z` 的 12-state throughput pilot 只读 readiness 快照显示：Hyper00 有 7 张无 compute app 且
+显存 free>=99% 的 H200，并已本地持有 pinned model 与 18.73GB processor root；Hyper01 当时 8 卡均被占且缺
+processor root；H100 有 3 张空闲卡，但需搬约 36.28GB model+processor 并冻结不同 image/runtime identity；
+Aries 无空闲卡。故当前 primary 是 Hyper00、H100 为 cold backup。该快照不是资源预留，正式启动仍需 fresh
+preflight；详情见
+[`../data/results/set_utility_throughput_host_readiness_v1/`](../data/results/set_utility_throughput_host_readiness_v1/)。
+
 2026-07-14 实测 Hyper01：8×NVIDIA H200（每卡 143,771 MiB）、x86_64、`/dev/kvm` 可用；
 `/data01` 约 1.8T 可用，`/data02` 约 975G 可用，而根分区只剩约 7G。Docker root 是
 `/var/lib/docker`，当前有 `hongccc/sglang-omni:dev`，但没有约 13.4G 的
