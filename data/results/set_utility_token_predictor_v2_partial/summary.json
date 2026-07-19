@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_TRAIN_TUNE_ONLY_TOKEN_PILOT",
+  "claim": "optimization_and_data_pipeline_diagnostic_only",
+  "evaluation_records_loaded": false,
+  "git": {
+    "architecture_commit": "ba1c480",
+    "final_training_commit": "2c7a53f"
+  },
+  "runtime": {
+    "host": "hyper00",
+    "gpu": "NVIDIA H200",
+    "token_extraction_gpu_ids": [4, 5, 6, 7],
+    "training_gpu_ids": [4, 5, 6],
+    "training_cache_residency": "gpu"
+  },
+  "snapshot": {
+    "state_count": 745,
+    "trajectory_count": 74,
+    "train_state_count": 646,
+    "train_trajectory_count": 67,
+    "tune_state_count": 99,
+    "tune_trajectory_count": 7,
+    "content_sha256": "df39769025bed3759a457bc7b0de576991456e16dfe6a3f17d7fd3d35c645f5f"
+  },
+  "token_cache": {
+    "visual_sequence_contract": "variable_length_unpooled_final_main_merger_tokens",
+    "visual_count": 1043,
+    "text_count": 1052,
+    "byte_count": 22782959321,
+    "content_sha256": "737109a76130411b9250e0f46130b3c190542a5b983aa937c1310e6cc6ad9384"
+  },
+  "input_content_sha256": "21a975975c60b81539fd1cf81f9e550ef3d2b4fe5b6f0525a24266ef0fe96d3e",
+  "training_config_sha256": "646e83675742275540883c6d3b859205416196a7be4ac18fc2499a62c85abaff",
+  "overfit_sanity": {
+    "variant": "set_transformer_d256_l8",
+    "state_count": 8,
+    "first_tune_total": 0.4768972194620541,
+    "best_tune_total": 0.30769275980336325,
+    "relative_reduction": 0.3548027808791914,
+    "best_epoch": 8,
+    "checkpoint_sha256": "590987c2f382b8b806b640a44ecf78eda9cbee61c7b2f8d509357f0946338bea",
+    "summary_sha256": "290e813d7495f681b317fe31913a4a69b26cea2648b9103216cd3eba03b18af0"
+  },
+  "variants": {
+    "deepsets_d256_l8": {
+      "first_tune_total": 2.1688196730685227,
+      "best_tune_total": 0.35640834442952446,
+      "relative_reduction": 0.8356671378191322,
+      "first_tune_ranking_accuracy": 0.6406268539856954,
+      "best_tune_ranking_accuracy": 0.705813619987707,
+      "best_tune_raw_mae": 0.03633994722270862,
+      "best_epoch": 5,
+      "checkpoint_sha256": "217d3226186c247c96003fb8411b1100c9da8e01cb09a62005ea15ecd59d3e37",
+      "summary_sha256": "b6c7d2c2dc91f099569b655c3652d4fa2dd109912a6b7396fef33959447188e9"
+    },
+    "set_transformer_d256_l8": {
+      "first_tune_total": 0.9215402839969694,
+      "best_tune_total": 0.5753319192048554,
+      "relative_reduction": 0.3756844609011716,
+      "first_tune_ranking_accuracy": 0.5877538135411826,
+      "best_tune_ranking_accuracy": 0.699970591816978,
+      "best_tune_raw_mae": 0.03651391583789569,
+      "best_epoch": 3,
+      "checkpoint_sha256": "57b92868dc2b3a4799c3b0dd6241c1c1f0244f5fcfc60f385f9e9d0cb9c44b3e",
+      "summary_sha256": "903eae906e221f90b0f69c5659222d1ab0d061909587e81921feb0fbd9ef561e"
+    },
+    "set_transformer_d512_l16": {
+      "first_tune_total": 0.5305557165596152,
+      "best_tune_total": 0.37468641156567345,
+      "relative_reduction": 0.2937849883225746,
+      "first_tune_ranking_accuracy": 0.5823315286592328,
+      "best_tune_ranking_accuracy": 0.6536450548950892,
+      "best_tune_raw_mae": 0.03797266935191796,
+      "best_epoch": 6,
+      "checkpoint_sha256": "e74e7b54e48be7fd3d309b4091988911b0e2c6cdffabde0d1522bb669ec7ed0d",
+      "summary_sha256": "17d511104ac9d2f0f3e218344d62e51ae2c625c1a89acc4bc1dbf577d5d48673"
+    }
+  },
+  "local_staging": {
+    "path": "/data02/jaxan/runs/causalcache-set-utility-token-v2-pilot-ba1c480",
+    "byte_count": 23583937671,
+    "status": "PENDING_HF_UPLOAD",
+    "dataset_destination": "gavinlaw/causalcache-set-utility-new-development-mobile",
+    "model_destination": "gavinlaw/causalcache-set-utility-predictors-mobile"
+  }
+}

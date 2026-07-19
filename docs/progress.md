@@ -3647,3 +3647,16 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - postflight + processor artifacts/freeze/contract focused suite 为 `40 passed`，CLI help 与 py_compile 通过。
 - 当前实现明确绑定 v1 Execution-CF contract；v1 attempt 没有 completed root，仍为 INVALID。未来 v2
   repair 必须显式适配该 validator，不能把它当作自动授权。
+
+## 2026-07-19：Token-level Set Utility Predictor v2 partial pilot
+
+- 主方法已从 64 维手工 feature 升级为 frozen GUI-Owl full visual/text token sequences、learned latent
+  resampler 与 query-conditioned set predictor；DeepSets 只替换 set aggregator。
+- 与 dense label rollout 并行冻结 745 train/tune states（646/99 states，67/7 trajectories），evaluation 未加载；
+  去重 cache 含 1,043 images、1,052 texts、22,782,959,321 bytes。
+- 8-state overfit objective 下降 35.5%；DeepSets-d256、SetTransformer-d256、SetTransformer-d512 的 best tune
+  objective 为 `0.3564/0.5753/0.3747`，三者均较首轮下降。
+- 该结果只通过 optimization/data pipeline diagnostic。tune trajectory 数仍少，DeepSets 暂时最好，raw MAE
+  未一致改善；未运行 evaluation baseline、at-most-B selector、matched-NLL 或 closed-loop。
+- Git-safe summary 位于 `data/results/set_utility_token_predictor_v2_partial/`。23.58GB dataset/model artifacts
+  仍在 Hyper00 persistent staging，状态 `PENDING_HF_UPLOAD`。

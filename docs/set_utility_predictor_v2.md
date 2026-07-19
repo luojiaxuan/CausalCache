@@ -88,3 +88,15 @@ selector baselines 报告。
 - matched next-action NLL 下 restoration mass 与 closed-loop success。
 
 cheap-feature model 仍可作为成本/信息量下界，但不能再用它的失败否定 token-level CausalCache。
+
+## 2026-07-19 partial pilot 结果
+
+在 label rollout 并行期间冻结了 745 个 completed train/tune states（646/99 states，67/7 trajectories），从中
+缓存 1,043 份去重 full visual token sequences 与 1,052 份 text sequences。8-state overfit objective 下降
+35.5%。三个正式配置的 best tune objective 分别为 DeepSets `0.3564`、SetTransformer-d256 `0.5753`、
+SetTransformer-d512 `0.3747`，相对首轮均下降。
+
+因此 token-level optimization/data pipeline PASS，但 architecture/evaluation 仍未 PASS：tune 只有 7 条
+trajectories，DeepSets 暂时最好，raw MAE 也没有随 composite objective 一致改善。正式结论必须等扩大后的
+train/tune/evaluation labels，先在 tune 上冻结 loss scaling，再运行 at-most-`B` selector evaluation。完整轻量
+结果见 [`data/results/set_utility_token_predictor_v2_partial/`](../data/results/set_utility_token_predictor_v2_partial/README.md)。
