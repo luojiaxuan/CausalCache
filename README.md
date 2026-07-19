@@ -72,11 +72,16 @@
 > 再另立 versioned repair，不能静默放宽或跳样本。该 CPU-only census 的 source/config 已冻结，config
 > SHA256=`c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10`；它固定 1,200 trajectories / 18,792
 > observations / 527 shards / 4 workers，禁止 OCR、AutoProcessor、model/policy、GPU、labels、training 与 HF
-> mutation；selected row 只读取 `images` column，不解析 instruction/action/outcome。本地 focused validation
-> 为 `30 passed`。当前状态仍是 `SOURCE_FROZEN_FORMAL_RUN_PENDING`，正式
-> output 与 HF revision 均不存在。协议见
+> mutation；contract 要求 selected row 只读取 `images` column、不解析 instruction/action/outcome。本地
+> focused validation 为 `30 passed`。唯一 formal v1 attempt 从 clean `main@e636df1` 完整运行并产生 10-file root，但结果审计
+> 发现 `ParquetFile.iter_batches` 未传 `columns=["images"]`，因此 PyArrow 实际物化了完整 rows，与冻结的
+> image-column-only authorization 冲突。正式终态为
+> `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；10-file bytes 只作 forensic
+> evidence，禁止 HF 上传，其 histogram 也不能冻结 processor repair。轻量失败记录见
+> [`data/results/set_utility_selected_image_format_census_v1_attempt/`](data/results/set_utility_selected_image_format_census_v1_attempt/)，协议见
 > [`docs/set_utility_selected_image_format_census_v1.md`](docs/set_utility_selected_image_format_census_v1.md)。
-> 当前仍没有 final candidates、restoration labels、
+> 下一步先另立 `columns=["images"]` 的 versioned census repair 并重新跑完整 18,792 denominator；当前仍没有
+> final candidates、restoration labels、
 > predictor checkpoint、matched-NLL
 > 或 closed-loop result。详见
 > [`docs/set_utility_processor_freeze_execution_cf.md`](docs/set_utility_processor_freeze_execution_cf.md)。
@@ -1057,7 +1062,8 @@ mediation effect。
   [`code/configs/causalcache_set_utility_selected_image_format_census_v1.json`](code/configs/causalcache_set_utility_selected_image_format_census_v1.json),
   [`code/scripts/run_set_utility_selected_image_census.py`](code/scripts/run_set_utility_selected_image_census.py),
   [`code/scripts/validate_set_utility_selected_image_census_contract.py`](code/scripts/validate_set_utility_selected_image_census_contract.py),
-  [`docs/set_utility_selected_image_format_census_v1.md`](docs/set_utility_selected_image_format_census_v1.md)
+  [`docs/set_utility_selected_image_format_census_v1.md`](docs/set_utility_selected_image_format_census_v1.md),
+  [`data/results/set_utility_selected_image_format_census_v1_attempt/`](data/results/set_utility_selected_image_format_census_v1_attempt/)
 - Independent confirm continuation contract and source validator:
   [`code/configs/causalcache_independent_confirm_continuation_v1.json`](code/configs/causalcache_independent_confirm_continuation_v1.json),
   [`code/scripts/validate_independent_confirm_continuation.py`](code/scripts/validate_independent_confirm_continuation.py)
@@ -1294,7 +1300,7 @@ mediation effect。
 | Set-utility Freeze-B v1 | [manifest](data/manifests/set_utility_freeze_b_v1.json)；[failure record](data/results/set_utility_freeze_b_v1/) | `INVALID_QUERY_PLAN_TERMINAL_OFF_BY_ONE`；manifest SHA256 `144b0de1...73e5` | terminal 实为倒数第二个 state；bytes 仅作失败证据，不得进入 processor/labels/training |
 | Set-utility Freeze-B v2 repair | [manifest](data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json)；[result](data/results/set_utility_freeze_b_v2_terminal_index_repair/) | manifest SHA256 `915892ef...581d30`；HF upload pending | 1,200 group-disjoint trajectories / 2,400 corrected policy-blind queries；`1000/100/100` train/tune/eval；processor freeze、labels、training 均未执行 |
 | Set-utility processor-only freeze v1 attempt | [Execution-CF](docs/set_utility_processor_freeze_execution_cf.md)；[failure result](data/results/set_utility_processor_freeze_execution_cf_v1_attempt/) | `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT`；producer `main@b3472bf` | 第 228 个 observation 为合法 PNG/RGB，旧 contract 仅接受 opaque RGBA；output root absent，`.incomplete` preserved，HF/policy/labels/training 均为 0；下一步全量 image-format census |
-| Set-utility selected-image format census v1 | [source/config/runner](docs/set_utility_selected_image_format_census_v1.md) | `SOURCE_FROZEN_FORMAL_RUN_PENDING`；config SHA256 `c0ecbf59...173d10` | 固定 1,200 trajectories / 18,792 observations / 527 shards / 4 CPU workers；正式 output 与 HF revision 尚不存在，成功后 intended private tag 为 `phase1-b2-image-format-census-v1` |
+| Set-utility selected-image format census v1 attempt | [protocol](docs/set_utility_selected_image_format_census_v1.md)；[failure](data/results/set_utility_selected_image_format_census_v1_attempt/) | `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；producer `main@e636df1`；HF upload forbidden | PyArrow 未传 `columns=["images"]` 而物化完整 rows；10-file root 只作 forensic evidence，observed histogram formal-ineligible；下一步 versioned column-projection repair |
 | Planned set-utility dataset/model | `gavinlaw/causalcache-set-utility-new-development-mobile`；`gavinlaw/causalcache-set-utility-predictors-mobile` | private `phase1-b2-v1` destinations；repos/revisions uncreated and unbound | feature/label shards 与 checkpoints 完成后上传；当前不能视为 canonical artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |

@@ -1,0 +1,189 @@
+{
+  "artifact": {
+    "file_count": 10,
+    "hf_mutation_count": 0,
+    "intended_private_hf_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+    "intended_tag": "phase1-b2-image-format-census-v1",
+    "manifest_sha256": "282b86c62e3856f35da901c925f23d0baa54970211260e97f44a4aa6ee2b7180",
+    "output_root": "/data/artifacts/causalcache-selected-image-format-census-v1-e636df1",
+    "output_tree_sha256": "973b0f1b29059fde2f7e1001559b10a38629192e8e3db6f5774d41764ff627e3",
+    "staging_root": "/data/artifacts/.causalcache-selected-image-format-census-v1-e636df1.incomplete",
+    "staging_root_present_after_success": false,
+    "status": "INVALID_FAILED_PRESERVED_NO_HF_PUBLICATION",
+    "total_byte_count": 6940661
+  },
+  "bindings": {
+    "config_sha256": "c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10",
+    "freeze_b_v2_manifest_sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30",
+    "full_pool_inventory_manifest_sha256": "e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e",
+    "p0_census_manifest_sha256": "729d1e1046761177d53d0f320139331224c9f77f7add5097d04bce479566189b",
+    "producer_git_revision": "e636df1fa3890c0f889c99db227d6bb959d23383",
+    "record_inventory_sha256": "d1321ae0a8fdceae09ae2946628935b906d9fc758737edbbfe808cc945823033",
+    "run_identity_sha256": "62e37d71b89d9ea2a7811e522cc96669f899f94464cbf2c8adebd6757ec04221",
+    "schedule_inventory_sha256": "af4cc646a171c8696aebaefbe162e269773a08b3633aaf995e6dac2d83499346",
+    "selector_inventory_sha256": "7c797e2291b448eb57cef6be20a82c9b6c197d0f4f30eaf2edd0949be42d62ab"
+  },
+  "counts": {
+    "model_or_policy_load_count": 0,
+    "ocr_count": 0,
+    "selected_observation_count": 18792,
+    "selected_shard_count": 527,
+    "selected_trajectory_count": 1200,
+    "unique_image_sha256_count": 18523,
+    "worker_count": 4
+  },
+  "execution": {
+    "argv": [
+      "/usr/bin/python3",
+      "/data/worktrees/causalcache-image-census-e636df1/code/scripts/run_set_utility_selected_image_census.py",
+      "--repository-root",
+      "/data/worktrees/causalcache-image-census-e636df1",
+      "--execution-config",
+      "/data/worktrees/causalcache-image-census-e636df1/code/configs/causalcache_set_utility_selected_image_format_census_v1.json",
+      "--source-root",
+      "/data/source/guiodyssey-full-pool-v1",
+      "--output-root",
+      "/data/artifacts/causalcache-selected-image-format-census-v1-e636df1",
+      "--python-executable",
+      "/usr/bin/python3",
+      "--git-revision",
+      "e636df1fa3890c0f889c99db227d6bb959d23383",
+      "--host-alias",
+      "hyper00",
+      "--host-hostname",
+      "node-radixark-16-0000",
+      "--container-id",
+      "a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a",
+      "--container-image-digest",
+      "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+      "--worker-count",
+      "4",
+      "--python-version",
+      "3.12.3",
+      "--pyarrow-version",
+      "24.0.0",
+      "--pillow-version",
+      "12.2.0"
+    ],
+    "container_id": "a954543dd85b38a761a06a16384347169706e26e1bc34ffc8f8d279064cca50a",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "device": "cpu",
+    "dtype": "not_applicable",
+    "elapsed_seconds": 398,
+    "end_utc": "2026-07-19T03:31:16Z",
+    "exit_code": 0,
+    "exit_code_file_sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "gpu_count": 0,
+    "host_alias": "hyper00",
+    "host_hostname": "node-radixark-16-0000",
+    "outer_log_sha256": "a90bc6c38893d5c55de04ecae7036a60944485799fe8ae70ee3d1caf76112ca2",
+    "pillow_version": "12.2.0",
+    "pyarrow_version": "24.0.0",
+    "python_version": "3.12.3",
+    "seed": "not_applicable",
+    "start_utc": "2026-07-19T03:24:38Z"
+  },
+  "failure": {
+    "classification": "INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT",
+    "detected_utc": "2026-07-19T03:36:38Z",
+    "explicit_semantic_parser_call_count": 0,
+    "formal_contract_satisfied": false,
+    "reason": "ParquetFile.iter_batches omitted columns=['images']; batch.to_pylist therefore materialized messages and metadata despite the frozen images-column-only access contract",
+    "scientific_eligibility": false,
+    "successor_allowed": "versioned_column_projection_repair_only"
+  },
+  "histograms": {
+    "alpha_extrema": {
+      "255:255": 18768,
+      "null": 24
+    },
+    "dimensions": {
+      "1080x2400": 3133,
+      "1344x2992": 2983,
+      "1440x3120": 3147,
+      "1600x2560": 315,
+      "1840x2208": 376,
+      "2208x1840": 2531,
+      "2560x1600": 2645,
+      "3120x1440": 1,
+      "720x1280": 3661
+    },
+    "exif_present": {
+      "false": 18792
+    },
+    "format": {
+      "PNG": 18792
+    },
+    "format_mode": {
+      "PNG:RGB": 24,
+      "PNG:RGBA": 18768
+    },
+    "mode": {
+      "RGB": 24,
+      "RGBA": 18768
+    }
+  },
+  "negative_operations": {
+    "access_outcome_or_utility_contract_satisfied": false,
+    "auto_processor_count": 0,
+    "closed_loop_episode_count": 0,
+    "full_row_parquet_materialization_occurred": true,
+    "hugging_face_mutation_count": 0,
+    "matched_nll_count": 0,
+    "model_or_policy_load_count": 0,
+    "ocr_count": 0,
+    "restoration_label_count": 0,
+    "sealed_test_access_count": 0,
+    "training_count": 0
+  },
+  "postflight": {
+    "canonical_manifest_and_run_identity_verified": true,
+    "column_projection_contract_verified": false,
+    "exact_file_count_verified": true,
+    "formal_contract_satisfied": false,
+    "global_selector_uniqueness_verified": true,
+    "histogram_denominators_verified": true,
+    "no_symlink_verified": true,
+    "record_receipt_hash_chain_replayed": true,
+    "status": "INVALID_UNPROJECTED_PARQUET_COLUMNS",
+    "worker_line_counts": [
+      4700,
+      4700,
+      4693,
+      4699
+    ]
+  },
+  "protocol_id": "causalcache_set_utility_selected_image_format_census_v1",
+  "schema_version": "1.0.0",
+  "status": "INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT",
+  "workers": [
+    {
+      "observation_count": 4700,
+      "receipt_sha256": "8918ae80e50b73f9240dd346ce08bd8c53947de7e09383ab56081665771227f2",
+      "record_byte_count": 1733417,
+      "record_sha256": "3eb7aee840d7102440c19a52c5d20a585452d95f15e6012408c1c5b8fe45ecde",
+      "worker_index": 0
+    },
+    {
+      "observation_count": 4700,
+      "receipt_sha256": "a9216a8b6915f340328761ee267dd991818b29c8f09d9109d45dc009d3c99b16",
+      "record_byte_count": 1733256,
+      "record_sha256": "9531329d2d76d7716a6ad891fe908ce57ff258f1fc02d5efa2958dadae04304c",
+      "worker_index": 1
+    },
+    {
+      "observation_count": 4693,
+      "receipt_sha256": "0b4ebd7b06917b4afdb274f70596d051ad0f32d265a916b9571601c53e552364",
+      "record_byte_count": 1730674,
+      "record_sha256": "7bb6ec670143f718847025af8bb96a3cfbb7c37d62c98b8b7032966397f2e7ef",
+      "worker_index": 2
+    },
+    {
+      "observation_count": 4699,
+      "receipt_sha256": "2aa65eba8ade4a506f946ff95357a3ef80ea3b52b9d2bba599926eec5fbd025d",
+      "record_byte_count": 1733096,
+      "record_sha256": "05eb1ec03079cdd1a1c32d97096b44ff3bbf67c97a11b71528bf59e6be584cea",
+      "worker_index": 3
+    }
+  ]
+}

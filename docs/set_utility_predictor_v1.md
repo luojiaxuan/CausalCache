@@ -4,7 +4,8 @@
 > query 有 one-based indexing off-by-one，已永久标记 invalid；v2 在 corrected eligible universe 上固定
 > 1,200 trajectories / 2,400 queries、`1000/100/100` train/tune/evaluation、rich visual feature 与 training
 > grid。processor-only Execution-CF v1 因合法 `PNG/RGB` 与旧 opaque-RGBA contract 冲突而 fail closed；
-> selected-image census v1 已 source freeze，正式全量 run 尚未执行。没有生成本路线新 label、训练 predictor，
+> selected-image census v1 的唯一 formal attempt 因 PyArrow 未做 image-only column projection 而永久 INVALID；
+> replacement census 尚未冻结/运行。没有生成本路线新 label、训练 predictor，
 > 也没有执行 closed-loop、matched-NLL 或 sealed test。
 >
 > Canonical SHA256：predictor=`9548159b219795b1c258c28f772f53351256e0d728b88dd409cb333bd2100fe4`；
@@ -276,9 +277,12 @@ few-shot 的 calibration/evaluation state 数、seed、步数与 checkpoint rule
 Source-A validator 只能读取一次 canonical config；network、HF API、file write、subprocess、torch import、
 model load/forward、data access、label generation、optimizer step 和所有下游评估计数必须为零。
 
-下一步不是 closed-loop 或 label GPU run。P-1、P0 与 Freeze-B v2 roster 已完成；当前必须从 clean pushed
-source commit 在 Hyper00 CPU-only runtime 对固定 18,792 observations 正式运行 selected-image format census。
-census worker 只读取 selected row 的 `images` column，不解析 instruction/action/outcome。只有完整 histogram 与
-Git-safe result 闭合后，才能另立 versioned processor repair，随后冻结 final candidate universe 与 exact
-operation budget；在此之前 processor、restoration labels 和 predictor training 均保持 locked。完整 census
-协议见 [`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)。
+下一步不是 closed-loop 或 label GPU run。P-1、P0 与 Freeze-B v2 roster 已完成，但 census v1 因
+unprojected Parquet columns 永久 INVALID。当前必须先冻结新的 column-projection census version，要求
+`columns=["images"]`、runtime exact-schema assertion 与真实 projection regression，再从 clean pushed commit
+在 Hyper00 CPU-only runtime 重跑固定 18,792 observations。只有 replacement 的完整 histogram 与 Git-safe
+result 闭合后，才能另立 processor repair，随后冻结 final candidate universe 与 exact operation budget；在此
+之前 processor、restoration labels 和 predictor training 均保持 locked。完整 v1 failure 与 replacement 边界见
+[`../data/results/set_utility_selected_image_format_census_v1_attempt/`](../data/results/set_utility_selected_image_format_census_v1_attempt/)，
+census 协议见
+[`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)。

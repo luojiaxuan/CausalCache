@@ -52,10 +52,13 @@ Selected-image format census v1 已完成 source-only freeze，config SHA256=
 column；不解析 instruction、action、terminal outcome，不运行 OCR/AutoProcessor/model/policy/GPU/labels/training，
 也不在执行期间 mutation HF。每条记录只含 selector/image/RGB hashes、format/mode、alpha、EXIF 和 dimensions；
 这些记录无 raw identity，但仍可由持有 frozen manifest 的审计者关联，因此是 pseudonymous 而非不可逆匿名。
-当前状态为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`，尚无 reusable output、Git result summary 或 HF revision。
-正式完成后，四份 JSONL/receipt 预定进入 private
-`gavinlaw/causalcache-set-utility-new-development-mobile:phase1-b2-image-format-census-v1`；Git 只回写
-counts/histograms/digests 与 immutable identity。协议见
+唯一 formal v1 attempt 从 clean `main@e636df1` 完整运行并原子发布 root，但 post-run contract audit 发现
+PyArrow `iter_batches` 未使用 `columns=["images"]`，因此完整 rows 已在 Python 分支前被物化。该 attempt 正式为
+`INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`。10 files / 6,940,661 bytes、tree
+SHA256=`973b0f1b29059fde2f7e1001559b10a38629192e8e3db6f5774d41764ff627e3` 原样保留，仅作 forensic evidence；
+observed histogram formal-ineligible，禁止进入 intended private HF tag。轻量 failure 位于
+[`results/set_utility_selected_image_format_census_v1_attempt/`](results/set_utility_selected_image_format_census_v1_attempt/)。
+下一步必须另立 column-projection versioned repair，重新跑完整 denominator。协议见
 [`../docs/set_utility_selected_image_format_census_v1.md`](../docs/set_utility_selected_image_format_census_v1.md)。
 
 `manifests/exploratory_closed_loop_validation12_v1.json` 是 development-only AndroidWorld probe 的冻结 roster：

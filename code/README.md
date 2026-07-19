@@ -154,9 +154,15 @@ offline method delta 仍未产生。旧 Freeze-B v1 因 terminal off-by-one 永�
 `c0ecbf59dc6bd77881503e92b0e3eb8c011c2768d0721fa5a74c82c8fe173d10`，固定 1,200 trajectories / 18,792
 observations / 527 shards / 4 CPU workers。worker 只读取 frozen row 的 `images` column，不解析
 instruction/action/outcome；OCR、AutoProcessor、model/policy、GPU、labels、training 与 HF mutation 均禁止。
-本地 focused validation 为 `30 passed`，状态仍是 `SOURCE_FROZEN_FORMAL_RUN_PENDING`。必须先从 clean pushed
-commit 在 Hyper00 正式完成 census，再据完整 histogram 另立 processor repair；得到 final candidates 和 exact
-operation budget 后才可生成 labels。正式 runner 为
+本地 focused validation 为 `30 passed`，但它漏掉了真正的 PyArrow projection assertion。唯一 formal v1
+attempt 从 clean `main@e636df1` 完整运行后，审计发现 `ParquetFile.iter_batches` 没有传
+`columns=["images"]`，完整 rows 已被物化，与冻结 authorization 冲突。正式状态为
+`INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；10-file root 只作 forensic
+evidence、禁止 HF 上传，observed histogram 不得冻结 processor repair。失败记录见
+`data/results/set_utility_selected_image_format_census_v1_attempt/`。
+下一步必须另立新的 protocol/config/output identity，强制 `columns=["images"]` 并在测试与运行时验证 exact
+batch schema，重新跑完整 18,792 denominator。只有有效 census 完成后才能冻结 processor repair；得到 final
+candidates 和 exact operation budget 后才可生成 labels。原 v1 runner 为
 `code/scripts/run_set_utility_selected_image_census.py`，完整参数与 artifact 边界见
 `docs/set_utility_selected_image_format_census_v1.md`。
 完整接口与跨机器顺序见

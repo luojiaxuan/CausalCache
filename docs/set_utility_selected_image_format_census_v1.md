@@ -6,10 +6,12 @@
 只接受 opaque `PNG/RGBA` 而 fail closed。这个失败只否定旧图像输入假设，不允许据单一样本直接放宽
 contract。v1 的 output root 仍不存在，`.incomplete`、日志和 failure hashes 保持原样。
 
-本协议状态为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`，冻结一个独立的 CPU-only、read-only census：对 Freeze-B v2 选中的全部 1,200 trajectories / 18,792
-observations 使用与 processor freeze 相同的 PIL decode path，先得到完整格式分布，再据此另立 versioned
-processor repair。census 不运行 OCR、`AutoProcessor`、policy/model forward、restoration labels、training、
-matched-NLL 或 closed-loop，也不接触 sealed AndroidWorld test。
+本协议的唯一 formal attempt 已永久判为
+`INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`。它虽然完成 1,200 trajectories /
+18,792 observation records 和 atomic output，但 PyArrow 未执行冻结要求的 image-only column projection；
+observed histogram 只能作 forensic evidence，不能供 downstream processor repair。该 attempt 没有运行 OCR、
+`AutoProcessor`、policy/model forward、restoration labels、training、matched-NLL 或 closed-loop，也没有接触
+sealed AndroidWorld test。
 
 冻结 config 位于
 `code/configs/causalcache_set_utility_selected_image_format_census_v1.json`，SHA256 为
@@ -96,6 +98,46 @@ env -u PYTHONPATH /usr/bin/python3 \
 versions、CPU device、`dtype/seed=not_applicable`、output/staging/log paths、file inventory/tree hash、manifest
 hash、HF 状态和全部 forbidden-operation counts。
 
+## v1 正式 attempt 与失败
+
+唯一 formal attempt 使用 clean pushed
+`main@e636df1fa3890c0f889c99db227d6bb959d23383`，在 Hyper00 CPU-only container 从
+`2026-07-19T03:24:38Z` 运行到 `03:31:16Z`，exit code `0`。四个 worker 的 line counts 为
+`4700/4700/4693/4699`，final root 以 no-replace rename 原子发布：10 个 regular files、6,940,661 bytes、
+无 symlink，staging absent。
+
+但 `ParquetRowFactory` 实际调用为：
+
+```python
+parquet.iter_batches(batch_size=8)
+```
+
+没有传 `columns=["images"]`。所以 `batch.to_pylist()` 在 runner 只显式取 `row.get("images")` 之前已经
+物化完整 rows，包括 `messages` 与 `metadata`。这违反 config 中冻结的
+`images_column_only_no_message_metadata_action_or_outcome_decode`，也使
+`access_outcome_or_utility_allowed=false` 无法成立。原 AST test 只拒绝显式 semantic field access，没有验证
+PyArrow projection，因此 source validation 未捕获该缺口。
+
+observed-but-formal-ineligible 18,792-record histogram 为：
+
+- format：`PNG=18,792`；
+- mode：`RGBA=18,768`，`RGB=24`；
+- alpha extrema：`[255,255]=18,768`，`null=24`；
+- EXIF：`false=18,792`；
+- dimensions：9 种，完整 counts 见 Git summary。
+
+records/receipts 自身的 canonical bytes、全局 selector uniqueness、histograms 与 manifest/run-identity hash chain
+可以重算一致，但 column-projection contract 未满足，所以整体 postflight 必须为 INVALID。manifest SHA256=
+`282b86c62e3856f35da901c925f23d0baa54970211260e97f44a4aa6ee2b7180`，10-file tree SHA256=
+`973b0f1b29059fde2f7e1001559b10a38629192e8e3db6f5774d41764ff627e3`。完整 argv、runtime、worker digests 与
+negative operation counts 见
+[`../data/results/set_utility_selected_image_format_census_v1_attempt/`](../data/results/set_utility_selected_image_format_census_v1_attempt/)。
+
+该 histogram 不得用于冻结 processor repair，exact 10-file root 也禁止 HF publication。唯一允许的后继是新的
+column-projection census version：`columns=["images"]`、runtime batch-schema assertion、真实 projection regression、
+new protocol/config/output/tag identity，并重新跑完整 denominator。只有 replacement census VALID 后，才能根据其
+histogram 设计 processor repair。
+
 ## 验证
 
 source freeze 的 focused validation 为：
@@ -113,6 +155,7 @@ PYTHONPATH=code .venv/bin/python \
   --execution-config code/configs/causalcache_set_utility_selected_image_format_census_v1.json
 ```
 
-当前结果为 `30 passed`，validator 返回 `VALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_CONTRACT` 和
-`VALID_CPU_ONLY_SELECTED_IMAGE_CENSUS_SOURCE`。这只证明 source/config 可以执行；在 formal output atomic
-publish 并通过 read-only inspection 之前，不得声称 census 已完成，也不得提前冻结 processor v2 repair。
+source-freeze 当时得到 `30 passed`，validator 返回 `VALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_CONTRACT` 和
+`VALID_CPU_ONLY_SELECTED_IMAGE_CENSUS_SOURCE`；但这些检查遗漏 PyArrow column projection。正式进程随后虽
+atomic publish，post-run audit 已将该 attempt 永久封为 INVALID。replacement 必须加入 projection-aware tests
+与 committed completed-root postflight，不能修改原 v1 config/source/result bytes 后续跑。

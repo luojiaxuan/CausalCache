@@ -141,7 +141,11 @@ forward、final candidates、restoration labels、training、matched-NLL、close
 修改原 v1 bytes、跳过 observation 或把 partial tar 追认为完成结果。
 该独立 census 的 source/config 与执行边界见
 [`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)。它只读取
-selected row 的 image column，不会把 v1 `.incomplete` 追认为有效 processor artifact，也不解锁 labels/training。
+selected row image 的 Python field，不会把 processor v1 `.incomplete` 追认为有效 artifact，也不解锁
+labels/training。其唯一 census v1 attempt 后续因 PyArrow 未传 `columns=["images"]`、实际物化完整 rows 而永久
+`INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；observed histogram 不得用于
+processor repair。当前下一步是先完成 versioned image-column projection census repair，而不是直接修改本
+Execution-CF 输入合同。
 
 ## 完成态只读 postflight
 

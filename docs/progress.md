@@ -12,6 +12,30 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：selected-image format census v1 attempt 合同失败
+
+- clean pushed producer=`e636df1fa3890c0f889c99db227d6bb959d23383`；Hyper00 CPU-only process 从
+  `2026-07-19T03:24:38Z` 到 `03:31:16Z` 以 code `0` 完成，4-worker line counts=
+  `4700/4700/4693/4699`，并原子发布 10-file root；
+- `2026-07-19T03:36:38Z` 的独立 contract audit 发现 `ParquetRowFactory` 调用
+  `parquet.iter_batches(batch_size=8)` 时未传 `columns=["images"]`。因此 `batch.to_pylist()` 已物化完整 rows，
+  包括 `messages`/`metadata`，违反 frozen `images_column_only_no_message_metadata_action_or_outcome_decode`；
+- 正式终态为 `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`。runner 只显式访问
+  image field、没有调用 semantic parser，不能消除底层 full-row materialization 的授权违例；process exit 0 也
+  不能覆盖 post-run contract failure；
+- observed 18,768/24 mode histogram 与所有 hashes 只作 formal-ineligible forensic evidence，不能证明 full census
+  闭合，也不能冻结 processor input repair；
+- 10 files / 6,940,661 bytes、manifest SHA256=
+  `282b86c62e3856f35da901c925f23d0baa54970211260e97f44a4aa6ee2b7180`、tree SHA256=
+  `973b0f1b29059fde2f7e1001559b10a38629192e8e3db6f5774d41764ff627e3` 原样保留在 Hyper00，仅作 INVALID
+  evidence；HF publication 明确禁止；
+- OCR、AutoProcessor、model/policy forward、labels、training、matched-NLL、closed-loop 与 sealed test 仍为 0；
+  但不能再声称 messages/metadata column access 为 0；
+- 轻量 failure、完整 argv/provenance 与 replacement requirements 见
+  [`../data/results/set_utility_selected_image_format_census_v1_attempt/`](../data/results/set_utility_selected_image_format_census_v1_attempt/)。
+  下一步另立 versioned column-projection repair：exact `columns=["images"]`、runtime batch-schema assertion、
+  mocked PyArrow projection regression、new config/output/tag identity，并重跑完整 18,792 denominator。
+
 ### 2026-07-18：selected-image format census v1 source freeze
 
 - processor-freeze Execution-CF v1 因第 228 个 observation 是合法 `PNG/RGB`、旧 contract 只接受 opaque
@@ -28,9 +52,8 @@ confirm-20 禁止进入新训练、
   或 outcome。OCR、AutoProcessor、model/policy、torch/GPU、labels、training、closed-loop 与 HF mutation 全部禁止；
 - atomic staging、record/receipt paired resume、hard-link no-clobber、全局 selector uniqueness 与 no-replace final
   publish 已实现。focused suite `30 passed`，py_compile 与 source-only validator 通过；
-- 当前仅为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`，没有 final output、HF revision 或 processor v2 repair。下一步从
-  clean pushed source commit 在 Hyper00 CPU-only container 运行正式 census，并在 Git result 记录完整 argv、
-  UTC 起止、`GPU=0`、`dtype/seed=not_applicable`；只有完成全量 histogram 后才冻结 versioned processor repair。
+- 该 source-freeze milestone 当时为 `SOURCE_FROZEN_FORMAL_RUN_PENDING`；后续 v1 attempt 已完成进程但因上节
+  column-projection contract drift 永久 INVALID。source 阶段本身不包含有效 output、HF revision 或 processor repair；
   完整协议见
   [`set_utility_selected_image_format_census_v1.md`](set_utility_selected_image_format_census_v1.md)。
 

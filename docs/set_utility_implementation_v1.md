@@ -4,8 +4,8 @@
 > budget-agnostic model/label/trainer 的 source core、610-shard metadata contract 与 107-identity consumed
 > firewall 已实现；真实 P-1 inventory、P0 semantic census 与 Freeze-B v2 roster/query repair 已完成；原
 > Freeze-B v1 因 terminal decision off-by-one 永久 invalid；processor-only Execution-CF v1 又因合法
-> `PNG/RGB` 与旧 opaque-RGBA contract 冲突而 fail closed。selected-image census v1 source/config 已冻结，
-> formal run 尚未执行；新
+> `PNG/RGB` 与旧 opaque-RGBA contract 冲突而 fail closed。selected-image census v1 的唯一 formal attempt
+> 随后因 PyArrow 未执行 image-only column projection 而永久 INVALID；replacement 尚未冻结/运行；新
 > labels、训练 checkpoint 和 offline method delta 尚未产生。
 > closed-loop、matched-NLL 与 AndroidWorld sealed test 继续 locked。
 >
@@ -186,13 +186,15 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 
 下一步严格是：
 
-1. 从 clean pushed census source 在 Hyper00 CPU-only runtime 扫描固定 1,200 trajectories / 18,792
-   observations，提交 Git-safe histogram/digests；
-2. 根据完整 census 另立 versioned processor repair；不能修改旧 v1 contract 或跳过 RGB observations；
-3. repair 完成后执行 processor-only candidate freeze并生成 exact operation budget；
-4. processor freeze 完成后另立 train-only policy throughput pilot contract，再立 label Execution-B 生产 phase-1
+1. 冻结 selected-image census column-projection repair：`columns=["images"]`、runtime schema assertion、
+   projection-aware tests、new protocol/config/output/tag identity；
+2. 从 clean pushed repair 在 Hyper00 CPU-only runtime 重跑固定 1,200 trajectories / 18,792 observations，并
+   提交有效 Git-safe histogram/digests；
+3. 根据有效 census 另立 versioned processor repair；不能修改旧 processor v1 contract 或依据 invalid histogram；
+4. repair 完成后执行 processor-only candidate freeze并生成 exact operation budget；
+5. processor freeze 完成后另立 train-only policy throughput pilot contract，再立 label Execution-B 生产 phase-1
    `|S|<=2` tables；
-5. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
+6. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 
 截至本 commit，没有本 full-pool 路线新产生的 restoration label、predictor checkpoint、offline method
