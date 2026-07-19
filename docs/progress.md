@@ -1,5 +1,16 @@
 # 项目进展
 
+## 2026-07-19：recent-4 rollout 停止并降级
+
+- 正式 selector 的候选集必须是 query 前全部 eligible events：`C_t={e_1,...,e_{t-1}}`，`n_t=|C_t|`
+  随 state 变化；旧 dense-v1 把每个 state 截断为 recent-4，无法覆盖 long-range dependency；
+- Hyper00/Hyper01 的 8×H200 rollout 已主动停止。封存时共处理 4,033 states，其中 3,964 completed、69
+  skipped；两个容器均已停止，已有 state-level atomic records 保留；
+- 旧 labels、745-state token pilot 与其 checkpoints 全部标记为 `DEPRECATED_SMOKE_ONLY_RECENT4`，只能证明
+  generator、token cache 和 optimization path 可运行，不得进入正式 predictor、evaluation 或 GO/NO-GO；
+- 下一版不再把 `n` 写进配置。完整历史 candidates 通过 padding/event mask 进入 DeepSets/Set Transformer；
+  coalition 只做 variable-`n_t` 分层采样，小历史和少量 held-out states 才做 exact enumeration。
+
 ## 当前目标
 
 2026-07-18 起，历史 independent confirm-20 的 `NO_GO_INDEPENDENT_CONFIRM`、set-conditioned v1 的

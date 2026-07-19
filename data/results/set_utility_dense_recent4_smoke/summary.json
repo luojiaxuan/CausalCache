@@ -1,0 +1,25 @@
+{
+  "hosts": {
+    "hyper00": {
+      "completed_state_count": 2047,
+      "output_root": "/data02/jaxan/runs/causalcache-set-utility-dense-v1-0d32187",
+      "processed_state_count": 2088,
+      "skipped_state_count": 41
+    },
+    "hyper01": {
+      "completed_state_count": 1917,
+      "output_root": "/data02/jaxan/runs/causalcache-set-utility-dense-v1-9671e45-partition-01",
+      "processed_state_count": 1945,
+      "skipped_state_count": 28
+    }
+  },
+  "reason": "recent-4 candidate truncation changes the variable-history long-horizon selector task",
+  "schema_version": "1.0.0",
+  "status": "DEPRECATED_SMOKE_ONLY_RECENT4",
+  "stopped_at": "2026-07-19T23:28:18Z",
+  "totals": {
+    "completed_state_count": 3964,
+    "processed_state_count": 4033,
+    "skipped_state_count": 69
+  }
+}

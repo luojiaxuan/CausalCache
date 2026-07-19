@@ -12,9 +12,9 @@
 - 旧的 all-or-nothing throughput / stability 协议不再阻塞探索主线。新 MVP 按 state 接受：稳定 state 产标签，不稳定 state 记录并跳过。
 - 旧 `scale-v1` 仅有 355 个 anchor states，现降级为 anchor-only pilot，不再作为扩数结果或继续调参依据。
 - Oracle-independent `J` 在 B1/B2 恢复 exact utility 的 99.39%/90.06%，证明 independent restoration objective 在这批数据上有效；learned models 仍有明显 distillation gap。
-- Dense per-step 输入已完整验证 12,792 states（10,680 train / 1,066 tune / 1,046 evaluation）。现有 artifact 复用 12,635 个，另从 pinned raw source 补回 77 张 PNG 覆盖剩余 157 个 states。
+- Dense per-step query census 已覆盖 12,792 states（10,680 train / 1,066 tune / 1,046 evaluation），但旧生成器把候选历史截断为 recent-4，改变了 long-horizon selector 的任务定义。该批 labels 与基于它的 token pilot 全部降级为 smoke-only，不进入正式 predictor 或方法结论。
 - Predictor v2 已冻结为 full GUI-Owl visual/text token sequence + learned latent resampler；旧 64 维手工表示只保留为 cheap-feature baseline，不再代表主方法。
-- train/tune-only token pilot 已完成：745 states、1,043 unique images、22.78GB unpooled token cache；DeepSets 与两个 Set Transformer 配置的 tune objective 均下降。该结果只证明 optimization/data pipeline 可用，不是 held-out selector 结论。
+- train/tune-only recent-4 token pilot 已完成：745 states、1,043 unique images、22.78GB unpooled token cache；它只证明 optimization/data pipeline 可运行，不能验证 long-horizon selector。
 - 主部署口径已冻结为 warm shared-encoder：event embedding 在到达时计算一次、当前 query tokens 与 action policy 共享；正式方法还必须满足 warm selector p95 不超过 action-policy forward p95 的 10%，并完整报告 cold standalone latency。训练用 22.78GB full-token cache 不属于线上 memory。
 
 完整历史与失败记录保留在 [`docs/progress.md`](docs/progress.md)，但不应把历史 formal contract 当成当前 MVP 的执行清单。
@@ -43,10 +43,11 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 ## 当前执行主线
 
 - 同一 trajectory 的所有 eligible decision steps 保持在同一 split；
-- 每个 state 使用最近 4 个 non-current events，生成全部 11 个 `|S|<=2` coalition labels；
+- 正式 state 使用当前决策前的全部 eligible events，`n_t=|C_t|` 是数据属性；不得做 recent-`n` 候选截断；
+- 每个 state 约生成 40 个 age/interaction-stratified coalition labels，小历史可 exact，大历史只采样 subsets；
 - census 见 [`data/results/set_utility_dense_v1/census.json`](data/results/set_utility_dense_v1/census.json)；
-- Hyper00 与 Hyper01 正使用 8×H200 对 12,792 states 做 trajectory-level data-parallel label generation；分片见 [`data/manifests/set_utility_dense_v1_rollout.json`](data/manifests/set_utility_dense_v1_rollout.json)。
-- label generation 期间会冻结一个仅含 completed train/tune states 的不可变 snapshot，并在空闲 H200 上并行抽取 unpooled GUI-Owl token cache、训练 Set Transformer/DeepSets；evaluation 在模型选择冻结前不加载。
+- recent-4 rollout 已在 4,033/12,792 states 时停止并封存为 smoke-only；结果见 [`data/results/set_utility_dense_recent4_smoke/`](data/results/set_utility_dense_recent4_smoke/README.md)。
+- 下一步先冻结 variable-`n_t` sampler 与 resumable high-throughput runner，再重新启动 labels；evaluation 在模型选择冻结前不加载。
 
 ## Source of Truth
 
@@ -56,7 +57,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Processor substrate | [HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair) | immutable，23 files / 18.73 GB |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | Dense image backfill | Hyper00 `/data02/jaxan/artifacts/causalcache-set-utility-dense-v1-backfill-d43a15c` | 42MB / 77 PNG；`PENDING_HF_UPLOAD` |
-| Dense labels active run | Hyper00 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-0d32187`；Hyper01 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-9671e45-partition-01` | 8×H200；active |
+| recent-4 label smoke | Hyper00 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-0d32187`；Hyper01 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-9671e45-partition-01` | stopped；4,033 states；`DEPRECATED_SMOKE_ONLY_RECENT4` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |
@@ -91,9 +92,9 @@ PYTHONPATH=code python3 -m compileall -q \
 
 MVP 的首要判断不是 closed-loop，而是 held-out utility selection：
 
-- 若 dense predictor 稳定超过 OCR/RGB，并明显缩小 exact-oracle gap：继续扩充 `n=8,16` 数据，再做 matched-NLL 与 closed-loop。
+- 若 variable-`n_t` predictor 稳定超过 OCR/RGB，并明显缩小 exact-oracle gap：再做 matched-NLL 与 closed-loop。
 - 主模型除 held-out utility GO 外，还必须通过 warm p95 selector overhead `<=10%` 的部署门槛；否则只能作为 capacity ablation。最终选择依据是 utility--latency Pareto frontier，不以最大参数量为默认赢家。
-- 当前 partial token pilot 不执行上述 GO 判断；先等 dense labels 扩大完成，用更多 tune trajectories 重新冻结 loss/architecture，再首次访问 evaluation。
+- recent-4 partial token pilot 不执行上述 GO 判断；正式判断必须重做 variable-`n_t` labels 与训练。
 - 若 oracle-independent `J` 有效但 learned models 失败：改进表示和训练数据。
 - 若 exact oracle 有 signal、但所有可学习目标和简单 baseline 持平：重新审视 predictor objective。
 - 不因单个 near-tie / unstable state 让整个数据集归零；报告接受率和失败类别。

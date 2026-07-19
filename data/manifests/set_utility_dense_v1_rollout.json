@@ -16,6 +16,14 @@
   "logical_shard_count": 8,
   "per_host_cap": 4,
   "run_id": "rollout-20260719T205838Z",
+  "scientific_status": "DEPRECATED_SMOKE_ONLY_RECENT4",
+  "termination": {
+    "completed_state_count": 3964,
+    "processed_state_count": 4033,
+    "reason": "recent-4 candidate truncation changes the variable-history long-horizon selector task",
+    "skipped_state_count": 69,
+    "stopped_at": "2026-07-19T23:28:18Z"
+  },
   "worker_count": 8,
   "workers": [
     {
