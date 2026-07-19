@@ -1,0 +1,131 @@
+{
+  "aggregate": {
+    "aggregate_claim_created": false,
+    "aggregate_json_created": false,
+    "cli_exit_code": 1,
+    "cli_status": "FAILED_AGGREGATE_CLI_V1",
+    "failure_class": "ValueError",
+    "stderr": {
+      "byte_count": 69,
+      "sha256": "f38dd43e081ace824be26206e95813a482c5ff3d68c794945e8b0e4849abc295"
+    },
+    "stdout": {
+      "byte_count": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "artifacts": {
+    "candidate_schedule_sha256": "186f2952108273672c6cdbf963094754298d23693fd6268a72b6223e99c2299d",
+    "model": {
+      "inventory_sha256": "6faac059bb7feae4cd350537931ff68142d575a20a9e85ec1c05dedeacc088ee",
+      "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc"
+    },
+    "processor": {
+      "hf_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+      "hf_revision": "c20bab8df424dc9e45ece1084f3d1dc035dd1ed8",
+      "inventory_sha256": "7c2a971658ad9a6bbc639446e9326e9dd4718b8d2d77186f52a17f10f3b32fc1"
+    }
+  },
+  "bindings": {
+    "config_sha256": "ca484ed808aea0881a48cb19edc363f149e1cf1a2117a86d15ac163749569c17",
+    "envelope_commit_b": "c7d5b31f8235124699ecbee5beb5240c72eb8977",
+    "execution_envelope_sha256": "adf50363d9b3623b84b9229d709f796d7b1971faf7e4056c468cfe3b55ce228e",
+    "source_commit_a": "5158f2ad04e456fd088765973da6a99064b4efcf",
+    "source_inventory_sha256": "78a25d74c1a714c7f48746691d70415521c5d43dd8d5355720487807d3ee1509"
+  },
+  "counts": {
+    "actual_generation_calls": 0,
+    "actual_native_calls": 0,
+    "actual_teacher_calls": 0,
+    "actual_teacher_examples": 0,
+    "expected_native_call_ceiling": 84,
+    "pair_completed_count": 0,
+    "pair_expected_count": 12,
+    "retry_count": 0,
+    "worker_claimed_count": 4,
+    "worker_expected_count": 4,
+    "worker_terminal_count": 4
+  },
+  "decision": {
+    "microbatch_selection_outcome": null,
+    "selected_reference_teacher_microbatch_size": null,
+    "selection_reason": "NOT_REACHED"
+  },
+  "execution": {
+    "completed_at_utc": "2026-07-19T10:40:54Z",
+    "container_id": "b20831563962239b64d6183e8527c16e40f076ee67303955aca871601ccb987f",
+    "container_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "gpus": [
+      "GPU-e10a085b-e20e-a454-6fda-17063cf68418",
+      "GPU-2396c1ff-41ff-385f-30fe-0272d99c5d6c",
+      "GPU-e19275bf-adc5-9fc3-42d7-9a3d4b666b81",
+      "GPU-f2d88c45-534f-b4cb-b9b9-65a9888c3617"
+    ],
+    "host": "hyper00",
+    "hostname": "node-radixark-16-0000",
+    "launched_at_utc": "2026-07-19T10:40:49Z",
+    "materialized_at_utc": "2026-07-19T10:38:42Z",
+    "run_root": "/data/runs/causalcache-throughput-pilot-v1-5158f2a",
+    "runtime": {
+      "cuda": "13.0",
+      "driver": "570.172.08",
+      "python": "3.12.3",
+      "torch": "2.11.0+cu130",
+      "transformers": "5.6.0"
+    }
+  },
+  "failure": {
+    "failed_worker_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "failure_class": "ValueError",
+    "formal_terminal_exposes_message": false,
+    "model_runtime_factory_entered": false,
+    "post_attempt_read_only_decomposition": "candidate schedule is not canonical pretty JSON",
+    "reason_code": "CANDIDATE_SCHEDULE_NOT_CANONICAL_PRETTY_JSON",
+    "same_failure_count": 4,
+    "stage": "semantic_input_load_before_runtime_factory"
+  },
+  "forensic_evidence": {
+    "local_path": "/data/runs/causalcache-throughput-pilot-v1-5158f2a",
+    "status": "LOCAL_FORENSIC_NOT_UPLOADABLE",
+    "worker_attempt_sha256": [
+      "2171f6fd01060a2fcec6c42e97077d7aeb7101d47113af0463eeb0cdf090145a",
+      "db4a177ef92e1744c416de1b5906a475acab65c2663806e97d7479dfd23f6a7b",
+      "a32b66b2e8d8668a2268aa2333d6333e37624523c0d139d7816504bde88f771e",
+      "160e8b73c4494fe73a0d5dbad6f06ebf73945926abaee7cfa97ebfebacfd7aa5"
+    ],
+    "worker_terminal_sha256": [
+      "f5cf3a54c1340204a546390fc14ad0d240252105c3d175924589891af5ad6567",
+      "28f1d290264dd4e016b814635963860e03682666261ee4539544b9a98b3d6cf7",
+      "abba217deb7f5c8baad795a66c6c796a14381689c18f44e09034ea9507999b99",
+      "0b95e29c6a834a38af9d94af99449179f1c6e6f03732f820c93f508cfda5c948"
+    ]
+  },
+  "hf_mutation_count": 0,
+  "metric_only": true,
+  "preflight": {
+    "completed_at_utc": "2026-07-19T10:37:44Z",
+    "evidence_sha256": "8a9475822d2afdcae54b0e2acfdf3de68ca34a3e8cbb2f8f2e3f300ac1d928c2",
+    "sample_seconds": 10,
+    "started_at_utc": "2026-07-19T10:37:25Z"
+  },
+  "repair": {
+    "next_step": "VERSIONED_CONSUMER_CANONICALIZATION_REPAIR",
+    "v1_retry_allowed": false
+  },
+  "result_id": "set_utility_train_only_throughput_pilot_v1",
+  "schema_version": "1.0.0",
+  "scientific_eligibility": false,
+  "status": "INVALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_V1_CANDIDATE_SCHEDULE_CANONICALIZATION_CONTRACT_DRIFT",
+  "unopened_downstream": {
+    "closed_loop": true,
+    "matched_nll": true,
+    "predictor_training": true,
+    "restoration_labels": true
+  }
+}

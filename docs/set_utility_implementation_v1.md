@@ -217,8 +217,9 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
    publication firewall、metric-only throughput core、versioned caller-owned CUDA measurement seam 与真实 GUI-Owl
    adapter 已提前实现，并以 malformed tune/evaluation
    payload、cross-role row、symlink、inode replacement、image-inventory drift、failure-metric inclusion、sensitive-
-   error serialization 与默认路径等价性负测；现在应冻结 12-state train-only pilot execution contract，通过
-   throughput/memory contract 后再立 label Execution-B 生产 phase-1
+   error serialization 与默认路径等价性负测；12-state pilot v1 已冻结并消费唯一 attempt，但在 runtime/model
+   load 前因 candidate schedule canonical-pretty consumer check fail closed（0/84 calls）。现在应先另立 versioned
+   consumer canonicalization repair，通过 throughput/memory contract 后再立 label Execution-B 生产 phase-1
    `|S|<=2` tables；
 3. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。

@@ -2,13 +2,19 @@
 
 ## 当前结论
 
-本协议只冻结 12-state、train-only、metric-only 的 throughput pilot **source contract**。它用于在正式生成
-restoration labels 前选择 reference-teacher microbatch，不生成 utility/KL，不训练 predictor，也不访问 tune、
-evaluation 或 sealed test。
+唯一 v1 formal attempt 已在 Hyper00 四张 H200 上并发消费，但在任何 policy runtime/model load 或 native call
+之前 fail closed。四个 worker 均写入 no-retry attempt，随后在 semantic input load 阶段因 candidate schedule
+exact bytes 不满足 consumer 额外要求的 canonical-pretty JSON 而返回 `ValueError`；正式计数为 `0/12` pairs、
+`0/84` native calls。aggregate CLI 因四个 failed terminals 返回 `ValueError`，没有产生 `aggregate.json`，因此
+没有 mb1/mb2 选择，也不能写成 throughput `NO_GO`。
 
-当前 source-only config 明确禁止加载 policy/vision model、调用 GPU/CUDA、读取远端 processor artifact 和写 pilot
-result。必须先 commit/push 本 source freeze；此后再执行 fresh GPU preflight，并以另一个 commit 冻结单独的 exact
-execution envelope，才可授权任何 GUI-Owl policy call。source validator 通过本身不等于 GPU pilot 已运行。
+正式状态为
+`INVALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_V1_CANDIDATE_SCHEDULE_CANONICALIZATION_CONTRACT_DRIFT`，
+轻量证据见
+[`../data/results/set_utility_train_only_throughput_pilot_v1/`](../data/results/set_utility_train_only_throughput_pilot_v1/)。
+source A=`5158f2a`，execution-envelope B=`c7d5b31`，envelope SHA256=`adf50363...228e`。同一 v1 identity
+不得重跑；下一步只能另立 versioned consumer repair，同时保持 schedule bytes/hash、roster、阈值与 84-call
+预算不变。restoration labels、predictor training、matched-NLL 与 closed-loop 仍 locked。
 
 ## Immutable prerequisite
 

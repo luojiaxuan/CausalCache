@@ -12,6 +12,22 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：12-state throughput pilot v1 pre-policy contract failure
+
+- source A=`5158f2a`、execution-envelope B=`c7d5b31` 已分别 push `main`；exact envelope SHA256=
+  `adf50363d9b3623b84b9229d709f796d7b1971faf7e4056c468cfe3b55ce228e`。fresh 10-second preflight 后，
+  Hyper00 四张同构 H200 分别绑定四个 worker，并在 `2026-07-19T10:40:49Z` 同时启动；
+- `4/4` worker 均完成 no-retry attempt，但都在 semantic input load 阶段以 `ValueError` fail closed；只读
+  decomposition 精确定位为 `candidate schedule is not canonical pretty JSON`。runtime factory/model load 未进入，
+  `0/12` pairs、`0/84` native calls、`0` retries；startup utilization gate 因 CUDA compute 从未开始而不适用；
+- aggregate CLI 因 failed terminals 返回 `ValueError`，没有 `aggregate.json`，没有 mb1/mb2 selection。正式状态是
+  `INVALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_V1_CANDIDATE_SCHEDULE_CANONICALIZATION_CONTRACT_DRIFT`，
+  不是 scientific/throughput `NO_GO`，也不改变 processor v2 的 VALID verdict；
+- v1 evidence 原样保留且不得重跑。轻量记录见
+  [`../data/results/set_utility_train_only_throughput_pilot_v1/`](../data/results/set_utility_train_only_throughput_pilot_v1/)；
+  下一步另立 versioned consumer canonicalization repair，不改 immutable schedule bytes/hash、12-state roster、
+  mb1/mb2、84-call budget、80% memory threshold 或 5% latency rule。labels/training/matched-NLL/closed-loop 仍为 0。
+
 ### 2026-07-18（UTC 07-19）：12-state train-only throughput pilot source freeze
 
 - 从 Freeze-B v2 预注册了 12 个 train-only `stratum_anchor`：`decisions_6_9`、`decisions_10_17`、
@@ -34,8 +50,8 @@ confirm-20 禁止进入新训练、
   一致。worker/aggregate CLI 仅接受 exact envelope，不提供 model/processor/device/output 绕过参数；
 - contract/pair/execution/envelope focused suite=`46 passed in 7.57s`，source validator 返回
   `VALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_SOURCE_V1`，`py_compile` 与 diff check 通过。本里程碑
-  不访问 policy/GPU，不生成 utility/label/checkpoint/result；下一步是 push source A 后立即执行
-  Hyper00 fresh 10-second preflight，冻结并 push envelope B，再四卡并发完成唯一 formal pilot。
+  不访问 policy/GPU，不生成 utility/label/checkpoint/result；后续唯一 v1 formal attempt 已由上一里程碑记录并因
+  consumer canonicalization contract drift 在 `0/84` calls 处 fail closed。
 
 ### 2026-07-18（UTC 07-19）：processor v2 immutable HF publication 与 Git finalization 已闭合
 

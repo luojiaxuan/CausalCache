@@ -26,6 +26,14 @@ Freeze-B/A 固定的 planned model repo
 `b6f44c603b99d2f954b981e01818cf0afa028ce3a410ed935203532a097bb4ad`。它不含 raw trajectory、
 instruction 原文或 restoration output。
 
+12-state train-only throughput pilot v1 的唯一 formal attempt 已在任何 model/runtime/native call 前因 consumer
+canonicalization contract drift fail closed：四个 worker 全部 claim，`0/12` pairs、`0/84` native calls、无
+`aggregate.json`、无 microbatch selection。Git-safe evidence 位于
+[`results/set_utility_train_only_throughput_pilot_v1/`](results/set_utility_train_only_throughput_pilot_v1/)；raw
+metric-only attempts/terminals/logs 仅保留在 Hyper00
+`/data/runs/causalcache-throughput-pilot-v1-5158f2a`，状态为 `LOCAL_FORENSIC_NOT_UPLOADABLE`，不构成新的
+reusable HF artifact。restoration labels、feature cache、checkpoint、matched-NLL 与 closed-loop output 仍为 0。
+
 `manifests/set_utility_full_pool_inventory_v1.json` 已从 upstream immutable revision 完成 metadata-only
 P-1：610 shards / 88,186,663,372 bytes，manifest SHA256=
 `e892e7e8f226e9500d978147a9698ad206a70ad9c303ebd918350f9e10ae6c5e`，files-list SHA256=

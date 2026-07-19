@@ -51,19 +51,24 @@
 > 均未修改。真实 metric-only adapter 也已接通：只允许 exact `GUIOwlV2Action` 作为进程内 handle，teacher
 > logits/metadata 在 outer stop 前释放，异常只投影 class-only metrics；processor→label join 同时保留 exact
 > initial-candidates+current image payload mapping。相关 focused regression=`43 passed, 2 subtests passed`。正式
-> 12-state pilot config、真实 policy forward 与 label execution 尚未解锁。
+> 12-state pilot v1 已完成 execution 授权并发起唯一 formal attempt，但在 policy runtime/model load 前 fail
+> closed；真实 policy forward 与 label execution 尚未发生。
 > `2026-07-19T09:12Z` 的只读 host snapshot 显示 Hyper00 当前有 7 张可用 H200，且 model/18.73GB processor
 > root 均已本地存在；Hyper01 8 卡均占用，H100 虽有 3 张空卡却需搬约 36.28GB 并重绑 runtime，Aries 无空卡。
 > 因此 pilot 当前首选 Hyper00；正式 launch 前仍 fresh preflight，不把本快照当资源预留，也不混合异构 host
 > throughput 指标。
 >
-> 12-state train-only throughput pilot source 现已冻结：三个 candidate-capacity strata 各 4 个
+> 12-state train-only throughput pilot source 已冻结：三个 candidate-capacity strata 各 4 个
 > `stratum_anchor`，四个 worker 按 `state_ids[index::4]` 分片，paired mb1→mb2 success path 精确为
 > 84 native calls。canonical config SHA256=`ca484ed808aea0881a48cb19edc363f149e1cf1a2117a86d15ac163749569c17`，
 > 44-file transitive source inventory SHA256=`78a25d74c1a714c7f48746691d70415521c5d43dd8d5355720487807d3ee1509`，
-> focused suite=`46 passed`。source config 仍明确禁止 GPU/policy/result write；只有在本 source commit push 后生成并
-> push 单独的 source-A→envelope-B exact execution envelope，才能在 Hyper00 四张同构 H200 上执行一次。
-> restoration labels、predictor training、matched-NLL 与 closed-loop 仍 locked。详见
+> focused suite=`46 passed`。source A=`5158f2a` 与 exact execution-envelope B=`c7d5b31` 已依次 push；四个 H200
+> worker 同时启动并全部在 semantic input load 的 canonical-pretty schedule check 处返回 `ValueError`，因此
+> `0/12` pairs、`0/84` native calls、无 aggregate、无 mb1/mb2 selection。正式状态为
+> `INVALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_V1_CANDIDATE_SCHEDULE_CANONICALIZATION_CONTRACT_DRIFT`，
+> 只否定 v1 consumer interface，不是否定 throughput 或 restoration signal。同一 v1 不得重跑；下一步另立
+> versioned repair。restoration labels、predictor training、matched-NLL 与 closed-loop 仍 locked。结果见
+> [`data/results/set_utility_train_only_throughput_pilot_v1/`](data/results/set_utility_train_only_throughput_pilot_v1/)，详见
 > [`docs/set_utility_train_only_throughput_pilot_v1.md`](docs/set_utility_train_only_throughput_pilot_v1.md)。
 >
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
@@ -1410,6 +1415,7 @@ mediation effect。
 | Set-utility selected-image format census v1 attempt | [protocol](docs/set_utility_selected_image_format_census_v1.md)；[failure](data/results/set_utility_selected_image_format_census_v1_attempt/) | `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；producer `main@e636df1`；HF upload forbidden | PyArrow 未传 `columns=["images"]` 而物化完整 rows；10-file root 只作 forensic evidence，observed histogram formal-ineligible；下一步 versioned column-projection repair |
 | Set-utility selected-image format census v2 repair | [result](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)；[HF](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile) | producer `main@1a03b7e`；tag `phase1-b2-image-format-census-v2-column-projection-repair`；revision `c1d19eb9...eae0` | `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`；18,792/18,792 image-column-only records，18,768 opaque RGBA + 24 RGB；fresh immutable re-download verified；已解锁并完成 processor v2 source freeze |
 | Set-utility processor freeze v2 image-contract repair | [formal result](data/results/set_utility_processor_freeze_v2_image_contract_repair/)；[publication finalization](data/results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/)；[private HF](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair)；[Execution-CF v2](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)；[parallel postflight](data/results/set_utility_processor_postflight_parallel_v1/) | formal `main@e976b99` VALID；tag `phase1-b2-processor-freeze-v2-image-contract-repair` → `c20bab8d...1ed8`；`FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION` | 23 files / 18,730,620,511 bytes；2,400 states / 93,914 subset forwards / 103,514 operations；commit/tag fresh replay 逐 byte verified；4-worker validator 加速 `2.8063x`。labels/training 尚未开始 |
+| Set-utility train-only throughput pilot v1 attempt | [protocol](docs/set_utility_train_only_throughput_pilot_v1.md)；[failure result](data/results/set_utility_train_only_throughput_pilot_v1/) | source A `5158f2a`；envelope B `c7d5b31`；`INVALID_...CANONICALIZATION_CONTRACT_DRIFT` | 4/4 workers claimed；semantic-input pre-runtime failure；0/12 pairs、0/84 native calls、无 aggregate/selection；v1 不得重跑，下一步 versioned consumer repair |
 | Planned set-utility dataset/model | [existing private dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile)；planned `gavinlaw/causalcache-set-utility-predictors-mobile` | dataset repo 已承载 census v2 `c1d19eb9...eae0` 与 processor v2 `c20bab8d...1ed8`；feature/label prefix 尚未发布；model repo/revision 尚未创建或绑定 | processor prerequisite 已 immutable 闭合；feature/label shards 与 checkpoints 完成后分别进入 dataset/model repo，当前不得视为已有 artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |
