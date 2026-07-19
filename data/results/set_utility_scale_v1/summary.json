@@ -1,0 +1,48 @@
+{
+  "artifact_status": "PENDING_HF_UPLOAD",
+  "config_sha256": "90963a32b2ada5d4ad405d9c4d82b0e6ba8c60aa9cb660617dd2dab6a460a756",
+  "evaluation": {
+    "B1_exact_recovery": {
+      "deepsets_at_most_B": 0.5114,
+      "deepsets_fixed_B": 0.5450,
+      "ocr_rgb": 0.7769,
+      "oracle_independent_J": 0.9939,
+      "pairwise_additive": 0.6516,
+      "recent": 0.7774,
+      "set_transformer_at_most_B": 0.6421,
+      "set_transformer_fixed_B": 0.6569
+    },
+    "B2_exact_recovery": {
+      "deepsets_at_most_B": 0.6797,
+      "deepsets_fixed_B": 0.8594,
+      "ocr_rgb": 0.8541,
+      "oracle_independent_J": 0.9006,
+      "pairwise_additive": 0.6520,
+      "recent": 0.7990,
+      "set_transformer_at_most_B": 0.4746,
+      "set_transformer_fixed_B": 0.6431
+    },
+    "deepsets_fixed_B_minus_ocr_rgb_B2": {
+      "losses": 11,
+      "mean_raw_utility_delta": 0.00027059162271333054,
+      "ties": 1,
+      "wins": 12
+    },
+    "development_state_count": 24
+  },
+  "git_revision": "ac0ef2766a7aac0d44f858070d23cda17849e787",
+  "labels": {
+    "accepted_by_role": {
+      "evaluation": 24,
+      "train": 307,
+      "tune": 24
+    },
+    "maximum_reference_repeat_kl": 0.0,
+    "planned_state_count": 356,
+    "skipped_failure_classes": {
+      "GUIOwlV21GenerationParseError": 1
+    }
+  },
+  "persistent_path": "/data02/jaxan/runs/causalcache-set-utility-scale-v1-ac0ef27",
+  "status": "COMPLETED_EXPLORATORY_SCALE_V1"
+}

@@ -10,7 +10,9 @@
 - GUIOdyssey 扩数 substrate 已完成：1,200 trajectories、2,400 query states；processor artifact 已在 Hugging Face immutable revision `c20bab8df424dc9e45ece1084f3d1dc035dd1ed8` 固定。
 - D2 已证明 strict-determinism runtime 可稳定复现先前的异常 state。
 - 旧的 all-or-nothing throughput / stability 协议不再阻塞探索主线。新 MVP 按 state 接受：稳定 state 产标签，不稳定 state 记录并跳过。
-- 当前正在执行 `n=4, |S|<=2` 的 64-state MVP；此前尚无这条新路线的 restoration labels、predictor checkpoint 或 held-out 结果。
+- `n=4, |S|<=2` 的 scale-v1 已完成：355/356 states 可用，得到 307 train / 24 tune / 24 development-evaluation states。
+- Oracle-independent `J` 在 B1/B2 恢复 exact utility 的 99.39%/90.06%，证明 independent restoration objective 在这批数据上有效；learned models 仍有明显 distillation gap。
+- 当前最好 learned 结果是 DeepSets fixed-B：B2 recovery 85.94%，略高于 OCR/RGB 85.41%，但 paired 为 12胜/1平/11负，不能声称稳定胜出。Set Transformer 没有成为最佳模型。
 
 完整历史与失败记录保留在 [`docs/progress.md`](docs/progress.md)，但不应把历史 formal contract 当成当前 MVP 的执行清单。
 
@@ -52,8 +54,8 @@ U(S)=D(\varnothing)-D(S).
 | 代码、配置、论文、轻量结果 | 本 Git 仓库 `main` | canonical |
 | Processor substrate | [HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair) | immutable，23 files / 18.73 GB |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
-| 新 MVP labels/features | `gavinlaw/causalcache-set-utility-new-development-mobile` | 生成后发布；当前未发布 |
-| 新 predictor checkpoints | `gavinlaw/causalcache-set-utility-predictors-mobile` | 训练后发布；当前未发布 |
+| Scale-v1 labels/features | `gavinlaw/causalcache-set-utility-new-development-mobile` | 355 completed + 1 skipped；`PENDING_HF_UPLOAD` |
+| Scale-v1 predictor checkpoints | `gavinlaw/causalcache-set-utility-predictors-mobile` | 3 checkpoints；`PENDING_HF_UPLOAD` |
 
 大文件若暂时无法上传 HF，必须保存在个人 persistent storage，并在本 README 或结果文档记录精确路径与 `PENDING_HF_UPLOAD`。
 
@@ -82,7 +84,7 @@ PYTHONPATH=code python3 -m compileall -q \
 
 MVP 的首要判断不是 closed-loop，而是 held-out utility selection：
 
-- 若 Set Transformer 或较简单 predictor 稳定超过 OCR/RGB，并明显缩小 exact-oracle gap：继续扩充 `n=8,16` 数据，再做 matched-NLL 与 closed-loop。
+- 若 Set Transformer 或较简单 predictor 稳定超过 OCR/RGB，并明显缩小 exact-oracle gap：继续扩充 `n=8,16` 数据，再做 matched-NLL 与 closed-loop。Scale-v1 目前只达到“边缘持平”，尚未满足该条件。
 - 若 oracle-independent `J` 有效但 learned models 失败：改进表示和训练数据。
 - 若 exact oracle 有 signal、但所有可学习目标和简单 baseline 持平：重新审视 predictor objective。
 - 不因单个 near-tie / unstable state 让整个数据集归零；报告接受率和失败类别。
