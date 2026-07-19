@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from causalcache.set_utility_variable_history import load_variable_history_config
+
 
 ROOT = Path(__file__).resolve().parents[2]
 CONFIG = ROOT / "code/configs/causalcache_set_utility_variable_history_v1.json"
@@ -66,3 +68,15 @@ def test_resumption_is_finer_than_one_state() -> None:
     assert resume["completed_coalitions_skipped_on_resume"] is True
     assert resume["scientific_config_must_match"] is True
     assert resume["dynamic_logical_shards"] == 256
+
+
+def test_context_fit_v2_only_changes_the_reference_token_profile() -> None:
+    v1 = load_variable_history_config(CONFIG)
+    v2 = load_variable_history_config(
+        ROOT
+        / "code/configs/causalcache_set_utility_variable_history_v2_context_fit.json"
+    )
+    assert v1["reference"]["target_effective_visual_tokens_per_image"] == 512
+    assert v2["reference"]["target_effective_visual_tokens_per_image"] == 480
+    for key in ("source", "state", "broad_training_labels", "evaluation", "resumability"):
+        assert v2[key] == v1[key]

@@ -326,6 +326,11 @@ def _runtime_identity_metadata(identity: VerifiedVisionRuntimeIdentity) -> dict[
 class GUIOwlV2Runtime:
     """Pinned GUI-Owl Instruct runtime for generation and GPU teacher logits."""
 
+    allowed_effective_visual_tokens_per_image = frozenset(
+        {FROZEN_GUI_OWL_V2_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE}
+    )
+    maximum_microbatch_size = FROZEN_GUI_OWL_V2_MAX_MICROBATCH_SIZE
+
     def __init__(
         self,
         *,
@@ -338,9 +343,9 @@ class GUIOwlV2Runtime:
             raise ValueError("GUI-Owl v2 requires one explicit CUDA device such as cuda:0")
         if (
             target_effective_visual_tokens_per_image
-            != FROZEN_GUI_OWL_V2_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE
+            not in self.allowed_effective_visual_tokens_per_image
         ):
-            raise ValueError("GUI-Owl v2 effective visual token target is frozen to 2560")
+            raise ValueError("GUI-Owl effective visual token target is invalid for this profile")
         identity = verify_frozen_vision_runtime(
             model_dir=model_dir,
             expected_snapshot_manifest=expected_snapshot_manifest,
@@ -424,8 +429,8 @@ class GUIOwlV2Runtime:
         if isinstance(messages_batch, (str, bytes, bytearray, Mapping)):
             raise TypeError("messages_batch must contain native GUI-Owl v2 conversations")
         conversations = tuple(messages_batch)
-        if not conversations or len(conversations) > FROZEN_GUI_OWL_V2_MAX_MICROBATCH_SIZE:
-            raise ValueError("GUI-Owl v2 microbatch size must be one or two")
+        if not conversations or len(conversations) > self.maximum_microbatch_size:
+            raise ValueError("GUI-Owl microbatch exceeds the runtime profile limit")
         image_counts = tuple(
             validate_gui_owl_v2_native_messages(messages) for messages in conversations
         )

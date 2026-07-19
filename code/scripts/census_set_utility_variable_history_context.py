@@ -11,7 +11,10 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-from causalcache.set_utility_variable_history import history_bin
+from causalcache.set_utility_variable_history import (
+    history_bin,
+    load_variable_history_config,
+)
 from causalcache.set_utility_variable_history_inputs import (
     build_variable_history_messages,
     build_variable_history_queries_from_source_row,
@@ -65,7 +68,7 @@ def main() -> None:
         from transformers import AutoProcessor
     except ModuleNotFoundError as error:
         raise RuntimeError("context census requires pyarrow and transformers") from error
-    config = json.loads(args.config.read_text(encoding="utf-8"))
+    config = load_variable_history_config(args.config)
     reference = config["reference"]
     visual_tokens = int(reference["target_effective_visual_tokens_per_image"])
     context_limit = int(reference["context_limit_tokens"])

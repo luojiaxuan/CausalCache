@@ -20,7 +20,7 @@ history-bin-balanced sampling，单个 state 每 epoch 最多重复 8 次。
 
 完整候选 universe 也必须对应完整 reference，不能一边声称 variable history、一边为 context fit 删除老事件。
 GUI-Owl 的 context limit 是 32,768；原 2,560 effective visual tokens/image 无法容纳 45-event reference。因此
-v1 固定 512 effective visual tokens/image，并在任何 label forward 前对 12,792 states 做 processor-only full-reference
+v1 检查 512 effective visual tokens/image，并在任何 label forward 前对 12,792 states 做 processor-only full-reference
 context census：
 
 \[
@@ -28,7 +28,8 @@ context census：
 \]
 
 如果任一 state 不满足，正式 rollout 整体阻塞，必须更换 reference token profile 或 long-context policy；禁止删除
-old events。`S=C_t` 是 reference 本身，记录 `D(C_t)=0`，无需额外 coalition forward。
+old events。实测 512 profile 有 1 个 state 超限 468 tokens，故 v1 BLOCK；v2 将图像预算降为 480 tokens，候选、
+state 与 subset sampler 全部不变。`S=C_t` 是 reference 本身，记录 `D(C_t)=0`，无需额外 coalition forward。
 
 旧 processor tar 的 prefix metadata/OCR 可复用，但它只保存 anchor/terminal image union。新 source 从
 `cua-lite/GUIOdyssey@ea08072b` 的 1,200 个 pinned raw rows 重新物化全部 18,792 observations，保证任何历史 event
@@ -104,7 +105,7 @@ PYTHONPATH=code python code/scripts/materialize_set_utility_variable_history_sou
   --workers 32
 
 PYTHONPATH=code python code/scripts/census_set_utility_variable_history_context.py \
-  --config code/configs/causalcache_set_utility_variable_history_v1.json \
+  --config code/configs/causalcache_set_utility_variable_history_v2_context_fit.json \
   --source-root /data/artifacts/causalcache-variable-history-source-v1 \
   --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
   --output-root /data/runs/causalcache-variable-history-context-v1

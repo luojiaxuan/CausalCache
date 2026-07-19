@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import itertools
+import json
 import math
 import random
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 
@@ -19,6 +21,41 @@ HISTORY_BINS = (
     ("very_long", 33, None),
 )
 SPLIT_ROLES = ("train", "tune", "evaluation")
+
+
+def _deep_config_merge(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[str, Any]:
+    result = dict(base)
+    for key, value in override.items():
+        if isinstance(value, Mapping) and isinstance(result.get(key), Mapping):
+            result[key] = _deep_config_merge(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+
+def load_variable_history_config(path: str | Path) -> dict[str, Any]:
+    selected = Path(path)
+    payload = json.loads(selected.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError("variable-history config must contain one JSON object")
+    parent_name = payload.get("parent_config")
+    if parent_name is None:
+        return payload
+    if not isinstance(parent_name, str) or Path(parent_name).name != parent_name:
+        raise ValueError("variable-history parent config must be a sibling filename")
+    parent_path = selected.parent / parent_name
+    parent_bytes = parent_path.read_bytes()
+    if hashlib.sha256(parent_bytes).hexdigest() != payload.get("parent_config_sha256"):
+        raise ValueError("variable-history parent config hash drifted")
+    parent = json.loads(parent_bytes)
+    overrides = payload.get("overrides")
+    if not isinstance(parent, dict) or not isinstance(overrides, Mapping):
+        raise ValueError("variable-history config inheritance is invalid")
+    resolved = _deep_config_merge(parent, overrides)
+    resolved["profile_revision"] = payload.get("profile_revision")
+    resolved["parent_config"] = parent_name
+    resolved["parent_config_sha256"] = payload["parent_config_sha256"]
+    return resolved
 
 
 def _canonical_event_ids(values: Sequence[int], *, allow_empty: bool) -> tuple[int, ...]:
@@ -466,6 +503,7 @@ __all__ = [
     "build_variable_history_states",
     "combined_pair_similarity",
     "history_bin",
+    "load_variable_history_config",
     "logical_shard_for_trajectory",
     "sample_broad_subsets",
     "select_evaluation_tracks",

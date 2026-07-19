@@ -13,6 +13,15 @@
 
 ## 当前目标
 
+### 2026-07-20：full source 完成，512-token census BLOCK
+
+- full-history source 已从 pinned raw pool 与 processor terminal metadata 合并为 256 个可断点 Parquet shards，
+  共 1,200 trajectories / 13.16GB；
+- 512-token census 覆盖全部 12,792 states，12,791 fit；唯一超限 state 的 prompt+reserve 为 33,236；
+- 不删除任何 old candidate。512 v1 保留为 `BLOCK_FULL_HISTORY_CONTEXT_CENSUS`，新建只修改视觉 token profile
+  的 480-token v2，下一步重跑 census；
+- source 尚未上传 HF，persistent path 与 hash 见 README，状态 `PENDING_HF_UPLOAD`。
+
 当前路线暂停 closed-loop，先用 1,200 条 trajectory 的 12,792 个 eligible states 生成 variable-history
 restoration data，再训练 budget-agnostic `U_theta(q,C,m_S)`。每个 state 的候选是完整历史 `C_t`；只采样
 coalition，禁止 recent-`n` 截断候选。train/tune broad track 约 40 labels/state；evaluation 分 320-state exact

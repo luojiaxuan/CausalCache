@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "profile_revision": "variable_history_v2_context_fit_480",
+  "parent_config": "causalcache_set_utility_variable_history_v1.json",
+  "parent_config_sha256": "5573e40126c2d5be3a31516fd94b6b71ebd8ae5e5c0c49ae15cad72339df82a8",
+  "supersedes": {
+    "profile": "variable_history_v1_512",
+    "reason": "one_of_12792_full_history_states_exceeded_context_by_468_tokens",
+    "candidate_history_changed": false,
+    "coalition_sampling_changed": false
+  },
+  "overrides": {
+    "reference": {
+      "target_effective_visual_tokens_per_image": 480
+    },
+    "artifacts": {
+      "planned_tag": "variable-history-v2-context-fit-480"
+    }
+  }
+}

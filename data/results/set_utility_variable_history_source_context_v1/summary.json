@@ -1,0 +1,37 @@
+{
+  "config_sha256": "5573e40126c2d5be3a31516fd94b6b71ebd8ae5e5c0c49ae15cad72339df82a8",
+  "context_limit_tokens": 32768,
+  "fit_state_count": 12791,
+  "history_bins": {
+    "long": {
+      "maximum_prompt_input_tokens": 23593,
+      "minimum_prompt_input_tokens": 10921,
+      "state_count": 2804
+    },
+    "medium": {
+      "maximum_prompt_input_tokens": 13283,
+      "minimum_prompt_input_tokens": 5969,
+      "state_count": 5242
+    },
+    "short": {
+      "maximum_prompt_input_tokens": 7602,
+      "minimum_prompt_input_tokens": 3604,
+      "state_count": 4622
+    },
+    "very_long": {
+      "maximum_prompt_input_tokens": 32980,
+      "minimum_prompt_input_tokens": 21229,
+      "state_count": 124
+    }
+  },
+  "maximum_prompt_input_tokens": 32980,
+  "maximum_prompt_plus_action_reserve_tokens": 33236,
+  "reserved_action_tokens": 256,
+  "schema_version": "1.0.0",
+  "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+  "state_context_sha256": "bb88bcf6f35a210d26851f8d1cac78a3ef4c7c1e1fd14cff1e71997952a1774d",
+  "state_count": 12792,
+  "status": "BLOCK_FULL_HISTORY_CONTEXT_CENSUS",
+  "target_effective_visual_tokens_per_image": 512,
+  "unfit_state_count": 1
+}
