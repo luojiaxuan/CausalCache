@@ -12,6 +12,31 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：12-state train-only throughput pilot source freeze
+
+- 从 Freeze-B v2 预注册了 12 个 train-only `stratum_anchor`：`decisions_6_9`、`decisions_10_17`、
+  `decisions_18_plus` 各 4 个 state。四个 worker 固定为 `state_ids[index::4]`，每个 worker 恰好处理三个
+  strata 各一个 state；禁止替换失败 state、top-up 或跨 host 混合 metric；
+- 每个 state 在同一 policy instance/GPU 上 paired 执行 mb1→mb2；每 variant 两次 generation，mb1
+  两次 teacher calls，mb2 一次 teacher call，success path 精确为 48 generation + 36 teacher =
+  84 native calls。action 仅作进程内 opaque handle，result 只允许 latency、full-call CUDA peaks、counts、
+  equality boolean 与 class-only failure；
+- 选择规则事先固定：reserved peak 不得超过每张卡总显存 80%；只有 mb2 teacher wall
+  `<=0.95*mb1` 且全部 equality/memory/success 通过才选 mb2；mb2 仅 teacher-stage failure 才可在
+  mb1 全通过时 fallback，其余 `NO_GO`；
+- source-only canonical config SHA256=
+  `ca484ed808aea0881a48cb19edc363f149e1cf1a2117a86d15ac163749569c17`；44-file transitive source
+  inventory SHA256=`78a25d74c1a714c7f48746691d70415521c5d43dd8d5355720487807d3ee1509`。
+  processor immutable revision=`c20bab8df424dc9e45ece1084f3d1dc035dd1ed8`，candidate schedule SHA256=
+  `186f2952108273672c6cdbf963094754298d23693fd6268a72b6223e99c2299d`；
+- exact execution envelope 已实现 source-A→envelope-B 双 commit lifecycle：A 必须 clean pushed `main`，B 必须是
+  A 的 direct child 且只新增 Git execution JSON；Git blob 必须与 `/data` O_EXCL envelope 逐 byte
+  一致。worker/aggregate CLI 仅接受 exact envelope，不提供 model/processor/device/output 绕过参数；
+- contract/pair/execution/envelope focused suite=`46 passed in 7.57s`，source validator 返回
+  `VALID_SET_UTILITY_TRAIN_ONLY_THROUGHPUT_PILOT_SOURCE_V1`，`py_compile` 与 diff check 通过。本里程碑
+  不访问 policy/GPU，不生成 utility/label/checkpoint/result；下一步是 push source A 后立即执行
+  Hyper00 fresh 10-second preflight，冻结并 push envelope B，再四卡并发完成唯一 formal pilot。
+
 ### 2026-07-18（UTC 07-19）：processor v2 immutable HF publication 与 Git finalization 已闭合
 
 - private dataset `gavinlaw/causalcache-set-utility-new-development-mobile` 在 prefix

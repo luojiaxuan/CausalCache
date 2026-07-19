@@ -1,0 +1,679 @@
+{
+  "authorization": {
+    "access_sealed_test": false,
+    "generate_restoration_labels": false,
+    "load_policy_or_vision_model": false,
+    "mutate_hugging_face": false,
+    "read_remote_processor_artifact": false,
+    "read_repository_bound_metadata": true,
+    "run_closed_loop": false,
+    "run_gpu_or_cuda": false,
+    "train_predictor": false,
+    "validate_source_contract": true,
+    "write_pilot_result": false
+  },
+  "deployment_decision_rule": {
+    "cross_host_or_heterogeneous_metric_merge_allowed": false,
+    "device_reserved_memory_fraction_maximum": 0.8,
+    "execution_requires_separate_exact_envelope": true,
+    "mb1_any_failure_or_memory_violation_outcome": "NO_GO",
+    "mb2_failure_fallback_to_mb1": {
+      "all_failures_must_be_mb2_teacher_stage": true,
+      "cross_variant_action_equality_must_complete_for_every_state": true,
+      "otherwise_outcome": "NO_GO"
+    },
+    "mb2_teacher_wall_ratio_maximum_for_selection": 0.95,
+    "memory_headroom_fraction_minimum": 0.2,
+    "memory_metric": "full_call_cuda_reserved_max",
+    "memory_requirement_scope": "every_state_variant_full_call_peak_must_satisfy_the_limit",
+    "no_retry": true,
+    "no_top_up": true,
+    "selection": {
+      "both_variants_all_12_success_and_cross_actions_equal": "select_mb2_only_if_teacher_wall_ratio_at_most_0.95_otherwise_select_mb1",
+      "comparison_metric": "sum_reference_teacher_forward_end_to_end_wall_total_over_exact_12_states"
+    }
+  },
+  "inputs": {
+    "freeze_b_v2_manifest": {
+      "byte_count": 2242268,
+      "path": "data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json",
+      "sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30"
+    },
+    "model_snapshot_manifest": {
+      "byte_count": 2009,
+      "file_count": 14,
+      "path": "code/configs/gui_owl_1_5_8b_snapshot.json",
+      "repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+      "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+      "sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+      "total_byte_count": 17545907171
+    },
+    "processor_formal_result_summary": {
+      "byte_count": 17673,
+      "path": "data/results/set_utility_processor_freeze_v2_image_contract_repair/summary.json",
+      "sha256": "87a9a17eb07397f8395e63a2ed088f5eedb94d39d223f0be84836416fca930a3"
+    },
+    "processor_publication": {
+      "byte_count": 9843,
+      "candidate_schedule": {
+        "byte_count": 18718642,
+        "candidate_inventory_sha256": "c0b0fa26c6d64705d5d533200d96c624eb58b75cd7f9b4b9564507d7442b04ad",
+        "path": "processor-candidate-freeze-schedule.json",
+        "sha256": "186f2952108273672c6cdbf963094754298d23693fd6268a72b6223e99c2299d"
+      },
+      "formal_file_count": 23,
+      "formal_file_inventory": [
+        {
+          "path": "candidate-parts/worker-00.jsonl",
+          "sha256": "c74107e07d7b13fdba80723e842c73ae7be02f40b2f9da41b9cce1e69b2c25e4",
+          "size_bytes": 518701
+        },
+        {
+          "path": "candidate-parts/worker-01.jsonl",
+          "sha256": "1083e2b40e5fe69f8ef15fe5e1fb573bd317621dad7417cd11bb168ae3ee6db2",
+          "size_bytes": 510563
+        },
+        {
+          "path": "candidate-parts/worker-02.jsonl",
+          "sha256": "e71d7fd0c4976ce45d9224b467b60c2f49b7f12f13a3c3ea5ac9a6420f09073b",
+          "size_bytes": 510258
+        },
+        {
+          "path": "candidate-parts/worker-03.jsonl",
+          "sha256": "2dfdb14b6f6e06e0fa250cb0dcca0ddcfdf9a341b7040ccc5a13294e1cd1e58f",
+          "size_bytes": 515086
+        },
+        {
+          "path": "logs/ocr-worker-00.log",
+          "sha256": "0f46b315b2ab1d21621e1ca4f0f795dc2a0fd1bf74bae4157ed18a287669eb5f",
+          "size_bytes": 23526
+        },
+        {
+          "path": "logs/ocr-worker-01.log",
+          "sha256": "d5a20d9b55cb6190f9a7f6cb0b2e68ba2e8e517b58df68f07a60d46c86e661ab",
+          "size_bytes": 23526
+        },
+        {
+          "path": "logs/ocr-worker-02.log",
+          "sha256": "54d441d5f83f2bcd6162e9ec0010126ce3e79959c015d5c2f94e504581214880",
+          "size_bytes": 23730
+        },
+        {
+          "path": "logs/ocr-worker-03.log",
+          "sha256": "451543a96acdcbf803c778d6f9a9e58f6b2f0adc9ce45f709b248bbd010ca51a",
+          "size_bytes": 23628
+        },
+        {
+          "path": "logs/processor-worker-00.log",
+          "sha256": "41d2f21beaef91880ac1077b46cd999b6b9604dcf2177e3f22db68cd4374e2c7",
+          "size_bytes": 233049
+        },
+        {
+          "path": "logs/processor-worker-01.log",
+          "sha256": "f0567cec1038a2f7eb6820b99ee181a7af9a172462dcb17e0d93e4993b91ba22",
+          "size_bytes": 225019
+        },
+        {
+          "path": "logs/processor-worker-02.log",
+          "sha256": "126dffe1338ade420e1b6296610a33a891dff30b2102ed7defb2d0d328758a7a",
+          "size_bytes": 229199
+        },
+        {
+          "path": "logs/processor-worker-03.log",
+          "sha256": "9032219b76e190332f0d255f5d2d5daedb6a1c336e7188bab5e5c7fe3fd559a5",
+          "size_bytes": 228539
+        },
+        {
+          "path": "manifest.json",
+          "sha256": "cfc5dfd7fb58721ec9a2200a636bb5f798e72a2c5486464431e2cbb55a44f794",
+          "size_bytes": 5164
+        },
+        {
+          "path": "processor-candidate-freeze-schedule.json",
+          "sha256": "186f2952108273672c6cdbf963094754298d23693fd6268a72b6223e99c2299d",
+          "size_bytes": 18718642
+        },
+        {
+          "path": "receipts/ocr-worker-00.json",
+          "sha256": "d795a16709ae97e6d18d97b1ebf8fc876f94db6006ef0001643da30613b3bd2f",
+          "size_bytes": 2384
+        },
+        {
+          "path": "receipts/ocr-worker-01.json",
+          "sha256": "09a43596a4a522074229b22a8b109a52d5763783dd2b5b581e204447bbfe36a3",
+          "size_bytes": 2384
+        },
+        {
+          "path": "receipts/ocr-worker-02.json",
+          "sha256": "d3563c271141677c8340d3d3140238a8b2fa1a13b1ffca4dc275be8d5631a656",
+          "size_bytes": 2384
+        },
+        {
+          "path": "receipts/ocr-worker-03.json",
+          "sha256": "4fa86655d9127c383003223e0cfc61f746d45ae3a6056f027f5c3908989a0d69",
+          "size_bytes": 2384
+        },
+        {
+          "path": "run-identity.json",
+          "sha256": "8e51284222034f2db380557d04a5b20ab66158964fe6917ffb16d0449de701b5",
+          "size_bytes": 4425
+        },
+        {
+          "path": "substrate/processor-substrate-worker-00.tar",
+          "sha256": "e7c572fcaf0bd5de5eb2397ab391b9dac0701773a572eab06e4dbfb1ab7895af",
+          "size_bytes": 4662056960
+        },
+        {
+          "path": "substrate/processor-substrate-worker-01.tar",
+          "sha256": "efc52e1cdfd9a4a9c88f78fba823c176a967a5349a203c6863773f9090708b08",
+          "size_bytes": 4482959360
+        },
+        {
+          "path": "substrate/processor-substrate-worker-02.tar",
+          "sha256": "756834080ef3935ab80c916c2916b5ab49b7e7cb091581792b75da71852a0c7d",
+          "size_bytes": 4688844800
+        },
+        {
+          "path": "substrate/processor-substrate-worker-03.tar",
+          "sha256": "d5b6b629bbe1e65072305b2981ded276c738dc6947a62da9ec35653c726c3378",
+          "size_bytes": 4874956800
+        }
+      ],
+      "formal_file_inventory_sha256": "7c2a971658ad9a6bbc639446e9326e9dd4718b8d2d77186f52a17f10f3b32fc1",
+      "formal_total_byte_count": 18730620511,
+      "hf_prefix": "artifacts/processor-freeze-v2-image-contract-repair",
+      "hf_repo": "gavinlaw/causalcache-set-utility-new-development-mobile",
+      "hf_revision": "c20bab8df424dc9e45ece1084f3d1dc035dd1ed8",
+      "hf_tag": "phase1-b2-processor-freeze-v2-image-contract-repair",
+      "path": "data/results/set_utility_processor_freeze_v2_image_contract_repair_publication_v1/summary.json",
+      "publication_status": "FINALIZED_PROCESSOR_V2_IMMUTABLE_HF_PUBLICATION",
+      "remote_file_count": 25,
+      "sha256": "ec415e6af2cd12ad1b32f30788b5aac669fcf68478a1e77c54295c400a721930"
+    }
+  },
+  "metric_only_result_contract": {
+    "action_handle_lifetime": "in_process_only_not_serialized",
+    "failure_projection": "safe_error_class_identifier_and_call_metrics_only",
+    "forbidden_serialized_fields": [
+      "action",
+      "action_text",
+      "decoded_output",
+      "kl",
+      "logits",
+      "messages",
+      "native_output",
+      "tokens",
+      "utility"
+    ],
+    "measurement_boundary": "encode_h2d_preparation_forward_decode_or_logit_disposal",
+    "pair_metric_only_required": true,
+    "per_variant_core_allowed_top_level_fields": [
+      "counts",
+      "failure_class",
+      "latency_seconds",
+      "peak_memory_bytes"
+    ],
+    "retry_count": 0
+  },
+  "negative_operations": {
+    "closed_loop_episode_count": 0,
+    "evaluation_state_access_count": 0,
+    "gpu_or_cuda_call_count": 0,
+    "hugging_face_mutation_count": 0,
+    "matched_nll_count": 0,
+    "policy_generation_count": 0,
+    "predictor_training_count": 0,
+    "processor_call_count": 0,
+    "remote_artifact_read_count": 0,
+    "restoration_label_count": 0,
+    "sealed_test_access_count": 0,
+    "teacher_forward_count": 0,
+    "tune_state_access_count": 0,
+    "utility_or_kl_write_count": 0
+  },
+  "pilot": {
+    "aggregation_order": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "allowed_microbatch_order": [
+      1,
+      2
+    ],
+    "expected_success_counts": {
+      "cross_variant_comparison_count": 12,
+      "cross_variant_equal_count": 12,
+      "native_call_count": 84,
+      "native_completed_call_count": 84,
+      "pair_attempt_count": 12,
+      "pair_completed_count": 12,
+      "reference_generation_call_count": 48,
+      "reference_generation_completed_count": 48,
+      "reference_input_build_call_count": 24,
+      "reference_input_build_completed_count": 24,
+      "reference_plan_build_count": 24,
+      "reference_teacher_forward_call_count": 36,
+      "reference_teacher_forward_completed_call_count": 36,
+      "reference_teacher_forward_completed_example_count": 48,
+      "reference_teacher_forward_example_count": 48,
+      "variant_attempt_count": 24,
+      "variant_completed_count": 24
+    },
+    "native_call_ceiling": 84,
+    "operations_by_microbatch": [
+      {
+        "generation_calls_per_state": 2,
+        "microbatch_size": 1,
+        "native_calls_per_state": 4,
+        "teacher_calls_per_state": 2,
+        "teacher_examples_per_state": 2
+      },
+      {
+        "generation_calls_per_state": 2,
+        "microbatch_size": 2,
+        "native_calls_per_state": 3,
+        "teacher_calls_per_state": 1,
+        "teacher_examples_per_state": 2
+      }
+    ],
+    "role": "train_only",
+    "roster": [
+      {
+        "candidate_capacity_stratum": "decisions_6_9",
+        "decision_step_id": 6,
+        "initial_candidate_count": 4,
+        "source_id": "0296753837938323",
+        "state_id": "0296753837938323:decision:006",
+        "worker_index": 0
+      },
+      {
+        "candidate_capacity_stratum": "decisions_6_9",
+        "decision_step_id": 6,
+        "initial_candidate_count": 4,
+        "source_id": "0310939638496410",
+        "state_id": "0310939638496410:decision:006",
+        "worker_index": 1
+      },
+      {
+        "candidate_capacity_stratum": "decisions_6_9",
+        "decision_step_id": 6,
+        "initial_candidate_count": 4,
+        "source_id": "0336706763935531",
+        "state_id": "0336706763935531:decision:006",
+        "worker_index": 2
+      },
+      {
+        "candidate_capacity_stratum": "decisions_6_9",
+        "decision_step_id": 6,
+        "initial_candidate_count": 4,
+        "source_id": "0363106249041737",
+        "state_id": "0363106249041737:decision:006",
+        "worker_index": 3
+      },
+      {
+        "candidate_capacity_stratum": "decisions_10_17",
+        "decision_step_id": 10,
+        "initial_candidate_count": 8,
+        "source_id": "0214209291313446",
+        "state_id": "0214209291313446:decision:010",
+        "worker_index": 0
+      },
+      {
+        "candidate_capacity_stratum": "decisions_10_17",
+        "decision_step_id": 10,
+        "initial_candidate_count": 8,
+        "source_id": "0268406573756492",
+        "state_id": "0268406573756492:decision:010",
+        "worker_index": 1
+      },
+      {
+        "candidate_capacity_stratum": "decisions_10_17",
+        "decision_step_id": 10,
+        "initial_candidate_count": 8,
+        "source_id": "0271654003819383",
+        "state_id": "0271654003819383:decision:010",
+        "worker_index": 2
+      },
+      {
+        "candidate_capacity_stratum": "decisions_10_17",
+        "decision_step_id": 10,
+        "initial_candidate_count": 8,
+        "source_id": "0279447750102246",
+        "state_id": "0279447750102246:decision:010",
+        "worker_index": 3
+      },
+      {
+        "candidate_capacity_stratum": "decisions_18_plus",
+        "decision_step_id": 18,
+        "initial_candidate_count": 16,
+        "source_id": "0018651612081817",
+        "state_id": "0018651612081817:decision:018",
+        "worker_index": 0
+      },
+      {
+        "candidate_capacity_stratum": "decisions_18_plus",
+        "decision_step_id": 18,
+        "initial_candidate_count": 16,
+        "source_id": "0047881550315557",
+        "state_id": "0047881550315557:decision:018",
+        "worker_index": 1
+      },
+      {
+        "candidate_capacity_stratum": "decisions_18_plus",
+        "decision_step_id": 18,
+        "initial_candidate_count": 16,
+        "source_id": "0053721915679562",
+        "state_id": "0053721915679562:decision:018",
+        "worker_index": 2
+      },
+      {
+        "candidate_capacity_stratum": "decisions_18_plus",
+        "decision_step_id": 18,
+        "initial_candidate_count": 16,
+        "source_id": "0117550419342475",
+        "state_id": "0117550419342475:decision:018",
+        "worker_index": 3
+      }
+    ],
+    "state_count": 12,
+    "state_ids_sha256": "3fd7038e32f4315fbe6c423a4533c7e9c0bf3a51ce7ae7183009b41214f65378",
+    "strata": [
+      {
+        "candidate_capacity_stratum": "decisions_6_9",
+        "decision_step_id": 6,
+        "initial_candidate_count": 4,
+        "state_count": 4
+      },
+      {
+        "candidate_capacity_stratum": "decisions_10_17",
+        "decision_step_id": 10,
+        "initial_candidate_count": 8,
+        "state_count": 4
+      },
+      {
+        "candidate_capacity_stratum": "decisions_18_plus",
+        "decision_step_id": 18,
+        "initial_candidate_count": 16,
+        "state_count": 4
+      }
+    ],
+    "worker_assignment_rule": "within_stratum_state_order_index_modulo_four",
+    "worker_count": 4,
+    "worker_mapping": [
+      {
+        "state_ids": [
+          "0296753837938323:decision:006",
+          "0214209291313446:decision:010",
+          "0018651612081817:decision:018"
+        ],
+        "worker_index": 0
+      },
+      {
+        "state_ids": [
+          "0310939638496410:decision:006",
+          "0268406573756492:decision:010",
+          "0047881550315557:decision:018"
+        ],
+        "worker_index": 1
+      },
+      {
+        "state_ids": [
+          "0336706763935531:decision:006",
+          "0271654003819383:decision:010",
+          "0053721915679562:decision:018"
+        ],
+        "worker_index": 2
+      },
+      {
+        "state_ids": [
+          "0363106249041737:decision:006",
+          "0279447750102246:decision:010",
+          "0117550419342475:decision:018"
+        ],
+        "worker_index": 3
+      }
+    ]
+  },
+  "protocol_id": "causalcache_set_utility_train_only_throughput_pilot_source_v1",
+  "schema_version": "1.0.0",
+  "source": {
+    "entrypoint_paths": [
+      "code/causalcache/set_utility_throughput_pilot_envelope_v1.py",
+      "code/causalcache/set_utility_throughput_pilot_execution_v1.py",
+      "code/causalcache/set_utility_gui_owl_v2_1_throughput_adapter.py",
+      "code/causalcache/set_utility_throughput_pilot.py",
+      "code/causalcache/set_utility_throughput_pilot_pair_v1.py",
+      "code/scripts/aggregate_set_utility_throughput_pilot_v1.py",
+      "code/scripts/materialize_set_utility_throughput_pilot_envelope_v1.py",
+      "code/scripts/run_set_utility_throughput_pilot_worker_v1.py",
+      "code/scripts/validate_set_utility_throughput_pilot_envelope_v1.py"
+    ],
+    "file_count": 44,
+    "inventory": [
+      {
+        "byte_count": 517,
+        "path": "code/causalcache/__init__.py",
+        "sha256": "9a2ea6d762bf31ccf6ee2126b698017507ffb9c370f067da56fc31e236529ffa"
+      },
+      {
+        "byte_count": 6212,
+        "path": "code/causalcache/attribution.py",
+        "sha256": "7c7b59992a6e2ef6b0b31797953059b523031e749e4e4ccbd8a51fc192088f9c"
+      },
+      {
+        "byte_count": 9176,
+        "path": "code/causalcache/contracts.py",
+        "sha256": "eb00c333f4589baa78d4bc296e2af5d8414b2b4a5ba8517ee44f69c0d9af5714"
+      },
+      {
+        "byte_count": 248,
+        "path": "code/causalcache/data/__init__.py",
+        "sha256": "c42a217c18bd48547502f097848d538305c5f1f7c5d00c58908f54606a61e3be"
+      },
+      {
+        "byte_count": 12230,
+        "path": "code/causalcache/data/guiodyssey.py",
+        "sha256": "c8630f36fe343c63e5f1bf4b6401c4eb049dc4e8457abc761ed41011f4efc1c4"
+      },
+      {
+        "byte_count": 27739,
+        "path": "code/causalcache/data/guiodyssey_independent.py",
+        "sha256": "1beb1333a4f016a0cca5457fe02acc910b35fd621604e7aa588a7b7f61c11b9b"
+      },
+      {
+        "byte_count": 89362,
+        "path": "code/causalcache/data/guiodyssey_restoration_v2.py",
+        "sha256": "8caf9418e4212c760b789f660b8b67c9b23a5b88d08a8434d4a1e718f7a0e4ee"
+      },
+      {
+        "byte_count": 59728,
+        "path": "code/causalcache/data/restoration_v2_selection.py",
+        "sha256": "e314827536f721b913ca5e002eda72140cb14391da6af81125955e7a3a9a5c8a"
+      },
+      {
+        "byte_count": 14249,
+        "path": "code/causalcache/low_fidelity_v2.py",
+        "sha256": "cac98320867e34b1a89ad124e1a577d02941fc195f8e65a2f12bdbe6f151b25a"
+      },
+      {
+        "byte_count": 214,
+        "path": "code/causalcache/policy/__init__.py",
+        "sha256": "93ffa4e898d5d01191fb2168b192d5df9e1d305bc3e7540b5ab9db1297de694c"
+      },
+      {
+        "byte_count": 21838,
+        "path": "code/causalcache/policy/gui_owl_v2.py",
+        "sha256": "df4a37a17f0f3dd0aa859012e5cb856e7852f54ee1abff0707c2957c5f8ab12a"
+      },
+      {
+        "byte_count": 11708,
+        "path": "code/causalcache/policy/gui_owl_v2_1.py",
+        "sha256": "90cbefc851bed105de6ea0c8f719aae6313a479ca4589e4160fc4ec3e8de3964"
+      },
+      {
+        "byte_count": 29128,
+        "path": "code/causalcache/policy/gui_owl_v2_1_runtime.py",
+        "sha256": "a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5"
+      },
+      {
+        "byte_count": 12919,
+        "path": "code/causalcache/policy/gui_owl_v2_1_throughput_runtime.py",
+        "sha256": "a2c139a1c5c73d394c34953bc1c17273656447604bdae85ce2e4a1ac0cd51c94"
+      },
+      {
+        "byte_count": 29381,
+        "path": "code/causalcache/policy/gui_owl_v2_runtime.py",
+        "sha256": "7cc0299b1b1679def61a3e2e30017d2f7812a47114b5a286afdf3979536c9c41"
+      },
+      {
+        "byte_count": 19721,
+        "path": "code/causalcache/policy/gui_owl_v2_vision.py",
+        "sha256": "396a89ce381fc72dfcf44513964fd4d5a1b859b0ee10b20a35b6bffb95248c24"
+      },
+      {
+        "byte_count": 11616,
+        "path": "code/causalcache/restoration_v2_baselines.py",
+        "sha256": "7df03a3478b2ba0aaaa40d1a08de54126f1211404bf3fc20470876ada735366d"
+      },
+      {
+        "byte_count": 33579,
+        "path": "code/causalcache/restoration_v2_contract.py",
+        "sha256": "f83ae8ececfaafb5cfb3cef9bb617945353c34f6659a74b6080ae9798784c4b3"
+      },
+      {
+        "byte_count": 31285,
+        "path": "code/causalcache/restoration_v2_text_backend.py",
+        "sha256": "f2ed121f290095514ec0f54b83217188f3f9496e5b68da5216f2f19c0d43206e"
+      },
+      {
+        "byte_count": 7413,
+        "path": "code/causalcache/schema.py",
+        "sha256": "3f281fe3a646468de36f4764d20c46d1dea3867d35c819ca4ad52977d318ee5b"
+      },
+      {
+        "byte_count": 21659,
+        "path": "code/causalcache/set_utility_consumed_ledger.py",
+        "sha256": "422a8bdb3e2dae8d4c279f895cbb39b52f8c2d4b7ed79f7dc58434127e036345"
+      },
+      {
+        "byte_count": 2248,
+        "path": "code/causalcache/set_utility_consumed_ledger_contract.py",
+        "sha256": "1972454144c04ce8542e49eff16d9df33ad0d4bb90706a64753efcc152af948c"
+      },
+      {
+        "byte_count": 35068,
+        "path": "code/causalcache/set_utility_full_pool.py",
+        "sha256": "6352fd08728d5c38f98686af5712bdda24dd43a4716f6e24f74edd227dc50bf6"
+      },
+      {
+        "byte_count": 14565,
+        "path": "code/causalcache/set_utility_full_pool_inventory_v1.py",
+        "sha256": "17bf6c77fda59ff586a4ae267ca82a132dca2a5713c678ae6becfa3340f24857"
+      },
+      {
+        "byte_count": 11896,
+        "path": "code/causalcache/set_utility_gui_owl_v2_1_throughput_adapter.py",
+        "sha256": "7b8f40eab4963b3327752981a1a6ebf0d75d38f5a9e24e4970d389ee8021d1b4"
+      },
+      {
+        "byte_count": 23154,
+        "path": "code/causalcache/set_utility_label_inputs.py",
+        "sha256": "04d2ac07b2774865678b30ac5208e6f44ad7f4652bbcb3e515faf4742ef57f99"
+      },
+      {
+        "byte_count": 37013,
+        "path": "code/causalcache/set_utility_label_producer.py",
+        "sha256": "6fed78a094e06d38572aa465110186e9dc7cc0a8a71f3fa296d5b73472bc35d3"
+      },
+      {
+        "byte_count": 17861,
+        "path": "code/causalcache/set_utility_label_schedule.py",
+        "sha256": "57a656cbf8574fa2225a9fa38f933a067c1d42e3dd758f8168f07bde3f75adde"
+      },
+      {
+        "byte_count": 12510,
+        "path": "code/causalcache/set_utility_long_pool.py",
+        "sha256": "e67dd7ac34770c3700b13e61736101fbdf5706ca4ac8f2ba1c3abacd6bac7095"
+      },
+      {
+        "byte_count": 61626,
+        "path": "code/causalcache/set_utility_processor_artifacts.py",
+        "sha256": "1bdcd4ab08dd897723bfeb47a1e8133b3d13ac6a2fea508ad8551c90c6cddba1"
+      },
+      {
+        "byte_count": 41943,
+        "path": "code/causalcache/set_utility_processor_freeze.py",
+        "sha256": "ba8fefa2216668aa42e8a4bfa5c3ca1321e0c525be6f3e90d46e7879478c34ab"
+      },
+      {
+        "byte_count": 2820,
+        "path": "code/causalcache/set_utility_processor_prompt.py",
+        "sha256": "e6186cf4f658d5178dceef54c29a9de132e8fa34cde89699a06ee0d47c103b6b"
+      },
+      {
+        "byte_count": 33995,
+        "path": "code/causalcache/set_utility_processor_substrate.py",
+        "sha256": "02a1f1f96041376e6c64632164b5fe484b436a01b862c90d8e9cd9ee5751cf8b"
+      },
+      {
+        "byte_count": 13953,
+        "path": "code/causalcache/set_utility_split_validation.py",
+        "sha256": "7d9965f3ece64e670da5a40384c5aa25e544d611a28c7a9be190fa378b86c64d"
+      },
+      {
+        "byte_count": 16205,
+        "path": "code/causalcache/set_utility_throughput_pilot.py",
+        "sha256": "bcbd786c06d1f3b97c6b3c4feb3224c697c4e2265ff26e4c419a22c3b9800c6d"
+      },
+      {
+        "byte_count": 35799,
+        "path": "code/causalcache/set_utility_throughput_pilot_contract_v1.py",
+        "sha256": "75163c5c3678261d07b91cd2718a074257ba86382a582ee5c774696969e0b04a"
+      },
+      {
+        "byte_count": 85271,
+        "path": "code/causalcache/set_utility_throughput_pilot_envelope_v1.py",
+        "sha256": "5061061862356408b0929e6e2bc0b56df982f3969345aab8e47bf718e5a17f0f"
+      },
+      {
+        "byte_count": 56598,
+        "path": "code/causalcache/set_utility_throughput_pilot_execution_v1.py",
+        "sha256": "460d3da7a75c6781c205b4f6e2d2f12b56cfef179b44644d8e34cb38e80ccd83"
+      },
+      {
+        "byte_count": 22040,
+        "path": "code/causalcache/set_utility_throughput_pilot_pair_v1.py",
+        "sha256": "9c50a6e87cd021fa4cec77e2d1aa4f101a4cd96e262ffabce2cf62f592260953"
+      },
+      {
+        "byte_count": 2425,
+        "path": "code/scripts/aggregate_set_utility_throughput_pilot_v1.py",
+        "sha256": "4874eaa0b41571bc49028a108f36dd1444f23aa4c15fce47583c3beeba3651e0"
+      },
+      {
+        "byte_count": 6000,
+        "path": "code/scripts/materialize_set_utility_throughput_pilot_envelope_v1.py",
+        "sha256": "bbea3685ad85f85d062f4a0596ce24f4e58395962977bc9aecd951635fb705da"
+      },
+      {
+        "byte_count": 3319,
+        "path": "code/scripts/run_set_utility_throughput_pilot_worker_v1.py",
+        "sha256": "87a0a1ac1901559bf12ed83686f09575b6bdd71f2af75dd4fcd8bed88aedbe24"
+      },
+      {
+        "byte_count": 1022,
+        "path": "code/scripts/validate_set_utility_throughput_pilot_contract_v1.py",
+        "sha256": "3c720e20764ee12a1956b6a59ba433c485a0c1c189eaac81c8891e6818c52e99"
+      },
+      {
+        "byte_count": 1133,
+        "path": "code/scripts/validate_set_utility_throughput_pilot_envelope_v1.py",
+        "sha256": "bcd7199f552a025be20cc3f2ddf131788424cdd6b203894a6b9a70bdee25e14a"
+      }
+    ],
+    "inventory_sha256": "78a25d74c1a714c7f48746691d70415521c5d43dd8d5355720487807d3ee1509"
+  },
+  "status": "SOURCE_ONLY_TRAIN_THROUGHPUT_PILOT_V1_FROZEN"
+}

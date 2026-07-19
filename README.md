@@ -57,6 +57,15 @@
 > 因此 pilot 当前首选 Hyper00；正式 launch 前仍 fresh preflight，不把本快照当资源预留，也不混合异构 host
 > throughput 指标。
 >
+> 12-state train-only throughput pilot source 现已冻结：三个 candidate-capacity strata 各 4 个
+> `stratum_anchor`，四个 worker 按 `state_ids[index::4]` 分片，paired mb1→mb2 success path 精确为
+> 84 native calls。canonical config SHA256=`ca484ed808aea0881a48cb19edc363f149e1cf1a2117a86d15ac163749569c17`，
+> 44-file transitive source inventory SHA256=`78a25d74c1a714c7f48746691d70415521c5d43dd8d5355720487807d3ee1509`，
+> focused suite=`46 passed`。source config 仍明确禁止 GPU/policy/result write；只有在本 source commit push 后生成并
+> push 单独的 source-A→envelope-B exact execution envelope，才能在 Hyper00 四张同构 H200 上执行一次。
+> restoration labels、predictor training、matched-NLL 与 closed-loop 仍 locked。详见
+> [`docs/set_utility_train_only_throughput_pilot_v1.md`](docs/set_utility_train_only_throughput_pilot_v1.md)。
+>
 > 当前 CPU formal 的尾部瓶颈也已形成独立 versioned 修复：历史 postflight bytes/config 保持不变，新
 > `parallel_v1` 只把四个 worker tar 的 v2 semantic overlay 用 ordered 4-thread map 并行，主线程仍按 0→3
 > 聚合并额外拒绝跨 worker overlap。source contract/config SHA256=
