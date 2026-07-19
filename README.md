@@ -150,12 +150,15 @@
 > 自动衔接：只有 canonical supervisor、
 > formal/postflight 双零及精确 exit evidence 才会从 clean recorder checkout 写 Git-safe result；相关 suite
 > `145 passed`，且 watcher 永不使用 `--record-invalid`。watcher 已从 pushed `main@c2f6725` 部署到
-> Hyper00 persistent `/data/logs`，现正运行旧合同要求的 fresh recorder validation。publication 后的 Git SoT finalizer 也已完成
+> Hyper00 persistent `/data/logs`，并已于 `09:29:16Z` 完成旧合同要求的 fresh recorder validation。Git-safe
+> exact-two result 已逐 byte 回写，状态为 `PENDING_HF_UPLOAD`。publication 后的 Git SoT finalizer 也已完成
 > `151` 项 processor tests：它先 remote validate，再原子写独立 finalized result，并保持 pending evidence/replays
 > 可重复验证；当前仍未产生 Git result 或 HF mutation。详见
 > [`docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md) 与
 > [`data/results/set_utility_processor_execution_scaling_v2/`](data/results/set_utility_processor_execution_scaling_v2/) 与
-> [`data/results/set_utility_processor_postflight_parallel_v1/`](data/results/set_utility_processor_postflight_parallel_v1/)。
+> [`data/results/set_utility_processor_postflight_parallel_v1/`](data/results/set_utility_processor_postflight_parallel_v1/)，
+> canonical result 见
+> [`data/results/set_utility_processor_freeze_v2_image_contract_repair/`](data/results/set_utility_processor_freeze_v2_image_contract_repair/)。
 > 失败摘要见
 > [`data/results/set_utility_processor_freeze_execution_cf_v1_attempt/`](data/results/set_utility_processor_freeze_execution_cf_v1_attempt/)。
 > 不使用旧 13–64
@@ -1391,7 +1394,7 @@ mediation effect。
 | Set-utility processor-only freeze v1 attempt | [Execution-CF](docs/set_utility_processor_freeze_execution_cf.md)；[failure result](data/results/set_utility_processor_freeze_execution_cf_v1_attempt/) | `INVALID_PROCESSOR_FREEZE_EXECUTION_CF_V1_IMAGE_CONTRACT_DRIFT`；producer `main@b3472bf` | 第 228 个 observation 为合法 PNG/RGB，旧 contract 仅接受 opaque RGBA；output root absent，`.incomplete` preserved，HF/policy/labels/training 均为 0；下一步全量 image-format census |
 | Set-utility selected-image format census v1 attempt | [protocol](docs/set_utility_selected_image_format_census_v1.md)；[failure](data/results/set_utility_selected_image_format_census_v1_attempt/) | `INVALID_SELECTED_IMAGE_FORMAT_CENSUS_V1_COLUMN_PROJECTION_CONTRACT_DRIFT`；producer `main@e636df1`；HF upload forbidden | PyArrow 未传 `columns=["images"]` 而物化完整 rows；10-file root 只作 forensic evidence，observed histogram formal-ineligible；下一步 versioned column-projection repair |
 | Set-utility selected-image format census v2 repair | [result](data/results/set_utility_selected_image_format_census_v2_column_projection_repair/)；[HF](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile) | producer `main@1a03b7e`；tag `phase1-b2-image-format-census-v2-column-projection-repair`；revision `c1d19eb9...eae0` | `VALID_COMPLETED_SELECTED_IMAGE_FORMAT_CENSUS_V2_COLUMN_PROJECTION_REPAIR`；18,792/18,792 image-column-only records，18,768 opaque RGBA + 24 RGB；fresh immutable re-download verified；已解锁并完成 processor v2 source freeze |
-| Set-utility processor freeze v2 image-contract repair | [Execution-CF v2](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)；[parallel postflight](data/results/set_utility_processor_postflight_parallel_v1/)；[config](code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json) | config SHA256 `e2c271e0...fb70`；formal `main@e976b99` canonical postflight VALID | 2,400 states / 93,914 subset forwards / 103,514 operations；18,768 RGBA + 24 RGB；4-worker validator 与 canonical 逐字段等价并加速 `2.8063x`。旧合同 fresh recorder 仍在运行；Git-safe result/HF/labels/training 尚未闭合 |
+| Set-utility processor freeze v2 image-contract repair | [formal result](data/results/set_utility_processor_freeze_v2_image_contract_repair/)；[Execution-CF v2](docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md)；[parallel postflight](data/results/set_utility_processor_postflight_parallel_v1/) | formal `main@e976b99` VALID；Git result `PENDING_HF_UPLOAD` | 23 files / 18,730,620,511 bytes；2,400 states / 93,914 subset forwards / 103,514 operations；18,768 RGBA + 24 RGB；4-worker validator 与 canonical 逐字段等价并加速 `2.8063x`。HF/labels/training 尚未闭合 |
 | Planned set-utility dataset/model | [existing private dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile)；planned `gavinlaw/causalcache-set-utility-predictors-mobile` | dataset repo 已承载 census v2 revision `c1d19eb9...eae0`；processor/feature/label prefix 尚未发布；model repo/revision 尚未创建或绑定 | processor artifact 仅在 VALID postflight 后发布；feature/label shards 与 checkpoints 完成后分别进入 dataset/model repo，当前不得视为已有 canonical artifact |
 | GUIOdyssey pilot trajectory | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-pilot-mobile> | `1de9c34ff029d4c01665cdaca74436ae24bff276`，private | schema v0.3；10 screenshots、9 events、9 decisions |
 | Independent GUIOdyssey gate artifact | <https://huggingface.co/datasets/gavinlaw/causalcache-guiodyssey-independent-mobile> | `v0.1.0` / `84c9f5a335e9612ccb4bd566f977574f359b2485`，private | schema v0.4；reference 8 trajectories/75 decisions；oracle 15/132；immutable re-download verified |

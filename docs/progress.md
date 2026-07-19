@@ -12,6 +12,21 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：processor v2 canonical result 已进入 PENDING_HF_UPLOAD
+
+- `e976b990` producer 用时 3,163s、exit=`0`，atomic root 后 canonical committed postflight exit=`0`；随后
+  fail-closed watcher 从 clean recorder `63734097` 运行 fresh committed postflight，并于
+  `2026-07-19T09:29:16Z` 原子产生 exact-two Git result；
+- formal result status=`VALID_RECORDED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`，
+  `scientific_eligibility=true`、`postflight_accepted_for_formal_result=true`。artifact 为 23 files / 18,730,620,511
+  bytes，inventory SHA256=`7c2a9716...32fc1`，tree SHA256=`ab222778...456a6`，staging absent；
+- Git-safe `README.md` 为 1,351 bytes / SHA256=`452f7d63...fb179`，`summary.json` 为 17,673 bytes /
+  SHA256=`87a9a17e...30a3`；从 remote recorder 到本地逐 byte `cmp` 相同，见
+  [`../data/results/set_utility_processor_freeze_v2_image_contract_repair/`](../data/results/set_utility_processor_freeze_v2_image_contract_repair/)；
+- 当前严格 publication status=`PENDING_HF_UPLOAD`，HF mutation count 仍为 0。policy inference、restoration
+  labels、training、matched-NLL 与 closed-loop 也仍为 0；下一步先 commit/push 本 result，再执行单次 private-HF
+  publication、commit/tag 双 fresh replay 与独立 finalization。
+
 ### 2026-07-18（UTC 07-19）：12-state throughput pilot host readiness
 
 - 对 Hyper00、Hyper01、H100 与 Aries 做只读快照；没有 GPU launch/cleanup、container stop 或远端写入。free

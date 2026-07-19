@@ -5,8 +5,9 @@
 replacement source freeze 已完成；clean formal run 已于 `2026-07-19T07:10:28Z` 从 pushed
 `main@e976b990ddb089cdea3b04ea15e5c911d5670d40` 在 Hyper00 启动。producer 于 `08:03:11Z` atomic publish，
 canonical committed postflight 于 `08:45:41Z` 双零闭合为
-`VALID_COMPLETED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`；当前状态为
-`VALID_CANONICAL_POSTFLIGHT_AWAITING_GIT_SAFE_RECORDER`，尚未进入 HF publication。canonical Execution-CF v2 config 为
+`VALID_COMPLETED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`；fresh recorder 又于 `09:29:16Z` 闭合为
+`VALID_RECORDED_SET_UTILITY_PROCESSOR_FREEZE_V2_IMAGE_CONTRACT_REPAIR`。当前严格状态为 `PENDING_HF_UPLOAD`；
+尚未把本地 artifact 写成已发布。canonical Execution-CF v2 config 为
 `code/configs/causalcache_set_utility_processor_freeze_execution_cf_v2_image_contract_repair.json`，9,290 bytes，
 SHA256=`e2c271e00749ca7643899c86fd216a635d007337630ba9a1a19b2314ff4afb70`。此前 `1c84dfe` 与
 `dc90664` 两次 attempt 均已主动终止且 exit=`143`：真实 processor smoke 证明旧 runtime guard 会把
@@ -185,8 +186,9 @@ Hyper00 有 112 个 physical / 224 个 logical CPU 和约 2 TiB RAM。最终执�
   非零 terminal、字段漂移或已有 result/staging 均拒绝执行；processor/result/watcher focused suite 为
   `145 passed`。已部署 source=`main@c2f6725`、persistent script SHA256=
   `26cba29f2dabf9f12756cf9c8d398ccf012754ce89a1ffe3987e6645266f33fd`，recorder checkout=
-  `63734097983fa85f1470a52d1edd645b194433ab`。watcher 已消费双零 terminal 并启动旧合同要求的 fresh recorder
-  validation；Git-safe exact-two result 尚未写出；
+  `63734097983fa85f1470a52d1edd645b194433ab`。watcher 已消费双零 terminal、完成旧合同要求的 fresh recorder
+  validation 并退出；Git-safe exact-two result 为 1,351-byte `README.md` 与 17,673-byte `summary.json`，目录见
+  [`../data/results/set_utility_processor_freeze_v2_image_contract_repair/`](../data/results/set_utility_processor_freeze_v2_image_contract_repair/)；
 - publication staging：Hyper00 已从完整 Git bundle 准备 clean detached
   `/data/worktrees/causalcache-processor-publication-450a669`，HEAD=
   `450a6694d3fe2480127b5d9f3e9b4dfe98a11277`；persistent bundle=

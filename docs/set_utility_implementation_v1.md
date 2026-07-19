@@ -209,13 +209,15 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 
 下一步严格是：
 
-1. processor image-contract v2 source freeze 已完成；从 clean pushed commit 在 Hyper00 执行 processor-only
-   candidate freeze，并用 committed v2 postflight 重建 exact `18,768/24/18,792` tally 与 operation budget；
-2. train-only selective reader/strict join、role-partitioned publication firewall、metric-only throughput core、
-   versioned caller-owned CUDA measurement seam 与真实 GUI-Owl adapter 已提前实现，并以 malformed tune/evaluation
+1. processor image-contract v2 已从 clean `e976b990` 完成 processor-only candidate freeze、canonical/fresh
+   postflight 与 Git-safe result；exact tally=`18,768/24/18,792`，operation budget=`103,514`；
+2. processor completed root、canonical/fresh postflight 与 Git-safe `PENDING_HF_UPLOAD` result 已闭合；先完成 private
+   HF immutable publication + commit/tag fresh replay。train-only selective reader/strict join、role-partitioned
+   publication firewall、metric-only throughput core、versioned caller-owned CUDA measurement seam 与真实 GUI-Owl
+   adapter 已提前实现，并以 malformed tune/evaluation
    payload、cross-role row、symlink、inode replacement、image-inventory drift、failure-metric inclusion、sensitive-
-   error serialization 与默认路径等价性负测；但必须等待 completed processor root 的 Git result/HF immutable
-   revision 后，才能冻结 12-state train-only pilot execution contract，再立 label Execution-B 生产 phase-1
+   error serialization 与默认路径等价性负测；但必须等待 processor HF immutable revision 后，才能冻结 12-state
+   train-only pilot execution contract，再立 label Execution-B 生产 phase-1
    `|S|<=2` tables；
 3. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
