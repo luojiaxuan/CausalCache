@@ -277,6 +277,27 @@ def _trajectory_weights(states: tuple[dict[str, Any], ...]) -> dict[str, float]:
     }
 
 
+def _trajectory_uniform_epoch(
+    states: tuple[dict[str, Any], ...],
+    *,
+    seed: int,
+) -> tuple[dict[str, Any], ...]:
+    by_trajectory: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for state in states:
+        by_trajectory[state["trajectory_id"]].append(state)
+    generator = random.Random(seed)
+    trajectories = sorted(by_trajectory)
+    generator.shuffle(trajectories)
+    for trajectory in trajectories:
+        generator.shuffle(by_trajectory[trajectory])
+    maximum_count = max(len(rows) for rows in by_trajectory.values())
+    return tuple(
+        by_trajectory[trajectory][round_index % len(by_trajectory[trajectory])]
+        for round_index in range(maximum_count)
+        for trajectory in trajectories
+    )
+
+
 def _evaluate(
     model: Any,
     states: tuple[dict[str, Any], ...],
@@ -405,7 +426,12 @@ def main() -> None:
     epochs = int(training["epochs"])
     batch_size = int(variant["batch_size"])
     accumulation = int(variant["gradient_accumulation_steps"])
-    steps_per_epoch = math.ceil(math.ceil(len(train_states) / batch_size) / accumulation)
+    optimization_rows_per_epoch = len(
+        _trajectory_uniform_epoch(train_states, seed=seed)
+    )
+    steps_per_epoch = math.ceil(
+        math.ceil(optimization_rows_per_epoch / batch_size) / accumulation
+    )
     total_optimizer_steps = steps_per_epoch * epochs
     warmup_steps = max(
         1, round(total_optimizer_steps * float(training["warmup_ratio"]))
@@ -422,7 +448,6 @@ def main() -> None:
         return minimum_lr_ratio + (1.0 - minimum_lr_ratio) * cosine
 
     scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, learning_rate_scale)
-    train_weights = _trajectory_weights(train_states)
     tune_weights = _trajectory_weights(tune_states)
     history = []
     best_tune = math.inf
@@ -433,8 +458,9 @@ def main() -> None:
 
     for epoch in range(1, epochs + 1):
         model.train()
-        order = list(train_states)
-        random.Random(seed + epoch).shuffle(order)
+        order = list(
+            _trajectory_uniform_epoch(train_states, seed=seed + epoch)
+        )
         optimizer.zero_grad(set_to_none=True)
         train_metric_sum = defaultdict(float)
         train_weight_sum = 0.0
@@ -443,7 +469,7 @@ def main() -> None:
             selected = order[start : start + batch_size]
             batch = _collate(selected, cache=cache, device=args.device, torch=torch)
             sample_weights = torch.tensor(
-                [train_weights[state["state_id"]] for state in selected],
+                [1.0] * len(selected),
                 dtype=torch.float32,
                 device=args.device,
             )
@@ -517,6 +543,7 @@ def main() -> None:
         "input_content_sha256": input_manifest["content_sha256"],
         "model": variant["model"],
         "overfit_state_count": args.overfit_state_count,
+        "optimization_rows_per_epoch": optimization_rows_per_epoch,
         "schema_version": "1.0.0",
         "seed": seed,
         "status": "COMPLETED_SET_UTILITY_TOKEN_PREDICTOR_TRAINING",

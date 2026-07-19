@@ -7,7 +7,10 @@ from causalcache.set_utility_token_models import (
     TokenSetUtilityPredictor,
     TokenUtilityModelConfig,
 )
-from scripts.train_set_utility_token_predictor import _collate
+from scripts.train_set_utility_token_predictor import (
+    _collate,
+    _trajectory_uniform_epoch,
+)
 
 
 class TokenUtilityConfigTest(unittest.TestCase):
@@ -18,6 +21,22 @@ class TokenUtilityConfigTest(unittest.TestCase):
             TokenUtilityModelConfig(
                 family="set_transformer", hidden_size=30, num_heads=8
             )
+
+    def test_training_epoch_is_trajectory_uniform_and_covers_long_trajectory(self) -> None:
+        states = tuple(
+            {"state_id": f"long-{index}", "trajectory_id": "long"}
+            for index in range(3)
+        ) + ({"state_id": "short-0", "trajectory_id": "short"},)
+        order = _trajectory_uniform_epoch(states, seed=7)
+        self.assertEqual(len(order), 6)
+        self.assertEqual(
+            {name: sum(row["trajectory_id"] == name for row in order) for name in ("long", "short")},
+            {"long": 3, "short": 3},
+        )
+        self.assertEqual(
+            {row["state_id"] for row in order if row["trajectory_id"] == "long"},
+            {"long-0", "long-1", "long-2"},
+        )
 
 
 class TokenUtilityTorchTest(unittest.TestCase):
