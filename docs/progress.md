@@ -12,6 +12,21 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：train-only metric-only throughput pilot source core
+
+- 新增 `code/causalcache/set_utility_throughput_pilot.py`：只接受 train `UtilityQuerySpec`，固定两次 reference
+  generation 与两个 logical reference teacher examples，并只允许 reference teacher microbatch 1/2；
+- input builder 仅允许渲染 native messages，不得运行 processor 或接触 CUDA。真实 runtime adapter 必须从
+  encode/H2D/preparation 前开始计时，并覆盖 native forward、generation decode/parse 或 teacher-logit disposal；
+  主指标是完整 adapter call 的 end-to-end wall time 与同边界 CUDA allocated/reserved peaks；
+- 初版审阅发现直接复用 GUI-Owl model-only metadata 会漏掉上述前后处理，且 exception 路径会丢失失败调用
+  latency/peak。现已新增严格 metric-only `PilotRuntimeFailure`：只含 safe error-class identifier 与 performance，
+  不含 message 或 policy output；generation/teacher 失败调用的指标也进入 aggregate；
+- output schema 仅有 latency、peak memory、failure class 与 operation counts；action handle 只在内存传递，不输出
+  action text、tokens、logits、KL 或 utility。敏感异常 message 与不合法 class name 均不能进入 serialization；
+- throughput + label-producer 独立回归=`23 passed, 2 subtests passed`，compile/import/diff audit 通过；本步未
+  冻结真实 adapter/config，未执行 GPU、policy forward、label、checkpoint 或 HF mutation。
+
 ### 2026-07-18（UTC 07-19）：formal label 物理 role firewall source core
 
 - 新增 `code/causalcache/set_utility_label_partitions.py`：execution worker 可按 state 混合处理 role，但 publication

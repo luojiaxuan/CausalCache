@@ -43,8 +43,10 @@
 > identity 必须在 model seal 后才释放。writer/reader 使用 absolute dir-fd、`O_NOFOLLOW` 与 no-clobber write，
 > production Parquet schema 固定且禁止 metadata；本机 focused suite 为 `10 passed, 2 skipped`，skip 仅因本机
 > 没有可选 PyArrow；Hyper00 PyArrow 24.0.0 的两个 production-codec exact nodes 为 `2 passed`。以上仍只是
-> 下一阶段 source core；正式 pilot config、policy forward 与 label execution
-> 尚未解锁。
+> train-only throughput pilot 的 metric-only source core 也已实现：固定两次 reference generation、两个 logical
+> teacher examples，并只比较 microbatch 1/2；adapter 必须报告包含 encode/H2D/preparation/forward/decode-or-logit-
+> disposal 的端到端 wall time 与 full-call CUDA peaks，失败调用也通过无 message/output 的安全 projection 计入。
+> 以上仍只是下一阶段 source core；正式 pilot config、真实 adapter/policy forward 与 label execution 尚未解锁。
 >
 > 数据防火墙已机械物化 107 个历史 identity：58 条 `legacy_train_only` + 49 条
 > `forbidden_consumed`，ledger SHA256=

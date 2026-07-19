@@ -194,6 +194,12 @@ partition。该模块不构成 throughput pilot 或 label Execution-B 授权。
 worker 的结果必须拆成 `labels/{train,tune,evaluation}/part-worker-XX.parquet`；trainer inventory 只暴露
 train/tune，evaluation inventory 需先绑定 model-seal SHA。writer/validator 使用 absolute dir-fd、
 `O_NOFOLLOW|O_EXCL`、exact tree、stable inode read、固定 PyArrow schema 与 metadata-free postflight。
+`causalcache/set_utility_throughput_pilot.py` 提供 train-only、metric-only throughput source core：固定两次
+reference generation 与两个 logical reference teacher examples，只允许 microbatch 1/2。input builder 只能把
+plan 渲染成 native messages；真实 adapter 必须包围 encode/H2D/preparation/native forward/decode-or-logit-disposal
+的完整调用并报告 wall time/full-call CUDA peaks。显式失败使用只含安全 class identifier 和 performance 的
+projection，失败调用指标仍计入 aggregate；payload 不含 action、tokens、logits、KL 或 utility。该 source core
+不构成真实 adapter、pilot config、GPU 或 label Execution-B 授权。
 processor repair 的 runner、postflight、immutable HF publication manager 与完整边界见
 `docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。publication manager 要求有效
 `PENDING_HF_UPLOAD` summary、exact 23-file root、private repo 与无冲突 tag/prefix；单次上传 25 个文件后，

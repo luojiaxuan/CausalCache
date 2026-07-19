@@ -119,6 +119,11 @@ train/tune/one-shot evaluation roster，但不能把 P0 pool 直接全部视为�
   `labels/{train,tune,evaluation}/part-worker-XX.parquet`。trainer inventory 的 schema 永远只有 train/tune；
   evaluation inventory 只能在 model seal SHA 已存在后释放。writer/validator 固定 absolute canonical root、
   dir-fd、`O_NOFOLLOW|O_EXCL`、exact role tree、stable inode read 与 metadata-free PyArrow schema；
+- `set_utility_throughput_pilot.py`：train-only、metric-only throughput source core。固定两次 reference generation、
+  两个 logical reference teacher examples，并只比较 microbatch 1/2；input builder 不得运行 processor/CUDA，
+  adapter 的主指标必须覆盖 encode/H2D/preparation/native forward/decode-or-logit-disposal 的端到端 wall time 与
+  full-call CUDA peaks。失败调用通过无 message/output 的 safe projection 计入 aggregate；输出不含 action、
+  tokens、logits、KL 或 utility；
 - `set_utility_label_table.py`：只接受完整、finite、non-negative 的 `D(S)` capped table，机械计算可正可负的
   `U(S)`，不 clipping。
 
@@ -198,10 +203,11 @@ evaluator 的纯 CPU tests 可运行。focused suite 为 `213 passed, 15 skipped
 
 1. processor image-contract v2 source freeze 已完成；从 clean pushed commit 在 Hyper00 执行 processor-only
    candidate freeze，并用 committed v2 postflight 重建 exact `18,768/24/18,792` tally 与 operation budget；
-2. train-only selective reader/strict join 与 role-partitioned publication firewall source core 已提前实现，并以
-   malformed tune/evaluation payload、cross-role row、symlink 与 inode replacement 负测；但必须等待 completed
-   processor root/HF revision 后，才能冻结 train-only policy throughput pilot contract，再立 label Execution-B
-   生产 phase-1 `|S|<=2` tables；
+2. train-only selective reader/strict join、role-partitioned publication firewall 与 metric-only throughput pilot
+   source core 已提前实现，并以 malformed tune/evaluation payload、cross-role row、symlink、inode replacement、
+   failure-metric inclusion 与 sensitive-error serialization 负测；但必须等待 completed processor root/HF
+   revision 后，才能冻结真实 adapter 与 pilot execution contract，再立 label Execution-B 生产 phase-1
+   `|S|<=2` tables；
 3. 训练三类 predictor，one-shot offline evaluation；只有 learned family 超过 OCR/RGB 且不弱于 `J`，才打开
    identity-disjoint B3/B4 transfer study。
 
