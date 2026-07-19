@@ -12,6 +12,20 @@ DeepSets、pairwise-additive、OCR/RGB、J 与 exact；阶段二用独立少量 
 confirm-20 禁止进入新训练、
 调参或评估，matched-NLL 与 sealed AndroidWorld test 继续 locked。
 
+### 2026-07-18（UTC 07-19）：versioned GUI-Owl throughput measurement seam
+
+- 只读 adapter 审计确认：现有 v2.1 generation/teacher 都在 encode/H2D/preparation 之后才 reset CUDA peak；
+  外层即使提前 reset，也会被内部 reset 清零，因此不能直接声称 full-call peak；
+- 没有修改 byte-pinned `gui_owl_v2_1_runtime.py`、历史 config 或 hash。新增独立
+  `policy/gui_owl_v2_1_throughput_runtime.py`，只 override generation 与 teacher 两条路径；
+- keyword-only `cuda_peak_measurement_owner` 只允许 `runtime|caller`，并在任何 encode 前 fail closed。默认
+  `runtime` ownership 与 pinned base 的 reset、timer、metadata 和输出一致；`caller` ownership 只跳过内部
+  reset，保留同步与原 native timer，使未来 adapter 可在外层测量完整调用；
+- 新 source SHA256=`a2c139a1c5c73d394c34953bc1c17273656447604bdae85ce2e4a1ac0cd51c94`；本机
+  generation/teacher seam、base runtime 与 throughput core 独立回归=`26 passed, 2 subtests passed`，原 pinned
+  runtime SHA256 仍为 `a34b4417c23c085fb6a01e29dcc6398a00804c07eff4945812f9ba4688de6ba5`；
+- 本步没有实现真实 adapter、冻结 12-state roster/config、执行 GPU/policy forward、生成 label 或修改 HF。
+
 ### 2026-07-18（UTC 07-19）：train-only metric-only throughput pilot source core
 
 - 新增 `code/causalcache/set_utility_throughput_pilot.py`：只接受 train `UtilityQuerySpec`，固定两次 reference

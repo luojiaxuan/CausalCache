@@ -200,6 +200,11 @@ plan 渲染成 native messages；真实 adapter 必须包围 encode/H2D/preparat
 的完整调用并报告 wall time/full-call CUDA peaks。显式失败使用只含安全 class identifier 和 performance 的
 projection，失败调用指标仍计入 aggregate；payload 不含 action、tokens、logits、KL 或 utility。该 source core
 不构成真实 adapter、pilot config、GPU 或 label Execution-B 授权。
+`causalcache/policy/gui_owl_v2_1_throughput_runtime.py` 是单独 versioned 的 measurement seam：继承 byte-pinned
+`GUIOwlV21OfficialToolsRuntime`，只 override generation/teacher 两条路径。`cuda_peak_measurement_owner="runtime"`
+保持原 reset/timing/metadata/output；`"caller"` 在任何 encode 前完成参数验证，并跳过内部 reset，使 adapter
+可以在调用外层 reset 后得到包含 encode/H2D/preparation/forward/decode 的 absolute CUDA peak。旧 runtime
+及其历史 config/hash 保持 exact bytes，不用新代码重解释旧 artifact。
 processor repair 的 runner、postflight、immutable HF publication manager 与完整边界见
 `docs/set_utility_processor_freeze_execution_cf_v2_image_contract_repair.md`。publication manager 要求有效
 `PENDING_HF_UPLOAD` summary、exact 23-file root、private repo 与无冲突 tag/prefix；单次上传 25 个文件后，

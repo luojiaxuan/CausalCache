@@ -46,7 +46,10 @@
 > train-only throughput pilot 的 metric-only source core 也已实现：固定两次 reference generation、两个 logical
 > teacher examples，并只比较 microbatch 1/2；adapter 必须报告包含 encode/H2D/preparation/forward/decode-or-logit-
 > disposal 的端到端 wall time 与 full-call CUDA peaks，失败调用也通过无 message/output 的安全 projection 计入。
-> 以上仍只是下一阶段 source core；正式 pilot config、真实 adapter/policy forward 与 label execution 尚未解锁。
+> 为使 full-call peak 可实现，另新增 versioned `GUIOwlV21ThroughputRuntime`：默认路径与 byte-pinned base 行为
+> 一致，caller-owned 路径只跳过内部 peak reset，允许外层覆盖完整调用；历史 runtime bytes 与 artifact contract
+> 均未修改。以上仍只是下一阶段 source core；正式 pilot config、真实 adapter/policy forward 与 label execution
+> 尚未解锁。
 >
 > 数据防火墙已机械物化 107 个历史 identity：58 条 `legacy_train_only` + 49 条
 > `forbidden_consumed`，ledger SHA256=
