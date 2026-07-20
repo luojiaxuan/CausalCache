@@ -1,0 +1,12 @@
+{
+  "coalition_count": 461040,
+  "forward_coalition_count": 449294,
+  "logical_shard_count": 256,
+  "role_state_counts": {
+    "train": 10680,
+    "tune": 1066
+  },
+  "schedule_source_revision": "9267e392ede323f4f25a111da2f2577a98abd74f",
+  "state_count": 11746,
+  "status": "COMPLETED_VARIABLE_HISTORY_TRAIN_TUNE_SCHEDULE"
+}

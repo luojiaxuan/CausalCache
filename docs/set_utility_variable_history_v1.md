@@ -100,7 +100,8 @@ teacher batch，并把 KL 留在 GPU 到 state 完成。目标是提高 wall-clo
   实际 visual-token counts；256 shards 完成后执行 exact-grid context postflight；
 - full source 已在 Hyper00/Hyper01 完成 1,200 trajectories / 256 shards，共 13.16GB；v2 full visual-token extraction 已在 8xH200 完成 256/256 shards，共约 67GB，失败 shard 为 0；
 - label-blind schedule materializer 以 256 logical shards 生成 deterministic 40-label / small-history exact schedules；label runner 分别持久化 reference action、每个 coalition microbatch 与 terminal state，可在中断后跳过已完成 microbatch；
-- exact-grid context postflight 已 PASS；正式 labels 尚未生成，下一步直接物化 schedules 并启动。
+- exact-grid context postflight 已 PASS；256/256 schedule shards 已完成，共 11,746 train/tune states、461,040
+  coalition labels，其中 449,294 个需要 policy forward。正式 labels 尚未生成，下一步直接启动 8-GPU runner。
 
 ```bash
 PYTHONPATH=code python code/scripts/materialize_set_utility_variable_history_source.py \
