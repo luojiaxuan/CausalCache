@@ -38,6 +38,9 @@ closed。
 不能把单 seed 曲线解释成精确 power law。100% 对两个 family 都优于 50%，因此目前没有清晰饱和证据；同时
 DeepSets 的高 LR 在 50/100% 重现 non-finite，不能据此直接选为部署模型。
 
+8 个训练容器均为 exit 0、无 OOM；镜像 digest、软件版本、GPU/driver、完整 argv 与起止时间见
+[`execution_summary.json`](execution_summary.json)。
+
 下一步不立即盲目扩充 labels。先冻结 100% checkpoints，在 trajectory-disjoint evaluation 上比较真实
 at-most-`B` selector utility、OCR/RGB/recent 与 latency；若 held-out gain 成立且数据曲线仍改善，再增加
 trajectories 或 interaction-dense labels。机器可读结果见 [`summary.json`](summary.json)。

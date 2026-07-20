@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0.0",
+  "captured_at": "2026-07-20T09:24:46Z",
+  "code_revision": "9863f43b0c1e214c34f92700bbc0cd68b43aba56",
+  "model_config_sha256": "d9dd42e3369e239816b306467199b0f771bd006a61c96e0206039e9bf86d0a5c",
+  "execution_config_sha256": "b31c823889032dd7d8b5d1e8746632b1ef85c36ec14b2d17b24bd250b37f6d4d",
+  "input_parent_content_sha256": "8a530cc643ec2e8ee0ffedb907d36ac98942c51407b6a0c60caef7dd21dac6fa",
+  "cache_content_sha256": "ef82b077a2fb5a19fc5fdc12c8102b611f3d324e83d6f6ccb65e534790823385",
+  "seed": 20260720,
+  "evaluation_records_loaded": false,
+  "runtime": {
+    "image": "hongccc/sglang-omni:dev",
+    "image_id": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "image_digest": "hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "gpu": "NVIDIA H200",
+    "driver": "570.172.08",
+    "python": "3.12.3",
+    "pytorch": "2.11.0+cu130",
+    "pytorch_cuda": "13.0",
+    "transformers": "5.6.0",
+    "safetensors": "0.7.0"
+  },
+  "jobs": [
+    {
+      "container": "causalcache-jaxan-07201100-lc10-ds",
+      "host": "hyper00",
+      "gpu_id": 4,
+      "fraction": 0.1,
+      "variant": "deepsets_d512_l16_r2_lr3e4",
+      "argv": ["/bin/bash", "-lc", "cd /data/worktrees/causalcache-learning-curve-9863f43 && exec env PYTHONPATH=code python3 code/scripts/train_set_utility_token_predictor.py --input-root /data/artifacts/causalcache-set-utility-learning-curve-10-5e71d05 --cache-root /data/artifacts/causalcache-set-utility-learning-curve-cache-5e71d05 --config code/configs/causalcache_set_utility_learning_curve_v1.json --variant deepsets_d512_l16_r2_lr3e4 --output-root /data/runs/causalcache-set-utility-learning-curve-v1-9863f43/lc10_deepsets_d512_l16_r2_lr3e4 --device cuda:0"],
+      "started_at": "2026-07-20T08:57:16.061726545Z",
+      "finished_at": "2026-07-20T09:01:25.997575057Z",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "container": "causalcache-jaxan-07201100-lc10-st",
+      "host": "hyper00",
+      "gpu_id": 5,
+      "fraction": 0.1,
+      "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+      "argv": ["/bin/bash", "-lc", "cd /data/worktrees/causalcache-learning-curve-9863f43 && exec env PYTHONPATH=code python3 code/scripts/train_set_utility_token_predictor.py --input-root /data/artifacts/causalcache-set-utility-learning-curve-10-5e71d05 --cache-root /data/artifacts/causalcache-set-utility-learning-curve-cache-5e71d05 --config code/configs/causalcache_set_utility_learning_curve_v1.json --variant set_transformer_d256_l8_r1_s2_lr1e4 --output-root /data/runs/causalcache-set-utility-learning-curve-v1-9863f43/lc10_set_transformer_d256_l8_r1_s2_lr1e4 --device cuda:0"],
+      "started_at": "2026-07-20T08:57:16.210797349Z",
+      "finished_at": "2026-07-20T09:01:44.327294753Z",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "container": "causalcache-jaxan-07201100-lc25-ds",
+      "host": "hyper00",
+      "gpu_id": 6,
+      "fraction": 0.25,
+      "variant": "deepsets_d512_l16_r2_lr3e4",
+      "argv": ["/bin/bash", "-lc", "cd /data/worktrees/causalcache-learning-curve-9863f43 && exec env PYTHONPATH=code python3 code/scripts/train_set_utility_token_predictor.py --input-root /data/artifacts/causalcache-set-utility-learning-curve-25-5e71d05 --cache-root /data/artifacts/causalcache-set-utility-learning-curve-cache-5e71d05 --config code/configs/causalcache_set_utility_learning_curve_v1.json --variant deepsets_d512_l16_r2_lr3e4 --output-root /data/runs/causalcache-set-utility-learning-curve-v1-9863f43/lc25_deepsets_d512_l16_r2_lr3e4 --device cuda:0"],
+      "started_at": "2026-07-20T08:57:16.087716927Z",
+      "finished_at": "2026-07-20T09:03:19.216558254Z",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "container": "causalcache-jaxan-07201100-lc25-st",
+      "host": "hyper00",
+      "gpu_id": 7,
+      "fraction": 0.25,
+      "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+      "argv": ["/bin/bash", "-lc", "cd /data/worktrees/causalcache-learning-curve-9863f43 && exec env PYTHONPATH=code python3 code/scripts/train_set_utility_token_predictor.py --input-root /data/artifacts/causalcache-set-utility-learning-curve-25-5e71d05 --cache-root /data/artifacts/causalcache-set-utility-learning-curve-cache-5e71d05 --config code/configs/causalcache_set_utility_learning_curve_v1.json --variant set_transformer_d256_l8_r1_s2_lr1e4 --output-root /data/runs/causalcache-set-utility-learning-curve-v1-9863f43/lc25_set_transformer_d256_l8_r1_s2_lr1e4 --device cuda:0"],
+      "started_at": "2026-07-20T08:57:15.958463048Z",
+      "finished_at": "2026-07-20T09:04:17.677246611Z",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "container": "causalcache-jaxan-07201100-lc50-ds",
+      "host": "hyper01",
+      "gpu_id": 4,
+      "fraction": 0.5,
+      "variant": "deepsets_d512_l16_r2_lr3e4",
+      "argv": ["/bin/bash", "-lc", "cd /data/worktrees/causalcache-learning-curve-9863f43 && exec env PYTHONPATH=code python3 code/scripts/train_set_utility_token_predictor.py --input-root /data/artifacts/causalcache-set-utility-learning-curve-50-5e71d05 --cache-root /data/artifacts/causalcache-set-utility-learning-curve-cache-5e71d05 --config code/configs/causalcache_set_utility_learning_curve_v1.json --variant deepsets_d512_l16_r2_lr3e4 --output-root /data/runs/causalcache-set-utility-learning-curve-v1-9863f43/lc50_deepsets_d512_l16_r2_lr3e4 --device cuda:0"],
+      "started_at": "2026-07-20T08:57:16.04740948Z",
+      "finished_at": "2026-07-20T09:07:41.435990955Z",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "container": "causalcache-jaxan-07201100-lc50-st",
+      "host": "hyper01",
+      "gpu_id": 5,
+      "fraction": 0.5,
+      "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+      "argv": ["/bin/bash", "-lc", "cd /data/worktrees/causalcache-learning-curve-9863f43 && exec env PYTHONPATH=code python3 code/scripts/train_set_utility_token_predictor.py --input-root /data/artifacts/causalcache-set-utility-learning-curve-50-5e71d05 --cache-root /data/artifacts/causalcache-set-utility-learning-curve-cache-5e71d05 --config code/configs/causalcache_set_utility_learning_curve_v1.json --variant set_transformer_d256_l8_r1_s2_lr1e4 --output-root /data/runs/causalcache-set-utility-learning-curve-v1-9863f43/lc50_set_transformer_d256_l8_r1_s2_lr1e4 --device cuda:0"],
+      "started_at": "2026-07-20T08:57:16.047075785Z",
+      "finished_at": "2026-07-20T09:11:31.885612081Z",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "container": "causalcache-jaxan-07201100-lc100-ds",
+      "host": "hyper01",
+      "gpu_id": 6,
+      "fraction": 1.0,
+      "variant": "deepsets_d512_l16_r2_lr3e4",
+      "argv": ["/bin/bash", "-lc", "cd /data/worktrees/causalcache-learning-curve-9863f43 && exec env PYTHONPATH=code python3 code/scripts/train_set_utility_token_predictor.py --input-root /data/artifacts/causalcache-set-utility-variable-history-training-full-merged-5e71d05 --cache-root /data/artifacts/causalcache-set-utility-learning-curve-cache-5e71d05 --config code/configs/causalcache_set_utility_learning_curve_v1.json --variant deepsets_d512_l16_r2_lr3e4 --output-root /data/runs/causalcache-set-utility-learning-curve-v1-9863f43/lc100_deepsets_d512_l16_r2_lr3e4 --device cuda:0"],
+      "started_at": "2026-07-20T08:57:16.127472295Z",
+      "finished_at": "2026-07-20T09:06:22.050199369Z",
+      "exit_code": 0,
+      "oom_killed": false
+    },
+    {
+      "container": "causalcache-jaxan-07201100-lc100-st",
+      "host": "hyper01",
+      "gpu_id": 7,
+      "fraction": 1.0,
+      "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+      "argv": ["/bin/bash", "-lc", "cd /data/worktrees/causalcache-learning-curve-9863f43 && exec env PYTHONPATH=code python3 code/scripts/train_set_utility_token_predictor.py --input-root /data/artifacts/causalcache-set-utility-variable-history-training-full-merged-5e71d05 --cache-root /data/artifacts/causalcache-set-utility-learning-curve-cache-5e71d05 --config code/configs/causalcache_set_utility_learning_curve_v1.json --variant set_transformer_d256_l8_r1_s2_lr1e4 --output-root /data/runs/causalcache-set-utility-learning-curve-v1-9863f43/lc100_set_transformer_d256_l8_r1_s2_lr1e4 --device cuda:0"],
+      "started_at": "2026-07-20T08:57:16.105737799Z",
+      "finished_at": "2026-07-20T09:13:21.788756976Z",
+      "exit_code": 0,
+      "oom_killed": false
+    }
+  ]
+}
