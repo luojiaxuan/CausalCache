@@ -12,6 +12,8 @@
   manifest SHA256 均为 `0e87364b...f3b4b`；GPU extraction 仍等待 tune truth 判定。
 - 用户将两台 Hyper 的并发上限收缩为各 4 GPUs；当前 truth run 已中断额外 worker 并保留原子进度，后续 full
   extraction 固定为 8 个 logical partitions、每台 4 GPUs。
+- full contextual input snapshot 已发布到 private HF dataset revision `268bae32...ecd2`，immutable tag=
+  `set-utility-contextual-inputs-full-v4-af18388e`；remote revision 已回读验证。
 
 ## 2026-07-20：small-history self-contained exact B4 完成
 

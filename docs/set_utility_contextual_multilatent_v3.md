@@ -51,6 +51,9 @@ Hyper00 0--5 与 Hyper01 2--7 共 12×H200 独立生成真实 `D(S)`；state 与
 11,721 states / 1,100 trajectories / 27,867 contexts，其中 query 11,721、event 16,146；input content
 SHA256=`af18388e...139c1`。科学绑定见
 [`causalcache_set_utility_contextual_full_v4.json`](../code/configs/causalcache_set_utility_contextual_full_v4.json)。
+该 snapshot 已发布到 private HF dataset revision `268bae32792c3b651541354f74d9a18b7b97ecd2`，tag=
+`set-utility-contextual-inputs-full-v4-af18388e`，artifact path=
+`artifacts/set-utility-contextual-inputs-full-v4-af18388e`。
 
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。
