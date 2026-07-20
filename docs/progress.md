@@ -4024,3 +4024,18 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   restoration 信号在长历史上没有衰减;差距完全在 selector。
 - wave-2(true-greedy step-2 全扩张,5,904 coalitions/250 states)已物化并在两台以相同低密度布局启动;
   materializer 补绑 `schedule_shards_sha256` 进 manifest(此前 manifest content hash 只覆盖计数元数据)。
+
+## 2026-07-20:Long-oracle wave-2 完成,B2 headroom 同样为强阳性
+
+- wave-2(true-greedy step-2 全扩张)250/250 states `COMPLETED`、0 skip、跨 wave reference action 漂移 0。
+  执行修正:wave-2 启动间隙 Hyper00 GPU 4 被其他用户 119.6GB 任务占用,partition-0 双 lane 在模型加载即
+  OOM;GPU 6/7 也各新增 ~44GB 外部进程。h00 重启为避开 GPU 4 的 4 单 lane 布局后跑完;科学 denominator
+  不变。
+- **wave 1+2 联合初判(158 trajectories,trajectory-equal)**:B2 true-greedy oracle=`0.6611` vs recent=
+  `0.2827`,paired delta=`+0.3784`,95% CI=`[0.3072, 0.4691]`;B1 维持 `+0.4954 [0.3917, 0.6234]`。
+  长历史 B2 oracle(0.661)与小历史 exact B2(0.700)同量级,restoration headroom 在长历史上完全成立。
+- **additive top-2 只有 `0.5035`,显著低于条件贪心 `0.6611`**:与小历史上 J-additive 恢复 90% exact B2 的
+  结论不同,长历史上纯 singleton-additive 选择显著不足,条件边际结构不可省略。这直接支持 decision
+  distillation v2 的 conditional/listwise 目标设计,并否定"只蒸馏 singleton marginal"的简化路线。
+- wave-3(5,833 coalitions,greedy step-3 扩张 + additive top-3)已在 Hyper00 恢复的 4×2 lanes 与
+  Hyper01 2×2 lanes 上启动。
