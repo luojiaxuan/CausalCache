@@ -1,12 +1,43 @@
 # Set Utility held-out selector v1
 
-状态：`SEALED_SELECTIONS_TRUTH_ROLLOUT_IN_PROGRESS`。
+状态：`FORMAL_NO_GO`（`INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION`）。
 
 ## 目的
 
 本阶段不再看 train/tune loss，而是在 trajectory-disjoint、variable-`n_t` evaluation 上回答：冻结的 rich-token
 DeepSets 与 Set Transformer 是否能把 restoration oracle 蒸馏成优于 recent 与 OCR/RGB 的 at-most-`B`
 selector。只有本阶段 GO 才进入 policy replay 和 closed-loop。
+
+## 正式结果
+
+Truth rollout 已覆盖冻结 inventory 的 805/805 states：801 completed，4 个在 full-history reference action 的
+strict GUI-Owl v2.1 tool-call parse 处 skipped，missing 为 0。四个 state 是：
+
+- `1056904966893992:decision:020`：`wait` arguments schema 不合法；
+- `2126576939497421:decision:024`：`swipe` arguments schema 不合法；
+- `4237120211217969:decision:010`：`wait` arguments schema 不合法；
+- `4672871607370960:decision:022`：`wait` arguments schema 不合法。
+
+冻结 reducer 因 coverage 不完整给出 `NO_GO`，没有 deployment winner。在 801 个 completed states 上，描述性诊断为：
+
+| Method | Primary B1--B4 recovery | vs recent (95% CI) | vs OCR/RGB (95% CI) | Exact regret B1 / B2 | Long+very-long |
+|---|---:|---:|---:|---:|---:|
+| DeepSets | 0.3997 | -0.0043 `[-0.0330, 0.0231]` | +0.0171 `[-0.0030, 0.0376]` | 0.0378 / 0.0320 | 0.2983 |
+| Set Transformer | **0.4093** | +0.0054 `[-0.0248, 0.0318]` | +0.0267 `[0.0034, 0.0525]` | **0.0343** / 0.0281 | **0.3912** |
+| recent | 0.4040 | -- | -- | 0.0389 / 0.0264 | 0.3693 |
+| OCR/RGB | 0.3826 | -- | -- | 0.0388 / **0.0230** | 0.3147 |
+
+Set Transformer 在 primary、相对 OCR/RGB、B1 regret 和 long-history 点估计上有信号，但相对 recent 的 bootstrap
+下界不为正，B2 regret 也差于 recent 与 OCR/RGB。因此即使另立允许预注册 parser skips 的 coverage contract，
+当前 checkpoint 仍不满足冻结的 performance gate。Exact oracle 的 B1/B2 normalized recovery 为 0.5170/0.6852，
+说明 restoration signal 仍在，主要风险仍是 distillation/selection gap。
+
+完整 reducer artifact 位于 Hyper00
+`/data02/jaxan/runs/causalcache-set-utility-heldout-evaluation-v1-7113e09/result.json`，content SHA256 为
+`d89263ce6e76b127a6741e3d2e9b005c7c813e9a49b75163c056ba799158ef49`，file SHA256 为
+`4fb4a55f0280b96ceaed711b675102639e542aa507b93f592289262116294e01`。轻量摘要见
+[`evaluation-summary.json`](../data/results/set_utility_heldout_v1/evaluation-summary.json)。根据预注册顺序，native
+policy replay、online controller 与 AndroidWorld closed-loop 均未启动。
 
 ## 冻结输入
 
@@ -58,13 +89,15 @@ bootstrap、exact-oracle regret、history-bin 指标、selector latency 和冻�
 Hyper00/Hyper01 已分别完成 333/472 个 label-blind feature states、token cache 与双模型 inference；合并后严格
 覆盖 union 805、exact 320、large-history 720、overlap 235，`label_file_read_count=0`。Sealed selections 已写入
 [`data/results/set_utility_heldout_v1/`](../data/results/set_utility_heldout_v1/README.md)；evaluation restoration
-truth schedule 已在 selections 密封后冻结，共 805 states、55,175 个去重 coalitions。执行保持 state/microbatch
-原子断点；初始 modulo-24 分区出现 48.5 倍 workload spread 后，在 276 个完成 states 处仅重排为 48 个
+truth schedule 已在 selections 密封后冻结，共 805 states、55,175 个去重 coalitions。12×H200 rollout 已全部
+exit 0，48/48 lanes 完成，产出 805 个 terminal state records；执行保持 state/microbatch 原子断点。初始
+modulo-24 分区出现 48.5 倍 workload spread 后，在 276 个完成 states 处仅重排为 48 个
 deterministic state lanes，科学输入、模型和 label 定义均未改变。冻结重排见
 [`causalcache_set_utility_heldout_labels_rescue_48_v3.json`](../code/configs/causalcache_set_utility_heldout_labels_rescue_48_v3.json)。
 该配置最初把不同 cardinality 合并估算而低报 microbatch；runner 实际按 cardinality 分组。追加的
 [`postflight correction`](../code/configs/causalcache_set_utility_heldout_labels_rescue_48_v3_postflight.json)
-记录 6,423 个总 microbatches、断点后剩余 4,773，以及不变 lane 映射下 156--232 的进程负载；不追溯改写原配置。
+记录 6,423 个计划 microbatches、断点后剩余 4,773，以及不变 lane 映射下 156--232 的进程负载；4 个 skipped
+states 提前终止后，实际有 6,392 个去重 batch records。不追溯改写原配置。
 
 Post-GO native-action replay 已预先实现但不会绕过本合同：materializer 必须验证 held-out result 的完整签名、
 805-state coverage、winner `GO` 和 exact-track 320-state inventory 后才会产出 schedule。该阶段只比较 winner、

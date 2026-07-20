@@ -1,0 +1,105 @@
+{
+  "artifact_status": "PENDING_HF_UPLOAD",
+  "coverage": {
+    "complete": false,
+    "completed_state_count": 801,
+    "expected_state_count": 805,
+    "missing_state_count": 0,
+    "skipped_state_count": 4,
+    "terminal_state_count": 805
+  },
+  "downstream_authorized": false,
+  "exact_oracle": {
+    "B1_macro_normalized_recovery": 0.5170145651209884,
+    "B2_macro_normalized_recovery": 0.685172984797886
+  },
+  "methods": {
+    "deepsets": {
+      "exact_oracle_regret": {
+        "B1": 0.03782259751248113,
+        "B2": 0.03195345084023647
+      },
+      "long_plus_very_long_macro_normalized_recovery": 0.2983044000378808,
+      "minus_ocr_rgb": {
+        "bootstrap_95_ci": [
+          -0.0029729123636834296,
+          0.03756827275446551
+        ],
+        "point_estimate": 0.017066378605874722
+      },
+      "minus_recent": {
+        "bootstrap_95_ci": [
+          -0.03303132400524101,
+          0.02313562174044685
+        ],
+        "point_estimate": -0.004297230531784974
+      },
+      "primary_macro_B1_B4_trajectory_equal_normalized_recovery": 0.3996600905443709,
+      "selector_p95_ms_from_cached_source_tokens": 44.100448954850435,
+      "verdict": "NO_GO"
+    },
+    "ocr_rgb": {
+      "exact_oracle_regret": {
+        "B1": 0.03875070950281066,
+        "B2": 0.023024430426573563
+      },
+      "long_plus_very_long_macro_normalized_recovery": 0.3147181712570648,
+      "primary_macro_B1_B4_trajectory_equal_normalized_recovery": 0.3825937119384962
+    },
+    "recent": {
+      "exact_oracle_regret": {
+        "B1": 0.03889559618238263,
+        "B2": 0.02639068969804993
+      },
+      "long_plus_very_long_macro_normalized_recovery": 0.36934870736186115,
+      "primary_macro_B1_B4_trajectory_equal_normalized_recovery": 0.40395732107615584
+    },
+    "set_transformer": {
+      "exact_oracle_regret": {
+        "B1": 0.034256300229324924,
+        "B2": 0.028123530432043797
+      },
+      "long_plus_very_long_macro_normalized_recovery": 0.39118833589512464,
+      "minus_ocr_rgb": {
+        "bootstrap_95_ci": [
+          0.003427151966546757,
+          0.052536397533598345
+        ],
+        "point_estimate": 0.026738605719994996
+      },
+      "minus_recent": {
+        "bootstrap_95_ci": [
+          -0.0248434322865411,
+          0.03176464061966741
+        ],
+        "point_estimate": 0.0053749965823353
+      },
+      "primary_macro_B1_B4_trajectory_equal_normalized_recovery": 0.40933231765849115,
+      "selector_p95_ms_from_cached_source_tokens": 210.94456920400262,
+      "verdict": "NO_GO"
+    }
+  },
+  "producer_git_revision": "7113e09",
+  "result": {
+    "content_sha256": "d89263ce6e76b127a6741e3d2e9b005c7c813e9a49b75163c056ba799158ef49",
+    "file_sha256": "4fb4a55f0280b96ceaed711b675102639e542aa507b93f592289262116294e01",
+    "persistent_path": "/data02/jaxan/runs/causalcache-set-utility-heldout-evaluation-v1-7113e09/result.json",
+    "status": "INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION"
+  },
+  "schema_version": "causalcache.set_utility_heldout_evaluation_summary.v1",
+  "skipped_states": {
+    "1056904966893992:decision:020": "GUIOwlV21GenerationParseError",
+    "2126576939497421:decision:024": "GUIOwlV21GenerationParseError",
+    "4237120211217969:decision:010": "GUIOwlV21GenerationParseError",
+    "4672871607370960:decision:022": "GUIOwlV21GenerationParseError"
+  },
+  "truth": {
+    "canonical_persistent_path": "/data02/jaxan/runs/causalcache-set-utility-heldout-labels-v1",
+    "state_ids_sha256": "11f2987886bcdd1ea13240558a87523e843959574264c49de14bfae2e7069ca0"
+  },
+  "verdict": {
+    "model": null,
+    "reason": "no_model_satisfied_all_frozen_requirements",
+    "value": "NO_GO"
+  }
+}

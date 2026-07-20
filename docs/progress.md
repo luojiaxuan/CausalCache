@@ -1,5 +1,23 @@
 # 项目进展
 
+## 2026-07-20：held-out selector v1 正式 NO-GO
+
+- Truth rollout 在 Hyper00/Hyper01 使用 12×H200 完成，48/48 deterministic lanes 与 12/12 containers
+  均正常结束；冻结 inventory 的 805/805 states 有 terminal records，其中 801 completed、4 个 strict GUI-Owl
+  tool-call parse skips，missing 0；
+- formal reducer 返回 `INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION / NO_GO`，没有 deployment winner；根据冻结
+  顺序，native policy replay、online controller、AndroidWorld closed-loop 与 matched-NLL 均未启动；
+- completed-state 诊断中，Set Transformer primary recovery=0.4093，recent=0.4040，OCR/RGB=0.3826；Set
+  Transformer 显著胜 OCR/RGB（95% CI `[0.0034, 0.0525]`），但未显著胜 recent（`[-0.0248, 0.0318]`），
+  且 exact B2 regret=0.0281，差于 recent=0.0264 与 OCR/RGB=0.0230；
+- DeepSets primary=0.3997，long+very-long=0.2983，整体弱于 Set Transformer；Set Transformer 的
+  long+very-long=0.3912，高于 recent=0.3693，是值得保留但不足以 GO 的方向性信号；
+- full result 位于 Hyper00
+  `/data02/jaxan/runs/causalcache-set-utility-heldout-evaluation-v1-7113e09/result.json`，content SHA256=
+  `d89263ce...8ef49`、file SHA256=`4fb4a55f...94e01`；轻量摘要见
+  [`data/results/set_utility_heldout_v1/`](../data/results/set_utility_heldout_v1/README.md)，大 artifact 为
+  `PENDING_HF_UPLOAD`。
+
 ## 2026-07-20：10/25/50/100% learning curve 完成
 
 - 8/8 单 seed jobs exit 0，无 OOM；evaluation records 均未加载；

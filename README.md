@@ -6,6 +6,13 @@
 
 ## 当前结论
 
+- **Held-out selector v1 正式 NO-GO。** 805/805 states 均有终态，但仅 801 completed、4 个因冻结 GUI-Owl
+  strict tool-call parser 失败而 skipped，故正式状态为 `INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION`，没有合法
+  deployment winner，policy replay 与 closed-loop 未获授权。
+- completed states 上 Set Transformer 有方向性信号：B1--B4 primary recovery 为 0.4093，高于 recent 的
+  0.4040 与 OCR/RGB 的 0.3826；相对 OCR/RGB 的 bootstrap 95% CI 为 `[0.0034, 0.0525]`，但相对 recent
+  为 `[-0.0248, 0.0318]`，且 B2 exact-oracle regret 0.0281 差于 recent 0.0264 与 OCR/RGB 0.0230。
+  因此这不只是 coverage 阻塞：当前 checkpoint 也没有满足冻结的 selector performance gate。
 - Restoration signal 存在，但旧版 conditional gate 与 independent gate 都没有在 untouched confirm 上稳定超过廉价 heuristic。
 - GUIOdyssey 已固定 1,200 trajectories。旧 processor artifact 只物化每条轨迹的 anchor/terminal 两个 query，不能算 state-level 扩数完成。
 - D2 已证明 strict-determinism runtime 可稳定复现先前的异常 state。
@@ -53,11 +60,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 - labels 并行期间的 1,501-state partial snapshot 已在 Hyper00 GPU 4/5 完成 DeepSets 与 Set Transformer 双卡训练；两者 tune objective 均明显下降，Set Transformer best=0.4714、DeepSets best=0.4853。该结果只验证优化路径，不消费 evaluation，也不做正式 GO/NO-GO；见 [`data/results/set_utility_variable_history_training_partial_v1/`](data/results/set_utility_variable_history_training_partial_v1/README.md)。
 - 25% train-trajectory 单 seed 超参搜索已完成 12/12 配置：DeepSets 冻结 `d512/l16/r2/lr3e-4`（tune total 0.31137，最佳 checkpoint 后出现 non-finite），Set Transformer 冻结 `d256/l8/r1/s2/lr1e-4`（0.31169）。下一步从完成 labels 重建 nested 10/25/50/100% learning curve；[结果](data/results/set_utility_tuning25_v1/README.md)与[配置](code/configs/causalcache_set_utility_learning_curve_v1.json)。
 - 正式 nested learning curve 已完成：100% 相对 10% 的 tune total，DeepSets 改善 0.01098、Set Transformer 改善 0.00480；中间点不单调，且 DeepSets 50/100% 在最佳 checkpoint 后 non-finite。当前没有明确数据饱和证据，但应先做 held-out selector/latency evaluation，再决定是否继续扩 labels。[完整结果](data/results/set_utility_learning_curve_v1/README.md)。
-- held-out selector v1 已在读取 evaluation restoration labels 前冻结：805-state label-blind feature/cache 和两类
-  100% checkpoint inference 均已完成（exact 320、large 720、overlap 235、label reads 0），conditional-greedy
-  at-most-`B` selections 已密封进 Git。805-state sparse/exact truth 正在 Hyper00/Hyper01 的 12×H200 上断点生成；
-  workload 已从失衡的 modulo-24 分区重排成 48 个 state lanes。只有真实 utility GO、native behavior recovery GO
-  与 warm latency GO 全部通过才授权 closed-loop。[合同](docs/set_utility_heldout_v1.md)与[artifact](data/results/set_utility_heldout_v1/README.md)。
+- held-out selector v1 已完成：label-blind selections 在 truth access 前密封；12×H200、48 lanes 生成 805/805
+  terminal states（801 completed、4 strict-parser skips）。正式 reducer 判定 `NO_GO`；Set Transformer 虽在 primary、
+  OCR/RGB 与 long-history 点估计上领先，但未显著超过 recent，且 B2 oracle regret 失败。根据冻结合同，不启动
+  policy replay、online controller 或 closed-loop。[合同](docs/set_utility_heldout_v1.md)与[artifact](data/results/set_utility_heldout_v1/README.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。
@@ -84,7 +90,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | 25% tuning checkpoints | [HF model@d628ecf6](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/d628ecf6e1783591a039080999f36635c36049fb/artifacts/set-utility-tuning25-v3-seeded-floor1e2-2d68154) | immutable；12 configs / 481.8MB；tuning-only |
 | Learning-curve dataset/cache | [HF dataset@02a05ab1](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/02a05ab11fd3a5036b62244bf04f37aa5e41db59/artifacts/set-utility-learning-curve-v1-9863f43) | immutable；414 files / 77.4GB；nested splits + compact label archives |
 | Learning-curve checkpoints | [HF model@5409e846](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/5409e846cc45a26b2ae617e39b3ebf7462d180e6/artifacts/set-utility-learning-curve-v1-9863f43) | immutable；8 checkpoints；[summary](data/results/set_utility_learning_curve_v1/README.md) |
-| Held-out sealed selections | [`data/results/set_utility_heldout_v1/`](data/results/set_utility_heldout_v1/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-set-utility-heldout-selections-480e26d` | 805 states；content `9857310...e658f`；evaluation labels 尚未读取 |
+| Held-out selector v1 | [`data/results/set_utility_heldout_v1/`](data/results/set_utility_heldout_v1/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-set-utility-heldout-labels-v1`、`...heldout-evaluation-v1-7113e09/result.json` | 805 terminals：801 completed + 4 skipped；`INCOMPLETE/NO_GO`；result content `d89263c...8ef49`；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |
@@ -120,6 +126,10 @@ PYTHONPATH=code python3 -m compileall -q \
 
 ## Go / No-Go
 
+Held-out v1 已消费：没有模型满足全部冻结条件，后续 policy replay/closed-loop 保持关闭。801 个 completed states
+上的诊断表明 Set Transformer 优于 OCR/RGB、long-history 点估计为正，但未可靠优于 recent，且 B2 oracle regret
+仍差于两个 heuristic。下一轮应先改进 distillation/selection，再以新合同评估，不能把本轮追认为 GO。
+
 MVP 的首要判断不是 closed-loop，而是 held-out utility selection：
 
 - 若 variable-`n_t` predictor 稳定超过 OCR/RGB，并明显缩小 exact-oracle gap：再做 matched-NLL 与 closed-loop。
@@ -127,7 +137,8 @@ MVP 的首要判断不是 closed-loop，而是 held-out utility selection：
 - recent-4 partial token pilot 不执行上述 GO 判断；正式判断必须重做 variable-`n_t` labels 与训练。
 - 若 oracle-independent `J` 有效但 learned models 失败：改进表示和训练数据。
 - 若 exact oracle 有 signal、但所有可学习目标和简单 baseline 持平：重新审视 predictor objective。
-- 不因单个 near-tie / unstable state 让整个数据集归零；报告接受率和失败类别。
+- 新合同应按 state 报告接受率和失败类别，不因单个 near-tie / unstable state 让数据集归零；该原则不追溯改写
+  已冻结且已消费的 held-out v1 coverage contract。
 
 ## Paper Claim 边界
 
