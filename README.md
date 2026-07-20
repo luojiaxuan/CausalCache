@@ -6,6 +6,9 @@
 
 ## 当前结论
 
+- **Decision distillation v2 已进入 train-only label 阶段。** Beam-4 traces 已覆盖 10,658 train states；冻结
+  sampler 选中 1,066 states / 486 trajectories，candidate-complete schedule 含 365,043 个 coalitions，
+  long/very-long 占 70%。evaluation 仍未访问；当前不是 GO/NO-GO 结果。
 - **Held-out selector v1 正式 NO-GO。** 805/805 states 均有终态，但仅 801 completed、4 个因冻结 GUI-Owl
   strict tool-call parser 失败而 skipped，故正式状态为 `INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION`，没有合法
   deployment winner，policy replay 与 closed-loop 未获授权。
@@ -115,6 +118,9 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   与 expected-regret loss 训练。只有 B1--B4 每个预算、macro CI 与 long-history 同时通过 fixed-tune gate，才访问
   untouched evaluation。[合同](docs/set_utility_decision_distillation_v2.md)与
   [配置](code/configs/causalcache_set_utility_decision_distillation_v2.json)。
+- v2 train beam traces 与 candidate-complete schedule 已完成：1,066 states / 365,043 coalitions，
+  long/very-long/medium/short=`693/53/213/107`；下一步以 Hyper00/Hyper01 各最多 4×H200 生成 resumable labels。
+  [轻量结果](data/results/set_utility_decision_distillation_v2/README.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。
@@ -153,6 +159,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Contextual full tune truth v4 | [`summary`](data/results/set_utility_contextual_tune_on_policy_full_v4/README.md)；[HF dataset@014aee81](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/014aee81e0f95199163773440658d6eaf36d3ddb/artifacts/set-utility-contextual-tune-on-policy-full-v4-fb6de0d) | 1,063/1,063；Set Transformer `0.44985` vs recent `0.45192`；`FULL_DATA_NO_GO`；immutable |
 | Train on-policy enrichment v1 | [合同/进展](docs/set_utility_train_on_policy_enrichment_v1.md)；[HF dataset@9b436c9c](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/9b436c9c8ac645d20f2aa86ba0d519b14f5d6934/artifacts/set-utility-train-enrichment-v1-2711ab55) | 2,132 train states；52,744 scheduled rows；37,982 novel rows；tag `set-utility-train-enrichment-v1-2711ab55`；immutable |
 | Contextual enriched fixed-tune result v1 | [`summary`](data/results/set_utility_contextual_tune_on_policy_enriched_v1/README.md)；[HF dataset@bbee1ae7](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/bbee1ae7aae2a712aaf2a897a08fa69adcef4ee6/artifacts/set-utility-contextual-tune-enriched-v1-3f73e17) | 1,063/1,063；DeepSets/Set Transformer/recent=`0.44383/0.44141/0.45192`；`NO_GO_TRAIN_ON_POLICY_ENRICHMENT_V1`；immutable |
+| Decision distillation v2 | [`summary`](data/results/set_utility_decision_distillation_v2/README.md)；Hyper00 persistent traces/schedule | 1,066 train states；365,043 candidate-complete coalitions；labels pending；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

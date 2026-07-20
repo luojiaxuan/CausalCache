@@ -10,6 +10,17 @@
   点估计、macro paired CI 和 long-history 同时超过 Recent；失败不访问 evaluation；
 - 实现与冻结参数见 [`docs/set_utility_decision_distillation_v2.md`](set_utility_decision_distillation_v2.md)。
 
+## 2026-07-20：decision distillation v2 candidate-complete schedule
+
+- DeepSets 与 Set Transformer 分别绑定自己的 v1 training config/checkpoint，共享 enriched input、119GB
+  contextual cache 与 v2 beam-4 search config；两份 train trace 均完成 10,658/10,658 states；
+- 训练 lineage validator 已修正为只要求 input/cache/search contract 一致，并在 schedule manifest 分别记录
+  training config SHA；tests=`9 passed, 1 skipped`；
+- 冻结 sampler 选中 1,066 states / 486 trajectories，long/very-long/medium/short=
+  `693/53/213/107`，每 trajectory 最多 3 states；
+- candidate-complete schedule 含 365,043 个去重 coalitions，content SHA=
+  `d5e508c2...10187a`；下一步跨 Hyper00/Hyper01 各最多 4×H200 生成 train-only labels，evaluation 仍锁定。
+
 ## 2026-07-20：train-side on-policy enrichment v1 fixed-tune NO-GO
 
 - 2,132/2,132 train states、52,744 targeted coalitions 完成，合并后新增 37,982 个 rows；重复 label 最大绝对
