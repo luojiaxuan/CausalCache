@@ -89,7 +89,6 @@ def main() -> None:
             raise ValueError("a tune selection payload is incomplete")
         current_binding = (
             payload["cache_content_sha256"],
-            payload["config_sha256"],
             payload["input_content_sha256"],
         )
         if binding is None:
@@ -100,7 +99,7 @@ def main() -> None:
         if set(records) != set(states):
             raise ValueError("tune selection state inventory drifted")
         selections[name] = (payload, records)
-    if binding is None or binding[2] != input_manifest["content_sha256"]:
+    if binding is None or binding[1] != input_manifest["content_sha256"]:
         raise ValueError("tune selections do not bind the input snapshot")
 
     by_shard = {index: [] for index in range(256)}
@@ -155,6 +154,7 @@ def main() -> None:
     selection_bindings = {
         name: {
             "checkpoint_sha256": payload["checkpoint_sha256"],
+            "config_sha256": payload["config_sha256"],
             "content_sha256": payload["content_sha256"],
             "variant": payload["variant"],
         }

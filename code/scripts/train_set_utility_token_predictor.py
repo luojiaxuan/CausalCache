@@ -350,18 +350,49 @@ def _loss(
     ranking_rows = (ranking_terms * untied).sum(dim=(1, 2)) / untied.sum(
         dim=(1, 2)
     ).clamp_min(1)
+    base_masks = batch["model"]["subset_masks"].unsqueeze(2)
+    expanded_masks = batch["model"]["subset_masks"].unsqueeze(1)
+    one_event_expansions = (
+        ((base_masks & ~expanded_masks).sum(dim=3) == 0)
+        & (
+            expanded_masks.sum(dim=3).to(torch.int64)
+            - base_masks.sum(dim=3).to(torch.int64)
+            == 1
+        )
+        & label_mask.unsqueeze(2)
+        & label_mask.unsqueeze(1)
+    )
+    target_marginals = normalized_targets.unsqueeze(1) - normalized_targets.unsqueeze(2)
+    predicted_marginals = (
+        normalized_predictions.unsqueeze(1) - normalized_predictions.unsqueeze(2)
+    )
+    marginal_terms = torch.nn.functional.smooth_l1_loss(
+        predicted_marginals,
+        target_marginals,
+        reduction="none",
+        beta=float(loss_config.get("conditional_marginal_smooth_l1_beta", 0.25)),
+    )
+    marginal_rows = (
+        (marginal_terms * one_event_expansions).sum(dim=(1, 2))
+        / one_event_expansions.sum(dim=(1, 2)).clamp_min(1)
+    )
+    marginal_rows = marginal_rows * scale_mask.to(marginal_rows.dtype)
     weights = trajectory_weights / trajectory_weights.sum()
     raw = torch.sum(raw_rows * weights)
     normalized = torch.sum(normalized_rows * weights)
     ranking = torch.sum(ranking_rows * weights)
+    conditional_marginal = torch.sum(marginal_rows * weights)
     total = (
         float(loss_config["raw_regression"]) * raw
         + float(loss_config["normalized_regression"]) * normalized
         + float(loss_config["within_state_ranking"]) * ranking
+        + float(loss_config.get("conditional_marginal", 0.0))
+        * conditional_marginal
     )
     correct = ((prediction_differences * signs) > 0) & untied
     ranking_accuracy = correct.sum() / untied.sum().clamp_min(1)
     return total, {
+        "conditional_marginal_regression": float(conditional_marginal.detach()),
         "normalized_regression": float(normalized.detach()),
         "ranking_accuracy": float(ranking_accuracy.detach()),
         "raw_mae": float(

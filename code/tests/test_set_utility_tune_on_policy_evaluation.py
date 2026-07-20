@@ -10,7 +10,7 @@ def _selection(name: str, learned: dict[str, list[int]]) -> dict:
     payload = {
         "cache_content_sha256": "cache",
         "checkpoint_sha256": f"checkpoint-{name}",
-        "config_sha256": "config",
+        "config_sha256": f"config-{name}",
         "input_content_sha256": "input",
         "records": [
             {

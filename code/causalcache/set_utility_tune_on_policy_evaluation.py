@@ -116,7 +116,6 @@ def evaluate_tune_on_policy(
             raise ValueError(f"selector payload is invalid: {name}")
         current_binding = (
             payload.get("cache_content_sha256"),
-            payload.get("config_sha256"),
             payload.get("input_content_sha256"),
         )
         if binding is None:
@@ -323,6 +322,20 @@ def evaluate_tune_on_policy(
         "method_summaries": summaries,
         "normalization_floor": floor,
         "schema_version": "1.0.0",
+        "selector_bindings": {
+            model: {
+                key: selections[model][key]
+                for key in (
+                    "cache_content_sha256",
+                    "checkpoint_sha256",
+                    "config_sha256",
+                    "content_sha256",
+                    "input_content_sha256",
+                    "variant",
+                )
+            }
+            for model in models
+        },
         "state_records": state_records,
         "status": COMPLETED_RESULT if coverage_complete else INCOMPLETE_RESULT,
         "winner": {

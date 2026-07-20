@@ -53,5 +53,10 @@ Enriched snapshot 只向 selected train states 增加新 coalition rows；原 br
 并要求绝对差不超过 `1e-6`。manifest 绑定 schedule、label terminals、source revision 与 parent input SHA；
 contextual hidden cache 通过 parent binding 复用，不重复运行 GUI-Owl encoder。Tune states 逐字节保持不变。
 
+重训目标在原 raw/normalized subset utility 与 within-state ranking 之外，显式加入所有已标注
+`S -> S union {j}` one-event expansion 的 normalized conditional-marginal regression，权重为 `1.0`。这使
+targeted labels 直接约束部署时 conditional greedy 的后续步骤。固定 tune reducer 允许候选 checkpoint 来自
+不同训练 config，但仍要求相同 contextual input、hidden cache 和 state inventory，并逐模型记录 config SHA。
+
 重训后只接受以下判定：Set Transformer 在相同固定 tune truth 上 primary macro 高于 recent，且 paired
 trajectory bootstrap 不显示稳定退化；否则继续 `NO_GO`，不进入 policy experiments。

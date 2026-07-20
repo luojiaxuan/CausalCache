@@ -181,6 +181,49 @@ class TokenUtilityTorchTest(unittest.TestCase):
                 self.assertTrue(torch.equal(predictions[:, 0], torch.zeros(2)))
                 predictions.sum().backward()
 
+    def test_conditional_marginal_loss_targets_one_event_expansions(self) -> None:
+        torch = self.torch
+        subset_masks = torch.tensor(
+            [[[False, False], [True, False], [False, True], [True, True]]],
+            dtype=torch.bool,
+        )
+        targets = torch.tensor([[0.0, 0.3, 0.2, 0.9]])
+        batch = {
+            "model": {"subset_masks": subset_masks},
+            "raw_targets": targets,
+            "normalized_targets": targets,
+            "label_mask": torch.ones((1, 4), dtype=torch.bool),
+            "scales": torch.ones(1),
+            "scale_mask": torch.ones(1, dtype=torch.bool),
+        }
+        config = {
+            "raw_smooth_l1_beta": 0.1,
+            "normalized_smooth_l1_beta": 0.1,
+            "conditional_marginal_smooth_l1_beta": 0.1,
+            "raw_regression": 0.0,
+            "normalized_regression": 0.0,
+            "within_state_ranking": 0.0,
+            "conditional_marginal": 1.0,
+        }
+        exact, exact_metrics = _loss(
+            targets,
+            batch,
+            loss_config=config,
+            trajectory_weights=torch.ones(1),
+            torch=torch,
+        )
+        wrong, wrong_metrics = _loss(
+            torch.tensor([[0.0, 0.3, 0.2, 0.4]]),
+            batch,
+            loss_config=config,
+            trajectory_weights=torch.ones(1),
+            torch=torch,
+        )
+        self.assertEqual(float(exact), 0.0)
+        self.assertEqual(exact_metrics["conditional_marginal_regression"], 0.0)
+        self.assertGreater(float(wrong), 0.0)
+        self.assertGreater(wrong_metrics["conditional_marginal_regression"], 0.0)
+
     def test_rejects_selection_of_padded_event(self) -> None:
         batch = self._batch()
         batch["event_mask"][0, 3] = False

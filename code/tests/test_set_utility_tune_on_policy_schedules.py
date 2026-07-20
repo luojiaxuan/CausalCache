@@ -46,7 +46,7 @@ class TuneOnPolicyScheduleTest(unittest.TestCase):
                 payload = {
                     "cache_content_sha256": "c" * 64,
                     "checkpoint_sha256": str(index) * 64,
-                    "config_sha256": "g" * 64,
+                    "config_sha256": str(index + 2) * 64,
                     "content_sha256": chr(97 + index) * 64,
                     "input_content_sha256": "i" * 64,
                     "records": [

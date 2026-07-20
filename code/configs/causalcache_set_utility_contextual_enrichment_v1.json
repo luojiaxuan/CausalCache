@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_contextual_enrichment_v1",
+  "parent_config": "causalcache_set_utility_contextual_training_v3.json",
+  "parent_config_sha256": "2467e8744f89a05bd190703bacbe378541d6948130d0b240164a84bd58a5bc7b",
+  "input": {
+    "parent_contextual_input_content_sha256": "af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1",
+    "train_on_policy_schedule_content_sha256": "adc4eab736ba2e98696375bf2e65c01b6e591316a75bc7df1a1d409c4d812bd1",
+    "targeted_train_state_count": 2132,
+    "targeted_coalition_count": 52744,
+    "evaluation_access": false
+  },
+  "training": {
+    "seed": 20260720,
+    "epochs": 20,
+    "early_stopping_patience": 5,
+    "minimum_delta": 0.0001,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "normalization_floor": 0.01,
+    "loss": {
+      "raw_regression": 1.0,
+      "normalized_regression": 0.5,
+      "within_state_ranking": 0.25,
+      "conditional_marginal": 1.0,
+      "raw_smooth_l1_beta": 0.05,
+      "normalized_smooth_l1_beta": 0.5,
+      "conditional_marginal_smooth_l1_beta": 0.25
+    }
+  },
+  "variants": {
+    "set_transformer_contextual_enrichment_d256_l16_r2_s2_lr1e4": {
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    }
+  },
+  "selection": {
+    "budget_contract": "at_most_B",
+    "budgets": [1, 2, 3, 4],
+    "budget_input_to_model": false,
+    "empty_utility_is_exact_zero": true
+  },
+  "firewall": {
+    "allowed_roles": ["train", "tune"],
+    "evaluation_access": false,
+    "tune_labels_enter_optimizer": false
+  }
+}
