@@ -19,6 +19,7 @@ from causalcache.policy.gui_owl_v2_1 import (
     parse_gui_owl_v2_1_output,
     serialize_gui_owl_v2_1_teacher_target,
 )
+from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21GenerationParseError
 from causalcache.set_utility_variable_history import load_variable_history_config
 from causalcache.set_utility_variable_history_inputs import (
     build_variable_history_messages,
@@ -223,8 +224,30 @@ def _run_state(
             raise ValueError("persisted reference action identity drifted")
         action = parse_gui_owl_v2_1_output(reference["serialized_action"]).canonical_action
     else:
-        first = runtime.generate_native_action(full_messages).parsed_output.canonical_action
-        second = runtime.generate_native_action(full_messages).parsed_output.canonical_action
+        try:
+            first = runtime.generate_native_action(
+                full_messages
+            ).parsed_output.canonical_action
+            second = runtime.generate_native_action(
+                full_messages
+            ).parsed_output.canonical_action
+        except GUIOwlV21GenerationParseError as error:
+            terminal = {
+                "execution_config_sha256": execution_config_sha,
+                "failure_class": type(error).__name__,
+                "failure_message": str(error),
+                "role": query.role,
+                "scientific_config_sha256": scientific_config_sha,
+                "source_revision": source_revision,
+                "state_id": query.state_id,
+                "state_identity_sha256": state_identity,
+                "status": SKIPPED,
+                "trajectory_id": query.trajectory_id,
+                "worker_index": worker_index,
+            }
+            _write_atomic(terminal_path, terminal)
+            close_decoded_images()
+            return terminal
         if first != second:
             terminal = {
                 "execution_config_sha256": execution_config_sha,
