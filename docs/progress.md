@@ -6,6 +6,8 @@
   保持兼容；
 - targeted sampler 固定 20% states、long-history-heavy bin quotas、trajectory cap，并按 cross-model path
   disagreement、recent disagreement、top1/top2 margin 与 old-event span 排序；
+- schedule dry run 发现若强行填满 very-long quota 会把少数 trajectory 放宽到 13 states；GPU labels 尚未启动，
+  已改为严格每 trajectory ≤3，bin 缺口重新分配；
 - schedule 同时覆盖两模型 B1--B4 paths、每步 top-3 candidates、recent 与 anchors；只允许 train role，
   evaluation access=false；
 - 相关 5 tests passed；下一步在 full checkpoints 上生成 10,658-state train selector traces，再物化约 2,132

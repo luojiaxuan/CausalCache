@@ -15,8 +15,8 @@ predictor conditional-greedy search 实际访问的 train coalitions。
 ## Target states
 
 从 10,658 train states 中选择 20%，目标 2,132 states。历史 bin 配额为 short/medium/long/very-long=
-`10%/25%/60%/5%`；very-long 数量不足时把余量按确定性 largest-remainder 规则分配。初始每 trajectory 最多
-3 states，若某 bin 无法填满才逐级放宽。
+`10%/25%/60%/5%`；very-long 数量或 trajectory diversity 不足时把余量按确定性规则转给其他 bin。每条
+trajectory 严格最多 3 states，不为填满某个 bin 放宽。
 
 bin 内优先级依次为：
 

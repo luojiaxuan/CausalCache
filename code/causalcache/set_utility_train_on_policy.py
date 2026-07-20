@@ -171,26 +171,51 @@ def select_targeted_states(
     trajectory_counts: Counter[str] = Counter()
     realized = Counter()
     for name in HISTORY_BINS:
-        cap = maximum_states_per_trajectory
-        while realized[name] < quotas[name]:
-            added = False
-            for state_id in by_bin[name]:
-                if state_id in selected_set:
-                    continue
-                trajectory_id = records["set_transformer"][state_id]["trajectory_id"]
-                if trajectory_counts[trajectory_id] >= cap:
-                    continue
-                selected.append(state_id)
-                selected_set.add(state_id)
-                trajectory_counts[trajectory_id] += 1
-                realized[name] += 1
-                added = True
-                if realized[name] == quotas[name]:
-                    break
-            if not added:
-                cap += 1
+        for state_id in by_bin[name]:
+            if realized[name] == quotas[name]:
+                break
+            trajectory_id = records["set_transformer"][state_id]["trajectory_id"]
+            if trajectory_counts[trajectory_id] >= maximum_states_per_trajectory:
+                continue
+            selected.append(state_id)
+            selected_set.add(state_id)
+            trajectory_counts[trajectory_id] += 1
+            realized[name] += 1
+    if len(selected) < target:
+        remaining = sorted(
+            (state_id for state_id in state_ids if state_id not in selected_set),
+            key=lambda state_id: (
+                HISTORY_BINS.index(
+                    history_bin(
+                        len(records["set_transformer"][state_id]["candidate_event_ids"])
+                    )
+                ),
+                _priority(
+                    state_id,
+                    records["deepsets"][state_id],
+                    records["set_transformer"][state_id],
+                ),
+            ),
+        )
+        for state_id in remaining:
+            trajectory_id = records["set_transformer"][state_id]["trajectory_id"]
+            if trajectory_counts[trajectory_id] >= maximum_states_per_trajectory:
+                continue
+            selected.append(state_id)
+            selected_set.add(state_id)
+            trajectory_counts[trajectory_id] += 1
+            realized[
+                history_bin(
+                    len(records["set_transformer"][state_id]["candidate_event_ids"])
+                )
+            ] += 1
+            if len(selected) == target:
+                break
+    if len(selected) != target:
+        raise ValueError("strict trajectory cap cannot satisfy target state count")
     return tuple(sorted(selected)), {
         "history_bin_available_counts": counts,
+        "history_bin_requested_counts": quotas,
         "history_bin_selected_counts": dict(realized),
         "maximum_realized_states_per_trajectory": max(trajectory_counts.values()),
         "selected_state_count": len(selected),
