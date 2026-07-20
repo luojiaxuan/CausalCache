@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0.0",
+  "status": "FROZEN_EXECUTION_ALLOCATION",
+  "partition_count": 1,
+  "state_lane_count": 48,
+  "workers_per_gpu": 2,
+  "host_allocations": {
+    "hyper00": [
+      {"gpu_id": 0, "process_lane_queues": [[17], [41]]},
+      {"gpu_id": 1, "process_lane_queues": [[43], [12, 16]]},
+      {"gpu_id": 2, "process_lane_queues": [[23, 37], [1, 28]]},
+      {"gpu_id": 3, "process_lane_queues": [[25, 32], [29, 38]]},
+      {"gpu_id": 4, "process_lane_queues": [[8, 15], [4, 24]]},
+      {"gpu_id": 5, "process_lane_queues": [[7, 31], [40, 27]]}
+    ],
+    "hyper01": [
+      {"gpu_id": 2, "process_lane_queues": [[9, 26], [30, 42]]},
+      {"gpu_id": 3, "process_lane_queues": [[14, 0], [45, 46]]},
+      {"gpu_id": 4, "process_lane_queues": [[21, 5], [3, 35]]},
+      {"gpu_id": 5, "process_lane_queues": [[34, 18], [22, 39]]},
+      {"gpu_id": 6, "process_lane_queues": [[36, 2], [11, 20, 33]]},
+      {"gpu_id": 7, "process_lane_queues": [[10, 6, 13], [19, 44, 47]]}
+    ]
+  },
+  "remaining_teacher_microbatches_by_process": [
+    139, 139, 125, 130, 130, 130, 132, 131, 133, 131, 129, 131,
+    131, 132, 130, 130, 128, 128, 130, 129, 125, 121, 129, 130
+  ],
+  "rebalance_checkpoint": {
+    "completed_state_count": 276,
+    "completed_state_ids_sha256": "c69bbe71af924dba2e88459fdfb58b08c278277b62e5f10f29820547d44b9fad",
+    "progress_file_count": 1943,
+    "progress_manifest_sha256": "2d32c456e5f7df04da7954e7766584daf1432ad373ad54f3216e025da22b5466",
+    "remaining_teacher_microbatch_count": 3123
+  },
+  "schedule_root": "/data/runs/causalcache-set-utility-heldout-eval-schedules-1b5896d",
+  "output_root": "/data/runs/causalcache-set-utility-heldout-labels-v1",
+  "maximum_processes_per_h200": 2,
+  "resumes_source_revision": "2b91769c72b8c8ad1d498711cb3f2903e7c0d16e",
+  "supersedes_running_mapping": "causalcache_set_utility_heldout_labels_workers_24_v2.json",
+  "rationale": "The modulo-24 schedule produced a 48.5x workload spread. Atomic state and microbatch checkpoints were merged across both hosts, then the remaining work was assigned by 48 deterministic state lanes and LPT balancing without changing model inputs, labels, or scientific configuration."
+}
