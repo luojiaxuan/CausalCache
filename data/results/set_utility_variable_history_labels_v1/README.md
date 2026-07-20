@@ -10,6 +10,9 @@
 - logs：两台机器均为 `/data02/jaxan/logs/causalcache-variable-history-labels-v1-969f2b9`；
 - resume unit：coalition microbatch；reference、microbatch 与 terminal state 均单独原子落盘；
 - initial validation：86 completed states / 3,232 labels，`n_t=5..9`，所有距离 finite 且非负；
+- 2026-07-20 01:43 UTC checkpoint：2,332 / 11,746 terminal state records；从 24-worker 重启后净增
+  2,270 states / 80.3 minutes，约 28.3 states/min；按当前速度剩余约 5.5 小时，考虑后段长历史与尾部
+  shard 不均衡，执行 ETA 记为 5.5--7 小时；
 - reusable artifact：完成后上传 `gavinlaw/causalcache-set-utility-variable-history-mobile`，当前 `PENDING_HF_UPLOAD`。
 
 首次 `ee77f47` attempt 因 inherited official-tools encoder 的 batch 上限仍硬编码为 2，在 16 个

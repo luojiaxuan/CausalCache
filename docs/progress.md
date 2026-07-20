@@ -1,5 +1,20 @@
 # 项目进展
 
+## 2026-07-19（UTC 07-20）：Hyper 双卡 partial predictor 训练完成
+
+- fleet preflight 清理后 Hyper00 GPU 4/5 空闲；正式 labels 继续占用 Hyper00 GPU 0--3 与 Hyper01 GPU 2--5，
+  两条工作流互不抢卡；
+- 从 private HF immutable revision `771db37c9ce6d3e7057b87730c400cbae66a5398` 拉取 1,501-state
+  train/tune-only snapshot，cache 复核为 2,105 visual / 2,256 text sequences，SHA256=
+  `22bbc791...9b933b`；
+- DeepSets d256/l8 与 Set Transformer d256/l8 分别绑定 Hyper00 GPU 4/5，均 exit 0；best tune total 分别为
+  0.4853 与 0.4714，证明 full-token variable-set 训练链可优化，但不构成 held-out selector 结论；
+- 两个 checkpoint、完整训练 summary、config 与 model card 已发布到 private HF model revision
+  `b6bd823221e2ec4b2e68518ad40efe7e7bd5d673`；
+- Taurus 首次启动因三张选定 A6000 在 launch 时已被其他进程占满而 OOM，0 epoch；失败容器已删除、日志保留；
+- formal labels 于 2026-07-20 01:43 UTC 为 2,332/11,746 terminal states；24-worker 净速率约
+  28.3 states/min，当前剩余 ETA 为 5.5--7 小时。
+
 ## 2026-07-19：variable-history formal labels 启动
 
 - 完整历史 source、67GB full VLM token cache、12,792-state exact-grid context postflight 与 256-shard

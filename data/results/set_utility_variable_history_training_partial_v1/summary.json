@@ -1,0 +1,24 @@
+{
+  "cache_content_sha256": "22bbc79154924a01e7a6de5e0dcbbabac4d8a7ba369c6c4a9f57186de09b933b",
+  "code_revision": "ca0383a",
+  "evaluation_records_loaded": false,
+  "input_content_sha256": "f91afdb5b2851026b96d151f4f069467db4188283ba2b13cb0cc895edac90402",
+  "input_revision": "771db37c9ce6d3e7057b87730c400cbae66a5398",
+  "status": "COMPLETED_DIAGNOSTIC_ONLY",
+  "train_state_count": 1343,
+  "tune_state_count": 158,
+  "variants": {
+    "deepsets_d256_l8": {
+      "best_checkpoint_sha256": "b31604a6efdd2748189c9a4568ae7924cdcc48e1c65002f3ceb882cf457e4a47",
+      "best_epoch": 5,
+      "best_tune_total": 0.4852535524158064,
+      "elapsed_seconds": 164.7230417728424
+    },
+    "set_transformer_d256_l8": {
+      "best_checkpoint_sha256": "f150cf3ea388f68f9bde28d4cdafdea46606040db69c5cd5ec5d5ff082c269b3",
+      "best_epoch": 4,
+      "best_tune_total": 0.471359414053929,
+      "elapsed_seconds": 199.96382117271423
+    }
+  }
+}
