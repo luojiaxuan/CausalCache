@@ -30,6 +30,24 @@
     }
   },
   "variants": {
+    "deepsets_contextual_enrichment_d256_l16_r2_lr3e4": {
+      "model": {
+        "family": "deepsets",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    },
     "set_transformer_contextual_enrichment_d256_l16_r2_s2_lr1e4": {
       "model": {
         "family": "set_transformer",

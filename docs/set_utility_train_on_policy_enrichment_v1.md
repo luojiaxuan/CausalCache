@@ -57,6 +57,8 @@ contextual hidden cache 通过 parent binding 复用，不重复运行 GUI-Owl e
 `S -> S union {j}` one-event expansion 的 normalized conditional-marginal regression，权重为 `1.0`。这使
 targeted labels 直接约束部署时 conditional greedy 的后续步骤。固定 tune reducer 允许候选 checkpoint 来自
 不同训练 config，但仍要求相同 contextual input、hidden cache 和 state inventory，并逐模型记录 config SHA。
+DeepSets 与 Set Transformer 使用相同 enriched snapshot、conditional-marginal loss、seed 和 contextual entity
+representation 并行重训；只替换 set aggregator，随后按真实 tune restoration recovery 选择 winner。
 
 重训后只接受以下判定：Set Transformer 在相同固定 tune truth 上 primary macro 高于 recent，且 paired
 trajectory bootstrap 不显示稳定退化；否则继续 `NO_GO`，不进入 policy experiments。
