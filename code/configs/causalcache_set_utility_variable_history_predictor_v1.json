@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "representation": {
+    "backbone": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "visual_feature": "all_final_main_merger_pooler_output_tokens",
+    "visual_token_target_per_image": 480,
+    "visual_sequence_length": "actual_patch_grid_untruncated",
+    "text_feature": "frozen_input_embedding_sequence",
+    "maximum_text_tokens": 128,
+    "source_hidden_size": 4096,
+    "mean_pool_before_student": false,
+    "backbone_frozen": true,
+    "candidate_count": "variable_full_history",
+    "padding": ["event_mask", "label_mask", "source_token_masks"]
+  },
+  "training": {
+    "seed": 20260719,
+    "epochs": 20,
+    "early_stopping_patience": 5,
+    "minimum_delta": 0.0001,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "loss": {
+      "raw_regression": 1.0,
+      "normalized_regression": 0.5,
+      "within_state_ranking": 0.25,
+      "raw_smooth_l1_beta": 0.05,
+      "normalized_smooth_l1_beta": 0.5
+    }
+  },
+  "variants": {
+    "deepsets_d256_l8": {
+      "model": {"family": "deepsets", "source_hidden_size": 4096, "numeric_feature_size": 11, "hidden_size": 256, "latent_count": 8, "resampler_layers": 1, "set_layers": 2, "num_heads": 8, "dropout": 0.1},
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    },
+    "set_transformer_d256_l8": {
+      "model": {"family": "set_transformer", "source_hidden_size": 4096, "numeric_feature_size": 11, "hidden_size": 256, "latent_count": 8, "resampler_layers": 1, "set_layers": 2, "num_heads": 8, "dropout": 0.1},
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    },
+    "set_transformer_d512_l16": {
+      "model": {"family": "set_transformer", "source_hidden_size": 4096, "numeric_feature_size": 11, "hidden_size": 512, "latent_count": 16, "resampler_layers": 2, "set_layers": 3, "num_heads": 8, "dropout": 0.1},
+      "learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    }
+  },
+  "selection": {
+    "budget_contract": "at_most_B",
+    "budget_input_to_model": false,
+    "candidate_count_input_to_model": false,
+    "empty_utility_is_exact_zero": true,
+    "budgets": [1, 2, 3, 4]
+  },
+  "split_firewall": {
+    "allowed_training_roles": ["train", "tune"],
+    "evaluation_access_before_model_freeze": false
+  }
+}
