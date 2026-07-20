@@ -8,6 +8,7 @@ from causalcache.set_utility_token_models import (
     TokenUtilityModelConfig,
 )
 from scripts.train_set_utility_token_predictor import (
+    _cache_covers_input,
     _collate,
     _loss,
     _resolve_normalization_floor,
@@ -18,6 +19,22 @@ from scripts.train_set_utility_token_predictor import (
 
 
 class TokenUtilityConfigTest(unittest.TestCase):
+    def test_full_parent_cache_covers_nested_training_input_only(self) -> None:
+        cache = {"input_content_sha256": "full"}
+        self.assertTrue(
+            _cache_covers_input(
+                {"content_sha256": "subset", "parent_content_sha256": "full"},
+                cache,
+            )
+        )
+        self.assertTrue(_cache_covers_input({"content_sha256": "full"}, cache))
+        self.assertFalse(
+            _cache_covers_input(
+                {"content_sha256": "subset", "parent_content_sha256": "other"},
+                cache,
+            )
+        )
+
     def test_rejects_invalid_family_and_head_geometry(self) -> None:
         with self.assertRaises(ValueError):
             TokenUtilityModelConfig(family="pairwise")

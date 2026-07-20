@@ -39,6 +39,16 @@ def _read_jsonl(path: Path) -> tuple[dict[str, Any], ...]:
     return tuple(rows)
 
 
+def _cache_covers_input(
+    input_manifest: dict[str, Any], cache_manifest: dict[str, Any]
+) -> bool:
+    cache_input = cache_manifest.get("input_content_sha256")
+    return cache_input in {
+        input_manifest.get("content_sha256"),
+        input_manifest.get("parent_content_sha256"),
+    }
+
+
 class _TokenCache:
     def __init__(
         self,
@@ -518,8 +528,7 @@ def main() -> None:
     if (
         input_manifest.get("evaluation_labels_included") is not False
         or cache_manifest.get("evaluation_labels_included") is not False
-        or cache_manifest.get("input_content_sha256")
-        != input_manifest.get("content_sha256")
+        or not _cache_covers_input(input_manifest, cache_manifest)
     ):
         raise ValueError("training input/cache identity or split firewall drifted")
     states = _read_jsonl(input_root / input_manifest["states_jsonl"])
@@ -685,11 +694,15 @@ def main() -> None:
         "best_epoch": best_epoch,
         "best_tune_total": best_tune,
         "cache_content_sha256": cache_manifest["content_sha256"],
+        "cache_input_content_sha256": cache_manifest["input_content_sha256"],
         "config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
         "elapsed_seconds": time.time() - started,
         "evaluation_records_loaded": False,
         "history": history,
         "input_content_sha256": input_manifest["content_sha256"],
+        "input_parent_content_sha256": input_manifest.get(
+            "parent_content_sha256"
+        ),
         "model": variant["model"],
         "normalization_floor": normalization_floor,
         "overfit_state_count": args.overfit_state_count,
