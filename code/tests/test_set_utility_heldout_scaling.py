@@ -106,6 +106,9 @@ def test_scaling_diagnostic_uses_exact_truth_and_trajectory_equal_metrics() -> N
     assert result["scaling"]["deepsets"]["smallest_to_largest_delta"] == pytest.approx(
         0.3
     )
+    assert result["scaling"]["deepsets"][
+        "smallest_to_largest_paired_bootstrap"
+    ]["macro_B1_B2"]["point_estimate"] == pytest.approx(0.3)
     assert result["scaling"]["deepsets"]["monotonic_nondecreasing"] is True
     assert result["scaling"]["deepsets"]["heldout_best_candidate"] == "lc100_deepsets"
 

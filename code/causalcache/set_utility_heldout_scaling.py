@@ -345,6 +345,32 @@ def evaluate_scaling_exact_track(
             summaries[name]["macro_B1_B2_normalized_recovery"]["mean"]
             for name in ordered
         ]
+        smallest_to_largest = {}
+        for label, compared_budgets in (
+            ("macro_B1_B2", budgets),
+            ("B1", (1,)),
+            ("B2", (2,)),
+        ):
+            smallest = _trajectory_means(
+                state_records,
+                method=ordered[0],
+                budgets=compared_budgets,
+                metric="normalized_recovery",
+            )
+            largest = _trajectory_means(
+                state_records,
+                method=ordered[-1],
+                budgets=compared_budgets,
+                metric="normalized_recovery",
+            )
+            if set(smallest) != set(largest):
+                raise ValueError("scaling endpoint trajectory inventories differ")
+            smallest_to_largest[label] = paired_trajectory_bootstrap(
+                {key: largest[key] - smallest[key] for key in smallest},
+                resamples=bootstrap["resamples"],
+                seed=bootstrap["seed"],
+                interval=bootstrap["interval"],
+            )
         scaling[family] = {
             "candidate_order": ordered,
             "heldout_macro_B1_B2": values,
@@ -359,6 +385,7 @@ def evaluate_scaling_exact_track(
                 right >= left for left, right in zip(values, values[1:])
             ),
             "smallest_to_largest_delta": values[-1] - values[0],
+            "smallest_to_largest_paired_bootstrap": smallest_to_largest,
             "tune_best_candidate": min(
                 ordered, key=lambda name: candidates_config[name]["best_tune_total"]
             ),
