@@ -99,7 +99,8 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   [结果](data/results/set_utility_contextual_tune_on_policy_v3/README.md)。
 - full train+tune contextual hidden cache 已完成并 finalization：11,721 states、1,100 trajectories、27,867
   contexts、3,572 atomic shards、119.16GB；Hyper00/Hyper01 各使用 4×H200，8/8 workers exit 0，
-  evaluation access=false。cache content SHA256=`44405c2c...97604`，下一步训练 100% DeepSets 与 Set Transformer。
+  evaluation access=false。cache content SHA256=`44405c2c...97604`；100% DeepSets 与 Set Transformer 已在
+  Hyper00 GPU 0/1 并行训练。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。

@@ -1,5 +1,15 @@
 # 项目进展
 
+## 2026-07-20：full contextual 双模型训练启动
+
+- fleet preflight 返回 Hyper00 0--7 全空闲；仅选择 GPU 0/1，严格低于每 host 4 GPUs 上限；
+- DeepSets=`deepsets_contextual_d256_l16_r2_lr3e4`，Set Transformer=
+  `set_transformer_contextual_d256_l16_r2_s2_lr1e4`，共享 full cache、seed 与 20-epoch early-stopping contract；
+- container=`sglang-omni-jaxan-07201053`，output root=
+  `/data02/jaxan/runs/causalcache-contextual-training-full-v4-e97f2d4`；两进程已分别绑定 GPU 0/1，并进入训练；
+- 训练完成后不按 tune loss 直接宣布 winner，而是冻结 conditional-greedy selections、生成新的真实
+  deployment-search `D(S)`，再与 recent 比较。
+
 ## 2026-07-20：full contextual extraction 完成
 
 - frozen input 为 11,721 train+tune states / 27,867 contexts，evaluation access=false；
