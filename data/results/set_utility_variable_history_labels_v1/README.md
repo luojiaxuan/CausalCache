@@ -30,6 +30,12 @@
 - 2026-07-20 03:54 UTC checkpoint：5,983 / 11,746 states，12/12 containers healthy，单卡显存约
   87--103GB。首个稳定分钟约 27 states/min，尚未显示相对 24-worker 的显著吞吐提升，说明当前更接近
   GPU forward saturation；保留 36 workers 继续运行，当前 ETA 约 3.5--5 小时；
+- 36-worker burst 在 long-history tail 上证明 3 processes/H200 不安全：Hyper00 的 partitions
+  `8:lane0`、`9:lane0`、`9:lane1`、`16` 分别因峰值显存超过约 139.8GB OOM；其他 Hyper00 lanes 已
+  正常结束，Hyper01 6 个 containers 继续运行。所有 OOM 均发生在原子 microbatch 外层，已有结果保留；
+- 2026-07-20 06:59 UTC checkpoint：10,619 / 11,746 states（90.4%）。四条未完成 lanes 随后各自绑定
+  Hyper00 GPU 1--4 单进程恢复；2026-07-20 07:01 UTC 为 10,643 states，4/4 tail containers 与
+  Hyper01 6/6 containers healthy。剩余 1,103 states，保守 ETA 为 1--1.5 小时；
 - reusable artifact：完成后上传 `gavinlaw/causalcache-set-utility-variable-history-mobile`，当前 `PENDING_HF_UPLOAD`。
 
 首次 `ee77f47` attempt 因 inherited official-tools encoder 的 batch 上限仍硬编码为 2，在 16 个

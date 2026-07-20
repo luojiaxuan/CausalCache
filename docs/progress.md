@@ -1,5 +1,15 @@
 # 项目进展
 
+## 2026-07-20：label long-history tail recovery
+
+- 36-worker burst 的 3 processes/H200 在 short/medium states 上可运行，但 4 条 Hyper00 lanes 在更长 context
+  上 OOM；失败 lanes 为 `8:lane0`、`9:lane0`、`9:lane1`、`16`，峰值已接近 H200 全部显存；
+- 其他 Hyper00 workers 已完成，Hyper01 6 containers 保持运行。四条失败 lanes 依靠既有 state/microbatch
+  原子断点，各自绑定 Hyper00 GPU 1--4 单进程恢复，不重算已完成 labels；
+- 06:59 UTC 为 10,619/11,746 states；07:01 UTC 为 10,643 states，所有 tail recovery containers 正常。
+  剩余 1,103 states，当前 ETA 1--1.5 小时；
+- 执行结论：36 workers 只能作为前段 burst，正式长历史执行的安全并发上限低于 3 processes/H200。
+
 ## 2026-07-19（UTC 07-20）：label workers 24 → 36
 
 - runner revision `7680e40` 增加 deterministic state lanes：`SHA256(state_id)` 的前 8 bytes 取模；lane
