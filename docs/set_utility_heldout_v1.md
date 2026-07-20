@@ -1,6 +1,6 @@
 # Set Utility held-out selector v1
 
-状态：`FROZEN_BEFORE_EVALUATION_LABEL_ACCESS`。
+状态：`SEALED_SELECTIONS_TRUTH_ROLLOUT_IN_PROGRESS`。
 
 ## 目的
 
@@ -58,12 +58,23 @@ bootstrap、exact-oracle regret、history-bin 指标、selector latency 和冻�
 Hyper00/Hyper01 已分别完成 333/472 个 label-blind feature states、token cache 与双模型 inference；合并后严格
 覆盖 union 805、exact 320、large-history 720、overlap 235，`label_file_read_count=0`。Sealed selections 已写入
 [`data/results/set_utility_heldout_v1/`](../data/results/set_utility_heldout_v1/README.md)；evaluation restoration
-labels 仍未读取，下一步按该 artifact 物化 exact/sparse truth schedule。
+truth schedule 已在 selections 密封后冻结，共 805 states、55,175 个去重 coalitions。执行保持 state/microbatch
+原子断点；初始 modulo-24 分区出现 48.5 倍 workload spread 后，在 276 个完成 states 处仅重排为 48 个
+deterministic state lanes，科学输入、模型和 label 定义均未改变。冻结重排见
+[`causalcache_set_utility_heldout_labels_rescue_48_v3.json`](../code/configs/causalcache_set_utility_heldout_labels_rescue_48_v3.json)。
 
 Post-GO native-action replay 已预先实现但不会绕过本合同：materializer 必须验证 held-out result 的完整签名、
 805-state coverage、winner `GO` 和 exact-track 320-state inventory 后才会产出 schedule。该阶段只比较 winner、
 recent 与 OCR/RGB 的 B1--B4 mixed-fidelity generation，去重相同 coalition，并报告 canonical action、action type、
 target 与 NFKC-exact text；parse failure 固定计为 mismatch，不过滤。
+
+Closed-loop 还需 native replay 的独立 behavior-recovery GO：winner 的 B1--B4 trajectory-equal canonical exact
+相对 recent 与 OCR/RGB 的 paired bootstrap 95% 下界均严格大于 0，且每个 budget 的 action type、target 和
+applicable text 指标均不劣。该 GO 与 warm selector latency GO 同时成立后，live controller 才会授权；否则服务
+fail closed。Live bridge 使用完整 prior-event candidate universe、at-most-`B` search，并通过 loopback SSH tunnel
+连接 Aries emulator 与 H200 rich-token encoder，不提供 heuristic fallback。现有 `warm_shared_encoder` 门槛不能代表
+该跨机拓扑：首次 live run 只能作为 topology/latency smoke，必须另报 raw source encoding、conditional/search、
+service total 和 RPC RTT；在 remote total latency 实测可接受前，不启动 full closed-loop 或作部署效率 claim。
 
 首次 feature snapshot 因原始 full-token root 在 Hyper00/01 各保留 128 个 logical shards 而 fail-fast，未写入
 output。learning-curve cache 又只含 train/tune observations，不能替代 evaluation tokens。最终执行按现有数据布局

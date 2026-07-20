@@ -55,8 +55,9 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 - 正式 nested learning curve 已完成：100% 相对 10% 的 tune total，DeepSets 改善 0.01098、Set Transformer 改善 0.00480；中间点不单调，且 DeepSets 50/100% 在最佳 checkpoint 后 non-finite。当前没有明确数据饱和证据，但应先做 held-out selector/latency evaluation，再决定是否继续扩 labels。[完整结果](data/results/set_utility_learning_curve_v1/README.md)。
 - held-out selector v1 已在读取 evaluation restoration labels 前冻结：805-state label-blind feature/cache 和两类
   100% checkpoint inference 均已完成（exact 320、large 720、overlap 235、label reads 0），conditional-greedy
-  at-most-`B` selections 已密封进 Git。下一步只按该 artifact 生成 sparse/exact truth；只有真实 utility GO 且
-  policy replay latency 过线才进入 closed-loop。[合同](docs/set_utility_heldout_v1.md)与[artifact](data/results/set_utility_heldout_v1/README.md)。
+  at-most-`B` selections 已密封进 Git。805-state sparse/exact truth 正在 Hyper00/Hyper01 的 12×H200 上断点生成；
+  workload 已从失衡的 modulo-24 分区重排成 48 个 state lanes。只有真实 utility GO、native behavior recovery GO
+  与 warm latency GO 全部通过才授权 closed-loop。[合同](docs/set_utility_heldout_v1.md)与[artifact](data/results/set_utility_heldout_v1/README.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。
