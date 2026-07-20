@@ -1,0 +1,26 @@
+{
+  "cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+  "evaluation_records_loaded": false,
+  "models": {
+    "deepsets": {
+      "best_checkpoint_sha256": "bae1ead5146f4a0be5b2f2c4ab0dd6370b2d605f8b52baa182778cbb58bc9e32",
+      "best_epoch": 1,
+      "best_tune_total": 0.30927263536454414,
+      "content_sha256": "6f04b576e910980790a90ca9bc4fd9cddadf58e198d966f3195ea8c114790bc1",
+      "elapsed_seconds": 652.7050414085388,
+      "termination_reason": "early_stopping"
+    },
+    "set_transformer": {
+      "best_checkpoint_sha256": "aafe36278317435a03ac12eb14a262bc90e9fa1dbaa70421055a15715c00c044",
+      "best_epoch": 1,
+      "best_tune_total": 0.322330399819535,
+      "content_sha256": "432c222af90e4ba500111e22177ed848f4ec27d9094fd483d41c236d4bfe9e3f",
+      "elapsed_seconds": 1037.793951034546,
+      "termination_reason": "early_stopping"
+    }
+  },
+  "persistent_root": "/data02/jaxan/runs/causalcache-contextual-training-full-v4-e97f2d4",
+  "status": "COMPLETED_TRAINING_AWAITING_TRUE_SELECTOR_UTILITY",
+  "train_state_count": 10658,
+  "tune_state_count": 1063
+}
