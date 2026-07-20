@@ -41,3 +41,9 @@ DeepSets 的高 LR 在 50/100% 重现 non-finite，不能据此直接选为部�
 下一步不立即盲目扩充 labels。先冻结 100% checkpoints，在 trajectory-disjoint evaluation 上比较真实
 at-most-`B` selector utility、OCR/RGB/recent 与 latency；若 held-out gain 成立且数据曲线仍改善，再增加
 trajectories 或 interaction-dense labels。机器可读结果见 [`summary.json`](summary.json)。
+
+Artifacts：
+
+- dataset/splits/cache/compact label archives：`gavinlaw/causalcache-set-utility-variable-history-mobile@02a05ab11fd3a5036b62244bf04f37aa5e41db59`，414 files / 77.4GB；
+- 8 checkpoints：`gavinlaw/causalcache-set-utility-predictors-mobile@5409e846cc45a26b2ae617e39b3ebf7462d180e6`，17 files；
+- path：`artifacts/set-utility-learning-curve-v1-9863f43`。

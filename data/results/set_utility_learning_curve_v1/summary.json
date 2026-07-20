@@ -2,6 +2,8 @@
   "cache_content_sha256": "ef82b077a2fb5a19fc5fdc12c8102b611f3d324e83d6f6ccb65e534790823385",
   "code_revision": "9863f43b0c1e214c34f92700bbc0cd68b43aba56",
   "evaluation_records_loaded": false,
+  "hf_dataset_revision": "02a05ab11fd3a5036b62244bf04f37aa5e41db59",
+  "hf_model_revision": "5409e846cc45a26b2ae617e39b3ebf7462d180e6",
   "seed": 20260720,
   "status": "COMPLETED_TRAIN_TUNE_ONLY",
   "variants": {

@@ -8,6 +8,9 @@
 - DeepSets 50%/100% 在保存最佳 checkpoint 后出现 non-finite；Set Transformer 四个 scale 均稳定 early stop；
 - 暂不盲目增加 labels。先用冻结的 100% checkpoints 做 trajectory-disjoint at-most-B selector utility 与
   latency evaluation；若 held-out gain 成立且曲线仍显示数据受限，再扩 trajectories 或 interaction-dense labels。
+- nested splits、full cache 与 compact raw-label archives 已发布到 private HF dataset revision
+  `02a05ab1...1db59`（414 files / 77.4GB）；8 checkpoints 已发布到 model revision
+  `5409e846...180e6`。
 
 ## 2026-07-20：formal labels 与 learning-curve inputs 完成
 
