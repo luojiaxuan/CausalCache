@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -11,7 +12,10 @@ from pathlib import Path
 from typing import Any
 
 from causalcache.set_utility_heldout_evaluation import canonical_json_bytes
-from causalcache.set_utility_tune_on_policy_evaluation import evaluate_tune_on_policy
+from causalcache.set_utility_tune_on_policy_evaluation import (
+    evaluate_decision_distillation_v2_gate,
+    evaluate_tune_on_policy,
+)
 
 
 def _named_path(value: str) -> tuple[str, Path]:
@@ -48,6 +52,7 @@ def main() -> None:
     parser.add_argument("--bootstrap-resamples", type=int, default=10_000)
     parser.add_argument("--bootstrap-seed", type=int, default=20260720)
     parser.add_argument("--bootstrap-interval", type=float, default=0.95)
+    parser.add_argument("--gate-config", type=Path)
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError("tune on-policy evaluation output already exists")
@@ -70,6 +75,17 @@ def main() -> None:
         bootstrap_seed=args.bootstrap_seed,
         bootstrap_interval=args.bootstrap_interval,
     )
+    if args.gate_config is not None:
+        gate_source = _read_json(args.gate_config)
+        unsigned = dict(result)
+        del unsigned["content_sha256"]
+        unsigned["decision_distillation_v2_gate"] = (
+            evaluate_decision_distillation_v2_gate(result, gate_source["gate"])
+        )
+        unsigned["content_sha256"] = hashlib.sha256(
+            canonical_json_bytes(unsigned)
+        ).hexdigest()
+        result = unsigned
     _write_atomic(args.output, result)
     print(
         json.dumps(
@@ -77,6 +93,9 @@ def main() -> None:
                 "completed_state_count": result["coverage"]["completed_state_count"],
                 "content_sha256": result["content_sha256"],
                 "status": result["status"],
+                "verdict": result.get("decision_distillation_v2_gate", {}).get(
+                    "verdict"
+                ),
                 "winner": result["winner"]["model"],
             },
             sort_keys=True,

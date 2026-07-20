@@ -37,3 +37,6 @@ top-3 enrichment 与单一 nested greedy prefix 没有在固定 tune truth 上�
 
 任一失败即 `NO_GO_DECISION_DISTILLATION_V2`，不访问 untouched evaluation，不启动 policy replay、closed-loop
 或 matched-NLL。通过只授权一次 untouched selector evaluation；后续仍需单独 gate。
+
+最终 reducer 必须使用 `--gate-config` 读取本文件对应的冻结 JSON config，并输出机器可读的逐预算、macro CI、
+long-history checks 与 `untouched_evaluation_authorized`；不得用 latency shortlist winner 代替真实 utility 最佳候选。

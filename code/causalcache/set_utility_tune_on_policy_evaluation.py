@@ -22,6 +22,8 @@ COMPLETED_LABEL = "COMPLETED_VARIABLE_HISTORY_LABEL_STATE"
 SKIPPED_LABEL = "SKIPPED_VARIABLE_HISTORY_LABEL_STATE"
 COMPLETED_RESULT = "COMPLETED_SET_UTILITY_TUNE_ON_POLICY_EVALUATION"
 INCOMPLETE_RESULT = "INCOMPLETE_SET_UTILITY_TUNE_ON_POLICY_EVALUATION"
+GO_DECISION_V2 = "GO_DECISION_DISTILLATION_V2"
+NO_GO_DECISION_V2 = "NO_GO_DECISION_DISTILLATION_V2"
 
 
 def _finite(value: Any, *, label: str, nonnegative: bool = False) -> float:
@@ -349,8 +351,107 @@ def evaluate_tune_on_policy(
     return result
 
 
+def evaluate_decision_distillation_v2_gate(
+    result: Mapping[str, Any], gate_config: Mapping[str, Any]
+) -> dict[str, Any]:
+    required = {
+        "candidate_model": "best_true_utility_model",
+        "each_budget_point_estimate_strictly_greater_than_recent": True,
+        "macro_paired_bootstrap_lower_strictly_greater_than_zero": True,
+        "long_plus_very_long_point_estimate_strictly_greater_than_recent": True,
+        "failure_blocks_untouched_evaluation": True,
+    }
+    if any(gate_config.get(key) != value for key, value in required.items()):
+        raise ValueError("decision-distillation v2 gate config drifted")
+    summaries = result.get("method_summaries")
+    comparisons = result.get("comparisons")
+    if not isinstance(summaries, Mapping) or not isinstance(comparisons, Mapping):
+        raise ValueError("tune evaluation is missing gate inputs")
+    models = tuple(sorted(name for name in comparisons if name != "recent"))
+    if not models or "recent" not in summaries:
+        raise ValueError("decision-distillation v2 gate has no learned candidates")
+    primary = {
+        model: float(
+            summaries[model][
+                "primary_macro_B1_B4_trajectory_equal_normalized_recovery"
+            ]["mean"]
+        )
+        for model in models
+    }
+    candidate = min(models, key=lambda model: (-primary[model], model))
+    budget_checks = {}
+    for budget in BUDGETS:
+        learned = float(
+            summaries[candidate]["by_budget"][str(budget)][
+                "normalized_recovery"
+            ]["mean"]
+        )
+        recent = float(
+            summaries["recent"]["by_budget"][str(budget)][
+                "normalized_recovery"
+            ]["mean"]
+        )
+        budget_checks[str(budget)] = {
+            "learned": learned,
+            "minus_recent": learned - recent,
+            "passed": learned > recent,
+            "recent": recent,
+        }
+    paired = comparisons[candidate]["minus_recent"]
+    macro_check = {
+        "lower": float(paired["lower"]),
+        "passed": float(paired["lower"]) > 0.0,
+        "point_estimate": float(paired["point_estimate"]),
+        "upper": float(paired["upper"]),
+    }
+    learned_long = summaries[candidate][
+        "long_plus_very_long_macro_normalized_recovery"
+    ]
+    recent_long = summaries["recent"][
+        "long_plus_very_long_macro_normalized_recovery"
+    ]
+    long_passed = (
+        isinstance(learned_long, Mapping)
+        and isinstance(recent_long, Mapping)
+        and float(learned_long["mean"]) > float(recent_long["mean"])
+    )
+    long_check = {
+        "learned": None if learned_long is None else float(learned_long["mean"]),
+        "minus_recent": (
+            None
+            if learned_long is None or recent_long is None
+            else float(learned_long["mean"]) - float(recent_long["mean"])
+        ),
+        "passed": long_passed,
+        "recent": None if recent_long is None else float(recent_long["mean"]),
+    }
+    coverage_passed = (
+        result.get("status") == COMPLETED_RESULT
+        and result.get("coverage", {}).get("complete") is True
+    )
+    passed = (
+        coverage_passed
+        and all(row["passed"] for row in budget_checks.values())
+        and macro_check["passed"]
+        and long_check["passed"]
+    )
+    return {
+        "budget_checks": budget_checks,
+        "candidate_model": candidate,
+        "coverage_passed": coverage_passed,
+        "long_plus_very_long_check": long_check,
+        "macro_paired_bootstrap_check": macro_check,
+        "passed": passed,
+        "untouched_evaluation_authorized": passed,
+        "verdict": GO_DECISION_V2 if passed else NO_GO_DECISION_V2,
+    }
+
+
 __all__ = [
     "COMPLETED_RESULT",
+    "GO_DECISION_V2",
     "INCOMPLETE_RESULT",
+    "NO_GO_DECISION_V2",
+    "evaluate_decision_distillation_v2_gate",
     "evaluate_tune_on_policy",
 ]
