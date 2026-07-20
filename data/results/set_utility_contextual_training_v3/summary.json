@@ -1,0 +1,30 @@
+{
+  "cache_content_sha256": "af2b090d5b0c8daefe2586b3ebdad39aee7b7594f2847d237b25429bac791eb0",
+  "config_sha256": "2467e8744f89a05bd190703bacbe378541d6948130d0b240164a84bd58a5bc7b",
+  "evaluation_records_loaded": false,
+  "input_content_sha256": "5b8504f682cd75840cf6b2211249771924932ca61cf39c450818fa4152ad08aa",
+  "models": {
+    "deepsets": {
+      "best_checkpoint_sha256": "773335a296db976b45f67b64fc75308ce1ce3007b50949794cfac33b0b8c0a93",
+      "best_epoch": 2,
+      "best_tune_total": 0.32127548277292156,
+      "elapsed_seconds": 207.9161422252655,
+      "summary_content_sha256": "30cd6d81fb9f5e0f497b5b6c3e948d241a25e3505c7a258a6b89f24504b5ca87",
+      "training_source_revision": "966b09e652dc65828f1d66e6a9bbd71047ca7e8e"
+    },
+    "set_transformer": {
+      "best_checkpoint_sha256": "d52ad1ec7ed131dc4c8402711bc04764bddd1668e40ebff3e89ab0ffe6200b24",
+      "best_epoch": 2,
+      "best_tune_total": 0.30910451150152407,
+      "elapsed_seconds": 326.48901557922363,
+      "summary_content_sha256": "7552e775b2c47a97421b2a7451267b31b9479aacd09037bb71ea12a4c0781d78",
+      "training_source_revision": "911f543ef7ae28ffe8fb8b9567b4429db051e7fd"
+    }
+  },
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_SET_UTILITY_CONTEXTUAL_TRAINING_V3",
+  "train_state_count": 2640,
+  "train_trajectory_count": 250,
+  "tune_state_count": 1063,
+  "tune_trajectory_count": 100
+}
