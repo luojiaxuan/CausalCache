@@ -37,7 +37,9 @@ Set Transformer 在 primary、相对 OCR/RGB、B1 regret 和 long-history 点估
 `d89263ce6e76b127a6741e3d2e9b005c7c813e9a49b75163c056ba799158ef49`，file SHA256 为
 `4fb4a55f0280b96ceaed711b675102639e542aa507b93f592289262116294e01`。轻量摘要见
 [`evaluation-summary.json`](../data/results/set_utility_heldout_v1/evaluation-summary.json)。根据预注册顺序，native
-policy replay、online controller 与 AndroidWorld closed-loop 均未启动。
+policy replay、online controller 与 AndroidWorld closed-loop 均未启动。Truth、full result、selections 与 configs
+已发布到 private [HF tag `set-utility-heldout-v1-d89263c`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/set-utility-heldout-v1-d89263c/artifacts/set-utility-heldout-v1-d89263c)，
+对应 revision `df41e1d7a4e08c410a9c0e773844715d387be8c6`。
 
 ## 冻结输入
 

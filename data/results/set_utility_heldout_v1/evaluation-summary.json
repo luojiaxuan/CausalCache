@@ -1,5 +1,5 @@
 {
-  "artifact_status": "PENDING_HF_UPLOAD",
+  "artifact_status": "UPLOADED_HF_IMMUTABLE",
   "coverage": {
     "complete": false,
     "completed_state_count": 801,
@@ -12,6 +12,14 @@
   "exact_oracle": {
     "B1_macro_normalized_recovery": 0.5170145651209884,
     "B2_macro_normalized_recovery": 0.685172984797886
+  },
+  "hugging_face": {
+    "artifact_path": "artifacts/set-utility-heldout-v1-d89263c",
+    "final_revision": "df41e1d7a4e08c410a9c0e773844715d387be8c6",
+    "immutable_tag": "set-utility-heldout-v1-d89263c",
+    "payload_revision": "56497fac05f0310909cb9ee9e8d02f2292a49a45",
+    "repo": "gavinlaw/causalcache-set-utility-variable-history-mobile",
+    "repo_type": "dataset"
   },
   "methods": {
     "deepsets": {
@@ -95,7 +103,8 @@
   },
   "truth": {
     "canonical_persistent_path": "/data02/jaxan/runs/causalcache-set-utility-heldout-labels-v1",
-    "state_ids_sha256": "11f2987886bcdd1ea13240558a87523e843959574264c49de14bfae2e7069ca0"
+    "state_ids_sha256": "11f2987886bcdd1ea13240558a87523e843959574264c49de14bfae2e7069ca0",
+    "terminal_states_archive_sha256": "a10cc2dcfc7ff7ff5966398790d77c2fedb1927ca4743e6404e28d474c8e314f"
   },
   "verdict": {
     "model": null,

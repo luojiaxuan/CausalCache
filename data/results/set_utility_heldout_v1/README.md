@@ -21,7 +21,8 @@ Persistent working artifacts 位于 Hyper00：
 - selections：`/data02/jaxan/runs/causalcache-set-utility-heldout-selections-480e26d`。
 - exact/sparse schedules：`/data02/jaxan/runs/causalcache-set-utility-heldout-eval-schedules-1b5896d`。
 
-它们当前状态为 `PENDING_HF_UPLOAD`；可复用 checkpoint 已在 README 的 immutable HF model revision 中记录。
+full label-blind input 仍为 `PENDING_HF_UPLOAD`；selections 已随下述 truth/result artifact 发布。可复用 checkpoint
+已在顶层 README 的 immutable HF model revision 中记录。
 
 ## Truth 与正式结果
 
@@ -33,8 +34,12 @@ Persistent working artifacts 位于 Hyper00：
 - result file SHA256：`4fb4a55f0280b96ceaed711b675102639e542aa507b93f592289262116294e01`；
 - lightweight summary：[`evaluation-summary.json`](evaluation-summary.json)。
 
-Truth 与 full result 当前均为 `PENDING_HF_UPLOAD`。冻结 reducer 返回
-`INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION / NO_GO`，没有 deployment winner。
+Truth terminals、full result、selections、configs 与摘要已上传到 private
+[HF dataset payload revision `56497fac`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/56497fac05f0310909cb9ee9e8d02f2292a49a45/artifacts/set-utility-heldout-v1-d89263c)。
+terminal archive SHA256 为 `a10cc2dcfc7ff7ff5966398790d77c2fedb1927ca4743e6404e28d474c8e314f`。
+最终 metadata 与 payload 已冻结为 tag `set-utility-heldout-v1-d89263c`，revision
+`df41e1d7a4e08c410a9c0e773844715d387be8c6`。
+冻结 reducer 返回 `INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION / NO_GO`，没有 deployment winner。
 
 801 个 completed states 的诊断如下；它们不能越过正式 coverage gate：
 

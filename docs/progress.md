@@ -15,8 +15,8 @@
 - full result 位于 Hyper00
   `/data02/jaxan/runs/causalcache-set-utility-heldout-evaluation-v1-7113e09/result.json`，content SHA256=
   `d89263ce...8ef49`、file SHA256=`4fb4a55f...94e01`；轻量摘要见
-  [`data/results/set_utility_heldout_v1/`](../data/results/set_utility_heldout_v1/README.md)，大 artifact 为
-  `PENDING_HF_UPLOAD`。
+  [`data/results/set_utility_heldout_v1/`](../data/results/set_utility_heldout_v1/README.md)，完整 artifact 已发布到
+  private HF tag `set-utility-heldout-v1-d89263c`（revision `df41e1d...be8c6`）。
 
 ## 2026-07-20：10/25/50/100% learning curve 完成
 
