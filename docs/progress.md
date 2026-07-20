@@ -19,7 +19,9 @@
 - 冻结 sampler 选中 1,066 states / 486 trajectories，long/very-long/medium/short=
   `693/53/213/107`，每 trajectory 最多 3 states；
 - candidate-complete schedule 含 365,043 个去重 coalitions，content SHA=
-  `d5e508c2...10187a`；下一步跨 Hyper00/Hyper01 各最多 4×H200 生成 train-only labels，evaluation 仍锁定。
+  `d5e508c2...10187a`；fleet preflight 后使用 Hyper00 GPU 0--3 与 Hyper01 GPU 2--5 启动 8 个 partitions，
+  每卡一个 worker；state/microbatch 原子断点开启，output=
+  `/data02/jaxan/runs/causalcache-decision-v2-labels-v1-87bea18`，evaluation 仍锁定。
 
 ## 2026-07-20：train-side on-policy enrichment v1 fixed-tune NO-GO
 

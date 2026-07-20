@@ -1,6 +1,6 @@
 # Decision distillation v2
 
-状态：`LABELS_PENDING`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
+状态：`LABELS_RUNNING`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
 storage，完成后发布到 private Hugging Face。
 
 ## 已完成
@@ -25,7 +25,8 @@ storage，完成后发布到 private Hugging Face。
 - intended HF dataset repo：`gavinlaw/causalcache-set-utility-variable-history-mobile`；status=
   `PENDING_HF_UPLOAD`。
 - label allocation：[`causalcache_set_utility_decision_v2_labels_workers_v1.json`](../../../code/configs/causalcache_set_utility_decision_v2_labels_workers_v1.json)，
-  Hyper00 GPU 0--3 + Hyper01 GPU 2--5，8 个 partitions，每卡一个 resumable worker。
+  Hyper00 GPU 0--3 + Hyper01 GPU 2--5，8 个 partitions，每卡一个 resumable worker；2026-07-20
+  22:18 UTC 启动，output root=`/data02/jaxan/runs/causalcache-decision-v2-labels-v1-87bea18`。
 
 ## 下一步
 
