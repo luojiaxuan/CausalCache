@@ -1,5 +1,16 @@
 # 项目进展
 
+## 2026-07-20：train-side on-policy enrichment labels 启动
+
+- 10,658-state train selector traces 已完成：DeepSets / Set Transformer content SHA=
+  `a5fa6252...dc6f / 62acad22...a83d`；每步保存 top-3 conditional candidates；
+- final schedule=`2,132 states / 52,744 coalitions`，long/very-long/medium/short=
+  `1307/76/534/215`，680 trajectories、每轨迹最多 5；schedule content SHA=`adc4eab7...2bd1`；
+- 首次 launch 的 source-revision 参数手工展开错误，在有效 run 前停止并删除自己的不完整 output；随后用
+  `git rev-parse` 的完整 SHA=`5714b529...a817` 全新启动，不复用错误 lineage；
+- 正式 run 使用 Hyper00 GPU 0--3、Hyper01 GPU 2--5，每卡 2 lanes、每 host 仍最多 4 GPUs；output=
+  `/data02/jaxan/runs/causalcache-contextual-train-on-policy-labels-enrichment-v1-5714b52`。
+
 ## 2026-07-20：train-side on-policy enrichment v1 实现
 
 - selector CLI 新增 train role 与每个 conditional-greedy step top-k candidate trace；tune 默认行为与 status
