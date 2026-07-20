@@ -86,7 +86,13 @@ def _read_jsonl(path: Path) -> tuple[dict[str, Any], ...]:
     )
 
 
-def _runtime(repository_root: Path, model_dir: Path) -> tuple[Any, Any]:
+def _cuda_device(raw: str) -> str:
+    if re.fullmatch(r"cuda:[0-9]+", raw) is None:
+        raise ValueError("label device must be explicit cuda:N")
+    return raw
+
+
+def _runtime(repository_root: Path, model_dir: Path, device: str) -> tuple[Any, Any]:
     from PIL import Image
 
     from causalcache.policy.gui_owl_variable_history_runtime import (
@@ -100,7 +106,7 @@ def _runtime(repository_root: Path, model_dir: Path) -> tuple[Any, Any]:
         expected_snapshot_manifest=(
             repository_root / "code/configs/gui_owl_1_5_8b_snapshot.json"
         ),
-        device="cuda:0",
+        device=_cuda_device(device),
         target_effective_visual_tokens_per_image=(
             VARIABLE_HISTORY_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE
         ),
@@ -401,6 +407,7 @@ def main() -> None:
     parser.add_argument("--state-lane-index", type=int, default=0)
     parser.add_argument("--state-lane-count", type=int, default=1)
     parser.add_argument("--source-revision", required=True)
+    parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
     if not 0 <= args.partition_index < args.partition_count:
         raise ValueError("partition index is outside partition count")
@@ -427,7 +434,7 @@ def main() -> None:
         for shard in source_manifest["shards"]
         if shard["logical_shard"] % args.partition_count == args.partition_index
     )
-    runtime, helpers = _runtime(args.repository_root, args.model_dir)
+    runtime, helpers = _runtime(args.repository_root, args.model_dir, args.device)
     decoder, kl_kernel = helpers
     counts = Counter()
     started = time.time()
@@ -524,6 +531,7 @@ def main() -> None:
         "runtime_metadata": runtime.metadata,
         "scientific_config_sha256": scientific_sha,
         "source_revision": args.source_revision,
+        "device": args.device,
         "status": "COMPLETED_VARIABLE_HISTORY_LABEL_WORKER",
     }
     worker_name = f"worker-{args.partition_index:03d}-of-{args.partition_count:03d}"

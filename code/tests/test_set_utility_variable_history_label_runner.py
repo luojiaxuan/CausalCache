@@ -2,11 +2,20 @@ from types import SimpleNamespace
 
 from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21GenerationParseError
 from scripts.run_set_utility_variable_history_labels import (
+    _cuda_device,
     _microbatches,
     _run_state,
     _state_lane,
     _state_identity,
 )
+
+
+def test_label_device_must_be_explicit_cuda_index() -> None:
+    assert _cuda_device("cuda:3") == "cuda:3"
+    import pytest
+
+    with pytest.raises(ValueError, match="explicit cuda:N"):
+        _cuda_device("cuda")
 
 
 def _schedule() -> dict[str, object]:
