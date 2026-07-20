@@ -59,20 +59,29 @@ def main() -> None:
         or input_manifest.get("contextual_profile_id") != CONTEXTUAL_PROFILE_ID
     ):
         raise ValueError("contextual cache finalizer requires frozen train/tune inputs")
-    expected = {
-        json.loads(line)["context_key"]
-        for receipt in input_manifest["requirement_shards"]
-        for line in (args.input_root / receipt["path"])
-        .read_text(encoding="utf-8")
-        .splitlines()
-        if line
-    }
+    expected = set()
+    for receipt in input_manifest["requirement_shards"]:
+        path = args.input_root / receipt["path"]
+        if sha256_file(path) != receipt["sha256"]:
+            raise ValueError("contextual requirement shard drifted")
+        rows = [
+            json.loads(line)
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line
+        ]
+        if len(rows) != receipt["context_count"]:
+            raise ValueError("contextual requirement count drifted")
+        for row in rows:
+            if row["context_key"] in expected:
+                raise ValueError("contextual requirement key is duplicated")
+            expected.add(row["context_key"])
     if len(expected) != input_manifest["context_count"]:
         raise ValueError("contextual requirement inventory drifted")
 
     inventory = {}
     shard_records = []
     observed = set()
+    source_revisions = set()
     receipt_paths = sorted((args.cache_root / "receipts").glob("**/chunk-*.json"))
     for receipt_path in receipt_paths:
         receipt = _read_json(receipt_path)
@@ -149,6 +158,7 @@ def main() -> None:
                 "tensor": f"text__{key}",
             }
         observed.update(context_keys)
+        source_revisions.add(receipt["source_revision"])
         shard_records.append(
             {
                 "byte_count": tensor_path.stat().st_size,
@@ -160,6 +170,8 @@ def main() -> None:
         )
     if observed != expected:
         raise ValueError("contextual hidden cache is incomplete")
+    if len(source_revisions) != 1:
+        raise ValueError("contextual hidden cache mixes source revisions")
     manifest = {
         "content_sha256": "",
         "context_count": len(observed),
@@ -170,6 +182,7 @@ def main() -> None:
         "schema_version": "3.0.0",
         "shards": shard_records,
         "source_hidden_size": CONTEXTUAL_SOURCE_HIDDEN_SIZE,
+        "source_revision": next(iter(source_revisions)),
         "status": CACHE_STATUS,
         "tensor_inventory": inventory,
         "text_count": len(observed),
