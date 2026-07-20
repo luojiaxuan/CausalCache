@@ -17,5 +17,6 @@ Tune loss 不是 deployment winner。两个 checkpoint 的 1,063-state condition
 Persistent root：
 `/data02/jaxan/runs/causalcache-contextual-training-full-v4-e97f2d4`。
 
-HF 状态：`PENDING_HF_UPLOAD`，intended repo=
-`gavinlaw/causalcache-set-utility-predictors-mobile`。
+Immutable model artifact：
+[`gavinlaw/causalcache-set-utility-predictors-mobile@729a62fd`](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/729a62fdaed53ccf04e641bea9ecac3ac7da3bcc/artifacts/set-utility-contextual-full-v4-44405c2)，
+tag=`set-utility-contextual-full-v4-44405c2`，7 files。

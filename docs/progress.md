@@ -15,6 +15,8 @@
 - fleet preflight 后在 Hyper00 GPU 0--3 与 Hyper01 GPU 2--5 启动 8 个 resumable truth partitions，每台
   严格最多 4 GPUs。output root=
   `/data02/jaxan/runs/causalcache-contextual-tune-on-policy-labels-full-v4-e97f2d4`；仍未访问 evaluation。
+- 两个 checkpoints、summaries 与 frozen config 已发布到 private HF model revision
+  `729a62fdaed53ccf04e641bea9ecac3ac7da3bcc`，tag=`set-utility-contextual-full-v4-44405c2`。
 
 ## 2026-07-20：full contextual extraction 完成
 
