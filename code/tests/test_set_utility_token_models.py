@@ -10,6 +10,7 @@ from causalcache.set_utility_token_models import (
 from scripts.train_set_utility_token_predictor import (
     _collate,
     _loss,
+    _resolve_normalization_floor,
     _seed_training_runtime,
     _targets,
     _trajectory_uniform_epoch,
@@ -40,6 +41,19 @@ class TokenUtilityConfigTest(unittest.TestCase):
             {row["state_id"] for row in order if row["trajectory_id"] == "long"},
             {"long-0", "long-1", "long-2"},
         )
+
+    def test_normalization_floor_is_bound_to_committed_config(self) -> None:
+        self.assertEqual(_resolve_normalization_floor({}, None), 0.0)
+        self.assertEqual(
+            _resolve_normalization_floor({"normalization_floor": 0.01}, None),
+            0.01,
+        )
+        self.assertEqual(
+            _resolve_normalization_floor({"normalization_floor": 0.01}, 0.01),
+            0.01,
+        )
+        with self.assertRaisesRegex(ValueError, "conflicts"):
+            _resolve_normalization_floor({"normalization_floor": 0.01}, 0.02)
 
 
 class TokenUtilityTorchTest(unittest.TestCase):

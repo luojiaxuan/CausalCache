@@ -10,7 +10,20 @@
 - 选择：family 内最低 `best_tune_total`；近似并列时优先 latency，再优先较小模型；
 - 边界：这是 tuning-only completion snapshot，不进入正式 10/25/50/100% learning curve。全量 labels 完成后，冻结赢家配置再重建 nested trajectory fractions。
 
-Artifact identity、实际 state/trajectory 数、结果与 checkpoint revision 在运行完成后回填。
+## 正式 v3 结果
+
+最终 grid 使用固定 snapshot SHA256=`725e13ab...d526d7`、cache SHA256=`1d1eea48...aecb70`、
+249 条 train trajectories / 2,535 states、完整 99 条 tune trajectories / 1,040 states。12/12 配置完成，
+`evaluation_records_loaded=false`，seed 在 model initialization 前生效。
+
+按预注册主指标，DeepSets 选择 `d512/l16/r2/lr3e-4`（best tune total `0.31137`），Set Transformer 选择
+`d256/l8/r1/s2/lr1e-4`（`0.31169`）。DeepSets 赢家在 epoch 4 保存最佳 checkpoint 后出现 non-finite；该
+checkpoint 仍是 finite metric 赢家，但后续 learning curve 必须保留 failure 标记，不得把它写成稳定性 PASS。
+
+两套配置已冻结到 `code/configs/causalcache_set_utility_learning_curve_v1.json`。下一步从完成后的 labels 重建同一
+trajectory ranking 下 nested 10/25/50/100% train splits，保留完整 tune，仍只跑 seed `20260720`。完整表见
+[`data/results/set_utility_tuning25_v1/`](../data/results/set_utility_tuning25_v1/README.md)。当前结果不读取
+evaluation，也不决定 deployment；后者仍由 held-out utility--latency Pareto 决定。
 
 ## v1 loss 诊断与 v2 修复
 

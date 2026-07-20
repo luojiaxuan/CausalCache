@@ -403,6 +403,23 @@ def _seed_training_runtime(torch: Any, seed: int) -> None:
     torch.cuda.manual_seed_all(seed)
 
 
+def _resolve_normalization_floor(
+    training: dict[str, Any], override: float | None
+) -> float:
+    configured = training.get("normalization_floor")
+    if configured is None:
+        value = 0.0 if override is None else float(override)
+    else:
+        value = float(configured)
+        if override is not None and not math.isclose(
+            value, float(override), rel_tol=0.0, abs_tol=1e-12
+        ):
+            raise ValueError("normalization floor conflicts with committed config")
+    if value < 0.0:
+        raise ValueError("normalization floor cannot be negative")
+    return value
+
+
 def _evaluate(
     model: Any,
     states: tuple[dict[str, Any], ...],
@@ -474,7 +491,7 @@ def main() -> None:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", required=True)
     parser.add_argument("--overfit-state-count", type=int, default=0)
-    parser.add_argument("--normalization-floor", type=float, default=0.0)
+    parser.add_argument("--normalization-floor", type=float)
     args = parser.parse_args()
 
     try:
@@ -483,8 +500,6 @@ def main() -> None:
         raise RuntimeError("token predictor training requires PyTorch") from error
     if not torch.cuda.is_available() or not args.device.startswith("cuda:"):
         raise RuntimeError("token predictor training requires an explicit CUDA device")
-    if args.normalization_floor < 0.0:
-        raise ValueError("normalization floor cannot be negative")
     config_path = args.config.resolve()
     config = _read_json(config_path)
     try:
@@ -525,6 +540,9 @@ def main() -> None:
         raise ValueError("token pilot requires non-empty train and tune roles")
 
     training = config["training"]
+    normalization_floor = _resolve_normalization_floor(
+        training, args.normalization_floor
+    )
     seed = int(variant.get("seed", training["seed"]))
     _seed_training_runtime(torch, seed)
     torch.set_float32_matmul_precision("high")
@@ -586,7 +604,7 @@ def main() -> None:
                 cache=cache,
                 device=args.device,
                 torch=torch,
-                normalization_floor=args.normalization_floor,
+                normalization_floor=normalization_floor,
             )
             sample_weights = torch.tensor(
                 [1.0] * len(selected),
@@ -629,7 +647,7 @@ def main() -> None:
             loss_config=training["loss"],
             weights_by_state=tune_weights,
             torch=torch,
-            normalization_floor=args.normalization_floor,
+            normalization_floor=normalization_floor,
         )
         if not all(
             math.isfinite(value)
@@ -673,7 +691,7 @@ def main() -> None:
         "history": history,
         "input_content_sha256": input_manifest["content_sha256"],
         "model": variant["model"],
-        "normalization_floor": args.normalization_floor,
+        "normalization_floor": normalization_floor,
         "overfit_state_count": args.overfit_state_count,
         "optimization_rows_per_epoch": optimization_rows_per_epoch,
         "schema_version": "1.0.0",

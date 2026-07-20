@@ -1,5 +1,15 @@
 # 项目进展
 
+## 2026-07-20：25% trajectory 单 seed 超参冻结
+
+- 从运行中 labels 冻结 249 条 train trajectories / 2,535 states 与完整 99 条 tune trajectories / 1,040
+  states；候选为完整 variable history，不加载 evaluation；
+- 修复 normalized target 的 near-zero denominator 与 model initialization 前 seed，正式 v3 完成 12/12 配置；
+- DeepSets 最低 tune total 为 0.31137（d512/l16/r2/lr3e-4，最佳 checkpoint 后出现 non-finite），Set
+  Transformer 为 0.31169（d256/l8/r1/s2/lr1e-4，稳定 early stop）；
+- 两个 family 赢家已冻结到 `causalcache_set_utility_learning_curve_v1.json`，待 labels 完成后运行 nested
+  10/25/50/100% train trajectories；本轮不作 held-out 或 deployment 结论。
+
 ## 2026-07-20：label long-history tail recovery
 
 - 36-worker burst 的 3 processes/H200 在 short/medium states 上可运行，但 4 条 Hyper00 lanes 在更长 context
