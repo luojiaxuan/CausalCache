@@ -1,0 +1,147 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_heldout_scaling_diagnostic_v1",
+  "parent_formal_result": {
+    "status": "INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION",
+    "content_sha256": "d89263ce6e76b127a6741e3d2e9b005c7c813e9a49b75163c056ba799158ef49",
+    "verdict": "NO_GO"
+  },
+  "state_inventory": {
+    "path": "data/manifests/set_utility_variable_history_v1_states.json",
+    "sha256": "7ec5bfcf6d9ba347c793264e7a836e4a29e01b3e4d75e3c0e71dc376cb49c68a",
+    "exact_state_count": 320,
+    "union_state_count": 805,
+    "split_role": "evaluation",
+    "trajectory_disjoint_from_train_and_tune": true
+  },
+  "representation": {
+    "model_config": "code/configs/causalcache_set_utility_learning_curve_v1.json",
+    "model_config_sha256": "d9dd42e3369e239816b306467199b0f771bd006a61c96e0206039e9bf86d0a5c",
+    "normalization_floor": 0.01,
+    "candidate_universe": "all_eligible_events_before_query"
+  },
+  "frozen_candidates": {
+    "repository": "gavinlaw/causalcache-set-utility-predictors-mobile",
+    "revision": "5409e846cc45a26b2ae617e39b3ebf7462d180e6",
+    "models": {
+      "lc10_deepsets": {
+        "family": "deepsets",
+        "fraction": 0.1,
+        "train_trajectory_count": 100,
+        "train_state_count": 1037,
+        "variant": "deepsets_d512_l16_r2_lr3e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc10_deepsets_d512_l16_r2_lr3e4/best.safetensors",
+        "sha256": "ab2138d2139ccdca36659d859d63f507d800f4b12a2a2c284c6c01d026b0a0ed",
+        "best_tune_total": 0.32269768964665996
+      },
+      "lc10_set_transformer": {
+        "family": "set_transformer",
+        "fraction": 0.1,
+        "train_trajectory_count": 100,
+        "train_state_count": 1037,
+        "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc10_set_transformer_d256_l8_r1_s2_lr1e4/best.safetensors",
+        "sha256": "8fa319af35e27de396783aa19e3cade84f4c0d147e2076cf65ad55352d3bb8b4",
+        "best_tune_total": 0.32057345607766546
+      },
+      "lc25_deepsets": {
+        "family": "deepsets",
+        "fraction": 0.25,
+        "train_trajectory_count": 250,
+        "train_state_count": 2640,
+        "variant": "deepsets_d512_l16_r2_lr3e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc25_deepsets_d512_l16_r2_lr3e4/best.safetensors",
+        "sha256": "88674c9942966be24fdddb25801dde8ef29b4e2f5331b5990cdb7da02654f356",
+        "best_tune_total": 0.31730976224342966
+      },
+      "lc25_set_transformer": {
+        "family": "set_transformer",
+        "fraction": 0.25,
+        "train_trajectory_count": 250,
+        "train_state_count": 2640,
+        "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc25_set_transformer_d256_l8_r1_s2_lr1e4/best.safetensors",
+        "sha256": "5936ac899256bfd5e154e8d0c0a26acac7e7d14aa6ecd0f7c691d0d0b84aedf8",
+        "best_tune_total": 0.3236280766111927
+      },
+      "lc50_deepsets": {
+        "family": "deepsets",
+        "fraction": 0.5,
+        "train_trajectory_count": 500,
+        "train_state_count": 5403,
+        "variant": "deepsets_d512_l16_r2_lr3e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc50_deepsets_d512_l16_r2_lr3e4/best.safetensors",
+        "sha256": "22c34c2bab38641949c1fd76bb05fc0d693e655d9db0692a3798bc490e1fe225",
+        "best_tune_total": 0.32065372148804033
+      },
+      "lc50_set_transformer": {
+        "family": "set_transformer",
+        "fraction": 0.5,
+        "train_trajectory_count": 500,
+        "train_state_count": 5403,
+        "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc50_set_transformer_d256_l8_r1_s2_lr1e4/best.safetensors",
+        "sha256": "bd128b17aadd42b37007f45f43821612f360cfec7ececdc7266f3e26d8aaa625",
+        "best_tune_total": 0.32038872637147403
+      },
+      "lc100_deepsets": {
+        "family": "deepsets",
+        "fraction": 1.0,
+        "train_trajectory_count": 1000,
+        "train_state_count": 10658,
+        "variant": "deepsets_d512_l16_r2_lr3e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc100_deepsets_d512_l16_r2_lr3e4/best.safetensors",
+        "sha256": "47c936f2b9c300a249bb96499bac08b74ef511bc2bca261cd4a905ba5fb8648e",
+        "best_tune_total": 0.31171392001920506
+      },
+      "lc100_set_transformer": {
+        "family": "set_transformer",
+        "fraction": 1.0,
+        "train_trajectory_count": 1000,
+        "train_state_count": 10658,
+        "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc100_set_transformer_d256_l8_r1_s2_lr1e4/best.safetensors",
+        "sha256": "2f710a90606828f81f608dc5d7d48ab588ab430123f0abf112e849259724e22b",
+        "best_tune_total": 0.3157733709010099
+      }
+    }
+  },
+  "selection": {
+    "budgets": [1, 2, 3, 4],
+    "contract": "at_most_B",
+    "search": "conditional_greedy",
+    "start_subset": [],
+    "round_rule": "batch_score_every_single_event_extension",
+    "stop_rule": "stop_when_best_extension_predicted_utility_is_not_strictly_greater_than_current_predicted_utility",
+    "tie_break": "higher_predicted_utility_then_smaller_event_id",
+    "subset_score_chunk_size": 64,
+    "nonfinite_behavior": "fail_closed"
+  },
+  "baselines": {
+    "random": {
+      "seed": 20260720
+    }
+  },
+  "diagnostic_evaluation": {
+    "track": "exact_oracle",
+    "budgets": [1, 2],
+    "aggregation": "trajectory_equal",
+    "bootstrap": {
+      "unit": "trajectory",
+      "resamples": 10000,
+      "seed": 20260720,
+      "interval": 0.95
+    },
+    "questions": [
+      "does_heldout_selector_recovery_improve_with_train_fraction",
+      "does_exact_oracle_regret_shrink_with_train_fraction",
+      "does_tune_objective_rank_heldout_selector_quality"
+    ]
+  },
+  "claim_boundary": {
+    "post_hoc_after_formal_v1_no_go": true,
+    "may_select_or_retroactively_change_formal_v1_winner": false,
+    "may_authorize_policy_replay_or_closed_loop": false,
+    "new_restoration_labels_required": false
+  }
+}

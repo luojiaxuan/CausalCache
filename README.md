@@ -64,6 +64,9 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   terminal states（801 completed、4 strict-parser skips）。正式 reducer 判定 `NO_GO`；Set Transformer 虽在 primary、
   OCR/RGB 与 long-history 点估计上领先，但未显著超过 recent，且 B2 oracle regret 失败。根据冻结合同，不启动
   policy replay、online controller 或 closed-loop。[合同](docs/set_utility_heldout_v1.md)与[artifact](data/results/set_utility_heldout_v1/README.md)。
+- post-hoc scale diagnostic 已在执行前冻结：10/25/50/100% 的两个 model families 只在现有 319 个 completed
+  exact-track states 上比较 B1/B2 recovery 与 oracle regret，不新增 labels、不回写 formal v1 winner。它直接判断
+  同分布数据量是否仍改善真实 selector，而不是继续用 tune loss 猜测。[诊断合同](docs/set_utility_heldout_scaling_diagnostic_v1.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。

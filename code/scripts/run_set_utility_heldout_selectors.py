@@ -134,7 +134,7 @@ def main() -> None:
     parser.add_argument("--input-root", type=Path, required=True)
     parser.add_argument("--cache-root", type=Path, required=True)
     parser.add_argument("--heldout-config", type=Path, required=True)
-    parser.add_argument("--model-name", choices=("deepsets", "set_transformer"), required=True)
+    parser.add_argument("--model-name", required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", required=True)
@@ -173,10 +173,16 @@ def main() -> None:
     if _sha256_file(model_config_path) != heldout["representation"]["model_config_sha256"]:
         raise ValueError("held-out model config hash drifted")
     model_config = _read_json(model_config_path)
-    candidate = heldout["frozen_candidates"]["models"][args.model_name]
+    candidates = heldout["frozen_candidates"]["models"]
+    if args.model_name not in candidates:
+        raise ValueError(f"unknown frozen candidate: {args.model_name}")
+    candidate = candidates[args.model_name]
     if _sha256_file(args.checkpoint) != candidate["sha256"]:
         raise ValueError("held-out checkpoint hash drifted")
     variant = model_config["variants"][candidate["variant"]]
+    candidate_family = candidate.get("family", args.model_name)
+    if variant["model"].get("family") != candidate_family:
+        raise ValueError("held-out candidate family and variant drifted")
 
     cache_root = args.cache_root.resolve()
     cache_manifest = _read_json(cache_root / "manifest.json")
