@@ -4009,3 +4009,18 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `Count+DeviceIDs` 冲突,单卡不受影响)。
 - wave 1 完成后:拉回两端 `states/*.json` 合并 → 物化 wave 2(true-greedy 扩张)→ 同 allocation 重启;
   wave 1+2 即可出 B1/B2 headroom 初判。
+
+## 2026-07-20:Long-oracle wave-1 完成,B1 headroom 初判为强阳性
+
+- wave-1 labels 250/250 states 全部 `COMPLETED`、0 skip(Hyper00 164 + Hyper01 86)。中途两次执行修正,
+  均不改科学 denominator:(a) Hyper00 GPU 5 被另一用户容器新落的 68GB 常驻进程挤压,单 lane OOM;
+  (b) Hyper01 双卡在 3 lanes 下 141/143.8GB 触顶。两台容器改为低密度重启(普通卡 2 lanes、共享 GPU 5
+  单 lane,共 11 lanes),state/microbatch 断点保留全部已完成工作。
+- **wave-1 单事件初判(非正式 verdict,正式判定需 wave 2--4 的 macro)**:158 trajectories 上
+  trajectory-equal B1 recovery,oracle(best singleton)=`0.5279` vs recent=`0.0325`,paired delta=
+  `+0.4954`,trajectory bootstrap 95% CI=`[0.3917, 0.6234]`;long bin oracle/recent=`0.5285/0.0482`,
+  very_long=`0.4369/-0.4981`(只恢复最近单事件在超长历史上为负收益)。best singleton 落在 recent-4
+  之外的比例=`58.4%`,平均 age fraction=`0.363`。长历史 B1 oracle 与小历史 exact(`0.5304`)几乎一致,
+  restoration 信号在长历史上没有衰减;差距完全在 selector。
+- wave-2(true-greedy step-2 全扩张,5,904 coalitions/250 states)已物化并在两台以相同低密度布局启动;
+  materializer 补绑 `schedule_shards_sha256` 进 manifest(此前 manifest content hash 只覆盖计数元数据)。

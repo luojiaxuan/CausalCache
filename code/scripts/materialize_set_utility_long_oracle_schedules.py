@@ -194,9 +194,11 @@ def main() -> None:
     for row in schedule_rows:
         by_shard[row["logical_shard"]].append(row)
     receipts = []
+    shard_bytes_digest = hashlib.sha256()
     for logical_shard in range(256):
         rows = sorted(by_shard[logical_shard], key=lambda row: row["state_id"])
         payload = b"".join(canonical_json_bytes(row) + b"\n" for row in rows)
+        shard_bytes_digest.update(payload)
         path = (
             args.output_root
             / "schedule-shards"
@@ -237,6 +239,7 @@ def main() -> None:
         "coalition_count": coalition_count,
         "config_sha256": config_sha,
         "prior_wave_skipped_states": dict(sorted(prior_skips.items())),
+        "schedule_shards_sha256": shard_bytes_digest.hexdigest(),
         "schema_version": "1.0.0",
         "selected_state_count": len(states),
         "scheduled_state_count": len(schedule_rows),
