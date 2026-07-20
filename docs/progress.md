@@ -8,6 +8,8 @@
   支持中断续跑；evaluation split 未加载；
 - reducer 已实现并通过 10 tests（另 7 个无 PyTorch 环境时 skip）：只用真实 `D(S)` 比较 trajectory-equal
   B1--B4 recovery、paired recent delta、long-history 与 selector latency，不以 tune loss 选 winner。
+- 等待 GPU truth 时已完成 full train+tune requirements：11,721 states / 27,867 contexts，Hyper00/Hyper01
+  manifest SHA256 均为 `0e87364b...f3b4b`；GPU extraction 仍等待 tune truth 判定。
 
 ## 2026-07-20：small-history self-contained exact B4 完成
 

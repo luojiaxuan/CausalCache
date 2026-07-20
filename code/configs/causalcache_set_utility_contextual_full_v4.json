@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_contextual_full_v4",
+  "parent_config": "causalcache_set_utility_contextual_multilatent_v3.json",
+  "parent_config_sha256": "c4ba29fb5567590156dba105247465936bcd9fe9245cc08e74d5d5591a79d751",
+  "input": {
+    "snapshot": "formal-complete-merged-5e71d05",
+    "snapshot_content_sha256": "8a530cc643ec2e8ee0ffedb907d36ac98942c51407b6a0c60caef7dd21dac6fa",
+    "contextual_input_content_sha256": "af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1",
+    "contextual_input_manifest_sha256": "0e87364bfb19d64433155a48ba1c8e5a1f3a67a39316fc6b3347229ff92f3b4b",
+    "roles": ["train", "tune"],
+    "evaluation_access": false,
+    "state_count": 11721,
+    "trajectory_count": 1100,
+    "context_count": 27867,
+    "query_context_count": 11721,
+    "event_context_count": 16146
+  },
+  "representation": {
+    "profile_id": "gui_owl_final_lm_hidden_image_plus_preceding_text64_v1",
+    "backbone_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "dtype": "bfloat16",
+    "source_hidden_size": 4096,
+    "backbone_frozen": true
+  },
+  "extraction": {
+    "logical_partition_count": 12,
+    "contexts_per_atomic_chunk": 8,
+    "resume_unit": "context_chunk",
+    "cross_host_mode": "independent_data_parallel"
+  },
+  "training": {
+    "config": "causalcache_set_utility_contextual_training_v3.json",
+    "config_sha256": "2467e8744f89a05bd190703bacbe378541d6948130d0b240164a84bd58a5bc7b",
+    "run_both_families": true,
+    "selection_uses_true_tune_on_policy_recovery": true
+  }
+}

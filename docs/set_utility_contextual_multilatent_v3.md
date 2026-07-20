@@ -47,6 +47,11 @@ Hyper00 0--5 与 Hyper01 2--7 共 12×H200 独立生成真实 `D(S)`；state 与
 若两个模型 primary 相差不超过 0.01，选择 p95 total latency 更低者。实现见
 [`evaluate_set_utility_tune_on_policy.py`](../code/scripts/evaluate_set_utility_tune_on_policy.py)。
 
+完整 train+tune contextual requirement snapshot 已提前物化，但在 tune truth 判定前不启动 GPU extraction：
+11,721 states / 1,100 trajectories / 27,867 contexts，其中 query 11,721、event 16,146；input content
+SHA256=`af18388e...139c1`。科学绑定见
+[`causalcache_set_utility_contextual_full_v4.json`](../code/configs/causalcache_set_utility_contextual_full_v4.json)。
+
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。
 输入清单与 GPU 提取入口分别为
