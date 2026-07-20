@@ -14,7 +14,8 @@ top-3 enrichment 与单一 nested greedy prefix 没有在固定 tune truth 上�
 - train-only DAgger 固定只做一轮：从 v1 checkpoints 的 beam frontier 取 base coalitions，并对每个 base
   标注所有 one-event expansions，而不是只标 predicted top-3；
 - loss 新增带 STOP action 的 conditional listwise distillation 与 differentiable expected regret；STOP 的真实
-  marginal 固定为 0，只在完整 expansion group 上计算；
+  marginal 固定为 0，只在完整 expansion group 上计算；batch reduction 也只对含完整 group 的 active rows
+  归一化，不能被未 enrichment 的 rows 稀释；
 - DeepSets 与 Set Transformer 共享 contextual GUI-Owl hidden cache、labels、loss、seed 与 search，只替换
   set aggregator。两者可以绑定各自的训练 config/checkpoint；必须共享 input、cache 与 v2 search config，
   schedule manifest 分别记录 training/search config SHA。

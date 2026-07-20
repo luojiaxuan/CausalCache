@@ -447,8 +447,13 @@ def _loss(
     normalized = torch.sum(normalized_rows * weights)
     ranking = torch.sum(ranking_rows * weights)
     conditional_marginal = torch.sum(marginal_rows * weights)
-    conditional_listwise = torch.sum(listwise_rows * weights)
-    decision_regret = torch.sum(regret_rows * weights)
+    active_decision_rows = group_mask.any(dim=1).to(trajectory_weights.dtype)
+    decision_weights = trajectory_weights * active_decision_rows
+    decision_denominator = decision_weights.sum().clamp_min(1.0)
+    conditional_listwise = torch.sum(
+        listwise_rows * decision_weights
+    ) / decision_denominator
+    decision_regret = torch.sum(regret_rows * decision_weights) / decision_denominator
     total = (
         float(loss_config["raw_regression"]) * raw
         + float(loss_config["normalized_regression"]) * normalized
