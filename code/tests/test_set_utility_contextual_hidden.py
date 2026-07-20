@@ -3,8 +3,8 @@ from __future__ import annotations
 import unittest
 
 from causalcache.set_utility_contextual_hidden import (
+    CONTEXTUAL_ALLOWED_VISUAL_TOKEN_COUNTS,
     CONTEXTUAL_SOURCE_HIDDEN_SIZE,
-    CONTEXTUAL_VISUAL_TOKEN_COUNT,
     build_contextual_entity_messages,
     select_contextual_hidden_tokens,
 )
@@ -31,10 +31,11 @@ class ContextualSelectionTorchTest(unittest.TestCase):
         image_token_id = 99
         prefix = 80
         suffix = 3
-        input_ids = torch.arange(prefix + CONTEXTUAL_VISUAL_TOKEN_COUNT + suffix)[
+        visual_token_count = max(CONTEXTUAL_ALLOWED_VISUAL_TOKEN_COUNTS)
+        input_ids = torch.arange(prefix + visual_token_count + suffix)[
             None
         ]
-        input_ids[:, prefix : prefix + CONTEXTUAL_VISUAL_TOKEN_COUNT] = image_token_id
+        input_ids[:, prefix : prefix + visual_token_count] = image_token_id
         hidden = torch.arange(
             input_ids.shape[1] * CONTEXTUAL_SOURCE_HIDDEN_SIZE,
             dtype=torch.float32,
@@ -46,7 +47,7 @@ class ContextualSelectionTorchTest(unittest.TestCase):
         )
         self.assertEqual(
             tuple(visual.shape),
-            (CONTEXTUAL_VISUAL_TOKEN_COUNT, CONTEXTUAL_SOURCE_HIDDEN_SIZE),
+            (visual_token_count, CONTEXTUAL_SOURCE_HIDDEN_SIZE),
         )
         self.assertEqual(tuple(text.shape), (64, CONTEXTUAL_SOURCE_HIDDEN_SIZE))
         self.assertEqual(visual.dtype, torch.bfloat16)

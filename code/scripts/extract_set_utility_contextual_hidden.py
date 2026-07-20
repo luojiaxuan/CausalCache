@@ -17,9 +17,9 @@ from causalcache.policy.gui_owl_variable_history_runtime import (
     VARIABLE_HISTORY_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
 )
 from causalcache.set_utility_contextual_hidden import (
+    CONTEXTUAL_ALLOWED_VISUAL_TOKEN_COUNTS,
     CONTEXTUAL_SOURCE_HIDDEN_SIZE,
     CONTEXTUAL_TEXT_TOKEN_LIMIT,
-    CONTEXTUAL_VISUAL_TOKEN_COUNT,
     build_contextual_entity_messages,
     contextual_hidden_forward,
 )
@@ -225,6 +225,7 @@ def main() -> None:
                 )
             tensors = {}
             text_counts = {}
+            visual_counts = {}
             for requirement in chunk:
                 trajectory_images = images_by_trajectory.get(
                     requirement["trajectory_id"]
@@ -247,6 +248,7 @@ def main() -> None:
                 tensors[f"visual__{key}"] = visual
                 tensors[f"text__{key}"] = text
                 text_counts[key] = int(text.shape[0])
+                visual_counts[key] = int(visual.shape[0])
                 metadata_example = metadata
                 visited_contexts += 1
             tensor_path, receipt_path = _chunk_paths(
@@ -276,7 +278,10 @@ def main() -> None:
                 "status": CHUNK_STATUS,
                 "text_token_counts": text_counts,
                 "text_token_limit": CONTEXTUAL_TEXT_TOKEN_LIMIT,
-                "visual_token_count": CONTEXTUAL_VISUAL_TOKEN_COUNT,
+                "allowed_visual_token_counts": sorted(
+                    CONTEXTUAL_ALLOWED_VISUAL_TOKEN_COUNTS
+                ),
+                "visual_token_counts": visual_counts,
             }
             _write_atomic(receipt_path, canonical_json_bytes(receipt, pretty=True))
             completed_during_invocation += 1

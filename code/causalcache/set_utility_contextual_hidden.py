@@ -13,7 +13,7 @@ from causalcache.policy.gui_owl_v2_1 import (
 
 
 CONTEXTUAL_TEXT_TOKEN_LIMIT = 64
-CONTEXTUAL_VISUAL_TOKEN_COUNT = 480
+CONTEXTUAL_ALLOWED_VISUAL_TOKEN_COUNTS = frozenset({448, 459, 464, 480})
 CONTEXTUAL_SOURCE_HIDDEN_SIZE = 4096
 
 
@@ -68,7 +68,8 @@ def select_contextual_hidden_tokens(
     image_positions = torch.nonzero(
         input_ids[0] == image_token_id, as_tuple=False
     ).flatten()
-    if image_positions.numel() != CONTEXTUAL_VISUAL_TOKEN_COUNT:
+    visual_token_count = int(image_positions.numel())
+    if visual_token_count not in CONTEXTUAL_ALLOWED_VISUAL_TOKEN_COUNTS:
         raise ValueError("contextual image token count drifted")
     first_image_position = int(image_positions[0].item())
     text_start = max(0, first_image_position - text_token_limit)
@@ -87,10 +88,7 @@ def select_contextual_hidden_tokens(
     text = final_hidden_state[0].index_select(0, text_positions)
     visual = visual.detach().to(device="cpu", dtype=torch.bfloat16).contiguous()
     text = text.detach().to(device="cpu", dtype=torch.bfloat16).contiguous()
-    if tuple(visual.shape) != (
-        CONTEXTUAL_VISUAL_TOKEN_COUNT,
-        CONTEXTUAL_SOURCE_HIDDEN_SIZE,
-    ):
+    if tuple(visual.shape) != (visual_token_count, CONTEXTUAL_SOURCE_HIDDEN_SIZE):
         raise RuntimeError("contextual visual output geometry drifted")
     if not 1 <= text.shape[0] <= text_token_limit or text.shape[1] != (
         CONTEXTUAL_SOURCE_HIDDEN_SIZE
@@ -138,9 +136,9 @@ def contextual_hidden_forward(
 
 
 __all__ = [
+    "CONTEXTUAL_ALLOWED_VISUAL_TOKEN_COUNTS",
     "CONTEXTUAL_SOURCE_HIDDEN_SIZE",
     "CONTEXTUAL_TEXT_TOKEN_LIMIT",
-    "CONTEXTUAL_VISUAL_TOKEN_COUNT",
     "build_contextual_entity_messages",
     "contextual_hidden_forward",
     "select_contextual_hidden_tokens",

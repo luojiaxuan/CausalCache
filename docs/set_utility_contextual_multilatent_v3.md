@@ -14,6 +14,9 @@ low-fidelity summary（query 无此项）、截图。缓存 final language-model
 - 全部 image-token positions 的 contextual hidden states；
 - 第一枚 image token 前最多 64 个 text positions 的 contextual hidden states。
 
+冻结 processor 下单图 image-token 长度保持原生变长集合 `{448,459,464,480}`；cache 与训练 collate 保留该
+长度，不补写为固定 480。
+
 因此 visual/text 已经过完整 VLM contextual encoder，而不是 vision merger output 与 raw input embeddings。
 event context 在 arrival 时只算一次；query context 在部署时与 action policy hidden states 共享。
 
