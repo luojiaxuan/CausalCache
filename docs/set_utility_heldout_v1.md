@@ -60,6 +60,11 @@ Hyper00/Hyper01 已分别完成 333/472 个 label-blind feature states、token c
 [`data/results/set_utility_heldout_v1/`](../data/results/set_utility_heldout_v1/README.md)；evaluation restoration
 labels 仍未读取，下一步按该 artifact 物化 exact/sparse truth schedule。
 
+Post-GO native-action replay 已预先实现但不会绕过本合同：materializer 必须验证 held-out result 的完整签名、
+805-state coverage、winner `GO` 和 exact-track 320-state inventory 后才会产出 schedule。该阶段只比较 winner、
+recent 与 OCR/RGB 的 B1--B4 mixed-fidelity generation，去重相同 coalition，并报告 canonical action、action type、
+target 与 NFKC-exact text；parse failure 固定计为 mismatch，不过滤。
+
 首次 feature snapshot 因原始 full-token root 在 Hyper00/01 各保留 128 个 logical shards 而 fail-fast，未写入
 output。learning-curve cache 又只含 train/tune observations，不能替代 evaluation tokens。最终执行按现有数据布局
 让两台机器各自物化本机 shard 的 label-blind feature/cache 与双模型 selection partitions，再以 state identity、
