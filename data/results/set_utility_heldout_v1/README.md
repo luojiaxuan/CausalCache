@@ -41,3 +41,6 @@ Persistent working artifacts 位于 Hyper00：
 其中 full anchor 不需要额外 forward，需执行的 coalitions 为 54,370。Schedule 的 method inventory 固定为
 DeepSets、Set Transformer、recent、OCR/RGB 与 random，不能在读取 truth 后追加 selector。Label runtime 见
 [`causalcache_set_utility_heldout_labels_execution_v1.json`](../../../code/configs/causalcache_set_utility_heldout_labels_execution_v1.json)。
+本次 rollout 使用 11×H200、每卡 2 个 processes、22 个 disjoint partitions；冻结映射见
+[`causalcache_set_utility_heldout_labels_workers_22_v1.json`](../../../code/configs/causalcache_set_utility_heldout_labels_workers_22_v1.json)。
+不使用每卡 3 processes，因为既有 long-history run 已证明该配置会在约 140GB 峰值 OOM。
