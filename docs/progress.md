@@ -1,5 +1,16 @@
 # 项目进展
 
+## 2026-07-20：train-side on-policy enrichment v1 实现
+
+- selector CLI 新增 train role 与每个 conditional-greedy step top-k candidate trace；tune 默认行为与 status
+  保持兼容；
+- targeted sampler 固定 20% states、long-history-heavy bin quotas、trajectory cap，并按 cross-model path
+  disagreement、recent disagreement、top1/top2 margin 与 old-event span 排序；
+- schedule 同时覆盖两模型 B1--B4 paths、每步 top-3 candidates、recent 与 anchors；只允许 train role，
+  evaluation access=false；
+- 相关 5 tests passed；下一步在 full checkpoints 上生成 10,658-state train selector traces，再物化约 2,132
+  states 的 targeted restoration schedules。
+
 ## 2026-07-20：full contextual deployment-search truth 完成
 
 - 先以 8 GPUs / 8 workers 启动；5 秒利用率约 39%--78% 后，在不增加 GPU 的前提下切换为每卡 2 lanes；

@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "target_fraction": 0.2,
+  "maximum_states_per_trajectory": 3,
+  "history_bin_weights": {
+    "short": 0.1,
+    "medium": 0.25,
+    "long": 0.6,
+    "very_long": 0.05
+  },
+  "conditional_candidates_per_step": 3,
+  "selection_models": ["deepsets", "set_transformer"],
+  "selection_priority": [
+    "cross_model_path_disagreement",
+    "set_transformer_vs_recent_disagreement",
+    "small_conditional_top1_top2_margin",
+    "old_event_span"
+  ],
+  "firewall": {
+    "allowed_role": "train",
+    "evaluation_access": false,
+    "tune_labels_used_for_training": false
+  }
+}

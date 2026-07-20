@@ -126,9 +126,13 @@ def main() -> None:
     parser.add_argument("--checkpoint", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", required=True)
+    parser.add_argument("--role", choices=("train", "tune"), default="tune")
+    parser.add_argument("--conditional-candidates-per-step", type=int, default=0)
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError("tune selector output already exists")
+    if args.conditional_candidates_per_step < 0:
+        raise ValueError("conditional candidates per step cannot be negative")
     try:
         import torch
         from safetensors.torch import load_file
@@ -168,10 +172,10 @@ def main() -> None:
         .splitlines()
         if line
         for row in (json.loads(line),)
-        if row["role"] == "tune"
+        if row["role"] == args.role
     )
-    if not states or any(row["role"] != "tune" for row in states):
-        raise ValueError("tune selector state inventory drifted")
+    if not states or any(row["role"] != args.role for row in states):
+        raise ValueError("selector state inventory drifted")
 
     torch.manual_seed(int(summary["seed"]))
     torch.cuda.manual_seed_all(int(summary["seed"]))
@@ -264,6 +268,7 @@ def main() -> None:
 
             encoded, conditioning_ms = _milliseconds(condition, torch=torch)
             event_index = {event_id: index for index, event_id in enumerate(events)}
+            conditional_steps = []
 
             def score_batch(subsets: tuple[tuple[int, ...], ...]) -> tuple[float, ...]:
                 masks = torch.zeros(
@@ -276,7 +281,26 @@ def main() -> None:
                         masks[0, subset_index, event_index[event_id]] = True
                 with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                     predictions = model.score_encoded_subsets(encoded, masks)
-                return tuple(float(value) for value in predictions[0].tolist())
+                values = tuple(float(value) for value in predictions[0].tolist())
+                if args.conditional_candidates_per_step and len(subsets) > 1:
+                    ranked = sorted(
+                        zip(subsets, values, strict=True),
+                        key=lambda item: (-item[1], item[0]),
+                    )[: args.conditional_candidates_per_step]
+                    shared = sorted(set.intersection(*(set(row) for row in subsets)))
+                    conditional_steps.append(
+                        {
+                            "base_subset": shared,
+                            "ranked_candidates": [
+                                {
+                                    "predicted_utility": utility,
+                                    "subset": list(subset),
+                                }
+                                for subset, utility in ranked
+                            ],
+                        }
+                    )
+                return values
 
             torch.cuda.synchronize()
             search_started = time.perf_counter()
@@ -287,24 +311,30 @@ def main() -> None:
             search_ms = (time.perf_counter() - search_started) * 1000.0
             if any(not math.isfinite(value) for value in utilities.values()):
                 raise RuntimeError("tune selector emitted non-finite utility")
-            records.append(
-                {
-                    "candidate_event_ids": list(events),
-                    "latency_ms": {
-                        "conditioning": conditioning_ms,
-                        "event_source_encoding": event_encoding_ms,
-                        "query_source_encoding": query_encoding_ms,
-                        "search": search_ms,
-                    },
-                    "learned": learned,
-                    "logical_shard": state["logical_shard"],
-                    "predicted_utilities": utilities,
-                    "recent": recent_budget_selections(events),
-                    "state_id": state["state_id"],
-                    "subset_score_count": score_count,
-                    "trajectory_id": state["trajectory_id"],
-                }
-            )
+            record = {
+                "candidate_event_ids": list(events),
+                "latency_ms": {
+                    "conditioning": conditioning_ms,
+                    "event_source_encoding": event_encoding_ms,
+                    "query_source_encoding": query_encoding_ms,
+                    "search": search_ms,
+                },
+                "learned": learned,
+                "logical_shard": state["logical_shard"],
+                "predicted_utilities": utilities,
+                "recent": recent_budget_selections(events),
+                "state_id": state["state_id"],
+                "subset_score_count": score_count,
+                "trajectory_id": state["trajectory_id"],
+            }
+            if conditional_steps:
+                record["conditional_steps"] = conditional_steps
+            records.append(record)
+    status = (
+        "COMPLETED_SET_UTILITY_TUNE_SELECTIONS"
+        if args.role == "tune"
+        else "COMPLETED_SET_UTILITY_TRAIN_SELECTIONS"
+    )
     result = {
         "cache_content_sha256": cache_manifest["content_sha256"],
         "checkpoint_sha256": _sha256_file(args.checkpoint),
@@ -312,7 +342,8 @@ def main() -> None:
         "input_content_sha256": input_manifest["content_sha256"],
         "records": sorted(records, key=lambda row: row["state_id"]),
         "schema_version": "1.0.0",
-        "status": "COMPLETED_SET_UTILITY_TUNE_SELECTIONS",
+        "role": args.role,
+        "status": status,
         "variant": args.variant,
     }
     result["content_sha256"] = hashlib.sha256(canonical_json_bytes(result)).hexdigest()

@@ -26,6 +26,8 @@ def main() -> None:
     parser.add_argument("--cache-root", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--role", choices=("train", "tune"), default="tune")
+    parser.add_argument("--conditional-candidates-per-step", type=int, default=0)
     parser.add_argument("--job", type=_job, action="append", required=True)
     args = parser.parse_args()
     if len(args.job) < 2:
@@ -66,6 +68,10 @@ def main() -> None:
             str(args.output_root / f"{variant}.json"),
             "--device",
             "cuda:0",
+            "--role",
+            args.role,
+            "--conditional-candidates-per-step",
+            str(args.conditional_candidates_per_step),
         ]
         process = subprocess.Popen(
             command,
