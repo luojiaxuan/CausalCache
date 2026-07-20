@@ -77,6 +77,9 @@ trajectory bootstrap 不显示稳定退化；否则继续 `NO_GO`，不进入 po
   `af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1`；
 - 1,063 个 tune states 的 canonical payload SHA256 保持
   `04ebf46ad96a53e65645ed8ea4808f2d862b909fc471d7cca03197490ff0df22`，未进入训练标签生成；
+- schedule、raw labels、train selections 与 enriched input 已发布到 private HF dataset revision
+  [`9b436c9c`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/9b436c9c8ac645d20f2aa86ba0d519b14f5d6934/artifacts/set-utility-train-enrichment-v1-2711ab55)，
+  immutable tag=`set-utility-train-enrichment-v1-2711ab55`；
 - DeepSets/Set Transformer 已在 Hyper00 GPU 0/1 并行启动，run root 为
   `/data02/jaxan/runs/causalcache-contextual-training-enriched-v1-b32efb1`。
 
