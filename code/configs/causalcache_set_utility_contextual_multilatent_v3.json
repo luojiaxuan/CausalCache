@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_contextual_multilatent_v3",
+  "motivation": "close_the_observed_representation_and_distillation_gap_before_policy_replay",
+  "input": {
+    "snapshot": "causalcache-set-utility-learning-curve-25-5e71d05",
+    "snapshot_content_sha256": "7e4663f75bebae16edc5c3a78d62ddae6f494eae22be4fcf953c64ac5c8d282c",
+    "roles": ["train", "tune"],
+    "evaluation_access": false,
+    "state_count": 3703,
+    "trajectory_count": 350,
+    "context_count": 8813
+  },
+  "representation": {
+    "backbone": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "profile_id": "gui_owl_final_lm_hidden_image_plus_preceding_text64_v1",
+    "entity_prompt": "task_instruction_plus_role_plus_optional_low_fidelity_event_summary_then_one_image",
+    "visual_tokens": "all_final_language_model_hidden_states_at_image_token_positions",
+    "text_tokens": "up_to_64_final_language_model_hidden_states_immediately_preceding_the_first_image_token",
+    "dtype": "bfloat16",
+    "source_hidden_size": 4096,
+    "backbone_frozen": true,
+    "event_context_computed_once_at_arrival": true,
+    "query_context_reuses_action_policy_hidden_states_at_deployment": true
+  },
+  "student": {
+    "family": "set_transformer",
+    "hidden_size": 256,
+    "latent_count": 16,
+    "resampler_layers": 2,
+    "set_layers": 2,
+    "num_heads": 8,
+    "preserve_entity_latents": true,
+    "set_interaction_tokens": "query_latents_plus_all_event_latents_with_selected_unselected_embeddings",
+    "empty_utility_is_exact_zero": true,
+    "budget_input": false,
+    "candidate_count_input": false
+  },
+  "baseline": {
+    "family": "deepsets",
+    "same_contextual_cache": true,
+    "same_resampler_and_latent_count": true,
+    "preserve_entity_latents_until_additive_pooling": true
+  },
+  "training": {
+    "budget_contract": "at_most_B",
+    "budgets": [1, 2, 3, 4],
+    "seed": 20260720,
+    "loss": "raw_plus_normalized_plus_within_state_ranking",
+    "initial_scope": "25_percent_train_trajectories_plus_full_tune",
+    "targeted_on_policy_labels_after_initial_fit": true
+  },
+  "decision": {
+    "first_check": "optimization_and_tune_loss_without_evaluation_access",
+    "second_check": "tune_on_policy_selected_coalition_truth",
+    "freeze_before_untouched_evaluation": true,
+    "policy_replay_and_closed_loop_locked": true
+  }
+}

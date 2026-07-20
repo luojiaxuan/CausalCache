@@ -28,6 +28,7 @@ class TokenUtilityModelConfig:
     set_layers: int = 3
     num_heads: int = 8
     dropout: float = 0.1
+    preserve_entity_latents: bool = False
 
     def __post_init__(self) -> None:
         if self.family not in MODEL_FAMILIES:
@@ -50,6 +51,8 @@ class TokenUtilityModelConfig:
             raise TypeError("dropout must be numeric")
         if not 0.0 <= float(self.dropout) < 1.0:
             raise ValueError("dropout must be in [0, 1)")
+        if type(self.preserve_entity_latents) is not bool:
+            raise TypeError("preserve_entity_latents must be boolean")
 
 
 @dataclass(frozen=True)
@@ -165,7 +168,8 @@ if torch is not None:
             latents = latents + self.role_embedding(role_ids).unsqueeze(1)
             for block in self.blocks:
                 latents = block(latents, source, source_padding_mask)
-            return self.output_norm(latents).mean(dim=1)
+            latents = self.output_norm(latents)
+            return latents if self.config.preserve_entity_latents else latents.mean(dim=1)
 
 
     class TokenSetUtilityPredictor(torch.nn.Module):
@@ -296,10 +300,12 @@ if torch is not None:
                 event_roles,
             )
             flat_events = encoded_valid_events.new_zeros(
-                (flat_count, encoded_valid_events.shape[-1])
+                (flat_count, *encoded_valid_events.shape[1:])
             )
             flat_events.index_copy_(0, valid_indices, encoded_valid_events)
-            return flat_events.reshape(batch_size, event_count, -1)
+            return flat_events.reshape(
+                batch_size, event_count, *encoded_valid_events.shape[1:]
+            )
 
         def condition_encoded_state(
             self,
@@ -310,11 +316,23 @@ if torch is not None:
             event_mask: Any,
         ) -> EncodedTokenUtilityState:
             """Apply query-time numeric and query/event conditioning."""
-            if query.ndim != 2 or event_sources.ndim != 3:
-                raise ValueError("encoded query/event tensors have invalid rank")
-            batch_size, event_count, hidden_size = event_sources.shape
-            if query.shape != (batch_size, hidden_size):
-                raise ValueError("encoded query/event geometry drifted")
+            if self.config.preserve_entity_latents:
+                if query.ndim != 3 or event_sources.ndim != 4:
+                    raise ValueError("multi-latent query/event tensors have invalid rank")
+                batch_size, event_count, latent_count, hidden_size = event_sources.shape
+                if query.shape != (batch_size, latent_count, hidden_size):
+                    raise ValueError("multi-latent query/event geometry drifted")
+                query_summary = query.mean(dim=1)
+                expanded_query = query_summary[:, None, None, :].expand(
+                    -1, event_count, latent_count, -1
+                )
+            else:
+                if query.ndim != 2 or event_sources.ndim != 3:
+                    raise ValueError("encoded query/event tensors have invalid rank")
+                batch_size, event_count, hidden_size = event_sources.shape
+                if query.shape != (batch_size, hidden_size):
+                    raise ValueError("encoded query/event geometry drifted")
+                expanded_query = query.unsqueeze(1).expand(-1, event_count, -1)
             if event_numeric_features.shape != (
                 batch_size,
                 event_count,
@@ -325,8 +343,9 @@ if torch is not None:
                 raise ValueError("event mask shape drifted")
             if event_mask.dtype != torch.bool:
                 raise TypeError("event mask must be boolean")
-            expanded_query = query.unsqueeze(1).expand(-1, event_count, -1)
             numeric = self.numeric_encoder(event_numeric_features)
+            if self.config.preserve_entity_latents:
+                numeric = numeric.unsqueeze(2).expand(-1, -1, latent_count, -1)
             events = self.event_conditioner(
                 torch.cat(
                     (
@@ -341,7 +360,14 @@ if torch is not None:
             )
             return EncodedTokenUtilityState(
                 query=query,
-                events=events.masked_fill(~event_mask.unsqueeze(-1), 0.0),
+                events=events.masked_fill(
+                    ~event_mask.reshape(
+                        batch_size,
+                        event_count,
+                        *([1, 1] if self.config.preserve_entity_latents else [1]),
+                    ),
+                    0.0,
+                ),
                 event_mask=event_mask,
             )
 
@@ -421,36 +447,66 @@ if torch is not None:
                 memberships.sum(dim=-1, keepdim=True)
             )
             if self.config.family == "deepsets":
-                selected = torch.einsum("bkn,bnh->bkh", memberships, events)
-                universe = events.sum(dim=1, keepdim=True)
+                if self.config.preserve_entity_latents:
+                    selected = torch.einsum("bkn,bnlh->bkh", memberships, events)
+                    universe = events.sum(dim=(1, 2), keepdim=False).unsqueeze(1)
+                    query_for_head = query.mean(dim=1)
+                else:
+                    selected = torch.einsum("bkn,bnh->bkh", memberships, events)
+                    universe = events.sum(dim=1, keepdim=True)
+                    query_for_head = query
                 unselected = universe - selected
-                expanded_query = query.unsqueeze(1).expand(-1, subset_count, -1)
+                expanded_query = query_for_head.unsqueeze(1).expand(
+                    -1, subset_count, -1
+                )
                 return self.utility_head(
                     torch.cat(
                         (expanded_query, selected, unselected, cardinality), dim=-1
                     )
                 ).squeeze(-1)
 
-            flat_membership = subset_masks.reshape(
-                batch_size * subset_count, event_count
-            )
-            expanded_events = events.unsqueeze(1).expand(
-                -1, subset_count, -1, -1
-            ).reshape(batch_size * subset_count, event_count, hidden)
-            expanded_events = expanded_events + self.selection_embedding(
-                flat_membership.to(dtype=torch.long)
-            )
-            seed = query.unsqueeze(1).expand(-1, subset_count, -1).reshape(
-                batch_size * subset_count, 1, hidden
-            )
+            flat_membership = subset_masks.reshape(batch_size * subset_count, event_count)
+            if self.config.preserve_entity_latents:
+                latent_count = events.shape[2]
+                expanded_events = events.unsqueeze(1).expand(
+                    -1, subset_count, -1, -1, -1
+                ).reshape(
+                    batch_size * subset_count,
+                    event_count * latent_count,
+                    hidden,
+                )
+                latent_membership = flat_membership.unsqueeze(-1).expand(
+                    -1, -1, latent_count
+                ).reshape(batch_size * subset_count, event_count * latent_count)
+                expanded_events = expanded_events + self.selection_embedding(
+                    latent_membership.to(dtype=torch.long)
+                )
+                seed = query.unsqueeze(1).expand(
+                    -1, subset_count, -1, -1
+                ).reshape(batch_size * subset_count, latent_count, hidden)
+                expanded_event_mask = event_mask.unsqueeze(1).unsqueeze(-1).expand(
+                    -1, subset_count, -1, latent_count
+                ).reshape(batch_size * subset_count, event_count * latent_count)
+                seed_count = latent_count
+            else:
+                expanded_events = events.unsqueeze(1).expand(
+                    -1, subset_count, -1, -1
+                ).reshape(batch_size * subset_count, event_count, hidden)
+                expanded_events = expanded_events + self.selection_embedding(
+                    flat_membership.to(dtype=torch.long)
+                )
+                seed = query.unsqueeze(1).expand(-1, subset_count, -1).reshape(
+                    batch_size * subset_count, 1, hidden
+                )
+                expanded_event_mask = event_mask.unsqueeze(1).expand(
+                    -1, subset_count, -1
+                ).reshape(batch_size * subset_count, event_count)
+                seed_count = 1
             tokens = torch.cat((seed, expanded_events), dim=1)
-            expanded_event_mask = event_mask.unsqueeze(1).expand(
-                -1, subset_count, -1
-            ).reshape(batch_size * subset_count, event_count)
             padding_mask = torch.cat(
                 (
                     torch.zeros(
-                        (batch_size * subset_count, 1),
+                        (batch_size * subset_count, seed_count),
                         dtype=torch.bool,
                         device=event_mask.device,
                     ),
@@ -461,7 +517,9 @@ if torch is not None:
             assert self.set_encoder is not None
             pooled = self.set_encoder(
                 tokens, src_key_padding_mask=padding_mask
-            )[:, 0].reshape(batch_size, subset_count, hidden)
+            )[:, :seed_count].mean(dim=1).reshape(
+                batch_size, subset_count, hidden
+            )
             return self.utility_head(
                 torch.cat((pooled, cardinality), dim=-1)
             ).squeeze(-1)
@@ -478,14 +536,16 @@ if torch is not None:
             events = encoded_state.events
             event_mask = encoded_state.event_mask
             if (
-                query.ndim != 2
-                or events.ndim != 3
+                query.ndim != (3 if self.config.preserve_entity_latents else 2)
+                or events.ndim != (4 if self.config.preserve_entity_latents else 3)
                 or event_mask.ndim != 2
                 or query.shape[0] != events.shape[0]
                 or event_mask.shape != events.shape[:2]
-                or query.shape[1] != events.shape[2]
+                or query.shape[-1] != events.shape[-1]
             ):
                 raise ValueError("encoded token-utility state geometry drifted")
+            if self.config.preserve_entity_latents and query.shape[1] != events.shape[2]:
+                raise ValueError("encoded token-utility latent count drifted")
             if event_mask.dtype != torch.bool:
                 raise TypeError("encoded event mask must be boolean")
             if subset_masks.ndim == 2:

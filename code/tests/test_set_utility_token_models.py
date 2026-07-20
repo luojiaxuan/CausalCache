@@ -146,6 +146,41 @@ class TokenUtilityTorchTest(unittest.TestCase):
                 ]
                 self.assertTrue(any(value is not None for value in gradients))
 
+    def test_multi_latent_entities_reach_set_interaction_without_mean_pooling(self) -> None:
+        torch = self.torch
+        for family in ("deepsets", "set_transformer"):
+            with self.subTest(family=family):
+                model = TokenSetUtilityPredictor(
+                    TokenUtilityModelConfig(
+                        family=family,
+                        source_hidden_size=16,
+                        numeric_feature_size=5,
+                        hidden_size=16,
+                        latent_count=4,
+                        resampler_layers=1,
+                        set_layers=1,
+                        num_heads=4,
+                        dropout=0.0,
+                        preserve_entity_latents=True,
+                    )
+                )
+                batch = self._batch()
+                encoded = model.encode_state_once(
+                    **{
+                        key: value
+                        for key, value in batch.items()
+                        if key != "subset_masks"
+                    }
+                )
+                self.assertEqual(tuple(encoded.query.shape), (2, 4, 16))
+                self.assertEqual(tuple(encoded.events.shape), (2, 4, 4, 16))
+                predictions = model.score_encoded_subsets(
+                    encoded, batch["subset_masks"]
+                )
+                self.assertEqual(tuple(predictions.shape), (2, 3))
+                self.assertTrue(torch.equal(predictions[:, 0], torch.zeros(2)))
+                predictions.sum().backward()
+
     def test_rejects_selection_of_padded_event(self) -> None:
         batch = self._batch()
         batch["event_mask"][0, 3] = False
