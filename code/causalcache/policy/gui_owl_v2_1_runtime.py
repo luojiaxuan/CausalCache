@@ -382,8 +382,8 @@ class GUIOwlV21OfficialToolsRuntime(GUIOwlV2Runtime):
         if isinstance(messages_batch, (str, bytes, bytearray, Mapping)):
             raise TypeError("messages_batch must contain native GUI-Owl v2.1 conversations")
         conversations = tuple(messages_batch)
-        if not conversations or len(conversations) > FROZEN_GUI_OWL_V2_MAX_MICROBATCH_SIZE:
-            raise ValueError("GUI-Owl v2.1 microbatch size must be one or two")
+        if not conversations or len(conversations) > self.maximum_microbatch_size:
+            raise ValueError("GUI-Owl v2.1 microbatch exceeds the runtime profile limit")
         image_counts = tuple(
             validate_gui_owl_v2_1_native_messages(messages)
             for messages in conversations

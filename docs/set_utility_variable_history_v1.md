@@ -102,6 +102,9 @@ teacher batch，并把 KL 留在 GPU 到 state 完成。目标是提高 wall-clo
 - label-blind schedule materializer 以 256 logical shards 生成 deterministic 40-label / small-history exact schedules；label runner 分别持久化 reference action、每个 coalition microbatch 与 terminal state，可在中断后跳过已完成 microbatch；
 - exact-grid context postflight 已 PASS；256/256 schedule shards 已完成，共 11,746 train/tune states、461,040
   coalition labels，其中 449,294 个需要 policy forward。正式 labels 尚未生成，下一步直接启动 8-GPU runner。
+- 首次 16-worker launch 暴露 official-tools encoder 仍硬编码 historical max batch=2；8 个 empty-coalition
+  microbatches 后 fail-fast，0 个 terminal states。该 attempt 不续用；修复改为读取 subclass runtime limit，旧 runtime
+  的默认上限仍为 2，variable-history profile 才允许 16。
 
 ```bash
 PYTHONPATH=code python code/scripts/materialize_set_utility_variable_history_source.py \
