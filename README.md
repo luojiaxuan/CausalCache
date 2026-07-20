@@ -64,9 +64,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   terminal states（801 completed、4 strict-parser skips）。正式 reducer 判定 `NO_GO`；Set Transformer 虽在 primary、
   OCR/RGB 与 long-history 点估计上领先，但未显著超过 recent，且 B2 oracle regret 失败。根据冻结合同，不启动
   policy replay、online controller 或 closed-loop。[合同](docs/set_utility_heldout_v1.md)与[artifact](data/results/set_utility_heldout_v1/README.md)。
-- post-hoc scale diagnostic 已在执行前冻结：10/25/50/100% 的两个 model families 只在现有 319 个 completed
-  exact-track states 上比较 B1/B2 recovery 与 oracle regret，不新增 labels、不回写 formal v1 winner。它直接判断
-  同分布数据量是否仍改善真实 selector，而不是继续用 tune loss 猜测。[诊断合同](docs/set_utility_heldout_scaling_diagnostic_v1.md)。
+- post-hoc scale diagnostic 已完成：Set Transformer 的 exact-track B1/B2 recovery 从 10% 的 0.2392 提高到
+  100% 的 0.2629（paired delta +0.0237，95% CI `[-0.0050, 0.0529]`），但曲线不单调；DeepSets endpoint
+  反而下降 0.0085。结论是同分布扩数有弱方向性帮助，但不足以解释当前 gap，下一步优先 B4 oracle 上限和
+  contextualized multi-latent representation。[结果](data/results/set_utility_heldout_scaling_diagnostic_v1/README.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。
@@ -94,6 +95,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Learning-curve dataset/cache | [HF dataset@02a05ab1](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/02a05ab11fd3a5036b62244bf04f37aa5e41db59/artifacts/set-utility-learning-curve-v1-9863f43) | immutable；414 files / 77.4GB；nested splits + compact label archives |
 | Learning-curve checkpoints | [HF model@5409e846](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/5409e846cc45a26b2ae617e39b3ebf7462d180e6/artifacts/set-utility-learning-curve-v1-9863f43) | immutable；8 checkpoints；[summary](data/results/set_utility_learning_curve_v1/README.md) |
 | Held-out selector v1 | [`summary`](data/results/set_utility_heldout_v1/README.md)；[HF tag `set-utility-heldout-v1-d89263c`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/set-utility-heldout-v1-d89263c/artifacts/set-utility-heldout-v1-d89263c)；Hyper00 persistent mirror | 805 terminals：801 completed + 4 skipped；`INCOMPLETE/NO_GO`；result content `d89263c...8ef49`；immutable revision `df41e1d...be8c6` |
+| Held-out scale diagnostic v1 | [`data/results/set_utility_heldout_scaling_diagnostic_v1/`](data/results/set_utility_heldout_scaling_diagnostic_v1/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-set-utility-heldout-scaling-v1-3b0be31` | 8 checkpoints；319 exact states；result content `c346bce...17c2`；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

@@ -1,5 +1,19 @@
 # 项目进展
 
+## 2026-07-20：held-out selector data-scaling diagnostic 完成
+
+- 8 个 10/25/50/100% checkpoints 在 Hyper00/Hyper01 的 disjoint held-out partitions 上完成 16 个 inference
+  jobs；12×H200、两台 containers 均 exit 0，未新增 restoration labels；
+- exact track 为 319/320 completed states、86 trajectories；Set Transformer B1/B2 macro recovery 随 scale
+  为 0.2392/0.2460/0.2456/0.2629，10%→100% delta=+0.0237，95% CI
+  `[-0.0050, 0.0529]`；
+- DeepSets 为 0.2490/0.2436/0.2579/0.2405，endpoint delta=-0.0085；两个 families 均非单调，DeepSets
+  tune-best 100% 也不是 held-out best；
+- 数据规模不是完全无效，但继续堆同分布 trajectory 不足以自动闭合 distillation gap；下一步优先小历史 B4
+  strong/exact oracle，再做 contextualized multi-latent v3；
+- full result content SHA256=`c346bceb...17c2`，persistent path 与轻量结果见
+  [`data/results/set_utility_heldout_scaling_diagnostic_v1/`](../data/results/set_utility_heldout_scaling_diagnostic_v1/README.md)。
+
 ## 2026-07-20：held-out selector v1 正式 NO-GO
 
 - Truth rollout 在 Hyper00/Hyper01 使用 12×H200 完成，48/48 deterministic lanes 与 12/12 containers

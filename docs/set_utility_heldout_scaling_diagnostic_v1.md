@@ -1,6 +1,6 @@
 # Held-out selector scaling diagnostic v1
 
-状态：`FROZEN_BEFORE_EXECUTION`。
+状态：`COMPLETED_SET_UTILITY_HELDOUT_SCALING_DIAGNOSTIC_WITH_SKIPS`。
 
 ## 问题
 
@@ -39,3 +39,14 @@ snapshot 上，并只使用 exact track 已存在的 `|S|<=2` truth 比较 B1/B2
 每个 checkpoint 在 Hyper00 与 Hyper01 的 disjoint feature/cache partition 上各运行一次，再按 805-state identity
 合并。8 个 merged candidate outputs 与 canonical held-out truth 一次性进入 reducer；不得按中间 evaluation 结果
 追加、删除或重训 checkpoint。
+
+## 结果与决策
+
+完整结果见
+[`data/results/set_utility_heldout_scaling_diagnostic_v1/`](../data/results/set_utility_heldout_scaling_diagnostic_v1/README.md)。
+Set Transformer 的 B1/B2 macro recovery 为 0.2392/0.2460/0.2456/0.2629，10%→100% paired delta 为
++0.0237，95% CI `[-0.0050, 0.0529]`；DeepSets 为 0.2490/0.2436/0.2579/0.2405，endpoint delta
+-0.0085。两条曲线均不单调。
+
+结论是同分布扩数对 Set Transformer 有方向性收益，但证据不足以把问题归结为纯数据量；后续优先做 B4 oracle
+上限和 contextualized multi-latent representation，不继续盲目堆同分布 trajectories。

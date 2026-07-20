@@ -1,0 +1,81 @@
+{
+  "artifact_status": "PENDING_HF_UPLOAD",
+  "baselines": {
+    "ocr_rgb_macro_B1_B2_normalized_recovery": 0.23832098689276215,
+    "recent_macro_B1_B2_normalized_recovery": 0.2521127571621244
+  },
+  "coverage": {
+    "completed_exact_state_count": 319,
+    "expected_exact_state_count": 320,
+    "skipped_exact_state_count": 1
+  },
+  "deepsets": {
+    "heldout_best_fraction": 0.5,
+    "macro_B1_B2_by_train_fraction": {
+      "0.1": 0.24898658379964408,
+      "0.25": 0.24359801460335787,
+      "0.5": 0.2579073614238284,
+      "1.0": 0.24052725853036508
+    },
+    "monotonic_nondecreasing": false,
+    "tune_best_fraction": 1.0,
+    "train_10_to_100_delta": {
+      "bootstrap_95_ci": [
+        -0.032178607707303235,
+        0.016646139147607923
+      ],
+      "point_estimate": -0.00845932526927902
+    }
+  },
+  "execution": {
+    "candidate_count": 8,
+    "host_count": 2,
+    "partition_job_count": 16,
+    "selected_gpu_count": 12,
+    "timing_claim_allowed": false
+  },
+  "oracle": {
+    "B1_macro_normalized_recovery": 0.5170145651209884,
+    "B2_macro_normalized_recovery": 0.685172984797886
+  },
+  "producer_git_revision": "d7b9c65",
+  "result": {
+    "content_sha256": "c346bcebd2205cbcca5eeb2ee001eb29c3c2ed41a6ef4e5a75b7d503dfa517c2",
+    "file_sha256": "24629e2cfa285579421b3a630e5d23cf6fb4fbeb17d68ffca54181fd1fbc929f",
+    "persistent_path": "/data02/jaxan/runs/causalcache-set-utility-heldout-scaling-v1-3b0be31/result-d7b9c65.json"
+  },
+  "schema_version": "causalcache.set_utility_heldout_scaling_summary.v1",
+  "set_transformer": {
+    "heldout_best_fraction": 1.0,
+    "macro_B1_B2_by_train_fraction": {
+      "0.1": 0.23918673335250976,
+      "0.25": 0.24595225236240653,
+      "0.5": 0.24560809643887058,
+      "1.0": 0.26292345810237944
+    },
+    "monotonic_nondecreasing": false,
+    "tune_best_fraction": 1.0,
+    "train_10_to_100_delta": {
+      "bootstrap_95_ci": [
+        -0.005045352389386177,
+        0.05287358164573964
+      ],
+      "point_estimate": 0.023736724749869667
+    },
+    "train_100_minus_ocr_rgb": {
+      "bootstrap_95_ci": [
+        -0.005517386642541048,
+        0.056116333020079553
+      ],
+      "point_estimate": 0.024602471209617262
+    },
+    "train_100_minus_recent": {
+      "bootstrap_95_ci": [
+        -0.01574032499077692,
+        0.03916902764575668
+      ],
+      "point_estimate": 0.010810700940255037
+    }
+  },
+  "status": "COMPLETED_SET_UTILITY_HELDOUT_SCALING_DIAGNOSTIC_WITH_SKIPS"
+}
