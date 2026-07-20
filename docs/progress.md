@@ -6,8 +6,9 @@
 - DeepSets tune total 为 0.32270/0.31731/0.32065/0.31171，Set Transformer 为
   0.32057/0.32363/0.32039/0.31577；100% 相对 10% 分别改善 0.01098/0.00480，但中间点不单调；
 - DeepSets 50%/100% 在保存最佳 checkpoint 后出现 non-finite；Set Transformer 四个 scale 均稳定 early stop；
-- 暂不盲目增加 labels。先用冻结的 100% checkpoints 做 trajectory-disjoint at-most-B selector utility 与
-  latency evaluation；若 held-out gain 成立且曲线仍显示数据受限，再扩 trajectories 或 interaction-dense labels。
+- 暂不盲目增加 labels。held-out v1 已在 evaluation label access 前冻结：先密封两个 100% checkpoints 在
+  trajectory-disjoint variable-`n_t` states 上的 at-most-B selections，再生成 sparse restoration truth；若真实
+  utility GO，再做 policy replay 与小规模 closed-loop。合同见 [`set_utility_heldout_v1.md`](set_utility_heldout_v1.md)。
 - nested splits、full cache 与 compact raw-label archives 已发布到 private HF dataset revision
   `02a05ab1...1db59`（414 files / 77.4GB）；8 checkpoints 已发布到 model revision
   `5409e846...180e6`。

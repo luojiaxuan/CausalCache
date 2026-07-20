@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_heldout_v1",
+  "freeze_parent_revision": "c1840332050392be5d3c1fc8acfb57e3e3326dbc",
+  "state_inventory": {
+    "path": "data/manifests/set_utility_variable_history_v1_states.json",
+    "sha256": "7ec5bfcf6d9ba347c793264e7a836e4a29e01b3e4d75e3c0e71dc376cb49c68a",
+    "exact_state_count": 320,
+    "large_history_state_count": 720,
+    "union_state_count": 805,
+    "split_role": "evaluation",
+    "trajectory_disjoint_from_train_and_tune": true
+  },
+  "representation": {
+    "model_config": "code/configs/causalcache_set_utility_learning_curve_v1.json",
+    "model_config_sha256": "d9dd42e3369e239816b306467199b0f771bd006a61c96e0206039e9bf86d0a5c",
+    "normalization_floor": 0.01,
+    "candidate_universe": "all_eligible_events_before_query",
+    "recent_n_truncation_allowed": false,
+    "budget_input_to_predictor": false,
+    "candidate_count_input_to_predictor": false
+  },
+  "frozen_candidates": {
+    "repository": "gavinlaw/causalcache-set-utility-predictors-mobile",
+    "revision": "5409e846cc45a26b2ae617e39b3ebf7462d180e6",
+    "models": {
+      "deepsets": {
+        "variant": "deepsets_d512_l16_r2_lr3e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc100_deepsets_d512_l16_r2_lr3e4/best.safetensors",
+        "sha256": "47c936f2b9c300a249bb96499bac08b74ef511bc2bca261cd4a905ba5fb8648e"
+      },
+      "set_transformer": {
+        "variant": "set_transformer_d256_l8_r1_s2_lr1e4",
+        "path": "artifacts/set-utility-learning-curve-v1-9863f43/checkpoints/lc100_set_transformer_d256_l8_r1_s2_lr1e4/best.safetensors",
+        "sha256": "2f710a90606828f81f608dc5d7d48ab588ab430123f0abf112e849259724e22b"
+      }
+    }
+  },
+  "selection": {
+    "budgets": [1, 2, 3, 4],
+    "contract": "at_most_B",
+    "search": "conditional_greedy",
+    "start_subset": [],
+    "round_rule": "batch_score_every_single_event_extension",
+    "stop_rule": "stop_when_best_extension_predicted_utility_is_not_strictly_greater_than_current_predicted_utility",
+    "tie_break": "higher_predicted_utility_then_smaller_event_id",
+    "source_token_encoding": "once_per_state",
+    "subset_score_chunk_size": 64,
+    "nonfinite_behavior": "fail_closed"
+  },
+  "baselines": {
+    "recent": {
+      "rule": "most_recent_B_events",
+      "cardinality": "min_B_n"
+    },
+    "ocr_rgb": {
+      "score": "0.5_current_ocr_jaccard_plus_0.5_current_joint_rgb_histogram_cosine",
+      "selection": "strictly_positive_top_B",
+      "uses_raw_image_and_ocr": true
+    },
+    "random": {
+      "seed": 20260720,
+      "rule": "one_deterministic_nested_random_permutation_per_state"
+    }
+  },
+  "label_firewall": {
+    "evaluation_features_may_be_materialized_before_selection": true,
+    "evaluation_restoration_labels_may_be_generated_only_after_sealed_selection_artifact": true,
+    "selection_artifact_must_bind_checkpoint_config_inventory_and_input_hashes": true,
+    "evaluation_may_not_be_reused_for_hyperparameter_tuning": true
+  },
+  "restoration_truth": {
+    "reference_config": "code/configs/causalcache_set_utility_variable_history_v2_context_fit.json",
+    "reference_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+    "exact_track": "all_subsets_cardinality_at_most_2_plus_full_anchor_plus_frozen_B3_B4_selections",
+    "large_track": "empty_full_frozen_method_selections_and_registered_random_controls",
+    "exact_oracle_budgets": [1, 2],
+    "true_selected_utility_budgets": [1, 2, 3, 4]
+  },
+  "metrics": {
+    "utility": "D_empty_minus_D_selected",
+    "normalized_recovery": "utility_divided_by_max_D_empty_0.01",
+    "aggregation": "trajectory_equal",
+    "history_bins": ["short", "medium", "long", "very_long"],
+    "bootstrap": {
+      "unit": "trajectory",
+      "resamples": 10000,
+      "seed": 20260720,
+      "interval": 0.95
+    },
+    "latency": [
+      "event_source_encoding_ms",
+      "query_source_encoding_ms",
+      "encoded_conditional_search_ms",
+      "selector_total_from_cached_source_tokens_ms"
+    ]
+  },
+  "go_no_go": {
+    "primary": "macro_B1_B4_trajectory_equal_normalized_recovery",
+    "requirements": [
+      "learned_minus_each_of_recent_and_ocr_rgb_cluster_bootstrap_lower_bound_above_zero",
+      "learned_exact_track_mean_oracle_regret_lower_than_each_heuristic_for_B1_B2",
+      "learned_minus_best_heuristic_point_estimate_above_zero_on_long_plus_very_long",
+      "all_predictions_and_true_distances_finite"
+    ],
+    "winner_rule": "among_GO_models_choose_highest_primary_then_lower_selector_p95_within_0.01_primary_then_smaller_checkpoint",
+    "no_go_action": "do_not_start_policy_replay_or_closed_loop"
+  },
+  "deployment_latency_gate": {
+    "profile": "warm_shared_encoder",
+    "selector_p95_over_action_policy_forward_p95_maximum": 0.1,
+    "applied_during_policy_replay_before_closed_loop": true
+  }
+}
