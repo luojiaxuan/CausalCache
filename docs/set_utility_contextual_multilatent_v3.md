@@ -60,6 +60,10 @@ Tune truth 完成 1,063/1,063 states、0 skip。trajectory-equal B1--B4 macro re
 `[-0.0160,0.0100]`，Set Transformer-minus-recent=`[-0.0314,-0.0004]`。因此 representation-only 改动
 不能授权后续 policy 实验；按既定计划继续 full-data 双模型，随后重新测 deployment-search truth。
 
+Full-data extraction 已使用 Git revision `e97f2d4b71f86bc526c48d1905b9462731d349fe` 启动：8 个独立
+partitions，Hyper00 0--3、Hyper01 2--5，每台严格不超过 4 GPUs；output root=
+`/data02/jaxan/runs/causalcache-contextual-hidden-full-v4-e97f2d4`。
+
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。
 输入清单与 GPU 提取入口分别为

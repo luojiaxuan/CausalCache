@@ -1,5 +1,12 @@
 # 项目进展
 
+## 2026-07-20：full contextual extraction 启动
+
+- frozen input 为 11,721 train+tune states / 27,867 contexts，evaluation access=false；
+- fleet preflight 后使用 Hyper00 0--3 与 Hyper01 2--5，共 8×H200、每 host 4 workers；
+- 8 个 logical partitions 与每 8 contexts 的 atomic chunks 支持断点续跑；source revision=`e97f2d4...49fe`，
+  output root=`/data02/jaxan/runs/causalcache-contextual-hidden-full-v4-e97f2d4`。
+
 ## 2026-07-20：contextual tune on-policy truth 完成
 
 - 1,063/1,063 tune states、9,814 distance rows、0 skip；两台 Hyper 初始 12 workers，用户收缩后保持每台
