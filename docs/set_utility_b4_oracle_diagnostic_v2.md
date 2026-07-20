@@ -1,6 +1,6 @@
 # Small-history B4 oracle diagnostic v2
 
-状态：`FROZEN_BEFORE_SCHEDULE_MATERIALIZATION`。
+状态：`LABELS_RUNNING`。
 
 ## 问题
 
@@ -26,3 +26,16 @@ distribution 或 logits 数值漂移影响，不能严谨地组成一张 exact t
 
 这是 formal v1 `NO_GO` 后的小历史上限诊断，不代表全体 long-history states；不能改变 formal winner，也不能单独
 授权 policy replay 或 closed-loop。其用途是区分 B4 budget ceiling、search gap 与 representation/distillation gap。
+
+## 执行记录
+
+- frozen source revision：`59e6a7341523b67c9d7dff8e0bce2677b0bbe5bf`；
+- schedule：103 states、73 trajectories、8,525 forwards、8,628 total coalitions；summary file
+  SHA256=`247cc6a0ac753209c2c64f08b3ff19dc922182cbdf3c36bfa9e595b3f4f1c807`；
+- Hyper00 使用 H200 `0--5`、Hyper01 使用 H200 `2--7`，每卡两个 state-lane worker；
+- 两端 output root：`/data02/jaxan/runs/causalcache-set-utility-b4-oracle-labels-v2-59e6a73`；
+- output 以 state 与 microbatch 为原子断点，已完成 state 会在重启时跳过；
+- reducer 独立报告 exact B1--B4、true-conditional-greedy、formal learned/heuristic selector、search gap、
+  distillation gap 与 B2-to-B4 ceiling gain。
+
+标签和最终 result 在完成前为 `PENDING_HF_UPLOAD`；Git 只保存轻量 summary，完整 truth table 上传私有 HF dataset。
