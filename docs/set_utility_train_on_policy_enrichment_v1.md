@@ -62,3 +62,20 @@ representation 并行重训；只替换 set aggregator，随后按真实 tune re
 
 重训后只接受以下判定：Set Transformer 在相同固定 tune truth 上 primary macro 高于 recent，且 paired
 trajectory bootstrap 不显示稳定退化；否则继续 `NO_GO`，不进入 policy experiments。
+
+## Train labels 与 enriched snapshot 结果
+
+- Hyper00/Hyper01 各使用 4×H200、每卡 3 resumable state lanes；两端分别完成 `1,044/1,044` 与
+  `1,088/1,088` states，24/24 worker receipts 为 completed，0 skipped/OOM/retry；
+- 共生成冻结 schedule 的 `52,744` coalition distances；consolidated raw root 为 Hyper00
+  `/data02/jaxan/runs/causalcache-contextual-train-on-policy-labels-enrichment-v1-5714b52`，约 19.5MB；
+- broad table 与 targeted table 有 14,762 个重复 rows，最大绝对差 `1.1921e-7`，通过 `1e-6` tolerance；
+  新增 37,982 个 rows；
+- enriched snapshot 为 Hyper00
+  `/data02/jaxan/artifacts/causalcache-contextual-inputs-enriched-v1-b32efb1`，content SHA256=
+  `2711ab55cbd5f86fd4f221d2cb3a4cbc30a7fbba7b2bf0fcfb9ffbb3409d407f`；parent SHA256=
+  `af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1`；
+- 1,063 个 tune states 的 canonical payload SHA256 保持
+  `04ebf46ad96a53e65645ed8ea4808f2d862b909fc471d7cca03197490ff0df22`，未进入训练标签生成；
+- DeepSets/Set Transformer 已在 Hyper00 GPU 0/1 并行启动，run root 为
+  `/data02/jaxan/runs/causalcache-contextual-training-enriched-v1-b32efb1`。
