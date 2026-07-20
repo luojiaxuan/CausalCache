@@ -13,6 +13,12 @@
   0.4040 与 OCR/RGB 的 0.3826；相对 OCR/RGB 的 bootstrap 95% CI 为 `[0.0034, 0.0525]`，但相对 recent
   为 `[-0.0248, 0.0318]`，且 B2 exact-oracle regret 0.0281 差于 recent 0.0264 与 OCR/RGB 0.0230。
   因此这不只是 coverage 阻塞：当前 checkpoint 也没有满足冻结的 selector performance gate。
+- **Small-history exact B4 证明主要风险是 distillation，而不是 restoration signal。** 在同一 reference
+  session 的 103 states/73 trajectories 上，exact B1--B4 recovery 为
+  `0.530/0.700/0.782/0.825`；true conditional greedy B4 为 `0.768`，search gap=`0.057`。Set Transformer
+  B4 为 `0.713`，高于 DeepSets `0.706`、OCR/RGB `0.694` 与 recent `0.672`，但距 exact 仍差 `0.112`。
+  因此下一步优先 contextualized multi-latent representation 与 deployment-search labels，不继续盲目堆同分布
+  trajectories，也不因本诊断启动 closed-loop。
 - Restoration signal 存在，但旧版 conditional gate 与 independent gate 都没有在 untouched confirm 上稳定超过廉价 heuristic。
 - GUIOdyssey 已固定 1,200 trajectories。旧 processor artifact 只物化每条轨迹的 anchor/terminal 两个 query，不能算 state-level 扩数完成。
 - D2 已证明 strict-determinism runtime 可稳定复现先前的异常 state。
@@ -68,9 +74,9 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   100% 的 0.2629（paired delta +0.0237，95% CI `[-0.0050, 0.0529]`），但曲线不单调；DeepSets endpoint
   反而下降 0.0085。结论是同分布扩数有弱方向性帮助，但不足以解释当前 gap，下一步优先 B4 oracle 上限和
   contextualized multi-latent representation。[结果](data/results/set_utility_heldout_scaling_diagnostic_v1/README.md)。
-- small-history B4 oracle diagnostic v2 已冻结：exact track 中全部 `5≤n_t≤8` 的 103 states/73
-  trajectories，在同一 reference session 内完整计算 `|S|≤4` 的 8,525 个 forwards，避免跨运行合并旧 B1/B2
-  truth。它将区分 B4 budget ceiling、true-greedy search gap 与 learned distillation gap。
+- small-history B4 oracle diagnostic v2 已完成：103/103 completed、0 skip；exact B4 recovery=`0.8248`，
+  true-greedy=`0.7677`，Set Transformer=`0.7128`。B2→B4 exact gain=`+0.1249`，Set Transformer 到 B4 exact
+  的 distillation gap=`0.1121`。[结果](data/results/set_utility_b4_oracle_diagnostic_v2/README.md)与
   [合同](docs/set_utility_b4_oracle_diagnostic_v2.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
@@ -100,6 +106,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Learning-curve checkpoints | [HF model@5409e846](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/5409e846cc45a26b2ae617e39b3ebf7462d180e6/artifacts/set-utility-learning-curve-v1-9863f43) | immutable；8 checkpoints；[summary](data/results/set_utility_learning_curve_v1/README.md) |
 | Held-out selector v1 | [`summary`](data/results/set_utility_heldout_v1/README.md)；[HF tag `set-utility-heldout-v1-d89263c`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/set-utility-heldout-v1-d89263c/artifacts/set-utility-heldout-v1-d89263c)；Hyper00 persistent mirror | 805 terminals：801 completed + 4 skipped；`INCOMPLETE/NO_GO`；result content `d89263c...8ef49`；immutable revision `df41e1d...be8c6` |
 | Held-out scale diagnostic v1 | [`data/results/set_utility_heldout_scaling_diagnostic_v1/`](data/results/set_utility_heldout_scaling_diagnostic_v1/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-set-utility-heldout-scaling-v1-3b0be31` | 8 checkpoints；319 exact states；result content `c346bce...17c2`；`PENDING_HF_UPLOAD` |
+| Small-history exact B4 v2 | [`data/results/set_utility_b4_oracle_diagnostic_v2/`](data/results/set_utility_b4_oracle_diagnostic_v2/README.md)；Hyper00 aggregate `/data02/jaxan/runs/causalcache-set-utility-b4-oracle-labels-v2-aggregate-59e6a73`；两端 raw root `...b4-oracle-labels-v2-59e6a73` | 103/103 completed；8,628 distance rows；result content `195bcbb...0473b`；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

@@ -1,0 +1,29 @@
+{
+  "B2_to_B4_exact_normalized_recovery_gain": 0.12493141477692656,
+  "completed_state_count": 103,
+  "distillation_gap_exact_minus_set_transformer_B4": 0.1120517699014729,
+  "exact_normalized_recovery": {
+    "B1": 0.530434104477028,
+    "B2": 0.6998983771760201,
+    "B3": 0.7823232002697099,
+    "B4": 0.8248297919529467
+  },
+  "method_normalized_recovery_B4": {
+    "deepsets": 0.7063936390862122,
+    "ocr_rgb": 0.6941991471273296,
+    "recent": 0.6717743690571698,
+    "set_transformer": 0.7127780220514738
+  },
+  "result_content_sha256": "195bcbb57d915ca81a40f1c7bf66acab6a28fd2998d52452ea23a3891ba0473b",
+  "result_file_sha256": "b14896f0113f7aa839b4c864287003cc1d6769a3ae06887b95e3b684785ce1b6",
+  "search_gap_exact_minus_true_greedy_B4": 0.05708186536323657,
+  "skipped_state_count": 0,
+  "status": "COMPLETED_SET_UTILITY_B4_ORACLE_EVALUATION",
+  "trajectory_count": 73,
+  "true_conditional_greedy_normalized_recovery": {
+    "B1": 0.530434104477028,
+    "B2": 0.6685933252595666,
+    "B3": 0.7328839900676323,
+    "B4": 0.76774792658971
+  }
+}

@@ -1,5 +1,23 @@
 # 项目进展
 
+## 2026-07-20：small-history self-contained exact B4 完成
+
+- v1 在 `0 states / 0 completed batches` 时停止；v2 不再跨 reference session 合并旧 B1/B2，而是在同一
+  session 内重算全部 `|S|≤4` truth；
+- Hyper00/H200 `0--5` 与 Hyper01/H200 `2--7` 共 12 卡、24 workers 完成 103/103 states、73
+  trajectories、8,525 forwards、8,628 distance rows；0 skip、0 error，两个 supervisors 均 exit 0；
+- trajectory-equal exact B1/B2/B3/B4 recovery=`0.5304/0.6999/0.7823/0.8248`，B2→B4
+  gain=`+0.1249`；说明 B1/B2 确有 budget ceiling，但 B4 已能恢复约 82.5% frozen-policy behavior；
+- true-conditional-greedy B4=`0.7677`，exact-minus-greedy=`0.0571`；搜索 gap 存在但小于 learned
+  distillation gap；
+- Set Transformer B4=`0.7128`、DeepSets=`0.7064`、OCR/RGB=`0.6942`、recent=`0.6718`；Set
+  Transformer 点估计最好，但距 exact 仍差 `0.1121`，不改变 formal v1 `NO_GO`；
+- 85/103 states 的 at-most-B4 exact 解使用 4 events，另有 18 states 使用更少 events，验证不能把 selector
+  定义成 exactly-B；
+- 下一步优先 contextualized GUI-Owl hidden states、保留多 latent tokens 进入 set interaction，并补
+  deployment-search/on-policy coalition supervision；不先启动 policy replay 或 closed-loop。轻量结果见
+  [`data/results/set_utility_b4_oracle_diagnostic_v2/`](../data/results/set_utility_b4_oracle_diagnostic_v2/README.md)。
+
 ## 2026-07-20：held-out selector data-scaling diagnostic 完成
 
 - 8 个 10/25/50/100% checkpoints 在 Hyper00/Hyper01 的 disjoint held-out partitions 上完成 16 个 inference
