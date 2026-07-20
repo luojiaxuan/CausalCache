@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from causalcache.set_utility_heldout_inference import (
+    beam_budget_path,
     canonical_json_bytes,
     conditional_greedy_budget_path,
     recent_budget_selections,
@@ -157,6 +158,13 @@ def main() -> None:
     if args.variant not in config["variants"]:
         raise ValueError("unknown contextual tune-selector variant")
     variant = config["variants"][args.variant]
+    selection_config = config.get("selection", {})
+    search_method = str(selection_config.get("search", "conditional_greedy"))
+    if search_method not in {"conditional_greedy", "beam"}:
+        raise ValueError("unknown contextual selector search method")
+    beam_width = int(selection_config.get("beam_width", 0))
+    if search_method == "beam" and beam_width <= 0:
+        raise ValueError("beam search requires a positive committed width")
     summary = _read_json(args.training_summary)
     if (
         input_manifest.get("evaluation_labels_included") is not False
@@ -314,9 +322,17 @@ def main() -> None:
 
             torch.cuda.synchronize()
             search_started = time.perf_counter()
-            learned, utilities, score_count = conditional_greedy_budget_path(
-                events, score_batch=score_batch
-            )
+            if search_method == "beam":
+                learned, utilities, score_count, beam_steps = beam_budget_path(
+                    events,
+                    score_batch=score_batch,
+                    width=beam_width,
+                )
+            else:
+                learned, utilities, score_count = conditional_greedy_budget_path(
+                    events, score_batch=score_batch
+                )
+                beam_steps = ()
             torch.cuda.synchronize()
             search_ms = (time.perf_counter() - search_started) * 1000.0
             if any(not math.isfinite(value) for value in utilities.values()):
@@ -333,12 +349,18 @@ def main() -> None:
                 "logical_shard": state["logical_shard"],
                 "predicted_utilities": utilities,
                 "recent": recent_budget_selections(events),
+                "search": {
+                    "beam_width": beam_width if search_method == "beam" else None,
+                    "method": search_method,
+                },
                 "state_id": state["state_id"],
                 "subset_score_count": score_count,
                 "trajectory_id": state["trajectory_id"],
             }
             if conditional_steps:
                 record["conditional_steps"] = conditional_steps
+            if beam_steps:
+                record["beam_steps"] = list(beam_steps)
             records.append(record)
     status = (
         "COMPLETED_SET_UTILITY_TUNE_SELECTIONS"

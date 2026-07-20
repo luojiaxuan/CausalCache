@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_decision_distillation_v2",
+  "parent_config": "causalcache_set_utility_contextual_enrichment_v1.json",
+  "input": {
+    "contextual_input_content_sha256": "2711ab55cbd5f86fd4f221d2cb3a4cbc30a7fbba7b2bf0fcfb9ffbb3409d407f",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "evaluation_access": false
+  },
+  "target_fraction": 0.1,
+  "maximum_states_per_trajectory": 3,
+  "history_bin_weights": {
+    "short": 0.1,
+    "medium": 0.2,
+    "long": 0.65,
+    "very_long": 0.05
+  },
+  "coalition_strategy": "candidate_complete_beam",
+  "dagger_rounds": 1,
+  "training": {
+    "seed": 20260721,
+    "epochs": 20,
+    "early_stopping_patience": 5,
+    "minimum_delta": 0.0001,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "attention_backend": "disable_cudnn_sdp",
+    "normalization_floor": 0.01,
+    "loss": {
+      "raw_regression": 0.5,
+      "normalized_regression": 0.5,
+      "within_state_ranking": 0.25,
+      "conditional_marginal": 0.5,
+      "conditional_listwise": 1.0,
+      "decision_regret": 1.0,
+      "decision_temperature": 0.25,
+      "raw_smooth_l1_beta": 0.05,
+      "normalized_smooth_l1_beta": 0.5,
+      "conditional_marginal_smooth_l1_beta": 0.25
+    }
+  },
+  "variants": {
+    "deepsets_decision_v2_d256_l16_r2_lr3e4": {
+      "model": {
+        "family": "deepsets",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    },
+    "set_transformer_decision_v2_d256_l16_r2_s2_lr1e4": {
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    }
+  },
+  "selection": {
+    "budget_contract": "at_most_B",
+    "budgets": [1, 2, 3, 4],
+    "budget_input_to_model": false,
+    "search": "beam",
+    "beam_width": 4,
+    "allow_nonpositive_prefixes": true,
+    "empty_utility_is_exact_zero": true
+  },
+  "gate": {
+    "candidate_model": "best_true_utility_model",
+    "each_budget_point_estimate_strictly_greater_than_recent": true,
+    "macro_paired_bootstrap_lower_strictly_greater_than_zero": true,
+    "long_plus_very_long_point_estimate_strictly_greater_than_recent": true,
+    "failure_blocks_untouched_evaluation": true
+  },
+  "firewall": {
+    "allowed_roles": ["train", "tune"],
+    "evaluation_access": false,
+    "tune_labels_enter_optimizer": false,
+    "maximum_dagger_rounds": 1
+  }
+}

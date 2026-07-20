@@ -377,22 +377,95 @@ def _loss(
         / one_event_expansions.sum(dim=(1, 2)).clamp_min(1)
     )
     marginal_rows = marginal_rows * scale_mask.to(marginal_rows.dtype)
+    decision_temperature = float(loss_config.get("decision_temperature", 0.25))
+    if decision_temperature <= 0.0:
+        raise ValueError("decision temperature must be positive")
+    base_cardinality = batch["model"]["subset_masks"].sum(dim=2)
+    event_mask = batch["model"].get("event_mask")
+    event_count = (
+        event_mask.sum(dim=1, keepdim=True)
+        if event_mask is not None
+        else torch.full_like(
+            base_cardinality[:, :1], batch["model"]["subset_masks"].shape[2]
+        )
+    )
+    expansion_count = one_event_expansions.sum(dim=2)
+    complete_groups = expansion_count == (event_count - base_cardinality)
+    group_mask = (
+        one_event_expansions.any(dim=2)
+        & label_mask
+        & complete_groups
+        & scale_mask.unsqueeze(1)
+    )
+    masked_teacher = (target_marginals / decision_temperature).masked_fill(
+        ~one_event_expansions, -1e9
+    )
+    masked_student = (predicted_marginals / decision_temperature).masked_fill(
+        ~one_event_expansions, -1e9
+    )
+    stop_logits = torch.zeros(
+        (*predictions.shape, 1),
+        dtype=predictions.dtype,
+        device=predictions.device,
+    )
+    teacher_logits = torch.cat((masked_teacher, stop_logits), dim=2)
+    student_logits = torch.cat((masked_student, stop_logits), dim=2)
+    teacher_probabilities = torch.softmax(teacher_logits, dim=2)
+    student_log_probabilities = torch.log_softmax(student_logits, dim=2)
+    listwise_groups = -(
+        teacher_probabilities * student_log_probabilities
+    ).sum(dim=2)
+    listwise_rows = (
+        (listwise_groups * group_mask).sum(dim=1)
+        / group_mask.sum(dim=1).clamp_min(1)
+    )
+    teacher_values = torch.cat((target_marginals, stop_logits), dim=2)
+    action_mask = torch.cat(
+        (
+            one_event_expansions,
+            label_mask.unsqueeze(2),
+        ),
+        dim=2,
+    )
+    best_teacher = teacher_values.masked_fill(~action_mask, -1e9).max(
+        dim=2, keepdim=True
+    ).values
+    student_probabilities = torch.softmax(
+        student_logits.masked_fill(~action_mask, -1e9), dim=2
+    )
+    regret_groups = (
+        student_probabilities
+        * (best_teacher - teacher_values).clamp_min(0.0)
+        * action_mask
+    ).sum(dim=2)
+    regret_rows = (
+        (regret_groups * group_mask).sum(dim=1)
+        / group_mask.sum(dim=1).clamp_min(1)
+    )
     weights = trajectory_weights / trajectory_weights.sum()
     raw = torch.sum(raw_rows * weights)
     normalized = torch.sum(normalized_rows * weights)
     ranking = torch.sum(ranking_rows * weights)
     conditional_marginal = torch.sum(marginal_rows * weights)
+    conditional_listwise = torch.sum(listwise_rows * weights)
+    decision_regret = torch.sum(regret_rows * weights)
     total = (
         float(loss_config["raw_regression"]) * raw
         + float(loss_config["normalized_regression"]) * normalized
         + float(loss_config["within_state_ranking"]) * ranking
         + float(loss_config.get("conditional_marginal", 0.0))
         * conditional_marginal
+        + float(loss_config.get("conditional_listwise", 0.0))
+        * conditional_listwise
+        + float(loss_config.get("decision_regret", 0.0)) * decision_regret
     )
     correct = ((prediction_differences * signs) > 0) & untied
     ranking_accuracy = correct.sum() / untied.sum().clamp_min(1)
     return total, {
+        "complete_decision_group_count": float(group_mask.sum().detach()),
+        "conditional_listwise": float(conditional_listwise.detach()),
         "conditional_marginal_regression": float(conditional_marginal.detach()),
+        "decision_regret": float(decision_regret.detach()),
         "normalized_regression": float(normalized.detach()),
         "ranking_accuracy": float(ranking_accuracy.detach()),
         "raw_mae": float(

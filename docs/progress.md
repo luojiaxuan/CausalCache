@@ -1,5 +1,15 @@
 # 项目进展
 
+## 2026-07-20：decision distillation v2 冻结
+
+- v2 保留 variable at-most-`B` 与 budget-free utility predictor，但把 nested greedy 改为 width-4 beam；B1--B4
+  从各自可行集合独立选取，不再要求形成同一 prefix；
+- train-only DAgger 固定一轮、10% long-heavy states、每 trajectory 最多 3 states；每个 beam frontier base
+  覆盖全部 one-event expansions，不再只标旧 student top-3；
+- loss 新增 STOP-aware conditional listwise 与 expected regret；最终 fixed-tune gate 要求 B1--B4 每个预算
+  点估计、macro paired CI 和 long-history 同时超过 Recent；失败不访问 evaluation；
+- 实现与冻结参数见 [`docs/set_utility_decision_distillation_v2.md`](set_utility_decision_distillation_v2.md)。
+
 ## 2026-07-20：train-side on-policy enrichment v1 fixed-tune NO-GO
 
 - 2,132/2,132 train states、52,744 targeted coalitions 完成，合并后新增 37,982 个 rows；重复 label 最大绝对

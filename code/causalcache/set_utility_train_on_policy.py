@@ -257,3 +257,51 @@ def enrichment_coalitions(
         {"event_ids": list(subset), "source": source}
         for subset, source in zip(coalitions, sources, strict=True)
     )
+
+
+def candidate_complete_enrichment_coalitions(
+    state_id: str,
+    records_by_model: Mapping[str, Mapping[str, Mapping[str, Any]]],
+) -> tuple[dict[str, Any], ...]:
+    """Cover every one-event expansion of each train-only beam frontier base."""
+    set_row = records_by_model["set_transformer"][state_id]
+    candidates = tuple(set_row["candidate_event_ids"])
+    coalitions: list[tuple[int, ...]] = [()]
+    sources = ["anchor_empty"]
+
+    def add(value: Any, source: str) -> None:
+        subset = _subset(value, candidates=candidates)
+        if subset not in coalitions:
+            coalitions.append(subset)
+            sources.append(source)
+
+    for model_name in ("deepsets", "set_transformer"):
+        row = records_by_model[model_name][state_id]
+        beam_steps = row.get("beam_steps")
+        if not isinstance(beam_steps, list) or len(beam_steps) != 4:
+            raise ValueError("candidate-complete enrichment requires four beam steps")
+        for budget in ("1", "2", "3", "4"):
+            add(row["learned"][budget], f"learned_{model_name}_b{budget}")
+        for step in beam_steps:
+            budget = int(step.get("budget", 0))
+            bases = step.get("base_subsets")
+            if budget not in (1, 2, 3, 4) or not isinstance(bases, list):
+                raise ValueError("beam-step trace is malformed")
+            for base_index, value in enumerate(bases):
+                base = _subset(value, candidates=candidates)
+                if len(base) != budget - 1:
+                    raise ValueError("beam base cardinality differs from its budget")
+                add(base, f"beam_{model_name}_b{budget}_base{base_index}")
+                for event_id in candidates:
+                    if event_id not in base:
+                        add(
+                            tuple(sorted((*base, event_id))),
+                            f"beam_{model_name}_b{budget}_base{base_index}_expand",
+                        )
+    for budget in ("1", "2", "3", "4"):
+        add(set_row["recent"][budget], f"recent_b{budget}")
+    add(candidates, "anchor_full")
+    return tuple(
+        {"event_ids": list(subset), "source": source}
+        for subset, source in zip(coalitions, sources, strict=True)
+    )

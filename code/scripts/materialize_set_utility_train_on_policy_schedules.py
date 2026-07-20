@@ -13,6 +13,7 @@ from typing import Any
 
 from causalcache.set_utility_heldout_evaluation import canonical_json_bytes, sha256_file
 from causalcache.set_utility_train_on_policy import (
+    candidate_complete_enrichment_coalitions,
     enrichment_coalitions,
     select_targeted_states,
     validate_train_selections,
@@ -82,9 +83,16 @@ def main() -> None:
     by_shard = {index: [] for index in range(256)}
     source_counts = Counter()
     coalition_count = 0
+    coalition_strategy = str(config.get("coalition_strategy", "topk_paths"))
+    if coalition_strategy not in {"topk_paths", "candidate_complete_beam"}:
+        raise ValueError("unknown train enrichment coalition strategy")
     for state_id in selected_ids:
         state = states[state_id]
-        coalitions = enrichment_coalitions(state_id, records_by_model)
+        coalitions = (
+            candidate_complete_enrichment_coalitions(state_id, records_by_model)
+            if coalition_strategy == "candidate_complete_beam"
+            else enrichment_coalitions(state_id, records_by_model)
+        )
         source_counts.update(row["source"] for row in coalitions)
         coalition_count += len(coalitions)
         by_shard[state["logical_shard"]].append(
@@ -146,6 +154,7 @@ def main() -> None:
         receipts.append(receipt)
     manifest = {
         "coalition_count": coalition_count,
+        "coalition_strategy": coalition_strategy,
         "config_sha256": config_sha,
         "input_content_sha256": input_manifest["content_sha256"],
         "input_manifest_sha256": sha256_file(input_manifest_path),

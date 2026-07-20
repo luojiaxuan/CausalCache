@@ -3,6 +3,7 @@ from __future__ import annotations
 import unittest
 
 from causalcache.set_utility_heldout_inference import (
+    beam_budget_path,
     conditional_greedy_budget_path,
     merge_model_selection_payloads,
     ocr_rgb_budget_selections,
@@ -41,6 +42,28 @@ class HeldoutInferenceTest(unittest.TestCase):
         self.assertEqual(selections, {"1": [1], "2": [1, 2], "3": [1, 2], "4": [1, 2]})
         self.assertEqual(values["4"], 3.0)
         self.assertEqual(count, 7)
+
+    def test_beam_supports_nonnested_budget_optima_and_exposes_bases(self) -> None:
+        utilities = {
+            (): 0.0,
+            (1,): 10.0,
+            (2,): 1.0,
+            (3,): 1.0,
+            (1, 2): 10.5,
+            (1, 3): 10.5,
+            (2, 3): 20.0,
+            (1, 2, 3): 20.0,
+        }
+        selections, values, count, trace = beam_budget_path(
+            (1, 2, 3),
+            score_batch=lambda subsets: [utilities[subset] for subset in subsets],
+            width=3,
+        )
+        self.assertEqual(selections["1"], [1])
+        self.assertEqual(selections["2"], [2, 3])
+        self.assertEqual(values["2"], 20.0)
+        self.assertEqual(trace[1]["base_subsets"], [[1], [2], [3]])
+        self.assertGreater(count, 1)
 
     def test_merge_requires_identical_baselines_and_adds_models(self) -> None:
         def payload(name: str, selected: list[int]) -> dict[str, object]:

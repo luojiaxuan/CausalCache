@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from causalcache.set_utility_train_on_policy import (
+    candidate_complete_enrichment_coalitions,
     enrichment_coalitions,
     select_targeted_states,
     validate_train_selections,
@@ -31,6 +32,15 @@ def _record(index: int, count: int, *, model: str) -> dict:
                     },
                 ],
             }
+        ],
+        "beam_steps": [
+            {
+                "base_subsets": [list(range(1, budget))],
+                "budget": budget,
+                "candidate_count": count - budget + 1,
+                "frontier_subsets": [list(range(1, budget + 1))],
+            }
+            for budget in range(1, 5)
         ],
         "learned": path,
         "recent": {
@@ -106,6 +116,18 @@ def test_enrichment_contains_paths_alternatives_and_anchors() -> None:
     assert [2] in subsets and [3] in subsets
     assert "conditional_set_transformer_step1_rank2" in sources
     assert "anchor_full" in sources
+
+
+def test_candidate_complete_enrichment_covers_every_beam_expansion() -> None:
+    records = validate_train_selections(_payloads())
+    rows = candidate_complete_enrichment_coalitions("state-000", records)
+    subsets = {tuple(row["event_ids"]) for row in rows}
+    for budget in range(1, 5):
+        base = tuple(range(1, budget))
+        assert base in subsets
+        for event_id in range(1, 6):
+            if event_id not in base:
+                assert tuple(sorted((*base, event_id))) in subsets
 
 
 def test_train_selection_rejects_mismatched_inventory() -> None:

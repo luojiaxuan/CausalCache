@@ -139,6 +139,85 @@ def conditional_greedy_budget_path(
     return selections, utilities, score_count
 
 
+def beam_budget_path(
+    event_ids: Sequence[int],
+    *,
+    score_batch: Callable[[tuple[tuple[int, ...], ...]], Iterable[float]],
+    width: int,
+) -> tuple[
+    dict[str, list[int]],
+    dict[str, float],
+    int,
+    tuple[dict[str, Any], ...],
+]:
+    """Search one shared beam through cardinality four and expose its frontiers."""
+    events = _events(event_ids)
+    if type(width) is not int or width <= 0:
+        raise ValueError("beam width must be a positive integer")
+    if not callable(score_batch):
+        raise TypeError("score_batch must be callable")
+
+    def score(subsets: tuple[tuple[int, ...], ...]) -> tuple[float, ...]:
+        values = tuple(float(value) for value in score_batch(subsets))
+        if len(values) != len(subsets) or any(
+            not math.isfinite(value) for value in values
+        ):
+            raise ValueError("predicted subset utilities are invalid")
+        return values
+
+    empty = ()
+    empty_utility = score((empty,))[0]
+    score_count = 1
+    scored: dict[tuple[int, ...], float] = {empty: empty_utility}
+    frontier = (empty,)
+    selections: dict[str, list[int]] = {}
+    utilities: dict[str, float] = {}
+    trace = []
+    for budget in BUDGETS:
+        bases = frontier
+        children = tuple(
+            sorted(
+                {
+                    tuple(sorted((*base, event_id)))
+                    for base in bases
+                    for event_id in events
+                    if event_id not in base
+                }
+            )
+        )
+        if children:
+            values = score(children)
+            score_count += len(children)
+            scored.update(zip(children, values, strict=True))
+            ranked = sorted(
+                zip(children, values, strict=True),
+                key=lambda item: (-item[1], item[0]),
+            )
+            frontier = tuple(subset for subset, _ in ranked[:width])
+        else:
+            frontier = ()
+        feasible = tuple(
+            (subset, utility)
+            for subset, utility in scored.items()
+            if len(subset) <= budget
+        )
+        selected, selected_utility = min(
+            feasible,
+            key=lambda item: (-item[1], len(item[0]), item[0]),
+        )
+        selections[str(budget)] = list(selected)
+        utilities[str(budget)] = selected_utility
+        trace.append(
+            {
+                "base_subsets": [list(base) for base in bases],
+                "budget": budget,
+                "candidate_count": len(children),
+                "frontier_subsets": [list(subset) for subset in frontier],
+            }
+        )
+    return selections, utilities, score_count, tuple(trace)
+
+
 def merge_model_selection_payloads(
     payloads: Sequence[Mapping[str, Any]],
 ) -> dict[str, Any]:
