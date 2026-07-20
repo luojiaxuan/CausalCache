@@ -1,0 +1,35 @@
+# Set Utility held-out v1：sealed selections
+
+状态：`SEALED_BEFORE_EVALUATION_LABEL_ACCESS`。
+
+本目录冻结了 805 个 trajectory-disjoint、variable-`n_t` evaluation states 上的 DeepSets、Set Transformer、
+recent、raw OCR/RGB 与 deterministic random 的 at-most-`B` selections。生成 selections 时未读取任何
+evaluation restoration distance；两个 feature partitions 的 `label_file_read_count` 都为 0。
+
+## Artifact
+
+- Git artifact：[`selections.json`](selections.json)；
+- record count：805；exact track 320、large-history track 720、overlap 235；
+- content SHA256：`98573107b9309f4c3c49dd7e91405f8bfdcdbbccce56a47bc77678cc412e658f`；
+- file SHA256：`0c2223dc6617d06f9c56701f237e128f1e3cb63d564a14d50ce795cce82be60d`；
+- held-out config SHA256：`8374083cb38825f852fdbf50e862c50732579ade4f3d650269e6997cb56de308`；
+- state inventory SHA256：`7ec5bfcf6d9ba347c793264e7a836e4a29e01b3e4d75e3c0e71dc376cb49c68a`。
+
+Persistent working artifacts 位于 Hyper00：
+
+- full label-blind input：`/data02/jaxan/artifacts/causalcache-set-utility-heldout-features-full-480e26d`；
+- selections：`/data02/jaxan/runs/causalcache-set-utility-heldout-selections-480e26d`。
+
+它们当前状态为 `PENDING_HF_UPLOAD`；可复用 checkpoint 已在 README 的 immutable HF model revision 中记录。
+
+## Label-blind latency
+
+这里的 warm latency 不包含 event arrival 时可缓存的 event-source encoding：
+
+| Model | selector p50 | selector p95 | search p95 |
+|---|---:|---:|---:|
+| DeepSets | 7.08 ms | 44.10 ms | 7.15 ms |
+| Set Transformer | 15.33 ms | 210.94 ms | 209.21 ms |
+
+这不是 model winner 或 GO 结论。下一步必须先从 sealed artifact 生成 sparse/exact restoration truth，按冻结合同比较
+真实 utility、exact-oracle regret 和 long-history recovery；只有通过后才执行 downstream closed-loop。
