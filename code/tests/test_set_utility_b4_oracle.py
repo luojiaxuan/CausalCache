@@ -11,7 +11,7 @@ from causalcache.set_utility_heldout_evaluation import sha256_file
 from causalcache.set_utility_heldout_inference import canonical_json_bytes
 
 
-def test_b4_schedule_selects_small_exact_states_and_emits_only_triples_quads_full(
+def test_b4_schedule_selects_small_exact_states_and_uses_configured_cardinalities(
     tmp_path,
 ) -> None:
     records = []
@@ -56,8 +56,9 @@ def test_b4_schedule_selects_small_exact_states_and_emits_only_triples_quads_ful
             }
         },
         "new_truth_schedule": {
-            "expected_forward_coalition_count": 50,
-            "expected_total_schedule_coalition_count": 52,
+            "coalition_cardinalities": [0, 1, 2, 3, 4],
+            "expected_forward_coalition_count": 88,
+            "expected_total_schedule_coalition_count": 90,
             "logical_shard_count": 2,
         },
         "state_selection": {
@@ -80,8 +81,8 @@ def test_b4_schedule_selects_small_exact_states_and_emits_only_triples_quads_ful
     )
     assert result["status"] == B4_SCHEDULE_STATUS
     assert result["state_count"] == 2
-    assert result["coalition_count"] == 52
-    assert result["forward_coalition_count"] == 50
+    assert result["coalition_count"] == 90
+    assert result["forward_coalition_count"] == 88
     rows = [
         json.loads(line)
         for path in sorted((output_root / "schedule-shards").glob("*.jsonl"))
@@ -95,7 +96,7 @@ def test_b4_schedule_selects_small_exact_states_and_emits_only_triples_quads_ful
     for row in rows:
         candidates = row["candidate_event_ids"]
         cardinalities = {len(item["event_ids"]) for item in row["coalitions"]}
-        assert cardinalities == {3, 4, len(candidates)}
+        assert cardinalities == {0, 1, 2, 3, 4, len(candidates)}
     assert materialize_b4_oracle_schedules(
         config_path=config_path,
         selections_path=selections_path,

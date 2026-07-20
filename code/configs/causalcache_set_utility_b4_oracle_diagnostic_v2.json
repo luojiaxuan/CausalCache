@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_b4_oracle_diagnostic_v2",
+  "supersedes": "causalcache_set_utility_b4_oracle_diagnostic_v1",
+  "parent_formal_result": {
+    "content_sha256": "d89263ce6e76b127a6741e3d2e9b005c7c813e9a49b75163c056ba799158ef49",
+    "verdict": "NO_GO"
+  },
+  "inputs": {
+    "state_inventory": {
+      "path": "data/manifests/set_utility_variable_history_v1_states.json",
+      "sha256": "7ec5bfcf6d9ba347c793264e7a836e4a29e01b3e4d75e3c0e71dc376cb49c68a"
+    },
+    "sealed_selections": {
+      "path": "data/results/set_utility_heldout_v1/selections.json",
+      "file_sha256": "0c2223dc6617d06f9c56701f237e128f1e3cb63d564a14d50ce795cce82be60d",
+      "content_sha256": "98573107b9309f4c3c49dd7e91405f8bfdcdbbccce56a47bc77678cc412e658f"
+    },
+    "source_manifest": {
+      "local_path": "/data/artifacts/causalcache-set-utility-variable-history-source-v1-a7213db/manifest.json"
+    }
+  },
+  "state_selection": {
+    "role": "evaluation",
+    "required_track": "exact_oracle",
+    "minimum_candidate_count": 5,
+    "maximum_candidate_count": 8,
+    "label_blind_filter_only": true,
+    "expected_state_count": 103,
+    "expected_trajectory_count": 73
+  },
+  "new_truth_schedule": {
+    "coalition_cardinalities": [0, 1, 2, 3, 4],
+    "include_full_reference_anchor": true,
+    "self_contained_reference_session": true,
+    "expected_forward_coalition_count": 8525,
+    "expected_total_schedule_coalition_count": 8628,
+    "logical_shard_count": 256
+  },
+  "reference": {
+    "scientific_config": "code/configs/causalcache_set_utility_variable_history_v2_context_fit.json",
+    "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+    "policy": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "policy_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "distance": "teacher_forced_full_vocabulary_mean_kl_on_complete_official_tool_call_span"
+  },
+  "evaluation": {
+    "budgets": [1, 2, 3, 4],
+    "aggregation": "trajectory_equal",
+    "normalization_floor": 0.01,
+    "report": [
+      "exact_subset_oracle_normalized_recovery_by_budget",
+      "true_conditional_greedy_normalized_recovery_by_budget",
+      "exact_minus_true_greedy_search_gap",
+      "B2_to_B4_incremental_recovery",
+      "formal_selector_and_heuristic_gap_to_B4_exact",
+      "exact_selected_cardinality_distribution"
+    ]
+  },
+  "claim_boundary": {
+    "small_history_only": true,
+    "post_hoc_after_formal_v1_no_go": true,
+    "may_change_formal_v1_winner": false,
+    "may_authorize_policy_replay_or_closed_loop": false,
+    "purpose": "measure_the_true_B4_recovery_ceiling_and_distillation_gap_with_one_reference_session"
+  }
+}

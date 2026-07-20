@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Materialize exact triples/quads for the small-history B4 oracle."""
+"""Materialize versioned exact-coalition schedules for the B4 oracle."""
 
 from __future__ import annotations
 

@@ -37,10 +37,12 @@ def _selection_content_is_valid(payload: Mapping[str, Any]) -> bool:
     return hashlib.sha256(canonical_json_bytes(unsigned)).hexdigest() == claimed
 
 
-def _schedule_row(record: Mapping[str, Any]) -> dict[str, Any]:
+def _schedule_row(
+    record: Mapping[str, Any], *, coalition_cardinalities: Sequence[int]
+) -> dict[str, Any]:
     candidates = tuple(record["candidate_event_ids"])
     coalitions = []
-    for cardinality in (3, 4):
+    for cardinality in coalition_cardinalities:
         for subset in itertools.combinations(candidates, cardinality):
             source = f"exact_b4:cardinality:{cardinality}"
             coalitions.append(
@@ -99,6 +101,14 @@ def materialize_b4_oracle_schedules(
             trajectory_shards[trajectory_id] = logical_shard
 
     state_contract = config["state_selection"]
+    cardinalities = tuple(config["new_truth_schedule"]["coalition_cardinalities"])
+    if (
+        not cardinalities
+        or tuple(sorted(set(cardinalities))) != cardinalities
+        or cardinalities[0] < 0
+        or cardinalities[-1] > state_contract["maximum_candidate_count"]
+    ):
+        raise ValueError("B4 schedule coalition cardinalities are invalid")
     minimum = state_contract["minimum_candidate_count"]
     maximum = state_contract["maximum_candidate_count"]
     selected = []
@@ -129,7 +139,7 @@ def materialize_b4_oracle_schedules(
 
     def build(logical_shard: int) -> dict[str, Any]:
         rows = tuple(
-            _schedule_row(record)
+            _schedule_row(record, coalition_cardinalities=cardinalities)
             for record in sorted(
                 states_by_shard[logical_shard], key=lambda item: item["state_id"]
             )

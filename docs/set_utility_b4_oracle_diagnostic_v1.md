@@ -1,6 +1,10 @@
 # Small-history B4 oracle diagnostic v1
 
-状态：`FROZEN_BEFORE_SCHEDULE_MATERIALIZATION`。
+状态：`SUPERSEDED_BEFORE_LABEL_OUTPUT`。
+
+本版 schedule 已生成并尝试启动，但两个 host 在停止时均为 `0 states / 0 completed batches`，没有产生可用
+label。复用旧 B1/B2 truth 会让不同 reference session 的 distance 混入同一张 exact table，因此由 v2 的
+self-contained `|S|≤4` truth 取代；本版仅保留为执行历史。
 
 ## 问题
 

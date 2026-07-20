@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0.0",
+  "scientific_config": "causalcache_set_utility_variable_history_v2_context_fit.json",
+  "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+  "runtime_profile_id": "causalcache_variable_history_480_sdpa_state_repeat_filter_v2",
+  "roles": ["evaluation"],
+  "teacher_microbatch_size": 16,
+  "maximum_reference_repeat_kl": 0.0001,
+  "reference_action_generation_repeats": 2,
+  "logical_shard_count": 256,
+  "state_failure_policy": "write_terminal_skip_and_continue",
+  "resume": {
+    "atomic_unit": "coalition_microbatch",
+    "reference_action_persisted": true,
+    "completed_microbatches_skipped": true,
+    "interrupted_microbatch_may_repeat": true,
+    "terminal_states_skipped": true,
+    "identity_binds_source_revision": true
+  },
+  "b4_diagnostic_bindings": {
+    "diagnostic_config_sha256": "251812a821e5b40dda6c7e4ca047c6ba140c7f8454042887ddbdc5320cc21ce0",
+    "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "state_count": 103,
+    "trajectory_count": 73,
+    "forward_coalition_count": 8525,
+    "coalition_cardinalities": [0, 1, 2, 3, 4],
+    "self_contained_reference_session": true
+  }
+}

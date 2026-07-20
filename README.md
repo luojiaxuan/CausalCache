@@ -68,9 +68,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   100% 的 0.2629（paired delta +0.0237，95% CI `[-0.0050, 0.0529]`），但曲线不单调；DeepSets endpoint
   反而下降 0.0085。结论是同分布扩数有弱方向性帮助，但不足以解释当前 gap，下一步优先 B4 oracle 上限和
   contextualized multi-latent representation。[结果](data/results/set_utility_heldout_scaling_diagnostic_v1/README.md)。
-- small-history B4 oracle diagnostic 已在执行前冻结：exact track 中全部 `5≤n_t≤8` 的 103 states/73
-  trajectories，新增 5,922 个 triples/quads forwards，并与既有 B1/B2 truth 合并。它将区分 B4 budget ceiling、
-  true-greedy search gap 与 learned distillation gap。[合同](docs/set_utility_b4_oracle_diagnostic_v1.md)。
+- small-history B4 oracle diagnostic v2 已冻结：exact track 中全部 `5≤n_t≤8` 的 103 states/73
+  trajectories，在同一 reference session 内完整计算 `|S|≤4` 的 8,525 个 forwards，避免跨运行合并旧 B1/B2
+  truth。它将区分 B4 budget ceiling、true-greedy search gap 与 learned distillation gap。
+  [合同](docs/set_utility_b4_oracle_diagnostic_v2.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。
