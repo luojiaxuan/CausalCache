@@ -25,6 +25,7 @@ def main() -> None:
     parser.add_argument("--input-root", type=Path, required=True)
     parser.add_argument("--cache-root", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--selection-config", type=Path)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--role", choices=("train", "tune"), default="tune")
     parser.add_argument("--conditional-candidates-per-step", type=int, default=0)
@@ -73,6 +74,8 @@ def main() -> None:
             "--conditional-candidates-per-step",
             str(args.conditional_candidates_per_step),
         ]
+        if args.selection_config is not None:
+            command.extend(("--selection-config", str(args.selection_config)))
         process = subprocess.Popen(
             command,
             env={**os.environ, "CUDA_VISIBLE_DEVICES": str(cuda_index)},
