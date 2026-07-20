@@ -1,0 +1,20 @@
+{
+  "coalition_count": 55175,
+  "completed_during_or_before_invocation": 256,
+  "config_sha256": "8374083cb38825f852fdbf50e862c50732579ade4f3d650269e6997cb56de308",
+  "forward_coalition_count": 54370,
+  "inventory_sha256": "7ec5bfcf6d9ba347c793264e7a836e4a29e01b3e4d75e3c0e71dc376cb49c68a",
+  "method_names": [
+    "deepsets",
+    "ocr_rgb",
+    "random",
+    "recent",
+    "set_transformer"
+  ],
+  "partition_count": 1,
+  "partition_index": 0,
+  "selections_sha256": "0c2223dc6617d06f9c56701f237e128f1e3cb63d564a14d50ce795cce82be60d",
+  "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+  "state_count": 805,
+  "status": "COMPLETED_VARIABLE_HISTORY_EVALUATION_SCHEDULE_PARTITION"
+}

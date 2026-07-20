@@ -19,6 +19,7 @@ Persistent working artifacts 位于 Hyper00：
 
 - full label-blind input：`/data02/jaxan/artifacts/causalcache-set-utility-heldout-features-full-480e26d`；
 - selections：`/data02/jaxan/runs/causalcache-set-utility-heldout-selections-480e26d`。
+- exact/sparse schedules：`/data02/jaxan/runs/causalcache-set-utility-heldout-eval-schedules-1b5896d`。
 
 它们当前状态为 `PENDING_HF_UPLOAD`；可复用 checkpoint 已在 README 的 immutable HF model revision 中记录。
 
@@ -33,3 +34,10 @@ Persistent working artifacts 位于 Hyper00：
 
 这不是 model winner 或 GO 结论。下一步必须先从 sealed artifact 生成 sparse/exact restoration truth，按冻结合同比较
 真实 utility、exact-oracle regret 和 long-history recovery；只有通过后才执行 downstream closed-loop。
+
+## Truth schedule
+
+[`schedule-summary.json`](schedule-summary.json) 已冻结 256/256 shards、805 states、55,175 个 unique coalitions；
+其中 full anchor 不需要额外 forward，需执行的 coalitions 为 54,370。Schedule 的 method inventory 固定为
+DeepSets、Set Transformer、recent、OCR/RGB 与 random，不能在读取 truth 后追加 selector。Label runtime 见
+[`causalcache_set_utility_heldout_labels_execution_v1.json`](../../../code/configs/causalcache_set_utility_heldout_labels_execution_v1.json)。

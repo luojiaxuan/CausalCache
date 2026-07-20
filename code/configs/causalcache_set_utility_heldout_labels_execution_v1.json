@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0.0",
+  "scientific_config": "causalcache_set_utility_variable_history_v2_context_fit.json",
+  "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+  "runtime_profile_id": "causalcache_variable_history_480_sdpa_state_repeat_filter_v2",
+  "roles": ["evaluation"],
+  "teacher_microbatch_size": 16,
+  "maximum_reference_repeat_kl": 0.0001,
+  "reference_action_generation_repeats": 2,
+  "logical_shard_count": 256,
+  "state_failure_policy": "write_terminal_skip_and_continue",
+  "resume": {
+    "atomic_unit": "coalition_microbatch",
+    "reference_action_persisted": true,
+    "completed_microbatches_skipped": true,
+    "interrupted_microbatch_may_repeat": true,
+    "terminal_states_skipped": true,
+    "identity_binds_source_revision": true
+  },
+  "heldout_bindings": {
+    "heldout_config_sha256": "8374083cb38825f852fdbf50e862c50732579ade4f3d650269e6997cb56de308",
+    "state_inventory_sha256": "7ec5bfcf6d9ba347c793264e7a836e4a29e01b3e4d75e3c0e71dc376cb49c68a",
+    "sealed_selections_content_sha256": "98573107b9309f4c3c49dd7e91405f8bfdcdbbccce56a47bc77678cc412e658f",
+    "sealed_selections_file_sha256": "0c2223dc6617d06f9c56701f237e128f1e3cb63d564a14d50ce795cce82be60d",
+    "schedule_summary_sha256": "4856a91aed7b2db2b6236b400c7c68334877c1515500d68b5b2bca2a4c962db4",
+    "state_count": 805,
+    "coalition_count": 55175,
+    "forward_coalition_count": 54370
+  }
+}
