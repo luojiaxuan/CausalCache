@@ -1,11 +1,18 @@
 # 项目进展
 
-## 2026-07-20：full contextual extraction 启动
+## 2026-07-20：full contextual extraction 完成
 
 - frozen input 为 11,721 train+tune states / 27,867 contexts，evaluation access=false；
 - fleet preflight 后使用 Hyper00 0--3 与 Hyper01 2--5，共 8×H200、每 host 4 workers；
 - 8 个 logical partitions 与每 8 contexts 的 atomic chunks 支持断点续跑；source revision=`e97f2d4...49fe`，
   output root=`/data02/jaxan/runs/causalcache-contextual-hidden-full-v4-e97f2d4`。
+- 两台各 4 workers 均 exit 0；Hyper00 1,772 + Hyper01 1,800 = 3,572/3,572 atomic shards，随后通过
+  `10.0.32.247 -> 10.0.32.246` 内网流式合并，避免经 Mac 中转；
+- finalizer 验证 3,572 tensors、3,572 receipts、8 worker receipts、27,867 contexts，byte count=
+  `119,159,482,488`，status=`COMPLETED_SET_UTILITY_CONTEXTUAL_HIDDEN_CACHE`；
+- cache content SHA256=`44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604`，input content
+  SHA256=`af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1`；下一步启动 full-data
+  DeepSets 与 Set Transformer，并重新生成 deployment-search tune truth。
 
 ## 2026-07-20：contextual tune on-policy truth 完成
 

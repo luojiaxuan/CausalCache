@@ -60,9 +60,12 @@ Tune truth 完成 1,063/1,063 states、0 skip。trajectory-equal B1--B4 macro re
 `[-0.0160,0.0100]`，Set Transformer-minus-recent=`[-0.0314,-0.0004]`。因此 representation-only 改动
 不能授权后续 policy 实验；按既定计划继续 full-data 双模型，随后重新测 deployment-search truth。
 
-Full-data extraction 已使用 Git revision `e97f2d4b71f86bc526c48d1905b9462731d349fe` 启动：8 个独立
-partitions，Hyper00 0--3、Hyper01 2--5，每台严格不超过 4 GPUs；output root=
-`/data02/jaxan/runs/causalcache-contextual-hidden-full-v4-e97f2d4`。
+Full-data extraction 已使用 Git revision `e97f2d4b71f86bc526c48d1905b9462731d349fe` 完成：8 个独立
+partitions，Hyper00 0--3、Hyper01 2--5，每台严格不超过 4 GPUs；8/8 workers exit 0，3,572/3,572
+atomic shards 与 27,867 contexts 通过 finalizer。output root=
+`/data02/jaxan/runs/causalcache-contextual-hidden-full-v4-e97f2d4`，content SHA256=
+`44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604`，总 tensor bytes=
+`119,159,482,488`。evaluation labels 未加载。
 
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。
