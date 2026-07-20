@@ -448,8 +448,12 @@ if torch is not None:
             )
             if self.config.family == "deepsets":
                 if self.config.preserve_entity_latents:
-                    selected = torch.einsum("bkn,bnlh->bkh", memberships, events)
-                    universe = events.sum(dim=(1, 2), keepdim=False).unsqueeze(1)
+                    selected = torch.einsum(
+                        "bkn,bnlh->bkh", memberships, events
+                    ) / events.shape[2]
+                    universe = (
+                        events.sum(dim=(1, 2), keepdim=False) / events.shape[2]
+                    ).unsqueeze(1)
                     query_for_head = query.mean(dim=1)
                 else:
                     selected = torch.einsum("bkn,bnh->bkh", memberships, events)
