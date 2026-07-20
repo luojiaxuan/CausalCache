@@ -128,6 +128,10 @@ class ContextualEnrichmentTest(unittest.TestCase):
             self.assertEqual(table[()], 1.0)
             self.assertEqual(manifest["enrichment"]["added_distance_row_count"], 1)
             self.assertEqual(manifest["enrichment"]["duplicate_distance_row_count"], 3)
+            self.assertEqual(
+                manifest["enrichment"]["tune_state_content_sha256"],
+                hashlib.sha256(b"").hexdigest(),
+            )
             self.assertEqual(manifest["parent_content_sha256"], json.loads((base / "manifest.json").read_text())["content_sha256"])
 
     def test_rejects_evaluation_state_enrichment(self) -> None:

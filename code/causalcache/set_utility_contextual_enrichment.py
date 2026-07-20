@@ -214,6 +214,23 @@ def materialize_contextual_enriched_inputs(
     if duplicate_max_abs_delta > duplicate_tolerance:
         raise RuntimeError("duplicate restoration distance postcondition failed")
 
+    tune_payload_before = b"".join(
+        canonical_json_bytes(row) + b"\n"
+        for row in sorted(
+            (row for row in states if row["role"] == "tune"),
+            key=lambda row: row["state_id"],
+        )
+    )
+    tune_payload_after = b"".join(
+        canonical_json_bytes(row) + b"\n"
+        for row in sorted(
+            (row for row in enriched if row["role"] == "tune"),
+            key=lambda row: row["state_id"],
+        )
+    )
+    if tune_payload_before != tune_payload_after:
+        raise RuntimeError("tune states changed during train-only enrichment")
+
     state_payload = b"".join(
         canonical_json_bytes(row) + b"\n"
         for row in sorted(enriched, key=lambda row: row["state_id"])
@@ -228,6 +245,7 @@ def materialize_contextual_enriched_inputs(
         "schedule_content_sha256": schedule_manifest["content_sha256"],
         "schedule_manifest_sha256": sha256_file(schedule_manifest_path),
         "state_count": len(schedules),
+        "tune_state_content_sha256": hashlib.sha256(tune_payload_after).hexdigest(),
     }
     manifest = {
         **base_manifest,
