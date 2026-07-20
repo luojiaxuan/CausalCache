@@ -10,6 +10,7 @@ from causalcache.set_utility_token_models import (
 from scripts.train_set_utility_token_predictor import (
     _collate,
     _loss,
+    _seed_training_runtime,
     _targets,
     _trajectory_uniform_epoch,
 )
@@ -134,6 +135,33 @@ class TokenUtilityTorchTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "padded event"):
             model(**batch)
+
+    def test_training_seed_precedes_reproducible_model_initialization(self) -> None:
+        config = TokenUtilityModelConfig(
+            family="deepsets",
+            source_hidden_size=16,
+            numeric_feature_size=5,
+            hidden_size=16,
+            latent_count=4,
+            resampler_layers=1,
+            set_layers=1,
+            num_heads=4,
+            dropout=0.0,
+        )
+        _seed_training_runtime(self.torch, 17)
+        left = TokenSetUtilityPredictor(config)
+        _seed_training_runtime(self.torch, 17)
+        right = TokenSetUtilityPredictor(config)
+        self.assertTrue(
+            all(
+                self.torch.equal(left_value, right_value)
+                for left_value, right_value in zip(
+                    left.state_dict().values(),
+                    right.state_dict().values(),
+                    strict=True,
+                )
+            )
+        )
 
     def test_normalization_floor_bounds_tiny_baseline_scale(self) -> None:
         state = {

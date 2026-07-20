@@ -29,3 +29,8 @@ v2 保持 snapshot、seed、grid、raw/ranking loss 与 split 全部不变，只
 
 若某个 grid member 在已有有效 checkpoint 后出现 non-finite metric，trainer 立即停止且只保留此前 finite
 history 与最佳 checkpoint，并记录 `termination_reason=nonfinite_metrics`；NaN 不得进入 JSON 或被当作更优结果。
+
+第二个 diagnostic 发现旧 trainer 在 model initialization 之后才调用 `torch.manual_seed`，因此旧 summary 的
+seed 字段没有控制初始参数。最终 grid 将 seed 设置移动到 cache/model construction 之前，并在 summary 写入
+`seed_applied_before_model_initialization=true`。此前 v1/v2 grid 只保留为 loss 与 runtime diagnostic，不用于
+冻结 architecture/LR。

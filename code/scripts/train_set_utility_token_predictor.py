@@ -397,6 +397,12 @@ def _trajectory_uniform_epoch(
     )
 
 
+def _seed_training_runtime(torch: Any, seed: int) -> None:
+    random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
+
 def _evaluate(
     model: Any,
     states: tuple[dict[str, Any], ...],
@@ -518,15 +524,13 @@ def main() -> None:
     if not train_states or not tune_states:
         raise ValueError("token pilot requires non-empty train and tune roles")
 
+    training = config["training"]
+    seed = int(variant.get("seed", training["seed"]))
+    _seed_training_runtime(torch, seed)
+    torch.set_float32_matmul_precision("high")
     cache = _TokenCache(cache_root, cache_manifest, device=args.device)
     model_config = TokenUtilityModelConfig(**variant["model"])
     model = TokenSetUtilityPredictor(model_config).to(args.device)
-    training = config["training"]
-    seed = int(variant.get("seed", training["seed"]))
-    random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.set_float32_matmul_precision("high")
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=float(variant["learning_rate"]),
@@ -674,6 +678,7 @@ def main() -> None:
         "optimization_rows_per_epoch": optimization_rows_per_epoch,
         "schema_version": "1.0.0",
         "seed": seed,
+        "seed_applied_before_model_initialization": True,
         "status": "COMPLETED_SET_UTILITY_TOKEN_PREDICTOR_TRAINING",
         "termination_reason": termination_reason,
         "train_state_count": len(train_states),
