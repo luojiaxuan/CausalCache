@@ -17,6 +17,8 @@
   `[-0.0314,-0.0004]`。representation-only 为 `NO_GO`，不启动 untouched evaluation 或 policy replay；
 - 仍按用户冻结的执行顺序，用已发布 full inputs 训练 100% DeepSets 与 Set Transformer，再以真实 selector
   truth 判定；若仍失败，下一步是 train-side on-policy enrichment。
+- raw labels、selections、schedules 与 full result 已发布到 private HF dataset revision
+  `d7a6e97e...c53f7`，tag=`set-utility-contextual-tune-on-policy-v3-f34d368`；remote 1,601 entries 已回读。
 
 ## 2026-07-20：contextual tune on-policy truth 启动
 

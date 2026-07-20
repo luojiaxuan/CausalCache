@@ -22,8 +22,10 @@ untouched evaluation、policy replay 或 closed-loop。
 
 Source of Truth：
 
-- raw labels：Hyper00
-  `/data02/jaxan/runs/causalcache-contextual-tune-on-policy-labels-v3-82a5da1`，23MB，`PENDING_HF_UPLOAD`；
+- immutable artifact：[HF dataset@d7a6e97e](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/d7a6e97e1b654cf17b8a06690adc55d55e3c53f7/artifacts/set-utility-contextual-tune-on-policy-v3-f34d368)，
+  tag=`set-utility-contextual-tune-on-policy-v3-f34d368`；
+- raw labels mirror：Hyper00
+  `/data02/jaxan/runs/causalcache-contextual-tune-on-policy-labels-v3-82a5da1`，23MB；
 - full result：Hyper00
   `/data02/jaxan/runs/causalcache-contextual-tune-on-policy-evaluation-v3-bd0d376/result.json`；
 - result content SHA256：`f34d368fdc5dcf9ccbd6edf6910de0920fd7caa528f5c3b8e11c93201c25e5e1`；

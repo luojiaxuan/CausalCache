@@ -1,5 +1,5 @@
 {
-  "artifact_status": "PENDING_HF_UPLOAD",
+  "artifact_status": "UPLOADED_HF_IMMUTABLE",
   "coverage": {
     "completed_state_count": 1063,
     "distance_row_count": 9814,
@@ -55,6 +55,13 @@
     "file_sha256": "ecc8a2947f0da1baba7ad6479c79f59e10e53840a68aa9b04690f958824cbd57",
     "persistent_path": "/data02/jaxan/runs/causalcache-contextual-tune-on-policy-evaluation-v3-bd0d376/result.json",
     "status": "COMPLETED_SET_UTILITY_TUNE_ON_POLICY_EVALUATION"
+  },
+  "hugging_face": {
+    "artifact_path": "artifacts/set-utility-contextual-tune-on-policy-v3-f34d368",
+    "immutable_tag": "set-utility-contextual-tune-on-policy-v3-f34d368",
+    "repo": "gavinlaw/causalcache-set-utility-variable-history-mobile",
+    "repo_type": "dataset",
+    "revision": "d7a6e97e1b654cf17b8a06690adc55d55e3c53f7"
   },
   "schema_version": "causalcache.contextual_tune_on_policy_summary.v1",
   "selection": {
