@@ -1,0 +1,70 @@
+{
+  "schema_version": "3.0.0",
+  "representation_profile": "gui_owl_final_lm_hidden_image_plus_preceding_text64_v1",
+  "training": {
+    "seed": 20260720,
+    "epochs": 20,
+    "early_stopping_patience": 5,
+    "minimum_delta": 0.0001,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "normalization_floor": 0.01,
+    "loss": {
+      "raw_regression": 1.0,
+      "normalized_regression": 0.5,
+      "within_state_ranking": 0.25,
+      "raw_smooth_l1_beta": 0.05,
+      "normalized_smooth_l1_beta": 0.5
+    }
+  },
+  "variants": {
+    "deepsets_contextual_d256_l16_r2_lr3e4": {
+      "model": {
+        "family": "deepsets",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "batch_size": 4,
+      "gradient_accumulation_steps": 2
+    },
+    "set_transformer_contextual_d256_l16_r2_s2_lr1e4": {
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "batch_size": 4,
+      "gradient_accumulation_steps": 2
+    }
+  },
+  "selection": {
+    "budget_contract": "at_most_B",
+    "budgets": [1, 2, 3, 4],
+    "budget_input_to_model": false,
+    "empty_utility_is_exact_zero": true
+  },
+  "firewall": {
+    "allowed_roles": ["train", "tune"],
+    "evaluation_access": false,
+    "untouched_evaluation_requires_frozen_representation_training_and_search": true
+  }
+}
