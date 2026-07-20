@@ -74,7 +74,12 @@ class _TokenCache:
         return self.tensors[f"text:{key}"]
 
 
-def _targets(state: dict[str, Any], torch: Any) -> tuple[Any, Any, Any, Any]:
+def _targets(
+    state: dict[str, Any],
+    torch: Any,
+    *,
+    normalization_floor: float = 0.0,
+) -> tuple[Any, Any, Any, Any]:
     event_ids = tuple(state["candidate_event_step_ids"])
     if (
         not event_ids
@@ -97,12 +102,16 @@ def _targets(state: dict[str, Any], torch: Any) -> tuple[Any, Any, Any, Any]:
     ):
         raise ValueError("a distance-row coalition is invalid for its candidate universe")
     baseline = float(rows[0]["distance"])
+    if baseline < -1e-8:
+        raise ValueError("restoration distance cannot be negative")
+    if normalization_floor < 0.0:
+        raise ValueError("normalization floor cannot be negative")
     raw = torch.tensor(
         [baseline - float(row["distance"]) for row in rows], dtype=torch.float32
     )
     raw[0] = 0.0
-    scale_is_valid = baseline > 1e-12
-    scale = baseline if scale_is_valid else 1.0
+    scale_is_valid = baseline > 1e-12 or normalization_floor > 0.0
+    scale = max(baseline, normalization_floor) if scale_is_valid else 1.0
     normalized = raw / scale
     subset_masks = torch.tensor(
         [[event_id in subset for event_id in event_ids] for subset in observed],
@@ -117,6 +126,7 @@ def _collate(
     cache: _TokenCache,
     device: Any,
     torch: Any,
+    normalization_floor: float = 0.0,
 ) -> dict[str, Any]:
     if not states:
         raise ValueError("cannot collate an empty state batch")
@@ -206,7 +216,10 @@ def _collate(
         for event_index, row in enumerate(rows):
             event_text[batch_index, event_index, : row.shape[0]] = row
             event_text_mask[batch_index, event_index, : row.shape[0]] = True
-    target_rows = [_targets(state, torch) for state in states]
+    target_rows = [
+        _targets(state, torch, normalization_floor=normalization_floor)
+        for state in states
+    ]
     subset_count = max(row[0].shape[0] for row in target_rows)
     event_numeric_features = torch.zeros(
         (batch_size, event_count, len(states[0]["event_numeric_features"][0])),
@@ -394,6 +407,7 @@ def _evaluate(
     loss_config: dict[str, Any],
     weights_by_state: dict[str, float],
     torch: Any,
+    normalization_floor: float,
 ) -> dict[str, float]:
     totals = defaultdict(float)
     denominator = 0.0
@@ -401,7 +415,13 @@ def _evaluate(
     with torch.inference_mode():
         for start in range(0, len(states), batch_size):
             selected = list(states[start : start + batch_size])
-            batch = _collate(selected, cache=cache, device=device, torch=torch)
+            batch = _collate(
+                selected,
+                cache=cache,
+                device=device,
+                torch=torch,
+                normalization_floor=normalization_floor,
+            )
             with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                 predictions = model(**batch["model"])
                 sample_weights = torch.tensor(
@@ -448,6 +468,7 @@ def main() -> None:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", required=True)
     parser.add_argument("--overfit-state-count", type=int, default=0)
+    parser.add_argument("--normalization-floor", type=float, default=0.0)
     args = parser.parse_args()
 
     try:
@@ -456,6 +477,8 @@ def main() -> None:
         raise RuntimeError("token predictor training requires PyTorch") from error
     if not torch.cuda.is_available() or not args.device.startswith("cuda:"):
         raise RuntimeError("token predictor training requires an explicit CUDA device")
+    if args.normalization_floor < 0.0:
+        raise ValueError("normalization floor cannot be negative")
     config_path = args.config.resolve()
     config = _read_json(config_path)
     try:
@@ -553,7 +576,13 @@ def main() -> None:
         pending = 0
         for start in range(0, len(order), batch_size):
             selected = order[start : start + batch_size]
-            batch = _collate(selected, cache=cache, device=args.device, torch=torch)
+            batch = _collate(
+                selected,
+                cache=cache,
+                device=args.device,
+                torch=torch,
+                normalization_floor=args.normalization_floor,
+            )
             sample_weights = torch.tensor(
                 [1.0] * len(selected),
                 dtype=torch.float32,
@@ -595,6 +624,7 @@ def main() -> None:
             loss_config=training["loss"],
             weights_by_state=tune_weights,
             torch=torch,
+            normalization_floor=args.normalization_floor,
         )
         history.append(
             {
@@ -628,6 +658,7 @@ def main() -> None:
         "history": history,
         "input_content_sha256": input_manifest["content_sha256"],
         "model": variant["model"],
+        "normalization_floor": args.normalization_floor,
         "overfit_state_count": args.overfit_state_count,
         "optimization_rows_per_epoch": optimization_rows_per_epoch,
         "schema_version": "1.0.0",

@@ -11,3 +11,18 @@
 - 边界：这是 tuning-only completion snapshot，不进入正式 10/25/50/100% learning curve。全量 labels 完成后，冻结赢家配置再重建 nested trajectory fractions。
 
 Artifact identity、实际 state/trajectory 数、结果与 checkpoint revision 在运行完成后回填。
+
+## v1 loss 诊断与 v2 修复
+
+首个 12-config run 暴露 normalized-loss scale pathology：train/tune 中约 1% state 的
+`D(empty)` 小于 `1e-4`，直接用它作分母会让少量 state 主导 objective。按旧 total 选出的配置虽然达到
+`0.55` 左右，但 tune ranking accuracy 只有 21%--23%，属于近零预测退化，不能冻结为 scale 配置。
+
+v2 保持 snapshot、seed、grid、raw/ranking loss 与 split 全部不变，只把 normalized denominator 改为：
+
+\[
+\max(D(\varnothing), 0.01).
+\]
+
+`0.01` 在查看 v2 模型结果前由 train baseline 分布固定，约为 10th percentile；它防止 near-zero state
+取得不成比例权重。v1 结果只作 loss diagnostic，正式超参冻结使用 v2。

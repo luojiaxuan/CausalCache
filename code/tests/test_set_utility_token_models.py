@@ -10,6 +10,7 @@ from causalcache.set_utility_token_models import (
 from scripts.train_set_utility_token_predictor import (
     _collate,
     _loss,
+    _targets,
     _trajectory_uniform_epoch,
 )
 
@@ -133,6 +134,23 @@ class TokenUtilityTorchTest(unittest.TestCase):
         )
         with self.assertRaisesRegex(ValueError, "padded event"):
             model(**batch)
+
+    def test_normalization_floor_bounds_tiny_baseline_scale(self) -> None:
+        state = {
+            "candidate_event_step_ids": [1],
+            "distance_rows": [
+                {"coalition_event_step_ids": [], "distance": 1e-6},
+                {"coalition_event_step_ids": [1], "distance": 0.0},
+            ],
+        }
+        _, raw, normalized, (scale, valid) = _targets(
+            state, self.torch, normalization_floor=0.01
+        )
+        self.assertTrue(valid)
+        self.assertEqual(scale, 0.01)
+        self.assertEqual(raw.tolist()[0], 0.0)
+        self.assertAlmostEqual(raw.tolist()[1], 1e-6, places=10)
+        self.assertAlmostEqual(normalized.tolist()[1], 1e-4, places=10)
 
     def test_collate_pads_variable_sets_and_labels_without_dropping_rows(self) -> None:
         torch = self.torch
