@@ -1,14 +1,20 @@
 # 项目进展
 
-## 2026-07-20：full contextual 双模型训练启动
+## 2026-07-20：full contextual 双模型完成，deployment-search truth 启动
 
 - fleet preflight 返回 Hyper00 0--7 全空闲；仅选择 GPU 0/1，严格低于每 host 4 GPUs 上限；
 - DeepSets=`deepsets_contextual_d256_l16_r2_lr3e4`，Set Transformer=
   `set_transformer_contextual_d256_l16_r2_s2_lr1e4`，共享 full cache、seed 与 20-epoch early-stopping contract；
-- container=`sglang-omni-jaxan-07201053`，output root=
-  `/data02/jaxan/runs/causalcache-contextual-training-full-v4-e97f2d4`；两进程已分别绑定 GPU 0/1，并进入训练；
-- 训练完成后不按 tune loss 直接宣布 winner，而是冻结 conditional-greedy selections、生成新的真实
-  deployment-search `D(S)`，再与 recent 比较。
+- 两模型均在 epoch 1 最佳并于 epoch 6 early-stop：DeepSets tune=`0.3092726`、checkpoint SHA=
+  `bae1ead5...9e32`；Set Transformer tune=`0.3223304`、checkpoint SHA=`aafe3627...c044`；evaluation
+  records loaded=false；
+- 两个 frozen checkpoints 已生成完整 1,063-state at-most-B conditional-greedy paths；selection content SHA
+  分别为 `fd526c20...8f86` 与 `372ebc76...6ab9`；
+- 新 schedule 含 10,368 个去重 coalitions，content SHA=`6efe9238...2683`，同时覆盖 learned paths、recent、
+  empty/full anchors；
+- fleet preflight 后在 Hyper00 GPU 0--3 与 Hyper01 GPU 2--5 启动 8 个 resumable truth partitions，每台
+  严格最多 4 GPUs。output root=
+  `/data02/jaxan/runs/causalcache-contextual-tune-on-policy-labels-full-v4-e97f2d4`；仍未访问 evaluation。
 
 ## 2026-07-20：full contextual extraction 完成
 

@@ -67,10 +67,11 @@ atomic shards 与 27,867 contexts 通过 finalizer。output root=
 `44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604`，总 tensor bytes=
 `119,159,482,488`。evaluation labels 未加载。
 
-Full-data DeepSets 与 Set Transformer 已在 Hyper00 GPU 0/1 并行启动，output root=
+Full-data DeepSets 与 Set Transformer 已在 Hyper00 GPU 0/1 完成，output root=
 `/data02/jaxan/runs/causalcache-contextual-training-full-v4-e97f2d4`。两者共享同一 cache、seed、loss 与
-early-stopping contract；训练后必须用新的真实 tune on-policy `D(S)` 选择 deployment winner，不能用 tune
-loss 替代 selector truth。
+early-stopping contract，并都在 epoch 1 最佳：tune objective=`0.3092726/0.3223304`。两个 checkpoints 的
+新 tune conditional-greedy paths 已冻结为 1,063 states / 10,368 truth coalitions；Hyper00/Hyper01 正各用
+4 GPUs 生成真实 `D(S)`。deployment winner 不能由 tune loss 直接替代。
 
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。
