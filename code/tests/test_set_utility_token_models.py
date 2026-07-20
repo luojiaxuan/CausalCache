@@ -167,6 +167,90 @@ class TokenUtilityTorchTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "padded event"):
             model(**batch)
 
+    def test_encoded_state_scores_subset_chunks_without_rerunning_resampler(self) -> None:
+        torch = self.torch
+        for family in ("deepsets", "set_transformer"):
+            with self.subTest(family=family):
+                model = TokenSetUtilityPredictor(
+                    TokenUtilityModelConfig(
+                        family=family,
+                        source_hidden_size=16,
+                        numeric_feature_size=5,
+                        hidden_size=16,
+                        latent_count=4,
+                        resampler_layers=1,
+                        set_layers=1,
+                        num_heads=4,
+                        dropout=0.0,
+                    )
+                ).eval()
+                batch = self._batch()
+                state_dict_keys = tuple(model.state_dict())
+                with torch.inference_mode():
+                    expected = model(**batch)
+                    call_count = 0
+
+                    def count_resampler_calls(*_: object) -> None:
+                        nonlocal call_count
+                        call_count += 1
+
+                    hook = model.entity_encoder.register_forward_hook(
+                        count_resampler_calls
+                    )
+                    query = model.encode_query_source(
+                        query_visual_tokens=batch["query_visual_tokens"],
+                        query_visual_mask=batch["query_visual_mask"],
+                        query_text_tokens=batch["query_text_tokens"],
+                        query_text_mask=batch["query_text_mask"],
+                    )
+                    event_sources = model.encode_event_sources(
+                        event_visual_tokens=batch["event_visual_tokens"],
+                        event_visual_mask=batch["event_visual_mask"],
+                        event_text_tokens=batch["event_text_tokens"],
+                        event_text_mask=batch["event_text_mask"],
+                        event_mask=batch["event_mask"],
+                    )
+                    encoded = model.condition_encoded_state(
+                        query=query,
+                        event_sources=event_sources,
+                        event_numeric_features=batch["event_numeric_features"],
+                        event_mask=batch["event_mask"],
+                    )
+                    after_encode = call_count
+                    chunks = (
+                        model.score_encoded_subsets(
+                            encoded, batch["subset_masks"][:, :1]
+                        ),
+                        model.score_encoded_subsets(
+                            encoded, batch["subset_masks"][:, 1:]
+                        ),
+                    )
+                    hook.remove()
+                self.assertEqual(after_encode, 2)
+                self.assertEqual(call_count, after_encode)
+                torch.testing.assert_close(torch.cat(chunks, dim=1), expected)
+
+                with torch.inference_mode():
+                    combined = model.encode_state_once(
+                        **{
+                            key: value
+                            for key, value in batch.items()
+                            if key != "subset_masks"
+                        }
+                    )
+                    combined_predictions = model.score_encoded_subsets(
+                        combined, batch["subset_masks"]
+                    )
+                torch.testing.assert_close(combined.query, encoded.query)
+                torch.testing.assert_close(combined.events, encoded.events)
+                self.assertTrue(torch.equal(combined.event_mask, encoded.event_mask))
+                torch.testing.assert_close(combined_predictions, expected)
+                self.assertEqual(tuple(model.state_dict()), state_dict_keys)
+
+                reloaded = TokenSetUtilityPredictor(model.config)
+                reloaded.load_state_dict(model.state_dict(), strict=True)
+                self.assertEqual(tuple(reloaded.state_dict()), state_dict_keys)
+
     def test_training_seed_precedes_reproducible_model_initialization(self) -> None:
         config = TokenUtilityModelConfig(
             family="deepsets",

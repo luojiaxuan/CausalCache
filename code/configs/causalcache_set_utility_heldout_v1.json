@@ -48,6 +48,17 @@
     "subset_score_chunk_size": 64,
     "nonfinite_behavior": "fail_closed"
   },
+  "evaluation_schedule": {
+    "budgets": [1, 2, 3, 4],
+    "exact_state_count": 320,
+    "large_history_state_count": 720,
+    "union_state_count": 805,
+    "logical_shard_count": 256,
+    "random_control": {
+      "seed": 20260720,
+      "rule": "sha256_seed_state_event_nested_prefix"
+    }
+  },
   "baselines": {
     "recent": {
       "rule": "most_recent_B_events",

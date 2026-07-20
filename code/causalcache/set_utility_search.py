@@ -5,7 +5,7 @@ from __future__ import annotations
 import inspect
 import itertools
 import math
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -72,6 +72,63 @@ def joint_at_most_budget_search(
     return JointSearchResult(
         selected_subset=selected_subset,
         selected_predicted_utility=selected_utility,
+        scored_subsets=tuple(scored),
+    )
+
+
+def _batched_scores(
+    subsets: tuple[tuple[int, ...], ...],
+    *,
+    score_batch: Callable[[tuple[tuple[int, ...], ...]], Iterable[float]],
+) -> tuple[float, ...]:
+    try:
+        values = tuple(float(value) for value in score_batch(subsets))
+    except TypeError as error:
+        raise TypeError("batched subset scorer must return an iterable") from error
+    if len(values) != len(subsets):
+        raise ValueError("batched subset score count drifted")
+    if any(not math.isfinite(value) for value in values):
+        raise ValueError("predicted set utility is non-finite")
+    return values
+
+
+def conditional_greedy_at_most_budget_search(
+    event_ids: Sequence[int],
+    *,
+    budget: int,
+    score_batch: Callable[[tuple[tuple[int, ...], ...]], Iterable[float]],
+) -> JointSearchResult:
+    """Greedily add one event while predicted joint utility strictly improves."""
+    events = _event_id_tuple(event_ids)
+    if type(budget) is not int or budget not in (1, 2, 3, 4):
+        raise ValueError("conditional greedy budget must be one of 1, 2, 3, 4")
+    if not callable(score_batch):
+        raise TypeError("conditional greedy score_batch must be callable")
+
+    current: tuple[int, ...] = ()
+    current_utility = _batched_scores((current,), score_batch=score_batch)[0]
+    scored: list[tuple[tuple[int, ...], float]] = [(current, current_utility)]
+    for _ in range(min(budget, len(events))):
+        candidates = tuple(
+            tuple(sorted((*current, event_id)))
+            for event_id in events
+            if event_id not in current
+        )
+        if not candidates:
+            break
+        values = _batched_scores(candidates, score_batch=score_batch)
+        scored.extend(zip(candidates, values, strict=True))
+        best_subset, best_utility = min(
+            zip(candidates, values, strict=True),
+            key=lambda item: (-item[1], item[0]),
+        )
+        if best_utility <= current_utility:
+            break
+        current = best_subset
+        current_utility = best_utility
+    return JointSearchResult(
+        selected_subset=current,
+        selected_predicted_utility=current_utility,
         scored_subsets=tuple(scored),
     )
 
@@ -174,6 +231,7 @@ def learned_joint_at_most_budget_search(
 
 __all__ = [
     "JointSearchResult",
+    "conditional_greedy_at_most_budget_search",
     "enumerate_at_most_budget_subsets",
     "exact_utility_oracle",
     "joint_at_most_budget_search",

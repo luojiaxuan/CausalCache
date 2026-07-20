@@ -46,3 +46,11 @@ selector。只有本阶段 GO 才进入 policy replay 和 closed-loop。
 warm selector p95/action-policy p95 `<=10%` 的部署门槛在 policy replay 阶段执行；未通过则不启动 closed-loop。
 
 本阶段不是 ablation。两类模型都运行只是为了从已经冻结的候选中选出唯一 deployment model。
+
+## 实现状态
+
+已实现并通过本地测试：805-state label-blind feature snapshot、raw-image OCR/RGB、query/event source 分离编码、
+encoded-state subset scoring、conditional-greedy B1--B4 path、selection merge，以及与原 resumable label runner
+兼容的 exact/sparse evaluation schedule。实现测试为 30 passed、7 个本机无 PyTorch 而显式 skipped；另有
+27 个 variable-history/label regression tests 通过。evaluation restoration labels 仍未读取，下一步先在 H200
+密封两个 checkpoint 的 selections。

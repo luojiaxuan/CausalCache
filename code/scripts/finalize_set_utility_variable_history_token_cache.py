@@ -12,6 +12,12 @@ from pathlib import Path
 from typing import Any
 
 
+SUPPORTED_INPUT_STATUSES = {
+    "COMPLETED_MERGED_VARIABLE_HISTORY_TRAINING_INPUT_SNAPSHOT",
+    "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_SNAPSHOT",
+}
+
+
 def _canonical_json(value: Any) -> bytes:
     return (
         json.dumps(value, allow_nan=False, ensure_ascii=False, sort_keys=True) + "\n"
@@ -75,8 +81,7 @@ def main() -> None:
         raise FileExistsError("variable-history token cache manifest already exists")
     input_manifest = _read_json(args.input_root / "manifest.json")
     if (
-        input_manifest.get("status")
-        != "COMPLETED_MERGED_VARIABLE_HISTORY_TRAINING_INPUT_SNAPSHOT"
+        input_manifest.get("status") not in SUPPORTED_INPUT_STATUSES
         or input_manifest.get("evaluation_labels_included") is not False
     ):
         raise ValueError("token cache finalizer input status or split firewall drifted")
@@ -166,6 +171,7 @@ def main() -> None:
     manifest = {
         "content_sha256": "",
         "evaluation_labels_included": False,
+        "input_status": input_manifest["status"],
         "input_content_sha256": input_manifest["content_sha256"],
         "schema_version": "2.0.0",
         "shards": shard_records,

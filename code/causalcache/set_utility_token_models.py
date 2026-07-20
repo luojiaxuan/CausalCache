@@ -52,6 +52,15 @@ class TokenUtilityModelConfig:
             raise ValueError("dropout must be in [0, 1)")
 
 
+@dataclass(frozen=True)
+class EncodedTokenUtilityState:
+    """Reusable query/event encodings for scoring multiple subset batches."""
+
+    query: Any
+    events: Any
+    event_mask: Any
+
+
 if torch is not None:
 
     class _CrossAttentionBlock(torch.nn.Module):
@@ -209,67 +218,73 @@ if torch is not None:
                 torch.nn.Linear(hidden, 1),
             )
 
-        def _encode_state(
+        def encode_query_source(
             self,
+            *,
             query_visual_tokens: Any,
             query_visual_mask: Any,
             query_text_tokens: Any,
             query_text_mask: Any,
-            event_visual_tokens: Any,
-            event_visual_mask: Any,
-            event_text_tokens: Any,
-            event_text_mask: Any,
-            event_numeric_features: Any,
-            event_mask: Any,
-        ) -> tuple[Any, Any]:
-            if event_visual_tokens.ndim != 4 or event_text_tokens.ndim != 4:
-                raise ValueError("event token tensors must be rank four")
-            batch_size, event_count = event_visual_tokens.shape[:2]
-            if event_text_tokens.shape[:2] != (batch_size, event_count):
-                raise ValueError("event visual/text batches differ")
-            if event_numeric_features.shape != (
-                batch_size,
-                event_count,
-                self.config.numeric_feature_size,
-            ):
-                raise ValueError("event numeric feature shape drifted")
-            if event_mask.shape != (batch_size, event_count):
-                raise ValueError("event mask shape drifted")
-            if event_mask.dtype != torch.bool:
-                raise TypeError("event mask must be boolean")
-            if bool((~event_mask).all(dim=1).any()):
-                raise ValueError("every state must contain a candidate event")
+        ) -> Any:
+            """Resample current-query source tokens independently of event ingest."""
+            if query_visual_tokens.ndim != 3 or query_text_tokens.ndim != 3:
+                raise ValueError("query token tensors must be rank three")
+            batch_size = query_visual_tokens.shape[0]
+            if query_text_tokens.shape[0] != batch_size:
+                raise ValueError("query visual/text batches differ")
             query_roles = torch.zeros(
                 (batch_size,), dtype=torch.long, device=query_visual_tokens.device
             )
-            query = self.entity_encoder(
+            return self.entity_encoder(
                 query_visual_tokens,
                 query_visual_mask,
                 query_text_tokens,
                 query_text_mask,
                 query_roles,
             )
+
+        def encode_event_sources(
+            self,
+            *,
+            event_visual_tokens: Any,
+            event_visual_mask: Any,
+            event_text_tokens: Any,
+            event_text_mask: Any,
+            event_mask: Any,
+        ) -> Any:
+            """Resample valid event sources once and preserve padded geometry."""
+            if event_visual_tokens.ndim != 4 or event_text_tokens.ndim != 4:
+                raise ValueError("event token tensors must be rank four")
+            batch_size, event_count = event_visual_tokens.shape[:2]
+            if event_text_tokens.shape[:2] != (batch_size, event_count):
+                raise ValueError("event visual/text batches differ")
+            if event_mask.shape != (batch_size, event_count):
+                raise ValueError("event mask shape drifted")
+            if event_mask.dtype != torch.bool:
+                raise TypeError("event mask must be boolean")
+            if bool((~event_mask).all(dim=1).any()):
+                raise ValueError("every state must contain a candidate event")
             flat_count = batch_size * event_count
             flat_event_mask = event_mask.reshape(flat_count)
             valid_indices = flat_event_mask.nonzero(as_tuple=False).squeeze(1)
             event_roles = torch.ones(
                 (valid_indices.shape[0],),
                 dtype=torch.long,
-                device=query_visual_tokens.device,
+                device=event_visual_tokens.device,
             )
             flat_visual = event_visual_tokens.reshape(
-                    flat_count,
-                    event_visual_tokens.shape[2],
-                    event_visual_tokens.shape[3],
-                )
+                flat_count,
+                event_visual_tokens.shape[2],
+                event_visual_tokens.shape[3],
+            )
             flat_visual_mask = event_visual_mask.reshape(
                 flat_count, event_visual_mask.shape[2]
             )
             flat_text = event_text_tokens.reshape(
-                    flat_count,
-                    event_text_tokens.shape[2],
-                    event_text_tokens.shape[3],
-                )
+                flat_count,
+                event_text_tokens.shape[2],
+                event_text_tokens.shape[3],
+            )
             flat_text_mask = event_text_mask.reshape(
                 flat_count, event_text_mask.shape[2]
             )
@@ -284,22 +299,113 @@ if torch is not None:
                 (flat_count, encoded_valid_events.shape[-1])
             )
             flat_events.index_copy_(0, valid_indices, encoded_valid_events)
-            events = flat_events.reshape(batch_size, event_count, -1)
+            return flat_events.reshape(batch_size, event_count, -1)
+
+        def condition_encoded_state(
+            self,
+            *,
+            query: Any,
+            event_sources: Any,
+            event_numeric_features: Any,
+            event_mask: Any,
+        ) -> EncodedTokenUtilityState:
+            """Apply query-time numeric and query/event conditioning."""
+            if query.ndim != 2 or event_sources.ndim != 3:
+                raise ValueError("encoded query/event tensors have invalid rank")
+            batch_size, event_count, hidden_size = event_sources.shape
+            if query.shape != (batch_size, hidden_size):
+                raise ValueError("encoded query/event geometry drifted")
+            if event_numeric_features.shape != (
+                batch_size,
+                event_count,
+                self.config.numeric_feature_size,
+            ):
+                raise ValueError("event numeric feature shape drifted")
+            if event_mask.shape != (batch_size, event_count):
+                raise ValueError("event mask shape drifted")
+            if event_mask.dtype != torch.bool:
+                raise TypeError("event mask must be boolean")
             expanded_query = query.unsqueeze(1).expand(-1, event_count, -1)
             numeric = self.numeric_encoder(event_numeric_features)
             events = self.event_conditioner(
                 torch.cat(
                     (
-                        events,
+                        event_sources,
                         expanded_query,
-                        events * expanded_query,
-                        torch.abs(events - expanded_query),
+                        event_sources * expanded_query,
+                        torch.abs(event_sources - expanded_query),
                         numeric,
                     ),
                     dim=-1,
                 )
             )
-            return query, events.masked_fill(~event_mask.unsqueeze(-1), 0.0)
+            return EncodedTokenUtilityState(
+                query=query,
+                events=events.masked_fill(~event_mask.unsqueeze(-1), 0.0),
+                event_mask=event_mask,
+            )
+
+        def _encode_state(
+            self,
+            query_visual_tokens: Any,
+            query_visual_mask: Any,
+            query_text_tokens: Any,
+            query_text_mask: Any,
+            event_visual_tokens: Any,
+            event_visual_mask: Any,
+            event_text_tokens: Any,
+            event_text_mask: Any,
+            event_numeric_features: Any,
+            event_mask: Any,
+        ) -> tuple[Any, Any]:
+            encoded = self.encode_state_once(
+                query_visual_tokens=query_visual_tokens,
+                query_visual_mask=query_visual_mask,
+                query_text_tokens=query_text_tokens,
+                query_text_mask=query_text_mask,
+                event_visual_tokens=event_visual_tokens,
+                event_visual_mask=event_visual_mask,
+                event_text_tokens=event_text_tokens,
+                event_text_mask=event_text_mask,
+                event_numeric_features=event_numeric_features,
+                event_mask=event_mask,
+            )
+            return encoded.query, encoded.events
+
+        def encode_state_once(
+            self,
+            *,
+            query_visual_tokens: Any,
+            query_visual_mask: Any,
+            query_text_tokens: Any,
+            query_text_mask: Any,
+            event_visual_tokens: Any,
+            event_visual_mask: Any,
+            event_text_tokens: Any,
+            event_text_mask: Any,
+            event_numeric_features: Any,
+            event_mask: Any,
+        ) -> EncodedTokenUtilityState:
+            """Run source-token resampling once before batched subset scoring."""
+            query = self.encode_query_source(
+                query_visual_tokens=query_visual_tokens,
+                query_visual_mask=query_visual_mask,
+                query_text_tokens=query_text_tokens,
+                query_text_mask=query_text_mask,
+            )
+            event_sources = self.encode_event_sources(
+                event_visual_tokens=event_visual_tokens,
+                event_visual_mask=event_visual_mask,
+                event_text_tokens=event_text_tokens,
+                event_text_mask=event_text_mask,
+                event_mask=event_mask,
+            )
+            return self.condition_encoded_state(
+                query=query,
+                event_sources=event_sources,
+                event_numeric_features=event_numeric_features,
+                event_mask=event_mask,
+            )
 
         def _raw_scores(
             self,
@@ -360,6 +466,47 @@ if torch is not None:
                 torch.cat((pooled, cardinality), dim=-1)
             ).squeeze(-1)
 
+        def score_encoded_subsets(
+            self,
+            encoded_state: EncodedTokenUtilityState,
+            subset_masks: Any,
+        ) -> Any:
+            """Score one subset batch without rerunning query/event resampling."""
+            if not isinstance(encoded_state, EncodedTokenUtilityState):
+                raise TypeError("encoded_state must be EncodedTokenUtilityState")
+            query = encoded_state.query
+            events = encoded_state.events
+            event_mask = encoded_state.event_mask
+            if (
+                query.ndim != 2
+                or events.ndim != 3
+                or event_mask.ndim != 2
+                or query.shape[0] != events.shape[0]
+                or event_mask.shape != events.shape[:2]
+                or query.shape[1] != events.shape[2]
+            ):
+                raise ValueError("encoded token-utility state geometry drifted")
+            if event_mask.dtype != torch.bool:
+                raise TypeError("encoded event mask must be boolean")
+            if subset_masks.ndim == 2:
+                subset_masks = subset_masks.unsqueeze(1)
+                squeeze = True
+            else:
+                squeeze = False
+            if subset_masks.ndim != 3 or subset_masks.shape[:1] != event_mask.shape[:1]:
+                raise ValueError("subset mask shape drifted")
+            if subset_masks.shape[2] != event_mask.shape[1]:
+                raise ValueError("subset event dimension drifted")
+            if subset_masks.dtype != torch.bool:
+                raise TypeError("subset mask must be boolean")
+            if bool((subset_masks & ~event_mask.unsqueeze(1)).any()):
+                raise ValueError("a subset selects a padded event")
+            raw = self._raw_scores(query, events, subset_masks, event_mask)
+            empty_masks = torch.zeros_like(subset_masks[:, :1])
+            empty = self._raw_scores(query, events, empty_masks, event_mask)
+            utilities = (raw - empty).masked_fill(~subset_masks.any(dim=-1), 0.0)
+            return utilities.squeeze(1) if squeeze else utilities
+
         def forward(
             self,
             *,
@@ -375,36 +522,19 @@ if torch is not None:
             event_mask: Any,
             subset_masks: Any,
         ) -> Any:
-            if subset_masks.ndim == 2:
-                subset_masks = subset_masks.unsqueeze(1)
-                squeeze = True
-            else:
-                squeeze = False
-            if subset_masks.ndim != 3 or subset_masks.shape[:1] != event_mask.shape[:1]:
-                raise ValueError("subset mask shape drifted")
-            if subset_masks.shape[2] != event_mask.shape[1]:
-                raise ValueError("subset event dimension drifted")
-            if subset_masks.dtype != torch.bool or event_mask.dtype != torch.bool:
-                raise TypeError("subset and event masks must be boolean")
-            if bool((subset_masks & ~event_mask.unsqueeze(1)).any()):
-                raise ValueError("a subset selects a padded event")
-            query, events = self._encode_state(
-                query_visual_tokens,
-                query_visual_mask,
-                query_text_tokens,
-                query_text_mask,
-                event_visual_tokens,
-                event_visual_mask,
-                event_text_tokens,
-                event_text_mask,
-                event_numeric_features,
-                event_mask,
+            encoded_state = self.encode_state_once(
+                query_visual_tokens=query_visual_tokens,
+                query_visual_mask=query_visual_mask,
+                query_text_tokens=query_text_tokens,
+                query_text_mask=query_text_mask,
+                event_visual_tokens=event_visual_tokens,
+                event_visual_mask=event_visual_mask,
+                event_text_tokens=event_text_tokens,
+                event_text_mask=event_text_mask,
+                event_numeric_features=event_numeric_features,
+                event_mask=event_mask,
             )
-            raw = self._raw_scores(query, events, subset_masks, event_mask)
-            empty_masks = torch.zeros_like(subset_masks[:, :1])
-            empty = self._raw_scores(query, events, empty_masks, event_mask)
-            utilities = (raw - empty).masked_fill(~subset_masks.any(dim=-1), 0.0)
-            return utilities.squeeze(1) if squeeze else utilities
+            return self.score_encoded_subsets(encoded_state, subset_masks)
 
 
 else:
@@ -420,6 +550,7 @@ else:
 
 
 __all__ = [
+    "EncodedTokenUtilityState",
     "MODEL_FAMILIES",
     "MultimodalLatentResampler",
     "TokenSetUtilityPredictor",

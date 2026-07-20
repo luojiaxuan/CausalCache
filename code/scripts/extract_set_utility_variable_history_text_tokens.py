@@ -13,6 +13,10 @@ from typing import Any
 
 
 EMBEDDING_TENSOR = "model.language_model.embed_tokens.weight"
+SUPPORTED_INPUT_STATUSES = {
+    "COMPLETED_MERGED_VARIABLE_HISTORY_TRAINING_INPUT_SNAPSHOT",
+    "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_SNAPSHOT",
+}
 
 
 def _canonical_json(value: Any) -> bytes:
@@ -65,8 +69,7 @@ def main() -> None:
     input_manifest_path = args.input_root / "manifest.json"
     input_manifest = json.loads(input_manifest_path.read_text(encoding="utf-8"))
     if (
-        input_manifest.get("status")
-        != "COMPLETED_MERGED_VARIABLE_HISTORY_TRAINING_INPUT_SNAPSHOT"
+        input_manifest.get("status") not in SUPPORTED_INPUT_STATUSES
         or input_manifest.get("evaluation_labels_included") is not False
     ):
         raise ValueError("text extraction input status or split firewall drifted")

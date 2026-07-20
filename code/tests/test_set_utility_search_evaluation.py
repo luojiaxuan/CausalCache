@@ -15,6 +15,7 @@ from causalcache.set_utility_evaluation import (
 )
 from causalcache.set_utility_models import SetUtilityDimensions
 from causalcache.set_utility_search import (
+    conditional_greedy_at_most_budget_search,
     enumerate_at_most_budget_subsets,
     exact_utility_oracle,
     joint_at_most_budget_search,
@@ -124,6 +125,58 @@ class JointSearchTest(unittest.TestCase):
             joint_at_most_budget_search(
                 (1,), budget=1, score=lambda subset: math.nan
             )
+
+    def test_conditional_greedy_batches_variable_n_candidates_and_stops(self) -> None:
+        calls = []
+        weights = {1: 3.0, 2: -1.0, 3: -2.0}
+
+        def score_batch(subsets):
+            calls.append(subsets)
+            return [sum(weights[event_id] for event_id in subset) for subset in subsets]
+
+        result = conditional_greedy_at_most_budget_search(
+            (1, 2, 3), budget=4, score_batch=score_batch
+        )
+        self.assertEqual(result.selected_subset, (1,))
+        self.assertEqual(result.selected_predicted_utility, 3.0)
+        self.assertEqual(
+            calls,
+            [
+                ((),),
+                ((1,), (2,), (3,)),
+                ((1, 2), (1, 3)),
+            ],
+        )
+
+    def test_conditional_greedy_supports_budgets_one_through_four_and_ties(self) -> None:
+        weights = {1: 1.0, 2: 1.0, 3: 0.5, 4: 0.25, 5: 0.125}
+
+        def score_batch(subsets):
+            return [sum(weights[event_id] for event_id in subset) for subset in subsets]
+
+        expected = {
+            1: (1,),
+            2: (1, 2),
+            3: (1, 2, 3),
+            4: (1, 2, 3, 4),
+        }
+        for budget, subset in expected.items():
+            with self.subTest(budget=budget):
+                result = conditional_greedy_at_most_budget_search(
+                    (1, 2, 3, 4, 5),
+                    budget=budget,
+                    score_batch=score_batch,
+                )
+                self.assertEqual(result.selected_subset, subset)
+
+    def test_conditional_greedy_keeps_empty_when_no_addition_is_positive(self) -> None:
+        result = conditional_greedy_at_most_budget_search(
+            (1, 2),
+            budget=2,
+            score_batch=lambda subsets: [0.0 if not subset else -1.0 for subset in subsets],
+        )
+        self.assertEqual(result.selected_subset, ())
+        self.assertEqual(result.selected_predicted_utility, 0.0)
 
 
 class SetUtilityEvaluationTest(unittest.TestCase):
