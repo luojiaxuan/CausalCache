@@ -1,6 +1,6 @@
 # Contextual multi-latent utility predictor v3
 
-状态：`TUNE_ON_POLICY_TRUTH_RUNNING`。
+状态：`TUNE_ON_POLICY_TRUTH_COMPLETED / REPRESENTATION_ONLY_NO_GO`。
 
 Exact B4 已达到 0.8248，而当前 Set Transformer B4 只有 0.7128；true-greedy search gap 0.0571 小于
 student distillation gap 0.1121。因此 v3 先修 representation 与 deployment-search supervision，不再增加完全
@@ -54,6 +54,11 @@ SHA256=`af18388e...139c1`。科学绑定见
 该 snapshot 已发布到 private HF dataset revision `268bae32792c3b651541354f74d9a18b7b97ecd2`，tag=
 `set-utility-contextual-inputs-full-v4-af18388e`，artifact path=
 `artifacts/set-utility-contextual-inputs-full-v4-af18388e`。
+
+Tune truth 完成 1,063/1,063 states、0 skip。trajectory-equal B1--B4 macro recovery 为 DeepSets
+`0.4492`、Set Transformer `0.4365`、recent `0.4519`；DeepSets-minus-recent 95% CI=
+`[-0.0160,0.0100]`，Set Transformer-minus-recent=`[-0.0314,-0.0004]`。因此 representation-only 改动
+不能授权后续 policy 实验；按既定计划继续 full-data 双模型，随后重新测 deployment-search truth。
 
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。

@@ -1,0 +1,70 @@
+{
+  "artifact_status": "PENDING_HF_UPLOAD",
+  "coverage": {
+    "completed_state_count": 1063,
+    "distance_row_count": 9814,
+    "expected_state_count": 1063,
+    "skipped_state_count": 0
+  },
+  "methods": {
+    "deepsets": {
+      "B1_B4_normalized_recovery": [
+        0.1905811046220059,
+        0.42173089420629806,
+        0.5440327918565234,
+        0.6404857891807936
+      ],
+      "long_plus_very_long_macro_normalized_recovery": 0.4000397098607766,
+      "minus_recent_bootstrap_95_ci": [
+        -0.015971416070911806,
+        0.010002659963798217
+      ],
+      "minus_recent_point_estimate": -0.0027118692987734205,
+      "primary_macro_B1_B4_trajectory_equal_normalized_recovery": 0.44920764496640525,
+      "selector_total_p95_ms": 10.960181476548314
+    },
+    "recent": {
+      "B1_B4_normalized_recovery": [
+        0.19105001713444117,
+        0.43605890303530936,
+        0.5542561894420913,
+        0.6263129474488727
+      ],
+      "long_plus_very_long_macro_normalized_recovery": 0.40081320646080143,
+      "primary_macro_B1_B4_trajectory_equal_normalized_recovery": 0.4519195142651786
+    },
+    "set_transformer": {
+      "B1_B4_normalized_recovery": [
+        0.19049986764142637,
+        0.4114411495910316,
+        0.5285608639948361,
+        0.6154742751915324
+      ],
+      "long_plus_very_long_macro_normalized_recovery": 0.361763576398715,
+      "minus_recent_bootstrap_95_ci": [
+        -0.03135076014748776,
+        -0.0003822271161800061
+      ],
+      "minus_recent_point_estimate": -0.015425475160471996,
+      "primary_macro_B1_B4_trajectory_equal_normalized_recovery": 0.4364940391047066,
+      "selector_total_p95_ms": 21.982501260936253
+    }
+  },
+  "result": {
+    "content_sha256": "f34d368fdc5dcf9ccbd6edf6910de0920fd7caa528f5c3b8e11c93201c25e5e1",
+    "file_sha256": "ecc8a2947f0da1baba7ad6479c79f59e10e53840a68aa9b04690f958824cbd57",
+    "persistent_path": "/data02/jaxan/runs/causalcache-contextual-tune-on-policy-evaluation-v3-bd0d376/result.json",
+    "status": "COMPLETED_SET_UTILITY_TUNE_ON_POLICY_EVALUATION"
+  },
+  "schema_version": "causalcache.contextual_tune_on_policy_summary.v1",
+  "selection": {
+    "deepsets_content_sha256": "7936ae550c969803f8c8fa305b8f9e936e66b00ab6917ee78f1448ac0c61eefa",
+    "schedule_content_sha256": "5e46408d60ed0353915c894f1c860c908db0219770af89356b49a90f24933478",
+    "set_transformer_content_sha256": "879736858b64a50cb6491f99ba78e2977876c4847ee37241910ba5409fd871e9"
+  },
+  "verdict": {
+    "closed_loop_authorized": false,
+    "contextual_winner": "deepsets",
+    "value": "REPRESENTATION_ONLY_NO_GO"
+  }
+}

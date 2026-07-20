@@ -19,6 +19,10 @@
   B4 为 `0.713`，高于 DeepSets `0.706`、OCR/RGB `0.694` 与 recent `0.672`，但距 exact 仍差 `0.112`。
   因此下一步优先 contextualized multi-latent representation 与 deployment-search labels，不继续盲目堆同分布
   trajectories，也不因本诊断启动 closed-loop。
+- **25% contextual representation 单独未闭合 gap。** 1,063/1,063 tune states 的 on-policy truth 上，
+  contextual DeepSets/Set Transformer primary recovery=`0.4492/0.4365`，recent=`0.4519`；DeepSets 与
+  recent 差值 95% CI=`[-0.0160,0.0100]`，Set Transformer 则显著更差。继续按既定要求跑 full-data 双模型，
+  但 untouched evaluation、policy replay 与 closed-loop 仍未解锁。
 - Restoration signal 存在，但旧版 conditional gate 与 independent gate 都没有在 untouched confirm 上稳定超过廉价 heuristic。
 - GUIOdyssey 已固定 1,200 trajectories。旧 processor artifact 只物化每条轨迹的 anchor/terminal 两个 query，不能算 state-level 扩数完成。
 - D2 已证明 strict-determinism runtime 可稳定复现先前的异常 state。
@@ -90,6 +94,9 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   两模型的 tune conditional-greedy selections 已冻结为 1,063 states / 9,814 个去重 truth coalitions；
   Hyper00/Hyper01 正以 12×H200 生成真实 `D(S)`，evaluation 仍未访问。
   [训练结果](data/results/set_utility_contextual_training_v3/README.md)。
+- contextual tune on-policy truth 已完成：1,063/1,063 states、0 skip、9,814 rows。DeepSets 是 contextual
+  winner 但没有超过 recent；表示改进的 tune loss 收益没有转化为更好 subset selection。
+  [结果](data/results/set_utility_contextual_tune_on_policy_v3/README.md)。
 - full train+tune contextual requirement snapshot 已物化并同步两台 Hyper：11,721 states、1,100
   trajectories、27,867 contexts；仅等待 tune truth winner 后启动 8×H200 hidden extraction，不访问 evaluation。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
@@ -123,6 +130,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Small-history exact B4 v2 | [`summary`](data/results/set_utility_b4_oracle_diagnostic_v2/README.md)；[HF dataset@9b53ec82](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/9b53ec82c12fefaba571233e5e0d78d0f6c599c0/artifacts/set-utility-b4-oracle-v2-195bcbb)；tag `set-utility-b4-oracle-v2-195bcbb` | 103/103 completed；8,628 distance rows；result content `195bcbb...0473b`；669 files / 4.7MB |
 | Contextual hidden cache v3 | [`summary`](data/results/set_utility_contextual_cache_v3/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-contextual-hidden-v3-e413e5b` | 8,813 contexts；1,174 chunks；37,771,051,973 bytes；content `af2b090d...91eb0`；`PENDING_HF_UPLOAD` |
 | Contextual predictor training v3 | [`summary`](data/results/set_utility_contextual_training_v3/README.md)；Hyper00 two persistent roots | DeepSets `0.32128`；Set Transformer `0.30910`；evaluation not loaded；`PENDING_HF_UPLOAD` |
+| Contextual tune on-policy truth v3 | [`summary`](data/results/set_utility_contextual_tune_on_policy_v3/README.md)；Hyper00 persistent result | 1,063/1,063 completed；DeepSets `0.4492`、Set Transformer `0.4365`、recent `0.4519`；`PENDING_HF_UPLOAD` |
 | Contextual full inputs v4 | [HF dataset@268bae32](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/268bae32792c3b651541354f74d9a18b7b97ecd2/artifacts/set-utility-contextual-inputs-full-v4-af18388e)；Hyper00/Hyper01 mirror | 11,721 states；27,867 contexts；tag `set-utility-contextual-inputs-full-v4-af18388e`；immutable |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |

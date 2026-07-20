@@ -1,5 +1,16 @@
 # 项目进展
 
+## 2026-07-20：contextual tune on-policy truth 完成
+
+- 1,063/1,063 tune states、9,814 distance rows、0 skip；两台 Hyper 初始 12 workers，用户收缩后保持每台
+  最多 4 active GPUs，主动停止的 partition 5 从原子断点补完；
+- DeepSets / Set Transformer / recent 的 trajectory-equal B1--B4 macro recovery 为
+  `0.4492 / 0.4365 / 0.4519`；DeepSets 是 contextual winner，但没有超过 recent；
+- DeepSets-minus-recent 95% CI=`[-0.0160,0.0100]`；Set Transformer-minus-recent=
+  `[-0.0314,-0.0004]`。representation-only 为 `NO_GO`，不启动 untouched evaluation 或 policy replay；
+- 仍按用户冻结的执行顺序，用已发布 full inputs 训练 100% DeepSets 与 Set Transformer，再以真实 selector
+  truth 判定；若仍失败，下一步是 train-side on-policy enrichment。
+
 ## 2026-07-20：contextual tune on-policy truth 启动
 
 - DeepSets 与 Set Transformer 已在完整 1,063 个 tune states 上生成 at-most-B conditional-greedy paths；
