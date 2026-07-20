@@ -1,5 +1,18 @@
 # 项目进展
 
+## 2026-07-20：full contextual deployment-search truth 完成
+
+- 先以 8 GPUs / 8 workers 启动；5 秒利用率约 39%--78% 后，在不增加 GPU 的前提下切换为每卡 2 lanes；
+  atomic state terminals 全部复用，随后利用率大多为 91%--100%；
+- Hyper00 501 + Hyper01 562 = 1,063/1,063 states，16/16 lane workers exit 0，0 skip；10,368 个 schedule
+  coalitions 全部获得真实 `D(S)`；
+- Set Transformer B1/B2/B3/B4 recovery=`0.1822/0.4120/0.5569/0.6484`，macro=`0.44985`；recent=
+  `0.45192`；差值 `-0.00207`，95% CI=`[-0.01339,0.00964]`；
+- Set Transformer 是 learned winner 且 B3/B4 已超过 recent，但 B1/B2 与 long-history=`0.3542` 仍弱；
+  DeepSets macro=`0.42470`，显著低于 recent；
+- verdict=`FULL_DATA_NO_GO`：不访问 untouched evaluation、policy replay 或 closed-loop。下一步只从 train split
+  生成 on-policy/conditional-marginal enrichment，并复用当前固定 tune truth 判定。
+
 ## 2026-07-20：full contextual 双模型完成，deployment-search truth 启动
 
 - fleet preflight 返回 Hyper00 0--7 全空闲；仅选择 GPU 0/1，严格低于每 host 4 GPUs 上限；

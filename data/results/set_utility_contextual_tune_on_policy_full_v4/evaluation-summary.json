@@ -1,0 +1,38 @@
+{
+  "comparisons": {
+    "deepsets_minus_recent": {
+      "lower": -0.05459021765986098,
+      "point_estimate": -0.02722067430249469,
+      "upper": -0.0044600690309941765
+    },
+    "set_transformer_minus_recent": {
+      "lower": -0.013391916776286993,
+      "point_estimate": -0.0020654466389960647,
+      "upper": 0.00963778543717244
+    }
+  },
+  "completed_state_count": 1063,
+  "content_sha256": "fb6de0dc0b29fc9ffedb801205ee3f50ed4d116de5b5e272430226fecbc05d79",
+  "methods": {
+    "deepsets": {
+      "B1_B4": [0.1566214771415417, 0.3841750411478011, 0.530820665429746, 0.6271781761533469],
+      "long_plus_very_long": 0.39334036456368887,
+      "macro": 0.4246988399681089,
+      "total_p95_ms": 10.650740610435605
+    },
+    "recent": {
+      "B1_B4": [0.1910500179324111, 0.4360589022897313, 0.554256188693993, 0.6263129481662791],
+      "long_plus_very_long": 0.400813206579583,
+      "macro": 0.4519195142706036
+    },
+    "set_transformer": {
+      "B1_B4": [0.1822091682879021, 0.4119501500936606, 0.5568919646905784, 0.6483649874542892],
+      "long_plus_very_long": 0.3541778123105659,
+      "macro": 0.4498540676316075,
+      "total_p95_ms": 19.528271770104762
+    }
+  },
+  "result_file_sha256": "46e871aff7d817ff7cb817a81d295774d00d2d80307cae1b7a737371fb557bb4",
+  "status": "COMPLETED_FULL_DATA_NO_GO",
+  "winner": "set_transformer"
+}

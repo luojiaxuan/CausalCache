@@ -73,6 +73,12 @@ early-stopping contract，并都在 epoch 1 最佳：tune objective=`0.3092726/0
 新 tune conditional-greedy paths 已冻结为 1,063 states / 10,368 truth coalitions；Hyper00/Hyper01 正各用
 4 GPUs 生成真实 `D(S)`。deployment winner 不能由 tune loss 直接替代。
 
+Full-data truth 已完成：Set Transformer B1--B4 macro=`0.44985`，recent=`0.45192`，paired delta=
+`-0.00207`、95% CI=`[-0.01339,0.00964]`。虽然 Set Transformer 的 B3/B4 已超过 recent，但 B1/B2 与
+long/very-long slice 仍弱，因此 verdict=`FULL_DATA_NO_GO`，不解锁 evaluation 或 policy replay。下一版本只在
+train split 补 predictor conditional-greedy 实际访问、模型分歧和长跨度 coalition labels，并保持本次 tune truth
+作为固定判定集。
+
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。
 输入清单与 GPU 提取入口分别为

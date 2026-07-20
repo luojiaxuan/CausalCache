@@ -1,6 +1,6 @@
 # Full contextual predictor training v4
 
-状态：`COMPLETED_TRAINING / AWAITING_TRUE_SELECTOR_UTILITY`。
+状态：`COMPLETED_TRAINING / SET_TRANSFORMER_TRUE_UTILITY_WINNER`。
 
 使用 10,658 train states、1,063 tune states 与 frozen full contextual hidden cache 训练；未加载 evaluation。
 DeepSets 与 Set Transformer 均在 epoch 1 最佳，并在 epoch 6 early-stop：
@@ -10,9 +10,10 @@ DeepSets 与 Set Transformer 均在 epoch 1 最佳，并在 epoch 6 early-stop�
 | DeepSets | 0.3092726 | `bae1ead5...9e32` | 652.7s |
 | Set Transformer | 0.3223304 | `aafe3627...c044` | 1037.8s |
 
-Tune loss 不是 deployment winner。两个 checkpoint 的 1,063-state conditional-greedy paths 已冻结；对应
-10,368 个去重 coalitions 正在生成真实 restoration truth。只有真实 B1--B4 selector recovery 与 recent 的比较
-可以决定下一阶段。
+Tune loss 没有预测 deployment winner：真实 B1--B4 macro recovery 为 DeepSets `0.4247`、Set Transformer
+`0.4499`、recent `0.4519`。Set Transformer 是 learned winner，但尚未超过 recent，因此不进入 untouched
+evaluation 或 policy replay。真实结果见
+[`../set_utility_contextual_tune_on_policy_full_v4/`](../set_utility_contextual_tune_on_policy_full_v4/README.md)。
 
 Persistent root：
 `/data02/jaxan/runs/causalcache-contextual-training-full-v4-e97f2d4`。
