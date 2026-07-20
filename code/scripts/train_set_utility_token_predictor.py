@@ -563,6 +563,7 @@ def main() -> None:
     best_epoch = None
     best_checkpoint = None
     patience = 0
+    termination_reason = "maximum_epochs"
     started = time.time()
 
     for epoch in range(1, epochs + 1):
@@ -626,6 +627,15 @@ def main() -> None:
             torch=torch,
             normalization_floor=args.normalization_floor,
         )
+        if not all(
+            math.isfinite(value)
+            for metrics in (train_metrics, tune_metrics)
+            for value in metrics.values()
+        ):
+            if best_checkpoint is None:
+                raise RuntimeError("training became non-finite before a valid checkpoint")
+            termination_reason = "nonfinite_metrics"
+            break
         history.append(
             {
                 "epoch": epoch,
@@ -645,6 +655,7 @@ def main() -> None:
         else:
             patience += 1
         if patience >= int(training["early_stopping_patience"]):
+            termination_reason = "early_stopping"
             break
 
     summary = {
@@ -664,6 +675,7 @@ def main() -> None:
         "schema_version": "1.0.0",
         "seed": seed,
         "status": "COMPLETED_SET_UTILITY_TOKEN_PREDICTOR_TRAINING",
+        "termination_reason": termination_reason,
         "train_state_count": len(train_states),
         "train_trajectory_count": len({state["trajectory_id"] for state in train_states}),
         "tune_state_count": len(tune_states),

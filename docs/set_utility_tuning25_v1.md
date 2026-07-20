@@ -26,3 +26,6 @@ v2 保持 snapshot、seed、grid、raw/ranking loss 与 split 全部不变，只
 
 `0.01` 在查看 v2 模型结果前由 train baseline 分布固定，约为 10th percentile；它防止 near-zero state
 取得不成比例权重。v1 结果只作 loss diagnostic，正式超参冻结使用 v2。
+
+若某个 grid member 在已有有效 checkpoint 后出现 non-finite metric，trainer 立即停止且只保留此前 finite
+history 与最佳 checkpoint，并记录 `termination_reason=nonfinite_metrics`；NaN 不得进入 JSON 或被当作更优结果。
