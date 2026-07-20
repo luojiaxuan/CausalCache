@@ -1,0 +1,17 @@
+{
+  "cache_content_sha256": "ef82b077a2fb5a19fc5fdc12c8102b611f3d324e83d6f6ccb65e534790823385",
+  "completed_label_state_count": 11721,
+  "evaluation_records_loaded": false,
+  "parent_content_sha256": "8a530cc643ec2e8ee0ffedb907d36ac98942c51407b6a0c60caef7dd21dac6fa",
+  "skipped_label_state_count": 25,
+  "status": "INPUTS_FROZEN_READY_TO_RUN",
+  "terminal_label_state_count": 11746,
+  "text_count": 17152,
+  "visual_count": 16146,
+  "splits": {
+    "10": {"content_sha256": "106803752d4dd92d26a61a0f64f9e9fc6061ec0df3bf4a817e21c52b276d3982", "train_states": 1037, "train_trajectories": 100, "tune_states": 1063, "tune_trajectories": 100},
+    "25": {"content_sha256": "7e4663f75bebae16edc5c3a78d62ddae6f494eae22be4fcf953c64ac5c8d282c", "train_states": 2640, "train_trajectories": 250, "tune_states": 1063, "tune_trajectories": 100},
+    "50": {"content_sha256": "d1e3cb8b98cf9f6a8e1c80cff32f5d1cd87a2c9f2e212e154241f1a7f1554533", "train_states": 5403, "train_trajectories": 500, "tune_states": 1063, "tune_trajectories": 100},
+    "100": {"content_sha256": "8a530cc643ec2e8ee0ffedb907d36ac98942c51407b6a0c60caef7dd21dac6fa", "train_states": 10658, "train_trajectories": 1000, "tune_states": 1063, "tune_trajectories": 100}
+  }
+}

@@ -1,6 +1,6 @@
 # Variable-history formal label rollout v1
 
-状态：`RUNNING`。
+状态：`COMPLETED`。
 
 - code/source revision：`969f2b9aaa516295b03643aedf3f16af73c631c3`；
 - scientific config SHA256：`90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566`；
@@ -36,7 +36,9 @@
 - 2026-07-20 06:59 UTC checkpoint：10,619 / 11,746 states（90.4%）。四条未完成 lanes 随后各自绑定
   Hyper00 GPU 1--4 单进程恢复；2026-07-20 07:01 UTC 为 10,643 states，4/4 tail containers 与
   Hyper01 6/6 containers healthy。剩余 1,103 states，保守 ETA 为 1--1.5 小时；
-- reusable artifact：完成后上传 `gavinlaw/causalcache-set-utility-variable-history-mobile`，当前 `PENDING_HF_UPLOAD`。
+- 最后一条 Hyper01 lane 单 worker resume 完成并 exit 0。最终为 11,746/11,746 terminal records：11,721
+  `COMPLETED_VARIABLE_HISTORY_LABEL_STATE`、25 `SKIPPED_VARIABLE_HISTORY_LABEL_STATE`；
+- reusable artifact：待上传 `gavinlaw/causalcache-set-utility-variable-history-mobile`，当前 `PENDING_HF_UPLOAD`。
 
 首次 `ee77f47` attempt 因 inherited official-tools encoder 的 batch 上限仍硬编码为 2，在 16 个
 empty-coalition microbatches 后 fail-fast，0 terminal states；它不进入正式数据。修复只让 variable-history

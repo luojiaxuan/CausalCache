@@ -1,5 +1,16 @@
 # 项目进展
 
+## 2026-07-20：formal labels 与 learning-curve inputs 完成
+
+- labels 达到 11,746/11,746 terminal states：11,721 completed、25 state-level parse skips；最后 repair worker
+  exit 0；
+- merged train/tune snapshot 为 10,658/1,063 states、1,000/100 trajectories，content SHA256=
+  `8a530cc6...dac6fa`；
+- 同一 trajectory ranking 生成 10/25/50/100% nested train splits，tune 固定不变；
+- Hyper00/Hyper01 独立 finalization 的 full-token cache identity 均为 `ef82b077...23385`，16,146 visual +
+  17,152 text sequences；
+- preflight 得到两台机器 GPU 4--7 空闲，8 个 fraction×family jobs 的固定映射已写入 execution config。
+
 ## 2026-07-20：25% trajectory 单 seed 超参冻结
 
 - 从运行中 labels 冻结 249 条 train trajectories / 2,535 states 与完整 99 条 tune trajectories / 1,040

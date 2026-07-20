@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "code_revision": "5e71d059c763de55a0dca95f79bee05523cac1eb",
+  "image": "hongccc/sglang-omni:dev",
+  "input_parent_content_sha256": "8a530cc643ec2e8ee0ffedb907d36ac98942c51407b6a0c60caef7dd21dac6fa",
+  "cache_content_sha256": "ef82b077a2fb5a19fc5fdc12c8102b611f3d324e83d6f6ccb65e534790823385",
+  "model_config": "code/configs/causalcache_set_utility_learning_curve_v1.json",
+  "seed": 20260720,
+  "evaluation_records_loaded": false,
+  "gpu_preflight_observed_at": "2026-07-20T08:46:54.186258+00:00",
+  "jobs": [
+    {"host": "hyper00", "gpu_id": 4, "fraction": 0.1, "variant": "deepsets_d512_l16_r2_lr3e4"},
+    {"host": "hyper00", "gpu_id": 5, "fraction": 0.1, "variant": "set_transformer_d256_l8_r1_s2_lr1e4"},
+    {"host": "hyper00", "gpu_id": 6, "fraction": 0.25, "variant": "deepsets_d512_l16_r2_lr3e4"},
+    {"host": "hyper00", "gpu_id": 7, "fraction": 0.25, "variant": "set_transformer_d256_l8_r1_s2_lr1e4"},
+    {"host": "hyper01", "gpu_id": 4, "fraction": 0.5, "variant": "deepsets_d512_l16_r2_lr3e4"},
+    {"host": "hyper01", "gpu_id": 5, "fraction": 0.5, "variant": "set_transformer_d256_l8_r1_s2_lr1e4"},
+    {"host": "hyper01", "gpu_id": 6, "fraction": 1.0, "variant": "deepsets_d512_l16_r2_lr3e4"},
+    {"host": "hyper01", "gpu_id": 7, "fraction": 1.0, "variant": "set_transformer_d256_l8_r1_s2_lr1e4"}
+  ],
+  "split_content_sha256": {
+    "0.1": "106803752d4dd92d26a61a0f64f9e9fc6061ec0df3bf4a817e21c52b276d3982",
+    "0.25": "7e4663f75bebae16edc5c3a78d62ddae6f494eae22be4fcf953c64ac5c8d282c",
+    "0.5": "d1e3cb8b98cf9f6a8e1c80cff32f5d1cd87a2c9f2e212e154241f1a7f1554533",
+    "1.0": "8a530cc643ec2e8ee0ffedb907d36ac98942c51407b6a0c60caef7dd21dac6fa"
+  },
+  "output_root": "/data/runs/causalcache-set-utility-learning-curve-v1-5e71d05"
+}
