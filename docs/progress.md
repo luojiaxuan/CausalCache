@@ -10,6 +10,8 @@
   B1--B4 recovery、paired recent delta、long-history 与 selector latency，不以 tune loss 选 winner。
 - 等待 GPU truth 时已完成 full train+tune requirements：11,721 states / 27,867 contexts，Hyper00/Hyper01
   manifest SHA256 均为 `0e87364b...f3b4b`；GPU extraction 仍等待 tune truth 判定。
+- 用户将两台 Hyper 的并发上限收缩为各 4 GPUs；当前 truth run 已中断额外 worker 并保留原子进度，后续 full
+  extraction 固定为 8 个 logical partitions、每台 4 GPUs。
 
 ## 2026-07-20：small-history self-contained exact B4 完成
 

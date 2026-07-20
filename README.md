@@ -91,7 +91,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   Hyper00/Hyper01 正以 12×H200 生成真实 `D(S)`，evaluation 仍未访问。
   [训练结果](data/results/set_utility_contextual_training_v3/README.md)。
 - full train+tune contextual requirement snapshot 已物化并同步两台 Hyper：11,721 states、1,100
-  trajectories、27,867 contexts；仅等待 tune truth winner 后启动 12×H200 hidden extraction，不访问 evaluation。
+  trajectories、27,867 contexts；仅等待 tune truth winner 后启动 8×H200 hidden extraction，不访问 evaluation。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。

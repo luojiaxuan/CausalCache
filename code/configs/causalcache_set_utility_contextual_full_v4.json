@@ -24,7 +24,7 @@
     "backbone_frozen": true
   },
   "extraction": {
-    "logical_partition_count": 12,
+    "logical_partition_count": 8,
     "contexts_per_atomic_chunk": 8,
     "resume_unit": "context_chunk",
     "cross_host_mode": "independent_data_parallel"
