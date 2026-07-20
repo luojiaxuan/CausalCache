@@ -25,6 +25,10 @@ trajectory ranking 下 nested 10/25/50/100% train splits，保留完整 tune，�
 [`data/results/set_utility_tuning25_v1/`](../data/results/set_utility_tuning25_v1/README.md)。当前结果不读取
 evaluation，也不决定 deployment；后者仍由 held-out utility--latency Pareto 决定。
 
+Artifacts 已发布：dataset/cache revision=`d8639bc8b0a3237a8904aefee06d6d7f70ad7768`（225 files / 23.9GB），
+checkpoint revision=`d628ecf6e1783591a039080999f36635c36049fb`（25 files / 481.8MB）；两者路径均为
+`artifacts/set-utility-tuning25-v3-seeded-floor1e2-2d68154`。
+
 ## v1 loss 诊断与 v2 修复
 
 首个 12-config run 暴露 normalized-loss scale pathology：train/tune 中约 1% state 的

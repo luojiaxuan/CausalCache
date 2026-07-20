@@ -9,6 +9,8 @@
   Transformer 为 0.31169（d256/l8/r1/s2/lr1e-4，稳定 early stop）；
 - 两个 family 赢家已冻结到 `causalcache_set_utility_learning_curve_v1.json`，待 labels 完成后运行 nested
   10/25/50/100% train trajectories；本轮不作 held-out 或 deployment 结论。
+- snapshot/cache 已发布到 private HF dataset revision `d8639bc8...ad7768`，12 个 checkpoints 已发布到
+  private HF model revision `d628ecf6...049fb`。
 
 ## 2026-07-20：label long-history tail recovery
 

@@ -2,6 +2,8 @@
   "cache_content_sha256": "1d1eea4849e8e80f28275dd3fc92b5287d65e568b15508fe2422e9b164aecb70",
   "config_sha256": "b38f7d38b91ad960fde48ca7394a25de77a4e04e2f4b382360c08898f777f6f0",
   "evaluation_records_loaded": false,
+  "hf_dataset_revision": "d8639bc8b0a3237a8904aefee06d6d7f70ad7768",
+  "hf_model_revision": "d628ecf6e1783591a039080999f36635c36049fb",
   "input_content_sha256": "725e13abebe31e04610e306806cddf79617312b6a56de70ea43b495ae9d526d7",
   "normalization_floor": 0.01,
   "seed": 20260720,

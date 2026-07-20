@@ -9,6 +9,8 @@ learning-curve 配置，不作方差或方法优劣结论。
 - seed：`20260720`，在 model initialization 前生效；normalization floor：`0.01`；
 - runtime：Hyper00/Hyper01 H200；12 个配置并行；persistent root：
   `/data02/jaxan/runs/causalcache-set-utility-tuning25-v3-seeded-floor1e2-2d68154`；
+- immutable dataset/cache：`gavinlaw/causalcache-set-utility-variable-history-mobile@d8639bc8b0a3237a8904aefee06d6d7f70ad7768`；
+- immutable checkpoints：`gavinlaw/causalcache-set-utility-predictors-mobile@d628ecf6e1783591a039080999f36635c36049fb`；
 - evaluation records loaded：`false`。
 
 | Family | Variant | Best epoch | Tune total | Ranking acc. | Raw MAE | Termination |
