@@ -22,6 +22,14 @@
   schedule 或 state identity；
 - 2026-07-20 03:28 UTC checkpoint：5,317 / 11,746 terminal states（45.3%），12/12 containers healthy；
   最近 6 分钟约 26.8 states/min，线性剩余约 4 小时，考虑 long-history slowdown 后 ETA 为 4--5.5 小时；
+- worker expansion revision `7680e40` 为每个原 partition 增加 SHA256 state lanes；同一 state 只属于一个
+  lane，state identity 与已有 terminal/microbatch 均不变化。36-worker immutable mapping 位于
+  `code/configs/causalcache_set_utility_variable_history_labels_workers_36_v1.json`（commit `c7c6966`）；
+- 2026-07-20 03:51 UTC 在 5,924 states 处从 24 workers 切换到 36 workers：每台 Hyper 6 张卡、每卡
+  3 processes；23 个未完成 base partitions 中 13 个按两条 lane 拆分，已完成 partition 6 不再启动；
+- 2026-07-20 03:54 UTC checkpoint：5,983 / 11,746 states，12/12 containers healthy，单卡显存约
+  87--103GB。首个稳定分钟约 27 states/min，尚未显示相对 24-worker 的显著吞吐提升，说明当前更接近
+  GPU forward saturation；保留 36 workers 继续运行，当前 ETA 约 3.5--5 小时；
 - reusable artifact：完成后上传 `gavinlaw/causalcache-set-utility-variable-history-mobile`，当前 `PENDING_HF_UPLOAD`。
 
 首次 `ee77f47` attempt 因 inherited official-tools encoder 的 batch 上限仍硬编码为 2，在 16 个

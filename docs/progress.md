@@ -1,5 +1,16 @@
 # 项目进展
 
+## 2026-07-19（UTC 07-20）：label workers 24 → 36
+
+- runner revision `7680e40` 增加 deterministic state lanes：`SHA256(state_id)` 的前 8 bytes 取模；lane
+  只改变未完成 state 的执行归属，不进入 state identity，不改变 schedule、label 或已有原子断点；
+- committed manifest `code/configs/causalcache_set_utility_variable_history_labels_workers_36_v1.json`
+  固定 12xH200 / 36 workers；每 host 18 workers、每 GPU 3 processes，并保持原 host-partition affinity；
+- 在 5,924/11,746 states 处完成切换。选择剩余量最大的 13 个 base partitions 拆为两 lanes，已完成的
+  partition 6 不再加载；12/12 containers 均正常，单卡显存约 87--103GB；
+- 03:54 UTC 为 5,983 states；首个稳定分钟约 27 states/min，与原 24-worker 约 26.8 states/min 接近，
+  暂无显著扩并发收益。当前瓶颈更接近 GPU forward saturation；保留 36 workers 继续跑，ETA 3.5--5 小时。
+
 ## 2026-07-19（UTC 07-20）：label parse repair 与 12-GPU resume
 
 - 旧 24-worker execution 在 4,805 terminal states 后有 6 个 partitions 因 reference tool-call 无法严格解析而
