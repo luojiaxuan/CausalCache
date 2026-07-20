@@ -37,7 +37,8 @@ event visual tokens + low-fidelity text tokens + numeric delta
                     -> shared multimodal latent resampler -> event h_j
 ```
 
-事件表示再与 `h_q` 通过 concat、product 与 absolute difference 做 query conditioning。
+事件表示再与 `h_q` 通过 concat、product 与 absolute difference 做 query conditioning。每个 state 包含完整的
+`n_t` 个 event entities；`n_t` 随 state 变化，通过 padding 与 `event_mask` batching，不是固定四个。
 
 主模型把全部 `n_t` events、selected/unselected embedding 和 query seed 输入无 positional embedding 的 Set
 Transformer，预测整个 subset 的 utility。相同网络对 empty mask 再算一次并作差，因此
