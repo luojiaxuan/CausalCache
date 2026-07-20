@@ -26,7 +26,8 @@ DeepSets 使用相同 cache/resampler，保留 latents 到 additive pooling，�
 ## 执行顺序
 
 1. 用 25% nested train trajectories + 完整 tune（3,703 states/350 trajectories/8,813 contexts）提取
-   resumable contextual cache；evaluation 不可访问；
+   resumable contextual cache；每 8 个 contexts 原子写入一个 chunk，中断只重算当前 chunk，evaluation
+   不可访问；
 2. 训练共享输入的 DeepSets 与 Set Transformer，先检查 optimization/tune loss；
 3. 对 predictor 搜索实际访问的 tune coalitions 生成 on-policy truth，比较 selector recovery；
 4. 冻结表示、训练与 search 后，才允许触碰 untouched evaluation；
@@ -34,3 +35,6 @@ DeepSets 使用相同 cache/resampler，保留 latents 到 additive pooling，�
 
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。
+输入清单与 GPU 提取入口分别为
+[`materialize_set_utility_contextual_inputs.py`](../code/scripts/materialize_set_utility_contextual_inputs.py) 和
+[`extract_set_utility_contextual_hidden.py`](../code/scripts/extract_set_utility_contextual_hidden.py)。
