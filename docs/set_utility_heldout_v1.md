@@ -62,6 +62,9 @@ truth schedule 已在 selections 密封后冻结，共 805 states、55,175 个�
 原子断点；初始 modulo-24 分区出现 48.5 倍 workload spread 后，在 276 个完成 states 处仅重排为 48 个
 deterministic state lanes，科学输入、模型和 label 定义均未改变。冻结重排见
 [`causalcache_set_utility_heldout_labels_rescue_48_v3.json`](../code/configs/causalcache_set_utility_heldout_labels_rescue_48_v3.json)。
+该配置最初把不同 cardinality 合并估算而低报 microbatch；runner 实际按 cardinality 分组。追加的
+[`postflight correction`](../code/configs/causalcache_set_utility_heldout_labels_rescue_48_v3_postflight.json)
+记录 6,423 个总 microbatches、断点后剩余 4,773，以及不变 lane 映射下 156--232 的进程负载；不追溯改写原配置。
 
 Post-GO native-action replay 已预先实现但不会绕过本合同：materializer 必须验证 held-out result 的完整签名、
 805-state coverage、winner `GO` 和 exact-track 320-state inventory 后才会产出 schedule。该阶段只比较 winner、

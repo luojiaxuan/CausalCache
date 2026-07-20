@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0.0",
+  "status": "FROZEN_EXECUTION_ACCOUNTING_CORRECTION",
+  "corrects": "causalcache_set_utility_heldout_labels_rescue_48_v3.json",
+  "allocation_changed": false,
+  "scientific_inputs_changed": false,
+  "teacher_microbatch_definition": "sum_cardinality_groups_ceil(group_size/16)_excluding_full_anchor",
+  "total_teacher_microbatch_count": 6423,
+  "rebalance_checkpoint_teacher_microbatch_count": 1650,
+  "remaining_teacher_microbatch_count": 4773,
+  "remaining_teacher_microbatches_by_process": [
+    194, 174, 156, 184, 181, 212, 208, 209, 200, 213, 185, 208,
+    208, 186, 181, 200, 193, 207, 186, 204, 196, 230, 226, 232
+  ],
+  "minimum_process_load": 156,
+  "maximum_process_load": 232,
+  "maximum_to_minimum_process_load_ratio": 1.4871794871794872,
+  "reason": "The original execution-only estimate applied ceil after combining coalition cardinalities. The frozen runner batches each cardinality separately. This postflight corrects accounting only; the launched 48-lane allocation and every scientific identity remain unchanged."
+}
