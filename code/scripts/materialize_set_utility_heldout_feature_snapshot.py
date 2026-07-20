@@ -30,6 +30,7 @@ def main() -> None:
     parser.add_argument("--full-visual-token-root", type=Path, required=True)
     parser.add_argument("--frozen-state-inventory", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--partial-from-available-visual-shards", action="store_true")
     args = parser.parse_args()
     try:
         from pyarrow import parquet as pq
@@ -52,6 +53,9 @@ def main() -> None:
         prepare_resized_rgb=lambda payload: prepare_image_bytes(
             payload
         ).resized_rgb_bytes,
+        partial_from_available_visual_shards=(
+            args.partial_from_available_visual_shards
+        ),
     )
     print(json.dumps(manifest, sort_keys=True))
 

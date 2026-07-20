@@ -155,12 +155,15 @@ def main() -> None:
     input_root = args.input_root.resolve()
     input_manifest_path = input_root / "manifest.json"
     input_manifest = _read_json(input_manifest_path)
+    allowed_input_statuses = {
+        "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_SNAPSHOT",
+        "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_PARTITION",
+    }
     if (
-        input_manifest.get("status")
-        != "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_SNAPSHOT"
+        input_manifest.get("status") not in allowed_input_statuses
         or input_manifest.get("evaluation_labels_loaded") is not False
         or input_manifest.get("label_file_read_count") != 0
-        or input_manifest.get("state_count") != 805
+        or int(input_manifest.get("state_count", 0)) <= 0
     ):
         raise ValueError("held-out feature snapshot violates the label firewall")
     inventory_path = repository_root / heldout["state_inventory"]["path"]
@@ -183,7 +186,10 @@ def main() -> None:
     ):
         raise ValueError("held-out token cache identity or label firewall drifted")
     states = _read_jsonl(input_root / input_manifest["states_jsonl"])
-    if len(states) != 805 or any(row["role"] != "evaluation" for row in states):
+    if (
+        len(states) != input_manifest["state_count"]
+        or any(row["role"] != "evaluation" for row in states)
+    ):
         raise ValueError("held-out selector state inventory drifted")
 
     torch.manual_seed(20260720)
@@ -336,7 +342,12 @@ def main() -> None:
         "model_name": args.model_name,
         "records": records,
         "schema_version": "1.0.0",
-        "status": "COMPLETED_SET_UTILITY_HELDOUT_MODEL_SELECTIONS",
+        "status": (
+            "COMPLETED_SET_UTILITY_HELDOUT_MODEL_SELECTION_PARTITION"
+            if input_manifest["status"]
+            == "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_PARTITION"
+            else "COMPLETED_SET_UTILITY_HELDOUT_MODEL_SELECTIONS"
+        ),
         "variant": candidate["variant"],
     }
     result["content_sha256"] = hashlib.sha256(canonical_json_bytes(result)).hexdigest()

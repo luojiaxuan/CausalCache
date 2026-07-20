@@ -232,12 +232,76 @@ def merge_model_selection_payloads(
     return result
 
 
+def merge_model_selection_partitions(
+    payloads: Sequence[Mapping[str, Any]],
+    *,
+    full_input_content_sha256: str,
+    expected_state_ids: Sequence[str],
+) -> dict[str, Any]:
+    if len(payloads) < 2:
+        raise ValueError("at least two model selection partitions are required")
+    expected = tuple(sorted(expected_state_ids))
+    if len(expected) != 805 or len(expected) != len(set(expected)):
+        raise ValueError("full held-out input must contain 805 unique states")
+    stable_keys = (
+        "checkpoint_sha256",
+        "config_sha256",
+        "inventory_sha256",
+        "model_name",
+        "variant",
+    )
+    for key in stable_keys:
+        if len({value.get(key) for value in payloads}) != 1:
+            raise ValueError(f"held-out model partition binding drifted: {key}")
+    if any(
+        value.get("status")
+        != "COMPLETED_SET_UTILITY_HELDOUT_MODEL_SELECTION_PARTITION"
+        for value in payloads
+    ):
+        raise ValueError("a held-out model selection partition is incomplete")
+    records: dict[str, Mapping[str, Any]] = {}
+    for payload in payloads:
+        for row in payload["records"]:
+            if row["state_id"] in records:
+                raise ValueError("held-out model selection partitions overlap")
+            records[row["state_id"]] = row
+    if tuple(sorted(records)) != expected:
+        raise ValueError("held-out model selection partitions do not cover 805 states")
+    cache_partition_sha256s = sorted(
+        str(value["cache_content_sha256"]) for value in payloads
+    )
+    input_partition_sha256s = sorted(
+        str(value["input_content_sha256"]) for value in payloads
+    )
+    result = {
+        "cache_content_sha256": hashlib.sha256(
+            canonical_json_bytes(cache_partition_sha256s)
+        ).hexdigest(),
+        "cache_partition_content_sha256s": cache_partition_sha256s,
+        "checkpoint_sha256": payloads[0]["checkpoint_sha256"],
+        "config_sha256": payloads[0]["config_sha256"],
+        "input_content_sha256": full_input_content_sha256,
+        "input_partition_content_sha256s": input_partition_sha256s,
+        "inventory_sha256": payloads[0]["inventory_sha256"],
+        "model_name": payloads[0]["model_name"],
+        "records": [records[state_id] for state_id in expected],
+        "schema_version": "1.0.0",
+        "status": "COMPLETED_SET_UTILITY_HELDOUT_MODEL_SELECTIONS",
+        "variant": payloads[0]["variant"],
+    }
+    result["content_sha256"] = hashlib.sha256(
+        canonical_json_bytes(result)
+    ).hexdigest()
+    return result
+
+
 __all__ = [
     "BASELINE_METHODS",
     "BUDGETS",
     "canonical_json_bytes",
     "conditional_greedy_budget_path",
     "merge_model_selection_payloads",
+    "merge_model_selection_partitions",
     "ocr_rgb_budget_selections",
     "random_budget_selections",
     "recent_budget_selections",

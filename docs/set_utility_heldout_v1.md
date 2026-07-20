@@ -56,5 +56,6 @@ encoded-state subset scoring、conditional-greedy B1--B4 path、selection merge�
 密封两个 checkpoint 的 selections。
 
 首次 feature snapshot 因原始 full-token root 在 Hyper00/01 各保留 128 个 logical shards 而 fail-fast，未写入
-output。修复允许读取已独立 finalization、SHA 绑定且汇总 256 shards 的 learning-curve visual cache；底层文件仍是
-同一批 full-source safetensors，不重新编码图像，也不放宽任何 label firewall。
+output。learning-curve cache 又只含 train/tune observations，不能替代 evaluation tokens。最终执行按现有数据布局
+让两台机器各自物化本机 shard 的 label-blind feature/cache 与双模型 selection partitions，再以 state identity、
+track count 和输入 hash 严格合并成 805-state artifact；不重新编码图像，也不放宽任何 label firewall。

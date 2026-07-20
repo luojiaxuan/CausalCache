@@ -33,6 +33,7 @@ EXPECTED_UNION_STATE_COUNT = 805
 SOURCE_STATUS = "COMPLETED_VARIABLE_HISTORY_SOURCE"
 INVENTORY_STATUS = "FROZEN_VARIABLE_HISTORY_STATE_INVENTORY"
 OUTPUT_STATUS = "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_SNAPSHOT"
+PARTITION_OUTPUT_STATUS = "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_PARTITION"
 VISUAL_SHARD_STATUS = "COMPLETED_VARIABLE_HISTORY_TOKEN_SHARD"
 
 
@@ -308,6 +309,7 @@ def materialize_heldout_feature_snapshot(
     expected_exact_state_count: int = EXPECTED_EXACT_STATE_COUNT,
     expected_large_history_state_count: int = EXPECTED_LARGE_HISTORY_STATE_COUNT,
     expected_union_state_count: int = EXPECTED_UNION_STATE_COUNT,
+    partial_from_available_visual_shards: bool = False,
 ) -> dict[str, Any]:
     """Materialize only label-blind inputs for the frozen held-out state union."""
     source_root = source_root.resolve()
@@ -345,6 +347,26 @@ def materialize_heldout_feature_snapshot(
         )
         if row.get("kind") == "visual" and "logical_shard" in row
     }
+
+    def visual_shard_is_available(logical_shard: int) -> bool:
+        original = (
+            full_visual_token_root
+            / "token-shards"
+            / f"shard-{logical_shard:03d}-of-256.safetensors"
+        )
+        receipt = (
+            full_visual_token_root
+            / "receipts"
+            / f"shard-{logical_shard:03d}-of-256.json"
+        )
+        finalized = (
+            full_visual_token_root
+            / "visual-shards"
+            / f"shard-{logical_shard:03d}-of-256.safetensors"
+        )
+        return (original.exists() and receipt.exists()) or (
+            finalized.exists() and logical_shard in finalized_visual_shards
+        )
     if (
         source_manifest.get("status") != SOURCE_STATUS
         or source_manifest.get("logical_shard_count") != 256
@@ -361,10 +383,15 @@ def materialize_heldout_feature_snapshot(
         selected = shard_trajectories & target_trajectories
         if not selected:
             continue
+        logical_shard = int(shard["logical_shard"])
+        if (
+            partial_from_available_visual_shards
+            and not visual_shard_is_available(logical_shard)
+        ):
+            continue
         if covered_trajectories & selected:
             raise ValueError("held-out trajectory appears in multiple source shards")
         covered_trajectories.update(selected)
-        logical_shard = int(shard["logical_shard"])
         source_path = (
             source_root
             / "trajectory-shards"
@@ -376,8 +403,26 @@ def materialize_heldout_feature_snapshot(
         ):
             raise ValueError("held-out source shard bytes drifted")
         selected_source_shards.append((logical_shard, shard, source_path))
-    if covered_trajectories != target_trajectories:
+    if not covered_trajectories or (
+        not partial_from_available_visual_shards
+        and covered_trajectories != target_trajectories
+    ):
         raise ValueError("held-out source manifest does not cover every target trajectory")
+    active_membership = {
+        state_id: tags
+        for state_id, tags in membership.items()
+        if _trajectory_id_from_state(state_id) in covered_trajectories
+    }
+    active_track_counts = {
+        "exact_oracle": sum(
+            "exact_oracle" in tags for tags in active_membership.values()
+        ),
+        "large_history": sum(
+            "large_history" in tags for tags in active_membership.values()
+        ),
+        "overlap": sum(len(tags) == 2 for tags in active_membership.values()),
+        "union": len(active_membership),
+    }
 
     output_rows: dict[str, dict[str, Any]] = {}
     texts: dict[str, str] = {}
@@ -469,7 +514,7 @@ def materialize_heldout_feature_snapshot(
             )
             for state_id in sorted(
                 state_id
-                for state_id in membership
+                for state_id in active_membership
                 if _trajectory_id_from_state(state_id) == trajectory_id
             ):
                 try:
@@ -482,7 +527,7 @@ def materialize_heldout_feature_snapshot(
                     source=source,
                     query=query,
                     logical_shard=logical_shard,
-                    membership=membership[state_id],
+                    membership=active_membership[state_id],
                     means=tensors[means_key],
                     ocr_token_sets_by_step=ocr_token_sets_by_step,
                     rgb_histograms_by_step=rgb_histograms_by_step,
@@ -511,7 +556,7 @@ def materialize_heldout_feature_snapshot(
             }
         )
 
-    if set(output_rows) != set(membership):
+    if set(output_rows) != set(active_membership):
         raise RuntimeError("held-out feature snapshot did not materialize its frozen union")
     if any("distance_rows" in row for row in output_rows.values()):
         raise RuntimeError("held-out feature snapshot contains forbidden labels")
@@ -559,14 +604,165 @@ def materialize_heldout_feature_snapshot(
         "state_count": len(output_rows),
         "states_jsonl": "states.jsonl",
         "states_sha256": hashlib.sha256(state_payload).hexdigest(),
+        "status": (
+            PARTITION_OUTPUT_STATUS
+            if partial_from_available_visual_shards
+            else OUTPUT_STATUS
+        ),
+        "text_count": len(texts),
+        "texts_jsonl": "texts.jsonl",
+        "texts_sha256": hashlib.sha256(text_payload).hexdigest(),
+        "track_counts": active_track_counts,
+        "trajectory_count": len(covered_trajectories),
+        "visual_shards": visual_bindings,
+        "visual_token_profile": "full_480_target_actual_grid_bf16_4096",
+    }
+    output_root.mkdir(parents=True)
+    _write_atomic(output_root / "states.jsonl", state_payload)
+    _write_atomic(output_root / "texts.jsonl", text_payload)
+    _write_atomic(output_root / "manifest.json", _canonical_json(manifest))
+    return manifest
+
+
+def merge_heldout_feature_snapshots(
+    *, input_roots: Sequence[Path], output_root: Path
+) -> dict[str, Any]:
+    """Merge disjoint label-free host partitions into the frozen 805-state union."""
+    roots = tuple(Path(root).resolve() for root in input_roots)
+    output_root = output_root.resolve()
+    if len(roots) < 2 or output_root.exists():
+        raise ValueError("held-out snapshot merge requires multiple fresh partitions")
+    manifests = [_read_json(root / "manifest.json") for root in roots]
+    if any(
+        manifest.get("status") != PARTITION_OUTPUT_STATUS
+        or manifest.get("evaluation_labels_loaded") is not False
+        or manifest.get("label_file_read_count") != 0
+        for manifest in manifests
+    ):
+        raise ValueError("held-out feature partition status or label firewall drifted")
+    stable_keys = (
+        "frozen_state_inventory_sha256",
+        "numeric_feature_names",
+        "ocr_rgb_profile",
+        "visual_token_profile",
+    )
+    for key in stable_keys:
+        if len({_canonical_json(manifest[key]) for manifest in manifests}) != 1:
+            raise ValueError(f"held-out feature partition binding drifted: {key}")
+    input_binding_keys = (
+        "assignment_manifest_sha256",
+        "config_sha256",
+        "source_manifest_sha256",
+        "state_identity_sha256",
+    )
+    for key in input_binding_keys:
+        if len(
+            {manifest["input_bindings"][key] for manifest in manifests}
+        ) != 1:
+            raise ValueError(f"held-out feature source binding drifted: {key}")
+
+    rows: dict[str, dict[str, Any]] = {}
+    texts: dict[str, str] = {}
+    for root, manifest in zip(roots, manifests, strict=True):
+        state_path = root / manifest["states_jsonl"]
+        text_path = root / manifest["texts_jsonl"]
+        if (
+            _sha256_file(state_path) != manifest["states_sha256"]
+            or _sha256_file(text_path) != manifest["texts_sha256"]
+        ):
+            raise ValueError("held-out feature partition bytes drifted")
+        for line in state_path.read_text(encoding="utf-8").splitlines():
+            if not line:
+                continue
+            row = json.loads(line)
+            if row["state_id"] in rows or "distance_rows" in row:
+                raise ValueError("held-out feature partitions overlap or contain labels")
+            rows[row["state_id"]] = row
+        for line in text_path.read_text(encoding="utf-8").splitlines():
+            if not line:
+                continue
+            row = json.loads(line)
+            prior = texts.setdefault(row["key"], row["text"])
+            if prior != row["text"]:
+                raise ValueError("held-out feature partitions contain a text collision")
+    if len(rows) != EXPECTED_UNION_STATE_COUNT:
+        raise ValueError("merged held-out feature snapshot does not contain 805 states")
+    track_counts = {
+        "exact_oracle": sum(
+            "exact_oracle" in row["track_membership"] for row in rows.values()
+        ),
+        "large_history": sum(
+            "large_history" in row["track_membership"] for row in rows.values()
+        ),
+        "overlap": sum(len(row["track_membership"]) == 2 for row in rows.values()),
+        "union": len(rows),
+    }
+    if track_counts != {
+        "exact_oracle": EXPECTED_EXACT_STATE_COUNT,
+        "large_history": EXPECTED_LARGE_HISTORY_STATE_COUNT,
+        "overlap": 235,
+        "union": EXPECTED_UNION_STATE_COUNT,
+    }:
+        raise ValueError("merged held-out feature track counts drifted")
+    state_payload = b"".join(
+        _canonical_json(rows[state_id]) for state_id in sorted(rows)
+    )
+    text_payload = b"".join(
+        _canonical_json({"key": key, "text": texts[key]}) for key in sorted(texts)
+    )
+    source_shards = sorted(
+        (row for manifest in manifests for row in manifest["source_shards"]),
+        key=lambda row: row["logical_shard"],
+    )
+    visual_shards = sorted(
+        (row for manifest in manifests for row in manifest["visual_shards"]),
+        key=lambda row: row["logical_shard"],
+    )
+    if (
+        len({row["logical_shard"] for row in source_shards}) != len(source_shards)
+        or len({row["logical_shard"] for row in visual_shards}) != len(visual_shards)
+    ):
+        raise ValueError("held-out feature partition shard bindings overlap")
+    source_binding_sha256 = hashlib.sha256(
+        b"".join(_canonical_json(value) for value in source_shards)
+    ).hexdigest()
+    visual_binding_sha256 = hashlib.sha256(
+        b"".join(_canonical_json(value) for value in visual_shards)
+    ).hexdigest()
+    base = manifests[0]
+    manifest = {
+        "content_sha256": hashlib.sha256(state_payload + text_payload).hexdigest(),
+        "distance_rows_included": False,
+        "evaluation_labels_included": False,
+        "evaluation_labels_loaded": False,
+        "frozen_state_inventory_sha256": base["frozen_state_inventory_sha256"],
+        "input_bindings": {
+            **{
+                key: base["input_bindings"][key] for key in input_binding_keys
+            },
+            "source_selected_shards_sha256": source_binding_sha256,
+            "visual_selected_shards_sha256": visual_binding_sha256,
+        },
+        "label_file_read_count": 0,
+        "merged_partition_content_sha256s": sorted(
+            manifest["content_sha256"] for manifest in manifests
+        ),
+        "numeric_feature_names": base["numeric_feature_names"],
+        "ocr_rgb_profile": base["ocr_rgb_profile"],
+        "role_counts": {"evaluation": len(rows)},
+        "schema_version": "1.0.0",
+        "source_shards": source_shards,
+        "state_count": len(rows),
+        "states_jsonl": "states.jsonl",
+        "states_sha256": hashlib.sha256(state_payload).hexdigest(),
         "status": OUTPUT_STATUS,
         "text_count": len(texts),
         "texts_jsonl": "texts.jsonl",
         "texts_sha256": hashlib.sha256(text_payload).hexdigest(),
         "track_counts": track_counts,
-        "trajectory_count": len(target_trajectories),
-        "visual_shards": visual_bindings,
-        "visual_token_profile": "full_480_target_actual_grid_bf16_4096",
+        "trajectory_count": len({row["trajectory_id"] for row in rows.values()}),
+        "visual_shards": visual_shards,
+        "visual_token_profile": base["visual_token_profile"],
     }
     output_root.mkdir(parents=True)
     _write_atomic(output_root / "states.jsonl", state_payload)
@@ -580,5 +776,7 @@ __all__ = [
     "EXPECTED_LARGE_HISTORY_STATE_COUNT",
     "EXPECTED_UNION_STATE_COUNT",
     "OUTPUT_STATUS",
+    "PARTITION_OUTPUT_STATUS",
     "materialize_heldout_feature_snapshot",
+    "merge_heldout_feature_snapshots",
 ]
