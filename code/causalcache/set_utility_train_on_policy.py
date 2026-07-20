@@ -49,6 +49,7 @@ def validate_train_selections(
             payload.get("cache_content_sha256"),
             payload.get("config_sha256"),
             payload.get("input_content_sha256"),
+            payload.get("search_config_sha256"),
         )
         if binding is None:
             binding = current_binding

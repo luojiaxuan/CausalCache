@@ -129,6 +129,7 @@ def main() -> None:
     parser.add_argument("--input-root", type=Path, required=True)
     parser.add_argument("--cache-root", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--selection-config", type=Path)
     parser.add_argument("--variant", required=True)
     parser.add_argument("--training-summary", type=Path, required=True)
     parser.add_argument("--checkpoint", type=Path, required=True)
@@ -158,7 +159,17 @@ def main() -> None:
     if args.variant not in config["variants"]:
         raise ValueError("unknown contextual tune-selector variant")
     variant = config["variants"][args.variant]
-    selection_config = config.get("selection", {})
+    selection_config_path = (
+        config_path
+        if args.selection_config is None
+        else args.selection_config.resolve()
+    )
+    selection_source = (
+        config
+        if selection_config_path == config_path
+        else _read_json(selection_config_path)
+    )
+    selection_config = selection_source.get("selection", {})
     search_method = str(selection_config.get("search", "conditional_greedy"))
     if search_method not in {"conditional_greedy", "beam"}:
         raise ValueError("unknown contextual selector search method")
@@ -376,6 +387,7 @@ def main() -> None:
         "schema_version": "1.0.0",
         "role": args.role,
         "status": status,
+        "search_config_sha256": _sha256_file(selection_config_path),
         "variant": args.variant,
     }
     result["content_sha256"] = hashlib.sha256(canonical_json_bytes(result)).hexdigest()
