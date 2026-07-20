@@ -1,5 +1,14 @@
 # 项目进展
 
+## 2026-07-20：contextual tune on-policy truth 启动
+
+- DeepSets 与 Set Transformer 已在完整 1,063 个 tune states 上生成 at-most-B conditional-greedy paths；
+- 去重后的 truth schedule 含 9,814 coalitions，包括 learned paths、recent B1--B4 与 empty/full anchors；
+- Hyper00 GPU 0--5、Hyper01 GPU 2--7 共 12×H200 按 12 个独立 partitions 启动，state/microbatch 原子结果
+  支持中断续跑；evaluation split 未加载；
+- reducer 已实现并通过 10 tests（另 7 个无 PyTorch 环境时 skip）：只用真实 `D(S)` 比较 trajectory-equal
+  B1--B4 recovery、paired recent delta、long-history 与 selector latency，不以 tune loss 选 winner。
+
 ## 2026-07-20：small-history self-contained exact B4 完成
 
 - v1 在 `0 states / 0 completed batches` 时停止；v2 不再跨 reference session 合并旧 B1/B2，而是在同一

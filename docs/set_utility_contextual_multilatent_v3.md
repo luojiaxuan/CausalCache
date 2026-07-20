@@ -1,6 +1,6 @@
 # Contextual multi-latent utility predictor v3
 
-状态：`SOURCE_IMPLEMENTATION`。
+状态：`TUNE_ON_POLICY_TRUTH_RUNNING`。
 
 Exact B4 已达到 0.8248，而当前 Set Transformer B4 只有 0.7128；true-greedy search gap 0.0571 小于
 student distillation gap 0.1121。因此 v3 先修 representation 与 deployment-search supervision，不再增加完全
@@ -35,6 +35,17 @@ DeepSets 使用相同 cache/resampler，保留 latents 到 additive pooling，�
 3. 对 predictor 搜索实际访问的 tune coalitions 生成 on-policy truth，比较 selector recovery；
 4. 冻结表示、训练与 search 后，才允许触碰 untouched evaluation；
 5. 只有 learned selector 真值超过 recent/OCR-RGB，才进入 policy replay，closed-loop 仍锁定。
+
+## Tune on-policy truth
+
+25% contextual checkpoints 已先执行完整 tune conditional-greedy path。冻结 schedule 覆盖 1,063 states、
+9,814 个去重 coalitions，包含两个 learned paths、recent B1--B4 与 empty/full anchors。2026-07-20 使用
+Hyper00 0--5 与 Hyper01 2--7 共 12×H200 独立生成真实 `D(S)`；state 与 microbatch 均可断点续跑。
+
+结果 reducer 只按真实 restoration truth 选择模型：primary 为 trajectory-equal B1--B4 normalized recovery，
+同时报告对 recent 的 trajectory-clustered paired bootstrap、long/very-long slice 与端到端 selector latency。
+若两个模型 primary 相差不超过 0.01，选择 p95 total latency 更低者。实现见
+[`evaluate_set_utility_tune_on_policy.py`](../code/scripts/evaluate_set_utility_tune_on_policy.py)。
 
 配置见
 [`causalcache_set_utility_contextual_multilatent_v3.json`](../code/configs/causalcache_set_utility_contextual_multilatent_v3.json)。

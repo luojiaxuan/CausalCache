@@ -87,7 +87,8 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   共享 cache 的双模型训练已启动。[结果与 artifact 状态](data/results/set_utility_contextual_cache_v3/README.md)。
 - contextual v3 双模型训练已完成：Set Transformer tune objective=`0.30910`，优于 contextual DeepSets
   `0.32128`、旧 25% Set Transformer `0.32363` 与旧 100% `0.31577`。这只是 train/tune distillation 信号；
-  两模型的 tune conditional-greedy truth 评估已启动，evaluation 仍未访问。
+  两模型的 tune conditional-greedy selections 已冻结为 1,063 states / 9,814 个去重 truth coalitions；
+  Hyper00/Hyper01 正以 12×H200 生成真实 `D(S)`，evaluation 仍未访问。
   [训练结果](data/results/set_utility_contextual_training_v3/README.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
