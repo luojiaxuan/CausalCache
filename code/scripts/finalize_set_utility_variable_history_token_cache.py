@@ -55,11 +55,11 @@ def _safetensors_header(path: Path) -> dict[str, dict[str, Any]]:
     }
     if any(
         not isinstance(value, dict)
-        or value.get("dtype") != "BF16"
+        or not isinstance(value.get("dtype"), str)
         or not isinstance(value.get("shape"), list)
         for value in result.values()
     ):
-        raise ValueError("token cache requires BF16 safetensors entries")
+        raise ValueError("safetensors header contains an invalid tensor entry")
     return result
 
 
@@ -105,6 +105,8 @@ def main() -> None:
                 tensor = header[tensor_name]
             except KeyError as error:
                 raise ValueError("visual token shard omits a snapshot observation") from error
+            if tensor["dtype"] != "BF16":
+                raise ValueError("visual source tokens must remain BF16")
             inventory[f"visual:{key}"] = {
                 "dtype": "torch.bfloat16",
                 "partition": args.visual_subdir,
@@ -135,6 +137,8 @@ def main() -> None:
         for tensor_name, tensor in header.items():
             if not tensor_name.startswith("t_"):
                 raise ValueError("text token tensor name is invalid")
+            if tensor["dtype"] != "BF16":
+                raise ValueError("text source tokens must remain BF16")
             key = tensor_name[2:]
             if key in observed_text:
                 raise ValueError("text token key appears in more than one shard")
