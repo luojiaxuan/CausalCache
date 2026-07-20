@@ -1,5 +1,18 @@
 # 项目进展
 
+## 2026-07-19（UTC 07-20）：label parse repair 与 12-GPU resume
+
+- 旧 24-worker execution 在 4,805 terminal states 后有 6 个 partitions 因 reference tool-call 无法严格解析而
+  退出；这是 runner 未实现 state-level parse admissibility，不是 restoration distance 或数据定义失败；
+- revision `415f608` 仅捕获 `GUIOwlV21GenerationParseError`，原子写
+  `SKIPPED_VARIABLE_HISTORY_LABEL_STATE` 后继续；测试为 `8 passed`，其他异常继续 fail-fast；
+- 用户明确授权 Hyper00/Hyper01 各最多 6 张 GPU。repair run 使用 Hyper00 0/1/2/3/5/6 与 Hyper01 2--7，
+  共 12xH200、24 workers、每卡 2 processes；原 host-partition affinity 保持不变，已有 state/microbatch 全复用；
+- 第一次 remap 跨 host 移动了 partition，暴露两台机器只保存原 assignment 对应 shards；同时 Hyper00 GPU 4
+  被新进程占满。该 attempt fail-fast、未覆盖 terminal records，随后改用 GPU 6 并恢复原 host affinity；
+- 2026-07-20 03:28 UTC 为 5,317/11,746 states，12/12 containers healthy；最近 6 分钟约
+  26.8 states/min，剩余 ETA 4--5.5 小时。
+
 ## 2026-07-19（UTC 07-20）：Hyper 双卡 partial predictor 训练完成
 
 - fleet preflight 清理后 Hyper00 GPU 4/5 空闲；正式 labels 继续占用 Hyper00 GPU 0--3 与 Hyper01 GPU 2--5，
