@@ -1,0 +1,15 @@
+{
+  "config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+  "context_limit_tokens": 32768,
+  "failure_states": [],
+  "fit_state_count": 12792,
+  "maximum_exact_prompt_input_tokens": 30036,
+  "maximum_exact_prompt_plus_action_reserve_tokens": 30292,
+  "reserved_action_tokens": 256,
+  "source_revision": "47161cac5b26c3466e89343c43b3e75a05f11b46",
+  "state_context_exact_sha256": "ff0d2c42d79b63a3519d694c90c6d2f4a5a39db7b7486057b24264a76be771fb",
+  "state_count": 12792,
+  "status": "PASS_FULL_HISTORY_EXACT_GRID_CONTEXT_POSTFLIGHT",
+  "token_receipt_set_sha256": "f0724109bba0a27bd1826e47480ca831fad7ddc3602597f05f3166b5ce7cb937",
+  "unfit_state_count": 0
+}

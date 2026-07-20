@@ -31,7 +31,8 @@ context census：
 old events。实测 512 profile 有 1 个 state 超限 468 tokens，故 v1 BLOCK；v2 将图像预算降为 480 tokens，候选、
 state 与 subset sampler 全部不变。v2 tokenizer census 已全部 fit，最大余量 1,004 tokens；visual-token cache
 完成后再用真实 `image_grid_thw` 做 exact postflight。`S=C_t` 是 reference 本身，记录 `D(C_t)=0`，无需额外
-coalition forward。
+coalition forward。480-token cache 的实际 `image_grid_thw` postflight 已覆盖全部 12,792 states：最大 prompt
+为 30,036 tokens，加 256 action reserve 后为 30,292，全部低于 32,768，正式 labels 已解除 context blocker。
 
 旧 processor tar 的 prefix metadata/OCR 可复用，但它只保存 anchor/terminal image union。新 source 从
 `cua-lite/GUIOdyssey@ea08072b` 的 1,200 个 pinned raw rows 重新物化全部 18,792 observations，保证任何历史 event
@@ -97,7 +98,9 @@ teacher batch，并把 KL 留在 GPU 到 state 完成。目标是提高 wall-clo
 - context census 只做 chat-template/tokenizer 计算，不执行 policy forward；它在 12,792 states 全部 fit 前阻塞 labels；
 - full visual-token extraction 同样以 logical shard 为原子断点，每个 receipt 绑定完整 Git SHA，并保存逐 trajectory
   实际 visual-token counts；256 shards 完成后执行 exact-grid context postflight；
-- 当前代码已经就绪，但尚未完成远端 source materialization、context census 或任何正式 restoration label。
+- full source 已在 Hyper00/Hyper01 完成 1,200 trajectories / 256 shards，共 13.16GB；v2 full visual-token extraction 已在 8xH200 完成 256/256 shards，共约 67GB，失败 shard 为 0；
+- label-blind schedule materializer 以 256 logical shards 生成 deterministic 40-label / small-history exact schedules；label runner 分别持久化 reference action、每个 coalition microbatch 与 terminal state，可在中断后跳过已完成 microbatch；
+- exact-grid context postflight 已 PASS；正式 labels 尚未生成，下一步直接物化 schedules 并启动。
 
 ```bash
 PYTHONPATH=code python code/scripts/materialize_set_utility_variable_history_source.py \
@@ -113,4 +116,11 @@ PYTHONPATH=code python code/scripts/census_set_utility_variable_history_context.
   --source-root /data/artifacts/causalcache-variable-history-source-v1 \
   --model-dir /data/artifacts/models/GUI-Owl-1.5-8B-Instruct \
   --output-root /data/runs/causalcache-variable-history-context-v1
+
+PYTHONPATH=code python code/scripts/materialize_set_utility_variable_history_schedules.py \
+  --config code/configs/causalcache_set_utility_variable_history_v2_context_fit.json \
+  --source-root /data/artifacts/causalcache-variable-history-source-v1 \
+  --token-root /data/artifacts/causalcache-variable-history-tokens-v2 \
+  --output-root /data/artifacts/causalcache-variable-history-schedules-v1 \
+  --partition-index 0 --partition-count 8 --workers 4
 ```
