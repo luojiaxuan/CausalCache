@@ -17,6 +17,9 @@
 - 下一步优先 contextualized GUI-Owl hidden states、保留多 latent tokens 进入 set interaction，并补
   deployment-search/on-policy coalition supervision；不先启动 policy replay 或 closed-loop。轻量结果见
   [`data/results/set_utility_b4_oracle_diagnostic_v2/`](../data/results/set_utility_b4_oracle_diagnostic_v2/README.md)。
+- 669-file / 4.7MB 完整 artifact 已发布到 private HF dataset revision
+  `9b53ec82c12fefaba571233e5e0d78d0f6c599c0`，tag=`set-utility-b4-oracle-v2-195bcbb`；remote
+  force-download result SHA 与本地一致。
 
 ## 2026-07-20：held-out selector data-scaling diagnostic 完成
 

@@ -57,5 +57,7 @@ closed-loop。
 完整 aggregate 位于 Hyper00
 `/data02/jaxan/runs/causalcache-set-utility-b4-oracle-labels-v2-aggregate-59e6a73`；result content
 SHA256=`195bcbb57d915ca81a40f1c7bf66acab6a28fd2998d52452ea23a3891ba0473b`，result file
-SHA256=`b14896f0113f7aa839b4c864287003cc1d6769a3ae06887b95e3b684785ce1b6`。完整 truth table 当前为
-`PENDING_HF_UPLOAD`；Git 保存轻量 summary。
+SHA256=`b14896f0113f7aa839b4c864287003cc1d6769a3ae06887b95e3b684785ce1b6`。完整 truth table、schedule、
+worker receipts 与 configs 已发布到 private HF dataset revision
+[`9b53ec82c12fefaba571233e5e0d78d0f6c599c0`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/9b53ec82c12fefaba571233e5e0d78d0f6c599c0/artifacts/set-utility-b4-oracle-v2-195bcbb)，
+tag=`set-utility-b4-oracle-v2-195bcbb`；force-download 的 `result.json` SHA 与本地逐字节一致。

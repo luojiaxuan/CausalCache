@@ -26,4 +26,6 @@ formal v1 `NO_GO`。
 完整 artifact：Hyper00
 `/data02/jaxan/runs/causalcache-set-utility-b4-oracle-labels-v2-aggregate-59e6a73`；raw roots 在 Hyper00/01
 同名 `...b4-oracle-labels-v2-59e6a73`。result content SHA256=`195bcbb...0473b`，file
-SHA256=`b14896f...e1b6`，当前状态 `PENDING_HF_UPLOAD`。
+SHA256=`b14896f...e1b6`。完整 artifact 已发布到 private HF dataset revision
+[`9b53ec82...c599c0`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/9b53ec82c12fefaba571233e5e0d78d0f6c599c0/artifacts/set-utility-b4-oracle-v2-195bcbb)，
+tag=`set-utility-b4-oracle-v2-195bcbb`；remote readback SHA 与本地一致。
