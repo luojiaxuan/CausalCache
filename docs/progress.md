@@ -12,6 +12,9 @@
   DeepSets macro=`0.42470`，显著低于 recent；
 - verdict=`FULL_DATA_NO_GO`：不访问 untouched evaluation、policy replay 或 closed-loop。下一步只从 train split
   生成 on-policy/conditional-marginal enrichment，并复用当前固定 tune truth 判定。
+- raw terminals、workers、selections、schedules 与 full result 已发布到 private HF dataset revision
+  `014aee81e0f95199163773440658d6eaf36d3ddb`，tag=
+  `set-utility-contextual-tune-on-policy-full-v4-fb6de0d`，1,597 files。
 
 ## 2026-07-20：full contextual 双模型完成，deployment-search truth 启动
 

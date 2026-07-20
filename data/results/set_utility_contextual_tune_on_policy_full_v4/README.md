@@ -28,5 +28,6 @@ Source of Truth：
 - result file SHA256：`46e871aff7d817ff7cb817a81d295774d00d2d80307cae1b7a737371fb557bb4`；
 - raw labels：Hyper00
   `/data02/jaxan/runs/causalcache-contextual-tune-on-policy-labels-full-v4-e97f2d4`，39MB；
-- HF 状态：`PENDING_HF_UPLOAD`，intended dataset repo=
-  `gavinlaw/causalcache-set-utility-variable-history-mobile`。
+- immutable artifact：
+  [HF dataset@014aee81](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/014aee81e0f95199163773440658d6eaf36d3ddb/artifacts/set-utility-contextual-tune-on-policy-full-v4-fb6de0d)，
+  tag=`set-utility-contextual-tune-on-policy-full-v4-fb6de0d`，1,597 files。
