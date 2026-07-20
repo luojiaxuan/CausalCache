@@ -22,6 +22,9 @@
   `d5e508c2...10187a`；fleet preflight 后使用 Hyper00 GPU 0--3 与 Hyper01 GPU 2--5 启动 8 个 partitions，
   每卡一个 worker；state/microbatch 原子断点开启，output=
   `/data02/jaxan/runs/causalcache-decision-v2-labels-v1-87bea18`，evaluation 仍锁定。
+- 单 lane 的 10 秒启动采样中，forward phase 接近 100%，但 generation/preprocess 间隙使多数卡平均约
+  70%--80%；以 versioned workers-v2 切为每卡 2 个 deterministic state lanes，保持 8 GPUs、相同 output
+  和 scientific identity，已完成的原子 records 全部复用。
 
 ## 2026-07-20：train-side on-policy enrichment v1 fixed-tune NO-GO
 

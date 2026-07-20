@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_decision_v2_labels_workers_v2",
+  "parent": "causalcache_set_utility_decision_v2_labels_workers_v1.json",
+  "run_id": "rollout-20260720T222200Z",
+  "source_revision": "87bea183211684b2b666c4614a04c1ca667e8d91",
+  "partition_count": 8,
+  "worker_count": 16,
+  "per_host_gpu_cap": 4,
+  "workers_per_gpu": 2,
+  "scientific_identity_unchanged": true,
+  "reason": "single-lane startup sampling showed GPU-idle gaps between saturated forward phases",
+  "paths": {
+    "repository_root": "/data/worktrees/causalcache-87bea18",
+    "scientific_config": "/data/worktrees/causalcache-87bea18/code/configs/causalcache_set_utility_variable_history_v2_context_fit.json",
+    "execution_config": "/data/worktrees/causalcache-87bea18/code/configs/causalcache_set_utility_variable_history_labels_execution_v1.json",
+    "source_root": "/data/artifacts/causalcache-set-utility-variable-history-source-v1-a7213db",
+    "schedule_root": "/data/runs/causalcache-decision-v2-schedules-v1-87bea18",
+    "schedule_content_sha256": "d5e508c298558f5f042e57991a783a8ffd019c161a38c2f926984eebfa10187a",
+    "model_dir": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "output_root": "/data/runs/causalcache-decision-v2-labels-v1-87bea18"
+  },
+  "hosts": {
+    "hyper00": {
+      "physical_gpu_ids": [0, 1, 2, 3],
+      "workers": [
+        "0:0:0:2", "0:0:1:2", "1:1:0:2", "1:1:1:2",
+        "2:2:0:2", "2:2:1:2", "3:3:0:2", "3:3:1:2"
+      ]
+    },
+    "hyper01": {
+      "physical_gpu_ids": [2, 3, 4, 5],
+      "workers": [
+        "0:4:0:2", "0:4:1:2", "1:5:0:2", "1:5:1:2",
+        "2:6:0:2", "2:6:1:2", "3:7:0:2", "3:7:1:2"
+      ]
+    }
+  },
+  "resume_contract": {
+    "state_lane_hash": "sha256(state_id) modulo 2",
+    "state_identity_excludes_lane": true,
+    "reuse_completed_states_and_microbatches": true,
+    "evaluation_access": false
+  }
+}

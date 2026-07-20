@@ -27,6 +27,9 @@ storage，完成后发布到 private Hugging Face。
 - label allocation：[`causalcache_set_utility_decision_v2_labels_workers_v1.json`](../../../code/configs/causalcache_set_utility_decision_v2_labels_workers_v1.json)，
   Hyper00 GPU 0--3 + Hyper01 GPU 2--5，8 个 partitions，每卡一个 resumable worker；2026-07-20
   22:18 UTC 启动，output root=`/data02/jaxan/runs/causalcache-decision-v2-labels-v1-87bea18`。
+- 单 lane 启动采样的 GPU 间歇平均约 70%--80%；不改变 GPU 数或 scientific identity，按
+  [`workers v2`](../../../code/configs/causalcache_set_utility_decision_v2_labels_workers_v2.json) 切为每卡 2 个
+  deterministic state lanes，复用已完成 state/microbatch。
 
 ## 下一步
 
