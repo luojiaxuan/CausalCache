@@ -66,6 +66,7 @@ def _payloads() -> dict:
                 for index, count in enumerate(counts)
             ],
             "role": "train",
+            "search_config_sha256": "search-config",
             "status": "COMPLETED_SET_UTILITY_TRAIN_SELECTIONS",
             "variant": model,
         }
@@ -134,4 +135,14 @@ def test_train_selection_rejects_mismatched_inventory() -> None:
     selections = _payloads()
     selections["deepsets"]["records"].pop()
     with pytest.raises(ValueError, match="inventories differ"):
+        validate_train_selections(selections)
+
+
+def test_train_selection_allows_distinct_training_configs_only() -> None:
+    selections = _payloads()
+    selections["deepsets"]["config_sha256"] = "deepsets-training-config"
+    selections["set_transformer"]["config_sha256"] = "sett-training-config"
+    validate_train_selections(selections)
+    selections["set_transformer"]["search_config_sha256"] = "other-search-config"
+    with pytest.raises(ValueError, match="bindings differ"):
         validate_train_selections(selections)

@@ -110,6 +110,8 @@ def main() -> None:
         name: {
             "checkpoint_sha256": payload["checkpoint_sha256"],
             "content_sha256": payload["content_sha256"],
+            "search_config_sha256": payload["search_config_sha256"],
+            "training_config_sha256": payload["config_sha256"],
             "variant": payload["variant"],
         }
         for name, payload in sorted(selections.items())
