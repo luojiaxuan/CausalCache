@@ -45,7 +45,13 @@ Train selector 在每个 greedy step 保存 top-3 candidate subsets。每个 tar
 - config：[`causalcache_set_utility_train_on_policy_enrichment_v1.json`](../code/configs/causalcache_set_utility_train_on_policy_enrichment_v1.json)；
 - targeting：[`set_utility_train_on_policy.py`](../code/causalcache/set_utility_train_on_policy.py)；
 - schedule CLI：[`materialize_set_utility_train_on_policy_schedules.py`](../code/scripts/materialize_set_utility_train_on_policy_schedules.py)；
-- 5 个相关 tests 通过。
+- label merge：[`set_utility_contextual_enrichment.py`](../code/causalcache/set_utility_contextual_enrichment.py)；
+- enriched snapshot CLI：[`materialize_set_utility_contextual_enriched_inputs.py`](../code/scripts/materialize_set_utility_contextual_enriched_inputs.py)；
+- 相关 tests 通过。
+
+Enriched snapshot 只向 selected train states 增加新 coalition rows；原 broad label 与新 terminal 重叠时保留原值，
+并要求绝对差不超过 `1e-6`。manifest 绑定 schedule、label terminals、source revision 与 parent input SHA；
+contextual hidden cache 通过 parent binding 复用，不重复运行 GUI-Owl encoder。Tune states 逐字节保持不变。
 
 重训后只接受以下判定：Set Transformer 在相同固定 tune truth 上 primary macro 高于 recent，且 paired
 trajectory bootstrap 不显示稳定退化；否则继续 `NO_GO`，不进入 policy experiments。

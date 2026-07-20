@@ -39,6 +39,13 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _binding_covers_input(input_manifest: dict[str, Any], bound_sha256: Any) -> bool:
+    return isinstance(bound_sha256, str) and bound_sha256 in {
+        input_manifest.get("content_sha256"),
+        input_manifest.get("parent_content_sha256"),
+    }
+
+
 def _write_atomic(path: Path, value: Any) -> None:
     payload = canonical_json_bytes(value) + b"\n"
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -154,10 +161,13 @@ def main() -> None:
     if (
         input_manifest.get("evaluation_labels_included") is not False
         or cache_manifest.get("evaluation_labels_included") is not False
-        or cache_manifest.get("input_content_sha256")
-        != input_manifest.get("content_sha256")
+        or not _binding_covers_input(
+            input_manifest, cache_manifest.get("input_content_sha256")
+        )
         or summary.get("evaluation_records_loaded") is not False
-        or summary.get("input_content_sha256") != input_manifest.get("content_sha256")
+        or not _binding_covers_input(
+            input_manifest, summary.get("input_content_sha256")
+        )
         or summary.get("cache_content_sha256") != cache_manifest.get("content_sha256")
         or summary.get("config_sha256") != _sha256_file(config_path)
         or summary.get("variant") != args.variant
