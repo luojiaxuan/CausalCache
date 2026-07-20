@@ -3971,3 +3971,20 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `gavinlaw/causalcache-set-utility-new-development-mobile@e1240bde`，checkpoints 已发布到
   `gavinlaw/causalcache-set-utility-predictors-mobile@a55666c1`；同名 immutable tag 为
   `set-utility-token-v2-partial-a73cc18`。Hyper00 23.58GB root 现只作 verified local cache。
+
+## 2026-07-20：Long-history oracle ceiling diagnostic v1 source freeze
+
+- 动机:四轮 NO-GO 的失败集中在 long/very-long slice,但 exact/true-greedy oracle 只在 `n<=8` 测过;
+  长历史 headroom 未知,直接决定 v2 decision-aware distillation 是否值得以 Long+ 为目标。
+- 冻结 250 个 train long/very-long states(220 long + 30 very_long,158 trajectories,cap=3,
+  `SHA256(salt:state_id)` 确定性采样,`n_t` 均值 22.6)。wave 1 = empty/full anchors + 全部 singleton +
+  recent B1--B4 + 每预算 1 个 random subset(7,654 coalitions);wave 2--4 = true-greedy 前缀的全部
+  one-event expansion + additive top-k(总计约 2.4 万 coalitions,约为 enrichment run 的 45%)。
+- 复用 variable-history labels runner、scientific config(480 context-fit)、execution config 与 source
+  artifact,全部以 SHA256 绑定进 [`causalcache_set_utility_long_oracle_v1.json`](../code/configs/causalcache_set_utility_long_oracle_v1.json)。
+- 预注册判定:`oracle_greedy_minus_recent_macro` 的 95% CI `lower>0.05` → headroom confirmed;
+  `upper<0.03` → headroom insufficient,general-B long-horizon 主张收缩;否则扩样。合同见
+  [`docs/set_utility_long_history_oracle_v1.md`](set_utility_long_history_oracle_v1.md)。
+- 实现:`set_utility_long_oracle.py` + 两个 CLI;`test_set_utility_long_oracle.py` 8 passed;真实
+  manifest 上 wave-1/wave-2 物化冒烟通过(7,654 / 5,904 coalitions)。train 标签显式允许复用为 v2
+  candidate-complete marginal supervision;tune truth、evaluation、policy replay、closed-loop 保持锁定。
