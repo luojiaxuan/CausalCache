@@ -81,7 +81,11 @@
     "matched_nll_started": false
   },
   "artifacts": {
-    "dataset_revision": "PENDING_HF_UPLOAD",
+    "dataset_repo": "gavinlaw/causalcache-set-utility-variable-history-mobile",
+    "dataset_revision": "bbee1ae7aae2a712aaf2a897a08fa69adcef4ee6",
+    "dataset_tag": "set-utility-contextual-tune-enriched-v1-3f73e17",
+    "dataset_path": "artifacts/set-utility-contextual-tune-enriched-v1-3f73e17",
+    "payload_sha256": "bc4d206e314c671040cf1e7fd7c38d4f7b9ca39985042b27eda3949fb4ae3ac6",
     "model_repo": "gavinlaw/causalcache-set-utility-predictors-mobile",
     "model_revision": "1fb466e93947a13715c46022b6ba5d14f3b5edec",
     "model_tag": "set-utility-contextual-enrichment-v1-2711ab55"

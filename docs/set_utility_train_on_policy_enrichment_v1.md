@@ -97,3 +97,8 @@ B1--B4 macro 为 DeepSets=`0.44383`、Set Transformer=`0.44141`、recent=`0.4519
 
 因此 verdict=`NO_GO_TRAIN_ON_POLICY_ENRICHMENT_V1`。本分支不访问 untouched evaluation，不启动 policy
 replay、closed-loop 或 matched-NLL，也不根据已观察 tune result 事后修改 marginal loss 权重。
+
+完整 tune truth 与执行证据已发布到 private HF dataset revision
+[`bbee1ae7`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/bbee1ae7aae2a712aaf2a897a08fa69adcef4ee6/artifacts/set-utility-contextual-tune-enriched-v1-3f73e17)，
+immutable tag=`set-utility-contextual-tune-enriched-v1-3f73e17`。归档 payload SHA256=
+`bc4d206e314c671040cf1e7fd7c38d4f7b9ca39985042b27eda3949fb4ae3ac6`。

@@ -12,7 +12,10 @@
   `NO_GO_TRAIN_ON_POLICY_ENRICHMENT_V1`；不访问 untouched evaluation，不启动 policy replay、closed-loop 或
   matched-NLL；
 - 轻量结果见
-  [`data/results/set_utility_contextual_tune_on_policy_enriched_v1/`](../data/results/set_utility_contextual_tune_on_policy_enriched_v1/README.md)。
+  [`data/results/set_utility_contextual_tune_on_policy_enriched_v1/`](../data/results/set_utility_contextual_tune_on_policy_enriched_v1/README.md)；
+  完整证据已发布到 private HF dataset revision
+  [`bbee1ae7`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/bbee1ae7aae2a712aaf2a897a08fa69adcef4ee6/artifacts/set-utility-contextual-tune-enriched-v1-3f73e17)，
+  tag=`set-utility-contextual-tune-enriched-v1-3f73e17`。
 
 ## 2026-07-20：train-side on-policy enrichment labels 启动
 

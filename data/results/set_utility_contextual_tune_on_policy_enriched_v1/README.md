@@ -28,7 +28,11 @@ model forward 前 fail-fast；保留 failure root，补齐相同 SHA schedule �
 
 完整 result 当前位于 Hyper00
 `/data02/jaxan/runs/causalcache-contextual-tune-evaluation-enriched-v1-aa9a071/result.json`，content SHA256=
-`3f73e177...c23817`，file SHA256=`75f75bc2...7753`。完整 dataset artifact 正在发布；两个 checkpoints 已在
-private HF model revision
+`3f73e177...c23817`，file SHA256=`75f75bc2...7753`。完整 result、schedule、labels、selections、training
+summary 与失败日志已发布到 private HF dataset revision
+[`bbee1ae7`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/bbee1ae7aae2a712aaf2a897a08fa69adcef4ee6/artifacts/set-utility-contextual-tune-enriched-v1-3f73e17)，
+tag=`set-utility-contextual-tune-enriched-v1-3f73e17`。为避免逐文件提交 8,007 个小文件，完整 payload 使用
+`payload.tar.gz`，SHA256=`bc4d206e314c671040cf1e7fd7c38d4f7b9ca39985042b27eda3949fb4ae3ac6`；README、summary
+与最终 `evaluation/result.json` 可直接浏览。两个 checkpoints 已在 private HF model revision
 [`1fb466e9`](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/1fb466e93947a13715c46022b6ba5d14f3b5edec/artifacts/set-utility-contextual-enrichment-v1-2711ab55)，
 tag=`set-utility-contextual-enrichment-v1-2711ab55`。
