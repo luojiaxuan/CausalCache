@@ -32,7 +32,7 @@ def _selection(name: str, learned: dict[str, list[int]]) -> dict:
         ],
         "schema_version": "1.0.0",
         "status": "COMPLETED_SET_UTILITY_TUNE_SELECTIONS",
-        "variant": name,
+        "variant": f"{name}_contextual_frozen_variant",
     }
     payload["content_sha256"] = hashlib.sha256(canonical_json_bytes(payload)).hexdigest()
     return payload

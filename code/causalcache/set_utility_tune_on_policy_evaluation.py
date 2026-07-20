@@ -110,7 +110,8 @@ def evaluate_tune_on_policy(
         if (
             payload.get("status") != "COMPLETED_SET_UTILITY_TUNE_SELECTIONS"
             or not _content_is_valid(payload)
-            or payload.get("variant") != name
+            or not isinstance(payload.get("variant"), str)
+            or not payload.get("variant")
         ):
             raise ValueError(f"selector payload is invalid: {name}")
         current_binding = (
