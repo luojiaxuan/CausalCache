@@ -3993,3 +3993,19 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 实现:`set_utility_long_oracle.py` + 两个 CLI;`test_set_utility_long_oracle.py` 8 passed;真实
   manifest 上 wave-1/wave-2 物化冒烟通过(7,654 / 5,904 coalitions)。train 标签显式允许复用为 v2
   candidate-complete marginal supervision;tune truth、evaluation、policy replay、closed-loop 保持锁定。
+
+## 2026-07-20:Long-oracle v1 wave-1 labels 启动
+
+- wave-1 schedule 从 clean `912e5d1` 重新物化,content SHA256=`2b1752f9...a92d9`(与冒烟一致),已部署到
+  Hyper00/Hyper01 `/data02/jaxan/runs/causalcache-long-oracle-w1-schedules-912e5d1`;source snapshot 在
+  `/data02/jaxan/worktrees/causalcache-912e5d1`(`git archive` 部署)。
+- preflight 空闲卡:Hyper00 4/5/6/7、Hyper01 6/7(decision distillation v2 labels 正占用 Hyper00 0--3 与
+  Hyper01 2--5,互不冲突)。partition_count=6:Hyper00 GPU 4--7 跑 partitions 0--3、Hyper01 GPU 6--7 跑
+  partitions 4--5,每卡 3 state lanes,共 18 lanes。
+- 复用 `run_set_utility_variable_history_labels.py` + 480 context-fit scientific config + labels execution
+  config;output root `/data02/jaxan/runs/causalcache-long-oracle-w1-labels-912e5d1`;容器
+  `sglang-omni-jaxan-07201525`(Hyper00)与同型 Hyper01 容器,unprivileged。
+- 顺带修复 `run-gpu-cluster-job` launcher 的多卡 `--gpus device=a,b,c` CSV 引号 bug(此前会被解析成
+  `Count+DeviceIDs` 冲突,单卡不受影响)。
+- wave 1 完成后:拉回两端 `states/*.json` 合并 → 物化 wave 2(true-greedy 扩张)→ 同 allocation 重启;
+  wave 1+2 即可出 B1/B2 headroom 初判。
