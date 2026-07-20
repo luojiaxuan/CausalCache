@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "code_revision": "5e71d059c763de55a0dca95f79bee05523cac1eb",
+  "code_revision": "9863f43b0c1e214c34f92700bbc0cd68b43aba56",
   "image": "hongccc/sglang-omni:dev",
   "input_parent_content_sha256": "8a530cc643ec2e8ee0ffedb907d36ac98942c51407b6a0c60caef7dd21dac6fa",
   "cache_content_sha256": "ef82b077a2fb5a19fc5fdc12c8102b611f3d324e83d6f6ccb65e534790823385",

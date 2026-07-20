@@ -14,7 +14,8 @@ Formal variable-history labels 已完成：11,746/11,746 terminal states，其�
 
 四个 train trajectory sets 使用同一 SHA256 ranking，已验证 10% ⊂ 25% ⊂ 50% ⊂ 100%；tune 完全相同。
 两台 Hyper 的 full-token cache 独立 finalization 后均为 `ef82b077...23385`，覆盖 16,146 visual 与 17,152
-text sequences。
+text sequences。nested input 只允许复用其 manifest 直接 parent 所绑定的 cache；其他 cache/split 组合 fail
+closed。
 
 每个 fraction 只训练 25% tuning 冻结的两套配置，各跑 seed `20260720`：
 
