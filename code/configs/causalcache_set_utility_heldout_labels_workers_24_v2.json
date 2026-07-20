@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0.0",
+  "partition_count": 24,
+  "workers_per_gpu": 2,
+  "host_allocations": {
+    "hyper00": [
+      {"gpu_id": 0, "partitions": [0, 1]},
+      {"gpu_id": 1, "partitions": [2, 3]},
+      {"gpu_id": 2, "partitions": [4, 5]},
+      {"gpu_id": 3, "partitions": [6, 7]},
+      {"gpu_id": 4, "partitions": [8, 9]},
+      {"gpu_id": 5, "partitions": [10, 11]}
+    ],
+    "hyper01": [
+      {"gpu_id": 2, "partitions": [12, 13]},
+      {"gpu_id": 3, "partitions": [14, 15]},
+      {"gpu_id": 4, "partitions": [16, 17]},
+      {"gpu_id": 5, "partitions": [18, 19]},
+      {"gpu_id": 6, "partitions": [20, 21]},
+      {"gpu_id": 7, "partitions": [22, 23]}
+    ]
+  },
+  "schedule_root": "/data/runs/causalcache-set-utility-heldout-eval-schedules-1b5896d",
+  "output_root": "/data/runs/causalcache-set-utility-heldout-labels-v1",
+  "maximum_processes_per_h200": 2,
+  "supersedes_unlaunched_mapping": "causalcache_set_utility_heldout_labels_workers_22_v1.json",
+  "rationale": "The final preflight exposed six free H200s on each host. Two processes per GPU stays in the prior safe memory regime."
+}
