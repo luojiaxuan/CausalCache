@@ -8,6 +8,7 @@ import hashlib
 import io
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -84,11 +85,14 @@ def main() -> None:
     parser.add_argument("--partition-index", type=int, required=True)
     parser.add_argument("--partition-count", type=int, required=True)
     parser.add_argument("--image-batch-size", type=int, default=16)
+    parser.add_argument("--source-revision", required=True)
     args = parser.parse_args()
     if not 0 <= args.partition_index < args.partition_count:
         raise ValueError("partition index is outside partition count")
     if not 1 <= args.image_batch_size <= 64:
         raise ValueError("image batch size must be in [1,64]")
+    if re.fullmatch(r"[0-9a-f]{40}", args.source_revision) is None:
+        raise ValueError("source revision must be a full Git SHA")
 
     try:
         import torch
@@ -114,6 +118,7 @@ def main() -> None:
             _sha256_file(args.config)
             + _sha256_file(source_manifest_path)
             + str(VARIABLE_HISTORY_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE)
+            + args.source_revision
         ).encode("utf-8")
     ).hexdigest()
 
@@ -240,11 +245,13 @@ def main() -> None:
             "observation_count": len(image_records),
             "runtime_profile_id": runtime.metadata["runtime_profile_id"],
             "sha256": _sha256_file(tensor_path),
+            "source_revision": args.source_revision,
             "status": "COMPLETED_VARIABLE_HISTORY_TOKEN_SHARD",
             "target_effective_visual_tokens_per_image": (
                 VARIABLE_HISTORY_EFFECTIVE_VISUAL_TOKENS_PER_IMAGE
             ),
             "trajectory_count": len(source_rows),
+            "visual_token_counts_by_trajectory": counts_by_trajectory,
         }
         _write_atomic(
             args.output_root

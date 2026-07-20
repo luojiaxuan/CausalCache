@@ -95,6 +95,8 @@ teacher batch，并把 KL 留在 GPU 到 state 完成。目标是提高 wall-clo
 - full source materializer 以 256 个 trajectory Parquet shards 为断点单元，合并 pinned raw images 与已有 terminal
   processor metadata；已有合法 shard/receipt 会在重启时跳过；
 - context census 只做 chat-template/tokenizer 计算，不执行 policy forward；它在 12,792 states 全部 fit 前阻塞 labels；
+- full visual-token extraction 同样以 logical shard 为原子断点，每个 receipt 绑定完整 Git SHA，并保存逐 trajectory
+  实际 visual-token counts；256 shards 完成后执行 exact-grid context postflight；
 - 当前代码已经就绪，但尚未完成远端 source materialization、context census 或任何正式 restoration label。
 
 ```bash
