@@ -60,6 +60,13 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _state_lane(state_id: str, lane_count: int) -> int:
+    if lane_count <= 0:
+        raise ValueError("state lane count must be positive")
+    digest = hashlib.sha256(state_id.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], byteorder="big") % lane_count
+
+
 def _write_atomic(path: Path, value: Any) -> None:
     payload = _canonical_json(value)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -391,10 +398,14 @@ def main() -> None:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--partition-index", type=int, required=True)
     parser.add_argument("--partition-count", type=int, required=True)
+    parser.add_argument("--state-lane-index", type=int, default=0)
+    parser.add_argument("--state-lane-count", type=int, default=1)
     parser.add_argument("--source-revision", required=True)
     args = parser.parse_args()
     if not 0 <= args.partition_index < args.partition_count:
         raise ValueError("partition index is outside partition count")
+    if not 0 <= args.state_lane_index < args.state_lane_count:
+        raise ValueError("state lane index is outside lane count")
     if re.fullmatch(r"[0-9a-f]{40}", args.source_revision) is None:
         raise ValueError("source revision must be a full Git SHA")
 
@@ -441,6 +452,11 @@ def main() -> None:
         schedules = _read_jsonl(schedule_path)
         schedules_by_trajectory: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for schedule in schedules:
+            if (
+                _state_lane(schedule["state_id"], args.state_lane_count)
+                != args.state_lane_index
+            ):
+                continue
             schedules_by_trajectory[schedule["trajectory_id"]].append(schedule)
         try:
             from pyarrow import parquet as pq
@@ -503,17 +519,19 @@ def main() -> None:
         "execution_config_sha256": execution_sha,
         "partition_count": args.partition_count,
         "partition_index": args.partition_index,
+        "state_lane_count": args.state_lane_count,
+        "state_lane_index": args.state_lane_index,
         "runtime_metadata": runtime.metadata,
         "scientific_config_sha256": scientific_sha,
         "source_revision": args.source_revision,
         "status": "COMPLETED_VARIABLE_HISTORY_LABEL_WORKER",
     }
-    _write_atomic(
-        args.output_root
-        / "workers"
-        / f"worker-{args.partition_index:03d}-of-{args.partition_count:03d}.json",
-        worker,
-    )
+    worker_name = f"worker-{args.partition_index:03d}-of-{args.partition_count:03d}"
+    if args.state_lane_count > 1:
+        worker_name += (
+            f"-lane-{args.state_lane_index:02d}-of-{args.state_lane_count:02d}"
+        )
+    _write_atomic(args.output_root / "workers" / f"{worker_name}.json", worker)
     print(json.dumps(worker, sort_keys=True))
 
 

@@ -10,14 +10,30 @@ import sys
 from pathlib import Path
 
 
-def _worker_spec(value: str) -> tuple[int, int]:
+def _worker_spec(value: str) -> tuple[int, int, int, int]:
     try:
-        gpu_index, partition_index = (int(item) for item in value.split(":"))
+        parts = tuple(int(item) for item in value.split(":"))
     except (TypeError, ValueError) as error:
-        raise argparse.ArgumentTypeError("worker must be LOCAL_GPU:PARTITION") from error
-    if gpu_index < 0 or partition_index < 0:
+        raise argparse.ArgumentTypeError(
+            "worker must be LOCAL_GPU:PARTITION[:LANE_INDEX:LANE_COUNT]"
+        ) from error
+    if len(parts) == 2:
+        gpu_index, partition_index = parts
+        lane_index, lane_count = 0, 1
+    elif len(parts) == 4:
+        gpu_index, partition_index, lane_index, lane_count = parts
+    else:
+        raise argparse.ArgumentTypeError(
+            "worker must be LOCAL_GPU:PARTITION[:LANE_INDEX:LANE_COUNT]"
+        )
+    if (
+        gpu_index < 0
+        or partition_index < 0
+        or lane_count <= 0
+        or not 0 <= lane_index < lane_count
+    ):
         raise argparse.ArgumentTypeError("worker indices must be non-negative")
-    return gpu_index, partition_index
+    return gpu_index, partition_index, lane_index, lane_count
 
 
 def main() -> None:
@@ -36,15 +52,19 @@ def main() -> None:
     args = parser.parse_args()
     if args.partition_count <= 0:
         raise ValueError("partition count must be positive")
-    partitions = [partition for _, partition in args.worker]
-    if len(set(partitions)) != len(partitions):
-        raise ValueError("worker partitions must be unique")
+    worker_keys = [
+        (partition, lane_index, lane_count)
+        for _, partition, lane_index, lane_count in args.worker
+    ]
+    if len(set(worker_keys)) != len(worker_keys):
+        raise ValueError("worker partition lanes must be unique")
+    partitions = [partition for _, partition, _, _ in args.worker]
     if any(partition >= args.partition_count for partition in partitions):
         raise ValueError("worker partition is outside partition count")
     args.log_root.mkdir(parents=True, exist_ok=True)
 
-    processes: list[tuple[int, subprocess.Popen[bytes], object]] = []
-    for gpu_index, partition_index in args.worker:
+    processes: list[tuple[str, subprocess.Popen[bytes], object]] = []
+    for gpu_index, partition_index, lane_index, lane_count in args.worker:
         command = [
             sys.executable,
             "code/scripts/run_set_utility_variable_history_labels.py",
@@ -66,13 +86,20 @@ def main() -> None:
             str(partition_index),
             "--partition-count",
             str(args.partition_count),
+            "--state-lane-index",
+            str(lane_index),
+            "--state-lane-count",
+            str(lane_count),
             "--source-revision",
             args.source_revision,
         ]
         environment = os.environ.copy()
         environment["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
         environment["PYTHONPATH"] = str(args.repository_root / "code")
-        log_path = args.log_root / f"worker-{partition_index:03d}.log"
+        worker_id = f"{partition_index:03d}"
+        if lane_count > 1:
+            worker_id += f"-lane-{lane_index:02d}-of-{lane_count:02d}"
+        log_path = args.log_root / f"worker-{worker_id}.log"
         log_handle = log_path.open("ab", buffering=0)
         process = subprocess.Popen(
             command,
@@ -81,14 +108,14 @@ def main() -> None:
             stdout=log_handle,
             stderr=subprocess.STDOUT,
         )
-        processes.append((partition_index, process, log_handle))
+        processes.append((worker_id, process, log_handle))
 
     failures = []
     try:
-        for partition_index, process, _ in processes:
+        for worker_id, process, _ in processes:
             return_code = process.wait()
             if return_code != 0:
-                failures.append((partition_index, return_code))
+                failures.append((worker_id, return_code))
     except BaseException:
         for _, process, _ in processes:
             if process.poll() is None:

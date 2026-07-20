@@ -4,6 +4,7 @@ from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21GenerationParseErro
 from scripts.run_set_utility_variable_history_labels import (
     _microbatches,
     _run_state,
+    _state_lane,
     _state_identity,
 )
 
@@ -47,6 +48,14 @@ def test_state_identity_binds_revision_and_schedule() -> None:
     second = _state_identity(**values)
     assert first == second
     assert first != _state_identity(**{**values, "source_revision": "f" * 40})
+
+
+def test_state_lanes_are_deterministic_and_disjoint() -> None:
+    state_ids = [f"trajectory:decision:{index:03d}" for index in range(32)]
+    first = {_state_lane(state_id, 2) for state_id in state_ids}
+    second = [_state_lane(state_id, 2) for state_id in state_ids]
+    assert first == {0, 1}
+    assert second == [_state_lane(state_id, 2) for state_id in state_ids]
 
 
 def test_reference_parse_failure_is_an_atomic_state_skip(tmp_path, monkeypatch) -> None:
