@@ -1,0 +1,34 @@
+{
+  "base_partition_count": 24,
+  "host_allocations": {
+    "hyper00": [
+      {"gpu_id": 0, "workers": ["0:8:0:2", "0:10:0:2", "0:0"]},
+      {"gpu_id": 1, "workers": ["0:8:1:2", "0:10:1:2", "0:18"]},
+      {"gpu_id": 2, "workers": ["0:2:0:2", "0:11:0:2", "0:16"]},
+      {"gpu_id": 3, "workers": ["0:2:1:2", "0:11:1:2", "0:19"]},
+      {"gpu_id": 5, "workers": ["0:9:0:2", "0:17:0:2", "0:1"]},
+      {"gpu_id": 6, "workers": ["0:9:1:2", "0:17:1:2", "0:3"]}
+    ],
+    "hyper01": [
+      {"gpu_id": 2, "workers": ["0:22:0:2", "0:5", "0:7"]},
+      {"gpu_id": 3, "workers": ["0:22:1:2", "0:4:1:2", "0:15"]},
+      {"gpu_id": 4, "workers": ["0:21:0:2", "0:20:0:2", "0:14:0:2"]},
+      {"gpu_id": 5, "workers": ["0:21:1:2", "0:20:1:2", "0:14:1:2"]},
+      {"gpu_id": 6, "workers": ["0:12", "0:13:0:2", "0:4:0:2"]},
+      {"gpu_id": 7, "workers": ["0:23:0:2", "0:23:1:2", "0:13:1:2"]}
+    ]
+  },
+  "logical_shard_count": 256,
+  "output_root": "/data/runs/causalcache-set-utility-variable-history-labels-v1-969f2b9",
+  "runner_revision": "7680e40",
+  "schema_version": "1.0.0",
+  "source_revision": "969f2b9aaa516295b03643aedf3f16af73c631c3",
+  "state_lane": {
+    "hash": "sha256",
+    "integer_bytes": 8,
+    "integer_byteorder": "big",
+    "rule": "hash(state_id) modulo lane_count"
+  },
+  "total_gpu_count": 12,
+  "total_worker_count": 36
+}
