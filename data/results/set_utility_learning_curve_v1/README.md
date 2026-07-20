@@ -1,6 +1,6 @@
 # Set Utility learning curve v1
 
-状态：`INPUTS_FROZEN_READY_TO_RUN`。
+状态：`COMPLETED_TRAIN_TUNE_ONLY`。
 
 Formal variable-history labels 已完成：11,746/11,746 terminal states，其中 11,721 completed、25 skipped。
 只从 completed train/tune states 构建 predictor input，不加载 evaluation。
@@ -24,3 +24,20 @@ closed。
 
 本 learning curve 仍只使用 train/tune，用于判断数据拐点；不构成 held-out selector 或 deployment 结论。
 执行映射见 [`causalcache_set_utility_learning_curve_execution_v1.json`](../../../code/configs/causalcache_set_utility_learning_curve_execution_v1.json)。
+
+## 结果
+
+| Train fraction | DeepSets tune total | Set Transformer tune total | DeepSets termination | Set Transformer termination |
+|---:|---:|---:|---|---|
+| 10% | 0.32270 | 0.32057 | early stop | early stop |
+| 25% | 0.31731 | 0.32363 | early stop | early stop |
+| 50% | 0.32065 | 0.32039 | non-finite after best | early stop |
+| 100% | **0.31171** | **0.31577** | non-finite after best | early stop |
+
+从 10% 到 100%，DeepSets 与 Set Transformer 的 tune total 分别改善 0.01098 与 0.00480；但中间点不单调，
+不能把单 seed 曲线解释成精确 power law。100% 对两个 family 都优于 50%，因此目前没有清晰饱和证据；同时
+DeepSets 的高 LR 在 50/100% 重现 non-finite，不能据此直接选为部署模型。
+
+下一步不立即盲目扩充 labels。先冻结 100% checkpoints，在 trajectory-disjoint evaluation 上比较真实
+at-most-`B` selector utility、OCR/RGB/recent 与 latency；若 held-out gain 成立且数据曲线仍改善，再增加
+trajectories 或 interaction-dense labels。机器可读结果见 [`summary.json`](summary.json)。

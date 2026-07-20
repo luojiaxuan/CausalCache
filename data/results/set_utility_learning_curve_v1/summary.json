@@ -1,0 +1,25 @@
+{
+  "cache_content_sha256": "ef82b077a2fb5a19fc5fdc12c8102b611f3d324e83d6f6ccb65e534790823385",
+  "code_revision": "9863f43b0c1e214c34f92700bbc0cd68b43aba56",
+  "evaluation_records_loaded": false,
+  "seed": 20260720,
+  "status": "COMPLETED_TRAIN_TUNE_ONLY",
+  "variants": {
+    "10": {
+      "deepsets": {"best_checkpoint_sha256": "ab2138d2139ccdca36659d859d63f507d800f4b12a2a2c284c6c01d026b0a0ed", "best_epoch": 2, "best_tune_total": 0.32269768964665996, "elapsed_seconds": 113.33938550949097, "termination_reason": "early_stopping", "tune_ranking_accuracy": 0.6949010128618722, "tune_raw_mae": 0.03725636852099269},
+      "set_transformer": {"best_checkpoint_sha256": "8fa319af35e27de396783aa19e3cade84f4c0d147e2076cf65ad55352d3bb8b4", "best_epoch": 2, "best_tune_total": 0.32057345607766546, "elapsed_seconds": 131.6343915462494, "termination_reason": "early_stopping", "tune_ranking_accuracy": 0.6828130416703201, "tune_raw_mae": 0.034950257973210046}
+    },
+    "25": {
+      "deepsets": {"best_checkpoint_sha256": "88674c9942966be24fdddb25801dde8ef29b4e2f5331b5990cdb7da02654f356", "best_epoch": 2, "best_tune_total": 0.31730976224342966, "elapsed_seconds": 224.19532227516174, "termination_reason": "early_stopping", "tune_ranking_accuracy": 0.6575610358328702, "tune_raw_mae": 0.03562458243566784},
+      "set_transformer": {"best_checkpoint_sha256": "5936ac899256bfd5e154e8d0c0a26acac7e7d14aa6ecd0f7c691d0d0b84aedf8", "best_epoch": 2, "best_tune_total": 0.3236280766111927, "elapsed_seconds": 283.82032680511475, "termination_reason": "early_stopping", "tune_ranking_accuracy": 0.6996968990043327, "tune_raw_mae": 0.034160666410335425}
+    },
+    "50": {
+      "deepsets": {"best_checkpoint_sha256": "22c34c2bab38641949c1fd76bb05fc0d693e655d9db0692a3798bc490e1fe225", "best_epoch": 2, "best_tune_total": 0.32065372148804033, "elapsed_seconds": 557.9216949939728, "termination_reason": "nonfinite_metrics", "tune_ranking_accuracy": 0.6503721014129946, "tune_raw_mae": 0.03397252888896378},
+      "set_transformer": {"best_checkpoint_sha256": "bd128b17aadd42b37007f45f43821612f360cfec7ececdc7266f3e26d8aaa625", "best_epoch": 1, "best_tune_total": 0.32038872637147403, "elapsed_seconds": 786.9250047206879, "termination_reason": "early_stopping", "tune_ranking_accuracy": 0.7039536014791485, "tune_raw_mae": 0.034373274741315754}
+    },
+    "100": {
+      "deepsets": {"best_checkpoint_sha256": "47c936f2b9c300a249bb96499bac08b74ef511bc2bca261cd4a905ba5fb8648e", "best_epoch": 3, "best_tune_total": 0.31171392001920506, "elapsed_seconds": 478.4180042743683, "termination_reason": "nonfinite_metrics", "tune_ranking_accuracy": 0.6691563941617475, "tune_raw_mae": 0.033666835776398625},
+      "set_transformer": {"best_checkpoint_sha256": "2f710a90606828f81f608dc5d7d48ab588ab430123f0abf112e849259724e22b", "best_epoch": 2, "best_tune_total": 0.3157733709010099, "elapsed_seconds": 897.7810237407684, "termination_reason": "early_stopping", "tune_ranking_accuracy": 0.7060435757196701, "tune_raw_mae": 0.034056693568621385}
+    }
+  }
+}

@@ -1,5 +1,14 @@
 # 项目进展
 
+## 2026-07-20：10/25/50/100% learning curve 完成
+
+- 8/8 单 seed jobs exit 0，无 OOM；evaluation records 均未加载；
+- DeepSets tune total 为 0.32270/0.31731/0.32065/0.31171，Set Transformer 为
+  0.32057/0.32363/0.32039/0.31577；100% 相对 10% 分别改善 0.01098/0.00480，但中间点不单调；
+- DeepSets 50%/100% 在保存最佳 checkpoint 后出现 non-finite；Set Transformer 四个 scale 均稳定 early stop；
+- 暂不盲目增加 labels。先用冻结的 100% checkpoints 做 trajectory-disjoint at-most-B selector utility 与
+  latency evaluation；若 held-out gain 成立且曲线仍显示数据受限，再扩 trajectories 或 interaction-dense labels。
+
 ## 2026-07-20：formal labels 与 learning-curve inputs 完成
 
 - labels 达到 11,746/11,746 terminal states：11,721 completed、25 state-level parse skips；最后 repair worker
