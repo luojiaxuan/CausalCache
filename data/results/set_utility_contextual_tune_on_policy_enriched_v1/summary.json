@@ -1,0 +1,89 @@
+{
+  "status": "COMPLETED_SET_UTILITY_TUNE_ON_POLICY_EVALUATION",
+  "verdict": "NO_GO_TRAIN_ON_POLICY_ENRICHMENT_V1",
+  "coverage": {
+    "completed_state_count": 1063,
+    "expected_state_count": 1063,
+    "skipped_state_count": 0,
+    "trajectory_count": 100,
+    "coalition_count": 11692
+  },
+  "input": {
+    "content_sha256": "2711ab55cbd5f86fd4f221d2cb3a4cbc30a7fbba7b2bf0fcfb9ffbb3409d407f",
+    "parent_content_sha256": "af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1",
+    "train_on_policy_novel_distance_rows": 37982
+  },
+  "models": {
+    "deepsets": {
+      "best_epoch": 1,
+      "best_tune_total": 0.47582823472749924,
+      "checkpoint_sha256": "3cde64cba66290d4d47968245a19a91a068f41d0e09c5ea77f6957bf73788dc4",
+      "config_sha256": "7761280d9fc69ec172a12e61b25018551f64c75129d8204b877aa7c1b2ae0383",
+      "selection_content_sha256": "33fadf6b5afa31f8f995f60fee1e7b85ce50053d5f815beee773f4fb42f22c56"
+    },
+    "set_transformer": {
+      "attention_backend": "disable_cudnn_sdp",
+      "best_epoch": 1,
+      "best_tune_total": 0.4680329957172654,
+      "checkpoint_sha256": "0dfd57a943ec649b54543e3146be789032fb4842b0ca2aa30e9806ea0deb9cbc",
+      "config_sha256": "1abdb6a32a9646aafa1a20e6524893c3506b49677682c7f86ebcab2e1df56130",
+      "selection_content_sha256": "e0058eabdcf11f3e4313a2e0d48ba8693db170074d6e2a1354dfd96ff85ebcdc"
+    }
+  },
+  "trajectory_equal_normalized_recovery": {
+    "deepsets": {
+      "B1": 0.20382381787350673,
+      "B2": 0.40552269880096803,
+      "B3": 0.5363848686860452,
+      "B4": 0.6295950170852279,
+      "macro_B1_B4": 0.443831600611437,
+      "long_plus_very_long": 0.32980108062324526,
+      "total_latency_p95_ms": 10.312826093286276
+    },
+    "set_transformer": {
+      "B1": 0.24045901282519005,
+      "B2": 0.4066314584835663,
+      "B3": 0.4958391306437926,
+      "B4": 0.6227071045843003,
+      "macro_B1_B4": 0.44140917663421225,
+      "long_plus_very_long": 0.34226419227555244,
+      "total_latency_p95_ms": 19.76916827261448
+    },
+    "recent": {
+      "B1": 0.19105001721794504,
+      "B2": 0.43605890370263767,
+      "B3": 0.5542561890251805,
+      "B4": 0.626312947202866,
+      "macro_B1_B4": 0.4519195142871573,
+      "long_plus_very_long": 0.40081320561588124
+    }
+  },
+  "paired_minus_recent": {
+    "deepsets": {
+      "point_estimate": -0.008087913675720338,
+      "lower_95": -0.026725650455224053,
+      "upper_95": 0.009539138832224703
+    },
+    "set_transformer": {
+      "point_estimate": -0.010510337652945012,
+      "lower_95": -0.03491010075505704,
+      "upper_95": 0.012369884241651679
+    }
+  },
+  "execution": {
+    "result_content_sha256": "3f73e177b120146bb65953df407571becab8f77c2718c6a397eeb51074c23817",
+    "result_file_sha256": "75f75bc2e39395014b76e8383f3ce17b3f7396e66ee958b569f18680ebd37753",
+    "schedule_content_sha256": "095c84e5652dcebb87cc983791ab2762df785af73ba91e879d485584aeb8e9b5",
+    "source_revision": "aa9a071f5a258b8c6f99af3aa80198d0447b1f14",
+    "evaluation_records_loaded": false,
+    "policy_replay_started": false,
+    "closed_loop_started": false,
+    "matched_nll_started": false
+  },
+  "artifacts": {
+    "dataset_revision": "PENDING_HF_UPLOAD",
+    "model_repo": "gavinlaw/causalcache-set-utility-predictors-mobile",
+    "model_revision": "1fb466e93947a13715c46022b6ba5d14f3b5edec",
+    "model_tag": "set-utility-contextual-enrichment-v1-2711ab55"
+  }
+}

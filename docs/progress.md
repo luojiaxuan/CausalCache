@@ -1,5 +1,19 @@
 # 项目进展
 
+## 2026-07-20：train-side on-policy enrichment v1 fixed-tune NO-GO
+
+- 2,132/2,132 train states、52,744 targeted coalitions 完成，合并后新增 37,982 个 rows；重复 label 最大绝对
+  漂移 `1.19e-7 < 1e-6`，1,063 个 tune states 未进入 optimizer；
+- DeepSets/Set Transformer 都在 epoch 1 最佳；Set Transformer 首次 backward 的 cuDNN MHA runtime failure
+  通过 committed backend repair 解决，模型/seed/labels 不变；
+- fixed tune truth 完成 1,063/1,063 states、11,692 coalitions、0 skip；DeepSets / Set Transformer / recent
+  macro=`0.44383/0.44141/0.45192`，long+=`0.32980/0.34226/0.40081`；
+- learned-minus-recent 95% CI 分别为 `[-0.02673,0.00954]` 与 `[-0.03491,0.01237]`；verdict=
+  `NO_GO_TRAIN_ON_POLICY_ENRICHMENT_V1`；不访问 untouched evaluation，不启动 policy replay、closed-loop 或
+  matched-NLL；
+- 轻量结果见
+  [`data/results/set_utility_contextual_tune_on_policy_enriched_v1/`](../data/results/set_utility_contextual_tune_on_policy_enriched_v1/README.md)。
+
 ## 2026-07-20：train-side on-policy enrichment labels 启动
 
 - 10,658-state train selector traces 已完成：DeepSets / Set Transformer content SHA=

@@ -105,9 +105,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   `0.44985`，接近但未超过 recent=`0.45192`；B3/B4 已胜 recent，B1/B2 与 long-history 仍弱。当前不访问
   evaluation；train-side on-policy enrichment v1 已实现并通过 tests，将从 10,658 train states 中按长历史、
   模型分歧和 conditional margin 选择 2,132 states / 52,744 coalitions；train-only labels 已 2,132/2,132
-  完成，合并后新增 37,982 个 distance rows，重复 label 最大漂移 `1.19e-7`。DeepSets/Set Transformer
-  正在相同 rich contextual inputs 上并行重训，并显式监督 one-event conditional marginals；固定 tune
-  selector gate 通过前不进入 policy replay。
+  完成，合并后新增 37,982 个 distance rows，重复 label 最大漂移 `1.19e-7`。固定 tune truth 上
+  DeepSets/Set Transformer/recent macro=`0.44383/0.44141/0.45192`，long-history 也未胜 recent；verdict=
+  `NO_GO_TRAIN_ON_POLICY_ENRICHMENT_V1`。因此不访问 untouched evaluation，不进入 policy replay、closed-loop
+  或 matched-NLL。[结果](data/results/set_utility_contextual_tune_on_policy_enriched_v1/README.md)与
   [合同](docs/set_utility_train_on_policy_enrichment_v1.md)。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。

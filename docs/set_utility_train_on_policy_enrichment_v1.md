@@ -87,3 +87,13 @@ trajectory bootstrap 不显示稳定退化；否则继续 `NO_GO`，不进入 po
 `mha_graph.execute` runtime error。该 attempt 不作为模型负结果。修复只在 committed training config 中关闭
 cuDNN SDP backend，保留其他 SDP backend、模型、seed、labels 与 optimizer 不变；repair 另立输出目录，原失败
 日志保留。
+
+## Fixed tune verdict
+
+1,063/1,063 tune states、11,692 coalitions、0 skip 的真实 restoration truth 已完成。trajectory-equal
+B1--B4 macro 为 DeepSets=`0.44383`、Set Transformer=`0.44141`、recent=`0.45192`；learned-minus-recent
+点估计分别为 `-0.00809/-0.01051`，95% CI 分别为 `[-0.02673,0.00954]` 与
+`[-0.03491,0.01237]`。long/very-long recovery 也分别只有 `0.32980/0.34226`，低于 recent=`0.40081`。
+
+因此 verdict=`NO_GO_TRAIN_ON_POLICY_ENRICHMENT_V1`。本分支不访问 untouched evaluation，不启动 policy
+replay、closed-loop 或 matched-NLL，也不根据已观察 tune result 事后修改 marginal loss 权重。
