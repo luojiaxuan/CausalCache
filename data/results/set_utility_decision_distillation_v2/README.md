@@ -24,6 +24,8 @@ storage，完成后发布到 private Hugging Face。
   `/data02/jaxan/runs/causalcache-decision-v2-schedules-v1-87bea18`；
 - intended HF dataset repo：`gavinlaw/causalcache-set-utility-variable-history-mobile`；status=
   `PENDING_HF_UPLOAD`。
+- label allocation：[`causalcache_set_utility_decision_v2_labels_workers_v1.json`](../../../code/configs/causalcache_set_utility_decision_v2_labels_workers_v1.json)，
+  Hyper00 GPU 0--3 + Hyper01 GPU 2--5，8 个 partitions，每卡一个 resumable worker。
 
 ## 下一步
 

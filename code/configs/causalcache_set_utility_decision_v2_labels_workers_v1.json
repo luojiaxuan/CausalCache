@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_decision_v2_labels_workers_v1",
+  "run_id": "rollout-20260720T221834Z",
+  "source_revision": "87bea183211684b2b666c4614a04c1ca667e8d91",
+  "runner": "code/scripts/launch_set_utility_variable_history_label_workers.py",
+  "image": "hongccc/sglang-omni:dev",
+  "partition_count": 8,
+  "worker_count": 8,
+  "per_host_gpu_cap": 4,
+  "workers_per_gpu": 1,
+  "paths": {
+    "repository_root": "/data/worktrees/causalcache-87bea18",
+    "scientific_config": "/data/worktrees/causalcache-87bea18/code/configs/causalcache_set_utility_variable_history_v2_context_fit.json",
+    "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+    "execution_config": "/data/worktrees/causalcache-87bea18/code/configs/causalcache_set_utility_variable_history_labels_execution_v1.json",
+    "execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c",
+    "source_root": "/data/artifacts/causalcache-set-utility-variable-history-source-v1-a7213db",
+    "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "schedule_root": "/data/runs/causalcache-decision-v2-schedules-v1-87bea18",
+    "schedule_manifest_sha256": "69439b649ea1242b38962ba9aee2b630476a6b8fc835c66de26ab6250fb03b5c",
+    "schedule_content_sha256": "d5e508c298558f5f042e57991a783a8ffd019c161a38c2f926984eebfa10187a",
+    "model_dir": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "model_snapshot_manifest_sha256": "65bd2377eace0e25a62542ad752dab146787c5f021bd22e62a1114589ae4265c",
+    "output_root": "/data/runs/causalcache-decision-v2-labels-v1-87bea18",
+    "log_root": "/data/runs/causalcache-decision-v2-labels-v1-87bea18/logs"
+  },
+  "hosts": {
+    "hyper00": {
+      "physical_gpu_ids": [0, 1, 2, 3],
+      "workers": ["0:0", "1:1", "2:2", "3:3"]
+    },
+    "hyper01": {
+      "physical_gpu_ids": [2, 3, 4, 5],
+      "workers": ["0:4", "1:5", "2:6", "3:7"]
+    }
+  },
+  "resume_contract": {
+    "state_terminal_atomic": true,
+    "coalition_microbatch_atomic": true,
+    "reuse_completed_records": true,
+    "evaluation_access": false
+  }
+}
