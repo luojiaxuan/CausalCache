@@ -1,0 +1,24 @@
+{
+  "cache_content_sha256": "af2b090d5b0c8daefe2586b3ebdad39aee7b7594f2847d237b25429bac791eb0",
+  "cache_manifest_sha256": "c8a523c1b1febfea12322dd9e3ec50c15d601a1657401fb02c8d2bf8131b71b2",
+  "chunk_count": 1174,
+  "context_count": 8813,
+  "entity_role_counts": {
+    "event": 5110,
+    "query": 3703
+  },
+  "evaluation_labels_included": false,
+  "extraction_source_revision": "e413e5b32e9fb4230e2de5eb74dc56ffe7c1b2fc",
+  "input_content_sha256": "5b8504f682cd75840cf6b2211249771924932ca61cf39c450818fa4152ad08aa",
+  "schema_version": "1.0.0",
+  "state_count": 3703,
+  "status": "COMPLETED_SET_UTILITY_CONTEXTUAL_HIDDEN_CACHE",
+  "total_file_bytes": 37771051973,
+  "trajectory_count": 350,
+  "visual_token_length_counts": {
+    "448": 4073,
+    "459": 1332,
+    "464": 1676,
+    "480": 1732
+  }
+}
