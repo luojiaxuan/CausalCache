@@ -54,3 +54,7 @@ encoded-state subset scoring、conditional-greedy B1--B4 path、selection merge�
 兼容的 exact/sparse evaluation schedule。实现测试为 30 passed、7 个本机无 PyTorch 而显式 skipped；另有
 27 个 variable-history/label regression tests 通过。evaluation restoration labels 仍未读取，下一步先在 H200
 密封两个 checkpoint 的 selections。
+
+首次 feature snapshot 因原始 full-token root 在 Hyper00/01 各保留 128 个 logical shards 而 fail-fast，未写入
+output。修复允许读取已独立 finalization、SHA 绑定且汇总 256 shards 的 learning-curve visual cache；底层文件仍是
+同一批 full-source safetensors，不重新编码图像，也不放宽任何 label firewall。

@@ -330,6 +330,21 @@ def materialize_heldout_feature_snapshot(
 
     source_manifest_path = source_root / "manifest.json"
     source_manifest = _read_json(source_manifest_path)
+    finalized_visual_manifest_path = full_visual_token_root / "manifest.json"
+    finalized_visual_manifest = (
+        _read_json(finalized_visual_manifest_path)
+        if finalized_visual_manifest_path.exists()
+        else None
+    )
+    finalized_visual_shards = {
+        int(row["logical_shard"]): row
+        for row in (
+            finalized_visual_manifest.get("shards", ())
+            if finalized_visual_manifest is not None
+            else ()
+        )
+        if row.get("kind") == "visual" and "logical_shard" in row
+    }
     if (
         source_manifest.get("status") != SOURCE_STATUS
         or source_manifest.get("logical_shard_count") != 256
@@ -369,7 +384,7 @@ def materialize_heldout_feature_snapshot(
     visual_bindings = []
     source_bindings = []
     for logical_shard, source_shard, source_path in sorted(selected_source_shards):
-        token_path = (
+        original_token_path = (
             full_visual_token_root
             / "token-shards"
             / f"shard-{logical_shard:03d}-of-256.safetensors"
@@ -379,10 +394,34 @@ def materialize_heldout_feature_snapshot(
             / "receipts"
             / f"shard-{logical_shard:03d}-of-256.json"
         )
-        receipt = _read_json(receipt_path)
+        if original_token_path.exists() and receipt_path.exists():
+            token_path = original_token_path
+            receipt = _read_json(receipt_path)
+            binding_source = "token_shard_receipt"
+            binding_sha256 = _sha256_file(receipt_path)
+        else:
+            token_path = (
+                full_visual_token_root
+                / "visual-shards"
+                / f"shard-{logical_shard:03d}-of-256.safetensors"
+            )
+            try:
+                receipt = finalized_visual_shards[logical_shard]
+            except KeyError as error:
+                raise FileNotFoundError(
+                    "held-out visual token shard is absent from both supported layouts"
+                ) from error
+            binding_source = "finalized_cache_manifest"
+            binding_sha256 = _sha256_file(finalized_visual_manifest_path)
         token_sha256 = _sha256_file(token_path)
+        if binding_source == "token_shard_receipt":
+            valid_status = receipt.get("status") == VISUAL_SHARD_STATUS
+        else:
+            valid_status = finalized_visual_manifest.get("status") == (
+                "COMPLETED_VARIABLE_HISTORY_TOKEN_CACHE"
+            )
         if (
-            receipt.get("status") != VISUAL_SHARD_STATUS
+            not valid_status
             or receipt.get("logical_shard") != logical_shard
             or receipt.get("byte_count") != token_path.stat().st_size
             or receipt.get("sha256") != token_sha256
@@ -465,8 +504,9 @@ def materialize_heldout_feature_snapshot(
         visual_bindings.append(
             {
                 "byte_count": token_path.stat().st_size,
+                "binding_sha256": binding_sha256,
+                "binding_source": binding_source,
                 "logical_shard": logical_shard,
-                "receipt_sha256": _sha256_file(receipt_path),
                 "sha256": token_sha256,
             }
         )
