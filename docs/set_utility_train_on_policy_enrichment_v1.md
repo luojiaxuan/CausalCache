@@ -79,3 +79,8 @@ trajectory bootstrap 不显示稳定退化；否则继续 `NO_GO`，不进入 po
   `04ebf46ad96a53e65645ed8ea4808f2d862b909fc471d7cca03197490ff0df22`，未进入训练标签生成；
 - DeepSets/Set Transformer 已在 Hyper00 GPU 0/1 并行启动，run root 为
   `/data02/jaxan/runs/causalcache-contextual-training-enriched-v1-b32efb1`。
+
+首次并行 attempt 中 DeepSets 正常完成 epoch 1；Set Transformer 在首个 backward 触发 PyTorch cuDNN
+`mha_graph.execute` runtime error。该 attempt 不作为模型负结果。修复只在 committed training config 中关闭
+cuDNN SDP backend，保留其他 SDP backend、模型、seed、labels 与 optimizer 不变；repair 另立输出目录，原失败
+日志保留。

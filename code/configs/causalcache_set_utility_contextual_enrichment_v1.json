@@ -18,6 +18,7 @@
     "maximum_gradient_norm": 1.0,
     "warmup_ratio": 0.05,
     "minimum_lr_ratio": 0.1,
+    "attention_backend": "disable_cudnn_sdp",
     "normalization_floor": 0.01,
     "loss": {
       "raw_regression": 1.0,

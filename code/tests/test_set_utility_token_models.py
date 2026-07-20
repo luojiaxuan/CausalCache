@@ -8,6 +8,7 @@ from causalcache.set_utility_token_models import (
     TokenUtilityModelConfig,
 )
 from scripts.train_set_utility_token_predictor import (
+    _configure_attention_backend,
     _cache_covers_input,
     _collate,
     _loss,
@@ -19,6 +20,10 @@ from scripts.train_set_utility_token_predictor import (
 
 
 class TokenUtilityConfigTest(unittest.TestCase):
+    def test_attention_backend_profile_rejects_unknown_value(self) -> None:
+        with self.assertRaisesRegex(ValueError, "unknown"):
+            _configure_attention_backend(object(), {"attention_backend": "unknown"})
+
     def test_full_parent_cache_covers_nested_training_input_only(self) -> None:
         cache = {"input_content_sha256": "full"}
         self.assertTrue(

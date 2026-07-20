@@ -444,6 +444,22 @@ def _seed_training_runtime(torch: Any, seed: int) -> None:
     torch.cuda.manual_seed_all(seed)
 
 
+def _configure_attention_backend(torch: Any, training: dict[str, Any]) -> str:
+    profile = str(training.get("attention_backend", "default"))
+    if profile == "default":
+        return profile
+    if profile != "disable_cudnn_sdp":
+        raise ValueError("unknown training attention backend profile")
+    enable = getattr(torch.backends.cuda, "enable_cudnn_sdp", None)
+    enabled = getattr(torch.backends.cuda, "cudnn_sdp_enabled", None)
+    if enable is None or enabled is None:
+        raise RuntimeError("PyTorch does not expose the cuDNN SDP backend controls")
+    enable(False)
+    if enabled():
+        raise RuntimeError("cuDNN SDP backend remained enabled")
+    return profile
+
+
 def _resolve_normalization_floor(
     training: dict[str, Any], override: float | None
 ) -> float:
@@ -580,6 +596,7 @@ def main() -> None:
         raise ValueError("token pilot requires non-empty train and tune roles")
 
     training = config["training"]
+    attention_backend = _configure_attention_backend(torch, training)
     normalization_floor = _resolve_normalization_floor(
         training, args.normalization_floor
     )
@@ -724,6 +741,7 @@ def main() -> None:
         "best_checkpoint": best_checkpoint,
         "best_epoch": best_epoch,
         "best_tune_total": best_tune,
+        "attention_backend": attention_backend,
         "cache_content_sha256": cache_manifest["content_sha256"],
         "cache_input_content_sha256": cache_manifest["input_content_sha256"],
         "config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
