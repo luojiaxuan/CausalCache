@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "target_fraction": 0.2,
-  "maximum_states_per_trajectory": 3,
+  "maximum_states_per_trajectory": 5,
   "history_bin_weights": {
     "short": 0.1,
     "medium": 0.25,

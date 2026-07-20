@@ -16,7 +16,8 @@ predictor conditional-greedy search 实际访问的 train coalitions。
 
 从 10,658 train states 中选择 20%，目标 2,132 states。历史 bin 配额为 short/medium/long/very-long=
 `10%/25%/60%/5%`；very-long 数量或 trajectory diversity 不足时把余量按确定性规则转给其他 bin。每条
-trajectory 严格最多 3 states，不为填满某个 bin 放宽。
+trajectory 严格最多 5 states，不为填满某个 bin 放宽。cap=3 的 dry run 只能保留 910 个 long states；cap=5
+可保留 1,307 个 long、76 个 very-long、534 个 medium 与 215 个 short，同时覆盖 680 条 trajectories。
 
 bin 内优先级依次为：
 
