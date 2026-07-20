@@ -1,5 +1,16 @@
 # 项目进展
 
+## 2026-07-19：variable-history formal labels 启动
+
+- 完整历史 source、67GB full VLM token cache、12,792-state exact-grid context postflight 与 256-shard
+  train/tune schedule 均已完成；postflight 为 12,792/12,792 fit，schedule 为 11,746 states / 461,040 labels；
+- 首次 label launch 暴露 v2.1 official-tools encoder 的 historical batch=2 常量未对 subclass 多态；在 16 个
+  empty-coalition microbatches 后 fail-fast、0 terminal，修复已由测试覆盖并推送；
+- formal run=`969f2b9`，Hyper00/Hyper01 共 8xH200、24 workers、每卡 3 processes；初始 86 states / 3,232
+  labels 全部完成，`n_t=5..9`，KL finite/non-negative；
+- state/reference/coalition-microbatch 均原子落盘。16-way 到 24-way worker 重分配已复用已有 62 states 与
+  335 microbatches，没有从头计算。
+
 ## 2026-07-19：recent-4 rollout 停止并降级
 
 - 正式 selector 的候选集必须是 query 前全部 eligible events：`C_t={e_1,...,e_{t-1}}`，`n_t=|C_t|`
