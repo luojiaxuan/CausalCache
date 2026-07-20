@@ -50,10 +50,14 @@ warm selector p95/action-policy p95 `<=10%` 的部署门槛在 policy replay 阶
 ## 实现状态
 
 已实现并通过本地测试：805-state label-blind feature snapshot、raw-image OCR/RGB、query/event source 分离编码、
-encoded-state subset scoring、conditional-greedy B1--B4 path、selection merge，以及与原 resumable label runner
-兼容的 exact/sparse evaluation schedule。实现测试为 30 passed、7 个本机无 PyTorch 而显式 skipped；另有
-27 个 variable-history/label regression tests 通过。evaluation restoration labels 仍未读取，下一步先在 H200
-密封两个 checkpoint 的 selections。
+encoded-state subset scoring、conditional-greedy B1--B4 path、selection merge、exact/sparse evaluation schedule，
+以及 held-out reducer。Reducer 从 sealed selections 与 resumable terminal labels 计算真实 utility、trajectory-equal
+bootstrap、exact-oracle regret、history-bin 指标、selector latency 和冻结 GO/NO-GO；missing/skipped coverage 不会被
+静默过滤。相关 held-out tests 为 14 passed，另有 variable-history/label regression tests 覆盖原 label runner。
+
+Hyper00/Hyper01 已分别完成 333/472 个 label-blind feature states 与 token cache；合并后严格覆盖 union 805、
+exact 320、large-history 720、overlap 235，`label_file_read_count=0`。两个 checkpoint 当前在两台 H200 host
+上并行生成 selection partitions；evaluation restoration labels 仍未读取。
 
 首次 feature snapshot 因原始 full-token root 在 Hyper00/01 各保留 128 个 logical shards 而 fail-fast，未写入
 output。learning-curve cache 又只含 train/tune observations，不能替代 evaluation tokens。最终执行按现有数据布局
