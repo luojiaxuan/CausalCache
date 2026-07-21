@@ -27,8 +27,12 @@
   recovery 分别为 `0.38508/0.39251`，Long+ 为 `0.36343/0.37929`。两者均把 epoch 1 设为首个 best 后才
   进入 epoch 2。Set epoch 2 提升至 macro/Long+=`0.39491/0.38618` 并成为新 best，epoch 3 降至
   macro=`0.00610`，因此保留 epoch 2；DeepSets epoch 2 为全 STOP、macro=`0`，因此保留 epoch 1。
-  epoch 3/4 的实际查询正在并行补标；继续执行 `minimum_delta=0.005`、`patience=3`，不按训练 loss 或
-  最后 epoch 选模。
+  两条训练线均已按 `minimum_delta=0.005`、`patience=3` 完成真实 recovery 早停。Set Transformer 的
+  epoch 1--5 macro=`0.38508/0.39491/0.00610/0.39529/0.19033`；epoch 4 相对 epoch 2 仅提升
+  `0.00038`，因此最终选择 epoch 2（checkpoint `ed890219...ad3da1`）。DeepSets 的 epoch 1--4 macro=
+  `0.39251/0/0.39581/0.31853`；epoch 3 相对 epoch 1 仅提升 `0.00330`，最终选择 epoch 1
+  （checkpoint `5f5e21db...9cd3e`）。这确认 training loss 或最后 epoch 都不能代替真实 selector recovery；
+  evaluation/test 仍密封。[完整轨迹](data/results/set_utility_direct_on_policy_training_v1/README.md)。
 - **Direct conditional-marginal v3 已在最终 fixed-tune gate 正式 NO-GO，learned general-`B` 路线停止。**
   1,063/1,063 states、0 skip；direct-v3/recent macro=`0.44583/0.45192`，delta=`-0.00609`，95% CI=
   `[-0.03012,+0.01642]`。它只在 B1/B4 胜 recent，B2/B3、macro CI、Long+ 全部失败，并弱于旧
@@ -116,11 +120,12 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 ## 当前执行主线
 
-- direct on-policy coverage v1 已完成 10,658/10,658 selector rollout、5,108-state missing-only labels、
-  merge 与 formal inventory；0 skip/non-finite/duplicate。训练同时比较 structured/DeepSets 与 Transformer
-  marginal heads，并在每个 epoch 后以同一 256-state trajectory-disjoint denominator 运行真实 B1--B4
-  recovery；连续 3 个 truth-complete epochs 无至少 `0.005` 提升即早停。
-  [配置](code/configs/causalcache_set_utility_direct_on_policy_v1.json)与
+- direct on-policy coverage、labels、merge、formal inventory 与双模型训练均已完成；0
+  skip/non-finite/duplicate。每个 epoch 都在同一 256-state trajectory-disjoint denominator 上结算真实
+  B1--B4 recovery，并按冻结的 `minimum_delta=0.005`、`patience=3` 早停；最终选择 Set epoch 2 与
+  DeepSets epoch 1。当前先在同一 denominator 补 recent/safe-fallback hybrid 与 selector latency，再选择
+  Pareto checkpoint 接 development policy replay。
+  [结果](data/results/set_utility_direct_on_policy_training_v1/README.md)与
   [执行文档](docs/set_utility_direct_on_policy_v1.md)。
 - direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
   general-`B` v3 路线。该旧合同不被追认；本轮是用户显式授权的 data-coverage/structured-fallback 新假设，
@@ -248,7 +253,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Direct marginal v3 Stage-B v1 | [结果](data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)；[config](code/configs/causalcache_set_utility_direct_marginal_v3_stage_b_v1.json)；Hyper00 `/data02/jaxan/runs/causalcache-direct-marginal-v3-stage-b-v1-8ccdb5c` | training complete；best epoch 12 / regret `0.2581`；checkpoint `d8abbe8c...1dd23`；`PENDING_HF_UPLOAD` |
 | Direct marginal v3 final fixed-tune | [结果](data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)；[HF dataset@76615721](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/766157217d99dc8c10d82349d9909ba30ceaa8e9/artifacts/set-utility-direct-marginal-v3-fixed-tune-794fb90) | 1,063/1,063、0 skip；direct/recent macro=`0.44583/0.45192`；CI crosses 0；B2/B3/Long+ fail；`NO_GO`；learned general-`B` stopped；immutable |
 | Direct on-policy coverage v1 | [合同](docs/set_utility_direct_on_policy_v1.md)；[结果](data/results/set_utility_direct_on_policy_v1/README.md) | labels PASS：5,108 states / 359,189 sampled rows；merged input `6c9243a...1bfad`；9,287 optimizer states / 84,441 groups；`PENDING_HF_UPLOAD` |
-| Per-epoch heldout training v1 | [合同/进展](docs/set_utility_direct_on_policy_v1.md)；Hyper00 Set root `...set-transformer-direct-on-policy-v2-a69c706`；Hyper01 DeepSets root `...structured-deepsets-direct-on-policy-v4-843e360` | current best：Set e2=`0.39491`、DeepSets e1=`0.39251`；later epochs running；evaluation/test sealed；`PENDING_HF_UPLOAD` |
+| Per-epoch heldout training v1 | [结果](data/results/set_utility_direct_on_policy_training_v1/README.md)；[合同](docs/set_utility_direct_on_policy_v1.md)；Hyper00 Set root `...set-transformer-direct-on-policy-v2-a69c706`；Hyper01 DeepSets root `...structured-deepsets-direct-on-policy-v4-843e360` | complete；Set e2=`0.39491`、DeepSets e1=`0.39251`；均由 truth recovery 早停；evaluation/test sealed；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

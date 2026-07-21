@@ -1,6 +1,6 @@
 # 项目进展
 
-## 2026-07-21：epoch 1 held-out truth 完成并结算
+## 2026-07-21：per-epoch heldout truth 选模完成
 
 - 两模型 epoch 1 的实际查询并集已完成：198/198 states、7,681 teacher forwards、198 zero-cost anchors，
   0 skip/error/non-finite；sealed manifest content SHA256=`a6ba7c26...efa36`，Hyper00/Hyper01 整树 SHA256
@@ -13,8 +13,16 @@
 - Set epoch 2 新增 85 states / 1,665 forwards，sealed manifest=`b7225a00...c7fe`；真实 macro/Long+
   从 `0.38508/0.36343` 提升到 `0.39491/0.38618`，超过 0.005 并选中 epoch 2；epoch 3 macro=
   `0.00610`，按合同拒绝并累计 stale=1；
-- DeepSets epoch 2 选择全 STOP，真实 macro=`0`，epoch 1 继续为 best、stale=1；DeepSets epoch 3 与
-  Set epoch 4 的实际缺失 truth 已分别在 Hyper01/Hyper00 并行生成，不因不同步 epoch 强行合并 schedule。
+- Set Transformer epoch 1--5 的 macro/Long+ 分别为
+  `0.38508/0.36343`、`0.39491/0.38618`、`0.00610/0`、`0.39529/0.36765`、
+  `0.19033/0.20821`。epoch 4 相对 epoch 2 只增加 `0.00038<0.005`，不替换 best；epoch 5 后
+  stale=3，正式早停并选择 epoch 2，checkpoint SHA256=`ed890219...ad3da1`；
+- DeepSets epoch 1--4 的 macro/Long+ 分别为 `0.39251/0.37929`、`0/0`、
+  `0.39581/0.36887`、`0.31853/0.33968`。epoch 3 只增加 `0.00330<0.005`，不替换 best；
+  epoch 4 后 stale=3，正式早停并选择 epoch 1，checkpoint SHA256=`5f5e21db...9cd3e`；
+- 两条线的训练 loss 在后续 epoch 仍下降，但真实 recovery 没有形成 material improvement，证明 per-epoch
+  truth barrier 实际避免了按 loss 或最后 epoch 误选 checkpoint。完整结果见
+  [`set_utility_direct_on_policy_training_v1`](../data/results/set_utility_direct_on_policy_training_v1/README.md)。
 
 ## 2026-07-21：direct on-policy labels、merge 与 formal inventory 完成
 

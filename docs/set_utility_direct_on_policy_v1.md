@@ -1,6 +1,6 @@
 # Direct marginal on-policy coverage v1
 
-状态：`RUNNING_PER_EPOCH_TRUE_RECOVERY_SELECTION`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
+状态：`COMPLETED_PER_EPOCH_TRUE_RECOVERY_SELECTION`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
 不追认或改写旧 gate。旧 fixed-tune 已消费，后续只作 development；1,046-state untouched evaluation 继续密封，
 直到新 selector 和 fallback policy 在 train-holdout/development 上冻结。
 
@@ -62,8 +62,13 @@ DeepSets B1--B4 macro recovery=`0.38508/0.39251`，Long+=`0.36343/0.37929`；两
 Set epoch 2 的 1,665 个新 forward 已封存为 manifest content SHA256=
 `b7225a0091faacad366ffe7e6c38bf1f07ae68673c3facfc457767ed8cc0c7fe`；macro/Long+ 提升至
 `0.39491/0.38618`，超过 minimum delta，成为新 best。Set epoch 3 macro=`0.00610`，未替换 best、
-stale=`1`；DeepSets epoch 2 全 STOP、macro=`0`，同样未替换 epoch 1。两模型后续实际查询分别独立补标，
-避免因无新 query 的 epoch 造成不必要的跨模型同步等待。
+stale=`1`；Set epoch 4 macro=`0.39529`，但相对 epoch 2 只增加 `0.00038<0.005`，epoch 5 降为
+`0.19033`，最终 stale=3 并早停，选择 epoch 2 checkpoint SHA256=`ed890219...ad3da1`。DeepSets
+epoch 2 全 STOP、macro=`0`；epoch 3=`0.39581`，相对 epoch 1 的 `0.39251` 只增加
+`0.00330<0.005`；epoch 4=`0.31853` 后 stale=3，最终选择 epoch 1 checkpoint SHA256=
+`5f5e21db...9cd3e`。两模型的实际查询分别补标，避免因无新 query 的 epoch 造成不必要的跨模型同步等待。
+完整 epoch 轨迹与 artifact identity 见
+[`set_utility_direct_on_policy_training_v1`](../data/results/set_utility_direct_on_policy_training_v1/README.md)。
 
 实现入口：
 

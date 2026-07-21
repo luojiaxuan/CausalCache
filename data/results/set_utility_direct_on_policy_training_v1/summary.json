@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_TRUE_RECOVERY_EARLY_STOP",
+  "selection_contract": {
+    "split": "train_trajectory_holdout",
+    "state_count": 256,
+    "trajectory_count": 78,
+    "metric": "trajectory_equal_true_B1_B4_recovery_macro",
+    "minimum_delta": 0.005,
+    "patience": 3,
+    "evaluation_or_test_records_loaded": false
+  },
+  "set_transformer": {
+    "variant": "set_transformer_direct_d256_l16_r2_s2",
+    "epochs": [
+      {"epoch": 1, "macro": 0.3850812480912897, "long_plus": 0.3634307134821642, "stale": 0},
+      {"epoch": 2, "macro": 0.39490656267816304, "long_plus": 0.3861784844401238, "stale": 0},
+      {"epoch": 3, "macro": 0.006098806293988876, "long_plus": 0.0, "stale": 1},
+      {"epoch": 4, "macro": 0.3952906165318655, "long_plus": 0.36765476322818263, "stale": 2},
+      {"epoch": 5, "macro": 0.19032617374205166, "long_plus": 0.2082082843261398, "stale": 3}
+    ],
+    "selected_epoch": 2,
+    "selected_checkpoint_sha256": "ed890219f5c765ad1c5098b691658f5bc1b5c4fd6b89114e944b5e2dd2ad3da1",
+    "final_summary_content_sha256": "de2027b5fe8108b278f3114a4920e9dd430c1a5934cd94cbf2b8ff9b8a09a41c",
+    "persistent_root": "/data02/jaxan/runs/causalcache-set-transformer-direct-on-policy-v2-a69c706"
+  },
+  "deepsets": {
+    "variant": "structured_pairwise_deepsets_d256_l16_r2_h128_p32_lr3e4",
+    "epochs": [
+      {"epoch": 1, "macro": 0.39251211587486456, "long_plus": 0.3792883087241382, "stale": 0},
+      {"epoch": 2, "macro": 0.0, "long_plus": 0.0, "stale": 1},
+      {"epoch": 3, "macro": 0.3958105336599393, "long_plus": 0.36887132564208164, "stale": 2},
+      {"epoch": 4, "macro": 0.3185289503682896, "long_plus": 0.33968182690983867, "stale": 3}
+    ],
+    "selected_epoch": 1,
+    "selected_checkpoint_sha256": "5f5e21db7af1cc7785ba99ca9e7a7ecabdecbafa24ff70e0657ffea97ea9cd3e",
+    "final_summary_content_sha256": "a54d3505cfd054f01cfa31a3a8293050c36789deaac19315920dc9b30f6b7b48",
+    "persistent_root": "/data02/jaxan/runs/causalcache-structured-deepsets-direct-on-policy-v4-843e360"
+  },
+  "training_input_content_sha256": "6c9243a2a2846180f717ea59e3692a3005ae153b8d206f7ad1ec4a8bf1a1bfad",
+  "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+  "heldout_manifest_content_sha256": "6d5d4767578ac12131e22b15bda88a2475a22d8d25778350b353f5d1e590c554",
+  "huggingface_status": "PENDING_HF_UPLOAD"
+}
