@@ -55,6 +55,13 @@ at-most-`B` selection。最终 gate 与 decision-v2 完全相同：
 fixed-tune 任一失败即永久终止 learned general-`B` 路线；不创建 Stage-A″、student v4 或追加 DAgger。
 只有 GO 才能访问 untouched evaluation、policy replay、closed-loop 与 matched-NLL。
 
+fixed-tune selector 使用
+[`run_set_utility_direct_marginal_tune_selectors.py`](../code/scripts/run_set_utility_direct_marginal_tune_selectors.py)：
+每个 state 只编码一次 query/full-history candidate set，随后按冻结 direct marginal 逐步选择，并让显式
+`STOP=0` 与剩余 events 同场竞争。`--state-id-file` 支持跨 GPU 的 disjoint resumable shards；
+[`merge_set_utility_tune_selection_shards.py`](../code/scripts/merge_set_utility_tune_selection_shards.py)
+只接受 checkpoint/config/input/cache identity 完全一致且 state inventory 不重叠的完成分片。
+
 ## 5. 正式运行
 
 - source=`main@8ccdb5c`；Hyper00 GPU `0--7`，8-rank DDP；

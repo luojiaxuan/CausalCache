@@ -694,15 +694,38 @@ if torch is not None:
             event_numeric_features: Any,
             event_mask: Any,
         ) -> EncodedConditionalMarginalState:
-            encoded = self.encoder.encode_state_once(
+            query = self.encoder.encode_query_source(
                 query_visual_tokens=query_visual_tokens,
                 query_visual_mask=query_visual_mask,
                 query_text_tokens=query_text_tokens,
                 query_text_mask=query_text_mask,
+            )
+            event_sources = self.encoder.encode_event_sources(
                 event_visual_tokens=event_visual_tokens,
                 event_visual_mask=event_visual_mask,
                 event_text_tokens=event_text_tokens,
                 event_text_mask=event_text_mask,
+                event_mask=event_mask,
+            )
+            return self.condition_encoded_state(
+                query=query,
+                event_sources=event_sources,
+                event_numeric_features=event_numeric_features,
+                event_mask=event_mask,
+            )
+
+        def condition_encoded_state(
+            self,
+            *,
+            query: Any,
+            event_sources: Any,
+            event_numeric_features: Any,
+            event_mask: Any,
+        ) -> EncodedConditionalMarginalState:
+            """Condition cached source encodings and build the direct set state."""
+            encoded = self.encoder.condition_encoded_state(
+                query=query,
+                event_sources=event_sources,
                 event_numeric_features=event_numeric_features,
                 event_mask=event_mask,
             )

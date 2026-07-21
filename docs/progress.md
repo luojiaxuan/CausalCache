@@ -4287,6 +4287,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   fixed-tune gate，不据 train metrics 调 loss、checkpoint 或门槛。
 - 结果：[`data/results/set_utility_direct_marginal_v3_stage_b_v1/`](../data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)。
 
+## 2026-07-21:Direct marginal fixed-tune selector 冻结
+
+- selector 按 `[STOP,event_1,...,event_n]` conditional marginal 逐步执行真正的 at-most-`B`；STOP 在零增益
+  tie 中优先，不再沿用 scalar utility 的 exact-`B` 偏置。
+- query/full candidate state 每个决策只 condition 一次，trajectory 内 event source encoding 按 arrival-time
+  缓存；支持 disjoint state shards 与 identity-bound merge，供 Hyper00/Hyper01 全空闲卡并行运行。
+- Hyper00 H200 focused test=`7 passed`，包含 cached/full conditioning 等价、负边际提前 STOP 和 shard overlap
+  拒绝。该实现只解锁 unchanged fixed-tune truth，不改变最终 gate。
+
 ## 2026-07-21:Stage-A Spearman 门槛复审(建议)
 
 - 用 long-oracle payload 中每 state 四次独立 `D(∅)` 重测证明标签确定性(归一化噪声中位数 0.0000,

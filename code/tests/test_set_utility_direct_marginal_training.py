@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 import importlib.util
+from types import SimpleNamespace
 
 import pytest
 
 from scripts.train_set_utility_direct_marginal_v3 import (
     _conditional_groups,
     _split_train_holdout,
+)
+from scripts.run_set_utility_direct_marginal_tune_selectors import (
+    _direct_budget_path,
 )
 
 TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
@@ -138,3 +142,93 @@ def test_direct_model_forward_accepts_selected_masks() -> None:
             subset_masks=torch.zeros(1, 1, 2, dtype=torch.bool),
             selected_masks=torch.zeros(1, 1, 2, dtype=torch.bool),
         )
+
+
+@pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is unavailable")
+def test_direct_model_cached_source_conditioning_matches_full_encoding() -> None:
+    import torch
+
+    from causalcache.set_utility_token_models import (
+        TokenConditionalMarginalPredictor,
+        TokenUtilityModelConfig,
+    )
+
+    model = TokenConditionalMarginalPredictor(
+        TokenUtilityModelConfig(
+            family="set_transformer",
+            source_hidden_size=16,
+            numeric_feature_size=5,
+            hidden_size=16,
+            latent_count=2,
+            resampler_layers=1,
+            set_layers=1,
+            num_heads=4,
+            dropout=0.0,
+            preserve_entity_latents=True,
+        )
+    ).eval()
+    common = {
+        "query_visual_tokens": torch.randn(1, 3, 16),
+        "query_visual_mask": torch.ones(1, 3, dtype=torch.bool),
+        "query_text_tokens": torch.randn(1, 2, 16),
+        "query_text_mask": torch.ones(1, 2, dtype=torch.bool),
+        "event_visual_tokens": torch.randn(1, 2, 3, 16),
+        "event_visual_mask": torch.ones(1, 2, 3, dtype=torch.bool),
+        "event_text_tokens": torch.randn(1, 2, 2, 16),
+        "event_text_mask": torch.ones(1, 2, 2, dtype=torch.bool),
+        "event_numeric_features": torch.randn(1, 2, 5),
+        "event_mask": torch.ones(1, 2, dtype=torch.bool),
+    }
+    with torch.inference_mode():
+        full = model.encode_state_once(**common)
+        query = model.encoder.encode_query_source(
+            query_visual_tokens=common["query_visual_tokens"],
+            query_visual_mask=common["query_visual_mask"],
+            query_text_tokens=common["query_text_tokens"],
+            query_text_mask=common["query_text_mask"],
+        )
+        events = model.encoder.encode_event_sources(
+            event_visual_tokens=common["event_visual_tokens"],
+            event_visual_mask=common["event_visual_mask"],
+            event_text_tokens=common["event_text_tokens"],
+            event_text_mask=common["event_text_mask"],
+            event_mask=common["event_mask"],
+        )
+        cached = model.condition_encoded_state(
+            query=query,
+            event_sources=events,
+            event_numeric_features=common["event_numeric_features"],
+            event_mask=common["event_mask"],
+        )
+    assert torch.equal(full.event_mask, cached.event_mask)
+    assert torch.allclose(full.query, cached.query)
+    assert torch.allclose(full.events, cached.events)
+
+
+@pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is unavailable")
+def test_direct_budget_path_stops_before_budget_when_marginals_are_harmful() -> None:
+    import torch
+
+    class FakeModel:
+        def score_encoded_candidates(self, encoded, selected_mask):
+            selected = tuple(torch.nonzero(selected_mask[0]).flatten().tolist())
+            if not selected:
+                return torch.tensor([[0.0, 0.8, 0.4, 0.1]])
+            return torch.tensor([[0.0, 0.8, -0.2, -0.1]])
+
+    selections, utilities, score_count, trace = _direct_budget_path(
+        FakeModel(),
+        SimpleNamespace(),
+        (10, 20, 30),
+        device="cpu",
+        torch=torch,
+    )
+    assert selections == {
+        "1": [10],
+        "2": [10],
+        "3": [10],
+        "4": [10],
+    }
+    assert tuple(utilities.values()) == pytest.approx((0.8, 0.8, 0.8, 0.8))
+    assert score_count == 7
+    assert trace[1]["ranked_actions"][0]["action"] == "STOP"
