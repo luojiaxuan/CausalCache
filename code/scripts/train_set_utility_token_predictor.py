@@ -872,6 +872,7 @@ def main() -> None:
     )
     model_config = TokenUtilityModelConfig(**variant["model"])
     checkpoint_model = TokenSetUtilityPredictor(model_config).to(device)
+    ddp_find_unused_parameters = model_config.family == "deepsets"
     if distributed:
         expected_world_size = int(variant.get("distributed_world_size", 0))
         if expected_world_size != world_size:
@@ -881,6 +882,7 @@ def main() -> None:
             device_ids=[local_rank],
             output_device=local_rank,
             broadcast_buffers=False,
+            find_unused_parameters=ddp_find_unused_parameters,
         )
         torch.manual_seed(seed + rank)
         torch.cuda.manual_seed(seed + rank)
@@ -1084,6 +1086,9 @@ def main() -> None:
         "overfit_state_count": args.overfit_state_count,
         "distributed": {
             "backend": "nccl" if distributed else None,
+            "find_unused_parameters": (
+                ddp_find_unused_parameters if distributed else None
+            ),
             "distributed_padding_rows_per_epoch": distributed_padding_rows_per_epoch,
             "effective_global_batch_size": batch_size * world_size * accumulation,
             "evaluation_batch_size": evaluation_batch_size,
