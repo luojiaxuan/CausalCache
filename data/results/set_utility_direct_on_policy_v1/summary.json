@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_SELECTIONS_AND_SCHEDULES_LABELS_PENDING",
+  "source_revision": "f47f804",
+  "input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+  "collection_config_sha256": "40623449246467c6638dca4a7ae7e48f6b62f8dcbaa5bc6c311eda27b9687568",
+  "selection": {
+    "state_count": 10658,
+    "worker_count": 11,
+    "duplicate_state_count": 0,
+    "missing_state_count": 0,
+    "failed_worker_count": 0
+  },
+  "schedule": {
+    "content_sha256": "d71c92d0e3de9a37a846cb03b87c858d857525d82945093eb1968d6453b521db",
+    "manifest_file_sha256": "db9b80e755000c1cead1687800f121b378161c99ddc606f1981f2e41d3bb6ab3",
+    "scheduled_state_count": 5108,
+    "scheduled_missing_coalition_count": 359189,
+    "scheduled_history_bin_counts": {
+      "medium": 3578,
+      "long": 1499,
+      "very_long": 31
+    },
+    "existing_complete_group_count": 62332,
+    "resulting_complete_group_count": 120172
+  },
+  "persistent_paths": {
+    "hyper00_schedule_root": "/data02/jaxan/runs/causalcache-direct-on-policy-schedules-v1-f47f804",
+    "hyper00_selection_root": "/data02/jaxan/runs/causalcache-direct-on-policy-selections-v1-f47f804-hyper00",
+    "hyper01_selection_root": "/data02/jaxan/runs/causalcache-direct-on-policy-selections-v1-f47f804-hyper01"
+  },
+  "huggingface_status": "PENDING_HF_UPLOAD"
+}

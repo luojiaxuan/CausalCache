@@ -8,6 +8,9 @@
   trajectories；但只有 5,550 states 具 complete conditional groups，62,332 groups 相对部署路径仍很稀疏；
 - 精确 census 确认 5,108 个零 complete-group states，全部来自 medium/long/very-long：3,578/1,499/31；
   existing group 分布却由 short 主导，short/medium/long/very-long=`38,971/5,297/16,707/1,357`；
+- 11 张 H200 上的 selector rollout 已完成 10,658/10,658 states，11/11 workers、0 duplicate/missing；
+  missing-only schedule 冻结为 5,108 states / 359,189 coalitions，完成后 complete groups 从 62,332
+  增至 120,172。首次 launcher 因缺 `PYTHONPATH` 在 import 前失败且无科学输出，修复后使用全新 root 完成；
 - 新 config 固定在全部 train states 上先收集 direct、recent、confidence-gated hybrid 三条 at-most-`B` 路径，
   再只对上述 5,108 states 的 `|S|<=3` 实际 bases 补齐所有 one-event expansions，已有 coalition truth 复用；
 - 新 selector 支持 train role 与 hybrid trace；missing-only schedule 固定 256 logical shards，label runner 保留

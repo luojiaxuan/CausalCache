@@ -1,0 +1,16 @@
+# Direct on-policy coverage v1
+
+状态：`SELECTION_AND_SCHEDULE_COMPLETE / LABELS_PENDING`。
+
+冻结的 direct-v3 checkpoint、recent 与 confidence-gated hybrid 已在全部 10,658 个 train states 上完成
+rollout。Hyper00/Hyper01 共 11 workers，10,658 个 state id 全局唯一且与 assignment 逐项一致；无缺失、
+无重复、无 worker failure。首次 launcher 因 `PYTHONPATH` 缺失在 import 前失败，没有生成 selection；修复后
+使用全新 output root 重启，失败目录不进入本结果。
+
+missing-only schedule 只针对此前没有任何 complete conditional group 的 5,108 states。它补齐三条部署路径
+在 `|S|=0,1,2,3` 实际访问 base 的全部 `S∪{j}`，因此包含 359,189 个缺失 coalition，而不只是 24,787
+个 empty-to-singleton 下界。分布为 medium/long/very-long=`3,578/1,499/31`；完成后 complete groups 将从
+62,332 增至 120,172。
+
+机器可读摘要见 [`summary.json`](summary.json)。大 artifact 当前位于摘要记录的 persistent paths，状态为
+`PENDING_HF_UPLOAD`；label rollout 完成后与 labels 一并发布 immutable Hugging Face revision。

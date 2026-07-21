@@ -99,9 +99,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 ## 当前执行主线
 
-- direct on-policy coverage v1 已实现 train-role selector、direct/recent/hybrid collection 与 missing-only
-  candidate-complete schedule。现有 10,658 train states 中 5,108 完全没有 complete group；下一步先生成
-  全部 train selections，再以 Hyper00/Hyper01 最多 6/5 张 H200 只补这些 states 的缺失 `D(S)`。训练同时比较
+- direct on-policy coverage v1 已完成 10,658/10,658 train-state selector rollout 与 missing-only schedule；
+  11/11 workers、0 duplicate/missing。现有 5,108 个零 complete-group states 将补 359,189 个
+  candidate-complete `D(S)`，medium/long/very-long=`3,578/1,499/31`。下一步以 Hyper00/Hyper01
+  最多 6 卡/机的 22 条 atomic-resume lanes 生成 labels。训练同时比较
   structured/DeepSets 与 Transformer marginal heads。
   [配置](code/configs/causalcache_set_utility_direct_on_policy_v1.json)与
   [执行文档](docs/set_utility_direct_on_policy_v1.md)。
@@ -230,7 +231,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Direct marginal v3 Stage-A | [`v1`](data/results/set_utility_direct_marginal_v3_fit_probe_v1/README.md)；[`rank repair`](data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)；Hyper00 persistent run | v2 Spearman/top-4=`0.291/0.951`；`NO_GO_DIRECT_MARGINAL_V3_STAGE_A`；fit-only checkpoints `PENDING_HF_UPLOAD`，不是正式模型 |
 | Direct marginal v3 Stage-B v1 | [结果](data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)；[config](code/configs/causalcache_set_utility_direct_marginal_v3_stage_b_v1.json)；Hyper00 `/data02/jaxan/runs/causalcache-direct-marginal-v3-stage-b-v1-8ccdb5c` | training complete；best epoch 12 / regret `0.2581`；checkpoint `d8abbe8c...1dd23`；`PENDING_HF_UPLOAD` |
 | Direct marginal v3 final fixed-tune | [结果](data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)；[HF dataset@76615721](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/766157217d99dc8c10d82349d9909ba30ceaa8e9/artifacts/set-utility-direct-marginal-v3-fixed-tune-794fb90) | 1,063/1,063、0 skip；direct/recent macro=`0.44583/0.45192`；CI crosses 0；B2/B3/Long+ fail；`NO_GO`；learned general-`B` stopped；immutable |
-| Direct on-policy coverage v1 | [合同](docs/set_utility_direct_on_policy_v1.md)；[config](code/configs/causalcache_set_utility_direct_on_policy_v1.json) | selector/schedule implemented；Hyper00/01 persistent outputs pending；`PENDING_HF_UPLOAD` |
+| Direct on-policy coverage v1 | [合同](docs/set_utility_direct_on_policy_v1.md)；[结果](data/results/set_utility_direct_on_policy_v1/README.md) | 10,658-state selections + 5,108-state/359,189-coalition schedule complete；labels pending；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

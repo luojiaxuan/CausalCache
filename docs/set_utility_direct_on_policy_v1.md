@@ -1,6 +1,6 @@
 # Direct marginal on-policy coverage v1
 
-状态：`IMPLEMENTED / TRAIN_SELECTION_PENDING`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
+状态：`SELECTION_AND_SCHEDULE_COMPLETE / LABELS_PENDING`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
 不追认或改写旧 gate。旧 fixed-tune 已消费，后续只作 development；1,046-state untouched evaluation 继续密封，
 直到新 selector 和 fallback policy 在 train-holdout/development 上冻结。
 
@@ -30,6 +30,12 @@ states 收集三条 nested at-most-`B` 路径：
 label runner 仍以 coalition microbatch 原子断点恢复。只补每个 state 的 empty→singleton 最低需要 24,787 个
 新 coalitions；direct/recent/hybrid 路径会在此基础上增加部署对齐的 B2--B4 conditional groups，最终数量由
 selection 后的 missing-only schedule manifest 冻结。
+
+实际 rollout 已覆盖 10,658/10,658 train states，11/11 workers completed，0 duplicate、0 missing。
+最终 missing-only schedule 包含 5,108 states / 359,189 coalitions，medium/long/very-long=
+3,578/1,499/31；现有/resulting complete groups=62,332/120,172。schedule content SHA256=
+`d71c92d0...b521db`，轻量结果见
+[`data/results/set_utility_direct_on_policy_v1/`](../data/results/set_utility_direct_on_policy_v1/README.md)。
 
 实现入口：
 
