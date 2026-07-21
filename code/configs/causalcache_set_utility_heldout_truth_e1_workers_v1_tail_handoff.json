@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_heldout_truth_e1_workers_v1_tail_handoff",
+  "status": "FROZEN_CONDITIONAL_TAIL_HANDOFF",
+  "repair_reason": "Hyper01 p8/count12 is the deterministic epoch-1 truth tail after p6 has completed; resume its exact logical-shard union as p8+p20/count24 without changing any scheduled coalition.",
+  "source_revision": "843e3608c75e333e6f5cd319b455c181258a99c1",
+  "image": "hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+  "per_host_gpu_cap": 6,
+  "workers_per_gpu": 2,
+  "identity_bindings": {
+    "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+    "execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c",
+    "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "schedule_manifest_sha256": "6387988d6ea818d59138bd62d27ad00bb259fd23bfd508ae9b314acb53c30089",
+    "schedule_content_sha256": "956672017b533f70f9c1357d25fa0636df15febdd18248004326d87adf884f4c",
+    "model_snapshot_manifest_sha256": "65bd2377eace0e25a62542ad752dab146787c5f021bd22e62a1114589ae4265c"
+  },
+  "handoff": {
+    "host": "hyper01",
+    "donor_partition": 6,
+    "donor_expected_completed_state_count": 12,
+    "donor_lane_state_counts": {
+      "0": 9,
+      "1": 3
+    },
+    "recipient_partition": 8,
+    "recipient_expected_state_count": 48,
+    "recipient_lane_state_counts": {
+      "0": 24,
+      "1": 24
+    },
+    "recipient_state_union_sha256": "ad754ddadb999a47cba3685592a4f1fc3b4c7c6ede4069e0289a1087f1c94549",
+    "original_partition_count": 12,
+    "replacement_partition_count": 24,
+    "physical_gpu_ids": [2, 0],
+    "replacement_workers": [
+      "0:8:0:2",
+      "0:8:1:2",
+      "1:20:0:2",
+      "1:20:1:2"
+    ],
+    "replacement_partition_state_counts": {
+      "8": 23,
+      "20": 25
+    },
+    "replacement_partition_lane_state_counts": {
+      "8": {
+        "0": 12,
+        "1": 11
+      },
+      "20": {
+        "0": 12,
+        "1": 13
+      }
+    },
+    "output_root": "/data/runs/causalcache-heldout-truth-labels-e0001-843e360-hyper01",
+    "log_root": "/data/runs/causalcache-heldout-truth-labels-e0001-843e360-hyper01/handoff-logs/p8-p20-of-024"
+  },
+  "launch_guards": {
+    "donor_both_lane_receipts_complete": true,
+    "donor_all_expected_terminals_complete": true,
+    "donor_skipped_state_count": 0,
+    "abort_if_recipient_already_complete": true,
+    "terminate_only_recipient_partition_lanes": true,
+    "confirm_recipient_processes_exited_before_replacement": true,
+    "confirm_selected_physical_gpus_have_no_compute_process": true,
+    "same_host_output_root_resume": true,
+    "state_lane_count_unchanged": 2,
+    "maximum_live_gpu_count_per_host": 6
+  },
+  "acceptance": {
+    "replacement_container_exit_code": 0,
+    "replacement_worker_receipts_complete": true,
+    "recipient_state_union_exact": true,
+    "global_completed_state_count": 198,
+    "skipped_state_count": 0,
+    "duplicate_state_count": 0
+  }
+}
