@@ -1,5 +1,15 @@
 # 项目进展
 
+## 2026-07-21：selector-side LoRA boundary replay 通过
+
+- GUI-Owl LM 共 36 层；冻结 teacher/action policy，为 selector 的 layers 32--35 q/k/v/o 预留
+  zero-init LoRA；
+- 现有 final-hidden cache 不能反传 LoRA；optimizer + checkpoint denominator 需新增约 23,714 contexts、
+  277GiB 的 full-sequence layer-32 boundary cache；
+- Hyper00 H200 真实 context 的 top-4 replay 与 frozen final selected tokens bitwise equal，max abs diff=0；
+- 修正部署假设：selector 与 action policy prompt 不同，不能共享 LM prefix activation；query selector forward
+  必须计入 latency。
+
 ## 2026-07-21：停止 budget-deferral evaluation，转向 selector-side LoRA
 
 - 按用户决定，在 selection/truth 前停止两台机器的 contextual extraction；Hyper00/Hyper01 保留 42/33 个
