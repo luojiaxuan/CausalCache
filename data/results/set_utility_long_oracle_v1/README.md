@@ -28,13 +28,12 @@ action 漂移 0。总计 25,032 个 coalition 标签(7,654 + 5,904 + 5,833 + 5,6
 
 - 本目录 [`summary.json`](summary.json):reducer 完整输出,content SHA256=
   `179b0d85e0ad0315efa88432eaccb77a5231b8c0ee7066739de1a3f78389cf9c`;
-- 完整 payload(4 个 wave 的 schedules + 两 host 全部 state terminals + config):Hyper00
-  `/data02/jaxan/artifacts/causalcache-long-oracle-v1-179b0d8`,`payload.tar.gz` SHA256=
-  `9238f63dca61d7b18377a5df03448c2b15484522cb0e4a60cb32ffa9170c8b34`;状态 `PENDING_HF_UPLOAD`
-  (目标 `gavinlaw/causalcache-set-utility-variable-history-mobile` path
-  `artifacts/set-utility-long-oracle-v1-179b0d8`、tag `set-utility-long-oracle-v1-179b0d8`;
-  本次会话的自动上传被权限分类器拦截,staged 内容与 README/summary 已就绪,可直接
-  `huggingface_hub.upload_folder` 后打 tag);
+- 完整 payload(4 个 wave 的 schedules + 两 host 全部 state terminals + config)已发布到 private HF
+  dataset revision
+  [`8d5a5021`](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/8d5a5021d8e69999ed944574bc8e243f386c2288/artifacts/set-utility-long-oracle-v1-179b0d8),
+  immutable tag=`set-utility-long-oracle-v1-179b0d8`;`payload.tar.gz` SHA256=
+  `9238f63dca61d7b18377a5df03448c2b15484522cb0e4a60cb32ffa9170c8b34`,远端 readback SHA 与本地一致;
+  Hyper00 `/data02/jaxan/artifacts/causalcache-long-oracle-v1-179b0d8` 保留为 persistent mirror;
 - 原始 run roots:Hyper00/Hyper01 `/data02/jaxan/runs/causalcache-long-oracle-w{1,2,3,4}-labels-912e5d1`
   与同名 `...-schedules-912e5d1`;
 - source revision `912e5d1b5ffddd1547c79da6cb3dc47b188ea8e1`,config SHA256=

@@ -4055,3 +4055,10 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - artifact:reducer summary 入库 `data/results/set_utility_long_oracle_v1/`;完整 payload 已存
   Hyper00 `/data02/jaxan/artifacts/causalcache-long-oracle-v1-179b0d8`(SHA `9238f63d...0c8b34`),
   `PENDING_HF_UPLOAD`(会话内自动上传被权限分类器拦截;目标 repo/path/tag 已写入 result README)。
+
+## 2026-07-21:Long-oracle v1 artifact 发布
+
+- 完整 payload 已发布到 private HF dataset revision `8d5a5021d8e69999ed944574bc8e243f386c2288`,
+  immutable tag=`set-utility-long-oracle-v1-179b0d8`;远端 readback `payload.tar.gz` SHA256 与本地一致
+  (`9238f63d...0c8b34`)。Hyper00 `/data02/jaxan/artifacts/causalcache-long-oracle-v1-179b0d8` 保留为
+  mirror,`PENDING_HF_UPLOAD` 状态解除。
