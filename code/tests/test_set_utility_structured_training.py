@@ -618,7 +618,7 @@ def test_split_manifest_binding_is_external_and_content_addressed(tmp_path) -> N
         _load_split_manifest(path, config)
 
 
-def test_committed_structured_config_waits_for_merged_on_policy_input() -> None:
+def test_committed_structured_config_is_frozen_to_merged_on_policy_input() -> None:
     root = Path(__file__).resolve().parents[2]
     config = json.loads(
         (root / "code/configs/causalcache_set_utility_structured_marginal_v1.json")
@@ -626,10 +626,23 @@ def test_committed_structured_config_waits_for_merged_on_policy_input() -> None:
     )
     manifest_path = root / "data/manifests/set_utility_train_heldout_v2.json"
     variant = "structured_pairwise_deepsets_d256_l16_r2_h128_p32_lr3e4"
-    with pytest.raises(ValueError, match="not frozen"):
-        _validate_config(config, variant)
-    assert config["status"] == "PENDING_MERGED_ON_POLICY_INPUT_BINDING"
+    _validate_config(config, variant)
+    assert config["status"] == "FROZEN_STRUCTURED_DIRECT_MARGINAL_CONTROL"
+    assert config["input"]["training_input_content_sha256"] == (
+        "6c9243a2a2846180f717ea59e3692a3005ae153b8d206f7ad1ec4a8bf1a1bfad"
+    )
     assert config["input"]["merged_on_policy_labels_required"] is True
+    inventory = config["training"]["exact_optimizer_inventory"]
+    assert inventory["content_sha256"] == (
+        "b7452b1bad141d96407bf80c62b1d4778461af260f9837852cd4d8e480646109"
+    )
+    assert inventory["optimizer_trajectory_count"] == 900
+    assert inventory["optimizer_state_count"] == 9287
+    assert inventory["complete_group_count"] == 84441
+    assert sum(inventory["base_cardinality_counts"].values()) == 84441
+    assert sum(inventory["history_bin_counts"].values()) == 84441
+    assert sum(inventory["joint_stratum_counts"].values()) == 84441
+    assert sum(inventory["stop_all_negative_counts"].values()) == 84441
     assert config["training"]["minimum_inventory"] == {
         "complete_group_count": 60000,
         "heldout_state_count": 256,

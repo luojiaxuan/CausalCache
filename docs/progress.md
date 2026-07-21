@@ -1,5 +1,19 @@
 # 项目进展
 
+## 2026-07-21：direct on-policy labels、merge 与 formal inventory 完成
+
+- Hyper00/Hyper01 的正式 labels 已闭合：5,108/5,108 states、33,175/33,175 microbatches、359,189 sampled
+  distances + 5,108 zero-cost full anchors；0 skip、0 non-finite、0 duplicate、0 bad logs；terminal content
+  SHA256=`689b3ad3...c67a0e`；
+- 与 frozen base input 合并后的 content SHA256=`6c9243a2...1bfad`；新增 359,189 rows，5,108 个重复
+  anchors 的最大差异为 0，schedule/source/tune bindings 均未改变；
+- formal optimizer inventory 已冻结：900 trajectories、9,287 states、84,441 candidate-complete groups，
+  inventory content SHA256=`b7452b1b...646109`；四个 base cardinality 与四个 history bins 均有覆盖；
+- Set Transformer 与 structured/DeepSets config 已解除 `PENDING_*`，绑定相同 merged input 和 exact
+  inventory。两条线 fresh init；每个 epoch 后必须在固定 256-state train-heldout denominator 上完成真实
+  B1--B4 rollout/truth reduction，连续 3 次无至少 `0.005` 改善即早停，最后 epoch 和 training loss 均无
+  checkpoint 选择权。
+
 ## 2026-07-21：direct on-policy coverage + structured fallback 路线启动
 
 - 用户明确授权在旧 direct-v3 NO-GO 之后继续 learned selector，不退为纯审计；旧结果不改写，fixed-tune

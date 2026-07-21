@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
-  "status": "COMPLETED_SELECTIONS_AND_SCHEDULES_LABELS_PENDING",
-  "source_revision": "cc76340",
+  "status": "COMPLETED_LABELS_AND_MERGED_TRAINING_INPUT",
+  "source_revision": "cc7634045ddef2db78324410b5317b2c90ac45e0",
   "input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
   "collection_config_sha256": "40623449246467c6638dca4a7ae7e48f6b62f8dcbaa5bc6c311eda27b9687568",
   "selection": {
@@ -25,10 +25,37 @@
     "resulting_complete_group_count": 120172,
     "scheduled_zero_cost_full_anchor_count": 5108
   },
+  "labels": {
+    "terminal_content_sha256": "689b3ad3cdf0fafdd3e3a40979aa86109eae40f467c6ade1551e7bf530c67a0e",
+    "completed_state_count": 5108,
+    "completed_microbatch_count": 33175,
+    "sampled_distance_row_count": 359189,
+    "zero_cost_full_anchor_count": 5108,
+    "skipped_state_count": 0,
+    "non_finite_distance_count": 0,
+    "duplicate_distance_row_count": 0,
+    "bad_log_count": 0
+  },
+  "merged_training_input": {
+    "content_sha256": "6c9243a2a2846180f717ea59e3692a3005ae153b8d206f7ad1ec4a8bf1a1bfad",
+    "parent_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "added_distance_row_count": 359189,
+    "deduplicated_anchor_count": 5108,
+    "maximum_duplicate_delta": 0.0,
+    "formal_inventory_content_sha256": "6b5db11dae82ac6c7c037ec29134f38dffbc9d7429193a715f4f76a3a0b35652",
+    "optimizer_inventory_content_sha256": "b7452b1bad141d96407bf80c62b1d4778461af260f9837852cd4d8e480646109",
+    "optimizer_trajectory_count": 900,
+    "optimizer_state_count": 9287,
+    "candidate_complete_group_count": 84441,
+    "heldout_checkpoint_state_count": 256
+  },
   "persistent_paths": {
     "hyper00_schedule_root": "/data02/jaxan/runs/causalcache-direct-on-policy-schedules-v2-cc76340",
     "hyper00_selection_root": "/data02/jaxan/runs/causalcache-direct-on-policy-selections-v1-f47f804-hyper00",
-    "hyper01_selection_root": "/data02/jaxan/runs/causalcache-direct-on-policy-selections-v1-f47f804-hyper01"
+    "hyper01_selection_root": "/data02/jaxan/runs/causalcache-direct-on-policy-selections-v1-f47f804-hyper01",
+    "hyper00_label_root": "/data02/jaxan/runs/causalcache-direct-on-policy-labels-v1-cc76340-retry4",
+    "hyper01_label_root": "/data02/jaxan/runs/causalcache-direct-on-policy-labels-v1-cc76340-retry4",
+    "hyper00_merged_training_input_root": "/data02/jaxan/runs/causalcache-direct-on-policy-training-input-v1-9e94593"
   },
   "huggingface_status": "PENDING_HF_UPLOAD"
 }

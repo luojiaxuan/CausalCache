@@ -19,8 +19,10 @@
   补标 truth 必须经过 signed manifest/receipt sealing 并绑定 model/epoch/checkpoint；formal config 还会精确校验
   merged schedule、distance-row/group counts 与 optimizer group census，不能用旧或不完整数据绕过 barrier。
   [执行合同](docs/set_utility_direct_on_policy_v1.md)。
-- 正式 label rollout 使用 Hyper00/Hyper01 各 6×H200、每卡 2 lanes；静态分片长尾只通过冻结的同 host
-  conditional handoff 重分片，保持相同 state identity、原子 resume 和每 host 6-GPU 上限。
+- 正式 label rollout 已使用 Hyper00/Hyper01 各 6×H200 完成：5,108/5,108 states、33,175/33,175
+  microbatches、359,189 sampled rows + 5,108 zero-cost anchors，0 skip/non-finite/duplicate/error。合并后的
+  training input content=`6c9243a...1bfad`；formal optimizer inventory 为 900 trajectories、9,287 states、
+  84,441 candidate-complete groups。两模型已解除 input binding，准备启动 fresh 6-GPU 训练。
 - **Direct conditional-marginal v3 已在最终 fixed-tune gate 正式 NO-GO，learned general-`B` 路线停止。**
   1,063/1,063 states、0 skip；direct-v3/recent macro=`0.44583/0.45192`，delta=`-0.00609`，95% CI=
   `[-0.03012,+0.01642]`。它只在 B1/B4 胜 recent，B2/B3、macro CI、Long+ 全部失败，并弱于旧
@@ -108,11 +110,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 ## 当前执行主线
 
-- direct on-policy coverage v1 已完成 10,658/10,658 train-state selector rollout 与 missing-only schedule；
-  11/11 workers、0 duplicate/missing。现有 5,108 个零 complete-group states 将补 359,189 个
-  candidate-complete `D(S)`，medium/long/very-long=`3,578/1,499/31`。当前以 Hyper00/Hyper01
-  各 6 卡、共 24 条 atomic-resume lanes 生成 labels。训练同时比较
-  structured/DeepSets 与 Transformer marginal heads。
+- direct on-policy coverage v1 已完成 10,658/10,658 selector rollout、5,108-state missing-only labels、
+  merge 与 formal inventory；0 skip/non-finite/duplicate。训练同时比较 structured/DeepSets 与 Transformer
+  marginal heads，并在每个 epoch 后以同一 256-state trajectory-disjoint denominator 运行真实 B1--B4
+  recovery；连续 3 个 truth-complete epochs 无至少 `0.005` 提升即早停。
   [配置](code/configs/causalcache_set_utility_direct_on_policy_v1.json)与
   [执行文档](docs/set_utility_direct_on_policy_v1.md)。
 - direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
@@ -240,7 +241,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Direct marginal v3 Stage-A | [`v1`](data/results/set_utility_direct_marginal_v3_fit_probe_v1/README.md)；[`rank repair`](data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)；Hyper00 persistent run | v2 Spearman/top-4=`0.291/0.951`；`NO_GO_DIRECT_MARGINAL_V3_STAGE_A`；fit-only checkpoints `PENDING_HF_UPLOAD`，不是正式模型 |
 | Direct marginal v3 Stage-B v1 | [结果](data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)；[config](code/configs/causalcache_set_utility_direct_marginal_v3_stage_b_v1.json)；Hyper00 `/data02/jaxan/runs/causalcache-direct-marginal-v3-stage-b-v1-8ccdb5c` | training complete；best epoch 12 / regret `0.2581`；checkpoint `d8abbe8c...1dd23`；`PENDING_HF_UPLOAD` |
 | Direct marginal v3 final fixed-tune | [结果](data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)；[HF dataset@76615721](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/766157217d99dc8c10d82349d9909ba30ceaa8e9/artifacts/set-utility-direct-marginal-v3-fixed-tune-794fb90) | 1,063/1,063、0 skip；direct/recent macro=`0.44583/0.45192`；CI crosses 0；B2/B3/Long+ fail；`NO_GO`；learned general-`B` stopped；immutable |
-| Direct on-policy coverage v1 | [合同](docs/set_utility_direct_on_policy_v1.md)；[结果](data/results/set_utility_direct_on_policy_v1/README.md) | 10,658-state selections + 5,108-state/359,189-coalition schedule complete；labels pending；`PENDING_HF_UPLOAD` |
+| Direct on-policy coverage v1 | [合同](docs/set_utility_direct_on_policy_v1.md)；[结果](data/results/set_utility_direct_on_policy_v1/README.md) | labels PASS：5,108 states / 359,189 sampled rows；merged input `6c9243a...1bfad`；9,287 optimizer states / 84,441 groups；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

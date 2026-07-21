@@ -1,6 +1,6 @@
 # Direct marginal on-policy coverage v1
 
-状态：`SELECTION_AND_SCHEDULE_COMPLETE / LABELS_PENDING`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
+状态：`COMPLETED_LABELS_AND_MERGED_TRAINING_INPUT`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
 不追认或改写旧 gate。旧 fixed-tune 已消费，后续只作 development；1,046-state untouched evaluation 继续密封，
 直到新 selector 和 fallback policy 在 train-holdout/development 上冻结。
 
@@ -36,6 +36,20 @@ selection 后的 missing-only schedule manifest 冻结。
 3,578/1,499/31；现有/resulting complete groups=62,332/120,172。schedule content SHA256=
 `981a329c...ec506`（含 5,108 个 zero-cost full anchors），轻量结果见
 [`data/results/set_utility_direct_on_policy_v1/`](../data/results/set_utility_direct_on_policy_v1/README.md)。
+
+## Label 与训练输入完成
+
+正式 rollout 完成 5,108/5,108 states、33,175/33,175 microbatches，得到 359,189 个 sampled
+coalition distances 和 5,108 个 `D(C)=0` anchors；0 skip、0 non-finite、0 duplicate rows、0 bad logs。
+terminal content SHA256=`689b3ad3cdf0fafdd3e3a40979aa86109eae40f467c6ade1551e7bf530c67a0e`。
+
+合并后的 formal training input 位于 Hyper00
+`/data02/jaxan/runs/causalcache-direct-on-policy-training-input-v1-9e94593`，content SHA256=
+`6c9243a2a2846180f717ea59e3692a3005ae153b8d206f7ad1ec4a8bf1a1bfad`。它增加 359,189 rows；
+5,108 个重复 full anchors 在 `1e-6` 规则下 exact equal，最大差异为 0；tune bytes 未改变。
+formal optimizer inventory content SHA256=`b7452b1bad141d96407bf80c62b1d4778461af260f9837852cd4d8e480646109`，
+覆盖 900 trajectories、9,287 states 与 84,441 candidate-complete groups；checkpoint denominator 仍是
+冻结的 256 held-out states。
 
 实现入口：
 
