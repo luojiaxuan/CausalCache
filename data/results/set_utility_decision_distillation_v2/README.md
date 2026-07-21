@@ -1,6 +1,6 @@
 # Decision distillation v2
 
-状态：`DDP_TRAINING_SOURCE_READY`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
+状态：`DDP_TRAINING_RUNNING`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
 storage，完成后发布到 private Hugging Face。
 
 ## 已完成
@@ -73,12 +73,19 @@ summary/checkpoint，不能作为结果或续跑入口。失败不改变 label/i
 [`causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json`](../../../code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json)：
 
 - 每模型 4 ranks，per-device batch=2、global batch=8，不改变 LR、loss、seed、epoch 或 effective batch；
-- 每 rank 在独立 H200 上预载完整 frozen cache；DDP 只切 training rows，不把 119GB cache 跨卡拼接；
+- 119GB frozen cache 使用 CPU/mmap lazy read；每 rank 只把当前 batch 搬到独立 H200，DDP 切 training rows；
 - global order 补齐到 8 的倍数后按 global batch 分片，padding 数写入 summary；
 - conditional listwise/regret 使用跨 rank 的 active-decision denominator，避免局部 batch 无条件监督时稀释主损失；
 - rank 0 用原 evaluation batch=8 跑完整 fixed tune、保存 checkpoint，再广播同一 early-stop decision；
 - Set Transformer 固定 Hyper00 4×H200，DeepSets 固定 Hyper01 4×H200。Hyper01 cache 已由 10.0.32.x
   内网补全：3,572/3,572 files、119,134,024,064 bytes、manifest SHA256=`88db0d2a...58ec4`。
+
+正式运行已启动：Set Transformer 为 `main@ecd5579`、Hyper00 GPU 0--3、root=
+`/data02/jaxan/runs/causalcache-set-transformer-decision-v2-long-oracle-ddp4-v2-ecd5579`；DeepSets 为
+`main@1aafe4c`、Hyper01 GPU 2--5、root=
+`/data02/jaxan/runs/causalcache-deepsets-decision-v2-long-oracle-ddp4-v4-1aafe4c`。两边均已进入训练 loop。
+Hyper01 复制期间遗留的两个并发 tar 曾覆盖 cache；停止后已对 3,572 shards 做完整 SHA-256 校验并修复到
+0 mismatch。所有此前失败 attempt 均无 summary/checkpoint，不进入结果或 resume。
 
 只有 fixed-tune B1--B4、macro CI 与 long-history gate 全部通过，才允许访问 untouched evaluation；本调整不
 解锁 policy replay、closed-loop 或 matched-NLL。

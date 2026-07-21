@@ -2,11 +2,19 @@
 
 ## 2026-07-20：双模型 4-GPU DDP training repair
 
+- `main@ecd5579` 将 119GB cache 从 per-rank GPU preload 改为 CPU/mmap lazy read，19 tests + 6 subtests
+  通过；Set Transformer 已在 Hyper00 GPU 0--3 启动，单卡训练显存约 29--42GB；
+- Hyper01 发现两个本任务遗留的并发 tar 正在覆盖同一 cache。停止冲突 writer 后按 manifest 对 3,572 个
+  shards / 119,134,024,064 bytes 完整 SHA-256 校验并修复到 0 mismatch；
+- DeepSets 首次 lazy-cache DDP 在第二 iteration 暴露固定的 unused `selection_embedding` branch；
+  `main@1aafe4c` 仅为 DeepSets 打开 DDP unused-parameter detection 后，已在 Hyper01 GPU 2--5 进入训练 loop；
+- 当前 roots 分别为 Hyper00
+  `/data02/jaxan/runs/causalcache-set-transformer-decision-v2-long-oracle-ddp4-v2-ecd5579` 与 Hyper01
+  `/data02/jaxan/runs/causalcache-deepsets-decision-v2-long-oracle-ddp4-v4-1aafe4c`；evaluation 仍锁定；
 - 首次 Hyper00 双单卡 launch 中，Set Transformer batch=8 在 139.40/139.81GB 时额外申请 650MB OOM；
   DeepSets 未失败，但按用户指定的跨机布局主动停止迁移。两个 attempt 均无 summary/checkpoint，不进入结果；
-- 原 trainer 是单进程单 device，普通 DDP 会在每卡复制 119GB cache，不能靠“多卡总显存”自动消除单 rank
-  峰值。repair 明确采用 4 ranks × per-device batch 2，global batch 仍为 8；每卡完整 cache + 更小 activation，
-  同时按 global batch 数据并行；
+- 原 trainer 是单进程单 device，初版普通 DDP 仍在每卡复制 119GB cache，不能靠“多卡总显存”自动消除
+  单-rank 峰值；当前 repair 使用 lazy CPU/mmap cache 与 4 ranks × per-device batch 2，global batch 仍为 8；
 - DDP training rows 使用 deterministic global order/padding/sharding；scalar losses 由标准 DDP averaging 合并，
   conditional listwise/regret 额外 all-reduce active-decision denominator，保持主目标的全局归一化；rank 0 用
   evaluation batch 8 跑固定 tune 并保存 checkpoint；

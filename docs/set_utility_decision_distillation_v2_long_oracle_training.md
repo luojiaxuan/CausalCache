@@ -1,6 +1,6 @@
 # Decision distillation v2 + long-oracle 训练执行单
 
-状态：`SOURCE_READY_LABELS_RUNNING`。本文只调整 v2 标签完成后的训练输入与目标；不改写已冻结的
+状态：`DDP_TRAINING_RUNNING`。本文只调整 v2 标签完成后的训练输入与目标；不改写已冻结的
 365,043-coalition v2 schedule，不访问 evaluation，也不授权 policy replay、closed-loop 或 matched-NLL。
 
 ## 为什么调整
@@ -90,9 +90,21 @@ scalar rows 稀释。
 单卡 batch=8 的 Set Transformer 在 139.40/139.81GB 峰值 OOM，因此正式训练使用
 [`causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json`](../code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json)。
 两个模型均为 4-rank DDP、per-rank batch=2、global batch=8；这保持原 effective batch 与 loss/optimizer，
-只改变合法执行布局。每 rank 仍持有完整 frozen cache，数据 rows 按 deterministic global batch 切分；条件决策
-损失的 active denominator 跨 rank 汇总。Set Transformer 在 Hyper00，DeepSets 在 Hyper01；每台 4 GPUs，
-均低于用户对 Hyper00 本轮显式授权的 6-card 上限。
+只改变合法执行布局。119GB frozen cache 使用 CPU/mmap lazy read，各 rank 只把当前 batch 搬到自己的 GPU，
+避免把完整 cache 复制到每张卡；数据 rows 按 deterministic global batch 切分，条件决策损失的 active
+denominator 跨 rank 汇总。Set Transformer 在 Hyper00，DeepSets 在 Hyper01；每台 4 GPUs，均低于用户对
+Hyper00 本轮显式授权的 6-card 上限。
+
+当前正式运行：
+
+- Set Transformer：`main@ecd5579`，Hyper00 GPU 0--3，output=
+  `/data02/jaxan/runs/causalcache-set-transformer-decision-v2-long-oracle-ddp4-v2-ecd5579`；
+- DeepSets：`main@1aafe4c`，Hyper01 GPU 2--5，output=
+  `/data02/jaxan/runs/causalcache-deepsets-decision-v2-long-oracle-ddp4-v4-1aafe4c`。
+
+两者均已进入训练 loop。此前 GPU-preload OOM、Hyper01 cache 被两个并发旧 tar 覆盖、以及 DeepSets DDP
+unused-parameter reduction 三类 attempt 均无 summary/checkpoint，禁止作为结果或 resume source。Hyper01 的
+3,572 个 cache shards 已逐文件核对 byte count 与 SHA-256，最终 0 mismatch。
 
 ## 当前边界
 
