@@ -4251,3 +4251,14 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   扩张绕过科学 gate。
 - 结果：
   [`data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/`](../data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)。
+
+## 2026-07-21:Stage-A Spearman 门槛复审(建议)
+
+- 用 long-oracle payload 中每 state 四次独立 `D(∅)` 重测证明标签确定性(归一化噪声中位数 0.0000,
+  完美模型 Spearman 天花板 1.0)——否定"噪声不可达"假说;修订理由改为任务对齐:全列表 Spearman
+  测量部署不消费的尾部顺序,且 v1→rank-repair 冻结记录显示优化它会因果性损害 top-1/B1/top-4。
+- 建议 Stage-A' 决策对齐合取门槛(top-1>=0.80 / top-4>=0.95 / B1>=0.90×oracle / STOP=1.0;v1 冻结
+  数字全部满足),并预承诺:此为唯一一次 Stage-A 指标修订,Stage-B 仍用原 decision-v2 fixed-tune
+  gate 判生死,再 NO-GO 即终止路线。见
+  [`docs/set_utility_direct_marginal_v3_stage_a_gate_review.md`](set_utility_direct_marginal_v3_stage_a_gate_review.md);
+  是否采纳由执行方版本化落地,v1/v2 NO-GO 记录不改写。
