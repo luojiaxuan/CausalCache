@@ -6,6 +6,7 @@
   zero-init LoRA；
 - 现有 final-hidden cache 不能反传 LoRA；optimizer + checkpoint denominator 需新增约 23,714 contexts、
   277GiB 的 full-sequence layer-32 boundary cache；
+- 已物化精确 allowlist：query/event=`9,543/14,171`，content=`4172d468...6c510`；
 - Hyper00 H200 真实 context 的 top-4 replay 与 frozen final selected tokens bitwise equal，max abs diff=0；
 - 修正部署假设：selector 与 action policy prompt 不同，不能共享 LM prefix activation；query selector forward
   必须计入 latency。

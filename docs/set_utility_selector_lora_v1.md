@@ -26,6 +26,11 @@ LoRA。新 cache 必须保存 layer 32 输入的完整 sequence，以及 3D M-Ro
 input ids 和 output token indices。optimizer + 256-state checkpoint denominator 共约 23,714 个 unique
 contexts，预计约 277GiB；旧 restoration labels 不变。
 
+正式 allowlist 已从 9,287 optimizer states 与 256 checkpoint states 物化为 23,714 unique contexts
+（query=9,543、event=14,171），content SHA256=`4172d468...6c510`，Hyper00 staging=
+`/data02/jaxan/artifacts/causalcache-selector-boundary-allowlist-v1`。它排除其余未被本轮训练或选模消费的
+contexts，避免额外生成约 50GiB cache。
+
 当前 selector entity prompt 与实际 action-policy mixed-history prompt 不同，所以二者不能共享 LM prefix
 activations。event 表示可在 arrival-time cache；每个 query 的独立 selector forward 必须计入端到端 latency。
 
