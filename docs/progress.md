@@ -4168,3 +4168,17 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - full result content SHA=`043d3e12...d4c86`、file SHA=`4dd81748...284c9`；轻量结果见
   `data/results/set_utility_decision_distillation_v2_epoch1_tune/`。full selections/schedule/labels/result 与
   checkpoints 均保存在 Hyper persistent paths，状态=`PENDING_HF_UPLOAD`。
+
+## 2026-07-21:Long-oracle in-sample 蒸馏诊断(base Set epoch-1)
+
+- 对 NO-GO 的 base Set checkpoint 在 250 个 long-oracle train states 上重放 selector(带
+  `--state-id-file` 与完整 singleton 排名持久化,Hyper01 单卡约 1 分钟),与 immutable 真值配对。
+  **In-sample** 结果:singleton 预测-真值 Spearman 仅 `0.116`(very_long `0.047`),top-1 命中真实最优
+  9.7%/5.2%,真实最优在 recent-4 外时 top-4 召回仅 23%/15%;B1 learned/oracle/recent=
+  `0.178/0.534/0.087`(very_long `0.093/0.456/-0.839`)。
+- 机理判定:**排除"标签覆盖不足是主要矛盾"**——这些 candidate-complete 组就在训练集里,模型仍未
+  拟合其排序。剩余候选:epoch-1 欠训练(decision 目标未收敛)、16-latent 表示瓶颈、大组 listwise
+  梯度稀释。建议下一轮把该重放固化为零标签的训练侧拟合探针(门槛如 Spearman>0.5、top-4 recall>60%),
+  先修训练/目标,再谈加标签或容量。
+- 结果只作 in-sample 机理诊断,不进 gate/评测/paper 主表。
+  [结果](../data/results/set_utility_long_oracle_insample_v1/README.md);selector 补丁 `b98e0ec`。

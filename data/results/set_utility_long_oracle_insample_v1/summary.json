@@ -1,0 +1,117 @@
+{
+  "by_bin": {
+    "long": {
+      "budgets": {
+        "B1": {
+          "learned_recovery_covered": 0.17767209447654875,
+          "learned_truth_coverage": 1.0,
+          "oracle_recovery_covered": 0.5335576472199035,
+          "recent_recovery_covered": 0.08665712581878815
+        },
+        "B2": {
+          "learned_recovery_covered": 0.43153507497365956,
+          "learned_truth_coverage": 0.31363636363636366,
+          "oracle_recovery_covered": 0.6724964895123291,
+          "recent_recovery_covered": 0.21777532932315352
+        },
+        "B3": {
+          "learned_recovery_covered": 0.5635761009910384,
+          "learned_truth_coverage": 0.15454545454545454,
+          "oracle_recovery_covered": 0.7588811037762688,
+          "recent_recovery_covered": 0.5342808245280025
+        },
+        "B4": {
+          "learned_recovery_covered": 0.4065230099575283,
+          "learned_truth_coverage": 0.05909090909090909,
+          "oracle_recovery_covered": 0.7250438131224713,
+          "recent_recovery_covered": 0.35028524452337645
+        }
+      },
+      "model_top1_in_recent4_rate": 0.46600877192982454,
+      "model_top1_is_true_best_rate": 0.09649122807017543,
+      "singleton_spearman_mean": 0.11626611321197793,
+      "state_count": 220,
+      "true_best_in_predicted_top4_rate": 0.31688596491228066,
+      "true_best_outside_recent4_found_in_predicted_top4_rate": 0.23232323232323232,
+      "true_best_outside_recent4_rate": 0.5636363636363636
+    },
+    "very_long": {
+      "budgets": {
+        "B1": {
+          "learned_recovery_covered": 0.09339684859038341,
+          "learned_truth_coverage": 1.0,
+          "oracle_recovery_covered": 0.4557786847100895,
+          "recent_recovery_covered": -0.8385909613882766
+        },
+        "B2": {
+          "learned_recovery_covered": 0.16628496702900308,
+          "learned_truth_coverage": 0.06666666666666667,
+          "oracle_recovery_covered": 0.5059720623571371,
+          "recent_recovery_covered": 0.05918599945173059
+        },
+        "B3": {
+          "learned_recovery_covered": 0.37154347162668233,
+          "learned_truth_coverage": 0.06666666666666667,
+          "oracle_recovery_covered": 0.6027870140406932,
+          "recent_recovery_covered": 0.07615990484106092
+        },
+        "B4": {
+          "learned_recovery_covered": -0.08934215569840581,
+          "learned_truth_coverage": 0.03333333333333333,
+          "oracle_recovery_covered": 0.5985444011628339,
+          "recent_recovery_covered": -0.08934215569840581
+        }
+      },
+      "model_top1_in_recent4_rate": 0.3020833333333333,
+      "model_top1_is_true_best_rate": 0.05208333333333333,
+      "singleton_spearman_mean": 0.0470788187628911,
+      "state_count": 30,
+      "true_best_in_predicted_top4_rate": 0.1875,
+      "true_best_outside_recent4_found_in_predicted_top4_rate": 0.15384615384615385,
+      "true_best_outside_recent4_rate": 0.7333333333333333
+    }
+  },
+  "checkpoint_sha256": "77080c5808b711384f8c6a5632caedd48d84b206c5cf5d1efd6a4c165d873bfe",
+  "content_sha256": "042a37fb966f7124bfb8f681e8a27282241aa63d68457563da5d3fbc3c734999",
+  "input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+  "overall": {
+    "budgets": {
+      "B1": {
+        "learned_recovery_covered": 0.1663890701624394,
+        "learned_truth_coverage": 1.0,
+        "oracle_recovery_covered": 0.5278649320322136,
+        "recent_recovery_covered": 0.03246182179728279
+      },
+      "B2": {
+        "learned_recovery_covered": 0.42324600910038906,
+        "learned_truth_coverage": 0.284,
+        "oracle_recovery_covered": 0.6672926011637293,
+        "recent_recovery_covered": 0.21281941276467156
+      },
+      "B3": {
+        "learned_recovery_covered": 0.558687212513493,
+        "learned_truth_coverage": 0.144,
+        "oracle_recovery_covered": 0.7522464523329906,
+        "recent_recovery_covered": 0.5130358155035926
+      },
+      "B4": {
+        "learned_recovery_covered": 0.36837953567630255,
+        "learned_truth_coverage": 0.056,
+        "oracle_recovery_covered": 0.7153130891255762,
+        "recent_recovery_covered": 0.316467752198624
+      }
+    },
+    "model_top1_in_recent4_rate": 0.45991561181434604,
+    "model_top1_is_true_best_rate": 0.0949367088607595,
+    "singleton_spearman_mean": 0.10789401263423706,
+    "state_count": 250,
+    "true_best_in_predicted_top4_rate": 0.310126582278481,
+    "true_best_outside_recent4_found_in_predicted_top4_rate": 0.23113207547169812,
+    "true_best_outside_recent4_rate": 0.584
+  },
+  "purpose": "IN_SAMPLE_TRAIN_DIAGNOSTIC_ONLY_NOT_EVALUATION",
+  "schema_version": "causalcache.set_utility_long_oracle_insample.v1",
+  "selector_variant": "set_transformer_decision_v2_long_oracle_ddp4_d256_l16_r2_s2_lr1e4",
+  "skipped_states": {},
+  "status": "COMPLETED_SET_UTILITY_LONG_ORACLE_INSAMPLE_DIAGNOSTIC"
+}
