@@ -26,6 +26,15 @@ train states(beam-4,持久化完整 singleton 预测排名),与 immutable long-o
 - 模型 B1 仍明显强于 recent(in-sample),方向与 tune truth 一致;但只兑现 oracle headroom 的约
   1/4--1/3,very_long 上接近随机。
 
+## 参数化病理补充验证(2026-07-21)
+
+对同一 checkpoint 的 250 个 in-sample 重放再验证 scalar-U(S) 参数化的行为:预测 utility 严格随基数
+上升 **250/250**,at-most-B 全部退化为 exact-B(每预算选满)**250/250**;而 wave-1/2 真值显示
+**56.6% 的第二事件加入降低真实 utility**,20/250 个 state 连最优第二加入都有害(真最优停在 B=1)。
+模型的预测边际恒正,结构上无法学会 STOP 与避开有害加入;head 输入含 `log1p(|S|)` 基数特征、回归
+目标平均趋势又随 |S| 上升,"more is better" 是最易学解。该证据支持 v3 转向 direct conditional
+marginal + STOP 参数化(保留 set-aware encoder)。
+
 ## 机理判定
 
 三个候选病因中,本诊断**排除了"标签覆盖不足是主要矛盾"**:这些 state 的 candidate-complete
