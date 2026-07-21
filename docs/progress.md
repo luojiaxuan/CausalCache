@@ -4083,3 +4083,13 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   immutable tag=`set-utility-long-oracle-v1-179b0d8`;远端 readback `payload.tar.gz` SHA256 与本地一致
   (`9238f63d...0c8b34`)。Hyper00 `/data02/jaxan/artifacts/causalcache-long-oracle-v1-179b0d8` 保留为
   mirror,`PENDING_HF_UPLOAD` 状态解除。
+
+## 2026-07-21:GUI-Odyssey 官方切分交叉审计
+
+- 官方 `OpenGVLab/GUI-Odyssey` 提供四个切分(`random/task/device/app_split.json`,random 为 3:1);
+  本项目 1,200 条冻结 trajectory 与其逐条比对:切分互不对齐(我们 train 含最多 258 条官方 test,
+  我们 evaluation 有 77--88% 落在官方 train),63 条在官方当前名单缺失(疑似 cua-lite 镜像版本差)。
+- 审计脚本与完整数字入库:`code/scripts/audit_guiodyssey_official_splits.py`、
+  `data/results/guiodyssey_official_split_audit_v1/`;paper 辩护口径(不做官方 benchmark、我们的
+  group-aware 切分在关键泄漏轴上更严、policy 预训练去污染不声称、官方 test 子集 robustness 可选项)
+  已预注册进该 README。

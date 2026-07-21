@@ -1,0 +1,162 @@
+{
+  "assignment_manifest_sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30",
+  "missing_trajectory_count": 63,
+  "missing_trajectory_ids": [
+    "0044058198676449",
+    "0073631237300890",
+    "0134650730837716",
+    "0368461547013657",
+    "0618548696883261",
+    "1079207916669082",
+    "1645272956705511",
+    "1701879615722262",
+    "1735472515427271",
+    "1878328337401218",
+    "1884781239237345",
+    "2261121787964190",
+    "2402022714060245",
+    "2435860398558511",
+    "2459637364587392",
+    "2683031693347561",
+    "2765496360052541",
+    "2932448174271465",
+    "2959175617728519",
+    "3333345055700976",
+    "3359398467343486",
+    "3363414598380564",
+    "3637734597786327",
+    "3818497099305635",
+    "3942570335049775",
+    "4168783689616363",
+    "4230466852090938",
+    "4667872013142062",
+    "4724482179173587",
+    "4850426474044346",
+    "4890653599748403",
+    "4922573777159713",
+    "5037215832471868",
+    "5131470464565103",
+    "5423764273330857",
+    "5702531167000613",
+    "5901615367376862",
+    "5945215126402110",
+    "6100508121693713",
+    "6530665276376323",
+    "6820082293565157",
+    "7108313574665086",
+    "7247744571019105",
+    "7257711751953522",
+    "7301877631276862",
+    "7437760475243514",
+    "7450826194417030",
+    "7692692859413829",
+    "7780031771704529",
+    "7784639360300223",
+    "7956766086339299",
+    "7960230735225327",
+    "8134019297581704",
+    "8181276188507423",
+    "8199499322042764",
+    "8316108003697007",
+    "8778913380783791",
+    "9003601524235457",
+    "9100423454544852",
+    "9270116261400457",
+    "9639163863667888",
+    "9838925140638293",
+    "9972991235336753"
+  ],
+  "official_repo": "OpenGVLab/GUI-Odyssey",
+  "official_splits": {
+    "app_split": {
+      "official_test_count": 1139,
+      "official_train_count": 6596,
+      "our_roles": {
+        "evaluation": {
+          "missing_from_official_lists": 4,
+          "official_test": 14,
+          "official_train": 82
+        },
+        "train": {
+          "missing_from_official_lists": 49,
+          "official_test": 128,
+          "official_train": 823
+        },
+        "tune": {
+          "missing_from_official_lists": 10,
+          "official_test": 7,
+          "official_train": 83
+        }
+      }
+    },
+    "device_split": {
+      "official_test_count": 1262,
+      "official_train_count": 6473,
+      "our_roles": {
+        "evaluation": {
+          "missing_from_official_lists": 4,
+          "official_test": 10,
+          "official_train": 86
+        },
+        "train": {
+          "missing_from_official_lists": 49,
+          "official_test": 146,
+          "official_train": 805
+        },
+        "tune": {
+          "missing_from_official_lists": 10,
+          "official_test": 15,
+          "official_train": 75
+        }
+      }
+    },
+    "random_split": {
+      "official_test_count": 1933,
+      "official_train_count": 5802,
+      "our_roles": {
+        "evaluation": {
+          "missing_from_official_lists": 4,
+          "official_test": 19,
+          "official_train": 77
+        },
+        "train": {
+          "missing_from_official_lists": 49,
+          "official_test": 258,
+          "official_train": 693
+        },
+        "tune": {
+          "missing_from_official_lists": 10,
+          "official_test": 22,
+          "official_train": 68
+        }
+      }
+    },
+    "task_split": {
+      "official_test_count": 1016,
+      "official_train_count": 6719,
+      "our_roles": {
+        "evaluation": {
+          "missing_from_official_lists": 4,
+          "official_test": 8,
+          "official_train": 88
+        },
+        "train": {
+          "missing_from_official_lists": 49,
+          "official_test": 132,
+          "official_train": 819
+        },
+        "tune": {
+          "missing_from_official_lists": 10,
+          "official_test": 13,
+          "official_train": 77
+        }
+      }
+    }
+  },
+  "our_role_counts": {
+    "evaluation": 100,
+    "train": 1000,
+    "tune": 100
+  },
+  "schema_version": "causalcache.guiodyssey_official_split_audit.v1"
+}
