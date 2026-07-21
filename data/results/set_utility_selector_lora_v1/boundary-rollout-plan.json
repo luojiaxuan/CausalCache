@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0.0",
+  "status": "RUNNING",
+  "run_id": "rollout-20260721T215920Z",
+  "inventory_observed_at": "2026-07-21T21:58:58.081457+00:00",
+  "source_revision": "c8cbc634db735bc414910cf17f53c48c3a321c2b",
+  "logical_partition_count": 12,
+  "context_count": 23714,
+  "contexts_per_chunk": 8,
+  "hosts": {
+    "hyper00": {
+      "gpu_ids": [0, 1, 2, 3, 4, 5],
+      "partition_indices": [0, 1, 2, 3, 4, 5],
+      "container_id": "fd45971e427b32349fab673db0b726b7a6cad146876ec137d9589502c500fa4c",
+      "output_root": "/data02/jaxan/runs/causalcache-selector-boundary-h00-c8cbc63"
+    },
+    "hyper01": {
+      "gpu_ids": [0, 2, 3, 4, 5, 6],
+      "partition_indices": [6, 7, 8, 9, 10, 11],
+      "container_id": "5b1ceefe610a6b2be638b76676456a9e81a629923b287e8842bc14c46893eced",
+      "output_root": "/data02/jaxan/runs/causalcache-selector-boundary-h01-c8cbc63"
+    }
+  },
+  "resume_unit": "logical_shard_chunk",
+  "evaluation_access": false
+}
