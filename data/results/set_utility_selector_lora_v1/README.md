@@ -36,8 +36,11 @@
   B1/B2/B3/B4=`0.18320309/0.28059072/0.35835215/0.39953378`，macro/Long+=
   `0.30541994/0.32770226`，低于 recent。执行计划见
   [`lora-truth-rollout-plan.json`](lora-truth-rollout-plan.json)。
-- joint token-adapter epoch 1 checkpoint=`c50b4291...b51451`，当前缺 2,160 个实际访问 coalition truth；
-  LoRA joint 将从已按真实 recovery 选定的 LoRA-only checkpoint 启动。
+- joint token-adapter epoch 1 checkpoint=`c50b4291...b51451`；91 states / 2,251 coalitions（其中 2,160
+  forward）的 truth rollout 已在 Hyper01 6×H200 启动。joint LoRA 已从 true-recovery 选定的
+  LoRA-only checkpoint 在 Hyper00 6×H200 启动。执行记录见
+  [`token-adapter-joint-truth-rollout-plan.json`](token-adapter-joint-truth-rollout-plan.json) 与
+  [`lora-joint-training-plan.json`](lora-joint-training-plan.json)。
 - boundary cache 完成后需上传 private HF；当前状态 `PENDING_HF_UPLOAD`。
 
 设计与限制见 [`docs/set_utility_selector_lora_v1.md`](../../../docs/set_utility_selector_lora_v1.md)。

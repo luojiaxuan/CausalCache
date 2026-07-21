@@ -22,7 +22,9 @@
   `ab5f14cd...c8d0`。LoRA-only B1/B2/B3/B4=`0.18320/0.28059/0.35835/0.39953`，
   macro/Long+=`0.30542/0.32770`，低于 recent；不解锁表示改进 claim。
 - joint token-adapter epoch 1 已在 Hyper01 6×H200 完成优化并停在 truth barrier，checkpoint=
-  `c50b4291...b51451`；需补 2,160 个实际访问 coalitions。joint LoRA 尚未启动。
+  `c50b4291...b51451`；91 states / 2,160 forwards 的 truth rollout 已在 Hyper01 6×H200 启动。
+- joint LoRA 已从 phase-1 true-recovery checkpoint 在 Hyper00 6×H200 启动；训练与 adapter truth rollout
+  分机并行。
 
 ## 2026-07-21：selector-side LoRA boundary replay 通过
 

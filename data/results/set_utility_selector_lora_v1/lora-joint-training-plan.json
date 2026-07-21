@@ -1,0 +1,12 @@
+{
+  "container": "sglang-omni-jaxan-07211619",
+  "created_at": "2026-07-21T23:19:21.226878775+00:00",
+  "gpu_ids": [2, 3, 4, 5, 6, 7],
+  "host": "hyper00",
+  "output_root": "/data02/jaxan/runs/causalcache-selector-lora-v1-5c827e6/joint",
+  "parent_checkpoint_sha256": "db95948b838d29a6b63d84c5020bdb7dfcb78bf4f8c434e109f00ce59e2ccc01",
+  "phase": "joint",
+  "source_revision": "5c827e6852e8970fbcf2fb3cba0e3c53ae73fd2f",
+  "status": "RUNNING",
+  "world_size": 6
+}

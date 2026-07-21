@@ -1,0 +1,16 @@
+{
+  "container": "sglang-omni-jaxan-07211619",
+  "created_at": "2026-07-21T23:19:43.516290379+00:00",
+  "gpu_ids": [0, 1, 2, 3, 4, 5],
+  "host": "hyper01",
+  "output_root": "/data02/jaxan/runs/causalcache-selector-token-adapter-joint-truth-e1-e1593c6",
+  "partition_count": 6,
+  "schedule": {
+    "coalition_count": 2251,
+    "content_sha256": "b34b46ca0ee3c87e0981af203a12aca420c5f6930e4eb9779006962302a3bcf2",
+    "forward_coalition_count": 2160,
+    "state_count": 91
+  },
+  "source_revision": "e1593c64e8720a5441bbb6f2884dfe2d74cadaf9",
+  "status": "RUNNING"
+}
