@@ -1,6 +1,6 @@
 # Decision distillation v2
 
-状态：`LABELS_COMPLETE_MERGE_PENDING_LINEAGE_REPAIR`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
+状态：`TRAINING_INPUT_COMPLETE`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
 storage，完成后发布到 private Hugging Face。
 
 ## 已完成
@@ -55,6 +55,13 @@ duplicate max delta=`2.98e-8`，tune byte-identity 通过；该演练在 v2 labe
 contextual input；trainer 因而会正确 fail closed。该 root 标记为 superseded staging，不用于训练。当前 source
 repair 将完整 `ancestor_content_sha256s` 写入 manifest，并让 trainer/selector 只接受显式 lineage 中的 binding；
 修复后另立 versioned output root，不能原地改写首次 merge。
+
+lineage-repaired v2 training input 已物化到 Hyper00
+`/data02/jaxan/artifacts/causalcache-decision-v2-long-oracle-training-inputs-v2-f7f6b14`：content=
+`3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce`，states=
+`9d9ef9917eb9da635e044845ddcff71924447eafb3b5b6091d13d42f5be10956`，226MB；cache ancestor
+`af18388e...f102139c1` 命中并通过 validator。最终 census 为 5,550 decision-supervised states / 67,322
+complete expansion groups，Long+ 902 states，超过 1,100/800 的冻结启动门槛；status=`PENDING_HF_UPLOAD`。
 
 只有 fixed-tune B1--B4、macro CI 与 long-history gate 全部通过，才允许访问 untouched evaluation；本调整不
 解锁 policy replay、closed-loop 或 matched-NLL。

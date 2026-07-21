@@ -12,6 +12,10 @@
 - 启动前 cache binding 检查发现首次 manifest 只保留 direct parent=`2711ab55...`，而 frozen hidden cache 绑定
   ancestor=`af18388e...`。不绕过 validator、不改写该 root；新增显式 `ancestor_content_sha256s` lineage，
   trainer 与 selector 仅接受 direct/ancestor 明示 binding，随后重物化新 root 再训练。
+- repair source=`main@f7f6b14` 在 Hyper00 带 PyTorch 测试 23 passed + 6 subtests；新 root=
+  `/data02/jaxan/artifacts/causalcache-decision-v2-long-oracle-training-inputs-v2-f7f6b14`，content=
+  `3d011990...ad36ce`、states=`9d9ef991...10956`。显式 ancestors=`2711ab55...`,`af18388e...`，frozen
+  cache binding=true；该 226MB snapshot 待上传 private HF，现已满足双模型训练启动条件。
 
 ## 2026-07-20：long-oracle 监督并入 decision distillation v2 后续训练
 

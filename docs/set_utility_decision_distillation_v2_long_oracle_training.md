@@ -47,6 +47,12 @@ wave 做真实只读合并演练：250/250 states/source 全部通过，新增 1
 绝对差 `2.98e-8 < 1e-6`，tune payload firewall 通过；带 PyTorch focused tests 为 10/10 passed。该演练输出
 位于 disposable container `/tmp`，不是正式训练 artifact。
 
+全量 labels 完成后，lineage-repaired 正式训练输入已在 `main@f7f6b14` 物化：Hyper00
+`/data02/jaxan/artifacts/causalcache-decision-v2-long-oracle-training-inputs-v2-f7f6b14`，content SHA256=
+`3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce`。真实 census 为 5,550 个至少含
+一个 complete expansion group 的 train states、67,322 groups、Long+ 902 states；cache ancestor binding
+通过，evaluation labels=`false`。状态为 `PENDING_HF_UPLOAD`。
+
 训练损失权重固定为：
 
 | 项 | 权重 | 角色 |
