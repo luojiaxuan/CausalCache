@@ -1,6 +1,6 @@
 # Selector-side LoRA v1
 
-状态：`ADAPTER_PHASE1_COMPLETE_LORA_TRUTH_RUNNING`。
+状态：`PHASE1_COMPLETE_JOINT_ADAPTATION_RUNNING`。
 
 - teacher/action policy：原始 frozen GUI-Owl，不含 LoRA；
 - selector branch：LM top-4，计划 q/k/v/o rank-8 LoRA；
@@ -31,8 +31,13 @@
   `f356809a44d1336c428e7ceaae1f32364297366aa9b98d63374bf9beb9239f98`。执行计划见
   [`token-adapter-truth-rollout-plan.json`](token-adapter-truth-rollout-plan.json)。
 - LoRA schedule content=`90463d5f...d7f37`，物化为 129 states、3,785 coalitions（其中 3,656
-  forward）。Hyper00 6×H200 truth rollout 已启动，执行计划见
+  forward）。Hyper00 6×H200 truth rollout 已完成：129/129 states、6/6 workers、0 skip/error，formal
+  truth content=`ab5f14cd0fc5ec403b271631681d1198069166240c34c31d50b61a49a8a6c8d0`。LoRA-only
+  B1/B2/B3/B4=`0.18320309/0.28059072/0.35835215/0.39953378`，macro/Long+=
+  `0.30541994/0.32770226`，低于 recent。执行计划见
   [`lora-truth-rollout-plan.json`](lora-truth-rollout-plan.json)。
+- joint token-adapter epoch 1 checkpoint=`c50b4291...b51451`，当前缺 2,160 个实际访问 coalition truth；
+  LoRA joint 将从已按真实 recovery 选定的 LoRA-only checkpoint 启动。
 - boundary cache 完成后需上传 private HF；当前状态 `PENDING_HF_UPLOAD`。
 
 设计与限制见 [`docs/set_utility_selector_lora_v1.md`](../../../docs/set_utility_selector_lora_v1.md)。

@@ -60,13 +60,14 @@ head 的 selection parity。
   `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；
 - executable training config 已单独版本化，未改写 extraction config；token-adapter 与 LoRA-only 首 epoch
   均已完成。token-adapter 的 132-state truth 已 seal 并回填，B1--B4 macro/Long+=
-  `0.30893/0.30401`，低于 recent=`0.37330/0.38002`；LoRA 的 129-state truth rollout 仍在 Hyper00
-  运行。当前不能声称 selector representation 已改善。
+  `0.30893/0.30401`，低于 recent=`0.37330/0.38002`；LoRA-only 的 129-state truth 也已 seal，
+  macro/Long+=`0.30542/0.32770`，同样低于 recent。当前不能声称 selector representation 已改善；
+  joint adaptation 是剩余的决定性检验。
 
 ## 下一步
 
-1. 完成 LoRA 首 epoch 的固定 256-state truth barrier；
-2. 继续 joint token-adapter 对照，并在 LoRA truth 回填后按真实 recovery 启动 joint LoRA。
+1. 补齐 joint token-adapter epoch 1 的实际访问 truth；
+2. 启动 joint LoRA，并对每个 epoch 使用同一个 fixed-256 truth barrier 选模。
 
 Boundary extraction 的冻结参数见
 [`causalcache_set_utility_selector_lora_v1.json`](../code/configs/causalcache_set_utility_selector_lora_v1.json)。

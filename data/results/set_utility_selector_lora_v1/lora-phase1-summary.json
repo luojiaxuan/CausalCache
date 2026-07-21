@@ -1,0 +1,32 @@
+{
+  "checkpoint_sha256": "db95948b838d29a6b63d84c5020bdb7dfcb78bf4f8c434e109f00ce59e2ccc01",
+  "heldout_rollout_file_sha256": "4af09f9b6e549b7cd13a77a5ac05b84294f209ffd36a4967053dee0c54f31673",
+  "model_family": "selector_lora_v1_lora_only",
+  "phase_summary_file_sha256": "a410a331a2985f00125cf70e222322da233dae0b688e1a662205e2655d848788",
+  "recent": {
+    "B1": 0.1832030894394307,
+    "B2": 0.3556452589785001,
+    "B3": 0.42122277090461197,
+    "B4": 0.5331191596613188,
+    "long_plus_macro": 0.38001933028971185,
+    "macro": 0.3732975697459654
+  },
+  "recovery": {
+    "B1": 0.1832030894394307,
+    "B2": 0.2805907196354189,
+    "B3": 0.3583521548709482,
+    "B4": 0.39953378324337346,
+    "long_plus_macro": 0.3277022584939856,
+    "macro": 0.3054199367972928
+  },
+  "schema_version": "causalcache.selector_adaptation_lightweight_result.v1",
+  "status": "COMPLETED_SELECTOR_LORA_PHASE1_TRUE_RECOVERY",
+  "truth": {
+    "coalition_count": 3785,
+    "formal_manifest_content_sha256": "ab5f14cd0fc5ec403b271631681d1198069166240c34c31d50b61a49a8a6c8d0",
+    "formal_manifest_file_sha256": "d0f3a8199c939ec6a1f8dbfa1edc128d7ea82e2ba45f194c77e59107ebebfd44",
+    "local_root": "/data02/jaxan/runs/causalcache-selector-lora-truth-e1-5c827e6",
+    "state_count": 129,
+    "status": "PENDING_HF_UPLOAD"
+  }
+}

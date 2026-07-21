@@ -17,8 +17,12 @@
   seal，0 skip/error；formal truth content=`ac7304d5...ae98`。adapter-only B1/B2/B3/B4=
   `0.18320/0.27833/0.37140/0.40280`，macro/Long+=`0.30893/0.30401`，低于 recent=
   `0.37330/0.38002`。该结果不解锁表示改进 claim，但按冻结两阶段合同允许进入 joint adapter 对照。
-- LoRA-only 首 epoch 用 Hyper00 6×H200 约 12 分钟完成，checkpoint SHA256=`db95948b...ccc01`；129
-  states、3,785 coalitions 已物化，Hyper00 6×H200 truth rollout 与 token-adapter rollout 并行运行。
+- LoRA-only 首 epoch 用 Hyper00 6×H200 约 12 分钟完成，checkpoint SHA256=`db95948b...ccc01`；129/129
+  states、3,785 coalitions 已由 Hyper00 6×H200 完成并 seal，0 skip/error，formal truth content=
+  `ab5f14cd...c8d0`。LoRA-only B1/B2/B3/B4=`0.18320/0.28059/0.35835/0.39953`，
+  macro/Long+=`0.30542/0.32770`，低于 recent；不解锁表示改进 claim。
+- joint token-adapter epoch 1 已在 Hyper01 6×H200 完成优化并停在 truth barrier，checkpoint=
+  `c50b4291...b51451`；需补 2,160 个实际访问 coalitions。joint LoRA 尚未启动。
 
 ## 2026-07-21：selector-side LoRA boundary replay 通过
 
