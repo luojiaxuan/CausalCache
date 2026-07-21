@@ -59,6 +59,15 @@ selection 后的 missing-only schedule manifest 冻结。
 单一 scalar holdout regret 选择；正式 checkpoint selection 是 trajectory-disjoint train-holdout 上真实
 B1--B4 macro recovery。训练/选择不读取 evaluation。
 
+train-heldout 已按实际 structured input（不是较早的 10,680-state assignment）冻结：10,658 train states / 1,000
+trajectories 被切为 optimizer 9,287 states / 900 trajectories 与 heldout 1,371 states / 100 trajectories；checkpoint
+denominator 从 heldout 中固定 256 states，short/medium/long/very-long 各 64。22 个只在旧 assignment、但不在
+本轮 frozen input 的 states 以 `ABSENT_FROM_FROZEN_STRUCTURED_TRAINING_INPUT` 明示排除。每个 epoch 先保存
+immutable checkpoint，再在该 denominator 上做真实 at-most-`B` rollout；若 epoch 实际访问的 truth 不完整，
+先汇总所有 epochs 的 missing subsets 补标，再重放 checkpoint selection。primary metric 是 trajectory-equal
+B1--B4 macro recovery，Long+ 只作 tie-break；`patience=5`、`minimum_delta=1e-4`，不再按最后 epoch 或 eval loss
+选模型。[冻结 manifest](../data/manifests/set_utility_train_heldout_v1.json)。
+
 ## Compute 与 SoT
 
 - Hyper00/Hyper01 每台最多 6 GPUs；label preflight 的可用量为 5/6，因此使用 5/6；

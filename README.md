@@ -11,7 +11,9 @@
   recent 与 confidence-gated hybrid 实际访问的 candidate-complete conditional groups，比较小型
   structured/DeepSets marginal head 和现有 Set Transformer。全部 epoch 保存，并按 trajectory-disjoint
   train-holdout 的真实 B1--B4 recovery 选 checkpoint；已消费 fixed-tune 只作 development，untouched evaluation
-  继续密封。[执行合同](docs/set_utility_direct_on_policy_v1.md)。
+  继续密封。heldout 已按实际 10,658-state input 冻结为 100 trajectories / 1,371 states，其中 checkpoint
+  denominator 为四个 history bins 各 64 states；`patience=5` 的 early stop 只消费真实 recovery。
+  [执行合同](docs/set_utility_direct_on_policy_v1.md)。
 - **Direct conditional-marginal v3 已在最终 fixed-tune gate 正式 NO-GO，learned general-`B` 路线停止。**
   1,063/1,063 states、0 skip；direct-v3/recent macro=`0.44583/0.45192`，delta=`-0.00609`，95% CI=
   `[-0.03012,+0.01642]`。它只在 B1/B4 胜 recent，B2/B3、macro CI、Long+ 全部失败，并弱于旧
