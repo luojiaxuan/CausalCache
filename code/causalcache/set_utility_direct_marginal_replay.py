@@ -142,12 +142,33 @@ def _event_ids(values: Sequence[int]) -> tuple[int, ...]:
     return result
 
 
+def normalize_recent_fallback_budgets(
+    values: Sequence[int] | None,
+) -> tuple[int, ...]:
+    if values is None:
+        return ()
+    if isinstance(values, (str, bytes, bytearray, Mapping)):
+        raise TypeError("recent fallback budgets must be a sequence")
+    result = tuple(values)
+    if (
+        any(type(value) is not int or value not in (1, 2, 3, 4) for value in result)
+        or result != tuple(sorted(result))
+        or len(result) != len(set(result))
+    ):
+        raise ValueError(
+            "recent fallback budgets must be sorted unique values from 1,2,3,4"
+        )
+    return result
+
+
 @dataclass(frozen=True)
 class DirectMarginalSelectionPath:
-    """One nested at-most-B path with the model's native STOP semantics."""
+    """Per-budget at-most-B selections with explicit routing provenance."""
 
     budget: int
+    budget_routes: Mapping[int, str]
     predicted_utilities: Mapping[int, float]
+    recent_fallback_budgets: tuple[int, ...]
     recent_fallback_threshold: float | None
     scored_subsets: tuple[tuple[tuple[int, ...], float], ...]
     score_count: int
@@ -173,12 +194,14 @@ def direct_marginal_at_most_budget_path(
     score: Callable[[tuple[int, ...]], Sequence[float]],
     stop_semantics: str,
     recent_fallback_threshold: float | None = None,
+    recent_fallback_budgets: Sequence[int] | None = None,
 ) -> DirectMarginalSelectionPath:
-    """Select nested B1--B events from ``[STOP, event_1, ..., event_n]`` scores.
+    """Select at-most-B events from ``[STOP, event_1, ..., event_n]`` scores.
 
     Selection delegates to the unified evaluator so policy replay and offline
     evaluation use the same native-STOP and confidence-gated recent semantics.
-    ``recent_fallback_threshold=None`` is the backward-compatible direct mode.
+    Explicit budget deferral independently returns recent-B and may therefore
+    be non-nested with learned selections at other budgets.
     """
     events = _event_ids(event_ids)
     if type(budget) is not int or budget not in (1, 2, 3, 4):
@@ -192,12 +215,67 @@ def direct_marginal_at_most_budget_path(
         or float(recent_fallback_threshold) < 0.0
     ):
         raise ValueError("direct marginal recent fallback threshold is invalid")
+    fallback_budgets = normalize_recent_fallback_budgets(recent_fallback_budgets)
+    if recent_fallback_threshold is not None and fallback_budgets:
+        raise ValueError(
+            "confidence threshold and budget deferral modes are mutually exclusive"
+        )
+
+    requested_budgets = tuple(range(1, budget + 1))
+    learned_budgets = tuple(
+        value for value in requested_budgets if value not in fallback_budgets
+    )
+    recent_selections = {
+        value: tuple(events[-min(value, len(events)) :])
+        for value in requested_budgets
+        if value in fallback_budgets
+    }
+    budget_routes = {
+        value: (
+            "recent_budget_deferral"
+            if value in fallback_budgets
+            else (
+                "confidence_gated_recent"
+                if recent_fallback_threshold is not None
+                else "direct_learned"
+            )
+        )
+        for value in requested_budgets
+    }
+
+    if not learned_budgets:
+        selections = dict(recent_selections)
+        scored_subsets: list[tuple[tuple[int, ...], float]] = [((), 0.0)]
+        for subset in selections.values():
+            if subset and subset not in {row[0] for row in scored_subsets}:
+                scored_subsets.append((subset, 0.0))
+        return DirectMarginalSelectionPath(
+            budget=budget,
+            budget_routes=budget_routes,
+            predicted_utilities={value: 0.0 for value in requested_budgets},
+            recent_fallback_budgets=fallback_budgets,
+            recent_fallback_threshold=None,
+            scored_subsets=tuple(scored_subsets),
+            score_count=0,
+            selections=selections,
+            stop_semantics=stop_semantics,
+            trace=tuple(
+                {
+                    "budget": value,
+                    "learned_search_skipped": True,
+                    "predicted_utility_scored": False,
+                    "reason": "recent_budget_deferral",
+                    "selected_subset": list(selections[value]),
+                }
+                for value in requested_budgets
+            ),
+        )
 
     from causalcache.set_utility_direct_on_policy_evaluator import (
         marginal_budget_path,
     )
 
-    maximum_cardinality = min(budget, len(events))
+    maximum_cardinality = min(max(learned_budgets), len(events))
 
     def bounded_score(selected: tuple[int, ...]) -> Sequence[float]:
         if len(selected) >= maximum_cardinality:
@@ -212,8 +290,12 @@ def direct_marginal_at_most_budget_path(
     )
     raw_selections = evaluated["selections"]
     selections = {
-        current_budget: tuple(raw_selections[str(current_budget)])
-        for current_budget in range(1, budget + 1)
+        current_budget: (
+            recent_selections[current_budget]
+            if current_budget in recent_selections
+            else tuple(raw_selections[str(current_budget)])
+        )
+        for current_budget in requested_budgets
     }
     selected_count = 0
     trace: list[Mapping[str, object]] = []
@@ -237,15 +319,35 @@ def direct_marginal_at_most_budget_path(
         scored_subsets.append((selected_subset, cumulative))
         if selected_count >= maximum_cardinality:
             break
-    utilities = {
-        current_budget: utility_by_subset[selections[current_budget]]
-        for current_budget in range(1, budget + 1)
-    }
+    utilities = {}
+    for current_budget in requested_budgets:
+        subset = selections[current_budget]
+        utilities[current_budget] = (
+            0.0
+            if current_budget in fallback_budgets
+            else utility_by_subset[subset]
+        )
+        if subset and subset not in {row[0] for row in scored_subsets}:
+            scored_subsets.append((subset, utilities[current_budget]))
     score_count = sum(len(row["scored_actions"]) for row in trace)
+    if fallback_budgets:
+        trace.extend(
+            {
+                "budget": value,
+                "learned_search_skipped": True,
+                "predicted_utility_scored": False,
+                "reason": "recent_budget_deferral",
+                "selected_subset": list(selections[value]),
+            }
+            for value in requested_budgets
+            if value in fallback_budgets
+        )
 
     return DirectMarginalSelectionPath(
         budget=budget,
+        budget_routes=budget_routes,
         predicted_utilities=utilities,
+        recent_fallback_budgets=fallback_budgets,
         recent_fallback_threshold=(
             None
             if recent_fallback_threshold is None
@@ -268,6 +370,7 @@ def load_train_development_direct_marginal_backend(
     model_dir: Path,
     device: str,
     recent_fallback_threshold: float | None = None,
+    recent_fallback_budgets: Sequence[int] | None = None,
 ) -> Any:
     """Load a current marginal checkpoint without entering the signed GO path.
 
@@ -349,6 +452,7 @@ def load_train_development_direct_marginal_backend(
         source_encoder=GUIOwlLiveRichSourceEncoder(runtime),
         stop_semantics=adapter.stop_semantics,
         recent_fallback_threshold=recent_fallback_threshold,
+        recent_fallback_budgets=recent_fallback_budgets,
     )
     backend.replay_binding = binding
     return backend
@@ -367,4 +471,5 @@ __all__ = [
     "direct_marginal_at_most_budget_path",
     "load_direct_marginal_replay_binding",
     "load_train_development_direct_marginal_backend",
+    "normalize_recent_fallback_budgets",
 ]

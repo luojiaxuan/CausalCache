@@ -74,6 +74,13 @@ def test_fixed_zero_stop_returns_nested_at_most_budget_path() -> None:
     assert path.score_count == 9
     assert path.trace[-1]["reason"] == "native_stop"
     assert path.recent_fallback_threshold is None
+    assert path.recent_fallback_budgets == ()
+    assert path.budget_routes == {
+        1: "direct_learned",
+        2: "direct_learned",
+        3: "direct_learned",
+        4: "direct_learned",
+    }
 
 
 def test_learned_stop_is_not_replaced_by_zero_gain() -> None:
@@ -199,19 +206,27 @@ class _BackendWithoutCudaEncoding(TorchDirectMarginalReplayBackend):
         *,
         stop_semantics: str = LEARNED_STOP,
         recent_fallback_threshold: float | None = None,
+        recent_fallback_budgets: tuple[int, ...] = (),
     ) -> None:
         self.model = _FakeMarginalModel(scores)
         self.torch = _FakeTorch()
         self.device = "cuda:0"
+        self.encode_calls = 0
         self.stop_semantics = stop_semantics
         self.recent_fallback_threshold = recent_fallback_threshold
+        self.recent_fallback_budgets = recent_fallback_budgets
         self.selection_mode = (
-            "direct"
-            if recent_fallback_threshold is None
-            else "confidence_gated_recent"
+            "recent_budget_deferral"
+            if recent_fallback_budgets
+            else (
+                "direct"
+                if recent_fallback_threshold is None
+                else "confidence_gated_recent"
+            )
         )
 
     def _encode_request(self, _request: object):
+        self.encode_calls += 1
         return object(), time.perf_counter(), {"raw_source_encoding": 0.0}, {}
 
     def _synchronize(self) -> None:
@@ -234,16 +249,32 @@ def test_live_backend_hybrid_mode_requires_explicit_valid_threshold() -> None:
         stop_semantics=FIXED_ZERO_STOP,
         recent_fallback_threshold=0.001,
     )
+    deferred = TorchDirectMarginalReplayBackend(
+        model=_FakeMarginalModel({}),
+        source_encoder=source_encoder,
+        stop_semantics=LEARNED_STOP,
+        recent_fallback_budgets=(1, 2),
+    )
     assert direct.selection_mode == "direct"
     assert direct.recent_fallback_threshold is None
     assert hybrid.selection_mode == "confidence_gated_recent"
     assert hybrid.recent_fallback_threshold == pytest.approx(0.001)
+    assert deferred.selection_mode == "recent_budget_deferral"
+    assert deferred.recent_fallback_budgets == (1, 2)
     with pytest.raises(ValueError, match="threshold is invalid"):
         TorchDirectMarginalReplayBackend(
             model=_FakeMarginalModel({}),
             source_encoder=source_encoder,
             stop_semantics=FIXED_ZERO_STOP,
             recent_fallback_threshold=float("nan"),
+        )
+    with pytest.raises(ValueError, match="mutually exclusive"):
+        TorchDirectMarginalReplayBackend(
+            model=_FakeMarginalModel({}),
+            source_encoder=source_encoder,
+            stop_semantics=LEARNED_STOP,
+            recent_fallback_threshold=0.001,
+            recent_fallback_budgets=(1, 2),
         )
 
 
@@ -332,3 +363,78 @@ def test_hybrid_preserves_structured_deepsets_learned_stop() -> None:
     assert path.selections == {1: (), 2: (), 3: (), 4: ()}
     assert path.trace[0]["stop_threshold"] == pytest.approx(0.4)
     assert path.trace[0]["reason"] == "confidence_gated_stop"
+
+
+def test_budget_deferral_skips_learned_search_for_b1_b2() -> None:
+    request = SimpleNamespace(candidate_event_ids=(1, 2, 3, 4), budget=2)
+    backend = _BackendWithoutCudaEncoding(
+        {},
+        stop_semantics=LEARNED_STOP,
+        recent_fallback_budgets=(1, 2),
+    )
+
+    path = backend.select_all_budgets(request)
+    assert path.selections == {1: (4,), 2: (3, 4)}
+    assert path.budget_routes == {
+        1: "recent_budget_deferral",
+        2: "recent_budget_deferral",
+    }
+    assert path.score_count == 0
+    assert path.predicted_utilities == {1: 0.0, 2: 0.0}
+    assert all(row["predicted_utility_scored"] is False for row in path.trace)
+    assert backend.encode_calls == 0
+
+
+def test_budget_deferral_can_be_non_nested_across_budgets() -> None:
+    request = SimpleNamespace(candidate_event_ids=(1, 2, 3, 4), budget=4)
+    backend = _BackendWithoutCudaEncoding(
+        {
+            (): (0.0, 0.9, 0.2, 0.1, 0.05),
+            (1,): (0.0, 0.0, 0.8, 0.2, 0.1),
+            (1, 2): (0.0, 0.0, 0.0, 0.7, 0.2),
+            (1, 2, 3): (0.0, 0.0, 0.0, 0.0, -0.1),
+        },
+        stop_semantics=FIXED_ZERO_STOP,
+        recent_fallback_budgets=(1, 2),
+    )
+
+    path = backend.select_all_budgets(request)
+    assert path.selections == {
+        1: (4,),
+        2: (3, 4),
+        3: (1, 2, 3),
+        4: (1, 2, 3),
+    }
+    assert not set(path.selection(2)).issubset(path.selection(3))
+    assert all(len(path.selection(budget)) <= budget for budget in (1, 2, 3, 4))
+    assert path.budget_routes == {
+        1: "recent_budget_deferral",
+        2: "recent_budget_deferral",
+        3: "direct_learned",
+        4: "direct_learned",
+    }
+    assert backend.encode_calls == 1
+
+
+def test_budget_deferral_keeps_deepsets_learned_stop_for_b3_b4() -> None:
+    request = SimpleNamespace(candidate_event_ids=(1, 2, 3, 4), budget=4)
+    backend = _BackendWithoutCudaEncoding(
+        {
+            (): (0.1, 0.8, 0.2, 0.1, 0.05),
+            (1,): (0.2, 0.0, 0.7, 0.1, 0.05),
+            (1, 2): (0.6, 0.0, 0.0, 0.5, 0.4),
+        },
+        stop_semantics=LEARNED_STOP,
+        recent_fallback_budgets=(1, 2),
+    )
+
+    path = backend.select_all_budgets(request)
+    assert path.selection(1) == (4,)
+    assert path.selection(2) == (3, 4)
+    assert path.selection(3) == (1, 2)
+    assert path.selection(4) == (1, 2)
+    assert any(
+        row.get("reason") == "native_stop"
+        and row.get("stop_threshold") == pytest.approx(0.6)
+        for row in path.trace
+    )

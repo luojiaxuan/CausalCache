@@ -29,6 +29,7 @@ from causalcache.set_utility_direct_marginal_replay import (
     DIRECT_MARGINAL_STOP_SEMANTICS,
     DirectMarginalSelectionPath,
     direct_marginal_at_most_budget_path,
+    normalize_recent_fallback_budgets,
 )
 from causalcache.set_utility_heldout_evaluation import COMPLETED_EVALUATION
 from causalcache.set_utility_label_producer import (
@@ -1237,6 +1238,7 @@ class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
         source_encoder: GUIOwlLiveRichSourceEncoder,
         stop_semantics: str,
         recent_fallback_threshold: float | None = None,
+        recent_fallback_budgets: Sequence[int] | None = None,
     ) -> None:
         if stop_semantics not in DIRECT_MARGINAL_STOP_SEMANTICS:
             raise ValueError("direct marginal backend STOP semantics are unsupported")
@@ -1245,6 +1247,13 @@ class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
             or float(recent_fallback_threshold) < 0.0
         ):
             raise ValueError("direct marginal hybrid threshold is invalid")
+        fallback_budgets = normalize_recent_fallback_budgets(
+            recent_fallback_budgets
+        )
+        if recent_fallback_threshold is not None and fallback_budgets:
+            raise ValueError(
+                "confidence threshold and budget deferral modes are mutually exclusive"
+            )
         super().__init__(
             model=model,
             source_encoder=source_encoder,
@@ -1256,10 +1265,15 @@ class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
             if recent_fallback_threshold is None
             else float(recent_fallback_threshold)
         )
+        self.recent_fallback_budgets = fallback_budgets
         self.selection_mode = (
-            "direct"
-            if self.recent_fallback_threshold is None
-            else "confidence_gated_recent"
+            "recent_budget_deferral"
+            if self.recent_fallback_budgets
+            else (
+                "direct"
+                if self.recent_fallback_threshold is None
+                else "confidence_gated_recent"
+            )
         )
 
     def _select_with_audit(
@@ -1269,6 +1283,32 @@ class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
         Mapping[str, float],
         Mapping[str, int],
     ]:
+        requested_budgets = set(range(1, request.budget + 1))
+        if requested_budgets.issubset(self.recent_fallback_budgets):
+            started = time.perf_counter()
+
+            def score_must_not_run(_selected: tuple[int, ...]) -> tuple[float, ...]:
+                raise AssertionError("deferred recent budgets must skip learned search")
+
+            path = direct_marginal_at_most_budget_path(
+                request.candidate_event_ids,
+                budget=request.budget,
+                score=score_must_not_run,
+                stop_semantics=self.stop_semantics,
+                recent_fallback_budgets=self.recent_fallback_budgets,
+            )
+            elapsed_ms = (time.perf_counter() - started) * 1000.0
+            return (
+                path,
+                {
+                    "event_source_encoding": 0.0,
+                    "query_conditioning": 0.0,
+                    "raw_source_encoding": 0.0,
+                    "search": elapsed_ms,
+                    "selector_total": elapsed_ms,
+                },
+                {},
+            )
         torch = self.torch
         conditioned, started, encoding_latency, source_token_counts = (
             self._encode_request(request)
@@ -1298,6 +1338,7 @@ class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
             score=score,
             stop_semantics=self.stop_semantics,
             recent_fallback_threshold=self.recent_fallback_threshold,
+            recent_fallback_budgets=self.recent_fallback_budgets,
         )
         self._synchronize()
         latency = {
@@ -1310,7 +1351,7 @@ class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
     def select_all_budgets(
         self, request: LiveRichSelectorRequest
     ) -> DirectMarginalSelectionPath:
-        """Encode once and expose the nested path through the requested budget."""
+        """Expose one at-most-B selection per requested budget."""
         path, _, _ = self._select_with_audit(request)
         return path
 
