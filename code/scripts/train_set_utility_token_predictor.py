@@ -19,6 +19,7 @@ from causalcache.set_utility_token_models import (
     TokenSetUtilityPredictor,
     TokenUtilityModelConfig,
 )
+from causalcache.set_utility_variable_history import history_bin
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -495,6 +496,37 @@ def _trajectory_weights(states: tuple[dict[str, Any], ...]) -> dict[str, float]:
     }
 
 
+def _decision_supervision_census(
+    states: tuple[dict[str, Any], ...]
+) -> dict[str, Any]:
+    by_bin = Counter()
+    group_count = 0
+    supervised_states = 0
+    for state in states:
+        candidates = tuple(state["candidate_event_step_ids"])
+        labeled = {
+            tuple(row["coalition_event_step_ids"])
+            for row in state["distance_rows"]
+        }
+        state_groups = 0
+        for base in labeled:
+            remaining = tuple(event for event in candidates if event not in base)
+            if remaining and all(
+                tuple(sorted((*base, event))) in labeled for event in remaining
+            ):
+                state_groups += 1
+        if state_groups:
+            supervised_states += 1
+            by_bin[history_bin(len(candidates))] += 1
+            group_count += state_groups
+    return {
+        "complete_expansion_group_count": group_count,
+        "history_bin_state_counts": dict(sorted(by_bin.items())),
+        "long_plus_very_long_state_count": by_bin["long"] + by_bin["very_long"],
+        "state_count": supervised_states,
+    }
+
+
 def _trajectory_uniform_epoch(
     states: tuple[dict[str, Any], ...],
     *,
@@ -674,6 +706,16 @@ def main() -> None:
         raise ValueError("token pilot requires non-empty train and tune roles")
 
     training = config["training"]
+    decision_supervision = _decision_supervision_census(train_states)
+    if (
+        decision_supervision["state_count"]
+        < int(training.get("minimum_decision_supervised_state_count", 0))
+        or decision_supervision["long_plus_very_long_state_count"]
+        < int(
+            training.get("minimum_long_plus_decision_supervised_state_count", 0)
+        )
+    ):
+        raise ValueError("decision-supervision census is below the committed minimum")
     attention_backend = _configure_attention_backend(torch, training)
     normalization_floor = _resolve_normalization_floor(
         training, args.normalization_floor
@@ -823,6 +865,7 @@ def main() -> None:
         "cache_content_sha256": cache_manifest["content_sha256"],
         "cache_input_content_sha256": cache_manifest["input_content_sha256"],
         "config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
+        "decision_supervision": decision_supervision,
         "elapsed_seconds": time.time() - started,
         "evaluation_records_loaded": False,
         "history": history,

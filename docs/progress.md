@@ -1,5 +1,22 @@
 # 项目进展
 
+## 2026-07-20：long-oracle 监督并入 decision distillation v2 后续训练
+
+- 已 fast-forward 到 long-oracle 交接 commit `ae08561` 并冻结后续执行单；现有 1,066-state / 365,043-
+  coalition v2 labels 继续运行，不改 schedule、runner 或 scientific identity；
+- long-oracle 250 states 与 v2 选中 states 重叠 94，预期合并后有 1,222 个 decision-supervised states、其中
+  Long+ 902；新增 multisource merger 逐 source 校验 schedule/config/runtime/input binding，重复 `D(S)` 只在
+  绝对差 `≤1e-6` 时去重，并保证 tune payload byte-identical；
+- versioned training config 将 conditional marginal/listwise/decision-regret 权重设为 `1/2/2`，普通 raw/
+  normalized/ranking 降为 `0.25/0.25/0.25`；listwise/regret 按 active decision rows 归一化；
+- trainer 新增 fail-fast census：少于 1,100 个 complete-decision states 或少于 800 个 Long+ states 时不加载
+  模型、不启动训练；训练后另报 age-bin singleton ranking 与 outside-recent4 recall，防止学习 recency shortcut；
+- 2026-07-21 01:27 UTC live labels 为 575/1,066 states、13,930/25,915 microbatches，575/575 terminal
+  statuses completed；过去一小时 223 states，两台 Hyper 容器均运行，短窗 ETA 约 2.2 小时；
+- 后续只按原 fixed-tune B1--B4 + macro CI + Long+ 三重 gate 判定。此前所有 NO-GO 保持有效，evaluation、
+  policy replay、closed-loop 和 matched-NLL 继续锁定。执行单见
+  [`set_utility_decision_distillation_v2_long_oracle_training.md`](set_utility_decision_distillation_v2_long_oracle_training.md)。
+
 ## 2026-07-20：decision distillation v2 冻结
 
 - v2 保留 variable at-most-`B` 与 budget-free utility predictor，但把 nested greedy 改为 width-4 beam；B1--B4

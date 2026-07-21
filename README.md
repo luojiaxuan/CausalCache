@@ -8,7 +8,9 @@
 
 - **Decision distillation v2 已进入 train-only label 阶段。** Beam-4 traces 已覆盖 10,658 train states；冻结
   sampler 选中 1,066 states / 486 trajectories，candidate-complete schedule 含 365,043 个 coalitions，
-  long/very-long 占 70%。evaluation 仍未访问；当前不是 GO/NO-GO 结果。
+  long/very-long 占 70%。完成后将与 immutable long-oracle 的 250 states / 25,032 rows 做 versioned
+  union；conditional listwise 与 decision-regret 是主损失，普通 scalar regression 仅做校准。evaluation 仍未
+  访问；当前不是 GO/NO-GO 结果。
 - **Held-out selector v1 正式 NO-GO。** 805/805 states 均有终态，但仅 801 completed、4 个因冻结 GUI-Owl
   strict tool-call parser 失败而 skipped，故正式状态为 `INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION`，没有合法
   deployment winner，policy replay 与 closed-loop 未获授权。
@@ -132,6 +134,9 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   [结果](data/results/set_utility_long_oracle_v1/README.md)与
   [合同](docs/set_utility_long_history_oracle_v1.md)。
 - v2 交接文档见 [`docs/set_utility_long_oracle_v2_handoff.md`](docs/set_utility_long_oracle_v2_handoff.md):判定、对 v2 训练/gate 的含义、可复用标签 artifact 与合并规则、共存执行注意事项。
+- 交接后的唯一训练顺序、multisource merge 与 decision-dominant loss 见
+  [`docs/set_utility_decision_distillation_v2_long_oracle_training.md`](docs/set_utility_decision_distillation_v2_long_oracle_training.md)；
+  对应 versioned config 不改写已冻结 v2 label contract。
 - variable-history v1 合同见 [`docs/set_utility_variable_history_v1.md`](docs/set_utility_variable_history_v1.md)：完整 `C_t`、约 40 个 stratified subsets/state、320-state exact track、720-state large-history track，以及 coalition-microbatch 断点恢复。
 - state inventory 已冻结为 [`data/manifests/set_utility_variable_history_v1_states.json`](data/manifests/set_utility_variable_history_v1_states.json)：12,792 个 variable-`n_t` states，候选数为 5–45；训练 collate 已支持 `event_mask` 与 `label_mask`，不再要求固定 event/label 数。
 - full source 已在 Hyper00/Hyper01 完成：256 shards、1,200 trajectories、13.16GB。512-token profile 因 1 个 state 超限而 BLOCK；480-token v2 的 full VLM sequences 已在 8xH200 完成 256/256 token shards、约 67GB、零失败。真实 image-grid postflight 覆盖 12,792/12,792 states，最大 prompt+reserve 为 30,292/32,768，正式 labels 的 context blocker 已解除。
@@ -172,6 +177,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Contextual enriched fixed-tune result v1 | [`summary`](data/results/set_utility_contextual_tune_on_policy_enriched_v1/README.md)；[HF dataset@bbee1ae7](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/bbee1ae7aae2a712aaf2a897a08fa69adcef4ee6/artifacts/set-utility-contextual-tune-enriched-v1-3f73e17) | 1,063/1,063；DeepSets/Set Transformer/recent=`0.44383/0.44141/0.45192`；`NO_GO_TRAIN_ON_POLICY_ENRICHMENT_V1`；immutable |
 | Decision distillation v2 | [`summary`](data/results/set_utility_decision_distillation_v2/README.md)；Hyper00/Hyper01 persistent run | 1,066 train states；365,043 candidate-complete coalitions；8×H200 labels running；`PENDING_HF_UPLOAD` |
 | Long-history oracle diagnostic v1 | [`summary`](data/results/set_utility_long_oracle_v1/README.md)；[HF dataset@8d5a5021](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/8d5a5021d8e69999ed944574bc8e243f386c2288/artifacts/set-utility-long-oracle-v1-179b0d8)；Hyper00 mirror | 250/250 states；25,032 labels；`HEADROOM_CONFIRMED`(+0.467 [0.359,0.630]);tag `set-utility-long-oracle-v1-179b0d8`；immutable |
+| Decision v2 + long-oracle training source | [执行单](docs/set_utility_decision_distillation_v2_long_oracle_training.md)；[versioned config](code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_training_v1.json) | source ready；预期 1,222 decision-supervised states / Long+ 902；等待 v2 labels 完成后物化与发布 |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

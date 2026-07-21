@@ -1,0 +1,144 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_decision_distillation_v2_long_oracle_training_v1",
+  "parent_config": "causalcache_set_utility_decision_distillation_v2.json",
+  "input": {
+    "base_contextual_input_content_sha256": "2711ab55cbd5f86fd4f221d2cb3a4cbc30a7fbba7b2bf0fcfb9ffbb3409d407f",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "evaluation_access": false,
+    "duplicate_tolerance": 0.000001
+  },
+  "data_sources": {
+    "decision_v2": {
+      "schedule_content_sha256": "d5e508c298558f5f042e57991a783a8ffd019c161a38c2f926984eebfa10187a",
+      "schedule_config_sha256": "e0a25abaebfe89d54c90e2cc35db6773497c5ac3cd44a34afb119f725c4de6a1",
+      "label_scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+      "label_execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c"
+    },
+    "long_oracle_w1": {
+      "schedule_content_sha256": "2b1752f92a7b8129612020727927bfc654058f2ce28474c9494445fc748a92d9",
+      "schedule_config_sha256": "a8b8b7dbb85d50fbd565c953f066bd274862dccff7202ac707015009658fb5c2",
+      "label_scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+      "label_execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c"
+    },
+    "long_oracle_w2": {
+      "schedule_content_sha256": "f6fa6941ca94b41971c2cde9470ab9a024f6bfbee0a38715c31d05e5a9721eaf",
+      "schedule_config_sha256": "a8b8b7dbb85d50fbd565c953f066bd274862dccff7202ac707015009658fb5c2",
+      "label_scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+      "label_execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c"
+    },
+    "long_oracle_w3": {
+      "schedule_content_sha256": "d4f970681b674c33db0309aa69a3f11c4c1fa984b6ecb73fb4840e8a269962ee",
+      "schedule_config_sha256": "a8b8b7dbb85d50fbd565c953f066bd274862dccff7202ac707015009658fb5c2",
+      "label_scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+      "label_execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c"
+    },
+    "long_oracle_w4": {
+      "schedule_content_sha256": "933fbe17ff4671aa3f7eb2ee73400ff1efd0e8761c2a035d71a7447fd8c24a8e",
+      "schedule_config_sha256": "a8b8b7dbb85d50fbd565c953f066bd274862dccff7202ac707015009658fb5c2",
+      "label_scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+      "label_execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c"
+    }
+  },
+  "long_oracle_artifact": {
+    "dataset_repo": "gavinlaw/causalcache-set-utility-variable-history-mobile",
+    "revision": "8d5a5021d8e69999ed944574bc8e243f386c2288",
+    "tag": "set-utility-long-oracle-v1-179b0d8",
+    "path": "artifacts/set-utility-long-oracle-v1-179b0d8",
+    "payload_sha256": "9238f63dca61d7b18377a5df03448c2b15484522cb0e4a60cb32ffa9170c8b34",
+    "summary_content_sha256": "179b0d85e0ad0315efa88432eaccb77a5231b8c0ee7066739de1a3f78389cf9c",
+    "state_count": 250,
+    "label_row_count": 25032
+  },
+  "training": {
+    "seed": 20260721,
+    "epochs": 20,
+    "early_stopping_patience": 5,
+    "minimum_delta": 0.0001,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "attention_backend": "disable_cudnn_sdp",
+    "normalization_floor": 0.01,
+    "minimum_decision_supervised_state_count": 1100,
+    "minimum_long_plus_decision_supervised_state_count": 800,
+    "loss": {
+      "raw_regression": 0.25,
+      "normalized_regression": 0.25,
+      "within_state_ranking": 0.25,
+      "conditional_marginal": 1.0,
+      "conditional_listwise": 2.0,
+      "decision_regret": 2.0,
+      "decision_temperature": 0.25,
+      "raw_smooth_l1_beta": 0.05,
+      "normalized_smooth_l1_beta": 0.5,
+      "conditional_marginal_smooth_l1_beta": 0.25
+    }
+  },
+  "variants": {
+    "deepsets_decision_v2_long_oracle_d256_l16_r2_lr3e4": {
+      "model": {
+        "family": "deepsets",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    },
+    "set_transformer_decision_v2_long_oracle_d256_l16_r2_s2_lr1e4": {
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "gradient_accumulation_steps": 1
+    }
+  },
+  "selection": {
+    "budget_contract": "at_most_B",
+    "budgets": [1, 2, 3, 4],
+    "budget_input_to_model": false,
+    "search": "beam",
+    "beam_width": 4,
+    "allow_nonpositive_prefixes": true,
+    "empty_utility_is_exact_zero": true
+  },
+  "diagnostics": {
+    "age_bin_singleton_ranking": true,
+    "best_singleton_outside_recent4_recall": true,
+    "long_plus_selector_recovery": true,
+    "additive_gap_reference": true
+  },
+  "gate": {
+    "candidate_model": "best_true_utility_model",
+    "each_budget_point_estimate_strictly_greater_than_recent": true,
+    "macro_paired_bootstrap_lower_strictly_greater_than_zero": true,
+    "long_plus_very_long_point_estimate_strictly_greater_than_recent": true,
+    "failure_blocks_untouched_evaluation": true
+  },
+  "firewall": {
+    "allowed_roles": ["train", "tune"],
+    "evaluation_access": false,
+    "tune_labels_enter_optimizer": false,
+    "maximum_dagger_rounds": 1
+  }
+}

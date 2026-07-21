@@ -123,3 +123,30 @@ def test_decision_loss_is_not_diluted_by_rows_without_complete_groups() -> None:
     )
     assert metrics["complete_decision_group_count"] == 1.0
     assert torch.allclose(mixed_total, active_total)
+
+
+def test_decision_supervision_census_counts_only_complete_groups() -> None:
+    from scripts.train_set_utility_token_predictor import (
+        _decision_supervision_census,
+    )
+
+    def state(state_id: str, count: int, subsets: list[list[int]]) -> dict:
+        return {
+            "candidate_event_step_ids": list(range(1, count + 1)),
+            "distance_rows": [
+                {"coalition_event_step_ids": subset, "distance": 1.0}
+                for subset in subsets
+            ],
+            "state_id": state_id,
+        }
+
+    result = _decision_supervision_census(
+        (
+            state("long", 17, [[], *[[event] for event in range(1, 18)]]),
+            state("incomplete", 9, [[], [1], [2]]),
+        )
+    )
+    assert result["state_count"] == 1
+    assert result["long_plus_very_long_state_count"] == 1
+    assert result["complete_expansion_group_count"] == 1
+    assert result["history_bin_state_counts"] == {"long": 1}

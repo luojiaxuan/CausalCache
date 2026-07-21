@@ -30,9 +30,21 @@ storage，完成后发布到 private Hugging Face。
 - 单 lane 启动采样的 GPU 间歇平均约 70%--80%；不改变 GPU 数或 scientific identity，按
   [`workers v2`](../../../code/configs/causalcache_set_utility_decision_v2_labels_workers_v2.json) 切为每卡 2 个
   deterministic state lanes，复用已完成 state/microbatch。
+- 2026-07-21 01:27 UTC 只读进度：Hyper00/Hyper01 分别 274/301，共 575/1,066 states（53.9%）与
+  13,930/25,915 microbatches（53.8%）；全部 575 terminals 都是
+  `COMPLETED_VARIABLE_HISTORY_LABEL_STATE`。两台容器均运行中，过去一小时合计新增 223 states，按短窗
+  吞吐估计剩余约 2.2 小时；这只是动态 ETA，不是完成声明。
 
-## 下一步
+## 交接后训练调整
 
-Hyper00/Hyper01 各最多 4×H200 并行生成 train-only restoration labels；合并 enriched snapshot 后，DeepSets
-和 Set Transformer 使用相同 v2 loss 训练。只有 fixed-tune B1--B4、macro CI 与 long-history gate 全部通过，
-才允许访问 untouched evaluation。
+现有 365,043-coalition runner 继续原地断点执行，不改 schedule 或 label identity。完成后将其与 immutable
+long-oracle 的 250 states / 25,032 rows 合并：两批监督重叠 94 states，预期 union 为 1,222 个
+decision-supervised states、Long+ 902 states；重复 `D(S)` 按 `1e-6` tolerance 去重。
+
+重训仍比较 DeepSets 与 Set Transformer，但 conditional listwise 和 decision regret 升为主损失，普通
+regression/ranking 降为校准项；trainer 在启动前强制检查至少 1,100 个 decision-supervised states 和 800 个
+Long+ states。完整配置、合并入口与顺序见
+[`docs/set_utility_decision_distillation_v2_long_oracle_training.md`](../../../docs/set_utility_decision_distillation_v2_long_oracle_training.md)。
+
+只有 fixed-tune B1--B4、macro CI 与 long-history gate 全部通过，才允许访问 untouched evaluation；本调整不
+解锁 policy replay、closed-loop 或 matched-NLL。
