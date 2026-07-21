@@ -41,6 +41,16 @@ def main() -> None:
         raise ValueError("direct selection jobs must have unique GPUs and workers")
     if args.output_root.exists():
         raise FileExistsError("direct selection output already exists")
+    for _, _, state_ids in args.job:
+        if not state_ids.is_file():
+            raise FileNotFoundError(state_ids)
+        requested = tuple(
+            line
+            for line in state_ids.read_text(encoding="utf-8").splitlines()
+            if line
+        )
+        if not requested or len(requested) != len(set(requested)):
+            raise ValueError("worker state ids must be non-empty and unique")
     log_root = args.output_root / "logs"
     log_root.mkdir(parents=True)
     selector = Path(__file__).with_name(
@@ -49,8 +59,6 @@ def main() -> None:
     processes = []
     handles = []
     for gpu_id, worker_id, state_ids in args.job:
-        if not state_ids.is_file():
-            raise FileNotFoundError(state_ids)
         handle = (log_root / f"worker-{worker_id:02d}.log").open("ab", buffering=0)
         command = [
             sys.executable,

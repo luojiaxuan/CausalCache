@@ -42,37 +42,73 @@ def main() -> None:
     plan = _read_json(args.rollout_plan)
     if plan.get("logical_shard_count") != 256:
         raise ValueError("selection rollout plan must cover 256 logical shards")
+    plan_workers = plan.get("workers")
+    if not isinstance(plan_workers, list) or not plan_workers:
+        raise ValueError("selection rollout plan must contain workers")
     shard_to_worker = {}
     workers = {}
-    for worker in plan.get("workers", ()):
-        worker_id = int(worker["worker_id"])
+    host_gpus = set()
+    for worker in plan_workers:
+        if not isinstance(worker, dict):
+            raise ValueError("selection rollout plan contains an invalid worker")
+        worker_id = worker.get("worker_id")
+        host = worker.get("host")
+        physical_gpu_id = worker.get("physical_gpu_id")
+        logical_shard_ids = worker.get("logical_shard_ids")
+        if type(worker_id) is not int or worker_id < 0:
+            raise ValueError("selection rollout plan has an invalid worker id")
+        if not isinstance(host, str) or not host:
+            raise ValueError("selection rollout plan has an invalid host")
+        if type(physical_gpu_id) is not int or physical_gpu_id < 0:
+            raise ValueError("selection rollout plan has an invalid physical GPU")
+        if not isinstance(logical_shard_ids, list):
+            raise ValueError("selection rollout plan has invalid logical shards")
         if worker_id in workers:
             raise ValueError("selection rollout plan duplicates a worker")
+        host_gpu = (host, physical_gpu_id)
+        if host_gpu in host_gpus:
+            raise ValueError("selection rollout plan duplicates a host/GPU mapping")
+        host_gpus.add(host_gpu)
         workers[worker_id] = worker
-        for shard in worker["logical_shard_ids"]:
+        for shard in logical_shard_ids:
+            if type(shard) is not int or not 0 <= shard < 256:
+                raise ValueError("selection rollout plan has an invalid logical shard")
             if shard in shard_to_worker:
                 raise ValueError("selection rollout plan duplicates a logical shard")
-            shard_to_worker[int(shard)] = worker_id
+            shard_to_worker[shard] = worker_id
     if set(shard_to_worker) != set(range(256)):
         raise ValueError("selection rollout plan does not cover every logical shard")
     assigned = {worker_id: [] for worker_id in workers}
     candidate_counts = {worker_id: 0 for worker_id in workers}
+    seen_state_ids = set()
     for line in (args.input_root / input_manifest["states_jsonl"]).read_text(
         encoding="utf-8"
     ).splitlines():
         if not line:
             continue
         state = json.loads(line)
+        state_id = state.get("state_id")
+        if not isinstance(state_id, str) or not state_id:
+            raise ValueError("selection input contains an invalid state id")
+        if state_id in seen_state_ids:
+            raise ValueError("selection input contains a duplicate state")
+        seen_state_ids.add(state_id)
         if state["role"] != args.role:
             continue
-        worker_id = shard_to_worker[int(state["logical_shard"])]
-        assigned[worker_id].append(state["state_id"])
+        logical_shard = state.get("logical_shard")
+        if type(logical_shard) is not int or logical_shard not in shard_to_worker:
+            raise ValueError("selection input contains an invalid logical shard")
+        candidates = state.get("candidate_event_step_ids")
+        if not isinstance(candidates, list):
+            raise ValueError("selection input contains invalid candidate events")
+        worker_id = shard_to_worker[logical_shard]
+        assigned[worker_id].append(state_id)
         candidate_counts[worker_id] += len(state["candidate_event_step_ids"])
+    if any(not state_ids for state_ids in assigned.values()):
+        raise ValueError("selection rollout plan produced an empty worker")
     receipts = []
     for worker_id, worker in sorted(workers.items()):
         state_ids = sorted(assigned[worker_id])
-        if not state_ids:
-            raise ValueError("selection rollout plan produced an empty worker")
         payload = ("\n".join(state_ids) + "\n").encode("utf-8")
         relative = f"worker-{worker_id:02d}-state-ids.txt"
         digest = _write(args.output_root / relative, payload)
