@@ -30,10 +30,22 @@ from causalcache.set_utility_variable_history_training import (
 EXPECTED_EXACT_STATE_COUNT = 320
 EXPECTED_LARGE_HISTORY_STATE_COUNT = 720
 EXPECTED_UNION_STATE_COUNT = 805
+EXPECTED_FULL_EVALUATION_STATE_COUNT = 1046
+EXPECTED_EVALUATION_TRAJECTORY_COUNT = 100
+EXPECTED_PREVIOUS_HELDOUT_TRAJECTORY_COUNT = 94
+EXPECTED_TRAJECTORY_NEW_COUNT = 6
+EXPECTED_TRAJECTORY_NEW_STATE_COUNT = 16
 SOURCE_STATUS = "COMPLETED_VARIABLE_HISTORY_SOURCE"
 INVENTORY_STATUS = "FROZEN_VARIABLE_HISTORY_STATE_INVENTORY"
 OUTPUT_STATUS = "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_SNAPSHOT"
 PARTITION_OUTPUT_STATUS = "COMPLETED_SET_UTILITY_HELDOUT_FEATURE_PARTITION"
+FULL_EVALUATION_OUTPUT_STATUS = (
+    "COMPLETED_SET_UTILITY_FULL_EVALUATION_FEATURE_SNAPSHOT_V1"
+)
+FULL_EVALUATION_PARTITION_OUTPUT_STATUS = (
+    "COMPLETED_SET_UTILITY_FULL_EVALUATION_FEATURE_PARTITION_V1"
+)
+EXPOSURE_SLICE_STATUS = "FROZEN_SET_UTILITY_EVALUATION_EXPOSURE_SLICES_V1"
 VISUAL_SHARD_STATUS = "COMPLETED_VARIABLE_HISTORY_TOKEN_SHARD"
 
 
@@ -141,6 +153,137 @@ def _track_membership(
         "union": len(union),
     }
     return membership, counts
+
+
+def full_evaluation_state_membership(
+    assignment_manifest: Mapping[str, Any],
+    inventory: Mapping[str, Any],
+    *,
+    expected_state_count: int = EXPECTED_FULL_EVALUATION_STATE_COUNT,
+    expected_trajectory_count: int = EXPECTED_EVALUATION_TRAJECTORY_COUNT,
+    expected_exact_state_count: int = EXPECTED_EXACT_STATE_COUNT,
+    expected_large_history_state_count: int = EXPECTED_LARGE_HISTORY_STATE_COUNT,
+    expected_union_state_count: int = EXPECTED_UNION_STATE_COUNT,
+    expected_previous_heldout_trajectory_count: int = (
+        EXPECTED_PREVIOUS_HELDOUT_TRAJECTORY_COUNT
+    ),
+    expected_trajectory_new_count: int = EXPECTED_TRAJECTORY_NEW_COUNT,
+    expected_trajectory_new_state_count: int = EXPECTED_TRAJECTORY_NEW_STATE_COUNT,
+) -> tuple[dict[str, tuple[str, ...]], dict[str, Any]]:
+    """Derive every evaluation state and its pre-existing exposure slice."""
+    tracked, tracked_counts = _track_membership(
+        inventory,
+        expected_exact_state_count=expected_exact_state_count,
+        expected_large_history_state_count=expected_large_history_state_count,
+        expected_union_state_count=expected_union_state_count,
+    )
+    assignments = assignment_manifest.get("assignments")
+    if not isinstance(assignments, list):
+        raise ValueError("assignment manifest omits assignments")
+    evaluation_assignments: dict[str, Mapping[str, Any]] = {}
+    for assignment in assignments:
+        if not isinstance(assignment, Mapping):
+            raise ValueError("assignment manifest contains a non-object row")
+        if assignment.get("role") != "evaluation":
+            continue
+        trajectory_id = str(assignment.get("trajectory_id", ""))
+        if (
+            not trajectory_id
+            or str(assignment.get("source_id", "")) != trajectory_id
+            or trajectory_id in evaluation_assignments
+        ):
+            raise ValueError("evaluation assignment identity is invalid or duplicated")
+        decision_count = assignment.get("decision_count")
+        if type(decision_count) is not int or decision_count < 5:
+            raise ValueError("evaluation assignment decision count is invalid")
+        evaluation_assignments[trajectory_id] = assignment
+    if len(evaluation_assignments) != expected_trajectory_count:
+        raise ValueError("evaluation trajectory count drifted")
+
+    all_state_ids = tuple(
+        sorted(
+            f"{trajectory_id}:decision:{decision_step:03d}"
+            for trajectory_id, assignment in evaluation_assignments.items()
+            for decision_step in range(6, int(assignment["decision_count"]) + 2)
+        )
+    )
+    if len(all_state_ids) != expected_state_count or len(all_state_ids) != len(
+        set(all_state_ids)
+    ):
+        raise ValueError("full evaluation state count or identity drifted")
+    inventory_summary = inventory.get("summary")
+    if not isinstance(inventory_summary, Mapping):
+        raise ValueError("frozen inventory omits its state summary")
+    role_counts = inventory_summary.get("state_count_by_role")
+    if (
+        not isinstance(role_counts, Mapping)
+        or role_counts.get("evaluation") != expected_state_count
+    ):
+        raise ValueError("frozen inventory evaluation state count drifted")
+    all_state_id_set = set(all_state_ids)
+    if not set(tracked).issubset(all_state_id_set):
+        raise ValueError("historical held-out tracks escape the evaluation split")
+
+    membership = {
+        state_id: tracked.get(state_id, ()) for state_id in all_state_ids
+    }
+    previous_union = tuple(
+        state_id for state_id in all_state_ids if membership[state_id]
+    )
+    state_new = tuple(
+        state_id for state_id in all_state_ids if not membership[state_id]
+    )
+    previous_trajectories = {
+        _trajectory_id_from_state(state_id) for state_id in previous_union
+    }
+    all_trajectories = set(evaluation_assignments)
+    trajectory_new_ids = tuple(sorted(all_trajectories - previous_trajectories))
+    trajectory_new_id_set = set(trajectory_new_ids)
+    trajectory_new = tuple(
+        state_id
+        for state_id in all_state_ids
+        if _trajectory_id_from_state(state_id) in trajectory_new_id_set
+    )
+    if (
+        len(previous_trajectories) != expected_previous_heldout_trajectory_count
+        or len(trajectory_new_ids) != expected_trajectory_new_count
+        or len(trajectory_new) != expected_trajectory_new_state_count
+        or not set(trajectory_new).issubset(state_new)
+    ):
+        raise ValueError("historical trajectory exposure slices drifted")
+    exposure_slices = {
+        "all_state_ids": list(all_state_ids),
+        "counts": {
+            "all": len(all_state_ids),
+            "exact_oracle": tracked_counts["exact_oracle"],
+            "large_history": tracked_counts["large_history"],
+            "previous_heldout_union": len(previous_union),
+            "state_new": len(state_new),
+            "trajectory_new": len(trajectory_new),
+        },
+        "exact_oracle_state_ids": sorted(
+            state_id
+            for state_id, tags in membership.items()
+            if "exact_oracle" in tags
+        ),
+        "large_history_state_ids": sorted(
+            state_id
+            for state_id, tags in membership.items()
+            if "large_history" in tags
+        ),
+        "previous_heldout_union_state_ids": list(previous_union),
+        "schema_version": "1.0.0",
+        "state_new_state_ids": list(state_new),
+        "status": EXPOSURE_SLICE_STATUS,
+        "trajectory_counts": {
+            "all": len(all_trajectories),
+            "previous_heldout_union": len(previous_trajectories),
+            "trajectory_new": len(trajectory_new_ids),
+        },
+        "trajectory_new_state_ids": list(trajectory_new),
+        "trajectory_new_trajectory_ids": list(trajectory_new_ids),
+    }
+    return membership, exposure_slices
 
 
 def _row_count(value: Any) -> int:
@@ -310,8 +453,17 @@ def materialize_heldout_feature_snapshot(
     expected_large_history_state_count: int = EXPECTED_LARGE_HISTORY_STATE_COUNT,
     expected_union_state_count: int = EXPECTED_UNION_STATE_COUNT,
     partial_from_available_visual_shards: bool = False,
+    assignment_manifest_path: Path | None = None,
+    include_all_evaluation_states: bool = False,
+    expected_full_evaluation_state_count: int = EXPECTED_FULL_EVALUATION_STATE_COUNT,
+    expected_evaluation_trajectory_count: int = EXPECTED_EVALUATION_TRAJECTORY_COUNT,
+    expected_previous_heldout_trajectory_count: int = (
+        EXPECTED_PREVIOUS_HELDOUT_TRAJECTORY_COUNT
+    ),
+    expected_trajectory_new_count: int = EXPECTED_TRAJECTORY_NEW_COUNT,
+    expected_trajectory_new_state_count: int = EXPECTED_TRAJECTORY_NEW_STATE_COUNT,
 ) -> dict[str, Any]:
-    """Materialize only label-blind inputs for the frozen held-out state union."""
+    """Materialize label-blind inputs for a frozen evaluation state scope."""
     source_root = source_root.resolve()
     full_visual_token_root = full_visual_token_root.resolve()
     frozen_state_inventory_path = frozen_state_inventory_path.resolve()
@@ -320,12 +472,45 @@ def materialize_heldout_feature_snapshot(
         raise FileExistsError("held-out feature snapshot output already exists")
 
     inventory = _read_json(frozen_state_inventory_path)
-    membership, track_counts = _track_membership(
-        inventory,
-        expected_exact_state_count=expected_exact_state_count,
-        expected_large_history_state_count=expected_large_history_state_count,
-        expected_union_state_count=expected_union_state_count,
-    )
+    exposure_slices = None
+    if include_all_evaluation_states:
+        if assignment_manifest_path is None:
+            raise ValueError("full evaluation snapshot requires an assignment manifest")
+        assignment_manifest_path = assignment_manifest_path.resolve()
+        assignment_manifest = _read_json(assignment_manifest_path)
+        membership, exposure_slices = full_evaluation_state_membership(
+            assignment_manifest,
+            inventory,
+            expected_state_count=expected_full_evaluation_state_count,
+            expected_trajectory_count=expected_evaluation_trajectory_count,
+            expected_exact_state_count=expected_exact_state_count,
+            expected_large_history_state_count=expected_large_history_state_count,
+            expected_union_state_count=expected_union_state_count,
+            expected_previous_heldout_trajectory_count=(
+                expected_previous_heldout_trajectory_count
+            ),
+            expected_trajectory_new_count=expected_trajectory_new_count,
+            expected_trajectory_new_state_count=expected_trajectory_new_state_count,
+        )
+        track_counts = {
+            **{
+                key: exposure_slices["counts"][key]
+                for key in ("exact_oracle", "large_history")
+            },
+            "overlap": sum(len(tags) == 2 for tags in membership.values()),
+            "union": exposure_slices["counts"]["previous_heldout_union"],
+        }
+    else:
+        if assignment_manifest_path is not None:
+            raise ValueError(
+                "assignment manifest is only valid for the full evaluation scope"
+            )
+        membership, track_counts = _track_membership(
+            inventory,
+            expected_exact_state_count=expected_exact_state_count,
+            expected_large_history_state_count=expected_large_history_state_count,
+            expected_union_state_count=expected_union_state_count,
+        )
     target_trajectories = {
         _trajectory_id_from_state(state_id) for state_id in membership
     }
@@ -375,6 +560,10 @@ def materialize_heldout_feature_snapshot(
         or source_manifest.get("config_sha256") != inventory.get("config_sha256")
     ):
         raise ValueError("held-out source and frozen inventory identities differ")
+    if include_all_evaluation_states and _sha256_file(assignment_manifest_path) != (
+        source_manifest["assignment_manifest_sha256"]
+    ):
+        raise ValueError("full evaluation assignment manifest bytes drifted")
 
     selected_source_shards = []
     covered_trajectories: set[str] = set()
@@ -421,7 +610,7 @@ def materialize_heldout_feature_snapshot(
             "large_history" in tags for tags in active_membership.values()
         ),
         "overlap": sum(len(tags) == 2 for tags in active_membership.values()),
-        "union": len(active_membership),
+        "union": sum(bool(tags) for tags in active_membership.values()),
     }
 
     output_rows: dict[str, dict[str, Any]] = {}
@@ -532,6 +721,13 @@ def materialize_heldout_feature_snapshot(
                     ocr_token_sets_by_step=ocr_token_sets_by_step,
                     rgb_histograms_by_step=rgb_histograms_by_step,
                 )
+                if include_all_evaluation_states:
+                    historical_slices = ["all"]
+                    if state_id in exposure_slices["state_new_state_ids"]:
+                        historical_slices.append("state_new")
+                    if state_id in exposure_slices["trajectory_new_state_ids"]:
+                        historical_slices.append("trajectory_new")
+                    row["historical_exposure_slices"] = historical_slices
                 if state_id in output_rows:
                     raise ValueError("held-out state was materialized more than once")
                 output_rows[state_id] = row
@@ -572,6 +768,60 @@ def materialize_heldout_feature_snapshot(
     visual_binding_sha256 = hashlib.sha256(
         b"".join(_canonical_json(value) for value in visual_bindings)
     ).hexdigest()
+    exposure_payload = None
+    if exposure_slices is not None:
+        active_state_ids = set(active_membership)
+        active_exposure_slices = {
+            **exposure_slices,
+            "all_state_ids": sorted(active_state_ids),
+            "exact_oracle_state_ids": sorted(
+                active_state_ids & set(exposure_slices["exact_oracle_state_ids"])
+            ),
+            "large_history_state_ids": sorted(
+                active_state_ids & set(exposure_slices["large_history_state_ids"])
+            ),
+            "state_new_state_ids": sorted(
+                active_state_ids
+                & set(exposure_slices["state_new_state_ids"])
+            ),
+            "previous_heldout_union_state_ids": sorted(
+                active_state_ids
+                & set(exposure_slices["previous_heldout_union_state_ids"])
+            ),
+            "trajectory_new_state_ids": sorted(
+                active_state_ids & set(exposure_slices["trajectory_new_state_ids"])
+            ),
+        }
+        active_trajectory_ids = {
+            _trajectory_id_from_state(state_id) for state_id in active_state_ids
+        }
+        active_exposure_slices["trajectory_new_trajectory_ids"] = sorted(
+            active_trajectory_ids
+            & set(exposure_slices["trajectory_new_trajectory_ids"])
+        )
+        active_exposure_slices["counts"] = {
+            "all": len(active_state_ids),
+            "exact_oracle": len(active_exposure_slices["exact_oracle_state_ids"]),
+            "large_history": len(active_exposure_slices["large_history_state_ids"]),
+            "previous_heldout_union": len(
+                active_exposure_slices["previous_heldout_union_state_ids"]
+            ),
+            "state_new": len(active_exposure_slices["state_new_state_ids"]),
+            "trajectory_new": len(
+                active_exposure_slices["trajectory_new_state_ids"]
+            ),
+        }
+        active_exposure_slices["trajectory_counts"] = {
+            "all": len(active_trajectory_ids),
+            "previous_heldout_union": len(
+                active_trajectory_ids
+                - set(active_exposure_slices["trajectory_new_trajectory_ids"])
+            ),
+            "trajectory_new": len(
+                active_exposure_slices["trajectory_new_trajectory_ids"]
+            ),
+        }
+        exposure_payload = _canonical_json(active_exposure_slices)
     manifest = {
         "content_sha256": hashlib.sha256(state_payload + text_payload).hexdigest(),
         "distance_rows_included": False,
@@ -605,9 +855,17 @@ def materialize_heldout_feature_snapshot(
         "states_jsonl": "states.jsonl",
         "states_sha256": hashlib.sha256(state_payload).hexdigest(),
         "status": (
-            PARTITION_OUTPUT_STATUS
-            if partial_from_available_visual_shards
-            else OUTPUT_STATUS
+            (
+                FULL_EVALUATION_PARTITION_OUTPUT_STATUS
+                if partial_from_available_visual_shards
+                else FULL_EVALUATION_OUTPUT_STATUS
+            )
+            if include_all_evaluation_states
+            else (
+                PARTITION_OUTPUT_STATUS
+                if partial_from_available_visual_shards
+                else OUTPUT_STATUS
+            )
         ),
         "text_count": len(texts),
         "texts_jsonl": "texts.jsonl",
@@ -617,24 +875,106 @@ def materialize_heldout_feature_snapshot(
         "visual_shards": visual_bindings,
         "visual_token_profile": "full_480_target_actual_grid_bf16_4096",
     }
+    if exposure_payload is not None:
+        manifest.update(
+            {
+                "assignment_manifest_sha256": _sha256_file(
+                    assignment_manifest_path
+                ),
+                "evaluation_scope": "all_assignment_evaluation_states",
+                "exposure_slices_json": "exposure-slices.json",
+                "exposure_slices_sha256": hashlib.sha256(
+                    exposure_payload
+                ).hexdigest(),
+                "historical_exposure_counts": active_exposure_slices["counts"],
+            }
+        )
     output_root.mkdir(parents=True)
     _write_atomic(output_root / "states.jsonl", state_payload)
     _write_atomic(output_root / "texts.jsonl", text_payload)
+    if exposure_payload is not None:
+        _write_atomic(output_root / "exposure-slices.json", exposure_payload)
     _write_atomic(output_root / "manifest.json", _canonical_json(manifest))
     return manifest
 
 
-def merge_heldout_feature_snapshots(
-    *, input_roots: Sequence[Path], output_root: Path
+def materialize_full_evaluation_feature_snapshot(
+    *,
+    source_root: Path,
+    full_visual_token_root: Path,
+    frozen_state_inventory_path: Path,
+    assignment_manifest_path: Path,
+    output_root: Path,
+    read_source_rows: Callable[[Path], Sequence[Mapping[str, Any]]],
+    load_visual_tensors: Callable[[Path], Mapping[str, Any]],
+    prepare_resized_rgb: Callable[[bytes], bytes],
+    expected_full_evaluation_state_count: int = EXPECTED_FULL_EVALUATION_STATE_COUNT,
+    expected_evaluation_trajectory_count: int = EXPECTED_EVALUATION_TRAJECTORY_COUNT,
+    expected_exact_state_count: int = EXPECTED_EXACT_STATE_COUNT,
+    expected_large_history_state_count: int = EXPECTED_LARGE_HISTORY_STATE_COUNT,
+    expected_union_state_count: int = EXPECTED_UNION_STATE_COUNT,
+    partial_from_available_visual_shards: bool = False,
+    expected_previous_heldout_trajectory_count: int = (
+        EXPECTED_PREVIOUS_HELDOUT_TRAJECTORY_COUNT
+    ),
+    expected_trajectory_new_count: int = EXPECTED_TRAJECTORY_NEW_COUNT,
+    expected_trajectory_new_state_count: int = EXPECTED_TRAJECTORY_NEW_STATE_COUNT,
 ) -> dict[str, Any]:
-    """Merge disjoint label-free host partitions into the frozen 805-state union."""
+    """Materialize every assignment-defined evaluation state without truth access."""
+    return materialize_heldout_feature_snapshot(
+        source_root=source_root,
+        full_visual_token_root=full_visual_token_root,
+        frozen_state_inventory_path=frozen_state_inventory_path,
+        assignment_manifest_path=assignment_manifest_path,
+        output_root=output_root,
+        read_source_rows=read_source_rows,
+        load_visual_tensors=load_visual_tensors,
+        prepare_resized_rgb=prepare_resized_rgb,
+        expected_exact_state_count=expected_exact_state_count,
+        expected_large_history_state_count=expected_large_history_state_count,
+        expected_union_state_count=expected_union_state_count,
+        include_all_evaluation_states=True,
+        expected_full_evaluation_state_count=expected_full_evaluation_state_count,
+        expected_evaluation_trajectory_count=expected_evaluation_trajectory_count,
+        partial_from_available_visual_shards=partial_from_available_visual_shards,
+        expected_previous_heldout_trajectory_count=(
+            expected_previous_heldout_trajectory_count
+        ),
+        expected_trajectory_new_count=expected_trajectory_new_count,
+        expected_trajectory_new_state_count=expected_trajectory_new_state_count,
+    )
+
+
+def merge_heldout_feature_snapshots(
+    *,
+    input_roots: Sequence[Path],
+    output_root: Path,
+    expected_exact_state_count: int = EXPECTED_EXACT_STATE_COUNT,
+    expected_large_history_state_count: int = EXPECTED_LARGE_HISTORY_STATE_COUNT,
+    expected_union_state_count: int = EXPECTED_UNION_STATE_COUNT,
+    expected_full_evaluation_state_count: int = EXPECTED_FULL_EVALUATION_STATE_COUNT,
+    expected_evaluation_trajectory_count: int = EXPECTED_EVALUATION_TRAJECTORY_COUNT,
+    expected_trajectory_new_count: int = EXPECTED_TRAJECTORY_NEW_COUNT,
+    expected_trajectory_new_state_count: int = EXPECTED_TRAJECTORY_NEW_STATE_COUNT,
+) -> dict[str, Any]:
+    """Merge disjoint label-free host partitions into one frozen state scope."""
     roots = tuple(Path(root).resolve() for root in input_roots)
     output_root = output_root.resolve()
     if len(roots) < 2 or output_root.exists():
         raise ValueError("held-out snapshot merge requires multiple fresh partitions")
     manifests = [_read_json(root / "manifest.json") for root in roots]
+    statuses = {manifest.get("status") for manifest in manifests}
+    if statuses == {PARTITION_OUTPUT_STATUS}:
+        full_evaluation = False
+    elif statuses == {FULL_EVALUATION_PARTITION_OUTPUT_STATUS}:
+        full_evaluation = True
+    else:
+        raise ValueError("held-out feature partition scopes are mixed or invalid")
     if any(
-        manifest.get("status") != PARTITION_OUTPUT_STATUS
+        manifest.get("status") not in {
+            PARTITION_OUTPUT_STATUS,
+            FULL_EVALUATION_PARTITION_OUTPUT_STATUS,
+        }
         or manifest.get("evaluation_labels_loaded") is not False
         or manifest.get("label_file_read_count") != 0
         for manifest in manifests
@@ -685,8 +1025,13 @@ def merge_heldout_feature_snapshots(
             prior = texts.setdefault(row["key"], row["text"])
             if prior != row["text"]:
                 raise ValueError("held-out feature partitions contain a text collision")
-    if len(rows) != EXPECTED_UNION_STATE_COUNT:
-        raise ValueError("merged held-out feature snapshot does not contain 805 states")
+    expected_state_count = (
+        expected_full_evaluation_state_count
+        if full_evaluation
+        else expected_union_state_count
+    )
+    if len(rows) != expected_state_count:
+        raise ValueError("merged held-out feature snapshot state count drifted")
     track_counts = {
         "exact_oracle": sum(
             "exact_oracle" in row["track_membership"] for row in rows.values()
@@ -695,13 +1040,15 @@ def merge_heldout_feature_snapshots(
             "large_history" in row["track_membership"] for row in rows.values()
         ),
         "overlap": sum(len(row["track_membership"]) == 2 for row in rows.values()),
-        "union": len(rows),
+        "union": sum(bool(row["track_membership"]) for row in rows.values()),
     }
     if track_counts != {
-        "exact_oracle": EXPECTED_EXACT_STATE_COUNT,
-        "large_history": EXPECTED_LARGE_HISTORY_STATE_COUNT,
-        "overlap": 235,
-        "union": EXPECTED_UNION_STATE_COUNT,
+        "exact_oracle": expected_exact_state_count,
+        "large_history": expected_large_history_state_count,
+        "overlap": expected_exact_state_count
+        + expected_large_history_state_count
+        - expected_union_state_count,
+        "union": expected_union_state_count,
     }:
         raise ValueError("merged held-out feature track counts drifted")
     state_payload = b"".join(
@@ -730,6 +1077,112 @@ def merge_heldout_feature_snapshots(
         b"".join(_canonical_json(value) for value in visual_shards)
     ).hexdigest()
     base = manifests[0]
+    exposure_payload = None
+    historical_exposure_counts = None
+    if full_evaluation:
+        exposure_ids = {
+            "all_state_ids": set(),
+            "exact_oracle_state_ids": set(),
+            "large_history_state_ids": set(),
+            "previous_heldout_union_state_ids": set(),
+            "state_new_state_ids": set(),
+            "trajectory_new_state_ids": set(),
+        }
+        trajectory_new_ids: set[str] = set()
+        for root, partition_manifest in zip(roots, manifests, strict=True):
+            exposure_path = root / partition_manifest["exposure_slices_json"]
+            if (
+                _sha256_file(exposure_path)
+                != partition_manifest["exposure_slices_sha256"]
+            ):
+                raise ValueError("evaluation exposure slice bytes drifted")
+            exposure = _read_json(exposure_path)
+            if exposure.get("status") != EXPOSURE_SLICE_STATUS:
+                raise ValueError("evaluation exposure slice status drifted")
+            for key, target in exposure_ids.items():
+                values = exposure.get(key)
+                if (
+                    not isinstance(values, list)
+                    or any(not isinstance(value, str) for value in values)
+                    or target & set(values)
+                ):
+                    raise ValueError("evaluation exposure slices overlap or are invalid")
+                target.update(values)
+            values = exposure.get("trajectory_new_trajectory_ids")
+            if (
+                not isinstance(values, list)
+                or any(not isinstance(value, str) for value in values)
+                or trajectory_new_ids & set(values)
+            ):
+                raise ValueError("evaluation trajectory-new slices overlap or are invalid")
+            trajectory_new_ids.update(values)
+        all_state_ids = set(rows)
+        previous = exposure_ids["previous_heldout_union_state_ids"]
+        state_new = exposure_ids["state_new_state_ids"]
+        trajectory_new = exposure_ids["trajectory_new_state_ids"]
+        if (
+            exposure_ids["all_state_ids"] != all_state_ids
+            or previous | state_new != all_state_ids
+            or previous & state_new
+            or not trajectory_new.issubset(state_new)
+            or {
+                _trajectory_id_from_state(state_id) for state_id in trajectory_new
+            }
+            != trajectory_new_ids
+            or exposure_ids["exact_oracle_state_ids"]
+            != {
+                state_id
+                for state_id, row in rows.items()
+                if "exact_oracle" in row["track_membership"]
+            }
+            or exposure_ids["large_history_state_ids"]
+            != {
+                state_id
+                for state_id, row in rows.items()
+                if "large_history" in row["track_membership"]
+            }
+        ):
+            raise ValueError("merged evaluation exposure slice identities drifted")
+        historical_exposure_counts = {
+            "all": len(all_state_ids),
+            "exact_oracle": len(exposure_ids["exact_oracle_state_ids"]),
+            "large_history": len(exposure_ids["large_history_state_ids"]),
+            "previous_heldout_union": len(previous),
+            "state_new": len(state_new),
+            "trajectory_new": len(trajectory_new),
+        }
+        if historical_exposure_counts != {
+            "all": expected_full_evaluation_state_count,
+            "exact_oracle": expected_exact_state_count,
+            "large_history": expected_large_history_state_count,
+            "previous_heldout_union": expected_union_state_count,
+            "state_new": expected_full_evaluation_state_count
+            - expected_union_state_count,
+            "trajectory_new": expected_trajectory_new_state_count,
+        } or len(trajectory_new_ids) != expected_trajectory_new_count:
+            raise ValueError("merged evaluation canonical slice counts drifted")
+        exposure = {
+            **{
+                key: sorted(values) for key, values in exposure_ids.items()
+            },
+            "counts": historical_exposure_counts,
+            "schema_version": "1.0.0",
+            "status": EXPOSURE_SLICE_STATUS,
+            "trajectory_counts": {
+                "all": len({row["trajectory_id"] for row in rows.values()}),
+                "previous_heldout_union": len(
+                    {
+                        _trajectory_id_from_state(state_id)
+                        for state_id in previous
+                    }
+                ),
+                "trajectory_new": len(trajectory_new_ids),
+            },
+            "trajectory_new_trajectory_ids": sorted(trajectory_new_ids),
+        }
+        exposure_payload = _canonical_json(exposure)
+        if exposure["trajectory_counts"]["all"] != expected_evaluation_trajectory_count:
+            raise ValueError("merged evaluation trajectory count drifted")
     manifest = {
         "content_sha256": hashlib.sha256(state_payload + text_payload).hexdigest(),
         "distance_rows_included": False,
@@ -755,7 +1208,7 @@ def merge_heldout_feature_snapshots(
         "state_count": len(rows),
         "states_jsonl": "states.jsonl",
         "states_sha256": hashlib.sha256(state_payload).hexdigest(),
-        "status": OUTPUT_STATUS,
+        "status": FULL_EVALUATION_OUTPUT_STATUS if full_evaluation else OUTPUT_STATUS,
         "text_count": len(texts),
         "texts_jsonl": "texts.jsonl",
         "texts_sha256": hashlib.sha256(text_payload).hexdigest(),
@@ -764,19 +1217,45 @@ def merge_heldout_feature_snapshots(
         "visual_shards": visual_shards,
         "visual_token_profile": base["visual_token_profile"],
     }
+    if exposure_payload is not None:
+        assignment_sha256s = {
+            manifest.get("assignment_manifest_sha256") for manifest in manifests
+        }
+        if len(assignment_sha256s) != 1 or None in assignment_sha256s:
+            raise ValueError("full evaluation assignment bindings drifted")
+        manifest.update(
+            {
+                "assignment_manifest_sha256": assignment_sha256s.pop(),
+                "evaluation_scope": "all_assignment_evaluation_states",
+                "exposure_slices_json": "exposure-slices.json",
+                "exposure_slices_sha256": hashlib.sha256(
+                    exposure_payload
+                ).hexdigest(),
+                "historical_exposure_counts": historical_exposure_counts,
+            }
+        )
     output_root.mkdir(parents=True)
     _write_atomic(output_root / "states.jsonl", state_payload)
     _write_atomic(output_root / "texts.jsonl", text_payload)
+    if exposure_payload is not None:
+        _write_atomic(output_root / "exposure-slices.json", exposure_payload)
     _write_atomic(output_root / "manifest.json", _canonical_json(manifest))
     return manifest
 
 
 __all__ = [
+    "EXPECTED_EVALUATION_TRAJECTORY_COUNT",
     "EXPECTED_EXACT_STATE_COUNT",
+    "EXPECTED_FULL_EVALUATION_STATE_COUNT",
     "EXPECTED_LARGE_HISTORY_STATE_COUNT",
     "EXPECTED_UNION_STATE_COUNT",
+    "EXPOSURE_SLICE_STATUS",
+    "FULL_EVALUATION_OUTPUT_STATUS",
+    "FULL_EVALUATION_PARTITION_OUTPUT_STATUS",
     "OUTPUT_STATUS",
     "PARTITION_OUTPUT_STATUS",
+    "full_evaluation_state_membership",
+    "materialize_full_evaluation_feature_snapshot",
     "materialize_heldout_feature_snapshot",
     "merge_heldout_feature_snapshots",
 ]

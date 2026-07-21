@@ -1,4 +1,4 @@
-"""Train/tune-only contextual entity inputs for utility predictor v3."""
+"""Label-blind contextual entity inputs for utility predictor v3."""
 
 from __future__ import annotations
 
@@ -12,12 +12,15 @@ from pathlib import Path
 from typing import Any
 
 from causalcache.set_utility_heldout_evaluation import canonical_json_bytes, sha256_file
+from causalcache.set_utility_heldout_snapshot import FULL_EVALUATION_OUTPUT_STATUS
 
 
 CONTEXTUAL_PROFILE_ID = "gui_owl_final_lm_hidden_image_plus_preceding_text64_v1"
 CONTEXTUAL_INPUT_STATUS = "COMPLETED_SET_UTILITY_CONTEXTUAL_INPUT_SNAPSHOT"
 CONTEXTUAL_REQUIREMENT_STATUS = "COMPLETED_SET_UTILITY_CONTEXTUAL_REQUIREMENT_SHARD"
 SUPPORTED_INPUT_STATUS = "COMPLETED_MERGED_VARIABLE_HISTORY_TRAINING_INPUT_SNAPSHOT"
+TRAIN_TUNE_ROLE_SCOPE = "train_tune"
+EVALUATION_ROLE_SCOPE = "evaluation"
 _VISUAL_KEY = re.compile(r"(?P<trajectory>[0-9]+):observation:(?P<step>[0-9]{3})")
 
 
@@ -89,17 +92,36 @@ def _visual_identity(value: Any, *, trajectory_id: str) -> tuple[str, int]:
 
 
 def materialize_contextual_inputs(
-    *, input_root: Path, output_root: Path
+    *,
+    input_root: Path,
+    output_root: Path,
+    role_scope: str = TRAIN_TUNE_ROLE_SCOPE,
 ) -> dict[str, Any]:
     if output_root.exists():
         raise FileExistsError("contextual input output already exists")
     input_manifest_path = input_root / "manifest.json"
     input_manifest = json.loads(input_manifest_path.read_text(encoding="utf-8"))
+    if role_scope == TRAIN_TUNE_ROLE_SCOPE:
+        expected_status = SUPPORTED_INPUT_STATUS
+        allowed_roles = {"train", "tune"}
+    elif role_scope == EVALUATION_ROLE_SCOPE:
+        expected_status = FULL_EVALUATION_OUTPUT_STATUS
+        allowed_roles = {"evaluation"}
+    else:
+        raise ValueError("contextual input role scope is invalid")
     if (
-        input_manifest.get("status") != SUPPORTED_INPUT_STATUS
+        input_manifest.get("status") != expected_status
         or input_manifest.get("evaluation_labels_included") is not False
     ):
-        raise ValueError("contextual inputs require a train/tune-only merged snapshot")
+        raise ValueError("contextual input snapshot status or label firewall drifted")
+    if role_scope == EVALUATION_ROLE_SCOPE and (
+        input_manifest.get("evaluation_labels_loaded") is not False
+        or input_manifest.get("distance_rows_included") is not False
+        or input_manifest.get("label_file_read_count") != 0
+        or input_manifest.get("evaluation_scope")
+        != "all_assignment_evaluation_states"
+    ):
+        raise ValueError("evaluation contextual input crossed the truth firewall")
     states_path = input_root / input_manifest["states_jsonl"]
     if sha256_file(states_path) != input_manifest["states_sha256"]:
         raise ValueError("contextual source states drifted")
@@ -114,8 +136,10 @@ def materialize_contextual_inputs(
     requirements: dict[str, dict[str, Any]] = {}
     transformed = []
     for state in states:
-        if state.get("role") not in {"train", "tune"}:
-            raise ValueError("contextual snapshot crossed the evaluation firewall")
+        if state.get("role") not in allowed_roles:
+            raise ValueError("contextual snapshot crossed its frozen role firewall")
+        if "distance_rows" in state or "distance" in state or "utility" in state:
+            raise ValueError("contextual snapshot contains forbidden truth fields")
         trajectory_id = state["trajectory_id"]
         logical_shard = state["logical_shard"]
         if type(logical_shard) is not int or not 0 <= logical_shard < 256:
@@ -226,6 +250,7 @@ def materialize_contextual_inputs(
         "input_manifest_sha256": sha256_file(input_manifest_path),
         "requirement_shards": requirement_receipts,
         "role_counts": dict(sorted(role_counts.items())),
+        "role_scope": role_scope,
         "schema_version": "1.0.0",
         "state_count": len(transformed),
         "states_jsonl": "states.jsonl",
@@ -233,6 +258,27 @@ def materialize_contextual_inputs(
         "status": CONTEXTUAL_INPUT_STATUS,
         "trajectory_count": len({row["trajectory_id"] for row in transformed}),
     }
+    if role_scope == EVALUATION_ROLE_SCOPE:
+        exposure_path = input_root / input_manifest["exposure_slices_json"]
+        if sha256_file(exposure_path) != input_manifest["exposure_slices_sha256"]:
+            raise ValueError("evaluation contextual exposure slice bytes drifted")
+        exposure_payload = exposure_path.read_bytes()
+        _write_atomic(output_root / "exposure-slices.json", exposure_payload)
+        manifest.update(
+            {
+                "distance_rows_included": False,
+                "evaluation_labels_loaded": False,
+                "evaluation_scope": "all_assignment_evaluation_states",
+                "exposure_slices_json": "exposure-slices.json",
+                "exposure_slices_sha256": input_manifest[
+                    "exposure_slices_sha256"
+                ],
+                "historical_exposure_counts": input_manifest[
+                    "historical_exposure_counts"
+                ],
+                "label_file_read_count": 0,
+            }
+        )
     _write_atomic(
         output_root / "manifest.json", canonical_json_bytes(manifest, pretty=True)
     )
@@ -243,6 +289,8 @@ __all__ = [
     "CONTEXTUAL_INPUT_STATUS",
     "CONTEXTUAL_PROFILE_ID",
     "CONTEXTUAL_REQUIREMENT_STATUS",
+    "EVALUATION_ROLE_SCOPE",
+    "TRAIN_TUNE_ROLE_SCOPE",
     "contextual_input_lineage_sha256s",
     "contextual_key",
     "contextual_prompt_text",
