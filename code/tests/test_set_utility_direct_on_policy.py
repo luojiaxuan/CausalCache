@@ -4,6 +4,7 @@ from causalcache.set_utility_direct_on_policy import (
     candidate_complete_coalitions,
     collection_bases,
     complete_group_count,
+    materialized_complete_group_count,
     missing_candidate_complete_coalitions,
     runner_schedule_coalitions,
 )
@@ -57,6 +58,29 @@ def test_complete_group_count_excludes_terminal_full_set() -> None:
     assert complete_group_count(
         [1, 2], [(1, 2)], maximum_base_cardinality=2
     ) == 0
+
+
+def test_covered_state_does_not_count_unmaterialized_desired_groups() -> None:
+    record = _record()
+    candidates = record["candidate_event_ids"]
+    existing = [(), (1,), (2,), (3,), (4,), (5,), tuple(candidates)]
+    desired = candidate_complete_coalitions(
+        record, maximum_base_cardinality=3
+    )
+    assert materialized_complete_group_count(
+        candidates,
+        existing,
+        desired,
+        materialize_desired=False,
+        maximum_base_cardinality=3,
+    ) == 1
+    assert materialized_complete_group_count(
+        candidates,
+        existing,
+        desired,
+        materialize_desired=True,
+        maximum_base_cardinality=3,
+    ) == 13
 
 
 def test_runner_schedule_restores_zero_cost_full_anchor() -> None:

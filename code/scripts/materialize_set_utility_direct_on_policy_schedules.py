@@ -15,6 +15,7 @@ from causalcache.set_utility_direct_on_policy import (
     candidate_complete_coalitions,
     collection_bases,
     complete_group_count,
+    materialized_complete_group_count,
     missing_candidate_complete_coalitions,
     runner_schedule_coalitions,
     validate_direct_train_selection_record,
@@ -185,15 +186,22 @@ def main() -> None:
         )
         existing_complete_group_count += state_existing_complete_groups
         if state_existing_complete_groups > 0:
-            resulting_complete_group_count += state_existing_complete_groups
+            resulting_complete_group_count += materialized_complete_group_count(
+                candidates,
+                existing,
+                desired,
+                materialize_desired=False,
+                maximum_base_cardinality=maximum_base_cardinality,
+            )
             continue
         uncovered_state_count += 1
         if not missing:
             continue
-        resulting = tuple(set(existing).union(desired))
-        resulting_complete_group_count += complete_group_count(
+        resulting_complete_group_count += materialized_complete_group_count(
             candidates,
-            resulting,
+            existing,
+            desired,
+            materialize_desired=True,
             maximum_base_cardinality=maximum_base_cardinality,
         )
         scheduled_state_count += 1

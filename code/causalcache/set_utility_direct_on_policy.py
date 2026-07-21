@@ -191,11 +191,30 @@ def complete_group_count(
     return result
 
 
+def materialized_complete_group_count(
+    candidates: Sequence[int],
+    existing_coalitions: Sequence[Sequence[int]],
+    desired_coalitions: Sequence[Sequence[int]],
+    *,
+    materialize_desired: bool,
+    maximum_base_cardinality: int,
+) -> int:
+    coalitions = set(tuple(value) for value in existing_coalitions)
+    if materialize_desired:
+        coalitions.update(tuple(value) for value in desired_coalitions)
+    return complete_group_count(
+        candidates,
+        tuple(coalitions),
+        maximum_base_cardinality=maximum_base_cardinality,
+    )
+
+
 __all__ = [
     "POLICY_KEYS",
     "candidate_complete_coalitions",
     "collection_bases",
     "complete_group_count",
+    "materialized_complete_group_count",
     "missing_candidate_complete_coalitions",
     "runner_schedule_coalitions",
     "validate_direct_train_selection_record",
