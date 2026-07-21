@@ -4361,3 +4361,20 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   (AndroidWorld,同预算 vs recent)。deferral 格子选择基于 tune(dev)属正当模型选择,但 evaluation/
   closed-loop 失败即终止,不得回调格子;paper 主张转为"带校准回退的 restoration-distilled selector
   在 closed-loop 胜出",审计与负结果降为机理支撑。
+
+## 2026-07-21:AndroidWorld closed-loop 管线在 H100 跑通,validation12 本地臂启动
+
+- H100(8×H100 80GB,`/dev/kvm` 可用)按 pinned 配方原生重建 `causalcache-androidworld:11cea575`
+  (Dockerfile 三补丁 + server schema 补丁),GUI-Owl 快照(14 files,`06d5faec`)经 manifest 校验落位;
+  environment smoke 一次通过(116 tasks、`SystemWifiTurnOn` score 0→1、36.2s);native 单 episode smoke
+  跑通 generate→parse→execute 链路(遇到已知的 `open_app` HTTP 500 基础设施异常类,按固定分母规则记录)。
+- 新增 `run_exploratory_closed_loop_episode.py` + `run_exploratory_closed_loop_worker.py`:validation12
+  冻结合同的执行 runner,当前实现三个本地臂(`summary_B0`/`recent_B2`/`ocr_rgb_B2`),复用
+  `exploratory_closed_loop_memory` 的冻结选择器、`build_live_gui_owl_v2_1_mixed_fidelity_messages`、
+  decisions 1--5 共享 summary-only 策略、pinned RapidOCR(在 `causalcache-policy-ocr:v1` 派生镜像中
+  安装冻结包版本)、`GUIOwlV21OfficialToolsRuntime` 2,560-token profile、episode 原子独占写。
+  terminal record 字段与 `exploratory_closed_loop_evaluation` reducer 合同一致。
+- 执行边界:本轮按用户授权先执行 36/60 episodes(三个本地臂 × 12 tasks);`independent_B2`/
+  `conditional_B2` 两个 learned 臂(formal-58 checkpoints + gate 特征在线抽取)未在本轮实现,60-episode
+  固定分母未完成前,任何数字都只是 interim engineering evidence,不构成合同 verdict。host 从 Aries 换到
+  H100 属于 execution.md 允许的 host adapter 变更(KVM/镜像 digest/worker 拓扑已记录)。
