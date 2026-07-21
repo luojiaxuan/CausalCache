@@ -14,7 +14,8 @@
   单机 cache 已 finalize：3,065 shards、289,753,201,728 bytes、content=`77dec757...5d16b`。LoRA trainer 与
   token-adapter control 已实现；两条 adaptation 分支首 epoch 均已完成。token-adapter 的 phase-1 truth
   已封存并回填，但 adapter-only recovery 低于 recent；LoRA-only 的 truth 也已封存，macro/Long+=
-  `0.30542/0.32770`，同样低于 recent。两者均未验证表示改进假设；joint adaptation 是下一项决定性检验。
+  `0.30542/0.32770`，同样低于 recent。joint token-adapter e1 又降至 macro/Long+=
+  `0.23919/0.28640`，因此该诊断对照停止；joint LoRA e1 已完成训练，正在生成真实 restoration truth。
   [设计](docs/set_utility_selector_lora_v1.md)与
   [状态](data/results/set_utility_selector_lora_v1/README.md)。
 - 正式 label rollout 已使用 Hyper00/Hyper01 各 6×H200 完成：5,108/5,108 states、33,175/33,175
@@ -123,8 +124,9 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   Hyper00 6-GPU LoRA-only phase 1 已完成 fixed-256 truth 回填：macro/Long+=`0.30542/0.32770`，低于
   recent=`0.37330/0.38002`；下一步进入 joint LoRA。Hyper01 的 token-adapter phase 1 已完成 truth 回填：
   B1--B4 macro/Long+=
-  `0.30893/0.30401`，低于 recent=`0.37330/0.38002`；下一步按冻结两阶段合同继续 joint adapter，作为
-  LoRA 的表示对照。[LoRA 执行状态](data/results/set_utility_selector_lora_v1/README.md)。
+  `0.30893/0.30401`，低于 recent=`0.37330/0.38002`；joint adapter e1 进一步退化后停止。joint LoRA e1
+  checkpoint 已完成，6,639 个实际访问 coalitions 正由 Hyper00/Hyper01 共 11×H200 并行回填。
+  [LoRA 执行状态](data/results/set_utility_selector_lora_v1/README.md)。
 - direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
   general-`B` v3 路线。该旧合同不被追认；本轮是用户显式授权的 data-coverage/structured-fallback 新假设，
   下游 policy replay、closed-loop 与 matched-NLL 仍需由新 checkpoint 的 untouched evaluation 解锁。

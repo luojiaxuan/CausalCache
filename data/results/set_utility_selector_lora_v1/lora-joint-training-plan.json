@@ -6,7 +6,13 @@
   "output_root": "/data02/jaxan/runs/causalcache-selector-lora-v1-5c827e6/joint",
   "parent_checkpoint_sha256": "db95948b838d29a6b63d84c5020bdb7dfcb78bf4f8c434e109f00ce59e2ccc01",
   "phase": "joint",
+  "result": {
+    "checkpoint_sha256": "02e0ac96a0540e5c84091bd6d1ab7be2ed5204908c66172efe40a8769490f949",
+    "epoch": 1,
+    "missing_truth_coalition_count": 6639,
+    "status": "WAITING_FOR_HELDOUT_TRUTH"
+  },
   "source_revision": "5c827e6852e8970fbcf2fb3cba0e3c53ae73fd2f",
-  "status": "RUNNING",
+  "status": "EPOCH1_WAITING_FOR_TRUTH",
   "world_size": 6
 }

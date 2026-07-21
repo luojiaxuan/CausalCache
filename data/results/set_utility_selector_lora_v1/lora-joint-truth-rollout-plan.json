@@ -1,0 +1,24 @@
+{
+  "created_at": "2026-07-21T23:36:27.040469+00:00",
+  "hosts": {
+    "hyper00": {
+      "container": "sglang-omni-jaxan-07211636",
+      "gpu_ids": [2, 3, 4, 5, 6, 7],
+      "partition_indices": [0, 1, 2, 3, 4, 5]
+    },
+    "hyper01": {
+      "container": "sglang-omni-jaxan-07211636",
+      "gpu_ids": [1, 2, 5, 6, 7],
+      "partition_indices": [6, 7, 8, 9, 10]
+    }
+  },
+  "partition_count": 11,
+  "schedule": {
+    "coalition_count": 6840,
+    "content_sha256": "20ae96ef1f5fd8589b077cf41f5be937b6e7a003b6d1931feae63702b84c32dc",
+    "forward_coalition_count": 6639,
+    "state_count": 201
+  },
+  "source_revision": "5c827e6852e8970fbcf2fb3cba0e3c53ae73fd2f",
+  "status": "RUNNING"
+}

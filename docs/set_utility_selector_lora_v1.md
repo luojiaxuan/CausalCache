@@ -66,8 +66,8 @@ head 的 selection parity。
 
 ## 下一步
 
-1. 补齐 joint token-adapter epoch 1 的实际访问 truth；
-2. 启动 joint LoRA，并对每个 epoch 使用同一个 fixed-256 truth barrier 选模。
+1. 合并并 seal joint LoRA epoch 1 的跨机 truth；
+2. 以 fixed-256 true recovery 判断 joint LoRA 是否改善 B2/Long+；token-adapter control 不再增加 epoch。
 
 Boundary extraction 的冻结参数见
 [`causalcache_set_utility_selector_lora_v1.json`](../code/configs/causalcache_set_utility_selector_lora_v1.json)。

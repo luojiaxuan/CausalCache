@@ -21,10 +21,12 @@
   states、3,785 coalitions 已由 Hyper00 6×H200 完成并 seal，0 skip/error，formal truth content=
   `ab5f14cd...c8d0`。LoRA-only B1/B2/B3/B4=`0.18320/0.28059/0.35835/0.39953`，
   macro/Long+=`0.30542/0.32770`，低于 recent；不解锁表示改进 claim。
-- joint token-adapter epoch 1 已在 Hyper01 6×H200 完成优化并停在 truth barrier，checkpoint=
-  `c50b4291...b51451`；91 states / 2,160 forwards 的 truth rollout 已在 Hyper01 6×H200 启动。
-- joint LoRA 已从 phase-1 true-recovery checkpoint 在 Hyper00 6×H200 启动；训练与 adapter truth rollout
-  分机并行。
+- joint token-adapter epoch 1 已在 Hyper01 6×H200 完成优化并回填 91/91 states、2,251 coalitions，0
+  skip/error，truth content=`251da3dd...07544`。B1/B2/B3/B4=
+  `0.18320/0.24649/0.26348/0.26361`，macro/Long+=`0.23919/0.28640`，进一步低于 adapter-only 与
+  recent。该 control 在一个 joint epoch 后停止，分类为资源转移，不冒充冻结 patience 的 formal early stop。
+- joint LoRA e1 checkpoint=`02e0ac96...f949`，201 states / 6,840 coalitions（6,639 forwards）的 truth
+  rollout 已拆为 Hyper00 6 卡 + Hyper01 5 卡，共 11 个 disjoint partitions。
 
 ## 2026-07-21：selector-side LoRA boundary replay 通过
 

@@ -1,0 +1,25 @@
+{
+  "checkpoint_sha256": "c50b4291ff07f09405d741c52d44ac324349e2216c40b39708fd8c1151b51451",
+  "delayed_selection_file_sha256": "9618d97240e8cb46eb86491a58db476981879f9fe906c499078be2b2c5a8b789",
+  "heldout_rollout_file_sha256": "00a00250fa31ea4d6f1701dfc28cc2875c76c798712a87cf8cfa5e8f982ccbe0",
+  "model_family": "selector_token_adapter_v1_joint",
+  "recovery": {
+    "B1": 0.1832030894394307,
+    "B2": 0.24648697355724308,
+    "B3": 0.26347534549754925,
+    "B4": 0.2636116176002364,
+    "long_plus_macro": 0.28640421315099074,
+    "macro": 0.23919425652361484
+  },
+  "schema_version": "causalcache.selector_adaptation_lightweight_result.v1",
+  "status": "STOPPED_AFTER_JOINT_EPOCH1_RESOURCE_REALLOCATION",
+  "stop_note": "Not a formal patience early stop; the diagnostic control regressed and GPUs were reassigned to joint LoRA.",
+  "truth": {
+    "coalition_count": 2251,
+    "formal_manifest_content_sha256": "251da3dd322fa289153747d9e6b77d3c1283d078e4ee3bc424cc81b1dac07544",
+    "formal_manifest_file_sha256": "1cb48efd0e9ff94041dca08385cd540cce46b3a98aefdb83618abea10a8f87e1",
+    "local_root": "/data02/jaxan/runs/causalcache-selector-token-adapter-joint-truth-e1-e1593c6",
+    "state_count": 91,
+    "status": "PENDING_HF_UPLOAD"
+  }
+}
