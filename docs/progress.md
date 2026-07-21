@@ -4566,3 +4566,14 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   B0/B2=0)——仅记为轶事,不进裁决。
 - 修复:环境类 suite_seed/task_combinations 参数化(旧路径默认值不变),ceiling 路径从 plan 传入并
   在构造时校验 index 越界。原 output root 封存,修复后另立 root 全量重跑。
+
+## 2026-07-21：Selector-side GUI-Owl LoRA 进入 boundary cache 阶段
+
+- 停止 budget-deferral evaluation，未读取 truth；保留 Hyper00/01 的可恢复 partial receipts。
+- GUI-Owl layer-32 boundary 经原 top-4 LM layers 重放，在真实 context 上对 selected final tokens 达到
+  bitwise equality，max absolute difference=`0.0`。
+- 已冻结 9,287 optimizer states + 256 development states 所需的 23,714-context allowlist；query/event=
+  9,543/14,171，content SHA256=`4172d468...6c510`。
+- 已实现可断点续跑的 full-sequence boundary cache、zero-init token-adapter control 和 top-4 q/k/v/o
+  rank-8 LoRA composite；Hyper00 依赖环境测试 `14 passed`。下一步是 Hyper00/01 各最多 6 GPU 并行生成
+  boundary cache，再从 current Set epoch-2 checkpoint warm start 训练；teacher/action policy 始终冻结。

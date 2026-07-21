@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_selector_lora_v1",
+  "purpose": "Test whether selector-side top-layer GUI-Owl adaptation closes the B2 and Long+ restoration gap while the teacher/action policy remains frozen.",
+  "input": {
+    "teacher_policy": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "teacher_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "teacher_snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+    "training_input_content_sha256": "6c9243a2a2846180f717ea59e3692a3005ae153b8d206f7ad1ec4a8bf1a1bfad",
+    "training_input_manifest_sha256": "af120b98d031ee49c6def4f620231543482364f469050e558514be6f1449a79a",
+    "contextual_input_content_sha256": "af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1",
+    "contextual_input_manifest_sha256": "0e87364bfb19d64433155a48ba1c8e5a1f3a67a39316fc6b3347229ff92f3b4b",
+    "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "split_manifest_content_sha256": "6d5d4767578ac12131e22b15bda88a2475a22d8d25778350b353f5d1e590c554",
+    "initial_head_checkpoint_sha256": "ed890219f5c765ad1c5098b691658f5bc1b5c4fd6b89114e944b5e2dd2ad3da1",
+    "initial_head_checkpoint_source": "set_transformer_direct_on_policy_v2 epoch 2",
+    "evaluation_access": false,
+    "teacher_parameters_trainable": false,
+    "existing_restoration_labels_reused": true
+  },
+  "boundary_cache": {
+    "profile": "gui_owl_selector_top4_full_sequence_boundary_v1",
+    "first_trainable_language_layer": 32,
+    "trainable_language_layer_count": 4,
+    "context_allowlist_content_sha256": "4172d46895edc14b507defe9af479cdf072e65fb026b7f2c79cb194de866c510",
+    "context_keys_sha256": "f3f231bb56eacb4b7d16f0a741d9af90b0773257aac11e538a5ccea99691b114",
+    "context_count": 23714,
+    "query_context_count": 9543,
+    "event_context_count": 14171,
+    "contexts_per_chunk": 8,
+    "logical_shard_count": 256,
+    "physical_partition_count": 12,
+    "tensor_roles": [
+      "boundary_hidden",
+      "input_ids",
+      "attention_mask",
+      "position_ids",
+      "visual_indices",
+      "text_indices"
+    ],
+    "resume_unit": "logical_shard_chunk"
+  },
+  "head": {
+    "family": "set_transformer",
+    "source_hidden_size": 4096,
+    "numeric_feature_size": 11,
+    "hidden_size": 256,
+    "latent_count": 16,
+    "resampler_layers": 2,
+    "set_layers": 2,
+    "num_heads": 8,
+    "dropout": 0.1,
+    "preserve_entity_latents": true
+  },
+  "arms": {
+    "frozen_continuation": {
+      "selector_encoder": "frozen_gui_owl_final_hidden",
+      "head_trainable": true
+    },
+    "post_final_token_adapter": {
+      "selector_encoder": "frozen_gui_owl_final_hidden_plus_residual_adapter",
+      "adapter_bottleneck_size": 64,
+      "adapter_learning_rate": 0.0001,
+      "head_learning_rate": 0.0001
+    },
+    "top4_lora": {
+      "vision_tower_trainable": false,
+      "visual_merger_trainable": false,
+      "language_layers_0_31_trainable": false,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"],
+      "rank": 8,
+      "alpha": 16,
+      "dropout": 0.0,
+      "lora_learning_rate": 0.00002,
+      "head_learning_rate": 0.0001
+    }
+  },
+  "training": {
+    "seed": 20260721,
+    "optimizer": "AdamW",
+    "weight_decay": 0.01,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "normalization_floor": 0.01,
+    "maximum_base_cardinality": 3,
+    "phase_1": {
+      "epochs": 1,
+      "head_trainable": false,
+      "adapter_or_lora_trainable": true
+    },
+    "phase_2": {
+      "maximum_epochs": 4,
+      "head_trainable": true,
+      "adapter_or_lora_trainable": true
+    },
+    "save_every_epoch": true,
+    "distributed_world_size": 6,
+    "per_device_state_batch_size": 1,
+    "gradient_accumulation_steps": 2,
+    "entity_microbatch_size": 8,
+    "loss": {
+      "conditional_marginal": 0.5,
+      "conditional_listwise": 2.0,
+      "decision_regret": 2.0,
+      "sign_classification": 0.25,
+      "decision_temperature": 0.05,
+      "conditional_marginal_smooth_l1_beta": 0.25
+    }
+  },
+  "checkpoint_selection": {
+    "denominator": "fixed_256_state_train_trajectory_holdout",
+    "budgets": [1, 2, 3, 4],
+    "primary_metric": "trajectory_equal_true_B1_B4_recovery_macro",
+    "tie_breaker": "long_plus_very_long_trajectory_equal_true_B1_B4_recovery_macro",
+    "minimum_delta": 0.005,
+    "patience": 2,
+    "require_complete_policy_restoration_truth": true,
+    "loss_only_selection_forbidden": true,
+    "recent_reference": {
+      "B1": 0.1832030894394307,
+      "B2": 0.3556452589785001,
+      "B3": 0.42122277090461197,
+      "B4": 0.5331191596613188,
+      "macro": 0.3732975697459654,
+      "long_plus_macro": 0.38001933028971185
+    },
+    "main_targets": [
+      "B2 strictly exceeds recent",
+      "Long+ macro strictly exceeds recent",
+      "B3 and B4 do not regress by more than 0.01 from the current direct selector",
+      "B1-B4 macro paired confidence interval improves over current frozen representation"
+    ]
+  },
+  "deployment": {
+    "budget_contract": "at_most_B",
+    "budget_input_to_model": false,
+    "search": "iterative_conditional_marginal_with_explicit_stop",
+    "selector_query_forward_counted_in_latency": true,
+    "event_embedding_may_be_cached_at_arrival": true,
+    "action_policy_hidden_states_shared_with_selector": false
+  },
+  "firewall": {
+    "optimization_role": "train",
+    "checkpoint_selection_role": "train_trajectory_holdout_development",
+    "untouched_evaluation_access": false,
+    "action_policy_modified": false,
+    "teacher_labels_regenerated": false
+  }
+}

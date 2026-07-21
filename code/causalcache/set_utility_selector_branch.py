@@ -20,7 +20,7 @@ class SelectorBoundaryForward:
     """Full-sequence state needed to replay a selector-only top-layer branch."""
 
     boundary_hidden_state: Any
-    final_hidden_state: Any
+    final_hidden_state: Any | None
     input_ids: Any
     attention_mask: Any
     position_ids: Any
@@ -70,10 +70,13 @@ def capture_selector_boundary_forward(
     runtime: Any,
     messages: Sequence[Mapping[str, Any]],
     trainable_layer_count: int,
+    include_final_hidden_state: bool = True,
 ) -> SelectorBoundaryForward:
     """Run frozen GUI-Owl once and capture the input to its selector branch."""
     if torch is None:  # pragma: no cover
         raise RuntimeError("selector boundary extraction requires PyTorch")
+    if type(include_final_hidden_state) is not bool:
+        raise TypeError("include_final_hidden_state must be boolean")
     model_inputs, image_counts = runtime._encode_exact_batch((messages,))
     if image_counts != (1,):
         raise ValueError("selector boundary forward requires exactly one image")
@@ -99,7 +102,7 @@ def capture_selector_boundary_forward(
                 position_ids=position_ids,
                 use_cache=False,
                 return_dict=True,
-                output_hidden_states=True,
+                output_hidden_states=include_final_hidden_state,
                 logits_to_keep=1,
             )
     finally:
@@ -107,15 +110,17 @@ def capture_selector_boundary_forward(
     hidden_states = getattr(outputs, "hidden_states", None)
     if len(captured) != 1:
         raise RuntimeError("selector boundary hook did not fire exactly once")
-    if not isinstance(hidden_states, (tuple, list)) or not hidden_states:
-        raise RuntimeError("GUI-Owl did not expose its final language hidden state")
-    final_hidden_state = hidden_states[-1]
     boundary = captured[0]
-    if boundary.shape != final_hidden_state.shape:
-        raise ValueError("selector boundary/final hidden geometry differs")
+    final_hidden_state = None
+    if include_final_hidden_state:
+        if not isinstance(hidden_states, (tuple, list)) or not hidden_states:
+            raise RuntimeError("GUI-Owl did not expose its final language hidden state")
+        final_hidden_state = hidden_states[-1].detach().clone()
+        if boundary.shape != final_hidden_state.shape:
+            raise ValueError("selector boundary/final hidden geometry differs")
     return SelectorBoundaryForward(
         boundary_hidden_state=boundary,
-        final_hidden_state=final_hidden_state.detach().clone(),
+        final_hidden_state=final_hidden_state,
         input_ids=model_inputs["input_ids"].detach().clone(),
         attention_mask=model_inputs["attention_mask"].detach().clone(),
         position_ids=position_ids.detach().clone(),

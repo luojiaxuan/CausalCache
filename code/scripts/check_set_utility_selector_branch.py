@@ -91,6 +91,8 @@ def main() -> None:
         trainable_layer_count=args.trainable_layer_count,
     )
     image_token_id = int(runtime.model.config.image_token_id)
+    if boundary.final_hidden_state is None:
+        raise RuntimeError("parity check requires the frozen final hidden state")
     frozen_visual, frozen_text = select_contextual_hidden_tokens(
         input_ids=boundary.input_ids,
         final_hidden_state=boundary.final_hidden_state,

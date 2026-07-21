@@ -45,3 +45,15 @@ activations。event 表示可在 arrival-time cache；每个 query 的独立 sel
 
 该检查证明完整 boundary、M-RoPE 和 causal mask 的重放路径正确；后续仍需在批量 cache 上验证当前 best
 head 的 selection parity。
+
+## 2026-07-21 实现状态
+
+- 已实现 full-sequence boundary 的分片提取、原子 chunk、SHA/identity 校验、断点续跑与最终 manifest；
+- 已实现 zero-init post-final token adapter 对照；
+- 已实现 pruned GUI-Owl top-4 branch、q/k/v/o LoRA、按原始 sequence length 分桶的 entity microbatch，
+  以及 current direct-marginal Set head 的严格 warm start；
+- Hyper00 实际依赖环境中相关单元测试 `14 passed`；
+- allowlist 已同步到 Hyper00/Hyper01。正式 boundary cache 尚未启动，不能声称 LoRA 已训练或有效。
+
+冻结执行参数见
+[`causalcache_set_utility_selector_lora_v1.json`](../code/configs/causalcache_set_utility_selector_lora_v1.json)。
