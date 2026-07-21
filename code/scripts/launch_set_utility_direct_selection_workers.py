@@ -56,6 +56,11 @@ def main() -> None:
     selector = Path(__file__).with_name(
         "run_set_utility_direct_marginal_tune_selectors.py"
     )
+    code_root = selector.parent.parent
+    inherited_pythonpath = os.environ.get("PYTHONPATH")
+    pythonpath = str(code_root)
+    if inherited_pythonpath:
+        pythonpath += os.pathsep + inherited_pythonpath
     processes = []
     handles = []
     for gpu_id, worker_id, state_ids in args.job:
@@ -88,7 +93,11 @@ def main() -> None:
         ]
         process = subprocess.Popen(
             command,
-            env={**os.environ, "CUDA_VISIBLE_DEVICES": str(gpu_id)},
+            env={
+                **os.environ,
+                "CUDA_VISIBLE_DEVICES": str(gpu_id),
+                "PYTHONPATH": pythonpath,
+            },
             stdout=handle,
             stderr=subprocess.STDOUT,
         )

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -350,6 +351,7 @@ def test_launcher_builds_isolated_gpu_commands(
         )
         assert command[command.index("--device") + 1] == "cuda:0"
         assert call["env"]["CUDA_VISIBLE_DEVICES"] == str(gpu)
+        assert call["env"]["PYTHONPATH"].split(os.pathsep)[0].endswith("/code")
         assert call["stderr"] is subprocess.STDOUT
         assert call["stdout"].closed
 
