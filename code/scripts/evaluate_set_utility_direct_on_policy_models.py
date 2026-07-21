@@ -34,11 +34,12 @@ from scripts.run_set_utility_tune_selectors import _pad_entities
 from scripts.train_set_utility_structured_marginal import (
     _load_split_manifest,
     _read_signed_json,
-    _rollout_heldout,
+    _slice_encoded,
     _validate_config as validate_structured_config,
 )
 from scripts.train_set_utility_token_predictor import (
     _TokenCache,
+    _batch_stream,
     _cache_covers_input,
     _configure_attention_backend,
     _read_json,
@@ -278,10 +279,7 @@ def _run_state(
         "state_conditioning": conditioning_ms,
         "warm_selector_from_cached_sources": conditioning_ms + learned_search_ms,
     }
-    return {
-        "hybrid": hybrid["selections"],
-        "learned": learned["selections"],
-    }, latency
+    return {"hybrid": hybrid, "learned": learned}, latency
 
 
 def _latency_and_hybrid(
@@ -342,15 +340,150 @@ def _native_rollout(
         }
         for state in states
     )
-    return _rollout_heldout(
-        adapter.model,
-        label_blind_states,
-        cache=cache,
-        batch_size=batch_size,
-        device=device,
-        normalization_floor=0.01,
-        torch=torch,
-    )
+    records = []
+    adapter.model.eval()
+    with torch.inference_mode():
+        for selected, batch in _batch_stream(
+            label_blind_states,
+            batch_size=batch_size,
+            cache=cache,
+            device=device,
+            torch=torch,
+            normalization_floor=0.01,
+        ):
+            model_inputs = dict(batch["model"])
+            model_inputs.pop("subset_masks")
+            with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                encoded_batch = adapter.model.encode_state_once(**model_inputs)
+            for index, state in enumerate(selected):
+                encoded = _slice_encoded(encoded_batch, index)
+                event_ids = tuple(state["candidate_event_step_ids"])
+                path = _model_path(
+                    adapter,
+                    encoded,
+                    event_ids,
+                    threshold=None,
+                    device=device,
+                    torch=torch,
+                )
+                records.append(
+                    {
+                        "candidate_event_ids": list(event_ids),
+                        "selections": path["selections"],
+                        "state_id": state["state_id"],
+                        "trace": path["trace"],
+                        "trajectory_id": state["trajectory_id"],
+                    }
+                )
+    return tuple(sorted(records, key=lambda row: row["state_id"]))
+
+
+def _trace_at_base(
+    trace: Sequence[Mapping[str, Any]], base: Sequence[int]
+) -> Mapping[str, Any] | None:
+    target = tuple(base)
+    for row in trace:
+        if tuple(row.get("base_subset", ())) == target:
+            return row
+    return None
+
+
+def _score_delta(
+    left: Mapping[str, Any] | None, right: Mapping[str, Any] | None
+) -> float | None:
+    if left is None or right is None:
+        return None
+    left_scores = {
+        str(row["action"]): float(row["score"])
+        for row in left.get("scored_actions", ())
+    }
+    right_scores = {
+        str(row["action"]): float(row["score"])
+        for row in right.get("scored_actions", ())
+    }
+    if not left_scores or set(left_scores) != set(right_scores):
+        return None
+    return max(abs(left_scores[key] - right_scores[key]) for key in left_scores)
+
+
+def _mismatch_summary(
+    states: Sequence[Mapping[str, Any]],
+    *,
+    incremental_by_state: Mapping[str, Mapping[str, Any]],
+    frozen_by_state: Mapping[str, Mapping[str, Any]],
+    recomputed_native_by_state: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Any]:
+    details = []
+    state_hashes = []
+    native_reproduction_mismatches = []
+    for state in states:
+        state_id = str(state["state_id"])
+        incremental = incremental_by_state[state_id]["paths"]["learned"]
+        frozen = frozen_by_state[state_id]
+        native = recomputed_native_by_state[state_id]
+        state_hash = sha256_json(
+            {
+                "candidate_event_ids": state["candidate_event_step_ids"],
+                "state_id": state_id,
+                "trajectory_id": state["trajectory_id"],
+            }
+        )
+        if native["selections"] != frozen["selections"]:
+            native_reproduction_mismatches.append(
+                {"state_id": state_id, "state_identity_sha256": state_hash}
+            )
+        if incremental["selections"] == frozen["selections"]:
+            continue
+        first_budget = next(
+            budget
+            for budget in range(1, 5)
+            if incremental["selections"][str(budget)]
+            != frozen["selections"][str(budget)]
+        )
+        previous = (
+            [] if first_budget == 1 else frozen["selections"][str(first_budget - 1)]
+        )
+        incremental_trace = _trace_at_base(incremental["trace"], previous)
+        native_trace = _trace_at_base(native["trace"], previous)
+        state_hashes.append(state_hash)
+        details.append(
+            {
+                "first_differing_budget": first_budget,
+                "frozen_native_selection": frozen["selections"][str(first_budget)],
+                "incremental_selection": incremental["selections"][str(first_budget)],
+                "incremental_top_decision_margin": (
+                    None
+                    if incremental_trace is None
+                    else incremental_trace.get("top_decision_margin")
+                ),
+                "max_absolute_score_delta_vs_recomputed_native": _score_delta(
+                    incremental_trace, native_trace
+                ),
+                "recomputed_native_matches_frozen_at_budget": (
+                    native["selections"][str(first_budget)]
+                    == frozen["selections"][str(first_budget)]
+                ),
+                "recomputed_native_top_decision_margin": (
+                    None
+                    if native_trace is None
+                    else native_trace.get("top_decision_margin")
+                ),
+                "shared_base_subset": list(previous),
+                "state_id": state_id,
+                "state_identity_sha256": state_hash,
+            }
+        )
+    return {
+        "compared_state_count": len(states),
+        "mismatch_count": len(details),
+        "mismatch_state_identity_set_sha256": sha256_json(sorted(state_hashes)),
+        "mismatches": details,
+        "recomputed_native_vs_frozen_mismatch_count": len(
+            native_reproduction_mismatches
+        ),
+        "recomputed_native_vs_frozen_mismatches": native_reproduction_mismatches,
+        "semantics": "deployment_incremental_cached_sources_vs_frozen_epoch_rollout",
+    }
 
 
 def main() -> None:
@@ -469,9 +602,15 @@ def main() -> None:
         "structured_deepsets": args.expected_deepsets_rollout,
     }
     expected_rollout_hashes = {}
+    frozen_by_model = {}
+    native_reproduction_mismatch_ids = {}
     for name, path in expected_paths.items():
         if path is None:
             expected_rollout_hashes[name] = None
+            frozen_by_model[name] = {
+                row["state_id"]: row for row in native[name]
+            }
+            native_reproduction_mismatch_ids[name] = ()
             continue
         expected = _read_signed_json(path.resolve())
         native_for_validation = [
@@ -483,7 +622,7 @@ def main() -> None:
             }
             for row in native[name]
         ]
-        validate_expected_rollout(
+        native_reproduction_mismatch_ids[name] = validate_expected_rollout(
             native_for_validation,
             expected,
             expected_checkpoint_sha256=(
@@ -491,8 +630,12 @@ def main() -> None:
                 if name == "set_transformer"
                 else args.expected_deepsets_checkpoint_sha256
             ),
+            require_exact_selections=False,
         )
         expected_rollout_hashes[name] = expected["content_sha256"]
+        frozen_by_model[name] = {
+            row["state_id"]: row for row in expected["records"]
+        }
 
     measured = {
         name: _latency_and_hybrid(
@@ -509,17 +652,27 @@ def main() -> None:
         name: {row["state_id"]: row for row in rows}
         for name, rows in native.items()
     }
+    diagnostics = {
+        name: _mismatch_summary(
+            states,
+            incremental_by_state=measured[name],
+            frozen_by_state=frozen_by_model[name],
+            recomputed_native_by_state=native_by_state[name],
+        )
+        for name in adapters
+    }
+    for name, mismatches in native_reproduction_mismatch_ids.items():
+        observed = tuple(
+            row["state_id"]
+            for row in diagnostics[name][
+                "recomputed_native_vs_frozen_mismatches"
+            ]
+        )
+        if set(mismatches) != set(observed):
+            raise RuntimeError("native reproduction diagnostics disagree")
     records = []
     for state in states:
         state_id = str(state["state_id"])
-        for name in adapters:
-            if (
-                measured[name][state_id]["paths"]["learned"]
-                != native_by_state[name][state_id]["selections"]
-            ):
-                raise ValueError(
-                    f"warm latency path changed native {name} selection: {state_id}"
-                )
         records.append(
             {
                 "candidate_event_ids": list(state["candidate_event_step_ids"]),
@@ -530,18 +683,18 @@ def main() -> None:
                 },
                 "methods": {
                     "recent": recent_budget_path(state["candidate_event_step_ids"]),
-                    "set_transformer": native_by_state["set_transformer"][
-                        state_id
-                    ]["selections"],
+                    "set_transformer": measured["set_transformer"][state_id][
+                        "paths"
+                    ]["learned"]["selections"],
                     "set_transformer_hybrid": measured["set_transformer"][
                         state_id
-                    ]["paths"]["hybrid"],
-                    "structured_deepsets": native_by_state[
-                        "structured_deepsets"
-                    ][state_id]["selections"],
+                    ]["paths"]["hybrid"]["selections"],
+                    "structured_deepsets": measured["structured_deepsets"][
+                        state_id
+                    ]["paths"]["learned"]["selections"],
                     "structured_deepsets_hybrid": measured[
                         "structured_deepsets"
-                    ][state_id]["paths"]["hybrid"],
+                    ][state_id]["paths"]["hybrid"]["selections"],
                 },
                 "state_id": state_id,
                 "trajectory_id": state["trajectory_id"],
@@ -592,6 +745,7 @@ def main() -> None:
             "state_count": len(states),
             "trajectory_count": len({state["trajectory_id"] for state in states}),
         },
+        "incremental_vs_frozen_native_diagnostics": diagnostics,
         "device": args.device,
         "hybrid_contract": {
             "minimum_learned_advantage_over_recent": HYBRID_THRESHOLD,
@@ -614,6 +768,19 @@ def main() -> None:
         "latency_summary_ms": latency_summary(
             records, ("set_transformer", "structured_deepsets")
         ),
+        "method_semantics": {
+            "recent": "deterministic_most_recent_at_most_B",
+            "set_transformer": "deployment_incremental_cached_source_encoding",
+            "set_transformer_hybrid": (
+                "deployment_incremental_cached_source_encoding_with_recent_fallback"
+            ),
+            "structured_deepsets": (
+                "deployment_incremental_cached_source_encoding"
+            ),
+            "structured_deepsets_hybrid": (
+                "deployment_incremental_cached_source_encoding_with_recent_fallback"
+            ),
+        },
         "methods": list(METHODS),
         "records": records,
         "schema_version": SCHEMA_VERSION,

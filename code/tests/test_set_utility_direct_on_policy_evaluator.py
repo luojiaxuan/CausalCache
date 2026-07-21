@@ -19,6 +19,7 @@ from causalcache.set_utility_direct_on_policy_evaluator import (
     project_inference_state,
     validate_expected_rollout,
 )
+from scripts.evaluate_set_utility_direct_on_policy_models import _mismatch_summary
 
 
 TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
@@ -82,6 +83,7 @@ def test_native_stop_and_confidence_gated_recent_fallback() -> None:
     assert learned["selections"]["1"] == [1]
     assert hybrid["selections"]["1"] == [2]
     assert hybrid["trace"][0]["reason"] == "recent_fallback"
+    assert hybrid["trace"][0]["top_decision_margin"] == pytest.approx(0.0005)
     assert hybrid["selections"]["3"] == [2]
     assert hybrid["selections"]["4"] == [2]
     assert hybrid["trace"][-1]["reason"] == "confidence_gated_stop"
@@ -135,10 +137,80 @@ def test_expected_rollout_requires_exact_native_selections() -> None:
         records, expected, expected_checkpoint_sha256="a" * 64
     )
     expected["records"][0]["selections"]["1"] = [2]
+    assert validate_expected_rollout(
+        records,
+        expected,
+        expected_checkpoint_sha256="a" * 64,
+        require_exact_selections=False,
+    ) == ("s1",)
     with pytest.raises(ValueError, match="differs from frozen"):
         validate_expected_rollout(
             records, expected, expected_checkpoint_sha256="a" * 64
         )
+
+
+def test_incremental_mismatch_is_diagnosed_without_becoming_native() -> None:
+    selections_a = {"1": [1], "2": [1], "3": [1], "4": [1]}
+    selections_b = {"1": [2], "2": [2], "3": [2], "4": [2]}
+    state = {
+        "candidate_event_step_ids": [1, 2],
+        "state_id": "trajectory:decision:034",
+        "trajectory_id": "trajectory",
+    }
+    incremental = {
+        state["state_id"]: {
+            "paths": {
+                "learned": {
+                    "selections": selections_b,
+                    "trace": [
+                        {
+                            "base_subset": [],
+                            "scored_actions": [
+                                {"action": "STOP", "score": 0.0},
+                                {"action": 1, "score": 0.5000},
+                                {"action": 2, "score": 0.5002},
+                            ],
+                            "top_decision_margin": 0.0002,
+                        }
+                    ],
+                }
+            }
+        }
+    }
+    frozen = {
+        state["state_id"]: {"selections": selections_a}
+    }
+    native = {
+        state["state_id"]: {
+            "selections": selections_a,
+            "trace": [
+                {
+                    "base_subset": [],
+                    "scored_actions": [
+                        {"action": "STOP", "score": 0.0},
+                        {"action": 1, "score": 0.5003},
+                        {"action": 2, "score": 0.5001},
+                    ],
+                    "top_decision_margin": 0.0002,
+                }
+            ],
+        }
+    }
+    summary = _mismatch_summary(
+        (state,),
+        incremental_by_state=incremental,
+        frozen_by_state=frozen,
+        recomputed_native_by_state=native,
+    )
+    assert summary["mismatch_count"] == 1
+    assert summary["recomputed_native_vs_frozen_mismatch_count"] == 0
+    detail = summary["mismatches"][0]
+    assert detail["first_differing_budget"] == 1
+    assert detail["incremental_selection"] == [2]
+    assert detail["frozen_native_selection"] == [1]
+    assert detail["max_absolute_score_delta_vs_recomputed_native"] == pytest.approx(
+        0.0003
+    )
 
 
 def test_latency_summary_uses_only_warm_state_records() -> None:

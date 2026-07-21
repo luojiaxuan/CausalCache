@@ -151,6 +151,29 @@ def marginal_budget_path(
             recent_event = max(remaining)
             recent_marginal = values[index_by_event[recent_event] + 1]
             stop_threshold = values[0]
+            scored_actions = [
+                {"action": "STOP", "score": stop_threshold},
+                *(
+                    {
+                        "action": event_id,
+                        "score": values[index_by_event[event_id] + 1],
+                    }
+                    for event_id in remaining
+                ),
+            ]
+            ranked_actions = sorted(
+                scored_actions,
+                key=lambda row: (
+                    -float(row["score"]),
+                    -1 if row["action"] == "STOP" else int(row["action"]),
+                ),
+            )
+            top_decision_margin = (
+                float(ranked_actions[0]["score"])
+                - float(ranked_actions[1]["score"])
+                if len(ranked_actions) > 1
+                else math.inf
+            )
             if recent_fallback_threshold is None:
                 if best_marginal <= stop_threshold:
                     chosen_event = None
@@ -185,7 +208,9 @@ def marginal_budget_path(
                     "reason": reason,
                     "recent_event": recent_event,
                     "recent_marginal": recent_marginal,
+                    "scored_actions": scored_actions,
                     "stop_threshold": stop_threshold,
+                    "top_decision_margin": top_decision_margin,
                 }
             )
             if chosen_event is not None:
@@ -294,7 +319,8 @@ def validate_expected_rollout(
     expected: Mapping[str, Any],
     *,
     expected_checkpoint_sha256: str,
-) -> None:
+    require_exact_selections: bool = True,
+) -> tuple[str, ...]:
     checkpoint = expected.get("checkpoint")
     expected_records = expected.get("records")
     if (
@@ -308,16 +334,23 @@ def validate_expected_rollout(
         str(row["state_id"]) for row in records
     }:
         raise ValueError("expected epoch rollout state inventory drifted")
+    mismatches = []
     for record in records:
         frozen = by_state[str(record["state_id"])]
-        if (
-            tuple(frozen.get("candidate_event_ids", ()))
-            != tuple(record["candidate_event_ids"])
-            or frozen.get("selections") != record["methods"][record["model_name"]]
+        if tuple(frozen.get("candidate_event_ids", ())) != tuple(
+            record["candidate_event_ids"]
         ):
+            raise ValueError("native selector candidate identity drifted")
+        differs = frozen.get("selections") != record["methods"][
+            record["model_name"]
+        ]
+        if differs:
+            mismatches.append(str(record["state_id"]))
+        if require_exact_selections and differs:
             raise ValueError(
                 f"native selector differs from frozen epoch rollout: {record['state_id']}"
             )
+    return tuple(mismatches)
 
 
 def latency_summary(
