@@ -4482,3 +4482,14 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   均未修改。第二次 dry merge 又在写输出前捕获 count-interface bug：manifest 的 `state_count=10,658` 是完整
   train inventory，`scheduled_state_count=5,108` 才是 schedule-shard denominator；materializer 改为优先后者，
   并用同时含两字段且数值不同的 fixture 锁定该语义。
+
+## 2026-07-21:Memory ceiling v1 首次 attempt 判 INVALID(suite 绑定 bug)
+
+- 180/180 episodes 完成但 140 例 infrastructure failure:环境类 `HTTPAndroidWorldEnvironment` 的
+  suite reinitialize 硬编码 validation 参数(seed 271828 / 2 组合),与 ceiling plan 的 train seed
+  314159 / 3 组合冲突——带参模板身份校验 fail-closed 拒绝(80 例),index-2 实例不存在(60 例 500)。
+  本 attempt 记 `INVALID_SUITE_BINDING`,episodes 保留为证据,不作任何裁决。
+- 5 个无参 goal 模板侥幸有效运行,其中 MarkorTranscribeReceipt 出现方向性信号(B4/B8=0.67 vs
+  B0/B2=0)——仅记为轶事,不进裁决。
+- 修复:环境类 suite_seed/task_combinations 参数化(旧路径默认值不变),ceiling 路径从 plan 传入并
+  在构造时校验 index 越界。原 output root 封存,修复后另立 root 全量重跑。

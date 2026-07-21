@@ -122,6 +122,8 @@ class HTTPAndroidWorldEnvironment:
         instance: dict[str, Any],
         observation_namespace: str,
         ocr_provider: PinnedOnlineOCRProvider,
+        suite_seed: int = 271828,
+        task_combinations: int = 2,
     ) -> None:
         self.base_url = validate_loopback_http_url(
             base_url, "AndroidWorld base URL"
@@ -129,6 +131,10 @@ class HTTPAndroidWorldEnvironment:
         self.instance = instance
         self.observation_namespace = observation_namespace
         self.ocr_provider = ocr_provider
+        self.suite_seed = int(suite_seed)
+        self.task_combinations = int(task_combinations)
+        if int(instance["task_index"]) >= self.task_combinations:
+            raise ValueError("task index escapes the reinitialized suite")
         self.task_params = {
             "task_type": instance["task_type"],
             "task_idx": instance["task_index"],
@@ -141,8 +147,8 @@ class HTTPAndroidWorldEnvironment:
             self.base_url,
             "/suite/reinitialize",
             params={
-                "n_task_combinations": 2,
-                "seed": 271828,
+                "n_task_combinations": self.task_combinations,
+                "seed": self.suite_seed,
                 "task_family": "android_world",
             },
         )

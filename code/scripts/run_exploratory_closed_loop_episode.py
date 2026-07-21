@@ -78,7 +78,12 @@ def _load_plan_instance(
         raise ValueError(
             f"expected one plan instance for {task_type}[{task_index}]"
         )
-    return {"instance": matches[0], "split": plan["split"]}
+    return {
+        "instance": matches[0],
+        "split": plan["split"],
+        "suite_seed": int(plan["suite_seed"]),
+        "task_combinations": int(plan["task_combinations"]),
+    }
 
 
 def _decode_png(payload: bytes) -> Any:
@@ -210,6 +215,8 @@ def run_episode(
         instance=instance,
         observation_namespace=namespace,
         ocr_provider=ocr_provider,
+        suite_seed=record.get("suite_seed", 271828),
+        task_combinations=record.get("task_combinations", 2),
     )
 
     summary: dict[str, Any] = {
