@@ -242,6 +242,36 @@ def test_lora_composite_forwards_gradients_and_exposes_disjoint_groups() -> None
     )
 
 
+def test_lora_composite_restores_only_direct_head_trainability_mask() -> None:
+    model = SelectorSideLoRAMarginalPredictor(
+        top_language_model=_FakePrunedTextModel(8),
+        predictor=_predictor(),
+        lora_rank=2,
+        lora_alpha=4,
+    )
+    default_trainable = {
+        name
+        for name, parameter in model.predictor.named_parameters()
+        if parameter.requires_grad
+    }
+    default_frozen = {
+        name
+        for name, parameter in model.predictor.named_parameters()
+        if not parameter.requires_grad
+    }
+    assert default_trainable and default_frozen
+    model.set_head_trainable(False)
+    assert not any(
+        parameter.requires_grad for parameter in model.predictor.parameters()
+    )
+    model.set_head_trainable(True)
+    parameters = dict(model.predictor.named_parameters())
+    assert {
+        name for name, parameter in parameters.items() if parameter.requires_grad
+    } == default_trainable
+    assert all(not parameters[name].requires_grad for name in default_frozen)
+
+
 def test_lora_composite_rejects_non_top4_and_inconsistent_padding() -> None:
     with pytest.raises(ValueError, match="top four"):
         SelectorSideLoRAMarginalPredictor(

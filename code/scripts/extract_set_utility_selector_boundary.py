@@ -107,9 +107,7 @@ def main() -> None:
     source_manifest = json.loads(source_manifest_path.read_text(encoding="utf-8"))
     if source_manifest.get("status") != "COMPLETED_VARIABLE_HISTORY_SOURCE":
         raise ValueError("selector boundary source manifest is not complete")
-    source_by_shard = {
-        row["logical_shard"]: row for row in source_manifest["shards"]
-    }
+    source_by_shard = {row["logical_shard"]: row for row in source_manifest["shards"]}
     requirement_receipts = {
         row["logical_shard"]: row for row in input_manifest["requirement_shards"]
     }
@@ -142,9 +140,7 @@ def main() -> None:
         "source_revision": args.source_revision,
         "trainable_layer_count": args.trainable_layer_count,
     }
-    identity_prefix = hashlib.sha256(
-        canonical_json_bytes(bindings)
-    ).hexdigest()
+    identity_prefix = hashlib.sha256(canonical_json_bytes(bindings)).hexdigest()
 
     runtime = None
     completed_during_invocation = 0

@@ -81,9 +81,7 @@ def capture_selector_boundary_forward(
     if image_counts != (1,):
         raise ValueError("selector boundary forward requires exactly one image")
     language_model = qwen3vl_language_model(runtime.model)
-    first_layer = selector_first_layer(
-        trainable_layer_count=trainable_layer_count
-    )
+    first_layer = selector_first_layer(trainable_layer_count=trainable_layer_count)
     captured: list[Any] = []
 
     def capture(_module: Any, args: tuple[Any, ...], _kwargs: dict[str, Any]) -> None:
@@ -182,11 +180,8 @@ if torch is not None:
             torch.nn.init.zeros_(self.up.weight)
 
         def forward(self, values: Any) -> Any:
-            update = self.up(
-                torch.nn.functional.silu(self.down(self.norm(values)))
-            )
+            update = self.up(torch.nn.functional.silu(self.down(self.norm(values))))
             return values + update
-
 
     class LoRALinear(torch.nn.Module):
         """Frozen linear layer with a zero-initialized trainable LoRA update."""
@@ -203,19 +198,23 @@ if torch is not None:
                 raise ValueError("LoRA alpha must be positive")
             self.base = base
             self.base.requires_grad_(False)
+            # note (luojiaxuan): Keep trainable LoRA master weights in FP32,
+            # like the downstream selector head, while the frozen Qwen branch
+            # remains BF16. The update is cast back to the base output dtype.
             self.lora_a = torch.nn.Linear(base.in_features, rank, bias=False).to(
-                device=base.weight.device, dtype=base.weight.dtype
+                device=base.weight.device, dtype=torch.float32
             )
             self.lora_b = torch.nn.Linear(rank, base.out_features, bias=False).to(
-                device=base.weight.device, dtype=base.weight.dtype
+                device=base.weight.device, dtype=torch.float32
             )
             self.scale = float(alpha) / rank
             torch.nn.init.kaiming_uniform_(self.lora_a.weight, a=5**0.5)
             torch.nn.init.zeros_(self.lora_b.weight)
 
         def forward(self, values: Any) -> Any:
-            return self.base(values) + self.lora_b(self.lora_a(values)) * self.scale
-
+            base = self.base(values)
+            update = self.lora_b(self.lora_a(values.to(dtype=self.lora_a.weight.dtype)))
+            return base + update.to(dtype=base.dtype) * self.scale
 
     def inject_qwen_attention_lora(
         language_model: Any, *, rank: int, alpha: float
@@ -238,7 +237,6 @@ if torch is not None:
                 )
                 targets.append(f"layers.{layer_index}.self_attn.{name}")
         return tuple(targets)
-
 
 else:  # pragma: no cover
 

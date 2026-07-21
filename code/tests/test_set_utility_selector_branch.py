@@ -34,7 +34,7 @@ def test_zero_initialized_lora_is_identity_and_base_is_frozen() -> None:
     assert adapter.lora_b.weight.requires_grad
 
 
-def test_lora_inherits_base_device_and_bfloat16_dtype() -> None:
+def test_lora_uses_fp32_master_weights_with_bfloat16_base() -> None:
     base = torch.nn.Linear(16, 12, bias=False).to(dtype=torch.bfloat16)
     adapter = LoRALinear(base, rank=4, alpha=8)
     values = torch.randn(2, 3, 16, dtype=torch.bfloat16)
@@ -42,6 +42,6 @@ def test_lora_inherits_base_device_and_bfloat16_dtype() -> None:
     assert result.dtype == torch.bfloat16
     assert adapter.lora_a.weight.device == base.weight.device
     assert adapter.lora_b.weight.device == base.weight.device
-    assert adapter.lora_a.weight.dtype == base.weight.dtype
-    assert adapter.lora_b.weight.dtype == base.weight.dtype
+    assert adapter.lora_a.weight.dtype == torch.float32
+    assert adapter.lora_b.weight.dtype == torch.float32
     assert torch.equal(result, base(values))

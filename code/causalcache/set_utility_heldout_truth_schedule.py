@@ -18,7 +18,6 @@ from causalcache.set_utility_heldout_evaluation import canonical_json_bytes, sha
 from causalcache.set_utility_train_heldout_contract import sha256_json
 from causalcache.set_utility_variable_history import history_bin
 
-
 SCHEDULE_STATUS = "COMPLETED_SET_UTILITY_HELDOUT_TRUTH_SCHEDULE"
 SHARD_STATUS = "COMPLETED_SET_UTILITY_HELDOUT_TRUTH_SCHEDULE_SHARD"
 FORMAL_MANIFEST_STATUS = "COMPLETED_SET_UTILITY_FORMAL_TRUTH_MANIFEST"
@@ -30,6 +29,29 @@ MODEL_FAMILIES = (
     "deepsets_structured_marginal",
     "set_transformer_direct_marginal",
 )
+SELECTOR_LORA_MODEL_FAMILIES = (
+    "selector_lora_v1_lora_only",
+    "selector_lora_v1_joint",
+)
+_SUPPORTED_MODEL_FAMILIES = (*MODEL_FAMILIES, *SELECTOR_LORA_MODEL_FAMILIES)
+_MODEL_FAMILY_TRUTH_STATUSES = {
+    "deepsets_structured_marginal": (
+        "COMPLETE_STRUCTURED_HELDOUT_TRUTH",
+        "PENDING_STRUCTURED_HELDOUT_TRUTH",
+    ),
+    "set_transformer_direct_marginal": (
+        "COMPLETE_SET_TRANSFORMER_CONTROL_TRUTH",
+        "PENDING_SET_TRANSFORMER_CONTROL_TRUTH",
+    ),
+    "selector_lora_v1_lora_only": (
+        "COMPLETE_SELECTOR_LORA_HELDOUT_TRUTH",
+        "PENDING_SELECTOR_LORA_HELDOUT_TRUTH",
+    ),
+    "selector_lora_v1_joint": (
+        "COMPLETE_SELECTOR_LORA_HELDOUT_TRUTH",
+        "PENDING_SELECTOR_LORA_HELDOUT_TRUTH",
+    ),
+}
 
 
 def _write_atomic(path: Path, payload: bytes) -> None:
@@ -91,9 +113,11 @@ def _validate_compact_signature(
     return value, str(claimed)
 
 
-def _epoch_checkpoint_bindings(schedule: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
+def _epoch_checkpoint_bindings(
+    schedule: Mapping[str, Any],
+) -> tuple[dict[str, Any], ...]:
     family = schedule.get("model_family")
-    if family not in MODEL_FAMILIES:
+    if family not in _SUPPORTED_MODEL_FAMILIES:
         raise ValueError("heldout truth schedule model family drifted")
     epochs = schedule.get("epochs")
     bindings = schedule.get("epoch_checkpoints")
@@ -127,9 +151,7 @@ def _validate_signed_schedule(path: Path) -> tuple[dict[str, Any], str]:
     value = _read_json(path)
     unsigned = dict(value)
     claimed = unsigned.pop("content_sha256", None)
-    digest = hashlib.sha256(
-        canonical_json_bytes(unsigned, pretty=True)
-    ).hexdigest()
+    digest = hashlib.sha256(canonical_json_bytes(unsigned, pretty=True)).hexdigest()
     if claimed != digest:
         raise ValueError(f"heldout truth schedule signature drifted: {path}")
     if value.get("schema_version") != "causalcache.structured_truth_schedule.v1":
@@ -144,16 +166,9 @@ def _validate_signed_schedule(path: Path) -> tuple[dict[str, Any], str]:
         != sum(len(row.get("missing_coalitions", ())) for row in records)
     ):
         raise ValueError(f"heldout truth schedule inventory drifted: {path}")
-    complete_status, pending_status = {
-        "deepsets_structured_marginal": (
-            "COMPLETE_STRUCTURED_HELDOUT_TRUTH",
-            "PENDING_STRUCTURED_HELDOUT_TRUTH",
-        ),
-        "set_transformer_direct_marginal": (
-            "COMPLETE_SET_TRANSFORMER_CONTROL_TRUTH",
-            "PENDING_SET_TRANSFORMER_CONTROL_TRUTH",
-        ),
-    }[value["model_family"]]
+    complete_status, pending_status = _MODEL_FAMILY_TRUTH_STATUSES[
+        value["model_family"]
+    ]
     expected_status = (
         complete_status if value["missing_coalition_count"] == 0 else pending_status
     )
@@ -204,13 +219,14 @@ def _load_input_states(
     ):
         raise ValueError("heldout truth input identity or firewall drifted")
     states_path = input_root / states_name
-    if (
-        not states_path.is_file()
-        or sha256_file(states_path) != manifest.get("states_sha256")
+    if not states_path.is_file() or sha256_file(states_path) != manifest.get(
+        "states_sha256"
     ):
         raise ValueError("heldout truth input state payload drifted")
     states = _read_jsonl(states_path)
-    if manifest.get("state_count") is not None and manifest["state_count"] != len(states):
+    if manifest.get("state_count") is not None and manifest["state_count"] != len(
+        states
+    ):
         raise ValueError("heldout truth input state count drifted")
     by_id: dict[str, dict[str, Any]] = {}
     for state in states:
@@ -228,9 +244,7 @@ def _source_trajectory_shards(
     *,
     expected_file_sha256: str,
 ) -> tuple[dict[str, Any], dict[str, int], dict[int, str]]:
-    expected = _lower_sha(
-        expected_file_sha256, label="source manifest file SHA256"
-    )
+    expected = _lower_sha(expected_file_sha256, label="source manifest file SHA256")
     if not path.is_file() or sha256_file(path) != expected:
         raise ValueError("heldout truth source manifest file drifted")
     manifest = _read_json(path)
@@ -351,9 +365,7 @@ def _union_truth_records(
                     raise ValueError(
                         f"heldout truth coalition {index} escaped candidate universe"
                     )
-                current["missing"][subset].add(
-                    f"{source_name}:{missing['source']}"
-                )
+                current["missing"][subset].add(f"{source_name}:{missing['source']}")
     if set(union) != checkpoint_ids:
         raise ValueError("heldout truth union denominator drifted")
     result = []
@@ -437,9 +449,7 @@ def materialize_heldout_truth_schedules(
         requested_missing_count += len(missing)
         if not missing:
             continue
-        coalitions = runner_schedule_coalitions(
-            record["candidate_event_ids"], missing
-        )
+        coalitions = runner_schedule_coalitions(record["candidate_event_ids"], missing)
         states_by_shard[record["logical_shard"]].append(
             {
                 "candidate_event_ids": list(record["candidate_event_ids"]),
@@ -577,7 +587,9 @@ def _runner_state_identity(
         "source_shard_sha256": source_shard_sha256,
         "state_id": schedule["state_id"],
     }
-    return hashlib.sha256(canonical_json_bytes(payload, pretty=True) + b"\n").hexdigest()
+    return hashlib.sha256(
+        canonical_json_bytes(payload, pretty=True) + b"\n"
+    ).hexdigest()
 
 
 def _load_materialized_schedule(
@@ -661,7 +673,9 @@ def _load_materialized_schedule(
                 raise ValueError("formal truth scheduled state identity drifted")
             coalitions = []
             for ordinal, raw in enumerate(raw_coalitions):
-                if not isinstance(raw, Mapping) or not isinstance(raw.get("source"), str):
+                if not isinstance(raw, Mapping) or not isinstance(
+                    raw.get("source"), str
+                ):
                     raise ValueError("formal truth scheduled coalition is invalid")
                 coalitions.append(
                     _canonical_coalition(
@@ -688,18 +702,14 @@ def _load_materialized_schedule(
                     ),
                 }
             )
-    if (
-        len(records) != summary.get("scheduled_state_count")
-        or sum(len(row["coalitions"]) for row in records)
-        != summary.get("coalition_count")
-    ):
+    if len(records) != summary.get("scheduled_state_count") or sum(
+        len(row["coalitions"]) for row in records
+    ) != summary.get("coalition_count"):
         raise ValueError("formal truth scheduled denominator drifted")
     return summary, summary_sha, tuple(sorted(records, key=lambda row: row["state_id"]))
 
 
-def seal_formal_truth_root(
-    *, schedule_root: Path, truth_root: Path
-) -> dict[str, Any]:
+def seal_formal_truth_root(*, schedule_root: Path, truth_root: Path) -> dict[str, Any]:
     """Seal one complete runner output behind immutable schedule provenance."""
     schedule_root = schedule_root.resolve()
     truth_root = truth_root.resolve()
@@ -708,7 +718,9 @@ def seal_formal_truth_root(
         raise ValueError("cannot seal an empty formal truth schedule")
     states_root = truth_root / "states"
     if not states_root.is_dir():
-        raise FileNotFoundError(f"formal truth root has no states directory: {truth_root}")
+        raise FileNotFoundError(
+            f"formal truth root has no states directory: {truth_root}"
+        )
     terminals: dict[str, tuple[Path, dict[str, Any]]] = {}
     for path in sorted(states_root.glob("*.json")):
         terminal = _read_json(path)
@@ -745,9 +757,10 @@ def seal_formal_truth_root(
             terminal.get("execution_config_sha256"),
             label="formal truth execution config SHA256",
         )
-        if not isinstance(source_revision, str) or re.fullmatch(
-            r"[0-9a-f]{40}", source_revision
-        ) is None:
+        if (
+            not isinstance(source_revision, str)
+            or re.fullmatch(r"[0-9a-f]{40}", source_revision) is None
+        ):
             raise ValueError("formal truth source revision must be a full Git SHA")
         if (
             terminal.get("status") != LABEL_STATUS
@@ -819,20 +832,14 @@ def seal_formal_truth_root(
             "heldout_manifest_content_sha256": summary[
                 "heldout_manifest_content_sha256"
             ],
-            "heldout_manifest_file_sha256": summary[
-                "heldout_manifest_file_sha256"
-            ],
+            "heldout_manifest_file_sha256": summary["heldout_manifest_file_sha256"],
             "input_content_sha256": summary["input_content_sha256"],
-            "input_manifest_file_sha256": summary[
-                "input_manifest_file_sha256"
-            ],
+            "input_manifest_file_sha256": summary["input_manifest_file_sha256"],
             "model_schedules": summary["truth_schedules"],
             "schema_version": "causalcache.formal_heldout_truth_manifest.v1",
             "scientific_config_sha256": next(iter(scientific_shas)),
             "source_content_sha256": summary.get("source_content_sha256"),
-            "source_manifest_file_sha256": summary[
-                "source_manifest_file_sha256"
-            ],
+            "source_manifest_file_sha256": summary["source_manifest_file_sha256"],
             "source_revision": next(iter(revisions)),
             "state_count": len(state_bindings),
             "states": state_bindings,
@@ -853,9 +860,7 @@ def seal_formal_truth_root(
             ],
             "input_content_sha256": manifest["input_content_sha256"],
             "schema_version": "causalcache.formal_heldout_truth_receipt.v1",
-            "source_manifest_file_sha256": manifest[
-                "source_manifest_file_sha256"
-            ],
+            "source_manifest_file_sha256": manifest["source_manifest_file_sha256"],
             "state_count": len(state_bindings),
             "status": FORMAL_RECEIPT_STATUS,
             "truth_schedule_summary_content_sha256": summary_sha,
@@ -875,6 +880,7 @@ __all__ = [
     "FORMAL_RECEIPT_STATUS",
     "LABEL_STATUS",
     "MODEL_FAMILIES",
+    "SELECTOR_LORA_MODEL_FAMILIES",
     "materialize_heldout_truth_schedules",
     "seal_formal_truth_root",
 ]

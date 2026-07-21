@@ -191,6 +191,14 @@ if torch is not None:
             self.top_language_model = top_language_model
             self.predictor = predictor
             self.entity_microbatch_size = entity_microbatch_size
+            # note (luojiaxuan): The direct-marginal predictor intentionally
+            # freezes legacy scalar-utility modules. Staged LoRA training must
+            # restore this exact mask rather than unfreezing the entire head.
+            self._default_head_trainable = frozenset(
+                name
+                for name, parameter in self.predictor.named_parameters()
+                if parameter.requires_grad
+            )
             self.lora_targets = inject_qwen_attention_lora(
                 self.top_language_model,
                 rank=lora_rank,
@@ -403,6 +411,15 @@ if torch is not None:
                 for name, parameter in self.predictor.named_parameters()
                 if parameter.requires_grad
             )
+
+        def set_head_trainable(self, enabled: bool) -> None:
+            """Toggle the direct head while preserving its constructor mask."""
+            if type(enabled) is not bool:
+                raise TypeError("head trainable flag must be boolean")
+            for name, parameter in self.predictor.named_parameters():
+                parameter.requires_grad_(
+                    enabled and name in self._default_head_trainable
+                )
 
         def optimizer_parameter_groups(
             self,

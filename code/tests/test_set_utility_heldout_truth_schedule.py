@@ -19,9 +19,7 @@ from causalcache.set_utility_variable_history import history_bin
 
 def _write_signed(path, value: dict[str, object]) -> str:
     unsigned = dict(value)
-    digest = hashlib.sha256(
-        canonical_json_bytes(unsigned, pretty=True)
-    ).hexdigest()
+    digest = hashlib.sha256(canonical_json_bytes(unsigned, pretty=True)).hexdigest()
     signed = {**unsigned, "content_sha256": digest}
     path.write_bytes(canonical_json_bytes(signed, pretty=True) + b"\n")
     return digest
@@ -245,7 +243,9 @@ def _write_truth_terminals(schedule_root, truth_root):
             path.write_bytes(canonical_json_bytes(terminal, pretty=True) + b"\n")
 
 
-def test_shared_truth_schedule_unions_models_and_materializes_all_shards(tmp_path) -> None:
+def test_shared_truth_schedule_unions_models_and_materializes_all_shards(
+    tmp_path,
+) -> None:
     fixture = _fixture(tmp_path)
     output_root = tmp_path / "output"
     kwargs = {
@@ -279,6 +279,24 @@ def test_shared_truth_schedule_unions_models_and_materializes_all_shards(tmp_pat
         "set_transformer:set_transformer_epoch_rollout"
     )
     assert materialize_heldout_truth_schedules(**kwargs) == result
+
+
+def test_single_selector_lora_truth_schedule_is_supported(tmp_path) -> None:
+    fixture = _fixture(tmp_path)
+    source = json.loads(
+        fixture["schedules"]["set_transformer"].read_text(encoding="utf-8")
+    )
+    source.pop("content_sha256")
+    source["model_family"] = "selector_lora_v1_lora_only"
+    source["status"] = "PENDING_SELECTOR_LORA_HELDOUT_TRUTH"
+    schedule_path = tmp_path / "selector-lora.json"
+    _write_signed(schedule_path, source)
+    fixture["schedules"] = {"selector_lora": schedule_path}
+    result = _materialize(fixture, tmp_path / "selector-output")
+    assert result["status"] == SCHEDULE_STATUS
+    assert result["truth_schedules"]["selector_lora"]["model_family"] == (
+        "selector_lora_v1_lora_only"
+    )
 
 
 def test_shared_truth_schedule_rejects_schedule_and_state_drift(tmp_path) -> None:
@@ -326,9 +344,7 @@ def test_shared_truth_schedule_requires_same_epoch_two_model_union(tmp_path) -> 
     schedule.pop("content_sha256")
     schedule["epoch_count"] = 2
     schedule["epochs"] = [1, 2]
-    schedule["epoch_checkpoints"].append(
-        {"checkpoint_sha256": "2" * 64, "epoch": 2}
-    )
+    schedule["epoch_checkpoints"].append({"checkpoint_sha256": "2" * 64, "epoch": 2})
     _write_signed(path, schedule)
     with pytest.raises(ValueError, match="same epochs"):
         _materialize(fixture, tmp_path / "bad-epochs")
@@ -350,13 +366,14 @@ def test_formal_truth_seal_and_allowlisted_loader_reject_tampering(tmp_path) -> 
     assert manifest["status"] == FORMAL_MANIFEST_STATUS
     assert manifest["state_count"] == 171
     assert manifest["input_content_sha256"] == fixture["expected_input_sha"]
-    assert manifest["heldout_manifest_content_sha256"] == fixture[
-        "expected_heldout_sha"
-    ]
+    assert (
+        manifest["heldout_manifest_content_sha256"] == fixture["expected_heldout_sha"]
+    )
     assert manifest["source_manifest_file_sha256"] == fixture["source_sha"]
-    assert seal_formal_truth_root(
-        schedule_root=schedule_root, truth_root=truth_root
-    ) == manifest
+    assert (
+        seal_formal_truth_root(schedule_root=schedule_root, truth_root=truth_root)
+        == manifest
+    )
 
     states_by_id = {row["state_id"]: row for row in fixture["states"]}
     loaded = _load_supplemental_truth(
@@ -373,9 +390,7 @@ def test_formal_truth_seal_and_allowlisted_loader_reject_tampering(tmp_path) -> 
     assert loaded["t000:decision:006"][(1, 5)] > 0.0
     provenance = {
         "expected_input_content_sha256": fixture["expected_input_sha"],
-        "expected_heldout_manifest_content_sha256": fixture[
-            "expected_heldout_sha"
-        ],
+        "expected_heldout_manifest_content_sha256": fixture["expected_heldout_sha"],
         "expected_source_manifest_file_sha256": fixture["source_sha"],
     }
     for key in provenance:

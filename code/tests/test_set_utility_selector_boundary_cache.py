@@ -53,9 +53,7 @@ def test_boundary_bundle_preserves_full_sequence_and_contextual_indices(
     assert tuple(bundle.tensors["boundary_hidden"].shape) == (6, 4096)
     assert torch.equal(bundle.tensors["visual_indices"], torch.tensor([2, 3]))
     assert torch.equal(bundle.tensors["text_indices"], torch.tensor([0, 1]))
-    assert torch.equal(
-        bundle.tensors["position_ids"], forward.position_ids[:, 0]
-    )
+    assert torch.equal(bundle.tensors["position_ids"], forward.position_ids[:, 0])
 
 
 def test_existing_boundary_chunk_is_resumable_only_under_same_identity(
@@ -74,12 +72,15 @@ def test_existing_boundary_chunk_is_resumable_only_under_same_identity(
         "status": boundary_cache.SELECTOR_BOUNDARY_CHUNK_STATUS,
     }
     _write_json(receipt_path, receipt)
-    assert boundary_cache.existing_selector_boundary_chunk(
-        tmp_path,
-        logical_shard=3,
-        chunk_index=1,
-        identity_sha256="a" * 64,
-    ) == receipt
+    assert (
+        boundary_cache.existing_selector_boundary_chunk(
+            tmp_path,
+            logical_shard=3,
+            chunk_index=1,
+            identity_sha256="a" * 64,
+        )
+        == receipt
+    )
     with pytest.raises(ValueError, match="drifted"):
         boundary_cache.existing_selector_boundary_chunk(
             tmp_path,

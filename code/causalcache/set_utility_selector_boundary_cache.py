@@ -23,7 +23,6 @@ from causalcache.set_utility_contextual_inputs import (
 )
 from causalcache.set_utility_heldout_evaluation import canonical_json_bytes, sha256_file
 
-
 SELECTOR_BOUNDARY_CACHE_STATUS = "COMPLETED_SET_UTILITY_SELECTOR_BOUNDARY_CACHE"
 SELECTOR_BOUNDARY_CHUNK_STATUS = "COMPLETED_SET_UTILITY_SELECTOR_BOUNDARY_CHUNK"
 SELECTOR_BOUNDARY_WORKER_STATUS = "COMPLETED_SET_UTILITY_SELECTOR_BOUNDARY_WORKER"
@@ -98,9 +97,7 @@ def load_selector_context_allowlist(
     return frozenset(keys), hashlib.sha256(payload).hexdigest()
 
 
-def _contextual_indices(
-    *, input_ids: Any, image_token_id: int
-) -> tuple[Any, Any]:
+def _contextual_indices(*, input_ids: Any, image_token_id: int) -> tuple[Any, Any]:
     try:
         import torch
     except ModuleNotFoundError as error:  # pragma: no cover
@@ -172,9 +169,7 @@ def selector_boundary_tensor_bundle(
         "visual_indices": visual.detach()
         .to(device="cpu", dtype=torch.int64)
         .contiguous(),
-        "text_indices": text.detach()
-        .to(device="cpu", dtype=torch.int64)
-        .contiguous(),
+        "text_indices": text.detach().to(device="cpu", dtype=torch.int64).contiguous(),
     }
     return SelectorBoundaryTensorBundle(
         tensors=tensors,
@@ -345,8 +340,7 @@ def finalize_selector_boundary_cache(
         if (
             receipt.get("status") != SELECTOR_BOUNDARY_CHUNK_STATUS
             or receipt.get("schema_version") != SELECTOR_BOUNDARY_SCHEMA_VERSION
-            or receipt.get("source_hidden_size")
-            != CONTEXTUAL_SOURCE_HIDDEN_SIZE
+            or receipt.get("source_hidden_size") != CONTEXTUAL_SOURCE_HIDDEN_SIZE
             or receipt.get("text_token_limit") != CONTEXTUAL_TEXT_TOKEN_LIMIT
             or receipt.get("allowed_visual_token_counts")
             != sorted(CONTEXTUAL_ALLOWED_VISUAL_TOKEN_COUNTS)
@@ -431,9 +425,7 @@ def finalize_selector_boundary_cache(
                     or int(visual[-1]) >= length
                     or int(text[-1]) >= length
                     or not bool(
-                        torch.all(
-                            input_ids.index_select(0, visual) == image_token_id
-                        )
+                        torch.all(input_ids.index_select(0, visual) == image_token_id)
                     )
                 ):
                     raise ValueError("selector boundary contextual indices drifted")
