@@ -1,5 +1,17 @@
 # 项目进展
 
+## 2026-07-21：selector boundary 跨机提取完成，Hyper00 单机合并中
+
+- 旧 budget-deferral evaluation 已在 truth access 前停止，`truth read=0`；该路线不再继续；
+- Teacher/action policy 保持原始 frozen GUI-Owl，LoRA 只存在于 selector top-4 branch；现有 restoration
+  labels 的 teacher 定义不变；
+- top-4 branch replay 已通过真实 context bitwise parity，max absolute difference=`0.0`；
+- Hyper00/Hyper01 的 12/12 partitions 已完整提取 allowlist 中 23,714/23,714 boundary contexts，0 failure；
+  当前在 Hyper00 重放 Hyper01 半份以形成训练可直接读取的单机 cache，最终 manifest/content SHA256 尚待
+  finalize；
+- LoRA trainer 与 token-adapter control 已实现但尚未训练。下一步严格按
+  `finalize → versioned executable config → Hyper00 6-GPU LoRA phase 1 → 256-state truth barrier` 推进。
+
 ## 2026-07-21：selector-side LoRA boundary replay 通过
 
 - GUI-Owl LM 共 36 层；冻结 teacher/action policy，为 selector 的 layers 32--35 q/k/v/o 预留
@@ -4574,6 +4586,7 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   bitwise equality，max absolute difference=`0.0`。
 - 已冻结 9,287 optimizer states + 256 development states 所需的 23,714-context allowlist；query/event=
   9,543/14,171，content SHA256=`4172d468...6c510`。
-- 已实现可断点续跑的 full-sequence boundary cache、zero-init token-adapter control 和 top-4 q/k/v/o
-  rank-8 LoRA composite；Hyper00 依赖环境测试 `14 passed`。下一步是 Hyper00/01 各最多 6 GPU 并行生成
-  boundary cache，再从 current Set epoch-2 checkpoint warm start 训练；teacher/action policy 始终冻结。
+- 已实现可断点续跑的 full-sequence boundary cache、zero-init token-adapter control、top-4 q/k/v/o
+  rank-8 LoRA composite 与对应 trainer；teacher/action policy 始终冻结；
+- Hyper00/Hyper01 的 12/12 partitions 随后完成 23,714/23,714 contexts、0 failure。当前在 Hyper00 形成
+  单机训练副本；最终 manifest/content SHA256 尚未 finalize，LoRA/token-adapter 尚未训练。

@@ -6,20 +6,15 @@
 
 ## 当前结论
 
-- **Direct on-policy development truth 已完成，并在 frozen-candidate evaluation 前冻结唯一 budget-deferral
-  candidate。** 同一 256-state / 78-trajectory train-heldout denominator 上，recent macro/Long+=
-  `0.37330/0.38002`；Set Transformer direct=`0.39258/0.37375`（macro delta `+0.01929`，CI 跨 0），
-  structured DeepSets direct=`0.39058/0.37533`（`+0.01728`，CI 跨 0）。DeepSets 在 B2 弱于 recent
-  （`0.31722<0.35565`），但 B3/B4 更强（`0.49327/0.56862` vs `0.42122/0.53312`）；固定 0.001
-  hybrid 没有带来可用增益。因此冻结 B1/B2=recent、B3/B4=DeepSets direct：development macro=
-  `0.40019`，相对 recent `+0.02689 [0.00039,0.07047]`；Long+ delta=`+0.00198`，CI 跨 0。这不是
-  evaluation 结果。下一步只运行一次 sealed candidate evaluation，不按结果重选 route；通过后直接进入
-  policy replay，再做 small closed-loop，否则停止该 candidate。由于旧实验已消费其中 805 states / 94
-  trajectories，本轮会透明分报全 1,046、state-new 241 与 trajectory-new 16/6 三个 slice，不将其称为
-  全项目 pristine holdout。
-  [结果](data/results/set_utility_direct_on_policy_deployment_v1/README.md)、
-  [冻结配置](code/configs/causalcache_set_utility_budget_deferral_v1.json)与
-  [执行合同](docs/set_utility_direct_on_policy_v1.md)。
+- **主线已转为 selector-side GUI-Owl LoRA；旧 budget-deferral evaluation 已在读取 truth 前停止。**
+  旧 evaluation 的 `truth read=0`，partial receipts 仅作为可恢复执行记录保留，不产生结果。Teacher/action
+  policy 始终是原始 frozen GUI-Owl；LoRA 只更新 selector encoder，因此现有 restoration labels 继续有效。
+  GUI-Owl top-4 branch 已通过真实 context bitwise parity（max absolute difference=`0.0`）。23,714 个
+  layer-32 boundary contexts 已由 Hyper00/Hyper01 的 12/12 partitions 完整提取、0 failure；当前正在
+  Hyper00 补齐单机训练所需的本地合并副本，最终 manifest/content SHA256 尚待 finalize。LoRA trainer 与
+  token-adapter control 已实现但均未训练，当前没有 LoRA 效果结论。
+  [设计](docs/set_utility_selector_lora_v1.md)与
+  [状态](data/results/set_utility_selector_lora_v1/README.md)。
 - 正式 label rollout 已使用 Hyper00/Hyper01 各 6×H200 完成：5,108/5,108 states、33,175/33,175
   microbatches、359,189 sampled rows + 5,108 zero-cost anchors，0 skip/non-finite/duplicate/error。合并后的
   training input content=`6c9243a...1bfad`；formal optimizer inventory 为 900 trajectories、9,287 states、
@@ -121,13 +116,11 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 ## 当前执行主线
 
-- direct on-policy coverage、训练、per-epoch truth selection、部署 selector truth 与 latency 已全部完成。
-  development 选择已冻结为 B1/B2 recent + B3/B4 DeepSets direct；配置禁止 evaluation 后修改 route 或
-  threshold。下一步只执行一次 1,046-state frozen-candidate evaluation：先密封 label-blind selections，再读取 truth；
-  continuation 通过后按 policy replay → small closed-loop 推进，失败则停止本 candidate。
-  [development 结果](data/results/set_utility_direct_on_policy_deployment_v1/README.md)、
-  [冻结配置](code/configs/causalcache_set_utility_budget_deferral_v1.json)与
-  [执行文档](docs/set_utility_direct_on_policy_v1.md)。
+- 旧 budget-deferral evaluation 已停止且 `truth read=0`；不再继续该 evaluation，也不把 partial receipts
+  解释为结果。当前唯一执行顺序为：finalize Hyper00 单机 boundary cache → 用最终 manifest/SHA 生成新的
+  versioned executable training config → Hyper00 6-GPU LoRA-only phase 1 → 固定 256-state development
+  truth barrier。训练通过该 barrier 后才继续 joint phase；token-adapter 使用同一 checkpoint-selection
+  contract 作为表示对照。[LoRA 执行状态](data/results/set_utility_selector_lora_v1/README.md)。
 - direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
   general-`B` v3 路线。该旧合同不被追认；本轮是用户显式授权的 data-coverage/structured-fallback 新假设，
   下游 policy replay、closed-loop 与 matched-NLL 仍需由新 checkpoint 的 untouched evaluation 解锁。
@@ -257,7 +250,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Per-epoch heldout training v1 | [结果](data/results/set_utility_direct_on_policy_training_v1/README.md)；[合同](docs/set_utility_direct_on_policy_v1.md)；Hyper00 Set root `...set-transformer-direct-on-policy-v2-a69c706`；Hyper01 DeepSets root `...structured-deepsets-direct-on-policy-v4-843e360` | complete；Set e2=`0.39491`、DeepSets e1=`0.39251`；均由 truth recovery 早停；evaluation/test sealed；`PENDING_HF_UPLOAD` |
 | Budget-deferral candidate v1 | [冻结 config](code/configs/causalcache_set_utility_budget_deferral_v1.json)；[development truth result](data/results/set_utility_direct_on_policy_deployment_v1/README.md) | B1/B2 recent + B3/B4 DeepSets direct；development delta=`+0.02689 [0.00039,0.07047]`；不是 evaluation；payload `PENDING_HF_UPLOAD` |
 | Budget-deferral evaluation Stage-A | [执行 config](code/configs/causalcache_set_utility_budget_deferral_evaluation_stage_a_v1.json)；[状态](data/results/set_utility_budget_deferral_evaluation_v1/README.md) | 用户在 selection/truth 前停止；truth read=0；Hyper00/01 保留 42/33 个 resumable receipts；转向 selector-side LoRA |
-| Selector-side GUI-Owl LoRA v1 | [设计](docs/set_utility_selector_lora_v1.md)；[config](code/configs/causalcache_set_utility_selector_lora_v1.json)；[状态](data/results/set_utility_selector_lora_v1/README.md) | teacher 不变；top-4 replay parity PASS；实现测试 14 passed；23,714-context cache 正由 Hyper00/01 各 6×H200 生成 |
+| Selector-side GUI-Owl LoRA v1 | [设计](docs/set_utility_selector_lora_v1.md)；[extraction config](code/configs/causalcache_set_utility_selector_lora_v1.json)；[状态](data/results/set_utility_selector_lora_v1/README.md) | teacher/action policy frozen；top-4 replay parity PASS；23,714/23,714 contexts 跨机提取完成，Hyper00 单机副本合并中；最终 manifest/SHA 待 finalize；LoRA 与 token-adapter 尚未训练 |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |
