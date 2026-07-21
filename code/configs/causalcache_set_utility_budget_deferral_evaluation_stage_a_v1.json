@@ -1,0 +1,74 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_budget_deferral_evaluation_stage_a_v1",
+  "status": "FROZEN_LABEL_BLIND_STAGE_A_BEFORE_CONTEXTUAL_EXTRACTION",
+  "source_revision": "a49223838af8c2c83b9d2a02bd3679d53edb1a22",
+  "candidate": {
+    "config": "code/configs/causalcache_set_utility_budget_deferral_v1.json",
+    "config_file_sha256": "d070475bb392d67ce195433b990de16187810a6d71690c438a880af071aa4df1",
+    "config_content_sha256": "3dd91a7016701f4afe81fbd07b0182a3207bad02957c11b3fbba85b30a900927",
+    "checkpoint_sha256": "5f5e21db7af1cc7785ba99ca9e7a7ecabdecbafa24ff70e0657ffea97ea9cd3e",
+    "route": {
+      "1": "recent",
+      "2": "recent",
+      "3": "structured_deepsets_direct",
+      "4": "structured_deepsets_direct"
+    }
+  },
+  "label_blind_inputs": {
+    "feature_root": "hyper00:/data02/jaxan/artifacts/causalcache-budget-deferral-eval-features-full-4f09d07",
+    "feature_manifest_file_sha256": "e6761b4be71ef8105d729837c21deddf8da44d6f4dc2ce56b968888916c24eb0",
+    "feature_content_sha256": "619ecf944ea56c0f7c3747b188641f873f77139d7f94aeefb3272f9dc6c3e63f",
+    "contextual_input_root": "hyper00:/data02/jaxan/artifacts/causalcache-budget-deferral-eval-contextual-inputs-4f09d07",
+    "contextual_input_manifest_file_sha256": "22f83812d00b79cd1cc33a43c42e53092e29c5662edf0db1b5f15cce694df15a",
+    "contextual_input_content_sha256": "7ecffcc4b3a30c59bfd148dc77e54ae7e7cb401e417e086fde582cfb2c4e2abd",
+    "source_root": "/data02/jaxan/artifacts/causalcache-set-utility-variable-history-source-v1-a7213db",
+    "source_manifest_file_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "state_count": 1046,
+    "trajectory_count": 100,
+    "context_count": 2492,
+    "slice_state_counts": {
+      "all": 1046,
+      "state_new": 241,
+      "trajectory_new": 16
+    },
+    "evaluation_labels_included": false,
+    "evaluation_labels_loaded": false,
+    "label_file_read_count": 0
+  },
+  "representation": {
+    "profile_id": "gui_owl_final_lm_hidden_image_plus_preceding_text64_v1",
+    "backbone_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "model_dir": "/data02/jaxan/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "source_hidden_size": 4096,
+    "dtype": "bfloat16"
+  },
+  "extraction": {
+    "logical_partition_count": 11,
+    "contexts_per_atomic_chunk": 8,
+    "resume_unit": "context_chunk",
+    "workers": [
+      {"host": "hyper00", "gpu_id": 0, "partition_index": 0},
+      {"host": "hyper00", "gpu_id": 2, "partition_index": 1},
+      {"host": "hyper00", "gpu_id": 3, "partition_index": 2},
+      {"host": "hyper00", "gpu_id": 4, "partition_index": 3},
+      {"host": "hyper00", "gpu_id": 5, "partition_index": 4},
+      {"host": "hyper00", "gpu_id": 6, "partition_index": 5},
+      {"host": "hyper01", "gpu_id": 1, "partition_index": 6},
+      {"host": "hyper01", "gpu_id": 4, "partition_index": 7},
+      {"host": "hyper01", "gpu_id": 5, "partition_index": 8},
+      {"host": "hyper01", "gpu_id": 6, "partition_index": 9},
+      {"host": "hyper01", "gpu_id": 7, "partition_index": 10}
+    ],
+    "output_roots": {
+      "hyper00": "/data02/jaxan/runs/causalcache-budget-deferral-eval-contextual-h00-a492238",
+      "hyper01": "/data02/jaxan/runs/causalcache-budget-deferral-eval-contextual-h01-a492238"
+    }
+  },
+  "firewall": {
+    "truth_roots_mounted": false,
+    "selection_must_be_sealed_before_truth_access": true,
+    "route_or_threshold_changes_after_selection": false,
+    "paper_claim_boundary": "This is a frozen-candidate confirmation on a historically reused evaluation role, not a globally pristine holdout."
+  }
+}

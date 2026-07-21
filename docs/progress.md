@@ -1,5 +1,15 @@
 # 项目进展
 
+## 2026-07-21：frozen-candidate evaluation Stage-A 输入完成
+
+- Hyper00/Hyper01 分别消费本机 128 个 visual-token shards，生成 448/598 个 disjoint label-blind states；
+  exact merge 得到 1,046 states / 100 trajectories，feature content=`619ecf94...c3e63f`；
+- contextual requirements 共 2,492 entities（1,046 query + 1,446 event），content=
+  `7ecffcc4...e2abd`；truth included/loaded/read 均为 false/false/0；
+- all/state-new/trajectory-new 切片=`1,046/241/16`，最后一项覆盖 6 条真正未被旧 heldout 使用的 trajectories；
+- 即时 preflight 后冻结 11 个 resumable GPU partitions：Hyper00 6 卡、Hyper01 5 卡，均不超过用户授权的
+  每机 6 卡。下一步 contextual extraction → finalize → fixed-route selection seal，仍不挂载 truth。
+
 ## 2026-07-21：deployment truth 完成并冻结 budget-deferral candidate
 
 - 在固定的 train-heldout development denominator（256 states / 78 trajectories，Long+=32 trajectories）上，
