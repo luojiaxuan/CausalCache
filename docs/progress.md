@@ -4197,3 +4197,20 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   claim，其余为 inconclusive。tune labels 禁止进入训练，untouched evaluation/policy/closed-loop 继续锁定。
 - 实现与 13 个 focused tests 已在 Hyper00 PyTorch 2.13 container 通过；合同见
   [`docs/set_utility_tune_long_oracle_v1.md`](set_utility_tune_long_oracle_v1.md)。
+
+## 2026-07-21:Fixed-tune Long+ oracle v1 完成，授权 direct-marginal v3
+
+- Hyper00/Hyper01 各 4×H200、每卡 2 lanes 完成四个依赖 wave：249/249 states、0 skip、合计
+  24,122 coalition labels。wave 1 初始按 8 个 logical partitions 分配时因 tune 仅 35 trajectories 产生
+  严重负载偏斜；同步 97 个原子 terminal 后改为全局 16-lane state-hash 分配，后续各 wave 双端负载基本
+  对称。该 infra 调整不改变 state、coalition 或 scientific config。
+- 正式 trajectory-equal recovery：oracle greedy B1--B4=`0.5392/0.6762/0.7597/0.8046`，macro=
+  `0.6949`；recent=`0.1605/0.3592/0.4372/0.3227`，macro=`0.3199`。
+- paired macro delta=`+0.3750`，95% CI=`[0.2627,0.5656]`；机器 verdict=
+  `HEADROOM_CONFIRMED_AUTHORIZE_DIRECT_MARGINAL_V3`。同 denominator 证实巨大 headroom，现有失败是
+  distillation/parameterization，不是 restoration estimand 或 tune Long+ population。
+- additive macro=`0.5527`，虽高于 recent 但显著低于 conditional greedy；下一 student 必须直接预测
+  `Δ(q,C,S,j)` 并显式建模 STOP，不再回归 scalar `U(S)`。tune labels 不进训练；先过 250-state train
+  in-sample Spearman/top-4 fit gate，再另立固定 tune 合同。
+- 完整 reducer 见 [`data/results/set_utility_tune_long_oracle_v1/`](../data/results/set_utility_tune_long_oracle_v1/README.md)；
+  完整 payload 暂存 Hyper persistent path，状态=`PENDING_HF_UPLOAD`。

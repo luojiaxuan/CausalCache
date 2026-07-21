@@ -1,5 +1,8 @@
 # Fixed-tune Long+ conditional-greedy oracle v1
 
+状态：`COMPLETED / HEADROOM_CONFIRMED_AUTHORIZE_DIRECT_MARGINAL_V3`。正式结果见
+[`data/results/set_utility_tune_long_oracle_v1/`](../data/results/set_utility_tune_long_oracle_v1/README.md)。
+
 ## 目的
 
 当前 scalar `U(S)` student 在 fixed-tune Long+ 上仅比 recent 高约 `+0.024`，但 train Long+
@@ -36,3 +39,9 @@ conditional-greedy restoration oracle 是否仍显著超过 recent。
 这是对已消费 tune 的 failure decomposition，不是新的 GO evaluation。tune truth 不得进入任何训练、
 checkpoint 选择或超参数搜索；untouched evaluation、policy replay、closed-loop 继续锁定。若 v3 被授权，
 250-state train in-sample probe 只作为优化门，最终仍须按新的冻结合同评估。
+
+## 结果
+
+249/249 states、四 wave 0 skip；oracle/recent B1--B4 macro=`0.6949/0.3199`，paired delta=
+`+0.3750 [0.2627,0.5656]`。point 与 CI lower 均以大幅裕量通过预注册阈值，因此只授权一次 direct
+conditional-marginal + explicit STOP v3。现有 scalar `U(S)` 参数化不再继续调参。
