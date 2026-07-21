@@ -10,9 +10,9 @@
   旧 evaluation 的 `truth read=0`，partial receipts 仅作为可恢复执行记录保留，不产生结果。Teacher/action
   policy 始终是原始 frozen GUI-Owl；LoRA 只更新 selector encoder，因此现有 restoration labels 继续有效。
   GUI-Owl top-4 branch 已通过真实 context bitwise parity（max absolute difference=`0.0`）。23,714 个
-  layer-32 boundary contexts 已由 Hyper00/Hyper01 的 12/12 partitions 完整提取、0 failure；当前正在
-  Hyper00 补齐单机训练所需的本地合并副本，最终 manifest/content SHA256 尚待 finalize。LoRA trainer 与
-  token-adapter control 已实现但均未训练，当前没有 LoRA 效果结论。
+  layer-32 boundary contexts 已由 Hyper00/Hyper01 的 12/12 partitions 完整提取、0 failure；Hyper00
+  单机 cache 已 finalize：3,065 shards、289,753,201,728 bytes、content=`77dec757...5d16b`。LoRA trainer 与
+  token-adapter control 已实现；token-adapter phase 1 已启动，LoRA 尚未产生效果结论。
   [设计](docs/set_utility_selector_lora_v1.md)与
   [状态](data/results/set_utility_selector_lora_v1/README.md)。
 - 正式 label rollout 已使用 Hyper00/Hyper01 各 6×H200 完成：5,108/5,108 states、33,175/33,175
@@ -117,9 +117,9 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 ## 当前执行主线
 
 - 旧 budget-deferral evaluation 已停止且 `truth read=0`；不再继续该 evaluation，也不把 partial receipts
-  解释为结果。当前唯一执行顺序为：finalize Hyper00 单机 boundary cache → 用最终 manifest/SHA 生成新的
-  versioned executable training config → Hyper00 6-GPU LoRA-only phase 1 → 固定 256-state development
-  truth barrier。训练通过该 barrier 后才继续 joint phase；token-adapter 使用同一 checkpoint-selection
+  解释为结果。Hyper00 单机 boundary cache 与 versioned executable training config 已完成；当前顺序为
+  Hyper00 6-GPU LoRA-only phase 1 → 固定 256-state development truth barrier。训练通过该 barrier 后才继续
+  joint phase；token-adapter phase 1 已在 Hyper01 并行启动并使用同一 checkpoint-selection
   contract 作为表示对照。[LoRA 执行状态](data/results/set_utility_selector_lora_v1/README.md)。
 - direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
   general-`B` v3 路线。该旧合同不被追认；本轮是用户显式授权的 data-coverage/structured-fallback 新假设，
@@ -250,7 +250,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Per-epoch heldout training v1 | [结果](data/results/set_utility_direct_on_policy_training_v1/README.md)；[合同](docs/set_utility_direct_on_policy_v1.md)；Hyper00 Set root `...set-transformer-direct-on-policy-v2-a69c706`；Hyper01 DeepSets root `...structured-deepsets-direct-on-policy-v4-843e360` | complete；Set e2=`0.39491`、DeepSets e1=`0.39251`；均由 truth recovery 早停；evaluation/test sealed；`PENDING_HF_UPLOAD` |
 | Budget-deferral candidate v1 | [冻结 config](code/configs/causalcache_set_utility_budget_deferral_v1.json)；[development truth result](data/results/set_utility_direct_on_policy_deployment_v1/README.md) | B1/B2 recent + B3/B4 DeepSets direct；development delta=`+0.02689 [0.00039,0.07047]`；不是 evaluation；payload `PENDING_HF_UPLOAD` |
 | Budget-deferral evaluation Stage-A | [执行 config](code/configs/causalcache_set_utility_budget_deferral_evaluation_stage_a_v1.json)；[状态](data/results/set_utility_budget_deferral_evaluation_v1/README.md) | 用户在 selection/truth 前停止；truth read=0；Hyper00/01 保留 42/33 个 resumable receipts；转向 selector-side LoRA |
-| Selector-side GUI-Owl LoRA v1 | [设计](docs/set_utility_selector_lora_v1.md)；[extraction config](code/configs/causalcache_set_utility_selector_lora_v1.json)；[状态](data/results/set_utility_selector_lora_v1/README.md) | teacher/action policy frozen；top-4 replay parity PASS；23,714/23,714 contexts 跨机提取完成，Hyper00 单机副本合并中；最终 manifest/SHA 待 finalize；LoRA 与 token-adapter 尚未训练 |
+| Selector-side GUI-Owl LoRA v1 | [设计](docs/set_utility_selector_lora_v1.md)；[extraction config](code/configs/causalcache_set_utility_selector_lora_v1.json)；[training config](code/configs/causalcache_set_utility_selector_lora_training_v1.json)；[状态](data/results/set_utility_selector_lora_v1/README.md) | teacher/action policy frozen；top-4 parity PASS；boundary cache complete：23,714 contexts、3,065 shards、289.75GB、content `77dec757...5d16b`；token-adapter phase 1 running；LoRA training pending launch |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

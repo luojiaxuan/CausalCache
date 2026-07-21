@@ -802,6 +802,7 @@ def _validate_config(
     phase_config = config.get("phases", {}).get(phase)
     model = selected.get("model")
     input_contract = config.get("input")
+    training = config.get("training")
     if not isinstance(input_contract, Mapping):
         raise ValueError("selector LoRA input contract is missing")
     for key in (
@@ -815,6 +816,12 @@ def _validate_config(
         "boundary_extraction_config_sha256",
     ):
         _require_sha256(input_contract.get(key), label=f"selector LoRA {key}")
+    if not isinstance(training, Mapping):
+        raise ValueError("selector LoRA training contract is missing")
+    _require_sha256(
+        training.get("exact_optimizer_inventory_content_sha256"),
+        label="selector LoRA optimizer inventory content SHA256",
+    )
     if (
         lora.get("trainable_layer_count") != 4
         or tuple(lora.get("target_modules", ()))
@@ -887,6 +894,11 @@ def _fit(args: argparse.Namespace) -> None:
         maximum_base_cardinality=int(training["maximum_base_cardinality"]),
     )
     observed_inventory = formal_group_inventory(examples)
+    if (
+        observed_inventory["content_sha256"]
+        != training["exact_optimizer_inventory_content_sha256"]
+    ):
+        raise ValueError("selector LoRA optimizer inventory content drifted")
     expected_inventory = training.get("exact_optimizer_inventory")
     if expected_inventory is not None and observed_inventory != expected_inventory:
         raise ValueError("selector LoRA exact optimizer inventory drifted")
@@ -942,9 +954,7 @@ def _fit(args: argparse.Namespace) -> None:
             checkpoint_sha256=parent_checkpoint_sha256,
             expected_identity={
                 "boundary_cache_content_sha256": boundary_manifest["content_sha256"],
-                "boundary_extraction_config_sha256": boundary_manifest[
-                    "config_sha256"
-                ],
+                "boundary_extraction_config_sha256": boundary_manifest["config_sha256"],
                 "config_sha256": _sha256_file(config_path),
                 "initial_checkpoint_sha256": config["input"][
                     "initial_checkpoint_sha256"

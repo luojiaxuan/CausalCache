@@ -1,6 +1,6 @@
 # Selector-side LoRA v1
 
-状态：`BOUNDARY_CACHE_LOCAL_MERGE_RUNNING`。
+状态：`BOUNDARY_CACHE_COMPLETE_TRAINING_STARTING`。
 
 - teacher/action policy：原始 frozen GUI-Owl，不含 LoRA；
 - selector branch：LM top-4，计划 q/k/v/o rank-8 LoRA；
@@ -13,10 +13,12 @@
 - boundary extractor/finalizer、LoRA trainer、token-adapter control 与 top-4 LoRA composite 已实现；
 - Hyper00/Hyper01 两机共 12 个独立可恢复 partitions 已完成 23,714/23,714 contexts，0 failure。执行清单见
   [`boundary-rollout-plan.json`](boundary-rollout-plan.json)；
-- 当前在 Hyper00 重放 Hyper01 半份，以形成单机训练 cache；最终 manifest、chunk inventory、实际 bytes 与
-  content SHA256 尚待 finalize；
-- LoRA 与 token-adapter 均未开始训练，checkpoint 尚未生成，不能报告方法效果；
-- 下一步：`finalize → versioned executable config → Hyper00 6-GPU LoRA phase 1 → 256-state truth barrier`；
+- Hyper00 单机 cache 已 finalize：3,065 shards、289,753,201,728 bytes、content SHA256=
+  `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；本地路径
+  `/data02/jaxan/runs/causalcache-selector-boundary-h00-c8cbc63`；
+- executable training config 已绑定最终 cache SHA；token-adapter phase 1 已在 Hyper01 4×H200 启动，LoRA
+  尚未生成 checkpoint，不能报告方法效果；
+- 下一步：`Hyper00 LoRA phase 1 → 256-state truth barrier`；
 - boundary cache 完成后需上传 private HF；当前状态 `PENDING_HF_UPLOAD`。
 
 设计与限制见 [`docs/set_utility_selector_lora_v1.md`](../../../docs/set_utility_selector_lora_v1.md)。

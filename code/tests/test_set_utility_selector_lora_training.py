@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -21,6 +22,7 @@ from scripts.train_set_utility_selector_lora_v1 import (
     _verify_boundary_manifest,
     _verify_snapshot_manifest,
 )
+from scripts.train_set_utility_structured_marginal import _load_split_manifest
 from causalcache.set_utility_heldout_evaluation import canonical_json_bytes
 from causalcache.set_utility_selector_boundary_cache import (
     SELECTOR_BOUNDARY_CACHE_STATUS,
@@ -99,6 +101,9 @@ def _config() -> dict:
             PHASE_LORA_ONLY: {"epochs": 1},
             PHASE_JOINT: {"epochs": 4},
         },
+        "training": {
+            "exact_optimizer_inventory_content_sha256": "2" * 64,
+        },
         "variants": {
             "set": {
                 "allowed_world_sizes": [1, 2, 4, 6, 8],
@@ -151,6 +156,25 @@ def test_selector_phase_contract_and_model_family_are_versioned() -> None:
     config["phases"][PHASE_LORA_ONLY]["epochs"] = 2
     with pytest.raises(ValueError, match="exactly one epoch"):
         _validate_config(config, phase=PHASE_LORA_ONLY, variant="set")
+
+
+def test_committed_executable_config_matches_frozen_split() -> None:
+    repository_root = Path(__file__).resolve().parents[2]
+    config = json.loads(
+        (
+            repository_root
+            / "code/configs/causalcache_set_utility_selector_lora_training_v1.json"
+        ).read_text(encoding="utf-8")
+    )
+    variant = "set_transformer_selector_lora_top4_r8"
+    assert _validate_config(config, phase=PHASE_LORA_ONLY, variant=variant)
+    assert _validate_config(config, phase=PHASE_JOINT, variant=variant)
+    assert config["input"]["selector_boundary_cache_content_sha256"] != "0" * 64
+    split = _load_split_manifest(
+        repository_root / "data/manifests/set_utility_train_heldout_v2.json",
+        config,
+    )
+    assert split["checkpoint_selection"]["patience"] == 3
 
 
 def test_phase_one_keeps_frozen_head_and_backbone_in_eval_mode() -> None:

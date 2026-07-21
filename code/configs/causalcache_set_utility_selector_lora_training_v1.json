@@ -1,0 +1,132 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_selector_lora_training_v1",
+  "status": "FROZEN_SELECTOR_LORA_EXECUTABLE_TRAINING_CONTRACT",
+  "purpose": "Train a selector-only GUI-Owl top-4 LoRA against frozen-policy restoration labels without modifying the teacher or action policy.",
+  "input": {
+    "teacher_policy": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "teacher_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "teacher_snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+    "training_input_content_sha256": "6c9243a2a2846180f717ea59e3692a3005ae153b8d206f7ad1ec4a8bf1a1bfad",
+    "source_manifest_file_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "contextual_input_content_sha256": "af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1",
+    "selector_boundary_cache_content_sha256": "77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b",
+    "boundary_extraction_config_sha256": "80bcc17ffd9c724a4122853c0b63fd5e6dd2756e23985075765f9ca6c2c93117",
+    "initial_checkpoint_sha256": "ed890219f5c765ad1c5098b691658f5bc1b5c4fd6b89114e944b5e2dd2ad3da1",
+    "train_heldout_manifest_content_sha256": "6d5d4767578ac12131e22b15bda88a2475a22d8d25778350b353f5d1e590c554",
+    "evaluation_access": false
+  },
+  "selector_lora": {
+    "trainable_layer_count": 4,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj"
+    ],
+    "rank": 8,
+    "alpha": 16,
+    "dropout": 0.0
+  },
+  "phases": {
+    "lora_only": {
+      "epochs": 1,
+      "head_trainable": false
+    },
+    "joint": {
+      "epochs": 4,
+      "head_trainable": true
+    }
+  },
+  "training": {
+    "seed": 20260721,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.1,
+    "minimum_lr_ratio": 0.1,
+    "attention_backend": "disable_cudnn_sdp",
+    "normalization_floor": 0.01,
+    "maximum_base_cardinality": 3,
+    "exact_optimizer_inventory_content_sha256": "b7452b1bad141d96407bf80c62b1d4778461af260f9837852cd4d8e480646109",
+    "balance_axes": [
+      "base_cardinality",
+      "history_bin",
+      "stop_all_negative"
+    ],
+    "balancing": {
+      "samples_per_epoch": 50000,
+      "power": 0.5,
+      "maximum_weight": 8.0,
+      "maximum_groups_per_encoded_state": 16,
+      "loss_aggregation": "global_equal_weight_per_sampled_group_across_packing_accumulation_and_ddp"
+    },
+    "loss": {
+      "conditional_marginal": 1.0,
+      "conditional_listwise": 2.0,
+      "decision_regret": 2.0,
+      "sign_classification": 0.25,
+      "decision_temperature": 0.05,
+      "conditional_marginal_smooth_l1_beta": 0.25
+    }
+  },
+  "checkpoint_selection": {
+    "budgets": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "primary_metric": "trajectory_equal_true_B1_B4_recovery_macro",
+    "tie_breaker": "long_plus_very_long_trajectory_equal_true_B1_B4_recovery_macro",
+    "patience": 3,
+    "minimum_delta": 0.005,
+    "tie_breaker_minimum_delta": 0.005,
+    "normalization_floor": 0.01,
+    "require_complete_truth_each_epoch": true,
+    "candidate_complete_actual_queried_bases_required": true,
+    "incomplete_epoch_action": "wait_without_selecting_or_advancing_patience"
+  },
+  "variants": {
+    "set_transformer_selector_lora_top4_r8": {
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "lora_learning_rate": 0.00002,
+      "head_learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "per_device_batch_size": 1,
+      "gradient_accumulation_steps": 2,
+      "entity_microbatch_size": 8,
+      "heldout_loss_batch_size": 1,
+      "resident_entity_cache_size": 16,
+      "maximum_open_boundary_shards": 64,
+      "allowed_world_sizes": [
+        1,
+        2,
+        4,
+        6
+      ]
+    }
+  },
+  "deployment": {
+    "budget_contract": "at_most_B",
+    "budget_input_to_model": false,
+    "search": "iterative_conditional_marginal_with_explicit_stop",
+    "teacher_action_policy_modified": false
+  },
+  "firewall": {
+    "optimization_role": "train",
+    "checkpoint_selection_role": "train_trajectory_holdout_development",
+    "untouched_evaluation_access": false,
+    "action_policy_modified": false,
+    "teacher_labels_regenerated": false
+  }
+}

@@ -55,19 +55,19 @@ head 的 selection parity。
 - 已实现 LoRA-only → joint 两阶段 trainer；每个 epoch 只能由固定 256-state development 的真实
   at-most-`B` restoration recovery 选模，缺 truth 时停在 barrier，不允许 loss 或最后 epoch 代替；
 - token-adapter control 已实现，并复用相同 checkpoint-selection contract；
-- Hyper00/Hyper01 的 12/12 partitions 已完整提取 23,714/23,714 allowlist contexts，0 failure。为避免跨机
-  训练读取，当前在 Hyper00 重放 Hyper01 半份并形成单机 cache；最终 manifest/content SHA256 尚待
-  finalizer 计算；
-- LoRA 与 token-adapter 均尚未训练，当前不能声称 selector representation 已改善。
+- Hyper00/Hyper01 的 12/12 partitions 已完整提取 23,714/23,714 allowlist contexts，0 failure；Hyper00
+  单机 cache 已通过 finalizer：3,065 shards、289,753,201,728 bytes、content SHA256=
+  `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；
+- executable training config 已单独版本化，未改写 extraction config；token-adapter phase 1 已在 Hyper01
+  启动，LoRA 尚未训练，当前仍不能声称 selector representation 已改善。
 
 ## 下一步
 
-1. 完成 Hyper00 单机 cache，并运行 finalizer 校验 chunk inventory、identity 与 SHA；
-2. 用最终 boundary manifest/content SHA256 生成新的 versioned executable training config，不改写已用于
-   extraction 的冻结 config；
-3. 在 Hyper00 以 6-GPU DDP 运行 LoRA-only phase 1；
-4. 每个 epoch 进入固定 256-state development truth barrier，补齐并封存实际访问的 coalitions 后再决定是否
+1. 在 Hyper00 以最多 6-GPU DDP 运行 LoRA-only phase 1；
+2. 每个 epoch 进入固定 256-state development truth barrier，补齐并封存实际访问的 coalitions 后再决定是否
    继续 joint phase。
 
 Boundary extraction 的冻结参数见
 [`causalcache_set_utility_selector_lora_v1.json`](../code/configs/causalcache_set_utility_selector_lora_v1.json)。
+Executable training 参数见
+[`causalcache_set_utility_selector_lora_training_v1.json`](../code/configs/causalcache_set_utility_selector_lora_training_v1.json)。
