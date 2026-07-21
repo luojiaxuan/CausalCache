@@ -4276,6 +4276,17 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 首次 launcher attempt 因未显式传 `PYTHONPATH` 在 import 前 exit 1，未创建 output；科学参数不变，补
   runtime path 后正式重启。8 个 ranks 已进入 training loop，GPU memory 约 2.7--3.9GB/card。
 
+## 2026-07-21:Direct marginal Stage-B 训练完成
+
+- Hyper00 8×H200 完成 12 epochs，785.7s、exit 0；best epoch=12，checkpoint SHA256=
+  `d8abbe8c...1dd23`。每 rank resume snapshot 与 best checkpoint 均在 persistent output root。
+- train/100-trajectory train-holdout 的 action top-1=`0.6129/0.2982`，decision regret=
+  `0.1186/0.2581`；optimization 接通，但跨 trajectory 泛化仍是主要风险。teacher STOP rate 约 2.3%，
+  student STOP accuracy 近 0，也将在 at-most-B truth 中接受检验。
+- `tune_labels_entered_training_or_selection=false`，`evaluation_records_loaded=false`。下一步只运行 unchanged
+  fixed-tune gate，不据 train metrics 调 loss、checkpoint 或门槛。
+- 结果：[`data/results/set_utility_direct_marginal_v3_stage_b_v1/`](../data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)。
+
 ## 2026-07-21:Stage-A Spearman 门槛复审(建议)
 
 - 用 long-oracle payload 中每 state 四次独立 `D(∅)` 重测证明标签确定性(归一化噪声中位数 0.0000,

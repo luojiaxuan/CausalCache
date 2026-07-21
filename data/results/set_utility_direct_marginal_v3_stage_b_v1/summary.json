@@ -1,0 +1,84 @@
+{
+  "schema_version": "causalcache.lightweight_result.v1",
+  "status": "COMPLETED_DIRECT_MARGINAL_V3_STAGE_B_TRAINING",
+  "source_revision": "8ccdb5c",
+  "source_run": {
+    "host": "hyper00",
+    "gpu": "8xH200",
+    "container": "sglang-omni-jaxan-07210241",
+    "container_id": "7866ed74f915964523aad59616d758d528d43181f51b913a6bbfdded34507c2d",
+    "image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "persistent_path": "/data02/jaxan/runs/causalcache-direct-marginal-v3-stage-b-v1-8ccdb5c",
+    "elapsed_seconds": 785.6519150733948,
+    "exit_code": 0,
+    "full_summary_content_sha256": "f03bba4241c47494e79cfa9d17772e7a3186670a0c4e966ab9ebcc332d0db173",
+    "full_summary_file_sha256": "d24a53e278491ea9598265b82c99694a9319d80adc820e959daed1e8eb457892"
+  },
+  "input": {
+    "training_input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "initial_checkpoint_sha256": "84cf51402fa27feab056d74a4ffb650b9df1bbb02b4e9eb6eda37964cf3f5a12",
+    "evaluation_records_loaded": false,
+    "tune_labels_entered_training_or_selection": false
+  },
+  "config": {
+    "sha256": "41bdefc9be8171123caa23ddf99e24592ba1b95608e546ba88f7e69a3a8be2c3",
+    "variant": "set_transformer_direct_marginal_d256_l16_r2_s2_lr1e4_ddp8",
+    "seed": 20260721,
+    "maximum_epochs": 12,
+    "best_epoch": 12,
+    "termination_reason": "maximum_epochs"
+  },
+  "inventory": {
+    "all_train": {
+      "states": 5550,
+      "trajectories": 1000,
+      "complete_expansion_groups": 62332
+    },
+    "optimization": {
+      "states": 5015,
+      "trajectories": 900,
+      "complete_expansion_groups": 56235
+    },
+    "train_holdout": {
+      "states": 535,
+      "trajectories": 100,
+      "complete_expansion_groups": 6097
+    }
+  },
+  "distributed": {
+    "backend": "nccl",
+    "world_size": 8,
+    "per_device_batch_size": 1,
+    "gradient_accumulation_steps": 1,
+    "effective_global_batch_size": 8,
+    "resume_supported": true
+  },
+  "best_epoch_metrics": {
+    "train": {
+      "action_top1_accuracy": 0.6128956628918509,
+      "decision_regret": 0.1186137467735212,
+      "conditional_listwise": 1.121086317738952,
+      "stop_action_accuracy": 0.0,
+      "teacher_stop_rate": 0.022698651642918035
+    },
+    "train_holdout": {
+      "action_top1_accuracy": 0.2982494696835491,
+      "decision_regret": 0.2581081065785522,
+      "conditional_listwise": 3.969706914702291,
+      "stop_action_accuracy": 0.0,
+      "teacher_stop_rate": 0.022908341919428834
+    }
+  },
+  "checkpoint": {
+    "path": "best.safetensors",
+    "byte_count": 31327304,
+    "sha256": "d8abbe8cf7bd04324220030b040f09e0d9a09402c87c0e17ca78c4047631dd23",
+    "status": "PENDING_HF_UPLOAD"
+  },
+  "next_step": {
+    "authorized": "UNCHANGED_FIXED_TUNE_GATE",
+    "untouched_evaluation_authorized": false,
+    "policy_experiments_authorized": false
+  }
+}
