@@ -4430,3 +4430,7 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   p5+p17/count24、每卡 2 lanes，并复用原 output root 的原子 state/microbatch progress。启动后四条 lanes
   均进入 forward，暂无 Traceback、OOM 或 failed terminal；最终仍以 5,108-state exact terminal inventory
   为接受条件，而不要求被 handoff 的原 owner launcher exit code 为 0。
+- Hyper01 donor p6 随后完成 323/323 states、1,961/1,961 microbatches、0 skip。相同 guard 与五秒 preflight
+  确认物理 GPU 2/4 空闲后，只 TERM old p8/count12 的两条 lanes；新容器
+  `sglang-omni-jaxan-07210934`（id `ca47517...`）将其精确拆为 p8+p20/count24、每卡 2 lanes。
+  其余四张卡上的 old partitions 不受影响；两个 host 均保持最多 6 张 live GPUs。
