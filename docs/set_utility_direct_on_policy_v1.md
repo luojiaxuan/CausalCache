@@ -85,6 +85,9 @@ B1--B4 macro recovery，Long+ 只作 tie-break；`patience=5`、`minimum_delta=1
   这是 schedule/runner interface bug，不是 label 数值失败。v3 为每个 state 加一个不触发 forward 的 full anchor，
   359,189 个 missing coalitions 与全部 selection 不变；回归测试直接验证 runner microbatch + anchor 的距离集合
   与 schedule exact equal。v3 使用新 schedule identity、新 source revision 与全新 output root；
+- v3 尚未启动时的 fresh preflight 又释放到 Hyper00/Hyper01 各 6 卡；因此最终 v4 execution 直接使用授权上限
+  12×H200、每卡 2 lanes（12 partitions / 24 workers）。这只改变 logical-shard execution mapping，不改变
+  source、schedule、label definition 或 resume identity；
 - labels、schedules、selection payload 与 checkpoints 保存在 `/data02/jaxan` persistent storage；
 - reusable data/checkpoints 完成后分别发布到现有 private Hugging Face dataset/model repo；发布前在 README
   记录精确路径并标为 `PENDING_HF_UPLOAD`；
