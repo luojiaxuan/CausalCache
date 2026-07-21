@@ -15,6 +15,7 @@ from causalcache.set_utility_post_selection_truth import (
     METHODS,
     RESULT_SCHEMA,
     SCHEDULE_SCHEMA,
+    _merge_distance,
     plan_post_selection_truth,
     reduce_post_selection_truth,
 )
@@ -379,3 +380,12 @@ def test_truth_roots_must_share_scientific_identity(tmp_path: Path) -> None:
             truth_roots=[fixture["root_a"], fixture["root_b"]],
             output_path=tmp_path / "schedule.json",
         )
+
+
+def test_merge_distance_uses_frozen_duplicate_tolerance() -> None:
+    table = {(1,): 0.5}
+    _merge_distance(table, (1,), 0.5 + 0.9e-6)
+    assert table[(1,)] == 0.5
+
+    with pytest.raises(ValueError, match="coalition distance"):
+        _merge_distance(table, (1,), 0.5 + 1.1e-6)

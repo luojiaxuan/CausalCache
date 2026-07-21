@@ -324,8 +324,10 @@ def _merge_distance(
     table: dict[tuple[int, ...], float], subset: tuple[int, ...], distance: float
 ) -> None:
     previous = table.get(subset)
-    if previous is not None and previous != distance:
-        raise ValueError("formal truth roots conflict on a coalition distance")
+    if previous is not None:
+        if abs(previous - distance) > 1e-6:
+            raise ValueError("formal truth roots conflict on a coalition distance")
+        return
     table[subset] = distance
 
 
