@@ -59,6 +59,11 @@ epoch 1 已在两条 fresh 6-rank 训练线上完成。Set Transformer / structu
 manifest content SHA256=`a6ba7c267052de75e3771915e8de1730c967f0202d632a73eb170d207e9efa36`：
 198/198 states、7,879 rows（含 198 anchors）、0 skip/error。epoch 1 真实 Set Transformer / structured
 DeepSets B1--B4 macro recovery=`0.38508/0.39251`，Long+=`0.36343/0.37929`；两者只在结算后进入 epoch 2。
+Set epoch 2 的 1,665 个新 forward 已封存为 manifest content SHA256=
+`b7225a0091faacad366ffe7e6c38bf1f07ae68673c3facfc457767ed8cc0c7fe`；macro/Long+ 提升至
+`0.39491/0.38618`，超过 minimum delta，成为新 best。Set epoch 3 macro=`0.00610`，未替换 best、
+stale=`1`；DeepSets epoch 2 全 STOP、macro=`0`，同样未替换 epoch 1。两模型后续实际查询分别独立补标，
+避免因无新 query 的 epoch 造成不必要的跨模型同步等待。
 
 实现入口：
 

@@ -10,6 +10,11 @@
 - 首次 resume 暴露 checkpoint RNG tensor 被 `map_location=cuda` 搬到 GPU、而 PyTorch RNG restore 要求
   CPU `ByteTensor` 的代码 bug；修复统一转回 contiguous CPU uint8，18 tests passed、8 skipped，并在两台
   pinned container 各通过 3 个 resume tests。该失败发生在 epoch 2 optimizer step 前，不改变 checkpoint/truth。
+- Set epoch 2 新增 85 states / 1,665 forwards，sealed manifest=`b7225a00...c7fe`；真实 macro/Long+
+  从 `0.38508/0.36343` 提升到 `0.39491/0.38618`，超过 0.005 并选中 epoch 2；epoch 3 macro=
+  `0.00610`，按合同拒绝并累计 stale=1；
+- DeepSets epoch 2 选择全 STOP，真实 macro=`0`，epoch 1 继续为 best、stale=1；DeepSets epoch 3 与
+  Set epoch 4 的实际缺失 truth 已分别在 Hyper01/Hyper00 并行生成，不因不同步 epoch 强行合并 schedule。
 
 ## 2026-07-21：direct on-policy labels、merge 与 formal inventory 完成
 
