@@ -59,32 +59,73 @@ class _TokenCache:
         manifest: dict[str, Any],
         *,
         device: Any = "cpu",
+        mode: str = "preload_device",
     ) -> None:
         try:
+            from safetensors import safe_open
             from safetensors.torch import load_file
         except ModuleNotFoundError as error:
             raise RuntimeError("token predictor training requires safetensors") from error
+        if mode not in {"preload_device", "lazy_cpu"}:
+            raise ValueError(f"unsupported token cache mode: {mode}")
+        if mode == "lazy_cpu" and str(device) != "cpu":
+            raise ValueError("lazy_cpu token cache must remain on CPU")
+        self.mode = mode
+        self.device = device
         self.tensors: dict[str, Any] = {}
+        self._lazy_records: dict[str, tuple[Any, dict[str, Any], Path]] = {}
+        self._lazy_handles: dict[Path, Any] = {}
         by_shard: dict[Path, list[tuple[str, dict[str, Any]]]] = defaultdict(list)
         for cache_key, record in manifest["tensor_inventory"].items():
             path = root / record["partition"] / record["shard"]
             by_shard[path].append((cache_key, record))
         for path in sorted(by_shard):
-            loaded = load_file(str(path), device=str(device))
+            try:
+                loaded = (
+                    safe_open(str(path), framework="pt", device="cpu")
+                    if mode == "lazy_cpu"
+                    else load_file(str(path), device=str(device))
+                )
+            except Exception as error:
+                raise RuntimeError(f"failed to open token cache shard: {path}") from error
+            if mode == "lazy_cpu":
+                self._lazy_handles[path] = loaded
             for cache_key, record in by_shard[path]:
-                tensor = loaded[record["tensor"]]
-                if list(tensor.shape) != record["shape"] or str(tensor.dtype) != record["dtype"]:
-                    raise ValueError("cached token tensor metadata drifted")
-                self.tensors[cache_key] = tensor
-        if len(self.tensors) != len(manifest["tensor_inventory"]):
+                if mode == "lazy_cpu":
+                    self._lazy_records[cache_key] = (loaded, record, path)
+                else:
+                    tensor = loaded[record["tensor"]]
+                    self._validate_tensor(tensor, record, cache_key=cache_key)
+                    self.tensors[cache_key] = tensor
+        observed_count = (
+            len(self._lazy_records) if mode == "lazy_cpu" else len(self.tensors)
+        )
+        if observed_count != len(manifest["tensor_inventory"]):
             raise ValueError("token cache preload omitted an inventory entry")
-        self.device = device
+
+    @staticmethod
+    def _validate_tensor(
+        tensor: Any, record: dict[str, Any], *, cache_key: str
+    ) -> None:
+        if list(tensor.shape) != record["shape"] or str(tensor.dtype) != record["dtype"]:
+            raise ValueError(f"cached token tensor metadata drifted: {cache_key}")
+
+    def _get(self, key: str) -> Any:
+        if self.mode != "lazy_cpu":
+            return self.tensors[key]
+        handle, record, path = self._lazy_records[key]
+        try:
+            tensor = handle.get_tensor(record["tensor"])
+        except Exception as error:
+            raise RuntimeError(f"failed to read token cache shard: {path}") from error
+        self._validate_tensor(tensor, record, cache_key=key)
+        return tensor
 
     def visual(self, key: str) -> Any:
-        return self.tensors[f"visual:{key}"]
+        return self._get(f"visual:{key}")
 
     def text(self, key: str) -> Any:
-        return self.tensors[f"text:{key}"]
+        return self._get(f"text:{key}")
 
 
 def _targets(
@@ -821,7 +862,14 @@ def main() -> None:
     seed = int(variant.get("seed", training["seed"]))
     _seed_training_runtime(torch, seed)
     torch.set_float32_matmul_precision("high")
-    cache = _TokenCache(cache_root, cache_manifest, device=device)
+    cache_mode = str(variant.get("cache_mode", "preload_device"))
+    cache_device = "cpu" if cache_mode == "lazy_cpu" else device
+    cache = _TokenCache(
+        cache_root,
+        cache_manifest,
+        device=cache_device,
+        mode=cache_mode,
+    )
     model_config = TokenUtilityModelConfig(**variant["model"])
     checkpoint_model = TokenSetUtilityPredictor(model_config).to(device)
     if distributed:
@@ -1021,6 +1069,7 @@ def main() -> None:
         "attention_backend": attention_backend,
         "cache_content_sha256": cache_manifest["content_sha256"],
         "cache_input_content_sha256": cache_manifest["input_content_sha256"],
+        "cache_mode": cache_mode,
         "config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
         "decision_supervision": decision_supervision,
         "elapsed_seconds": time.time() - started,

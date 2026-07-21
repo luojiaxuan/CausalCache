@@ -1,11 +1,75 @@
 from __future__ import annotations
 
 import importlib.util
+from pathlib import Path
 
 import pytest
 
 
 TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
+
+
+@pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is unavailable")
+def test_lazy_cpu_token_cache_reads_inventory_without_device_preload(
+    tmp_path: Path,
+) -> None:
+    import torch
+    from safetensors.torch import save_file
+
+    from scripts.train_set_utility_token_predictor import _TokenCache
+
+    partition = tmp_path / "context-shards" / "shard-000-of-001"
+    partition.mkdir(parents=True)
+    shard = partition / "chunk-00000.safetensors"
+    visual = torch.arange(24, dtype=torch.bfloat16).reshape(3, 8)
+    text = torch.arange(16, dtype=torch.bfloat16).reshape(2, 8)
+    save_file({"visual_tensor": visual, "text_tensor": text}, str(shard))
+    manifest = {
+        "tensor_inventory": {
+            "visual:image": {
+                "dtype": "torch.bfloat16",
+                "partition": "context-shards/shard-000-of-001",
+                "shape": [3, 8],
+                "shard": shard.name,
+                "tensor": "visual_tensor",
+            },
+            "text:instruction": {
+                "dtype": "torch.bfloat16",
+                "partition": "context-shards/shard-000-of-001",
+                "shape": [2, 8],
+                "shard": shard.name,
+                "tensor": "text_tensor",
+            },
+        }
+    }
+    cache = _TokenCache(tmp_path, manifest, device="cpu", mode="lazy_cpu")
+    assert cache.mode == "lazy_cpu"
+    assert not cache.tensors
+    assert torch.equal(cache.visual("image"), visual)
+    assert torch.equal(cache.text("instruction"), text)
+
+
+@pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is unavailable")
+def test_lazy_cpu_token_cache_reports_corrupt_shard_path(tmp_path: Path) -> None:
+    from scripts.train_set_utility_token_predictor import _TokenCache
+
+    partition = tmp_path / "context-shards" / "shard-000-of-001"
+    partition.mkdir(parents=True)
+    shard = partition / "chunk-00000.safetensors"
+    shard.write_bytes(b"truncated")
+    manifest = {
+        "tensor_inventory": {
+            "visual:image": {
+                "dtype": "torch.bfloat16",
+                "partition": "context-shards/shard-000-of-001",
+                "shape": [3, 8],
+                "shard": shard.name,
+                "tensor": "visual_tensor",
+            }
+        }
+    }
+    with pytest.raises(RuntimeError, match="chunk-00000.safetensors"):
+        _TokenCache(tmp_path, manifest, device="cpu", mode="lazy_cpu")
 
 
 @pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is unavailable")
