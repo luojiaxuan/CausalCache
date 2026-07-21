@@ -4296,6 +4296,21 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - Hyper00 H200 focused test=`7 passed`，包含 cached/full conditioning 等价、负边际提前 STOP 和 shard overlap
   拒绝。该实现只解锁 unchanged fixed-tune truth，不改变最终 gate。
 
+## 2026-07-21:Direct marginal v3 fixed-tune 最终 NO-GO
+
+- Hyper00 8 + Hyper01 6 张 H200 在约 95 秒内完成 1,063-state direct selection；模型对所有 state 的
+  B1--B4 都选满，显式 STOP 从未触发。
+- truth schedule=12,763 unique coalitions；两机 14×H200、28 atomic-resume lanes 完成 1,063/1,063、
+  0 skip，UTC `10:16:59--10:42:08`。按 partition 长度动态移动 lanes，只复用 frozen state/microbatch
+  progress；科学 config、state identity 与 denominator 未变。
+- direct-v3 B1--B4=`0.21827/0.38641/0.54221/0.63645`，macro=`0.44583`；recent macro=`0.45192`，
+  delta=`-0.00609`，trajectory bootstrap 95% CI=`[-0.03012,+0.01642]`；Long+=`0.39073<0.40081`。
+- direct-v3 只在 B1/B4 胜 recent，B2/B3、macro CI 与 Long+ 失败，且弱于旧 scalar-v2 macro=
+  `0.47593`。unchanged evaluator verdict=`NO_GO_DECISION_DISTILLATION_V2`。
+- 按 Stage-A′ repair 时预承诺，learned general-`B` 路线永久停止：无 v4、无再次 metric repair、无
+  untouched evaluation、policy replay、closed-loop 或 matched-NLL。Restoration oracle headroom 结论保留。
+- 结果：[`data/results/set_utility_direct_marginal_v3_fixed_tune_v1/`](../data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)。
+
 ## 2026-07-21:Stage-A Spearman 门槛复审(建议)
 
 - 用 long-oracle payload 中每 state 四次独立 `D(∅)` 重测证明标签确定性(归一化噪声中位数 0.0000,

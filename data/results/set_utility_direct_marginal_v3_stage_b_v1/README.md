@@ -1,6 +1,6 @@
 # Direct conditional-marginal v3 Stage-B v1
 
-状态：`TRAINING_COMPLETED / FIXED_TUNE_PENDING`。
+状态：`TRAINING_COMPLETED / FIXED_TUNE_NO_GO / LEARNED_GENERAL_B_ROUTE_STOPPED`。
 
 Hyper00 8×H200 完成 12 epochs，用时 785.7s。checkpoint 只按 100 条 train trajectories 的 holdout
 decision regret 选择，tune/evaluation labels 未进入训练或模型选择。
@@ -15,8 +15,10 @@ decision regret 选择，tune/evaluation labels 未进入训练或模型选择�
 
 最佳 epoch=12，checkpoint SHA256=
 `d8abbe8cf7bd04324220030b040f09e0d9a09402c87c0e17ca78c4047631dd23`。optimization 正常，但
-train→holdout gap 和 STOP 未学会是明确风险；这些指标不替代真实 selection truth，也不触发额外调参。
-下一步只运行一字不改的 fixed-tune B1--B4/macro-CI/Long+ gate。
+train→holdout gap 和 STOP 未学会是明确风险；这些指标不替代真实 selection truth。后续 unchanged
+fixed-tune gate 已确认 direct-v3 macro=`0.44583<0.45192` recent，且 B2/B3、macro CI、Long+ 均失败；
+learned general-`B` 路线已按合同停止。见
+[`最终结果`](../set_utility_direct_marginal_v3_fixed_tune_v1/README.md)。
 
 ## Source of Truth
 

@@ -6,6 +6,12 @@
 
 ## 当前结论
 
+- **Direct conditional-marginal v3 已在最终 fixed-tune gate 正式 NO-GO，learned general-`B` 路线停止。**
+  1,063/1,063 states、0 skip；direct-v3/recent macro=`0.44583/0.45192`，delta=`-0.00609`，95% CI=
+  `[-0.03012,+0.01642]`。它只在 B1/B4 胜 recent，B2/B3、macro CI、Long+ 全部失败，并弱于旧
+  scalar-v2=`0.47593`；1,063/1,063 states 在 B1--B4 全部选满，STOP 未学会。按唯一修订时的预承诺，
+  不创建 v4、不再修改 gate、不访问 untouched evaluation/closed-loop。
+  [最终结果](data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)。
 - **Direct conditional-marginal v3 的原 Stage-A NO-GO 保留，但已通过一次透明的版本化 Stage-A′ repair
   进入 Stage-B。** 唯一 rank-loss repair 在 250 个 train-only long-oracle states 上把 singleton Spearman 从
   `0.238` 提到 `0.291`，仍远低于冻结门槛 `>0.5`；top-4 recall=`0.951` 虽通过，但 top-1 与 B1 recovery
@@ -87,14 +93,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 ## 当前执行主线
 
-- fixed-tune Long+ oracle v1 已完成 249/249、四 wave 0 skip；tune truth 只用于 failure decomposition，
-  禁止进入训练。direct conditional-marginal Stage-B 已在 Hyper00 8×H200 完成：12 epochs/785.7s，最佳
-  holdout regret=`0.2581`，checkpoint=`d8abbe8c...1dd23`。train/holdout top-1=`0.613/0.298`，泛化与
-  STOP 仍有风险；现在只运行原 fixed-tune gate，下游 policy 实验继续锁定。
-  [Stage-B 结果](data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)。
-- v3 Stage-A v1 与唯一 rank repair 的原 NO-GO 记录均保留；版本化 Stage-A′ 只修改 development gate，
-  不修改最终 fixed-tune gate。Hyper00/Hyper01 每台最多可用 8 卡；当前优先用 Hyper00 8 卡完成 Stage-B，
-  随后两机并行生成 fixed-tune truth。[原结果](data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)。
+- direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
+  general-`B` 路线。下游 policy replay、closed-loop 与 matched-NLL 继续锁定。后续若继续本项目，只能按
+  已声明的收缩方向讨论 restoration oracle / long-horizon hybrid，不得把同一路线改名为 v4 重开。
+  [最终结果](data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)。
 - 同一 trajectory 的所有 eligible decision steps 保持在同一 split；
 - 正式 state 使用当前决策前的全部 eligible events，`n_t=|C_t|` 是数据属性；不得做 recent-`n` 候选截断；
 - 每个 state 约生成 40 个 age/interaction-stratified coalition labels，小历史可 exact，大历史只采样 subsets；
@@ -215,6 +217,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Fixed-tune Long+ oracle v1 | [`summary`](data/results/set_utility_tune_long_oracle_v1/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-tune-long-oracle-v1-b6a4643` | 249/249、0 skip；oracle/recent macro=`0.6949/0.3199`；`HEADROOM_CONFIRMED`；full payload `PENDING_HF_UPLOAD` |
 | Direct marginal v3 Stage-A | [`v1`](data/results/set_utility_direct_marginal_v3_fit_probe_v1/README.md)；[`rank repair`](data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)；Hyper00 persistent run | v2 Spearman/top-4=`0.291/0.951`；`NO_GO_DIRECT_MARGINAL_V3_STAGE_A`；fit-only checkpoints `PENDING_HF_UPLOAD`，不是正式模型 |
 | Direct marginal v3 Stage-B v1 | [结果](data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)；[config](code/configs/causalcache_set_utility_direct_marginal_v3_stage_b_v1.json)；Hyper00 `/data02/jaxan/runs/causalcache-direct-marginal-v3-stage-b-v1-8ccdb5c` | training complete；best epoch 12 / regret `0.2581`；checkpoint `d8abbe8c...1dd23`；`PENDING_HF_UPLOAD` |
+| Direct marginal v3 final fixed-tune | [结果](data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)；Hyper00 full result/merged labels | 1,063/1,063、0 skip；direct/recent macro=`0.44583/0.45192`；CI crosses 0；B2/B3/Long+ fail；`NO_GO`；learned general-`B` stopped；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

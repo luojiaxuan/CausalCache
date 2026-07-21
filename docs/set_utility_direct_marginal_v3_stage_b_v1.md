@@ -1,6 +1,6 @@
 # Direct conditional-marginal v3 Stage-B v1
 
-状态：`TRAINING_COMPLETED / FIXED_TUNE_PENDING`。
+状态：`COMPLETED / FIXED_TUNE_NO_GO / LEARNED_GENERAL_B_ROUTE_STOPPED`。
 
 本合同采用
 [`Stage-A gate review`](set_utility_direct_marginal_v3_stage_a_gate_review.md) 的任务对齐结论，但不删除或
@@ -74,3 +74,15 @@ fixed-tune selector 使用
   `d8abbe8c...1dd23`；train/holdout top-1=`0.6129/0.2982`，STOP accuracy 均近 0；
 - 训练完成只授权 unchanged fixed-tune gate，不授权 untouched evaluation 或 policy experiments。结果见
   [`data/results/set_utility_direct_marginal_v3_stage_b_v1/`](../data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)。
+
+## 6. Fixed-tune 最终结果
+
+- 1,063/1,063 states completed、0 skip；direct-v3/recent macro=`0.44583/0.45192`，paired delta=
+  `-0.00609`，95% CI=`[-0.03012,+0.01642]`；
+- direct-v3 B1/B4 胜 recent，但 B2/B3 与 Long+ 均失败；旧 scalar-v2 macro=`0.47593`，仍明显更强；
+- direct-v3 在每个 state 的 B1--B4 都选满，STOP 未触发；
+- unchanged gate 返回 `NO_GO_DECISION_DISTILLATION_V2`。按本合同 stop rule，learned general-`B` 路线
+  永久停止，不创建 v4、不再修订指标、不访问 untouched evaluation 或 policy experiments。
+
+完整轻量结果见
+[`data/results/set_utility_direct_marginal_v3_fixed_tune_v1/`](../data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)。

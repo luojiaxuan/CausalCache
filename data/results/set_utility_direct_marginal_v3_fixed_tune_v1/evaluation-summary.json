@@ -1,0 +1,86 @@
+{
+  "schema_version": "causalcache.lightweight_result.v1",
+  "status": "COMPLETED_DIRECT_MARGINAL_V3_FIXED_TUNE",
+  "verdict": "NO_GO_DECISION_DISTILLATION_V2",
+  "project_decision": "LEARNED_GENERAL_B_ROUTE_STOPPED",
+  "git_revision": "b0f84e450cd726ea0ee059318681d821edd4f4d7",
+  "coverage": {
+    "completed_states": 1063,
+    "expected_states": 1063,
+    "skipped_states": 0,
+    "trajectories": 100
+  },
+  "methods": {
+    "direct_v3": {
+      "B1": 0.21826707878917406,
+      "B2": 0.3864059491382113,
+      "B3": 0.542210605857843,
+      "B4": 0.6364470991452449,
+      "macro": 0.4458326832326183,
+      "long_plus": 0.39072569061392837,
+      "cold_total_p95_ms": 602.050107717514,
+      "search_p95_ms": 20.19733120687306
+    },
+    "scalar_v2": {
+      "B1": 0.2629264787495398,
+      "B2": 0.4292953933091975,
+      "B3": 0.5615211857784052,
+      "B4": 0.6499907346894376,
+      "macro": 0.47593344813164506,
+      "long_plus": 0.3885318519477603
+    },
+    "recent": {
+      "B1": 0.19105001563454047,
+      "B2": 0.4360589035341156,
+      "B3": 0.5542561891601651,
+      "B4": 0.6263129479392362,
+      "macro": 0.45191951406701436,
+      "long_plus": 0.4008132069359243
+    }
+  },
+  "direct_v3_minus_recent": {
+    "point_estimate": -0.006086830834395995,
+    "lower": -0.03012121855371109,
+    "upper": 0.016417324243248096,
+    "confidence": 0.95,
+    "cluster_count": 100,
+    "resamples": 10000,
+    "seed": 20260720
+  },
+  "direct_v3_gate_failures": [
+    "B2_STRICTLY_GREATER_THAN_RECENT",
+    "B3_STRICTLY_GREATER_THAN_RECENT",
+    "MACRO_PAIRED_BOOTSTRAP_LOWER_STRICTLY_GREATER_THAN_ZERO",
+    "LONG_PLUS_STRICTLY_GREATER_THAN_RECENT"
+  ],
+  "selection": {
+    "checkpoint_sha256": "d8abbe8cf7bd04324220030b040f09e0d9a09402c87c0e17ca78c4047631dd23",
+    "config_sha256": "41bdefc9be8171123caa23ddf99e24592ba1b95608e546ba88f7e69a3a8be2c3",
+    "content_sha256": "d9875adb417e5fda7d64b131fac5f4f73395ca5f7317c3c4b9ea34fecffa52e5",
+    "file_sha256": "bb901d562c2a22d2397b34e4068a36ecb535c17c5b4bb0212172848e8e883bb8",
+    "states_selecting_exact_budget_at_B1_B4": 1063
+  },
+  "truth": {
+    "schedule_states": 1063,
+    "schedule_coalitions": 12763,
+    "schedule_content_sha256": "8d579c9fde210d40b91f4e5767d0fba0cacd244052c5149408c45a1f83cf9775",
+    "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+    "execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c",
+    "hosts": [
+      "hyper00",
+      "hyper01"
+    ],
+    "gpus": "14xH200",
+    "lanes": 28,
+    "started_at_utc": "2026-07-21T10:16:59Z",
+    "completed_at_utc": "2026-07-21T10:42:08Z",
+    "image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa"
+  },
+  "full_result": {
+    "content_sha256": "794fb905dc4574449c677852f1b208d689591041b072661538509a9596610e76",
+    "file_sha256": "679c3b442f36d954adf9afaf6ea1c8239b20121419380608960f97b48da94762",
+    "persistent_path": "/data02/jaxan/runs/causalcache-direct-marginal-v3-fixed-tune-b0f84e4/result.json",
+    "status": "PENDING_HF_UPLOAD",
+    "intended_dataset_repo": "gavinlaw/causalcache-set-utility-variable-history-mobile"
+  }
+}
