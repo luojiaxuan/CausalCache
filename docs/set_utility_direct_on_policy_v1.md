@@ -1,6 +1,6 @@
 # Direct marginal on-policy coverage v1
 
-状态：`COMPLETED_LABELS_AND_MERGED_TRAINING_INPUT`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
+状态：`RUNNING_PER_EPOCH_TRUE_RECOVERY_SELECTION`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
 不追认或改写旧 gate。旧 fixed-tune 已消费，后续只作 development；1,046-state untouched evaluation 继续密封，
 直到新 selector 和 fallback policy 在 train-holdout/development 上冻结。
 
@@ -55,8 +55,10 @@ formal optimizer inventory content SHA256=`b7452b1bad141d96407bf80c62b1d4778461a
 
 epoch 1 已在两条 fresh 6-rank 训练线上完成。Set Transformer / structured DeepSets 分别产生 5,718 / 6,216
 个缺失 coalition 请求，union 后为 198 states / 7,681 teacher forwards。合并 schedule content SHA256=
-`956672017b533f70f9c1357d25fa0636df15febdd18248004326d87adf884f4c`。两条训练均停在
-`WAITING_FOR_HELDOUT_TRUTH`；只有该 union 完成、seal 并结算真实 B1--B4 recovery 后才可 resume epoch 2。
+`956672017b533f70f9c1357d25fa0636df15febdd18248004326d87adf884f4c`。该 union 已完成并封存为
+manifest content SHA256=`a6ba7c267052de75e3771915e8de1730c967f0202d632a73eb170d207e9efa36`：
+198/198 states、7,879 rows（含 198 anchors）、0 skip/error。epoch 1 真实 Set Transformer / structured
+DeepSets B1--B4 macro recovery=`0.38508/0.39251`，Long+=`0.36343/0.37929`；两者只在结算后进入 epoch 2。
 
 实现入口：
 

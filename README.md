@@ -22,9 +22,10 @@
 - 正式 label rollout 已使用 Hyper00/Hyper01 各 6×H200 完成：5,108/5,108 states、33,175/33,175
   microbatches、359,189 sampled rows + 5,108 zero-cost anchors，0 skip/non-finite/duplicate/error。合并后的
   training input content=`6c9243a...1bfad`；formal optimizer inventory 为 900 trajectories、9,287 states、
-  84,441 candidate-complete groups。Set Transformer 与 structured/DeepSets 的 epoch 1 均已完成并停在
-  `WAITING_FOR_HELDOUT_TRUTH`；两者实际访问的缺失 truth 去重后为 198 states / 7,681 forwards，正由
-  Hyper00/Hyper01 各 6×H200 补标。未结算真实 B1--B4 recovery 前不会进入 epoch 2。
+  84,441 candidate-complete groups。epoch 1 的联合 held-out truth 已封存：198 states、7,681 forwards、
+  manifest=`a6ba7c...efa36`，0 skip/error；Set Transformer 与 structured/DeepSets 的真实 B1--B4 macro
+  recovery 分别为 `0.38508/0.39251`，Long+ 为 `0.36343/0.37929`。两者均把 epoch 1 设为首个 best 后才
+  进入 epoch 2；后续继续执行 `minimum_delta=0.005`、`patience=3`，不按训练 loss 或最后 epoch 选模。
 - **Direct conditional-marginal v3 已在最终 fixed-tune gate 正式 NO-GO，learned general-`B` 路线停止。**
   1,063/1,063 states、0 skip；direct-v3/recent macro=`0.44583/0.45192`，delta=`-0.00609`，95% CI=
   `[-0.03012,+0.01642]`。它只在 B1/B4 胜 recent，B2/B3、macro CI、Long+ 全部失败，并弱于旧
@@ -244,7 +245,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Direct marginal v3 Stage-B v1 | [结果](data/results/set_utility_direct_marginal_v3_stage_b_v1/README.md)；[config](code/configs/causalcache_set_utility_direct_marginal_v3_stage_b_v1.json)；Hyper00 `/data02/jaxan/runs/causalcache-direct-marginal-v3-stage-b-v1-8ccdb5c` | training complete；best epoch 12 / regret `0.2581`；checkpoint `d8abbe8c...1dd23`；`PENDING_HF_UPLOAD` |
 | Direct marginal v3 final fixed-tune | [结果](data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)；[HF dataset@76615721](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/766157217d99dc8c10d82349d9909ba30ceaa8e9/artifacts/set-utility-direct-marginal-v3-fixed-tune-794fb90) | 1,063/1,063、0 skip；direct/recent macro=`0.44583/0.45192`；CI crosses 0；B2/B3/Long+ fail；`NO_GO`；learned general-`B` stopped；immutable |
 | Direct on-policy coverage v1 | [合同](docs/set_utility_direct_on_policy_v1.md)；[结果](data/results/set_utility_direct_on_policy_v1/README.md) | labels PASS：5,108 states / 359,189 sampled rows；merged input `6c9243a...1bfad`；9,287 optimizer states / 84,441 groups；`PENDING_HF_UPLOAD` |
-| Per-epoch heldout training v1 | [合同/进展](docs/set_utility_direct_on_policy_v1.md)；Hyper00 Set root `...set-transformer-direct-on-policy-v2-a69c706`；Hyper01 DeepSets root `...structured-deepsets-direct-on-policy-v4-843e360` | epoch 1 complete；truth union 198 states / 7,681 forwards running；evaluation/test sealed；`PENDING_HF_UPLOAD` |
+| Per-epoch heldout training v1 | [合同/进展](docs/set_utility_direct_on_policy_v1.md)；Hyper00 Set root `...set-transformer-direct-on-policy-v2-a69c706`；Hyper01 DeepSets root `...structured-deepsets-direct-on-policy-v4-843e360` | epoch 1 truth PASS；Set/DeepSets macro=`0.38508/0.39251`；epoch 2+ running；evaluation/test sealed；`PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

@@ -1,5 +1,16 @@
 # 项目进展
 
+## 2026-07-21：epoch 1 held-out truth 完成并结算
+
+- 两模型 epoch 1 的实际查询并集已完成：198/198 states、7,681 teacher forwards、198 zero-cost anchors，
+  0 skip/error/non-finite；sealed manifest content SHA256=`a6ba7c26...efa36`，Hyper00/Hyper01 整树 SHA256
+  均为 `ddd86a77...c7f1`；
+- trajectory-disjoint truth 上，Set Transformer 的 B1--B4 macro/Long+ recovery=`0.38508/0.36343`，
+  structured DeepSets=`0.39251/0.37929`；epoch 1 分别成为两模型首个 best；
+- 首次 resume 暴露 checkpoint RNG tensor 被 `map_location=cuda` 搬到 GPU、而 PyTorch RNG restore 要求
+  CPU `ByteTensor` 的代码 bug；修复统一转回 contiguous CPU uint8，18 tests passed、8 skipped，并在两台
+  pinned container 各通过 3 个 resume tests。该失败发生在 epoch 2 optimizer step 前，不改变 checkpoint/truth。
+
 ## 2026-07-21：direct on-policy labels、merge 与 formal inventory 完成
 
 - Hyper00/Hyper01 的正式 labels 已闭合：5,108/5,108 states、33,175/33,175 microbatches、359,189 sampled
