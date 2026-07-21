@@ -35,6 +35,7 @@ from scripts.train_set_utility_structured_marginal import (
     _load_split_manifest,
     _read_signed_json,
     _slice_encoded,
+    _trim_padded_candidate_scores,
     _validate_config as validate_structured_config,
 )
 from scripts.train_set_utility_token_predictor import (
@@ -123,13 +124,21 @@ def _model_path(
     torch: Any,
 ) -> dict[str, Any]:
     by_event = {event_id: index for index, event_id in enumerate(event_ids)}
+    encoded_event_width = int(encoded.event_mask.shape[1])
+    if encoded_event_width < len(event_ids):
+        raise ValueError("encoded selector state is narrower than its candidates")
 
     def score(selected: tuple[int, ...]) -> tuple[float, ...]:
-        mask = torch.zeros((1, len(event_ids)), dtype=torch.bool, device=device)
+        mask = torch.zeros(
+            (1, encoded_event_width), dtype=torch.bool, device=device
+        )
         for event_id in selected:
             mask[0, by_event[event_id]] = True
-        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+        with torch.autocast(
+            device_type=device.split(":", 1)[0], dtype=torch.bfloat16
+        ):
             values = adapter.score_encoded_candidates(encoded, mask)[0]
+        values = _trim_padded_candidate_scores(values, len(event_ids))
         result = tuple(float(value) for value in values.tolist())
         if len(result) != len(event_ids) + 1:
             raise ValueError("selector score geometry drifted")

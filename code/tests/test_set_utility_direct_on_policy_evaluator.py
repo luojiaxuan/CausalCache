@@ -19,7 +19,10 @@ from causalcache.set_utility_direct_on_policy_evaluator import (
     project_inference_state,
     validate_expected_rollout,
 )
-from scripts.evaluate_set_utility_direct_on_policy_models import _mismatch_summary
+from scripts.evaluate_set_utility_direct_on_policy_models import (
+    _mismatch_summary,
+    _model_path,
+)
 
 
 TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
@@ -211,6 +214,48 @@ def test_incremental_mismatch_is_diagnosed_without_becoming_native() -> None:
     assert detail["max_absolute_score_delta_vs_recomputed_native"] == pytest.approx(
         0.0003
     )
+
+
+@pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is unavailable")
+def test_model_path_keeps_padded_width_and_trims_padded_scores() -> None:
+    import torch
+
+    from causalcache.set_utility_token_models import EncodedConditionalMarginalState
+
+    class PaddedAdapter:
+        stop_semantics = LEARNED_STOP
+
+        def __init__(self) -> None:
+            self.mask_shapes = []
+
+        def score_encoded_candidates(self, encoded: Any, selected_mask: Any) -> Any:
+            self.mask_shapes.append(tuple(selected_mask.shape))
+            assert tuple(selected_mask.shape) == (1, 4)
+            if bool(selected_mask[0, 0]):
+                return torch.tensor([[0.0, 0.2, -0.1, 99.0, 98.0]])
+            return torch.tensor([[0.0, 0.2, 0.1, 99.0, 98.0]])
+
+    encoded = EncodedConditionalMarginalState(
+        query=torch.zeros(1, 2),
+        events=torch.zeros(1, 4, 2),
+        event_mask=torch.tensor([[True, True, False, False]]),
+    )
+    adapter = PaddedAdapter()
+    result = _model_path(
+        adapter,
+        encoded,
+        (10, 20),
+        threshold=None,
+        device="cpu",
+        torch=torch,
+    )
+    assert result["selections"] == {
+        "1": [10],
+        "2": [10],
+        "3": [10],
+        "4": [10],
+    }
+    assert adapter.mask_shapes == [(1, 4), (1, 4)]
 
 
 def test_latency_summary_uses_only_warm_state_records() -> None:
