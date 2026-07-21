@@ -1,0 +1,268 @@
+{
+  "arm_totals": {
+    "ocr_rgb_B2": {
+      "infrastructure_failures": 4,
+      "model_steps": 96,
+      "official_success": 4,
+      "parse_attempts": 96,
+      "parse_failures": 1,
+      "parse_success": 94
+    },
+    "recent_B2": {
+      "infrastructure_failures": 3,
+      "model_steps": 158,
+      "official_success": 2,
+      "parse_attempts": 158,
+      "parse_failures": 1,
+      "parse_success": 157
+    },
+    "summary_B0": {
+      "infrastructure_failures": 3,
+      "model_steps": 134,
+      "official_success": 3,
+      "parse_attempts": 134,
+      "parse_failures": 2,
+      "parse_success": 132
+    }
+  },
+  "denominator_note": "frozen contract is 12 templates x 5 arms = 60; the two formal-58 learned arms were not executed in this round",
+  "host": "h100 (85.234.79.62), emulator image causalcache-androidworld:11cea575 rebuilt natively, policy GUIOwlV21OfficialToolsRuntime 2560-token profile, runner revision 9f7a0a7",
+  "paired_discordant": {
+    "ocr_rgb_B2_vs_summary_B0": {
+      "losses": 0,
+      "ties": 11,
+      "wins": 1
+    },
+    "recent_B2_vs_ocr_rgb_B2": {
+      "losses": 2,
+      "ties": 10,
+      "wins": 0
+    },
+    "recent_B2_vs_summary_B0": {
+      "losses": 1,
+      "ties": 11,
+      "wins": 0
+    }
+  },
+  "per_template": {
+    "ExpenseAddMultiple": {
+      "horizon_stratum": "long",
+      "ocr_rgb_B2": {
+        "failure_classification": "official_success",
+        "model_step_count": 23,
+        "official_terminal_success": 1.0
+      },
+      "recent_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 42,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "official_success",
+        "model_step_count": 23,
+        "official_terminal_success": 1.0
+      }
+    },
+    "ExpenseAddMultipleFromGallery": {
+      "horizon_stratum": "long",
+      "ocr_rgb_B2": {
+        "failure_classification": "parse_failure",
+        "model_step_count": 11,
+        "official_terminal_success": 0.0
+      },
+      "recent_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 53,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "parse_failure",
+        "model_step_count": 37,
+        "official_terminal_success": 0.0
+      }
+    },
+    "MarkorAddNoteHeader": {
+      "horizon_stratum": "short",
+      "ocr_rgb_B2": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 10,
+        "official_terminal_success": 0.0
+      },
+      "recent_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 12,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 12,
+        "official_terminal_success": 0.0
+      }
+    },
+    "MarkorChangeNoteContent": {
+      "horizon_stratum": "short",
+      "ocr_rgb_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 12,
+        "official_terminal_success": 0.0
+      },
+      "recent_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 12,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 12,
+        "official_terminal_success": 0.0
+      }
+    },
+    "MarkorDeleteNote": {
+      "horizon_stratum": "short",
+      "ocr_rgb_B2": {
+        "failure_classification": "official_success",
+        "model_step_count": 5,
+        "official_terminal_success": 1.0
+      },
+      "recent_B2": {
+        "failure_classification": "official_success",
+        "model_step_count": 5,
+        "official_terminal_success": 1.0
+      },
+      "summary_B0": {
+        "failure_classification": "official_success",
+        "model_step_count": 5,
+        "official_terminal_success": 1.0
+      }
+    },
+    "RecipeDeleteSingleWithRecipeWithNoise": {
+      "horizon_stratum": "medium",
+      "ocr_rgb_B2": {
+        "failure_classification": "official_success",
+        "model_step_count": 9,
+        "official_terminal_success": 1.0
+      },
+      "recent_B2": {
+        "failure_classification": "parse_failure",
+        "model_step_count": 9,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "parse_failure",
+        "model_step_count": 7,
+        "official_terminal_success": 0.0
+      }
+    },
+    "RetroPlayingQueue": {
+      "horizon_stratum": "long",
+      "ocr_rgb_B2": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      },
+      "recent_B2": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      }
+    },
+    "RetroSavePlaylist": {
+      "horizon_stratum": "long",
+      "ocr_rgb_B2": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      },
+      "recent_B2": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      }
+    },
+    "SimpleCalendarDeleteEvents": {
+      "horizon_stratum": "medium",
+      "ocr_rgb_B2": {
+        "failure_classification": "official_success",
+        "model_step_count": 12,
+        "official_terminal_success": 1.0
+      },
+      "recent_B2": {
+        "failure_classification": "official_success",
+        "model_step_count": 12,
+        "official_terminal_success": 1.0
+      },
+      "summary_B0": {
+        "failure_classification": "official_success",
+        "model_step_count": 12,
+        "official_terminal_success": 1.0
+      }
+    },
+    "SimpleSmsSendClipboardContent": {
+      "horizon_stratum": "short",
+      "ocr_rgb_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 8,
+        "official_terminal_success": 0.0
+      },
+      "recent_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 7,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 8,
+        "official_terminal_success": 0.0
+      }
+    },
+    "SimpleSmsSendReceivedAddress": {
+      "horizon_stratum": "medium",
+      "ocr_rgb_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 6,
+        "official_terminal_success": 0.0
+      },
+      "recent_B2": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 6,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "terminal_failure",
+        "model_step_count": 18,
+        "official_terminal_success": 0.0
+      }
+    },
+    "TurnOnWifiAndOpenApp": {
+      "horizon_stratum": "medium",
+      "ocr_rgb_B2": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      },
+      "recent_B2": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      },
+      "summary_B0": {
+        "failure_classification": "infrastructure_failure",
+        "model_step_count": 0,
+        "official_terminal_success": 0.0
+      }
+    }
+  },
+  "purpose": "OUTCOME_EXPOSED_DEV_PROBE_NOT_A_PAPER_RESULT",
+  "schema_version": "causalcache.exploratory_closed_loop_local_arms_summary.v1",
+  "status": "COMPLETED_36_OF_60_LOCAL_ARMS_INTERIM"
+}

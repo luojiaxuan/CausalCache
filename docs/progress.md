@@ -4378,3 +4378,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `conditional_B2` 两个 learned 臂(formal-58 checkpoints + gate 特征在线抽取)未在本轮实现,60-episode
   固定分母未完成前,任何数字都只是 interim engineering evidence,不构成合同 verdict。host 从 Aries 换到
   H100 属于 execution.md 允许的 host adapter 变更(KVM/镜像 digest/worker 拓扑已记录)。
+
+## 2026-07-21:validation12 本地臂 closed-loop 完成(interim 36/60)
+
+- H100 三 worker 并行完成 36/36 episodes、0 runner 错误、parse 383/388。arm 成功数:summary_B0
+  3/12、recent_B2 2/12、ocr_rgb_B2 4/12;模板级配对 recent-vs-summary = 0 胜/1 负/11 平(n=12,
+  全部在噪声内)。learned 两臂未执行,60 分母未完成,一切数字仅为 dev probe。
+- 关键机理观察:episode 平均 8--13 个决策,而三臂共享 decisions 1--5,**大量 episode 在记忆臂分叉前
+  即结束**;长 stratum 一半被 Retro app 环境 500 全灭。当前设置下记忆干预的"可作用决策数"太少,
+  这是 train-60 合同必须解决的设计输入(修 Retro/wifi 环境、更长任务、每 episode 清显存)。
+- 记录见 [`data/results/exploratory_closed_loop_validation12_local_arms_v1/`](../data/results/exploratory_closed_loop_validation12_local_arms_v1/README.md);
+  逐 episode records 在 H100 `/data/jaxan/causalcache/runs/causalcache-v12-local-arms-9f7a0a7/`,
+  `PENDING_HF_UPLOAD`。
