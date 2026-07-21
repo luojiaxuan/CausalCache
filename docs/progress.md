@@ -4434,3 +4434,7 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   确认物理 GPU 2/4 空闲后，只 TERM old p8/count12 的两条 lanes；新容器
   `sglang-omni-jaxan-07210934`（id `ca47517...`）将其精确拆为 p8+p20/count24、每卡 2 lanes。
   其余四张卡上的 old partitions 不受影响；两个 host 均保持最多 6 张 live GPUs。
+- Hyper01 p7 随后完成 397/397 states、2,558/2,558 microbatches、0 skip；p10 仍未完成，因此触发已冻结
+  v6。guard 与 preflight 确认物理 GPU 3/6 空闲后，新容器 `sglang-omni-jaxan-07211039`
+  （id `f3b62be...`）将 old p10/count12 精确拆为 p10+p22/count24、每卡 2 lanes。此后不再引入新的
+  label handoff，剩余 partitions 自然收尾。
