@@ -27,6 +27,8 @@ immutable revision、schema/provenance 与生成命令。
 - 通用 GPU 资源发现、5 秒 idle cleanup、跨机 shard 调度和单机启动遵循全局 GPU skills。正常路径直接
   使用完整选定 allocation，不要求预先单卡/双卡 smoke、广泛 host/disk/container sweep 或 startup
   utilization gate；失败、无进展、OOM 或明显过慢时再按需诊断；
+- 本项目经用户持续授权，Hyper00 与 Hyper01 各自最多可使用 8 张 GPU；可并行的 rollout、label、training
+  和 evaluation 应按实际吞吐尽量使用可用配额，不把该上限误解为必须占满。其他 hosts 仍遵循全局上限；
 - 已 committed 的 frozen formal execution contract 不因通用策略更新而被追溯修改；
 - Hyper01 默认承担 H200 policy/offline 工作；当前 AndroidWorld closed-loop MVP 留在已验证的 Aries
   stack，迁移条件见 `docs/execution.md`；
