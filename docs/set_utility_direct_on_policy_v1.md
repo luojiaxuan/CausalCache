@@ -83,9 +83,9 @@ state/event ID 恰好相同也不能复用 truth。
 ## Compute 与 SoT
 
 - Hyper00/Hyper01 每台最多 6 GPUs；当前正式 label rollout 使用每台 6 卡；
-- 正式 label mapping 使用 Hyper00 5 卡 + Hyper01 6 卡、每卡 2 lanes，共 11 partitions / 22 resumable
+- 最终正式 label mapping 使用 Hyper00 6 卡 + Hyper01 6 卡、每卡 2 lanes，共 12 partitions / 24 resumable
   workers；冻结配置为
-  [`causalcache_set_utility_direct_on_policy_labels_workers_v1.json`](../code/configs/causalcache_set_utility_direct_on_policy_labels_workers_v1.json)；
+  [`causalcache_set_utility_direct_on_policy_labels_workers_v4.json`](../code/configs/causalcache_set_utility_direct_on_policy_labels_workers_v4.json)。早期 5+6 卡的 v1 mapping 仅作为下述失败与修复历史保留；
 - 第一次 label launcher 把 source revision 误传为 7 位短 SHA，22 lanes 均在 runner input validation 前
   fail-fast，0 terminal / 0 microbatch；正式重启改用完整
   `8acd8d84a8a9e5e837048d9a7f01817ab4ba41e5`；
