@@ -88,6 +88,10 @@ B1--B4 macro recovery，Long+ 只作 tie-break；`patience=5`、`minimum_delta=1
 - v3 尚未启动时的 fresh preflight 又释放到 Hyper00/Hyper01 各 6 卡；因此最终 v4 execution 直接使用授权上限
   12×H200、每卡 2 lanes（12 partitions / 24 workers）。这只改变 logical-shard execution mapping，不改变
   source、schedule、label definition 或 resume identity；
+- labels 完成后使用
+  [`causalcache_set_utility_direct_on_policy_training_inputs_v1.json`](../code/configs/causalcache_set_utility_direct_on_policy_training_inputs_v1.json)
+  将两个 host 的 disjoint terminals 合并到 frozen `3d011990...ad36ce` training input；重复 coalition 仅在
+  `1e-6` 内允许，tune bytes 必须逐字节不变，evaluation 不读取；
 - labels、schedules、selection payload 与 checkpoints 保存在 `/data02/jaxan` persistent storage；
 - reusable data/checkpoints 完成后分别发布到现有 private Hugging Face dataset/model repo；发布前在 README
   记录精确路径并标为 `PENDING_HF_UPLOAD`；

@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_direct_on_policy_training_inputs_v1",
+  "parent_input": {
+    "content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "evaluation_labels_included": false
+  },
+  "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+  "duplicate_tolerance": 0.000001,
+  "data_sources": {
+    "direct_on_policy_v1": {
+      "schedule_content_sha256": "981a329ce5fdbce550ddd31315e5b628279f46978dab1e6e2456a78b0b2ec506",
+      "schedule_config_sha256": "40623449246467c6638dca4a7ae7e48f6b62f8dcbaa5bc6c311eda27b9687568",
+      "label_scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+      "label_execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c"
+    }
+  },
+  "firewall": {
+    "allowed_label_role": "train",
+    "tune_state_bytes_unchanged": true,
+    "evaluation_access": false
+  }
+}
