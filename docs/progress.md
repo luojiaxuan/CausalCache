@@ -4226,3 +4226,13 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   Spearman `>0.5` 与 true-best top-4 recall `>0.6` 才进入完整 conditional training，最多 30 epochs。
   13 个 focused tests 在 Hyper00 PyTorch 2.13 container 通过。
 - 完整设计与止损边界见 [`docs/set_utility_direct_marginal_v3.md`](set_utility_direct_marginal_v3.md)。
+
+## 2026-07-21:Direct marginal v3 Stage-A v1 完成，Spearman gate FAIL
+
+- Hyper00 单 H200 训练 30 epochs，239.6s、exit 0；只读 250 train long-oracle singleton groups。
+- epoch-30 top-1 exact best=`0.904`、top-4 recall=`0.987`、outside-recent4 top-4=`0.981`，learned/oracle
+  B1=`0.473/0.501`；相比旧 scalar B1=`0.178`，direct head 的部署决策拟合显著改善。
+- 但全 singleton Spearman=`0.238<0.5`，冻结 conjunctive gate 正式未过，不能追认为 Stage-A PASS。
+  失败集中在非最优 tail ordering；在 train-only 范围内冻结一次 rank-weight `1→8` 的 loss-only repair，
+  门槛/架构/data/seed 不变。repair 仍失败则不启动完整 conditional training。
+- 结果：[`data/results/set_utility_direct_marginal_v3_fit_probe_v1/`](../data/results/set_utility_direct_marginal_v3_fit_probe_v1/README.md)。

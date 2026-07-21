@@ -1,6 +1,6 @@
 # Direct conditional-marginal student v3
 
-状态：`AUTHORIZED / STAGE-A FIT PROBE READY`。授权依据为
+状态：`AUTHORIZED / STAGE-A V1 SPEARMAN FAIL / ONE RANK-LOSS REPAIR FROZEN`。授权依据为
 [`fixed-tune Long+ oracle v1`](../data/results/set_utility_tune_long_oracle_v1/README.md)：同 denominator
 oracle--recent macro=`+0.3750 [0.2627,0.5656]`。本路线是 learned general-`B` gate 的最后一次完整尝试；
 失败后不继续 v4/v5，而收缩为 hybrid + oracle analysis。
@@ -42,7 +42,12 @@ at-most-`B`。模型不输入 `B`，head 不输入显式 cardinality feature，�
   `singleton Spearman > 0.5` 与 `true-best top-4 recall > 0.6` 即通过，最少训练 3 epochs；最多 30 epochs；
 - Stage A 只回答优化/表示能否把已见排序拟合进去，不是泛化结果。
 
-若 Stage A 未通过，直接判定 direct-marginal v3 无法在现有表示上闭合，停止 learned general-`B` 路线。
+Stage-A v1 的正式结果是 Spearman=`0.238<0.5`、top-4=`0.987`、top-1=`0.904`、learned/oracle
+B1=`0.473/0.501`。conjunctive gate 因 Spearman 正式未过，结果不可追认为 PASS。由于 best-event retrieval
+已达到 90.4%，失败被定位为 tail pairwise ordering，而非 direct head 完全无法拟合；在不访问 tune/evaluation
+的前提下，预先冻结**唯一一次** rank-loss-only repair：`within_state_ranking 1→8`，regression 权重降低，架构、
+数据、seed 与 gate 均不变，最多 40 epochs。若 repair 仍未通过，停止 learned general-`B` 路线，不创建第三个
+probe variant。
 
 ### Stage B：完整 conditional-marginal training
 
@@ -70,6 +75,7 @@ recent/B1--B4/Long+ gate，learned general-`B` 路线正式止损。untouched ev
 - model：[`TokenConditionalMarginalPredictor`](../code/causalcache/set_utility_token_models.py)；
 - Stage-A trainer：[`train_set_utility_long_oracle_fit_probe.py`](../code/scripts/train_set_utility_long_oracle_fit_probe.py)；
 - config：[`causalcache_set_utility_long_oracle_fit_probe_v1.json`](../code/configs/causalcache_set_utility_long_oracle_fit_probe_v1.json)；
+- 唯一 repair config：[`causalcache_set_utility_long_oracle_fit_probe_v2_rank_repair.json`](../code/configs/causalcache_set_utility_long_oracle_fit_probe_v2_rank_repair.json)；
 - tests：`code/tests/test_set_utility_long_oracle_fit_probe.py`，覆盖固定 STOP、conditional rescoring、梯度与
   trajectory-equal gate；与 long-oracle tests 合计 13 passed。
 
