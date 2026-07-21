@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 
+import scripts.train_set_utility_set_transformer_control as control_training
+
 torch = pytest.importorskip("torch")
 load_file = pytest.importorskip("safetensors.torch").load_file
 save_file = pytest.importorskip("safetensors.torch").save_file
@@ -127,7 +129,9 @@ def _runtime(
     )
 
 
-def test_adapter_only_runtime_is_zero_init_frozen_and_fp32(tmp_path: Path) -> None:
+def test_adapter_only_runtime_is_zero_init_frozen_and_fp32(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     runtime, initial, _ = _runtime(tmp_path, phase=PHASE_ADAPTER_ONLY)
     variant = {
         "model": _model_config(),
@@ -166,6 +170,21 @@ def test_adapter_only_runtime_is_zero_init_frozen_and_fp32(tmp_path: Path) -> No
     assert execution["training"]["epochs"] == 1
     assert execution["checkpoint_selection"]["patience"] == 3
     assert execution["checkpoint_selection"]["minimum_delta"] == 0.1
+
+    monkeypatch.setattr(
+        control_training,
+        "merge_control_truth_schedule",
+        lambda _plans: {"missing_coalition_count": 1},
+    )
+    schedule = control_training._publish_schedule(
+        tmp_path,
+        ({"epoch": 1},),
+        model_family=runtime.model_family,
+        complete_status=runtime.truth_complete_status,
+        pending_status=runtime.truth_pending_status,
+    )
+    assert schedule["model_family"] == "selector_token_adapter_v1_adapter_only"
+    assert schedule["status"] == "PENDING_SELECTOR_TOKEN_ADAPTER_HELDOUT_TRUTH"
 
 
 def test_joint_runtime_strictly_binds_and_loads_parent(tmp_path: Path) -> None:

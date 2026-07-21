@@ -10,8 +10,9 @@
   Hyper00 单机 cache 已 finalize：3,065 shards、289,753,201,728 bytes、content SHA256=
   `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；
 - versioned executable LoRA training config 已绑定 boundary、GUI-Owl snapshot、initial head、split 和 optimizer
-  inventory；token-adapter phase 1 已在 Hyper01 4×H200 启动。下一步为 Hyper00 LoRA-only phase 1，再进入
-  固定 256-state development truth barrier。
+  inventory；token-adapter phase 1 已在 Hyper01 4×H200 完成首 epoch 并停在 truth barrier，需补 3,031 个
+  实际访问 coalitions；LoRA-only phase 1 已在 Hyper00 6×H200 启动。两者均使用固定 256-state
+  development denominator。
 
 ## 2026-07-21：selector-side LoRA boundary replay 通过
 

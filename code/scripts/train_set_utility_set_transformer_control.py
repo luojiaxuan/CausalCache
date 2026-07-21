@@ -88,6 +88,8 @@ class SetTransformerControlRuntime:
     finalized_status = "COMPLETED_SET_TRANSFORMER_CONTROL_TRUE_RECOVERY_SELECTION"
     pending_finalized_status = "PENDING_SET_TRANSFORMER_CONTROL_TRUE_RECOVERY"
     selection_schema = "causalcache.set_transformer_control_selection.v1"
+    truth_complete_status = "COMPLETE_SET_TRANSFORMER_CONTROL_TRUTH"
+    truth_pending_status = "PENDING_SET_TRANSFORMER_CONTROL_TRUTH"
 
     def validate_config(
         self, config: Mapping[str, Any], variant_name: str
@@ -215,11 +217,19 @@ def _publish_schedule(
     plans: Sequence[Mapping[str, Any]],
     *,
     model_family: str = "set_transformer_direct_marginal",
+    complete_status: str = "COMPLETE_SET_TRANSFORMER_CONTROL_TRUTH",
+    pending_status: str = "PENDING_SET_TRANSFORMER_CONTROL_TRUTH",
 ) -> dict[str, Any]:
     schedule = merge_control_truth_schedule(plans)
-    if not isinstance(model_family, str) or not model_family:
-        raise ValueError("truth schedule model family must be named")
+    if any(
+        not isinstance(value, str) or not value
+        for value in (model_family, complete_status, pending_status)
+    ):
+        raise ValueError("truth schedule family and statuses must be named")
     schedule["model_family"] = model_family
+    schedule["status"] = (
+        complete_status if schedule["missing_coalition_count"] == 0 else pending_status
+    )
     _write_atomic(output_root / "heldout-truth-schedule.json", _signed(schedule))
     return schedule
 
@@ -528,7 +538,11 @@ def _fit(
                 supplemental=supplemental,
             )
             schedule = _publish_schedule(
-                output_root, rebuilt, model_family=runtime.model_family
+                output_root,
+                rebuilt,
+                model_family=runtime.model_family,
+                complete_status=runtime.truth_complete_status,
+                pending_status=runtime.truth_pending_status,
             )
             barrier_action, selection = _selection(rebuilt, execution_config)
             if history:
@@ -704,7 +718,11 @@ def _fit(
             _write_atomic(_epoch_plan_path(output_root, epoch), _signed(plan))
             plans = _read_epoch_plans(output_root)
             schedule = _publish_schedule(
-                output_root, plans, model_family=runtime.model_family
+                output_root,
+                plans,
+                model_family=runtime.model_family,
+                complete_status=runtime.truth_complete_status,
+                pending_status=runtime.truth_pending_status,
             )
             barrier_action, selection = _selection(plans, execution_config)
             epoch_record = {
@@ -828,7 +846,11 @@ def _finalize(
         supplemental=supplemental,
     )
     schedule = _publish_schedule(
-        output_root, rebuilt, model_family=runtime.model_family
+        output_root,
+        rebuilt,
+        model_family=runtime.model_family,
+        complete_status=runtime.truth_complete_status,
+        pending_status=runtime.truth_pending_status,
     )
     barrier_action, selection = _selection(rebuilt, execution_config)
     complete = bool(

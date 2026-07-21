@@ -59,12 +59,13 @@ head 的 selection parity。
   单机 cache 已通过 finalizer：3,065 shards、289,753,201,728 bytes、content SHA256=
   `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；
 - executable training config 已单独版本化，未改写 extraction config；token-adapter phase 1 已在 Hyper01
-  启动，LoRA 尚未训练，当前仍不能声称 selector representation 已改善。
+  4×H200 完成首 epoch并停在 3,031-coalition truth barrier，LoRA-only phase 1 已在 Hyper00 6×H200 启动。
+  当前仍没有 recovery 结果，不能声称 selector representation 已改善。
 
 ## 下一步
 
-1. 在 Hyper00 以最多 6-GPU DDP 运行 LoRA-only phase 1；
-2. 每个 epoch 进入固定 256-state development truth barrier，补齐并封存实际访问的 coalitions 后再决定是否
+1. 等待 LoRA-only 首 epoch rollout；
+2. 为两条 adaptation 分支补齐并封存固定 256-state development 上实际访问的 coalitions，再决定是否
    继续 joint phase。
 
 Boundary extraction 的冻结参数见

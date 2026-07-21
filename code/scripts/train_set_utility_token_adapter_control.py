@@ -48,6 +48,8 @@ class TokenAdapterControlRuntime(SetTransformerControlRuntime):
     finalized_status = "COMPLETED_SELECTOR_TOKEN_ADAPTER_TRUE_RECOVERY_SELECTION"
     pending_finalized_status = "PENDING_SELECTOR_TOKEN_ADAPTER_TRUE_RECOVERY"
     selection_schema = "causalcache.selector_token_adapter_selection.v1"
+    truth_complete_status = "COMPLETE_SELECTOR_TOKEN_ADAPTER_HELDOUT_TRUTH"
+    truth_pending_status = "PENDING_SELECTOR_TOKEN_ADAPTER_HELDOUT_TRUTH"
 
     def __init__(
         self,

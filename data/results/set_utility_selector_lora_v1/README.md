@@ -1,6 +1,6 @@
 # Selector-side LoRA v1
 
-状态：`BOUNDARY_CACHE_COMPLETE_TRAINING_STARTING`。
+状态：`ADAPTATION_PHASE1_RUNNING`。
 
 - teacher/action policy：原始 frozen GUI-Owl，不含 LoRA；
 - selector branch：LM top-4，计划 q/k/v/o rank-8 LoRA；
@@ -16,9 +16,11 @@
 - Hyper00 单机 cache 已 finalize：3,065 shards、289,753,201,728 bytes、content SHA256=
   `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；本地路径
   `/data02/jaxan/runs/causalcache-selector-boundary-h00-c8cbc63`；
-- executable training config 已绑定最终 cache SHA；token-adapter phase 1 已在 Hyper01 4×H200 启动，LoRA
-  尚未生成 checkpoint，不能报告方法效果；
-- 下一步：`Hyper00 LoRA phase 1 → 256-state truth barrier`；
+- executable training config 已绑定最终 cache SHA；token-adapter phase 1 已在 Hyper01 GPU 0--3 完成首
+  epoch，checkpoint SHA256=`fa9d53bf...ce36e`，当前缺 3,031 个 truth coalitions；LoRA-only phase 1 在
+  Hyper00 GPU 2--7、容器
+  `sglang-omni-jaxan-07211541` 运行，code revision=`5c827e6852e8970fbcf2fb3cba0e3c53ae73fd2f`；
+- 两者尚无 recovery，不能报告方法效果；下一步为 LoRA 首 epoch与两条分支的 256-state truth barrier；
 - boundary cache 完成后需上传 private HF；当前状态 `PENDING_HF_UPLOAD`。
 
 设计与限制见 [`docs/set_utility_selector_lora_v1.md`](../../../docs/set_utility_selector_lora_v1.md)。
