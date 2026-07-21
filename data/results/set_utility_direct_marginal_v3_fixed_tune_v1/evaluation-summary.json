@@ -80,7 +80,11 @@
     "content_sha256": "794fb905dc4574449c677852f1b208d689591041b072661538509a9596610e76",
     "file_sha256": "679c3b442f36d954adf9afaf6ea1c8239b20121419380608960f97b48da94762",
     "persistent_path": "/data02/jaxan/runs/causalcache-direct-marginal-v3-fixed-tune-b0f84e4/result.json",
-    "status": "PENDING_HF_UPLOAD",
-    "intended_dataset_repo": "gavinlaw/causalcache-set-utility-variable-history-mobile"
+    "status": "IMMUTABLE_HF_PUBLISHED",
+    "dataset_repo": "gavinlaw/causalcache-set-utility-variable-history-mobile",
+    "revision": "766157217d99dc8c10d82349d9909ba30ceaa8e9",
+    "tag": "set-utility-direct-marginal-v3-fixed-tune-794fb90",
+    "path": "artifacts/set-utility-direct-marginal-v3-fixed-tune-794fb90",
+    "payload_sha256": "e9b080ec9747cc7ed590f82000d9ed19395708081e24f9ad4b72dfa3054b4827"
   }
 }

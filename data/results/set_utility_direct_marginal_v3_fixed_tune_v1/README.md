@@ -33,7 +33,9 @@ STOP accuracy≈0 的风险一致。
   `794fb905...10e76` / `679c3b44...94762`；
 - labels：Hyper00 merged root
   `/data02/jaxan/runs/causalcache-direct-marginal-v3-fixed-tune-labels-b0f84e4`；Hyper01 保留 partitions 8--13；
-- full result、selection、labels 当前为 `PENDING_HF_UPLOAD`，目标 private dataset repo=
-  `gavinlaw/causalcache-set-utility-variable-history-mobile`；
+- full result、selection、schedule 与 labels 已发布到 private
+  [HF dataset@76615721](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/766157217d99dc8c10d82349d9909ba30ceaa8e9/artifacts/set-utility-direct-marginal-v3-fixed-tune-794fb90)，
+  tag=`set-utility-direct-marginal-v3-fixed-tune-794fb90`；远端 3 files 回读完成，`payload.tar.gz` SHA256=
+  `e9b080ec...4b4827`；
 - Git-safe summary：[`evaluation-summary.json`](evaluation-summary.json)；合同：
   [`docs/set_utility_direct_marginal_v3_stage_b_v1.md`](../../../docs/set_utility_direct_marginal_v3_stage_b_v1.md)。

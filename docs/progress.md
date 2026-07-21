@@ -4310,6 +4310,9 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 按 Stage-A′ repair 时预承诺，learned general-`B` 路线永久停止：无 v4、无再次 metric repair、无
   untouched evaluation、policy replay、closed-loop 或 matched-NLL。Restoration oracle headroom 结论保留。
 - 结果：[`data/results/set_utility_direct_marginal_v3_fixed_tune_v1/`](../data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)。
+- full result、selection、schedule 与 1,063-state labels 已发布到 private HF dataset revision
+  `766157217d99dc8c10d82349d9909ba30ceaa8e9`，tag=`set-utility-direct-marginal-v3-fixed-tune-794fb90`；
+  远端 3 files 回读与 payload SHA256 `e9b080ec...4b4827` 校验通过。
 
 ## 2026-07-21:Stage-A Spearman 门槛复审(建议)
 
