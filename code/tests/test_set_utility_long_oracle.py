@@ -8,11 +8,14 @@ from causalcache.set_utility_long_oracle import (
     BUDGETS,
     WAVES,
     additive_top_k,
+    bound_state_ids_from_manifest,
     greedy_selection_from_distances,
     next_wave_coalitions,
     recent_prefix,
     reduce_long_oracle_metrics,
+    select_configured_long_oracle_states,
     select_long_oracle_states,
+    tune_headroom_decision,
     wave_one_coalitions,
 )
 
@@ -82,6 +85,71 @@ def test_selection_rejects_unreachable_targets() -> None:
             maximum_states_per_trajectory=2,
             salt="unit-salt",
         )
+
+
+def test_bound_selection_preserves_exact_tune_denominator() -> None:
+    assignments = _assignments()
+    state_ids = (
+        "tune-000:decision:018",
+        "tune-000:decision:039",
+    )
+    states = select_configured_long_oracle_states(
+        assignments,
+        config={"selection_mode": "bound_state_manifest", "roles": ["tune"]},
+        bound_state_ids=state_ids,
+    )
+    assert tuple(row["state_id"] for row in states) == state_ids
+    assert tuple(row["history_bin"] for row in states) == ("long", "very_long")
+    with pytest.raises(ValueError):
+        select_configured_long_oracle_states(
+            assignments,
+            config={"selection_mode": "bound_state_manifest", "roles": ["train"]},
+            bound_state_ids=state_ids,
+        )
+
+
+def test_bound_manifest_census_and_tune_headroom_gate() -> None:
+    manifest = {
+        "state_count": 2,
+        "trajectory_count": 1,
+        "history_bin_counts": {"long": 1, "very_long": 1},
+        "states": [
+            {"state_id": "a", "trajectory_id": "t", "history_bin": "long"},
+            {
+                "state_id": "b",
+                "trajectory_id": "t",
+                "history_bin": "very_long",
+            },
+        ],
+    }
+    assert bound_state_ids_from_manifest(
+        manifest,
+        expected_state_count=2,
+        expected_trajectory_count=1,
+        expected_history_bin_counts={"long": 1, "very_long": 1},
+    ) == ("a", "b")
+    with pytest.raises(ValueError):
+        bound_state_ids_from_manifest(
+            manifest,
+            expected_state_count=3,
+            expected_trajectory_count=1,
+            expected_history_bin_counts={"long": 1, "very_long": 1},
+        )
+
+    confirmed = tune_headroom_decision(
+        {"point_estimate": 0.15, "lower_95": 0.04, "upper_95": 0.22},
+        confirmed_point_minimum=0.10,
+        confirmed_lower_minimum=0.03,
+        insufficient_upper_maximum=0.03,
+    )
+    assert confirmed["direct_marginal_v3_authorized"] is True
+    insufficient = tune_headroom_decision(
+        {"point_estimate": 0.01, "lower_95": -0.01, "upper_95": 0.02},
+        confirmed_point_minimum=0.10,
+        confirmed_lower_minimum=0.03,
+        insufficient_upper_maximum=0.03,
+    )
+    assert insufficient["verdict"].startswith("HEADROOM_INSUFFICIENT")
 
 
 def test_wave_one_covers_singletons_recent_random_and_anchors() -> None:

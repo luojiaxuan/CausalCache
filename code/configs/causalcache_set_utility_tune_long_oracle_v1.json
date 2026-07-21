@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache-set-utility-tune-long-oracle-v1",
+  "purpose": "Measure true conditional-greedy restoration headroom over recent on the exact fixed-tune Long+ denominator before authorizing direct-marginal student v3.",
+  "selection_mode": "bound_state_manifest",
+  "state_manifest": "data/manifests/set_utility_tune_long_oracle_v1_states.json",
+  "state_manifest_sha256": "084d3c8e9085e0726408c67488375caa26d7aa409b55ccffe65ac970b3324523",
+  "source_result_content_sha256": "043d3e12b5b83bb8eede417de0a7eac8ef341e1e17abd99e9d6ad067719d4c86",
+  "assignment_manifest": "data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json",
+  "assignment_manifest_sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30",
+  "scientific_config": "causalcache_set_utility_variable_history_v2_context_fit.json",
+  "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+  "execution_config": "causalcache_set_utility_variable_history_labels_execution_v1.json",
+  "execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c",
+  "roles": ["tune"],
+  "expected_state_count": 249,
+  "expected_trajectory_count": 35,
+  "expected_history_bin_counts": {"long": 241, "very_long": 8},
+  "budgets": [1, 2, 3, 4],
+  "waves": 4,
+  "random_subsets_per_budget": 1,
+  "random_seed": 20260721,
+  "logical_shard_count": 256,
+  "bootstrap": {"resamples": 10000, "seed": 20260722, "cluster": "trajectory"},
+  "tune_headroom_gate": {
+    "confirmed_point_minimum": 0.10,
+    "confirmed_lower_minimum": 0.03,
+    "insufficient_upper_maximum": 0.03,
+    "confirmed_verdict": "HEADROOM_CONFIRMED_AUTHORIZE_DIRECT_MARGINAL_V3",
+    "insufficient_verdict": "HEADROOM_INSUFFICIENT_RECONSIDER_DATA_AND_CLAIM",
+    "otherwise": "INCONCLUSIVE_TUNE_LONG_ORACLE"
+  },
+  "firewall": {
+    "roles_labeled": ["tune"],
+    "tune_truth_consumed_for_diagnostic": true,
+    "evaluation_states_labeled": false,
+    "labels_reusable_for_training": false,
+    "policy_replay_authorized": false,
+    "closed_loop_authorized": false
+  }
+}

@@ -108,6 +108,150 @@ def select_long_oracle_states(
     return rows
 
 
+def select_bound_long_oracle_states(
+    assignments: Sequence[Mapping[str, Any]],
+    *,
+    state_ids: Sequence[str],
+    role: str,
+) -> tuple[dict[str, Any], ...]:
+    """Select an exact, externally bound long-history denominator."""
+    if not isinstance(role, str) or not role:
+        raise ValueError("bound long-oracle role must be non-empty text")
+    identities = tuple(state_ids)
+    if (
+        not identities
+        or any(not isinstance(state_id, str) or not state_id for state_id in identities)
+        or len(identities) != len(set(identities))
+    ):
+        raise ValueError("bound long-oracle state ids must be non-empty and unique")
+    available = {state.state_id: state for state in states_from_assignments(assignments)}
+    if any(state_id not in available for state_id in identities):
+        raise ValueError("bound long-oracle denominator escaped the assignments")
+    selected = tuple(available[state_id] for state_id in identities)
+    if any(state.role != role for state in selected):
+        raise ValueError("bound long-oracle denominator crossed its frozen role")
+    if any(
+        history_bin(len(state.candidate_event_ids)) not in DIAGNOSTIC_BINS
+        for state in selected
+    ):
+        raise ValueError("bound long-oracle denominator contains a non-long state")
+    return tuple(
+        {
+            "candidate_event_ids": list(state.candidate_event_ids),
+            "history_bin": history_bin(len(state.candidate_event_ids)),
+            "logical_shard": logical_shard_for_trajectory(
+                state.trajectory_id, shard_count=256
+            ),
+            "role": state.role,
+            "state_id": state.state_id,
+            "trajectory_id": state.trajectory_id,
+        }
+        for state in sorted(selected, key=lambda state: state.state_id)
+    )
+
+
+def select_configured_long_oracle_states(
+    assignments: Sequence[Mapping[str, Any]],
+    *,
+    config: Mapping[str, Any],
+    bound_state_ids: Sequence[str] = (),
+) -> tuple[dict[str, Any], ...]:
+    """Dispatch the historical sampled-train or fixed-denominator selection."""
+    mode = str(config.get("selection_mode", "sampled_train"))
+    if mode == "sampled_train":
+        if bound_state_ids:
+            raise ValueError("sampled long-oracle selection received bound state ids")
+        return select_long_oracle_states(
+            assignments,
+            bin_targets={
+                name: int(value) for name, value in config["bin_targets"].items()
+            },
+            maximum_states_per_trajectory=int(
+                config["maximum_states_per_trajectory"]
+            ),
+            salt=config["selection_salt"],
+        )
+    if mode == "bound_state_manifest":
+        roles = tuple(config["roles"])
+        if len(roles) != 1:
+            raise ValueError("bound long-oracle selection requires exactly one role")
+        return select_bound_long_oracle_states(
+            assignments,
+            state_ids=bound_state_ids,
+            role=roles[0],
+        )
+    raise ValueError(f"unknown long-oracle selection mode: {mode}")
+
+
+def bound_state_ids_from_manifest(
+    manifest: Mapping[str, Any],
+    *,
+    expected_state_count: int,
+    expected_trajectory_count: int,
+    expected_history_bin_counts: Mapping[str, int],
+) -> tuple[str, ...]:
+    """Validate a fixed-denominator manifest and return its ordered identities."""
+    rows = manifest.get("states")
+    if isinstance(rows, (str, bytes, bytearray, Mapping)) or not isinstance(
+        rows, Sequence
+    ):
+        raise ValueError("bound state manifest rows must be a sequence")
+    identities = tuple(row["state_id"] for row in rows)
+    trajectories = {row["trajectory_id"] for row in rows}
+    bins = Counter(row["history_bin"] for row in rows)
+    if (
+        manifest.get("state_count") != expected_state_count
+        or len(identities) != expected_state_count
+        or len(set(identities)) != expected_state_count
+        or manifest.get("trajectory_count") != expected_trajectory_count
+        or len(trajectories) != expected_trajectory_count
+        or dict(manifest.get("history_bin_counts", {}))
+        != dict(expected_history_bin_counts)
+        or dict(bins) != dict(expected_history_bin_counts)
+    ):
+        raise ValueError("bound state manifest census drifted")
+    return identities
+
+
+def tune_headroom_decision(
+    comparison: Mapping[str, Any],
+    *,
+    confirmed_point_minimum: float,
+    confirmed_lower_minimum: float,
+    insufficient_upper_maximum: float,
+) -> dict[str, Any]:
+    """Apply the frozen tune-denominator gate for authorizing student v3."""
+    point = float(comparison["point_estimate"])
+    lower = float(comparison["lower_95"])
+    upper = float(comparison["upper_95"])
+    thresholds = (
+        confirmed_point_minimum,
+        confirmed_lower_minimum,
+        insufficient_upper_maximum,
+    )
+    if any(not math.isfinite(value) for value in (point, lower, upper, *thresholds)):
+        raise ValueError("tune headroom gate values must be finite")
+    if point > confirmed_point_minimum and lower > confirmed_lower_minimum:
+        verdict = "HEADROOM_CONFIRMED_AUTHORIZE_DIRECT_MARGINAL_V3"
+        authorized = True
+    elif upper < insufficient_upper_maximum:
+        verdict = "HEADROOM_INSUFFICIENT_RECONSIDER_DATA_AND_CLAIM"
+        authorized = False
+    else:
+        verdict = "INCONCLUSIVE_TUNE_LONG_ORACLE"
+        authorized = False
+    return {
+        "direct_marginal_v3_authorized": authorized,
+        "observed": {"lower_95": lower, "point_estimate": point, "upper_95": upper},
+        "thresholds": {
+            "confirmed_lower_strictly_greater_than": confirmed_lower_minimum,
+            "confirmed_point_strictly_greater_than": confirmed_point_minimum,
+            "insufficient_upper_strictly_less_than": insufficient_upper_maximum,
+        },
+        "verdict": verdict,
+    }
+
+
 def _state_rng(state_id: str, seed: int) -> random.Random:
     digest = hashlib.sha256(f"{seed}:{state_id}".encode("utf-8")).digest()
     return random.Random(int.from_bytes(digest[:8], byteorder="big"))
@@ -525,10 +669,14 @@ __all__ = [
     "SELECTION_STATUS",
     "WAVES",
     "additive_top_k",
+    "bound_state_ids_from_manifest",
     "greedy_selection_from_distances",
     "next_wave_coalitions",
     "recent_prefix",
     "reduce_long_oracle_metrics",
+    "select_bound_long_oracle_states",
+    "select_configured_long_oracle_states",
     "select_long_oracle_states",
+    "tune_headroom_decision",
     "wave_one_coalitions",
 ]

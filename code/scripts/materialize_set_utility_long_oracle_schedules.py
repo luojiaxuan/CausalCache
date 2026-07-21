@@ -18,9 +18,10 @@ from causalcache.set_utility_heldout_evaluation import (
 from causalcache.set_utility_long_oracle import (
     WAVES,
     additive_top_k,
+    bound_state_ids_from_manifest,
     greedy_selection_from_distances,
     next_wave_coalitions,
-    select_long_oracle_states,
+    select_configured_long_oracle_states,
     wave_one_coalitions,
 )
 
@@ -77,6 +78,25 @@ def _load_wave_terminals(
     return result
 
 
+def _bound_state_ids(
+    repository_root: Path, config: dict[str, Any]
+) -> tuple[str, ...]:
+    if config.get("selection_mode", "sampled_train") != "bound_state_manifest":
+        return ()
+    path = repository_root / config["state_manifest"]
+    if sha256_file(path) != config["state_manifest_sha256"]:
+        raise ValueError("bound state manifest drifted from the frozen binding")
+    return bound_state_ids_from_manifest(
+        _read_json(path),
+        expected_state_count=int(config["expected_state_count"]),
+        expected_trajectory_count=int(config["expected_trajectory_count"]),
+        expected_history_bin_counts={
+            name: int(value)
+            for name, value in config["expected_history_bin_counts"].items()
+        },
+    )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repository-root", type=Path, required=True)
@@ -97,15 +117,10 @@ def main() -> None:
     if sha256_file(assignment_path) != config["assignment_manifest_sha256"]:
         raise ValueError("assignment manifest drifted from the frozen binding")
     assignments = _read_json(assignment_path)["assignments"]
-    states = select_long_oracle_states(
+    states = select_configured_long_oracle_states(
         assignments,
-        bin_targets={
-            name: int(value) for name, value in config["bin_targets"].items()
-        },
-        maximum_states_per_trajectory=int(
-            config["maximum_states_per_trajectory"]
-        ),
-        salt=config["selection_salt"],
+        config=config,
+        bound_state_ids=_bound_state_ids(args.repository_root, config),
     )
 
     prior_waves = tuple(range(1, args.wave))
@@ -223,7 +238,9 @@ def main() -> None:
                 )
             ).hexdigest(),
             "logical_shard": logical_shard,
-            "role_state_counts": {"train": len(rows)} if rows else {},
+            "role_state_counts": dict(
+                sorted(Counter(row["role"] for row in rows).items())
+            ),
             "schedule_byte_count": len(payload),
             "schedule_sha256": hashlib.sha256(payload).hexdigest(),
             "state_count": len(rows),

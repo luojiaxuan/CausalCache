@@ -4182,3 +4182,18 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   先修训练/目标,再谈加标签或容量。
 - 结果只作 in-sample 机理诊断,不进 gate/评测/paper 主表。
   [结果](../data/results/set_utility_long_oracle_insample_v1/README.md);selector 补丁 `b98e0ec`。
+
+## 2026-07-21:Fixed-tune Long+ oracle v1 合同冻结
+
+- scalar `U(S)` 的新增结构诊断确认：250/250 states 的预测 utility 随 cardinality 严格上升，at-most-`B`
+  250/250 退化为 exact-`B`；真实第二次加入中 56.6% 有害，20/250 states 的最优第二次加入仍为负。
+  结合 in-sample singleton Spearman `0.116`，当前失败被定位为 scalar set-utility 参数化/训练没有传递排序与
+  STOP 信号，不再先做 scalar fit probe。
+- 为消除 train long-oracle 与 tune Long+ 的 denominator 混淆，从既有 fixed-tune truth result
+  `043d3e12...d4c86` 冻结原样 249 states / 35 trajectories（long 241、very-long 8）；manifest SHA256=
+  `084d3c8e...24523`。完整历史候选不截断，预计四 wave 共约 22,720 coalition forwards。
+- 预注册 gate：`oracle_greedy-recent` B1--B4 macro point `>0.10` 且 trajectory-bootstrap CI lower
+  `>0.03` 才授权一次 direct conditional-marginal + explicit STOP v3；CI upper `<0.03` 则重新审视数据与
+  claim，其余为 inconclusive。tune labels 禁止进入训练，untouched evaluation/policy/closed-loop 继续锁定。
+- 实现与 13 个 focused tests 已在 Hyper00 PyTorch 2.13 container 通过；合同见
+  [`docs/set_utility_tune_long_oracle_v1.md`](set_utility_tune_long_oracle_v1.md)。

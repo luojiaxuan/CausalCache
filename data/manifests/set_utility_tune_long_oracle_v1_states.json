@@ -1,0 +1,1258 @@
+{
+  "history_bin_counts": {
+    "long": 241,
+    "very_long": 8
+  },
+  "schema_version": "1.0.0",
+  "source_result_content_sha256": "043d3e12b5b83bb8eede417de0a7eac8ef341e1e17abd99e9d6ad067719d4c86",
+  "state_count": 249,
+  "states": [
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:018",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:019",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:020",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:021",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:022",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:023",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:024",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:025",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:026",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:027",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:028",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:029",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:030",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:031",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:032",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0044058198676449:decision:033",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "very_long",
+      "state_id": "0044058198676449:decision:034",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "very_long",
+      "state_id": "0044058198676449:decision:035",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "very_long",
+      "state_id": "0044058198676449:decision:036",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "very_long",
+      "state_id": "0044058198676449:decision:037",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "very_long",
+      "state_id": "0044058198676449:decision:038",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "very_long",
+      "state_id": "0044058198676449:decision:039",
+      "trajectory_id": "0044058198676449"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:018",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:019",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:020",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:021",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:022",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:023",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:024",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:025",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0073631237300890:decision:026",
+      "trajectory_id": "0073631237300890"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0471254413895303:decision:018",
+      "trajectory_id": "0471254413895303"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0737461116682339:decision:018",
+      "trajectory_id": "0737461116682339"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0737461116682339:decision:019",
+      "trajectory_id": "0737461116682339"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0737461116682339:decision:020",
+      "trajectory_id": "0737461116682339"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0761967861281061:decision:018",
+      "trajectory_id": "0761967861281061"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "0761967861281061:decision:019",
+      "trajectory_id": "0761967861281061"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1070624496941595:decision:018",
+      "trajectory_id": "1070624496941595"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1070624496941595:decision:019",
+      "trajectory_id": "1070624496941595"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1070624496941595:decision:020",
+      "trajectory_id": "1070624496941595"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1070624496941595:decision:021",
+      "trajectory_id": "1070624496941595"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1070624496941595:decision:022",
+      "trajectory_id": "1070624496941595"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1390881673385106:decision:018",
+      "trajectory_id": "1390881673385106"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1390881673385106:decision:019",
+      "trajectory_id": "1390881673385106"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1470850556429287:decision:018",
+      "trajectory_id": "1470850556429287"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1470850556429287:decision:019",
+      "trajectory_id": "1470850556429287"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1470850556429287:decision:020",
+      "trajectory_id": "1470850556429287"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1470850556429287:decision:021",
+      "trajectory_id": "1470850556429287"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:018",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:019",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:020",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:021",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:022",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:023",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:024",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:025",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:026",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:027",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "1512454269724494:decision:028",
+      "trajectory_id": "1512454269724494"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2064395096912128:decision:018",
+      "trajectory_id": "2064395096912128"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2064395096912128:decision:019",
+      "trajectory_id": "2064395096912128"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2064395096912128:decision:020",
+      "trajectory_id": "2064395096912128"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2064395096912128:decision:021",
+      "trajectory_id": "2064395096912128"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2277880887067051:decision:018",
+      "trajectory_id": "2277880887067051"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2277880887067051:decision:019",
+      "trajectory_id": "2277880887067051"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2277880887067051:decision:020",
+      "trajectory_id": "2277880887067051"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2329808852037618:decision:018",
+      "trajectory_id": "2329808852037618"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2329808852037618:decision:019",
+      "trajectory_id": "2329808852037618"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2329808852037618:decision:020",
+      "trajectory_id": "2329808852037618"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2329808852037618:decision:021",
+      "trajectory_id": "2329808852037618"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2329808852037618:decision:022",
+      "trajectory_id": "2329808852037618"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2329808852037618:decision:023",
+      "trajectory_id": "2329808852037618"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "2329808852037618:decision:024",
+      "trajectory_id": "2329808852037618"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3575491583188253:decision:018",
+      "trajectory_id": "3575491583188253"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3575491583188253:decision:019",
+      "trajectory_id": "3575491583188253"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3575491583188253:decision:020",
+      "trajectory_id": "3575491583188253"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3575491583188253:decision:021",
+      "trajectory_id": "3575491583188253"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3575491583188253:decision:022",
+      "trajectory_id": "3575491583188253"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3575491583188253:decision:023",
+      "trajectory_id": "3575491583188253"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3575491583188253:decision:024",
+      "trajectory_id": "3575491583188253"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3575491583188253:decision:025",
+      "trajectory_id": "3575491583188253"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3847697187158595:decision:018",
+      "trajectory_id": "3847697187158595"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "3847697187158595:decision:019",
+      "trajectory_id": "3847697187158595"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:018",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:019",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:020",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:021",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:022",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:023",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:024",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:025",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4169552971968055:decision:026",
+      "trajectory_id": "4169552971968055"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4230466852090938:decision:018",
+      "trajectory_id": "4230466852090938"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4230466852090938:decision:019",
+      "trajectory_id": "4230466852090938"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4230466852090938:decision:020",
+      "trajectory_id": "4230466852090938"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:018",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:019",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:020",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:021",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:022",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:023",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:024",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:025",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:026",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4238941294139148:decision:027",
+      "trajectory_id": "4238941294139148"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4667872013142062:decision:018",
+      "trajectory_id": "4667872013142062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4667872013142062:decision:019",
+      "trajectory_id": "4667872013142062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4667872013142062:decision:020",
+      "trajectory_id": "4667872013142062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4810609625240028:decision:018",
+      "trajectory_id": "4810609625240028"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4810609625240028:decision:019",
+      "trajectory_id": "4810609625240028"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4810609625240028:decision:020",
+      "trajectory_id": "4810609625240028"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4810609625240028:decision:021",
+      "trajectory_id": "4810609625240028"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4810609625240028:decision:022",
+      "trajectory_id": "4810609625240028"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4810609625240028:decision:023",
+      "trajectory_id": "4810609625240028"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4911194203458937:decision:018",
+      "trajectory_id": "4911194203458937"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4911194203458937:decision:019",
+      "trajectory_id": "4911194203458937"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4911194203458937:decision:020",
+      "trajectory_id": "4911194203458937"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "4911194203458937:decision:021",
+      "trajectory_id": "4911194203458937"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5276695976485366:decision:018",
+      "trajectory_id": "5276695976485366"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5276695976485366:decision:019",
+      "trajectory_id": "5276695976485366"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5276695976485366:decision:020",
+      "trajectory_id": "5276695976485366"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5276695976485366:decision:021",
+      "trajectory_id": "5276695976485366"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5276695976485366:decision:022",
+      "trajectory_id": "5276695976485366"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5276695976485366:decision:023",
+      "trajectory_id": "5276695976485366"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5276695976485366:decision:024",
+      "trajectory_id": "5276695976485366"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5276695976485366:decision:025",
+      "trajectory_id": "5276695976485366"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5762846879720071:decision:018",
+      "trajectory_id": "5762846879720071"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5762846879720071:decision:019",
+      "trajectory_id": "5762846879720071"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5762846879720071:decision:020",
+      "trajectory_id": "5762846879720071"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5762846879720071:decision:021",
+      "trajectory_id": "5762846879720071"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5762846879720071:decision:022",
+      "trajectory_id": "5762846879720071"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5762846879720071:decision:023",
+      "trajectory_id": "5762846879720071"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5762846879720071:decision:024",
+      "trajectory_id": "5762846879720071"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5762846879720071:decision:025",
+      "trajectory_id": "5762846879720071"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5831703300290453:decision:018",
+      "trajectory_id": "5831703300290453"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5831703300290453:decision:019",
+      "trajectory_id": "5831703300290453"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5831703300290453:decision:020",
+      "trajectory_id": "5831703300290453"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "5831703300290453:decision:021",
+      "trajectory_id": "5831703300290453"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6080758624598157:decision:018",
+      "trajectory_id": "6080758624598157"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6080758624598157:decision:019",
+      "trajectory_id": "6080758624598157"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6080758624598157:decision:020",
+      "trajectory_id": "6080758624598157"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6080758624598157:decision:021",
+      "trajectory_id": "6080758624598157"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6670250386231620:decision:018",
+      "trajectory_id": "6670250386231620"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:018",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:019",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:020",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:021",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:022",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:023",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:024",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:025",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "6774962780330114:decision:026",
+      "trajectory_id": "6774962780330114"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:018",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:019",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:020",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:021",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:022",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:023",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:024",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:025",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:026",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:027",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:028",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7175632159167501:decision:029",
+      "trajectory_id": "7175632159167501"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:018",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:019",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:020",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:021",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:023",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:024",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:025",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:026",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:027",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:028",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:029",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:030",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:031",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:032",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7446091276929062:decision:033",
+      "trajectory_id": "7446091276929062"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:018",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:019",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:020",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:021",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:022",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:023",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:024",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:025",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:026",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:027",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:028",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:029",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:030",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:031",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:032",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7606638608424401:decision:033",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "very_long",
+      "state_id": "7606638608424401:decision:034",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "very_long",
+      "state_id": "7606638608424401:decision:035",
+      "trajectory_id": "7606638608424401"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7947814708068022:decision:018",
+      "trajectory_id": "7947814708068022"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7947814708068022:decision:019",
+      "trajectory_id": "7947814708068022"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7947814708068022:decision:020",
+      "trajectory_id": "7947814708068022"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "7947814708068022:decision:021",
+      "trajectory_id": "7947814708068022"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:018",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:019",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:020",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:021",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:022",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:023",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:024",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:025",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:026",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:027",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:028",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8017856457546242:decision:029",
+      "trajectory_id": "8017856457546242"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:018",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:019",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:020",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:021",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:022",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:023",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:024",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:025",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:026",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "8117457502154272:decision:027",
+      "trajectory_id": "8117457502154272"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9413121812761234:decision:018",
+      "trajectory_id": "9413121812761234"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9413121812761234:decision:019",
+      "trajectory_id": "9413121812761234"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9413121812761234:decision:020",
+      "trajectory_id": "9413121812761234"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9413121812761234:decision:021",
+      "trajectory_id": "9413121812761234"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9413121812761234:decision:022",
+      "trajectory_id": "9413121812761234"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9413121812761234:decision:023",
+      "trajectory_id": "9413121812761234"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9413121812761234:decision:024",
+      "trajectory_id": "9413121812761234"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:018",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:019",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:020",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:021",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:022",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:023",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:024",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:025",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:026",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:027",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:028",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:029",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:030",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:031",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9550075717398493:decision:032",
+      "trajectory_id": "9550075717398493"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9632131076507488:decision:018",
+      "trajectory_id": "9632131076507488"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9632131076507488:decision:019",
+      "trajectory_id": "9632131076507488"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9632131076507488:decision:020",
+      "trajectory_id": "9632131076507488"
+    },
+    {
+      "history_bin": "long",
+      "state_id": "9632131076507488:decision:021",
+      "trajectory_id": "9632131076507488"
+    }
+  ],
+  "trajectory_count": 35
+}
+

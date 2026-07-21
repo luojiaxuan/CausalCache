@@ -6,6 +6,12 @@
 
 ## 当前结论
 
+- **下一决定点已冻结为同 denominator 的 tune Long+ true conditional-greedy oracle。** scalar `U(S)`
+  student 的病理已经确认：250/250 states 预测 utility 随基数严格上升、at-most-`B` 全部选满，而真实
+  第二次加入有 56.6% 会降低 utility，singleton in-sample Spearman 仅 0.11。当前不再调 scalar head；先在
+  fixed-tune 的同一 249 Long+ states 上生成约 22.7k conditional-greedy labels。若 oracle--recent macro
+  `>0.10` 且 CI lower `>0.03`，才授权一次 direct conditional-marginal + STOP v3；否则收缩主张。
+  [冻结合同](docs/set_utility_tune_long_oracle_v1.md)。
 - **Decision distillation v2 首次在真实 fixed-tune selector truth 上显著超过 recent，但冻结 gate 仍为
   NO-GO。** 基础 Set Transformer 在 1,063/1,063 states 上的 B1--B4 macro recovery=`0.47593`，recent=
   `0.45192`，paired delta=`+0.02401`、95% CI=`[+0.00430,+0.04340]`；B1/B3/B4 均胜 recent。这是当前
@@ -70,6 +76,8 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 ## 当前执行主线
 
+- fixed-tune Long+ oracle v1 已冻结 249 states / 35 trajectories（241 long、8 very-long）的精确 denominator，
+  tune truth 只用于 failure decomposition，禁止进入训练；四个依赖 wave 完成前不启动 v3。
 - 同一 trajectory 的所有 eligible decision steps 保持在同一 split；
 - 正式 state 使用当前决策前的全部 eligible events，`n_t=|C_t|` 是数据属性；不得做 recent-`n` 候选截断；
 - 每个 state 约生成 40 个 age/interaction-stratified coalition labels，小历史可 exact，大历史只采样 subsets；
