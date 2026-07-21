@@ -61,7 +61,10 @@ B1--B4 macro recovery。训练/选择不读取 evaluation。
 
 ## Compute 与 SoT
 
-- Hyper00/Hyper01 每台最多 6 GPUs；本轮 preflight 可用量为 8/5，因此计划使用 6/5；
+- Hyper00/Hyper01 每台最多 6 GPUs；label preflight 的可用量为 5/6，因此使用 5/6；
+- 正式 label mapping 使用 Hyper00 5 卡 + Hyper01 6 卡、每卡 2 lanes，共 11 partitions / 22 resumable
+  workers；冻结配置为
+  [`causalcache_set_utility_direct_on_policy_labels_workers_v1.json`](../code/configs/causalcache_set_utility_direct_on_policy_labels_workers_v1.json)；
 - labels、schedules、selection payload 与 checkpoints 保存在 `/data02/jaxan` persistent storage；
 - reusable data/checkpoints 完成后分别发布到现有 private Hugging Face dataset/model repo；发布前在 README
   记录精确路径并标为 `PENDING_HF_UPLOAD`；
