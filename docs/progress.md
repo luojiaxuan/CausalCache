@@ -4324,3 +4324,17 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   gate 判生死,再 NO-GO 即终止路线。见
   [`docs/set_utility_direct_marginal_v3_stage_a_gate_review.md`](set_utility_direct_marginal_v3_stage_a_gate_review.md);
   是否采纳由执行方版本化落地,v1/v2 NO-GO 记录不改写。
+
+## 2026-07-21:Hybrid deferral 模拟与路线修正
+
+- 修正前一日结论:scalar v2 是**部分泛化成功**(macro +0.024 显著、B1/B3/B4 胜),死掉的只是
+  "全格子严格碾压"主张;v3 的 in-sample 94% vs tune 崩塌把剩余瓶颈定位到表示的可迁移性
+  (监督多样性不足 + 内容 embedding 缺"策略敏感性"信号),这是下一代 selector 的课题。
+- 用既有 tune truth 零成本模拟确定性 deferral 部署(冻结 checkpoint,不重训):**H1(B2 与
+  Long+ 退回 recent)macro delta=+0.0251,95% CI [+0.0111,+0.0393],构造上任何格子不劣于
+  recent**。运行时规则可判定、退回格子零模型开销。
+  [模拟记录](../data/results/set_utility_hybrid_deferral_sim_v1/README.md)。
+- 后续唯一路径:冻结 H1 为版本化混合部署合同 → 一次性 untouched evaluation → paired closed-loop
+  (AndroidWorld,同预算 vs recent)。deferral 格子选择基于 tune(dev)属正当模型选择,但 evaluation/
+  closed-loop 失败即终止,不得回调格子;paper 主张转为"带校准回退的 restoration-distilled selector
+  在 closed-loop 胜出",审计与负结果降为机理支撑。
