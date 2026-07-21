@@ -260,6 +260,9 @@ def materialize_contextual_multisource_enriched_inputs(
         }
     enriched = []
     for state in states:
+        if state["state_id"] not in touched_states:
+            enriched.append(state)
+            continue
         candidates = tuple(state["candidate_event_step_ids"])
         table = tables[state["state_id"]]
         rows = [

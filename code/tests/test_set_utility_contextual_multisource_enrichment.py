@@ -52,7 +52,20 @@ def _fixture(root: Path) -> tuple[Path, tuple[ContextualEnrichmentSource, ...]]:
         "state_id": "trajectory:decision:004",
         "trajectory_id": "trajectory",
     }
-    state_payload = canonical_json_bytes(state) + b"\n"
+    tune_state = {
+        **state,
+        "candidate_event_step_ids": [1, 2],
+        "distance_rows": [
+            {"coalition_event_step_ids": [1, 2], "distance": 0.0},
+            {"coalition_event_step_ids": [], "distance": 1.0},
+        ],
+        "role": "tune",
+        "state_id": "tune:decision:003",
+        "trajectory_id": "tune",
+    }
+    state_payload = b"".join(
+        canonical_json_bytes(row) + b"\n" for row in (state, tune_state)
+    )
     (base / "states.jsonl").write_bytes(state_payload)
     base_content = hashlib.sha256(
         state_payload + hashlib.sha256(requirement).hexdigest().encode("ascii")
@@ -69,7 +82,7 @@ def _fixture(root: Path) -> tuple[Path, tuple[ContextualEnrichmentSource, ...]]:
                     "status": CONTEXTUAL_REQUIREMENT_STATUS,
                 }
             ],
-            "state_count": 1,
+            "state_count": 2,
             "states_jsonl": "states.jsonl",
             "states_sha256": hashlib.sha256(state_payload).hexdigest(),
             "status": CONTEXTUAL_INPUT_STATUS,
@@ -157,7 +170,12 @@ def test_multisource_merge_deduplicates_and_preserves_firewall() -> None:
             output_root=root / "output",
             config_sha256="c" * 64,
         )
-        state = json.loads((root / "output/states.jsonl").read_text())
+        rows = [
+            json.loads(line)
+            for line in (root / "output/states.jsonl").read_text().splitlines()
+        ]
+        state = next(row for row in rows if row["role"] == "train")
+        tune = next(row for row in rows if row["role"] == "tune")
         table = {
             tuple(row["coalition_event_step_ids"]): row["distance"]
             for row in state["distance_rows"]
@@ -170,6 +188,10 @@ def test_multisource_merge_deduplicates_and_preserves_firewall() -> None:
             (1, 2, 3): 0.0,
         }
         assert manifest["evaluation_labels_included"] is False
+        assert tune["distance_rows"] == [
+            {"coalition_event_step_ids": [1, 2], "distance": 0.0},
+            {"coalition_event_step_ids": [], "distance": 1.0},
+        ]
         assert manifest["enrichment"]["added_distance_row_count"] == 3
         assert manifest["enrichment"]["duplicate_distance_row_count"] == 5
         assert manifest["enrichment"]["duplicate_max_abs_delta"] == pytest.approx(1e-8)
