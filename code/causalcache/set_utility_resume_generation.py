@@ -461,3 +461,14 @@ def load_resume_generation_collective(
     validate_resume_rank_signatures(signatures, world_size=world_size)
     assert snapshot is not None and pointer is not None
     return snapshot, pointer
+
+
+def restore_rng_states(snapshot: Mapping[str, Any], *, torch: Any) -> None:
+    torch_state = snapshot.get("torch_rng_state")
+    cuda_state = snapshot.get("cuda_rng_state")
+    if not torch.is_tensor(torch_state) or not torch.is_tensor(cuda_state):
+        raise ValueError("resume RNG states must be tensors")
+    torch.set_rng_state(torch_state.detach().cpu().to(dtype=torch.uint8).contiguous())
+    torch.cuda.set_rng_state(
+        cuda_state.detach().cpu().to(dtype=torch.uint8).contiguous()
+    )

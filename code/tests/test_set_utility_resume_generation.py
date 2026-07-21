@@ -9,6 +9,7 @@ from causalcache.set_utility_resume_generation import (
     load_resume_rank_snapshot,
     publish_resume_generation,
     read_latest_resume_generation,
+    restore_rng_states,
     resume_generation_path,
     write_resume_rank_snapshot,
 )
@@ -120,3 +121,39 @@ def test_rank_drift_never_publishes_generation(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="rank drift"):
         publish_resume_generation(tmp_path, drifted, epoch=1, world_size=2)
     assert has_published_resume_generation(tmp_path) is False
+
+
+def test_restore_rng_states_normalizes_loaded_tensors_to_cpu_byte() -> None:
+    class FakeCuda:
+        def __init__(self) -> None:
+            self.state = None
+
+        def set_rng_state(self, state):
+            self.state = state
+
+    class FakeTorch:
+        uint8 = torch.uint8
+
+        def __init__(self) -> None:
+            self.cuda = FakeCuda()
+            self.state = None
+
+        @staticmethod
+        def is_tensor(value):
+            return torch.is_tensor(value)
+
+        def set_rng_state(self, state):
+            self.state = state
+
+    fake = FakeTorch()
+    restore_rng_states(
+        {
+            "torch_rng_state": torch.tensor([1, 2], dtype=torch.int64),
+            "cuda_rng_state": torch.tensor([3, 4], dtype=torch.int64),
+        },
+        torch=fake,
+    )
+    assert fake.state.device.type == "cpu"
+    assert fake.state.dtype == torch.uint8
+    assert fake.cuda.state.device.type == "cpu"
+    assert fake.cuda.state.dtype == torch.uint8

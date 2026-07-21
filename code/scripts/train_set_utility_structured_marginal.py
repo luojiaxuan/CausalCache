@@ -21,6 +21,7 @@ from causalcache.set_utility_recovery_checkpoint import RecoveryCheckpointManage
 from causalcache.set_utility_resume_generation import (
     has_published_resume_generation,
     load_resume_generation_collective,
+    restore_rng_states,
     save_resume_generation_collective,
 )
 from causalcache.set_utility_formal_input_verification import (
@@ -1174,8 +1175,7 @@ def _fit(args: argparse.Namespace) -> None:
         optimizer.load_state_dict(snapshot["optimizer"])
         scheduler.load_state_dict(snapshot["scheduler"])
         random.setstate(snapshot["python_rng_state"])
-        torch.set_rng_state(snapshot["torch_rng_state"])
-        torch.cuda.set_rng_state(snapshot["cuda_rng_state"])
+        restore_rng_states(snapshot, torch=torch)
         start_epoch = int(snapshot["epoch"]) + 1
     elif has_published_resume_generation(output_root):
         raise FileExistsError("structured resume generation exists without --resume")
