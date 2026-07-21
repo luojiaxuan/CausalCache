@@ -1,6 +1,10 @@
 # Budget-deferral frozen-candidate evaluation v1
 
-状态：`LABEL_BLIND_STAGE_A_INPUTS_COMPLETE`。
+状态：`CANCELLED_BY_USER_BEFORE_SELECTION_OR_TRUTH`。
+
+2026-07-21 用户决定停止本轮 frozen-candidate evaluation，转向 selector-side GUI-Owl LoRA。两个
+extraction container 已停止；Hyper00/Hyper01 分别保留 42/33 个可断点恢复的 receipt（约 1.3GB/963MB）。
+没有运行 selection，没有读取或挂载 restoration truth，也没有产生 evaluation 结论。
 
 当前 candidate 已在 development truth 上冻结为 B1/B2 recent、B3/B4 Structured DeepSets direct。本阶段
 只物化 evaluation features 与 contextual requirements，没有读取或挂载 restoration truth。
@@ -18,8 +22,7 @@ merge；canonical feature/contextual roots 分别为：
 - `/data02/jaxan/artifacts/causalcache-budget-deferral-eval-features-full-4f09d07`；
 - `/data02/jaxan/artifacts/causalcache-budget-deferral-eval-contextual-inputs-4f09d07`。
 
-GPU extraction 按
+原 GPU extraction 按
 [`causalcache_set_utility_budget_deferral_evaluation_stage_a_v1.json`](../../../code/configs/causalcache_set_utility_budget_deferral_evaluation_stage_a_v1.json)
-冻结为 Hyper00 6×H200 + Hyper01 5×H200、11 个 resumable partitions。selection 只有在 contextual cache
-finalize 后才能运行；truth 只有在 selection 与 seal receipt 均落盘后才能访问。以上 reusable payload 当前为
-`PENDING_HF_UPLOAD`。
+冻结为 Hyper00 6×H200 + Hyper01 5×H200、11 个 resumable partitions。该计划保留作历史记录，不再继续执行；
+partial cache 仅保留为可恢复临时 artifact，不上传 HF。

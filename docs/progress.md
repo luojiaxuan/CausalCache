@@ -1,5 +1,14 @@
 # 项目进展
 
+## 2026-07-21：停止 budget-deferral evaluation，转向 selector-side LoRA
+
+- 按用户决定，在 selection/truth 前停止两台机器的 contextual extraction；Hyper00/Hyper01 保留 42/33 个
+  resumable receipts，truth read count 仍为 0；
+- 不再把 B1/B2 recent + B3/B4 learned 当作主线确认；它只保留为工程 fallback；
+- 新假设保持 action teacher `pi_0` 完全冻结，只为 selector 建立 GUI-Owl top-layer LoRA branch。旧
+  restoration labels 继续有效；现有 final-hidden cache 可用于 token-adapter control，但 top-layer LoRA 需要
+  新的 branch-boundary hidden cache。
+
 ## 2026-07-21：frozen-candidate evaluation Stage-A 输入完成
 
 - Hyper00/Hyper01 分别消费本机 128 个 visual-token shards，生成 448/598 个 disjoint label-blind states；
