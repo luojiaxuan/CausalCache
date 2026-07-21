@@ -4147,3 +4147,24 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `data/results/guiodyssey_official_split_audit_v1/`;paper 辩护口径(不做官方 benchmark、我们的
   group-aware 切分在关键泄漏轴上更严、policy 预训练去污染不声称、官方 test 子集 robustness 可选项)
   已预注册进该 README。
+
+## 2026-07-21:Decision distillation v2 epoch-best fixed-tune truth
+
+- 基础 Set Transformer 与 DeepSets 均在 epoch 1 最佳、epoch 6 early-stop；容量版 L64/S4 在训练中冻结
+  epoch-1 immutable snapshot。lazy selector 首次启动暴露 CPU cache tensor 未搬到 GPU 的代码 bug，在任何
+  result 生成前 fail-fast；`main@650afbe` 修复 device transfer 并加入回归测试，5 focused tests passed。
+- 三个 selector 在 Hyper01 H200 GPU 2/3 完成 1,063/1,063 tune states；schedule=15,034 unique
+  coalitions。truth 使用 Hyper00 GPU 0/1/2/6 + Hyper01 GPU 2/3/4/5，每卡 2 lanes，1,063/1,063
+  completed、0 skip、两容器 exit 0；state/microbatch atomic resume 全程开启。
+- 基础 Set Transformer B1--B4=`0.26293/0.42930/0.56152/0.64999`，macro=`0.47593`；recent=
+  `0.19105/0.43606/0.55426/0.62631`，macro=`0.45192`。macro delta=`+0.02401`，trajectory bootstrap
+  95% CI=`[+0.00430,+0.04340]`，首次显著超过 recent；B1/B3/B4 pass。
+- 冻结 gate 因 B2 delta=`-0.00676` 和 Long+ delta=`-0.01228` 返回
+  `NO_GO_DECISION_DISTILLATION_V2`；untouched evaluation、policy replay、closed-loop 与 matched-NLL
+  继续锁定。
+- L64/S4 epoch-1 macro=`0.45575`、Long+=`0.35577`、p95=`114.19ms`，弱于 base Set 的
+  `0.47593/0.38853/71.39ms`。其 tune total 看似更低主要不可跨配置解释：eval batch=1 对比 base=8，
+  complete decision-group/listwise 统计随 batch 改变。容量增大当前没有带来 utility--latency Pareto 改善。
+- full result content SHA=`043d3e12...d4c86`、file SHA=`4dd81748...284c9`；轻量结果见
+  `data/results/set_utility_decision_distillation_v2_epoch1_tune/`。full selections/schedule/labels/result 与
+  checkpoints 均保存在 Hyper persistent paths，状态=`PENDING_HF_UPLOAD`。

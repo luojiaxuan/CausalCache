@@ -1,0 +1,81 @@
+{
+  "comparisons": {
+    "deepsets_minus_recent": {
+      "lower": -0.07781910051451663,
+      "point_estimate": -0.03555874701820285,
+      "upper": 0.000979304858719679
+    },
+    "set_base_minus_recent": {
+      "lower": 0.004302544034964976,
+      "point_estimate": 0.024013934196641672,
+      "upper": 0.043402807628968816
+    },
+    "set_l64_s4_minus_recent": {
+      "lower": -0.02321672039356782,
+      "point_estimate": 0.003833883007502491,
+      "upper": 0.030065960607163603
+    }
+  },
+  "coverage": {
+    "completed_state_count": 1063,
+    "expected_state_count": 1063,
+    "skipped_state_count": 0
+  },
+  "full_result_content_sha256": "043d3e12b5b83bb8eede417de0a7eac8ef341e1e17abd99e9d6ad067719d4c86",
+  "full_result_file_sha256": "4dd81748cd1a5fb3f01fedb0124625ae7fa2847fa8490f0923e658c4b34284c9",
+  "gate": {
+    "failed_checks": [
+      "B2_STRICTLY_GREATER_THAN_RECENT",
+      "LONG_PLUS_STRICTLY_GREATER_THAN_RECENT"
+    ],
+    "macro_bootstrap_passed": true,
+    "untouched_evaluation_authorized": false,
+    "verdict": "NO_GO_DECISION_DISTILLATION_V2"
+  },
+  "git_revision": "650afbe921a55b603e6bd69afd941965d06cb5fb",
+  "methods": {
+    "deepsets": {
+      "B1": 0.21350726425297922,
+      "B2": 0.3774213933046335,
+      "B3": 0.48262108721049995,
+      "B4": 0.5918933256292941,
+      "long_plus": 0.3152180367684176,
+      "macro": 0.41636076759935164,
+      "total_p95_ms": 19.68175321817398
+    },
+    "recent": {
+      "B1": 0.191050016946555,
+      "B2": 0.4360589024775129,
+      "B3": 0.5542561911011114,
+      "B4": 0.6263129479450388,
+      "long_plus": 0.4008132082427853,
+      "macro": 0.45191951461755453
+    },
+    "set_base": {
+      "B1": 0.2629264797851498,
+      "B2": 0.4292953932892249,
+      "B3": 0.561521186036154,
+      "B4": 0.6499907361462561,
+      "long_plus": 0.38853185371950466,
+      "macro": 0.4759334488141962,
+      "total_p95_ms": 71.38889315538107
+    },
+    "set_l64_s4_epoch1": {
+      "B1": 0.2454651708066358,
+      "B2": 0.3998582812489244,
+      "B3": 0.5414319734695321,
+      "B4": 0.6362581649751358,
+      "long_plus": 0.35577105483078003,
+      "macro": 0.455753397625057,
+      "total_p95_ms": 114.19176664203405
+    }
+  },
+  "schedule": {
+    "coalition_count": 15034,
+    "content_sha256": "1697ea689282a9c442b193f2ce08e26499f2360b9fac89f3e35d9dd2fea1bfc9",
+    "state_count": 1063
+  },
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_SET_UTILITY_TUNE_ON_POLICY_EVALUATION",
+  "winner": "set_base"
+}

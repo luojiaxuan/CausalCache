@@ -1,7 +1,8 @@
 # Decision distillation v2 + long-oracle 训练执行单
 
-状态：`DDP_TRAINING_RUNNING`。本文只调整 v2 标签完成后的训练输入与目标；不改写已冻结的
-365,043-coalition v2 schedule，不访问 evaluation，也不授权 policy replay、closed-loop 或 matched-NLL。
+状态：`BASE_MODELS_COMPLETED / FIXED_TUNE_NO_GO`。本文只调整 v2 标签完成后的训练输入与目标；不改写已冻结的
+365,043-coalition v2 schedule。基础 DeepSets/Set Transformer 已完成训练与 fixed-tune truth；容量版仍在训练。
+冻结 gate 未全部通过，因此不访问 untouched evaluation，也不授权 policy replay、closed-loop 或 matched-NLL。
 
 ## 为什么调整
 
@@ -122,3 +123,23 @@ epoch 3，没有 optimizer resume state，因此不为这11.22%的 wall-time 改
 
 这次调整只利用已经独立生成的 train-only long-oracle labels 改善蒸馏合同。它不推翻 v1 或 enrichment-v1
 NO-GO，不把 oracle diagnostic 当 learned-selector 结果，也不以 tune loss 下降替代真实 subset utility gate。
+
+## 2026-07-21 fixed-tune 结果
+
+DeepSets 与基础 Set Transformer 都在 epoch 1 最佳、epoch 6 early-stop。三个 frozen selectors（含 L64/S4
+epoch-1 snapshot）在 1,063 个 tune states 上完成 beam-4 at-most-`B` search；对应 schedule 含 15,034 个
+去重 coalitions。Hyper00/Hyper01 共 8×H200、16 lanes 完成真实 `D(S)`：1,063/1,063 completed，0 skip，
+两个 truth containers 均 exit 0。
+
+基础 Set Transformer 是 winner：B1--B4=`0.26293/0.42930/0.56152/0.64999`，macro=`0.47593`，
+recent macro=`0.45192`；paired delta=`+0.02401`，95% CI=`[+0.00430,+0.04340]`。这是首个在该 fixed-tune
+denominator 上显著超过 recent 的 learned selector。冻结 gate 仍因 B2 delta=`-0.00676` 与 Long+ delta=
+`-0.01228` 返回 `NO_GO_DECISION_DISTILLATION_V2`；不能继续 untouched evaluation 或 policy experiments。
+
+L64/S4 epoch-1 macro=`0.45575`、Long+=`0.35577`、p95=`114.19ms`，弱于基础 Set 的
+`0.47593/0.38853/71.39ms`。其训练日志 tune total 也不能与基础模型直接比较：capacity config 的
+`evaluation_batch_size=1`，base config 为 8，当前 conditional-listwise complete-group 计数并非跨 batch-size
+不变量。后续若继续容量探索，必须先修复这一 metric comparability；模型选择仍只看真实 selector truth。
+
+轻量结果见
+[`data/results/set_utility_decision_distillation_v2_epoch1_tune/`](../data/results/set_utility_decision_distillation_v2_epoch1_tune/README.md)。
