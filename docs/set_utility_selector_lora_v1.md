@@ -58,14 +58,14 @@ head 的 selection parity。
 - Hyper00/Hyper01 的 12/12 partitions 已完整提取 23,714/23,714 allowlist contexts，0 failure；Hyper00
   单机 cache 已通过 finalizer：3,065 shards、289,753,201,728 bytes、content SHA256=
   `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；
-- executable training config 已单独版本化，未改写 extraction config；token-adapter phase 1 已在 Hyper01
-  4×H200 完成首 epoch并停在 3,031-coalition truth barrier，LoRA-only phase 1 已在 Hyper00 6×H200 启动。
-  当前仍没有 recovery 结果，不能声称 selector representation 已改善。
+- executable training config 已单独版本化，未改写 extraction config；token-adapter 与 LoRA-only 首 epoch
+  均已完成，分别需要 3,031/3,656 个实际访问 coalition truth。两条 6×H200 rollouts 已在 Hyper01/
+  Hyper00 并行运行；当前仍没有 recovery 结果，不能声称 selector representation 已改善。
 
 ## 下一步
 
-1. 等待 LoRA-only 首 epoch rollout；
-2. 为两条 adaptation 分支补齐并封存固定 256-state development 上实际访问的 coalitions，再决定是否
+1. 为两条 adaptation 分支补齐并封存固定 256-state development 上实际访问的 coalitions；
+2. resume 两个首 epoch checkpoint，按真实 recovery 决定是否
    继续 joint phase。
 
 Boundary extraction 的冻结参数见
