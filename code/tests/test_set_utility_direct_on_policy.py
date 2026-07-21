@@ -5,7 +5,9 @@ from causalcache.set_utility_direct_on_policy import (
     collection_bases,
     complete_group_count,
     missing_candidate_complete_coalitions,
+    runner_schedule_coalitions,
 )
+from scripts.run_set_utility_variable_history_labels import _microbatches
 
 
 def _record() -> dict:
@@ -49,3 +51,49 @@ def test_missing_collection_reuses_existing_truth() -> None:
         record["candidate_event_ids"], resulting, maximum_base_cardinality=3
     ) >= len(collection_bases(record, maximum_base_cardinality=3))
     assert len(desired) == len(set(map(tuple, resulting)))
+
+
+def test_runner_schedule_restores_zero_cost_full_anchor() -> None:
+    record = _record()
+    candidates = record["candidate_event_ids"]
+    missing = missing_candidate_complete_coalitions(
+        record,
+        [candidates],
+        maximum_base_cardinality=3,
+    )
+    assert tuple(candidates) not in {
+        tuple(row["event_ids"]) for row in missing
+    }
+    scheduled = runner_schedule_coalitions(candidates, missing)
+    assert tuple(candidates) in {
+        tuple(row["event_ids"]) for row in scheduled
+    }
+    assert len(scheduled) == len(missing) + 1
+
+
+def test_runner_schedule_does_not_duplicate_existing_full_anchor() -> None:
+    candidates = _record()["candidate_event_ids"]
+    scheduled = runner_schedule_coalitions(
+        candidates,
+        ({"event_ids": candidates, "source": "full_anchor"},),
+    )
+    assert scheduled == ({"event_ids": candidates, "source": "full_anchor"},)
+
+
+def test_runner_schedule_exactly_matches_measured_and_anchor_distances() -> None:
+    record = _record()
+    candidates = record["candidate_event_ids"]
+    missing = missing_candidate_complete_coalitions(
+        record,
+        [candidates],
+        maximum_base_cardinality=3,
+    )
+    scheduled = runner_schedule_coalitions(candidates, missing)
+    schedule = {
+        "candidate_event_ids": candidates,
+        "coalitions": list(scheduled),
+    }
+    distances = {tuple(candidates)}
+    for batch in _microbatches(schedule, microbatch_size=16):
+        distances.update(batch)
+    assert distances == {tuple(row["event_ids"]) for row in scheduled}

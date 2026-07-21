@@ -131,6 +131,41 @@ def missing_candidate_complete_coalitions(
     )
 
 
+def runner_schedule_coalitions(
+    candidates: Sequence[int],
+    missing: Sequence[Mapping[str, Any]],
+) -> tuple[dict[str, Any], ...]:
+    """Add the zero-cost full-history anchor required by the label runner."""
+    candidate_tuple = tuple(candidates)
+    if (
+        not candidate_tuple
+        or candidate_tuple != tuple(sorted(candidate_tuple))
+        or len(candidate_tuple) != len(set(candidate_tuple))
+        or any(type(item) is not int for item in candidate_tuple)
+    ):
+        raise ValueError("runner schedule candidate universe is invalid")
+    rows: dict[tuple[int, ...], dict[str, Any]] = {}
+    for index, row in enumerate(missing):
+        if not isinstance(row, Mapping) or not isinstance(row.get("source"), str):
+            raise ValueError("runner schedule coalition row is invalid")
+        subset = _canonical_subset(
+            row.get("event_ids"),
+            candidates=candidate_tuple,
+            label=f"runner schedule coalition {index}",
+        )
+        if subset in rows:
+            raise ValueError("runner schedule coalition is duplicated")
+        rows[subset] = {"event_ids": list(subset), "source": row["source"]}
+    rows.setdefault(
+        candidate_tuple,
+        {"event_ids": list(candidate_tuple), "source": "full_anchor"},
+    )
+    return tuple(
+        rows[subset]
+        for subset in sorted(rows, key=lambda value: (len(value), value))
+    )
+
+
 def complete_group_count(
     candidates: Sequence[int],
     coalitions: Sequence[Sequence[int]],
@@ -158,5 +193,6 @@ __all__ = [
     "collection_bases",
     "complete_group_count",
     "missing_candidate_complete_coalitions",
+    "runner_schedule_coalitions",
     "validate_direct_train_selection_record",
 ]

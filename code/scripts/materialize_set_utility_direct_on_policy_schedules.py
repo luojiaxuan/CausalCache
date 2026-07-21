@@ -16,6 +16,7 @@ from causalcache.set_utility_direct_on_policy import (
     collection_bases,
     complete_group_count,
     missing_candidate_complete_coalitions,
+    runner_schedule_coalitions,
     validate_direct_train_selection_record,
 )
 from causalcache.set_utility_heldout_evaluation import canonical_json_bytes, sha256_file
@@ -145,6 +146,7 @@ def main() -> None:
     existing_complete_group_count = 0
     resulting_complete_group_count = 0
     scheduled_coalition_count = 0
+    scheduled_full_anchor_count = 0
     scheduled_state_count = 0
     uncovered_state_count = 0
     for state_id, state in sorted(states.items()):
@@ -197,10 +199,13 @@ def main() -> None:
         scheduled_history_counts[bin_name] += 1
         scheduled_coalition_count += len(missing)
         source_counts.update(row["source"] for row in missing)
+        runner_coalitions = runner_schedule_coalitions(candidates, missing)
+        if len(runner_coalitions) == len(missing) + 1:
+            scheduled_full_anchor_count += 1
         by_shard[state["logical_shard"]].append(
             {
                 "candidate_event_ids": list(candidates),
-                "coalitions": list(missing),
+                "coalitions": list(runner_coalitions),
                 "exact": False,
                 "logical_shard": state["logical_shard"],
                 "role": "train",
@@ -262,6 +267,7 @@ def main() -> None:
             "existing_desired_coalitions": existing_desired_count,
             "resulting_complete_groups": resulting_complete_group_count,
             "scheduled_missing_coalitions": scheduled_coalition_count,
+            "scheduled_zero_cost_full_anchors": scheduled_full_anchor_count,
         },
         "history_bin_counts": dict(sorted(history_counts.items())),
         "input_content_sha256": input_manifest["content_sha256"],
