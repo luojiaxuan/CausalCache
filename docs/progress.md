@@ -17,6 +17,21 @@
   B1--B4 rollout/truth reduction，连续 3 次无至少 `0.005` 改善即早停，最后 epoch 和 training loss 均无
   checkpoint 选择权。
 
+## 2026-07-21：双模型 epoch 1 完成并进入真实 held-out truth barrier
+
+- 首次 6+6 卡 launch 在 optimizer 前捕获 schedule projection `120,172` 与 materialized full-train census
+  `96,759` 的口径错误；labels/merged bytes 不变。修正后 CPU preflight 精确复现 9,287 optimizer states、
+  256 held-out states 与 84,441 groups；
+- Hyper00 Set Transformer fresh epoch 1 完成 50,014 sampled groups；checkpoint=`dcb0190e...cbc4f`，
+  schedule 缺 5,718 coalitions，6-rank resume 与 `WAITING_FOR_HELDOUT_TRUTH` summary 均闭合；
+- Hyper01 structured/DeepSets 首次 held-out rollout 暴露 variable-length batch padding 接口：selected mask 未扩到
+  padded event width，随后 score 未裁回 real-event width。两处均在任何 truth reduction 前 fail-fast，分别加入
+  unequal-length regression；全新 root 重跑后 epoch 1 完成，checkpoint=`5f5e21db...9cd3e`，缺 6,216
+  coalitions，6-rank resume 与 barrier summary 闭合；
+- 两模型 schedule 在相同 256-state denominator 上去重后只需 198 states / 7,681 teacher forwards；schedule
+  content SHA256=`95667201...f4c`，两 host tree digest 一致。Hyper00/Hyper01 已各用 6×H200、每卡 2 lanes、
+  12 disjoint partitions 开始补标；epoch 2 仍被 barrier 锁住。
+
 ## 2026-07-21：direct on-policy coverage + structured fallback 路线启动
 
 - 用户明确授权在旧 direct-v3 NO-GO 之后继续 learned selector，不退为纯审计；旧结果不改写，fixed-tune

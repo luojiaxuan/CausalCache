@@ -53,6 +53,11 @@ formal optimizer inventory content SHA256=`b7452b1bad141d96407bf80c62b1d4778461a
 覆盖 900 trajectories、9,287 states 与 84,441 candidate-complete groups；checkpoint denominator 仍是
 冻结的 256 held-out states。
 
+epoch 1 已在两条 fresh 6-rank 训练线上完成。Set Transformer / structured DeepSets 分别产生 5,718 / 6,216
+个缺失 coalition 请求，union 后为 198 states / 7,681 teacher forwards。合并 schedule content SHA256=
+`956672017b533f70f9c1357d25fa0636df15febdd18248004326d87adf884f4c`。两条训练均停在
+`WAITING_FOR_HELDOUT_TRUTH`；只有该 union 完成、seal 并结算真实 B1--B4 recovery 后才可 resume epoch 2。
+
 实现入口：
 
 - selector：
