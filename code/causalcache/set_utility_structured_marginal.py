@@ -26,7 +26,6 @@ class StructuredMarginalHeadConfig:
     hidden_size: int = 128
     pair_rank: int = 32
     dropout: float = 0.1
-    stop_temperature: float = 0.1
 
     def __post_init__(self) -> None:
         for name in ("input_hidden_size", "hidden_size", "pair_rank"):
@@ -38,16 +37,6 @@ class StructuredMarginalHeadConfig:
             raise TypeError("dropout must be numeric")
         if not 0.0 <= float(self.dropout) < 1.0:
             raise ValueError("dropout must be in [0, 1)")
-        if not isinstance(self.stop_temperature, (int, float)) or isinstance(
-            self.stop_temperature, bool
-        ):
-            raise TypeError("stop_temperature must be numeric")
-        if not math.isfinite(float(self.stop_temperature)) or float(
-            self.stop_temperature
-        ) <= 0.0:
-            raise ValueError("stop_temperature must be finite and positive")
-
-
 @dataclass(frozen=True)
 class StructuredMarginalLossConfig:
     """Loss weights for gain, interaction, ranking, and STOP supervision."""
@@ -378,12 +367,16 @@ def structured_conditional_marginal_loss(
     group_mask: Any,
     selected_masks: Any,
     config: StructuredMarginalLossConfig,
+    group_weights: Any | None = None,
+    reduction: str = "mean",
 ) -> tuple[Any, dict[str, float]]:
-    """Train gains, pair interactions, rankings, and calibrated STOP jointly."""
+    """Train every candidate-complete group with packing-invariant weight."""
     if torch is None:  # pragma: no cover
         raise RuntimeError("structured marginal loss requires PyTorch")
     if not isinstance(config, StructuredMarginalLossConfig):
         raise TypeError("config must be StructuredMarginalLossConfig")
+    if reduction not in {"mean", "sum"}:
+        raise ValueError("structured loss reduction must be mean or sum")
     if action_scores.shape != normalized_targets.shape or action_scores.shape != (
         *selected_masks.shape[:2],
         selected_masks.shape[2] + 1,
@@ -395,6 +388,21 @@ def structured_conditional_marginal_loss(
         raise TypeError("structured action/group masks must be boolean")
     if selected_masks.dtype != torch.bool:
         raise TypeError("structured selected masks must be boolean")
+    if group_weights is None:
+        weights = group_mask.to(dtype=torch.float32)
+    else:
+        if group_weights.shape != group_mask.shape:
+            raise ValueError("structured group weights have invalid geometry")
+        weights = group_weights.to(dtype=torch.float32)
+        if (
+            not bool(torch.isfinite(weights).all())
+            or bool((weights < 0.0).any())
+            or bool((weights[~group_mask] != 0.0).any())
+        ):
+            raise ValueError("structured group weights are invalid")
+    group_weight = weights.sum()
+    if float(group_weight.detach()) <= 0.0:
+        raise ValueError("structured loss has no weighted groups")
     valid = action_mask & group_mask.unsqueeze(-1)
     candidates = valid.clone()
     candidates[:, :, 0] = False
@@ -407,7 +415,10 @@ def structured_conditional_marginal_loss(
         reduction="none",
         beta=config.smooth_l1_beta,
     )
-    marginal = (marginal_terms * candidates).sum() / candidates.sum()
+    marginal_rows = (marginal_terms * candidates).sum(dim=2) / candidates.sum(
+        dim=2
+    ).clamp_min(1)
+    marginal_sum = (marginal_rows * weights).sum()
     logits = (action_scores / config.decision_temperature).masked_fill(~valid, -1e9)
     teacher_action = normalized_targets.masked_fill(~valid, -1e9).argmax(dim=2)
     ranking_rows = torch.nn.functional.cross_entropy(
@@ -415,7 +426,7 @@ def structured_conditional_marginal_loss(
         teacher_action.reshape(-1),
         reduction="none",
     ).reshape_as(group_mask)
-    ranking = (ranking_rows * group_mask).sum() / group_mask.sum().clamp_min(1)
+    ranking_sum = (ranking_rows * weights).sum()
 
     candidate_predictions = action_scores[:, :, 1:].masked_fill(
         ~candidates[:, :, 1:], -1e9
@@ -430,20 +441,25 @@ def structured_conditional_marginal_loss(
     stop_rows = torch.nn.functional.binary_cross_entropy_with_logits(
         stop_logit, teacher_stop, reduction="none"
     )
-    stop_calibration = (stop_rows * group_mask).sum() / group_mask.sum().clamp_min(1)
+    stop_sum = (stop_rows * weights).sum()
     stop_probability = torch.sigmoid(stop_logit)
-    stop_brier = (
-        ((stop_probability - teacher_stop).square() * group_mask).sum()
-        / group_mask.sum().clamp_min(1)
-    )
+    stop_brier = ((stop_probability - teacher_stop).square() * weights).sum()
+    stop_brier = stop_brier / group_weight
 
-    interaction_predictions = []
-    interaction_targets = []
+    zero = action_scores.sum() * 0.0
+    interaction_regression_sum = zero
+    interaction_sign_sum = zero
+    interaction_sign_accuracy_sum = zero.detach()
+    interaction_weight = zero.detach()
+    interaction_sign_weight = zero.detach()
+    interaction_count = 0
     for batch_index in range(action_scores.shape[0]):
         active = torch.nonzero(group_mask[batch_index], as_tuple=False).flatten()
         empty = active[selected_masks[batch_index, active].sum(dim=1) == 0]
-        if empty.numel() != 1:
-            raise ValueError("each structured state must contain one empty coalition")
+        if empty.numel() > 1:
+            raise ValueError("a structured state contains duplicate empty coalitions")
+        if empty.numel() == 0:
+            continue
         empty_index = int(empty.item())
         singletons = active[selected_masks[batch_index, active].sum(dim=1) == 1]
         for group_index_tensor in singletons:
@@ -453,46 +469,67 @@ def structured_conditional_marginal_loss(
                 & action_mask[batch_index, group_index, 1:]
             )
             if bool(shared.any()):
-                interaction_predictions.append(
+                predicted = (
                     action_scores[batch_index, group_index, 1:][shared]
                     - action_scores[batch_index, empty_index, 1:][shared]
                 )
-                interaction_targets.append(
+                target = (
                     normalized_targets[batch_index, group_index, 1:][shared]
                     - normalized_targets[batch_index, empty_index, 1:][shared]
                 )
-    if interaction_targets:
-        predicted_interactions = torch.cat(interaction_predictions)
-        target_interactions = torch.cat(interaction_targets)
-        interaction_regression = torch.nn.functional.smooth_l1_loss(
-            predicted_interactions,
-            target_interactions,
-            beta=config.smooth_l1_beta,
-        )
-        signed = target_interactions.abs() > config.interaction_epsilon
-        if bool(signed.any()):
-            interaction_sign = torch.nn.functional.softplus(
-                -predicted_interactions[signed]
-                * torch.sign(target_interactions[signed])
-            ).mean()
-            interaction_sign_accuracy = float(
-                (
-                    (predicted_interactions[signed] > 0)
-                    == (target_interactions[signed] > 0)
+                weight = weights[batch_index, group_index]
+                interaction_regression_sum = interaction_regression_sum + weight * (
+                    torch.nn.functional.smooth_l1_loss(
+                        predicted,
+                        target,
+                        beta=config.smooth_l1_beta,
+                    )
                 )
-                .to(dtype=torch.float32)
-                .mean()
-                .detach()
-            )
-        else:
-            interaction_sign = action_scores.sum() * 0.0
-            interaction_sign_accuracy = 0.0
-        interaction_count = int(target_interactions.numel())
+                interaction_weight = interaction_weight + weight.detach()
+                interaction_count += int(target.numel())
+                signed = target.abs() > config.interaction_epsilon
+                if bool(signed.any()):
+                    interaction_sign_sum = interaction_sign_sum + weight * (
+                        torch.nn.functional.softplus(
+                            -predicted[signed] * torch.sign(target[signed])
+                        ).mean()
+                    )
+                    interaction_sign_accuracy_sum = (
+                        interaction_sign_accuracy_sum
+                        + weight.detach()
+                        * (
+                            (predicted[signed] > 0) == (target[signed] > 0)
+                        )
+                        .to(dtype=torch.float32)
+                        .mean()
+                        .detach()
+                    )
+                    interaction_sign_weight = (
+                        interaction_sign_weight + weight.detach()
+                    )
+
+    marginal_mean = marginal_sum / group_weight
+    ranking_mean = ranking_sum / group_weight
+    stop_mean = stop_sum / group_weight
+    interaction_regression_mean = interaction_regression_sum / group_weight
+    interaction_sign_mean = interaction_sign_sum / group_weight
+    if reduction == "sum":
+        marginal = marginal_sum
+        ranking = ranking_sum
+        stop_calibration = stop_sum
+        interaction_regression = interaction_regression_sum
+        interaction_sign = interaction_sign_sum
     else:
-        interaction_regression = action_scores.sum() * 0.0
-        interaction_sign = action_scores.sum() * 0.0
-        interaction_sign_accuracy = 0.0
-        interaction_count = 0
+        marginal = marginal_mean
+        ranking = ranking_mean
+        stop_calibration = stop_mean
+        interaction_regression = interaction_regression_mean
+        interaction_sign = interaction_sign_mean
+    interaction_sign_accuracy = (
+        float((interaction_sign_accuracy_sum / interaction_sign_weight).detach())
+        if float(interaction_sign_weight) > 0.0
+        else 0.0
+    )
 
     total = (
         config.marginal_regression * marginal
@@ -501,28 +538,43 @@ def structured_conditional_marginal_loss(
         + config.interaction_regression * interaction_regression
         + config.interaction_sign * interaction_sign
     )
+    total_mean = (
+        config.marginal_regression * marginal_mean
+        + config.decision_ranking * ranking_mean
+        + config.stop_calibration * stop_mean
+        + config.interaction_regression * interaction_regression_mean
+        + config.interaction_sign * interaction_sign_mean
+    )
     predicted_action = logits.argmax(dim=2)
     action_accuracy = float(
-        (((predicted_action == teacher_action) & group_mask).sum()
-         / group_mask.sum().clamp_min(1)).detach()
+        (
+            (((predicted_action == teacher_action) & group_mask) * weights).sum()
+            / group_weight
+        ).detach()
     )
     teacher_stop_mask = (teacher_action == 0) & group_mask
+    teacher_stop_weight = (weights * teacher_stop_mask).sum().clamp_min(1.0)
     stop_accuracy = float(
-        (((predicted_action == 0) & teacher_stop_mask).sum()
-         / teacher_stop_mask.sum().clamp_min(1)).detach()
+        (
+            (((predicted_action == 0) & teacher_stop_mask) * weights).sum()
+            / teacher_stop_weight
+        ).detach()
     )
     return total, {
         "action_top1_accuracy": action_accuracy,
+        "conditional_group_weight": float(group_weight.detach()),
         "interaction_count": float(interaction_count),
-        "interaction_regression": float(interaction_regression.detach()),
-        "interaction_sign": float(interaction_sign.detach()),
+        "interaction_group_weight": float(interaction_weight),
+        "interaction_regression": float(interaction_regression_mean.detach()),
+        "interaction_sign": float(interaction_sign_mean.detach()),
         "interaction_sign_accuracy": interaction_sign_accuracy,
-        "marginal_regression": float(marginal.detach()),
-        "decision_ranking": float(ranking.detach()),
+        "interaction_sign_weight": float(interaction_sign_weight),
+        "marginal_regression": float(marginal_mean.detach()),
+        "decision_ranking": float(ranking_mean.detach()),
         "stop_action_accuracy": stop_accuracy,
         "stop_brier": float(stop_brier.detach()),
-        "stop_calibration": float(stop_calibration.detach()),
-        "total": float(total.detach()),
+        "stop_calibration": float(stop_mean.detach()),
+        "total": float(total_mean.detach()),
     }
 
 

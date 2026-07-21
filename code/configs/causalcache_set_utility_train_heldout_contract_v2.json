@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_train_heldout_contract_v2",
+  "revision_reason": "Per-epoch selection must retain the earliest checkpoint unless primary or Long+ true recovery improves materially.",
+  "source": {
+    "assignment_manifest": "data/manifests/set_utility_freeze_b_v2_terminal_index_repair.json",
+    "assignment_manifest_sha256": "915892ef2e0f1495da4b9e409b3e7a112dc86cda0b06384e8a1b7f8053581d30",
+    "train_state_inventory": "data/manifests/set_utility_train_input_state_inventory_v1.json",
+    "train_state_inventory_content_sha256": "e6445f01f4a45469aecd1eacc27cf99a02b91c60418bb3f85676a50e0b073bfe",
+    "training_input_artifact": "/data02/jaxan/artifacts/causalcache-decision-v2-long-oracle-training-inputs-v2-f7f6b14",
+    "training_input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "training_input_manifest_sha256": "d0fb4e7274bd33316985460625df6042b2ff9e9e2fd0634e9754a79ec8e42b55",
+    "training_states_sha256": "9d9ef9917eb9da635e044845ddcff71924447eafb3b5b6091d13d42f5be10956",
+    "expected_train_trajectory_count": 1000,
+    "expected_train_state_count": 10658,
+    "expected_assignment_derived_train_state_count": 10680,
+    "expected_assignment_only_exclusion_count": 22,
+    "allowed_role": "train"
+  },
+  "split": {
+    "heldout_trajectory_count": 100,
+    "checkpoint_state_targets_by_history_bin": {
+      "short": 64,
+      "medium": 64,
+      "long": 64,
+      "very_long": 64
+    },
+    "selection_salt": "causalcache-train-heldout-v1-20260721",
+    "trajectory_selection": "greedy_equal_history_bin_deficit_then_sha256",
+    "checkpoint_state_selection": "per_history_bin_sha256",
+    "split_unit": "trajectory"
+  },
+  "checkpoint_selection": {
+    "budgets": [1, 2, 3, 4],
+    "primary_metric": "trajectory_equal_true_B1_B4_recovery_macro",
+    "tie_breaker": "long_plus_very_long_trajectory_equal_true_B1_B4_recovery_macro",
+    "higher_is_better": true,
+    "patience": 3,
+    "minimum_delta": 0.005,
+    "tie_breaker_minimum_delta": 0.005,
+    "require_complete_truth_each_epoch": true,
+    "incomplete_epoch_action": "wait_without_selecting_or_advancing_patience",
+    "earliest_within_material_tie_wins": true
+  },
+  "firewall": {
+    "allowed_role": "train",
+    "tune_access": false,
+    "evaluation_access": false,
+    "all_heldout_trajectory_states_excluded_from_optimizer": true,
+    "prior_checkpoints_trained_on_heldout_trajectories_are_eligible": false
+  }
+}

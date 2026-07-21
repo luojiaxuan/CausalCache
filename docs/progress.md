@@ -4390,3 +4390,31 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 记录见 [`data/results/exploratory_closed_loop_validation12_local_arms_v1/`](../data/results/exploratory_closed_loop_validation12_local_arms_v1/README.md);
   逐 episode records 在 H100 `/data/jaxan/causalcache/runs/causalcache-v12-local-arms-9f7a0a7/`,
   `PENDING_HF_UPLOAD`。
+## 2026-07-21:新一轮 direct marginal 训练改为严格逐 epoch 真值选择
+
+- 为避免再次出现“epoch 12 与 epoch 1 泛化近似、却因训练结束而选最后 epoch”，structured/DeepSets 与
+  Set Transformer 两条 fresh-init 控制线统一使用 trajectory-disjoint 256-state train-heldout denominator。
+- 每个 optimizer epoch 后必须保存 immutable checkpoint，并执行真实 at-most-`B` B1--B4 rollout；当前
+  epoch 查询的 candidate-complete `D(S)` 不全时，训练保存 rank-local resume state并返回
+  `WAITING_FOR_HELDOUT_TRUTH`。同一 epoch 两模型的缺失 coalition 取并集后分成 256 个原子可恢复 shards。
+- 补标后的 resume 必须先用 authoritative reducer 更新 true recovery、最佳 epoch与 early-stop 状态，才允许
+  下一 optimizer epoch；缺失 truth 不推进 patience，train loss/eval loss 与最后 epoch 均不得选择 checkpoint。
+- 在任何正式训练结果产生前新增 v2 selection contract；split/state denominator 与 v1 逐项相同，但
+  primary/Long+ 都须提升 `0.005` 才替换更早 checkpoint，`patience=3`，防止“epoch 12 约等于 epoch 1却因
+  微小 tie-break 漂移选择 epoch 12”。
+- 两条训练配置仍保持 `PENDING_MERGED_ON_POLICY_INPUT_BINDING`，必须等 5,108-state on-policy labels 完成、
+  与 frozen base input 合并并绑定同一 content SHA256 后才能正式启动；旧 checkpoints 暴露过新 heldout
+  trajectories，禁止 warm start。
+- formal truth provenance 已改为 signed manifest/receipt allowlist：同 epoch DeepSets/Set Transformer schedules
+  必须绑定 model family 与 immutable checkpoint；sealer 严验 256 shard receipts、terminal status、完整
+  state/trajectory/candidate/coalition identity、runner state hash、source/scientific/execution revisions。Trainer
+  拒绝任意目录、篡改文件与 stale-only truth。
+- Set Transformer 修复了三个 execution blocker：checkpoint/plan 与 resume snapshot 之间的 crash window 可
+  幂等重放；DDP resume 跨 rank 核对 model/optimizer/scheduler digest 和 step；packed groups 的 loss 以每个
+  accumulation window 的全局 group denominator 归一，1-group remainder 不再与 16-group row 等权。
+- 两个 trainer 进一步改用 immutable epoch/rank resume generation，partial generation 自动回退上一完整 epoch；
+  DeepSets 修复 `|S|=0` 被 sampler 排除以及 packing 重复 anchor 改变 objective 的 bug。contextual cache 首次
+  host-level 全 SHA 后生成 signed stat receipt，后续 epoch resume 不再重复读取 119GB×6 ranks。
+- merged input 将额外精确绑定 5,108 scheduled states、359,189 added rows、10,658 train states、120,172
+  complete groups，并冻结 optimizer group/state/trajectory identity 与 joint strata census；在这些字段写入前，
+  两份 config fail closed。

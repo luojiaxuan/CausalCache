@@ -347,6 +347,16 @@ def test_checkpoint_selection_uses_primary_then_long_tie_break_and_patience() ->
     )
     assert tie_break["selected_epoch"] == 2
 
+    material_tie = select_checkpoint_from_epoch_truth(
+        same_primary,
+        patience=1,
+        minimum_delta=0.005,
+        tie_breaker_minimum_delta=0.02,
+    )
+    assert material_tie["selected_epoch"] == 1
+    assert material_tie["stopped_early"] is True
+    assert material_tie["stop_after_epoch"] == 2
+
 
 def test_materialize_cli_writes_one_bound_contract(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch

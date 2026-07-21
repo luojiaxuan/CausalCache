@@ -12,7 +12,12 @@
   structured/DeepSets marginal head 和现有 Set Transformer。全部 epoch 保存，并按 trajectory-disjoint
   train-holdout 的真实 B1--B4 recovery 选 checkpoint；已消费 fixed-tune 只作 development，untouched evaluation
   继续密封。heldout 已按实际 10,658-state input 冻结为 100 trajectories / 1,371 states，其中 checkpoint
-  denominator 为四个 history bins 各 64 states；`patience=5` 的 early stop 只消费真实 recovery。
+  denominator 为四个 history bins 各 64 states。训练实行严格 epoch barrier：每个 epoch 保存 checkpoint、
+  rollout 这 256 states；缺 truth 就暂停补标，补齐并结算真实 B1--B4 recovery 后才进入下一 epoch。
+  训练前已版本化冻结 `minimum_delta=0.005`、Long+ delta=`0.005`、`patience=3`：未达到实质
+  held-out 提升时保留更早 checkpoint，禁止 train-all/post-hoc 或默认选择最后 epoch。
+  补标 truth 必须经过 signed manifest/receipt sealing 并绑定 model/epoch/checkpoint；formal config 还会精确校验
+  merged schedule、distance-row/group counts 与 optimizer group census，不能用旧或不完整数据绕过 barrier。
   [执行合同](docs/set_utility_direct_on_policy_v1.md)。
 - **Direct conditional-marginal v3 已在最终 fixed-tune gate 正式 NO-GO，learned general-`B` 路线停止。**
   1,063/1,063 states、0 skip；direct-v3/recent macro=`0.44583/0.45192`，delta=`-0.00609`，95% CI=
@@ -103,8 +108,8 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 - direct on-policy coverage v1 已完成 10,658/10,658 train-state selector rollout 与 missing-only schedule；
   11/11 workers、0 duplicate/missing。现有 5,108 个零 complete-group states 将补 359,189 个
-  candidate-complete `D(S)`，medium/long/very-long=`3,578/1,499/31`。下一步以 Hyper00/Hyper01
-  最多 6 卡/机的 22 条 atomic-resume lanes 生成 labels。训练同时比较
+  candidate-complete `D(S)`，medium/long/very-long=`3,578/1,499/31`。当前以 Hyper00/Hyper01
+  各 6 卡、共 24 条 atomic-resume lanes 生成 labels。训练同时比较
   structured/DeepSets 与 Transformer marginal heads。
   [配置](code/configs/causalcache_set_utility_direct_on_policy_v1.json)与
   [执行文档](docs/set_utility_direct_on_policy_v1.md)。

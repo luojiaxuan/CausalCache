@@ -100,13 +100,23 @@ def _config_fields(config: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
     minimum_delta = _nonnegative_float(
         checkpoint.get("minimum_delta"), "checkpoint minimum delta"
     )
+    normalized_checkpoint = {
+        **dict(checkpoint),
+        "patience": patience,
+        "minimum_delta": minimum_delta,
+    }
+    if "tie_breaker_minimum_delta" in checkpoint:
+        normalized_checkpoint["tie_breaker_minimum_delta"] = _nonnegative_float(
+            checkpoint["tie_breaker_minimum_delta"],
+            "checkpoint tie-breaker minimum delta",
+        )
     return (
         dict(source),
         {
             **dict(split),
             "checkpoint_state_targets_by_history_bin": normalized_targets,
         },
-        {**dict(checkpoint), "patience": patience, "minimum_delta": minimum_delta},
+        normalized_checkpoint,
         dict(firewall),
     )
 
@@ -610,10 +620,14 @@ def select_checkpoint_from_epoch_truth(
     *,
     patience: int,
     minimum_delta: float,
+    tie_breaker_minimum_delta: float = 0.0,
 ) -> dict[str, Any]:
     """Select by true recovery; incomplete epoch truth cannot advance patience."""
     patience_value = _positive_int(patience, "checkpoint patience")
     delta_value = _nonnegative_float(minimum_delta, "checkpoint minimum delta")
+    tie_delta_value = _nonnegative_float(
+        tie_breaker_minimum_delta, "checkpoint tie-breaker minimum delta"
+    )
     if isinstance(epoch_truth, (str, bytes, bytearray, Mapping)) or not isinstance(
         epoch_truth, Sequence
     ) or not epoch_truth:
@@ -659,7 +673,9 @@ def select_checkpoint_from_epoch_truth(
         primary_delta = float(row[primary_key]) - float(best[primary_key])
         primary_improvement = primary_delta > delta_value
         primary_tie = abs(primary_delta) <= delta_value
-        long_improvement = float(row[long_key]) > float(best[long_key])
+        long_improvement = (
+            float(row[long_key]) - float(best[long_key]) > tie_delta_value
+        )
         if primary_improvement or (primary_tie and long_improvement):
             best = row
             stale = 0
@@ -671,6 +687,7 @@ def select_checkpoint_from_epoch_truth(
     return {
         "decision_ready": True,
         "minimum_delta": delta_value,
+        "tie_breaker_minimum_delta": tie_delta_value,
         "observed_complete_epoch_count": (
             len(ordered) if stop_epoch is None else stop_epoch
         ),

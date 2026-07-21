@@ -1,0 +1,123 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_set_transformer_control_v1",
+  "status": "PENDING_MERGED_ON_POLICY_INPUT_BINDING",
+  "input": {
+    "training_input_content_sha256": "PENDING_MERGED_ON_POLICY_INPUT_CONTENT_SHA256",
+    "required_ancestor_input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "source_manifest_file_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "train_heldout_manifest": "data/manifests/set_utility_train_heldout_v2.json",
+    "train_heldout_manifest_content_sha256": "6d5d4767578ac12131e22b15bda88a2475a22d8d25778350b353f5d1e590c554",
+    "merged_on_policy_labels_required": true,
+    "merged_on_policy_contract": {
+      "source_name": "direct_on_policy_v1",
+      "schedule_content_sha256": "981a329ce5fdbce550ddd31315e5b628279f46978dab1e6e2456a78b0b2ec506",
+      "state_count": 5108,
+      "added_distance_row_count": 359189,
+      "train_state_count": 10658,
+      "total_complete_group_count": 120172
+    },
+    "evaluation_access": false
+  },
+  "initialization": {
+    "mode": "fresh",
+    "checkpoint_sha256": null,
+    "reason": "all_prior_direct_checkpoints_exposed_new_heldout_trajectories"
+  },
+  "training": {
+    "seed": 20260721,
+    "epochs": 20,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.1,
+    "minimum_lr_ratio": 0.1,
+    "attention_backend": "disable_cudnn_sdp",
+    "normalization_floor": 0.01,
+    "maximum_base_cardinality": 3,
+    "exact_optimizer_inventory": {
+      "status": "PENDING_MERGED_ON_POLICY_INVENTORY_BINDING"
+    },
+    "epoch_barrier": {
+      "mode": "checkpoint_rollout_truth_resume_before_next_optimizer_epoch",
+      "require_candidate_complete_truth": true,
+      "waiting_status": "WAITING_FOR_HELDOUT_TRUTH",
+      "posthoc_union_role": "debug_only"
+    },
+    "balance_axes": [
+      "base_cardinality",
+      "history_bin",
+      "stop_all_negative"
+    ],
+    "balancing": {
+      "samples_per_epoch": 50000,
+      "power": 0.5,
+      "maximum_weight": 8.0,
+      "maximum_groups_per_encoded_state": 16,
+      "loss_aggregation": "global_equal_weight_per_sampled_group_across_packing_accumulation_and_ddp"
+    },
+    "minimum_inventory": {
+      "optimizer_state_count": 8000,
+      "complete_group_count": 60000,
+      "heldout_state_count": 256
+    },
+    "loss": {
+      "conditional_marginal": 1.0,
+      "conditional_listwise": 2.0,
+      "decision_regret": 2.0,
+      "sign_classification": 0.25,
+      "decision_temperature": 0.05,
+      "conditional_marginal_smooth_l1_beta": 0.25
+    }
+  },
+  "checkpoint_selection": {
+    "budgets": [1, 2, 3, 4],
+    "primary_metric": "trajectory_equal_true_B1_B4_recovery_macro",
+    "tie_breaker": "long_plus_very_long_trajectory_equal_true_B1_B4_recovery_macro",
+    "patience": 3,
+    "minimum_delta": 0.005,
+    "tie_breaker_minimum_delta": 0.005,
+    "normalization_floor": 0.01,
+    "require_complete_truth_each_epoch": true,
+    "candidate_complete_actual_queried_bases_required": true,
+    "incomplete_epoch_action": "wait_without_selecting_or_advancing_patience"
+  },
+  "variants": {
+    "set_transformer_direct_d256_l16_r2_s2": {
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "per_device_batch_size": 1,
+      "gradient_accumulation_steps": 2,
+      "heldout_batch_size": 1,
+      "cache_mode": "lazy_cpu",
+      "allowed_world_sizes": [1, 2, 4, 6]
+    }
+  },
+  "comparison_contract": {
+    "deepsets_config": "code/configs/causalcache_set_utility_structured_marginal_v1.json",
+    "shared_epochs": 20,
+    "shared_samples_per_epoch": 50000,
+    "shared_trajectory_holdout": true,
+    "shared_authoritative_checkpoint_reducer": true,
+    "formal_world_size": 6,
+    "shared_global_encoded_state_batch": 12
+  },
+  "firewall": {
+    "optimization_role": "train",
+    "heldout_states_enter_optimizer": false,
+    "prior_heldout_exposed_checkpoints_eligible": false,
+    "tune_access": false,
+    "evaluation_access": false
+  }
+}

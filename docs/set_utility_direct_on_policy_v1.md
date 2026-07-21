@@ -63,14 +63,26 @@ train-heldout 已按实际 structured input（不是较早的 10,680-state assig
 trajectories 被切为 optimizer 9,287 states / 900 trajectories 与 heldout 1,371 states / 100 trajectories；checkpoint
 denominator 从 heldout 中固定 256 states，short/medium/long/very-long 各 64。22 个只在旧 assignment、但不在
 本轮 frozen input 的 states 以 `ABSENT_FROM_FROZEN_STRUCTURED_TRAINING_INPUT` 明示排除。每个 epoch 先保存
-immutable checkpoint，再在该 denominator 上做真实 at-most-`B` rollout；若 epoch 实际访问的 truth 不完整，
-先汇总所有 epochs 的 missing subsets 补标，再重放 checkpoint selection。primary metric 是 trajectory-equal
-B1--B4 macro recovery，Long+ 只作 tie-break；`patience=5`、`minimum_delta=1e-4`，不再按最后 epoch 或 eval loss
-选模型。[冻结 manifest](../data/manifests/set_utility_train_heldout_v1.json)。
+immutable checkpoint，再在该 denominator 上做真实 at-most-`B` rollout。训练采用严格的 per-epoch truth
+barrier：若当前 epoch 实际查询的 candidate-complete truth 不完整，所有 ranks 保存 resume state 并以
+`WAITING_FOR_HELDOUT_TRUTH` 退出；补齐同一 epoch 中 DeepSets 与 Set Transformer 查询子集的并集后，resume
+必须先完成 authoritative recovery reduction、更新最佳 checkpoint 与 patience，才允许进入下一个 optimizer
+epoch。禁止先训完所有 epoch 再 post-hoc 选模型。primary metric 是 trajectory-equal B1--B4 macro recovery，
+Long+ 只作 tie-break；正式 v2 selection contract 在任何训练结果产生前冻结为 primary/Long+
+`minimum_delta=0.005`、`patience=3`。未达到 material delta 的 checkpoint 保留最早 epoch，不按最后 epoch
+或 train/eval loss 选模型；v2 与 v1 使用完全相同的 100 trajectories / 256 states，只修正选模/早停规则。
+[冻结 manifest](../data/manifests/set_utility_train_heldout_v2.json)。
+
+补标输入不再接受任意 `states/` 目录。每次同 epoch 双模型 schedule 必须绑定各自 model family、epoch 与
+checkpoint SHA；label runner 完成后先 seal 为 signed manifest/receipt，逐 terminal 校验 `COMPLETED`、
+state/trajectory/candidate/coalition identity、runner state hash、source revision 与 scientific/execution config。
+Trainer 只通过显式 `--truth-source MANIFEST_CONTENT_SHA256=ROOT` allowlist 加载，并拒绝 stale-only truth。
+seal 还显式绑定 merged input content、heldout manifest 与 source manifest file SHA；不同 substrate 即使
+state/event ID 恰好相同也不能复用 truth。
 
 ## Compute 与 SoT
 
-- Hyper00/Hyper01 每台最多 6 GPUs；label preflight 的可用量为 5/6，因此使用 5/6；
+- Hyper00/Hyper01 每台最多 6 GPUs；当前正式 label rollout 使用每台 6 卡；
 - 正式 label mapping 使用 Hyper00 5 卡 + Hyper01 6 卡、每卡 2 lanes，共 11 partitions / 22 resumable
   workers；冻结配置为
   [`causalcache_set_utility_direct_on_policy_labels_workers_v1.json`](../code/configs/causalcache_set_utility_direct_on_policy_labels_workers_v1.json)；
@@ -88,6 +100,21 @@ B1--B4 macro recovery，Long+ 只作 tie-break；`patience=5`、`minimum_delta=1
 - v3 尚未启动时的 fresh preflight 又释放到 Hyper00/Hyper01 各 6 卡；因此最终 v4 execution 直接使用授权上限
   12×H200、每卡 2 lanes（12 partitions / 24 workers）。这只改变 logical-shard execution mapping，不改变
   source、schedule、label definition 或 resume identity；
+- formal trainers 为
+  [`train_set_utility_structured_marginal.py`](../code/scripts/train_set_utility_structured_marginal.py) 与
+  [`train_set_utility_set_transformer_control.py`](../code/scripts/train_set_utility_set_transformer_control.py)；
+  [`materialize_set_utility_heldout_truth_schedules.py`](../code/scripts/materialize_set_utility_heldout_truth_schedules.py)
+  只合并同一 epoch 两个模型的实际查询并生成 256 个可恢复 label shards，不参与模型选择；
+- DeepSets sampler 直接平衡包含 `|S|=0` 在内的全部 candidate-complete groups；packing 只给 interaction
+  复制 weight=0 的 empty anchor，所有真实 sampled groups 在 packing/accumulation/DDP 下保持全局等权；
+- 两个 trainer 使用 immutable epoch/rank resume generations。partial next generation 不会发布，重启只从
+  上一完整 epoch 重放；119GB contextual cache 每台 host 首次全量 SHA，后续 resume 只验证 signed receipt、
+  manifest SHA 与 shard stat，不重复六卡各读一遍缓存；
+- merged input 还必须精确绑定 `direct_on_policy_v1` schedule、5,108 states、359,189 新 distance rows、
+  10,658 train states 与 120,172 complete groups；随后用
+  [`materialize_set_utility_formal_training_inventory.py`](../code/scripts/materialize_set_utility_formal_training_inventory.py)
+  冻结 optimizer state/group identity、base cardinality、history、STOP 与 joint-stratum census。两份训练 config
+  在 merged input content SHA 和 exact inventory 写入前保持 `PENDING_*`，不能执行；
 - labels 完成后使用
   [`causalcache_set_utility_direct_on_policy_training_inputs_v1.json`](../code/configs/causalcache_set_utility_direct_on_policy_training_inputs_v1.json)
   将两个 host 的 disjoint terminals 合并到 frozen `3d011990...ad36ce` training input；重复 coalition 仅在
