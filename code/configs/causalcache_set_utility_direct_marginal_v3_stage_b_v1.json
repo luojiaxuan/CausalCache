@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_direct_marginal_v3_stage_b_v1",
+  "purpose": "One final direct conditional-marginal training run after the versioned decision-aligned Stage-A-prime review.",
+  "input": {
+    "training_input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "initial_checkpoint_sha256": "84cf51402fa27feab056d74a4ffb650b9df1bbb02b4e9eb6eda37964cf3f5a12",
+    "initial_checkpoint_source": "direct marginal Stage-A v1 epoch 30",
+    "evaluation_access": false,
+    "tune_labels_enter_optimizer_or_checkpoint_selection": false
+  },
+  "stage_a_prime": {
+    "status": "PASSED_BY_PREEXISTING_V1_RECORD",
+    "post_hoc_development_gate": true,
+    "paper_claim_or_statistical_confirmation": false,
+    "top1_exact_best_at_least": 0.8,
+    "top4_recall_at_least": 0.95,
+    "b1_recovery_fraction_of_oracle_at_least": 0.9,
+    "stop_accuracy_exactly": 1.0,
+    "observed_v1": {
+      "top1_exact_best": 0.9040084388185654,
+      "top4_recall": 0.9873417721518988,
+      "b1_recovery_fraction_of_oracle": 0.943713326811466,
+      "stop_accuracy": 1.0
+    }
+  },
+  "training": {
+    "seed": 20260721,
+    "epochs": 12,
+    "early_stopping_patience": 3,
+    "minimum_delta": 0.0001,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "attention_backend": "disable_cudnn_sdp",
+    "normalization_floor": 0.01,
+    "maximum_base_cardinality": 3,
+    "train_holdout_fraction": 0.1,
+    "train_holdout_salt": "causalcache-direct-marginal-v3-stage-b-holdout-20260721",
+    "checkpoint_selection_metric": "train_holdout_decision_regret",
+    "minimum_inventory": {
+      "state_count": 5000,
+      "complete_expansion_group_count": 60000
+    },
+    "loss": {
+      "conditional_marginal": 0.5,
+      "conditional_listwise": 2.0,
+      "decision_regret": 2.0,
+      "sign_classification": 0.25,
+      "decision_temperature": 0.05,
+      "conditional_marginal_smooth_l1_beta": 0.25
+    }
+  },
+  "variants": {
+    "set_transformer_direct_marginal_d256_l16_r2_s2_lr1e4_ddp8": {
+      "head": "direct_conditional_marginal",
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "per_device_batch_size": 1,
+      "gradient_accumulation_steps": 1,
+      "evaluation_batch_size": 1,
+      "distributed_world_size": 8,
+      "cache_mode": "lazy_cpu"
+    }
+  },
+  "deployment": {
+    "budget_contract": "at_most_B",
+    "budgets": [1, 2, 3, 4],
+    "budget_input_to_model": false,
+    "selection": "iterative_conditional_marginal_with_explicit_stop"
+  },
+  "final_fixed_tune_gate": {
+    "source": "unchanged decision-v2 fixed-tune gate",
+    "each_budget_point_estimate_strictly_greater_than_recent": true,
+    "macro_paired_bootstrap_lower_strictly_greater_than_zero": true,
+    "long_plus_very_long_point_estimate_strictly_greater_than_recent": true,
+    "failure_ends_learned_general_B_route": true
+  },
+  "stop_rule": "No further Stage-A metric revision or student v4. A fixed-tune failure ends the learned general-B route.",
+  "firewall": {
+    "optimization_and_checkpoint_selection_role": "train",
+    "evaluation_access": false,
+    "new_restoration_labels": false,
+    "maximum_stage_a_metric_revisions": 1
+  }
+}

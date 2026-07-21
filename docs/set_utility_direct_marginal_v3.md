@@ -1,9 +1,11 @@
 # Direct conditional-marginal student v3
 
-状态：`STOPPED / NO_GO_DIRECT_MARGINAL_V3_STAGE_A`。授权依据为
+状态：`ORIGINAL STAGE-A NO-GO PRESERVED / VERSIONED STAGE-A-PRIME REPAIR AUTHORIZED`。原授权依据为
 [`fixed-tune Long+ oracle v1`](../data/results/set_utility_tune_long_oracle_v1/README.md)：同 denominator
 oracle--recent macro=`+0.3750 [0.2627,0.5656]`。唯一一次 rank-loss repair 仍未通过冻结 Stage-A gate；
-本路线按 stop rule 终止，不继续 v4/v5，也不启动完整 conditional training 或后续 evaluation。
+原合同按 stop rule 终止，NO-GO 记录不可改写。后续复审认定 full-list Spearman 与 at-most-4 部署任务
+错位，另立一次透明的 post-hoc Stage-A′ development gate；执行边界见
+[`Stage-B v1`](set_utility_direct_marginal_v3_stage_b_v1.md)，不是对原结果的追认。
 
 ## 1. 修复的合同错配
 
@@ -56,8 +58,8 @@ B1=`0.437/0.501`。Spearman 相比 v1 仅提高约 `0.052`，同时 top-1 与 B1
 
 ### Stage B：完整 conditional-marginal training
 
-只在 Stage A 通过后执行；Stage A 已失败，因此本阶段**未执行且不再授权**。原计划训练单位是 complete
-expansion group：
+原 Stage A 未通过，因此本节在原合同下未授权。版本化 Stage-A′ 已另行允许一次 Stage-B v1；训练单位仍是
+complete expansion group：
 
 ```text
 (q, C, selected S, remaining candidate j or STOP)
@@ -72,8 +74,8 @@ expansion group：
 - checkpoint 只由 train split 内确定性 trajectory holdout 的 conditional decision regret 选择；既有 tune truth
   不进 optimizer、early stopping、超参数选择或 checkpoint 选择。
 
-Stage B、fixed-tune v3、untouched evaluation、policy replay、closed-loop 与 matched-NLL 均未启动。任何新
-student 机制都属于新的研究决策，不能把本路线追认为通过或绕过 stop rule。
+版本化 Stage-B 只能由新合同启动；fixed-tune gate 不变。untouched evaluation、policy replay、closed-loop
+与 matched-NLL 在 fixed-tune GO 前继续锁定。
 
 ## 4. 实现与 frozen Stage-A config
 

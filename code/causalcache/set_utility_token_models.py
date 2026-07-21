@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-
 try:
     import torch
 except ModuleNotFoundError:  # pragma: no cover - local lightweight installs.
@@ -113,7 +112,6 @@ if torch is not None:
             latents = latents + attended
             return latents + self.feed_forward(self.output_norm(latents))
 
-
     class MultimodalLatentResampler(torch.nn.Module):
         """Compress full GUI-Owl image/text sequences with learned queries."""
 
@@ -178,8 +176,9 @@ if torch is not None:
             for block in self.blocks:
                 latents = block(latents, source, source_padding_mask)
             latents = self.output_norm(latents)
-            return latents if self.config.preserve_entity_latents else latents.mean(dim=1)
-
+            return (
+                latents if self.config.preserve_entity_latents else latents.mean(dim=1)
+            )
 
     class TokenSetUtilityPredictor(torch.nn.Module):
         """Predict U(S) from unpooled frozen VLM tokens and a selected mask."""
@@ -327,7 +326,9 @@ if torch is not None:
             """Apply query-time numeric and query/event conditioning."""
             if self.config.preserve_entity_latents:
                 if query.ndim != 3 or event_sources.ndim != 4:
-                    raise ValueError("multi-latent query/event tensors have invalid rank")
+                    raise ValueError(
+                        "multi-latent query/event tensors have invalid rank"
+                    )
                 batch_size, event_count, latent_count, hidden_size = event_sources.shape
                 if query.shape != (batch_size, latent_count, hidden_size):
                     raise ValueError("multi-latent query/event geometry drifted")
@@ -452,14 +453,13 @@ if torch is not None:
             batch_size, subset_count, event_count = subset_masks.shape
             hidden = events.shape[-1]
             memberships = subset_masks.to(dtype=events.dtype)
-            cardinality = torch.log1p(
-                memberships.sum(dim=-1, keepdim=True)
-            )
+            cardinality = torch.log1p(memberships.sum(dim=-1, keepdim=True))
             if self.config.family == "deepsets":
                 if self.config.preserve_entity_latents:
-                    selected = torch.einsum(
-                        "bkn,bnlh->bkh", memberships, events
-                    ) / events.shape[2]
+                    selected = (
+                        torch.einsum("bkn,bnlh->bkh", memberships, events)
+                        / events.shape[2]
+                    )
                     universe = (
                         events.sum(dim=(1, 2), keepdim=False) / events.shape[2]
                     ).unsqueeze(1)
@@ -478,42 +478,59 @@ if torch is not None:
                     )
                 ).squeeze(-1)
 
-            flat_membership = subset_masks.reshape(batch_size * subset_count, event_count)
+            flat_membership = subset_masks.reshape(
+                batch_size * subset_count, event_count
+            )
             if self.config.preserve_entity_latents:
                 latent_count = events.shape[2]
-                expanded_events = events.unsqueeze(1).expand(
-                    -1, subset_count, -1, -1, -1
-                ).reshape(
-                    batch_size * subset_count,
-                    event_count * latent_count,
-                    hidden,
+                expanded_events = (
+                    events.unsqueeze(1)
+                    .expand(-1, subset_count, -1, -1, -1)
+                    .reshape(
+                        batch_size * subset_count,
+                        event_count * latent_count,
+                        hidden,
+                    )
                 )
-                latent_membership = flat_membership.unsqueeze(-1).expand(
-                    -1, -1, latent_count
-                ).reshape(batch_size * subset_count, event_count * latent_count)
+                latent_membership = (
+                    flat_membership.unsqueeze(-1)
+                    .expand(-1, -1, latent_count)
+                    .reshape(batch_size * subset_count, event_count * latent_count)
+                )
                 expanded_events = expanded_events + self.selection_embedding(
                     latent_membership.to(dtype=torch.long)
                 )
-                seed = query.unsqueeze(1).expand(
-                    -1, subset_count, -1, -1
-                ).reshape(batch_size * subset_count, latent_count, hidden)
-                expanded_event_mask = event_mask.unsqueeze(1).unsqueeze(-1).expand(
-                    -1, subset_count, -1, latent_count
-                ).reshape(batch_size * subset_count, event_count * latent_count)
+                seed = (
+                    query.unsqueeze(1)
+                    .expand(-1, subset_count, -1, -1)
+                    .reshape(batch_size * subset_count, latent_count, hidden)
+                )
+                expanded_event_mask = (
+                    event_mask.unsqueeze(1)
+                    .unsqueeze(-1)
+                    .expand(-1, subset_count, -1, latent_count)
+                    .reshape(batch_size * subset_count, event_count * latent_count)
+                )
                 seed_count = latent_count
             else:
-                expanded_events = events.unsqueeze(1).expand(
-                    -1, subset_count, -1, -1
-                ).reshape(batch_size * subset_count, event_count, hidden)
+                expanded_events = (
+                    events.unsqueeze(1)
+                    .expand(-1, subset_count, -1, -1)
+                    .reshape(batch_size * subset_count, event_count, hidden)
+                )
                 expanded_events = expanded_events + self.selection_embedding(
                     flat_membership.to(dtype=torch.long)
                 )
-                seed = query.unsqueeze(1).expand(-1, subset_count, -1).reshape(
-                    batch_size * subset_count, 1, hidden
+                seed = (
+                    query.unsqueeze(1)
+                    .expand(-1, subset_count, -1)
+                    .reshape(batch_size * subset_count, 1, hidden)
                 )
-                expanded_event_mask = event_mask.unsqueeze(1).expand(
-                    -1, subset_count, -1
-                ).reshape(batch_size * subset_count, event_count)
+                expanded_event_mask = (
+                    event_mask.unsqueeze(1)
+                    .expand(-1, subset_count, -1)
+                    .reshape(batch_size * subset_count, event_count)
+                )
                 seed_count = 1
             tokens = torch.cat((seed, expanded_events), dim=1)
             padding_mask = torch.cat(
@@ -528,14 +545,16 @@ if torch is not None:
                 dim=1,
             )
             assert self.set_encoder is not None
-            pooled = self.set_encoder(
-                tokens, src_key_padding_mask=padding_mask
-            )[:, :seed_count].mean(dim=1).reshape(
-                batch_size, subset_count, hidden
+            pooled = (
+                self.set_encoder(tokens, src_key_padding_mask=padding_mask)[
+                    :, :seed_count
+                ]
+                .mean(dim=1)
+                .reshape(batch_size, subset_count, hidden)
             )
-            return self.utility_head(
-                torch.cat((pooled, cardinality), dim=-1)
-            ).squeeze(-1)
+            return self.utility_head(torch.cat((pooled, cardinality), dim=-1)).squeeze(
+                -1
+            )
 
         def score_encoded_subsets(
             self,
@@ -557,7 +576,10 @@ if torch is not None:
                 or query.shape[-1] != events.shape[-1]
             ):
                 raise ValueError("encoded token-utility state geometry drifted")
-            if self.config.preserve_entity_latents and query.shape[1] != events.shape[2]:
+            if (
+                self.config.preserve_entity_latents
+                and query.shape[1] != events.shape[2]
+            ):
                 raise ValueError("encoded token-utility latent count drifted")
             if event_mask.dtype != torch.bool:
                 raise TypeError("encoded event mask must be boolean")
@@ -609,16 +631,19 @@ if torch is not None:
             )
             return self.score_encoded_subsets(encoded_state, subset_masks)
 
-
     class TokenConditionalMarginalPredictor(torch.nn.Module):
         """Score every event's gain conditional on a selected coalition and STOP."""
 
         def __init__(self, config: TokenUtilityModelConfig) -> None:
             super().__init__()
             if config.family != "set_transformer":
-                raise ValueError("conditional marginal predictor requires set_transformer")
+                raise ValueError(
+                    "conditional marginal predictor requires set_transformer"
+                )
             if not config.preserve_entity_latents:
-                raise ValueError("conditional marginal predictor requires entity latents")
+                raise ValueError(
+                    "conditional marginal predictor requires entity latents"
+                )
             self.config = config
             self.encoder = TokenSetUtilityPredictor(config)
             hidden = config.hidden_size
@@ -686,8 +711,10 @@ if torch is not None:
             flat_events = encoded.events.reshape(
                 batch_size * event_count, latent_count, hidden
             )
-            pool_queries = query[:, None, :].expand(-1, event_count, -1).reshape(
-                batch_size * event_count, 1, hidden
+            pool_queries = (
+                query[:, None, :]
+                .expand(-1, event_count, -1)
+                .reshape(batch_size * event_count, 1, hidden)
             )
             pooled, _ = self.event_pool(pool_queries, flat_events, flat_events)
             events = self.event_pool_norm(
@@ -713,9 +740,7 @@ if torch is not None:
             )
             return EncodedConditionalMarginalState(
                 query=contextual[:, 0],
-                events=contextual[:, 1:].masked_fill(
-                    ~event_mask.unsqueeze(-1), 0.0
-                ),
+                events=contextual[:, 1:].masked_fill(~event_mask.unsqueeze(-1), 0.0),
                 event_mask=event_mask,
             )
 
@@ -726,9 +751,7 @@ if torch is not None:
         ) -> Any:
             """Return `[STOP, event_1, ..., event_n]` gains without re-encoding."""
             if not isinstance(encoded_state, EncodedConditionalMarginalState):
-                raise TypeError(
-                    "encoded_state must be EncodedConditionalMarginalState"
-                )
+                raise TypeError("encoded_state must be EncodedConditionalMarginalState")
             if selected_masks.ndim == 2:
                 selected_masks = selected_masks.unsqueeze(1)
                 squeeze = True
@@ -741,9 +764,7 @@ if torch is not None:
                 or selected_masks.shape[2] != encoded_state.event_mask.shape[1]
             ):
                 raise ValueError("selected coalition mask geometry drifted")
-            if bool(
-                (selected_masks & ~encoded_state.event_mask.unsqueeze(1)).any()
-            ):
+            if bool((selected_masks & ~encoded_state.event_mask.unsqueeze(1)).any()):
                 raise ValueError("a selected coalition contains a padded event")
 
             events = encoded_state.events
@@ -752,19 +773,17 @@ if torch is not None:
             batch_size, group_count, event_count = selected_masks.shape
             hidden = events.shape[-1]
             flat_count = batch_size * group_count
-            candidates = events.unsqueeze(1).expand(
-                -1, group_count, -1, -1
-            ).reshape(flat_count, event_count, hidden)
-            selected_events = candidates
-            empty = self.empty_selected.reshape(1, 1, hidden).expand(
-                flat_count, -1, -1
+            candidates = (
+                events.unsqueeze(1)
+                .expand(-1, group_count, -1, -1)
+                .reshape(flat_count, event_count, hidden)
             )
+            selected_events = candidates
+            empty = self.empty_selected.reshape(1, 1, hidden).expand(flat_count, -1, -1)
             keys = torch.cat((empty, selected_events), dim=1)
             flat_selected = selected_masks.reshape(flat_count, event_count)
             has_selected = flat_selected.any(dim=1, keepdim=True)
-            selected_padding_mask = torch.cat(
-                (has_selected, ~flat_selected), dim=1
-            )
+            selected_padding_mask = torch.cat((has_selected, ~flat_selected), dim=1)
             selected_context, _ = self.selected_attention(
                 candidates,
                 keys,
@@ -778,13 +797,9 @@ if torch is not None:
             memberships = event_mask.to(dtype=events.dtype)
             universe = torch.einsum("bn,bnh->bh", memberships, events)
             universe = universe / memberships.sum(dim=1, keepdim=True).clamp_min(1.0)
-            expanded_events = events.unsqueeze(1).expand(
-                -1, group_count, -1, -1
-            )
+            expanded_events = events.unsqueeze(1).expand(-1, group_count, -1, -1)
             expanded_query = query[:, None, None, :].expand_as(expanded_events)
-            expanded_universe = universe[:, None, None, :].expand_as(
-                expanded_events
-            )
+            expanded_universe = universe[:, None, None, :].expand_as(expanded_events)
             scores = self.marginal_head(
                 torch.cat(
                     (
@@ -799,9 +814,7 @@ if torch is not None:
                     dim=-1,
                 )
             ).squeeze(-1)
-            scores = scores.masked_fill(
-                ~event_mask[:, None, :].expand_as(scores), 0.0
-            )
+            scores = scores.masked_fill(~event_mask[:, None, :].expand_as(scores), 0.0)
             stop = torch.zeros(
                 (batch_size, group_count, 1),
                 dtype=scores.dtype,
@@ -819,9 +832,9 @@ if torch is not None:
             if bool((subset_masks.sum(dim=-1) > 1).any()):
                 raise ValueError("singleton fit probe received a larger subset")
             empty_selected = torch.zeros_like(subset_masks[:, :1])
-            event_scores = self.score_encoded_candidates(
-                encoded_state, empty_selected
-            )[:, 0, 1:]
+            event_scores = self.score_encoded_candidates(encoded_state, empty_selected)[
+                :, 0, 1:
+            ]
             utilities = torch.einsum(
                 "bkn,bn->bk",
                 subset_masks.to(dtype=event_scores.dtype),
@@ -842,8 +855,13 @@ if torch is not None:
             event_text_mask: Any,
             event_numeric_features: Any,
             event_mask: Any,
-            subset_masks: Any,
+            subset_masks: Any | None = None,
+            selected_masks: Any | None = None,
         ) -> Any:
+            if (subset_masks is None) == (selected_masks is None):
+                raise ValueError(
+                    "exactly one of subset_masks or selected_masks is required"
+                )
             encoded = self.encode_state_once(
                 query_visual_tokens=query_visual_tokens,
                 query_visual_mask=query_visual_mask,
@@ -856,12 +874,12 @@ if torch is not None:
                 event_numeric_features=event_numeric_features,
                 event_mask=event_mask,
             )
+            if selected_masks is not None:
+                return self.score_encoded_candidates(encoded, selected_masks)
             return self.score_singleton_utilities(encoded, subset_masks)
-
 
     class TokenSingletonMarginalPredictor(TokenConditionalMarginalPredictor):
         """Backward-compatible name for the empty-coalition v3 fit probe."""
-
 
 else:
 
@@ -869,16 +887,13 @@ else:
         def __init__(self, *_: Any, **__: Any) -> None:
             raise RuntimeError("token utility models require PyTorch")
 
-
     class TokenSetUtilityPredictor:  # pragma: no cover
         def __init__(self, *_: Any, **__: Any) -> None:
             raise RuntimeError("token utility models require PyTorch")
 
-
     class TokenSingletonMarginalPredictor:  # pragma: no cover
         def __init__(self, *_: Any, **__: Any) -> None:
             raise RuntimeError("token utility models require PyTorch")
-
 
     class TokenConditionalMarginalPredictor:  # pragma: no cover
         def __init__(self, *_: Any, **__: Any) -> None:

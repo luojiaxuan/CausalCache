@@ -1,7 +1,9 @@
-# Direct marginal v3 Stage-A 门槛复审(建议,非裁决)
+# Direct marginal v3 Stage-A 门槛复审
 
-本文只提供 Stage-A `singleton Spearman > 0.5` 门槛的独立复审证据与修订建议。它不改写
-`NO_GO_DIRECT_MARGINAL_V3_STAGE_A` 的既有记录;是否采纳须由执行方另立版本化合同。
+状态：`ADOPTED AS ONE POST_HOC DEVELOPMENT-GATE REPAIR`。本文提供 Stage-A
+`singleton Spearman > 0.5` 门槛的复审证据；它不改写 `NO_GO_DIRECT_MARGINAL_V3_STAGE_A` 的既有记录。
+执行合同另立于 [`Stage-B v1`](set_utility_direct_marginal_v3_stage_b_v1.md)。由于阈值是在看到 v1 数字后
+提出，它必须透明标记为 post-hoc，只用于决定是否做一次训练，不能作为 paper evidence。
 
 ## 证据一:标签是确定性的,门槛并非被噪声压低
 

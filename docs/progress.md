@@ -4252,6 +4252,21 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 结果：
   [`data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/`](../data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)。
 
+## 2026-07-21:Stage-A′ metric repair 与 direct marginal Stage-B 冻结
+
+- 保留原 Stage-A v1/rank-repair NO-GO，不追认 Spearman gate 通过。复审排除了标签噪声解释：四 wave
+  `D(∅)` 漂移约 `1e-8`，Spearman ceiling=1；修订依据仅为全列表尾部排序与 at-most-4 部署任务错位。
+- 新 Stage-A′ 明确标记 `post_hoc_development_gate=true`，使用 v1 早已冻结的 top-1/top-4/B1-oracle/STOP
+  指标；它只授权一次 Stage-B，不是 paper evidence，也不允许第二次 metric repair。
+- Stage-B 输入真实 census：5,550 states / 62,332 complete groups；frozen trajectory holdout 后
+  optimization/selection 为 5,015/535 states、56,235/6,097 groups，900/100 trajectories，tune/evaluation
+  均不参与 optimizer 或 checkpoint selection。
+- 新 trainer 直接监督每个 `(q,C,S)` 下 `[STOP,e_1,...,e_n]`，支持 8-rank DDP、lazy 119GB cache、
+  Stage-A v1 初始化与每 rank 每 epoch 原子 resume。Hyper00 PyTorch image focused tests 7/7 passed。
+- 最终 fixed-tune gate 保持 B1--B4 全胜 recent、macro CI lower>0、Long+>recent 三条不变；失败即永久
+  停止 learned general-B，不创建 v4。
+- 合同：[`docs/set_utility_direct_marginal_v3_stage_b_v1.md`](set_utility_direct_marginal_v3_stage_b_v1.md)。
+
 ## 2026-07-21:Stage-A Spearman 门槛复审(建议)
 
 - 用 long-oracle payload 中每 state 四次独立 `D(∅)` 重测证明标签确定性(归一化噪声中位数 0.0000,
