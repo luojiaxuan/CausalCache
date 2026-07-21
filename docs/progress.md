@@ -1,5 +1,22 @@
 # 项目进展
 
+## 2026-07-21：direct on-policy coverage + structured fallback 路线启动
+
+- 用户明确授权在旧 direct-v3 NO-GO 之后继续 learned selector，不退为纯审计；旧结果不改写，fixed-tune
+  降为 development，untouched evaluation 保持密封；
+- Stage-B 的 10% 是 train-holdout fraction，不是只训练 10%：最终优化为 5,015/10,658 train states、900
+  trajectories；但只有 5,550 states 具 complete conditional groups，62,332 groups 相对部署路径仍很稀疏；
+- 精确 census 确认 5,108 个零 complete-group states，全部来自 medium/long/very-long：3,578/1,499/31；
+  existing group 分布却由 short 主导，short/medium/long/very-long=`38,971/5,297/16,707/1,357`；
+- 新 config 固定在全部 train states 上先收集 direct、recent、confidence-gated hybrid 三条 at-most-`B` 路径，
+  再只对上述 5,108 states 的 `|S|<=3` 实际 bases 补齐所有 one-event expansions，已有 coalition truth 复用；
+- 新 selector 支持 train role 与 hybrid trace；missing-only schedule 固定 256 logical shards，label runner 保留
+  coalition-microbatch atomic resume；仅补 empty→singleton 的理论下界为 24,787 个新 labels，最终部署对齐
+  数量由 selection 后的 manifest 冻结；
+- 后续同时训练小型 structured pairwise/DeepSets marginal head 与 Set Transformer；按 cardinality/history-bin/
+  STOP 分层，保存全部 epochs，并用 trajectory-disjoint train-holdout 的真实 B1--B4 recovery 选 checkpoint；
+- GPU preflight：Hyper00 free 0--7、Hyper01 free 2/4/5/6/7；按本轮每机最多6卡授权计划使用6/5。
+
 ## 2026-07-20：Set L64/S4 capacity run 与 DeepSets prefetch
 
 - 针对 event 约500 tokens 压缩到16 latents、set interaction 仅2层的风险，冻结

@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_direct_on_policy_v1",
+  "purpose": "Expand train-only conditional supervision on the actual direct, recent, and confidence-gated hybrid deployment paths before comparing smaller structured and Transformer marginal heads.",
+  "input": {
+    "training_input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "checkpoint_sha256": "d8abbe8cf7bd04324220030b040f09e0d9a09402c87c0e17ca78c4047631dd23",
+    "checkpoint_source": "direct marginal v3 Stage-B epoch 12",
+    "evaluation_access": false,
+    "tune_labels_enter_collection_or_training": false
+  },
+  "on_policy_collection": {
+    "role": "train",
+    "expected_train_state_count": 10658,
+    "expected_uncovered_state_count": 5108,
+    "target": "all_train_states_with_zero_existing_complete_expansion_groups",
+    "policies": ["direct", "recent", "hybrid"],
+    "maximum_base_cardinality": 3,
+    "budget_contract": "at_most_B",
+    "budgets": [1, 2, 3, 4],
+    "reuse_existing_distance_rows": true,
+    "hybrid": {
+      "definition": "choose_direct_top_event_when_its_predicted_marginal_exceeds_the_most_recent_remaining_event_by_at_least_threshold_otherwise_choose_recent; stop_only_when_best_candidate_is_at_most_negative_threshold",
+      "minimum_direct_advantage_over_recent": 0.001
+    }
+  },
+  "label_execution": {
+    "scientific_config": "causalcache_set_utility_variable_history_v2_context_fit.json",
+    "execution_config": "causalcache_set_utility_variable_history_labels_execution_v1.json",
+    "logical_shard_count": 256,
+    "physical_partition_count": 11,
+    "hyper00_gpu_cap": 6,
+    "hyper01_gpu_cap": 6,
+    "atomic_resume_unit": "coalition_microbatch"
+  },
+  "training": {
+    "families": ["structured_pairwise_deepsets", "set_transformer_direct_marginal"],
+    "balance_axes": ["base_cardinality", "history_bin", "teacher_stop"],
+    "history_bins": ["short", "medium", "long", "very_long"],
+    "base_cardinalities": [0, 1, 2, 3],
+    "save_every_epoch": true,
+    "checkpoint_selection": "trajectory_disjoint_train_holdout_macro_true_recovery_B1_B2_B3_B4",
+    "evaluation_access": false
+  },
+  "firewall": {
+    "collection_and_optimization_role": "train",
+    "untouched_evaluation_access": false,
+    "fixed_tune_is_development_after_prior_consumption": true
+  }
+}

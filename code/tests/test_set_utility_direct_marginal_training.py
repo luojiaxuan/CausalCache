@@ -11,6 +11,7 @@ from scripts.train_set_utility_direct_marginal_v3 import (
 )
 from scripts.run_set_utility_direct_marginal_tune_selectors import (
     _direct_budget_path,
+    _hybrid_budget_path,
 )
 
 TORCH_AVAILABLE = importlib.util.find_spec("torch") is not None
@@ -232,3 +233,26 @@ def test_direct_budget_path_stops_before_budget_when_marginals_are_harmful() -> 
     assert tuple(utilities.values()) == pytest.approx((0.8, 0.8, 0.8, 0.8))
     assert score_count == 7
     assert trace[1]["ranked_actions"][0]["action"] == "STOP"
+
+
+@pytest.mark.skipif(not TORCH_AVAILABLE, reason="PyTorch is unavailable")
+def test_hybrid_budget_path_falls_back_to_recent_when_advantage_is_small() -> None:
+    import torch
+
+    class FakeModel:
+        def score_encoded_candidates(self, encoded, selected_mask):
+            selected = tuple(torch.nonzero(selected_mask[0]).flatten().tolist())
+            if not selected:
+                return torch.tensor([[0.0, 0.5, 0.49, 0.495]])
+            return torch.tensor([[0.0, 0.5, 0.49, 0.495]])
+
+    selections, _, _, trace = _hybrid_budget_path(
+        FakeModel(),
+        SimpleNamespace(),
+        (10, 20, 30),
+        direct_advantage_over_recent=0.01,
+        device="cpu",
+        torch=torch,
+    )
+    assert selections["1"] == [30]
+    assert trace[0]["reason"] == "recent_fallback"

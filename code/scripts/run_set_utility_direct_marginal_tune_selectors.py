@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one frozen direct conditional-marginal checkpoint over tune states."""
+"""Run one frozen direct conditional-marginal checkpoint over train or tune."""
 
 from __future__ import annotations
 
@@ -99,6 +99,85 @@ def _direct_budget_path(
     return selections, utilities, score_count, trace
 
 
+def _hybrid_budget_path(
+    model: Any,
+    encoded: Any,
+    event_ids: tuple[int, ...],
+    *,
+    direct_advantage_over_recent: float,
+    device: str,
+    torch: Any,
+) -> tuple[dict[str, list[int]], dict[str, float], int, list[dict[str, Any]]]:
+    """Collect a confidence-gated direct path with a deterministic recent fallback."""
+    if direct_advantage_over_recent < 0.0:
+        raise ValueError("hybrid direct advantage threshold must be non-negative")
+    selected: list[int] = []
+    cumulative = 0.0
+    stopped = False
+    selections = {}
+    utilities = {}
+    trace = []
+    score_count = 0
+    event_index = {event_id: index for index, event_id in enumerate(event_ids)}
+    for budget in BUDGETS:
+        if not stopped and len(selected) < min(budget, len(event_ids)):
+            selected_mask = torch.zeros(
+                (1, len(event_ids)), dtype=torch.bool, device=device
+            )
+            for event_id in selected:
+                selected_mask[0, event_index[event_id]] = True
+            with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                scores = model.score_encoded_candidates(encoded, selected_mask)[0]
+            values = [float(value) for value in scores.tolist()]
+            if any(not math.isfinite(value) for value in values):
+                raise RuntimeError("hybrid selector emitted a non-finite marginal")
+            remaining = tuple(
+                event_id for event_id in event_ids if event_id not in selected
+            )
+            candidates = [
+                (event_id, values[event_index[event_id] + 1])
+                for event_id in remaining
+            ]
+            score_count += len(candidates) + 1
+            best_event, best_gain = min(
+                candidates, key=lambda item: (-item[1], item[0])
+            )
+            recent_event = max(remaining)
+            recent_gain = values[event_index[recent_event] + 1]
+            if best_gain <= -direct_advantage_over_recent:
+                chosen_event = None
+                reason = "calibrated_stop"
+                stopped = True
+            elif (
+                best_event == recent_event
+                or best_gain - recent_gain >= direct_advantage_over_recent
+            ):
+                chosen_event = best_event
+                reason = "direct_override"
+            else:
+                chosen_event = recent_event
+                reason = "recent_fallback"
+            trace.append(
+                {
+                    "base_subset": sorted(selected),
+                    "best_direct_event": best_event,
+                    "best_direct_marginal": best_gain,
+                    "chosen_event": chosen_event if chosen_event is not None else "STOP",
+                    "direct_advantage_over_recent": best_gain - recent_gain,
+                    "reason": reason,
+                    "recent_event": recent_event,
+                    "recent_marginal": recent_gain,
+                }
+            )
+            if chosen_event is not None:
+                selected.append(chosen_event)
+                selected.sort()
+                cumulative += values[event_index[chosen_event] + 1]
+        selections[str(budget)] = list(selected)
+        utilities[str(budget)] = cumulative
+    return selections, utilities, score_count, trace
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-root", type=Path, required=True)
@@ -110,6 +189,8 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", required=True)
     parser.add_argument("--state-id-file", type=Path)
+    parser.add_argument("--role", choices=("train", "tune"), default="tune")
+    parser.add_argument("--collection-config", type=Path)
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError("direct tune selector output already exists")
@@ -153,6 +234,24 @@ def main() -> None:
         != _sha256_file(args.checkpoint)
     ):
         raise ValueError("direct tune selector input/checkpoint firewall drifted")
+    collection_config = None
+    hybrid_threshold = None
+    if args.collection_config is not None:
+        collection_config = _read_json(args.collection_config.resolve())
+        collection = collection_config.get("on_policy_collection", {})
+        if (
+            args.role != "train"
+            or collection.get("role") != "train"
+            or collection.get("policies") != ["direct", "recent", "hybrid"]
+        ):
+            raise ValueError("on-policy collection config or selector role drifted")
+        hybrid_threshold = float(
+            collection["hybrid"]["minimum_direct_advantage_over_recent"]
+        )
+        if not math.isfinite(hybrid_threshold) or hybrid_threshold < 0.0:
+            raise ValueError(
+                "hybrid collection threshold must be finite and non-negative"
+            )
     states = tuple(
         row
         for line in (input_root / input_manifest["states_jsonl"])
@@ -160,7 +259,7 @@ def main() -> None:
         .splitlines()
         if line
         for row in (json.loads(line),)
-        if row["role"] == "tune"
+        if row["role"] == args.role
     )
     if args.state_id_file is not None:
         requested = tuple(
@@ -172,10 +271,10 @@ def main() -> None:
             raise ValueError("state-id filter must be non-empty and unique")
         requested_set = set(requested)
         if not requested_set.issubset({state["state_id"] for state in states}):
-            raise ValueError("state-id filter escapes the tune inventory")
+            raise ValueError("state-id filter escapes the selected role inventory")
         states = tuple(state for state in states if state["state_id"] in requested_set)
     if not states:
-        raise ValueError("direct selector received no tune states")
+        raise ValueError("direct selector received no states for the selected role")
 
     seed = int(summary["seed"])
     torch.manual_seed(seed)
@@ -291,41 +390,72 @@ def main() -> None:
                 device=args.device,
                 torch=torch,
             )
+            hybrid = None
+            hybrid_utilities = None
+            hybrid_score_count = 0
+            hybrid_trace = None
+            if hybrid_threshold is not None:
+                hybrid, hybrid_utilities, hybrid_score_count, hybrid_trace = (
+                    _hybrid_budget_path(
+                        model,
+                        encoded,
+                        events,
+                        direct_advantage_over_recent=hybrid_threshold,
+                        device=args.device,
+                        torch=torch,
+                    )
+                )
             torch.cuda.synchronize()
             search_ms = (time.perf_counter() - started) * 1000.0
-            records.append(
-                {
-                    "candidate_event_ids": list(events),
-                    "direct_steps": trace,
-                    "latency_ms": {
-                        "conditioning": conditioning_ms,
-                        "event_source_encoding": event_encoding_ms,
-                        "query_source_encoding": query_encoding_ms,
-                        "search": search_ms,
-                    },
-                    "learned": learned,
-                    "logical_shard": state["logical_shard"],
-                    "predicted_utilities": utilities,
-                    "recent": recent_budget_selections(events),
-                    "search": {
-                        "method": "iterative_conditional_marginal_with_explicit_stop"
-                    },
-                    "state_id": state["state_id"],
-                    "subset_score_count": score_count,
-                    "trajectory_id": state["trajectory_id"],
-                }
-            )
+            record = {
+                "candidate_event_ids": list(events),
+                "direct_steps": trace,
+                "latency_ms": {
+                    "conditioning": conditioning_ms,
+                    "event_source_encoding": event_encoding_ms,
+                    "query_source_encoding": query_encoding_ms,
+                    "search": search_ms,
+                },
+                "learned": learned,
+                "logical_shard": state["logical_shard"],
+                "predicted_utilities": utilities,
+                "recent": recent_budget_selections(events),
+                "search": {
+                    "method": "iterative_conditional_marginal_with_explicit_stop"
+                },
+                "state_id": state["state_id"],
+                "subset_score_count": score_count + hybrid_score_count,
+                "trajectory_id": state["trajectory_id"],
+            }
+            if hybrid is not None:
+                record.update(
+                    {
+                        "hybrid": hybrid,
+                        "hybrid_predicted_utilities": hybrid_utilities,
+                        "hybrid_steps": hybrid_trace,
+                    }
+                )
+            records.append(record)
+    status = (
+        "COMPLETED_SET_UTILITY_TRAIN_SELECTIONS"
+        if args.role == "train"
+        else "COMPLETED_SET_UTILITY_TUNE_SELECTIONS"
+    )
     result = {
         "cache_content_sha256": cache_manifest["content_sha256"],
         "checkpoint_sha256": _sha256_file(args.checkpoint),
         "config_sha256": _sha256_file(config_path),
         "input_content_sha256": input_manifest["content_sha256"],
         "records": sorted(records, key=lambda row: row["state_id"]),
-        "role": "tune",
-        "schema_version": "causalcache.direct_marginal_tune_selections.v1",
-        "status": "COMPLETED_SET_UTILITY_TUNE_SELECTIONS",
+        "role": args.role,
+        "schema_version": "causalcache.direct_marginal_selections.v2",
+        "status": status,
         "variant": args.variant,
     }
+    if args.collection_config is not None:
+        result["collection_config_sha256"] = _sha256_file(
+            args.collection_config.resolve()
+        )
     result["content_sha256"] = hashlib.sha256(canonical_json_bytes(result)).hexdigest()
     _write_atomic(args.output, result)
     print(
