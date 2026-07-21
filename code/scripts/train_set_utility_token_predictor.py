@@ -11,6 +11,8 @@ import os
 import random
 import time
 from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import nullcontext
 from pathlib import Path
 from typing import Any
 
@@ -341,6 +343,99 @@ def _collate(
     }
 
 
+def _move_batch_to_device(
+    batch: dict[str, Any], *, device: Any, non_blocking: bool
+) -> dict[str, Any]:
+    for key, value in batch["model"].items():
+        batch["model"][key] = value.to(device, non_blocking=non_blocking)
+    for key in (
+        "raw_targets",
+        "normalized_targets",
+        "label_mask",
+        "scales",
+        "scale_mask",
+    ):
+        batch[key] = batch[key].to(device, non_blocking=non_blocking)
+    return batch
+
+
+def _pin_batch_memory(batch: dict[str, Any]) -> dict[str, Any]:
+    for key, value in batch["model"].items():
+        batch["model"][key] = value.pin_memory()
+    for key in (
+        "raw_targets",
+        "normalized_targets",
+        "label_mask",
+        "scales",
+        "scale_mask",
+    ):
+        batch[key] = batch[key].pin_memory()
+    return batch
+
+
+def _batch_stream(
+    states: tuple[dict[str, Any], ...] | list[dict[str, Any]],
+    *,
+    batch_size: int,
+    cache: _TokenCache,
+    device: Any,
+    torch: Any,
+    normalization_floor: float,
+):
+    selected_batches = tuple(
+        list(states[start : start + batch_size])
+        for start in range(0, len(states), batch_size)
+    )
+    if cache.mode != "lazy_cpu":
+        for selected in selected_batches:
+            yield selected, _collate(
+                selected,
+                cache=cache,
+                device=device,
+                torch=torch,
+                normalization_floor=normalization_floor,
+            )
+        return
+
+    pin_memory = str(device).startswith("cuda")
+
+    def prepare(selected: list[dict[str, Any]]) -> dict[str, Any]:
+        batch = _collate(
+            selected,
+            cache=cache,
+            device="cpu",
+            torch=torch,
+            normalization_floor=normalization_floor,
+        )
+        return _pin_batch_memory(batch) if pin_memory else batch
+
+    with ThreadPoolExecutor(max_workers=1, thread_name_prefix="token-batch") as pool:
+        iterator = iter(selected_batches)
+        try:
+            selected = next(iterator)
+        except StopIteration:
+            return
+        pending = pool.submit(prepare, selected)
+        while True:
+            batch = pending.result()
+            try:
+                next_selected = next(iterator)
+            except StopIteration:
+                next_selected = None
+                next_pending = None
+            else:
+                next_pending = pool.submit(prepare, next_selected)
+            yield selected, _move_batch_to_device(
+                batch,
+                device=device,
+                non_blocking=pin_memory,
+            )
+            if next_selected is None or next_pending is None:
+                break
+            selected = next_selected
+            pending = next_pending
+
+
 def _loss(
     predictions: Any,
     batch: dict[str, Any],
@@ -611,23 +706,31 @@ def _distributed_epoch_shard(
     states: tuple[dict[str, Any], ...],
     *,
     per_device_batch_size: int,
+    gradient_accumulation_steps: int = 1,
     rank: int,
     world_size: int,
 ) -> tuple[tuple[dict[str, Any], ...], int]:
     if (
         not states
         or per_device_batch_size <= 0
+        or gradient_accumulation_steps <= 0
         or world_size <= 0
         or not 0 <= rank < world_size
     ):
         raise ValueError("distributed epoch geometry is invalid")
-    global_batch_size = per_device_batch_size * world_size
+    distributed_microbatch_size = per_device_batch_size * world_size
+    global_batch_size = distributed_microbatch_size * gradient_accumulation_steps
     padding = (-len(states)) % global_batch_size
     padded = states + tuple(states[index % len(states)] for index in range(padding))
     local = []
     for start in range(0, len(padded), global_batch_size):
-        local_start = start + rank * per_device_batch_size
-        local.extend(padded[local_start : local_start + per_device_batch_size])
+        for accumulation_index in range(gradient_accumulation_steps):
+            local_start = (
+                start
+                + accumulation_index * distributed_microbatch_size
+                + rank * per_device_batch_size
+            )
+            local.extend(padded[local_start : local_start + per_device_batch_size])
     return tuple(local), padding
 
 
@@ -705,15 +808,14 @@ def _evaluate(
     denominator = 0.0
     model.eval()
     with torch.inference_mode():
-        for start in range(0, len(states), batch_size):
-            selected = list(states[start : start + batch_size])
-            batch = _collate(
-                selected,
-                cache=cache,
-                device=device,
-                torch=torch,
-                normalization_floor=normalization_floor,
-            )
+        for selected, batch in _batch_stream(
+            states,
+            batch_size=batch_size,
+            cache=cache,
+            device=device,
+            torch=torch,
+            normalization_floor=normalization_floor,
+        ):
             with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                 predictions = model(**batch["model"])
                 sample_weights = torch.tensor(
@@ -905,7 +1007,7 @@ def main() -> None:
         _trajectory_uniform_epoch(train_states, seed=seed)
     )
     distributed_padding_rows_per_epoch = (
-        (-optimization_rows_per_epoch) % (batch_size * world_size)
+        (-optimization_rows_per_epoch) % (batch_size * world_size * accumulation)
         if distributed
         else 0
     )
@@ -950,6 +1052,7 @@ def main() -> None:
             order, observed_padding = _distributed_epoch_shard(
                 global_order,
                 per_device_batch_size=batch_size,
+                gradient_accumulation_steps=accumulation,
                 rank=rank,
                 world_size=world_size,
             )
@@ -961,33 +1064,42 @@ def main() -> None:
         train_metric_sum = defaultdict(float)
         train_weight_sum = 0.0
         pending = 0
-        for start in range(0, len(order), batch_size):
-            selected = order[start : start + batch_size]
-            batch = _collate(
-                selected,
+        for batch_index, (selected, batch) in enumerate(
+            _batch_stream(
+                order,
+                batch_size=batch_size,
                 cache=cache,
                 device=device,
                 torch=torch,
                 normalization_floor=normalization_floor,
             )
+        ):
             sample_weights = torch.tensor(
                 [1.0] * len(selected),
                 dtype=torch.float32,
                 device=device,
             )
-            with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-                predictions = model(**batch["model"])
-                loss, metrics = _loss(
-                    predictions,
-                    batch,
-                    loss_config=training["loss"],
-                    trajectory_weights=sample_weights,
-                    torch=torch,
-                    distributed_world_size=world_size if distributed else 1,
-                )
-            (loss / accumulation).backward()
+            final_batch = (batch_index + 1) * batch_size >= len(order)
+            synchronize = pending + 1 == accumulation or final_batch
+            sync_context = (
+                nullcontext()
+                if not distributed or synchronize
+                else model.no_sync()
+            )
+            with sync_context:
+                with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                    predictions = model(**batch["model"])
+                    loss, metrics = _loss(
+                        predictions,
+                        batch,
+                        loss_config=training["loss"],
+                        trajectory_weights=sample_weights,
+                        torch=torch,
+                        distributed_world_size=world_size if distributed else 1,
+                    )
+                (loss / accumulation).backward()
             pending += 1
-            if pending == accumulation or start + batch_size >= len(order):
+            if pending == accumulation or final_batch:
                 torch.nn.utils.clip_grad_norm_(
                     model.parameters(), float(training["maximum_gradient_norm"])
                 )
@@ -1072,6 +1184,7 @@ def main() -> None:
         "cache_content_sha256": cache_manifest["content_sha256"],
         "cache_input_content_sha256": cache_manifest["input_content_sha256"],
         "cache_mode": cache_mode,
+        "cpu_batch_prefetch_depth": 1 if cache_mode == "lazy_cpu" else 0,
         "config_sha256": hashlib.sha256(config_path.read_bytes()).hexdigest(),
         "decision_supervision": decision_supervision,
         "elapsed_seconds": time.time() - started,
@@ -1092,6 +1205,7 @@ def main() -> None:
             "distributed_padding_rows_per_epoch": distributed_padding_rows_per_epoch,
             "effective_global_batch_size": batch_size * world_size * accumulation,
             "evaluation_batch_size": evaluation_batch_size,
+            "gradient_sync_on_optimizer_step": distributed,
             "per_device_batch_size": batch_size,
             "world_size": world_size,
         },

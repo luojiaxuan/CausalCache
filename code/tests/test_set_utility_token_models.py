@@ -10,6 +10,7 @@ from causalcache.set_utility_token_models import (
 from scripts.train_set_utility_token_predictor import (
     _configure_attention_backend,
     _cache_covers_input,
+    _batch_stream,
     _collate,
     _loss,
     _resolve_normalization_floor,
@@ -392,6 +393,8 @@ class TokenUtilityTorchTest(unittest.TestCase):
         torch = self.torch
 
         class Cache:
+            mode = "lazy_cpu"
+
             def visual(self, key: str) -> object:
                 length = int(key.rsplit("-", 1)[1])
                 return torch.full((length, 16), length, dtype=torch.bfloat16)
@@ -445,6 +448,25 @@ class TokenUtilityTorchTest(unittest.TestCase):
         self.assertEqual(model_inputs["event_mask"].sum(dim=1).tolist(), [5, 7])
         self.assertEqual(batch["label_mask"].sum(dim=1).tolist(), [3, 4])
         self.assertFalse(bool(model_inputs["subset_masks"][0, :, 5:].any()))
+
+        streamed = list(
+            _batch_stream(
+                tuple(states),
+                batch_size=1,
+                cache=Cache(),
+                device="cpu",
+                torch=torch,
+                normalization_floor=0.0,
+            )
+        )
+        self.assertEqual(
+            [selected[0]["state_id"] for selected, _ in streamed],
+            ["state-0", "state-1"],
+        )
+        self.assertEqual(
+            [batch["state_ids"] for _, batch in streamed],
+            [("state-0",), ("state-1",)],
+        )
 
         model = TokenSetUtilityPredictor(
             TokenUtilityModelConfig(

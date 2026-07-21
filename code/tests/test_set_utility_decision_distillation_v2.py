@@ -236,3 +236,31 @@ def test_distributed_epoch_shards_reconstruct_padded_global_batches() -> None:
         for rank in range(4):
             reconstructed.extend(shards[rank][step * 2 : (step + 1) * 2])
     assert tuple(reconstructed) == states + states[:6]
+
+
+def test_distributed_epoch_shards_preserve_accumulated_global_batch() -> None:
+    from scripts.train_set_utility_token_predictor import _distributed_epoch_shard
+
+    states = tuple({"state_id": str(index)} for index in range(10))
+    shards = []
+    for rank in range(2):
+        shard, padding = _distributed_epoch_shard(
+            states,
+            per_device_batch_size=1,
+            gradient_accumulation_steps=4,
+            rank=rank,
+            world_size=2,
+        )
+        assert padding == 6
+        assert len(shard) == 8
+        shards.append(shard)
+    reconstructed = []
+    for accumulation_index in range(4):
+        for rank in range(2):
+            reconstructed.append(shards[rank][accumulation_index])
+    assert tuple(reconstructed) == states[:8]
+    reconstructed = []
+    for accumulation_index in range(4, 8):
+        for rank in range(2):
+            reconstructed.append(shards[rank][accumulation_index])
+    assert tuple(reconstructed) == states[8:] + states[:6]
