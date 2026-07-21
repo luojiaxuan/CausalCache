@@ -100,6 +100,11 @@ state/event ID 恰好相同也不能复用 truth。
 - v3 尚未启动时的 fresh preflight 又释放到 Hyper00/Hyper01 各 6 卡；因此最终 v4 execution 直接使用授权上限
   12×H200、每卡 2 lanes（12 partitions / 24 workers）。这只改变 logical-shard execution mapping，不改变
   source、schedule、label definition 或 resume identity；
+- v4 运行中确认 12 个静态 partition 存在显著长尾，但 labels、reference repeat 与所有 workers 均保持健康。
+  [`v5 conditional tail handoff`](../code/configs/causalcache_set_utility_direct_on_policy_labels_workers_v5_tail_handoff.json)
+  只允许在 donor partition 两个 lanes 均完整落盘且 0 skip 后触发：先精确停止同 host 的慢 partition owner，
+  再将其 logical shards 按 `count=24` 拆到 donor/recipient 两张卡继续使用同一原子 progress。partition topology
+  不进入 state identity；source、schedule、science/execution config、lane hash 与每 host 6-GPU 上限均不变；
 - formal trainers 为
   [`train_set_utility_structured_marginal.py`](../code/scripts/train_set_utility_structured_marginal.py) 与
   [`train_set_utility_set_transformer_control.py`](../code/scripts/train_set_utility_set_transformer_control.py)；

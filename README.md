@@ -19,6 +19,8 @@
   补标 truth 必须经过 signed manifest/receipt sealing 并绑定 model/epoch/checkpoint；formal config 还会精确校验
   merged schedule、distance-row/group counts 与 optimizer group census，不能用旧或不完整数据绕过 barrier。
   [执行合同](docs/set_utility_direct_on_policy_v1.md)。
+- 正式 label rollout 使用 Hyper00/Hyper01 各 6×H200、每卡 2 lanes；静态分片长尾只通过冻结的同 host
+  conditional handoff 重分片，保持相同 state identity、原子 resume 和每 host 6-GPU 上限。
 - **Direct conditional-marginal v3 已在最终 fixed-tune gate 正式 NO-GO，learned general-`B` 路线停止。**
   1,063/1,063 states、0 skip；direct-v3/recent macro=`0.44583/0.45192`，delta=`-0.00609`，95% CI=
   `[-0.03012,+0.01642]`。它只在 B1/B4 胜 recent，B2/B3、macro CI、Long+ 全部失败，并弱于旧

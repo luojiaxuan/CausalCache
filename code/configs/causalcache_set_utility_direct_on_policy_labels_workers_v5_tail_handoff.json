@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_direct_on_policy_labels_workers_v5_tail_handoff",
+  "status": "FROZEN_CONDITIONAL_TAIL_HANDOFF",
+  "extends": "causalcache_set_utility_direct_on_policy_labels_workers_v4",
+  "repair_reason": "The frozen 12-way execution is scientifically healthy but has deterministic partition-size skew. After a donor partition completes, this handoff stops only the paired slow partition and resumes its exact logical-shard union as two 24-way partitions on the donor and recipient GPUs.",
+  "source_revision": "cc7634045ddef2db78324410b5317b2c90ac45e0",
+  "image": "hongccc/sglang-omni@sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+  "per_host_gpu_cap": 6,
+  "workers_per_gpu": 2,
+  "paths": {
+    "repository_root": "/data/worktrees/causalcache-cc76340",
+    "scientific_config": "/data/worktrees/causalcache-cc76340/code/configs/causalcache_set_utility_variable_history_v2_context_fit.json",
+    "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+    "execution_config": "/data/worktrees/causalcache-cc76340/code/configs/causalcache_set_utility_variable_history_labels_execution_v1.json",
+    "execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c",
+    "source_root": "/data/artifacts/causalcache-set-utility-variable-history-source-v1-a7213db",
+    "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "schedule_root": "/data/runs/causalcache-direct-on-policy-schedules-v2-cc76340",
+    "schedule_manifest_sha256": "1b8e5d71b2896fccb6822bb33378a28ea1e481cfe219a6d5b7433eb80cb581da",
+    "schedule_content_sha256": "981a329ce5fdbce550ddd31315e5b628279f46978dab1e6e2456a78b0b2ec506",
+    "model_dir": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "model_snapshot_manifest_sha256": "65bd2377eace0e25a62542ad752dab146787c5f021bd22e62a1114589ae4265c",
+    "output_root": "/data/runs/causalcache-direct-on-policy-labels-v1-cc76340-retry4"
+  },
+  "handoffs": {
+    "hyper00_p3_to_p5": {
+      "donor_partition": 3,
+      "donor_expected_completed_state_count": 279,
+      "recipient_partition": 5,
+      "recipient_expected_state_count": 494,
+      "original_partition_count": 12,
+      "replacement_partition_count": 24,
+      "physical_gpu_ids": [3, 5],
+      "replacement_workers": [
+        "0:5:0:2",
+        "0:5:1:2",
+        "1:17:0:2",
+        "1:17:1:2"
+      ],
+      "replacement_partition_state_counts": {
+        "5": 242,
+        "17": 252
+      },
+      "log_root": "/data/runs/causalcache-direct-on-policy-labels-v1-cc76340-retry4/handoff-logs/p05-p17-of-024"
+    },
+    "hyper01_p6_to_p8": {
+      "donor_partition": 6,
+      "donor_expected_completed_state_count": 323,
+      "recipient_partition": 8,
+      "recipient_expected_state_count": 573,
+      "original_partition_count": 12,
+      "replacement_partition_count": 24,
+      "physical_gpu_ids": [2, 4],
+      "replacement_workers": [
+        "0:8:0:2",
+        "0:8:1:2",
+        "1:20:0:2",
+        "1:20:1:2"
+      ],
+      "replacement_partition_state_counts": {
+        "8": 313,
+        "20": 260
+      },
+      "log_root": "/data/runs/causalcache-direct-on-policy-labels-v1-cc76340-retry4/handoff-logs/p08-p20-of-024"
+    }
+  },
+  "launch_guards": {
+    "donor_both_lane_receipts_complete": true,
+    "donor_all_expected_terminals_complete": true,
+    "donor_skipped_state_count": 0,
+    "terminate_only_recipient_partition_lanes": true,
+    "confirm_recipient_processes_exited_before_replacement": true,
+    "confirm_selected_physical_gpus_have_no_compute_process": true,
+    "same_host_output_root_resume": true,
+    "state_lane_count_unchanged": 2,
+    "maximum_live_gpu_count_per_host": 6
+  },
+  "identity_invariants": {
+    "source_revision_unchanged": true,
+    "scientific_config_unchanged": true,
+    "execution_config_unchanged": true,
+    "source_shard_sha256_unchanged": true,
+    "schedule_receipt_sha256_unchanged": true,
+    "state_identity_excludes_partition_topology": true,
+    "terminal_and_microbatch_writes_atomic": true
+  },
+  "acceptance": {
+    "replacement_container_exit_code": 0,
+    "replacement_worker_receipts_complete": true,
+    "scheduled_state_union_exact": true,
+    "completed_state_count": 5108,
+    "skipped_state_count": 0,
+    "duplicate_state_count": 0
+  }
+}
