@@ -307,6 +307,7 @@ def _loss(
     loss_config: dict[str, Any],
     trajectory_weights: Any,
     torch: Any,
+    distributed_world_size: int = 1,
 ) -> tuple[Any, dict[str, float]]:
     raw_targets = batch["raw_targets"]
     normalized_targets = batch["normalized_targets"]
@@ -452,11 +453,26 @@ def _loss(
     conditional_marginal = torch.sum(marginal_rows * weights)
     active_decision_rows = group_mask.any(dim=1).to(trajectory_weights.dtype)
     decision_weights = trajectory_weights * active_decision_rows
-    decision_denominator = decision_weights.sum().clamp_min(1.0)
-    conditional_listwise = torch.sum(
-        listwise_rows * decision_weights
-    ) / decision_denominator
-    decision_regret = torch.sum(regret_rows * decision_weights) / decision_denominator
+    decision_denominator = decision_weights.sum()
+    decision_scale = 1.0
+    if distributed_world_size > 1:
+        global_decision_denominator = decision_denominator.detach().clone()
+        torch.distributed.all_reduce(
+            global_decision_denominator, op=torch.distributed.ReduceOp.SUM
+        )
+        decision_denominator = global_decision_denominator
+        decision_scale = float(distributed_world_size)
+    decision_denominator = decision_denominator.clamp_min(1.0)
+    conditional_listwise = (
+        torch.sum(listwise_rows * decision_weights)
+        * decision_scale
+        / decision_denominator
+    )
+    decision_regret = (
+        torch.sum(regret_rows * decision_weights)
+        * decision_scale
+        / decision_denominator
+    )
     total = (
         float(loss_config["raw_regression"]) * raw
         + float(loss_config["normalized_regression"]) * normalized
@@ -548,6 +564,49 @@ def _trajectory_uniform_epoch(
         for round_index in range(maximum_count)
         for trajectory in trajectories
     )
+
+
+def _distributed_epoch_shard(
+    states: tuple[dict[str, Any], ...],
+    *,
+    per_device_batch_size: int,
+    rank: int,
+    world_size: int,
+) -> tuple[tuple[dict[str, Any], ...], int]:
+    if (
+        not states
+        or per_device_batch_size <= 0
+        or world_size <= 0
+        or not 0 <= rank < world_size
+    ):
+        raise ValueError("distributed epoch geometry is invalid")
+    global_batch_size = per_device_batch_size * world_size
+    padding = (-len(states)) % global_batch_size
+    padded = states + tuple(states[index % len(states)] for index in range(padding))
+    local = []
+    for start in range(0, len(padded), global_batch_size):
+        local_start = start + rank * per_device_batch_size
+        local.extend(padded[local_start : local_start + per_device_batch_size])
+    return tuple(local), padding
+
+
+def _distributed_metric_average(
+    totals: dict[str, float], denominator: float, *, device: Any, torch: Any
+) -> dict[str, float]:
+    keys = sorted(totals)
+    packed = torch.tensor(
+        [denominator, *(totals[key] for key in keys)],
+        dtype=torch.float64,
+        device=device,
+    )
+    torch.distributed.all_reduce(packed, op=torch.distributed.ReduceOp.SUM)
+    combined_denominator = float(packed[0].item())
+    if combined_denominator <= 0.0:
+        raise RuntimeError("distributed metric denominator is empty")
+    return {
+        key: float(packed[index + 1].item()) / combined_denominator
+        for index, key in enumerate(keys)
+    }
 
 
 def _seed_training_runtime(torch: Any, seed: int) -> None:
@@ -667,7 +726,19 @@ def main() -> None:
         import torch
     except ModuleNotFoundError as error:
         raise RuntimeError("token predictor training requires PyTorch") from error
-    if not torch.cuda.is_available() or not args.device.startswith("cuda:"):
+    world_size = int(os.environ.get("WORLD_SIZE", "1"))
+    rank = int(os.environ.get("RANK", "0"))
+    local_rank = int(os.environ.get("LOCAL_RANK", "0"))
+    distributed = world_size > 1
+    if distributed:
+        if args.device != "cuda" or not 0 <= rank < world_size:
+            raise RuntimeError("distributed training requires --device cuda")
+        torch.cuda.set_device(local_rank)
+        torch.distributed.init_process_group(backend="nccl")
+        device = f"cuda:{local_rank}"
+    else:
+        device = args.device
+    if not torch.cuda.is_available() or not device.startswith("cuda:"):
         raise RuntimeError("token predictor training requires an explicit CUDA device")
     config_path = args.config.resolve()
     config = _read_json(config_path)
@@ -676,18 +747,43 @@ def main() -> None:
     except KeyError as error:
         raise ValueError(f"unknown training variant: {args.variant}") from error
     output_root = args.output_root.resolve()
-    if output_root.exists():
-        raise FileExistsError(f"training output already exists: {output_root}")
-    output_root.mkdir(parents=True)
+    if distributed:
+        output_exists = torch.tensor(
+            [int(output_root.exists())], dtype=torch.int32, device=device
+        )
+        torch.distributed.all_reduce(
+            output_exists, op=torch.distributed.ReduceOp.MAX
+        )
+        if int(output_exists.item()):
+            torch.distributed.destroy_process_group()
+            raise FileExistsError(f"training output already exists: {output_root}")
+        if rank == 0:
+            output_root.mkdir(parents=True)
+        torch.distributed.barrier()
+    else:
+        if output_root.exists():
+            raise FileExistsError(f"training output already exists: {output_root}")
+        output_root.mkdir(parents=True)
 
     input_root = args.input_root.resolve()
     input_manifest = _read_json(input_root / "manifest.json")
     cache_root = args.cache_root.resolve()
     cache_manifest = _read_json(cache_root / "manifest.json")
+    input_contract = config.get("input", {})
     if (
         input_manifest.get("evaluation_labels_included") is not False
         or cache_manifest.get("evaluation_labels_included") is not False
         or not _cache_covers_input(input_manifest, cache_manifest)
+        or (
+            input_contract.get("training_input_content_sha256") is not None
+            and input_manifest.get("content_sha256")
+            != input_contract["training_input_content_sha256"]
+        )
+        or (
+            input_contract.get("contextual_cache_content_sha256") is not None
+            and cache_manifest.get("content_sha256")
+            != input_contract["contextual_cache_content_sha256"]
+        )
     ):
         raise ValueError("training input/cache identity or split firewall drifted")
     states = _read_jsonl(input_root / input_manifest["states_jsonl"])
@@ -725,22 +821,50 @@ def main() -> None:
     seed = int(variant.get("seed", training["seed"]))
     _seed_training_runtime(torch, seed)
     torch.set_float32_matmul_precision("high")
-    cache = _TokenCache(cache_root, cache_manifest, device=args.device)
+    cache = _TokenCache(cache_root, cache_manifest, device=device)
     model_config = TokenUtilityModelConfig(**variant["model"])
-    model = TokenSetUtilityPredictor(model_config).to(args.device)
+    checkpoint_model = TokenSetUtilityPredictor(model_config).to(device)
+    if distributed:
+        expected_world_size = int(variant.get("distributed_world_size", 0))
+        if expected_world_size != world_size:
+            raise ValueError("distributed world size conflicts with committed config")
+        model = torch.nn.parallel.DistributedDataParallel(
+            checkpoint_model,
+            device_ids=[local_rank],
+            output_device=local_rank,
+            broadcast_buffers=False,
+        )
+        torch.manual_seed(seed + rank)
+        torch.cuda.manual_seed(seed + rank)
+    else:
+        model = checkpoint_model
     optimizer = torch.optim.AdamW(
         model.parameters(),
         lr=float(variant["learning_rate"]),
         weight_decay=float(variant["weight_decay"]),
     )
     epochs = int(training["epochs"])
-    batch_size = int(variant["batch_size"])
+    batch_size = int(
+        variant.get("per_device_batch_size", variant["batch_size"])
+    )
+    if distributed and "per_device_batch_size" not in variant:
+        raise ValueError("distributed training requires per_device_batch_size")
+    evaluation_batch_size = int(variant.get("evaluation_batch_size", batch_size))
     accumulation = int(variant["gradient_accumulation_steps"])
     optimization_rows_per_epoch = len(
         _trajectory_uniform_epoch(train_states, seed=seed)
     )
+    distributed_padding_rows_per_epoch = (
+        (-optimization_rows_per_epoch) % (batch_size * world_size)
+        if distributed
+        else 0
+    )
+    local_optimization_rows_per_epoch = (
+        (optimization_rows_per_epoch + distributed_padding_rows_per_epoch)
+        // world_size
+    )
     steps_per_epoch = math.ceil(
-        math.ceil(optimization_rows_per_epoch / batch_size) / accumulation
+        math.ceil(local_optimization_rows_per_epoch / batch_size) / accumulation
     )
     total_optimizer_steps = steps_per_epoch * epochs
     warmup_steps = max(
@@ -769,9 +893,20 @@ def main() -> None:
 
     for epoch in range(1, epochs + 1):
         model.train()
-        order = list(
-            _trajectory_uniform_epoch(train_states, seed=seed + epoch)
+        global_order = _trajectory_uniform_epoch(
+            train_states, seed=seed + epoch
         )
+        if distributed:
+            order, observed_padding = _distributed_epoch_shard(
+                global_order,
+                per_device_batch_size=batch_size,
+                rank=rank,
+                world_size=world_size,
+            )
+            if observed_padding != distributed_padding_rows_per_epoch:
+                raise RuntimeError("distributed epoch padding drifted")
+        else:
+            order = global_order
         optimizer.zero_grad(set_to_none=True)
         train_metric_sum = defaultdict(float)
         train_weight_sum = 0.0
@@ -781,14 +916,14 @@ def main() -> None:
             batch = _collate(
                 selected,
                 cache=cache,
-                device=args.device,
+                device=device,
                 torch=torch,
                 normalization_floor=normalization_floor,
             )
             sample_weights = torch.tensor(
                 [1.0] * len(selected),
                 dtype=torch.float32,
-                device=args.device,
+                device=device,
             )
             with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                 predictions = model(**batch["model"])
@@ -798,6 +933,7 @@ def main() -> None:
                     loss_config=training["loss"],
                     trajectory_weights=sample_weights,
                     torch=torch,
+                    distributed_world_size=world_size if distributed else 1,
                 )
             (loss / accumulation).backward()
             pending += 1
@@ -813,27 +949,44 @@ def main() -> None:
             train_weight_sum += weight
             for key, value in metrics.items():
                 train_metric_sum[key] += value * weight
-        train_metrics = {
-            key: value / train_weight_sum
-            for key, value in sorted(train_metric_sum.items())
-        }
-        tune_metrics = _evaluate(
-            model,
-            tune_states,
-            cache=cache,
-            batch_size=batch_size,
-            device=args.device,
-            loss_config=training["loss"],
-            weights_by_state=tune_weights,
-            torch=torch,
-            normalization_floor=normalization_floor,
+        train_metrics = (
+            _distributed_metric_average(
+                train_metric_sum,
+                train_weight_sum,
+                device=device,
+                torch=torch,
+            )
+            if distributed
+            else {
+                key: value / train_weight_sum
+                for key, value in sorted(train_metric_sum.items())
+            }
         )
+        tune_metrics = None
+        if rank == 0:
+            tune_metrics = _evaluate(
+                checkpoint_model,
+                tune_states,
+                cache=cache,
+                batch_size=evaluation_batch_size,
+                device=device,
+                loss_config=training["loss"],
+                weights_by_state=tune_weights,
+                torch=torch,
+                normalization_floor=normalization_floor,
+            )
+        if distributed:
+            payload = [tune_metrics]
+            torch.distributed.broadcast_object_list(payload, src=0)
+            tune_metrics = payload[0]
+        if not isinstance(tune_metrics, dict):
+            raise RuntimeError("tune metrics were not broadcast")
         if not all(
             math.isfinite(value)
             for metrics in (train_metrics, tune_metrics)
             for value in metrics.values()
         ):
-            if best_checkpoint is None:
+            if best_epoch is None:
                 raise RuntimeError("training became non-finite before a valid checkpoint")
             termination_reason = "nonfinite_metrics"
             break
@@ -845,13 +998,15 @@ def main() -> None:
                 "tune": tune_metrics,
             }
         )
-        print(json.dumps(history[-1], sort_keys=True), flush=True)
+        if rank == 0:
+            print(json.dumps(history[-1], sort_keys=True), flush=True)
         if tune_metrics["total"] < best_tune - float(training["minimum_delta"]):
             best_tune = tune_metrics["total"]
             best_epoch = epoch
-            best_checkpoint = _save_checkpoint(
-                model, output_root / "best.safetensors"
-            )
+            if rank == 0:
+                best_checkpoint = _save_checkpoint(
+                    checkpoint_model, output_root / "best.safetensors"
+                )
             patience = 0
         else:
             patience += 1
@@ -878,6 +1033,15 @@ def main() -> None:
         "model": variant["model"],
         "normalization_floor": normalization_floor,
         "overfit_state_count": args.overfit_state_count,
+        "distributed": {
+            "backend": "nccl" if distributed else None,
+            "distributed_padding_rows_per_epoch": distributed_padding_rows_per_epoch,
+            "effective_global_batch_size": batch_size * world_size * accumulation,
+            "evaluation_batch_size": evaluation_batch_size,
+            "per_device_batch_size": batch_size,
+            "world_size": world_size,
+        },
+        "local_optimization_rows_per_epoch": local_optimization_rows_per_epoch,
         "optimization_rows_per_epoch": optimization_rows_per_epoch,
         "schema_version": "1.0.0",
         "seed": seed,
@@ -890,16 +1054,20 @@ def main() -> None:
         "tune_trajectory_count": len({state["trajectory_id"] for state in tune_states}),
         "variant": args.variant,
     }
-    summary["content_sha256"] = hashlib.sha256(
-        canonical_json_bytes(summary)
-    ).hexdigest()
-    destination = output_root / "summary.json"
-    temporary = destination.with_suffix(f".json.{os.getpid()}.tmp")
-    with temporary.open("xb") as handle:
-        handle.write(canonical_json_bytes(summary) + b"\n")
-        handle.flush()
-        os.fsync(handle.fileno())
-    os.replace(temporary, destination)
+    if rank == 0:
+        summary["content_sha256"] = hashlib.sha256(
+            canonical_json_bytes(summary)
+        ).hexdigest()
+        destination = output_root / "summary.json"
+        temporary = destination.with_suffix(f".json.{os.getpid()}.tmp")
+        with temporary.open("xb") as handle:
+            handle.write(canonical_json_bytes(summary) + b"\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, destination)
+    if distributed:
+        torch.distributed.barrier()
+        torch.distributed.destroy_process_group()
 
 
 if __name__ == "__main__":

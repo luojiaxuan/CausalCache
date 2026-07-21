@@ -1,5 +1,20 @@
 # 项目进展
 
+## 2026-07-20：双模型 4-GPU DDP training repair
+
+- 首次 Hyper00 双单卡 launch 中，Set Transformer batch=8 在 139.40/139.81GB 时额外申请 650MB OOM；
+  DeepSets 未失败，但按用户指定的跨机布局主动停止迁移。两个 attempt 均无 summary/checkpoint，不进入结果；
+- 原 trainer 是单进程单 device，普通 DDP 会在每卡复制 119GB cache，不能靠“多卡总显存”自动消除单 rank
+  峰值。repair 明确采用 4 ranks × per-device batch 2，global batch 仍为 8；每卡完整 cache + 更小 activation，
+  同时按 global batch 数据并行；
+- DDP training rows 使用 deterministic global order/padding/sharding；scalar losses 由标准 DDP averaging 合并，
+  conditional listwise/regret 额外 all-reduce active-decision denominator，保持主目标的全局归一化；rank 0 用
+  evaluation batch 8 跑固定 tune 并保存 checkpoint；
+- Hyper01 原有 cache 只有 worker 4--7 的 56GB；已通过 agent-forwarded 10.0.32.x 内网从 Hyper00 补全，
+  manifest SHA 两机同为 `88db0d2a...58ec4`，3,572 files / 119,134,024,064 bytes / missing 0；
+- 新 committed config 固定 Set Transformer=Hyper00 4×H200、DeepSets=Hyper01 4×H200，per-rank batch=2、
+  world size=4、global batch=8；evaluation/closed-loop 仍锁定。
+
 ## 2026-07-20：decision-v2 labels 完成与 nested input-lineage repair
 
 - Hyper00/Hyper01 最终为 543/523 states、12,910/13,005 microbatches、8/8 + 8/8 worker receipts；

@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1",
+  "parent_config": "causalcache_set_utility_decision_distillation_v2_long_oracle_training_v1.json",
+  "parent_config_sha256": "86734c365f3134409d5dc67567164e8b2eb3ff1ee991d39b06125740ac3c858b",
+  "input": {
+    "training_input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "contextual_cache_input_content_sha256": "af18388e86406a7d3921e6f3d8e02c9b18cdeaacca3250f29f2f4fed102139c1",
+    "evaluation_access": false
+  },
+  "training": {
+    "seed": 20260721,
+    "epochs": 20,
+    "early_stopping_patience": 5,
+    "minimum_delta": 0.0001,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "attention_backend": "disable_cudnn_sdp",
+    "normalization_floor": 0.01,
+    "minimum_decision_supervised_state_count": 1100,
+    "minimum_long_plus_decision_supervised_state_count": 800,
+    "loss": {
+      "raw_regression": 0.25,
+      "normalized_regression": 0.25,
+      "within_state_ranking": 0.25,
+      "conditional_marginal": 1.0,
+      "conditional_listwise": 2.0,
+      "decision_regret": 2.0,
+      "decision_temperature": 0.25,
+      "raw_smooth_l1_beta": 0.05,
+      "normalized_smooth_l1_beta": 0.5,
+      "conditional_marginal_smooth_l1_beta": 0.25
+    }
+  },
+  "variants": {
+    "deepsets_decision_v2_long_oracle_ddp4_d256_l16_r2_lr3e4": {
+      "model": {
+        "family": "deepsets",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "per_device_batch_size": 2,
+      "evaluation_batch_size": 8,
+      "distributed_world_size": 4,
+      "gradient_accumulation_steps": 1
+    },
+    "set_transformer_decision_v2_long_oracle_ddp4_d256_l16_r2_s2_lr1e4": {
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0001,
+      "weight_decay": 0.01,
+      "batch_size": 8,
+      "per_device_batch_size": 2,
+      "evaluation_batch_size": 8,
+      "distributed_world_size": 4,
+      "gradient_accumulation_steps": 1
+    }
+  },
+  "selection": {
+    "budget_contract": "at_most_B",
+    "budgets": [1, 2, 3, 4],
+    "budget_input_to_model": false,
+    "search": "beam",
+    "beam_width": 4,
+    "allow_nonpositive_prefixes": true,
+    "empty_utility_is_exact_zero": true
+  },
+  "gate": {
+    "candidate_model": "best_true_utility_model",
+    "each_budget_point_estimate_strictly_greater_than_recent": true,
+    "macro_paired_bootstrap_lower_strictly_greater_than_zero": true,
+    "long_plus_very_long_point_estimate_strictly_greater_than_recent": true,
+    "failure_blocks_untouched_evaluation": true
+  },
+  "firewall": {
+    "allowed_roles": ["train", "tune"],
+    "evaluation_access": false,
+    "tune_labels_enter_optimizer": false,
+    "maximum_dagger_rounds": 1
+  }
+}

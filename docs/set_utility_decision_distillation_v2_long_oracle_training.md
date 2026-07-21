@@ -85,6 +85,15 @@ scalar rows 稀释。
 7. `GO` 才密封 checkpoint 并访问 untouched evaluation；`NO_GO` 则停止，不启动 policy replay、closed-loop
    或 matched-NLL，也不追加第二轮 DAgger。
 
+## DDP execution repair
+
+单卡 batch=8 的 Set Transformer 在 139.40/139.81GB 峰值 OOM，因此正式训练使用
+[`causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json`](../code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json)。
+两个模型均为 4-rank DDP、per-rank batch=2、global batch=8；这保持原 effective batch 与 loss/optimizer，
+只改变合法执行布局。每 rank 仍持有完整 frozen cache，数据 rows 按 deterministic global batch 切分；条件决策
+损失的 active denominator 跨 rank 汇总。Set Transformer 在 Hyper00，DeepSets 在 Hyper01；每台 4 GPUs，
+均低于用户对 Hyper00 本轮显式授权的 6-card 上限。
+
 ## 当前边界
 
 这次调整只利用已经独立生成的 train-only long-oracle labels 改善蒸馏合同。它不推翻 v1 或 enrichment-v1

@@ -150,3 +150,25 @@ def test_decision_supervision_census_counts_only_complete_groups() -> None:
     assert result["long_plus_very_long_state_count"] == 1
     assert result["complete_expansion_group_count"] == 1
     assert result["history_bin_state_counts"] == {"long": 1}
+
+
+def test_distributed_epoch_shards_reconstruct_padded_global_batches() -> None:
+    from scripts.train_set_utility_token_predictor import _distributed_epoch_shard
+
+    states = tuple({"state_id": str(index)} for index in range(10))
+    shards = []
+    for rank in range(4):
+        shard, padding = _distributed_epoch_shard(
+            states,
+            per_device_batch_size=2,
+            rank=rank,
+            world_size=4,
+        )
+        assert padding == 6
+        assert len(shard) == 4
+        shards.append(shard)
+    reconstructed = []
+    for step in range(2):
+        for rank in range(4):
+            reconstructed.extend(shards[rank][step * 2 : (step + 1) * 2])
+    assert tuple(reconstructed) == states + states[:6]

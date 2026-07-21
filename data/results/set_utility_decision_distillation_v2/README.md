@@ -1,6 +1,6 @@
 # Decision distillation v2
 
-状态：`TRAINING_INPUT_COMPLETE`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
+状态：`DDP_TRAINING_SOURCE_READY`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
 storage，完成后发布到 private Hugging Face。
 
 ## 已完成
@@ -62,6 +62,23 @@ lineage-repaired v2 training input 已物化到 Hyper00
 `9d9ef9917eb9da635e044845ddcff71924447eafb3b5b6091d13d42f5be10956`，226MB；cache ancestor
 `af18388e...f102139c1` 命中并通过 validator。最终 census 为 5,550 decision-supervised states / 67,322
 complete expansion groups，Long+ 902 states，超过 1,100/800 的冻结启动门槛；status=`PENDING_HF_UPLOAD`。
+
+## Distributed training repair
+
+首次双单卡 launch 中，DeepSets 正常进入训练，Set Transformer 在 batch=8 forward 峰值占用
+139.40/139.81GB，申请额外 650MB 时 OOM；该 container 随后按用户要求停止并迁移，两个 output roots 都没有
+summary/checkpoint，不能作为结果或续跑入口。失败不改变 label/input/config identity。
+
+正式 repair 使用
+[`causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json`](../../../code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json)：
+
+- 每模型 4 ranks，per-device batch=2、global batch=8，不改变 LR、loss、seed、epoch 或 effective batch；
+- 每 rank 在独立 H200 上预载完整 frozen cache；DDP 只切 training rows，不把 119GB cache 跨卡拼接；
+- global order 补齐到 8 的倍数后按 global batch 分片，padding 数写入 summary；
+- conditional listwise/regret 使用跨 rank 的 active-decision denominator，避免局部 batch 无条件监督时稀释主损失；
+- rank 0 用原 evaluation batch=8 跑完整 fixed tune、保存 checkpoint，再广播同一 early-stop decision；
+- Set Transformer 固定 Hyper00 4×H200，DeepSets 固定 Hyper01 4×H200。Hyper01 cache 已由 10.0.32.x
+  内网补全：3,572/3,572 files、119,134,024,064 bytes、manifest SHA256=`88db0d2a...58ec4`。
 
 只有 fixed-tune B1--B4、macro CI 与 long-history gate 全部通过，才允许访问 untouched evaluation；本调整不
 解锁 policy replay、closed-loop 或 matched-NLL。
