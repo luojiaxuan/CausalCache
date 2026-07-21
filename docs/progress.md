@@ -10,11 +10,13 @@
   Hyper00 单机 cache 已 finalize：3,065 shards、289,753,201,728 bytes、content SHA256=
   `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；
 - versioned executable LoRA training config 已绑定 boundary、GUI-Owl snapshot、initial head、split 和 optimizer
-  inventory；token-adapter phase 1 已在 Hyper01 4×H200 完成首 epoch 并停在 truth barrier，需补 3,031 个
-  实际访问 coalitions；LoRA-only phase 1 已在 Hyper00 6×H200 启动。两者均使用固定 256-state
-  development denominator。
+  inventory；token-adapter phase 1 已在 Hyper01 4×H200 完成首 epoch；LoRA-only phase 1 也已在
+  Hyper00 6×H200 完成。两者均使用固定 256-state development denominator。
 - token-adapter 首次 schedule 错将新 model family 配上旧 Set status；在任何 truth 生成/读取前修复并用原
-  checkpoint resume 重建。修复后 132 states、3,163 coalitions 已物化，Hyper01 6×H200 rollout 运行中。
+  checkpoint resume 重建。修复后的 132/132 states、3,163 coalitions 已由 Hyper01 6×H200 完成并
+  seal，0 skip/error；formal truth content=`ac7304d5...ae98`。adapter-only B1/B2/B3/B4=
+  `0.18320/0.27833/0.37140/0.40280`，macro/Long+=`0.30893/0.30401`，低于 recent=
+  `0.37330/0.38002`。该结果不解锁表示改进 claim，但按冻结两阶段合同允许进入 joint adapter 对照。
 - LoRA-only 首 epoch 用 Hyper00 6×H200 约 12 分钟完成，checkpoint SHA256=`db95948b...ccc01`；129
   states、3,785 coalitions 已物化，Hyper00 6×H200 truth rollout 与 token-adapter rollout 并行运行。
 

@@ -12,7 +12,9 @@
   GUI-Owl top-4 branch 已通过真实 context bitwise parity（max absolute difference=`0.0`）。23,714 个
   layer-32 boundary contexts 已由 Hyper00/Hyper01 的 12/12 partitions 完整提取、0 failure；Hyper00
   单机 cache 已 finalize：3,065 shards、289,753,201,728 bytes、content=`77dec757...5d16b`。LoRA trainer 与
-  token-adapter control 已实现；token-adapter phase 1 已启动，LoRA 尚未产生效果结论。
+  token-adapter control 已实现；两条 adaptation 分支首 epoch 均已完成。token-adapter 的 phase-1 truth
+  已封存并回填，但 adapter-only recovery 低于 recent；这只否定冻结 head 下的 adapter-only 初始化，joint
+  adaptation 与 LoRA 仍在继续，尚无 LoRA 效果结论。
   [设计](docs/set_utility_selector_lora_v1.md)与
   [状态](data/results/set_utility_selector_lora_v1/README.md)。
 - 正式 label rollout 已使用 Hyper00/Hyper01 各 6×H200 完成：5,108/5,108 states、33,175/33,175
@@ -118,9 +120,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 - 旧 budget-deferral evaluation 已停止且 `truth read=0`；不再继续该 evaluation，也不把 partial receipts
   解释为结果。Hyper00 单机 boundary cache 与 versioned executable training config 已完成；当前顺序为
-  Hyper00 6-GPU LoRA-only phase 1 → 固定 256-state development truth barrier。训练通过该 barrier 后才继续
-  joint phase；token-adapter phase 1 已在 Hyper01 并行启动并使用同一 checkpoint-selection
-  contract 作为表示对照。[LoRA 执行状态](data/results/set_utility_selector_lora_v1/README.md)。
+  Hyper00 6-GPU LoRA-only phase 1 已完成，正在补固定 256-state development truth；训练通过该 barrier
+  后才继续 joint phase。Hyper01 的 token-adapter phase 1 已完成 truth 回填：B1--B4 macro/Long+=
+  `0.30893/0.30401`，低于 recent=`0.37330/0.38002`；下一步按冻结两阶段合同继续 joint adapter，作为
+  LoRA 的表示对照。[LoRA 执行状态](data/results/set_utility_selector_lora_v1/README.md)。
 - direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
   general-`B` v3 路线。该旧合同不被追认；本轮是用户显式授权的 data-coverage/structured-fallback 新假设，
   下游 policy replay、closed-loop 与 matched-NLL 仍需由新 checkpoint 的 untouched evaluation 解锁。

@@ -1,6 +1,6 @@
 # Selector-side LoRA v1
 
-状态：`ADAPTATION_PHASE1_RUNNING`。
+状态：`ADAPTER_PHASE1_COMPLETE_LORA_TRUTH_RUNNING`。
 
 - teacher/action policy：原始 frozen GUI-Owl，不含 LoRA；
 - selector branch：LM top-4，计划 q/k/v/o rank-8 LoRA；
@@ -20,10 +20,16 @@
   `fa9d53bf...ce36e`；LoRA-only phase 1 已由 Hyper00 GPU 2--7、容器
   `sglang-omni-jaxan-07211541` 完成，checkpoint SHA256=`db95948b...ccc01`，code revision=
   `5c827e6852e8970fbcf2fb3cba0e3c53ae73fd2f`；
-- 两者尚无 recovery，不能报告方法效果；下一步为 LoRA 首 epoch与两条分支的 256-state truth barrier；
+- token-adapter phase 1 truth 已完成并回填：B1/B2/B3/B4=
+  `0.18320309/0.27833197/0.37139556/0.40280036`，macro/Long+=`0.30893275/0.30400585`；同一
+  denominator 的 recent 为 `0.18320309/0.35564526/0.42122277/0.53311916`，macro/Long+=
+  `0.37329757/0.38001933`。adapter-only 没有改善表示，但这不是 joint adapter 或 LoRA 的 verdict；
 - token-adapter schedule family/status mismatch 在 truth 生成前被发现并修复；修复后 schedule content=
   `dee264a7...106ec`，物化为 132 states、3,163 coalitions（其中 3,031 forward）。Hyper01 6×H200 truth
-  rollout 已启动，执行计划见 [`token-adapter-truth-rollout-plan.json`](token-adapter-truth-rollout-plan.json)。
+  rollout 已完成：132/132 states、6/6 workers、0 skip/error，formal truth content=
+  `ac7304d527af648da715f9045fbbf446268ef50c1634ae26ea09049741c2ae98`；phase summary SHA256=
+  `f356809a44d1336c428e7ceaae1f32364297366aa9b98d63374bf9beb9239f98`。执行计划见
+  [`token-adapter-truth-rollout-plan.json`](token-adapter-truth-rollout-plan.json)。
 - LoRA schedule content=`90463d5f...d7f37`，物化为 129 states、3,785 coalitions（其中 3,656
   forward）。Hyper00 6×H200 truth rollout 已启动，执行计划见
   [`lora-truth-rollout-plan.json`](lora-truth-rollout-plan.json)。

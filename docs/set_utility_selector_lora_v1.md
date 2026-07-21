@@ -59,14 +59,14 @@ head 的 selection parity。
   单机 cache 已通过 finalizer：3,065 shards、289,753,201,728 bytes、content SHA256=
   `77dec757c5637d538637463984caa5dff8481e36163589d540bccc5a7c55d16b`；
 - executable training config 已单独版本化，未改写 extraction config；token-adapter 与 LoRA-only 首 epoch
-  均已完成，分别需要 3,031/3,656 个实际访问 coalition truth。两条 6×H200 rollouts 已在 Hyper01/
-  Hyper00 并行运行；当前仍没有 recovery 结果，不能声称 selector representation 已改善。
+  均已完成。token-adapter 的 132-state truth 已 seal 并回填，B1--B4 macro/Long+=
+  `0.30893/0.30401`，低于 recent=`0.37330/0.38002`；LoRA 的 129-state truth rollout 仍在 Hyper00
+  运行。当前不能声称 selector representation 已改善。
 
 ## 下一步
 
-1. 为两条 adaptation 分支补齐并封存固定 256-state development 上实际访问的 coalitions；
-2. resume 两个首 epoch checkpoint，按真实 recovery 决定是否
-   继续 joint phase。
+1. 完成 LoRA 首 epoch 的固定 256-state truth barrier；
+2. 继续 joint token-adapter 对照，并在 LoRA truth 回填后按真实 recovery 启动 joint LoRA。
 
 Boundary extraction 的冻结参数见
 [`causalcache_set_utility_selector_lora_v1.json`](../code/configs/causalcache_set_utility_selector_lora_v1.json)。

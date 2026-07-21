@@ -1,0 +1,32 @@
+{
+  "checkpoint_sha256": "fa9d53bf7735396dbaacd25ec3c4eba1f06909a15aa887434b8bb295388ce36e",
+  "heldout_rollout_file_sha256": "b041dd56acaea1b966aa1200926b25b79842ea228dd7d75923ee4c39d5abab39",
+  "model_family": "selector_token_adapter_v1_adapter_only",
+  "phase_summary_file_sha256": "f356809a44d1336c428e7ceaae1f32364297366aa9b98d63374bf9beb9239f98",
+  "recent": {
+    "B1": 0.1832030894394307,
+    "B2": 0.3556452589785001,
+    "B3": 0.42122277090461197,
+    "B4": 0.5331191596613188,
+    "long_plus_macro": 0.38001933028971185,
+    "macro": 0.3732975697459654
+  },
+  "recovery": {
+    "B1": 0.1832030894394307,
+    "B2": 0.2783319728969759,
+    "B3": 0.37139556364052456,
+    "B4": 0.4028003624720537,
+    "long_plus_macro": 0.30400584536344555,
+    "macro": 0.30893274711224616
+  },
+  "schema_version": "causalcache.selector_adaptation_lightweight_result.v1",
+  "status": "COMPLETED_SELECTOR_TOKEN_ADAPTER_PHASE1_TRUE_RECOVERY",
+  "truth": {
+    "coalition_count": 3163,
+    "formal_manifest_content_sha256": "ac7304d527af648da715f9045fbbf446268ef50c1634ae26ea09049741c2ae98",
+    "formal_manifest_file_sha256": "8be132de2dba06c7430264957ff366ba5a60c9f498b87aaf5cab18f58cd7ea83",
+    "local_root": "/data02/jaxan/runs/causalcache-selector-token-adapter-truth-e1-e1593c6",
+    "state_count": 132,
+    "status": "PENDING_HF_UPLOAD"
+  }
+}
