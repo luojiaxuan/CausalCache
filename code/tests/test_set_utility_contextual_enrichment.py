@@ -14,7 +14,7 @@ from causalcache.set_utility_contextual_inputs import (
     CONTEXTUAL_REQUIREMENT_STATUS,
 )
 from causalcache.set_utility_heldout_evaluation import canonical_json_bytes
-from scripts.run_set_utility_tune_selectors import _binding_covers_input
+from scripts.run_set_utility_tune_selectors import _binding_covers_input, _pad_entities
 
 
 def _write_json(path: Path, value: object) -> None:
@@ -156,6 +156,16 @@ class ContextualEnrichmentTest(unittest.TestCase):
         self.assertTrue(_binding_covers_input(manifest, "base"))
         self.assertTrue(_binding_covers_input(manifest, "cache-source"))
         self.assertFalse(_binding_covers_input(manifest, "other"))
+
+    def test_selector_padding_moves_lazy_cpu_tokens_to_target_device(self) -> None:
+        try:
+            import torch
+        except ModuleNotFoundError:
+            self.skipTest("PyTorch is unavailable")
+        visual = [torch.ones((2, 4)), torch.ones((1, 4))]
+        text = [torch.ones((3, 4)), torch.ones((2, 4))]
+        padded = _pad_entities(visual, text, device="meta", torch=torch)
+        self.assertTrue(all(value.device.type == "meta" for value in padded))
 
 
 if __name__ == "__main__":

@@ -109,18 +109,20 @@ def _pad_entities(
     visual_length = max(row.shape[0] for row in visual)
     text_length = max(row.shape[0] for row in text)
     hidden = visual[0].shape[1]
-    device = visual[0].device
+    source_device = visual[0].device
     visual_batch = torch.zeros(
-        (len(visual), visual_length, hidden), dtype=visual[0].dtype, device=device
+        (len(visual), visual_length, hidden),
+        dtype=visual[0].dtype,
+        device=source_device,
     )
     visual_mask = torch.zeros(
-        (len(visual), visual_length), dtype=torch.bool, device=device
+        (len(visual), visual_length), dtype=torch.bool, device=source_device
     )
     text_batch = torch.zeros(
-        (len(text), text_length, hidden), dtype=text[0].dtype, device=device
+        (len(text), text_length, hidden), dtype=text[0].dtype, device=source_device
     )
     text_mask = torch.zeros(
-        (len(text), text_length), dtype=torch.bool, device=device
+        (len(text), text_length), dtype=torch.bool, device=source_device
     )
     for index, row in enumerate(visual):
         visual_batch[index, : row.shape[0]] = row
