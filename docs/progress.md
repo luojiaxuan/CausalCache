@@ -4446,4 +4446,6 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   non-finite/duplicate/error。首次 merge 在任何输出写入前 fail-fast：新 schedule 的合法 status
   `COMPLETED_SET_UTILITY_DIRECT_ON_POLICY_SCHEDULES` 未被旧 multisource allowlist 接入。修复只补齐该 frozen
   status，并把 schedule status 写入 source provenance；focused regression 5/5 passed，labels 与 schedule bytes
-  均未修改。
+  均未修改。第二次 dry merge 又在写输出前捕获 count-interface bug：manifest 的 `state_count=10,658` 是完整
+  train inventory，`scheduled_state_count=5,108` 才是 schedule-shard denominator；materializer 改为优先后者，
+  并用同时含两字段且数值不同的 fixture 锁定该语义。

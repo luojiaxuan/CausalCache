@@ -215,6 +215,7 @@ def test_multisource_merge_accepts_direct_on_policy_schedule_status() -> None:
         manifest = json.loads(manifest_path.read_text())
         manifest.pop("content_sha256")
         manifest["status"] = "COMPLETED_SET_UTILITY_DIRECT_ON_POLICY_SCHEDULES"
+        manifest["state_count"] = 2
         manifest = _content_manifest(manifest)
         _write_json(manifest_path, manifest)
         direct_source = ContextualEnrichmentSource(

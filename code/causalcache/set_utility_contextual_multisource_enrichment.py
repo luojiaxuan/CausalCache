@@ -120,7 +120,7 @@ def _load_schedules(
                 raise ValueError(f"schedule inventory is invalid: {source.name}")
             schedules[state_id] = row
     expected_count = manifest.get(
-        "state_count", manifest.get("scheduled_state_count")
+        "scheduled_state_count", manifest.get("state_count")
     )
     if len(schedules) != expected_count:
         raise ValueError(f"schedule state count drifted: {source.name}")
