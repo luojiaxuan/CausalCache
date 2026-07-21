@@ -1,9 +1,9 @@
 # Direct conditional-marginal student v3
 
-状态：`AUTHORIZED / STAGE-A V1 SPEARMAN FAIL / ONE RANK-LOSS REPAIR FROZEN`。授权依据为
+状态：`STOPPED / NO_GO_DIRECT_MARGINAL_V3_STAGE_A`。授权依据为
 [`fixed-tune Long+ oracle v1`](../data/results/set_utility_tune_long_oracle_v1/README.md)：同 denominator
-oracle--recent macro=`+0.3750 [0.2627,0.5656]`。本路线是 learned general-`B` gate 的最后一次完整尝试；
-失败后不继续 v4/v5，而收缩为 hybrid + oracle analysis。
+oracle--recent macro=`+0.3750 [0.2627,0.5656]`。唯一一次 rank-loss repair 仍未通过冻结 Stage-A gate；
+本路线按 stop rule 终止，不继续 v4/v5，也不启动完整 conditional training 或后续 evaluation。
 
 ## 1. 修复的合同错配
 
@@ -49,9 +49,15 @@ B1=`0.473/0.501`。conjunctive gate 因 Spearman 正式未过，结果不可追�
 数据、seed 与 gate 均不变，最多 40 epochs。若 repair 仍未通过，停止 learned general-`B` 路线，不创建第三个
 probe variant。
 
+Rank repair 的正式结果为 Spearman=`0.291<0.5`、top-4=`0.951`、top-1=`0.841`、learned/oracle
+B1=`0.437/0.501`。Spearman 相比 v1 仅提高约 `0.052`，同时 top-1 与 B1 recovery 下降；因此不能把失败继续
+归因于简单 loss 权重不足。conjunctive gate 正式 FAIL，Stage B 永久未授权。轻量结果见
+[`rank repair result`](../data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)。
+
 ### Stage B：完整 conditional-marginal training
 
-只在 Stage A 通过后执行。训练单位是 complete expansion group：
+只在 Stage A 通过后执行；Stage A 已失败，因此本阶段**未执行且不再授权**。原计划训练单位是 complete
+expansion group：
 
 ```text
 (q, C, selected S, remaining candidate j or STOP)
@@ -66,9 +72,8 @@ probe variant。
 - checkpoint 只由 train split 内确定性 trajectory holdout 的 conditional decision regret 选择；既有 tune truth
   不进 optimizer、early stopping、超参数选择或 checkpoint 选择。
 
-Stage B 先过 train-only conditional fit gate，再密封唯一 checkpoint。之后另立一次 fixed-tune v3 合同；若未超过
-recent/B1--B4/Long+ gate，learned general-`B` 路线正式止损。untouched evaluation、policy replay、closed-loop
-在 fixed-tune GO 前继续锁定。
+Stage B、fixed-tune v3、untouched evaluation、policy replay、closed-loop 与 matched-NLL 均未启动。任何新
+student 机制都属于新的研究决策，不能把本路线追认为通过或绕过 stop rule。
 
 ## 4. 实现与 frozen Stage-A config
 

@@ -6,12 +6,19 @@
 
 ## 当前结论
 
-- **同 denominator 的 tune Long+ true conditional-greedy oracle 已强阳性通过，授权 direct-marginal v3。** scalar `U(S)`
+- **Direct conditional-marginal v3 Stage-A 正式 NO-GO，learned general-`B` student 路线已按 stop rule
+  终止。** 唯一 rank-loss repair 在 250 个 train-only long-oracle states 上把 singleton Spearman 从
+  `0.238` 提到 `0.291`，仍远低于冻结门槛 `>0.5`；top-4 recall=`0.951` 虽通过，但 top-1 与 B1 recovery
+  反而降到 `0.841/0.437`。因此失败不是简单的 ranking 权重不足。现不启动完整 conditional training、
+  fixed-tune v3、untouched evaluation、policy replay、closed-loop 或 matched-NLL；也不创建第三个 probe。
+  这不否定 restoration oracle signal，而是否定当前 learned general-`B` student 实现路线。
+  [正式结果](data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)。
+- **同 denominator 的 tune Long+ true conditional-greedy oracle 已强阳性通过，曾授权 direct-marginal v3。** scalar `U(S)`
   student 的病理已经确认：250/250 states 预测 utility 随基数严格上升、at-most-`B` 全部选满，而真实
   第二次加入有 56.6% 会降低 utility，singleton in-sample Spearman 仅 0.11。在 fixed-tune 的同一 249
   Long+ states 上，oracle/recent macro=`0.6949/0.3199`，差值=`+0.3750 [0.2627,0.5656]`，大幅通过
-  point `>0.10`、CI lower `>0.03` 的门槛。结论是 student 问题，不是 tune 人群没有 headroom；现只授权
-  一次 direct conditional-marginal + explicit STOP v3，scalar head 不再调参。
+  point `>0.10`、CI lower `>0.03` 的门槛。结论是 student 问题，不是 tune 人群没有 headroom；该结果
+  曾授权一次 direct conditional-marginal + explicit STOP v3，但其 Stage-A 后续已按门槛失败。
   [正式结果](data/results/set_utility_tune_long_oracle_v1/README.md)。
 - **Decision distillation v2 首次在真实 fixed-tune selector truth 上显著超过 recent，但冻结 gate 仍为
   NO-GO。** 基础 Set Transformer 在 1,063/1,063 states 上的 B1--B4 macro recovery=`0.47593`，recent=
@@ -78,13 +85,13 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 ## 当前执行主线
 
 - fixed-tune Long+ oracle v1 已完成 249/249、四 wave 0 skip；tune truth 只用于 failure decomposition，
-  禁止进入训练。direct conditional-marginal + STOP v3 已冻结为“candidate set 一次编码 + 每步 selected
-  attention 重打分”，不输入 `B` 或 scalar cardinality offset；先跑 train-only in-sample fit gate，通过后才
-  进入完整 conditional groups 训练并另立 fixed-tune 合同。untouched evaluation/policy/closed-loop 仍锁定。
-  [v3 合同](docs/set_utility_direct_marginal_v3.md)。
-- v3 Stage-A v1 已完成：top-1 best-event=`90.4%`、top-4=`98.7%`、B1 达 oracle 的 94.4%，但 full-ranking
-  Spearman=`0.238<0.5`，冻结 conjunctive gate 正式 FAIL。现只允许一次不改门槛/架构/数据的 rank-loss
-  repair；仍失败即止损。[结果](data/results/set_utility_direct_marginal_v3_fit_probe_v1/README.md)。
+  禁止进入训练。direct conditional-marginal + STOP v3 的两个 Stage-A probes 都未通过冻结 Spearman gate，
+  learned general-`B` 路线已停止。下一步必须先做新的 paper-scope 决策；当前不启动任何 full training 或
+  下游 policy 实验。[v3 停止记录](docs/set_utility_direct_marginal_v3.md)。
+- v3 Stage-A v1 与唯一 rank repair 均已完成；repair 的 Spearman/top-4=`0.291/0.951`，conjunctive gate
+  仍 FAIL，learned general-`B` 路线正式止损。Hyper00/Hyper01 后续新 GPU 工作每台最多可用 8 卡，但当前
+  没有获科学授权的 full training；不为占满资源绕过 stop rule。
+  [结果](data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)。
 - 同一 trajectory 的所有 eligible decision steps 保持在同一 split；
 - 正式 state 使用当前决策前的全部 eligible events，`n_t=|C_t|` 是数据属性；不得做 recent-`n` 候选截断；
 - 每个 state 约生成 40 个 age/interaction-stratified coalition labels，小历史可 exact，大历史只采样 subsets；
@@ -202,6 +209,8 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Decision v2 distributed training | [DDP config](code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json)；Hyper00 `/data02/jaxan/runs/causalcache-set-transformer-decision-v2-long-oracle-ddp4-v2-ecd5579`；Hyper01 `/data02/jaxan/runs/causalcache-deepsets-decision-v2-long-oracle-ddp4-v4-1aafe4c` | complete；两模型 epoch 1 best、epoch 6 early-stop；evaluation labels loaded=false；checkpoints `PENDING_HF_UPLOAD` |
 | Decision v2 epoch-best tune truth | [`summary`](data/results/set_utility_decision_distillation_v2_epoch1_tune/README.md)；Hyper00 full result `/data02/jaxan/runs/causalcache-running-best-tune-evaluation-v2-650afbe/result.json` | 1,063/1,063、0 skip；Set base/recent macro=`0.47593/0.45192`、CI lower=`+0.00430`；B2 与 Long+ fail；`NO_GO_DECISION_DISTILLATION_V2`；`PENDING_HF_UPLOAD` |
 | Set capacity + DeepSets prefetch v1 | [`summary`](data/results/set_utility_capacity_and_prefetch_v1/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-set-transformer-decision-v2-long-oracle-l64-s4-ddp2-v1-8a6b8a0` | L64/S4 2×H200 running；epoch-1 tune truth macro=`0.45575`、p95=`114.19ms`；prefetch elapsed -11.22%；checkpoint `PENDING_HF_UPLOAD` |
+| Fixed-tune Long+ oracle v1 | [`summary`](data/results/set_utility_tune_long_oracle_v1/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-tune-long-oracle-v1-b6a4643` | 249/249、0 skip；oracle/recent macro=`0.6949/0.3199`；`HEADROOM_CONFIRMED`；full payload `PENDING_HF_UPLOAD` |
+| Direct marginal v3 Stage-A | [`v1`](data/results/set_utility_direct_marginal_v3_fit_probe_v1/README.md)；[`rank repair`](data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)；Hyper00 persistent run | v2 Spearman/top-4=`0.291/0.951`；`NO_GO_DIRECT_MARGINAL_V3_STAGE_A`；fit-only checkpoints `PENDING_HF_UPLOAD`，不是正式模型 |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

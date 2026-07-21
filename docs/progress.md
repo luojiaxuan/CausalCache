@@ -4236,3 +4236,18 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   失败集中在非最优 tail ordering；在 train-only 范围内冻结一次 rank-weight `1→8` 的 loss-only repair，
   门槛/架构/data/seed 不变。repair 仍失败则不启动完整 conditional training。
 - 结果：[`data/results/set_utility_direct_marginal_v3_fit_probe_v1/`](../data/results/set_utility_direct_marginal_v3_fit_probe_v1/README.md)。
+
+## 2026-07-21:Direct marginal v3 rank repair 失败，learned general-B 路线止损
+
+- Hyper00 单 H200 完成唯一一次 rank-loss repair：40 epochs、321.7s、exit 0；仅使用 250 个 train
+  long-oracle states，`evaluation_records_loaded=false`。
+- Spearman 从 v1 的 `0.238` 提高到 `0.291`，仍未达到冻结门槛 `>0.5`；top-4 recall=`0.951>0.6`，
+  但 conjunctive gate 正式 FAIL。top-1 exact-best 与 learned B1 recovery 分别从 `0.904/0.473` 降至
+  `0.841/0.437`，所以不能继续把失败归因于 ranking loss 权重不足。
+- 按冻结 stop rule，verdict=`NO_GO_DIRECT_MARGINAL_V3_STAGE_A`：不创建第三个 probe，不启动 full
+  conditional training、fixed-tune v3、untouched evaluation、policy replay、closed-loop 或 matched-NLL。
+  restoration oracle headroom 仍成立；止损对象是当前 learned general-`B` student 路线。
+- Hyper00/Hyper01 的资源授权更新为每台最多 8 GPU，供后续经新研究决策授权的并行任务使用；当前不以资源
+  扩张绕过科学 gate。
+- 结果：
+  [`data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/`](../data/results/set_utility_direct_marginal_v3_fit_probe_v2_rank_repair/README.md)。
