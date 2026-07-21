@@ -4438,3 +4438,7 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   v6。guard 与 preflight 确认物理 GPU 3/6 空闲后，新容器 `sglang-omni-jaxan-07211039`
   （id `f3b62be...`）将 old p10/count12 精确拆为 p10+p22/count24、每卡 2 lanes。此后不再引入新的
   label handoff，剩余 partitions 自然收尾。
+- Hyper00 的 p0--p5 最终覆盖 2,385/2,385 states、0 skip；p5 由 p5+p17/count24 的 exact union 闭合，
+  v5 container 正常 `exited/0`。随后用 CPU-only container `sglang-omni-jaxan-07211042`
+  对 112GB contextual cache 完成首次逐 shard SHA256 验证并生成 host-local signed stat receipt；验证内容
+  SHA256=`44405c2...97604`、container `exited/0`，正式 6-rank 训练可只校验 receipt 与 shard stat。
