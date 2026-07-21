@@ -203,8 +203,12 @@ if torch is not None:
                 raise ValueError("LoRA alpha must be positive")
             self.base = base
             self.base.requires_grad_(False)
-            self.lora_a = torch.nn.Linear(base.in_features, rank, bias=False)
-            self.lora_b = torch.nn.Linear(rank, base.out_features, bias=False)
+            self.lora_a = torch.nn.Linear(base.in_features, rank, bias=False).to(
+                device=base.weight.device, dtype=base.weight.dtype
+            )
+            self.lora_b = torch.nn.Linear(rank, base.out_features, bias=False).to(
+                device=base.weight.device, dtype=base.weight.dtype
+            )
             self.scale = float(alpha) / rank
             torch.nn.init.kaiming_uniform_(self.lora_a.weight, a=5**0.5)
             torch.nn.init.zeros_(self.lora_b.weight)
