@@ -456,6 +456,22 @@ fidelity to a frozen policy, not action correctness. Expert alignment and
 executable closed-loop success remain separate diagnostics and validation
 requirements.
 
+Our offline experiments partition GUIOdyssey trajectories with a
+project-specific split: roles are assigned at the trajectory level by
+deterministic hashing with instruction--app group deduplication and
+history-length stratification, frozen before any label generation. This
+partition deliberately differs from the four official GUIOdyssey splits, which
+are two-way, are not length-stratified, and allow near-duplicate
+instruction--app combinations to cross train and test; a released audit maps
+every trajectory role onto the official lists. Because all offline metrics are
+internal paired comparisons over restoration labels that we generate, no
+official-leaderboard comparison is made or implied. We also cannot rule out
+that the frozen policy's pretraining corpus contains GUIOdyssey episodes; the
+protocol isolates selector training from selector evaluation but claims no
+decontamination of the policy itself. Neither caveat affects the primary
+closed-loop result, which pairs memory controllers under one frozen policy on
+sealed AndroidWorld test tasks.
+
 \section{Conclusion}
 
 \method turns mixed-fidelity behavioral restoration into policy-grounded
