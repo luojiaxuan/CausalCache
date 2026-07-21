@@ -105,7 +105,9 @@ if torch is not None:
             if type(enabled) is not bool:
                 raise TypeError("head trainable flag must be boolean")
             for name, parameter in self.predictor.named_parameters():
-                parameter.requires_grad_(enabled and name in self._default_head_trainable)
+                parameter.requires_grad_(
+                    enabled and name in self._default_head_trainable
+                )
 
         def freeze_adapter(self) -> None:
             self.set_adapter_trainable(False)
@@ -162,7 +164,9 @@ if torch is not None:
 
         def adapt_source_tokens(self, values: Any) -> Any:
             if getattr(values, "ndim", 0) < 2:
-                raise ValueError("source token tensor must have at least two dimensions")
+                raise ValueError(
+                    "source token tensor must have at least two dimensions"
+                )
             if values.shape[-1] != self.adapter_config.source_hidden_size:
                 raise ValueError("source token hidden size drifted")
             return self.adapter(values)
@@ -193,9 +197,7 @@ if torch is not None:
             encoded_state: EncodedConditionalMarginalState,
             subset_masks: Any,
         ) -> Any:
-            return self.predictor.score_singleton_utilities(
-                encoded_state, subset_masks
-            )
+            return self.predictor.score_singleton_utilities(encoded_state, subset_masks)
 
         def forward(
             self,
@@ -212,7 +214,6 @@ if torch is not None:
             if selected_masks is not None:
                 return self.score_encoded_candidates(encoded, selected_masks)
             return self.score_singleton_utilities(encoded, subset_masks)
-
 
 else:  # pragma: no cover - exercised only without PyTorch.
 

@@ -33,7 +33,15 @@ SELECTOR_LORA_MODEL_FAMILIES = (
     "selector_lora_v1_lora_only",
     "selector_lora_v1_joint",
 )
-_SUPPORTED_MODEL_FAMILIES = (*MODEL_FAMILIES, *SELECTOR_LORA_MODEL_FAMILIES)
+SELECTOR_TOKEN_ADAPTER_MODEL_FAMILIES = (
+    "selector_token_adapter_v1_adapter_only",
+    "selector_token_adapter_v1_joint",
+)
+_SUPPORTED_MODEL_FAMILIES = (
+    *MODEL_FAMILIES,
+    *SELECTOR_LORA_MODEL_FAMILIES,
+    *SELECTOR_TOKEN_ADAPTER_MODEL_FAMILIES,
+)
 _MODEL_FAMILY_TRUTH_STATUSES = {
     "deepsets_structured_marginal": (
         "COMPLETE_STRUCTURED_HELDOUT_TRUTH",
@@ -50,6 +58,14 @@ _MODEL_FAMILY_TRUTH_STATUSES = {
     "selector_lora_v1_joint": (
         "COMPLETE_SELECTOR_LORA_HELDOUT_TRUTH",
         "PENDING_SELECTOR_LORA_HELDOUT_TRUTH",
+    ),
+    "selector_token_adapter_v1_adapter_only": (
+        "COMPLETE_SELECTOR_TOKEN_ADAPTER_HELDOUT_TRUTH",
+        "PENDING_SELECTOR_TOKEN_ADAPTER_HELDOUT_TRUTH",
+    ),
+    "selector_token_adapter_v1_joint": (
+        "COMPLETE_SELECTOR_TOKEN_ADAPTER_HELDOUT_TRUTH",
+        "PENDING_SELECTOR_TOKEN_ADAPTER_HELDOUT_TRUTH",
     ),
 }
 
@@ -881,6 +897,7 @@ __all__ = [
     "LABEL_STATUS",
     "MODEL_FAMILIES",
     "SELECTOR_LORA_MODEL_FAMILIES",
+    "SELECTOR_TOKEN_ADAPTER_MODEL_FAMILIES",
     "materialize_heldout_truth_schedules",
     "seal_formal_truth_root",
 ]

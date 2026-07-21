@@ -299,6 +299,24 @@ def test_single_selector_lora_truth_schedule_is_supported(tmp_path) -> None:
     )
 
 
+def test_single_selector_token_adapter_truth_schedule_is_supported(tmp_path) -> None:
+    fixture = _fixture(tmp_path)
+    source = json.loads(
+        fixture["schedules"]["set_transformer"].read_text(encoding="utf-8")
+    )
+    source.pop("content_sha256")
+    source["model_family"] = "selector_token_adapter_v1_adapter_only"
+    source["status"] = "PENDING_SELECTOR_TOKEN_ADAPTER_HELDOUT_TRUTH"
+    schedule_path = tmp_path / "selector-token-adapter.json"
+    _write_signed(schedule_path, source)
+    fixture["schedules"] = {"selector_token_adapter": schedule_path}
+    result = _materialize(fixture, tmp_path / "selector-token-adapter-output")
+    assert result["status"] == SCHEDULE_STATUS
+    assert result["truth_schedules"]["selector_token_adapter"]["model_family"] == (
+        "selector_token_adapter_v1_adapter_only"
+    )
+
+
 def test_shared_truth_schedule_rejects_schedule_and_state_drift(tmp_path) -> None:
     fixture = _fixture(tmp_path)
     schedule_path = fixture["schedules"]["deepsets"]

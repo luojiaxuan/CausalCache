@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import math
 import os
@@ -77,6 +78,70 @@ from scripts.train_set_utility_token_predictor import (
 )
 
 
+class SetTransformerControlRuntime:
+    """Small model/runtime hook around the frozen control training loop."""
+
+    model_family = "set_transformer_direct_marginal"
+    progress_schema = "causalcache.set_transformer_control_progress.v1"
+    summary_schema = "causalcache.set_transformer_control_training.v1"
+    completed_status = "COMPLETED_SET_TRANSFORMER_CONTROL_SELECTED_BY_TRUE_RECOVERY"
+    finalized_status = "COMPLETED_SET_TRANSFORMER_CONTROL_TRUE_RECOVERY_SELECTION"
+    pending_finalized_status = "PENDING_SET_TRANSFORMER_CONTROL_TRUE_RECOVERY"
+    selection_schema = "causalcache.set_transformer_control_selection.v1"
+
+    def validate_config(
+        self, config: Mapping[str, Any], variant_name: str
+    ) -> dict[str, Any]:
+        return validate_control_config(config, variant_name)
+
+    def execution_config(self, config: Mapping[str, Any]) -> dict[str, Any]:
+        return copy.deepcopy(dict(config))
+
+    def build_model(
+        self,
+        *,
+        variant: Mapping[str, Any],
+        device: Any,
+        torch: Any,
+    ) -> Any:
+        return TokenConditionalMarginalPredictor(
+            TokenUtilityModelConfig(**variant["model"])
+        ).to(device)
+
+    def optimizer_parameter_groups(
+        self, model: Any, *, variant: Mapping[str, Any]
+    ) -> list[dict[str, Any]]:
+        return [
+            {
+                "name": "direct_head",
+                "params": [
+                    parameter
+                    for parameter in model.parameters()
+                    if parameter.requires_grad
+                ],
+                "lr": float(variant["learning_rate"]),
+            }
+        ]
+
+    def set_training_mode(self, model: Any) -> None:
+        model.train()
+
+    def load_resume_model_state(self, model: Any, state: Mapping[str, Any]) -> None:
+        model.load_state_dict(state, strict=True)
+
+    def identity_fields(self) -> dict[str, Any]:
+        return {"initialization": "fresh"}
+
+    def runtime_metadata(self) -> dict[str, Any]:
+        return {}
+
+    def checkpoint_manager_kwargs(self) -> dict[str, Any]:
+        return {}
+
+    def ddp_find_unused_parameters(self) -> bool:
+        return False
+
+
 def _epoch_examples(
     examples: Sequence[Mapping[str, Any]],
     *,
@@ -93,9 +158,7 @@ def _epoch_examples(
     )
     return pack_control_examples(
         sampled,
-        maximum_groups_per_state=int(
-            balancing["maximum_groups_per_encoded_state"]
-        ),
+        maximum_groups_per_state=int(balancing["maximum_groups_per_encoded_state"]),
         seed=seed + 100_000 + epoch,
     )
 
@@ -119,14 +182,18 @@ def _partition_resume_plans(
     """Allow one ahead plan from checkpoint/rollout-before-resume crash window."""
     if snapshot_epoch <= 0:
         raise ValueError("Set Transformer resume epoch must be positive")
-    ordered = tuple(sorted((dict(plan) for plan in plans), key=lambda row: row["epoch"]))
+    ordered = tuple(
+        sorted((dict(plan) for plan in plans), key=lambda row: row["epoch"])
+    )
     epochs = tuple(int(plan["epoch"]) for plan in ordered)
     if epochs != tuple(range(1, len(ordered) + 1)):
         raise ValueError("Set Transformer resume plans are not contiguous")
     if len(ordered) not in {snapshot_epoch, snapshot_epoch + 1}:
         raise ValueError("Set Transformer resume epoch-plan inventory drifted")
     completed = tuple(plan for plan in ordered if int(plan["epoch"]) <= snapshot_epoch)
-    crash_window = tuple(plan for plan in ordered if int(plan["epoch"]) > snapshot_epoch)
+    crash_window = tuple(
+        plan for plan in ordered if int(plan["epoch"]) > snapshot_epoch
+    )
     if len(completed) != snapshot_epoch or len(crash_window) > 1:
         raise ValueError("Set Transformer resume plan partition drifted")
     return completed, crash_window
@@ -144,9 +211,15 @@ def _group_sum_backward_scale(*, global_group_count: float, world_size: int) -> 
 
 
 def _publish_schedule(
-    output_root: Path, plans: Sequence[Mapping[str, Any]]
+    output_root: Path,
+    plans: Sequence[Mapping[str, Any]],
+    *,
+    model_family: str = "set_transformer_direct_marginal",
 ) -> dict[str, Any]:
     schedule = merge_control_truth_schedule(plans)
+    if not isinstance(model_family, str) or not model_family:
+        raise ValueError("truth schedule model family must be named")
+    schedule["model_family"] = model_family
     _write_atomic(output_root / "heldout-truth-schedule.json", _signed(schedule))
     return schedule
 
@@ -202,16 +275,24 @@ def _verify_epoch_checkpoint(output_root: Path, plan: Mapping[str, Any]) -> None
         raise ValueError("immutable Set Transformer epoch checkpoint drifted")
 
 
-def _fit(args: argparse.Namespace) -> None:
+def _fit(
+    args: argparse.Namespace,
+    *,
+    runtime: SetTransformerControlRuntime | None = None,
+) -> None:
     try:
         import torch
     except ModuleNotFoundError as error:
-        raise RuntimeError("Set Transformer control training requires PyTorch") from error
+        raise RuntimeError(
+            "Set Transformer control training requires PyTorch"
+        ) from error
     if not torch.cuda.is_available() or not args.device.startswith("cuda"):
         raise RuntimeError("Set Transformer control training requires CUDA")
+    runtime = runtime or SetTransformerControlRuntime()
     config_path = args.config.resolve()
     config = _read_json(config_path)
-    variant = validate_control_config(config, args.variant)
+    variant = runtime.validate_config(config, args.variant)
+    execution_config = runtime.execution_config(config)
     split_manifest = _load_split_manifest(args.split_manifest, config)
     if split_manifest is None:
         raise ValueError("Set Transformer control requires the frozen split manifest")
@@ -223,7 +304,9 @@ def _fit(args: argparse.Namespace) -> None:
         raise ValueError("Set Transformer DDP world size is outside the config")
     if distributed:
         if args.device != "cuda":
-            raise RuntimeError("distributed Set Transformer training needs --device cuda")
+            raise RuntimeError(
+                "distributed Set Transformer training needs --device cuda"
+            )
         torch.cuda.set_device(local_rank)
         torch.distributed.init_process_group(backend="nccl")
         device = f"cuda:{local_rank}"
@@ -246,7 +329,7 @@ def _fit(args: argparse.Namespace) -> None:
             cache_receipt_mode=cache_receipt_mode,
         )
     )
-    training = config["training"]
+    training = execution_config["training"]
     examples = prepare_control_examples(
         optimization_states,
         normalization_floor=float(training["normalization_floor"]),
@@ -267,27 +350,35 @@ def _fit(args: argparse.Namespace) -> None:
     _seed_training_runtime(torch, seed)
     torch.set_float32_matmul_precision("high")
     attention_backend = _configure_attention_backend(torch, training)
-    checkpoint_model = TokenConditionalMarginalPredictor(
-        TokenUtilityModelConfig(**variant["model"])
-    ).to(device)
+    checkpoint_model = runtime.build_model(
+        variant=variant,
+        device=device,
+        torch=torch,
+    )
     if distributed:
         model = torch.nn.parallel.DistributedDataParallel(
             checkpoint_model,
             device_ids=[local_rank],
             output_device=local_rank,
             broadcast_buffers=False,
-            find_unused_parameters=False,
+            find_unused_parameters=runtime.ddp_find_unused_parameters(),
         )
         torch.manual_seed(seed + rank)
         torch.cuda.manual_seed(seed + rank)
     else:
         model = checkpoint_model
-    parameters = tuple(
-        parameter for parameter in model.parameters() if parameter.requires_grad
+    parameter_groups = runtime.optimizer_parameter_groups(
+        checkpoint_model, variant=variant
     )
+    parameters = tuple(
+        parameter for group in parameter_groups for parameter in group["params"]
+    )
+    if not parameters or len({id(parameter) for parameter in parameters}) != len(
+        parameters
+    ):
+        raise ValueError("control optimizer parameters are empty or duplicated")
     optimizer = torch.optim.AdamW(
-        parameters,
-        lr=float(variant["learning_rate"]),
+        parameter_groups,
         weight_decay=float(variant["weight_decay"]),
     )
     epochs = int(training["epochs"])
@@ -329,15 +420,15 @@ def _fit(args: argparse.Namespace) -> None:
     identity = {
         "cache_content_sha256": cache_manifest["content_sha256"],
         "config_sha256": _sha256_file(config_path),
-        "initialization": "fresh",
         "input_content_sha256": input_manifest["content_sha256"],
-        "model_family": "set_transformer_direct_marginal",
+        "model_family": runtime.model_family,
         "optimizer_inventory_content_sha256": observed_optimizer_inventory[
             "content_sha256"
         ],
         "split_manifest_content_sha256": split_manifest["content_sha256"],
         "variant": args.variant,
         "world_size": world_size,
+        **runtime.identity_fields(),
     }
     output_root = args.output_root.resolve()
     manager = None
@@ -346,6 +437,7 @@ def _fit(args: argparse.Namespace) -> None:
             output_root,
             identity=identity,
             selection_split="train_trajectory_holdout",
+            **runtime.checkpoint_manager_kwargs(),
         )
         if not args.resume and manager.manifest["epochs"]:
             raise FileExistsError("Set Transformer checkpoint history needs --resume")
@@ -365,12 +457,10 @@ def _fit(args: argparse.Namespace) -> None:
             truth_sources,
             allowed_state_ids=set(heldout_by_id),
             states_by_id=heldout_by_id,
-            expected_model_family="set_transformer_direct_marginal",
+            expected_model_family=runtime.model_family,
             expected_epoch_checkpoints={},
             expected_input_content_sha256=input_manifest["content_sha256"],
-            expected_heldout_manifest_content_sha256=split_manifest[
-                "content_sha256"
-            ],
+            expected_heldout_manifest_content_sha256=split_manifest["content_sha256"],
             expected_source_manifest_file_sha256=config["input"][
                 "source_manifest_file_sha256"
             ],
@@ -389,7 +479,7 @@ def _fit(args: argparse.Namespace) -> None:
             distributed=distributed,
             torch=torch,
         )
-        checkpoint_model.load_state_dict(snapshot["model"], strict=True)
+        runtime.load_resume_model_state(checkpoint_model, snapshot["model"])
         optimizer.load_state_dict(snapshot["optimizer"])
         scheduler.load_state_dict(snapshot["scheduler"])
         random.setstate(snapshot["python_rng_state"])
@@ -403,12 +493,10 @@ def _fit(args: argparse.Namespace) -> None:
             truth_sources,
             allowed_state_ids=set(heldout_by_id),
             states_by_id=heldout_by_id,
-            expected_model_family="set_transformer_direct_marginal",
+            expected_model_family=runtime.model_family,
             expected_epoch_checkpoints=_plan_checkpoint_bindings(completed),
             expected_input_content_sha256=input_manifest["content_sha256"],
-            expected_heldout_manifest_content_sha256=split_manifest[
-                "content_sha256"
-            ],
+            expected_heldout_manifest_content_sha256=split_manifest["content_sha256"],
             expected_source_manifest_file_sha256=config["input"][
                 "source_manifest_file_sha256"
             ],
@@ -439,8 +527,10 @@ def _fit(args: argparse.Namespace) -> None:
                 ),
                 supplemental=supplemental,
             )
-            schedule = _publish_schedule(output_root, rebuilt)
-            barrier_action, selection = _selection(rebuilt, config)
+            schedule = _publish_schedule(
+                output_root, rebuilt, model_family=runtime.model_family
+            )
+            barrier_action, selection = _selection(rebuilt, execution_config)
             if history:
                 history[-1]["selection"] = selection
                 history[-1]["truth_missing_coalition_count"] = schedule[
@@ -451,7 +541,8 @@ def _fit(args: argparse.Namespace) -> None:
                 "balancing_inventory": control_balancing_inventory(examples),
                 "history": history,
                 "identity": identity,
-                "schema_version": "causalcache.set_transformer_control_progress.v1",
+                "runtime": runtime.runtime_metadata(),
+                "schema_version": runtime.progress_schema,
                 "status": barrier_action,
             }
             _write_atomic(output_root / "training-progress.json", _signed(progress))
@@ -473,7 +564,7 @@ def _fit(args: argparse.Namespace) -> None:
         start_epoch = epochs + 1
     started = time.time()
     for epoch in range(start_epoch, epochs + 1):
-        model.train()
+        runtime.set_training_mode(checkpoint_model)
         global_examples = _epoch_examples(
             examples, epoch=epoch, seed=seed, balancing=balancing
         )
@@ -518,8 +609,7 @@ def _fit(args: argparse.Namespace) -> None:
                 for selected, batch in raw_window
             )
             local_window_groups = sum(
-                float(batch["conditional_group_mask"].sum())
-                for _, batch in window
+                float(batch["conditional_group_mask"].sum()) for _, batch in window
             )
             group_denominator = torch.tensor(
                 local_window_groups, dtype=torch.float64, device=device
@@ -535,9 +625,7 @@ def _fit(args: argparse.Namespace) -> None:
             for window_index, (_, batch) in enumerate(window):
                 synchronize = window_index + 1 == len(window)
                 sync_context = (
-                    nullcontext()
-                    if not distributed or synchronize
-                    else model.no_sync()
+                    nullcontext() if not distributed or synchronize else model.no_sync()
                 )
                 with sync_context:
                     with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
@@ -615,8 +703,10 @@ def _fit(args: argparse.Namespace) -> None:
             )
             _write_atomic(_epoch_plan_path(output_root, epoch), _signed(plan))
             plans = _read_epoch_plans(output_root)
-            schedule = _publish_schedule(output_root, plans)
-            barrier_action, selection = _selection(plans, config)
+            schedule = _publish_schedule(
+                output_root, plans, model_family=runtime.model_family
+            )
+            barrier_action, selection = _selection(plans, execution_config)
             epoch_record = {
                 "barrier_action": barrier_action,
                 "epoch": epoch,
@@ -625,9 +715,7 @@ def _fit(args: argparse.Namespace) -> None:
                 "sampled_group_count": int(balancing["samples_per_epoch"]),
                 "selection": selection,
                 "train": train_metrics,
-                "truth_missing_coalition_count": schedule[
-                    "missing_coalition_count"
-                ],
+                "truth_missing_coalition_count": schedule["missing_coalition_count"],
             }
             history.append(epoch_record)
             progress = {
@@ -635,7 +723,8 @@ def _fit(args: argparse.Namespace) -> None:
                 "balancing_inventory": control_balancing_inventory(examples),
                 "history": history,
                 "identity": identity,
-                "schema_version": "causalcache.set_transformer_control_progress.v1",
+                "runtime": runtime.runtime_metadata(),
+                "schema_version": runtime.progress_schema,
                 "status": barrier_action,
             }
             _write_atomic(output_root / "training-progress.json", _signed(progress))
@@ -666,7 +755,7 @@ def _fit(args: argparse.Namespace) -> None:
 
     if rank == 0:
         plans = _read_epoch_plans(output_root)
-        barrier_action, selection = _selection(plans, config)
+        barrier_action, selection = _selection(plans, execution_config)
         summary = {
             "attention_backend": attention_backend,
             "balancing_inventory": control_balancing_inventory(examples),
@@ -676,13 +765,14 @@ def _fit(args: argparse.Namespace) -> None:
             "heldout_state_count": len(heldout_states),
             "identity": identity,
             "optimization_group_count": len(examples),
-            "schema_version": "causalcache.set_transformer_control_training.v1",
+            "runtime": runtime.runtime_metadata(),
+            "schema_version": runtime.summary_schema,
             "selection": selection,
             "selected_checkpoint": _selected_checkpoint(plans, selection),
             "status": (
                 WAITING_FOR_TRUTH
                 if barrier_action == WAITING_FOR_TRUTH
-                else "COMPLETED_SET_TRANSFORMER_CONTROL_SELECTED_BY_TRUE_RECOVERY"
+                else runtime.completed_status
             ),
             "termination_reason": termination_reason,
         }
@@ -692,9 +782,15 @@ def _fit(args: argparse.Namespace) -> None:
         torch.distributed.destroy_process_group()
 
 
-def _finalize(args: argparse.Namespace) -> None:
+def _finalize(
+    args: argparse.Namespace,
+    *,
+    runtime: SetTransformerControlRuntime | None = None,
+) -> None:
+    runtime = runtime or SetTransformerControlRuntime()
     config = _read_json(args.config.resolve())
-    validate_control_config(config, args.variant)
+    runtime.validate_config(config, args.variant)
+    execution_config = runtime.execution_config(config)
     split_manifest = _load_split_manifest(args.split_manifest, config)
     if split_manifest is None:
         raise ValueError("Set Transformer finalize requires the frozen split")
@@ -713,12 +809,10 @@ def _finalize(args: argparse.Namespace) -> None:
         _truth_sources(args.truth_source),
         allowed_state_ids=set(heldout_by_id),
         states_by_id=heldout_by_id,
-        expected_model_family="set_transformer_direct_marginal",
+        expected_model_family=runtime.model_family,
         expected_epoch_checkpoints=_plan_checkpoint_bindings(originals),
         expected_input_content_sha256=input_manifest["content_sha256"],
-        expected_heldout_manifest_content_sha256=split_manifest[
-            "content_sha256"
-        ],
+        expected_heldout_manifest_content_sha256=split_manifest["content_sha256"],
         expected_source_manifest_file_sha256=config["input"][
             "source_manifest_file_sha256"
         ],
@@ -733,28 +827,30 @@ def _finalize(args: argparse.Namespace) -> None:
         ),
         supplemental=supplemental,
     )
-    schedule = _publish_schedule(output_root, rebuilt)
-    barrier_action, selection = _selection(rebuilt, config)
+    schedule = _publish_schedule(
+        output_root, rebuilt, model_family=runtime.model_family
+    )
+    barrier_action, selection = _selection(rebuilt, execution_config)
     complete = bool(
-        barrier_action != WAITING_FOR_TRUTH
-        and schedule["missing_coalition_count"] == 0
+        barrier_action != WAITING_FOR_TRUTH and schedule["missing_coalition_count"] == 0
     )
     result = {
         "checkpoint_count": len(rebuilt),
         "input_content_sha256": input_manifest["content_sha256"],
         "missing_coalition_count": schedule["missing_coalition_count"],
-        "schema_version": "causalcache.set_transformer_control_selection.v1",
+        "runtime": runtime.runtime_metadata(),
+        "schema_version": runtime.selection_schema,
         "selection": selection,
         "barrier_action": barrier_action,
         "selected_checkpoint": _selected_checkpoint(rebuilt, selection),
         "status": (
-            "COMPLETED_SET_TRANSFORMER_CONTROL_TRUE_RECOVERY_SELECTION"
-            if complete
-            else "PENDING_SET_TRANSFORMER_CONTROL_TRUE_RECOVERY"
+            runtime.finalized_status if complete else runtime.pending_finalized_status
         ),
     }
     _write_atomic(output_root / "delayed-selection.json", _signed(result))
-    print(json.dumps({"selection": selection, "status": result["status"]}, sort_keys=True))
+    print(
+        json.dumps({"selection": selection, "status": result["status"]}, sort_keys=True)
+    )
 
 
 def main() -> None:
