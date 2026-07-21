@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "causalcache-androidworld-memory-ceiling-v1",
+  "purpose": "Dose-response ceiling test: does restoring more high-fidelity history causally improve closed-loop success for the frozen policy on memory-intensive dev templates?",
+  "plan": {
+    "path": "data/manifests/androidworld_train_plan_v1.json",
+    "file_sha256": "3a6694e42a967d751943ddf0c32d3dbdd00bb8bd1e70c89a9bd41f1446823249",
+    "instance_records_sha256": "81f67f1d26da91691df02c7ec70e96198e5732709cda0b84935662d80ea0e2db",
+    "split": "train",
+    "suite_seed": 314159
+  },
+  "template_selection_rule": {
+    "include": "max_steps >= 24, OR (max_steps >= 18 AND (multi-item management OR cross-app content transcription OR stateful traversal {BrowserMaze, FilesMoveFile}))",
+    "exclude": ["Retro* (broken app setup pending repair)", "global toggle tasks (cross-episode state pollution)"],
+    "note": "applied to the 60 dev templates before any ceiling episode was run; dev-60 templates have never been executed by this project"
+  },
+  "templates": [
+    "BrowserMaze",
+    "ExpenseDeleteDuplicates2",
+    "ExpenseDeleteMultiple2",
+    "FilesMoveFile",
+    "MarkorTranscribeReceipt",
+    "MarkorTranscribeVideo",
+    "RecipeAddMultipleRecipes",
+    "RecipeAddMultipleRecipesFromMarkor",
+    "RecipeAddSingleRecipe",
+    "RecipeDeleteDuplicateRecipes2",
+    "RecipeDeleteMultipleRecipes",
+    "RecipeDeleteMultipleRecipesWithNoise",
+    "SimpleCalendarAddOneEventInTwoWeeks",
+    "SimpleCalendarAddRepeatingEvent",
+    "VlcCreateTwoPlaylists"
+  ],
+  "task_indices": [0, 1, 2],
+  "arms": ["summary_B0", "recent_B2", "recent_B4", "recent_B8"],
+  "arm_note": "recent_B8 is the deterministic feasible ceiling: nine 2560-token images approach the 32k context; per-decision restored counts and prompt tokens are recorded",
+  "shared_early_decisions": 2,
+  "episode_total": 180,
+  "policy": {
+    "runtime": "GUIOwlV21OfficialToolsRuntime",
+    "target_effective_visual_tokens_per_image": 2560,
+    "snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json"
+  },
+  "endpoints": {
+    "primary": "official_terminal_success paired at template level (mean over 3 instances)",
+    "secondary": ["model_step_count", "score_after", "post_divergence_decision_count", "steps_to_success_on_success"]
+  },
+  "decision_rule": {
+    "story_alive": "recent_B8 minus summary_B0 template-level net wins >= +3, or success-rate delta bootstrap CI excluding 0",
+    "story_dead": "recent_B8 minus summary_B0 template-level net wins <= +1",
+    "post_run_prohibitions": ["swap templates", "change budgets", "change shared_early_decisions", "change primary endpoint"]
+  },
+  "firewall": {
+    "partition": "train (dev)",
+    "sealed_test_access": false,
+    "paper_primary_table": false
+  }
+}

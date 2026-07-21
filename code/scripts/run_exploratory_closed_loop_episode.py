@@ -51,8 +51,34 @@ from scripts.run_set_utility_androidworld_episode import (
 
 
 LOCAL_ARMS = (SUMMARY_ARM, RECENT_ARM, OCR_RGB_ARM)
+CEILING_ARMS = ("summary_B0", "recent_B2", "recent_B4", "recent_B8")
 COMPLETE_STATUS = "COMPLETE_EXPLORATORY_VALIDATION12_EPISODE"
 EFFECTIVE_VISUAL_TOKENS_PER_IMAGE = 2560
+
+
+def ceiling_arm_budget(arm: str) -> int:
+    if arm not in CEILING_ARMS:
+        raise ValueError(f"unsupported memory ceiling arm: {arm}")
+    return int(arm.rsplit("_B", 1)[1])
+
+
+def _load_plan_instance(
+    plan_path: Path, *, task_type: str, task_index: int
+) -> dict[str, Any]:
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    if plan.get("split") not in ("train", "validation"):
+        raise ValueError("memory ceiling refuses sealed splits")
+    matches = [
+        instance
+        for instance in plan["instances"]
+        if instance["task_type"] == task_type
+        and instance["task_index"] == task_index
+    ]
+    if len(matches) != 1:
+        raise ValueError(
+            f"expected one plan instance for {task_type}[{task_index}]"
+        )
+    return {"instance": matches[0], "split": plan["split"]}
 
 
 def _decode_png(payload: bytes) -> Any:
@@ -87,6 +113,12 @@ def _select_arm_memory(
     current: Any,
 ) -> tuple[tuple[int, ...], dict[str, Any]]:
     candidates = tuple(event.event_step_id for event in history)[:-1]
+    if arm in CEILING_ARMS:
+        budget = ceiling_arm_budget(arm)
+        selected = (
+            () if budget == 0 else candidates[-min(budget, len(candidates)) :]
+        )
+        return selected, {"method": f"ceiling_recent_latest_min_{budget}"}
     if arm == SUMMARY_ARM:
         return select_summary_memory(candidates), {"method": "summary_empty"}
     if arm == RECENT_ARM:
@@ -132,7 +164,26 @@ def run_episode(
     runtime: Any | None = None,
     ocr_provider: Any | None = None,
 ) -> dict[str, Any]:
-    record = _load_instance(args.validation12_manifest, task_type=args.task_type)
+    ceiling_plan = getattr(args, "ceiling_plan", None)
+    task_index = int(getattr(args, "task_index", 0))
+    shared_early_decisions = int(getattr(args, "shared_early_decisions", 5))
+    if not 0 <= shared_early_decisions <= 5:
+        raise ValueError("shared early decisions must be within zero to five")
+    if ceiling_plan is not None:
+        record = _load_plan_instance(
+            ceiling_plan, task_type=args.task_type, task_index=task_index
+        )
+        record["horizon_stratum"] = (
+            "long"
+            if record["instance"]["max_steps"] >= 23
+            else ("medium" if record["instance"]["max_steps"] >= 13 else "short")
+        )
+    else:
+        record = _load_instance(
+            args.validation12_manifest, task_type=args.task_type
+        )
+        if task_index != 0:
+            raise ValueError("validation-12 permits only task_index zero")
     instance = dict(record["instance"])
     if ocr_provider is None:
         ocr_provider = PinnedOnlineOCRProvider.load(
@@ -152,7 +203,7 @@ def run_episode(
             target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
         )
     namespace = hashlib.sha256(
-        f"{args.arm}:{args.task_type}:0".encode("utf-8")
+        f"{args.arm}:{args.task_type}:{task_index}".encode("utf-8")
     ).hexdigest()[:24]
     environment = HTTPAndroidWorldEnvironment(
         base_url=args.base_url,
@@ -166,20 +217,27 @@ def run_episode(
         "base_url": args.base_url,
         "budget_contract": {
             "high_fidelity_history_capacity": (
-                0 if args.arm == SUMMARY_ARM else EXPLORATORY_MEMORY_BUDGET
+                ceiling_arm_budget(args.arm)
+                if args.arm in CEILING_ARMS
+                else (0 if args.arm == SUMMARY_ARM else EXPLORATORY_MEMORY_BUDGET)
             ),
             "search": "at_most_budget",
         },
         "horizon_stratum": record["horizon_stratum"],
         "instance": instance,
-        "partition": "validation",
+        "partition": (
+            record["split"] if ceiling_plan is not None else "validation"
+        ),
         "policy": dict(runtime.metadata),
         "schema_version": "causalcache.exploratory_closed_loop_episode.v1",
+        "shared_early_decisions": shared_early_decisions,
         "started_at": datetime.now(timezone.utc).isoformat(),
         "steps": [],
-        "task_index": 0,
+        "task_index": task_index,
         "task_type": args.task_type,
-        "validation12_manifest_sha256": sha256_file(args.validation12_manifest),
+        "roster_sha256": sha256_file(
+            ceiling_plan if ceiling_plan is not None else args.validation12_manifest
+        ),
     }
 
     started = time.monotonic()
@@ -202,7 +260,7 @@ def run_episode(
         current = environment.screenshot()
         for step_index in range(instance["max_steps"]):
             decision_step_id = len(history) + 1
-            if len(history) < 5:
+            if len(history) < shared_early_decisions:
                 selected: tuple[int, ...] = ()
                 selection_diagnostics = {"method": EARLY_STEP_POLICY_ID}
                 messages = build_shared_early_step_messages(
