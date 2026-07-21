@@ -13,6 +13,10 @@
   模型、不启动训练；训练后另报 age-bin singleton ranking 与 outside-recent4 recall，防止学习 recency shortcut；
 - 2026-07-21 01:27 UTC live labels 为 575/1,066 states、13,930/25,915 microbatches，575/575 terminal
   statuses completed；过去一小时 223 states，两台 Hyper 容器均运行，短窗 ETA 约 2.2 小时；
+- clean pushed `main@905cbbf` 已在 Hyper00 容器通过带 PyTorch focused tests 10/10；immutable long-oracle
+  四 wave 的真实 merge rehearsal 也通过：每 source 250 states，新增 18,894 rows、去重 6,138 rows、最大
+  duplicate delta=`2.98e-8`，tune byte firewall 保持有效。演练中发现并修复了“重排未触碰 tune rows”的
+  合并器 bug，未写正式 artifact；
 - 后续只按原 fixed-tune B1--B4 + macro CI + Long+ 三重 gate 判定。此前所有 NO-GO 保持有效，evaluation、
   policy replay、closed-loop 和 matched-NLL 继续锁定。执行单见
   [`set_utility_decision_distillation_v2_long_oracle_training.md`](set_utility_decision_distillation_v2_long_oracle_training.md)。

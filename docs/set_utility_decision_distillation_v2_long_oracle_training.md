@@ -39,6 +39,11 @@ closed，不通过降低门槛启动训练。
   [`materialize_set_utility_contextual_multisource_inputs.py`](../code/scripts/materialize_set_utility_contextual_multisource_inputs.py)；
 - trainer 会在模型加载前统计 complete conditional-expansion groups，并执行上述 coverage gate。
 
+`main@905cbbf` 已在 Hyper00 的 `hongccc/sglang-omni:dev` CPU container 对 immutable long-oracle 四个
+wave 做真实只读合并演练：250/250 states/source 全部通过，新增 18,894 rows、去重 6,138 rows、重复最大
+绝对差 `2.98e-8 < 1e-6`，tune payload firewall 通过；带 PyTorch focused tests 为 10/10 passed。该演练输出
+位于 disposable container `/tmp`，不是正式训练 artifact。
+
 训练损失权重固定为：
 
 | 项 | 权重 | 角色 |

@@ -45,6 +45,8 @@ decision-supervised states、Long+ 902 states；重复 `D(S)` 按 `1e-6` toleran
 regression/ranking 降为校准项；trainer 在启动前强制检查至少 1,100 个 decision-supervised states 和 800 个
 Long+ states。完整配置、合并入口与顺序见
 [`docs/set_utility_decision_distillation_v2_long_oracle_training.md`](../../../docs/set_utility_decision_distillation_v2_long_oracle_training.md)。
+Hyper00 已对四个 immutable long-oracle waves 做真实 merge rehearsal：新增 18,894 rows、去重 6,138 rows，
+duplicate max delta=`2.98e-8`，tune byte-identity 通过；正式 merge 仍等待当前 v2 labels 完成。
 
 只有 fixed-tune B1--B4、macro CI 与 long-history gate 全部通过，才允许访问 untouched evaluation；本调整不
 解锁 policy replay、closed-loop 或 matched-NLL。
