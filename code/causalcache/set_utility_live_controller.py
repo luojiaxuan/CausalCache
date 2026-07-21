@@ -25,6 +25,11 @@ from causalcache.low_fidelity_v2 import (
     LowFidelityEventV2,
     serialize_low_fidelity_v2,
 )
+from causalcache.set_utility_direct_marginal_replay import (
+    DIRECT_MARGINAL_STOP_SEMANTICS,
+    DirectMarginalSelectionPath,
+    direct_marginal_at_most_budget_path,
+)
 from causalcache.set_utility_heldout_evaluation import COMPLETED_EVALUATION
 from causalcache.set_utility_label_producer import (
     MixedFidelityPromptPlan,
@@ -1046,7 +1051,10 @@ class TorchLiveRichTokenBackend:
     def _synchronize(self) -> None:
         self.torch.cuda.synchronize(self.device)
 
-    def __call__(self, request: LiveRichSelectorRequest) -> LiveSelectorBackendResult:
+    def _encode_request(
+        self, request: LiveRichSelectorRequest
+    ) -> tuple[Any, float, Mapping[str, float], Mapping[str, int]]:
+        """Encode a live request once for either scalar or marginal search."""
         torch = self.torch
         if self._active_source_id != request.source_id:
             self._event_sources.clear()
@@ -1054,8 +1062,14 @@ class TorchLiveRichTokenBackend:
             self._active_source_id = request.source_id
         self._synchronize()
         started = time.perf_counter()
-        visual = [self.source_encoder.encode_visual(event.post_image) for event in request.events]
-        text = [self.source_encoder.encode_text(event.summary_text) for event in request.events]
+        visual = [
+            self.source_encoder.encode_visual(event.post_image)
+            for event in request.events
+        ]
+        text = [
+            self.source_encoder.encode_text(event.summary_text)
+            for event in request.events
+        ]
         query_visual_source = self.source_encoder.encode_visual(request.current_image)
         query_text_source = self.source_encoder.encode_text(request.instruction)
         self._synchronize()
@@ -1064,7 +1078,10 @@ class TorchLiveRichTokenBackend:
         missing = [
             index
             for index, event in enumerate(request.events)
-            if (event.post_image.sha256, hashlib.sha256(event.summary_text.encode("utf-8")).hexdigest())
+            if (
+                event.post_image.sha256,
+                hashlib.sha256(event.summary_text.encode("utf-8")).hexdigest(),
+            )
             not in self._event_sources
         ]
         event_started = time.perf_counter()
@@ -1144,6 +1161,27 @@ class TorchLiveRichTokenBackend:
             )
         self._synchronize()
         query_conditioning_ms = (time.perf_counter() - query_started) * 1000.0
+        return (
+            conditioned,
+            started,
+            {
+                "event_source_encoding": event_source_encoding_ms,
+                "query_conditioning": query_conditioning_ms,
+                "raw_source_encoding": source_encoding_ms,
+            },
+            {
+                "candidate_text": sum(int(value.shape[0]) for value in text),
+                "candidate_visual": sum(value.token_count for value in visual),
+                "query_text": int(query_text_source.shape[0]),
+                "query_visual": query_visual_source.token_count,
+            },
+        )
+
+    def __call__(self, request: LiveRichSelectorRequest) -> LiveSelectorBackendResult:
+        torch = self.torch
+        conditioned, started, encoding_latency, source_token_counts = (
+            self._encode_request(request)
+        )
         event_index = {
             event_id: index
             for index, event_id in enumerate(request.candidate_event_ids)
@@ -1181,18 +1219,92 @@ class TorchLiveRichTokenBackend:
             selected_predicted_utility=search.selected_predicted_utility,
             scored_subsets=search.scored_subsets,
             latency_ms={
-                "event_source_encoding": event_source_encoding_ms,
-                "query_conditioning": query_conditioning_ms,
-                "raw_source_encoding": source_encoding_ms,
+                **encoding_latency,
                 "search": search_ms,
                 "selector_total": (time.perf_counter() - started) * 1000.0,
             },
-            source_token_counts={
-                "candidate_text": sum(int(value.shape[0]) for value in text),
-                "candidate_visual": sum(value.token_count for value in visual),
-                "query_text": int(query_text_source.shape[0]),
-                "query_visual": query_visual_source.token_count,
-            },
+            source_token_counts=source_token_counts,
+        )
+
+
+class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
+    """Use one direct-marginal adapter in the existing mixed-fidelity service."""
+
+    def __init__(
+        self,
+        *,
+        model: Any,
+        source_encoder: GUIOwlLiveRichSourceEncoder,
+        stop_semantics: str,
+    ) -> None:
+        if stop_semantics not in DIRECT_MARGINAL_STOP_SEMANTICS:
+            raise ValueError("direct marginal backend STOP semantics are unsupported")
+        super().__init__(
+            model=model,
+            source_encoder=source_encoder,
+            subset_score_chunk_size=1,
+        )
+        self.stop_semantics = stop_semantics
+
+    def _select_with_audit(
+        self, request: LiveRichSelectorRequest
+    ) -> tuple[
+        DirectMarginalSelectionPath,
+        Mapping[str, float],
+        Mapping[str, int],
+    ]:
+        torch = self.torch
+        conditioned, started, encoding_latency, source_token_counts = (
+            self._encode_request(request)
+        )
+        event_index = {
+            event_id: index
+            for index, event_id in enumerate(request.candidate_event_ids)
+        }
+
+        def score(selected: tuple[int, ...]) -> tuple[float, ...]:
+            mask = torch.zeros(
+                (1, len(event_index)), dtype=torch.bool, device=self.device
+            )
+            for event_id in selected:
+                mask[0, event_index[event_id]] = True
+            with torch.inference_mode(), torch.autocast(
+                device_type="cuda", dtype=torch.bfloat16
+            ):
+                predicted = self.model.score_encoded_candidates(conditioned, mask)
+            values = predicted[0].tolist()
+            return tuple(float(value) for value in values)
+
+        search_started = time.perf_counter()
+        path = direct_marginal_at_most_budget_path(
+            request.candidate_event_ids,
+            budget=request.budget,
+            score=score,
+            stop_semantics=self.stop_semantics,
+        )
+        self._synchronize()
+        latency = {
+            **encoding_latency,
+            "search": (time.perf_counter() - search_started) * 1000.0,
+            "selector_total": (time.perf_counter() - started) * 1000.0,
+        }
+        return path, latency, source_token_counts
+
+    def select_all_budgets(
+        self, request: LiveRichSelectorRequest
+    ) -> DirectMarginalSelectionPath:
+        """Encode once and expose the nested path through the requested budget."""
+        path, _, _ = self._select_with_audit(request)
+        return path
+
+    def __call__(self, request: LiveRichSelectorRequest) -> LiveSelectorBackendResult:
+        path, latency, source_token_counts = self._select_with_audit(request)
+        return LiveSelectorBackendResult(
+            selected_event_step_ids=path.selection(request.budget),
+            selected_predicted_utility=path.predicted_utility(request.budget),
+            scored_subsets=path.scored_subsets,
+            latency_ms=latency,
+            source_token_counts=source_token_counts,
         )
 
 
@@ -1208,6 +1320,7 @@ __all__ = [
     "LiveSelectorAuthorization",
     "LiveSelectorBackendResult",
     "PNGPayload",
+    "TorchDirectMarginalReplayBackend",
     "TorchLiveRichTokenBackend",
     "authorize_live_selector",
     "build_live_mixed_fidelity_messages",
