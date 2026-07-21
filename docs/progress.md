@@ -1,5 +1,24 @@
 # 项目进展
 
+## 2026-07-21：deployment truth 完成并冻结 budget-deferral candidate
+
+- 在固定的 train-heldout development denominator（256 states / 78 trajectories，Long+=32 trajectories）上，
+  actual selected subsets 的精确 restoration truth 已闭合；未读取 evaluation role；
+- recent macro/Long+=`0.37330/0.38002`；Set direct=`0.39258/0.37375`，delta=
+  `+0.01929 [-0.00989,0.06294]`；DeepSets direct=`0.39058/0.37533`，delta=
+  `+0.01728 [-0.01108,0.06222]`，两者 direct macro CI 都跨 0；
+- DeepSets direct 的 B2=`0.31722`，弱于 recent=`0.35565`；B3/B4=`0.49327/0.56862`，高于
+  recent=`0.42122/0.53312`。0.001 Set hybrid 完全等于 recent；DeepSets hybrid macro delta 仅
+  `+0.00005798`，Long+ delta=`-0.00159869`；
+- evaluation 前冻结 B1/B2=recent、B3/B4=DeepSets direct。该 route 的 development macro=
+  `0.40019`，相对 recent `+0.02689 [0.00039,0.07047]`；Long+ delta=`+0.00198`、CI 跨 0；
+- 该结果不是 formal evaluation。下一步只运行一次 sealed 1,046-state frozen-candidate evaluation，不再修改 route；
+  历史 heldout 已消费其中 805 states / 94 trajectories，因而必须同时分报 all-1,046、state-new 241 与
+  trajectory-new 16 states / 6 trajectories，不能称为全项目 untouched。continuation 通过后依次做 policy
+  replay 与 small closed-loop，失败则停止该 candidate。冻结配置与结果见
+  [`causalcache_set_utility_budget_deferral_v1.json`](../code/configs/causalcache_set_utility_budget_deferral_v1.json)和
+  [`set_utility_direct_on_policy_deployment_v1`](../data/results/set_utility_direct_on_policy_deployment_v1/README.md)。
+
 ## 2026-07-21：per-epoch heldout truth 选模完成
 
 - 两模型 epoch 1 的实际查询并集已完成：198/198 states、7,681 teacher forwards、198 zero-cost anchors，

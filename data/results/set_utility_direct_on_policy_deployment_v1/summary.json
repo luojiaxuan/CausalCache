@@ -1,0 +1,137 @@
+{
+  "schema_version": "1.0.0",
+  "status": "COMPLETED_DEVELOPMENT_DEPLOYMENT_TRUTH_AND_FROZEN_CANDIDATE",
+  "artifact_status": "PENDING_HF_UPLOAD",
+  "scope": {
+    "role": "train_heldout_development",
+    "state_count": 256,
+    "trajectory_count": 78,
+    "long_plus_trajectory_count": 32,
+    "budgets": [1, 2, 3, 4],
+    "metric": "trajectory_equal_normalized_recovery",
+    "macro_metric": "trajectory_equal_B1_B4_macro",
+    "truth_semantics": "exact_policy_restoration_truth_for_selected_subsets_not_exhaustive_subset_oracle",
+    "evaluation_role_accessed": false
+  },
+  "deployment_truth": {
+    "recent": {
+      "macro_recovery": 0.3732975697459654,
+      "long_plus_macro_recovery": 0.38001933028971185,
+      "budget_recovery": {
+        "1": 0.1832030894394307,
+        "2": 0.3556452589785001,
+        "3": 0.42122277090461197,
+        "4": 0.5331191596613188
+      }
+    },
+    "set_transformer_direct": {
+      "macro_recovery": 0.3925835096464493,
+      "long_plus_macro_recovery": 0.3737465672328125,
+      "macro_delta_vs_recent": 0.019285939900483922,
+      "macro_delta_vs_recent_95ci": [
+        -0.009885596836033026,
+        0.06293650188930834
+      ]
+    },
+    "structured_deepsets_direct": {
+      "macro_recovery": 0.39057983210250036,
+      "long_plus_macro_recovery": 0.3753265914155812,
+      "macro_delta_vs_recent": 0.017282262356534992,
+      "macro_delta_vs_recent_95ci": [
+        -0.011083416931420112,
+        0.062215283384303
+      ],
+      "budget_recovery": {
+        "1": 0.1832030894394307,
+        "2": 0.3172207629468738,
+        "3": 0.4932730345272123,
+        "4": 0.5686224414964848
+      }
+    },
+    "set_transformer_threshold_0_001_hybrid": {
+      "selection_and_truth_exactly_equal_to_recent": true,
+      "macro_recovery": 0.3732975697459654,
+      "long_plus_macro_recovery": 0.38001933028971185,
+      "macro_delta_vs_recent": 0.0
+    },
+    "structured_deepsets_threshold_0_001_hybrid": {
+      "macro_recovery": 0.3733555491141075,
+      "long_plus_macro_recovery": 0.378420638784753,
+      "macro_delta_vs_recent": 0.000057979368142123294,
+      "macro_delta_vs_recent_95ci": [
+        -0.005427639377432087,
+        0.004839950534434845
+      ],
+      "long_plus_macro_delta_vs_recent": -0.001598691504958864
+    }
+  },
+  "bootstrap": {
+    "unit": "trajectory",
+    "method": "paired_percentile",
+    "confidence": 0.95,
+    "resamples": 10000,
+    "seed": 20260721
+  },
+  "frozen_development_candidate": {
+    "name": "structured_deepsets_budget_deferral",
+    "selection_by_budget": {
+      "1": "recent",
+      "2": "recent",
+      "3": "structured_deepsets_direct_conditional_marginal",
+      "4": "structured_deepsets_direct_conditional_marginal"
+    },
+    "selection_cardinality": "at_most_B",
+    "macro_recovery": 0.4001859561104069,
+    "macro_delta_vs_recent": 0.02688838636444158,
+    "macro_delta_vs_recent_95ci": [
+      0.00038743050853293627,
+      0.07046828989359502
+    ],
+    "long_plus_macro_recovery": 0.3820024356109604,
+    "long_plus_macro_delta_vs_recent": 0.001983105321248556,
+    "long_plus_macro_delta_vs_recent_95ci": [
+      -0.01660414995791247,
+      0.021201959089563585
+    ],
+    "role": "development_freeze_input_not_evaluation",
+    "post_evaluation_route_or_threshold_changes_allowed": false
+  },
+  "structured_deepsets_latency_ms": {
+    "hardware": "NVIDIA H200",
+    "warm_selector_from_cached_sources": {
+      "p50": 8.920419495552778,
+      "p95": 9.297390235587955
+    },
+    "cold_standalone": {
+      "p95": 31.33402264211327
+    },
+    "recent_budgets_skip_predictor": true
+  },
+  "supplemental_truth_execution": {
+    "state_count": 11,
+    "policy_forward_count": 13
+  },
+  "artifacts": {
+    "selector": {
+      "path": "hyper00:/data02/jaxan/runs/causalcache-direct-on-policy-unified-eval-v3-bdc396a/selections.json",
+      "content_sha256": "a59d33a8cce87589f5ad441dd28a499104bb053da1aba97adf8867338c20a4b7"
+    },
+    "truth_result": {
+      "path": "hyper00:/data02/jaxan/runs/causalcache-direct-on-policy-unified-eval-v3-bdc396a/post-selection-truth-result-v2.json",
+      "content_sha256": "ca8497a0610dc37ff906671a92cba1f7634b24bafd04df763b178cb275121ec1"
+    },
+    "postselection_truth_manifest": {
+      "path": "hyper00:/data02/jaxan/runs/causalcache-post-selection-truth-labels-v1-13e2967/formal-truth-manifest.json",
+      "content_sha256": "4aebc006f8420d56b720faf1ee4036cfec95faacfebd7c0b72d519343fdc52b3"
+    },
+    "postselection_truth_receipt": {
+      "path": "hyper00:/data02/jaxan/runs/causalcache-post-selection-truth-labels-v1-13e2967/formal-truth-receipt.json",
+      "content_sha256": "b062ee8bb3f6c6f012580584b084be66339cf8462cfc8b45bcec9a6fc7cdbd27"
+    }
+  },
+  "claim_boundary": [
+    "All selector comparisons and route choice in this record use train-heldout development data.",
+    "The frozen budget-deferral route is an input to future untouched evaluation, not an evaluation result.",
+    "This record contains offline policy-restoration truth and does not establish closed-loop task success."
+  ]
+}

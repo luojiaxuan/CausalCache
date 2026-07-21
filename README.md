@@ -6,18 +6,19 @@
 
 ## 当前结论
 
-- **learned selector 已按用户授权以新的 data-coverage + safe fallback 假设继续，不退成纯审计。** 旧
-  direct-v3 fixed-tune NO-GO 与数字原样保留；新路线不修改旧 gate，而是在 train split 上收集 current direct、
-  recent 与 confidence-gated hybrid 实际访问的 candidate-complete conditional groups，比较小型
-  structured/DeepSets marginal head 和现有 Set Transformer。全部 epoch 保存，并按 trajectory-disjoint
-  train-holdout 的真实 B1--B4 recovery 选 checkpoint；已消费 fixed-tune 只作 development，untouched evaluation
-  继续密封。heldout 已按实际 10,658-state input 冻结为 100 trajectories / 1,371 states，其中 checkpoint
-  denominator 为四个 history bins 各 64 states。训练实行严格 epoch barrier：每个 epoch 保存 checkpoint、
-  rollout 这 256 states；缺 truth 就暂停补标，补齐并结算真实 B1--B4 recovery 后才进入下一 epoch。
-  训练前已版本化冻结 `minimum_delta=0.005`、Long+ delta=`0.005`、`patience=3`：未达到实质
-  held-out 提升时保留更早 checkpoint，禁止 train-all/post-hoc 或默认选择最后 epoch。
-  补标 truth 必须经过 signed manifest/receipt sealing 并绑定 model/epoch/checkpoint；formal config 还会精确校验
-  merged schedule、distance-row/group counts 与 optimizer group census，不能用旧或不完整数据绕过 barrier。
+- **Direct on-policy development truth 已完成，并在 frozen-candidate evaluation 前冻结唯一 budget-deferral
+  candidate。** 同一 256-state / 78-trajectory train-heldout denominator 上，recent macro/Long+=
+  `0.37330/0.38002`；Set Transformer direct=`0.39258/0.37375`（macro delta `+0.01929`，CI 跨 0），
+  structured DeepSets direct=`0.39058/0.37533`（`+0.01728`，CI 跨 0）。DeepSets 在 B2 弱于 recent
+  （`0.31722<0.35565`），但 B3/B4 更强（`0.49327/0.56862` vs `0.42122/0.53312`）；固定 0.001
+  hybrid 没有带来可用增益。因此冻结 B1/B2=recent、B3/B4=DeepSets direct：development macro=
+  `0.40019`，相对 recent `+0.02689 [0.00039,0.07047]`；Long+ delta=`+0.00198`，CI 跨 0。这不是
+  evaluation 结果。下一步只运行一次 sealed candidate evaluation，不按结果重选 route；通过后直接进入
+  policy replay，再做 small closed-loop，否则停止该 candidate。由于旧实验已消费其中 805 states / 94
+  trajectories，本轮会透明分报全 1,046、state-new 241 与 trajectory-new 16/6 三个 slice，不将其称为
+  全项目 pristine holdout。
+  [结果](data/results/set_utility_direct_on_policy_deployment_v1/README.md)、
+  [冻结配置](code/configs/causalcache_set_utility_budget_deferral_v1.json)与
   [执行合同](docs/set_utility_direct_on_policy_v1.md)。
 - 正式 label rollout 已使用 Hyper00/Hyper01 各 6×H200 完成：5,108/5,108 states、33,175/33,175
   microbatches、359,189 sampled rows + 5,108 zero-cost anchors，0 skip/non-finite/duplicate/error。合并后的
@@ -120,12 +121,12 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 
 ## 当前执行主线
 
-- direct on-policy coverage、labels、merge、formal inventory 与双模型训练均已完成；0
-  skip/non-finite/duplicate。每个 epoch 都在同一 256-state trajectory-disjoint denominator 上结算真实
-  B1--B4 recovery，并按冻结的 `minimum_delta=0.005`、`patience=3` 早停；最终选择 Set epoch 2 与
-  DeepSets epoch 1。当前先在同一 denominator 补 recent/safe-fallback hybrid 与 selector latency，再选择
-  Pareto checkpoint 接 development policy replay。
-  [结果](data/results/set_utility_direct_on_policy_training_v1/README.md)与
+- direct on-policy coverage、训练、per-epoch truth selection、部署 selector truth 与 latency 已全部完成。
+  development 选择已冻结为 B1/B2 recent + B3/B4 DeepSets direct；配置禁止 evaluation 后修改 route 或
+  threshold。下一步只执行一次 1,046-state frozen-candidate evaluation：先密封 label-blind selections，再读取 truth；
+  continuation 通过后按 policy replay → small closed-loop 推进，失败则停止本 candidate。
+  [development 结果](data/results/set_utility_direct_on_policy_deployment_v1/README.md)、
+  [冻结配置](code/configs/causalcache_set_utility_budget_deferral_v1.json)与
   [执行文档](docs/set_utility_direct_on_policy_v1.md)。
 - direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
   general-`B` v3 路线。该旧合同不被追认；本轮是用户显式授权的 data-coverage/structured-fallback 新假设，
@@ -254,6 +255,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Direct marginal v3 final fixed-tune | [结果](data/results/set_utility_direct_marginal_v3_fixed_tune_v1/README.md)；[HF dataset@76615721](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/766157217d99dc8c10d82349d9909ba30ceaa8e9/artifacts/set-utility-direct-marginal-v3-fixed-tune-794fb90) | 1,063/1,063、0 skip；direct/recent macro=`0.44583/0.45192`；CI crosses 0；B2/B3/Long+ fail；`NO_GO`；learned general-`B` stopped；immutable |
 | Direct on-policy coverage v1 | [合同](docs/set_utility_direct_on_policy_v1.md)；[结果](data/results/set_utility_direct_on_policy_v1/README.md) | labels PASS：5,108 states / 359,189 sampled rows；merged input `6c9243a...1bfad`；9,287 optimizer states / 84,441 groups；`PENDING_HF_UPLOAD` |
 | Per-epoch heldout training v1 | [结果](data/results/set_utility_direct_on_policy_training_v1/README.md)；[合同](docs/set_utility_direct_on_policy_v1.md)；Hyper00 Set root `...set-transformer-direct-on-policy-v2-a69c706`；Hyper01 DeepSets root `...structured-deepsets-direct-on-policy-v4-843e360` | complete；Set e2=`0.39491`、DeepSets e1=`0.39251`；均由 truth recovery 早停；evaluation/test sealed；`PENDING_HF_UPLOAD` |
+| Budget-deferral candidate v1 | [冻结 config](code/configs/causalcache_set_utility_budget_deferral_v1.json)；[development truth result](data/results/set_utility_direct_on_policy_deployment_v1/README.md) | B1/B2 recent + B3/B4 DeepSets direct；development delta=`+0.02689 [0.00039,0.07047]`；不是 evaluation；payload `PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

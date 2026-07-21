@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_budget_deferral_v1",
+  "status": "FROZEN_BEFORE_CANDIDATE_EVALUATION",
+  "purpose": "Freeze one deployable restoration-distilled selector after train-heldout development and before this candidate accesses evaluation-role features or truth.",
+  "development_evidence": {
+    "role": "train",
+    "state_count": 256,
+    "trajectory_count": 78,
+    "heldout_manifest_content_sha256": "6d5d4767578ac12131e22b15bda88a2475a22d8d25778350b353f5d1e590c554",
+    "selection_output_content_sha256": "a59d33a8cce87589f5ad441dd28a499104bb053da1aba97adf8867338c20a4b7",
+    "truth_result_content_sha256": "ca8497a0610dc37ff906671a92cba1f7634b24bafd04df763b178cb275121ec1",
+    "candidate_macro_recovery": 0.4001859561104069,
+    "recent_macro_recovery": 0.3732975697459654,
+    "paired_macro_delta": 0.02688838636444158,
+    "paired_macro_delta_95ci": [
+      0.00038743050853293627,
+      0.07046828989359502
+    ],
+    "candidate_long_plus_recovery": 0.3820024356109604,
+    "recent_long_plus_recovery": 0.38001933028971185,
+    "paired_long_plus_delta": 0.001983105321248556,
+    "paired_long_plus_delta_95ci": [
+      -0.01660414995791247,
+      0.021201959089563585
+    ]
+  },
+  "predictor": {
+    "model_family": "deepsets_structured_marginal",
+    "variant": "structured_pairwise_deepsets_d256_l16_r2_h128_p32_lr3e4",
+    "selected_epoch": 1,
+    "checkpoint_sha256": "5f5e21db7af1cc7785ba99ca9e7a7ecabdecbafa24ff70e0657ffea97ea9cd3e",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "stop_semantics": "learned_threshold",
+    "event_encoding": "encode_once_on_arrival_then_cache",
+    "query_encoding": "shared_with_current_policy_query"
+  },
+  "deployment": {
+    "budgets": [1, 2, 3, 4],
+    "candidate_set": "all_eligible_events_before_current_state",
+    "selection_by_budget": {
+      "1": "recent",
+      "2": "recent",
+      "3": "deepsets_direct_conditional_marginal",
+      "4": "deepsets_direct_conditional_marginal"
+    },
+    "selection_cardinality": "at_most_B",
+    "cross_budget_nestedness_required": false,
+    "within_budget_iterative_selection": true,
+    "post_evaluation_route_or_threshold_changes_allowed": false
+  },
+  "latency": {
+    "hardware": "NVIDIA H200",
+    "warm_selector_p50_ms": 8.920419495552778,
+    "warm_selector_p95_ms": 9.297390235587955,
+    "cold_standalone_p95_ms": 31.33402264211327,
+    "recent_budgets_skip_predictor": true
+  },
+  "frozen_candidate_evaluation": {
+    "role": "evaluation",
+    "state_count": 1046,
+    "state_inventory_sha256": "071f6da719d11527617df787ece574ee55971ce0e4f3a7e7aea8397f53b15067",
+    "history_bin_counts": {
+      "short": 381,
+      "medium": 427,
+      "long": 225,
+      "very_long": 13
+    },
+    "historical_access_boundary": {
+      "previously_consumed_state_count": 805,
+      "previously_consumed_trajectory_count": 94,
+      "state_new_count": 241,
+      "trajectory_new_state_count": 16,
+      "trajectory_new_trajectory_count": 6,
+      "statement": "The evaluation role was consumed by earlier predictor versions. This candidate and its budget route were frozen without reading their evaluation outcomes, but this is not a globally pristine holdout. Report all 1,046 states plus state-new and trajectory-new sensitivity slices."
+    },
+    "label_blind_selection_must_be_sealed_before_truth_access": true,
+    "primary_comparison": "budget_deferral_minus_recent_trajectory_equal_B1_B4_macro",
+    "strong_continuation": "paired_95ci_lower_gt_0_and_long_plus_point_delta_ge_0",
+    "provisional_continuation": "macro_point_delta_gt_0_and_long_plus_point_delta_gt_minus_0.01",
+    "continuation_action": "policy_replay_then_small_closed_loop",
+    "failure_action": "stop_this_frozen_candidate_without_reselecting_budgets_or_thresholds"
+  },
+  "firewall": {
+    "evaluation_features_allowed_after_this_freeze": true,
+    "evaluation_truth_allowed_only_after_signed_selection_seal": true,
+    "evaluation_truth_for_training_or_calibration": false,
+    "sealed_androidworld_test_access": false
+  }
+}

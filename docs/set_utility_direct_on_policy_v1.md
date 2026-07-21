@@ -1,8 +1,40 @@
 # Direct marginal on-policy coverage v1
 
-状态：`COMPLETED_PER_EPOCH_TRUE_RECOVERY_SELECTION`。这是用户在 direct-v3 fixed-tune NO-GO 后显式授权的新假设，
-不追认或改写旧 gate。旧 fixed-tune 已消费，后续只作 development；1,046-state untouched evaluation 继续密封，
-直到新 selector 和 fallback policy 在 train-holdout/development 上冻结。
+状态：`COMPLETED_DEVELOPMENT_DEPLOYMENT_TRUTH_AND_FROZEN_CANDIDATE`。这是用户在 direct-v3 fixed-tune
+NO-GO 后显式授权的新假设，不追认或改写旧 gate。旧 fixed-tune 已消费，只作 development；唯一 deployment
+candidate 已在 train-heldout truth 上冻结；该 candidate 尚未读取 1,046-state evaluation 的 feature 或 truth。
+evaluation role 曾被历史 predictor 消费，因此它不是全项目层面的 pristine holdout，但当前 route 不根据其结果调整。
+旧 heldout 覆盖 805 states / 94 trajectories；后续将同时报告全 1,046、state-new 241 与真正
+trajectory-new 的 16 states / 6 trajectories，后者只作低功效 sensitivity slice。
+
+## Development deployment truth 与冻结路由
+
+在固定的 256 states / 78 trajectories（Long+=32 trajectories）上，已对部署 selector 实际选中的 subsets
+完成精确 policy restoration rerun；这里不是 exhaustive subset oracle。trajectory-equal B1--B4 macro/Long+
+如下：
+
+| 方法 | Macro | Long+ | Macro delta vs recent（95% CI） |
+|---|---:|---:|---:|
+| Recent | 0.37329757 | 0.38001933 | -- |
+| Set Transformer direct | 0.39258351 | 0.37374657 | +0.01928594 [-0.00988560, 0.06293650] |
+| Structured DeepSets direct | 0.39057983 | 0.37532659 | +0.01728226 [-0.01108342, 0.06221528] |
+
+DeepSets direct 的 B1--B4 recovery=`0.18320/0.31722/0.49327/0.56862`，recent=
+`0.18320/0.35565/0.42122/0.53312`：B2 退化，B3/B4 提升。0.001 hybrid 不能解决该 budget-specific
+差异：Set hybrid 与 recent 完全相同；DeepSets hybrid macro delta 仅 `+0.00005798`
+`[-0.00542764,0.00483995]`，Long+ delta=`-0.00159869`。
+
+因此在读取 evaluation 前冻结唯一 route：B1/B2 使用 recent，B3/B4 使用 Structured DeepSets direct
+conditional-marginal selector；各预算内部仍是 at-most-`B`，不要求跨预算 nested。其 development
+macro=`0.40018596`，相对 recent delta=`+0.02688839 [0.00038743,0.07046829]`；Long+=`0.38200244`，
+delta=`+0.00198311 [-0.01660415,0.02120196]`。该数字只用于 freeze，不是正式 evaluation evidence。
+
+冻结输入见
+[`causalcache_set_utility_budget_deferral_v1.json`](../code/configs/causalcache_set_utility_budget_deferral_v1.json)，
+完整 development result 见
+[`set_utility_direct_on_policy_deployment_v1`](../data/results/set_utility_direct_on_policy_deployment_v1/README.md)。
+下一步只允许一次 frozen-candidate evaluation：先封存 label-blind selection，再读取 truth；不得根据结果调整预算
+route 或 threshold。满足冻结 continuation 后进入 policy replay，再做 small closed-loop；失败则停止该 candidate。
 
 ## 动机
 
