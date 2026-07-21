@@ -4418,3 +4418,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - merged input 将额外精确绑定 5,108 scheduled states、359,189 added rows、10,658 train states、120,172
   complete groups，并冻结 optimizer group/state/trajectory identity 与 joint strata census；在这些字段写入前，
   两份 config fail closed。
+
+## 2026-07-21：Direct-label Hyper00 长尾 handoff 启动
+
+- v4 在 12×H200 / 24 lanes 下保持 0 skip、0 failure，但静态 partition 大小使 p5/p8 形成确定性长尾；先冻结
+  [`v5 conditional tail handoff`](../code/configs/causalcache_set_utility_direct_on_policy_labels_workers_v5_tail_handoff.json)，
+  不改 source、schedule、science/execution config、state lane hash 或 label definition。
+- Hyper00 donor p3 已完成 279/279 states、1,745/1,745 microbatches，两份 worker receipts 完整且 0 skip。
+  guard 通过后只 TERM old p5/count12 的两条 lanes；五秒 preflight 确认物理 GPU 3/5 空闲、未清理任何容器。
+- 新容器 `sglang-omni-jaxan-07210857`（id `9253ad9...`）在 GPU 3/5 将 old p5 精确拆为
+  p5+p17/count24、每卡 2 lanes，并复用原 output root 的原子 state/microbatch progress。启动后四条 lanes
+  均进入 forward，暂无 Traceback、OOM 或 failed terminal；最终仍以 5,108-state exact terminal inventory
+  为接受条件，而不要求被 handoff 的原 owner launcher exit code 为 0。
