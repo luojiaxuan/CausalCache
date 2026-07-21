@@ -53,6 +53,12 @@ def test_missing_collection_reuses_existing_truth() -> None:
     assert len(desired) == len(set(map(tuple, resulting)))
 
 
+def test_complete_group_count_excludes_terminal_full_set() -> None:
+    assert complete_group_count(
+        [1, 2], [(1, 2)], maximum_base_cardinality=2
+    ) == 0
+
+
 def test_runner_schedule_restores_zero_cost_full_anchor() -> None:
     record = _record()
     candidates = record["candidate_event_ids"]

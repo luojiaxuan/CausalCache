@@ -22,7 +22,7 @@
       "very_long": 31
     },
     "existing_complete_group_count": 62332,
-    "resulting_complete_group_count": 120172,
+    "projected_resulting_complete_group_count": 120172,
     "scheduled_zero_cost_full_anchor_count": 5108
   },
   "labels": {
@@ -47,6 +47,7 @@
     "optimizer_trajectory_count": 900,
     "optimizer_state_count": 9287,
     "candidate_complete_group_count": 84441,
+    "full_train_candidate_complete_group_count": 96759,
     "heldout_checkpoint_state_count": 256
   },
   "persistent_paths": {

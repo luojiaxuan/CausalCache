@@ -10,7 +10,9 @@ rollout。Hyper00/Hyper01 共 11 workers，10,658 个 state id 全局唯一且�
 missing-only schedule 只针对此前没有任何 complete conditional group 的 5,108 states。它补齐三条部署路径
 在 `|S|=0,1,2,3` 实际访问 base 的全部 `S∪{j}`，因此包含 359,189 个缺失 coalition，而不只是 24,787
 个 empty-to-singleton 下界。分布为 medium/long/very-long=`3,578/1,499/31`；完成后 complete groups 将从
-62,332 增至 120,172。
+62,332 增至 120,172。该数字后来确认是 schedule-time projection：它把已有 complete group 的 states 上
+并未实际调度的 desired coalitions 也计入了结果。merged bytes 的真实 full-train census 为 96,759 groups；
+其中 9,287 optimizer states 有 84,441 groups，训练合同以后者为精确 optimizer inventory。
 
 正式 label rollout 已在 Hyper00/Hyper01 闭合：5,108/5,108 states、33,175/33,175 microbatches、
 359,189 个实际 teacher distance rows，加上 5,108 个不触发 forward 的 `D(C)=0` anchors；0 skip、

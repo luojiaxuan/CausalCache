@@ -9,6 +9,9 @@
   anchors 的最大差异为 0，schedule/source/tune bindings 均未改变；
 - formal optimizer inventory 已冻结：900 trajectories、9,287 states、84,441 candidate-complete groups，
   inventory content SHA256=`b7452b1b...646109`；四个 base cardinality 与四个 history bins 均有覆盖；
+- 首次 6+6 卡启动在任何 optimizer step 前 fail-fast：schedule-time projection 的 120,172 groups 包含并未
+  实际调度的 desired coalitions；merged bytes 复算为 96,759。修正只更新训练合同/未来 schedule census，
+  不改变任何 label 或 merged input bytes；旧 output root 未创建 checkpoint；
 - Set Transformer 与 structured/DeepSets config 已解除 `PENDING_*`，绑定相同 merged input 和 exact
   inventory。两条线 fresh init；每个 epoch 后必须在固定 256-state train-heldout denominator 上完成真实
   B1--B4 rollout/truth reduction，连续 3 次无至少 `0.005` 改善即早停，最后 epoch 和 training loss 均无
@@ -23,8 +26,9 @@
 - 精确 census 确认 5,108 个零 complete-group states，全部来自 medium/long/very-long：3,578/1,499/31；
   existing group 分布却由 short 主导，short/medium/long/very-long=`38,971/5,297/16,707/1,357`；
 - 11 张 H200 上的 selector rollout 已完成 10,658/10,658 states，11/11 workers、0 duplicate/missing；
-  missing-only schedule 冻结为 5,108 states / 359,189 coalitions，完成后 complete groups 从 62,332
-  增至 120,172。首次 launcher 因缺 `PYTHONPATH` 在 import 前失败且无科学输出，修复后使用全新 root 完成；
+  missing-only schedule 冻结为 5,108 states / 359,189 coalitions；其 schedule-time projection 曾报告 complete
+  groups 从 62,332 增至 120,172，post-merge 实际 census 后修正为 96,759。首次 launcher 因缺 `PYTHONPATH`
+  在 import 前失败且无科学输出，修复后使用全新 root 完成；
 - 初版 label schedule 遗漏 runner 隐式 `D(C)=0` anchor，20 lanes 在首个 state terminal set check 失败且
   0 terminal；修复版 schedule 只增加 5,108 个 zero-cost/non-forward anchors，359,189 个真实待计算 labels
   不变，并以新 identity/root 重启；
@@ -4429,8 +4433,8 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 两个 trainer 进一步改用 immutable epoch/rank resume generation，partial generation 自动回退上一完整 epoch；
   DeepSets 修复 `|S|=0` 被 sampler 排除以及 packing 重复 anchor 改变 objective 的 bug。contextual cache 首次
   host-level 全 SHA 后生成 signed stat receipt，后续 epoch resume 不再重复读取 119GB×6 ranks。
-- merged input 将额外精确绑定 5,108 scheduled states、359,189 added rows、10,658 train states、120,172
-  complete groups，并冻结 optimizer group/state/trajectory identity 与 joint strata census；在这些字段写入前，
+- merged input 将额外精确绑定 5,108 scheduled states、359,189 added rows、10,658 train states 与实际
+  complete-group census，并冻结 optimizer group/state/trajectory identity 与 joint strata census；在这些字段写入前，
   两份 config fail closed。
 
 ## 2026-07-21：Direct-label Hyper00 长尾 handoff 启动

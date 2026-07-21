@@ -184,17 +184,18 @@ def main() -> None:
             maximum_base_cardinality=maximum_base_cardinality,
         )
         existing_complete_group_count += state_existing_complete_groups
+        if state_existing_complete_groups > 0:
+            resulting_complete_group_count += state_existing_complete_groups
+            continue
+        uncovered_state_count += 1
+        if not missing:
+            continue
         resulting = tuple(set(existing).union(desired))
         resulting_complete_group_count += complete_group_count(
             candidates,
             resulting,
             maximum_base_cardinality=maximum_base_cardinality,
         )
-        if state_existing_complete_groups > 0:
-            continue
-        uncovered_state_count += 1
-        if not missing:
-            continue
         scheduled_state_count += 1
         scheduled_history_counts[bin_name] += 1
         scheduled_coalition_count += len(missing)

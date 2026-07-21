@@ -33,7 +33,9 @@ selection 后的 missing-only schedule manifest 冻结。
 
 实际 rollout 已覆盖 10,658/10,658 train states，11/11 workers completed，0 duplicate、0 missing。
 最终 missing-only schedule 包含 5,108 states / 359,189 coalitions，medium/long/very-long=
-3,578/1,499/31；现有/resulting complete groups=62,332/120,172。schedule content SHA256=
+3,578/1,499/31；schedule-time projection 的现有/resulting complete groups=62,332/120,172。后续对 merged
+bytes 的正式 census 修正 resulting 为 96,759；原 projection 把已有 groups 的 states 上未实际调度的 desired
+coalitions 计入了结果。schedule content SHA256=
 `981a329c...ec506`（含 5,108 个 zero-cost full anchors），轻量结果见
 [`data/results/set_utility_direct_on_policy_v1/`](../data/results/set_utility_direct_on_policy_v1/README.md)。
 
@@ -134,7 +136,7 @@ state/event ID 恰好相同也不能复用 truth。
   上一完整 epoch 重放；119GB contextual cache 每台 host 首次全量 SHA，后续 resume 只验证 signed receipt、
   manifest SHA 与 shard stat，不重复六卡各读一遍缓存；
 - merged input 还必须精确绑定 `direct_on_policy_v1` schedule、5,108 states、359,189 新 distance rows、
-  10,658 train states 与 120,172 complete groups；随后用
+  10,658 train states 与 post-merge 实际 96,759 complete groups；随后用
   [`materialize_set_utility_formal_training_inventory.py`](../code/scripts/materialize_set_utility_formal_training_inventory.py)
   冻结 optimizer state/group identity、base cardinality、history、STOP 与 joint-stratum census。两份训练 config
   在 merged input content SHA 和 exact inventory 写入前保持 `PENDING_*`，不能执行；

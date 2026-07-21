@@ -178,10 +178,14 @@ def complete_group_count(
     for base in available:
         if len(base) > maximum_base_cardinality:
             continue
+        remaining = tuple(
+            event_id for event_id in candidate_tuple if event_id not in base
+        )
+        if not remaining:
+            continue
         if all(
             tuple(sorted((*base, event_id))) in available
-            for event_id in candidate_tuple
-            if event_id not in base
+            for event_id in remaining
         ):
             result += 1
     return result
