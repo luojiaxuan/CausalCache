@@ -4039,3 +4039,19 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   distillation v2 的 conditional/listwise 目标设计,并否定"只蒸馏 singleton marginal"的简化路线。
 - wave-3(5,833 coalitions,greedy step-3 扩张 + additive top-3)已在 Hyper00 恢复的 4×2 lanes 与
   Hyper01 2×2 lanes 上启动。
+
+## 2026-07-21:Long-history oracle diagnostic v1 完成,HEADROOM_CONFIRMED
+
+- wave-3/wave-4(greedy step-3/4 全扩张 + additive top-3/4,5,833 + 5,641 coalitions)均 250/250
+  `COMPLETED`、0 skip、无执行事故;四 wave 合计 25,032 个 coalition 标签,跨 wave reference 漂移 0。
+- **正式判定(预注册)**:trajectory-equal B1--B4 macro,oracle_greedy=`0.6777` vs recent=`0.2104`;
+  paired delta=`+0.4674`,95% CI=`[0.3591, 0.6304]`,预注册阈值 `lower>0.05` 以 ~7 倍裕量满足,
+  verdict=`HEADROOM_CONFIRMED`。长历史 oracle B4=`0.7851` 与小历史 exact `0.8248` 同量级。
+- 结构性发现:(a) recent 在长历史上 macro 与 random 相当(`0.210` vs `0.223`),very_long 上为负
+  (`-0.418`);(b) additive top-B 在 B2--B4 平台化(macro `0.530`),条件贪心显著更高——长历史
+  selector 必须建模条件边际;(c) best singleton 58.4% 在 recent-4 之外,平均 age fraction `0.363`。
+- 结论直接支持 decision distillation v2 以 long/very-long 为主攻:headroom 不是瓶颈,蒸馏才是。
+  25,032 个 train 标签允许并入 v2 candidate-complete supervision。
+- artifact:reducer summary 入库 `data/results/set_utility_long_oracle_v1/`;完整 payload 已存
+  Hyper00 `/data02/jaxan/artifacts/causalcache-long-oracle-v1-179b0d8`(SHA `9238f63d...0c8b34`),
+  `PENDING_HF_UPLOAD`(会话内自动上传被权限分类器拦截;目标 repo/path/tag 已写入 result README)。

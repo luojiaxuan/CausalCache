@@ -1,6 +1,9 @@
 # Long-history oracle ceiling diagnostic v1
 
-状态：`SOURCE_FROZEN / LABELS_NOT_STARTED`。
+状态:`COMPLETED / HEADROOM_CONFIRMED`。250/250 states、四 wave 全部 0 skip;
+`oracle_greedy - recent` macro=`+0.4674`,95% CI=`[0.3591, 0.6304]`,以约 7 倍裕量满足预注册
+`lower_95 > 0.05`。完整结果见
+[`data/results/set_utility_long_oracle_v1/`](../data/results/set_utility_long_oracle_v1/README.md)。
 
 ## 动机
 
