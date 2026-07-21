@@ -12,5 +12,10 @@ missing-only schedule 只针对此前没有任何 complete conditional group 的
 个 empty-to-singleton 下界。分布为 medium/long/very-long=`3,578/1,499/31`；完成后 complete groups 将从
 62,332 增至 120,172。
 
+初版 missing-only schedule 未列出 label runner 会默认注入的 full-history `D(C)=0` anchor，导致 workers 在
+首个 state 的 forward 全部完成后无法通过 terminal set-equality check，0 terminal。v2 schedule 已为每个 state
+显式增加一个 zero-cost、不会进入 teacher forward 的 full anchor；359,189 个待计算 labels 没有变化，旧 schedule
+与失败 output 均不进入训练 artifact。
+
 机器可读摘要见 [`summary.json`](summary.json)。大 artifact 当前位于摘要记录的 persistent paths，状态为
 `PENDING_HF_UPLOAD`；label rollout 完成后与 labels 一并发布 immutable Hugging Face revision。

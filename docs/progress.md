@@ -11,6 +11,9 @@
 - 11 张 H200 上的 selector rollout 已完成 10,658/10,658 states，11/11 workers、0 duplicate/missing；
   missing-only schedule 冻结为 5,108 states / 359,189 coalitions，完成后 complete groups 从 62,332
   增至 120,172。首次 launcher 因缺 `PYTHONPATH` 在 import 前失败且无科学输出，修复后使用全新 root 完成；
+- 初版 label schedule 遗漏 runner 隐式 `D(C)=0` anchor，20 lanes 在首个 state terminal set check 失败且
+  0 terminal；修复版 schedule 只增加 5,108 个 zero-cost/non-forward anchors，359,189 个真实待计算 labels
+  不变，并以新 identity/root 重启；
 - 新 config 固定在全部 train states 上先收集 direct、recent、confidence-gated hybrid 三条 at-most-`B` 路径，
   再只对上述 5,108 states 的 `|S|<=3` 实际 bases 补齐所有 one-event expansions，已有 coalition truth 复用；
 - 新 selector 支持 train role 与 hybrid trace；missing-only schedule 固定 256 logical shards，label runner 保留

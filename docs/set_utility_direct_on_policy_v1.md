@@ -34,7 +34,7 @@ selection 后的 missing-only schedule manifest 冻结。
 实际 rollout 已覆盖 10,658/10,658 train states，11/11 workers completed，0 duplicate、0 missing。
 最终 missing-only schedule 包含 5,108 states / 359,189 coalitions，medium/long/very-long=
 3,578/1,499/31；现有/resulting complete groups=62,332/120,172。schedule content SHA256=
-`d71c92d0...b521db`，轻量结果见
+`981a329c...ec506`（含 5,108 个 zero-cost full anchors），轻量结果见
 [`data/results/set_utility_direct_on_policy_v1/`](../data/results/set_utility_direct_on_policy_v1/README.md)。
 
 实现入口：
@@ -80,6 +80,11 @@ B1--B4 macro recovery，Long+ 只作 tie-break；`patience=5`、`minimum_delta=1
 - retry 前 fresh preflight 显示 Hyper01 GPU 7 已被占用，因此不等待资源：v2 execution 保持相同 source、
   schedule、scientific config 与每卡 2 lanes，只把 256 logical shards 从 11 改分到 10 physical partitions，
   使用 Hyper00/Hyper01 各 5 卡。v1 的零进展失败记录保留，v2 使用全新 output root；
+- v2 workers 完成首个 state 的全部 forward 后，在 terminal coverage check 统一失败。根因是 missing-only
+  schedule 省略了 runner 默认注入 `D(C)=0` 的 full-history anchor，使 measured set 比 frozen schedule 多一项；
+  这是 schedule/runner interface bug，不是 label 数值失败。v3 为每个 state 加一个不触发 forward 的 full anchor，
+  359,189 个 missing coalitions 与全部 selection 不变；回归测试直接验证 runner microbatch + anchor 的距离集合
+  与 schedule exact equal。v3 使用新 schedule identity、新 source revision 与全新 output root；
 - labels、schedules、selection payload 与 checkpoints 保存在 `/data02/jaxan` persistent storage；
 - reusable data/checkpoints 完成后分别发布到现有 private Hugging Face dataset/model repo；发布前在 README
   记录精确路径并标为 `PENDING_HF_UPLOAD`；
