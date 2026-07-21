@@ -67,7 +67,10 @@ B1--B4 macro recovery。训练/选择不读取 evaluation。
   [`causalcache_set_utility_direct_on_policy_labels_workers_v1.json`](../code/configs/causalcache_set_utility_direct_on_policy_labels_workers_v1.json)；
 - 第一次 label launcher 把 source revision 误传为 7 位短 SHA，22 lanes 均在 runner input validation 前
   fail-fast，0 terminal / 0 microbatch；正式重启改用完整
-  `8acd8d84a8a9e5e837048d9a7f01817ab4ba41e5`，复用同一 atomic-resume output root；
+  `8acd8d84a8a9e5e837048d9a7f01817ab4ba41e5`；
+- retry 前 fresh preflight 显示 Hyper01 GPU 7 已被占用，因此不等待资源：v2 execution 保持相同 source、
+  schedule、scientific config 与每卡 2 lanes，只把 256 logical shards 从 11 改分到 10 physical partitions，
+  使用 Hyper00/Hyper01 各 5 卡。v1 的零进展失败记录保留，v2 使用全新 output root；
 - labels、schedules、selection payload 与 checkpoints 保存在 `/data02/jaxan` persistent storage；
 - reusable data/checkpoints 完成后分别发布到现有 private Hugging Face dataset/model repo；发布前在 README
   记录精确路径并标为 `PENDING_HF_UPLOAD`；

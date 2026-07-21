@@ -1,0 +1,69 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_direct_on_policy_labels_workers_v2",
+  "supersedes": "causalcache_set_utility_direct_on_policy_labels_workers_v1",
+  "repair_reason": "The v1 launch made zero scientific progress because it passed a short Git SHA. Before retry, Hyper01 GPU 7 was no longer free, so the unchanged 256 logical schedule is repartitioned over the ten currently free GPUs.",
+  "run_id": "rollout-20260721T115300Z",
+  "source_revision": "8acd8d84a8a9e5e837048d9a7f01817ab4ba41e5",
+  "runner": "code/scripts/launch_set_utility_variable_history_label_workers.py",
+  "image": "hongccc/sglang-omni:dev",
+  "partition_count": 10,
+  "worker_count": 20,
+  "per_host_gpu_cap": 6,
+  "workers_per_gpu": 2,
+  "paths": {
+    "repository_root": "/data/worktrees/causalcache-8acd8d8",
+    "scientific_config": "/data/worktrees/causalcache-8acd8d8/code/configs/causalcache_set_utility_variable_history_v2_context_fit.json",
+    "scientific_config_sha256": "90c72283e14a65ad234658b0687aab29dd10ac20a5608c9ebc241f0697243566",
+    "execution_config": "/data/worktrees/causalcache-8acd8d8/code/configs/causalcache_set_utility_variable_history_labels_execution_v1.json",
+    "execution_config_sha256": "9c655522f9ba2c8878f234d3b7d84bfe24fe1faadeaf7764721393cd7e48472c",
+    "source_root": "/data/artifacts/causalcache-set-utility-variable-history-source-v1-a7213db",
+    "source_manifest_sha256": "a37ce0b5076e427a6d2b02f86994468e8d456c6df9e2132dd33e4a255042cde4",
+    "schedule_root": "/data/runs/causalcache-direct-on-policy-schedules-v1-f47f804",
+    "schedule_manifest_sha256": "db9b80e755000c1cead1687800f121b378161c99ddc606f1981f2e41d3bb6ab3",
+    "schedule_content_sha256": "d71c92d0e3de9a37a846cb03b87c858d857525d82945093eb1968d6453b521db",
+    "model_dir": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "model_snapshot_manifest_sha256": "65bd2377eace0e25a62542ad752dab146787c5f021bd22e62a1114589ae4265c",
+    "output_root": "/data/runs/causalcache-direct-on-policy-labels-v1-8acd8d8-retry2",
+    "log_root": "/data/runs/causalcache-direct-on-policy-labels-v1-8acd8d8-retry2/logs"
+  },
+  "hosts": {
+    "hyper00": {
+      "physical_gpu_ids": [3, 4, 5, 6, 7],
+      "workers": [
+        "0:0:0:2",
+        "0:0:1:2",
+        "1:1:0:2",
+        "1:1:1:2",
+        "2:2:0:2",
+        "2:2:1:2",
+        "3:3:0:2",
+        "3:3:1:2",
+        "4:4:0:2",
+        "4:4:1:2"
+      ]
+    },
+    "hyper01": {
+      "physical_gpu_ids": [2, 3, 4, 5, 6],
+      "workers": [
+        "0:5:0:2",
+        "0:5:1:2",
+        "1:6:0:2",
+        "1:6:1:2",
+        "2:7:0:2",
+        "2:7:1:2",
+        "3:8:0:2",
+        "3:8:1:2",
+        "4:9:0:2",
+        "4:9:1:2"
+      ]
+    }
+  },
+  "resume_contract": {
+    "state_terminal_atomic": true,
+    "coalition_microbatch_atomic": true,
+    "reuse_completed_records": true,
+    "interrupted_microbatch_may_repeat": true,
+    "evaluation_access": false
+  }
+}
