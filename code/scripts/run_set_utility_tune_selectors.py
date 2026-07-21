@@ -157,6 +157,7 @@ def main() -> None:
     parser.add_argument("--device", required=True)
     parser.add_argument("--role", choices=("train", "tune"), default="tune")
     parser.add_argument("--conditional-candidates-per-step", type=int, default=0)
+    parser.add_argument("--state-id-file", type=Path)
     args = parser.parse_args()
     if args.output.exists():
         raise FileExistsError("tune selector output already exists")
@@ -225,6 +226,22 @@ def main() -> None:
     )
     if not states or any(row["role"] != args.role for row in states):
         raise ValueError("selector state inventory drifted")
+    if args.state_id_file is not None:
+        requested = tuple(
+            line.strip()
+            for line in args.state_id_file.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+        if not requested or len(requested) != len(set(requested)):
+            raise ValueError("state-id filter must be non-empty and unique")
+        available = {row["state_id"] for row in states}
+        missing = sorted(set(requested) - available)
+        if missing:
+            raise ValueError(
+                f"state-id filter escapes the {args.role} inventory: {missing[:3]}"
+            )
+        requested_set = set(requested)
+        states = tuple(row for row in states if row["state_id"] in requested_set)
 
     torch.manual_seed(int(summary["seed"]))
     torch.cuda.manual_seed_all(int(summary["seed"]))
