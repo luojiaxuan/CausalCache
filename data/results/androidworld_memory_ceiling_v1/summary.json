@@ -1,0 +1,78 @@
+{
+  "b8_minus_b0": {
+    "ci95": [
+      -0.0889,
+      0.0889
+    ],
+    "delta": 0.0,
+    "net": 0,
+    "template_losses": 2,
+    "template_wins": 2,
+    "ties": 11
+  },
+  "diagnosis": {
+    "behavior_diverges": "43/45 cells diverge within first 4 decisions (partly environment render noise)",
+    "capability_floor": "surviving failures dominated by step_budget_exhausted; 24-60 step tasks need ~95%+ per-step reliability the policy lacks",
+    "parse_fragility_tax": "per-step strict-grammar parse failure 0.008 with 0 images vs 0.018-0.024 with 2+ images (~3x); episode parse deaths B0=10 vs B2/B4/B8=19/17/13 of 45",
+    "process_benefit": "action-loop episodes decrease monotonically with memory dose: 14/12/8/6 (B0/B2/B4/B8)"
+  },
+  "per_arm": {
+    "recent_B2": {
+      "action_loop_episodes": 12,
+      "success": 4,
+      "template_macro": 0.08888888888888888,
+      "termination": {
+        "executor_error": 2,
+        "parse_error": 19,
+        "policy_terminated": 7,
+        "step_budget_exhausted": 17
+      }
+    },
+    "recent_B4": {
+      "action_loop_episodes": 8,
+      "success": 5,
+      "template_macro": 0.1111111111111111,
+      "termination": {
+        "executor_error": 1,
+        "parse_error": 18,
+        "policy_terminated": 9,
+        "step_budget_exhausted": 17
+      }
+    },
+    "recent_B8": {
+      "action_loop_episodes": 6,
+      "success": 7,
+      "template_macro": 0.15555555555555553,
+      "termination": {
+        "executor_error": 2,
+        "infrastructure_exception": 1,
+        "parse_error": 13,
+        "policy_terminated": 9,
+        "step_budget_exhausted": 20
+      }
+    },
+    "summary_B0": {
+      "action_loop_episodes": 14,
+      "success": 7,
+      "template_macro": 0.15555555555555553,
+      "termination": {
+        "executor_error": 2,
+        "infrastructure_exception": 1,
+        "parse_error": 10,
+        "policy_terminated": 7,
+        "step_budget_exhausted": 25
+      }
+    }
+  },
+  "run": {
+    "gpus": 8,
+    "host": "hyper01",
+    "infra_failures": 2,
+    "revision": "76230e4",
+    "supervisor_revivals": "two preflight-cleanup kill waves auto-revived",
+    "workers": 24
+  },
+  "schema_version": "causalcache.androidworld_memory_ceiling_summary.v1",
+  "status": "COMPLETED_180_OF_180",
+  "verdict": "STORY_DEAD_CAPABILITY_BOUND"
+}

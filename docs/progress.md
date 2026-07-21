@@ -4606,3 +4606,21 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   rank-8 LoRA composite 与对应 trainer；teacher/action policy 始终冻结；
 - Hyper00/Hyper01 的 12/12 partitions 随后完成 23,714/23,714 contexts、0 failure；Hyper00 单机 cache
   最终 content SHA256=`77dec757...5d16b`。token-adapter phase 1 已启动，LoRA 尚未训练。
+
+## 2026-07-21:Memory ceiling v3 正式完成——预注册裁决 STORY_DEAD + 机理诊断
+
+- 修复 suite 绑定后全量重跑(root `causalcache-ceiling-v3-76230e4`,hyper01 8×H200,24 emulator +
+  24 worker):180/180 episodes,infra 仅 2;期间两轮外部 preflight 0%-util 清理把 worker 全灭,
+  host 侧 supervisor 按断点自动复活,数据无损。
+- 结果(45 局/臂):summary_B0=7、recent_B2=4、recent_B4=5、recent_B8=7;B8−B0 模板级 2 胜 2 负
+  11 平,net=0,成功率差 +0.000 [−0.089, +0.089]。按冻结规则(net ≤+1)判 **STORY_DEAD**:该
+  backbone 上高保真记忆开到上下文上限也不提升 closed-loop 成功率。
+- 诊断:行为确实分叉(43/45 cell 前 4 步内);过程收益单调(死循环局 14→12→8→6);但多图 prompt
+  的严格语法 parse 失败率 ~3×(0.008→0.018–0.024),一击毙命协议不对称杀死记忆臂(29–42% vs B0
+  22%),幸存失败以 step_budget_exhausted 为主(能力地板 ~25%)。与离线 oracle headroom 构成
+  dissociation:保真可恢复、过程可改善,成功率不转化。
+- 汇总入 `data/results/androidworld_memory_ceiling_v1/`;180 episode 打包 JSONL 暂存 hyper01
+  `/data02/jaxan/staging/androidworld-memory-ceiling-v1-76230e4/`,`PENDING_HF_UPLOAD`(本会话权限
+  策略禁止读 HF token;目标 `gavinlaw/causalcache-set-utility-variable-history-mobile`
+  `artifacts/androidworld-memory-ceiling-v1-76230e4/`)。
+- 待用户决定:parse-retry-once 协议修正 v2 重跑(~1.5h)是否执行;v1 裁决无论如何保留。
