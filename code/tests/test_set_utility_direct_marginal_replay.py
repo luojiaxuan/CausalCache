@@ -72,7 +72,8 @@ def test_fixed_zero_stop_returns_nested_at_most_budget_path() -> None:
         (0.0, 0.8, 1.2)
     )
     assert path.score_count == 9
-    assert path.trace[-1]["accepted"] is False
+    assert path.trace[-1]["reason"] == "native_stop"
+    assert path.recent_fallback_threshold is None
 
 
 def test_learned_stop_is_not_replaced_by_zero_gain() -> None:
@@ -85,15 +86,11 @@ def test_learned_stop_is_not_replaced_by_zero_gain() -> None:
 
     assert path.selections == {1: (), 2: ()}
     assert path.score_count == 3
-    assert path.trace == (
-        {
-            "accepted": False,
-            "base_subset": (),
-            "best_event": 1,
-            "best_marginal": 0.3,
-            "stop_score": 0.4,
-        },
-    )
+    assert path.trace[0]["base_subset"] == []
+    assert path.trace[0]["best_event"] == 1
+    assert path.trace[0]["best_marginal"] == pytest.approx(0.3)
+    assert path.trace[0]["stop_threshold"] == pytest.approx(0.4)
+    assert path.trace[0]["reason"] == "native_stop"
 
 
 def test_learned_stop_can_accept_signed_marginal_below_zero() -> None:
@@ -119,7 +116,7 @@ def test_equal_candidate_and_stop_prefers_stop() -> None:
 
 
 def test_fixed_zero_stop_rejects_model_semantics_drift() -> None:
-    with pytest.raises(ValueError, match="exactly zero"):
+    with pytest.raises(ValueError, match="must remain zero"):
         direct_marginal_at_most_budget_path(
             (1,),
             budget=1,
@@ -183,20 +180,36 @@ class _FakeScores:
 
 
 class _FakeMarginalModel:
+    def __init__(
+        self, scores: dict[tuple[int, ...], tuple[float, ...]]
+    ) -> None:
+        self.scores = scores
+
     def score_encoded_candidates(
         self, _encoded: object, selected_mask: _FakeMask
     ) -> _FakeScores:
-        if not selected_mask.selected:
-            return _FakeScores((0.25, 0.5, 0.1))
-        return _FakeScores((0.3, 0.0, 0.2))
+        selected = tuple(index + 1 for index in sorted(selected_mask.selected))
+        return _FakeScores(self.scores[selected])
 
 
 class _BackendWithoutCudaEncoding(TorchDirectMarginalReplayBackend):
-    def __init__(self) -> None:
-        self.model = _FakeMarginalModel()
+    def __init__(
+        self,
+        scores: dict[tuple[int, ...], tuple[float, ...]],
+        *,
+        stop_semantics: str = LEARNED_STOP,
+        recent_fallback_threshold: float | None = None,
+    ) -> None:
+        self.model = _FakeMarginalModel(scores)
         self.torch = _FakeTorch()
         self.device = "cuda:0"
-        self.stop_semantics = LEARNED_STOP
+        self.stop_semantics = stop_semantics
+        self.recent_fallback_threshold = recent_fallback_threshold
+        self.selection_mode = (
+            "direct"
+            if recent_fallback_threshold is None
+            else "confidence_gated_recent"
+        )
 
     def _encode_request(self, _request: object):
         return object(), time.perf_counter(), {"raw_source_encoding": 0.0}, {}
@@ -205,9 +218,43 @@ class _BackendWithoutCudaEncoding(TorchDirectMarginalReplayBackend):
         return None
 
 
+def test_live_backend_hybrid_mode_requires_explicit_valid_threshold() -> None:
+    source_encoder = SimpleNamespace(
+        runtime=SimpleNamespace(device="cuda:0"),
+        torch=_FakeTorch(),
+    )
+    direct = TorchDirectMarginalReplayBackend(
+        model=_FakeMarginalModel({}),
+        source_encoder=source_encoder,
+        stop_semantics=FIXED_ZERO_STOP,
+    )
+    hybrid = TorchDirectMarginalReplayBackend(
+        model=_FakeMarginalModel({}),
+        source_encoder=source_encoder,
+        stop_semantics=FIXED_ZERO_STOP,
+        recent_fallback_threshold=0.001,
+    )
+    assert direct.selection_mode == "direct"
+    assert direct.recent_fallback_threshold is None
+    assert hybrid.selection_mode == "confidence_gated_recent"
+    assert hybrid.recent_fallback_threshold == pytest.approx(0.001)
+    with pytest.raises(ValueError, match="threshold is invalid"):
+        TorchDirectMarginalReplayBackend(
+            model=_FakeMarginalModel({}),
+            source_encoder=source_encoder,
+            stop_semantics=FIXED_ZERO_STOP,
+            recent_fallback_threshold=float("nan"),
+        )
+
+
 def test_live_backend_exposes_nested_path_and_learned_stop() -> None:
     request = SimpleNamespace(candidate_event_ids=(1, 2), budget=2)
-    backend = _BackendWithoutCudaEncoding()
+    backend = _BackendWithoutCudaEncoding(
+        {
+            (): (0.25, 0.5, 0.1),
+            (1,): (0.3, 0.0, 0.2),
+        }
+    )
     path = backend.select_all_budgets(request)
     assert path.selections == {1: (1,), 2: (1,)}
 
@@ -216,3 +263,72 @@ def test_live_backend_exposes_nested_path_and_learned_stop() -> None:
     assert result.selected_predicted_utility == 0.5
     assert result.scored_subsets == (((), 0.0), ((1,), 0.5))
     assert result.latency_ms["selector_total"] >= 0.0
+
+
+def test_live_backend_defaults_to_direct_without_confidence_fallback() -> None:
+    request = SimpleNamespace(candidate_event_ids=(1, 2), budget=1)
+    backend = _BackendWithoutCudaEncoding(
+        {(): (0.0, 0.5005, 0.5)},
+        stop_semantics=FIXED_ZERO_STOP,
+    )
+
+    path = backend.select_all_budgets(request)
+    assert path.selection(1) == (1,)
+    assert path.recent_fallback_threshold is None
+    assert path.trace[0]["reason"] == "learned"
+    assert backend.selection_mode == "direct"
+
+
+def test_hybrid_falls_back_when_learned_advantage_is_below_threshold() -> None:
+    request = SimpleNamespace(candidate_event_ids=(1, 2), budget=1)
+    backend = _BackendWithoutCudaEncoding(
+        {(): (0.0, 0.5005, 0.5)},
+        stop_semantics=FIXED_ZERO_STOP,
+        recent_fallback_threshold=0.001,
+    )
+
+    path = backend.select_all_budgets(request)
+    assert path.selection(1) == (2,)
+    assert path.predicted_utility(1) == pytest.approx(0.5)
+    assert path.trace[0]["reason"] == "recent_fallback"
+    assert backend.selection_mode == "confidence_gated_recent"
+
+
+def test_hybrid_uses_confident_learned_override_and_remains_nested() -> None:
+    request = SimpleNamespace(candidate_event_ids=(1, 2, 3), budget=4)
+    backend = _BackendWithoutCudaEncoding(
+        {
+            (): (0.0, 0.5005, 0.1, 0.5),
+            (3,): (0.0, 0.8, 0.7, 0.0),
+            (1, 3): (0.0, 0.0, -0.2, 0.0),
+        },
+        stop_semantics=FIXED_ZERO_STOP,
+        recent_fallback_threshold=0.001,
+    )
+
+    path = backend.select_all_budgets(request)
+    assert path.selections == {
+        1: (3,),
+        2: (1, 3),
+        3: (1, 3),
+        4: (1, 3),
+    }
+    assert [row["reason"] for row in path.trace] == [
+        "recent_fallback",
+        "confidence_gated_learned_override",
+        "confidence_gated_stop",
+    ]
+
+
+def test_hybrid_preserves_structured_deepsets_learned_stop() -> None:
+    request = SimpleNamespace(candidate_event_ids=(1, 2), budget=4)
+    backend = _BackendWithoutCudaEncoding(
+        {(): (0.4, 0.3, 0.2)},
+        stop_semantics=LEARNED_STOP,
+        recent_fallback_threshold=0.001,
+    )
+
+    path = backend.select_all_budgets(request)
+    assert path.selections == {1: (), 2: (), 3: (), 4: ()}
+    assert path.trace[0]["stop_threshold"] == pytest.approx(0.4)
+    assert path.trace[0]["reason"] == "confidence_gated_stop"

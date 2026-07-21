@@ -1236,15 +1236,31 @@ class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
         model: Any,
         source_encoder: GUIOwlLiveRichSourceEncoder,
         stop_semantics: str,
+        recent_fallback_threshold: float | None = None,
     ) -> None:
         if stop_semantics not in DIRECT_MARGINAL_STOP_SEMANTICS:
             raise ValueError("direct marginal backend STOP semantics are unsupported")
+        if recent_fallback_threshold is not None and (
+            not math.isfinite(float(recent_fallback_threshold))
+            or float(recent_fallback_threshold) < 0.0
+        ):
+            raise ValueError("direct marginal hybrid threshold is invalid")
         super().__init__(
             model=model,
             source_encoder=source_encoder,
             subset_score_chunk_size=1,
         )
         self.stop_semantics = stop_semantics
+        self.recent_fallback_threshold = (
+            None
+            if recent_fallback_threshold is None
+            else float(recent_fallback_threshold)
+        )
+        self.selection_mode = (
+            "direct"
+            if self.recent_fallback_threshold is None
+            else "confidence_gated_recent"
+        )
 
     def _select_with_audit(
         self, request: LiveRichSelectorRequest
@@ -1281,6 +1297,7 @@ class TorchDirectMarginalReplayBackend(TorchLiveRichTokenBackend):
             budget=request.budget,
             score=score,
             stop_semantics=self.stop_semantics,
+            recent_fallback_threshold=self.recent_fallback_threshold,
         )
         self._synchronize()
         latency = {

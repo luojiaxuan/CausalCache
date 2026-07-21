@@ -148,6 +148,7 @@ class DirectMarginalSelectionPath:
 
     budget: int
     predicted_utilities: Mapping[int, float]
+    recent_fallback_threshold: float | None
     scored_subsets: tuple[tuple[tuple[int, ...], float], ...]
     score_count: int
     selections: Mapping[int, tuple[int, ...]]
@@ -171,13 +172,13 @@ def direct_marginal_at_most_budget_path(
     budget: int,
     score: Callable[[tuple[int, ...]], Sequence[float]],
     stop_semantics: str,
+    recent_fallback_threshold: float | None = None,
 ) -> DirectMarginalSelectionPath:
     """Select nested B1--B events from ``[STOP, event_1, ..., event_n]`` scores.
 
-    ``fixed_zero_gain`` is the Set Transformer contract: STOP must be exactly
-    zero. ``learned_threshold`` is the structured DeepSets contract: the
-    learned STOP logit is compared directly with every remaining marginal.
-    Equality always stops, which preserves the at-most-budget tie rule.
+    Selection delegates to the unified evaluator so policy replay and offline
+    evaluation use the same native-STOP and confidence-gated recent semantics.
+    ``recent_fallback_threshold=None`` is the backward-compatible direct mode.
     """
     events = _event_ids(event_ids)
     if type(budget) is not int or budget not in (1, 2, 3, 4):
@@ -186,63 +187,70 @@ def direct_marginal_at_most_budget_path(
         raise TypeError("direct marginal scorer must be callable")
     if stop_semantics not in DIRECT_MARGINAL_STOP_SEMANTICS:
         raise ValueError("direct marginal STOP semantics are unsupported")
+    if recent_fallback_threshold is not None and (
+        not math.isfinite(float(recent_fallback_threshold))
+        or float(recent_fallback_threshold) < 0.0
+    ):
+        raise ValueError("direct marginal recent fallback threshold is invalid")
 
-    selected: list[int] = []
-    cumulative = 0.0
-    stopped = False
-    score_count = 0
-    selections: dict[int, tuple[int, ...]] = {}
-    utilities: dict[int, float] = {}
-    scored_subsets: list[tuple[tuple[int, ...], float]] = [((), cumulative)]
+    from causalcache.set_utility_direct_on_policy_evaluator import (
+        marginal_budget_path,
+    )
+
+    maximum_cardinality = min(budget, len(events))
+
+    def bounded_score(selected: tuple[int, ...]) -> Sequence[float]:
+        if len(selected) >= maximum_cardinality:
+            return (0.0, *(-1.0 for _ in events))
+        return score(selected)
+
+    evaluated = marginal_budget_path(
+        events,
+        score=bounded_score,
+        stop_semantics=stop_semantics,
+        recent_fallback_threshold=recent_fallback_threshold,
+    )
+    raw_selections = evaluated["selections"]
+    selections = {
+        current_budget: tuple(raw_selections[str(current_budget)])
+        for current_budget in range(1, budget + 1)
+    }
+    selected_count = 0
     trace: list[Mapping[str, object]] = []
-    event_index = {event_id: index for index, event_id in enumerate(events)}
-
-    for current_budget in range(1, budget + 1):
-        if not stopped and len(selected) < min(current_budget, len(events)):
-            values = tuple(float(value) for value in score(tuple(selected)))
-            if len(values) != len(events) + 1 or any(
-                not math.isfinite(value) for value in values
-            ):
-                raise ValueError(
-                    "direct marginal scorer must return finite STOP-plus-event scores"
-                )
-            stop_score = values[0]
-            if stop_semantics == FIXED_ZERO_STOP and stop_score != 0.0:
-                raise ValueError("Set Transformer STOP score must remain exactly zero")
-            remaining = tuple(
-                event_id for event_id in events if event_id not in selected
-            )
-            best_event, best_marginal = min(
-                (
-                    (event_id, values[event_index[event_id] + 1])
-                    for event_id in remaining
-                ),
-                key=lambda item: (-item[1], item[0]),
-            )
-            score_count += len(remaining) + 1
-            accepted = best_marginal > stop_score
-            trace.append(
-                {
-                    "accepted": accepted,
-                    "base_subset": tuple(selected),
-                    "best_event": best_event,
-                    "best_marginal": best_marginal,
-                    "stop_score": stop_score,
-                }
-            )
-            if accepted:
-                selected.append(best_event)
-                selected.sort()
-                cumulative += best_marginal
-                scored_subsets.append((tuple(selected), cumulative))
-            else:
-                stopped = True
-        selections[current_budget] = tuple(selected)
-        utilities[current_budget] = cumulative
+    cumulative = 0.0
+    scored_subsets: list[tuple[tuple[int, ...], float]] = [((), cumulative)]
+    utility_by_subset: dict[tuple[int, ...], float] = {(): cumulative}
+    for row in evaluated["trace"]:
+        trace.append(row)
+        chosen = row["chosen_event"]
+        if chosen == "STOP":
+            break
+        selected_count += 1
+        chosen_score = next(
+            float(action["score"])
+            for action in row["scored_actions"]
+            if action["action"] == chosen
+        )
+        cumulative += chosen_score
+        selected_subset = tuple(sorted((*tuple(row["base_subset"]), int(chosen))))
+        utility_by_subset[selected_subset] = cumulative
+        scored_subsets.append((selected_subset, cumulative))
+        if selected_count >= maximum_cardinality:
+            break
+    utilities = {
+        current_budget: utility_by_subset[selections[current_budget]]
+        for current_budget in range(1, budget + 1)
+    }
+    score_count = sum(len(row["scored_actions"]) for row in trace)
 
     return DirectMarginalSelectionPath(
         budget=budget,
         predicted_utilities=utilities,
+        recent_fallback_threshold=(
+            None
+            if recent_fallback_threshold is None
+            else float(recent_fallback_threshold)
+        ),
         scored_subsets=tuple(scored_subsets),
         score_count=score_count,
         selections=selections,
@@ -259,6 +267,7 @@ def load_train_development_direct_marginal_backend(
     checkpoint_path: Path,
     model_dir: Path,
     device: str,
+    recent_fallback_threshold: float | None = None,
 ) -> Any:
     """Load a current marginal checkpoint without entering the signed GO path.
 
@@ -339,6 +348,7 @@ def load_train_development_direct_marginal_backend(
         model=adapter,
         source_encoder=GUIOwlLiveRichSourceEncoder(runtime),
         stop_semantics=adapter.stop_semantics,
+        recent_fallback_threshold=recent_fallback_threshold,
     )
     backend.replay_binding = binding
     return backend
