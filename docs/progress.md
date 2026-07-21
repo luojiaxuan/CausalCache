@@ -13,6 +13,8 @@
   inventory；token-adapter phase 1 已在 Hyper01 4×H200 完成首 epoch 并停在 truth barrier，需补 3,031 个
   实际访问 coalitions；LoRA-only phase 1 已在 Hyper00 6×H200 启动。两者均使用固定 256-state
   development denominator。
+- token-adapter 首次 schedule 错将新 model family 配上旧 Set status；在任何 truth 生成/读取前修复并用原
+  checkpoint resume 重建。修复后 132 states、3,163 coalitions 已物化，Hyper01 6×H200 rollout 运行中。
 
 ## 2026-07-21：selector-side LoRA boundary replay 通过
 

@@ -21,6 +21,9 @@
   Hyper00 GPU 2--7、容器
   `sglang-omni-jaxan-07211541` 运行，code revision=`5c827e6852e8970fbcf2fb3cba0e3c53ae73fd2f`；
 - 两者尚无 recovery，不能报告方法效果；下一步为 LoRA 首 epoch与两条分支的 256-state truth barrier；
+- token-adapter schedule family/status mismatch 在 truth 生成前被发现并修复；修复后 schedule content=
+  `dee264a7...106ec`，物化为 132 states、3,163 coalitions（其中 3,031 forward）。Hyper01 6×H200 truth
+  rollout 已启动，执行计划见 [`token-adapter-truth-rollout-plan.json`](token-adapter-truth-rollout-plan.json)。
 - boundary cache 完成后需上传 private HF；当前状态 `PENDING_HF_UPLOAD`。
 
 设计与限制见 [`docs/set_utility_selector_lora_v1.md`](../../../docs/set_utility_selector_lora_v1.md)。
