@@ -4267,6 +4267,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   停止 learned general-B，不创建 v4。
 - 合同：[`docs/set_utility_direct_marginal_v3_stage_b_v1.md`](set_utility_direct_marginal_v3_stage_b_v1.md)。
 
+## 2026-07-21:Direct marginal Stage-B 8×H200 启动
+
+- GPU preflight：Hyper00 `0--7` 全空闲，Hyper01 `2--7` 空闲；正式同步 DDP 使用 Hyper00 8 卡，避免
+  跨机梯度通信，Hyper01 留给训练后的 selector/truth 数据并行。
+- source=`main@8ccdb5c`，container=`sglang-omni-jaxan-07210241` / `7866ed74f915`，output=
+  `/data02/jaxan/runs/causalcache-direct-marginal-v3-stage-b-v1-8ccdb5c`。
+- 首次 launcher attempt 因未显式传 `PYTHONPATH` 在 import 前 exit 1，未创建 output；科学参数不变，补
+  runtime path 后正式重启。8 个 ranks 已进入 training loop，GPU memory 约 2.7--3.9GB/card。
+
 ## 2026-07-21:Stage-A Spearman 门槛复审(建议)
 
 - 用 long-oracle payload 中每 state 四次独立 `D(∅)` 重测证明标签确定性(归一化噪声中位数 0.0000,

@@ -1,6 +1,6 @@
 # Direct conditional-marginal v3 Stage-B v1
 
-状态：`FROZEN / AUTHORIZED`。
+状态：`FROZEN / RUNNING`。
 
 本合同采用
 [`Stage-A gate review`](set_utility_direct_marginal_v3_stage_a_gate_review.md) 的任务对齐结论，但不删除或
@@ -54,3 +54,12 @@ at-most-`B` selection。最终 gate 与 decision-v2 完全相同：
 
 fixed-tune 任一失败即永久终止 learned general-`B` 路线；不创建 Stage-A″、student v4 或追加 DAgger。
 只有 GO 才能访问 untouched evaluation、policy replay、closed-loop 与 matched-NLL。
+
+## 5. 正式运行
+
+- source=`main@8ccdb5c`；Hyper00 GPU `0--7`，8-rank DDP；
+- container=`sglang-omni-jaxan-07210241`，id=`7866ed74f915`；
+- output=`/data02/jaxan/runs/causalcache-direct-marginal-v3-stage-b-v1-8ccdb5c`；
+- preflight 时 Hyper00 8/8 cards 空闲；Hyper01 保留 6 张空闲卡用于后续 fixed-tune data parallel；
+- 第一次 container 在 import 阶段因缺少 `PYTHONPATH` 立即 exit 1，未创建 output 或消费训练状态；同一
+  source/config 只补 runtime `PYTHONPATH` 后重启。正式 container 已进入 8-rank training loop。
