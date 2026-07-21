@@ -64,33 +64,46 @@ class _TokenCache:
     def __init__(self, root: Path, manifest: dict[str, Any], *, device: str) -> None:
         from safetensors import safe_open
 
+        if device != "cpu":
+            raise ValueError("tune selector token cache must use lazy CPU mmap")
         grouped: dict[Path, list[tuple[str, dict[str, Any]]]] = defaultdict(list)
         for key, record in manifest["tensor_inventory"].items():
             grouped[root / record["partition"] / record["shard"]].append(
                 (key, record)
             )
-        self.tensors = {}
+        self.records = {}
+        self.handles = {}
         for path in sorted(grouped):
-            with safe_open(str(path), framework="pt", device=device) as handle:
-                for key, record in grouped[path]:
-                    tensor = handle.get_tensor(record["tensor"])
-                    if (
-                        list(tensor.shape) != record["shape"]
-                        or str(tensor.dtype) != record["dtype"]
-                    ):
-                        raise ValueError("contextual token cache metadata drifted")
-                    self.tensors[key] = tensor
-        if len(self.tensors) != len(manifest["tensor_inventory"]):
-            raise RuntimeError("contextual token cache preload is incomplete")
+            try:
+                handle = safe_open(str(path), framework="pt", device="cpu")
+            except Exception as error:
+                raise RuntimeError(f"failed to open contextual cache shard: {path}") from error
+            self.handles[path] = handle
+            for key, record in grouped[path]:
+                self.records[key] = (handle, record, path)
+        if len(self.records) != len(manifest["tensor_inventory"]):
+            raise RuntimeError("contextual token cache inventory is incomplete")
+
+    def _get(self, key: str) -> Any:
+        handle, record, path = self.records[key]
+        try:
+            tensor = handle.get_tensor(record["tensor"])
+        except Exception as error:
+            raise RuntimeError(f"failed to read contextual cache shard: {path}") from error
+        if list(tensor.shape) != record["shape"] or str(tensor.dtype) != record["dtype"]:
+            raise ValueError("contextual token cache metadata drifted")
+        return tensor
 
     def visual(self, key: str) -> Any:
-        return self.tensors[f"visual:{key}"]
+        return self._get(f"visual:{key}")
 
     def text(self, key: str) -> Any:
-        return self.tensors[f"text:{key}"]
+        return self._get(f"text:{key}")
 
 
-def _pad_entities(visual: list[Any], text: list[Any], *, torch: Any) -> tuple[Any, ...]:
+def _pad_entities(
+    visual: list[Any], text: list[Any], *, device: str, torch: Any
+) -> tuple[Any, ...]:
     if not visual or len(visual) != len(text):
         raise ValueError("entity source tensors must be non-empty and aligned")
     visual_length = max(row.shape[0] for row in visual)
@@ -115,7 +128,10 @@ def _pad_entities(visual: list[Any], text: list[Any], *, torch: Any) -> tuple[An
     for index, row in enumerate(text):
         text_batch[index, : row.shape[0]] = row
         text_mask[index, : row.shape[0]] = True
-    return visual_batch, visual_mask, text_batch, text_mask
+    return tuple(
+        value.to(device, non_blocking=False)
+        for value in (visual_batch, visual_mask, text_batch, text_mask)
+    )
 
 
 def _milliseconds(call: Any, *, torch: Any) -> tuple[Any, float]:
@@ -216,7 +232,7 @@ def main() -> None:
     ).to(args.device)
     model.load_state_dict(load_file(str(args.checkpoint), device=args.device), strict=True)
     model.eval()
-    cache = _TokenCache(cache_root, cache_manifest, device=args.device)
+    cache = _TokenCache(cache_root, cache_manifest, device="cpu")
     event_sources = {}
     records = []
     with torch.inference_mode():
@@ -234,6 +250,7 @@ def main() -> None:
                 visual, visual_mask, text, text_mask = _pad_entities(
                     [cache.visual(state["event_image_keys"][index]) for index in new_indices],
                     [cache.text(state["event_text_keys"][index]) for index in new_indices],
+                    device=args.device,
                     torch=torch,
                 )
 
@@ -262,6 +279,7 @@ def main() -> None:
                 _pad_entities(
                     [cache.visual(state["current_image_key"])],
                     [cache.text(state["instruction_text_key"])],
+                    device=args.device,
                     torch=torch,
                 )
             )
