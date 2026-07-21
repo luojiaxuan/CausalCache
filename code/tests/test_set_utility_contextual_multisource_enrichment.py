@@ -73,6 +73,7 @@ def _fixture(root: Path) -> tuple[Path, tuple[ContextualEnrichmentSource, ...]]:
     _write_json(
         base / "manifest.json",
         {
+            "ancestor_content_sha256s": ["cache-source"],
             "content_sha256": base_content,
             "evaluation_labels_included": False,
             "requirement_shards": [
@@ -188,6 +189,10 @@ def test_multisource_merge_deduplicates_and_preserves_firewall() -> None:
             (1, 2, 3): 0.0,
         }
         assert manifest["evaluation_labels_included"] is False
+        assert set(manifest["ancestor_content_sha256s"]) == {
+            "cache-source",
+            manifest["parent_content_sha256"],
+        }
         assert tune["distance_rows"] == [
             {"coalition_event_step_ids": [1, 2], "distance": 0.0},
             {"coalition_event_step_ids": [], "distance": 1.0},

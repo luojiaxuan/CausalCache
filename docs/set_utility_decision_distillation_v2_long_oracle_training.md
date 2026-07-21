@@ -38,6 +38,9 @@ closed，不通过降低门槛启动训练。
 - CLI：
   [`materialize_set_utility_contextual_multisource_inputs.py`](../code/scripts/materialize_set_utility_contextual_multisource_inputs.py)；
 - trainer 会在模型加载前统计 complete conditional-expansion groups，并执行上述 coverage gate。
+- nested enrichment manifest 必须保存 `ancestor_content_sha256s`；frozen contextual cache 的
+  `input_content_sha256` 只能命中当前 content、direct parent 或该显式 ancestor 列表，不能用关闭 binding
+  validator 的方式复用 cache。
 
 `main@905cbbf` 已在 Hyper00 的 `hongccc/sglang-omni:dev` CPU container 对 immutable long-oracle 四个
 wave 做真实只读合并演练：250/250 states/source 全部通过，新增 18,894 rows、去重 6,138 rows、重复最大

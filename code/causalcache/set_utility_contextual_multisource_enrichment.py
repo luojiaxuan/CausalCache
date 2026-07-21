@@ -14,6 +14,7 @@ from typing import Any
 from causalcache.set_utility_contextual_inputs import (
     CONTEXTUAL_INPUT_STATUS,
     CONTEXTUAL_REQUIREMENT_STATUS,
+    contextual_input_lineage_sha256s,
 )
 from causalcache.set_utility_heldout_evaluation import canonical_json_bytes, sha256_file
 
@@ -313,6 +314,9 @@ def materialize_contextual_multisource_enriched_inputs(
     }
     manifest = {
         **base_manifest,
+        "ancestor_content_sha256s": sorted(
+            contextual_input_lineage_sha256s(base_manifest)
+        ),
         "content_sha256": hashlib.sha256(
             state_payload
             + "".join(

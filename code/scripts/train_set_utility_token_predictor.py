@@ -15,6 +15,9 @@ from pathlib import Path
 from typing import Any
 
 from causalcache.set_utility_mvp import canonical_json_bytes
+from causalcache.set_utility_contextual_inputs import (
+    contextual_input_lineage_sha256s,
+)
 from causalcache.set_utility_token_models import (
     TokenSetUtilityPredictor,
     TokenUtilityModelConfig,
@@ -44,10 +47,9 @@ def _cache_covers_input(
     input_manifest: dict[str, Any], cache_manifest: dict[str, Any]
 ) -> bool:
     cache_input = cache_manifest.get("input_content_sha256")
-    return cache_input in {
-        input_manifest.get("content_sha256"),
-        input_manifest.get("parent_content_sha256"),
-    }
+    return isinstance(cache_input, str) and cache_input in (
+        contextual_input_lineage_sha256s(input_manifest)
+    )
 
 
 class _TokenCache:

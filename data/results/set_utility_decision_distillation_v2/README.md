@@ -1,6 +1,6 @@
 # Decision distillation v2
 
-状态：`LABELS_RUNNING`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
+状态：`LABELS_COMPLETE_MERGE_PENDING_LINEAGE_REPAIR`。本目录只记录轻量结果；raw traces、schedule、labels 与 checkpoints 保存在 persistent
 storage，完成后发布到 private Hugging Face。
 
 ## 已完成
@@ -34,6 +34,9 @@ storage，完成后发布到 private Hugging Face。
   13,930/25,915 microbatches（53.8%）；全部 575 terminals 都是
   `COMPLETED_VARIABLE_HISTORY_LABEL_STATE`。两台容器均运行中，过去一小时合计新增 223 states，按短窗
   吞吐估计剩余约 2.2 小时；这只是动态 ETA，不是完成声明。
+- 最终 inventory：Hyper00/Hyper01 分别 543/523 states，合计 1,066/1,066；25,915/25,915
+  microbatches、16/16 worker receipts 全部 completed，两台容器 exit 0。Hyper01 states 已 byte-identical
+  staging 到 Hyper00，523-file digest=`85232921...fa8e3`。
 
 ## 交接后训练调整
 
@@ -46,7 +49,12 @@ regression/ranking 降为校准项；trainer 在启动前强制检查至少 1,10
 Long+ states。完整配置、合并入口与顺序见
 [`docs/set_utility_decision_distillation_v2_long_oracle_training.md`](../../../docs/set_utility_decision_distillation_v2_long_oracle_training.md)。
 Hyper00 已对四个 immutable long-oracle waves 做真实 merge rehearsal：新增 18,894 rows、去重 6,138 rows，
-duplicate max delta=`2.98e-8`，tune byte-identity 通过；正式 merge 仍等待当前 v2 labels 完成。
+duplicate max delta=`2.98e-8`，tune byte-identity 通过；该演练在 v2 labels 完成前执行，现已进入全量 merge。
+
+首次全量 merge 的数据与 coverage 校验通过，但 manifest 只保留 direct parent，而 hidden cache 绑定的是再上一层
+contextual input；trainer 因而会正确 fail closed。该 root 标记为 superseded staging，不用于训练。当前 source
+repair 将完整 `ancestor_content_sha256s` 写入 manifest，并让 trainer/selector 只接受显式 lineage 中的 binding；
+修复后另立 versioned output root，不能原地改写首次 merge。
 
 只有 fixed-tune B1--B4、macro CI 与 long-history gate 全部通过，才允许访问 untouched evaluation；本调整不
 解锁 policy replay、closed-loop 或 matched-NLL。

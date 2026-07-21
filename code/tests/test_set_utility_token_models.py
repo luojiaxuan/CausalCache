@@ -33,6 +33,16 @@ class TokenUtilityConfigTest(unittest.TestCase):
             )
         )
         self.assertTrue(_cache_covers_input({"content_sha256": "full"}, cache))
+        self.assertTrue(
+            _cache_covers_input(
+                {
+                    "ancestor_content_sha256s": ["full"],
+                    "content_sha256": "nested",
+                    "parent_content_sha256": "subset",
+                },
+                cache,
+            )
+        )
         self.assertFalse(
             _cache_covers_input(
                 {"content_sha256": "subset", "parent_content_sha256": "other"},

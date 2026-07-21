@@ -19,6 +19,9 @@ from causalcache.set_utility_heldout_inference import (
     conditional_greedy_budget_path,
     recent_budget_selections,
 )
+from causalcache.set_utility_contextual_inputs import (
+    contextual_input_lineage_sha256s,
+)
 from causalcache.set_utility_token_models import (
     TokenSetUtilityPredictor,
     TokenUtilityModelConfig,
@@ -41,10 +44,9 @@ def _sha256_file(path: Path) -> str:
 
 
 def _binding_covers_input(input_manifest: dict[str, Any], bound_sha256: Any) -> bool:
-    return isinstance(bound_sha256, str) and bound_sha256 in {
-        input_manifest.get("content_sha256"),
-        input_manifest.get("parent_content_sha256"),
-    }
+    return isinstance(bound_sha256, str) and bound_sha256 in (
+        contextual_input_lineage_sha256s(input_manifest)
+    )
 
 
 def _write_atomic(path: Path, value: Any) -> None:

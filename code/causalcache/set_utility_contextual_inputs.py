@@ -31,6 +31,24 @@ def _write_atomic(path: Path, payload: bytes) -> None:
     os.replace(temporary, path)
 
 
+def contextual_input_lineage_sha256s(manifest: Mapping[str, Any]) -> frozenset[str]:
+    values = {
+        value
+        for value in (
+            manifest.get("content_sha256"),
+            manifest.get("parent_content_sha256"),
+        )
+        if isinstance(value, str)
+    }
+    ancestors = manifest.get("ancestor_content_sha256s", ())
+    if not isinstance(ancestors, (list, tuple)) or any(
+        not isinstance(value, str) for value in ancestors
+    ):
+        raise ValueError("contextual input ancestor lineage is invalid")
+    values.update(ancestors)
+    return frozenset(values)
+
+
 def contextual_prompt_text(
     *, role: str, instruction: str, event_text: str | None = None
 ) -> str:
@@ -225,6 +243,7 @@ __all__ = [
     "CONTEXTUAL_INPUT_STATUS",
     "CONTEXTUAL_PROFILE_ID",
     "CONTEXTUAL_REQUIREMENT_STATUS",
+    "contextual_input_lineage_sha256s",
     "contextual_key",
     "contextual_prompt_text",
     "materialize_contextual_inputs",

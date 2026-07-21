@@ -1,5 +1,18 @@
 # 项目进展
 
+## 2026-07-20：decision-v2 labels 完成与 nested input-lineage repair
+
+- Hyper00/Hyper01 最终为 543/523 states、12,910/13,005 microbatches、8/8 + 8/8 worker receipts；
+  1,066/1,066 state terminals 全部 completed，两台 labels 容器 exit 0；
+- Hyper01 523 state files 已 byte-identical staging 到 Hyper00，source/destination digest 都为
+  `85232921d8984af12704004450f72960b478412be5b2a676a9a78128b73fa8e3`；
+- 首次全量 multisource merge 科学数据通过：1,222 source-touched states、新增 347,014 rows、重复 43,061
+  rows、最大 delta=`1.19e-7 < 1e-6`；训练 census 为 5,550 complete-expansion states / 67,322 groups，
+  Long+ 恰为 902 states；
+- 启动前 cache binding 检查发现首次 manifest 只保留 direct parent=`2711ab55...`，而 frozen hidden cache 绑定
+  ancestor=`af18388e...`。不绕过 validator、不改写该 root；新增显式 `ancestor_content_sha256s` lineage，
+  trainer 与 selector 仅接受 direct/ancestor 明示 binding，随后重物化新 root 再训练。
+
 ## 2026-07-20：long-oracle 监督并入 decision distillation v2 后续训练
 
 - 已 fast-forward 到 long-oracle 交接 commit `ae08561` 并冻结后续执行单；现有 1,066-state / 365,043-

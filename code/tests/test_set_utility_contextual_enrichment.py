@@ -147,9 +147,14 @@ class ContextualEnrichmentTest(unittest.TestCase):
                 )
 
     def test_selector_binding_accepts_direct_or_parent_input(self) -> None:
-        manifest = {"content_sha256": "enriched", "parent_content_sha256": "base"}
+        manifest = {
+            "ancestor_content_sha256s": ["cache-source"],
+            "content_sha256": "enriched",
+            "parent_content_sha256": "base",
+        }
         self.assertTrue(_binding_covers_input(manifest, "enriched"))
         self.assertTrue(_binding_covers_input(manifest, "base"))
+        self.assertTrue(_binding_covers_input(manifest, "cache-source"))
         self.assertFalse(_binding_covers_input(manifest, "other"))
 
 

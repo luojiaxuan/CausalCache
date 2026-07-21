@@ -6,11 +6,10 @@
 
 ## 当前结论
 
-- **Decision distillation v2 已进入 train-only label 阶段。** Beam-4 traces 已覆盖 10,658 train states；冻结
-  sampler 选中 1,066 states / 486 trajectories，candidate-complete schedule 含 365,043 个 coalitions，
-  long/very-long 占 70%。完成后将与 immutable long-oracle 的 250 states / 25,032 rows 做 versioned
-  union；conditional listwise 与 decision-regret 是主损失，普通 scalar regression 仅做校准。evaluation 仍未
-  访问；当前不是 GO/NO-GO 结果。
+- **Decision distillation v2 train-only labels 已完成。** Hyper00/Hyper01 合计 1,066/1,066 states、
+  25,915/25,915 microbatches、16/16 worker receipts，全部 completed 且容器 exit 0。现正把它与 immutable
+  long-oracle 做 versioned merge；conditional listwise 与 decision-regret 是主损失，普通 scalar regression
+  仅做校准。evaluation 仍未访问；当前不是 GO/NO-GO 结果。
 - **Held-out selector v1 正式 NO-GO。** 805/805 states 均有终态，但仅 801 completed、4 个因冻结 GUI-Owl
   strict tool-call parser 失败而 skipped，故正式状态为 `INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION`，没有合法
   deployment winner，policy replay 与 closed-loop 未获授权。
