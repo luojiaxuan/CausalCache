@@ -65,6 +65,9 @@ B1--B4 macro recovery。训练/选择不读取 evaluation。
 - 正式 label mapping 使用 Hyper00 5 卡 + Hyper01 6 卡、每卡 2 lanes，共 11 partitions / 22 resumable
   workers；冻结配置为
   [`causalcache_set_utility_direct_on_policy_labels_workers_v1.json`](../code/configs/causalcache_set_utility_direct_on_policy_labels_workers_v1.json)；
+- 第一次 label launcher 把 source revision 误传为 7 位短 SHA，22 lanes 均在 runner input validation 前
+  fail-fast，0 terminal / 0 microbatch；正式重启改用完整
+  `8acd8d84a8a9e5e837048d9a7f01817ab4ba41e5`，复用同一 atomic-resume output root；
 - labels、schedules、selection payload 与 checkpoints 保存在 `/data02/jaxan` persistent storage；
 - reusable data/checkpoints 完成后分别发布到现有 private Hugging Face dataset/model repo；发布前在 README
   记录精确路径并标为 `PENDING_HF_UPLOAD`；

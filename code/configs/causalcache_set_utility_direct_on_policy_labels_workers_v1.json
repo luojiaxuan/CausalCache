@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "name": "causalcache_set_utility_direct_on_policy_labels_workers_v1",
   "run_id": "rollout-20260721T114821Z",
-  "source_revision": "8acd8d8",
+  "source_revision": "8acd8d84a8a9e5e837048d9a7f01817ab4ba41e5",
   "runner": "code/scripts/launch_set_utility_variable_history_label_workers.py",
   "image": "hongccc/sglang-omni:dev",
   "partition_count": 11,
