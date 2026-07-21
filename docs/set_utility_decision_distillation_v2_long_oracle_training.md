@@ -106,6 +106,18 @@ Hyper00 本轮显式授权的 6-card 上限。
 unused-parameter reduction 三类 attempt 均无 summary/checkpoint，禁止作为结果或 resume source。Hyper01 的
 3,572 个 cache shards 已逐文件核对 byte count 与 SHA-256，最终 0 mismatch。
 
+## Capacity follow-up 与 DeepSets infra
+
+若主模型 Long+ 不达标，优先检查 event-level compression 与 set interaction depth。已冻结并启动
+[`set capacity v1`](../code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_set_capacity_v1.json)：
+`latent_count 16→64`、`set_layers 2→4`，hidden size 保持256；Hyper00 GPU 4/5 使用2-rank、batch1、accum4，
+保持 global batch=8。persistent root 见
+[`capacity/prefetch summary`](../data/results/set_utility_capacity_and_prefetch_v1/README.md)。
+
+lazy cache 的同步 Python collate 会让计算量较小的 DeepSets 等待 CPU batch。新 infra 在单独线程预取下一批、
+使用 pinned memory 与 non-blocking H2D；256-state A/B elapsed `30.373s→26.965s`。正式 DeepSets 已进入
+epoch 3，没有 optimizer resume state，因此不为这11.22%的 wall-time 改善丢弃已完成 epochs；优化用于后续训练。
+
 ## 当前边界
 
 这次调整只利用已经独立生成的 train-only long-oracle labels 改善蒸馏合同。它不推翻 v1 或 enrichment-v1

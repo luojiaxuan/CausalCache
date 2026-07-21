@@ -13,6 +13,10 @@
   已改为每模型 4×H200 DDP、per-rank batch=2、global batch=8：Set Transformer 在 Hyper00，DeepSets 在
   Hyper01。119GB frozen cache 改为 CPU/mmap lazy read，每个 rank 只搬当前 batch 到 GPU；两边已进入训练
   loop。evaluation 仍未访问，当前不是 GO/NO-GO 结果。
+- **容量诊断已并行启动。** Hyper00 额外 GPU 4/5 正在训练 `d256/latent64/set-layers4` Set Transformer；
+  保持 global batch=8，只把 per-device batch 降为1并累积4步。DeepSets 低利用率定位为同步 CPU batch
+  preparation 与小模型 compute bubbles；异步 prefetch A/B 将 256-state elapsed 从30.37s降至26.97s
+  （-11.22%）。[执行与结果](data/results/set_utility_capacity_and_prefetch_v1/README.md)。
 - **Held-out selector v1 正式 NO-GO。** 805/805 states 均有终态，但仅 801 completed、4 个因冻结 GUI-Owl
   strict tool-call parser 失败而 skipped，故正式状态为 `INCOMPLETE_SET_UTILITY_HELDOUT_EVALUATION`，没有合法
   deployment winner，policy replay 与 closed-loop 未获授权。
@@ -181,6 +185,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Long-history oracle diagnostic v1 | [`summary`](data/results/set_utility_long_oracle_v1/README.md)；[HF dataset@8d5a5021](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-variable-history-mobile/tree/8d5a5021d8e69999ed944574bc8e243f386c2288/artifacts/set-utility-long-oracle-v1-179b0d8)；Hyper00 mirror | 250/250 states；25,032 labels；`HEADROOM_CONFIRMED`(+0.467 [0.359,0.630]);tag `set-utility-long-oracle-v1-179b0d8`；immutable |
 | Decision v2 + long-oracle training source | [执行单](docs/set_utility_decision_distillation_v2_long_oracle_training.md)；[versioned config](code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_training_v1.json)；Hyper00 `/data02/jaxan/artifacts/causalcache-decision-v2-long-oracle-training-inputs-v2-f7f6b14` | complete；content `3d011990...ad36ce`；5,550 decision-supervised states / Long+ 902；`PENDING_HF_UPLOAD` |
 | Decision v2 distributed training | [DDP config](code/configs/causalcache_set_utility_decision_distillation_v2_long_oracle_ddp_v1.json)；Hyper00 `/data02/jaxan/runs/causalcache-set-transformer-decision-v2-long-oracle-ddp4-v2-ecd5579`；Hyper01 `/data02/jaxan/runs/causalcache-deepsets-decision-v2-long-oracle-ddp4-v4-1aafe4c` | running；4 GPUs/model，per-rank 2，global batch 8，lazy CPU/mmap cache；evaluation locked；checkpoints `PENDING_HF_UPLOAD` |
+| Set capacity + DeepSets prefetch v1 | [`summary`](data/results/set_utility_capacity_and_prefetch_v1/README.md)；Hyper00 `/data02/jaxan/runs/causalcache-set-transformer-decision-v2-long-oracle-l64-s4-ddp2-v1-8a6b8a0` | L64/S4 2×H200 running；prefetch elapsed -11.22%；evaluation locked；checkpoint `PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |

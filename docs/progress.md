@@ -1,5 +1,19 @@
 # 项目进展
 
+## 2026-07-20：Set L64/S4 capacity run 与 DeepSets prefetch
+
+- 针对 event 约500 tokens 压缩到16 latents、set interaction 仅2层的风险，冻结
+  `d256/latent64/resampler2/set4` 变体；2-rank × batch1 × accumulation4 保持 global batch=8，Hyper00
+  GPU 4/5 已启动，原 L16/S2 GPU 0--3 run 不停止；
+- 大模型启动后 utilization=`82%/95%`，长 state 峰值显存约 `142,719/125,575 MiB`，当前仍运行；
+- DeepSets 首两个 epochs 约8.85/8.39分钟，GPU常见10%--39%，但 host CPU 约96% idle、I/O接近0；瓶颈是
+  同步 Python padding/mmap/H2D 与小模型计算之间的 bubbles，不是缺CPU worker或磁盘吞吐；
+- `main@8a6b8a0` 增加1-depth CPU prefetch、pinned/non-blocking H2D，并让累积训练只在 optimizer step 同步
+  DDP gradients；20 tests + 6 subtests 通过；
+- Hyper01 GPU 6/7 的同配置256-state A/B：sync=`30.373s`，prefetch=`26.965s`，elapsed -11.22%、
+  throughput +12.64%。正式 DeepSets 已完成2 epochs且无 optimizer resume，故不重启丢弃进度；
+- 轻量记录见 [`data/results/set_utility_capacity_and_prefetch_v1/`](../data/results/set_utility_capacity_and_prefetch_v1/README.md)。
+
 ## 2026-07-20：双模型 4-GPU DDP training repair
 
 - `main@ecd5579` 将 119GB cache 从 per-rank GPU preload 改为 CPU/mmap lazy read，19 tests + 6 subtests
