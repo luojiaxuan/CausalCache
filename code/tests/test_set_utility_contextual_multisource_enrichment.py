@@ -206,6 +206,36 @@ def test_multisource_merge_deduplicates_and_preserves_firewall() -> None:
         }
 
 
+def test_multisource_merge_accepts_direct_on_policy_schedule_status() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        root = Path(temporary)
+        base, sources = _fixture(root)
+        source = sources[0]
+        manifest_path = source.schedule_root / "manifest.json"
+        manifest = json.loads(manifest_path.read_text())
+        manifest.pop("content_sha256")
+        manifest["status"] = "COMPLETED_SET_UTILITY_DIRECT_ON_POLICY_SCHEDULES"
+        manifest = _content_manifest(manifest)
+        _write_json(manifest_path, manifest)
+        direct_source = ContextualEnrichmentSource(
+            **{
+                **source.__dict__,
+                "expected_schedule_content_sha256": manifest["content_sha256"],
+            }
+        )
+
+        output_manifest = materialize_contextual_multisource_enriched_inputs(
+            base_input_root=base,
+            sources=(direct_source,),
+            output_root=root / "output",
+            config_sha256="c" * 64,
+        )
+
+        assert output_manifest["enrichment"]["source_bindings"][
+            "decision_v2"
+        ]["schedule_status"] == "COMPLETED_SET_UTILITY_DIRECT_ON_POLICY_SCHEDULES"
+
+
 def test_multisource_merge_rejects_runtime_binding_drift() -> None:
     with tempfile.TemporaryDirectory() as temporary:
         root = Path(temporary)

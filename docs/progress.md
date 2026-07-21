@@ -4442,3 +4442,8 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   v5 container 正常 `exited/0`。随后用 CPU-only container `sglang-omni-jaxan-07211042`
   对 112GB contextual cache 完成首次逐 shard SHA256 验证并生成 host-local signed stat receipt；验证内容
   SHA256=`44405c2...97604`、container `exited/0`，正式 6-rank 训练可只校验 receipt 与 shard stat。
+- 全量 label 审计闭合 5,108/5,108 states、359,189 sampled rows + 5,108 个 `D(C)=0` anchors、0 skip/
+  non-finite/duplicate/error。首次 merge 在任何输出写入前 fail-fast：新 schedule 的合法 status
+  `COMPLETED_SET_UTILITY_DIRECT_ON_POLICY_SCHEDULES` 未被旧 multisource allowlist 接入。修复只补齐该 frozen
+  status，并把 schedule status 写入 source provenance；focused regression 5/5 passed，labels 与 schedule bytes
+  均未修改。

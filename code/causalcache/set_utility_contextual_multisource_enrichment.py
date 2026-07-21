@@ -22,6 +22,7 @@ from causalcache.set_utility_heldout_evaluation import canonical_json_bytes, sha
 LABEL_STATUS = "COMPLETED_VARIABLE_HISTORY_LABEL_STATE"
 SCHEDULE_STATUSES = frozenset(
     (
+        "COMPLETED_SET_UTILITY_DIRECT_ON_POLICY_SCHEDULES",
         "COMPLETED_SET_UTILITY_TRAIN_ON_POLICY_SCHEDULES",
         "COMPLETED_SET_UTILITY_LONG_ORACLE_SCHEDULES",
     )
@@ -257,6 +258,7 @@ def materialize_contextual_multisource_enriched_inputs(
             "schedule_config_sha256": schedule_manifest["config_sha256"],
             "schedule_content_sha256": schedule_manifest["content_sha256"],
             "schedule_manifest_sha256": sha256_file(schedule_manifest_path),
+            "schedule_status": schedule_manifest["status"],
             "state_count": len(schedules),
         }
     enriched = []
