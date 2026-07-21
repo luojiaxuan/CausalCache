@@ -31,6 +31,7 @@ from scripts.train_set_utility_structured_marginal import (
     _read_existing_epoch_plan,
     _save_or_verify_epoch_checkpoint,
     _selected_mask_for_encoded_state,
+    _trim_padded_candidate_scores,
     _signed,
     _validate_config,
     _write_atomic,
@@ -94,6 +95,9 @@ def test_heldout_selected_mask_preserves_padded_batch_geometry() -> None:
     )
     assert selected.shape == (1, 5)
     assert selected.tolist() == [[False, True, False, False, False]]
+    padded_scores = torch.tensor([0.0, 0.3, 0.2, 0.1, -torch.inf, -torch.inf])
+    real_scores = _trim_padded_candidate_scores(padded_scores, 3)
+    assert real_scores.tolist() == pytest.approx([0.0, 0.3, 0.2, 0.1])
 
 
 def test_stop_balance_treats_exact_zero_best_marginal_as_stop() -> None:

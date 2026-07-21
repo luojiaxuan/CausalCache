@@ -687,6 +687,12 @@ def _selected_mask_for_encoded_state(
     return selected_mask
 
 
+def _trim_padded_candidate_scores(values: Any, event_count: int) -> Any:
+    if values.ndim != 1 or values.shape[0] < event_count + 1:
+        raise ValueError("heldout candidate score geometry drifted")
+    return values[: event_count + 1]
+
+
 def _rollout_heldout(
     model: Any,
     states: Sequence[dict[str, Any]],
@@ -725,6 +731,7 @@ def _rollout_heldout(
                     )
                     with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                         values = model.score_encoded_candidates(encoded, selected_mask)[0]
+                    values = _trim_padded_candidate_scores(values, len(event_ids))
                     return tuple(float(value) for value in values.tolist())
 
                 path = structured_greedy_budget_path(score, event_ids)
