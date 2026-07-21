@@ -30,6 +30,7 @@ from scripts.train_set_utility_structured_marginal import (
     _publish_truth_schedule,
     _read_existing_epoch_plan,
     _save_or_verify_epoch_checkpoint,
+    _selected_mask_for_encoded_state,
     _signed,
     _validate_config,
     _write_atomic,
@@ -74,6 +75,25 @@ def test_conditional_groups_keep_only_candidate_complete_bases() -> None:
     assert groups[1]["normalized_marginals"] == pytest.approx(
         (0.0, 0.0, 0.1, -0.1, 0.0, 0.05)
     )
+
+
+def test_heldout_selected_mask_preserves_padded_batch_geometry() -> None:
+    torch = pytest.importorskip("torch")
+    from causalcache.set_utility_token_models import EncodedConditionalMarginalState
+
+    encoded = EncodedConditionalMarginalState(
+        query=torch.zeros(1, 4),
+        events=torch.zeros(1, 5, 4),
+        event_mask=torch.tensor([[True, True, True, False, False]]),
+    )
+    selected = _selected_mask_for_encoded_state(
+        encoded,
+        (10, 20, 30),
+        (20,),
+        torch=torch,
+    )
+    assert selected.shape == (1, 5)
+    assert selected.tolist() == [[False, True, False, False, False]]
 
 
 def test_stop_balance_treats_exact_zero_best_marginal_as_stop() -> None:

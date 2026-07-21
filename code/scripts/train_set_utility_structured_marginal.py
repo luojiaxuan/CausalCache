@@ -673,6 +673,20 @@ def _slice_encoded(
     )
 
 
+def _selected_mask_for_encoded_state(
+    encoded: EncodedConditionalMarginalState,
+    event_ids: Sequence[int],
+    chosen: Sequence[int],
+    *,
+    torch: Any,
+) -> Any:
+    selected_mask = torch.zeros_like(encoded.event_mask, dtype=torch.bool)
+    by_event = {event_id: position for position, event_id in enumerate(event_ids)}
+    for event_id in chosen:
+        selected_mask[0, by_event[event_id]] = True
+    return selected_mask
+
+
 def _rollout_heldout(
     model: Any,
     states: Sequence[dict[str, Any]],
@@ -701,14 +715,14 @@ def _rollout_heldout(
             for index, state in enumerate(selected):
                 encoded = _slice_encoded(encoded_batch, index)
                 event_ids = tuple(state["candidate_event_step_ids"])
-                by_event = {event_id: position for position, event_id in enumerate(event_ids)}
 
                 def score(chosen: tuple[int, ...]) -> tuple[float, ...]:
-                    selected_mask = torch.zeros(
-                        (1, len(event_ids)), dtype=torch.bool, device=device
+                    selected_mask = _selected_mask_for_encoded_state(
+                        encoded,
+                        event_ids,
+                        chosen,
+                        torch=torch,
                     )
-                    for event_id in chosen:
-                        selected_mask[0, by_event[event_id]] = True
                     with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
                         values = model.score_encoded_candidates(encoded, selected_mask)[0]
                     return tuple(float(value) for value in values.tolist())
