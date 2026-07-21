@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0.0",
+  "name": "causalcache_set_utility_long_oracle_fit_probe_v1",
+  "input": {
+    "training_input_content_sha256": "3d011990970a9eff1828c667854936c0f9b56d6f702bc635e54dfe9fcead36ce",
+    "contextual_cache_content_sha256": "44405c2cf96f468e6d0f087e8249bdb504c7efd150673e9bda836d2f52597604",
+    "state_id_file_sha256": "6bdd1e1f50c616db18668bb7126b661c70ab2d88bc29f270a406b5bdbbad3d91",
+    "state_count": 250,
+    "evaluation_access": false
+  },
+  "training": {
+    "seed": 20260721,
+    "epochs": 30,
+    "maximum_gradient_norm": 1.0,
+    "warmup_ratio": 0.05,
+    "minimum_lr_ratio": 0.1,
+    "attention_backend": "disable_cudnn_sdp",
+    "normalization_floor": 0.01,
+    "minimum_epochs": 3,
+    "gate_patience": 2
+  },
+  "variants": {
+    "direct_hard_tau005": {
+      "head": "direct_singleton_marginal",
+      "model": {
+        "family": "set_transformer",
+        "source_hidden_size": 4096,
+        "numeric_feature_size": 11,
+        "hidden_size": 256,
+        "latent_count": 16,
+        "resampler_layers": 2,
+        "set_layers": 2,
+        "num_heads": 8,
+        "dropout": 0.1,
+        "preserve_entity_latents": true
+      },
+      "learning_rate": 0.0003,
+      "weight_decay": 0.01,
+      "batch_size": 4,
+      "evaluation_batch_size": 8,
+      "gradient_accumulation_steps": 2,
+      "loss": {
+        "teacher_mode": "hard",
+        "decision_temperature": 0.05,
+        "raw_smooth_l1_beta": 0.05,
+        "normalized_smooth_l1_beta": 0.5,
+        "raw_regression": 0.25,
+        "normalized_regression": 1.25,
+        "within_state_ranking": 1.0,
+        "conditional_listwise": 2.0,
+        "decision_regret": 2.0,
+        "sign_classification": 1.0
+      }
+    }
+  },
+  "fit_gate": {
+    "singleton_spearman_strictly_greater_than": 0.5,
+    "top4_recall_strictly_greater_than": 0.6
+  },
+  "firewall": {
+    "allowed_role": "train",
+    "evaluation_access": false,
+    "new_restoration_labels": false,
+    "paper_result": false
+  }
+}

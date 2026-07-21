@@ -78,8 +78,10 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 ## 当前执行主线
 
 - fixed-tune Long+ oracle v1 已完成 249/249、四 wave 0 skip；tune truth 只用于 failure decomposition，
-  禁止进入训练。下一步是 direct conditional-marginal + STOP v3 的 train-only in-sample fit gate；通过后才
-  另立 fixed-tune 合同，untouched evaluation/policy/closed-loop 仍锁定。
+  禁止进入训练。direct conditional-marginal + STOP v3 已冻结为“candidate set 一次编码 + 每步 selected
+  attention 重打分”，不输入 `B` 或 scalar cardinality offset；先跑 train-only in-sample fit gate，通过后才
+  进入完整 conditional groups 训练并另立 fixed-tune 合同。untouched evaluation/policy/closed-loop 仍锁定。
+  [v3 合同](docs/set_utility_direct_marginal_v3.md)。
 - 同一 trajectory 的所有 eligible decision steps 保持在同一 split；
 - 正式 state 使用当前决策前的全部 eligible events，`n_t=|C_t|` 是数据属性；不得做 recent-`n` 候选截断；
 - 每个 state 约生成 40 个 age/interaction-stratified coalition labels，小历史可 exact，大历史只采样 subsets；

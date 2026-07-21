@@ -4214,3 +4214,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   in-sample Spearman/top-4 fit gate，再另立固定 tune 合同。
 - 完整 reducer 见 [`data/results/set_utility_tune_long_oracle_v1/`](../data/results/set_utility_tune_long_oracle_v1/README.md)；
   完整 payload 暂存 Hyper persistent path，状态=`PENDING_HF_UPLOAD`。
+
+## 2026-07-21:Direct conditional-marginal v3 Stage-A 冻结
+
+- 新 student 直接输出 `Δ(q,C,S,j)`，STOP 固定为 0；移除 scalar `U(S)` regression、显式 cardinality
+  offset 和 fixed-`B` 输入。GUI-Owl/resampler/candidate Set Transformer 每 state 只编码一次，每次选择只以
+  candidate-to-selected attention 重算所有候选 marginal。
+- 多 latent 表示不再在 head 前直接 mean：当前 query 对每个 event latents 做 attention pooling，再进行全候选
+  set interaction；这同时回应 16-latent information bottleneck 与 subset 重编码 latency 风险。
+- Stage A 只用 250 个 train long-oracle states 的 candidate-complete singleton truth；连续两 epoch 满足
+  Spearman `>0.5` 与 true-best top-4 recall `>0.6` 才进入完整 conditional training，最多 30 epochs。
+  13 个 focused tests 在 Hyper00 PyTorch 2.13 container 通过。
+- 完整设计与止损边界见 [`docs/set_utility_direct_marginal_v3.md`](set_utility_direct_marginal_v3.md)。

@@ -64,6 +64,15 @@ class EncodedTokenUtilityState:
     event_mask: Any
 
 
+@dataclass(frozen=True)
+class EncodedConditionalMarginalState:
+    """Subset-independent state used by the direct conditional marginal head."""
+
+    query: Any
+    events: Any
+    event_mask: Any
+
+
 if torch is not None:
 
     class _CrossAttentionBlock(torch.nn.Module):
@@ -601,6 +610,259 @@ if torch is not None:
             return self.score_encoded_subsets(encoded_state, subset_masks)
 
 
+    class TokenConditionalMarginalPredictor(torch.nn.Module):
+        """Score every event's gain conditional on a selected coalition and STOP."""
+
+        def __init__(self, config: TokenUtilityModelConfig) -> None:
+            super().__init__()
+            if config.family != "set_transformer":
+                raise ValueError("conditional marginal predictor requires set_transformer")
+            if not config.preserve_entity_latents:
+                raise ValueError("conditional marginal predictor requires entity latents")
+            self.config = config
+            self.encoder = TokenSetUtilityPredictor(config)
+            hidden = config.hidden_size
+            self.event_pool = torch.nn.MultiheadAttention(
+                hidden,
+                config.num_heads,
+                dropout=config.dropout,
+                batch_first=True,
+            )
+            self.event_pool_norm = torch.nn.LayerNorm(hidden)
+            self.selected_attention = torch.nn.MultiheadAttention(
+                hidden,
+                config.num_heads,
+                dropout=config.dropout,
+                batch_first=True,
+            )
+            self.selected_norm = torch.nn.LayerNorm(hidden)
+            self.empty_selected = torch.nn.Parameter(torch.empty(hidden))
+            torch.nn.init.normal_(self.empty_selected, std=hidden**-0.5)
+            self.marginal_head = torch.nn.Sequential(
+                torch.nn.Linear(7 * hidden, 2 * hidden),
+                torch.nn.GELU(approximate="none"),
+                torch.nn.Dropout(config.dropout),
+                torch.nn.Linear(2 * hidden, hidden),
+                torch.nn.GELU(approximate="none"),
+                torch.nn.Linear(hidden, 1),
+            )
+            # note (luojiaxuan): Scalar-only parameters stay outside this optimizer;
+            # the candidate set encoder remains trainable and runs once per state.
+            for module in (
+                self.encoder.selection_embedding,
+                self.encoder.utility_head,
+            ):
+                if module is not None:
+                    module.requires_grad_(False)
+
+        def encode_state_once(
+            self,
+            *,
+            query_visual_tokens: Any,
+            query_visual_mask: Any,
+            query_text_tokens: Any,
+            query_text_mask: Any,
+            event_visual_tokens: Any,
+            event_visual_mask: Any,
+            event_text_tokens: Any,
+            event_text_mask: Any,
+            event_numeric_features: Any,
+            event_mask: Any,
+        ) -> EncodedConditionalMarginalState:
+            encoded = self.encoder.encode_state_once(
+                query_visual_tokens=query_visual_tokens,
+                query_visual_mask=query_visual_mask,
+                query_text_tokens=query_text_tokens,
+                query_text_mask=query_text_mask,
+                event_visual_tokens=event_visual_tokens,
+                event_visual_mask=event_visual_mask,
+                event_text_tokens=event_text_tokens,
+                event_text_mask=event_text_mask,
+                event_numeric_features=event_numeric_features,
+                event_mask=event_mask,
+            )
+            batch_size, event_count, latent_count, hidden = encoded.events.shape
+            query = encoded.query.mean(dim=1)
+            flat_events = encoded.events.reshape(
+                batch_size * event_count, latent_count, hidden
+            )
+            pool_queries = query[:, None, :].expand(-1, event_count, -1).reshape(
+                batch_size * event_count, 1, hidden
+            )
+            pooled, _ = self.event_pool(pool_queries, flat_events, flat_events)
+            events = self.event_pool_norm(
+                pooled.squeeze(1) + pool_queries.squeeze(1)
+            ).reshape(batch_size, event_count, hidden)
+            events = events.masked_fill(~event_mask.unsqueeze(-1), 0.0)
+
+            tokens = torch.cat((query.unsqueeze(1), events), dim=1)
+            padding_mask = torch.cat(
+                (
+                    torch.zeros(
+                        (batch_size, 1),
+                        dtype=torch.bool,
+                        device=event_mask.device,
+                    ),
+                    ~event_mask,
+                ),
+                dim=1,
+            )
+            assert self.encoder.set_encoder is not None
+            contextual = self.encoder.set_encoder(
+                tokens, src_key_padding_mask=padding_mask
+            )
+            return EncodedConditionalMarginalState(
+                query=contextual[:, 0],
+                events=contextual[:, 1:].masked_fill(
+                    ~event_mask.unsqueeze(-1), 0.0
+                ),
+                event_mask=event_mask,
+            )
+
+        def score_encoded_candidates(
+            self,
+            encoded_state: EncodedConditionalMarginalState,
+            selected_masks: Any,
+        ) -> Any:
+            """Return `[STOP, event_1, ..., event_n]` gains without re-encoding."""
+            if not isinstance(encoded_state, EncodedConditionalMarginalState):
+                raise TypeError(
+                    "encoded_state must be EncodedConditionalMarginalState"
+                )
+            if selected_masks.ndim == 2:
+                selected_masks = selected_masks.unsqueeze(1)
+                squeeze = True
+            else:
+                squeeze = False
+            if (
+                selected_masks.ndim != 3
+                or selected_masks.dtype != torch.bool
+                or selected_masks.shape[0] != encoded_state.event_mask.shape[0]
+                or selected_masks.shape[2] != encoded_state.event_mask.shape[1]
+            ):
+                raise ValueError("selected coalition mask geometry drifted")
+            if bool(
+                (selected_masks & ~encoded_state.event_mask.unsqueeze(1)).any()
+            ):
+                raise ValueError("a selected coalition contains a padded event")
+
+            events = encoded_state.events
+            query = encoded_state.query
+            event_mask = encoded_state.event_mask
+            batch_size, group_count, event_count = selected_masks.shape
+            hidden = events.shape[-1]
+            flat_count = batch_size * group_count
+            candidates = events.unsqueeze(1).expand(
+                -1, group_count, -1, -1
+            ).reshape(flat_count, event_count, hidden)
+            selected_events = candidates
+            empty = self.empty_selected.reshape(1, 1, hidden).expand(
+                flat_count, -1, -1
+            )
+            keys = torch.cat((empty, selected_events), dim=1)
+            flat_selected = selected_masks.reshape(flat_count, event_count)
+            has_selected = flat_selected.any(dim=1, keepdim=True)
+            selected_padding_mask = torch.cat(
+                (has_selected, ~flat_selected), dim=1
+            )
+            selected_context, _ = self.selected_attention(
+                candidates,
+                keys,
+                keys,
+                key_padding_mask=selected_padding_mask,
+            )
+            selected_context = self.selected_norm(
+                candidates + selected_context
+            ).reshape(batch_size, group_count, event_count, hidden)
+
+            memberships = event_mask.to(dtype=events.dtype)
+            universe = torch.einsum("bn,bnh->bh", memberships, events)
+            universe = universe / memberships.sum(dim=1, keepdim=True).clamp_min(1.0)
+            expanded_events = events.unsqueeze(1).expand(
+                -1, group_count, -1, -1
+            )
+            expanded_query = query[:, None, None, :].expand_as(expanded_events)
+            expanded_universe = universe[:, None, None, :].expand_as(
+                expanded_events
+            )
+            scores = self.marginal_head(
+                torch.cat(
+                    (
+                        expanded_events,
+                        expanded_query,
+                        selected_context,
+                        expanded_events * expanded_query,
+                        expanded_events * selected_context,
+                        torch.abs(expanded_events - selected_context),
+                        expanded_universe,
+                    ),
+                    dim=-1,
+                )
+            ).squeeze(-1)
+            scores = scores.masked_fill(
+                ~event_mask[:, None, :].expand_as(scores), 0.0
+            )
+            stop = torch.zeros(
+                (batch_size, group_count, 1),
+                dtype=scores.dtype,
+                device=scores.device,
+            )
+            result = torch.cat((stop, scores), dim=2)
+            return result.squeeze(1) if squeeze else result
+
+        def score_singleton_utilities(
+            self,
+            encoded_state: EncodedConditionalMarginalState,
+            subset_masks: Any,
+        ) -> Any:
+            """Compatibility path for the train-only empty-coalition fit probe."""
+            if bool((subset_masks.sum(dim=-1) > 1).any()):
+                raise ValueError("singleton fit probe received a larger subset")
+            empty_selected = torch.zeros_like(subset_masks[:, :1])
+            event_scores = self.score_encoded_candidates(
+                encoded_state, empty_selected
+            )[:, 0, 1:]
+            utilities = torch.einsum(
+                "bkn,bn->bk",
+                subset_masks.to(dtype=event_scores.dtype),
+                event_scores,
+            )
+            return utilities.masked_fill(~subset_masks.any(dim=-1), 0.0)
+
+        def forward(
+            self,
+            *,
+            query_visual_tokens: Any,
+            query_visual_mask: Any,
+            query_text_tokens: Any,
+            query_text_mask: Any,
+            event_visual_tokens: Any,
+            event_visual_mask: Any,
+            event_text_tokens: Any,
+            event_text_mask: Any,
+            event_numeric_features: Any,
+            event_mask: Any,
+            subset_masks: Any,
+        ) -> Any:
+            encoded = self.encode_state_once(
+                query_visual_tokens=query_visual_tokens,
+                query_visual_mask=query_visual_mask,
+                query_text_tokens=query_text_tokens,
+                query_text_mask=query_text_mask,
+                event_visual_tokens=event_visual_tokens,
+                event_visual_mask=event_visual_mask,
+                event_text_tokens=event_text_tokens,
+                event_text_mask=event_text_mask,
+                event_numeric_features=event_numeric_features,
+                event_mask=event_mask,
+            )
+            return self.score_singleton_utilities(encoded, subset_masks)
+
+
+    class TokenSingletonMarginalPredictor(TokenConditionalMarginalPredictor):
+        """Backward-compatible name for the empty-coalition v3 fit probe."""
+
+
 else:
 
     class MultimodalLatentResampler:  # pragma: no cover
@@ -613,10 +875,23 @@ else:
             raise RuntimeError("token utility models require PyTorch")
 
 
+    class TokenSingletonMarginalPredictor:  # pragma: no cover
+        def __init__(self, *_: Any, **__: Any) -> None:
+            raise RuntimeError("token utility models require PyTorch")
+
+
+    class TokenConditionalMarginalPredictor:  # pragma: no cover
+        def __init__(self, *_: Any, **__: Any) -> None:
+            raise RuntimeError("token utility models require PyTorch")
+
+
 __all__ = [
+    "EncodedConditionalMarginalState",
     "EncodedTokenUtilityState",
     "MODEL_FAMILIES",
     "MultimodalLatentResampler",
+    "TokenConditionalMarginalPredictor",
+    "TokenSingletonMarginalPredictor",
     "TokenSetUtilityPredictor",
     "TokenUtilityModelConfig",
 ]
