@@ -27,7 +27,8 @@ coalition labels。
 
 - [`summary.json`](summary.json)：完整 reducer 输出；content SHA256=
   `852cc7d8fcf9ebf591c705d0803432419213ed0363b96138e9a6cd312c4c0e3a`，file SHA256=
-  `33d6a83bfb7199b657198a562bf5ce54e6c9c93cb21a5024cfae8b6a8c26ae28`；
+  `5c60cecc28a5d952e412ebcea80adfd53e55ea1bda221c04163be68746b3f0cd`；Hyper 原始 reducer
+  file SHA256=`33d6a83b...c26ae28`（Git 副本仅多一个尾随换行）；
 - Hyper00 active result：`/data02/jaxan/runs/causalcache-tune-long-oracle-v1-b6a4643/result.json`；
 - 四 wave schedules/terminals：Hyper00/Hyper01
   `/data02/jaxan/runs/causalcache-tune-long-oracle-v1-b6a4643/wave-{1,2,3,4}`；
