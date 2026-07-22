@@ -4726,3 +4726,14 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   自包含数据集(samples+images 去符号链接)已传输 hyper00
   `/data02/jaxan/artifacts/sft/causalcache-success-sft-v1/`。轨道 A 采集与 H100 3 卡待训练发射后
   安排(hyper01 emulator 仍在,等它的卡空出来即可跑采集)。
+
+## 2026-07-22:margin-SFT epoch-1 门禁——四项全部正向移动,未过线,继续训练
+
+- held-out 18 局(355 样本,vs 冻结基线同分母):correct−b0 干扰税 −0.042→−0.020(减半);
+  correct−shuffled −0.008→−0.000(正例率 58%→68%);correct−irrelevant −0.005→+0.007(正例率
+  59%→65%);b0 漂移 −0.004(轻微),correct 漂移 +0.005。三个内容门禁均未达 CI>0,epoch 2/3
+  继续,每 checkpoint 复测。冻结 policy 内容敏感度为精确 0,epoch-1 已拉出 0——margin 信号有效的
+  首个证据。
+- 修复:scorer 只取目标段 logits(logits_to_keep,~15GB 峰值→MB 级),与采集共卡不再 OOM。
+- 并行现状:hyper00 6 卡训练;hyper01 4 卡 12 worker 采种子 1004-1005(288 局);H100 emulator
+  启动中,3 卡 9 worker 待发种子 1006(135 局,剔除 3 个 fresh-boot 缺应用模板)。
