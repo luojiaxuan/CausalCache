@@ -1,6 +1,6 @@
 # Selector-side LoRA v1
 
-状态：`PHASE1_COMPLETE_JOINT_ADAPTATION_RUNNING`。
+状态：`STOPPED_AFTER_JOINT_EPOCH2_NO_HELDOUT_IMPROVEMENT`。
 
 - teacher/action policy：原始 frozen GUI-Owl，不含 LoRA；
 - selector branch：LM top-4，计划 q/k/v/o rank-8 LoRA；
@@ -39,10 +39,26 @@
 - joint token-adapter epoch 1 checkpoint=`c50b4291...b51451`；91/91 states、2,251 coalitions 已完成，
   0 skip/error，truth content=`251da3dd...07544`。B1/B2/B3/B4=
   `0.18320309/0.24648697/0.26347535/0.26361162`，macro/Long+=`0.23919426/0.28640421`；因明显
-  退化，该 control 不再增加 epoch。joint LoRA e1 checkpoint=`02e0ac96...f949`，201 states / 6,840
-  coalitions（6,639 forwards）正由 Hyper00/Hyper01 共 11×H200 并行回填。执行记录见
+  退化，该 control 不再增加 epoch。joint LoRA e1 checkpoint=`02e0ac96...f949` 的 201 states / 6,840
+  coalitions（6,639 forwards）已完成并封存，0 skip/error，truth content=`e97e9228...2a31`；固定
+  256-state denominator 上 B1/B2/B3/B4=`0.18291355/0.35552749/0.49593237/0.58700819`，macro/Long+=
+  `0.40534540/0.37960822`。相对 recent 的 B1/B2/B3/B4=`-0.00029/-0.00012/+0.07471/+0.05389`，
+  macro=`+0.03205`，Long+=`-0.00041`。因此 e1 有可选择的 macro 改善，但尚未补上 B2/Long+；按冻结
+  per-epoch truth contract 继续 e2，不把 e1 解释为 representation hypothesis 已通过。执行记录见
   [`token-adapter-joint-truth-rollout-plan.json`](token-adapter-joint-truth-rollout-plan.json) 与
-  [`lora-joint-truth-rollout-plan.json`](lora-joint-truth-rollout-plan.json)。
+  [`lora-joint-truth-rollout-plan.json`](lora-joint-truth-rollout-plan.json)，轻量结果见
+  [`lora-joint-epoch1-summary.json`](lora-joint-epoch1-summary.json)。
+- joint LoRA e2 checkpoint=`d26f89f7...0ded`；98 states / 1,938 coalitions（1,840 forwards）由两机
+  12 个预平衡 state-hash lanes 完成，0 skip/error，truth content=`00d12804...2e58`。e2 的
+  B1/B2/B3/B4=`0.17369648/0.32745198/0.47878552/0.59826517`，macro/Long+=
+  `0.39454979/0.36338640`；相对 e1 分别为 macro `-0.01080`、Long+ `-0.01622`、B2 `-0.02808`，
+  只有 B4 提升 `+0.01126`。按用户要求在 heldout 不再提升时停止额外 epoch，最终保留 e1 checkpoint。
+  该停止不是 config `patience=3` 的 formal early-stop verdict。执行与结果见
+  [`lora-joint-truth-rollout-plan-e2.json`](lora-joint-truth-rollout-plan-e2.json) 和
+  [`lora-joint-epoch2-summary.json`](lora-joint-epoch2-summary.json)。
 - boundary cache 完成后需上传 private HF；当前状态 `PENDING_HF_UPLOAD`。
+
+结论：当前 top-layer selector LoRA 能保留并增强 B3/B4 信号，但没有改善 B2/Long+，因此“冻结表示是主要
+瓶颈、用该 LoRA 即可补上”的目标假设未获支持。后续不继续 e3/e4，也不因此修改 frozen teacher。
 
 设计与限制见 [`docs/set_utility_selector_lora_v1.md`](../../../docs/set_utility_selector_lora_v1.md)。

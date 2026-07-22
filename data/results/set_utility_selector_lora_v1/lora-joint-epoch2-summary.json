@@ -1,0 +1,60 @@
+{
+  "checkpoint_sha256": "d26f89f7a90a3f2b4643db953335cf0a301bed468b6dd676f54442a169f20ded",
+  "delta_vs_epoch1": {
+    "B1": -0.009217071074939465,
+    "B2": -0.02807550995258301,
+    "B3": -0.017146857788799814,
+    "B4": 0.011256979873742194,
+    "long_plus_macro": -0.016221828166931245,
+    "macro": -0.010795614735645
+  },
+  "delta_vs_recent": {
+    "B1": -0.009506610103819507,
+    "B2": -0.028193281811282,
+    "B3": 0.057562745957006445,
+    "B4": 0.06514601186912561,
+    "long_plus_macro": -0.016632935087462053,
+    "macro": 0.021252216477757657
+  },
+  "learned": {
+    "B1": 0.1736964793356112,
+    "B2": 0.3274519771672181,
+    "B3": 0.4787855168616184,
+    "B4": 0.5982651715304445,
+    "long_plus_macro": 0.3633863952022498,
+    "macro": 0.39454978622372305
+  },
+  "recent": {
+    "B1": 0.1832030894394307,
+    "B2": 0.3556452589785001,
+    "B3": 0.42122277090461197,
+    "B4": 0.5331191596613188,
+    "long_plus_macro": 0.38001933028971185,
+    "macro": 0.3732975697459654
+  },
+  "schema_version": "causalcache.selector_adaptation_lightweight_result.v1",
+  "selected_checkpoint": {
+    "epoch": 1,
+    "sha256": "02e0ac96a0540e5c84091bd6d1ab7be2ed5204908c66172efe40a8769490f949"
+  },
+  "selection_contract": {
+    "expected_row_count": 1024,
+    "long_plus_trajectory_count": 32,
+    "normalization_floor": 0.01,
+    "observed_row_count": 1024,
+    "state_count": 256,
+    "trajectory_count": 78,
+    "truth_complete": true
+  },
+  "status": "STOPPED_AFTER_JOINT_EPOCH2_NO_HELDOUT_IMPROVEMENT",
+  "stop_note": "User-directed resource stop after true heldout macro and Long+ both regressed from epoch 1. This is not the config patience=3 formal early-stop verdict; epoch 1 remains the selected checkpoint.",
+  "truth": {
+    "coalition_count": 1938,
+    "formal_manifest_content_sha256": "00d12804b3d40494a4289954900f684b0b571882fa50756a975646d3f4592e58",
+    "formal_manifest_file_sha256": "24149934174db8ee3ccd39af68f71ab9a3fceb92c1b4c95ae25466eca3649e76",
+    "local_root": "/data02/jaxan/runs/causalcache-selector-lora-joint-truth-e2-d26f89f",
+    "state_count": 98,
+    "status": "PENDING_HF_UPLOAD"
+  },
+  "verdict_note": "Top-layer selector LoRA preserved positive B3/B4 signal but did not improve B2 or Long+; epoch 2 worsened both primary and Long+ relative to epoch 1."
+}

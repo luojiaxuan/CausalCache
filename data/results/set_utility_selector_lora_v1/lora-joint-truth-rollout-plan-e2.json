@@ -1,0 +1,69 @@
+{
+  "checkpoint": {
+    "epoch": 2,
+    "sha256": "d26f89f7a90a3f2b4643db953335cf0a301bed468b6dd676f54442a169f20ded"
+  },
+  "execution": {
+    "partition_count": 1,
+    "state_lane_count": 12,
+    "workers": {
+      "hyper00": {
+        "container": "sglang-omni-jaxan-07211721",
+        "gpu_ids": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "state_lanes": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "status": "EXITED_0"
+      },
+      "hyper01": {
+        "container": "sglang-omni-jaxan-07211721",
+        "gpu_ids": [
+          1,
+          2,
+          4,
+          5,
+          6,
+          7
+        ],
+        "state_lanes": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "status": "EXITED_0"
+      }
+    }
+  },
+  "formal_truth": {
+    "coalition_count": 1938,
+    "content_sha256": "00d12804b3d40494a4289954900f684b0b571882fa50756a975646d3f4592e58",
+    "file_sha256": "24149934174db8ee3ccd39af68f71ab9a3fceb92c1b4c95ae25466eca3649e76",
+    "forward_coalition_count": 1840,
+    "local_root": "/data02/jaxan/runs/causalcache-selector-lora-joint-truth-e2-d26f89f",
+    "state_count": 98,
+    "status": "PENDING_HF_UPLOAD"
+  },
+  "schema_version": "causalcache.selector_lora_truth_rollout_plan.v1",
+  "source_revision": "5c827e6852e8970fbcf2fb3cba0e3c53ae73fd2f",
+  "status": "COMPLETED",
+  "truth_schedule": {
+    "content_sha256": "aeba2b2396001a07073ea386707f301687e1a33ed69daafedd6348cd3b9250e0",
+    "local_root": "/data02/jaxan/runs/causalcache-selector-lora-joint-truth-schedule-e2-d26f89f",
+    "summary_file_sha256": "175db2b75a553d8d3c3fa9561efca55f0ac6f1be03bc26660e412a8dd6a0805d"
+  }
+}

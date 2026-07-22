@@ -4624,3 +4624,33 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   策略禁止读 HF token;目标 `gavinlaw/causalcache-set-utility-variable-history-mobile`
   `artifacts/androidworld-memory-ceiling-v1-76230e4/`)。
 - 待用户决定:parse-retry-once 协议修正 v2 重跑(~1.5h)是否执行;v1 裁决无论如何保留。
+
+## 2026-07-21：Selector-side GUI-Owl LoRA joint epoch 1 truth 完成
+
+- Teacher/action policy 保持原始 frozen GUI-Owl；LoRA 仅位于 selector branch，旧 restoration labels 未改变。
+- joint LoRA e1 checkpoint=`02e0ac96...f949`。201-state schedule 共 6,840 coalitions（6,639 forwards）；
+  Hyper00/Hyper01 首轮 11 workers 出现 partition 5/9 长尾后，将两个未完成 partition 各拆成 6 个可恢复
+  state lanes，最终 201/201 states、0 skip/error，两个 tail containers 均 exit 0。
+- 合并后 formal truth content=`e97e9228...2a31`，manifest file SHA256=`044bde97...d39d`；persistent root=
+  `/data02/jaxan/runs/causalcache-selector-lora-joint-truth-e1-5c827e6`，状态 `PENDING_HF_UPLOAD`。
+- fixed-256 train-heldout recovery：B1/B2/B3/B4=`0.18291/0.35553/0.49593/0.58701`，macro/Long+=
+  `0.40535/0.37961`；相对 recent 为 `-0.00029/-0.00012/+0.07471/+0.05389`，macro=`+0.03205`，
+  Long+=`-0.00041`。e1 的增益全部来自 B3/B4，尚未补上预定的 B2/Long+ 瓶颈。
+- 冻结 checkpoint-selection contract 以真实 macro 为主判据，因此 e1 可继续 epoch 2；不按 training loss
+  或最后 epoch 选模，也不把当前结果表述为 frozen representation hypothesis 已验证。
+
+## 2026-07-21：Selector-side GUI-Owl LoRA epoch 2 退化并停止追加 epoch
+
+- e2 checkpoint=`d26f89f7...0ded`。首次 resume launcher 因漏传 `PYTHONPATH=code` 在 import 前 exit 1，
+  没有 optimizer step 或 artifact mutation；修正后的 Hyper00 6×H200 run 正常 exit 0。
+- e2 缺失 truth 为 98 states / 1,938 coalitions（1,840 forwards）。为避免 e1 静态 partition 长尾，先按
+  state hash 预分 12 lanes，Hyper00/Hyper01 各 6×H200；每 lane 54--303 forwards。最终 98/98 states、
+  12/12 workers、0 skip/error，两个容器均 exit 0；formal truth content=`00d12804...2e58`，manifest file
+  SHA256=`24149934...9e76`，persistent root=
+  `/data02/jaxan/runs/causalcache-selector-lora-joint-truth-e2-d26f89f`，`PENDING_HF_UPLOAD`。
+- fixed-256 e2 recovery：B1/B2/B3/B4=`0.17370/0.32745/0.47879/0.59827`，macro/Long+=
+  `0.39455/0.36339`。相对 e1，macro=`-0.01080`、Long+=`-0.01622`、B2=`-0.02808`，只有 B4=
+  `+0.01126`；train-heldout loss 也从 e1 的 `5.88615` 变为 `5.91979`。
+- 按用户要求的“每 epoch 看真实 heldout，没有明显提升就不继续堆 epoch”资源纪律，停止 e3/e4并保留 e1
+  checkpoint=`02e0ac96...f949`。该停止不冒充 config `patience=3` 的 formal early-stop verdict；科学结论是
+  当前 top-layer LoRA 没有补上 B2/Long+，不能支持“冻结表示是主要瓶颈且该 LoRA 足以解决”的假设。

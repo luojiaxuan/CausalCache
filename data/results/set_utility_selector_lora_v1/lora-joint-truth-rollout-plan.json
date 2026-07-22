@@ -1,5 +1,14 @@
 {
   "created_at": "2026-07-21T23:36:27.040469+00:00",
+  "completed_at": "2026-07-22T00:01:00+00:00",
+  "formal_truth": {
+    "coalition_count": 6840,
+    "content_sha256": "e97e922899391fda0a50134850229ffa661b7475546045f568997432ed912a31",
+    "file_sha256": "044bde97f60ec08add40aa9a717106f298def73ffcf6ba4e5ccbb276ec94d39d",
+    "local_root": "/data02/jaxan/runs/causalcache-selector-lora-joint-truth-e1-5c827e6",
+    "state_count": 201,
+    "status": "PENDING_HF_UPLOAD"
+  },
   "hosts": {
     "hyper00": {
       "container": "sglang-omni-jaxan-07211636",
@@ -20,5 +29,35 @@
     "state_count": 201
   },
   "source_revision": "5c827e6852e8970fbcf2fb3cba0e3c53ae73fd2f",
-  "status": "RUNNING"
+  "status": "COMPLETED",
+  "tail_handoff": {
+    "reason": "The original 11-way schedule ended with only partitions 5 and 9 active while nine selected GPUs were idle.",
+    "state_lane_count": 6,
+    "workers": {
+      "hyper00": {
+        "container": "sglang-omni-jaxan-07211655",
+        "gpu_ids": [
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "partition_index": 5
+      },
+      "hyper01": {
+        "container": "sglang-omni-jaxan-07211655",
+        "gpu_ids": [
+          1,
+          2,
+          4,
+          5,
+          6,
+          7
+        ],
+        "partition_index": 9
+      }
+    }
+  }
 }

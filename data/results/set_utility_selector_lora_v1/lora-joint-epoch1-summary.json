@@ -1,0 +1,47 @@
+{
+  "checkpoint_sha256": "02e0ac96a0540e5c84091bd6d1ab7be2ed5204908c66172efe40a8769490f949",
+  "delta_vs_recent": {
+    "B1": -0.00028953902888004257,
+    "B2": -0.00011777185869898954,
+    "B3": 0.07470960374580626,
+    "B4": 0.05388903199538342,
+    "long_plus_macro": -0.00041110692053081266,
+    "macro": 0.032047831213402656
+  },
+  "learned": {
+    "B1": 0.18291355041055066,
+    "B2": 0.3555274871198011,
+    "B3": 0.49593237465041823,
+    "B4": 0.5870081916567023,
+    "long_plus_macro": 0.37960822336918104,
+    "macro": 0.40534540095936805
+  },
+  "recent": {
+    "B1": 0.1832030894394307,
+    "B2": 0.3556452589785001,
+    "B3": 0.42122277090461197,
+    "B4": 0.5331191596613188,
+    "long_plus_macro": 0.38001933028971185,
+    "macro": 0.3732975697459654
+  },
+  "schema_version": "causalcache.selector_adaptation_lightweight_result.v1",
+  "selection_contract": {
+    "expected_row_count": 1024,
+    "long_plus_trajectory_count": 32,
+    "normalization_floor": 0.01,
+    "observed_row_count": 1024,
+    "state_count": 256,
+    "trajectory_count": 78,
+    "truth_complete": true
+  },
+  "status": "CONTINUE_AFTER_JOINT_EPOCH1",
+  "truth": {
+    "coalition_count": 6840,
+    "formal_manifest_content_sha256": "e97e922899391fda0a50134850229ffa661b7475546045f568997432ed912a31",
+    "formal_manifest_file_sha256": "044bde97f60ec08add40aa9a717106f298def73ffcf6ba4e5ccbb276ec94d39d",
+    "local_root": "/data02/jaxan/runs/causalcache-selector-lora-joint-truth-e1-5c827e6",
+    "state_count": 201,
+    "status": "PENDING_HF_UPLOAD"
+  },
+  "verdict_note": "Epoch 1 improves macro through B3/B4 but does not improve the preregistered B2 or Long+ targets. Continue the frozen per-epoch selection contract; representation bottleneck is not yet validated."
+}

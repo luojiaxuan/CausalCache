@@ -62,12 +62,19 @@ head 的 selection parity。
   均已完成。token-adapter 的 132-state truth 已 seal 并回填，B1--B4 macro/Long+=
   `0.30893/0.30401`，低于 recent=`0.37330/0.38002`；LoRA-only 的 129-state truth 也已 seal，
   macro/Long+=`0.30542/0.32770`，同样低于 recent。当前不能声称 selector representation 已改善；
-  joint adaptation 是剩余的决定性检验。
+  joint adaptation 是剩余的决定性检验；
+- joint LoRA epoch 1 的 fixed-256 truth 已完整回填：macro=`0.40535`，比 recent 高 `+0.03205`；B3/B4
+  分别高 `+0.07471/+0.05389`。但 B2=`0.35553` 与 Long+=`0.37961` 均与 recent 基本持平，因此目标
+  hypothesis 尚未通过。冻结合同允许按真实 recovery 继续 epoch 2，不能按 loss 或最后 epoch 选模；
+- epoch 2 的 macro/Long+=`0.39455/0.36339`，相对 epoch 1 为 `-0.01080/-0.01622`，B2 下降
+  `0.02808`，只有 B4 增加 `0.01126`。按用户的逐 epoch heldout 资源纪律停止 e3/e4，保留 epoch 1；这不是
+  `patience=3` 的 formal early-stop verdict。
 
 ## 下一步
 
-1. 合并并 seal joint LoRA epoch 1 的跨机 truth；
-2. 以 fixed-256 true recovery 判断 joint LoRA 是否改善 B2/Long+；token-adapter control 不再增加 epoch。
+1. 不再继续同一 top-4 LoRA 的 e3/e4；
+2. 保留 epoch 1 作为本轮 selected checkpoint，teacher/action policy 继续冻结；
+3. 若继续 learned selector，下一假设必须直接针对 B2/Long+ 的条件选择或路由，而不是继续扩大同一 head/LoRA。
 
 Boundary extraction 的冻结参数见
 [`causalcache_set_utility_selector_lora_v1.json`](../code/configs/causalcache_set_utility_selector_lora_v1.json)。
