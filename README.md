@@ -8,11 +8,14 @@
 
 - **OSWorld runner v1 已完成真实 KVM live smoke。** runner 绑定官方 pinned `DesktopEnv`，覆盖 10 domains / 369
   tasks 的 inventory、受限 desktop action 到 PyAutoGUI 的安全映射、mixed-fidelity policy HTTP boundary、
-  task-level 可断点 suite sharding 与原子 episode evidence。Hyper01 的真实 reset→screenshot→WAIT→DONE→
-  evaluate→close 已通过，第二次运行 `resumed_skips=1`；当前仍是跨平台 benchmark substrate，不是科学结果，
+  task-level 可断点 suite sharding 与原子 episode evidence。Hyper01 与 H100 的真实
+  reset→screenshot→WAIT→DONE→evaluate→close 均已通过，第二次运行均返回 `resumed_skips=1`；H100 需要显式
+  `--docker-cpu-model qemu64`，避免默认 host CPU model 卡在 VM early boot。当前仍是跨平台 benchmark
+  substrate，不是科学结果，
   learned selector、GUI-Owl desktop policy 和正式 OSWorld roster 尚未接入。复现见
   [`docs/osworld_runner_v1.md`](docs/osworld_runner_v1.md)，证据见
-  [`data/results/osworld_runner_v1_smoke/`](data/results/osworld_runner_v1_smoke/)。
+  [`data/results/osworld_runner_v1_smoke/`](data/results/osworld_runner_v1_smoke/)和
+  [`data/results/osworld_runner_v1_h100_smoke/`](data/results/osworld_runner_v1_h100_smoke/)。
 - **主线已转为 selector-side GUI-Owl LoRA；旧 budget-deferral evaluation 已在读取 truth 前停止。**
   旧 evaluation 的 `truth read=0`，partial receipts 仅作为可恢复执行记录保留，不产生结果。Teacher/action
   policy 始终是原始 frozen GUI-Owl；LoRA 只更新 selector encoder，因此现有 restoration labels 继续有效。

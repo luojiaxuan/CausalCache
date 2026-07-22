@@ -24,10 +24,16 @@ OSWorld VM container，不修改 host sysctl。
 `full` 三个 memory arms 和 policy HTTP boundary；learned selector、GUI-Owl desktop checkpoint 以及正式
 OSWorld task roster 尚未接入。
 
-Hyper01 live smoke 已完成真实 `reset -> screenshot -> WAIT -> DONE -> evaluate -> close`，随后用相同命令
-验证 `resumed_skips=1`。轻量证据见
-[`../data/results/osworld_runner_v1_smoke/`](../data/results/osworld_runner_v1_smoke/)。score=`0.0` 是 scripted
-executor smoke 的预期值，不是 policy performance。
+Hyper01 和 H100 live smoke 均完成真实 `reset -> screenshot -> WAIT -> DONE -> evaluate -> close`，随后用相同
+命令验证 `resumed_skips=1`。轻量证据见
+[`../data/results/osworld_runner_v1_smoke/`](../data/results/osworld_runner_v1_smoke/)和
+[`../data/results/osworld_runner_v1_h100_smoke/`](../data/results/osworld_runner_v1_h100_smoke/)。score=`0.0` 是
+scripted executor smoke 的预期值，不是 policy performance。
+
+H100 的 Intel 8462Y+ / Linux 5.15 host 在官方 Docker image 默认 `CPU_MODEL=host` 时会停在 GRUB/early boot，
+5 分钟内不能提供 screenshot endpoint；同一 qcow2、Docker digest 与 KVM 改为 `CPU_MODEL=qemu64` 后约 12 秒
+ready。runner 因此提供显式 `--docker-cpu-model`，该值进入 result provenance。Hyper01 不需要 override；不得
+把 H100 的 host-specific execution adapter 当作模型或 benchmark 参数。
 
 ## 为什么不直接复用 AndroidWorld runner
 
@@ -84,6 +90,7 @@ PYTHONPATH=code python3 -m scripts.run_osworld \
   --domain chrome \
   --task-id <TASK_ID> \
   --provider docker \
+  --docker-cpu-model qemu64 \
   --path-to-vm /data/jaxan/osworld/Ubuntu.qcow2 \
   --output-root /data/jaxan/osworld/smoke \
   --cache-dir /data/jaxan/osworld/cache \
@@ -91,6 +98,9 @@ PYTHONPATH=code python3 -m scripts.run_osworld \
   --scripted-actions data/fixtures/osworld_scripted_smoke_actions.json \
   --max-steps 2
 ```
+
+`--docker-cpu-model qemu64` 仅在已观察到默认 host CPU early-boot failure 的 H100 profile 使用；其他 host 默认
+保持官方 `host` model。OSWorld Docker VM 是 KVM/CPU workload，这个 smoke 没有分配 H100 GPU。
 
 ## Policy HTTP contract
 
@@ -143,6 +153,7 @@ runner 锁死到单一模型服务。
 | focused tests | `code/tests/test_osworld.py` |
 | scripted executor smoke actions | `data/fixtures/osworld_scripted_smoke_actions.json` |
 | live smoke summary | `data/results/osworld_runner_v1_smoke/` |
+| H100 portability smoke summary | `data/results/osworld_runner_v1_h100_smoke/` |
 
 真实 rollout screenshots、trajectory traces 和 recordings 只写 persistent storage；形成可复用 benchmark artifact
 后上传 Hugging Face，Git 仅保存 manifest、revision 和轻量 summary。

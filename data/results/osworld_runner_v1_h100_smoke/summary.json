@@ -1,0 +1,52 @@
+{
+  "schema_version": "causalcache.osworld.runner_smoke.v1",
+  "status": "VALID_OSWORLD_RUNNER_H100_LIVE_SMOKE",
+  "causalcache_git_revision": "2657746eb49ac1abef3db67e8a6d928402d758b6",
+  "osworld_git_revision": "b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf",
+  "config_sha256": "7c7fb5b331bc3ffa8404e288ac86164899e53f3bbe64e795a19c9b375b36f258",
+  "host": {
+    "alias": "h100",
+    "hostname": "host-85-234-79-62",
+    "kernel": "5.15.0-141-generic",
+    "cpu": "Intel Xeon Platinum 8462Y+",
+    "kvm_available": true,
+    "gpu_allocated": false,
+    "outer_image_digest": "sha256:5d55594d45b86821e612f99349e1f239e2177adbc0b6dfdfe4250e1a1d00acbd",
+    "osworld_vm_image_digest": "sha256:0e6497a9295647cf05bf2b2af522fdd79bdeba2737595259cab310a3bcf6baa9"
+  },
+  "inventory": {
+    "domains": 10,
+    "tasks": 369,
+    "preflight_status": "VALID_OSWORLD_PREFLIGHT"
+  },
+  "compatibility_adapter": {
+    "failed_default_cpu_model": "host",
+    "failed_default_classification": "VM_EARLY_BOOT_TIMEOUT",
+    "failed_default_timeout_seconds": 300,
+    "selected_cpu_model": "qemu64",
+    "dnsmasq_options": "--no-resolv --no-poll --server=127.0.0.11",
+    "host_sysctl_modified": false
+  },
+  "episode": {
+    "domain": "chrome",
+    "task_id": "bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+    "actions": [
+      "WAIT",
+      "DONE"
+    ],
+    "completed_steps": 2,
+    "termination_reason": "policy_done",
+    "score": 0.0,
+    "score_interpretation": "expected_zero_for_executor_smoke_without_solving_task",
+    "screenshots": 3,
+    "elapsed_seconds": 4.765248805982992,
+    "episode_status": "COMPLETE_OSWORLD_EPISODE",
+    "suite_status": "COMPLETE_OSWORLD_SHARD",
+    "resume_status": "COMPLETE_OSWORLD_SHARD_WITH_ONE_RESUMED_SKIP"
+  },
+  "raw_artifact": {
+    "location": "/data/jaxan/osworld-runner/output-h100-cpu-model/chrome/bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+    "status": "LOCAL_INFRASTRUCTURE_SMOKE_NOT_A_PAPER_ARTIFACT",
+    "hugging_face_upload_required": false
+  }
+}

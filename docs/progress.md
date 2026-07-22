@@ -4649,3 +4649,16 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `--no-resolv --no-poll --server=127.0.0.11` 后端口转发恢复，未改 host sysctl；
 - 当前未生成 reusable data/model artifact。Docker live smoke 已完成；下一步接 GUI-Owl desktop policy 和
   learned selector，再冻结正式 OSWorld roster。详见 [`osworld_runner_v1.md`](osworld_runner_v1.md)。
+
+## 2026-07-22：OSWorld runner v1 H100 portability smoke
+
+- H100 `host-85-234-79-62` 通过 pinned revision preflight：10 domains / 369 tasks；`/dev/kvm`、Docker 与
+  persistent `/data` 均可用。本 smoke 是 KVM/CPU workload，没有占用 H100 GPU。
+- official VM image digest 与 Hyper01 相同。默认 `CPU_MODEL=host` 能启动 KVM QEMU，但 Ubuntu 卡在
+  GRUB/early boot，300 秒未开放 screenshot endpoint；隔离测试只改 `CPU_MODEL=qemu64` 后约 12 秒 ready。
+- runner 将 CPU model 做成显式、可审计的 `--docker-cpu-model` / config 字段并写入 provenance；7 项 focused
+  tests 通过。commit `2657746` 上真实 Chrome smoke 完成 2 steps / 3 screenshots / evaluate / close，第二次
+ 运行 `resumed_skips=1`，无残留 OSWorld container。
+- 结果见
+  [`data/results/osworld_runner_v1_h100_smoke/`](../data/results/osworld_runner_v1_h100_smoke/)。score=`0.0` 只表示
+  `WAIT -> DONE` 未解决任务，不是 policy performance。
