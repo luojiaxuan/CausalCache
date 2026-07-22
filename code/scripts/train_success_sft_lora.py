@@ -241,6 +241,7 @@ def main() -> None:
     parser.add_argument("--max-steps", type=int, default=0)
     parser.add_argument("--resume-lora", type=Path, default=None)
     parser.add_argument("--start-epoch", type=int, default=0)
+    parser.add_argument("--checkpoint-every-steps", type=int, default=0)
     args = parser.parse_args()
 
     import torch
@@ -391,6 +392,21 @@ def main() -> None:
                 optimizer.step()
                 optimizer.zero_grad(set_to_none=True)
                 global_step += 1
+                if (
+                    rank == 0
+                    and args.checkpoint_every_steps
+                    and global_step % args.checkpoint_every_steps == 0
+                ):
+                    step_path = (
+                        args.output_root / f"lora-step{global_step}.pt"
+                    )
+                    torch.save(lora_state_dict(wrapped), step_path)
+                    print(
+                        json.dumps(
+                            {"step_checkpoint": global_step, "path": str(step_path)}
+                        ),
+                        flush=True,
+                    )
                 if rank == 0 and global_step % 10 == 0:
                     print(
                         json.dumps(
