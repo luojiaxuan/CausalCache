@@ -32,6 +32,36 @@ from causalcache.set_utility_androidworld import (
 )
 from causalcache.set_utility_live_controller import LiveRichEvent
 
+_WORKER_PROVIDER = None
+_WORKER_ARGS: dict[str, Any] = {}
+
+
+def _pool_init(repository_root: str, ocr_model_dir: str) -> None:
+    global _WORKER_PROVIDER
+    from pathlib import Path as _Path
+
+    _WORKER_PROVIDER = PinnedOnlineOCRProvider.load(
+        backend_config_path=_Path(repository_root)
+        / "code/configs/restoration_v2_ocr_backend.json",
+        backend_manifest_path=_Path(repository_root)
+        / "data/manifests/restoration_v2_ocr_backend.json",
+        model_dir=_Path(ocr_model_dir),
+    )
+
+
+def _pool_render(job: tuple[str, str, list[str] | None, int, bool]) -> list[dict[str, Any]]:
+    episode_path, run_root, donors, shared_early, contrast = job
+    samples, _ = render_episode(
+        episode_path=Path(episode_path),
+        run_root=Path(run_root),
+        ocr_provider=_WORKER_PROVIDER,
+        shared_early_decisions=shared_early,
+        contrast_variants=contrast,
+        donor_images=donors,
+    )
+    return samples
+
+
 MEMORY_BUDGETS = (0, 2, 4, 8)
 MEMORY_MODES = ("recent", "random")
 
@@ -274,6 +304,7 @@ def main() -> None:
     parser.add_argument("--include-failures", action="store_true")
     parser.add_argument("--contrast-variants", action="store_true")
     parser.add_argument("--episode-limit", type=int, default=0)
+    parser.add_argument("--workers", type=int, default=1)
     args = parser.parse_args()
 
     ocr_provider = PinnedOnlineOCRProvider.load(
@@ -288,7 +319,76 @@ def main() -> None:
     episode_summaries: list[dict[str, Any]] = []
     rendered = 0
     donor_chain: list[Any] | None = None
-    with samples_path.open("w", encoding="utf-8") as handle:
+    if args.workers > 1:
+        # note (luojiaxuan): donor 链只依赖上一成功局的图路径,可从文件系统
+        # 预计算,episode 级完全并行;输出按提交序写回保持确定性。
+        from concurrent.futures import ProcessPoolExecutor
+
+        jobs = []
+        job_records = []
+        for run_root in args.run_root:
+            eligible = []
+            for episode_path in sorted((run_root / "episodes").glob("*.json")):
+                record = json.loads(episode_path.read_text(encoding="utf-8"))
+                if (
+                    record["official_terminal_success"] != 1.0
+                    and not args.include_failures
+                ):
+                    continue
+                eligible.append((episode_path, record))
+            donors = None
+            for episode_path, record in eligible:
+                jobs.append(
+                    (
+                        str(episode_path),
+                        str(run_root),
+                        donors,
+                        args.shared_early_decisions,
+                        args.contrast_variants,
+                    )
+                )
+                job_records.append((episode_path, run_root, record))
+                image_dir = run_root / "images" / episode_path.stem
+                donors = [
+                    f"images/{episode_path.stem}/{name}"
+                    for name in sorted(p.name for p in image_dir.glob("step*.png"))[:8]
+                ]
+        with samples_path.open("w", encoding="utf-8") as handle:
+            with ProcessPoolExecutor(
+                max_workers=args.workers,
+                initializer=_pool_init,
+                initargs=(
+                    str(args.repository_root),
+                    str(args.ocr_model_dir),
+                ),
+            ) as pool:
+                for (episode_path, run_root, record), samples in zip(
+                    job_records, pool.map(_pool_render, jobs)
+                ):
+                    for sample in samples:
+                        handle.write(
+                            json.dumps(sample, ensure_ascii=False, sort_keys=True)
+                            + "\n"
+                        )
+                    episode_summaries.append(
+                        {
+                            "episode": episode_path.stem,
+                            "run_root": str(run_root),
+                            "samples": len(samples),
+                            "official_terminal_success": record[
+                                "official_terminal_success"
+                            ],
+                        }
+                    )
+                    rendered += 1
+                    print(
+                        json.dumps(
+                            {"episode": episode_path.stem, "samples": len(samples)}
+                        ),
+                        flush=True,
+                    )
+    else:
+      with samples_path.open("w", encoding="utf-8") as handle:
         for run_root in args.run_root:
             donor_chain = None
             for episode_path in sorted((run_root / "episodes").glob("*.json")):
