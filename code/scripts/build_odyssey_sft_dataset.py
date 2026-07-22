@@ -129,7 +129,10 @@ def render_trajectory(
     steps_by_index = {int(s["step"]): s for s in annotation["steps"]}
 
     events_payload = json.loads(row["history_events_json"])
-    images = row["images"]
+    images = [
+        bytes(item["bytes"]) if isinstance(item, dict) else bytes(item)
+        for item in row["images"]
+    ]
     image_dir = output_root / "images" / source_id
     image_dir.mkdir(parents=True, exist_ok=True)
     for index, payload in enumerate(images):
