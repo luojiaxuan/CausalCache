@@ -213,6 +213,7 @@ def main() -> None:
         "config_path": str(config_path),
         "config_sha256": _sha256_file(config_path),
         "provider": provider,
+        "docker_dns_server": runner["docker_dns_server"],
         "screen_size": list(screen_size),
         "shard_index": args.shard_index,
         "num_shards": args.num_shards,
@@ -249,6 +250,7 @@ def main() -> None:
         cache_dir=cache_dir,
         screen_size=screen_size,
         headless=headless,
+        docker_dns_server=runner["docker_dns_server"],
     )
     completed = 0
     resumed_skips = 0

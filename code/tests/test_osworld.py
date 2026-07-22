@@ -74,6 +74,22 @@ class OSWorldActionTests(unittest.TestCase):
             action.to_osworld(), "pyautogui.write(\"x'); import os; #\", interval=0.01)"
         )
 
+    def test_full_memory_ignores_budget(self) -> None:
+        history = tuple(
+            OSWorldHistoryEvent(
+                step_id=index,
+                action={"type": "wait"},
+                osworld_action="WAIT",
+                result_status="executed",
+                screen_changed=False,
+                post_screenshot=b"png",
+            )
+            for index in range(1, 4)
+        )
+        self.assertEqual(
+            select_osworld_memory(history, arm="full", budget=1), (1, 2, 3)
+        )
+
 
 class OSWorldTaskTests(unittest.TestCase):
     def test_inventory_and_task_loading(self) -> None:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import hashlib
 import importlib
+import ipaddress
 import json
 import os
 import subprocess
@@ -337,6 +338,39 @@ def import_osworld_desktop_env(osworld_root: str | Path) -> Any:
     return module.DesktopEnv
 
 
+def configure_osworld_docker_dns(
+    osworld_root: str | Path, *, dns_server: str
+) -> None:
+    """Disable dnsmasq inotify polling while retaining one explicit upstream."""
+    ipaddress.ip_address(dns_server)
+    root = Path(osworld_root).expanduser().resolve()
+    sys.path.insert(0, str(root))
+    try:
+        module = importlib.import_module("desktop_env.providers.docker.provider")
+    finally:
+        if sys.path[0] == str(root):
+            sys.path.pop(0)
+    base = module.DockerProvider
+    configured_server = getattr(base, "_causalcache_dns_server", None)
+    if configured_server is not None:
+        if configured_server != dns_server:
+            raise RuntimeError("OSWorld Docker DNS adapter was already configured")
+        return
+
+    class CausalCacheDockerProvider(base):
+        _causalcache_dns_server = dns_server
+
+        def __init__(self, region: str) -> None:
+            super().__init__(region)
+            self.environment["DNSMASQ_OPTS"] = (
+                f"--no-resolv --no-poll --server={dns_server}"
+            )
+
+    CausalCacheDockerProvider.__name__ = "CausalCacheDockerProvider"
+    CausalCacheDockerProvider.__qualname__ = "CausalCacheDockerProvider"
+    module.DockerProvider = CausalCacheDockerProvider
+
+
 class OSWorldEnvironment(Protocol):
     def reset(self, *, task_config: Mapping[str, Any]) -> Mapping[str, Any]: ...
 
@@ -358,8 +392,13 @@ def create_osworld_environment(
     screen_size: tuple[int, int],
     headless: bool,
     region: str | None = None,
+    docker_dns_server: str = "127.0.0.11",
 ) -> OSWorldEnvironment:
     desktop_env = import_osworld_desktop_env(osworld_root)
+    if provider_name == "docker":
+        configure_osworld_docker_dns(
+            osworld_root, dns_server=docker_dns_server
+        )
     return desktop_env(
         provider_name=provider_name,
         region=region,
@@ -655,7 +694,11 @@ def run_osworld_episode(
             "memory": {
                 "arm": memory_arm,
                 "budget": memory_budget,
-                "budget_semantics": "at_most_B_high_fidelity_post_screenshots",
+                "budget_semantics": (
+                    "full_history_unbounded"
+                    if memory_arm == "full"
+                    else "at_most_B_high_fidelity_post_screenshots"
+                ),
             },
             "max_steps": max_steps,
             "completed_steps": len(steps),

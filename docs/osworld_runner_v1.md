@@ -15,6 +15,11 @@ runner 固定 OSWorld revision `b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf`，实�
 `evaluation_examples/test_all.json` 的 10 个 domain / 369 个 tasks。revision、task id、action schema 或
 response schema 漂移都会 fail closed。
 
+Docker provider 额外固定 `DNSMASQ_OPTS=--no-resolv --no-poll --server=127.0.0.11`。原因是共享 Linux
+host 上 dnsmasq 的 inotify instance 可能耗尽，官方默认会退化到不支持 host port forwarding 的 user-mode
+network；adapter 禁止 resolv-file watcher，并显式把 Docker embedded DNS 保留为 upstream。该修复只作用于
+OSWorld VM container，不修改 host sysctl。
+
 这是可运行的 benchmark substrate，不是 CausalCache 的跨平台科学结果。目前已实现 `summary`、`recent`、
 `full` 三个 memory arms 和 policy HTTP boundary；learned selector、GUI-Owl desktop checkpoint 以及正式
 OSWorld task roster 尚未接入。
