@@ -173,14 +173,21 @@ def encode_sample(
 
 
 def mean_target_logprob(model: Any, encoded: dict[str, Any], *, torch: Any) -> Any:
+    # note (luojiaxuan): 目标段固定在序列末尾;logits_to_keep 只物化末端 logits,
+    # 全长 float32 log_softmax 的 ~15GB 峰值降到 MB 级,H100 80GB 才放得下
+    # margin 的双前向图。
     labels = encoded.pop("labels")
-    outputs = model(**encoded)
-    logits = outputs.logits[:, :-1].float()
-    targets = labels[:, 1:]
-    mask = targets != -100
+    targets_full = labels[:, 1:]
+    token_count = int((targets_full != -100).sum())
+    try:
+        outputs = model(**encoded, logits_to_keep=token_count + 1)
+    except TypeError:
+        outputs = model(**encoded)
+    logits = outputs.logits[:, -(token_count + 1) : -1].float()
+    targets = targets_full[:, -token_count:]
     log_probs = torch.log_softmax(logits, dim=-1)
-    gathered = log_probs.gather(2, targets.clamp(min=0).unsqueeze(-1)).squeeze(-1)
-    return (gathered * mask).sum() / mask.sum()
+    gathered = log_probs.gather(2, targets.unsqueeze(-1)).squeeze(-1)
+    return gathered.sum() / token_count
 
 
 def build_training_units(
@@ -357,8 +364,7 @@ def main() -> None:
                     margin_value - (positive_lp - negative_lp)
                 )
             else:
-                outputs = model(**encoded)
-                unit_loss = outputs.loss
+                unit_loss = -mean_target_logprob(model, encoded, torch=torch)
                 if kind == "ce_b0":
                     unit_loss = unit_loss * b0_weight
             loss = unit_loss / accumulation
