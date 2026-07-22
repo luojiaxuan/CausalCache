@@ -4620,3 +4620,19 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   Long+=`-0.00041`。e1 的增益全部来自 B3/B4，尚未补上预定的 B2/Long+ 瓶颈。
 - 冻结 checkpoint-selection contract 以真实 macro 为主判据，因此 e1 可继续 epoch 2；不按 training loss
   或最后 epoch 选模，也不把当前结果表述为 frozen representation hypothesis 已验证。
+
+## 2026-07-21：Selector-side GUI-Owl LoRA epoch 2 退化并停止追加 epoch
+
+- e2 checkpoint=`d26f89f7...0ded`。首次 resume launcher 因漏传 `PYTHONPATH=code` 在 import 前 exit 1，
+  没有 optimizer step 或 artifact mutation；修正后的 Hyper00 6×H200 run 正常 exit 0。
+- e2 缺失 truth 为 98 states / 1,938 coalitions（1,840 forwards）。为避免 e1 静态 partition 长尾，先按
+  state hash 预分 12 lanes，Hyper00/Hyper01 各 6×H200；每 lane 54--303 forwards。最终 98/98 states、
+  12/12 workers、0 skip/error，两个容器均 exit 0；formal truth content=`00d12804...2e58`，manifest file
+  SHA256=`24149934...9e76`，persistent root=
+  `/data02/jaxan/runs/causalcache-selector-lora-joint-truth-e2-d26f89f`，`PENDING_HF_UPLOAD`。
+- fixed-256 e2 recovery：B1/B2/B3/B4=`0.17370/0.32745/0.47879/0.59827`，macro/Long+=
+  `0.39455/0.36339`。相对 e1，macro=`-0.01080`、Long+=`-0.01622`、B2=`-0.02808`，只有 B4=
+  `+0.01126`；train-heldout loss 也从 e1 的 `5.88615` 变为 `5.91979`。
+- 按用户要求的“每 epoch 看真实 heldout，没有明显提升就不继续堆 epoch”资源纪律，停止 e3/e4并保留 e1
+  checkpoint=`02e0ac96...f949`。该停止不冒充 config `patience=3` 的 formal early-stop verdict；科学结论是
+  当前 top-layer LoRA 没有补上 B2/Long+，不能支持“冻结表示是主要瓶颈且该 LoRA 足以解决”的假设。

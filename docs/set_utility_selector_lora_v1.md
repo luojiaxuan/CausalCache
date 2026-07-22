@@ -65,13 +65,16 @@ head 的 selection parity。
   joint adaptation 是剩余的决定性检验；
 - joint LoRA epoch 1 的 fixed-256 truth 已完整回填：macro=`0.40535`，比 recent 高 `+0.03205`；B3/B4
   分别高 `+0.07471/+0.05389`。但 B2=`0.35553` 与 Long+=`0.37961` 均与 recent 基本持平，因此目标
-  hypothesis 尚未通过。冻结合同允许按真实 recovery 继续 epoch 2，不能按 loss 或最后 epoch 选模。
+  hypothesis 尚未通过。冻结合同允许按真实 recovery 继续 epoch 2，不能按 loss 或最后 epoch 选模；
+- epoch 2 的 macro/Long+=`0.39455/0.36339`，相对 epoch 1 为 `-0.01080/-0.01622`，B2 下降
+  `0.02808`，只有 B4 增加 `0.01126`。按用户的逐 epoch heldout 资源纪律停止 e3/e4，保留 epoch 1；这不是
+  `patience=3` 的 formal early-stop verdict。
 
 ## 下一步
 
-1. 从 sealed e1 truth 恢复 joint trainer 并运行 epoch 2；
-2. 每轮都在 fixed-256 truth barrier 停下，只有真实 recovery 改善才替换 checkpoint；
-3. 最终专门检查 B2/Long+ 是否提升，并要求 B3/B4 不退化。
+1. 不再继续同一 top-4 LoRA 的 e3/e4；
+2. 保留 epoch 1 作为本轮 selected checkpoint，teacher/action policy 继续冻结；
+3. 若继续 learned selector，下一假设必须直接针对 B2/Long+ 的条件选择或路由，而不是继续扩大同一 head/LoRA。
 
 Boundary extraction 的冻结参数见
 [`causalcache_set_utility_selector_lora_v1.json`](../code/configs/causalcache_set_utility_selector_lora_v1.json)。
