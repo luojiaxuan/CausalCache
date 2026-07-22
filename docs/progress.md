@@ -4822,3 +4822,21 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   α32)× B0/B8 × 15 模板 × 3 实例 = 360 局,hyper01 4 卡 12 worker。单变量归因:v2 相对 v1 只改
   重试协议。desktop 方向定案:OSWorld-Verified Docker 子集 ~50 任务,离线内容盲/干扰税分析移植,
   H100 执行,margin-SFT 复现为余力项。
+
+## 2026-07-22:主线转向 GUI-Odyssey 训练(用户拍板)——AndroidWorld/OSWorld 降为纯 benchmark
+
+- 设计:margin-SFT 训练语料改为已处理的 GUI-Odyssey 900 轨迹语料(人类演示全成功、事件 schema 已
+  是我们格式、官方切分已审计);AndroidWorld 全 116 模板 + OSWorld 变纯测试集,零样本评测 vs
+  baseline;现有 AndroidWorld-trained v3-e1 线降级为 in-domain 消融并保底主表。OSWorld 移植由
+  GPT session 分支执行,本会话不再管。
+- 执行计划(hyper00 六卡):(1) 找到本地 Odyssey 语料根(HF: gavinlaw/causalcache-set-utility-
+  variable-history-mobile 的本地物化),摸清 state/事件/图像布局;(2) 写适配器:语料 state →
+  四变体 SFT 样本(复用 mixed-fidelity builder + serialize_gui_owl_v2_1_teacher_target 做人类
+  动作目标;shuffled/irrelevant 路径级重排沿用);(3) trainer 效率优化:加 per-rank 预取线程
+  (CPU 编码与 GPU 计算重叠,当前 GPU 空转在 PIL/processor 上);(4) 训练用 recipe v2
+  (b0_ce_weight=1.0,margin 0.025),**总步数按平衡窗口教训控制在 ~300 步级**,每 25-50 步
+  checkpoint + 门禁(heldout 用 Odyssey 轨迹级哈希切分);(5) 评测:AndroidWorld 配对化验尺
+  (retry 协议)零样本跑冻结 vs Odyssey-adapted。
+- AndroidWorld 全部坑的清单已内化:配置先 ship 后发射、传输不过 CUDA-banner 镜像(ssh 直传+双端
+  sha256)、mm_token_type_ids 目标段延长、logits_to_keep 显存、路径级变体序列化、donor 按 root
+  重置、b0 侵蚀与步数单调。化验尺 v2(frozen/adapted 配对)仍在跑,出分入库不受转向影响。
