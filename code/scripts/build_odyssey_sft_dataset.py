@@ -147,14 +147,30 @@ def render_trajectory(
         with Image.open(io.BytesIO(images[index])) as raw:
             return raw.convert("RGB")
 
+    def ocr_tokens_for(step_id: int) -> list[str]:
+        record = None
+        if isinstance(ocr_records, list):
+            record = ocr_records[step_id] if step_id < len(ocr_records) else None
+        elif isinstance(ocr_records, dict):
+            for key in (
+                str(step_id),
+                f"observation-{step_id:03d}",
+                f"observation-{step_id:03d}.png",
+                f"images/{source_id}/observation-{step_id:03d}.png",
+            ):
+                if key in ocr_records:
+                    record = ocr_records[key]
+                    break
+        if isinstance(record, dict):
+            return list(record.get("full_spatial_tokens", []))
+        return []
+
     events: list[LiveRichEvent] = []
     for payload in events_payload:
         step_id = payload["event_step_id"]
         summary = dict(payload["low_fidelity_summary"])
         summary.setdefault("step_id", step_id)
-        ocr_tokens = ocr_records[step_id]["full_spatial_tokens"] if step_id < len(
-            ocr_records
-        ) and isinstance(ocr_records[step_id], dict) else []
+        ocr_tokens = ocr_tokens_for(step_id)
         events.append(
             LiveRichEvent.build(
                 event_step_id=step_id,
