@@ -1,0 +1,44 @@
+{
+  "schema_version": "causalcache.success_sft_lora_config.v1",
+  "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+  "target_effective_visual_tokens_per_image": 2560,
+  "lora": {
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.0,
+    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"],
+    "layer_scope": "all_language_model_layers",
+    "vision_encoder": "frozen"
+  },
+  "training": {
+    "epochs": 1,
+    "learning_rate": 5e-5,
+    "lr_schedule": "constant",
+    "weight_decay": 0.0,
+    "micro_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "max_grad_norm": 1.0,
+    "seed": 271828,
+    "gradient_checkpointing": true,
+    "loss": "ce_correct_plus_ce_b0_plus_margin_vs_shuffled_irrelevant",
+    "margin_lambda": 1.0,
+    "margin_per_token": 0.02,
+    "margin_negatives": ["shuffled", "irrelevant"],
+    "b0_ce_weight": 0.5,
+    "heldout_episode_fraction": 0.15,
+    "heldout_hash_salt": "history_margin_smoke_v1"
+  },
+  "gates": {
+    "heldout_correct_minus_b0": "> 0 (trajectory-level bootstrap CI)",
+    "heldout_correct_minus_shuffled": "> 0 (CI)",
+    "heldout_correct_minus_irrelevant": "> 0 (CI)",
+    "heldout_b0_logprob_drift": "no material drop vs frozen baseline",
+    "note": "smoke only; no selector relabeling before all gates pass"
+  },
+  "data": {
+    "source": "causalcache-success-sft-v1 (155 success episodes, contrast variants)",
+    "samples_manifest_sha256": "TO_BE_BOUND_AT_LAUNCH",
+    "shared_early_decisions": 2,
+    "prompt_format": "frozen mixed-fidelity builder unchanged; step_id anchors already present"
+  }
+}

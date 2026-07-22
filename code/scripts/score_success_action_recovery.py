@@ -15,7 +15,11 @@ from pathlib import Path
 from scripts.run_exploratory_closed_loop_episode import (
     EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
 )
-from scripts.train_success_sft_lora import encode_sample
+from scripts.train_success_sft_lora import (
+    encode_sample,
+    inject_lora,
+    load_lora_state_dict,
+)
 from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntime
 
 
@@ -26,6 +30,10 @@ def main() -> None:
     parser.add_argument("--dataset-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--device", required=True)
+    parser.add_argument("--lora-checkpoint", type=Path, default=None)
+    parser.add_argument("--lora-rank", type=int, default=16)
+    parser.add_argument("--lora-alpha", type=int, default=32)
+    parser.add_argument("--episodes-filter", type=Path, default=None)
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
     args = parser.parse_args()
@@ -41,6 +49,23 @@ def main() -> None:
         target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
     )
     runtime.model.eval()
+    if args.lora_checkpoint is not None:
+        wrapped = inject_lora(
+            runtime.model,
+            rank=args.lora_rank,
+            alpha=args.lora_alpha,
+            target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
+            torch=torch,
+        )
+        load_lora_state_dict(
+            wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
+        )
+        print(json.dumps({"lora_modules": len(wrapped)}), flush=True)
+    allowed_episodes = None
+    if args.episodes_filter is not None:
+        allowed_episodes = set(
+            args.episodes_filter.read_text(encoding="utf-8").split()
+        )
     samples = [
         json.loads(line)
         for line in (args.dataset_root / "samples.jsonl").open(encoding="utf-8")
@@ -49,6 +74,8 @@ def main() -> None:
     with args.output.open("w", encoding="utf-8") as handle:
         for index, sample in enumerate(samples):
             if index % args.shard_count != args.shard_index:
+                continue
+            if allowed_episodes is not None and sample["episode"] not in allowed_episodes:
                 continue
             encoded = encode_sample(
                 runtime, sample, dataset_root=args.dataset_root, torch=torch

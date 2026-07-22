@@ -172,6 +172,58 @@ def encode_sample(
     return encoded
 
 
+def mean_target_logprob(model: Any, encoded: dict[str, Any], *, torch: Any) -> Any:
+    labels = encoded.pop("labels")
+    outputs = model(**encoded)
+    logits = outputs.logits[:, :-1].float()
+    targets = labels[:, 1:]
+    mask = targets != -100
+    log_probs = torch.log_softmax(logits, dim=-1)
+    gathered = log_probs.gather(2, targets.clamp(min=0).unsqueeze(-1)).squeeze(-1)
+    return (gathered * mask).sum() / mask.sum()
+
+
+def build_training_units(
+    samples: list[dict[str, Any]], *, training: dict[str, Any]
+) -> tuple[list[tuple[str, int, int | None]], set[str]]:
+    """Return (units, heldout_episodes); units are (kind, idx, negative_idx)."""
+    import hashlib as _hashlib
+
+    fraction = float(training.get("heldout_episode_fraction", 0.0))
+    salt = training.get("heldout_hash_salt", "")
+    episodes = sorted({sample["episode"] for sample in samples})
+    heldout = {
+        episode
+        for episode in episodes
+        if fraction > 0.0
+        and int.from_bytes(
+            _hashlib.sha256(f"{salt}:{episode}".encode()).digest()[:4], "big"
+        )
+        / 2**32
+        < fraction
+    }
+    negatives = tuple(training.get("margin_negatives", ()))
+    by_group: dict[str, dict[str, int]] = {}
+    for index, sample in enumerate(samples):
+        if sample["episode"] in heldout:
+            continue
+        by_group.setdefault(sample["pair_group"], {})[
+            sample.get("variant", "correct")
+        ] = index
+    units: list[tuple[str, int, int | None]] = []
+    for group in by_group.values():
+        if "correct" not in group:
+            continue
+        units.append(("ce", group["correct"], None))
+        if "b0" in group and training.get("b0_ce_weight", 0.0) > 0.0:
+            units.append(("ce_b0", group["b0"], None))
+        if training.get("margin_lambda", 0.0) > 0.0:
+            for negative in negatives:
+                if negative in group:
+                    units.append(("margin", group["correct"], group[negative]))
+    return units, heldout
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repository-root", type=Path, required=True)
@@ -252,21 +304,34 @@ def main() -> None:
         )
 
     accumulation = config["training"]["gradient_accumulation_steps"]
-    ordering = random.Random(config["training"]["seed"])
+    training_config = config["training"]
+    margin_lambda = float(training_config.get("margin_lambda", 0.0))
+    margin_value = float(training_config.get("margin_per_token", 0.0))
+    b0_weight = float(training_config.get("b0_ce_weight", 1.0))
+    units, heldout_episodes = build_training_units(
+        samples, training=training_config
+    )
+    if rank == 0:
+        print(
+            json.dumps(
+                {
+                    "training_units": len(units),
+                    "heldout_episodes": len(heldout_episodes),
+                }
+            ),
+            flush=True,
+        )
+    ordering = random.Random(training_config["seed"])
     global_step = 0
-    for epoch in range(config["training"]["epochs"]):
-        order = list(range(len(samples)))
+    for epoch in range(training_config["epochs"]):
+        order = list(range(len(units)))
         ordering.shuffle(order)
         shard = order[rank::world_size]
         model.train()
         running_loss = 0.0
         contributing = 0
-        for position, sample_index in enumerate(shard):
-            if samples[sample_index].get("variant", "correct") not in (
-                "correct",
-                "b0",
-            ):
-                continue
+        for position, unit_index in enumerate(shard):
+            kind, sample_index, negative_index = units[unit_index]
             encoded = encode_sample(
                 runtime,
                 samples[sample_index],
@@ -275,10 +340,30 @@ def main() -> None:
             )
             if encoded is None:
                 continue
-            outputs = model(**encoded)
-            loss = outputs.loss / accumulation
+            if kind == "margin":
+                negative_encoded = encode_sample(
+                    runtime,
+                    samples[negative_index],
+                    dataset_root=args.dataset_root,
+                    torch=torch,
+                )
+                if negative_encoded is None:
+                    continue
+                positive_lp = mean_target_logprob(model, encoded, torch=torch)
+                negative_lp = mean_target_logprob(
+                    model, negative_encoded, torch=torch
+                )
+                unit_loss = margin_lambda * torch.relu(
+                    margin_value - (positive_lp - negative_lp)
+                )
+            else:
+                outputs = model(**encoded)
+                unit_loss = outputs.loss
+                if kind == "ce_b0":
+                    unit_loss = unit_loss * b0_weight
+            loss = unit_loss / accumulation
             loss.backward()
-            running_loss += float(outputs.loss.detach())
+            running_loss += float(unit_loss.detach())
             contributing += 1
             if (position + 1) % accumulation == 0:
                 if world_size > 1:
