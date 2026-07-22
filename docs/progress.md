@@ -4902,3 +4902,13 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   images/<source_id>/observation-NNN.png;--workers 进程池按轨迹并行。
 - 训练:trainer 加 per-rank 预取线程后,hyper00 六卡 recipe v2,总步 ~300 级,25 步 checkpoint,
   heldout=轨迹级哈希(盐 odyssey_margin_v1)。评测:AndroidWorld 配对化验尺零样本。
+
+## 2026-07-22:Odyssey margin 训练发射(主线新纪元)
+
+- 渲染收官:26,195 样本(四变体),932±轨迹,图像/manifest 齐;渲染仅 ~15 分钟(OCR 预计算,16 并行
+  即 I/O 饱和)。渲染器三轮修复:parquet 图像 struct、OCR 字典键形、目标动作 JOIN。
+- 训练发射:jiaxuanluo-182,hyper00 GPU 2-7,config causalcache_odyssey_margin_v1.json(recipe v2 +
+  盐 odyssey_margin_v1),22,197 单元 / 140 heldout 轨迹,--max-steps 350 --checkpoint-every-steps 25。
+  滚动门禁沿用 gate2 流程(frozen 基线需对 Odyssey heldout 重打——发训练后第一件事)。
+- 评测计划:门禁过线 checkpoint → AndroidWorld 配对化验尺零样本(全模板集,retry 协议)vs frozen;
+  化验尺 v2(AndroidWorld-trained 适配)仍在跑,其结果作 in-domain 对照表。
