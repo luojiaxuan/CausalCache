@@ -156,6 +156,19 @@ def encode_sample(
     for key in ("pixel_values", "image_grid_thw"):
         if key in model_inputs:
             encoded[key] = model_inputs[key]
+    if "mm_token_type_ids" in model_inputs:
+        mm = model_inputs["mm_token_type_ids"]
+        encoded["mm_token_type_ids"] = torch.cat(
+            [
+                mm,
+                torch.zeros(
+                    (1, int(target_tensor.shape[1])),
+                    dtype=mm.dtype,
+                    device=device,
+                ),
+            ],
+            dim=1,
+        )
     return encoded
 
 
