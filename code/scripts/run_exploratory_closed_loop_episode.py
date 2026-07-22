@@ -172,6 +172,11 @@ def run_episode(
     ceiling_plan = getattr(args, "ceiling_plan", None)
     task_index = int(getattr(args, "task_index", 0))
     shared_early_decisions = int(getattr(args, "shared_early_decisions", 5))
+    sample_seed = getattr(args, "sample_seed", None)
+    save_images_dir = getattr(args, "save_images_dir", None)
+    parse_retries = int(getattr(args, "parse_retries", 0))
+    if not 0 <= parse_retries <= 4:
+        raise ValueError("parse retries must be within zero to four")
     if not 0 <= shared_early_decisions <= 5:
         raise ValueError("shared early decisions must be within zero to five")
     if ceiling_plan is not None:
@@ -207,9 +212,15 @@ def run_episode(
             device=args.device,
             target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
         )
-    namespace = hashlib.sha256(
-        f"{args.arm}:{args.task_type}:{task_index}".encode("utf-8")
-    ).hexdigest()[:24]
+    if sample_seed is not None:
+        runtime.torch.manual_seed(int(sample_seed))
+    if save_images_dir is not None:
+        save_images_dir = Path(save_images_dir)
+        save_images_dir.mkdir(parents=True, exist_ok=True)
+    namespace_key = f"{args.arm}:{args.task_type}:{task_index}"
+    if sample_seed is not None:
+        namespace_key = f"{namespace_key}:{sample_seed}"
+    namespace = hashlib.sha256(namespace_key.encode("utf-8")).hexdigest()[:24]
     environment = HTTPAndroidWorldEnvironment(
         base_url=args.base_url,
         instance=instance,
@@ -237,6 +248,8 @@ def run_episode(
         ),
         "policy": dict(runtime.metadata),
         "schema_version": "causalcache.exploratory_closed_loop_episode.v1",
+        "sample_seed": sample_seed,
+        "parse_retries_allowed": parse_retries,
         "shared_early_decisions": shared_early_decisions,
         "started_at": datetime.now(timezone.utc).isoformat(),
         "steps": [],
@@ -300,15 +313,31 @@ def run_episode(
                 "current_image_sha256": current.image_sha256,
             }
             summary["steps"].append(step)
-            parse_attempts += 1
-            try:
-                generated = runtime.generate_native_action(list(messages))
-            except GUIOwlV21GenerationParseError as error:
-                step["native_output"] = error.output_text
-                step["parse_error"] = {
-                    "message": error.parse_error_message,
-                    "type": error.parse_error_type,
-                }
+            if save_images_dir is not None:
+                image_name = f"step{step_index:03d}.png"
+                (save_images_dir / image_name).write_bytes(current.image_png)
+                step["saved_image"] = image_name
+            generated = None
+            for parse_attempt in range(parse_retries + 1):
+                parse_attempts += 1
+                try:
+                    generated = runtime.generate_native_action(list(messages))
+                    break
+                except GUIOwlV21GenerationParseError as error:
+                    step.setdefault("parse_retry_errors", []).append(
+                        {
+                            "attempt": parse_attempt,
+                            "message": error.parse_error_message,
+                            "type": error.parse_error_type,
+                        }
+                    )
+                    if parse_attempt == parse_retries:
+                        step["native_output"] = error.output_text
+                        step["parse_error"] = {
+                            "message": error.parse_error_message,
+                            "type": error.parse_error_type,
+                        }
+            if generated is None:
                 termination_reason = "parse_error"
                 failure_classification = "parse_failure"
                 break
