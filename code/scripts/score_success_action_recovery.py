@@ -83,17 +83,22 @@ def main() -> None:
             if encoded is None:
                 continue
             labels = encoded.pop("labels")
+            targets_full = labels[:, 1:]
+            token_count = int((targets_full != -100).sum())
+            # note (luojiaxuan): 目标段固定在序列末尾;只取末端 logits,
+            # 避免 25k 序列全长 float32 log_softmax 的 ~15GB 峰值。
             with torch.inference_mode():
-                outputs = runtime.model(**encoded)
-            logits = outputs.logits[:, :-1].float()
-            targets = labels[:, 1:]
-            mask = targets != -100
+                try:
+                    outputs = runtime.model(
+                        **encoded, logits_to_keep=token_count + 1
+                    )
+                except TypeError:
+                    outputs = runtime.model(**encoded)
+            logits = outputs.logits[:, -(token_count + 1) : -1].float()
+            targets = targets_full[:, -token_count:]
             log_probs = torch.log_softmax(logits, dim=-1)
-            gathered = log_probs.gather(
-                2, targets.clamp(min=0).unsqueeze(-1)
-            ).squeeze(-1)
-            token_count = int(mask.sum())
-            total = float((gathered * mask).sum())
+            gathered = log_probs.gather(2, targets.unsqueeze(-1)).squeeze(-1)
+            total = float(gathered.sum())
             handle.write(
                 json.dumps(
                     {
