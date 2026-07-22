@@ -103,6 +103,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-root", type=Path)
     parser.add_argument("--cache-dir", type=Path)
     parser.add_argument("--provider")
+    parser.add_argument("--docker-cpu-model")
     parser.add_argument("--region")
     parser.add_argument("--path-to-vm")
     parser.add_argument("--headless", action=argparse.BooleanOptionalAction)
@@ -184,6 +185,11 @@ def main() -> None:
     output_root = (args.output_root or Path(runner["output_root"])).expanduser().resolve()
     cache_dir = (args.cache_dir or Path(runner["cache_dir"])).expanduser().resolve()
     provider = args.provider or runner["provider"]
+    docker_cpu_model = (
+        args.docker_cpu_model
+        if args.docker_cpu_model is not None
+        else runner.get("docker_cpu_model")
+    )
     screen_size = tuple(runner["screen_size"])
     headless = runner["headless"] if args.headless is None else args.headless
     memory_arm = args.memory_arm or runner["memory_arm"]
@@ -214,6 +220,7 @@ def main() -> None:
         "config_sha256": _sha256_file(config_path),
         "provider": provider,
         "docker_dns_server": runner["docker_dns_server"],
+        "docker_cpu_model": docker_cpu_model,
         "screen_size": list(screen_size),
         "shard_index": args.shard_index,
         "num_shards": args.num_shards,
@@ -251,6 +258,7 @@ def main() -> None:
         screen_size=screen_size,
         headless=headless,
         docker_dns_server=runner["docker_dns_server"],
+        docker_cpu_model=docker_cpu_model,
     )
     completed = 0
     resumed_skips = 0

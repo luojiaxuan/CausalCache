@@ -12,6 +12,7 @@ from causalcache.osworld import (
     OSWorldTask,
     ScriptedOSWorldPolicy,
     build_osworld_policy_request,
+    configure_osworld_docker_runtime,
     load_osworld_inventory,
     load_osworld_task,
     run_osworld_episode,
@@ -92,6 +93,12 @@ class OSWorldActionTests(unittest.TestCase):
 
 
 class OSWorldTaskTests(unittest.TestCase):
+    def test_rejects_invalid_docker_cpu_model(self) -> None:
+        with self.assertRaises(ValueError):
+            configure_osworld_docker_runtime(
+                ".", dns_server="127.0.0.11", cpu_model="host with spaces"
+            )
+
     def test_inventory_and_task_loading(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -8,6 +8,7 @@
   "runner": {
     "provider": "docker",
     "docker_dns_server": "127.0.0.11",
+    "docker_cpu_model": null,
     "screen_size": [1920, 1080],
     "headless": true,
     "max_steps": 50,

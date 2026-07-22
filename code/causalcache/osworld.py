@@ -338,11 +338,20 @@ def import_osworld_desktop_env(osworld_root: str | Path) -> Any:
     return module.DesktopEnv
 
 
-def configure_osworld_docker_dns(
-    osworld_root: str | Path, *, dns_server: str
+def configure_osworld_docker_runtime(
+    osworld_root: str | Path,
+    *,
+    dns_server: str,
+    cpu_model: str | None = None,
 ) -> None:
-    """Disable dnsmasq inotify polling while retaining one explicit upstream."""
+    """Apply host-compatible settings to OSWorld's official Docker provider."""
     ipaddress.ip_address(dns_server)
+    if cpu_model is not None and (
+        not isinstance(cpu_model, str)
+        or not cpu_model
+        or any(character.isspace() for character in cpu_model)
+    ):
+        raise ValueError("docker cpu_model must be one non-empty token")
     root = Path(osworld_root).expanduser().resolve()
     sys.path.insert(0, str(root))
     try:
@@ -351,20 +360,23 @@ def configure_osworld_docker_dns(
         if sys.path[0] == str(root):
             sys.path.pop(0)
     base = module.DockerProvider
-    configured_server = getattr(base, "_causalcache_dns_server", None)
-    if configured_server is not None:
-        if configured_server != dns_server:
-            raise RuntimeError("OSWorld Docker DNS adapter was already configured")
+    configured_runtime = getattr(base, "_causalcache_runtime", None)
+    requested_runtime = (dns_server, cpu_model)
+    if configured_runtime is not None:
+        if configured_runtime != requested_runtime:
+            raise RuntimeError("OSWorld Docker runtime adapter was already configured")
         return
 
     class CausalCacheDockerProvider(base):
-        _causalcache_dns_server = dns_server
+        _causalcache_runtime = requested_runtime
 
         def __init__(self, region: str) -> None:
             super().__init__(region)
             self.environment["DNSMASQ_OPTS"] = (
                 f"--no-resolv --no-poll --server={dns_server}"
             )
+            if cpu_model is not None:
+                self.environment["CPU_MODEL"] = cpu_model
 
     CausalCacheDockerProvider.__name__ = "CausalCacheDockerProvider"
     CausalCacheDockerProvider.__qualname__ = "CausalCacheDockerProvider"
@@ -393,11 +405,14 @@ def create_osworld_environment(
     headless: bool,
     region: str | None = None,
     docker_dns_server: str = "127.0.0.11",
+    docker_cpu_model: str | None = None,
 ) -> OSWorldEnvironment:
     desktop_env = import_osworld_desktop_env(osworld_root)
     if provider_name == "docker":
-        configure_osworld_docker_dns(
-            osworld_root, dns_server=docker_dns_server
+        configure_osworld_docker_runtime(
+            osworld_root,
+            dns_server=docker_dns_server,
+            cpu_model=docker_cpu_model,
         )
     return desktop_env(
         provider_name=provider_name,
