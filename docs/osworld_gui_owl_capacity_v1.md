@@ -19,7 +19,8 @@ evaluator 与 policy 等待时间。
 - GPU 点：`1, 2, 4, 6` replicas；
 - environment 点：逐级增加到吞吐不再提高、排队延迟明显恶化，或到 30 VMs（4 vCPU/VM，接近本机
   128 logical CPUs 的边界）；
-- 每点使用 pinned official 361-task no-GDrive roster 的 24 个 evenly-spaced tasks；
+- 每点使用 pinned official 361-task no-GDrive roster 中完整的 46-task Chrome domain；这给出单机
+  browser-workload capacity，不冒充跨域 full-roster wall time；
 - capacity 主 sweep 使用 `max_steps=1`、`pause_seconds=0.1`，避免把 agent action quality 和 history 长度混进
   并发上限，并显式跳过 task evaluator；另做 recent-B4 多步功能 smoke。正式 benchmark 始终开启 evaluator；
 - 同时记录 wall time、tasks/hour、policy requests/s、client p50/p95、server queue p50/p95、generation
@@ -27,8 +28,8 @@ evaluator 与 policy 等待时间。
 - 最佳并发点必须满足 0 runner failure，且相对更低并发有实质吞吐收益。若吞吐进入平台或 p95 queue
   急剧上升，较高并发不作为默认值。
 
-实际矩阵避免全笛卡尔积：GPU 轴固定 `24 env / 48 tasks` 测 `1/2/4/6 replicas`；environment 轴固定
-`6 replicas / 60 tasks` 测 `6/12/18/24/30 envs`。每点由独立 output root 保存 episode completion、
+实际矩阵避免全笛卡尔积：GPU 轴固定 `24 env / 46 Chrome tasks` 测 `1/2/4/6 replicas`；environment 轴固定
+`6 replicas / 46 Chrome tasks` 测 `6/12/18/24/30 envs`。每点由独立 output root 保存 episode completion、
 `nvidia-smi`、`vmstat` 与 runner log；任一点失败即停止，不用后续点掩盖。
 
 容量配置在 `code/configs/causalcache_osworld_capacity_h100_v1.json`。它与正式 benchmark config 分离，
@@ -54,3 +55,8 @@ evaluator 与 policy 等待时间。
 不存在目标文件，20 个 workers 花时间等待 file fetch/metric timeout。该点没有 runner/model crash，但其 wall
 time 混入了与 policy/KVM 并发无关的错误态 evaluator I/O，不进入容量曲线。修订后只在 capacity config 关闭
 evaluator，正式 success config 和既有结果均不追溯修改。
+
+`sweep-bfab165` 在关闭 evaluator 后，首点 33/48 很快完成，但其余 evenly-spaced 跨域 tasks 长时间停在
+reset/setup；此时 policy request 不再增长、GPU idle、host CPU 约 96% idle。该点分类为
+`INVALID_CAPACITY_TASK_SETUP_CONFOUND`。容量 workload 因而固定为官方 no-GDrive roster 的全部 46 个 Chrome
+tasks；跨域下载/setup 长尾属于 full benchmark wall-time 问题，不能用于判定 GPU/KVM capacity knee。

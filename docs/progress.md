@@ -4697,3 +4697,6 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 单卡真实闭环验证完成：GUI-Owl 输出合法 `computer_use` click，generation=`3.230s`、纯 lock queue 约
   `2µs`；首轮 24-env capacity point 因 `max_steps=1` 后仍执行文件型 evaluator，在 28/48 后停止并记
   `INVALID_CAPACITY_EVALUATOR_CONFOUND`。容量 config 已版本化关闭 evaluator；正式 benchmark evaluator 不变。
+- 关闭 evaluator 后的跨域 evenly-spaced point 在 33/48 后停于 task reset/setup；GPU idle、CPU 约 96% idle，
+  记 `INVALID_CAPACITY_TASK_SETUP_CONFOUND`。最终 capacity workload 固定为官方 no-GDrive roster 的全部 46 个
+  Chrome tasks；GPU 与 environment 两轴均使用同一 denominator。

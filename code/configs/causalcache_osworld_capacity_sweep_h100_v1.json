@@ -7,16 +7,16 @@
   "max_steps": 1,
   "pause_seconds": 0.1,
   "evaluate_at_end": false,
-  "selection_mode": "evenly_spaced",
+  "selection_mode": "prefix",
   "points": [
-    {"axis": "gpu", "policy_replicas": 1, "num_envs": 24, "tasks": 48},
-    {"axis": "gpu", "policy_replicas": 2, "num_envs": 24, "tasks": 48},
-    {"axis": "gpu", "policy_replicas": 4, "num_envs": 24, "tasks": 48},
-    {"axis": "gpu", "policy_replicas": 6, "num_envs": 24, "tasks": 48},
-    {"axis": "env", "policy_replicas": 6, "num_envs": 6, "tasks": 60},
-    {"axis": "env", "policy_replicas": 6, "num_envs": 12, "tasks": 60},
-    {"axis": "env", "policy_replicas": 6, "num_envs": 18, "tasks": 60},
-    {"axis": "env", "policy_replicas": 6, "num_envs": 24, "tasks": 60},
-    {"axis": "env", "policy_replicas": 6, "num_envs": 30, "tasks": 60}
+    {"axis": "gpu", "policy_replicas": 1, "num_envs": 24, "tasks": 46},
+    {"axis": "gpu", "policy_replicas": 2, "num_envs": 24, "tasks": 46},
+    {"axis": "gpu", "policy_replicas": 4, "num_envs": 24, "tasks": 46},
+    {"axis": "gpu", "policy_replicas": 6, "num_envs": 24, "tasks": 46},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 6, "tasks": 46},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 12, "tasks": 46},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 18, "tasks": 46},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 24, "tasks": 46},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 30, "tasks": 46}
   ]
 }
