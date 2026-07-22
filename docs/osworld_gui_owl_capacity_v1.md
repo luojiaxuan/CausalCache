@@ -75,3 +75,8 @@ reset `Docker NotFound`。这被视为“24 env 可能超过可靠性 knee”的
 “只是 24 env 超过硬件 knee”。根因是 official `_get_used_ports()` 先 list containers、再逐个 inspect；其他
 worker 同时删除旧 VM 时产生 list→inspect race。adapter 改为 Docker sparse `/containers/json` snapshot，直接
 从响应提取 public ports，不逐容器 inspect。安全的全局 port-allocation lock 仍保留。
+
+`sweep-7e2277b` 的首个 6-env point 已完成 46/46、0 failure，却在汇总前不退出。原因是 runner 先 join
+workers、后读取 result queue；46 条结果填满 multiprocessing pipe 后，workers 阻塞在 `put()`。runner 改为
+运行中持续 drain，收到每个 task terminal message 后再 join；episode bytes 保留，但该 attempt 无合法 wall
+aggregate，不进入容量曲线。

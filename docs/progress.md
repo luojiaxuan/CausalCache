@@ -4707,3 +4707,5 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   capacity 顺序改为先测 6/12/18/24/30 env，再在保守 12 env 下测 1/2/4/6 GPU；invalid 高并发点记录后继续。
 - 6-env point 随后在同一 worker 的 repeated reset 复现 3 次 `Docker NotFound`，因此不是硬件 knee。根因是官方
   port scanner 的 list→per-container-inspect race；改用一次 Docker sparse port snapshot，保留全局分配 lock。
+- sparse port snapshot 后 6 env 已完成 46/46、0 failure，但 runner 在汇总前出现 join-before-drain queue
+  deadlock；改为运行中 drain 46 个 task terminal messages 后再 join。该 attempt 不产生合法 throughput。

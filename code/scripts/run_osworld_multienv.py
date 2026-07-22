@@ -346,9 +346,20 @@ def main() -> None:
     benchmark_started = time.perf_counter()
     for worker in workers:
         worker.start()
+    messages = []
+    task_terminal_messages = 0
+    while task_terminal_messages < len(pending):
+        try:
+            message = result_queue.get(timeout=1.0)
+        except queue.Empty:
+            if all(not worker.is_alive() for worker in workers):
+                break
+            continue
+        messages.append(message)
+        if message["status"] in {"completed", "failed"}:
+            task_terminal_messages += 1
     for worker in workers:
         worker.join()
-    messages = []
     while True:
         try:
             messages.append(result_queue.get_nowait())
