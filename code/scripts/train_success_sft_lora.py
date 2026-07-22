@@ -239,6 +239,8 @@ def main() -> None:
     parser.add_argument("--dataset-root", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--max-steps", type=int, default=0)
+    parser.add_argument("--resume-lora", type=Path, default=None)
+    parser.add_argument("--start-epoch", type=int, default=0)
     args = parser.parse_args()
 
     import torch
@@ -286,6 +288,12 @@ def main() -> None:
     parameters = [
         tensor for lora in wrapped.values() for tensor in (lora.lora_a, lora.lora_b)
     ]
+    if args.resume_lora is not None:
+        load_lora_state_dict(
+            wrapped, torch.load(args.resume_lora, map_location="cpu")
+        )
+        if rank == 0:
+            print(json.dumps({"resumed_from": str(args.resume_lora)}), flush=True)
     optimizer = torch.optim.AdamW(
         parameters,
         lr=config["training"]["learning_rate"],
@@ -330,7 +338,7 @@ def main() -> None:
         )
     ordering = random.Random(training_config["seed"])
     global_step = 0
-    for epoch in range(training_config["epochs"]):
+    for epoch in range(args.start_epoch, training_config["epochs"]):
         order = list(range(len(units)))
         ordering.shuffle(order)
         shard = order[rank::world_size]
