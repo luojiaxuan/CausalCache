@@ -77,8 +77,9 @@ def _serve(
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 request = json.loads(self.rfile.read(length).decode("utf-8"))
+                queued = time.perf_counter()
                 with inference_lock:
-                    queue_seconds = time.perf_counter() - arrived
+                    queue_seconds = time.perf_counter() - queued
                     action, metadata = runtime.generate(request)
                 with count_lock:
                     request_count += 1
@@ -93,6 +94,7 @@ def _serve(
                         "replica_id": replica_id,
                         "gpu_id": gpu_id,
                         "replica_request_count": current_count,
+                        "request_decode_seconds": queued - arrived,
                         "queue_seconds": queue_seconds,
                         "runtime": metadata,
                     },
