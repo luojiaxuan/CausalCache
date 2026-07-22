@@ -27,6 +27,10 @@ evaluator 与 policy 等待时间。
 - 最佳并发点必须满足 0 runner failure，且相对更低并发有实质吞吐收益。若吞吐进入平台或 p95 queue
   急剧上升，较高并发不作为默认值。
 
+实际矩阵避免全笛卡尔积：GPU 轴固定 `24 env / 48 tasks` 测 `1/2/4/6 replicas`；environment 轴固定
+`6 replicas / 60 tasks` 测 `6/12/18/24/30 envs`。每点由独立 output root 保存 episode completion、
+`nvidia-smi`、`vmstat` 与 runner log；任一点失败即停止，不用后续点掩盖。
+
 容量配置在 `code/configs/causalcache_osworld_capacity_h100_v1.json`。它与正式 benchmark config 分离，
 任何 `max_steps=1` 或 `pause_seconds=0.1` 数字都不得进入 paper success table。
 

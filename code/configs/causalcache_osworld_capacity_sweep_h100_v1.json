@@ -1,0 +1,21 @@
+{
+  "schema_version": "causalcache.osworld.capacity_sweep.v1",
+  "capacity_config": "code/configs/causalcache_osworld_capacity_h100_v1.json",
+  "policy_container": "causalcache-jaxan-osworld-guiowl-0722c",
+  "policy_ports": [19080, 19081, 19082, 19083, 19084, 19085],
+  "maximum_policy_replicas": 6,
+  "max_steps": 1,
+  "pause_seconds": 0.1,
+  "selection_mode": "evenly_spaced",
+  "points": [
+    {"axis": "gpu", "policy_replicas": 1, "num_envs": 24, "tasks": 48},
+    {"axis": "gpu", "policy_replicas": 2, "num_envs": 24, "tasks": 48},
+    {"axis": "gpu", "policy_replicas": 4, "num_envs": 24, "tasks": 48},
+    {"axis": "gpu", "policy_replicas": 6, "num_envs": 24, "tasks": 48},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 6, "tasks": 60},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 12, "tasks": 60},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 18, "tasks": 60},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 24, "tasks": 60},
+    {"axis": "env", "policy_replicas": 6, "num_envs": 30, "tasks": 60}
+  ]
+}
