@@ -171,3 +171,24 @@ class GUIOwlV21SampledToolsRuntime(GUIOwlV21OfficialToolsRuntime):
             parsed_output=parsed,
             metadata=metadata,
         )
+
+
+class GUIOwlV21GreedyWithSampledRetryRuntime(GUIOwlV21SampledToolsRuntime):
+    """Assay-v2 protocol: greedy primary decode, one sampled rescue on parse failure.
+
+    # note (luojiaxuan): 主解码贪心与冻结协议一致;引擎的 parse 重试末次会调
+    # greedy_fallback_generate,此处将其定义为温度采样——对贪心主解码而言,
+    # 重试必须改变解码分布才有意义。命名沿用引擎钩子,语义以本注释为准。
+    """
+
+    def generate_native_action(
+        self,
+        messages: Sequence[Mapping[str, Any]],
+    ) -> GUIOwlV21GenerationResult:
+        return GUIOwlV21OfficialToolsRuntime.generate_native_action(self, messages)
+
+    def greedy_fallback_generate(
+        self,
+        messages: Sequence[Mapping[str, Any]],
+    ) -> GUIOwlV21GenerationResult:
+        return GUIOwlV21SampledToolsRuntime.generate_native_action(self, messages)

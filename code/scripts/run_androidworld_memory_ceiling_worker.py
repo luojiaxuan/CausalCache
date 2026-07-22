@@ -31,6 +31,9 @@ def main() -> None:
     parser.add_argument("--lora-checkpoint", type=Path, default=None)
     parser.add_argument("--lora-rank", type=int, default=16)
     parser.add_argument("--lora-alpha", type=int, default=32)
+    parser.add_argument("--parse-retries", type=int, default=0)
+    parser.add_argument("--retry-temperature", type=float, default=0.7)
+    parser.add_argument("--retry-top-p", type=float, default=0.95)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument(
         "--episode",
@@ -54,7 +57,21 @@ def main() -> None:
         / "data/manifests/restoration_v2_ocr_backend.json",
         model_dir=args.ocr_model_dir,
     )
-    runtime = GUIOwlV21OfficialToolsRuntime(
+    if args.parse_retries > 0:
+        from causalcache.policy.gui_owl_v2_1_sampling_runtime import (
+            GUIOwlV21GreedyWithSampledRetryRuntime,
+        )
+
+        runtime_class = GUIOwlV21GreedyWithSampledRetryRuntime
+        runtime_kwargs = {
+            "temperature": args.retry_temperature,
+            "top_p": args.retry_top_p,
+        }
+    else:
+        runtime_class = GUIOwlV21OfficialToolsRuntime
+        runtime_kwargs = {}
+    runtime = runtime_class(
+        **runtime_kwargs,
         model_dir=args.model_dir,
         expected_snapshot_manifest=(
             args.repository_root / "code/configs/gui_owl_1_5_8b_snapshot.json"
@@ -110,6 +127,7 @@ def main() -> None:
             ceiling_plan=args.ceiling_plan,
             task_index=task_index,
             shared_early_decisions=args.shared_early_decisions,
+            parse_retries=args.parse_retries,
             arm=arm,
             task_type=task_type,
             device=args.device,
