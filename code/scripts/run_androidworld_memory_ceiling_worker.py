@@ -28,6 +28,9 @@ def main() -> None:
     parser.add_argument("--ceiling-plan", type=Path, required=True)
     parser.add_argument("--shared-early-decisions", type=int, required=True)
     parser.add_argument("--device", required=True)
+    parser.add_argument("--lora-checkpoint", type=Path, default=None)
+    parser.add_argument("--lora-rank", type=int, default=16)
+    parser.add_argument("--lora-alpha", type=int, default=32)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument(
         "--episode",
@@ -60,6 +63,36 @@ def main() -> None:
         target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
     )
     import torch
+
+    if args.lora_checkpoint is not None:
+        import hashlib
+
+        from scripts.train_success_sft_lora import (
+            inject_lora,
+            load_lora_state_dict,
+        )
+
+        wrapped = inject_lora(
+            runtime.model,
+            rank=args.lora_rank,
+            alpha=args.lora_alpha,
+            target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
+            torch=torch,
+        )
+        load_lora_state_dict(
+            wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
+        )
+        runtime.metadata = {
+            **runtime.metadata,
+            "lora_checkpoint": str(args.lora_checkpoint),
+            "lora_checkpoint_sha256": hashlib.sha256(
+                args.lora_checkpoint.read_bytes()
+            ).hexdigest(),
+            "lora_module_count": len(wrapped),
+            "lora_rank": args.lora_rank,
+            "lora_alpha": args.lora_alpha,
+        }
+        print(json.dumps({"lora_modules": len(wrapped)}), flush=True)
 
     completed = 0
     for arm, task_type, task_index in assignments:
