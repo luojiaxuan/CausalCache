@@ -4840,3 +4840,17 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - AndroidWorld 全部坑的清单已内化:配置先 ship 后发射、传输不过 CUDA-banner 镜像(ssh 直传+双端
   sha256)、mm_token_type_ids 目标段延长、logits_to_keep 显存、路径级变体序列化、donor 按 root
   重置、b0 侵蚀与步数单调。化验尺 v2(frozen/adapted 配对)仍在跑,出分入库不受转向影响。
+
+## 2026-07-22:Odyssey 语料勘察——12,792 state 就位,适配器为下一步
+
+- hyper00 v3 训练收官(3 epoch 全出),六卡空闲。语料勘察:
+  `/data02/jaxan/runs/causalcache-variable-history-context-v2-1285ba8/state-context.jsonl` =
+  12,792 个 fit-state 清单(long 2,804 / medium 5,242 / short ~4,746),含 trajectory_id/state_id/
+  role(train)/image_count/prompt tokens;这就是 Odyssey-SFT 的 state 母表。
+- 下一步(接续会话从这里开始):(1) 找到事件+图像 substrate 本地根(HF processor-freeze-v2
+  substrate 的物化,候选在 hyper00/hyper01 的 contextual-inputs/variable-history 系列目录,查
+  set_utility_variable_history_inputs.py 的读取路径即知);(2) 写 Odyssey→四变体 SFT 渲染器
+  (目标动作用 serialize_gui_owl_v2_1_teacher_target(人类演示动作),prompt 用冻结 mixed-fidelity
+  builder,变体沿用路径级重排);(3) trainer 加 per-rank 预取线程(CPU 编码与 GPU 重叠);
+  (4) hyper00 六卡 recipe v2 训练,总步 ~300 级,25-50 步 checkpoint + 门禁(轨迹级哈希 heldout);
+  (5) AndroidWorld 配对化验尺零样本评测。化验尺 v2(配对)仍在跑。
