@@ -4693,3 +4693,17 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 采集完成后的顺序:合并双机数据 → expense 补跑 → 全量重渲染(--contrast-variants,仅成功局)→
   U_act 打分(oracle 无 headroom 则 SFT 刹车)→ margin 损失加入 trainer → smoke(三条件门禁)→
   全训 → 1.5h 上限化验尺。
+
+## 2026-07-22:成功轨迹采集完结——155/576(26.9%),SFT 重渲染启动
+
+- 576/576 episodes 完成(双机各 288):成功 155(h01 87 + h00 68),成功决策步 1,266;
+  parse 死亡全程 ~9%(修复后段 5.3%);hyper00 的 25 个 exec-err(expense/clipboard/stopwatch,
+  emulator 缺组件)在 hyper01 补跑,25/25 有效完成但 0 成功(模板本身太难)——数据集定格 155。
+- hyper00 的 68 局成功数据(episodes+images)已并入 hyper01
+  `/data02/jaxan/runs/causalcache-success-collect-v1-d0c8926-h00merge/`;hyper00 worker/emulator
+  已清理(6 卡空出留给训练);hyper01 emulator 保留(化验尺要用)。
+- 全量对照重渲染(155 成功局 × correct/b0/shuffled/irrelevant)已在 hyper01 启动,输出
+  `/data02/jaxan/artifacts/sft/causalcache-success-sft-v1/`;完成后立即跑
+  `score_success_action_recovery.py` 分片打分(GPU 已空),correct−b0 汇总即 U_act oracle 门禁,
+  shuffled/irrelevant 差即 history-use 对照。门禁不过则 SFT 刹车(负结果进 dissociation 章)。
+- 原始 576 episodes + images 双机各自保留于 run root,`PENDING_HF_UPLOAD`(本会话权限禁读 HF token)。
