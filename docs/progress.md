@@ -4737,3 +4737,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 修复:scorer 只取目标段 logits(logits_to_keep,~15GB 峰值→MB 级),与采集共卡不再 OOM。
 - 并行现状:hyper00 6 卡训练;hyper01 4 卡 12 worker 采种子 1004-1005(288 局);H100 emulator
   启动中,3 卡 9 worker 待发种子 1006(135 局,剔除 3 个 fresh-boot 缺应用模板)。
+
+## 2026-07-22:margin-SFT v1 收官——内容敏感性单调上行但未过线,b0 侵蚀需修
+
+- held-out 门禁全程(frozen→e1→e2→e3):correct−irrelevant −0.005→+0.007→+0.007→**+0.0098**;
+  correct−shuffled −0.008→−0.000→+0.000→+0.003;correct−b0 干扰税 −0.042→−0.014;但 b0 漂移
+  −0.004→−0.010→**−0.020**(门禁 4 实质失败,margin 压力侵蚀无图路径)。
+- 结论:内容敏感性从精确 0 被训练出来且随 epoch 单调增长——可学性确认;幅度未达 CI>0(n=66-78 对,
+  CI 半宽 ~0.008-0.013);b0_ce_weight=0.5 不足以保住无图基线。
+- v2 配方(`code/configs/causalcache_history_margin_v2.json`):b0_ce_weight 1.0、margin 0.025、
+  Track A 新成功轨迹并入(对子数约翻倍)、heldout 盐值不变保持跨版可比。等 Track A 收齐后重渲染
+  v2 数据集并在 hyper00 6 卡发射。
+- v1 checkpoints(e1/e2/e3)与逐 epoch heldout 分数留存 hyper00/hyper01 run root,`PENDING_HF_UPLOAD`。
