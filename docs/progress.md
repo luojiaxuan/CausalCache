@@ -4749,3 +4749,14 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   Track A 新成功轨迹并入(对子数约翻倍)、heldout 盐值不变保持跨版可比。等 Track A 收齐后重渲染
   v2 数据集并在 hyper00 6 卡发射。
 - v1 checkpoints(e1/e2/e3)与逐 epoch heldout 分数留存 hyper00/hyper01 run root,`PENDING_HF_UPLOAD`。
+
+## 2026-07-22:数据协议放宽(train+val 训练/test 终测)+ plan 重生成与二次扫描
+
+- 用户指示:train+validation 全部用于采集与训练,sealed test-25 仅终测(跨模板泛化协议)。
+- 两个 plan 对活 emulator 重新生成(train 60×3、validation 31×2,今日 goal);242 组合零 GPU 扫描:
+  日期类模板(SimpleCalendar*OnDate/SportsTracker*/Tasks*Date/MarkorCreateFolder 等 ~10 个)goal 每次
+  suite 初始化按设备时间随机,**本质不可冻结**,永久除名;全局开关类照旧除名;validation 可用约
+  23-24 模板 ×2 实例;Vlc/Retro/SMS 的 500 疑似 5012-5017 老 emulator 状态老化,发采集前在新
+  emulator 复核。plan v2 暂存 hyper01 /data02/jaxan/runs/plans/,入库待复核后。
+- 执行序:三机 693 局收齐 → v2 数据集重渲染+v2 训练(hyper00 六卡)→ validation 采集并行 → 产出
+  并入后续版本。
