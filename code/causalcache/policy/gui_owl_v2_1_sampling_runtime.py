@@ -7,14 +7,16 @@ import time
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from causalcache.policy.gui_owl_v2_1 import parse_gui_owl_v2_1_output
+from causalcache.policy.gui_owl_v2_1 import (
+    canonical_json_sha256,
+    parse_gui_owl_v2_1_output,
+)
 from causalcache.policy.gui_owl_v2_1_runtime import (
     GUIOwlV21GenerationParseError,
     GUIOwlV21GenerationResult,
     GUIOwlV21OfficialToolsRuntime,
 )
 from causalcache.policy.gui_owl_v2_runtime import FROZEN_GUI_OWL_V2_MAX_NEW_TOKENS
-from causalcache.set_utility_heldout_evaluation import canonical_json_sha256
 
 
 class GUIOwlV21SampledToolsRuntime(GUIOwlV21OfficialToolsRuntime):
