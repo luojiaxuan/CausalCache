@@ -4707,3 +4707,22 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `score_success_action_recovery.py` 分片打分(GPU 已空),correct−b0 汇总即 U_act oracle 门禁,
   shuffled/irrelevant 差即 history-use 对照。门禁不过则 SFT 刹车(负结果进 dissociation 章)。
 - 原始 576 episodes + images 双机各自保留于 run root,`PENDING_HF_UPLOAD`(本会话权限禁读 HF token)。
+
+## 2026-07-22:U_act 门禁裁决(内容盲)+ 双轨并行启动
+
+- U_act 门禁(3,221 样本,冻结 policy):correct−b0 = **−0.038** [−0.043,−0.033](正确历史图显著
+  压低成功动作概率);correct−shuffled = −0.000 [±0.003]、correct−irrelevant = −0.000 [±0.003]
+  ——**冻结 policy 对历史图内容完全不敏感**。解释了 oracle headroom 不转化、selector LoRA 无效、
+  B8 不涨的全部谜团。详见 `data/results/success_action_recovery_gate_v1/`。
+- 用户决策 A + GPT 修正:CE 梯度非零但有 current-only 捷径,margin loss 的意义是堵捷径;selector
+  死透限定于"当前 policy/prompt/指标"。双轨:轨道 A 持续扩采集(不依赖 policy 参数),轨道 B 直接
+  margin-SFT 全训(155 局,每 epoch checkpoint + 四门禁:heldout correct>b0/shuffled/irrelevant
+  的 CI 为正 + b0 无退化);**selector 重标必须等 history-aware checkpoint 冻结后**。两阶段耦合,
+  不做同步端到端。
+- 训练配置 `code/configs/causalcache_history_margin_smoke_v1.json`(rank-16 全层 q/k/v/o,λ=1,
+  m=0.02/token,b0 CE 权重 0.5,heldout 15% episode 哈希);trainer 单元化(ce/ce_b0/margin 对),
+  scorer 支持 --lora-checkpoint/--episodes-filter。
+- 资源变动:hyper01 六卡被其他任务占满(100% util 不可清理)→ 训练转 hyper00 GPU 3-7(5 卡),
+  自包含数据集(samples+images 去符号链接)已传输 hyper00
+  `/data02/jaxan/artifacts/sft/causalcache-success-sft-v1/`。轨道 A 采集与 H100 3 卡待训练发射后
+  安排(hyper01 emulator 仍在,等它的卡空出来即可跑采集)。
