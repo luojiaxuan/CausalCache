@@ -4654,3 +4654,21 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 按用户要求的“每 epoch 看真实 heldout，没有明显提升就不继续堆 epoch”资源纪律，停止 e3/e4并保留 e1
   checkpoint=`02e0ac96...f949`。该停止不冒充 config `patience=3` 的 formal early-stop verdict；科学结论是
   当前 top-layer LoRA 没有补上 B2/Long+，不能支持“冻结表示是主要瓶颈且该 LoRA 足以解决”的假设。
+
+## 2026-07-21:成功锚定管线启动——采集设计冻结 + 零 GPU 绑定扫描
+
+- 背景:selector top-4 LoRA 停在 e1(B2/Long+ 未补上)+ 上限实验 STORY_DEAD + oracle headroom 真实
+  存在,三条证据指向 policy 消化多图历史的能力与训练目标锚点。转向:采成功轨迹 → policy 多图 SFT →
+  成功锚定标签 → 重训 selector。设计冻结于 `docs/androidworld_success_collection_v1.md`。
+- 新增(全部增量,冻结路径不动):`GUIOwlV21SampledToolsRuntime`(温度采样,校验与父类一致)、
+  引擎 `sample_seed`/`save_images_dir`/`parse_retries` 参数(默认关闭)、
+  `run_androidworld_success_collection_worker.py`。
+- 零 GPU 绑定扫描(180 组合,hyper01,~4 分钟)抓出 34 个坏 cell → 排除 12 个模板:日期嵌入 goal
+  身份漂移 7(SimpleCalendarAnyEventsOnDate 等)、开机即 score=1 的全局开关 3、SMS 初始化 500 1、
+  500+开关污染 1;ExpenseDeleteDuplicates2:2 为瞬态 500,复核通过保留。首次 GPU smoke 即抓到
+  sampling runtime 的 import 错误(canonical_json_sha256 来源写错),修复后重发。
+- 冻结 roster:48 模板 × 3 实例 × 4 种子(1000-1003)= 576 episodes,36 worker(hyper01/hyper00 各
+  18,各 6×H200,每卡 3 worker),蛇形按 max_steps 均衡(单 worker 步数负载 284-300)。
+  `data/manifests/androidworld_success_collection_roster_v1.json`。
+- hyper00 复用已有镜像/模型/OCR 资产,18 个 emulator 已启动;采集运行根
+  `/data02/jaxan/runs/causalcache-success-collect-v1-d0c8926/`(代码快照 d0c8926 + import 修复补丁)。
