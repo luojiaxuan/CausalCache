@@ -63,18 +63,15 @@ _TOOL_SPEC = {
     },
 }
 
-GUI_OWL_OSWORLD_SYSTEM_PROMPT = """# Tools
-
-You are provided with one function signature within <tools></tools> XML tags:
-<tools>
-{tool_spec}
-</tools>
-
-Return exactly two parts: one short line beginning with `Action:`, followed by one
-<tool_call> block containing JSON with name `computer_use` and its arguments. Coordinates
-are integer values in [0, 999], normalized across the current screenshot. Use only the
-visible UI. Return no thinking block or other prose.
-""".format(tool_spec=json.dumps(_TOOL_SPEC, separators=(",", ":")))
+GUI_OWL_OSWORLD_SYSTEM_PROMPT = (
+    "You are a frozen single-step desktop GUI action policy. Call computer_use exactly "
+    "once with the next executable action. Return only that tool call: no Action line, "
+    "analysis, tool response, or second call. Coordinates are base-10 integers in "
+    "[0,999], normalized across the current screenshot."
+)
+GUI_OWL_OSWORLD_FINAL_USER_INSTRUCTION = (
+    "Call computer_use exactly once with the next executable desktop action."
+)
 
 
 def _decode_png(encoded: str) -> Any:
@@ -142,6 +139,7 @@ def build_gui_owl_osworld_messages(request: Mapping[str, Any]) -> list[dict[str,
         [
             {"type": "text", "text": "Current screenshot:"},
             {"type": "image", "image": _decode_png(request["current_screenshot_png_base64"])},
+            {"type": "text", "text": GUI_OWL_OSWORLD_FINAL_USER_INSTRUCTION},
         ]
     )
     return [
@@ -262,6 +260,9 @@ class GUIOwlOSWorldRuntime:
         import torch
         import transformers
         from transformers import AutoModelForImageTextToText, AutoProcessor
+        from causalcache.policy.gui_owl_v2_1_runtime import (
+            validate_gui_owl_v2_1_generation_tokens,
+        )
 
         selected_device = torch.device(device)
         pixels = effective_visual_tokens_per_image * (
@@ -281,11 +282,15 @@ class GUIOwlOSWorldRuntime:
         ).to(selected_device)
         model.eval().requires_grad_(False)
         _validate_model_identity(model, identity)
+        generation_tokens = validate_gui_owl_v2_1_generation_tokens(
+            processor.tokenizer, model.generation_config
+        )
         self.torch = torch
         self.processor = processor
         self.model = model
         self.device = selected_device
         self.max_new_tokens = max_new_tokens
+        self.generation_tokens = generation_tokens
         self.metadata = {
             "runtime_profile_id": GUI_OWL_OSWORLD_RUNTIME_PROFILE_ID,
             "model_repo": identity.model_repo,
@@ -303,6 +308,7 @@ class GUIOwlOSWorldRuntime:
         messages = build_gui_owl_osworld_messages(request)
         encoded = self.processor.apply_chat_template(
             messages,
+            tools=[_TOOL_SPEC],
             tokenize=True,
             add_generation_prompt=True,
             return_dict=True,
@@ -313,22 +319,33 @@ class GUIOwlOSWorldRuntime:
         self.torch.cuda.synchronize(self.device)
         started = time.perf_counter()
         with self.torch.inference_mode():
+            tokens = self.generation_tokens
             generated = self.model.generate(
                 **encoded,
                 do_sample=False,
                 max_new_tokens=self.max_new_tokens,
+                eos_token_id=tokens.tool_call_close_token_id,
+                pad_token_id=tokens.pad_token_id,
+                suppress_tokens=list(tokens.standard_eos_token_ids),
+                num_beams=1,
+                num_return_sequences=1,
             )
         self.torch.cuda.synchronize(self.device)
         generation_seconds = time.perf_counter() - started
         new_tokens = generated[:, prompt_tokens:]
         output_text = self.processor.batch_decode(
             new_tokens,
-            skip_special_tokens=True,
+            skip_special_tokens=False,
             clean_up_tokenization_spaces=False,
         )[0]
-        action = parse_gui_owl_osworld_action(
-            output_text, screen_size=tuple(request["screen_size"])
-        )
+        try:
+            action = parse_gui_owl_osworld_action(
+                output_text, screen_size=tuple(request["screen_size"])
+            )
+        except ValueError as error:
+            raise ValueError(
+                f"GUI-Owl desktop action parse failed: {error}; output={output_text!r}"
+            ) from error
         return action, {
             **self.metadata,
             "prompt_tokens": prompt_tokens,
