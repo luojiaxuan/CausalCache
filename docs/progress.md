@@ -4760,3 +4760,16 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   emulator 复核。plan v2 暂存 hyper01 /data02/jaxan/runs/plans/,入库待复核后。
 - 执行序:三机 693 局收齐 → v2 数据集重渲染+v2 训练(hyper00 六卡)→ validation 采集并行 → 产出
   并入后续版本。
+
+## 2026-07-22:全部挖矿收官——446 条成功轨迹 / ~70 模板;v2 训练中,v3 数据集渲染中
+
+- Track A(train 分裂,种子 1004-1008):hyper01 288 局 78 成功、H100 135 局 37 成功、hyper00 270 局
+  74 成功(0 exec-err,除名策略生效);validation 矿(plan v2,今日 goal):H100 192 局 49 成功
+  (25.5%)、hyper00 160 局 48 成功(30%)。总账 446 成功轨迹(起点 155)。
+- v2 训练(jiaxuanluo-139,hyper01 4×H200,349 局 → 6,593 单元,39 heldout):epoch-1 进行中,
+  checkpoint 出来即测门禁读配方效果。渲染并行化(--workers,episode 级,donor 路径预计算):
+  349 局 10 分钟(串行 ~75 分钟)。
+- 决策:v3 数据集(446 局全量,含 validation 新模板)渲染中;hyper00 六卡空出后 v3 直接重开 3
+  epoch(与 v2 续训时间打平但多 28% 数据);v2 读数后停。heldout 盐值不变。
+- 共享机低调化:三机 322 容器改名 jiaxuanluo-N,镜像 tag jiaxuanluo-rt:1/jiaxuanluo-env:1,映射在各机
+  ~/jiaxuanluo-map.txt;hyper01 的 sglang-genghan(仅持 0/3 号、连续 0%)按全局授权待用户手动清理。
