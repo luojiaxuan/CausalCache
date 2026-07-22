@@ -290,6 +290,7 @@ def main() -> None:
     donor_chain: list[Any] | None = None
     with samples_path.open("w", encoding="utf-8") as handle:
         for run_root in args.run_root:
+            donor_chain = None
             for episode_path in sorted((run_root / "episodes").glob("*.json")):
                 record = json.loads(episode_path.read_text(encoding="utf-8"))
                 if (
