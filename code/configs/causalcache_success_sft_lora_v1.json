@@ -1,0 +1,30 @@
+{
+  "schema_version": "causalcache.success_sft_lora_config.v1",
+  "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+  "target_effective_visual_tokens_per_image": 2560,
+  "lora": {
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.0,
+    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"],
+    "layer_scope": "all_language_model_layers",
+    "vision_encoder": "frozen"
+  },
+  "training": {
+    "epochs": 2,
+    "learning_rate": 1e-4,
+    "lr_schedule": "constant",
+    "weight_decay": 0.0,
+    "micro_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "max_grad_norm": 1.0,
+    "seed": 271828,
+    "gradient_checkpointing": true,
+    "loss": "target_tokens_only_cross_entropy"
+  },
+  "data": {
+    "source": "scripts.build_success_sft_dataset output (success episodes only)",
+    "samples_manifest_sha256": "TO_BE_BOUND_AT_LAUNCH",
+    "shared_early_decisions": 2
+  }
+}
