@@ -4912,3 +4912,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   滚动门禁沿用 gate2 流程(frozen 基线需对 Odyssey heldout 重打——发训练后第一件事)。
 - 评测计划:门禁过线 checkpoint → AndroidWorld 配对化验尺零样本(全模板集,retry 协议)vs frozen;
   化验尺 v2(AndroidWorld-trained 适配)仍在跑,其结果作 in-domain 对照表。
+
+## 2026-07-22:配对化验尺 v2 裁决——首个 CI 认证闭环提升
+
+- 180/180(frozen/adapted(v3-e1 α32)× B0/B8 × 15 模板 × 3 实例,贪心主解码 + parse 一次采样重试):
+  frozen B0=3/45 B8=6/45(parse 26);adapted B0=7/45 B8=7/45(parse 14,近减半)。
+- 模板级配对:**adapted-B0 vs frozen-B0 净胜 +4(4W0L)Δ+0.089 CI[+0.022,+0.156]**(全项目首个
+  CI 认证闭环提升);adapted-B8 vs frozen-B0 +3(3W0L)Δ+0.089 CI[+0.000,+0.200];adapted 内部
+  B8−B0 平(Δ0.000);frozen 内部 B8−B0 +2 Δ+0.067 CI[+0.000,+0.178]。
+- 结论:margin-SFT 提升整体闭环能力与格式稳健性(assay v1 的一击毙命全线塌方被重试协议 + 训练共同
+  逆转);高保真记忆的边际增益尚未显形——Odyssey 训练线(在跑)是该效应的下一次机会。paper 闭环章
+  骨架:①冻结 policy 内容盲(±0.003)②margin 训练创造 CI 级内容敏感 ③闭环整体提升 CI 认证
+  ④记忆边际增益的 honest 陈述 + 剂量单调过程指标。
