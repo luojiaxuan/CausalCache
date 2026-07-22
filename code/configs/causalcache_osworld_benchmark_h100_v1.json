@@ -26,6 +26,7 @@
     "screen_size": [1920, 1080],
     "docker_dns_server": "127.0.0.11",
     "docker_cpu_model": "qemu64",
+    "docker_port_lock_timeout_seconds": 180,
     "memory_arm": "recent",
     "memory_budget": 4,
     "max_steps": 50,

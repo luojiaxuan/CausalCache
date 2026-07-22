@@ -100,6 +100,10 @@ class OSWorldTaskTests(unittest.TestCase):
             configure_osworld_docker_runtime(
                 ".", dns_server="127.0.0.11", cpu_model="host with spaces"
             )
+        with self.assertRaises(ValueError):
+            configure_osworld_docker_runtime(
+                ".", dns_server="127.0.0.11", port_lock_timeout_seconds=0
+            )
 
     def test_inventory_and_task_loading(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

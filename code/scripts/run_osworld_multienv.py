@@ -88,6 +88,9 @@ def _worker(
                         headless=True,
                         docker_dns_server=spec["docker_dns_server"],
                         docker_cpu_model=spec["docker_cpu_model"],
+                        docker_port_lock_timeout_seconds=spec[
+                            "docker_port_lock_timeout_seconds"
+                        ],
                     )
                 task = load_osworld_task(
                     spec["osworld_root"], domain=domain, task_id=task_id
@@ -292,6 +295,9 @@ def main() -> None:
         "screen_size": execution["screen_size"],
         "docker_dns_server": execution["docker_dns_server"],
         "docker_cpu_model": execution["docker_cpu_model"],
+        "docker_port_lock_timeout_seconds": execution.get(
+            "docker_port_lock_timeout_seconds", 10
+        ),
         "memory_arm": execution["memory_arm"],
         "memory_budget": execution["memory_budget"],
         "max_steps": (
@@ -323,6 +329,9 @@ def main() -> None:
                 False
                 if args.skip_evaluation
                 else bool(execution.get("evaluate_at_end", True))
+            ),
+            "docker_port_lock_timeout_seconds": execution.get(
+                "docker_port_lock_timeout_seconds", 10
             ),
         },
     }

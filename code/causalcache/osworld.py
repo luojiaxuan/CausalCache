@@ -343,6 +343,7 @@ def configure_osworld_docker_runtime(
     *,
     dns_server: str,
     cpu_model: str | None = None,
+    port_lock_timeout_seconds: int = 10,
 ) -> None:
     """Apply host-compatible settings to OSWorld's official Docker provider."""
     ipaddress.ip_address(dns_server)
@@ -352,6 +353,11 @@ def configure_osworld_docker_runtime(
         or any(character.isspace() for character in cpu_model)
     ):
         raise ValueError("docker cpu_model must be one non-empty token")
+    if (
+        type(port_lock_timeout_seconds) is not int
+        or not 1 <= port_lock_timeout_seconds <= 3600
+    ):
+        raise ValueError("docker port lock timeout must be within [1, 3600] seconds")
     root = Path(osworld_root).expanduser().resolve()
     sys.path.insert(0, str(root))
     try:
@@ -361,7 +367,7 @@ def configure_osworld_docker_runtime(
             sys.path.pop(0)
     base = module.DockerProvider
     configured_runtime = getattr(base, "_causalcache_runtime", None)
-    requested_runtime = (dns_server, cpu_model)
+    requested_runtime = (dns_server, cpu_model, port_lock_timeout_seconds)
     if configured_runtime is not None:
         if configured_runtime != requested_runtime:
             raise RuntimeError("OSWorld Docker runtime adapter was already configured")
@@ -377,6 +383,8 @@ def configure_osworld_docker_runtime(
             )
             if cpu_model is not None:
                 self.environment["CPU_MODEL"] = cpu_model
+
+    module.LOCK_TIMEOUT = port_lock_timeout_seconds
 
     CausalCacheDockerProvider.__name__ = "CausalCacheDockerProvider"
     CausalCacheDockerProvider.__qualname__ = "CausalCacheDockerProvider"
@@ -406,6 +414,7 @@ def create_osworld_environment(
     region: str | None = None,
     docker_dns_server: str = "127.0.0.11",
     docker_cpu_model: str | None = None,
+    docker_port_lock_timeout_seconds: int = 10,
 ) -> OSWorldEnvironment:
     desktop_env = import_osworld_desktop_env(osworld_root)
     if provider_name == "docker":
@@ -413,6 +422,7 @@ def create_osworld_environment(
             osworld_root,
             dns_server=docker_dns_server,
             cpu_model=docker_cpu_model,
+            port_lock_timeout_seconds=docker_port_lock_timeout_seconds,
         )
     return desktop_env(
         provider_name=provider_name,

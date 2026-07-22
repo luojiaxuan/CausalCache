@@ -60,3 +60,8 @@ evaluator，正式 success config 和既有结果均不追溯修改。
 reset/setup；此时 policy request 不再增长、GPU idle、host CPU 约 96% idle。该点分类为
 `INVALID_CAPACITY_TASK_SETUP_CONFOUND`。容量 workload 因而固定为官方 no-GDrive roster 的全部 46 个 Chrome
 tasks；跨域下载/setup 长尾属于 full benchmark wall-time 问题，不能用于判定 GPU/KVM capacity knee。
+
+`sweep-e90fdb5` 又揭示两个确定性 infrastructure bug：24-env recreation 时，官方 provider 的全局安全端口
+分配 lock 仍保留，但 10 秒硬编码 timeout 导致 3 个 worker 失败；另一个 state 的模型输出合法
+`computer_use(action=click)`，而 adapter 只接受 `left_click`。前者改为 config-bound 180 秒（不移除 lock），
+后者按 OSWorld 官方 GUI-Owl parser 的既有做法兼容 `click/drag` aliases。该 attempt 不进入曲线。

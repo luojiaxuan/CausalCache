@@ -90,6 +90,11 @@ class OSWorldGUIOwlActionTests(unittest.TestCase):
         )
         self.assertEqual(action.type, "click")
         self.assertEqual((action.x, action.y), (960, 540))
+        alias = parse_gui_owl_osworld_action(
+            self._output({"action": "click", "coordinate": [0, 999]}),
+            screen_size=(1920, 1080),
+        )
+        self.assertEqual((alias.type, alias.x, alias.y), ("click", 0, 1079))
 
     def test_maps_keyboard_scroll_and_terminal_actions(self) -> None:
         hotkey = parse_gui_owl_osworld_action(

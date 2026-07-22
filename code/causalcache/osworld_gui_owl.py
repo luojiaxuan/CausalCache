@@ -39,7 +39,9 @@ _TOOL_SPEC = {
                         "type",
                         "mouse_move",
                         "left_click",
+                        "click",
                         "left_click_drag",
+                        "drag",
                         "right_click",
                         "middle_click",
                         "double_click",
@@ -183,7 +185,7 @@ def parse_gui_owl_osworld_action(
     if not isinstance(arguments, Mapping) or not isinstance(arguments.get("action"), str):
         raise ValueError("GUI-Owl tool call lacks action arguments")
     action = arguments["action"]
-    if action in {"left_click", "double_click", "right_click", "middle_click"}:
+    if action in {"left_click", "click", "double_click", "right_click", "middle_click"}:
         x, y = _normalized_coordinate(arguments.get("coordinate"), screen_size=screen_size)
         mapping: dict[str, Any] = {"type": "click", "x": x, "y": y}
         if action == "double_click":
@@ -198,7 +200,7 @@ def parse_gui_owl_osworld_action(
         return DesktopAction.from_mapping(
             {"type": "move", "x": x, "y": y}, screen_size=screen_size
         )
-    if action == "left_click_drag":
+    if action in {"left_click_drag", "drag"}:
         destination = arguments.get("coordinate2", arguments.get("coordinate"))
         x, y = _normalized_coordinate(destination, screen_size=screen_size)
         return DesktopAction.from_mapping(

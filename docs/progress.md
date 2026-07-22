@@ -4700,3 +4700,6 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 关闭 evaluator 后的跨域 evenly-spaced point 在 33/48 后停于 task reset/setup；GPU idle、CPU 约 96% idle，
   记 `INVALID_CAPACITY_TASK_SETUP_CONFOUND`。最终 capacity workload 固定为官方 no-GDrive roster 的全部 46 个
   Chrome tasks；GPU 与 environment 两轴均使用同一 denominator。
+- Chrome-only 24-env point 发现官方 port-allocation file lock 的硬编码 10 秒 timeout（3 个 worker）与
+  GUI-Owl `click` alias parser mismatch（1 个 worker）。lock 本身保留，H100 config timeout 提高到 180 秒；
+  parser 只补官方兼容的 `click/drag` aliases。该 attempt 记 invalid 后全矩阵重跑。
