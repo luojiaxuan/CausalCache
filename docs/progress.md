@@ -4642,8 +4642,10 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf`；真实 `test_all.json` inventory 为 10 domains / 369 tasks；
 - 接通 `DesktopEnv.reset/step/evaluate/close`，增加受限 desktop action schema、PyAutoGUI renderer、policy HTTP
   boundary、`summary/recent/full` memory packing、逐步截图/checkpoint 和 task-level resume；
-- focused 5 tests 通过；真实 pinned checkout 的 task dry-run 返回 `VALID_OSWORLD_DRY_RUN`。Mac 尚未安装官方
-  OSWorld runtime dependencies，因此 live provider smoke 需在独立 Python 3.12 runtime 继续，不能把 dry-run
-  表述成 environment success；
-- 当前未生成 reusable data/model artifact。下一步是 live Docker/VMware provider smoke，再接 GUI-Owl desktop
-  policy；详见 [`osworld_runner_v1.md`](osworld_runner_v1.md)。
+- focused 6 tests 通过；真实 pinned checkout 的 task dry-run 返回 `VALID_OSWORLD_DRY_RUN`。Hyper01 随后完成
+  `VALID_OSWORLD_PREFLIGHT` 与真实 KVM live smoke：2 steps、3 screenshots、episode/suite completion 均成功，
+  第二次运行 `resumed_skips=1`；score=`0.0` 仅因 scripted actions 不解决公开 Chrome task；
+- live smoke 发现官方 Docker VM 的 dnsmasq watcher 会触发 inotify exhaustion；versioned adapter 固定
+  `--no-resolv --no-poll --server=127.0.0.11` 后端口转发恢复，未改 host sysctl；
+- 当前未生成 reusable data/model artifact。Docker live smoke 已完成；下一步接 GUI-Owl desktop policy 和
+  learned selector，再冻结正式 OSWorld roster。详见 [`osworld_runner_v1.md`](osworld_runner_v1.md)。

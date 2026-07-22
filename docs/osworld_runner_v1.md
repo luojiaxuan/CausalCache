@@ -24,6 +24,11 @@ OSWorld VM container，不修改 host sysctl。
 `full` 三个 memory arms 和 policy HTTP boundary；learned selector、GUI-Owl desktop checkpoint 以及正式
 OSWorld task roster 尚未接入。
 
+Hyper01 live smoke 已完成真实 `reset -> screenshot -> WAIT -> DONE -> evaluate -> close`，随后用相同命令
+验证 `resumed_skips=1`。轻量证据见
+[`../data/results/osworld_runner_v1_smoke/`](../data/results/osworld_runner_v1_smoke/)。score=`0.0` 是 scripted
+executor smoke 的预期值，不是 policy performance。
+
 ## 为什么不直接复用 AndroidWorld runner
 
 AndroidWorld action 是 mobile JSON action；OSWorld executor 接受 desktop PyAutoGUI。为避免让模型输出任意
@@ -45,7 +50,8 @@ OSWorld 依赖较重且固定 Python 3.12；建议为官方 checkout 单独建�
 git clone https://github.com/xlang-ai/OSWorld.git /data/jaxan/OSWorld
 git -C /data/jaxan/OSWorld checkout b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf
 python3.12 -m venv /data/jaxan/venvs/osworld
-/data/jaxan/venvs/osworld/bin/pip install -e /data/jaxan/OSWorld
+/data/jaxan/venvs/osworld/bin/pip install -r /data/jaxan/OSWorld/requirements.txt
+/data/jaxan/venvs/osworld/bin/pip install --no-deps -e /data/jaxan/OSWorld
 /data/jaxan/venvs/osworld/bin/pip install --no-deps -e /data/jaxan/CausalCache
 
 /data/jaxan/venvs/osworld/bin/python -m scripts.run_osworld \
@@ -136,6 +142,7 @@ runner 锁死到单一模型服务。
 | pinned config | `code/configs/causalcache_osworld_runner_v1.json` |
 | focused tests | `code/tests/test_osworld.py` |
 | scripted executor smoke actions | `data/fixtures/osworld_scripted_smoke_actions.json` |
+| live smoke summary | `data/results/osworld_runner_v1_smoke/` |
 
 真实 rollout screenshots、trajectory traces 和 recordings 只写 persistent storage；形成可复用 benchmark artifact
 后上传 Hugging Face，Git 仅保存 manifest、revision 和轻量 summary。

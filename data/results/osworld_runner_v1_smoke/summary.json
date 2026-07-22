@@ -1,0 +1,44 @@
+{
+  "schema_version": "causalcache.osworld.runner_smoke.v1",
+  "status": "VALID_OSWORLD_RUNNER_LIVE_SMOKE",
+  "causalcache_git_revision": "7a27f282a22e2053491cf8ed1c41438f03b68e12",
+  "osworld_git_revision": "b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf",
+  "config_sha256": "11906be1c48147c4e86dc915458762b8250b3c1971a8484b16e9ce9d97def54f",
+  "host": {
+    "alias": "hyper01",
+    "hostname": "node-radixark-16-0001",
+    "kvm_available": true,
+    "outer_image_digest": "sha256:6a8f60af7ca868dc266c118249d12fc73ba85e2e8075e5e31473bd25d349acfa",
+    "osworld_vm_image_digest": "sha256:0e6497a9295647cf05bf2b2af522fdd79bdeba2737595259cab310a3bcf6baa9"
+  },
+  "inventory": {
+    "domains": 10,
+    "tasks": 369,
+    "preflight_status": "VALID_OSWORLD_PREFLIGHT"
+  },
+  "episode": {
+    "domain": "chrome",
+    "task_id": "bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+    "actions": [
+      "WAIT",
+      "DONE"
+    ],
+    "completed_steps": 2,
+    "termination_reason": "policy_done",
+    "score": 0.0,
+    "score_interpretation": "expected_zero_for_executor_smoke_without_solving_task",
+    "screenshots": 3,
+    "episode_status": "COMPLETE_OSWORLD_EPISODE",
+    "suite_status": "COMPLETE_OSWORLD_SHARD",
+    "resume_status": "COMPLETE_OSWORLD_SHARD_WITH_ONE_RESUMED_SKIP"
+  },
+  "network_adapter": {
+    "dnsmasq_options": "--no-resolv --no-poll --server=127.0.0.11",
+    "host_sysctl_modified": false
+  },
+  "raw_artifact": {
+    "location": "/data01/jaxan/osworld-runner/output/chrome/bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+    "status": "LOCAL_INFRASTRUCTURE_SMOKE_NOT_A_PAPER_ARTIFACT",
+    "hugging_face_upload_required": false
+  }
+}
