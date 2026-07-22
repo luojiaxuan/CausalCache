@@ -41,6 +41,13 @@ class GUIOwlV21SampledToolsRuntime(GUIOwlV21OfficialToolsRuntime):
         super().__init__(**kwargs)
         self.sampling_temperature = float(temperature)
         self.sampling_top_p = float(top_p)
+        self.metadata = {
+            **self.metadata,
+            "do_sample": True,
+            "temperature": self.sampling_temperature,
+            "top_p": self.sampling_top_p,
+            "sampling_runtime": "GUIOwlV21SampledToolsRuntime",
+        }
 
     def generate_native_action(
         self,
