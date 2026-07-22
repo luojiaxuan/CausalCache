@@ -6,6 +6,11 @@
 
 ## 当前结论
 
+- **OSWorld runner v1 已在独立分支接通。** runner 绑定官方 pinned `DesktopEnv`，覆盖 10 domains / 369
+  tasks 的 inventory、受限 desktop action 到 PyAutoGUI 的安全映射、mixed-fidelity policy HTTP boundary、
+  task-level 可断点 suite sharding 与原子 episode evidence。当前是跨平台 benchmark substrate，不是科学结果；
+  learned selector、GUI-Owl desktop policy 和正式 OSWorld roster 尚未接入。复现见
+  [`docs/osworld_runner_v1.md`](docs/osworld_runner_v1.md)。
 - **主线已转为 selector-side GUI-Owl LoRA；旧 budget-deferral evaluation 已在读取 truth 前停止。**
   旧 evaluation 的 `truth read=0`，partial receipts 仅作为可恢复执行记录保留，不产生结果。Teacher/action
   policy 始终是原始 frozen GUI-Owl；LoRA 只更新 selector encoder，因此现有 restoration labels 继续有效。

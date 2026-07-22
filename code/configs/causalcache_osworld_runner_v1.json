@@ -1,0 +1,19 @@
+{
+  "schema_version": "causalcache.osworld.runner_config.v1",
+  "osworld": {
+    "repository": "https://github.com/xlang-ai/OSWorld.git",
+    "revision": "b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf",
+    "task_meta_path": "evaluation_examples/test_all.json"
+  },
+  "runner": {
+    "provider": "docker",
+    "screen_size": [1920, 1080],
+    "headless": true,
+    "max_steps": 50,
+    "pause_seconds": 2.0,
+    "memory_arm": "recent",
+    "memory_budget": 4,
+    "cache_dir": "/data/jaxan/osworld/cache",
+    "output_root": "/data/jaxan/osworld/runs"
+  }
+}

@@ -4636,3 +4636,14 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 按用户要求的“每 epoch 看真实 heldout，没有明显提升就不继续堆 epoch”资源纪律，停止 e3/e4并保留 e1
   checkpoint=`02e0ac96...f949`。该停止不冒充 config `patience=3` 的 formal early-stop verdict；科学结论是
   当前 top-layer LoRA 没有补上 B2/Long+，不能支持“冻结表示是主要瓶颈且该 LoRA 足以解决”的假设。
+# 2026-07-22：OSWorld runner v1 source
+
+- 新建 `luojiaxuan/osworld-runner`，固定 OSWorld revision
+  `b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf`；真实 `test_all.json` inventory 为 10 domains / 369 tasks；
+- 接通 `DesktopEnv.reset/step/evaluate/close`，增加受限 desktop action schema、PyAutoGUI renderer、policy HTTP
+  boundary、`summary/recent/full` memory packing、逐步截图/checkpoint 和 task-level resume；
+- focused 5 tests 通过；真实 pinned checkout 的 task dry-run 返回 `VALID_OSWORLD_DRY_RUN`。Mac 尚未安装官方
+  OSWorld runtime dependencies，因此 live provider smoke 需在独立 Python 3.12 runtime 继续，不能把 dry-run
+  表述成 environment success；
+- 当前未生成 reusable data/model artifact。下一步是 live Docker/VMware provider smoke，再接 GUI-Owl desktop
+  policy；详见 [`osworld_runner_v1.md`](osworld_runner_v1.md)。
