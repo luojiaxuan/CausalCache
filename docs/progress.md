@@ -4773,3 +4773,16 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   epoch(与 v2 续训时间打平但多 28% 数据);v2 读数后停。heldout 盐值不变。
 - 共享机低调化:三机 322 容器改名 jiaxuanluo-N,镜像 tag jiaxuanluo-rt:1/jiaxuanluo-env:1,映射在各机
   ~/jiaxuanluo-map.txt;hyper01 的 sglang-genghan(仅持 0/3 号、连续 0%)按全局授权待用户手动清理。
+
+## 2026-07-22:过夜自主执行(用户休息)——v2 3-epoch 跑满 / v3 训练中 / 门禁复评
+
+- 资源合规:hyper00/hyper01 各 ≤4 卡。v3 从 6 卡重启为 4 卡(GPU 2-5);v2 用 hyper01 GPU 1,5,6,7。
+- v2(349 局 6,593 单元):3 epoch 全部跑完(exit 0,10:15→16:02,~5.8h),lora-epoch1/2/3.pt 就绪。
+- v3(446 局 8,736 单元,4 卡,--checkpoint-every-steps 50):跑到 epoch1 + step500+,step 级
+  checkpoint 密集就绪,训练仍在继续。
+- **化验尺触发规则(预注册)**:任一 checkpoint 满足 heldout correct−shuffled 与 correct−irrelevant
+  的 bootstrap CI 均 >0 且 b0 漂移 ≥ −0.010 → 冻结,按 ceiling v1 协议 + LoRA 跑 dev 化验尺
+  (4 臂 × 15 模板 × 3 实例,~3.5h),对照 STORY_DEAD。未触发则出趋势分析等用户定夺。
+- 会话进程曾重启,监视器失联但训练容器独立存活;晨间复评 frozen / v2-e3 / v3-e1 / v3-step500
+  四组门禁于 49 局 heldout(v1 18、v2 39 嵌套其中)。
+- 闭环 worker 支持 --lora-checkpoint(SHA 存证);数据协议 train+val 训练、test-25 终测。
