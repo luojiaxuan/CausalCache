@@ -70,3 +70,8 @@ tasks；跨域下载/setup 长尾属于 full benchmark wall-time 问题，不能
 `sweep-1596be2` 验证 lock timeout 与 parser alias 修复均生效，但 `24 env` 在 41/46 后出现一次 VM container
 reset `Docker NotFound`。这被视为“24 env 可能超过可靠性 knee”的正当容量观测，而不是继续修到该点强行
 通过；最终矩阵因此按 6→30 env 递增，并把 GPU scaling 固定在 12 env。
+
+`sweep-28b2817` 从 6 env 复现相同 `Docker NotFound`，且三个 failure 都在同一 worker 的多次 reset，否定了
+“只是 24 env 超过硬件 knee”。根因是 official `_get_used_ports()` 先 list containers、再逐个 inspect；其他
+worker 同时删除旧 VM 时产生 list→inspect race。adapter 改为 Docker sparse `/containers/json` snapshot，直接
+从响应提取 public ports，不逐容器 inspect。安全的全局 port-allocation lock 仍保留。

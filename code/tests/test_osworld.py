@@ -17,6 +17,7 @@ from causalcache.osworld import (
     load_osworld_task,
     run_osworld_episode,
     select_osworld_memory,
+    _docker_sparse_public_ports,
 )
 
 
@@ -95,6 +96,17 @@ class OSWorldActionTests(unittest.TestCase):
 
 
 class OSWorldTaskTests(unittest.TestCase):
+    def test_sparse_docker_port_snapshot_avoids_per_container_inspect(self) -> None:
+        class SparseContainer:
+            attrs = {
+                "Ports": [
+                    {"PrivatePort": 5000, "PublicPort": 5007, "Type": "tcp"},
+                    {"PrivatePort": 9222, "Type": "tcp"},
+                ]
+            }
+
+        self.assertEqual(_docker_sparse_public_ports([SparseContainer()]), {5007})
+
     def test_rejects_invalid_docker_cpu_model(self) -> None:
         with self.assertRaises(ValueError):
             configure_osworld_docker_runtime(

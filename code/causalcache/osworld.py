@@ -70,6 +70,26 @@ def _safe_component(value: str, *, label: str) -> str:
     return value
 
 
+def _docker_sparse_public_ports(containers: Sequence[Any]) -> set[int]:
+    ports: set[int] = set()
+    for container in containers:
+        attributes = getattr(container, "attrs", None)
+        if not isinstance(attributes, Mapping):
+            continue
+        records = attributes.get("Ports", ())
+        if isinstance(records, (str, bytes, bytearray)) or not isinstance(
+            records, Sequence
+        ):
+            continue
+        for record in records:
+            if not isinstance(record, Mapping):
+                continue
+            public_port = record.get("PublicPort")
+            if type(public_port) is int and 1 <= public_port <= 65535:
+                ports.add(public_port)
+    return ports
+
+
 def _require_exact_keys(
     value: Mapping[str, Any], *, required: set[str], optional: set[str]
 ) -> None:
@@ -383,6 +403,15 @@ def configure_osworld_docker_runtime(
             )
             if cpu_model is not None:
                 self.environment["CPU_MODEL"] = cpu_model
+
+        def _get_used_ports(self) -> set[int]:
+            system_ports = {
+                connection.laddr.port
+                for connection in module.psutil.net_connections()
+                if connection.laddr
+            }
+            containers = self.client.containers.list(sparse=True)
+            return system_ports | _docker_sparse_public_ports(containers)
 
     module.LOCK_TIMEOUT = port_lock_timeout_seconds
 
