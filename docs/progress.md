@@ -4672,3 +4672,24 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `data/manifests/androidworld_success_collection_roster_v1.json`。
 - hyper00 复用已有镜像/模型/OCR 资产,18 个 emulator 已启动;采集运行根
   `/data02/jaxan/runs/causalcache-success-collect-v1-d0c8926/`(代码快照 d0c8926 + import 修复补丁)。
+
+## 2026-07-22:paper 主线转向 + 采集中场修复 + 对照/打分管线就绪
+
+- 主线按用户确认转为:"先教 policy 用历史(反事实对照 SFT),再学保留哪些历史(成功锚定
+  budget-general greedy selector)";interaction/set-aware 降级为分析章节;abstract 改写稿已交付用户
+  (标题 Learning to Use and Select Visual History for Long-Horizon GUI Agents),截止 7/22 19:59 北京。
+- 采集 107 局时诊断:成功 5.5%(难局先行的排序偏差),parse 死亡 37%(温度采样放大语法崩坏),
+  hyper00 的 ExpenseDeleteMultiple2 全部 step-0 500(emulator 日志实锤 expense 应用 boot 期未装上;
+  hyper01 老 emulator 无此问题)。修复:parse 重试最后一次贪心兜底(评估路径不受影响),36 worker
+  滚动重启(踩了 supervisor 复活竞态 + pkill 自杀两个老坑,均按既有模式解决)。
+- 修复后(POST 113 局):成功率 22%(hyper00 也 14 胜),parse 死亡 5.3%(余量为病态屏幕上任何
+  解码都失败的 policy 本征底,与上限实验 BrowserMaze swipe 一族同源);expense 局待主跑结束在
+  hyper01 补跑。
+- 管线新增(全部已提交推送并 ship 到双机快照 causalcache-d0c8926):
+  `build_success_sft_dataset.py` 反事实对照变体(correct/b0/shuffled/irrelevant,路径级重排已验证),
+  trainer CE 过滤(corrupted 变体不进 CE,留给 margin/评估),
+  `score_success_action_recovery.py`(冻结 policy teacher-forced 打分,U_act oracle 门禁 +
+  history-use 三条件评估的数据源)。
+- 采集完成后的顺序:合并双机数据 → expense 补跑 → 全量重渲染(--contrast-variants,仅成功局)→
+  U_act 打分(oracle 无 headroom 则 SFT 刹车)→ margin 损失加入 trainer → smoke(三条件门禁)→
+  全训 → 1.5h 上限化验尺。
