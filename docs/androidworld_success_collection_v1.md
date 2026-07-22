@@ -19,7 +19,10 @@
 - 输入格式:`summary_B0`(纯 summary 历史,模型当前最稳的闭环格式),
   shared-early=2,与上限实验协议一致;
 - 采样:`do_sample=True, temperature=0.7, top_p=0.95`,每实例 4 个 seed
-  (1000+k,k=0..3),episode 级 `torch.manual_seed`;共 **720 episodes**;
+  (1000+k,k=0..3),episode 级 `torch.manual_seed`;零 GPU 绑定扫描(180 组合)
+  排除 12 个模板(日期嵌入 goal 漂移 7、开机即满分全局开关 3、SMS 500 1、
+  500+开关污染 1),最终 **48 模板 × 3 × 4 = 576 episodes**,roster 冻结于
+  `data/manifests/androidworld_success_collection_roster_v1.json`;
 - parse 重试:采集允许每步最多 2 次重试(温度采样下重掷即有意义)。这是
   **collection-only** 放宽,不回写任何评估协议;v1 上限裁决不受影响;
 - 截图落盘:每步 current PNG + 末步 after PNG,SFT 重渲染的原料;
