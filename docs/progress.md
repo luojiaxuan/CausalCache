@@ -4874,3 +4874,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   correct/b0/shuffled/irrelevant 四变体(逻辑照抄 build_success_sft_dataset:同 hash 混采、路径级
   重排、donor 跨轨迹),图像写 output images/<source_id>/observation-NNN.png;--workers 进程池。
   然后 trainer 加 per-rank 预取线程,hyper00 六卡 recipe v2 训练(总步 ~300 级,25 步 checkpoint)。
+
+## 2026-07-22:Odyssey 目标动作勘察(续跑锚点 2)
+
+- transport(source-v1-a7213db)与 full-pool 的 assistant 消息只有 inline_reasoning +
+  action_description 两种部件,**无精确工具调用**;metadata.valid_actions=null;低保真事件的
+  action_argument 是冻结 10×10 bin(click 精度不足以作 SFT 目标)。
+- 目标动作三选一:(a) 从原始 hflqf88888/GUIOdyssey 注释按 source_id+step JOIN 精确坐标(首选,
+  在盘候选:/data02/jaxan/source/guiodyssey-independent-v1、artifacts/guiodyssey-pilot*.tar);
+  (b) bin 中心近似(click 有系统偏差,保底);(c) 继续上游考古 set_utility_dense/gate_v1_data
+  找当年精确动作解析处。
+- 已核对:低保真 schema 与闭环 low_fidelity_v2 同构、图像/OCR 齐备、mixed-fidelity builder 可直用,
+  唯一缺口就是精确目标动作。
