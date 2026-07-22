@@ -84,6 +84,8 @@ def main() -> None:
     config = json.loads(args.config.resolve().read_text(encoding="utf-8"))
     if config.get("schema_version") != SCHEMA_VERSION:
         raise ValueError("capacity sweep schema version drifted")
+    if config.get("evaluate_at_end") is not False:
+        raise ValueError("capacity sweep must disable task evaluators")
     ports = config["policy_ports"]
     if len(ports) != config["maximum_policy_replicas"] or len(set(ports)) != len(ports):
         raise ValueError("capacity policy port inventory drifted")
@@ -195,6 +197,7 @@ def main() -> None:
                 str(config["max_steps"]),
                 "--pause-seconds",
                 str(config["pause_seconds"]),
+                "--skip-evaluation",
                 *policy_arguments,
             ]
             shell_command = (

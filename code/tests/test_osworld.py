@@ -25,6 +25,7 @@ class FakeEnvironment:
         self.reset_calls = 0
         self.actions: list[str] = []
         self.closed = False
+        self.evaluate_calls = 0
 
     def reset(self, *, task_config: dict[str, Any]) -> dict[str, Any]:
         self.reset_calls += 1
@@ -37,6 +38,7 @@ class FakeEnvironment:
         return {"screenshot": f"png-{len(self.actions)}".encode()}, 0.0, action == "DONE", {}
 
     def evaluate(self) -> float:
+        self.evaluate_calls += 1
         return 1.0
 
     def close(self) -> None:
@@ -160,6 +162,34 @@ class OSWorldTaskTests(unittest.TestCase):
 
 
 class OSWorldEpisodeTests(unittest.TestCase):
+    def test_capacity_episode_can_skip_task_evaluator(self) -> None:
+        task = OSWorldTask(
+            domain="writer",
+            task_id="task-capacity",
+            config_path=Path("task.json"),
+            config={"id": "task-capacity", "instruction": "Write"},
+        )
+        environment = FakeEnvironment()
+        policy = ScriptedOSWorldPolicy({"task-capacity": [{"type": "wait"}]})
+        with tempfile.TemporaryDirectory() as directory:
+            result = run_osworld_episode(
+                environment=environment,
+                policy=policy,
+                task=task,
+                output_root=directory,
+                memory_arm="recent",
+                memory_budget=4,
+                max_steps=1,
+                pause_seconds=0.0,
+                screen_size=(1920, 1080),
+                provenance={"capacity": True},
+                evaluate_at_end=False,
+            )
+        self.assertFalse(result["evaluation_executed"])
+        self.assertIsNone(result["score"])
+        self.assertIsNone(result["success"])
+        self.assertEqual(environment.evaluate_calls, 0)
+
     def test_episode_and_task_level_resume(self) -> None:
         task = OSWorldTask(
             domain="writer",
@@ -187,6 +217,7 @@ class OSWorldEpisodeTests(unittest.TestCase):
             self.assertEqual(result["status"], "COMPLETE_OSWORLD_EPISODE")
             self.assertEqual(result["completed_steps"], 2)
             self.assertEqual(result["score"], 1.0)
+            self.assertEqual(environment.evaluate_calls, 1)
             self.assertEqual(environment.reset_calls, 1)
             second = run_osworld_episode(
                 environment=environment,

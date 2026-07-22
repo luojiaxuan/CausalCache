@@ -4694,3 +4694,6 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   aggregate；capacity 配置与正式 361-task benchmark 配置隔离；
 - focused 14 tests 通过。下一步在 H100 执行 1/2/4/6 GPU × KVM env scaling，并把 raw evidence 保留在
   `/data/jaxan/osworld-capacity/`。
+- 单卡真实闭环验证完成：GUI-Owl 输出合法 `computer_use` click，generation=`3.230s`、纯 lock queue 约
+  `2µs`；首轮 24-env capacity point 因 `max_steps=1` 后仍执行文件型 evaluator，在 28/48 后停止并记
+  `INVALID_CAPACITY_EVALUATOR_CONFOUND`。容量 config 已版本化关闭 evaluator；正式 benchmark evaluator 不变。

@@ -107,6 +107,7 @@ def _worker(
                         "worker_id": worker_id,
                         "policy_endpoint": endpoint,
                     },
+                    evaluate_at_end=spec["evaluate_at_end"],
                 )
                 result_queue.put(
                     {
@@ -117,7 +118,7 @@ def _worker(
                         "resumed_skip": bool(result.get("resumed_skip")),
                         "elapsed_seconds": float(result["elapsed_seconds"]),
                         "completed_steps": int(result["completed_steps"]),
-                        "success": bool(result["success"]),
+                        "success": result["success"],
                         "policy_latencies_seconds": [
                             float(step["policy_latency_seconds"])
                             for step in result["steps"]
@@ -183,6 +184,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--cache-dir", type=Path)
     parser.add_argument("--max-steps", type=int)
     parser.add_argument("--pause-seconds", type=float)
+    parser.add_argument("--skip-evaluation", action="store_true")
     parser.add_argument("--policy-endpoint", action="append")
     return parser
 
@@ -300,6 +302,11 @@ def main() -> None:
             if args.pause_seconds is None
             else args.pause_seconds
         ),
+        "evaluate_at_end": (
+            False
+            if args.skip_evaluation
+            else bool(execution.get("evaluate_at_end", True))
+        ),
         "policy_endpoints": policy_endpoints,
         "policy_timeout_seconds": config["policy_pool"]["timeout_seconds"],
         "provenance": {
@@ -312,6 +319,11 @@ def main() -> None:
             "num_envs": num_envs,
             "policy_replica_count": len(policy_endpoints),
             "selection_mode": args.selection_mode,
+            "evaluate_at_end": (
+                False
+                if args.skip_evaluation
+                else bool(execution.get("evaluate_at_end", True))
+            ),
         },
     }
     workers = [
@@ -386,7 +398,9 @@ def main() -> None:
         "completed_steps": sum(
             message["completed_steps"] for message in completed_messages
         ),
-        "successful_tasks": sum(message["success"] for message in completed_messages),
+        "successful_tasks": sum(
+            message["success"] is True for message in completed_messages
+        ),
         "policy_latency_seconds": {
             "p50": _percentile(policy_latencies, 0.50),
             "p95": _percentile(policy_latencies, 0.95),

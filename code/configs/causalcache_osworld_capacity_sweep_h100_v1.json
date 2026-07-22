@@ -6,6 +6,7 @@
   "maximum_policy_replicas": 6,
   "max_steps": 1,
   "pause_seconds": 0.1,
+  "evaluate_at_end": false,
   "selection_mode": "evenly_spaced",
   "points": [
     {"axis": "gpu", "policy_replicas": 1, "num_envs": 24, "tasks": 48},

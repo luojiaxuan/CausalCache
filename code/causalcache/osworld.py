@@ -611,9 +611,12 @@ def run_osworld_episode(
     pause_seconds: float,
     screen_size: tuple[int, int],
     provenance: Mapping[str, Any],
+    evaluate_at_end: bool = True,
 ) -> dict[str, Any]:
     if type(max_steps) is not int or max_steps <= 0:
         raise ValueError("max_steps must be a positive integer")
+    if type(evaluate_at_end) is not bool:
+        raise TypeError("evaluate_at_end must be boolean")
     task_root = Path(output_root).expanduser().resolve() / task.domain / task.task_id
     completion_path = task_root / "result.json"
     if completion_path.exists():
@@ -696,7 +699,7 @@ def run_osworld_episode(
                     else "environment_done"
                 )
                 break
-        score = float(environment.evaluate())
+        score = float(environment.evaluate()) if evaluate_at_end else None
         result = {
             "schema_version": OSWORLD_RUNNER_SCHEMA_VERSION,
             "status": "COMPLETE_OSWORLD_EPISODE",
@@ -718,8 +721,9 @@ def run_osworld_episode(
             "max_steps": max_steps,
             "completed_steps": len(steps),
             "termination_reason": termination_reason,
+            "evaluation_executed": evaluate_at_end,
             "score": score,
-            "success": score > 0.0,
+            "success": score > 0.0 if score is not None else None,
             "steps": steps,
             "attempt_id": attempt_id,
             "elapsed_seconds": time.perf_counter() - started,

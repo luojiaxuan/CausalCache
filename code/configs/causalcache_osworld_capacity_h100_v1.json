@@ -30,6 +30,7 @@
     "memory_budget": 4,
     "max_steps": 1,
     "pause_seconds": 0.1,
+    "evaluate_at_end": false,
     "cache_dir": "/data/jaxan/osworld-capacity/cache",
     "output_root": "/data/jaxan/osworld-capacity/runs"
   },

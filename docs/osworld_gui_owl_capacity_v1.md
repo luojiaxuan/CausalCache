@@ -21,7 +21,7 @@ evaluator 与 policy 等待时间。
   128 logical CPUs 的边界）；
 - 每点使用 pinned official 361-task no-GDrive roster 的 24 个 evenly-spaced tasks；
 - capacity 主 sweep 使用 `max_steps=1`、`pause_seconds=0.1`，避免把 agent action quality 和 history 长度混进
-  并发上限；另做 recent-B4 多步功能 smoke；
+  并发上限，并显式跳过 task evaluator；另做 recent-B4 多步功能 smoke。正式 benchmark 始终开启 evaluator；
 - 同时记录 wall time、tasks/hour、policy requests/s、client p50/p95、server queue p50/p95、generation
   p50/p95、failure、CPU/KVM 与 GPU utilization；
 - 最佳并发点必须满足 0 runner failure，且相对更低并发有实质吞吐收益。若吞吐进入平台或 p95 queue
@@ -46,3 +46,11 @@ evaluator 与 policy 等待时间。
   `LOCAL_INFRASTRUCTURE_ARTIFACT`，不上传 Hugging Face。
 
 实测完成后，本文件追加数字表、瓶颈归因和推荐 topology。
+
+## Invalid attempt
+
+`sweep-38c97c6` 的首个 `1 GPU / 24 env / 48 tasks` point 在 28/48 episodes 后停止，分类为
+`INVALID_CAPACITY_EVALUATOR_CONFOUND`。原因是短程 `max_steps=1` 后仍执行完整文件型 evaluator；未完成任务本来
+不存在目标文件，20 个 workers 花时间等待 file fetch/metric timeout。该点没有 runner/model crash，但其 wall
+time 混入了与 policy/KVM 并发无关的错误态 evaluator I/O，不进入容量曲线。修订后只在 capacity config 关闭
+evaluator，正式 success config 和既有结果均不追溯修改。
