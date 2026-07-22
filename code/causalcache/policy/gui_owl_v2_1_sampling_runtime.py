@@ -49,6 +49,13 @@ class GUIOwlV21SampledToolsRuntime(GUIOwlV21OfficialToolsRuntime):
             "sampling_runtime": "GUIOwlV21SampledToolsRuntime",
         }
 
+    def greedy_fallback_generate(
+        self,
+        messages: Sequence[Mapping[str, Any]],
+    ) -> GUIOwlV21GenerationResult:
+        """Collection-only greedy rescue after sampled attempts break the grammar."""
+        return GUIOwlV21OfficialToolsRuntime.generate_native_action(self, messages)
+
     def generate_native_action(
         self,
         messages: Sequence[Mapping[str, Any]],

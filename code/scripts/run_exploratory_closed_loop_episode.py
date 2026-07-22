@@ -320,8 +320,19 @@ def run_episode(
             generated = None
             for parse_attempt in range(parse_retries + 1):
                 parse_attempts += 1
+                # note (luojiaxuan): 采集模式下最后一次重试退回贪心解码兜底,
+                # 温度采样的语法崩坏不再一击毙命;评估路径 parse_retries=0 不受影响。
+                use_greedy_fallback = (
+                    parse_attempt == parse_retries
+                    and parse_retries > 0
+                    and hasattr(runtime, "greedy_fallback_generate")
+                )
                 try:
-                    generated = runtime.generate_native_action(list(messages))
+                    if use_greedy_fallback:
+                        generated = runtime.greedy_fallback_generate(list(messages))
+                        step["parse_fallback_greedy"] = True
+                    else:
+                        generated = runtime.generate_native_action(list(messages))
                     break
                 except GUIOwlV21GenerationParseError as error:
                     step.setdefault("parse_retry_errors", []).append(
