@@ -4683,3 +4683,14 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   `pause_seconds=2.0` 测量。
 - 设计与清单：[`osworld_benchmark_acceleration_v1.md`](osworld_benchmark_acceleration_v1.md)；轻量结果：
   [`data/results/osworld_benchmark_h100_smoke_v1/`](../data/results/osworld_benchmark_h100_smoke_v1/)。
+
+## 2026-07-22：OSWorld frozen GUI-Owl capacity v1 启动
+
+- 用户授权 H100 最多使用 6 GPUs；fleet preflight 在 `2026-07-22T22:01:21Z` 确认 GPU 0--7 全空闲，本轮
+  只选择 0--5；
+- 新增 frozen GUI-Owl-1.5-8B desktop runtime、每卡一 replica server、recent-B4 mixed-fidelity prompt 与
+  typed action parser；未训练或修改 policy 权重；
+- multi-env runner 新增动态 replica count、24-task evenly-spaced capacity roster 和 wall/吞吐/queue/generation
+  aggregate；capacity 配置与正式 361-task benchmark 配置隔离；
+- focused 14 tests 通过。下一步在 H100 执行 1/2/4/6 GPU × KVM env scaling，并把 raw evidence 保留在
+  `/data/jaxan/osworld-capacity/`。

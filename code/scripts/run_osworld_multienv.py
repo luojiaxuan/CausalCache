@@ -9,6 +9,7 @@ import json
 import multiprocessing
 import queue
 import subprocess
+import time
 from pathlib import Path
 from typing import Any
 
@@ -47,6 +48,17 @@ def _atomic_json(path: Path, value: dict[str, Any]) -> None:
         encoding="utf-8",
     )
     temporary.replace(path)
+
+
+def _percentile(values: list[float], fraction: float) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * fraction
+    lower = int(position)
+    upper = min(lower + 1, len(ordered) - 1)
+    weight = position - lower
+    return ordered[lower] * (1.0 - weight) + ordered[upper] * weight
 
 
 def _worker(
@@ -103,6 +115,24 @@ def _worker(
                         "domain": domain,
                         "task_id": task_id,
                         "resumed_skip": bool(result.get("resumed_skip")),
+                        "elapsed_seconds": float(result["elapsed_seconds"]),
+                        "completed_steps": int(result["completed_steps"]),
+                        "success": bool(result["success"]),
+                        "policy_latencies_seconds": [
+                            float(step["policy_latency_seconds"])
+                            for step in result["steps"]
+                        ],
+                        "policy_queue_seconds": [
+                            float(step["policy_response"]["queue_seconds"])
+                            for step in result["steps"]
+                            if "queue_seconds" in step["policy_response"]
+                        ],
+                        "policy_generation_seconds": [
+                            float(step["policy_response"]["runtime"]["generation_seconds"])
+                            for step in result["steps"]
+                            if isinstance(step["policy_response"].get("runtime"), dict)
+                            and "generation_seconds" in step["policy_response"]["runtime"]
+                        ],
                     }
                 )
             except Exception as error:
@@ -146,6 +176,9 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--preflight", action="store_true")
     parser.add_argument("--num-envs", type=int)
     parser.add_argument("--limit", type=int)
+    parser.add_argument(
+        "--selection-mode", choices=("prefix", "evenly_spaced"), default="prefix"
+    )
     parser.add_argument("--output-root", type=Path)
     parser.add_argument("--cache-dir", type=Path)
     parser.add_argument("--max-steps", type=int)
@@ -170,11 +203,22 @@ def main() -> None:
     num_envs = execution["num_envs"] if args.num_envs is None else args.num_envs
     if num_envs <= 0:
         raise ValueError("num_envs must be positive")
-    if len(policy_endpoints) != config["policy_pool"]["replica_count"]:
+    if args.policy_endpoint is None and len(policy_endpoints) != config["policy_pool"]["replica_count"]:
         raise ValueError("policy endpoint count drifted from replica_count")
     selected = roster.selected[: args.limit] if args.limit else roster.selected
     if args.limit is not None and args.limit <= 0:
         raise ValueError("limit must be positive")
+    if args.selection_mode == "evenly_spaced" and args.limit:
+        if args.limit > len(roster.selected):
+            raise ValueError("evenly-spaced limit exceeds the selected roster")
+        if args.limit == 1:
+            selected = (roster.selected[0],)
+        else:
+            indices = [
+                round(index * (len(roster.selected) - 1) / (args.limit - 1))
+                for index in range(args.limit)
+            ]
+            selected = tuple(roster.selected[index] for index in indices)
     assignments = [
         {
             "worker_id": worker_id,
@@ -267,6 +311,7 @@ def main() -> None:
             "roster_task_count": len(roster.selected),
             "num_envs": num_envs,
             "policy_replica_count": len(policy_endpoints),
+            "selection_mode": args.selection_mode,
         },
     }
     workers = [
@@ -277,6 +322,7 @@ def main() -> None:
         )
         for worker_id in range(active_envs)
     ]
+    benchmark_started = time.perf_counter()
     for worker in workers:
         worker.start()
     for worker in workers:
@@ -287,12 +333,29 @@ def main() -> None:
             messages.append(result_queue.get_nowait())
         except queue.Empty:
             break
+    benchmark_wall_seconds = time.perf_counter() - benchmark_started
     completed_messages = [message for message in messages if message["status"] == "completed"]
     failures = [message for message in messages if message["status"] != "completed"]
     worker_exit_codes = [worker.exitcode for worker in workers]
     complete = len(completed_messages) == len(pending) and not failures and all(
         code == 0 for code in worker_exit_codes
     )
+    policy_latencies = [
+        value
+        for message in completed_messages
+        for value in message["policy_latencies_seconds"]
+    ]
+    queue_latencies = [
+        value
+        for message in completed_messages
+        for value in message["policy_queue_seconds"]
+    ]
+    generation_latencies = [
+        value
+        for message in completed_messages
+        for value in message["policy_generation_seconds"]
+    ]
+    fresh_task_count = len(completed_messages)
     summary = {
         "status": (
             "COMPLETE_OSWORLD_MULTIENV_BENCHMARK"
@@ -305,6 +368,40 @@ def main() -> None:
         "resumed_skips": resumed_skips,
         "active_envs": active_envs,
         "policy_replicas": len(policy_endpoints),
+        "benchmark_wall_seconds": benchmark_wall_seconds,
+        "fresh_tasks_per_hour": (
+            fresh_task_count / benchmark_wall_seconds * 3600.0
+            if benchmark_wall_seconds > 0
+            else None
+        ),
+        "policy_requests": len(policy_latencies),
+        "policy_requests_per_second": (
+            len(policy_latencies) / benchmark_wall_seconds
+            if benchmark_wall_seconds > 0
+            else None
+        ),
+        "task_elapsed_seconds_sum": sum(
+            message["elapsed_seconds"] for message in completed_messages
+        ),
+        "completed_steps": sum(
+            message["completed_steps"] for message in completed_messages
+        ),
+        "successful_tasks": sum(message["success"] for message in completed_messages),
+        "policy_latency_seconds": {
+            "p50": _percentile(policy_latencies, 0.50),
+            "p95": _percentile(policy_latencies, 0.95),
+            "max": max(policy_latencies) if policy_latencies else None,
+        },
+        "server_queue_seconds": {
+            "p50": _percentile(queue_latencies, 0.50),
+            "p95": _percentile(queue_latencies, 0.95),
+            "max": max(queue_latencies) if queue_latencies else None,
+        },
+        "generation_seconds": {
+            "p50": _percentile(generation_latencies, 0.50),
+            "p95": _percentile(generation_latencies, 0.95),
+            "max": max(generation_latencies) if generation_latencies else None,
+        },
         "worker_assignments": assignments[:active_envs],
         "worker_exit_codes": worker_exit_codes,
         "failures": failures,
