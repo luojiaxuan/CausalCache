@@ -4886,3 +4886,19 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   找当年精确动作解析处。
 - 已核对:低保真 schema 与闭环 low_fidelity_v2 同构、图像/OCR 齐备、mixed-fidelity builder 可直用,
   唯一缺口就是精确目标动作。
+
+## 2026-07-22:Odyssey 精确动作到手——渲染器规格闭合(续跑锚点 3)
+
+- 原始注释已下载:hyper00 /data02/jaxan/source/guiodyssey-raw-annotations/(annotations/<episode_id>
+  .json + all_annot.json,136MB+,限速重试中自动补齐)。schema:episode_id=source_id,steps[k] =
+  {step(0 基), action(CLICK/LONG_PRESS/SCROLL/TEXT/KEY 系/COMPLETE...), info=[[x,y],[x,y]] 绝对像素
+  (device_info 有分辨率), description}。JOIN:decision t(1 基)= steps[t-1]。
+- 渲染器 build_odyssey_sft_dataset.py 规格:(1) 遍历 state 母表(12,792 fit);(2) 事件 mapping 从
+  transport 行构造(low_fidelity_v2 同构,post 图=observation-k.png,OCR 从 ocr_records_json);
+  (3) prompt=冻结 mixed-fidelity builder,shared-early<2 分支同 AndroidWorld;(4) 目标=注释精确
+  动作 → GUIOwlV2Action(坐标按 gui_owl 规范空间换算,写时核对 gui_owl_v2._coordinate 的合法范围
+  与闭环 gui_owl_v2_action_to_androidworld 的缩放方向)→ serialize_gui_owl_v2_1_teacher_target;
+  (5) 四变体照抄 AndroidWorld 版(hash 混采/路径级重排/donor 跨轨迹);(6) 图像物化到 output
+  images/<source_id>/observation-NNN.png;--workers 进程池按轨迹并行。
+- 训练:trainer 加 per-rank 预取线程后,hyper00 六卡 recipe v2,总步 ~300 级,25 步 checkpoint,
+  heldout=轨迹级哈希(盐 odyssey_margin_v1)。评测:AndroidWorld 配对化验尺零样本。
