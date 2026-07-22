@@ -1,6 +1,6 @@
 # Selector-side LoRA v1
 
-状态：`PHASE1_COMPLETE_JOINT_ADAPTATION_RUNNING`。
+状态：`JOINT_EPOCH1_COMPLETE_CONTINUING_PER_EPOCH_SELECTION`。
 
 - teacher/action policy：原始 frozen GUI-Owl，不含 LoRA；
 - selector branch：LM top-4，计划 q/k/v/o rank-8 LoRA；
@@ -39,10 +39,18 @@
 - joint token-adapter epoch 1 checkpoint=`c50b4291...b51451`；91/91 states、2,251 coalitions 已完成，
   0 skip/error，truth content=`251da3dd...07544`。B1/B2/B3/B4=
   `0.18320309/0.24648697/0.26347535/0.26361162`，macro/Long+=`0.23919426/0.28640421`；因明显
-  退化，该 control 不再增加 epoch。joint LoRA e1 checkpoint=`02e0ac96...f949`，201 states / 6,840
-  coalitions（6,639 forwards）正由 Hyper00/Hyper01 共 11×H200 并行回填。执行记录见
+  退化，该 control 不再增加 epoch。joint LoRA e1 checkpoint=`02e0ac96...f949` 的 201 states / 6,840
+  coalitions（6,639 forwards）已完成并封存，0 skip/error，truth content=`e97e9228...2a31`；固定
+  256-state denominator 上 B1/B2/B3/B4=`0.18291355/0.35552749/0.49593237/0.58700819`，macro/Long+=
+  `0.40534540/0.37960822`。相对 recent 的 B1/B2/B3/B4=`-0.00029/-0.00012/+0.07471/+0.05389`，
+  macro=`+0.03205`，Long+=`-0.00041`。因此 e1 有可选择的 macro 改善，但尚未补上 B2/Long+；按冻结
+  per-epoch truth contract 继续 e2，不把 e1 解释为 representation hypothesis 已通过。执行记录见
   [`token-adapter-joint-truth-rollout-plan.json`](token-adapter-joint-truth-rollout-plan.json) 与
-  [`lora-joint-truth-rollout-plan.json`](lora-joint-truth-rollout-plan.json)。
+  [`lora-joint-truth-rollout-plan.json`](lora-joint-truth-rollout-plan.json)，轻量结果见
+  [`lora-joint-epoch1-summary.json`](lora-joint-epoch1-summary.json)。
 - boundary cache 完成后需上传 private HF；当前状态 `PENDING_HF_UPLOAD`。
+
+下一步：以 sealed e1 truth 恢复 joint trainer 并运行 epoch 2；每轮继续只按 fixed-256 true recovery
+选模。若后续 checkpoint 仍只改善 B3/B4 而不能改善 B2/Long+，则 selector-side LoRA 的目标假设不成立。
 
 设计与限制见 [`docs/set_utility_selector_lora_v1.md`](../../../docs/set_utility_selector_lora_v1.md)。

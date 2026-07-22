@@ -4606,3 +4606,17 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   rank-8 LoRA composite 与对应 trainer；teacher/action policy 始终冻结；
 - Hyper00/Hyper01 的 12/12 partitions 随后完成 23,714/23,714 contexts、0 failure；Hyper00 单机 cache
   最终 content SHA256=`77dec757...5d16b`。token-adapter phase 1 已启动，LoRA 尚未训练。
+
+## 2026-07-21：Selector-side GUI-Owl LoRA joint epoch 1 truth 完成
+
+- Teacher/action policy 保持原始 frozen GUI-Owl；LoRA 仅位于 selector branch，旧 restoration labels 未改变。
+- joint LoRA e1 checkpoint=`02e0ac96...f949`。201-state schedule 共 6,840 coalitions（6,639 forwards）；
+  Hyper00/Hyper01 首轮 11 workers 出现 partition 5/9 长尾后，将两个未完成 partition 各拆成 6 个可恢复
+  state lanes，最终 201/201 states、0 skip/error，两个 tail containers 均 exit 0。
+- 合并后 formal truth content=`e97e9228...2a31`，manifest file SHA256=`044bde97...d39d`；persistent root=
+  `/data02/jaxan/runs/causalcache-selector-lora-joint-truth-e1-5c827e6`，状态 `PENDING_HF_UPLOAD`。
+- fixed-256 train-heldout recovery：B1/B2/B3/B4=`0.18291/0.35553/0.49593/0.58701`，macro/Long+=
+  `0.40535/0.37961`；相对 recent 为 `-0.00029/-0.00012/+0.07471/+0.05389`，macro=`+0.03205`，
+  Long+=`-0.00041`。e1 的增益全部来自 B3/B4，尚未补上预定的 B2/Long+ 瓶颈。
+- 冻结 checkpoint-selection contract 以真实 macro 为主判据，因此 e1 可继续 epoch 2；不按 training loss
+  或最后 epoch 选模，也不把当前结果表述为 frozen representation hypothesis 已验证。

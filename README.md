@@ -15,7 +15,9 @@
   token-adapter control 已实现；两条 adaptation 分支首 epoch 均已完成。token-adapter 的 phase-1 truth
   已封存并回填，但 adapter-only recovery 低于 recent；LoRA-only 的 truth 也已封存，macro/Long+=
   `0.30542/0.32770`，同样低于 recent。joint token-adapter e1 又降至 macro/Long+=
-  `0.23919/0.28640`，因此该诊断对照停止；joint LoRA e1 已完成训练，正在生成真实 restoration truth。
+  `0.23919/0.28640`，因此该诊断对照停止。joint LoRA e1 的 fixed-256 truth 已完成：macro=
+  `0.40535`，比 recent 高 `+0.03205`，B3/B4 高 `+0.07471/+0.05389`；但 B2 与 Long+ 仍基本持平。
+  因此 e1 有方向性进展但未验证表示瓶颈假设，按真实 recovery 的逐 epoch 合同继续 e2。
   [设计](docs/set_utility_selector_lora_v1.md)与
   [状态](data/results/set_utility_selector_lora_v1/README.md)。
 - 正式 label rollout 已使用 Hyper00/Hyper01 各 6×H200 完成：5,108/5,108 states、33,175/33,175
@@ -125,7 +127,8 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
   recent=`0.37330/0.38002`；下一步进入 joint LoRA。Hyper01 的 token-adapter phase 1 已完成 truth 回填：
   B1--B4 macro/Long+=
   `0.30893/0.30401`，低于 recent=`0.37330/0.38002`；joint adapter e1 进一步退化后停止。joint LoRA e1
-  checkpoint 已完成，6,639 个实际访问 coalitions 正由 Hyper00/Hyper01 共 11×H200 并行回填。
+  checkpoint 与 201-state/6,840-coalition formal truth 已完成，macro/Long+=`0.40535/0.37961`；macro 胜
+  recent，但 B2/Long+ 未改善。下一步只继续 joint LoRA epoch 2 的逐 epoch truth selection。
   [LoRA 执行状态](data/results/set_utility_selector_lora_v1/README.md)。
 - direct-marginal Stage-B 与 unchanged fixed-tune gate 均已完成；最终 `NO_GO` 已停止 learned
   general-`B` v3 路线。该旧合同不被追认；本轮是用户显式授权的 data-coverage/structured-fallback 新假设，
@@ -256,7 +259,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Per-epoch heldout training v1 | [结果](data/results/set_utility_direct_on_policy_training_v1/README.md)；[合同](docs/set_utility_direct_on_policy_v1.md)；Hyper00 Set root `...set-transformer-direct-on-policy-v2-a69c706`；Hyper01 DeepSets root `...structured-deepsets-direct-on-policy-v4-843e360` | complete；Set e2=`0.39491`、DeepSets e1=`0.39251`；均由 truth recovery 早停；evaluation/test sealed；`PENDING_HF_UPLOAD` |
 | Budget-deferral candidate v1 | [冻结 config](code/configs/causalcache_set_utility_budget_deferral_v1.json)；[development truth result](data/results/set_utility_direct_on_policy_deployment_v1/README.md) | B1/B2 recent + B3/B4 DeepSets direct；development delta=`+0.02689 [0.00039,0.07047]`；不是 evaluation；payload `PENDING_HF_UPLOAD` |
 | Budget-deferral evaluation Stage-A | [执行 config](code/configs/causalcache_set_utility_budget_deferral_evaluation_stage_a_v1.json)；[状态](data/results/set_utility_budget_deferral_evaluation_v1/README.md) | 用户在 selection/truth 前停止；truth read=0；Hyper00/01 保留 42/33 个 resumable receipts；转向 selector-side LoRA |
-| Selector-side GUI-Owl LoRA v1 | [设计](docs/set_utility_selector_lora_v1.md)；[extraction config](code/configs/causalcache_set_utility_selector_lora_v1.json)；[training config](code/configs/causalcache_set_utility_selector_lora_training_v1.json)；[状态](data/results/set_utility_selector_lora_v1/README.md) | teacher/action policy frozen；top-4 parity PASS；boundary cache complete：23,714 contexts、3,065 shards、289.75GB、content `77dec757...5d16b`；LoRA-only/token-adapter-only recovery 均低于 recent；joint adaptation 进行中 |
+| Selector-side GUI-Owl LoRA v1 | [设计](docs/set_utility_selector_lora_v1.md)；[extraction config](code/configs/causalcache_set_utility_selector_lora_v1.json)；[training config](code/configs/causalcache_set_utility_selector_lora_training_v1.json)；[状态](data/results/set_utility_selector_lora_v1/README.md) | teacher/action policy frozen；top-4 parity PASS；boundary cache complete：23,714 contexts、3,065 shards、289.75GB、content `77dec757...5d16b`；joint e1 truth complete，macro `+0.03205` vs recent，但 B2/Long+ 持平；继续逐 epoch selection；artifacts `PENDING_HF_UPLOAD` |
 | Token predictor v2 partial snapshot/cache | [HF dataset@e1240bde](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/e1240bdeff500114097b71148ba65ae19e71e6e8/artifacts/set-utility-token-v2-partial-a73cc18) | 23.43GB / 1,878 files；tag `set-utility-token-v2-partial-a73cc18`；pilot 不含 evaluation；[summary](data/results/set_utility_token_predictor_v2_partial/README.md) |
 | Token predictor v2 partial checkpoints | [HF model@a55666c1](https://huggingface.co/gavinlaw/causalcache-set-utility-predictors-mobile/tree/a55666c11da6b2848a6f066b4b05980704f1bf7a/artifacts/set-utility-token-v2-partial-a73cc18) | 155.44MB / 11 files；同名 tag；4 checkpoints |
 | Anchor-only pilot labels/features | [HF dataset@a95ce68b](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/a95ce68bd628daaec40a7575847c9db584f20dc4/artifacts/set-utility-scale-v1-ac0ef27) | deprecated pilot；仅保留复现 |
