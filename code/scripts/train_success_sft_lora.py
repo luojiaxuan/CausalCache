@@ -249,6 +249,11 @@ def main() -> None:
         running_loss = 0.0
         contributing = 0
         for position, sample_index in enumerate(shard):
+            if samples[sample_index].get("variant", "correct") not in (
+                "correct",
+                "b0",
+            ):
+                continue
             encoded = encode_sample(
                 runtime,
                 samples[sample_index],

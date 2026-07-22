@@ -92,7 +92,9 @@ def render_episode(
     run_root: Path,
     ocr_provider: PinnedOnlineOCRProvider,
     shared_early_decisions: int,
-) -> list[dict[str, Any]]:
+    contrast_variants: bool = False,
+    donor_images: list[Any] | None = None,
+) -> tuple[list[dict[str, Any]], list[Any]]:
     record = json.loads(episode_path.read_text(encoding="utf-8"))
     episode_name = episode_path.stem
     image_dir = run_root / "images" / episode_name
@@ -125,13 +127,7 @@ def render_episode(
         image_rel = f"images/{episode_name}/step{step_index:03d}.png"
         decision_step_id = len(history) + 1
         if len(history) < shared_early_decisions:
-            messages = build_shared_early_step_messages(
-                instruction=instruction,
-                history_events=tuple(history),
-                current_image=current.image,
-            )
             mode, budget, selected = "shared_early", 0, ()
-            image_rels = [image_rel]
         else:
             candidate_ids = candidate_event_step_ids_from_history(
                 [event.to_mapping() for event in history]
@@ -141,40 +137,94 @@ def render_episode(
                 step_index=step_index,
                 candidate_ids=tuple(candidate_ids),
             )
-            messages = build_live_gui_owl_v2_1_mixed_fidelity_messages(
-                instruction=instruction,
-                history_events=[event.to_mapping() for event in history],
-                restored_event_step_ids=selected,
-                selected_post_images_by_event_step={
-                    step_id: observe(step_id).image for step_id in selected
-                },
-                current_image=current.image,
+        # note (luojiaxuan): variant 家族共享同一 target;corrupted 变体只供
+        # margin 对照与 history-use 评估,trainer 的 CE 必须过滤到 correct/b0。
+        # 数据集按路径序列化,因此每个变体必须携带自己的 (事件 id -> 图路径)
+        # 映射,shuffled/irrelevant 的路径重排才能在重载时保真。
+        own_path = {
+            step_id: f"images/{episode_name}/step{step_id:03d}.png"
+            for step_id in selected
+        }
+        variants: list[tuple[str, tuple[int, ...], dict[int, str]]] = []
+        if len(history) < shared_early_decisions:
+            variants.append(("correct", (), {}))
+        else:
+            variants.append(("correct", selected, dict(own_path)))
+            if contrast_variants and selected:
+                variants.append(("b0", (), {}))
+                if len(selected) >= 2:
+                    rotated_paths = dict(
+                        zip(
+                            selected,
+                            [own_path[s] for s in selected[1:]]
+                            + [own_path[selected[0]]],
+                        )
+                    )
+                    variants.append(("shuffled", selected, rotated_paths))
+                if donor_images is not None and len(donor_images) >= len(selected):
+                    variants.append(
+                        (
+                            "irrelevant",
+                            selected,
+                            dict(zip(selected, donor_images[: len(selected)])),
+                        )
+                    )
+        def open_rel(rel: str) -> Any:
+            with Image.open(run_root / rel) as raw:
+                return raw.convert("RGB")
+
+        for variant_name, variant_selected, variant_paths in variants:
+            if len(history) < shared_early_decisions:
+                messages = build_shared_early_step_messages(
+                    instruction=instruction,
+                    history_events=tuple(history),
+                    current_image=current.image,
+                )
+                image_rels = [image_rel]
+            else:
+                variant_images = {
+                    step_id: (
+                        observe(step_id).image
+                        if variant_paths[step_id] == own_path.get(step_id)
+                        else open_rel(variant_paths[step_id])
+                    )
+                    for step_id in variant_selected
+                }
+                messages = build_live_gui_owl_v2_1_mixed_fidelity_messages(
+                    instruction=instruction,
+                    history_events=[event.to_mapping() for event in history],
+                    restored_event_step_ids=variant_selected,
+                    selected_post_images_by_event_step=variant_images,
+                    current_image=current.image,
+                )
+                image_rels = [
+                    variant_paths[step_id] for step_id in variant_selected
+                ] + [image_rel]
+            samples.append(
+                {
+                    "schema_version": "causalcache.success_sft_sample.v1",
+                    "episode": episode_name,
+                    "task_type": record["task_type"],
+                    "task_index": record["task_index"],
+                    "sample_seed": record["sample_seed"],
+                    "decision_step_id": decision_step_id,
+                    "step_index": step_index,
+                    "variant": variant_name,
+                    "pair_group": f"{episode_name}:{step_index}",
+                    "memory_config": {
+                        "mode": mode,
+                        "budget": budget,
+                        "restored_event_step_ids": list(variant_selected),
+                    },
+                    "messages": _serialize_messages(
+                        messages, image_paths=image_rels
+                    ),
+                    "target_text": step["native_output"],
+                    "official_terminal_success": record[
+                        "official_terminal_success"
+                    ],
+                }
             )
-            image_rels = [
-                f"images/{episode_name}/step{step_id:03d}.png"
-                for step_id in selected
-            ] + [image_rel]
-        samples.append(
-            {
-                "schema_version": "causalcache.success_sft_sample.v1",
-                "episode": episode_name,
-                "task_type": record["task_type"],
-                "task_index": record["task_index"],
-                "sample_seed": record["sample_seed"],
-                "decision_step_id": decision_step_id,
-                "step_index": step_index,
-                "memory_config": {
-                    "mode": mode,
-                    "budget": budget,
-                    "restored_event_step_ids": list(selected),
-                },
-                "messages": _serialize_messages(
-                    messages, image_paths=image_rels
-                ),
-                "target_text": step["native_output"],
-                "official_terminal_success": record["official_terminal_success"],
-            }
-        )
         if "appended_event" not in step:
             continue
         after_path = image_dir / f"step{step_index + 1:03d}.png"
@@ -207,7 +257,11 @@ def render_episode(
                 f"{episode_name} step {step_index}: rebuilt post image SHA drifted"
             )
         history.append(event)
-    return samples
+    next_donors = [
+        f"images/{episode_name}/step{index:03d}.png"
+        for index in sorted(observations)[:8]
+    ]
+    return samples, next_donors
 
 
 def main() -> None:
@@ -218,6 +272,7 @@ def main() -> None:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--shared-early-decisions", type=int, default=2)
     parser.add_argument("--include-failures", action="store_true")
+    parser.add_argument("--contrast-variants", action="store_true")
     parser.add_argument("--episode-limit", type=int, default=0)
     args = parser.parse_args()
 
@@ -232,6 +287,7 @@ def main() -> None:
     samples_path = args.output_root / "samples.jsonl"
     episode_summaries: list[dict[str, Any]] = []
     rendered = 0
+    donor_chain: list[Any] | None = None
     with samples_path.open("w", encoding="utf-8") as handle:
         for run_root in args.run_root:
             for episode_path in sorted((run_root / "episodes").glob("*.json")):
@@ -243,11 +299,13 @@ def main() -> None:
                     continue
                 if args.episode_limit and rendered >= args.episode_limit:
                     break
-                samples = render_episode(
+                samples, donor_chain = render_episode(
                     episode_path=episode_path,
                     run_root=run_root,
                     ocr_provider=ocr_provider,
                     shared_early_decisions=args.shared_early_decisions,
+                    contrast_variants=args.contrast_variants,
+                    donor_images=donor_chain,
                 )
                 for sample in samples:
                     handle.write(
@@ -278,6 +336,7 @@ def main() -> None:
         "sample_count": sum(entry["samples"] for entry in episode_summaries),
         "shared_early_decisions": args.shared_early_decisions,
         "include_failures": args.include_failures,
+        "contrast_variants": args.contrast_variants,
         "memory_budgets": list(MEMORY_BUDGETS),
         "memory_modes": list(MEMORY_MODES),
         "ocr_backend_config_sha256": ocr_provider.backend_config_sha256,
