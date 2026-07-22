@@ -22,9 +22,9 @@ from causalcache.exploratory_closed_loop_memory import (
     candidate_event_step_ids_from_history,
 )
 from causalcache.independent_closed_loop_features import (
+    FROZEN_GATE_V1_OCR_BACKEND,
     live_history_event_from_transition,
 )
-from causalcache.gate_v1_provenance import FROZEN_GATE_V1_OCR_BACKEND
 from causalcache.policy.gui_owl_v2 import GUIOwlV2Action
 from causalcache.set_utility_androidworld import (
     PinnedOnlineOCRProvider,
