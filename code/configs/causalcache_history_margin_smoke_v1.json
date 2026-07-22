@@ -6,13 +6,18 @@
     "rank": 16,
     "alpha": 32,
     "dropout": 0.0,
-    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"],
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj"
+    ],
     "layer_scope": "all_language_model_layers",
     "vision_encoder": "frozen"
   },
   "training": {
-    "epochs": 1,
-    "learning_rate": 5e-5,
+    "epochs": 3,
+    "learning_rate": 5e-05,
     "lr_schedule": "constant",
     "weight_decay": 0.0,
     "micro_batch_size": 1,
@@ -23,7 +28,10 @@
     "loss": "ce_correct_plus_ce_b0_plus_margin_vs_shuffled_irrelevant",
     "margin_lambda": 1.0,
     "margin_per_token": 0.02,
-    "margin_negatives": ["shuffled", "irrelevant"],
+    "margin_negatives": [
+      "shuffled",
+      "irrelevant"
+    ],
     "b0_ce_weight": 0.5,
     "heldout_episode_fraction": 0.15,
     "heldout_hash_salt": "history_margin_smoke_v1"
@@ -33,7 +41,8 @@
     "heldout_correct_minus_shuffled": "> 0 (CI)",
     "heldout_correct_minus_irrelevant": "> 0 (CI)",
     "heldout_b0_logprob_drift": "no material drop vs frozen baseline",
-    "note": "smoke only; no selector relabeling before all gates pass"
+    "note": "smoke only; no selector relabeling before all gates pass",
+    "cadence": "score heldout contrasts after every epoch checkpoint"
   },
   "data": {
     "source": "causalcache-success-sft-v1 (155 success episodes, contrast variants)",
