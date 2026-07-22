@@ -6,11 +6,13 @@
 
 ## 当前结论
 
-- **OSWorld frozen GUI-Owl capacity study 已冻结协议并完成代码接入，H100 实测进行中。** 每张 GPU 加载
-  一个冻结 GUI-Owl-1.5-8B replica，OSWorld 使用 recent at-most-B4 mixed-fidelity input；容量 sweep 将在
-  1/2/4/6 GPUs 下逐级增加 KVM environments，分别测吞吐、policy queue/generation latency 与 CPU/GPU
-  利用率。短程 capacity run 不作为 task-success 结果。协议见
-  [`docs/osworld_gui_owl_capacity_v1.md`](docs/osworld_gui_owl_capacity_v1.md)。
+- **OSWorld frozen GUI-Owl capacity study 已完成。** 8/8 正式点、每点 46/46 episodes、0 runner failure；
+  6 replicas 下 environment throughput 在 24 envs 达峰值 `1835.24 fresh tasks/hour`，30 envs 回落至
+  `1803.63`。固定 12 envs 时，1/2/4/6 replicas 的 throughput 基本不变，但 client p95 从
+  `12.18s` 降至 `6.94/3.39/3.06s`，说明 one-step wall time 受 VM reset/setup 限制，而 GPU 数决定 policy
+  尾延迟和多步余量。recent at-most-B4 的 5-image 真实请求也已通过。完整数字与边界见
+  [`docs/osworld_gui_owl_capacity_v1.md`](docs/osworld_gui_owl_capacity_v1.md)和
+  [`data/results/osworld_gui_owl_capacity_v1/`](data/results/osworld_gui_owl_capacity_v1/)。
 - **OSWorld runner v1 已完成真实 KVM live smoke。** runner 绑定官方 pinned `DesktopEnv`，覆盖 10 domains / 369
   tasks 的 inventory、受限 desktop action 到 PyAutoGUI 的安全映射、mixed-fidelity policy HTTP boundary、
   task-level 可断点 suite sharding 与原子 episode evidence。Hyper01 与 H100 的真实

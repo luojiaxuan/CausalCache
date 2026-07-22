@@ -36,7 +36,48 @@ invalid 会记录后继续，不用一个不可靠点阻止较低并发和 GPU s
 容量配置在 `code/configs/causalcache_osworld_capacity_h100_v1.json`。它与正式 benchmark config 分离，
 任何 `max_steps=1` 或 `pause_seconds=0.1` 数字都不得进入 paper success table。
 
-## 实现状态
+## 正式结果
+
+8/8 个点全部完成 46/46 episodes、0 runner failure。6 replicas 的 environment scaling 为：
+
+| Envs | Tasks/hour | Client p95 | Queue p95 | CPU idle | Mean GPU util/GPU |
+|---:|---:|---:|---:|---:|---:|
+| 6 | 863.79 | 1.96s | 0.00s | 84.27% | 1.73% |
+| 12 | 1359.04 | 3.06s | 1.33s | 78.88% | 2.65% |
+| 18 | 1565.58 | 3.24s | 1.36s | 73.80% | 3.10% |
+| **24** | **1835.24** | 4.27s | 2.30s | 68.73% | 3.60% |
+| 30 | 1803.63 | 3.86s | 1.60s | 68.30% | 3.75% |
+
+因此 `30 envs` 是本轮零失败测试上界，`24 envs` 是吞吐 knee；后者不是 hard reliability cap。
+
+固定 12 envs 的 GPU scaling 为：
+
+| Replicas | Tasks/hour | Client p95 | Queue p95 | Generation p95 |
+|---:|---:|---:|---:|---:|
+| 1 | 1395.08 | 12.18s | 10.31s | 1.83s |
+| 2 | 1360.42 | 6.94s | 5.09s | 2.02s |
+| 4 | 1398.74 | 3.39s | 1.52s | 2.02s |
+| 6 | 1359.04 | 3.06s | 1.33s | 1.98s |
+
+GPU 数量没有改变 one-step task throughput，却把 policy p95 大幅压低。原因是 Chrome task reset/setup 占据
+wall time，而每个 task 只有一次 policy request。该 workload 下单 GPU nonzero utilization fraction 已达
+69.17%；六个 replica 分摊相同请求后，每卡平均利用率只有 2.65%。这是 duty-cycle 证据，不是 inference
+没有使用 GPU。
+
+recent at-most-`B=4` 另做真实多图请求：4 张恢复历史截图 + 当前截图成功生成 action，`image_count=5`、
+`prompt_tokens=2866`、generation=`2.012s`、peak allocated HBM=`17.22 GiB`。因此容量主 sweep 虽然只执行
+一步，mixed-fidelity B4 输入路径本身已经通过。
+
+## 推荐 topology
+
+- 正式多步 closed-loop 默认从 `6 GPUs + 12 envs` 开始：它保留最低 p95 与更充足的 steady-state policy
+  余量；
+- 只追求 VM reset/setup throughput 时使用 `6 GPUs + 24 envs`；
+- 不默认使用 30 envs，因为吞吐相对 24 envs 已下降 1.72%；
+- full closed-loop 不能直接沿用 `1835 tasks/hour`。真实 episode 有多步、action settle、task evaluator 和跨域
+  setup，必须在正式 roster 上重新测 steady-state queue 与 wall time。
+
+## 实现与 Source of Truth
 
 - `code/causalcache/osworld_gui_owl.py`：mixed-fidelity prompt、normalized desktop action parser、冻结
   Transformers runtime；
@@ -44,10 +85,15 @@ invalid 会记录后继续，不用一个不可靠点阻止较低并发和 GPU s
 - `code/scripts/run_osworld_multienv.py`：支持 runtime endpoint count override、evenly-spaced roster 和容量
   aggregate；
 - focused unit tests 已覆盖 recent 恢复截图绑定、坐标转换、键盘/滚动/终止 action；
-- H100 raw 根目录预定为 `/data/jaxan/osworld-capacity/`，当前为
-  `LOCAL_INFRASTRUCTURE_ARTIFACT`，不上传 Hugging Face。
-
-实测完成后，本文件追加数字表、瓶颈归因和推荐 topology。
+- H100 raw root：`/data/jaxan/osworld-capacity/sweep-780ef47/`；B4 smoke：
+  `/data/jaxan/osworld-capacity/recent-b4-smoke-780ef47.json`；
+- 轻量 reduction 与完整 provenance：
+  [`data/results/osworld_gui_owl_capacity_v1/`](../data/results/osworld_gui_owl_capacity_v1/)；
+- source revision=`780ef4729c79c92102d16ab06ef11332a4af5680`，OSWorld=
+  `b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf`，model revision=
+  `06d5faecff74840bab2be2425e9c42667a5d04fc`；
+- raw traces 标记为 `LOCAL_INFRASTRUCTURE_ARTIFACT`，不上传 Hugging Face。Git 保存 reducer、轻量结果和
+  provenance。
 
 ## Invalid attempt
 

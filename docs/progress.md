@@ -1,5 +1,19 @@
 # 项目进展
 
+## 2026-07-22：OSWorld frozen GUI-Owl 并发调查完成
+
+- H100 上每卡一个 frozen BF16 GUI-Owl-1.5-8B replica，正式测试 1/2/4/6 GPUs 与
+  6/12/18/24/30 KVM environments；8/8 points、每点 46/46 Chrome episodes、0 failure；
+- 6 replicas 下 peak throughput 在 24 envs：`1835.24 fresh tasks/hour`；30 envs 回落至 `1803.63`，故
+  24 是 throughput knee，30 是本轮零失败测试上界而非 hard cap；
+- 固定 12 envs 时，1/2/4/6 GPUs 的 throughput 均约 1.36k--1.40k tasks/hour，但 client p95=
+  `12.18/6.94/3.39/3.06s`。one-step wall time 受 VM reset/setup 限制，GPU scaling 主要降低 queue tail；
+- recent at-most-B4 的 5-image mixed-fidelity 请求已通过，generation=`2.012s`、peak allocated HBM=
+  `17.22 GiB`；正式多步默认建议 6 GPUs + 12 envs，setup-throughput 模式建议 6 GPUs + 24 envs；
+- raw root=`/data/jaxan/osworld-capacity/sweep-780ef47/`，轻量结果见
+  [`osworld_gui_owl_capacity_v1`](../data/results/osworld_gui_owl_capacity_v1/README.md)。6-GPU policy container
+  已停止，GPU 0--5 已释放。
+
 ## 2026-07-21：selector boundary cache 完成，adaptation training 开始
 
 - 旧 budget-deferral evaluation 已在 truth access 前停止，`truth read=0`；该路线不再继续；
