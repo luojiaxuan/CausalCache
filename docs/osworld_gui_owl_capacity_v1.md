@@ -28,9 +28,10 @@ evaluator 与 policy 等待时间。
 - 最佳并发点必须满足 0 runner failure，且相对更低并发有实质吞吐收益。若吞吐进入平台或 p95 queue
   急剧上升，较高并发不作为默认值。
 
-实际矩阵避免全笛卡尔积：GPU 轴固定 `24 env / 46 Chrome tasks` 测 `1/2/4/6 replicas`；environment 轴固定
-`6 replicas / 46 Chrome tasks` 测 `6/12/18/24/30 envs`。每点由独立 output root 保存 episode completion、
-`nvidia-smi`、`vmstat` 与 runner log；任一点失败即停止，不用后续点掩盖。
+实际矩阵避免全笛卡尔积：先在 `6 replicas / 46 Chrome tasks` 下测 `6/12/18/24/30 envs`，找最后一个
+零失败 environment 点；再固定保守的 `12 env / 46 tasks` 测 `1/2/4/6 replicas`（6-GPU/12-env 点复用环境轴
+结果）。每点由独立 output root 保存 episode completion、`nvidia-smi`、`vmstat` 与 runner log。高并发点
+invalid 会记录后继续，不用一个不可靠点阻止较低并发和 GPU scaling。
 
 容量配置在 `code/configs/causalcache_osworld_capacity_h100_v1.json`。它与正式 benchmark config 分离，
 任何 `max_steps=1` 或 `pause_seconds=0.1` 数字都不得进入 paper success table。
@@ -65,3 +66,7 @@ tasks；跨域下载/setup 长尾属于 full benchmark wall-time 问题，不能
 分配 lock 仍保留，但 10 秒硬编码 timeout 导致 3 个 worker 失败；另一个 state 的模型输出合法
 `computer_use(action=click)`，而 adapter 只接受 `left_click`。前者改为 config-bound 180 秒（不移除 lock），
 后者按 OSWorld 官方 GUI-Owl parser 的既有做法兼容 `click/drag` aliases。该 attempt 不进入曲线。
+
+`sweep-1596be2` 验证 lock timeout 与 parser alias 修复均生效，但 `24 env` 在 41/46 后出现一次 VM container
+reset `Docker NotFound`。这被视为“24 env 可能超过可靠性 knee”的正当容量观测，而不是继续修到该点强行
+通过；最终矩阵因此按 6→30 env 递增，并把 GPU scaling 固定在 12 env。

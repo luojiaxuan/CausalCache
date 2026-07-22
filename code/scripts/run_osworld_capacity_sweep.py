@@ -111,6 +111,7 @@ def main() -> None:
         "policy_ip": policy_ip,
         "policy_health": health,
         "points": [],
+        "invalid_point_count": 0,
     }
     _atomic_json(output_root / "capacity-sweep.json", aggregate)
 
@@ -234,16 +235,28 @@ def main() -> None:
             "driver_return_code": return_code,
             "outer_wall_seconds": wall_seconds,
             "benchmark_summary": summary,
+            "valid": (
+                return_code == 0
+                and summary is not None
+                and not summary.get("failures")
+                and summary.get("completed") == tasks
+            ),
         }
         aggregate["points"].append(record)
+        if not record["valid"]:
+            aggregate["invalid_point_count"] += 1
         _atomic_json(output_root / "capacity-sweep.json", aggregate)
         print(json.dumps(record, ensure_ascii=False, sort_keys=True), flush=True)
-        if return_code != 0 or summary is None or summary.get("failures"):
+        if not record["valid"] and not config.get("continue_after_invalid_point", False):
             aggregate["status"] = "PARTIAL_OSWORLD_CAPACITY_SWEEP"
             _atomic_json(output_root / "capacity-sweep.json", aggregate)
             raise SystemExit(1)
 
-    aggregate["status"] = "COMPLETE_OSWORLD_CAPACITY_SWEEP"
+    aggregate["status"] = (
+        "COMPLETE_OSWORLD_CAPACITY_SWEEP"
+        if aggregate["invalid_point_count"] == 0
+        else "COMPLETE_OSWORLD_CAPACITY_SWEEP_WITH_INVALID_POINTS"
+    )
     aggregate["completed_at"] = datetime.now(timezone.utc).isoformat()
     _atomic_json(output_root / "capacity-sweep.json", aggregate)
 

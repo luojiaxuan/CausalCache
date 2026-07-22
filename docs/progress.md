@@ -4703,3 +4703,5 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - Chrome-only 24-env point 发现官方 port-allocation file lock 的硬编码 10 秒 timeout（3 个 worker）与
   GUI-Owl `click` alias parser mismatch（1 个 worker）。lock 本身保留，H100 config timeout 提高到 180 秒；
   parser 只补官方兼容的 `click/drag` aliases。该 attempt 记 invalid 后全矩阵重跑。
+- 修复后 24-env point 在 41/46 后出现 1 次 VM reset `Docker NotFound`，表明 24 env 可能越过可靠性 knee。
+  capacity 顺序改为先测 6/12/18/24/30 env，再在保守 12 env 下测 1/2/4/6 GPU；invalid 高并发点记录后继续。
