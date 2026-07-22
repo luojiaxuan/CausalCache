@@ -4800,3 +4800,13 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   ssh 直传 + sha256 双端校验后重跑;涉事打分全部作废重出。
 - 按预注册规则冻结 v3-e1(hyper01 eval 目录,SHA 见 assay 记录),启动 dev 化验尺:ceiling v1 冻结
   协议 + LoRA,4 臂 × 15 模板 × 3 实例 = 180 局,hyper01 4 卡 12 worker,对照原 STORY_DEAD 裁决。
+
+## 2026-07-22:化验尺 v1(适配 policy)中场诊断——teacher-forced 与自由生成的第二层 dissociation
+
+- 中场 100/180:四臂全面塌方(合计 2 胜,冻结基线同协议 ~15%);LoRA 加载正确(144 模块)。
+- 失败模式:parse 死亡 37%(冻结 ~22%),典型为 wait 带多余 text 参数——margin/CE 训练把自由生成
+  的格式细节带偏;门禁只认证了 teacher-forced 的 p(a*|prompt),未覆盖贪心自由生成的语法保持,
+  −0.008 的漂移在 30 步复利 + 一击毙命协议下放大为全线崩溃。
+- 修复双轨:(1) 化验尺 v2 = parse 失败允许一次采样重试,冻结/适配 policy 配对跑(4 条件 × 45 局),
+  干净隔离"内容敏感性→成功率";(2) α 缩放(LoRA 加载时 alpha 打折)zero-cost 旋钮,先过门禁找
+  内容保留/格式稳定的甜点。180 局照常跑完留档。
