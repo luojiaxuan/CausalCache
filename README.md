@@ -16,6 +16,13 @@
   [`docs/osworld_runner_v1.md`](docs/osworld_runner_v1.md)，证据见
   [`data/results/osworld_runner_v1_smoke/`](data/results/osworld_runner_v1_smoke/)和
   [`data/results/osworld_runner_v1_h100_smoke/`](data/results/osworld_runner_v1_h100_smoke/)。
+- **OSWorld benchmark acceleration v1 已接通 12-env / 2-GPU topology。** 官方 `test_nogdrive.json` 被
+  fail-closed 验证为从 369 tasks 只排除 8 个 Google Drive `multi_apps` tasks，正式可运行 denominator 为
+  361。H100 上 12 个并发 KVM environments 经动态任务队列轮询两个独立 H100 policy replicas，完成 12/12
+  infrastructure episodes、24/24 requests、0 runner failure；重复运行 12/12 task-level resume。该 smoke
+  使用 `WAIT→DONE`，不构成 policy score 或完整 benchmark 时间 claim。方案、排除清单和正式吞吐建议见
+  [`docs/osworld_benchmark_acceleration_v1.md`](docs/osworld_benchmark_acceleration_v1.md)，轻量证据见
+  [`data/results/osworld_benchmark_h100_smoke_v1/`](data/results/osworld_benchmark_h100_smoke_v1/)。
 - **主线已转为 selector-side GUI-Owl LoRA；旧 budget-deferral evaluation 已在读取 truth 前停止。**
   旧 evaluation 的 `truth read=0`，partial receipts 仅作为可恢复执行记录保留，不产生结果。Teacher/action
   policy 始终是原始 frozen GUI-Owl；LoRA 只更新 selector encoder，因此现有 restoration labels 继续有效。

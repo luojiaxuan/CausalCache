@@ -4662,3 +4662,24 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 结果见
   [`data/results/osworld_runner_v1_h100_smoke/`](../data/results/osworld_runner_v1_h100_smoke/)。score=`0.0` 只表示
   `WAIT -> DONE` 未解决任务，不是 policy performance。
+
+## 2026-07-22：OSWorld 12-env / 2-H100 benchmark infrastructure
+
+- 官方文档确认 AWS 加速来自 environment parallelization：最高约 50 env；单机 Docker 官方经验为 8 或 16
+  env。官方同时允许跳过 8 个 Google Drive tasks，使用 `test_nogdrive.json` 的 361-task denominator。
+- 新 benchmark config 对 pinned revision、369/361/8 counts 与 8 个 `(domain, task_id)` 差集逐项 fail closed；
+  不把普通 Google/Chrome task 误删为 Google Drive task。
+- 新 multi-env runner 使用动态 task queue、每 worker 复用一个 VM、task-level completion marker、失败后重建
+  environment 和 worker→policy replica 轮询；两个常驻 GPU HTTP replicas 与 environment/KVM 生命周期解耦。
+- H100 preflight 发现 0--7 均空闲，选择 GPU 0/1。policy launcher 前两次分别因 host/container mount path 与
+  `PYTHONPATH` 不一致在服务启动前 exit 1，未产生 episode；改用标准 `/data` mount path 后两个 replicas 均
+  识别为 `NVIDIA H100 80GB HBM3`。
+- 2-env/4-task smoke：4/4、0 failure、8 requests，episode makespan=`46.870s`、task time sum=`78.758s`；
+  12-env/12-task stress smoke：12/12、0 failure、24 requests，两个 replicas 各 12 requests，12 workers 均 exit
+  0，episode makespan=`28.509s`、task time sum=`75.164s`。相同命令第二次 12/12 resume；无残留 VM/policy
+  container，GPU 0/1 已释放。
+- smoke 固定 `WAIT -> DONE`、2 steps，因此不能外推真实 361-task wall time，也不能解释其中 1 个初始即满足
+  evaluator 的非零 score。正式估时必须接入真实 GUI-Owl desktop policy 后，用 committed `max_steps=50`、
+  `pause_seconds=2.0` 测量。
+- 设计与清单：[`osworld_benchmark_acceleration_v1.md`](osworld_benchmark_acceleration_v1.md)；轻量结果：
+  [`data/results/osworld_benchmark_h100_smoke_v1/`](../data/results/osworld_benchmark_h100_smoke_v1/)。

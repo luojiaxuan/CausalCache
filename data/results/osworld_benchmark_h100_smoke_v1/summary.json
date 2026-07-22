@@ -1,0 +1,79 @@
+{
+  "schema_version": "causalcache.osworld.benchmark_smoke.v1",
+  "status": "VALID_OSWORLD_12_ENV_2_H100_INFRASTRUCTURE_SMOKE",
+  "causalcache_git_revision": "d2e084108ee9918419f052b3d1bcd4a86ed8c436",
+  "osworld_git_revision": "b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf",
+  "benchmark_config_sha256": "7bdbd03a9fb05dcede7ff42ccd73a0dd91cf0bbf0b030b87948f29e12dcadfc0",
+  "host": {
+    "alias": "h100",
+    "hostname": "host-85-234-79-62",
+    "gpu_model": "NVIDIA H100 80GB HBM3",
+    "selected_gpu_ids": [0, 1],
+    "outer_image_digest": "sha256:5d55594d45b86821e612f99349e1f239e2177adbc0b6dfdfe4250e1a1d00acbd",
+    "osworld_vm_image_digest": "sha256:0e6497a9295647cf05bf2b2af522fdd79bdeba2737595259cab310a3bcf6baa9"
+  },
+  "roster": {
+    "full_task_count": 369,
+    "selected_task_count": 361,
+    "excluded_google_drive_task_count": 8,
+    "selected_meta_path": "evaluation_examples/test_nogdrive.json",
+    "validation_status": "VALID_OSWORLD_MULTIENV_PREFLIGHT"
+  },
+  "two_environment_smoke": {
+    "environment_workers": 2,
+    "policy_replicas": 2,
+    "tasks": 4,
+    "completed": 4,
+    "failures": 0,
+    "policy_requests": 8,
+    "episode_makespan_seconds": 46.870491,
+    "sum_episode_seconds": 78.758257
+  },
+  "twelve_environment_smoke": {
+    "environment_workers": 12,
+    "policy_replicas": 2,
+    "tasks": 12,
+    "completed": 12,
+    "failures": 0,
+    "policy_requests": 24,
+    "policy_requests_by_replica": {"0": 12, "1": 12},
+    "worker_exit_codes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "episode_makespan_seconds": 28.509023,
+    "sum_episode_seconds": 75.163988,
+    "resume_completed": 12,
+    "resume_skips": 12
+  },
+  "interpretation": {
+    "actions": ["WAIT", "DONE"],
+    "max_steps": 2,
+    "pause_seconds": 0.1,
+    "policy_or_scientific_result": false,
+    "full_benchmark_runtime_claim_allowed": false
+  },
+  "invalid_infrastructure_attempts": [
+    {
+      "classification": "INVALID_CONTAINER_MOUNT_PATH",
+      "episodes_started": 0
+    },
+    {
+      "classification": "INVALID_CONTAINER_PYTHONPATH",
+      "episodes_started": 0
+    }
+  ],
+  "cleanup": {
+    "policy_containers_remaining": 0,
+    "osworld_vm_containers_remaining": 0,
+    "selected_gpus_released": true
+  },
+  "raw_artifacts": [
+    {
+      "location": "/data/jaxan/osworld-benchmark/smoke-d2e0841",
+      "status": "LOCAL_INFRASTRUCTURE_SMOKE_NOT_A_PAPER_ARTIFACT"
+    },
+    {
+      "location": "/data/jaxan/osworld-benchmark/smoke12-d2e0841",
+      "status": "LOCAL_INFRASTRUCTURE_SMOKE_NOT_A_PAPER_ARTIFACT"
+    }
+  ],
+  "hugging_face_upload_required": false
+}

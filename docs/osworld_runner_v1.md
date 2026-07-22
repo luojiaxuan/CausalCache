@@ -154,6 +154,9 @@ runner 锁死到单一模型服务。
 | scripted executor smoke actions | `data/fixtures/osworld_scripted_smoke_actions.json` |
 | live smoke summary | `data/results/osworld_runner_v1_smoke/` |
 | H100 portability smoke summary | `data/results/osworld_runner_v1_h100_smoke/` |
+| concurrent benchmark launcher | `code/scripts/run_osworld_multienv.py` |
+| H100 benchmark profile | `code/configs/causalcache_osworld_benchmark_h100_v1.json` |
+| acceleration design and no-GDrive roster | `docs/osworld_benchmark_acceleration_v1.md` |
 
 真实 rollout screenshots、trajectory traces 和 recordings 只写 persistent storage；形成可复用 benchmark artifact
 后上传 Hugging Face，Git 仅保存 manifest、revision 和轻量 summary。
