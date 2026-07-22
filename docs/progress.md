@@ -4854,3 +4854,23 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   builder,变体沿用路径级重排);(3) trainer 加 per-rank 预取线程(CPU 编码与 GPU 重叠);
   (4) hyper00 六卡 recipe v2 训练,总步 ~300 级,25-50 步 checkpoint + 门禁(轨迹级哈希 heldout);
   (5) AndroidWorld 配对化验尺零样本评测。化验尺 v2(配对)仍在跑。
+
+## 2026-07-22:Odyssey 源表勘察完毕——渲染器可写,全部事实如下(续跑锚点)
+
+- 源表:`/data02/jaxan/artifacts/causalcache-set-utility-variable-history-source-v1-a7213db/
+  trajectory-shards/shard-NNN-of-256.parquet`(双机同备份)。行 = 轨迹:columns = decision_count /
+  history_events_json / images(PNG bytes 列表,observation-000..N)/ ocr_records_json /
+  raw_messages / raw_metadata / role / source_id / task_instruction / transport_*。
+- **事件 schema 与闭环同构**:history_events_json 的 low_fidelity_summary 字段 = low_fidelity_v2
+  规范(foreground_app/executor_result= unknown ✓),post 图 = observation-{k}.png,OCR 在
+  ocr_records_json——可直接构造 LiveRichEvent mapping 喂冻结 mixed-fidelity builder,训练 prompt
+  与 AndroidWorld 闭环逐字节同构(零样本迁移的关键)。
+- **目标动作**:raw_messages = 20 组 user/assistant;assistant content = [inline_reasoning, 工具
+  调用部件]——每决策的人类动作已是官方格式部件,target_text 直接重构(勘察时只看了 part0,写渲染
+  器时先打印 assistant[0] 全部 parts 确认工具部件字段名)。
+- state 母表:causalcache-variable-history-context-v2-1285ba8/state-context.jsonl(12,792 fit,
+  role=train,state_id=source_id:decision:NNN,history_bin 分层)。
+- 渲染器待写:code/scripts/build_odyssey_sft_dataset.py——按 state 母表过滤 fits,每 state 产
+  correct/b0/shuffled/irrelevant 四变体(逻辑照抄 build_success_sft_dataset:同 hash 混采、路径级
+  重排、donor 跨轨迹),图像写 output images/<source_id>/observation-NNN.png;--workers 进程池。
+  然后 trainer 加 per-rank 预取线程,hyper00 六卡 recipe v2 训练(总步 ~300 级,25 步 checkpoint)。
