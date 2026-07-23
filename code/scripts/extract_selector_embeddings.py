@@ -133,7 +133,12 @@ def run_events(args, torch) -> None:
         )
         grid = features["image_grid_thw"].to(device=args.device)
         with torch.inference_mode():
-            tokens = visual(pixel_values, grid_thw=grid).float()
+            out = visual(pixel_values, grid_thw=grid)
+            tokens = (
+                out.last_hidden_state if hasattr(out, "last_hidden_state") else out
+            ).float()
+        if tokens.dim() == 3:
+            tokens = tokens[0]
         torch.save(tokens.mean(0).half().cpu(), args.output / f"{key}.pt")
     print(json.dumps({"role": "events", "shard": args.shard_index, "status": "done"}))
 
