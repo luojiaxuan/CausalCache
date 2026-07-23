@@ -33,11 +33,12 @@ SYSTEM_BUTTONS = {"HOME": "Home", "BACK": "Back", "KEY_HOME": "Home", "KEY_BACK"
 
 
 def _scale(point: Any, resolution: tuple[int, int]) -> tuple[int, int]:
+    # note (luojiaxuan): GUIOdyssey 官方注释坐标已归一化到 [0,1000),直接映射到
+    # [0,999],绝不除设备分辨率(v1 曾二次归一化导致点击整体拽向左上,0/90 主因)。
     x, y = point
-    width, height = resolution
     return (
-        max(0, min(999, round(float(x) / width * 999))),
-        max(0, min(999, round(float(y) / height * 999))),
+        max(0, min(999, round(float(x) * 999 / 1000))),
+        max(0, min(999, round(float(y) * 999 / 1000))),
     )
 
 
@@ -47,6 +48,12 @@ def action_from_annotation(
     kind = step["action"].upper()
     info = step.get("info")
     if kind == "CLICK":
+        if isinstance(info, str):
+            if info in ("KEY_HOME",):
+                return GUIOwlV2Action(action="system_button", button="Home")
+            if info in ("KEY_BACK",):
+                return GUIOwlV2Action(action="system_button", button="Back")
+            return None
         if isinstance(info, (list, tuple)) and info and isinstance(info[0], (list, tuple)):
             return GUIOwlV2Action(action="click", coordinate=_scale(info[0], resolution))
         return None
@@ -126,6 +133,8 @@ def render_trajectory(
             pass
         resolution = tuple(others.get("resolution", ())) or None
     if not resolution or len(resolution) != 2:
+        return []
+    if str(annotation["steps"][-1].get("action", "")).upper() != "COMPLETE":
         return []
     steps_by_index = {int(s["step"]): s for s in annotation["steps"]}
 
