@@ -203,6 +203,16 @@ def _summarize_group(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _percentile(values: Sequence[float], fraction: float) -> float:
+    ordered = sorted(values)
+    position = (len(ordered) - 1) * fraction
+    lower = math.floor(position)
+    upper = math.ceil(position)
+    if lower == upper:
+        return ordered[lower]
+    return ordered[lower] * (upper - position) + ordered[upper] * (position - lower)
+
+
 def summarize_records(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     summary = _summarize_group(records)
     modes = sorted({str(record.get("input_mode")) for record in records})
@@ -239,6 +249,22 @@ def summarize_records(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         )
         for domain in domains
     }
+    if all(isinstance(record.get("generation"), Mapping) for record in records):
+        seconds = [float(record["generation"]["generation_seconds"]) for record in records]
+        generated_tokens = [int(record["generation"]["generated_tokens"]) for record in records]
+        prompt_tokens = [int(record["generation"]["prompt_tokens"]) for record in records]
+        summary["generation_runtime"] = {
+            "seconds_mean": sum(seconds) / len(seconds),
+            "seconds_p50": _percentile(seconds, 0.50),
+            "seconds_p95": _percentile(seconds, 0.95),
+            "seconds_per_generated_token": sum(seconds) / sum(generated_tokens),
+            "generated_tokens_total": sum(generated_tokens),
+            "prompt_tokens_mean": sum(prompt_tokens) / len(prompt_tokens),
+            "peak_gpu_memory_allocated_bytes_max": max(
+                int(record["generation"]["peak_gpu_memory_allocated_bytes"])
+                for record in records
+            ),
+        }
     return summary
 
 
