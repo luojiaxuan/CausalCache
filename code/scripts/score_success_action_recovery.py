@@ -20,6 +20,13 @@ from scripts.train_success_sft_lora import (
     inject_lora,
     load_lora_state_dict,
 )
+
+# note (luojiaxuan): history_sample_context 只在 history-gated 分支的 trainer 里
+# 定义;full-policy 打分路径不需要它,惰性导入避免 main 上硬 import 缺失函数报错。
+try:
+    from scripts.train_success_sft_lora import history_sample_context
+except ImportError:
+    history_sample_context = None
 from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntime
 
 
