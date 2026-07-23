@@ -4796,3 +4796,23 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 本 pilot 不含 learned selector，不扩跑完整 361-task OSWorld。结果见
   [`data/results/osworld_transfer_pilot_v1/`](../data/results/osworld_transfer_pilot_v1/)和
   [`docs/osworld_transfer_pilot_v1.md`](osworld_transfer_pilot_v1.md)。
+
+## 2026-07-23:history-gated 新主线从零到正式训练(exp/history-gated-mainline-v1)
+
+- 分支建于 main@43468dc,provenance + V1 契约冻结(docs/history_gated_mainline_v1.md)。
+- 实现(工作流 5 agent):history_adapter_context(ContextVar)/history_token_roles(fail-closed
+  mask)/history_gated_lora(B0 零运算 bypass)+ trainer/scorer 集成(full-layer 老路零改动),
+  对抗性契约审查 7/7 PASS,单测 25/25。
+- **B0 bitwise parity 真模型验证 PASS**(3 样本 max_abs_diff=0.0,16 注入模块),经完整打分管线
+  复验漂移 +0.000000(n=76)——架构不变量端到端成立。
+- debug 链(全部入 V1.1 备注):梯度检查点重算跑在 autograd 线程 → ContextVar(线程局部)读空
+  → 张量数不一致崩溃;修复 = 两遍法(no-grad 求值+次梯度权重,再逐变体 scope 内带梯度前向并
+  立即 backward,同时只活一张图)+ history 模式禁用梯度检查点(全激活单图 H200 可容)。
+  另:scorer 加载需显式 --lora-rank 8 --lora-alpha 16。
+- smoke(15 步)机械项全绿;正式训练发射(hyper00 六卡,ody-sft-v2 修正数据,6,807 组单元,
+  165 heldout 轨迹,300 步上限,25 步一档,run root /data02/jaxan/runs/hgkv-formal-v1)。
+- 滚动 gate(hyper01,v2 探针包+分支快照已铺):s25 三对照全部正向移动(c−b0 +0.0635→+0.0692,
+  c−shuf −0.0169→−0.0160,c−irrel −0.0121→−0.0118),parity 精确;注意 v2 修正目标下冻结模型
+  c−b0 本已为正(+0.0635),gate 判定点 = 内容对照 CI 转正处。s50/s75 探针滚动中。
+- 同日:full-layer Odyssey salvage 线收档(离线 gate 全过 + canary 提前终止残留),为本主线
+  动机证据;全 Docker 隐匿化(sglang-omni-jaxan 命名 + jaxanluo/sglang-omni:{dev,env} 镜像)。
