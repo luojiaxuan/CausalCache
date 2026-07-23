@@ -26,6 +26,9 @@ def main() -> None:
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--ocr-model-dir", type=Path, required=True)
     parser.add_argument("--ceiling-plan", type=Path, required=True)
+    # note (luojiaxuan): sealed 零样本评测(合同第 12 步)专用开关;默认不传时
+    # _load_plan_instance 对 split=="test" 的拒绝保持原样,dev/canary 不受影响。
+    parser.add_argument("--allow-sealed-split", action="store_true")
     parser.add_argument("--shared-early-decisions", type=int, required=True)
     parser.add_argument("--device", required=True)
     parser.add_argument("--lora-checkpoint", type=Path, default=None)
@@ -183,6 +186,7 @@ def main() -> None:
             ocr_model_dir=args.ocr_model_dir,
             validation12_manifest=None,
             ceiling_plan=args.ceiling_plan,
+            allow_sealed_split=args.allow_sealed_split,
             task_index=task_index,
             shared_early_decisions=args.shared_early_decisions,
             parse_retries=args.parse_retries,

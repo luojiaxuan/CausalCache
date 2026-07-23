@@ -10,6 +10,7 @@ from typing import Any
 
 
 ALLOWED_SPLITS = ("train", "validation")
+SEALED_SPLITS = ("test",)
 
 
 def records_sha256(records: list[dict[str, Any]]) -> str:
@@ -24,8 +25,13 @@ def build_plan(
     stack: dict[str, Any],
     partition: dict[str, Any],
     split: str,
+    allow_sealed: bool = False,
 ) -> dict[str, Any]:
-    if split not in ALLOWED_SPLITS:
+    # note (luojiaxuan): sealed split 默认拒绝不变;只有显式 --allow-sealed-split
+    # (合同第 12 步协议冻结后)才允许实例化 test plan,防止误触 sealed 名单。
+    if split not in ALLOWED_SPLITS and not (
+        allow_sealed and split in SEALED_SPLITS
+    ):
         raise ValueError(f"refusing to instantiate sealed split: {split}")
 
     from android_world import registry as aw_registry_module
@@ -80,7 +86,10 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--stack-config", type=Path, required=True)
     parser.add_argument("--partition", type=Path, required=True)
-    parser.add_argument("--split", choices=ALLOWED_SPLITS, required=True)
+    parser.add_argument(
+        "--split", choices=ALLOWED_SPLITS + SEALED_SPLITS, required=True
+    )
+    parser.add_argument("--allow-sealed-split", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     return parser.parse_args()
 
@@ -89,7 +98,12 @@ def main() -> None:
     args = parse_args()
     stack = json.loads(args.stack_config.read_text(encoding="utf-8"))
     partition = json.loads(args.partition.read_text(encoding="utf-8"))
-    plan = build_plan(stack=stack, partition=partition, split=args.split)
+    plan = build_plan(
+        stack=stack,
+        partition=partition,
+        split=args.split,
+        allow_sealed=args.allow_sealed_split,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(plan, indent=2, sort_keys=True) + "\n", encoding="utf-8"
