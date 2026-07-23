@@ -105,7 +105,8 @@ def run_events(args, torch) -> None:
     wanted: set[tuple[str, int]] = set()
     for line in args.labels.open(encoding="utf-8"):
         row = json.loads(line)
-        source_id = row["pair_group"].split(":")[0]
+        source_id, decision = row["pair_group"].split(":")
+        wanted.add((source_id, int(decision)))  # 当前观测图,similarity 基线用
         for cand in row["candidates"]:
             step = int(cand)
             wanted.add((source_id, step))
