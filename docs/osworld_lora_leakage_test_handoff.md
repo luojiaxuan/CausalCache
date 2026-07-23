@@ -47,3 +47,13 @@ frozen / +s75(α32) / +s75(α16) / +v1b-s60(α32)。
 
 终止修复续训完成后:10 局 B0 迷你冒烟(验终止行为)→ 重发 AW 零样本化验尺 90 局。paper 主表
 在 AW 侧收敛;OSWorld 侧按你们测试结果定叙述档位。progress.md 有全量时间线。
+
+## 更新(2026-07-23):测试主角改为 AW-trained v3-e1
+
+- Odyssey 线闭环两连败(0/90×2,见 data/results/odyssey_zeroshot_closed_loop_v1/),其 checkpoint
+  不再是 OSWorld 测试候选。
+- **测试主角:AW-trained v3-e1**(闭环 +8.9pt CI 认证的那个):
+  - hyper00 `/data02/jaxan/runs/causalcache-margin-sft-v3/lora-epoch1.pt`
+  - hyper01 `/data02/jaxan/runs/causalcache-margin-sft-v3-eval/lora-epoch1.pt`(sha256 前缀 7122d897)
+- 建议测试条件:frozen / v3-e1(α32) / v3-e1(α16) 三条件;指标与判定规则不变(语法合法率 /
+  动作分布 / click 混写 / mobile 词汇硬渗漏)。若语法过关,可加跑少量 OSWorld 闭环任务看真实表现。
