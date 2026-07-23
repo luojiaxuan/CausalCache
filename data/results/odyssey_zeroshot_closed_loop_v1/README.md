@@ -61,3 +61,19 @@ GUI-Odyssey(约 900 条人类演示轨迹、201 个应用)训练,AndroidWorld �
 - 训练 checkpoints:hyper00 `/data02/jaxan/runs/causalcache-odyssey-margin-v1{,b}/`
 - 训练数据集:hyper00 `/data02/jaxan/artifacts/sft/causalcache-odyssey-sft-v1/`(动作分布见上)
 - 全部 `PENDING_HF_UPLOAD`
+
+## 更正(2026-07-23,复核后)
+
+**上文"人类演示分布负迁移"的归因撤回**。GPT session 复核仓库后指出、且数据验尸确认了两个工程 bug:
+
+1. **坐标被二次归一化**:GUIOdyssey 官方注释坐标本就归一化到 [0,1000)(400 条轨迹抽样 9,378 个
+   坐标点,0 个超过 1000,max=999、p95≈930——若是绝对像素,3120 高的屏上 y 的 p95 应达 ~2800)。
+   渲染器又除了一次设备分辨率,所有 click/swipe/long_press 目标被系统性拽向屏幕左上。
+   这解释了"语法完美、会点击、但永远点错位置"的全部闭环现象;
+2. **CLICK+KEY_\* 字符串动作被静默丢弃**(抽样中 KEY_HOME 498 / KEY_BACK 14 / KEY_APPSELECT 14,
+   约占动作 9%)——训练目标零 system_button 的直接原因;另有 ~4% INCOMPLETE 轨迹被硬标 success 混入。
+
+**因此前两轮 0/90 定性为 invalidated engineering runs,不构成 negative transfer 的科学证据**。
+已修复(坐标直映射 [0,999]、KEY_HOME/BACK→system_button、INCOMPLETE 轨迹排除),按限额 salvage
+方案重渲染重训(≤75 步、terminal 自然配比、四层 gate + 10 局 canary 后才准 90 局);paper 主线
+(v3-e1 + selector)不等待该支线。终止态过采样(前轮续训 terminal 占 1/3)的教训一并吸收。
