@@ -6,6 +6,11 @@
 
 ## 当前结论
 
+- **AndroidWorld v3-e1 的 OSWorld paired transfer pilot 已冻结。** 主角改为在 AndroidWorld
+  closed-loop 获得 `+8.9` percentage points 的 v3-e1（α32），与 frozen GUI-Owl 使用相同
+  no-Google-Drive evenly-spaced 30 tasks、recent at-most-B4 和 50-step 上限；task failure 按 0 分
+  留在固定 denominator。本实验隔离 policy transfer，不包含 learned selector。
+  [协议与判定](docs/osworld_v3_e1_transfer_pilot_v1.md)。
 - **terminal-s60 未在 30-task OSWorld closed-loop pilot 中超过 frozen GUI-Owl。** 相同 recent
   at-most-B4 memory 下，frozen/s60 mean score=`0.13333/0.07037`，score>0=`4/30` vs `3/30`；
   paired delta=`-0.06296`，95% CI=`[-0.22963,0.10370]`，3 wins / 4 losses / 23 ties。s60 将

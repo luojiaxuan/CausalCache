@@ -99,6 +99,31 @@ class OSWorldTransferTests(unittest.TestCase):
         self.assertEqual(
             summary["paired"]["mean_score_delta_terminal_s60_minus_frozen"], 0.0
         )
+        self.assertEqual(summary["paired"]["adapted_arm"], "terminal_s60")
+
+    def test_reduces_generic_adapted_arm(self) -> None:
+        config = {
+            "profiles": [
+                {"arm": "frozen"},
+                {"arm": "v3_e1"},
+            ]
+        }
+        identity = ("chrome", "a")
+        summary = reduce_transfer_results(
+            config=config,
+            arm_results={
+                "frozen": {identity: _result(0.0)},
+                "v3_e1": {identity: _result(1.0)},
+            },
+        )
+        self.assertEqual(summary["paired"]["adapted_arm"], "v3_e1")
+        self.assertEqual(summary["paired"]["adapted_wins"], 1)
+        self.assertEqual(
+            summary["paired"]["mean_score_delta_adapted_minus_frozen"], 1.0
+        )
+        self.assertEqual(
+            summary["paired"]["task_scores"][0]["adapted"], 1.0
+        )
 
     def test_bootstrap_is_deterministic(self) -> None:
         first = paired_bootstrap_ci([1.0, 0.0, -1.0], seed=7, draws=100)
