@@ -1,5 +1,21 @@
 # 项目进展
 
+## 2026-07-22：AndroidWorld v3-e1 OSWorld transfer pilot 完成
+
+- Hyper01 GPU0/1 同时运行 frozen GUI-Owl 与 AndroidWorld v3-e1 α32，固定 official no-Google-Drive
+  evenly-spaced 30 tasks、recent at-most-B4、50 steps、每臂 6 environments / 1 replica；
+- frozen/v3-e1 mean OSWorld score=`0.16667/0.13333`，score>0=`5/30` vs `4/30`；
+  paired delta=`-0.03333`，bootstrap 95% CI=`[-0.13333,0.06667]`，1 win / 2 losses /
+  27 ties，判定 `NO_EVIDENCE_OF_POSITIVE_OSWORLD_TRANSFER_V3_E1_V1`；
+- v3-e1 task-level HTTP 500 为 9/30，frozen 为 13/30；v3-e1 可执行性略好但 reward 更低；
+- v3-e1 mean/p95 policy latency=`12.90/15.23s`，frozen=`11.25/13.13s`；Torch allocator
+  peak 只增加约 64 MB。本轮两卡未被其他任务共享；
+- exact checkpoint SHA=`7122d897...f9c73b8`，formal code=`571ea60`；
+- raw：Hyper01 `/data01/jaxan/osworld-runner/v3e1-transfer-pilot-v1/raw`，
+  951,036,579 bytes / 2,301 files；Git summary SHA256=`b274b535...d0f2b`；
+- 当前不扩跑 361 tasks，不追加 α16；本实验不含 learned selector。结果见
+  [`data/results/osworld_v3_e1_transfer_pilot_v1/`](../data/results/osworld_v3_e1_transfer_pilot_v1/)。
+
 ## 2026-07-22：OSWorld mobile-LoRA grammar leakage gate 通过
 
 - official no-GDrive roster 等距抽取 30 prompts，覆盖 10 domains；真实 KVM fixture 30/30、0 failure，

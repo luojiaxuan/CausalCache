@@ -6,11 +6,14 @@
 
 ## 当前结论
 
-- **AndroidWorld v3-e1 的 OSWorld paired transfer pilot 已冻结。** 主角改为在 AndroidWorld
-  closed-loop 获得 `+8.9` percentage points 的 v3-e1（α32），与 frozen GUI-Owl 使用相同
-  no-Google-Drive evenly-spaced 30 tasks、recent at-most-B4 和 50-step 上限；task failure 按 0 分
-  留在固定 denominator。本实验隔离 policy transfer，不包含 learned selector。
-  [协议与判定](docs/osworld_v3_e1_transfer_pilot_v1.md)。
+- **AndroidWorld v3-e1 未在 30-task OSWorld paired pilot 中超过 frozen GUI-Owl。**
+  frozen/v3-e1 mean score=`0.16667/0.13333`，score>0=`5/30` vs `4/30`；paired delta=
+  `-0.03333`，95% CI=`[-0.13333,0.06667]`，1 win / 2 losses / 27 ties。v3-e1 将
+  task-level HTTP 500 从 13 降到 9，但可执行稳定性改善未转化为更高 reward。它能完成部分
+  desktop tasks，说明不是能力完全崩溃；但 AndroidWorld 的 `+8.9pt` 没有形成 OSWorld 正向迁移证据。
+  当前不扩跑完整 361-task OSWorld，也不追加 α16。本实验不含 learned selector。
+  [结果](data/results/osworld_v3_e1_transfer_pilot_v1/README.md)与
+  [详细边界](docs/osworld_v3_e1_transfer_pilot_v1.md)。
 - **terminal-s60 未在 30-task OSWorld closed-loop pilot 中超过 frozen GUI-Owl。** 相同 recent
   at-most-B4 memory 下，frozen/s60 mean score=`0.13333/0.07037`，score>0=`4/30` vs `3/30`；
   paired delta=`-0.06296`，95% CI=`[-0.22963,0.10370]`，3 wins / 4 losses / 23 ties。s60 将
@@ -267,6 +270,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | Processor substrate | [HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair) | immutable，23 files / 18.73 GB |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | GUI-Owl policy LoRA s75 / terminal-s60 | Hyper00 `/data02/jaxan/runs/causalcache-odyssey-margin-v1/lora-step75.pt`、`...odyssey-margin-v1b/lora-step60.pt`；intended private HF model repo `gavinlaw/causalcache-gui-owl-policy-lora-mobile` | SHA `90a56b7e...d56e` / `cba455cb...7b18`；`PENDING_HF_UPLOAD`；[desktop leakage PASS](data/results/osworld_lora_leakage_v1/README.md) |
+| AndroidWorld policy LoRA v3-e1 | Hyper00 `/data02/jaxan/runs/causalcache-margin-sft-v3/lora-epoch1.pt`；Hyper01 verified mirror `/data02/jaxan/runs/causalcache-margin-sft-v3-eval/lora-epoch1.pt`；intended private HF model repo `gavinlaw/causalcache-gui-owl-policy-lora-mobile` | SHA `7122d897...f9c73b8`；`PENDING_HF_UPLOAD`；AndroidWorld `+8.9pt`，但 [OSWorld transfer 无正向证据](data/results/osworld_v3_e1_transfer_pilot_v1/README.md) |
 | Dense image backfill | Hyper00 `/data02/jaxan/artifacts/causalcache-set-utility-dense-v1-backfill-d43a15c` | 42MB / 77 PNG；`PENDING_HF_UPLOAD` |
 | recent-4 label smoke | Hyper00 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-0d32187`；Hyper01 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-9671e45-partition-01` | stopped；4,033 states；`DEPRECATED_SMOKE_ONLY_RECENT4` |
 | Variable-history formal labels | Hyper00/Hyper01 `/data02/jaxan/runs/causalcache-set-utility-variable-history-labels-v1-969f2b9` | complete；11,721 completed + 25 skipped；`PENDING_HF_UPLOAD` |
