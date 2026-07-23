@@ -60,3 +60,13 @@ s75/s100 分别由 Odyssey margin-v2 探针与 [正式 gate v1](../data/results/
 
 hyper00 / hyper01 / H100;emulator 与 worker 1:1,单 GPU 单冻结 runtime,episode 间
 `empty_cache`;逐局原子写 checkpoint json,`--resume` 语义与上限实验一致。
+
+## 修订(2026-07-24,用户裁定):无效局不消耗重试额度
+
+- **无效局(void)定义**:`infrastructure_failure=True` 且 `model_step_count=0`(环境未初始化、
+  策略未行动)的记录属环境事故,**不计为该 cell 的第一次尝试,不消耗 infra 重试额度**;
+  隔离存证,不进任何分母。
+- "infra 失败可重试一次"仅适用于真实开跑后遭遇基础设施故障的局。
+- 实例:worker n5 绑定的 emulator(hyper01 28206)环境僵死,53 局全部 2.5 秒快速失败——
+  记录隔离于 `runs/sealed-matrix-v1/full-infra-void-28206/`(hyper01);其重跑(hyper00)为
+  正式第一次尝试,自身仍保有一次 infra 重试权。
