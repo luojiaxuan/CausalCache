@@ -4844,3 +4844,8 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   容器内固定绑 5000,由 -p 映射出去)。
 - 下一步 = 合同第 12 步 sealed 零样本评测矩阵:{Frozen, Full-layer(ody-margin-v2 s75),
   History-gated(hg-s100)} × {B0, Recent-B, Full-history} × sealed 名单;先冻结协议清单再发射。
+
+## 2026-07-24:sealed 矩阵发射(合同第 12 步)
+
+- 协议冻结 06722d4 后发射:hyper01 11 worker(gated×4/full×4/frozen×3,GPU 0/1/2/3/7,emulator 28200-28211 缺 28203),675 局 = 3 策略 × 225 cell(25 模板 × 3 instance × 3 臂),输出 /data02/jaxan/runs/sealed-matrix-v1/;预计 7-10h;
+- 发射前事故:首版布阵脚本把 cell 按策略三分(总数 225),断言后置未拦住执行——11 台误配 worker 在模型加载期全部击杀,0 局消费,封存集未受损;修正版每策略全量 225 cell、断言前置、门控执行。
