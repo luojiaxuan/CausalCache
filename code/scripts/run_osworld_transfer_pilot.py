@@ -31,6 +31,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--raw-root", type=Path, required=True)
     parser.add_argument("--cache-root", type=Path, required=True)
+    parser.add_argument("--path-to-vm", type=Path, required=True)
     parser.add_argument("--frozen-policy-endpoint", action="append", required=True)
     parser.add_argument("--terminal-policy-endpoint", action="append", required=True)
     return parser
@@ -88,6 +89,8 @@ def main() -> None:
                 str(arm_root),
                 "--cache-dir",
                 str(cache_root / arm),
+                "--path-to-vm",
+                str(args.path_to_vm.resolve()),
                 "--max-steps",
                 str(execution["max_steps"]),
                 "--pause-seconds",

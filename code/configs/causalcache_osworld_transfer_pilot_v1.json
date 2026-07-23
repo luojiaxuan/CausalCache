@@ -12,8 +12,8 @@
     "memory_budget": 4,
     "max_steps": 50,
     "pause_seconds": 2.0,
-    "environments_per_arm": 12,
-    "policy_replicas_per_arm": 3,
+    "environments_per_arm": 6,
+    "policy_replicas_per_arm": 1,
     "run_arms_concurrently": true
   },
   "profiles": [
