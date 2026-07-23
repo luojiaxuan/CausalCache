@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import io
 import json
 import re
@@ -74,6 +75,49 @@ GUI_OWL_OSWORLD_SYSTEM_PROMPT = (
 GUI_OWL_OSWORLD_FINAL_USER_INSTRUCTION = (
     "Call computer_use exactly once with the next executable desktop action."
 )
+
+
+def attach_gui_owl_lora(
+    runtime: Any,
+    *,
+    checkpoint: str | Path,
+    expected_sha256: str,
+    rank: int,
+    alpha: int,
+    target_modules: Sequence[str],
+    profile_id: str,
+) -> int:
+    """Attach a verified policy LoRA to an initialized GUI-Owl runtime."""
+    checkpoint_path = Path(checkpoint).expanduser().resolve()
+    digest = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()
+    if digest != expected_sha256:
+        raise ValueError("GUI-Owl LoRA checkpoint SHA256 drifted")
+    if rank <= 0 or alpha <= 0 or not target_modules:
+        raise ValueError("GUI-Owl LoRA parameters must be positive and non-empty")
+
+    from scripts.train_success_sft_lora import inject_lora, load_lora_state_dict
+
+    wrapped = inject_lora(
+        runtime.model,
+        rank=rank,
+        alpha=alpha,
+        target_modules=tuple(target_modules),
+        torch=runtime.torch,
+    )
+    state = runtime.torch.load(checkpoint_path, map_location="cpu")
+    load_lora_state_dict(wrapped, state)
+    runtime.metadata = {
+        **runtime.metadata,
+        "policy_profile_id": profile_id,
+        "lora_enabled": True,
+        "lora_checkpoint": str(checkpoint_path),
+        "lora_checkpoint_sha256": digest,
+        "lora_rank": rank,
+        "lora_alpha": alpha,
+        "lora_target_modules": list(target_modules),
+        "lora_module_count": len(wrapped),
+    }
+    return len(wrapped)
 
 
 def _decode_png(encoded: str) -> Any:
@@ -295,18 +339,20 @@ class GUIOwlOSWorldRuntime:
         self.generation_tokens = generation_tokens
         self.metadata = {
             "runtime_profile_id": GUI_OWL_OSWORLD_RUNTIME_PROFILE_ID,
+            "policy_profile_id": "frozen_gui_owl",
             "model_repo": identity.model_repo,
             "model_revision": identity.model_revision,
             "device": str(selected_device),
             "dtype": "torch.bfloat16",
             "frozen": True,
+            "lora_enabled": False,
             "torch_version": torch.__version__,
             "transformers_version": transformers.__version__,
             "effective_visual_tokens_per_image": effective_visual_tokens_per_image,
             "max_new_tokens": max_new_tokens,
         }
 
-    def generate(self, request: Mapping[str, Any]) -> tuple[DesktopAction, dict[str, Any]]:
+    def generate_raw(self, request: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
         messages = build_gui_owl_osworld_messages(request)
         encoded = self.processor.apply_chat_template(
             messages,
@@ -340,15 +386,7 @@ class GUIOwlOSWorldRuntime:
             skip_special_tokens=False,
             clean_up_tokenization_spaces=False,
         )[0]
-        try:
-            action = parse_gui_owl_osworld_action(
-                output_text, screen_size=tuple(request["screen_size"])
-            )
-        except ValueError as error:
-            raise ValueError(
-                f"GUI-Owl desktop action parse failed: {error}; output={output_text!r}"
-            ) from error
-        return action, {
+        return output_text, {
             **self.metadata,
             "prompt_tokens": prompt_tokens,
             "generated_tokens": int(new_tokens.shape[1]),
@@ -360,12 +398,25 @@ class GUIOwlOSWorldRuntime:
             "output_text": output_text,
         }
 
+    def generate(self, request: Mapping[str, Any]) -> tuple[DesktopAction, dict[str, Any]]:
+        output_text, metadata = self.generate_raw(request)
+        try:
+            action = parse_gui_owl_osworld_action(
+                output_text, screen_size=tuple(request["screen_size"])
+            )
+        except ValueError as error:
+            raise ValueError(
+                f"GUI-Owl desktop action parse failed: {error}; output={output_text!r}"
+            ) from error
+        return action, metadata
+
 
 __all__ = [
     "GUIOwlOSWorldRuntime",
     "GUI_OWL_OSWORLD_DEFAULT_MAX_NEW_TOKENS",
     "GUI_OWL_OSWORLD_DEFAULT_VISUAL_TOKENS",
     "GUI_OWL_OSWORLD_RUNTIME_PROFILE_ID",
+    "attach_gui_owl_lora",
     "build_gui_owl_osworld_messages",
     "parse_gui_owl_osworld_action",
 ]

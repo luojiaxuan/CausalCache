@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
 from causalcache.osworld_gui_owl import (
+    attach_gui_owl_lora,
     build_gui_owl_osworld_messages,
     parse_gui_owl_osworld_action,
 )
@@ -112,6 +116,24 @@ class OSWorldGUIOwlActionTests(unittest.TestCase):
         self.assertEqual(hotkey.keys, ("ctrl", "l"))
         self.assertEqual(scroll.dy, -4)
         self.assertEqual(done.type, "done")
+
+
+class OSWorldGUIOwlLoRATests(unittest.TestCase):
+    def test_rejects_checkpoint_digest_drift_before_loading(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            checkpoint = Path(directory) / "adapter.pt"
+            checkpoint.write_bytes(b"checkpoint")
+            observed = hashlib.sha256(checkpoint.read_bytes()).hexdigest()
+            with self.assertRaisesRegex(ValueError, "SHA256 drifted"):
+                attach_gui_owl_lora(
+                    object(),
+                    checkpoint=checkpoint,
+                    expected_sha256="0" * len(observed),
+                    rank=16,
+                    alpha=32,
+                    target_modules=("q_proj",),
+                    profile_id="test",
+                )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,43 @@
+{
+  "schema_version": "causalcache.osworld_transfer_pilot.v1",
+  "benchmark_config": "code/configs/causalcache_osworld_benchmark_h100_v1.json",
+  "osworld_revision": "b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf",
+  "selection": {
+    "roster": "official_test_nogdrive",
+    "mode": "evenly_spaced",
+    "task_count": 30
+  },
+  "execution": {
+    "memory_arm": "recent",
+    "memory_budget": 4,
+    "max_steps": 50,
+    "pause_seconds": 2.0,
+    "environments_per_arm": 6,
+    "policy_replicas_per_arm": 1,
+    "run_arms_concurrently": true
+  },
+  "profiles": [
+    {
+      "arm": "frozen",
+      "policy_profile_id": "frozen_gui_owl",
+      "checkpoint_sha256": null,
+      "lora_rank": null,
+      "lora_alpha": null,
+      "target_modules": []
+    },
+    {
+      "arm": "terminal_s60",
+      "policy_profile_id": "odyssey_terminal_s60_alpha32",
+      "checkpoint_sha256": "cba455cbfede5e091c06d8714ef000d5582adb46c4a5343fa8c0ab8c4ab47b18",
+      "lora_rank": 16,
+      "lora_alpha": 32,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]
+    }
+  ],
+  "primary_metrics": [
+    "mean_osworld_score",
+    "task_success_rate",
+    "paired_score_delta"
+  ],
+  "interpretation": "exploratory_cross_platform_transfer_pilot_not_full_benchmark"
+}

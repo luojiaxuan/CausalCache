@@ -185,6 +185,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--output-root", type=Path)
     parser.add_argument("--cache-dir", type=Path)
+    parser.add_argument("--path-to-vm", type=Path)
     parser.add_argument("--max-steps", type=int)
     parser.add_argument("--pause-seconds", type=float)
     parser.add_argument("--skip-evaluation", action="store_true")
@@ -291,7 +292,11 @@ def main() -> None:
         "output_root": str(output_root),
         "cache_dir": str(cache_dir),
         "provider": execution["provider"],
-        "path_to_vm": execution["path_to_vm"],
+        "path_to_vm": (
+            str(args.path_to_vm.resolve())
+            if args.path_to_vm is not None
+            else execution["path_to_vm"]
+        ),
         "screen_size": execution["screen_size"],
         "docker_dns_server": execution["docker_dns_server"],
         "docker_cpu_model": execution["docker_cpu_model"],
@@ -325,6 +330,11 @@ def main() -> None:
             "num_envs": num_envs,
             "policy_replica_count": len(policy_endpoints),
             "selection_mode": args.selection_mode,
+            "path_to_vm": (
+                str(args.path_to_vm.resolve())
+                if args.path_to_vm is not None
+                else execution["path_to_vm"]
+            ),
             "evaluate_at_end": (
                 False
                 if args.skip_evaluation
