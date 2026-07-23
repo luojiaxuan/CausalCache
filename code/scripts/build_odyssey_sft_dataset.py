@@ -116,6 +116,8 @@ def render_trajectory(
     contrast_variants: bool,
     donor_paths: list[str] | None,
     terminal_states_only: bool = False,
+    singleton_labels: bool = False,
+    singleton_max_candidates: int = 8,
 ) -> list[dict[str, Any]]:
     source_id = row["source_id"]
     annotation_path = annotations_root / f"{source_id}.json"
@@ -235,7 +237,28 @@ def render_trajectory(
             for step_id in selected
         }
         variants: list[tuple[str, tuple[int, ...], dict[int, str]]] = []
-        if len(history) < shared_early_decisions:
+        if singleton_labels:
+            # note (luojiaxuan): selector 标签模式——b0 参考 + 逐候选单图恢复;
+            # 候选取最近 singleton_max_candidates 个;shared-early 段不出标签。
+            if len(history) < shared_early_decisions:
+                continue
+            label_candidates = tuple(
+                candidate_event_step_ids_from_history(
+                    [event.to_mapping() for event in history]
+                )
+            )[-singleton_max_candidates:]
+            if not label_candidates:
+                continue
+            variants.append(("b0", (), {}))
+            for cand in label_candidates:
+                variants.append(
+                    (
+                        f"single{cand}",
+                        (cand,),
+                        {cand: f"images/{source_id}/observation-{cand:03d}.png"},
+                    )
+                )
+        elif len(history) < shared_early_decisions:
             variants.append(("correct", (), {}))
         else:
             variants.append(("correct", selected, dict(own_path)))
@@ -326,6 +349,8 @@ def main() -> None:
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--trajectory-limit", type=int, default=0)
     parser.add_argument("--terminal-states-only", action="store_true")
+    parser.add_argument("--singleton-labels", action="store_true")
+    parser.add_argument("--singleton-max-candidates", type=int, default=8)
     args = parser.parse_args()
 
     from pyarrow import parquet as pq
@@ -358,6 +383,8 @@ def main() -> None:
                     contrast_variants=args.contrast_variants,
                     donor_paths=donor_paths,
                     terminal_states_only=args.terminal_states_only,
+                    singleton_labels=args.singleton_labels,
+                    singleton_max_candidates=args.singleton_max_candidates,
                 )
                 for sample in samples:
                     handle.write(
