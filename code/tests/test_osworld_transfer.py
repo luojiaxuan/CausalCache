@@ -18,6 +18,7 @@ def _result(score: float) -> dict[str, object]:
         "success": score > 0,
         "completed_steps": 2,
         "termination_reason": "policy_done",
+        "steps": [],
     }
 
 
@@ -27,11 +28,32 @@ class OSWorldTransferTests(unittest.TestCase):
             root = Path(directory)
             failure = root / "chrome/task/attempts/attempt/failure.json"
             failure.parent.mkdir(parents=True)
+            (failure.parent / "checkpoint.json").write_text(
+                json.dumps(
+                    {
+                        "completed_steps": 1,
+                        "steps": [
+                            {
+                                "policy_latency_seconds": 2.0,
+                                "policy_response": {
+                                    "source": "failed_profile",
+                                    "queue_seconds": 1.0,
+                                    "runtime": {
+                                        "generation_seconds": 0.5,
+                                        "peak_gpu_memory_allocated_bytes": 123,
+                                    },
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
             failure.write_text(
                 json.dumps(
                     {
                         "task": {"domain": "chrome", "task_id": "task"},
-                        "completed_steps": 7,
+                        "completed_steps": 1,
                         "error_type": "HTTPError",
                         "error_message": "HTTP Error 500",
                         "failed_at": "2026-01-01T00:00:00+00:00",
@@ -41,10 +63,11 @@ class OSWorldTransferTests(unittest.TestCase):
             )
             results = load_arm_results(
                 root,
-                expected_profile_id="unused_for_failure",
+                expected_profile_id="failed_profile",
                 expected_task_count=1,
             )
             self.assertEqual(results[("chrome", "task")]["score"], 0.0)
+            self.assertEqual(len(results[("chrome", "task")]["steps"]), 1)
             self.assertEqual(
                 results[("chrome", "task")]["termination_reason"],
                 "run_failure:HTTPError",
