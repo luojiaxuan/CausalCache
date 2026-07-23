@@ -306,7 +306,7 @@ class GUIOwlOSWorldRuntime:
             "max_new_tokens": max_new_tokens,
         }
 
-    def generate(self, request: Mapping[str, Any]) -> tuple[DesktopAction, dict[str, Any]]:
+    def generate_raw(self, request: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
         messages = build_gui_owl_osworld_messages(request)
         encoded = self.processor.apply_chat_template(
             messages,
@@ -340,15 +340,7 @@ class GUIOwlOSWorldRuntime:
             skip_special_tokens=False,
             clean_up_tokenization_spaces=False,
         )[0]
-        try:
-            action = parse_gui_owl_osworld_action(
-                output_text, screen_size=tuple(request["screen_size"])
-            )
-        except ValueError as error:
-            raise ValueError(
-                f"GUI-Owl desktop action parse failed: {error}; output={output_text!r}"
-            ) from error
-        return action, {
+        return output_text, {
             **self.metadata,
             "prompt_tokens": prompt_tokens,
             "generated_tokens": int(new_tokens.shape[1]),
@@ -359,6 +351,18 @@ class GUIOwlOSWorldRuntime:
             ),
             "output_text": output_text,
         }
+
+    def generate(self, request: Mapping[str, Any]) -> tuple[DesktopAction, dict[str, Any]]:
+        output_text, metadata = self.generate_raw(request)
+        try:
+            action = parse_gui_owl_osworld_action(
+                output_text, screen_size=tuple(request["screen_size"])
+            )
+        except ValueError as error:
+            raise ValueError(
+                f"GUI-Owl desktop action parse failed: {error}; output={output_text!r}"
+            ) from error
+        return action, metadata
 
 
 __all__ = [
