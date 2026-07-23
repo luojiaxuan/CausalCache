@@ -357,7 +357,9 @@ def history_group_unit_loss(
     """
     from causalcache.policy.history_adapter_context import history_adapter_scope
 
-    def forward(variant: str, *, grad: bool) -> Any:
+    def forward(
+        variant: str, *, grad: bool, backward_weight: float | None = None
+    ) -> Any:
         index = group.get(variant)
         if index is None:
             return None
@@ -370,9 +372,16 @@ def history_group_unit_loss(
         context = history_sample_context(encoded, sample, merge_size=merge_size)
         if variant == "b0" and context is not None:
             raise ValueError("b0 variant carries restored history images")
+        # note (luojiaxuan): 带梯度路径必须在 scope 内完成 backward——梯度检查点
+        # 的重算发生在 backward 期间,scope 提前退出会让 hook 读到 ctx=None,
+        # 造成"保存张量数不一致"崩溃。
         with history_adapter_scope(context):
             if grad:
-                return mean_target_logprob(runtime.model, encoded, torch=torch)
+                lp = mean_target_logprob(runtime.model, encoded, torch=torch)
+                if backward_weight is not None:
+                    (backward_weight * lp).backward()
+                    return float(lp.detach())
+                return lp
             with torch.no_grad():
                 return mean_target_logprob(
                     runtime.model, encoded, torch=torch
@@ -439,10 +448,7 @@ def history_group_unit_loss(
     ):
         if weight == 0.0:
             continue
-        lp = forward(variant, grad=True)
-        if lp is None:
-            continue
-        ((weight / accumulation) * lp).backward()
+        forward(variant, grad=True, backward_weight=weight / accumulation)
     if l2_weight > 0.0:
         l2_term = l2_weight * sum(
             parameter.pow(2).sum() for parameter in adapter_parameters
