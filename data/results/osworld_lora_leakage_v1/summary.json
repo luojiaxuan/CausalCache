@@ -1,0 +1,2009 @@
+{
+  "comparisons_to_frozen": {
+    "odyssey_s75_alpha16": {
+      "hard_leakage_count": 0,
+      "new_parser_invalid_prompt_ids": [
+        "008-libreoffice_calc-a01fbce3-2793-461f-ab86-43680ccbae25"
+      ],
+      "normalized_action_js_divergence": 0.013230412471889823,
+      "paired_normalized_action_change_count": 2,
+      "paired_raw_action_change_count": 1,
+      "parser_valid_rate_drop_points": 3.3333333333333326,
+      "verdict": "MILD_REQUIRES_ALPHA16"
+    },
+    "odyssey_s75_alpha32": {
+      "hard_leakage_count": 0,
+      "new_parser_invalid_prompt_ids": [
+        "008-libreoffice_calc-a01fbce3-2793-461f-ab86-43680ccbae25"
+      ],
+      "normalized_action_js_divergence": 0.013230412471889823,
+      "paired_normalized_action_change_count": 2,
+      "paired_raw_action_change_count": 4,
+      "parser_valid_rate_drop_points": 3.3333333333333326,
+      "verdict": "MILD_REQUIRES_ALPHA16"
+    },
+    "odyssey_terminal_s60_alpha32": {
+      "hard_leakage_count": 0,
+      "new_parser_invalid_prompt_ids": [],
+      "normalized_action_js_divergence": 0.0018352014973918238,
+      "paired_normalized_action_change_count": 1,
+      "paired_raw_action_change_count": 6,
+      "parser_valid_rate_drop_points": 0.0,
+      "verdict": "PASS_NO_MATERIAL_LEAKAGE"
+    }
+  },
+  "frozen_profile_id": "frozen",
+  "profile_summaries": {
+    "frozen": {
+      "by_domain": {
+        "chrome": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 4
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 4
+          }
+        },
+        "gimp": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 2
+          }
+        },
+        "libreoffice_calc": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 3,
+          "normalized_action_counts": {
+            "click": 3,
+            "wait": 1
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 3,
+            "wait": 1
+          }
+        },
+        "libreoffice_impress": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.3333333333333333,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 3,
+            "wait": 1
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 2,
+            "wait": 1
+          }
+        },
+        "libreoffice_writer": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 1,
+            "wait": 1
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 1,
+            "wait": 1
+          }
+        },
+        "multi_apps": {
+          "click_alias_count": 2,
+          "click_alias_rate_among_clicks": 0.3333333333333333,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 6,
+            "type_text": 1
+          },
+          "parser_valid_count": 7,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 7,
+          "raw_action_counts": {
+            "click": 2,
+            "left_click": 4,
+            "type": 1
+          }
+        },
+        "os": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.5,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 1
+          }
+        },
+        "thunderbird": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 1
+          },
+          "parser_valid_count": 1,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 1,
+          "raw_action_counts": {
+            "left_click": 1
+          }
+        },
+        "vlc": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.5,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 1
+          }
+        },
+        "vs_code": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.5,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 1
+          }
+        }
+      },
+      "by_input_mode": {
+        "recent_b4": {
+          "click_alias_count": 3,
+          "click_alias_rate_among_clicks": 0.21428571428571427,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 11,
+          "normalized_action_counts": {
+            "click": 14,
+            "wait": 1
+          },
+          "parser_valid_count": 15,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 15,
+          "raw_action_counts": {
+            "click": 3,
+            "left_click": 11,
+            "wait": 1
+          }
+        },
+        "single_image": {
+          "click_alias_count": 3,
+          "click_alias_rate_among_clicks": 0.25,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 9,
+          "normalized_action_counts": {
+            "click": 12,
+            "type_text": 1,
+            "wait": 2
+          },
+          "parser_valid_count": 15,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 15,
+          "raw_action_counts": {
+            "click": 3,
+            "left_click": 9,
+            "type": 1,
+            "wait": 2
+          }
+        }
+      },
+      "click_alias_count": 6,
+      "click_alias_rate_among_clicks": 0.23076923076923078,
+      "config_sha256": "d7983fc50ce62aa2b5e608ffc6d98c586175d3dff3bf3a99ed64e98c9fe316b3",
+      "decision_trace": [
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "000-chrome-bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "001-chrome-12086550-11c0-466b-b367-1d9e75b3910e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "002-chrome-c1fa57f3-c3db-4596-8f09-020701085416",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "003-chrome-368d9ba4-203c-40c1-9fa3-da2f1430ce63",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "004-gimp-d52d6308-ec58-42b7-a2c9-de80e4837b2b",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "005-gimp-e19bd559-633b-4b02-940f-d946248f088e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "006-libreoffice_calc-51719eea-10bc-4246-a428-ac7c433dd4b3",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "007-libreoffice_calc-abed40dc-063f-4598-8ba5-9fe749c0615d",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "008-libreoffice_calc-a01fbce3-2793-461f-ab86-43680ccbae25",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "009-libreoffice_calc-7a4e4bc8-922c-4c84-865c-25ba34136be1",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "010-libreoffice_impress-ef9d12bd-bcee-4ba0-a40e-918400f43ddf",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "011-libreoffice_impress-15aece23-a215-4579-91b4-69eec72e18da",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "012-libreoffice_impress-39be0d19-634d-4475-8768-09c130f5425d",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "013-libreoffice_impress-4ed5abd0-8b5d-47bd-839f-cacfa15ca37a",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "014-libreoffice_writer-6a33f9b9-0a56-4844-9c3f-96ec3ffb3ba2",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "015-libreoffice_writer-ecc2413d-8a48-416e-a3a2-d30106ca36cb",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "016-multi_apps-e135df7c-7687-4ac0-a5f0-76b74438b53e",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "017-multi_apps-69acbb55-d945-4927-a87b-8480e1a5bb7e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "018-multi_apps-2c1ebcd7-9c6d-4c9a-afad-900e381ecd5e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "019-multi_apps-873cafdd-a581-47f6-8b33-b9696ddb7b05",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "020-multi_apps-02ce9a50-7af2-47ed-8596-af0c230501f8",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "021-multi_apps-e1fc0df3-c8b9-4ee7-864c-d0b590d3aa56",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "type_text",
+          "parser_valid": true,
+          "prompt_id": "022-multi_apps-91190194-f406-4cd6-b3f9-c43fac942b22",
+          "raw_action": "type"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "023-os-f9be0997-4b7c-45c5-b05c-4612b44a6118",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "024-os-c288e301-e626-4b98-a1ab-159dcb162af5",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "025-thunderbird-3f28fe4f-5d9d-4994-a456-efd78cfae1a3",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "026-vlc-8f080098-ddb1-424c-b438-4e96e5e4786e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "027-vlc-215dfd39-f493-4bc3-a027-8a97d72c61bf",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "028-vs_code-9d425400-e9b2-4424-9a4b-d4c7abac4140",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "029-vs_code-971cbb5b-3cbf-4ff7-9e24-b5c84fcebfa6",
+          "raw_action": "click"
+        }
+      ],
+      "generation_runtime": {
+        "generated_tokens_total": 958,
+        "peak_gpu_memory_allocated_bytes_max": 18508707328,
+        "prompt_tokens_mean": 1896.1666666666667,
+        "seconds_mean": 0.9507958396881198,
+        "seconds_p50": 0.7545432038605213,
+        "seconds_p95": 2.041116442566271,
+        "seconds_per_generated_token": 0.029774399990233395
+      },
+      "hard_leakage_count": 0,
+      "hard_leakage_prompt_ids": [],
+      "hard_leakage_rate": 0.0,
+      "left_click_count": 20,
+      "manifest_sha256": "78e528b2bac71b638e93c20ce190338ee9b9af45f6e107955f404a6f371587f0",
+      "normalized_action_counts": {
+        "click": 26,
+        "type_text": 1,
+        "wait": 3
+      },
+      "parser_invalid_prompt_ids": [],
+      "parser_valid_count": 30,
+      "parser_valid_rate": 1.0,
+      "profile": {
+        "checkpoint_sha256": null,
+        "checkpoint_source": null,
+        "lora_alpha": null,
+        "lora_rank": null,
+        "profile_id": "frozen",
+        "target_modules": []
+      },
+      "prompt_count": 30,
+      "raw_action_counts": {
+        "click": 6,
+        "left_click": 20,
+        "type": 1,
+        "wait": 3
+      },
+      "runtime": {
+        "device": "cuda:0",
+        "dtype": "torch.bfloat16",
+        "effective_visual_tokens_per_image": 480,
+        "frozen": true,
+        "max_new_tokens": 256,
+        "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "runtime_profile_id": "gui_owl_1_5_osworld_recent_b4_v1",
+        "torch_version": "2.11.0+cu130",
+        "transformers_version": "5.6.0"
+      },
+      "schema_version": "causalcache.osworld_lora_leakage_profile.v1",
+      "status": "COMPLETE_OSWORLD_LORA_LEAKAGE_PROFILE"
+    },
+    "odyssey_s75_alpha16": {
+      "by_domain": {
+        "chrome": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 4
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 4
+          }
+        },
+        "gimp": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 2
+          }
+        },
+        "libreoffice_calc": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "<invalid>": 1,
+            "click": 3
+          },
+          "parser_valid_count": 3,
+          "parser_valid_rate": 0.75,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 4
+          }
+        },
+        "libreoffice_impress": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.3333333333333333,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 3,
+            "wait": 1
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 2,
+            "wait": 1
+          }
+        },
+        "libreoffice_writer": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 1,
+            "wait": 1
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 1,
+            "wait": 1
+          }
+        },
+        "multi_apps": {
+          "click_alias_count": 2,
+          "click_alias_rate_among_clicks": 0.3333333333333333,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 6,
+            "type_text": 1
+          },
+          "parser_valid_count": 7,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 7,
+          "raw_action_counts": {
+            "click": 2,
+            "left_click": 4,
+            "type": 1
+          }
+        },
+        "os": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.5,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 1
+          }
+        },
+        "thunderbird": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 1
+          },
+          "parser_valid_count": 1,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 1,
+          "raw_action_counts": {
+            "left_click": 1
+          }
+        },
+        "vlc": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.5,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 1
+          }
+        },
+        "vs_code": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.5,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 1
+          }
+        }
+      },
+      "by_input_mode": {
+        "recent_b4": {
+          "click_alias_count": 3,
+          "click_alias_rate_among_clicks": 0.21428571428571427,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 11,
+          "normalized_action_counts": {
+            "click": 14,
+            "wait": 1
+          },
+          "parser_valid_count": 15,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 15,
+          "raw_action_counts": {
+            "click": 3,
+            "left_click": 11,
+            "wait": 1
+          }
+        },
+        "single_image": {
+          "click_alias_count": 3,
+          "click_alias_rate_among_clicks": 0.23076923076923078,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 10,
+          "normalized_action_counts": {
+            "<invalid>": 1,
+            "click": 12,
+            "type_text": 1,
+            "wait": 1
+          },
+          "parser_valid_count": 14,
+          "parser_valid_rate": 0.9333333333333333,
+          "prompt_count": 15,
+          "raw_action_counts": {
+            "click": 3,
+            "left_click": 10,
+            "type": 1,
+            "wait": 1
+          }
+        }
+      },
+      "click_alias_count": 6,
+      "click_alias_rate_among_clicks": 0.2222222222222222,
+      "config_sha256": "d7983fc50ce62aa2b5e608ffc6d98c586175d3dff3bf3a99ed64e98c9fe316b3",
+      "decision_trace": [
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "000-chrome-bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "001-chrome-12086550-11c0-466b-b367-1d9e75b3910e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "002-chrome-c1fa57f3-c3db-4596-8f09-020701085416",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "003-chrome-368d9ba4-203c-40c1-9fa3-da2f1430ce63",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "004-gimp-d52d6308-ec58-42b7-a2c9-de80e4837b2b",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "005-gimp-e19bd559-633b-4b02-940f-d946248f088e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "006-libreoffice_calc-51719eea-10bc-4246-a428-ac7c433dd4b3",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "007-libreoffice_calc-abed40dc-063f-4598-8ba5-9fe749c0615d",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": null,
+          "parser_valid": false,
+          "prompt_id": "008-libreoffice_calc-a01fbce3-2793-461f-ab86-43680ccbae25",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "009-libreoffice_calc-7a4e4bc8-922c-4c84-865c-25ba34136be1",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "010-libreoffice_impress-ef9d12bd-bcee-4ba0-a40e-918400f43ddf",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "011-libreoffice_impress-15aece23-a215-4579-91b4-69eec72e18da",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "012-libreoffice_impress-39be0d19-634d-4475-8768-09c130f5425d",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "013-libreoffice_impress-4ed5abd0-8b5d-47bd-839f-cacfa15ca37a",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "014-libreoffice_writer-6a33f9b9-0a56-4844-9c3f-96ec3ffb3ba2",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "015-libreoffice_writer-ecc2413d-8a48-416e-a3a2-d30106ca36cb",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "016-multi_apps-e135df7c-7687-4ac0-a5f0-76b74438b53e",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "017-multi_apps-69acbb55-d945-4927-a87b-8480e1a5bb7e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "018-multi_apps-2c1ebcd7-9c6d-4c9a-afad-900e381ecd5e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "019-multi_apps-873cafdd-a581-47f6-8b33-b9696ddb7b05",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "020-multi_apps-02ce9a50-7af2-47ed-8596-af0c230501f8",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "021-multi_apps-e1fc0df3-c8b9-4ee7-864c-d0b590d3aa56",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "type_text",
+          "parser_valid": true,
+          "prompt_id": "022-multi_apps-91190194-f406-4cd6-b3f9-c43fac942b22",
+          "raw_action": "type"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "023-os-f9be0997-4b7c-45c5-b05c-4612b44a6118",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "024-os-c288e301-e626-4b98-a1ab-159dcb162af5",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "025-thunderbird-3f28fe4f-5d9d-4994-a456-efd78cfae1a3",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "026-vlc-8f080098-ddb1-424c-b438-4e96e5e4786e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "027-vlc-215dfd39-f493-4bc3-a027-8a97d72c61bf",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "028-vs_code-9d425400-e9b2-4424-9a4b-d4c7abac4140",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "029-vs_code-971cbb5b-3cbf-4ff7-9e24-b5c84fcebfa6",
+          "raw_action": "click"
+        }
+      ],
+      "generation_runtime": {
+        "generated_tokens_total": 969,
+        "peak_gpu_memory_allocated_bytes_max": 18570049024,
+        "prompt_tokens_mean": 1896.1666666666667,
+        "seconds_mean": 1.1871550099225714,
+        "seconds_p50": 1.0241724834777415,
+        "seconds_p95": 1.9433316617622038,
+        "seconds_per_generated_token": 0.036754025075002215
+      },
+      "hard_leakage_count": 0,
+      "hard_leakage_prompt_ids": [],
+      "hard_leakage_rate": 0.0,
+      "left_click_count": 21,
+      "manifest_sha256": "78e528b2bac71b638e93c20ce190338ee9b9af45f6e107955f404a6f371587f0",
+      "normalized_action_counts": {
+        "<invalid>": 1,
+        "click": 26,
+        "type_text": 1,
+        "wait": 2
+      },
+      "parser_invalid_prompt_ids": [
+        "008-libreoffice_calc-a01fbce3-2793-461f-ab86-43680ccbae25"
+      ],
+      "parser_valid_count": 29,
+      "parser_valid_rate": 0.9666666666666667,
+      "profile": {
+        "checkpoint_sha256": "90a56b7e566552713f1e7adad0b20f23170c2a034eed338a795e8bf63628d56e",
+        "checkpoint_source": "hyper00:/data02/jaxan/runs/causalcache-odyssey-margin-v1/lora-step75.pt",
+        "lora_alpha": 16,
+        "lora_rank": 16,
+        "profile_id": "odyssey_s75_alpha16",
+        "target_modules": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "prompt_count": 30,
+      "raw_action_counts": {
+        "click": 6,
+        "left_click": 21,
+        "type": 1,
+        "wait": 2
+      },
+      "runtime": {
+        "device": "cuda:0",
+        "dtype": "torch.bfloat16",
+        "effective_visual_tokens_per_image": 480,
+        "frozen": true,
+        "lora_alpha": 16,
+        "lora_checkpoint": "/data/osworld-lora-leakage-v1/checkpoints/odyssey-margin-v1-step75.pt",
+        "lora_checkpoint_sha256": "90a56b7e566552713f1e7adad0b20f23170c2a034eed338a795e8bf63628d56e",
+        "lora_module_count": 144,
+        "lora_rank": 16,
+        "max_new_tokens": 256,
+        "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "runtime_profile_id": "gui_owl_1_5_osworld_recent_b4_v1",
+        "torch_version": "2.11.0+cu130",
+        "transformers_version": "5.6.0"
+      },
+      "schema_version": "causalcache.osworld_lora_leakage_profile.v1",
+      "status": "COMPLETE_OSWORLD_LORA_LEAKAGE_PROFILE"
+    },
+    "odyssey_s75_alpha32": {
+      "by_domain": {
+        "chrome": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 4
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 4
+          }
+        },
+        "gimp": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 2
+          }
+        },
+        "libreoffice_calc": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "<invalid>": 1,
+            "click": 3
+          },
+          "parser_valid_count": 3,
+          "parser_valid_rate": 0.75,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 4
+          }
+        },
+        "libreoffice_impress": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 3,
+          "normalized_action_counts": {
+            "click": 3,
+            "wait": 1
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 3,
+            "wait": 1
+          }
+        },
+        "libreoffice_writer": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 1,
+            "wait": 1
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 1,
+            "wait": 1
+          }
+        },
+        "multi_apps": {
+          "click_alias_count": 2,
+          "click_alias_rate_among_clicks": 0.3333333333333333,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 6,
+            "type_text": 1
+          },
+          "parser_valid_count": 7,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 7,
+          "raw_action_counts": {
+            "click": 2,
+            "left_click": 4,
+            "type": 1
+          }
+        },
+        "os": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.5,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 1
+          }
+        },
+        "thunderbird": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 1
+          },
+          "parser_valid_count": 1,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 1,
+          "raw_action_counts": {
+            "left_click": 1
+          }
+        },
+        "vlc": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 2
+          }
+        },
+        "vs_code": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 2
+          }
+        }
+      },
+      "by_input_mode": {
+        "recent_b4": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.07142857142857142,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 13,
+          "normalized_action_counts": {
+            "click": 14,
+            "wait": 1
+          },
+          "parser_valid_count": 15,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 15,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 13,
+            "wait": 1
+          }
+        },
+        "single_image": {
+          "click_alias_count": 2,
+          "click_alias_rate_among_clicks": 0.15384615384615385,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 11,
+          "normalized_action_counts": {
+            "<invalid>": 1,
+            "click": 12,
+            "type_text": 1,
+            "wait": 1
+          },
+          "parser_valid_count": 14,
+          "parser_valid_rate": 0.9333333333333333,
+          "prompt_count": 15,
+          "raw_action_counts": {
+            "click": 2,
+            "left_click": 11,
+            "type": 1,
+            "wait": 1
+          }
+        }
+      },
+      "click_alias_count": 3,
+      "click_alias_rate_among_clicks": 0.1111111111111111,
+      "config_sha256": "d7983fc50ce62aa2b5e608ffc6d98c586175d3dff3bf3a99ed64e98c9fe316b3",
+      "decision_trace": [
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "000-chrome-bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "001-chrome-12086550-11c0-466b-b367-1d9e75b3910e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "002-chrome-c1fa57f3-c3db-4596-8f09-020701085416",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "003-chrome-368d9ba4-203c-40c1-9fa3-da2f1430ce63",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "004-gimp-d52d6308-ec58-42b7-a2c9-de80e4837b2b",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "005-gimp-e19bd559-633b-4b02-940f-d946248f088e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "006-libreoffice_calc-51719eea-10bc-4246-a428-ac7c433dd4b3",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "007-libreoffice_calc-abed40dc-063f-4598-8ba5-9fe749c0615d",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": null,
+          "parser_valid": false,
+          "prompt_id": "008-libreoffice_calc-a01fbce3-2793-461f-ab86-43680ccbae25",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "009-libreoffice_calc-7a4e4bc8-922c-4c84-865c-25ba34136be1",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "010-libreoffice_impress-ef9d12bd-bcee-4ba0-a40e-918400f43ddf",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "011-libreoffice_impress-15aece23-a215-4579-91b4-69eec72e18da",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "012-libreoffice_impress-39be0d19-634d-4475-8768-09c130f5425d",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "013-libreoffice_impress-4ed5abd0-8b5d-47bd-839f-cacfa15ca37a",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "014-libreoffice_writer-6a33f9b9-0a56-4844-9c3f-96ec3ffb3ba2",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "015-libreoffice_writer-ecc2413d-8a48-416e-a3a2-d30106ca36cb",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "016-multi_apps-e135df7c-7687-4ac0-a5f0-76b74438b53e",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "017-multi_apps-69acbb55-d945-4927-a87b-8480e1a5bb7e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "018-multi_apps-2c1ebcd7-9c6d-4c9a-afad-900e381ecd5e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "019-multi_apps-873cafdd-a581-47f6-8b33-b9696ddb7b05",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "020-multi_apps-02ce9a50-7af2-47ed-8596-af0c230501f8",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "021-multi_apps-e1fc0df3-c8b9-4ee7-864c-d0b590d3aa56",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "type_text",
+          "parser_valid": true,
+          "prompt_id": "022-multi_apps-91190194-f406-4cd6-b3f9-c43fac942b22",
+          "raw_action": "type"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "023-os-f9be0997-4b7c-45c5-b05c-4612b44a6118",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "024-os-c288e301-e626-4b98-a1ab-159dcb162af5",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "025-thunderbird-3f28fe4f-5d9d-4994-a456-efd78cfae1a3",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "026-vlc-8f080098-ddb1-424c-b438-4e96e5e4786e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "027-vlc-215dfd39-f493-4bc3-a027-8a97d72c61bf",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "028-vs_code-9d425400-e9b2-4424-9a4b-d4c7abac4140",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "029-vs_code-971cbb5b-3cbf-4ff7-9e24-b5c84fcebfa6",
+          "raw_action": "left_click"
+        }
+      ],
+      "generation_runtime": {
+        "generated_tokens_total": 975,
+        "peak_gpu_memory_allocated_bytes_max": 18570049024,
+        "prompt_tokens_mean": 1896.1666666666667,
+        "seconds_mean": 1.3104029005936657,
+        "seconds_p50": 1.1054351114435121,
+        "seconds_p95": 2.050804314343259,
+        "seconds_per_generated_token": 0.04032008924903587
+      },
+      "hard_leakage_count": 0,
+      "hard_leakage_prompt_ids": [],
+      "hard_leakage_rate": 0.0,
+      "left_click_count": 24,
+      "manifest_sha256": "78e528b2bac71b638e93c20ce190338ee9b9af45f6e107955f404a6f371587f0",
+      "normalized_action_counts": {
+        "<invalid>": 1,
+        "click": 26,
+        "type_text": 1,
+        "wait": 2
+      },
+      "parser_invalid_prompt_ids": [
+        "008-libreoffice_calc-a01fbce3-2793-461f-ab86-43680ccbae25"
+      ],
+      "parser_valid_count": 29,
+      "parser_valid_rate": 0.9666666666666667,
+      "profile": {
+        "checkpoint_sha256": "90a56b7e566552713f1e7adad0b20f23170c2a034eed338a795e8bf63628d56e",
+        "checkpoint_source": "hyper00:/data02/jaxan/runs/causalcache-odyssey-margin-v1/lora-step75.pt",
+        "lora_alpha": 32,
+        "lora_rank": 16,
+        "profile_id": "odyssey_s75_alpha32",
+        "target_modules": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "prompt_count": 30,
+      "raw_action_counts": {
+        "click": 3,
+        "left_click": 24,
+        "type": 1,
+        "wait": 2
+      },
+      "runtime": {
+        "device": "cuda:0",
+        "dtype": "torch.bfloat16",
+        "effective_visual_tokens_per_image": 480,
+        "frozen": true,
+        "lora_alpha": 32,
+        "lora_checkpoint": "/data/osworld-lora-leakage-v1/checkpoints/odyssey-margin-v1-step75.pt",
+        "lora_checkpoint_sha256": "90a56b7e566552713f1e7adad0b20f23170c2a034eed338a795e8bf63628d56e",
+        "lora_module_count": 144,
+        "lora_rank": 16,
+        "max_new_tokens": 256,
+        "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "runtime_profile_id": "gui_owl_1_5_osworld_recent_b4_v1",
+        "torch_version": "2.11.0+cu130",
+        "transformers_version": "5.6.0"
+      },
+      "schema_version": "causalcache.osworld_lora_leakage_profile.v1",
+      "status": "COMPLETE_OSWORLD_LORA_LEAKAGE_PROFILE"
+    },
+    "odyssey_terminal_s60_alpha32": {
+      "by_domain": {
+        "chrome": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 4
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 4
+          }
+        },
+        "gimp": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.5,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 1
+          }
+        },
+        "libreoffice_calc": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 4
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "left_click": 4
+          }
+        },
+        "libreoffice_impress": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 0.3333333333333333,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 3,
+            "wait": 1
+          },
+          "parser_valid_count": 4,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 4,
+          "raw_action_counts": {
+            "click": 1,
+            "left_click": 2,
+            "wait": 1
+          }
+        },
+        "libreoffice_writer": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 1,
+          "normalized_action_counts": {
+            "click": 1,
+            "wait": 1
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 1,
+            "wait": 1
+          }
+        },
+        "multi_apps": {
+          "click_alias_count": 2,
+          "click_alias_rate_among_clicks": 0.3333333333333333,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 4,
+          "normalized_action_counts": {
+            "click": 6,
+            "type_text": 1
+          },
+          "parser_valid_count": 7,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 7,
+          "raw_action_counts": {
+            "click": 2,
+            "left_click": 4,
+            "type": 1
+          }
+        },
+        "os": {
+          "click_alias_count": 2,
+          "click_alias_rate_among_clicks": 1.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 0,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "click": 2
+          }
+        },
+        "thunderbird": {
+          "click_alias_count": 1,
+          "click_alias_rate_among_clicks": 1.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 0,
+          "normalized_action_counts": {
+            "click": 1
+          },
+          "parser_valid_count": 1,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 1,
+          "raw_action_counts": {
+            "click": 1
+          }
+        },
+        "vlc": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 2
+          }
+        },
+        "vs_code": {
+          "click_alias_count": 0,
+          "click_alias_rate_among_clicks": 0.0,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 2,
+          "normalized_action_counts": {
+            "click": 2
+          },
+          "parser_valid_count": 2,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 2,
+          "raw_action_counts": {
+            "left_click": 2
+          }
+        }
+      },
+      "by_input_mode": {
+        "recent_b4": {
+          "click_alias_count": 4,
+          "click_alias_rate_among_clicks": 0.2857142857142857,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 10,
+          "normalized_action_counts": {
+            "click": 14,
+            "wait": 1
+          },
+          "parser_valid_count": 15,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 15,
+          "raw_action_counts": {
+            "click": 4,
+            "left_click": 10,
+            "wait": 1
+          }
+        },
+        "single_image": {
+          "click_alias_count": 3,
+          "click_alias_rate_among_clicks": 0.23076923076923078,
+          "hard_leakage_count": 0,
+          "hard_leakage_rate": 0.0,
+          "left_click_count": 10,
+          "normalized_action_counts": {
+            "click": 13,
+            "type_text": 1,
+            "wait": 1
+          },
+          "parser_valid_count": 15,
+          "parser_valid_rate": 1.0,
+          "prompt_count": 15,
+          "raw_action_counts": {
+            "click": 3,
+            "left_click": 10,
+            "type": 1,
+            "wait": 1
+          }
+        }
+      },
+      "click_alias_count": 7,
+      "click_alias_rate_among_clicks": 0.25925925925925924,
+      "config_sha256": "d7983fc50ce62aa2b5e608ffc6d98c586175d3dff3bf3a99ed64e98c9fe316b3",
+      "decision_trace": [
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "000-chrome-bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "001-chrome-12086550-11c0-466b-b367-1d9e75b3910e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "002-chrome-c1fa57f3-c3db-4596-8f09-020701085416",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "003-chrome-368d9ba4-203c-40c1-9fa3-da2f1430ce63",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "004-gimp-d52d6308-ec58-42b7-a2c9-de80e4837b2b",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "005-gimp-e19bd559-633b-4b02-940f-d946248f088e",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "006-libreoffice_calc-51719eea-10bc-4246-a428-ac7c433dd4b3",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "007-libreoffice_calc-abed40dc-063f-4598-8ba5-9fe749c0615d",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "008-libreoffice_calc-a01fbce3-2793-461f-ab86-43680ccbae25",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "009-libreoffice_calc-7a4e4bc8-922c-4c84-865c-25ba34136be1",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "010-libreoffice_impress-ef9d12bd-bcee-4ba0-a40e-918400f43ddf",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "011-libreoffice_impress-15aece23-a215-4579-91b4-69eec72e18da",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "012-libreoffice_impress-39be0d19-634d-4475-8768-09c130f5425d",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "013-libreoffice_impress-4ed5abd0-8b5d-47bd-839f-cacfa15ca37a",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "wait",
+          "parser_valid": true,
+          "prompt_id": "014-libreoffice_writer-6a33f9b9-0a56-4844-9c3f-96ec3ffb3ba2",
+          "raw_action": "wait"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "015-libreoffice_writer-ecc2413d-8a48-416e-a3a2-d30106ca36cb",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "016-multi_apps-e135df7c-7687-4ac0-a5f0-76b74438b53e",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "017-multi_apps-69acbb55-d945-4927-a87b-8480e1a5bb7e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "018-multi_apps-2c1ebcd7-9c6d-4c9a-afad-900e381ecd5e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "019-multi_apps-873cafdd-a581-47f6-8b33-b9696ddb7b05",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "020-multi_apps-02ce9a50-7af2-47ed-8596-af0c230501f8",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "021-multi_apps-e1fc0df3-c8b9-4ee7-864c-d0b590d3aa56",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "type_text",
+          "parser_valid": true,
+          "prompt_id": "022-multi_apps-91190194-f406-4cd6-b3f9-c43fac942b22",
+          "raw_action": "type"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "023-os-f9be0997-4b7c-45c5-b05c-4612b44a6118",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "024-os-c288e301-e626-4b98-a1ab-159dcb162af5",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "025-thunderbird-3f28fe4f-5d9d-4994-a456-efd78cfae1a3",
+          "raw_action": "click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "026-vlc-8f080098-ddb1-424c-b438-4e96e5e4786e",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "027-vlc-215dfd39-f493-4bc3-a027-8a97d72c61bf",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "028-vs_code-9d425400-e9b2-4424-9a4b-d4c7abac4140",
+          "raw_action": "left_click"
+        },
+        {
+          "hard_leakage": false,
+          "normalized_action": "click",
+          "parser_valid": true,
+          "prompt_id": "029-vs_code-971cbb5b-3cbf-4ff7-9e24-b5c84fcebfa6",
+          "raw_action": "left_click"
+        }
+      ],
+      "generation_runtime": {
+        "generated_tokens_total": 965,
+        "peak_gpu_memory_allocated_bytes_max": 18570049024,
+        "prompt_tokens_mean": 1896.1666666666667,
+        "seconds_mean": 1.219593740735824,
+        "seconds_p50": 0.9971048396546394,
+        "seconds_p95": 2.2874202774837604,
+        "seconds_per_generated_token": 0.03791483131821214
+      },
+      "hard_leakage_count": 0,
+      "hard_leakage_prompt_ids": [],
+      "hard_leakage_rate": 0.0,
+      "left_click_count": 20,
+      "manifest_sha256": "78e528b2bac71b638e93c20ce190338ee9b9af45f6e107955f404a6f371587f0",
+      "normalized_action_counts": {
+        "click": 27,
+        "type_text": 1,
+        "wait": 2
+      },
+      "parser_invalid_prompt_ids": [],
+      "parser_valid_count": 30,
+      "parser_valid_rate": 1.0,
+      "profile": {
+        "checkpoint_sha256": "cba455cbfede5e091c06d8714ef000d5582adb46c4a5343fa8c0ab8c4ab47b18",
+        "checkpoint_source": "hyper00:/data02/jaxan/runs/causalcache-odyssey-margin-v1b/lora-step60.pt",
+        "lora_alpha": 32,
+        "lora_rank": 16,
+        "profile_id": "odyssey_terminal_s60_alpha32",
+        "target_modules": [
+          "q_proj",
+          "k_proj",
+          "v_proj",
+          "o_proj"
+        ]
+      },
+      "prompt_count": 30,
+      "raw_action_counts": {
+        "click": 7,
+        "left_click": 20,
+        "type": 1,
+        "wait": 2
+      },
+      "runtime": {
+        "device": "cuda:0",
+        "dtype": "torch.bfloat16",
+        "effective_visual_tokens_per_image": 480,
+        "frozen": true,
+        "lora_alpha": 32,
+        "lora_checkpoint": "/data/osworld-lora-leakage-v1/checkpoints/odyssey-terminal-v1b-step60.pt",
+        "lora_checkpoint_sha256": "cba455cbfede5e091c06d8714ef000d5582adb46c4a5343fa8c0ab8c4ab47b18",
+        "lora_module_count": 144,
+        "lora_rank": 16,
+        "max_new_tokens": 256,
+        "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "runtime_profile_id": "gui_owl_1_5_osworld_recent_b4_v1",
+        "torch_version": "2.11.0+cu130",
+        "transformers_version": "5.6.0"
+      },
+      "schema_version": "causalcache.osworld_lora_leakage_profile.v1",
+      "status": "COMPLETE_OSWORLD_LORA_LEAKAGE_PROFILE"
+    }
+  },
+  "schema_version": "causalcache.osworld_lora_leakage_summary.v1",
+  "status": "COMPLETE_OSWORLD_LORA_LEAKAGE_TEST"
+}

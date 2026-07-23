@@ -1,5 +1,20 @@
 # 项目进展
 
+## 2026-07-22：OSWorld mobile-LoRA grammar leakage gate 通过
+
+- official no-GDrive roster 等距抽取 30 prompts，覆盖 10 domains；真实 KVM fixture 30/30、0 failure，
+  single-image/recent-B4=`15/15`；
+- frozen parser valid=`30/30`；Odyssey s75 α32/α16 均为 `29/30`，唯一失败是同一 Calc prompt 的
+  coordinate=`[1000,17]/[1005,17]` 超出 `[0,999]`，0 hard mobile leakage，按门槛为 mild 且 α16 未修复；
+- 混入 3,233 个 terminal states 续训至 s60 后，terminal-s60 α32 为 `30/30` valid、0 hard leakage，
+  single/recent-B4 都 15/15，normalized action JS divergence vs frozen=`0.001835`，正式
+  `PASS_NO_MATERIAL_LEAKAGE`；
+- s60 的 6 个 raw action changes 中 5 个仅是 `click↔left_click` spelling，唯一 normalized change 是
+  `wait→click`。该 gate 解锁 s60 进入 OSWorld closed-loop，不解锁 success 或 memory claim；
+- H100 raw root=`/data/jaxan/osworld-lora-leakage-v1/`，轻量结果见
+  [`osworld_lora_leakage_v1`](../data/results/osworld_lora_leakage_v1/README.md)；s75/s60 adapters 的 intended
+  private HF model repo=`gavinlaw/causalcache-gui-owl-policy-lora-mobile`，当前 `PENDING_HF_UPLOAD`。
+
 ## 2026-07-22：OSWorld frozen GUI-Owl 并发调查完成
 
 - H100 上每卡一个 frozen BF16 GUI-Owl-1.5-8B replica，正式测试 1/2/4/6 GPUs 与

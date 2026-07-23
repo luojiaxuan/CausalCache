@@ -6,6 +6,14 @@
 
 ## 当前结论
 
+- **terminal-repair mobile LoRA 通过 OSWorld desktop grammar leakage gate。** official no-GDrive roster 等距
+  取 30 个 prompts、覆盖 10 domains；frozen 与 terminal-s60 α32 均为 30/30 parser valid，single-image 与
+  recent-B4 均 15/15，且 0 个 `mobile_use`/mobile-only hard leakage。s75 α32/α16 都因同一 Calc prompt 的
+  coordinate 越界降至 29/30，α16 没有修复；terminal-state 续训后恢复。terminal-s60 相对 frozen 的
+  normalized action JS divergence 仅 `0.00184`，因此从 grammar 角度可进入 OSWorld closed-loop，但该测试
+  不构成 task-success 或 cross-platform performance 证据。见
+  [`data/results/osworld_lora_leakage_v1/`](data/results/osworld_lora_leakage_v1/)和
+  [`docs/osworld_lora_leakage_v1.md`](docs/osworld_lora_leakage_v1.md)。
 - **OSWorld frozen GUI-Owl capacity study 已完成。** 8/8 正式点、每点 46/46 episodes、0 runner failure；
   6 replicas 下 environment throughput 在 24 envs 达峰值 `1835.24 fresh tasks/hour`，30 envs 回落至
   `1803.63`。固定 12 envs 时，1/2/4/6 replicas 的 throughput 基本不变，但 client p95 从
@@ -245,6 +253,7 @@ pilot 合同见 [`docs/set_utility_predictor_v2.md`](docs/set_utility_predictor_
 | 代码、配置、论文、轻量结果 | 本 Git 仓库 `main` | canonical |
 | Processor substrate | [HF dataset](https://huggingface.co/datasets/gavinlaw/causalcache-set-utility-new-development-mobile/tree/c20bab8df424dc9e45ece1084f3d1dc035dd1ed8/artifacts/processor-freeze-v2-image-contract-repair) | immutable，23 files / 18.73 GB |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
+| GUI-Owl policy LoRA s75 / terminal-s60 | Hyper00 `/data02/jaxan/runs/causalcache-odyssey-margin-v1/lora-step75.pt`、`...odyssey-margin-v1b/lora-step60.pt`；intended private HF model repo `gavinlaw/causalcache-gui-owl-policy-lora-mobile` | SHA `90a56b7e...d56e` / `cba455cb...7b18`；`PENDING_HF_UPLOAD`；[desktop leakage PASS](data/results/osworld_lora_leakage_v1/README.md) |
 | Dense image backfill | Hyper00 `/data02/jaxan/artifacts/causalcache-set-utility-dense-v1-backfill-d43a15c` | 42MB / 77 PNG；`PENDING_HF_UPLOAD` |
 | recent-4 label smoke | Hyper00 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-0d32187`；Hyper01 `/data02/jaxan/runs/causalcache-set-utility-dense-v1-9671e45-partition-01` | stopped；4,033 states；`DEPRECATED_SMOKE_ONLY_RECENT4` |
 | Variable-history formal labels | Hyper00/Hyper01 `/data02/jaxan/runs/causalcache-set-utility-variable-history-labels-v1-969f2b9` | complete；11,721 completed + 25 skipped；`PENDING_HF_UPLOAD` |

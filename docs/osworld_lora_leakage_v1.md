@@ -54,10 +54,21 @@ LoRA 目标固定为全 language-model layers 的 `q/k/v/o`，vision tower 不�
 profile，不能用未运行的结果追认通过。任何 profile 的 OSWorld task success、closed-loop 或 memory benefit 均
 不由本实验解锁。
 
+## 正式结果
+
+terminal-s60 α32 获得 30/30 parser valid、0 hard leakage；single-image/recent-B4 分别 15/15、15/15，
+相对 frozen 的 normalized action JS divergence=`0.001835`，按预注册门槛为
+`PASS_NO_MATERIAL_LEAKAGE`。s75 α32/α16 均为 29/30，唯一错误是同一个 Calc prompt 的 coordinate 超出
+`[0,999]`；两者都是 mild，α16 没有 rescue。完整解释与数字见
+[`data/results/osworld_lora_leakage_v1/`](../data/results/osworld_lora_leakage_v1/README.md)。
+
+该 PASS 只解锁“terminal-s60 LoRA 可进入 OSWorld closed-loop”，不解锁 OSWorld success、memory benefit 或
+跨平台泛化 claim。
+
 ## Artifacts
 
 - config：`code/configs/causalcache_osworld_lora_leakage_v1.json`；
 - H100 fixture root：`/data/jaxan/osworld-lora-leakage-v1/fixtures`；
 - manifest：`/data/jaxan/osworld-lora-leakage-v1/prompt-manifest.json`；
-- raw profiles：`/data/jaxan/osworld-lora-leakage-v1/profiles`；
-- Git lightweight result：`data/results/osworld_lora_leakage_v1/`（结果完成后发布）。
+- raw profiles：`/data/jaxan/osworld-lora-leakage-v1/profiles-r1`；
+- Git lightweight result：[`data/results/osworld_lora_leakage_v1/`](../data/results/osworld_lora_leakage_v1/README.md)。
