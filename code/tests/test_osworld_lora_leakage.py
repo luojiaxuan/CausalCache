@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import json
 import unittest
+from pathlib import Path
 
 from causalcache.osworld_lora_leakage import (
     classify_profile,
     inspect_output,
     summarize_records,
 )
+from scripts.run_osworld_lora_leakage_profiles import parse_assignment
 
 
 def _tool(name: str, action: str, extra: dict[str, object] | None = None) -> str:
@@ -16,6 +18,13 @@ def _tool(name: str, action: str, extra: dict[str, object] | None = None) -> str
 
 
 class OSWorldLoRALeakageTests(unittest.TestCase):
+    def test_parses_explicit_profile_assignment(self) -> None:
+        self.assertEqual(
+            parse_assignment("2:adapted:/data/checkpoint.pt"),
+            ("2", "adapted", Path("/data/checkpoint.pt")),
+        )
+        self.assertEqual(parse_assignment("0:frozen:-"), ("0", "frozen", None))
+
     def test_detects_valid_click_alias_without_hard_leakage(self) -> None:
         value = inspect_output(
             _tool("computer_use", "click", {"coordinate": [500, 500]}),
