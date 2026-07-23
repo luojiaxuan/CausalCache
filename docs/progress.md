@@ -4924,3 +4924,16 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   逆转);高保真记忆的边际增益尚未显形——Odyssey 训练线(在跑)是该效应的下一次机会。paper 闭环章
   骨架:①冻结 policy 内容盲(±0.003)②margin 训练创造 CI 级内容敏感 ③闭环整体提升 CI 认证
   ④记忆边际增益的 honest 陈述 + 剂量单调过程指标。
+
+## 2026-07-23:Odyssey s75 零样本认证过线——主表化验尺发射
+
+- 趋势管线(每 checkpoint 双探针:Odyssey in-domain 12 轨迹 + AW 迁移 10 局)发现:in-domain 单调
+  爬升(c−irrel 至 s175 +0.0385),AW 迁移在 s75-s175 带内稳定;s175 探针尖峰未在全量复现。
+- 全量认证(AW 49 局 heldout):**s75 双内容门禁 CI 过线**(c−shuf +0.0070[+0.0052,+0.0091] 正例率
+  75%;c−irrel +0.0069[+0.0047,+0.0091] 72%;干扰税 −0.0040 = 冻结的 1/10);s175 较弱。
+  **75 个优化步的 Odyssey 训练实现内容敏感性零样本跨语料迁移(CI 认证)**。
+- Odyssey 冻结基线的反向敏感(shuffled 优于 correct,−0.063)为新失败模式证据:冻结 policy 非
+  内容盲而是内容误用(in-domain);margin 训练 75 步内扳正方向。
+- 零样本配对化验尺发射:odyssey-s75 × B0/B8 × 15 模板 × 3 实例 = 90 局(hyper01 12 worker,retry
+  协议);frozen 侧合法复用 assay-paired-v2 的 90 局(协议逐字节相同)。这是 paper 主表:
+  GUI-Odyssey 训练 → AndroidWorld 零样本闭环 vs frozen。训练本体继续至 350 步留全曲线。
