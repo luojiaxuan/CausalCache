@@ -10,17 +10,23 @@ from pathlib import Path
 from typing import Any
 
 
-SCHEMA_VERSION = "causalcache.osworld_transfer_pilot.v1"
-SUMMARY_SCHEMA_VERSION = "causalcache.osworld_transfer_summary.v1"
+SCHEMA_VERSION = "causalcache.osworld_transfer_pilot.v2"
+LEGACY_SCHEMA_VERSION = "causalcache.osworld_transfer_pilot.v1"
+SUMMARY_SCHEMA_VERSION = "causalcache.osworld_transfer_summary.v2"
 
 
 def load_transfer_config(path: Path) -> dict[str, Any]:
     config = json.loads(path.read_text(encoding="utf-8"))
-    if config.get("schema_version") != SCHEMA_VERSION:
+    if config.get("schema_version") not in {LEGACY_SCHEMA_VERSION, SCHEMA_VERSION}:
         raise ValueError("OSWorld transfer config schema drifted")
     arms = [profile["arm"] for profile in config["profiles"]]
-    if arms != ["frozen", "terminal_s60"]:
-        raise ValueError("OSWorld transfer arms drifted")
+    if (
+        len(arms) != 2
+        or arms[0] != "frozen"
+        or arms[1] == "frozen"
+        or len(set(arms)) != 2
+    ):
+        raise ValueError("OSWorld transfer requires frozen plus one adapted arm")
     if config["selection"]["task_count"] <= 0:
         raise ValueError("OSWorld transfer task count must be positive")
     return config
@@ -198,53 +204,68 @@ def reduce_transfer_results(
     arm_results: Mapping[str, Mapping[tuple[str, str], Mapping[str, Any]]],
 ) -> dict[str, Any]:
     profiles = {profile["arm"]: profile for profile in config["profiles"]}
+    adapted_arm = config["profiles"][1]["arm"]
     if set(arm_results) != set(profiles):
         raise ValueError("OSWorld transfer result arms drifted")
     identities = set(arm_results["frozen"])
-    if identities != set(arm_results["terminal_s60"]):
+    if identities != set(arm_results[adapted_arm]):
         raise ValueError("OSWorld transfer task identities are not paired")
     differences = [
-        float(arm_results["terminal_s60"][identity]["score"])
+        float(arm_results[adapted_arm][identity]["score"])
         - float(arm_results["frozen"][identity]["score"])
         for identity in sorted(identities)
     ]
     wins = sum(value > 0 for value in differences)
     losses = sum(value < 0 for value in differences)
+    task_scores = [
+        {
+            "domain": identity[0],
+            "task_id": identity[1],
+            "frozen": float(arm_results["frozen"][identity]["score"]),
+            "adapted": float(arm_results[adapted_arm][identity]["score"]),
+            "delta": difference,
+        }
+        for identity, difference in zip(
+            sorted(identities), differences, strict=True
+        )
+    ]
+    paired = {
+        "adapted_arm": adapted_arm,
+        "mean_score_delta_adapted_minus_frozen": sum(differences)
+        / len(differences),
+        "mean_score_delta_bootstrap_95_ci": paired_bootstrap_ci(differences),
+        "adapted_wins": wins,
+        "adapted_losses": losses,
+        "ties": len(differences) - wins - losses,
+        "task_scores": task_scores,
+    }
+    if adapted_arm == "terminal_s60":
+        paired.update(
+            {
+                "mean_score_delta_terminal_s60_minus_frozen": paired[
+                    "mean_score_delta_adapted_minus_frozen"
+                ],
+                "terminal_s60_wins": wins,
+                "terminal_s60_losses": losses,
+            }
+        )
+        for task_score in task_scores:
+            task_score["terminal_s60"] = task_score["adapted"]
     return {
         "schema_version": SUMMARY_SCHEMA_VERSION,
         "status": "COMPLETE_OSWORLD_TRANSFER_PILOT",
         "task_count": len(identities),
         "arms": {
             arm: _arm_summary(arm_results[arm])
-            for arm in ("frozen", "terminal_s60")
+            for arm in ("frozen", adapted_arm)
         },
-        "paired": {
-            "mean_score_delta_terminal_s60_minus_frozen": sum(differences)
-            / len(differences),
-            "mean_score_delta_bootstrap_95_ci": paired_bootstrap_ci(differences),
-            "terminal_s60_wins": wins,
-            "terminal_s60_losses": losses,
-            "ties": len(differences) - wins - losses,
-            "task_scores": [
-                {
-                    "domain": identity[0],
-                    "task_id": identity[1],
-                    "frozen": float(arm_results["frozen"][identity]["score"]),
-                    "terminal_s60": float(
-                        arm_results["terminal_s60"][identity]["score"]
-                    ),
-                    "delta": difference,
-                }
-                for identity, difference in zip(
-                    sorted(identities), differences, strict=True
-                )
-            ],
-        },
+        "paired": paired,
     }
 
 
 __all__ = [
     "SCHEMA_VERSION",
+    "LEGACY_SCHEMA_VERSION",
     "SUMMARY_SCHEMA_VERSION",
     "load_arm_results",
     "load_transfer_config",

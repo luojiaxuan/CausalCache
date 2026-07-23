@@ -1,0 +1,296 @@
+{
+  "arms": {
+    "frozen": {
+      "counted_failure_count": 13,
+      "counted_failure_type_counts": {
+        "HTTPError": 13
+      },
+      "generation_seconds": {
+        "mean": 2.2326062173768157,
+        "p50": 2.2360175701323897,
+        "p95": 2.5127064281376073
+      },
+      "mean_completed_steps": 34.46666666666667,
+      "mean_osworld_score": 0.16666666666666666,
+      "peak_gpu_memory_allocated_bytes": 19102823936,
+      "policy_latency_seconds": {
+        "mean": 11.251542083996059,
+        "p50": 11.990937117720023,
+        "p95": 13.128854334587231
+      },
+      "policy_step_count": 1034,
+      "server_queue_seconds": {
+        "mean": 8.761263032470842,
+        "p50": 9.516786863096058,
+        "p95": 10.558434034278616
+      },
+      "task_count": 30,
+      "task_success_count": 5,
+      "task_success_rate": 0.16666666666666666,
+      "termination_reason_counts": {
+        "policy_done": 3,
+        "run_failure:HTTPError": 13,
+        "step_budget_exhausted": 14
+      }
+    },
+    "v3_e1": {
+      "counted_failure_count": 9,
+      "counted_failure_type_counts": {
+        "HTTPError": 9
+      },
+      "generation_seconds": {
+        "mean": 2.5607726027588265,
+        "p50": 2.5608267311472446,
+        "p95": 2.8188154386822135
+      },
+      "mean_completed_steps": 36.06666666666667,
+      "mean_osworld_score": 0.13333333333333333,
+      "peak_gpu_memory_allocated_bytes": 19166695424,
+      "policy_latency_seconds": {
+        "mean": 12.902674711365751,
+        "p50": 13.992691513383761,
+        "p95": 15.225651269196533
+      },
+      "policy_step_count": 1082,
+      "server_queue_seconds": {
+        "mean": 10.085649131964239,
+        "p50": 11.202756302896887,
+        "p95": 12.298514062957839
+      },
+      "task_count": 30,
+      "task_success_count": 4,
+      "task_success_rate": 0.13333333333333333,
+      "termination_reason_counts": {
+        "policy_done": 2,
+        "run_failure:HTTPError": 9,
+        "step_budget_exhausted": 19
+      }
+    }
+  },
+  "paired": {
+    "adapted_arm": "v3_e1",
+    "adapted_losses": 2,
+    "adapted_wins": 1,
+    "mean_score_delta_adapted_minus_frozen": -0.03333333333333333,
+    "mean_score_delta_bootstrap_95_ci": [
+      -0.13333333333333333,
+      0.06666666666666667
+    ],
+    "task_scores": [
+      {
+        "adapted": 0.0,
+        "delta": -1.0,
+        "domain": "chrome",
+        "frozen": 1.0,
+        "task_id": "12086550-11c0-466b-b367-1d9e75b3910e"
+      },
+      {
+        "adapted": 1.0,
+        "delta": 1.0,
+        "domain": "chrome",
+        "frozen": 0.0,
+        "task_id": "368d9ba4-203c-40c1-9fa3-da2f1430ce63"
+      },
+      {
+        "adapted": 1.0,
+        "delta": 0.0,
+        "domain": "chrome",
+        "frozen": 1.0,
+        "task_id": "bb5e4c0d-f964-439c-97b6-bdb9747de3f4"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "chrome",
+        "frozen": 0.0,
+        "task_id": "c1fa57f3-c3db-4596-8f09-020701085416"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "gimp",
+        "frozen": 0.0,
+        "task_id": "d52d6308-ec58-42b7-a2c9-de80e4837b2b"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "gimp",
+        "frozen": 0.0,
+        "task_id": "e19bd559-633b-4b02-940f-d946248f088e"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_calc",
+        "frozen": 0.0,
+        "task_id": "51719eea-10bc-4246-a428-ac7c433dd4b3"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_calc",
+        "frozen": 0.0,
+        "task_id": "7a4e4bc8-922c-4c84-865c-25ba34136be1"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_calc",
+        "frozen": 0.0,
+        "task_id": "a01fbce3-2793-461f-ab86-43680ccbae25"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_calc",
+        "frozen": 0.0,
+        "task_id": "abed40dc-063f-4598-8ba5-9fe749c0615d"
+      },
+      {
+        "adapted": 0.0,
+        "delta": -1.0,
+        "domain": "libreoffice_impress",
+        "frozen": 1.0,
+        "task_id": "15aece23-a215-4579-91b4-69eec72e18da"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_impress",
+        "frozen": 0.0,
+        "task_id": "39be0d19-634d-4475-8768-09c130f5425d"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_impress",
+        "frozen": 0.0,
+        "task_id": "4ed5abd0-8b5d-47bd-839f-cacfa15ca37a"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_impress",
+        "frozen": 0.0,
+        "task_id": "ef9d12bd-bcee-4ba0-a40e-918400f43ddf"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_writer",
+        "frozen": 0.0,
+        "task_id": "6a33f9b9-0a56-4844-9c3f-96ec3ffb3ba2"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "libreoffice_writer",
+        "frozen": 0.0,
+        "task_id": "ecc2413d-8a48-416e-a3a2-d30106ca36cb"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "02ce9a50-7af2-47ed-8596-af0c230501f8"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "2c1ebcd7-9c6d-4c9a-afad-900e381ecd5e"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "69acbb55-d945-4927-a87b-8480e1a5bb7e"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "873cafdd-a581-47f6-8b33-b9696ddb7b05"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "91190194-f406-4cd6-b3f9-c43fac942b22"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "e135df7c-7687-4ac0-a5f0-76b74438b53e"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "e1fc0df3-c8b9-4ee7-864c-d0b590d3aa56"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "os",
+        "frozen": 0.0,
+        "task_id": "c288e301-e626-4b98-a1ab-159dcb162af5"
+      },
+      {
+        "adapted": 1.0,
+        "delta": 0.0,
+        "domain": "os",
+        "frozen": 1.0,
+        "task_id": "f9be0997-4b7c-45c5-b05c-4612b44a6118"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "thunderbird",
+        "frozen": 0.0,
+        "task_id": "3f28fe4f-5d9d-4994-a456-efd78cfae1a3"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "vlc",
+        "frozen": 0.0,
+        "task_id": "215dfd39-f493-4bc3-a027-8a97d72c61bf"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "vlc",
+        "frozen": 0.0,
+        "task_id": "8f080098-ddb1-424c-b438-4e96e5e4786e"
+      },
+      {
+        "adapted": 0.0,
+        "delta": 0.0,
+        "domain": "vs_code",
+        "frozen": 0.0,
+        "task_id": "971cbb5b-3cbf-4ff7-9e24-b5c84fcebfa6"
+      },
+      {
+        "adapted": 1.0,
+        "delta": 0.0,
+        "domain": "vs_code",
+        "frozen": 1.0,
+        "task_id": "9d425400-e9b2-4424-9a4b-d4c7abac4140"
+      }
+    ],
+    "ties": 27
+  },
+  "schema_version": "causalcache.osworld_transfer_summary.v2",
+  "status": "COMPLETE_OSWORLD_TRANSFER_PILOT",
+  "task_count": 30
+}

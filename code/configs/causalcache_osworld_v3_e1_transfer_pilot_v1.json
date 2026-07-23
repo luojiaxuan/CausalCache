@@ -1,0 +1,43 @@
+{
+  "schema_version": "causalcache.osworld_transfer_pilot.v2",
+  "benchmark_config": "code/configs/causalcache_osworld_benchmark_h100_v1.json",
+  "osworld_revision": "b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf",
+  "selection": {
+    "roster": "official_test_nogdrive",
+    "mode": "evenly_spaced",
+    "task_count": 30
+  },
+  "execution": {
+    "memory_arm": "recent",
+    "memory_budget": 4,
+    "max_steps": 50,
+    "pause_seconds": 2.0,
+    "environments_per_arm": 6,
+    "policy_replicas_per_arm": 1,
+    "run_arms_concurrently": true
+  },
+  "profiles": [
+    {
+      "arm": "frozen",
+      "policy_profile_id": "frozen_gui_owl",
+      "checkpoint_sha256": null,
+      "lora_rank": null,
+      "lora_alpha": null,
+      "target_modules": []
+    },
+    {
+      "arm": "v3_e1",
+      "policy_profile_id": "androidworld_v3_e1_alpha32",
+      "checkpoint_sha256": "7122d8978a8c3a86e98a49c83f154e71bbe0b426dadb37e1f77efca88f9c73b8",
+      "lora_rank": 16,
+      "lora_alpha": 32,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]
+    }
+  ],
+  "primary_metrics": [
+    "mean_osworld_score",
+    "task_success_rate",
+    "paired_score_delta"
+  ],
+  "interpretation": "exploratory_androidworld_to_osworld_transfer_pilot_not_full_benchmark"
+}

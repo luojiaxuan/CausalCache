@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the frozen and terminal-s60 OSWorld arms concurrently."""
+"""Run frozen and one configured adapted OSWorld arm concurrently."""
 
 from __future__ import annotations
 
@@ -33,7 +33,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--cache-root", type=Path, required=True)
     parser.add_argument("--path-to-vm", type=Path, required=True)
     parser.add_argument("--frozen-policy-endpoint", action="append", required=True)
-    parser.add_argument("--terminal-policy-endpoint", action="append", required=True)
+    parser.add_argument("--adapted-policy-endpoint", action="append")
+    parser.add_argument("--terminal-policy-endpoint", action="append")
     return parser
 
 
@@ -43,9 +44,20 @@ def main() -> None:
     config = load_transfer_config(args.config.resolve())
     execution = config["execution"]
     expected_replicas = int(execution["policy_replicas_per_arm"])
+    adapted_arm = config["profiles"][1]["arm"]
+    adapted_endpoints = args.adapted_policy_endpoint
+    if adapted_endpoints is None:
+        adapted_endpoints = args.terminal_policy_endpoint
+    if adapted_endpoints is None:
+        raise ValueError("adapted policy endpoint is required")
+    if (
+        args.adapted_policy_endpoint is not None
+        and args.terminal_policy_endpoint is not None
+    ):
+        raise ValueError("provide only one adapted policy endpoint argument")
     endpoints = {
         "frozen": tuple(args.frozen_policy_endpoint),
-        "terminal_s60": tuple(args.terminal_policy_endpoint),
+        adapted_arm: tuple(adapted_endpoints),
     }
     for arm, values in endpoints.items():
         if len(values) != expected_replicas:
@@ -59,7 +71,7 @@ def main() -> None:
     logs: dict[str, Any] = {}
     started_at = datetime.now(timezone.utc).isoformat()
     try:
-        for arm in ("frozen", "terminal_s60"):
+        for arm in ("frozen", adapted_arm):
             arm_root = raw_root / arm
             arm_root.mkdir(parents=True, exist_ok=True)
             (cache_root / arm).mkdir(parents=True, exist_ok=True)
