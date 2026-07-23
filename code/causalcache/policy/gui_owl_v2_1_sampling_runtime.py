@@ -64,10 +64,11 @@ class GUIOwlV21SampledToolsRuntime(GUIOwlV21OfficialToolsRuntime):
         model_inputs, image_counts = self._encode_exact_batch((messages,))
         prompt_tokens = int(model_inputs["input_ids"].shape[1])
         tokens = self.generation_tokens
+        history_scope = self._history_generation_scope(model_inputs, image_counts)
         self.torch.cuda.reset_peak_memory_stats(self.device)
         self.torch.cuda.synchronize(self.device)
         started = time.perf_counter()
-        with self.torch.inference_mode():
+        with self.torch.inference_mode(), history_scope:
             generated = self.model.generate(
                 **model_inputs,
                 do_sample=True,

@@ -26,11 +26,22 @@ def main() -> None:
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--ocr-model-dir", type=Path, required=True)
     parser.add_argument("--ceiling-plan", type=Path, required=True)
+    # note (luojiaxuan): sealed 零样本评测(合同第 12 步)专用开关;默认不传时
+    # _load_plan_instance 对 split=="test" 的拒绝保持原样,dev/canary 不受影响。
+    parser.add_argument("--allow-sealed-split", action="store_true")
     parser.add_argument("--shared-early-decisions", type=int, required=True)
     parser.add_argument("--device", required=True)
     parser.add_argument("--lora-checkpoint", type=Path, default=None)
-    parser.add_argument("--lora-rank", type=int, default=16)
-    parser.add_argument("--lora-alpha", type=int, default=32)
+    # note (luojiaxuan): rank/alpha 缺省按 adapter 类型解析——full_policy_lora
+    # 保持既有 16/32,history_gated_kv 用训练契约的 8/16;显式传参不受影响。
+    parser.add_argument("--lora-rank", type=int, default=None)
+    parser.add_argument("--lora-alpha", type=int, default=None)
+    parser.add_argument(
+        "--adapter-type",
+        choices=("full_policy_lora", "history_gated_kv"),
+        default="full_policy_lora",
+    )
+    parser.add_argument("--adapter-layer-count", type=int, default=8)
     parser.add_argument("--parse-retries", type=int, default=0)
     parser.add_argument("--retry-temperature", type=float, default=0.7)
     parser.add_argument("--retry-top-p", type=float, default=0.95)
@@ -42,6 +53,22 @@ def main() -> None:
         help="ARM:TASK_TYPE:TASK_INDEX entries executed in order",
     )
     args = parser.parse_args()
+
+    history_mode = args.adapter_type == "history_gated_kv"
+    lora_rank = (
+        args.lora_rank
+        if args.lora_rank is not None
+        else (8 if history_mode else 16)
+    )
+    lora_alpha = (
+        args.lora_alpha
+        if args.lora_alpha is not None
+        else (16 if history_mode else 32)
+    )
+    if history_mode and args.lora_checkpoint is None:
+        raise ValueError(
+            "--adapter-type history_gated_kv requires --lora-checkpoint"
+        )
 
     assignments = []
     for entry in args.episode:
@@ -84,21 +111,38 @@ def main() -> None:
     if args.lora_checkpoint is not None:
         import hashlib
 
-        from scripts.train_success_sft_lora import (
-            inject_lora,
-            load_lora_state_dict,
-        )
+        if history_mode:
+            from causalcache.policy.history_gated_lora import (
+                inject_history_gated_kv,
+                load_history_gated_state_dict,
+            )
 
-        wrapped = inject_lora(
-            runtime.model,
-            rank=args.lora_rank,
-            alpha=args.lora_alpha,
-            target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
-            torch=torch,
-        )
-        load_lora_state_dict(
-            wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
-        )
+            wrapped = inject_history_gated_kv(
+                runtime.model,
+                layer_count=args.adapter_layer_count,
+                rank=lora_rank,
+                alpha=lora_alpha,
+            )
+            load_history_gated_state_dict(
+                wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
+            )
+            runtime.enable_history_gated_adapter()
+        else:
+            from scripts.train_success_sft_lora import (
+                inject_lora,
+                load_lora_state_dict,
+            )
+
+            wrapped = inject_lora(
+                runtime.model,
+                rank=lora_rank,
+                alpha=lora_alpha,
+                target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
+                torch=torch,
+            )
+            load_lora_state_dict(
+                wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
+            )
         runtime.metadata = {
             **runtime.metadata,
             "lora_checkpoint": str(args.lora_checkpoint),
@@ -106,10 +150,27 @@ def main() -> None:
                 args.lora_checkpoint.read_bytes()
             ).hexdigest(),
             "lora_module_count": len(wrapped),
-            "lora_rank": args.lora_rank,
-            "lora_alpha": args.lora_alpha,
+            "lora_rank": lora_rank,
+            "lora_alpha": lora_alpha,
         }
-        print(json.dumps({"lora_modules": len(wrapped)}), flush=True)
+        if history_mode:
+            runtime.metadata = {
+                **runtime.metadata,
+                "adapter_type": args.adapter_type,
+                "adapter_layer_count": args.adapter_layer_count,
+                "history_adapter_merge_size": runtime.history_adapter_merge_size,
+            }
+            print(
+                json.dumps(
+                    {
+                        "adapter_type": args.adapter_type,
+                        "lora_modules": len(wrapped),
+                    }
+                ),
+                flush=True,
+            )
+        else:
+            print(json.dumps({"lora_modules": len(wrapped)}), flush=True)
 
     completed = 0
     for arm, task_type, task_index in assignments:
@@ -125,6 +186,7 @@ def main() -> None:
             ocr_model_dir=args.ocr_model_dir,
             validation12_manifest=None,
             ceiling_plan=args.ceiling_plan,
+            allow_sealed_split=args.allow_sealed_split,
             task_index=task_index,
             shared_early_decisions=args.shared_early_decisions,
             parse_retries=args.parse_retries,

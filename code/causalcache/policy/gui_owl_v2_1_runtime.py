@@ -8,6 +8,7 @@ import json
 import math
 import time
 from collections.abc import Mapping, Sequence
+from contextlib import nullcontext
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -334,6 +335,10 @@ def mask_gui_owl_v2_1_teacher_standard_eos_logits(
 class GUIOwlV21OfficialToolsRuntime(GUIOwlV2Runtime):
     """GUI-Owl runtime using only the pinned official ``tools=`` interface."""
 
+    # note (luojiaxuan): None = history-gated adapter 未启用,generate 不装
+    # 任何 scope,行为与冻结运行时逐位一致;类属性缺省避免改动冻结 __init__。
+    history_adapter_merge_size: int | None = None
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.chat_template_identity = validate_gui_owl_v2_1_chat_template(
@@ -374,6 +379,66 @@ class GUIOwlV21OfficialToolsRuntime(GUIOwlV2Runtime):
             "host_injected_tool_call_closer": False,
             "output_recovery_or_normalization": False,
         }
+
+    def enable_history_gated_adapter(self) -> None:
+        """Route generation prefills through the history-gated mask contract."""
+        self.history_adapter_merge_size = int(
+            self.processor.image_processor.merge_size
+        )
+
+    def _history_generation_scope(
+        self,
+        model_inputs: Mapping[str, Any],
+        image_counts: Sequence[int],
+    ) -> Any:
+        """Adapter scope for one encoded single-prompt generation call.
+
+        # note (luojiaxuan): K = prompt 图像数 - 1(恢复历史图 1..K 在前、当前
+        # 观测图最后的既有顺序契约)。K=0 必须返回 nullcontext 而非全 False
+        # mask 的 scope——ContextVar 保持 None 才是与冻结模型 bitwise 一致的
+        # 架构不变量。K>0 时缺 mm_token_type_ids 或 mask 构造失败都直接抛错
+        # 终止 episode,禁止静默退回冻结行为;decode 增量步由 hook 的长度检查
+        # 自然 bypass,历史增量已固化在 prefill 的 KV cache 里。
+        """
+        if self.history_adapter_merge_size is None:
+            return nullcontext()
+        if len(tuple(image_counts)) != 1:
+            raise RuntimeError(
+                "history-gated generation requires a single-prompt batch"
+            )
+        history_image_count = int(image_counts[0]) - 1
+        if history_image_count == 0:
+            return nullcontext()
+        from causalcache.policy.history_adapter_context import (
+            HistoryAdapterContext,
+            history_adapter_scope,
+        )
+        from causalcache.policy.history_token_roles import (
+            build_history_token_mask,
+        )
+
+        if (
+            "mm_token_type_ids" not in model_inputs
+            or "image_grid_thw" not in model_inputs
+        ):
+            raise RuntimeError(
+                "history_gated_kv needs processor mm_token_type_ids and "
+                "image_grid_thw for a prompt with restored history images"
+            )
+        mask = build_history_token_mask(
+            model_inputs["input_ids"],
+            model_inputs["mm_token_type_ids"],
+            model_inputs["image_grid_thw"],
+            history_image_count,
+            self.history_adapter_merge_size,
+        )
+        return history_adapter_scope(
+            HistoryAdapterContext(
+                history_token_mask=mask,
+                history_present=True,
+                image_roles=("history",) * history_image_count + ("current",),
+            )
+        )
 
     def _encode_exact_batch(
         self,
@@ -449,6 +514,13 @@ class GUIOwlV21OfficialToolsRuntime(GUIOwlV2Runtime):
         actions: Sequence[GUIOwlV2Action],
     ) -> tuple[Any, dict[str, Any]]:
         """Return BF16 logits for the complete official tool-call token span."""
+        # note (luojiaxuan): teacher-forced 路径没有接 mask 布线;adapter 启用时
+        # 直接拒绝,避免 K>0 prompt 在 ctx=None 下静默按冻结模型打分。
+        if self.history_adapter_merge_size is not None:
+            raise RuntimeError(
+                "teacher_forced_distance_logits lacks history-gated mask wiring; "
+                "run it without enable_history_gated_adapter"
+            )
         model_inputs, image_counts = self._encode_exact_batch(messages_batch)
         if isinstance(actions, (str, bytes, bytearray, Mapping)):
             raise TypeError("actions must be a sequence of GUIOwlV2Action values")
@@ -581,10 +653,11 @@ class GUIOwlV21OfficialToolsRuntime(GUIOwlV2Runtime):
         model_inputs, image_counts = self._encode_exact_batch((messages,))
         prompt_tokens = int(model_inputs["input_ids"].shape[1])
         tokens = self.generation_tokens
+        history_scope = self._history_generation_scope(model_inputs, image_counts)
         self.torch.cuda.reset_peak_memory_stats(self.device)
         self.torch.cuda.synchronize(self.device)
         started = time.perf_counter()
-        with self.torch.inference_mode():
+        with self.torch.inference_mode(), history_scope:
             generated = self.model.generate(
                 **model_inputs,
                 do_sample=False,

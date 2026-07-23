@@ -63,10 +63,15 @@ def ceiling_arm_budget(arm: str) -> int:
 
 
 def _load_plan_instance(
-    plan_path: Path, *, task_type: str, task_index: int
+    plan_path: Path, *, task_type: str, task_index: int, allow_sealed: bool = False
 ) -> dict[str, Any]:
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
-    if plan.get("split") not in ("train", "validation"):
+    # note (luojiaxuan): 默认仍拒绝 sealed split;只有 worker 显式传
+    # --allow-sealed-split(合同第 12 步 sealed 零样本评测)才放行 split=="test",
+    # 其他 split 一律拒绝,防止 dev/canary 路径误触 sealed 名单。
+    if plan.get("split") not in ("train", "validation") and not (
+        allow_sealed and plan.get("split") == "test"
+    ):
         raise ValueError("memory ceiling refuses sealed splits")
     matches = [
         instance
@@ -179,9 +184,13 @@ def run_episode(
         raise ValueError("parse retries must be within zero to four")
     if not 0 <= shared_early_decisions <= 5:
         raise ValueError("shared early decisions must be within zero to five")
+    allow_sealed_split = bool(getattr(args, "allow_sealed_split", False))
     if ceiling_plan is not None:
         record = _load_plan_instance(
-            ceiling_plan, task_type=args.task_type, task_index=task_index
+            ceiling_plan,
+            task_type=args.task_type,
+            task_index=task_index,
+            allow_sealed=allow_sealed_split,
         )
         record["horizon_stratum"] = (
             "long"
@@ -231,6 +240,7 @@ def run_episode(
     )
 
     summary: dict[str, Any] = {
+        "allow_sealed_split": allow_sealed_split,
         "arm": args.arm,
         "base_url": args.base_url,
         "budget_contract": {
