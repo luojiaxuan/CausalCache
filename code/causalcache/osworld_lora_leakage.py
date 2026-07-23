@@ -217,6 +217,16 @@ def summarize_records(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         for record in records
         if record["inspection"]["hard_leakage"]
     ]
+    summary["decision_trace"] = [
+        {
+            "prompt_id": record.get("prompt_id"),
+            "raw_action": record["inspection"]["raw_action"],
+            "normalized_action": record["inspection"]["normalized_action"],
+            "parser_valid": record["inspection"]["parser_valid"],
+            "hard_leakage": record["inspection"]["hard_leakage"],
+        }
+        for record in records
+    ]
     summary["by_input_mode"] = {
         mode: _summarize_group(
             [record for record in records if str(record.get("input_mode")) == mode]
@@ -267,6 +277,14 @@ def classify_profile(
         verdict = "MILD_REQUIRES_ALPHA16"
     else:
         verdict = "PASS_NO_MATERIAL_LEAKAGE"
+    frozen_trace = {
+        record["prompt_id"]: record for record in frozen.get("decision_trace", ())
+    }
+    adapted_trace = {
+        record["prompt_id"]: record for record in adapted.get("decision_trace", ())
+    }
+    if set(frozen_trace) != set(adapted_trace):
+        raise ValueError("paired leakage decision traces drifted")
     return {
         "verdict": verdict,
         "parser_valid_rate_drop_points": drop_points,
@@ -277,5 +295,15 @@ def classify_profile(
         "new_parser_invalid_prompt_ids": sorted(
             set(adapted.get("parser_invalid_prompt_ids", ()))
             - set(frozen.get("parser_invalid_prompt_ids", ()))
+        ),
+        "paired_raw_action_change_count": sum(
+            frozen_trace[prompt_id]["raw_action"]
+            != adapted_trace[prompt_id]["raw_action"]
+            for prompt_id in frozen_trace
+        ),
+        "paired_normalized_action_change_count": sum(
+            frozen_trace[prompt_id]["normalized_action"]
+            != adapted_trace[prompt_id]["normalized_action"]
+            for prompt_id in frozen_trace
         ),
     }
