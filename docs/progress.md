@@ -4750,3 +4750,16 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 零样本化验尺 v2 发射:v1b-s60 × B0/B8 × 45,retry 协议,frozen 侧沿用 assay-paired-v2。
 - 渗漏测试已交接 OSWorld runner 会话(docs/osworld_lora_leakage_test_handoff.md,判定规则预注册);
   仓库工作流改为直推 main。教训入册:数据集验收必查动作类型分布,渲染 manifest 后续附分布统计。
+
+## 2026-07-23:零样本化验尺 v2(s60)裁决——0/90 二连败,定性动作分布负迁移
+
+- 三机联合舰队(hyper01 12w 正向 + H100 6w 反向 + hyper00 9w 中段,27 worker)~1h 收官,union 90/90
+  (hyper01 独自跑完全集,余为冗余保险)。结果:s60 B0=0/45 B8=0/45;parse 死亡 0(语法完美);
+  policy_terminated 15(终止行为已修复)但时机全错(3 局第 1 步宣告完成,其余 8-31 步散布,
+  score 全 0)。frozen 对照 B0=3 B8=6。
+- 定性:非机械 bug——GUI-Odyssey 人类演示的动作分布(201 应用/不同布局/操作习惯)在 135 优化步内
+  把 policy 的 AW 任务执行力整体带偏,负迁移。teacher-forced 内容门禁过线与闭环 0/90 并存 =
+  本文 dissociation 主题的又一实例(层级:teacher-forced 能力 ≠ 自由生成格式 ≠ 闭环任务能力)。
+- 战略建议(待用户确认):Odyssey 闭环线停止迭代,资产转分析章(零样本 teacher-forced 认证 +
+  闭环负结果 + 两层失败分析);主力转 selector 链,冻结 policy 用 v3-e1(唯一闭环验证过的
+  history-aware checkpoint,+8.9pt CI);时间账:deadline ~4.5 天,selector 链需 ~3 天。
