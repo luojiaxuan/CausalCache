@@ -77,3 +77,15 @@ GUI-Odyssey(约 900 条人类演示轨迹、201 个应用)训练,AndroidWorld �
 已修复(坐标直映射 [0,999]、KEY_HOME/BACK→system_button、INCOMPLETE 轨迹排除),按限额 salvage
 方案重渲染重训(≤75 步、terminal 自然配比、四层 gate + 10 局 canary 后才准 90 局);paper 主线
 (v3-e1 + selector)不等待该支线。终止态过采样(前轮续训 terminal 占 1/3)的教训一并吸收。
+
+## Salvage 轮裁决(2026-07-23,坐标+动作修复后)
+
+- 修复后数据集(37,635 样本):动作分布健康(system_button 979、terminate 1000 自然配比);
+- **离线四层 gate 首次全过**:历史效用 correct−b0 = +0.010~+0.012(CI 全正,坏坐标时代为负)、
+  内容对照 c−irrel CI 正、AW 迁移 c−irrel CI 正——坐标修复直接改变 gate 符号;
+- **闭环 canary(12 局)不放行**:6 局环境故障(新启 emulator 装机问题,infra 噪声),有效 6 局
+  0 成功(frozen ~7% 基线下属噪声),但 3/6 提前终止(step 4/10/10,score 全 0)——系统性提前
+  终止残留,按预注册第四层标准不过,90 局正式化验尺不发。
+- **full-layer Odyssey 线就此收档**,进消融矩阵作 "Full-layer counterfactual LoRA" 基线行:
+  离线过 gate + 闭环无信号的组合,恰为 history-gated 新主线(B0 架构级 parity,分支
+  exp/history-gated-mainline-v1)的动机证据:全参改写保不住冻结 policy 的基础行为。
