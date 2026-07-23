@@ -71,11 +71,26 @@ def main() -> None:
         for line in (args.dataset_root / "samples.jsonl").open(encoding="utf-8")
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    with args.output.open("w", encoding="utf-8") as handle:
+    # note (luojiaxuan): skip-existing 断点续跑——已打分行用 (pair_group, variant)
+    # 作幂等键;OOM/被杀后同一命令重启会跳过已完成项,只补未打分的,append 追加。
+    done_keys: set[tuple[str, str]] = set()
+    if args.output.exists():
+        for line in args.output.open(encoding="utf-8"):
+            try:
+                prev = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            done_keys.add((prev.get("pair_group"), prev.get("variant", "correct")))
+    with args.output.open("a", encoding="utf-8") as handle:
         for index, sample in enumerate(samples):
             if index % args.shard_count != args.shard_index:
                 continue
             if allowed_episodes is not None and sample["episode"] not in allowed_episodes:
+                continue
+            if (
+                sample.get("pair_group"),
+                sample.get("variant", "correct"),
+            ) in done_keys:
                 continue
             encoded = encode_sample(
                 runtime, sample, dataset_root=args.dataset_root, torch=torch
