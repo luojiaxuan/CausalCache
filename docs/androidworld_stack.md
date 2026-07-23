@@ -28,14 +28,14 @@ validation partition 上重新验证。
 最初的 256-visual-token smoke 只证明 logits/parser 接口可运行。修正后，model-default
 resolution 的 1/5-image smoke 已通过：5 张 GUIOdyssey fixture screenshots 共 20,010 visual
 tokens、21,185 input tokens，last-token logits finite，generation 产生唯一合法 click，峰值显存
-22.77 GiB。结果见 `data/results/gui_owl_native_resolution_smoke/`。emulator/reward smoke 已通过：
+22.77 GiB。结果见 `data/results/archive/gui_owl_native_resolution_smoke/`。emulator/reward smoke 已通过：
 `SystemWifiTurnOn` 经 HTTP executor 后 score 从 0.0 变为 1.0，结果见
-`data/results/androidworld_environment_smoke/`。candidate 随后未通过 task-success gate，因此未写入
+`data/results/archive/androidworld_environment_smoke/`。candidate 随后未通过 task-success gate，因此未写入
 主 experiment contract。
 
 冻结 validation plan 上的 `ClockStopWatchPausedVerify[0]` 单实例 closed-loop smoke 已通过：
 4/4 outputs parsed，policy 明确 terminate，environment reward 与 AndroidWorld 官方 success 均为 1。
-结果见 `data/results/gui_owl_androidworld_validation_smoke/`。该 run 同样使用 256 visual tokens/图，
+结果见 `data/results/archive/gui_owl_androidworld_validation_smoke/`。该 run 同样使用 256 visual tokens/图，
 只关闭执行链路，不构成 native policy reproduction，也不替代 62-instance validation gate。
 
 ## Pinned benchmark code
@@ -115,7 +115,7 @@ effective visual tokens。
 固定 62 条分母下，50% gate 至少需要 31 个成功。此时剩余 15 条即使全部成功也只能达到
 30/62，因此按预注册规则 early-stop。部分 checkpoint 的 15/47 比例受 round-robin worker 完成
 顺序影响，不作为完整 benchmark success rate；合法结论是完整成功率上界 30/62，小于 50%。
-详细 trace 与机器可读 summary 见 `data/results/gui_owl_androidworld_validation/`。
+详细 trace 与机器可读 summary 见 `data/results/archive/gui_owl_androidworld_validation/`。
 
 该结果有效拒绝 GUI-Owl candidate。test partition 保持 sealed，prompt、equivalence、threshold、
 task split 和权重均未事后调整。主 attribution 链路在新的 validated teacher 被预注册并通过独立
@@ -134,7 +134,7 @@ unobserved，固定分母成功率下界 9/62、上界 29/62。512/513 model act
 test split，也未修改 prompt、parser、action equivalence、threshold 或 preprocessing。raw traces 位于
 private HF dataset `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0`
 (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)；轻量结果见
-`data/results/gui_owl_1_5_8b_think_androidworld_validation/`。本 stack 与 replacement round 均停止，新的
+`data/results/archive/gui_owl_1_5_8b_think_androidworld_validation/`。本 stack 与 replacement round 均停止，新的
 primary reference 必须另行预注册。
 
 ## Compute placement

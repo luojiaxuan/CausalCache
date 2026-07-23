@@ -177,7 +177,7 @@ python3 -m scripts.run_subset_search_ablation \
   --repository-root /absolute/path/to/CausalCache \
   --config /absolute/path/to/CausalCache/code/configs/subset_search_ablation_v1.json \
   --source-git-commit <FULL_CLEAN_PUSHED_MAIN_SHA> \
-  --output-dir /absolute/path/to/CausalCache/data/results/subset_search_ablation_v1
+  --output-dir /absolute/path/to/CausalCache/data/results/archive/subset_search_ablation_v1
 ```
 
 本次结果是轻量 deterministic summaries，进入 Git 即足够；没有新的 reusable dataset/model，不创建多余 HF
@@ -218,7 +218,7 @@ main 重新运行 exact CLI。14 个 scenarios 在 53.606 秒完成，scientific
 `26846d509d421dcb49f2d1554598893a65829c6a25610ef399ce69b383274edf`。随后在未修改 source/config 的
 情况下重新构造完整 payload，JSON round-trip identity、完整 dict equality 与 canonical hash 全部通过，输出
 `PRECOMMIT_SCIENTIFIC_REPLAY_MATCH`。正式轻量结果见
-[`../data/results/subset_search_ablation_v1/`](../data/results/subset_search_ablation_v1/)。
+[`../data/results/archive/subset_search_ablation_v1/`](../data/results/archive/subset_search_ablation_v1/)。
 
 canonical result 逐项复现上一节全部数值，因此当前最稳妥的方法决策是：主线上使用 set-conditioned greedy；
 exact 只作小规模 ceiling；beam/local 是

@@ -31,7 +31,7 @@ immutable revision、schema/provenance 与生成命令。
   和 evaluation 应按实际吞吐尽量使用可用配额，不把该上限误解为必须占满。其他 hosts 仍遵循全局上限；
 - 已 committed 的 frozen formal execution contract 不因通用策略更新而被追溯修改；
 - Hyper01 默认承担 H200 policy/offline 工作；当前 AndroidWorld closed-loop MVP 留在已验证的 Aries
-  stack，迁移条件见 `docs/execution.md`；
+  stack，迁移条件见 `docs/archive/execution.md`；
 - 不同芯片不要求 bitwise logits 一致；正式结果分别报告 latency、显存和 runtime metadata。新 host、新
   image 或已经出现兼容性问题时再按需执行 behavioral smoke。
 
@@ -42,4 +42,4 @@ immutable revision、schema/provenance 与生成命令。
   denominator；
 - 每个正式结果记录 Git/HF revision、完整 argv、config hash、host/GPU、container digest、library
   versions、dtype、seed、起止时间和 failure classification；
-- 详细执行与回写流程以 `docs/execution.md` 为准。
+- 详细执行与回写流程以 `docs/archive/execution.md` 为准。

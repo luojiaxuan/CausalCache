@@ -1,7 +1,7 @@
 # Interaction-aware Memory Gate Ablation
 
 > 状态：v2.2 已生成完整 train/development $D(S)$ table；gate 仍未训练。先按
-> [`../docs/restoration_v2_2_selector_geometry.md`](../docs/restoration_v2_2_selector_geometry.md) 测量真实
+> [`../docs/archive/restoration_v2_2_selector_geometry.md`](../docs/archive/restoration_v2_2_selector_geometry.md) 测量真实
 > search gap 与 objective-projection gap，再决定 set-conditioned student 是否进入主方法。
 >
 > 边界：本文档不修改 v2.1 的 `NO_GO_V2_1_FULL_45_SUBSTRATE`；后续独立的 v2.2-eager substrate 与 exact-label
@@ -84,7 +84,7 @@ $G^{(B)}_j$，也不保证最大化真实 $U_t(S)$。两个典型失败是：
 这不是 attribution estimator 的错误，而是把 set function 蒸馏成 context-independent item score 时产生的
 approximation gap。现有 synthetic result 已给出直接信号：exact marginal-score selection 只达到 global subset
 optimum utility 的 85.9%，见
-[`../data/results/synthetic_phase0/README.md`](../data/results/synthetic_phase0/README.md)。
+[`../data/results/archive/synthetic_phase0/README.md`](../data/results/archive/synthetic_phase0/README.md)。
 
 ## 候选方法：set-conditioned iterative gate
 

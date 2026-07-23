@@ -44,7 +44,7 @@ UI-TARS 评测使用其原生 mobile action grammar，再映射到项目统一�
 - Parser coverage：9/9；
 - Action-type gate：通过，tap 2/7、swipe 1/1、type_text 1/1；
 - 决策：不进入 attribution pilot，不因 decision step 9 的相邻-bin miss 事后修改 equivalence；
-- 完整记录：`data/results/ui_tars_policy_coverage/`。
+- 完整记录：`data/results/archive/ui_tars_policy_coverage/`。
 
 下一候选优先评估 OpenCUA-7B。只有在确认其 custom code 可复现、logits 可访问、
 mobile action grammar 可映射到当前 `ExecutableAction` 后，才固定 revision 并运行
@@ -91,7 +91,7 @@ parse failure。mixed-fidelity 输出单个正确 `write` action，仍按原 con
 - Parser coverage：7/9；
 - Action-type gate：失败，tap 1/7、swipe 0/1、type_text 0/1；
 - 计算可行性：3--19 images、最长 5,172 input tokens 均完成，峰值显存 18.71 GB；
-- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `data/results/open_cua_policy_coverage/`。
+- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `data/results/archive/open_cua_policy_coverage/`。
 
 ## ShowUI-2B 接口审计与冻结配置
 
@@ -118,7 +118,7 @@ ShowUI 可选的组合点击；因此 adapter 在 coverage gate 前固定为：`
 修正后的 canonical smoke 已完成：summary-only、恢复 event 2 与 full-history 分别使用
 1、3、7 张图，均生成唯一且正确的 `INPUT('cryptocurrency market')`；summary-only
 forward 返回 `[1, 695, 151936]` finite logits，峰值显存不超过 4.45 GiB。结果见
-`data/results/showui_policy_smoke/`。这只证明候选可以进入预注册 coverage gate。
+`data/results/archive/showui_policy_smoke/`。这只证明候选可以进入预注册 coverage gate。
 
 ## ShowUI-2B gate 结果
 
@@ -127,7 +127,7 @@ forward 返回 `[1, 695, 151936]` finite logits，峰值显存不超过 4.45 GiB
 - Action-type gate：失败，tap 1/7、swipe 0/1、type_text 1/1；
 - 计算可行性：3--19 images、最长 5,305 input tokens 均完成，峰值显存 5.01 GiB；
 - 主要失败：后半段多次过早输出 `ANSWER('task complete')`；
-- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `data/results/showui_policy_coverage/`。
+- 决策：拒绝该 candidate 进入 attribution pilot，结果见 `data/results/archive/showui_policy_coverage/`。
 
 四个已登记 candidate 均未通过 gate。按预注册停止规则，不继续为当前单轨迹枚举相似
 backbone，也不事后调整 prompt、坐标容差或 threshold；下一步重新选择 benchmark-native
@@ -149,7 +149,7 @@ A6000 的峰值显存为 17.07 GiB。该 candidate 当前状态为
 `rejected_by_native_validation_gate`，不作为 accepted teacher。model-default 正式 validation
 在 47/62 checkpoint 时得到 15 个 official success；即使余下 15 条全成功也只有 30/62，低于
 31/62 gate。496/496 action 均可解析，因此失败不是 serialization coverage 导致。结果见
-`data/results/gui_owl_androidworld_validation/`。
+`data/results/archive/gui_owl_androidworld_validation/`。
 
 ## AndroidWorld replacement teacher v1
 
@@ -190,7 +190,7 @@ worker 完成后得到 42 records、9 official successes、20 unobserved，因�
 
 9 个 exception 与 Instruct run 一样按固定分母保留：6 个 HTTP 500、2 个 live instance 与 frozen plan
 不一致、1 个任务初始 reward 已为 1.0；没有 retry 或删除。完整结果见
-`data/results/gui_owl_1_5_8b_think_androidworld_validation/`，raw traces 位于 private HF dataset
+`data/results/archive/gui_owl_1_5_8b_think_androidworld_validation/`，raw traces 位于 private HF dataset
 `gavinlaw/causalcache-androidworld-validation-mobile@v0.2.0`
 (`0faf767e7c1f64b5f39fde1ac6913ca93337d8f2`)。
 
@@ -231,4 +231,4 @@ coordinate 使用 `[0,999]`。这不修改历史 ShowUI `[0,1000]` adapter 或 v
 每个 action/alias 必须在任何 v2 output 前通过 exhaustive
 `prompt -> native tool call -> parser -> canonical action -> AndroidWorld payload -> pinned JSONAction`
 fixture，且保留 exact native tool call 和 executor payload。quality 两轴只用于预注册分层报告，不得改变
-fixed-denominator screening/confirm。完整契约见 [`restoration_v2.md`](restoration_v2.md)。
+fixed-denominator screening/confirm。完整契约见 [`restoration_v2.md`](archive/restoration_v2.md)。

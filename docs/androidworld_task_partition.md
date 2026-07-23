@@ -154,4 +154,4 @@ off-by-one 书写错误，不得用来改变 worker assignment。新 Think run �
 `36526c58997be5409f65c5976fb35e17aa007ad7` 正常退出。40 checkpoints 时 success gate 已数学不可能，
 两个在途 worker 收尾后 summary 保存 42 checkpoints、9 successes、20 unobserved，上界 29/62；candidate
 被拒绝。final-test plan 未实例化或运行。结果与 immutable HF revision 见
-`data/results/gui_owl_1_5_8b_think_androidworld_validation/`。
+`data/results/archive/gui_owl_1_5_8b_think_androidworld_validation/`。
