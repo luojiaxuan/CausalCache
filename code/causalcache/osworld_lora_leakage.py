@@ -134,7 +134,7 @@ def inspect_output(output_text: str, *, screen_size: tuple[int, int]) -> dict[st
     }
 
 
-def summarize_records(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+def _summarize_group(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     if not records:
         raise ValueError("cannot summarize an empty leakage profile")
     valid = sum(bool(record["inspection"]["parser_valid"]) for record in records)
@@ -161,6 +161,35 @@ def summarize_records(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "raw_action_counts": dict(sorted(raw_counts.items())),
         "normalized_action_counts": dict(sorted(normalized_counts.items())),
     }
+
+
+def summarize_records(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    summary = _summarize_group(records)
+    modes = sorted({str(record.get("input_mode")) for record in records})
+    domains = sorted({str(record.get("domain")) for record in records})
+    summary["parser_invalid_prompt_ids"] = [
+        record.get("prompt_id")
+        for record in records
+        if not record["inspection"]["parser_valid"]
+    ]
+    summary["hard_leakage_prompt_ids"] = [
+        record.get("prompt_id")
+        for record in records
+        if record["inspection"]["hard_leakage"]
+    ]
+    summary["by_input_mode"] = {
+        mode: _summarize_group(
+            [record for record in records if str(record.get("input_mode")) == mode]
+        )
+        for mode in modes
+    }
+    summary["by_domain"] = {
+        domain: _summarize_group(
+            [record for record in records if str(record.get("domain")) == domain]
+        )
+        for domain in domains
+    }
+    return summary
 
 
 def jensen_shannon_counts(
@@ -204,5 +233,9 @@ def classify_profile(
         "hard_leakage_count": hard,
         "normalized_action_js_divergence": jensen_shannon_counts(
             frozen["normalized_action_counts"], adapted["normalized_action_counts"]
+        ),
+        "new_parser_invalid_prompt_ids": sorted(
+            set(adapted.get("parser_invalid_prompt_ids", ()))
+            - set(frozen.get("parser_invalid_prompt_ids", ()))
         ),
     }

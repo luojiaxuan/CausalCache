@@ -93,6 +93,7 @@ def main() -> None:
             "recent-B4 prompts alternate the live initial and post-WAIT screenshots; "
             "the probe tests grammar leakage, not memory quality"
         ),
+        "config_sha256": sha256_file(args.config.resolve()),
         "episodes_root": str(args.episodes_root.resolve()),
         "prompts": prompts,
     }
