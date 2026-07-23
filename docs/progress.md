@@ -4796,3 +4796,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 本 pilot 不含 learned selector，不扩跑完整 361-task OSWorld。结果见
   [`data/results/osworld_transfer_pilot_v1/`](../data/results/osworld_transfer_pilot_v1/)和
   [`docs/osworld_transfer_pilot_v1.md`](osworld_transfer_pilot_v1.md)。
+
+## 2026-07-23(夜):修正版 Odyssey s75 全量零样本化验尺发射(过夜任务)
+
+- 用户过夜指令:canary 完成后跑 90 局,验证坐标修复后的 GUI-Odyssey 训练能否直接泛化 AndroidWorld;
+  本会话切回 main。
+- canary 12/12:行为面无红旗(0 提前终止、终止时机正常),6 局环境故障为 emulator 启动后 30 分钟
+  未稳期瞬态——2.5h 后 adb 验证 11 台全部 8 个关键应用在位(28203 台已死,弃用)。
+- 90 局发射:11 worker(28200-28211 去 28203),odyv2-step75(坐标修复版,in-domain c−b0 CI 首次
+  转正的那个),retry 协议,输出 /data02/jaxan/runs/odyv2-zeroshot-full/。frozen 对照沿用
+  assay-paired-v2。完成后出配对裁决入库。
+- 另:history-gated 分支(exp/history-gated-mainline-v1)契约与 provenance 已冻结推送;实现工作流
+  因会话重启中断,待明日以 resumeFromRunId wf_1b21d1fe-782 续跑或重发。
