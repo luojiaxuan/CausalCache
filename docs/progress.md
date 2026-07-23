@@ -4723,3 +4723,15 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   port scanner 的 list→per-container-inspect race；改用一次 Docker sparse port snapshot，保留全局分配 lock。
 - sparse port snapshot 后 6 env 已完成 46/46、0 failure，但 runner 在汇总前出现 join-before-drain queue
   deadlock；改为运行中 drain 46 个 task terminal messages 后再 join。该 attempt 不产生合法 throughput。
+
+## 2026-07-23:terminate 饿死事故闭环——修复验证通过,零样本化验尺 v2 发射
+
+- 事故:零样本化验尺 v1(ody-s75)0/90,零 policy_terminated;根因 = 训练目标 0 个 terminate
+  (state 母表只含中段决策点)。修复:渲染器终止态合成(--terminal-states-only,decision=事件数+1,
+  全历史+末观测→terminate)产 3,233 样本;混合续训集(终止全量 + 25% 常规)从 s75 续训 60 步
+  (v1b,s20/s40/s60)。中途修图像根分叉(终止态涉及母表外轨迹,mix images 双源符号链接)。
+- 冒烟验证:s40 版 10 局 B0,4/9 policy_terminated(修复前 0/90)——终止行为恢复;0 成功属难模板
+  B0 预期(frozen 同条件 ~7%)。
+- 零样本化验尺 v2 发射:v1b-s60 × B0/B8 × 45,retry 协议,frozen 侧沿用 assay-paired-v2。
+- 渗漏测试已交接 OSWorld runner 会话(docs/osworld_lora_leakage_test_handoff.md,判定规则预注册);
+  仓库工作流改为直推 main。教训入册:数据集验收必查动作类型分布,渲染 manifest 后续附分布统计。
