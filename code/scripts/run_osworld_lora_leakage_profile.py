@@ -7,7 +7,7 @@ import argparse
 import json
 from pathlib import Path
 
-from causalcache.osworld_gui_owl import GUIOwlOSWorldRuntime
+from causalcache.osworld_gui_owl import GUIOwlOSWorldRuntime, attach_gui_owl_lora
 from causalcache.osworld_lora_leakage import (
     PROFILE_SCHEMA_VERSION,
     inspect_output,
@@ -70,28 +70,15 @@ def main() -> None:
         max_new_tokens=config["max_new_tokens"],
     )
     if args.lora_checkpoint is not None:
-        import torch
-
-        from scripts.train_success_sft_lora import inject_lora, load_lora_state_dict
-
-        wrapped = inject_lora(
-            runtime.model,
+        attach_gui_owl_lora(
+            runtime,
+            checkpoint=args.lora_checkpoint.resolve(),
+            expected_sha256=profile["checkpoint_sha256"],
             rank=profile["lora_rank"],
             alpha=profile["lora_alpha"],
             target_modules=tuple(profile["target_modules"]),
-            torch=torch,
+            profile_id=args.profile_id,
         )
-        load_lora_state_dict(
-            wrapped, torch.load(args.lora_checkpoint.resolve(), map_location="cpu")
-        )
-        runtime.metadata = {
-            **runtime.metadata,
-            "lora_checkpoint": str(args.lora_checkpoint.resolve()),
-            "lora_checkpoint_sha256": profile["checkpoint_sha256"],
-            "lora_rank": profile["lora_rank"],
-            "lora_alpha": profile["lora_alpha"],
-            "lora_module_count": len(wrapped),
-        }
     profile_root = args.output_root.resolve() / args.profile_id
     records = []
     for prompt in manifest["prompts"]:

@@ -34,9 +34,15 @@ def _serve(
     snapshot_manifest: str,
     visual_tokens: int,
     max_new_tokens: int,
+    policy_profile_id: str,
+    lora_checkpoint: str | None,
+    lora_checkpoint_sha256: str | None,
+    lora_rank: int | None,
+    lora_alpha: int | None,
+    lora_target_modules: tuple[str, ...],
 ) -> None:
     os.environ["CUDA_VISIBLE_DEVICES"] = str(gpu_id)
-    from causalcache.osworld_gui_owl import GUIOwlOSWorldRuntime
+    from causalcache.osworld_gui_owl import GUIOwlOSWorldRuntime, attach_gui_owl_lora
 
     runtime = GUIOwlOSWorldRuntime(
         model_dir=model_dir,
@@ -45,6 +51,17 @@ def _serve(
         effective_visual_tokens_per_image=visual_tokens,
         max_new_tokens=max_new_tokens,
     )
+    runtime.metadata["policy_profile_id"] = policy_profile_id
+    if lora_checkpoint is not None:
+        attach_gui_owl_lora(
+            runtime,
+            checkpoint=lora_checkpoint,
+            expected_sha256=str(lora_checkpoint_sha256),
+            rank=int(lora_rank),
+            alpha=int(lora_alpha),
+            target_modules=lora_target_modules,
+            profile_id=policy_profile_id,
+        )
     inference_lock = threading.Lock()
     request_count = 0
     count_lock = threading.Lock()
@@ -90,7 +107,7 @@ def _serve(
                     {
                         "schema_version": OSWORLD_POLICY_RESPONSE_SCHEMA_VERSION,
                         "action": action.to_mapping(),
-                        "source": "frozen_gui_owl_1_5",
+                        "source": runtime.metadata["policy_profile_id"],
                         "replica_id": replica_id,
                         "gpu_id": gpu_id,
                         "replica_request_count": current_count,
@@ -138,6 +155,16 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--gpu-ids", type=int, nargs="+")
     parser.add_argument("--visual-tokens", type=int, default=480)
     parser.add_argument("--max-new-tokens", type=int, default=256)
+    parser.add_argument("--policy-profile-id", default="frozen_gui_owl")
+    parser.add_argument("--lora-checkpoint", type=Path)
+    parser.add_argument("--lora-checkpoint-sha256")
+    parser.add_argument("--lora-rank", type=int)
+    parser.add_argument("--lora-alpha", type=int)
+    parser.add_argument(
+        "--lora-target-modules",
+        nargs="+",
+        default=("q_proj", "k_proj", "v_proj", "o_proj"),
+    )
     return parser
 
 
@@ -150,6 +177,18 @@ def main() -> None:
         raise ValueError("gpu ids and ports must be unique")
     if any(port <= 0 or port >= 65536 for port in args.ports):
         raise ValueError("ports must be within (0, 65536)")
+    lora_fields = (
+        args.lora_checkpoint,
+        args.lora_checkpoint_sha256,
+        args.lora_rank,
+        args.lora_alpha,
+    )
+    if any(value is not None for value in lora_fields) != all(
+        value is not None for value in lora_fields
+    ):
+        raise ValueError(
+            "LoRA checkpoint, SHA256, rank, and alpha must be provided together"
+        )
     context = multiprocessing.get_context("spawn")
     processes = [
         context.Process(
@@ -162,6 +201,16 @@ def main() -> None:
                 str(args.snapshot_manifest.resolve()),
                 args.visual_tokens,
                 args.max_new_tokens,
+                args.policy_profile_id,
+                (
+                    str(args.lora_checkpoint.expanduser().resolve())
+                    if args.lora_checkpoint is not None
+                    else None
+                ),
+                args.lora_checkpoint_sha256,
+                args.lora_rank,
+                args.lora_alpha,
+                tuple(args.lora_target_modules),
             ),
             name=f"osworld-gui-owl-{replica_id}",
         )
