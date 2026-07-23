@@ -343,6 +343,7 @@ def history_group_unit_loss(
     training: dict[str, Any],
     adapter_parameters: list[Any],
     merge_size: int,
+    accumulation: int,
     torch: Any,
 ) -> Any:
     """One pair-group forward set and its history-gated loss, or None to skip.
@@ -377,12 +378,12 @@ def history_group_unit_loss(
                     runtime.model, encoded, torch=torch
                 ).detach()
 
-    correct_lp = forward("correct", grad=True)
+    correct_lp = forward("correct", grad=False)
     if correct_lp is None:
         return None
     b0_lp = forward("b0", grad=False)
-    shuffled_lp = forward("shuffled", grad=True)
-    irrelevant_lp = forward("irrelevant", grad=True)
+    shuffled_lp = forward("shuffled", grad=False)
+    irrelevant_lp = forward("irrelevant", grad=False)
 
     margin = float(training.get("history_gate_margin", 0.01))
     gate_weight = float(training.get("history_gate_weight", 1.0))
@@ -391,32 +392,64 @@ def history_group_unit_loss(
     l2_weight = float(training.get("history_lora_l2_weight", 1e-4))
     ce_weight = float(training.get("history_ce_weight", 0.0))
 
-    terms = []
+    # note (luojiaxuan): 两遍法。第一遍 no-grad 取各变体 ℓ 值并按 hinge/huber
+    # 求每个前向的次梯度权重;第二遍逐变体在各自 scope 内带梯度前向并立即
+    # backward(权重×ℓ/accum)。同时只活一张计算图(显存),且梯度检查点的
+    # 重算发生在 scope 内(修复 ContextVar 与 checkpoint 的张量数不一致崩溃)。
+    lc = float(correct_lp)
+    l0 = float(b0_lp) if b0_lp is not None else None
+    ls = float(shuffled_lp) if shuffled_lp is not None else None
+    li = float(irrelevant_lp) if irrelevant_lp is not None else None
+
+    weight_c = 0.0
+    weight_s = 0.0
+    weight_i = 0.0
+    total_value = 0.0
     if ce_weight > 0.0:
-        terms.append(ce_weight * (-correct_lp))
-    if b0_lp is not None:
-        terms.append(gate_weight * torch.relu(margin - (correct_lp - b0_lp)))
-    for negative_lp in (shuffled_lp, irrelevant_lp):
-        if negative_lp is None:
+        weight_c += -ce_weight
+        total_value += ce_weight * (-lc)
+    if l0 is not None and (margin - (lc - l0)) > 0.0:
+        weight_c += -gate_weight
+        total_value += gate_weight * (margin - (lc - l0))
+    for value, tag in ((ls, "s"), (li, "i")):
+        if value is None:
             continue
-        terms.append(
-            contrast_weight * torch.relu(margin - (correct_lp - negative_lp))
-        )
-        if b0_lp is not None:
-            terms.append(
-                anchor_weight
-                * torch.nn.functional.smooth_l1_loss(negative_lp, b0_lp)
-            )
-    if not terms:
+        if (margin - (lc - value)) > 0.0:
+            weight_c += -contrast_weight
+            if tag == "s":
+                weight_s += contrast_weight
+            else:
+                weight_i += contrast_weight
+            total_value += contrast_weight * (margin - (lc - value))
+        if l0 is not None:
+            diff = value - l0
+            huber_grad = max(-1.0, min(1.0, diff))
+            huber_value = 0.5 * diff * diff if abs(diff) < 1.0 else abs(diff) - 0.5
+            if tag == "s":
+                weight_s += anchor_weight * huber_grad
+            else:
+                weight_i += anchor_weight * huber_grad
+            total_value += anchor_weight * huber_value
+    if total_value == 0.0 and l2_weight <= 0.0:
         return None
-    unit_loss = terms[0]
-    for term in terms[1:]:
-        unit_loss = unit_loss + term
+    for variant, weight in (
+        ("correct", weight_c),
+        ("shuffled", weight_s),
+        ("irrelevant", weight_i),
+    ):
+        if weight == 0.0:
+            continue
+        lp = forward(variant, grad=True)
+        if lp is None:
+            continue
+        ((weight / accumulation) * lp).backward()
     if l2_weight > 0.0:
-        unit_loss = unit_loss + l2_weight * sum(
+        l2_term = l2_weight * sum(
             parameter.pow(2).sum() for parameter in adapter_parameters
         )
-    return unit_loss
+        total_value += float(l2_term.detach())
+        (l2_term / accumulation).backward()
+    return total_value
 
 
 def main() -> None:
@@ -563,7 +596,7 @@ def main() -> None:
         for position, unit_index in enumerate(shard):
             kind, payload, negative_index = units[unit_index]
             if kind == "history_group":
-                unit_loss = history_group_unit_loss(
+                unit_value = history_group_unit_loss(
                     runtime,
                     samples,
                     payload,
@@ -571,10 +604,14 @@ def main() -> None:
                     training=training_config,
                     adapter_parameters=parameters,
                     merge_size=merge_size,
+                    accumulation=accumulation,
                     torch=torch,
                 )
-                if unit_loss is None:
+                if unit_value is None:
                     continue
+                running_loss += unit_value
+                contributing += 1
+                unit_loss = None
             else:
                 encoded = encode_sample(
                     runtime,
@@ -604,10 +641,11 @@ def main() -> None:
                     unit_loss = -mean_target_logprob(model, encoded, torch=torch)
                     if kind == "ce_b0":
                         unit_loss = unit_loss * b0_weight
-            loss = unit_loss / accumulation
-            loss.backward()
-            running_loss += float(unit_loss.detach())
-            contributing += 1
+            if unit_loss is not None:
+                loss = unit_loss / accumulation
+                loss.backward()
+                running_loss += float(unit_loss.detach())
+                contributing += 1
             if (position + 1) % accumulation == 0:
                 if world_size > 1:
                     for parameter in parameters:
