@@ -49,6 +49,55 @@ def load_arm_results(
                 f"OSWorld policy profile drifted for {identity}: {step_profiles}"
             )
         results[identity] = value
+    failures_by_task: dict[
+        tuple[str, str], list[tuple[Path, dict[str, Any]]]
+    ] = {}
+    for path in sorted(root.glob("*/*/attempts/*/failure.json")):
+        value = json.loads(path.read_text(encoding="utf-8"))
+        task = value["task"]
+        identity = (str(task["domain"]), str(task["task_id"]))
+        failures_by_task.setdefault(identity, []).append((path, value))
+    for identity, failures in failures_by_task.items():
+        if identity in results:
+            continue
+        failure_path, latest = max(
+            failures, key=lambda item: str(item[1]["failed_at"])
+        )
+        checkpoint_path = failure_path.with_name("checkpoint.json")
+        steps: list[dict[str, Any]] = []
+        if checkpoint_path.exists():
+            checkpoint = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+            steps = checkpoint["steps"]
+            if int(checkpoint["completed_steps"]) != len(steps):
+                raise ValueError(
+                    f"failed OSWorld checkpoint step count drifted for {identity}"
+                )
+            step_profiles = {
+                step["policy_response"].get("source") for step in steps
+            }
+            if step_profiles and step_profiles != {expected_profile_id}:
+                raise ValueError(
+                    f"failed OSWorld policy profile drifted for {identity}: "
+                    f"{step_profiles}"
+                )
+        if int(latest["completed_steps"]) != len(steps):
+            raise ValueError(
+                f"failed OSWorld episode step count drifted for {identity}"
+            )
+        results[identity] = {
+            "status": "FAILED_OSWORLD_EPISODE",
+            "task": {"domain": identity[0], "task_id": identity[1]},
+            "score": 0.0,
+            "success": False,
+            "completed_steps": int(latest["completed_steps"]),
+            "termination_reason": f"run_failure:{latest['error_type']}",
+            "steps": steps,
+            "counted_failure": {
+                "error_type": latest["error_type"],
+                "error_message": latest["error_message"],
+                "failed_at": latest["failed_at"],
+            },
+        }
     if len(results) != expected_task_count:
         raise ValueError(
             f"OSWorld result count drifted: {len(results)} != {expected_task_count}"
@@ -85,15 +134,61 @@ def _arm_summary(results: Mapping[tuple[str, str], Mapping[str, Any]]) -> dict[s
     scores = [float(result["score"]) for result in results.values()]
     successes = [bool(result["success"]) for result in results.values()]
     steps = [int(result["completed_steps"]) for result in results.values()]
+    policy_steps = [
+        step
+        for result in results.values()
+        for step in result["steps"]
+    ]
+    latencies = [
+        float(step["policy_latency_seconds"]) for step in policy_steps
+    ]
+    generations = [
+        float(step["policy_response"]["runtime"]["generation_seconds"])
+        for step in policy_steps
+    ]
+    queues = [
+        float(step["policy_response"]["queue_seconds"]) for step in policy_steps
+    ]
+    peak_allocations = [
+        int(step["policy_response"]["runtime"]["peak_gpu_memory_allocated_bytes"])
+        for step in policy_steps
+    ]
+
+    def distribution(values: Sequence[float]) -> dict[str, float]:
+        if not values:
+            return {"mean": 0.0, "p50": 0.0, "p95": 0.0}
+        return {
+            "mean": sum(values) / len(values),
+            "p50": _percentile(values, 0.50),
+            "p95": _percentile(values, 0.95),
+        }
+
     return {
         "task_count": len(results),
         "mean_osworld_score": sum(scores) / len(scores),
         "task_success_count": sum(successes),
         "task_success_rate": sum(successes) / len(successes),
         "mean_completed_steps": sum(steps) / len(steps),
+        "counted_failure_count": sum(
+            "counted_failure" in result for result in results.values()
+        ),
+        "counted_failure_type_counts": dict(
+            sorted(
+                Counter(
+                    result["counted_failure"]["error_type"]
+                    for result in results.values()
+                    if "counted_failure" in result
+                ).items()
+            )
+        ),
         "termination_reason_counts": dict(
             sorted(Counter(result["termination_reason"] for result in results.values()).items())
         ),
+        "policy_step_count": len(policy_steps),
+        "policy_latency_seconds": distribution(latencies),
+        "generation_seconds": distribution(generations),
+        "server_queue_seconds": distribution(queues),
+        "peak_gpu_memory_allocated_bytes": max(peak_allocations, default=0),
     }
 
 

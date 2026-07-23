@@ -1,8 +1,15 @@
 from __future__ import annotations
 
 import unittest
+import json
+import tempfile
+from pathlib import Path
 
-from causalcache.osworld_transfer import paired_bootstrap_ci, reduce_transfer_results
+from causalcache.osworld_transfer import (
+    load_arm_results,
+    paired_bootstrap_ci,
+    reduce_transfer_results,
+)
 
 
 def _result(score: float) -> dict[str, object]:
@@ -11,10 +18,61 @@ def _result(score: float) -> dict[str, object]:
         "success": score > 0,
         "completed_steps": 2,
         "termination_reason": "policy_done",
+        "steps": [],
     }
 
 
 class OSWorldTransferTests(unittest.TestCase):
+    def test_counts_terminal_run_failure_as_zero_score(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            failure = root / "chrome/task/attempts/attempt/failure.json"
+            failure.parent.mkdir(parents=True)
+            (failure.parent / "checkpoint.json").write_text(
+                json.dumps(
+                    {
+                        "completed_steps": 1,
+                        "steps": [
+                            {
+                                "policy_latency_seconds": 2.0,
+                                "policy_response": {
+                                    "source": "failed_profile",
+                                    "queue_seconds": 1.0,
+                                    "runtime": {
+                                        "generation_seconds": 0.5,
+                                        "peak_gpu_memory_allocated_bytes": 123,
+                                    },
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            failure.write_text(
+                json.dumps(
+                    {
+                        "task": {"domain": "chrome", "task_id": "task"},
+                        "completed_steps": 1,
+                        "error_type": "HTTPError",
+                        "error_message": "HTTP Error 500",
+                        "failed_at": "2026-01-01T00:00:00+00:00",
+                    }
+                ),
+                encoding="utf-8",
+            )
+            results = load_arm_results(
+                root,
+                expected_profile_id="failed_profile",
+                expected_task_count=1,
+            )
+            self.assertEqual(results[("chrome", "task")]["score"], 0.0)
+            self.assertEqual(len(results[("chrome", "task")]["steps"]), 1)
+            self.assertEqual(
+                results[("chrome", "task")]["termination_reason"],
+                "run_failure:HTTPError",
+            )
+
     def test_reduces_paired_scores(self) -> None:
         config = {
             "profiles": [

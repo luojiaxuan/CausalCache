@@ -4763,3 +4763,20 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 战略建议(待用户确认):Odyssey 闭环线停止迭代,资产转分析章(零样本 teacher-forced 认证 +
   闭环负结果 + 两层失败分析);主力转 selector 链,冻结 policy 用 v3-e1(唯一闭环验证过的
   history-aware checkpoint,+8.9pt CI);时间账:deadline ~4.5 天,selector 链需 ~3 天。
+# 2026-07-23：OSWorld terminal-s60 cross-platform transfer pilot v1
+
+- Hyper01 使用 2 × H200 并行跑 frozen GUI-Owl 与 terminal-s60，固定 official no-GDrive roster
+  evenly-spaced 30 tasks、recent at-most-B4、50 steps、每臂 6 environments / 1 replica；
+- frozen/s60 mean OSWorld score=`0.13333/0.07037`，score>0=`4/30` vs `3/30`；
+  paired delta=`-0.06296`，bootstrap 95% CI=`[-0.22963,0.10370]`，3 wins / 4 losses /
+  23 ties，判定 `NO_EVIDENCE_OF_POSITIVE_OSWORLD_TRANSFER_TERMINAL_S60_V1`；
+- s60 task-level HTTP 500 为 1/30，frozen 为 10/30，但 s60 平均只执行 20.13 steps、20 个
+  `policy_done`；frozen 平均 37.87 steps，说明 terminal repair 的 executable robustness 未转化为
+  desktop reward；
+- failure 按 0 分保留在固定 denominator；reducer 现同时读取失败 checkpoint steps、验证 profile 并
+  汇总 latency/generation/queue/allocator peak；
+- raw：Hyper01 `/data01/jaxan/osworld-runner/transfer-pilot-v1/raw`，715,756,714 bytes /
+  1,925 files；Git summary SHA256=`42aff280...608d6`；
+- 本 pilot 不含 learned selector，不扩跑完整 361-task OSWorld。结果见
+  [`data/results/osworld_transfer_pilot_v1/`](../data/results/osworld_transfer_pilot_v1/)和
+  [`docs/osworld_transfer_pilot_v1.md`](osworld_transfer_pilot_v1.md)。

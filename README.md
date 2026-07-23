@@ -6,6 +6,14 @@
 
 ## 当前结论
 
+- **terminal-s60 未在 30-task OSWorld closed-loop pilot 中超过 frozen GUI-Owl。** 相同 recent
+  at-most-B4 memory 下，frozen/s60 mean score=`0.13333/0.07037`，score>0=`4/30` vs `3/30`；
+  paired delta=`-0.06296`，95% CI=`[-0.22963,0.10370]`，3 wins / 4 losses / 23 ties。s60 将
+  task-level policy HTTP 500 从 10 降到 1，但平均 completed steps 从 37.87 降到 20.13，
+  可执行稳定性改善没有转化为更高 reward，表现出 terminal repair 的提前停止偏置。该 exploratory
+  pilot 不含 learned selector，也不是完整 361-task benchmark；当前不扩跑完整 OSWorld。
+  [结果](data/results/osworld_transfer_pilot_v1/README.md)与
+  [详细边界](docs/osworld_transfer_pilot_v1.md)。
 - **terminal-repair mobile LoRA 通过 OSWorld desktop grammar leakage gate。** official no-GDrive roster 等距
   取 30 个 prompts、覆盖 10 domains；frozen 与 terminal-s60 α32 均为 30/30 parser valid，single-image 与
   recent-B4 均 15/15，且 0 个 `mobile_use`/mobile-only hard leakage。s75 α32/α16 都因同一 Calc prompt 的

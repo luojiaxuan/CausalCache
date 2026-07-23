@@ -1,0 +1,296 @@
+{
+  "arms": {
+    "frozen": {
+      "counted_failure_count": 10,
+      "counted_failure_type_counts": {
+        "HTTPError": 10
+      },
+      "generation_seconds": {
+        "mean": 2.266611588299012,
+        "p50": 2.2808129985351115,
+        "p95": 2.544870818965137
+      },
+      "mean_completed_steps": 37.86666666666667,
+      "mean_osworld_score": 0.13333333333333333,
+      "peak_gpu_memory_allocated_bytes": 19106365440,
+      "policy_latency_seconds": {
+        "mean": 11.630880577369629,
+        "p50": 12.419630048563704,
+        "p95": 13.447582476888783
+      },
+      "policy_step_count": 1136,
+      "server_queue_seconds": {
+        "mean": 9.102744597635432,
+        "p50": 9.894694681512192,
+        "p95": 10.856894843047485
+      },
+      "task_count": 30,
+      "task_success_count": 4,
+      "task_success_rate": 0.13333333333333333,
+      "termination_reason_counts": {
+        "policy_done": 4,
+        "run_failure:HTTPError": 10,
+        "step_budget_exhausted": 16
+      }
+    },
+    "terminal_s60": {
+      "counted_failure_count": 1,
+      "counted_failure_type_counts": {
+        "HTTPError": 1
+      },
+      "generation_seconds": {
+        "mean": 2.6894310277868185,
+        "p50": 2.6429223229642957,
+        "p95": 3.2958319993922487
+      },
+      "mean_completed_steps": 20.133333333333333,
+      "mean_osworld_score": 0.07037,
+      "peak_gpu_memory_allocated_bytes": 19182128128,
+      "policy_latency_seconds": {
+        "mean": 13.741372544489591,
+        "p50": 14.468388632172719,
+        "p95": 16.27176682846621
+      },
+      "policy_step_count": 604,
+      "server_queue_seconds": {
+        "mean": 10.794273294208553,
+        "p50": 11.519317991798744,
+        "p95": 13.303373179025948
+      },
+      "task_count": 30,
+      "task_success_count": 3,
+      "task_success_rate": 0.1,
+      "termination_reason_counts": {
+        "policy_done": 20,
+        "policy_fail": 1,
+        "run_failure:HTTPError": 1,
+        "step_budget_exhausted": 8
+      }
+    }
+  },
+  "paired": {
+    "mean_score_delta_bootstrap_95_ci": [
+      -0.22962999999999997,
+      0.10370333333333333
+    ],
+    "mean_score_delta_terminal_s60_minus_frozen": -0.06296333333333333,
+    "task_scores": [
+      {
+        "delta": 0.0,
+        "domain": "chrome",
+        "frozen": 0.0,
+        "task_id": "12086550-11c0-466b-b367-1d9e75b3910e",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": -1.0,
+        "domain": "chrome",
+        "frozen": 1.0,
+        "task_id": "368d9ba4-203c-40c1-9fa3-da2f1430ce63",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": -1.0,
+        "domain": "chrome",
+        "frozen": 1.0,
+        "task_id": "bb5e4c0d-f964-439c-97b6-bdb9747de3f4",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "chrome",
+        "frozen": 0.0,
+        "task_id": "c1fa57f3-c3db-4596-8f09-020701085416",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "gimp",
+        "frozen": 0.0,
+        "task_id": "d52d6308-ec58-42b7-a2c9-de80e4837b2b",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "gimp",
+        "frozen": 0.0,
+        "task_id": "e19bd559-633b-4b02-940f-d946248f088e",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_calc",
+        "frozen": 0.0,
+        "task_id": "51719eea-10bc-4246-a428-ac7c433dd4b3",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_calc",
+        "frozen": 0.0,
+        "task_id": "7a4e4bc8-922c-4c84-865c-25ba34136be1",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_calc",
+        "frozen": 0.0,
+        "task_id": "a01fbce3-2793-461f-ab86-43680ccbae25",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_calc",
+        "frozen": 0.0,
+        "task_id": "abed40dc-063f-4598-8ba5-9fe749c0615d",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 1.0,
+        "domain": "libreoffice_impress",
+        "frozen": 0.0,
+        "task_id": "15aece23-a215-4579-91b4-69eec72e18da",
+        "terminal_s60": 1.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_impress",
+        "frozen": 0.0,
+        "task_id": "39be0d19-634d-4475-8768-09c130f5425d",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_impress",
+        "frozen": 0.0,
+        "task_id": "4ed5abd0-8b5d-47bd-839f-cacfa15ca37a",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_impress",
+        "frozen": 0.0,
+        "task_id": "ef9d12bd-bcee-4ba0-a40e-918400f43ddf",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_writer",
+        "frozen": 0.0,
+        "task_id": "6a33f9b9-0a56-4844-9c3f-96ec3ffb3ba2",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "libreoffice_writer",
+        "frozen": 0.0,
+        "task_id": "ecc2413d-8a48-416e-a3a2-d30106ca36cb",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "02ce9a50-7af2-47ed-8596-af0c230501f8",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.1111,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "2c1ebcd7-9c6d-4c9a-afad-900e381ecd5e",
+        "terminal_s60": 0.1111
+      },
+      {
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "69acbb55-d945-4927-a87b-8480e1a5bb7e",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "873cafdd-a581-47f6-8b33-b9696ddb7b05",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "91190194-f406-4cd6-b3f9-c43fac942b22",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "e135df7c-7687-4ac0-a5f0-76b74438b53e",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "multi_apps",
+        "frozen": 0.0,
+        "task_id": "e1fc0df3-c8b9-4ee7-864c-d0b590d3aa56",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "os",
+        "frozen": 0.0,
+        "task_id": "c288e301-e626-4b98-a1ab-159dcb162af5",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": -1.0,
+        "domain": "os",
+        "frozen": 1.0,
+        "task_id": "f9be0997-4b7c-45c5-b05c-4612b44a6118",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "thunderbird",
+        "frozen": 0.0,
+        "task_id": "3f28fe4f-5d9d-4994-a456-efd78cfae1a3",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "vlc",
+        "frozen": 0.0,
+        "task_id": "215dfd39-f493-4bc3-a027-8a97d72c61bf",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 0.0,
+        "domain": "vlc",
+        "frozen": 0.0,
+        "task_id": "8f080098-ddb1-424c-b438-4e96e5e4786e",
+        "terminal_s60": 0.0
+      },
+      {
+        "delta": 1.0,
+        "domain": "vs_code",
+        "frozen": 0.0,
+        "task_id": "971cbb5b-3cbf-4ff7-9e24-b5c84fcebfa6",
+        "terminal_s60": 1.0
+      },
+      {
+        "delta": -1.0,
+        "domain": "vs_code",
+        "frozen": 1.0,
+        "task_id": "9d425400-e9b2-4424-9a4b-d4c7abac4140",
+        "terminal_s60": 0.0
+      }
+    ],
+    "terminal_s60_losses": 4,
+    "terminal_s60_wins": 3,
+    "ties": 23
+  },
+  "schema_version": "causalcache.osworld_transfer_summary.v1",
+  "status": "COMPLETE_OSWORLD_TRANSFER_PILOT",
+  "task_count": 30
+}
