@@ -114,7 +114,7 @@ def run_events(args, torch) -> None:
     items = sorted(wanted)
     args.output.mkdir(parents=True, exist_ok=True)
     done = {p.stem for p in args.output.glob("*.pt")}
-    visual = runtime.model.visual
+    visual = runtime.model.model.visual
     processor = runtime.processor.image_processor
     for index, (source_id, step) in enumerate(items):
         if index % args.shard_count != args.shard_index:
