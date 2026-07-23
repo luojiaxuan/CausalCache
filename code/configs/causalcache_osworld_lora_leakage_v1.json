@@ -1,0 +1,56 @@
+{
+  "schema_version": "causalcache.osworld_lora_leakage_config.v1",
+  "osworld_benchmark_config": "code/configs/causalcache_osworld_benchmark_h100_v1.json",
+  "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+  "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+  "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+  "prompt_count": 30,
+  "prompt_selection": "evenly_spaced_official_no_gdrive_roster",
+  "screen_size": [1920, 1080],
+  "memory_arm": "recent",
+  "memory_budget": 4,
+  "input_mode_assignment": "alternating_single_image_and_recent_b4",
+  "effective_visual_tokens_per_image": 480,
+  "max_new_tokens": 256,
+  "decoding": "greedy",
+  "frozen_profile_id": "frozen",
+  "profiles": [
+    {
+      "profile_id": "frozen",
+      "checkpoint_sha256": null,
+      "checkpoint_source": null,
+      "lora_rank": null,
+      "lora_alpha": null,
+      "target_modules": []
+    },
+    {
+      "profile_id": "odyssey_s75_alpha32",
+      "checkpoint_sha256": "90a56b7e566552713f1e7adad0b20f23170c2a034eed338a795e8bf63628d56e",
+      "checkpoint_source": "hyper00:/data02/jaxan/runs/causalcache-odyssey-margin-v1/lora-step75.pt",
+      "lora_rank": 16,
+      "lora_alpha": 32,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]
+    },
+    {
+      "profile_id": "odyssey_s75_alpha16",
+      "checkpoint_sha256": "90a56b7e566552713f1e7adad0b20f23170c2a034eed338a795e8bf63628d56e",
+      "checkpoint_source": "hyper00:/data02/jaxan/runs/causalcache-odyssey-margin-v1/lora-step75.pt",
+      "lora_rank": 16,
+      "lora_alpha": 16,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]
+    },
+    {
+      "profile_id": "odyssey_terminal_s60_alpha32",
+      "checkpoint_sha256": "cba455cbfede5e091c06d8714ef000d5582adb46c4a5343fa8c0ab8c4ab47b18",
+      "checkpoint_source": "hyper00:/data02/jaxan/runs/causalcache-odyssey-margin-v1b/lora-step60.pt",
+      "lora_rank": 16,
+      "lora_alpha": 32,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"]
+    }
+  ],
+  "thresholds": {
+    "pass_drop_points": 2.0,
+    "hard_fail_drop_points": 10.0,
+    "hard_leakage_policy": "any_mobile_use_or_mobile_only_action_is_failure"
+  }
+}
