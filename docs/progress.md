@@ -4831,3 +4831,16 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - dev canary 进行中(hyper01,复用 1750xx emulator,修正:真端口 28200/28201 高位映射、
   模板须取自 ceiling 15 名单——sealed-split 防护有效拦截了越界选择)。
 - 认证期三连事故(截断 PNG/引号 bug/exec 连坐)全记录于结果 README,结论不受污染。
+
+## 2026-07-24:history-gated 闭环 dev canary 12/12 通过(合同第 11 步 AW 侧)
+
+- hyper01 2 worker × 6 局(RecipeAddMultipleRecipes/MarkorTranscribeReceipt/BrowserMaze ×
+  {summary_B0, recent_B8} × instance 0/1),train plan v1 绑定;12/12 完成,infra 故障 0;
+- B8 臂逐步实时构掩码零 fail-closed 报错,B0 臂 parity 路径正常;parse 219/241 与冻结水平相当;
+- 记录:hyper01 /data02/jaxan/runs/hgkv-canary-v1/(逐局 json);性能不读(canary 纪律);
+- 排雷三则:emulator 容器真端口为高位映射(docker port 查,28200+);--ceiling-plan 必须传带
+  split 字段的 plan 清单(data/manifests/androidworld_train_plan_v1.json),不是模板 config;
+  1750xx emulator 容器内 android_server 需手工复活(cd / && python3 -m server.android_server,
+  容器内固定绑 5000,由 -p 映射出去)。
+- 下一步 = 合同第 12 步 sealed 零样本评测矩阵:{Frozen, Full-layer(ody-margin-v2 s75),
+  History-gated(hg-s100)} × {B0, Recent-B, Full-history} × sealed 名单;先冻结协议清单再发射。
