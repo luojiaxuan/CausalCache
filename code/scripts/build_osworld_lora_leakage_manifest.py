@@ -15,6 +15,7 @@ from causalcache.osworld_benchmark import (
 from causalcache.osworld_lora_leakage import (
     MANIFEST_SCHEMA_VERSION,
     load_config,
+    prompt_contract_sha256,
     sha256_file,
 )
 
@@ -93,7 +94,7 @@ def main() -> None:
             "recent-B4 prompts alternate the live initial and post-WAIT screenshots; "
             "the probe tests grammar leakage, not memory quality"
         ),
-        "config_sha256": sha256_file(args.config.resolve()),
+        "prompt_contract_sha256": prompt_contract_sha256(config),
         "episodes_root": str(args.episodes_root.resolve()),
         "prompts": prompts,
     }

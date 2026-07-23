@@ -13,6 +13,7 @@ from causalcache.osworld_lora_leakage import (
     inspect_output,
     load_config,
     load_manifest,
+    prompt_contract_sha256,
     request_from_prompt,
     sha256_file,
     summarize_records,
@@ -54,7 +55,9 @@ def main() -> None:
         if observed != profile["checkpoint_sha256"]:
             raise ValueError("LoRA checkpoint SHA256 drifted")
     manifest = load_manifest(
-        args.manifest.resolve(), expected_count=config["prompt_count"]
+        args.manifest.resolve(),
+        expected_count=config["prompt_count"],
+        expected_prompt_contract_sha256=prompt_contract_sha256(config),
     )
     runtime = GUIOwlOSWorldRuntime(
         model_dir=args.model_dir.resolve(),

@@ -30,6 +30,23 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def prompt_contract_sha256(config: Mapping[str, Any]) -> str:
+    keys = (
+        "osworld_benchmark_config",
+        "prompt_count",
+        "prompt_selection",
+        "screen_size",
+        "memory_arm",
+        "memory_budget",
+        "input_mode_assignment",
+    )
+    payload = {key: config[key] for key in keys}
+    encoded = json.dumps(
+        payload, ensure_ascii=False, separators=(",", ":"), sort_keys=True
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def load_config(path: Path) -> dict[str, Any]:
     config = json.loads(path.read_text(encoding="utf-8"))
     if config.get("schema_version") != CONFIG_SCHEMA_VERSION:
@@ -44,7 +61,12 @@ def load_config(path: Path) -> dict[str, Any]:
     return config
 
 
-def load_manifest(path: Path, *, expected_count: int) -> dict[str, Any]:
+def load_manifest(
+    path: Path,
+    *,
+    expected_count: int,
+    expected_prompt_contract_sha256: str | None = None,
+) -> dict[str, Any]:
     manifest = json.loads(path.read_text(encoding="utf-8"))
     if manifest.get("schema_version") != MANIFEST_SCHEMA_VERSION:
         raise ValueError("OSWorld LoRA leakage manifest schema drifted")
@@ -54,6 +76,12 @@ def load_manifest(path: Path, *, expected_count: int) -> dict[str, Any]:
     ids = [prompt["prompt_id"] for prompt in prompts]
     if len(ids) != len(set(ids)):
         raise ValueError("OSWorld LoRA leakage prompt ids must be unique")
+    if (
+        expected_prompt_contract_sha256 is not None
+        and manifest.get("prompt_contract_sha256")
+        != expected_prompt_contract_sha256
+    ):
+        raise ValueError("OSWorld LoRA leakage prompt contract drifted")
     return manifest
 
 
