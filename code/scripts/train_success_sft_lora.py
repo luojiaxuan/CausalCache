@@ -503,8 +503,14 @@ def main() -> None:
     model = runtime.model
     for parameter in model.parameters():
         parameter.requires_grad_(False)
-    if config["training"]["gradient_checkpointing"]:
+    # note (luojiaxuan): history_gated_kv 禁用梯度检查点——重算跑在 autograd
+    # 线程上,ContextVar(线程局部)读不到 mask 上下文,hook 旁路导致保存张量数
+    # 不一致;两遍法已保证同时只活一张图,直接全激活反而更快。
+    adapter_type_early, _ = adapter_settings(config)
+    if config["training"]["gradient_checkpointing"] and adapter_type_early != "history_gated_kv":
         model.gradient_checkpointing_enable()
+        model.config.use_cache = False
+    elif adapter_type_early == "history_gated_kv":
         model.config.use_cache = False
     adapter_type, adapter_options = adapter_settings(config)
     if adapter_type == "history_gated_kv":
