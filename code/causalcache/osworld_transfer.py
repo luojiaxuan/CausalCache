@@ -49,6 +49,30 @@ def load_arm_results(
                 f"OSWorld policy profile drifted for {identity}: {step_profiles}"
             )
         results[identity] = value
+    failures_by_task: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for path in sorted(root.glob("*/*/attempts/*/failure.json")):
+        value = json.loads(path.read_text(encoding="utf-8"))
+        task = value["task"]
+        identity = (str(task["domain"]), str(task["task_id"]))
+        failures_by_task.setdefault(identity, []).append(value)
+    for identity, failures in failures_by_task.items():
+        if identity in results:
+            continue
+        latest = max(failures, key=lambda value: str(value["failed_at"]))
+        results[identity] = {
+            "status": "FAILED_OSWORLD_EPISODE",
+            "task": {"domain": identity[0], "task_id": identity[1]},
+            "score": 0.0,
+            "success": False,
+            "completed_steps": int(latest["completed_steps"]),
+            "termination_reason": f"run_failure:{latest['error_type']}",
+            "steps": [],
+            "counted_failure": {
+                "error_type": latest["error_type"],
+                "error_message": latest["error_message"],
+                "failed_at": latest["failed_at"],
+            },
+        }
     if len(results) != expected_task_count:
         raise ValueError(
             f"OSWorld result count drifted: {len(results)} != {expected_task_count}"
@@ -91,6 +115,18 @@ def _arm_summary(results: Mapping[tuple[str, str], Mapping[str, Any]]) -> dict[s
         "task_success_count": sum(successes),
         "task_success_rate": sum(successes) / len(successes),
         "mean_completed_steps": sum(steps) / len(steps),
+        "counted_failure_count": sum(
+            "counted_failure" in result for result in results.values()
+        ),
+        "counted_failure_type_counts": dict(
+            sorted(
+                Counter(
+                    result["counted_failure"]["error_type"]
+                    for result in results.values()
+                    if "counted_failure" in result
+                ).items()
+            )
+        ),
         "termination_reason_counts": dict(
             sorted(Counter(result["termination_reason"] for result in results.values()).items())
         ),
