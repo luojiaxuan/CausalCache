@@ -108,6 +108,7 @@ def render_trajectory(
     shared_early_decisions: int,
     contrast_variants: bool,
     donor_paths: list[str] | None,
+    terminal_states_only: bool = False,
 ) -> list[dict[str, Any]]:
     source_id = row["source_id"]
     annotation_path = annotations_root / f"{source_id}.json"
@@ -180,6 +181,20 @@ def render_trajectory(
             )
         )
 
+    # note (luojiaxuan): state 母表只含中段决策点,终止步(COMPLETE)从未入册,
+    # v1 训练目标 0 个 terminate 导致闭环永不终止。终止态合成:decision =
+    # 事件数+1,全历史 + 末观测,目标 terminate(success)。
+    if terminal_states_only:
+        last = annotation["steps"][-1]
+        if str(last.get("action", "")).upper() != "COMPLETE":
+            return []
+        terminal_decision = len(events) + 1
+        steps_by_index[terminal_decision - 1] = {
+            "step": terminal_decision - 1,
+            "action": "COMPLETE",
+            "info": None,
+        }
+        decisions = [terminal_decision]
     instruction = row["task_instruction"]
     samples: list[dict[str, Any]] = []
     for decision in decisions:
@@ -301,6 +316,7 @@ def main() -> None:
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--trajectory-limit", type=int, default=0)
+    parser.add_argument("--terminal-states-only", action="store_true")
     args = parser.parse_args()
 
     from pyarrow import parquet as pq
@@ -332,6 +348,7 @@ def main() -> None:
                     shared_early_decisions=args.shared_early_decisions,
                     contrast_variants=args.contrast_variants,
                     donor_paths=donor_paths,
+                    terminal_states_only=args.terminal_states_only,
                 )
                 for sample in samples:
                     handle.write(
