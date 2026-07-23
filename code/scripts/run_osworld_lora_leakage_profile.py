@@ -134,6 +134,7 @@ def main() -> None:
         "schema_version": PROFILE_SCHEMA_VERSION,
         "status": "COMPLETE_OSWORLD_LORA_LEAKAGE_PROFILE",
         "profile": profile,
+        "config_sha256": sha256_file(args.config.resolve()),
         "manifest_sha256": sha256_file(args.manifest.resolve()),
         "runtime": runtime.metadata,
         **summarize_records(records),
