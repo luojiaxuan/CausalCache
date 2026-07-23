@@ -4,7 +4,11 @@
 # note (luojiaxuan): 编码路径复用冻结 runtime 的 _encode_exact_batch,保证训练
 # prompt 与闭环推理逐 token 一致;损失只作用于目标输出段;vision encoder 与全部
 # 基座权重冻结,仅训练全 LM 层 q/k/v/o 的 LoRA。多卡用 torchrun DDP,样本按
-# rank 切分,断点按 epoch 恢复。
+# rank 切分,断点按 epoch 恢复。config.adapter.adapter_type 缺省 full_policy_lora
+# 走上述老路不变;history_gated_kv 走冻结契约 docs/history_gated_mainline_v1.md:
+# 仅注入最后 N 层 k/v_proj 的 mask 门控 LoRA,训练单元为 pair-group,每组
+# correct/b0/shuffled/irrelevant 四次前向(b0 在 ctx=None 下产生 detach 的冻结
+# 参考 ℓ0),损失为 gate/contrast/anchor 三组 hinge+smooth_l1 加 LoRA L2,CE 权重 0。
 """
 
 from __future__ import annotations
@@ -15,6 +19,7 @@ import json
 import math
 import os
 import random
+import re
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +41,30 @@ def load_config(path: Path) -> dict[str, Any]:
     ):
         raise ValueError("SFT visual token budget drifted from the frozen runtime")
     return config
+
+
+def adapter_settings(config: dict[str, Any]) -> tuple[str, dict[str, int] | None]:
+    """Return (adapter_type, history-gated options); default keeps the old path."""
+    adapter = config.get("adapter") or {}
+    adapter_type = adapter.get("adapter_type", "full_policy_lora")
+    if adapter_type == "full_policy_lora":
+        return adapter_type, None
+    if adapter_type != "history_gated_kv":
+        raise ValueError(f"unsupported adapter_type {adapter_type!r}")
+    match = re.fullmatch(r"last_([1-9]\d*)", str(adapter["layer_scope"]))
+    if match is None:
+        raise ValueError("history_gated_kv layer_scope must look like last_<n>")
+    declared_targets = adapter.get("target_modules")
+    if declared_targets is not None and tuple(declared_targets) != (
+        "k_proj",
+        "v_proj",
+    ):
+        raise ValueError("history_gated_kv target_modules are frozen to k/v_proj")
+    return adapter_type, {
+        "layer_count": int(match.group(1)),
+        "rank": int(adapter["rank"]),
+        "alpha": int(adapter["alpha"]),
+    }
 
 
 class LoRALinear:
@@ -190,25 +219,29 @@ def mean_target_logprob(model: Any, encoded: dict[str, Any], *, torch: Any) -> A
     return gathered.sum() / token_count
 
 
-def build_training_units(
+def heldout_episode_set(
     samples: list[dict[str, Any]], *, training: dict[str, Any]
-) -> tuple[list[tuple[str, int, int | None]], set[str]]:
-    """Return (units, heldout_episodes); units are (kind, idx, negative_idx)."""
-    import hashlib as _hashlib
-
+) -> set[str]:
     fraction = float(training.get("heldout_episode_fraction", 0.0))
     salt = training.get("heldout_hash_salt", "")
     episodes = sorted({sample["episode"] for sample in samples})
-    heldout = {
+    return {
         episode
         for episode in episodes
         if fraction > 0.0
         and int.from_bytes(
-            _hashlib.sha256(f"{salt}:{episode}".encode()).digest()[:4], "big"
+            hashlib.sha256(f"{salt}:{episode}".encode()).digest()[:4], "big"
         )
         / 2**32
         < fraction
     }
+
+
+def build_training_units(
+    samples: list[dict[str, Any]], *, training: dict[str, Any]
+) -> tuple[list[tuple[str, int, int | None]], set[str]]:
+    """Return (units, heldout_episodes); units are (kind, idx, negative_idx)."""
+    heldout = heldout_episode_set(samples, training=training)
     negatives = tuple(training.get("margin_negatives", ()))
     by_group: dict[str, dict[str, int]] = {}
     for index, sample in enumerate(samples):
@@ -229,6 +262,161 @@ def build_training_units(
                 if negative in group:
                     units.append(("margin", group["correct"], group[negative]))
     return units, heldout
+
+
+HISTORY_GATED_VARIANTS = ("correct", "b0", "shuffled", "irrelevant")
+
+
+def build_history_gated_units(
+    samples: list[dict[str, Any]], *, training: dict[str, Any]
+) -> tuple[list[tuple[str, dict[str, int], None]], set[str]]:
+    """Return pair-group units for history_gated_kv training.
+
+    # note (luojiaxuan): 训练单元是整个 pair-group(variant -> sample index);
+    # 组内必须有 correct,且至少一个 b0/shuffled/irrelevant 对照,否则该组
+    # (如早期共享决策的 correct-only 组)没有任何损失项,直接不进训练单元。
+    """
+    heldout = heldout_episode_set(samples, training=training)
+    by_group: dict[str, dict[str, int]] = {}
+    for index, sample in enumerate(samples):
+        if sample["episode"] in heldout:
+            continue
+        variant = sample.get("variant", "correct")
+        if variant not in HISTORY_GATED_VARIANTS:
+            continue
+        by_group.setdefault(sample["pair_group"], {})[variant] = index
+    units: list[tuple[str, dict[str, int], None]] = []
+    for group in by_group.values():
+        if "correct" not in group:
+            continue
+        if not any(variant in group for variant in HISTORY_GATED_VARIANTS[1:]):
+            continue
+        units.append(("history_group", group, None))
+    return units, heldout
+
+
+def history_sample_context(
+    encoded: dict[str, Any], sample: dict[str, Any], *, merge_size: int
+) -> Any:
+    """Build the fail-closed adapter context for one encoded sample, or None.
+
+    # note (luojiaxuan): mask 覆盖 prompt 里恢复历史图 1..K 的 image token,
+    # K 只取自样本 memory_config.restored_event_step_ids(b0 的 K=0 天然得到
+    # ctx=None = 完全 bypass);构造后再断言 mask 与末尾目标段不相交,任何
+    # 几何不一致由 build_history_token_mask 直接抛错拒绝,绝不带病前向。
+    """
+    from causalcache.policy.history_adapter_context import HistoryAdapterContext
+    from causalcache.policy.history_token_roles import (
+        assert_mask_disjoint,
+        build_history_token_mask,
+    )
+
+    if "mm_token_type_ids" not in encoded or "image_grid_thw" not in encoded:
+        raise ValueError(
+            "history_gated_kv requires mm_token_type_ids and image_grid_thw"
+        )
+    history_count = len(sample["memory_config"]["restored_event_step_ids"])
+    mask = build_history_token_mask(
+        encoded["input_ids"],
+        encoded["mm_token_type_ids"],
+        encoded["image_grid_thw"],
+        history_count,
+        merge_size,
+    )
+    target_length = int((encoded["labels"] != -100).sum())
+    assert_mask_disjoint(mask, int(encoded["input_ids"].shape[1]) - target_length)
+    if history_count == 0:
+        return None
+    return HistoryAdapterContext(
+        history_token_mask=mask,
+        history_present=True,
+        image_roles=("history",) * history_count + ("current",),
+    )
+
+
+def history_group_unit_loss(
+    runtime: GUIOwlV21OfficialToolsRuntime,
+    samples: list[dict[str, Any]],
+    group: dict[str, int],
+    *,
+    dataset_root: Path,
+    training: dict[str, Any],
+    adapter_parameters: list[Any],
+    merge_size: int,
+    torch: Any,
+) -> Any:
+    """One pair-group forward set and its history-gated loss, or None to skip.
+
+    # note (luojiaxuan): 冻结契约的组损失:ℓc 在自身 mask scope 下带梯度前向;
+    # ℓ0 是 b0 prompt 在 ctx=None 下的冻结参考,no_grad+detach 不回传;ℓs/ℓi
+    # 在各自 mask scope 下带梯度前向。损失 = gate*relu(m-(ℓc-ℓ0))
+    # + contrast*[relu(m-(ℓc-ℓs))+relu(m-(ℓc-ℓi))]
+    # + anchor*[smooth_l1(ℓs,ℓ0)+smooth_l1(ℓi,ℓ0)] + l2*Σ(‖A‖²+‖B‖²),
+    # CE 权重缺省 0;组内缺哪个变体就跳过含它的项。
+    """
+    from causalcache.policy.history_adapter_context import history_adapter_scope
+
+    def forward(variant: str, *, grad: bool) -> Any:
+        index = group.get(variant)
+        if index is None:
+            return None
+        sample = samples[index]
+        encoded = encode_sample(
+            runtime, sample, dataset_root=dataset_root, torch=torch
+        )
+        if encoded is None:
+            return None
+        context = history_sample_context(encoded, sample, merge_size=merge_size)
+        if variant == "b0" and context is not None:
+            raise ValueError("b0 variant carries restored history images")
+        with history_adapter_scope(context):
+            if grad:
+                return mean_target_logprob(runtime.model, encoded, torch=torch)
+            with torch.no_grad():
+                return mean_target_logprob(
+                    runtime.model, encoded, torch=torch
+                ).detach()
+
+    correct_lp = forward("correct", grad=True)
+    if correct_lp is None:
+        return None
+    b0_lp = forward("b0", grad=False)
+    shuffled_lp = forward("shuffled", grad=True)
+    irrelevant_lp = forward("irrelevant", grad=True)
+
+    margin = float(training.get("history_gate_margin", 0.01))
+    gate_weight = float(training.get("history_gate_weight", 1.0))
+    contrast_weight = float(training.get("history_contrast_weight", 1.0))
+    anchor_weight = float(training.get("history_anchor_weight", 1.0))
+    l2_weight = float(training.get("history_lora_l2_weight", 1e-4))
+    ce_weight = float(training.get("history_ce_weight", 0.0))
+
+    terms = []
+    if ce_weight > 0.0:
+        terms.append(ce_weight * (-correct_lp))
+    if b0_lp is not None:
+        terms.append(gate_weight * torch.relu(margin - (correct_lp - b0_lp)))
+    for negative_lp in (shuffled_lp, irrelevant_lp):
+        if negative_lp is None:
+            continue
+        terms.append(
+            contrast_weight * torch.relu(margin - (correct_lp - negative_lp))
+        )
+        if b0_lp is not None:
+            terms.append(
+                anchor_weight
+                * torch.nn.functional.smooth_l1_loss(negative_lp, b0_lp)
+            )
+    if not terms:
+        return None
+    unit_loss = terms[0]
+    for term in terms[1:]:
+        unit_loss = unit_loss + term
+    if l2_weight > 0.0:
+        unit_loss = unit_loss + l2_weight * sum(
+            parameter.pow(2).sum() for parameter in adapter_parameters
+        )
+    return unit_loss
 
 
 def main() -> None:
@@ -279,18 +467,39 @@ def main() -> None:
     if config["training"]["gradient_checkpointing"]:
         model.gradient_checkpointing_enable()
         model.config.use_cache = False
-    wrapped = inject_lora(
-        model,
-        rank=config["lora"]["rank"],
-        alpha=config["lora"]["alpha"],
-        target_modules=tuple(config["lora"]["target_modules"]),
-        torch=torch,
-    )
+    adapter_type, adapter_options = adapter_settings(config)
+    if adapter_type == "history_gated_kv":
+        from causalcache.policy.history_gated_lora import (
+            history_gated_state_dict,
+            inject_history_gated_kv,
+            load_history_gated_state_dict,
+        )
+
+        wrapped = inject_history_gated_kv(
+            model,
+            layer_count=adapter_options["layer_count"],
+            rank=adapter_options["rank"],
+            alpha=adapter_options["alpha"],
+        )
+        adapter_state_dict = history_gated_state_dict
+        adapter_load_state_dict = load_history_gated_state_dict
+        merge_size = int(runtime.processor.image_processor.merge_size)
+    else:
+        wrapped = inject_lora(
+            model,
+            rank=config["lora"]["rank"],
+            alpha=config["lora"]["alpha"],
+            target_modules=tuple(config["lora"]["target_modules"]),
+            torch=torch,
+        )
+        adapter_state_dict = lora_state_dict
+        adapter_load_state_dict = load_lora_state_dict
+        merge_size = None
     parameters = [
         tensor for lora in wrapped.values() for tensor in (lora.lora_a, lora.lora_b)
     ]
     if args.resume_lora is not None:
-        load_lora_state_dict(
+        adapter_load_state_dict(
             wrapped, torch.load(args.resume_lora, map_location="cpu")
         )
         if rank == 0:
@@ -324,9 +533,14 @@ def main() -> None:
     margin_lambda = float(training_config.get("margin_lambda", 0.0))
     margin_value = float(training_config.get("margin_per_token", 0.0))
     b0_weight = float(training_config.get("b0_ce_weight", 1.0))
-    units, heldout_episodes = build_training_units(
-        samples, training=training_config
-    )
+    if adapter_type == "history_gated_kv":
+        units, heldout_episodes = build_history_gated_units(
+            samples, training=training_config
+        )
+    else:
+        units, heldout_episodes = build_training_units(
+            samples, training=training_config
+        )
     if rank == 0:
         print(
             json.dumps(
@@ -347,35 +561,49 @@ def main() -> None:
         running_loss = 0.0
         contributing = 0
         for position, unit_index in enumerate(shard):
-            kind, sample_index, negative_index = units[unit_index]
-            encoded = encode_sample(
-                runtime,
-                samples[sample_index],
-                dataset_root=args.dataset_root,
-                torch=torch,
-            )
-            if encoded is None:
-                continue
-            if kind == "margin":
-                negative_encoded = encode_sample(
+            kind, payload, negative_index = units[unit_index]
+            if kind == "history_group":
+                unit_loss = history_group_unit_loss(
                     runtime,
-                    samples[negative_index],
+                    samples,
+                    payload,
+                    dataset_root=args.dataset_root,
+                    training=training_config,
+                    adapter_parameters=parameters,
+                    merge_size=merge_size,
+                    torch=torch,
+                )
+                if unit_loss is None:
+                    continue
+            else:
+                encoded = encode_sample(
+                    runtime,
+                    samples[payload],
                     dataset_root=args.dataset_root,
                     torch=torch,
                 )
-                if negative_encoded is None:
+                if encoded is None:
                     continue
-                positive_lp = mean_target_logprob(model, encoded, torch=torch)
-                negative_lp = mean_target_logprob(
-                    model, negative_encoded, torch=torch
-                )
-                unit_loss = margin_lambda * torch.relu(
-                    margin_value - (positive_lp - negative_lp)
-                )
-            else:
-                unit_loss = -mean_target_logprob(model, encoded, torch=torch)
-                if kind == "ce_b0":
-                    unit_loss = unit_loss * b0_weight
+                if kind == "margin":
+                    negative_encoded = encode_sample(
+                        runtime,
+                        samples[negative_index],
+                        dataset_root=args.dataset_root,
+                        torch=torch,
+                    )
+                    if negative_encoded is None:
+                        continue
+                    positive_lp = mean_target_logprob(model, encoded, torch=torch)
+                    negative_lp = mean_target_logprob(
+                        model, negative_encoded, torch=torch
+                    )
+                    unit_loss = margin_lambda * torch.relu(
+                        margin_value - (positive_lp - negative_lp)
+                    )
+                else:
+                    unit_loss = -mean_target_logprob(model, encoded, torch=torch)
+                    if kind == "ce_b0":
+                        unit_loss = unit_loss * b0_weight
             loss = unit_loss / accumulation
             loss.backward()
             running_loss += float(unit_loss.detach())
@@ -400,7 +628,7 @@ def main() -> None:
                     step_path = (
                         args.output_root / f"lora-step{global_step}.pt"
                     )
-                    torch.save(lora_state_dict(wrapped), step_path)
+                    torch.save(adapter_state_dict(wrapped), step_path)
                     print(
                         json.dumps(
                             {"step_checkpoint": global_step, "path": str(step_path)}
@@ -425,7 +653,7 @@ def main() -> None:
         if world_size > 1:
             dist.barrier()
         if rank == 0:
-            state = lora_state_dict(wrapped)
+            state = adapter_state_dict(wrapped)
             checkpoint_path = args.output_root / f"lora-epoch{epoch + 1}.pt"
             torch.save(state, checkpoint_path)
             digest = hashlib.sha256(checkpoint_path.read_bytes()).hexdigest()

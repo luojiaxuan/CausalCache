@@ -1,0 +1,49 @@
+{
+  "schema_version": "causalcache.success_sft_lora_config.v1",
+  "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+  "target_effective_visual_tokens_per_image": 2560,
+  "adapter": {
+    "adapter_type": "history_gated_kv",
+    "layer_scope": "last_8",
+    "rank": 8,
+    "alpha": 16,
+    "dropout": 0.0,
+    "target_modules": ["k_proj", "v_proj"],
+    "vision_encoder": "frozen",
+    "contract": "docs/history_gated_mainline_v1.md"
+  },
+  "training": {
+    "epochs": 3,
+    "learning_rate": 1e-4,
+    "lr_schedule": "constant",
+    "weight_decay": 0.0,
+    "micro_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "max_grad_norm": 1.0,
+    "seed": 271828,
+    "gradient_checkpointing": true,
+    "loss": "history_gated_group_v1: gate*relu(m-(lc-l0)) + contrast*[relu(m-(lc-ls))+relu(m-(lc-li))] + anchor*[smooth_l1(ls,l0)+smooth_l1(li,l0)] + l2*sum(A^2+B^2), ce=0, l0 frozen ctx=None detached",
+    "history_gate_margin": 0.01,
+    "history_gate_weight": 1.0,
+    "history_contrast_weight": 1.0,
+    "history_anchor_weight": 1.0,
+    "history_lora_l2_weight": 1e-4,
+    "history_ce_weight": 0.0,
+    "heldout_episode_fraction": 0.15,
+    "heldout_hash_salt": "odyssey_margin_v1"
+  },
+  "gates": {
+    "heldout_correct_minus_b0": "> 0 (trajectory-level bootstrap CI)",
+    "heldout_correct_minus_shuffled": "> 0 (CI)",
+    "heldout_correct_minus_irrelevant": "> 0 (CI)",
+    "b0_bitwise_parity": "ctx=None forward must equal frozen baseline exactly (adapter fully bypassed)",
+    "note": "heldout salt odyssey_margin_v1 keeps the exact split of causalcache_odyssey_margin_v1; b0 scores are frozen-model scores by construction",
+    "cadence": "score heldout contrasts per step checkpoint (--checkpoint-every-steps 25)"
+  },
+  "data": {
+    "source": "causalcache-odyssey-sft-v1 (GUI-Odyssey human demos, contrast variants)",
+    "samples_manifest_sha256": "TO_BE_BOUND_AT_LAUNCH",
+    "shared_early_decisions": 2,
+    "prompt_format": "frozen mixed-fidelity builder; identical to AndroidWorld closed-loop"
+  }
+}
