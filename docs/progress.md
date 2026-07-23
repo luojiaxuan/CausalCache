@@ -4808,3 +4808,10 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   assay-paired-v2。完成后出配对裁决入库。
 - 另:history-gated 分支(exp/history-gated-mainline-v1)契约与 provenance 已冻结推送;实现工作流
   因会话重启中断,待明日以 resumeFromRunId wf_1b21d1fe-782 续跑或重发。
+
+## 2026-07-24(晨):过夜任务完成——修正版 s75 零样本裁决(0/90 → B0 翻倍)
+
+- 90/90 收官(11 worker,infra 0):odyv2-s75 B0=6/45(frozen 3)B8=6/45(frozen 6);配对
+  s75-B0 vs frozen-B0 净胜 +3(3W0L)Δ+0.067 CI[+0.000,+0.133];parse 死亡 26→1;正常终止 17→52。
+  **GUI-Odyssey 外部训练零样本泛化 AndroidWorld 成立(基础能力层),记忆剂量收益仍平**。
+  详表 data/results/odyssey_zeroshot_closed_loop_v1/README.md 第三轮。

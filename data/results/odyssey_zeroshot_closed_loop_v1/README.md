@@ -78,14 +78,33 @@ GUI-Odyssey(约 900 条人类演示轨迹、201 个应用)训练,AndroidWorld �
 方案重渲染重训(≤75 步、terminal 自然配比、四层 gate + 10 局 canary 后才准 90 局);paper 主线
 (v3-e1 + selector)不等待该支线。终止态过采样(前轮续训 terminal 占 1/3)的教训一并吸收。
 
-## Salvage 轮裁决(2026-07-23,坐标+动作修复后)
+## Salvage 轮 canary 读数(2026-07-23,坐标+动作修复后;裁决被下方 90 局推翻)
 
 - 修复后数据集(37,635 样本):动作分布健康(system_button 979、terminate 1000 自然配比);
 - **离线四层 gate 首次全过**:历史效用 correct−b0 = +0.010~+0.012(CI 全正,坏坐标时代为负)、
   内容对照 c−irrel CI 正、AW 迁移 c−irrel CI 正——坐标修复直接改变 gate 符号;
-- **闭环 canary(12 局)不放行**:6 局环境故障(新启 emulator 装机问题,infra 噪声),有效 6 局
-  0 成功(frozen ~7% 基线下属噪声),但 3/6 提前终止(step 4/10/10,score 全 0)——系统性提前
-  终止残留,按预注册第四层标准不过,90 局正式化验尺不发。
-- **full-layer Odyssey 线就此收档**,进消融矩阵作 "Full-layer counterfactual LoRA" 基线行:
-  离线过 gate + 闭环无信号的组合,恰为 history-gated 新主线(B0 架构级 parity,分支
-  exp/history-gated-mainline-v1)的动机证据:全参改写保不住冻结 policy 的基础行为。
+- 闭环 canary(12 局):6 局环境故障(新启 emulator 未稳期瞬态),有效 6 局 0 成功、3/6 提前
+  终止——当时据此记录"线收档"。
+- **和解注记(2026-07-24)**:上述收档裁决基于 12 局小样本,为时过早。用户过夜指令下的
+  90 局全量化验尺(emulator 稳定后)推翻了"系统性提前终止"的判读:52/90 正常终止、
+  B0 成功翻倍、语法崩溃 26→1。canary 的 0/6 属小样本 + 未稳环境噪声。收档结论作废,
+  见下节 90 局裁决为准;canary 教训(新 emulator 需稳定期)已入 progress.md。
+
+## 第三轮(2026-07-23 夜,坐标修复版 s75):零样本泛化成立
+
+| | frozen | odyv2-s75 |
+|---|---:|---:|
+| B0 / B8 | 3/45 / 6/45 | **6/45** / 6/45 |
+| parse 死亡 | 26/90 | **1/90** |
+| policy_terminated | 17 | **52** |
+| 配对 s75-B0 vs frozen-B0 | — | **净胜 +3(3W 0L)Δ+0.067 CI[+0.000,+0.133]** |
+| s75-B8 vs frozen-B8 / 内部 B8−B0 | — | 平(net 0) |
+
+结论:**坐标修复后,纯 benchmark-external 的 GUI-Odyssey 训练零样本迁移到 AndroidWorld 成立**
+(基础能力层:B0 成功率翻倍、零模板负局、语法崩溃 26→1、终止行为正常)。与 AW 自训 v3-e1
+(+8.9pt CI 认证)同方向、略弱——外部数据代价可接受。记忆剂量收益(B8−B0)仍平,与全线一致:
+"恢复历史→成功率"的最后一跳留待 selector 链/history-gated 线解决。前两轮 0/90 的
+invalidated-runs 定性维持;本轮为有效的 zero-shot training transfer 数据点(checkpoint 选择
+用过 AW heldout 信号,措辞按此收窄;终测另封 sealed 模板)。
+- 数据:hyper01 /data02/jaxan/runs/odyv2-zeroshot-full/(90 局,infra 0 / exec 4),PENDING_HF_UPLOAD。
+
