@@ -1,5 +1,19 @@
 # 项目进展
 
+## 2026-07-22：OSWorld frozen GUI-Owl 并发调查完成
+
+- H100 上每卡一个 frozen BF16 GUI-Owl-1.5-8B replica，正式测试 1/2/4/6 GPUs 与
+  6/12/18/24/30 KVM environments；8/8 points、每点 46/46 Chrome episodes、0 failure；
+- 6 replicas 下 peak throughput 在 24 envs：`1835.24 fresh tasks/hour`；30 envs 回落至 `1803.63`，故
+  24 是 throughput knee，30 是本轮零失败测试上界而非 hard cap；
+- 固定 12 envs 时，1/2/4/6 GPUs 的 throughput 均约 1.36k--1.40k tasks/hour，但 client p95=
+  `12.18/6.94/3.39/3.06s`。one-step wall time 受 VM reset/setup 限制，GPU scaling 主要降低 queue tail；
+- recent at-most-B4 的 5-image mixed-fidelity 请求已通过，generation=`2.012s`、peak allocated HBM=
+  `17.22 GiB`；正式多步默认建议 6 GPUs + 12 envs，setup-throughput 模式建议 6 GPUs + 24 envs；
+- raw root=`/data/jaxan/osworld-capacity/sweep-780ef47/`，轻量结果见
+  [`osworld_gui_owl_capacity_v1`](../data/results/osworld_gui_owl_capacity_v1/README.md)。6-GPU policy container
+  已停止，GPU 0--5 已释放。
+
 ## 2026-07-21：selector boundary cache 完成，adaptation training 开始
 
 - 旧 budget-deferral evaluation 已在 truth access 前停止，`truth read=0`；该路线不再继续；
@@ -4607,24 +4621,6 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - Hyper00/Hyper01 的 12/12 partitions 随后完成 23,714/23,714 contexts、0 failure；Hyper00 单机 cache
   最终 content SHA256=`77dec757...5d16b`。token-adapter phase 1 已启动，LoRA 尚未训练。
 
-## 2026-07-21:Memory ceiling v3 正式完成——预注册裁决 STORY_DEAD + 机理诊断
-
-- 修复 suite 绑定后全量重跑(root `causalcache-ceiling-v3-76230e4`,hyper01 8×H200,24 emulator +
-  24 worker):180/180 episodes,infra 仅 2;期间两轮外部 preflight 0%-util 清理把 worker 全灭,
-  host 侧 supervisor 按断点自动复活,数据无损。
-- 结果(45 局/臂):summary_B0=7、recent_B2=4、recent_B4=5、recent_B8=7;B8−B0 模板级 2 胜 2 负
-  11 平,net=0,成功率差 +0.000 [−0.089, +0.089]。按冻结规则(net ≤+1)判 **STORY_DEAD**:该
-  backbone 上高保真记忆开到上下文上限也不提升 closed-loop 成功率。
-- 诊断:行为确实分叉(43/45 cell 前 4 步内);过程收益单调(死循环局 14→12→8→6);但多图 prompt
-  的严格语法 parse 失败率 ~3×(0.008→0.018–0.024),一击毙命协议不对称杀死记忆臂(29–42% vs B0
-  22%),幸存失败以 step_budget_exhausted 为主(能力地板 ~25%)。与离线 oracle headroom 构成
-  dissociation:保真可恢复、过程可改善,成功率不转化。
-- 汇总入 `data/results/androidworld_memory_ceiling_v1/`;180 episode 打包 JSONL 暂存 hyper01
-  `/data02/jaxan/staging/androidworld-memory-ceiling-v1-76230e4/`,`PENDING_HF_UPLOAD`(本会话权限
-  策略禁止读 HF token;目标 `gavinlaw/causalcache-set-utility-variable-history-mobile`
-  `artifacts/androidworld-memory-ceiling-v1-76230e4/`)。
-- 待用户决定:parse-retry-once 协议修正 v2 重跑(~1.5h)是否执行;v1 裁决无论如何保留。
-
 ## 2026-07-21：Selector-side GUI-Owl LoRA joint epoch 1 truth 完成
 
 - Teacher/action policy 保持原始 frozen GUI-Owl；LoRA 仅位于 selector branch，旧 restoration labels 未改变。
@@ -4654,286 +4650,76 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
 - 按用户要求的“每 epoch 看真实 heldout，没有明显提升就不继续堆 epoch”资源纪律，停止 e3/e4并保留 e1
   checkpoint=`02e0ac96...f949`。该停止不冒充 config `patience=3` 的 formal early-stop verdict；科学结论是
   当前 top-layer LoRA 没有补上 B2/Long+，不能支持“冻结表示是主要瓶颈且该 LoRA 足以解决”的假设。
+# 2026-07-22：OSWorld runner v1 source
 
-## 2026-07-21:成功锚定管线启动——采集设计冻结 + 零 GPU 绑定扫描
+- 新建 `luojiaxuan/osworld-runner`，固定 OSWorld revision
+  `b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf`；真实 `test_all.json` inventory 为 10 domains / 369 tasks；
+- 接通 `DesktopEnv.reset/step/evaluate/close`，增加受限 desktop action schema、PyAutoGUI renderer、policy HTTP
+  boundary、`summary/recent/full` memory packing、逐步截图/checkpoint 和 task-level resume；
+- focused 6 tests 通过；真实 pinned checkout 的 task dry-run 返回 `VALID_OSWORLD_DRY_RUN`。Hyper01 随后完成
+  `VALID_OSWORLD_PREFLIGHT` 与真实 KVM live smoke：2 steps、3 screenshots、episode/suite completion 均成功，
+  第二次运行 `resumed_skips=1`；score=`0.0` 仅因 scripted actions 不解决公开 Chrome task；
+- live smoke 发现官方 Docker VM 的 dnsmasq watcher 会触发 inotify exhaustion；versioned adapter 固定
+  `--no-resolv --no-poll --server=127.0.0.11` 后端口转发恢复，未改 host sysctl；
+- 当前未生成 reusable data/model artifact。Docker live smoke 已完成；下一步接 GUI-Owl desktop policy 和
+  learned selector，再冻结正式 OSWorld roster。详见 [`osworld_runner_v1.md`](osworld_runner_v1.md)。
 
-- 背景:selector top-4 LoRA 停在 e1(B2/Long+ 未补上)+ 上限实验 STORY_DEAD + oracle headroom 真实
-  存在,三条证据指向 policy 消化多图历史的能力与训练目标锚点。转向:采成功轨迹 → policy 多图 SFT →
-  成功锚定标签 → 重训 selector。设计冻结于 `docs/androidworld_success_collection_v1.md`。
-- 新增(全部增量,冻结路径不动):`GUIOwlV21SampledToolsRuntime`(温度采样,校验与父类一致)、
-  引擎 `sample_seed`/`save_images_dir`/`parse_retries` 参数(默认关闭)、
-  `run_androidworld_success_collection_worker.py`。
-- 零 GPU 绑定扫描(180 组合,hyper01,~4 分钟)抓出 34 个坏 cell → 排除 12 个模板:日期嵌入 goal
-  身份漂移 7(SimpleCalendarAnyEventsOnDate 等)、开机即 score=1 的全局开关 3、SMS 初始化 500 1、
-  500+开关污染 1;ExpenseDeleteDuplicates2:2 为瞬态 500,复核通过保留。首次 GPU smoke 即抓到
-  sampling runtime 的 import 错误(canonical_json_sha256 来源写错),修复后重发。
-- 冻结 roster:48 模板 × 3 实例 × 4 种子(1000-1003)= 576 episodes,36 worker(hyper01/hyper00 各
-  18,各 6×H200,每卡 3 worker),蛇形按 max_steps 均衡(单 worker 步数负载 284-300)。
-  `data/manifests/androidworld_success_collection_roster_v1.json`。
-- hyper00 复用已有镜像/模型/OCR 资产,18 个 emulator 已启动;采集运行根
-  `/data02/jaxan/runs/causalcache-success-collect-v1-d0c8926/`(代码快照 d0c8926 + import 修复补丁)。
+## 2026-07-22：OSWorld runner v1 H100 portability smoke
 
-## 2026-07-22:paper 主线转向 + 采集中场修复 + 对照/打分管线就绪
+- H100 `host-85-234-79-62` 通过 pinned revision preflight：10 domains / 369 tasks；`/dev/kvm`、Docker 与
+  persistent `/data` 均可用。本 smoke 是 KVM/CPU workload，没有占用 H100 GPU。
+- official VM image digest 与 Hyper01 相同。默认 `CPU_MODEL=host` 能启动 KVM QEMU，但 Ubuntu 卡在
+  GRUB/early boot，300 秒未开放 screenshot endpoint；隔离测试只改 `CPU_MODEL=qemu64` 后约 12 秒 ready。
+- runner 将 CPU model 做成显式、可审计的 `--docker-cpu-model` / config 字段并写入 provenance；7 项 focused
+  tests 通过。commit `2657746` 上真实 Chrome smoke 完成 2 steps / 3 screenshots / evaluate / close，第二次
+ 运行 `resumed_skips=1`，无残留 OSWorld container。
+- 结果见
+  [`data/results/osworld_runner_v1_h100_smoke/`](../data/results/osworld_runner_v1_h100_smoke/)。score=`0.0` 只表示
+  `WAIT -> DONE` 未解决任务，不是 policy performance。
 
-- 主线按用户确认转为:"先教 policy 用历史(反事实对照 SFT),再学保留哪些历史(成功锚定
-  budget-general greedy selector)";interaction/set-aware 降级为分析章节;abstract 改写稿已交付用户
-  (标题 Learning to Use and Select Visual History for Long-Horizon GUI Agents),截止 7/22 19:59 北京。
-- 采集 107 局时诊断:成功 5.5%(难局先行的排序偏差),parse 死亡 37%(温度采样放大语法崩坏),
-  hyper00 的 ExpenseDeleteMultiple2 全部 step-0 500(emulator 日志实锤 expense 应用 boot 期未装上;
-  hyper01 老 emulator 无此问题)。修复:parse 重试最后一次贪心兜底(评估路径不受影响),36 worker
-  滚动重启(踩了 supervisor 复活竞态 + pkill 自杀两个老坑,均按既有模式解决)。
-- 修复后(POST 113 局):成功率 22%(hyper00 也 14 胜),parse 死亡 5.3%(余量为病态屏幕上任何
-  解码都失败的 policy 本征底,与上限实验 BrowserMaze swipe 一族同源);expense 局待主跑结束在
-  hyper01 补跑。
-- 管线新增(全部已提交推送并 ship 到双机快照 causalcache-d0c8926):
-  `build_success_sft_dataset.py` 反事实对照变体(correct/b0/shuffled/irrelevant,路径级重排已验证),
-  trainer CE 过滤(corrupted 变体不进 CE,留给 margin/评估),
-  `score_success_action_recovery.py`(冻结 policy teacher-forced 打分,U_act oracle 门禁 +
-  history-use 三条件评估的数据源)。
-- 采集完成后的顺序:合并双机数据 → expense 补跑 → 全量重渲染(--contrast-variants,仅成功局)→
-  U_act 打分(oracle 无 headroom 则 SFT 刹车)→ margin 损失加入 trainer → smoke(三条件门禁)→
-  全训 → 1.5h 上限化验尺。
+## 2026-07-22：OSWorld 12-env / 2-H100 benchmark infrastructure
 
-## 2026-07-22:成功轨迹采集完结——155/576(26.9%),SFT 重渲染启动
+- 官方文档确认 AWS 加速来自 environment parallelization：最高约 50 env；单机 Docker 官方经验为 8 或 16
+  env。官方同时允许跳过 8 个 Google Drive tasks，使用 `test_nogdrive.json` 的 361-task denominator。
+- 新 benchmark config 对 pinned revision、369/361/8 counts 与 8 个 `(domain, task_id)` 差集逐项 fail closed；
+  不把普通 Google/Chrome task 误删为 Google Drive task。
+- 新 multi-env runner 使用动态 task queue、每 worker 复用一个 VM、task-level completion marker、失败后重建
+  environment 和 worker→policy replica 轮询；两个常驻 GPU HTTP replicas 与 environment/KVM 生命周期解耦。
+- H100 preflight 发现 0--7 均空闲，选择 GPU 0/1。policy launcher 前两次分别因 host/container mount path 与
+  `PYTHONPATH` 不一致在服务启动前 exit 1，未产生 episode；改用标准 `/data` mount path 后两个 replicas 均
+  识别为 `NVIDIA H100 80GB HBM3`。
+- 2-env/4-task smoke：4/4、0 failure、8 requests，episode makespan=`46.870s`、task time sum=`78.758s`；
+  12-env/12-task stress smoke：12/12、0 failure、24 requests，两个 replicas 各 12 requests，12 workers 均 exit
+  0，episode makespan=`28.509s`、task time sum=`75.164s`。相同命令第二次 12/12 resume；无残留 VM/policy
+  container，GPU 0/1 已释放。
+- smoke 固定 `WAIT -> DONE`、2 steps，因此不能外推真实 361-task wall time，也不能解释其中 1 个初始即满足
+  evaluator 的非零 score。正式估时必须接入真实 GUI-Owl desktop policy 后，用 committed `max_steps=50`、
+  `pause_seconds=2.0` 测量。
+- 设计与清单：[`osworld_benchmark_acceleration_v1.md`](osworld_benchmark_acceleration_v1.md)；轻量结果：
+  [`data/results/osworld_benchmark_h100_smoke_v1/`](../data/results/osworld_benchmark_h100_smoke_v1/)。
 
-- 576/576 episodes 完成(双机各 288):成功 155(h01 87 + h00 68),成功决策步 1,266;
-  parse 死亡全程 ~9%(修复后段 5.3%);hyper00 的 25 个 exec-err(expense/clipboard/stopwatch,
-  emulator 缺组件)在 hyper01 补跑,25/25 有效完成但 0 成功(模板本身太难)——数据集定格 155。
-- hyper00 的 68 局成功数据(episodes+images)已并入 hyper01
-  `/data02/jaxan/runs/causalcache-success-collect-v1-d0c8926-h00merge/`;hyper00 worker/emulator
-  已清理(6 卡空出留给训练);hyper01 emulator 保留(化验尺要用)。
-- 全量对照重渲染(155 成功局 × correct/b0/shuffled/irrelevant)已在 hyper01 启动,输出
-  `/data02/jaxan/artifacts/sft/causalcache-success-sft-v1/`;完成后立即跑
-  `score_success_action_recovery.py` 分片打分(GPU 已空),correct−b0 汇总即 U_act oracle 门禁,
-  shuffled/irrelevant 差即 history-use 对照。门禁不过则 SFT 刹车(负结果进 dissociation 章)。
-- 原始 576 episodes + images 双机各自保留于 run root,`PENDING_HF_UPLOAD`(本会话权限禁读 HF token)。
+## 2026-07-22：OSWorld frozen GUI-Owl capacity v1 启动
 
-## 2026-07-22:U_act 门禁裁决(内容盲)+ 双轨并行启动
-
-- U_act 门禁(3,221 样本,冻结 policy):correct−b0 = **−0.038** [−0.043,−0.033](正确历史图显著
-  压低成功动作概率);correct−shuffled = −0.000 [±0.003]、correct−irrelevant = −0.000 [±0.003]
-  ——**冻结 policy 对历史图内容完全不敏感**。解释了 oracle headroom 不转化、selector LoRA 无效、
-  B8 不涨的全部谜团。详见 `data/results/success_action_recovery_gate_v1/`。
-- 用户决策 A + GPT 修正:CE 梯度非零但有 current-only 捷径,margin loss 的意义是堵捷径;selector
-  死透限定于"当前 policy/prompt/指标"。双轨:轨道 A 持续扩采集(不依赖 policy 参数),轨道 B 直接
-  margin-SFT 全训(155 局,每 epoch checkpoint + 四门禁:heldout correct>b0/shuffled/irrelevant
-  的 CI 为正 + b0 无退化);**selector 重标必须等 history-aware checkpoint 冻结后**。两阶段耦合,
-  不做同步端到端。
-- 训练配置 `code/configs/causalcache_history_margin_smoke_v1.json`(rank-16 全层 q/k/v/o,λ=1,
-  m=0.02/token,b0 CE 权重 0.5,heldout 15% episode 哈希);trainer 单元化(ce/ce_b0/margin 对),
-  scorer 支持 --lora-checkpoint/--episodes-filter。
-- 资源变动:hyper01 六卡被其他任务占满(100% util 不可清理)→ 训练转 hyper00 GPU 3-7(5 卡),
-  自包含数据集(samples+images 去符号链接)已传输 hyper00
-  `/data02/jaxan/artifacts/sft/causalcache-success-sft-v1/`。轨道 A 采集与 H100 3 卡待训练发射后
-  安排(hyper01 emulator 仍在,等它的卡空出来即可跑采集)。
-
-## 2026-07-22:margin-SFT epoch-1 门禁——四项全部正向移动,未过线,继续训练
-
-- held-out 18 局(355 样本,vs 冻结基线同分母):correct−b0 干扰税 −0.042→−0.020(减半);
-  correct−shuffled −0.008→−0.000(正例率 58%→68%);correct−irrelevant −0.005→+0.007(正例率
-  59%→65%);b0 漂移 −0.004(轻微),correct 漂移 +0.005。三个内容门禁均未达 CI>0,epoch 2/3
-  继续,每 checkpoint 复测。冻结 policy 内容敏感度为精确 0,epoch-1 已拉出 0——margin 信号有效的
-  首个证据。
-- 修复:scorer 只取目标段 logits(logits_to_keep,~15GB 峰值→MB 级),与采集共卡不再 OOM。
-- 并行现状:hyper00 6 卡训练;hyper01 4 卡 12 worker 采种子 1004-1005(288 局);H100 emulator
-  启动中,3 卡 9 worker 待发种子 1006(135 局,剔除 3 个 fresh-boot 缺应用模板)。
-
-## 2026-07-22:margin-SFT v1 收官——内容敏感性单调上行但未过线,b0 侵蚀需修
-
-- held-out 门禁全程(frozen→e1→e2→e3):correct−irrelevant −0.005→+0.007→+0.007→**+0.0098**;
-  correct−shuffled −0.008→−0.000→+0.000→+0.003;correct−b0 干扰税 −0.042→−0.014;但 b0 漂移
-  −0.004→−0.010→**−0.020**(门禁 4 实质失败,margin 压力侵蚀无图路径)。
-- 结论:内容敏感性从精确 0 被训练出来且随 epoch 单调增长——可学性确认;幅度未达 CI>0(n=66-78 对,
-  CI 半宽 ~0.008-0.013);b0_ce_weight=0.5 不足以保住无图基线。
-- v2 配方(`code/configs/causalcache_history_margin_v2.json`):b0_ce_weight 1.0、margin 0.025、
-  Track A 新成功轨迹并入(对子数约翻倍)、heldout 盐值不变保持跨版可比。等 Track A 收齐后重渲染
-  v2 数据集并在 hyper00 6 卡发射。
-- v1 checkpoints(e1/e2/e3)与逐 epoch heldout 分数留存 hyper00/hyper01 run root,`PENDING_HF_UPLOAD`。
-
-## 2026-07-22:数据协议放宽(train+val 训练/test 终测)+ plan 重生成与二次扫描
-
-- 用户指示:train+validation 全部用于采集与训练,sealed test-25 仅终测(跨模板泛化协议)。
-- 两个 plan 对活 emulator 重新生成(train 60×3、validation 31×2,今日 goal);242 组合零 GPU 扫描:
-  日期类模板(SimpleCalendar*OnDate/SportsTracker*/Tasks*Date/MarkorCreateFolder 等 ~10 个)goal 每次
-  suite 初始化按设备时间随机,**本质不可冻结**,永久除名;全局开关类照旧除名;validation 可用约
-  23-24 模板 ×2 实例;Vlc/Retro/SMS 的 500 疑似 5012-5017 老 emulator 状态老化,发采集前在新
-  emulator 复核。plan v2 暂存 hyper01 /data02/jaxan/runs/plans/,入库待复核后。
-- 执行序:三机 693 局收齐 → v2 数据集重渲染+v2 训练(hyper00 六卡)→ validation 采集并行 → 产出
-  并入后续版本。
-
-## 2026-07-22:全部挖矿收官——446 条成功轨迹 / ~70 模板;v2 训练中,v3 数据集渲染中
-
-- Track A(train 分裂,种子 1004-1008):hyper01 288 局 78 成功、H100 135 局 37 成功、hyper00 270 局
-  74 成功(0 exec-err,除名策略生效);validation 矿(plan v2,今日 goal):H100 192 局 49 成功
-  (25.5%)、hyper00 160 局 48 成功(30%)。总账 446 成功轨迹(起点 155)。
-- v2 训练(jiaxuanluo-139,hyper01 4×H200,349 局 → 6,593 单元,39 heldout):epoch-1 进行中,
-  checkpoint 出来即测门禁读配方效果。渲染并行化(--workers,episode 级,donor 路径预计算):
-  349 局 10 分钟(串行 ~75 分钟)。
-- 决策:v3 数据集(446 局全量,含 validation 新模板)渲染中;hyper00 六卡空出后 v3 直接重开 3
-  epoch(与 v2 续训时间打平但多 28% 数据);v2 读数后停。heldout 盐值不变。
-- 共享机低调化:三机 322 容器改名 jiaxuanluo-N,镜像 tag jiaxuanluo-rt:1/jiaxuanluo-env:1,映射在各机
-  ~/jiaxuanluo-map.txt;hyper01 的 sglang-genghan(仅持 0/3 号、连续 0%)按全局授权待用户手动清理。
-
-## 2026-07-22:过夜自主执行(用户休息)——v2 3-epoch 跑满 / v3 训练中 / 门禁复评
-
-- 资源合规:hyper00/hyper01 各 ≤4 卡。v3 从 6 卡重启为 4 卡(GPU 2-5);v2 用 hyper01 GPU 1,5,6,7。
-- v2(349 局 6,593 单元):3 epoch 全部跑完(exit 0,10:15→16:02,~5.8h),lora-epoch1/2/3.pt 就绪。
-- v3(446 局 8,736 单元,4 卡,--checkpoint-every-steps 50):跑到 epoch1 + step500+,step 级
-  checkpoint 密集就绪,训练仍在继续。
-- **化验尺触发规则(预注册)**:任一 checkpoint 满足 heldout correct−shuffled 与 correct−irrelevant
-  的 bootstrap CI 均 >0 且 b0 漂移 ≥ −0.010 → 冻结,按 ceiling v1 协议 + LoRA 跑 dev 化验尺
-  (4 臂 × 15 模板 × 3 实例,~3.5h),对照 STORY_DEAD。未触发则出趋势分析等用户定夺。
-- 会话进程曾重启,监视器失联但训练容器独立存活;晨间复评 frozen / v2-e3 / v3-e1 / v3-step500
-  四组门禁于 49 局 heldout(v1 18、v2 39 嵌套其中)。
-- 闭环 worker 支持 --lora-checkpoint(SHA 存证);数据协议 train+val 训练、test-25 终测。
-
-## 2026-07-22:内容门禁 CI 级过线——v3-e1 触发预注册规则,冻结并发化验尺
-
-- 49 局 heldout(对子 204-239,含 10 个 validation 新模板局):v2-e3 内容对照 +0.0196/+0.0229(CI 全正,
-  正例率 76%,跨模板泛化)但 b0 漂移 −0.0128 未达标;**v3-e1 三条件全过**(+0.0050[+0.0020,+0.0083] /
-  +0.0109[+0.0050,+0.0168] / b0 −0.0080[−0.0117,−0.0049]);v3-s500 内容更强(+0.0113/+0.0148)但
-  b0 −0.0173。探针曲线(9 点 × 10 局)单调:训练越久内容越强、b0 越蚀——margin 强度与无图保真的
-  权衡结构清晰。
-- **冻结 policy 里程碑**:margin 训练把冻结模型精确为 0(±0.003)的历史图内容敏感性造成了 CI 认证级
-  能力——"先教会用历史"主线的核心可行性证明。
-- 插曲:checkpoint 跨机传输曾用带 NVIDIA banner 的镜像污染文件(torch.load UnpicklingError),改
-  ssh 直传 + sha256 双端校验后重跑;涉事打分全部作废重出。
-- 按预注册规则冻结 v3-e1(hyper01 eval 目录,SHA 见 assay 记录),启动 dev 化验尺:ceiling v1 冻结
-  协议 + LoRA,4 臂 × 15 模板 × 3 实例 = 180 局,hyper01 4 卡 12 worker,对照原 STORY_DEAD 裁决。
-
-## 2026-07-22:化验尺 v1(适配 policy)中场诊断——teacher-forced 与自由生成的第二层 dissociation
-
-- 中场 100/180:四臂全面塌方(合计 2 胜,冻结基线同协议 ~15%);LoRA 加载正确(144 模块)。
-- 失败模式:parse 死亡 37%(冻结 ~22%),典型为 wait 带多余 text 参数——margin/CE 训练把自由生成
-  的格式细节带偏;门禁只认证了 teacher-forced 的 p(a*|prompt),未覆盖贪心自由生成的语法保持,
-  −0.008 的漂移在 30 步复利 + 一击毙命协议下放大为全线崩溃。
-- 修复双轨:(1) 化验尺 v2 = parse 失败允许一次采样重试,冻结/适配 policy 配对跑(4 条件 × 45 局),
-  干净隔离"内容敏感性→成功率";(2) α 缩放(LoRA 加载时 alpha 打折)zero-cost 旋钮,先过门禁找
-  内容保留/格式稳定的甜点。180 局照常跑完留档。
-
-## 2026-07-22:化验尺 v1 终表(方向性首现)+ α 探针 + 配对化验尺 v2 发射
-
-- 化验尺 v1(适配 v3-e1,一击毙命协议)最终:B0/B2/B4/B8 = 5/5/6/8(冻结基线 7/4/5/7);B8−B0
-  模板净胜 **+2(2W 0L 13T)**,delta +0.067 CI[+0.000,+0.178]——介于生死线之间,但零负局 + 剂量
-  单调,闭环方向性信号首现。中场 2/100 的恐慌是完成顺序偏差。parse 死亡 29%(冻结 22%)仍压制效应。
-- α 缩放探针(v3-e1):α16 保留 ~70% 内容敏感性(c-irrel +0.0074)且 b0 漂移几乎归零(−0.0012);
-  α8 内容尽失。α16 为格式稳定备选。
-- **化验尺 v2 已发射**:配对协议修正(贪心主解码 + parse 失败一次采样重试),frozen/adapted(v3-e1
-  α32)× B0/B8 × 15 模板 × 3 实例 = 360 局,hyper01 4 卡 12 worker。单变量归因:v2 相对 v1 只改
-  重试协议。desktop 方向定案:OSWorld-Verified Docker 子集 ~50 任务,离线内容盲/干扰税分析移植,
-  H100 执行,margin-SFT 复现为余力项。
-
-## 2026-07-22:主线转向 GUI-Odyssey 训练(用户拍板)——AndroidWorld/OSWorld 降为纯 benchmark
-
-- 设计:margin-SFT 训练语料改为已处理的 GUI-Odyssey 900 轨迹语料(人类演示全成功、事件 schema 已
-  是我们格式、官方切分已审计);AndroidWorld 全 116 模板 + OSWorld 变纯测试集,零样本评测 vs
-  baseline;现有 AndroidWorld-trained v3-e1 线降级为 in-domain 消融并保底主表。OSWorld 移植由
-  GPT session 分支执行,本会话不再管。
-- 执行计划(hyper00 六卡):(1) 找到本地 Odyssey 语料根(HF: gavinlaw/causalcache-set-utility-
-  variable-history-mobile 的本地物化),摸清 state/事件/图像布局;(2) 写适配器:语料 state →
-  四变体 SFT 样本(复用 mixed-fidelity builder + serialize_gui_owl_v2_1_teacher_target 做人类
-  动作目标;shuffled/irrelevant 路径级重排沿用);(3) trainer 效率优化:加 per-rank 预取线程
-  (CPU 编码与 GPU 计算重叠,当前 GPU 空转在 PIL/processor 上);(4) 训练用 recipe v2
-  (b0_ce_weight=1.0,margin 0.025),**总步数按平衡窗口教训控制在 ~300 步级**,每 25-50 步
-  checkpoint + 门禁(heldout 用 Odyssey 轨迹级哈希切分);(5) 评测:AndroidWorld 配对化验尺
-  (retry 协议)零样本跑冻结 vs Odyssey-adapted。
-- AndroidWorld 全部坑的清单已内化:配置先 ship 后发射、传输不过 CUDA-banner 镜像(ssh 直传+双端
-  sha256)、mm_token_type_ids 目标段延长、logits_to_keep 显存、路径级变体序列化、donor 按 root
-  重置、b0 侵蚀与步数单调。化验尺 v2(frozen/adapted 配对)仍在跑,出分入库不受转向影响。
-
-## 2026-07-22:Odyssey 语料勘察——12,792 state 就位,适配器为下一步
-
-- hyper00 v3 训练收官(3 epoch 全出),六卡空闲。语料勘察:
-  `/data02/jaxan/runs/causalcache-variable-history-context-v2-1285ba8/state-context.jsonl` =
-  12,792 个 fit-state 清单(long 2,804 / medium 5,242 / short ~4,746),含 trajectory_id/state_id/
-  role(train)/image_count/prompt tokens;这就是 Odyssey-SFT 的 state 母表。
-- 下一步(接续会话从这里开始):(1) 找到事件+图像 substrate 本地根(HF processor-freeze-v2
-  substrate 的物化,候选在 hyper00/hyper01 的 contextual-inputs/variable-history 系列目录,查
-  set_utility_variable_history_inputs.py 的读取路径即知);(2) 写 Odyssey→四变体 SFT 渲染器
-  (目标动作用 serialize_gui_owl_v2_1_teacher_target(人类演示动作),prompt 用冻结 mixed-fidelity
-  builder,变体沿用路径级重排);(3) trainer 加 per-rank 预取线程(CPU 编码与 GPU 重叠);
-  (4) hyper00 六卡 recipe v2 训练,总步 ~300 级,25-50 步 checkpoint + 门禁(轨迹级哈希 heldout);
-  (5) AndroidWorld 配对化验尺零样本评测。化验尺 v2(配对)仍在跑。
-
-## 2026-07-22:Odyssey 源表勘察完毕——渲染器可写,全部事实如下(续跑锚点)
-
-- 源表:`/data02/jaxan/artifacts/causalcache-set-utility-variable-history-source-v1-a7213db/
-  trajectory-shards/shard-NNN-of-256.parquet`(双机同备份)。行 = 轨迹:columns = decision_count /
-  history_events_json / images(PNG bytes 列表,observation-000..N)/ ocr_records_json /
-  raw_messages / raw_metadata / role / source_id / task_instruction / transport_*。
-- **事件 schema 与闭环同构**:history_events_json 的 low_fidelity_summary 字段 = low_fidelity_v2
-  规范(foreground_app/executor_result= unknown ✓),post 图 = observation-{k}.png,OCR 在
-  ocr_records_json——可直接构造 LiveRichEvent mapping 喂冻结 mixed-fidelity builder,训练 prompt
-  与 AndroidWorld 闭环逐字节同构(零样本迁移的关键)。
-- **目标动作**:raw_messages = 20 组 user/assistant;assistant content = [inline_reasoning, 工具
-  调用部件]——每决策的人类动作已是官方格式部件,target_text 直接重构(勘察时只看了 part0,写渲染
-  器时先打印 assistant[0] 全部 parts 确认工具部件字段名)。
-- state 母表:causalcache-variable-history-context-v2-1285ba8/state-context.jsonl(12,792 fit,
-  role=train,state_id=source_id:decision:NNN,history_bin 分层)。
-- 渲染器待写:code/scripts/build_odyssey_sft_dataset.py——按 state 母表过滤 fits,每 state 产
-  correct/b0/shuffled/irrelevant 四变体(逻辑照抄 build_success_sft_dataset:同 hash 混采、路径级
-  重排、donor 跨轨迹),图像写 output images/<source_id>/observation-NNN.png;--workers 进程池。
-  然后 trainer 加 per-rank 预取线程,hyper00 六卡 recipe v2 训练(总步 ~300 级,25 步 checkpoint)。
-
-## 2026-07-22:Odyssey 目标动作勘察(续跑锚点 2)
-
-- transport(source-v1-a7213db)与 full-pool 的 assistant 消息只有 inline_reasoning +
-  action_description 两种部件,**无精确工具调用**;metadata.valid_actions=null;低保真事件的
-  action_argument 是冻结 10×10 bin(click 精度不足以作 SFT 目标)。
-- 目标动作三选一:(a) 从原始 hflqf88888/GUIOdyssey 注释按 source_id+step JOIN 精确坐标(首选,
-  在盘候选:/data02/jaxan/source/guiodyssey-independent-v1、artifacts/guiodyssey-pilot*.tar);
-  (b) bin 中心近似(click 有系统偏差,保底);(c) 继续上游考古 set_utility_dense/gate_v1_data
-  找当年精确动作解析处。
-- 已核对:低保真 schema 与闭环 low_fidelity_v2 同构、图像/OCR 齐备、mixed-fidelity builder 可直用,
-  唯一缺口就是精确目标动作。
-
-## 2026-07-22:Odyssey 精确动作到手——渲染器规格闭合(续跑锚点 3)
-
-- 原始注释已下载:hyper00 /data02/jaxan/source/guiodyssey-raw-annotations/(annotations/<episode_id>
-  .json + all_annot.json,136MB+,限速重试中自动补齐)。schema:episode_id=source_id,steps[k] =
-  {step(0 基), action(CLICK/LONG_PRESS/SCROLL/TEXT/KEY 系/COMPLETE...), info=[[x,y],[x,y]] 绝对像素
-  (device_info 有分辨率), description}。JOIN:decision t(1 基)= steps[t-1]。
-- 渲染器 build_odyssey_sft_dataset.py 规格:(1) 遍历 state 母表(12,792 fit);(2) 事件 mapping 从
-  transport 行构造(low_fidelity_v2 同构,post 图=observation-k.png,OCR 从 ocr_records_json);
-  (3) prompt=冻结 mixed-fidelity builder,shared-early<2 分支同 AndroidWorld;(4) 目标=注释精确
-  动作 → GUIOwlV2Action(坐标按 gui_owl 规范空间换算,写时核对 gui_owl_v2._coordinate 的合法范围
-  与闭环 gui_owl_v2_action_to_androidworld 的缩放方向)→ serialize_gui_owl_v2_1_teacher_target;
-  (5) 四变体照抄 AndroidWorld 版(hash 混采/路径级重排/donor 跨轨迹);(6) 图像物化到 output
-  images/<source_id>/observation-NNN.png;--workers 进程池按轨迹并行。
-- 训练:trainer 加 per-rank 预取线程后,hyper00 六卡 recipe v2,总步 ~300 级,25 步 checkpoint,
-  heldout=轨迹级哈希(盐 odyssey_margin_v1)。评测:AndroidWorld 配对化验尺零样本。
-
-## 2026-07-22:Odyssey margin 训练发射(主线新纪元)
-
-- 渲染收官:26,195 样本(四变体),932±轨迹,图像/manifest 齐;渲染仅 ~15 分钟(OCR 预计算,16 并行
-  即 I/O 饱和)。渲染器三轮修复:parquet 图像 struct、OCR 字典键形、目标动作 JOIN。
-- 训练发射:jiaxuanluo-182,hyper00 GPU 2-7,config causalcache_odyssey_margin_v1.json(recipe v2 +
-  盐 odyssey_margin_v1),22,197 单元 / 140 heldout 轨迹,--max-steps 350 --checkpoint-every-steps 25。
-  滚动门禁沿用 gate2 流程(frozen 基线需对 Odyssey heldout 重打——发训练后第一件事)。
-- 评测计划:门禁过线 checkpoint → AndroidWorld 配对化验尺零样本(全模板集,retry 协议)vs frozen;
-  化验尺 v2(AndroidWorld-trained 适配)仍在跑,其结果作 in-domain 对照表。
-
-## 2026-07-22:配对化验尺 v2 裁决——首个 CI 认证闭环提升
-
-- 180/180(frozen/adapted(v3-e1 α32)× B0/B8 × 15 模板 × 3 实例,贪心主解码 + parse 一次采样重试):
-  frozen B0=3/45 B8=6/45(parse 26);adapted B0=7/45 B8=7/45(parse 14,近减半)。
-- 模板级配对:**adapted-B0 vs frozen-B0 净胜 +4(4W0L)Δ+0.089 CI[+0.022,+0.156]**(全项目首个
-  CI 认证闭环提升);adapted-B8 vs frozen-B0 +3(3W0L)Δ+0.089 CI[+0.000,+0.200];adapted 内部
-  B8−B0 平(Δ0.000);frozen 内部 B8−B0 +2 Δ+0.067 CI[+0.000,+0.178]。
-- 结论:margin-SFT 提升整体闭环能力与格式稳健性(assay v1 的一击毙命全线塌方被重试协议 + 训练共同
-  逆转);高保真记忆的边际增益尚未显形——Odyssey 训练线(在跑)是该效应的下一次机会。paper 闭环章
-  骨架:①冻结 policy 内容盲(±0.003)②margin 训练创造 CI 级内容敏感 ③闭环整体提升 CI 认证
-  ④记忆边际增益的 honest 陈述 + 剂量单调过程指标。
-
-## 2026-07-23:Odyssey s75 零样本认证过线——主表化验尺发射
-
-- 趋势管线(每 checkpoint 双探针:Odyssey in-domain 12 轨迹 + AW 迁移 10 局)发现:in-domain 单调
-  爬升(c−irrel 至 s175 +0.0385),AW 迁移在 s75-s175 带内稳定;s175 探针尖峰未在全量复现。
-- 全量认证(AW 49 局 heldout):**s75 双内容门禁 CI 过线**(c−shuf +0.0070[+0.0052,+0.0091] 正例率
-  75%;c−irrel +0.0069[+0.0047,+0.0091] 72%;干扰税 −0.0040 = 冻结的 1/10);s175 较弱。
-  **75 个优化步的 Odyssey 训练实现内容敏感性零样本跨语料迁移(CI 认证)**。
-- Odyssey 冻结基线的反向敏感(shuffled 优于 correct,−0.063)为新失败模式证据:冻结 policy 非
-  内容盲而是内容误用(in-domain);margin 训练 75 步内扳正方向。
-- 零样本配对化验尺发射:odyssey-s75 × B0/B8 × 15 模板 × 3 实例 = 90 局(hyper01 12 worker,retry
-  协议);frozen 侧合法复用 assay-paired-v2 的 90 局(协议逐字节相同)。这是 paper 主表:
-  GUI-Odyssey 训练 → AndroidWorld 零样本闭环 vs frozen。训练本体继续至 350 步留全曲线。
+- 用户授权 H100 最多使用 6 GPUs；fleet preflight 在 `2026-07-22T22:01:21Z` 确认 GPU 0--7 全空闲，本轮
+  只选择 0--5；
+- 新增 frozen GUI-Owl-1.5-8B desktop runtime、每卡一 replica server、recent-B4 mixed-fidelity prompt 与
+  typed action parser；未训练或修改 policy 权重；
+- multi-env runner 新增动态 replica count、24-task evenly-spaced capacity roster 和 wall/吞吐/queue/generation
+  aggregate；capacity 配置与正式 361-task benchmark 配置隔离；
+- focused 14 tests 通过。下一步在 H100 执行 1/2/4/6 GPU × KVM env scaling，并把 raw evidence 保留在
+  `/data/jaxan/osworld-capacity/`。
+- 单卡真实闭环验证完成：GUI-Owl 输出合法 `computer_use` click，generation=`3.230s`、纯 lock queue 约
+  `2µs`；首轮 24-env capacity point 因 `max_steps=1` 后仍执行文件型 evaluator，在 28/48 后停止并记
+  `INVALID_CAPACITY_EVALUATOR_CONFOUND`。容量 config 已版本化关闭 evaluator；正式 benchmark evaluator 不变。
+- 关闭 evaluator 后的跨域 evenly-spaced point 在 33/48 后停于 task reset/setup；GPU idle、CPU 约 96% idle，
+  记 `INVALID_CAPACITY_TASK_SETUP_CONFOUND`。最终 capacity workload 固定为官方 no-GDrive roster 的全部 46 个
+  Chrome tasks；GPU 与 environment 两轴均使用同一 denominator。
+- Chrome-only 24-env point 发现官方 port-allocation file lock 的硬编码 10 秒 timeout（3 个 worker）与
+  GUI-Owl `click` alias parser mismatch（1 个 worker）。lock 本身保留，H100 config timeout 提高到 180 秒；
+  parser 只补官方兼容的 `click/drag` aliases。该 attempt 记 invalid 后全矩阵重跑。
+- 修复后 24-env point 在 41/46 后出现 1 次 VM reset `Docker NotFound`，表明 24 env 可能越过可靠性 knee。
+  capacity 顺序改为先测 6/12/18/24/30 env，再在保守 12 env 下测 1/2/4/6 GPU；invalid 高并发点记录后继续。
+- 6-env point 随后在同一 worker 的 repeated reset 复现 3 次 `Docker NotFound`，因此不是硬件 knee。根因是官方
+  port scanner 的 list→per-container-inspect race；改用一次 Docker sparse port snapshot，保留全局分配 lock。
+- sparse port snapshot 后 6 env 已完成 46/46、0 failure，但 runner 在汇总前出现 join-before-drain queue
+  deadlock；改为运行中 drain 46 个 task terminal messages 后再 join。该 attempt 不产生合法 throughput。

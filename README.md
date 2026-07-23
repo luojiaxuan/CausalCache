@@ -6,6 +6,30 @@
 
 ## 当前结论
 
+- **OSWorld frozen GUI-Owl capacity study 已完成。** 8/8 正式点、每点 46/46 episodes、0 runner failure；
+  6 replicas 下 environment throughput 在 24 envs 达峰值 `1835.24 fresh tasks/hour`，30 envs 回落至
+  `1803.63`。固定 12 envs 时，1/2/4/6 replicas 的 throughput 基本不变，但 client p95 从
+  `12.18s` 降至 `6.94/3.39/3.06s`，说明 one-step wall time 受 VM reset/setup 限制，而 GPU 数决定 policy
+  尾延迟和多步余量。recent at-most-B4 的 5-image 真实请求也已通过。完整数字与边界见
+  [`docs/osworld_gui_owl_capacity_v1.md`](docs/osworld_gui_owl_capacity_v1.md)和
+  [`data/results/osworld_gui_owl_capacity_v1/`](data/results/osworld_gui_owl_capacity_v1/)。
+- **OSWorld runner v1 已完成真实 KVM live smoke。** runner 绑定官方 pinned `DesktopEnv`，覆盖 10 domains / 369
+  tasks 的 inventory、受限 desktop action 到 PyAutoGUI 的安全映射、mixed-fidelity policy HTTP boundary、
+  task-level 可断点 suite sharding 与原子 episode evidence。Hyper01 与 H100 的真实
+  reset→screenshot→WAIT→DONE→evaluate→close 均已通过，第二次运行均返回 `resumed_skips=1`；H100 需要显式
+  `--docker-cpu-model qemu64`，避免默认 host CPU model 卡在 VM early boot。当前仍是跨平台 benchmark
+  substrate，不是科学结果，
+  learned selector、GUI-Owl desktop policy 和正式 OSWorld roster 尚未接入。复现见
+  [`docs/osworld_runner_v1.md`](docs/osworld_runner_v1.md)，证据见
+  [`data/results/osworld_runner_v1_smoke/`](data/results/osworld_runner_v1_smoke/)和
+  [`data/results/osworld_runner_v1_h100_smoke/`](data/results/osworld_runner_v1_h100_smoke/)。
+- **OSWorld benchmark acceleration v1 已接通 12-env / 2-GPU topology。** 官方 `test_nogdrive.json` 被
+  fail-closed 验证为从 369 tasks 只排除 8 个 Google Drive `multi_apps` tasks，正式可运行 denominator 为
+  361。H100 上 12 个并发 KVM environments 经动态任务队列轮询两个独立 H100 policy replicas，完成 12/12
+  infrastructure episodes、24/24 requests、0 runner failure；重复运行 12/12 task-level resume。该 smoke
+  使用 `WAIT→DONE`，不构成 policy score 或完整 benchmark 时间 claim。方案、排除清单和正式吞吐建议见
+  [`docs/osworld_benchmark_acceleration_v1.md`](docs/osworld_benchmark_acceleration_v1.md)，轻量证据见
+  [`data/results/osworld_benchmark_h100_smoke_v1/`](data/results/osworld_benchmark_h100_smoke_v1/)。
 - **主线已转为 selector-side GUI-Owl LoRA；旧 budget-deferral evaluation 已在读取 truth 前停止。**
   旧 evaluation 的 `truth read=0`，partial receipts 仅作为可恢复执行记录保留，不产生结果。Teacher/action
   policy 始终是原始 frozen GUI-Owl；LoRA 只更新 selector encoder，因此现有 restoration labels 继续有效。

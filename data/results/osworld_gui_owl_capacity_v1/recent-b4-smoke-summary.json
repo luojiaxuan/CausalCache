@@ -1,0 +1,23 @@
+{
+  "action": {
+    "button": "left",
+    "clicks": 1,
+    "duration": 0.1,
+    "type": "click",
+    "x": 36,
+    "y": 59
+  },
+  "generated_tokens": 32,
+  "generation_seconds": 2.011883603874594,
+  "image_count": 5,
+  "peak_gpu_memory_allocated_bytes": 18486170624,
+  "prompt_tokens": 2866,
+  "raw_path": "/data/jaxan/osworld-capacity/recent-b4-smoke-780ef47.json",
+  "selected_event_step_ids": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "status": "PASS_RECENT_AT_MOST_B4_MULTIMAGE"
+}

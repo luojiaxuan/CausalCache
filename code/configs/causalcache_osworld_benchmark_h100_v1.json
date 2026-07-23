@@ -1,0 +1,46 @@
+{
+  "schema_version": "causalcache.osworld.benchmark_config.v1",
+  "osworld_revision": "b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf",
+  "roster": {
+    "full_meta_path": "evaluation_examples/test_all.json",
+    "selected_meta_path": "evaluation_examples/test_nogdrive.json",
+    "expected_full_task_count": 369,
+    "expected_selected_task_count": 361,
+    "expected_excluded_task_count": 8,
+    "exclusion_policy": "official_google_drive_only",
+    "excluded_tasks": [
+      {"domain": "multi_apps", "task_id": "46407397-a7d5-4c6b-92c6-dbe038b1457b"},
+      {"domain": "multi_apps", "task_id": "4e9f0faf-2ecc-4ae8-a804-28c9a75d1ddc"},
+      {"domain": "multi_apps", "task_id": "78aed49a-a710-4321-a793-b611a7c5b56b"},
+      {"domain": "multi_apps", "task_id": "897e3b53-5d4d-444b-85cb-2cdc8a97d903"},
+      {"domain": "multi_apps", "task_id": "a0b9dc9c-fc07-4a88-8c5d-5e3ecad91bcb"},
+      {"domain": "multi_apps", "task_id": "b52b40a5-ad70-4c53-b5b0-5650a8387052"},
+      {"domain": "multi_apps", "task_id": "0c825995-5b70-4526-b663-113f4c999dd2"},
+      {"domain": "multi_apps", "task_id": "22a4636f-8179-4357-8e87-d1743ece1f81"}
+    ]
+  },
+  "execution": {
+    "provider": "docker",
+    "path_to_vm": null,
+    "num_envs": 12,
+    "screen_size": [1920, 1080],
+    "docker_dns_server": "127.0.0.11",
+    "docker_cpu_model": "qemu64",
+    "docker_port_lock_timeout_seconds": 180,
+    "memory_arm": "recent",
+    "memory_budget": 4,
+    "max_steps": 50,
+    "pause_seconds": 2.0,
+    "cache_dir": "/data/jaxan/osworld-benchmark/cache",
+    "output_root": "/data/jaxan/osworld-benchmark/runs"
+  },
+  "policy_pool": {
+    "replica_count": 2,
+    "endpoints": [
+      "http://127.0.0.1:19080/act",
+      "http://127.0.0.1:19081/act"
+    ],
+    "timeout_seconds": 300.0,
+    "assignment": "worker_id_mod_replica_count"
+  }
+}

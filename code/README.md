@@ -42,6 +42,25 @@ python3 -m venv .venv
 容器层。实验语义参数使用 CLI 或 committed JSON config 显式传入，不使用临时环境变量覆盖 seed、
 model revision、dtype、budget、prompt、preprocessing 或 threshold。
 
+## OSWorld runner v1
+
+OSWorld runner 使用官方 `DesktopEnv`，但不允许 policy 直接执行任意 Python。模型先返回受限 desktop action
+mapping，runner 验证后再渲染为 PyAutoGUI。单 task、deterministic suite sharding、task-level resume、
+scripted smoke 与 HTTP policy transport 共用同一入口：
+
+```bash
+PYTHONPATH=code python3 -m scripts.run_osworld \
+  --repository-root . \
+  --osworld-root /absolute/path/to/OSWorld \
+  --dry-run --domain chrome --task-id <TASK_ID>
+
+cd code
+PYTHONPATH=. python3 -m unittest tests.test_osworld -v
+```
+
+完整依赖安装、真实 Docker provider smoke、HTTP schema 与断点语义见
+[`../docs/osworld_runner_v1.md`](../docs/osworld_runner_v1.md)。
+
 ## Subset-search v1
 
 `causalcache.subset_search` 实现 black-box set utility 上的 deterministic exact、true conditional greedy、

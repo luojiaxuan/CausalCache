@@ -27,6 +27,7 @@ HF create/upload/tag。远端确需访问 private repo 时，由操作者通过�
 | RL、大模型训练或大规模重训练 | B200 | Hyper H200 | 按实际并行度与当次空闲卡分配，非 Taurus/Aries 默认最多 4 卡 |
 | Independent confirm-20 | Hyper00 4×H200 | Hyper01 4×H200 | 已在 Hyper00 完成唯一 continuation，结果 `NO_GO_INDEPENDENT_CONFIRM`；禁止重跑 |
 | AndroidWorld paired rollout | Aries emulator + Hyper H200 policy | 新合同后调整 | 本 v1 因 confirm NO-GO 未解锁、未执行；不得把 policy 静默降级到 A6000 |
+| OSWorld benchmark | H100: 12×KVM env + 2×H100 policy replicas | AWS 最高约 50 env | GPU 服务 policy；environment 使用 CPU/KVM；默认运行官方 361-task no-GDrive roster |
 | 小模型 smoke、sample-level debug | Aries/Taurus A6000 | Hyper01 | 避免为小任务占用 H200 |
 
 `2026-07-19T09:12Z` 的 12-state throughput pilot 只读 readiness 快照显示：Hyper00 有 7 张无 compute app 且
@@ -42,6 +43,23 @@ preflight；详情见
 `causalcache-androidworld` image。禁止用全局 Docker prune 腾空间；在 Docker root 被管理员迁移或
 明确释放足够空间前，Hyper01 只承担已有 image 可完成的 policy/offline 工作，closed-loop MVP 留在
 Aries。任何 repo、virtualenv、log、checkpoint 与 cache 都不得写入根分区或容器层。
+
+## OSWorld H100 并发 profile
+
+OSWorld 正式默认使用
+[`causalcache_osworld_benchmark_h100_v1.json`](../code/configs/causalcache_osworld_benchmark_h100_v1.json)：
+12 个 KVM environment workers 通过动态 queue 领取 361 个 no-GDrive tasks；两个常驻 policy replicas 绑定两张
+H100，worker 按 `worker_id mod 2` 路由。environment 每个需要 4 vCPU/4GB guest RAM，因此 12 env 约申请
+48 vCPU/48GB guest RAM，仍低于当前 H100 host 的 128 logical CPUs/2TB RAM。
+
+H100 host 必须传 `docker_cpu_model=qemu64`；默认 `host` CPU model 在该 host 已复现 early-boot timeout。
+policy endpoint 必须在正式运行前通过 health check，但 GPU 数不等于 env 数：GPU 负责共享模型推理，KVM
+并行度由 CPU、RAM、Docker ports、policy batching capacity 和真实 per-step latency共同决定。正式运行不得沿用
+smoke 的 `max_steps=2/pause_seconds=0.1`；应使用 committed profile 的 `50/2.0`，并把 full-policy calibration 的
+task wall time、step count、policy latency、env reset latency记录后再决定是否从 12 env 提升或降低。
+
+完整执行逻辑、Google Drive 排除清单和资源估算见
+[`osworld_benchmark_acceleration_v1.md`](osworld_benchmark_acceleration_v1.md)。
 
 ## 芯片无关的实验逻辑
 
