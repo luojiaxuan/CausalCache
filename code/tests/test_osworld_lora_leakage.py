@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import json
+import tempfile
 import unittest
 from pathlib import Path
 
 from causalcache.osworld_lora_leakage import (
     classify_profile,
     inspect_output,
+    request_from_prompt,
     summarize_records,
 )
 from scripts.run_osworld_lora_leakage_profiles import parse_assignment
@@ -18,6 +20,31 @@ def _tool(name: str, action: str, extra: dict[str, object] | None = None) -> str
 
 
 class OSWorldLoRALeakageTests(unittest.TestCase):
+    def test_resolves_fixture_images_relative_to_explicit_root(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "screen.png").write_bytes(b"png")
+            request = request_from_prompt(
+                {
+                    "instruction": "Open Settings",
+                    "screen_size": [1920, 1080],
+                    "current_screenshot_path": "screen.png",
+                    "history": [],
+                },
+                fixture_root=root,
+            )
+            self.assertTrue(request["current_screenshot_png_base64"])
+            with self.assertRaisesRegex(ValueError, "must be relative"):
+                request_from_prompt(
+                    {
+                        "instruction": "Open Settings",
+                        "screen_size": [1920, 1080],
+                        "current_screenshot_path": str(root / "screen.png"),
+                        "history": [],
+                    },
+                    fixture_root=root,
+                )
+
     def test_parses_explicit_profile_assignment(self) -> None:
         self.assertEqual(
             parse_assignment("2:adapted:/data/checkpoint.pt"),

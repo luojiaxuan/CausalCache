@@ -35,6 +35,7 @@ def main() -> None:
     parser.add_argument("--repository-root", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--fixture-root", type=Path, required=True)
     parser.add_argument("--profile-id", required=True)
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--lora-checkpoint", type=Path)
@@ -98,7 +99,9 @@ def main() -> None:
         if output.exists():
             record = json.loads(output.read_text(encoding="utf-8"))
         else:
-            request = request_from_prompt(prompt)
+            request = request_from_prompt(
+                prompt, fixture_root=args.fixture_root.resolve()
+            )
             output_text, generation = runtime.generate_raw(request)
             record = {
                 "schema_version": PROFILE_SCHEMA_VERSION,

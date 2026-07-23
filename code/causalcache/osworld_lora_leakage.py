@@ -85,15 +85,27 @@ def load_manifest(
     return manifest
 
 
-def request_from_prompt(prompt: Mapping[str, Any]) -> dict[str, Any]:
-    current_path = Path(prompt["current_screenshot_path"])
+def _fixture_path(value: str, fixture_root: Path) -> Path:
+    path = Path(value)
+    if path.is_absolute():
+        raise ValueError("leakage fixture image paths must be relative")
+    resolved = (fixture_root / path).resolve()
+    if fixture_root.resolve() not in resolved.parents:
+        raise ValueError("leakage fixture image escaped its root")
+    return resolved
+
+
+def request_from_prompt(
+    prompt: Mapping[str, Any], *, fixture_root: Path
+) -> dict[str, Any]:
+    current_path = _fixture_path(prompt["current_screenshot_path"], fixture_root)
     current = base64.b64encode(current_path.read_bytes()).decode("ascii")
     history = []
     selected = []
     for event in prompt["history"]:
         step_id = int(event["step_id"])
         restored = base64.b64encode(
-            Path(event["restored_screenshot_path"]).read_bytes()
+            _fixture_path(event["restored_screenshot_path"], fixture_root).read_bytes()
         ).decode("ascii")
         history.append(
             {

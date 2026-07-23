@@ -62,7 +62,9 @@ def main() -> None:
                         "action": {"type": "wait"},
                         "result_status": "executed",
                         "screen_changed": sha256_file(initial) != sha256_file(step),
-                        "restored_screenshot_path": str(source),
+                        "restored_screenshot_path": str(
+                            source.relative_to(args.episodes_root.resolve())
+                        ),
                         "restored_screenshot_sha256": sha256_file(source),
                     }
                 )
@@ -76,7 +78,9 @@ def main() -> None:
                 "instruction": result["task"]["instruction"],
                 "screen_size": config["screen_size"],
                 "input_mode": "recent_b4" if recent_b4 else "single_image",
-                "current_screenshot_path": str(current),
+                "current_screenshot_path": str(
+                    current.relative_to(args.episodes_root.resolve())
+                ),
                 "current_screenshot_sha256": sha256_file(current),
                 "history": history,
             }
@@ -96,6 +100,7 @@ def main() -> None:
         ),
         "prompt_contract_sha256": prompt_contract_sha256(config),
         "episodes_root": str(args.episodes_root.resolve()),
+        "image_path_semantics": "relative_to_fixture_root",
         "prompts": prompts,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)

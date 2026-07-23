@@ -23,6 +23,7 @@ def main() -> None:
     parser.add_argument("--repository-root", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--fixture-root", type=Path, required=True)
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument(
@@ -56,6 +57,8 @@ def main() -> None:
             str(args.config.resolve()),
             "--manifest",
             str(args.manifest.resolve()),
+            "--fixture-root",
+            str(args.fixture_root.resolve()),
             "--profile-id",
             profile_id,
             "--model-dir",
