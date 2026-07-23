@@ -4816,3 +4816,18 @@ untouched holdout，不能把已消费 fresh-16 重新包装为验证集。
   c−b0 本已为正(+0.0635),gate 判定点 = 内容对照 CI 转正处。s50/s75 探针滚动中。
 - 同日:full-layer Odyssey salvage 线收档(离线 gate 全过 + canary 提前终止残留),为本主线
   动机证据;全 Docker 隐匿化(sglang-omni-jaxan 命名 + jaxanluo/sglang-omni:{dev,env} 镜像)。
+
+## 2026-07-24:History-Gated KV Adapter 正式 gate PASS,s100 冻结
+
+- 全量认证(165 heldout 轨迹,5,738×2 行,n=1,220 配对组):s100 三条对照 CI 下界全正
+  (c−b0 +0.1372[+0.1296,+0.1449];c−shuf +0.0016[+0.0003,+0.0030];c−irrel
+  +0.0108[+0.0078,+0.0139]),B0 parity 逐位 0.000000;冻结基线内容对照 CI 认证为负
+  (−0.0142/−0.0115)→ 病症确证、修复且反转。合同第一阶段唯一问题答"是"。
+- 弱点如实记录:wrong-history drift +0.071/+0.067(增益偏"有历史即放大",内容辨别净
+  边际小而显著);详见 data/results/hgkv_gate_v1/README.md。
+- 选点轨迹:探针 s25→s150 上升-平台-微降,s100 峰值;训练在 s175 后停止(用户执行)。
+- 闭环接线落地(5c26008):worker/runtime 支持 history_gated_kv,K=0 臂 nullcontext 保
+  parity,K>0 fail-closed;43 单测绿。
+- dev canary 进行中(hyper01,复用 1750xx emulator,修正:真端口 28200/28201 高位映射、
+  模板须取自 ceiling 15 名单——sealed-split 防护有效拦截了越界选择)。
+- 认证期三连事故(截断 PNG/引号 bug/exec 连坐)全记录于结果 README,结论不受污染。
