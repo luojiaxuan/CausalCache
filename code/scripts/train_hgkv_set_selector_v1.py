@@ -68,7 +68,8 @@ def build_conditional_groups(
     budget_replication: dict[str, list[int]],
 ) -> tuple[dict[GroupKey, dict[int, float]], dict[str, Any]]:
     groups: dict[GroupKey, dict[int, float]] = defaultdict(dict)
-    base_parity = []
+    singleton_base_parity = []
+    pair_base_parity = []
     edge_counts: dict[str, int] = defaultdict(int)
     rendered_rows = 0
     for path in render_paths:
@@ -97,16 +98,41 @@ def build_conditional_groups(
                     raise ValueError(f"conditional score join miss: {child_key}")
                 child_score = conditional_scores[child_key]
                 if variant == "cond_base":
-                    if len(anchor) != 1:
-                        raise ValueError("cond_base must have one anchor")
-                    singleton_key = (pair_group, anchor[0])
-                    if singleton_key not in singleton_scores:
-                        raise ValueError(
-                            f"singleton score join miss: {singleton_key}"
+                    if len(anchor) == 1:
+                        reference_key: tuple | ConditionalScoreKey = (
+                            pair_group,
+                            anchor[0],
                         )
-                    base_parity.append(
-                        child_score - singleton_scores[singleton_key]
-                    )
+                        if reference_key not in singleton_scores:
+                            raise ValueError(
+                                f"singleton score join miss: {reference_key}"
+                            )
+                        difference = child_score - singleton_scores[reference_key]
+                        singleton_base_parity.append(difference)
+                    elif len(anchor) == 2:
+                        reference_key = (
+                            pair_group,
+                            "cond_edge1",
+                            set_key(anchor),
+                        )
+                        if reference_key not in conditional_scores:
+                            raise ValueError(
+                                "pair-base parity join miss: "
+                                f"{reference_key}"
+                            )
+                        difference = (
+                            child_score - conditional_scores[reference_key]
+                        )
+                        pair_base_parity.append(difference)
+                    else:
+                        raise ValueError(
+                            "cond_base anchor must contain one or two events"
+                        )
+                    if not np.isclose(difference, 0.0, atol=1e-8, rtol=0):
+                        raise ValueError(
+                            f"cond_base parity drifted for {child_key}: "
+                            f"{difference}"
+                        )
                     continue
                 if variant not in {"cond_edge1", "cond_edge2"}:
                     raise ValueError(f"unknown conditional variant: {variant}")
@@ -132,7 +158,7 @@ def build_conditional_groups(
                         raise ValueError("cond_edge2 must have two anchors")
                     base_key = (
                         pair_group,
-                        "cond_edge1",
+                        "cond_base",
                         set_key(anchor),
                     )
                     if base_key not in conditional_scores:
@@ -154,11 +180,21 @@ def build_conditional_groups(
                             f"conflicting marginal for {group_key} candidate {candidate}"
                         )
                     groups[group_key][candidate] = marginal
-    parity_array = np.asarray(base_parity, dtype=np.float64)
+    singleton_parity = np.asarray(
+        singleton_base_parity, dtype=np.float64
+    )
+    pair_parity = np.asarray(pair_base_parity, dtype=np.float64)
     audit = {
-        "cond_base_count": len(base_parity),
+        "cond_base_count": len(singleton_base_parity) + len(pair_base_parity),
+        "cond_base_pair_count": len(pair_base_parity),
+        "cond_base_pair_max_abs_edge1_delta": (
+            float(np.max(np.abs(pair_parity))) if len(pair_parity) else None
+        ),
+        "cond_base_singleton_count": len(singleton_base_parity),
         "cond_base_max_abs_singleton_delta": (
-            float(np.max(np.abs(parity_array))) if len(parity_array) else None
+            float(np.max(np.abs(singleton_parity)))
+            if len(singleton_parity)
+            else None
         ),
         "edge_counts_before_group_dedup": dict(sorted(edge_counts.items())),
         "group_count": len(groups),

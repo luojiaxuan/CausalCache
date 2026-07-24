@@ -211,6 +211,22 @@
   `code/requirements/hgkv_selector_v1_lock.txt`，并同步为 `pyproject.toml[selector]`
   optional dependency；实机 import 版本核验通过。
 
+## 2026-07-24:Stage-2 conditional base 契约阻断修复
+
+- GPU conditional scoring 发射前的 hostile review 发现 renderer/trainer 真实错配：
+  renderer 为第二层 anchor 合法产生二元素 `cond_base({i,j})`，trainer 却只接受 singleton
+  base，正式 Stage-2 会在读首批真实 render 时 `ValueError`；因 scoring 尚未开始，没有消耗
+  正式 conditional GPU 算力；
+- 修复后 `cond_base({i,j})` 是 `cond_edge2` 的权威减数；它必须与同集合
+  `cond_edge1` 分数 `atol=1e-8,rtol=0` parity。singleton `cond_base({i})` 也从仅报告
+  drift 升级为强制对冻结 singleton score parity；任一不一致 fail closed；
+- 回归 fixture 现包含真实的 1-event base、edge1、2-event base、edge2 全链，并新增 pair-base
+  drift 拒绝测试。该修复保持真实 marginal 定义，不使用 singleton utility 求和。
+- 对已完成 render 做全量 prompt-content 审计：heldout 3,242 个、train 18,118 个
+  二元素 `cond_base` 全部能 join 同 `restored_set_key` 的 `cond_edge1`，且
+  `messages + target_text + memory_config` SHA 逐对一致，missing/mismatch 均为 0；
+  因而强制 score parity 有真实输入依据。
+
 ## 2026-07-24:conditional hg-s100 打分器的流式 file-shard 路径冻结
 
 - conditional renderer 的物理布局为每 split 32 个 `samples-shard*.jsonl`；heldout/train

@@ -133,6 +133,10 @@ selector 候选。旧 Set Transformer 失败的根因是 teacher policy(frozen)�
   singleton-scorer top-1、Recent-1、一个 diverse/random),对每 anchor i 在 shortlist top-K
   内打 Δ(j|{i}) = U(hg,{i,j}) − U(hg,{i});
 - 第二层路径:仅沿 conditional-model greedy / Recent / beam-2,打 Δ(k|{i,j});
+- renderer 对每个第二层 anchor `{i,j}` 显式物化 `cond_base({i,j})`；Stage-2 以该
+  `cond_base` 分数作为 Δ(k|{i,j}) 的权威减数，并要求它与同集合 `cond_edge1`
+  分数在 `atol=1e-8,rtol=0` 下 parity。singleton anchor 的 `cond_base` 同样必须与已冻结
+  singleton score parity；任一漂移 fail closed，不进入训练；
 - shortlist 用 singleton scorer(每态 top-6~8),数据量近线性。
 
 ## 正式主表(简化)
