@@ -131,5 +131,7 @@ V3 取代 V2 中“每 template 1 实例”的规模描述；policy、checkpoint
   hard-delete 是并列的敏感性视图，不会把未完成的 headline 偷换成完成。producer 的
   `official_terminal_success` 还必须与 `score_after==1.0 AND
   termination_reason=="policy_terminated"` 逐局一致。
+- 每次聚合写 `STATUS.json`；只有 `COMPLETE` 才写无扩展名 `DONE` sentinel。已存在的
+  stale `DONE` 会在新一轮聚合开始时移除，`INCOMPLETE` 绝不伪装成完成。
 - 主对照仍为各 policy 内 arm 间差和固定 arm 下 policy 间差；CI 固定 template-paired
   10,000 次 percentile bootstrap，95% 区间，seed family 从 `20260724` 起。

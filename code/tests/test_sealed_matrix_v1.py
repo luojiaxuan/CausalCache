@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from copy import deepcopy
 from pathlib import Path
 
@@ -13,9 +14,11 @@ from causalcache.sealed_matrix_v1 import (
     POLICIES,
     Attempt,
     aggregate_matrix,
+    load_attempts,
     load_roster,
     normalize_attempt,
 )
+from scripts.aggregate_sealed_matrix_v1 import write_status_markers
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -179,6 +182,11 @@ def test_complete_synthetic_matrix_uses_template_macro_pairs() -> None:
         bootstrap_resamples=100,
     )
     assert report["status"] == "COMPLETE_SEALED_ZERO_SHOT_MATRIX_V1"
+    assert report["audit"]["formal_cells_by_policy"] == {
+        "frozen": 696,
+        "full_layer": 696,
+        "history_gated": 696,
+    }
     headline = report["views"]["headline_all_116"]
     action = report["views"]["action_compatible_107"]
     assert headline["template_count"] == 116
@@ -301,3 +309,53 @@ def test_policy_agnostic_nine_cell_void_enables_only_hard_delete_view() -> None:
     assert report["views"]["hard_delete_env_init_only"]["ready"]
     assert report["views"]["hard_delete_env_init_only"]["template_count"] == 116
     assert report["views"]["hard_delete_env_init_only"]["instance_count"] == 231
+
+
+def test_incomplete_report_writes_status_but_not_done(tmp_path: Path) -> None:
+    report = {
+        "audit": {"formal_cell_count": 17},
+        "completed_at": "2026-07-24T00:00:00+00:00",
+        "status": "INCOMPLETE_SEALED_ZERO_SHOT_MATRIX_V1",
+    }
+    stale = tmp_path / "DONE"
+    stale.write_text("stale", encoding="utf-8")
+    write_status_markers(tmp_path, report=report, source_commit="abc123")
+    assert not stale.exists()
+    assert (tmp_path / "STATUS.json").is_file()
+
+    report["status"] = "COMPLETE_SEALED_ZERO_SHOT_MATRIX_V1"
+    write_status_markers(tmp_path, report=report, source_commit="abc123")
+    assert (tmp_path / "DONE").is_file()
+
+
+def test_load_attempts_only_silently_skips_known_index_two(
+    tmp_path: Path,
+) -> None:
+    roster = load_roster(ROSTER_PATH)
+    roster_row = next(iter(roster.values()))
+    valid = _row(
+        roster_row,
+        policy="frozen",
+        arm="summary_B0",
+    )
+    (tmp_path / "valid.json").write_text(
+        json.dumps(valid), encoding="utf-8"
+    )
+    appendix = deepcopy(valid)
+    appendix["task_index"] = 2
+    (tmp_path / "appendix.json").write_text(
+        json.dumps(appendix), encoding="utf-8"
+    )
+    malformed = deepcopy(valid)
+    malformed["task_index"] = "0"
+    (tmp_path / "malformed.json").write_text(
+        json.dumps(malformed), encoding="utf-8"
+    )
+
+    attempts, rejected = load_attempts(
+        [("fixture", tmp_path)],
+        roster=roster,
+    )
+    assert len(attempts) == 1
+    assert len(rejected) == 1
+    assert "neither in the frozen" in rejected[0]["reason"]

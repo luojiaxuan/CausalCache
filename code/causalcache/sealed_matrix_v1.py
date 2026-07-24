@@ -288,26 +288,47 @@ def load_attempts(
             raise FileNotFoundError(f"matrix input root does not exist: {root}")
         for path in sorted(root.rglob("*.json")):
             try:
-                row = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, json.JSONDecodeError) as error:
+                contents = path.read_bytes()
+                row = json.loads(contents)
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError) as error:
                 rejected.append(
                     {"source": source, "path": str(path), "reason": str(error)}
                 )
                 continue
             if not isinstance(row, Mapping) or "task_type" not in row:
                 continue
-            roster_key = (str(row.get("task_type", "")), row.get("task_index"))
+            task_type = row.get("task_type")
+            task_index = row.get("task_index")
+            roster_key = (task_type, task_index)
             # note (luojiaxuan): 同一 run root 还保留旧 sealed-25 的 index-2
             # appendix 记录；它们不属于 116×2 headline roster，既不是坏文件也不能
             # 混进 formal-cell inventory。
             if roster_key not in roster:
+                known_index_two_appendix = (
+                    isinstance(task_type, str)
+                    and type(task_index) is int
+                    and task_index == 2
+                    and (task_type, 0) in roster
+                )
+                if not known_index_two_appendix:
+                    rejected.append(
+                        {
+                            "source": source,
+                            "path": str(path),
+                            "reason": (
+                                "episode identity is neither in the frozen "
+                                "116x2 roster nor a known index-2 appendix: "
+                                f"{roster_key!r}"
+                            ),
+                        }
+                    )
                 continue
             try:
                 attempt = normalize_attempt(
                     row,
                     source=source,
                     path=path,
-                    file_sha256=sha256_file(path),
+                    file_sha256=hashlib.sha256(contents).hexdigest(),
                     roster=roster,
                 )
             except (TypeError, ValueError) as error:
@@ -402,6 +423,12 @@ def resolve_attempts(
         "exact_duplicate_count": exact_duplicate_count,
         "expected_cell_count": len(expected),
         "formal_cell_count": len(selected),
+        "formal_cells_by_arm": dict(
+            sorted(Counter(key[1] for key in selected).items())
+        ),
+        "formal_cells_by_policy": dict(
+            sorted(Counter(key[0] for key in selected).items())
+        ),
         "missing_cell_count": len(missing),
         "missing_cells": [
             {

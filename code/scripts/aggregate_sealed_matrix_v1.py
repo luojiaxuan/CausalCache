@@ -35,6 +35,25 @@ def atomic_write_json(path: Path, payload: object) -> None:
     temporary.replace(path)
 
 
+def write_status_markers(
+    output_dir: Path,
+    *,
+    report: dict,
+    source_commit: str,
+) -> None:
+    payload = {
+        "completed_at": report["completed_at"],
+        "formal_cell_count": report["audit"]["formal_cell_count"],
+        "source_commit": source_commit,
+        "status": report["status"],
+    }
+    atomic_write_json(output_dir / "STATUS.json", payload)
+    done_path = output_dir / "DONE"
+    done_path.unlink(missing_ok=True)
+    if report["status"].startswith("COMPLETE_"):
+        atomic_write_json(done_path, payload)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--roster", type=Path, required=True)
@@ -71,14 +90,10 @@ def main() -> None:
         for row in report["audit"]["missing_cells"]:
             handle.write(json.dumps(row, sort_keys=True) + "\n")
     temporary.replace(missing_path)
-    atomic_write_json(
-        args.output_dir / "DONE.json",
-        {
-            "completed_at": report["completed_at"],
-            "formal_cell_count": report["audit"]["formal_cell_count"],
-            "source_commit": args.source_commit,
-            "status": report["status"],
-        },
+    write_status_markers(
+        args.output_dir,
+        report=report,
+        source_commit=args.source_commit,
     )
     print(
         json.dumps(

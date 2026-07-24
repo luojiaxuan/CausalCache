@@ -172,13 +172,20 @@
   template 内平均两个 fixed instances，再做 template-macro 与 10k paired 95% bootstrap；
 - 两机真实记录联合 dry run schema 验收通过：1,046 个去重 attempt 中 417 个正式 cell、
   621 个零步 void、8 个开跑后 infra，缺 1,671；零 rejected、零 unexpected、零非 infra
-  重复。该数字仅是执行中 inventory，不读取为科学结论。
+  重复。这是首次执行中快照；后续 worker 推进会自然改变计数，不读取为科学结论。
 - hostile review 对 manifest/test evidence 的质疑由 committed 232-instance roster
   (`1dd48941...`)与真实 dry run/单测证据排除；接受并修复 roster 必填字段的显式校验，
   同时新增 producer success 公式复核、policy/checkpoint mismatch、开跑后 infra 与九 cell
   policy-agnostic env-init hard-delete 覆盖。数值 success 保持现有 episode schema 的
   `0.0/1.0` fail-closed 类型，不接受 JSON bool；hard-delete 仅为敏感性视图，不能令缺失
   headline 获得 `COMPLETE`。
+- 第二轮 hostile review 接受一项 operational 修复：聚合器改为始终写 `STATUS.json`、仅
+  2,088 headline cell 全齐时写 `DONE`，避免 incomplete dry run 被监控器误判为完成；
+  identity 预筛也只静默忽略已知 index-2 appendix，其余类型错或 roster 外记录全部进入
+  rejected audit。两机复跑时 worker 已推进到 426 formal / 1,662 missing，policy breakdown
+  frozen/full-layer/history-gated=`137/131/158`，arm breakdown
+  B0/B4/B8=`107/209/110`；零 rejected、零非 infra 重复，且只出现 `STATUS.json`、没有
+  `DONE`/`DONE.json`。这些仍是 liveness 证据，不是科学结果。
 
 ## 2026-07-24:HGKV singleton selector Stage-1 架构与训练规则冻结
 
