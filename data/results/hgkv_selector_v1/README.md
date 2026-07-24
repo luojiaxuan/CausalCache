@@ -98,6 +98,8 @@ balanced root 的 `DONE`。12 个 scorer 的 unique 负载为
 - selected-set render 在计分前由 `validate_selected_set_render_v1.py` 对 plan 做 exact
   unique-set coverage join，同时核对 aggregated method/budget metadata、恢复集合键、
   图片存在性和逐文件 SHA；缺一项不发射 scorer。
+- `validate_selector_inference_v1.py` 在 gate plan 生成前检查两路×B1/B2/B4 全覆盖、
+  candidate inventory/预算/集合合法性，并逐 state 强制 B1 selected set 完全相同。
 
 完整冻结协议见
 [`docs/selector_v1_protocol.md`](../../../docs/selector_v1_protocol.md)。
