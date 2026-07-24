@@ -372,3 +372,53 @@ def test_render_conditional_is_deterministic(synthetic_setup):
     )
     dump = lambda rows: [json.dumps(r, sort_keys=True) for r in rows]
     assert dump(first) == dump(second)
+
+
+def test_render_selected_sets_deduplicates_shared_coalitions(synthetic_setup):
+    row, annotations_root, output_root = synthetic_setup
+    candidates = tuple(range(1, 11))
+    plan = {
+        PAIR_GROUP: [
+            {
+                "budget": 2,
+                "candidate_event_step_ids": candidates,
+                "method": "recent",
+                "selected_event_step_ids": (9, 10),
+            },
+            {
+                "budget": 2,
+                "candidate_event_step_ids": candidates,
+                "method": "hgkv_set_conditioned",
+                "selected_event_step_ids": (9, 10),
+            },
+            {
+                "budget": 4,
+                "candidate_event_step_ids": candidates,
+                "method": "random",
+                "selected_event_step_ids": (1, 3, 5, 7),
+            },
+        ]
+    }
+
+    samples = _render(
+        row,
+        annotations_root,
+        output_root,
+        decisions=[12],
+        selected_set_plan=plan,
+    )
+
+    assert len(samples) == 2
+    by_key = {sample["restored_set_key"]: sample for sample in samples}
+    shared = by_key["9-10"]
+    assert shared["selected_set_budgets"] == [2]
+    assert shared["selected_set_methods"] == [
+        "hgkv_set_conditioned",
+        "recent",
+    ]
+    assert shared["memory_config"] == {
+        "budget": 2,
+        "mode": "selected_set_gate",
+        "restored_event_step_ids": [9, 10],
+    }
+    assert len(_image_parts(shared)) == 3

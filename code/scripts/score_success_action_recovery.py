@@ -244,6 +244,12 @@ def main() -> None:
                         "conditional_candidate": sample.get(
                             "conditional_candidate"
                         ),
+                        "selected_set_budgets": sample.get(
+                            "selected_set_budgets"
+                        ),
+                        "selected_set_methods": sample.get(
+                            "selected_set_methods"
+                        ),
                         "memory_config": sample["memory_config"],
                         "target_token_count": token_count,
                         "target_logprob_sum": total,

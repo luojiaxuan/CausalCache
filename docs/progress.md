@@ -206,6 +206,28 @@
   heldout-once 纪律；conditional edge 指标仍只是训练诊断，正式结论必须来自所选完整集合
   的重渲染、hg-s100 重打分与 B1/B2/B4 paired CI。
 
+## 2026-07-24:selected-set 正式 gate 的 plan→render→score→reduce 路径冻结
+
+- `select_hgkv_sets_v1.py` 同时物化 HGKV singleton independent 与 HGKV
+  set-conditioned 两路 B1/B2/B4 at-most-B 选择；两路共用 Stage-1 首步，
+  singleton 后续按独立 rank 填充，set-conditioned 后续逐步重算条件边际。
+- `build_selector_gate_plan_v1.py` 将 learned 两路与 Recent、deterministic Random、
+  OCR+RGB Similarity 合成 5-method plan。Similarity 沿用已冻结的
+  `0.5*OCR token-set Jaccard + 0.5*256x256 joint-RGB-histogram cosine`，tie 取较小
+  event id；Random seed 固定 20260724 并由 SHA256 排序取 exact-B 子集。
+- Odyssey renderer 新增互斥的 `--selected-sets` 模式；同 state 内多个
+  method/budget 若选出同一 coalition，只渲染一次，按
+  `(pair_group,variant=selected_set,restored_set_key)` 打一次 hg-s100 分，再由 plan
+  回填到各 method，禁止 singleton 求和。空集也真实走 B0/parity prompt，不特殊伪造分数。
+- `reduce_selector_selected_set_gate_v1.py` 用 exact B0 join 计算
+  `U_act(S)=logp_hg(S)-logp_frozen(B0)`；primary 统计单位为 episode，先在 episode
+  内平均 state，再做 10k paired cluster bootstrap。冻结 PASS 条件：B1/B2/B4 每个预算上，
+  set-conditioned 相对 Recent、Similarity、Random 的 95% CI 下界全部严格大于 0；
+  否则 `NO_GO_SELECTED_SET_GATE_V1`。HGKV singleton 同表报告但不进入该 conjunctive gate。
+- Oracle 不混入本 gate 的 PASS 判定：B1 可 exact；B2/B4 的小候选 exact 与长历史
+  beam/approx oracle 需单独物化并明确标注，不能把当前近线性 conditional label coverage
+  冒充全局 subset oracle。
+
 ## 2026-07-24:AAAI draft 主结果表与 selector 分析表同步
 
 - `paper/main.tex` 按冻结零样本叙事加入两张正文表骨架:Table 1 为 AndroidWorld /

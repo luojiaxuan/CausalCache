@@ -51,6 +51,37 @@ def select_for_state(
     first_is_stop = first_stop >= float(first_rank[first_index])
     results = []
     for budget in budgets:
+        independent_order = [
+            int(index)
+            for index in torch.argsort(first_rank, descending=True).tolist()
+            if float(first_rank[index]) > first_stop
+        ]
+        independent_selected = independent_order[:budget]
+        results.append(
+            {
+                "budget": budget,
+                "candidate_event_step_ids": event_ids,
+                "method": "hgkv_singleton",
+                "pair_group": pair_group,
+                "selected_event_step_ids": [
+                    event_ids[index] for index in independent_selected
+                ],
+                "steps": [
+                    {
+                        "candidate_event_id": event_ids[index],
+                        "candidate_positive_probability": float(
+                            first_positive[index]
+                        ),
+                        "candidate_predicted_gain": float(first_gain[index]),
+                        "candidate_rank_score": float(first_rank[index]),
+                        "stage": 1,
+                        "stop_rank_score": first_stop,
+                    }
+                    for index in independent_order
+                ],
+                "stopped": len(independent_selected) < budget,
+            }
+        )
         selected_indices: list[int] = []
         steps = [
             {

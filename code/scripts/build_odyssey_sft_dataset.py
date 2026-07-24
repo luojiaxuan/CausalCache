@@ -154,6 +154,41 @@ def load_singleton_scores(path: Path) -> dict[str, dict[int, float]]:
     return scores
 
 
+def load_selected_set_plan(path: Path) -> dict[str, list[dict[str, Any]]]:
+    plan: dict[str, list[dict[str, Any]]] = {}
+    seen: set[tuple[str, str, int]] = set()
+    for line in path.open(encoding="utf-8"):
+        row = json.loads(line)
+        pair_group = str(row["pair_group"])
+        method = str(row["method"])
+        budget = int(row["budget"])
+        selected = tuple(
+            sorted(int(value) for value in row["selected_event_step_ids"])
+        )
+        candidates = tuple(
+            sorted(int(value) for value in row["candidate_event_step_ids"])
+        )
+        if len(selected) != len(set(selected)):
+            raise ValueError(f"duplicate selected event in {pair_group}")
+        if not set(selected).issubset(candidates):
+            raise ValueError(f"selected event outside candidates in {pair_group}")
+        if not 1 <= budget <= 4 or len(selected) > budget:
+            raise ValueError(f"invalid selected-set budget in {pair_group}")
+        identity = (pair_group, method, budget)
+        if identity in seen:
+            raise ValueError(f"duplicate selected-set plan row: {identity}")
+        seen.add(identity)
+        plan.setdefault(pair_group, []).append(
+            {
+                "budget": budget,
+                "candidate_event_step_ids": candidates,
+                "method": method,
+                "selected_event_step_ids": selected,
+            }
+        )
+    return plan
+
+
 def _stable_seed(text: str) -> int:
     # note (luojiaxuan): 稳定种子——用 sha256 而非内置 hash(字符串 hash 每进程
     # 随机化),保证同一 pair_group 跨进程/跨机器/跨重跑选出同一 random anchor;
@@ -269,6 +304,7 @@ def render_trajectory(
     shortlist_k: int = 6,
     num_anchors: int = 4,
     second_layer: bool = True,
+    selected_set_plan: Mapping[str, list[dict[str, Any]]] | None = None,
 ) -> list[dict[str, Any]]:
     source_id = row["source_id"]
     annotation_path = annotations_root / f"{source_id}.json"
@@ -471,6 +507,53 @@ def render_trajectory(
                         },
                     )
                 )
+        elif selected_set_plan is not None:
+            state_plan = selected_set_plan.get(f"{source_id}:{decision}") or []
+            if not state_plan:
+                continue
+            valid_candidates = set(
+                candidate_event_step_ids_from_history(
+                    [event.to_mapping() for event in history]
+                )
+            )
+            grouped_plan: dict[tuple[int, ...], list[dict[str, Any]]] = {}
+            for selection in state_plan:
+                declared_candidates = set(
+                    selection["candidate_event_step_ids"]
+                )
+                selected_ids = tuple(selection["selected_event_step_ids"])
+                if declared_candidates != valid_candidates:
+                    raise ValueError(
+                        f"selected-set candidate mismatch for {source_id}:{decision}"
+                    )
+                if not set(selected_ids).issubset(valid_candidates):
+                    raise ValueError(
+                        f"selected-set event mismatch for {source_id}:{decision}"
+                    )
+                grouped_plan.setdefault(selected_ids, []).append(selection)
+            for restored_ids, selections in sorted(grouped_plan.items()):
+                variants.append(
+                    (
+                        "selected_set",
+                        restored_ids,
+                        {
+                            step_id: (
+                                f"images/{source_id}/observation-{step_id:03d}.png"
+                            )
+                            for step_id in restored_ids
+                        },
+                        None,
+                        {
+                            "restored_set_key": restored_set_key(restored_ids),
+                            "selected_set_budgets": sorted(
+                                {item["budget"] for item in selections}
+                            ),
+                            "selected_set_methods": sorted(
+                                {item["method"] for item in selections}
+                            ),
+                        },
+                    )
+                )
         elif len(history) < shared_early_decisions:
             variants.append(("correct", (), {}, None, {}))
         else:
@@ -550,11 +633,17 @@ def render_trajectory(
                         if conditional_marginals
                         else "selector_singleton"
                         if selector_singletons
+                        else "selected_set_gate"
+                        if selected_set_plan is not None
                         else mode
                     ),
                     "budget": (
                         len(variant_selected)
-                        if (conditional_marginals or selector_singletons)
+                        if (
+                            conditional_marginals
+                            or selector_singletons
+                            or selected_set_plan is not None
+                        )
                         else budget
                     ),
                     "restored_event_step_ids": list(variant_selected),
@@ -590,6 +679,7 @@ def main() -> None:
     parser.add_argument("--shortlist-k", type=int, default=6)
     parser.add_argument("--num-anchors", type=int, default=4)
     parser.add_argument("--no-second-layer", action="store_true")
+    parser.add_argument("--selected-sets", type=Path, default=None)
     parser.add_argument("--split", choices=("all", "train", "heldout"), default="all")
     parser.add_argument("--heldout-episodes", type=Path, default=None)
     args = parser.parse_args()
@@ -603,11 +693,28 @@ def main() -> None:
     )
     if args.split != "all" and heldout_episodes is None:
         parser.error("--split train/heldout requires --heldout-episodes")
+    if sum(
+        bool(value)
+        for value in (
+            args.selector_singletons,
+            args.conditional_marginals,
+            args.selected_sets is not None,
+        )
+    ) > 1:
+        parser.error(
+            "--selector-singletons, --conditional-marginals, and "
+            "--selected-sets are mutually exclusive"
+        )
     conditional_scores: dict[str, dict[int, float]] | None = None
     if args.conditional_marginals:
         if args.singleton_scores is None:
             parser.error("--conditional-marginals requires --singleton-scores")
         conditional_scores = load_singleton_scores(args.singleton_scores)
+    selected_set_plan = (
+        load_selected_set_plan(args.selected_sets)
+        if args.selected_sets is not None
+        else None
+    )
     inventory = load_state_inventory(args.state_context)
     args.output_root.mkdir(parents=True, exist_ok=True)
     samples_path = (
@@ -647,6 +754,7 @@ def main() -> None:
                     shortlist_k=args.shortlist_k,
                     num_anchors=args.num_anchors,
                     second_layer=not args.no_second_layer,
+                    selected_set_plan=selected_set_plan,
                 )
                 for sample in samples:
                     handle.write(
