@@ -416,6 +416,11 @@
   renders 已全量完成；hyper01 固定容器 `sglang-omni-jaxan` 已按 6 张 H200、每卡 2 个
   scorer 发射 heldout→train 流水线，终态须分别达到 38,836 / 219,549 unique identities
   才允许 Stage-2。
+- train 的 32 个 physical render files 直接 round-robin 到 12 scorer 时 unique 负载为
+  9,401–23,708，存在 2.5× 尾部不均。新增 deterministic score-identity hash rebalancer，
+  raw 255,490 与 unique 219,549 均完全守恒、跨输出 key 重复为 0；12 个 balanced shard
+  收敛到 18,001–18,602 unique identities。该视图只重排行，不改变 prompt/图片/标签；
+  输入输出逐文件 SHA 和计数写入 persistent `DONE`。
 - 冻结决策语义同步进协议与 paper：B1 两路相同；query 已编码进 candidate readout；
   inference 比较 candidate rank 与 STOP；shortlist 只用于标签构造；B4 第四步
   `|S|=3` 为结构外推。结果与 provenance 见
