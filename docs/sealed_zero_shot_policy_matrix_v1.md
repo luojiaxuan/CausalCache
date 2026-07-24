@@ -70,3 +70,36 @@ hyper00 / hyper01 / H100;emulator 与 worker 1:1,单 GPU 单冻结 runtime,episo
 - 实例:worker n5 绑定的 emulator(hyper01 28206)环境僵死,53 局全部 2.5 秒快速失败——
   记录隔离于 `runs/sealed-matrix-v1/full-infra-void-28206/`(hyper01);其重跑(hyper00)为
   正式第一次尝试,自身仍保有一次 infra 重试权。
+
+---
+
+# 修订 V2(2026-07-24):全量 116-template 零样本,删除 margin-SFT 线
+
+## 决策(用户裁定)
+
+1. **paper 全线零样本**:三个 policy —— Frozen / Full-layer LoRA(ody-margin-v2 s75)/
+   History-gated(hg-s100)—— 对 AndroidWorld 全部零样本(均在 GUI-Odyssey 训练/选择,
+   AndroidWorld 不参与训练与模型选择)。
+2. **margin-SFT(v3-e1)整条删除**,不进 paper 任何表(它在 AndroidWorld 上训练过,与全零样本
+   叙事冲突;full-layer LoRA 已提供零样本的"全参适配"对照)。
+3. **主表 = 全量 116-template 零样本**,每 template 1 实例(task_index 0)。理由:零样本使
+   train/dev/test 切分失去意义(切分只为防"在测试集训练/调参",而此处 AndroidWorld 对所有
+   policy 都不参与);报全量既是 AndroidWorld 标准做法,也消除"为何只报 25 个 / 是否挑过"的
+   质疑;116 个独立 template 的 template 级配对 CI 强于 25×3 聚簇实例。
+
+## 全量主表设计
+
+- roster:`data/manifests/androidworld_full_suite_plan_v1.json`(split="full",116 template ×
+  task_index 0,由 test-25 + train-60 + val-31 三 plan 合并,每实例记 origin_split);
+- 矩阵:{Frozen, Full-layer(fl-s75), History-gated(hg-s100)} × {summary_B0, recent_B4,
+  recent_B8} × 116 template = **1,044 局**;
+- 协议其余不变(shared-early 2、parse-retries 1、2560 visual token/图、void 不占额度、
+  配对 template 级 bootstrap CI);
+- 复用:原 25×3 sealed 子集的 test-25 index-0 局直接进全量表(resume-skip);delta = 91 个
+  train/val template × 1 × 3 policy × 3 arm = 819 局;
+- 原 25×3 的 index 1/2 局保留为**附录:within-template 实例方差鲁棒性检查**,非 headline。
+
+## split 闸门
+
+`_load_plan_instance` 扩展:split="full" 在 `--allow-sealed-split` 下可载(与 test 同门,
+全零样本套件是有意的 opt-in);默认仍拒未知 split。

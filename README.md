@@ -6,9 +6,12 @@
 冻结契约见 [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md)):在完全冻结
 GUI-Owl 原始参数的条件下,只新增一个解释恢复历史视觉证据的 KV 接口(最后 8 层 k/v_proj、
 mask 门控 residual、B0 逐位等价),用 benchmark-external 的修正版 GUI-Odyssey 训练,
-零样本迁移 AndroidWorld 与 OSWorld。**保底路线 = margin-SFT v3-e1**(AndroidWorld `+8.9pt` CI
-化验尺,OSWorld transfer 无正向证据)。此前的 restoration / gate v1 / independent /
-set-utility(selector v0)各时代已归档:摘要见 [`docs/archive/README.md`](docs/archive/README.md)。
+零样本迁移 AndroidWorld 与 OSWorld。**paper 全线零样本**:主表三个 policy —— Frozen /
+Full-layer LoRA(全参零样本对照)/ History-gated —— 对 AndroidWorld 全部零样本(均在
+GUI-Odyssey 训练/选择,AndroidWorld 不参与),报**全量 116-template** 标准套件。此前在
+AndroidWorld 上训练的 margin-SFT 线(v3-e1)已从 paper 移除(与全零样本叙事冲突),连同
+restoration / gate v1 / independent / set-utility(selector v0)各时代一并归档:摘要见
+[`docs/archive/README.md`](docs/archive/README.md)。
 
 ## 当前结论
 
