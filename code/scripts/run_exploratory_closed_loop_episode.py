@@ -67,10 +67,11 @@ def _load_plan_instance(
 ) -> dict[str, Any]:
     plan = json.loads(plan_path.read_text(encoding="utf-8"))
     # note (luojiaxuan): 默认仍拒绝 sealed split;只有 worker 显式传
-    # --allow-sealed-split(合同第 12 步 sealed 零样本评测)才放行 split=="test",
-    # 其他 split 一律拒绝,防止 dev/canary 路径误触 sealed 名单。
+    # --allow-sealed-split(合同第 12 步 sealed 零样本评测)才放行 split=="test"
+    # 与 split=="full"(纯零样本的 116 模板全套件,同样是有意的 opt-in),其他
+    # split 一律拒绝,防止 dev/canary 路径误触 sealed / 全套件名单。
     if plan.get("split") not in ("train", "validation") and not (
-        allow_sealed and plan.get("split") == "test"
+        allow_sealed and plan.get("split") in ("test", "full")
     ):
         raise ValueError("memory ceiling refuses sealed splits")
     matches = [

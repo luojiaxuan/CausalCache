@@ -120,10 +120,15 @@ def main() -> None:
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     # note (luojiaxuan): skip-existing 断点续跑——已打分行用 (pair_group, variant,
-    # singleton_event_step_id) 作幂等键;selector 单图标签同组多条 variant=
-    # "singleton" 记录靠第三键区分,旧数据集无此字段时取 None,键形状不变。
-    # OOM/被杀后同一命令重启会跳过已完成项,只补未打分的,append 追加。
-    done_keys: set[tuple[str, str, int | None]] = set()
+    # singleton_event_step_id, restored_set_key) 作幂等键;selector 单图标签同组
+    # 多条 variant="singleton" 记录靠 singleton_event_step_id 区分,conditional-
+    # marginal 标签(cond_base/cond_edge1/cond_edge2)同 variant 下靠 restored_set_key
+    # 区分(其 singleton_event_step_id 恒 None,restored 事件≥1 且成集合)。旧数据集
+    # 无这两个字段时均取 None,键形状不变、向后兼容。OOM/被杀后同一命令重启会跳过
+    # 已完成项,只补未打分的,append 追加。restored_set_key 只依赖 restored 集合,
+    # 因此同一集合的对称 edge(仅 conditional_candidate 不同)会折叠成一次打分——
+    # U(restored) 与 candidate 无关,折叠正确且省算力,下游按 restored_set_key join。
+    done_keys: set[tuple[str, str, int | None, str | None]] = set()
     if args.output.exists():
         for line in args.output.open(encoding="utf-8"):
             try:
@@ -135,6 +140,7 @@ def main() -> None:
                     prev.get("pair_group"),
                     prev.get("variant", "correct"),
                     prev.get("singleton_event_step_id"),
+                    prev.get("restored_set_key"),
                 )
             )
     with args.output.open("a", encoding="utf-8") as handle:
@@ -147,6 +153,7 @@ def main() -> None:
                 sample.get("pair_group"),
                 sample.get("variant", "correct"),
                 sample.get("singleton_event_step_id"),
+                sample.get("restored_set_key"),
             ) in done_keys:
                 continue
             encoded = encode_sample(
@@ -188,6 +195,17 @@ def main() -> None:
                         "variant": sample.get("variant", "correct"),
                         "singleton_event_step_id": sample.get(
                             "singleton_event_step_id"
+                        ),
+                        # note (luojiaxuan): conditional-marginal 透传键——
+                        # restored_set_key 进幂等键与下游 U(S) join;
+                        # conditional_anchor_set(S)/conditional_candidate(j)
+                        # 便于直接算 Δ(j|S)=U(S∪{j})−U(S)(旧数据缺省 None)。
+                        "restored_set_key": sample.get("restored_set_key"),
+                        "conditional_anchor_set": sample.get(
+                            "conditional_anchor_set"
+                        ),
+                        "conditional_candidate": sample.get(
+                            "conditional_candidate"
                         ),
                         "memory_config": sample["memory_config"],
                         "target_token_count": token_count,

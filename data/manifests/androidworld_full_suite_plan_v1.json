@@ -1,0 +1,2367 @@
+{
+  "instance_records_sha256": "1dd489415c2b7d4523a32eb4b1b92629aa67e1e5edf76beae6ff09c5df62e27a",
+  "instances": [
+    {
+      "complexity": 1.2,
+      "goal": "Record an audio clip using Audio Recorder app and save it.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "AudioRecorderRecordAudio",
+      "template": "Record an audio clip using Audio Recorder app and save it."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Record an audio clip using Audio Recorder app and save it.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "AudioRecorderRecordAudio",
+      "template": "Record an audio clip using Audio Recorder app and save it."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Record an audio clip and save it with name \"VCtE_journal.m4a\" using Audio Recorder app.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "AudioRecorderRecordAudioWithFileName",
+      "template": "Record an audio clip and save it with name \"{file_name}\" using Audio Recorder app."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Record an audio clip and save it with name \"copy_conference.m4a\" using Audio Recorder app.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "AudioRecorderRecordAudioWithFileName",
+      "template": "Record an audio clip and save it with name \"{file_name}\" using Audio Recorder app."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Open the file task.html in Downloads in the file manager; when prompted open it with Chrome. Then create a drawing using the three colors shown at the top and hit submit.",
+      "max_steps": 20,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "BrowserDraw",
+      "template": ""
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Open the file task.html in Downloads in the file manager; when prompted open it with Chrome. Then create a drawing using the three colors shown at the top and hit submit.",
+      "max_steps": 20,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "BrowserDraw",
+      "template": ""
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Open the file task.html in Downloads in the file manager; when prompted open it with Chrome. Then navigate the X to the bottom-right cell, by using the direction buttons.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "BrowserMaze",
+      "template": ""
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Open the file task.html in Downloads in the file manager; when prompted open it with Chrome. Then navigate the X to the bottom-right cell, by using the direction buttons.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "BrowserMaze",
+      "template": ""
+    },
+    {
+      "complexity": 2.2,
+      "goal": "Open the file task.html in Downloads in the file manager; when prompted open it with Chrome. Then click the button 5 times, remember the numbers displayed, and enter their product in the form.",
+      "max_steps": 22,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "BrowserMultiply",
+      "template": ""
+    },
+    {
+      "complexity": 2.2,
+      "goal": "Open the file task.html in Downloads in the file manager; when prompted open it with Chrome. Then click the button 5 times, remember the numbers displayed, and enter their product in the form.",
+      "max_steps": 22,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "BrowserMultiply",
+      "template": ""
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Take one photo.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "CameraTakePhoto",
+      "template": "Take one photo."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Take one photo.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "CameraTakePhoto",
+      "template": "Take one photo."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Take one video.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "CameraTakeVideo",
+      "template": "Take one video."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Take one video.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "CameraTakeVideo",
+      "template": "Take one video."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Pause the stopwatch.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ClockStopWatchPausedVerify",
+      "template": "Pause the stopwatch."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Pause the stopwatch.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ClockStopWatchPausedVerify",
+      "template": "Pause the stopwatch."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Run the stopwatch.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ClockStopWatchRunning",
+      "template": "Run the stopwatch."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Run the stopwatch.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ClockStopWatchRunning",
+      "template": "Run the stopwatch."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Create a timer with 13 hours, 2 minutes, and 31 seconds. Do not start the timer.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ClockTimerEntry",
+      "template": "Create a timer with {hours} hours, {minutes} minutes, and {seconds} seconds. Do not start the timer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Create a timer with 8 hours, 55 minutes, and 40 seconds. Do not start the timer.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ClockTimerEntry",
+      "template": "Create a timer with {hours} hours, {minutes} minutes, and {seconds} seconds. Do not start the timer."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Create a new contact for Valentina Liu. Their number is +10370581905.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ContactsAddContact",
+      "template": "Create a new contact for {name}. Their number is {number}."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Create a new contact for Freya Liu. Their number is +13223631781.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ContactsAddContact",
+      "template": "Create a new contact for {name}. Their number is {number}."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Go to the new contact screen and enter the following details: First Name: Charlie, Last Name: Smith, Phone: 674-404-6848, Phone Label: Work. Do NOT hit save.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ContactsNewContactDraft",
+      "template": "Go to the new contact screen and enter the following details: First Name: {first}, Last Name: {last}, Phone: {phone}, Phone Label: {phone_label}. Do NOT hit save."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Go to the new contact screen and enter the following details: First Name: David, Last Name: Adams, Phone: 772-776-6646, Phone Label: Home. Do NOT hit save.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ContactsNewContactDraft",
+      "template": "Go to the new contact screen and enter the following details: First Name: {first}, Last Name: {last}, Phone: {phone}, Phone Label: {phone_label}. Do NOT hit save."
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the following expenses into the pro expense:\nname|amount_dollars|category_name|note\nNew Jacket|$319.4|Clothes|Monthly recurring\nCar Maintenance|$14.63|Transportation|Monthly recurring\nPublic Transit|$474.23|Transportation|Urgent",
+      "max_steps": 60,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseAddMultiple",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the following expenses into the pro expense:\nExpense: Public Transit\n amount_dollars: $384.12\n category_name: Transportation\n note: Monthly recurring\n\nExpense: Coffee\n amount_dollars: $190.08\n category_name: Food\n note: Remember to transfer funds\n\nExpense: Capital Gains\n amount_dollars: $111.52\n category_name: Income\n note: Monthly recurring\n",
+      "max_steps": 60,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseAddMultiple",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the expenses from expenses.jpg in Simple Gallery Pro to pro expense.",
+      "max_steps": 60,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseAddMultipleFromGallery",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the expenses from expenses.jpg in Simple Gallery Pro to pro expense.",
+      "max_steps": 60,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseAddMultipleFromGallery",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Go through the transactions in my_expenses.txt in Markor. Log the reimbursable transactions in the pro expense.",
+      "max_steps": 60,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseAddMultipleFromMarkor",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Go through the transactions in my_expenses.txt in Markor. Log the reimbursable transactions in the pro expense.",
+      "max_steps": 60,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseAddMultipleFromMarkor",
+      "template": ""
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Add the following expenses into the pro expense:\nname|amount_dollars|category_name|note\nPublic Transit|$403.39|Transportation|Want to have",
+      "max_steps": 12,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseAddSingle",
+      "template": ""
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Add the following expenses into the pro expense:\nExpense: Doctor Visits\n amount_dollars: $133.82\n category_name: Health Care\n note: A need\n",
+      "max_steps": 12,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseAddSingle",
+      "template": ""
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Delete all but one of any expenses in pro expense that are exact duplicates, ensuring at least one instance of each unique expense remains.",
+      "max_steps": 12,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseDeleteDuplicates",
+      "template": ""
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Delete all but one of any expenses in pro expense that are exact duplicates, ensuring at least one instance of each unique expense remains.",
+      "max_steps": 12,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseDeleteDuplicates",
+      "template": ""
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Delete all but one of any expenses in pro expense that are exact duplicates, ensuring at least one instance of each unique expense remains.",
+      "max_steps": 18,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseDeleteDuplicates2",
+      "template": ""
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Delete all but one of any expenses in pro expense that are exact duplicates, ensuring at least one instance of each unique expense remains.",
+      "max_steps": 18,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseDeleteDuplicates2",
+      "template": ""
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Delete the following expenses from pro expense: Stationery, Theater Show, Concert Tickets.",
+      "max_steps": 20,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseDeleteMultiple",
+      "template": ""
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Delete the following expenses from pro expense: Home Insurance, Salary, Dental Care.",
+      "max_steps": 20,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseDeleteMultiple",
+      "template": ""
+    },
+    {
+      "complexity": 3.4,
+      "goal": "Delete the following expenses from pro expense: Eyecare, Food Delivery, Taxi Fare.",
+      "max_steps": 34,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseDeleteMultiple2",
+      "template": ""
+    },
+    {
+      "complexity": 3.4,
+      "goal": "Delete the following expenses from pro expense: Public Transit, Concert Tickets, Sportswear.",
+      "max_steps": 34,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseDeleteMultiple2",
+      "template": ""
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete the following expenses from pro expense: Home Repairs.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseDeleteSingle",
+      "template": ""
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete the following expenses from pro expense: Laundry.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseDeleteSingle",
+      "template": ""
+    },
+    {
+      "complexity": 2.2,
+      "goal": "Delete the file good_goat_2023_01_23.mp3 from the Android filesystem located in the Recordings folder within the sdk_gphone_x86_64 storage area.",
+      "max_steps": 22,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "FilesDeleteFile",
+      "template": "Delete the file {file_name} from the Android filesystem located in the {subfolder} folder within the sdk_gphone_x86_64 storage area."
+    },
+    {
+      "complexity": 2.2,
+      "goal": "Delete the file F5v8_jolly_elephant.mp3 from the Android filesystem located in the Audiobooks folder within the sdk_gphone_x86_64 storage area.",
+      "max_steps": 22,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "FilesDeleteFile",
+      "template": "Delete the file {file_name} from the Android filesystem located in the {subfolder} folder within the sdk_gphone_x86_64 storage area."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Move the file documentary.mp4 from Alarms within the sdk_gphone_x86_64 storage area to the Movies within the same sdk_gphone_x86_64 storage area in the Android filesystem.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "FilesMoveFile",
+      "template": "Move the file {file_name} from {source_folder} within the sdk_gphone_x86_64 storage area to the {destination_folder} within the same sdk_gphone_x86_64 storage area in the Android filesystem."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Move the file jazz_song.mp3 from Podcasts within the sdk_gphone_x86_64 storage area to the Music within the same sdk_gphone_x86_64 storage area in the Android filesystem.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "FilesMoveFile",
+      "template": "Move the file {file_name} from {source_folder} within the sdk_gphone_x86_64 storage area to the {destination_folder} within the same sdk_gphone_x86_64 storage area in the Android filesystem."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Update the Markor note 2023_10_05_friendly_ant.md by adding the following text, along with a new blank line before the existing content: \"MatUFu2H3ELIJFHvnaWI\", and rename it to X9oP_eager_nurse.txt.",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorAddNoteHeader",
+      "template": "Update the Markor note {original_name} by adding the following text, along with a new blank line before the existing content: \"{header}\", and rename it to {new_name}."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Update the Markor note kind_jacket_final.txt by adding the following text, along with a new blank line before the existing content: \"drOZPjRTUjN7D8HOAizj\", and rename it to Nn9R_sharp_quilt.md.",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorAddNoteHeader",
+      "template": "Update the Markor note {original_name} by adding the following text, along with a new blank line before the existing content: \"{header}\", and rename it to {new_name}."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Update the content of 2023_02_23_real_house.txt to \"T91rjBRLhTTRlirqwmGt\" in Markor and change its name to 2023_02_25_sharp_elephant.md.",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorChangeNoteContent",
+      "template": "Update the content of {original_name} to \"{updated_content}\" in Markor and change its name to {new_name}."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Update the content of glad_king_copy.md to \"cwEjPe18XE4XxCGERKqT\" in Markor and change its name to hot_quilt_backup.txt.",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorChangeNoteContent",
+      "template": "Update the content of {original_name} to \"{updated_content}\" in Markor and change its name to {new_name}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Create a new folder in Markor named folder_20260721_164926.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorCreateFolder",
+      "template": "Create a new folder in Markor named {folder_name}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Create a new folder in Markor named folder_20260721_164926.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorCreateFolder",
+      "template": "Create a new folder in Markor named {folder_name}."
+    },
+    {
+      "complexity": 1.6,
+      "goal": "Create a new note in Markor named sure_cat_backup.txt with the following text: Wedding anniversary on the 30th. Make reservations!",
+      "max_steps": 16,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorCreateNote",
+      "template": "Create a new note in Markor named {file_name} with the following text: {text}"
+    },
+    {
+      "complexity": 1.6,
+      "goal": "Create a new note in Markor named edited_silly_frog.txt with the following text: Don't forget to water the plants while I'm away.",
+      "max_steps": 16,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorCreateNote",
+      "template": "Create a new note in Markor named {file_name} with the following text: {text}"
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Create a new note in Markor named 2023_08_31_cool_umbrella.txt with the following text: May the Force be with you.. Share the entire content of the note with the phone number +16680731881 via SMS using Simple SMS Messenger",
+      "max_steps": 18,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorCreateNoteAndSms",
+      "template": "Create a new note in Markor named {file_name} with the following text: {text}. Share the entire content of the note with the phone number {number} via SMS using Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Create a new note in Markor named wise_cow_2023_06_27.md with the following text: Don't cry over spilled milk.. Share the entire content of the note with the phone number +10795653528 via SMS using Simple SMS Messenger",
+      "max_steps": 18,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorCreateNoteAndSms",
+      "template": "Create a new note in Markor named {file_name} with the following text: {text}. Share the entire content of the note with the phone number {number} via SMS using Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.4,
+      "goal": "Create a note in Markor named hot_fish_rA6F.txt. Perform a paste operation in the note and save the note.",
+      "max_steps": 14,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorCreateNoteFromClipboard",
+      "template": "Create a note in Markor named {file_name}. Perform a paste operation in the note and save the note."
+    },
+    {
+      "complexity": 1.4,
+      "goal": "Create a note in Markor named safe_tree_qAvq.txt. Perform a paste operation in the note and save the note.",
+      "max_steps": 14,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorCreateNoteFromClipboard",
+      "template": "Create a note in Markor named {file_name}. Perform a paste operation in the note and save the note."
+    },
+    {
+      "complexity": 1.4,
+      "goal": "Delete all my notes in Markor.",
+      "max_steps": 14,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorDeleteAllNotes",
+      "template": "Delete all my notes in Markor."
+    },
+    {
+      "complexity": 1.4,
+      "goal": "Delete all my notes in Markor.",
+      "max_steps": 14,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorDeleteAllNotes",
+      "template": "Delete all my notes in Markor."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete the newest note in Markor.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorDeleteNewestNote",
+      "template": "Delete the newest note in Markor."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete the newest note in Markor.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorDeleteNewestNote",
+      "template": "Delete the newest note in Markor."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete the note in Markor named bold_lamp_L9La.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorDeleteNote",
+      "template": "Delete the note in Markor named {file_name}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete the note in Markor named sharp_cow_wFjU.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorDeleteNote",
+      "template": "Delete the note in Markor named {file_name}."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Edit note_9uJSi.txt in Markor. Add to the top of the note Dry cleaning is ready for pick-up.",
+      "max_steps": 12,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorEditNote",
+      "template": "Edit {file_name} in Markor. Add to the top of the note {header}"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Edit note_keKBS.txt in Markor. Add to the bottom of the note Reminder to call Grandma for her birthday.",
+      "max_steps": 12,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorEditNote",
+      "template": "Edit {file_name} in Markor. Add to the bottom of the note {footer}"
+    },
+    {
+      "complexity": 7.8,
+      "goal": "Merge the contents of Markor notes gentle_watch_2023_03_04.md, hot_pig_kVOT.txt and fancy_sun_2023_07_12.md (in the same order) into a new Markor note named axbJl8qh and save it. Add a new line between the content of each note.",
+      "max_steps": 78,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorMergeNotes",
+      "template": "Merge the contents of Markor notes {file1_name}, {file2_name} and {file3_name} (in the same order) into a new Markor note named {new_file_name} and save it. Add a new line between the content of each note."
+    },
+    {
+      "complexity": 7.8,
+      "goal": "Merge the contents of Markor notes real_jacket_DRuc.md, 2023_05_05_great_cow.txt and 2023_09_21_sure_banana.md (in the same order) into a new Markor note named SpqtmZf3 and save it. Add a new line between the content of each note.",
+      "max_steps": 78,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorMergeNotes",
+      "template": "Merge the contents of Markor notes {file1_name}, {file2_name} and {file3_name} (in the same order) into a new Markor note named {new_file_name} and save it. Add a new line between the content of each note."
+    },
+    {
+      "complexity": 1.4,
+      "goal": "In Markor, move the note helpful_umbrella_edited.txt from BookNotes to TravelItineraries.",
+      "max_steps": 14,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorMoveNote",
+      "template": "In Markor, move the note {file_name} from {source_folder} to {destination_folder}."
+    },
+    {
+      "complexity": 1.4,
+      "goal": "In Markor, move the note DkUU_sure_lion.txt from FitnessPlans to PersonalJournal.",
+      "max_steps": 14,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorMoveNote",
+      "template": "In Markor, move the note {file_name} from {source_folder} to {destination_folder}."
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Create a file in Markor, called receipt.md with the transactions from the receipt.png. Use Simple Gallery to view the receipt. Please enter transactions in csv format including the header \"Date, Item, Amount\".",
+      "max_steps": 18,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorTranscribeReceipt",
+      "template": "Create a file in Markor, called receipt.md with the transactions from the receipt.png. Use Simple Gallery to view the receipt. Please enter transactions in csv format including the header \"Date, Item, Amount\"."
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Create a file in Markor, called receipt.md with the transactions from the receipt.png. Use Simple Gallery to view the receipt. Please enter transactions in csv format including the header \"Date, Item, Amount\".",
+      "max_steps": 18,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorTranscribeReceipt",
+      "template": "Create a file in Markor, called receipt.md with the transactions from the receipt.png. Use Simple Gallery to view the receipt. Please enter transactions in csv format including the header \"Date, Item, Amount\"."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Transcribe the contents of video enT0_recording_26_.mp4 by watching it in VLC player (located in Download) and writing the sequence of strings shown on each frame to the text file enT0_recording_26__transcription.txt in Markor as a comma separated list. For example, if the first frame shows the text \"edna\" and the second frame shows the text \"pineapple\", then the text file should contain only the following text: \"edna, pineapple\".",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorTranscribeVideo",
+      "template": "Transcribe the contents of video {video_name} by watching it in VLC player (located in Download) and writing the sequence of strings shown on each frame to the text file {file_name} in Markor as a comma separated list. For example, if the first frame shows the text \"edna\" and the second frame shows the text \"pineapple\", then the text file should contain only the following text: \"edna, pineapple\"."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Transcribe the contents of video episode_57_4K_2023_03_30.mp4 by watching it in VLC player (located in Download) and writing the sequence of strings shown on each frame to the text file episode_57_4K_2023_03_30_transcription.txt in Markor as a comma separated list. For example, if the first frame shows the text \"edna\" and the second frame shows the text \"pineapple\", then the text file should contain only the following text: \"edna, pineapple\".",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorTranscribeVideo",
+      "template": "Transcribe the contents of video {video_name} by watching it in VLC player (located in Download) and writing the sequence of strings shown on each frame to the text file {file_name} in Markor as a comma separated list. For example, if the first frame shows the text \"edna\" and the second frame shows the text \"pineapple\", then the text file should contain only the following text: \"edna, pineapple\"."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Is the note titled 'Budget Spreadsheet' in the Joplin app marked as a todo item? Respond with either 'True' if it is a todo or 'False' if not.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "NotesIsTodo",
+      "template": "Is the note titled '{title}' in the Joplin app marked as a todo item? Respond with either 'True' if it is a todo or 'False' if not."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Is the note titled 'Meeting Agenda' in the Joplin app marked as a todo item? Respond with either 'True' if it is a todo or 'False' if not.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "NotesIsTodo",
+      "template": "Is the note titled '{title}' in the Joplin app marked as a todo item? Respond with either 'True' if it is a todo or 'False' if not."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How many attendees were present in the meeting titled 'Development Sprint Review' in the Joplin app? Express your answer as just a single number.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "NotesMeetingAttendeeCount",
+      "template": "How many attendees were present in the meeting titled '{title}' in the Joplin app? Express your answer as just a single number."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How many attendees were present in the meeting titled 'Departmental Alignment Meeting' in the Joplin app? Express your answer as just a single number.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "NotesMeetingAttendeeCount",
+      "template": "How many attendees were present in the meeting titled '{title}' in the Joplin app? Express your answer as just a single number."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What quantity of spirulina do I need for the recipe 'Lasagna' in the Joplin app? Express your answer in the format <amount> <unit> where both the amount and unit exactly match the format in the recipe.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "NotesRecipeIngredientCount",
+      "template": "What quantity of {ingredient} do I need for the recipe '{title}' in the Joplin app? Express your answer in the format <amount> <unit> where both the amount and unit exactly match the format in the recipe."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What quantity of goji berries do I need for the recipe 'Beef Stew' in the Joplin app? Express your answer in the format <amount> <unit> where both the amount and unit exactly match the format in the recipe.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "NotesRecipeIngredientCount",
+      "template": "What quantity of {ingredient} do I need for the recipe '{title}' in the Joplin app? Express your answer in the format <amount> <unit> where both the amount and unit exactly match the format in the recipe."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How many to-dos do I have in the 'Personal' folder in the Joplin app? Express your answer as just a single number.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "NotesTodoItemCount",
+      "template": "How many to-dos do I have in the '{folder}' folder in the Joplin app? Express your answer as just a single number."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How many to-dos do I have in the 'Ideas' folder in the Joplin app? Express your answer as just a single number.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "NotesTodoItemCount",
+      "template": "How many to-dos do I have in the '{folder}' folder in the Joplin app? Express your answer as just a single number."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Open the camera app. Clear any pop-ups that may appear by granting all permissions that are required.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "OpenAppTaskEval",
+      "template": "Open the {app_name} app. Clear any pop-ups that may appear by granting all permissions that are required."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Open the camera app. Clear any pop-ups that may appear by granting all permissions that are required.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "OpenAppTaskEval",
+      "template": "Open the {app_name} app. Clear any pop-ups that may appear by granting all permissions that are required."
+    },
+    {
+      "complexity": 1.3,
+      "goal": "Add a favorite location marker for 47.2165476, 9.5699984 in the OsmAnd maps app.",
+      "max_steps": 13,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "OsmAndFavorite",
+      "template": "Add a favorite location marker for {location} in the OsmAnd maps app."
+    },
+    {
+      "complexity": 1.3,
+      "goal": "Add a favorite location marker for Rotenboden, Liechtenstein in the OsmAnd maps app.",
+      "max_steps": 13,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "OsmAndFavorite",
+      "template": "Add a favorite location marker for {location} in the OsmAnd maps app."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Add a location marker for 47.0688832, 9.5061564 in the OsmAnd maps app.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "OsmAndMarker",
+      "template": "Add a location marker for {location} in the OsmAnd maps app."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Add a location marker for Schaan, Liechtenstein in the OsmAnd maps app.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "OsmAndMarker",
+      "template": "Add a location marker for {location} in the OsmAnd maps app."
+    },
+    {
+      "complexity": 12.0,
+      "goal": "Save a track with waypoints Rotenboden, Liechtenstein, Bendern, Liechtenstein, Sch\u00f6nberg, Liechtenstein in the OsmAnd maps app in the same order as listed.",
+      "max_steps": 120,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "OsmAndTrack",
+      "template": ""
+    },
+    {
+      "complexity": 12.0,
+      "goal": "Save a track with waypoints Schaanwald, Liechtenstein, Bendern, Liechtenstein in the OsmAnd maps app in the same order as listed.",
+      "max_steps": 120,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "OsmAndTrack",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the following recipes into the Broccoli app:\nRecipe: Spinach and Feta Stuffed Chicken\n description: A quick and easy meal, perfect for busy weekdays.\n servings: 8 servings\n preparationTime: 30 mins\n ingredients: as needed\n directions: Stuff chicken breasts with a mixture of spinach, feta, garlic, and herbs. Bake until chicken is cooked through. Try adding a pinch of your favorite spices for extra flavor.\n\nRecipe: Stuffed Bell Peppers\n description: A quick and easy meal, perfect for busy weekdays.\n servings: 6 servings\n preparationTime: 20 mins\n ingredients: to your liking\n directions: Mix cooked quinoa, black beans, corn, tomato sauce, and spices. Stuff into bell peppers and bake until tender. Feel free to substitute with ingredients you have on hand.\n\nRecipe: Pan-Seared Salmon with Quinoa\n description: A delicious and healthy choice for any time of the day.\n servings: 2 servings\n preparationTime: 10 mins\n ingredients: as per recipe\n directions: Pan-sear salmon fillets until crispy. Serve over cooked quinoa with a side of steamed asparagus. Try adding a pinch of your favorite spices for extra flavor.\n",
+      "max_steps": 60,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeAddMultipleRecipes",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the following recipes into the Broccoli app:\ntitle|description|servings|preparationTime|ingredients|directions\nTurkey and Cheese Panini|A quick and easy meal, perfect for busy weekdays.|1 serving|3 hrs|quantities to taste|Layer turkey and cheese on bread, grill in a panini press until golden. Garnish with fresh herbs for a more vibrant taste.\nPan-Seared Salmon with Quinoa|A delicious and healthy choice for any time of the day.|1 serving|45 mins|varies|Pan-sear salmon fillets until crispy. Serve over cooked quinoa with a side of steamed asparagus. Feel free to substitute with ingredients you have on hand.\nKale and Quinoa Salad|A delicious and healthy choice for any time of the day.|8 servings|30 mins|as needed|Toss chopped kale, cooked quinoa, dried cranberries, sliced almonds, and feta cheese with a lemon vinaigrette. Feel free to substitute with ingredients you have on hand.",
+      "max_steps": 60,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeAddMultipleRecipes",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the recipes from recipes.jpg in Simple Gallery Pro to the Broccoli recipe app.",
+      "max_steps": 60,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeAddMultipleRecipesFromImage",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the recipes from recipes.jpg in Simple Gallery Pro to the Broccoli recipe app.",
+      "max_steps": 60,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeAddMultipleRecipesFromImage",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the recipes from recipes.txt in Markor to the Broccoli recipe app.",
+      "max_steps": 60,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeAddMultipleRecipesFromMarkor",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the recipes from recipes.txt in Markor to the Broccoli recipe app.",
+      "max_steps": 60,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeAddMultipleRecipesFromMarkor",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the recipes from recipes.txt in Markor that take 2 hrs to prepare into the Broccoli recipe app.",
+      "max_steps": 60,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeAddMultipleRecipesFromMarkor2",
+      "template": ""
+    },
+    {
+      "complexity": 6.0,
+      "goal": "Add the recipes from recipes.txt in Markor that take 4 hrs to prepare into the Broccoli recipe app.",
+      "max_steps": 60,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeAddMultipleRecipesFromMarkor2",
+      "template": ""
+    },
+    {
+      "complexity": 2.4,
+      "goal": "Add the following recipes into the Broccoli app:\nRecipe: Sweet Potato and Black Bean Tacos\n description: An ideal recipe for experimenting with different flavors and ingredients.\n servings: 8 servings\n preparationTime: 10 mins\n ingredients: to your liking\n directions: Roast sweet potato cubes, mix with black beans, and use as filling for tacos. Top with avocado and cilantro lime sauce. Try adding a pinch of your favorite spices for extra flavor.\n",
+      "max_steps": 24,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeAddSingleRecipe",
+      "template": ""
+    },
+    {
+      "complexity": 2.4,
+      "goal": "Add the following recipes into the Broccoli app:\ntitle|description|servings|preparationTime|ingredients|directions\nAvocado Toast with Egg|A delicious and healthy choice for any time of the day.|6 servings|30 mins|adjustable|Toast bread, top with mashed avocado, a fried egg, salt, pepper, and chili flakes. Try adding a pinch of your favorite spices for extra flavor.",
+      "max_steps": 24,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeAddSingleRecipe",
+      "template": ""
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete all but one of any recipes in the Broccoli app that are exact duplicates, ensuring at least one instance of each unique recipe remains",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteDuplicateRecipes",
+      "template": ""
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete all but one of any recipes in the Broccoli app that are exact duplicates, ensuring at least one instance of each unique recipe remains",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteDuplicateRecipes",
+      "template": ""
+    },
+    {
+      "complexity": 2.4,
+      "goal": "Delete all but one of any recipes in the Broccoli app that are exact duplicates, ensuring at least one instance of each unique recipe remains",
+      "max_steps": 24,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteDuplicateRecipes2",
+      "template": ""
+    },
+    {
+      "complexity": 2.4,
+      "goal": "Delete all but one of any recipes in the Broccoli app that are exact duplicates, ensuring at least one instance of each unique recipe remains",
+      "max_steps": 24,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteDuplicateRecipes2",
+      "template": ""
+    },
+    {
+      "complexity": 3.4,
+      "goal": "Delete all but one of any recipes in the Broccoli app that are exact duplicates, ensuring at least one instance of each unique recipe remains",
+      "max_steps": 34,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteDuplicateRecipes3",
+      "template": ""
+    },
+    {
+      "complexity": 3.4,
+      "goal": "Delete all but one of any recipes in the Broccoli app that are exact duplicates, ensuring at least one instance of each unique recipe remains",
+      "max_steps": 34,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteDuplicateRecipes3",
+      "template": ""
+    },
+    {
+      "complexity": 2.4,
+      "goal": "Delete the following recipes from Broccoli app: Beef Stir Fry, Chicken Caesar Salad Wrap, Avocado Toast with Egg.",
+      "max_steps": 24,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteMultipleRecipes",
+      "template": ""
+    },
+    {
+      "complexity": 2.4,
+      "goal": "Delete the following recipes from Broccoli app: Salmon with Dill Sauce, Classic Margherita Pizza, Lentil Soup.",
+      "max_steps": 24,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteMultipleRecipes",
+      "template": ""
+    },
+    {
+      "complexity": 4.0,
+      "goal": "Delete the recipes from Broccoli app that use hemp seeds in the directions.",
+      "max_steps": 40,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteMultipleRecipesWithConstraint",
+      "template": ""
+    },
+    {
+      "complexity": 4.0,
+      "goal": "Delete the recipes from Broccoli app that use basil in the directions.",
+      "max_steps": 40,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteMultipleRecipesWithConstraint",
+      "template": ""
+    },
+    {
+      "complexity": 3.4,
+      "goal": "Delete the following recipes from Broccoli app: Beef Stir Fry, Veggie and Hummus Sandwich, Spinach and Feta Stuffed Chicken.",
+      "max_steps": 34,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteMultipleRecipesWithNoise",
+      "template": ""
+    },
+    {
+      "complexity": 3.4,
+      "goal": "Delete the following recipes from Broccoli app: Pan-Seared Salmon with Quinoa, Spinach and Feta Stuffed Chicken, Caprese Salad Skewers.",
+      "max_steps": 34,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteMultipleRecipesWithNoise",
+      "template": ""
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete the following recipes from Broccoli app: Chicken Alfredo Pasta.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteSingleRecipe",
+      "template": ""
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Delete the following recipes from Broccoli app: Baked Cod with Lemon and Dill.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteSingleRecipe",
+      "template": ""
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Delete the following recipes from Broccoli app: Pesto Pasta with Peas.",
+      "max_steps": 20,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteSingleWithRecipeWithNoise",
+      "template": ""
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Delete the following recipes from Broccoli app: Garlic Butter Shrimp.",
+      "max_steps": 20,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteSingleWithRecipeWithNoise",
+      "template": ""
+    },
+    {
+      "complexity": 2.4,
+      "goal": "Create a playlist in Retro Music titled \"Reggae Sunsplash 217\" with the following songs, in order: Moments, Beyond the Horizon",
+      "max_steps": 24,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RetroCreatePlaylist",
+      "template": ""
+    },
+    {
+      "complexity": 2.4,
+      "goal": "Create a playlist in Retro Music titled \"Study Sessions 250\" with the following songs, in order: Eternal Flame, Mystic Journey",
+      "max_steps": 24,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RetroCreatePlaylist",
+      "template": ""
+    },
+    {
+      "complexity": 3.2,
+      "goal": "Add the following songs, in order, Falling Feathers, Through the Storm, My Heart is Yours to my playing queue in Retro music.",
+      "max_steps": 32,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RetroPlayingQueue",
+      "template": ""
+    },
+    {
+      "complexity": 3.2,
+      "goal": "Add the following songs, in order, Orbiting Stars, Under the Sky, Beyond the Horizon, Heartbeat Away, Mystic Journey to my playing queue in Retro music.",
+      "max_steps": 32,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RetroPlayingQueue",
+      "template": ""
+    },
+    {
+      "complexity": 3.0,
+      "goal": "Create a playlist in Retro Music titled \"Indie Rock Roadtrip 310\" with a duration between 45 and 50 minutes using the provided songs.",
+      "max_steps": 30,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RetroPlaylistDuration",
+      "template": ""
+    },
+    {
+      "complexity": 3.0,
+      "goal": "Create a playlist in Retro Music titled \"Electronic Waves 379\" with a duration between 45 and 50 minutes using the provided songs.",
+      "max_steps": 30,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RetroPlaylistDuration",
+      "template": ""
+    },
+    {
+      "complexity": 5.0,
+      "goal": "Create a playlist in Retro Music titled \"Jazz Classics 669\" with the following songs, in order: Return to Paradise, Serenity Now, Echoes of Silence, Bright Lights, Endless Summer. Then export the playlist to the Downloads directory on the device.",
+      "max_steps": 50,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RetroSavePlaylist",
+      "template": ""
+    },
+    {
+      "complexity": 5.0,
+      "goal": "Create a playlist in Retro Music titled \"Country Classics 21\" with the following songs, in order: Mystic Journey, Serenity Now. Then export the playlist to the Downloads directory on the device.",
+      "max_steps": 50,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RetroSavePlaylist",
+      "template": ""
+    },
+    {
+      "complexity": 1.6,
+      "goal": "In Simple Gallery Pro, copy receipt_2023_09_27_curious_jacket.jpg in DCIM and save a copy with the same name in Download",
+      "max_steps": 16,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SaveCopyOfReceiptTaskEval",
+      "template": "In Simple Gallery Pro, copy {file_name} in DCIM and save a copy with the same name in Download"
+    },
+    {
+      "complexity": 1.6,
+      "goal": "In Simple Gallery Pro, copy receipt_2023_08_09_shy_zebra.jpg in DCIM and save a copy with the same name in Download",
+      "max_steps": 16,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SaveCopyOfReceiptTaskEval",
+      "template": "In Simple Gallery Pro, copy {file_name} in DCIM and save a copy with the same name in Download"
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a calendar event on 2023-10-29 at 11h with the title 'Workshop on Budget Planning' and the description 'We will celebrate contract details.'. The event should last for 60 mins.",
+      "max_steps": 34,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarAddOneEvent",
+      "template": "In Simple Calendar Pro, create a calendar event on {year}-{month}-{day} at {hour}h with the title '{event_title}' and the description '{event_description}'. The event should last for {duration_mins} mins."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a calendar event on 2023-10-24 at 12h with the title 'Review session for Annual Report' and the description 'We will prepare for annual budget.'. The event should last for 15 mins.",
+      "max_steps": 34,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarAddOneEvent",
+      "template": "In Simple Calendar Pro, create a calendar event on {year}-{month}-{day} at {hour}h with the title '{event_title}' and the description '{event_description}'. The event should last for {duration_mins} mins."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a calendar event in two weeks from today at 5h with the title 'Appointment for Project X' and the description 'We will organize marketing strategies. Remember to confirm attendance.'. The event should last for 15 mins.",
+      "max_steps": 34,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarAddOneEventInTwoWeeks",
+      "template": "In Simple Calendar Pro, create a calendar event in two weeks from today at {hour}h with the title '{event_title}' and the description '{event_description}'. The event should last for {duration_mins} mins."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a calendar event in two weeks from today at 11h with the title 'Call with the Team' and the description 'We will celebrate team roles.'. The event should last for 15 mins.",
+      "max_steps": 34,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarAddOneEventInTwoWeeks",
+      "template": "In Simple Calendar Pro, create a calendar event in two weeks from today at {hour}h with the title '{event_title}' and the description '{event_description}'. The event should last for {duration_mins} mins."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a calendar event for this Thursday at 10h with the title 'Meeting with Alice' and the description 'We will explore client feedback. Looking forward to productive discussions.'. The event should last for 60 mins.",
+      "max_steps": 34,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarAddOneEventRelativeDay",
+      "template": "In Simple Calendar Pro, create a calendar event for this {day_of_week} at {hour}h with the title '{event_title}' and the description '{event_description}'. The event should last for {duration_mins} mins."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a calendar event for this Wednesday at 23h with the title 'Meeting with HR' and the description 'We will strategize about contract details. Remember to confirm attendance.'. The event should last for 45 mins.",
+      "max_steps": 34,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarAddOneEventRelativeDay",
+      "template": "In Simple Calendar Pro, create a calendar event for this {day_of_week} at {hour}h with the title '{event_title}' and the description '{event_description}'. The event should last for {duration_mins} mins."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a calendar event for tomorrow at 1h with the title 'Meeting with Bob' and the description 'We will discuss client feedback. Looking forward to productive discussions.'. The event should last for 30 mins.",
+      "max_steps": 34,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarAddOneEventTomorrow",
+      "template": "In Simple Calendar Pro, create a calendar event for tomorrow at {hour}h with the title '{event_title}' and the description '{event_description}'. The event should last for {duration_mins} mins."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a calendar event for tomorrow at 16h with the title 'Meeting with Bob' and the description 'We will discuss business objectives. Please bring relevant documents.'. The event should last for 45 mins.",
+      "max_steps": 34,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarAddOneEventTomorrow",
+      "template": "In Simple Calendar Pro, create a calendar event for tomorrow at {hour}h with the title '{event_title}' and the description '{event_description}'. The event should last for {duration_mins} mins."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a recurring calendar event titled 'Catch up on Budget Planning' starting on 2023-10-29 at 3h. The event recurs weekly, forever, and lasts for 60 minutes each occurrence. The event description should be 'We will discuss client feedback.'.",
+      "max_steps": 34,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarAddRepeatingEvent",
+      "template": "In Simple Calendar Pro, create a recurring calendar event titled '{event_title}' starting on {year}-{month}-{day} at {hour}h. The event recurs {repeat_rule}, forever, and lasts for {duration_mins} minutes each occurrence. The event description should be '{event_description}'."
+    },
+    {
+      "complexity": 3.4,
+      "goal": "In Simple Calendar Pro, create a recurring calendar event titled 'Workshop on Budget Planning' starting on 2023-10-25 at 8h. The event recurs daily, forever, and lasts for 60 minutes each occurrence. The event description should be 'We will celebrate business objectives.'.",
+      "max_steps": 34,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarAddRepeatingEvent",
+      "template": "In Simple Calendar Pro, create a recurring calendar event titled '{event_title}' starting on {year}-{month}-{day} at {hour}h. The event recurs {repeat_rule}, forever, and lasts for {duration_mins} minutes each occurrence. The event description should be '{event_description}'."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Do I have any events October 15 2023 in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarAnyEventsOnDate",
+      "template": "Do I have any events {date} in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Do I have any events October 19 2023 in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarAnyEventsOnDate",
+      "template": "Do I have any events {date} in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.4,
+      "goal": "In Simple Calendar Pro, delete all the calendar events on 2023-10-21",
+      "max_steps": 14,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarDeleteEvents",
+      "template": "In Simple Calendar Pro, delete all the calendar events on {year}-{month}-{day}"
+    },
+    {
+      "complexity": 1.4,
+      "goal": "In Simple Calendar Pro, delete all the calendar events on 2023-10-31",
+      "max_steps": 14,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarDeleteEvents",
+      "template": "In Simple Calendar Pro, delete all the calendar events on {year}-{month}-{day}"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "In Simple Calendar Pro, delete all events scheduled for this Saturday.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarDeleteEventsOnRelativeDay",
+      "template": "In Simple Calendar Pro, delete all events scheduled for this {day_of_week}."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "In Simple Calendar Pro, delete all events scheduled for this Friday.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarDeleteEventsOnRelativeDay",
+      "template": "In Simple Calendar Pro, delete all events scheduled for this {day_of_week}."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "In Simple Calendar Pro, delete the calendar event on 2023-10-16 at 10h with the title 'Catch up on Project X'",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarDeleteOneEvent",
+      "template": "In Simple Calendar Pro, delete the calendar event on {year}-{month}-{day} at {hour}h with the title '{event_title}'"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "In Simple Calendar Pro, delete the calendar event on 2023-10-29 at 19h with the title 'Appointment for Campaign'",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarDeleteOneEvent",
+      "template": "In Simple Calendar Pro, delete the calendar event on {year}-{month}-{day} at {hour}h with the title '{event_title}'"
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What is on my schedule for October 23 2023 at 11:00am in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarEventOnDateAtTime",
+      "template": "What is on my schedule for {date} at {time} in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What is on my schedule for October 16 2023 at 11:30am in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarEventOnDateAtTime",
+      "template": "What is on my schedule for {date} at {time} in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What events do I have in the next week in Simple Calendar Pro? Assume the week starts from Monday. Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarEventsInNextWeek",
+      "template": "What events do I have in the next week in Simple Calendar Pro? Assume the week starts from Monday. Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What events do I have in the next week in Simple Calendar Pro? Assume the week starts from Monday. Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarEventsInNextWeek",
+      "template": "What events do I have in the next week in Simple Calendar Pro? Assume the week starts from Monday. Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Do I have any events between 4pm and 8pm October 25 2023 in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarEventsInTimeRange",
+      "template": "Do I have any events between {start_time} and 8pm {date} in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Do I have any events between 6:30am and 8pm October 19 2023 in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarEventsInTimeRange",
+      "template": "Do I have any events between {start_time} and 8pm {date} in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What events do I have October 19 2023 in Simple Calendar Pro? Answer with the titles only. If there are multiple titles, format your answer as a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarEventsOnDate",
+      "template": "What events do I have {date} in Simple Calendar Pro? Answer with the titles only. If there are multiple titles, format your answer as a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What events do I have October 25 2023 in Simple Calendar Pro? Answer with the titles only. If there are multiple titles, format your answer as a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarEventsOnDate",
+      "template": "What events do I have {date} in Simple Calendar Pro? Answer with the titles only. If there are multiple titles, format your answer as a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What is my first event after 3:15pm October 24 2023 in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarFirstEventAfterStartTime",
+      "template": "What is my first event after {time} {date} in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What is my first event after 4pm October 18 2023 in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarFirstEventAfterStartTime",
+      "template": "What is my first event after {time} {date} in Simple Calendar Pro? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What is the location of my Volunteer cleanup event in Simple Calendar Pro? Answer with the location only.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarLocationOfEvent",
+      "template": "What is the location of my {title} event in Simple Calendar Pro? Answer with the location only."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What is the location of my Volunteer cleanup event in Simple Calendar Pro? Answer with the location only.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarLocationOfEvent",
+      "template": "What is the location of my {title} event in Simple Calendar Pro? Answer with the location only."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What is my next upcoming event in Simple Calendar Pro? Answer with the title only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarNextEvent",
+      "template": "What is my next upcoming event in Simple Calendar Pro? Answer with the title only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What is my next upcoming event in Simple Calendar Pro? Answer with the title only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarNextEvent",
+      "template": "What is my next upcoming event in Simple Calendar Pro? Answer with the title only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "When is my next meeting with Mia in Simple Calendar Pro? Express your answer in the format <month name> <day> <year> <hour in 24-hour format>:<minutes>.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarNextMeetingWithPerson",
+      "template": "When is my next meeting with {person} in Simple Calendar Pro? Express your answer in the format <month name> <day> <year> <hour in 24-hour format>:<minutes>."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "When is my next meeting with John in Simple Calendar Pro? Express your answer in the format <month name> <day> <year> <hour in 24-hour format>:<minutes>.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarNextMeetingWithPerson",
+      "template": "When is my next meeting with {person} in Simple Calendar Pro? Express your answer in the format <month name> <day> <year> <hour in 24-hour format>:<minutes>."
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Create a new drawing in Simple Draw Pro. Name it lorem_warm_vase_copy.svg. Save it in the Pictures folder within the sdk_gphone_x86_64 storage area.",
+      "max_steps": 18,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleDrawProCreateDrawing",
+      "template": "Create a new drawing in Simple Draw Pro. Name it {file_name}. Save it in the Pictures folder within the sdk_gphone_x86_64 storage area."
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Create a new drawing in Simple Draw Pro. Name it elit_gVDd_tough_fish.svg. Save it in the Pictures folder within the sdk_gphone_x86_64 storage area.",
+      "max_steps": 18,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleDrawProCreateDrawing",
+      "template": "Create a new drawing in Simple Draw Pro. Name it {file_name}. Save it in the Pictures folder within the sdk_gphone_x86_64 storage area."
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Reply to +18060328692 with message: The pen is mightier than the sword. in Simple SMS Messenger",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleSmsReply",
+      "template": "Reply to {number} with message: {message} in Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Reply to +19901995825 with message: Wedding anniversary on the 30th. Make reservations! in Simple SMS Messenger",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleSmsReply",
+      "template": "Reply to {number} with message: {message} in Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Reply to the most recent text message using Simple SMS Messenger with message: Lorem Ipsum is simply dummy text.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleSmsReplyMostRecent",
+      "template": "Reply to the most recent text message using Simple SMS Messenger with message: {message}"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Reply to the most recent text message using Simple SMS Messenger with message: You can't make an omelette without breaking a few eggs.",
+      "max_steps": 12,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleSmsReplyMostRecent",
+      "template": "Reply to the most recent text message using Simple SMS Messenger with message: {message}"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Resend the message I just sent to Emily Chen in Simple SMS Messenger",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleSmsResend",
+      "template": "Resend the message I just sent to {name} in Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Resend the message I just sent to Ava Liu in Simple SMS Messenger",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleSmsResend",
+      "template": "Resend the message I just sent to {name} in Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Send a text message using Simple SMS Messenger to +14390864198 with message: Better late than never.",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleSmsSend",
+      "template": "Send a text message using Simple SMS Messenger to {number} with message: {message}"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Send a text message using Simple SMS Messenger to +12759658353 with message: Cleanliness is next to godliness.",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleSmsSend",
+      "template": "Send a text message using Simple SMS Messenger to {number} with message: {message}"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Send a message to +16657227665 with the clipboard content in Simple SMS Messenger",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleSmsSendClipboardContent",
+      "template": "Send a message to {number} with the clipboard content in Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.2,
+      "goal": "Send a message to +17019452280 with the clipboard content in Simple SMS Messenger",
+      "max_steps": 12,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleSmsSendClipboardContent",
+      "template": "Send a message to {number} with the clipboard content in Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Text the address of the event to Sophia Gonzalez that Carlos Ferreira just sent me in Simple SMS Messenger",
+      "max_steps": 18,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleSmsSendReceivedAddress",
+      "template": "Text the address of the event to {name1} that {name2} just sent me in Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.8,
+      "goal": "Text the address of the event to Muhammad Ferreira that Charlie Liu just sent me in Simple SMS Messenger",
+      "max_steps": 18,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleSmsSendReceivedAddress",
+      "template": "Text the address of the event to {name1} that {name2} just sent me in Simple SMS Messenger"
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How many snow boarding activities did I do this week in the OpenTracks app? Assume the week starts from Monday. Express your answer as a single integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SportsTrackerActivitiesCountForWeek",
+      "template": "How many {category} activities did I do this week in the OpenTracks app? Assume the week starts from Monday. Express your answer as a single integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How many mountain biking activities did I do this week in the OpenTracks app? Assume the week starts from Monday. Express your answer as a single integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SportsTrackerActivitiesCountForWeek",
+      "template": "How many {category} activities did I do this week in the OpenTracks app? Assume the week starts from Monday. Express your answer as a single integer."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "What activities did I do October 13 2023 in the OpenTracks app? Answer with the activity type only. If there are multiple types, format your answer in a comma separated list.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SportsTrackerActivitiesOnDate",
+      "template": "What activities did I do {date} in the OpenTracks app? Answer with the activity type only. If there are multiple types, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "What activities did I do October 6 2023 in the OpenTracks app? Answer with the activity type only. If there are multiple types, format your answer in a comma separated list.",
+      "max_steps": 20,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SportsTrackerActivitiesOnDate",
+      "template": "What activities did I do {date} in the OpenTracks app? Answer with the activity type only. If there are multiple types, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How long was my climbing activity October 14 2023 in the OpenTracks app? Express your answer in minutes as a single integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SportsTrackerActivityDuration",
+      "template": "How long was my {category} activity {date} in the OpenTracks app? Express your answer in minutes as a single integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How long was my mountain biking activity October 8 2023 in the OpenTracks app? Express your answer in minutes as a single integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SportsTrackerActivityDuration",
+      "template": "How long was my {category} activity {date} in the OpenTracks app? Express your answer in minutes as a single integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What was the longest distance covered in a hiking activity in the OpenTracks app this week? Assume the week starts from Monday. Express your answer as a single number in meters rounded to the nearest integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SportsTrackerLongestDistanceActivity",
+      "template": "What was the longest distance covered in a {category} activity in the OpenTracks app this week? Assume the week starts from Monday. Express your answer as a single number in meters rounded to the nearest integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What was the longest distance covered in a inline skating activity in the OpenTracks app this week? Assume the week starts from Monday. Express your answer as a single number in meters rounded to the nearest integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SportsTrackerLongestDistanceActivity",
+      "template": "What was the longest distance covered in a {category} activity in the OpenTracks app this week? Assume the week starts from Monday. Express your answer as a single number in meters rounded to the nearest integer."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "What was the total distance covered for cycling activities in the OpenTracks app from October 8 2023 to October 11 2023? Express your answer as a single number in meters rounded to the nearest integer.",
+      "max_steps": 20,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SportsTrackerTotalDistanceForCategoryOverInterval",
+      "template": "What was the total distance covered for {category} activities in the OpenTracks app from {start_date} to {end_date}? Express your answer as a single number in meters rounded to the nearest integer."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "What was the total distance covered for hiking activities in the OpenTracks app from October 6 2023 to October 12 2023? Express your answer as a single number in meters rounded to the nearest integer.",
+      "max_steps": 20,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SportsTrackerTotalDistanceForCategoryOverInterval",
+      "template": "What was the total distance covered for {category} activities in the OpenTracks app from {start_date} to {end_date}? Express your answer as a single number in meters rounded to the nearest integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What was the total duration of inline skating activities in the OpenTracks app this week? Assume the week starts from Monday. Express your answer in minutes as a single integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SportsTrackerTotalDurationForCategoryThisWeek",
+      "template": "What was the total duration of {category} activities in the OpenTracks app this week? Assume the week starts from Monday. Express your answer in minutes as a single integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What was the total duration of skiing activities in the OpenTracks app this week? Assume the week starts from Monday. Express your answer in minutes as a single integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SportsTrackerTotalDurationForCategoryThisWeek",
+      "template": "What was the total duration of {category} activities in the OpenTracks app this week? Assume the week starts from Monday. Express your answer in minutes as a single integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn bluetooth off.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemBluetoothTurnOff",
+      "template": "Turn bluetooth {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn bluetooth off.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemBluetoothTurnOff",
+      "template": "Turn bluetooth {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn bluetooth off.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemBluetoothTurnOffVerify",
+      "template": "Turn bluetooth {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn bluetooth off.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemBluetoothTurnOffVerify",
+      "template": "Turn bluetooth {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn bluetooth on.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemBluetoothTurnOn",
+      "template": "Turn bluetooth {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn bluetooth on.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemBluetoothTurnOn",
+      "template": "Turn bluetooth {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn bluetooth on.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemBluetoothTurnOnVerify",
+      "template": "Turn bluetooth {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn bluetooth on.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemBluetoothTurnOnVerify",
+      "template": "Turn bluetooth {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn brightness to the max value.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemBrightnessMax",
+      "template": "Turn brightness to the {max_or_min} value."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn brightness to the max value.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemBrightnessMax",
+      "template": "Turn brightness to the {max_or_min} value."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn brightness to the max value.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemBrightnessMaxVerify",
+      "template": "Turn brightness to the {max_or_min} value."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn brightness to the max value.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemBrightnessMaxVerify",
+      "template": "Turn brightness to the {max_or_min} value."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn brightness to the min value.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemBrightnessMin",
+      "template": "Turn brightness to the {max_or_min} value."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn brightness to the min value.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemBrightnessMin",
+      "template": "Turn brightness to the {max_or_min} value."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn brightness to the min value.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemBrightnessMinVerify",
+      "template": "Turn brightness to the {max_or_min} value."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn brightness to the min value.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemBrightnessMinVerify",
+      "template": "Turn brightness to the {max_or_min} value."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Copy the following text to the clipboard: Order No: A123456",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemCopyToClipboard",
+      "template": "Copy the following text to the clipboard: {clipboard_content}"
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Copy the following text to the clipboard: 2554 Oak Street, Boston, MA",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemCopyToClipboard",
+      "template": "Copy the following text to the clipboard: {clipboard_content}"
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn wifi off.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemWifiTurnOff",
+      "template": "Turn wifi {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn wifi off.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemWifiTurnOff",
+      "template": "Turn wifi {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn wifi off.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemWifiTurnOffVerify",
+      "template": "Turn wifi {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn wifi off.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemWifiTurnOffVerify",
+      "template": "Turn wifi {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn wifi on.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemWifiTurnOn",
+      "template": "Turn wifi {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn wifi on.",
+      "max_steps": 10,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemWifiTurnOn",
+      "template": "Turn wifi {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn wifi on.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SystemWifiTurnOnVerify",
+      "template": "Turn wifi {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Turn wifi on.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SystemWifiTurnOnVerify",
+      "template": "Turn wifi {on_or_off}."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Which tasks have I completed for October 19 2023 in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "TasksCompletedTasksForDate",
+      "template": "Which tasks have I completed for {date} in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Which tasks have I completed for October 18 2023 in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "TasksCompletedTasksForDate",
+      "template": "Which tasks have I completed for {date} in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How many tasks do I have due next week in Tasks app? Assume the week starts from Monday. Express your answer as a single integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "TasksDueNextWeek",
+      "template": "How many tasks do I have due next week in Tasks app? Assume the week starts from Monday. Express your answer as a single integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "How many tasks do I have due next week in Tasks app? Assume the week starts from Monday. Express your answer as a single integer.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "TasksDueNextWeek",
+      "template": "How many tasks do I have due next week in Tasks app? Assume the week starts from Monday. Express your answer as a single integer."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What tasks do I have due October 19 2023 in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "TasksDueOnDate",
+      "template": "What tasks do I have due {date} in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What tasks do I have due October 27 2023 in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "TasksDueOnDate",
+      "template": "What tasks do I have due {date} in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What are my high priority tasks in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "TasksHighPriorityTasks",
+      "template": "What are my high priority tasks in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What are my high priority tasks in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "TasksHighPriorityTasks",
+      "template": "What are my high priority tasks in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Which tasks with high priority are due October 29 2023 in the Tasks app? Answer with the title only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "TasksHighPriorityTasksDueOnDate",
+      "template": "Which tasks with high priority are due {date} in the Tasks app? Answer with the title only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "Which tasks with high priority are due October 15 2023 in the Tasks app? Answer with the title only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "TasksHighPriorityTasksDueOnDate",
+      "template": "Which tasks with high priority are due {date} in the Tasks app? Answer with the title only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What incomplete tasks do I have still have to do by October 26 2023 in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "TasksIncompleteTasksOnDate",
+      "template": "What incomplete tasks do I have still have to do by {date} in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 1.0,
+      "goal": "What incomplete tasks do I have still have to do by October 29 2023 in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list.",
+      "max_steps": 10,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "TasksIncompleteTasksOnDate",
+      "template": "What incomplete tasks do I have still have to do by {date} in Tasks app? Answer with the titles only. If there are multiples titles, format your answer in a comma separated list."
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Turn off WiFi, then enable bluetooth",
+      "max_steps": 20,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "TurnOffWifiAndTurnOnBluetooth",
+      "template": "Turn off WiFi, then enable bluetooth"
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Turn off WiFi, then enable bluetooth",
+      "max_steps": 20,
+      "origin_split": "test",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "TurnOffWifiAndTurnOnBluetooth",
+      "template": "Turn off WiFi, then enable bluetooth"
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Turn on Wifi, then open the dialer app",
+      "max_steps": 20,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "TurnOnWifiAndOpenApp",
+      "template": "Turn on Wifi, then open the {app_name} app"
+    },
+    {
+      "complexity": 2.0,
+      "goal": "Turn on Wifi, then open the settings app",
+      "max_steps": 20,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "TurnOnWifiAndOpenApp",
+      "template": "Turn on Wifi, then open the {app_name} app"
+    },
+    {
+      "complexity": 2.8,
+      "goal": "Create a playlist titled \"Travel Guide Specials\" with the following files in VLC (located in Internal Memory/VLCVideos), in order: edited_moment_63_.mp4, episode_33_4K_C5jQ.mp4",
+      "max_steps": 28,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "VlcCreatePlaylist",
+      "template": ""
+    },
+    {
+      "complexity": 2.8,
+      "goal": "Create a playlist titled \"Mystery and Thrills Playlist\" with the following files in VLC (located in Internal Memory/VLCVideos), in order: recording_42_4K_GvTD.mp4, highlight_51_export_copy.mp4",
+      "max_steps": 28,
+      "origin_split": "validation",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "VlcCreatePlaylist",
+      "template": ""
+    },
+    {
+      "complexity": 4.8,
+      "goal": "Create a playlist titled \"How To Essentials\" with the following files in VLC (located in Internal Memory/VLCVideos), in order: 2023_08_19_scene_42_.mp4, footage_60_4K_2023_01_09.mp4, episode_59_HD_2023_06_08.mp4, episode_51_raw_edited.mp4. And then, create a playlist titled \"Adventure Ultimate Collection\" with the following files in VLC, in order: highlight_57_HD_2023_03_08.mp4, backup_clip_79_raw.mp4, episode_33_4K_final.mp4, scene_63__lIBQ.mp4.",
+      "max_steps": 48,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "VlcCreateTwoPlaylists",
+      "template": ""
+    },
+    {
+      "complexity": 4.8,
+      "goal": "Create a playlist titled \"Ultimate Fails Marathon\" with the following files in VLC (located in Internal Memory/VLCVideos), in order: scene_46_export_2023_01_06.mp4, eBvi_footage_62_4K.mp4, 2023_01_17_recording_22_.mp4. And then, create a playlist titled \"Mystery and Thrills Series\" with the following files in VLC, in order: clip_97_export_backup.mp4, 2023_07_01_recording_43_.mp4, highlight_45_4K_Lauw.mp4.",
+      "max_steps": 48,
+      "origin_split": "train",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "VlcCreateTwoPlaylists",
+      "template": ""
+    }
+  ],
+  "merged_from": [
+    "androidworld_test_plan_v1.json@test",
+    "androidworld_train_plan_v1.json@train",
+    "androidworld_validation_plan_v2.json@validation"
+  ],
+  "registry_sha256": "185ae2019706693bd32ecc25ffd0c8f87be87331cae6f7d7e31c91674c962b89",
+  "schema_version": "0.1.0",
+  "source": {
+    "agent_path": "Mobile-Agent-v3.5/android_world_v3.5/android_world/agents/gui_owl.py",
+    "agent_repo": "X-PLUG/MobileAgent",
+    "agent_revision": "11cea575561fb7800b5fb6b6cafa56f7a91de11f",
+    "canonical_repo": "google-research/android_world",
+    "canonical_revision": "3e50888527ef9f29b9157ecd537e408008bb1c85"
+  },
+  "source_splits": {
+    "test": {
+      "instance_records_sha256": "aaaacb35ddd5533a3736c608ef08842fe72e1734ee7b37a87ecb7fe2933832b2",
+      "source_file": "androidworld_test_plan_v1.json",
+      "suite_seed": 161803,
+      "task_combinations": 3,
+      "task_type_count": 25
+    },
+    "train": {
+      "instance_records_sha256": "81f67f1d26da91691df02c7ec70e96198e5732709cda0b84935662d80ea0e2db",
+      "source_file": "androidworld_train_plan_v1.json",
+      "suite_seed": 314159,
+      "task_combinations": 3,
+      "task_type_count": 60
+    },
+    "validation": {
+      "instance_records_sha256": "8204e7f832f1d70becd51f299977f0e4a322a080bbfab64010345c48f901b0e8",
+      "source_file": "androidworld_validation_plan_v2.json",
+      "suite_seed": 271828,
+      "task_combinations": 2,
+      "task_type_count": 31
+    }
+  },
+  "split": "full",
+  "suite_seed": 271828,
+  "task_combinations": 2,
+  "task_instance_count": 232,
+  "task_type_count": 116
+}
