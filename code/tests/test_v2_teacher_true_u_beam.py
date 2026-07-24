@@ -20,6 +20,7 @@ from scripts.render_hgkv_teacher_beam_v2 import (
     selected_set_plan,
 )
 from scripts.run_hgkv_teacher_beam_v2 import run
+from scripts.select_hgkv_sets_v2 import select_state
 from scripts.train_hgkv_selector_v2 import (
     collate_groups,
     trajectory_group_folds,
@@ -275,3 +276,27 @@ def test_learned_beam_prunes_by_cumulative_calibrated_marginal():
     )
     assert path.selected_event_step_ids == (2, 3)
     assert path.cumulative_predicted_u == 0.8
+
+
+def test_v2_greedy_and_beam4_have_exact_b1_parity():
+    torch.manual_seed(0)
+    model = HGKVSetSelectorV2().eval()
+    state = _state() | {"split": "dev"}
+    rows = select_state(
+        state=state,
+        model=model,
+        feature_by_key={
+            ("episode:9", candidate): torch.zeros(1285)
+            for candidate in range(1, 6)
+        },
+        budgets=(1, 2, 4),
+        device=torch.device("cpu"),
+    )
+    b1 = [row for row in rows if row["budget"] == 1]
+    assert len(b1) == 2
+    assert b1[0]["selected_event_step_ids"] == b1[1][
+        "selected_event_step_ids"
+    ]
+    assert b1[0]["cumulative_predicted_u"] == b1[1][
+        "cumulative_predicted_u"
+    ]
