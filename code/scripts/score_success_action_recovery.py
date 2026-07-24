@@ -119,16 +119,24 @@ def main() -> None:
         for line in (args.dataset_root / "samples.jsonl").open(encoding="utf-8")
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    # note (luojiaxuan): skip-existing 断点续跑——已打分行用 (pair_group, variant)
-    # 作幂等键;OOM/被杀后同一命令重启会跳过已完成项,只补未打分的,append 追加。
-    done_keys: set[tuple[str, str]] = set()
+    # note (luojiaxuan): skip-existing 断点续跑——已打分行用 (pair_group, variant,
+    # singleton_event_step_id) 作幂等键;selector 单图标签同组多条 variant=
+    # "singleton" 记录靠第三键区分,旧数据集无此字段时取 None,键形状不变。
+    # OOM/被杀后同一命令重启会跳过已完成项,只补未打分的,append 追加。
+    done_keys: set[tuple[str, str, int | None]] = set()
     if args.output.exists():
         for line in args.output.open(encoding="utf-8"):
             try:
                 prev = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            done_keys.add((prev.get("pair_group"), prev.get("variant", "correct")))
+            done_keys.add(
+                (
+                    prev.get("pair_group"),
+                    prev.get("variant", "correct"),
+                    prev.get("singleton_event_step_id"),
+                )
+            )
     with args.output.open("a", encoding="utf-8") as handle:
         for index, sample in enumerate(samples):
             if index % args.shard_count != args.shard_index:
@@ -138,6 +146,7 @@ def main() -> None:
             if (
                 sample.get("pair_group"),
                 sample.get("variant", "correct"),
+                sample.get("singleton_event_step_id"),
             ) in done_keys:
                 continue
             encoded = encode_sample(
@@ -177,6 +186,9 @@ def main() -> None:
                         "step_index": sample["step_index"],
                         "pair_group": sample.get("pair_group"),
                         "variant": sample.get("variant", "correct"),
+                        "singleton_event_step_id": sample.get(
+                            "singleton_event_step_id"
+                        ),
                         "memory_config": sample["memory_config"],
                         "target_token_count": token_count,
                         "target_logprob_sum": total,

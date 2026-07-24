@@ -91,6 +91,24 @@ def action_from_annotation(
     return None
 
 
+def load_heldout_episodes(path: Path) -> set[str]:
+    # note (luojiaxuan): heldout.txt 与 scorer --episodes-filter 同格式(空白分隔
+    # 轨迹 id);正典 165 条 = trainer heldout_episode_set(salt odyssey_margin_v1,
+    # fraction 0.15)的哈希切分。渲染侧只读文件,不自算哈希,防两处规则漂移。
+    return set(path.read_text(encoding="utf-8").split())
+
+
+def split_allows(
+    source_id: str, *, split: str, heldout_episodes: set[str] | None
+) -> bool:
+    if split == "all":
+        return True
+    if heldout_episodes is None:
+        raise ValueError("--split train/heldout requires --heldout-episodes")
+    held = source_id in heldout_episodes
+    return held if split == "heldout" else not held
+
+
 def load_state_inventory(path: Path) -> dict[str, list[int]]:
     inventory: dict[str, list[int]] = {}
     for line in path.open(encoding="utf-8"):
@@ -116,7 +134,7 @@ def render_trajectory(
     contrast_variants: bool,
     donor_paths: list[str] | None,
     terminal_states_only: bool = False,
-    singleton_labels: bool = False,
+    selector_singletons: bool = False,
     singleton_max_candidates: int = 8,
 ) -> list[dict[str, Any]]:
     source_id = row["source_id"]
@@ -236,34 +254,41 @@ def render_trajectory(
             step_id: f"images/{source_id}/observation-{step_id:03d}.png"
             for step_id in selected
         }
-        variants: list[tuple[str, tuple[int, ...], dict[int, str]]] = []
-        if singleton_labels:
-            # note (luojiaxuan): selector 标签模式——b0 参考 + 逐候选单图恢复;
-            # 候选取最近 singleton_max_candidates 个;shared-early 段不出标签。
+        variants: list[
+            tuple[str, tuple[int, ...], dict[int, str], int | None]
+        ] = []
+        if selector_singletons:
+            # note (luojiaxuan): selector 标签模式(合同第 13 步)——b0 参考 +
+            # 逐候选单图恢复(variant="singleton" + singleton_event_step_id),
+            # 同 pair_group 自洽成组:U_act(e) = logp(gated, singleton_e) −
+            # logp(frozen, b0)。门槛:候选 ≥2;候选取最近 singleton_max_candidates
+            # 个封顶成本;shared-early 段不出标签。
             if len(history) < shared_early_decisions:
                 continue
-            label_candidates = tuple(
+            all_candidates = tuple(
                 candidate_event_step_ids_from_history(
                     [event.to_mapping() for event in history]
                 )
-            )[-singleton_max_candidates:]
-            if not label_candidates:
+            )
+            if len(all_candidates) < 2:
                 continue
-            variants.append(("b0", (), {}))
+            label_candidates = all_candidates[-singleton_max_candidates:]
+            variants.append(("b0", (), {}, None))
             for cand in label_candidates:
                 variants.append(
                     (
-                        f"single{cand}",
+                        "singleton",
                         (cand,),
                         {cand: f"images/{source_id}/observation-{cand:03d}.png"},
+                        cand,
                     )
                 )
         elif len(history) < shared_early_decisions:
-            variants.append(("correct", (), {}))
+            variants.append(("correct", (), {}, None))
         else:
-            variants.append(("correct", selected, dict(own_path)))
+            variants.append(("correct", selected, dict(own_path), None))
             if contrast_variants and selected:
-                variants.append(("b0", (), {}))
+                variants.append(("b0", (), {}, None))
                 if len(selected) >= 2:
                     rotated = dict(
                         zip(
@@ -272,13 +297,14 @@ def render_trajectory(
                             + [own_path[selected[0]]],
                         )
                     )
-                    variants.append(("shuffled", selected, rotated))
+                    variants.append(("shuffled", selected, rotated, None))
                 if donor_paths is not None and len(donor_paths) >= len(selected):
                     variants.append(
                         (
                             "irrelevant",
                             selected,
                             dict(zip(selected, donor_paths[: len(selected)])),
+                            None,
                         )
                     )
 
@@ -286,7 +312,7 @@ def render_trajectory(
             with Image.open(output_root / rel) as raw:
                 return raw.convert("RGB")
 
-        for variant_name, variant_selected, variant_paths in variants:
+        for variant_name, variant_selected, variant_paths, singleton_id in variants:
             if len(history) < shared_early_decisions:
                 messages = build_shared_early_step_messages(
                     instruction=instruction,
@@ -313,27 +339,32 @@ def render_trajectory(
                 image_rels = [
                     variant_paths[step_id] for step_id in variant_selected
                 ] + [current_rel]
-            samples.append(
-                {
-                    "schema_version": "causalcache.odyssey_sft_sample.v1",
-                    "episode": source_id,
-                    "task_type": "guiodyssey",
-                    "task_index": 0,
-                    "sample_seed": 0,
-                    "decision_step_id": decision,
-                    "step_index": decision,
-                    "variant": variant_name,
-                    "pair_group": f"{source_id}:{decision}",
-                    "memory_config": {
-                        "mode": mode,
-                        "budget": budget,
-                        "restored_event_step_ids": list(variant_selected),
-                    },
-                    "messages": _serialize_messages(messages, image_paths=image_rels),
-                    "target_text": target_text,
-                    "official_terminal_success": 1.0,
-                }
-            )
+            sample = {
+                "schema_version": "causalcache.odyssey_sft_sample.v1",
+                "episode": source_id,
+                "task_type": "guiodyssey",
+                "task_index": 0,
+                "sample_seed": 0,
+                "decision_step_id": decision,
+                "step_index": decision,
+                "variant": variant_name,
+                "pair_group": f"{source_id}:{decision}",
+                "memory_config": {
+                    "mode": (
+                        "selector_singleton" if selector_singletons else mode
+                    ),
+                    "budget": (
+                        len(variant_selected) if selector_singletons else budget
+                    ),
+                    "restored_event_step_ids": list(variant_selected),
+                },
+                "messages": _serialize_messages(messages, image_paths=image_rels),
+                "target_text": target_text,
+                "official_terminal_success": 1.0,
+            }
+            if selector_singletons:
+                sample["singleton_event_step_id"] = singleton_id
+            samples.append(sample)
     return samples
 
 
@@ -349,12 +380,21 @@ def main() -> None:
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--trajectory-limit", type=int, default=0)
     parser.add_argument("--terminal-states-only", action="store_true")
-    parser.add_argument("--singleton-labels", action="store_true")
+    parser.add_argument("--selector-singletons", action="store_true")
     parser.add_argument("--singleton-max-candidates", type=int, default=8)
+    parser.add_argument("--split", choices=("all", "train", "heldout"), default="all")
+    parser.add_argument("--heldout-episodes", type=Path, default=None)
     args = parser.parse_args()
 
     from pyarrow import parquet as pq
 
+    heldout_episodes = (
+        load_heldout_episodes(args.heldout_episodes)
+        if args.heldout_episodes is not None
+        else None
+    )
+    if args.split != "all" and heldout_episodes is None:
+        parser.error("--split train/heldout requires --heldout-episodes")
     inventory = load_state_inventory(args.state_context)
     args.output_root.mkdir(parents=True, exist_ok=True)
     samples_path = (
@@ -372,6 +412,10 @@ def main() -> None:
                 source_id = row["source_id"]
                 if source_id not in inventory:
                     continue
+                if not split_allows(
+                    source_id, split=args.split, heldout_episodes=heldout_episodes
+                ):
+                    continue
                 if args.trajectory_limit and rendered >= args.trajectory_limit:
                     break
                 samples = render_trajectory(
@@ -383,7 +427,7 @@ def main() -> None:
                     contrast_variants=args.contrast_variants,
                     donor_paths=donor_paths,
                     terminal_states_only=args.terminal_states_only,
-                    singleton_labels=args.singleton_labels,
+                    selector_singletons=args.selector_singletons,
                     singleton_max_candidates=args.singleton_max_candidates,
                 )
                 for sample in samples:
