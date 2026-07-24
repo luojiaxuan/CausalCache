@@ -1,17 +1,19 @@
-\documentclass[letterpaper]{article}
-\usepackage[submission]{aaai2027}
-\usepackage[hyphens]{url}
-\usepackage{graphicx}
-\urlstyle{rm}
-\def\UrlFont{\rm}
-\usepackage{natbib}
-\usepackage{caption}
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage[submission]{aaai2027} % DO NOT CHANGE THIS
+% The serif, sans-serif, and monospaced fonts are loaded automatically by
+% aaai2027.sty. Do not add any font package.
+\usepackage[hyphens]{url} % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm} % DO NOT CHANGE THIS
+\usepackage{natbib} % DO NOT CHANGE THIS AND DO NOT ADD OPTIONS
+\usepackage{caption} % DO NOT CHANGE THIS AND DO NOT ADD OPTIONS
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{algorithm}
 \usepackage{algorithmic}
 \usepackage{booktabs}
-\frenchspacing
+\frenchspacing % DO NOT CHANGE THIS
 
 \pdfinfo{
 /TemplateVersion (2027.1)
@@ -369,14 +371,8 @@ frozen-roster aggregate is complete.
 
 \begin{table*}[t]
 \centering
-\small
+{\small
 \setlength{\tabcolsep}{3.8pt}
-\caption{Zero-shot closed-loop performance under different visual-memory
-budgets. All adapters and selectors are trained and selected exclusively on
-GUI-Odyssey. AndroidWorld uses two fixed instances for each of 116 templates;
-OSWorld uses the full fixed evaluation roster. HGKV is structurally identical
-to the frozen policy at $B=0$.}
-\label{tab:closed-loop-main}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrrr@{}}
 \toprule
 Policy adaptation & Memory selector & $B=0$ & $B=1$ & $B=2$ & $B=4$ & $B=8$
@@ -403,6 +399,13 @@ Top-8 ungated KV LoRA & Recent & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
 & $=$ Frozen & \tbd & \tbd & \tbd & \tbd & \tbd \\
 \bottomrule
 \end{tabular*}
+}
+\caption{Zero-shot closed-loop performance under different visual-memory
+budgets. All adapters and selectors are trained and selected exclusively on
+GUI-Odyssey. AndroidWorld uses two fixed instances for each of 116 templates;
+OSWorld uses the full fixed evaluation roster. HGKV is structurally identical
+to the frozen policy at $B=0$.}
+\label{tab:closed-loop-main}
 \end{table*}
 
 \subsection{Legacy Matched-NLL Mechanism Test}
@@ -455,14 +458,8 @@ separate primary average.
 
 \begin{table*}[t]
 \centering
-\small
+{\small
 \setlength{\tabcolsep}{4.2pt}
-\caption{Selector mechanism analysis on GUI-Odyssey development states under
-the fixed HGKV policy. Utility at each budget is measured by rerunning the
-complete selected set through HGKV; it is not a sum of singleton gains. Oracle
-recovery and regret use exact search for small candidate sets and a declared
-approximate oracle otherwise.}
-\label{tab:selector-analysis}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrr@{}}
 \toprule
 Selector & $B=1$ utility & $B=2$ utility & $B=4$ utility &
@@ -477,6 +474,13 @@ Marginal HGKV selector & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
 Oracle / approximate oracle & \tbd & \tbd & \tbd & 1.000 & 0 & -- & -- \\
 \bottomrule
 \end{tabular*}
+}
+\caption{Selector mechanism analysis on GUI-Odyssey development states under
+the fixed HGKV policy. Utility at each budget is measured by rerunning the
+complete selected set through HGKV; it is not a sum of singleton gains. Oracle
+recovery and regret use exact search for small candidate sets and a declared
+approximate oracle otherwise.}
+\label{tab:selector-analysis}
 \end{table*}
 
 \paragraph{Prior independent-selector diagnostic.}
@@ -547,10 +551,7 @@ tables rather than expanded into a policy--selector Cartesian product.
 
 \begin{table*}[t]
 \centering
-\small
-\caption{Appendix ablation placeholders. Each family is evaluated with the
-corresponding policy, selector, and data split fixed.}
-\label{tab:appendix-ablation-plan}
+{\small
 \begin{tabular}{@{}p{0.22\textwidth}p{0.62\textwidth}c@{}}
 \toprule
 Ablation family & Planned variants & Status \\
@@ -570,6 +571,10 @@ Selected top-$B$ vs.\ bottom-$B$; wrong-event replacement;
 summary--image mismatch; temporal reversal & \tbd \\
 \bottomrule
 \end{tabular}
+}
+\caption{Appendix ablation placeholders. Each family is evaluated with the
+corresponding policy, selector, and data split fixed.}
+\label{tab:appendix-ablation-plan}
 \end{table*}
 
 \bibliography{references}

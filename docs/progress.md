@@ -241,3 +241,14 @@
 - draft 的实验协议同步为 adapter/selector 全部只在 GUI-Odyssey 训练与选择、AndroidWorld
   116 templates × 2 fixed instances 的 template-macro success、OSWorld full fixed roster 的
   mean normalized score;Table 2 明确禁止用 singleton gain 求和替代完整集合重打分。
+
+## 2026-07-24:AAAI-27 AuthorKit 格式对齐
+
+- 用户提供的 `AuthorKit27.zip` SHA256 与仓库既有记录一致；`aaai2027.sty/.bst` 与官方
+  文件逐 byte 相同。`paper/main.tex` 保持 `letterpaper`、`submission`、匿名作者块、
+  `TemplateVersion (2027.1)` 与官方字体链，不引入禁用 package 或 page-layout 命令。
+- 按 AuthorKit27 的 table 规则，将三张 table 的 caption 从表格上方移到下方；9pt
+  `\small` 只作用于 table body，caption 回到官方 10pt。
+- AAAI-27 官网当前规定主 PDF 最多 9 页、非 references 最多 7 页，第 8--9 页仅用于
+  references；reproducibility checklist 必须单独上传。官方
+  `ReproducibilityChecklist.tex` 已作为独立待填写模板纳入 `paper/`，不嵌入主稿。
