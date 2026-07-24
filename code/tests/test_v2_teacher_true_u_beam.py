@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from argparse import Namespace
 
 from scripts.plan_hgkv_teacher_beam_v2 import build_plan_rows
 from scripts.reduce_hgkv_teacher_beam_v2 import reduce_depth
@@ -11,6 +12,7 @@ from scripts.render_hgkv_teacher_beam_v2 import (
     load_missing_coalitions,
     selected_set_plan,
 )
+from scripts.run_hgkv_teacher_beam_v2 import run
 
 
 def _state():
@@ -132,3 +134,35 @@ def test_teacher_renderer_deduplicates_child_set_without_losing_plan_edges(
         expected_by_key=coalitions,
     )
     assert annotated[0]["teacher_depth"] == 1
+
+
+def test_teacher_runner_reduces_covered_depth_then_waits_for_exact_cache(
+    tmp_path,
+):
+    state_path = tmp_path / "states.jsonl"
+    state_path.write_text(json.dumps(_state()) + "\n", encoding="utf-8")
+    pair_group = "episode:9"
+    cache_rows = [_cache_row(pair_group, "", 0.0)]
+    cache_rows.extend(
+        _cache_row(pair_group, str(candidate), candidate / 10)
+        for candidate in range(1, 6)
+    )
+    cache_path = tmp_path / "cache.jsonl"
+    cache_path.write_text(
+        "".join(json.dumps(row) + "\n" for row in cache_rows),
+        encoding="utf-8",
+    )
+    args = Namespace(
+        states=[str(state_path)],
+        coalition_cache=[str(cache_path)],
+        run_root=tmp_path / "run",
+        beam_width=4,
+        source_commit="deadbeef",
+    )
+    status = run(args)
+    assert status["status"] == "AWAITING_RENDER_SCORE_CACHE_REFRESH"
+    assert status["depth"] == 1
+    assert status["missing_child_coalitions"] == 10
+    assert (tmp_path / "run/depth0/labels.jsonl").is_file()
+    assert (tmp_path / "run/depth0/beam.jsonl").is_file()
+    assert run(args) == status
