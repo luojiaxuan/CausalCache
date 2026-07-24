@@ -81,3 +81,85 @@
   adapter_type),违反"旧 policy 标签不得混入";已于 2026-07-24 用 hg-s100 重打
   (hyper00 12 分片 train 段 + hyper01 9 分片 heldout 段,输出
   runs/hgkv-selector-labels/)。fl75 那份属 full-layer 平行线,不入主线。
+
+---
+
+# Selector 协议修订 V2(2026-07-24,与用户+GPT 讨论后)
+
+## 质量门 heldout 诊断结果(11,364 候选 / 1,621 决策态)
+
+- [1] Coverage:b0 缺失 0、非有限 0,候选/态 min4/中位8/max8 —— PASS;
+- [2] Within-state 离散度(均值):U_act std +0.0198、IQR +0.0286、max−median +0.0307、
+  top1−top2 +0.0148 —— 真实候选内部**存在**差异;
+- [3] **Oracle headroom over Recent-1:Δ +0.0205 CI[+0.0187,+0.0223](CI 下界远离 0,PASS)**
+  —— 主触发条件成立:存在超过 Recent 的可预测选择空间。但绝对量薄(Recent-1 已达
+  +0.1132 ≈ oracle +0.1337 的 85%);over Random-1 Δ +0.0316;
+- [4] STOP 弱:73.4% 的态**全候选 U_act 为正**(天然想选满),仅 9.3% 态 max-gain≤0 ——
+  与 wrong-history drift 一脉相承,预算纪律是下游最大风险。
+- 关键限定:[3] 是 **B=1** 比较(singleton U_act = 单事件真实集合效用,合法);B>1
+  绝不能靠 singleton 相加外推。
+
+## interaction 结论:已被旧实验证实,不再重新 probe
+
+旧实验(set-utility 时代)已确认:真实集合效用 ≠ singleton 可加;independent
+marginal-score selection 即使拿精确分,也只达全局 subset optimum 的 **~85.9%**;根因是
+redundancy/complementarity 被压成固定 item score 丢失。**结构结论可复用,数值标签不可复用**
+(部署 policy 已换 hg-s100,冗余/互补关系、第二张图是否仍有正边际都可能变)。
+
+因此:set-conditioned selector **不再需要 V1 B2/B4 失败来授权**,与 V1 并行准备,作为主
+selector 候选。旧 Set Transformer 失败的根因是 teacher policy(frozen)内容盲、utility 无稳定
+语义 —— hg-s100 已把 "use history" 做通(correct-B0 强正、内容对照转正、B0 parity),现在是
+重试 interaction-aware selector 的合理时机。
+
+## 两阶段 selector
+
+**Stage 1 — Singleton HGKV scorer**(用当前 75K singleton 标签训):学 Δ̂(j|∅);
+负责 B1、候选排序、shortlist top-K、初始化 Stage 2、作 paper independent baseline。
+**不作最终 B4 selector。**
+
+**Stage 2 — HGKV Set-Conditioned Marginal Selector(主方法)**:学 Δ̂(j|S)。
+- 输入:当前 decision query q_t、候选事件 HGKV-readout embedding e_j、已选集合 {e_i:i∈S}、
+  剩余预算 B−|S|;
+- 输出:每个剩余候选的 conditional marginal + STOP score;
+- 推理:S=∅,while |S|<B:预测各 Δ(j|S),与 STOP 比,STOP 最优则止,否则加入最高分事件;
+- 架构:轻量 set-attention —— 1 个 selected-set attention block + 1 个 candidate-query
+  attention block + 小 MLP marginal head + STOP head,B≤4。**不用完整多层 Set Transformer;**
+  DeepSets mean/sum pooling 仅作内部 control,不作正式候选。
+
+## Conditional marginal 标签生成(近线性,非指数)
+
+- S=∅:已有全部 singleton;
+- 第一层 conditional edges:每态选 3-4 个 anchor first event(singleton-oracle top-1、
+  singleton-scorer top-1、Recent-1、一个 diverse/random),对每 anchor i 在 shortlist top-K
+  内打 Δ(j|{i}) = U(hg,{i,j}) − U(hg,{i});
+- 第二层路径:仅沿 conditional-model greedy / Recent / beam-2,打 Δ(k|{i,j});
+- shortlist 用 singleton scorer(每态 top-6~8),数据量近线性。
+
+## 正式主表(简化)
+
+| Selector | 作用 |
+|---|---|
+| Recent | heuristic |
+| HGKV singleton | independent baseline |
+| **HGKV set-conditioned** | **proposed(主方法)** |
+| Oracle | upper bound |
+
+Cheap-feature selector 降为 appendix/开发分析,不占正文主表。
+
+## correct-shuffled 小 = selection 瓶颈假说(paper joint story)
+
+hg-s100 现测的是 **history use under recent retrieval**,非 **under causally useful
+retrieval**。native recent 常选到无关/冗余/相似历史,故顺序正确 vs shuffled 差距天然被压小
+(且 shuffled 只测时序敏感性,correct−irrelevant +0.0108 > correct−shuffled +0.0016 印证:
+模型更依赖内容而非内部顺序;HGKV 无显式 temporal-role embedding)。这不是 adapter 的能力
+天花板,而是 retrieval 天花板 —— 正好支撑 abstract 动机:memory selection 与 action policy
+不能分开解决,二者是乘法关系。
+
+**验证(selector 出来后,Odyssey development 分层表):**
+Memory source {Recent-B, Similarity-B, Singleton/approx-set oracle, Learned selector-B} ×
+{Correct-B0, Correct-Shuffled, Correct-Irrelevant};按 selection-regret 分层
+(low/medium/high)。预期:high-regret 态中 selector 选出的 correct 与 corruption gap 明显扩大;
+若不扩大,才更像 adapter 仍主要做 history-present amplification。
+selected-set 的更强 corruption(优先级):**Selected top-B vs bottom-B**(最直接)、
+Wrong-event replacement(同轨迹低 utility 真实事件、保数量/位置/格式)、Summary-image
+mismatch、Temporal reversal。最关键量:**U(S_selected) − U(S_bottom/recent)**。
