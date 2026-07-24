@@ -71,9 +71,11 @@ def worker_thread(
     )
     while True:
         try:
-            arm, task_type, task_index = work.get_nowait()
+            item = work.get_nowait()
         except queue.Empty:
             return
+        arm, task_type, task_index = item[:3]
+        attempt = item[3] if len(item) > 3 else 0
         output = args.output_root / f"{arm}-{task_type}-{task_index}.json"
         if output.exists():
             with counter_lock:
@@ -100,6 +102,21 @@ def worker_thread(
             summary = run_episode(
                 episode_args, runtime=locked_runtime, ocr_provider=ocr_provider
             )
+            # note (luojiaxuan): 环境侧故障(emulator HTTP 500、起始分非 0 的状态
+            # 污染、连接中断)不代表 policy 失败,不该计入分母。重排回队列由别的
+            # emulator 重试;只有确定性失败(如 goal 身份不符)和重试耗尽才落盘。
+            if (
+                summary.get("infrastructure_failure")
+                and attempt < args.infra_retries
+                and "identity" not in str(
+                    (summary.get("infrastructure_error") or {}).get("message", "")
+                )
+            ):
+                with counter_lock:
+                    counters["infra_retried"] += 1
+                work.put((arm, task_type, task_index, attempt + 1))
+                work.task_done()
+                continue
             write_episode_output_atomic(output, summary)
             with counter_lock:
                 counters["done"] += 1
@@ -121,6 +138,12 @@ def worker_thread(
                 flush=True,
             )
         except Exception:  # noqa: BLE001
+            if attempt < args.infra_retries:
+                with counter_lock:
+                    counters["infra_retried"] += 1
+                work.put((arm, task_type, task_index, attempt + 1))
+                work.task_done()
+                continue
             with counter_lock:
                 counters["errored"] += 1
             print(
@@ -167,6 +190,7 @@ def main() -> None:
         default="full_policy_lora",
     )
     parser.add_argument("--adapter-layer-count", type=int, default=8)
+    parser.add_argument("--infra-retries", type=int, default=3)
     parser.add_argument("--parse-retries", type=int, default=0)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument(
@@ -184,7 +208,22 @@ def main() -> None:
 
     import torch
 
-    runtime = GUIOwlV21OfficialToolsRuntime(
+    # note (luojiaxuan): parse_retries>0 时 run_episode 会调
+    # runtime.greedy_fallback_generate,该方法只存在于带采样重试的子类;
+    # 用普通 runtime 会在每次解析失败时抛 AttributeError 把整局判为 infra 故障
+    # (2026-07-25 实测打掉 171/1740 局)。此处与单线程 worker 的选择逻辑对齐。
+    if args.parse_retries > 0:
+        from causalcache.policy.gui_owl_v2_1_sampling_runtime import (
+            GUIOwlV21GreedyWithSampledRetryRuntime,
+        )
+
+        runtime_class = GUIOwlV21GreedyWithSampledRetryRuntime
+        runtime_kwargs = {"temperature": 0.7, "top_p": 0.95}
+    else:
+        runtime_class = GUIOwlV21OfficialToolsRuntime
+        runtime_kwargs = {}
+    runtime = runtime_class(
+        **runtime_kwargs,
         model_dir=args.model_dir,
         expected_snapshot_manifest=(
             args.repository_root / "code/configs/gui_owl_1_5_8b_snapshot.json"
@@ -270,7 +309,7 @@ def main() -> None:
 
     lock = threading.Lock()
     locked_runtime = LockedRuntime(runtime, lock)
-    counters = {"done": 0, "skipped": 0, "errored": 0}
+    counters = {"done": 0, "skipped": 0, "errored": 0, "infra_retried": 0}
     counter_lock = threading.Lock()
     threads = []
     for base_url in args.base_url:
