@@ -345,3 +345,13 @@
 - 合并后将过宽的 HGKV counterfactual-readout 公式拆为两行，并等义压缩 Introduction
   首段一行。`make paper` 生成 6 页 US Letter PDF；最终日志无 overfull、undefined
   citation/reference、空 `booktitle` 或空 `journal` 警告。
+
+## 2026-07-24:AAAI arXiv reference 类型纠正
+
+- AuthorKit27 的 Reference Examples 明确规定 arXiv 论文使用 `@misc`，而不是
+  `@article`。将 Mobile-Agent-v3.5、MementoGUI、AndroTMem、CMI 和 ATMem 五条
+  2026 preprint 改为 arXiv 官方导出的字段结构，保留原 cite keys。
+- 每条均记录 `eprint`、`archivePrefix={arXiv}`、arXiv API 核对的 `primaryClass`
+  与 canonical abstract URL；Mobile-Agent-v3.5 / CMI 为 `cs.AI`，其余三条为 `cs.CV`。
+- `make paper` 后五条均按 `aaai2027.bst` 渲染为普通文本 `arXiv:<id>.`；6 页 PDF
+  保持不变，日志无 BibTeX warning、undefined citation/reference 或 overfull。

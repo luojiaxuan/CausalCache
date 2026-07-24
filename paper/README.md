@@ -35,7 +35,8 @@ make paper
 
 - `references.bib` 使用 AAAI author--year BibTeX 路径：正式会议论文采用
   `@inproceedings`，书籍章节采用 `@incollection`，仅有 arXiv 版本的工作采用
-  `@article`；
+  AuthorKit27 指定的 `@misc`，并记录 `eprint`、`archivePrefix`、`primaryClass` 与
+  arXiv URL；
 - 当前 15 个 BibTeX entries 均在正文中至少引用一次，正文中的 15 个 cite keys 也均有
   对应条目，无重复、缺失或未使用 entry；
 - `aaai2027.sty` 自动选择 `aaai2027.bst`，正文统一使用 `\citep`，无需在
