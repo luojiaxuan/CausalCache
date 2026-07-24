@@ -1,1 +1,64 @@
-þÙ©ý¾¸µ¦åzÜm
+budget  macro%   templates(3/3)   95%CI(template-cluster)
+B0       17.5    116/116          [12.1, 23.6]
+B1       22.7    115/116          [16.4, 29.3]
+B2       23.6    116/116          [17.2, 30.2]
+B4       26.7    115/116          [20.1, 33.6]
+B8       27.6    116/116          [21.0, 34.2]
+Avg B>0   25.1
+
+{
+  "n_templates": 116,
+  "budgets": {
+    "B0": {
+      "arm": "summary_B0",
+      "macro_success": 0.17528735632183906,
+      "templates_scored": 116,
+      "templates_full_3_instances": 116,
+      "ci95": [
+        0.1206896551724138,
+        0.23563218390804597
+      ]
+    },
+    "B1": {
+      "arm": "recent_B1",
+      "macro_success": 0.22701149425287356,
+      "templates_scored": 116,
+      "templates_full_3_instances": 115,
+      "ci95": [
+        0.16379310344827586,
+        0.29310344827586204
+      ]
+    },
+    "B2": {
+      "arm": "recent_B2",
+      "macro_success": 0.23563218390804597,
+      "templates_scored": 116,
+      "templates_full_3_instances": 116,
+      "ci95": [
+        0.1724137931034483,
+        0.3017241379310345
+      ]
+    },
+    "B4": {
+      "arm": "recent_B4",
+      "macro_success": 0.2672413793103448,
+      "templates_scored": 116,
+      "templates_full_3_instances": 115,
+      "ci95": [
+        0.2011494252873563,
+        0.33620689655172414
+      ]
+    },
+    "B8": {
+      "arm": "recent_B8",
+      "macro_success": 0.27586206896551724,
+      "templates_scored": 116,
+      "templates_full_3_instances": 116,
+      "ci95": [
+        0.20977011494252873,
+        0.34195402298850575
+      ]
+    }
+  },
+  "avg_b_gt_0": 0.2514367816091954
+}
