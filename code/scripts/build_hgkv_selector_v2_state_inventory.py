@@ -218,6 +218,7 @@ def main() -> None:
     parser.add_argument("--train-output", type=Path, required=True)
     parser.add_argument("--dev-output", type=Path, required=True)
     parser.add_argument("--audit-output", type=Path, required=True)
+    parser.add_argument("--source-commit", required=True)
     args = parser.parse_args()
 
     from pyarrow import parquet as pq
@@ -270,6 +271,7 @@ def main() -> None:
         ineligible_decisions=ineligible_decisions,
     )
     audit["split_states"] = {"train": len(train), "dev": len(dev)}
+    audit["source_commit"] = args.source_commit
     _write_jsonl(args.train_output, train)
     _write_jsonl(args.dev_output, dev)
     args.audit_output.parent.mkdir(parents=True, exist_ok=True)
