@@ -135,6 +135,26 @@
   冲突失败已清,15 台既有 emulator 稳跑;
 - 旧 25×3 的 index-2 局保留作附录 within-template 方差检查。
 
+## 2026-07-24:HGKV-readout 特征抽取接力与 8-shard wrapper 修复
+
+- 接管时确认 `main=origin/main=exp/history-gated-mainline-v1=ad2625f`；conditional
+  heldout 已 `DONE`(`failed_shards=0`,45,227 rows)，train 仍由 hyper00 CPU renderer
+  运行；cheap selector 三件产物齐全，heldout model−Recent-1=`-0.0030`
+  CI `[-0.0046,-0.0014]`，保持 appendix negative baseline 结论。
+- hyper01 preflight 连续 5 秒确认 GPU 0-7 全部 free，零 idle container 需清理；8 个稳定逻辑
+  shard 映射到物理 GPU 0-7。launch-time snapshot 保存于
+  `/data02/jaxan/runs/hgkv-readout-v1/launch-gpu-snapshot.csv`，八卡均为 0 MiB。
+- singleton 输入从 hyper00 直传 hyper01：`samples.jsonl` SHA256
+  `68fef3bb6848f7c949640efa7f51123c14c783625862dfb7bf8f41a6dab2eaa0`，
+  补齐 5,759 张缺图后的逐文件 manifest 聚合 SHA256
+  `97839c274509bec4a8c0aa14177c21ed35b2ad00991658ef491ba65457f9da79`；
+  最终 75,628/75,628 singleton、14,680 unique image refs、missing=0。
+- 第一次容器 `sglang-omni-jaxan-07241348` 在 0-row 时 `Exited(127)`：cluster launcher
+  外层 shell 提前展开内联 `$shard/$run_root`，所有参数变空；失败容器已删除，未污染输出。
+  新增 Git-tracked `run_hgkv_readout_extraction_shards.py`，以独立 Python subprocess
+  编排 8 shard，显式记录 input/checkpoint SHA、完整 child argv、GPU 映射、source commit，
+  终态强制验证 75,628 unique keys、统一 feature_dim 与逐行 feature 长度后才写 `DONE`。
+
 ## 2026-07-24:AAAI draft 主结果表与 selector 分析表同步
 
 - `paper/main.tex` 按冻结零样本叙事加入两张正文表骨架:Table 1 为 AndroidWorld /
