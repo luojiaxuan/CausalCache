@@ -550,3 +550,11 @@
   gap。独立 hostile review 后将 teacher/exact recovery 改为 canonical set 比较，并
   增加反序同集合、STOP→空集与 B0 缺失 fail-closed 测试；全套 V2 相关测试
   25/25 PASS。该诊断不得回写或调整 beam width 4。
+- edge1 的 36,938 个 unique identities 已按 deterministic hash 平衡为 9 个逻辑
+  shard。hyper00 复用本地 Odyssey 图片时，经 13,920-file SHA audit 补齐 160 个缺失
+  episode，并覆盖 9 张同路径不同字节 PNG；最终 image-manifest SHA 与 hyper01 冻结值
+  `d8fb2999...5467d` 完全一致后才启动 scorer。
+- edge1 scorer 采用可恢复跨机布局：hyper00 物理 0/1/4 跑 shard 0/1/2；shard 3--8
+  在完整 JSON 行边界迁到 hyper01 物理 0/1/5/6，并从各自 301--306 个 partial rows
+  继续。迁移只改变基础设施分配，不改变 input shard、prompt、checkpoint、dtype 或
+  科学参数；终态仍须回收到 36,938 unique-key 全量 validator。
