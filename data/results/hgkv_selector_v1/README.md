@@ -95,6 +95,9 @@ balanced root 的 `DONE`。12 个 scorer 的 unique 负载为
   `|S|=1/2`；
 - formal gate 对 B1/B2/B4 的完整 coalition 重新渲染并由 hg-s100 打分，再 exact-join
   frozen B0；禁止用预测 marginal 或 singleton gain 求和替代真实 `U(S)`。
+- selected-set render 在计分前由 `validate_selected_set_render_v1.py` 对 plan 做 exact
+  unique-set coverage join，同时核对 aggregated method/budget metadata、恢复集合键、
+  图片存在性和逐文件 SHA；缺一项不发射 scorer。
 
 完整冻结协议见
 [`docs/selector_v1_protocol.md`](../../../docs/selector_v1_protocol.md)。
