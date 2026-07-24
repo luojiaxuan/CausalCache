@@ -25,6 +25,7 @@ from scripts.train_hgkv_selector_v2 import (
     collate_groups,
     trajectory_group_folds,
 )
+from scripts.validate_selector_inference_v2 import validate_selections
 
 
 def _state():
@@ -278,7 +279,7 @@ def test_learned_beam_prunes_by_cumulative_calibrated_marginal():
     assert path.cumulative_predicted_u == 0.8
 
 
-def test_v2_greedy_and_beam4_have_exact_b1_parity():
+def test_v2_greedy_and_beam4_have_exact_b1_parity(tmp_path):
     torch.manual_seed(0)
     model = HGKVSetSelectorV2().eval()
     state = _state() | {"split": "dev"}
@@ -300,3 +301,14 @@ def test_v2_greedy_and_beam4_have_exact_b1_parity():
     assert b1[0]["cumulative_predicted_u"] == b1[1][
         "cumulative_predicted_u"
     ]
+    selection_path = tmp_path / "selections.jsonl"
+    selection_path.write_text(
+        "".join(json.dumps(row) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    result = validate_selections(
+        states={"episode:9": state},
+        selection_paths=[selection_path],
+    )
+    assert result["rows"] == 6
+    assert result["b1_parity_mismatches"] == 0
