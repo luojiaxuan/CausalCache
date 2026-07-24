@@ -310,6 +310,24 @@
 - 该裁定只定义后续 versioned V2，不修改已冻结并执行中的 V1 config、数据、标签、选择或
   gate。
 
+## 2026-07-24:V1 被 full-history beam-4 V2 supersede 并封存
+
+- 用户以新 V2 code plan 取代“继续跑完 V1 diagnostic”的旧裁定。已停止本地 overnight
+  supervisor、hyper01 固定容器内 V1 conditional wrapper 和 12 个 scorer；Stage-2
+  training、selector inference 与 selected-set gate 均未启动，也不会自动恢复。
+- 停止后 train partial score 为 `160,928/219,549` unique identities，12 个 JSONL shard
+  duplicate=0、invalid JSON=0；heldout 保持 `38,836/38,836 DONE`。所有 render、partial
+  score、Stage-1 checkpoint、singleton readout、B0/singleton score 原地保留。
+- 四个持久化位置写入同一 `ABORTED.json`，状态
+  `ABORTED_BY_SELECTOR_V2_SUPERSESSION`，SHA256
+  `48510c1487ec266282cce15c32ae884322fc5dcd970bd7d85ca5462228078cdf`。
+- V1 coalition score 数值只作为 V2 canonical exact-key cache 候选；不继续完成旧
+  recent-8/singleton-proxy prefix 分布。V1 Stage-1 留作论文 negative independent
+  baseline，V1 不作为主方法。
+- 后续冻结 full-history、empty-start、true-U teacher beam-4、edge0–edge3、fresh unified
+  student、learned beam-4 + STOP 的新 V2 契约；该 supersession 不修改 V1 历史 config
+  或源码。
+
 ## 2026-07-24:selected-set 正式 gate 的 plan→render→score→reduce 路径冻结
 
 - `select_hgkv_sets_v1.py` 同时物化 HGKV singleton independent 与 HGKV

@@ -2,12 +2,13 @@
 
 ## 状态
 
-Stage-1 singleton-gain scorer 已完成，并已确定 V1 对原正式 gate 为 **NO-GO**：
+终态：**`NO_GO_HGKV_SELECTOR_V1` / `ABORTED_BY_SELECTOR_V2_SUPERSESSION`**。
 set-conditioned B1 与 Stage-1 完全相同，而 Stage-1 显著输给 Recent，故
-B1/B2/B4 conjunctive PASS 已不可能。Stage-2 conditional label scoring 仍在 hyper01
-按冻结协议执行；后续 B1 parity、完整 selected-set 重渲染/重打分和 B2/B4
-set-conditioned 相对 singleton 的结果作为 V1 interaction diagnostic，不再表述为仍有
-机会通过原 gate。
+B1/B2/B4 conjunctive PASS 已不可能。2026-07-24T17:15:12Z 已停止 V1 conditional
+scoring、Stage-2 launcher 和 selected-set gate 后续自动任务；V1 Stage-2 从未启动。
+已完成的 exact-key coalition scores 保留为 V2 cache，未打分的旧 recent-8 /
+singleton-proxy render 不再消费 GPU。V1 不进入论文主方法，Stage-1 只保留为 negative
+independent baseline。
 
 ## 冻结输入
 
@@ -15,7 +16,8 @@ set-conditioned 相对 singleton 的结果作为 V1 interaction diagnostic，不
 |---|---|---|
 | HGKV readout features | hyper01 `/data02/jaxan/runs/hgkv-readout-v1/`；75,628 unique rows，1,280 dims，8 shards | `DONE`；`PENDING_HF_UPLOAD` |
 | singleton scores | hyper01 `/data02/jaxan/artifacts/sft/hgkv-selector-scores/`；train 64,264，heldout 11,364，B0 10,680 | complete；`PENDING_HF_UPLOAD` |
-| conditional renders | hyper01 `/data02/jaxan/artifacts/sft/ody-labels-cond/{train,heldout}/`；raw 255,490 / 45,227，unique score identities 219,549 / 38,836 | render `DONE`；scores in progress |
+| conditional renders | hyper01 `/data02/jaxan/artifacts/sft/ody-labels-cond/{train,heldout}/`；raw 255,490 / 45,227，unique score identities 219,549 / 38,836 | render `DONE`；V1 scoring superseded |
+| conditional scores | hyper01 `/data02/jaxan/runs/hgkv-conditional-scores-v1/` | heldout `38,836/38,836 DONE`；train `160,928/219,549 ABORTED`；partial rows exact-key cache only |
 | balanced train scorer view | hyper01 `/data02/jaxan/artifacts/sft/ody-labels-cond-balanced-v1/train/` | 255,490 raw / 219,549 unique 守恒；12 shard unique 负载 18,001–18,602 |
 | adapter | hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt` | SHA256 `8f2cc49e1aa0b06ce231eb54937d813317f5274a799c97b09be7fdb22be46317` |
 
@@ -109,20 +111,20 @@ balanced root 的 `DONE`。12 个 scorer 的 unique 负载为
 完整冻结协议见
 [`docs/selector_v1_protocol.md`](../../../docs/selector_v1_protocol.md)。
 
-## V1 后续与论文候选 V2 裁定
+## Supersession 与 partial-score provenance
 
-- 当前 V1 不停、不改科学参数：跑完 conditional scoring、Stage-2、B1 parity 和真实
-  B1/B2/B4 selected-set 评测，正式记录 B1 NO-GO，并重点报告
-  `set-conditioned − singleton`、冗余、后续 STOP 与完整集合 `U(S)`；
-- 当前 reusable train/heldout coalition scores 与 `cond_edge1/2` 继续有效。更换
-  student 架构、loss 或训练方式不需要重打已有集合，但 heldout 不得转为训练；
-- 若 B4 作为正文主结果，V2 增量增加
-  `cond_edge3=U({i,j,k,l})−U({i,j,k})`。复用已有 edge2 triple denominator，仅对稀疏
-  triple anchors 展开新的四元素 numerator，不重复生成 edge1/2；
-- V2 优先采用 Recent-seeded set-conditioned selector：B1 与 Recent parity，B2/B4 从
-  Recent-1 seed 开始学习 edge1/2/3 与 STOP；新 gate 的 B1 是 parity 审计，B2/B4 才要求
-  显著超过 Recent/Similarity/Random；
-- 统一从空集合学习 `edge0–edge3` 保留为更高风险备选；Stage-1 已显示当前 HGKV readout
-  对 singleton 排序信号很弱，不能假设换 Stage-2 架构就能自动修复首步。
+- 停止时 12 个 train shard 合计 `160,928` 行 / `160,928` unique score identities，
+  duplicate=0、invalid JSON=0；V1 expected inventory 为 `219,549`，不得继续补齐；
+- `ABORTED.json` 写入 stage2 run、conditional score root/train 和 conditional artifact
+  root，四份 SHA256：
+  `48510c1487ec266282cce15c32ae884322fc5dcd970bd7d85ca5462228078cdf`；
+- 旧 coalition score 只有在 V2 canonical key
+  `(pair_group, restored_set_key, target_action_sha256, prompt_revision,
+  hgkv_checkpoint_sha256, b0_policy_sha256)` exact match 时才能复用；近似相同不得复用；
+- V1 的 recent-8 candidate inventory、singleton-proxy prefix distribution 和缺失 edge3
+  的 label distribution 不进入 V2；
+- 大规模 render、score、readout 和 checkpoint 仍为 hyper01 本地
+  `PENDING_HF_UPLOAD`，后续由 V2 cache manifest 统一发布。
 
-V2 是后续新实验契约，不追溯修改正在执行的 V1 config、labels、selection 或 gate。
+后继正式契约见 `docs/selector_v2_beam4_protocol.md`。V1 config、trainer、inference
+源码全部保持原样作为 provenance。

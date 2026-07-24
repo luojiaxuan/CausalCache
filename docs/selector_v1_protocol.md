@@ -1,5 +1,10 @@
 # Selector V1 协议(冻结,2026-07-24,含用户修订裁定)
 
+> **终态：`NO_GO_HGKV_SELECTOR_V1`，已于 2026-07-24T17:15:12Z 被
+> full-history beam-4 V2 supersede。** 本文保留为不可改写的 V1 provenance；V1
+> conditional scoring、Stage-2 launcher 与 selected-set gate 不再恢复。已产生的 exact-key
+> coalition scores 只进入 V2 cache，不再按 V1 prefix distribution 继续消费 GPU。
+
 主线 selector 的预注册协议。修订自初版计划,五处裁定全部为约束性条款。
 
 ## 1. 标签:hg-s100 重标 + B0 exact-key join
@@ -182,3 +187,24 @@ Memory source {Recent-B, Similarity-B, Singleton/approx-set oracle, Learned sele
 selected-set 的更强 corruption(优先级):**Selected top-B vs bottom-B**(最直接)、
 Wrong-event replacement(同轨迹低 utility 真实事件、保数量/位置/格式)、Summary-image
 mismatch、Temporal reversal。最关键量:**U(S_selected) − U(S_bottom/recent)**。
+
+---
+
+## V1 supersession 终态记录
+
+- Stage-1 checkpoint、75,628 条 singleton HGKV readout、B0/singleton scores、全部
+  conditional render 和 partial conditional scores均保留；
+- heldout conditional scoring 完成 `38,836/38,836` unique identities；
+- train conditional scoring 在 `160,928/219,549` unique identities 时停止，12 个
+  JSONL shard 均可解析、跨 shard duplicate=0、invalid JSON=0；
+- `ABORTED.json` 已写入 hyper01
+  `/data02/jaxan/runs/hgkv-selector-stage2-v1/`、
+  `/data02/jaxan/runs/hgkv-conditional-scores-v1/{,train/}` 和
+  `/data02/jaxan/artifacts/sft/ody-labels-cond/`，四份 SHA256 均为
+  `48510c1487ec266282cce15c32ae884322fc5dcd970bd7d85ca5462228078cdf`；
+- V1 未启动 Stage-2 training，未生成 selector inference 或 selected-set gate；
+- V1 config 和源码不修改；Stage-1 仅保留为 negative independent baseline。
+
+后继契约见 `docs/selector_v2_beam4_protocol.md`。旧 V1 coalition score 的真实数值可在
+V2 canonical exact key 完全一致时复用，但 V1 的 recent-8 inventory、singleton-proxy
+prefix sampling 和缺失 edge3 的训练分布均不得复用。
