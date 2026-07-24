@@ -116,3 +116,15 @@
 
 - 协议冻结 06722d4 后发射:hyper01 11 worker(gated×4/full×4/frozen×3,GPU 0/1/2/3/7,emulator 28200-28211 缺 28203),675 局 = 3 策略 × 225 cell(25 模板 × 3 instance × 3 臂),输出 /data02/jaxan/runs/sealed-matrix-v1/;预计 7-10h;
 - 发射前事故:首版布阵脚本把 cell 按策略三分(总数 225),断言后置未拦住执行——11 台误配 worker 在模型加载期全部击杀,0 局消费,封存集未受损;修正版每策略全量 225 cell、断言前置、门控执行。
+
+## 2026-07-24:全量 116-template 零样本矩阵发射(取代 25×3 sealed)
+
+- 用户裁定:paper 全线零样本(Frozen/Full-layer/History-gated 均 Odyssey 训练+选择,AW 不参与),
+  margin-SFT 线从 paper 删除;主表 = 116 template × 2 实例(index 0/1)× 3 policy × 3 arm = 2,088 局;
+- roster:androidworld_full_suite_plan_v1.json(232 实例,sha 1dd48941,三源 plan 合并,记 origin_split);
+- 剔除三视图:headline 全 116;稳健子集显式剔 2 绘图(BrowserDraw/SimpleDrawProCreateDrawing)+
+  7 trivial-verify(文献先例);硬删仅限 env-init 失败者(policy-agnostic,证据驱动,跑后列出);
+- 复用旧 25×3 中 test-25×{0,1} = 327 局;缺失 1,761 局分 15 worker(每策略 5;h00 6 + h01 9),
+  host-aware checkpoint,GPU 隔离;checkpoint 加载确认通过;扩容 9 台新 emulator 因并行装 APK
+  冲突失败已清,15 台既有 emulator 稳跑;
+- 旧 25×3 的 index-2 局保留作附录 within-template 方差检查。
