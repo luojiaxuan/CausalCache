@@ -30,3 +30,13 @@ make paper
 - acknowledgments 在匿名投稿阶段省略，不在主稿中嵌入作者或 affiliation；
 - [`ReproducibilityChecklist.tex`](ReproducibilityChecklist.tex) 是 AuthorKit27 的独立 checklist
   模板。AAAI-27 要求单独上传，因此不 `\input` 到 `main.tex`；当前仍是待填写模板。
+
+## 当前 bibliography 状态
+
+- `references.bib` 使用 AAAI author--year BibTeX 路径：正式会议论文采用
+  `@inproceedings`，书籍章节采用 `@incollection`，仅有 arXiv 版本的工作采用
+  `@article`；
+- 当前 15 个 BibTeX entries 均在正文中至少引用一次，正文中的 15 个 cite keys 也均有
+  对应条目，无重复、缺失或未使用 entry；
+- `aaai2027.sty` 自动选择 `aaai2027.bst`，正文统一使用 `\citep`，无需在
+  `main.tex` 中重复声明 `\bibliographystyle`。

@@ -120,8 +120,8 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 
 ## 活跃文档
 
-- [`paper/README.md`](paper/README.md):AAAI-27 anonymous submission 格式、官方
-  AuthorKit hashes、7+2 page rule 与独立 reproducibility checklist 状态；
+- [`paper/README.md`](paper/README.md):AAAI-27 HGKV draft、author-year bibliography、
+  官方 AuthorKit hashes、7+2 page rule 与独立 reproducibility checklist 状态；
 - [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md):主线冻结契约(2026-07-23);
 - [`docs/history_gated_mainline_v1_provenance.md`](docs/history_gated_mainline_v1_provenance.md):分支 provenance;
 - [`docs/sealed_zero_shot_policy_matrix_v1.md`](docs/sealed_zero_shot_policy_matrix_v1.md):sealed 零样本评测矩阵 v1(AW,预注册,执行中);

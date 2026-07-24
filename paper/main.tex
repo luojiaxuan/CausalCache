@@ -67,10 +67,9 @@ AndroidWorld and OSWorld closed-loop improvements.}
 
 GUI agents accumulate screenshots, actions, text arguments, coordinates, and
 interface changes over many decisions. Retaining every screenshot is expensive
-and can distract a multimodal policy, whereas replacing the entire trajectory
-with text summaries removes exact visual evidence such as toggle state,
-layout, transient values, and spatial correspondence. A practical agent must
-therefore decide which historical events remain available in high fidelity
+and can distract a multimodal policy; text-only trajectories discard toggle
+state, layout, transient values, and spatial correspondence. A practical agent
+must therefore decide which historical events remain available in high fidelity
 \citep{lu2025guiodyssey,zeng2026mementogui,shi2026androtmem}.
 
 Most memory controllers address only the selection problem. They retain recent
@@ -286,11 +285,12 @@ decision query $Q_l$ at the final prompt token, the candidate's frozen history
 keys and values $(K^0_{l,j},V^0_{l,j})$, and the adapter increments
 $(\Delta K_{l,j},\Delta V_{l,j})$. We then compute a differential readout
 \begin{equation}
-\Delta r_{l,j}=
+\begin{aligned}
+\Delta r_{l,j}={}&
 \operatorname{Attn}(Q_l,K^0_{l,j}+\Delta K_{l,j})
-(V^0_{l,j}+\Delta V_{l,j})
--
-\operatorname{Attn}(Q_l,K^0_{l,j})V^0_{l,j}.
+(V^0_{l,j}+\Delta V_{l,j}) \\
+&-\operatorname{Attn}(Q_l,K^0_{l,j})V^0_{l,j}.
+\end{aligned}
 \end{equation}
 This calculation is taken at the projection outputs where the adapter is
 injected. It is a lightweight counterfactual feature, not an exact replay of

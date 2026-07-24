@@ -334,3 +334,14 @@
 - AAAI-27 官网当前规定主 PDF 最多 9 页、非 references 最多 7 页，第 8--9 页仅用于
   references；reproducibility checklist 必须单独上传。官方
   `ReproducibilityChecklist.tex` 已作为独立待填写模板纳入 `paper/`，不嵌入主稿。
+
+## 2026-07-24:HGKV 论文重写与 bibliography 合入 main
+
+- 将 `agent/rewrite-hgkv-paper-draft` 的三项论文提交合入 canonical `main`：
+  `f544723` 重写 HGKV / set-conditioned selector 主叙事，`196c540` 重建 AAAI
+  author--year bibliography，`05752ab` 将引用放到对应 claim 与实验设定处。
+- `paper/references.bib` 当前 15 个 entries 与正文 15 个 cite keys 双向完全对应，无缺失、
+  重复或未使用条目；BibTeX 实际使用 `aaai2027.bst`。
+- 合并后将过宽的 HGKV counterfactual-readout 公式拆为两行，并等义压缩 Introduction
+  首段一行。`make paper` 生成 6 页 US Letter PDF；最终日志无 overfull、undefined
+  citation/reference、空 `booktitle` 或空 `journal` 警告。
