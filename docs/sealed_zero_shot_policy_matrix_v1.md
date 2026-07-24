@@ -103,3 +103,26 @@ hyper00 / hyper01 / H100;emulator 与 worker 1:1,单 GPU 单冻结 runtime,episo
 
 `_load_plan_instance` 扩展:split="full" 在 `--allow-sealed-split` 下可载(与 test 同门,
 全零样本套件是有意的 opt-in);默认仍拒未知 split。
+
+---
+
+# 修订 V3(2026-07-24):每模板固定两个实例与三视图聚合
+
+V3 取代 V2 中“每 template 1 实例”的规模描述；policy、checkpoint、arm、执行常数和
+零样本纪律不变。
+
+- headline roster 固定为
+  `data/manifests/androidworld_full_suite_plan_v1.json`，116 template ×
+  `task_index ∈ {0,1}` = 232 个实例，`instance_records_sha256` =
+  `1dd489415c2b7d4523a32eb4b1b92629aa67e1e5edf76beae6ff09c5df62e27a`；
+- 正式矩阵规模为 232 × 3 policy × 3 arm = **2,088 episodes**；每个 cell 先在同
+  template 的两个 fixed instances 内平均，再对 116 个 template 等权平均；
+- 三视图固定为：(1) headline 全 116；(2) action-compatible 107，预先剔除
+  `BrowserDraw`、`SimpleDrawProCreateDrawing` 与 roster 中恰好 7 个 `*Verify`；
+  (3) hard-delete 仅剔除九个 policy×arm 均有零步 env-init void、且没有任何真实开跑
+  记录的 instance。第三种删除完全由 policy-agnostic 基础设施证据决定，不按成功率决定；
+- 正式聚合器为 `scripts.aggregate_sealed_matrix_v1`：联合多个 host root，忽略旧
+  sealed-25 的 index-2 appendix，零步 infra void 不消耗 cell，非零步 infra 仍列为待重试；
+  任一非 infra 重复正式局、坏记录、unexpected cell 或缺失 cell 都 fail closed。
+- 主对照仍为各 policy 内 arm 间差和固定 arm 下 policy 间差；CI 固定 template-paired
+  10,000 次 percentile bootstrap，95% 区间，seed family 从 `20260724` 起。

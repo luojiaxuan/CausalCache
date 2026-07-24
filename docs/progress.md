@@ -159,6 +159,21 @@
   固定 source commit `7ef68e4`。conditional train 同期完成：255,490 rows、
   `failed_shards=0`；heldout/train 两段现均具 `DONE`。
 
+## 2026-07-24:全量零样本矩阵正式聚合器冻结
+
+- 新增 `causalcache.sealed_matrix_v1` 与 `scripts.aggregate_sealed_matrix_v1`，权威 roster
+  固定 116 template × index 0/1 × 3 policy × 3 arm = 2,088 cell；policy 身份由 frozen
+  无 adapter、fl-s75 SHA `75670fa5...`、hg-s100 SHA `8f2cc49e...` fail-closed 解析；
+- 三视图名单落成代码常量：headline 116；action-compatible 107（2 drawing + roster 中
+  唯一 7 个 `*Verify`）；hard-delete 只认同一 instance 九个 cell 均有零步 env-init void
+  且从未真实开跑的 policy-agnostic 证据；
+- 聚合器忽略旧 sealed-25 index-2 appendix；零步 infra void 不计 cell，非零步 infra 保持
+  待重试；非 infra 重复正式局、坏记录与 unexpected cell 均阻断 COMPLETE。指标先在
+  template 内平均两个 fixed instances，再做 template-macro 与 10k paired 95% bootstrap；
+- 两机真实记录联合 dry run schema 验收通过：1,046 个去重 attempt 中 417 个正式 cell、
+  621 个零步 void、8 个开跑后 infra，缺 1,671；零 rejected、零 unexpected、零非 infra
+  重复。该数字仅是执行中 inventory，不读取为科学结论。
+
 ## 2026-07-24:HGKV singleton selector Stage-1 架构与训练规则冻结
 
 - 冻结 config：`code/configs/hgkv_selector_stage1_v1.json`。输入严格为 8 层 × 160 维
