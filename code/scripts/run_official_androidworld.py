@@ -148,7 +148,9 @@ def run_official_episode(
                 "high_fidelity_history_image_count": keep,
             }
             try:
-                action = parse_official_output(raw)
+                action, dropped = parse_official_output(raw)
+                if dropped:
+                    step["dropped_arguments"] = dropped
                 step["canonical_action"] = {
                     "action": action.action,
                     **{k: v for k, v in action.arguments().items() if k != "action"},

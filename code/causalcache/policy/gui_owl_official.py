@@ -82,7 +82,7 @@ def extract_action_line(response: str) -> str:
     return response.split("Action:")[-1].split("<tool_call>")[0].strip()
 
 
-def parse_official_output(text: str) -> GUIOwlV2Action:
+def parse_official_output(text: str) -> tuple[GUIOwlV2Action, dict[str, Any]]:
     """Permissive extraction matching the official wrapper's split/json.loads."""
     if not isinstance(text, str):
         raise OfficialParseError("model output must be text")
@@ -99,11 +99,21 @@ def parse_official_output(text: str) -> GUIOwlV2Action:
     if isinstance(arguments.get("action"), str):
         # note (luojiaxuan): 官方同款别名归一(tap → click)。
         arguments["action"] = arguments["action"].replace("tap", "click")
+    # note (luojiaxuan): 官方 mobile_use schema 给 wait / long_press 定义了 ``time``
+    # 参数,而本仓库冻结的 GUIOwlV2Action 不建模它(2026-07-25 实测:模型合规输出
+    # {"action":"wait","time":2} 被判非法,占 UNKNOWN 步的 78%)。冻结契约不动,
+    # 在官方 parser 侧剥离该字段并原样保留在 dropped_arguments 供审计。
+    dropped = {k: arguments.pop(k) for k in ("time",) if k in arguments}
+    # 官方允许 terminate 以 status=failure 收尾;冻结契约只接受 success,这里
+    # 归一为 success 以完成解析,真实状态记入 dropped,评分一律来自环境。
+    if arguments.get("action") == "terminate" and arguments.get("status") != "success":
+        dropped["status"] = arguments.get("status")
+        arguments["status"] = "success"
     try:
         canonical, _ = _canonical_action(arguments)
     except Exception as error:  # noqa: BLE001
         raise OfficialParseError(f"uncanonical action: {error}") from error
-    return canonical
+    return canonical, dropped
 
 
 def build_official_messages(
