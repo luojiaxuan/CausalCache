@@ -362,6 +362,21 @@
   `9c254298...ce0137`、`3b545dc4...5f492c`、`aa24ea87...3b3a3c`，与 hyper01
   staging 完全一致。
 
+## 2026-07-24:V2 initial canonical coalition cache 完成
+
+- source commit `d1113cc961e651d414f5f3b43dcd69b46930c4ac` 摄取 frozen B0、
+  V1 hg-s100 singleton、V1 heldout conditional DONE 和 V1 train conditional partial；
+  只按包含 target/prompt/checkpoint/B0 policy SHA 的 canonical exact key 复用，冲突
+  fail closed。
+- cache 共 `243,455` rows/unique keys，含全部 10,680 个 B0 empty set；JSONL SHA256
+  `b3bb9856...a6805b7`，staging 为 hyper01
+  `/data02/jaxan/runs/hgkv-selector-v2/coalition-cache/`。
+- 对 V2 1,000 states：B0 `1,000/1,000`；full-history singleton required/cached/missing
+  `13,680/7,668/6,012`，只有 334 states 已全覆盖。V2-state cache 中 size 0/1/2/3
+  coalition 为 `1,000/7,668/10,732/5,372`。
+- manifest 入 Git 且本地/远端 SHA256 同为
+  `1c6b052c...ecb152`；大规模 cache 仍为 `PENDING_HF_UPLOAD`，未冒充远端 canonical。
+
 ## 2026-07-24:selected-set 正式 gate 的 plan→render→score→reduce 路径冻结
 
 - `select_hgkv_sets_v1.py` 同时物化 HGKV singleton independent 与 HGKV
