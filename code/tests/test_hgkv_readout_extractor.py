@@ -212,6 +212,52 @@ def test_nonzero_lora_b_moves_readout_and_history_mass() -> None:
         )
 
 
+def test_flat_feature_chunks_follow_ascending_layer_order() -> None:
+    model, wrapped, layers = _make_model(seed=2)
+    with torch.no_grad():
+        for name, wrap in wrapped.items():
+            layer_index = int(name.split(".layers.", 1)[1].split(".", 1)[0])
+            wrap.lora_b.fill_(0.01 * (layer_index + 1))
+    flat, _ = extract_sample_features(
+        model,
+        _encoded(),
+        history_mask=_hist_mask(),
+        query_pos=_QUERY_POS,
+        layers=layers,
+        head_dim=_HEAD_DIM,
+    )
+    chunk_width = _HEAD_DIM + _Q_OUT // _HEAD_DIM
+    assert len(flat) == len(layers) * chunk_width
+
+    hist_idx = _hist_mask()[0].nonzero(as_tuple=False).squeeze(-1)
+    captures = capture_layer_states(
+        model,
+        _encoded(),
+        layers=layers,
+        hist_idx=hist_idx,
+        query_pos=_QUERY_POS,
+    )
+    expected = []
+    for layer in layers:
+        slot = captures[layer.layer_index]
+        with torch.inference_mode():
+            q = layer.q_proj(
+                slot["hidden_query"].to(layer.q_proj.weight.dtype)
+            ).float()
+            feature, _ = layer_readout_feature(
+                q=q,
+                k0=slot["k_hist"],
+                v0=slot["v_hist"],
+                dk=lora_delta(layer.k_wrap, slot["hidden_hist"]),
+                dv=lora_delta(layer.v_wrap, slot["hidden_hist"]),
+                k_prompt=slot["k_prompt"],
+                hist_idx=hist_idx,
+                head_dim=_HEAD_DIM,
+            )
+        expected.extend(float(f"{value:.6g}") for value in feature.tolist())
+    assert flat == expected
+
+
 def test_single_history_token_exact_values_and_gqa_expansion() -> None:
     # note (luojiaxuan): T=1 时 softmax 恒为 1,Δr 每个 query 头精确等于对应
     # kv 头的 dv——直接检验 repeat_interleave 头展开与 [mean‖per-head norm]

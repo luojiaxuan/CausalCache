@@ -239,6 +239,11 @@
   `0,0,1,1,...,7,7`，32 个 physical render files 每 process 2 个；feature extractor
   的一 GPU 一 shard 约束不变。slot 映射、每个 child argv 与 input manifest 全部进
   launch manifest，若真实长 prompt OOM 则保留 resume 行并降回 8 slot 诊断。
+- 修复后的第三轮 hostile review verdict=`LOOKS_OK_WITH_RISKS`、无 must-fix。保留并要求
+  结果侧披露的核心限制是 B4 第四个候选决策在 `|S|=3` 上结构外推（训练 edge 只覆盖
+  `|S|=1/2`）；正式 gate 仍用完整集合真实 U(S)，不会用预测 marginal 冒充真值。新增
+  B4 三元素 selected-mask/remaining-index/STOP 路径测试，并补 extractor 按升序 layer
+  拼接 8×160 chunk 的显式 layout 回归。
 
 ## 2026-07-24:conditional hg-s100 打分器的流式 file-shard 路径冻结
 

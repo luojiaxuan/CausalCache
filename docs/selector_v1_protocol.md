@@ -122,6 +122,9 @@ selector 候选。旧 Set Transformer 失败的根因是 teacher policy(frozen)�
   剩余预算 B−|S|;
 - 输出:每个剩余候选的 conditional marginal + STOP score;
 - 推理:S=∅,while |S|<B:预测各 Δ(j|S),与 STOP 比,STOP 最优则止,否则加入最高分事件;
+- B4 的第四个候选决策输入 `|S|=3`，而冻结 conditional labels 只覆盖
+  `|S|∈{1,2}`；因此该步是同一 set-attention 的结构外推。最终 B4 只以完整集合重打分的
+  真实 U(S) 报告，结果 README/Table 2 必须显式标注此 coverage limitation；
 - 架构:轻量 set-attention —— 1 个 selected-set attention block + 1 个 candidate-query
   attention block + 小 MLP marginal head + STOP head,B≤4。**不用完整多层 Set Transformer;**
   DeepSets mean/sum pooling 仅作内部 control,不作正式候选。

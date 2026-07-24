@@ -23,6 +23,10 @@ class _Stage1:
 
 
 class _Stage2:
+    def __init__(self, *, stop_after: int = 2) -> None:
+        self.stop_after = stop_after
+        self.selected_counts: list[int] = []
+
     def __call__(
         self,
         candidate_features: torch.Tensor,
@@ -34,8 +38,9 @@ class _Stage2:
         del candidate_mask, selected_features, remaining_budget
         rank = -candidate_features[..., 0]
         selected_count = selected_mask.sum(dim=1)
+        self.selected_counts.extend(int(value) for value in selected_count)
         stop = torch.where(
-            selected_count >= 2,
+            selected_count >= self.stop_after,
             torch.full_like(selected_count, 10.0, dtype=torch.float32),
             torch.full_like(selected_count, -10.0, dtype=torch.float32),
         )
@@ -76,3 +81,26 @@ def test_greedy_selection_maps_remaining_indices_and_honors_stop() -> None:
     assert conditioned_b4["stopped"] is True
     assert conditioned_b4["steps"][-1]["candidate_event_id"] == 3
     assert conditioned_b4["steps"][-1]["selected_before"] == [1, 2]
+
+
+def test_b4_extrapolation_executes_three_selected_event_input() -> None:
+    stage2 = _Stage2(stop_after=3)
+    results = select_for_state(
+        pair_group="episode:6",
+        event_ids=[1, 2, 3, 4],
+        feature_rows=np.asarray(
+            [[1.0], [2.0], [3.0], [4.0]], dtype=np.float32
+        ),
+        budgets=[4],
+        stage1=_Stage1(),
+        stage2=stage2,
+        device=torch.device("cpu"),
+    )
+    conditioned = next(
+        row for row in results if row["method"] == "hgkv_set_conditioned"
+    )
+    assert stage2.selected_counts == [1, 2, 3]
+    assert conditioned["selected_event_step_ids"] == [1, 2, 3]
+    assert conditioned["steps"][-1]["candidate_event_id"] == 4
+    assert conditioned["steps"][-1]["selected_before"] == [1, 2, 3]
+    assert conditioned["stopped"] is True
