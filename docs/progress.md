@@ -154,6 +154,23 @@
   新增 Git-tracked `run_hgkv_readout_extraction_shards.py`，以独立 Python subprocess
   编排 8 shard，显式记录 input/checkpoint SHA、完整 child argv、GPU 映射、source commit，
   终态强制验证 75,628 unique keys、统一 feature_dim 与逐行 feature 长度后才写 `DONE`。
+- wrapper 初次重发在 0-row 时因容器未设置 `PYTHONPATH=code` 退出，失败容器同样已清；
+  最终 `sglang-omni-jaxan-07241352` 以 `env PYTHONPATH=code` 正常运行，run manifest
+  固定 source commit `7ef68e4`。conditional train 同期完成：255,490 rows、
+  `failed_shards=0`；heldout/train 两段现均具 `DONE`。
+
+## 2026-07-24:HGKV singleton selector Stage-1 架构与训练规则冻结
+
+- 冻结 config：`code/configs/hgkv_selector_stage1_v1.json`。输入严格为 8 层 × 160 维
+  HGKV counterfactual readout；共享 160→64 layer encoder + learned layer attention，
+  不读取 cheap metadata 或原图，联合 gain regression、state 内 pairwise rank、positive
+  与 state-level STOP 四个头。
+- 固定训练规则：SmoothL1 + pairwise logistic rank + positive/STOP BCE；train episode
+  `GroupKFold(5)` 只选 epoch，五折 best epoch 的中位数用于全 train refit；单一架构、
+  单一 seed、30 epoch 上限、patience 5，不做 heldout hyperparameter search。
+- heldout 读取纪律：full-train refit 后仅一次，输出 Spearman/top-1/sign precision/regret、
+  exactly-B1 真实 U_act 相对 Recent/Random 的 10k paired bootstrap CI；它仍是 singleton
+  训练诊断，不替代 B1/B2/B4 selected-set 正式 gate。
 
 ## 2026-07-24:AAAI draft 主结果表与 selector 分析表同步
 

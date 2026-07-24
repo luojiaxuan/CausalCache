@@ -1,0 +1,39 @@
+{
+  "schema_version": "causalcache.hgkv_selector_stage1.v1",
+  "purpose": "Frozen Stage-1 HGKV singleton scorer for selector protocol V2",
+  "seed": 20260724,
+  "architecture": {
+    "layer_count": 8,
+    "layer_feature_dim": 160,
+    "hidden_dim": 64,
+    "head_hidden_dim": 32,
+    "outputs": [
+      "gain",
+      "within_state_rank",
+      "positive",
+      "stop"
+    ]
+  },
+  "training": {
+    "selection": "train-only GroupKFold(5) by episode; median selected epoch; final refit on all train episodes",
+    "max_epochs": 30,
+    "patience": 5,
+    "batch_states": 256,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "huber_beta": 0.02,
+    "rank_min_delta": 0.000001,
+    "loss_weights": {
+      "gain": 1.0,
+      "rank": 0.5,
+      "positive": 0.25,
+      "stop": 0.25
+    }
+  },
+  "evaluation": {
+    "bootstrap_replicates": 10000,
+    "heldout_read_policy": "once after epoch selection and full-train refit",
+    "singleton_only": true
+  }
+}
