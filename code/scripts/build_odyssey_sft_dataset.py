@@ -11,10 +11,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import io
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Mapping
 
 from causalcache.exploratory_closed_loop_memory import (
     build_live_gui_owl_v2_1_mixed_fidelity_messages,
@@ -124,6 +125,133 @@ def load_state_inventory(path: Path) -> dict[str, list[int]]:
     return inventory
 
 
+def load_singleton_scores(path: Path) -> dict[str, dict[int, float]]:
+    # note (luojiaxuan): 读 hg-s100 singleton 打分(score_success_action_recovery
+    # 输出),按 pair_group 收成 {cid: target_logprob_mean}。只取单事件恢复行
+    # (memory_config.restored_event_step_ids 恰含一个 cid;缺省回落
+    # singleton_event_step_id),b0(空 restored)与多事件行天然跳过。
+    scores: dict[str, dict[int, float]] = {}
+    for line in path.open(encoding="utf-8"):
+        line = line.strip()
+        if not line:
+            continue
+        row = json.loads(line)
+        pair_group = row.get("pair_group")
+        if pair_group is None:
+            continue
+        restored = (row.get("memory_config") or {}).get("restored_event_step_ids")
+        cid: int | None = None
+        if isinstance(restored, list) and len(restored) == 1:
+            cid = int(restored[0])
+        elif row.get("singleton_event_step_id") is not None:
+            cid = int(row["singleton_event_step_id"])
+        if cid is None:
+            continue
+        logprob = row.get("target_logprob_mean")
+        if logprob is None:
+            continue
+        scores.setdefault(pair_group, {})[cid] = float(logprob)
+    return scores
+
+
+def _stable_seed(text: str) -> int:
+    # note (luojiaxuan): 稳定种子——用 sha256 而非内置 hash(字符串 hash 每进程
+    # 随机化),保证同一 pair_group 跨进程/跨机器/跨重跑选出同一 random anchor;
+    # 严禁 Math.random/Date 之类非确定源(渲染必须可复现)。
+    return int.from_bytes(hashlib.sha256(text.encode("utf-8")).digest()[:8], "big")
+
+
+def restored_set_key(restored_event_step_ids: Any) -> str:
+    # note (luojiaxuan): 稳定集合键——scorer 幂等键与下游 join 都用它;
+    # 与协议一致:"-".join(str(x) for x in sorted(ids))。空集(b0)得空串。
+    return "-".join(str(x) for x in sorted(int(v) for v in restored_event_step_ids))
+
+
+def conditional_marginal_plan(
+    pair_group: str,
+    candidate_scores: Mapping[int, float],
+    *,
+    shortlist_k: int = 6,
+    num_anchors: int = 4,
+    second_layer: bool = True,
+) -> list[tuple[str, tuple[int, ...], tuple[int, ...], int | None]]:
+    """Near-linear conditional-marginal render plan for one decision state.
+
+    # note (luojiaxuan): 协议「Conditional marginal 标签生成(近线性)」的纯函数
+    # 实现,返回每行 (variant, restored_ids_sorted, anchor_set_sorted, candidate)。
+    # 下游据此打分 U(restored) 后用 restored_set_key join 出
+    # Δ(j|S) = U(S∪{j}) − U(S)。此处不做任何图像/模型 I/O,便于单测。
+    #
+    # 排序基准:shortlist / oracle / diverse 全部用 singleton target_logprob_mean
+    # 直接排序——同一决策态内 U_act(j) = logp_hg(singleton_j) − logp_frozen(b0),
+    # b0 是同一常数,故按 singleton logprob 排名与按 U_act 排名 **逐态单调等价**,
+    # shortlist 无需先减 b0(见协议 §V2 shortlist 说明)。
+    """
+    candidates = list(candidate_scores)
+    if len(candidates) < 2:
+        return []
+    # note (luojiaxuan): 按 singleton logprob 降序;并列时用 event_step_id 升序
+    # 作确定性 tie-break,保证 oracle/diverse/shortlist 全程可复现。
+    ranked = sorted(candidates, key=lambda c: (-candidate_scores[c], c))
+    shortlist = ranked[: max(1, shortlist_k)]
+    id_sorted = sorted(candidates)
+
+    anchors: list[int] = []
+
+    def _add(anchor: int | None) -> None:
+        if anchor is not None and anchor not in anchors:
+            anchors.append(anchor)
+
+    # note (luojiaxuan): 四类 anchor first-event(协议钦定,不做架构探索):
+    #   (a) singleton-oracle top-1 = ranked[0](最高 singleton logprob);
+    #   (b) Recent-1 = 候选中最大 event step id;
+    #   (c) 一个确定性 random = id 升序表在 sha256(pair_group) 种子下取模位;
+    #   (d) diverse = 中位排名 singleton 候选 = ranked[len(ranked)//2](0-based)。
+    # 重合即 de-dup(不回填),故实际 distinct anchor 可能少于 num_anchors。
+    if num_anchors >= 1:
+        _add(ranked[0])
+    if num_anchors >= 2:
+        _add(max(candidates))
+    if num_anchors >= 3:
+        _add(id_sorted[_stable_seed(pair_group) % len(id_sorted)])
+    if num_anchors >= 4:
+        _add(ranked[len(ranked) // 2])
+
+    rows: list[tuple[str, tuple[int, ...], tuple[int, ...], int | None]] = []
+    # 1. anchor base rows S={i}(edge1 的减数;S=∅ 已由 b0/singleton 覆盖,不再发)
+    for anchor in anchors:
+        rows.append(("cond_base", (anchor,), (anchor,), None))
+    # 2. first-layer edges Δ(j|{i}):anchor i × shortlist j(j≠i)
+    edge1_pairs: dict[frozenset[int], tuple[int, int]] = {}
+    for anchor in anchors:
+        for cand in shortlist:
+            if cand == anchor:
+                continue
+            restored = tuple(sorted((anchor, cand)))
+            rows.append(("cond_edge1", restored, (anchor,), cand))
+            edge1_pairs.setdefault(frozenset(restored), restored)
+    # 3. second-layer paths:仅沿 beam-2(singleton logprob 之和最高的两条
+    #    长度-2 前缀,取自已展开的 first-layer 集合)。为每个 {i,j} 发 base(减数)
+    #    与 Δ(k|{i,j})(k∈shortlist\{i,j})。渲染期尚无 conditional 模型,故用
+    #    singleton proxy 之和近似 greedy/beam 排序(协议钦定)。
+    if second_layer and edge1_pairs:
+        beam_pairs = sorted(
+            edge1_pairs.values(),
+            key=lambda pair: (
+                -(candidate_scores[pair[0]] + candidate_scores[pair[1]]),
+                pair,
+            ),
+        )[:2]
+        for pair in beam_pairs:
+            rows.append(("cond_base", pair, pair, None))
+            for cand in shortlist:
+                if cand in pair:
+                    continue
+                restored = tuple(sorted(pair + (cand,)))
+                rows.append(("cond_edge2", restored, pair, cand))
+    return rows
+
+
 def render_trajectory(
     row: dict[str, Any],
     *,
@@ -136,6 +264,11 @@ def render_trajectory(
     terminal_states_only: bool = False,
     selector_singletons: bool = False,
     singleton_max_candidates: int = 8,
+    conditional_marginals: bool = False,
+    conditional_scores: Mapping[str, Mapping[int, float]] | None = None,
+    shortlist_k: int = 6,
+    num_anchors: int = 4,
+    second_layer: bool = True,
 ) -> list[dict[str, Any]]:
     source_id = row["source_id"]
     annotation_path = annotations_root / f"{source_id}.json"
@@ -254,8 +387,11 @@ def render_trajectory(
             step_id: f"images/{source_id}/observation-{step_id:03d}.png"
             for step_id in selected
         }
+        # note (luojiaxuan): variant 元组第 5 位 extra 为透传字段字典(默认 {}),
+        # conditional 模式借它带 restored_set_key / conditional_anchor_set /
+        # conditional_candidate;其余模式保持 {} 不改行为。
         variants: list[
-            tuple[str, tuple[int, ...], dict[int, str], int | None]
+            tuple[str, tuple[int, ...], dict[int, str], int | None, dict[str, Any]]
         ] = []
         if selector_singletons:
             # note (luojiaxuan): selector 标签模式(合同第 13 步)——b0 参考 +
@@ -273,7 +409,7 @@ def render_trajectory(
             if len(all_candidates) < 2:
                 continue
             label_candidates = all_candidates[-singleton_max_candidates:]
-            variants.append(("b0", (), {}, None))
+            variants.append(("b0", (), {}, None, {}))
             for cand in label_candidates:
                 variants.append(
                     (
@@ -281,14 +417,66 @@ def render_trajectory(
                         (cand,),
                         {cand: f"images/{source_id}/observation-{cand:03d}.png"},
                         cand,
+                        {},
+                    )
+                )
+        elif conditional_marginals:
+            # note (luojiaxuan): conditional-marginal 模式(协议 §V2 近线性计划)——
+            # 用 hg-s100 singleton 分做 shortlist/anchor/beam,发 cond_base/
+            # cond_edge1/cond_edge2 三族;同 pair_group 成组,靠
+            # (variant, restored_set_key, conditional_candidate) 三元组区分行。
+            # shared-early 段与无 singleton 分/候选<2 的态均跳过。
+            if len(history) < shared_early_decisions:
+                continue
+            state_scores = (
+                (conditional_scores or {}).get(f"{source_id}:{decision}") or {}
+            )
+            if len(state_scores) < 2:
+                continue
+            valid_candidates = set(
+                candidate_event_step_ids_from_history(
+                    [event.to_mapping() for event in history]
+                )
+            )
+            candidate_scores = {
+                cid: logprob
+                for cid, logprob in state_scores.items()
+                if cid in valid_candidates
+            }
+            if len(candidate_scores) < 2:
+                continue
+            plan = conditional_marginal_plan(
+                f"{source_id}:{decision}",
+                candidate_scores,
+                shortlist_k=shortlist_k,
+                num_anchors=num_anchors,
+                second_layer=second_layer,
+            )
+            for variant_name, restored_ids, anchor_set, candidate in plan:
+                variants.append(
+                    (
+                        variant_name,
+                        restored_ids,
+                        {
+                            step_id: (
+                                f"images/{source_id}/observation-{step_id:03d}.png"
+                            )
+                            for step_id in restored_ids
+                        },
+                        None,
+                        {
+                            "restored_set_key": restored_set_key(restored_ids),
+                            "conditional_anchor_set": list(anchor_set),
+                            "conditional_candidate": candidate,
+                        },
                     )
                 )
         elif len(history) < shared_early_decisions:
-            variants.append(("correct", (), {}, None))
+            variants.append(("correct", (), {}, None, {}))
         else:
-            variants.append(("correct", selected, dict(own_path), None))
+            variants.append(("correct", selected, dict(own_path), None, {}))
             if contrast_variants and selected:
-                variants.append(("b0", (), {}, None))
+                variants.append(("b0", (), {}, None, {}))
                 if len(selected) >= 2:
                     rotated = dict(
                         zip(
@@ -297,7 +485,7 @@ def render_trajectory(
                             + [own_path[selected[0]]],
                         )
                     )
-                    variants.append(("shuffled", selected, rotated, None))
+                    variants.append(("shuffled", selected, rotated, None, {}))
                 if donor_paths is not None and len(donor_paths) >= len(selected):
                     variants.append(
                         (
@@ -305,6 +493,7 @@ def render_trajectory(
                             selected,
                             dict(zip(selected, donor_paths[: len(selected)])),
                             None,
+                            {},
                         )
                     )
 
@@ -312,7 +501,13 @@ def render_trajectory(
             with Image.open(output_root / rel) as raw:
                 return raw.convert("RGB")
 
-        for variant_name, variant_selected, variant_paths, singleton_id in variants:
+        for (
+            variant_name,
+            variant_selected,
+            variant_paths,
+            singleton_id,
+            variant_extra,
+        ) in variants:
             if len(history) < shared_early_decisions:
                 messages = build_shared_early_step_messages(
                     instruction=instruction,
@@ -351,10 +546,16 @@ def render_trajectory(
                 "pair_group": f"{source_id}:{decision}",
                 "memory_config": {
                     "mode": (
-                        "selector_singleton" if selector_singletons else mode
+                        "conditional_marginal"
+                        if conditional_marginals
+                        else "selector_singleton"
+                        if selector_singletons
+                        else mode
                     ),
                     "budget": (
-                        len(variant_selected) if selector_singletons else budget
+                        len(variant_selected)
+                        if (conditional_marginals or selector_singletons)
+                        else budget
                     ),
                     "restored_event_step_ids": list(variant_selected),
                 },
@@ -364,6 +565,8 @@ def render_trajectory(
             }
             if selector_singletons:
                 sample["singleton_event_step_id"] = singleton_id
+            if variant_extra:
+                sample.update(variant_extra)
             samples.append(sample)
     return samples
 
@@ -382,6 +585,11 @@ def main() -> None:
     parser.add_argument("--terminal-states-only", action="store_true")
     parser.add_argument("--selector-singletons", action="store_true")
     parser.add_argument("--singleton-max-candidates", type=int, default=8)
+    parser.add_argument("--conditional-marginals", action="store_true")
+    parser.add_argument("--singleton-scores", type=Path, default=None)
+    parser.add_argument("--shortlist-k", type=int, default=6)
+    parser.add_argument("--num-anchors", type=int, default=4)
+    parser.add_argument("--no-second-layer", action="store_true")
     parser.add_argument("--split", choices=("all", "train", "heldout"), default="all")
     parser.add_argument("--heldout-episodes", type=Path, default=None)
     args = parser.parse_args()
@@ -395,6 +603,11 @@ def main() -> None:
     )
     if args.split != "all" and heldout_episodes is None:
         parser.error("--split train/heldout requires --heldout-episodes")
+    conditional_scores: dict[str, dict[int, float]] | None = None
+    if args.conditional_marginals:
+        if args.singleton_scores is None:
+            parser.error("--conditional-marginals requires --singleton-scores")
+        conditional_scores = load_singleton_scores(args.singleton_scores)
     inventory = load_state_inventory(args.state_context)
     args.output_root.mkdir(parents=True, exist_ok=True)
     samples_path = (
@@ -429,6 +642,11 @@ def main() -> None:
                     terminal_states_only=args.terminal_states_only,
                     selector_singletons=args.selector_singletons,
                     singleton_max_candidates=args.singleton_max_candidates,
+                    conditional_marginals=args.conditional_marginals,
+                    conditional_scores=conditional_scores,
+                    shortlist_k=args.shortlist_k,
+                    num_anchors=args.num_anchors,
+                    second_layer=not args.no_second_layer,
                 )
                 for sample in samples:
                     handle.write(
