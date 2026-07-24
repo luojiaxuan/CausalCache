@@ -27,7 +27,7 @@ from scripts.build_androidworld_validation_plan import records_sha256
 SOURCE_PLANS: tuple[tuple[str, str], ...] = (
     ("test", "androidworld_test_plan_v1.json"),
     ("train", "androidworld_train_plan_v1.json"),
-    ("validation", "androidworld_validation_plan_v2.json"),
+    ("validation", "androidworld_validation_plan_v3.json"),
 )
 
 # note (luojiaxuan): full plan 跨三个不同 suite_seed,不存在单一可复现的生成
@@ -38,9 +38,10 @@ SOURCE_PLANS: tuple[tuple[str, str], ...] = (
 # initialize() 自带 live-goal 身份校验,任何 seed 误配都会显式报错而非静默跑错任务。
 NOMINAL_SUITE_SEED = 271828
 EXPECTED_TEMPLATE_COUNT = 116
-# note (luojiaxuan): 每模板保留 task_index 0 与 1 两个变体;三个源 plan 均含
-# index 0/1(test/train 有 0,1,2;val 有 0,1)。缺 index 1 的模板必须 fail loud。
-KEPT_TASK_INDICES: tuple[int, ...] = (0, 1)
+# note (luojiaxuan): 主表改为每模板 3 instance 降方差(2026-07-24);三源均含
+# index 0/1/2(test/train 原生 3 combos,val 由 build_androidworld_validation_plan_3combos
+# 用 seed 271828 重生成 v3,index 0/1 与 v2 逐字节一致)。缺任一 index 的模板 fail loud。
+KEPT_TASK_INDICES: tuple[int, ...] = (0, 1, 2)
 EXPECTED_INSTANCE_COUNT = EXPECTED_TEMPLATE_COUNT * len(KEPT_TASK_INDICES)
 
 

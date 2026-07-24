@@ -1,0 +1,1394 @@
+[
+{
+"task_type": "AudioRecorderRecordAudio",
+"task_index": 0
+},
+{
+"task_type": "AudioRecorderRecordAudio",
+"task_index": 1
+},
+{
+"task_type": "AudioRecorderRecordAudio",
+"task_index": 2
+},
+{
+"task_type": "AudioRecorderRecordAudioWithFileName",
+"task_index": 0
+},
+{
+"task_type": "AudioRecorderRecordAudioWithFileName",
+"task_index": 1
+},
+{
+"task_type": "AudioRecorderRecordAudioWithFileName",
+"task_index": 2
+},
+{
+"task_type": "BrowserDraw",
+"task_index": 0
+},
+{
+"task_type": "BrowserDraw",
+"task_index": 1
+},
+{
+"task_type": "BrowserDraw",
+"task_index": 2
+},
+{
+"task_type": "BrowserMaze",
+"task_index": 0
+},
+{
+"task_type": "BrowserMaze",
+"task_index": 1
+},
+{
+"task_type": "BrowserMaze",
+"task_index": 2
+},
+{
+"task_type": "BrowserMultiply",
+"task_index": 0
+},
+{
+"task_type": "BrowserMultiply",
+"task_index": 1
+},
+{
+"task_type": "BrowserMultiply",
+"task_index": 2
+},
+{
+"task_type": "CameraTakePhoto",
+"task_index": 0
+},
+{
+"task_type": "CameraTakePhoto",
+"task_index": 1
+},
+{
+"task_type": "CameraTakePhoto",
+"task_index": 2
+},
+{
+"task_type": "CameraTakeVideo",
+"task_index": 0
+},
+{
+"task_type": "CameraTakeVideo",
+"task_index": 1
+},
+{
+"task_type": "CameraTakeVideo",
+"task_index": 2
+},
+{
+"task_type": "ClockStopWatchPausedVerify",
+"task_index": 0
+},
+{
+"task_type": "ClockStopWatchPausedVerify",
+"task_index": 1
+},
+{
+"task_type": "ClockStopWatchPausedVerify",
+"task_index": 2
+},
+{
+"task_type": "ClockStopWatchRunning",
+"task_index": 0
+},
+{
+"task_type": "ClockStopWatchRunning",
+"task_index": 1
+},
+{
+"task_type": "ClockStopWatchRunning",
+"task_index": 2
+},
+{
+"task_type": "ClockTimerEntry",
+"task_index": 0
+},
+{
+"task_type": "ClockTimerEntry",
+"task_index": 1
+},
+{
+"task_type": "ClockTimerEntry",
+"task_index": 2
+},
+{
+"task_type": "ContactsAddContact",
+"task_index": 0
+},
+{
+"task_type": "ContactsAddContact",
+"task_index": 1
+},
+{
+"task_type": "ContactsAddContact",
+"task_index": 2
+},
+{
+"task_type": "ContactsNewContactDraft",
+"task_index": 0
+},
+{
+"task_type": "ContactsNewContactDraft",
+"task_index": 1
+},
+{
+"task_type": "ContactsNewContactDraft",
+"task_index": 2
+},
+{
+"task_type": "ExpenseAddMultiple",
+"task_index": 0
+},
+{
+"task_type": "ExpenseAddMultiple",
+"task_index": 1
+},
+{
+"task_type": "ExpenseAddMultiple",
+"task_index": 2
+},
+{
+"task_type": "ExpenseAddMultipleFromGallery",
+"task_index": 0
+},
+{
+"task_type": "ExpenseAddMultipleFromGallery",
+"task_index": 1
+},
+{
+"task_type": "ExpenseAddMultipleFromGallery",
+"task_index": 2
+},
+{
+"task_type": "ExpenseAddMultipleFromMarkor",
+"task_index": 0
+},
+{
+"task_type": "ExpenseAddMultipleFromMarkor",
+"task_index": 1
+},
+{
+"task_type": "ExpenseAddMultipleFromMarkor",
+"task_index": 2
+},
+{
+"task_type": "ExpenseAddSingle",
+"task_index": 0
+},
+{
+"task_type": "ExpenseAddSingle",
+"task_index": 1
+},
+{
+"task_type": "ExpenseAddSingle",
+"task_index": 2
+},
+{
+"task_type": "ExpenseDeleteDuplicates",
+"task_index": 0
+},
+{
+"task_type": "ExpenseDeleteDuplicates",
+"task_index": 1
+},
+{
+"task_type": "ExpenseDeleteDuplicates",
+"task_index": 2
+},
+{
+"task_type": "ExpenseDeleteDuplicates2",
+"task_index": 0
+},
+{
+"task_type": "ExpenseDeleteDuplicates2",
+"task_index": 1
+},
+{
+"task_type": "ExpenseDeleteDuplicates2",
+"task_index": 2
+},
+{
+"task_type": "ExpenseDeleteMultiple",
+"task_index": 0
+},
+{
+"task_type": "ExpenseDeleteMultiple",
+"task_index": 1
+},
+{
+"task_type": "ExpenseDeleteMultiple",
+"task_index": 2
+},
+{
+"task_type": "ExpenseDeleteMultiple2",
+"task_index": 0
+},
+{
+"task_type": "ExpenseDeleteMultiple2",
+"task_index": 1
+},
+{
+"task_type": "ExpenseDeleteMultiple2",
+"task_index": 2
+},
+{
+"task_type": "ExpenseDeleteSingle",
+"task_index": 0
+},
+{
+"task_type": "ExpenseDeleteSingle",
+"task_index": 1
+},
+{
+"task_type": "ExpenseDeleteSingle",
+"task_index": 2
+},
+{
+"task_type": "FilesDeleteFile",
+"task_index": 0
+},
+{
+"task_type": "FilesDeleteFile",
+"task_index": 1
+},
+{
+"task_type": "FilesDeleteFile",
+"task_index": 2
+},
+{
+"task_type": "FilesMoveFile",
+"task_index": 0
+},
+{
+"task_type": "FilesMoveFile",
+"task_index": 1
+},
+{
+"task_type": "FilesMoveFile",
+"task_index": 2
+},
+{
+"task_type": "MarkorAddNoteHeader",
+"task_index": 0
+},
+{
+"task_type": "MarkorAddNoteHeader",
+"task_index": 1
+},
+{
+"task_type": "MarkorAddNoteHeader",
+"task_index": 2
+},
+{
+"task_type": "MarkorChangeNoteContent",
+"task_index": 0
+},
+{
+"task_type": "MarkorChangeNoteContent",
+"task_index": 1
+},
+{
+"task_type": "MarkorChangeNoteContent",
+"task_index": 2
+},
+{
+"task_type": "MarkorCreateFolder",
+"task_index": 0
+},
+{
+"task_type": "MarkorCreateFolder",
+"task_index": 1
+},
+{
+"task_type": "MarkorCreateFolder",
+"task_index": 2
+},
+{
+"task_type": "MarkorCreateNote",
+"task_index": 0
+},
+{
+"task_type": "MarkorCreateNote",
+"task_index": 1
+},
+{
+"task_type": "MarkorCreateNote",
+"task_index": 2
+},
+{
+"task_type": "MarkorCreateNoteAndSms",
+"task_index": 0
+},
+{
+"task_type": "MarkorCreateNoteAndSms",
+"task_index": 1
+},
+{
+"task_type": "MarkorCreateNoteAndSms",
+"task_index": 2
+},
+{
+"task_type": "MarkorCreateNoteFromClipboard",
+"task_index": 0
+},
+{
+"task_type": "MarkorCreateNoteFromClipboard",
+"task_index": 1
+},
+{
+"task_type": "MarkorCreateNoteFromClipboard",
+"task_index": 2
+},
+{
+"task_type": "MarkorDeleteAllNotes",
+"task_index": 0
+},
+{
+"task_type": "MarkorDeleteAllNotes",
+"task_index": 1
+},
+{
+"task_type": "MarkorDeleteAllNotes",
+"task_index": 2
+},
+{
+"task_type": "MarkorDeleteNewestNote",
+"task_index": 0
+},
+{
+"task_type": "MarkorDeleteNewestNote",
+"task_index": 1
+},
+{
+"task_type": "MarkorDeleteNewestNote",
+"task_index": 2
+},
+{
+"task_type": "MarkorDeleteNote",
+"task_index": 0
+},
+{
+"task_type": "MarkorDeleteNote",
+"task_index": 1
+},
+{
+"task_type": "MarkorDeleteNote",
+"task_index": 2
+},
+{
+"task_type": "MarkorEditNote",
+"task_index": 0
+},
+{
+"task_type": "MarkorEditNote",
+"task_index": 1
+},
+{
+"task_type": "MarkorEditNote",
+"task_index": 2
+},
+{
+"task_type": "MarkorMergeNotes",
+"task_index": 0
+},
+{
+"task_type": "MarkorMergeNotes",
+"task_index": 1
+},
+{
+"task_type": "MarkorMergeNotes",
+"task_index": 2
+},
+{
+"task_type": "MarkorMoveNote",
+"task_index": 0
+},
+{
+"task_type": "MarkorMoveNote",
+"task_index": 1
+},
+{
+"task_type": "MarkorMoveNote",
+"task_index": 2
+},
+{
+"task_type": "MarkorTranscribeReceipt",
+"task_index": 0
+},
+{
+"task_type": "MarkorTranscribeReceipt",
+"task_index": 1
+},
+{
+"task_type": "MarkorTranscribeReceipt",
+"task_index": 2
+},
+{
+"task_type": "MarkorTranscribeVideo",
+"task_index": 0
+},
+{
+"task_type": "MarkorTranscribeVideo",
+"task_index": 1
+},
+{
+"task_type": "MarkorTranscribeVideo",
+"task_index": 2
+},
+{
+"task_type": "NotesIsTodo",
+"task_index": 0
+},
+{
+"task_type": "NotesIsTodo",
+"task_index": 1
+},
+{
+"task_type": "NotesIsTodo",
+"task_index": 2
+},
+{
+"task_type": "NotesMeetingAttendeeCount",
+"task_index": 0
+},
+{
+"task_type": "NotesMeetingAttendeeCount",
+"task_index": 1
+},
+{
+"task_type": "NotesMeetingAttendeeCount",
+"task_index": 2
+},
+{
+"task_type": "NotesRecipeIngredientCount",
+"task_index": 0
+},
+{
+"task_type": "NotesRecipeIngredientCount",
+"task_index": 1
+},
+{
+"task_type": "NotesRecipeIngredientCount",
+"task_index": 2
+},
+{
+"task_type": "NotesTodoItemCount",
+"task_index": 0
+},
+{
+"task_type": "NotesTodoItemCount",
+"task_index": 1
+},
+{
+"task_type": "NotesTodoItemCount",
+"task_index": 2
+},
+{
+"task_type": "OpenAppTaskEval",
+"task_index": 0
+},
+{
+"task_type": "OpenAppTaskEval",
+"task_index": 1
+},
+{
+"task_type": "OpenAppTaskEval",
+"task_index": 2
+},
+{
+"task_type": "OsmAndFavorite",
+"task_index": 0
+},
+{
+"task_type": "OsmAndFavorite",
+"task_index": 1
+},
+{
+"task_type": "OsmAndFavorite",
+"task_index": 2
+},
+{
+"task_type": "OsmAndMarker",
+"task_index": 0
+},
+{
+"task_type": "OsmAndMarker",
+"task_index": 1
+},
+{
+"task_type": "OsmAndMarker",
+"task_index": 2
+},
+{
+"task_type": "OsmAndTrack",
+"task_index": 0
+},
+{
+"task_type": "OsmAndTrack",
+"task_index": 1
+},
+{
+"task_type": "OsmAndTrack",
+"task_index": 2
+},
+{
+"task_type": "RecipeAddMultipleRecipes",
+"task_index": 0
+},
+{
+"task_type": "RecipeAddMultipleRecipes",
+"task_index": 1
+},
+{
+"task_type": "RecipeAddMultipleRecipes",
+"task_index": 2
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromImage",
+"task_index": 0
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromImage",
+"task_index": 1
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromImage",
+"task_index": 2
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromMarkor",
+"task_index": 0
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromMarkor",
+"task_index": 1
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromMarkor",
+"task_index": 2
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromMarkor2",
+"task_index": 0
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromMarkor2",
+"task_index": 1
+},
+{
+"task_type": "RecipeAddMultipleRecipesFromMarkor2",
+"task_index": 2
+},
+{
+"task_type": "RecipeAddSingleRecipe",
+"task_index": 0
+},
+{
+"task_type": "RecipeAddSingleRecipe",
+"task_index": 1
+},
+{
+"task_type": "RecipeAddSingleRecipe",
+"task_index": 2
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes",
+"task_index": 0
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes",
+"task_index": 1
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes",
+"task_index": 2
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes2",
+"task_index": 0
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes2",
+"task_index": 1
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes2",
+"task_index": 2
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes3",
+"task_index": 0
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes3",
+"task_index": 1
+},
+{
+"task_type": "RecipeDeleteDuplicateRecipes3",
+"task_index": 2
+},
+{
+"task_type": "RecipeDeleteMultipleRecipes",
+"task_index": 0
+},
+{
+"task_type": "RecipeDeleteMultipleRecipes",
+"task_index": 1
+},
+{
+"task_type": "RecipeDeleteMultipleRecipes",
+"task_index": 2
+},
+{
+"task_type": "RecipeDeleteMultipleRecipesWithConstraint",
+"task_index": 0
+},
+{
+"task_type": "RecipeDeleteMultipleRecipesWithConstraint",
+"task_index": 1
+},
+{
+"task_type": "RecipeDeleteMultipleRecipesWithConstraint",
+"task_index": 2
+},
+{
+"task_type": "RecipeDeleteMultipleRecipesWithNoise",
+"task_index": 0
+},
+{
+"task_type": "RecipeDeleteMultipleRecipesWithNoise",
+"task_index": 1
+},
+{
+"task_type": "RecipeDeleteMultipleRecipesWithNoise",
+"task_index": 2
+},
+{
+"task_type": "RecipeDeleteSingleRecipe",
+"task_index": 0
+},
+{
+"task_type": "RecipeDeleteSingleRecipe",
+"task_index": 1
+},
+{
+"task_type": "RecipeDeleteSingleRecipe",
+"task_index": 2
+},
+{
+"task_type": "RecipeDeleteSingleWithRecipeWithNoise",
+"task_index": 0
+},
+{
+"task_type": "RecipeDeleteSingleWithRecipeWithNoise",
+"task_index": 1
+},
+{
+"task_type": "RecipeDeleteSingleWithRecipeWithNoise",
+"task_index": 2
+},
+{
+"task_type": "RetroCreatePlaylist",
+"task_index": 0
+},
+{
+"task_type": "RetroCreatePlaylist",
+"task_index": 1
+},
+{
+"task_type": "RetroCreatePlaylist",
+"task_index": 2
+},
+{
+"task_type": "RetroPlayingQueue",
+"task_index": 0
+},
+{
+"task_type": "RetroPlayingQueue",
+"task_index": 1
+},
+{
+"task_type": "RetroPlayingQueue",
+"task_index": 2
+},
+{
+"task_type": "RetroPlaylistDuration",
+"task_index": 0
+},
+{
+"task_type": "RetroPlaylistDuration",
+"task_index": 1
+},
+{
+"task_type": "RetroPlaylistDuration",
+"task_index": 2
+},
+{
+"task_type": "RetroSavePlaylist",
+"task_index": 0
+},
+{
+"task_type": "RetroSavePlaylist",
+"task_index": 1
+},
+{
+"task_type": "RetroSavePlaylist",
+"task_index": 2
+},
+{
+"task_type": "SaveCopyOfReceiptTaskEval",
+"task_index": 0
+},
+{
+"task_type": "SaveCopyOfReceiptTaskEval",
+"task_index": 1
+},
+{
+"task_type": "SaveCopyOfReceiptTaskEval",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarAddOneEvent",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarAddOneEvent",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarAddOneEvent",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarAddOneEventInTwoWeeks",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarAddOneEventInTwoWeeks",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarAddOneEventInTwoWeeks",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarAddOneEventRelativeDay",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarAddOneEventRelativeDay",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarAddOneEventRelativeDay",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarAddOneEventTomorrow",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarAddOneEventTomorrow",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarAddOneEventTomorrow",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarAddRepeatingEvent",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarAddRepeatingEvent",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarAddRepeatingEvent",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarAnyEventsOnDate",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarAnyEventsOnDate",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarAnyEventsOnDate",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarDeleteEvents",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarDeleteEvents",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarDeleteEvents",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarDeleteEventsOnRelativeDay",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarDeleteEventsOnRelativeDay",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarDeleteEventsOnRelativeDay",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarDeleteOneEvent",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarDeleteOneEvent",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarDeleteOneEvent",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarEventOnDateAtTime",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarEventOnDateAtTime",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarEventOnDateAtTime",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarEventsInNextWeek",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarEventsInNextWeek",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarEventsInNextWeek",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarEventsInTimeRange",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarEventsInTimeRange",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarEventsInTimeRange",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarEventsOnDate",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarEventsOnDate",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarEventsOnDate",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarFirstEventAfterStartTime",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarFirstEventAfterStartTime",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarFirstEventAfterStartTime",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarLocationOfEvent",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarLocationOfEvent",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarLocationOfEvent",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarNextEvent",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarNextEvent",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarNextEvent",
+"task_index": 2
+},
+{
+"task_type": "SimpleCalendarNextMeetingWithPerson",
+"task_index": 0
+},
+{
+"task_type": "SimpleCalendarNextMeetingWithPerson",
+"task_index": 1
+},
+{
+"task_type": "SimpleCalendarNextMeetingWithPerson",
+"task_index": 2
+},
+{
+"task_type": "SimpleDrawProCreateDrawing",
+"task_index": 0
+},
+{
+"task_type": "SimpleDrawProCreateDrawing",
+"task_index": 1
+},
+{
+"task_type": "SimpleDrawProCreateDrawing",
+"task_index": 2
+},
+{
+"task_type": "SimpleSmsReply",
+"task_index": 0
+},
+{
+"task_type": "SimpleSmsReply",
+"task_index": 1
+},
+{
+"task_type": "SimpleSmsReply",
+"task_index": 2
+},
+{
+"task_type": "SimpleSmsReplyMostRecent",
+"task_index": 0
+},
+{
+"task_type": "SimpleSmsReplyMostRecent",
+"task_index": 1
+},
+{
+"task_type": "SimpleSmsReplyMostRecent",
+"task_index": 2
+},
+{
+"task_type": "SimpleSmsResend",
+"task_index": 0
+},
+{
+"task_type": "SimpleSmsResend",
+"task_index": 1
+},
+{
+"task_type": "SimpleSmsResend",
+"task_index": 2
+},
+{
+"task_type": "SimpleSmsSend",
+"task_index": 0
+},
+{
+"task_type": "SimpleSmsSend",
+"task_index": 1
+},
+{
+"task_type": "SimpleSmsSend",
+"task_index": 2
+},
+{
+"task_type": "SimpleSmsSendClipboardContent",
+"task_index": 0
+},
+{
+"task_type": "SimpleSmsSendClipboardContent",
+"task_index": 1
+},
+{
+"task_type": "SimpleSmsSendClipboardContent",
+"task_index": 2
+},
+{
+"task_type": "SimpleSmsSendReceivedAddress",
+"task_index": 0
+},
+{
+"task_type": "SimpleSmsSendReceivedAddress",
+"task_index": 1
+},
+{
+"task_type": "SimpleSmsSendReceivedAddress",
+"task_index": 2
+},
+{
+"task_type": "SportsTrackerActivitiesCountForWeek",
+"task_index": 0
+},
+{
+"task_type": "SportsTrackerActivitiesCountForWeek",
+"task_index": 1
+},
+{
+"task_type": "SportsTrackerActivitiesCountForWeek",
+"task_index": 2
+},
+{
+"task_type": "SportsTrackerActivitiesOnDate",
+"task_index": 0
+},
+{
+"task_type": "SportsTrackerActivitiesOnDate",
+"task_index": 1
+},
+{
+"task_type": "SportsTrackerActivitiesOnDate",
+"task_index": 2
+},
+{
+"task_type": "SportsTrackerActivityDuration",
+"task_index": 0
+},
+{
+"task_type": "SportsTrackerActivityDuration",
+"task_index": 1
+},
+{
+"task_type": "SportsTrackerActivityDuration",
+"task_index": 2
+},
+{
+"task_type": "SportsTrackerLongestDistanceActivity",
+"task_index": 0
+},
+{
+"task_type": "SportsTrackerLongestDistanceActivity",
+"task_index": 1
+},
+{
+"task_type": "SportsTrackerLongestDistanceActivity",
+"task_index": 2
+},
+{
+"task_type": "SportsTrackerTotalDistanceForCategoryOverInterval",
+"task_index": 0
+},
+{
+"task_type": "SportsTrackerTotalDistanceForCategoryOverInterval",
+"task_index": 1
+},
+{
+"task_type": "SportsTrackerTotalDistanceForCategoryOverInterval",
+"task_index": 2
+},
+{
+"task_type": "SportsTrackerTotalDurationForCategoryThisWeek",
+"task_index": 0
+},
+{
+"task_type": "SportsTrackerTotalDurationForCategoryThisWeek",
+"task_index": 1
+},
+{
+"task_type": "SportsTrackerTotalDurationForCategoryThisWeek",
+"task_index": 2
+},
+{
+"task_type": "SystemBluetoothTurnOff",
+"task_index": 0
+},
+{
+"task_type": "SystemBluetoothTurnOff",
+"task_index": 1
+},
+{
+"task_type": "SystemBluetoothTurnOff",
+"task_index": 2
+},
+{
+"task_type": "SystemBluetoothTurnOffVerify",
+"task_index": 0
+},
+{
+"task_type": "SystemBluetoothTurnOffVerify",
+"task_index": 1
+},
+{
+"task_type": "SystemBluetoothTurnOffVerify",
+"task_index": 2
+},
+{
+"task_type": "SystemBluetoothTurnOn",
+"task_index": 0
+},
+{
+"task_type": "SystemBluetoothTurnOn",
+"task_index": 1
+},
+{
+"task_type": "SystemBluetoothTurnOn",
+"task_index": 2
+},
+{
+"task_type": "SystemBluetoothTurnOnVerify",
+"task_index": 0
+},
+{
+"task_type": "SystemBluetoothTurnOnVerify",
+"task_index": 1
+},
+{
+"task_type": "SystemBluetoothTurnOnVerify",
+"task_index": 2
+},
+{
+"task_type": "SystemBrightnessMax",
+"task_index": 0
+},
+{
+"task_type": "SystemBrightnessMax",
+"task_index": 1
+},
+{
+"task_type": "SystemBrightnessMax",
+"task_index": 2
+},
+{
+"task_type": "SystemBrightnessMaxVerify",
+"task_index": 0
+},
+{
+"task_type": "SystemBrightnessMaxVerify",
+"task_index": 1
+},
+{
+"task_type": "SystemBrightnessMaxVerify",
+"task_index": 2
+},
+{
+"task_type": "SystemBrightnessMin",
+"task_index": 0
+},
+{
+"task_type": "SystemBrightnessMin",
+"task_index": 1
+},
+{
+"task_type": "SystemBrightnessMin",
+"task_index": 2
+},
+{
+"task_type": "SystemBrightnessMinVerify",
+"task_index": 0
+},
+{
+"task_type": "SystemBrightnessMinVerify",
+"task_index": 1
+},
+{
+"task_type": "SystemBrightnessMinVerify",
+"task_index": 2
+},
+{
+"task_type": "SystemCopyToClipboard",
+"task_index": 0
+},
+{
+"task_type": "SystemCopyToClipboard",
+"task_index": 1
+},
+{
+"task_type": "SystemCopyToClipboard",
+"task_index": 2
+},
+{
+"task_type": "SystemWifiTurnOff",
+"task_index": 0
+},
+{
+"task_type": "SystemWifiTurnOff",
+"task_index": 1
+},
+{
+"task_type": "SystemWifiTurnOff",
+"task_index": 2
+},
+{
+"task_type": "SystemWifiTurnOffVerify",
+"task_index": 0
+},
+{
+"task_type": "SystemWifiTurnOffVerify",
+"task_index": 1
+},
+{
+"task_type": "SystemWifiTurnOffVerify",
+"task_index": 2
+},
+{
+"task_type": "SystemWifiTurnOn",
+"task_index": 0
+},
+{
+"task_type": "SystemWifiTurnOn",
+"task_index": 1
+},
+{
+"task_type": "SystemWifiTurnOn",
+"task_index": 2
+},
+{
+"task_type": "SystemWifiTurnOnVerify",
+"task_index": 0
+},
+{
+"task_type": "SystemWifiTurnOnVerify",
+"task_index": 1
+},
+{
+"task_type": "SystemWifiTurnOnVerify",
+"task_index": 2
+},
+{
+"task_type": "TasksCompletedTasksForDate",
+"task_index": 0
+},
+{
+"task_type": "TasksCompletedTasksForDate",
+"task_index": 1
+},
+{
+"task_type": "TasksCompletedTasksForDate",
+"task_index": 2
+},
+{
+"task_type": "TasksDueNextWeek",
+"task_index": 0
+},
+{
+"task_type": "TasksDueNextWeek",
+"task_index": 1
+},
+{
+"task_type": "TasksDueNextWeek",
+"task_index": 2
+},
+{
+"task_type": "TasksDueOnDate",
+"task_index": 0
+},
+{
+"task_type": "TasksDueOnDate",
+"task_index": 1
+},
+{
+"task_type": "TasksDueOnDate",
+"task_index": 2
+},
+{
+"task_type": "TasksHighPriorityTasks",
+"task_index": 0
+},
+{
+"task_type": "TasksHighPriorityTasks",
+"task_index": 1
+},
+{
+"task_type": "TasksHighPriorityTasks",
+"task_index": 2
+},
+{
+"task_type": "TasksHighPriorityTasksDueOnDate",
+"task_index": 0
+},
+{
+"task_type": "TasksHighPriorityTasksDueOnDate",
+"task_index": 1
+},
+{
+"task_type": "TasksHighPriorityTasksDueOnDate",
+"task_index": 2
+},
+{
+"task_type": "TasksIncompleteTasksOnDate",
+"task_index": 0
+},
+{
+"task_type": "TasksIncompleteTasksOnDate",
+"task_index": 1
+},
+{
+"task_type": "TasksIncompleteTasksOnDate",
+"task_index": 2
+},
+{
+"task_type": "TurnOffWifiAndTurnOnBluetooth",
+"task_index": 0
+},
+{
+"task_type": "TurnOffWifiAndTurnOnBluetooth",
+"task_index": 1
+},
+{
+"task_type": "TurnOffWifiAndTurnOnBluetooth",
+"task_index": 2
+},
+{
+"task_type": "TurnOnWifiAndOpenApp",
+"task_index": 0
+},
+{
+"task_type": "TurnOnWifiAndOpenApp",
+"task_index": 1
+},
+{
+"task_type": "TurnOnWifiAndOpenApp",
+"task_index": 2
+},
+{
+"task_type": "VlcCreatePlaylist",
+"task_index": 0
+},
+{
+"task_type": "VlcCreatePlaylist",
+"task_index": 1
+},
+{
+"task_type": "VlcCreatePlaylist",
+"task_index": 2
+},
+{
+"task_type": "VlcCreateTwoPlaylists",
+"task_index": 0
+},
+{
+"task_type": "VlcCreateTwoPlaylists",
+"task_index": 1
+},
+{
+"task_type": "VlcCreateTwoPlaylists",
+"task_index": 2
+}
+]
