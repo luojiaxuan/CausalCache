@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import glob
 import json
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,23 @@ def load_states(path: Path) -> dict[str, dict[str, Any]]:
             raise ValueError(f"{path}:{line_no} recent cap is forbidden")
         states[episode] = row
     return states
+
+
+def load_cached_singletons(pattern: str) -> set[tuple[str, int]]:
+    cached: set[tuple[str, int]] = set()
+    paths = sorted(Path(value) for value in glob.glob(pattern))
+    if not paths:
+        raise ValueError(f"coalition cache pattern matched no files: {pattern}")
+    for path in paths:
+        for line in path.open(encoding="utf-8"):
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            restored = row.get("restored_event_step_ids")
+            if not isinstance(restored, list) or len(restored) != 1:
+                continue
+            cached.add((str(row["pair_group"]), int(restored[0])))
+    return cached
 
 
 def annotate_v2_singleton_samples(
@@ -78,13 +96,22 @@ def main() -> None:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
+    parser.add_argument("--coalition-cache", default=None)
+    parser.add_argument("--missing-only", action="store_true")
     args = parser.parse_args()
     if not 0 <= args.shard_index < args.shard_count:
         parser.error("shard index must be in [0, shard count)")
+    if args.missing_only and args.coalition_cache is None:
+        parser.error("--missing-only requires --coalition-cache")
 
     from pyarrow import parquet as pq
 
     states = load_states(args.states)
+    cached_singletons = (
+        load_cached_singletons(args.coalition_cache)
+        if args.coalition_cache is not None
+        else set()
+    )
     args.output_root.mkdir(parents=True, exist_ok=True)
     output = args.output_root / f"samples-shard{args.shard_index:03d}.jsonl"
     groups = 0
@@ -118,6 +145,17 @@ def main() -> None:
                     ),
                 )
                 samples = annotate_v2_singleton_samples(samples, state)
+                if args.missing_only:
+                    samples = [
+                        sample
+                        for sample in samples
+                        if sample.get("singleton_event_step_id") is not None
+                        and (
+                            str(sample["pair_group"]),
+                            int(sample["singleton_event_step_id"]),
+                        )
+                        not in cached_singletons
+                    ]
                 for sample in samples:
                     handle.write(
                         json.dumps(sample, ensure_ascii=False, sort_keys=True)
@@ -125,14 +163,6 @@ def main() -> None:
                     )
                 groups += 1
                 rows_written += len(samples)
-    expected_episodes = {
-        episode
-        for index, episode in enumerate(sorted(states))
-        if index % args.shard_count == args.shard_index
-    }
-    # note (luojiaxuan): parquet shard assignment and episode lexical order are
-    # unrelated, so exact coverage is enforced by the global validator after all
-    # renderer shards, not by this per-source-shard process.
     print(
         json.dumps(
             {
@@ -141,7 +171,8 @@ def main() -> None:
                 "states_total": len(states),
                 "shard_index": args.shard_index,
                 "shard_count": args.shard_count,
-                "lexical_expected_hint": len(expected_episodes),
+                "missing_only": args.missing_only,
+                "cached_singletons": len(cached_singletons),
             },
             sort_keys=True,
         )
