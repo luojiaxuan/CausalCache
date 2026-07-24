@@ -2,8 +2,15 @@
 
 from __future__ import annotations
 
+import json
+
 from scripts.plan_hgkv_teacher_beam_v2 import build_plan_rows
 from scripts.reduce_hgkv_teacher_beam_v2 import reduce_depth
+from scripts.render_hgkv_teacher_beam_v2 import (
+    annotate_samples,
+    load_missing_coalitions,
+    selected_set_plan,
+)
 
 
 def _state():
@@ -85,3 +92,43 @@ def test_depth1_renders_unique_pairs_but_keeps_all_prefix_edges():
     assert len(labels) == 4
     assert all(len(row["marginal_targets"]) == 4 for row in labels)
     assert beam[0]["prefixes"] == [[4, 5], [3, 5], [2, 5], [3, 4]]
+
+
+def test_teacher_renderer_deduplicates_child_set_without_losing_plan_edges(
+    tmp_path,
+):
+    pair_group = "episode:9"
+    rows = [
+        {
+            "episode": "episode",
+            "pair_group": pair_group,
+            "decision_step": 9,
+            "candidate_event_step_ids": [1, 2, 3],
+            "selected_event_step_ids": [prefix],
+            "candidate_event_step_id": candidate,
+            "restored_event_step_ids": [1, 2],
+            "restored_set_key": "1-2",
+            "depth": 1,
+            "cache_hit": False,
+        }
+        for prefix, candidate in ((1, 2), (2, 1))
+    ]
+    path = tmp_path / "plan.jsonl"
+    path.write_text(
+        "".join(json.dumps(row) + "\n" for row in rows),
+        encoding="utf-8",
+    )
+    coalitions = load_missing_coalitions([path])
+    assert len(coalitions) == 1
+    plan = selected_set_plan(coalitions)
+    assert plan[pair_group][0]["selected_event_step_ids"] == [1, 2]
+    sample = {
+        "pair_group": pair_group,
+        "variant": "selected_set",
+        "restored_set_key": "1-2",
+    }
+    annotated = annotate_samples(
+        [sample],
+        expected_by_key=coalitions,
+    )
+    assert annotated[0]["teacher_depth"] == 1
