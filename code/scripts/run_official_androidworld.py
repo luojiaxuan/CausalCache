@@ -223,7 +223,6 @@ def worker(runtime, args, base_url, work, counters, lock) -> None:
             )
             if summary.get("infrastructure_failure") and attempt < args.infra_retries:
                 work.put((task_type, task_index, last_image, attempt + 1))
-                work.task_done()
                 continue
             write_episode_output_atomic(out, summary)
             with lock:
@@ -240,7 +239,6 @@ def worker(runtime, args, base_url, work, counters, lock) -> None:
         except Exception:
             if attempt < args.infra_retries:
                 work.put((task_type, task_index, last_image, attempt + 1))
-                work.task_done()
                 continue
             with lock:
                 counters["errored"] += 1

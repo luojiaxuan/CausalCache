@@ -115,7 +115,6 @@ def worker_thread(
                 with counter_lock:
                     counters["infra_retried"] += 1
                 work.put((arm, task_type, task_index, attempt + 1))
-                work.task_done()
                 continue
             write_episode_output_atomic(output, summary)
             with counter_lock:
@@ -142,7 +141,6 @@ def worker_thread(
                 with counter_lock:
                     counters["infra_retried"] += 1
                 work.put((arm, task_type, task_index, attempt + 1))
-                work.task_done()
                 continue
             with counter_lock:
                 counters["errored"] += 1
