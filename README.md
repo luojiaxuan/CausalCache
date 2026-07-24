@@ -143,6 +143,7 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 | History-gated adapter hg-s100 | hyper00 `/data02/jaxan/runs/hgkv-formal-v1/lora-step100.pt`(sha256 前缀 `8f2cc49e1aa0b06c`);副本 hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`;config [`code/configs/causalcache_history_gated_kv_v1.json`](code/configs/causalcache_history_gated_kv_v1.json) | gate PASS(s100 冻结);`PENDING_HF_UPLOAD` |
 | hgkv gate v1 认证 | [`data/results/hgkv_gate_v1/`](data/results/hgkv_gate_v1/README.md);原始行 hyper01 `/data02/jaxan/runs/hgkv-eval/cert/`(s100/frozen 各 5,738 行 jsonl) | 判定表入 Git;逐行 jsonl `PENDING_HF_UPLOAD` |
 | 训练数据 ody-sft-v2 | hyper00 训练 run root `/data02/jaxan/runs/hgkv-formal-v1`(37,635 样本,165 heldout 轨迹不参训;provenance 见 gate README) | 本地;`PENDING_HF_UPLOAD` |
+| HGKV selector runtime | hyper01 `/data02/jaxan/envs/causalcache-selector-v1`；lock [`code/requirements/hgkv_selector_v1_lock.txt`](code/requirements/hgkv_selector_v1_lock.txt) | persistent system-site venv；scikit-learn `1.9.0` |
 | Sealed 矩阵 v1 run | hyper00 + hyper01 `/data02/jaxan/runs/sealed-matrix-v1/`(目标 2,088 局,116 template × 2 fixed instances × 3 policy × 3 arm；聚合器 `scripts.aggregate_sealed_matrix_v1`) | 执行中 |
 | dev canary 记录 | hyper01 `/data02/jaxan/runs/hgkv-canary-v1/`(逐局 json) | 12/12;性能不读(canary 纪律) |
 | Selector U_act 标签 v1 | [`data/results/odyssey_selector_labels_v1/`](data/results/odyssey_selector_labels_v1/README.md) | 进行中,见目录 README |

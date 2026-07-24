@@ -1,0 +1,8 @@
+# note (luojiaxuan): torch==2.11.0+cu130 由冻结的 jaxanluo/sglang-omni:dev
+# runtime image 提供；这个 lock 只描述安装到 persistent system-site venv 的 Python 包。
+joblib==1.5.3
+narwhals==2.24.0
+numpy==2.3.5
+scikit-learn==1.9.0
+scipy==1.17.1
+threadpoolctl==3.6.0

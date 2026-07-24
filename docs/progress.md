@@ -200,6 +200,17 @@
   exactly-B1 真实 U_act 相对 Recent/Random 的 10k paired bootstrap CI；它仍是 singleton
   训练诊断，不替代 B1/B2/B4 selected-set 正式 gate。
 
+## 2026-07-24:HGKV selector persistent runtime 冻结
+
+- 正式 `jaxanluo/sglang-omni:dev` runtime 提供 Python 3.12.3、torch
+  `2.11.0+cu130`、numpy `2.3.5`、scipy `1.17.1`，但不含 Stage-1/2 的
+  `GroupKFold` 依赖；在特征抽取容器不变的前提下，新建 persistent system-site venv
+  hyper01 `/data02/jaxan/envs/causalcache-selector-v1`；
+- venv 固定 scikit-learn `1.9.0`、joblib `1.5.3`、narwhals `2.24.0`、
+  threadpoolctl `3.6.0`，完整 pip 侧 lock 写入
+  `code/requirements/hgkv_selector_v1_lock.txt`，并同步为 `pyproject.toml[selector]`
+  optional dependency；实机 import 版本核验通过。
+
 ## 2026-07-24:conditional hg-s100 打分器的流式 file-shard 路径冻结
 
 - conditional renderer 的物理布局为每 split 32 个 `samples-shard*.jsonl`；heldout/train
