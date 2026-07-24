@@ -2,9 +2,12 @@
 
 ## 状态
 
-Stage-1 singleton-gain scorer 已完成；Stage-2 conditional label scoring 正在
-hyper01 执行。正式 selector 结论仍须等待 Stage-2、B1 parity 审计和完整 selected-set
-重渲染/重打分 gate，当前 Stage-1 数字只作冻结训练诊断。
+Stage-1 singleton-gain scorer 已完成，并已确定 V1 对原正式 gate 为 **NO-GO**：
+set-conditioned B1 与 Stage-1 完全相同，而 Stage-1 显著输给 Recent，故
+B1/B2/B4 conjunctive PASS 已不可能。Stage-2 conditional label scoring 仍在 hyper01
+按冻结协议执行；后续 B1 parity、完整 selected-set 重渲染/重打分和 B2/B4
+set-conditioned 相对 singleton 的结果作为 V1 interaction diagnostic，不再表述为仍有
+机会通过原 gate。
 
 ## 冻结输入
 
@@ -43,9 +46,11 @@ Hyper01 run root：`/data02/jaxan/runs/hgkv-selector-stage1-v1/`，完成时间
 | top-1 hit rate | 0.173967 |
 | STOP accuracy | 0.906848 |
 
-Stage-1 显著输给 Recent；这是冻结协议下的负诊断，不据此调参或改标签。它仍按协议提供
-Stage-2 encoder 初始化、第一步和 independent baseline。只有完整 selected-set gate
-能够裁决 set conditioning 是否补回 interaction signal。
+Stage-1 显著输给 Recent；这是冻结协议下的负诊断，不据此调参或改标签。`STOP
+accuracy=0.906848` 也约等于当前约 9.3% positive-STOP 分布下的 majority baseline，
+不能视为正信号。Stage-1 仍按 V1 协议提供 Stage-2 encoder 初始化、第一步和 independent
+baseline，但 B1 两路完全相同，因此 V1 的原正式 gate 已确定失败。完整 selected-set
+评测只继续回答 set conditioning 能否在 B2/B4 修正较差首步、降低冗余或发现互补。
 
 ## Stage-1 provenance
 
@@ -103,3 +108,21 @@ balanced root 的 `DONE`。12 个 scorer 的 unique 负载为
 
 完整冻结协议见
 [`docs/selector_v1_protocol.md`](../../../docs/selector_v1_protocol.md)。
+
+## V1 后续与论文候选 V2 裁定
+
+- 当前 V1 不停、不改科学参数：跑完 conditional scoring、Stage-2、B1 parity 和真实
+  B1/B2/B4 selected-set 评测，正式记录 B1 NO-GO，并重点报告
+  `set-conditioned − singleton`、冗余、后续 STOP 与完整集合 `U(S)`；
+- 当前 reusable train/heldout coalition scores 与 `cond_edge1/2` 继续有效。更换
+  student 架构、loss 或训练方式不需要重打已有集合，但 heldout 不得转为训练；
+- 若 B4 作为正文主结果，V2 增量增加
+  `cond_edge3=U({i,j,k,l})−U({i,j,k})`。复用已有 edge2 triple denominator，仅对稀疏
+  triple anchors 展开新的四元素 numerator，不重复生成 edge1/2；
+- V2 优先采用 Recent-seeded set-conditioned selector：B1 与 Recent parity，B2/B4 从
+  Recent-1 seed 开始学习 edge1/2/3 与 STOP；新 gate 的 B1 是 parity 审计，B2/B4 才要求
+  显著超过 Recent/Similarity/Random；
+- 统一从空集合学习 `edge0–edge3` 保留为更高风险备选；Stage-1 已显示当前 HGKV readout
+  对 singleton 排序信号很弱，不能假设换 Stage-2 架构就能自动修复首步。
+
+V2 是后续新实验契约，不追溯修改正在执行的 V1 config、labels、selection 或 gate。

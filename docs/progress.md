@@ -288,6 +288,28 @@
   heldout-once 纪律；conditional edge 指标仍只是训练诊断，正式结论必须来自所选完整集合
   的重渲染、hg-s100 重打分与 B1/B2/B4 paired CI。
 
+## 2026-07-24:selector V1 NO-GO 与论文候选 V2 裁定
+
+- Stage-1 heldout realized `U=0.104780`，Recent `U=0.113203`，差值 `−0.008423`
+  （95% CI `[−0.010526,−0.006338]`）；mean Spearman `0.022291`、top-1
+  `0.173967`，没有学到优于 Recent 的 singleton 排序。`STOP accuracy=0.906848`
+  约等于类别 majority baseline，不作正面证据。
+- V1 set-conditioned selector 的第一张完全由 Stage-1 决定，B1 与 singleton 路径必须
+  parity；原 gate 又要求 B1/B2/B4 每个预算都显著胜 Recent/Similarity/Random。因此 V1
+  已由 B1 确定为 NO-GO，Stage-2 无法挽救原 conjunctive gate。
+- 正在运行的 V1 不停、不调参：继续完成 conditional scores、Stage-2、selector inference、
+  B1 parity 和真实 selected-set 重打分。结果定位为 interaction diagnostic，重点比较
+  B2/B4 `set-conditioned − singleton`、集合冗余、后续 STOP 和完整集合 `U(S)`。
+- 当前 edge1/2 coalition scores 是可复用 teacher labels；未来更换 student/loss 不重打
+  已有集合。若 B4 进入正文，V2 增量增加
+  `cond_edge3=U({i,j,k,l})−U({i,j,k})`，复用已有 triple denominator，只稀疏生成新的
+  four-event numerator。
+- 论文候选 V2 优先为 Recent-seeded set-conditioned selector：B1 与 Recent parity，
+  B2/B4 从 Recent-1 seed 学习 edge1/2/3 与 STOP；B1 只做 parity 审计，B2/B4 才执行
+  superiority gate。统一从空集合学习 edge0–edge3 保留为高风险备选。
+- 该裁定只定义后续 versioned V2，不修改已冻结并执行中的 V1 config、数据、标签、选择或
+  gate。
+
 ## 2026-07-24:selected-set 正式 gate 的 plan→render→score→reduce 路径冻结
 
 - `select_hgkv_sets_v1.py` 同时物化 HGKV singleton independent 与 HGKV

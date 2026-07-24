@@ -37,11 +37,13 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   unique-key、统一 1,280 维、逐行长度与有限值验证；首轮唯一截断 PNG 已由两个
   SHA256 一致的持久化副本恢复，只续跑失败的 shard 1/5/6。逐 shard 哈希、恢复证据和
   完整命令见 [`data/results/hgkv_readout_v1/`](data/results/hgkv_readout_v1/README.md)。
-- **HGKV selector Stage-1 已按冻结协议完成。** 75,628 条 readout 全量 join；heldout
-  1,621 states 上 realized `U=0.104780`，低于 Recent `0.113203`，差值 `−0.008423`
-  (95% CI `[−0.010526,−0.006338]`)。这是 singleton 训练诊断而非正式 gate；不事后调参，
-  继续用其初始化 Stage-2，并以完整 selected-set 重渲染/重打分裁决 interaction
-  modeling。结果与 provenance 见
+- **HGKV selector V1 已由 Stage-1 确定为 NO-GO，Stage-2 继续作冻结诊断。** 75,628 条
+  readout 全量 join；heldout 1,621 states 上 realized `U=0.104780`，低于 Recent
+  `0.113203`，差值 `−0.008423`（95% CI `[−0.010526,−0.006338]`）。V1 的
+  set-conditioned B1 与 Stage-1 完全相同，而原 gate 要求 B1/B2/B4 每个预算都显著胜
+  Recent，因此 V1 无论 Stage-2 如何都不能 PASS。当前 run 不改协议地跑完，用真实完整
+  selected set 诊断 B2/B4 interaction；论文候选 V2 优先采用 Recent seed，并为 B4
+  增量补 `cond_edge3`。结果、裁定与 provenance 见
   [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)。
 - **GUI-Odyssey 外部训练零样本泛化 AndroidWorld 成立(基础能力层)。** 修正版 odyv2-s75:
   B0=6/45(frozen 3),配对净胜 +3、Δ+0.067 CI[+0.000,+0.133],parse 死亡 26→1;记忆剂量
