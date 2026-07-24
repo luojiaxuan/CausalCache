@@ -234,6 +234,11 @@
 - 真实 render inventory 验证该分片不变量：heldout `45,227 raw / 38,836 unique /
   6,391 same-file duplicates / 0 cross-file`；train `255,490 / 219,549 / 35,941 / 0`。
   31 个 selector/scorer 聚焦测试全过后才允许发射 conditional scoring。
+- conditional scoring 是独立 wrapper 路径，在 141GB H200 上按已测单进程约 18–20GB
+  显存配置每卡 2 个 slot：16 logical shards 映射
+  `0,0,1,1,...,7,7`，32 个 physical render files 每 process 2 个；feature extractor
+  的一 GPU 一 shard 约束不变。slot 映射、每个 child argv 与 input manifest 全部进
+  launch manifest，若真实长 prompt OOM 则保留 resume 行并降回 8 slot 诊断。
 
 ## 2026-07-24:conditional hg-s100 打分器的流式 file-shard 路径冻结
 

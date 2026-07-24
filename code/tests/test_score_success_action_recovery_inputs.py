@@ -5,6 +5,7 @@ from pathlib import Path
 
 from scripts.run_success_action_scoring_shards import (
     input_manifest,
+    parse_gpu_slots,
     score_key,
     validate_score_outputs,
 )
@@ -130,3 +131,12 @@ def test_input_manifest_rejects_resume_identity_across_files(
 
     with pytest.raises(ValueError, match="crosses physical input files"):
         input_manifest([first, second])
+
+
+def test_scoring_gpu_slots_allow_two_processes_per_h200() -> None:
+    assert parse_gpu_slots("0,0,1,1,7,7") == [0, 0, 1, 1, 7, 7]
+
+    import pytest
+
+    with pytest.raises(Exception, match="non-negative"):
+        parse_gpu_slots("0,-1")

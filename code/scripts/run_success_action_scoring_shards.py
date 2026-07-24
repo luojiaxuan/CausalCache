@@ -15,7 +15,6 @@ from typing import Any
 
 from scripts.run_hgkv_readout_extraction_shards import (
     atomic_write_json,
-    parse_gpu_indices,
     sha256_file,
 )
 from scripts.score_success_action_recovery import resolve_sample_paths
@@ -28,6 +27,20 @@ def score_key(row: dict[str, Any]) -> tuple[str, str, int | None, str | None]:
         row.get("singleton_event_step_id"),
         row.get("restored_set_key"),
     )
+
+
+def parse_gpu_slots(raw: str) -> list[int]:
+    try:
+        slots = [int(item) for item in raw.split(",") if item.strip()]
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            "GPU slots must be comma-separated integers"
+        ) from exc
+    if not slots or min(slots) < 0:
+        raise argparse.ArgumentTypeError(
+            "GPU slots must be non-negative integers"
+        )
+    return slots
 
 
 def input_manifest(paths: list[Path]) -> tuple[dict[str, str], set[tuple]]:
@@ -251,7 +264,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--adapter-layer-count", type=int, default=8)
     parser.add_argument("--shard-count", type=int, required=True)
     parser.add_argument(
-        "--gpu-local-indices", type=parse_gpu_indices, required=True
+        "--gpu-local-indices", type=parse_gpu_slots, required=True
     )
     parser.add_argument("--samples-glob", required=True)
     parser.add_argument("--shard-by-file", action="store_true")
