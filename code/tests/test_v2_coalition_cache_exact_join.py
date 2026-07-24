@@ -8,6 +8,7 @@ import pytest
 
 from scripts.build_hgkv_coalition_score_cache_v2 import (
     build_cache_rows,
+    inventory_coverage,
     load_b0_scores,
     load_target_actions,
 )
@@ -65,6 +66,21 @@ def test_exact_key_cache_joins_b0_and_deduplicates(tmp_path):
     singleton = next(row for row in rows if row["restored_set_key"] == "3")
     assert singleton["u_act"] == pytest.approx(0.2)
     assert singleton["source_versions"] == ["v1-a", "v1-b"]
+    inventory = tmp_path / "states.jsonl"
+    _write(
+        inventory,
+        [
+            {
+                "pair_group": "episode:7",
+                "candidate_event_step_ids": [1, 2, 3],
+            }
+        ],
+    )
+    coverage = inventory_coverage(rows, [inventory])
+    assert coverage["b0_cached_states"] == 1
+    assert coverage["required_singletons"] == 3
+    assert coverage["cached_singletons"] == 1
+    assert coverage["missing_singletons"] == 2
 
 
 def test_exact_key_conflict_fails_closed(tmp_path):

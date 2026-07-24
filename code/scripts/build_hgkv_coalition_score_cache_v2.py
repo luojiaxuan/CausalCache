@@ -190,6 +190,52 @@ def build_cache_rows(
     return rows
 
 
+def inventory_coverage(
+    cache_rows: Sequence[Mapping[str, Any]],
+    state_paths: Sequence[Path],
+) -> dict[str, Any]:
+    states: dict[str, tuple[int, ...]] = {}
+    for _path, _line_no, row in _read_rows(state_paths):
+        pair_group = str(row["pair_group"])
+        if pair_group in states:
+            raise ValueError(f"duplicate V2 inventory state {pair_group}")
+        states[pair_group] = tuple(
+            int(value) for value in row["candidate_event_step_ids"]
+        )
+    observed = {
+        (str(row["pair_group"]), str(row["restored_set_key"]))
+        for row in cache_rows
+        if str(row["pair_group"]) in states
+    }
+    required_singletons = {
+        (pair_group, str(candidate))
+        for pair_group, candidates in states.items()
+        for candidate in candidates
+    }
+    cached_singletons = required_singletons & observed
+    fully_covered = sum(
+        all((pair_group, str(candidate)) in observed for candidate in candidates)
+        for pair_group, candidates in states.items()
+    )
+    by_set_size: dict[int, int] = {}
+    for pair_group, key in observed:
+        size = 0 if not key else len(key.split("-"))
+        by_set_size[size] = by_set_size.get(size, 0) + 1
+    return {
+        "states": len(states),
+        "b0_cached_states": sum(
+            (pair_group, "") in observed for pair_group in states
+        ),
+        "required_singletons": len(required_singletons),
+        "cached_singletons": len(cached_singletons),
+        "missing_singletons": len(required_singletons - cached_singletons),
+        "states_with_complete_singleton_coverage": fully_covered,
+        "cached_coalitions_by_set_size": {
+            str(size): by_set_size[size] for size in sorted(by_set_size)
+        },
+    }
+
+
 def _parse_source(value: str) -> tuple[str, list[Path]]:
     if "=" not in value:
         raise argparse.ArgumentTypeError("--score-source must be VERSION=GLOB")
@@ -206,6 +252,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--target-samples", action="append", required=True)
     parser.add_argument("--b0-scores", action="append", required=True)
+    parser.add_argument("--state-inventory", action="append", required=True)
     parser.add_argument(
         "--score-source", action="append", type=_parse_source, required=True
     )
@@ -219,8 +266,9 @@ def main() -> None:
 
     target_paths = _paths(args.target_samples)
     b0_paths = _paths(args.b0_scores)
-    if not target_paths or not b0_paths:
-        parser.error("target samples and B0 patterns must match files")
+    state_paths = _paths(args.state_inventory)
+    if not target_paths or not b0_paths or not state_paths:
+        parser.error("target, B0, and state inventory patterns must match files")
     targets = load_target_actions(target_paths)
     b0 = load_b0_scores(b0_paths)
     rows = build_cache_rows(
@@ -253,6 +301,10 @@ def main() -> None:
         "input_sha256": {
             str(path): _file_sha256(path) for path in all_inputs
         },
+        "state_inventory_sha256": {
+            str(path): _file_sha256(path) for path in state_paths
+        },
+        "v2_inventory_coverage": inventory_coverage(rows, state_paths),
         "output_sha256": _file_sha256(args.output),
     }
     args.manifest.parent.mkdir(parents=True, exist_ok=True)
