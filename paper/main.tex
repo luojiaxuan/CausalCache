@@ -70,17 +70,19 @@ interface changes over many decisions. Retaining every screenshot is expensive
 and can distract a multimodal policy, whereas replacing the entire trajectory
 with text summaries removes exact visual evidence such as toggle state,
 layout, transient values, and spatial correspondence. A practical agent must
-therefore decide which historical events remain available in high fidelity.
+therefore decide which historical events remain available in high fidelity
+\citep{lu2025guiodyssey,zeng2026mementogui,shi2026androtmem}.
 
 Most memory controllers address only the selection problem. They retain recent
 events, retrieve visually similar screenshots, or learn salience from task
-supervision. These approaches implicitly assume that the action policy already
-understands multiple historical screenshots. Our experiments expose a more
-basic failure: a strong frozen GUI policy can change its output when history
-images are added while remaining insensitive, or even oppositely sensitive,
-to whether those images contain the correct historical evidence. In that
-regime, a better selector has little opportunity to improve executable
-behavior because the selected evidence is not reliably consumed.
+supervision \citep{zeng2026mementogui,shi2026androtmem,liu2026atmem}. These
+approaches implicitly assume that the action policy already understands
+multiple historical screenshots. Our experiments expose a more basic failure:
+a strong frozen GUI policy can change its output when history images are added
+while remaining insensitive, or even oppositely sensitive, to whether those
+images contain the correct historical evidence. In that regime, a better
+selector has little opportunity to improve executable behavior because the
+selected evidence is not reliably consumed.
 
 Naively fine-tuning the whole policy is not a clean solution. Full-layer
 adaptation simultaneously changes current-screen understanding, action syntax,
@@ -128,31 +130,36 @@ Our contributions are:
 
 \section{Related Work}
 
-\paragraph{GUI agents and benchmarks.}
+\paragraph{Visual GUI agents and benchmarks.}
+Screenshot-based GUI agents increasingly learn grounding and action prediction
+directly from pixels, including CogAgent, SeeClick, ShowUI, and GUI-Owl
+\citep{hong2024cogagent,cheng2024seeclick,lin2025showui,xu2026mobileagent35}.
 AndroidWorld provides dynamically instantiated mobile tasks with executable
-success checks \cite{rawles2025androidworld}, while OSWorld evaluates agents in
-real desktop applications \cite{xie2024osworld}. GUI-Odyssey supplies
+success checks \citep{rawles2025androidworld}, while OSWorld evaluates agents in
+real desktop applications \citep{xie2024osworld}. GUI-Odyssey supplies
 cross-application mobile trajectories and serves as our only adaptation and
-selector-training source \cite{lu2025guiodyssey}. We use GUI-Owl-1.5-8B as the
-frozen cross-platform base policy \cite{xu2026mobileagent35}.
+selector-training source \citep{lu2025guiodyssey}. We use GUI-Owl-1.5-8B as the
+frozen cross-platform base policy \citep{xu2026mobileagent35}.
 
 \paragraph{Long-horizon GUI memory.}
-MementoGUI learns multimodal memory writing, compression, and retrieval
-operators \cite{zeng2026mementogui}. AndroTMem retrieves causally linked anchor
-states from interaction histories \cite{shi2026androtmem}. These works
-establish that long-horizon GUI control benefits from selective memory. \method
-focuses on a complementary bottleneck: before selecting historical images, the
-policy must be trained to interpret them without losing its original action
+GUI-Odyssey couples cross-app trajectories with a history resampler that attends
+to prior screenshots \citep{lu2025guiodyssey}. MementoGUI learns multimodal
+memory writing, compression, and retrieval operators
+\citep{zeng2026mementogui}. AndroTMem retrieves causally linked anchor states
+from interaction histories \citep{shi2026androtmem}. These systems establish
+that long-horizon GUI control benefits from selective memory. \method focuses
+on a complementary bottleneck: before selecting historical images, the policy
+must be trained to interpret them without losing its original action
 capabilities.
 
 \paragraph{Interventional memory value.}
 Recent work studies memory through controlled interventions or active state
-influence \cite{srivastava2026cmi,liu2026atmem}. Our intervention is narrower
+influence \citep{srivastava2026cmi,liu2026atmem}. Our intervention is narrower
 and executable: every event always retains the same low-fidelity record, while
 a selected event additionally exposes exactly one archived post-action image.
 The resulting score is a policy-specific behavioral surrogate rather than an
 environment-level causal effect. Coalition-conditioned marginals are related to
-cooperative-game attribution \cite{shapley1953value}, but our goal is not to
+cooperative-game attribution \citep{shapley1953value}, but our goal is not to
 estimate a generic Shapley value; it is to train a deployable budgeted selector
 for a fixed GUI policy.
 
@@ -191,8 +198,8 @@ surrogate and closed-loop benchmarks provide final validation.
 \subsection{Policy-Preserving History-Gated KV Adapter}
 
 Let $h_l$ be the input to layer $l$'s attention projections. In the last eight
-language-model layers, \method adds rank-8, $\alpha=16$ low-rank residuals only
-to key and value projections:
+language-model layers, \method adds rank-8, $\alpha=16$ low-rank residuals
+\citep{hu2022lora} only to key and value projections:
 \begin{equation}
 \begin{aligned}
 K_l &= W^K_l h_l + M_{\mathrm{hist}}\,\Delta W^K_l h_l,\\
@@ -304,14 +311,17 @@ binary cross entropy, and STOP binary cross entropy. Stage 1 selects the first
 event, supplies the independent marginal baseline, and initializes Stage 2.
 
 \paragraph{Stage 2: set-conditioned marginal scorer.}
-Candidate embeddings already encode the current decision through their \hgkv
-readouts. Stage 2 applies one self-attention block to the selected-event
-embeddings and one cross-attention block from remaining candidates to that
-selected context. A remaining-budget embedding conditions marginal, rank,
-positive, and STOP heads. It is trained from real conditional edges such as
-$U(\{i,j\})-U(\{i\})$ and
-$U(\{i,j,k\})-U(\{i,j\})$, generated along fixed shortlist, recent, greedy, and
-small-beam paths rather than by enumerating the full power set.
+Permutation-invariant set models commonly aggregate elements through pooled or
+attention-based encoders \citep{zaheer2017deepsets,lee2019settransformer}.
+Our Stage 2 uses a deliberately lightweight variant: candidate embeddings
+already encode the current decision through their \hgkv readouts, one
+self-attention block contextualizes selected-event embeddings, and one
+cross-attention block maps remaining candidates to that selected context. A
+remaining-budget embedding conditions marginal, rank, positive, and STOP heads.
+It is trained from real conditional edges such as
+$U(\{i,j\})-U(\{i\})$ and $U(\{i,j,k\})-U(\{i,j\})$, generated along fixed
+shortlist, recent, greedy, and small-beam paths rather than by enumerating the
+full power set.
 
 At inference, Stage 1 makes the first choice; Stage 2 then repeatedly compares
 the best remaining candidate with STOP:
@@ -344,22 +354,23 @@ a large-memory policy stress test.
 \subsection{Training and Model Selection}
 
 All adapter and selector parameters are trained and selected only on corrected
-GUI-Odyssey trajectories. Coordinates are interpreted in their native
-normalized range; system-button actions and terminal states are retained, and
-incomplete trajectories are excluded. Splits are trajectory-disjoint. The
-history adapter is selected only from GUI-Odyssey history-use metrics. The
-Stage-1 and Stage-2 selectors use train-episode GroupKFold for epoch selection,
-followed by a full-train refit and one read of the GUI-Odyssey development set.
-No AndroidWorld or OSWorld task is used to choose an architecture, checkpoint,
-loss, threshold, or budget.
+GUI-Odyssey trajectories \citep{lu2025guiodyssey}. Coordinates are interpreted
+in their native normalized range; system-button actions and terminal states are
+retained, and incomplete trajectories are excluded. Splits are
+trajectory-disjoint. The history adapter is selected only from GUI-Odyssey
+history-use metrics. The Stage-1 and Stage-2 selectors use train-episode
+GroupKFold for epoch selection, followed by a full-train refit and one read of
+the GUI-Odyssey development set. No AndroidWorld or OSWorld task is used to
+choose an architecture, checkpoint, loss, threshold, or budget.
 
 \subsection{Policies and Memory Baselines}
 
-The frozen policy is GUI-Owl-1.5-8B-Instruct. We compare:
+The frozen policy is GUI-Owl-1.5-8B-Instruct
+\citep{xu2026mobileagent35}. We compare:
 \begin{itemize}
     \item \textbf{Frozen}: no trainable policy adapter;
     \item \textbf{Full-layer LoRA}: the strongest corrected GUI-Odyssey baseline,
-    modifying all language-model Q/K/V/O projections;
+    modifying all language-model Q/K/V/O projections \citep{hu2022lora};
     \item \textbf{Top-8 ungated KV}: an architecture-matched control using the
     same layers, K/V targets, rank, and alpha as \hgkv but without token gating;
     \item \textbf{HGKV}: the proposed policy-preserving history interface.
@@ -371,14 +382,15 @@ the same low-fidelity history and the same number of restored images.
 
 \subsection{Zero-Shot Benchmarks and Metrics}
 
-AndroidWorld is evaluated on all 116 task templates with two fixed dynamic
-instances per template. We average the two instances within each template and
-report template-macro success, with 10,000 template-clustered paired bootstrap
-replicates. The primary headline includes all templates; a predefined
-107-template action-compatible view is a sensitivity analysis. OSWorld uses the
-fixed 361-task no-Google-Drive roster and reports mean normalized task score.
-Infrastructure failures remain in an intention-to-treat denominator unless the
-environment fails before any policy step under a policy-agnostic void rule.
+AndroidWorld \citep{rawles2025androidworld} is evaluated on all 116 task
+templates with two fixed dynamic instances per template. We average the two
+instances within each template and report template-macro success, with 10,000
+template-clustered paired bootstrap replicates. The primary headline includes
+all templates; a predefined 107-template action-compatible view is a
+sensitivity analysis. OSWorld \citep{xie2024osworld} uses the fixed 361-task
+no-Google-Drive roster and reports mean normalized task score. Infrastructure
+failures remain in an intention-to-treat denominator unless the environment
+fails before any policy step under a policy-agnostic void rule.
 
 For policy adaptation we report $B=0$, Recent-4, and Recent-8. For selection we
 hold \hgkv fixed and report $B\in\{1,2,4\}$. Offline selector metrics include
