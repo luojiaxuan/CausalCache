@@ -25,6 +25,7 @@ from scripts.train_hgkv_selector_v2 import (
     collate_groups,
     trajectory_group_folds,
 )
+from scripts.validate_hgkv_teacher_render_v2 import validate_render
 from scripts.validate_selector_inference_v2 import validate_selections
 
 
@@ -147,6 +148,27 @@ def test_teacher_renderer_deduplicates_child_set_without_losing_plan_edges(
         expected_by_key=coalitions,
     )
     assert annotated[0]["teacher_depth"] == 1
+
+    image = tmp_path / "candidate.png"
+    image.write_bytes(b"png")
+    annotated[0]["memory_config"] = {
+        "restored_event_step_ids": [1, 2]
+    }
+    annotated[0]["decision_step_id"] = 9
+    annotated[0]["messages"] = [
+        {"content": [{"type": "image", "path": image.name}]}
+    ]
+    sample_path = tmp_path / "samples.jsonl"
+    sample_path.write_text(
+        json.dumps(annotated[0]) + "\n",
+        encoding="utf-8",
+    )
+    result = validate_render(
+        plan_paths=[path],
+        sample_paths=[sample_path],
+    )
+    assert result["observed_coalitions"] == 1
+    assert result["referenced_images"] == 1
 
 
 def test_teacher_runner_reduces_covered_depth_then_waits_for_exact_cache(
