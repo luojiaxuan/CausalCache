@@ -51,7 +51,18 @@ from scripts.run_set_utility_androidworld_episode import (
 
 
 LOCAL_ARMS = (SUMMARY_ARM, RECENT_ARM, OCR_RGB_ARM)
-CEILING_ARMS = ("summary_B0", "recent_B1", "recent_B2", "recent_B4", "recent_B8")
+# note (luojiaxuan): oldest_B8 是 recent_B8 的选择对照——同样 8 张高保真图,但取
+# 最老的 8 个事件。frozen 的 B8>B0 增益若来自"上下文里有近期画面"(防打转/知收尾),
+# oldest_B8 应掉回 B0 附近;若来自"有图就行",则与 recent_B8 齐平。同时它本身是
+# 记忆消融表的 Oldest-B 选择基线。历史事件 ≤8 时两臂天然等价(全取),对照只在长局成立。
+CEILING_ARMS = (
+    "summary_B0",
+    "recent_B1",
+    "recent_B2",
+    "recent_B4",
+    "recent_B8",
+    "oldest_B8",
+)
 COMPLETE_STATUS = "COMPLETE_EXPLORATORY_VALIDATION12_EPISODE"
 EFFECTIVE_VISUAL_TOKENS_PER_IMAGE = 2560
 
@@ -138,6 +149,11 @@ def _select_arm_memory(
     candidates = tuple(event.event_step_id for event in history)[:-1]
     if arm in CEILING_ARMS:
         budget = ceiling_arm_budget(arm)
+        if arm.startswith("oldest_"):
+            selected = (
+                () if budget == 0 else candidates[: min(budget, len(candidates))]
+            )
+            return selected, {"method": f"ceiling_oldest_first_min_{budget}"}
         selected = (
             () if budget == 0 else candidates[-min(budget, len(candidates)) :]
         )
