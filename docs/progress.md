@@ -134,3 +134,17 @@
   host-aware checkpoint,GPU 隔离;checkpoint 加载确认通过;扩容 9 台新 emulator 因并行装 APK
   冲突失败已清,15 台既有 emulator 稳跑;
 - 旧 25×3 的 index-2 局保留作附录 within-template 方差检查。
+
+## 2026-07-24:AAAI draft 主结果表与 selector 分析表同步
+
+- `paper/main.tex` 按冻结零样本叙事加入两张正文表骨架:Table 1 为 AndroidWorld /
+  OSWorld 上下 panel,统一六行 policy-selector 对照与 B0/B1/B2/B4/B8/Avg(B>0);
+  Table 2 固定 HGKV policy,报告 GUI-Odyssey development 上 B1/B2/B4 真实 selected-set
+  utility、oracle recovery/regret、STOP rate 与 latency。
+- 所有未完成数值统一显式写为 `TBD`;HGKV 三行 B0 标为与 Frozen 相同,caption 记录 B0
+  structural bypass。Full-layer 与 Top-8 ungated KV 的 B0 仍需独立评测。
+- appendix 已为 closed-loop selector controls、HGKV 4/8/12 层、rank 4/8/16、set encoder、
+  loss 权重与 corruption variants 建占位;正文主表不展开 policy × selector 组合。
+- draft 的实验协议同步为 adapter/selector 全部只在 GUI-Odyssey 训练与选择、AndroidWorld
+  116 templates × 2 fixed instances 的 template-macro success、OSWorld full fixed roster 的
+  mean normalized score;Table 2 明确禁止用 singleton gain 求和替代完整集合重打分。

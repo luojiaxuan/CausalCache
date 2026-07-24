@@ -6,11 +6,14 @@
 冻结契约见 [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md)):在完全冻结
 GUI-Owl 原始参数的条件下,只新增一个解释恢复历史视觉证据的 KV 接口(最后 8 层 k/v_proj、
 mask 门控 residual、B0 逐位等价),用 benchmark-external 的修正版 GUI-Odyssey 训练,
-零样本迁移 AndroidWorld 与 OSWorld。**paper 全线零样本**:主表三个 policy —— Frozen /
-Full-layer LoRA(全参零样本对照)/ History-gated —— 对 AndroidWorld 全部零样本(均在
-GUI-Odyssey 训练/选择,AndroidWorld 不参与),报**全量 116-template** 标准套件。此前在
-AndroidWorld 上训练的 margin-SFT 线(v3-e1)已从 paper 移除(与全零样本叙事冲突),连同
-restoration / gate v1 / independent / set-utility(selector v0)各时代一并归档:摘要见
+零样本迁移 AndroidWorld 与 OSWorld。**paper 全线零样本**:端到端主表固定六行——
+Frozen / Full-layer LoRA / Top-8 ungated KV LoRA / HGKV 均配 Recent,再在 HGKV 下比较
+Recent / marginal / set-conditioned selector;列固定 B0/B1/B2/B4/B8/Avg(B>0)。
+AndroidWorld 报**全量 116-template × 2 fixed instances**的 template-macro success,
+OSWorld 报 full fixed roster 的 mean normalized task score。全部 adapter/selector 仅在
+GUI-Odyssey 训练与选择;未完成单元格在论文中显式标 `TBD`。此前在 AndroidWorld 上训练的
+margin-SFT 线(v3-e1)已从 paper 移除(与全零样本叙事冲突),连同 restoration / gate v1 /
+independent / set-utility(selector v0)各时代一并归档:摘要见
 [`docs/archive/README.md`](docs/archive/README.md)。
 
 ## 当前结论
@@ -103,9 +106,12 @@ restoration / gate v1 / independent / set-utility(selector v0)各时代一并归
   correct/b0/shuffled/irrelevant 共享同一成功动作 target;数据为修正版 GUI-Odyssey
   (ody-sft-v2,37,635 样本),轨迹 ID 三切分 train/tune/heldout,checkpoint 只按 Odyssey
   tune/heldout 选,不触 benchmark。
-- **Selector(adapter 过跨平台门后)**:`U_act(S) = log p_gate(a*|S) − log p_0(a*|B0)`,
-  per-event singleton gain + positive-gain threshold + at-most-B + STOP,GUI-Odyssey-only
-  训练与选择、零样本部署;标签生成见
+- **Selector(adapter 过跨平台门后)**:`U_act(S) = log p_gate(a*|S) − log p_0(a*|B0)`。
+  Stage 1 singleton/marginal scorer 负责 B1、shortlist 与 independent baseline;Stage 2
+  set-conditioned selector 显式输入已选集合和剩余预算,逐步预测 conditional marginal 并与
+  STOP 比较。正式 B1/B2/B4 utility 必须将完整选中集合重新送入 hg-s100,禁止 singleton
+  gain 求和冒充 set utility。仅在 GUI-Odyssey 训练与选择、零样本部署;协议与标签生成见
+  [`docs/selector_v1_protocol.md`](docs/selector_v1_protocol.md)和
   [`data/results/odyssey_selector_labels_v1/`](data/results/odyssey_selector_labels_v1/README.md)。
 - 完整契约(token-role fail-closed 规则、数据协议、Outcome A-E 升级/回退决策树)见
   [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md)。旧 set-utility 方法

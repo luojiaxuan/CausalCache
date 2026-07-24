@@ -17,4 +17,5 @@ make paper
 
 输出：`output/pdf/causalcache_aaai27.pdf`。
 
-`main.tex` 保持单一正文源文件，以符合 AAAI author kit 的提交要求。当前所有未完成实验结果均以 `[Pending: ...]` 显式标记，不能在获得可复核结果前替换为经验性结论。
+`main.tex` 保持单一正文源文件，以符合 AAAI author kit 的提交要求。当前未完成的段落级结果以
+`[Pending: ...]` 标记，表格单元格以 `TBD` 标记；不能在获得可复核结果前替换为经验性结论。
