@@ -192,6 +192,7 @@ def main() -> None:
     parser.add_argument("--prompt-revision", required=True)
     parser.add_argument("--hgkv-checkpoint-sha256", required=True)
     parser.add_argument("--b0-policy-sha256", required=True)
+    parser.add_argument("--source-commit", required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--manifest", type=Path, required=True)
     args = parser.parse_args()
@@ -228,6 +229,7 @@ def main() -> None:
         "prompt_revision": args.prompt_revision,
         "hgkv_checkpoint_sha256": args.hgkv_checkpoint_sha256,
         "b0_policy_sha256": args.b0_policy_sha256,
+        "source_commit": args.source_commit,
         "input_sha256": {
             str(path): _file_sha256(path) for path in all_inputs
         },
