@@ -14,6 +14,7 @@ import argparse
 import json
 from contextlib import nullcontext
 from pathlib import Path
+from typing import Iterator
 
 from scripts.run_exploratory_closed_loop_episode import (
     EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
@@ -31,6 +32,40 @@ try:
 except ImportError:
     history_sample_context = None
 from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntime
+
+
+def resolve_sample_paths(dataset_root: Path, samples_glob: str) -> list[Path]:
+    paths = sorted(dataset_root.glob(samples_glob))
+    if not paths:
+        raise FileNotFoundError(
+            f"{dataset_root} contains no inputs matching {samples_glob!r}"
+        )
+    return paths
+
+
+def iter_sharded_samples(
+    paths: list[Path],
+    *,
+    shard_index: int,
+    shard_count: int,
+    shard_by_file: bool,
+) -> Iterator[dict]:
+    if not 0 <= shard_index < shard_count:
+        raise ValueError("shard-index must be in [0, shard-count)")
+    if shard_by_file:
+        selected_paths = paths[shard_index::shard_count]
+        for path in selected_paths:
+            with path.open(encoding="utf-8") as handle:
+                for line in handle:
+                    yield json.loads(line)
+        return
+    global_index = 0
+    for path in paths:
+        with path.open(encoding="utf-8") as handle:
+            for line in handle:
+                if global_index % shard_count == shard_index:
+                    yield json.loads(line)
+                global_index += 1
 
 
 def main() -> None:
@@ -52,6 +87,8 @@ def main() -> None:
     parser.add_argument("--episodes-filter", type=Path, default=None)
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
+    parser.add_argument("--samples-glob", default="samples.jsonl")
+    parser.add_argument("--shard-by-file", action="store_true")
     args = parser.parse_args()
 
     import torch
@@ -114,10 +151,7 @@ def main() -> None:
         allowed_episodes = set(
             args.episodes_filter.read_text(encoding="utf-8").split()
         )
-    samples = [
-        json.loads(line)
-        for line in (args.dataset_root / "samples.jsonl").open(encoding="utf-8")
-    ]
+    sample_paths = resolve_sample_paths(args.dataset_root, args.samples_glob)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     # note (luojiaxuan): skip-existing 断点续跑——已打分行用 (pair_group, variant,
     # singleton_event_step_id, restored_set_key) 作幂等键;selector 单图标签同组
@@ -144,9 +178,12 @@ def main() -> None:
                 )
             )
     with args.output.open("a", encoding="utf-8") as handle:
-        for index, sample in enumerate(samples):
-            if index % args.shard_count != args.shard_index:
-                continue
+        for sample in iter_sharded_samples(
+            sample_paths,
+            shard_index=args.shard_index,
+            shard_count=args.shard_count,
+            shard_by_file=args.shard_by_file,
+        ):
             if allowed_episodes is not None and sample["episode"] not in allowed_episodes:
                 continue
             if (
@@ -218,7 +255,16 @@ def main() -> None:
             )
             handle.flush()
             torch.cuda.empty_cache()
-    print(json.dumps({"scored_shard": args.shard_index, "of": args.shard_count}))
+    print(
+        json.dumps(
+            {
+                "input_files": len(sample_paths),
+                "scored_shard": args.shard_index,
+                "shard_by_file": args.shard_by_file,
+                "of": args.shard_count,
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

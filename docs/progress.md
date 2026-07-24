@@ -172,6 +172,19 @@
   exactly-B1 真实 U_act 相对 Recent/Random 的 10k paired bootstrap CI；它仍是 singleton
   训练诊断，不替代 B1/B2/B4 selected-set 正式 gate。
 
+## 2026-07-24:conditional hg-s100 打分器的流式 file-shard 路径冻结
+
+- conditional renderer 的物理布局为每 split 32 个 `samples-shard*.jsonl`；heldout/train
+  分别 45,227/255,490 rows、`failed_shards=0`。旧 scorer 只认单个 `samples.jsonl`
+  且整表一次性载入内存，不适合 8 进程读取 2.9GB train JSON。
+- `score_success_action_recovery.py` 新增向后兼容的 `--samples-glob` 与
+  `--shard-by-file`：默认单文件/按行 modulo 行为不变；conditional 正式路径把排序后的
+  32 文件按 8 worker 分成每卡 4 文件并流式解析，避免 8 路重复全表 I/O 与内存副本。
+- 新增 `run_success_action_scoring_shards.py`：启动前冻结每个输入 shard SHA256、
+  聚合 manifest、checkpoint SHA、GPU 映射与完整 argv；终态按 scorer resume identity
+  `(pair_group,variant,singleton_event_step_id,restored_set_key)` 验证零缺失、零意外、
+  零重复和有限分数后才写 `DONE`。该路径将在 HGKV-readout 8 卡抽取完成后复用同一 allocation。
+
 ## 2026-07-24:AAAI draft 主结果表与 selector 分析表同步
 
 - `paper/main.tex` 按冻结零样本叙事加入两张正文表骨架:Table 1 为 AndroidWorld /
