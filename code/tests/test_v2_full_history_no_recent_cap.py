@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 from causalcache.hgkv_selector_v2 import temporal_features
+from scripts.build_hgkv_readout_cache_v2 import convert_rows
 from scripts.render_hgkv_selector_v2_singletons import (
     annotate_v2_singleton_samples,
     load_cached_singletons,
@@ -123,3 +124,44 @@ def test_missing_singleton_validator_requires_exact_complement(tmp_path):
     assert result["complete_singletons"] == 2
     assert result["referenced_images"] == 1
     assert result["status"] == "DONE"
+
+
+def test_v1_readout_reuse_appends_v2_temporal_features(tmp_path):
+    state = {
+        "episode": "episode",
+        "pair_group": "episode:12",
+        "decision_step": 12,
+        "history_length": 11,
+        "candidate_event_step_ids": [3, 4],
+    }
+    v1_path = tmp_path / "v1.jsonl"
+    v1_path.write_text(
+        json.dumps(
+            {
+                "pair_group": "episode:12",
+                "singleton_event_step_id": 3,
+                "feature": [0.0] * 1280,
+                "layer_indices": list(range(28, 36)),
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    rows, missing = convert_rows(
+        expected={
+            ("episode:12", 3): state,
+            ("episode:12", 4): state,
+        },
+        v1_paths=[v1_path],
+    )
+    assert len(rows) == 1
+    assert len(rows[0]["feature"]) == 1285
+    assert rows[0]["feature"][-5:] == list(
+        temporal_features(
+            event_step_id=3,
+            decision_step=12,
+            history_length=11,
+            candidate_event_step_ids=[3, 4],
+        )
+    )
+    assert missing == {("episode:12", 4)}
