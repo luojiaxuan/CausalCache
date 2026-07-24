@@ -377,6 +377,21 @@
 - manifest 入 Git 且本地/远端 SHA256 同为
   `1c6b052c...ecb152`；大规模 cache 仍为 `PENDING_HF_UPLOAD`，未冒充远端 canonical。
 
+## 2026-07-24:V2 full-history missing singleton 渲染完成
+
+- source commit `7056fec474ef8e3813887785c8f0e5a0a54c4de2` 在 hyper01 固定容器
+  `sglang-omni-jaxan` 内执行；只渲染 V2 inventory 相对 initial exact-key cache 的
+  complement。train/dev 为 `5,143/869`，合计 `6,012/6,012`。
+- validator 对完整 1,000-state inventory、canonical singleton key、恢复集合、
+  5-d temporal metadata 和 6,678 个引用图片逐项检查；duplicate/unexpected/missing
+  均为 0。与已有 7,668 个 exact singleton 合并后，full-history singleton 覆盖
+  `13,680/13,680`。
+- hyper01 完整 `DONE` SHA256 为
+  `e30e3923...71bf82`；轻量 Git summary 见
+  [`data/results/hgkv_selector_v2/singleton-render-manifest.json`](../data/results/hgkv_selector_v2/singleton-render-manifest.json)。
+- 6 张 H200、每卡 2 scorer 的 hg-s100 打分已在同一固定容器启动；必须等待 6,012
+  unique score identities 全量 validator 后才能更新 coalition cache 和进入 teacher beam。
+
 ## 2026-07-24:selected-set 正式 gate 的 plan→render→score→reduce 路径冻结
 
 - `select_hgkv_sets_v1.py` 同时物化 HGKV singleton independent 与 HGKV

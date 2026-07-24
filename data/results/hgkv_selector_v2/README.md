@@ -2,7 +2,7 @@
 
 ## 状态
 
-`INVENTORY_AND_INITIAL_EXACT_CACHE_DONE_IMPLEMENTATION_IN_PROGRESS`。
+`FULL_HISTORY_SINGLETON_RENDER_DONE_SCORING_IN_PROGRESS`。
 
 V2 取代 `NO_GO_HGKV_SELECTOR_V1`，主方法为 full-history、empty-start、true-U teacher
 beam-4、edge0–edge3、fresh unified set-conditioned student 与 learned beam-4 + STOP。
@@ -20,6 +20,7 @@ config 见
 | hg-s100 adapter | hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`；SHA256 `8f2cc49e1aa0b06ce231eb54937d813317f5274a799c97b09be7fdb22be46317` | local staging；`PENDING_HF_UPLOAD` |
 | V1 exact-key cache candidates | hyper01 `/data02/jaxan/runs/hgkv-conditional-scores-v1/` | heldout 38,836 DONE；train 160,928 ABORTED；exact hits imported |
 | V2 coalition score cache | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/coalition-cache/cache.jsonl`；[`coalition-cache-manifest.json`](coalition-cache-manifest.json) | 243,455 exact keys；`PENDING_HF_UPLOAD` |
+| V2 missing-singleton render | hyper01 `/data02/jaxan/artifacts/sft/hgkv-selector-v2-singletons/`；[`singleton-render-manifest.json`](singleton-render-manifest.json) | 6,012/6,012 missing keys；full inventory 13,680/13,680；scoring in progress |
 | V2 model checkpoint | intended HF model repo TBD | not trained |
 
 HF repo ID 是 intended destination，尚未创建或验证；不得当作已上传链接引用。
@@ -86,6 +87,24 @@ B0 policy identifier 固定为 GUI-Owl snapshot manifest SHA256
 
 ## 当前下一步
 
-1. 渲染并打分缺失的 6,012 个 full-history singletons，同时补 readout；
+1. 打分已渲染的 6,012 个 full-history singletons，同时补 readout；
 2. 按 true-U teacher beam-4 生成 edge0–edge3；
 3. 训练 fresh unified student 并执行 learned greedy/beam-4 gate。
+
+## Full-history singleton render
+
+source commit：
+`7056fec474ef8e3813887785c8f0e5a0a54c4de2`。缺失项按 V2 inventory 与 initial
+coalition cache 的 exact complement 渲染，train/dev 分别为 5,143/869，共
+6,012 行。
+
+- required/cached/rendered/complete：`13,680/7,668/6,012/13,680`；
+- duplicate/unexpected/missing：`0/0/0`；
+- referenced images：6,678，全部存在并完成 SHA256；
+- image manifest SHA256：
+  `c49654b92ee42718c99adc4876ce0c63f25e9b217929f4bec167bec40ba1e4d4`；
+- hyper01 完整 `DONE` SHA256：
+  `e30e39232d72e596a040fcafa3b2745d48f9b2ee71c51d143d8fe071bd71bf82`。
+
+12-way hg-s100 scoring 已在固定容器 `sglang-omni-jaxan`、GPU 0–5、每卡两个
+process 上启动；正式 cache 更新必须等待 scorer `DONE` exact-key validator。

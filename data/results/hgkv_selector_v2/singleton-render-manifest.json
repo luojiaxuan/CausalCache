@@ -1,0 +1,21 @@
+{
+  "schema_version": "causalcache.hgkv_selector_v2.singleton_render_git_summary.v1",
+  "source_commit": "7056fec474ef8e3813887785c8f0e5a0a54c4de2",
+  "remote_done_path": "/data02/jaxan/artifacts/sft/hgkv-selector-v2-singletons/DONE",
+  "remote_done_sha256": "e30e39232d72e596a040fcafa3b2745d48f9b2ee71c51d143d8fe071bd71bf82",
+  "states": 1000,
+  "required_singletons": 13680,
+  "cached_singletons": 7668,
+  "rendered_missing_singletons": 6012,
+  "complete_singletons": 13680,
+  "duplicate_rows": 0,
+  "unexpected_rows": 0,
+  "missing_rows": 0,
+  "referenced_images": 6678,
+  "image_manifest_sha256": "c49654b92ee42718c99adc4876ce0c63f25e9b217929f4bec167bec40ba1e4d4",
+  "train_rendered_rows": 5143,
+  "dev_rendered_rows": 869,
+  "train_state_sha256": "9c254298c23037436493bf449e1983975425345abf76f805331c8345face0137",
+  "dev_state_sha256": "3b545dc4de5aec129a919837b66db72712ef8b0e5ee2fb3930f6c2d1515f492c",
+  "status": "DONE"
+}
