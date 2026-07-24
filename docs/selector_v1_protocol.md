@@ -69,3 +69,15 @@
 5. 正式 selector gate:B1/B2/B4 selected-set 重渲染重打分(§4);
 6. 冻结 selector 架构、checkpoint、STOP 阈值;
 7. hg-s100 + selector 进 sealed AndroidWorld/OSWorld(合同第 15 步)。
+
+## 附:ody-labels 复用审计判定(2026-07-24,六路只读审计)
+
+- **渲染本体可用**:ody-labels-single(75,628)+ ody-labels-b0(10,680)六项审计全过
+  (坐标修复版确证、候选=历史事件除最新、cap 8 最近、schema/prompt 逐字节同 v2、
+  b0 配对 100%、零重复零坏行;+22 决策态为盘点表中段孔洞,非终止合成);
+- **b0 冻结分数可用**:另一会话 fl75-selector-labels 运行中 b0 半系 frozen 打分,
+  与 U_act 分母定义一致,exact-join 五键全命中,直接入账;
+- **singleton 既有分数必废**:系 full-layer odyv2-s75 打分(lora_modules=144、无
+  adapter_type),违反"旧 policy 标签不得混入";已于 2026-07-24 用 hg-s100 重打
+  (hyper00 12 分片 train 段 + hyper01 9 分片 heldout 段,输出
+  runs/hgkv-selector-labels/)。fl75 那份属 full-layer 平行线,不入主线。
