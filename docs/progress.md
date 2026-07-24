@@ -355,3 +355,21 @@
   与 canonical abstract URL；Mobile-Agent-v3.5 / CMI 为 `cs.AI`，其余三条为 `cs.CV`。
 - `make paper` 后五条均按 `aaai2027.bst` 渲染为普通文本 `arXiv:<id>.`；6 页 PDF
   保持不变，日志无 BibTeX warning、undefined citation/reference 或 overfull。
+
+## 2026-07-24:HGKV-readout 截断图片恢复与 sparse shard resume
+
+- 首轮 8-shard 抽取终态为 69,383/75,628：shard 0/2/3/4/7 完整，shard 1/5/6
+  分别停在 7,372/7,371/7,372 行。三个 traceback 均指向同一输入
+  `images/9471050986960951/observation-004.png`；该文件仅 8,704 bytes，PNG IDAT
+  声明 8,192 bytes 时只剩 430 bytes。
+- 对 singleton `samples.jsonl` 引用的 14,680 张唯一 PNG 做逐 chunk 长度与 CRC
+  扫描，确认坏图恰为 1 张。`sft-labels/ody-labels-single` 与
+  `sft-labels/ody-sft-v2` 的完整副本均为 231,296 bytes、SHA256
+  `c6d222fca77bb3827c3dc6b1e19e5a1355b012cbc4d71dc81fdfa25bc8e6a70d`；
+  原坏图已备份到
+  `/data02/jaxan/runs/hgkv-readout-v1/recovery/9471050986960951-observation-004.png.truncated`，
+  并以该一致副本原子替换。
+- wrapper 新增 `--shard-indices`，允许只把失败逻辑 shard 映射到所选 GPU，同时
+  保持最终对全部 8 个输出做 75,628 unique-key、统一维度、逐行长度和有限值验证。
+  extractor + wrapper 相关测试 15/15 通过；待 hyper01 续跑 shard 1/5/6 并生成
+  正式 `DONE`。

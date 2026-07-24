@@ -7,6 +7,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import math
 import os
 import subprocess
 import sys
@@ -32,6 +33,33 @@ def parse_gpu_indices(raw: str) -> list[int]:
     if not indices or min(indices) < 0 or len(indices) != len(set(indices)):
         raise argparse.ArgumentTypeError(
             "GPU indices must be unique non-negative integers"
+        )
+    return indices
+
+
+def parse_shard_indices(raw: str) -> list[int]:
+    try:
+        indices = [int(item) for item in raw.split(",") if item.strip()]
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            "shard indices must be comma-separated integers"
+        ) from exc
+    if not indices or min(indices) < 0 or len(indices) != len(set(indices)):
+        raise argparse.ArgumentTypeError(
+            "shard indices must be unique non-negative integers"
+        )
+    return indices
+
+
+def resolve_shard_indices(
+    shard_count: int, requested: list[int] | None
+) -> list[int]:
+    indices = list(range(shard_count)) if requested is None else requested
+    if shard_count <= 0:
+        raise ValueError("shard-count must be positive")
+    if any(index >= shard_count for index in indices):
+        raise ValueError(
+            f"shard indices {indices} exceed shard-count {shard_count}"
         )
     return indices
 
@@ -73,6 +101,12 @@ def validate_feature_outputs(
                 if len(row["feature"]) != feature_dim:
                     raise ValueError(
                         f"{path}:{line_number} feature length mismatch"
+                    )
+                if not all(
+                    math.isfinite(float(value)) for value in row["feature"]
+                ):
+                    raise ValueError(
+                        f"{path}:{line_number} contains non-finite features"
                     )
                 feature_dims.add(feature_dim)
                 count += 1
@@ -129,9 +163,13 @@ def build_child_command(
 
 
 def run(args: argparse.Namespace) -> int:
-    if len(args.gpu_local_indices) != args.shard_count:
+    shard_indices = resolve_shard_indices(
+        args.shard_count, args.shard_indices
+    )
+    if len(args.gpu_local_indices) != len(shard_indices):
         raise ValueError(
-            "gpu-local-indices count must equal shard-count for one process per shard"
+            "gpu-local-indices count must equal selected shard count "
+            "for one process per shard"
         )
     args.output_root.mkdir(parents=True, exist_ok=True)
     dataset_path = args.dataset_root / "samples.jsonl"
@@ -158,7 +196,7 @@ def run(args: argparse.Namespace) -> int:
 
     commands = [
         build_child_command(args, shard_index=index)
-        for index in range(args.shard_count)
+        for index in shard_indices
     ]
     atomic_write_json(
         args.output_root / "launch-manifest.json",
@@ -171,6 +209,7 @@ def run(args: argparse.Namespace) -> int:
             "gpu_local_indices": args.gpu_local_indices,
             "launched_at": dt.datetime.now(dt.timezone.utc).isoformat(),
             "shard_count": args.shard_count,
+            "shard_indices": shard_indices,
             "source_commit": args.source_commit,
         },
     )
@@ -178,8 +217,8 @@ def run(args: argparse.Namespace) -> int:
 
     processes: list[tuple[subprocess.Popen[bytes], Any]] = []
     python_path = str(args.repository_root / "code")
-    for shard_index, (gpu_index, command) in enumerate(
-        zip(args.gpu_local_indices, commands, strict=True)
+    for shard_index, gpu_index, command in zip(
+        shard_indices, args.gpu_local_indices, commands, strict=True
     ):
         environment = os.environ.copy()
         environment["CUDA_VISIBLE_DEVICES"] = str(gpu_index)
@@ -199,11 +238,13 @@ def run(args: argparse.Namespace) -> int:
         )
         processes.append((process, log_handle))
 
-    return_codes: list[int] = []
-    for process, log_handle in processes:
-        return_codes.append(process.wait())
+    return_codes: dict[str, int] = {}
+    for shard_index, (process, log_handle) in zip(
+        shard_indices, processes, strict=True
+    ):
+        return_codes[str(shard_index)] = process.wait()
         log_handle.close()
-    if any(code != 0 for code in return_codes):
+    if any(code != 0 for code in return_codes.values()):
         atomic_write_json(
             args.output_root / "FAILED.json",
             {
@@ -244,6 +285,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--shard-count", type=int, required=True)
     parser.add_argument(
         "--gpu-local-indices", type=parse_gpu_indices, required=True
+    )
+    parser.add_argument(
+        "--shard-indices",
+        type=parse_shard_indices,
+        default=None,
+        help="comma-separated logical shards to resume; defaults to all shards",
     )
     parser.add_argument("--expected-rows", type=int, required=True)
     parser.add_argument("--expected-dataset-sha256", required=True)
