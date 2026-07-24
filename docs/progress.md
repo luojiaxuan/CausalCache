@@ -373,3 +373,19 @@
   保持最终对全部 8 个输出做 75,628 unique-key、统一维度、逐行长度和有限值验证。
   extractor + wrapper 相关测试 15/15 通过；待 hyper01 续跑 shard 1/5/6 并生成
   正式 `DONE`。
+
+## 2026-07-24:AAAI 主结果按 policy-use / selector 两个 panel 重构
+
+- 将原先独立的 policy adaptation 表和 selector 表合并为同一个编号的 `table*`，但保留
+  两套独立列头。Panel A 固定 Recent，比较 Frozen / Full-layer LoRA /
+  Top-8 ungated KV / HGKV 的 B0/B1/B2/B4/B8 与 `Avg. B>0`；Panel B 固定 HGKV，
+  比较 Recent / marginal / set-conditioned 的 B1/B2/B4、`Avg. B1--4` 与
+  selected-4 相对 Recent-8 的差值。
+- selector panel 不再暗示支持 B8；set-conditioned 的 B1 明确写为与 marginal 相同，
+  因两者共用 Stage-1 首选。两种 Avg. 的预算集合分别在列头和 caption 中定义，避免不可比。
+- Random 与 OCR/RGB Similarity 从端到端 headline panel 移到 selector mechanism /
+  ablation 对照；ablation 文本同步冻结为 policy-use 与 selection 两条正交轴，不展开
+  policy × selector Cartesian product。所有未完成结果继续使用 `TBD`。
+- `make paper` 生成 6 页 US Letter PDF；逐页渲染检查确认两组 panel、caption、正文换页和
+  references 无裁切、重叠或不可读列头，日志无 overfull、undefined citation/reference。
+  同步补齐 `\method` / `\hgkv` 宏后的显式空格，消除 PDF 中的连字。

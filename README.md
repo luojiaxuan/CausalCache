@@ -6,9 +6,11 @@
 冻结契约见 [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md)):在完全冻结
 GUI-Owl 原始参数的条件下,只新增一个解释恢复历史视觉证据的 KV 接口(最后 8 层 k/v_proj、
 mask 门控 residual、B0 逐位等价),用 benchmark-external 的修正版 GUI-Odyssey 训练,
-零样本迁移 AndroidWorld 与 OSWorld。**paper 全线零样本**:端到端主表固定六行——
-Frozen / Full-layer LoRA / Top-8 ungated KV LoRA / HGKV 均配 Recent,再在 HGKV 下比较
-Recent / marginal / set-conditioned selector;列固定 B0/B1/B2/B4/B8/Avg(B>0)。
+零样本迁移 AndroidWorld 与 OSWorld。**paper 全线零样本**:端到端主表用两个 panel
+分解科学问题——Panel A 固定 Recent,比较 Frozen / Full-layer LoRA /
+Top-8 ungated KV LoRA / HGKV 在 B0/B1/B2/B4/B8 下的 history-use;Panel B 固定 HGKV,
+只在 selector 契约支持的 B1/B2/B4 比较 Recent / marginal / set-conditioned,并报告
+selected-4 相对 Recent-8 的差值。
 AndroidWorld 报**全量 116-template × 2 fixed instances**的 template-macro success,
 OSWorld 报 full fixed roster 的 mean normalized task score。全部 adapter/selector 仅在
 GUI-Odyssey 训练与选择;未完成单元格在论文中显式标 `TBD`。此前在 AndroidWorld 上训练的

@@ -49,15 +49,15 @@ restored history-image tokens in the final eight language-model layers and is
 structurally bypassed when no history image is present, exactly preserving the
 base policy at zero visual-memory budget. We train this interface on
 GUI-Odyssey with correct, absent, shuffled, and irrelevant histories, without
-ordinary action behavior cloning. On top of the adapted policy, \method
+ordinary action behavior cloning. On top of the adapted policy, \method{}
 defines success-anchored set utility as the change in likelihood of actions
 from successful trajectories when a subset of historical events is restored.
-A two-stage selector first learns singleton values from counterfactual \hgkv
+A two-stage selector first learns singleton values from counterfactual \hgkv{}
 readouts, then predicts coalition-conditioned marginal gains and a STOP
 decision to handle redundancy and complementarity under at-most-$B$ budgets.
 All adaptation and model selection use GUI-Odyssey only; the same checkpoints
 are evaluated zero-shot on AndroidWorld and OSWorld. On held-out GUI-Odyssey,
-\hgkv improves correct-history over no-history likelihood by $0.1372$ nats per
+\hgkv{} improves correct-history over no-history likelihood by $0.1372$ nats per
 token, reverses negative sensitivity to shuffled and irrelevant histories, and
 preserves no-history logits exactly. \pending{Insert final zero-shot
 AndroidWorld and OSWorld closed-loop improvements.}
@@ -97,7 +97,7 @@ should instead satisfy three behavioral conditions:
     toward successful behavior.
 \end{enumerate}
 
-\method implements this separation in two stages. First, a history-gated KV
+\method{} implements this separation in two stages. First, a history-gated KV
 adapter modifies only the key and value projections of historical image tokens
 in the final eight language-model layers. The current screenshot, instruction,
 summary text, and generated action tokens remain on the frozen path. Second, a
@@ -109,14 +109,14 @@ no-image baseline.
 
 The selector is explicitly interaction-aware. Singleton values are useful for
 the first choice, but are not additive: two individually useful events may be
-redundant, and individually weak events may be complementary. \method therefore
+redundant, and individually weak events may be complementary. \method{} therefore
 uses a lightweight set-conditioned marginal selector that repeatedly scores
 remaining candidates given the already selected set and may stop before
 exhausting the budget.
 
 Our contributions are:
 \begin{itemize}
-    \item a policy-preserving \hgkv interface that learns to use visual history
+    \item a policy-preserving \hgkv{} interface that learns to use visual history
     while guaranteeing exact no-history parity with the frozen GUI policy;
     \item success-anchored restoration supervision that measures the value of
     restoring high-fidelity GUI events for an adapted policy;
@@ -146,7 +146,7 @@ to prior screenshots \citep{lu2025guiodyssey}. MementoGUI learns multimodal
 memory writing, compression, and retrieval operators
 \citep{zeng2026mementogui}. AndroTMem retrieves causally linked anchor states
 from interaction histories \citep{shi2026androtmem}. These systems establish
-that long-horizon GUI control benefits from selective memory. \method focuses
+that long-horizon GUI control benefits from selective memory. \method{} focuses
 on a complementary bottleneck: before selecting historical images, the policy
 must be trained to interpret them without losing its original action
 capabilities.
@@ -197,7 +197,7 @@ surrogate and closed-loop benchmarks provide final validation.
 \subsection{Policy-Preserving History-Gated KV Adapter}
 
 Let $h_l$ be the input to layer $l$'s attention projections. In the last eight
-language-model layers, \method adds rank-8, $\alpha=16$ low-rank residuals
+language-model layers, \method{} adds rank-8, $\alpha=16$ low-rank residuals
 \citep{hu2022lora} only to key and value projections:
 \begin{equation}
 \begin{aligned}
@@ -236,7 +236,7 @@ four prompts with the same target:
 \end{itemize}
 Let $\ell_c,\ell_0,\ell_s,\ell_i$ be the mean target-token log likelihoods under
 these variants, where $\ell_0$ is computed by the frozen policy and detached.
-We train only the \hgkv parameters with
+We train only the \hgkv{} parameters with
 \begin{equation}
 \begin{aligned}
 \mathcal L_{\mathrm{gain}} &= [m-(\ell_c-\ell_0)]_+,\\
@@ -314,7 +314,7 @@ event, supplies the independent marginal baseline, and initializes Stage 2.
 Permutation-invariant set models commonly aggregate elements through pooled or
 attention-based encoders \citep{zaheer2017deepsets,lee2019settransformer}.
 Our Stage 2 uses a deliberately lightweight variant: candidate embeddings
-already encode the current decision through their \hgkv readouts, one
+already encode the current decision through their \hgkv{} readouts, one
 self-attention block contextualizes selected-event embeddings, and one
 cross-attention block maps remaining candidates to that selected context. A
 remaining-budget embedding conditions marginal, rank, positive, and STOP heads.
@@ -372,7 +372,7 @@ The frozen policy is GUI-Owl-1.5-8B-Instruct
     \item \textbf{Full-layer LoRA}: the strongest corrected GUI-Odyssey baseline,
     modifying all language-model Q/K/V/O projections \citep{hu2022lora};
     \item \textbf{Top-8 ungated KV}: an architecture-matched control using the
-    same layers, K/V targets, rank, and alpha as \hgkv but without token gating;
+    same layers, K/V targets, rank, and alpha as \hgkv{} but without token gating;
     \item \textbf{HGKV}: the proposed policy-preserving history interface.
 \end{itemize}
 Memory baselines are Random, Recent, OCR/RGB Similarity, the Stage-1 marginal
@@ -392,10 +392,12 @@ no-Google-Drive roster and reports mean normalized task score. Infrastructure
 failures remain in an intention-to-treat denominator unless the environment
 fails before any policy step under a policy-agnostic void rule.
 
-For policy adaptation we report $B=0$, Recent-4, and Recent-8. For selection we
-hold \hgkv fixed and report $B\in\{1,2,4\}$. Offline selector metrics include
-true selected-set utility, recovery relative to an exact or declared
-approximate oracle, regret, STOP rate, and latency.
+For policy adaptation we fix the selector to Recent and report
+$B\in\{0,1,2,4,8\}$, with the mean over positive budgets. For selection we hold
+\hgkv{} fixed and report $B\in\{1,2,4\}$, with a separate comparison between a
+selected set at $B=4$ and Recent-8. Offline selector metrics include true
+selected-set utility, recovery relative to an exact or declared approximate
+oracle, regret, STOP rate, and latency.
 
 \section{Results}
 
@@ -404,7 +406,7 @@ approximate oracle, regret, STOP rate, and latency.
 Table~\ref{tab:hgkv-gate} reports the frozen GUI-Odyssey gate used to select
 \texttt{hg-s100}. The frozen policy benefits from the presence of recent
 history on average but assigns higher likelihood to shuffled or irrelevant
-images than to the aligned history. \hgkv increases the correct-history gain,
+images than to the aligned history. \hgkv{} increases the correct-history gain,
 reverses both content comparisons, and leaves B0 logits exactly unchanged.
 The small correct--shuffled margin and the positive drift of wrong histories
 also motivate a selector that increases the density of useful evidence.
@@ -429,40 +431,72 @@ path is bitwise identical to the frozen policy.}
 \label{tab:hgkv-gate}
 \end{table}
 
-\subsection{Zero-Shot Policy Adaptation}
+\subsection{Zero-Shot Policy Use and Memory Selection}
 
-Table~\ref{tab:policy-main} isolates how the policy uses a fixed Recent memory.
-The comparison between Top-8 ungated KV and \hgkv tests whether gains arise from
-adding capacity or from restricting adaptation to history tokens. The B0 column
-is especially diagnostic: \hgkv must equal Frozen by construction, whereas
-ordinary adapters may alter the current-screen policy.
+Table~\ref{tab:main-results} factorizes the end-to-end comparison into two
+questions. Panel A fixes memory to Recent and asks whether a policy learns to
+use increasing amounts of history. The comparison between Top-8 ungated KV and
+\hgkv{} tests whether gains arise from adding capacity or from restricting
+adaptation to history tokens. Its B0 column is especially diagnostic: \hgkv{}
+must equal Frozen by construction, whereas ordinary adapters may alter the
+current-screen policy. Panel B instead fixes \hgkv{} and asks which history to
+restore. It excludes $B=8$, which is outside the selector's training and
+deployment contract, and reports a direct selected-4 versus Recent-8 contrast.
 
 \begin{table*}[t]
 \centering
 {\small
 \setlength{\tabcolsep}{5.0pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrr@{}}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrrr@{}}
 \toprule
-Policy adaptation & \multicolumn{3}{c}{AndroidWorld template-macro success (\%)}
-& \multicolumn{3}{c}{OSWorld mean score (\%)} \\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-& $B=0$ & Recent-4 & Recent-8 & $B=0$ & Recent-4 & Recent-8 \\
+\multicolumn{8}{@{}l}{\textbf{Panel A: Learning to use history with fixed Recent memory}} \\
+\addlinespace[2pt]
+Benchmark & Policy adaptation & $B=0$ & $B=1$ & $B=2$ & $B=4$ & $B=8$
+& Avg.\ $B{>}0$ \\
 \midrule
-Frozen GUI-Owl & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-Full-layer LoRA & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-Top-8 ungated KV & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\textbf{HGKV (ours)} & $=$ Frozen & \tbd & \tbd & $=$ Frozen & \tbd & \tbd \\
+AndroidWorld & Frozen GUI-Owl & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+& Full-layer LoRA & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+& Top-8 ungated KV & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+& \textbf{HGKV (ours)} & $=$ Frozen & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\addlinespace[2pt]
+OSWorld & Frozen GUI-Owl & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+& Full-layer LoRA & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+& Top-8 ungated KV & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
+& \textbf{HGKV (ours)} & $=$ Frozen & \tbd & \tbd & \tbd & \tbd & \tbd \\
+\bottomrule
+\end{tabular*}
+
+\medskip
+
+\setlength{\tabcolsep}{6.0pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrr@{}}
+\toprule
+\multicolumn{7}{@{}l}{\textbf{Panel B: Learning which history to select with fixed HGKV}} \\
+\addlinespace[2pt]
+Benchmark & Memory selector & $B=1$ & $B=2$ & $B=4$
+& Avg.\ $B{=}1$--$4$ & $\Delta$ vs.\ Recent-8 \\
+\midrule
+AndroidWorld & Recent & \tbd & \tbd & \tbd & \tbd & -- \\
+& Marginal (Stage 1) & \tbd & \tbd & \tbd & \tbd & \tbd \\
+& \textbf{Set-conditioned (ours)} & $=$ Marginal & \tbd & \tbd & \tbd & \tbd \\
+\addlinespace[2pt]
+OSWorld & Recent & \tbd & \tbd & \tbd & \tbd & -- \\
+& Marginal (Stage 1) & \tbd & \tbd & \tbd & \tbd & \tbd \\
+& \textbf{Set-conditioned (ours)} & $=$ Marginal & \tbd & \tbd & \tbd & \tbd \\
 \bottomrule
 \end{tabular*}
 }
-\caption{Zero-shot policy adaptation with a fixed Recent memory strategy. All
-adapters are trained and selected only on GUI-Odyssey. AndroidWorld uses 116
-templates with two fixed instances each; OSWorld uses the fixed 361-task
-no-Google-Drive roster.}
-\label{tab:policy-main}
+\caption{Zero-shot end-to-end results. Panel A averages $B\in\{1,2,4,8\}$;
+Panel B averages $B\in\{1,2,4\}$ and defines the final column as the
+same-benchmark score of the $B=4$ selected set minus Recent-8. The two learned
+selectors share the Stage-1 first choice, so their $B=1$ results are identical.
+AndroidWorld reports template-macro success (\%); OSWorld reports mean
+normalized task score (\%). All adapters and selectors are trained and selected
+only on GUI-Odyssey.}
+\label{tab:main-results}
 \end{table*}
 
-\subsection{Selection Requires Conditional Marginals}
+\paragraph{Why conditional marginals matter.}
 
 The singleton-label quality gate contains 1,621 GUI-Odyssey development states
 and 11,364 real candidates. The exact best singleton exceeds Recent-1 by
@@ -471,37 +505,9 @@ headroom beyond recency. However, 73.4\% of states have positive singleton
 utility for every candidate, while only 9.3\% have no positive candidate. This
 explains why independent positive-gain selection tends to fill the budget and
 why later choices require coalition-conditioned marginal labels and STOP.
-
-Table~\ref{tab:selector-main} is the end-to-end selection comparison under a
-fixed \hgkv policy. All cells use real closed-loop execution; the corresponding
-offline gate reruns each complete selected set through \hgkv rather than summing
-singleton labels.
-
-\begin{table*}[t]
-\centering
-{\small
-\setlength{\tabcolsep}{4.8pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrrr@{}}
-\toprule
-Memory selector & \multicolumn{4}{c}{AndroidWorld success (\%)}
-& \multicolumn{4}{c}{OSWorld mean score (\%)} \\
-\cmidrule(lr){2-5}\cmidrule(lr){6-9}
-& $B=1$ & $B=2$ & $B=4$ & Avg. & $B=1$ & $B=2$ & $B=4$ & Avg. \\
-\midrule
-Random & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-Recent & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-OCR/RGB similarity & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-HGKV singleton marginal & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\textbf{HGKV set-conditioned (ours)} & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\bottomrule
-\end{tabular*}
-}
-\caption{Zero-shot closed-loop selection under the fixed HGKV policy. The
-set-conditioned selector uses the same Stage-1 first choice as the marginal
-baseline, then conditions every later choice on the selected set and remaining
-budget.}
-\label{tab:selector-main}
-\end{table*}
+Every end-to-end selector cell in Table~\ref{tab:main-results} uses real
+closed-loop execution. The corresponding offline gate reruns each complete
+selected set through \hgkv{} rather than summing singleton labels.
 
 \subsection{Selector Utility, Stopping, and Cost}
 
@@ -537,26 +543,27 @@ gains.}
 
 \section{Ablations and Analyses}
 
-The main ablations are intentionally factorized rather than forming a
-policy--selector Cartesian product. Policy-use ablations hold Recent memory
-fixed and compare Frozen, full-layer LoRA, ungated top-8 KV, and \hgkv.
-Selection ablations hold \hgkv fixed and compare Recent, Similarity, singleton
-marginal, and set-conditioned selection. Additional analyses include adapter
-depth and rank, removal of gain/rank/ignore losses, selected top-$B$ versus
-bottom-$B$, wrong-event replacement, summary--image mismatch, and temporal
-reversal. We also stratify results by trajectory length, app, and the gap
-between Recent and oracle memory.
+The ablations follow the same factorization as Table~\ref{tab:main-results}
+rather than forming a policy--selector Cartesian product. Policy-use ablations
+hold Recent memory fixed, compare Frozen, full-layer LoRA, ungated top-8 KV, and
+\hgkv, and retain $B=8$ as a large-history stress test. Selection ablations hold
+\hgkv{} fixed and compare Recent, Similarity, Random, singleton marginal, and
+set-conditioned selection only at $B\in\{1,2,4\}$. Additional analyses include
+adapter depth and rank, removal of gain/rank/ignore losses, selected top-$B$
+versus bottom-$B$, wrong-event replacement, summary--image mismatch, and
+temporal reversal. We also stratify results by trajectory length, app, and the
+gap between Recent and oracle memory.
 
 \section{Limitations and Claim Boundary}
 
 The success-anchored utility in Eq.~\ref{eq:uact} is a dense teacher-forced
 surrogate, not a direct long-horizon return. Its value must ultimately be judged
-by closed-loop success. The word ``causal'' in \method refers only to a
+by closed-loop success. The word ``causal'' in \method{} refers only to a
 controlled intervention that restores selected screenshots while holding the
 remaining prompt fixed; we do not identify environment-level structural
 causality or learn a world model.
 
-Our zero-shot claim concerns \method adaptation: neither the adapter nor the
+Our zero-shot claim concerns \method{} adaptation: neither the adapter nor the
 selector uses AndroidWorld or OSWorld data for training or model selection. We
 cannot guarantee that the pretrained base policy never encountered related
 data. GUI-Odyssey is mobile-only, so OSWorld evaluates whether the learned
@@ -568,7 +575,7 @@ $B=8$ is evaluated only as a policy-level memory stress test.
 
 \section{Conclusion}
 
-\method separates learning to use visual history from learning which history to
+\method{} separates learning to use visual history from learning which history to
 show. A token-gated KV adapter adds a history interface to a frozen GUI policy
 without changing its no-history behavior. Success-anchored restoration labels
 then supervise a selector whose later choices condition on the already selected

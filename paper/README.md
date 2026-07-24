@@ -22,6 +22,17 @@ make paper
 `main.tex` 保持单一正文源文件，以符合 AAAI author kit 的提交要求。当前未完成的段落级结果以
 `[Pending: ...]` 标记，表格单元格以 `TBD` 标记；不能在获得可复核结果前替换为经验性结论。
 
+## 主结果表契约
+
+- 同一个编号的 `table*` 内使用两个独立 tabular panel，不制作跨两个 benchmark 和两类科学问题的
+  巨型统一表；
+- Panel A 固定 Recent memory，比较四种 policy adaptation，报告
+  `B=0/1/2/4/8` 与 `Avg. B>0`，其中平均值只覆盖 `B=1/2/4/8`；
+- Panel B 固定 HGKV policy，比较 Recent、Stage-1 marginal 与 set-conditioned selector，
+  只报告部署契约支持的 `B=1/2/4`、对应平均值，以及 selected-4 相对 Recent-8 的差值；
+- marginal 与 set-conditioned 共用 Stage-1 首选，因此 `B=1` 必须相同；`B=8` 只用于
+  policy-level stress test，不作为 selector 结果或 selector ablation。
+
 ## AAAI-27 submission 约束
 
 - 主稿使用 US Letter、官方 `aaai2027.sty/.bst`、`submission` 选项、匿名作者块和双栏格式；
