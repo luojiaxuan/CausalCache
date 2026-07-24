@@ -116,3 +116,10 @@
 
 - 协议冻结 06722d4 后发射:hyper01 11 worker(gated×4/full×4/frozen×3,GPU 0/1/2/3/7,emulator 28200-28211 缺 28203),675 局 = 3 策略 × 225 cell(25 模板 × 3 instance × 3 臂),输出 /data02/jaxan/runs/sealed-matrix-v1/;预计 7-10h;
 - 发射前事故:首版布阵脚本把 cell 按策略三分(总数 225),断言后置未拦住执行——11 台误配 worker 在模型加载期全部击杀,0 局消费,封存集未受损;修正版每策略全量 225 cell、断言前置、门控执行。
+
+## 2026-07-24:fl75 selector 裁决(线路前缀规约生效)
+
+- 用户裁定:s75 系 selector 全部归 full-layer 线(前缀 fl75-),非主线;主线 selector 挂
+  history-gate(hgkv-)。hyper00 目录已改名,文档移至 data/results/fl75_selector_v1/。
+- fl75 selector 科学结论:组内选择无信号(方差 0.8%,V1 多模态模型不敌 recent);状态级
+  门控有信号(ridge Spearman 0.456)。落地形态 = gate + recency。详见结果目录 README。
