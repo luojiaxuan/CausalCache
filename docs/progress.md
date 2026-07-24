@@ -191,6 +191,10 @@
   policy，policy 内按 roster frozen `max_steps` 做 LPT 均衡并验证全覆盖、GPU/port 唯一。
   由此替代会随 session 消失的 `/tmp/relaunch.json` 分配逻辑；实际 Docker 发射仍在最后
   旧 worker 退出和新 preflight 后执行。
+- 两机真实 CLI smoke（执行中快照）从 439 formal 得到 1,649 missing，六个假定 worker
+  以 frozen/full-layer/history-gated 各 2 个分配 `277/278`、`282/283`、`264/265`
+  cells；对应 frozen max-step load `5058/5056`、full `5167/5166`、gated
+  `4730/4738`，全覆盖且 policy 隔离。正式发射会重新聚合最新结果，绝不复用本 smoke 清单。
 
 ## 2026-07-24:HGKV singleton selector Stage-1 架构与训练规则冻结
 
