@@ -84,11 +84,23 @@ def _load_plan_instance(
         raise ValueError(
             f"expected one plan instance for {task_type}[{task_index}]"
         )
+    # note (luojiaxuan): full split 是三个源 plan(各自不同 suite_seed)的合并;
+    # /suite/reinitialize 必须按 instance 的 origin_split 取该 split 的真实 seed 与
+    # task_combinations,否则 server 用顶层 nominal seed 生成的任务与 plan 的 goal 不符,
+    # /task/goal 身份断言会失败。非 full plan(单一 seed)回退到顶层字段,行为不变。
+    origin_split = matches[0].get("origin_split")
+    source_splits = plan.get("source_splits") or {}
+    if origin_split in source_splits:
+        suite_seed = int(source_splits[origin_split]["suite_seed"])
+        task_combinations = int(source_splits[origin_split]["task_combinations"])
+    else:
+        suite_seed = int(plan["suite_seed"])
+        task_combinations = int(plan["task_combinations"])
     return {
         "instance": matches[0],
         "split": plan["split"],
-        "suite_seed": int(plan["suite_seed"]),
-        "task_combinations": int(plan["task_combinations"]),
+        "suite_seed": suite_seed,
+        "task_combinations": task_combinations,
     }
 
 
