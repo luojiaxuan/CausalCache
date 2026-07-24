@@ -10,6 +10,7 @@ from scripts.render_hgkv_selector_v2_singletons import (
     annotate_v2_singleton_samples,
     load_cached_singletons,
 )
+from scripts.run_hgkv_readout_extraction_v2_shards import input_manifest
 from scripts.validate_hgkv_selector_v2_singletons import validate
 
 
@@ -165,3 +166,24 @@ def test_v1_readout_reuse_appends_v2_temporal_features(tmp_path):
         )
     )
     assert missing == {("episode:12", 4)}
+
+
+def test_v2_readout_input_manifest_freezes_exact_singleton_keys(tmp_path):
+    path = tmp_path / "samples.jsonl"
+    path.write_text(
+        "\n".join(
+            json.dumps(
+                {
+                    "variant": "singleton",
+                    "pair_group": "episode:12",
+                    "singleton_event_step_id": candidate,
+                }
+            )
+            for candidate in (3, 4)
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    hashes, keys = input_manifest([path])
+    assert set(hashes) == {str(path)}
+    assert keys == {("episode:12", 3), ("episode:12", 4)}
