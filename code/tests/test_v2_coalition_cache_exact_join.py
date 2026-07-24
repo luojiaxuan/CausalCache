@@ -59,10 +59,12 @@ def test_exact_key_cache_joins_b0_and_deduplicates(tmp_path):
         hgkv_checkpoint_sha256=SHA_A,
         b0_policy_sha256=SHA_B,
     )
-    assert len(rows) == 1
-    assert rows[0]["restored_set_key"] == "3"
-    assert rows[0]["u_act"] == pytest.approx(0.2)
-    assert rows[0]["source_versions"] == ["v1-a", "v1-b"]
+    assert len(rows) == 2
+    assert rows[0]["restored_set_key"] == ""
+    assert rows[0]["u_act"] == 0.0
+    singleton = next(row for row in rows if row["restored_set_key"] == "3")
+    assert singleton["u_act"] == pytest.approx(0.2)
+    assert singleton["source_versions"] == ["v1-a", "v1-b"]
 
 
 def test_exact_key_conflict_fails_closed(tmp_path):

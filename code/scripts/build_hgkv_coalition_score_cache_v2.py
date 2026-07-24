@@ -115,6 +115,26 @@ def build_cache_rows(
     b0_policy_sha256: str,
 ) -> list[dict[str, Any]]:
     cache: dict[CoalitionCacheKey, dict[str, Any]] = {}
+    for pair_group, b0_score in sorted(b0_scores.items()):
+        if pair_group not in targets:
+            raise KeyError(f"missing target for B0 pair group {pair_group}")
+        key = CoalitionCacheKey.build(
+            pair_group=pair_group,
+            restored_event_step_ids=(),
+            target_text=targets[pair_group],
+            prompt_revision=prompt_revision,
+            hgkv_checkpoint_sha256=hgkv_checkpoint_sha256,
+            b0_policy_sha256=b0_policy_sha256,
+        )
+        cache[key] = {
+            **key.to_mapping(),
+            "restored_event_step_ids": [],
+            "target_logprob_mean": float(b0_score),
+            "b0_target_logprob_mean": float(b0_score),
+            "u_act": 0.0,
+            "source_artifacts": ["b0_exact_join"],
+            "source_versions": ["frozen_b0"],
+        }
     for source_version, paths in score_sources:
         for path, line_no, row in _read_rows(paths):
             pair_group_value = row.get("pair_group")
