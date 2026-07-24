@@ -46,6 +46,11 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   exact-key cache。后继主线改为 full-history、empty-start、true-U teacher beam-4、
   edge0–edge3 与统一 fresh student。结果、封存记录与 provenance 见
   [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)。
+- **HGKV selector V2 beam-4 契约已冻结、实现中。** 主方法从空集合扫描完整真实历史，
+  由 true-U teacher beam-4 生成 edge0–edge3，fresh unified student 使用 learned
+  beam-4 + STOP；正式 B1/B2/B4 只认完整 selected set 的 hg-s100 真实 utility。
+  [冻结协议](docs/selector_v2_beam4_protocol.md)与
+  [结果 SoT](data/results/hgkv_selector_v2/README.md)。
 - **GUI-Odyssey 外部训练零样本泛化 AndroidWorld 成立(基础能力层)。** 修正版 odyv2-s75:
   B0=6/45(frozen 3),配对净胜 +3、Δ+0.067 CI[+0.000,+0.133],parse 死亡 26→1;记忆剂量
   收益仍平(B8=6/45 vs frozen 6)。此前 s60 全量 0/90 两连败定性为动作分布负迁移。完整三轮
@@ -162,7 +167,8 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 | 训练数据 ody-sft-v2 | hyper00 训练 run root `/data02/jaxan/runs/hgkv-formal-v1`(37,635 样本,165 heldout 轨迹不参训;provenance 见 gate README) | 本地;`PENDING_HF_UPLOAD` |
 | HGKV selector runtime | hyper01 `/data02/jaxan/envs/causalcache-selector-v1`；lock [`code/requirements/hgkv_selector_v1_lock.txt`](code/requirements/hgkv_selector_v1_lock.txt) | persistent system-site venv；scikit-learn `1.9.0` |
 | HGKV-readout singleton features v1 | [`data/results/hgkv_readout_v1/`](data/results/hgkv_readout_v1/README.md)；hyper01 `/data02/jaxan/runs/hgkv-readout-v1/` | 75,628 unique rows、1,280 dims、8 shard；`PENDING_HF_UPLOAD` |
-| HGKV selector v1 | [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)；hyper01 `/data02/jaxan/runs/hgkv-selector-stage1-v1/` | Stage-1 `DONE`、显著输 Recent；Stage-2 / selected-set gate 进行中；large artifacts `PENDING_HF_UPLOAD` |
+| HGKV selector v1 | [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)；hyper01 `/data02/jaxan/runs/hgkv-selector-stage1-v1/` | `NO_GO_HGKV_SELECTOR_V1`；Stage-2 未启动；partial scores 保留作 V2 cache |
+| HGKV selector v2 beam-4 | [`data/results/hgkv_selector_v2/`](data/results/hgkv_selector_v2/README.md)；[冻结协议](docs/selector_v2_beam4_protocol.md) | contract frozen、implementation in progress；reusable artifacts `PENDING_HF_UPLOAD` |
 | Sealed 矩阵 v1 run | hyper00 + hyper01 `/data02/jaxan/runs/sealed-matrix-v1/`(目标 2,088 局,116 template × 2 fixed instances × 3 policy × 3 arm；聚合器 `scripts.aggregate_sealed_matrix_v1`) | 执行中 |
 | dev canary 记录 | hyper01 `/data02/jaxan/runs/hgkv-canary-v1/`(逐局 json) | 12/12;性能不读(canary 纪律) |
 | Odyssey 零样本闭环三轮记录 | [`data/results/odyssey_zeroshot_closed_loop_v1/`](data/results/odyssey_zeroshot_closed_loop_v1/README.md);run root hyper00 `/data02/jaxan/runs/odyv2-zeroshot-full/` | 完成;s75 B0 翻倍,B8 平 |

@@ -328,6 +328,24 @@
   student、learned beam-4 + STOP 的新 V2 契约；该 supersession 不修改 V1 历史 config
   或源码。
 
+## 2026-07-24:HGKV selector V2 beam-4 契约冻结
+
+- 新增 `docs/selector_v2_beam4_protocol.md` 和
+  `code/configs/hgkv_selector_v2_beam4.json`，在读取任何 V2 development score 前冻结：
+  longest-real-state full-history inventory、canonical exact-key coalition cache、
+  1280-d HGKV readout + 5 temporal features、true-U teacher beam-4、edge0–edge3、
+  fresh unified student、train-only GroupKFold checkpoint selection、learned beam-4
+  inference、STOP 和正式 gate。
+- teacher 从空集合开始，每层按完整集合真实 `U(S)` 保留 top-4 unique prefix；禁止
+  singleton sum/proxy。student 也从空集合 fresh init，不加载 V1 Stage-1。
+- gate 固定 B1 为相对 Recent 无显著劣化，B2/B4 对 Recent/Similarity/Random 全部
+  superiority，Avg(B1,B2,B4) 相对 Recent superiority；统计为 episode 内先平均、
+  10,000 次 episode-cluster bootstrap。
+- 新增 `data/results/hgkv_selector_v2/README.md` 作为结果与 artifact SoT。V2 大规模
+  dataset 暂定 intended HF dataset repo
+  `gavinlaw/causalcache-hgkv-selector-v2`，当前仅为未验证的 `PENDING_HF_UPLOAD`
+  destination，不冒充已创建或已上传。
+
 ## 2026-07-24:selected-set 正式 gate 的 plan→render→score→reduce 路径冻结
 
 - `select_hgkv_sets_v1.py` 同时物化 HGKV singleton independent 与 HGKV

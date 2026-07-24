@@ -1,0 +1,197 @@
+{
+  "schema_version": "causalcache.hgkv_selector_v2.beam4",
+  "seed": 20260724,
+  "teacher": {
+    "beam_width": 4,
+    "max_budget": 4,
+    "start_set": "empty",
+    "beam_score": "true_u_act",
+    "candidate_inventory": "all_real_history_events",
+    "state_policy": "longest_real_eligible_state_per_trajectory",
+    "expand_negative_marginal_children": true,
+    "canonical_set_deduplication": true,
+    "exact_search_validation_max_candidates": 8,
+    "exact_search_validation_changes_beam_width": false
+  },
+  "state_inventory": {
+    "minimum_candidates": 2,
+    "exclude_synthetic_terminal": true,
+    "require_serializable_gui_owl_target": true,
+    "tie_break": "largest_decision_step",
+    "exclude_latest_current_equivalent_event": true,
+    "recent_candidate_cap": null
+  },
+  "coalition_cache": {
+    "reuse_policy": "exact_key_only",
+    "canonical_key": [
+      "pair_group",
+      "restored_set_key",
+      "target_action_sha256",
+      "prompt_revision",
+      "hgkv_checkpoint_sha256",
+      "b0_policy_sha256"
+    ],
+    "reject_conflicting_values": true,
+    "sources": [
+      "frozen_b0",
+      "v1_singleton_hg_s100",
+      "v1_completed_conditional",
+      "exact_selected_set_scores"
+    ]
+  },
+  "features": {
+    "hgkv_layer_count": 8,
+    "hgkv_layer_feature_dim": 160,
+    "hgkv_readout_dim": 1280,
+    "temporal_features": [
+      "relative_age",
+      "normalized_age",
+      "normalized_position",
+      "is_most_recent",
+      "log_history_length"
+    ],
+    "temporal_feature_dim": 5,
+    "total_feature_dim": 1285,
+    "forbidden_features": [
+      "app_id",
+      "androidworld_feature",
+      "osworld_feature"
+    ],
+    "reuse_key": [
+      "pair_group",
+      "event_step_id"
+    ]
+  },
+  "labels": {
+    "utility": "log_p_hg_s100_success_action_given_set_minus_log_p_frozen_success_action_given_b0",
+    "edges": {
+      "edge0": "U({j}) - U(empty)",
+      "edge1": "U({i,j}) - U({i})",
+      "edge2": "U({i,j,k}) - U({i,j})",
+      "edge3": "U({i,j,k,l}) - U({i,j,k})"
+    },
+    "stop_marginal": 0.0,
+    "stop_is_optimal": "max_candidate_marginal_le_zero",
+    "budget_replication": {
+      "depth0": [
+        1,
+        2,
+        4
+      ],
+      "depth1": [
+        1,
+        3
+      ],
+      "depth2": [
+        2
+      ],
+      "depth3": [
+        1
+      ]
+    }
+  },
+  "student": {
+    "search": "learned_beam4",
+    "beam_width": 4,
+    "max_budget": 4,
+    "fresh_initialization": true,
+    "use_stage1_checkpoint": false,
+    "candidate_encoder": {
+      "hidden_dim": 64,
+      "head_hidden_dim": 32,
+      "temporal_hidden_dim": 16
+    },
+    "set_conditioning": {
+      "selected_set_attention_blocks": 1,
+      "candidate_to_selected_attention_blocks": 1,
+      "attention_heads": 4,
+      "empty_selected_token": "learned"
+    },
+    "outputs": [
+      "conditional_marginal",
+      "within_prefix_rank",
+      "positive",
+      "stop"
+    ],
+    "beam_pruning_score": "cumulative_calibrated_marginal",
+    "rank_scope": "within_prefix_and_candidate_vs_stop_only",
+    "dynamic_candidate_padding": true,
+    "maximum_selected_width": 3
+  },
+  "training": {
+    "group_unit": "prefix",
+    "candidate_loss_reduction": "mean_within_prefix_then_mean_across_prefixes",
+    "split_group": "trajectory",
+    "selection": "train_only_group_kfold_5_then_median_epoch_full_train_refit",
+    "checkpoint_metric": "teacher_forced_learned_beam4_realized_u",
+    "development_read_policy": "once_after_epoch_selection_and_full_train_refit",
+    "folds": 5,
+    "max_epochs": 30,
+    "patience": 5,
+    "batch_groups": 64,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "huber_beta": 0.02,
+    "rank_min_delta": 0.000001,
+    "loss_weights": {
+      "marginal": 1.0,
+      "rank": 0.5,
+      "positive": 0.25,
+      "stop": 0.25
+    }
+  },
+  "inference": {
+    "budgets": [
+      1,
+      2,
+      4
+    ],
+    "methods": [
+      "hgkv_v2_greedy",
+      "hgkv_v2_beam4"
+    ],
+    "always_materialize_stop_child": true,
+    "canonical_set_deduplication": true,
+    "return_highest_cumulative_predicted_u": true,
+    "selected_size_must_not_exceed_budget": true
+  },
+  "gate": {
+    "bootstrap_unit": "episode",
+    "state_reduction_within_episode": "mean",
+    "bootstrap_replicates": 10000,
+    "confidence_level": 0.95,
+    "budgets": [
+      1,
+      2,
+      4
+    ],
+    "formal_utility_source": "rerendered_hg_s100_complete_set_exact_join_frozen_b0",
+    "b1": {
+      "comparison": "hgkv_v2_beam4_minus_recent",
+      "pass": "paired_ci_upper_bound_greater_than_or_equal_to_zero",
+      "interpretation": "no_significant_underperformance"
+    },
+    "b2": {
+      "comparators": [
+        "recent",
+        "ocr_rgb_similarity",
+        "random"
+      ],
+      "pass": "all_paired_ci_lower_bounds_strictly_greater_than_zero"
+    },
+    "b4": {
+      "comparators": [
+        "recent",
+        "ocr_rgb_similarity",
+        "random"
+      ],
+      "pass": "all_paired_ci_lower_bounds_strictly_greater_than_zero"
+    },
+    "average_b1_b2_b4": {
+      "comparison": "hgkv_v2_beam4_minus_recent",
+      "pass": "paired_ci_lower_bound_strictly_greater_than_zero"
+    },
+    "closed_loop_requires_offline_gate_pass": true
+  }
+}
