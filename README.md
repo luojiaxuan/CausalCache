@@ -55,6 +55,9 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   13,680 个 full-history singletons 已全部打分并重建为 249,467-key complete cache。
   edge0 已归约；edge1 的 36,938 个 cache-missing pair 已全部渲染、打分并完成
   36,938 unique-key 全量验收，9 个跨 hyper00/hyper01 shard 已合并为正式 `DONE`。
+  edge1 score 已并入 286,405-key cache 并完成 true-U depth1 reduce；edge2 的
+  39,599 个缺失 triple 已在 hyper00/hyper01 独立确定性渲染且得到完全相同的
+  39,599-key/14,626-image validator，现由 hyper01 4 张 H200、10 个 scorer 打分。
   candidate readout 已完成
   13,680/13,680 unique、1285 维全量验证。development
   `n<=8` exact subset-search

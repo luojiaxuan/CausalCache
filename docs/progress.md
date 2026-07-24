@@ -576,3 +576,23 @@
   [`data/results/hgkv_selector_v2/teacher-edge1-score-manifest.json`](../data/results/hgkv_selector_v2/teacher-edge1-score-manifest.json)；
   大 score artifact 仍在本地持久盘，状态 `PENDING_HF_UPLOAD`。下一步先合并
   edge1 cache 并按 true-U beam-4 规划 edge2，而不是直接启动 student training。
+
+## 2026-07-24:Selector V2 edge2 render 完成并启动 scoring
+
+- edge1 score 已并入 coalition cache，得到 `286,405/286,405` rows/unique keys，
+  SHA256=`346c2f4e...e2d9`。true-U depth1 reduce 完成 4,000 prefix groups、
+  50,720 marginal rows、627 STOP-optimal groups，并生成 1,000 个 next-beam states。
+- depth2 plan 含 42,354 个 unique triple child，其中 2,755 cache hit、39,599
+  missing；plan SHA256=`0c34ba3c...0501`。39,599 个 missing triple 已 32-way
+  渲染并严格验收，duplicate/unexpected/missing=`0/0/0`，14,626 张引用图片全部
+  存在并完成 SHA256。
+- hyper00 与 hyper01 从同一 plan 独立渲染所得 32 个 sample SHA 与 image manifest
+  `7fa20db6...fba4` 完全一致；hyper01 `DONE` SHA256=`1846f0ee...f7cb`。
+- 启动前按规则重新执行 5 秒 fleet preflight。hyper00 固定容器仍有 Frozen 主表
+  policy workload，因此未停止、未重建、未叠加 selector；hyper01 GPU1 也被新 workload
+  占用。最终使用 hyper01 host GPU `[0,2,5,6]`，固定容器 indices `[0,2,4,5]`，
+  按 `3/3/2/2` 进程运行 10 个 scorer。
+- scorer input 按 exact resume identity 平衡为 10 shard，3,875--4,117 rows/shard，
+  总计 39,599/39,599。launch manifest、GPU snapshot 与调度记录已落在
+  `/data02/jaxan/runs/hgkv-selector-v2/teacher-edge2-scores/`；轻量 provenance 见
+  [`data/results/hgkv_selector_v2/teacher-edge2-launch-manifest.json`](../data/results/hgkv_selector_v2/teacher-edge2-launch-manifest.json)。

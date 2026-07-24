@@ -2,7 +2,7 @@
 
 ## 状态
 
-`READOUT_DONE_TEACHER_EDGE1_SCORE_DONE`。
+`READOUT_DONE_TEACHER_EDGE2_SCORING_ACTIVE`。
 
 V2 取代 `NO_GO_HGKV_SELECTOR_V1`，主方法为 full-history、empty-start、true-U teacher
 beam-4、edge0–edge3、fresh unified set-conditioned student 与 learned beam-4 + STOP。
@@ -22,7 +22,7 @@ config 见
 | V2 coalition score cache | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/coalition-cache/cache-singletons-complete.jsonl`；[`coalition-cache-manifest.json`](coalition-cache-manifest.json) | singleton-complete cache 249,467 exact keys；`PENDING_HF_UPLOAD` |
 | V2 missing-singleton render/score | hyper01 `/data02/jaxan/artifacts/sft/hgkv-selector-v2-singletons/`；[`singleton-render-manifest.json`](singleton-render-manifest.json) | 6,012/6,012 rendered and scored；full inventory 13,680/13,680 |
 | V2 candidate readout | hyper01 host `/data02/jaxan/runs/hgkv-selector-v2/readout/`（固定容器内 mount 为 `/data/runs/hgkv-selector-v2/readout/`）；[`readout-manifest.json`](readout-manifest.json) | 13,680/13,680 unique、1285 dims、finite/temporal/full-history validator PASS；`PENDING_HF_UPLOAD` |
-| V2 true-U teacher beam | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/teacher-beam-v2/` and `/data02/jaxan/artifacts/sft/hgkv-selector-v2-teacher/`；hyper00 `/data02/jaxan/runs/hgkv-selector-v2/teacher-edge1-hyper00-scores/`；[`teacher-edge1-score-manifest.json`](teacher-edge1-score-manifest.json) | edge0 reduced；edge1 36,938/36,938 rendered/scored/unique-key validated，正式 `DONE`；`PENDING_HF_UPLOAD` |
+| V2 true-U teacher beam | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/teacher-beam-v2/` and `/data02/jaxan/artifacts/sft/hgkv-selector-v2-teacher/`；hyper00 `/data02/jaxan/runs/hgkv-selector-v2/teacher-edge1-hyper00-scores/`；[`edge1 score manifest`](teacher-edge1-score-manifest.json)；[`edge2 launch manifest`](teacher-edge2-launch-manifest.json) | edge0/edge1 reduced；edge1 score `DONE`；edge2 39,599 render `DONE`、10-way scoring active；`PENDING_HF_UPLOAD` |
 | V2 model checkpoint | intended HF model repo TBD | not trained |
 
 HF repo ID 是 intended destination，尚未创建或验证；不得当作已上传链接引用。
@@ -89,8 +89,8 @@ B0 policy identifier 固定为 GUI-Owl snapshot manifest SHA256
 
 ## 当前下一步
 
-1. 将已完成的 36,938 个 edge1 score 合并进 coalition cache，按 true-U beam-4
-   归约 depth1 并规划、渲染、打分 edge2/edge3；
+1. 验收 39,599 个 edge2 score，合并 coalition cache 后按 true-U beam-4
+   归约 depth2 并规划、渲染、打分 edge3；
 2. 对 development `n<=8` 子集完整枚举到 B4，报告 beam recovery/regret/Jaccard/utility
    gap；
 3. 训练 fresh unified student 并执行 learned greedy/beam-4 gate。
@@ -144,6 +144,27 @@ rows/unique=`36,938/36,938`、missing/unexpected/duplicate=`0/0/0`，并验证�
 `e2b3f227cd8a0a67e0ebd9e4aab5b89d9e7642694d5740af6a4d834dd5ff3423`；
 逐 shard SHA/字节数见
 [`teacher-edge1-score-manifest.json`](teacher-edge1-score-manifest.json)。
+
+edge1 score 并入 coalition cache 后得到 `286,405/286,405` rows/unique keys，
+cache SHA256=`346c2f4ec1c6147e20f2169817403617d7769496389443d42bf0d6e0257ae2d9`。
+depth1 reduce 完成 4,000 prefix groups、50,720 marginal rows，其中 627 groups
+以 STOP 为最优；由 1,000 个 next-beam states 生成的 depth2 plan 含 42,354 个
+unique triple child，2,755 cache hit、39,599 missing。
+
+edge2 missing triple 在 hyper00 与 hyper01 分别从同一 plan 独立 32-way 渲染；两端
+32 个 sample SHA256、14,626-image manifest
+`7fa20db62bdea167b2cee898a26bb5de40512068e28a77635a61c7a006dbfba4`
+全部一致。hyper01 strict validator 得到 expected/observed/unique
+`39,599/39,599/39,599`、duplicate/unexpected/missing=`0/0/0`，`DONE`
+SHA256=`1846f0eeffc2b8bb2a943e8bb97d223eccb1148620a8715ce879246b7d08f7cb`。
+
+正式 scorer input 按 canonical score identity hash 重平衡为 10 shard，每 shard
+3,875--4,117 unique rows，39,599 行完全守恒。2026-07-24T21:59Z 的第二次
+fleet preflight 排除被其他 workload 占用的 hyper00 固定容器与 hyper01 GPU1，
+最终在 hyper01 host GPU `[0,2,5,6]`（容器 indices `[0,2,4,5]`）以
+`3/3/2/2` 进程启动 10 个 scorer；启动时目标卡均 `<1 GiB`，加载后均进入有效
+GPU 计算。完整 launch provenance 见
+[`teacher-edge2-launch-manifest.json`](teacher-edge2-launch-manifest.json)。
 
 新增 `plan_hgkv_exact_search_v2.py` 与 `reduce_hgkv_exact_search_v2.py`，只对
 development 且 `n<=8` 的冻结子集枚举 set size 1--4，并复用同一 canonical

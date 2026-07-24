@@ -1,0 +1,78 @@
+{
+  "artifact_status": "PENDING_HF_UPLOAD",
+  "balanced_input": {
+    "done_sha256": "5a8207d071a40e8ab34465f31d4c423e4b799aa20706f42dd17c5404f84f00d8",
+    "output_count": 10,
+    "rows_per_shard": [
+      3929,
+      3977,
+      3969,
+      3920,
+      3923,
+      3984,
+      3875,
+      4117,
+      4002,
+      3903
+    ],
+    "total_rows": 39599,
+    "unique_score_identities": 39599
+  },
+  "checkpoint_sha256": "8f2cc49e1aa0b06ce231eb54937d813317f5274a799c97b09be7fdb22be46317",
+  "coalition_cache": {
+    "rows": 286405,
+    "sha256": "346c2f4ec1c6147e20f2169817403617d7769496389443d42bf0d6e0257ae2d9",
+    "unique_keys": 286405
+  },
+  "depth1_reduce": {
+    "marginal_rows": 50720,
+    "prefix_groups": 4000,
+    "status": "DONE",
+    "stop_optimal_groups": 627
+  },
+  "depth2_plan": {
+    "cached_child_coalitions": 2755,
+    "edge_rows": 46720,
+    "missing_child_coalitions": 39599,
+    "sha256": "0c34ba3c070931762db5a164e82f1420605bc935becda0b25dc9966d83e80501",
+    "unique_child_coalitions": 42354
+  },
+  "render": {
+    "done_sha256": "1846f0eeffc2b8bb2a943e8bb97d223eccb1148620a8715ce879246b7d08f7cb",
+    "duplicate_rows": 0,
+    "image_manifest_sha256": "7fa20db62bdea167b2cee898a26bb5de40512068e28a77635a61c7a006dbfba4",
+    "missing_rows": 0,
+    "referenced_images": 14626,
+    "rows": 39599,
+    "unexpected_rows": 0,
+    "unique_coalitions": 39599
+  },
+  "score_launch": {
+    "container_gpu_indices": [
+      0,
+      2,
+      4,
+      5
+    ],
+    "expected_rows": 39599,
+    "host": "hyper01",
+    "host_gpu_ids": [
+      0,
+      2,
+      5,
+      6
+    ],
+    "launch_manifest_sha256": "1f51da040aa5c1c4fde24f479fcdb8eee10956f05f2b3a0c0a1563669f10ecca",
+    "processes_per_gpu": [
+      3,
+      3,
+      2,
+      2
+    ],
+    "run_root": "/data02/jaxan/runs/hgkv-selector-v2/teacher-edge2-scores",
+    "scorer_processes": 10,
+    "status": "SCORING_ACTIVE"
+  },
+  "source_commit": "1e987102c3163d66b32b6c6b48e2248f9bac042d",
+  "status": "EDGE2_SCORING_ACTIVE"
+}
