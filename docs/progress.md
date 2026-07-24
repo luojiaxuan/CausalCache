@@ -346,6 +346,22 @@
   `gavinlaw/causalcache-hgkv-selector-v2`，当前仅为未验证的 `PENDING_HF_UPLOAD`
   destination，不冒充已创建或已上传。
 
+## 2026-07-24:V2 longest-real-state full-history inventory 完成
+
+- source commit `97578b2c3ae59f0172689623415de10f566df23f` 在 hyper01 固定容器
+  `sglang-omni-jaxan` 内 CPU-only 执行；三输入为 packaged trajectory shards、
+  annotations 和已验证 state-context，输出 staging
+  `/data02/jaxan/runs/hgkv-selector-v2/inventory/`。
+- 1,000 条成功 trajectory 全部得到一个最长真实 eligible decision；train/dev
+  `835/165`。candidate count min/median/p90/p95/max=`5/12/24/27/44`，全部至少 4，
+  其中 666 个 state 超过 8 candidates。
+- synthetic terminal=0、recent-8 truncation=0、ineligible decision=0。Action 分布
+  click/scroll/text=`912/17/71`；foreground app 按训练 schema 保持 `unknown`，不进入
+  feature。
+- Git-tracked train/dev/audit SHA256 分别为
+  `9c254298...ce0137`、`3b545dc4...5f492c`、`aa24ea87...3b3a3c`，与 hyper01
+  staging 完全一致。
+
 ## 2026-07-24:selected-set 正式 gate 的 plan→render→score→reduce 路径冻结
 
 - `select_hgkv_sets_v1.py` 同时物化 HGKV singleton independent 与 HGKV

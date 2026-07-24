@@ -48,7 +48,9 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)。
 - **HGKV selector V2 beam-4 契约已冻结、实现中。** 主方法从空集合扫描完整真实历史，
   由 true-U teacher beam-4 生成 edge0–edge3，fresh unified student 使用 learned
-  beam-4 + STOP；正式 B1/B2/B4 只认完整 selected set 的 hg-s100 真实 utility。
+  beam-4 + STOP；正式 B1/B2/B4 只认完整 selected set 的 hg-s100 真实 utility。首个
+  full-history inventory 已完成：train/dev 835/165，候选中位 12、p95 27、最大 44，
+  666/1,000 states 超过 V1 的 8-candidate cap，synthetic terminal/truncation 均为 0。
   [冻结协议](docs/selector_v2_beam4_protocol.md)与
   [结果 SoT](data/results/hgkv_selector_v2/README.md)。
 - **GUI-Odyssey 外部训练零样本泛化 AndroidWorld 成立(基础能力层)。** 修正版 odyv2-s75:
