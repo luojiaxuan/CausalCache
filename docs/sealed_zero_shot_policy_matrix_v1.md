@@ -5,6 +5,9 @@
 sealed 零样本 policy 评测(AW 侧)。本文冻结名单、policy、臂与执行协议;发射后不得修改。
 不许按 benchmark 结果改 adapter、换 checkpoint 或调协议(canary 只抓工程故障的纪律继续适用)。
 
+**当前有效规模以文末 V3 为准：116 template × 2 fixed instances × 3 policy × 3 arm =
+2,088 episodes。** V1/V2 保留为按时间排列的历史修订记录，不再定义当前 denominator。
+
 ## Sealed 名单(roster)
 
 - plan:`data/manifests/androidworld_test_plan_v1.json`,`split=="test"`;
@@ -124,5 +127,9 @@ V3 取代 V2 中“每 template 1 实例”的规模描述；policy、checkpoint
 - 正式聚合器为 `scripts.aggregate_sealed_matrix_v1`：联合多个 host root，忽略旧
   sealed-25 的 index-2 appendix，零步 infra void 不消耗 cell，非零步 infra 仍列为待重试；
   任一非 infra 重复正式局、坏记录、unexpected cell 或缺失 cell 都 fail closed。
+- `COMPLETE` 与 `--require-complete` 有意要求 headline 2,088 个非 infra cell 全齐；
+  hard-delete 是并列的敏感性视图，不会把未完成的 headline 偷换成完成。producer 的
+  `official_terminal_success` 还必须与 `score_after==1.0 AND
+  termination_reason=="policy_terminated"` 逐局一致。
 - 主对照仍为各 policy 内 arm 间差和固定 arm 下 policy 间差；CI 固定 template-paired
   10,000 次 percentile bootstrap，95% 区间，seed family 从 `20260724` 起。

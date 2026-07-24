@@ -27,10 +27,10 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   [结果与 provenance](data/results/hgkv_gate_v1/README.md)。
 - **闭环 dev canary 12/12 通过,sealed 零样本 policy 评测矩阵已发射(合同第 11-12 步)。**
   {Frozen, Full-layer(ody-margin-v2 s75), History-gated(hg-s100)} × {B0, Recent-B,
-  Full-history} × sealed 75 实例名单,协议冻结于
+  Full-history} × 全量 116 template × 2 fixed instances 名单,协议冻结于
   [`docs/sealed_zero_shot_policy_matrix_v1.md`](docs/sealed_zero_shot_policy_matrix_v1.md);
-  输出 hyper01 `/data02/jaxan/runs/sealed-matrix-v1/`。发射后不得按 benchmark 结果改
-  adapter/checkpoint/协议。
+  输出 hyper00 + hyper01 `/data02/jaxan/runs/sealed-matrix-v1/`。发射后不得按 benchmark
+  结果改 adapter/checkpoint/协议。
 - **GUI-Odyssey 外部训练零样本泛化 AndroidWorld 成立(基础能力层)。** 修正版 odyv2-s75:
   B0=6/45(frozen 3),配对净胜 +3、Δ+0.067 CI[+0.000,+0.133],parse 死亡 26→1;记忆剂量
   收益仍平(B8=6/45 vs frozen 6)。此前 s60 全量 0/90 两连败定性为动作分布负迁移。完整三轮

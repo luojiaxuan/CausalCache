@@ -64,10 +64,16 @@ def _row(
         "partition": "full",
         "policy": _policy_payload(policy),
         "required_audits_complete": not infrastructure_failure,
+        "score_after": 1.0 if success else (None if infrastructure_failure else 0.0),
         "shared_early_decisions": 2,
         "started_at": "2026-07-24T00:00:00+00:00",
         "task_index": roster_row["task_index"],
         "task_type": roster_row["task_type"],
+        "termination_reason": (
+            "infrastructure_exception"
+            if infrastructure_failure
+            else ("policy_terminated" if success else "step_budget_exhausted")
+        ),
     }
 
 
@@ -127,6 +133,14 @@ def test_void_attempt_does_not_override_formal_attempt() -> None:
             success=1.0,
             suffix="-formal",
         ),
+        _attempt(
+            roster_row,
+            policy="frozen",
+            arm="recent_B4",
+            infrastructure_failure=True,
+            model_step_count=3,
+            suffix="-started-infra",
+        ),
     ]
     report = aggregate_matrix(
         attempts,
@@ -134,6 +148,7 @@ def test_void_attempt_does_not_override_formal_attempt() -> None:
         bootstrap_resamples=10,
     )
     assert report["audit"]["formal_cell_count"] == 1
+    assert report["audit"]["started_infrastructure_attempt_count"] == 1
     assert report["audit"]["void_attempt_count"] == 1
     assert report["status"] == "INCOMPLETE_SEALED_ZERO_SHOT_MATRIX_V1"
 
@@ -207,3 +222,82 @@ def test_duplicate_formal_attempts_fail_closed() -> None:
     )
     assert report["audit"]["unauthorized_noninfra_duplicate_count"] == 1
     assert report["audit"]["formal_cell_count"] == 0
+
+
+def test_policy_identity_and_success_formula_fail_closed() -> None:
+    full_roster = load_roster(ROSTER_PATH)
+    roster_row = next(iter(full_roster.values()))
+    roster = {
+        (str(roster_row["task_type"]), int(roster_row["task_index"])): roster_row
+    }
+    bad_policy = _row(
+        roster_row,
+        policy="frozen",
+        arm="summary_B0",
+    )
+    bad_policy["policy"] = {
+        "adapter_type": "history_gated_kv",
+        "lora_checkpoint_sha256": FULL_LAYER_SHA256,
+        "target_effective_visual_tokens_per_image": 2560,
+    }
+    with pytest.raises(ValueError, match="unregistered matrix policy"):
+        normalize_attempt(
+            bad_policy,
+            source="fixture",
+            path=Path("/fixture/bad-policy.json"),
+            file_sha256="bad-policy",
+            roster=roster,
+        )
+
+    bad_success = _row(
+        roster_row,
+        policy="frozen",
+        arm="summary_B0",
+        success=1.0,
+    )
+    bad_success["termination_reason"] = "step_budget_exhausted"
+    with pytest.raises(ValueError, match="score_after"):
+        normalize_attempt(
+            bad_success,
+            source="fixture",
+            path=Path("/fixture/bad-success.json"),
+            file_sha256="bad-success",
+            roster=roster,
+        )
+
+
+def test_policy_agnostic_nine_cell_void_enables_only_hard_delete_view() -> None:
+    full_roster = load_roster(ROSTER_PATH)
+    deleted_key = next(iter(full_roster))
+    attempts = []
+    for roster_key, roster_row in full_roster.items():
+        for policy in POLICIES:
+            for arm in ARMS:
+                if roster_key == deleted_key:
+                    attempts.append(
+                        _attempt(
+                            roster_row,
+                            policy=policy,
+                            arm=arm,
+                            infrastructure_failure=True,
+                            model_step_count=0,
+                        )
+                    )
+                else:
+                    attempts.append(
+                        _attempt(
+                            roster_row,
+                            policy=policy,
+                            arm=arm,
+                        )
+                    )
+    report = aggregate_matrix(
+        attempts,
+        roster=full_roster,
+        bootstrap_resamples=10,
+    )
+    assert report["status"] == "INCOMPLETE_SEALED_ZERO_SHOT_MATRIX_V1"
+    assert not report["views"]["headline_all_116"]["ready"]
+    assert report["views"]["hard_delete_env_init_only"]["ready"]
+    assert report["views"]["hard_delete_env_init_only"]["template_count"] == 116
+    assert report["views"]["hard_delete_env_init_only"]["instance_count"] == 231

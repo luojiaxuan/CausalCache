@@ -121,6 +121,18 @@ def load_roster(path: Path) -> dict[tuple[str, int], dict[str, Any]]:
         raise ValueError("matrix roster must contain 232 task instances")
     records: dict[tuple[str, int], dict[str, Any]] = {}
     for row in payload["instances"]:
+        required_fields = {
+            "goal",
+            "max_steps",
+            "origin_split",
+            "task_index",
+            "task_type",
+        }
+        missing_fields = sorted(required_fields - set(row))
+        if missing_fields:
+            raise ValueError(
+                f"roster row is missing required fields: {missing_fields}"
+            )
         key = (str(row["task_type"]), int(row["task_index"]))
         if key in records:
             raise ValueError(f"duplicate roster key: {key}")
@@ -236,6 +248,15 @@ def normalize_attempt(
         raise ValueError("successful episode must be classified official_success")
     if success == 0.0 and failure_classification == "official_success":
         raise ValueError("official_success requires terminal success")
+    producer_success = (
+        row.get("score_after") == 1.0
+        and row.get("termination_reason") == "policy_terminated"
+    )
+    if bool(success) != producer_success:
+        raise ValueError(
+            "official_terminal_success disagrees with "
+            "score_after==1 and policy_terminated"
+        )
     if not infrastructure_failure and row.get("required_audits_complete") is not True:
         raise ValueError("formal non-infrastructure episode lacks required audits")
     started_at = row.get("started_at")

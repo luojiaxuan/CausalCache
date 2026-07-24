@@ -173,6 +173,12 @@
 - 两机真实记录联合 dry run schema 验收通过：1,046 个去重 attempt 中 417 个正式 cell、
   621 个零步 void、8 个开跑后 infra，缺 1,671；零 rejected、零 unexpected、零非 infra
   重复。该数字仅是执行中 inventory，不读取为科学结论。
+- hostile review 对 manifest/test evidence 的质疑由 committed 232-instance roster
+  (`1dd48941...`)与真实 dry run/单测证据排除；接受并修复 roster 必填字段的显式校验，
+  同时新增 producer success 公式复核、policy/checkpoint mismatch、开跑后 infra 与九 cell
+  policy-agnostic env-init hard-delete 覆盖。数值 success 保持现有 episode schema 的
+  `0.0/1.0` fail-closed 类型，不接受 JSON bool；hard-delete 仅为敏感性视图，不能令缺失
+  headline 获得 `COMPLETE`。
 
 ## 2026-07-24:HGKV singleton selector Stage-1 架构与训练规则冻结
 
