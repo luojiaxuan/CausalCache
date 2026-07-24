@@ -371,8 +371,17 @@
   并以该一致副本原子替换。
 - wrapper 新增 `--shard-indices`，允许只把失败逻辑 shard 映射到所选 GPU，同时
   保持最终对全部 8 个输出做 75,628 unique-key、统一维度、逐行长度和有限值验证。
-  extractor + wrapper 相关测试 15/15 通过；待 hyper01 续跑 shard 1/5/6 并生成
-  正式 `DONE`。
+  extractor + wrapper 相关测试 15/15 通过；实现与恢复记录由 commit `d6973a7`
+  推送 canonical `main`。
+- hyper01 5 秒 preflight 确认 GPU 0-7 全空；只取 GPU 0/1/2 映射 shard 1/5/6，
+  launch-time 三卡均为 0 MiB。恢复容器
+  `sglang-omni-jaxan-07240114` 使用精确 source commit
+  `d6973a78cb3fb8fab19795b62a6ebeedcb197eca`，终态 exit 0、OOM=false，已按规则删除。
+- `DONE` 于 `2026-07-24T08:43:56Z` 生成：75,628 rows / 75,628 unique keys、
+  `feature_dim=1280`；shard 0-3 各 9,454 行、shard 4-7 各 9,453 行，逐行有限值
+  验证通过。完整 8-shard SHA/大小、输入与 checkpoint provenance、恢复证据和命令见
+  [`data/results/hgkv_readout_v1/`](../data/results/hgkv_readout_v1/README.md)；
+  大 feature artifact 仍为 hyper01 local staging，`PENDING_HF_UPLOAD`。
 
 ## 2026-07-24:AAAI 主结果按 policy-use / selector 两个 panel 重构
 

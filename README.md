@@ -33,6 +33,10 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   [`docs/sealed_zero_shot_policy_matrix_v1.md`](docs/sealed_zero_shot_policy_matrix_v1.md);
   输出 hyper00 + hyper01 `/data02/jaxan/runs/sealed-matrix-v1/`。发射后不得按 benchmark
   结果改 adapter/checkpoint/协议。
+- **HGKV-readout singleton 特征 75,628/75,628 完成。** 8 shard 均通过
+  unique-key、统一 1,280 维、逐行长度与有限值验证；首轮唯一截断 PNG 已由两个
+  SHA256 一致的持久化副本恢复，只续跑失败的 shard 1/5/6。逐 shard 哈希、恢复证据和
+  完整命令见 [`data/results/hgkv_readout_v1/`](data/results/hgkv_readout_v1/README.md)。
 - **GUI-Odyssey 外部训练零样本泛化 AndroidWorld 成立(基础能力层)。** 修正版 odyv2-s75:
   B0=6/45(frozen 3),配对净胜 +3、Δ+0.067 CI[+0.000,+0.133],parse 死亡 26→1;记忆剂量
   收益仍平(B8=6/45 vs frozen 6)。此前 s60 全量 0/90 两连败定性为动作分布负迁移。完整三轮
@@ -146,6 +150,7 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 | hgkv gate v1 认证 | [`data/results/hgkv_gate_v1/`](data/results/hgkv_gate_v1/README.md);原始行 hyper01 `/data02/jaxan/runs/hgkv-eval/cert/`(s100/frozen 各 5,738 行 jsonl) | 判定表入 Git;逐行 jsonl `PENDING_HF_UPLOAD` |
 | 训练数据 ody-sft-v2 | hyper00 训练 run root `/data02/jaxan/runs/hgkv-formal-v1`(37,635 样本,165 heldout 轨迹不参训;provenance 见 gate README) | 本地;`PENDING_HF_UPLOAD` |
 | HGKV selector runtime | hyper01 `/data02/jaxan/envs/causalcache-selector-v1`；lock [`code/requirements/hgkv_selector_v1_lock.txt`](code/requirements/hgkv_selector_v1_lock.txt) | persistent system-site venv；scikit-learn `1.9.0` |
+| HGKV-readout singleton features v1 | [`data/results/hgkv_readout_v1/`](data/results/hgkv_readout_v1/README.md)；hyper01 `/data02/jaxan/runs/hgkv-readout-v1/` | 75,628 unique rows、1,280 dims、8 shard；`PENDING_HF_UPLOAD` |
 | Sealed 矩阵 v1 run | hyper00 + hyper01 `/data02/jaxan/runs/sealed-matrix-v1/`(目标 2,088 局,116 template × 2 fixed instances × 3 policy × 3 arm；聚合器 `scripts.aggregate_sealed_matrix_v1`) | 执行中 |
 | dev canary 记录 | hyper01 `/data02/jaxan/runs/hgkv-canary-v1/`(逐局 json) | 12/12;性能不读(canary 纪律) |
 | Selector U_act 标签 v1 | [`data/results/odyssey_selector_labels_v1/`](data/results/odyssey_selector_labels_v1/README.md) | 进行中,见目录 README |
