@@ -308,7 +308,9 @@ eight adapted layers maps each candidate to an embedding. Four heads predict
 singleton gain, within-state rank, positive gain, and a state-level STOP score.
 Training combines SmoothL1 regression, pairwise logistic ranking, positive-label
 binary cross entropy, and STOP binary cross entropy. Stage 1 selects the first
-event, supplies the independent marginal baseline, and initializes Stage 2.
+event, supplies the independent singleton-gain baseline, and initializes Stage 2.
+For $B=1$, the singleton and set-conditioned paths are identical: both compare
+the same Stage-1 candidate ranks with the same STOP score.
 
 \paragraph{Stage 2: set-conditioned marginal scorer.}
 Permutation-invariant set models commonly aggregate elements through pooled or
@@ -324,7 +326,9 @@ shortlist, recent, greedy, and small-beam paths rather than by enumerating the
 full power set.
 
 At inference, Stage 1 makes the first choice; Stage 2 then repeatedly compares
-the best remaining candidate with STOP:
+the best remaining candidate rank with STOP. Stage 2 re-scores all remaining
+candidates in the capped inventory; Stage-1 shortlists are used only to control
+conditional-label construction cost:
 \begin{algorithm}[t]
 \caption{At-most-$B$ HGKV Set-Conditioned Selection}
 \label{alg:selector}
@@ -337,7 +341,7 @@ the best remaining candidate with STOP:
 \ENDIF
 \STATE Add the highest-ranked event to $S$
 \WHILE{$|S|<B$}
-    \STATE Predict $\widehat\Delta(j\mid S)$ and STOP with Stage 2
+\STATE Predict candidate ranks, marginals, and STOP with Stage 2
     \IF{STOP outranks every remaining event}
         \STATE \textbf{break}
     \ENDIF

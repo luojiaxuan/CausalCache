@@ -113,15 +113,27 @@ selector 候选。旧 Set Transformer 失败的根因是 teacher policy(frozen)�
 
 ## 两阶段 selector
 
-**Stage 1 — Singleton HGKV scorer**(用当前 75K singleton 标签训):学 Δ̂(j|∅);
-负责 B1、候选排序、shortlist top-K、初始化 Stage 2、作 paper independent baseline。
-**不作最终 B4 selector。**
+**Stage 1 — Singleton HGKV scorer**(用当前 75K singleton 标签训):学
+`Δ(j|∅)=U({j})−U(∅)`；由 B0 parity，`U(∅)=0`，实际 target 即
+`log p_HG(a*|{j})−log p_frozen(a*|B0)`。四个头分别预测 gain、within-state rank、
+positive 与 STOP。负责 B1、第一步、independent baseline、Stage 2 encoder 初始化，
+以及 conditional-label 构造期的 shortlist top-K；**正式 inference 不按 shortlist
+截断候选**，Stage 2 重排 capped inventory 中所有剩余候选。Stage 1 不作最终 B4
+selector。
+
+**B1 不变量**：singleton 与 set-conditioned 两路在 B1 完全共享 Stage 1 的
+candidate rank 与 STOP 决策，必须选择同一集合并得到同一真实 `U(S)`；任何 B1 差异
+都是实现或聚合错误。interaction advantage 只可能出现在 B2/B4。
 
 **Stage 2 — HGKV Set-Conditioned Marginal Selector(主方法)**:学 Δ̂(j|S)。
-- 输入:当前 decision query q_t、候选事件 HGKV-readout embedding e_j、已选集合 {e_i:i∈S}、
-  剩余预算 B−|S|;
-- 输出:每个剩余候选的 conditional marginal + STOP score;
-- 推理:S=∅,while |S|<B:预测各 Δ(j|S),与 STOP 比,STOP 最优则止,否则加入最高分事件;
+- 实际 forward 输入:candidate features/mask、selected features/mask、remaining budget；
+  当前 decision query 已编码进每个候选的 HGKV counterfactual readout，不作为独立 tensor
+  再传入 Stage 2；
+- 四个头分别预测 conditional marginal、within-coalition rank、positive 与 STOP；
+- 实际推理:S=∅ 时由 Stage 1 决定第一张；后续在所有剩余候选中取最高
+  `rank_score`，若 `stop_logit >= best rank_score` 则停止，否则加入该候选。
+  marginal head 保留真实效用单位的 regression supervision 与分析用途，不直接与 0
+  比较来做部署选择；
 - B4 的第四个候选决策输入 `|S|=3`，而冻结 conditional labels 只覆盖
   `|S|∈{1,2}`；因此该步是同一 set-attention 的结构外推。最终 B4 只以完整集合重打分的
   真实 U(S) 报告，结果 README/Table 2 必须显式标注此 coverage limitation；
