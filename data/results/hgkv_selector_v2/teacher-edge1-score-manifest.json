@@ -1,0 +1,59 @@
+{
+  "artifact_status": "PENDING_HF_UPLOAD",
+  "checkpoint_sha256": "8f2cc49e1aa0b06ce231eb54937d813317f5274a799c97b09be7fdb22be46317",
+  "completed_at": "2026-07-24T21:28:25.214664+00:00",
+  "done_sha256": "e2b3f227cd8a0a67e0ebd9e4aab5b89d9e7642694d5740af6a4d834dd5ff3423",
+  "files": {
+    "scores-shard0.jsonl": {
+      "bytes": 2136318,
+      "rows": 4095,
+      "sha256": "790b8b80a5d6e4b42486bf2d1e4b57488b15e2628458caf723e9e11d5776d54e"
+    },
+    "scores-shard1.jsonl": {
+      "bytes": 2084028,
+      "rows": 3995,
+      "sha256": "a513bf06ff1378a835809727e9f815d6370c5e9b015ca8a594b94dcdaa3fab8d"
+    },
+    "scores-shard2.jsonl": {
+      "bytes": 2209512,
+      "rows": 4235,
+      "sha256": "ed4711dbad5fa714ab26fdf77ce47d8fc5d772da69f9bba35f2aa99f2804067e"
+    },
+    "scores-shard3.jsonl": {
+      "bytes": 2155447,
+      "rows": 4132,
+      "sha256": "fdf5c495ce9ffc854332ce1abd1197eb8fdebd004403180b0c812580e442f2c9"
+    },
+    "scores-shard4.jsonl": {
+      "bytes": 2132265,
+      "rows": 4087,
+      "sha256": "6fc5d79adede9e50381874e9c8ce1489dd8142b07da9a28b0404156862fe924e"
+    },
+    "scores-shard5.jsonl": {
+      "bytes": 2111889,
+      "rows": 4048,
+      "sha256": "62702651b339a9c95d65053840a1fe47d85262e58808cc40c5d64a44007485c3"
+    },
+    "scores-shard6.jsonl": {
+      "bytes": 2144946,
+      "rows": 4112,
+      "sha256": "ec093acf1ca95981db181a779340ef2279a8032d4a3f86482f6e8e5a88682ba8"
+    },
+    "scores-shard7.jsonl": {
+      "bytes": 2148740,
+      "rows": 4119,
+      "sha256": "dce4072aa3678ab1948631b64d6d8d3458398f6ed7971612bfbf6e04b3d0a3bc"
+    },
+    "scores-shard8.jsonl": {
+      "bytes": 2146569,
+      "rows": 4115,
+      "sha256": "2653e30f32f166df0a6857bacd9b0d184809ab438ee2c26d0dd1223149a04af5"
+    }
+  },
+  "input_manifest_sha256": "f6c011d6789c497b500dc1edded23f72a3d8dcda59b4fa711fc9e96863676a59",
+  "local_staging_root": "hyper00:/data02/jaxan/runs/hgkv-selector-v2/teacher-edge1-hyper00-scores",
+  "row_count": 36938,
+  "source_commit": "1e987102c3163d66b32b6c6b48e2248f9bac042d",
+  "status": "DONE",
+  "unique_key_count": 36938
+}

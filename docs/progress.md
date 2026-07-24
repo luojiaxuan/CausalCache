@@ -558,3 +558,21 @@
   在完整 JSON 行边界迁到 hyper01 物理 0/1/5/6，并从各自 301--306 个 partial rows
   继续。迁移只改变基础设施分配，不改变 input shard、prompt、checkpoint、dtype 或
   科学参数；终态仍须回收到 36,938 unique-key 全量 validator。
+
+## 2026-07-24:Selector V2 edge1 score 正式完成
+
+- hyper00 shard 0--2 与 hyper01 续跑完成的 shard 3--8 已通过逐文件 SHA256 校验后
+  原子合并到 hyper00
+  `/data02/jaxan/runs/hgkv-selector-v2/teacher-edge1-hyper00-scores/`。
+- 9 个逻辑 shard 行数为
+  `[4095,3995,4235,4132,4087,4048,4112,4119,4115]`，合计
+  `36,938/36,938`；全量 validator 得到 unique=`36,938`、
+  missing/unexpected/duplicate=`0/0/0`，所有 `target_logprob_mean` 有限。
+- 输入 manifest SHA256=`f6c011d6...a59`、hg-s100 checkpoint
+  SHA256=`8f2cc49e...6317` 与启动记录一致。迁移触发的旧 wrapper `FAILED.json`
+  仅是基础设施终止记录，在完整 validator PASS 并原子写入正式 `DONE` 后删除；
+  `DONE` SHA256=`e2b3f227...3423`。
+- 逐 shard SHA256、字节数和 provenance 已写入
+  [`data/results/hgkv_selector_v2/teacher-edge1-score-manifest.json`](../data/results/hgkv_selector_v2/teacher-edge1-score-manifest.json)；
+  大 score artifact 仍在本地持久盘，状态 `PENDING_HF_UPLOAD`。下一步先合并
+  edge1 cache 并按 true-U beam-4 规划 edge2，而不是直接启动 student training。
