@@ -539,9 +539,11 @@
 - true-U teacher edge0 已归约；edge1 在 cache 复用后产生 36,938 个 missing unique
   pair coalition，32-way render 与 strict validator 均完成，
   duplicate/unexpected/missing=`0/0/0`，等待 GPU scoring 后进入 edge2。
-- V1 readout 仅按 `(pair_group,event_step_id)` exact key 复用 7,668 行；其余 6,012
-  行由 fixed `sglang-omni-jaxan` 容器 fresh 抽取。所有 fresh shard 完成后须统一验证
-  13,680 行、1285 dims、unique key 和有限值，再允许训练。
+- V1 readout 仅按 `(pair_group,event_step_id)` exact key 复用 7,668 行；其余
+  train/dev `5,143/869` 已由 fixed `sglang-omni-jaxan` 容器 fresh 抽取并 exit 0。
+  统一 validator 得到 13,680/13,680 unique、1285 dims、666 个 `n>8` state、
+  recent-8 truncation=0，逐行长度、有限值与重算 temporal feature 全部 PASS；
+  remote `DONE` SHA256=`c1c0b500...def59b`。
 - 补齐冻结协议要求的 development `n<=8` exact subset search：planner 完整枚举
   size 1--4 coalition 并记录 cache hit/miss；reducer 使用完整真实 U 生成 at-most-B
   exact oracle，报告 B1/B2/B4 的 teacher beam-4 recovery、regret、Jaccard 与 utility

@@ -53,8 +53,9 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   666/1,000 states 超过 V1 的 8-candidate cap，synthetic terminal/truncation 均为 0。
   initial exact-key cache 已合并 243,455 个 B0/singleton/pair/triple scores；V2 所需
   13,680 个 full-history singletons 已全部打分并重建为 249,467-key complete cache。
-  edge0 已归约，edge1 的 36,938 个 cache-missing pair 已全部渲染并严格验收；fresh
-  readout 正在固定 hyper01 容器抽取。development `n<=8` exact subset-search
+  edge0 已归约，edge1 的 36,938 个 cache-missing pair 已全部渲染并严格验收；
+  candidate readout 已完成 13,680/13,680 unique、1285 维全量验证。development
+  `n<=8` exact subset-search
   planner/reducer 已补齐，用于报告 beam recovery、regret、Jaccard 与 utility gap。
   [冻结协议](docs/selector_v2_beam4_protocol.md)与
   [结果 SoT](data/results/hgkv_selector_v2/README.md)。

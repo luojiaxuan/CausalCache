@@ -2,7 +2,7 @@
 
 ## 状态
 
-`SINGLETON_SCORE_DONE_TEACHER_EDGE1_RENDER_DONE_READOUT_IN_PROGRESS`。
+`READOUT_DONE_TEACHER_EDGE1_RENDER_DONE_SCORING_PREPARING`。
 
 V2 取代 `NO_GO_HGKV_SELECTOR_V1`，主方法为 full-history、empty-start、true-U teacher
 beam-4、edge0–edge3、fresh unified set-conditioned student 与 learned beam-4 + STOP。
@@ -21,7 +21,7 @@ config 见
 | V1 exact-key cache candidates | hyper01 `/data02/jaxan/runs/hgkv-conditional-scores-v1/` | heldout 38,836 DONE；train 160,928 ABORTED；exact hits imported |
 | V2 coalition score cache | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/coalition-cache/cache-singletons-complete.jsonl`；[`coalition-cache-manifest.json`](coalition-cache-manifest.json) | singleton-complete cache 249,467 exact keys；`PENDING_HF_UPLOAD` |
 | V2 missing-singleton render/score | hyper01 `/data02/jaxan/artifacts/sft/hgkv-selector-v2-singletons/`；[`singleton-render-manifest.json`](singleton-render-manifest.json) | 6,012/6,012 rendered and scored；full inventory 13,680/13,680 |
-| V2 candidate readout | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/readout/` | 7,668 exact V1 readouts reused；6,012 fresh readouts in progress；`PENDING_HF_UPLOAD` |
+| V2 candidate readout | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/readout/`；[`readout-manifest.json`](readout-manifest.json) | 13,680/13,680 unique、1285 dims、finite/temporal/full-history validator PASS；`PENDING_HF_UPLOAD` |
 | V2 true-U teacher beam | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/teacher-beam-v2/` and `/data02/jaxan/artifacts/sft/hgkv-selector-v2-teacher/` | edge0 reduced；edge1 36,938/36,938 coalitions rendered and strict-validated；scoring pending |
 | V2 model checkpoint | intended HF model repo TBD | not trained |
 
@@ -89,11 +89,10 @@ B0 policy identifier 固定为 GUI-Owl snapshot manifest SHA256
 
 ## 当前下一步
 
-1. 完成 6,012 个 fresh readout 并验证 13,680 个完整 candidate features；
-2. 对已渲染的 36,938 个 edge1 coalition 打分，再按 true-U beam-4 迭代 edge2/edge3；
-3. 对 development `n<=8` 子集完整枚举到 B4，报告 beam recovery/regret/Jaccard/utility
+1. 对已渲染的 36,938 个 edge1 coalition 打分，再按 true-U beam-4 迭代 edge2/edge3；
+2. 对 development `n<=8` 子集完整枚举到 B4，报告 beam recovery/regret/Jaccard/utility
    gap；
-4. 训练 fresh unified student 并执行 learned greedy/beam-4 gate。
+3. 训练 fresh unified student 并执行 learned greedy/beam-4 gate。
 
 ## Full-history singleton render
 
@@ -130,3 +129,19 @@ development 且 `n<=8` 的冻结子集枚举 set size 1--4，并复用同一 can
 exact-key cache、renderer 和 scorer。归约器以 at-most-B true utility 生成 exact
 oracle，逐 B1/B2/B4 报告 teacher beam-4 recovery、regret、selected-set Jaccard 和
 utility gap；该诊断不允许改变已冻结的 beam width。
+
+## Full-history candidate readout
+
+V1 feature cache 仅按冻结 `(pair_group,event_step_id)` exact key 复用 7,668 行；
+其余 train/dev `5,143/869` 均由 hg-s100 fresh 抽取并分别生成 `DONE`。统一 validator
+最终得到：
+
+- expected/observed/unique：`13,680/13,680/13,680`；
+- feature dims：`[1285]`（1280 HGKV + 5 temporal）；
+- full-history `n>8` states：666；
+- recent-8 truncation：0；
+- 所有行长度、有限值与按 state 重算的 temporal feature 全部一致。
+
+完整文件 SHA 见 [`readout-manifest.json`](readout-manifest.json)；remote `DONE`
+SHA256 为
+`c1c0b500e6c6b02be9fcbe20b3a33890d0f7a600e49ee25397bdf12a36def59b`。
