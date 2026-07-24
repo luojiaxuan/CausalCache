@@ -155,8 +155,18 @@ def main() -> None:
     parser.add_argument("--shared-early-decisions", type=int, required=True)
     parser.add_argument("--device", required=True)
     parser.add_argument("--lora-checkpoint", type=Path, default=None)
-    parser.add_argument("--lora-rank", type=int, default=16)
-    parser.add_argument("--lora-alpha", type=int, default=32)
+    parser.add_argument("--lora-rank", type=int, default=None)
+    parser.add_argument("--lora-alpha", type=int, default=None)
+    # note (luojiaxuan): history_gated_kv 的历史掩码作用域由 runtime 在
+    # generate_native_action 内部开合(ContextVar,线程局部);本驱动的 LockedRuntime
+    # 把 generate 串行化,任一时刻只有一个线程处于作用域内,多线程下掩码不会串。
+    # 掩码构造 fail-closed:任何不一致抛错而非静默降级,日志零报错即为端到端验证。
+    parser.add_argument(
+        "--adapter-type",
+        choices=("full_policy_lora", "history_gated_kv"),
+        default="full_policy_lora",
+    )
+    parser.add_argument("--adapter-layer-count", type=int, default=8)
     parser.add_argument("--parse-retries", type=int, default=0)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument(
@@ -183,20 +193,63 @@ def main() -> None:
         target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
     )
     runtime.model.eval()
+    history_mode = args.adapter_type == "history_gated_kv"
+    lora_rank = args.lora_rank if args.lora_rank is not None else (8 if history_mode else 16)
+    lora_alpha = args.lora_alpha if args.lora_alpha is not None else (16 if history_mode else 32)
+    if history_mode and args.lora_checkpoint is None:
+        raise ValueError("--adapter-type history_gated_kv requires --lora-checkpoint")
     if args.lora_checkpoint is not None:
-        from scripts.train_success_sft_lora import inject_lora, load_lora_state_dict
+        import hashlib
 
-        wrapped = inject_lora(
-            runtime.model,
-            rank=args.lora_rank,
-            alpha=args.lora_alpha,
-            target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
-            torch=torch,
+        if history_mode:
+            from causalcache.policy.history_gated_lora import (
+                inject_history_gated_kv,
+                load_history_gated_state_dict,
+            )
+
+            wrapped = inject_history_gated_kv(
+                runtime.model,
+                layer_count=args.adapter_layer_count,
+                rank=lora_rank,
+                alpha=lora_alpha,
+            )
+            load_history_gated_state_dict(
+                wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
+            )
+            runtime.enable_history_gated_adapter()
+        else:
+            from scripts.train_success_sft_lora import (
+                inject_lora,
+                load_lora_state_dict,
+            )
+
+            wrapped = inject_lora(
+                runtime.model,
+                rank=lora_rank,
+                alpha=lora_alpha,
+                target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
+                torch=torch,
+            )
+            load_lora_state_dict(
+                wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
+            )
+        runtime.metadata = {
+            **runtime.metadata,
+            "lora_checkpoint": str(args.lora_checkpoint),
+            "lora_checkpoint_sha256": hashlib.sha256(
+                args.lora_checkpoint.read_bytes()
+            ).hexdigest(),
+            "lora_module_count": len(wrapped),
+            "lora_rank": lora_rank,
+            "lora_alpha": lora_alpha,
+            "adapter_type": args.adapter_type,
+        }
+        print(
+            json.dumps(
+                {"adapter_type": args.adapter_type, "lora_modules": len(wrapped)}
+            ),
+            flush=True,
         )
-        load_lora_state_dict(
-            wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
-        )
-        print(json.dumps({"lora_modules": len(wrapped)}), flush=True)
 
     arms = tuple(a for a in args.arms.split(",") if a)
     for arm in arms:
