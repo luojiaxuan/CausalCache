@@ -1,0 +1,244 @@
+#!/usr/bin/env python3
+"""Drive many AndroidWorld emulators from ONE shared policy model per GPU.
+
+# note (luojiaxuan): 一份 8B policy 模型(~16GB)+ generate 全局锁,配 N 条线程各
+# 驱动一个 emulator。emulator 步进(截图/执行/OCR,~22s)释放 GIL 时,其它线程的
+# GPU 前向(~2s)插空跑,GPU 利用率随 emulator 数爬升。锁保证每次 generate 原子、
+# 与串行逐字节等同(KV cache 每次 generate 独立、权重只读),parity 由构造成立。
+# OCR(13M RapidOCR,基本走 CPU)每线程独立一份,避开 ONNX 线程安全。skip-existing
+# 断点续跑,工作项 (arm, task_type, task_index) 从共享队列取,写 per-episode json。
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import queue
+import threading
+import traceback
+from pathlib import Path
+from types import SimpleNamespace
+
+from causalcache.set_utility_androidworld import PinnedOnlineOCRProvider
+from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntime
+from scripts.run_exploratory_closed_loop_episode import (
+    CEILING_ARMS,
+    EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
+    run_episode,
+    write_episode_output_atomic,
+)
+
+
+class LockedRuntime:
+    """Transparent runtime proxy that serializes GPU generate calls.
+
+    # note (luojiaxuan): __getattr__ 透传其余属性(torch/metadata/processor 等),
+    # 只把两个碰 GPU 的 generate 方法包进共享锁;锁内单次前向 = 串行等价。
+    """
+
+    def __init__(self, runtime, lock: threading.Lock) -> None:
+        self._runtime = runtime
+        self._lock = lock
+
+    def generate_native_action(self, messages):
+        with self._lock:
+            return self._runtime.generate_native_action(messages)
+
+    def greedy_fallback_generate(self, messages):
+        with self._lock:
+            return self._runtime.greedy_fallback_generate(messages)
+
+    def __getattr__(self, name):
+        return getattr(self._runtime, name)
+
+
+def worker_thread(
+    *,
+    base_url: str,
+    work: queue.Queue,
+    locked_runtime: LockedRuntime,
+    args,
+    counters: dict,
+    counter_lock: threading.Lock,
+) -> None:
+    # note (luojiaxuan): 每线程独立 OCR provider(13M,便宜),消除 ONNX 线程安全隐患。
+    ocr_provider = PinnedOnlineOCRProvider.load(
+        backend_config_path=args.repository_root
+        / "code/configs/restoration_v2_ocr_backend.json",
+        backend_manifest_path=args.repository_root
+        / "data/manifests/restoration_v2_ocr_backend.json",
+        model_dir=args.ocr_model_dir,
+    )
+    while True:
+        try:
+            arm, task_type, task_index = work.get_nowait()
+        except queue.Empty:
+            return
+        output = args.output_root / f"{arm}-{task_type}-{task_index}.json"
+        if output.exists():
+            with counter_lock:
+                counters["skipped"] += 1
+            work.task_done()
+            continue
+        episode_args = SimpleNamespace(
+            repository_root=args.repository_root,
+            base_url=base_url,
+            model_dir=args.model_dir,
+            ocr_model_dir=args.ocr_model_dir,
+            validation12_manifest=None,
+            ceiling_plan=args.ceiling_plan,
+            allow_sealed_split=args.allow_sealed_split,
+            task_index=task_index,
+            shared_early_decisions=args.shared_early_decisions,
+            parse_retries=args.parse_retries,
+            arm=arm,
+            task_type=task_type,
+            device=args.device,
+            output=output,
+        )
+        try:
+            summary = run_episode(
+                episode_args, runtime=locked_runtime, ocr_provider=ocr_provider
+            )
+            write_episode_output_atomic(output, summary)
+            with counter_lock:
+                counters["done"] += 1
+                n = counters["done"]
+            print(
+                json.dumps(
+                    {
+                        "base_url": base_url,
+                        "arm": arm,
+                        "task_type": task_type,
+                        "task_index": task_index,
+                        "success": summary["official_terminal_success"],
+                        "steps": summary["model_step_count"],
+                        "elapsed": round(summary["elapsed_seconds"], 1),
+                        "completed": n,
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+        except Exception:  # noqa: BLE001
+            with counter_lock:
+                counters["errored"] += 1
+            print(
+                json.dumps(
+                    {
+                        "base_url": base_url,
+                        "arm": arm,
+                        "task_type": task_type,
+                        "task_index": task_index,
+                        "worker_episode_error": traceback.format_exc(limit=6),
+                    }
+                ),
+                flush=True,
+            )
+        finally:
+            work.task_done()
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repository-root", type=Path, required=True)
+    parser.add_argument(
+        "--base-url",
+        action="append",
+        required=True,
+        help="emulator endpoint; repeat for one thread per emulator",
+    )
+    parser.add_argument("--model-dir", type=Path, required=True)
+    parser.add_argument("--ocr-model-dir", type=Path, required=True)
+    parser.add_argument("--ceiling-plan", type=Path, required=True)
+    parser.add_argument("--allow-sealed-split", action="store_true")
+    parser.add_argument("--shared-early-decisions", type=int, required=True)
+    parser.add_argument("--device", required=True)
+    parser.add_argument("--lora-checkpoint", type=Path, default=None)
+    parser.add_argument("--lora-rank", type=int, default=16)
+    parser.add_argument("--lora-alpha", type=int, default=32)
+    parser.add_argument("--parse-retries", type=int, default=0)
+    parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument(
+        "--arms",
+        default=",".join(CEILING_ARMS),
+        help="comma-separated memory arms to run for every plan instance",
+    )
+    parser.add_argument(
+        "--plan-instances",
+        type=Path,
+        required=True,
+        help="json list of {task_type, task_index} to cover",
+    )
+    args = parser.parse_args()
+
+    import torch
+
+    runtime = GUIOwlV21OfficialToolsRuntime(
+        model_dir=args.model_dir,
+        expected_snapshot_manifest=(
+            args.repository_root / "code/configs/gui_owl_1_5_8b_snapshot.json"
+        ),
+        device=args.device,
+        target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
+    )
+    runtime.model.eval()
+    if args.lora_checkpoint is not None:
+        from scripts.train_success_sft_lora import inject_lora, load_lora_state_dict
+
+        wrapped = inject_lora(
+            runtime.model,
+            rank=args.lora_rank,
+            alpha=args.lora_alpha,
+            target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
+            torch=torch,
+        )
+        load_lora_state_dict(
+            wrapped, torch.load(args.lora_checkpoint, map_location="cpu")
+        )
+        print(json.dumps({"lora_modules": len(wrapped)}), flush=True)
+
+    arms = tuple(a for a in args.arms.split(",") if a)
+    for arm in arms:
+        if arm not in CEILING_ARMS:
+            raise ValueError(f"arm {arm!r} not in CEILING_ARMS")
+    instances = json.loads(args.plan_instances.read_text(encoding="utf-8"))
+    work: queue.Queue = queue.Queue()
+    for inst in instances:
+        for arm in arms:
+            work.put((arm, inst["task_type"], int(inst["task_index"])))
+    total = work.qsize()
+    print(
+        json.dumps(
+            {"total_work": total, "emulators": len(args.base_url), "arms": list(arms)}
+        ),
+        flush=True,
+    )
+
+    lock = threading.Lock()
+    locked_runtime = LockedRuntime(runtime, lock)
+    counters = {"done": 0, "skipped": 0, "errored": 0}
+    counter_lock = threading.Lock()
+    threads = []
+    for base_url in args.base_url:
+        t = threading.Thread(
+            target=worker_thread,
+            kwargs={
+                "base_url": base_url,
+                "work": work,
+                "locked_runtime": locked_runtime,
+                "args": args,
+                "counters": counters,
+                "counter_lock": counter_lock,
+            },
+            daemon=True,
+        )
+        t.start()
+        threads.append(t)
+    for t in threads:
+        t.join()
+    print(json.dumps({"fleet_complete": counters, "total": total}), flush=True)
+
+
+if __name__ == "__main__":
+    main()

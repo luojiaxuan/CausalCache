@@ -51,7 +51,7 @@ from scripts.run_set_utility_androidworld_episode import (
 
 
 LOCAL_ARMS = (SUMMARY_ARM, RECENT_ARM, OCR_RGB_ARM)
-CEILING_ARMS = ("summary_B0", "recent_B2", "recent_B4", "recent_B8")
+CEILING_ARMS = ("summary_B0", "recent_B1", "recent_B2", "recent_B4", "recent_B8")
 COMPLETE_STATUS = "COMPLETE_EXPLORATORY_VALIDATION12_EPISODE"
 EFFECTIVE_VISUAL_TOKENS_PER_IMAGE = 2560
 
