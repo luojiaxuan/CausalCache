@@ -253,7 +253,7 @@ def predict(
         )
         ranks[offset : offset + size] = outputs["rank_score"].cpu().numpy()
         stops[offset : offset + size] = (
-            outputs["stop_logit"].sigmoid().cpu().numpy()
+            outputs["stop_logit"].cpu().numpy()
         )
         offset += size
     return {
@@ -310,8 +310,10 @@ def state_metrics(
         recent.append(float(truth[0]))
         random_values.append(float(np.mean(truth)))
         oracle.append(best)
-        at_most.append(realized if float(gain[chosen]) > 0 else 0.0)
-        predicted_stop = bool(predictions["stop"][state_index] >= 0.5)
+        predicted_stop = bool(
+            predictions["stop"][state_index] >= float(rank_score[chosen])
+        )
+        at_most.append(0.0 if predicted_stop else realized)
         stop_correct.append(float(predicted_stop == (best <= 0)))
     values = {
         "at_most_selected": np.asarray(at_most),
@@ -661,6 +663,17 @@ def main() -> None:
                                 ]
                             ),
                             "stop_probability": float(
+                                1
+                                / (
+                                    1
+                                    + np.exp(
+                                        -heldout_prediction["stop"][
+                                            state_index
+                                        ]
+                                    )
+                                )
+                            ),
+                            "stop_rank_score": float(
                                 heldout_prediction["stop"][state_index]
                             ),
                             "true_gain": float(

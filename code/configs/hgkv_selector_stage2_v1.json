@@ -1,0 +1,58 @@
+{
+  "schema_version": "causalcache.hgkv_selector_stage2.v1",
+  "purpose": "Frozen Stage-2 HGKV set-conditioned marginal selector for selector protocol V2",
+  "seed": 20260724,
+  "architecture": {
+    "layer_count": 8,
+    "layer_feature_dim": 160,
+    "hidden_dim": 64,
+    "head_hidden_dim": 32,
+    "attention_heads": 4,
+    "max_budget": 4,
+    "selected_set_blocks": 1,
+    "candidate_query_blocks": 1,
+    "outputs": [
+      "conditional_marginal",
+      "within_coalition_rank",
+      "positive",
+      "stop"
+    ],
+    "initialization": "Stage-1 HGKVReadoutEncoder weights; Stage-2 attention and heads freshly initialized"
+  },
+  "training": {
+    "label_edges": {
+      "cond_edge1": "U({i,j}) - U({i})",
+      "cond_edge2": "U({i,j,k}) - U({i,j})"
+    },
+    "budget_replication": {
+      "cond_edge1": [
+        2,
+        4
+      ],
+      "cond_edge2": [
+        4
+      ]
+    },
+    "selection": "train-only GroupKFold(5) by episode; median selected epoch; final refit on all train episodes",
+    "max_epochs": 30,
+    "patience": 5,
+    "batch_groups": 256,
+    "learning_rate": 0.0003,
+    "weight_decay": 0.0001,
+    "gradient_clip_norm": 1.0,
+    "huber_beta": 0.02,
+    "rank_min_delta": 0.000001,
+    "loss_weights": {
+      "marginal": 1.0,
+      "rank": 0.5,
+      "positive": 0.25,
+      "stop": 0.25
+    }
+  },
+  "evaluation": {
+    "bootstrap_replicates": 10000,
+    "heldout_read_policy": "once after epoch selection and full-train refit",
+    "conditional_edge_diagnostics_only": true,
+    "formal_gate_requires_selected_set_rerender_and_rescore": true
+  }
+}

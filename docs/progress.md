@@ -185,6 +185,27 @@
   `(pair_group,variant,singleton_event_step_id,restored_set_key)` 验证零缺失、零意外、
   零重复和有限分数后才写 `DONE`。该路径将在 HGKV-readout 8 卡抽取完成后复用同一 allocation。
 
+## 2026-07-24:HGKV set-conditioned selector Stage-2 与 STOP 比较规则冻结
+
+- 冻结 config：`code/configs/hgkv_selector_stage2_v1.json`。Stage-2 从 Stage-1
+  `HGKVReadoutEncoder` 初始化，只新增 1 个 selected-set self-attention、1 个
+  candidate-query attention、budget embedding 与 marginal/rank/positive/STOP 轻头；
+  不引入完整 Set Transformer 或新 multimodal backbone。
+- 条件标签按真实 policy 分数差构造：`cond_edge1=U({i,j})−U({i})`，
+  `cond_edge2=U({i,j,k})−U({i,j})`；B2/B4 的第一层和 B4 的第二层按 config 显式复制
+  remaining-budget 条件。训练数组只保存 singleton feature row index，不复制
+  1280-d feature table，避免数十万 group 的多 GB 冗余。
+- STOP 可比性在读标签前冻结：pairwise rank loss 同时训练 candidate↔candidate 与
+  candidate↔STOP(STOP 真值固定为 0)；推理只在最高 candidate rank score 严格高于
+  STOP rank score 时添加事件。gain/marginal 头保持真实 U 单位，不与 STOP probability
+  混比；positive 头只作辅助校准。
+- `select_hgkv_sets_v1.py` 固定 B1/B2/B4 at-most-B 推理：首步用 Stage-1，后续逐步用
+  Stage-2，B4 的第三步后以同一 set-attention 结构外推到 3-element selected set；
+  每步保存 candidate/STOP rank、预测 marginal、positive probability 与选择前集合。
+- Stage-2 与 Stage-1 使用相同 train-only 5-fold epoch selection、full-train refit 和
+  heldout-once 纪律；conditional edge 指标仍只是训练诊断，正式结论必须来自所选完整集合
+  的重渲染、hg-s100 重打分与 B1/B2/B4 paired CI。
+
 ## 2026-07-24:AAAI draft 主结果表与 selector 分析表同步
 
 - `paper/main.tex` 按冻结零样本叙事加入两张正文表骨架:Table 1 为 AndroidWorld /
