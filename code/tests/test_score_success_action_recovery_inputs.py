@@ -4,12 +4,15 @@ import json
 from pathlib import Path
 
 from scripts.run_success_action_scoring_shards import (
+    input_manifest,
     score_key,
     validate_score_outputs,
 )
 from scripts.score_success_action_recovery import (
+    claim_unseen_score,
     iter_sharded_samples,
     resolve_sample_paths,
+    score_identity,
 )
 
 
@@ -88,3 +91,42 @@ def test_score_output_validation_uses_resume_identity(tmp_path: Path) -> None:
 
     assert result["row_count"] == 2
     assert result["unique_key_count"] == 2
+
+
+def test_same_process_claims_resume_identity_once() -> None:
+    first = {
+        "pair_group": "state-0",
+        "restored_set_key": "1-2",
+        "singleton_event_step_id": None,
+        "variant": "cond_edge1",
+    }
+    symmetric = {
+        **first,
+        "conditional_anchor_set": [2],
+        "conditional_candidate": 1,
+    }
+    done: set[tuple] = set()
+
+    assert score_identity(first) == score_identity(symmetric)
+    assert claim_unseen_score(first, done)
+    assert not claim_unseen_score(symmetric, done)
+
+
+def test_input_manifest_rejects_resume_identity_across_files(
+    tmp_path: Path,
+) -> None:
+    row = {
+        "pair_group": "state-0",
+        "restored_set_key": "1-2",
+        "singleton_event_step_id": None,
+        "variant": "cond_edge1",
+    }
+    first = tmp_path / "samples-shard000.jsonl"
+    second = tmp_path / "samples-shard001.jsonl"
+    _write(first, [row])
+    _write(second, [row])
+
+    import pytest
+
+    with pytest.raises(ValueError, match="crosses physical input files"):
+        input_manifest([first, second])

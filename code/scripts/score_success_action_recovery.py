@@ -68,6 +68,28 @@ def iter_sharded_samples(
                 global_index += 1
 
 
+def score_identity(
+    sample: dict,
+) -> tuple[str | None, str, int | None, str | None]:
+    return (
+        sample.get("pair_group"),
+        sample.get("variant", "correct"),
+        sample.get("singleton_event_step_id"),
+        sample.get("restored_set_key"),
+    )
+
+
+def claim_unseen_score(
+    sample: dict,
+    done_keys: set[tuple[str | None, str, int | None, str | None]],
+) -> bool:
+    key = score_identity(sample)
+    if key in done_keys:
+        return False
+    done_keys.add(key)
+    return True
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repository-root", type=Path, required=True)
@@ -162,21 +184,16 @@ def main() -> None:
     # 已完成项,只补未打分的,append 追加。restored_set_key 只依赖 restored 集合,
     # 因此同一集合的对称 edge(仅 conditional_candidate 不同)会折叠成一次打分——
     # U(restored) 与 candidate 无关,折叠正确且省算力,下游按 restored_set_key join。
-    done_keys: set[tuple[str, str, int | None, str | None]] = set()
+    done_keys: set[
+        tuple[str | None, str, int | None, str | None]
+    ] = set()
     if args.output.exists():
         for line in args.output.open(encoding="utf-8"):
             try:
                 prev = json.loads(line)
             except json.JSONDecodeError:
                 continue
-            done_keys.add(
-                (
-                    prev.get("pair_group"),
-                    prev.get("variant", "correct"),
-                    prev.get("singleton_event_step_id"),
-                    prev.get("restored_set_key"),
-                )
-            )
+            done_keys.add(score_identity(prev))
     with args.output.open("a", encoding="utf-8") as handle:
         for sample in iter_sharded_samples(
             sample_paths,
@@ -186,12 +203,10 @@ def main() -> None:
         ):
             if allowed_episodes is not None and sample["episode"] not in allowed_episodes:
                 continue
-            if (
-                sample.get("pair_group"),
-                sample.get("variant", "correct"),
-                sample.get("singleton_event_step_id"),
-                sample.get("restored_set_key"),
-            ) in done_keys:
+            # note (luojiaxuan): renderer 的对称 conditional edges 可在同一
+            # physical input shard 共享 resume identity；本轮首次遇到即 claim，
+            # 否则只靠启动前 output 会重复 forward + 重复落盘。
+            if not claim_unseen_score(sample, done_keys):
                 continue
             encoded = encode_sample(
                 runtime, sample, dataset_root=args.dataset_root, torch=torch

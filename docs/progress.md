@@ -226,6 +226,14 @@
   二元素 `cond_base` 全部能 join 同 `restored_set_key` 的 `cond_edge1`，且
   `messages + target_text + memory_config` SHA 逐对一致，missing/mismatch 均为 0；
   因而强制 score parity 有真实输入依据。
+- 发射前 scorer resume 审计再修一处：同一 restored set 的对称 edge 共享
+  `(pair_group,variant,singleton_event_step_id,restored_set_key)`，旧 scorer 只载入启动前
+  output keys，本轮写后不更新，因而会重复 forward/落盘并被 wrapper 终态 duplicate 检查拒绝。
+  新路径在进程内首次遇到即 claim；wrapper 同时验证一个 resume key 不得跨 physical input
+  files，避免 8 个 file-shard process 之间产生不可见重复。
+- 真实 render inventory 验证该分片不变量：heldout `45,227 raw / 38,836 unique /
+  6,391 same-file duplicates / 0 cross-file`；train `255,490 / 219,549 / 35,941 / 0`。
+  31 个 selector/scorer 聚焦测试全过后才允许发射 conditional scoring。
 
 ## 2026-07-24:conditional hg-s100 打分器的流式 file-shard 路径冻结
 

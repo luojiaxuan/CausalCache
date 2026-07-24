@@ -33,11 +33,20 @@ def score_key(row: dict[str, Any]) -> tuple[str, str, int | None, str | None]:
 def input_manifest(paths: list[Path]) -> tuple[dict[str, str], set[tuple]]:
     hashes = {}
     keys: set[tuple] = set()
+    owner_by_key: dict[tuple, str] = {}
     for path in paths:
         hashes[path.name] = sha256_file(path)
         with path.open(encoding="utf-8") as handle:
             for line in handle:
-                keys.add(score_key(json.loads(line)))
+                key = score_key(json.loads(line))
+                previous_owner = owner_by_key.get(key)
+                if previous_owner is not None and previous_owner != path.name:
+                    raise ValueError(
+                        "score identity crosses physical input files: "
+                        f"{key} in {previous_owner} and {path.name}"
+                    )
+                owner_by_key[key] = path.name
+                keys.add(key)
     return hashes, keys
 
 
