@@ -3,7 +3,8 @@
 history-gated mainline(2026-07-23 起)之前各实验线的轻量结果目录,整目录平移至此,
 每个目录保留自己的 README 与 summary/artifact JSON,内容未改动。时代级摘要与失败原因见
 [`docs/archive/README.md`](../../../docs/archive/README.md)。仍在活跃使用的结果留在
-`data/results/` 顶层:`hgkv_gate_v1`(正式 gate PASS,s100)、`odyssey_selector_labels_v1`、
+`data/results/` 顶层:`hgkv_gate_v1`(正式 gate PASS,s100)、`hgkv_selector_v1`、
+`fl75_selector_v1`(旧 full-layer s75 selector 消融)、
 `odyssey_zeroshot_closed_loop_v1`(2026-07-24 第三轮裁决)与全部 `osworld_*`。
 
 按时代分组(目录名前缀):

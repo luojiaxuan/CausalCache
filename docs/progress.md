@@ -398,3 +398,25 @@
 - `make paper` 生成 6 页 US Letter PDF；逐页渲染检查确认两组 panel、caption、正文换页和
   references 无裁切、重叠或不可读列头，日志无 overfull、undefined citation/reference。
   同步补齐 `\method` / `\hgkv` 宏后的显式空格，消除 PDF 中的连字。
+
+## 2026-07-24:HGKV selector Stage-1 全量训练完成
+
+- 先验收 HGKV readout `75,628/75,628` unique rows、1,280 dims、8 shard 全量有限值，再
+  exact-join singleton train/heldout `64,264/11,364` candidates 和 `9,059/1,621`
+  states；无缺行、重复或 feature mismatch。
+- frozen 5-fold epoch selection 得到 `[29,30,27,21,5]`，median 27 epochs 后在全
+  train refit；hyper01 H200 运行完成，checkpoint
+  SHA256=`775bfbca851abf535b286b674f7642a14a7915a8b2aea65a640c7088b5430fb3`。
+- heldout singleton realized `U`：model/Recent/Random/Oracle =
+  `0.104780/0.113203/0.103396/0.133664`；model−Recent=`−0.008423`
+  (95% CI `[−0.010526,−0.006338]`)，model−Random=`+0.001384`
+  (`[−0.000059,+0.002828]`)。该负结果只作冻结 Stage-1 诊断，不据此调参，也不替代
+  B1/B2/B4 selected-set gate。
+- Stage-1 仍按协议提供 Stage-2 encoder 初始化、首步和 independent baseline。conditional
+  renders 已全量完成；hyper01 固定容器 `sglang-omni-jaxan` 已按 6 张 H200、每卡 2 个
+  scorer 发射 heldout→train 流水线，终态须分别达到 38,836 / 219,549 unique identities
+  才允许 Stage-2。
+- 冻结决策语义同步进协议与 paper：B1 两路相同；query 已编码进 candidate readout；
+  inference 比较 candidate rank 与 STOP；shortlist 只用于标签构造；B4 第四步
+  `|S|=3` 为结构外推。结果与 provenance 见
+  [`data/results/hgkv_selector_v1/`](../data/results/hgkv_selector_v1/README.md)。

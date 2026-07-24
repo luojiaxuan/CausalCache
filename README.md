@@ -37,6 +37,12 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   unique-key、统一 1,280 维、逐行长度与有限值验证；首轮唯一截断 PNG 已由两个
   SHA256 一致的持久化副本恢复，只续跑失败的 shard 1/5/6。逐 shard 哈希、恢复证据和
   完整命令见 [`data/results/hgkv_readout_v1/`](data/results/hgkv_readout_v1/README.md)。
+- **HGKV selector Stage-1 已按冻结协议完成。** 75,628 条 readout 全量 join；heldout
+  1,621 states 上 realized `U=0.104780`，低于 Recent `0.113203`，差值 `−0.008423`
+  (95% CI `[−0.010526,−0.006338]`)。这是 singleton 训练诊断而非正式 gate；不事后调参，
+  继续用其初始化 Stage-2，并以完整 selected-set 重渲染/重打分裁决 interaction
+  modeling。结果与 provenance 见
+  [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)。
 - **GUI-Odyssey 外部训练零样本泛化 AndroidWorld 成立(基础能力层)。** 修正版 odyv2-s75:
   B0=6/45(frozen 3),配对净胜 +3、Δ+0.067 CI[+0.000,+0.133],parse 死亡 26→1;记忆剂量
   收益仍平(B8=6/45 vs frozen 6)。此前 s60 全量 0/90 两连败定性为动作分布负迁移。完整三轮
@@ -113,12 +119,13 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   (ody-sft-v2,37,635 样本),轨迹 ID 三切分 train/tune/heldout,checkpoint 只按 Odyssey
   tune/heldout 选,不触 benchmark。
 - **Selector(adapter 过跨平台门后)**:`U_act(S) = log p_gate(a*|S) − log p_0(a*|B0)`。
-  Stage 1 singleton/marginal scorer 负责 B1、shortlist 与 independent baseline;Stage 2
-  set-conditioned selector 显式输入已选集合和剩余预算,逐步预测 conditional marginal 并与
-  STOP 比较。正式 B1/B2/B4 utility 必须将完整选中集合重新送入 hg-s100,禁止 singleton
-  gain 求和冒充 set utility。仅在 GUI-Odyssey 训练与选择、零样本部署;协议与标签生成见
+  Stage 1 singleton-gain scorer 负责 B1/第一步、标签构造 shortlist 与 independent
+  baseline；Stage 2 接收已选集合和剩余预算，在全部剩余候选上比较 learned rank 与
+  STOP。query 已编码在 candidate readout 中，gain/marginal head 不直接驱动选择。正式
+  B1/B2/B4 utility 必须将完整选中集合重新送入 hg-s100，禁止 singleton gain 求和冒充
+  set utility。仅在 GUI-Odyssey 训练与选择、零样本部署；协议与结果见
   [`docs/selector_v1_protocol.md`](docs/selector_v1_protocol.md)和
-  [`data/results/odyssey_selector_labels_v1/`](data/results/odyssey_selector_labels_v1/README.md)。
+  [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)。
 - 完整契约(token-role fail-closed 规则、数据协议、Outcome A-E 升级/回退决策树)见
   [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md)。旧 set-utility 方法
   (`U(S)=D(∅)−D(S)` 监督的 set predictor)及其全部对照线已归档:
@@ -132,6 +139,7 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 - [`docs/history_gated_mainline_v1_provenance.md`](docs/history_gated_mainline_v1_provenance.md):分支 provenance;
 - [`docs/sealed_zero_shot_policy_matrix_v1.md`](docs/sealed_zero_shot_policy_matrix_v1.md):sealed 零样本评测矩阵 v1(AW,预注册,执行中);
 - [`data/results/hgkv_gate_v1/README.md`](data/results/hgkv_gate_v1/README.md):正式 gate PASS 判定表与 s100 provenance;
+- [`data/results/hgkv_selector_v1/README.md`](data/results/hgkv_selector_v1/README.md):Stage-1/Stage-2 与 selected-set gate 的结果、provenance 和 artifact 状态;
 - [`docs/androidworld_task_partition.md`](docs/androidworld_task_partition.md) 与 [`docs/androidworld_stack.md`](docs/androidworld_stack.md):AndroidWorld 冻结 partition 与 benchmark-native stack;
 - `docs/osworld_*.md`:OSWorld runner / benchmark acceleration / capacity / leakage / transfer 线,runner 会话交接见 [`docs/osworld_lora_leakage_test_handoff.md`](docs/osworld_lora_leakage_test_handoff.md);
 - [`docs/policy_selection.md`](docs/policy_selection.md):frozen policy(GUI-Owl)选型与候选记录;
@@ -151,9 +159,9 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 | 训练数据 ody-sft-v2 | hyper00 训练 run root `/data02/jaxan/runs/hgkv-formal-v1`(37,635 样本,165 heldout 轨迹不参训;provenance 见 gate README) | 本地;`PENDING_HF_UPLOAD` |
 | HGKV selector runtime | hyper01 `/data02/jaxan/envs/causalcache-selector-v1`；lock [`code/requirements/hgkv_selector_v1_lock.txt`](code/requirements/hgkv_selector_v1_lock.txt) | persistent system-site venv；scikit-learn `1.9.0` |
 | HGKV-readout singleton features v1 | [`data/results/hgkv_readout_v1/`](data/results/hgkv_readout_v1/README.md)；hyper01 `/data02/jaxan/runs/hgkv-readout-v1/` | 75,628 unique rows、1,280 dims、8 shard；`PENDING_HF_UPLOAD` |
+| HGKV selector v1 | [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)；hyper01 `/data02/jaxan/runs/hgkv-selector-stage1-v1/` | Stage-1 `DONE`、显著输 Recent；Stage-2 / selected-set gate 进行中；large artifacts `PENDING_HF_UPLOAD` |
 | Sealed 矩阵 v1 run | hyper00 + hyper01 `/data02/jaxan/runs/sealed-matrix-v1/`(目标 2,088 局,116 template × 2 fixed instances × 3 policy × 3 arm；聚合器 `scripts.aggregate_sealed_matrix_v1`) | 执行中 |
 | dev canary 记录 | hyper01 `/data02/jaxan/runs/hgkv-canary-v1/`(逐局 json) | 12/12;性能不读(canary 纪律) |
-| Selector U_act 标签 v1 | [`data/results/odyssey_selector_labels_v1/`](data/results/odyssey_selector_labels_v1/README.md) | 进行中,见目录 README |
 | Odyssey 零样本闭环三轮记录 | [`data/results/odyssey_zeroshot_closed_loop_v1/`](data/results/odyssey_zeroshot_closed_loop_v1/README.md);run root hyper00 `/data02/jaxan/runs/odyv2-zeroshot-full/` | 完成;s75 B0 翻倍,B8 平 |
 | GUI-Owl policy LoRA s75 / terminal-s60 | Hyper00 `/data02/jaxan/runs/causalcache-odyssey-margin-v1/lora-step75.pt`、`...odyssey-margin-v1b/lora-step60.pt`；intended private HF model repo `gavinlaw/causalcache-gui-owl-policy-lora-mobile` | SHA `90a56b7e...d56e` / `cba455cb...7b18`；`PENDING_HF_UPLOAD`；[desktop leakage PASS](data/results/osworld_lora_leakage_v1/README.md) |
 | AndroidWorld policy LoRA v3-e1 | Hyper00 `/data02/jaxan/runs/causalcache-margin-sft-v3/lora-epoch1.pt`；Hyper01 verified mirror `/data02/jaxan/runs/causalcache-margin-sft-v3-eval/lora-epoch1.pt`；intended private HF model repo `gavinlaw/causalcache-gui-owl-policy-lora-mobile` | SHA `7122d897...f9c73b8`；`PENDING_HF_UPLOAD`；AndroidWorld `+8.9pt`，但 [OSWorld transfer 无正向证据](data/results/osworld_v3_e1_transfer_pilot_v1/README.md) |
