@@ -6,6 +6,7 @@ import json
 from argparse import Namespace
 
 from scripts.plan_hgkv_teacher_beam_v2 import build_plan_rows
+from scripts.build_hgkv_selector_v2_training_data import build_training_rows
 from scripts.reduce_hgkv_teacher_beam_v2 import reduce_depth
 from scripts.render_hgkv_teacher_beam_v2 import (
     annotate_samples,
@@ -166,3 +167,27 @@ def test_teacher_runner_reduces_covered_depth_then_waits_for_exact_cache(
     assert (tmp_path / "run/depth0/labels.jsonl").is_file()
     assert (tmp_path / "run/depth0/beam.jsonl").is_file()
     assert run(args) == status
+
+
+def test_training_groups_replicate_only_frozen_remaining_budgets():
+    state = _state() | {"split": "train"}
+    label = {
+        "pair_group": "episode:9",
+        "candidate_event_step_ids": [1, 2, 3, 4, 5],
+        "selected_event_step_ids": [],
+        "remaining_candidate_event_step_ids": [1, 2, 3, 4, 5],
+        "marginal_targets": [0.1, 0.2, 0.3, 0.4, 0.5],
+        "depth": 0,
+        "stop_is_optimal": False,
+    }
+    rows = build_training_rows(
+        states={"episode:9": state},
+        feature_index={
+            ("episode:9", candidate): candidate - 1
+            for candidate in range(1, 6)
+        },
+        labels=[label],
+    )
+    assert [row["remaining_budget"] for row in rows] == [1, 2, 4]
+    assert all(row["candidate_feature_indices"] == [0, 1, 2, 3, 4] for row in rows)
+    assert all(row["selected_feature_indices"] == [] for row in rows)
