@@ -167,10 +167,17 @@ def run_official_episode(
                 summary["steps"].append(step)
                 termination_reason = "policy_terminated"
                 break
-            aw = gui_owl_v2_action_to_androidworld(action, current.image)
+            # note (luojiaxuan): 官方 run_ma35 用 src_format="qwen-vl",其定义为
+            # x/999*width —— 与本仓库 _pixel_coordinate 的 [0,999] 约定一致,
+            # 故沿用同一转换,不存在二次归一化。
+            aw = gui_owl_v2_action_to_androidworld(
+                action,
+                screen_width=int(current.metadata["width"]),
+                screen_height=int(current.metadata["height"]),
+            )
             step["androidworld_action"] = aw
+            summary["steps"].append(step)  # 先记录再执行,便于诊断执行期崩溃
             step["execute_response"] = environment.execute(aw)
-            summary["steps"].append(step)
             recent_images.append(current.image)
             current = environment.screenshot()
         summary["score_after"] = environment.score()
