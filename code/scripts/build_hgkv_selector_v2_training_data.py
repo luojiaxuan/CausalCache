@@ -154,6 +154,7 @@ def build_training_rows(
                     "selected_feature_indices": selected_indices,
                     "candidate_feature_indices": candidate_indices,
                     "marginal_targets": targets,
+                    "prefix_u_act": float(label["prefix_u_act"]),
                     "remaining_budget": remaining_budget,
                     "depth": depth,
                     "stop_is_optimal": bool(label["stop_is_optimal"]),

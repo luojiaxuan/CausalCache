@@ -5,6 +5,12 @@ from __future__ import annotations
 import json
 from argparse import Namespace
 
+import torch
+
+from causalcache.hgkv_selector_v2 import (
+    HGKVSetSelectorV2,
+    learned_beam_search,
+)
 from scripts.plan_hgkv_teacher_beam_v2 import build_plan_rows
 from scripts.build_hgkv_selector_v2_training_data import build_training_rows
 from scripts.reduce_hgkv_teacher_beam_v2 import reduce_depth
@@ -14,6 +20,10 @@ from scripts.render_hgkv_teacher_beam_v2 import (
     selected_set_plan,
 )
 from scripts.run_hgkv_teacher_beam_v2 import run
+from scripts.train_hgkv_selector_v2 import (
+    collate_groups,
+    trajectory_group_folds,
+)
 
 
 def _state():
@@ -177,6 +187,7 @@ def test_training_groups_replicate_only_frozen_remaining_budgets():
         "selected_event_step_ids": [],
         "remaining_candidate_event_step_ids": [1, 2, 3, 4, 5],
         "marginal_targets": [0.1, 0.2, 0.3, 0.4, 0.5],
+        "prefix_u_act": 0.0,
         "depth": 0,
         "stop_is_optimal": False,
     }
@@ -191,3 +202,76 @@ def test_training_groups_replicate_only_frozen_remaining_budgets():
     assert [row["remaining_budget"] for row in rows] == [1, 2, 4]
     assert all(row["candidate_feature_indices"] == [0, 1, 2, 3, 4] for row in rows)
     assert all(row["selected_feature_indices"] == [] for row in rows)
+
+
+def test_dynamic_collation_supports_empty_set_and_full_history_width():
+    features = torch.arange(12 * 1285, dtype=torch.float32).reshape(12, 1285)
+    rows = [
+        {
+            "candidate_feature_indices": list(range(10)),
+            "selected_feature_indices": [],
+            "marginal_targets": [0.1] * 10,
+            "remaining_budget": 4,
+        },
+        {
+            "candidate_feature_indices": [10, 11],
+            "selected_feature_indices": [0, 1, 2],
+            "marginal_targets": [0.2, -0.1],
+            "remaining_budget": 1,
+        },
+    ]
+    batch = collate_groups(rows, features, device=torch.device("cpu"))
+    assert batch["candidate_features"].shape == (2, 10, 1285)
+    assert batch["selected_features"].shape == (2, 3, 1285)
+    assert batch["candidate_mask"].sum(dim=1).tolist() == [10, 2]
+    assert batch["selected_mask"].sum(dim=1).tolist() == [0, 3]
+
+
+def test_group_folds_never_split_one_trajectory():
+    rows = [
+        {"episode": episode}
+        for episode, count in (("a", 5), ("b", 4), ("c", 3), ("d", 2), ("e", 1))
+        for _ in range(count)
+    ]
+    folds = trajectory_group_folds(rows, folds=3)
+    assert set.union(*folds) == {"a", "b", "c", "d", "e"}
+    assert sum(len(fold) for fold in folds) == 5
+    assert all(
+        left.isdisjoint(right)
+        for index, left in enumerate(folds)
+        for right in folds[index + 1 :]
+    )
+
+
+def test_unified_model_accepts_an_explicit_empty_selected_width():
+    model = HGKVSetSelectorV2()
+    outputs = model(
+        torch.zeros(2, 10, 1285),
+        torch.ones(2, 10, dtype=torch.bool),
+        torch.zeros(2, 0, 1285),
+        torch.zeros(2, 0, dtype=torch.bool),
+        torch.tensor([1, 4]),
+    )
+    assert outputs["marginal"].shape == (2, 10)
+    assert outputs["rank_score"].shape == (2, 10)
+    assert outputs["stop_logit"].shape == (2,)
+
+
+def test_learned_beam_prunes_by_cumulative_calibrated_marginal():
+    def scorer(prefix, remaining, _remaining_budget):
+        table = {
+            (): {1: 0.4, 2: 0.3, 3: 0.0},
+            (1,): {2: -0.1, 3: -0.2},
+            (2,): {1: -0.1, 3: 0.5},
+            (3,): {1: -0.2, 2: 0.1},
+        }
+        return {candidate: table[prefix][candidate] for candidate in remaining}
+
+    path = learned_beam_search(
+        [1, 2, 3],
+        budget=2,
+        scorer=scorer,
+        beam_width=4,
+    )
+    assert path.selected_event_step_ids == (2, 3)
+    assert path.cumulative_predicted_u == 0.8
