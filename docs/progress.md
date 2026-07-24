@@ -529,3 +529,20 @@
   inference 比较 candidate rank 与 STOP；shortlist 只用于标签构造；B4 第四步
   `|S|=3` 为结构外推。结果与 provenance 见
   [`data/results/hgkv_selector_v1/`](../data/results/hgkv_selector_v1/README.md)。
+
+## 2026-07-24:Selector V2 singleton score、edge1 render 与 exact-search 基建
+
+- V2 missing singleton 的 train/dev hg-s100 scoring 已分别完成
+  `5,143/869`，12 个 scorer 全部 exit 0；singleton-complete coalition cache 为
+  `249,467/249,467` unique exact keys，V2 1,000 个 B0 和 13,680 个 singleton
+  全量覆盖，缺失为 0。
+- true-U teacher edge0 已归约；edge1 在 cache 复用后产生 36,938 个 missing unique
+  pair coalition，32-way render 与 strict validator 均完成，
+  duplicate/unexpected/missing=`0/0/0`，等待 GPU scoring 后进入 edge2。
+- V1 readout 仅按 `(pair_group,event_step_id)` exact key 复用 7,668 行；其余 6,012
+  行由 fixed `sglang-omni-jaxan` 容器 fresh 抽取。所有 fresh shard 完成后须统一验证
+  13,680 行、1285 dims、unique key 和有限值，再允许训练。
+- 补齐冻结协议要求的 development `n<=8` exact subset search：planner 完整枚举
+  size 1--4 coalition 并记录 cache hit/miss；reducer 使用完整真实 U 生成 at-most-B
+  exact oracle，报告 B1/B2/B4 的 teacher beam-4 recovery、regret、Jaccard 与 utility
+  gap。14 个 teacher/exact/gate 相关测试通过；该诊断不得回写或调整 beam width 4。

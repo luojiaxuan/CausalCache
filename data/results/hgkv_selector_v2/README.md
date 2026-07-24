@@ -2,7 +2,7 @@
 
 ## 状态
 
-`FULL_HISTORY_SINGLETON_RENDER_DONE_SCORING_IN_PROGRESS`。
+`SINGLETON_SCORE_DONE_TEACHER_EDGE1_RENDER_DONE_READOUT_IN_PROGRESS`。
 
 V2 取代 `NO_GO_HGKV_SELECTOR_V1`，主方法为 full-history、empty-start、true-U teacher
 beam-4、edge0–edge3、fresh unified set-conditioned student 与 learned beam-4 + STOP。
@@ -19,8 +19,10 @@ config 见
 | V2 reusable state/render/score/feature dataset | intended HF dataset repo `gavinlaw/causalcache-hgkv-selector-v2` | `PENDING_HF_UPLOAD` |
 | hg-s100 adapter | hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`；SHA256 `8f2cc49e1aa0b06ce231eb54937d813317f5274a799c97b09be7fdb22be46317` | local staging；`PENDING_HF_UPLOAD` |
 | V1 exact-key cache candidates | hyper01 `/data02/jaxan/runs/hgkv-conditional-scores-v1/` | heldout 38,836 DONE；train 160,928 ABORTED；exact hits imported |
-| V2 coalition score cache | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/coalition-cache/cache.jsonl`；[`coalition-cache-manifest.json`](coalition-cache-manifest.json) | 243,455 exact keys；`PENDING_HF_UPLOAD` |
-| V2 missing-singleton render | hyper01 `/data02/jaxan/artifacts/sft/hgkv-selector-v2-singletons/`；[`singleton-render-manifest.json`](singleton-render-manifest.json) | 6,012/6,012 missing keys；full inventory 13,680/13,680；scoring in progress |
+| V2 coalition score cache | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/coalition-cache/cache-singletons-complete.jsonl`；[`coalition-cache-manifest.json`](coalition-cache-manifest.json) | singleton-complete cache 249,467 exact keys；`PENDING_HF_UPLOAD` |
+| V2 missing-singleton render/score | hyper01 `/data02/jaxan/artifacts/sft/hgkv-selector-v2-singletons/`；[`singleton-render-manifest.json`](singleton-render-manifest.json) | 6,012/6,012 rendered and scored；full inventory 13,680/13,680 |
+| V2 candidate readout | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/readout/` | 7,668 exact V1 readouts reused；6,012 fresh readouts in progress；`PENDING_HF_UPLOAD` |
+| V2 true-U teacher beam | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/teacher-beam-v2/` and `/data02/jaxan/artifacts/sft/hgkv-selector-v2-teacher/` | edge0 reduced；edge1 36,938/36,938 coalitions rendered and strict-validated；scoring pending |
 | V2 model checkpoint | intended HF model repo TBD | not trained |
 
 HF repo ID 是 intended destination，尚未创建或验证；不得当作已上传链接引用。
@@ -87,9 +89,11 @@ B0 policy identifier 固定为 GUI-Owl snapshot manifest SHA256
 
 ## 当前下一步
 
-1. 打分已渲染的 6,012 个 full-history singletons，同时补 readout；
-2. 按 true-U teacher beam-4 生成 edge0–edge3；
-3. 训练 fresh unified student 并执行 learned greedy/beam-4 gate。
+1. 完成 6,012 个 fresh readout 并验证 13,680 个完整 candidate features；
+2. 对已渲染的 36,938 个 edge1 coalition 打分，再按 true-U beam-4 迭代 edge2/edge3；
+3. 对 development `n<=8` 子集完整枚举到 B4，报告 beam recovery/regret/Jaccard/utility
+   gap；
+4. 训练 fresh unified student 并执行 learned greedy/beam-4 gate。
 
 ## Full-history singleton render
 
@@ -106,5 +110,23 @@ coalition cache 的 exact complement 渲染，train/dev 分别为 5,143/869，�
 - hyper01 完整 `DONE` SHA256：
   `e30e39232d72e596a040fcafa3b2745d48f9b2ee71c51d143d8fe071bd71bf82`。
 
-12-way hg-s100 scoring 已在固定容器 `sglang-omni-jaxan`、GPU 0–5、每卡两个
-process 上启动；正式 cache 更新必须等待 scorer `DONE` exact-key validator。
+12-way hg-s100 scoring 已在固定容器 `sglang-omni-jaxan` 完成：train/dev
+`5,143/869`，合计 `6,012/6,012`，全部 worker exit 0。重建后的 singleton-complete
+cache 为 `249,467` rows/unique keys，V2 B0 `1,000/1,000`、singleton
+`13,680/13,680`，缺失为 0；cache SHA256 为
+`5578f5dd477996a4f9bfab12bca4b8d44d7f177e71d0d3ad488a679e484de4e3`。
+
+## True-U teacher 与 exact-search validation
+
+edge0 已从完整 singleton cache 归约。edge1 计划在 exact-key 复用后剩余 36,938 个
+unique pair coalition；32-way CPU render 已完成，strict validator 得到
+expected/observed/unique=`36,938/36,938/36,938`，
+duplicate/unexpected/missing=`0/0/0`。13,920 张引用图片全部存在，image manifest
+SHA256 为
+`d8fb299913328ebf222e7b702741d17b480a3c29e82b8f758323abbf5c65467d`。
+
+新增 `plan_hgkv_exact_search_v2.py` 与 `reduce_hgkv_exact_search_v2.py`，只对
+development 且 `n<=8` 的冻结子集枚举 set size 1--4，并复用同一 canonical
+exact-key cache、renderer 和 scorer。归约器以 at-most-B true utility 生成 exact
+oracle，逐 B1/B2/B4 报告 teacher beam-4 recovery、regret、selected-set Jaccard 和
+utility gap；该诊断不允许改变已冻结的 beam width。
