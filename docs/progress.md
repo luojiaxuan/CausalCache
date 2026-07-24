@@ -186,6 +186,11 @@
   frozen/full-layer/history-gated=`137/131/158`，arm breakdown
   B0/B4/B8=`107/209/110`；零 rejected、零非 infra 重复，且只出现 `STATUS.json`、没有
   `DONE`/`DONE.json`。这些仍是 liveness 证据，不是科学结果。
+- 新增 Git-tracked `scripts.plan_sealed_matrix_relaunch_v1`，消费 formal aggregator 的
+  `missing-cells.jsonl` 与当轮 preflight 后显式给出的 `POLICY:GPU:PORT`；worker 严格单
+  policy，policy 内按 roster frozen `max_steps` 做 LPT 均衡并验证全覆盖、GPU/port 唯一。
+  由此替代会随 session 消失的 `/tmp/relaunch.json` 分配逻辑；实际 Docker 发射仍在最后
+  旧 worker 退出和新 preflight 后执行。
 
 ## 2026-07-24:HGKV singleton selector Stage-1 架构与训练规则冻结
 
