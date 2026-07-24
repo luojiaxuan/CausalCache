@@ -547,4 +547,6 @@
 - 补齐冻结协议要求的 development `n<=8` exact subset search：planner 完整枚举
   size 1--4 coalition 并记录 cache hit/miss；reducer 使用完整真实 U 生成 at-most-B
   exact oracle，报告 B1/B2/B4 的 teacher beam-4 recovery、regret、Jaccard 与 utility
-  gap。14 个 teacher/exact/gate 相关测试通过；该诊断不得回写或调整 beam width 4。
+  gap。独立 hostile review 后将 teacher/exact recovery 改为 canonical set 比较，并
+  增加反序同集合、STOP→空集与 B0 缺失 fail-closed 测试；全套 V2 相关测试
+  25/25 PASS。该诊断不得回写或调整 beam width 4。

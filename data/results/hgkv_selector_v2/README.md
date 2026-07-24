@@ -21,7 +21,7 @@ config 见
 | V1 exact-key cache candidates | hyper01 `/data02/jaxan/runs/hgkv-conditional-scores-v1/` | heldout 38,836 DONE；train 160,928 ABORTED；exact hits imported |
 | V2 coalition score cache | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/coalition-cache/cache-singletons-complete.jsonl`；[`coalition-cache-manifest.json`](coalition-cache-manifest.json) | singleton-complete cache 249,467 exact keys；`PENDING_HF_UPLOAD` |
 | V2 missing-singleton render/score | hyper01 `/data02/jaxan/artifacts/sft/hgkv-selector-v2-singletons/`；[`singleton-render-manifest.json`](singleton-render-manifest.json) | 6,012/6,012 rendered and scored；full inventory 13,680/13,680 |
-| V2 candidate readout | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/readout/`；[`readout-manifest.json`](readout-manifest.json) | 13,680/13,680 unique、1285 dims、finite/temporal/full-history validator PASS；`PENDING_HF_UPLOAD` |
+| V2 candidate readout | hyper01 host `/data02/jaxan/runs/hgkv-selector-v2/readout/`（固定容器内 mount 为 `/data/runs/hgkv-selector-v2/readout/`）；[`readout-manifest.json`](readout-manifest.json) | 13,680/13,680 unique、1285 dims、finite/temporal/full-history validator PASS；`PENDING_HF_UPLOAD` |
 | V2 true-U teacher beam | hyper01 `/data02/jaxan/runs/hgkv-selector-v2/teacher-beam-v2/` and `/data02/jaxan/artifacts/sft/hgkv-selector-v2-teacher/` | edge0 reduced；edge1 36,938/36,938 coalitions rendered and strict-validated；scoring pending |
 | V2 model checkpoint | intended HF model repo TBD | not trained |
 

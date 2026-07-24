@@ -11,7 +11,10 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, Iterable, Mapping
 
-from causalcache.hgkv_selector_v2 import restored_set_key
+from causalcache.hgkv_selector_v2 import (
+    canonical_event_set,
+    restored_set_key,
+)
 from scripts.build_selector_gate_plan_v2 import teacher_selections
 from scripts.plan_hgkv_teacher_beam_v2 import (
     expand_paths,
@@ -38,12 +41,18 @@ def load_exact_plan(
             ):
                 raise ValueError(f"{path}:{line_no} invalid exact plan schema")
             pair_group = str(row["pair_group"])
+            raw_candidates = tuple(
+                int(value) for value in row["candidate_event_step_ids"]
+            )
+            candidates = canonical_event_set(raw_candidates)
+            if candidates != raw_candidates:
+                raise ValueError(
+                    f"{path}:{line_no} candidate inventory is not canonical"
+                )
             state = {
                 "episode": str(row["episode"]),
                 "pair_group": pair_group,
-                "candidate_event_step_ids": [
-                    int(value) for value in row["candidate_event_step_ids"]
-                ],
+                "candidate_event_step_ids": list(candidates),
             }
             previous = states.get(pair_group)
             if previous is not None and previous != state:
@@ -77,6 +86,7 @@ def _best_at_most(
     budget: int,
     cache: Mapping[tuple[str, str], Mapping[str, Any]],
 ) -> tuple[tuple[int, ...], float]:
+    candidates = canonical_event_set(candidates)
     eligible = [
         coalition
         for size in range(0, min(budget, len(candidates)) + 1)
@@ -123,15 +133,33 @@ def reduce_exact_search(
                 budget=budget,
                 cache=cache,
             )
-            teacher_set = tuple(
-                int(value)
-                for value in teacher[
-                    (pair_group, "teacher_beam4", budget)
-                ]["selected_event_step_ids"]
+            teacher_key = (pair_group, "teacher_beam4", budget)
+            teacher_row = teacher.get(teacher_key)
+            if teacher_row is None:
+                raise KeyError(
+                    f"{pair_group} B{budget} lacks teacher beam selection"
+                )
+            teacher_set = canonical_event_set(
+                teacher_row["selected_event_step_ids"]
             )
-            teacher_u = float(
-                cache[(pair_group, restored_set_key(teacher_set))]["u_act"]
+            if (
+                len(teacher_set) > budget
+                or not set(teacher_set).issubset(candidates)
+            ):
+                raise ValueError(
+                    f"{pair_group} B{budget} teacher selection is invalid"
+                )
+            teacher_cache_key = (
+                pair_group,
+                restored_set_key(teacher_set),
             )
+            teacher_cache_row = cache.get(teacher_cache_key)
+            if teacher_cache_row is None:
+                raise KeyError(
+                    f"{pair_group} B{budget} lacks teacher set utility "
+                    f"{teacher_cache_key[1]!r}"
+                )
+            teacher_u = float(teacher_cache_row["u_act"])
             union = set(exact_set) | set(teacher_set)
             jaccard = (
                 1.0

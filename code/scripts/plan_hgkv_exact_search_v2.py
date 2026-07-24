@@ -9,7 +9,10 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any, Mapping
 
-from causalcache.hgkv_selector_v2 import restored_set_key
+from causalcache.hgkv_selector_v2 import (
+    canonical_event_set,
+    restored_set_key,
+)
 from scripts.plan_hgkv_teacher_beam_v2 import (
     expand_paths,
     load_cache,
@@ -27,9 +30,14 @@ def build_exact_plan_rows(
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for pair_group, state in sorted(states.items()):
-        candidates = tuple(
+        raw_candidates = tuple(
             int(value) for value in state["candidate_event_step_ids"]
         )
+        candidates = canonical_event_set(raw_candidates)
+        if candidates != raw_candidates:
+            raise ValueError(
+                f"{pair_group} candidate inventory is not canonical"
+            )
         if state.get("split") != "dev" or len(candidates) > max_candidates:
             continue
         for size in range(1, min(max_budget, len(candidates)) + 1):
