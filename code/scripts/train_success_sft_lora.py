@@ -152,7 +152,26 @@ def encode_sample(
                 else:
                     content.append(part)
             messages.append({"role": message["role"], "content": content})
-        model_inputs, _ = runtime._encode_exact_batch((messages,))
+        # note (luojiaxuan): sparse-history 样本用的是**官方** system prompt,
+        # 而 _encode_exact_batch 会按 v2.1 私有契约校验(system message drifted)。
+        # 这类样本直接走 processor.apply_chat_template,编码参数与冻结路径一致,
+        # 只跳过那条针对 v2.1 的结构校验;v2.1 老样本仍走原路,契约不受影响。
+        if sample.get("sparse") is not None or "selected_steps" in sample:
+            encoded_batch = runtime.processor.apply_chat_template(
+                [messages],
+                tokenize=True,
+                add_generation_prompt=True,
+                return_dict=True,
+                return_tensors="pt",
+                padding=False,
+            )
+            model_inputs = (
+                encoded_batch.to(runtime.device)
+                if hasattr(encoded_batch, "to")
+                else {k: v.to(runtime.device) for k, v in encoded_batch.items()}
+            )
+        else:
+            model_inputs, _ = runtime._encode_exact_batch((messages,))
     finally:
         for image in opened:
             image.close()
@@ -271,6 +290,7 @@ HISTORY_GATED_VARIANTS = ("correct", "b0", "shuffled", "irrelevant")
 # GUI-Owl 原生就带 last_image=5 的连续近期窗口,拿 B0 当参考等于和一个不存在的
 # 弱基线比;(2) 新增 duplicate 负样本,压制"图越多越好";(3) margin/权重按
 # 稀疏契约调整。旧路径原样保留,冻结契约引用不受影响。
+_SPARSE_DIAG: list[dict[str, float]] = []
 SPARSE_CORRECT = "sparse_correct"
 SPARSE_NEGATIVES = ("sparse_step_shuffled", "sparse_irrelevant", "sparse_duplicate")
 SPARSE_NEGATIVE_SCALE = {"sparse_step_shuffled": 1.0, "sparse_irrelevant": 1.0,
@@ -278,7 +298,16 @@ SPARSE_NEGATIVE_SCALE = {"sparse_step_shuffled": 1.0, "sparse_irrelevant": 1.0,
 
 
 def sparse_reference_variant(group: dict[str, int]) -> str | None:
-    """Budget-matched frozen reference (native_recent{K}) present in the group."""
+    """Budget-matched, format-matched frozen reference for the sparse objective.
+
+    # note (luojiaxuan): 优先用 sameformat_recent{K}(同一 sparse builder 渲染的
+    # 连续最近 K 步),这样 ℓc-ℓr 的唯一变量是"选哪几张"。若只用官方多轮的
+    # native_recent{K},实测 83% 的差值来自 prompt 格式而非选点(+0.133/+0.160),
+    # adapter 会靠格式假象过关。native_recent 保留作论文主表的部署基线。
+    """
+    for name in group:
+        if name.startswith("sameformat_recent"):
+            return name
     for name in group:
         if name.startswith("native_recent"):
             return name
@@ -303,7 +332,8 @@ def build_history_gated_units(
         variant = sample.get("variant", "correct")
         if sparse_mode:
             if variant != SPARSE_CORRECT and variant not in SPARSE_NEGATIVES \
-                    and not variant.startswith("native_recent"):
+                    and not variant.startswith("native_recent") \
+                    and not variant.startswith("sameformat_recent"):
                 continue
         elif variant not in HISTORY_GATED_VARIANTS:
             continue
@@ -329,10 +359,10 @@ def _sparse_history_group_loss(
     group: dict[str, int],
     forward: Any,
     training: dict[str, Any],
-    wrapped: dict[str, Any],
+    adapter_parameters: list[Any],
     accumulation: int,
     torch: Any,
-) -> dict[str, float] | None:
+) -> float | None:
     """Sparse-history objective against a budget-matched native Recent-K reference.
 
     # note (luojiaxuan): 记号 ℓc=sparse_correct、ℓr=native_recent{K}(冻结参考,
@@ -400,18 +430,24 @@ def _sparse_history_group_loss(
             continue
         forward(variant, grad=True, backward_weight=weight / accumulation)
 
-    if l2_weight > 0.0:
-        l2 = None
-        for lora in wrapped.values():
-            term = (lora.lora_a.float().pow(2).sum()
-                    + lora.lora_b.float().pow(2).sum())
-            l2 = term if l2 is None else l2 + term
-        if l2 is not None:
-            (l2_weight * l2 / accumulation).backward()
-            total += l2_weight * float(l2.detach())
+    if l2_weight > 0.0 and adapter_parameters:
+        l2_term = l2_weight * sum(
+            parameter.pow(2).sum() for parameter in adapter_parameters
+        )
+        total += float(l2_term.detach())
+        (l2_term / accumulation).backward()
 
-    diagnostics["loss"] = total
-    return diagnostics
+    # note (luojiaxuan): 训练循环按标量累加损失,诊断走 stdout(每 25 组打一次),
+    # 四条 gate 指标(lc-lr / lc-shuffled / lc-irrelevant / lc-duplicate)可直接看趋势。
+    _SPARSE_DIAG.append(diagnostics)
+    if len(_SPARSE_DIAG) % 25 == 0:
+        import statistics as _st
+        keys = sorted({k for d in _SPARSE_DIAG[-25:] for k in d if k != "loss"})
+        avg = {k: round(_st.mean([d[k] for d in _SPARSE_DIAG[-25:] if k in d]), 5)
+               for k in keys}
+        print(json.dumps({"sparse_diag_last25": avg,
+                          "groups": len(_SPARSE_DIAG)}, sort_keys=True), flush=True)
+    return total
 
 
 def history_sample_context(
@@ -434,7 +470,13 @@ def history_sample_context(
         raise ValueError(
             "history_gated_kv requires mm_token_type_ids and image_grid_thw"
         )
-    history_count = len(sample["memory_config"]["restored_event_step_ids"])
+    # note (luojiaxuan): v2.1 老样本用 memory_config.restored_event_step_ids 记录
+    # 恢复了哪几步;sparse-history 样本用 selected_steps。两者语义相同(K 张历史图),
+    # 掩码只需要数量;缺两者则视为无历史(K=0),由下面的 return None 走 bypass。
+    if "memory_config" in sample:
+        history_count = len(sample["memory_config"]["restored_event_step_ids"])
+    else:
+        history_count = len(sample.get("selected_steps") or ())
     mask = build_history_token_mask(
         encoded["input_ids"],
         encoded["mm_token_type_ids"],
@@ -488,7 +530,7 @@ def history_group_unit_loss(
         )
         if encoded is None:
             return None
-        if variant.startswith("native_recent"):
+        if variant.startswith("native_recent") or variant.startswith("sameformat_recent"):
             # note (luojiaxuan): reference 臂必须逐位等于冻结 GUI-Owl,所以即使它
             # 带着 K 张连续近期图,也强制 adapter 完全 bypass;ℓr 因此是常数参考。
             context = None
@@ -514,7 +556,8 @@ def history_group_unit_loss(
     if bool(training.get("sparse_history", False)):
         return _sparse_history_group_loss(
             group=group, forward=forward, training=training,
-            wrapped=wrapped, accumulation=accumulation, torch=torch,
+            adapter_parameters=adapter_parameters,
+            accumulation=accumulation, torch=torch,
         )
     correct_lp = forward("correct", grad=False)
     if correct_lp is None:
