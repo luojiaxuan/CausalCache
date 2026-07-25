@@ -8,7 +8,8 @@
 | revision | `b3a3a9e3aaf43d14368c06091027f79cfd4e4de8`(含 dataset card 与两张图;数据本体在 `f2144f45`) |
 | 内容 | 134 个文件 / 20.2 GB:64 个 `shards/images-partNN.tar`(27,104 张 PNG)、`samples.jsonl.gz`、64 份 manifest、`SHA256SUMS`、dataset card、`figures/{arms,corpus}.svg` |
 | 许可 | **CC BY 4.0**,与上游 `OpenGVLab/GUI-Odyssey` 一致并署名 |
-| 可见性 | 内容已就绪,`private` 翻转待仓库所有者在 HF Settings 执行 |
+| 可见性 | **公开**(2026-07-25 由仓库所有者翻转)|
+| 泄露检查 | 64 份 manifest 与 25,040 行样本全部 0 命中主机路径/主机名/容器名;路径均为相对 `images/<episode>/obs-NNN.png` |
 
 打包成 64 个 tar 而非直接传 27,104 张 PNG,是为了避开规则里点名的小文件问题。
 
