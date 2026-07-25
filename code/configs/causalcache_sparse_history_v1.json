@@ -15,7 +15,7 @@
   "training": {
     "sparse_history": true,
     "epochs": 1,
-    "max_optimizer_steps": 150,
+    "max_optimizer_steps": 50,
     "learning_rate": 0.0001,
     "lr_schedule": "constant",
     "weight_decay": 0.0,
@@ -79,28 +79,34 @@
       "SA_minus_RA": "SA - RA",
       "SA_minus_R0": "SA - R0",
       "deployment_delta": "SA - N0",
-      "A_c": "SA - S0",
-      "A_r": "RA - R0"
+      "adapter_on_recent_abs": "abs(RA - R0)"
     },
     "must_pass": {
       "did_select": "> 0 @ci_low",
-      "A_c": "> 0",
-      "A_r_abs": "< 0.02",
+      "adapter_on_sparse": "> 0",
+      "adapter_on_recent_abs": "< 0.02",
       "step_shuffled_drift_abs": "< 0.02",
       "irrelevant_drift_abs": "< 0.02",
-      "duplicate_drift_abs": "< 0.02",
-      "SA_minus_RA_vs_frozen_selection": ">= 0"
+      "duplicate_drift_abs": "< 0.02"
     },
     "drift_definition": "<kind>_drift = 留出组上 (l_SA_neg_<kind> 在 adapter active) - (同一样本在 adapter bypass) 的均值,即 A_n 的均值;<kind>_drift_abs = |<kind>_drift|。每个负样本锚到它自己的冻结分数,不再锚到 R0",
     "gate_expression_syntax": "must_pass 的值形如 '<op> <number> [@<statistic>]',op ∈ {>, >=, <, <=},statistic ∈ {point(缺省), ci_low, ci_high};composite_score 与 derived_quantities 是同一套算术小语言:量名 / 数字 / + - * / 一元正负 / 括号 / abs()、mean()、min()、max()。scripts/score_sparse_history_arms.py 与 trainer 的 validate_sparse_gates 共用同一个解析器(审计第 9 条)",
     "composite_score": "did_select",
-    "selection_rule": "在满足全部 must_pass 的 checkpoint 中,按 composite_score 取最高;并列时取训练顺序更早者(更早 = 更少过拟合机会)。confirmation split 只读一次。",
+    "selection_rule": {
+      "filter": "all_must_pass",
+      "objective": "maximize",
+      "quantity": "composite_score",
+      "tie_break": "earliest_checkpoint",
+      "note": "并列时取训练顺序更早者:更早 = 更少过拟合机会。quantity 只允许 composite_score,按单个派生量(尤其 SA_minus_R0)选点会挑出『见图就整体放大』的 checkpoint。confirmation split 只读一次。"
+    },
     "main_claim_note": "论文主 claim 挂在 SA - RA(同格式、同 adapter、只差选点)。SA - R0 混入 adapter 见图放大效应,SA - N0 还额外混入 prompt 格式效应,两者只作部署与分解报告用。did_select = (SA-S0)-(RA-R0) 是训练目标直接优化的量,identity 上恒为 0,只进报告不进 must_pass —— 本次换的是训练目标,验收标准(gates schema v2)一字未动",
     "gate_rationale": {
       "why_did_select": "(SA-S0)-(RA-R0) 在 identity 上严格等于 0,所以冻结模型已有的稀疏选点优势(实测 +0.0335)不会被冒充成 adapter 能力;而 SA-R0 会。",
       "why_ci_low": "主判据用 confirmation split 的 CI 下界而非点估计,因为该 split 只读一次,没有第二次机会纠正偶然性。",
       "why_A_r_capped": "v5 失败模式正是 adapter 对 recent 的增益(+0.118)大于对 sparse 的增益(+0.084);不封住 A_r,did_select 可以靠压低 RA 而非抬高 SA 来刷高。",
-      "superseded": "旧 must_pass 含 SA_minus_R0 > 0 且 composite 累加它,已于 2026-07-25 移除 —— 新目标不优化该量,留着会把选点拉向放大最严重的 checkpoint。"
+      "superseded": "旧 must_pass 含 SA_minus_R0 > 0 且 composite 累加它,已于 2026-07-25 移除 —— 新目标不优化该量,留着会把选点拉向放大最严重的 checkpoint。",
+      "why_no_separate_sa_minus_ra_gate": "预注册判据里的 SA-RA >= S0-R0 展开后就是 did_select >= 0,与主判据重复,故不单列;did_select > 0 @ci_low 是它的严格版本。",
+      "why_canonical_names": "A_c / A_r 不另造别名:adapter_on_sparse 就是 SA-S0,adapter_on_recent 就是 RA-R0,同一个量两个名字迟早会分叉。只新增真正缺的 adapter_on_recent_abs。"
     }
   },
   "data": {

@@ -2050,6 +2050,7 @@ SPARSE_DERIVED_QUANTITIES = {
     "format_effect": "R0 - N0",
     "frozen_selection_effect": "S0 - R0",
     "adapter_on_recent": "RA - R0",
+    "adapter_on_recent_abs": "abs(RA - R0)",
     "adapter_on_sparse": "SA - S0",
     # note (luojiaxuan): did_select 就是 did_ra_aware 直接优化的那个量 —— adapter 对
     # sparse 的增量减去它对 recent 的增量。它与主 claim SA−RA 的差别是把冻结模型自带的
@@ -2072,8 +2073,25 @@ SPARSE_NEGATIVE_GATE_KEYS = frozenset(
 SPARSE_GATE_VOCABULARY = frozenset(
     set(SPARSE_DERIVED_QUANTITIES) | SPARSE_NEGATIVE_GATE_KEYS
 )
+# note (luojiaxuan): 2026-07-25 随目标一并换成 RA-aware 判据。旧集合要求
+# ``SA_minus_R0``,而新目标**根本不优化它** —— 它恰是会被"见历史就放大"刷高的量
+# (v5 实测它从 +0.034 涨到 +0.118,而真实的 SA_minus_RA 归零)。把它留在必需 gate 里
+# 会让新 checkpoint 因一个它没在优化的指标判 FAIL,更糟的是 composite 会把选点拉向
+# 放大最严重的那个。
+#
+# ``SA_minus_RA`` 也不单列:预注册判据里的 SA-RA >= S0-R0 展开就是 did_select >= 0,
+# 与主判据重复,did_select > 0 @ci_low 是它的严格版本。
+#
+# 三个负样本 margin 退出必需集但**仍在 derived_quantities 里报告** —— 用户预注册的
+# PASS 条件是 did_select / A_c / |A_r| / 三个 drift,不含它们;内容敏感性由
+# L_content 在训练中优化,验收看 drift 是否被封住即可。
 SPARSE_REQUIRED_GATES = frozenset(
-    {"SA_minus_RA", "SA_minus_R0"} | SPARSE_NEGATIVE_GATE_KEYS
+    {
+        "did_select",
+        "adapter_on_sparse",
+        "adapter_on_recent_abs",
+    }
+    | {key for _, key in (sparse_diagnostic_keys(k) for k in SPARSE_NEGATIVE_KINDS)}
 )
 
 # ---------------------------------------------------------------------------

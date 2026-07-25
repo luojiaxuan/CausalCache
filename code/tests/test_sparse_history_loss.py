@@ -458,7 +458,11 @@ def test_diagnostic_keys_are_spelled_like_the_gate_vocabulary() -> None:
     for kind in trainer.SPARSE_NEGATIVE_KINDS:
         gap_key, drift_key = trainer.sparse_diagnostic_keys(kind)
         assert gap_key in diagnostics and drift_key in diagnostics
-        assert gap_key in trainer.SPARSE_REQUIRED_GATES
+        # note (luojiaxuan): 2026-07-25 起负样本 margin 只报告、不作必需 gate ——
+        # 预注册的 PASS 条件是 did_select / adapter_on_sparse / |A_r| / 三个 drift。
+        # 内容敏感性由 L_content 在训练中优化,验收只看错误历史被 adapter 推动了多少。
+        assert gap_key not in trainer.SPARSE_REQUIRED_GATES
+        assert drift_key in trainer.SPARSE_REQUIRED_GATES
         assert drift_key in trainer.SPARSE_REQUIRED_GATES
 
 
@@ -1570,4 +1574,4 @@ def test_did_select_is_a_derived_quantity_of_the_five_arms() -> None:
     assert "SA_minus_R0" not in gates["must_pass"]
     assert "SA_minus_R0" not in gates["composite_score"]
     # A_r 必须被封顶,否则 did_select 可以靠压低 RA 而不是抬高 SA 来刷高
-    assert gates["must_pass"]["A_r_abs"] == "< 0.02"
+    assert gates["must_pass"]["adapter_on_recent_abs"] == "< 0.02"
