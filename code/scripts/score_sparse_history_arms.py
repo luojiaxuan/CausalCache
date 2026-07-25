@@ -1008,6 +1008,21 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--episode-filter",
+        type=Path,
+        default=None,
+        help=(
+            "JSON file carrying an episode list; only groups whose episode appears in "
+            "it are scored at all. Keeps the confirmation split physically untouched "
+            "while monitoring on dev."
+        ),
+    )
+    parser.add_argument(
+        "--episode-filter-key",
+        default=None,
+        help="key inside --episode-filter holding the episode list, e.g. dev",
+    )
+    parser.add_argument(
         "--max-groups",
         type=int,
         default=0,
@@ -1067,6 +1082,41 @@ def main() -> None:
     groups = build_sparse_history_heldout_units(samples)
     if not groups:
         raise SystemExit("the corpus carries no heldout pair-groups to score")
+    # note (luojiaxuan): confirmation split 的契约是"只读一次"。若 dev 评测照常打全部
+    # 494 组,confirmation 的分数就已经躺进缓存了 —— 即便不去看,那也把"只读一次"
+    # 降级成了"只承诺不看一次"。过滤必须在 --max-groups 截断与分片**之前**生效,
+    # 否则被排除的组仍会进入某个分片的工作集。
+    if args.episode_filter is not None:
+        if not args.episode_filter_key:
+            raise ValueError("--episode-filter requires --episode-filter-key")
+        payload = json.loads(args.episode_filter.read_text(encoding="utf-8"))
+        if args.episode_filter_key not in payload:
+            available = sorted(k for k, v in payload.items() if isinstance(v, list))
+            raise ValueError(
+                f"--episode-filter-key {args.episode_filter_key!r} absent from "
+                f"{args.episode_filter}; list-valued keys are {available}"
+            )
+        allowed = set(payload[args.episode_filter_key])
+        if not allowed:
+            raise ValueError("episode filter selected an empty episode set")
+        kept = {
+            pair_group: group
+            for pair_group, group in groups.items()
+            if samples[group[SPARSE_POSITIVE_SLOT]]["episode"] in allowed
+        }
+        if not kept:
+            raise ValueError(
+                "episode filter removed every heldout group; check that the filter "
+                "file describes the same corpus"
+            )
+        print(json.dumps({
+            "episode_filter": str(args.episode_filter),
+            "episode_filter_key": args.episode_filter_key,
+            "episodes_allowed": len(allowed),
+            "groups_kept": len(kept),
+            "groups_dropped": len(groups) - len(kept),
+        }, ensure_ascii=False), flush=True)
+        groups = kept
     if args.max_groups:
         groups = dict(sorted(groups.items())[: args.max_groups])
     # note (luojiaxuan): 分片切在 --max-groups 截断**之后**,所以 M 个分片的并集与
