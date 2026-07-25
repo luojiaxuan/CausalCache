@@ -1,0 +1,167 @@
+{
+  "arm": "official_B4",
+  "templates_expected": 19,
+  "templates_scored": 14,
+  "episodes_expected": 38,
+  "episodes_found": 25,
+  "missing_episodes": [
+    {
+      "task_type": "ExpenseAddMultipleLong",
+      "task_index": 1
+    },
+    {
+      "task_type": "ExpenseDeleteMultipleLong2",
+      "task_index": 0
+    },
+    {
+      "task_type": "ExpenseDeleteMultipleLong2",
+      "task_index": 1
+    },
+    {
+      "task_type": "ExpenseDeleteMultipleSuperLong2",
+      "task_index": 0
+    },
+    {
+      "task_type": "ExpenseDeleteMultipleSuperLong2",
+      "task_index": 1
+    },
+    {
+      "task_type": "MarkorMergeNotesLong",
+      "task_index": 0
+    },
+    {
+      "task_type": "MarkorTodoList",
+      "task_index": 0
+    },
+    {
+      "task_type": "RecipeAddMultipleRecipesLong",
+      "task_index": 0
+    },
+    {
+      "task_type": "RecipeAddMultipleRecipesLong",
+      "task_index": 1
+    },
+    {
+      "task_type": "RecipeAddMultipleRecipesSuperLong",
+      "task_index": 0
+    },
+    {
+      "task_type": "RecipeAddMultipleRecipesSuperLong",
+      "task_index": 1
+    },
+    {
+      "task_type": "RecipeDeleteMultipleRecipesSuperLong",
+      "task_index": 0
+    },
+    {
+      "task_type": "RecipeDeleteMultipleRecipesSuperLong",
+      "task_index": 1
+    }
+  ],
+  "extra_episodes": [],
+  "template_macro_success": 0.5,
+  "ci95_template_cluster_bootstrap": [
+    0.25,
+    0.75
+  ],
+  "bootstrap_replicates": 10000,
+  "episode_micro_success": 0.56,
+  "termination_reasons": {
+    "policy_terminated": 25
+  },
+  "infrastructure_failures": 0,
+  "model_steps_mean": 88.2,
+  "model_steps_max": 689,
+  "by_family": {
+    "Contacts": {
+      "macro": 0.75,
+      "templates": 2
+    },
+    "Expense": {
+      "macro": 0.3333,
+      "templates": 3
+    },
+    "Markor": {
+      "macro": 0.0,
+      "templates": 4
+    },
+    "Recipe": {
+      "macro": 0.5,
+      "templates": 1
+    },
+    "SimpleCalendar": {
+      "macro": 1.0,
+      "templates": 4
+    }
+  },
+  "per_template": {
+    "ContactsAddContactAndSms": {
+      "rate": 1.0,
+      "instances": 2
+    },
+    "ContactsAddMultipleContactsAndSms": {
+      "rate": 0.5,
+      "instances": 2
+    },
+    "ExpenseAddMultipleLong": {
+      "rate": 0.0,
+      "instances": 1
+    },
+    "ExpenseAddMultipleSuperLong": {
+      "rate": 0.0,
+      "instances": 2
+    },
+    "ExpenseDeleteMultipleSuperLong": {
+      "rate": 1.0,
+      "instances": 2
+    },
+    "MarkorFetchMultipleNotesAndSms": {
+      "rate": 0.0,
+      "instances": 2
+    },
+    "MarkorFetchNoteAndSms": {
+      "rate": 0.0,
+      "instances": 2
+    },
+    "MarkorMergeNotesLong": {
+      "rate": 0.0,
+      "instances": 1
+    },
+    "MarkorTodoList": {
+      "rate": 0.0,
+      "instances": 1
+    },
+    "RecipeDeleteMultipleRecipesLong": {
+      "rate": 0.5,
+      "instances": 2
+    },
+    "SimpleCalendarDeleteEventsLong": {
+      "rate": 1.0,
+      "instances": 2
+    },
+    "SimpleCalendarDeleteEventsOnRelativeDayLong": {
+      "rate": 1.0,
+      "instances": 2
+    },
+    "SimpleCalendarDeleteEventsOnRelativeDaySuperLong": {
+      "rate": 1.0,
+      "instances": 2
+    },
+    "SimpleCalendarDeleteEventsSuperLong": {
+      "rate": 1.0,
+      "instances": 2
+    }
+  },
+  "templates_with_duplicate_goals_within": [],
+  "cross_template_goal_collisions": [
+    [
+      "SimpleCalendarDeleteEventsLong",
+      "SimpleCalendarDeleteEventsSuperLong"
+    ],
+    [
+      "SimpleCalendarDeleteEventsOnRelativeDayLong",
+      "SimpleCalendarDeleteEventsOnRelativeDaySuperLong"
+    ]
+  ],
+  "caveat": "每模板 2 实例。无同模板内 goal 重复(不存在实例退化);另有 2 组**跨模板** goal 碰撞 —— 这不是退化,而是 Long/SuperLong 共用同一句指令、难度差异藏在环境状态里(如 10 条 vs 20 条事件),两者各自独立计入"
+}

@@ -1,0 +1,392 @@
+{
+  "instances": [
+    {
+      "complexity": 100.0,
+      "goal": "Create a new contact for James Zhang. Their number is +16314510438. Then, send 'hello, James Zhang' to  +16314510438 via SMS using Simple SMS Messenger",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ContactsAddContactAndSms",
+      "template": "Create a new contact for {name}. Their number is {number}. Then, send 'hello, {name}' to  {number} via SMS using Simple SMS Messenger"
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Create a new contact for James Chen. Their number is +16326230222. Then, send 'hello, James Chen' to  +16326230222 via SMS using Simple SMS Messenger",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ContactsAddContactAndSms",
+      "template": "Create a new contact for {name}. Their number is {number}. Then, send 'hello, {name}' to  {number} via SMS using Simple SMS Messenger"
+    },
+    {
+      "complexity": 100.0,
+      "goal": "For the following persons:\n Name: Hana Ferreira, Number: +10662908339\nName: Sophie Martin, Number: +18723713947\nName: Olivia Alves, Number: +16278036185, \nadd them as new contacts, and then use Simple SMS Messenger to send each of them a  'hello, [Name]' message, where [Name] is the name of each contact.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ContactsAddMultipleContactsAndSms",
+      "template": "For the following persons:\n {contacts}, \nadd them as new contacts, and then use Simple SMS Messenger to send each of them a  'hello, [Name]' message, where [Name] is the name of each contact."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "For the following persons:\n Name: Martina Ahmed, Number: +12666074822\nName: Thomas Ferreira, Number: +10216350093\nName: Muhammad dos Santos, Number: +16106074475, \nadd them as new contacts, and then use Simple SMS Messenger to send each of them a  'hello, [Name]' message, where [Name] is the name of each contact.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ContactsAddMultipleContactsAndSms",
+      "template": "For the following persons:\n {contacts}, \nadd them as new contacts, and then use Simple SMS Messenger to send each of them a  'hello, [Name]' message, where [Name] is the name of each contact."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Add the following expenses into the pro expense:\nExpense: Non-Profit Support\n amount_dollars: $461.68\n category_name: Donation\n note: Remember to transfer funds\n\nExpense: Crowdfunding\n amount_dollars: $424.31\n category_name: Donation\n note: Remember to transfer funds\n\nExpense: Medical Tests\n amount_dollars: $169.9\n category_name: Health Care\n note: Monthly recurring\n\nExpense: Parking Fees\n amount_dollars: $377.17\n category_name: Transportation\n note: I may repeat this\n\nExpense: Educational\n amount_dollars: $457.41\n category_name: Donation\n note: A need\n\nExpense: Fundraising Events\n amount_dollars: $434.73\n category_name: Donation\n note: Paid by card\n\nExpense: Party Supplies\n amount_dollars: $496.29\n category_name: Social\n note: Monthly recurring\n\nExpense: Dress\n amount_dollars: $143.17\n category_name: Clothes\n note: Monthly recurring\n\nExpense: Undergarments\n amount_dollars: $431.33\n category_name: Clothes\n note: Paid by card\n\nExpense: Rental Income\n amount_dollars: $87.62\n category_name: Income\n note: Want to have\n",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseAddMultipleLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Add the following expenses into the pro expense:\nExpense: Event Tickets\n amount_dollars: $94.24\n category_name: Social\n note: Monthly recurring\n\nExpense: Tailoring Services\n amount_dollars: $475.36\n category_name: Clothes\n note: Urgent\n\nExpense: Stationery\n amount_dollars: $208.72\n category_name: Others\n note: I may repeat this\n\nExpense: Emergency Repairs\n amount_dollars: $334.8\n category_name: Others\n note: Want to have\n\nExpense: Charity\n amount_dollars: $176.99\n category_name: Donation\n note: Want to have\n\nExpense: Home Insurance\n amount_dollars: $187.59\n category_name: Housing\n note: A need\n\nExpense: Subscriptions\n amount_dollars: $381.59\n category_name: Others\n note: Monthly recurring\n\nExpense: Cleaning Services\n amount_dollars: $190.62\n category_name: Housing\n note: Paid by card\n\nExpense: Shoes\n amount_dollars: $191.76\n category_name: Clothes\n note: I may repeat this\n\nExpense: Medications\n amount_dollars: $106.76\n category_name: Health Care\n note: A need\n",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseAddMultipleLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Add the following expenses into the pro expense:\nExpense: Accessories\n amount_dollars: $212.0\n category_name: Clothes\n note: Urgent\n\nExpense: Crowdfunding\n amount_dollars: $346.3\n category_name: Donation\n note: A need\n\nExpense: Textbooks\n amount_dollars: $180.13\n category_name: Education\n note: Paid by card\n\nExpense: Movie Night\n amount_dollars: $55.72\n category_name: Entertainment\n note: A need\n\nExpense: Interest Income\n amount_dollars: $67.02\n category_name: Income\n note: Paid by card\n\nExpense: Educational\n amount_dollars: $84.49\n category_name: Donation\n note: Monthly recurring\n\nExpense: Freelance Payment\n amount_dollars: $83.54\n category_name: Income\n note: Want to have\n\nExpense: Tailoring Services\n amount_dollars: $194.78\n category_name: Clothes\n note: Urgent\n\nExpense: Doctor Visits\n amount_dollars: $42.39\n category_name: Health Care\n note: Monthly recurring\n\nExpense: Library Fees\n amount_dollars: $174.05\n category_name: Education\n note: I may repeat this\n\nExpense: Snacks\n amount_dollars: $260.7\n category_name: Food\n note: Monthly recurring\n\nExpense: Restaurant Meal\n amount_dollars: $437.77\n category_name: Food\n note: Urgent\n\nExpense: Dress\n amount_dollars: $174.34\n category_name: Clothes\n note: A need\n\nExpense: Public Transit Pass\n amount_dollars: $375.54\n category_name: Transportation\n note: Paid by card\n\nExpense: Furnishing\n amount_dollars: $236.14\n category_name: Housing\n note: I may repeat this\n\nExpense: New Jacket\n amount_dollars: $471.51\n category_name: Clothes\n note: Urgent\n\nExpense: Food Delivery\n amount_dollars: $169.31\n category_name: Food\n note: A need\n\nExpense: Concert Tickets\n amount_dollars: $85.12\n category_name: Entertainment\n note: Monthly recurring\n\nExpense: Shirt Purchase\n amount_dollars: $22.9\n category_name: Clothes\n note: A need\n\nExpense: Religious\n amount_dollars: $105.22\n category_name: Donation\n note: A need\n",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseAddMultipleSuperLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Add the following expenses into the pro expense:\nExpense: Dividends\n amount_dollars: $107.97\n category_name: Income\n note: Paid by card\n\nExpense: Tailoring Services\n amount_dollars: $419.92\n category_name: Clothes\n note: Urgent\n\nExpense: Stationery\n amount_dollars: $36.31\n category_name: Others\n note: Urgent\n\nExpense: Mortgage\n amount_dollars: $359.3\n category_name: Housing\n note: Paid by card\n\nExpense: Movie Night\n amount_dollars: $271.45\n category_name: Entertainment\n note: Urgent\n\nExpense: Charity Donations\n amount_dollars: $249.3\n category_name: Social\n note: I may repeat this\n\nExpense: Social Club Dues\n amount_dollars: $410.09\n category_name: Social\n note: I may repeat this\n\nExpense: Online Courses\n amount_dollars: $50.58\n category_name: Education\n note: I may repeat this\n\nExpense: Gym Membership\n amount_dollars: $314.67\n category_name: Health Care\n note: Paid by card\n\nExpense: Dental Care\n amount_dollars: $496.44\n category_name: Health Care\n note: Monthly recurring\n\nExpense: Pet Supplies\n amount_dollars: $265.06\n category_name: Others\n note: Urgent\n\nExpense: Dress\n amount_dollars: $456.55\n category_name: Clothes\n note: Monthly recurring\n\nExpense: Bakery Items\n amount_dollars: $34.76\n category_name: Food\n note: Want to have\n\nExpense: Furnishing\n amount_dollars: $455.0\n category_name: Housing\n note: Monthly recurring\n\nExpense: Workshops\n amount_dollars: $467.27\n category_name: Education\n note: Monthly recurring\n\nExpense: Seminars\n amount_dollars: $152.84\n category_name: Education\n note: Paid by card\n\nExpense: Membership Fees\n amount_dollars: $87.93\n category_name: Others\n note: Monthly recurring\n\nExpense: Emergency Repairs\n amount_dollars: $120.96\n category_name: Others\n note: A need\n\nExpense: Snacks\n amount_dollars: $370.79\n category_name: Food\n note: Monthly recurring\n\nExpense: Medical Research\n amount_dollars: $204.77\n category_name: Donation\n note: Urgent\n",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseAddMultipleSuperLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following expenses from pro expense: Educational Software, Laundry, Club Membership, Home Insurance, Landscaping, Groceries, Utilities, ProDev, Medical Tests, Pest Control.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseDeleteMultipleLong2",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following expenses from pro expense: Legal Fees, Tailoring Services, Miscellaneous Gifts, Museum Tickets, Religious, Rent Payment, Workshops, Dental Care, Medical Tests, Consulting Fees.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseDeleteMultipleLong2",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following expenses from pro expense: Pet Care, Specialty Foods, Museum Tickets, Pest Control, New Jacket, Groceries, Gas, Political, Therapy Sessions, Membership Fees, Night Out, Workshops, Taxi Fare, Educational Software, Sponsorships, Non-Profit Support, Household Items, Dental Care, Public Transit, Fast Food.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseDeleteMultipleSuperLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following expenses from pro expense: Party Supplies, Video Games, Therapy Sessions, Tuition Fees, Property Taxes, Salary, Wedding Gift, Interest Income, Capital Gains, Gas, Online Courses, Hobbies, Sportswear, Wellness Products, Educational Software, Movie Night, Environmental, Public Transit, Legal Fees, Amusement Park.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseDeleteMultipleSuperLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following expenses from pro expense: Legal Fees, Property Taxes, Textbooks, Eyecare, Night Out, Public Transit, Online Courses, Unexpected Expenses, Home Repairs, Sponsorships, Political, Crowdfunding, Car Maintenance, School Supplies, Capital Gains, Membership Fees, Amusement Park, Streaming Services, Public Transit Pass, Accessories.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "ExpenseDeleteMultipleSuperLong2",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following expenses from pro expense: School Supplies, Dental Care, Concert Tickets, Theater Show, Car Insurance, Dinner Party, Public Transit, Cleaning Services, Emergency Repairs, Educational, Miscellaneous Gifts, Bakery Items, Birthday Present, Shoes, Medical Tests, Charity Donations, Stationery, Religious, Medications, Accessories.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "ExpenseDeleteMultipleSuperLong2",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Retrieve the file name they sent you via Simple SMS Messenger, open it in Markor, and then send its contents back to that number through Simple SMS Messenger for each number in the following list of numbers: +16617069322, +17470751730, +12418571950.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorFetchMultipleNotesAndSms",
+      "template": "Retrieve the file name they sent you via Simple SMS Messenger, open it in Markor, and then send its contents back to that number through Simple SMS Messenger for each number in the following list of numbers: {numbers}."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Retrieve the file name they sent you via Simple SMS Messenger, open it in Markor, and then send its contents back to that number through Simple SMS Messenger for each number in the following list of numbers: +16348083497, +14756090507, +19509016770.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorFetchMultipleNotesAndSms",
+      "template": "Retrieve the file name they sent you via Simple SMS Messenger, open it in Markor, and then send its contents back to that number through Simple SMS Messenger for each number in the following list of numbers: {numbers}."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Obtain the file name sent to you by +17688637358 in Simple SMS Messenger, open the file in Markor, and send its contents back to +17688637358 through Simple SMS Messenger.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorFetchNoteAndSms",
+      "template": "Obtain the file name sent to you by {number} in Simple SMS Messenger, open the file in Markor, and send its contents back to {number} through Simple SMS Messenger."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Obtain the file name sent to you by +15436099477 in Simple SMS Messenger, open the file in Markor, and send its contents back to +15436099477 through Simple SMS Messenger.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorFetchNoteAndSms",
+      "template": "Obtain the file name sent to you by {number} in Simple SMS Messenger, open the file in Markor, and send its contents back to {number} through Simple SMS Messenger."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Merge the contents of Markor notes 2023_09_17_alert_lion.txt, 2023_08_05_proud_sun.md, proud_wolf_2023_08_24.md, lively_ant_Li76.txt, kind_yacht_BKi5.md, edited_warm_eagle.txt, PsKZ_sharp_lamp.txt, gentle_jacket_YthX.md, 2023_08_10_safe_owl.txt and warm_jacket_2023_08_17.md (in the same order) into a new Markor note named j4wpl9t3 and save it. Add a new line between the content of each note.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorMergeNotesLong",
+      "template": "Merge the contents of Markor notes {file1_name}, {file2_name}, {file3_name}, {file4_name}, {file5_name}, {file6_name}, {file7_name}, {file8_name}, {file9_name} and {file10_name} (in the same order) into a new Markor note named {new_file_name} and save it. Add a new line between the content of each note."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Merge the contents of Markor notes real_ocean_fL6g.txt, safe_nurse_2023_08_12.txt, smart_igloo_backup.txt, 2023_07_22_sharp_bear.md, strong_frog_X91q.txt, 2023_07_28_fair_goat.txt, backup_alert_fox.txt, warm_deer_2023_03_20.md, happy_goat_nfvr.txt and nice_jacket_edited.md (in the same order) into a new Markor note named QJAkfGTG and save it. Add a new line between the content of each note.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorMergeNotesLong",
+      "template": "Merge the contents of Markor notes {file1_name}, {file2_name}, {file3_name}, {file4_name}, {file5_name}, {file6_name}, {file7_name}, {file8_name}, {file9_name} and {file10_name} (in the same order) into a new Markor note named {new_file_name} and save it. Add a new line between the content of each note."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Open my Markor note proud_ocean_2023_07_12.md and complete all the tasks on the list.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "MarkorTodoList",
+      "template": "Open my Markor note {file_name} and complete all the tasks on the list."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Open my Markor note edited_bold_island.txt and complete all the tasks on the list.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "MarkorTodoList",
+      "template": "Open my Markor note {file_name} and complete all the tasks on the list."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Add the following recipes into the Broccoli app:\nRecipe: Garlic Butter Shrimp\n description: A quick and easy meal, perfect for busy weekdays.\n servings: 8 servings\n preparationTime: 2 hrs\n ingredients: as per recipe\n directions: Saut\u00e9 shrimp in butter and minced garlic until pink. Sprinkle with parsley and serve with lemon wedges. Try adding a pinch of your favorite spices for extra flavor.\n\nRecipe: Garlic Butter Shrimp\n description: A quick and easy meal, perfect for busy weekdays.\n servings: 1 serving\n preparationTime: 45 mins\n ingredients: quantities to taste\n directions: Saut\u00e9 shrimp in butter and minced garlic until pink. Sprinkle with parsley and serve with lemon wedges. Try adding a pinch of your favorite spices for extra flavor.\n\nRecipe: Chickpea Vegetable Soup\n description: A delicious and healthy choice for any time of the day.\n servings: 1 serving\n preparationTime: 20 mins\n ingredients: as desired\n directions: Saut\u00e9 onions, carrots, and celery, add broth, canned tomatoes, and chickpeas. Simmer with spinach and seasonings. Try adding a pinch of your favorite spices for extra flavor.\n\nRecipe: Classic Margherita Pizza\n description: A quick and easy meal, perfect for busy weekdays.\n servings: 8 servings\n preparationTime: 30 mins\n ingredients: as per recipe\n directions: Spread pizza dough with tomato sauce, top with slices of mozzarella cheese and fresh basil leaves. Bake until crust is golden. Garnish with fresh herbs for a more vibrant taste.\n\nRecipe: Vegetable Stir Fry with Tofu\n description: An ideal recipe for experimenting with different flavors and ingredients.\n servings: 3-4 servings\n preparationTime: 2 hrs\n ingredients: n/a\n directions: Stir-fry tofu cubes until golden, add assorted vegetables and a stir-fry sauce. Serve over rice or noodles. Try adding a pinch of your favorite spices for extra flavor.\n\nRecipe: Butternut Squash Soup\n description: An ideal recipe for experimenting with different flavors and ingredients.\n servings: 8 servings\n preparationTime: 20 mins\n ingredients: to preference\n directions: Saut\u00e9 onions and garlic, add cubed butternut squash and broth. Puree until smooth and season with nutmeg, salt, and pepper. Garnish with fresh herbs for a more vibrant taste.\n\nRecipe: Quick Fried Rice\n description: An ideal recipe for experimenting with different flavors and ingredients.\n servings: 8 servings\n preparationTime: 20 mins\n ingredients: various amounts\n directions: Saut\u00e9 cooked rice with vegetables, add soy sauce and scrambled eggs. Toss until hot. Feel free to substitute with ingredients you have on hand.\n\nRecipe: Moroccan Chickpea Stew\n description: A quick and easy meal, perfect for busy weekdays.\n servings: 6 servings\n preparationTime: 1 hrs\n ingredients: various amounts\n directions: Saut\u00e9 onions, garlic, carrots, and spices. Add canned chickpeas, diced tomatoes, and vegetable broth. Simmer until flavors meld. Garnish with fresh herbs for a more vibrant taste.\n\nRecipe: Stuffed Bell Peppers\n description: A quick and easy meal, perfect for busy weekdays.\n servings: 1 serving\n preparationTime: 4 hrs\n ingredients: n/a\n directions: Mix cooked quinoa, black beans, corn, tomato sauce, and spices. Stuff into bell peppers and bake until tender. Try adding a pinch of your favorite spices for extra flavor.\n\nRecipe: Quick Fried Rice\n description: A delicious and healthy choice for any time of the day.\n servings: 8 servings\n preparationTime: 30 mins\n ingredients: to preference\n directions: Saut\u00e9 cooked rice with vegetables, add soy sauce and scrambled eggs. Toss until hot. Feel free to substitute with ingredients you have on hand.\n",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeAddMultipleRecipesLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Add the following recipes into the Broccoli app:\ntitle|description|servings|preparationTime|ingredients|directions\nThai Peanut Noodle Salad|A delicious and healthy choice for any time of the day.|1 serving|45 mins|as per recipe|Toss cooked noodles with a Thai peanut sauce, sliced red bell peppers, cabbage, carrots, and cilantro. Garnish with fresh herbs for a more vibrant taste.\nKale and Quinoa Salad|A delicious and healthy choice for any time of the day.|8 servings|20 mins|as per recipe|Toss chopped kale, cooked quinoa, dried cranberries, sliced almonds, and feta cheese with a lemon vinaigrette. Try adding a pinch of your favorite spices for extra flavor.\nBBQ Chicken Quesadillas|A quick and easy meal, perfect for busy weekdays.|1 serving|10 mins|see directions|Mix shredded cooked chicken with BBQ sauce. Place on tortillas with cheese, fold and cook until crispy. Garnish with fresh herbs for a more vibrant taste.\nSalmon with Dill Sauce|A quick and easy meal, perfect for busy weekdays.|2 servings|3 hrs|subject to change|Bake salmon fillets and serve with a sauce made from Greek yogurt, dill, lemon juice, and garlic. Try adding a pinch of your favorite spices for extra flavor.\nLemon Garlic Tilapia|A delicious and healthy choice for any time of the day.|8 servings|2 hrs|flexible ingredients|Saut\u00e9 tilapia in butter, add lemon juice and garlic. Serve with steamed vegetables. Garnish with fresh herbs for a more vibrant taste.\nEggplant Parmesan|A quick and easy meal, perfect for busy weekdays.|2 servings|4 hrs|n/a|Slice eggplant, bread, and fry. Layer in a baking dish with marinara sauce and mozzarella cheese. Bake until bubbly. Feel free to substitute with ingredients you have on hand.\nCaprese Salad Skewers|An ideal recipe for experimenting with different flavors and ingredients.|6 servings|10 mins|per individual taste|Thread cherry tomatoes, basil leaves, and mozzarella balls onto skewers. Drizzle with balsamic glaze. Feel free to substitute with ingredients you have on hand.\nClassic Margherita Pizza|A delicious and healthy choice for any time of the day.|8 servings|2 hrs|optional ingredients|Spread pizza dough with tomato sauce, top with slices of mozzarella cheese and fresh basil leaves. Bake until crust is golden. Try adding a pinch of your favorite spices for extra flavor.\nSausage and Peppers Skillet|A delicious and healthy choice for any time of the day.|2 servings|1 hrs|flexible ingredients|Saut\u00e9 sliced sausage, bell peppers, and onions until browned. Serve with mustard or on a hoagie roll. Feel free to substitute with ingredients you have on hand.\nMango Chicken Curry|A quick and easy meal, perfect for busy weekdays.|8 servings|45 mins|n/a|Cook chicken pieces in a pan, add onions, garlic, and ginger. Stir in curry powder, coconut milk, and mango pieces. Simmer until chicken is cooked. Feel free to substitute with ingredients you have on hand.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeAddMultipleRecipesLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Add the following recipes into the Broccoli app:\ntitle|description|servings|preparationTime|ingredients|directions\nSweet Potato and Black Bean Tacos|An ideal recipe for experimenting with different flavors and ingredients.|1 serving|3 hrs|as needed|Roast sweet potato cubes, mix with black beans, and use as filling for tacos. Top with avocado and cilantro lime sauce. Feel free to substitute with ingredients you have on hand.\nSpinach and Feta Stuffed Chicken|An ideal recipe for experimenting with different flavors and ingredients.|6 servings|4 hrs|per individual taste|Stuff chicken breasts with a mixture of spinach, feta, garlic, and herbs. Bake until chicken is cooked through. Try adding a pinch of your favorite spices for extra flavor.\nVeggie and Hummus Sandwich|A delicious and healthy choice for any time of the day.|1 serving|3 hrs|as desired|Spread hummus on bread, add cucumber, bell pepper, carrot, and lettuce. Feel free to substitute with ingredients you have on hand.\nCauliflower Fried \"Rice\"|A delicious and healthy choice for any time of the day.|3-4 servings|10 mins|see directions|Pulse cauliflower in a food processor until it resembles rice. Saut\u00e9 with vegetables, soy sauce, and add scrambled eggs. Feel free to substitute with ingredients you have on hand.\nZucchini Noodles with Pesto|An ideal recipe for experimenting with different flavors and ingredients.|1 serving|20 mins|to preference|Spiralize zucchini into noodles, saut\u00e9 with garlic, then mix with pesto sauce. Top with grated Parmesan cheese. Try adding a pinch of your favorite spices for extra flavor.\nKale and Quinoa Salad|An ideal recipe for experimenting with different flavors and ingredients.|1 serving|1 hrs|per individual taste|Toss chopped kale, cooked quinoa, dried cranberries, sliced almonds, and feta cheese with a lemon vinaigrette. Feel free to substitute with ingredients you have on hand.\nSalmon with Dill Sauce|A quick and easy meal, perfect for busy weekdays.|2 servings|45 mins|see directions|Bake salmon fillets and serve with a sauce made from Greek yogurt, dill, lemon juice, and garlic. Try adding a pinch of your favorite spices for extra flavor.\nSalmon with Dill Sauce|A quick and easy meal, perfect for busy weekdays.|2 servings|2 hrs|to your liking|Bake salmon fillets and serve with a sauce made from Greek yogurt, dill, lemon juice, and garlic. Feel free to substitute with ingredients you have on hand.\nBaked Cod with Lemon and Dill|A quick and easy meal, perfect for busy weekdays.|1 serving|20 mins|adjustable|Place cod fillets in a baking dish, season with lemon juice, dill, salt, and pepper. Bake until fish flakes easily. Garnish with fresh herbs for a more vibrant taste.\nMoroccan Chickpea Stew|A delicious and healthy choice for any time of the day.|6 servings|1 hrs|quantities to taste|Saut\u00e9 onions, garlic, carrots, and spices. Add canned chickpeas, diced tomatoes, and vegetable broth. Simmer until flavors meld. Garnish with fresh herbs for a more vibrant taste.\nVegetable Stir Fry with Tofu|An ideal recipe for experimenting with different flavors and ingredients.|1 serving|2 hrs|adjustable|Stir-fry tofu cubes until golden, add assorted vegetables and a stir-fry sauce. Serve over rice or noodles. Garnish with fresh herbs for a more vibrant taste.\nAvocado Toast with Egg|A quick and easy meal, perfect for busy weekdays.|1 serving|2 hrs|to your liking|Toast bread, top with mashed avocado, a fried egg, salt, pepper, and chili flakes. Try adding a pinch of your favorite spices for extra flavor.\nBeef Stir Fry|A delicious and healthy choice for any time of the day.|2 servings|45 mins|flexible ingredients|Stir-fry beef slices with broccoli, bell peppers, and onions in soy sauce and garlic. Serve over rice or noodles. Try adding a pinch of your favorite spices for extra flavor.\nStuffed Bell Peppers|A quick and easy meal, perfect for busy weekdays.|1 serving|45 mins|to your liking|Mix cooked quinoa, black beans, corn, tomato sauce, and spices. Stuff into bell peppers and bake until tender. Garnish with fresh herbs for a more vibrant taste.\nLentil Soup|A delicious and healthy choice for any time of the day.|1 serving|20 mins|as needed|Cook onions, carrots, celery, garlic, and lentils in vegetable broth until lentils are tender. Season with thyme and bay leaves. Feel free to substitute with ingredients you have on hand.\nBBQ Chicken Quesadillas|A quick and easy meal, perfect for busy weekdays.|2 servings|10 mins|adjustable|Mix shredded cooked chicken with BBQ sauce. Place on tortillas with cheese, fold and cook until crispy. Garnish with fresh herbs for a more vibrant taste.\nSausage and Peppers Skillet|A delicious and healthy choice for any time of the day.|1 serving|2 hrs|to preference|Saut\u00e9 sliced sausage, bell peppers, and onions until browned. Serve with mustard or on a hoagie roll. Try adding a pinch of your favorite spices for extra flavor.\nSpicy Tuna Wraps|A quick and easy meal, perfect for busy weekdays.|6 servings|30 mins|optional ingredients|Mix canned tuna with mayo and sriracha. Spread on tortillas, add lettuce and cucumber slices, roll up. Garnish with fresh herbs for a more vibrant taste.\nAvocado Toast with Egg|An ideal recipe for experimenting with different flavors and ingredients.|8 servings|30 mins|to preference|Toast bread, top with mashed avocado, a fried egg, salt, pepper, and chili flakes. Garnish with fresh herbs for a more vibrant taste.\nStuffed Bell Peppers|A quick and easy meal, perfect for busy weekdays.|6 servings|4 hrs|flexible ingredients|Mix cooked quinoa, black beans, corn, tomato sauce, and spices. Stuff into bell peppers and bake until tender. Try adding a pinch of your favorite spices for extra flavor.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeAddMultipleRecipesSuperLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Add the following recipes into the Broccoli app:\ntitle|description|servings|preparationTime|ingredients|directions\nGreek Salad Pita Pockets|A delicious and healthy choice for any time of the day.|3-4 servings|2 hrs|as desired|Fill pita pockets with lettuce, cucumber, tomato, feta, olives, and Greek dressing. Garnish with fresh herbs for a more vibrant taste.\nSpinach and Feta Stuffed Chicken|A quick and easy meal, perfect for busy weekdays.|6 servings|4 hrs|to preference|Stuff chicken breasts with a mixture of spinach, feta, garlic, and herbs. Bake until chicken is cooked through. Try adding a pinch of your favorite spices for extra flavor.\nAvocado Toast with Egg|A quick and easy meal, perfect for busy weekdays.|2 servings|45 mins|as per recipe|Toast bread, top with mashed avocado, a fried egg, salt, pepper, and chili flakes. Try adding a pinch of your favorite spices for extra flavor.\nBaked Cod with Lemon and Dill|A quick and easy meal, perfect for busy weekdays.|8 servings|1 hrs|various amounts|Place cod fillets in a baking dish, season with lemon juice, dill, salt, and pepper. Bake until fish flakes easily. Feel free to substitute with ingredients you have on hand.\nShrimp Avocado Salad|A delicious and healthy choice for any time of the day.|1 serving|30 mins|per individual taste|Mix cooked shrimp with avocado, tomatoes, cucumber, and onion. Dress with lime juice, olive oil, salt, and pepper. Try adding a pinch of your favorite spices for extra flavor.\nMango Chicken Curry|A quick and easy meal, perfect for busy weekdays.|6 servings|4 hrs|varies|Cook chicken pieces in a pan, add onions, garlic, and ginger. Stir in curry powder, coconut milk, and mango pieces. Simmer until chicken is cooked. Try adding a pinch of your favorite spices for extra flavor.\nThai Peanut Noodle Salad|A delicious and healthy choice for any time of the day.|1 serving|2 hrs|n/a|Toss cooked noodles with a Thai peanut sauce, sliced red bell peppers, cabbage, carrots, and cilantro. Try adding a pinch of your favorite spices for extra flavor.\nClassic Margherita Pizza|A quick and easy meal, perfect for busy weekdays.|8 servings|1 hrs|various amounts|Spread pizza dough with tomato sauce, top with slices of mozzarella cheese and fresh basil leaves. Bake until crust is golden. Garnish with fresh herbs for a more vibrant taste.\nCauliflower Fried \"Rice\"|A delicious and healthy choice for any time of the day.|6 servings|4 hrs|to your liking|Pulse cauliflower in a food processor until it resembles rice. Saut\u00e9 with vegetables, soy sauce, and add scrambled eggs. Feel free to substitute with ingredients you have on hand.\nAvocado Toast with Egg|An ideal recipe for experimenting with different flavors and ingredients.|2 servings|20 mins|per individual taste|Toast bread, top with mashed avocado, a fried egg, salt, pepper, and chili flakes. Garnish with fresh herbs for a more vibrant taste.\nBBQ Chicken Quesadillas|A delicious and healthy choice for any time of the day.|1 serving|1 hrs|to preference|Mix shredded cooked chicken with BBQ sauce. Place on tortillas with cheese, fold and cook until crispy. Feel free to substitute with ingredients you have on hand.\nChicken Alfredo Pasta|A delicious and healthy choice for any time of the day.|6 servings|30 mins|see directions|Cook fettuccine pasta, toss with Alfredo sauce and grilled chicken strips. Serve with a sprinkle of Parmesan cheese. Try adding a pinch of your favorite spices for extra flavor.\nLemon Garlic Tilapia|An ideal recipe for experimenting with different flavors and ingredients.|3-4 servings|20 mins|various amounts|Saut\u00e9 tilapia in butter, add lemon juice and garlic. Serve with steamed vegetables. Try adding a pinch of your favorite spices for extra flavor.\nAvocado Toast with Egg|A quick and easy meal, perfect for busy weekdays.|3-4 servings|20 mins|to your liking|Toast bread, top with mashed avocado, a fried egg, salt, pepper, and chili flakes. Garnish with fresh herbs for a more vibrant taste.\nSalmon with Dill Sauce|A quick and easy meal, perfect for busy weekdays.|8 servings|45 mins|to your liking|Bake salmon fillets and serve with a sauce made from Greek yogurt, dill, lemon juice, and garlic. Feel free to substitute with ingredients you have on hand.\nSpinach and Feta Stuffed Chicken|A delicious and healthy choice for any time of the day.|1 serving|45 mins|see directions|Stuff chicken breasts with a mixture of spinach, feta, garlic, and herbs. Bake until chicken is cooked through. Feel free to substitute with ingredients you have on hand.\nButternut Squash Soup|An ideal recipe for experimenting with different flavors and ingredients.|3-4 servings|4 hrs|subject to change|Saut\u00e9 onions and garlic, add cubed butternut squash and broth. Puree until smooth and season with nutmeg, salt, and pepper. Garnish with fresh herbs for a more vibrant taste.\nClassic Margherita Pizza|A delicious and healthy choice for any time of the day.|8 servings|3 hrs|subject to change|Spread pizza dough with tomato sauce, top with slices of mozzarella cheese and fresh basil leaves. Bake until crust is golden. Feel free to substitute with ingredients you have on hand.\nVegetable Stir Fry with Tofu|A delicious and healthy choice for any time of the day.|6 servings|1 hrs|to your liking|Stir-fry tofu cubes until golden, add assorted vegetables and a stir-fry sauce. Serve over rice or noodles. Garnish with fresh herbs for a more vibrant taste.\nPesto Pasta with Peas|A delicious and healthy choice for any time of the day.|6 servings|2 hrs|various amounts|Cook pasta, stir in pesto sauce and cooked peas. Add Parmesan cheese before serving. Try adding a pinch of your favorite spices for extra flavor.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeAddMultipleRecipesSuperLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following recipes from Broccoli app: Sausage and Peppers Skillet, Moroccan Chickpea Stew, Beef Stir Fry, Vegetable Stir Fry with Tofu, Veggie and Hummus Sandwich, Lemon Garlic Tilapia, Chicken Alfredo Pasta, Chicken Caesar Salad Wrap, Spinach and Feta Stuffed Chicken, Salmon with Dill Sauce.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteMultipleRecipesLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following recipes from Broccoli app: Chicken Alfredo Pasta, Eggplant Parmesan, Lentil Soup, Veggie and Hummus Sandwich, Zucchini Noodles with Pesto, Quick Fried Rice, Sweet Potato and Black Bean Tacos, Moroccan Chickpea Stew, Beef Stir Fry, Spicy Tuna Wraps.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteMultipleRecipesLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following recipes from Broccoli app: Chicken Caesar Salad Wrap, Stuffed Bell Peppers, Tomato Basil Bruschetta, Lentil Soup, Spinach and Feta Stuffed Chicken, Raspberry Almond Smoothie, Lemon Garlic Tilapia, Vegetable Stir Fry with Tofu, Thai Peanut Noodle Salad, Avocado Toast with Egg, Classic Margherita Pizza, Baked Cod with Lemon and Dill, Turkey and Cheese Panini, Chickpea Vegetable Soup, Moroccan Chickpea Stew, Pan-Seared Salmon with Quinoa, Spicy Tuna Wraps, Cauliflower Fried \"Rice\", Mango Chicken Curry, Veggie and Hummus Sandwich.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "RecipeDeleteMultipleRecipesSuperLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "Delete the following recipes from Broccoli app: Caprese Salad Skewers, Classic Margherita Pizza, Thai Peanut Noodle Salad, Vegetable Stir Fry with Tofu, Zucchini Noodles with Pesto, Butternut Squash Soup, Chicken Caesar Salad Wrap, Stuffed Bell Peppers, Kale and Quinoa Salad, Pan-Seared Salmon with Quinoa, Chickpea Vegetable Soup, Quick Fried Rice, Grilled Cheese with Tomato and Basil, Quinoa Salad with Vegetables, Raspberry Almond Smoothie, Beef Stir Fry, Baked Cod with Lemon and Dill, Cauliflower Fried \"Rice\", Lentil Soup, Shrimp Avocado Salad.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "RecipeDeleteMultipleRecipesSuperLong",
+      "template": ""
+    },
+    {
+      "complexity": 100.0,
+      "goal": "In Simple Calendar Pro, delete all the calendar events on 2023-10-29",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarDeleteEventsLong",
+      "template": "In Simple Calendar Pro, delete all the calendar events on {year}-{month}-{day}"
+    },
+    {
+      "complexity": 100.0,
+      "goal": "In Simple Calendar Pro, delete all the calendar events on 2023-10-31",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarDeleteEventsLong",
+      "template": "In Simple Calendar Pro, delete all the calendar events on {year}-{month}-{day}"
+    },
+    {
+      "complexity": 100.0,
+      "goal": "In Simple Calendar Pro, delete all events scheduled for this Saturday.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarDeleteEventsOnRelativeDayLong",
+      "template": "In Simple Calendar Pro, delete all events scheduled for this {day_of_week}."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "In Simple Calendar Pro, delete all events scheduled for this Thursday.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarDeleteEventsOnRelativeDayLong",
+      "template": "In Simple Calendar Pro, delete all events scheduled for this {day_of_week}."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "In Simple Calendar Pro, delete all events scheduled for this Saturday.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarDeleteEventsOnRelativeDaySuperLong",
+      "template": "In Simple Calendar Pro, delete all events scheduled for this {day_of_week}."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "In Simple Calendar Pro, delete all events scheduled for this Thursday.",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarDeleteEventsOnRelativeDaySuperLong",
+      "template": "In Simple Calendar Pro, delete all events scheduled for this {day_of_week}."
+    },
+    {
+      "complexity": 100.0,
+      "goal": "In Simple Calendar Pro, delete all the calendar events on 2023-10-29",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 0,
+      "task_type": "SimpleCalendarDeleteEventsSuperLong",
+      "template": "In Simple Calendar Pro, delete all the calendar events on {year}-{month}-{day}"
+    },
+    {
+      "complexity": 100.0,
+      "goal": "In Simple Calendar Pro, delete all the calendar events on 2023-10-30",
+      "max_steps": 1000,
+      "origin_split": "official_seed30",
+      "start_on_home_screen": true,
+      "task_index": 1,
+      "task_type": "SimpleCalendarDeleteEventsSuperLong",
+      "template": "In Simple Calendar Pro, delete all the calendar events on {year}-{month}-{day}"
+    }
+  ],
+  "registry_sha256": null,
+  "schema_version": "0.1.0",
+  "source": "AgentProg AW-Extend tasks_long.txt",
+  "split": "full",
+  "suite_seed": 30,
+  "task_combinations": 2,
+  "task_instance_count": 38,
+  "task_type_count": 19
+}

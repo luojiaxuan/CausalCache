@@ -101,3 +101,56 @@ python3 awextend_launch_runner.py \
 # 5) 收尾
 bash awextend_fleet.sh down
 ```
+
+---
+
+## 7. 结果(2026-07-25,部分完成)
+
+冻结 GUI-Owl-1.5-8B,`last_image=5`(B=4),seed 30 / 2 combinations。
+原始报告:`data/results/awextend_b4/awextend_b4_partial.json`。
+
+| 项 | 值 |
+|---|---|
+| 完成 | **25 / 38 episodes**,覆盖 **14 / 19 templates** |
+| template-macro 成功率 | **0.500**,CI95 [0.25, 0.75](template-cluster bootstrap,仅 14 模板) |
+| episode-micro 成功率 | 0.560 |
+| 终止原因 | **`policy_terminated` 25/25** |
+| infra 故障 | **0** |
+| 模型步数 | 均值 88.2,最大 689(预算 1000) |
+
+### 按应用家族
+
+| 家族 | macro | 模板数 |
+|---|---|---|
+| SimpleCalendar | **1.000** | 4 |
+| Contacts | 0.750 | 2 |
+| Recipe | 0.500 | 1 |
+| Expense | 0.333 | 3 |
+| **Markor** | **0.000** | 4 |
+
+### 必须一起读的三条限定
+
+1. **0.500 这个数是偏高的**,而且是系统性偏高。未完成的 13 局恰恰是最重的批量录入任务
+   (`ExpenseAddMultiple*`、`RecipeAddMultipleRecipes*`、`ExpenseDeleteMultiple*Long2`、
+   `MarkorMergeNotesLong`、`MarkorTodoList`),它们要逐条录入 10-20 个条目。
+   **缺的正是最难的**,所以真实的 19 模板 macro 只会更低。不能把 0.500 当作 AW-Extend 的
+   完整成绩上报。
+2. **25 局全部是 `policy_terminated`,没有一局步数耗尽**(预算 1000,实际均值 88)。
+   模型总是自己认为做完了。这与主表测到的"错误终止里约 70% 是过早终止"一致。
+3. **Markor 家族 0/4 是真实的模型失败,不是环境问题**。抽查
+   `MarkorFetchNoteAndSms`(任务:从短信里取文件名 → 在 Markor 打开 → 把内容发回)
+   的动作序列:模型打开短信应用后**没有去读收件箱里那条已有短信**,而是直接新建会话、
+   输入字面量 `"FileName"` 发出,然后宣称完成。已核实 `initialize_task` 里确实调用
+   `adb_utils.text_emulator(...)` 注入了那条收件短信 —— 环境铺好了,模型没去读。
+   这是组合式长程任务的典型失败:第一个依赖环节的信息检索失败,后续全部建立在幻觉上。
+
+### 未完成的模板
+
+`ExpenseAddMultipleLong`、`ExpenseDeleteMultipleLong2`、`ExpenseDeleteMultipleSuperLong2`、
+`MarkorMergeNotesLong`、`MarkorTodoList`、`RecipeAddMultipleRecipesLong`、
+`RecipeAddMultipleRecipesSuperLong`、`RecipeDeleteMultipleRecipesSuperLong`。
+
+跑了 5.5 小时后仍在进行(实测单局最长已到 689 步);按每步约 40-45 秒、预算 1000 步计,
+单局最坏可达十余小时,故按实际完成度收尾并显式记录缺口,而不是无限等待或悄悄改分母。
+模拟器舰队已在收尾时全部移除,`docker ps -a --filter name=sglang-omni-jaxan` 核验仅剩
+每机一个长驻容器。
