@@ -562,6 +562,52 @@ def validate_sparse_group(
 
 SPARSE_HELDOUT_REQUIRED_SLOTS = ("N0", "R0", "S0", "RA", "SA")
 
+# ---------------------------------------------------------------------------
+# 训练目标的两个版本(唯一权威是 config.objective.kind)
+# ---------------------------------------------------------------------------
+# note (luojiaxuan): v5 留出集判定旧目标 ``SA − R0`` 是**假阳性发生器**。同一次训练
+# 里主 claim SA−RA 从 identity 的 +0.0335 单调降到 −0.0006,而 SA−R0 却从 +0.034
+# 涨到 +0.118 —— adapter 学到的是"见历史就整体放大",且对 recent 窗口的放大**强于**
+# 对 sparse 选点的放大。根因在目标本身:SA−R0 = (S0−R0) + (SA−S0) 里混着两样东西,
+#   (a) 冻结模型**本来就有**的选点优势 S0−R0(identity 上即 +0.0335),
+#   (b) adapter 对 sparse 臂的整体抬升 SA−S0(它对 recent 臂同样成立),
+# 两者任何一个变大都能把它刷高,唯独"adapter 让 sparse 选点比 recent 窗口更有用"
+# 这件事**不是**刷高它的必要条件。
+#
+# 新目标做 RA-aware 的差中差:先对每条臂取 adapter 增量(active 分数减它**自己**的
+# bypass 分数),再在 sparse 与 recent 之间做差。identity 上每个增量恒等于 0,差中差
+# 于是**严格等于 0** —— 冻结模型那 +0.0335 一分也进不来,"统一放大"也被两端同时抵消。
+SPARSE_OBJECTIVE_DID_RA_AWARE = "did_ra_aware"
+SPARSE_OBJECTIVE_LEGACY = "legacy_sa_minus_r0"
+SPARSE_OBJECTIVE_KINDS = (SPARSE_OBJECTIVE_DID_RA_AWARE, SPARSE_OBJECTIVE_LEGACY)
+# 每个目标真正读进训练损失的**测量臂**(负样本臂不在此列,它们由 role 字段决定)。
+# config 的 objective.excluded_arms 由这张表取补集算出并逐项比对,不再是一句散文——
+# 散文写着"RA 不进损失"而代码已经在打 RA 的分,这种分叉在日志里完全看不出来。
+SPARSE_OBJECTIVE_ARMS: dict[str, tuple[str, ...]] = {
+    SPARSE_OBJECTIVE_DID_RA_AWARE: ("R0", "S0", "RA", "SA"),
+    SPARSE_OBJECTIVE_LEGACY: ("R0", "SA"),
+}
+# 差中差用到的两条新臂;参考臂仍只从每条样本的 reference_arm_id 字段读,不写死。
+SPARSE_RECENT_ACTIVE_SLOT = "RA"
+SPARSE_SPARSE_BYPASS_SLOT = "S0"
+
+
+def sparse_objective_arms(objective_kind: str) -> tuple[str, ...]:
+    """Measurement arms one objective scores during training — fail-closed lookup."""
+    arms = SPARSE_OBJECTIVE_ARMS.get(objective_kind)
+    if arms is None:
+        raise ValueError(
+            f"unknown objective kind {objective_kind!r}; expected one of "
+            f"{SPARSE_OBJECTIVE_KINDS}"
+        )
+    return arms
+
+
+def sparse_objective_excluded_arms(objective_kind: str) -> list[str]:
+    """Measurement arms this objective never scores — the complement, not prose."""
+    consumed = set(sparse_objective_arms(objective_kind))
+    return sorted(set(SPARSE_HELDOUT_REQUIRED_SLOTS) - consumed)
+
 
 def _sparse_groups_by_split(
     samples: list[dict[str, Any]],
@@ -591,18 +637,35 @@ def _sparse_groups_by_split(
 
 
 def build_sparse_history_units(
-    samples: list[dict[str, Any]],
+    samples: list[dict[str, Any]], *, objective_kind: str
 ) -> tuple[list[tuple[str, dict[str, int], None]], set[str]]:
     """Return (units, heldout_episodes) for the sparse-history five-arm corpus.
 
     # note (luojiaxuan): split 的唯一权威是样本的 ``split`` 字段(审计 P0-4);
     # trainer 不再调用 heldout_episode_set 重算 hash——构建期与训练期各算一次
     # hash 是留出集悄悄漂移的经典成因。索引主键是 arm_slot,重复即报错。
+    #
+    # ``objective_kind`` 只决定**这个目标需要哪些臂齐全**,不碰 split、不碰分组。
+    # did_ra_aware 要求 R0/S0/RA/SA 四臂俱全:缺 S0 则 A_c 无定义,缺 RA 则 A_r 无
+    # 定义,而这两者正是"差中差在 identity 上恒为 0"的构造前提。这里当场报错而不是
+    # 留到损失里逐组返回 None —— 后者会让主 claim 的分母悄悄变小,stdout 上只表现为
+    # 组数变少(审计第 8 条点名的失败模式)。
     """
+    required = tuple(
+        slot for slot in sparse_objective_arms(objective_kind) if slot != "R0"
+    )
     buckets, heldout_episodes = _sparse_groups_by_split(samples)
     units: list[tuple[str, dict[str, int], None]] = []
     for pair_group, group in sorted(buckets["train"].items()):
+        # 参考臂由 validate_sparse_group 按 reference_arm_id 查在不在组里,所以
+        # required 里把 R0 摘掉——这里不得再写死"R0"。
         validate_sparse_group(samples, pair_group=pair_group, group=group)
+        missing = [slot for slot in required if slot not in group]
+        if missing:
+            raise ValueError(
+                f"train pair-group {pair_group!r} lacks arms {missing} required by "
+                f"objective {objective_kind!r}; slots={sorted(group)}"
+            )
         units.append(("sparse_group", group, None))
     return units, heldout_episodes
 
@@ -660,21 +723,27 @@ def build_sparse_history_heldout_units(
 # world_size 的整数倍,尾部 offset % world_size 与旧代码的全局 position % world_size
 # 逐个相同),各 rank 的 shard 长度与旧代码完全一致。
 def sparse_group_schedule_cost(
-    samples: list[dict[str, Any]], group: dict[str, int]
+    samples: list[dict[str, Any]], group: dict[str, int], *, objective_kind: str
 ) -> tuple[int, int]:
     """Return ``(forward_count, budget)`` — one pair-group's scheduling cost proxy.
 
     # note (luojiaxuan): 纯启发式,只喂给调度器,**永远不进损失**,估偏了最多是没把
-    # 屏障拉平,不会动到任何一个梯度。前向次数按两遍法数:SA + R0 两次 no-grad,每个
-    # 负样本 active/bypass 各一次 no-grad,再加最多 1+n 次带梯度前向,合计 3*(1+n)。
-    # K=1 组的 shuffled/duplicate 与 SA 逐字节相同因而不入库(n=1 → 6 次),K≥2 组
-    # n=3 → 12 次,正好是实测的约 2 倍差。budget 作次要项:同为 n=3 的组里 K=4 的
-    # 序列比 K=2 长(每臂 K+1 张图),前向次数拉平之后再拉平图数,屏障对得更紧。
+    # 屏障拉平,不会动到任何一个梯度。前向次数按两遍法数,n = 该组实际存在的负样本数:
+    #   * legacy_sa_minus_r0:SA + R0 两次 no-grad,每个负样本 active/bypass 各一次
+    #     no-grad,再加最多 1+n 次带梯度前向 —— 合计 3*(1+n),即 n=1 → 6、n=3 → 12;
+    #   * did_ra_aware:第一遍多了 S0 与 RA 两条臂(S0 冻结可缓存、RA 是 active 的
+    #     no-grad 取值),第二遍多了 RA 的带梯度前向(L_select 与 L_cap 都要对 A_r
+    #     的 active 端求导),即 (4 + 2n) + (2 + n) = 6 + 3n —— n=1 → 9、n=3 → 15。
+    # budget 作次要项:同为 n=3 的组里 K=4 的序列比 K=2 长(每臂 K+1 张图),前向次数
+    # 拉平之后再拉平图数,屏障对得更紧。
     """
     negatives = sum(
         1 for index in group.values() if samples[index]["role"] == "negative"
     )
     budget = int(samples[group[SPARSE_POSITIVE_SLOT]]["budget"])
+    if objective_kind == SPARSE_OBJECTIVE_DID_RA_AWARE:
+        return 6 + 3 * negatives, budget
+    sparse_objective_arms(objective_kind)  # fail-closed:未知目标不给默认代价
     return 3 * (1 + negatives), budget
 
 
@@ -830,6 +899,29 @@ def sparse_diagnostic_keys(negative_kind: str) -> tuple[str, str]:
     return f"SA_minus_SA_neg_{negative_kind}", f"{negative_kind}_drift_abs"
 
 
+def sparse_content_diagnostic_key(negative_kind: str) -> str:
+    """Runtime-only diagnostic name for one negative's difference-in-differences.
+
+    # note (luojiaxuan): 与 sparse_diagnostic_keys 分开,因为**语义不同**:后者的
+    # ``SA_minus_SA_neg_<kind>`` 是原始差 ℓSA−ℓn(留出集打分脚本按 gates 词表算的
+    # 就是它,gate 阈值也挂在它上面),这里是差中差 A_c−A_n。差中差**不进 gate 词表**
+    # ——本次只换训练目标,不动已冻结的验收标准(gates schema v2)。
+    """
+    return f"did_content_{negative_kind}"
+
+
+# 运行指标而非 gate 量:诊断里除这些键之外的每一个都必须在 SPARSE_GATE_VOCABULARY 里
+# (审计第 10 条)。集中定义一处,测试直接读它,免得"损失新加了一个分量诊断"与"测试
+# 里硬编码的白名单"两处各自漂移。
+SPARSE_RUNTIME_DIAGNOSTIC_KEYS = frozenset(
+    {
+        "loss", "negatives",
+        "loss_select", "loss_gain", "loss_content", "loss_cap", "loss_l2",
+    }
+    | {sparse_content_diagnostic_key(kind) for kind in SPARSE_NEGATIVE_KINDS}
+)
+
+
 def _sparse_history_group_loss(
     *,
     samples: list[dict[str, Any]],
@@ -839,11 +931,323 @@ def _sparse_history_group_loss(
     adapter_parameters: list[Any],
     accumulation: int,
     torch: Any,
+    objective_kind: str,
     diagnostics_out: dict[str, float] | None = None,
 ) -> float | None:
-    """Sparse-history objective against the budget-matched R0 reference.
+    """Dispatch one pair-group to the configured sparse-history objective.
 
-    # note (luojiaxuan): 记号 ℓc=SA(adapter active,带梯度)、ℓr=R0(同格式、
+    Returns ``float`` (this group's loss) or ``None`` (skipped); diagnostics are
+    delivered **only** by filling ``diagnostics_out`` in place.
+
+    # note (luojiaxuan): ``objective_kind`` 是必填关键字,没有缺省值。给默认值等于
+    # 让"忘了传"静默落到某一个目标上,而两个目标训出来的 adapter 语义完全不同——
+    # 这正是本次要修的那类"config 说一套、代码跑另一套"的分叉。
+    #
+    # 两个 body 各自返回 ``(total | None, diagnostics, ref_slot)``:total 为 None 表示
+    # 某条臂编码失败、本组整组跳过(与旧行为逐字一致,此时不写滚动窗口);诊断的落地、
+    # 25 组滚动打印、以及 "total == 0.0 视作跳过" 的规则集中在这里,两个目标共用。
+    """
+    if objective_kind == SPARSE_OBJECTIVE_DID_RA_AWARE:
+        body = _sparse_history_group_loss_did
+    elif objective_kind == SPARSE_OBJECTIVE_LEGACY:
+        body = _sparse_history_group_loss_legacy
+    else:
+        raise ValueError(
+            f"unknown objective kind {objective_kind!r}; expected one of "
+            f"{SPARSE_OBJECTIVE_KINDS}"
+        )
+    total, diagnostics, ref_slot = body(
+        samples=samples,
+        group=group,
+        forward=forward,
+        training=training,
+        adapter_parameters=adapter_parameters,
+        accumulation=accumulation,
+        torch=torch,
+    )
+    if total is None:
+        return None
+    diagnostics["loss"] = total
+    # note (luojiaxuan): 审计第 10 条。诊断的**唯一对外通道**是 diagnostics_out
+    # (原地填充),返回值恒为 float | None——旧版把 dict 当返回值,契约与测试都按
+    # "标量损失或 None"写,调用方多写一层 ["loss"] 才能拿到数,任何一处忘了就是
+    # 静默类型错。``_SPARSE_DIAG`` 只是本进程的 25 组滚动打印窗口,不是返回通道。
+    # 键名:除 SPARSE_RUNTIME_DIAGNOSTIC_KEYS 之外的每一个都来自 sparse_diagnostic_keys
+    # 与 SPARSE_DERIVED_QUANTITIES,与 config.gates 的量名逐字相同(见 F3-d)。
+    # 唯一要注意的是聚合次序:这里的 <kind>_drift_abs 是**本组** |A_n|,滚动窗口打印的
+    # 是 mean|drift|;gate 判定按 config.gates.drift_definition 在留出集上算 |mean drift|。
+    # 两者同名、同符号约定(非负、越小越好),前者是后者的上界。
+    # 损失为 0 的组也照常记录,否则"全部达标"的样本会从趋势里消失。
+    if diagnostics_out is not None:
+        diagnostics_out.update(diagnostics)
+    _SPARSE_DIAG.append(diagnostics)
+    if len(_SPARSE_DIAG) % 25 == 0:
+        import statistics as _st
+        window = _SPARSE_DIAG[-25:]
+        keys = sorted({key for entry in window for key in entry})
+        average = {
+            key: round(
+                _st.mean([entry[key] for entry in window if key in entry]), 5
+            )
+            for key in keys
+        }
+        print(
+            json.dumps(
+                {
+                    "sparse_history_diag_last25": average,
+                    "reference_arm_id": ref_slot,
+                    "objective_kind": objective_kind,
+                    "groups": len(_SPARSE_DIAG),
+                },
+                sort_keys=True,
+            ),
+            flush=True,
+        )
+    # note (luojiaxuan): total == 0.0 意味着所有 hinge / dead-zone 都未触发、L2 也没有
+    # 质量(权重为 0 或没有 adapter 参数),此时上面一个带梯度前向都没跑,返回 None 让
+    # 调用方把这组算作"跳过",而不是把 0 计进 running_loss 的分母。
+    return None if total == 0.0 else total
+
+
+def _sparse_history_group_loss_did(
+    *,
+    samples: list[dict[str, Any]],
+    group: dict[str, int],
+    forward: Any,
+    training: dict[str, Any],
+    adapter_parameters: list[Any],
+    accumulation: int,
+    torch: Any,
+) -> tuple[float | None, dict[str, float], str]:
+    """RA-aware difference-in-differences objective (``objective.kind`` 权威).
+
+    # note (luojiaxuan): 记号 —— 每条臂先取它**自己**的 adapter 增量,
+    #   A_c = ℓ_SA − ℓ_S0                 (adapter 对"正确稀疏历史"的增量)
+    #   A_r = ℓ_RA − ℓ_R0                 (adapter 对"最近窗口"的增量)
+    #   A_n = ℓ_n_active − ℓ_n_bypass     (adapter 对第 n 条错误历史的增量)
+    # 其中 ℓ_S0 / ℓ_R0 / ℓ_n_bypass 是**冻结量**(样本字段或显式覆盖写着 bypass,跑在
+    # 冻结 policy 上、与 adapter 参数无关),因此三者都走冻结分数缓存;ℓ_SA / ℓ_RA /
+    # ℓ_n_active 是 adapter active,需要带梯度前向。w_n = scale_n / Σ_m scale_m,只对
+    # 该组**实际存在**的负样本归一化。损失:
+    #   L_select  = w_s * [m_s − (A_c − A_r)]+
+    #   L_gain    = w_g * [m_g − A_c]+
+    #   L_content = w_c * Σ_n w_n * [m_c − (A_c − A_n)]+
+    #   L_cap     = λ * [|A_r| − ε]+ + λ * Σ_n w_n * [|A_n| − ε]+
+    #   L         = L_select + L_gain + L_content + L_cap + l2 * Σ(‖A‖²+‖B‖²),CE 恒 0
+    #
+    # 为什么是 A_c − A_r 而不是 ℓ_SA − ℓ_R0:后者 = (ℓ_S0 − ℓ_R0) + A_c,第一项是**冻结
+    # 模型自带**的选点优势(identity 上就有 +0.0335),第二项对 recent 臂同样成立,于是
+    # "见历史就统一放大"能把它一路刷到 +0.118 而主 claim SA−RA 反而掉到 −0.0006。
+    # A_c − A_r 在 identity 上**严格等于 0**(每个增量各自为 0),把冻结模型的既有优势
+    # 与"统一放大"两条捷径同时封死:只有 adapter 对 sparse 的抬升**超过**它对 recent
+    # 的抬升,这一项才会下降。
+    #
+    # L_gain 不是可有可无的补丁:单看 L_select,压低 ℓ_RA 与抬高 ℓ_SA 同样能减损失,
+    # 而"把 recent 臂打坏"不是我们要的能力。L_gain = [m_g − A_c]+ 要求 sparse 臂的绝对
+    # 增量自己也得为正,于是刷 select 必须真的抬 SA。
+    #
+    # L_cap 用 **dead-zone hinge**([|A| − ε]+)而不是旧的 SmoothL1,理由是尺度而不是
+    # 训练偶然性:drift 落在 0.06 量级时,权重 2 的 SmoothL1 梯度只有 2*0.06 ≈ 0.12,
+    # 而 select/gain/content 三个 rank hinge 一旦激活梯度量级就是 1,anchor 压根压不住,
+    # 于是"统一放大"是**损失尺度决定**的最优解。dead-zone hinge 在 |A| > ε 之后梯度恒为
+    # λ = 2,与 rank 项同量级;在 |A| ≤ ε 之内梯度恒为 0,不去规定 adapter 该落在哪。
+    #
+    # 两遍法保持不变:先 no-grad 取全部 ℓ 值、解析求各前向的次梯度权重,再逐臂在各自
+    # history_adapter_scope 内带梯度前向并立即 backward,同一时刻只活一张计算图(这是
+    # 为规避梯度检查点重算跑在 autograd 线程时 ContextVar 读空的崩溃)。带梯度的臂只有
+    # SA / RA / 各负样本 —— A_r 的 bypass 端 R0 是冻结的,只有 active 端需要梯度。
+    """
+    ref_slot = sparse_reference_slot(samples, group)
+    # note (luojiaxuan): 审计第 8 条。缺臂时旧代码走 forward(...) → None → 静默跳过
+    # 一组:主 claim 的分母悄悄变小,而 stdout 上只会看到组数变少。上游
+    # build_sparse_history_units 确实也查这一条,但损失函数是被测试与将来其它调用方
+    # 直接调用的入口,不能把 fail-closed 外包给调用方。
+    if ref_slot not in group:
+        raise ValueError(
+            f"pair-group declares reference_arm_id {ref_slot!r} but that arm is "
+            f"absent; slots={sorted(group)}"
+        )
+    missing = [
+        slot
+        for slot in (
+            SPARSE_SPARSE_BYPASS_SLOT,
+            SPARSE_RECENT_ACTIVE_SLOT,
+            SPARSE_POSITIVE_SLOT,
+        )
+        if slot not in group
+    ]
+    if missing:
+        raise ValueError(
+            f"objective {SPARSE_OBJECTIVE_DID_RA_AWARE!r} needs the full "
+            f"{ref_slot}/S0/RA/SA quartet; pair-group lacks {missing}; "
+            f"slots={sorted(group)}"
+        )
+
+    # 第一遍:四条测量臂全部 no-grad 取值。S0 与 R0 的样本字段写着 bypass,因此这两次
+    # 前向天然走冻结分数缓存;SA 与 RA 是 active,取值这一次不带梯度。
+    sparse_active = forward(SPARSE_POSITIVE_SLOT, grad=False)
+    sparse_frozen = forward(SPARSE_SPARSE_BYPASS_SLOT, grad=False)
+    recent_active = forward(SPARSE_RECENT_ACTIVE_SLOT, grad=False)
+    recent_frozen = forward(ref_slot, grad=False)
+    quartet = (sparse_active, sparse_frozen, recent_active, recent_frozen)
+    if any(value is None for value in quartet):
+        return None, {}, ref_slot
+    l_sa = float(sparse_active)
+    l_s0 = float(sparse_frozen)
+    l_ra = float(recent_active)
+    l_r0 = float(recent_frozen)
+    a_c = l_sa - l_s0
+    a_r = l_ra - l_r0
+
+    select_margin = float(training.get("sparse_select_margin", 0.01))
+    gain_margin = float(training.get("sparse_gain_margin", 0.01))
+    content_margin = float(training.get("sparse_content_margin", 0.01))
+    select_weight = float(training.get("sparse_select_weight", 1.0))
+    gain_weight = float(training.get("sparse_gain_weight", 1.0))
+    content_weight = float(training.get("sparse_content_weight", 1.0))
+    cap_epsilon = float(training.get("sparse_drift_cap_eps", 0.02))
+    cap_weight = float(training.get("sparse_drift_cap_weight", 2.0))
+    l2_weight = float(training.get("history_lora_l2_weight", 1e-4))
+
+    negatives = {
+        slot: index
+        for slot, index in group.items()
+        if samples[index]["role"] == "negative"
+    }
+    # note (luojiaxuan): 归一化的分母必须与**真正进入损失**的负样本集合一致。旧写法
+    # 先用全部负样本算 normalized、再在循环里 continue 掉取不到值的项,剩下份额之和
+    # 就 < 1(三项里掉一项只剩 0.6),等于按"哪些前向恰好失败"给该组梯度打折扣。
+    # 现在先跑完两次 no-grad 前向、收齐有效负样本,再用它们的 scale 归一化。
+    scored: list[tuple[str, str, float, float, float]] = []
+    for slot in sorted(negatives):
+        sample = samples[negatives[slot]]
+        active_value = forward(slot, grad=False)
+        # bypass 前向是同一条负样本在冻结 policy 上的分数,A_n 的基准点
+        frozen_value = forward(slot, grad=False, adapter_mode="bypass")
+        if active_value is None or frozen_value is None:
+            continue
+        scored.append(
+            (
+                slot,
+                sample["negative_kind"],
+                float(sample["negative_scale"]),
+                float(active_value),
+                float(frozen_value),
+            )
+        )
+    scale_mass = sum(scale for _slot, _kind, scale, _ln, _lnf in scored)
+    normalized = (
+        {slot: scale / scale_mass for slot, _kind, scale, _ln, _lnf in scored}
+        if scale_mass > 0.0
+        else {}
+    )
+
+    # 次梯度权重。可导量只有三类 active 分数,而 dA_c/dℓ_SA = dA_r/dℓ_RA =
+    # dA_n/dℓ_n_active = 1,所以每一项的权重就是它对该 A 的偏导。
+    weight_sparse = 0.0
+    weight_recent = 0.0
+    weights: dict[str, float] = {}
+    loss_select = 0.0
+    loss_gain = 0.0
+    loss_content = 0.0
+    loss_cap = 0.0
+    diagnostics: dict[str, float] = {
+        "SA_minus_R0": l_sa - l_r0,
+        "SA_minus_RA": l_sa - l_ra,
+        "frozen_selection_effect": l_s0 - l_r0,
+        "adapter_on_sparse": a_c,
+        "adapter_on_recent": a_r,
+        "did_select": a_c - a_r,
+        # 只数真正参与损失的负样本,和归一化分母同源
+        "negatives": float(len(scored)),
+    }
+
+    select_slack = select_margin - (a_c - a_r)
+    if select_slack > 0.0:
+        loss_select = select_weight * select_slack
+        weight_sparse -= select_weight
+        weight_recent += select_weight
+
+    gain_slack = gain_margin - a_c
+    if gain_slack > 0.0:
+        loss_gain = gain_weight * gain_slack
+        weight_sparse -= gain_weight
+
+    recent_excess = abs(a_r) - cap_epsilon
+    if recent_excess > 0.0:
+        loss_cap += cap_weight * recent_excess
+        weight_recent += cap_weight * (1.0 if a_r > 0.0 else -1.0)
+
+    for slot, kind, _scale, ln, ln_frozen in scored:
+        share = normalized[slot]
+        a_n = ln - ln_frozen
+        gap_key, drift_key = sparse_diagnostic_keys(kind)
+        # gap_key 仍是原始差 ℓSA−ℓn(gate 词表与留出集打分脚本认的就是它),
+        # drift_key 仍是 |A_n|(与 P1-4 之后的定义逐字相同),差中差另开一个运行键。
+        diagnostics[gap_key] = l_sa - ln
+        diagnostics[drift_key] = abs(a_n)
+        diagnostics[sparse_content_diagnostic_key(kind)] = a_c - a_n
+        content_slack = content_margin - (a_c - a_n)
+        if content_slack > 0.0:
+            loss_content += content_weight * share * content_slack
+            weight_sparse -= content_weight * share
+            weights[slot] = weights.get(slot, 0.0) + content_weight * share
+        negative_excess = abs(a_n) - cap_epsilon
+        if negative_excess > 0.0:
+            loss_cap += cap_weight * share * negative_excess
+            weights[slot] = weights.get(slot, 0.0) + cap_weight * share * (
+                1.0 if a_n > 0.0 else -1.0
+            )
+
+    total = loss_select + loss_gain + loss_content + loss_cap
+    # 第二遍:逐臂带梯度前向并立即 backward。RA 在这里出现是 did 目标的新增开销 ——
+    # L_select 与 L_cap 都要对 A_r 的 active 端求导,而 R0 那端是冻结的。
+    for slot, weight in (
+        (SPARSE_POSITIVE_SLOT, weight_sparse),
+        (SPARSE_RECENT_ACTIVE_SLOT, weight_recent),
+        *weights.items(),
+    ):
+        if weight == 0.0:
+            continue
+        forward(slot, grad=True, backward_weight=weight / accumulation)
+
+    loss_l2 = 0.0
+    if l2_weight > 0.0 and adapter_parameters:
+        l2_term = l2_weight * sum(
+            parameter.pow(2).sum() for parameter in adapter_parameters
+        )
+        loss_l2 = float(l2_term.detach())
+        total += loss_l2
+        (l2_term / accumulation).backward()
+
+    diagnostics["loss_select"] = loss_select
+    diagnostics["loss_gain"] = loss_gain
+    diagnostics["loss_content"] = loss_content
+    diagnostics["loss_cap"] = loss_cap
+    diagnostics["loss_l2"] = loss_l2
+    return total, diagnostics, ref_slot
+
+
+def _sparse_history_group_loss_legacy(
+    *,
+    samples: list[dict[str, Any]],
+    group: dict[str, int],
+    forward: Any,
+    training: dict[str, Any],
+    adapter_parameters: list[Any],
+    accumulation: int,
+    torch: Any,
+) -> tuple[float | None, dict[str, float], str]:
+    """DEPRECATED — sparse-history objective against the budget-matched R0 reference.
+
+    # note (luojiaxuan): **已弃用,保留只为可复现旧 run。** v5 留出集证明这个目标是
+    # 假阳性发生器:``ℓc − ℓr = (ℓ_S0 − ℓ_R0) + (ℓ_SA − ℓ_S0)`` 里混着冻结模型自带的
+    # 选点优势与 adapter 的整体放大,"见历史就放大"能把它从 +0.034 刷到 +0.118,同时
+    # 主 claim SA−RA 从 +0.0335 掉到 −0.0006。新 run 一律用 did_ra_aware;这段算术保持
+    # 逐字不动(改它等于让旧 checkpoint 不再可复现),只是把诊断落地与滚动打印上提到
+    # 分发器,因此返回 (total, diagnostics, ref_slot) 而不再自己写 _SPARSE_DIAG。
+    #
+    # 记号 ℓc=SA(adapter active,带梯度)、ℓr=R0(同格式、
     # 同预算、最近 K 张、adapter bypass,冻结无梯度)、ℓn=各负样本 adapter active、
     # ℓn⁰=同一负样本 adapter bypass 的冻结分数。w_n = scale_n / Σ_m scale_m。
     #   L_gain  = gain_w  * [m_g - (ℓc - ℓr)]+
@@ -884,7 +1288,7 @@ def _sparse_history_group_loss(
     positive_value = forward(SPARSE_POSITIVE_SLOT, grad=False)
     reference_value = forward(ref_slot, grad=False)
     if positive_value is None or reference_value is None:
-        return None
+        return None, {}, ref_slot
     lc = float(positive_value)
     lr = float(reference_value)
 
@@ -968,45 +1372,7 @@ def _sparse_history_group_loss(
         total += float(l2_term.detach())
         (l2_term / accumulation).backward()
 
-    diagnostics["loss"] = total
-    # note (luojiaxuan): 审计第 10 条。诊断的**唯一对外通道**是 diagnostics_out
-    # (原地填充),返回值恒为 float | None——旧版把 dict 当返回值,契约与测试都按
-    # "标量损失或 None"写,调用方多写一层 ["loss"] 才能拿到数,任何一处忘了就是
-    # 静默类型错。``_SPARSE_DIAG`` 只是本进程的 25 组滚动打印窗口,不是返回通道。
-    # 键名:除 loss / negatives 两个运行指标外,其余键都来自 sparse_diagnostic_keys
-    # 与 SPARSE_DERIVED_QUANTITIES,与 config.gates 的量名逐字相同(见 F3-d)。
-    # 唯一要注意的是聚合次序:这里的 <kind>_drift_abs 是**本组** |ℓn-ℓn⁰|,滚动窗口
-    # 打印的是 mean|drift|;gate 判定按 config.gates.drift_definition 在留出集上算
-    # |mean drift|。两者同名、同符号约定(非负、越小越好),前者是后者的上界。
-    # 损失为 0 的组也照常记录,否则"全部达标"的样本会从趋势里消失。
-    if diagnostics_out is not None:
-        diagnostics_out.update(diagnostics)
-    _SPARSE_DIAG.append(diagnostics)
-    if len(_SPARSE_DIAG) % 25 == 0:
-        import statistics as _st
-        window = _SPARSE_DIAG[-25:]
-        keys = sorted({key for entry in window for key in entry})
-        average = {
-            key: round(
-                _st.mean([entry[key] for entry in window if key in entry]), 5
-            )
-            for key in keys
-        }
-        print(
-            json.dumps(
-                {
-                    "sparse_history_diag_last25": average,
-                    "reference_arm_id": ref_slot,
-                    "groups": len(_SPARSE_DIAG),
-                },
-                sort_keys=True,
-            ),
-            flush=True,
-        )
-    # note (luojiaxuan): total == 0.0 意味着 gain/rank 的 hinge 全未触发、drift 全为
-    # 0、L2 也没有质量(权重为 0 或没有 adapter 参数),此时上面一个带梯度前向都没跑,
-    # 返回 None 让调用方把这组算作"跳过",而不是把 0 计进 running_loss 的分母。
-    return None if total == 0.0 else total
+    return total, diagnostics, ref_slot
 
 
 def history_sample_context(
@@ -1507,6 +1873,7 @@ def sparse_history_group_unit_loss(
     merge_size: int,
     accumulation: int,
     torch: Any,
+    objective_kind: str,
     diagnostics_out: dict[str, float] | None = None,
     frozen_cache: FrozenBypassScoreCache | None = None,
     encode_cache_scope: str = "off",
@@ -1577,8 +1944,9 @@ def sparse_history_group_unit_loss(
             )
         # note (luojiaxuan): 只有"不带梯度 **且** 有效 adapter 模式是 bypass"的前向
         # 才可缓存 —— 那是跑在冻结策略上的分数,与 adapter 参数无关因而全程恒定。
-        # 覆盖已被上面限死为 no-grad + bypass,所以这里命中的正好是 P1-4 的 3 个
-        # per-negative 锚点 ℓn⁰,外加 R0 参考臂(它的样本字段本就写着 bypass)。
+        # 覆盖已被上面限死为 no-grad + bypass,所以这里命中的正好是 3 个 per-negative
+        # 锚点 ℓn_bypass,外加参考臂 R0(样本字段本就写着 bypass);did_ra_aware 下还多
+        # 一条 S0 —— A_c 的基准端同样是冻结量,四类都吃同一份缓存。
         # 命中直接返回缓存值(与重算逐位相同),连 encode 都省掉。
         cacheable = (
             frozen_cache is not None
@@ -1628,6 +1996,7 @@ def sparse_history_group_unit_loss(
         adapter_parameters=adapter_parameters,
         accumulation=accumulation,
         torch=torch,
+        objective_kind=objective_kind,
         diagnostics_out=diagnostics_out,
     )
 
@@ -1640,14 +2009,41 @@ def sparse_history_group_unit_loss(
 # 外部拿到 config 也复现不出这次 run。现在 sparse 分支的训练超参**只从 config 读**,
 # CLI 若同时给出覆盖值直接报错;config.training 出现任何未被消费的 key 也报错退出,
 # 免得"写了但没生效"的参数继续伪装成实验设定。旧两条路径的 CLI 语义不变。
-SPARSE_TRAINING_KEYS = (
+SPARSE_TRAINING_KEYS_COMMON = (
     "sparse_history", "epochs", "max_optimizer_steps", "learning_rate",
     "lr_schedule", "weight_decay", "micro_batch_size",
     "gradient_accumulation_steps", "max_grad_norm", "seed",
-    "gradient_checkpointing", "checkpoint_every_steps", "sparse_gain_margin",
-    "sparse_rank_margin", "sparse_gain_weight", "sparse_rank_weight",
-    "sparse_drift_weight", "history_lora_l2_weight", "history_ce_weight",
+    "gradient_checkpointing", "checkpoint_every_steps",
+    "history_lora_l2_weight", "history_ce_weight",
 )
+# note (luojiaxuan): 目标相关的超参按 objective.kind 分组,**不取并集**。取并集的话
+# did_ra_aware 的 config 得照抄一份从不被读的 sparse_rank_margin / sparse_drift_weight,
+# 而"写了但没生效的参数"正是 P1-6 要挡的东西;分组之后,给 did 目标写 rank 超参会以
+# "unconsumed keys"报错,给 legacy 目标漏写 rank 超参会以"misses required keys"报错。
+SPARSE_TRAINING_KEYS_BY_OBJECTIVE: dict[str, tuple[str, ...]] = {
+    SPARSE_OBJECTIVE_DID_RA_AWARE: (
+        "sparse_select_margin", "sparse_gain_margin", "sparse_content_margin",
+        "sparse_select_weight", "sparse_gain_weight", "sparse_content_weight",
+        "sparse_drift_cap_eps", "sparse_drift_cap_weight",
+    ),
+    SPARSE_OBJECTIVE_LEGACY: (
+        "sparse_gain_margin", "sparse_rank_margin", "sparse_gain_weight",
+        "sparse_rank_weight", "sparse_drift_weight",
+    ),
+}
+
+
+def sparse_training_keys(objective_kind: str) -> tuple[str, ...]:
+    """Exactly the ``config.training`` keys one objective consumes."""
+    per_objective = SPARSE_TRAINING_KEYS_BY_OBJECTIVE.get(objective_kind)
+    if per_objective is None:
+        raise ValueError(
+            f"unknown objective kind {objective_kind!r}; expected one of "
+            f"{SPARSE_OBJECTIVE_KINDS}"
+        )
+    return SPARSE_TRAINING_KEYS_COMMON + per_objective
+
+
 SPARSE_BUILD_TIME_ONLY_KEYS = ("heldout_episode_fraction", "heldout_hash_salt")
 SPARSE_GATE_SCHEMA = "causalcache.sparse_history_gates.v2"
 SPARSE_DERIVED_QUANTITIES = {
@@ -1655,6 +2051,12 @@ SPARSE_DERIVED_QUANTITIES = {
     "frozen_selection_effect": "S0 - R0",
     "adapter_on_recent": "RA - R0",
     "adapter_on_sparse": "SA - S0",
+    # note (luojiaxuan): did_select 就是 did_ra_aware 直接优化的那个量 —— adapter 对
+    # sparse 的增量减去它对 recent 的增量。它与主 claim SA−RA 的差别是把冻结模型自带的
+    # 选点优势 S0−R0 也扣掉,因此 identity 上恒为 0(SA−RA 在 identity 上是 +0.0335)。
+    # 只加进派生量词表供训练诊断与留出集报告使用,**没有**进 gates.must_pass:本次只换
+    # 训练目标,已冻结的验收标准(gates schema v2)一字不动。
+    "did_select": "(SA - S0) - (RA - R0)",
     "SA_minus_RA": "SA - RA",
     "SA_minus_R0": "SA - R0",
     "deployment_delta": "SA - N0",
@@ -2027,21 +2429,28 @@ def compile_sparse_gates(gates: dict[str, Any]) -> dict[str, Any]:
 
 
 def resolve_sparse_training(
-    training: dict[str, Any], *, args: argparse.Namespace
+    training: dict[str, Any], *, args: argparse.Namespace, objective_kind: str
 ) -> dict[str, Any]:
     """Return the run controls the sparse branch takes from config alone."""
+    consumed = sparse_training_keys(objective_kind)
     stale = [key for key in SPARSE_BUILD_TIME_ONLY_KEYS if key in training]
     if stale:
         raise ValueError(
             f"training block carries build-time-only keys {stale}; move them under "
             "data.split — the trainer reads each sample's split field"
         )
-    unknown = sorted(set(training) - set(SPARSE_TRAINING_KEYS))
+    unknown = sorted(set(training) - set(consumed))
     if unknown:
-        raise ValueError(f"training block has unconsumed keys {unknown}")
-    missing = sorted(set(SPARSE_TRAINING_KEYS) - set(training))
+        raise ValueError(
+            f"training block has unconsumed keys {unknown} under objective "
+            f"{objective_kind!r}"
+        )
+    missing = sorted(set(consumed) - set(training))
     if missing:
-        raise ValueError(f"training block misses required keys {missing}")
+        raise ValueError(
+            f"training block misses required keys {missing} under objective "
+            f"{objective_kind!r}"
+        )
     if str(training["lr_schedule"]) != "constant":
         raise ValueError("sparse_history only implements a constant learning rate")
     if int(training["micro_batch_size"]) != 1:
@@ -2062,6 +2471,63 @@ def resolve_sparse_training(
         "max_steps": int(training["max_optimizer_steps"]),
         "checkpoint_every_steps": int(training["checkpoint_every_steps"]),
     }
+
+
+# note (luojiaxuan): objective 段过去纯粹是散文,一个字都没被读过 —— 于是"config 写着
+# RA 不进损失"与"代码到底读不读 RA"可以无声分叉,而这次的假阳性正是这类分叉的后果。
+# 现在这一段与 training 段同规格:key 集合按 kind 精确匹配(多一个报 unconsumed、少一个
+# 报 misses),excluded_arms 必须是**列表**且与 SPARSE_OBJECTIVE_ARMS 的补集逐项相等。
+# 后者是结构性的:did_ra_aware 一旦真的开始给 RA 打分,excluded_arms 里还留着 "RA" 就
+# 会当场报错,不需要谁记得去改那句散文。
+SPARSE_OBJECTIVE_DOC_KEYS: dict[str, frozenset[str]] = {
+    SPARSE_OBJECTIVE_DID_RA_AWARE: frozenset(
+        {
+            "kind", "notation", "A_c", "A_r", "A_n",
+            "L_select", "L_gain", "L_content", "L_cap", "L_l2", "L",
+            "did_rationale", "gain_rationale", "drift_cap_rationale",
+            "normalization_rationale", "excluded_arms", "excluded_arms_note",
+        }
+    ),
+    SPARSE_OBJECTIVE_LEGACY: frozenset(
+        {
+            "kind", "deprecated", "notation",
+            "L_gain", "L_rank", "L_drift", "L_l2", "L",
+            "drift_rationale", "normalization_rationale",
+            "excluded_arms", "excluded_arms_note",
+        }
+    ),
+}
+
+
+def validate_sparse_objective(config: dict[str, Any]) -> tuple[str, dict[str, Any]]:
+    """Validate the objective block and return ``(kind, block)``."""
+    objective = config.get("objective")
+    if not isinstance(objective, dict):
+        raise ValueError("sparse_history config must carry an objective block")
+    kind = objective.get("kind")
+    if kind not in SPARSE_OBJECTIVE_KINDS:
+        raise ValueError(
+            f"objective.kind must be one of {SPARSE_OBJECTIVE_KINDS}, got {kind!r}"
+        )
+    expected_keys = SPARSE_OBJECTIVE_DOC_KEYS[kind]
+    unknown = sorted(set(objective) - expected_keys)
+    if unknown:
+        raise ValueError(
+            f"objective block has unconsumed keys {unknown} under kind {kind!r}"
+        )
+    absent = sorted(expected_keys - set(objective))
+    if absent:
+        raise ValueError(
+            f"objective block misses required keys {absent} under kind {kind!r}"
+        )
+    excluded = objective["excluded_arms"]
+    expected_excluded = sparse_objective_excluded_arms(kind)
+    if excluded != expected_excluded:
+        raise ValueError(
+            f"objective.excluded_arms {excluded!r} disagrees with the arms "
+            f"{kind!r} actually scores; expected {expected_excluded!r}"
+        )
+    return kind, objective
 
 
 def validate_sparse_gates(config: dict[str, Any]) -> dict[str, Any]:
@@ -2169,11 +2635,16 @@ def main() -> None:
     config_sha = hashlib.sha256(args.config.read_bytes()).hexdigest()
     sparse_mode = bool(config["training"].get("sparse_history", False))
     sparse_gates: dict[str, Any] | None = None
+    sparse_objective: dict[str, Any] | None = None
+    sparse_objective_kind = ""
     if sparse_mode:
         if adapter_settings(config)[0] != "history_gated_kv":
             raise ValueError("sparse_history requires adapter_type history_gated_kv")
         sparse_gates = validate_sparse_gates(config)
-        sparse_controls = resolve_sparse_training(config["training"], args=args)
+        sparse_objective_kind, sparse_objective = validate_sparse_objective(config)
+        sparse_controls = resolve_sparse_training(
+            config["training"], args=args, objective_kind=sparse_objective_kind
+        )
         max_steps = sparse_controls["max_steps"]
         checkpoint_every_steps = sparse_controls["checkpoint_every_steps"]
     else:
@@ -2309,7 +2780,12 @@ def main() -> None:
             # note (luojiaxuan): 审计 P1-6——外部要能只凭 manifest 复现这次 run,
             # 所以完整记录 argv、config 的 sha256、生效的超参(它们只来自 config)、
             # resume checkpoint 的 sha256,以及被校验过的 checkpoint 选择 gate。
-            run_manifest["schema_version"] = "causalcache.success_sft_lora_run.v2"
+            # note (luojiaxuan): v2 → v3,因为 manifest 新增了 objective_kind /
+            # objective,而 effective_training 消费的 key 集合从此**取决于**目标。
+            # 不升版本的话,一份 v2 reader 读到没有 objective_kind 的记录只能默认它是
+            # 旧目标 —— 这正是本次要修的那类静默假设。目前没有任何脚本消费这份
+            # manifest(全仓 grep 只有 trainer 自己在写),升版本无下游影响。
+            run_manifest["schema_version"] = "causalcache.success_sft_lora_run.v3"
             run_manifest["sample_schema_version"] = SPARSE_SAMPLE_SCHEMA
             run_manifest["cli_argv"] = list(sys.argv)
             run_manifest["cli_args"] = {
@@ -2319,8 +2795,11 @@ def main() -> None:
             run_manifest["config_path"] = str(args.config)
             run_manifest["config_sha256"] = config_sha
             run_manifest["hyperparameter_authority"] = "config.training only"
+            run_manifest["objective_kind"] = sparse_objective_kind
+            run_manifest["objective"] = sparse_objective
             run_manifest["effective_training"] = {
-                key: config["training"][key] for key in sorted(SPARSE_TRAINING_KEYS)
+                key: config["training"][key]
+                for key in sorted(sparse_training_keys(sparse_objective_kind))
             }
             run_manifest["effective_max_optimizer_steps"] = max_steps
             run_manifest["effective_checkpoint_every_steps"] = checkpoint_every_steps
@@ -2340,7 +2819,9 @@ def main() -> None:
     margin_value = float(training_config.get("margin_per_token", 0.0))
     b0_weight = float(training_config.get("b0_ce_weight", 1.0))
     if sparse_mode:
-        units, heldout_episodes = build_sparse_history_units(samples)
+        units, heldout_episodes = build_sparse_history_units(
+            samples, objective_kind=sparse_objective_kind
+        )
     elif adapter_type == "history_gated_kv":
         units, heldout_episodes = build_history_gated_units(
             samples, training=training_config
@@ -2358,6 +2839,7 @@ def main() -> None:
             startup["sample_schema_version"] = SPARSE_SAMPLE_SCHEMA
             startup["reference_arm_id"] = "R0"
             startup["main_claim_quantity"] = SPARSE_MAIN_CLAIM_QUANTITY
+            startup["objective_kind"] = sparse_objective_kind
             startup["config_sha256"] = config_sha
             startup["max_optimizer_steps"] = max_steps
             startup["checkpoint_every_steps"] = checkpoint_every_steps
@@ -2367,7 +2849,9 @@ def main() -> None:
     # 预先算好一份 unit_index -> (前向次数, 预算),每个 epoch 复用同一份。
     schedule_costs: dict[int, tuple[int, int]] = (
         {
-            unit_index: sparse_group_schedule_cost(samples, payload)
+            unit_index: sparse_group_schedule_cost(
+                samples, payload, objective_kind=sparse_objective_kind
+            )
             for unit_index, (_kind, payload, _negative) in enumerate(units)
         }
         if sparse_mode
@@ -2410,6 +2894,7 @@ def main() -> None:
                     merge_size=merge_size,
                     accumulation=accumulation,
                     torch=torch,
+                    objective_kind=sparse_objective_kind,
                     diagnostics_out=diagnostics,
                     frozen_cache=frozen_cache,
                     encode_cache_scope=args.encode_cache_scope,
