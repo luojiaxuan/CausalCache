@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import subprocess
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -42,6 +41,7 @@ def validate_osworld_v2_checkout(
     *,
     require_task_classes: bool,
     require_assets: bool,
+    assets_root: str | Path | None = None,
 ) -> dict[str, Any]:
     """Fail closed on mixed release components or missing gated substrate."""
     checkout = Path(root).expanduser().resolve()
@@ -66,18 +66,17 @@ def validate_osworld_v2_checkout(
         raise ValueError("OSWorld 2.0 release manifest drifted")
     task_class_root = checkout / "evaluation_examples/task_class"
     task_classes = sorted(task_class_root.glob("task_[0-9][0-9][0-9].py"))
-    assets_root = Path(
-        os.environ.get(
-            "OSWORLD_FILE_BASE_URL",
-            str(checkout / "cache/osworld_v2_assets"),
-        )
+    resolved_assets_root = Path(
+        assets_root
+        if assets_root is not None
+        else checkout / "cache/osworld_v2_assets"
     ).expanduser().resolve()
     if require_task_classes and len(task_classes) != OSWORLD_V2_EXPECTED_TASKS:
         raise RuntimeError(
             "OSWorld 2.0 gated task classes are incomplete; accept and download "
             "xlangai/osworld_v2_tasks@v2026.06.24"
         )
-    if require_assets and not assets_root.is_dir():
+    if require_assets and not resolved_assets_root.is_dir():
         raise RuntimeError(
             "OSWorld 2.0 gated assets are missing; download "
             "xlangai/osworld_v2_assets_gated@v2026.06.24"
@@ -91,8 +90,8 @@ def validate_osworld_v2_checkout(
         ).hexdigest(),
         "task_class_count": len(task_classes),
         "task_classes_ready": len(task_classes) == OSWORLD_V2_EXPECTED_TASKS,
-        "assets_root": str(assets_root),
-        "assets_ready": assets_root.is_dir(),
+        "assets_root": str(resolved_assets_root),
+        "assets_ready": resolved_assets_root.is_dir(),
     }
 
 

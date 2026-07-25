@@ -282,7 +282,7 @@ def mobileworld_action_from_gui_owl(
     if action.action == "answer":
         return {"action_type": "answer", "text": action.text}
     if action.action == "terminate":
-        return {"action_type": "finished", "goal_status": "task_complete"}
+        return {"action_type": "finished", "text": action.status}
     raise ValueError(f"unsupported GUI-Owl MobileWorld action: {action.action}")
 
 

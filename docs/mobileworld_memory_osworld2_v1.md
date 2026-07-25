@@ -60,6 +60,9 @@ split 完全来自官方 release 的 task-construction phenomenon：
 对 `xlangai/osworld_v2_tasks` 与 `xlangai/osworld_v2_assets_gated` 尚未获批；runner 的
 `--preflight` 会报告 `BLOCKED_OSWORLD_V2_GATED_SUBSTRATE`，正式执行严格 fail closed。
 不得以旧 OSWorld task、空 asset 或手写替代 task class 冒充 OSWorld 2.0 结果。
+asset root 由 committed config 的 `execution.assets_root` 或显式 `--assets-root` 传入；
+runner 只在 worker 内把该显式值翻译为上游所需的 `OSWORLD_FILE_BASE_URL`，不读取 ambient
+environment override 来改变 gate。
 
 ## 单 GPU、多模拟器拓扑
 
@@ -136,6 +139,10 @@ identity、task roster SHA256、GPU 前后快照、policy counters、结果数�
 screenshots/trajectories 只保留在个人 persistent storage，不进入 Git；Git 只回写轻量
 summary。正式清理只读取本次 fleet manifest，逐个核验 container ID 后停止该 run 创建的
 exception containers，保留 canonical compute container。
+
+所有 memory arms 都保留完整的低带宽 action/`screen_changed` event summaries；B0/B1/B2/B4
+预算只控制恢复的历史截图数量。这与 CausalCache 现有 low-fidelity-summary + selective visual
+restoration contract 一致，不能把 B0 解释为完全无文本历史。
 
 ## 当前状态
 

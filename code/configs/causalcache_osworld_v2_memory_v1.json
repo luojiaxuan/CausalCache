@@ -30,6 +30,7 @@
     "max_steps": 500,
     "sleep_after_execution_seconds": 2.0,
     "client_password": "osworld-public-evaluation",
+    "assets_root": "/data/datasets/osworld-v2-assets-v2026.06.24",
     "require_gated_task_classes": true,
     "require_gated_assets": true,
     "result_root": "/data/runs/osworld-v2-memory-v1"

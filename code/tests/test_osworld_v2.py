@@ -48,6 +48,9 @@ def test_osworld_v2_config_uses_one_release_bundle() -> None:
     assert release["task_dataset"].endswith("@v2026.06.24")
     assert release["asset_dataset"].endswith("@v2026.06.24")
     assert release["website_repository"].endswith("@v2026.06.24")
+    assert config["execution"]["assets_root"] == (
+        "/data/datasets/osworld-v2-assets-v2026.06.24"
+    )
 
 
 def test_osworld_v2_plan_loader_rejects_release_drift(tmp_path: Path) -> None:

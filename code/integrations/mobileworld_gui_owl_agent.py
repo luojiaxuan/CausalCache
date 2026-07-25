@@ -56,6 +56,11 @@ class CausalCacheMobileWorldGUIOwlAgent(BaseAgent):
         self.instruction = None
 
     def predict(self, observation: dict[str, Any]) -> tuple[str, JSONAction]:
+        if not isinstance(self.instruction, str) or not self.instruction.strip():
+            raise RuntimeError(
+                "MobileWorld called predict before BaseAgent.initialize supplied "
+                "a task instruction"
+            )
         image = observation["screenshot"]
         current = _png_bytes(image)
         if self.previous_action is not None:
@@ -77,7 +82,7 @@ class CausalCacheMobileWorldGUIOwlAgent(BaseAgent):
             budget=self.memory_budget,
         )
         request = build_mobileworld_policy_request(
-            instruction=str(self.instruction),
+            instruction=self.instruction,
             step_id=len(self.history) + 1,
             screenshot=current,
             history=self.history,

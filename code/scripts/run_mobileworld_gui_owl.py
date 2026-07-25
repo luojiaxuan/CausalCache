@@ -5,7 +5,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
+import platform
+import socket
 import subprocess
 import sys
 import time
@@ -55,6 +58,21 @@ def _gpu_snapshot() -> list[dict[str, str]]:
         for line in result.stdout.splitlines()
         if line.strip()
     ]
+
+
+def _runtime_identity() -> dict[str, Any]:
+    versions = {}
+    for package in ("mobile-world", "torch", "transformers"):
+        try:
+            versions[package] = importlib.metadata.version(package)
+        except importlib.metadata.PackageNotFoundError:
+            versions[package] = None
+    return {
+        "hostname": socket.gethostname(),
+        "platform": platform.platform(),
+        "python": sys.version,
+        "packages": versions,
+    }
 
 
 def _policy_health(endpoint: str) -> dict[str, Any]:
@@ -204,6 +222,7 @@ def main() -> None:
         "num_envs": args.num_envs,
         "policy_endpoint": args.policy_endpoint,
         "argv": list(sys.argv),
+        "runtime_identity": _runtime_identity(),
         "policy_before": _policy_health(args.policy_endpoint),
         "gpu_before": _gpu_snapshot(),
         "invocation": invocation,

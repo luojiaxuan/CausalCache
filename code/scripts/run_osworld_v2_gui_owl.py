@@ -4,13 +4,20 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib
+import importlib.metadata
 import json
 import multiprocessing
 import os
+import platform
 import queue
+import socket
+import subprocess
 import sys
 import time
+import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +35,88 @@ def _load_config(path: Path) -> dict[str, Any]:
     if value.get("release", {}).get("task_count") != 108:
         raise ValueError("OSWorld 2.0 benchmark task count drifted")
     return value
+
+
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _git_revision(root: Path) -> str:
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
+def _utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _gpu_snapshot() -> list[dict[str, str]]:
+    result = subprocess.run(
+        [
+            "nvidia-smi",
+            "--query-gpu=index,name,uuid,memory.total,memory.used,utilization.gpu",
+            "--format=csv,noheader,nounits",
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        return [{"error": result.stderr.strip()}]
+    keys = (
+        "index",
+        "name",
+        "uuid",
+        "memory_total_mib",
+        "memory_used_mib",
+        "utilization_percent",
+    )
+    return [
+        dict(zip(keys, (part.strip() for part in line.split(",")), strict=True))
+        for line in result.stdout.splitlines()
+        if line.strip()
+    ]
+
+
+def _policy_health(endpoint: str) -> dict[str, Any]:
+    url = endpoint.rstrip("/")
+    if url.endswith("/act"):
+        url = url[:-4]
+    with urllib.request.urlopen(f"{url}/health", timeout=30) as response:
+        value = json.loads(response.read().decode("utf-8"))
+    if response.status != 200 or value.get("status") != "ready":
+        raise RuntimeError("OSWorld 2.0 shared policy is not ready")
+    return value
+
+
+def _safe_policy_health(endpoint: str) -> dict[str, Any]:
+    try:
+        return _policy_health(endpoint)
+    except Exception as error:  # noqa: BLE001
+        return {
+            "status": "unavailable",
+            "error_type": error.__class__.__name__,
+            "error": str(error),
+        }
+
+
+def _runtime_identity() -> dict[str, Any]:
+    versions = {}
+    for package in ("gymnasium", "torch", "transformers"):
+        try:
+            versions[package] = importlib.metadata.version(package)
+        except importlib.metadata.PackageNotFoundError:
+            versions[package] = None
+    return {
+        "hostname": socket.gethostname(),
+        "platform": platform.platform(),
+        "python": sys.version,
+        "packages": versions,
+    }
 
 
 def _import_upstream(root: Path) -> tuple[Any, Any, Any, Any]:
@@ -65,6 +154,7 @@ def _worker(
     spec: dict[str, Any],
 ) -> None:
     osworld_root = Path(spec["osworld_root"])
+    os.environ["OSWORLD_FILE_BASE_URL"] = spec["assets_root"]
     DesktopEnv, resolve_task_json_path, load_task_config, run_single_example = (
         _import_upstream(osworld_root)
     )
@@ -128,7 +218,10 @@ def _worker(
                 result_dir.mkdir(parents=True, exist_ok=True)
                 scores: list[float] = []
                 run_args = argparse.Namespace(
-                    sleep_after_execution=spec["sleep_after_execution_seconds"]
+                    sleep_after_execution=spec["sleep_after_execution_seconds"],
+                    result_dir=spec["result_root"],
+                    checkpoint_eval_mode="off",
+                    trace_guest=False,
                 )
                 run_single_example(
                     agent,
@@ -192,6 +285,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--policy-timeout-seconds", type=float, default=300.0)
     parser.add_argument("--path-to-vm")
     parser.add_argument("--region")
+    parser.add_argument("--assets-root", type=Path)
     parser.add_argument("--preflight", action="store_true")
     parser.add_argument("--output-root", type=Path)
     return parser
@@ -205,12 +299,17 @@ def main() -> None:
     if not config_path.is_absolute():
         config_path = repository_root / config_path
     config = _load_config(config_path)
+    execution = config["execution"]
+    assets_root = (
+        args.assets_root or Path(execution["assets_root"])
+    ).expanduser().resolve()
     split_path = repository_root / config["release"]["memory_split"]
     plan = load_osworld_v2_memory_plan(split_path)
     readiness = validate_osworld_v2_checkout(
         osworld_root,
         require_task_classes=not args.preflight,
         require_assets=not args.preflight,
+        assets_root=assets_root,
     )
     task_ids = (
         [record["task_id"] for record in plan["records"]]
@@ -221,7 +320,6 @@ def main() -> None:
         if args.limit <= 0:
             raise ValueError("OSWorld 2.0 limit must be positive")
         task_ids = task_ids[: args.limit]
-    execution = config["execution"]
     num_envs = args.num_envs or execution["num_envs"]
     if num_envs <= 0:
         raise ValueError("OSWorld 2.0 environment count must be positive")
@@ -240,6 +338,7 @@ def main() -> None:
         "num_envs": num_envs,
         "policy_endpoint": args.policy_endpoint,
         "output_root": str(output_root),
+        "assets_root": str(assets_root),
     }
     if args.preflight:
         print(json.dumps(preflight, sort_keys=True))
@@ -270,6 +369,7 @@ def main() -> None:
         "policy_timeout_seconds": args.policy_timeout_seconds,
         "memory_arm": config["policy"]["memory_arm"],
         "memory_budget": config["policy"]["memory_budget"],
+        "assets_root": str(assets_root),
     }
     workers = [
         context.Process(
@@ -280,6 +380,9 @@ def main() -> None:
         for worker_id in range(active_envs)
     ]
     started = time.perf_counter()
+    started_at = _utc_now()
+    policy_before = _policy_health(args.policy_endpoint)
+    gpu_before = _gpu_snapshot()
     for worker in workers:
         worker.start()
     messages = []
@@ -325,6 +428,21 @@ def main() -> None:
         ),
         "worker_exit_codes": [worker.exitcode for worker in workers],
         "elapsed_seconds": time.perf_counter() - started,
+        "started_at": started_at,
+        "finished_at": _utc_now(),
+        "repository_revision": _git_revision(repository_root),
+        "osworld_revision": readiness["code_revision"],
+        "argv": list(sys.argv),
+        "config_path": str(config_path),
+        "config_sha256": _sha256(config_path),
+        "memory_plan_path": str(split_path),
+        "memory_plan_sha256": _sha256(split_path),
+        "assets_root": str(assets_root),
+        "runtime_identity": _runtime_identity(),
+        "gpu_before": gpu_before,
+        "gpu_after": _gpu_snapshot(),
+        "policy_before": policy_before,
+        "policy_after": _safe_policy_health(args.policy_endpoint),
         "messages": messages,
     }
     output_root.mkdir(parents=True, exist_ok=True)

@@ -96,7 +96,7 @@ def test_gui_owl_actions_map_to_mobileworld_schema() -> None:
     assert mobileworld_action_from_gui_owl(
         GUIOwlV2Action(action="terminate", status="success"),
         screen_size=(100, 200),
-    ) == {"action_type": "finished", "goal_status": "task_complete"}
+    ) == {"action_type": "finished", "text": "success"}
 
 
 def test_mobileworld_manifest_and_config_lock_gui_only_denominator() -> None:
