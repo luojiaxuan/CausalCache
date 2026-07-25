@@ -2,6 +2,13 @@
 
 本目录只保存适合 Git review 的小数据与轻量实验记录，不是大型 artifact 仓库。
 
+MobileWorld-Memory 与 OSWorld 2.0 的 pre-execution task-construction manifests 分别为
+[`manifests/mobileworld_memory_split_v1.json`](manifests/mobileworld_memory_split_v1.json)
+和 [`manifests/osworld_v2_memory_split_v1.json`](manifests/osworld_v2_memory_split_v1.json)。
+前者固定 201-task inventory 与冻结 GUI-Owl 可执行的 117-task roster；后者固定官方
+`osworld-v2-2026.06.24` 的 108-task phenomena split。两者都不含 raw trajectory 或
+benchmark outcome。
+
 ```text
 data/
 ├── fixtures/    # 单测和 contract 使用的最小确定性 fixture

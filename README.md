@@ -20,6 +20,15 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 
 ## 当前结论
 
+> **2026-07-25 新 benchmark substrate：MobileWorld-Memory + OSWorld 2.0。**
+> MobileWorld 201-task inventory 已按冻结 GUI-Owl 可用 interface 锁定 117 个 GUI-only
+> denominator，其中 pre-execution cross-app memory candidates / single-app controls =
+> 62/55；执行拓扑为 Aries 单 GPU 共享一份 GUI-Owl、N 个 CPU/KVM emulator 动态队列。
+> OSWorld 2.0 的 108-task split 直接采用官方 task-construction phenomena：
+> implicit-state memory core=43、dynamic/cross-source/implicit union=65、control=43；
+> gated tasks/assets 尚未获批，正式 runner 当前 fail closed。协议与进展见
+> [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)。
+>
 > **2026-07-25 主线变更:residual-only HGKV 判定 `NO_GO_RESIDUAL_ONLY_SPARSE_OBJECTIVE`。**
 > v5 五臂留出集(494 组 / 176 episodes)显示主 claim `SA − RA` 从 identity 的 **+0.0335**
 > 单调降到 epoch1 的 **−0.0006**(CI [−0.0037,+0.0025])。同一批数据上 `SA − R0` 从 +0.034
@@ -182,6 +191,8 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 - [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md):主线冻结契约(2026-07-23);
 - [`docs/history_gated_mainline_v1_provenance.md`](docs/history_gated_mainline_v1_provenance.md):分支 provenance;
 - [`docs/sealed_zero_shot_policy_matrix_v1.md`](docs/sealed_zero_shot_policy_matrix_v1.md):sealed 零样本评测矩阵 v1(AW,预注册,执行中);
+- [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md):MobileWorld
+  单 GPU 多模拟器 benchmark 与 OSWorld 2.0 task-construction memory split；
 - [`data/results/hgkv_gate_v1/README.md`](data/results/hgkv_gate_v1/README.md):正式 gate PASS 判定表与 s100 provenance;
 - [`data/results/hgkv_selector_v1/README.md`](data/results/hgkv_selector_v1/README.md):Stage-1/Stage-2 与 selected-set gate 的结果、provenance 和 artifact 状态;
 - [`docs/androidworld_task_partition.md`](docs/androidworld_task_partition.md) 与 [`docs/androidworld_stack.md`](docs/androidworld_stack.md):AndroidWorld 冻结 partition 与 benchmark-native stack;
@@ -197,6 +208,7 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 | 内容 | 位置 | 状态 |
 |---|---|---|
 | 代码、配置、论文、轻量结果 | 本 Git 仓库(主线分支 `exp/history-gated-mainline-v1`,保底线在 `main`) | canonical |
+| MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；分支 `luojiaxuan/mobileworld-memory-osworld2` | MobileWorld 117-task run 待执行；OSWorld 2.0 gated substrate blocked |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | History-gated adapter hg-s100 | hyper00 `/data02/jaxan/runs/hgkv-formal-v1/lora-step100.pt`(sha256 前缀 `8f2cc49e1aa0b06c`);副本 hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`;config [`code/configs/causalcache_history_gated_kv_v1.json`](code/configs/causalcache_history_gated_kv_v1.json) | gate PASS(s100 冻结);`PENDING_HF_UPLOAD` |
 | hgkv gate v1 认证 | [`data/results/hgkv_gate_v1/`](data/results/hgkv_gate_v1/README.md);原始行 hyper01 `/data02/jaxan/runs/hgkv-eval/cert/`(s100/frozen 各 5,738 行 jsonl) | 判定表入 Git;逐行 jsonl `PENDING_HF_UPLOAD` |

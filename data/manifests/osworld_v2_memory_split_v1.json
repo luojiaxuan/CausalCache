@@ -1,0 +1,901 @@
+{
+  "construction": {
+    "control_rule": "complement of the memory-stress union",
+    "memory_core_rule": "official implicit_state_inference label",
+    "memory_stress_rule": "union of official dynamic_environment, cross_source_reasoning, and implicit_state_inference labels",
+    "scope_note": "The split is frozen from task-construction labels before policy execution; failure traces do not assign memory dependence."
+  },
+  "counts": {
+    "all_three_phenomena": 8,
+    "cross_source_reasoning": 46,
+    "dynamic_environment": 10,
+    "implicit_state_inference": 43,
+    "memory_core": 43,
+    "memory_stress_union": 65,
+    "non_memory_control": 43
+  },
+  "records": [
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "001"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "002"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "003"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "004"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "005"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "006"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "007"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "008"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "009"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "010"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "011"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "012"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "013"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "014"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "015"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "016"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "017"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "018"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "019"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "020"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "021"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "022"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "023"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "024"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "025"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "026"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "027"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "028"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "029"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "030"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "031"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "032"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "033"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "034"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "035"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "036"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "037"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "038"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "039"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "040"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "041"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "042"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "043"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "044"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "045"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "046"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "047"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "048"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "049"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "050"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "051"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "052"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "053"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "054"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "055"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "056"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "057"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "058"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "059"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "060"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "061"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "062"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "063"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "064"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "065"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "066"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "067"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "068"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "069"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "070"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "071"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "072"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "073"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "074"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "075"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "076"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "077"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "078"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "079"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "080"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "081"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "082"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "083"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "084"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "085"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "086"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "087"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "088"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "dynamic_environment",
+        "implicit_state_inference"
+      ],
+      "task_id": "089"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "090"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "091"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "092"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "093"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "094"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "095"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "096"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "097"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "098"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "099"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "100"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "101"
+    },
+    {
+      "memory_split": "memory_stress_candidate",
+      "phenomena": [
+        "cross_source_reasoning"
+      ],
+      "task_id": "102"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "103"
+    },
+    {
+      "memory_split": "non_memory_control",
+      "phenomena": [],
+      "task_id": "104"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "105"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "cross_source_reasoning",
+        "implicit_state_inference"
+      ],
+      "task_id": "106"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "107"
+    },
+    {
+      "memory_split": "explicit_hidden_state_memory_core",
+      "phenomena": [
+        "implicit_state_inference"
+      ],
+      "task_id": "108"
+    }
+  ],
+  "records_sha256": "a0378284b046bb3021df199768c3d5b1badec002a688742f22ca4ab7aff86d33",
+  "schema_version": "causalcache.osworld_v2.memory_split.v1",
+  "splits": {
+    "memory_core": [
+      "001",
+      "007",
+      "008",
+      "010",
+      "012",
+      "016",
+      "018",
+      "022",
+      "023",
+      "024",
+      "026",
+      "029",
+      "030",
+      "033",
+      "035",
+      "036",
+      "038",
+      "039",
+      "044",
+      "047",
+      "048",
+      "050",
+      "060",
+      "062",
+      "064",
+      "065",
+      "068",
+      "069",
+      "070",
+      "072",
+      "080",
+      "081",
+      "082",
+      "084",
+      "089",
+      "094",
+      "095",
+      "099",
+      "101",
+      "105",
+      "106",
+      "107",
+      "108"
+    ],
+    "memory_stress_union": [
+      "001",
+      "002",
+      "006",
+      "007",
+      "008",
+      "009",
+      "010",
+      "011",
+      "012",
+      "014",
+      "016",
+      "018",
+      "022",
+      "023",
+      "024",
+      "026",
+      "028",
+      "029",
+      "030",
+      "031",
+      "033",
+      "034",
+      "035",
+      "036",
+      "037",
+      "038",
+      "039",
+      "040",
+      "041",
+      "043",
+      "044",
+      "046",
+      "047",
+      "048",
+      "050",
+      "057",
+      "060",
+      "062",
+      "064",
+      "065",
+      "068",
+      "069",
+      "070",
+      "072",
+      "073",
+      "074",
+      "077",
+      "079",
+      "080",
+      "081",
+      "082",
+      "084",
+      "089",
+      "091",
+      "094",
+      "095",
+      "096",
+      "097",
+      "099",
+      "101",
+      "102",
+      "105",
+      "106",
+      "107",
+      "108"
+    ],
+    "non_memory_control": [
+      "003",
+      "004",
+      "005",
+      "013",
+      "015",
+      "017",
+      "019",
+      "020",
+      "021",
+      "025",
+      "027",
+      "032",
+      "042",
+      "045",
+      "049",
+      "051",
+      "052",
+      "053",
+      "054",
+      "055",
+      "056",
+      "058",
+      "059",
+      "061",
+      "063",
+      "066",
+      "067",
+      "071",
+      "075",
+      "076",
+      "078",
+      "083",
+      "085",
+      "086",
+      "087",
+      "088",
+      "090",
+      "092",
+      "093",
+      "098",
+      "100",
+      "103",
+      "104"
+    ]
+  },
+  "substrate_readiness": {
+    "assets_ready": false,
+    "assets_root": "/private/tmp/causalcache-upstreams-20260725/OSWorld-V2/cache/osworld_v2_assets",
+    "code_revision": "2b9b7b4eb73243d557bdbf2998fe18d8e18e19c6",
+    "release": "osworld-v2-2026.06.24",
+    "release_manifest": "/private/tmp/causalcache-upstreams-20260725/OSWorld-V2/benchmark_releases/osworld-v2-2026.06.24.json",
+    "release_manifest_sha256": "d8f9fb126d5f930fffdd6b4f74f7f3da9c81f4118175ccd5c10d1d411d46460e",
+    "task_class_count": 0,
+    "task_classes_ready": false
+  },
+  "upstream": {
+    "code_revision": "2b9b7b4eb73243d557bdbf2998fe18d8e18e19c6",
+    "release": "osworld-v2-2026.06.24",
+    "repository": "https://github.com/xlang-ai/OSWorld-V2",
+    "tag": "v2026.06.24",
+    "task_count": 108
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "causalcache.osworld_v2.benchmark_config.v1",
+  "release": {
+    "name": "osworld-v2-2026.06.24",
+    "code_repository": "https://github.com/xlang-ai/OSWorld-V2",
+    "code_tag": "v2026.06.24",
+    "code_revision": "2b9b7b4eb73243d557bdbf2998fe18d8e18e19c6",
+    "task_dataset": "xlangai/osworld_v2_tasks@v2026.06.24",
+    "asset_dataset": "xlangai/osworld_v2_assets_gated@v2026.06.24",
+    "website_repository": "Task-Web/OSWorld-web@v2026.06.24",
+    "task_count": 108,
+    "memory_split": "data/manifests/osworld_v2_memory_split_v1.json"
+  },
+  "policy": {
+    "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+    "frozen": true,
+    "adapter": null,
+    "dtype": "torch.bfloat16",
+    "memory_arm": "recent",
+    "memory_budget": 4,
+    "effective_visual_tokens_per_image": 480,
+    "max_new_tokens": 256
+  },
+  "execution": {
+    "provider": "docker",
+    "screen_size": [1920, 1080],
+    "num_envs": 12,
+    "max_steps": 500,
+    "sleep_after_execution_seconds": 2.0,
+    "client_password": "osworld-public-evaluation",
+    "require_gated_task_classes": true,
+    "require_gated_assets": true,
+    "result_root": "/data/runs/osworld-v2-memory-v1"
+  },
+  "status": {
+    "code_and_split": "READY",
+    "gated_task_classes": "BLOCKED_HF_ACCESS_APPROVAL",
+    "gated_assets": "BLOCKED_HF_ACCESS_APPROVAL",
+    "benchmark_run": "NOT_STARTED"
+  }
+}

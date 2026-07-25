@@ -1,0 +1,341 @@
+#!/usr/bin/env python3
+"""Run OSWorld 2.0 tasks with concurrent environments and one shared GUI-Owl."""
+
+from __future__ import annotations
+
+import argparse
+import importlib
+import json
+import multiprocessing
+import os
+import queue
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
+from causalcache.osworld_v2 import (
+    GUIOwlOSWorldV2Agent,
+    load_osworld_v2_memory_plan,
+    validate_osworld_v2_checkout,
+)
+
+
+def _load_config(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if value.get("schema_version") != "causalcache.osworld_v2.benchmark_config.v1":
+        raise ValueError("OSWorld 2.0 benchmark config schema drifted")
+    if value.get("release", {}).get("task_count") != 108:
+        raise ValueError("OSWorld 2.0 benchmark task count drifted")
+    return value
+
+
+def _import_upstream(root: Path) -> tuple[Any, Any, Any, Any]:
+    sys.path.insert(0, str(root))
+    sys.path.insert(0, str(root / "scripts/python"))
+    try:
+        desktop_module = importlib.import_module("desktop_env.desktop_env")
+        loader_module = importlib.import_module("task_loader")
+        runner_module = importlib.import_module("lib_run_single")
+    finally:
+        for path in (str(root / "scripts/python"), str(root)):
+            if path in sys.path:
+                sys.path.remove(path)
+    return (
+        desktop_module.DesktopEnv,
+        loader_module.resolve_task_json_path,
+        loader_module.load_task_config,
+        runner_module.run_single_example,
+    )
+
+
+def _result_directory(
+    root: Path,
+    *,
+    split: str,
+    task_id: str,
+) -> Path:
+    return root / "pyautogui" / "screenshot" / "frozen_gui_owl" / split / task_id
+
+
+def _worker(
+    worker_id: int,
+    task_queue: Any,
+    result_queue: Any,
+    spec: dict[str, Any],
+) -> None:
+    osworld_root = Path(spec["osworld_root"])
+    DesktopEnv, resolve_task_json_path, load_task_config, run_single_example = (
+        _import_upstream(osworld_root)
+    )
+    env = None
+    try:
+        env = DesktopEnv(
+            provider_name=spec["provider"],
+            path_to_vm=spec["path_to_vm"],
+            region=spec["region"],
+            action_space="pyautogui",
+            screen_size=tuple(spec["screen_size"]),
+            headless=True,
+            os_type="Ubuntu",
+            require_a11y_tree=False,
+            enable_proxy=True,
+            client_password=spec["client_password"],
+            force_disable_vnc=True,
+            force_disable_recording=True,
+        )
+        agent = GUIOwlOSWorldV2Agent(
+            policy_endpoint=spec["policy_endpoint"],
+            memory_arm=spec["memory_arm"],
+            memory_budget=spec["memory_budget"],
+            screen_size=tuple(spec["screen_size"]),
+            timeout_seconds=spec["policy_timeout_seconds"],
+        )
+        while True:
+            task_id = task_queue.get()
+            if task_id is None:
+                break
+            result_dir = _result_directory(
+                Path(spec["result_root"]),
+                split=spec["split"],
+                task_id=task_id,
+            )
+            result_file = result_dir / "result.txt"
+            if result_file.exists():
+                result_queue.put(
+                    {
+                        "status": "resumed_skip",
+                        "worker_id": worker_id,
+                        "task_id": task_id,
+                    }
+                )
+                continue
+            started = time.perf_counter()
+            try:
+                config_file = resolve_task_json_path(
+                    task_id=task_id,
+                    base_dir=str(osworld_root / "evaluation_examples"),
+                    domain="tasks",
+                    eval_version="v2",
+                )
+                example = load_task_config(
+                    config_file,
+                    task_id=task_id,
+                    base_dir=str(osworld_root / "evaluation_examples"),
+                    domain="tasks",
+                    eval_version="v2",
+                )
+                result_dir.mkdir(parents=True, exist_ok=True)
+                scores: list[float] = []
+                run_args = argparse.Namespace(
+                    sleep_after_execution=spec["sleep_after_execution_seconds"]
+                )
+                run_single_example(
+                    agent,
+                    env,
+                    example,
+                    spec["max_steps"],
+                    example["instruction"],
+                    run_args,
+                    str(result_dir),
+                    scores,
+                )
+                score = scores[-1] if scores else None
+                result_queue.put(
+                    {
+                        "status": "completed",
+                        "worker_id": worker_id,
+                        "task_id": task_id,
+                        "score": score,
+                        "elapsed_seconds": time.perf_counter() - started,
+                    }
+                )
+            except Exception as error:  # noqa: BLE001
+                result_queue.put(
+                    {
+                        "status": "failed",
+                        "worker_id": worker_id,
+                        "task_id": task_id,
+                        "error_type": error.__class__.__name__,
+                        "error": str(error),
+                        "elapsed_seconds": time.perf_counter() - started,
+                    }
+                )
+    except BaseException as error:
+        result_queue.put(
+            {
+                "status": "worker_failed",
+                "worker_id": worker_id,
+                "error_type": error.__class__.__name__,
+                "error": str(error),
+            }
+        )
+        raise
+    finally:
+        if env is not None:
+            env.close()
+
+
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repository-root", type=Path, required=True)
+    parser.add_argument("--osworld-root", type=Path, required=True)
+    parser.add_argument(
+        "--config",
+        type=Path,
+        default=Path("code/configs/causalcache_osworld_v2_memory_v1.json"),
+    )
+    parser.add_argument("--split", choices=("full", "memory_core", "memory_stress_union", "non_memory_control"), default="memory_core")
+    parser.add_argument("--limit", type=int)
+    parser.add_argument("--num-envs", type=int)
+    parser.add_argument("--policy-endpoint", required=True)
+    parser.add_argument("--policy-timeout-seconds", type=float, default=300.0)
+    parser.add_argument("--path-to-vm")
+    parser.add_argument("--region")
+    parser.add_argument("--preflight", action="store_true")
+    parser.add_argument("--output-root", type=Path)
+    return parser
+
+
+def main() -> None:
+    args = _parser().parse_args()
+    repository_root = args.repository_root.expanduser().resolve()
+    osworld_root = args.osworld_root.expanduser().resolve()
+    config_path = args.config
+    if not config_path.is_absolute():
+        config_path = repository_root / config_path
+    config = _load_config(config_path)
+    split_path = repository_root / config["release"]["memory_split"]
+    plan = load_osworld_v2_memory_plan(split_path)
+    readiness = validate_osworld_v2_checkout(
+        osworld_root,
+        require_task_classes=not args.preflight,
+        require_assets=not args.preflight,
+    )
+    task_ids = (
+        [record["task_id"] for record in plan["records"]]
+        if args.split == "full"
+        else list(plan["splits"][args.split])
+    )
+    if args.limit is not None:
+        if args.limit <= 0:
+            raise ValueError("OSWorld 2.0 limit must be positive")
+        task_ids = task_ids[: args.limit]
+    execution = config["execution"]
+    num_envs = args.num_envs or execution["num_envs"]
+    if num_envs <= 0:
+        raise ValueError("OSWorld 2.0 environment count must be positive")
+    output_root = (
+        args.output_root or Path(execution["result_root"])
+    ).expanduser().resolve()
+    preflight = {
+        "status": (
+            "VALID_OSWORLD_V2_MEMORY_PREFLIGHT"
+            if readiness["task_classes_ready"] and readiness["assets_ready"]
+            else "BLOCKED_OSWORLD_V2_GATED_SUBSTRATE"
+        ),
+        "readiness": readiness,
+        "split": args.split,
+        "task_count": len(task_ids),
+        "num_envs": num_envs,
+        "policy_endpoint": args.policy_endpoint,
+        "output_root": str(output_root),
+    }
+    if args.preflight:
+        print(json.dumps(preflight, sort_keys=True))
+        return
+
+    context = multiprocessing.get_context("spawn")
+    task_queue = context.Queue()
+    result_queue = context.Queue()
+    for task_id in task_ids:
+        task_queue.put(task_id)
+    active_envs = min(num_envs, len(task_ids))
+    for _ in range(active_envs):
+        task_queue.put(None)
+    spec = {
+        "osworld_root": str(osworld_root),
+        "result_root": str(output_root),
+        "split": args.split,
+        "provider": execution["provider"],
+        "path_to_vm": args.path_to_vm,
+        "region": args.region,
+        "screen_size": execution["screen_size"],
+        "client_password": execution["client_password"],
+        "max_steps": execution["max_steps"],
+        "sleep_after_execution_seconds": execution[
+            "sleep_after_execution_seconds"
+        ],
+        "policy_endpoint": args.policy_endpoint,
+        "policy_timeout_seconds": args.policy_timeout_seconds,
+        "memory_arm": config["policy"]["memory_arm"],
+        "memory_budget": config["policy"]["memory_budget"],
+    }
+    workers = [
+        context.Process(
+            target=_worker,
+            args=(worker_id, task_queue, result_queue, spec),
+            name=f"osworld-v2-env-{worker_id}",
+        )
+        for worker_id in range(active_envs)
+    ]
+    started = time.perf_counter()
+    for worker in workers:
+        worker.start()
+    messages = []
+    terminal_task_ids: set[str] = set()
+    while len(terminal_task_ids) < len(task_ids):
+        try:
+            message = result_queue.get(timeout=10)
+        except queue.Empty:
+            if any(worker.is_alive() for worker in workers):
+                continue
+            break
+        messages.append(message)
+        if message["status"] in {"completed", "failed", "resumed_skip"}:
+            terminal_task_ids.add(message["task_id"])
+    for worker in workers:
+        worker.join()
+    while True:
+        try:
+            messages.append(result_queue.get_nowait())
+        except queue.Empty:
+            break
+    missing_task_ids = sorted(set(task_ids) - terminal_task_ids)
+    messages.extend(
+        {
+            "status": "failed",
+            "task_id": task_id,
+            "error_type": "WorkerPoolExited",
+            "error": "all OSWorld 2.0 workers exited before returning this task",
+        }
+        for task_id in missing_task_ids
+    )
+    summary = {
+        "status": "COMPLETE_OSWORLD_V2_MEMORY_RUN",
+        "split": args.split,
+        "task_count": len(task_ids),
+        "completed": sum(message["status"] == "completed" for message in messages),
+        "resumed_skips": sum(
+            message["status"] == "resumed_skip" for message in messages
+        ),
+        "failures": sum(message["status"] == "failed" for message in messages),
+        "worker_failures": sum(
+            message["status"] == "worker_failed" for message in messages
+        ),
+        "worker_exit_codes": [worker.exitcode for worker in workers],
+        "elapsed_seconds": time.perf_counter() - started,
+        "messages": messages,
+    }
+    output_root.mkdir(parents=True, exist_ok=True)
+    (output_root / f"summary-{args.split}.json").write_text(
+        json.dumps(summary, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    print(json.dumps(summary, sort_keys=True))
+    if summary["failures"] or summary["worker_failures"]:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()
