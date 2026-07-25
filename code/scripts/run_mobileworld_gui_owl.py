@@ -165,6 +165,10 @@ def main() -> None:
     fleet = _load_json(fleet_path)
     if fleet.get("image") != config["environment"]["image"]:
         raise ValueError("MobileWorld fleet image differs from frozen config")
+    if fleet.get("source_revision") != config["upstream"]["revision"]:
+        raise ValueError("MobileWorld fleet task source revision drifted")
+    if fleet.get("source_mount") != "/app/service/src:ro":
+        raise ValueError("MobileWorld fleet lacks the pinned read-only source mount")
     containers = fleet.get("containers")
     if not isinstance(containers, list) or len(containers) < args.num_envs:
         raise ValueError("MobileWorld fleet has fewer environments than requested")

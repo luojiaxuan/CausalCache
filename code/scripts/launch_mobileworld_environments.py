@@ -86,12 +86,31 @@ def _image_identity(image: str) -> dict[str, Any]:
     }
 
 
+def _git_revision(root: Path) -> str:
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
+
 def launch(args: argparse.Namespace) -> dict[str, Any]:
     if args.count <= 0 or args.count > 16:
         raise ValueError("MobileWorld environment count must be within [1, 16]")
     if not args.name_prefix.startswith("sglang-omni-jaxan-"):
         raise ValueError("MobileWorld emulator prefix violates the shared-host rule")
     image_identity = _image_identity(args.image)
+    source_root = args.source_root.expanduser().resolve()
+    source_revision = _git_revision(source_root)
+    if source_revision != args.expected_source_revision:
+        raise ValueError(
+            "MobileWorld mounted task source revision differs from the frozen revision"
+        )
+    source_directory = source_root / "src"
+    if not (source_directory / "mobile_world").is_dir():
+        raise ValueError("MobileWorld mounted source lacks src/mobile_world")
     launched = []
     for index in range(args.count):
         name = f"{args.name_prefix}{index}"
@@ -104,6 +123,11 @@ def launch(args: argparse.Namespace) -> dict[str, Any]:
             "--detach",
             "--name",
             name,
+            "--mount",
+            (
+                f"type=bind,src={source_directory},"
+                "dst=/app/service/src,readonly"
+            ),
         ]
         for channel, container_port in CONTAINER_PORTS.items():
             command.extend(["-p", f"{ports[channel]}:{container_port}"])
@@ -134,6 +158,9 @@ def launch(args: argparse.Namespace) -> dict[str, Any]:
         "schema_version": "causalcache.mobileworld.environment_fleet.v1",
         "image": args.image,
         "image_identity": image_identity,
+        "source_root": str(source_root),
+        "source_revision": source_revision,
+        "source_mount": "/app/service/src:ro",
         "name_prefix": args.name_prefix,
         "port_seed_sha256": hashlib.sha256(
             args.port_seed.encode("utf-8")
@@ -163,7 +190,12 @@ def cleanup(args: argparse.Namespace) -> dict[str, Any]:
         observed_id = inspect.stdout.strip()
         if observed_id != expected_id:
             raise RuntimeError(f"refusing to stop identity-drifted container {name}")
-        subprocess.run(["docker", "stop", str(name)], check=True)
+        subprocess.run(
+            ["docker", "stop", str(name)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
         stopped.append(
             {"name": name, "container_id": observed_id, "status": "stopped"}
         )
@@ -178,6 +210,8 @@ def main() -> None:
     launch_parser.add_argument("--image", required=True)
     launch_parser.add_argument("--name-prefix", required=True)
     launch_parser.add_argument("--port-seed", required=True)
+    launch_parser.add_argument("--source-root", type=Path, required=True)
+    launch_parser.add_argument("--expected-source-revision", required=True)
     launch_parser.add_argument("--launch-interval-seconds", type=float, default=20)
     launch_parser.add_argument("--ready-timeout-seconds", type=float, default=600)
     launch_parser.add_argument("--output", type=Path, required=True)

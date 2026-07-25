@@ -119,6 +119,9 @@ def test_mobileworld_manifest_and_config_lock_gui_only_denominator() -> None:
     assert len(plan["benchmark_profiles"]["frozen_gui_owl_gui_only"]) == 117
     assert config["benchmark"]["expected_denominator"] == 117
     assert config["capacity"]["auto_retry"] == 2
+    assert config["environment"]["task_source"] == (
+        "pinned_upstream_src_read_only_mount"
+    )
     assert config["environment"]["image"].endswith(
         "@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240"
     )

@@ -11,6 +11,7 @@
     "image_digest": "sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240",
     "requires_privileged": true,
     "requires_kvm": true,
+    "task_source": "pinned_upstream_src_read_only_mount",
     "container_topology": "one_emulator_per_exception_container",
     "host_port_policy": "deterministic_irregular_high_ports",
     "candidate_environment_counts": [1, 2, 4, 8]

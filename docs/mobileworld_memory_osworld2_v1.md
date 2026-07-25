@@ -21,6 +21,8 @@
 - revision：`8ae506487bf87785292d6cad101c49955d704d39`
 - environment image：
   `ghcr.io/tongyi-mai/mobile_world@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240`
+- task/runtime source：上述 Git revision 的 `src/` 只读挂载到 image 的
+  `/app/service/src`；fleet manifest 同时锁定 image digest 与 source revision
 - manifest：[`data/manifests/mobileworld_memory_split_v1.json`](../data/manifests/mobileworld_memory_split_v1.json)
 
 AST inventory 固定 201 个 task class、20 个 app。按官方 interface tag 分为 GUI-only 117、
@@ -89,6 +91,12 @@ container 已确认 privileged、可见 `/dev/kvm`，并把 `/mnt/data6/jiaxuanl
 `/data`（约 494 GiB available）。因此 emulator image/layers 放入 `/data` 上的 inner
 Docker data-root；不得 prune 宿主 Docker，也不得停止或删除既有他人/历史容器。
 
+实机 preflight 发现官方 GHCR digest 内的 task source 早于当前 Git revision：image 内
+`ThanksgivingPrepTask` SHA256=`ba472079...d694`，缺少 `reset_chrome` import，而 frozen
+Git source SHA256=`ee800d1f...f74c`。因此 image 只提供 Android/backend/system layers，
+task/runtime Python source 必须来自 pinned Git 的 read-only `src/` mount；不允许让 image
+内旧 source 静默决定 denominator。
+
 ## 可复现入口
 
 生成与验证两个 construction manifests：
@@ -113,6 +121,8 @@ PYTHONPATH=code python3 code/scripts/launch_mobileworld_environments.py launch \
   --image ghcr.io/tongyi-mai/mobile_world@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240 \
   --name-prefix sglang-omni-jaxan-mw1- \
   --port-seed '<run-secret>' \
+  --source-root /data/upstreams/MobileWorld \
+  --expected-source-revision 8ae506487bf87785292d6cad101c49955d704d39 \
   --output /data/runs/mw-memory-v1/environment-fleet.json
 ```
 
