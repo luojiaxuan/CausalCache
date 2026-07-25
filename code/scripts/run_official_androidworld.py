@@ -5,7 +5,8 @@
 # 的闭环行为,用于校准我们的绝对成功率(论文报 69.0)。与旧 v2.1 私有协议的差异见
 # causalcache.policy.gui_owl_official 的模块注释。记忆预算映射 last_image = B + 1,
 # 因此同一 harness 可直接跑 B=0/1/2/4/8 的消融而不改 prompt。
-# 解析失败按官方转 UNKNOWN 动作:消耗一步、不再调模型、episode 继续。
+# 解析失败按官方转 UNKNOWN 动作:消耗一步、不再调模型、episode 继续;该步同样进
+# 历史(文本 + 完整响应 + 它当时看的那张截图),因为它确实消耗了一步。
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ import queue
 import threading
 import traceback
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 
 from causalcache.policy.gui_owl_official import (
     OFFICIAL_PROTOCOL_ID,
@@ -28,6 +29,7 @@ from causalcache.policy.gui_owl_official import (
 from causalcache.policy.gui_owl_v2 import gui_owl_v2_action_to_androidworld
 from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntime
 from causalcache.set_utility_androidworld import PinnedOnlineOCRProvider
+from scripts.build_sparse_history_dataset import official_response
 from scripts.run_exploratory_closed_loop_episode import (
     EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
     _decode_png,
@@ -39,6 +41,45 @@ from scripts.run_set_utility_androidworld_episode import (
 )
 
 OFFICIAL_MAX_NEW_TOKENS = 256
+
+
+class CompletedStep(NamedTuple):
+    """一个已消耗步的三元组:折叠用文本 / 保留轮完整响应 / 该步条件的截图。
+
+    # note (luojiaxuan): 审计第 4 条(P0)。``build_official_messages`` 现在按**位置**
+    # 把末尾 kept 张截图与末尾 kept 条完整响应配对(image_i 后面紧跟 assistant_i),
+    # 所以"文本历史 / 完整响应 / 高保真截图"三者必须严格等长且同序。旧代码用三个
+    # 独立 list,而且 ``recent_images`` 只在动作真正执行后才 append:任何一次解析
+    # 失败(UNKNOWN 步只 append 文本、不执行动作、不落图)都会让截图相对响应错位
+    # 一格,且错位完全静默——build_official_messages 只检查 kept <= 步数,查不出来。
+    # 改成"一个列表 + 单一 append 点"后,错位在结构上不可能发生:文本与完整响应取
+    # 整个列表,截图取**同一个列表的后缀**,两边的截尾方式因此天然一致。
+    """
+
+    action_text: str
+    full_response: str
+    observation: Any
+
+
+def history_full_response(raw: str, description: str, action: Any | None) -> str:
+    """本步若落进保留轮,回填给模型的 assistant 内容。
+
+    # note (luojiaxuan): 审计第 4 条(P0)的另一半。保留轮必须是模型的**原始完整
+    # 响应**(``Action: ...`` + ``<tool_call>{...}</tool_call>``),缺了就触发
+    # gui_owl_official 的 fail-closed(那个收紧是对的,不能为了跑通而放宽)。
+    # 来源优先级:
+    #   1. 本步生成的 ``raw`` 逐字节原样——注意 step["raw_output"] 是截断到 600
+    #      字符的诊断字段,绝不能拿它当历史来源;
+    #   2. ``raw`` 空白(解码偶发空输出)但动作解析成功时,用与 target_text 同一个
+    #      ``official_response()`` 反向重建,保证与训练语料格式逐字节一致;
+    #   3. 连动作都解析不出来(UNKNOWN 步)时没有合法 tool call 可展示,只给 Action
+    #      行——绝不伪造 tool_call 往上下文里塞一条假示范。
+    """
+    if isinstance(raw, str) and raw.strip():
+        return raw
+    if action is not None:
+        return official_response(description, action.arguments())
+    return f"Action: {description}"
 
 
 class OfficialRuntime:
@@ -121,9 +162,7 @@ def run_official_episode(
         "steps": [],
         "infrastructure_failure": False,
     }
-    past_action_texts: list[str] = []
-    past_full_responses: list[str] = []
-    recent_images: list[Any] = []
+    history: list[CompletedStep] = []
     termination_reason = "step_budget_exhausted"
     unknown_steps = 0
     parse_failures = 0
@@ -137,22 +176,28 @@ def run_official_episode(
         summary["started_nonzero"] = summary["score_before"] != 0.0
         current = environment.screenshot()
         for step_index in range(instance["max_steps"]):
-            keep = max(0, min(last_image - 1, len(recent_images)))
+            # note (luojiaxuan): last_image = B + 1 含当前截图,故历史保留窗口是
+            # last_image - 1;窗口取 history 的**后缀**,与传进去的完整响应列表用的
+            # 是同一条时间线,截尾方式因此不会分叉。
+            keep = max(0, min(last_image - 1, len(history)))
+            window = history[len(history) - keep :] if keep else []
             messages = build_official_messages(
                 goal=instance["goal"],
-                past_action_texts=past_action_texts,
-                past_full_responses=past_full_responses,
-                recent_images=recent_images[len(recent_images) - keep :]
-                if keep
-                else [],
+                past_action_texts=[h.action_text for h in history],
+                past_full_responses=[h.full_response for h in history],
+                recent_images=[h.observation for h in window],
                 current_image=current.image,
             )
             raw = runtime.generate(messages)
+            # 本步模型实际条件其上的截图,先固定住:执行动作后 current 会被换掉
+            observation = current.image
             step: dict[str, Any] = {
                 "step_index": step_index,
                 "raw_output": raw[:600],
                 "high_fidelity_history_image_count": keep,
             }
+            if not (isinstance(raw, str) and raw.strip()):
+                step["full_response_reconstructed"] = True
             try:
                 action, dropped = parse_official_output(raw)
                 if dropped:
@@ -168,11 +213,23 @@ def run_official_episode(
                 step["parse_error"] = str(error)
                 step["canonical_action"] = {"action": "UNKNOWN"}
                 summary["steps"].append(step)
-                past_action_texts.append(extract_action_line(raw) or "unknown action")
-                past_full_responses.append(raw)
+                # note (luojiaxuan): UNKNOWN 步同样要落一条 history。它没执行动作、
+                # 也没重新截图,所以本步的观测就是屏幕当前状态(下一步的 current 与它
+                # 逐字节相同)——这正是当时真实发生的事:模型看着这张图吐了乱码。
+                # 这里若不落图,截图就会比响应少一格,后面每一轮的历史配对全部错位。
+                description = extract_action_line(raw) or "unknown action"
+                history.append(CompletedStep(
+                    description,
+                    history_full_response(raw, description, None),
+                    observation,
+                ))
                 continue
-            past_action_texts.append(extract_action_line(raw) or action.action)
-            past_full_responses.append(raw)
+            description = extract_action_line(raw) or action.action
+            history.append(CompletedStep(
+                description,
+                history_full_response(raw, description, action),
+                observation,
+            ))
             if action.action in ("terminate", "answer"):
                 summary["steps"].append(step)
                 termination_reason = "policy_terminated"
@@ -188,7 +245,6 @@ def run_official_episode(
             step["androidworld_action"] = aw
             summary["steps"].append(step)  # 先记录再执行,便于诊断执行期崩溃
             step["execute_response"] = environment.execute(aw)
-            recent_images.append(current.image)
             current = environment.screenshot()
         summary["score_after"] = environment.score()
         summary["official_terminal_success"] = bool(summary["score_after"] > 0)

@@ -480,6 +480,23 @@ class GUIOwlV21OfficialToolsRuntime(GUIOwlV2Runtime):
             value_device = getattr(value, "device", None)
             if value_device is not None and value_device != self.device:
                 raise RuntimeError(f"processor tensor {key} left the selected CUDA device")
+        self.assert_pinned_assistant_prefix(input_ids, len(conversations))
+        return model_inputs, image_counts
+
+    def assert_pinned_assistant_prefix(
+        self,
+        input_ids: Any,
+        batch_size: int,
+    ) -> None:
+        """Require an encoded prompt batch to end with the pinned assistant prefix.
+
+        # note (luojiaxuan): 这段检查原先只内联在 _encode_exact_batch 里,于是训练侧
+        # 为 official_multiturn / sparse_single_turn 新开的 apply_chat_template 路径
+        # 把它连同 prompt_aligned_input_keys 一起绕过了——"训练 prompt 与闭环推理逐
+        # token 一致"这条断言在五臂上因此没有任何机器校验。提成方法供两条编码路径
+        # 共用(而不是在 trainer 里复制一份实现);v2.1 私有结构校验仍留在
+        # _encode_exact_batch,这里只保留与 prompt 格式无关的收尾不变量。
+        """
         assistant_ids = self.generation_tokens.assistant_prefix_token_ids
         if int(input_ids.shape[1]) < len(assistant_ids):
             raise ValueError("processor prompt is shorter than the official assistant prefix")
@@ -489,9 +506,8 @@ class GUIOwlV21OfficialToolsRuntime(GUIOwlV2Runtime):
             .to(device="cpu")
             .tolist()
         )
-        if observed_tail != [list(assistant_ids) for _ in conversations]:
+        if observed_tail != [list(assistant_ids) for _ in range(batch_size)]:
             raise ValueError("official-tools prompt does not end with the pinned assistant prefix")
-        return model_inputs, image_counts
 
     def prepare_native_message_shape(
         self,

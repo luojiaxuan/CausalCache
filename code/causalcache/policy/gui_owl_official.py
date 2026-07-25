@@ -122,27 +122,55 @@ def build_official_messages(
     past_action_texts: Sequence[str],
     recent_images: Sequence[Any],
     current_image: Any,
-    past_full_responses: Sequence[str] | None = None,
+    past_full_responses: Sequence[str | None] | None = None,
 ) -> list[dict[str, Any]]:
     """Assemble the official multi-turn prompt.
 
     ``past_action_texts`` covers every completed step in order. ``recent_images``
     are the post-action screenshots kept at high fidelity, oldest first; each is
-    paired with the trailing action texts so the transcript reads exactly like the
+    paired with the trailing steps so the transcript reads exactly like the
     official rolling conversation. Steps older than that survive only as text.
+    ``past_full_responses`` carries each step's verbatim assistant response
+    (``Action: ...`` + ``<tool_call>{...}</tool_call>``) and is mandatory for every
+    retained turn; entries for folded steps may be ``None``.
 
     # note (luojiaxuan): 保真要点——官方**保留轮**的 assistant 内容是模型的**完整
     # 响应**(``Action: ...`` + ``<tool_call>{...}</tool_call>``),只有被折叠掉的
     # 更早步骤才抽成纯描述。此前本函数在保留轮里只放裸描述,导致上下文里的历史
     # 示范不含 tool_call,与目标输出格式不一致(实测 teacher-forced 目标 logprob
-    # 低 0.133 nats)。传入 ``past_full_responses`` 即可还原官方行为;缺省时退回
-    # 裸描述以兼容旧调用。
+    # 低 0.133 nats)。传入 ``past_full_responses`` 即可还原官方行为。
+    #
+    # note (luojiaxuan): 审计 P0-1 的修复点。旧行为是"``past_full_responses`` 为空
+    # 就静默退回裸描述",于是构建器从没传过这个参数也没人发现,官方臂 N0 一直跑在
+    # 降级协议上,而"格式效应 +0.133"就是拿这个降级臂量出来的。现在契约收紧为:
+    #   * ``past_full_responses is None`` 只允许在 ``kept == 0``(没有保留轮、
+    #     assistant 内容根本不出现)时使用;
+    #   * 传了列表就必须与 ``past_action_texts`` 等长,被折叠的更早步骤可以填
+    #     ``None``(它们本来就只以纯描述进 history 文本),但**每一个保留轮**都必须
+    #     拿到非空完整响应,否则直接 ValueError,由调用方 fail-closed 丢弃该样本。
     """
     if not isinstance(goal, str) or not goal.strip():
         raise ValueError("goal must be non-empty text")
     kept = len(recent_images)
     if kept > len(past_action_texts):
         raise ValueError("more retained images than completed steps")
+    if past_full_responses is None:
+        if kept:
+            raise ValueError(
+                "past_full_responses is required whenever images are retained; "
+                "retained assistant turns must carry Action + <tool_call>"
+            )
+        source: list[Any] = list(past_action_texts)
+    else:
+        source = list(past_full_responses)
+        if len(source) != len(past_action_texts):
+            raise ValueError("past_full_responses must align with past_action_texts")
+    tail = source[len(source) - kept :] if kept else []
+    for offset, text in enumerate(tail):
+        if not isinstance(text, str) or not text.strip():
+            raise ValueError(
+                f"retained turn {offset} carries no full assistant response"
+            )
     folded = past_action_texts[: len(past_action_texts) - kept] if kept else list(
         past_action_texts
     )
@@ -168,10 +196,6 @@ def build_official_messages(
                 ],
             }
         )
-        source = list(past_full_responses) if past_full_responses else list(past_action_texts)
-        if len(source) != len(past_action_texts):
-            raise ValueError("past_full_responses must align with past_action_texts")
-        tail = source[len(source) - kept :]
         for index in range(1, kept):
             messages.append(
                 {
