@@ -38,6 +38,10 @@ immutable revision、schema/provenance 与生成命令。
 ## 安全与审计
 
 - `~/hf_key.txt`、token、`.secrets/`、raw traces、checkpoints 不得进入 Git；
+- 共享主机上默认不得停止或删除他人的容器。本项目的受控例外是：仅当 luojiaxuan 在当前任务中明确
+  点名目标容器并授权时，可以对该精确目标执行 `docker stop` 或 `docker kill`；授权不得推断、继承或
+  扩展到其他容器，也不包含 `docker rm`、镜像/卷清理、文件删除或全局 prune。执行前必须只读核验
+  container ID、容器名和归属，执行后报告精确结果；
 - 不打开 sealed AndroidWorld test split，不为结果事后修改 prompt、equivalence、threshold 或 task
   denominator；
 - 每个正式结果记录 Git/HF revision、完整 argv、config hash、host/GPU、container digest、library

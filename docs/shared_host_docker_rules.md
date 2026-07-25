@@ -28,7 +28,10 @@
 
 - 容器用途结束**当场** `docker rm`;不积攒 exited 尸体、不留闲置 emulator
   (闲置 GPU 容器会被别人的 preflight 合法击杀,exited 容器会占名字并钉住镜像层)。
-- 只清自己的(sglang-omni-jaxan-* 前缀);**别人的容器、运行中的任务绝不动**;
+- 默认只清自己的(sglang-omni-jaxan-* 前缀),不动别人的容器。唯一受控例外:luojiaxuan 在当前任务中
+  明确点名目标容器并授权后,可对该精确目标执行 `docker stop` 或 `docker kill`;执行前必须只读核验
+  container ID、容器名和归属,执行后报告精确结果。该授权不得推断、跨任务继承或扩展到其他容器,
+  也不包含 `docker rm`、镜像/卷清理或文件删除;
   共享机上不做全局 prune(docker system/image/volume prune 一律禁止)。
 
 ## 5. 跨机传文件的坑(实战教训)
