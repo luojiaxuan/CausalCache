@@ -189,4 +189,15 @@ code/tests/test_gui_owl_sparse_history.py             15 项 prompt 契约测试
 code/tests/test_sparse_history_loss.py                9 项损失数值测试
 ```
 
-数据:hyper00 `/data02/jaxan/artifacts/sft/sparse-v4-final/`(20,502 样本),PENDING_HF_UPLOAD。
+数据集(生成命令,路径相对仓库根):
+
+```bash
+python -m scripts.build_sparse_history_dataset \
+  --selection <selection.json> \
+  --pool-root <guiodyssey-pool>/mobile/use/train \
+  --annotations <guiodyssey-annotations> \
+  --output-root <out> --max-trajectories 1300 --decisions-per-trajectory 3 \
+  --shard-index i --shard-count 32      # 32 路并行,分片输出后合并
+```
+
+产物 20,502 样本,当前staged 于内部集群持久盘,状态 `PENDING_HF_UPLOAD`;上传后此处替换为 Hugging Face repo + revision。

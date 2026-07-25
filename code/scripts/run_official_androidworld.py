@@ -122,6 +122,7 @@ def run_official_episode(
         "infrastructure_failure": False,
     }
     past_action_texts: list[str] = []
+    past_full_responses: list[str] = []
     recent_images: list[Any] = []
     termination_reason = "step_budget_exhausted"
     unknown_steps = 0
@@ -140,6 +141,7 @@ def run_official_episode(
             messages = build_official_messages(
                 goal=instance["goal"],
                 past_action_texts=past_action_texts,
+                past_full_responses=past_full_responses,
                 recent_images=recent_images[len(recent_images) - keep :]
                 if keep
                 else [],
@@ -167,8 +169,10 @@ def run_official_episode(
                 step["canonical_action"] = {"action": "UNKNOWN"}
                 summary["steps"].append(step)
                 past_action_texts.append(extract_action_line(raw) or "unknown action")
+                past_full_responses.append(raw)
                 continue
             past_action_texts.append(extract_action_line(raw) or action.action)
+            past_full_responses.append(raw)
             if action.action in ("terminate", "answer"):
                 summary["steps"].append(step)
                 termination_reason = "policy_terminated"

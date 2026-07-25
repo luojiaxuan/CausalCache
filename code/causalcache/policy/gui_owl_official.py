@@ -122,6 +122,7 @@ def build_official_messages(
     past_action_texts: Sequence[str],
     recent_images: Sequence[Any],
     current_image: Any,
+    past_full_responses: Sequence[str] | None = None,
 ) -> list[dict[str, Any]]:
     """Assemble the official multi-turn prompt.
 
@@ -129,6 +130,13 @@ def build_official_messages(
     are the post-action screenshots kept at high fidelity, oldest first; each is
     paired with the trailing action texts so the transcript reads exactly like the
     official rolling conversation. Steps older than that survive only as text.
+
+    # note (luojiaxuan): 保真要点——官方**保留轮**的 assistant 内容是模型的**完整
+    # 响应**(``Action: ...`` + ``<tool_call>{...}</tool_call>``),只有被折叠掉的
+    # 更早步骤才抽成纯描述。此前本函数在保留轮里只放裸描述,导致上下文里的历史
+    # 示范不含 tool_call,与目标输出格式不一致(实测 teacher-forced 目标 logprob
+    # 低 0.133 nats)。传入 ``past_full_responses`` 即可还原官方行为;缺省时退回
+    # 裸描述以兼容旧调用。
     """
     if not isinstance(goal, str) or not goal.strip():
         raise ValueError("goal must be non-empty text")
@@ -160,7 +168,10 @@ def build_official_messages(
                 ],
             }
         )
-        tail = past_action_texts[len(past_action_texts) - kept :]
+        source = list(past_full_responses) if past_full_responses else list(past_action_texts)
+        if len(source) != len(past_action_texts):
+            raise ValueError("past_full_responses must align with past_action_texts")
+        tail = source[len(source) - kept :]
         for index in range(1, kept):
             messages.append(
                 {
