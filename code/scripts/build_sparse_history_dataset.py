@@ -562,7 +562,6 @@ def main() -> None:
     # note (luojiaxuan): "抽到的 K -> 实际发放的 K" 计数,manifest 必须报出来,
     # 否则 K_mix 与 K_DISTRIBUTION 的偏差就成了一个没人解释得清的黑数。
     downgraded: dict[str, int] = {}
-    stats: dict[str, Any] = {"actions": {}, "K": {}, "history_len": []}
 
     def reject(reason: str) -> None:
         rejected[reason] = rejected.get(reason, 0) + 1
@@ -608,9 +607,19 @@ def main() -> None:
             if any(int(s.get("step", -1)) != i for i, s in enumerate(ann_steps)):
                 reject("annotation_step_index_mismatch")
                 continue
-            if len(ann_steps) != len(acts):
+            # note (luojiaxuan): GUI-Odyssey 的注释比动作**多一条**收尾记录:最后一个
+            # ann step 的 action 恒为 "COMPLETE",表示最终状态,没有对应的模型动作,
+            # 也没有对应截图(实测 len(ann)=len(acts)+1、len(imgs)=len(acts))。
+            # 这里必须按 acts+1 校验并断言收尾标记,写成 len(ann)==len(acts) 会把
+            # 全部轨迹拒光(2026-07-25 实测 1144/1144 被拒)。旧的 min() 截断在
+            # 这一项上恰好无害(acts 与 imgs 等长),所以 v4 语料未因此受损。
+            if len(ann_steps) != len(acts) + 1:
                 reject("annotation_action_length_mismatch")
                 continue
+            if str((ann_steps[-1] or {}).get("action", "")).upper() != "COMPLETE":
+                reject("annotation_missing_terminal_marker")
+                continue
+            ann_steps = ann_steps[:-1]
             raw_imgs = imgs_all[it["row"]]
             imgs = [bytes(x["bytes"]) if isinstance(x, dict) else bytes(x) for x in raw_imgs]
             if len(imgs) < len(acts):
@@ -685,11 +694,8 @@ def main() -> None:
                     "action_texts": acts, "full_responses": full_responses,
                     "current_step": cur, "budget": budget, "sparse_steps": sparse_steps,
                     "recent_steps": recent, "target_text": target_text,
-                    "episode_length": usable,
+                    "episode_length": usable, "target_action": tgt["action"],
                 })
-                stats["actions"][tgt["action"]] = stats["actions"].get(tgt["action"], 0) + 1
-                stats["K"][str(budget)] = stats["K"].get(str(budget), 0) + 1
-                stats["history_len"].append(cur)
                 made += 1
             if made:
                 kept += 1
@@ -700,6 +706,9 @@ def main() -> None:
     rng2 = random.Random(args.seed + 1)
     written = 0
     groups = 0
+    delivered_K: dict[str, int] = {}
+    delivered_actions: dict[str, int] = {}
+    delivered_history_len: list[int] = []
     rows_hist: dict[str, int] = {}
     negative_hist: dict[str, int] = {}
     split_groups: dict[str, int] = {}
@@ -742,6 +751,14 @@ def main() -> None:
                 fh.write(json.dumps(row, ensure_ascii=False) + "\n")
                 written += 1
             groups += 1
+            # note (luojiaxuan): K_mix / target_action_mix 必须统计**实际落盘**的组。
+            # 第一遍入队时计数会把第二遍才发现的拒绝(donor 找不到、历史响应重建
+            # 不出来)算进去,manifest 于是报出比 decision_groups 更大的 K_mix
+            # (2026-07-25 实测 3417 vs 3252),而 manifest 是要发布的凭据。
+            delivered_K[str(spec["budget"])] = delivered_K.get(str(spec["budget"]), 0) + 1
+            act = spec["target_action"]
+            delivered_actions[act] = delivered_actions.get(act, 0) + 1
+            delivered_history_len.append(spec["current_step"])
             rows_hist[str(len(rows))] = rows_hist.get(str(len(rows)), 0) + 1
             split_groups[spec["split"]] = split_groups.get(spec["split"], 0) + 1
             for slot in rows[0]["group_negative_slots"]:
@@ -750,7 +767,7 @@ def main() -> None:
                 donor_total += 1
                 donor_size_hits += int(donor["donor_size_matches"] == spec["budget"])
 
-    hl = sorted(stats["history_len"])
+    hl = sorted(delivered_history_len)
     manifest = {
         "schema_version": SCHEMA_VERSION,
         "trajectories": kept, "filtered_degenerate": filtered,
@@ -758,7 +775,8 @@ def main() -> None:
         "rows_per_group": rows_hist,
         "negatives_present": negative_hist,
         "arms": [spec[0] for spec in ARM_SPECS],
-        "target_action_mix": stats["actions"], "K_mix": stats["K"],
+        "target_action_mix": dict(sorted(delivered_actions.items())),
+        "K_mix": dict(sorted(delivered_K.items())),
         # 稀疏上限撑不住抽到的 K 时降 K(而不是放宽相邻性),这里报降级明细与总数;
         # 降到 0 的决策点计入 rejected_reasons["pool_too_dense_for_sparse"]。
         "budget_downgrades": dict(sorted(downgraded.items())),
