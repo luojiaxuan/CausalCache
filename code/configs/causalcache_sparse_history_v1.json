@@ -20,7 +20,7 @@
     "lr_schedule": "constant",
     "weight_decay": 0.0,
     "micro_batch_size": 1,
-    "gradient_accumulation_steps": 8,
+    "gradient_accumulation_steps": 4,
     "max_grad_norm": 1.0,
     "seed": 271828,
     "gradient_checkpointing": false,
