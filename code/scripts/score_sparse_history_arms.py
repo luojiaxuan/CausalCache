@@ -22,13 +22,31 @@
 # 所以它们只在开头算一次并缓存复用;每个 checkpoint 只需再跑 RA/SA 与三个负样本的
 # active 前向。这既省掉大半算力,也顺带把"bypass 必须与 checkpoint 无关"这条不变量
 # 写进了流程本身。
+#
+# note (luojiaxuan): 494 个留出组 × 三个 checkpoint 单卡约四小时,所以本脚本支持
+# **只对前向分片、绝不对统计分片**的两段式跑法:
+#
+#     # 第一段:M 个进程各占一张卡,只算自己那一份前向,写进共享 --score-cache
+#     for i in 0..M-1:
+#         score_sparse_history_arms.py ... --shard-index i --shard-count M \
+#             --skip-reduction --score-cache CACHE --device cuda:i
+#     # 第二段:一个不分片的进程,全部命中缓存后只做归约
+#     score_sparse_history_arms.py ... --score-cache CACHE --require-cached
+#
+# 分片只决定"这个进程去算哪些留出组的前向",而 bootstrap、gate 判定、composite 与
+# 选点**只在第二段的完整留出集上发生一次**,与单进程跑法逐值相同。分片进程被硬性
+# 要求带 --skip-reduction:在 1/M 的切片上跑一遍 bootstrap 不只是白算,它会产出一份
+# 长得和验收报告一模一样、分母却小了 M 倍的 JSON,而"分母悄悄变小"正是本脚本从第一天
+# 起就在防的那类偏差。
 """
 
 from __future__ import annotations
 
 import argparse
+import fcntl
 import hashlib
 import json
+import os
 import random
 import time
 from collections import Counter
@@ -57,6 +75,10 @@ from scripts.train_success_sft_lora import (
 )
 
 REPORT_SCHEMA = "causalcache.sparse_history_gate_report.v1"
+# 分片进程写的是"我算完了这些前向"的回执,不是验收报告——schema 不同,任何按
+# REPORT_SCHEMA 取数的下游都不会误把切片当成留出集。
+SHARD_REPORT_SCHEMA = "causalcache.sparse_history_score_shard.v1"
+CACHE_FINGERPRINT_KEY = "cache_fingerprint"
 BOOTSTRAP_CLUSTER_UNIT = "episode"
 FROZEN_ADAPTER_KEY = "frozen"
 IDENTITY_ADAPTER_KEY = "identity"
@@ -131,45 +153,323 @@ def sha256_of(path: Path) -> str:
 # ---------------------------------------------------------------------------
 # 打分
 # ---------------------------------------------------------------------------
+def shard_cache_path(path: Path, shard_index: int, shard_count: int) -> Path:
+    """Return the one file this process may write, given the logical cache path.
+
+    # note (luojiaxuan): 不分片时仍旧原样写 ``path``,老 cache 与老命令行完全不受影响;
+    # 分片时每个进程只写自己的 ``<stem>.shardIII-of-CCC<suffix>``。"一个 writer 一个
+    # 文件"是这里唯一的并发模型——共享一个 append 句柄看起来也能用,但两个进程的部分
+    # 写一旦交错,坏掉的是一条**分数**,而分数错了报告照样生成。
+    """
+    if shard_count <= 1:
+        return path
+    return path.with_name(
+        f"{path.stem}.shard{shard_index:03d}-of-{shard_count:03d}{path.suffix}"
+    )
+
+
+def cache_member_paths(path: Path) -> list[Path]:
+    """Every file belonging to one logical cache, in a stable order."""
+    members = [path] if path.is_file() else []
+    members.extend(sorted(path.parent.glob(f"{path.stem}.shard*-of-*{path.suffix}")))
+    return members
+
+
 class ScoreCache:
     """Append-only (adapter, group, arm, mode) -> score cache with resume.
 
     # note (luojiaxuan): 打分是一个几小时量级的多 checkpoint GPU 作业,共享机器上被
     # 别的 session 收掉容器、被 OOM 打断都是常态。每条前向算完就落盘,重启时按
     # cache_key 跳过已完成项,重跑从断点继续而不是从头开始。
+    #
+    # cache_key = ``<adapter_key>|<pair_group>|<arm_slot>|<adapter_mode>``,其中
+    # adapter_key 是 checkpoint 文件的 sha256(或 ``frozen`` / ``identity`` 两个哨兵)。
+    # 这四段已经足以支撑分片:checkpoint 之间靠 sha256 区分,同一条负样本的 active 与
+    # bypass 两次前向靠 adapter_key + mode 区分,不会互相覆盖。**唯一缺的**是"这份
+    # cache 是在哪套 config/模型/语料下算出来的"——单进程时这靠人记着,多进程共享一份
+    # cache 之后,一个参数敲错的分片会把别的模型的分数悄悄混进同一份报告。所以每个分片
+    # 文件的首行写一条 fingerprint,合并时对不上就直接拒绝。
+    #
+    # 写入分两层:热路径是 append + flush(每条前向即刻可恢复,不必等收尾),收尾时再用
+    # 临时文件 + os.replace 把**本进程自己**那份原子地重发一次(去重、排序、fsync)。
+    # 逐条前向都做一次全文件 rename 是 O(n²) 的无谓 IO,而这两层合起来给出的保证是一样
+    # 的:别的进程要么读到旧的完整文件,要么读到新的完整文件;中途崩溃最多在 append 日志
+    # 末尾留半行,而末行残行在读取时是被容忍并跳过的。
     """
 
-    def __init__(self, path: Path | None) -> None:
+    def __init__(
+        self,
+        path: Path | None,
+        *,
+        shard_index: int = 0,
+        shard_count: int = 1,
+        fingerprint: dict[str, Any] | None = None,
+    ) -> None:
         self.path = path
+        self.fingerprint = fingerprint
+        self.shard_path = (
+            None if path is None else shard_cache_path(path, shard_index, shard_count)
+        )
+        # entries 是"我看得见的全部分数"(自己的 + 别的分片已落盘的);own 只装本进程
+        # 这个文件的内容,收尾原子重发时只能写 own,否则每个分片都会把别人的条目抄进
+        # 自己的文件,cache 体积按分片数平方膨胀。
         self.entries: dict[str, float] = {}
+        self.own: dict[str, float] = {}
+        self.sources: list[dict[str, Any]] = []
         self.handle = None
         if path is None:
             return
-        if path.exists():
-            with path.open(encoding="utf-8") as handle:
-                for line in handle:
-                    if not line.strip():
-                        continue
-                    record = json.loads(line)
-                    self.entries[record["cache_key"]] = float(record["score"])
         path.parent.mkdir(parents=True, exist_ok=True)
-        self.handle = path.open("a", encoding="utf-8")
+        for member in cache_member_paths(path):
+            self.sources.append(self._load_member(member))
+        started_empty = (
+            not self.shard_path.exists() or self.shard_path.stat().st_size == 0
+        )
+        self.handle = self.shard_path.open("a", encoding="utf-8")
+        try:
+            fcntl.flock(self.handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError:
+            self.handle.close()
+            self.handle = None
+            raise SystemExit(
+                f"another live process already owns score-cache shard "
+                f"{self.shard_path}; two writers on one shard file lose entries — "
+                "give every concurrent process a distinct --shard-index"
+            )
+        if fingerprint is not None and started_empty:
+            self._write(self.handle, {CACHE_FINGERPRINT_KEY: fingerprint})
+
+    @staticmethod
+    def _write(handle: Any, record: dict[str, Any]) -> None:
+        handle.write(json.dumps(record, sort_keys=True) + "\n")
+        handle.flush()
+
+    def _load_member(self, member: Path) -> dict[str, Any]:
+        """Read one cache file into the merged view, tolerating a torn final line."""
+        with member.open(encoding="utf-8") as handle:
+            lines = handle.readlines()
+        mine = member == self.shard_path
+        loaded = 0
+        torn_tail = False
+        fingerprinted = False
+        for position, line in enumerate(lines, start=1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as error:
+                # note (luojiaxuan): 只有**没有换行结尾的最后一行**允许是残行——那是
+                # 一个分片正在写、或被 SIGKILL 掐在半路的正常状态,丢掉它重算一条前向
+                # 就行。中间出现坏行则是真的损坏(比如两个 writer 抢过同一个文件),
+                # 这时静默跳过等于把一批分数换成"没算过",必须炸掉。
+                if position == len(lines) and not line.endswith("\n"):
+                    torn_tail = True
+                    break
+                raise ValueError(f"{member}:{position} is not JSON: {error}")
+            if CACHE_FINGERPRINT_KEY in record:
+                self._check_fingerprint(member, record[CACHE_FINGERPRINT_KEY])
+                fingerprinted = True
+                continue
+            score = float(record["score"])
+            self.entries[record["cache_key"]] = score
+            if mine:
+                self.own[record["cache_key"]] = score
+            loaded += 1
+        # note (luojiaxuan): 本次改动之前写的 cache 没有 fingerprint 行,拒绝它们会让
+        # 已有的断点全部作废,所以照常接收——但"这份文件没法被校验"必须留在报告里,
+        # 否则一份来路不明的 cache 混进归约后,报告上看不出任何痕迹。
+        return {
+            "path": str(member),
+            "entries": loaded,
+            "torn_tail": torn_tail,
+            "fingerprinted": fingerprinted,
+        }
+
+    def _check_fingerprint(self, member: Path, recorded: dict[str, Any]) -> None:
+        if self.fingerprint is None or recorded == self.fingerprint:
+            return
+        differing = sorted(
+            key
+            for key in set(recorded) | set(self.fingerprint)
+            if recorded.get(key) != self.fingerprint.get(key)
+        )
+        raise SystemExit(
+            f"score cache {member} was produced under a different scoring setup "
+            f"(differing fields: {differing}); merging it would fold another "
+            "model/corpus/config's log-probs into this report"
+        )
 
     def get(self, cache_key: str) -> float | None:
         return self.entries.get(cache_key)
 
     def put(self, cache_key: str, score: float) -> None:
         self.entries[cache_key] = score
+        self.own[cache_key] = score
         if self.handle is not None:
-            self.handle.write(
-                json.dumps({"cache_key": cache_key, "score": score}) + "\n"
-            )
-            self.handle.flush()
+            self._write(self.handle, {"cache_key": cache_key, "score": score})
+
+    def stats(self) -> dict[str, Any]:
+        return {
+            "path": None if self.path is None else str(self.path),
+            "shard_path": None if self.shard_path is None else str(self.shard_path),
+            "merged_entries": len(self.entries),
+            "own_entries": len(self.own),
+            "unfingerprinted_sources": [
+                source["path"]
+                for source in self.sources
+                if not source["fingerprinted"]
+            ],
+            "sources": self.sources,
+        }
 
     def close(self) -> None:
-        if self.handle is not None:
-            self.handle.close()
-            self.handle = None
+        """Atomically republish this process's own shard, then release the lock."""
+        if self.handle is None:
+            return
+        if self.shard_path is not None:
+            temporary = self.shard_path.with_name(self.shard_path.name + ".tmp")
+            with temporary.open("w", encoding="utf-8") as handle:
+                if self.fingerprint is not None:
+                    handle.write(
+                        json.dumps(
+                            {CACHE_FINGERPRINT_KEY: self.fingerprint}, sort_keys=True
+                        )
+                        + "\n"
+                    )
+                for cache_key in sorted(self.own):
+                    handle.write(
+                        json.dumps(
+                            {"cache_key": cache_key, "score": self.own[cache_key]},
+                            sort_keys=True,
+                        )
+                        + "\n"
+                    )
+                handle.flush()
+                os.fsync(handle.fileno())
+            os.replace(temporary, self.shard_path)
+        self.handle.close()
+        self.handle = None
+
+
+class LazyPolicyEngine:
+    """Own the policy runtime and the injected adapter, built on first real forward.
+
+    # note (luojiaxuan): 两段式跑法的第二段是"全部命中缓存后只做归约"。如果归约进程
+    # 照旧先把 8B policy 装进显存、再逐个 torch.load checkpoint,那一步既要排队等一张
+    # 空卡、又会和还在跑的分片抢显存,而它其实一次前向都不做。把 runtime 构造、adapter
+    # 注入与 state_dict 装载全部推迟到**第一次真正的 cache miss**,归约就退化成一个几秒
+    # 钟的纯 CPU 作业;配合 --require-cached,"归约没有偷偷重算任何一条前向"这件事也就
+    # 从"事后看 forward_passes"变成了硬失败。
+    """
+
+    def __init__(
+        self,
+        *,
+        args: argparse.Namespace,
+        config: dict[str, Any],
+        adapter_options: dict[str, Any],
+        torch: Any,
+    ) -> None:
+        self.args = args
+        self.config = config
+        self.adapter_options = adapter_options
+        self.torch = torch
+        self.runtime: Any = None
+        self.merge_size: int | None = None
+        self.wrapped: dict[str, Any] | None = None
+        self.identity_state: dict[str, Any] | None = None
+        self.built = False
+        self._requested_state: Path | None = None
+        self._applied_state: Path | None = None
+        self._state_is_current = True
+
+    def select_adapter_state(self, path: Path | None) -> None:
+        """Declare which checkpoint the next forwards must see (None = identity)."""
+        self._requested_state = path
+        self._state_is_current = False
+
+    def prepare(self) -> Any:
+        """Materialise everything the next forward needs and return the runtime."""
+        if not self.built:
+            self._build()
+        if not self._state_is_current:
+            self._apply_state()
+        return self.runtime
+
+    def _build(self) -> None:
+        args = self.args
+        self.runtime = GUIOwlV21OfficialToolsRuntime(
+            model_dir=args.model_dir,
+            expected_snapshot_manifest=(
+                args.repository_root / self.config["policy_snapshot_manifest"]
+            ),
+            device=args.device,
+            target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
+        )
+        model = self.runtime.model
+        for parameter in model.parameters():
+            parameter.requires_grad_(False)
+        model.config.use_cache = False
+        model.eval()
+
+        from causalcache.policy.history_gated_lora import (
+            history_gated_state_dict,
+            inject_history_gated_kv,
+        )
+
+        self.wrapped = inject_history_gated_kv(
+            model,
+            layer_count=self.adapter_options["layer_count"],
+            rank=self.adapter_options["rank"],
+            alpha=self.adapter_options["alpha"],
+        )
+        for lora in self.wrapped.values():
+            lora.lora_a.requires_grad_(False)
+            lora.lora_b.requires_grad_(False)
+        # note (luojiaxuan): identity 行的定义是"刚注入的零初始化 adapter"。之前它靠
+        # "identity 永远排在 checkpoint 前面"这条排序巧合成立;打分一旦可以从缓存里
+        # 任意跳过若干行,顺序就不再保证,于是把这份原始权重显式存下来,回到 identity
+        # 时装回去,而不是依赖"还没人覆盖过它"。
+        self.identity_state = history_gated_state_dict(self.wrapped)
+        self.merge_size = int(self.runtime.processor.image_processor.merge_size)
+        self.built = True
+
+    def provenance(self) -> dict[str, Any]:
+        """What actually ran the forwards, or None when nothing was computed.
+
+        # note (luojiaxuan): 分数在不同型号的卡上未必逐 bit 相同,而分片让"一份报告里
+        # 的分数来自几张不同的卡"第一次成为常态。这不进 cache fingerprint——因为换卡
+        # 续跑是完全正当的操作,拿它做硬校验会把断点续跑一并否掉——但每个分片跑在什么
+        # 卡上必须留痕,否则日后发现末位不一致时已经无从追查。
+        """
+        if not self.built:
+            return {"device": self.args.device, "computed_forwards": False}
+        name = None
+        try:
+            name = self.torch.cuda.get_device_name(self.runtime.model.device)
+        except Exception:  # noqa: BLE001 - provenance must never break a run
+            name = None
+        return {
+            "device": self.args.device,
+            "device_name": name,
+            "computed_forwards": True,
+        }
+
+    def _apply_state(self) -> None:
+        from causalcache.policy.history_gated_lora import (
+            load_history_gated_state_dict,
+        )
+
+        requested = self._requested_state
+        if requested is None:
+            if self._applied_state is not None:
+                load_history_gated_state_dict(self.wrapped, self.identity_state)
+        else:
+            load_history_gated_state_dict(
+                self.wrapped, self.torch.load(requested, map_location="cpu")
+            )
+        self._applied_state = requested
+        self._state_is_current = True
 
 
 class ArmScorer:
@@ -177,18 +477,18 @@ class ArmScorer:
 
     def __init__(
         self,
-        runtime: Any,
+        engine: LazyPolicyEngine,
         *,
         image_root: Path,
-        merge_size: int,
         torch: Any,
         cache: ScoreCache,
+        require_cached: bool = False,
     ) -> None:
-        self.runtime = runtime
+        self.engine = engine
         self.image_root = image_root
-        self.merge_size = merge_size
         self.torch = torch
         self.cache = cache
+        self.require_cached = require_cached
         self.forwards = 0
         self.cache_hits = 0
 
@@ -208,8 +508,23 @@ class ArmScorer:
         if cached is not None:
             self.cache_hits += 1
             return cached
+        if self.require_cached:
+            # note (luojiaxuan): 归约进程本来就该一条前向都不跑。默默重算的代价不是慢
+            # 一点,而是几小时之后才发现某个分片其实没写完、或者写去了别的 --score-cache,
+            # 而报告已经按一份缺角的留出集出完了。报错里带上 cache 的文件清单:少一个
+            # 分片文件和"某一组算崩了"是两种完全不同的故障,而这一行就能区分。
+            inventory = ", ".join(
+                f"{source['path'].rsplit('/', 1)[-1]}={source['entries']}"
+                for source in self.cache.sources
+            )
+            raise SystemExit(
+                f"--require-cached is set but {cache_key!r} is missing from the score "
+                f"cache {self.cache.path}; some shard did not finish, or wrote to a "
+                f"different cache path. Cache files seen: [{inventory or 'none'}]"
+            )
+        runtime = self.engine.prepare()
         encoded = encode_sample(
-            self.runtime, sample, dataset_root=self.image_root, torch=self.torch
+            runtime, sample, dataset_root=self.image_root, torch=self.torch
         )
         if encoded is None:
             # note (luojiaxuan): 留出集上不允许静默跳过——一条编码不出来的样本会让整组
@@ -223,7 +538,7 @@ class ArmScorer:
         context = adapter_context_for_sample(
             encoded,
             sample,
-            merge_size=self.merge_size,
+            merge_size=self.engine.merge_size,
             adapter_mode=adapter_mode,
             slot=slot,
         )
@@ -231,7 +546,7 @@ class ArmScorer:
             with self.torch.no_grad():
                 value = float(
                     mean_target_logprob(
-                        self.runtime.model, encoded, torch=self.torch
+                        runtime.model, encoded, torch=self.torch
                     ).detach()
                 )
         self.forwards += 1
@@ -643,6 +958,40 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--score-cache", type=Path, default=None)
+    parser.add_argument(
+        "--shard-index",
+        type=int,
+        default=0,
+        help=(
+            "which slice of the heldout pair-groups this process scores; sharding "
+            "splits forwards only, never the statistics"
+        ),
+    )
+    parser.add_argument(
+        "--shard-count",
+        type=int,
+        default=1,
+        help=(
+            "number of scoring processes sharing one --score-cache (default 1 = no "
+            "sharding). Groups are cut as sorted(pair_group)[index::count]."
+        ),
+    )
+    parser.add_argument(
+        "--skip-reduction",
+        action="store_true",
+        help=(
+            "score and cache the forwards, then stop: no bootstrap, no gates, no "
+            "composite, no selection. Required on every sharded process."
+        ),
+    )
+    parser.add_argument(
+        "--require-cached",
+        action="store_true",
+        help=(
+            "fail on the first cache miss instead of running the forward; the "
+            "reduction pass over a shard-filled cache should never compute anything"
+        ),
+    )
     parser.add_argument("--heartbeat", type=Path, default=None)
     parser.add_argument("--progress-every", type=int, default=25)
     parser.add_argument("--bootstrap-replicates", type=int, default=2000)
@@ -676,6 +1025,31 @@ def main() -> None:
         raise SystemExit("--bootstrap-replicates must be positive")
     if not 0.0 < args.bootstrap_confidence < 1.0:
         raise SystemExit("--bootstrap-confidence must lie strictly inside (0, 1)")
+    if args.shard_count < 1:
+        raise SystemExit("--shard-count must be at least 1")
+    if not 0 <= args.shard_index < args.shard_count:
+        raise SystemExit(
+            f"--shard-index {args.shard_index} must lie inside "
+            f"[0, --shard-count={args.shard_count})"
+        )
+    if args.shard_count > 1 and args.score_cache is None:
+        raise SystemExit(
+            "--shard-count > 1 requires --score-cache: shards hand their work to the "
+            "reduction pass through the cache and nothing else, so without one every "
+            "forward they compute is thrown away"
+        )
+    if args.shard_count > 1 and not args.skip_reduction:
+        # note (luojiaxuan): 这条必须是硬失败而不是警告。一个分片进程手里只有 1/M 的
+        # 留出组,在它上面跑 bootstrap/gate/选点会产出一份**结构上与验收报告完全一样、
+        # 分母却小了 M 倍**的 JSON;等它被误当成结论,已经没有任何字段能提示区别。
+        raise SystemExit(
+            "a sharded process only holds 1/--shard-count of the heldout set; running "
+            "the bootstrap, gates and selection on that slice would silently shrink "
+            "the statistical denominator. Pass --skip-reduction on every shard, then "
+            "run one unsharded pass over the shared --score-cache to reduce."
+        )
+    if args.require_cached and args.score_cache is None:
+        raise SystemExit("--require-cached is meaningless without --score-cache")
 
     import torch
 
@@ -695,12 +1069,62 @@ def main() -> None:
         raise SystemExit("the corpus carries no heldout pair-groups to score")
     if args.max_groups:
         groups = dict(sorted(groups.items())[: args.max_groups])
+    # note (luojiaxuan): 分片切在 --max-groups 截断**之后**,所以 M 个分片的并集与
+    # 同样参数的单进程 run 是**逐组相同**的集合,不多不少。切法是排序后的
+    # [index::count],纯确定性、不读环境、不掷随机数——换一台机器、换一个启动顺序,
+    # 第 i 个分片拿到的组一定还是这一批,断点续跑才谈得上"接着算"。
+    reduction_groups = groups
+    if args.shard_count > 1:
+        assigned = sorted(groups)[args.shard_index :: args.shard_count]
+        groups = {pair_group: groups[pair_group] for pair_group in assigned}
+        if not groups:
+            raise SystemExit(
+                f"shard {args.shard_index}/{args.shard_count} covers no pair-group; "
+                f"only {len(reduction_groups)} groups are in play, so --shard-count "
+                "is larger than the heldout set"
+            )
     group_episode = {
         pair_group: samples[group[SPARSE_POSITIVE_SLOT]]["episode"]
-        for pair_group, group in groups.items()
+        for pair_group, group in reduction_groups.items()
     }
 
     image_root = args.image_root or args.dataset_root
+
+    def per_shard(path: Path) -> Path:
+        """Give each shard its own file so concurrent writers cannot clobber.
+
+        # note (luojiaxuan): --output 与 --heartbeat 都是"一个进程一个文件"的东西。
+        # 分片时让四个进程共用同一个路径,报告会互相覆盖(活下来那份看上去完全正常),
+        # 心跳会互相刷新(于是一个已经死掉的分片的心跳被别人续着,监控永远发现不了)。
+        # 与其指望调用方每次都记得手工加后缀,不如在这里改名并把结果打印出来。
+        """
+        if args.shard_count <= 1:
+            return path
+        return path.with_name(
+            f"{path.stem}.shard{args.shard_index:03d}"
+            f"-of-{args.shard_count:03d}{path.suffix}"
+        )
+
+    output_path = per_shard(args.output)
+    heartbeat_path = None if args.heartbeat is None else per_shard(args.heartbeat)
+    if args.shard_count > 1:
+        print(
+            json.dumps(
+                {
+                    "shard": f"{args.shard_index}/{args.shard_count}",
+                    "pair_groups": len(groups),
+                    "output": str(output_path),
+                    "heartbeat": None if heartbeat_path is None else str(heartbeat_path),
+                    "score_cache_shard": str(
+                        shard_cache_path(
+                            args.score_cache, args.shard_index, args.shard_count
+                        )
+                    ),
+                },
+                sort_keys=True,
+            ),
+            flush=True,
+        )
     started = time.time()
     heartbeat_state: dict[str, Any] = {}
 
@@ -718,48 +1142,42 @@ def main() -> None:
             }
         )
         print(json.dumps({"scoring_progress": heartbeat_state}), flush=True)
-        if args.heartbeat is not None:
-            args.heartbeat.parent.mkdir(parents=True, exist_ok=True)
-            args.heartbeat.write_text(
+        if heartbeat_path is not None:
+            heartbeat_path.parent.mkdir(parents=True, exist_ok=True)
+            heartbeat_path.write_text(
                 json.dumps(heartbeat_state, sort_keys=True) + "\n", encoding="utf-8"
             )
 
-    runtime = GUIOwlV21OfficialToolsRuntime(
-        model_dir=args.model_dir,
-        expected_snapshot_manifest=(
-            args.repository_root / config["policy_snapshot_manifest"]
+    engine = LazyPolicyEngine(
+        args=args, config=config, adapter_options=adapter_options, torch=torch
+    )
+
+    # note (luojiaxuan): fingerprint 只覆盖"换了它分数就该变"的输入。它的作用不是版本
+    # 管理,而是挡住分片流程新引入的那一类事故:四条命令行里有一条把 --model-dir 或
+    # --dataset-root 敲错,它照样能算出合法的浮点数并写进同一份共享 cache,归约进程
+    # 全部命中、报告正常生成,而其中 1/4 的分数来自另一个模型。
+    cache_fingerprint = {
+        "config_sha256": sha256_of(args.config),
+        "model_dir": str(args.model_dir),
+        "dataset_root": str(args.dataset_root),
+        "image_root": str(image_root),
+        "adapter_type": adapter_type,
+        "adapter_options": json.loads(
+            json.dumps(adapter_options, sort_keys=True, default=str)
         ),
-        device=args.device,
-        target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
+    }
+    cache = ScoreCache(
+        args.score_cache,
+        shard_index=args.shard_index,
+        shard_count=args.shard_count,
+        fingerprint=cache_fingerprint,
     )
-    model = runtime.model
-    for parameter in model.parameters():
-        parameter.requires_grad_(False)
-    model.config.use_cache = False
-    model.eval()
-
-    from causalcache.policy.history_gated_lora import (
-        inject_history_gated_kv,
-        load_history_gated_state_dict,
-    )
-
-    wrapped = inject_history_gated_kv(
-        model,
-        layer_count=adapter_options["layer_count"],
-        rank=adapter_options["rank"],
-        alpha=adapter_options["alpha"],
-    )
-    for lora in wrapped.values():
-        lora.lora_a.requires_grad_(False)
-        lora.lora_b.requires_grad_(False)
-
-    cache = ScoreCache(args.score_cache)
     scorer = ArmScorer(
-        runtime,
+        engine,
         image_root=image_root,
-        merge_size=int(runtime.processor.image_processor.merge_size),
         torch=torch,
         cache=cache,
+        require_cached=args.require_cached,
     )
 
     try:
@@ -786,10 +1204,7 @@ def main() -> None:
 
         entries: list[dict[str, Any]] = []
         for order_index, (label, path, adapter_key) in enumerate(planned):
-            if path is not None:
-                load_history_gated_state_dict(
-                    wrapped, torch.load(path, map_location="cpu")
-                )
+            engine.select_adapter_state(path)
             active = score_active_arms(
                 scorer,
                 samples,
@@ -798,6 +1213,20 @@ def main() -> None:
                 label=label,
                 progress=progress,
             )
+            if args.skip_reduction:
+                print(
+                    json.dumps(
+                        {
+                            "checkpoint_scored": label,
+                            "reduction": "skipped",
+                            "shard": f"{args.shard_index}/{args.shard_count}",
+                            "pair_groups": len(groups),
+                        },
+                        sort_keys=True,
+                    ),
+                    flush=True,
+                )
+                continue
             per_quantity = group_quantities(
                 samples,
                 groups,
@@ -894,6 +1323,67 @@ def main() -> None:
                 flush=True,
             )
 
+        sharding = {
+            "shard_index": args.shard_index,
+            "shard_count": args.shard_count,
+            "scored_pair_groups": len(groups),
+            "group_slice": (
+                "all"
+                if args.shard_count == 1
+                else f"sorted(pair_group)[{args.shard_index}::{args.shard_count}]"
+            ),
+            "reduction_ran": not args.skip_reduction,
+        }
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        if args.skip_reduction:
+            # note (luojiaxuan): 分片进程的产物是一张"我把这些组的前向算完并落盘了"的
+            # 回执,schema 与验收报告不同,里面没有任何 derived_quantities / gates /
+            # selection 字段——不是省略,是根本不存在,所以没有人能从这份 JSON 里读出
+            # 一个分母只有 1/M 的结论。真正的交付物是 --score-cache 里的分数。
+            shard_report = {
+                "schema_version": SHARD_REPORT_SCHEMA,
+                "config_path": str(args.config),
+                "config_sha256": sha256_of(args.config),
+                "dataset_root": str(args.dataset_root),
+                "image_root": str(image_root),
+                "sharding": sharding,
+                "scored_labels": [entry[0] for entry in planned],
+                "pair_groups_scored": sorted(groups),
+                "score_cache": cache.stats(),
+                "cache_fingerprint": cache_fingerprint,
+                "scoring_device": engine.provenance(),
+                "smoke_run": bool(args.max_groups),
+                "group_limit_applied": args.max_groups or None,
+                "forward_passes": scorer.forwards,
+                "cache_hits": scorer.cache_hits,
+                "elapsed_seconds": round(time.time() - started, 1),
+                "note": (
+                    "forward-only shard: bootstrap, gates, composite and selection are "
+                    "deliberately absent and must be produced by one unsharded pass "
+                    "over the shared score cache"
+                ),
+            }
+            output_path.write_text(
+                json.dumps(shard_report, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+            print(
+                json.dumps(
+                    {
+                        "shard_report": str(output_path),
+                        "shard": f"{args.shard_index}/{args.shard_count}",
+                        "pair_groups_scored": len(groups),
+                        "forward_passes": scorer.forwards,
+                        "cache_hits": scorer.cache_hits,
+                        "elapsed_seconds": round(time.time() - started, 1),
+                    },
+                    sort_keys=True,
+                ),
+                flush=True,
+            )
+            return
+
         selection = select_checkpoint(entries, compiled["selection_rule"])
         if args.max_groups:
             selection["reason"] = (
@@ -957,6 +1447,10 @@ def main() -> None:
                     "every interval by roughly sqrt(groups per episode)"
                 ),
             },
+            "sharding": sharding,
+            "score_cache": cache.stats(),
+            "scoring_device": engine.provenance(),
+            "require_cached": args.require_cached,
             "forward_passes": scorer.forwards,
             "cache_hits": scorer.cache_hits,
             "elapsed_seconds": round(time.time() - started, 1),
@@ -964,14 +1458,13 @@ def main() -> None:
             "identity_consistency": identity_consistency,
             "selection": selection,
         }
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(
+        output_path.write_text(
             json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
         print(
             json.dumps(
                 {
-                    "gate_report": str(args.output),
+                    "gate_report": str(output_path),
                     "selected_checkpoint": selection["selected"],
                     "eligible_checkpoints": selection["eligible"],
                 },

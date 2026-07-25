@@ -637,6 +637,184 @@ def build_sparse_history_heldout_units(
     return groups
 
 
+# ---------------------------------------------------------------------------
+# rank 调度:按 K 分桶拉平 accumulation window 内的 straggler
+# ---------------------------------------------------------------------------
+# note (luojiaxuan): 这一段**只决定"哪个 rank 在哪个 accumulation window 里跑哪一
+# 组"**,不碰任何一处损失算术。能这么做的前提是现有切分方式的一条性质:旧代码
+# ``shard = order[rank::world_size]`` 配合 ``(position + 1) % accumulation == 0``
+# 处的 all_reduce,意味着第 w 个优化步恰好消费 ``order`` 上连续的一段
+# ``order[w*B : (w+1)*B]``(B = accumulation * world_size),各 rank 只是按 stride
+# 从这 B 组里各取 accumulation 组;梯度先在 rank 内累加、再 all_reduce 求和除以
+# world_size,所以**一个优化步的总梯度只取决于这 B 组的集合,与谁跑哪一组无关**。
+# 于是"在 block 内重新分配"是逐步等价的:同一个 seed 下每一个优化步看到的组集合
+# 与旧代码逐组相同,只是各 rank 到达梯度同步屏障的时间被拉平了(K=1 组 6 次前向、
+# K≥2 组 12 次前向,随机切分下同一 window 内快慢差可到 2 倍,快的 rank 空等)。
+#
+# 三条不能做的事,每一条都会**静默**改变训练而不是报错:
+#   * 跨 block 搬运组——会改变某个优化步的组集合,即改变那一步的梯度;
+#   * 全局按 K 排序——K 的分布会随训练进程漂移,后期梯度分布突变;
+#   * 改变任一 rank 的 shard 长度——``(position + 1) % accumulation`` 的屏障位置
+#     会整体错位,连"哪些组进同一个优化步"都不再对得上。
+# 因此:只在**整块**内做平衡,末尾不满一个 block 的尾巴照旧走 stride(full*block 是
+# world_size 的整数倍,尾部 offset % world_size 与旧代码的全局 position % world_size
+# 逐个相同),各 rank 的 shard 长度与旧代码完全一致。
+def sparse_group_schedule_cost(
+    samples: list[dict[str, Any]], group: dict[str, int]
+) -> tuple[int, int]:
+    """Return ``(forward_count, budget)`` — one pair-group's scheduling cost proxy.
+
+    # note (luojiaxuan): 纯启发式,只喂给调度器,**永远不进损失**,估偏了最多是没把
+    # 屏障拉平,不会动到任何一个梯度。前向次数按两遍法数:SA + R0 两次 no-grad,每个
+    # 负样本 active/bypass 各一次 no-grad,再加最多 1+n 次带梯度前向,合计 3*(1+n)。
+    # K=1 组的 shuffled/duplicate 与 SA 逐字节相同因而不入库(n=1 → 6 次),K≥2 组
+    # n=3 → 12 次,正好是实测的约 2 倍差。budget 作次要项:同为 n=3 的组里 K=4 的
+    # 序列比 K=2 长(每臂 K+1 张图),前向次数拉平之后再拉平图数,屏障对得更紧。
+    """
+    negatives = sum(
+        1 for index in group.values() if samples[index]["role"] == "negative"
+    )
+    budget = int(samples[group[SPARSE_POSITIVE_SLOT]]["budget"])
+    return 3 * (1 + negatives), budget
+
+
+def _assert_shard_partition_preserved(
+    order: list[int],
+    shards: list[list[int]],
+    stride: list[list[int]],
+    *,
+    world_size: int,
+    accumulation: int,
+    full_blocks: int,
+) -> None:
+    """Fail-closed proof that bucketing only permuted ranks **inside** one window.
+
+    # note (luojiaxuan): 三条不变量,任何一条破了训练都会悄悄变成另一个实验:
+    #   1. 组的**多重集**逐组相同——不丢组、不重复组(集合相等 + 每组计数相等);
+    #   2. 每个 rank 的 shard 长度与旧 stride 切分逐个相同——屏障位置一个不动;
+    #   3. 每个 accumulation window 的组集合与旧 stride 切分相同——这一条才是
+    #      "每个优化步的总梯度不变"的充要条件,前两条只是它的必要条件。
+    # 断言而不是单元测试:分桶是每个 epoch 现算的,真正要挡的是"某次改了成本函数或
+    # 块大小之后,某个 epoch 的某个 window 悄悄少了一组",那只有在线检查才拦得住。
+    """
+    produced: dict[int, int] = {}
+    for shard in shards:
+        for unit_index in shard:
+            produced[unit_index] = produced.get(unit_index, 0) + 1
+    expected: dict[int, int] = {}
+    for unit_index in order:
+        expected[unit_index] = expected.get(unit_index, 0) + 1
+    if produced != expected:
+        raise AssertionError(
+            "K-bucketing changed the multiset of training units "
+            f"({len(produced)} distinct vs {len(expected)} expected)"
+        )
+    lengths = [len(shard) for shard in shards]
+    stride_lengths = [len(part) for part in stride]
+    if lengths != stride_lengths:
+        raise AssertionError(
+            f"K-bucketing changed shard lengths {lengths} != {stride_lengths}; "
+            "the gradient-sync barrier would move"
+        )
+    block = accumulation * world_size
+    for window in range(full_blocks):
+        low = window * accumulation
+        seen: dict[int, int] = {}
+        for shard in shards:
+            for unit_index in shard[low : low + accumulation]:
+                seen[unit_index] = seen.get(unit_index, 0) + 1
+        want: dict[int, int] = {}
+        for unit_index in order[window * block : (window + 1) * block]:
+            want[unit_index] = want.get(unit_index, 0) + 1
+        if seen != want:
+            raise AssertionError(
+                f"accumulation window {window} no longer consumes the same "
+                "pair-groups; that optimizer step's total gradient would change"
+            )
+
+
+def balanced_sparse_shards(
+    order: list[int],
+    costs: dict[int, tuple[int, int]],
+    *,
+    world_size: int,
+    accumulation: int,
+) -> list[list[int]]:
+    """Split one epoch's shuffled unit order into cost-balanced per-rank shards.
+
+    ``order`` is the already-seed-shuffled unit ordering; ``costs`` maps a unit
+    index to :func:`sparse_group_schedule_cost`. Returns one shard per rank.
+
+    # note (luojiaxuan): 策略 = 「先按 seed 全局打散 → 切成 B = accumulation *
+    # world_size 的整块 → 块内 LPT(longest-processing-time)装箱,每个 rank 恰好
+    # accumulation 组」。选 LPT 而不是"按 K 分层再 round-robin"是因为后者在 K 分布
+    # 不整除 world_size 时(实际分布 0.15/0.25/0.25/0.35)仍会留下整组的偏斜,而
+    # LPT 直接对着代价装箱,块内各 rank 的前向次数差最多一组的代价。
+    # 随机性从两处进来,所以不会出现"所有 K=4 排到最后"的梯度分布漂移:
+    #   * 块的划分来自 seed 打散后的 order,块与块之间的 K 组成仍是随机的;
+    #   * 块内并列代价的 tie-break 用**打散后的次序**(而不是单元编号),分配本身
+    #     也就继承了 seed 的随机性;
+    #   * 装箱完成后,每个 rank 块内的遍历次序退回打散后的 order 次序,不留"每个
+    #     window 都先重后轻"这种人造结构(优化步只在 window 末尾发生,块内次序对
+    #     梯度无影响,这一步纯粹是不给后续分析引入假信号)。
+    # 确定性:全过程是 (order, costs, world_size, accumulation) 的纯函数,不再抽随机
+    # 数,所以同 seed 逐组可复现;也因此**每个 rank 各自算出的是同一份分配**,不需要
+    # 任何通信——若这里引入了 rank 相关的随机性,各 rank 的 window 就会分叉。
+    """
+    stride = [order[rank::world_size] for rank in range(world_size)]
+    if world_size < 2 or accumulation < 1:
+        return stride
+    block = accumulation * world_size
+    full_blocks = len(order) // block
+    shards: list[list[int]] = [[] for _ in range(world_size)]
+    for window_index in range(full_blocks):
+        start = window_index * block
+        window = order[start : start + block]
+        heavy_first = sorted(
+            range(len(window)),
+            key=lambda position: (
+                -costs[window[position]][0],
+                -costs[window[position]][1],
+                position,
+            ),
+        )
+        # loads[rank] = [前向次数累计, 预算累计, rank];容量硬上限是 accumulation。
+        loads = [[0, 0, rank] for rank in range(world_size)]
+        picked: list[list[int]] = [[] for _ in range(world_size)]
+        for position in heavy_first:
+            forwards, budget = costs[window[position]]
+            # note (luojiaxuan): 并列时的 rank 名次按 window 轮转。不轮转的话所有
+            # load 都从 0 起步、并列一律给最小 rank,于是**每个 window 最重的那一组
+            # 恒定落在 rank 0**;梯度是全 rank 求和因而不受影响,但 rank 0 打印的
+            # mean_loss 是它本地那 8 组的均值,会被系统性地偏向大 K 组,让日志里的
+            # 损失曲线偏离全局均值。轮转后这个"接最重一组"的角色在各 rank 间平摊,
+            # 且仍是 (window_index, rank) 的纯函数,确定性不受影响。
+            target = min(
+                (load for load in loads if len(picked[load[2]]) < accumulation),
+                key=lambda load: (
+                    load[0],
+                    load[1],
+                    (load[2] - window_index) % world_size,
+                ),
+            )
+            target[0] += forwards
+            target[1] += budget
+            picked[target[2]].append(position)
+        for rank in range(world_size):
+            shards[rank].extend(window[position] for position in sorted(picked[rank]))
+    for offset, unit_index in enumerate(order[full_blocks * block :]):
+        shards[offset % world_size].append(unit_index)
+    _assert_shard_partition_preserved(
+        order,
+        shards,
+        stride,
+        world_size=world_size,
+        accumulation=accumulation,
+        full_blocks=full_blocks,
+    )
+    return shards
+
+
 def sparse_diagnostic_keys(negative_kind: str) -> tuple[str, str]:
     """Return (rank-gap key, drift key) for one negative kind — the gate spelling.
 
@@ -893,6 +1071,21 @@ def history_sample_context(
     )
 
 
+def effective_adapter_mode(
+    sample: dict[str, Any], adapter_mode: str | None = None
+) -> str:
+    """The adapter mode one forward actually runs under — the only definition.
+
+    # note (luojiaxuan): 这行分派("显式覆盖优先,否则以样本字段为准")原来只存在于
+    # adapter_context_for_sample 里。冻结分数缓存必须问同一个问题——"这次前向到底跑
+    # 在不在 adapter 上"——而它在 encode 之前就得知道答案(命中就不 encode 了),
+    # 拿不到 context。抄一份判断正是审计 P0-4 点名的分叉成因(两处对"谁 bypass"给出
+    # 不同答案时,日志里看不出任何异常),所以提成一个函数,两个调用方共用。
+    # 样本缺 adapter_mode 字段时故意 KeyError,不给任何默认值。
+    """
+    return sample["adapter_mode"] if adapter_mode is None else adapter_mode
+
+
 def adapter_context_for_sample(
     encoded: dict[str, Any],
     sample: dict[str, Any],
@@ -926,7 +1119,7 @@ def adapter_context_for_sample(
     # 解析,五臂契约就会在"训练"与"验收"两处分叉,而这种分叉在日志里看不出来。
     """
     label = slot if slot is not None else sample.get("arm_slot")
-    mode = sample["adapter_mode"] if adapter_mode is None else adapter_mode
+    mode = effective_adapter_mode(sample, adapter_mode)
     if mode == "bypass":
         return None
     if mode != "active":
@@ -938,6 +1131,238 @@ def adapter_context_for_sample(
             "empty history token mask"
         )
     return context
+
+
+# ---------------------------------------------------------------------------
+# 冻结 bypass 分数的磁盘缓存(默认关闭)
+# ---------------------------------------------------------------------------
+# note (luojiaxuan): 可缓存量的定义:一次 **no-grad 且有效 adapter 模式为 bypass**
+# 的 teacher-forced 打分。这种前向跑在冻结策略上,与 adapter 参数完全无关,因此对
+# 同一条样本在整个训练过程中恒定 —— 缓存命中返回的是与重算**逐位相同**的 float,
+# 损失与各前向的次梯度权重一个都不变。当前每组命中 4 次:P1-4 的 3 个 per-negative
+# bypass 锚点 ℓn⁰,以及 R0 参考臂本身(它的样本字段就写着 adapter_mode=bypass)。
+#
+# 收益边界,别误读:``epochs=1`` 的正常训练里每组只见一次,**这一轮一次都不会命中**,
+# 提速为 0(只多写一份缓存)。真正吃到 12→8 次前向(约 33%)的是**第二遍及以后**:
+# 多 epoch、断点重跑同一份语料、以及固定语料只扫超参的搜索。所以这个开关默认关闭,
+# 由调用方在确实会重复扫同一份语料时显式打开。
+#
+# 正确性由指纹保证,而不是由"目录名不同"这种约定保证:分数由 (冻结模型快照, 语料,
+# 编码路径, 视觉 token 预算, 打分函数) 共同决定,其中任何一项变了,旧数就不再是这条
+# 样本的分数。指纹逐条存在记录里,不匹配即当未命中重算 —— 绝不静默复用。
+FROZEN_SCORE_CACHE_SCHEMA = "causalcache.frozen_bypass_score_cache.v1"
+_FROZEN_SCORE_SHARD_GLOB = "scores-rank*.jsonl"
+
+
+def frozen_score_cache_base_digest(
+    *,
+    policy_snapshot_sha256: str,
+    model_dir: Path,
+    dataset_manifest_sha256: str,
+    visual_tokens_per_image: int,
+) -> str:
+    """Digest of everything **global** a frozen bypass score depends on.
+
+    # note (luojiaxuan): 逐项的理由(少任何一项都会造成静默复用旧分数):
+    #   * policy_snapshot_sha256 —— 冻结策略快照的 revision。换模型即换分数,这是
+    #     最要命的一项,单靠 model_dir 路径挡不住"同一路径换了权重";
+    #   * model_dir —— 同一份快照 manifest 也可能指向不同的本地落盘副本;
+    #   * dataset_manifest_sha256 —— 分数是 messages/target_text 的函数,而 key 用的
+    #     sample_id 只是 "<pair_group>|<arm_slot>",重建语料后同名样本内容会变;
+    #   * visual_tokens_per_image —— 改视觉 token 预算等于改 prompt 的 token 序列;
+    #   * schema —— 缓存记录格式本身的版本。
+    # 逐样本那部分(编码路径 / prompt_format)在 frozen_score_fingerprint 里补上。
+    """
+    return hashlib.sha256(
+        "\x1f".join(
+            (
+                FROZEN_SCORE_CACHE_SCHEMA,
+                policy_snapshot_sha256,
+                str(Path(model_dir)),
+                dataset_manifest_sha256,
+                str(int(visual_tokens_per_image)),
+            )
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def frozen_score_fingerprint(sample: dict[str, Any], *, base_digest: str) -> str:
+    """Per-sample fingerprint: exactly what this cached number is a function of."""
+    return hashlib.sha256(
+        "\x1f".join(
+            (
+                FROZEN_SCORE_CACHE_SCHEMA,
+                base_digest,
+                str(sample.get("schema_version")),
+                # 编码路径(chat_template / exact_batch)决定 prompt 的 token 序列
+                _prompt_encoding_path(sample),
+                str(sample.get("prompt_format")),
+                # 缓存的**永远**是 bypass 下的分数:负样本自称 active,能进缓存靠的是
+                # P1-4 的显式覆盖,所以这里写死有效模式,不读样本的 adapter_mode。
+                "bypass",
+                "mean_target_logprob",
+            )
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+class FrozenBypassScoreCache:
+    """Disk cache of adapter-independent (bypass) teacher-forced scores.
+
+    # note (luojiaxuan): 并发模型 —— **每个 rank 只写自己的分片**
+    # ``scores-rank<NNN>.jsonl``,读取时把所有分片合并成一张只读视图。于是多 rank
+    # 并发写不可能互相覆盖(各写各的文件名),又能互相命中彼此上一轮算过的分数。
+    # 写入是原子的:整份分片先写 ``<name>.tmp-<pid>`` 再 ``os.replace`` 换名,
+    # 读者永远看到的要么是旧的完整文件、要么是新的完整文件,不会读到半行。
+    # (临时文件后缀不以 .jsonl 结尾,因此不会被合并时的 glob 扫进来。)
+    # 攒够 ``flush_every`` 条才落盘一次:一次 bypass 前向是秒级的,而分片文件是
+    # KB 级,整份重写的代价可以忽略;崩溃最多丢最后几条,缓存是纯优化,丢了只是慢。
+    """
+
+    def __init__(
+        self,
+        root: Path,
+        *,
+        base_digest: str,
+        rank: int,
+        flush_every: int = 32,
+    ) -> None:
+        self.root = Path(root)
+        self.base_digest = base_digest
+        self.rank = int(rank)
+        self.flush_every = int(flush_every)
+        self.hits = 0
+        self.misses = 0
+        self.fingerprint_rejects = 0
+        # _merged 是查询用的全分片视图;_own 只含本 rank 负责持久化的记录。
+        self._merged: dict[str, tuple[str, float]] = {}
+        self._own: dict[str, tuple[str, float]] = {}
+        self._pending = 0
+        self.root.mkdir(parents=True, exist_ok=True)
+        self._shard = self.root / f"scores-rank{self.rank:03d}.jsonl"
+        self._load()
+
+    def _load(self) -> None:
+        for path in sorted(self.root.glob(_FROZEN_SCORE_SHARD_GLOB)):
+            try:
+                text = path.read_text(encoding="utf-8")
+            except OSError:
+                continue
+            mine = path == self._shard
+            for line in text.splitlines():
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    record = json.loads(line)
+                    key = str(record["sample_id"])
+                    fingerprint = str(record["fingerprint"])
+                    value = float(record["score"])
+                except (ValueError, TypeError, KeyError):
+                    # note (luojiaxuan): 损坏行只丢这一条。缓存是纯优化,不该让一份
+                    # 写坏的分片把训练拖垮 —— 丢了就是重算一次。
+                    continue
+                self._merged[key] = (fingerprint, value)
+                if mine:
+                    self._own[key] = (fingerprint, value)
+
+    def lookup(self, sample: dict[str, Any]) -> float | None:
+        """Return the cached bypass score, or None when it must be recomputed."""
+        entry = self._merged.get(sample["sample_id"])
+        if entry is None:
+            self.misses += 1
+            return None
+        fingerprint, value = entry
+        if fingerprint != frozen_score_fingerprint(
+            sample, base_digest=self.base_digest
+        ):
+            # 指纹不匹配 = 换了模型快照 / 编码路径 / 语料,旧数已经不是这条样本的
+            # 分数。当未命中处理并重算,**绝不**静默返回它。
+            self.fingerprint_rejects += 1
+            self.misses += 1
+            return None
+        self.hits += 1
+        return value
+
+    def store(self, sample: dict[str, Any], value: float) -> None:
+        entry = (
+            frozen_score_fingerprint(sample, base_digest=self.base_digest),
+            float(value),
+        )
+        key = str(sample["sample_id"])
+        self._merged[key] = entry
+        self._own[key] = entry
+        self._pending += 1
+        if self._pending >= self.flush_every:
+            self.flush()
+
+    def flush(self) -> None:
+        """Atomically rewrite this rank's shard (temp file + rename)."""
+        if not self._pending:
+            return
+        # note (luojiaxuan): json.dumps 的 float 用 repr 打印,是能逐位还原的最短
+        # 表示,所以 store→flush→_load 的往返是**精确**的,命中值与重算值逐位相同。
+        payload = "".join(
+            json.dumps(
+                {"sample_id": key, "fingerprint": fingerprint, "score": score},
+                sort_keys=True,
+            )
+            + "\n"
+            for key, (fingerprint, score) in sorted(self._own.items())
+        )
+        temporary = self._shard.parent / f"{self._shard.name}.tmp-{os.getpid()}"
+        temporary.write_text(payload, encoding="utf-8")
+        os.replace(temporary, self._shard)
+        self._pending = 0
+
+    def stats(self) -> dict[str, Any]:
+        return {
+            "frozen_score_cache": str(self.root),
+            "rank": self.rank,
+            "hits": self.hits,
+            "misses": self.misses,
+            "fingerprint_rejects": self.fingerprint_rejects,
+            "entries": len(self._own),
+        }
+
+
+# ---------------------------------------------------------------------------
+# 组内编码记忆化(默认关闭)
+# ---------------------------------------------------------------------------
+# note (luojiaxuan): 两遍法里同一条样本会被前向多次,但 forward 闭包每次都重新
+# encode_sample 一遍:K≥2 组 12 次前向只对应 **5 条不同样本**(SA×2、每个负样本×3、
+# R0×1),即 7 次编码是纯重复。而 encode_sample 不便宜——它对 K+1 张图逐张
+# ``Image.open().convert("RGB")``,再跑一整趟 apply_chat_template(resize/patchify/
+# tokenize),全部在 CPU 上同步执行,GPU 在这段时间是空的。这比 straggler 更能解释
+# 实测的 46% 利用率。
+#
+# 复用**必须**处理一处陷阱:``mean_target_logprob`` 的第一行是
+# ``labels = encoded.pop("labels")``——它就地**改掉了传进去的 dict**(删掉 labels
+# 这个键),因为后面要 ``model(**encoded)``,labels 不能混进模型 kwargs。于是把同一
+# 个 dict 对象交给第二次 forward,``adapter_context_for_sample`` 读 encoded["labels"]
+# 会直接 KeyError。所以记忆化交出去的永远是**浅拷贝** ``dict(entry)``:pop 只作用在
+# 这一次的副本上,底层张量仍是同一批(共享引用,不额外占显存)。
+#
+# 张量层面的复用安全性是**查过的**,不是假设的(证据见 docs/交付说明):
+#   * mean_target_logprob 只做 labels[:, 1:] 切片、!= 比较、model(**encoded)、
+#     log_softmax/gather,没有任何对入参张量的 in-place 写;
+#   * history_sample_context / build_history_token_mask 只读 input_ids /
+#     mm_token_type_ids / image_grid_thw / labels,mask 是 torch.zeros_like 新建的
+#     张量,``mask[0, s:e] = True`` 写的是那个新张量,不是 encoded 里的任何一个;
+#   * assert_mask_disjoint 只读 mask;
+#   * HistoryGatedKVLinear._hook 作用在 k/v 投影的**激活**上,返回 output + delta*gate
+#     这个新张量,从不碰输入 dict。
+#   * 全仓 grep 尾部下划线 in-place 算子,除 LoRA 参数 copy_ 外无命中。
+# 剩下唯一无法静态证明的是 HF 模型 forward 内部是否改写入参张量(本地没有 torch,
+# 读不到那份实现)。标准 HF 前向不这么做——否则梯度累积、eval 循环、beam search
+# 复用同一批输入全都会坏掉——但这属于"有充分理由相信"而非"已证明",所以这个开关
+# **默认 off**,启用前建议先在真卡上做一次 A/B(同 seed 跑二十组比损失曲线)。
+#
+# 显存代价见 --encode-cache-scope 的帮助文本:K=4 时同时持有 5 份 encoding 的
+# pixel_values,峰值约 +1 GB(80 GB 卡的 ~1.2%)。因为本路径**故意关掉了梯度检查点**
+# (重算跑在 autograd 线程上会让 adapter 的 ContextVar 读空),带梯度前向本身的激活
+# 峰值已经很高,这 1 GB 不是白捡的,所以默认关闭由调用方显式权衡。
+ENCODE_CACHE_SCOPES = ("off", "group")
 
 
 def history_group_unit_loss(
@@ -1083,6 +1508,8 @@ def sparse_history_group_unit_loss(
     accumulation: int,
     torch: Any,
     diagnostics_out: dict[str, float] | None = None,
+    frozen_cache: FrozenBypassScoreCache | None = None,
+    encode_cache_scope: str = "off",
 ) -> float | None:
     """One sparse-history pair-group forward set and its loss, or None to skip.
 
@@ -1095,6 +1522,41 @@ def sparse_history_group_unit_loss(
     # 诊断走 diagnostics_out 原地填充,调用方要拿就传一个空 dict 进来。
     """
     from causalcache.policy.history_adapter_context import history_adapter_scope
+
+    if encode_cache_scope not in ENCODE_CACHE_SCOPES:
+        raise ValueError(
+            f"unknown encode_cache_scope {encode_cache_scope!r}; "
+            f"expected one of {ENCODE_CACHE_SCOPES}"
+        )
+    # note (luojiaxuan): 记忆化的生命周期**就是这一组**。本函数每个 pair-group 被调用
+    # 一次,这个 dict 是闭包的局部状态,函数返回即失去最后一个引用被回收,因此不存在
+    # 跨组复用(组间 arm_slot 会重名,跨组复用等于拿另一条决策的 encoding 去打分),
+    # 也不会把 5 份 pixel_values 一直压在显存里。key 用 arm_slot:它在组内唯一,而
+    # sample_id = f"{pair_group}|{arm_slot}",组内 pair_group 恒定,两者等价。
+    encode_cache: dict[str, dict[str, Any]] = {}
+
+    def encode_for_slot(slot: str, sample: dict[str, Any]) -> dict[str, Any] | None:
+        """Encode one arm, reusing this group's encoding when memoization is on."""
+        if encode_cache_scope != "group":
+            return encode_sample(
+                runtime, sample, dataset_root=dataset_root, torch=torch
+            )
+        entry = encode_cache.get(slot)
+        if entry is None:
+            entry = encode_sample(
+                runtime, sample, dataset_root=dataset_root, torch=torch
+            )
+            if entry is None:
+                # 编码失败不进缓存:该臂每次都照旧返回 None,"哪些负样本因取不到值
+                # 而被剔出归一化分母"的判定与关缓存时逐个相同。
+                return None
+            encode_cache[slot] = entry
+        # note (luojiaxuan): **必须**是浅拷贝。mean_target_logprob 的第一行
+        # ``encoded.pop("labels")`` 会就地删掉这个键(labels 不能进 model(**encoded)),
+        # 交出同一个 dict 对象的话,同一条样本的第二次 forward 在
+        # adapter_context_for_sample 里读 encoded["labels"] 就是 KeyError。
+        # 浅拷贝让 pop 只作用于本次副本,张量本身共享引用,不产生额外显存。
+        return dict(entry)
 
     def forward(
         slot: str,
@@ -1113,9 +1575,22 @@ def sparse_history_group_unit_loss(
             raise ValueError(
                 "adapter_mode override is reserved for the no-grad bypass anchor"
             )
-        encoded = encode_sample(
-            runtime, sample, dataset_root=dataset_root, torch=torch
+        # note (luojiaxuan): 只有"不带梯度 **且** 有效 adapter 模式是 bypass"的前向
+        # 才可缓存 —— 那是跑在冻结策略上的分数,与 adapter 参数无关因而全程恒定。
+        # 覆盖已被上面限死为 no-grad + bypass,所以这里命中的正好是 P1-4 的 3 个
+        # per-negative 锚点 ℓn⁰,外加 R0 参考臂(它的样本字段本就写着 bypass)。
+        # 命中直接返回缓存值(与重算逐位相同),连 encode 都省掉。
+        cacheable = (
+            frozen_cache is not None
+            and not grad
+            and effective_adapter_mode(sample, adapter_mode) == "bypass"
         )
+        if cacheable:
+            cached = frozen_cache.lookup(sample)
+            if cached is not None:
+                return cached
+        # 两项缓存正交:冻结分数缓存命中就连编码都不用做;没命中才走编码记忆化。
+        encoded = encode_for_slot(slot, sample)
         if encoded is None:
             return None
         context = adapter_context_for_sample(
@@ -1135,9 +1610,15 @@ def sparse_history_group_unit_loss(
                     return float(lp.detach())
                 return lp
             with torch.no_grad():
-                return float(
+                value = float(
                     mean_target_logprob(runtime.model, encoded, torch=torch).detach()
                 )
+            # note (luojiaxuan): 只写非 None 的值。encode 失败的样本这里根本走不到,
+            # 于是它永远进不了缓存、每次都照旧返回 None —— 缓存开与不开,"哪些负样本
+            # 因取不到值而被剔出归一化分母"的判定完全一致。
+            if cacheable:
+                frozen_cache.store(sample, value)
+            return value
 
     return _sparse_history_group_loss(
         samples=samples,
@@ -1651,6 +2132,29 @@ def main() -> None:
     parser.add_argument("--resume-lora", type=Path, default=None)
     parser.add_argument("--start-epoch", type=int, default=0)
     parser.add_argument(
+        "--frozen-score-cache",
+        type=Path,
+        default=None,
+        help=(
+            "sparse_history only; directory caching adapter-independent bypass "
+            "scores across runs. Default off — one epoch sees each group once, so "
+            "the payoff is multi-epoch / reruns / hyper-parameter sweeps."
+        ),
+    )
+    parser.add_argument(
+        "--encode-cache-scope",
+        choices=ENCODE_CACHE_SCOPES,
+        default="off",
+        help=(
+            "sparse_history only; 'group' reuses one encoding per arm inside a "
+            "pair-group, cutting encode_sample calls from 12 to 5 at K>=2 "
+            "(6 to 4 at K=1). Default off: it raises peak GPU memory by roughly "
+            "1 GB at K=4 (five live pixel_values sets, ~48 MB per image at 2560 "
+            "effective visual tokens), and this path deliberately runs without "
+            "gradient checkpointing, so activation memory is already high."
+        ),
+    )
+    parser.add_argument(
         "--checkpoint-every-steps",
         type=int,
         default=0,
@@ -1758,6 +2262,34 @@ def main() -> None:
             if sparse_mode:
                 resumed["resume_checkpoint_sha256"] = resume_sha
             print(json.dumps(resumed), flush=True)
+    # note (luojiaxuan): 冻结分数缓存默认关闭 —— 不给 --frozen-score-cache 时
+    # frozen_cache 恒为 None,forward 闭包里那段 cacheable 判定短路,行为与旧版逐字节
+    # 相同。只在 sparse 分支支持:旧两条路径的臂语义里没有"有效 bypass"这个概念。
+    # 与 --frozen-score-cache 正交:一个省"冻结分数的前向",一个省"重复的编码",
+    # 两者可各自独立开关,同开时先查分数缓存(命中就连编码都不用做)。
+    if args.encode_cache_scope != "off" and not sparse_mode:
+        raise ValueError(
+            "--encode-cache-scope is only defined under training.sparse_history"
+        )
+    frozen_cache: FrozenBypassScoreCache | None = None
+    if args.frozen_score_cache is not None:
+        if not sparse_mode:
+            raise ValueError(
+                "--frozen-score-cache is only defined under training.sparse_history"
+            )
+        snapshot_path = args.repository_root / config["policy_snapshot_manifest"]
+        frozen_cache = FrozenBypassScoreCache(
+            args.frozen_score_cache,
+            base_digest=frozen_score_cache_base_digest(
+                policy_snapshot_sha256=hashlib.sha256(
+                    snapshot_path.read_bytes()
+                ).hexdigest(),
+                model_dir=args.model_dir,
+                dataset_manifest_sha256=manifest_sha,
+                visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
+            ),
+            rank=rank,
+        )
     optimizer = torch.optim.AdamW(
         parameters,
         lr=config["training"]["learning_rate"],
@@ -1831,12 +2363,34 @@ def main() -> None:
             startup["checkpoint_every_steps"] = checkpoint_every_steps
         # note (luojiaxuan): 键序保持插入序,旧两条路径的这行 stdout 逐字节不变。
         print(json.dumps(startup), flush=True)
+    # note (luojiaxuan): 调度代价只对 sparse 分支有定义(它的组才有负样本臂与 budget),
+    # 预先算好一份 unit_index -> (前向次数, 预算),每个 epoch 复用同一份。
+    schedule_costs: dict[int, tuple[int, int]] = (
+        {
+            unit_index: sparse_group_schedule_cost(samples, payload)
+            for unit_index, (_kind, payload, _negative) in enumerate(units)
+        }
+        if sparse_mode
+        else {}
+    )
     ordering = random.Random(training_config["seed"])
     global_step = 0
     for epoch in range(args.start_epoch, training_config["epochs"]):
         order = list(range(len(units)))
         ordering.shuffle(order)
-        shard = order[rank::world_size]
+        if sparse_mode:
+            # note (luojiaxuan): 按 K 分桶消除 straggler。只在 accumulation window
+            # **内部**重排"哪个 rank 跑哪一组",每个优化步消费的组集合与旧 stride
+            # 切分逐组相同(见 balanced_sparse_shards 的不变量断言),因此损失与梯度
+            # 的数学定义一字未动。旧两条路径继续走原来的 stride,逐字节不受影响。
+            shard = balanced_sparse_shards(
+                order,
+                schedule_costs,
+                world_size=world_size,
+                accumulation=accumulation,
+            )[rank]
+        else:
+            shard = order[rank::world_size]
         model.train()
         running_loss = 0.0
         contributing = 0
@@ -1857,6 +2411,8 @@ def main() -> None:
                     accumulation=accumulation,
                     torch=torch,
                     diagnostics_out=diagnostics,
+                    frozen_cache=frozen_cache,
+                    encode_cache_scope=args.encode_cache_scope,
                 )
                 if unit_value is None:
                     continue
@@ -1956,6 +2512,9 @@ def main() -> None:
                     contributing = 0
                 if max_steps and global_step >= max_steps:
                     break
+        if frozen_cache is not None:
+            # 每个 epoch 收尾落一次盘,别把整轮的命中攒到进程退出才写。
+            frozen_cache.flush()
         if world_size > 1:
             dist.barrier()
         if rank == 0:
@@ -1975,6 +2534,12 @@ def main() -> None:
             )
         if max_steps and global_step >= max_steps:
             break
+    if frozen_cache is not None:
+        # note (luojiaxuan): 命中率按 rank 打印(缓存分片也是按 rank 的),这行只在
+        # 显式给了 --frozen-score-cache 时才出现,默认关闭的 run 的 stdout 不变。
+        # 第一遍扫语料时 hits 本来就该是 0 —— 收益在第二遍及以后,别当成没生效。
+        frozen_cache.flush()
+        print(json.dumps(frozen_cache.stats(), sort_keys=True), flush=True)
     if world_size > 1:
         dist.destroy_process_group()
     if rank == 0:
