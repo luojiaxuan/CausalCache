@@ -1,0 +1,90 @@
+# RA-aware 差中差 pilot:s25 在 dev split 上的测量
+
+日期:2026-07-25。**dev split(87 episodes / 240 groups)**,CI 为 episode-cluster
+bootstrap。confirmation split(89 / 254)**至此一次未动**,由 `--episode-filter` 在
+物理上排除,不是"算了不看"。
+
+报告:`runs/eval-did-dev-s25/gate_report_dev_s25.json`。
+
+## 1. identity 自检
+
+```
+did_select            +0.00000 [0, 0]
+adapter_on_sparse     +0.00000
+adapter_on_recent     +0.00000
+SA_minus_RA = frozen_selection_effect = +0.03353
+```
+
+零初始化 adapter 严格恒等,`did_select` 定义上为 0,恒等式成立。scorer 可信。
+
+## 2. s25:两个增量都显著为正,但**相等**
+
+| 量 | 值 | CI95 |
+|---|---|---|
+| `A_c` = `adapter_on_sparse` = SA − S0 | **+0.00579** | [+0.00493, +0.00675] |
+| `A_r` = `adapter_on_recent` = RA − R0 | **+0.00559** | [+0.00478, +0.00646] |
+| **`did_select` = A_c − A_r** | **+0.00020** | **[−0.00082, +0.00122]** |
+
+三件事同时成立,这个组合才是关键:
+
+1. **两个 A 都显著大于零**(CI 不含 0)—— adapter **不是没学到东西**,它确实在放大历史图的作用,而且梯度确实传到了;
+2. **两者的 CI 几乎完全重叠** —— 它对"选对了的历史"和"最近那几张"一视同仁;
+3. **`did_select` 精确钉在零**,而目标要求的 margin 是 0.01,**差 50 倍**。
+
+`loss_cap` 训练全程近零(drift 0.003~0.008,ε=0.02),所以这次失败**不是**被
+"见历史就整体放大"刷高的 —— 目标是干净的,放大那条路已被堵死。
+
+## 3. 污染指标再次演了同一出戏
+
+| | identity | s25 | 变化 |
+|---|---|---|---|
+| `SA_minus_R0`(污染) | +0.03353 | **+0.03933** | **+0.0058** |
+| `SA_minus_RA`(主 claim) | +0.03353 | +0.03373 | +0.0002 |
+
+那 +0.0058 的"进步"**恰好等于 A_c**。没有 RA 对照,这又会被读成方法有效 ——
+与 v5 同一个陷阱,只是量级小了一个数量级。
+
+## 4. 结构性解释(假设,待 s50 检验)
+
+查 `history_gated_lora.py` 的 `_hook`:
+
+```python
+delta = (x @ lora_a.T @ lora_b.T) * scaling
+gate  = mask                      # 二值:这个 token 是不是历史图 token
+return output + delta * gate
+```
+
+adapter 只依赖**该位置的 hidden state** 与一个**二值 mask**。它看不到图来自第几步、
+选点是否连续、图的年龄、在选择集里的位置。也就是 `ΔK = f(x)`,对每一个历史 token
+用**同一个 f**。
+
+而"这批图是不是散开的"**不是单个 token 的属性,是集合的属性**。RA 与 SA 在 adapter
+眼里:历史 token 数相同、mask 形状相同、施加函数相同,唯一差别是像素内容 —— 而两边
+都是合法的真实历史图。
+
+这解释了为什么梯度在推(目标明确要求 A_c > A_r + 0.01)却推不动:**推力存在,自由度不存在。**
+
+### 这也修正了对 alignment gate 的判断
+
+| 对比 | 可分吗 | 为什么 |
+|---|---|---|
+| correct vs shuffled / irrelevant | ✅(v5 实测 `B_n` 全为正) | 像素内容不同,`f(x)` 能反应 |
+| **sparse vs recent** | ❌ | 两边都是合法真实历史图,差别只在"选了哪几张" |
+
+**alignment gate 也救不了后者** —— 它算 text↔image 绑定分数,而 RA 与 SA 的每一对
+(文本, 图) 都是**正确绑定**的,gate 会对两边都给出 g≈1。
+
+## 5. 与格式税无关
+
+`format_effect = R0 − N0 = −0.0217` 是我们 sparse 单轮 prompt 相对官方多轮的固定成本。
+它**不解释** `A_c ≈ A_r`:RA 与 SA 共享同一种格式,该效应在 `SA − RA` 里已抵消;
+且 v5 到 epoch1 时 `A_c = +0.084`,说明单轮格式并未削弱 adapter 对历史图的杠杆。
+
+值得记的是另一层:区分 sparse 与 recent 的信息**确实存在于 prompt 里**(step 标签写着
+`Step3, Step9, Step14` 还是 `Step16,17,18,19`),但那是**文本 token**,而 adapter 只作用于
+**图像 token**。信号在序列里,却不在 adapter 生效的位置。
+
+## 6. 尚未下的结论
+
+这是 s25。预注册判据要求看到 s50。若 s50 仍是 `did_select` 跨零且 `A_c ≈ A_r`,
+则在 dev 上已构成 FAIL(s25→s50 无改善),届时直接给结论,**不消耗 confirmation**。
