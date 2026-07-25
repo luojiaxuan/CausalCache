@@ -128,8 +128,12 @@ def run_official_episode(
     parse_failures = 0
     try:
         summary["environment_initialize"] = environment.initialize()
-        if environment.score() != 0.0:
-            raise ValueError("episode did not start at zero reward")
+        # note (luojiaxuan): 官方 suite_utils.run_task 不做"起始分必须为 0"的前置检查,
+        # 只在 episode 结束时评分。我们原来的硬性检查把 *Verify 这类开局即满足的任务
+        # 判成 infra 故障并踢出分母(2026-07-25 实测 6/116 局),与官方口径不符。
+        # 现在只记录起始分并照常跑完,最终成绩仍由环境评定。
+        summary["score_before"] = environment.score()
+        summary["started_nonzero"] = summary["score_before"] != 0.0
         current = environment.screenshot()
         for step_index in range(instance["max_steps"]):
             keep = max(0, min(last_image - 1, len(recent_images)))
