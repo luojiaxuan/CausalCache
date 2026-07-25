@@ -139,7 +139,16 @@ def load_lora_state_dict(
             lora.lora_b.copy_(state[f"{name}.lora_b"].to(lora.lora_b.device))
 
 
-_CHAT_TEMPLATE_PROMPT_FORMATS = ("official_multiturn", "sparse_single_turn")
+_CHAT_TEMPLATE_PROMPT_FORMATS = (
+    "official_multiturn",
+    "sparse_single_turn",
+    # note (luojiaxuan): official-style sparse multiturn(gui_owl_sparse_multiturn.py)。
+    # 它与前两者一样用官方 system prompt + processor.apply_chat_template 编码,唯一
+    # 区别是 user/assistant 轮的排布,所以走同一条 chat_template 路径。这里只是把名字
+    # 加进白名单;编码参数与两项保真校验一律不变。目前只有 probe_prompt_format.py 在
+    # **冻结模型**上用它做格式对照,尚未进入任何冻结的五臂契约。
+    "official_style_sparse_multiturn",
+)
 _EXACT_BATCH_PROMPT_FORMATS = ("v2_1_private",)
 
 
