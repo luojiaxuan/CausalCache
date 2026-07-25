@@ -266,6 +266,24 @@ def build_training_units(
 
 HISTORY_GATED_VARIANTS = ("correct", "b0", "shuffled", "irrelevant")
 
+# note (luojiaxuan): sparse-history 模式(training.sparse_history=true)。与旧
+# HGKV 的三处差异:(1) reference 从 b0 换成**同预算**的 native_recent{K},因为
+# GUI-Owl 原生就带 last_image=5 的连续近期窗口,拿 B0 当参考等于和一个不存在的
+# 弱基线比;(2) 新增 duplicate 负样本,压制"图越多越好";(3) margin/权重按
+# 稀疏契约调整。旧路径原样保留,冻结契约引用不受影响。
+SPARSE_CORRECT = "sparse_correct"
+SPARSE_NEGATIVES = ("sparse_step_shuffled", "sparse_irrelevant", "sparse_duplicate")
+SPARSE_NEGATIVE_SCALE = {"sparse_step_shuffled": 1.0, "sparse_irrelevant": 1.0,
+                         "sparse_duplicate": 0.5}
+
+
+def sparse_reference_variant(group: dict[str, int]) -> str | None:
+    """Budget-matched frozen reference (native_recent{K}) present in the group."""
+    for name in group:
+        if name.startswith("native_recent"):
+            return name
+    return None
+
 
 def build_history_gated_units(
     samples: list[dict[str, Any]], *, training: dict[str, Any]
@@ -281,18 +299,119 @@ def build_history_gated_units(
     for index, sample in enumerate(samples):
         if sample["episode"] in heldout:
             continue
+        sparse_mode = bool(training.get("sparse_history", False))
         variant = sample.get("variant", "correct")
-        if variant not in HISTORY_GATED_VARIANTS:
+        if sparse_mode:
+            if variant != SPARSE_CORRECT and variant not in SPARSE_NEGATIVES \
+                    and not variant.startswith("native_recent"):
+                continue
+        elif variant not in HISTORY_GATED_VARIANTS:
             continue
         by_group.setdefault(sample["pair_group"], {})[variant] = index
     units: list[tuple[str, dict[str, int], None]] = []
+    sparse_mode = bool(training.get("sparse_history", False))
     for group in by_group.values():
-        if "correct" not in group:
-            continue
-        if not any(variant in group for variant in HISTORY_GATED_VARIANTS[1:]):
-            continue
+        if sparse_mode:
+            # 必须有 sparse_correct 和同预算 reference,否则该组无 gain 项
+            if SPARSE_CORRECT not in group or sparse_reference_variant(group) is None:
+                continue
+        else:
+            if "correct" not in group:
+                continue
+            if not any(variant in group for variant in HISTORY_GATED_VARIANTS[1:]):
+                continue
         units.append(("history_group", group, None))
     return units, heldout
+
+
+def _sparse_history_group_loss(
+    *,
+    group: dict[str, int],
+    forward: Any,
+    training: dict[str, Any],
+    wrapped: dict[str, Any],
+    accumulation: int,
+    torch: Any,
+) -> dict[str, float] | None:
+    """Sparse-history objective against a budget-matched native Recent-K reference.
+
+    # note (luojiaxuan): 记号 ℓc=sparse_correct、ℓr=native_recent{K}(冻结参考,
+    # 无梯度)、ℓs/ℓi/ℓd=step-shuffled / irrelevant / duplicate。
+    #   L_gain   = [m_g - (ℓc - ℓr)]+
+    #   L_rank   = Σ_n scale_n * [m_r - (ℓc - ℓn)]+
+    #   L_anchor = anchor_w * Σ_n scale_n * SmoothL1(ℓn, ℓr)
+    #   L        = L_gain + L_rank + L_anchor + l2 * Σ(‖A‖²+‖B‖²),CE 权重 0。
+    # 与旧 HGKV 相比 anchor 权重加倍、rank margin 加倍,专治"见历史就整体放大"。
+    # 沿用两遍法:先 no-grad 取各 ℓ 值算次梯度权重,再逐变体在各自 scope 内
+    # 带梯度前向并立即 backward,同一时刻只活一张计算图。
+    """
+    ref_name = sparse_reference_variant(group)
+    if ref_name is None:
+        return None
+    correct = forward(SPARSE_CORRECT, grad=False)
+    reference = forward(ref_name, grad=False)
+    if correct is None or reference is None:
+        return None
+    lc = float(correct)
+    lr = float(reference)
+    negatives = {
+        name: forward(name, grad=False)
+        for name in SPARSE_NEGATIVES
+        if name in group
+    }
+
+    gain_margin = float(training.get("sparse_gain_margin", 0.01))
+    rank_margin = float(training.get("sparse_rank_margin", 0.02))
+    gain_weight = float(training.get("sparse_gain_weight", 1.0))
+    rank_weight = float(training.get("sparse_rank_weight", 1.0))
+    anchor_weight = float(training.get("sparse_anchor_weight", 2.0))
+    l2_weight = float(training.get("history_lora_l2_weight", 1e-4))
+
+    weight_c = 0.0
+    weights: dict[str, float] = {}
+    total = 0.0
+    diagnostics: dict[str, float] = {"lc_minus_lr": lc - lr}
+
+    if (gain_margin - (lc - lr)) > 0.0:
+        weight_c += -gain_weight
+        total += gain_weight * (gain_margin - (lc - lr))
+
+    for name, value in negatives.items():
+        if value is None:
+            continue
+        ln = float(value)
+        scale = SPARSE_NEGATIVE_SCALE.get(name, 1.0)
+        diagnostics[f"lc_minus_{name}"] = lc - ln
+        if (rank_margin - (lc - ln)) > 0.0:
+            weight_c += -rank_weight * scale
+            weights[name] = weights.get(name, 0.0) + rank_weight * scale
+            total += rank_weight * scale * (rank_margin - (lc - ln))
+        diff = ln - lr
+        huber_grad = max(-1.0, min(1.0, diff))
+        huber_value = 0.5 * diff * diff if abs(diff) < 1.0 else abs(diff) - 0.5
+        weights[name] = weights.get(name, 0.0) + anchor_weight * scale * huber_grad
+        total += anchor_weight * scale * huber_value
+
+    if total == 0.0 and l2_weight <= 0.0:
+        return None
+
+    for variant, weight in [(SPARSE_CORRECT, weight_c), *weights.items()]:
+        if weight == 0.0:
+            continue
+        forward(variant, grad=True, backward_weight=weight / accumulation)
+
+    if l2_weight > 0.0:
+        l2 = None
+        for lora in wrapped.values():
+            term = (lora.lora_a.float().pow(2).sum()
+                    + lora.lora_b.float().pow(2).sum())
+            l2 = term if l2 is None else l2 + term
+        if l2 is not None:
+            (l2_weight * l2 / accumulation).backward()
+            total += l2_weight * float(l2.detach())
+
+    diagnostics["loss"] = total
+    return diagnostics
 
 
 def history_sample_context(
@@ -369,7 +488,12 @@ def history_group_unit_loss(
         )
         if encoded is None:
             return None
-        context = history_sample_context(encoded, sample, merge_size=merge_size)
+        if variant.startswith("native_recent"):
+            # note (luojiaxuan): reference 臂必须逐位等于冻结 GUI-Owl,所以即使它
+            # 带着 K 张连续近期图,也强制 adapter 完全 bypass;ℓr 因此是常数参考。
+            context = None
+        else:
+            context = history_sample_context(encoded, sample, merge_size=merge_size)
         if variant == "b0" and context is not None:
             raise ValueError("b0 variant carries restored history images")
         # note (luojiaxuan): 带梯度路径必须在 scope 内完成 backward——梯度检查点
@@ -387,6 +511,11 @@ def history_group_unit_loss(
                     runtime.model, encoded, torch=torch
                 ).detach()
 
+    if bool(training.get("sparse_history", False)):
+        return _sparse_history_group_loss(
+            group=group, forward=forward, training=training,
+            wrapped=wrapped, accumulation=accumulation, torch=torch,
+        )
     correct_lp = forward("correct", grad=False)
     if correct_lp is None:
         return None

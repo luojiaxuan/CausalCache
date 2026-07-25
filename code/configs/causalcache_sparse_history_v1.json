@@ -1,0 +1,51 @@
+{
+  "schema_version": "causalcache.success_sft_lora_config.v1",
+  "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+  "target_effective_visual_tokens_per_image": 2560,
+  "adapter": {
+    "adapter_type": "history_gated_kv",
+    "layer_scope": "last_8",
+    "target_modules": ["k_proj", "v_proj"],
+    "rank": 8,
+    "alpha": 16
+  },
+  "training": {
+    "sparse_history": true,
+    "epochs": 1,
+    "max_optimizer_steps": 150,
+    "learning_rate": 0.0001,
+    "lr_schedule": "constant",
+    "weight_decay": 0.0,
+    "micro_batch_size": 1,
+    "gradient_accumulation_steps": 8,
+    "max_grad_norm": 1.0,
+    "seed": 271828,
+    "gradient_checkpointing": false,
+    "checkpoint_every_steps": 25,
+    "sparse_gain_margin": 0.01,
+    "sparse_rank_margin": 0.02,
+    "sparse_gain_weight": 1.0,
+    "sparse_rank_weight": 1.0,
+    "sparse_anchor_weight": 2.0,
+    "history_lora_l2_weight": 0.0001,
+    "history_ce_weight": 0.0,
+    "heldout_episode_fraction": 0.15,
+    "heldout_hash_salt": "sparse_v3"
+  },
+  "gates": {
+    "sparse_correct_minus_native_recentK": "> 0",
+    "sparse_correct_minus_step_shuffled": "> 0",
+    "sparse_correct_minus_irrelevant": "> 0",
+    "sparse_correct_minus_duplicate": "> 0",
+    "wrong_history_drift": "|shuffled - recentK| < 0.02 and |irrelevant - recentK| < 0.02",
+    "composite": "(lc-lr)+(lc-ls)+(lc-li) - |ls-lr| - |li-lr|",
+    "note": "不得只按 correct-recentK 选点,否则会选出'见历史就放大'的 checkpoint"
+  },
+  "data": {
+    "source": "sparse-v3 (GUI-Odyssey long-horizon, 多决策点抽样, 五变体)",
+    "reference_arm": "native_recent{K} (budget-matched, adapter bypassed)",
+    "negatives": ["sparse_step_shuffled", "sparse_irrelevant", "sparse_duplicate"],
+    "K_distribution": {"1": 0.15, "2": 0.25, "3": 0.25, "4": 0.35},
+    "warm_start": "none — 不继承 hg-s100(它只学到'有历史就放大')"
+  }
+}
