@@ -50,6 +50,7 @@
     "task_count_per_point": 16,
     "max_round": 1,
     "step_wait_time_seconds": 0.1,
+    "auto_retry": 2,
     "points": [1, 2, 4, 8],
     "selection": "evenly_spaced_over_frozen_gui_owl_gui_only"
   },

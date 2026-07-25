@@ -81,7 +81,8 @@ Aries GPU 1
 Android emulators只使用 CPU/KVM；GPU 只加载一份冻结 policy。多个 environment 并发 reset、
 database/local-storage/callback verification 与 step wait，在一个串行 GPU policy 后面隐藏环境
 等待。capacity 依次测试 N=1/2/4/8，每点从 117 task roster 等距固定 16 个 task、每 task
-最多一步；以 throughput 拐点选择完整 117-task run 的 N。
+最多一步、infra failure 最多自动重试 2 次；以完整 16/16 denominator 的 throughput
+拐点选择完整 117-task run 的 N。
 
 Aries 宿主 Docker root 只剩约 8.4 GiB，不能直接拉取 MobileWorld 大镜像。canonical
 container 已确认 privileged、可见 `/dev/kvm`，并把 `/mnt/data6/jiaxuanluo` 持久挂载为

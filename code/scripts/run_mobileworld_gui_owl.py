@@ -247,7 +247,11 @@ def main() -> None:
         scores = [float(result["score"]) for result in results]
         record.update(
             {
-                "status": "COMPLETE_MOBILEWORLD_GUI_OWL",
+                "status": (
+                    "COMPLETE_MOBILEWORLD_GUI_OWL"
+                    if not missing
+                    else "INCOMPLETE_MOBILEWORLD_GUI_OWL"
+                ),
                 "tasks_with_results": len(results),
                 "tasks_without_results": len(missing),
                 "missing_tasks": missing,
