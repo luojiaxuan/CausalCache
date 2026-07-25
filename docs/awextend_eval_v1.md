@@ -154,3 +154,75 @@ bash awextend_fleet.sh down
 单局最坏可达十余小时,故按实际完成度收尾并显式记录缺口,而不是无限等待或悄悄改分母。
 模拟器舰队已在收尾时全部移除,`docker ps -a --filter name=sglang-omni-jaxan` 核验仅剩
 每机一个长驻容器。
+
+---
+
+## 8. Memory-solvability audit(2026-07-25):AW-Extend 测不了记忆假设
+
+在把任何一局失败算到"Recent-4 记不住早期信息"头上之前,先做了强制分类。结论是
+**AW-Extend 按构造就排除了记忆依赖**,不能用来证明 CausalCache 的论点。
+
+### 8.1 19 个模板按"所需信息从哪来"分类
+
+| 类型 | 数量 | 含义 | 例子 |
+|---|---|---|---|
+| **INLINE** | **10** | 整张数据表写在 goal 里 | `RecipeAddMultipleRecipesSuperLong` 的 goal 长 **5,707 字符**,20 条食谱全在里面 |
+| **enumerate** | **7** | 从当前屏枚举即可 | `SimpleCalendarDeleteEventsLong`:"删掉 2023-10-29 的所有事件" |
+| **RETRIEVAL** | **2** | 需要从环境读取 | `MarkorFetchNoteAndSms`、`MarkorTodoList` |
+
+**只有 2/19 真正需要跨时检索**,而这两个都是 Markor,且失败在**从未获取**证据,不是记忆淘汰。
+
+更根本的一点:这些任务**自带进度证据**。删掉的事件从列表消失,录入的开支出现在列表里 ——
+agent 不需要记住"我做到哪了",看当前屏就知道。**任务是长在执行步数上,不是长在记忆依赖上。**
+
+### 8.2 11 局失败的初筛
+
+| 自动线索 | 局数 |
+|---|---|
+| 过早终止(`policy_terminated` 且 < 150 步) | **8** |
+| 重复动作循环(≥5 次连续重复) | **3** |
+
+**零局属于 C 类**(证据曾出现、决策时已滑出 Recent-4)。
+
+那 3 局"循环"经人工核对不是记忆问题:`ExpenseAddMultipleSuperLong/1` 的重复是
+step 2/3(`Type "Dividends"` 两次)、step 74/75(`Type "Pet Supplies"` 两次)这种
+**同一字段输两次** —— 模型没注意到已经填好,属于感知/执行问题。它系统地走完了 155 步,
+从第一条录到最后一条才终止。
+
+### 8.3 四类标注框架(供后续任何 benchmark 复用)
+
+| 类型 | 含义 | CausalCache 能否解决 |
+|---|---|---|
+| A | 所需证据从未出现在任何一帧截图中 | 不能 |
+| B | 证据仍在当前截图上但被忽略 | 感知/推理问题 |
+| C | 证据曾出现,决策时已超出 Recent-4 | **唯一核心可解类型** |
+| D | 操作、解析或过早终止失败 | 通常不能 |
+
+自动线索(终止方式、步数、重复率)只能初筛,**区分 A/B/C 必须看截图内容**。
+只有人工定为 C 的局才允许进入 oracle restoration 验证;只有 oracle restoration
+**真能修复**的,才可列为 memory-solvable。
+
+工具:`code/scripts/awextend_failure_triage.py`,输出 `data/results/awextend_b4/failure_triage.json`。
+
+### 8.4 对计划的影响
+
+**不建议花十几小时补完剩余 13 局。** 补完只会得到一个更完整的、但与 CausalCache 无关的
+baseline。这 13 局全是 INLINE 类的批量录入任务(Expense/Recipe AddMultiple*),
+按上面的分析它们**永远不可能成为正面案例**。
+
+AW-Extend 的正确定位是**通用长程执行能力的 baseline**,价值在于两个反差:
+
+1. **纯迭代 vs 组合**:`SimpleCalendar` 4/4 满分,`Markor` 0/4 全灭;
+2. **25/25 全部 `policy_terminated`、均值仅 88/1000 步** —— 过早终止与任务状态误判
+   是比记忆容量大得多的闭环瓶颈。
+
+要论证 CausalCache,需要的是**信息只在过去某帧出现过、且不可从当前屏恢复**的任务。
+AW-Extend 按构造排除了这种情况:所需信息要么在指令里,要么在当前屏上。
+
+### 8.5 此前一处过度解读(更正)
+
+2026-07-25 早先的记录把 `Markor` 0/4 说成"B=4 最近窗口对需要回溯的组合任务不够"。
+**这个归因是错的,而且错在朝有利于本项目论点的方向。** 按动作序列,模型打开短信应用后
+**直接新建会话**、从未打开收件箱那条已有短信,然后输入字面量 `"FileName"` 发出。
+那条证据**从未进入任何一帧 observation**,历史缓存不可能恢复一个没被看见过的事实。
+这是 acquisition/planning 失败(A/B 类),不是记忆窗口淘汰(C 类)。

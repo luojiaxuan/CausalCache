@@ -1,0 +1,335 @@
+{
+  "schema_version": "causalcache.awextend_failure_triage.v1",
+  "failures": 11,
+  "auto_hint_distribution": {
+    "D?premature_terminate": 8,
+    "B/D?loop": 3
+  },
+  "classification_scheme": {
+    "A": "所需证据从未出现在任何一帧截图中 —— 历史缓存救不了",
+    "B": "证据仍在当前截图上但被忽略 —— 感知/推理问题",
+    "C": "证据曾出现,决策时已超出 Recent-4 —— 唯一核心可解类型",
+    "D": "操作、解析或过早终止失败 —— 通常救不了"
+  },
+  "warning": "auto_hint 只是初筛线索,不能替代人工定类:区分 A/B/C 必须看截图内容。只有被人工定为 C 的局才允许进入 oracle restoration 验证,也只有 oracle restoration 真能修复的,才可列为 memory-solvable。",
+  "episodes": [
+    {
+      "task_type": "ContactsAddMultipleContactsAndSms",
+      "task_index": 1,
+      "success": false,
+      "steps": 29,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "open": 1,
+        "click": 12,
+        "type": 9,
+        "system_button": 6,
+        "terminate": 1
+      },
+      "consecutive_repeats": 3,
+      "first_actions": [
+        "Action: Open the Simple SMS Messenger app.",
+        "Action: Click the blue button with the white \"+\" symbol at the bottom ",
+        "Action: Type \"Martina Ahmed\" into the input field.",
+        "Action: Click the checkmark icon next to \"Martina Ahmed\"."
+      ],
+      "last_actions": [
+        "Action: Type \"hello, Muhammad\" into the message input field.",
+        "Action: Click the send button to send the message \"hello, Muhammad\".",
+        "Action: Terminate the process as the task is finished."
+      ],
+      "auto_hint": "D?premature_terminate"
+    },
+    {
+      "task_type": "ExpenseAddMultipleLong",
+      "task_index": 0,
+      "success": false,
+      "steps": 689,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "open": 1,
+        "click": 32,
+        "type": 27,
+        "swipe": 628,
+        "terminate": 1
+      },
+      "consecutive_repeats": 614,
+      "first_actions": [
+        "Action: Open the \"pro expense\" app.",
+        "Action: Click the blue circular button with a plus sign at the bottom ",
+        "Action: Type \"Non-Profit Support\" into the \"Name\" field.",
+        "Action: Type \"Non-Profit Support\""
+      ],
+      "last_actions": [
+        "Action: Type \"Want to have\" into the note field.",
+        "Action: Click the \"SAVE\" button.",
+        "Action: Terminate the process as the task is complete."
+      ],
+      "auto_hint": "B/D?loop"
+    },
+    {
+      "task_type": "ExpenseAddMultipleSuperLong",
+      "task_index": 0,
+      "success": false,
+      "steps": 390,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "open": 1,
+        "click": 66,
+        "type": 60,
+        "swipe": 262,
+        "terminate": 1
+      },
+      "consecutive_repeats": 242,
+      "first_actions": [
+        "Action: Open the \"pro expense\" app.",
+        "Action: Click the blue circular button with the \"+\" symbol at the bott",
+        "Action: Type \"Accessories\" into the \"Name\" field.",
+        "Action: Type \"Accessories\""
+      ],
+      "last_actions": [
+        "Action: Type \"A need\" into the note field.",
+        "Action: Click the \"SAVE\" button.",
+        "Action: Terminate the process."
+      ],
+      "auto_hint": "B/D?loop"
+    },
+    {
+      "task_type": "ExpenseAddMultipleSuperLong",
+      "task_index": 1,
+      "success": false,
+      "steps": 155,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "open": 1,
+        "click": 81,
+        "type": 60,
+        "swipe": 12,
+        "terminate": 1
+      },
+      "consecutive_repeats": 18,
+      "first_actions": [
+        "Action: Open the \"pro expense\" app.",
+        "Action: Click the blue circular button with the \"+\" symbol at the bott",
+        "Action: Type \"Dividends\" into the \"Name\" field.",
+        "Action: Type \"Dividends\""
+      ],
+      "last_actions": [
+        "Action: Click the \"Social\" category button.",
+        "Action: Click the \"SAVE\" button.",
+        "Action: Terminate the process."
+      ],
+      "auto_hint": "B/D?loop"
+    },
+    {
+      "task_type": "MarkorFetchMultipleNotesAndSms",
+      "task_index": 0,
+      "success": false,
+      "steps": 29,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "swipe": 2,
+        "click": 12,
+        "type": 7,
+        "system_button": 7,
+        "terminate": 1
+      },
+      "consecutive_repeats": 0,
+      "first_actions": [
+        "Action: Swipe up from the bottom of the screen to access the app drawe",
+        "Action: Swipe up on the app drawer to scroll down.",
+        "Action: Click on the \"SMS Messe...\" app icon.",
+        "Action: Click the blue button with the white plus sign at the bottom r"
+      ],
+      "last_actions": [
+        "Action: Type \"The contents of the file have been sent to +12418571950.",
+        "Action: Click the SMS send button.",
+        "Action: Terminate the process as the task is finished."
+      ],
+      "auto_hint": "D?premature_terminate"
+    },
+    {
+      "task_type": "MarkorFetchMultipleNotesAndSms",
+      "task_index": 1,
+      "success": false,
+      "steps": 40,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "swipe": 7,
+        "click": 24,
+        "type": 6,
+        "system_button": 2,
+        "terminate": 1
+      },
+      "consecutive_repeats": 1,
+      "first_actions": [
+        "Action: Swipe up from the bottom of the screen to access the app drawe",
+        "Action: Swipe up on the app drawer to scroll down.",
+        "Action: Click on the \"SMS Messenger\" app icon.",
+        "Action: Click the blue button with the white plus sign at the bottom r"
+      ],
+      "last_actions": [
+        "Action: Type \"The content of the file is: ZIM8_eager_quilt\" into the m",
+        "Action: Click the SMS send button.",
+        "Action: Terminate the process as the task is finished."
+      ],
+      "auto_hint": "D?premature_terminate"
+    },
+    {
+      "task_type": "MarkorFetchNoteAndSms",
+      "task_index": 0,
+      "success": false,
+      "steps": 22,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "swipe": 5,
+        "click": 10,
+        "type": 3,
+        "system_button": 2,
+        "long_press": 1,
+        "terminate": 1
+      },
+      "consecutive_repeats": 0,
+      "first_actions": [
+        "Action: Swipe up from the bottom of the screen to access the app drawe",
+        "Action: Swipe up on the app drawer to scroll down.",
+        "Action: Click on the \"SMS Messe...\" app icon.",
+        "Action: Click the blue button with the white plus sign at the bottom r"
+      ],
+      "last_actions": [
+        "Action: Type \"Don't forget to water the plants while I'm away.\" into t",
+        "Action: Click the send button.",
+        "Action: Terminate the process."
+      ],
+      "auto_hint": "D?premature_terminate"
+    },
+    {
+      "task_type": "MarkorFetchNoteAndSms",
+      "task_index": 1,
+      "success": false,
+      "steps": 27,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "swipe": 3,
+        "click": 17,
+        "type": 5,
+        "system_button": 1,
+        "terminate": 1
+      },
+      "consecutive_repeats": 0,
+      "first_actions": [
+        "Action: Swipe up from the bottom of the screen to access the app drawe",
+        "Action: Swipe up on the app drawer to scroll down.",
+        "Action: Click on the \"SMS Messenger\" app icon.",
+        "Action: Click the floating action button with the plus sign at the bot"
+      ],
+      "last_actions": [
+        "Action: Type \"OTC.Indoor.json\" into the message field.",
+        "Action: Click the SMS send button.",
+        "Action: Terminate the process."
+      ],
+      "auto_hint": "D?premature_terminate"
+    },
+    {
+      "task_type": "MarkorMergeNotesLong",
+      "task_index": 1,
+      "success": false,
+      "steps": 107,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "open": 1,
+        "click": 102,
+        "long_press": 2,
+        "type": 1,
+        "terminate": 1
+      },
+      "consecutive_repeats": 91,
+      "first_actions": [
+        "Action: Open the Markor app.",
+        "Action: Click on the file named \"real_ocean_fL6g.txt\".",
+        "Action: Select the text \"Io6mVrGjewVnVn8vITkA\" in the note.",
+        "Action: Click on \"Select all\" in the context menu."
+      ],
+      "last_actions": [
+        "Action: Click the back arrow button on the keyboard to exit text input",
+        "Action: Click the save icon in the top navigation bar.",
+        "Action: Click the save icon in the top navigation bar."
+      ],
+      "auto_hint": "D?premature_terminate"
+    },
+    {
+      "task_type": "MarkorTodoList",
+      "task_index": 1,
+      "success": false,
+      "steps": 24,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "swipe": 6,
+        "click": 12,
+        "system_button": 5,
+        "terminate": 1
+      },
+      "consecutive_repeats": 0,
+      "first_actions": [
+        "Action: Swipe up from the bottom of the screen to access the app drawe",
+        "Action: Click on the Markor app icon.",
+        "Action: Click on the file named \"edited_bold_island.txt\".",
+        "Action: Navigate back to the home screen."
+      ],
+      "last_actions": [
+        "Action: Click on the Markor app icon.",
+        "Action: Click on the file named \"edited_bold_island.txt\".",
+        "Action: Terminate the process as the task is complete."
+      ],
+      "auto_hint": "D?premature_terminate"
+    },
+    {
+      "task_type": "RecipeDeleteMultipleRecipesLong",
+      "task_index": 0,
+      "success": false,
+      "steps": 56,
+      "termination": "policy_terminated",
+      "unknown": 0,
+      "score_before": 0.0,
+      "action_kinds": {
+        "open": 1,
+        "click": 45,
+        "type": 9,
+        "terminate": 1
+      },
+      "consecutive_repeats": 0,
+      "first_actions": [
+        "Action: Open the Broccoli app.",
+        "Action: Click the search icon at the top right corner.",
+        "Action: Type \"Sausage and Peppers Skillet\" into the search bar.",
+        "Action: Click the \"Sausage and Peppers Skillet\" recipe."
+      ],
+      "last_actions": [
+        "Action: Click on the \"Delete\" option in the dropdown menu.",
+        "Action: Click DELETE.",
+        "Action: Terminate the process as the task is finished."
+      ],
+      "auto_hint": "D?premature_terminate"
+    }
+  ]
+}
