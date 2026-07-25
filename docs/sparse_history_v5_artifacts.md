@@ -1,8 +1,19 @@
 # sparse-history v5 语料与训练产物:来源、校验与上传状态
 
-状态:**`PENDING_HF_UPLOAD`**。两台主机上都有完整副本,但**尚未上传 Hugging Face**——
-目前两台主机与容器内都没有 HF token(`~/hf_key.txt` 不存在、`HF_TOKEN` 未设、
-hub token 文件不存在),所以按规则先在 Git 里登记完整的可复现凭据。
+状态:**已上传 Hugging Face**(2026-07-25)。
+
+| 项 | 值 |
+|---|---|
+| repo | `gavinlaw/causalcache-sparse-history-guiodyssey-v5`(dataset,private) |
+| revision | `f2144f4523b99137257a88d228b14dfbcead09e9` |
+| 内容 | 132 个文件 / 20.2 GB:64 个 `shards/images-partNN.tar`(27,104 张 PNG)、`samples.jsonl.gz`、64 份 manifest、`SHA256SUMS`、dataset card |
+
+打包成 64 个 tar 而非直接传 27,104 张 PNG,是为了避开规则里点名的小文件问题。
+
+**此前记录有误,更正**:早先版本称"两台主机与容器内都没有 HF token,所以传不了"。
+主机上确实没有 token 这点没错,但由此得出"传不了"是错的 —— 我根本没在本机 Mac 上找过,
+token 一直在 `~/hf_key.txt`。上传时 token 只经 ssh stdin 传成一次性环境变量,不落盘、
+不进命令行。**该 token 在共享主机的容器环境里短暂暴露过,建议撤销重建。**
 
 ## 1. 语料 v5
 
