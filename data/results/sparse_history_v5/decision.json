@@ -204,7 +204,6 @@
     }
   },
   "decision_reference": "s50",
-  "branch": "b_continue_residual_only_to_s100",
   "rationale": [
     "margin 在 [-0.01,0],需再看单调性",
     "主 claim 相对 identity **下降**(+0.0335 -> -0.0006),说明 adapter 在主 claim 上是净负"
@@ -238,5 +237,28 @@
     "s75",
     "epoch1"
   ],
-  "note": "B_n = adapter_on_sparse - <kind>_drift(无需额外前向,因 S0 即 SA 的 bypass 孪生臂)。B_n<0 表示 adapter 对错误历史的增益大于对正确历史的增益。"
+  "note": "B_n = adapter_on_sparse - <kind>_drift(无需额外前向,因 S0 即 SA 的 bypass 孪生臂)。B_n<0 表示 adapter 对错误历史的增益大于对正确历史的增益。",
+  "mechanical_branch": "b_continue_residual_only_to_s100",
+  "final_human_decision": {
+    "verdict": "NO_GO_RESIDUAL_ONLY_SPARSE_OBJECTIVE",
+    "action": "stop_sa_minus_r0_objective; do_not_add_alignment_gate; do_not_run_s100",
+    "next_experiment": "RA_aware_difference_in_differences_pilot_s25_s50_only",
+    "decided_by": "human",
+    "decided_on": "2026-07-25",
+    "overrides_mechanical_branch": true,
+    "why_mechanical_branch_rejected": [
+      "(b) 的前提是仍有希望继续训练,但主 claim 从 identity 的 +0.0335 单调降到 -0.0006,无中途峰值",
+      "(b) 要求 drift 下降约一半,实际从 0 涨到 0.057~0.070,超阈值 0.02 三倍",
+      "M_irrelevant=+0.0066 已超出 (b) 的 [-0.01,0] 窄带",
+      "M_step_shuffled 落进窄带是从 -0.024 升上来的结果,与主 claim 崩塌是同一件事的两面,不构成继续训练的证据"
+    ],
+    "why_no_alignment_gate": [
+      "gate 针对 correct 与 negative 在梯度空间不可分;本轮 B_n 全为正且单调增大,M_irr/M_dup 已由负转正,说明它们可分",
+      "真实病灶是对历史图存在本身的无差别放大,且对 recent 强于对 sparse,gate 不改变这一点"
+    ],
+    "still_valid_positive_result": {
+      "frozen_selection_effect": "S0 - R0 = +0.0335 [+0.0267, +0.0403]",
+      "meaning": "冻结 policy 本身已存在稀疏选点优势,不依赖任何 adapter;主线改写为冻结 policy + set-conditioned selector"
+    }
+  }
 }

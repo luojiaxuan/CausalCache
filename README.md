@@ -20,7 +20,24 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 
 ## 当前结论
 
-- **History-Gated KV Adapter 正式 gate v1 PASS,s100 冻结(2026-07-24)。** 165 条 GUI-Odyssey
+> **2026-07-25 主线变更:residual-only HGKV 判定 `NO_GO_RESIDUAL_ONLY_SPARSE_OBJECTIVE`。**
+> v5 五臂留出集(494 组 / 176 episodes)显示主 claim `SA − RA` 从 identity 的 **+0.0335**
+> 单调降到 epoch1 的 **−0.0006**(CI [−0.0037,+0.0025])。同一批数据上 `SA − R0` 从 +0.034
+> 涨到 **+0.118** —— **只报后者会得出"方法有效"的相反结论**。差别在于 `RA`(最近窗口 +
+> adapter 开)这个对照臂:adapter 对 recent 的增益(+0.118)**大于**对 sparse 的增益
+> (+0.084),即它放大的是"有历史图"本身,不是"选对了历史"。
+>
+> **下方 2026-07-24 及更早的 HGKV / Selector 结论均以此为准被取代**,保留为负结果,
+> 不得作为现行主张引用。详见 [`docs/sparse_history_v5_results.md`](docs/sparse_history_v5_results.md)。
+>
+> 仍然成立的正向结论:**冻结 policy 本身已存在可利用的稀疏选点优势** ——
+> `frozen_selection_effect = S0 − R0 = +0.0335 [+0.0267,+0.0403]`,不含 0,且不依赖任何 adapter。
+> 主线因此改写为"冻结 policy + set-conditioned selector",adapter 不再是前提。
+
+- **[已被取代 · `NO_GO_RESIDUAL_ONLY_SPARSE_OBJECTIVE`] History-Gated KV Adapter 正式 gate v1 PASS,s100 冻结(2026-07-24)。**
+  *2026-07-25 复核:该 gate 只比了 b0/shuffled/irrelevant,**缺少 `RA`(最近窗口 + adapter 开)对照臂**。
+  当时如实记录的 wrong-history drift(+0.071/+0.067)与 v5 实测(+0.070/+0.057)几乎一致 ——
+  同样的证据,补上 RA 才看出全部增益来自历史放大而非内容选择。原文保留如下:* 165 条 GUI-Odyssey
   heldout 轨迹、5,738 样本 × 2 条件、n=1,220 配对组、10k bootstrap:c−b0=`+0.1372
   [+0.1296,+0.1449]`、c−shuffled=`+0.0016 [+0.0003,+0.0030]`、c−irrelevant=`+0.0108
   [+0.0078,+0.0139]`,三条对照 CI 下界全正;B0 parity 漂移逐位 `0.000000`。冻结基线的两条
@@ -46,7 +63,13 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   exact-key cache。后继主线改为 full-history、empty-start、true-U teacher beam-4、
   edge0–edge3 与统一 fresh student。结果、封存记录与 provenance 见
   [`data/results/hgkv_selector_v1/`](data/results/hgkv_selector_v1/README.md)。
-- **HGKV selector V2 beam-4 契约已冻结、实现中。** 主方法从空集合扫描完整真实历史，
+- **[已被取代 · `SUPERSEDED_POLICY_NOT_FROZEN`] HGKV selector V2 beam-4 契约已冻结、实现中。**
+  *V2 在定义上绑定 `hg-s100`:`U(S)` 用 `log p_hg-s100`、coalition cache key 含
+  `hgkv_checkpoint_sha256`、候选特征是 1280 维 HGKV readout、正式 selected-set gate 也要
+  重新送进 `hg-s100`。该 policy 已判 NO_GO,故 V2 的分数/readout/teacher beam/student
+  checkpoint **一律不得进入最终 selector**。可复用的是 state inventory、图片资产、
+  coalition renderer、beam planner/reducer、exact subset validator 与 bootstrap 代码。
+  后继为 `selector_v3_final_policy_beam4`,须在最终 policy 冻结后重新生成全部标签。原文保留如下:* 主方法从空集合扫描完整真实历史，
   由 true-U teacher beam-4 生成 edge0–edge3，fresh unified student 使用 learned
   beam-4 + STOP；正式 B1/B2/B4 只认完整 selected set 的 hg-s100 真实 utility。首个
   full-history inventory 已完成：train/dev 835/165，候选中位 12、p95 27、最大 44，
