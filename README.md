@@ -2,34 +2,36 @@
 
 **Conditional Marginal Utility of Restoring Visual History for Long-Horizon GUI Agents**
 
-目标会议:AAAI。**冻结 paper claim(2026-07-27)**:
+目标会议:AAAI。**冻结 paper claim(2026-07-27,fixed-budget 版,取代同日的
+additive 单槽版)**:
 
-> Given textual summaries, the current screen, and a variable amount of recent
-> visual context, CausalCache estimates the conditional marginal utility of
-> restoring each archived event at high fidelity. Under a matched one-image
-> budget, it restores a non-local screenshot only when doing so is more useful
-> than extending the contiguous recent window.
+> Under a fixed high-fidelity visual-memory budget B, Recent-B always allocates
+> all slots to the most recent observations. CausalCache instead selects at
+> most B events from the full interaction history. Its benefit therefore comes
+> from reallocating a bounded memory budget, rather than adding extra visual
+> context.
 
-核心**不是**"sparse 总是比 recent 好",而是:**在某个已有 Recent context 下,
-关键旧事件的条件边际有时高于下一张 Recent;CausalCache 学习识别这些状态和事件。**
+核心**不是**"旧图通常比新图好",而是:**对某些当前决策,少数特定旧图的条件价值
+高于它们所替换掉的近期图;CausalCache 学习识别这些状态和事件。**
 
-**当前主线 = r-条件化单槽设计 + Desktop DiD 训练 → MobileWorld/OSWorld 零样本。**
-对每个 `r ∈ {0,1,2,4,8}`(当前图之外已提供的 recent history images 数),构造基础
-上下文 `C_r = goal + 完整 action summaries + current image + Recent-r`,然后只
-分配**一个**新增高保真视觉槽位,三选一:`STOP`(Δ=0)/ 继续扩展 Recent
-(`Δ_recent(r)`)/ 恢复某个被压缩事件的原始截图(`Δ_sparse(j|C_r)`)。关键量是
-恢复优势 `G_restore(r) = max_j Δ_sparse(j|C_r) − Δ_recent(r)`。每一行内部图片
-数/分辨率/summary/prompt 结构全部相同,唯一差别是新增图来自连续 Recent 还是
-selected archive;**跨 r 的绝对分数只是分析,主因果比较是行内 selected-vs-recent**。
-`r=4` 为主设置(接近常见部署配置),完整曲线报告 `r=0,1,2,4,8`——两个相反机制
-(Recent 少时旧图缺局部支撑 / Recent 多时冗余或饱和)必须由实验裁决,不能预设。
-policy 侧四行 ablation(Frozen / Full-layer LoRA / matched ungated KV / HGKV)
-按 r 条件化四臂(Base/Recent/Sparse/Wrong)的 DiD 目标训练并**按 r 分层报告**;
-selector 训练覆盖全部 r(采样比例约 10/15/20/35/20%,按标签产出率调整),输入显式
-包含 r、Recent 特征、candidate age/action family、summaries 与剩余预算,预测
-`Δ̂_sparse(j|C_r)` 并与 `Δ̂_recent(r)`、STOP 三选一。训练与选择只用 Desktop 数据
-(AgentNet/OpenCUA + OSWorld witness);MobileWorld 完全零样本,OSWorld 报未污染
-roster。旧 GUI-Odyssey→AndroidWorld 时代与 margin-SFT 线已归档:
+**当前主线 = 固定预算替换设计 + Desktop DiD 训练 → MobileWorld/OSWorld 零样本。**
+记号:`B` = 当前图之外的高保真历史图预算;`Recent-B` = 最近 B 张**不同帧**
+(事件 s−2…s−1−B;部署选择器 k=1 会选中与当前截图同帧的 s−1,该重复帧现象单独
+披露);`k` = 选中集中来自 Recent-B 窗口之外的图数——**k 是结果统计量,不是预设
+参数**。训练组构造(corpus v3,`build_desktop_did_corpus_v3.py`):R0/RA =
+Recent-B 全窗口;S0/SA = Recent-(B−1) + target-recurrence 旧帧(**替换最老槽位**,
+冻结规则);WA = 同槽位换 age-matched wrong 旧帧;正/错旧帧 age ≥ B+2。行内图数
+恒为 B(+当前图)——**测的是有限记忆预算的重分配,不是加图**;跨 B 只是分析。
+主口径:训练 `B ∈ {1,2,4}`(B=1 即真前一帧探针口径的 v1),评测网格
+`B ∈ {0,1,2,4}`;`B=8` 只建不训,作为"门控选择性是否外推到更大预算窗口"的
+extension;B=0 仅 parity;B=3 不进任何主口径。predicted `Q_B(k)` 曲线
+(k=0…B,预期倒 U 型)在 dev 上用冻结 HGKV 出分析。selector(Stage C)候选 =
+完整历史**含 recent 帧**,at-most-B + STOP,贪心/beam 每步完整集合重新送冻结
+policy 打分(禁止 singleton 求和);`k_old = |S ∖ Recent-B|` 作为行为统计量报告。
+训练与选择只用 Desktop 数据;MobileWorld 完全零样本,OSWorld 报未污染 roster。
+r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训练。
+旧 GUI-Odyssey 替换线的 NO-GO 保留为数据源对比论据(Odyssey 上 recent 天然更强
+且目标 case 稀少;桌面数据两条都不成立)。归档索引:
 [`docs/archive/README.md`](docs/archive/README.md)。
 
 ## 当前结论

@@ -2,6 +2,23 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-27:主张重冻结为固定预算重分配,corpus v3 构建完成,三行 v3 重训发射
+
+- 用户裁定:主实验从"C_r + 单槽新增"改为**固定预算 B 内替换**——Recent-B 把全部
+  槽位给最近观测,CausalCache 从完整历史选至多 B 个事件;k(窗口外图数)是结果
+  统计量。四个冻结点:最老槽位替换规则、主 B={1,2,4}(B=3 不进任何主口径)、
+  age ≥ B+2、B=8 只建不训(评测外推)。
+- corpus v3(`build_desktop_did_corpus_v3.py`,55 项相关测试绿):B=1/2/4/8 =
+  969/764/470/160 组;训练合并 B∈{1,2,4} = **2,203 组 / 11,015 行 / train units
+  1,774 / heldout 211**,samples SHA `3114d4c9…66b6f`;9,925 行全过 trainer 校验,
+  5,053 引用图 0 缺失。B=1 行即真前一帧探针口径的 v1。
+- 三份 v3 config(300 步 / ckpt 50 / 协议块三行逐字一致)提交;v3 重训发射:
+  hyper01 GPU0-3 HGKV(canonical 容器)、hyper00 GPU1-4 Full-LoRA;hyper01
+  GPU4/5 被他人 125GB/100% 活跃负载占用,ungated 首启撤下,挂 Mac 侧单发监视器
+  自动补位(hyper01 GPU4-7 或 hyper00 GPU0+5-7 先空者承接)。
+- r-additive corpus v2(五分片 2,912 组,86M)归档为 recent-dose 附录分析材料,
+  不训练;additive 版 claim 与实验节将由 fixed-budget 版在 paper 中取代。
+
 ## 2026-07-27(凌晨):Desktop DiD 三臂全部收官,HGKV 通过全部预注册 gate
 
 - 三行 150 步全部 EXIT_0(HGKV/ungated 于 hyper01,Full-LoRA 于 hyper00),

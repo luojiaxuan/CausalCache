@@ -44,31 +44,29 @@
 
 \begin{abstract}
 Long-horizon GUI agents keep compressed textual summaries of past events and a
-bounded number of history screenshots. At each decision the practical question
-is not whether archived screenshots help in general, but how to spend the
-\emph{next} high-fidelity visual slot: extend the contiguous recent window,
-restore one archived non-local event, or stop adding images. We introduce
-\method, which estimates the \emph{conditional marginal utility} of restoring
-each archived event given the textual summaries, the current screen, and a
-variable amount of already-provided recent visual context
-$r\in\{0,1,2,4,8\}$. Under a matched one-image budget, \method{} restores a
-non-local screenshot only when doing so is more useful than extending the
-recent window. Its history-gated key/value (\hgkv) adapter adds low-rank
+bounded number of high-fidelity history screenshots. Under a fixed
+visual-memory budget $B$, the standard Recent-$B$ policy allocates every slot
+to the most recent observations. We introduce \method, which instead selects
+at most $B$ events from the \emph{full} interaction history---recent frames
+included---so its benefit comes from \emph{reallocating} a bounded memory
+budget rather than adding extra visual context. The number of selected
+non-recent events $k$ is a measured behavioral statistic, not a preset
+parameter. Its history-gated key/value (\hgkv) adapter adds low-rank
 residuals only to restored history-image tokens and is structurally bypassed
-with no history image, exactly preserving the frozen policy. It is trained with
-a difference-in-differences objective whose per-arm frozen anchors make
-``amplify any history image'' worth exactly zero. On 969 desktop decision
-groups built from successful AgentNet trajectories, the frozen policy shows no
-reliable preference for the target-relevant archived frame over the true
+with no history image, exactly preserving the frozen policy. It is trained on
+matched-budget \emph{replacement} groups---Recent-$B$ versus the same window
+with its oldest slot replaced by one task-relevant archived frame---with a
+difference-in-differences objective whose per-arm frozen anchors make
+``amplify any history image'' worth exactly zero. At $B{=}1$ on desktop
+decision groups from successful AgentNet trajectories, the frozen policy shows
+no reliable preference for the target-relevant archived frame over the true
 previous frame ($+0.001$ nats/token, $95\%$ CI $[-0.024,+0.025]$): selectivity
-is not inherited. \hgkv{} creates it, with a selective DiD gain of
-$+0.010$ $[+0.006,+0.014]$ against the informative previous-frame control
-(and $+0.011$ $[+0.007,+0.015]$ against a redundant duplicate control) within
-a pre-registered drift envelope, while a full-layer LoRA control attains
-selectivity only by drifting beyond it. A budget-aware selector trained across $r$ then decides among
-STOP, next-recent, and archived candidates.
-\pending{Insert final $r$-conditioned curves and zero-shot MobileWorld and
-OSWorld closed-loop results.}
+is not inherited. \hgkv{} creates it ($+0.010$ $[+0.006,+0.014]$) within a
+pre-registered drift envelope, while a full-layer LoRA control attains
+selectivity only by drifting beyond it. A budget-aware selector then chooses
+at most $B$ events from the full history with STOP allowed.
+\pending{Insert per-$B$ replacement gates, the $Q_B(k)$ reallocation curve,
+and zero-shot MobileWorld and OSWorld closed-loop results.}
 \end{abstract}
 
 \section{Introduction}
@@ -92,19 +90,19 @@ frozen policy can respond to the \emph{presence} of history images without
 being reliably sensitive to their \emph{content}, in which case a better
 selector has nothing to improve.
 
-\method{} therefore poses the memory question conditionally. Given the goal,
-complete textual action summaries, the current screen, and $r$ recent
-screenshots, one additional high-fidelity slot may be spent three ways: not at
-all (STOP), on the next contiguous recent frame, or on one archived non-local
-event. The scientific quantity is the \emph{restoration advantage}
-$\grestore(r)$: how much the best archived event beats the next recent frame,
-as a function of $r$. Two opposing mechanisms make this genuinely empirical.
-When $r$ is small, archived frames may lack local support; when $r$ is
-moderate, the recent window already carries the operating context and a
-non-local key fact is most complementary; when $r$ is large, either redundancy
-inflates the relative value of one archived frame or saturation drives all
-marginals toward zero. None of this can be assumed in advance, so we measure
-$r\in\{0,1,2,4,8\}$ and treat $r{=}4$ as the primary deployment-like setting.
+\method{} therefore poses the memory question as \emph{budget reallocation}.
+Under a fixed budget of $B$ high-fidelity history images, Recent-$B$ is one
+particular allocation---all slots to the most recent frames. \method{} selects
+at most $B$ events from the full history, with recent frames themselves as
+candidates and STOP allowed; the comparison
+$Q(S^{*})>Q(S_{\mathrm{recent}})$ at matched $B$ isolates allocation quality
+from visual capacity. The number of selected non-recent events,
+$k=|S\setminus\mathrm{Recent}\text{-}B|$, is a \emph{result} statistic. The
+reallocation curve $Q_B(k)$ for $k=0,\ldots,B$ is genuinely empirical: all
+recent may over-weight recency, all archived may lose local continuity, and a
+small replacement may be best---an inverted U that cannot be assumed in
+advance. We train and gate at $B\in\{1,2,4\}$ and evaluate $B{=}8$ only as an
+out-of-training extension.
 
 Learning to \emph{use} restored evidence must not corrupt the base agent.
 Full-layer adaptation simultaneously changes current-screen understanding,
@@ -119,20 +117,20 @@ content reduces the loss.
 
 Our contributions are:
 \begin{itemize}
-    \item a conditional formulation of GUI visual memory: one extra
-    high-fidelity slot, three actions (STOP, next-recent, restore), and the
-    restoration advantage $\grestore(r)$ measured across
-    $r\in\{0,1,2,4,8\}$ under matched image budgets;
-    \item a policy-preserving \hgkv{} interface trained with per-arm-anchored
-    DiD supervision, with exact no-history parity and pre-registered caps on
-    recent-only and wrong-history drift;
+    \item a fixed-budget reallocation formulation of GUI visual memory:
+    Recent-$B$ versus at-most-$B$ selection from the full history at matched
+    image counts, with the replacement intensity $k$ as a measured statistic
+    and $Q_B(k)$ as the reallocation curve;
+    \item a policy-preserving \hgkv{} interface trained on matched-budget
+    replacement groups with per-arm-anchored DiD supervision, exact
+    no-history parity, and pre-registered caps on recent-window and
+    wrong-history drift;
     \item matched structural controls showing that full-layer adaptation
     attains selectivity only outside the drift envelope, and that token gating
     adds selective gain beyond a layer- and rank-matched ungated control;
-    \item an $r$-aware budgeted selector that predicts
-    $\widehat{\dsparse}(j\mid \ctx{r})$ against
-    $\widehat{\drecent}(r)$ and STOP, trained on desktop data only and
-    evaluated zero-shot on mobile and desktop benchmarks.
+    \item a budget-aware selector over the full candidate history (recent
+    frames included, STOP allowed), trained on desktop data only and evaluated
+    zero-shot on mobile and desktop benchmarks.
 \end{itemize}
 
 \section{Related Work}
@@ -185,51 +183,45 @@ e_j=(x_j,a_j,x_{j+1}),
 where each event keeps a compact low-fidelity record $\tilde e_j$ and an
 archived high-fidelity post-action screenshot $v_j$.
 
-\paragraph{Conditional base context.}
-For $r\ge 0$, define the base context
+\paragraph{Fixed-budget allocation.}
+Every prompt contains the goal $g$, the \emph{complete} textual action
+summaries $\{\tilde e_1,\ldots,\tilde e_{t-1}\}$, and the current screenshot
+$x_t$. Under a budget of $B$ high-fidelity history images, an allocation is a
+set $S\subseteq\{1,\ldots,t-1\}$ of restored events with $|S|\le B$. Let
+$Q(S)$ denote the policy's mean target-token log-likelihood of the successful
+next action under allocation $S$. The standard baseline is
 \begin{equation}
-\ctx{r} \;=\; g
-\;+\;\{\tilde e_1,\ldots,\tilde e_{t-1}\}
-\;+\;x_t
-\;+\;\mathrm{Recent}\text{-}r,
-\label{eq:cr}
+S_{\mathrm{recent}}=\mathrm{Recent}\text{-}B,
+\label{eq:recent}
 \end{equation}
-i.e.\ the goal, the \emph{complete} textual action summaries, the current
-screenshot, and the $r$ most recent distinct history screenshots. Let
-$Q(\cdot)$ denote the policy's mean target-token log-likelihood of the
-successful next action under a context. One additional visual slot admits
-three actions:
-\begin{align}
-\Delta_{\mathrm{STOP}}(r) &= 0,\\
-\drecent(r) &= Q(\ctx{r}+\{\text{next recent}\})-Q(\ctx{r}),\\
-\dsparse(j\mid \ctx{r}) &= Q(\ctx{r}+\{v_j\})-Q(\ctx{r}).
-\end{align}
-The selector's target decision is
+the $B$ most recent distinct history frames. \method{} targets
 \begin{equation}
-\arg\max\bigl\{0,\; \drecent(r),\;
-\dsparse(j_1\mid \ctx{r}),\ldots\bigr\},
+S^{*}=\arg\max_{\substack{S\subseteq\{1,\ldots,t-1\}\\ |S|\le B}} Q(S),
+\qquad
+Q(S^{*})>Q(S_{\mathrm{recent}}),
 \label{eq:decision}
 \end{equation}
-and the paper's central quantity is the \emph{restoration advantage}
+so recency is one candidate allocation, not a separate modality. The
+replacement intensity
 \begin{equation}
-\grestore(r)
-=\max_j \dsparse(j\mid \ctx{r})-\drecent(r).
+k=|S\setminus \mathrm{Recent}\text{-}B|
+\label{eq:kstat}
+\end{equation}
+is a measured statistic, and the reallocation curve
+\begin{equation}
+Q_B(k)=\max_{\substack{|S|\le B\\ |S\setminus\mathrm{Recent}\text{-}B|=k}} Q(S),
+\qquad k=0,\ldots,B,
 \label{eq:grestore}
 \end{equation}
-It answers: with $r$ recent screenshots already present, should the last
-high-fidelity slot hold more contiguous history or one task-relevant non-local
-event? Within each $r$, all compared prompts contain the same number of
-images, the same summaries, and the same structure; only the provenance of the
-added image differs. Across different $r$ the total image count differs, so
-cross-$r$ absolute scores are analysis, not the causal comparison.
-
-\paragraph{Budgets beyond one slot.}
-For at-most-$B$ selection the same construction extends to sets
-$S\subseteq\{1,\ldots,t-1\}$ restored on top of $\ctx{r}$, with
-$U_t(S\mid\ctx{r})=Q(\ctx{r}+S)-Q(\ctx{r})$ and conditional marginals
-$\Delta_t(j\mid S)=U_t(S\cup\{j\})-U_t(S)$. Every formally reported set
-utility reruns the complete selected set; we never report a sum of singleton
-gains as the utility of a coalition.
+localizes where reallocation pays. All comparisons at a given $B$ hold the
+image count, resolutions, summaries, and prompt structure fixed; only which
+events occupy the slots differs. Cross-$B$ comparisons are analysis, not the
+causal contrast. Given a partial allocation $S$, conditional marginals
+$\Delta_t(j\mid S)=Q(S\cup\{j\})-Q(S)$ drive selection, and a replacement is
+justified only when the incoming event's marginal exceeds that of the recent
+frame it displaces. Every formally reported set utility reruns the complete
+selected set; we never report a sum of singleton gains as the utility of a
+coalition.
 
 \section{CausalCache}
 
@@ -251,28 +243,32 @@ the multimodal token-type sequence and per-image patch geometry; any mismatch
 between declared images and encoded image blocks aborts the forward pass.
 When no history image is restored, the adapter context is absent and the
 projection hook returns the original module output, so
-$\adapted(\cdot\mid \ctx{0})=\base(\cdot\mid \ctx{0})$ up to bitwise equality
+$\adapted(\cdot\mid S{=}\varnothing)=\base(\cdot\mid S{=}\varnothing)$ up to bitwise equality
 in our implementation.
 
-\subsection{Per-$r$ Difference-in-Differences Supervision}
+\subsection{Per-$B$ Replacement Supervision}
 
 Training states are decision points of successful desktop trajectories in
 which the target action $a^*_t$ recurs earlier in the same trajectory under
 full-action equivalence (type, arguments, and coordinates within tolerance);
 the screenshot preceding the earlier occurrence is the target-specific
-positive frame. For each state and each conditioning level $r$ we construct
-four prompts with identical summaries, current screen, and target:
+positive frame. For each state and each budget $B$ we construct three
+matched-budget allocations with identical summaries, current screen, and
+target---every prompt carries exactly $B$ history images:
 \begin{itemize}
-    \item \textbf{Base}: $\ctx{r}$ alone;
-    \item \textbf{Recent}: $\ctx{r}+\{\text{next recent frame}\}$;
-    \item \textbf{Sparse}: $\ctx{r}+\{v_{j^{+}}\}$ with the target-specific
-    archived frame ($\mathrm{age}\geq 3$);
-    \item \textbf{Wrong}: $\ctx{r}+\{v_{j^{-}}\}$ with an age-matched
+    \item \textbf{Recent}: $\mathrm{Recent}\text{-}B$, the $B$ most recent
+    distinct frames;
+    \item \textbf{Sparse}: $\mathrm{Recent}\text{-}(B{-}1)+\{v_{j^{+}}\}$, the
+    oldest recent slot replaced by the target-specific archived frame
+    ($\mathrm{age}\geq B{+}2$, strictly older than the whole window);
+    \item \textbf{Wrong}: the same slot replaced by an age-matched
     same-trajectory frame whose following action is \emph{not} equivalent to
     $a^*_t$.
 \end{itemize}
-Positives do not require the base action to be wrong: both information
-addition and evidence amplification are admissible mechanisms.
+Training teaches the $k{=}1$ replacement interface; larger-$k$ compositions
+arise at selection time. Positives do not require the base action to be
+wrong: both information addition and evidence amplification are admissible
+mechanisms.
 
 Let $\ell$ denote mean target log-likelihood, superscripted by adapter state
 (active or frozen bypass). Each arm is anchored to \emph{its own} frozen
@@ -299,42 +295,41 @@ $\lambda{=}10^{-4}$, and no action cross-entropy. On the identity adapter
 every increment is zero, so $A_s-A_r$ is exactly zero: the frozen policy's
 own preference for target-relevant frames cannot masquerade as adapter skill,
 and uniformly amplifying all history buys nothing. The dead-zone caps bound
-recent-only and wrong-history drift with gradients on the same scale as the
-selection hinges. Losses and evaluation are stratified by $r$; a pooled mean
-could hide a method that helps at $r{=}4$ but fails at $r{=}0$ or saturates
-at $r{=}8$.
+recent-window and wrong-history drift with gradients on the same scale as the
+selection hinges. Losses and evaluation are stratified by $B$; a pooled mean
+could hide a method that helps at $B{=}4$ but fails at $B{=}1$.
 
 \subsection{Success-Anchored Utility and Selector Supervision}
 
 After the history interface is frozen, selector labels are true policy
-utilities: for each state and sampled $r$, singleton utilities
-$\dsparse(j\mid\ctx{r})$ for the full candidate pool, the matched
-$\drecent(r)$, and---for budgets beyond one---set utilities along
+utilities: for each state and budget, singleton utilities for the full
+candidate pool (recent frames included), the matched $Q(\mathrm{Recent}
+\text{-}B)$ anchor, and---for budgets beyond one---set utilities along
 shortlisted, recent, greedy, and small-beam paths. All labels rerun complete
 prompts through the frozen \hgkv{} policy.
 
-\subsection{$r$-Aware Budgeted Selector}
+\subsection{Budget-Aware Selector over the Full History}
 
 The selector should use the same interface through which the policy reads
 history. For each candidate and each adapted layer we capture a lightweight
 counterfactual readout: the frozen decision query attends to the candidate's
 history keys/values with and without the adapter increments, and the
 mean-head difference plus per-head norms give 160 features per layer (1{,}280
-per candidate). The input additionally encodes, explicitly, the number of
-recent images $r$ already present, candidate age and action family, summary
-features, and the remaining budget.
+per candidate). The input additionally encodes, explicitly, candidate age and
+recency-window membership, action family, summary features, and the remaining
+budget.
 
 A shared encoder with learned attention over the eight adapted layers feeds
-four heads: predicted marginal $\widehat{\dsparse}(j\mid\ctx{r})$, within-state
+four heads: predicted conditional marginal $\widehat{\Delta}_t(j\mid S)$, within-state
 rank, positive probability, and STOP. Set-conditioned selection for
 $B{>}1$ contextualizes selected-event embeddings with one self-attention block
 and maps remaining candidates to that context with one cross-attention block
-\citep{zaheer2017deepsets,lee2019settransformer}. At each step the best
-remaining candidate rank is compared against next-recent and STOP, realizing
-Eq.~\ref{eq:decision}. Training states sample
-$r\in\{0,1,2,4,8\}$ with a deployment-tilted mixture
-($10/15/20/35/20\%$, subject to label yield), so a single selector serves all
-conditioning levels.
+\citep{zaheer2017deepsets,lee2019settransformer}. Recent frames are ordinary
+candidates: at each step the best remaining candidate rank is compared
+against STOP, and a replacement of a recent frame happens only when an
+archived event outranks it, realizing Eq.~\ref{eq:decision}. Selector labels
+cover $B\in\{1,2,4\}$; the realized replacement intensity $k$
+(Eq.~\ref{eq:kstat}) is reported per budget, never preset.
 
 \section{Experimental Setup}
 
@@ -342,43 +337,45 @@ conditioning levels.
 
 Policy adaptation and selector training use only desktop data: successful
 AgentNet/OpenCUA Ubuntu trajectories (5{,}000 screened, 2{,}293 successful,
-6{,}003 decision points) yield 969 target-recurrence groups
-(train/dev/test $=773/94/102$, trajectory-disjoint; click $56\%$, key
-$35\%$, plus type/drag/scroll), complemented by a high-precision OSWorld
-witness seed mined from official successful trajectories. Checkpoints and
-thresholds are selected only on the desktop development split under
-pre-registered gates: positive DiD selection with a positive bootstrap lower
-bound, and drift caps $|A_r|,|A_n|<\epsilon$. No mobile benchmark data
-touches training or selection.
+6{,}003 decision points) yield fixed-budget replacement groups at
+$B{=}1/2/4$ of $969/764/470$ (2{,}203 in total; 1{,}774 training units and
+211 development groups, trajectory-disjoint; click $52$--$56\%$, plus
+key/type/drag/scroll), complemented by a high-precision OSWorld witness seed
+mined from official successful trajectories. A further $160$ groups at
+$B{=}8$ are constructed but deliberately excluded from training, so $B{=}8$
+evaluates out-of-training budget extrapolation. Checkpoints and thresholds
+are selected only on the desktop development split under pre-registered
+gates: positive DiD selection with a positive bootstrap lower bound, and
+drift caps $|A_r|,|A_n|<\epsilon$. No mobile benchmark data touches training
+or selection.
 
-\subsection{The $r$-Conditioned Design}
+\subsection{The Fixed-Budget Replacement Design}
 
-Table~\ref{tab:rdesign} defines the core comparison. Each row fixes the base
-context $\ctx{r}$ and spends exactly one additional slot; within a row all
-prompts have identical image counts, resolutions, summaries, and structure.
-The main deployment-like setting is $r{=}4$; the full curve
-$r\in\{0,1,2,4,8\}$ reports where restoration helps, where it is neutral, and
-where it saturates.
+Table~\ref{tab:rdesign} defines the core comparison. Each row fixes the
+budget $B$; every compared allocation carries exactly $B$ history images with
+identical resolutions, summaries, and prompt structure, so the contrast
+isolates \emph{which events occupy the slots}. $B{=}4$ is the primary
+deployment-like setting.
 
 \begin{table}[t]
 \centering
 {\small
 \begin{tabular}{@{}rlll@{}}
 \toprule
-$r$ & Base context & Recent control & \method \\
+$B$ & Recent baseline & Replacement arms & \method \\
 \midrule
-0 & current $+$ summaries & $+$ Recent-1 & $+$ Selected-1 \\
-1 & $+$ Recent-1 & $+$ 2nd recent & $+$ Selected-1 \\
-2 & $+$ Recent-2 & $+$ 3rd recent & $+$ Selected-1 \\
-4 & $+$ Recent-4 & $+$ 5th recent & $+$ Selected-1 \\
-8 & $+$ Recent-8 & $+$ 9th recent & $+$ Selected-1 \\
+1 & Recent-1 & prev.\ frame $\to$ archived & Selected-1 \\
+2 & Recent-2 & oldest slot $\to$ archived & Selected-$\le$2 \\
+4 & Recent-4 & oldest slot $\to$ archived & Selected-$\le$4 \\
+8 & Recent-8 & (built, not trained) & Selected-$\le$8 \\
 \bottomrule
 \end{tabular}
 }
-\caption{The $r$-conditioned one-slot design. Every row is a matched-budget
-within-row comparison; the primary causal contrast is Selected-vs-Recent
-inside each row. $r{=}4$ is the primary setting; cross-$r$ absolute scores
-are analysis only.}
+\caption{The fixed-budget design. Training arms replace the oldest recent
+slot with one archived frame ($k{=}1$); the deployed selector chooses at most
+$B$ events from the full history, and the realized $k$ is reported as a
+statistic. All contrasts at a given $B$ are matched in image count;
+cross-$B$ comparisons are analysis only.}
 \label{tab:rdesign}
 \end{table}
 
@@ -395,15 +392,15 @@ compare four policy rows under identical data, steps, and cadence:
     \item \textbf{\hgkv{} (ours)}: token-gated, structurally bypassed at
     $B{=}0$.
 \end{itemize}
-Memory baselines are STOP, Recent (the next contiguous frame), Random,
-OCR/RGB similarity, and the learned $r$-aware selector; an oracle over the
-candidate pool bounds headroom. Every method receives the same summaries and
-the same image budget.
+Memory baselines are Recent-$B$, Random, OCR/RGB similarity, and the learned
+budget-aware selector (STOP allowed); an oracle over the candidate pool
+bounds headroom. Every method receives the same summaries and the same image
+budget.
 
 \subsection{Zero-Shot Benchmarks and Metrics}
 
 The policy interface and selector, trained on desktop data only, are evaluated
-(i) on held-out desktop decision groups (offline, per-$r$), (ii) zero-shot on
+(i) on held-out desktop decision groups (offline, per-$B$), (ii) zero-shot on
 an uncontaminated OSWorld task roster \citep{xie2024osworld} with official
 evaluator scores (tasks whose trajectories seeded the witness corpus are
 excluded from zero-shot claims and reported separately as in-domain
@@ -421,24 +418,23 @@ task success with cluster bootstrap, step counts, and wall time.
 
 \subsection{Selectivity Is Not Inherited from the Frozen Policy}
 
-On the desktop development split (94 groups, 77 trajectories, $r{=}0$), the
-choice of recent control matters. Against a \emph{redundant} control that
-restores a byte-identical copy of the current screen (the deployment
-recent-selector's $k{=}1$ behavior), the frozen policy prefers the
-target-relevant archived frame by $+0.0333$ nats/token
-($95\%$ CI $[+0.0118,+0.0567]$). Against the \emph{informative} true previous
-frame, however, its preference vanishes: $+0.0013$
-$[-0.0242,+0.0253]$, not significant (94/94 probes have a previous frame that
-differs from the current screen). To the frozen policy, a task-relevant
-non-local frame and the most recent distinct frame are worth about the same;
-selectivity must be learned. \pending{Insert the full $\grestore(r)$ curve
-for $r\in\{0,1,2,4,8\}$ with per-$r$ candidate-pool oracles, using the
-distinct-frame recent definition throughout.}
+On the desktop development split at $B{=}1$ (94 groups, 77 trajectories),
+the choice of recent baseline matters. Against a \emph{redundant} baseline
+that restores a byte-identical copy of the current screen (the deployment
+recent-selector's behavior), the frozen policy prefers the target-relevant
+archived frame by $+0.0333$ nats/token ($95\%$ CI $[+0.0118,+0.0567]$).
+Against the \emph{informative} true previous frame, however, its preference
+vanishes: $+0.0013$ $[-0.0242,+0.0253]$, not significant (94/94 probes have a
+previous frame that differs from the current screen). To the frozen policy, a
+task-relevant archived frame and the recent frame it would replace are worth
+about the same; profitable reallocation must be learned. \pending{Insert the
+per-$B$ frozen replacement effects and the $Q_B(k)$ curve with candidate-pool
+oracles, using the distinct-frame recent definition throughout.}
 
 \subsection{Selective Use Within a Drift Envelope}
 
 Table~\ref{tab:did-gate} reports the pre-registered desktop DiD gate at
-$r{=}0$. All three adapters are trained for 150 matched steps; checkpoints
+$B{=}1$. All three adapters are trained for 150 matched steps; checkpoints
 are selected by the frozen rule (all gates passed, maximal DiD selection,
 earliest tie-break). \hgkv{} passes every gate from step 50 onward: its
 selected checkpoint improves DiD selection to $+0.0111$
@@ -470,7 +466,7 @@ Full-layer LoRA (best) & $+0.0163$ & $0.0215$ & $0.0116$ & fail \\
 \bottomrule
 \end{tabular}
 }
-\caption{Desktop DiD gate on 94 development groups ($r{=}0$; 2{,}000
+\caption{Desktop DiD gate on 94 development groups ($B{=}1$; 2{,}000
 episode-clustered bootstrap replicates). DiD select $=(A_s-A_r)$; caps
 require $|A_r|,|A_n|<0.02$. \hgkv{}'s DiD CI is
 $[+0.0074,+0.0150]$; full-layer LoRA has no checkpoint satisfying the caps.
@@ -478,14 +474,15 @@ $[+0.0074,+0.0150]$; full-layer LoRA has no checkpoint satisfying the caps.
 \label{tab:did-gate}
 \end{table}
 
-\subsection{Conditional Curves and Zero-Shot Transfer}
+\subsection{Reallocation Curves and Zero-Shot Transfer}
 
-\pending{Report per-$r$ DiD gates and $\grestore(r)$ for
-$r\in\{0,1,2,4,8\}$ with $r{=}4$ as the primary column; then the zero-shot
-tables: on the uncontaminated OSWorld roster and the 117-task mobile memory
-benchmark, compare Frozen/\hgkv{} $\times$ STOP/Recent/selector at matched
-budgets, with paired cluster bootstrap. The mobile benchmark contributes no
-training or selection signal.}
+\pending{Report per-$B$ replacement gates for $B\in\{1,2,4\}$ with the
+$B{=}8$ out-of-training extension, the $Q_B(k)$ reallocation curve and
+realized $k$ per budget; then the zero-shot tables: on the uncontaminated
+OSWorld roster and the 117-task mobile memory benchmark, compare
+Frozen/\hgkv{} $\times$ Recent-$B$/selector at matched budgets, with paired
+cluster bootstrap. The mobile benchmark contributes no training or selection
+signal.}
 
 \begin{table*}[t]
 \centering
@@ -493,72 +490,75 @@ training or selection signal.}
 \setlength{\tabcolsep}{5.0pt}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrrr@{}}
 \toprule
-\multicolumn{8}{@{}l}{\textbf{Per-$r$ one-slot comparison (offline desktop heldout; primary setting $r=4$)}} \\
+\multicolumn{8}{@{}l}{\textbf{Fixed-budget comparison (offline desktop heldout; primary setting $B=4$)}} \\
 \addlinespace[2pt]
-Policy & Extra slot & $r{=}0$ & $r{=}1$ & $r{=}2$ & $r{=}4$ & $r{=}8$ & Notes \\
+Policy & Allocation & $B{=}1$ & $B{=}2$ & $B{=}4$ & $B{=}8^{\dagger}$ & Realized $k$ & Notes \\
 \midrule
-Frozen & next recent & \tbd & \tbd & \tbd & \tbd & \tbd & \\
-Frozen & selected archived & \tbd & \tbd & \tbd & \tbd & \tbd & $\grestore(0)\approx 0$ \\
-\hgkv & next recent & \tbd & \tbd & \tbd & \tbd & \tbd & \\
-\hgkv & selected archived & \tbd & \tbd & \tbd & \tbd & \tbd & \\
-\hgkv & learned selector (STOP/recent/restore) & \tbd & \tbd & \tbd & \tbd & \tbd & \\
+Frozen & Recent-$B$ & \tbd & \tbd & \tbd & \tbd & $0$ & \\
+Frozen & oldest slot $\to$ archived & \tbd & \tbd & \tbd & \tbd & $1$ & $B{=}1$: $\approx$Recent \\
+\hgkv & Recent-$B$ & \tbd & \tbd & \tbd & \tbd & $0$ & \\
+\hgkv & oldest slot $\to$ archived & \tbd & \tbd & \tbd & \tbd & $1$ & gate: Tab.~\ref{tab:did-gate} \\
+\hgkv & learned selector (at-most-$B$, STOP) & \tbd & \tbd & \tbd & \tbd & \tbd & $k$ measured \\
 \bottomrule
 \end{tabular*}
 }
-\caption{Skeleton of the conditional main table. Each cell is a within-row
-matched-budget contrast on the desktop heldout split; the learned selector row
-may choose STOP and is charged the images it actually uses. Cross-$r$
-comparisons are analysis only.}
+\caption{Skeleton of the fixed-budget main table. Each cell is a matched-count
+contrast on the desktop heldout split; the learned selector may choose STOP
+and is charged the images it actually uses; $^{\dagger}$$B{=}8$ is excluded
+from training and reports budget extrapolation. Cross-$B$ comparisons are
+analysis only.}
 \label{tab:per-r}
 \end{table*}
 
 \section{Ablations and Analyses}
 
-Planned ablations follow the conditional factorization. Policy-side: per-$r$
-stratified DiD gates for \hgkv, ungated KV, and full-layer LoRA (a pooled mean
-may hide help at $r{=}4$ and saturation at $r{=}8$); adapter depth and rank;
-removing the gain, content, or cap terms. Selector-side: with and without the
-explicit $r$ input; label-mixture sensitivity; candidate-pool size; STOP
-calibration; top-$B$ versus bottom-$B$ restoration; wrong-event and
-summary--image mismatch controls. We also stratify by trajectory length,
-application, and positive-frame age.
+Planned ablations follow the fixed-budget factorization. Policy-side:
+per-$B$ stratified DiD gates for \hgkv, ungated KV, and full-layer LoRA (a
+pooled mean may hide help at $B{=}4$ and failure at $B{=}1$); the $B{=}8$
+extrapolation; adapter depth and rank; removing the gain, content, or cap
+terms. Selector-side: recency-membership feature removal; candidate-pool
+size; STOP calibration; top-$k$ versus bottom-$k$ replacement; wrong-event
+and summary--image mismatch controls; a recent-memory dose analysis (varying
+window size without replacement) as an appendix. We also stratify by
+trajectory length, application, and positive-frame age.
 
 \section{Limitations and Claim Boundary}
 
-Our frozen claim is deliberately conditional:
+Our frozen claim is about allocation, not modality:
 \begin{quote}
-Given textual summaries, the current screen, and a variable amount of recent
-visual context, \method{} estimates the conditional marginal utility of
-restoring each archived event at high fidelity. Under a matched one-image
-budget, it restores a non-local screenshot only when doing so is more useful
-than extending the contiguous recent window.
+Under a fixed high-fidelity visual-memory budget $B$, Recent-$B$ always
+allocates all slots to the most recent observations. \method{} instead
+selects at most $B$ events from the full interaction history. Its benefit
+therefore comes from reallocating a bounded memory budget, rather than adding
+extra visual context.
 \end{quote}
-The claim is \emph{not} that sparse history beats recency in general; it is
-that in identifiable states the conditional marginal of a key archived event
-exceeds the next recent frame, and \method{} learns to recognize those states
-and events. The teacher-forced likelihood surrogate must ultimately be judged
-by closed-loop success. ``Causal'' refers only to controlled restoration
-interventions holding the remaining prompt fixed, not environment-level
-structural causality. The desktop DiD evidence reported here instantiates the
-$r{=}0$ row; its training-time recent arm followed the deployment selector,
-whose $k{=}1$ frame duplicates the current screen, so we separately re-scored
-the selected checkpoint against the true previous frame and report both
-controls. The $r$-conditioned corpus (v2) freezes ``next recent'' as the most
-recent \emph{distinct} frame and discloses the deployment duplication
-separately. The full $r$ curves and the mobile zero-shot evaluation are
-pending, and we cannot guarantee the pretrained base policy never saw related
-data.
+The claim is \emph{not} that old frames are usually better than recent ones;
+it is that for some decisions, the conditional value of a few specific
+archived events exceeds that of the recent frames they replace, and \method{}
+learns to recognize those states and events. The teacher-forced likelihood
+surrogate must ultimately be judged by closed-loop success. ``Causal'' refers
+only to controlled restoration interventions holding the remaining prompt
+fixed, not environment-level structural causality. The desktop DiD evidence
+reported here instantiates $B{=}1$; its training-time recent arm followed the
+deployment selector, whose top slot duplicates the current screen, so we
+separately re-scored the selected checkpoint against the true previous frame
+and report both controls (the v3 corpus freezes recent slots as distinct
+frames and discloses the deployment duplication separately). The per-$B$
+gates, $Q_B(k)$ curves, and the mobile zero-shot evaluation are pending, and
+we cannot guarantee the pretrained base policy never saw related data.
 
 \section{Conclusion}
 
-\method{} reframes visual memory for GUI agents as a conditional decision:
-given what recent context is already present, spend the next high-fidelity
-slot on recency, on one archived non-local event, or not at all. A token-gated
-KV interface learns to use restored evidence inside a pre-registered drift
-envelope---where full-layer adaptation cannot stay---and an $r$-aware selector
-learns when restoration beats recency. All learning happens on desktop data;
-mobile benchmarks remain untouched for zero-shot evaluation.
-\pending{Update with final conditional curves and zero-shot findings.}
+\method{} reframes visual memory for GUI agents as budget reallocation:
+under a fixed number of high-fidelity slots, decide which events from the
+full interaction history deserve them, with recency as one candidate
+allocation rather than a privileged default. A token-gated KV interface
+learns to consume reallocated evidence inside a pre-registered drift
+envelope---where full-layer adaptation cannot stay---and a budget-aware
+selector learns when replacing recent frames with archived events pays. All
+learning happens on desktop data; mobile benchmarks remain untouched for
+zero-shot evaluation.
+\pending{Update with final per-$B$ gates, $Q_B(k)$, and zero-shot findings.}
 
 \bibliography{references}
 
