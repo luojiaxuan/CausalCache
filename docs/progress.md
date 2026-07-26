@@ -36,7 +36,9 @@
 - 启动前 focused regression=`7 passed`。冻结 shards 见
   [`data/manifests/mobileworld_b0_strict117_shards_v1/`](../data/manifests/mobileworld_b0_strict117_shards_v1/)；
   raw traces 将写 Aries persistent storage，结束后只回写 task-level paired
-  B0/B4、strict score、discordant wins/losses、置信区间和完整 provenance。
+  B0/B4、strict score、discordant wins/losses、置信区间和完整 provenance。归约由
+  `code/scripts/reduce_mobileworld_b0_b4.py` 固定执行，同时报告 observed intersection
+  与 strict-117 missing-as-zero；含 focused regression 共 `9 passed`。
 
 ## 2026-07-26(夜):Desktop DiD 三臂 policy training 发射(Stage B)
 
