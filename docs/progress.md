@@ -4,6 +4,22 @@
 
 主线 = History-Gated KV Adapter(合同见 [`history_gated_mainline_v1.md`](history_gated_mainline_v1.md),正式 gate PASS、s100 冻结,见 [`data/results/hgkv_gate_v1/`](../data/results/hgkv_gate_v1/README.md))。
 
+## 2026-07-26:OSWorld witness round1 reduce 完成(Stage A.1)
+
+- Hyper01 上对两 score shard(544+546+2 fingerprint = 1,094 行)执行
+  `mine_osworld_v2_visual_witness.py --mode reduce`,1,092/1,092 单元全量落账,
+  0 缺失;fingerprint 与 score 阶段逐字段一致(GUI-Owl-1.5-8B、480 visual tokens、
+  tol 50/15)。
+- 聚合层面 selected 增益极弱:`B_selected` mean Δlogprob=+0.0018、loose rate 与
+  base 同为 0.1194——印证 witness 的价值在逐点筛选而非平均效应。
+- 按交接 §5.2 严格筛(U>0 或修 base-wrong,且严格优于 nearby/random-old/
+  next-recent):67 点中 **10 点合格,全部为 amplification,0 repair**;task 分布
+  074×4、003×3、107×2、032×1。此即 OSWorld 高精度 seed 的真实规模,AgentNet
+  recurrence 仍是训练主体。
+- 产物入 Git:[`osworld_round1_witness_report.json`](../data/manifests/osworld_round1_witness_report.json)
+  与逐单元 [`osworld_round1_witness_per_unit.jsonl`](../data/manifests/osworld_round1_witness_per_unit.jsonl)
+  (Hyper01 staging 同路径)。
+
 ## 2026-07-26:停止 Odyssey prevalence 关键路径，冻结 Desktop→MobileWorld 交接
 
 - Hyper00 上 8 个 `mine_rescue_tiers` shard 已只终止 workload process，canonical

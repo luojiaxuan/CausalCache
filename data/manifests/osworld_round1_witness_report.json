@@ -1,0 +1,48 @@
+{
+  "schema_version": "causalcache.osworld_v2_visual_witness_mine.v1.report",
+  "rows": 1092,
+  "by_arm_family": {
+    "B": {
+      "n": 67,
+      "loose_rate": 0.11940298507462686,
+      "strict_rate": 0.1044776119402985,
+      "mean_delta_logprob": 0.0,
+      "fixes_base_wrong": 0
+    },
+    "B_nearby_irrelevant": {
+      "n": 66,
+      "loose_rate": 0.09090909090909091,
+      "strict_rate": 0.07575757575757576,
+      "mean_delta_logprob": -0.0009101752163560102,
+      "fixes_base_wrong": 2
+    },
+    "B_next_recent": {
+      "n": 67,
+      "loose_rate": 0.11940298507462686,
+      "strict_rate": 0.11940298507462686,
+      "mean_delta_logprob": -0.002783328473720866,
+      "fixes_base_wrong": 1
+    },
+    "B_random_old": {
+      "n": 62,
+      "loose_rate": 0.08064516129032258,
+      "strict_rate": 0.03225806451612903,
+      "mean_delta_logprob": -0.030965768386639895,
+      "fixes_base_wrong": 1
+    },
+    "B_ref_pool": {
+      "n": 763,
+      "loose_rate": 0.05504587155963303,
+      "strict_rate": 0.039318479685452164,
+      "mean_delta_logprob": -0.025725380279524142,
+      "fixes_base_wrong": 6
+    },
+    "B_selected": {
+      "n": 67,
+      "loose_rate": 0.11940298507462686,
+      "strict_rate": 0.11940298507462686,
+      "mean_delta_logprob": 0.0017907028312363954,
+      "fixes_base_wrong": 1
+    }
+  }
+}
