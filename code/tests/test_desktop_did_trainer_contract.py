@@ -591,6 +591,21 @@ def test_scorer_arm_partition_matches_the_desktop_contract() -> None:
     )
 
 
+def test_epoch_tail_plan_fixes_only_mixed_partitions() -> None:
+    """混合尾巴(v3 死锁案发现场)补同步;均匀场景保持旧行为逐字节不变。"""
+    plan = trainer.sparse_epoch_tail_plan
+    # v3 桌面语料:1,774 单元 → stride 分片 444/444/443/443,混合 → 死锁案
+    lengths = [len(list(range(1774))[r::4]) for r in range(4)]
+    assert lengths == [444, 444, 443, 443]
+    assert plan(lengths, 4) == [False, False, True, True]
+    # v1(773)与 v5 mobile(6,807):全带尾巴 → 全 False(旧行为)
+    assert plan([len(list(range(773))[r::4]) for r in range(4)], 4) == [False] * 4
+    assert plan([len(list(range(6807))[r::4]) for r in range(4)], 4) == [False] * 4
+    # 全整除 → 全 False;rank0 独带尾 → 只补 rank0
+    assert plan([444, 444, 444, 444], 4) == [False] * 4
+    assert plan([445, 444, 444, 444], 4) == [True, False, False, False]
+
+
 def test_sparse_supported_adapter_types_are_the_ablation_rows() -> None:
     assert trainer.SPARSE_SUPPORTED_ADAPTER_TYPES == (
         "history_gated_kv",

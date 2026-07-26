@@ -1264,6 +1264,26 @@ def sparse_group_schedule_cost(
     return 3 * (1 + negatives), budget
 
 
+def sparse_epoch_tail_plan(
+    shard_lengths: Sequence[int], accumulation: int
+) -> list[bool]:
+    """Which ranks must run one extra epoch-end sync so collectives stay matched.
+
+    # note (luojiaxuan): 梯度同步只在整 accumulation 窗口边界触发。当各 rank 的
+    # shard 长度对 accumulation 的整除性**不一致**时(桌面 v3 的 1,774 单元 →
+    # 444/444/443/443,首例),整除的 rank 在 epoch 内比带尾巴的 rank 多做一次
+    # all_reduce,epoch 末 barrier 与 all_reduce 错配 → NCCL watchdog 超时把
+    # 整个 run 打死。修复:混合场景下带尾巴的 rank 在 epoch 末补一次同步,
+    # 使每个 rank 的 collective 数一致(= ceil)。整除性**一致**的场景(v1 的
+    # 194/193 全带尾巴、v5/v6 同理)返回全 False —— 旧行为逐字节不变,尾巴梯度
+    # 照旧带进下一 epoch,已冻结 run 的可复现性不受影响。
+    """
+    exact = [length % accumulation == 0 for length in shard_lengths]
+    if all(exact) or not any(exact):
+        return [False] * len(shard_lengths)
+    return [not flag for flag in exact]
+
+
 def _assert_shard_partition_preserved(
     order: list[int],
     shards: list[list[int]],
@@ -3612,6 +3632,55 @@ def main() -> None:
     )
     ordering = random.Random(training_config["seed"])
     global_step = 0
+
+    def optimizer_sync_step() -> None:
+        """One gradient sync + optimizer step — window boundary and epoch tail共用。
+
+        # note (luojiaxuan): 从循环体原位提出,逐语句不变;第二个调用点是混合尾巴
+        # 场景的 epoch 末补同步(见 sparse_epoch_tail_plan),两处必须是同一份代码,
+        # 否则 collective 序列在两个调用点之间就可能分叉。
+        """
+        nonlocal global_step, running_loss, contributing
+        if world_size > 1:
+            for parameter in parameters:
+                if parameter.grad is not None:
+                    dist.all_reduce(parameter.grad)
+                    parameter.grad /= world_size
+        torch.nn.utils.clip_grad_norm_(
+            parameters, config["training"]["max_grad_norm"]
+        )
+        optimizer.step()
+        optimizer.zero_grad(set_to_none=True)
+        global_step += 1
+        if (
+            rank == 0
+            and checkpoint_every_steps
+            and global_step % checkpoint_every_steps == 0
+        ):
+            step_path = args.output_root / f"lora-step{global_step}.pt"
+            torch.save(adapter_state_dict(wrapped), step_path)
+            print(
+                json.dumps(
+                    {"step_checkpoint": global_step, "path": str(step_path)}
+                ),
+                flush=True,
+            )
+        if rank == 0 and global_step % 10 == 0:
+            print(
+                json.dumps(
+                    {
+                        "epoch": epoch,
+                        "global_step": global_step,
+                        "mean_loss": running_loss / max(contributing, 1),
+                    }
+                ),
+                flush=True,
+            )
+            running_loss = 0.0
+            contributing = 0
+
+    running_loss = 0.0
+    contributing = 0
     for epoch in range(args.start_epoch, training_config["epochs"]):
         order = list(range(len(units)))
         ordering.shuffle(order)
@@ -3620,14 +3689,24 @@ def main() -> None:
             # **内部**重排"哪个 rank 跑哪一组",每个优化步消费的组集合与旧 stride
             # 切分逐组相同(见 balanced_sparse_shards 的不变量断言),因此损失与梯度
             # 的数学定义一字未动。旧两条路径继续走原来的 stride,逐字节不受影响。
-            shard = balanced_sparse_shards(
+            all_shards = balanced_sparse_shards(
                 order,
                 schedule_costs,
                 world_size=world_size,
                 accumulation=accumulation,
-            )[rank]
+            )
+            shard = all_shards[rank]
+            # 混合尾巴检测(sparse_epoch_tail_plan):本 rank 是否须在 epoch 末补一次
+            # 同步。均匀场景恒 False,旧行为逐字节不变。
+            epoch_tail_sync = (
+                world_size > 1
+                and sparse_epoch_tail_plan(
+                    [len(member) for member in all_shards], accumulation
+                )[rank]
+            )
         else:
             shard = order[rank::world_size]
+            epoch_tail_sync = False
         model.train()
         running_loss = 0.0
         contributing = 0
@@ -3710,47 +3789,13 @@ def main() -> None:
                 running_loss += float(unit_loss.detach())
                 contributing += 1
             if (position + 1) % accumulation == 0:
-                if world_size > 1:
-                    for parameter in parameters:
-                        if parameter.grad is not None:
-                            dist.all_reduce(parameter.grad)
-                            parameter.grad /= world_size
-                torch.nn.utils.clip_grad_norm_(
-                    parameters, config["training"]["max_grad_norm"]
-                )
-                optimizer.step()
-                optimizer.zero_grad(set_to_none=True)
-                global_step += 1
-                if (
-                    rank == 0
-                    and checkpoint_every_steps
-                    and global_step % checkpoint_every_steps == 0
-                ):
-                    step_path = (
-                        args.output_root / f"lora-step{global_step}.pt"
-                    )
-                    torch.save(adapter_state_dict(wrapped), step_path)
-                    print(
-                        json.dumps(
-                            {"step_checkpoint": global_step, "path": str(step_path)}
-                        ),
-                        flush=True,
-                    )
-                if rank == 0 and global_step % 10 == 0:
-                    print(
-                        json.dumps(
-                            {
-                                "epoch": epoch,
-                                "global_step": global_step,
-                                "mean_loss": running_loss / max(contributing, 1),
-                            }
-                        ),
-                        flush=True,
-                    )
-                    running_loss = 0.0
-                    contributing = 0
+                optimizer_sync_step()
                 if max_steps and global_step >= max_steps:
                     break
+        if epoch_tail_sync and not (max_steps and global_step >= max_steps):
+            # 混合尾巴场景:补齐本 rank 的 collective 数(见 sparse_epoch_tail_plan);
+            # max_steps 提前收官时所有 rank 在同一步 break,不需要也不能再补。
+            optimizer_sync_step()
         if frozen_cache is not None:
             # 每个 epoch 收尾落一次盘,别把整轮的命中攒到进程退出才写。
             frozen_cache.flush()
