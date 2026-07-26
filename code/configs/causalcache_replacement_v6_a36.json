@@ -1,0 +1,155 @@
+{
+  "adapter": {
+    "adapter_type": "history_gated_kv",
+    "alpha": 16,
+    "layer_scope": "last_36",
+    "rank": 8,
+    "target_modules": [
+      "k_proj",
+      "v_proj"
+    ]
+  },
+  "data": {
+    "K_distribution": {
+      "1": 0.15,
+      "2": 0.25,
+      "3": 0.25,
+      "4": 0.35
+    },
+    "adapter_switch_authority": "每条样本的 adapter_mode 字段;trainer 禁止解析 variant 或任何名字前缀(审计 P0-4)",
+    "arms": {
+      "N0": "官方多轮 prompt + 最近 K 张 + adapter bypass(部署基线)",
+      "R0": "sparse 单轮 prompt + 最近 K 张 + adapter bypass(A_r 的基准端)",
+      "RA": "sparse 单轮 prompt + 最近 K 张 + adapter active(主 claim 的对照臂,也是 A_r 的 active 端)",
+      "S0": "sparse 单轮 prompt + 非连续选点 K 张 + adapter bypass(A_c 的基准端;冻结选图效应)",
+      "SA": "sparse 单轮 prompt + 非连续选点 K 张 + adapter active(本方法)"
+    },
+    "deployment_baseline_arm_id": "N0",
+    "negatives": {
+      "K1_note": "K=1 时 step_shuffled 与 duplicate 与 SA 逐字节相同,不入库",
+      "SA_neg_duplicate": {
+        "negative_kind": "duplicate",
+        "negative_scale": 0.5
+      },
+      "SA_neg_irrelevant": {
+        "negative_kind": "irrelevant",
+        "negative_scale": 1.0
+      },
+      "SA_neg_step_shuffled": {
+        "negative_kind": "step_shuffled",
+        "negative_scale": 1.0
+      },
+      "authority": "生效值取自每条样本的 negative_scale 字段;此处仅记录构建期意图"
+    },
+    "sample_schema_version": "causalcache.sparse_history_sample.v2",
+    "source": "GUI-Odyssey 长视野成功轨迹,每条轨迹多决策点抽样,每决策点五臂 + 三负样本",
+    "split": {
+      "authority": "每条样本的 split 字段;trainer 不再重算 hash",
+      "heldout_episode_fraction": 0.15,
+      "heldout_hash_salt": "sparse_v3",
+      "note": "以上两项仅供构建期使用,放在 data 段以免被误读成训练超参"
+    },
+    "training_reference_arm_id": "R0",
+    "warm_start": "none — 不继承 hg-s100(它只学到'有历史就放大')"
+  },
+  "gates": {
+    "composite_score": "did_select",
+    "derived_quantities": {
+      "SA_minus_R0": "SA - R0",
+      "SA_minus_RA": "SA - RA",
+      "adapter_on_recent": "RA - R0",
+      "adapter_on_recent_abs": "abs(RA - R0)",
+      "adapter_on_sparse": "SA - S0",
+      "deployment_delta": "SA - N0",
+      "did_select": "(SA - S0) - (RA - R0)",
+      "format_effect": "R0 - N0",
+      "frozen_selection_effect": "S0 - R0"
+    },
+    "drift_definition": "<kind>_drift = 留出组上 (l_SA_neg_<kind> 在 adapter active) - (同一样本在 adapter bypass) 的均值,即 A_n 的均值;<kind>_drift_abs = |<kind>_drift|。每个负样本锚到它自己的冻结分数,不再锚到 R0",
+    "gate_expression_syntax": "must_pass 的值形如 '<op> <number> [@<statistic>]',op ∈ {>, >=, <, <=},statistic ∈ {point(缺省), ci_low, ci_high};composite_score 与 derived_quantities 是同一套算术小语言:量名 / 数字 / + - * / 一元正负 / 括号 / abs()、mean()、min()、max()。scripts/score_sparse_history_arms.py 与 trainer 的 validate_sparse_gates 共用同一个解析器(审计第 9 条)",
+    "gate_rationale": {
+      "superseded": "旧 must_pass 含 SA_minus_R0 > 0 且 composite 累加它,已于 2026-07-25 移除 —— 新目标不优化该量,留着会把选点拉向放大最严重的 checkpoint。",
+      "why_A_r_capped": "v5 失败模式正是 adapter 对 recent 的增益(+0.118)大于对 sparse 的增益(+0.084);不封住 A_r,did_select 可以靠压低 RA 而非抬高 SA 来刷高。",
+      "why_canonical_names": "A_c / A_r 不另造别名:adapter_on_sparse 就是 SA-S0,adapter_on_recent 就是 RA-R0,同一个量两个名字迟早会分叉。只新增真正缺的 adapter_on_recent_abs。",
+      "why_ci_low": "主判据用 confirmation split 的 CI 下界而非点估计,因为该 split 只读一次,没有第二次机会纠正偶然性。",
+      "why_did_select": "(SA-S0)-(RA-R0) 在 identity 上严格等于 0,所以冻结模型已有的稀疏选点优势(实测 +0.0335)不会被冒充成 adapter 能力;而 SA-R0 会。",
+      "why_no_separate_sa_minus_ra_gate": "预注册判据里的 SA-RA >= S0-R0 展开后就是 did_select >= 0,与主判据重复,故不单列;did_select > 0 @ci_low 是它的严格版本。"
+    },
+    "gate_schema": "causalcache.sparse_history_gates.v2",
+    "main_claim_note": "论文主 claim 挂在 SA - RA(同格式、同 adapter、只差选点)。SA - R0 混入 adapter 见图放大效应,SA - N0 还额外混入 prompt 格式效应,两者只作部署与分解报告用。did_select = (SA-S0)-(RA-R0) 是训练目标直接优化的量,identity 上恒为 0,只进报告不进 must_pass —— 本次换的是训练目标,验收标准(gates schema v2)一字未动",
+    "main_claim_quantity": "SA_minus_RA",
+    "must_pass": {
+      "adapter_on_recent_abs": "< 0.02",
+      "adapter_on_sparse": "> 0",
+      "did_select": "> 0 @ci_low",
+      "duplicate_drift_abs": "< 0.02",
+      "irrelevant_drift_abs": "< 0.02",
+      "step_shuffled_drift_abs": "< 0.02"
+    },
+    "reference_arm_id": "R0",
+    "selection_rule": {
+      "filter": "all_must_pass",
+      "note": "并列时取训练顺序更早者:更早 = 更少过拟合机会。quantity 只允许 composite_score,按单个派生量(尤其 SA_minus_R0)选点会挑出『见图就整体放大』的 checkpoint。confirmation split 只读一次。",
+      "objective": "maximize",
+      "quantity": "composite_score",
+      "tie_break": "earliest_checkpoint"
+    }
+  },
+  "objective": {
+    "A_c": "l_SA - l_S0 —— adapter 对『正确稀疏历史』的增量",
+    "A_n": "l_n_active - l_n_bypass —— adapter 对第 n 条『错误历史』的增量",
+    "A_r": "l_RA - l_R0 —— adapter 对『最近窗口』的增量",
+    "L": "L_select + L_gain + L_content + L_cap + L_l2,CE 权重恒为 0",
+    "L_cap": "sparse_drift_cap_weight * [|A_r| - sparse_drift_cap_eps]+ + sparse_drift_cap_weight * Σ_n w_n * [|A_n| - sparse_drift_cap_eps]+",
+    "L_content": "sparse_content_weight * Σ_n w_n * [sparse_content_margin - (A_c - A_n)]+",
+    "L_gain": "sparse_gain_weight * [sparse_gain_margin - A_c]+",
+    "L_l2": "history_lora_l2_weight * Σ(‖A‖² + ‖B‖²)",
+    "L_select": "sparse_select_weight * [sparse_select_margin - (A_c - A_r)]+",
+    "did_rationale": "旧目标 SA − R0 = (S0 − R0) + (SA − S0) 混着冻结模型自带的选点优势与 adapter 的整体放大,v5 实测 SA−R0 从 +0.034 涨到 +0.118 而主 claim SA−RA 从 +0.0335 掉到 −0.0006 —— adapter 学的是『见历史就放大』,且对 recent 的放大强于对 sparse 的放大。差中差 A_c − A_r 先对每条臂扣掉它自己的冻结基准再做差,在 identity 上**严格等于 0**,冻结模型的 +0.0335 一分进不来,『统一放大』也被两端同时抵消",
+    "drift_cap_rationale": "dead-zone hinge 而非 SmoothL1,理由是尺度不是训练偶然性:drift 在 0.06 量级时权重 2 的 SmoothL1 梯度只有约 0.12,而 select/gain/content 三个 rank hinge 一旦激活梯度量级就是 1,anchor 压不住是**损失尺度本身决定的**。[|A| − ε]+ 在 |A| > ε 之后梯度恒为 2,与 rank 项同量级;在 ε 之内梯度恒为 0,不去规定 adapter 该落在哪",
+    "excluded_arms": [
+      "N0"
+    ],
+    "excluded_arms_note": "该列表由 trainer 按 objective.kind 反算并逐项比对(SPARSE_OBJECTIVE_ARMS 的补集),不是散文。did_ra_aware 读 R0/S0/RA/SA 四臂,只有部署基线 N0 不进训练损失、仅在留出集上做 teacher-forced 打分",
+    "gain_rationale": "只有 L_select 时,压低 l_RA 与抬高 l_SA 同样能减损失,而『把 recent 臂打坏』不是要的能力。L_gain = [m_g − A_c]+ 要求 sparse 臂的绝对增量自己也为正,于是刷 select 必须真的抬 SA",
+    "kind": "did_ra_aware",
+    "normalization_rationale": "K=1 组不存在 shuffled/duplicate(与 SA 逐字节相同),按实际存在项归一化后每组负样本总质量恒为 1,损失不再按预算偏斜",
+    "notation": {
+      "l_R0": "R0 臂(最近 K 张 + adapter bypass)的冻结分数,A_r 的基准端",
+      "l_RA": "RA 臂(最近 K 张 + adapter active)的分数,带梯度",
+      "l_S0": "S0 臂(同样的 sparse 选点 + adapter bypass)的冻结分数,A_c 的基准端",
+      "l_SA": "SA 臂(sparse 选点 + adapter active)的 teacher-forced 平均 log-prob,带梯度",
+      "l_n_active": "负样本 SA_neg_* 在 adapter active 下的分数",
+      "l_n_bypass": "同一条负样本在 adapter bypass 下的冻结分数",
+      "w_n": "scale_n / Σ_m scale_m,只对该组**实际存在**的负样本归一化"
+    }
+  },
+  "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+  "schema_version": "causalcache.success_sft_lora_config.v1",
+  "target_effective_visual_tokens_per_image": 2560,
+  "training": {
+    "checkpoint_every_steps": 25,
+    "epochs": 1,
+    "gradient_accumulation_steps": 4,
+    "gradient_checkpointing": false,
+    "history_ce_weight": 0.0,
+    "history_lora_l2_weight": 0.0001,
+    "learning_rate": 0.0001,
+    "lr_schedule": "constant",
+    "max_grad_norm": 1.0,
+    "max_optimizer_steps": 50,
+    "micro_batch_size": 1,
+    "seed": 271828,
+    "sparse_content_margin": 0.01,
+    "sparse_content_weight": 1.0,
+    "sparse_drift_cap_eps": 0.02,
+    "sparse_drift_cap_weight": 2.0,
+    "sparse_gain_margin": 0.01,
+    "sparse_gain_weight": 1.0,
+    "sparse_history": true,
+    "sparse_select_margin": 0.01,
+    "sparse_select_weight": 1.0,
+    "weight_decay": 0.0
+  },
+  "training_authority": "trainer 只从本 config 的 training 段读超参;CLI 的 --max-steps / --checkpoint-every-steps 在 sparse_history 下被拒绝,training 段出现未被消费的 key 直接报错退出(审计 P1-6)。消费哪些 key 由 objective.kind 决定:did_ra_aware 读 select/gain/content/drift_cap 八项,legacy_sa_minus_r0 读 gain/rank/drift 五项,写错一组即报错"
+}

@@ -114,6 +114,7 @@ def main() -> None:
     for budget in BUDGETS:
         rows = []
         evict = collections.Counter()
+        evict_cf = collections.Counter()
         covered = []
         for group, current in cur.items():
             pool_all = scores.get(group, {})
@@ -145,8 +146,14 @@ def main() -> None:
             crossfit = sum(gains) / len(gains)
             means = [entry["mean"] for entry in pool.values()]
             gap = sum(means) / len(means) - anchor["mean"]
-            # 最优淘汰槽位:0 = 最老的 recent,budget-1 = 最新的
+            # note (luojiaxuan): 淘汰槽位统计必须走 cross-fit,不能用 in-sample argmax。
+            # in-sample 的 argmax 是在**同一批 token** 上取最大,槽位身份会跟着噪声走;
+            # 而"哪个槽位该被淘汰"是要外推到新数据的结论。这里用两折各自选出的集合
+            # 各投一票,in-sample 版本另存作对照 —— 两者若不一致,说明这个分布不可外推。
             evict[slot_of[in_sample]] += 1
+            for select in ("even", "odd"):
+                picked = max(pool, key=lambda s: fold_mean(pool[s], select))
+                evict_cf[slot_of[picked]] += 1
             rows.append({
                 "episode": episode[group],
                 "G": pool[in_sample]["mean"] - anchor["mean"],
@@ -178,9 +185,24 @@ def main() -> None:
             "evicted_slot_fraction": {
                 str(k): v / total for k, v in sorted(evict.items())
             },
+            "evicted_slot_crossfit": {str(k): v for k, v in sorted(evict_cf.items())},
+            "evicted_slot_crossfit_fraction": {
+                str(k): v / max(1, sum(evict_cf.values())) for k, v in sorted(evict_cf.items())
+            },
         }
 
-    print("\n最优淘汰槽位分布(0 = 最老的 recent):")
+    print("\n最优淘汰槽位分布 —— cross-fit(两折各投一票),0 = 最老的 recent:")
+    for budget in BUDGETS:
+        block = out["budgets"].get(str(budget))
+        if not block:
+            continue
+        frac = block["evicted_slot_crossfit_fraction"]
+        uniform = 1.0 / budget
+        print("  B=%-2d (均匀基线 %.0f%%)  %s" % (budget, 100 * uniform, "  ".join(
+            "slot%s=%.0f%%" % (k, 100 * v)
+            for k, v in sorted(frac.items(), key=lambda x: int(x[0])))))
+
+    print("\n对照 —— in-sample argmax 版本(若与上表方向不一致则该分布不可外推):")
     for budget in BUDGETS:
         block = out["budgets"].get(str(budget))
         if not block:
