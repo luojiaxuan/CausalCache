@@ -161,6 +161,33 @@ def main() -> None:
                 continue
             row[name] = crossfit_best(member, anchor)
             row[f"{name}_pool"] = len(member)
+
+        # note (luojiaxuan): 标签生成阶段没法在 2758 组上穷举 k=2(878k 次前向 / 两台
+        # 16 卡 17 小时),所以要退回"先按 singleton 效用取 top-N 再穷举 C(N,2)"。
+        # 那是个近似,而近似的代价必须**测**出来而不是假设:这里直接算 top-N 预筛
+        # 对穷举最优对的召回率。若召回率高,捷径可用;若低,说明最优对里确实有
+        # "两张单独都不突出"的互补组合,预筛会系统性漏掉它们。
+        singleton_rank = sorted(
+            olds,
+            key=lambda old: -(
+                pool[tuple(sorted(list(recent[1:]) + [old]))]["mean"]
+                if tuple(sorted(list(recent[1:]) + [old])) in pool
+                else float("-inf")
+            ),
+        )
+        for top_n in (8, 12):
+            shortlist = set(singleton_rank[:top_n])
+            hits = 0
+            evaluated = 0
+            for block in (row.get("k2_recent_tail") or {}).get("directions", {}).values():
+                chosen_olds = [s for s in block["steps"] if s in set(olds)]
+                if len(chosen_olds) != 2:
+                    continue
+                evaluated += 1
+                hits += int(all(step in shortlist for step in chosen_olds))
+            if evaluated:
+                row[f"top{top_n}_recall_hits"] = hits
+                row[f"top{top_n}_recall_evaluated"] = evaluated
         rows.append(row)
 
     def summarize(name: str):
@@ -210,8 +237,20 @@ def main() -> None:
             stable[f"{name}_both_folds_positive"] += int(all(g > 0 for g in gains))
             stable[f"{name}_evaluated"] += 1
 
+    shortcut = {}
+    for top_n in (8, 12):
+        hits = sum(row.get(f"top{top_n}_recall_hits", 0) for row in rows)
+        evaluated = sum(row.get(f"top{top_n}_recall_evaluated", 0) for row in rows)
+        if evaluated:
+            shortcut[f"top{top_n}_prefilter_recall"] = {
+                "hits": hits,
+                "evaluated": evaluated,
+                "recall": hits / evaluated,
+            }
+
     payload = {
         "schema_version": "causalcache.replacement_marginal.v1",
+        "k2_prefilter_shortcut": shortcut,
         "format": args.format,
         "budget": budget,
         "groups": len(rows),
@@ -237,6 +276,11 @@ def main() -> None:
             % (name, block["point"], block["ci_low"], block["ci_high"], block["n"], star)
         )
     print(" fold stability:", dict(stable))
+    for name, block in shortcut.items():
+        print(
+            "  %-28s recall=%.1f%% (%d/%d)"
+            % (name, 100 * block["recall"], block["hits"], block["evaluated"])
+        )
 
 
 if __name__ == "__main__":
