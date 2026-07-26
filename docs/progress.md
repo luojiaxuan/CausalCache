@@ -2,6 +2,37 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-26(夜):Desktop DiD 三臂 policy training 发射(Stage B)
+
+- 发射前闭环:三份 config 过全部启动校验(commit `b88fb75`)、scorer 桌面 schema
+  支持(`3085296`)、§8.6 机械审计 PASS(`5edeb6f`,B0 bitwise parity 0.0、mask
+  2,584 tokens 恰覆盖恢复图、plain bypass parity 精确、969/969 target 回环)。
+- 布阵(每行 torchrun DDP4、accumulation 4 → 16 组/步,150 步 ≈ 3.1 epoch,
+  checkpoint 每 25 步,frozen score cache + 组内编码记忆化):
+  - hyper01 容器 `sglang-omni-jaxan` GPU 0-3:HGKV,
+    run root `/data04/jaxan/mw/runs/desktop-did-v1/hgkv/`;
+  - hyper01 同容器 GPU 4-7:matched ungated KV,run root 同级 `ungated_kv/`;
+  - hyper00 容器 `sglang-omni-jaxan` GPU 0,1,3,4:Full-layer LoRA,
+    run root `/data02/jaxan/runs/desktop-did-v1/full_lora/`(容器内 `/data/...`)。
+- 数据:hyper00 侧语料为 hyper01 直传的引用图片子集(2,754 张,2.5GiB)+
+  samples/parity_b0/manifest,`samples.jsonl` SHA 与 config 冻结值逐字节一致。
+- liveness:launch 脚本终态写 `EXIT_<code>` 哨兵;train.log 每 25 组打
+  `sparse_history_diag`;会话侧 5 分钟轮询 diag/Traceback/OOM/EXIT 哨兵,另挂
+  gpu-utilization-monitor(min-util 60%、连续 3 窗才告警——teacher-forced 编码
+  间隙会周期性压低瞬时利用率)。checkpoint(每 25 步)即 resume 单元。
+- 发射期两个排雷:① hyper01 canonical 容器只挂了 GPU 0-3(DeviceRequests),
+  ungated 首启 "no GPUs found" 崩;临时容器 `sglang-omni-jaxan-2`(GPU 4-7,同镜像
+  同挂载)承载该行,run 结束即删。② 首启崩溃的 EXIT_1 哨兵为 root 属主,host 侧
+  rm 静默失败造成一次监控误报,已在容器内清除。
+- hyper00 空闲 3 卡(5/6/7,GPU2 为他人工作负载)同时预热 dev-split(94 组)
+  frozen + identity 基线分数:`score_sparse_history_arms` 3-shard 共享 cache
+  (`/data02/jaxan/runs/desktop-did-v1/devscore-hgkv/`),HGKV checkpoint 的 gate
+  归约将全量命中冻结通道。
+- gate 打分按 §9 在 dev(heldout 94 组)执行;选点规则 all_must_pass +
+  composite=did_select、earliest tie-break 已冻结。
+- 运维:hyper01 仓库 origin 已切 `git@github.com:` + Mac agent 转发(`ssh -A`),
+  不再走 bundle;hyper00 容器内仓库仍以 bundle 同步(agent socket 不进容器)。
+
 主线 = History-Gated KV Adapter(合同见 [`history_gated_mainline_v1.md`](history_gated_mainline_v1.md),正式 gate PASS、s100 冻结,见 [`data/results/hgkv_gate_v1/`](../data/results/hgkv_gate_v1/README.md))。
 
 ## 2026-07-26:Desktop DiD 六臂语料 v1 构建完成,Stage A 停止条件通过
