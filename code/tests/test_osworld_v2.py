@@ -10,7 +10,11 @@ from causalcache.osworld_v2 import (
     OSWORLD_V2_RELEASE,
     load_osworld_v2_memory_plan,
 )
-from scripts.run_osworld_v2_gui_owl import _logical_shard, _task_selection
+from scripts.run_osworld_v2_gui_owl import (
+    _local_asset_base_url,
+    _logical_shard,
+    _task_selection,
+)
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -123,3 +127,10 @@ def test_osworld_v2_explicit_recovery_selection_is_auditable() -> None:
             shard_index=0,
             explicit_task_ids=["999"],
         )
+
+
+def test_osworld_v2_local_assets_use_decodable_file_uri(tmp_path: Path) -> None:
+    assets = tmp_path / "assets with spaces"
+    assets.mkdir()
+    assert _local_asset_base_url(assets).startswith("file://")
+    assert "%20" in _local_asset_base_url(assets)

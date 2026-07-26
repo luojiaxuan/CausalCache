@@ -156,6 +156,13 @@ def _runtime_identity() -> dict[str, Any]:
     }
 
 
+def _local_asset_base_url(path: str | Path) -> str:
+    root = Path(path).expanduser().resolve()
+    if not root.is_dir():
+        raise ValueError("OSWorld 2.0 local asset root must be a directory")
+    return root.as_uri()
+
+
 def _import_upstream(
     root: Path,
     *,
@@ -203,7 +210,7 @@ def _worker(
     spec: dict[str, Any],
 ) -> None:
     osworld_root = Path(spec["osworld_root"])
-    os.environ["OSWORLD_FILE_BASE_URL"] = spec["assets_root"]
+    os.environ["OSWORLD_FILE_BASE_URL"] = _local_asset_base_url(spec["assets_root"])
     os.environ["WEBSITE_HOST_SUFFIX"] = spec["website_host_suffix"]
     if spec["docker_host"] is not None:
         os.environ["DOCKER_HOST"] = spec["docker_host"]
