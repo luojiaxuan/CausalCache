@@ -53,6 +53,19 @@ def cluster_bootstrap(pairs: list[tuple[str, float]], *, confidence: float = 0.9
     return {"point": point, "ci_low": lo, "ci_high": hi, "n": len(pairs)}
 
 
+def pool_mean_gap(pool: dict[tuple[int, ...], dict], anchor: dict) -> float:
+    """mean over the family - anchor.
+
+    # note (luojiaxuan): cross-fit 增益在零假设下收敛到的**不是** 0,而是这个池均值差:
+    # 若池里所有集合效用相同,A 折选出来的到 B 折就落在池均值。所以 U_k 混了两件事 ——
+    # "这个 k 的集合平均而言更好/更差"(组成效应)与"在这个 k 内部挑选携带了信息"
+    # (选择效应)。两者的政策含义相反:组成效应差但选择效应正,说明该 k 值得保留
+    # 但要挑得准;组成效应好而选择效应零,说明随便挑一个就行、不需要 selector。
+    """
+    means = [entry["mean"] for entry in pool.values()]
+    return sum(means) / len(means) - anchor["mean"]
+
+
 def crossfit_best(pool: dict[tuple[int, ...], dict], anchor: dict):
     """Return (mean gain over both fold directions, per-direction gains, picks).
 
@@ -161,6 +174,7 @@ def main() -> None:
                 continue
             row[name] = crossfit_best(member, anchor)
             row[f"{name}_pool"] = len(member)
+            row[f"{name}_poolgap"] = pool_mean_gap(member, anchor)
 
         # note (luojiaxuan): 标签生成阶段没法在 2758 组上穷举 k=2(878k 次前向 / 两台
         # 16 卡 17 小时),所以要退回"先按 singleton 效用取 top-N 再穷举 C(N,2)"。
@@ -209,6 +223,22 @@ def main() -> None:
         result = summarize(name)
         if result:
             summary[f"U_{name}"] = result
+
+    # 组成效应 vs 选择效应的分解
+    for name in ("k1_any_drop", "k1_drop_oldest", "k2_recent_tail"):
+        gap_pairs = [
+            (row["episode"], row[f"{name}_poolgap"])
+            for row in rows
+            if row.get(f"{name}_poolgap") is not None
+        ]
+        over_pairs = [
+            (row["episode"], row[name]["gain"] - row[f"{name}_poolgap"])
+            for row in rows
+            if row.get(name) and row.get(f"{name}_poolgap") is not None
+        ]
+        if gap_pairs:
+            summary[f"poolgap_{name}"] = cluster_bootstrap(gap_pairs)
+            summary[f"selection_over_poolmean_{name}"] = cluster_bootstrap(over_pairs)
 
     # 决策量:第二张旧图相对第一张的边际
     marginal_pairs = [
