@@ -56,6 +56,7 @@ def families_for(point: DecisionPoint, budget: int) -> dict[str, list[tuple[int,
     recent = list(range(current - budget, current))
     olds = [step for step in range(1, current - budget)]
     out: dict[str, list[tuple[int, ...]]] = {
+        "anchor_recent": [tuple(recent)],
         "k1_all_drop_positions": [],
         "k2_exhaustive_old_pairs": [],
         "b2_all_pairs": [],
@@ -92,6 +93,15 @@ def main() -> None:
         help="renderer to score; the format is frozen so scoring both wastes half the run",
     )
     parser.add_argument("--budget", type=int, default=MAIN_BUDGET)
+    parser.add_argument(
+        "--families",
+        default="all",
+        help=(
+            "comma-separated family names to score, or 'all'. matched single-replacement "
+            "sweep uses 'anchor_recent,k1_all_drop_positions' -- O(B*n) per group, so it "
+            "stays affordable out to B=8 where C(n,B) never would"
+        ),
+    )
     parser.add_argument(
         "--manifest",
         type=Path,
@@ -189,6 +199,12 @@ def main() -> None:
             image_root=image_root,
         )
         families = families_for(point, args.budget)
+        if args.families != "all":
+            wanted = {name.strip() for name in args.families.split(",") if name.strip()}
+            unknown = wanted - set(families)
+            if unknown:
+                raise SystemExit(f"unknown families {sorted(unknown)}; have {sorted(families)}")
+            families = {name: sets for name, sets in families.items() if name in wanted}
         counts = {name: len(sets) for name, sets in families.items()}
         requested[pair_group] = counts
         for name, sets in families.items():

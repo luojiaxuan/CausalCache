@@ -156,6 +156,10 @@ def main() -> None:
             "严禁按 S0-R0 大小决定样本是否进入 test split。"
         ),
         "examples": sorted(evs, key=lambda e: -e["uses"])[:30],
+        # note (luojiaxuan): 只落盘 30 个示例会让下游没法做子集分解 —— 要在
+        # C-case 子集上重算任何量,都需要 (episode, evidence_step,
+        # first_use_step, last_use_step) 的完整清单,聚合统计反推不出成员。
+        "all_events": sorted(evs, key=lambda e: (e["episode"], e["evidence_step"])),
     }
     args.output.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n",
                            encoding="utf-8")
