@@ -169,16 +169,16 @@ def _import_upstream(
         cpu_model=docker_cpu_model,
         port_lock_timeout_seconds=docker_port_lock_timeout_seconds,
     )
-    sys.path.insert(0, str(root))
-    sys.path.insert(0, str(root / "scripts/python"))
-    try:
-        desktop_module = importlib.import_module("desktop_env.desktop_env")
-        loader_module = importlib.import_module("task_loader")
-        runner_module = importlib.import_module("lib_run_single")
-    finally:
-        for path in (str(root / "scripts/python"), str(root)):
-            if path in sys.path:
-                sys.path.remove(path)
+    upstream_paths = (str(root / "scripts/python"), str(root))
+    for path in reversed(upstream_paths):
+        if path not in sys.path:
+            sys.path.insert(0, path)
+    # note (luojiaxuan): gated V2 task classes import evaluation_examples lazily
+    # during load_task_config, so both upstream paths must remain visible for the
+    # full worker lifetime rather than only while importing the runner modules.
+    desktop_module = importlib.import_module("desktop_env.desktop_env")
+    loader_module = importlib.import_module("task_loader")
+    runner_module = importlib.import_module("lib_run_single")
     return (
         desktop_module.DesktopEnv,
         loader_module.resolve_task_json_path,
