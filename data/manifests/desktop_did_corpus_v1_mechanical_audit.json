@@ -1,0 +1,60 @@
+{
+  "schema_version": "causalcache.desktop_did_mechanical_audit.v1",
+  "cpu": {
+    "rows": 4845,
+    "b0_rows": 969,
+    "groups": 969,
+    "train_units": 773,
+    "heldout_groups": 94,
+    "train_rows": 3865,
+    "heldout_rows": 470,
+    "test_rows_stripped": 510,
+    "split_normalization": {
+      "desktop_dev_to_heldout": 470,
+      "desktop_test_dropped": 510
+    },
+    "referenced_images": 2754,
+    "parser_validity": "969/969-scale pass"
+  },
+  "gpu": {
+    "hgkv_modules": 16,
+    "b0_parity_max_abs_diff": 0.0,
+    "mask_checks": [
+      {
+        "pair_group": "agentnet:00096ab61418dcb94494",
+        "mask_tokens": 2584,
+        "sa_active_minus_frozen": -0.027250230312347412
+      },
+      {
+        "pair_group": "agentnet:001f3038a14ff259d1a2",
+        "mask_tokens": 2584,
+        "sa_active_minus_frozen": -0.007142394781112671
+      },
+      {
+        "pair_group": "agentnet:008d2ca2562c9b693167",
+        "mask_tokens": 2584,
+        "sa_active_minus_frozen": -0.003816932439804077
+      },
+      {
+        "pair_group": "agentnet:00a46e32877157ad7263",
+        "mask_tokens": 2584,
+        "sa_active_minus_frozen": -0.0028970837593078613
+      },
+      {
+        "pair_group": "agentnet:00ff0d3c78780f3ad99c",
+        "mask_tokens": 2584,
+        "sa_active_minus_frozen": 0.008755594491958618
+      },
+      {
+        "pair_group": "agentnet:014b0ed8b09109ec161c",
+        "mask_tokens": 2584,
+        "sa_active_minus_frozen": -0.004808783531188965
+      }
+    ],
+    "plain_lora": {
+      "modules": 144,
+      "bypass_parity": true,
+      "active_minus_frozen": -0.009096622467041016
+    }
+  }
+}
