@@ -1,0 +1,59 @@
+{
+  "schema_version": "causalcache.agentnet_screening_manifest.v1.summary",
+  "seed": 20260726,
+  "r_values": [
+    0,
+    2
+  ],
+  "tertiles": [
+    16,
+    20
+  ],
+  "counters": {
+    "trajectories_seen": 5000,
+    "traj_dropped_not_completed": 2684,
+    "traj_screen_size_from_png": 2293,
+    "trajectories_kept": 2293,
+    "steps_seen": 43855,
+    "dp_dropped_last_step_correct": 2159,
+    "dp_eligible_before_cap": 24300,
+    "steps_history_only": 194,
+    "dp_dropped_target_unparseable": 737,
+    "steps_unparseable": 786,
+    "dp_dropped_history_unparseable": 5194,
+    "traj_dropped_too_short": 23
+  },
+  "step_reasons": {
+    "triple_click_not_in_computer_use": 194,
+    "multi_statement": 785,
+    "y_out_of_range": 1
+  },
+  "candidates_before_downsample": 6003,
+  "decision_points": 6003,
+  "forwards_expected": 12006,
+  "per_stratum": {
+    "ubuntu|long": 1811,
+    "ubuntu|short": 2333,
+    "ubuntu|medium": 1859
+  },
+  "target_action_distribution": {
+    "type": 679,
+    "left_click": 3642,
+    "double_click": 167,
+    "terminal": 458,
+    "left_click_drag": 242,
+    "key": 644,
+    "right_click": 114,
+    "wait": 20,
+    "scroll": 26,
+    "mouse_move": 11
+  },
+  "redundant_recorded_not_dropped": 16,
+  "next_step_annotation_would_drop": 415,
+  "image_check": {
+    "decision_points_checked": 1000,
+    "files_checked": 11894,
+    "files_missing": 0,
+    "missing_examples": []
+  }
+}

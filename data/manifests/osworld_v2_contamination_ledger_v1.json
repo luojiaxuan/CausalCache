@@ -1,0 +1,38 @@
+{
+  "schema_version": "causalcache.osworld_v2_contamination_ledger.v1",
+  "created": "2026-07-26",
+  "policy": "凡被挖掘/训练用过的 OSWorld 2.0 task id 记录于此。这些任务日后的 OSWorld 分数是 in-domain,不得当 zero-shot 报;MobileWorld 保持完全不碰。",
+  "source_dataset": "hf:xlangai/osworld2.0-trajectory (website_demo tree)",
+  "entries": [
+    {
+      "task_id": "003",
+      "usage": "visual-witness round-1 mining (teacher-forced GUI-Owl scoring)",
+      "trajectories": ["claude-opus-4-7", "claude-sonnet-4-6-max", "gpt-5.5", "gpt-5.6"],
+      "date": "2026-07-26"
+    },
+    {
+      "task_id": "032",
+      "usage": "visual-witness round-1 mining (teacher-forced GUI-Owl scoring)",
+      "trajectories": ["gpt-5.6"],
+      "date": "2026-07-26"
+    },
+    {
+      "task_id": "074",
+      "usage": "visual-witness round-1 mining (teacher-forced GUI-Owl scoring)",
+      "trajectories": ["claude-opus-4-7", "claude-sonnet-4-6-max", "claude-sonnet-4-6-medium", "qwen3.7"],
+      "date": "2026-07-26"
+    },
+    {
+      "task_id": "105",
+      "usage": "visual-witness round-1 mining (teacher-forced GUI-Owl scoring)",
+      "trajectories": ["gpt-5.5", "gpt-5.6"],
+      "date": "2026-07-26"
+    },
+    {
+      "task_id": "107",
+      "usage": "visual-witness round-1 mining (teacher-forced GUI-Owl scoring)",
+      "trajectories": ["gpt-5.5", "gpt-5.6"],
+      "date": "2026-07-26"
+    }
+  ]
+}

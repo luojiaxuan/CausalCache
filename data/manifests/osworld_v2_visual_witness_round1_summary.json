@@ -1,0 +1,239 @@
+{
+  "schema_version": "causalcache.osworld_v2_visual_witness_mine.v1.summary",
+  "seed": 20260726,
+  "decision_points": 67,
+  "units_expected": 1092,
+  "counters": {
+    "steps_anthropic": 1250,
+    "dp_skipped_target_unavailable": 195,
+    "dp_skipped_too_early": 7,
+    "steps_gpt": 604,
+    "steps_qwen": 75
+  },
+  "step_reasons": {
+    "noop_step": 102,
+    "triple_click_not_in_computer_use": 25,
+    "unparseable": 81,
+    "macro_step": 381
+  },
+  "per_traj": [
+    {
+      "traj": "claude-opus-4-7|003",
+      "frames": 289,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 62,
+      "ref_segments": 51,
+      "decision_points": 8,
+      "parse_reasons": {
+        "noop_step": 1,
+        "ok": 277,
+        "triple_click_not_in_computer_use": 10,
+        "unparseable": 1
+      }
+    },
+    {
+      "traj": "claude-opus-4-7|074",
+      "frames": 356,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 39,
+      "ref_segments": 28,
+      "decision_points": 8,
+      "parse_reasons": {
+        "noop_step": 4,
+        "ok": 345,
+        "triple_click_not_in_computer_use": 6,
+        "unparseable": 1
+      }
+    },
+    {
+      "traj": "claude-sonnet-4-6-max|003",
+      "frames": 199,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 122,
+      "ref_segments": 47,
+      "decision_points": 8,
+      "parse_reasons": {
+        "noop_step": 22,
+        "ok": 176,
+        "unparseable": 1
+      }
+    },
+    {
+      "traj": "claude-sonnet-4-6-max|074",
+      "frames": 122,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 46,
+      "ref_segments": 21,
+      "decision_points": 8,
+      "parse_reasons": {
+        "noop_step": 5,
+        "ok": 111,
+        "triple_click_not_in_computer_use": 5,
+        "unparseable": 1
+      }
+    },
+    {
+      "traj": "claude-sonnet-4-6-medium|074",
+      "frames": 284,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 67,
+      "ref_segments": 42,
+      "decision_points": 8,
+      "parse_reasons": {
+        "noop_step": 4,
+        "ok": 275,
+        "triple_click_not_in_computer_use": 4,
+        "unparseable": 1
+      }
+    },
+    {
+      "traj": "gpt-5.5|003",
+      "frames": 46,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 16,
+      "ref_segments": 11,
+      "decision_points": 2,
+      "parse_reasons": {
+        "noop_step": 13,
+        "ok": 4,
+        "unparseable": 7,
+        "macro_step": 22
+      }
+    },
+    {
+      "traj": "gpt-5.5|105",
+      "frames": 87,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 42,
+      "ref_segments": 33,
+      "decision_points": 0,
+      "parse_reasons": {
+        "noop_step": 34,
+        "unparseable": 8,
+        "macro_step": 37,
+        "ok": 8
+      }
+    },
+    {
+      "traj": "gpt-5.5|107",
+      "frames": 103,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 38,
+      "ref_segments": 26,
+      "decision_points": 8,
+      "parse_reasons": {
+        "noop_step": 2,
+        "unparseable": 7,
+        "ok": 34,
+        "macro_step": 60
+      }
+    },
+    {
+      "traj": "gpt-5.6|003",
+      "frames": 61,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 13,
+      "ref_segments": 8,
+      "decision_points": 1,
+      "parse_reasons": {
+        "macro_step": 26,
+        "ok": 9,
+        "unparseable": 24,
+        "noop_step": 2
+      }
+    },
+    {
+      "traj": "gpt-5.6|032",
+      "frames": 88,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 35,
+      "ref_segments": 15,
+      "decision_points": 1,
+      "parse_reasons": {
+        "noop_step": 3,
+        "macro_step": 76,
+        "ok": 4,
+        "unparseable": 5
+      }
+    },
+    {
+      "traj": "gpt-5.6|105",
+      "frames": 36,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 31,
+      "ref_segments": 6,
+      "decision_points": 1,
+      "parse_reasons": {
+        "macro_step": 31,
+        "noop_step": 2,
+        "ok": 1,
+        "unparseable": 2
+      }
+    },
+    {
+      "traj": "gpt-5.6|107",
+      "frames": 183,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 48,
+      "ref_segments": 26,
+      "decision_points": 6,
+      "parse_reasons": {
+        "macro_step": 129,
+        "ok": 24,
+        "noop_step": 7,
+        "unparseable": 23
+      }
+    },
+    {
+      "traj": "qwen3.7|074",
+      "frames": 75,
+      "screen": [
+        1920,
+        1080
+      ],
+      "ref_steps": 25,
+      "ref_segments": 11,
+      "decision_points": 8,
+      "parse_reasons": {
+        "noop_step": 3,
+        "ok": 72
+      }
+    }
+  ]
+}
