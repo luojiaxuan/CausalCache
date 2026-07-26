@@ -365,15 +365,18 @@ def main() -> None:
     args = _parser().parse_args()
     repository_root = args.repository_root.expanduser().resolve()
     osworld_root = args.osworld_root.expanduser().resolve()
+    repository_revision = _git_revision(repository_root)
     config_path = args.config
     if not config_path.is_absolute():
         config_path = repository_root / config_path
+    config_sha256 = _sha256(config_path)
     config = _load_config(config_path)
     execution = config["execution"]
     assets_root = (
         args.assets_root or Path(execution["assets_root"])
     ).expanduser().resolve()
     split_path = repository_root / config["release"]["memory_split"]
+    memory_plan_sha256 = _sha256(split_path)
     plan = load_osworld_v2_memory_plan(split_path)
     readiness = validate_osworld_v2_checkout(
         osworld_root,
@@ -521,13 +524,13 @@ def main() -> None:
         "elapsed_seconds": time.perf_counter() - started,
         "started_at": started_at,
         "finished_at": _utc_now(),
-        "repository_revision": _git_revision(repository_root),
+        "repository_revision": repository_revision,
         "osworld_revision": readiness["code_revision"],
         "argv": list(sys.argv),
         "config_path": str(config_path),
-        "config_sha256": _sha256(config_path),
+        "config_sha256": config_sha256,
         "memory_plan_path": str(split_path),
-        "memory_plan_sha256": _sha256(split_path),
+        "memory_plan_sha256": memory_plan_sha256,
         "assets_root": str(assets_root),
         "runtime_identity": _runtime_identity(),
         "gpu_before": gpu_before,
