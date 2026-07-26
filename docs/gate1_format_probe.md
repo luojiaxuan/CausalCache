@@ -68,9 +68,15 @@ adapter 要学的东西从"放大一个已存在的优势"变成"凭空创造优
 严格执行应保留单轮。但该规则写作时未预见当前情形:它假设"换格式后选点收益仍在"是
 好事的标志,而实际发生的是"选点收益消失、净效果反而更好"。
 
-**决定(2026-07-26,人工):暂不冻结 renderer,先在两种格式下各做一次 Gate 3
-oracle headroom。** 若 oracle 在多轮格式下仍有 headroom,则换格式;若两种格式下
-oracle 都没有 headroom,则 selector 主线本身需要重新考虑。
+**决定(2026-07-26,人工):已冻结 official-style sparse multiturn。**
+见 [`docs/renderer_freeze_v1.md`](renderer_freeze_v1.md)。
+
+推翻预注册规则的不是重算口径,而是 Gate 3 测出了写规则时未测量的量
+`recent_over_b0 = Q(Recent_B) - Q(空历史)`:单轮下它显著为负(B=2 时 −0.0615),
+即 **Recent 在单轮格式下是病态基线**,于是随机选帧也能赢它(`random_gain` 三个
+预算全部显著为正)。多轮下 `recent_over_b0` 三个预算全部显著为正、`random_gain`
+全部跨零。预注册规则隐含假设"两种格式下 Recent 都是合理基线",该假设在单轮下不成立,
+所以 `S_multi - R_multi ≈ 0` 不是"选择没价值",而是"基线终于正常了"。
 
 ## 6. 未做的检查(风险如实记录)
 

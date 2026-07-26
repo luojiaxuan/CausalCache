@@ -46,5 +46,9 @@ K=1/2/3/4 无一显著)。
 
 ## 状态
 
-`NOT_FINAL_PENDING_RENDERER_FREEZE`。是否重训、以及在哪种格式下重训,取决于
-Gate 3 的 oracle headroom 结果。
+`SUPERSEDED_BY_RENDERER_FREEZE`(2026-07-26)。renderer 已冻结为 official-style
+sparse multiturn,见 [`docs/renderer_freeze_v1.md`](renderer_freeze_v1.md)。
+
+**本 checkpoint 的意义只剩一条**:它证明了 RA-aware DiD 目标能阻止 common-mode
+amplification(三个 drift 都在 0.007 量级、远低于 0.02 上限,而 `did_select` 显著为正)。
+它**不是**最终 checkpoint —— 四臂 `S0/R0/SA/RA` 在多轮格式下全变,必须重训。
