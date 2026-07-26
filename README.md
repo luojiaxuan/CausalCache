@@ -1,26 +1,57 @@
 # CausalCache
 
-**Restoration-Guided Memory for Long-Horizon GUI Action Prediction**
+**Conditional Marginal Utility of Restoring Visual History for Long-Horizon GUI Agents**
 
-目标会议:AAAI。**当前主线 = History-Gated KV Adapter**(`exp/history-gated-mainline-v1`,
-冻结契约见 [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md)):在完全冻结
-GUI-Owl 原始参数的条件下,只新增一个解释恢复历史视觉证据的 KV 接口(最后 8 层 k/v_proj、
-mask 门控 residual、B0 逐位等价),用 benchmark-external 的修正版 GUI-Odyssey 训练,
-零样本迁移 AndroidWorld 与 OSWorld。**paper 全线零样本**:端到端主表用两个 panel
-分解科学问题——Panel A 固定 Recent,比较 Frozen / Full-layer LoRA /
-Top-8 ungated KV LoRA / HGKV 在 B0/B1/B2/B4/B8 下的 history-use;Panel B 固定 HGKV,
-只在 selector 契约支持的 B1/B2/B4 比较 Recent / marginal / set-conditioned,并报告
-selected-4 相对 Recent-8 的差值。
-AndroidWorld 报**全量 116-template × 2 fixed instances**的 template-macro success,
-OSWorld 报 full fixed roster 的 mean normalized task score。全部 adapter/selector 仅在
-GUI-Odyssey 训练与选择;未完成单元格在论文中显式标 `TBD`。此前在 AndroidWorld 上训练的
-margin-SFT 线(v3-e1)已从 paper 移除(与全零样本叙事冲突),连同 restoration / gate v1 /
-independent / set-utility(selector v0)各时代一并归档:摘要见
+目标会议:AAAI。**冻结 paper claim(2026-07-27)**:
+
+> Given textual summaries, the current screen, and a variable amount of recent
+> visual context, CausalCache estimates the conditional marginal utility of
+> restoring each archived event at high fidelity. Under a matched one-image
+> budget, it restores a non-local screenshot only when doing so is more useful
+> than extending the contiguous recent window.
+
+核心**不是**"sparse 总是比 recent 好",而是:**在某个已有 Recent context 下,
+关键旧事件的条件边际有时高于下一张 Recent;CausalCache 学习识别这些状态和事件。**
+
+**当前主线 = r-条件化单槽设计 + Desktop DiD 训练 → MobileWorld/OSWorld 零样本。**
+对每个 `r ∈ {0,1,2,4,8}`(当前图之外已提供的 recent history images 数),构造基础
+上下文 `C_r = goal + 完整 action summaries + current image + Recent-r`,然后只
+分配**一个**新增高保真视觉槽位,三选一:`STOP`(Δ=0)/ 继续扩展 Recent
+(`Δ_recent(r)`)/ 恢复某个被压缩事件的原始截图(`Δ_sparse(j|C_r)`)。关键量是
+恢复优势 `G_restore(r) = max_j Δ_sparse(j|C_r) − Δ_recent(r)`。每一行内部图片
+数/分辨率/summary/prompt 结构全部相同,唯一差别是新增图来自连续 Recent 还是
+selected archive;**跨 r 的绝对分数只是分析,主因果比较是行内 selected-vs-recent**。
+`r=4` 为主设置(接近常见部署配置),完整曲线报告 `r=0,1,2,4,8`——两个相反机制
+(Recent 少时旧图缺局部支撑 / Recent 多时冗余或饱和)必须由实验裁决,不能预设。
+policy 侧四行 ablation(Frozen / Full-layer LoRA / matched ungated KV / HGKV)
+按 r 条件化四臂(Base/Recent/Sparse/Wrong)的 DiD 目标训练并**按 r 分层报告**;
+selector 训练覆盖全部 r(采样比例约 10/15/20/35/20%,按标签产出率调整),输入显式
+包含 r、Recent 特征、candidate age/action family、summaries 与剩余预算,预测
+`Δ̂_sparse(j|C_r)` 并与 `Δ̂_recent(r)`、STOP 三选一。训练与选择只用 Desktop 数据
+(AgentNet/OpenCUA + OSWorld witness);MobileWorld 完全零样本,OSWorld 报未污染
+roster。旧 GUI-Odyssey→AndroidWorld 时代与 margin-SFT 线已归档:
 [`docs/archive/README.md`](docs/archive/README.md)。
 
 ## 当前结论
 
-> **2026-07-26 下一步实验已改为 Desktop training → MobileWorld zero-shot，尚未启动训练。**
+> **2026-07-27 Desktop DiD 三臂正式结果:HGKV 通过全部预注册 gate。**
+> 969 组桌面语料(AgentNet Ubuntu 6,003 决策点 → target-action-recurrence,
+> train/dev/test=773/94/102)、`did_ra_aware` DiD 目标、三行同协议 150 步。
+> dev(94 组/77 轨迹)结果:**HGKV 选点 s150,did_select = +0.0111
+> [+0.0074,+0.0150](ci_low>0),|A_r|=0.0087、wrong drift=0.0085 均在预注册
+> ε=0.02 内,B0 bitwise parity 精确**;matched ungated KV 也可选(s125,+0.0076),
+> **门控净增益配对显著 +0.00345 [+0.0007,+0.0062]**;Full-layer LoRA 选择性点估计
+> 最高(+0.0163)但 |A_r| 0.021–0.027 全程超 cap,**无合格 checkpoint**——
+> "能选择但锚不住",反证门控 = 漂移包络内的选择性。冻结基线
+> `frozen_selection_effect = +0.0333 [+0.0118,+0.0567]`:桌面冻结模型本就显著
+> 受益于目标相关旧帧(GUI-Odyssey 因目标 case 稀少测不出的现象层前提)。
+> 该结果实例化新设计的 **r=0 行**(部署 recent 选择器语义);§9 第 6/7 项
+> (parser validity / 完整动作等价)未跑完前 s150 **未冻结**,selector 不得启动。
+> 完整表与 provenance:[`data/results/desktop_did_policy_v1/`](data/results/desktop_did_policy_v1/README.md)。
+> 下一步:r-条件化语料 v2(`r ∈ {0,1,2,4,8}`,见上方主线定义)、§9 收尾、
+> selector 标签与 MobileWorld/OSWorld 零样本。
+>
+> **2026-07-26 下一步实验已改为 Desktop training → MobileWorld zero-shot(已执行,见上)。**
 > GUI-Odyssey rescue screening 已停止，不再用 prevalence 诊断阻塞主线。计划从
 > AgentNet/OpenCUA 成功轨迹与 OSWorld 2.0 visual-witness 构造 DiD 六臂训练对，公平比较
 > Frozen / Full-layer LoRA / matched ungated KV / HGKV；最终 policy 冻结后再重标
@@ -179,10 +210,15 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
   (`K_l = W_K h + M_hist·ΔW_K h`,V 同理),rank 8 / alpha 16 / dropout 0;mask 只覆盖 restored
   history image tokens,B0(无历史)时 hook 直接返回原输出。行为契约:B0 bitwise parity 是
   架构不变量,训练前必须通过,失败不得开训。
-- **训练目标**:L_gain / L_rank / L_ignore / L_norm(margins 0.01,L_CE 权重 0),变体
-  correct/b0/shuffled/irrelevant 共享同一成功动作 target;数据为修正版 GUI-Odyssey
-  (ody-sft-v2,37,635 样本),轨迹 ID 三切分 train/tune/heldout,checkpoint 只按 Odyssey
-  tune/heldout 选,不触 benchmark。
+- **训练目标(现行,`did_ra_aware`)**:每臂锚定自身冻结分数的差中差——
+  `A_s = ℓ_sparse^on − ℓ_sparse^off`、`A_r`、`A_n` 同理;
+  `L = [m−(A_s−A_r)]+ + [m−A_s]+ + [m−(A_s−A_n)]+ + λ_cap([|A_r|−ε]+ + [|A_n|−ε]+) + L2`,
+  m=0.01、ε=0.02、CE 恒 0。identity 上 `A_s−A_r` 严格为 0:冻结模型既有选点优势
+  冒充不进来,"见历史图就统一放大"买不到任何改善(旧四臂/SA−R0 两代目标的失败
+  模式,见 docs/sparse_history_v5_results.md)。数据为 Desktop target-recurrence
+  四臂组(Base/Recent/Sparse/Wrong,正例不要求 base 做错),v2 起按
+  `r ∈ {0,1,2,4,8}` 条件化并分层报告;轨迹级 train/dev/test 三切分,checkpoint
+  只按 Desktop dev 的预注册 gate 选,不触 benchmark。
 - **Selector(adapter 过跨平台门后)**:`U_act(S) = log p_gate(a*|S) − log p_0(a*|B0)`。
   Stage 1 singleton-gain scorer 负责 B1/第一步、标签构造 shortlist 与 independent
   baseline；Stage 2 接收已选集合和剩余预算，在全部剩余候选上比较 learned rank 与
@@ -222,10 +258,11 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 
 | 内容 | 位置 | 状态 |
 |---|---|---|
-| 代码、配置、论文、轻量结果 | 本 Git 仓库(主线分支 `exp/history-gated-mainline-v1`,保底线在 `main`) | canonical |
-| Desktop memory training v1 计划与代码 | [`docs/desktop_memory_training_handoff_v1.md`](docs/desktop_memory_training_handoff_v1.md)；分支 `luojiaxuan/mobileworld-memory-osworld2` | AgentNet 6,003-point manifest 与 OSWorld 67-point witness 已准备；policy/selector 训练未启动 |
-| Desktop memory reusable dataset | intended `gavinlaw/causalcache-desktop-memory-training`；Hyper01 local staging 见交接文档 | repo/revision 未验证；`PENDING_HF_UPLOAD` |
-| Desktop-trained adapters / selector | intended `gavinlaw/causalcache-gui-owl-desktop-memory-adapters` | 尚无 checkpoint；`PENDING_HF_UPLOAD` |
+| 代码、配置、论文、轻量结果 | 本 Git 仓库(当前主线分支 `luojiaxuan/mobileworld-memory-osworld2`) | canonical |
+| Desktop DiD 三臂正式结果 v1 | [`data/results/desktop_did_policy_v1/`](data/results/desktop_did_policy_v1/README.md);三份 gate 报告入 Git | **HGKV s150 全 gate PASS**;§9 第 6/7 项待跑,s150 未冻结 |
+| Desktop DiD 语料 v1(969 组) | Hyper01 `/data04/jaxan/mw/desktop-did-corpus-v1/`;hyper00 镜像(引用图片子集 2,754 张);manifest 与 parity/机械审计报告入 Git `data/manifests/desktop_did_corpus_v1_*` | `samples.jsonl` SHA `2ef47af4…b71c1f`;intended `gavinlaw/causalcache-desktop-memory-training`,`PENDING_HF_UPLOAD` |
+| Desktop-trained adapters(三行 × 各 10 checkpoint) | hyper01 `/data04/jaxan/mw/runs/desktop-did-v1/{hgkv,ungated_kv}/`;hyper00 `/data02/jaxan/runs/desktop-did-v1/full_lora/`;dev 分数缓存同级 `devscore-*` | intended `gavinlaw/causalcache-gui-owl-desktop-memory-adapters`,`PENDING_HF_UPLOAD` |
+| Desktop memory training 交接与执行记录 | [`docs/desktop_memory_training_handoff_v1.md`](docs/desktop_memory_training_handoff_v1.md);发射/收官记录见 [`docs/progress.md`](docs/progress.md) 2026-07-26/27 条目 | Stage A/B 已完成;Stage C(selector)待 s150 冻结 |
 | MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`MobileWorld result`](data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)；[`OSWorld 2.0 result`](data/results/osworld_v2_frozen_gui_owl_benchmark_v1/README.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；[`initial 5-GPU plan`](data/manifests/osworld_v2_gpu_shards_v1.json)；分支 `luojiaxuan/mobileworld-memory-osworld2` | MobileWorld 114/117、strict mean=0.230769；OSWorld 2.0 full-108 corrected wall=46:31.472、strict mean=0.006692 |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | History-gated adapter hg-s100 | hyper00 `/data02/jaxan/runs/hgkv-formal-v1/lora-step100.pt`(sha256 前缀 `8f2cc49e1aa0b06c`);副本 hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`;config [`code/configs/causalcache_history_gated_kv_v1.json`](code/configs/causalcache_history_gated_kv_v1.json) | gate PASS(s100 冻结);`PENDING_HF_UPLOAD` |
@@ -343,4 +380,11 @@ PYTHONPATH=code python3 -m compileall -q \
 
 ## Paper Claim 边界
 
-“Causal”只指对冻结策略行为进行受控 restoration intervention 得到的 counterfactual attribution；不声称识别环境结构因果，也不把方法包装成 world model。
+- 冻结 claim(见文首)是**条件式的**:不主张 sparse 总优于 recent,只主张在可识别
+  的状态下关键旧事件的条件边际高于下一张 Recent,且 CausalCache 学习识别这些状态
+  与事件;主因果比较永远是行内 matched-budget 的 selected-vs-recent,跨 r 只作分析。
+- “Causal”只指对冻结策略行为进行受控 restoration intervention 得到的
+  counterfactual attribution;不声称识别环境结构因果,也不把方法包装成 world model。
+- teacher-forced likelihood 是 surrogate,最终以闭环 success 裁决;
+  MobileWorld 完全零样本,OSWorld 只报未污染 roster(witness 消耗的 task 单列
+  in-domain diagnostic,见 contamination ledger)。

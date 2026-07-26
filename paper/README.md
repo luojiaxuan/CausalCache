@@ -22,16 +22,19 @@ make paper
 `main.tex` 保持单一正文源文件，以符合 AAAI author kit 的提交要求。当前未完成的段落级结果以
 `[Pending: ...]` 标记，表格单元格以 `TBD` 标记；不能在获得可复核结果前替换为经验性结论。
 
-## 主结果表契约
+## 主结果表契约(2026-07-27 起,r-条件化设计)
 
-- 同一个编号的 `table*` 内使用两个独立 tabular panel，不制作跨两个 benchmark 和两类科学问题的
-  巨型统一表；
-- Panel A 固定 Recent memory，比较四种 policy adaptation，报告
-  `B=0/1/2/4/8` 与 `Avg. B>0`，其中平均值只覆盖 `B=1/2/4/8`；
-- Panel B 固定 HGKV policy，比较 Recent、Stage-1 marginal 与 set-conditioned selector，
-  只报告部署契约支持的 `B=1/2/4`、对应平均值，以及 selected-4 相对 Recent-8 的差值；
-- marginal 与 set-conditioned 共用 Stage-1 首选，因此 `B=1` 必须相同；`B=8` 只用于
-  policy-level stress test，不作为 selector 结果或 selector ablation。
+- 冻结 claim 是条件式的(见 `main.tex` Limitations 引文块与仓库根 README):
+  不主张 sparse 总优于 recent,主张条件边际有时更高且方法学会识别;
+- 核心表按 `r ∈ {0,1,2,4,8}` 组织(`Table~\ref{tab:rdesign}` 定义设计,
+  `Table~\ref{tab:per-r}` 为骨架):每行固定 `C_r`,只花一个新增视觉槽位,
+  行内 matched budget 的 selected-vs-recent 是唯一主因果比较,跨 r 只作分析;
+  `r=4` 为主设置;
+- policy 侧 DiD gate 表(`Table~\ref{tab:did-gate}`)已填真实 r=0 数值
+  (HGKV/ungated/Full-LoRA 三行,dev 94 组);per-r 分层与零样本表保持 `TBD`
+  直至可复核结果落地;
+- selector 行按实际使用的图片数计费,STOP 是合法输出;不得把 singleton gain
+  求和冒充 set utility。
 
 ## AAAI-27 submission 约束
 

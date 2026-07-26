@@ -29,8 +29,12 @@
 \newcommand{\hgkv}{\textsc{HGKV}}
 \newcommand{\base}{\pi_{0}}
 \newcommand{\adapted}{\pi_{\mathrm{HG}}}
+\newcommand{\ctx}[1]{C_{#1}}
+\newcommand{\drecent}{\Delta_{\mathrm{recent}}}
+\newcommand{\dsparse}{\Delta_{\mathrm{sparse}}}
+\newcommand{\grestore}{G_{\mathrm{restore}}}
 
-\title{CausalCache: Learning to Use and Select Visual History for Long-Horizon GUI Agents}
+\title{CausalCache: Conditional Marginal Utility of Restoring Visual History for Long-Horizon GUI Agents}
 \author{Anonymous Submission}
 \affiliations{}
 
@@ -39,28 +43,30 @@
 \maketitle
 
 \begin{abstract}
-Long-horizon GUI agents face two coupled bottlenecks under bounded visual
-context: a policy trained mainly for the current screen may not know how to use
-archived screenshots, while a memory selector cannot learn meaningful values
-from a policy that treats history as noise. We introduce \method, a
-policy-preserving visual-memory interface for frozen GUI agents. Its
-history-gated key/value (\hgkv) adapter adds low-rank residuals only to
-restored history-image tokens in the final eight language-model layers and is
-structurally bypassed when no history image is present, exactly preserving the
-base policy at zero visual-memory budget. We train this interface on
-GUI-Odyssey with correct, absent, shuffled, and irrelevant histories, without
-ordinary action behavior cloning. On top of the adapted policy, \method{}
-defines success-anchored set utility as the change in likelihood of actions
-from successful trajectories when a subset of historical events is restored.
-A two-stage selector first learns singleton values from counterfactual \hgkv{}
-readouts, then predicts coalition-conditioned marginal gains and a STOP
-decision to handle redundancy and complementarity under at-most-$B$ budgets.
-All adaptation and model selection use GUI-Odyssey only; the same checkpoints
-are evaluated zero-shot on AndroidWorld and OSWorld. On held-out GUI-Odyssey,
-\hgkv{} improves correct-history over no-history likelihood by $0.1372$ nats per
-token, reverses negative sensitivity to shuffled and irrelevant histories, and
-preserves no-history logits exactly. \pending{Insert final zero-shot
-AndroidWorld and OSWorld closed-loop improvements.}
+Long-horizon GUI agents keep compressed textual summaries of past events and a
+bounded number of history screenshots. At each decision the practical question
+is not whether archived screenshots help in general, but how to spend the
+\emph{next} high-fidelity visual slot: extend the contiguous recent window,
+restore one archived non-local event, or stop adding images. We introduce
+\method, which estimates the \emph{conditional marginal utility} of restoring
+each archived event given the textual summaries, the current screen, and a
+variable amount of already-provided recent visual context
+$r\in\{0,1,2,4,8\}$. Under a matched one-image budget, \method{} restores a
+non-local screenshot only when doing so is more useful than extending the
+recent window. Its history-gated key/value (\hgkv) adapter adds low-rank
+residuals only to restored history-image tokens and is structurally bypassed
+with no history image, exactly preserving the frozen policy. It is trained with
+a difference-in-differences objective whose per-arm frozen anchors make
+``amplify any history image'' worth exactly zero. On 969 desktop decision
+groups built from successful AgentNet trajectories, the frozen policy already
+prefers target-relevant archived frames over the matched recent extension by
+$+0.033$ nats/token ($95\%$ CI $[+0.012,+0.057]$); \hgkv{} adds a further
+selective gain of $+0.011$ $[+0.007,+0.015]$ within a pre-registered drift
+envelope, while a full-layer LoRA control attains selectivity only by drifting
+beyond it. A budget-aware selector trained across $r$ then decides among
+STOP, next-recent, and archived candidates.
+\pending{Insert final $r$-conditioned curves and zero-shot MobileWorld and
+OSWorld closed-loop results.}
 \end{abstract}
 
 \section{Introduction}
@@ -72,59 +78,59 @@ state, layout, transient values, and spatial correspondence. A practical agent
 must therefore decide which historical events remain available in high fidelity
 \citep{lu2025guiodyssey,zeng2026mementogui,shi2026androtmem}.
 
-Most memory controllers address only the selection problem. They retain recent
+Most memory controllers frame this as unconditional selection: retain recent
 events, retrieve visually similar screenshots, or learn salience from task
-supervision \citep{zeng2026mementogui,shi2026androtmem,liu2026atmem}. These
-approaches implicitly assume that the action policy already understands
-multiple historical screenshots. Our experiments expose a more basic failure:
-a strong frozen GUI policy can change its output when history images are added
-while remaining insensitive, or even oppositely sensitive, to whether those
-images contain the correct historical evidence. In that regime, a better
-selector has little opportunity to improve executable behavior because the
-selected evidence is not reliably consumed.
+supervision \citep{zeng2026mementogui,shi2026androtmem,liu2026atmem}. Two
+things are missing from that framing. First, the value of an archived
+screenshot depends on what visual context is already present: with no recent
+images a restored old frame may lack local grounding, while with a saturated
+recent window any additional image may be redundant. Second, the action policy
+must actually consume restored evidence; our experiments show that a strong
+frozen policy can respond to the \emph{presence} of history images without
+being reliably sensitive to their \emph{content}, in which case a better
+selector has nothing to improve.
 
-Naively fine-tuning the whole policy is not a clean solution. Full-layer
-adaptation simultaneously changes current-screen understanding, action syntax,
-coordinate grounding, and termination behavior. It can therefore improve
-teacher-forced history sensitivity while overwriting the cross-platform action
-prior that made the base policy useful in the first place. The desired module
-should instead satisfy three behavioral conditions:
-\begin{enumerate}
-    \item with no restored screenshot, it exactly recovers the frozen policy;
-    \item with irrelevant or corrupted history, it learns to ignore the added
-    evidence;
-    \item with correct and useful history, it may change the action distribution
-    toward successful behavior.
-\end{enumerate}
+\method{} therefore poses the memory question conditionally. Given the goal,
+complete textual action summaries, the current screen, and $r$ recent
+screenshots, one additional high-fidelity slot may be spent three ways: not at
+all (STOP), on the next contiguous recent frame, or on one archived non-local
+event. The scientific quantity is the \emph{restoration advantage}
+$\grestore(r)$: how much the best archived event beats the next recent frame,
+as a function of $r$. Two opposing mechanisms make this genuinely empirical.
+When $r$ is small, archived frames may lack local support; when $r$ is
+moderate, the recent window already carries the operating context and a
+non-local key fact is most complementary; when $r$ is large, either redundancy
+inflates the relative value of one archived frame or saturation drives all
+marginals toward zero. None of this can be assumed in advance, so we measure
+$r\in\{0,1,2,4,8\}$ and treat $r{=}4$ as the primary deployment-like setting.
 
-\method{} implements this separation in two stages. First, a history-gated KV
-adapter modifies only the key and value projections of historical image tokens
-in the final eight language-model layers. The current screenshot, instruction,
-summary text, and generated action tokens remain on the frozen path. Second, a
-selector is trained only after the history interface is frozen. Its supervision
-comes from controlled restoration interventions: for an action observed in a
-successful trajectory, we measure how restoring a candidate event or event set
-changes the adapted policy's action likelihood relative to the frozen
-no-image baseline.
-
-The selector is explicitly interaction-aware. Singleton values are useful for
-the first choice, but are not additive: two individually useful events may be
-redundant, and individually weak events may be complementary. \method{} therefore
-uses a lightweight set-conditioned marginal selector that repeatedly scores
-remaining candidates given the already selected set and may stop before
-exhausting the budget.
+Learning to \emph{use} restored evidence must not corrupt the base agent.
+Full-layer adaptation simultaneously changes current-screen understanding,
+action syntax, and grounding; we show empirically that it gains selectivity
+while drifting beyond a pre-registered envelope on recent-only and
+wrong-history prompts. \method{} instead trains a history-gated KV interface
+(\hgkv) that touches only restored history-image tokens and is structurally
+bypassed at zero budget, with a difference-in-differences (DiD) objective in
+which every arm is anchored to its own frozen score: uniform amplification of
+any history cancels exactly, and only \emph{selective} use of target-relevant
+content reduces the loss.
 
 Our contributions are:
 \begin{itemize}
-    \item a policy-preserving \hgkv{} interface that learns to use visual history
-    while guaranteeing exact no-history parity with the frozen GUI policy;
-    \item success-anchored restoration supervision that measures the value of
-    restoring high-fidelity GUI events for an adapted policy;
-    \item an \hgkv-aligned two-stage selector that models conditional marginal
-    value, event interactions, and at-most-$B$ stopping;
-    \item a benchmark-external training protocol in which the adapter and
-    selector are selected only on GUI-Odyssey and evaluated zero-shot on full
-    AndroidWorld and OSWorld rosters.
+    \item a conditional formulation of GUI visual memory: one extra
+    high-fidelity slot, three actions (STOP, next-recent, restore), and the
+    restoration advantage $\grestore(r)$ measured across
+    $r\in\{0,1,2,4,8\}$ under matched image budgets;
+    \item a policy-preserving \hgkv{} interface trained with per-arm-anchored
+    DiD supervision, with exact no-history parity and pre-registered caps on
+    recent-only and wrong-history drift;
+    \item matched structural controls showing that full-layer adaptation
+    attains selectivity only outside the drift envelope, and that token gating
+    adds selective gain beyond a layer- and rank-matched ungated control;
+    \item an $r$-aware budgeted selector that predicts
+    $\widehat{\dsparse}(j\mid \ctx{r})$ against
+    $\widehat{\drecent}(r)$ and STOP, trained on desktop data only and
+    evaluated zero-shot on mobile and desktop benchmarks.
 \end{itemize}
 
 \section{Related Work}
@@ -134,11 +140,15 @@ Screenshot-based GUI agents increasingly learn grounding and action prediction
 directly from pixels, including CogAgent, SeeClick, ShowUI, and GUI-Owl
 \citep{hong2024cogagent,cheng2024seeclick,lin2025showui,xu2026mobileagent35}.
 AndroidWorld provides dynamically instantiated mobile tasks with executable
-success checks \citep{rawles2025androidworld}, while OSWorld evaluates agents in
+success checks \citep{rawles2025androidworld}, and OSWorld evaluates agents in
 real desktop applications \citep{xie2024osworld}. GUI-Odyssey supplies
-cross-application mobile trajectories and serves as our only adaptation and
-selector-training source \citep{lu2025guiodyssey}. We use GUI-Owl-1.5-8B as the
-frozen cross-platform base policy \citep{xu2026mobileagent35}.
+cross-application mobile trajectories \citep{lu2025guiodyssey}; our early
+mobile experiments on it motivated the conditional formulation used here. We
+use GUI-Owl-1.5-8B as the frozen cross-platform base policy
+\citep{xu2026mobileagent35}, train on desktop trajectories from AgentNet-style
+successful demonstrations, and evaluate zero-shot on held-out desktop tasks and
+a cross-app mobile memory benchmark. \pending{Cite the MobileWorld benchmark
+report once its canonical reference is fixed.}
 
 \paragraph{Long-horizon GUI memory.}
 GUI-Odyssey couples cross-app trajectories with a history resampler that attends
@@ -146,21 +156,21 @@ to prior screenshots \citep{lu2025guiodyssey}. MementoGUI learns multimodal
 memory writing, compression, and retrieval operators
 \citep{zeng2026mementogui}. AndroTMem retrieves causally linked anchor states
 from interaction histories \citep{shi2026androtmem}. These systems establish
-that long-horizon GUI control benefits from selective memory. \method{} focuses
-on a complementary bottleneck: before selecting historical images, the policy
-must be trained to interpret them without losing its original action
-capabilities.
+that long-horizon GUI control benefits from selective memory, but score
+candidates largely independently of how much recent visual context is already
+present. \method{} makes that conditioning explicit and additionally trains the
+policy-side interface that consumes the restored evidence.
 
 \paragraph{Interventional memory value.}
 Recent work studies memory through controlled interventions or active state
 influence \citep{srivastava2026cmi,liu2026atmem}. Our intervention is narrower
 and executable: every event always retains the same low-fidelity record, while
-a selected event additionally exposes exactly one archived post-action image.
-The resulting score is a policy-specific behavioral surrogate rather than an
-environment-level causal effect. Coalition-conditioned marginals are related to
-cooperative-game attribution \citep{shapley1953value}, but our goal is not to
-estimate a generic Shapley value; it is to train a deployable budgeted selector
-for a fixed GUI policy.
+a selected event additionally exposes exactly one archived post-action image,
+holding the remaining prompt fixed. The resulting score is a policy-specific
+behavioral surrogate rather than an environment-level causal effect.
+Coalition-conditioned marginals are related to cooperative-game attribution
+\citep{shapley1953value}, but our goal is a deployable budgeted selector for a
+fixed GUI policy, not a generic attribution value.
 
 \section{Problem Formulation}
 
@@ -168,36 +178,63 @@ At decision $t$, the agent receives instruction $g$, current observation
 $x_t$, and history
 \begin{equation}
 H_t=\{e_1,\ldots,e_{t-1}\}, \qquad
-e_j=(x_j,a_j,x_{j+1},\delta_j),
+e_j=(x_j,a_j,x_{j+1}),
 \end{equation}
-where $\delta_j$ is an optional deterministic UI delta. Each event has a
-compact low-fidelity record $\tilde e_j$ and an archived high-fidelity
-post-action screenshot $v_j$.
+where each event keeps a compact low-fidelity record $\tilde e_j$ and an
+archived high-fidelity post-action screenshot $v_j$.
 
-For a candidate set $S\subseteq\{1,\ldots,t-1\}$, let $X_t(S)$ denote a
-mixed-fidelity prompt that includes $\tilde e_j$ for every event and additionally
-includes $v_j$ only for $j\in S$. The current screenshot is always included.
-The selector chooses
+\paragraph{Conditional base context.}
+For $r\ge 0$, define the base context
 \begin{equation}
-M_t\subseteq\{1,\ldots,t-1\}, \qquad |M_t|\leq B,
+\ctx{r} \;=\; g
+\;+\;\{\tilde e_1,\ldots,\tilde e_{t-1}\}
+\;+\;x_t
+\;+\;\mathrm{Recent}\text{-}r,
+\label{eq:cr}
 \end{equation}
-where $B$ is the number of restored historical screenshots. Unselected events
-are not deleted; they remain available through their summaries and external
-archive.
+i.e.\ the goal, the \emph{complete} textual action summaries, the current
+screenshot, and the $r$ most recent distinct history screenshots. Let
+$Q(\cdot)$ denote the policy's mean target-token log-likelihood of the
+successful next action under a context. One additional visual slot admits
+three actions:
+\begin{align}
+\Delta_{\mathrm{STOP}}(r) &= 0,\\
+\drecent(r) &= Q(\ctx{r}+\{\text{next recent}\})-Q(\ctx{r}),\\
+\dsparse(j\mid \ctx{r}) &= Q(\ctx{r}+\{v_j\})-Q(\ctx{r}).
+\end{align}
+The selector's target decision is
+\begin{equation}
+\arg\max\bigl\{0,\; \drecent(r),\;
+\dsparse(j_1\mid \ctx{r}),\ldots\bigr\},
+\label{eq:decision}
+\end{equation}
+and the paper's central quantity is the \emph{restoration advantage}
+\begin{equation}
+\grestore(r)
+=\max_j \dsparse(j\mid \ctx{r})-\drecent(r).
+\label{eq:grestore}
+\end{equation}
+It answers: with $r$ recent screenshots already present, should the last
+high-fidelity slot hold more contiguous history or one task-relevant non-local
+event? Within each $r$, all compared prompts contain the same number of
+images, the same summaries, and the same structure; only the provenance of the
+added image differs. Across different $r$ the total image count differs, so
+cross-$r$ absolute scores are analysis, not the causal comparison.
 
-We separate two goals. The history interface should improve the action policy
-when useful visual evidence is present while preserving the frozen policy at
-$B=0$. Given that interface, the selector should maximize executable success
-under a fixed budget. Because full closed-loop counterfactual labels are
-prohibitively expensive, selector training uses a dense success-anchored action
-surrogate and closed-loop benchmarks provide final validation.
+\paragraph{Budgets beyond one slot.}
+For at-most-$B$ selection the same construction extends to sets
+$S\subseteq\{1,\ldots,t-1\}$ restored on top of $\ctx{r}$, with
+$U_t(S\mid\ctx{r})=Q(\ctx{r}+S)-Q(\ctx{r})$ and conditional marginals
+$\Delta_t(j\mid S)=U_t(S\cup\{j\})-U_t(S)$. Every formally reported set
+utility reruns the complete selected set; we never report a sum of singleton
+gains as the utility of a coalition.
 
 \section{CausalCache}
 
 \subsection{Policy-Preserving History-Gated KV Adapter}
 
 Let $h_l$ be the input to layer $l$'s attention projections. In the last eight
-language-model layers, \method{} adds rank-8, $\alpha=16$ low-rank residuals
+language-model layers, \method{} adds rank-8, $\alpha{=}16$ low-rank residuals
 \citep{hu2022lora} only to key and value projections:
 \begin{equation}
 \begin{aligned}
@@ -210,242 +247,235 @@ image tokens. It excludes instruction tokens, event-summary text, the current
 observation image, and action tokens. The mask is constructed fail-closed from
 the multimodal token-type sequence and per-image patch geometry; any mismatch
 between declared images and encoded image blocks aborts the forward pass.
-
 When no history image is restored, the adapter context is absent and the
-projection hook returns the original module output without computing a
-residual. Thus
-\begin{equation}
-\adapted(\cdot\mid X_t(\varnothing))
-=\base(\cdot\mid X_t(\varnothing))
-\end{equation}
-up to bitwise equality in our implementation. During autoregressive generation,
-the adapter acts only during the prompt prefill; its historical K/V increments
-are then carried by the ordinary KV cache, while decode tokens bypass the
-adapter.
+projection hook returns the original module output, so
+$\adapted(\cdot\mid \ctx{0})=\base(\cdot\mid \ctx{0})$ up to bitwise equality
+in our implementation.
 
-\subsection{Counterfactual History Supervision}
+\subsection{Per-$r$ Difference-in-Differences Supervision}
 
-For a successful GUI-Odyssey decision with target action $a_t^*$, we construct
-four prompts with the same target:
+Training states are decision points of successful desktop trajectories in
+which the target action $a^*_t$ recurs earlier in the same trajectory under
+full-action equivalence (type, arguments, and coordinates within tolerance);
+the screenshot preceding the earlier occurrence is the target-specific
+positive frame. For each state and each conditioning level $r$ we construct
+four prompts with identical summaries, current screen, and target:
 \begin{itemize}
-    \item \textbf{correct}: the selected event summaries and images are aligned;
-    \item \textbf{B0}: no historical screenshot is restored;
-    \item \textbf{shuffled}: the same restored slots receive permuted images;
-    \item \textbf{irrelevant}: restored slots receive donor images from another
-    trajectory.
+    \item \textbf{Base}: $\ctx{r}$ alone;
+    \item \textbf{Recent}: $\ctx{r}+\{\text{next recent frame}\}$;
+    \item \textbf{Sparse}: $\ctx{r}+\{v_{j^{+}}\}$ with the target-specific
+    archived frame ($\mathrm{age}\geq 3$);
+    \item \textbf{Wrong}: $\ctx{r}+\{v_{j^{-}}\}$ with an age-matched
+    same-trajectory frame whose following action is \emph{not} equivalent to
+    $a^*_t$.
 \end{itemize}
-Let $\ell_c,\ell_0,\ell_s,\ell_i$ be the mean target-token log likelihoods under
-these variants, where $\ell_0$ is computed by the frozen policy and detached.
-We train only the \hgkv{} parameters with
+Positives do not require the base action to be wrong: both information
+addition and evidence amplification are admissible mechanisms.
+
+Let $\ell$ denote mean target log-likelihood, superscripted by adapter state
+(active or frozen bypass). Each arm is anchored to \emph{its own} frozen
+score:
 \begin{equation}
 \begin{aligned}
-\mathcal L_{\mathrm{gain}} &= [m-(\ell_c-\ell_0)]_+,\\
-\mathcal L_{\mathrm{rank}} &= [m-(\ell_c-\ell_s)]_+
-+[m-(\ell_c-\ell_i)]_+,\\
-\mathcal L_{\mathrm{ignore}} &=
-\operatorname{SmoothL1}(\ell_s,\ell_0)
-+\operatorname{SmoothL1}(\ell_i,\ell_0),\\
-\mathcal L &= \mathcal L_{\mathrm{gain}}+
-\mathcal L_{\mathrm{rank}}+\mathcal L_{\mathrm{ignore}}
-+\lambda\lVert\Delta W\rVert_2^2.
+A_s&=\ell^{\mathrm{on}}_{\mathrm{sparse}}-\ell^{\mathrm{off}}_{\mathrm{sparse}},\qquad
+A_r=\ell^{\mathrm{on}}_{\mathrm{recent}}-\ell^{\mathrm{off}}_{\mathrm{recent}},\\
+A_n&=\ell^{\mathrm{on}}_{\mathrm{wrong}}-\ell^{\mathrm{off}}_{\mathrm{wrong}},
 \end{aligned}
 \end{equation}
-We use $m=0.01$, $\lambda=10^{-4}$, and no ordinary action cross-entropy. This
-prevents GUI-Odyssey from becoming a new action-imitation curriculum for the
-base policy; it supplies only comparative supervision about when historical
-visual evidence should help or be ignored.
-
-\subsection{Success-Anchored Set Utility}
-
-After freezing the history adapter, we define the utility of a restored set $S$
-as
+and the DiD objective is
 \begin{equation}
-U_t(S)=\frac{1}{L}\sum_{k=1}^{L}
-\log \adapted\!\left(a^*_{t,k}\mid a^*_{t,<k},X_t(S)\right)
--\ell_{0,t}.
-\label{eq:uact}
+\begin{aligned}
+\mathcal L ={}& [m-(A_s-A_r)]_+ + [m-A_s]_+ \\
+&+ [m-(A_s-A_n)]_+ \\
+&+ \lambda_{\mathrm{cap}}\bigl([|A_r|-\epsilon]_+ + [|A_n|-\epsilon]_+\bigr)
++ \lambda\lVert\Delta W\rVert_2^2,
+\end{aligned}
+\label{eq:did}
 \end{equation}
-Because of exact B0 parity, $\ell_{0,t}$ may be computed by either the frozen or
-history-gated policy under $X_t(\varnothing)$. The conditional marginal of
-candidate $j$ given an already selected set $S$ is
-\begin{equation}
-\Delta_t(j\mid S)=U_t(S\cup\{j\})-U_t(S).
-\label{eq:marginal}
-\end{equation}
-Unlike a fixed event score, Eq.~\ref{eq:marginal} preserves redundancy and
-complementarity. Every utility used for formal selector evaluation is obtained
-by rerunning the complete selected set; we never report a sum of singleton
-gains as the utility of a multi-event coalition.
+with $m{=}0.01$, $\epsilon{=}0.02$, $\lambda_{\mathrm{cap}}{=}2$,
+$\lambda{=}10^{-4}$, and no action cross-entropy. On the identity adapter
+every increment is zero, so $A_s-A_r$ is exactly zero: the frozen policy's
+own preference for target-relevant frames cannot masquerade as adapter skill,
+and uniformly amplifying all history buys nothing. The dead-zone caps bound
+recent-only and wrong-history drift with gradients on the same scale as the
+selection hinges. Losses and evaluation are stratified by $r$; a pooled mean
+could hide a method that helps at $r{=}4$ but fails at $r{=}0$ or saturates
+at $r{=}8$.
 
-\subsection{HGKV Counterfactual Readout Features}
+\subsection{Success-Anchored Utility and Selector Supervision}
+
+After the history interface is frozen, selector labels are true policy
+utilities: for each state and sampled $r$, singleton utilities
+$\dsparse(j\mid\ctx{r})$ for the full candidate pool, the matched
+$\drecent(r)$, and---for budgets beyond one---set utilities along
+shortlisted, recent, greedy, and small-beam paths. All labels rerun complete
+prompts through the frozen \hgkv{} policy.
+
+\subsection{$r$-Aware Budgeted Selector}
 
 The selector should use the same interface through which the policy reads
-history. For each candidate and each adapted layer, we capture the frozen
-decision query $Q_l$ at the final prompt token, the candidate's frozen history
-keys and values $(K^0_{l,j},V^0_{l,j})$, and the adapter increments
-$(\Delta K_{l,j},\Delta V_{l,j})$. We then compute a differential readout
-\begin{equation}
-\begin{aligned}
-\Delta r_{l,j}={}&
-\operatorname{Attn}(Q_l,K^0_{l,j}+\Delta K_{l,j})
-(V^0_{l,j}+\Delta V_{l,j}) \\
-&-\operatorname{Attn}(Q_l,K^0_{l,j})V^0_{l,j}.
-\end{aligned}
-\end{equation}
-This calculation is taken at the projection outputs where the adapter is
-injected. It is a lightweight counterfactual feature, not an exact replay of
-the full normalized and rotary-positioned attention block. For each layer we
-concatenate the mean-head readout difference and per-head norms, producing 160
-features; eight layers yield a 1,280-dimensional candidate representation.
-Event features can be cached after extraction, while the current decision is
-encoded once per state.
+history. For each candidate and each adapted layer we capture a lightweight
+counterfactual readout: the frozen decision query attends to the candidate's
+history keys/values with and without the adapter increments, and the
+mean-head difference plus per-head norms give 160 features per layer (1{,}280
+per candidate). The input additionally encodes, explicitly, the number of
+recent images $r$ already present, candidate age and action family, summary
+features, and the remaining budget.
 
-\subsection{Two-Stage Budgeted Selector}
-
-\paragraph{Stage 1: singleton scorer.}
-A shared $160\!\rightarrow\!64$ layer encoder with learned attention over the
-eight adapted layers maps each candidate to an embedding. Four heads predict
-singleton gain, within-state rank, positive gain, and a state-level STOP score.
-Training combines SmoothL1 regression, pairwise logistic ranking, positive-label
-binary cross entropy, and STOP binary cross entropy. Stage 1 selects the first
-event, supplies the independent singleton-gain baseline, and initializes Stage 2.
-For $B=1$, the singleton and set-conditioned paths are identical: both compare
-the same Stage-1 candidate ranks with the same STOP score.
-
-\paragraph{Stage 2: set-conditioned marginal scorer.}
-Permutation-invariant set models commonly aggregate elements through pooled or
-attention-based encoders \citep{zaheer2017deepsets,lee2019settransformer}.
-Our Stage 2 uses a deliberately lightweight variant: candidate embeddings
-already encode the current decision through their \hgkv{} readouts, one
-self-attention block contextualizes selected-event embeddings, and one
-cross-attention block maps remaining candidates to that selected context. A
-remaining-budget embedding conditions marginal, rank, positive, and STOP heads.
-It is trained from real conditional edges such as
-$U(\{i,j\})-U(\{i\})$ and $U(\{i,j,k\})-U(\{i,j\})$, generated along fixed
-shortlist, recent, greedy, and small-beam paths rather than by enumerating the
-full power set.
-
-At inference, Stage 1 makes the first choice; Stage 2 then repeatedly compares
-the best remaining candidate rank with STOP. Stage 2 re-scores all remaining
-candidates in the capped inventory; Stage-1 shortlists are used only to control
-conditional-label construction cost:
-\begin{algorithm}[t]
-\caption{At-most-$B$ HGKV Set-Conditioned Selection}
-\label{alg:selector}
-\begin{algorithmic}[1]
-\REQUIRE Candidate features $E$, budget $B$
-\STATE $S\leftarrow\varnothing$
-\STATE Score first events and STOP with Stage 1
-\IF{STOP outranks every event}
-    \RETURN $S$
-\ENDIF
-\STATE Add the highest-ranked event to $S$
-\WHILE{$|S|<B$}
-\STATE Predict candidate ranks, marginals, and STOP with Stage 2
-    \IF{STOP outranks every remaining event}
-        \STATE \textbf{break}
-    \ENDIF
-    \STATE Add the highest-ranked remaining event to $S$
-\ENDWHILE
-\RETURN $S$
-\end{algorithmic}
-\end{algorithm}
-The deployed V1 selector supports $B\in\{1,2,4\}$. We separately use $B=8$ as
-a large-memory policy stress test.
+A shared encoder with learned attention over the eight adapted layers feeds
+four heads: predicted marginal $\widehat{\dsparse}(j\mid\ctx{r})$, within-state
+rank, positive probability, and STOP. Set-conditioned selection for
+$B{>}1$ contextualizes selected-event embeddings with one self-attention block
+and maps remaining candidates to that context with one cross-attention block
+\citep{zaheer2017deepsets,lee2019settransformer}. At each step the best
+remaining candidate rank is compared against next-recent and STOP, realizing
+Eq.~\ref{eq:decision}. Training states sample
+$r\in\{0,1,2,4,8\}$ with a deployment-tilted mixture
+($10/15/20/35/20\%$, subject to label yield), so a single selector serves all
+conditioning levels.
 
 \section{Experimental Setup}
 
-\subsection{Training and Model Selection}
+\subsection{Training Data and Model Selection}
 
-All adapter and selector parameters are trained and selected only on corrected
-GUI-Odyssey trajectories \citep{lu2025guiodyssey}. Coordinates are interpreted
-in their native normalized range; system-button actions and terminal states are
-retained, and incomplete trajectories are excluded. Splits are
-trajectory-disjoint. The history adapter is selected only from GUI-Odyssey
-history-use metrics. The Stage-1 and Stage-2 selectors use train-episode
-GroupKFold for epoch selection, followed by a full-train refit and one read of
-the GUI-Odyssey development set. No AndroidWorld or OSWorld task is used to
-choose an architecture, checkpoint, loss, threshold, or budget.
+Policy adaptation and selector training use only desktop data: successful
+AgentNet/OpenCUA Ubuntu trajectories (5{,}000 screened, 2{,}293 successful,
+6{,}003 decision points) yield 969 target-recurrence groups
+(train/dev/test $=773/94/102$, trajectory-disjoint; click $56\%$, key
+$35\%$, plus type/drag/scroll), complemented by a high-precision OSWorld
+witness seed mined from official successful trajectories. Checkpoints and
+thresholds are selected only on the desktop development split under
+pre-registered gates: positive DiD selection with a positive bootstrap lower
+bound, and drift caps $|A_r|,|A_n|<\epsilon$. No mobile benchmark data
+touches training or selection.
 
-\subsection{Policies and Memory Baselines}
+\subsection{The $r$-Conditioned Design}
 
-The frozen policy is GUI-Owl-1.5-8B-Instruct
-\citep{xu2026mobileagent35}. We compare:
-\begin{itemize}
-    \item \textbf{Frozen}: no trainable policy adapter;
-    \item \textbf{Full-layer LoRA}: the strongest corrected GUI-Odyssey baseline,
-    modifying all language-model Q/K/V/O projections \citep{hu2022lora};
-    \item \textbf{Top-8 ungated KV}: an architecture-matched control using the
-    same layers, K/V targets, rank, and alpha as \hgkv{} but without token gating;
-    \item \textbf{HGKV}: the proposed policy-preserving history interface.
-\end{itemize}
-Memory baselines are Random, Recent, OCR/RGB Similarity, the Stage-1 marginal
-selector, and the Stage-2 set-conditioned selector. Similarity averages OCR
-token-set Jaccard and a joint RGB-histogram cosine score. Every method receives
-the same low-fidelity history and the same number of restored images.
-
-\subsection{Zero-Shot Benchmarks and Metrics}
-
-AndroidWorld \citep{rawles2025androidworld} is evaluated on all 116 task
-templates with two fixed dynamic instances per template. We average the two
-instances within each template and report template-macro success, with 10,000
-template-clustered paired bootstrap replicates. The primary headline includes
-all templates; a predefined 107-template action-compatible view is a
-sensitivity analysis. OSWorld \citep{xie2024osworld} uses the fixed 361-task
-no-Google-Drive roster and reports mean normalized task score. Infrastructure
-failures remain in an intention-to-treat denominator unless the environment
-fails before any policy step under a policy-agnostic void rule.
-
-For policy adaptation we fix the selector to Recent and report
-$B\in\{0,1,2,4,8\}$, with the mean over positive budgets. For selection we hold
-\hgkv{} fixed and report $B\in\{1,2,4\}$, with a separate comparison between a
-selected set at $B=4$ and Recent-8. Offline selector metrics include true
-selected-set utility, recovery relative to an exact or declared approximate
-oracle, regret, STOP rate, and latency.
-
-\section{Results}
-
-\subsection{HGKV Learns History Use without B0 Drift}
-
-Table~\ref{tab:hgkv-gate} reports the frozen GUI-Odyssey gate used to select
-\texttt{hg-s100}. The frozen policy benefits from the presence of recent
-history on average but assigns higher likelihood to shuffled or irrelevant
-images than to the aligned history. \hgkv{} increases the correct-history gain,
-reverses both content comparisons, and leaves B0 logits exactly unchanged.
-The small correct--shuffled margin and the positive drift of wrong histories
-also motivate a selector that increases the density of useful evidence.
+Table~\ref{tab:rdesign} defines the core comparison. Each row fixes the base
+context $\ctx{r}$ and spends exactly one additional slot; within a row all
+prompts have identical image counts, resolutions, summaries, and structure.
+The main deployment-like setting is $r{=}4$; the full curve
+$r\in\{0,1,2,4,8\}$ reports where restoration helps, where it is neutral, and
+where it saturates.
 
 \begin{table}[t]
 \centering
 {\small
-\begin{tabular}{@{}lrr@{}}
+\begin{tabular}{@{}rlll@{}}
 \toprule
-Held-out contrast (nats/token) & Frozen & HGKV \\
+$r$ & Base context & Recent control & \method \\
 \midrule
-Correct $-$ B0 & $+0.0502$ & $\mathbf{+0.1372}$ \\
-Correct $-$ shuffled & $-0.0142$ & $\mathbf{+0.0016}$ \\
-Correct $-$ irrelevant & $-0.0115$ & $\mathbf{+0.0108}$ \\
-B0 maximum absolute logit drift & -- & $\mathbf{0.000000}$ \\
+0 & current $+$ summaries & $+$ Recent-1 & $+$ Selected-1 \\
+1 & $+$ Recent-1 & $+$ 2nd recent & $+$ Selected-1 \\
+2 & $+$ Recent-2 & $+$ 3rd recent & $+$ Selected-1 \\
+4 & $+$ Recent-4 & $+$ 5th recent & $+$ Selected-1 \\
+8 & $+$ Recent-8 & $+$ 9th recent & $+$ Selected-1 \\
 \bottomrule
 \end{tabular}
 }
-\caption{History-use gate on 1,220 paired GUI-Odyssey development groups. All
-three HGKV contrast intervals have positive 95\% bootstrap lower bounds; the B0
-path is bitwise identical to the frozen policy.}
-\label{tab:hgkv-gate}
+\caption{The $r$-conditioned one-slot design. Every row is a matched-budget
+within-row comparison; the primary causal contrast is Selected-vs-Recent
+inside each row. $r{=}4$ is the primary setting; cross-$r$ absolute scores
+are analysis only.}
+\label{tab:rdesign}
 \end{table}
 
-\subsection{Zero-Shot Policy Use and Memory Selection}
+\subsection{Policies and Memory Baselines}
 
-Table~\ref{tab:main-results} factorizes the end-to-end comparison into two
-questions. Panel A fixes memory to Recent and asks whether a policy learns to
-use increasing amounts of history. The comparison between Top-8 ungated KV and
-\hgkv{} tests whether gains arise from adding capacity or from restricting
-adaptation to history tokens. Its B0 column is especially diagnostic: \hgkv{}
-must equal Frozen by construction, whereas ordinary adapters may alter the
-current-screen policy. Panel B instead fixes \hgkv{} and asks which history to
-restore. It excludes $B=8$, which is outside the selector's training and
-deployment contract, and reports a direct selected-4 versus Recent-8 contrast.
+The frozen policy is GUI-Owl-1.5-8B-Instruct \citep{xu2026mobileagent35}. We
+compare four policy rows under identical data, steps, and cadence:
+\begin{itemize}
+    \item \textbf{Frozen}: no trainable adapter;
+    \item \textbf{Full-layer LoRA}: all language-model Q/K/V/O projections
+    \citep{hu2022lora}, always active;
+    \item \textbf{Ungated KV}: the same last-eight layers, K/V targets, rank,
+    and alpha as \hgkv{} but active on all tokens;
+    \item \textbf{\hgkv{} (ours)}: token-gated, structurally bypassed at
+    $B{=}0$.
+\end{itemize}
+Memory baselines are STOP, Recent (the next contiguous frame), Random,
+OCR/RGB similarity, and the learned $r$-aware selector; an oracle over the
+candidate pool bounds headroom. Every method receives the same summaries and
+the same image budget.
+
+\subsection{Zero-Shot Benchmarks and Metrics}
+
+The policy interface and selector, trained on desktop data only, are evaluated
+(i) on held-out desktop decision groups (offline, per-$r$), (ii) zero-shot on
+an uncontaminated OSWorld task roster \citep{xie2024osworld} with official
+evaluator scores (tasks whose trajectories seeded the witness corpus are
+excluded from zero-shot claims and reported separately as in-domain
+diagnostics), and (iii) zero-shot on a cross-app mobile memory benchmark of
+117 runnable tasks (62 cross-app memory candidates, 55 single-app controls),
+which contributes no data to any training or selection decision.
+\pending{Fix the MobileWorld citation and the final roster hashes.}
+Offline metrics: mean target log-likelihood margins, full-action equivalence
+(type, arguments, coordinates at $\tau{=}25$ of a $[0,999]$ grid; $\tau\in
+\{5,10\}$ as sensitivity), repair and amplification rates, wrong-history harm,
+parser validity, and restored-image count. Closed-loop metrics: paired
+task success with cluster bootstrap, step counts, and wall time.
+
+\section{Results}
+
+\subsection{The Frozen Policy Already Prefers Relevant Archived Frames}
+
+On the desktop development split (94 groups, 77 trajectories, $r{=}0$),
+restoring the target-relevant archived frame beats the matched recent control
+by $+0.0333$ nats/token ($95\%$ CI $[+0.0118,+0.0567]$) \emph{without any
+adaptation}. This establishes the phenomenon the conditional design measures:
+archived non-local evidence can carry positive marginal utility over
+extending recency, at a scale earlier mobile corpora were too sparse to
+expose. \pending{Insert the full $\grestore(r)$ curve for
+$r\in\{0,1,2,4,8\}$ with per-$r$ candidate-pool oracles.}
+
+\subsection{Selective Use Within a Drift Envelope}
+
+Table~\ref{tab:did-gate} reports the pre-registered desktop DiD gate at
+$r{=}0$. All three adapters are trained for 150 matched steps; checkpoints
+are selected by the frozen rule (all gates passed, maximal DiD selection,
+earliest tie-break). \hgkv{} passes every gate from step 50 onward: its
+selected checkpoint improves DiD selection to $+0.0111$
+$[+0.0074,+0.0150]$ while holding recent-only and wrong-history drift well
+inside $\epsilon{=}0.02$, and its no-history path is bitwise identical to the
+frozen policy under randomized nonzero adapter weights. The layer- and
+rank-matched ungated control also learns selectivity ($+0.0076$), confirming
+that the last-eight K/V position carries signal, but token gating adds a
+paired per-group advantage of $+0.0035$ ($95\%$ CI $[+0.0007,+0.0062]$,
+56/94 groups). Full-layer LoRA attains the largest raw selectivity yet fails
+the envelope at every checkpoint ($|A_r|$ between $0.021$ and $0.027$; wrong
+drift up to $0.029$): it can select, but cannot stay anchored. Gating is what
+buys selectivity \emph{inside} the envelope.
+
+\begin{table}[t]
+\centering
+{\small
+\setlength{\tabcolsep}{3.6pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Adapter (selected step) & DiD select & $|A_r|$ & Wrong drift & Gates \\
+\midrule
+\textbf{\hgkv{} (s150)} & $\mathbf{+0.0111}$ & $0.0087$ & $0.0085$ & pass \\
+Ungated KV (s125) & $+0.0076$ & $0.0090$ & $0.0063$ & pass \\
+Full-layer LoRA (best) & $+0.0163$ & $0.0215$ & $0.0116$ & fail \\
+\bottomrule
+\end{tabular}
+}
+\caption{Desktop DiD gate on 94 development groups ($r{=}0$; 2{,}000
+episode-clustered bootstrap replicates). DiD select $=(A_s-A_r)$; caps
+require $|A_r|,|A_n|<0.02$. \hgkv{}'s DiD CI is
+$[+0.0074,+0.0150]$; full-layer LoRA has no checkpoint satisfying the caps.
+\hgkv{} B0 parity is bitwise exact.}
+\label{tab:did-gate}
+\end{table}
+
+\subsection{Conditional Curves and Zero-Shot Transfer}
+
+\pending{Report per-$r$ DiD gates and $\grestore(r)$ for
+$r\in\{0,1,2,4,8\}$ with $r{=}4$ as the primary column; then the zero-shot
+tables: on the uncontaminated OSWorld roster and the 117-task mobile memory
+benchmark, compare Frozen/\hgkv{} $\times$ STOP/Recent/selector at matched
+budgets, with paired cluster bootstrap. The mobile benchmark contributes no
+training or selection signal.}
 
 \begin{table*}[t]
 \centering
@@ -453,140 +483,67 @@ deployment contract, and reports a direct selected-4 versus Recent-8 contrast.
 \setlength{\tabcolsep}{5.0pt}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrrr@{}}
 \toprule
-\multicolumn{8}{@{}l}{\textbf{Panel A: Learning to use history with fixed Recent memory}} \\
+\multicolumn{8}{@{}l}{\textbf{Per-$r$ one-slot comparison (offline desktop heldout; primary setting $r=4$)}} \\
 \addlinespace[2pt]
-Benchmark & Policy adaptation & $B=0$ & $B=1$ & $B=2$ & $B=4$ & $B=8$
-& Avg.\ $B{>}0$ \\
+Policy & Extra slot & $r{=}0$ & $r{=}1$ & $r{=}2$ & $r{=}4$ & $r{=}8$ & Notes \\
 \midrule
-AndroidWorld & Frozen GUI-Owl & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-& Full-layer LoRA & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-& Top-8 ungated KV & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-& \textbf{HGKV (ours)} & $=$ Frozen & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\addlinespace[2pt]
-OSWorld & Frozen GUI-Owl & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-& Full-layer LoRA & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-& Top-8 ungated KV & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-& \textbf{HGKV (ours)} & $=$ Frozen & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\bottomrule
-\end{tabular*}
-
-\medskip
-
-\setlength{\tabcolsep}{6.0pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrr@{}}
-\toprule
-\multicolumn{7}{@{}l}{\textbf{Panel B: Learning which history to select with fixed HGKV}} \\
-\addlinespace[2pt]
-Benchmark & Memory selector & $B=1$ & $B=2$ & $B=4$
-& Avg.\ $B{=}1$--$4$ & $\Delta$ vs.\ Recent-8 \\
-\midrule
-AndroidWorld & Recent & \tbd & \tbd & \tbd & \tbd & -- \\
-& Marginal (Stage 1) & \tbd & \tbd & \tbd & \tbd & \tbd \\
-& \textbf{Set-conditioned (ours)} & $=$ Marginal & \tbd & \tbd & \tbd & \tbd \\
-\addlinespace[2pt]
-OSWorld & Recent & \tbd & \tbd & \tbd & \tbd & -- \\
-& Marginal (Stage 1) & \tbd & \tbd & \tbd & \tbd & \tbd \\
-& \textbf{Set-conditioned (ours)} & $=$ Marginal & \tbd & \tbd & \tbd & \tbd \\
+Frozen & next recent & \tbd & \tbd & \tbd & \tbd & \tbd & \\
+Frozen & selected archived & \tbd & \tbd & \tbd & \tbd & \tbd & $\grestore(0)=+0.033$ \\
+\hgkv & next recent & \tbd & \tbd & \tbd & \tbd & \tbd & \\
+\hgkv & selected archived & \tbd & \tbd & \tbd & \tbd & \tbd & \\
+\hgkv & learned selector (STOP/recent/restore) & \tbd & \tbd & \tbd & \tbd & \tbd & \\
 \bottomrule
 \end{tabular*}
 }
-\caption{Zero-shot end-to-end results. Panel A averages $B\in\{1,2,4,8\}$;
-Panel B averages $B\in\{1,2,4\}$ and defines the final column as the
-same-benchmark score of the $B=4$ selected set minus Recent-8. The two learned
-selectors share the Stage-1 first choice, so their $B=1$ results are identical.
-AndroidWorld reports template-macro success (\%); OSWorld reports mean
-normalized task score (\%). All adapters and selectors are trained and selected
-only on GUI-Odyssey.}
-\label{tab:main-results}
-\end{table*}
-
-\paragraph{Why conditional marginals matter.}
-
-The singleton-label quality gate contains 1,621 GUI-Odyssey development states
-and 11,364 real candidates. The exact best singleton exceeds Recent-1 by
-$0.0205$ nats/token with 95\% CI $[0.0187,0.0223]$, establishing learnable
-headroom beyond recency. However, 73.4\% of states have positive singleton
-utility for every candidate, while only 9.3\% have no positive candidate. This
-explains why independent positive-gain selection tends to fill the budget and
-why later choices require coalition-conditioned marginal labels and STOP.
-Every end-to-end selector cell in Table~\ref{tab:main-results} uses real
-closed-loop execution. The corresponding offline gate reruns each complete
-selected set through \hgkv{} rather than summing singleton labels.
-
-\subsection{Selector Utility, Stopping, and Cost}
-
-Table~\ref{tab:selector-analysis} reports policy-level mechanism metrics on
-GUI-Odyssey development states. Utility is Eq.~\ref{eq:uact} for the complete
-selected set. Exact search is used for small candidate sets; longer histories
-use a declared approximate oracle. The formal selected-set gate requires the
-set-conditioned selector to beat Recent, Similarity, and Random at each
-$B\in\{1,2,4\}$ with a positive paired bootstrap lower bound.
-
-\begin{table*}[t]
-\centering
-{\small
-\setlength{\tabcolsep}{4.0pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrr@{}}
-\toprule
-Selector & $U(B{=}1)$ & $U(B{=}2)$ & $U(B{=}4)$ & Oracle recovery & Regret & STOP rate & Latency \\
-\midrule
-Random & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & -- \\
-Recent & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & -- \\
-Similarity & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-HGKV singleton marginal & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-\textbf{HGKV set-conditioned} & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd & \tbd \\
-Oracle / approximate oracle & \tbd & \tbd & \tbd & $1.000$ & $0$ & -- & -- \\
-\bottomrule
-\end{tabular*}
-}
-\caption{Selector mechanism analysis. Multi-event utility is always measured by
-rerunning the complete coalition; it is never approximated by adding singleton
-gains.}
-\label{tab:selector-analysis}
+\caption{Skeleton of the conditional main table. Each cell is a within-row
+matched-budget contrast on the desktop heldout split; the learned selector row
+may choose STOP and is charged the images it actually uses. Cross-$r$
+comparisons are analysis only.}
+\label{tab:per-r}
 \end{table*}
 
 \section{Ablations and Analyses}
 
-The ablations follow the same factorization as Table~\ref{tab:main-results}
-rather than forming a policy--selector Cartesian product. Policy-use ablations
-hold Recent memory fixed, compare Frozen, full-layer LoRA, ungated top-8 KV, and
-\hgkv, and retain $B=8$ as a large-history stress test. Selection ablations hold
-\hgkv{} fixed and compare Recent, Similarity, Random, singleton marginal, and
-set-conditioned selection only at $B\in\{1,2,4\}$. Additional analyses include
-adapter depth and rank, removal of gain/rank/ignore losses, selected top-$B$
-versus bottom-$B$, wrong-event replacement, summary--image mismatch, and
-temporal reversal. We also stratify results by trajectory length, app, and the
-gap between Recent and oracle memory.
+Planned ablations follow the conditional factorization. Policy-side: per-$r$
+stratified DiD gates for \hgkv, ungated KV, and full-layer LoRA (a pooled mean
+may hide help at $r{=}4$ and saturation at $r{=}8$); adapter depth and rank;
+removing the gain, content, or cap terms. Selector-side: with and without the
+explicit $r$ input; label-mixture sensitivity; candidate-pool size; STOP
+calibration; top-$B$ versus bottom-$B$ restoration; wrong-event and
+summary--image mismatch controls. We also stratify by trajectory length,
+application, and positive-frame age.
 
 \section{Limitations and Claim Boundary}
 
-The success-anchored utility in Eq.~\ref{eq:uact} is a dense teacher-forced
-surrogate, not a direct long-horizon return. Its value must ultimately be judged
-by closed-loop success. The word ``causal'' in \method{} refers only to a
-controlled intervention that restores selected screenshots while holding the
-remaining prompt fixed; we do not identify environment-level structural
-causality or learn a world model.
-
-Our zero-shot claim concerns \method{} adaptation: neither the adapter nor the
-selector uses AndroidWorld or OSWorld data for training or model selection. We
-cannot guarantee that the pretrained base policy never encountered related
-data. GUI-Odyssey is mobile-only, so OSWorld evaluates whether the learned
-history interface transfers beyond its adaptation platform. The current HGKV
-adapter still raises the likelihood of some wrong-history variants, and the
-set-conditioned selector is partly motivated by this limited content margin.
-Finally, the current selector supports budgets through four restored events;
-$B=8$ is evaluated only as a policy-level memory stress test.
+Our frozen claim is deliberately conditional:
+\begin{quote}
+Given textual summaries, the current screen, and a variable amount of recent
+visual context, \method{} estimates the conditional marginal utility of
+restoring each archived event at high fidelity. Under a matched one-image
+budget, it restores a non-local screenshot only when doing so is more useful
+than extending the contiguous recent window.
+\end{quote}
+The claim is \emph{not} that sparse history beats recency in general; it is
+that in identifiable states the conditional marginal of a key archived event
+exceeds the next recent frame, and \method{} learns to recognize those states
+and events. The teacher-forced likelihood surrogate must ultimately be judged
+by closed-loop success. ``Causal'' refers only to controlled restoration
+interventions holding the remaining prompt fixed, not environment-level
+structural causality. The desktop DiD evidence reported here instantiates the
+$r{=}0$ row under the deployment recent-selector semantics; the full
+$r$-conditioned corpus and the mobile zero-shot evaluation are pending, and we
+cannot guarantee the pretrained base policy never saw related data.
 
 \section{Conclusion}
 
-\method{} separates learning to use visual history from learning which history to
-show. A token-gated KV adapter adds a history interface to a frozen GUI policy
-without changing its no-history behavior. Success-anchored restoration labels
-then supervise a selector whose later choices condition on the already selected
-set and may stop early. The resulting design isolates the value of historical
-evidence from generic policy fine-tuning and enables one GUI-Odyssey-trained
-system to be evaluated zero-shot across mobile and desktop environments.
-\pending{Update the conclusion with final AndroidWorld and OSWorld findings.}
+\method{} reframes visual memory for GUI agents as a conditional decision:
+given what recent context is already present, spend the next high-fidelity
+slot on recency, on one archived non-local event, or not at all. A token-gated
+KV interface learns to use restored evidence inside a pre-registered drift
+envelope---where full-layer adaptation cannot stay---and an $r$-aware selector
+learns when restoration beats recency. All learning happens on desktop data;
+mobile benchmarks remain untouched for zero-shot evaluation.
+\pending{Update with final conditional curves and zero-shot findings.}
 
 \bibliography{references}
 
