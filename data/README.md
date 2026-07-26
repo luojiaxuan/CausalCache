@@ -9,6 +9,11 @@ MobileWorld-Memory 与 OSWorld 2.0 的 pre-execution task-construction manifests
 `osworld-v2-2026.06.24` 的 108-task phenomena split。两者都不含 raw trajectory 或
 benchmark outcome。
 
+MobileWorld frozen GUI-Owl campaign 的 Git-safe 结果位于
+[`results/mobileworld_frozen_gui_owl_benchmark_v1/`](results/mobileworld_frozen_gui_owl_benchmark_v1/)：
+真实 makespan `6:21:03.108`，114/117 有结果、27 success，3 个 task 在冻结三次尝试后仍
+policy-invalid missing。raw trajectories 只保留在 Aries persistent storage。
+
 ```text
 data/
 ├── fixtures/    # 单测和 contract 使用的最小确定性 fixture

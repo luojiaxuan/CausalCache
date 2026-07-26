@@ -161,8 +161,14 @@ restoration contract 一致，不能把 B0 解释为完全无文本历史。
 - shared frozen GUI-Owl policy、MobileWorld upstream agent、multi-environment runner：
   已实现；
 - OSWorld 2.0 runner：已实现，因官方 gated tasks/assets 权限未批准而阻塞；
-- MobileWorld capacity 与 117-task full run：等待本分支代码提交并在 Aries 从 clean pushed
-  revision 执行，最终 wall time 和轻量结果将回写本节与 Git result summary。
+- MobileWorld capacity：1/2/4/8 environments 的 16-task wall time 分别为
+  `383.715/192.133/102.320/62.540 s`，8 env 达到 `921.010 tasks/hour`；
+- MobileWorld full campaign：先用 Aries GPU 1 + 8 env 得到 52 个结果，再在 GPU 0
+  释放后把剩余 65 task 冻结为 33/32 两个互斥 shard、各用 8 env。总 makespan
+  `22,863.108 s = 6:21:03.108`；最终 114/117 有结果、27 success，3 个 policy-invalid
+  task 在三次尝试后仍 missing。observed mean=`0.236842`，missing 计 0 的严格
+  117-task mean=`0.230769`。详细结果见
+  [`data/results/mobileworld_frozen_gui_owl_benchmark_v1/`](../data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)。
 
 ## Source of Truth
 
@@ -170,5 +176,5 @@ restoration contract 一致，不能把 B0 解释为完全无文本历史。
 - reusable upstream datasets/assets：各官方 repository/release，不复制到本项目 HF；
 - run root：Aries `/mnt/data6/jiaxuanluo/runs/mw-memory-v1`（container 内 `/data/runs/mw-memory-v1`）；
 - raw trajectories：上述 persistent run root，状态 `LOCAL_PRIVATE_RAW_TRACE`；
-- lightweight benchmark summary：待生成
-  `data/results/mobileworld_frozen_gui_owl_benchmark_v1/` 后 commit/push。
+- lightweight benchmark summary：
+  [`data/results/mobileworld_frozen_gui_owl_benchmark_v1/`](../data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)。

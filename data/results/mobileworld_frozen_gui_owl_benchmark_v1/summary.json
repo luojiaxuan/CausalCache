@@ -1,0 +1,145 @@
+{
+  "schema_version": "causalcache.mobileworld.frozen_gui_owl_benchmark_summary.v1",
+  "status": "INCOMPLETE_114_OF_117_POLICY_INVALID_AFTER_RETRY",
+  "benchmark": {
+    "name": "MobileWorld",
+    "profile": "frozen_gui_owl_gui_only",
+    "expected_denominator": 117,
+    "memory_arm": "recent",
+    "memory_budget": 4,
+    "max_step": 50,
+    "auto_retry": 2
+  },
+  "capacity": [
+    {
+      "elapsed_seconds": 383.7153989113867,
+      "environment_count": 1,
+      "result_count": 16,
+      "tasks_per_hour": 150.111255
+    },
+    {
+      "elapsed_seconds": 192.13266019523144,
+      "environment_count": 2,
+      "result_count": 16,
+      "tasks_per_hour": 299.792862
+    },
+    {
+      "elapsed_seconds": 102.32003013417125,
+      "environment_count": 4,
+      "result_count": 16,
+      "tasks_per_hour": 562.939631
+    },
+    {
+      "elapsed_seconds": 62.54004040174186,
+      "environment_count": 8,
+      "result_count": 16,
+      "tasks_per_hour": 921.009958
+    }
+  ],
+  "full_campaign": {
+    "finished_at": "2026-07-26T05:29:25.948464+00:00",
+    "makespan_seconds": 22863.107739,
+    "mean_score_observed_114": 0.23684210526315788,
+    "mean_score_strict_missing_as_zero_117": 0.23076923076923078,
+    "missing_count": 3,
+    "missing_tasks": [
+      "CheckCartPriceTask",
+      "MastodonServerInfoReportTask",
+      "MattermostTechnicalDebtTriageTask"
+    ],
+    "positive_score_count": 27,
+    "result_count": 114,
+    "started_at": "2026-07-25T23:08:22.840725+00:00",
+    "successful_task_count": 27
+  },
+  "phases": [
+    {
+      "elapsed_seconds": 13017.284011531621,
+      "environment_count": 8,
+      "finished_at": "2026-07-26T02:45:21.489601+00:00",
+      "gpu_ids": [
+        1
+      ],
+      "name": "single_gpu_prefix",
+      "policy_counter_after": {
+        "failures": 6,
+        "requests": 2256
+      },
+      "policy_counter_before": {
+        "failures": 0,
+        "requests": 94
+      },
+      "repository_revision": "83ee957eb461ab49e57508c74ca5ccf56ef2f05a",
+      "result_count": 52,
+      "started_at": "2026-07-25T23:08:22.840725+00:00",
+      "successful_task_count": 17,
+      "termination": "CONTROLLED_SIGINT_FOR_TWO_GPU_RESHARD"
+    },
+    {
+      "elapsed_seconds": 9689.986339366063,
+      "environment_count": 8,
+      "finished_at": "2026-07-26T05:29:25.948464+00:00",
+      "gpu_ids": [
+        1
+      ],
+      "missing_count": 1,
+      "name": "two_gpu_tail_shard_0",
+      "policy_counter_after": {
+        "failures": 21,
+        "requests": 3782
+      },
+      "policy_counter_before": {
+        "failures": 13,
+        "requests": 2263
+      },
+      "repository_revision": "e95edd05092cdc0a06a646965345b065eb58ff31",
+      "result_count": 32,
+      "started_at": "2026-07-26T02:47:54.562487+00:00",
+      "successful_task_count": 7,
+      "task_count": 33
+    },
+    {
+      "elapsed_seconds": 9054.262837095186,
+      "environment_count": 8,
+      "finished_at": "2026-07-26T05:18:50.299287+00:00",
+      "gpu_ids": [
+        0
+      ],
+      "missing_count": 2,
+      "name": "two_gpu_tail_shard_1",
+      "policy_counter_after": {
+        "failures": 11,
+        "requests": 1432
+      },
+      "policy_counter_before": {
+        "failures": 0,
+        "requests": 0
+      },
+      "repository_revision": "e95edd05092cdc0a06a646965345b065eb58ff31",
+      "result_count": 30,
+      "started_at": "2026-07-26T02:47:54.646150+00:00",
+      "successful_task_count": 3,
+      "task_count": 32
+    }
+  ],
+  "provenance": {
+    "environment_image": "ghcr.io/tongyi-mai/mobile_world@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240",
+    "environment_source_mount": "/app/service/src:ro",
+    "gpu_model": "NVIDIA RTX A6000",
+    "host": "aries.cs.ucsb.edu",
+    "mobileworld_revision": "8ae506487bf87785292d6cad101c49955d704d39",
+    "model": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "raw_trace_root": "/mnt/data6/jiaxuanluo/runs/mw-memory-v1",
+    "raw_trace_status": "LOCAL_PRIVATE_RAW_TRACE",
+    "runtime": {
+      "torch": "2.11.0+cu130",
+      "transformers": "5.6.0"
+    }
+  },
+  "validation": {
+    "cleanup": "TWO_FLEETS_8_PLUS_8_STOPPED_CANONICAL_CONTAINER_PRESERVED",
+    "result_union": "VALID_117_UNION_52_PLUS_32_PLUS_30_PLUS_3_MISSING",
+    "tests": "18 passed"
+  }
+}

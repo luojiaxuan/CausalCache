@@ -23,7 +23,11 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 > **2026-07-25 新 benchmark substrate：MobileWorld-Memory + OSWorld 2.0。**
 > MobileWorld 201-task inventory 已按冻结 GUI-Owl 可用 interface 锁定 117 个 GUI-only
 > denominator，其中 pre-execution cross-app memory candidates / single-app controls =
-> 62/55；执行拓扑为 Aries 单 GPU 共享一份 GUI-Owl、N 个 CPU/KVM emulator 动态队列。
+> 62/55。Aries capacity 的 1/2/4/8-env wall time=`383.715/192.133/102.320/62.540s`；
+> full campaign 从单 GPU 8 env 切换为 2 GPU × 8 env，真实 makespan
+> **6:21:03.108**，得到 **114/117 有结果、27 success**；3 个 task 在三次尝试后仍
+> policy-invalid missing。observed/strict-117 mean=`0.236842/0.230769`。结果见
+> [`data/results/mobileworld_frozen_gui_owl_benchmark_v1/`](data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)。
 > OSWorld 2.0 的 108-task split 直接采用官方 task-construction phenomena：
 > implicit-state memory core=43、dynamic/cross-source/implicit union=65、control=43；
 > gated tasks/assets 尚未获批，正式 runner 当前 fail closed。协议与进展见
@@ -208,7 +212,7 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 | 内容 | 位置 | 状态 |
 |---|---|---|
 | 代码、配置、论文、轻量结果 | 本 Git 仓库(主线分支 `exp/history-gated-mainline-v1`,保底线在 `main`) | canonical |
-| MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；分支 `luojiaxuan/mobileworld-memory-osworld2` | MobileWorld 117-task run 待执行；OSWorld 2.0 gated substrate blocked |
+| MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`MobileWorld result`](data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；分支 `luojiaxuan/mobileworld-memory-osworld2` | MobileWorld campaign 完成但 114/117（3 policy-invalid missing）；OSWorld 2.0 gated substrate blocked |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | History-gated adapter hg-s100 | hyper00 `/data02/jaxan/runs/hgkv-formal-v1/lora-step100.pt`(sha256 前缀 `8f2cc49e1aa0b06c`);副本 hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`;config [`code/configs/causalcache_history_gated_kv_v1.json`](code/configs/causalcache_history_gated_kv_v1.json) | gate PASS(s100 冻结);`PENDING_HF_UPLOAD` |
 | hgkv gate v1 认证 | [`data/results/hgkv_gate_v1/`](data/results/hgkv_gate_v1/README.md);原始行 hyper01 `/data02/jaxan/runs/hgkv-eval/cert/`(s100/frozen 各 5,738 行 jsonl) | 判定表入 Git;逐行 jsonl `PENDING_HF_UPLOAD` |
