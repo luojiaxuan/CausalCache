@@ -48,8 +48,24 @@ roster。旧 GUI-Odyssey→AndroidWorld 时代与 margin-SFT 线已归档:
 > 该结果实例化新设计的 **r=0 行**(部署 recent 选择器语义);§9 第 6/7 项
 > (parser validity / 完整动作等价)未跑完前 s150 **未冻结**,selector 不得启动。
 > 完整表与 provenance:[`data/results/desktop_did_policy_v1/`](data/results/desktop_did_policy_v1/README.md)。
-> 下一步:r-条件化语料 v2(`r ∈ {0,1,2,4,8}`,见上方主线定义)、§9 收尾、
-> selector 标签与 MobileWorld/OSWorld 零样本。
+> **口径警示(2026-07-27)**:v1 的 R0/RA 沿用部署 recent 选择器,k=1 时选中
+> 事件 s−1,其 post 帧与当前截图**逐字节相同**(在线语义如此)——它是"纯冗余图"
+> 控制,不是"有信息的前一帧"控制。因此 v1 的 `A_s−A_n`(真实 wrong 旧帧对照)
+> 与 |A_r|/|A_n| cap 结论成立,但 `frozen_selection_effect` 与 `did_select`
+> 的 recent 端被弱化。**真·前一帧复核探针已完成**(事件 s−2 post,94/94 组
+> 前一帧≠当前帧):`did_select_true = +0.0095 [+0.0056,+0.0138]`,60/94 组
+> 占优——**HGKV 选择性在真对照下成立**;但
+> `true_selection_effect = +0.0013 [−0.0242,+0.0253]` 不显著——冻结模型
+> 并不天然偏好目标相关旧帧,+0.0333 主要是"信息帧优于冗余副本";选择性由
+> HGKV 产生。结果:`data/results/desktop_did_policy_v1/true_recent_probe_dev.json`。
+> **v2 语料冻结定义:"next recent" = 最近的不同帧(前一帧),部署重复帧现象
+> 单独披露。**
+> 下一步:r-条件化语料 v2(`r ∈ {0,1,2,4,8}`,k=1 主实验)、§9 收尾、
+> selector 标签与 MobileWorld/OSWorld 零样本;**k 扩展 probe**:k=2 起用
+> set-conditioned 自回归贪心——每步加入条件边际最大的一张(候选 = archive
+> 事件 ∪ 下一张 recent ∪ STOP),k 变大时允许自然 fallback 到
+> recent-1/recent-2...;每步的完整集合重新送冻结 policy 打分,不做 singleton
+> 求和;k=2 先在 dev 上作 probe,不进 v2 主表。
 >
 > **2026-07-26 下一步实验已改为 Desktop training → MobileWorld zero-shot(已执行,见上)。**
 > GUI-Odyssey rescue screening 已停止，不再用 prevalence 诊断阻塞主线。计划从

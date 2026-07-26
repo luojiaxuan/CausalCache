@@ -58,12 +58,14 @@ residuals only to restored history-image tokens and is structurally bypassed
 with no history image, exactly preserving the frozen policy. It is trained with
 a difference-in-differences objective whose per-arm frozen anchors make
 ``amplify any history image'' worth exactly zero. On 969 desktop decision
-groups built from successful AgentNet trajectories, the frozen policy already
-prefers target-relevant archived frames over the matched recent extension by
-$+0.033$ nats/token ($95\%$ CI $[+0.012,+0.057]$); \hgkv{} adds a further
-selective gain of $+0.011$ $[+0.007,+0.015]$ within a pre-registered drift
-envelope, while a full-layer LoRA control attains selectivity only by drifting
-beyond it. A budget-aware selector trained across $r$ then decides among
+groups built from successful AgentNet trajectories, the frozen policy shows no
+reliable preference for the target-relevant archived frame over the true
+previous frame ($+0.001$ nats/token, $95\%$ CI $[-0.024,+0.025]$): selectivity
+is not inherited. \hgkv{} creates it, with a selective DiD gain of
+$+0.010$ $[+0.006,+0.014]$ against the informative previous-frame control
+(and $+0.011$ $[+0.007,+0.015]$ against a redundant duplicate control) within
+a pre-registered drift envelope, while a full-layer LoRA control attains
+selectivity only by drifting beyond it. A budget-aware selector trained across $r$ then decides among
 STOP, next-recent, and archived candidates.
 \pending{Insert final $r$-conditioned curves and zero-shot MobileWorld and
 OSWorld closed-loop results.}
@@ -417,16 +419,21 @@ task success with cluster bootstrap, step counts, and wall time.
 
 \section{Results}
 
-\subsection{The Frozen Policy Already Prefers Relevant Archived Frames}
+\subsection{Selectivity Is Not Inherited from the Frozen Policy}
 
-On the desktop development split (94 groups, 77 trajectories, $r{=}0$),
-restoring the target-relevant archived frame beats the matched recent control
-by $+0.0333$ nats/token ($95\%$ CI $[+0.0118,+0.0567]$) \emph{without any
-adaptation}. This establishes the phenomenon the conditional design measures:
-archived non-local evidence can carry positive marginal utility over
-extending recency, at a scale earlier mobile corpora were too sparse to
-expose. \pending{Insert the full $\grestore(r)$ curve for
-$r\in\{0,1,2,4,8\}$ with per-$r$ candidate-pool oracles.}
+On the desktop development split (94 groups, 77 trajectories, $r{=}0$), the
+choice of recent control matters. Against a \emph{redundant} control that
+restores a byte-identical copy of the current screen (the deployment
+recent-selector's $k{=}1$ behavior), the frozen policy prefers the
+target-relevant archived frame by $+0.0333$ nats/token
+($95\%$ CI $[+0.0118,+0.0567]$). Against the \emph{informative} true previous
+frame, however, its preference vanishes: $+0.0013$
+$[-0.0242,+0.0253]$, not significant (94/94 probes have a previous frame that
+differs from the current screen). To the frozen policy, a task-relevant
+non-local frame and the most recent distinct frame are worth about the same;
+selectivity must be learned. \pending{Insert the full $\grestore(r)$ curve
+for $r\in\{0,1,2,4,8\}$ with per-$r$ candidate-pool oracles, using the
+distinct-frame recent definition throughout.}
 
 \subsection{Selective Use Within a Drift Envelope}
 
@@ -435,9 +442,12 @@ $r{=}0$. All three adapters are trained for 150 matched steps; checkpoints
 are selected by the frozen rule (all gates passed, maximal DiD selection,
 earliest tie-break). \hgkv{} passes every gate from step 50 onward: its
 selected checkpoint improves DiD selection to $+0.0111$
-$[+0.0074,+0.0150]$ while holding recent-only and wrong-history drift well
-inside $\epsilon{=}0.02$, and its no-history path is bitwise identical to the
-frozen policy under randomized nonzero adapter weights. The layer- and
+$[+0.0074,+0.0150]$ against the redundant-duplicate recent control, and a
+re-scoring probe confirms $+0.0095$ $[+0.0056,+0.0138]$ (60/94 groups)
+against the informative true-previous-frame control, while holding
+recent-only and wrong-history drift well inside $\epsilon{=}0.02$; its
+no-history path is bitwise identical to the frozen policy under randomized
+nonzero adapter weights. The layer- and
 rank-matched ungated control also learns selectivity ($+0.0076$), confirming
 that the last-eight K/V position carries signal, but token gating adds a
 paired per-group advantage of $+0.0035$ ($95\%$ CI $[+0.0007,+0.0062]$,
@@ -488,7 +498,7 @@ training or selection signal.}
 Policy & Extra slot & $r{=}0$ & $r{=}1$ & $r{=}2$ & $r{=}4$ & $r{=}8$ & Notes \\
 \midrule
 Frozen & next recent & \tbd & \tbd & \tbd & \tbd & \tbd & \\
-Frozen & selected archived & \tbd & \tbd & \tbd & \tbd & \tbd & $\grestore(0)=+0.033$ \\
+Frozen & selected archived & \tbd & \tbd & \tbd & \tbd & \tbd & $\grestore(0)\approx 0$ \\
 \hgkv & next recent & \tbd & \tbd & \tbd & \tbd & \tbd & \\
 \hgkv & selected archived & \tbd & \tbd & \tbd & \tbd & \tbd & \\
 \hgkv & learned selector (STOP/recent/restore) & \tbd & \tbd & \tbd & \tbd & \tbd & \\
@@ -530,9 +540,14 @@ and events. The teacher-forced likelihood surrogate must ultimately be judged
 by closed-loop success. ``Causal'' refers only to controlled restoration
 interventions holding the remaining prompt fixed, not environment-level
 structural causality. The desktop DiD evidence reported here instantiates the
-$r{=}0$ row under the deployment recent-selector semantics; the full
-$r$-conditioned corpus and the mobile zero-shot evaluation are pending, and we
-cannot guarantee the pretrained base policy never saw related data.
+$r{=}0$ row; its training-time recent arm followed the deployment selector,
+whose $k{=}1$ frame duplicates the current screen, so we separately re-scored
+the selected checkpoint against the true previous frame and report both
+controls. The $r$-conditioned corpus (v2) freezes ``next recent'' as the most
+recent \emph{distinct} frame and discloses the deployment duplication
+separately. The full $r$ curves and the mobile zero-shot evaluation are
+pending, and we cannot guarantee the pretrained base policy never saw related
+data.
 
 \section{Conclusion}
 
