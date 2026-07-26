@@ -4,6 +4,22 @@
 
 主线 = History-Gated KV Adapter(合同见 [`history_gated_mainline_v1.md`](history_gated_mainline_v1.md),正式 gate PASS、s100 冻结,见 [`data/results/hgkv_gate_v1/`](../data/results/hgkv_gate_v1/README.md))。
 
+## 2026-07-26:停止 Odyssey prevalence 关键路径，冻结 Desktop→MobileWorld 交接
+
+- Hyper00 上 8 个 `mine_rescue_tiers` shard 已只终止 workload process，canonical
+  container 保留；8 张 H200 显存归零，`/data/artifacts/causalcache-rescue-v1/tiers/`
+  cache/heartbeat 未删除。该线以后只作 prevalence/harm appendix，不阻塞训练。
+- Hyper01 已准备 AgentNet Ubuntu 6,003 decision points（2,293 successful
+  trajectories；原始数据 374 GB）和 OSWorld 2.0 visual-witness 67 decision points。
+  witness 两 score shards 已完成 544/544、546/546，reduce 尚未执行。
+- 新主线必须用 Desktop target-specific / recent / wrong 的 DiD 六臂，不能复用遗漏
+  `RA` 的旧四臂 gate；policy ablation 固定 Frozen / Full-layer LoRA / matched ungated
+  KV / HGKV，final policy 冻结后才可重标 selector。
+- MobileWorld 保持完全 zero-shot，不参与 policy/selector/checkpoint/threshold 选择；
+  OSWorld task `003/032/074/105/107` 已登记 contamination，只报 in-domain diagnostic。
+- 完整执行顺序、停止条件、资源布局、Source of Truth 与 Claude 交接见
+  [`desktop_memory_training_handoff_v1.md`](desktop_memory_training_handoff_v1.md)。
+
 ## 2026-07-23:terminate 饿死事故闭环——修复验证通过,零样本化验尺 v2 发射
 
 - 事故:零样本化验尺 v1(ody-s75)0/90,零 policy_terminated;根因 = 训练目标 0 个 terminate

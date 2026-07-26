@@ -20,6 +20,14 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 
 ## 当前结论
 
+> **2026-07-26 下一步实验已改为 Desktop training → MobileWorld zero-shot，尚未启动训练。**
+> GUI-Odyssey rescue screening 已停止，不再用 prevalence 诊断阻塞主线。计划从
+> AgentNet/OpenCUA 成功轨迹与 OSWorld 2.0 visual-witness 构造 DiD 六臂训练对，公平比较
+> Frozen / Full-layer LoRA / matched ungated KV / HGKV；最终 policy 冻结后再重标
+> selector，MobileWorld 只作完全未触碰的 zero-shot target。执行合同、污染边界、算力
+> 布局与 Claude 交接入口见
+> [`docs/desktop_memory_training_handoff_v1.md`](docs/desktop_memory_training_handoff_v1.md)。
+>
 > **2026-07-25 新 benchmark substrate：MobileWorld-Memory + OSWorld 2.0。**
 > MobileWorld 201-task inventory 已按冻结 GUI-Owl 可用 interface 锁定 117 个 GUI-only
 > denominator，其中 pre-execution cross-app memory candidates / single-app controls =
@@ -197,6 +205,9 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 - [`docs/sealed_zero_shot_policy_matrix_v1.md`](docs/sealed_zero_shot_policy_matrix_v1.md):sealed 零样本评测矩阵 v1(AW,预注册,执行中);
 - [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md):MobileWorld
   单 GPU 多模拟器 benchmark 与 OSWorld 2.0 task-construction memory split；
+- [`docs/desktop_memory_training_handoff_v1.md`](docs/desktop_memory_training_handoff_v1.md):
+  Desktop DiD policy adaptation、Full-LoRA/HGKV ablation、selector 重标与 MobileWorld
+  zero-shot 的执行交接；当前状态为未启动训练；
 - [`data/results/hgkv_gate_v1/README.md`](data/results/hgkv_gate_v1/README.md):正式 gate PASS 判定表与 s100 provenance;
 - [`data/results/hgkv_selector_v1/README.md`](data/results/hgkv_selector_v1/README.md):Stage-1/Stage-2 与 selected-set gate 的结果、provenance 和 artifact 状态;
 - [`docs/androidworld_task_partition.md`](docs/androidworld_task_partition.md) 与 [`docs/androidworld_stack.md`](docs/androidworld_stack.md):AndroidWorld 冻结 partition 与 benchmark-native stack;
@@ -212,6 +223,9 @@ independent / set-utility(selector v0)各时代一并归档:摘要见
 | 内容 | 位置 | 状态 |
 |---|---|---|
 | 代码、配置、论文、轻量结果 | 本 Git 仓库(主线分支 `exp/history-gated-mainline-v1`,保底线在 `main`) | canonical |
+| Desktop memory training v1 计划与代码 | [`docs/desktop_memory_training_handoff_v1.md`](docs/desktop_memory_training_handoff_v1.md)；分支 `luojiaxuan/mobileworld-memory-osworld2` | AgentNet 6,003-point manifest 与 OSWorld 67-point witness 已准备；policy/selector 训练未启动 |
+| Desktop memory reusable dataset | intended `gavinlaw/causalcache-desktop-memory-training`；Hyper01 local staging 见交接文档 | repo/revision 未验证；`PENDING_HF_UPLOAD` |
+| Desktop-trained adapters / selector | intended `gavinlaw/causalcache-gui-owl-desktop-memory-adapters` | 尚无 checkpoint；`PENDING_HF_UPLOAD` |
 | MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`MobileWorld result`](data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)；[`OSWorld 2.0 result`](data/results/osworld_v2_frozen_gui_owl_benchmark_v1/README.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；[`initial 5-GPU plan`](data/manifests/osworld_v2_gpu_shards_v1.json)；分支 `luojiaxuan/mobileworld-memory-osworld2` | MobileWorld 114/117、strict mean=0.230769；OSWorld 2.0 full-108 corrected wall=46:31.472、strict mean=0.006692 |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | History-gated adapter hg-s100 | hyper00 `/data02/jaxan/runs/hgkv-formal-v1/lora-step100.pt`(sha256 前缀 `8f2cc49e1aa0b06c`);副本 hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`;config [`code/configs/causalcache_history_gated_kv_v1.json`](code/configs/causalcache_history_gated_kv_v1.json) | gate PASS(s100 冻结);`PENDING_HF_UPLOAD` |
