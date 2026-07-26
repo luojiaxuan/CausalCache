@@ -28,6 +28,7 @@
     "docker_dns_server": "127.0.0.11",
     "docker_cpu_model": null,
     "docker_port_lock_timeout_seconds": 180,
+    "website_host_suffix": "web.hku.icu",
     "screen_size": [1920, 1080],
     "num_envs": 12,
     "max_steps": 500,

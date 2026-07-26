@@ -58,6 +58,7 @@ def test_osworld_v2_config_uses_one_release_bundle() -> None:
     assert config["execution"]["docker_dns_server"] == "127.0.0.11"
     assert config["execution"]["docker_cpu_model"] is None
     assert config["execution"]["docker_port_lock_timeout_seconds"] == 180
+    assert config["execution"]["website_host_suffix"] == "web.hku.icu"
 
 
 def test_osworld_v2_fast_benchmark_keeps_scientific_identity() -> None:
@@ -67,6 +68,7 @@ def test_osworld_v2_fast_benchmark_keeps_scientific_identity() -> None:
     assert benchmark["policy"] == base["policy"]
     assert benchmark["execution"]["max_steps"] == 50
     assert benchmark["execution"]["num_envs"] == 2
+    assert benchmark["execution"]["website_host_suffix"] == "web.hku.icu"
     assert benchmark["execution"]["result_root"].endswith(
         "osworld-v2-memory-benchmark-v1"
     )

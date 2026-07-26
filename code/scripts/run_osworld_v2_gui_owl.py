@@ -181,6 +181,9 @@ def _worker(
 ) -> None:
     osworld_root = Path(spec["osworld_root"])
     os.environ["OSWORLD_FILE_BASE_URL"] = spec["assets_root"]
+    os.environ["WEBSITE_HOST_SUFFIX"] = spec["website_host_suffix"]
+    if spec["docker_host"] is not None:
+        os.environ["DOCKER_HOST"] = spec["docker_host"]
     DesktopEnv, resolve_task_json_path, load_task_config, run_single_example = (
         _import_upstream(
             osworld_root,
@@ -318,6 +321,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--num-envs", type=int)
     parser.add_argument("--policy-endpoint", required=True)
     parser.add_argument("--policy-timeout-seconds", type=float, default=300.0)
+    parser.add_argument("--docker-host")
     parser.add_argument("--path-to-vm")
     parser.add_argument("--region")
     parser.add_argument("--assets-root", type=Path)
@@ -381,6 +385,7 @@ def main() -> None:
         "shard_index": args.shard_index,
         "num_envs": num_envs,
         "policy_endpoint": args.policy_endpoint,
+        "docker_host": args.docker_host,
         "output_root": str(output_root),
         "assets_root": str(assets_root),
     }
@@ -401,6 +406,7 @@ def main() -> None:
         "result_root": str(output_root),
         "split": args.split,
         "provider": execution["provider"],
+        "docker_host": args.docker_host,
         "docker_dns_server": execution["docker_dns_server"],
         "docker_cpu_model": execution["docker_cpu_model"],
         "docker_port_lock_timeout_seconds": execution[
@@ -419,6 +425,7 @@ def main() -> None:
         "memory_arm": config["policy"]["memory_arm"],
         "memory_budget": config["policy"]["memory_budget"],
         "assets_root": str(assets_root),
+        "website_host_suffix": execution["website_host_suffix"],
     }
     workers = [
         context.Process(
