@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 import base64
+import io
 import json
+import urllib.error
 from pathlib import Path
 
 import pytest
 
+from scripts.run_mobileworld_gui_owl import (
+    _load_task_subset,
+    _task_names_sha256,
+)
 from causalcache.mobileworld import (
+    HTTPMobileWorldPolicy,
     MobileWorldHistoryEvent,
     build_mobileworld_policy_request,
     mobileworld_action_from_gui_owl,
@@ -97,6 +104,61 @@ def test_gui_owl_actions_map_to_mobileworld_schema() -> None:
         GUIOwlV2Action(action="terminate", status="success"),
         screen_size=(100, 200),
     ) == {"action_type": "finished", "text": "success"}
+
+
+def test_mobileworld_policy_http_error_preserves_server_detail(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    body = io.BytesIO(
+        json.dumps(
+            {
+                "error_type": "ValueError",
+                "error": "invalid generated action",
+            }
+        ).encode("utf-8")
+    )
+
+    def fail(*args: object, **kwargs: object) -> object:
+        del args, kwargs
+        raise urllib.error.HTTPError(
+            "http://policy/act",
+            500,
+            "Internal Server Error",
+            hdrs=None,
+            fp=body,
+        )
+
+    monkeypatch.setattr("urllib.request.urlopen", fail)
+    policy = HTTPMobileWorldPolicy("http://policy/act")
+    with pytest.raises(
+        RuntimeError,
+        match='MobileWorld policy HTTP 500:.*"invalid generated action"',
+    ):
+        policy.act({"request": "fixture"})
+
+
+def test_mobileworld_task_subset_is_hash_locked(
+    tmp_path: Path,
+) -> None:
+    roster = ["TaskA", "TaskB", "TaskC"]
+    subset_path = tmp_path / "subset.json"
+    subset_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "causalcache.mobileworld.task_subset.v1",
+                "full_roster_sha256": _task_names_sha256(roster),
+                "task_names_sha256": _task_names_sha256(["TaskA", "TaskC"]),
+                "tasks": ["TaskA", "TaskC"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert _load_task_subset(subset_path, roster) == ["TaskA", "TaskC"]
+    value = json.loads(subset_path.read_text(encoding="utf-8"))
+    value["tasks"] = ["TaskA", "Unknown"]
+    subset_path.write_text(json.dumps(value), encoding="utf-8")
+    with pytest.raises(ValueError, match="unknown tasks"):
+        _load_task_subset(subset_path, roster)
 
 
 def test_mobileworld_manifest_and_config_lock_gui_only_denominator() -> None:

@@ -7,6 +7,7 @@ import argparse
 import json
 import threading
 import time
+import traceback
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -109,6 +110,19 @@ def main() -> None:
             except Exception as error:  # noqa: BLE001
                 with counter_lock:
                     counters["failures"] += 1
+                print(
+                    json.dumps(
+                        {
+                            "event": "MOBILEWORLD_POLICY_FAILURE",
+                            "error_type": error.__class__.__name__,
+                            "error": str(error),
+                        },
+                        ensure_ascii=False,
+                        sort_keys=True,
+                    ),
+                    flush=True,
+                )
+                traceback.print_exc()
                 _json_response(
                     self,
                     500,

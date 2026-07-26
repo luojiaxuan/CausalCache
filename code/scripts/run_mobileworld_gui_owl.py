@@ -20,6 +20,7 @@ from typing import Any
 
 CONFIG_SCHEMA = "causalcache.mobileworld.benchmark_config.v1"
 EXECUTION_SCHEMA = "causalcache.mobileworld.execution_record.v1"
+TASK_SUBSET_SCHEMA = "causalcache.mobileworld.task_subset.v1"
 
 
 def _utc_now() -> str:
@@ -115,6 +116,35 @@ def _evenly_spaced(values: list[str], count: int) -> list[str]:
     ]
 
 
+def _task_names_sha256(values: list[str]) -> str:
+    return hashlib.sha256(
+        json.dumps(values, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def _load_task_subset(path: Path, roster: list[str]) -> list[str]:
+    subset = _load_json(path)
+    if subset.get("schema_version") != TASK_SUBSET_SCHEMA:
+        raise ValueError("MobileWorld task subset schema drifted")
+    if subset.get("full_roster_sha256") != _task_names_sha256(roster):
+        raise ValueError("MobileWorld task subset full-roster hash drifted")
+    tasks = subset.get("tasks")
+    if (
+        not isinstance(tasks, list)
+        or not tasks
+        or any(not isinstance(task, str) for task in tasks)
+    ):
+        raise ValueError("MobileWorld task subset must contain task names")
+    if len(tasks) != len(set(tasks)):
+        raise ValueError("MobileWorld task subset contains duplicates")
+    unknown = sorted(set(tasks) - set(roster))
+    if unknown:
+        raise ValueError(f"MobileWorld task subset contains unknown tasks: {unknown}")
+    if subset.get("task_names_sha256") != _task_names_sha256(tasks):
+        raise ValueError("MobileWorld task subset task hash drifted")
+    return tasks
+
+
 def _atomic_json(path: Path, value: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_suffix(path.suffix + ".tmp")
@@ -134,6 +164,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--profile", choices=("capacity", "full"), required=True)
     parser.add_argument("--num-envs", type=int, required=True)
+    parser.add_argument("--task-subset", type=Path)
     parser.add_argument(
         "--config",
         type=Path,
@@ -175,7 +206,14 @@ def main() -> None:
     selected_containers = containers[: args.num_envs]
     if any(record.get("ready") is not True for record in selected_containers):
         raise RuntimeError("MobileWorld fleet contains an unready environment")
-    if args.profile == "full":
+    task_subset_path = None
+    if args.task_subset is not None:
+        if args.profile != "full":
+            raise ValueError("MobileWorld task subsets are only valid for full runs")
+        task_subset_path = args.task_subset.expanduser().resolve()
+        tasks = _load_task_subset(task_subset_path, roster)
+        profile = config["benchmark"]
+    elif args.profile == "full":
         tasks = roster
         profile = config["benchmark"]
     else:
@@ -217,12 +255,16 @@ def main() -> None:
         "config_sha256": _sha256(config_path),
         "memory_plan_path": str(plan_path),
         "memory_plan_sha256": _sha256(plan_path),
+        "task_subset_path": (
+            str(task_subset_path) if task_subset_path is not None else None
+        ),
+        "task_subset_sha256": (
+            _sha256(task_subset_path) if task_subset_path is not None else None
+        ),
         "fleet_manifest_path": str(fleet_path),
         "fleet_manifest_sha256": _sha256(fleet_path),
         "task_count": len(tasks),
-        "task_names_sha256": hashlib.sha256(
-            json.dumps(tasks, separators=(",", ":")).encode("utf-8")
-        ).hexdigest(),
+        "task_names_sha256": _task_names_sha256(tasks),
         "num_envs": args.num_envs,
         "policy_endpoint": args.policy_endpoint,
         "argv": list(sys.argv),

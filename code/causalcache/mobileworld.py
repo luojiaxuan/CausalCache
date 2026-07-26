@@ -7,6 +7,7 @@ import hashlib
 import io
 import json
 import time
+import urllib.error
 import urllib.request
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
@@ -311,10 +312,21 @@ class HTTPMobileWorldPolicy:
             method="POST",
         )
         started = time.perf_counter()
-        with urllib.request.urlopen(
-            http_request, timeout=self.timeout_seconds
-        ) as response:
-            raw = json.loads(response.read().decode("utf-8"))
+        try:
+            with urllib.request.urlopen(
+                http_request, timeout=self.timeout_seconds
+            ) as response:
+                raw = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as error:
+            body = error.read().decode("utf-8", errors="replace")
+            try:
+                detail = json.loads(body)
+            except json.JSONDecodeError:
+                detail = body
+            raise RuntimeError(
+                f"MobileWorld policy HTTP {error.code}: "
+                f"{json.dumps(detail, ensure_ascii=False, sort_keys=True)}"
+            ) from error
         latency = time.perf_counter() - started
         if not isinstance(raw, Mapping):
             raise TypeError("MobileWorld policy response must be a mapping")
