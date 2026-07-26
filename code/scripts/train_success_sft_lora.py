@@ -151,6 +151,12 @@ _CHAT_TEMPLATE_PROMPT_FORMATS = (
     "official_style_sparse_multiturn",
 )
 _EXACT_BATCH_PROMPT_FORMATS = ("v2_1_private",)
+# note (luojiaxuan): 桌面语料(交接 §8.2)。它与上面 chat_template 家族的唯一差别
+# 是编码时必须带 tools=[_TOOL_SPEC] —— 官方桌面 prompt 的 <tools> 段由 chat template
+# 从 tools 实参注入,漏传等于换 prompt。与 GUIOwlOSWorldRuntime.generate_raw 的
+# token-by-token parity 由 scripts/audit_osworld_official_trainer_parity.py 在真模型
+# 上执行,单测只锁"编码实参与在线路径逐项相同"。
+_OSWORLD_CHAT_TEMPLATE_PROMPT_FORMATS = ("osworld_official",)
 
 
 def _prompt_encoding_path(sample: dict[str, Any]) -> str:
@@ -171,6 +177,8 @@ def _prompt_encoding_path(sample: dict[str, Any]) -> str:
         return "exact_batch"
     if prompt_format in _CHAT_TEMPLATE_PROMPT_FORMATS:
         return "chat_template"
+    if prompt_format in _OSWORLD_CHAT_TEMPLATE_PROMPT_FORMATS:
+        return "osworld_chat_template"
     if prompt_format in _EXACT_BATCH_PROMPT_FORMATS:
         return "exact_batch"
     raise ValueError(f"unknown prompt_format {prompt_format!r}")
@@ -203,7 +211,32 @@ def encode_sample(
         # _encode_exact_batch 会按 v2.1 私有契约校验(system message drifted),
         # 故这两类走 processor.apply_chat_template,编码参数与冻结路径一致,只跳过
         # 那条针对 v2.1 的结构校验;无 prompt_format 的 v2.1 老样本仍走原路。
-        if _prompt_encoding_path(sample) == "chat_template":
+        encoding_path = _prompt_encoding_path(sample)
+        if encoding_path == "osworld_chat_template":
+            # note (luojiaxuan): 与 GUIOwlOSWorldRuntime.generate_raw 逐实参相同:
+            # 单会话实参(不包 batch 列表)、tools=[_TOOL_SPEC]、add_generation_prompt。
+            # 不跑 v2.1 的 assert_pinned_assistant_prefix —— 那是 v2.1 私有契约,
+            # 桌面 prompt 的前缀不变量由 parity audit 脚本对着在线 runtime 逐 token 锁。
+            from causalcache.osworld_gui_owl import _TOOL_SPEC
+            from causalcache.policy.gui_owl_v2_1_runtime import (
+                prompt_aligned_input_keys,
+            )
+
+            encoded_batch = runtime.processor.apply_chat_template(
+                messages,
+                tools=[_TOOL_SPEC],
+                tokenize=True,
+                add_generation_prompt=True,
+                return_dict=True,
+                return_tensors="pt",
+            )
+            model_inputs = dict(
+                encoded_batch.to(runtime.device)
+                if hasattr(encoded_batch, "to")
+                else {k: v.to(runtime.device) for k, v in encoded_batch.items()}
+            )
+            prompt_aligned_input_keys(model_inputs)
+        elif encoding_path == "chat_template":
             # note (luojiaxuan): 这里**只**跳过 _encode_exact_batch 里那条 v2.1 私有
             # 结构校验和 tools=_official_tools_argument()(官方 system prompt 已内嵌
             # <tools>,再传一次会改 prompt);另外两项与 prompt 格式无关的保真检查
@@ -429,10 +462,51 @@ SPARSE_REPLACEMENT_ARM_CONTRACT: dict[str, tuple[str, str, str, str, str]] = {
         "SA", "negative", SPARSE_REPLACEMENT_PROMPT_FORMAT, "wrong", "active",
     ),
 }
-SPARSE_SAMPLE_SCHEMAS = (SPARSE_SAMPLE_SCHEMA, SPARSE_REPLACEMENT_SAMPLE_SCHEMA)
+# note (luojiaxuan): Desktop DiD 语料(causalcache.desktop_did_sample.v1,交接 §6)。
+# 构建器为 scripts/build_desktop_hgkv_corpus.py,契约表与其 DESKTOP_ARM_CONTRACT
+# 逐字段一致。与 v2/v6 的三点结构差异,均为语料构造决定:
+#   1. renderer 是官方桌面 osworld_official(processor.apply_chat_template +
+#      tools=[_TOOL_SPEC]),R0 与部署 prompt 同一 renderer 同一 recent 选择器,
+#      因此**没有 N0 臂** —— deployment_baseline_arm_id 显式指向 R0,
+#      format_effect 结构性为 0 不作为量报告;
+#   2. 负样本只有一条 WA(同轨迹 age-matched wrong,kind="wrong"),W0 由
+#      _sparse_history_group_loss_did 对同一行临时 bypass 重算;
+#   3. B0 parity 行在语料侧写进独立文件/独立 schema,不进本契约。
+# split:语料按轨迹发 train/dev/test,进 trainer 前必须先过
+# normalize_desktop_splits(dev→heldout、test 整组剥离),validate_sparse_sample
+# 只认 train/heldout。
+SPARSE_DESKTOP_SAMPLE_SCHEMA = "causalcache.desktop_did_sample.v1"
+SPARSE_DESKTOP_PROMPT_FORMAT = "osworld_official"
+SPARSE_DESKTOP_NEGATIVE_SLOT = "WA"
+SPARSE_DESKTOP_ARM_CONTRACT: dict[str, tuple[str, str, str, str, str]] = {
+    "R0": ("R0", "reference", SPARSE_DESKTOP_PROMPT_FORMAT, "recent", "bypass"),
+    "RA": ("RA", "measurement", SPARSE_DESKTOP_PROMPT_FORMAT, "recent", "active"),
+    "S0": (
+        "S0", "measurement", SPARSE_DESKTOP_PROMPT_FORMAT, "recurrence", "bypass",
+    ),
+    "SA": (
+        "SA", "positive", SPARSE_DESKTOP_PROMPT_FORMAT, "recurrence", "active",
+    ),
+    SPARSE_DESKTOP_NEGATIVE_SLOT: (
+        "WA", "negative", SPARSE_DESKTOP_PROMPT_FORMAT, "wrong", "active",
+    ),
+}
+SPARSE_SAMPLE_SCHEMAS = (
+    SPARSE_SAMPLE_SCHEMA,
+    SPARSE_REPLACEMENT_SAMPLE_SCHEMA,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA,
+)
 SPARSE_ARM_CONTRACTS: dict[str, dict[str, tuple[str, str, str, str, str]]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_ARM_CONTRACT,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_ARM_CONTRACT,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_ARM_CONTRACT,
+}
+# 部署基线臂按 schema 索引:v2/v6 有独立的官方 renderer N0;桌面的部署 prompt 与
+# R0 同 renderer 同选择器,基线就是 R0 本身(见上面的桌面契约注释)。
+SPARSE_DEPLOYMENT_BASELINE_BY_SCHEMA: dict[str, str] = {
+    SPARSE_SAMPLE_SCHEMA: "N0",
+    SPARSE_REPLACEMENT_SAMPLE_SCHEMA: "N0",
+    SPARSE_DESKTOP_SAMPLE_SCHEMA: "R0",
 }
 # note (luojiaxuan): 两个集合,**别合并**,它们回答的是不同的问题:
 #   * ``SPARSE_NEGATIVE_KINDS`` —— v5 五臂语料里真实存在的三个 kind。它同时是
@@ -448,12 +522,31 @@ SPARSE_ARM_CONTRACTS: dict[str, dict[str, tuple[str, str, str, str, str]]] = {
 # 尚未做出的科学判断,留给写 v6 训练 config 时显式决定,不在这里顺手替人定。
 SPARSE_NEGATIVE_KINDS = ("step_shuffled", "irrelevant", "duplicate")
 SPARSE_REPLACEMENT_NEGATIVE_KINDS = ("age_matched",)
-SPARSE_ALL_NEGATIVE_KINDS = SPARSE_NEGATIVE_KINDS + SPARSE_REPLACEMENT_NEGATIVE_KINDS
+SPARSE_DESKTOP_NEGATIVE_KINDS = ("wrong",)
+SPARSE_ALL_NEGATIVE_KINDS = (
+    SPARSE_NEGATIVE_KINDS
+    + SPARSE_REPLACEMENT_NEGATIVE_KINDS
+    + SPARSE_DESKTOP_NEGATIVE_KINDS
+)
 # 哪个 schema 的语料里**真实存在**哪些负样本 kind。必需 gate 与"外来 gate"检查都由它
 # 生成:v5 语料里没有 age_matched,v6 语料里没有另外三个,两边都不该被要求声明对方的量。
 SPARSE_NEGATIVE_KINDS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_NEGATIVE_KINDS,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_NEGATIVE_KINDS,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_NEGATIVE_KINDS,
+}
+# note (luojiaxuan): 负样本 kind → arm_slot,按 schema 索引。v2/v6 的命名约定是
+# ``SA_neg_<kind>``,桌面语料沿用交接 §6 的臂名 WA。差值量名的记法是
+# ``SA_minus_<arm_slot>``(见 sparse_diagnostic_keys),所以 gate 词表生成与样本
+# 校验都必须从这张表拿 slot,不得再从 kind 字符串拼前缀。
+SPARSE_NEGATIVE_SLOTS_BY_SCHEMA: dict[str, dict[str, str]] = {
+    SPARSE_SAMPLE_SCHEMA: {
+        kind: f"SA_neg_{kind}" for kind in SPARSE_NEGATIVE_KINDS
+    },
+    SPARSE_REPLACEMENT_SAMPLE_SCHEMA: {
+        "age_matched": SPARSE_REPLACEMENT_NEGATIVE_SLOT,
+    },
+    SPARSE_DESKTOP_SAMPLE_SCHEMA: {"wrong": SPARSE_DESKTOP_NEGATIVE_SLOT},
 }
 # note (luojiaxuan): v6 语料里 k=0(recent_sufficient)组只有 N0/R0/RA 三臂 —— 它们
 # 教的是"当前 Recent 已够用",是 **selector 的 STOP** 训练材料,不是 adapter 的。
@@ -478,9 +571,17 @@ SPARSE_REPLACEMENT_REQUIRED_KEYS = SPARSE_REQUIRED_KEYS + (
     "has_content_control",
     "recent_frames_kept",
 )
+# 桌面语料在 v5 必填键之上加两个:memory_config 是 history mask 的 K 的唯一权威
+# 来源(history_sample_context 首选读它),recent_frames_kept 记录该臂选中步落在
+# Recent-B 窗口内的数量(k=1 时 R 臂恒 1、S/W 臂恒 0,分层报告直接读)。
+SPARSE_DESKTOP_REQUIRED_KEYS = SPARSE_REQUIRED_KEYS + (
+    "memory_config",
+    "recent_frames_kept",
+)
 SPARSE_REQUIRED_KEYS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_REQUIRED_KEYS,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_REQUIRED_KEYS,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_REQUIRED_KEYS,
 }
 # 旧字段一旦出现说明样本没迁完:"sparse" 混淆了 prompt_format 与 selection_mode,
 # "reference_variant" 指向 native_recent{K}(与 trainer 实际参考臂矛盾)。
@@ -532,11 +633,21 @@ def validate_sparse_sample(sample: dict[str, Any], *, index: int) -> None:
     if sample["sample_id"] != f"{sample['pair_group']}|{slot}":
         raise ValueError(f"{where} sample_id must be '<pair_group>|<arm_slot>'")
     if sample["split"] not in ("train", "heldout"):
-        raise ValueError(f"{where} unknown split {sample['split']!r}")
+        hint = (
+            "; desktop corpora ship train/dev/test — run normalize_desktop_splits "
+            "before grouping"
+            if schema == SPARSE_DESKTOP_SAMPLE_SCHEMA
+            else ""
+        )
+        raise ValueError(f"{where} unknown split {sample['split']!r}{hint}")
     if sample["reference_arm_id"] != "R0":
         raise ValueError(f"{where} reference_arm_id must be 'R0'")
-    if sample["deployment_baseline_arm_id"] != "N0":
-        raise ValueError(f"{where} deployment_baseline_arm_id must be 'N0'")
+    expected_baseline = SPARSE_DEPLOYMENT_BASELINE_BY_SCHEMA[schema]
+    if sample["deployment_baseline_arm_id"] != expected_baseline:
+        raise ValueError(
+            f"{where} deployment_baseline_arm_id must be {expected_baseline!r} "
+            f"for schema {schema}"
+        )
     budget = sample["budget"]
     if type(budget) is not int or budget < 1:
         raise ValueError(f"{where} budget must be a positive int")
@@ -567,7 +678,8 @@ def validate_sparse_sample(sample: dict[str, Any], *, index: int) -> None:
     kind = sample.get("negative_kind")
     if kind not in SPARSE_ALL_NEGATIVE_KINDS:
         raise ValueError(f"{where} unknown negative_kind {kind!r}")
-    if slot != f"SA_neg_{kind}":
+    expected_slot = SPARSE_NEGATIVE_SLOTS_BY_SCHEMA[schema].get(kind)
+    if expected_slot is None or slot != expected_slot:
         raise ValueError(f"{where} arm_slot {slot!r} disagrees with negative_kind")
     scale = sample.get("negative_scale")
     if not isinstance(scale, (int, float)) or isinstance(scale, bool) or scale <= 0:
@@ -580,6 +692,12 @@ def validate_sparse_sample(sample: dict[str, Any], *, index: int) -> None:
             )
         return
     if kind == "age_matched":
+        _validate_age_matched_negative(sample, where=where)
+        return
+    if kind == "wrong":
+        # 桌面 WA 的硬约束与 v6 age_matched 完全同构:同 episode、distractor/oracle
+        # 两个来源步不同、都在 Recent-B 窗口外、selected_steps 里有 distractor 无
+        # oracle —— 直接复用同一份校验,不抄第二份。
         _validate_age_matched_negative(sample, where=where)
         return
 
@@ -728,6 +846,13 @@ def validate_sparse_group(
 
 
 SPARSE_HELDOUT_REQUIRED_SLOTS = ("N0", "R0", "S0", "RA", "SA")
+# 桌面 schema 没有 N0(部署基线 = R0,见契约注释),留出组四臂齐即可;缺 RA 主
+# claim(SA-RA)无定义、缺 S0 则 did_select 无定义,这两条与 v2/v6 相同。
+SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
+    SPARSE_SAMPLE_SCHEMA: SPARSE_HELDOUT_REQUIRED_SLOTS,
+    SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_HELDOUT_REQUIRED_SLOTS,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA: ("R0", "S0", "RA", "SA"),
+}
 
 # ---------------------------------------------------------------------------
 # 训练目标的两个版本(唯一权威是 config.objective.kind)
@@ -770,10 +895,56 @@ def sparse_objective_arms(objective_kind: str) -> tuple[str, ...]:
     return arms
 
 
-def sparse_objective_excluded_arms(objective_kind: str) -> list[str]:
-    """Measurement arms this objective never scores — the complement, not prose."""
+def sparse_objective_excluded_arms(
+    objective_kind: str, *, sample_schema: str = SPARSE_SAMPLE_SCHEMA
+) -> list[str]:
+    """Measurement arms this objective never scores — the complement, not prose.
+
+    # note (luojiaxuan): 补集的全集随语料 schema 变(桌面 schema 没有 N0),缺省值
+    # 保持 v2 —— 既有 config 与调用点的行为逐字节不变。
+    """
     consumed = set(sparse_objective_arms(objective_kind))
-    return sorted(set(SPARSE_HELDOUT_REQUIRED_SLOTS) - consumed)
+    return sorted(
+        set(SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA[sample_schema]) - consumed
+    )
+
+
+DESKTOP_SPLIT_TO_TRAINER = {"train": "train", "dev": "heldout"}
+
+
+def normalize_desktop_splits(
+    samples: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Map the desktop corpus train/dev/test split onto trainer vocabulary.
+
+    # note (luojiaxuan): 桌面语料按 Stage A.4 发 train/dev/test;trainer 的 split
+    # 词表只有 train/heldout。映射规则是交接 §9 的语义:checkpoint 只在 Desktop dev
+    # 选择(dev 即 trainer 的 heldout),test 在 policy 阶段一行都不许进来(整行剥离
+    # 并计数)。只动桌面 schema 的样本,旧语料逐字节原样通过;未知 split fail-closed。
+    # 返回 (kept_samples, counters);调用方必须把 counters 打印出来 —— 剥离要有据可查。
+    """
+    kept: list[dict[str, Any]] = []
+    counters = {"desktop_dev_to_heldout": 0, "desktop_test_dropped": 0}
+    for sample in samples:
+        if sample.get("schema_version") != SPARSE_DESKTOP_SAMPLE_SCHEMA:
+            kept.append(sample)
+            continue
+        split = sample.get("split")
+        if split == "test":
+            counters["desktop_test_dropped"] += 1
+            continue
+        if split not in DESKTOP_SPLIT_TO_TRAINER:
+            raise ValueError(
+                f"desktop sample {sample.get('sample_id')!r} carries unknown split "
+                f"{split!r}; expected one of "
+                f"{sorted(DESKTOP_SPLIT_TO_TRAINER) + ['test']}"
+            )
+        mapped = DESKTOP_SPLIT_TO_TRAINER[split]
+        if mapped != split:
+            counters["desktop_dev_to_heldout"] += 1
+            sample = {**sample, "split": mapped}
+        kept.append(sample)
+    return kept, counters
 
 
 def _sparse_groups_by_split(
@@ -972,14 +1143,18 @@ def build_sparse_history_heldout_units(
         validate_sparse_group(
             samples, pair_group=pair_group, group=group, label="heldout"
         )
+        # 必需臂集合随语料 schema 变(validate_sparse_group 已保证组内 schema 唯一)。
+        schema = samples[next(iter(group.values()))]["schema_version"]
         missing = [
-            slot for slot in SPARSE_HELDOUT_REQUIRED_SLOTS if slot not in group
+            slot
+            for slot in SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA[schema]
+            if slot not in group
         ]
         if missing:
             raise ValueError(
                 f"heldout pair-group {pair_group!r} lacks arms {missing}; every "
-                "scored group needs all five arms or its derived quantities are "
-                "undefined"
+                "scored group needs its schema's full measurement arms or its "
+                "derived quantities are undefined"
             )
         groups[pair_group] = group
     return groups
@@ -1169,7 +1344,9 @@ def balanced_sparse_shards(
     return shards
 
 
-def sparse_diagnostic_keys(negative_kind: str) -> tuple[str, str]:
+def sparse_diagnostic_keys(
+    negative_kind: str, *, arm_slot: str | None = None
+) -> tuple[str, str]:
     """Return (rank-gap key, drift key) for one negative kind — the gate spelling.
 
     # note (luojiaxuan): 审计第 10 条。损失里原来写 ``SA_minus_step_shuffled`` /
@@ -1178,9 +1355,13 @@ def sparse_diagnostic_keys(negative_kind: str) -> tuple[str, str]:
     # 直接与 config.gates 的量名对齐"那句注释是假的:两套名字谁也对不上谁。现在
     # **名字只有这一处定义**,损失的诊断键与下面的 SPARSE_GATE_VOCABULARY /
     # SPARSE_REQUIRED_GATES 都由它生成,对齐是结构性的而不是靠人肉同步。
-    # 记法统一到 arm_slot:负样本臂的 arm_slot 就是 ``SA_neg_<kind>``,所以差值量
-    # 名 = ``SA_minus_<arm_slot>``。
+    # 记法统一到 arm_slot:差值量名 = ``SA_minus_<arm_slot>``。v2/v6 的负样本臂
+    # slot 就是 ``SA_neg_<kind>``(缺省分支,取值逐字节不变);桌面语料的负臂叫
+    # WA(交接 §6 臂名),调用方给 arm_slot 时以它为准 —— 权威映射是
+    # SPARSE_NEGATIVE_SLOTS_BY_SCHEMA,不许再从 kind 拼前缀。
     """
+    if arm_slot is not None:
+        return f"SA_minus_{arm_slot}", f"{negative_kind}_drift_abs"
     return f"SA_minus_SA_neg_{negative_kind}", f"{negative_kind}_drift_abs"
 
 
@@ -1466,7 +1647,9 @@ def _sparse_history_group_loss_did(
     for slot, kind, _scale, ln, ln_frozen in scored:
         share = normalized[slot]
         a_n = ln - ln_frozen
-        gap_key, drift_key = sparse_diagnostic_keys(kind)
+        # 量名记法 SA_minus_<arm_slot>:v2/v6 的 slot 本就是 SA_neg_<kind>,传 slot
+        # 后取值逐字节不变;桌面语料由此得到 SA_minus_WA。
+        gap_key, drift_key = sparse_diagnostic_keys(kind, arm_slot=slot)
         # gap_key 仍是原始差 ℓSA−ℓn(gate 词表与留出集打分脚本认的就是它),
         # drift_key 仍是 |A_n|(与 P1-4 之后的定义逐字相同),差中差另开一个运行键。
         diagnostics[gap_key] = l_sa - ln
@@ -1632,7 +1815,7 @@ def _sparse_history_group_loss_legacy(
 
     for slot, kind, _scale, ln, ln_frozen in scored:
         share = normalized[slot]
-        gap_key, drift_key = sparse_diagnostic_keys(kind)
+        gap_key, drift_key = sparse_diagnostic_keys(kind, arm_slot=slot)
         diagnostics[gap_key] = lc - ln
         diagnostics[drift_key] = abs(ln - ln_frozen)
         if (rank_margin - (lc - ln)) > 0.0:
@@ -2353,10 +2536,40 @@ SPARSE_MAIN_CLAIM_QUANTITY = "SA_minus_RA"
 # 写的是 SA_minus_<kind> / <kind>_drift,词表这边写的是 SA_minus_SA_neg_<kind> /
 # <kind>_drift_abs,两套名字对不上,"诊断可直接与 config.gates 对齐"只是句愿望。
 SPARSE_NEGATIVE_GATE_KEYS = frozenset(
-    key for kind in SPARSE_ALL_NEGATIVE_KINDS for key in sparse_diagnostic_keys(kind)
+    key
+    for schema, kinds in SPARSE_NEGATIVE_KINDS_BY_SCHEMA.items()
+    for kind in kinds
+    for key in sparse_diagnostic_keys(
+        kind, arm_slot=SPARSE_NEGATIVE_SLOTS_BY_SCHEMA[schema][kind]
+    )
 )
+# note (luojiaxuan): 桌面 schema 的派生量表。没有 N0:format_effect 结构性为 0 不
+# 报告;deployment_delta 的基线就是 R0(与 SA_minus_R0 重合,保留两个名字是让
+# 部署语义的读数不用换名字找)。其余代数式与 v2 逐字相同。
+SPARSE_DESKTOP_DERIVED_QUANTITIES = {
+    "frozen_selection_effect": "S0 - R0",
+    "adapter_on_recent": "RA - R0",
+    "adapter_on_recent_abs": "abs(RA - R0)",
+    "adapter_on_sparse": "SA - S0",
+    "did_select": "(SA - S0) - (RA - R0)",
+    "SA_minus_RA": "SA - RA",
+    "SA_minus_R0": "SA - R0",
+    "deployment_delta": "SA - R0",
+}
+SPARSE_DERIVED_QUANTITIES_BY_SCHEMA: dict[str, dict[str, str]] = {
+    SPARSE_SAMPLE_SCHEMA: SPARSE_DERIVED_QUANTITIES,
+    SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_DERIVED_QUANTITIES,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_DERIVED_QUANTITIES,
+}
+# 词表只决定"允许引用哪些名字",放宽是安全的(见上方 v6 注释);按 schema 的
+# 必需/外来 gate 检查才是挡错的那一层。
 SPARSE_GATE_VOCABULARY = frozenset(
-    set(SPARSE_DERIVED_QUANTITIES) | SPARSE_NEGATIVE_GATE_KEYS
+    {
+        name
+        for quantities in SPARSE_DERIVED_QUANTITIES_BY_SCHEMA.values()
+        for name in quantities
+    }
+    | SPARSE_NEGATIVE_GATE_KEYS
 )
 # note (luojiaxuan): 2026-07-25 随目标一并换成 RA-aware 判据。旧集合要求
 # ``SA_minus_R0``,而新目标**根本不优化它** —— 它恰是会被"见历史就放大"刷高的量
@@ -2384,7 +2597,12 @@ _SPARSE_BASE_REQUIRED_GATES = frozenset(
 SPARSE_REQUIRED_GATES_BY_SCHEMA: dict[str, frozenset[str]] = {
     schema: frozenset(
         _SPARSE_BASE_REQUIRED_GATES
-        | {key for _, key in (sparse_diagnostic_keys(k) for k in kinds)}
+        | {
+            sparse_diagnostic_keys(
+                kind, arm_slot=SPARSE_NEGATIVE_SLOTS_BY_SCHEMA[schema][kind]
+            )[1]
+            for kind in kinds
+        }
     )
     for schema, kinds in SPARSE_NEGATIVE_KINDS_BY_SCHEMA.items()
 }
@@ -2393,7 +2611,11 @@ SPARSE_REQUIRED_GATES = SPARSE_REQUIRED_GATES_BY_SCHEMA[SPARSE_SAMPLE_SCHEMA]
 # 拿到 None(GateQuantityUnavailable),这里提前到训练启动前拦下。
 SPARSE_NEGATIVE_GATE_KEYS_BY_SCHEMA: dict[str, frozenset[str]] = {
     schema: frozenset(
-        key for kind in kinds for key in sparse_diagnostic_keys(kind)
+        key
+        for kind in kinds
+        for key in sparse_diagnostic_keys(
+            kind, arm_slot=SPARSE_NEGATIVE_SLOTS_BY_SCHEMA[schema][kind]
+        )
     )
     for schema, kinds in SPARSE_NEGATIVE_KINDS_BY_SCHEMA.items()
 }
@@ -2862,7 +3084,9 @@ def validate_sparse_objective(config: dict[str, Any]) -> tuple[str, dict[str, An
             f"objective block misses required keys {absent} under kind {kind!r}"
         )
     excluded = objective["excluded_arms"]
-    expected_excluded = sparse_objective_excluded_arms(kind)
+    expected_excluded = sparse_objective_excluded_arms(
+        kind, sample_schema=sparse_config_sample_schema(config)
+    )
     if excluded != expected_excluded:
         raise ValueError(
             f"objective.excluded_arms {excluded!r} disagrees with the arms "
@@ -2885,11 +3109,13 @@ def validate_sparse_gates(config: dict[str, Any]) -> dict[str, Any]:
             f"gates.main_claim_quantity must be {SPARSE_MAIN_CLAIM_QUANTITY} "
             "(SA - RA isolates the adapter effect on sparse selection)"
         )
+    # 派生量代数与必需 gate 都随语料 schema 变(桌面 schema 没有 N0/format_effect)。
+    schema = sparse_config_sample_schema(config)
     declared = gates.get("derived_quantities")
-    if declared != SPARSE_DERIVED_QUANTITIES:
+    if declared != SPARSE_DERIVED_QUANTITIES_BY_SCHEMA[schema]:
         raise ValueError(
             "gates.derived_quantities drifted from the frozen arm algebra "
-            f"{SPARSE_DERIVED_QUANTITIES}"
+            f"{SPARSE_DERIVED_QUANTITIES_BY_SCHEMA[schema]} for schema {schema}"
         )
     must_pass = gates.get("must_pass")
     if not isinstance(must_pass, dict) or not must_pass:
@@ -2897,9 +3123,6 @@ def validate_sparse_gates(config: dict[str, Any]) -> dict[str, Any]:
     unknown = sorted(set(must_pass) - SPARSE_GATE_VOCABULARY)
     if unknown:
         raise ValueError(f"gates.must_pass references unknown quantities {unknown}")
-    # 必需 gate 随语料 schema 变:v6 语料里没有 shuffled/duplicate/irrelevant,
-    # v5 语料里没有 age_matched,两边都不该被要求声明对方的量。
-    schema = sparse_config_sample_schema(config)
     absent = sorted(SPARSE_REQUIRED_GATES_BY_SCHEMA[schema] - set(must_pass))
     if absent:
         raise ValueError(
@@ -2933,11 +3156,11 @@ def validate_sparse_gates(config: dict[str, Any]) -> dict[str, Any]:
         gates.get("composite_score"), where="gates.composite_score"
     )
     parse_selection_rule(gates.get("selection_rule"))
-    for quantity, algebra in SPARSE_DERIVED_QUANTITIES.items():
-        # 派生量的代数式也必须可执行:打分脚本按这些字符串在五臂分数上求值。
+    for quantity, algebra in SPARSE_DERIVED_QUANTITIES_BY_SCHEMA[schema].items():
+        # 派生量的代数式也必须可执行:打分脚本按这些字符串在该 schema 的测量臂上求值。
         validate_gate_expression(
             algebra,
-            allowed=frozenset(SPARSE_HELDOUT_REQUIRED_SLOTS),
+            allowed=frozenset(SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA[schema]),
             where=f"gates.derived_quantities[{quantity!r}]",
         )
     return gates
@@ -3027,6 +3250,19 @@ def main() -> None:
     ]
     if not samples:
         raise ValueError("SFT dataset is empty")
+
+    # 桌面语料的 dev→heldout / test 剥离必须发生在任何分组与校验之前;旧语料原样通过。
+    samples, desktop_split_counters = normalize_desktop_splits(samples)
+    if not samples:
+        raise ValueError("normalize_desktop_splits dropped every sample")
+    if rank == 0 and any(desktop_split_counters.values()):
+        print(
+            json.dumps(
+                {"desktop_split_normalization": desktop_split_counters},
+                sort_keys=True,
+            ),
+            flush=True,
+        )
 
     # note (luojiaxuan): 标签类过滤放在**加载模型之前**。config 与语料不匹配(声明了
     # train_on_label_classes 而语料没有 label_class 字段)应该几秒内报错,而不是等 8B

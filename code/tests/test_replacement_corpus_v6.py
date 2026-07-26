@@ -1024,16 +1024,21 @@ def test_a_five_arm_group_still_runs_the_did_loss_without_negatives() -> None:
 def test_the_v5_negative_kinds_keep_their_frozen_gate_requirements() -> None:
     """新增 kind 不得改动 v5 的必需 gate —— 否则既有 config 会当场报错。"""
     assert trainer.SPARSE_NEGATIVE_KINDS == ("step_shuffled", "irrelevant", "duplicate")
+    # note (luojiaxuan): 桌面 DiD schema 追加了 wrong;冻结的是 v5 kinds 与 v5/v6 的
+    # 必需 gate,不是这个并集的长度 —— 并集本就是"词表认识哪些名字"的来源。
     assert trainer.SPARSE_ALL_NEGATIVE_KINDS == (
-        "step_shuffled", "irrelevant", "duplicate", "age_matched",
+        "step_shuffled", "irrelevant", "duplicate", "age_matched", "wrong",
     )
     assert "age_matched_drift_abs" not in trainer.SPARSE_REQUIRED_GATES
+    assert "wrong_drift_abs" not in trainer.SPARSE_REQUIRED_GATES
     for kind in trainer.SPARSE_NEGATIVE_KINDS:
         _gap, drift = trainer.sparse_diagnostic_keys(kind)
         assert drift in trainer.SPARSE_REQUIRED_GATES
     # 但词表必须认识它,否则打分脚本报告里这一项会静默消失。
     assert "age_matched_drift_abs" in trainer.SPARSE_GATE_VOCABULARY
     assert "SA_minus_SA_neg_age_matched" in trainer.SPARSE_GATE_VOCABULARY
+    assert "wrong_drift_abs" in trainer.SPARSE_GATE_VOCABULARY
+    assert "SA_minus_WA" in trainer.SPARSE_GATE_VOCABULARY
 
 
 def test_the_age_matched_negative_rejects_a_foreign_donor() -> None:
