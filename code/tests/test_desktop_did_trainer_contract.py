@@ -378,6 +378,65 @@ class _Recorder:
 
 
 # ---------------------------------------------------------------------------
+# 5b. 三份桌面训练 config 必须整体通过 trainer 的全部启动校验
+# ---------------------------------------------------------------------------
+
+DESKTOP_CONFIG_NAMES = (
+    "causalcache_desktop_did_hgkv_v1.json",
+    "causalcache_desktop_did_ungated_kv_v1.json",
+    "causalcache_desktop_did_full_lora_v1.json",
+)
+
+
+@pytest.mark.parametrize("name", DESKTOP_CONFIG_NAMES)
+def test_desktop_training_config_passes_all_startup_validators(name) -> None:
+    import argparse
+    from pathlib import Path
+
+    path = Path(__file__).resolve().parents[1] / "configs" / name
+    config = trainer.load_config(path)
+    adapter_type, options = trainer.adapter_settings(config)
+    assert adapter_type in trainer.SPARSE_SUPPORTED_ADAPTER_TYPES
+    if adapter_type != "full_policy_lora":
+        assert options == {"layer_count": 8, "rank": 8, "alpha": 16}
+    assert trainer.sparse_config_sample_schema(config) == (
+        trainer.SPARSE_DESKTOP_SAMPLE_SCHEMA
+    )
+    trainer.validate_sparse_gates(config)
+    kind, _objective = trainer.validate_sparse_objective(config)
+    assert kind == trainer.SPARSE_OBJECTIVE_DID_RA_AWARE
+    controls = trainer.resolve_sparse_training(
+        config["training"],
+        args=argparse.Namespace(max_steps=0, checkpoint_every_steps=0),
+        objective_kind=kind,
+    )
+    assert controls == {"max_steps": 150, "checkpoint_every_steps": 25}
+    # 桌面语料没有 label_class 字段,config 不得声明 train_on_label_classes
+    assert trainer.resolve_train_on_label_classes(config) is None
+
+
+def test_desktop_training_configs_share_the_frozen_protocol() -> None:
+    import json as json_module
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1] / "configs"
+    configs = [
+        json_module.loads((root / name).read_text(encoding="utf-8"))
+        for name in DESKTOP_CONFIG_NAMES
+    ]
+    first = configs[0]
+    for other in configs[1:]:
+        # §7:同一 split、同一训练组、同 visual tokens、相同 steps 与 cadence
+        assert other["training"] == first["training"]
+        assert other["gates"] == first["gates"]
+        assert other["objective"] == first["objective"]
+        assert (
+            other["data"]["samples_sha256"] == first["data"]["samples_sha256"]
+        )
+        assert other["target_effective_visual_tokens_per_image"] == 2560
+
+
+# ---------------------------------------------------------------------------
 # 6. §8.4:Full-layer / ungated-KV 共用 DiD loss 的 bypass 机制
 # ---------------------------------------------------------------------------
 

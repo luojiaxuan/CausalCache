@@ -1,0 +1,141 @@
+{
+ "adapter": {
+  "adapter_type": "ungated_kv_lora",
+  "alpha": 16,
+  "layer_scope": "last_8",
+  "rank": 8,
+  "target_modules": [
+   "k_proj",
+   "v_proj"
+  ]
+ },
+ "data": {
+  "ablation_protocol": "交接 §7:Frozen / Full-layer LoRA / matched ungated KV / HGKV,同一 split、同一训练组、同一 visual tokens、相同 optimizer steps(150)与 checkpoint cadence(25)、相同 world_size=4",
+  "adapter_switch_authority": "每条样本的 adapter_mode 字段;trainer 禁止解析 variant 或名字前缀",
+  "arms": {
+   "R0": "osworld_official + 冻结部署选择器 Recent-1 + adapter bypass(reference 兼 deployment baseline)",
+   "RA": "同 R0 prompt + adapter active",
+   "S0": "osworld_official + target-recurrence 选帧 + adapter bypass",
+   "SA": "同 S0 prompt + adapter active(本方法)",
+   "WA": "osworld_official + 同轨迹 age-matched wrong 帧 + adapter active;W0 由 trainer 对同一行临时 bypass 重算"
+  },
+  "b0_note": "B0 行在独立的 parity_b0.jsonl / 独立 schema,只用于 HGKV bitwise parity 与能力评测,不进训练",
+  "corpus_build": {
+   "budget": 1,
+   "coordinate_tolerance": 25,
+   "min_age": 3,
+   "seed": 20260726
+  },
+  "dataset_manifest": "data/manifests/desktop_did_corpus_v1_manifest.json",
+  "deployment_baseline_arm_id": "R0",
+  "expected_adapter_module_count": 16,
+  "parity_b0_sha256": "0bbec2968ab006ecb239e92d5468f83aeba87372b545e3ac83f095f4e47ab963",
+  "parity_evidence": "data/manifests/desktop_did_corpus_v1_parity_report.json —— 24/24 臂与在线 GUIOwlOSWorldRuntime token/grid/pixel 逐位一致 @2560",
+  "policy_snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+  "row_note": "matched ungated KV:与 HGKV 同层位/rank/alpha 的普通 LoRA,对所有 token 生效 —— 判断收益来自门控还是参数量/层位的结构对照",
+  "sample_schema_version": "causalcache.desktop_did_sample.v1",
+  "samples_sha256": "2ef47af41a67ed3c168aedcd09533c08d1127c6ec92043549627992c18b71c1f",
+  "screening_manifest_sha256": "38889f116961f08081ff9eb08c5e5cdd37a16dae17d577e728e771dc59951a59",
+  "source": "AgentNet/OpenCUA Ubuntu 成功轨迹 6,003 决策点 → target-action-recurrence 969 组(scripts/build_desktop_hgkv_corpus.py,交接 §5.1/§6);staging Hyper01 /data04/jaxan/mw/desktop-did-corpus-v1",
+  "split": {
+   "authority": "每条样本的 split 字段(轨迹级 hash,salt = corpus seed 20260726);trainer 经 normalize_desktop_splits 做 dev→heldout 映射并整行剥离 test",
+   "counts": {
+    "dev": 94,
+    "test": 102,
+    "train": 773
+   }
+  },
+  "training_reference_arm_id": "R0"
+ },
+ "gates": {
+  "composite_score": "did_select",
+  "derived_quantities": {
+   "SA_minus_R0": "SA - R0",
+   "SA_minus_RA": "SA - RA",
+   "adapter_on_recent": "RA - R0",
+   "adapter_on_recent_abs": "abs(RA - R0)",
+   "adapter_on_sparse": "SA - S0",
+   "deployment_delta": "SA - R0",
+   "did_select": "(SA - S0) - (RA - R0)",
+   "frozen_selection_effect": "S0 - R0"
+  },
+  "drift_definition": "wrong_drift = 留出组上 (l_WA 在 adapter active) - (同一行在 adapter bypass) 的均值,即 A_n 的均值;wrong_drift_abs = |wrong_drift|。每条负样本锚到它自己的冻结分数。桌面语料只有 wrong 一个 kind,必需 gate 因此只有 wrong_drift_abs",
+  "gate_expression_syntax": "must_pass 的值形如 '<op> <number> [@<statistic>]',op ∈ {>, >=, <, <=},statistic ∈ {point(缺省), ci_low, ci_high};composite_score 与 derived_quantities 是同一套算术小语言。scripts/score_sparse_history_arms.py 与 trainer 的 validate_sparse_gates 共用同一个解析器",
+  "gate_rationale": {
+   "why_A_r_capped": "移动侧 v5 的失败模式正是 adapter 对 recent 的增益大于对 sparse 的增益;不封住 A_r,did_select 可以靠压低 RA 而非抬高 SA 来刷高",
+   "why_ci_low": "主判据用 dev split 的 CI 下界而非点估计;checkpoint 只在 Desktop dev 选择(交接 §9),bootstrap 按 trajectory 聚类",
+   "why_did_select": "(SA-S0)-(RA-R0) 在 identity 上严格等于 0,冻结模型已有的选点优势不会被冒充成 adapter 能力",
+   "why_no_format_effect": "桌面部署 prompt 与 R0 同 renderer,format_effect 结构性为 0,不作为量报告;deployment_delta 的基线就是 R0"
+  },
+  "gate_schema": "causalcache.sparse_history_gates.v2",
+  "main_claim_quantity": "SA_minus_RA",
+  "must_pass": {
+   "adapter_on_recent_abs": "< 0.02",
+   "adapter_on_sparse": "> 0",
+   "did_select": "> 0 @ci_low",
+   "wrong_drift_abs": "< 0.02"
+  },
+  "reference_arm_id": "R0",
+  "selection_rule": {
+   "filter": "all_must_pass",
+   "note": "并列取训练顺序更早者;quantity 只允许 composite_score。Desktop dev 只用于选点,test split 已在 normalize_desktop_splits 剥离,MobileWorld/OSWorld 未污染 roster 完全不参与",
+   "objective": "maximize",
+   "quantity": "composite_score",
+   "tie_break": "earliest_checkpoint"
+  }
+ },
+ "objective": {
+  "A_c": "l_SA - l_S0 —— adapter 对『目标相关旧帧』的增量",
+  "A_n": "l_n_active - l_n_bypass —— adapter 对『age-matched wrong 帧』的增量",
+  "A_r": "l_RA - l_R0 —— adapter 对『Recent 窗口』的增量",
+  "L": "L_select + L_gain + L_content + L_cap + L_l2,CE 权重恒为 0",
+  "L_cap": "sparse_drift_cap_weight * [|A_r| - sparse_drift_cap_eps]+ + sparse_drift_cap_weight * Σ_n w_n * [|A_n| - sparse_drift_cap_eps]+",
+  "L_content": "sparse_content_weight * Σ_n w_n * [sparse_content_margin - (A_c - A_n)]+",
+  "L_gain": "sparse_gain_weight * [sparse_gain_margin - A_c]+",
+  "L_l2": "history_lora_l2_weight * Σ(‖A‖² + ‖B‖²)",
+  "L_select": "sparse_select_weight * [sparse_select_margin - (A_c - A_r)]+",
+  "did_rationale": "旧四臂目标遗漏 RA,实测 adapter 对 recent 的增益可大于对 selected 的增益(『见到任何历史图都放大』)。差中差 A_c − A_r 先对每条臂扣掉它自己的冻结基准再做差,identity 上严格等于 0,冻结模型的既有选点优势与统一放大同时被封死(交接 desktop_memory_training_handoff_v1 §1/§6)",
+  "drift_cap_rationale": "dead-zone hinge 而非 SmoothL1:drift 在 0.06 量级时权重 2 的 SmoothL1 梯度只有约 0.12,压不住量级为 1 的 rank hinge;[|A| − ε]+ 在 |A| > ε 后梯度恒为 2,与 rank 项同量级",
+  "excluded_arms": [],
+  "excluded_arms_note": "该列表由 trainer 按 objective.kind 与 data.sample_schema_version 反算(留出臂集合的补集)。桌面 schema 没有 N0(部署 prompt 与 R0 同 renderer 同选择器,deployment_baseline_arm_id = R0),did_ra_aware 消费 R0/S0/RA/SA 四臂,补集为空",
+  "gain_rationale": "只有 L_select 时,压低 l_RA 与抬高 l_SA 同样能减损失,而『把 recent 臂打坏』不是要的能力。L_gain 要求 sparse 臂的绝对增量自己也为正",
+  "kind": "did_ra_aware",
+  "normalization_rationale": "桌面语料每组恒有且只有一条 WA 负样本,w_n 恒为 1;归一化逻辑保留是为了与 v6 同一份损失代码,不另开分支",
+  "notation": {
+   "l_R0": "R0 臂(Recent-1 + adapter bypass)的冻结分数,A_r 的基准端",
+   "l_RA": "RA 臂(Recent-1 + adapter active)的分数,带梯度",
+   "l_S0": "S0 臂(target-recurrence 选帧 + adapter bypass)的冻结分数,A_c 的基准端",
+   "l_SA": "SA 臂(target-recurrence 选帧 + adapter active)的 teacher-forced 平均 log-prob,带梯度",
+   "l_n_active": "负样本 WA(同轨迹 age-matched wrong 帧)在 adapter active 下的分数",
+   "l_n_bypass": "同一条 WA 在 adapter bypass 下的冻结分数(交接 §6 的 W0,由 trainer 临时 bypass 重算)",
+   "w_n": "scale_n / Σ_m scale_m,只对该组实际存在的负样本归一化(桌面语料恒为单条 WA)"
+  }
+ },
+ "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+ "schema_version": "causalcache.success_sft_lora_config.v1",
+ "target_effective_visual_tokens_per_image": 2560,
+ "training": {
+  "checkpoint_every_steps": 25,
+  "epochs": 4,
+  "gradient_accumulation_steps": 4,
+  "gradient_checkpointing": false,
+  "history_ce_weight": 0.0,
+  "history_lora_l2_weight": 0.0001,
+  "learning_rate": 0.0001,
+  "lr_schedule": "constant",
+  "max_grad_norm": 1.0,
+  "max_optimizer_steps": 150,
+  "micro_batch_size": 1,
+  "seed": 20260726,
+  "sparse_content_margin": 0.01,
+  "sparse_content_weight": 1.0,
+  "sparse_drift_cap_eps": 0.02,
+  "sparse_drift_cap_weight": 2.0,
+  "sparse_gain_margin": 0.01,
+  "sparse_gain_weight": 1.0,
+  "sparse_history": true,
+  "sparse_select_margin": 0.01,
+  "sparse_select_weight": 1.0,
+  "weight_decay": 0.0
+ }
+}
