@@ -60,17 +60,26 @@ from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntim
 from scripts.train_success_sft_lora import (
     GateQuantityUnavailable,
     SPARSE_ALL_NEGATIVE_KINDS,
+    SPARSE_ARM_CONTRACTS,
     SPARSE_GATE_VOCABULARY,
     SPARSE_HELDOUT_REQUIRED_SLOTS,
+    SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA,
     SPARSE_POSITIVE_SLOT,
-    adapter_context_for_sample,
+    SPARSE_SUPPORTED_ADAPTER_TYPES,
+    adapter_scope_for_sample,
     adapter_settings,
     build_sparse_history_heldout_units,
     compile_sparse_gates,
     encode_sample,
     evaluate_gate_expression,
+    inject_lora,
     load_config,
+    load_lora_state_dict,
+    lora_state_dict,
     mean_target_logprob,
+    normalize_desktop_splits,
+    sparse_config_sample_schema,
+    sparse_diagnostic_keys,
     validate_sparse_gates,
 )
 
@@ -95,6 +104,27 @@ if sorted(FROZEN_ARM_SLOTS + ACTIVE_ARM_SLOTS) != sorted(
         "frozen/active arm split drifted from the frozen five-arm contract "
         f"{SPARSE_HELDOUT_REQUIRED_SLOTS}"
     )
+
+
+def arm_partition_for_schema(schema: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """(bypass slots, active slots) — one schema's heldout measurement partition.
+
+    # note (luojiaxuan): 划分从契约表的 adapter_mode 列**推导**,不再手抄第二份:
+    # v2/v6 推导结果与上面的冻结常量逐字相同(N0/R0/S0 + RA/SA,由断言锁住),
+    # 桌面 schema 没有 N0,得到 R0/S0 + RA/SA。负样本臂不在此列(role 字段决定)。
+    """
+    contract = SPARSE_ARM_CONTRACTS[schema]
+    required = SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA[schema]
+    frozen = tuple(slot for slot in required if contract[slot][4] == "bypass")
+    active = tuple(slot for slot in required if contract[slot][4] == "active")
+    return frozen, active
+
+
+if arm_partition_for_schema("causalcache.sparse_history_sample.v2") != (
+    FROZEN_ARM_SLOTS,
+    ACTIVE_ARM_SLOTS,
+):
+    raise RuntimeError("schema-derived arm partition drifted from the v2 constants")
 
 
 # ---------------------------------------------------------------------------
@@ -367,9 +397,13 @@ class LazyPolicyEngine:
         *,
         args: argparse.Namespace,
         config: dict[str, Any],
-        adapter_options: dict[str, Any],
+        adapter_options: dict[str, Any] | None,
         torch: Any,
+        adapter_type: str = "history_gated_kv",
     ) -> None:
+        if adapter_type not in SPARSE_SUPPORTED_ADAPTER_TYPES:
+            raise ValueError(f"unsupported adapter_type {adapter_type!r}")
+        self.adapter_type = adapter_type
         self.args = args
         self.config = config
         self.adapter_options = adapter_options
@@ -412,17 +446,40 @@ class LazyPolicyEngine:
         model.config.use_cache = False
         model.eval()
 
-        from causalcache.policy.history_gated_lora import (
-            history_gated_state_dict,
-            inject_history_gated_kv,
-        )
+        # adapter 注入按类型分派(交接 §8.4 的三行 ablation 共用本 scorer);
+        # 三种类型的 identity 语义相同:刚注入的零初始化 adapter。
+        if self.adapter_type == "history_gated_kv":
+            from causalcache.policy.history_gated_lora import (
+                history_gated_state_dict,
+                inject_history_gated_kv,
+            )
 
-        self.wrapped = inject_history_gated_kv(
-            model,
-            layer_count=self.adapter_options["layer_count"],
-            rank=self.adapter_options["rank"],
-            alpha=self.adapter_options["alpha"],
-        )
+            self.wrapped = inject_history_gated_kv(
+                model,
+                layer_count=self.adapter_options["layer_count"],
+                rank=self.adapter_options["rank"],
+                alpha=self.adapter_options["alpha"],
+            )
+            self._state_dict = history_gated_state_dict
+        elif self.adapter_type == "ungated_kv_lora":
+            self.wrapped = inject_lora(
+                model,
+                rank=self.adapter_options["rank"],
+                alpha=self.adapter_options["alpha"],
+                target_modules=("k_proj", "v_proj"),
+                torch=self.torch,
+                last_layer_count=self.adapter_options["layer_count"],
+            )
+            self._state_dict = lora_state_dict
+        else:
+            self.wrapped = inject_lora(
+                model,
+                rank=self.config["lora"]["rank"],
+                alpha=self.config["lora"]["alpha"],
+                target_modules=tuple(self.config["lora"]["target_modules"]),
+                torch=self.torch,
+            )
+            self._state_dict = lora_state_dict
         for lora in self.wrapped.values():
             lora.lora_a.requires_grad_(False)
             lora.lora_b.requires_grad_(False)
@@ -430,7 +487,7 @@ class LazyPolicyEngine:
         # "identity 永远排在 checkpoint 前面"这条排序巧合成立;打分一旦可以从缓存里
         # 任意跳过若干行,顺序就不再保证,于是把这份原始权重显式存下来,回到 identity
         # 时装回去,而不是依赖"还没人覆盖过它"。
-        self.identity_state = history_gated_state_dict(self.wrapped)
+        self.identity_state = self._state_dict(self.wrapped)
         self.merge_size = int(self.runtime.processor.image_processor.merge_size)
         self.built = True
 
@@ -456,18 +513,19 @@ class LazyPolicyEngine:
         }
 
     def _apply_state(self) -> None:
-        from causalcache.policy.history_gated_lora import (
-            load_history_gated_state_dict,
-        )
+        if self.adapter_type == "history_gated_kv":
+            from causalcache.policy.history_gated_lora import (
+                load_history_gated_state_dict as load_state,
+            )
+        else:
+            load_state = load_lora_state_dict
 
         requested = self._requested_state
         if requested is None:
             if self._applied_state is not None:
-                load_history_gated_state_dict(self.wrapped, self.identity_state)
+                load_state(self.wrapped, self.identity_state)
         else:
-            load_history_gated_state_dict(
-                self.wrapped, self.torch.load(requested, map_location="cpu")
-            )
+            load_state(self.wrapped, self.torch.load(requested, map_location="cpu"))
         self._applied_state = requested
         self._state_is_current = True
 
@@ -500,8 +558,6 @@ class ArmScorer:
         adapter_key: str,
         adapter_mode: str | None = None,
     ) -> float:
-        from causalcache.policy.history_adapter_context import history_adapter_scope
-
         mode = sample["adapter_mode"] if adapter_mode is None else adapter_mode
         cache_key = f"{adapter_key}|{sample['pair_group']}|{slot}|{mode}"
         cached = self.cache.get(cache_key)
@@ -534,15 +590,17 @@ class ArmScorer:
                 "encoding; the scored denominator must stay reconciled"
             )
         # adapter 开关只读 adapter_mode 字段(或调用方显式传入的 bypass 覆盖),
-        # 与 trainer 共用同一个解析入口,绝不按 arm_slot 名字前缀猜。
-        context = adapter_context_for_sample(
+        # 与 trainer 共用同一个分派入口(adapter_scope_for_sample,按 adapter_type
+        # 选择 HGKV mask 上下文或 plain-LoRA bypass 开关),绝不按名字前缀猜。
+        scope = adapter_scope_for_sample(
+            self.engine.adapter_type,
             encoded,
             sample,
             merge_size=self.engine.merge_size,
             adapter_mode=adapter_mode,
             slot=slot,
         )
-        with history_adapter_scope(context):
+        with scope:
             with self.torch.no_grad():
                 value = float(
                     mean_target_logprob(
@@ -581,12 +639,13 @@ def score_frozen_arms(
     groups: dict[str, dict[str, int]],
     *,
     progress: Any,
+    frozen_slots: tuple[str, ...] = FROZEN_ARM_SLOTS,
 ) -> dict[str, dict[str, float]]:
     """Score every adapter-bypassed forward once; these do not depend on a checkpoint."""
     frozen: dict[str, dict[str, float]] = {}
     for position, (pair_group, group) in enumerate(sorted(groups.items()), start=1):
         scores: dict[str, float] = {}
-        for slot in FROZEN_ARM_SLOTS:
+        for slot in frozen_slots:
             sample = samples[group[slot]]
             if sample["adapter_mode"] != "bypass":
                 # 缓存复用的正确性完全建立在"这三臂确实 bypass"上,所以显式断言。
@@ -618,12 +677,13 @@ def score_active_arms(
     adapter_key: str,
     label: str,
     progress: Any,
+    active_slots: tuple[str, ...] = ACTIVE_ARM_SLOTS,
 ) -> dict[str, dict[str, float]]:
-    """Score RA/SA and the three negatives with the adapter active."""
+    """Score RA/SA and this schema's negatives with the adapter active."""
     active: dict[str, dict[str, float]] = {}
     for position, (pair_group, group) in enumerate(sorted(groups.items()), start=1):
         scores: dict[str, float] = {}
-        for slot in ACTIVE_ARM_SLOTS:
+        for slot in active_slots:
             scores[slot] = scorer.score(
                 samples[group[slot]], slot=slot, adapter_key=adapter_key
             )
@@ -646,6 +706,8 @@ def group_quantities(
     active: dict[str, dict[str, float]],
     *,
     derived_algebra: dict[str, str],
+    frozen_slots: tuple[str, ...] = FROZEN_ARM_SLOTS,
+    active_slots: tuple[str, ...] = ACTIVE_ARM_SLOTS,
 ) -> dict[str, dict[str, float]]:
     """Return {quantity: {pair_group: value}} for the per-group quantities.
 
@@ -657,10 +719,10 @@ def group_quantities(
     per_quantity: dict[str, dict[str, float]] = {}
     for pair_group, group in sorted(groups.items()):
         arm_scores: dict[str, float | None] = {
-            slot: frozen[pair_group][slot] for slot in FROZEN_ARM_SLOTS
+            slot: frozen[pair_group][slot] for slot in frozen_slots
         }
         arm_scores.update(
-            {slot: active[pair_group][slot] for slot in ACTIVE_ARM_SLOTS}
+            {slot: active[pair_group][slot] for slot in active_slots}
         )
         for quantity, algebra in sorted(derived_algebra.items()):
             value = evaluate_gate_expression(algebra, arm_scores)
@@ -669,7 +731,10 @@ def group_quantities(
         for kind, slot in sorted(negative_slots(samples, group).items()):
             negative_active = active[pair_group][slot]
             negative_bypass = frozen[pair_group][f"{slot}@bypass"]
-            per_quantity.setdefault(f"SA_minus_SA_neg_{kind}", {})[pair_group] = (
+            # 量名记法 SA_minus_<arm_slot>(v2/v6 的 slot 本就是 SA_neg_<kind>,
+            # 取值逐字节不变;桌面负臂 WA 由此得到 SA_minus_WA)。
+            gap_key, _drift_abs_key = sparse_diagnostic_keys(kind, arm_slot=slot)
+            per_quantity.setdefault(gap_key, {})[pair_group] = (
                 positive - negative_active
             )
             per_quantity.setdefault(f"{kind}_drift", {})[pair_group] = (
@@ -1076,13 +1141,35 @@ def main() -> None:
     if not bool(config["training"].get("sparse_history", False)):
         raise SystemExit("this scorer only applies to training.sparse_history configs")
     adapter_type, adapter_options = adapter_settings(config)
-    if adapter_type != "history_gated_kv":
-        raise SystemExit("sparse_history requires adapter_type history_gated_kv")
+    if adapter_type not in SPARSE_SUPPORTED_ADAPTER_TYPES:
+        raise SystemExit(
+            f"sparse_history requires adapter_type in {SPARSE_SUPPORTED_ADAPTER_TYPES}"
+        )
     gates = validate_sparse_gates(config)
     compiled = compile_sparse_gates(gates)
 
     sample_files = resolve_sample_files(args.dataset_root)
     samples = load_sparse_samples(sample_files)
+    # 桌面语料 dev→heldout / test 剥离,与 trainer 同一入口;旧语料原样直通。
+    samples, desktop_split_counters = normalize_desktop_splits(samples)
+    if any(desktop_split_counters.values()):
+        print(
+            json.dumps(
+                {"desktop_split_normalization": desktop_split_counters},
+                sort_keys=True,
+            ),
+            flush=True,
+        )
+    # config 声明的语料 schema 必须与样本实际 schema 一致 —— 拿 v2 的 config 去打
+    # 桌面语料会在这里当场断开,而不是在派生量表里静默错位。
+    sample_schemas = {sample["schema_version"] for sample in samples}
+    config_schema = sparse_config_sample_schema(config)
+    if sample_schemas != {config_schema}:
+        raise SystemExit(
+            f"config declares corpus schema {config_schema!r} but the dataset "
+            f"carries {sorted(sample_schemas)}"
+        )
+    frozen_slots, active_slots = arm_partition_for_schema(config_schema)
     groups = build_sparse_history_heldout_units(samples)
     if not groups:
         raise SystemExit("the corpus carries no heldout pair-groups to score")
@@ -1203,7 +1290,11 @@ def main() -> None:
             )
 
     engine = LazyPolicyEngine(
-        args=args, config=config, adapter_options=adapter_options, torch=torch
+        args=args,
+        config=config,
+        adapter_options=adapter_options,
+        torch=torch,
+        adapter_type=adapter_type,
     )
 
     # note (luojiaxuan): fingerprint 只覆盖"换了它分数就该变"的输入。它的作用不是版本
@@ -1236,7 +1327,9 @@ def main() -> None:
 
     try:
         # 1) 冻结通道:所有 bypass 前向只算一次,与 checkpoint 无关。
-        frozen = score_frozen_arms(scorer, samples, groups, progress=progress)
+        frozen = score_frozen_arms(
+            scorer, samples, groups, progress=progress, frozen_slots=frozen_slots
+        )
 
         # 2) 每个 checkpoint 只跑 active 前向。
         planned: list[tuple[str, Path | None, str]] = []
@@ -1266,6 +1359,7 @@ def main() -> None:
                 adapter_key=adapter_key,
                 label=label,
                 progress=progress,
+                active_slots=active_slots,
             )
             if args.skip_reduction:
                 print(
@@ -1287,6 +1381,8 @@ def main() -> None:
                 frozen,
                 active,
                 derived_algebra=gates["derived_quantities"],
+                frozen_slots=frozen_slots,
+                active_slots=active_slots,
             )
             bootstrap = EpisodeClusterBootstrap(
                 per_quantity,

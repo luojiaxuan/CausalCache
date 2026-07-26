@@ -1228,7 +1228,9 @@ def test_the_gate_scorer_reuses_the_trainer_dispatch() -> None:
         scorer = importlib.import_module("scripts.score_sparse_history_arms")
     except Exception as error:  # noqa: BLE001
         pytest.skip(f"打分脚本的依赖不可用:{error}")
-    assert scorer.adapter_context_for_sample is trainer.adapter_context_for_sample
+    # note (luojiaxuan): 2026-07-26 起共享入口升级为 adapter_scope_for_sample
+    # (按 adapter_type 分派;HGKV 分支内部仍是同一个 adapter_context_for_sample)。
+    assert scorer.adapter_scope_for_sample is trainer.adapter_scope_for_sample
 
 
 @requires_real_torch

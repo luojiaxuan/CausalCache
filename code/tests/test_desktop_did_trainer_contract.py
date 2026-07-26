@@ -567,6 +567,19 @@ def test_active_scope_pins_bypass_off_even_when_nested() -> None:
         assert trainer._PLAIN_LORA_BYPASS.get() is True
 
 
+def test_scorer_arm_partition_matches_the_desktop_contract() -> None:
+    import scripts.score_sparse_history_arms as scorer
+
+    assert scorer.arm_partition_for_schema(trainer.SPARSE_DESKTOP_SAMPLE_SCHEMA) == (
+        ("R0", "S0"),
+        ("RA", "SA"),
+    )
+    assert scorer.arm_partition_for_schema(trainer.SPARSE_SAMPLE_SCHEMA) == (
+        scorer.FROZEN_ARM_SLOTS,
+        scorer.ACTIVE_ARM_SLOTS,
+    )
+
+
 def test_sparse_supported_adapter_types_are_the_ablation_rows() -> None:
     assert trainer.SPARSE_SUPPORTED_ADAPTER_TYPES == (
         "history_gated_kv",
