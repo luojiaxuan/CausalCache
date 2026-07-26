@@ -2,6 +2,23 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-26:MobileWorld frozen GUI-Owl B0 对照冻结
+
+- 目标是给已有 B4 strict-117 结果提供同栈配对证据；唯一科学变量为
+  `memory_budget: 4 → 0`，model revision、MobileWorld revision/image、roster、
+  max 50 steps、auto-retry 2、2560 visual tokens 与确定性 decoding 均保持不变。
+- Aries 预检于 `2026-07-26T17:06:23Z` 确认 A6000 GPU 0/1 均低于 1 GiB 且没有
+  清理任何 workload；正式布阵为两张卡各一个共享 policy、各驱动 8 个独立 emulator，
+  strict-117 按冻结 manifest 分成 59/58 个互斥 task。
+- B0 的语义明确为“零张历史图”，不是 unlimited sentinel：
+  `select_mobileworld_memory(..., budget=0)` 对 recent/full 均返回空集合；在线 policy
+  另以 `--max-history-images 0` fail closed，并在 health/execution record 中累计实际
+  `maximum_history_images`。任何 prompt 出现历史图都会使请求失败而不是静默继续。
+- 启动前 focused regression=`7 passed`。冻结 shards 见
+  [`data/manifests/mobileworld_b0_strict117_shards_v1/`](../data/manifests/mobileworld_b0_strict117_shards_v1/)；
+  raw traces 将写 Aries persistent storage，结束后只回写 task-level paired
+  B0/B4、strict score、discordant wins/losses、置信区间和完整 provenance。
+
 ## 2026-07-26(夜):Desktop DiD 三臂 policy training 发射(Stage B)
 
 - 发射前闭环:三份 config 过全部启动校验(commit `b88fb75`)、scorer 桌面 schema

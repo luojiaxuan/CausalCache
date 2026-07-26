@@ -20,6 +20,17 @@ from causalcache.mobileworld import (
 from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntime
 
 
+def _history_image_count(messages: list[dict[str, Any]]) -> int:
+    image_count = sum(
+        item.get("type") == "image"
+        for message in messages
+        for item in message.get("content", ())
+    )
+    if image_count < 1:
+        raise ValueError("MobileWorld policy prompt lacks its current image")
+    return image_count - 1
+
+
 def _json_response(
     handler: BaseHTTPRequestHandler,
     status: int,
@@ -40,10 +51,13 @@ def main() -> None:
     parser.add_argument("--device", required=True)
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--visual-tokens", type=int, default=2560)
+    parser.add_argument("--max-history-images", type=int)
     args = parser.parse_args()
 
     if not 1024 <= args.port <= 65535:
         raise ValueError("MobileWorld policy port must be within [1024, 65535]")
+    if args.max_history_images is not None and args.max_history_images < 0:
+        raise ValueError("max history images must be non-negative")
     runtime = GUIOwlV21OfficialToolsRuntime(
         model_dir=args.model_dir,
         expected_snapshot_manifest=args.snapshot_manifest,
@@ -51,7 +65,12 @@ def main() -> None:
         target_effective_visual_tokens_per_image=args.visual_tokens,
     )
     inference_lock = threading.Lock()
-    counters = {"requests": 0, "failures": 0}
+    counters = {
+        "requests": 0,
+        "failures": 0,
+        "audited_prompts": 0,
+        "maximum_history_images": 0,
+    }
     counter_lock = threading.Lock()
 
     class Handler(BaseHTTPRequestHandler):
@@ -67,6 +86,7 @@ def main() -> None:
                 {
                     "status": "ready",
                     "counters": observed,
+                    "max_history_images": args.max_history_images,
                     "runtime": runtime.metadata,
                 },
             )
@@ -80,6 +100,22 @@ def main() -> None:
                 length = int(self.headers.get("Content-Length", "0"))
                 request = json.loads(self.rfile.read(length).decode("utf-8"))
                 messages = build_mobileworld_gui_owl_messages(request)
+                history_image_count = _history_image_count(messages)
+                with counter_lock:
+                    counters["audited_prompts"] += 1
+                    counters["maximum_history_images"] = max(
+                        counters["maximum_history_images"],
+                        history_image_count,
+                    )
+                if (
+                    args.max_history_images is not None
+                    and history_image_count > args.max_history_images
+                ):
+                    raise RuntimeError(
+                        "MobileWorld prompt exceeds the enforced history-image "
+                        f"budget: observed={history_image_count}, "
+                        f"maximum={args.max_history_images}"
+                    )
                 queued = time.perf_counter()
                 with inference_lock:
                     queue_seconds = time.perf_counter() - queued
@@ -141,6 +177,7 @@ def main() -> None:
             {
                 "status": "READY_MOBILEWORLD_GUI_OWL_POLICY",
                 "port": args.port,
+                "max_history_images": args.max_history_images,
                 "runtime": runtime.metadata,
             },
             sort_keys=True,

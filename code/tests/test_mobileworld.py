@@ -12,6 +12,7 @@ from scripts.run_mobileworld_gui_owl import (
     _load_task_subset,
     _task_names_sha256,
 )
+from scripts.serve_mobileworld_gui_owl_policy import _history_image_count
 from causalcache.mobileworld import (
     HTTPMobileWorldPolicy,
     MobileWorldHistoryEvent,
@@ -42,6 +43,8 @@ def _history(count: int) -> tuple[MobileWorldHistoryEvent, ...]:
 def test_mobileworld_memory_selection_is_at_most_budget() -> None:
     history = _history(5)
     assert select_mobileworld_memory(history, arm="summary", budget=4) == ()
+    assert select_mobileworld_memory(history, arm="recent", budget=0) == ()
+    assert select_mobileworld_memory(history, arm="full", budget=0) == ()
     assert select_mobileworld_memory(history, arm="recent", budget=4) == (
         2,
         3,
@@ -55,6 +58,23 @@ def test_mobileworld_memory_selection_is_at_most_budget() -> None:
         4,
         5,
     )
+
+
+def test_mobileworld_policy_prompt_audits_history_images_separately() -> None:
+    messages = [
+        {"role": "system", "content": [{"type": "text", "text": "system"}]},
+        {
+            "role": "user",
+            "content": [
+                {"type": "image", "image": "restored"},
+                {"type": "image", "image": "current"},
+            ],
+        },
+    ]
+    assert _history_image_count(messages) == 1
+    assert _history_image_count(
+        [{"role": "user", "content": [{"type": "image", "image": "current"}]}]
+    ) == 0
 
 
 def test_mobileworld_policy_request_restores_only_selected_images() -> None:
