@@ -1,0 +1,57 @@
+{
+  "run_id": "osworld-v2-frozen-gui-owl-full-v1",
+  "created_at": "2026-07-26T05:58:21.451645+00:00",
+  "inventory_observed_at": "2026-07-26T05:52:44.356397+00:00",
+  "per_host_cap": 4,
+  "logical_shard_count": 5,
+  "worker_count": 5,
+  "hosts": {
+    "hyper01": {
+      "gpu_ids": [0, 1, 2],
+      "worker_ids": [0, 1, 2],
+      "logical_shard_ids": [0, 1, 2]
+    },
+    "aries": {
+      "gpu_ids": [0, 1],
+      "worker_ids": [3, 4],
+      "logical_shard_ids": [3, 4]
+    }
+  },
+  "workers": [
+    {
+      "host": "hyper01",
+      "local_rank": 0,
+      "physical_gpu_id": 0,
+      "worker_id": 0,
+      "logical_shard_ids": [0]
+    },
+    {
+      "host": "hyper01",
+      "local_rank": 1,
+      "physical_gpu_id": 1,
+      "worker_id": 1,
+      "logical_shard_ids": [1]
+    },
+    {
+      "host": "hyper01",
+      "local_rank": 2,
+      "physical_gpu_id": 2,
+      "worker_id": 2,
+      "logical_shard_ids": [2]
+    },
+    {
+      "host": "aries",
+      "local_rank": 0,
+      "physical_gpu_id": 0,
+      "worker_id": 3,
+      "logical_shard_ids": [3]
+    },
+    {
+      "host": "aries",
+      "local_rank": 1,
+      "physical_gpu_id": 1,
+      "worker_id": 4,
+      "logical_shard_ids": [4]
+    }
+  ]
+}

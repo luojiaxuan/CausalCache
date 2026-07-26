@@ -58,9 +58,12 @@ split 完全来自官方 release 的 task-construction phenomenon：
 | `memory_stress_union` | 65 | dynamic / cross-source / implicit 三者并集 |
 | `non_memory_control` | 43 | 上述并集的补集 |
 
-其中 dynamic=10、cross-source=46、implicit=43、三者交集=8。当前 Hugging Face 用户
-对 `xlangai/osworld_v2_tasks` 与 `xlangai/osworld_v2_assets_gated` 尚未获批；runner 的
-`--preflight` 会报告 `BLOCKED_OSWORLD_V2_GATED_SUBSTRATE`，正式执行严格 fail closed。
+其中 dynamic=10、cross-source=46、implicit=43、三者交集=8。2026-07-25 已确认当前
+Hugging Face 用户可读取 `xlangai/osworld_v2_tasks@v2026.06.24` 与
+`xlangai/osworld_v2_assets_gated@v2026.06.24`；对应 immutable revisions 分别为
+`e7996f4cc850be108e510bd8433c63ee7b8303dd` 与
+`bee070ab3d61c74786622c60da45ae9a6e47c54e`。正式执行仍严格 fail closed：
+task classes 必须完整 108 个且本地 asset root 必须存在。
 不得以旧 OSWorld task、空 asset 或手写替代 task class 冒充 OSWorld 2.0 结果。
 asset root 由 committed config 的 `execution.assets_root` 或显式 `--assets-root` 传入；
 runner 只在 worker 内把该显式值翻译为上游所需的 `OSWORLD_FILE_BASE_URL`，不读取 ambient
@@ -160,7 +163,8 @@ restoration contract 一致，不能把 B0 解释为完全无文本历史。
 - MobileWorld 与 OSWorld 2.0 construction manifests：已生成并通过 CPU contract tests；
 - shared frozen GUI-Owl policy、MobileWorld upstream agent、multi-environment runner：
   已实现；
-- OSWorld 2.0 runner：已实现，因官方 gated tasks/assets 权限未批准而阻塞；
+- OSWorld 2.0 runner：已实现；gated tasks/assets 权限已批准，固定 release 下载与
+  5-GPU full run 准备中；
 - MobileWorld capacity：1/2/4/8 environments 的 16-task wall time 分别为
   `383.715/192.133/102.320/62.540 s`，8 env 达到 `921.010 tasks/hour`；
 - MobileWorld full campaign：先用 Aries GPU 1 + 8 env 得到 52 个结果，再在 GPU 0

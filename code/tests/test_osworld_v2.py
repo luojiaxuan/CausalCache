@@ -10,6 +10,7 @@ from causalcache.osworld_v2 import (
     OSWORLD_V2_RELEASE,
     load_osworld_v2_memory_plan,
 )
+from scripts.run_osworld_v2_gui_owl import _logical_shard
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -60,3 +61,21 @@ def test_osworld_v2_plan_loader_rejects_release_drift(tmp_path: Path) -> None:
     path.write_text(json.dumps(plan), encoding="utf-8")
     with pytest.raises(ValueError, match="release identity"):
         load_osworld_v2_memory_plan(path)
+
+
+def test_osworld_v2_logical_shards_are_disjoint_and_complete() -> None:
+    task_ids = [f"{index:03d}" for index in range(1, 109)]
+    shards = [
+        _logical_shard(task_ids, shard_count=5, shard_index=index)
+        for index in range(5)
+    ]
+    assert [len(shard) for shard in shards] == [22, 22, 22, 21, 21]
+    assert sorted(task_id for shard in shards for task_id in shard) == task_ids
+    assert sum(len(set(shard)) for shard in shards) == 108
+
+
+def test_osworld_v2_logical_shard_rejects_invalid_identity() -> None:
+    with pytest.raises(ValueError, match="count must be positive"):
+        _logical_shard(["001"], shard_count=0, shard_index=0)
+    with pytest.raises(ValueError, match="index must be within"):
+        _logical_shard(["001"], shard_count=2, shard_index=2)

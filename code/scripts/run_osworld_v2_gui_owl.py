@@ -104,6 +104,19 @@ def _safe_policy_health(endpoint: str) -> dict[str, Any]:
         }
 
 
+def _logical_shard(
+    task_ids: list[str],
+    *,
+    shard_count: int,
+    shard_index: int,
+) -> list[str]:
+    if shard_count <= 0:
+        raise ValueError("OSWorld 2.0 shard count must be positive")
+    if shard_index < 0 or shard_index >= shard_count:
+        raise ValueError("OSWorld 2.0 shard index must be within shard count")
+    return task_ids[shard_index::shard_count]
+
+
 def _runtime_identity() -> dict[str, Any]:
     versions = {}
     for package in ("gymnasium", "torch", "transformers"):
@@ -279,6 +292,8 @@ def _parser() -> argparse.ArgumentParser:
         default=Path("code/configs/causalcache_osworld_v2_memory_v1.json"),
     )
     parser.add_argument("--split", choices=("full", "memory_core", "memory_stress_union", "non_memory_control"), default="memory_core")
+    parser.add_argument("--shard-count", type=int, default=1)
+    parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--limit", type=int)
     parser.add_argument("--num-envs", type=int)
     parser.add_argument("--policy-endpoint", required=True)
@@ -316,6 +331,12 @@ def main() -> None:
         if args.split == "full"
         else list(plan["splits"][args.split])
     )
+    unsharded_task_count = len(task_ids)
+    task_ids = _logical_shard(
+        task_ids,
+        shard_count=args.shard_count,
+        shard_index=args.shard_index,
+    )
     if args.limit is not None:
         if args.limit <= 0:
             raise ValueError("OSWorld 2.0 limit must be positive")
@@ -334,7 +355,10 @@ def main() -> None:
         ),
         "readiness": readiness,
         "split": args.split,
+        "unsharded_task_count": unsharded_task_count,
         "task_count": len(task_ids),
+        "shard_count": args.shard_count,
+        "shard_index": args.shard_index,
         "num_envs": num_envs,
         "policy_endpoint": args.policy_endpoint,
         "output_root": str(output_root),
@@ -417,7 +441,10 @@ def main() -> None:
     summary = {
         "status": "COMPLETE_OSWORLD_V2_MEMORY_RUN",
         "split": args.split,
+        "unsharded_task_count": unsharded_task_count,
         "task_count": len(task_ids),
+        "shard_count": args.shard_count,
+        "shard_index": args.shard_index,
         "completed": sum(message["status"] == "completed" for message in messages),
         "resumed_skips": sum(
             message["status"] == "resumed_skip" for message in messages
@@ -446,7 +473,15 @@ def main() -> None:
         "messages": messages,
     }
     output_root.mkdir(parents=True, exist_ok=True)
-    (output_root / f"summary-{args.split}.json").write_text(
+    summary_name = (
+        f"summary-{args.split}.json"
+        if args.shard_count == 1
+        else (
+            f"summary-{args.split}-shard-{args.shard_index:03d}"
+            f"-of-{args.shard_count:03d}.json"
+        )
+    )
+    (output_root / summary_name).write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )

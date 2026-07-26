@@ -37,8 +37,8 @@
   },
   "status": {
     "code_and_split": "READY",
-    "gated_task_classes": "BLOCKED_HF_ACCESS_APPROVAL",
-    "gated_assets": "BLOCKED_HF_ACCESS_APPROVAL",
-    "benchmark_run": "NOT_STARTED"
+    "gated_task_classes": "ACCESS_APPROVED_2026-07-25",
+    "gated_assets": "ACCESS_APPROVED_2026-07-25",
+    "benchmark_run": "PREPARING_FULL_108_TASK_RUN"
   }
 }
