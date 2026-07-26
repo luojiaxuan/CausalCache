@@ -59,9 +59,9 @@ from scripts.run_exploratory_closed_loop_episode import (
 from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntime
 from scripts.train_success_sft_lora import (
     GateQuantityUnavailable,
+    SPARSE_ALL_NEGATIVE_KINDS,
     SPARSE_GATE_VOCABULARY,
     SPARSE_HELDOUT_REQUIRED_SLOTS,
-    SPARSE_NEGATIVE_KINDS,
     SPARSE_POSITIVE_SLOT,
     adapter_context_for_sample,
     adapter_settings,
@@ -686,8 +686,12 @@ def with_drift_abs(values: dict[str, float | None]) -> dict[str, float | None]:
     # 是这个均值的绝对值,不是逐组绝对值的均值。后者更严(正负漂移不会互相抵消),
     # 但收紧一条已冻结的验收阈值是科学决策,不能在打分脚本里顺手改掉。
     """
+    # note (luojiaxuan): 遍历**全部** kind(含 v6 的 age_matched),不是只有 v5 那三个。
+    # 少一个 kind 的后果不是报错,而是它的 <kind>_drift_abs 永远算不出来,于是留出集
+    # 报告里这一项静默变成 None —— 与"这个负样本没被推动"长得一模一样。v5 语料里不存在
+    # 的 kind 本来就取不到 <kind>_drift,照样得到 None,行为逐字不变。
     enriched = dict(values)
-    for kind in SPARSE_NEGATIVE_KINDS:
+    for kind in SPARSE_ALL_NEGATIVE_KINDS:
         drift = enriched.get(f"{kind}_drift")
         enriched[f"{kind}_drift_abs"] = None if drift is None else abs(drift)
     return enriched
@@ -755,7 +759,7 @@ class EpisodeClusterBootstrap:
             for quantity, per_group in per_quantity.items()
         }
         # <kind>_drift_abs 是 <kind>_drift 聚合之后的变换,支撑组数与后者相同。
-        for kind in SPARSE_NEGATIVE_KINDS:
+        for kind in SPARSE_ALL_NEGATIVE_KINDS:
             drift_support = self.support.get(f"{kind}_drift")
             if drift_support is not None:
                 self.support[f"{kind}_drift_abs"] = dict(drift_support)

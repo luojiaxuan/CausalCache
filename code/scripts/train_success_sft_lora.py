@@ -27,6 +27,7 @@ import os
 import random
 import re
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -399,7 +400,70 @@ SPARSE_ARM_CONTRACT: dict[str, tuple[str, str, str, str, str]] = {
     ),
 }
 SPARSE_POSITIVE_SLOT = "SA"
+# note (luojiaxuan): v6 替换语料(causalcache.replacement_corpus_sample.v6)的契约。
+# 与 v2 **并存**,v2 的每一条行为逐字不变——旧 checkpoint 与 v5 语料必须继续可复现。
+# 差异只有三处,全部是 v6 的构造决定,不是这里的口味:
+#   1. renderer 冻结成 official_style_sparse_multiturn(docs/renderer_freeze_v1.md),
+#      所以整表的 prompt_format 换掉;
+#   2. S0/SA 的历史是**冻结 policy 实测的 k=1 替换集**而不是随机稀疏集,故
+#      selection_mode 叫 replacement;负样本是同决策点、同被替换位置、age 匹配的
+#      **内容无关**旧帧,故叫 wrong;
+#   3. 负样本只有 active 一行:A_n 由**同一行**跑 active + bypass 两次前向得到
+#      (见 _sparse_history_group_loss_did),bypass 孪生臂是多余的。
+# N0 与 v5 逐字段相同(原生 build_official_messages + recent + bypass),format_effect
+# = R0 - N0 与 deployment_delta = SA - N0 因此在 v6 上照样可算。
+SPARSE_REPLACEMENT_SAMPLE_SCHEMA = "causalcache.replacement_corpus_sample.v6"
+SPARSE_REPLACEMENT_PROMPT_FORMAT = "official_style_sparse_multiturn"
+SPARSE_REPLACEMENT_NEGATIVE_SLOT = "SA_neg_age_matched"
+SPARSE_REPLACEMENT_ARM_CONTRACT: dict[str, tuple[str, str, str, str, str]] = {
+    "N0": ("N0", "deployment_baseline", "official_multiturn", "recent", "bypass"),
+    "R0": ("R0", "reference", SPARSE_REPLACEMENT_PROMPT_FORMAT, "recent", "bypass"),
+    "RA": ("RA", "measurement", SPARSE_REPLACEMENT_PROMPT_FORMAT, "recent", "active"),
+    "S0": (
+        "S0", "measurement", SPARSE_REPLACEMENT_PROMPT_FORMAT, "replacement", "bypass",
+    ),
+    "SA": (
+        "SA", "positive", SPARSE_REPLACEMENT_PROMPT_FORMAT, "replacement", "active",
+    ),
+    SPARSE_REPLACEMENT_NEGATIVE_SLOT: (
+        "SA", "negative", SPARSE_REPLACEMENT_PROMPT_FORMAT, "wrong", "active",
+    ),
+}
+SPARSE_SAMPLE_SCHEMAS = (SPARSE_SAMPLE_SCHEMA, SPARSE_REPLACEMENT_SAMPLE_SCHEMA)
+SPARSE_ARM_CONTRACTS: dict[str, dict[str, tuple[str, str, str, str, str]]] = {
+    SPARSE_SAMPLE_SCHEMA: SPARSE_ARM_CONTRACT,
+    SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_ARM_CONTRACT,
+}
+# note (luojiaxuan): 两个集合,**别合并**,它们回答的是不同的问题:
+#   * ``SPARSE_NEGATIVE_KINDS`` —— v5 五臂语料里真实存在的三个 kind。它同时是
+#     ``SPARSE_REQUIRED_GATES``(config 必须声明哪些 gate)的来源,所以往里加东西
+#     等于给**每一份既有 v5 config** 强加一个新的必需 gate,而那个 kind 在 v5 语料里
+#     根本不存在 —— 旧 run 会在 validate_sparse_gates 当场报错,不再可复现。
+#   * ``SPARSE_ALL_NEGATIVE_KINDS`` —— 校验器/gate 词表/运行诊断**认识**的全部 kind。
+#     放宽这三处是安全的(词表只决定"允许引用哪些名字"),而且必须放宽:否则 v6 的
+#     ``age_matched_drift_abs`` 不进词表,score_sparse_history_arms 的留出集报告里
+#     这一项会**静默消失**,而不是报错。
+# 反过来:v6 语料里不存在 shuffled/duplicate/irrelevant,所以"必需 gate 集合"本来就
+# 是**随语料 schema 变**的,而 gates schema v2 已冻结。v6 run 该要求哪些 gate 是一个
+# 尚未做出的科学判断,留给写 v6 训练 config 时显式决定,不在这里顺手替人定。
 SPARSE_NEGATIVE_KINDS = ("step_shuffled", "irrelevant", "duplicate")
+SPARSE_REPLACEMENT_NEGATIVE_KINDS = ("age_matched",)
+SPARSE_ALL_NEGATIVE_KINDS = SPARSE_NEGATIVE_KINDS + SPARSE_REPLACEMENT_NEGATIVE_KINDS
+# 哪个 schema 的语料里**真实存在**哪些负样本 kind。必需 gate 与"外来 gate"检查都由它
+# 生成:v5 语料里没有 age_matched,v6 语料里没有另外三个,两边都不该被要求声明对方的量。
+SPARSE_NEGATIVE_KINDS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
+    SPARSE_SAMPLE_SCHEMA: SPARSE_NEGATIVE_KINDS,
+    SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_NEGATIVE_KINDS,
+}
+# note (luojiaxuan): v6 语料里 k=0(recent_sufficient)组只有 N0/R0/RA 三臂 —— 它们
+# 教的是"当前 Recent 已够用",是 **selector 的 STOP** 训练材料,不是 adapter 的。
+# adapter 在 recent-sufficient 状态上按部署语义**根本不运行**(k=0 即 bypass),所以
+# "教 adapter 在这些状态别乱动"是个不存在的需求;而 |A_r| 的约束在每个 positive 组里
+# 都有(R0/RA 俱全),剔除三臂组不会让它失去管束。
+# 但**默认不剔除**:缺臂静默跳过正是 fail-closed 该拦的事(审计第 8 条)。要排除必须在
+# config 里显式声明 ``data.train_on_label_classes``,排除结果逐类计数打印。
+SPARSE_LABEL_CLASSES = ("utility_positive", "recent_sufficient")
+SPARSE_LABEL_CLASS_CONFIG_KEY = "train_on_label_classes"
 SPARSE_REQUIRED_KEYS = (
     "schema_version", "sample_id", "pair_group", "episode", "decision_step",
     "arm_slot", "arm_id", "role", "prompt_format", "selection_mode",
@@ -407,6 +471,17 @@ SPARSE_REQUIRED_KEYS = (
     "current_image", "target_text", "messages", "split", "reference_arm_id",
     "deployment_baseline_arm_id",
 )
+# v6 在 v5 必填键之上再加三个显式字段:有没有内容对照臂、该臂保留了几张最近帧、
+# 标签类别。三者都不准靠数臂数或猜名字推断 —— 单条样本根本数不出臂数。
+SPARSE_REPLACEMENT_REQUIRED_KEYS = SPARSE_REQUIRED_KEYS + (
+    "label_class",
+    "has_content_control",
+    "recent_frames_kept",
+)
+SPARSE_REQUIRED_KEYS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
+    SPARSE_SAMPLE_SCHEMA: SPARSE_REQUIRED_KEYS,
+    SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_REQUIRED_KEYS,
+}
 # 旧字段一旦出现说明样本没迁完:"sparse" 混淆了 prompt_format 与 selection_mode,
 # "reference_variant" 指向 native_recent{K}(与 trainer 实际参考臂矛盾)。
 SPARSE_FORBIDDEN_KEYS = ("sparse", "reference_variant", "_needs_donor")
@@ -425,21 +500,24 @@ def _sparse_image_part_count(sample: dict[str, Any]) -> int:
 
 
 def validate_sparse_sample(sample: dict[str, Any], *, index: int) -> None:
-    """Fail-closed field validation for one sparse-history v2 sample."""
+    """Fail-closed field validation for one sparse-history v2 / replacement v6 sample."""
     where = f"samples[{index}]"
-    if sample.get("schema_version") != SPARSE_SAMPLE_SCHEMA:
+    schema = sample.get("schema_version")
+    if schema not in SPARSE_SAMPLE_SCHEMAS:
         raise ValueError(
-            f"{where} schema_version {sample.get('schema_version')!r} is not "
-            f"{SPARSE_SAMPLE_SCHEMA}"
+            f"{where} schema_version {schema!r} is not one of "
+            f"{list(SPARSE_SAMPLE_SCHEMAS)}"
         )
-    missing = [key for key in SPARSE_REQUIRED_KEYS if key not in sample]
+    missing = [
+        key for key in SPARSE_REQUIRED_KEYS_BY_SCHEMA[schema] if key not in sample
+    ]
     if missing:
         raise ValueError(f"{where} misses required fields {missing}")
     stale = [key for key in SPARSE_FORBIDDEN_KEYS if key in sample]
     if stale:
         raise ValueError(f"{where} still carries retired fields {stale}")
     slot = sample["arm_slot"]
-    contract = SPARSE_ARM_CONTRACT.get(slot)
+    contract = SPARSE_ARM_CONTRACTS[schema].get(slot)
     if contract is None:
         raise ValueError(f"{where} unknown arm_slot {slot!r}")
     declared = (
@@ -487,18 +565,88 @@ def validate_sparse_sample(sample: dict[str, Any], *, index: int) -> None:
     if sample["role"] != "negative":
         return
     kind = sample.get("negative_kind")
-    if kind not in SPARSE_NEGATIVE_KINDS:
+    if kind not in SPARSE_ALL_NEGATIVE_KINDS:
         raise ValueError(f"{where} unknown negative_kind {kind!r}")
     if slot != f"SA_neg_{kind}":
         raise ValueError(f"{where} arm_slot {slot!r} disagrees with negative_kind")
     scale = sample.get("negative_scale")
     if not isinstance(scale, (int, float)) or isinstance(scale, bool) or scale <= 0:
         raise ValueError(f"{where} negative_scale must be a positive number")
-    if kind != "irrelevant":
+    if kind == "irrelevant":
+        donor = sample.get("donor_episode")
+        if not isinstance(donor, str) or not donor or donor == sample["episode"]:
+            raise ValueError(
+                f"{where} irrelevant negative needs a foreign donor_episode"
+            )
         return
+    if kind == "age_matched":
+        _validate_age_matched_negative(sample, where=where)
+        return
+
+
+def _validate_age_matched_negative(sample: dict[str, Any], *, where: str) -> None:
+    """The v6 content control: same episode, age-matched, content-irrelevant frame.
+
+    # note (luojiaxuan): 与 ``irrelevant`` **正好相反**——那个负样本强制跨 episode 供体,
+    # 而跨 episode 按构造就是跨 app 的,于是它同时改变了内容、app、分辨率与 age 分布,
+    # 无法充当"排除模型只是偏爱旧图 / 跨 app 图"的对照,而那正是内容对照臂存在的理由。
+    # 本 kind 反过来把除"恢复了哪一张旧帧"以外的一切都钉死:同一条 episode、同一个决策
+    # 点、同一个被替换的 recent 位置、age 尽可能接近,只有内容相关性不同。
+    #
+    # 四条硬检查(任何一条不满足,这一行就不是"内容对照",而是别的东西):
+    #   1. 供体 episode 必须**等于**本样本的 episode;
+    #   2. 两个来源步必须不同——相同就意味着负样本与 SA 是同一个集合;
+    #   3. 两者都必须落在 Recent-B 窗口**之外**(它们都是"被恢复的旧帧",在窗口里就说明
+    #      替换根本没发生);
+    #   4. distractor 帧必须真的出现在这一行的 selected_steps 里,而 oracle 帧必须**不**
+    #      出现——否则字段说的是一回事,prompt 里放的是另一回事。
+    """
+    episode = sample["episode"]
     donor = sample.get("donor_episode")
-    if not isinstance(donor, str) or not donor or donor == sample["episode"]:
-        raise ValueError(f"{where} irrelevant negative needs a foreign donor_episode")
+    if donor != episode:
+        raise ValueError(
+            f"{where} age_matched negative must come from its own episode "
+            f"(donor_episode={donor!r}, episode={episode!r}); a foreign donor is the "
+            "'irrelevant' kind and cannot control for content relevance"
+        )
+    distractor = sample.get("distractor_source_step")
+    oracle = sample.get("oracle_source_step")
+    for name, value in (
+        ("distractor_source_step", distractor),
+        ("oracle_source_step", oracle),
+    ):
+        if type(value) is not int or value < 1:
+            raise ValueError(f"{where} {name} must be a positive int, got {value!r}")
+    if distractor == oracle:
+        raise ValueError(
+            f"{where} age_matched negative restores the oracle frame itself "
+            f"(step {oracle}); it would be identical to the positive arm"
+        )
+    recent_floor = int(sample["decision_step"]) - int(sample["budget"])
+    inside = [
+        name
+        for name, value in (
+            ("distractor_source_step", distractor),
+            ("oracle_source_step", oracle),
+        )
+        if int(value) >= recent_floor
+    ]
+    if inside:
+        raise ValueError(
+            f"{where} {inside} lie inside the Recent-{sample['budget']} window "
+            f"(steps >= {recent_floor}); both source frames must be older history"
+        )
+    steps = [int(step) for step in sample["selected_steps"]]
+    if int(distractor) not in steps:
+        raise ValueError(
+            f"{where} distractor_source_step {distractor} is absent from "
+            f"selected_steps {steps}"
+        )
+    if int(oracle) in steps:
+        raise ValueError(
+            f"{where} oracle_source_step {oracle} is still present in selected_steps "
+            f"{steps}; the content control must not carry the oracle frame"
+        )
 
 
 def sparse_reference_slot(
@@ -538,15 +686,25 @@ def validate_sparse_group(
             f"{ref_slot!r} but that arm is absent; slots={sorted(group)}"
         )
     reference = samples[group[ref_slot]]
+    # note (luojiaxuan): "同格式"这一条以前写死成 sparse_single_turn。v6 语料的 renderer
+    # 已冻结为 official_style_sparse_multiturn,所以期望值改从**该 schema 自己的契约表**
+    # 里查(仍然是一个写死的常量,只是按 schema 索引),而不是放宽成"随便什么格式"。
+    expected_format = SPARSE_ARM_CONTRACTS[reference["schema_version"]][ref_slot][2]
     if (
         reference["adapter_mode"] != "bypass"
         or reference["role"] != "reference"
-        or reference["prompt_format"] != "sparse_single_turn"
+        or reference["prompt_format"] != expected_format
         or reference["selection_mode"] != "recent"
     ):
         raise ValueError(
             f"pair-group {pair_group!r} reference arm {ref_slot!r} is not a "
             "budget-matched, same-format, adapter-bypassed recent-K arm"
+        )
+    schemas = {samples[index]["schema_version"] for index in group.values()}
+    if len(schemas) != 1:
+        raise ValueError(
+            f"pair-group {pair_group!r} mixes corpus schemas {sorted(schemas)}; "
+            "one group's arms must all come from the same corpus"
         )
     for slot, index in sorted(group.items()):
         sample = samples[index]
@@ -643,6 +801,124 @@ def _sparse_groups_by_split(
             sample["arm_slot"]
         ] = index
     return buckets, heldout_episodes
+
+
+def resolve_train_on_label_classes(config: dict[str, Any]) -> tuple[str, ...] | None:
+    """``data.train_on_label_classes``, or ``None`` when the key is absent.
+
+    # note (luojiaxuan): 缺键返回 None,含义是"**不过滤**" —— 也就是今天的行为:每个
+    # 训练组都必须臂齐,缺臂当场报错。既有 config 一个字都不用改。
+    # 声明了才过滤,而且必须是已知类名的非空列表:拼错一个类名会静默把整批组过滤掉,
+    # 训练照跑、组数变少、日志上看不出来,这正是要防的。
+    """
+    data = config.get("data")
+    if not isinstance(data, dict) or SPARSE_LABEL_CLASS_CONFIG_KEY not in data:
+        return None
+    declared = data[SPARSE_LABEL_CLASS_CONFIG_KEY]
+    if not isinstance(declared, list) or not declared:
+        raise ValueError(
+            f"data.{SPARSE_LABEL_CLASS_CONFIG_KEY} must be a non-empty list of "
+            f"label classes from {list(SPARSE_LABEL_CLASSES)}"
+        )
+    unknown = sorted(str(name) for name in declared if name not in SPARSE_LABEL_CLASSES)
+    if unknown:
+        raise ValueError(
+            f"data.{SPARSE_LABEL_CLASS_CONFIG_KEY} references unknown label classes "
+            f"{unknown}; known classes are {list(SPARSE_LABEL_CLASSES)}"
+        )
+    if len(set(declared)) != len(declared):
+        raise ValueError(f"data.{SPARSE_LABEL_CLASS_CONFIG_KEY} repeats a label class")
+    return tuple(str(name) for name in declared)
+
+
+def filter_samples_by_label_class(
+    samples: list[dict[str, Any]],
+    *,
+    allowed: Sequence[str],
+    selection_out: dict[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Drop whole pair-groups whose ``label_class`` is not in ``allowed``.
+
+    整组进出,不会把一个组切成半个;样本顺序原样保留。计数写进 ``selection_out``,
+    由调用方打印 —— 排除必须是**有记录**的,而不是安静地少几组。
+
+    # note (luojiaxuan): 语料没有 label_class 字段却声明了这个键,是 config 与语料
+    # 不匹配,直接报错:这种情况下"过滤"要么全丢要么全留,两个结果都是错的。
+    """
+    allowed_set = set(allowed)
+    order: list[str] = []
+    members: dict[str, list[int]] = {}
+    for index, sample in enumerate(samples):
+        pair_group = sample["pair_group"]
+        if pair_group not in members:
+            members[pair_group] = []
+            order.append(pair_group)
+        members[pair_group].append(index)
+
+    kept_groups: dict[str, dict[str, int]] = {}
+    skipped_groups: dict[str, dict[str, int]] = {}
+    keep: set[str] = set()
+    kept_samples = skipped_samples = 0
+    kept_train_groups = 0
+    for pair_group in order:
+        indices = members[pair_group]
+        classes = {samples[index].get("label_class") for index in indices}
+        if classes == {None}:
+            raise ValueError(
+                f"data.{SPARSE_LABEL_CLASS_CONFIG_KEY} is declared but pair-group "
+                f"{pair_group!r} carries no label_class field; that key only applies "
+                f"to a {SPARSE_REPLACEMENT_SAMPLE_SCHEMA} corpus"
+            )
+        if len(classes) != 1:
+            raise ValueError(
+                f"pair-group {pair_group!r} disagrees on label_class {sorted(classes)}"
+            )
+        label_class = classes.pop()
+        if label_class not in SPARSE_LABEL_CLASSES:
+            raise ValueError(
+                f"pair-group {pair_group!r} declares unknown label_class "
+                f"{label_class!r}"
+            )
+        splits = {samples[index]["split"] for index in indices}
+        if len(splits) != 1:
+            raise ValueError(
+                f"pair-group {pair_group!r} spans several splits {sorted(splits)}"
+            )
+        split = splits.pop()
+        bucket = kept_groups if label_class in allowed_set else skipped_groups
+        bucket.setdefault(split, {})[label_class] = (
+            bucket.setdefault(split, {}).get(label_class, 0) + 1
+        )
+        if label_class in allowed_set:
+            keep.add(pair_group)
+            kept_samples += len(indices)
+            kept_train_groups += int(split == "train")
+        else:
+            skipped_samples += len(indices)
+
+    if kept_train_groups == 0:
+        raise ValueError(
+            f"data.{SPARSE_LABEL_CLASS_CONFIG_KEY}={list(allowed)} excluded every "
+            "train pair-group; there is nothing left to train on"
+        )
+    if selection_out is not None:
+        selection_out.clear()
+        selection_out.update(
+            {
+                "filter": list(allowed),
+                "kept_groups": {
+                    split: dict(sorted(counts.items()))
+                    for split, counts in sorted(kept_groups.items())
+                },
+                "skipped_groups": {
+                    split: dict(sorted(counts.items()))
+                    for split, counts in sorted(skipped_groups.items())
+                },
+                "kept_samples": kept_samples,
+                "skipped_samples": skipped_samples,
+            }
+        )
+    return [sample for sample in samples if sample["pair_group"] in keep]
 
 
 def build_sparse_history_units(
@@ -927,7 +1203,7 @@ SPARSE_RUNTIME_DIAGNOSTIC_KEYS = frozenset(
         "loss", "negatives",
         "loss_select", "loss_gain", "loss_content", "loss_cap", "loss_l2",
     }
-    | {sparse_content_diagnostic_key(kind) for kind in SPARSE_NEGATIVE_KINDS}
+    | {sparse_content_diagnostic_key(kind) for kind in SPARSE_ALL_NEGATIVE_KINDS}
 )
 
 
@@ -2077,7 +2353,7 @@ SPARSE_MAIN_CLAIM_QUANTITY = "SA_minus_RA"
 # 写的是 SA_minus_<kind> / <kind>_drift,词表这边写的是 SA_minus_SA_neg_<kind> /
 # <kind>_drift_abs,两套名字对不上,"诊断可直接与 config.gates 对齐"只是句愿望。
 SPARSE_NEGATIVE_GATE_KEYS = frozenset(
-    key for kind in SPARSE_NEGATIVE_KINDS for key in sparse_diagnostic_keys(kind)
+    key for kind in SPARSE_ALL_NEGATIVE_KINDS for key in sparse_diagnostic_keys(kind)
 )
 SPARSE_GATE_VOCABULARY = frozenset(
     set(SPARSE_DERIVED_QUANTITIES) | SPARSE_NEGATIVE_GATE_KEYS
@@ -2094,14 +2370,52 @@ SPARSE_GATE_VOCABULARY = frozenset(
 # 三个负样本 margin 退出必需集但**仍在 derived_quantities 里报告** —— 用户预注册的
 # PASS 条件是 did_select / A_c / |A_r| / 三个 drift,不含它们;内容敏感性由
 # L_content 在训练中优化,验收看 drift 是否被封住即可。
-SPARSE_REQUIRED_GATES = frozenset(
-    {
-        "did_select",
-        "adapter_on_sparse",
-        "adapter_on_recent_abs",
-    }
-    | {key for _, key in (sparse_diagnostic_keys(k) for k in SPARSE_NEGATIVE_KINDS)}
+#
+# note (luojiaxuan): 必需集**按语料 schema 索引**,不是一个全局常量。理由:每个 schema
+# 的负样本 kind 不同(v5 三个、v6 一个 age_matched),而"必须声明的 drift gate"正是由
+# 语料里真实存在的 kind 决定的。做成单一常量会二选一地犯错——要么逼 v5 config 声明
+# 语料里不存在的 age_matched_drift_abs(旧 run 全部不可复现),要么让 v6 run 的唯一
+# 负样本没有必需 gate(内容对照臂被推动多少无人验收)。
+# ``SPARSE_REQUIRED_GATES`` 保留为 v2 那一份的别名:它的**取值逐字不变**,既有测试与
+# 外部引用者不受影响。
+_SPARSE_BASE_REQUIRED_GATES = frozenset(
+    {"did_select", "adapter_on_sparse", "adapter_on_recent_abs"}
 )
+SPARSE_REQUIRED_GATES_BY_SCHEMA: dict[str, frozenset[str]] = {
+    schema: frozenset(
+        _SPARSE_BASE_REQUIRED_GATES
+        | {key for _, key in (sparse_diagnostic_keys(k) for k in kinds)}
+    )
+    for schema, kinds in SPARSE_NEGATIVE_KINDS_BY_SCHEMA.items()
+}
+SPARSE_REQUIRED_GATES = SPARSE_REQUIRED_GATES_BY_SCHEMA[SPARSE_SAMPLE_SCHEMA]
+# 某个 schema 的语料里**不可能产生**的负样本量名 —— 声明了它们的 config 会在打分阶段
+# 拿到 None(GateQuantityUnavailable),这里提前到训练启动前拦下。
+SPARSE_NEGATIVE_GATE_KEYS_BY_SCHEMA: dict[str, frozenset[str]] = {
+    schema: frozenset(
+        key for kind in kinds for key in sparse_diagnostic_keys(kind)
+    )
+    for schema, kinds in SPARSE_NEGATIVE_KINDS_BY_SCHEMA.items()
+}
+
+
+def sparse_config_sample_schema(config: dict[str, Any]) -> str:
+    """Which corpus schema this config's gates and arms are written against.
+
+    # note (luojiaxuan): 缺 ``data.sample_schema_version`` 时按 v2 处理 —— 既有 config
+    # 一律没有这个键,默认值必须让它们的行为逐字不变。写了就必须是已知 schema,
+    # 拼错不给默认值(拼错会静默套用 v2 的必需 gate,而那正是这次要消灭的分叉)。
+    """
+    data = config.get("data")
+    schema = data.get("sample_schema_version") if isinstance(data, dict) else None
+    if schema is None:
+        return SPARSE_SAMPLE_SCHEMA
+    if schema not in SPARSE_SAMPLE_SCHEMAS:
+        raise ValueError(
+            f"data.sample_schema_version {schema!r} is not one of "
+            f"{list(SPARSE_SAMPLE_SCHEMAS)}"
+        )
+    return str(schema)
 
 # ---------------------------------------------------------------------------
 # gate 表达式:可执行的比较式与合成分表达式(审计第 9 条)
@@ -2583,9 +2897,29 @@ def validate_sparse_gates(config: dict[str, Any]) -> dict[str, Any]:
     unknown = sorted(set(must_pass) - SPARSE_GATE_VOCABULARY)
     if unknown:
         raise ValueError(f"gates.must_pass references unknown quantities {unknown}")
-    absent = sorted(SPARSE_REQUIRED_GATES - set(must_pass))
+    # 必需 gate 随语料 schema 变:v6 语料里没有 shuffled/duplicate/irrelevant,
+    # v5 语料里没有 age_matched,两边都不该被要求声明对方的量。
+    schema = sparse_config_sample_schema(config)
+    absent = sorted(SPARSE_REQUIRED_GATES_BY_SCHEMA[schema] - set(must_pass))
     if absent:
-        raise ValueError(f"gates.must_pass misses required gates {absent}")
+        raise ValueError(
+            f"gates.must_pass misses required gates {absent} for corpus schema "
+            f"{schema!r}"
+        )
+    foreign = sorted(
+        set(must_pass)
+        & (
+            frozenset().union(*SPARSE_NEGATIVE_GATE_KEYS_BY_SCHEMA.values())
+            - SPARSE_NEGATIVE_GATE_KEYS_BY_SCHEMA[schema]
+        )
+    )
+    if foreign:
+        raise ValueError(
+            f"gates.must_pass declares {foreign}, but corpus schema {schema!r} never "
+            f"produces those negatives (its kinds are "
+            f"{list(SPARSE_NEGATIVE_KINDS_BY_SCHEMA[schema])}); the scorer would hand "
+            "the gate a None and fail only after the run"
+        )
     if not isinstance(gates.get("drift_definition"), str) or not gates[
         "drift_definition"
     ].strip():
@@ -2693,6 +3027,22 @@ def main() -> None:
     ]
     if not samples:
         raise ValueError("SFT dataset is empty")
+
+    # note (luojiaxuan): 标签类过滤放在**加载模型之前**。config 与语料不匹配(声明了
+    # train_on_label_classes 而语料没有 label_class 字段)应该几秒内报错,而不是等 8B
+    # 权重载完、几分钟之后才炸。排除是有记录的:这一行 JSON 就是"哪些组没进训练"的
+    # 唯一凭据,缺了它就退化成"组数怎么变少了"那种查不出来的静默过滤。
+    label_classes = resolve_train_on_label_classes(config)
+    if label_classes is not None:
+        label_selection: dict[str, Any] = {}
+        samples = filter_samples_by_label_class(
+            samples, allowed=label_classes, selection_out=label_selection
+        )
+        if rank == 0:
+            print(
+                json.dumps({"label_class_selection": label_selection}, sort_keys=True),
+                flush=True,
+            )
 
     runtime = GUIOwlV21OfficialToolsRuntime(
         model_dir=args.model_dir,
@@ -2863,7 +3213,11 @@ def main() -> None:
             "heldout_episodes": len(heldout_episodes),
         }
         if sparse_mode:
-            startup["sample_schema_version"] = SPARSE_SAMPLE_SCHEMA
+            # note (luojiaxuan): 这里原本写死 SPARSE_SAMPLE_SCHEMA,于是 v6 run 的启动
+            # 行会自称跑在 v2 语料上 —— 一个"声明了但与实际不符"的字段比没有更糟。
+            startup["sample_schema_version"] = sparse_config_sample_schema(config)
+            if label_classes is not None:
+                startup["train_on_label_classes"] = list(label_classes)
             startup["reference_arm_id"] = "R0"
             startup["main_claim_quantity"] = SPARSE_MAIN_CLAIM_QUANTITY
             startup["objective_kind"] = sparse_objective_kind

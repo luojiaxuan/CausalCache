@@ -10,47 +10,49 @@
     ]
   },
   "data": {
-    "K_distribution": {
-      "1": 0.15,
-      "2": 0.25,
-      "3": 0.25,
-      "4": 0.35
-    },
     "adapter_switch_authority": "每条样本的 adapter_mode 字段;trainer 禁止解析 variant 或任何名字前缀(审计 P0-4)",
     "arms": {
-      "N0": "官方多轮 prompt + 最近 K 张 + adapter bypass(部署基线)",
-      "R0": "sparse 单轮 prompt + 最近 K 张 + adapter bypass(A_r 的基准端)",
-      "RA": "sparse 单轮 prompt + 最近 K 张 + adapter active(主 claim 的对照臂,也是 A_r 的 active 端)",
-      "S0": "sparse 单轮 prompt + 非连续选点 K 张 + adapter bypass(A_c 的基准端;冻结选图效应)",
-      "SA": "sparse 单轮 prompt + 非连续选点 K 张 + adapter active(本方法)"
+      "N0": "**原生**官方多轮 prompt(build_official_messages)+ Recent-B + adapter bypass —— 部署基线。它与 R0 用的是同一批 recent 帧,只有 renderer 不同,所以 format_effect = R0 - N0 与 deployment_delta = SA - N0 都可算;Gate 1 实测 R_multi - N0 = +0.0261,N0 不是冗余臂",
+      "R0": "official_style_sparse_multiturn + Recent-B + adapter bypass(A_r 的基准端,也是 reference)",
+      "RA": "official_style_sparse_multiturn + Recent-B + adapter active(主 claim 的对照臂,A_r 的 active 端;与 R0 的 messages 逐字节相同)",
+      "S0": "official_style_sparse_multiturn + oracle k=1 替换集 + adapter bypass(A_c 的基准端;冻结选图效应)",
+      "SA": "official_style_sparse_multiturn + oracle k=1 替换集 + adapter active(本方法;与 S0 的 messages 逐字节相同)",
+      "SA_neg_age_matched": "official_style_sparse_multiturn + 同决策点、同被替换位置、age 匹配的**内容无关**旧帧 + adapter active(内容对照臂)。只有 active 一行:A_n 由同一行跑 active + bypass 两次前向得到"
     },
+    "arms_note": "每组实际出几臂由标签类别与有没有合格的内容对照帧共同决定:六臂(utility_positive 且找得到 age 匹配的无关帧)/ 五臂(utility_positive 但找不到,只丢 SA_neg_age_matched)/ 三臂(recent_sufficient,只有 N0/R0/RA)。判别读样本的 has_content_control 与 content_control_absent_reason 字段,**不准数臂数**",
+    "budgets": [
+      1,
+      2
+    ],
+    "budgets_rationale": "docs/gate3_replacement_audit.md 实测 selection_over_poolmean 随预算单调衰减(B=1 +0.0113*、B=2 +0.0099*、B=4 +0.0013 不显著),标签因此只在 B ∈ {1,2} 上生成。B=1 时 S/负样本臂的 recent_frames_kept 为 0(唯一的最近帧被换走),分层报告必须按预算分开写",
     "deployment_baseline_arm_id": "N0",
-    "negatives": {
-      "K1_note": "K=1 时 step_shuffled 与 duplicate 与 SA 逐字节相同,不入库",
-      "SA_neg_duplicate": {
-        "negative_kind": "duplicate",
-        "negative_scale": 0.5
-      },
-      "SA_neg_irrelevant": {
-        "negative_kind": "irrelevant",
-        "negative_scale": 1.0
-      },
-      "SA_neg_step_shuffled": {
-        "negative_kind": "step_shuffled",
-        "negative_scale": 1.0
-      },
-      "authority": "生效值取自每条样本的 negative_scale 字段;此处仅记录构建期意图"
+    "k_upper_bound": "k ∈ {0,1}。同一份审计测得 marginal_k2_over_k1 = -0.00729 [-0.01845, +0.00390],点估计为负,k=2 出局,因此不需要 set-conditioned selector",
+    "label_classes": {
+      "recent_sufficient": "k=0,冻结 policy 判定当前 Recent 已够用。只出 N0/R0/RA 三臂,是 **selector 的 STOP** 训练材料;不进本次 adapter 训练(见 train_on_label_classes)",
+      "utility_positive": "k=1,替换收益 > delta_recent 且 cross-fit 两折同号。出五/六臂,是 adapter 训练的单元"
     },
-    "sample_schema_version": "causalcache.sparse_history_sample.v2",
-    "source": "GUI-Odyssey 长视野成功轨迹,每条轨迹多决策点抽样,每决策点五臂 + 三负样本",
+    "negatives": {
+      "SA_neg_age_matched": {
+        "negative_kind": "age_matched",
+        "negative_scale": 1.0
+      },
+      "absent_note": "找不到合格的内容对照帧时**只丢这一臂**,保留 N0/R0/RA/S0/SA(五臂组),整组不丢 —— 整组丢弃会系统性截掉高 gain 的正例(实测被丢组 oracle gain 中位数 0.053 vs 保留组 0.034)。has_content_control 字段显式标记",
+      "authority": "生效值取自每条样本的 negative_scale 字段;此处仅记录构建期意图",
+      "definition": "『错误』的定义是**内容不相关**(该旧帧的 k=1 效用 < delta_recent),不是『更老』也不是『跨 app』。同决策点取帧 => app / 设备 / 分辨率 / 每图视觉 token 数自动匹配;替换掉与 oracle **同一个** recent 位置;在全部合格帧里取 |step - oracle_step| 最小的那张,并列取更老者",
+      "why_not_relative_threshold": "不用 U_wrong < U_oracle - margin:那样 'wrong' 只是『不如 oracle』而非『内容无关』,负样本本身就该有正增益,|A_n| < 0.02 这条 gate 失败时就分不清是 common-mode 放大还是负样本定义有问题,判据失去可证伪性"
+    },
+    "sample_schema_version": "causalcache.replacement_corpus_sample.v6",
+    "source": "GUI-Odyssey 长视野成功轨迹的 v5 语料(sparse-v5-final)+ 冻结 policy 实测的 Recent-anchored 替换标签(generate/decide_replacement_labels.py);语料由 scripts/build_replacement_corpus_v6.py 生成,图像路径指回 v5 dataset-root 的 part* 软链",
     "split": {
       "authority": "每条样本的 split 字段;trainer 不再重算 hash",
-      "heldout_episode_fraction": 0.15,
-      "heldout_hash_salt": "sparse_v3",
-      "note": "以上两项仅供构建期使用,放在 data 段以免被误读成训练超参"
+      "note": "v6 直接继承 v5 语料行的 split 字段;标签只在 train split 的 episode 上生成,故本语料实际全为 train"
     },
+    "train_on_label_classes": [
+      "utility_positive"
+    ],
+    "train_on_label_classes_rationale": "k=0 组不进 adapter 训练:部署时 k=0 即 LoRA bypass,adapter 在 recent-sufficient 状态上根本不运行,『教 adapter 在这些状态别乱动』是不存在的需求;而 |A_r| 的约束在每个 positive 组里都有(R0/RA 俱全),剔除不会让它失去管束。这些组留在语料里给 selector 的 STOP 训练用,**不删**。排除是显式声明 + 启动时逐类计数打印,不是静默跳过",
     "training_reference_arm_id": "R0",
-    "warm_start": "none — 不继承 hg-s100(它只学到'有历史就放大')"
+    "warm_start": "none — 不继承 hg-s100(它只学到'有历史就放大'),也不继承 v5 checkpoint(renderer 已换,四臂全变,见 docs/renderer_freeze_v1.md)"
   },
   "gates": {
     "composite_score": "did_select",
@@ -65,7 +67,7 @@
       "format_effect": "R0 - N0",
       "frozen_selection_effect": "S0 - R0"
     },
-    "drift_definition": "<kind>_drift = 留出组上 (l_SA_neg_<kind> 在 adapter active) - (同一样本在 adapter bypass) 的均值,即 A_n 的均值;<kind>_drift_abs = |<kind>_drift|。每个负样本锚到它自己的冻结分数,不再锚到 R0",
+    "drift_definition": "<kind>_drift = 留出组上 (l_SA_neg_<kind> 在 adapter active) - (同一样本在 adapter bypass) 的均值,即 A_n 的均值;<kind>_drift_abs = |<kind>_drift|。每个负样本锚到它自己的冻结分数,不再锚到 R0。v6 语料只有 age_matched 一个 kind,必需 gate 因此只有 age_matched_drift_abs —— 三个 v5 kind 在本语料里不存在,声明它们会让打分脚本拿到 None",
     "gate_expression_syntax": "must_pass 的值形如 '<op> <number> [@<statistic>]',op ∈ {>, >=, <, <=},statistic ∈ {point(缺省), ci_low, ci_high};composite_score 与 derived_quantities 是同一套算术小语言:量名 / 数字 / + - * / 一元正负 / 括号 / abs()、mean()、min()、max()。scripts/score_sparse_history_arms.py 与 trainer 的 validate_sparse_gates 共用同一个解析器(审计第 9 条)",
     "gate_rationale": {
       "superseded": "旧 must_pass 含 SA_minus_R0 > 0 且 composite 累加它,已于 2026-07-25 移除 —— 新目标不优化该量,留着会把选点拉向放大最严重的 checkpoint。",
@@ -73,7 +75,9 @@
       "why_canonical_names": "A_c / A_r 不另造别名:adapter_on_sparse 就是 SA-S0,adapter_on_recent 就是 RA-R0,同一个量两个名字迟早会分叉。只新增真正缺的 adapter_on_recent_abs。",
       "why_ci_low": "主判据用 confirmation split 的 CI 下界而非点估计,因为该 split 只读一次,没有第二次机会纠正偶然性。",
       "why_did_select": "(SA-S0)-(RA-R0) 在 identity 上严格等于 0,所以冻结模型已有的稀疏选点优势(实测 +0.0335)不会被冒充成 adapter 能力;而 SA-R0 会。",
-      "why_no_separate_sa_minus_ra_gate": "预注册判据里的 SA-RA >= S0-R0 展开后就是 did_select >= 0,与主判据重复,故不单列;did_select > 0 @ci_low 是它的严格版本。"
+      "why_no_separate_sa_minus_ra_gate": "预注册判据里的 SA-RA >= S0-R0 展开后就是 did_select >= 0,与主判据重复,故不单列;did_select > 0 @ci_low 是它的严格版本。",
+      "why_one_drift_gate": "必需 gate 随语料 schema 变(SPARSE_REQUIRED_GATES_BY_SCHEMA):v6 语料只产出 age_matched 一个负样本 kind,三个 v5 kind 在这里根本不存在。声明它们不会更严,只会让打分脚本拿到 None 并在 run 之后才失败。",
+      "why_only_positive_groups_train": "recent_sufficient 组只有 N0/R0/RA,DiD 的 A_c 无定义 —— did_ra_aware 要求 R0/S0/RA/SA 四臂俱全。它们不是被静默跳过,而是由 data.train_on_label_classes 显式排除并逐类计数打印;语料里保留它们是给 selector 的 STOP 训练用。"
     },
     "gate_schema": "causalcache.sparse_history_gates.v2",
     "main_claim_note": "论文主 claim 挂在 SA - RA(同格式、同 adapter、只差选点)。SA - R0 混入 adapter 见图放大效应,SA - N0 还额外混入 prompt 格式效应,两者只作部署与分解报告用。did_select = (SA-S0)-(RA-R0) 是训练目标直接优化的量,identity 上恒为 0,只进报告不进 must_pass —— 本次换的是训练目标,验收标准(gates schema v2)一字未动",
@@ -81,10 +85,8 @@
     "must_pass": {
       "adapter_on_recent_abs": "< 0.02",
       "adapter_on_sparse": "> 0",
-      "did_select": "> 0 @ci_low",
-      "duplicate_drift_abs": "< 0.02",
-      "irrelevant_drift_abs": "< 0.02",
-      "step_shuffled_drift_abs": "< 0.02"
+      "age_matched_drift_abs": "< 0.02",
+      "did_select": "> 0 @ci_low"
     },
     "reference_arm_id": "R0",
     "selection_rule": {
@@ -113,7 +115,7 @@
     "excluded_arms_note": "该列表由 trainer 按 objective.kind 反算并逐项比对(SPARSE_OBJECTIVE_ARMS 的补集),不是散文。did_ra_aware 读 R0/S0/RA/SA 四臂,只有部署基线 N0 不进训练损失、仅在留出集上做 teacher-forced 打分",
     "gain_rationale": "只有 L_select 时,压低 l_RA 与抬高 l_SA 同样能减损失,而『把 recent 臂打坏』不是要的能力。L_gain = [m_g − A_c]+ 要求 sparse 臂的绝对增量自己也为正,于是刷 select 必须真的抬 SA",
     "kind": "did_ra_aware",
-    "normalization_rationale": "K=1 组不存在 shuffled/duplicate(与 SA 逐字节相同),按实际存在项归一化后每组负样本总质量恒为 1,损失不再按预算偏斜",
+    "normalization_rationale": "五臂组不存在内容对照臂(找不到合格的 age 匹配无关帧),按**实际存在**项归一化后:六臂组的负样本总质量为 1,五臂组为 0(L_content 与负样本那半个 L_cap 一起为 0,主项 L_select / L_gain / |A_r| 的 cap 照常),损失不会因为某些组少一条臂而被按比例打折",
     "notation": {
       "l_R0": "R0 臂(最近 K 张 + adapter bypass)的冻结分数,A_r 的基准端",
       "l_RA": "RA 臂(最近 K 张 + adapter active)的分数,带梯度",
