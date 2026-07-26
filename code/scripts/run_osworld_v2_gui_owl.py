@@ -26,6 +26,7 @@ from causalcache.osworld_v2 import (
     load_osworld_v2_memory_plan,
     validate_osworld_v2_checkout,
 )
+from causalcache.osworld import configure_osworld_docker_runtime
 
 
 def _load_config(path: Path) -> dict[str, Any]:
@@ -132,7 +133,19 @@ def _runtime_identity() -> dict[str, Any]:
     }
 
 
-def _import_upstream(root: Path) -> tuple[Any, Any, Any, Any]:
+def _import_upstream(
+    root: Path,
+    *,
+    docker_dns_server: str,
+    docker_cpu_model: str | None,
+    docker_port_lock_timeout_seconds: int,
+) -> tuple[Any, Any, Any, Any]:
+    configure_osworld_docker_runtime(
+        root,
+        dns_server=docker_dns_server,
+        cpu_model=docker_cpu_model,
+        port_lock_timeout_seconds=docker_port_lock_timeout_seconds,
+    )
     sys.path.insert(0, str(root))
     sys.path.insert(0, str(root / "scripts/python"))
     try:
@@ -169,7 +182,14 @@ def _worker(
     osworld_root = Path(spec["osworld_root"])
     os.environ["OSWORLD_FILE_BASE_URL"] = spec["assets_root"]
     DesktopEnv, resolve_task_json_path, load_task_config, run_single_example = (
-        _import_upstream(osworld_root)
+        _import_upstream(
+            osworld_root,
+            docker_dns_server=spec["docker_dns_server"],
+            docker_cpu_model=spec["docker_cpu_model"],
+            docker_port_lock_timeout_seconds=spec[
+                "docker_port_lock_timeout_seconds"
+            ],
+        )
     )
     env = None
     try:
@@ -381,6 +401,11 @@ def main() -> None:
         "result_root": str(output_root),
         "split": args.split,
         "provider": execution["provider"],
+        "docker_dns_server": execution["docker_dns_server"],
+        "docker_cpu_model": execution["docker_cpu_model"],
+        "docker_port_lock_timeout_seconds": execution[
+            "docker_port_lock_timeout_seconds"
+        ],
         "path_to_vm": args.path_to_vm,
         "region": args.region,
         "screen_size": execution["screen_size"],

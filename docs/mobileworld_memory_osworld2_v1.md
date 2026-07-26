@@ -69,6 +69,11 @@ asset root 由 committed config 的 `execution.assets_root` 或显式 `--assets-
 runner 只在 worker 内把该显式值翻译为上游所需的 `OSWORLD_FILE_BASE_URL`，不读取 ambient
 environment override 来改变 gate。
 
+OSWorld 2.0 Docker provider 复用本项目已验证的 runtime adapter：
+`DNSMASQ_OPTS=--no-resolv --no-poll --server=127.0.0.11`、sparse container port
+snapshot 与 180 秒全局 port-allocation lock timeout。科学任务、policy 与 evaluator 不变；
+该 adapter 只消除多 environment 并发启动时的 DNS watcher、list→inspect race 和 10 秒锁超时。
+
 ## 单 GPU、多模拟器拓扑
 
 ```text

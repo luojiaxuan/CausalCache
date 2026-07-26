@@ -52,6 +52,9 @@ def test_osworld_v2_config_uses_one_release_bundle() -> None:
     assert config["execution"]["assets_root"] == (
         "/data/datasets/osworld-v2-assets-v2026.06.24"
     )
+    assert config["execution"]["docker_dns_server"] == "127.0.0.11"
+    assert config["execution"]["docker_cpu_model"] is None
+    assert config["execution"]["docker_port_lock_timeout_seconds"] == 180
 
 
 def test_osworld_v2_plan_loader_rejects_release_drift(tmp_path: Path) -> None:
