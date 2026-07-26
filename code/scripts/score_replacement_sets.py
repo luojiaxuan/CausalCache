@@ -59,6 +59,7 @@ def families_for(point: DecisionPoint, budget: int) -> dict[str, list[tuple[int,
         "anchor_recent": [tuple(recent)],
         "k1_all_drop_positions": [],
         "k2_exhaustive_old_pairs": [],
+        "k3_exhaustive_old_triples": [],
         "b2_all_pairs": [],
     }
     if budget > point.n_candidates:
@@ -70,10 +71,18 @@ def families_for(point: DecisionPoint, budget: int) -> dict[str, list[tuple[int,
         for old in olds:
             out["k1_all_drop_positions"].append(tuple(sorted(kept + [old])))
 
-    # (b) k=2,固定保留最新的 B-2 张 recent,穷举**全部**旧图对。
-    kept_tail = recent[budget - 2 :] if budget >= 2 else []
-    for first, second in itertools.combinations(olds, 2):
-        out["k2_exhaustive_old_pairs"].append(tuple(sorted(kept_tail + [first, second])))
+    # (b) k=2 / k=3,固定保留**最新的 B-k 张** recent,穷举全部旧图组合。
+    # note (luojiaxuan): 保留"最新的 B-k 张"必须切 ``recent[k:]`` —— recent 是升序
+    # (最老在前),recent[k:] 恰好丢掉最老的 k 张。原写法 ``recent[budget-2:]`` 只在
+    # budget==4 时才等于 recent[2:]:B=2 会退化成"保留全部 recent 再加两张旧图"
+    # (集合大小 4 != B),B=8 会只保留最新 2 张(集合大小 4 != 8)。切片下标由 k 决定,
+    # 与 budget 无关。B=4 的既有 cache key 逐位不变,所以这条修复不作废任何已有分数。
+    for replaced, name in ((2, "k2_exhaustive_old_pairs"), (3, "k3_exhaustive_old_triples")):
+        if replaced > budget:
+            continue
+        kept_tail = list(recent[replaced:])
+        for combo in itertools.combinations(olds, replaced):
+            out[name].append(tuple(sorted(kept_tail + list(combo))))
 
     # (a) B=2 的无偏 pool mean:全部 C(n,2)。
     for pair in itertools.combinations(point.candidates, 2):

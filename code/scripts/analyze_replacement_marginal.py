@@ -20,6 +20,7 @@ import collections
 import glob
 import itertools
 import json
+import math
 import random
 from pathlib import Path
 
@@ -126,6 +127,7 @@ def main() -> None:
 
     rows: list[dict] = []
     missing: collections.Counter = collections.Counter()
+    incomplete: collections.Counter = collections.Counter()
     for group in sorted(gate3["per_group"]):
         current = int(group.split(":")[1])
         pool = scores.get(group, {})
@@ -158,14 +160,28 @@ def main() -> None:
         # k=1 的 Gate 3 原生定义:Recent-(B-1) + 一张旧图,即 drop=最老
         families["k1_drop_oldest"] = families.get("k1_drop0", {})
 
-        kept_tail = list(recent[budget - 2 :])
-        member_k2 = {}
-        for first, second in itertools.combinations(olds, 2):
-            steps = tuple(sorted(kept_tail + [first, second]))
-            if steps in pool:
-                member_k2[steps] = pool[steps]
-        if member_k2:
-            families["k2_recent_tail"] = member_k2
+        # note (luojiaxuan): 与 score_replacement_sets.families_for 同一口径:保留
+        # "最新的 B-k 张 recent"就是 recent[k:](recent 升序)。原写法 recent[budget-2:]
+        # 只在 B=4 时正确,B=2 会算出 4 元集合、B=8 也会算出 4 元集合 —— 那不是
+        # "同预算下第 k 张旧图的边际",而是拿一个更大的集合族去比一个更小的锚。
+        # note (luojiaxuan): k>=2 的族按定义是**穷举**的 C(n_old, k),缓存里凑不齐就不能
+        # 用。凑不齐时残留在缓存里的往往正是 Gate 3 beam 走过的那些集合 —— beam 只访问
+        # 高分集合,拿它当"穷举族"会把搜索偏好读成互补性。k=1 不受影响(它本来就是
+        # O(B*n),各预算都扫全了)。
+        for replaced, name in ((2, "k2_recent_tail"), (3, "k3_recent_tail")):
+            if replaced > budget:
+                continue
+            kept_tail = list(recent[replaced:])
+            member: dict[tuple[int, ...], dict] = {}
+            for combo in itertools.combinations(olds, replaced):
+                steps = tuple(sorted(kept_tail + list(combo)))
+                if steps in pool:
+                    member[steps] = pool[steps]
+            expected = math.comb(len(olds), replaced)
+            if member and len(member) == expected:
+                families[name] = member
+            elif member:
+                incomplete[name] += 1
 
         row = {"group": group, "episode": episode_of.get(group, group.split(":")[0])}
         row["n_old"] = len(olds)
@@ -219,13 +235,14 @@ def main() -> None:
         "k1_drop3",
         "k1_any_drop",
         "k2_recent_tail",
+        "k3_recent_tail",
     ):
         result = summarize(name)
         if result:
             summary[f"U_{name}"] = result
 
     # 组成效应 vs 选择效应的分解
-    for name in ("k1_any_drop", "k1_drop_oldest", "k2_recent_tail"):
+    for name in ("k1_any_drop", "k1_drop_oldest", "k2_recent_tail", "k3_recent_tail"):
         gap_pairs = [
             (row["episode"], row[f"{name}_poolgap"])
             for row in rows
@@ -247,6 +264,15 @@ def main() -> None:
         if row.get("k2_recent_tail") and row.get("k1_any_drop")
     ]
     summary["marginal_k2_over_k1"] = cluster_bootstrap(marginal_pairs)
+
+    # 第三张旧图的边际(方法定义允许 k <= B,所以 B 大时 k 是否该跟着变要单独测)
+    marginal3_pairs = [
+        (row["episode"], row["k3_recent_tail"]["gain"] - row["k2_recent_tail"]["gain"])
+        for row in rows
+        if row.get("k3_recent_tail") and row.get("k2_recent_tail")
+    ]
+    if marginal3_pairs:
+        summary["marginal_k3_over_k2"] = cluster_bootstrap(marginal3_pairs)
 
     # 动作空间:丢最老 vs 丢任意
     widen_pairs = [
@@ -285,6 +311,7 @@ def main() -> None:
         "budget": budget,
         "groups": len(rows),
         "missing": dict(missing),
+        "partial_pool_groups_dropped": dict(incomplete),
         "bootstrap": {"replicates": BOOT, "seed": SEED, "cluster_unit": "episode"},
         "summary": summary,
         "fold_stability": dict(stable),
@@ -296,7 +323,7 @@ def main() -> None:
         encoding="utf-8",
     )
 
-    print(f"groups={len(rows)} missing={dict(missing)}")
+    print(f"groups={len(rows)} missing={dict(missing)} partial_pool_dropped={dict(incomplete)}")
     for name, block in summary.items():
         if not block:
             continue
