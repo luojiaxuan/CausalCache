@@ -2,6 +2,25 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-27(凌晨):Desktop DiD 三臂全部收官,HGKV 通过全部预注册 gate
+
+- 三行 150 步全部 EXIT_0(HGKV/ungated 于 hyper01,Full-LoRA 于 hyper00),
+  全 checkpoint(s25–s150)dev 94 组 gate 打分完成。
+- **HGKV 选点 s150:did_select +0.0111 [+0.0074,+0.0150](ci_low>0 ✅),
+  A_S +0.0139,|A_r| 0.0087、wrong drift 0.0085 均 < ε=0.02 —— s50 起全部
+  gate 连续 PASS**。旧线两个失败模式(遗漏 RA / SA−R0 假阳性)未复现。
+- matched ungated KV 也可选(s125,did_select +0.0076):层位/参数量本身有部分
+  选择性;**门控净增益配对显著:+0.00345 [+0.0007,+0.0062],56/94 组占优**。
+- Full-LoRA 选择性点估计最高(+0.0163)但 |A_r| 0.021–0.027 全程超 cap、
+  wrong drift 两点超限 —— **无合格 checkpoint**:"能选择但锚不住",
+  反证门控 = 在漂移包络内的选择性。
+- 冻结基线 frozen_selection_effect = +0.0333 [+0.0118,+0.0567]:桌面冻结模型
+  本就显著受益于目标相关旧帧(Odyssey 上测不出的现象层前提)。
+- 完整表、§9 清单(6/7 两项生成式评测待跑,s150 未冻结)与 artifact 状态见
+  [`data/results/desktop_did_policy_v1/`](../data/results/desktop_did_policy_v1/README.md)。
+- 临时容器 `sglang-omni-jaxan-2` 已删;两台机器 GPU 已空,checkpoint/语料
+  `PENDING_HF_UPLOAD`。
+
 ## 2026-07-26(夜):Desktop DiD 三臂 policy training 发射(Stage B)
 
 - 发射前闭环:三份 config 过全部启动校验(commit `b88fb75`)、scorer 桌面 schema
