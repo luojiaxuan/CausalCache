@@ -25,6 +25,7 @@ import random
 import sys
 
 BOOT = 10000
+DRAWS = 25  # 池大小控制的下采样重复次数
 SEED = 20260727
 FMT = "official_style_sparse_multiturn"
 BUDGETS = (1, 2, 3, 4, 8)
@@ -98,6 +99,7 @@ def main() -> None:
     print("-" * len(header))
 
     per_budget_selection = {}
+    raw_pools: dict[int, dict] = {}
     for budget in BUDGETS:
         rows = []
         evict = collections.Counter()
@@ -122,6 +124,7 @@ def main() -> None:
             if len(pool) < 2:
                 continue
             covered.append(len(pool) / want)
+            raw_pools.setdefault(budget, {})[group] = (pool, anchor)
 
             in_sample = max(pool, key=lambda s: pool[s]["mean"])
             gains = []
@@ -174,6 +177,54 @@ def main() -> None:
         frac = block["evicted_slot_fraction"]
         print("  B=%d  %s" % (budget, "  ".join(
             "slot%s=%.0f%%" % (k, 100 * v) for k, v in sorted(frac.items(), key=lambda x: int(x[0])))))
+
+    # note (luojiaxuan): 池大小随预算增长(实测中位 15/28/39/48/64)。池越大、能选到
+    # 好集合的机会越多,所以"B 越大选择效应越强"可能只是候选变多,而不是 Recent 更
+    # 冗余。把各预算的池**下采样到同一大小**再算一遍,就把这两件事分开了。
+    # 这是本轮第四次同形态的口径陷阱,这次预先堵上而不是事后撤回。
+    print("\n池大小控制:各预算下采样到同一池大小后重算 selection over pool mean")
+    matched = {}
+    for budget, entry in raw_pools.items():
+        for group, (pool, anchor) in entry.items():
+            matched.setdefault(group, {})[budget] = (pool, anchor)
+    target = {}
+    for group, by_budget in matched.items():
+        sizes = [len(pool) for pool, _ in by_budget.values()]
+        if len(by_budget) >= 2:
+            target[group] = min(sizes)
+    out["pool_size_matched"] = {}
+    matched_selection = {}
+    for budget in BUDGETS:
+        rows = []
+        for group, (pool, anchor) in raw_pools.get(budget, {}).items():
+            size = target.get(group)
+            if not size or size < 2:
+                continue
+            # note (luojiaxuan): **单次**下采样本身是噪声源 —— 换个种子就能把 B=2 的
+            # 点估计从 +0.004 推到 +0.009。控制混淆的手段不该自己引入新的方差,所以
+            # 对 DRAWS 次抽样取平均,把下采样噪声压下去再比。
+            keys = sorted(pool)
+            rng = random.Random(SEED + budget)
+            values = []
+            for _ in range(DRAWS):
+                sub = {k: pool[k] for k in rng.sample(keys, size)}
+                gains = []
+                for select, evaluate in (("even", "odd"), ("odd", "even")):
+                    chosen = max(sub, key=lambda s: fold_mean(sub[s], select))
+                    gains.append(
+                        fold_mean(sub[chosen], evaluate) - fold_mean(anchor, evaluate)
+                    )
+                means = [e["mean"] for e in sub.values()]
+                values.append(
+                    sum(gains) / len(gains)
+                    - (sum(means) / len(means) - anchor["mean"])
+                )
+            rows.append((episode[group], sum(values) / len(values)))
+            matched_selection.setdefault(budget, {})[episode[group]] = rows[-1][1]
+        block = cluster_bootstrap(rows)
+        if block:
+            out["pool_size_matched"][str(budget)] = block
+            print("  B=%-2d pool_size=matched  %s" % (budget, fmt(block)))
 
     print("\n配对差(同一 group 两预算相减;口径已匹配,可直接比较):")
     out["paired"] = {}
