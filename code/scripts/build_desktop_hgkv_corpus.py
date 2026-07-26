@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
-"""Build Desktop history-use contrast groups from AgentNet success trajectories.
+"""Build Desktop DiD six-arm history-contrast groups from AgentNet successes.
 
-# note (luojiaxuan): 这条管线直接产 policy 训练数据,不以 frozen policy 是否做错
-# 为前置筛选。正例是同一成功轨迹里与当前 gold 动作完整等价的旧动作状态:恢复该
-# 旧动作执行前的截图(即前一事件的 post screenshot),让 adapter 学习
-# summary-action ↔ high-fidelity visual state 的绑定。两个内容对照分别是同轨迹、
-# 同 age 的错误状态和跨轨迹同分辨率截图;四臂共享完全相同的当前截图、文字历史与
-# target tool call。输出沿用 success_sft_sample.v1 + memory_config,可直接交给
-# train_success_sft_lora.py 的 history_group 路径。
+# note (luojiaxuan): 交接 §6 冻结的 DiD 六臂目标。每个训练组物化五行样本:
+#   R0/RA — Recent-k(冻结部署选择器 select_osworld_memory(arm="recent")),
+#           bypass/active 孪生,消息逐字节相同;
+#   S0/SA — target-specific selected-k(同轨迹完整等价旧动作的执行前画面,
+#           即前一事件的 post screenshot),bypass/active 孪生;
+#   WA    — 同轨迹、age 尽量匹配、下一动作与 a* 不等价的 wrong-k,只发 active 行;
+#           W0 由 trainer 对同一行临时 bypass 重算(train_success_sft_lora 的
+#           did_ra_aware 负样本路径),不在语料里重复一行。
+# B0(无恢复图)另写 parity_b0.jsonl:它只用于 HGKV bitwise parity 与总体能力
+# 报告,不得混入内容选择主差值,schema 独立以便误拼接时 fail-closed。
+# irrelevant 跨轨迹 donor 臂不再进训练组:§6 的 L_content/L_cap 只消费 wrong,
+# harm 对照如 §11.1 需要,可在评测阶段以同一 seed 另行物化(v1 四臂构造见 git 历史)。
+# split 按轨迹 hash 发 train/dev/test(80/10/10);trainer 侧的 dev→heldout 映射与
+# test 剥离属于 osworld_official 接入(交接 §8.2-4),在语料里不做。
+# 正例不以 frozen policy 做错为前置(information addition 与 evidence
+# amplification 两种机制都允许,见交接 §2)。
 """
 
 from __future__ import annotations
 
 import argparse
-import base64
 import hashlib
 import json
 import os
@@ -28,10 +36,31 @@ from causalcache.agentnet_desktop_cr import (
     render_agentnet_cr_messages,
 )
 
-CORPUS_SCHEMA = "causalcache.desktop_hgkv_corpus.v1"
-SAMPLE_SCHEMA = "causalcache.success_sft_sample.v1"
+CORPUS_SCHEMA = "causalcache.desktop_hgkv_corpus.v2"
+SAMPLE_SCHEMA = "causalcache.desktop_did_sample.v1"
+B0_SAMPLE_SCHEMA = "causalcache.desktop_did_b0_sample.v1"
 PROMPT_FORMAT = "osworld_official"
-VARIANTS = ("correct", "b0", "shuffled", "irrelevant")
+BUDGET = 1
+REFERENCE_ARM_ID = "R0"
+# note (luojiaxuan): 桌面的部署 prompt 与 R0 出自同一冻结 renderer + 同一 recent
+# 选择器,不存在 GUI-Odyssey v6 那种 official/sparse 双格式,所以不发 N0 臂——
+# 一条与 R0 逐字节相同的"部署基线"不携带任何信息,format_effect 恒等于 0 只会
+# 伪装成一次测量。deployment_baseline_arm_id 显式指向 R0,trainer 契约按此校验。
+DEPLOYMENT_BASELINE_ARM_ID = "R0"
+NEGATIVE_ARM_SLOT = "WA"
+NEGATIVE_KIND = "wrong"
+NEGATIVE_SCALE = 1.0
+# arm_slot -> (arm_id, role, prompt_format, selection_mode, adapter_mode)
+# 与 trainer 的 SPARSE_ARM_CONTRACTS 新增项(交接 §8.2-4)保持逐字段一致。
+DESKTOP_ARM_CONTRACT: dict[str, tuple[str, str, str, str, str]] = {
+    "R0": ("R0", "reference", PROMPT_FORMAT, "recent", "bypass"),
+    "RA": ("RA", "measurement", PROMPT_FORMAT, "recent", "active"),
+    "S0": ("S0", "measurement", PROMPT_FORMAT, "recurrence", "bypass"),
+    "SA": ("SA", "positive", PROMPT_FORMAT, "recurrence", "active"),
+    NEGATIVE_ARM_SLOT: ("WA", "negative", PROMPT_FORMAT, "wrong", "active"),
+}
+B0_ARM_CONTRACT = ("B0", "parity_baseline", PROMPT_FORMAT, "none", "bypass")
+ADAPTER_TWINS = (("R0", "RA"), ("S0", "SA"))
 
 
 def parse_args() -> argparse.Namespace:
@@ -55,6 +84,12 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1 << 20), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def messages_sha256(messages: Sequence[Mapping[str, Any]]) -> str:
+    return hashlib.sha256(
+        json.dumps(messages, ensure_ascii=False, sort_keys=True).encode("utf-8")
+    ).hexdigest()
 
 
 def _norm999(pixel: int | float, size: int) -> int:
@@ -203,7 +238,7 @@ def select_contrast_events(
     min_age: int,
     seed: int,
 ) -> tuple[int, int, int] | None:
-    """Return (positive event, positive action step, shuffled event)."""
+    """Return (positive event, positive action step, wrong event)."""
     current_step = int(record["step"])
     screen_size = tuple(record["screen_size"])
     target = record["target_tool_call"]
@@ -262,10 +297,10 @@ def select_contrast_events(
         for event in negative_events
         if abs(event - positive_event) == closest_distance
     ]
-    shuffled_event = _stable_choice(
+    wrong_event = _stable_choice(
         closest, key=f"{record['dp_id']}:negative", seed=seed
     )
-    return positive_event, positive_action_step, shuffled_event
+    return positive_event, positive_action_step, wrong_event
 
 
 def _serialize_messages(
@@ -304,65 +339,32 @@ def _load_screenshots(
     return screenshots
 
 
-def _replace_selected_image(
-    request: dict[str, Any], *, event_step: int, replacement: bytes
-) -> None:
-    encoded = base64.b64encode(replacement).decode("ascii")
-    changed = 0
-    for event in request["history"]:
-        if event["step_id"] == event_step:
-            if event["restored_post_screenshot_png_base64"] is None:
-                raise ValueError("selected event has no restored image")
-            event["restored_post_screenshot_png_base64"] = encoded
-            changed += 1
-    if changed != 1:
-        raise ValueError("selected event replacement did not match exactly one event")
-
-
-def _messages_for_variant(
+def _messages_for_selection(
     record: Mapping[str, Any],
     *,
     screenshots: Sequence[bytes],
-    selected_event: int | None,
+    recent_budget: int,
+    extra_restored: Sequence[int],
+    expected_steps: Sequence[int],
     image_paths: Sequence[str],
-    irrelevant_bytes: bytes | None = None,
 ) -> list[dict[str, Any]]:
     request = build_agentnet_cr_request(
         instruction=record["instruction"],
         screenshots=screenshots,
         history_actions=record["history"],
         current_step=int(record["step"]),
-        recent_budget=0,
-        extra_restored_step_ids=(
-            () if selected_event is None else (selected_event,)
-        ),
+        recent_budget=recent_budget,
+        extra_restored_step_ids=tuple(extra_restored),
         screen_size=tuple(record["screen_size"]),
     )
-    if irrelevant_bytes is not None:
-        if selected_event is None:
-            raise ValueError("irrelevant replacement requires a selected event")
-        _replace_selected_image(
-            request, event_step=selected_event, replacement=irrelevant_bytes
+    if request["selected_event_step_ids"] != sorted(expected_steps):
+        raise ValueError(
+            "frozen memory selection disagrees with the corpus bookkeeping: "
+            f"{request['selected_event_step_ids']} != {sorted(expected_steps)}"
         )
     return _serialize_messages(
         render_agentnet_cr_messages(request), image_paths=image_paths
     )
-
-
-def _donor_index(
-    records: Sequence[Mapping[str, Any]], index: int
-) -> tuple[int, str] | None:
-    record = records[index]
-    size = tuple(record["screen_size"])
-    for offset in range(1, len(records)):
-        donor_index = (index + offset) % len(records)
-        donor = records[donor_index]
-        if (
-            donor["task_id"] != record["task_id"]
-            and tuple(donor["screen_size"]) == size
-        ):
-            return donor_index, donor["image_relpaths"][-1]
-    return None
 
 
 def _split(episode: str, *, seed: int) -> str:
@@ -393,6 +395,83 @@ def _link_image_roots(
     return linked
 
 
+def _count_images(messages: Sequence[Mapping[str, Any]]) -> int:
+    return sum(
+        1
+        for message in messages
+        for part in message["content"]
+        if part.get("type") == "image"
+    )
+
+
+def _validate_group(
+    rows: Sequence[Mapping[str, Any]],
+    b0_row: Mapping[str, Any],
+    *,
+    budget: int,
+) -> None:
+    """Fail-closed in-group checks — the hard §6/§8.6 constraints, at build time."""
+    by_slot = {row["arm_slot"]: row for row in rows}
+    if sorted(by_slot) != sorted(DESKTOP_ARM_CONTRACT) or len(by_slot) != len(rows):
+        raise ValueError(
+            f"group must carry exactly the arms {sorted(DESKTOP_ARM_CONTRACT)}; "
+            f"got {sorted(row['arm_slot'] for row in rows)}"
+        )
+    positive = by_slot["SA"]
+    for row in (*rows, b0_row):
+        contract = (
+            B0_ARM_CONTRACT
+            if row["arm_slot"] == "B0"
+            else DESKTOP_ARM_CONTRACT[row["arm_slot"]]
+        )
+        declared = (
+            row["arm_id"], row["role"], row["prompt_format"],
+            row["selection_mode"], row["adapter_mode"],
+        )
+        if declared != contract:
+            raise ValueError(
+                f"arm {row['arm_slot']!r} declares {declared}, contract says {contract}"
+            )
+        row_budget = 0 if row["arm_slot"] == "B0" else budget
+        if (
+            len(row["selected_steps"]) != row_budget
+            or len(row["selected_images"]) != row_budget
+            or _count_images(row["messages"]) != row_budget + 1
+            or row["memory_config"]["restored_event_step_ids"] != row["selected_steps"]
+            or row["messages_sha256"] != messages_sha256(row["messages"])
+        ):
+            raise ValueError(f"arm {row['arm_slot']!r} budget/image bookkeeping broken")
+        if (
+            row["target_text"] != positive["target_text"]
+            or row["current_image"] != positive["current_image"]
+            or row["episode"] != positive["episode"]
+            or row["decision_step"] != positive["decision_step"]
+        ):
+            raise ValueError(f"arm {row['arm_slot']!r} disagrees with SA on shared fields")
+    # note (luojiaxuan): §8.6 —— bypass/active 孪生臂除 adapter_mode 外必须逐字节
+    # 同 prompt;负臂的 W0 由 trainer 重算,语料侧只须锁 WA 自身的账目字段。
+    for bypass_slot, active_slot in ADAPTER_TWINS:
+        if by_slot[bypass_slot]["messages_sha256"] != by_slot[active_slot]["messages_sha256"]:
+            raise ValueError(f"{bypass_slot}/{active_slot} prompts diverged")
+    negative = by_slot[NEGATIVE_ARM_SLOT]
+    if int(negative["distractor_source_step"]) not in negative["selected_steps"]:
+        raise ValueError("WA distractor_source_step is absent from its selected_steps")
+    if int(negative["oracle_source_step"]) in negative["selected_steps"]:
+        raise ValueError("WA still carries the oracle frame")
+
+
+def _percentile_summary(values: Sequence[int]) -> dict[str, int]:
+    ordered = sorted(values)
+    def rank(fraction: float) -> int:
+        return ordered[min(len(ordered) - 1, int(fraction * len(ordered)))]
+    return {
+        "min": ordered[0],
+        "p50": rank(0.50),
+        "p90": rank(0.90),
+        "max": ordered[-1],
+    }
+
+
 def build_corpus(
     records: Sequence[dict[str, Any]],
     *,
@@ -401,10 +480,14 @@ def build_corpus(
     min_age: int,
     seed: int,
     max_groups: int = 0,
-) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     rows: list[dict[str, Any]] = []
+    b0_rows: list[dict[str, Any]] = []
     counters: Counter[str] = Counter()
     referenced_paths: set[str] = set()
+    positive_ages: list[int] = []
+    wrong_ages: list[int] = []
+    positive_wrong_distances: list[int] = []
     order = list(range(len(records)))
     random.Random(seed).shuffle(order)
     for index in order:
@@ -420,72 +503,134 @@ def build_corpus(
         if selected is None:
             counters["rejected_no_recurrence_or_negative"] += 1
             continue
-        donor = _donor_index(records, index)
-        if donor is None:
-            counters["rejected_no_donor"] += 1
-            continue
-        positive_event, positive_action_step, shuffled_event = selected
-        donor_index, donor_path = donor
+        positive_event, positive_action_step, wrong_event = selected
+        current_step = int(record["step"])
+        # 冻结 recent 选择器在 k=1 下取最后一个事件;其 post 帧与当前截图同帧,
+        # 这正是部署语义(在线 predict 的 Recent-1 同样如此),不做"改良"。
+        recent_events = list(range(current_step - BUDGET, current_step))
+        relpaths = record["image_relpaths"]
         screenshots = _load_screenshots(record, image_root=image_root)
-        donor_bytes = (image_root / donor_path).read_bytes()
-        current_path = record["image_relpaths"][int(record["step"]) - 1]
-        correct_path = record["image_relpaths"][positive_event]
-        shuffled_path = record["image_relpaths"][shuffled_event]
+        current_path = relpaths[current_step - 1]
         pair_group = f"agentnet:{record['dp_id']}"
         episode = str(record["task_id"])
         split = _split(episode, seed=seed)
-        variant_specs = (
-            ("correct", positive_event, [correct_path, current_path], None),
-            ("b0", None, [current_path], None),
-            ("shuffled", shuffled_event, [shuffled_path, current_path], None),
-            (
-                "irrelevant",
-                positive_event,
-                [donor_path, current_path],
-                donor_bytes,
-            ),
-        )
-        for variant, event_step, image_paths, irrelevant_bytes in variant_specs:
-            restored = [] if event_step is None else [event_step]
-            sample = {
+
+        selection_specs = {
+            "recent": (recent_events, BUDGET, ()),
+            "recurrence": ([positive_event], 0, (positive_event,)),
+            "wrong": ([wrong_event], 0, (wrong_event,)),
+            "none": ([], 0, ()),
+        }
+        rendered: dict[str, dict[str, Any]] = {}
+        for mode, (steps, recent_budget, extras) in selection_specs.items():
+            selected_images = [relpaths[step] for step in steps]
+            messages = _messages_for_selection(
+                record,
+                screenshots=screenshots,
+                recent_budget=recent_budget,
+                extra_restored=extras,
+                expected_steps=steps,
+                image_paths=[*selected_images, current_path],
+            )
+            rendered[mode] = {
+                "selected_steps": list(steps),
+                "selected_images": selected_images,
+                "messages": messages,
+                "messages_sha256": messages_sha256(messages),
+            }
+
+        common = {
+            "pair_group": pair_group,
+            "episode": episode,
+            "decision_step": current_step,
+            "budget": BUDGET,
+            "split": split,
+            "instruction": record["instruction"],
+            "current_image": current_path,
+            "target_text": record["target_text"],
+            "reference_arm_id": REFERENCE_ARM_ID,
+            "deployment_baseline_arm_id": DEPLOYMENT_BASELINE_ARM_ID,
+            "source": {
+                "dataset": "AgentNet/OpenCUA",
+                "os": record["os"],
+                "dp_id": record["dp_id"],
+                "positive_rule": "full_action_recurrence_pre_state",
+                "positive_action_step": positive_action_step,
+                "positive_event_step": positive_event,
+                "wrong_event_step": wrong_event,
+                "positive_age": current_step - positive_event,
+                "wrong_age": current_step - wrong_event,
+            },
+        }
+        group_rows = []
+        for slot, (arm_id, role, prompt_format, mode, adapter_mode) in (
+            DESKTOP_ARM_CONTRACT.items()
+        ):
+            row = {
                 "schema_version": SAMPLE_SCHEMA,
-                "sample_id": f"{pair_group}|{variant}",
-                "episode": episode,
-                "task_type": "agentnet_desktop",
-                "task_index": record["dp_id"],
-                "decision_step_id": int(record["step"]),
-                "step_index": int(record["step"]),
-                "variant": variant,
-                "pair_group": pair_group,
-                "prompt_format": PROMPT_FORMAT,
-                "memory_config": {
-                    "mode": "target_action_recurrence",
-                    "budget": len(restored),
-                    "restored_event_step_ids": restored,
-                },
-                "messages": _messages_for_variant(
-                    record,
-                    screenshots=screenshots,
-                    selected_event=event_step,
-                    image_paths=image_paths,
-                    irrelevant_bytes=irrelevant_bytes,
+                "sample_id": f"{pair_group}|{slot}",
+                **common,
+                "arm_slot": slot,
+                "arm_id": arm_id,
+                "role": role,
+                "prompt_format": prompt_format,
+                "selection_mode": mode,
+                "adapter_mode": adapter_mode,
+                "variant": f"{slot}_{mode}{BUDGET}",
+                "recent_frames_kept": sum(
+                    1
+                    for step in rendered[mode]["selected_steps"]
+                    if step in recent_events
                 ),
-                "target_text": record["target_text"],
-                "official_terminal_success": 1.0,
-                "split": split,
-                "source": {
-                    "dataset": "AgentNet/OpenCUA",
-                    "os": record["os"],
-                    "dp_id": record["dp_id"],
-                    "positive_rule": "full_action_recurrence_pre_state",
-                    "positive_action_step": positive_action_step,
-                    "positive_event_step": positive_event,
-                    "shuffled_event_step": shuffled_event,
-                    "donor_dp_id": records[donor_index]["dp_id"],
+                "memory_config": {
+                    "restored_event_step_ids": rendered[mode]["selected_steps"]
+                },
+                **{
+                    key: rendered[mode][key]
+                    for key in (
+                        "selected_steps", "selected_images",
+                        "messages", "messages_sha256",
+                    )
                 },
             }
-            rows.append(sample)
-            referenced_paths.update(image_paths)
+            if slot == NEGATIVE_ARM_SLOT:
+                row["negative_kind"] = NEGATIVE_KIND
+                row["negative_scale"] = NEGATIVE_SCALE
+                row["donor_episode"] = episode
+                row["distractor_source_step"] = wrong_event
+                row["oracle_source_step"] = positive_event
+            group_rows.append(row)
+        b0_arm_id, b0_role, b0_format, b0_mode, b0_adapter = B0_ARM_CONTRACT
+        b0_row = {
+            "schema_version": B0_SAMPLE_SCHEMA,
+            "sample_id": f"{pair_group}|B0",
+            **common,
+            "arm_slot": "B0",
+            "arm_id": b0_arm_id,
+            "role": b0_role,
+            "prompt_format": b0_format,
+            "selection_mode": b0_mode,
+            "adapter_mode": b0_adapter,
+            "variant": "B0_none0",
+            "recent_frames_kept": 0,
+            "memory_config": {"restored_event_step_ids": []},
+            **{
+                key: rendered["none"][key]
+                for key in (
+                    "selected_steps", "selected_images",
+                    "messages", "messages_sha256",
+                )
+            },
+        }
+        _validate_group(group_rows, b0_row, budget=BUDGET)
+        rows.extend(group_rows)
+        b0_rows.append(b0_row)
+        for mode in selection_specs:
+            referenced_paths.update(rendered[mode]["selected_images"])
+        referenced_paths.add(current_path)
+        positive_ages.append(current_step - positive_event)
+        wrong_ages.append(current_step - wrong_event)
+        positive_wrong_distances.append(abs(positive_event - wrong_event))
         counters["groups"] += 1
         counters[f"groups_{split}"] += 1
         counters[
@@ -493,18 +638,43 @@ def build_corpus(
         ] += 1
     manifest = {
         "schema_version": CORPUS_SCHEMA,
+        "sample_schema": SAMPLE_SCHEMA,
+        "b0_sample_schema": B0_SAMPLE_SCHEMA,
         "seed": seed,
         "coordinate_tolerance": coordinate_tolerance,
         "min_age": min_age,
-        "variants": list(VARIANTS),
+        "budget": BUDGET,
+        "arm_contract": {
+            slot: list(spec) for slot, spec in DESKTOP_ARM_CONTRACT.items()
+        },
+        "b0_arm_contract": list(B0_ARM_CONTRACT),
         "prompt_format": PROMPT_FORMAT,
         "counters": dict(sorted(counters.items())),
         "sample_count": len(rows),
+        "b0_sample_count": len(b0_rows),
         "group_count": counters["groups"],
+        "sources": {"AgentNet/OpenCUA": counters["groups"]},
+        "stats": (
+            {
+                "positive_age": _percentile_summary(positive_ages),
+                "wrong_age": _percentile_summary(wrong_ages),
+                "positive_wrong_distance": _percentile_summary(
+                    positive_wrong_distances
+                ),
+            }
+            if positive_ages
+            else {}
+        ),
         "referenced_image_count": len(referenced_paths),
         "referenced_paths": sorted(referenced_paths),
     }
-    return rows, manifest
+    return rows, b0_rows, manifest
+
+
+def _write_jsonl(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
+    with path.open("w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
 
 
 def main() -> None:
@@ -520,7 +690,7 @@ def main() -> None:
     ]
     if not records:
         raise SystemExit("input manifest is empty")
-    rows, manifest = build_corpus(
+    rows, b0_rows, manifest = build_corpus(
         records,
         image_root=args.image_root,
         coordinate_tolerance=args.coordinate_tolerance,
@@ -532,9 +702,9 @@ def main() -> None:
         raise SystemExit("no target-specific recurrence groups were found")
     args.output_root.mkdir(parents=True, exist_ok=True)
     samples_path = args.output_root / "samples.jsonl"
-    with samples_path.open("w", encoding="utf-8") as handle:
-        for row in rows:
-            handle.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+    b0_path = args.output_root / "parity_b0.jsonl"
+    _write_jsonl(samples_path, rows)
+    _write_jsonl(b0_path, b0_rows)
     linked: list[str] = []
     if args.link_images:
         linked = _link_image_roots(
@@ -551,6 +721,7 @@ def main() -> None:
         "linked_image_roots": linked,
     }
     manifest["samples_sha256"] = sha256_file(samples_path)
+    manifest["parity_b0_sha256"] = sha256_file(b0_path)
     (args.output_root / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
