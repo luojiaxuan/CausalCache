@@ -1,10 +1,18 @@
 """Generate Recent-anchored replacement labels on the train split (frozen policy).
 
-# note (luojiaxuan): 与审计脚本的分工:审计在 60 组 dev 上**全穷举**,因为它要判定
-# "互补性存不存在",按单帧效用预筛会预判答案。本脚本在 2758 组 train 上生成标签,
-# 那里互补性是否存在已由审计定论,唯一的问题是"高效找到组合、并知道漏掉多少" ——
-# 审计实测 top-8 召回 79.8%、top-12 召回 90.4%,所以默认取 12。
-# 全穷举 k=2 是 721,618 次前向(两台 16 卡 17.2 小时),top-12 降到约 182,000。
+# note (luojiaxuan): 审计(60 组 dev,100% 覆盖)的结论直接编码进了本脚本的默认值:
+#
+#   marginal_k2_over_k1                  -0.00729 [-0.01845, +0.00390]  点估计为负
+#   selection_over_poolmean_k2           +0.00449 [-0.00123, +0.01046]  不显著
+#     => --k2-top-n 默认 0,不生成 k=2 标签。省掉 721,618 次前向(两台 17.2 小时)。
+#
+#   widen_drop_position                  +0.00610 [-0.00480, +0.01780]  不显著
+#     => --k1-drop-positions 默认 oldest(窄动作空间),放宽必须显式指定。
+#        60 组分辨不了宽窄之别,而放宽会让 selector 动作空间大 B 倍,不该默认打开。
+#
+# 更重要的一条:selection_over_poolmean 随预算单调衰减 —— B=1 +0.0113*、
+# B=2 +0.0099*、B=4 +0.0013(不显著)。**信号在小预算**,所以 --budgets 不要
+# 无脑传 1,2,3,4:在 B=4 上生成的标签大概率没有可学的东西。
 #
 # 两遍式且在同一进程内完成:k=2 的候选名单依赖 k=1 的打分结果,分成两个作业会多
 # 载一次模型、多扫一次语料。
@@ -73,8 +81,20 @@ def main() -> None:
     parser.add_argument(
         "--k2-top-n",
         type=int,
-        default=12,
-        help="rank old frames by their k=1 utility and exhaust C(N,2) pairs; 0 skips k=2",
+        default=0,
+        help=(
+            "rank old frames by their k=1 utility and exhaust C(N,2) pairs; "
+            "0 (default) skips k=2 entirely, which is what the audit concluded"
+        ),
+    )
+    parser.add_argument(
+        "--k1-drop-positions",
+        choices=("oldest", "all"),
+        default="oldest",
+        help=(
+            "which recent frame k=1 may evict: 'oldest' is the narrow action space "
+            "(selector only picks j), 'all' lets it pick which recent to drop too"
+        ),
     )
     parser.add_argument(
         "--episode-limit",
@@ -190,12 +210,23 @@ def main() -> None:
                     record["budgets"][str(budget)] = block
                     continue
 
-                kept = list(recent[1:])  # 丢掉最老那张 recent
+                # note (luojiaxuan): 60 组 dev 上 widen_drop_position = +0.0061
+                # [-0.0048, +0.0178] 不显著,分辨不了宽窄两个动作空间。窄空间
+                # (只丢最老)的 selection_over_poolmean 是 +0.0033 也不显著,宽空间
+                # 是 +0.0092 临界。所以这个开关默认取窄,由调用方按预算显式放宽。
+                dropped_positions = (
+                    list(recent) if args.k1_drop_positions == "all" else [recent[0]]
+                )
                 k1_pool: dict[tuple[int, ...], dict] = {}
-                for old in olds:
-                    steps = tuple(sorted(kept + [old]))
-                    k1_pool[steps] = scorer.score(point, steps, FROZEN_FORMAT)
+                for dropped in dropped_positions:
+                    kept = [step for step in recent if step != dropped]
+                    for old in olds:
+                        steps = tuple(sorted(kept + [old]))
+                        k1_pool[steps] = scorer.score(point, steps, FROZEN_FORMAT)
                 block["k1"] = crossfit_gain(k1_pool, anchor)
+                block["k1_drop_positions"] = args.k1_drop_positions
+
+                kept = list(recent[1:])  # k=2 的候选排序仍以"丢最老"这一支为基准
 
                 if args.k2_top_n and budget >= 2 and len(olds) >= 2:
                     ranked = sorted(
