@@ -1,0 +1,105 @@
+{
+  "arm_contract": {
+    "R0": [
+      "R0",
+      "reference",
+      "osworld_official",
+      "recent",
+      "bypass"
+    ],
+    "RA": [
+      "RA",
+      "measurement",
+      "osworld_official",
+      "recent",
+      "active"
+    ],
+    "S0": [
+      "S0",
+      "measurement",
+      "osworld_official",
+      "recurrence",
+      "bypass"
+    ],
+    "SA": [
+      "SA",
+      "positive",
+      "osworld_official",
+      "recurrence",
+      "active"
+    ],
+    "WA": [
+      "WA",
+      "negative",
+      "osworld_official",
+      "wrong",
+      "active"
+    ]
+  },
+  "b0_arm_contract": [
+    "B0",
+    "parity_baseline",
+    "osworld_official",
+    "none",
+    "bypass"
+  ],
+  "b0_sample_count": 969,
+  "b0_sample_schema": "causalcache.desktop_did_b0_sample.v1",
+  "budget": 1,
+  "coordinate_tolerance": 25,
+  "counters": {
+    "groups": 969,
+    "groups_dev": 94,
+    "groups_double_click": 17,
+    "groups_key": 341,
+    "groups_left_click": 547,
+    "groups_left_click_drag": 11,
+    "groups_right_click": 14,
+    "groups_scroll": 9,
+    "groups_test": 102,
+    "groups_train": 773,
+    "groups_type": 30,
+    "rejected_no_recurrence_or_negative": 5034
+  },
+  "group_count": 969,
+  "inputs": {
+    "image_root": "/bigdata/datasets/agentnet",
+    "linked_image_roots": [
+      "ubuntu_images"
+    ],
+    "manifest": "data/manifests/agentnet_screening_manifest_ubuntu_v1.jsonl",
+    "manifest_sha256": "38889f116961f08081ff9eb08c5e5cdd37a16dae17d577e728e771dc59951a59"
+  },
+  "min_age": 3,
+  "parity_b0_sha256": "0bbec2968ab006ecb239e92d5468f83aeba87372b545e3ac83f095f4e47ab963",
+  "prompt_format": "osworld_official",
+  "referenced_image_count": 2754,
+  "sample_count": 4845,
+  "sample_schema": "causalcache.desktop_did_sample.v1",
+  "samples_sha256": "2ef47af41a67ed3c168aedcd09533c08d1127c6ec92043549627992c18b71c1f",
+  "schema_version": "causalcache.desktop_hgkv_corpus.v2",
+  "seed": 20260726,
+  "sources": {
+    "AgentNet/OpenCUA": 969
+  },
+  "stats": {
+    "positive_age": {
+      "max": 28,
+      "min": 3,
+      "p50": 5,
+      "p90": 10
+    },
+    "positive_wrong_distance": {
+      "max": 16,
+      "min": 1,
+      "p50": 1,
+      "p90": 1
+    },
+    "wrong_age": {
+      "max": 28,
+      "min": 3,
+      "p50": 5,
+      "p90": 10
+    }
+  }
+}

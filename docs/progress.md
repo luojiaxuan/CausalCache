@@ -4,6 +4,45 @@
 
 主线 = History-Gated KV Adapter(合同见 [`history_gated_mainline_v1.md`](history_gated_mainline_v1.md),正式 gate PASS、s100 冻结,见 [`data/results/hgkv_gate_v1/`](../data/results/hgkv_gate_v1/README.md))。
 
+## 2026-07-26:Desktop DiD 六臂语料 v1 构建完成,Stage A 停止条件通过
+
+- prototype 升级为交接 §6 的 DiD schema(`causalcache.desktop_did_sample.v1`):
+  每组 R0/RA/S0/SA/WA 五行(W0 由 trainer 对 WA bypass 重算),B0 独立
+  `parity_b0.jsonl`;irrelevant donor 臂按 §6 冻结目标裁掉。
+- trainer 完成交接 §8.2-4:`osworld_official` 编码路径(tools=[_TOOL_SPEC],与在线
+  `generate_raw` 逐实参相同)、桌面 schema 契约/量名/必需 gate 按 schema 分派
+  (负臂量名 `SA_minus_WA`)、`normalize_desktop_splits`(dev→heldout、test 剥离)、
+  plain-LoRA ContextVar bypass 使 Full-layer/ungated-KV 与 HGKV 共用同一 DiD loss
+  (新 adapter_type `ungated_kv_lora` = last_N k/v matched 结构对照)。
+  相关测试 24+10 项新增,全套 155+ 回归绿。关键事实:v2.1 runtime 与桌面 OSWorld
+  runtime 共用同一 GUI-Owl-1.5-8B snapshot 与像素公式(2560 tokens),trainer 无需
+  换 runtime 类;端到端由 `audit_osworld_official_trainer_parity.py` 在真模型上锁。
+- Hyper01 容器内全量构建:6,003 决策点 → **969 组**(train/dev/test =
+  773/94/102,753 条轨迹),action 分布 left_click 56.4% / key 35.2% / type 3.1% /
+  double_click 1.8% / right_click 1.4% / drag 1.1% / scroll 0.9%;positive age
+  p50=5、p90=10;wrong 距 positive p50=1。**Stage A 停止条件通过**(≥500 组、
+  click<85%、type/key/drag 有覆盖),无需先扩 AgentNet win/mac。
+- staging:Hyper01 `/data04/jaxan/mw/desktop-did-corpus-v1/`(samples 21.9MB +
+  parity_b0 4.1MB + manifest);Git 记录
+  [`desktop_did_corpus_v1_manifest.json`](../data/manifests/desktop_did_corpus_v1_manifest.json);
+  语料 + 后续 labels 归 `gavinlaw/causalcache-desktop-memory-training`,
+  `PENDING_HF_UPLOAD`。
+- **真模型 parity audit PASS**:Hyper01 GPU0、GUI-Owl-1.5-8B、2560 visual tokens,
+  4 组 × 6 臂 = 24/24,token/image_grid/pixel 三层全部逐位一致、0 失败
+  ([`desktop_did_corpus_v1_parity_report.json`](../data/manifests/desktop_did_corpus_v1_parity_report.json))。
+  离线语料行 ≡ 在线部署 prompt 的链条(路径序列化→renderer→chat template→视觉
+  预处理)已在真模型上锁死。
+- 事故记录:corpus build 是纯 CPU 任务而跑在 GPU 容器里,`gpu-fleet-preflight` 的
+  0%-5s 规则把 `sglang-omni-jaxan` 容器连同 build 一起收割;已重启容器并重跑
+  (5 分钟)。教训:CPU-only 任务与 preflight 不能并行作用于同一容器。
+- GPU 现状:hyper00 满载无可清理(0%-5s 规则下无 idle 容器);hyper01 除 mwb0
+  emulator 舰队外 GPU 0-2 空闲。三臂 policy training 的发射还差:桌面训练
+  config(三份,固定 manifest SHA/split salt/steps/cadence)、
+  `score_sparse_history_arms` 桌面 schema 支持(gate 执行件)、§8.6 真模型机械
+  测试(HGKV B0 bitwise parity、mask 只覆盖 restored tokens、DDP 单消费)。
+- 其余(下一会话):witness 10 点训练臂物化并入语料、HF 上传
+  (`gavinlaw/causalcache-desktop-memory-training`)。
+
 ## 2026-07-26:OSWorld witness round1 reduce 完成(Stage A.1)
 
 - Hyper01 上对两 score shard(544+546+2 fingerprint = 1,094 行)执行
