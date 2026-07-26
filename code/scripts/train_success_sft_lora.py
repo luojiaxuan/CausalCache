@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import argparse
+import contextvars
 import hashlib
 import json
 import math
@@ -28,6 +29,7 @@ import random
 import re
 import sys
 from collections.abc import Sequence
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
@@ -52,27 +54,51 @@ def load_config(path: Path) -> dict[str, Any]:
 
 
 def adapter_settings(config: dict[str, Any]) -> tuple[str, dict[str, int] | None]:
-    """Return (adapter_type, history-gated options); default keeps the old path."""
+    """Return (adapter_type, layer-scoped options); default keeps the old path.
+
+    # note (luojiaxuan): ``ungated_kv_lora`` 是交接 §7 的 matched 结构对照:与 HGKV
+    # 同层位(last_N 的 k/v_proj)、同 rank/alpha 的**普通** LoRA,对所有 token 生效,
+    # 没有 restored-history mask。它与 history_gated_kv 共用同一段 layer_scope 解析。
+    """
     adapter = config.get("adapter") or {}
     adapter_type = adapter.get("adapter_type", "full_policy_lora")
     if adapter_type == "full_policy_lora":
         return adapter_type, None
-    if adapter_type != "history_gated_kv":
+    if adapter_type not in ("history_gated_kv", "ungated_kv_lora"):
         raise ValueError(f"unsupported adapter_type {adapter_type!r}")
     match = re.fullmatch(r"last_([1-9]\d*)", str(adapter["layer_scope"]))
     if match is None:
-        raise ValueError("history_gated_kv layer_scope must look like last_<n>")
+        raise ValueError(f"{adapter_type} layer_scope must look like last_<n>")
     declared_targets = adapter.get("target_modules")
     if declared_targets is not None and tuple(declared_targets) != (
         "k_proj",
         "v_proj",
     ):
-        raise ValueError("history_gated_kv target_modules are frozen to k/v_proj")
+        raise ValueError(f"{adapter_type} target_modules are frozen to k/v_proj")
     return adapter_type, {
         "layer_count": int(match.group(1)),
         "rank": int(adapter["rank"]),
         "alpha": int(adapter["alpha"]),
     }
+
+
+# note (luojiaxuan): 交接 §8.4 —— Full-layer / matched ungated KV 与 HGKV 共用同一个
+# DiD group loss,区别只在 adapter 注入位置与开关机制。HGKV 的 bypass 由
+# history_adapter_scope(None) 承担;普通 LoRALinear 没有开关,这里补一个线程局部的
+# bypass 标志:默认 False,hook 行为与旧 full_policy_lora 路径逐位相同(旧路径从不
+# 设置它)。ContextVar 是线程局部 —— 与 HGKV 相同的约束:sparse 分支一律不开梯度
+# 检查点(重算跑在 autograd 线程会读到默认值,静默变成 active),main() 有硬闸。
+_PLAIN_LORA_BYPASS = contextvars.ContextVar("plain_lora_bypass", default=False)
+
+
+@contextmanager
+def plain_lora_bypass_scope(bypass: bool):
+    """Toggle every plain ``LoRALinear`` between frozen bypass and active."""
+    token = _PLAIN_LORA_BYPASS.set(bool(bypass))
+    try:
+        yield
+    finally:
+        _PLAIN_LORA_BYPASS.reset(token)
 
 
 class LoRALinear:
@@ -92,6 +118,8 @@ class LoRALinear:
         self.handle = module.register_forward_hook(self._hook)
 
     def _hook(self, module: Any, inputs: tuple[Any, ...], output: Any) -> Any:
+        if _PLAIN_LORA_BYPASS.get():
+            return output
         x = inputs[0]
         delta = (
             x.to(self.lora_a.dtype) @ self.lora_a.T @ self.lora_b.T
@@ -100,9 +128,22 @@ class LoRALinear:
 
 
 def inject_lora(
-    model: Any, *, rank: int, alpha: int, target_modules: tuple[str, ...], torch: Any
+    model: Any,
+    *,
+    rank: int,
+    alpha: int,
+    target_modules: tuple[str, ...],
+    torch: Any,
+    last_layer_count: int | None = None,
 ) -> dict[str, LoRALinear]:
-    wrapped: dict[str, LoRALinear] = {}
+    """Wrap matching frozen linears; ``last_layer_count`` keeps only the last N layers.
+
+    # note (luojiaxuan): 缺省 None = 旧 full_policy_lora 行为逐字节不变(全层)。
+    # ungated_kv_lora 传 N,层号从模块名 ``.layers.<i>.`` 解析;匹配到无层号的模块
+    # 时直接报错 —— 静默保留它会让"最后 N 层"的结构对照悄悄多出参数。
+    """
+    matched: list[tuple[str, Any, int | None]] = []
+    layer_pattern = re.compile(r"\.layers\.(\d+)\.")
     for name, module in model.named_modules():
         if (
             isinstance(module, torch.nn.Linear)
@@ -110,7 +151,23 @@ def inject_lora(
             and ".visual." not in f".{name}."
             and ("language_model" in name or ".model.layers." in name)
         ):
-            wrapped[name] = LoRALinear(module, rank=rank, alpha=alpha, torch=torch)
+            layer = layer_pattern.search(f".{name}.")
+            matched.append((name, module, int(layer.group(1)) if layer else None))
+    if not matched:
+        raise RuntimeError("LoRA injection matched no language-model modules")
+    if last_layer_count is not None:
+        nameless = [name for name, _module, layer in matched if layer is None]
+        if nameless:
+            raise RuntimeError(
+                f"last_layer_count set but modules carry no layer index: {nameless}"
+            )
+        if last_layer_count < 1:
+            raise ValueError("last_layer_count must be a positive int")
+        floor = max(layer for _name, _module, layer in matched) + 1 - last_layer_count
+        matched = [entry for entry in matched if entry[2] >= floor]
+    wrapped: dict[str, LoRALinear] = {}
+    for name, module, _layer in matched:
+        wrapped[name] = LoRALinear(module, rank=rank, alpha=alpha, torch=torch)
     if not wrapped:
         raise RuntimeError("LoRA injection matched no language-model modules")
     return wrapped
@@ -1967,6 +2024,58 @@ def adapter_context_for_sample(
     return context
 
 
+# sparse DiD 分支允许的 adapter 家族(交接 §7 的四行 ablation 中需要训练的三行)。
+SPARSE_SUPPORTED_ADAPTER_TYPES = (
+    "history_gated_kv",
+    "full_policy_lora",
+    "ungated_kv_lora",
+)
+
+
+def adapter_scope_for_sample(
+    adapter_type: str,
+    encoded: dict[str, Any],
+    sample: dict[str, Any],
+    *,
+    merge_size: int | None,
+    adapter_mode: str | None = None,
+    slot: str | None = None,
+):
+    """One forward's adapter on/off scope — the only dispatch, shared by all types.
+
+    # note (luojiaxuan): 交接 §8.4 —— 三种 adapter 共用同一个 DiD group loss,唯一
+    # 差别是"bypass/active 怎么实现":
+    #   * history_gated_kv:几何 mask 上下文(bypass = ctx None),沿用冻结实现;
+    #   * full_policy_lora / ungated_kv_lora:普通 LoRALinear 无 mask,bypass =
+    #     plain_lora_bypass_scope(True) 整体关断,active = 显式 False(不是"不管",
+    #     否则嵌套里外层 bypass 会泄漏进 active 前向)。
+    # adapter_mode 覆盖语义与 adapter_context_for_sample 相同(P1-4 的 no-grad
+    # bypass 锚点);未知类型/未知 mode 一律 fail-closed。
+    """
+    if adapter_type == "history_gated_kv":
+        from causalcache.policy.history_adapter_context import history_adapter_scope
+
+        return history_adapter_scope(
+            adapter_context_for_sample(
+                encoded,
+                sample,
+                merge_size=merge_size,
+                adapter_mode=adapter_mode,
+                slot=slot,
+            )
+        )
+    if adapter_type not in SPARSE_SUPPORTED_ADAPTER_TYPES:
+        raise ValueError(
+            f"unknown adapter_type {adapter_type!r}; expected one of "
+            f"{SPARSE_SUPPORTED_ADAPTER_TYPES}"
+        )
+    label = slot if slot is not None else sample.get("arm_slot")
+    mode = effective_adapter_mode(sample, adapter_mode)
+    if mode not in ("bypass", "active"):
+        raise ValueError(f"unknown adapter_mode {mode!r} on arm {label!r}")
+    return plain_lora_bypass_scope(mode == "bypass")
+
+
 # ---------------------------------------------------------------------------
 # 冻结 bypass 分数的磁盘缓存(默认关闭)
 # ---------------------------------------------------------------------------
@@ -2345,6 +2454,7 @@ def sparse_history_group_unit_loss(
     diagnostics_out: dict[str, float] | None = None,
     frozen_cache: FrozenBypassScoreCache | None = None,
     encode_cache_scope: str = "off",
+    adapter_type: str = "history_gated_kv",
 ) -> float | None:
     """One sparse-history pair-group forward set and its loss, or None to skip.
 
@@ -2355,9 +2465,9 @@ def sparse_history_group_unit_loss(
     # "只能靠读代码复核"的语义(审计第 10 条)。
     # 返回值与 _sparse_history_group_loss 一致:float(本组损失)或 None(跳过);
     # 诊断走 diagnostics_out 原地填充,调用方要拿就传一个空 dict 进来。
+    # adapter 开关的实现按 adapter_type 分派(adapter_scope_for_sample,交接 §8.4),
+    # 缺省 history_gated_kv 与旧调用方逐字节同行为。
     """
-    from causalcache.policy.history_adapter_context import history_adapter_scope
-
     if encode_cache_scope not in ENCODE_CACHE_SCOPES:
         raise ValueError(
             f"unknown encode_cache_scope {encode_cache_scope!r}; "
@@ -2429,7 +2539,8 @@ def sparse_history_group_unit_loss(
         encoded = encode_for_slot(slot, sample)
         if encoded is None:
             return None
-        context = adapter_context_for_sample(
+        scope = adapter_scope_for_sample(
+            adapter_type,
             encoded,
             sample,
             merge_size=merge_size,
@@ -2438,7 +2549,7 @@ def sparse_history_group_unit_loss(
         )
         # note (luojiaxuan): 带梯度路径必须在 scope 内完成 backward——梯度检查点
         # 的重算发生在 backward 期间,scope 提前退出会让 hook 读到 ctx=None。
-        with history_adapter_scope(context):
+        with scope:
             if grad:
                 lp = mean_target_logprob(runtime.model, encoded, torch=torch)
                 if backward_weight is not None:
@@ -3222,8 +3333,13 @@ def main() -> None:
     sparse_objective: dict[str, Any] | None = None
     sparse_objective_kind = ""
     if sparse_mode:
-        if adapter_settings(config)[0] != "history_gated_kv":
-            raise ValueError("sparse_history requires adapter_type history_gated_kv")
+        # note (luojiaxuan): 交接 §8.4 —— DiD 分支同时服务 HGKV、Full-layer LoRA 与
+        # matched ungated KV;bypass/active 的实现差异由 adapter_scope_for_sample 分派。
+        if adapter_settings(config)[0] not in SPARSE_SUPPORTED_ADAPTER_TYPES:
+            raise ValueError(
+                "sparse_history requires adapter_type in "
+                f"{SPARSE_SUPPORTED_ADAPTER_TYPES}"
+            )
         sparse_gates = validate_sparse_gates(config)
         sparse_objective_kind, sparse_objective = validate_sparse_objective(config)
         sparse_controls = resolve_sparse_training(
@@ -3296,9 +3412,16 @@ def main() -> None:
     # 不一致;两遍法已保证同时只活一张图,直接全激活反而更快。
     adapter_type_early, _ = adapter_settings(config)
     if config["training"]["gradient_checkpointing"] and adapter_type_early != "history_gated_kv":
+        if sparse_mode:
+            # plain-LoRA bypass 也走 ContextVar(线程局部),重算线程读默认值会静默
+            # 变 active —— 与 HGKV 同一个坑,sparse 分支一律禁用梯度检查点。
+            raise ValueError(
+                "sparse_history runs without gradient checkpointing; set "
+                "training.gradient_checkpointing=false"
+            )
         model.gradient_checkpointing_enable()
         model.config.use_cache = False
-    elif adapter_type_early == "history_gated_kv":
+    elif adapter_type_early == "history_gated_kv" or sparse_mode:
         model.config.use_cache = False
     adapter_type, adapter_options = adapter_settings(config)
     if adapter_type == "history_gated_kv":
@@ -3317,6 +3440,19 @@ def main() -> None:
         adapter_state_dict = history_gated_state_dict
         adapter_load_state_dict = load_history_gated_state_dict
         merge_size = int(runtime.processor.image_processor.merge_size)
+    elif adapter_type == "ungated_kv_lora":
+        # matched 结构对照:与 HGKV 同层位/同 rank/alpha 的普通 LoRA,无 mask。
+        wrapped = inject_lora(
+            model,
+            rank=adapter_options["rank"],
+            alpha=adapter_options["alpha"],
+            target_modules=("k_proj", "v_proj"),
+            torch=torch,
+            last_layer_count=adapter_options["layer_count"],
+        )
+        adapter_state_dict = lora_state_dict
+        adapter_load_state_dict = load_lora_state_dict
+        merge_size = None
     else:
         wrapped = inject_lora(
             model,
@@ -3515,6 +3651,7 @@ def main() -> None:
                     diagnostics_out=diagnostics,
                     frozen_cache=frozen_cache,
                     encode_cache_scope=args.encode_cache_scope,
+                    adapter_type=adapter_type,
                 )
                 if unit_value is None:
                     continue

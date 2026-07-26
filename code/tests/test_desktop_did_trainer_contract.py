@@ -377,6 +377,145 @@ class _Recorder:
         return self.values.get(slot, 0.0)
 
 
+# ---------------------------------------------------------------------------
+# 6. §8.4:Full-layer / ungated-KV 共用 DiD loss 的 bypass 机制
+# ---------------------------------------------------------------------------
+
+
+class _TinyLM(torch.nn.Module):
+    def __init__(self, layers: int = 4) -> None:
+        super().__init__()
+        self.language_model = torch.nn.Module()
+        self.language_model.layers = torch.nn.ModuleList()
+        for _ in range(layers):
+            block = torch.nn.Module()
+            block.self_attn = torch.nn.Module()
+            block.self_attn.q_proj = torch.nn.Linear(4, 4)
+            block.self_attn.k_proj = torch.nn.Linear(4, 4)
+            block.self_attn.v_proj = torch.nn.Linear(4, 4)
+            self.language_model.layers.append(block)
+
+
+def test_plain_lora_bypass_scope_restores_the_frozen_output() -> None:
+    linear = torch.nn.Linear(4, 3)
+    wrapper = trainer.LoRALinear(linear, rank=2, alpha=4, torch=torch)
+    with torch.no_grad():
+        wrapper.lora_b.fill_(0.37)
+    x = torch.randn(2, 4)
+    with trainer.plain_lora_bypass_scope(True):
+        bypassed = linear(x)
+    active = linear(x)
+    frozen = torch.nn.functional.linear(x, linear.weight, linear.bias)
+    assert torch.equal(bypassed, frozen)
+    assert not torch.equal(active, frozen)
+    # scope 退出后恢复 active —— 旧 full_policy_lora 路径的缺省行为
+    assert trainer._PLAIN_LORA_BYPASS.get() is False
+
+
+def test_inject_lora_last_layer_count_restricts_to_the_tail() -> None:
+    model = _TinyLM(layers=4)
+    tail = trainer.inject_lora(
+        model,
+        rank=2,
+        alpha=4,
+        target_modules=("k_proj", "v_proj"),
+        torch=torch,
+        last_layer_count=2,
+    )
+    assert sorted(tail) == [
+        "language_model.layers.2.self_attn.k_proj",
+        "language_model.layers.2.self_attn.v_proj",
+        "language_model.layers.3.self_attn.k_proj",
+        "language_model.layers.3.self_attn.v_proj",
+    ]
+    everything = trainer.inject_lora(
+        _TinyLM(layers=4),
+        rank=2,
+        alpha=4,
+        target_modules=("k_proj", "v_proj"),
+        torch=torch,
+    )
+    assert len(everything) == 8
+
+
+def test_adapter_settings_accepts_the_matched_ungated_kv_shape() -> None:
+    config = {
+        "adapter": {
+            "adapter_type": "ungated_kv_lora",
+            "layer_scope": "last_8",
+            "rank": 8,
+            "alpha": 16,
+        }
+    }
+    assert trainer.adapter_settings(config) == (
+        "ungated_kv_lora",
+        {"layer_count": 8, "rank": 8, "alpha": 16},
+    )
+    with pytest.raises(ValueError, match="layer_scope"):
+        trainer.adapter_settings(
+            {"adapter": {"adapter_type": "ungated_kv_lora", "layer_scope": "all"}}
+        )
+    with pytest.raises(ValueError, match="frozen to k/v_proj"):
+        trainer.adapter_settings(
+            {
+                "adapter": {
+                    "adapter_type": "ungated_kv_lora",
+                    "layer_scope": "last_8",
+                    "rank": 8,
+                    "alpha": 16,
+                    "target_modules": ["q_proj"],
+                }
+            }
+        )
+
+
+def test_adapter_scope_dispatch_for_plain_adapters() -> None:
+    for adapter_type in ("full_policy_lora", "ungated_kv_lora"):
+        with trainer.adapter_scope_for_sample(
+            adapter_type, {}, {"adapter_mode": "bypass"}, merge_size=None
+        ):
+            assert trainer._PLAIN_LORA_BYPASS.get() is True
+        with trainer.adapter_scope_for_sample(
+            adapter_type, {}, {"adapter_mode": "active"}, merge_size=None
+        ):
+            assert trainer._PLAIN_LORA_BYPASS.get() is False
+        # P1-4 的 per-negative 冻结锚点:显式覆盖优先于样本字段
+        with trainer.adapter_scope_for_sample(
+            adapter_type,
+            {},
+            {"adapter_mode": "active"},
+            merge_size=None,
+            adapter_mode="bypass",
+        ):
+            assert trainer._PLAIN_LORA_BYPASS.get() is True
+    with pytest.raises(ValueError, match="unknown adapter_type"):
+        trainer.adapter_scope_for_sample(
+            "made_up", {}, {"adapter_mode": "bypass"}, merge_size=None
+        )
+    with pytest.raises(ValueError, match="unknown adapter_mode"):
+        trainer.adapter_scope_for_sample(
+            "full_policy_lora", {}, {"adapter_mode": "mystery"}, merge_size=None
+        )
+
+
+def test_active_scope_pins_bypass_off_even_when_nested() -> None:
+    # 外层 bypass 不得泄漏进 active 前向 —— active 是显式 False,不是"不设置"。
+    with trainer.plain_lora_bypass_scope(True):
+        with trainer.adapter_scope_for_sample(
+            "ungated_kv_lora", {}, {"adapter_mode": "active"}, merge_size=None
+        ):
+            assert trainer._PLAIN_LORA_BYPASS.get() is False
+        assert trainer._PLAIN_LORA_BYPASS.get() is True
+
+
+def test_sparse_supported_adapter_types_are_the_ablation_rows() -> None:
+    assert trainer.SPARSE_SUPPORTED_ADAPTER_TYPES == (
+        "history_gated_kv",
+        "full_policy_lora",
+        "ungated_kv_lora",
+    )
+
+
 def test_did_loss_reports_sa_minus_wa_on_a_desktop_group(tmp_path) -> None:
     samples, group = as_group(corpus_rows(tmp_path, split="train"))
     recorder = _Recorder(
