@@ -385,6 +385,9 @@ DESKTOP_CONFIG_NAMES = (
     "causalcache_desktop_did_hgkv_v1.json",
     "causalcache_desktop_did_ungated_kv_v1.json",
     "causalcache_desktop_did_full_lora_v1.json",
+    "causalcache_desktop_did_hgkv_v3.json",
+    "causalcache_desktop_did_ungated_kv_v3.json",
+    "causalcache_desktop_did_full_lora_v3.json",
 )
 
 
@@ -410,12 +413,18 @@ def test_desktop_training_config_passes_all_startup_validators(name) -> None:
         args=argparse.Namespace(max_steps=0, checkpoint_every_steps=0),
         objective_kind=kind,
     )
-    assert controls == {"max_steps": 150, "checkpoint_every_steps": 25}
+    expected = (
+        {"max_steps": 300, "checkpoint_every_steps": 50}
+        if name.endswith("_v3.json")
+        else {"max_steps": 150, "checkpoint_every_steps": 25}
+    )
+    assert controls == expected
     # 桌面语料没有 label_class 字段,config 不得声明 train_on_label_classes
     assert trainer.resolve_train_on_label_classes(config) is None
 
 
-def test_desktop_training_configs_share_the_frozen_protocol() -> None:
+@pytest.mark.parametrize("suffix", ["_v1.json", "_v3.json"])
+def test_desktop_training_configs_share_the_frozen_protocol(suffix) -> None:
     import json as json_module
     from pathlib import Path
 
@@ -423,7 +432,9 @@ def test_desktop_training_configs_share_the_frozen_protocol() -> None:
     configs = [
         json_module.loads((root / name).read_text(encoding="utf-8"))
         for name in DESKTOP_CONFIG_NAMES
+        if name.endswith(suffix)
     ]
+    assert len(configs) == 3
     first = configs[0]
     for other in configs[1:]:
         # §7:同一 split、同一训练组、同 visual tokens、相同 steps 与 cadence
