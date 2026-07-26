@@ -1,0 +1,126 @@
+{
+  "schema_version": "causalcache.mobileworld.b0_b4_run_provenance.v1",
+  "status": "COMPLETE_STRICT_117_WITH_MISSING_AS_ZERO",
+  "scientific_contract": {
+    "execution_git_revision": "0efc728c8a8eb576d0ba0994600532119b0ef4e3",
+    "config": "code/configs/causalcache_mobileworld_memory_b0_v1.json",
+    "config_sha256": "4477d90b11cf57eb0828fc29f09222f1703dee77d70321e4842877c6c0f13b0b",
+    "roster_count": 117,
+    "memory_arm": "recent",
+    "memory_budget": 0,
+    "max_round": 50,
+    "auto_retry": 2,
+    "pass_k": 1,
+    "decoding": {
+      "do_sample": false,
+      "max_new_tokens": 256,
+      "num_beams": 1
+    }
+  },
+  "b0_execution": {
+    "campaign_started_at": "2026-07-26T17:18:35.713403+00:00",
+    "campaign_finished_at": "2026-07-26T19:22:32.185983+00:00",
+    "makespan_seconds": 7436.47258,
+    "topology": "2 policy services x 8 emulator containers",
+    "shards": [
+      {
+        "name": "shard-a",
+        "planned_tasks": 59,
+        "observed_results": 48,
+        "missing": 11,
+        "successes": 14,
+        "elapsed_seconds": 7137.955147,
+        "started_at": "2026-07-26T17:18:35.713403+00:00",
+        "finished_at": "2026-07-26T19:17:35.050577+00:00",
+        "policy_audited_prompts": 2765,
+        "policy_requests": 2732,
+        "policy_failures": 33,
+        "maximum_history_images": 0,
+        "execution_record": "/mnt/data6/jiaxuanluo/runs/mw-memory-b0-strict117-v2/shard-a/execution-record.json"
+      },
+      {
+        "name": "shard-b",
+        "planned_tasks": 58,
+        "observed_results": 46,
+        "missing": 12,
+        "successes": 3,
+        "elapsed_seconds": 7028.120905,
+        "started_at": "2026-07-26T17:25:22.322041+00:00",
+        "finished_at": "2026-07-26T19:22:32.185983+00:00",
+        "policy_audited_prompts": 2690,
+        "policy_requests": 2649,
+        "policy_failures": 41,
+        "maximum_history_images": 0,
+        "execution_record": "/mnt/data6/jiaxuanluo/runs/mw-memory-b0-strict117-v2/shard-b/execution-record.json"
+      }
+    ],
+    "aggregate": {
+      "planned_tasks": 117,
+      "observed_results": 94,
+      "missing": 23,
+      "successes": 17,
+      "policy_audited_prompts": 5455,
+      "policy_requests": 5381,
+      "policy_failures": 74,
+      "maximum_history_images": 0,
+      "history_guard_failures": 0
+    },
+    "policy_failure_classification": {
+      "coordinate_out_of_range": 60,
+      "coordinate2_out_of_range": 8,
+      "unicode_nfkc": 3,
+      "unsupported_input_text": 2,
+      "noncanonical_action": 1
+    }
+  },
+  "frozen_runtime": {
+    "host": "Aries",
+    "gpus": [
+      "NVIDIA RTX A6000 GPU 0",
+      "NVIDIA RTX A6000 GPU 1"
+    ],
+    "mobileworld_revision": "8ae506487bf87785292d6cad101c49955d704d39",
+    "environment_image": "ghcr.io/tongyi-mai/mobile_world@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240",
+    "model": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "model_snapshot_manifest_sha256": "50b675ec7d1ad878ebdefd74320dbe2c703fd8a87e48a64a3d69c54f9e87cbc3",
+    "pytorch": "2.11.0+cu130",
+    "transformers": "5.6.0",
+    "dtype": "torch.bfloat16",
+    "visual_tokens_per_image": 2560,
+    "canonical_container_id": "a19c2f3fe61fe6b1df997652d6d0299684a08190907d296877e2c79e1684a5f3",
+    "canonical_container_image_id": "sha256:81b5df988b3c1212fbe9c22e22382ff2691556533630428a5142d573f2768d21",
+    "canonical_container_image": "jaxanluo/sglang-omni:dev",
+    "canonical_container_repo_digest": "hongccc/sglang-omni@sha256:6a8f602dcad3f56e5d3b289543237d07237b7f50f40718d50d18758eb77aacfa"
+  },
+  "reduction": {
+    "git_revision": "16a27e7348e7f64056bf9f0e031af2ff2cfcc802",
+    "bootstrap_seed": 20260726,
+    "bootstrap_iterations": 20000,
+    "summary_sha256": "39ff776b745a288cbb22a382e9efd5be22bcf292b3963a17ce8aa3f4ec50de5d"
+  },
+  "artifacts": {
+    "git_summary": "data/results/mobileworld_frozen_gui_owl_b0_b4_v1/summary.json",
+    "raw_b0_root": "/mnt/data6/jiaxuanluo/runs/mw-memory-b0-strict117-v2",
+    "raw_b4_roots": [
+      "/mnt/data6/jiaxuanluo/runs/mw-memory-v1/full-pinned/trajectories",
+      "/mnt/data6/jiaxuanluo/runs/mw-memory-v1/full-resume-gpu0/trajectories",
+      "/mnt/data6/jiaxuanluo/runs/mw-memory-v1/full-resume-gpu1/trajectories"
+    ],
+    "raw_trace_status": "LOCAL_PRIVATE_RAW_TRACE"
+  },
+  "cleanup": {
+    "exact_manifest_emulator_containers_removed": 16,
+    "policy_processes_stopped": 2,
+    "nested_dockerd_stopped": true,
+    "canonical_container_preserved": true,
+    "final_gpu_memory_mib": [
+      5,
+      5
+    ],
+    "final_gpu_utilization_percent": [
+      0,
+      0
+    ]
+  }
+}

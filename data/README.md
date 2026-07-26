@@ -12,7 +12,10 @@ benchmark outcome。
 MobileWorld frozen GUI-Owl campaign 的 Git-safe 结果位于
 [`results/mobileworld_frozen_gui_owl_benchmark_v1/`](results/mobileworld_frozen_gui_owl_benchmark_v1/)：
 真实 makespan `6:21:03.108`，114/117 有结果、27 success，3 个 task 在冻结三次尝试后仍
-policy-invalid missing。raw trajectories 只保留在 Aries persistent storage。
+policy-invalid missing。配对 B0 对照及零历史图在线审计位于
+[`results/mobileworld_frozen_gui_owl_b0_b4_v1/`](results/mobileworld_frozen_gui_owl_b0_b4_v1/)：
+strict B0/B4=`17/117` / `27/117`，B0−B4=`-8.55 pp`，95% CI
+`[-15.38,-1.71] pp`。raw trajectories 只保留在 Aries persistent storage。
 
 ```text
 data/

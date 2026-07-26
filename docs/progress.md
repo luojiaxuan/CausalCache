@@ -21,7 +21,7 @@
 - 临时容器 `sglang-omni-jaxan-2` 已删;两台机器 GPU 已空,checkpoint/语料
   `PENDING_HF_UPLOAD`。
 
-## 2026-07-26:MobileWorld frozen GUI-Owl B0 对照冻结
+## 2026-07-26:MobileWorld frozen GUI-Owl B0/B4 配对正式收官
 
 - 目标是给已有 B4 strict-117 结果提供同栈配对证据；唯一科学变量为
   `memory_budget: 4 → 0`，model revision、MobileWorld revision/image、roster、
@@ -35,10 +35,23 @@
   `maximum_history_images`。任何 prompt 出现历史图都会使请求失败而不是静默继续。
 - 启动前 focused regression=`7 passed`。冻结 shards 见
   [`data/manifests/mobileworld_b0_strict117_shards_v1/`](../data/manifests/mobileworld_b0_strict117_shards_v1/)；
-  raw traces 将写 Aries persistent storage，结束后只回写 task-level paired
-  B0/B4、strict score、discordant wins/losses、置信区间和完整 provenance。归约由
+  raw traces 写入 Aries persistent storage。归约由
   `code/scripts/reduce_mobileworld_b0_b4.py` 固定执行，同时报告 observed intersection
   与 strict-117 missing-as-zero；含 focused regression 共 `9 passed`。
+- 正式结果：B0 observed=`17/94=0.180851`、strict=`17/117=0.145299`、missing=23；
+  B4 observed=`27/114=0.236842`、strict=`27/117=0.230769`、missing=3。strict
+  配对 `B0−B4=-8.55 pp`，20k bootstrap 95% CI `[-15.38,-1.71] pp`，
+  4 个 B0-only / 14 个 B4-only，exact McNemar `p=0.030884`。共同 observed
+  93-task 敏感性分析方向相同（17 vs 25、-8.60 pp），但 `p=0.076813`。
+- 5,455 个 audited prompts 的实际 `maximum_history_images=0`；74 个 policy
+  failures 均为 official-tool action parse/normalization failure，history guard failure=0。
+  cross-app memory candidates 为 B0/B4=2/6、0 个 B0-only / 4 个 B4-only。
+- 两张 A6000 × 各 8 env 的真实 makespan=`2:03:56.473`。B4 旧 campaign 先单卡后双卡，
+  因此不把 wall-time 比值解释为 budget 的因果速度效应。结果、provenance 与 raw-trace
+  边界见
+  [`data/results/mobileworld_frozen_gui_owl_b0_b4_v1/`](../data/results/mobileworld_frozen_gui_owl_b0_b4_v1/README.md)。
+  16 个 emulator containers、2 个 policy processes 与 nested dockerd 已精确清理；
+  canonical container 保留，Aries GPU 0/1 回到 5 MiB、0% utilization。
 
 ## 2026-07-26(夜):Desktop DiD 三臂 policy training 发射(Stage B)
 
