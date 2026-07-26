@@ -182,6 +182,17 @@ def reduce(
 
     b4_scores = _read_scores(b4_roots, roster)
     b0_scores = _read_scores(b0_roots, roster)
+    split_tasks = {
+        split: [
+            task
+            for task in roster
+            if records[task]["memory_split"] == split
+        ]
+        for split in (
+            "cross_app_memory_candidate",
+            "single_app_control",
+        )
+    }
     task_rows = [
         {
             "task": task,
@@ -230,6 +241,17 @@ def reduce(
                 iterations=iterations,
                 seed=seed,
             ),
+            "strict_by_split": {
+                split: _paired_comparison(
+                    tasks,
+                    b4_scores,
+                    b0_scores,
+                    missing_as_zero=True,
+                    iterations=iterations,
+                    seed=seed,
+                )
+                for split, tasks in split_tasks.items()
+            },
         },
         "tasks": task_rows,
     }
