@@ -10,7 +10,7 @@ from causalcache.osworld_v2 import (
     OSWORLD_V2_RELEASE,
     load_osworld_v2_memory_plan,
 )
-from scripts.run_osworld_v2_gui_owl import _logical_shard
+from scripts.run_osworld_v2_gui_owl import _logical_shard, _task_selection
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -99,3 +99,27 @@ def test_osworld_v2_logical_shard_rejects_invalid_identity() -> None:
         _logical_shard(["001"], shard_count=0, shard_index=0)
     with pytest.raises(ValueError, match="index must be within"):
         _logical_shard(["001"], shard_count=2, shard_index=2)
+
+
+def test_osworld_v2_explicit_recovery_selection_is_auditable() -> None:
+    task_ids = [f"{index:03d}" for index in range(1, 109)]
+    assert _task_selection(
+        task_ids,
+        shard_count=1,
+        shard_index=0,
+        explicit_task_ids=["021", "033"],
+    ) == ["021", "033"]
+    with pytest.raises(ValueError, match="cannot be combined"):
+        _task_selection(
+            task_ids,
+            shard_count=2,
+            shard_index=0,
+            explicit_task_ids=["021"],
+        )
+    with pytest.raises(ValueError, match="outside split"):
+        _task_selection(
+            task_ids,
+            shard_count=1,
+            shard_index=0,
+            explicit_task_ids=["999"],
+        )

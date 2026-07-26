@@ -118,6 +118,29 @@ def _logical_shard(
     return task_ids[shard_index::shard_count]
 
 
+def _task_selection(
+    task_ids: list[str],
+    *,
+    shard_count: int,
+    shard_index: int,
+    explicit_task_ids: list[str] | None,
+) -> list[str]:
+    if explicit_task_ids is None:
+        return _logical_shard(
+            task_ids,
+            shard_count=shard_count,
+            shard_index=shard_index,
+        )
+    if shard_count != 1 or shard_index != 0:
+        raise ValueError("explicit OSWorld 2.0 task ids cannot be combined with shards")
+    if len(explicit_task_ids) != len(set(explicit_task_ids)):
+        raise ValueError("explicit OSWorld 2.0 task ids must be unique")
+    unknown = sorted(set(explicit_task_ids) - set(task_ids))
+    if unknown:
+        raise ValueError(f"explicit OSWorld 2.0 task ids are outside split: {unknown}")
+    return list(explicit_task_ids)
+
+
 def _runtime_identity() -> dict[str, Any]:
     versions = {}
     for package in ("gymnasium", "torch", "transformers"):
@@ -317,6 +340,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--split", choices=("full", "memory_core", "memory_stress_union", "non_memory_control"), default="memory_core")
     parser.add_argument("--shard-count", type=int, default=1)
     parser.add_argument("--shard-index", type=int, default=0)
+    parser.add_argument("--task-id", action="append", dest="task_ids")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--num-envs", type=int)
     parser.add_argument("--policy-endpoint", required=True)
@@ -356,10 +380,11 @@ def main() -> None:
         else list(plan["splits"][args.split])
     )
     unsharded_task_count = len(task_ids)
-    task_ids = _logical_shard(
+    task_ids = _task_selection(
         task_ids,
         shard_count=args.shard_count,
         shard_index=args.shard_index,
+        explicit_task_ids=args.task_ids,
     )
     if args.limit is not None:
         if args.limit <= 0:
