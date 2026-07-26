@@ -169,7 +169,12 @@ restoration contract 一致，不能把 B0 解释为完全无文本历史。
 - shared frozen GUI-Owl policy、MobileWorld upstream agent、multi-environment runner：
   已实现；
 - OSWorld 2.0 runner：已实现；gated tasks/assets 权限已批准，固定 release 下载与
-  5-GPU full run 准备中；
+  5-GPU full run 已启动；`max_steps=500` 的首轮吞吐诊断显示冻结 GUI-Owl 在部分任务
+  重复动作，预计整轮需数小时，因此保留该 run root 但不作为正式结果。正式 benchmark
+  使用独立的
+  `code/configs/causalcache_osworld_v2_memory_benchmark_v1.json`：保持 release、模型、
+  prompt、recent-B4、task denominator 与 evaluator 不变，采用本项目既有 OSWorld
+  `max_steps=50` 口径，并用多 policy replica 提高单 GPU 利用率；
 - MobileWorld capacity：1/2/4/8 environments 的 16-task wall time 分别为
   `383.715/192.133/102.320/62.540 s`，8 env 达到 `921.010 tasks/hour`；
 - MobileWorld full campaign：先用 Aries GPU 1 + 8 env 得到 52 个结果，再在 GPU 0

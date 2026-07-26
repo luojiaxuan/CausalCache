@@ -16,6 +16,9 @@ from scripts.run_osworld_v2_gui_owl import _logical_shard
 ROOT = Path(__file__).resolve().parents[2]
 PLAN_PATH = ROOT / "data/manifests/osworld_v2_memory_split_v1.json"
 CONFIG_PATH = ROOT / "code/configs/causalcache_osworld_v2_memory_v1.json"
+BENCHMARK_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_osworld_v2_memory_benchmark_v1.json"
+)
 
 
 def test_osworld_v2_memory_split_is_phenomenon_defined() -> None:
@@ -55,6 +58,18 @@ def test_osworld_v2_config_uses_one_release_bundle() -> None:
     assert config["execution"]["docker_dns_server"] == "127.0.0.11"
     assert config["execution"]["docker_cpu_model"] is None
     assert config["execution"]["docker_port_lock_timeout_seconds"] == 180
+
+
+def test_osworld_v2_fast_benchmark_keeps_scientific_identity() -> None:
+    base = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    benchmark = json.loads(BENCHMARK_CONFIG_PATH.read_text(encoding="utf-8"))
+    assert benchmark["release"] == base["release"]
+    assert benchmark["policy"] == base["policy"]
+    assert benchmark["execution"]["max_steps"] == 50
+    assert benchmark["execution"]["num_envs"] == 2
+    assert benchmark["execution"]["result_root"].endswith(
+        "osworld-v2-memory-benchmark-v1"
+    )
 
 
 def test_osworld_v2_plan_loader_rejects_release_drift(tmp_path: Path) -> None:
