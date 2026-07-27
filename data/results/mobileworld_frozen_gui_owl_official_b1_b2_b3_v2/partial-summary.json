@@ -1,0 +1,51 @@
+{
+  "arms": {
+    "b1": {
+      "denominator": 117,
+      "maximum_history_images": 1,
+      "missing_tasks": [],
+      "observed_results": 117,
+      "parse_failures_recovered_as_wait": 46,
+      "policy_failures": 0,
+      "status": "COMPLETE",
+      "strict_rate": 0.26495726495726496,
+      "strict_successes": 31
+    },
+    "b2": {
+      "denominator": 117,
+      "maximum_history_images": 2,
+      "missing_tasks": [],
+      "observed_results": 117,
+      "parse_failures_recovered_as_wait": 1,
+      "policy_failures": 0,
+      "status": "COMPLETE_AFTER_INFRA_REPAIR",
+      "strict_rate": 0.26495726495726496,
+      "strict_successes": 31
+    },
+    "b3": {
+      "completed_result_files": 37,
+      "denominator": 117,
+      "maximum_history_images": 3,
+      "parse_failures_at_observation": 0,
+      "policy_failures_at_observation": 0,
+      "shards": {
+        "shard0": {
+          "completed_result_files": 19,
+          "task_count": 59
+        },
+        "shard1": {
+          "completed_result_files": 18,
+          "task_count": 58
+        }
+      },
+      "status": "RUNNING"
+    }
+  },
+  "execution_revision": "7ff6cad806ab9c36bd2fc9b8b9d8fff5fdf1ed57",
+  "mobileworld_revision": "8ae506487bf87785292d6cad101c49955d704d39",
+  "observed_at": "2026-07-27T17:54:03.895985+00:00",
+  "run_root": "/data/runs/mw-official-b123-sequential-v2-7ff6cad",
+  "schema_version": "causalcache.mobileworld.budget_curve_partial.v1",
+  "status": "B1_B2_COMPLETE_B3_RUNNING"
+}
+

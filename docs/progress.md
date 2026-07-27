@@ -2,7 +2,7 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
-## 2026-07-27:MobileWorld B1/B2/B3 official-faithful dose campaign 冻结
+## 2026-07-27:MobileWorld B1/B2 完成，B3 official-faithful dose campaign 运行中
 
 - 用户在 B0/B4 v2 收官后要求补跑 Recent-B1/B2/B3。三臂继续使用相同 frozen
   GUI-Owl、MobileWorld revision、117 roster、59/58 shards、50-step/retry、
@@ -17,6 +17,27 @@
   B2 完整归约后才启动 B3；不同 memory arm 不并行。共同 upstream
   Mattermost evaluator failure 按既有 frozen strict-117 missing-as-zero 处理，
   不修改 upstream 或分母。
+- **B1 正式结果：31/117=26.50%。** 117/117 task results、policy failures=0、
+  maximum history=1；46 次 frozen-policy malformed action 按冻结
+  `unknown_wait_step` 映射为 wait，没有据此重跑。
+- **B2 正式结果：31/117=26.50%。** 两个 primary shards 初始为 116/117，
+  `MattermostIncidentEscalationTask` 因 emulator initialization failure 缺失；
+  相同 B2 scientific config 在健康 fleet member 上做一次定点 repair，得
+  `score=1.0`，最终 union=117/117。policy failures=0、parse→wait=1、
+  maximum history=2。
+- B3 于 `2026-07-27T16:20:38Z` 在 Aries canonical container
+  `sglang-omni-jaxan` 的 GPU0+1 启动，59/58 shards、8 env/shard；截至
+  `2026-07-27T17:54:03Z` 已落盘 `19+18=37` 个 result files，policy
+  failures/parse failures=0/0、maximum history=3。该 37 只是运行进度，不是
+  success 数。container run root 为
+  `/data/runs/mw-official-b123-sequential-v2-7ff6cad`，Aries host persistent
+  root 为
+  `/mnt/data6/jiaxuanluo/runs/mw-official-b123-sequential-v2-7ff6cad`。
+  高频 heartbeat scheduler 已按用户要求删除，远端既有 B3 runner/policy 继续。
+- 中间轻量结果与 provenance 已进入
+  [`data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/`](../data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/README.md)；
+  raw trajectories 保持 `LOCAL_PRIVATE_RAW_TRACE`。B3 完成后再统一生成最终
+  B0–B4 budget curve、相对 B0/相邻预算的 paired CI/McNemar 与 task-level matrix。
 
 ## 2026-07-27:MobileWorld official-faithful B0/B4 v2 收官
 

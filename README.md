@@ -55,6 +55,15 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 > images 为 B0=0 / B4=4。结果、完整 provenance 与 wall time 见
 > [`data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/`](data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/README.md)。
 >
+> **2026-07-27 MobileWorld official-faithful B1/B2 完成，B3 仍在 Aries 运行。**
+> frozen GUI-Owl strict-117：Recent-B1=`31/117=26.50%`，
+> Recent-B2=`31/117=26.50%`；两臂 policy failures=0，实际 maximum history
+> images=1/2。B1/B2 的 parse→wait 分别为 46/1，均保留为冻结 policy 行为。
+> B3 使用相同协议在 Aries `sglang-omni-jaxan` GPU0+1 上继续运行，run root 为
+> `/data/runs/mw-official-b123-sequential-v2-7ff6cad`；高频 heartbeat scheduler
+> 已删除，不影响远端既有 runner/policy。当前轻量结果、provenance 与运行态边界见
+> [`data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/`](data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/README.md)。
+>
 > **2026-07-27 Desktop DiD 三臂正式结果:HGKV 通过全部预注册 gate。**
 > 969 组桌面语料(AgentNet Ubuntu 6,003 决策点 → target-action-recurrence,
 > train/dev/test=773/94/102)、`did_ra_aware` DiD 目标、三行同协议 150 步。
@@ -300,7 +309,7 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 | Desktop DiD 语料 v1(969 组) | Hyper01 `/data04/jaxan/mw/desktop-did-corpus-v1/`;hyper00 镜像(引用图片子集 2,754 张);manifest 与 parity/机械审计报告入 Git `data/manifests/desktop_did_corpus_v1_*` | `samples.jsonl` SHA `2ef47af4…b71c1f`;intended `gavinlaw/causalcache-desktop-memory-training`,`PENDING_HF_UPLOAD` |
 | Desktop-trained adapters(三行 × 各 10 checkpoint) | hyper01 `/data04/jaxan/mw/runs/desktop-did-v1/{hgkv,ungated_kv}/`;hyper00 `/data02/jaxan/runs/desktop-did-v1/full_lora/`;dev 分数缓存同级 `devscore-*` | intended `gavinlaw/causalcache-gui-owl-desktop-memory-adapters`,`PENDING_HF_UPLOAD` |
 | Desktop memory training 交接与执行记录 | [`docs/desktop_memory_training_handoff_v1.md`](docs/desktop_memory_training_handoff_v1.md);发射/收官记录见 [`docs/progress.md`](docs/progress.md) 2026-07-26/27 条目 | Stage A/B 已完成;Stage C(selector)待 s150 冻结 |
-| MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`official-faithful MobileWorld B0/B4 v2`](data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/README.md)；[`invalid MobileWorld B4 v1`](data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)；[`invalid MobileWorld B0/B4 v1`](data/results/mobileworld_frozen_gui_owl_b0_b4_v1/README.md)；[`OSWorld 2.0 result`](data/results/osworld_v2_frozen_gui_owl_benchmark_v1/README.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；[`initial 5-GPU plan`](data/manifests/osworld_v2_gpu_shards_v1.json)；分支 `luojiaxuan/mobileworld-memory-osworld2` | MobileWorld v2：B0=28.21%、B4=29.91%、配对 +1.71 pp（CI 跨 0）；v1=`INVALID_PROTOCOL_MISMATCH`；OSWorld 2.0 full-108 corrected wall=46:31.472、strict mean=0.006692 |
+| MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`official-faithful MobileWorld B0/B4 v2`](data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/README.md)；[`official-faithful MobileWorld B1/B2 + running B3 v2`](data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/README.md)；[`invalid MobileWorld B4 v1`](data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)；[`invalid MobileWorld B0/B4 v1`](data/results/mobileworld_frozen_gui_owl_b0_b4_v1/README.md)；[`OSWorld 2.0 result`](data/results/osworld_v2_frozen_gui_owl_benchmark_v1/README.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；[`initial 5-GPU plan`](data/manifests/osworld_v2_gpu_shards_v1.json)；分支 `luojiaxuan/mobileworld-memory-osworld2` | MobileWorld v2：B0=28.21%、B1=26.50%、B2=26.50%、B3=`RUNNING`、B4=29.91%；B4−B0=+1.71 pp（CI 跨 0）；v1=`INVALID_PROTOCOL_MISMATCH`；OSWorld 2.0 full-108 corrected wall=46:31.472、strict mean=0.006692 |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | History-gated adapter hg-s100 | hyper00 `/data02/jaxan/runs/hgkv-formal-v1/lora-step100.pt`(sha256 前缀 `8f2cc49e1aa0b06c`);副本 hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`;config [`code/configs/causalcache_history_gated_kv_v1.json`](code/configs/causalcache_history_gated_kv_v1.json) | gate PASS(s100 冻结);`PENDING_HF_UPLOAD` |
 | hgkv gate v1 认证 | [`data/results/hgkv_gate_v1/`](data/results/hgkv_gate_v1/README.md);原始行 hyper01 `/data02/jaxan/runs/hgkv-eval/cert/`(s100/frozen 各 5,738 行 jsonl) | 判定表入 Git;逐行 jsonl `PENDING_HF_UPLOAD` |
