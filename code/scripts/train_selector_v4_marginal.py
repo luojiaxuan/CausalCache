@@ -203,7 +203,6 @@ def main() -> None:
     }))
 
     dup_cache = {dp: base.get("duplicates", {}) for dp, base in b0.items()}
-    expected_dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES) + intent_dims
 
     intent_map: dict[tuple[str, int], list[float]] = {}
     intent_dims = 0
@@ -219,6 +218,7 @@ def main() -> None:
 
     _FEAT_CTX.update({"records": records, "b0": b0, "dup": dup_cache,
                        "intent": intent_map, "intent_dims": intent_dims})
+    expected_dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES) + intent_dims
 
     feats = None
     if args.feature_cache is not None and args.feature_cache.exists():

@@ -381,10 +381,20 @@ significant $+0.016$ $[+0.003,+0.030]$ over Recent-$2$ but drops the
 primary $B{=}4$ contrast from $+0.011$ $[+0.001,+0.021]$ to $+0.009$
 $[-0.002,+0.020]$, no longer significant, while more than tripling
 full-replacement allocations ($k{=}4$: $11\%\to34\%$)---without intent the
-selector cannot tell which archived frame matters and over-replaces. A
-single-pass selector that reads intent from the instruction text and
-trajectory progress, rather than from a tentative action, is the natural
-next iteration; at $B{=}2$ the single-pass variant is already deployable.
+selector cannot tell which archived frame matters and over-replaces. We
+also tested the natural single-pass rescue: eight engineered features that
+read intent from the instruction text and trajectory progress (frozen
+input-embedding cosines between the instruction, each candidate's action
+line, and recent behavior) rather than from a tentative action. These
+features repair the over-replacement pathology ($k{=}4$ falls back to
+$12\%$) and retain a significant $B{=}2$ contrast
+($+0.015$ $[+0.000,+0.030]$), but the primary $B{=}4$ contrast stays
+non-significant ($+0.005$ $[-0.007,+0.016]$): knowing \emph{what the task
+wants} is not enough at larger budgets---the selector must know \emph{what
+the policy is about to do}, which only the proposal pass provides. This
+dissociation is itself evidence for the witness mechanism, and fixes
+propose-then-select as the deployment path at $B{=}4$ while licensing
+single-pass deployment at $B{=}2$.
 
 \section{Experimental Setup}
 

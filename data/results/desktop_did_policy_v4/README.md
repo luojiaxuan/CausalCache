@@ -209,3 +209,45 @@ mw-hgkv-sel-b4-v1:16 env × 4 shard × 4 个 selector-enabled HGKV 副本
 memory_arm=full 全池随请求)。首批请求 0 失败。分支
 jaxan/mobileworld-hgkv-arm @b4c38c6(gap-fold/特征/serve 两遍/runner 白名单
 全有单测或编译检查)。结果将与冻结 B0/B4、HGKV-recent-B4(34/117)三方配对。
+
+### selected-B4 r1 结果(2026-07-27,117/117 全分母)
+
+**HGKV+selected-B4:39/117 = 33.33%** — 当前所有臂最高。配对检验
+(逐任务,missing 记 0;bootstrap 10k + exact McNemar;冻结臂 per-task 取自
+Aries `mw-official-sequential-v2-71caac9`,复算冻结 B4−B0 = +1.71pp
+CI[−5.98,+9.40] p=0.824 与提交口径逐位一致):
+
+| 对比 | Δ | 95% CI | 不一致 | McNemar p |
+|---|---|---|---|---|
+| selected-B4 vs 冻结 B0 | **+5.13pp** | [−2.56, +12.82] | 14:8 | 0.286 |
+| selected-B4 vs 冻结 recent-B4 | +3.42pp | [−4.27, +11.11] | 12:8 | 0.503 |
+| HGKV-recent-B4 vs 冻结 B0(参照) | +0.85pp | — | 6:7→p=1.0 | 1.0 |
+
+方向正确但单轮 n=117 统计功效不足(+5pp 效应需 ~3× 判别对)。**加轮方案
+(执行中)**:selected-B4 r2(hyper01,复用 fleet+servers)→ r3;冻结 B0
+r2+r3(hyper00 新 16-emu fleet 拆两半并行,8×143GB GPU 各 4 replica);
+Taurus 另跑 frozen+selected-B4(selector-only 消融行,16 emu × 8 GPU)。
+终态每臂 3 轮,按任务聚类 bootstrap 求配对均值差 CI。
+per-task 明细:`data/results/mobileworld_hgkv_selected_b4/per_task_success_r1.json`。
+
+## Intent-selector v2 单遍判定(Line B,已裁决:不达标)
+
+预注册判定:witness 清零(单遍部署口径)+ 8 维 instruction-conditioned
+intent 特征后,B=4 的 selector−Recent episode-cluster CI 是否离开零。
+8 卡分片 eval(`--shard-count 8` + merge,与单进程同一 CI 实现)结果:
+
+| 口径 | B=2 | B=4 | B=4 k-dist 病理 |
+|---|---|---|---|
+| 两遍(witness 在线,主部署) | +0.0250 sig | **+0.0108 sig** | k=4 占 11% 正常 |
+| 单遍 witness 清零(nowitness) | +0.0161 sig | +0.0086 CI 跨零 | k=4 暴涨至 34% |
+| 单遍 + intent v2(本判定) | +0.0149 CI[+0.0001,+0.0297] | **+0.0046 CI[−0.0071,+0.0164] 跨零** | k=4 回落至 12% |
+
+**结论:intent 特征修复了单遍的过度替换病理(k 分布回归正常)但救不回
+B=4 显著性 → 两遍 propose-then-select 保持为 B=4 部署主路径;B=2 单遍可用。**
+训练侧 intent 臂 dev_top1_regret 0.0901(cheap 0.0939 / readout 0.0849 之间)。
+文件:`filltob_intent_singlepass.json`、`arm_intent_report.json`(本目录);
+生产脚本 `extract_selector_v4_intent_features.py`、分片 eval
+`eval_selector_v4_fill_to_b.py --shard-index/--shard-count` +
+`merge_selector_v4_filltob_shards.py`。曾踩坑:链脚本 `set -e` 与
+`grep && exit 1` 组合在 grep 无匹配时误杀自身;trainer `intent_dims`
+先用后赋(已修)。

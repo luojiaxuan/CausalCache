@@ -83,6 +83,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--bootstrap", type=int, default=2000)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--limit-states", type=int, default=0)
+    # note (luojiaxuan): GPU 并发分片。dev 态按 index 取模切分,每片独立 true-score
+    # cache 与输出;shard_count>1 时输出附带 raw 明细,由 merge 脚本汇总后再算
+    # episode-cluster CI(单片内的 CI 只是参考值,不作判定)。
+    parser.add_argument("--shard-index", type=int, default=0)
+    parser.add_argument("--shard-count", type=int, default=1)
     return parser.parse_args()
 
 
@@ -305,6 +310,8 @@ def main() -> None:
     ]
     if args.limit_states:
         dev_states = dev_states[: args.limit_states]
+    if args.shard_count > 1:
+        dev_states = dev_states[args.shard_index::args.shard_count]
 
     per_b = {b: defaultdict(list) for b in args.b_values}
     per_b_oracle = {b: defaultdict(list) for b in args.b_values}
@@ -424,6 +431,16 @@ def main() -> None:
         "skipped": dict(sorted(skipped.items())),
         "fresh_true_scores": scored_fresh,
     }
+    if args.shard_count > 1:
+        result["shard_index"] = args.shard_index
+        result["shard_count"] = args.shard_count
+        result["raw"] = {
+            "per_b": {str(b): {ep: vals for ep, vals in per_b[b].items()}
+                      for b in args.b_values},
+            "per_b_oracle": {str(b): {ep: vals for ep, vals in per_b_oracle[b].items()}
+                             for b in args.b_values},
+            "k_dist": {str(b): dict(k_dist[b]) for b in args.b_values},
+        }
     for b in args.b_values:
         result[f"b{b}"] = {
             "selector_minus_recent": cluster_ci(
