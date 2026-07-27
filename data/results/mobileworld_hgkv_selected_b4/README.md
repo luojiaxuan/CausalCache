@@ -13,7 +13,15 @@ mobile_agent_v3_5 官方忠实;分母 117(frozen_gui_owl_gui_only);config
 |---|---|---|---|---|
 | r1 | hyper01 | 16 emu × 4 shard × 4 GPU | 完成 2026-07-27 | **39/117 = 33.33%** |
 | r2 | hyper01 | 同上(复用 fleet/servers) | 完成 2026-07-28 | **42/117 = 35.90%** |
-| r3(改单遍) | hyper01 | 单遍 last-action 臂 `mw-hgkv-sel1p-b4-v1` | 进行中 | — |
+| 单遍臂 | hyper01 | 单遍 last-action `mw-hgkv-sel1p-b4-v1` | 完成 2026-07-28 | **34/117 = 29.06%** |
+
+### 单遍 vs 两遍(mobile 零样本,2026-07-28)
+
+单遍 sel1p vs 冻结 B0 三轮:+0.85pp CI[−6.55,+7.98](无效);
+单遍 vs 两遍两轮:**−5.56pp CI[−11.11,−0.43](单遍显著更差)**。
+结论:零样本 mobile 上 witness 参照必须用 proposal(两遍);last-action 参照
+只在训练域(desktop)等效。paper 部署叙事改为"域内单遍、跨域两遍"。
+明细:`per_task_success_sel1p.json`。
 
 ### 合并配对(2026-07-28 终版口径)
 
