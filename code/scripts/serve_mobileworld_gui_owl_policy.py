@@ -78,6 +78,11 @@ def main() -> None:
                         default="two_tower")
     parser.add_argument("--selection-budget", type=int, default=4)
     parser.add_argument("--selector-beam", type=int, default=3)
+    # note (luojiaxuan): witness 伪目标来源。proposal = 两遍 propose-then-select
+    # (先按 recent 尾出一遍动作再选);last_action = 单遍——witness 对比上一步
+    # 已执行动作,选完记忆只生成一次(部署主线)。
+    parser.add_argument("--selector-witness", choices=("proposal", "last_action"),
+                        default="proposal")
     args = parser.parse_args()
 
     if not 1024 <= args.port <= 65535:
@@ -190,7 +195,10 @@ def main() -> None:
             "budget": args.selection_budget,
             "beam": args.selector_beam,
             "readout_online": False,
-            "witness_pseudo_target": "pass1_proposal",
+            "witness_pseudo_target": (
+                "pass1_proposal" if args.selector_witness == "proposal"
+                else "last_executed_action"
+            ),
         }
 
     def run_selection(request, proposal_action):
@@ -221,7 +229,11 @@ def main() -> None:
         parsed = parse_history_actions(
             [event["full_response"] for event in history])
         prop = None
-        if proposal_action is not None:
+        if args.selector_witness == "last_action":
+            # note (luojiaxuan): 单遍口径——witness 伪目标 = 上一步已执行动作,
+            # 与候选同 schema(parse_history_actions 输出),无需 proposal pass。
+            prop = parsed[-1] if parsed else None
+        elif proposal_action is not None:
             prop = {
                 "action": proposal_action.action,
                 "coordinate": proposal_action.coordinate,
@@ -271,6 +283,32 @@ def main() -> None:
             if parsed[s - 1] is not None and prop is not None
         )
         return chosen, {"pool": len(pool), "witnesses_scanned": witness_count}
+
+    def gapfold_messages(request, chosen):
+        """按 chosen 集合的 gap-fold prompt(单遍与两遍第二遍共用口径)。"""
+        import base64 as _b64  # noqa: F401 —— _decode_png 的输入已是 bytes 前置解码
+
+        from causalcache.mobileworld import _decode_png
+        from causalcache.mobileworld_gapfold import (
+            build_mobile_official_messages_gapfold,
+        )
+
+        history = request["history"]
+        step_images = {}
+        for event in history:
+            sid = int(event["step_id"])
+            if sid in chosen:
+                step_images[sid] = _decode_png(
+                    event["restored_observation_screenshot_png_base64"])
+        return build_mobile_official_messages_gapfold(
+            goal=request["task"]["instruction"],
+            action_texts=[e["action_text"] for e in history],
+            full_responses=[e["full_response"] for e in history],
+            shown_steps=chosen,
+            step_images=step_images,
+            current_image=_decode_png(
+                request["current_screenshot_png_base64"]),
+        )
 
     def adapter_scope(messages: list[dict[str, Any]], history_image_count: int):
         """HGKV mask scope for one request; nullcontext when adapter off / K=0."""
@@ -345,7 +383,31 @@ def main() -> None:
                 length = int(self.headers.get("Content-Length", "0"))
                 request = json.loads(self.rfile.read(length).decode("utf-8"))
                 selection_info: dict[str, Any] | None = None
-                if selector_model is not None:
+                presel_seconds = 0.0
+                if (selector_model is not None
+                        and args.selector_witness == "last_action"):
+                    # 单遍主线:选记忆在生成之前完成,只生成一次。
+                    presel_started = time.perf_counter()
+                    chosen, diag = run_selection(request, None)
+                    presel_seconds = time.perf_counter() - presel_started
+                    event_ids = [
+                        int(e["step_id"]) for e in request.get("history", [])
+                    ]
+                    tail = event_ids[-args.selection_budget:]
+                    selection_info = {
+                        "passes": 1,
+                        "mode": "last_executed_action",
+                        "recent_tail": tail,
+                        "chosen": chosen,
+                        "diagnostics": diag,
+                    }
+                    if chosen is not None and list(chosen) != list(tail):
+                        messages = gapfold_messages(request, list(chosen))
+                    else:
+                        pass1 = dict(request)
+                        pass1["selected_event_step_ids"] = list(tail)
+                        messages = build_mobileworld_gui_owl_messages(pass1)
+                elif selector_model is not None:
                     event_ids = [
                         int(e["step_id"]) for e in request.get("history", [])
                     ]
@@ -378,9 +440,10 @@ def main() -> None:
                     with adapter_scope(messages, history_image_count):
                         generated = runtime.generate(messages)
                     pass1_seconds = time.perf_counter() - pass1_started
-                    select_seconds = 0.0
+                    select_seconds = presel_seconds
                     pass2_seconds = 0.0
-                    if selector_model is not None:
+                    if (selector_model is not None
+                            and args.selector_witness == "proposal"):
                         select_started = time.perf_counter()
                         chosen, diag = run_selection(
                             request, generated.canonical_action
