@@ -1,0 +1,316 @@
+{
+  "arms": {
+    "b0": {
+      "finished_at": "2026-07-27T03:00:42.742427+00:00",
+      "missing_tasks": [
+        "MattermostReadingGroupTask",
+        "MattermostShiftCoverageTask"
+      ],
+      "observed_rate": 0.28695652173913044,
+      "observed_results": 115,
+      "parse_failures_recovered_as_wait": 13,
+      "policy_failures": 0,
+      "runner_argv": [
+        [
+          "/data/worktrees/mobileworld-official-v2-71caac9/code/scripts/run_mobileworld_gui_owl.py",
+          "--repository-root",
+          "/data/worktrees/mobileworld-official-v2-71caac9",
+          "--mobileworld-root",
+          "/data/upstreams/MobileWorld",
+          "--fleet-manifest",
+          "/data/runs/mw-official-sequential-v2-71caac9/environment-fleet-shard0.json",
+          "--policy-endpoint",
+          "http://127.0.0.1:47237",
+          "--output-root",
+          "/data/runs/mw-official-sequential-v2-71caac9/b0/shard0",
+          "--profile",
+          "full",
+          "--num-envs",
+          "8",
+          "--task-subset",
+          "/data/worktrees/mobileworld-official-v2-71caac9/data/manifests/mobileworld_b0_strict117_shards_v1/shard-0.json",
+          "--config",
+          "code/configs/causalcache_mobileworld_official_b0_v2.json"
+        ],
+        [
+          "/data/worktrees/mobileworld-official-v2-71caac9/code/scripts/run_mobileworld_gui_owl.py",
+          "--repository-root",
+          "/data/worktrees/mobileworld-official-v2-71caac9",
+          "--mobileworld-root",
+          "/data/upstreams/MobileWorld",
+          "--fleet-manifest",
+          "/data/runs/mw-official-sequential-v2-71caac9/environment-fleet-shard1.json",
+          "--policy-endpoint",
+          "http://127.0.0.1:58391",
+          "--output-root",
+          "/data/runs/mw-official-sequential-v2-71caac9/b0/shard1",
+          "--profile",
+          "full",
+          "--num-envs",
+          "8",
+          "--task-subset",
+          "/data/worktrees/mobileworld-official-v2-71caac9/data/manifests/mobileworld_b0_strict117_shards_v1/shard-1.json",
+          "--config",
+          "code/configs/causalcache_mobileworld_official_b0_v2.json"
+        ]
+      ],
+      "started_at": "2026-07-27T00:33:21.645703+00:00",
+      "strict_denominator": 117,
+      "strict_rate": 0.28205128205128205,
+      "strict_successes": 33,
+      "summary_path": "/data/runs/mw-official-sequential-v2-71caac9/b0/strict-summary.json",
+      "summary_sha256": "152bc702b2ed33e814c8b86a4f89334c8748297124920e2a3fab3b5c8ae8d56a",
+      "wall_seconds": 8839.69159207493
+    },
+    "b4": {
+      "finished_at": "2026-07-27T06:48:54.402027+00:00",
+      "missing_tasks": [
+        "MattermostReadingGroupTask",
+        "MattermostShiftCoverageTask"
+      ],
+      "observed_rate": 0.30434782608695654,
+      "observed_results": 115,
+      "parse_failures_recovered_as_wait": 2,
+      "policy_failures": 0,
+      "runner_argv": [
+        [
+          "/data/worktrees/mobileworld-official-v2-71caac9/code/scripts/run_mobileworld_gui_owl.py",
+          "--repository-root",
+          "/data/worktrees/mobileworld-official-v2-71caac9",
+          "--mobileworld-root",
+          "/data/upstreams/MobileWorld",
+          "--fleet-manifest",
+          "/data/runs/mw-official-sequential-v2-71caac9/environment-fleet-shard0.json",
+          "--policy-endpoint",
+          "http://127.0.0.1:47237",
+          "--output-root",
+          "/data/runs/mw-official-sequential-v2-71caac9/b4/shard0",
+          "--profile",
+          "full",
+          "--num-envs",
+          "8",
+          "--task-subset",
+          "/data/worktrees/mobileworld-official-v2-71caac9/data/manifests/mobileworld_b0_strict117_shards_v1/shard-0.json",
+          "--config",
+          "code/configs/causalcache_mobileworld_official_b4_v2.json"
+        ],
+        [
+          "/data/worktrees/mobileworld-official-v2-71caac9/code/scripts/run_mobileworld_gui_owl.py",
+          "--repository-root",
+          "/data/worktrees/mobileworld-official-v2-71caac9",
+          "--mobileworld-root",
+          "/data/upstreams/MobileWorld",
+          "--fleet-manifest",
+          "/data/runs/mw-official-sequential-v2-71caac9/environment-fleet-shard1.json",
+          "--policy-endpoint",
+          "http://127.0.0.1:58391",
+          "--output-root",
+          "/data/runs/mw-official-sequential-v2-71caac9/b4/shard1",
+          "--profile",
+          "full",
+          "--num-envs",
+          "8",
+          "--task-subset",
+          "/data/worktrees/mobileworld-official-v2-71caac9/data/manifests/mobileworld_b0_strict117_shards_v1/shard-1.json",
+          "--config",
+          "code/configs/causalcache_mobileworld_official_b4_v2.json"
+        ]
+      ],
+      "started_at": "2026-07-27T03:30:17.901428+00:00",
+      "strict_denominator": 117,
+      "strict_rate": 0.29914529914529914,
+      "strict_successes": 35,
+      "summary_path": "/data/runs/mw-official-sequential-v2-71caac9/b4/strict-summary.json",
+      "summary_sha256": "6230ca17c4b802e546e55ba069d7551229571cd0d2730709da5d3c2f83ff5e3d",
+      "wall_seconds": 11915.087414057925
+    }
+  },
+  "artifact_policy": {
+    "lightweight_results": "Git canonical after commit/push",
+    "raw_trajectories": "LOCAL_PRIVATE_RAW_TRACE on Aries persistent storage; not committed",
+    "reusable_dataset_or_model_created": false
+  },
+  "canonical_git": {
+    "branch": "luojiaxuan/mobileworld-memory-osworld2",
+    "execution_revision": "71caac97ea0204946462295da0255e46e276c513",
+    "remote": "https://github.com/luojiaxuan/CausalCache.git"
+  },
+  "cleanup": {
+    "canonical_compute_container_preserved": true,
+    "gpu0_after": "0, 5, 0",
+    "gpu1_after": "1, 5, 0",
+    "nested_dockerd_post_sigterm_state": "Z (defunct; service stopped, awaiting PID 1 reap)",
+    "policy_processes_alive_after_cleanup": 0,
+    "record_path": "/data/runs/mw-official-sequential-v2-71caac9/cleanup-record.json",
+    "record_sha256": "6dd3f70c491dd42cc835d3491a74f3702325412b7fd8bf3478a3092ffb4ae6a5",
+    "removed_emulator_containers": 16
+  },
+  "configs": {
+    "b0": {
+      "path": "/data/worktrees/mobileworld-official-v2-71caac9/code/configs/causalcache_mobileworld_official_b0_v2.json",
+      "sha256": "67566f95af88e2c90105352a2a87360b4bbbba3f5527ac255c3c71afa31d8d78"
+    },
+    "b4": {
+      "path": "/data/worktrees/mobileworld-official-v2-71caac9/code/configs/causalcache_mobileworld_official_b4_v2.json",
+      "sha256": "81f0e81503994cbd28fb076aedf022af887c6a156b2e87c00a4cf5b9cb5b1196"
+    }
+  },
+  "created_at": "2026-07-27T07:02:41.328457+00:00",
+  "environment": {
+    "fleet_manifests": [
+      {
+        "container_count": 8,
+        "name_prefix": "sglang-omni-jaxan-q7m2-",
+        "path": "/data/runs/mw-official-sequential-v2-71caac9/environment-fleet-shard0.json",
+        "port_seed_sha256": "d78cbdeee2272723e13ea35813b32e948cca16bfdc37dfab81eb764b13b1c278",
+        "sha256": "d1e3cf228204180a574c1fddcdf1492cbe0e7fdc899d407e5df69e5b101481bb"
+      },
+      {
+        "container_count": 8,
+        "name_prefix": "sglang-omni-jaxan-r9v4-",
+        "path": "/data/runs/mw-official-sequential-v2-71caac9/environment-fleet-shard1.json",
+        "port_seed_sha256": "5f1dff5b8e4f27bb9d7ca148c14ac0d46c20c9898db00cbd5c052037b4659372",
+        "sha256": "7f79da337487055fef7a0fcd62c292719823c3fcb67648bd8251a2bd27378339"
+      }
+    ],
+    "image": "ghcr.io/tongyi-mai/mobile_world@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240",
+    "image_id": "sha256:aa743a95daef5cd25c54fc37626c2521c03b9c9d8d1aac4cc287f3643a3e23f3"
+  },
+  "failure_classification": {
+    "classification": "UPSTREAM_MATTERMOST_INITIALIZATION_RACE_AND_EVALUATOR_FAILURE",
+    "handling": "strict missing-as-zero in both arms; no upstream patch or post-hoc denominator change",
+    "missing_tasks": [
+      "MattermostReadingGroupTask",
+      "MattermostShiftCoverageTask"
+    ]
+  },
+  "headline": {
+    "b0_only": 9,
+    "b4_minus_b0": 0.01709401709401709,
+    "b4_only": 11,
+    "mcnemar_exact_two_sided_p": 0.8238029479980469,
+    "paired_bootstrap_95_ci_b4_minus_b0": [
+      -0.05982905982905983,
+      0.09401709401709402
+    ]
+  },
+  "model": {
+    "dtype": "torch.bfloat16",
+    "model_class": "Qwen3VLForConditionalGeneration",
+    "model_dir": "/data/models/gui-owl-1.5-8b-06d5-verified",
+    "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "processor_class": "Qwen3VLProcessor",
+    "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+    "target_effective_visual_tokens_per_image": 2560,
+    "torch_version": "2.11.0+cu130",
+    "transformers_version": "5.6.0",
+    "verified_model_file_count": 14,
+    "verified_model_total_bytes": 17545907171
+  },
+  "protocol": {
+    "b0": {
+      "last_image": 1,
+      "maximum_history_images_observed": 0,
+      "memory_budget": 0
+    },
+    "b4": {
+      "last_image": 5,
+      "maximum_history_images_observed": 4,
+      "memory_budget": 4
+    },
+    "chat_template_tools_kwarg": false,
+    "history_observation": "pre_action_screenshot",
+    "parse_failure_behavior": "unknown_wait_step",
+    "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful"
+  },
+  "reducer": {
+    "argv": [
+      "python3",
+      "code/scripts/reduce_mobileworld_b0_b4.py",
+      "--repository-root",
+      "/data/worktrees/mobileworld-official-v2-71caac9",
+      "--config",
+      "/data/worktrees/mobileworld-official-v2-71caac9/code/configs/causalcache_mobileworld_official_b4_v2.json",
+      "--b4-trajectories",
+      "/data/runs/mw-official-sequential-v2-71caac9/b4/shard0/trajectories",
+      "/data/runs/mw-official-sequential-v2-71caac9/b4/shard1/trajectories",
+      "--b0-trajectories",
+      "/data/runs/mw-official-sequential-v2-71caac9/b0/shard0/trajectories",
+      "/data/runs/mw-official-sequential-v2-71caac9/b0/shard1/trajectories",
+      "--bootstrap-iterations",
+      "20000",
+      "--seed",
+      "20260726",
+      "--output",
+      "/data/runs/mw-official-sequential-v2-71caac9/paired-result.json"
+    ],
+    "paired_result_path": "/data/runs/mw-official-sequential-v2-71caac9/paired-result.json",
+    "paired_result_sha256": "0aa205785ec32b9fab97dc9993fb5f79071d0a0827da7ac10c7814309a489227",
+    "script": "/data/worktrees/mobileworld-official-v2-71caac9/code/scripts/reduce_mobileworld_b0_b4.py",
+    "script_sha256": "76f63c2a7a2e6d3af2a18e9145c4eda6810667517b44ab742a5d50146034c9dc"
+  },
+  "roster": {
+    "count": 117,
+    "full_roster_sha256": "d11e0d9312b1ed787fef9a954cca748454ce78678423435519df94348df97fce",
+    "intersection_count": 0,
+    "shards": [
+      {
+        "file_sha256": "4f0c63c1ca41ceb3cc3aa962c0d4005ab524e8cecb938323563b349e166fcb31",
+        "path": "/data/worktrees/mobileworld-official-v2-71caac9/data/manifests/mobileworld_b0_strict117_shards_v1/shard-0.json",
+        "task_count": 59,
+        "task_names_sha256": "55328db52445749c6d82aeace264fb8f4f503530ab51dea4d686c9cad95e7206"
+      },
+      {
+        "file_sha256": "8167ff61c862001878e69179479638c5865ff25d4b82a9e7970903ef069d63dd",
+        "path": "/data/worktrees/mobileworld-official-v2-71caac9/data/manifests/mobileworld_b0_strict117_shards_v1/shard-1.json",
+        "task_count": 58,
+        "task_names_sha256": "0f586c2073521c6c55e67f18550a6e8d251a8c8601f2e8ea9207855304d7023a"
+      }
+    ],
+    "union_count": 117
+  },
+  "run_roots": {
+    "aborted_concurrent": "/data/runs/mw-official-v2-71caac9",
+    "aborted_marker": "/data/runs/mw-official-v2-71caac9/ABORTED_BY_USER_SEQUENTIAL_REALLOCATION.json",
+    "aborted_marker_sha256": "13dbf2262d57f04c0c98131f9d3eecf89ec38e9b9680bd630253d154665b5408",
+    "formal_sequential": "/data/runs/mw-official-sequential-v2-71caac9"
+  },
+  "runtime": {
+    "compute_container": {
+      "id": "a19c2aaa5cadd1d2f07de605c6fe0f7e499ebfdba32aa68df9464149d6aed5f3",
+      "image": "jaxanluo/sglang-omni:dev",
+      "image_id": "sha256:81b5df11b32ad8460be270a67066196cb7c6d4fb92cb5d05a44fb06d1ec88d21",
+      "name": "sglang-omni-jaxan"
+    },
+    "host": "Aries",
+    "mobile_world_package": "0.1.0",
+    "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]",
+    "selected_gpus": [
+      {
+        "index": "0",
+        "memory_total_mib": "49140",
+        "name": "NVIDIA RTX A6000",
+        "uuid": "GPU-286cec80-bea7-4803-3d0f-6427216ecf0b"
+      },
+      {
+        "index": "1",
+        "memory_total_mib": "49140",
+        "name": "NVIDIA RTX A6000",
+        "uuid": "GPU-7bf06053-364d-92a4-fdd0-b04b2dd66291"
+      }
+    ]
+  },
+  "schema_version": "causalcache.mobileworld.official_b0_b4_provenance.v2",
+  "status": "COMPLETE_CANONICAL_GIT",
+  "timing": {
+    "cleanup_completed_at": "2026-07-27T07:01:28.435505+00:00",
+    "sequential_scientific_finish": "2026-07-27T06:48:54.402027+00:00",
+    "sequential_scientific_start": "2026-07-27T00:33:21.645703+00:00",
+    "start_to_finish_seconds": 22532.756324
+  },
+  "upstream": {
+    "repository": "https://github.com/Tongyi-MAI/MobileWorld.git",
+    "revision": "8ae506487bf87785292d6cad101c49955d704d39"
+  }
+}

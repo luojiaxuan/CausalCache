@@ -1,0 +1,1133 @@
+{
+  "arms": {
+    "b0": {
+      "by_split": {
+        "cross_app_memory_candidate": {
+          "missing_tasks": [
+            "MattermostReadingGroupTask",
+            "MattermostShiftCoverageTask"
+          ],
+          "observed": {
+            "denominator": 60,
+            "rate": 0.23333333333333334,
+            "successes": 14
+          },
+          "strict_missing_as_zero": {
+            "denominator": 62,
+            "rate": 0.22580645161290322,
+            "successes": 14
+          }
+        },
+        "single_app_control": {
+          "missing_tasks": [],
+          "observed": {
+            "denominator": 55,
+            "rate": 0.34545454545454546,
+            "successes": 19
+          },
+          "strict_missing_as_zero": {
+            "denominator": 55,
+            "rate": 0.34545454545454546,
+            "successes": 19
+          }
+        }
+      },
+      "overall": {
+        "missing_tasks": [
+          "MattermostReadingGroupTask",
+          "MattermostShiftCoverageTask"
+        ],
+        "observed": {
+          "denominator": 115,
+          "rate": 0.28695652173913044,
+          "successes": 33
+        },
+        "strict_missing_as_zero": {
+          "denominator": 117,
+          "rate": 0.28205128205128205,
+          "successes": 33
+        }
+      }
+    },
+    "b4": {
+      "by_split": {
+        "cross_app_memory_candidate": {
+          "missing_tasks": [
+            "MattermostReadingGroupTask",
+            "MattermostShiftCoverageTask"
+          ],
+          "observed": {
+            "denominator": 60,
+            "rate": 0.23333333333333334,
+            "successes": 14
+          },
+          "strict_missing_as_zero": {
+            "denominator": 62,
+            "rate": 0.22580645161290322,
+            "successes": 14
+          }
+        },
+        "single_app_control": {
+          "missing_tasks": [],
+          "observed": {
+            "denominator": 55,
+            "rate": 0.38181818181818183,
+            "successes": 21
+          },
+          "strict_missing_as_zero": {
+            "denominator": 55,
+            "rate": 0.38181818181818183,
+            "successes": 21
+          }
+        }
+      },
+      "overall": {
+        "missing_tasks": [
+          "MattermostReadingGroupTask",
+          "MattermostShiftCoverageTask"
+        ],
+        "observed": {
+          "denominator": 115,
+          "rate": 0.30434782608695654,
+          "successes": 35
+        },
+        "strict_missing_as_zero": {
+          "denominator": 117,
+          "rate": 0.29914529914529914,
+          "successes": 35
+        }
+      }
+    }
+  },
+  "config": {
+    "path": "/data/worktrees/mobileworld-official-v2-71caac9/code/configs/causalcache_mobileworld_official_b4_v2.json",
+    "sha256": "81f0e81503994cbd28fb076aedf022af887c6a156b2e87c00a4cf5b9cb5b1196"
+  },
+  "input_roots": {
+    "b0": [
+      "/data/runs/mw-official-sequential-v2-71caac9/b0/shard0/trajectories",
+      "/data/runs/mw-official-sequential-v2-71caac9/b0/shard1/trajectories"
+    ],
+    "b4": [
+      "/data/runs/mw-official-sequential-v2-71caac9/b4/shard0/trajectories",
+      "/data/runs/mw-official-sequential-v2-71caac9/b4/shard1/trajectories"
+    ]
+  },
+  "memory_plan": {
+    "path": "/data/worktrees/mobileworld-official-v2-71caac9/data/manifests/mobileworld_memory_split_v1.json",
+    "sha256": "ccee1365a8ea2fc48a13e7652614f3a47503c7c88598f3f88d2f5f08df81bb5d"
+  },
+  "paired": {
+    "observed_intersection": {
+      "b0_minus_b4": -0.017391304347826087,
+      "b0_successes": 33,
+      "b4_successes": 35,
+      "bootstrap_iterations": 20000,
+      "denominator": 115,
+      "discordant": {
+        "b0_only": 9,
+        "b4_only": 11
+      },
+      "mcnemar_exact_two_sided_p": 0.8238029479980469,
+      "paired_bootstrap_95_ci": [
+        -0.09565217391304348,
+        0.06086956521739131
+      ],
+      "ties": 95
+    },
+    "strict_117_missing_as_zero": {
+      "b0_minus_b4": -0.017094017094017096,
+      "b0_successes": 33,
+      "b4_successes": 35,
+      "bootstrap_iterations": 20000,
+      "denominator": 117,
+      "discordant": {
+        "b0_only": 9,
+        "b4_only": 11
+      },
+      "mcnemar_exact_two_sided_p": 0.8238029479980469,
+      "paired_bootstrap_95_ci": [
+        -0.09401709401709402,
+        0.05982905982905983
+      ],
+      "ties": 97
+    },
+    "strict_by_split": {
+      "cross_app_memory_candidate": {
+        "b0_minus_b4": 0.0,
+        "b0_successes": 14,
+        "b4_successes": 14,
+        "bootstrap_iterations": 20000,
+        "denominator": 62,
+        "discordant": {
+          "b0_only": 3,
+          "b4_only": 3
+        },
+        "mcnemar_exact_two_sided_p": 1.0,
+        "paired_bootstrap_95_ci": [
+          -0.08064516129032258,
+          0.08064516129032258
+        ],
+        "ties": 56
+      },
+      "single_app_control": {
+        "b0_minus_b4": -0.03636363636363636,
+        "b0_successes": 19,
+        "b4_successes": 21,
+        "bootstrap_iterations": 20000,
+        "denominator": 55,
+        "discordant": {
+          "b0_only": 6,
+          "b4_only": 8
+        },
+        "mcnemar_exact_two_sided_p": 0.79052734375,
+        "paired_bootstrap_95_ci": [
+          -0.16363636363636364,
+          0.09090909090909091
+        ],
+        "ties": 41
+      }
+    }
+  },
+  "roster_count": 117,
+  "schema_version": "causalcache.mobileworld.b0_b4_paired_result.v1",
+  "success_threshold": 0.99,
+  "tasks": [
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "AcceptMeetingTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "AdjustBrightnessMaximumTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "AdjustBrightnessMinimumTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "AdjustFontIconMaximumTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "AdjustFontIconMinimumTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "BidFileRenameTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CVEmailTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "CancelMeetingTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CartInfoNotificationTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "CartManagementTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ChangeWallpaperTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "CheckCartPriceTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckConferenceAndSendSmsTask1"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckConferenceAndSendSmsTask2"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "CheckConferenceDurationTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckConferenceLocationTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "CheckDeduplicatedEventsTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckDepartTimeTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckEventTimeTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckGithubInfoTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckInterviewTimesTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckInvoiceTask1"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckInvoiceTask2"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckInvoiceTask3"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "CheckPuchasedItem"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "CheckRegistrationTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "CheckSetMeetTimeTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "ChromeSearchBeijingWeatherTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "CloseFlightModeTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "CountFileLinesTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "DownloadSendReceiptTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "GoogleMapsAlibabaPhoneContactTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "GoogleMapsAlibabaSouthNeighborTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "GraduationMassEmailTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "InvoiceReceiptCopyAskUserTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "InvoiceReceiptCopyTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "ItemCheckoutTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "LocalFileManagementTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "LocalFileManagementTask2"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonAddBookmarkTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonAddFeaturedHashtagsTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonAdjustTootsTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonCalendarMultiMemosTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonChangeHeaderTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "MastodonChangeLanguageTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonConditionalFavoTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonCreateListTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonCreateMemoTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonExportFollowsTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonFavoriteTootsTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonFilterLanguageTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonFollowTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonGetServerInfoTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonImportMutedUsersTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonInviteTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonMallPurchaseCommodityTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonMallShareOrderTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonManageHashtagsTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "MastodonManageMultiListTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonMattermostPostNoticeTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonMultiInviteTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonNewFilterTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "MastodonNewPostTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonOpenAutomatedDeletionTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "MastodonPinTootsTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonPostEditedPhotoTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonPostPollTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "MastodonRemoveBookmarkTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonReplyTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonReportTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonRevisePhotoAltTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonRevisePollTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonSavePhotosTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonServerInfoReportTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonShareLocationTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MastodonUnfollowTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MastodonUpdateContactsTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MattermostBudgetApprovalPipelineTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MattermostCreateChannelTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostCustomerFeedbackAnalysisTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostDeadlineReconciliationTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostEmailTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostIncidentEscalationTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostProjectHandoverTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostProjectStatusReportTask"
+    },
+    {
+      "b0_score": null,
+      "b0_success": false,
+      "b4_score": null,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostReadingGroupTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "MattermostReplyToMessageTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostResourceConflictResolutionTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "MattermostSendFileTask"
+    },
+    {
+      "b0_score": null,
+      "b0_success": false,
+      "b4_score": null,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostShiftCoverageTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostTechnicalDebtTriageTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "MattermostVisualInstructionResponseTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "OpenFlightModeTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "PhotoManagementTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ReadQwen3PaperTask1"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ReadQwen3PaperTask2"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ReadQwen3PaperTask3"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ReadQwen3PaperTask4"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ReadQwen3PaperTask5"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "RecentTotalExpenseTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "RequestCarpoolingTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ReviewPaperEmailTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "SMSManagement"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ScheduleCoffeeTimeViaSmsTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ScheduleLunchViaSmsTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "SearchItemAndCheckoutTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "SendFormsTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "SendInterviewEmailTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "SendInterviewInvitationTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "SendWaiverTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "SetAlarmTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "SharePhotosTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "SuggestPaperTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "single_app_control",
+      "task": "SumFileLinesTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "single_app_control",
+      "task": "TakeSelfieTask"
+    },
+    {
+      "b0_score": 1.0,
+      "b0_success": true,
+      "b4_score": 1.0,
+      "b4_success": true,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "TextArrivalTimeTask"
+    },
+    {
+      "b0_score": 0.0,
+      "b0_success": false,
+      "b4_score": 0.0,
+      "b4_success": false,
+      "memory_split": "cross_app_memory_candidate",
+      "task": "ThanksgivingPrepTask"
+    }
+  ]
+}

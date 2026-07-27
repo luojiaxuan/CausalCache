@@ -2,6 +2,35 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-27:MobileWorld official-faithful B0/B4 v2 收官
+
+- 严格按用户要求顺序执行：Aries GPU0+1 先完整跑 B0，再释放双卡完整跑
+  Recent-B4；不同 memory arm 从未并行。冻结 117 roster 分为确定性 59/58
+  两片，intersection=0、union=117，full roster SHA `d11e0d93…f97fce`。
+- official-faithful 冻结合同审计通过：Git `71caac9`、MobileWorld `8ae5064`、
+  `chat_template_tools_kwarg=false`、B0 `last_image=1` / 实际 max history=0、
+  B4 `last_image=5` / 实际 max history=4；两臂 policy failures=0。B0/B4
+  13/2 次 parser failure 均按预注册 `unknown_wait_step` 恢复，没有升级为
+  attempt failure。
+- **正式结果：B0=33/117=28.21%，B4=35/117=29.91%；B4−B0=+1.71 pp，
+  paired bootstrap 95% CI[-5.98,+9.40] pp，9 个 B0-only / 11 个 B4-only，
+  exact McNemar p=0.8238。** 无证据支持 B0 更好，也无稳定证据支持
+  recent-B4 更好。cross-app 62 个任务为 14 vs 14、discordant 3/3；
+  B4 的 +2 净胜全部来自 single-app controls。
+- 两臂共同缺失 `MattermostReadingGroupTask` /
+  `MattermostShiftCoverageTask`：三次 primary attempt 均在 evaluator
+  `get_task_score` 失败；B0 另换 fleet member 各做三次 repair 仍复现。
+  根因是 Mattermost 服务 ready 前 login/create-channel 的 upstream 初始化竞态，
+  未修改 pinned upstream，按冻结 strict-117 同时计 0。
+- 双卡 makespan：B0=2:27:19.692，B4=3:18:35.087；从 B0 正式开始到
+  B4 正式结束共 6:15:32.756（含中间归约/切换）。旧 concurrent partial run
+  保留并标记 `ABORTED_BY_USER_SEQUENTIAL_REALLOCATION`，不计入结果。
+- 结果与完整 provenance 入
+  [`data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/`](../data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/README.md)。
+  raw traces 保留在 Aries persistent storage，状态 `LOCAL_PRIVATE_RAW_TRACE`。
+  16 个 manifest 指定 emulator containers、两路 policy/runner 与 nested dockerd
+  已停止/删除；canonical compute container 保留，GPU0/1 回到 5 MiB、0%。
+
 ## 2026-07-26:MobileWorld v1 作废，official-faithful B0/B4 v2 冻结
 
 - v1 对照 `main@3380799` 后判定 `INVALID_PROTOCOL_MISMATCH`：MobileWorld renderer
