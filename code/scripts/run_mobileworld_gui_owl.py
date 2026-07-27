@@ -200,8 +200,13 @@ def main() -> None:
         raise ValueError("MobileWorld v2 config lacks the official prompt protocol")
     if config.get("schema_version") == "causalcache.mobileworld.benchmark_config.v2":
         policy_config = config["policy"]
-        if policy_config.get("memory_arm") != "recent":
-            raise ValueError("official MobileWorld v2 currently supports recent memory")
+        if policy_config.get("memory_arm") not in ("recent", "full"):
+            raise ValueError(
+                "official MobileWorld v2 supports memory_arm recent, or full "
+                "(server-side propose-then-select: runner ships the whole "
+                "screenshot pool, the policy service renders at most "
+                "last_image-1 history images per pass)"
+            )
         if policy_config.get("last_image") != policy_config.get("memory_budget") + 1:
             raise ValueError("official MobileWorld last_image must equal memory_budget + 1")
         if policy_config.get("history_observation") != "pre_action_screenshot":

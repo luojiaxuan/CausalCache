@@ -69,6 +69,15 @@ def main() -> None:
     parser.add_argument("--adapter-layer-count", type=int, default=8)
     parser.add_argument("--adapter-rank", type=int, default=8)
     parser.add_argument("--adapter-alpha", type=int, default=16)
+    parser.add_argument(
+        "--selector-bundle", type=Path, default=None,
+        help="marginal_scorer.pt;给定即启用 propose-then-select 两遍推理"
+             "(要求 runner memory_arm=full 携带全池截图)",
+    )
+    parser.add_argument("--selector-arch", choices=("two_tower", "concat"),
+                        default="two_tower")
+    parser.add_argument("--selection-budget", type=int, default=4)
+    parser.add_argument("--selector-beam", type=int, default=3)
     args = parser.parse_args()
 
     if not 1024 <= args.port <= 65535:
@@ -122,6 +131,146 @@ def main() -> None:
         }
 
     merge_size = int(base_runtime.processor.image_processor.merge_size)
+
+    selector_meta: dict[str, Any] | None = None
+    selector_model = None
+    selector_norm = None
+    if args.selector_bundle is not None:
+        import torch
+
+        bundle = torch.load(args.selector_bundle, map_location="cpu")
+        s_dim = len(bundle["feature_names"]) + len(bundle["set_feature_names"])
+        s_ro = int(bundle.get("readout_dim") or 0)
+        s_hidden = int(bundle["hidden"])
+
+        class _TwoTower(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.cheap = torch.nn.Sequential(
+                    torch.nn.Linear(s_dim, s_hidden), torch.nn.GELU(),
+                    torch.nn.Linear(s_hidden, s_hidden), torch.nn.GELU(),
+                    torch.nn.Linear(s_hidden, 1),
+                )
+                if s_ro:
+                    self.readout = torch.nn.Sequential(
+                        torch.nn.Linear(s_ro, 64), torch.nn.GELU(),
+                        torch.nn.Dropout(0.0), torch.nn.Linear(64, 1),
+                    )
+
+            def forward(self, x, r=None, rm=None):
+                score = self.cheap(x).squeeze(-1)
+                # 部署侧不做在线读出:readout 塔以 mask=0 关断(two-tower 结构红利)
+                return score
+
+        class _Concat(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.drop = torch.nn.Dropout(0.0)
+                self.net = torch.nn.Sequential(
+                    torch.nn.Linear(s_dim + s_ro, s_hidden), torch.nn.GELU(),
+                    torch.nn.Linear(s_hidden, s_hidden), torch.nn.GELU(),
+                    torch.nn.Linear(s_hidden, 1),
+                )
+
+            def forward(self, x, r=None, rm=None):
+                if s_ro:
+                    zeros = torch.zeros(x.shape[0], s_ro)
+                    x = torch.cat([x, zeros], dim=-1)
+                return self.net(x).squeeze(-1)
+
+        selector_model = (_TwoTower() if args.selector_arch == "two_tower"
+                          else _Concat())
+        selector_model.load_state_dict(bundle["model_state"])
+        selector_model.eval()
+        s_mean, s_std = bundle["mean"], bundle["std"]
+        selector_norm = lambda f: [(v - m) / s for v, m, s in zip(f, s_mean, s_std)]
+        selector_meta = {
+            "bundle": str(args.selector_bundle),
+            "arch": args.selector_arch,
+            "budget": args.selection_budget,
+            "beam": args.selector_beam,
+            "readout_online": False,
+            "witness_pseudo_target": "pass1_proposal",
+        }
+
+    def run_selection(request, proposal_action):
+        """全池特征 + beam 组合 exact-B;返回 (chosen_steps, diagnostics)。"""
+        import torch
+
+        from causalcache.mobileworld_selector_features import (
+            dedup_pool,
+            hash_screenshot,
+            mobile_candidate_features,
+            mobile_set_context_features,
+            parse_history_actions,
+        )
+        import base64 as _b64
+
+        history = request["history"]
+        total = len(history)
+        budget = args.selection_budget
+        hashes = {}
+        for event in history:
+            encoded = event.get("restored_observation_screenshot_png_base64")
+            if encoded:
+                hashes[int(event["step_id"])] = hash_screenshot(
+                    _b64.b64decode(encoded))
+        pool, alias, counts = dedup_pool(hashes)
+        if len(pool) < budget:
+            return None, {"reason": "pool_smaller_than_budget", "pool": len(pool)}
+        parsed = parse_history_actions(
+            [event["full_response"] for event in history])
+        prop = None
+        if proposal_action is not None:
+            prop = {
+                "action": proposal_action.action,
+                "coordinate": proposal_action.coordinate,
+                "coordinate2": proposal_action.coordinate2,
+                "text": proposal_action.text,
+                "button": proposal_action.button,
+            }
+
+        def marginals(selected, candidates):
+            xs = []
+            for s in candidates:
+                f = mobile_candidate_features(
+                    step=s, pool=pool, total_steps=total,
+                    parsed_actions=parsed, proposal=prop,
+                    duplicate_counts=counts,
+                ) + mobile_set_context_features(
+                    step=s, selected=list(selected), total_steps=total,
+                    parsed_actions=parsed, proposal=prop,
+                    duplicate_alias=alias,
+                )
+                xs.append(selector_norm(f))
+            with torch.no_grad():
+                return selector_model(
+                    torch.tensor(xs, dtype=torch.float32)).tolist()
+
+        level = [((), 0.0)]
+        for _ in range(budget):
+            expanded, seen = [], set()
+            for sel, acc in level:
+                remaining = [s for s in pool if s not in sel]
+                if not remaining:
+                    continue
+                margs = marginals(sel, remaining)
+                for s, m in sorted(zip(remaining, margs), key=lambda t: -t[1])[: args.selector_beam]:
+                    child = tuple(sorted((*sel, s)))
+                    if child in seen:
+                        continue
+                    seen.add(child)
+                    expanded.append((child, acc + m))
+            if not expanded:
+                break
+            expanded.sort(key=lambda t: -t[1])
+            level = expanded[: args.selector_beam]
+        chosen = sorted(level[0][0])
+        witness_count = sum(
+            1 for s in pool
+            if parsed[s - 1] is not None and prop is not None
+        )
+        return chosen, {"pool": len(pool), "witnesses_scanned": witness_count}
 
     def adapter_scope(messages: list[dict[str, Any]], history_image_count: int):
         """HGKV mask scope for one request; nullcontext when adapter off / K=0."""
@@ -182,6 +331,7 @@ def main() -> None:
                     "counters": observed,
                     "max_history_images": args.max_history_images,
                     "adapter": adapter_meta,
+                    "selector": selector_meta,
                     "runtime": runtime.metadata,
                 },
             )
@@ -194,7 +344,17 @@ def main() -> None:
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 request = json.loads(self.rfile.read(length).decode("utf-8"))
-                messages = build_mobileworld_gui_owl_messages(request)
+                selection_info: dict[str, Any] | None = None
+                if selector_model is not None:
+                    event_ids = [
+                        int(e["step_id"]) for e in request.get("history", [])
+                    ]
+                    tail = event_ids[-args.selection_budget:]
+                    pass1 = dict(request)
+                    pass1["selected_event_step_ids"] = list(tail)
+                    messages = build_mobileworld_gui_owl_messages(pass1)
+                else:
+                    messages = build_mobileworld_gui_owl_messages(request)
                 history_image_count = _history_image_count(messages)
                 with counter_lock:
                     counters["audited_prompts"] += 1
@@ -216,6 +376,54 @@ def main() -> None:
                     queue_seconds = time.perf_counter() - queued
                     with adapter_scope(messages, history_image_count):
                         generated = runtime.generate(messages)
+                    if selector_model is not None:
+                        chosen, diag = run_selection(
+                            request, generated.canonical_action
+                        )
+                        tail_ids = [
+                            int(e["step_id"]) for e in request["history"]
+                        ][-args.selection_budget:]
+                        selection_info = {
+                            "passes": 1,
+                            "recent_tail": tail_ids,
+                            "chosen": chosen,
+                            "diagnostics": diag,
+                        }
+                        if chosen is not None and list(chosen) != list(tail_ids):
+                            import base64 as _b64
+
+                            from causalcache.mobileworld import _decode_png
+                            from causalcache.mobileworld_gapfold import (
+                                build_mobile_official_messages_gapfold,
+                            )
+
+                            history = request["history"]
+                            step_images = {}
+                            for event in history:
+                                sid = int(event["step_id"])
+                                if sid in chosen:
+                                    step_images[sid] = _decode_png(
+                                        event[
+                                            "restored_observation_screenshot_png_base64"
+                                        ]
+                                    )
+                            messages2 = build_mobile_official_messages_gapfold(
+                                goal=request["task"]["instruction"],
+                                action_texts=[
+                                    e["action_text"] for e in history
+                                ],
+                                full_responses=[
+                                    e["full_response"] for e in history
+                                ],
+                                shown_steps=chosen,
+                                step_images=step_images,
+                                current_image=_decode_png(
+                                    request["current_screenshot_png_base64"]
+                                ),
+                            )
+                            with adapter_scope(messages2, len(chosen)):
+                                generated = runtime.generate(messages2)
+                            selection_info["passes"] = 2
                 screen_size = tuple(request["screen_size"])
                 if generated.canonical_action is None:
                     action = {"action_type": "wait"}
@@ -243,6 +451,7 @@ def main() -> None:
                         "parse_error": generated.parse_error,
                         "dropped_arguments": dict(generated.dropped_arguments),
                         "native_output": generated.output_text,
+                        "selection": selection_info,
                         "request_count": request_count,
                         "request_decode_seconds": queued - arrived,
                         "queue_seconds": queue_seconds,
