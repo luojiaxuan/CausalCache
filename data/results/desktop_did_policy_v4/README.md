@@ -170,3 +170,23 @@ shortlist-6 全 edge 整集重打分 + Recent-2/4 锚,5,335 状态,skipped=0)+
   two-tower 保留为跨平台迁移保守变体(mobile 探针再仲裁);
 - k=0(纯 Recent 兜底)真实被选中(B=4 下 ~19%),oracle_gap 仍余 ~0.06-0.08;
 - 报告:filltob_{two_tower,concat}.json(本目录)。
+
+## 过夜冲刺终态(用户醒来速览)
+
+**Ungated s300 四档 gate(全过,但一致弱于 HGKV)**:did_select
++0.0177/+0.0139/+0.0075/+0.0047(B=1/2/4/8);B=8 处 |A_r|=0.016、
+wrong=0.016 逼近 0.02 帽,而 HGKV 保持 ~0.010——门控 = 增益 + 约束。
+报告 gate_report_ungated_v4_s300_b*.json。
+
+**MobileWorld HGKV-B4 closed-loop(117/117 全分母)**:34/117 = 29.06%,
+与冻结 B4(35, 29.91%)/B0(33, 28.21%)统计不可区分(vs B4 exact McNemar
+p=1.0,不一致任务 6:7)。**这是设计使然**:|A_r| 漂移帽保证 recent 臂上
+adapter ≈ 冻结;本结果 = "policy-preserving 零部署代价"的行为级、跨平台
+零样本验证,不是主张性优势。**要显著超基线需 selected 臂**(selector 选中
+旧帧的非连续恢复):缺 mobile 版 gap-fold 渲染 + 在线两段式特征(witness
+特征依赖目标动作 → 需 propose-then-select 两遍推理),已列为下一程首项。
+run root `/data04/jaxan/mw/runs/mw-hgkv-b4-v1`(轨迹 LOCAL_PRIVATE_RAW_TRACE),
+舰队 16 容器已按 manifest 清理。逐任务对照数据取自 Aries paired-result.json。
+
+**full_lora**:w4 在 OOM 边缘存活(attempt2 过 s50),持续训练中,预计上午
+出 s300 → 补 gate。**paper 主表/摘要已填实测数字**(6 页编译通过)。

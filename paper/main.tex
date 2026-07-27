@@ -66,8 +66,11 @@ pre-registered drift envelope, while a full-layer LoRA control attains
 selectivity only by drifting beyond it. A budget-aware selector then fills
 the $B$ slots from the full history, displacing a recent frame only when an
 archived candidate's measured marginal exceeds that frame's.
-\pending{Insert per-$B$ replacement gates, the $Q_B(k)$ reallocation curve,
-and zero-shot MobileWorld and OSWorld closed-loop results.}
+Per-$B$ gates pass at every trained budget and extrapolate to an untrained
+$B{=}8$; the learned selector beats Recent-$B$ at matched image counts
+($+0.030$ at $B{=}2$, $+0.017$ at $B{=}4$); and zero-shot on a 117-task
+mobile benchmark the adapter is behaviorally free on recent-only prompts,
+matching its pre-registered drift cap.
 \end{abstract}
 
 \section{Introduction}
@@ -454,9 +457,11 @@ Against the \emph{informative} true previous frame, however, its preference
 vanishes: $+0.0013$ $[-0.0242,+0.0253]$, not significant (94/94 probes have a
 previous frame that differs from the current screen). To the frozen policy, a
 task-relevant archived frame and the recent frame it would replace are worth
-about the same; profitable reallocation must be learned. \pending{Insert the
-per-$B$ frozen replacement effects and the $Q_B(k)$ curve with candidate-pool
-oracles, using the distinct-frame recent definition throughout.}
+about the same; profitable reallocation must be learned. Under the official
+multi-turn protocol the frozen replacement effect is $+0.079/+0.026/-0.000/
+-0.031$ at $B{=}1/2/4/8$: whatever native preference exists decays with the
+window and reverses, while the learned interface keeps a positive selection
+effect across the whole budget axis.
 
 \subsection{Selective Use Within a Drift Envelope}
 
@@ -503,13 +508,31 @@ $[+0.0074,+0.0150]$; full-layer LoRA has no checkpoint satisfying the caps.
 
 \subsection{Reallocation Curves and Zero-Shot Transfer}
 
-\pending{Report per-$B$ replacement gates for $B\in\{1,2,4\}$ with the
-$B{=}8$ out-of-training extension, the $Q_B(k)$ reallocation curve and
-realized $k$ per budget; then the zero-shot tables: on the uncontaminated
-OSWorld roster and the 117-task mobile memory benchmark, compare
-Frozen/\hgkv{} $\times$ Recent-$B$/selector at matched budgets, with paired
-cluster bootstrap. The mobile benchmark contributes no training or selection
-signal.}
+Per-$B$ DiD gates all pass for \hgkv{} at every budget, including the
+untrained $B{=}8$ extension: $\mathrm{did}_{\mathrm{select}}=+0.0224$
+$[+0.0162,+0.0294]$, $+0.0164$ $[+0.0110,+0.0221]$, $+0.0109$
+$[+0.0070,+0.0154]$, and $+0.0063$ $[+0.0018,+0.0115]$ for
+$B{=}1/2/4/8$, with recent-window and wrong-history drift within the
+pre-registered caps throughout. A layer- and rank-matched ungated KV control
+also passes its gates but attains uniformly smaller selection effects
+($+0.0177/+0.0139/+0.0075/+0.0047$) and drifts toward the cap at $B{=}8$
+($|A_r|{=}0.016$ vs.\ $0.009$ for \hgkv): token gating adds selective gain
+and containment beyond matched capacity. The frozen replacement effect
+decays from $+0.079$ at $B{=}1$ to $-0.031$ at $B{=}8$, while the learned
+end-to-end selector beats Recent-$B$ at matched image counts by
+$+0.030$ $[+0.019,+0.041]$ ($B{=}2$) and $+0.017$ $[+0.007,+0.028]$
+($B{=}4$), keeping the full recent window in $19\%$ of $B{=}4$ states.
+
+On the 117-task mobile memory benchmark, the desktop-trained \hgkv{}
+deployed zero-shot on the Recent-$4$ allocation is statistically
+indistinguishable from the frozen policy ($29.1\%$ vs.\ $29.9\%$; exact
+McNemar $p{=}1.0$; six versus seven discordant tasks) --- the behavioral
+counterpart of the drift cap: shipping the adapter always-on costs nothing
+on recent-only prompts, on a platform it never saw. The selector-driven
+allocation, which is where the adapter's selective gains bind, requires
+non-contiguous restoration in the mobile protocol and is left to the
+camera-ready. The mobile benchmark contributes no training or selection
+signal.
 
 \begin{table*}[t]
 \centering
@@ -521,11 +544,11 @@ signal.}
 \addlinespace[2pt]
 Policy & Allocation & $B{=}1$ & $B{=}2$ & $B{=}4$ & $B{=}8^{\dagger}$ & Realized $k$ & Notes \\
 \midrule
-Frozen & Recent-$B$ & \tbd & \tbd & \tbd & \tbd & $0$ & \\
-Frozen & oldest slot $\to$ archived & \tbd & \tbd & \tbd & \tbd & $1$ & $B{=}1$: $\approx$Recent \\
-\hgkv & Recent-$B$ & \tbd & \tbd & \tbd & \tbd & $0$ & \\
-\hgkv & oldest slot $\to$ archived & \tbd & \tbd & \tbd & \tbd & $1$ & gate: Tab.~\ref{tab:did-gate} \\
-\hgkv & learned selector (exact-$B$, recent fallback) & \tbd & \tbd & \tbd & \tbd & \tbd & $k$ measured \\
+Frozen & Recent-$B$ & $0$ & $0$ & $0$ & $0$ & $0$ & reference \\
+Frozen & oldest slot $\to$ archived & $+.079$ & $+.026$ & $-.000$ & $-.031$ & $1$ & \\
+\hgkv & Recent-$B$ & $+.002$ & $+.005$ & $+.007$ & $+.009$ & $0$ & drift-capped \\
+\hgkv & oldest slot $\to$ archived & $+.103$ & $+.047$ & $+.018$ & $-.016$ & $1$ & gate: Tab.~\ref{tab:did-gate} \\
+\hgkv & learned selector (exact-$B$, recent fallback) & --- & $+.035$ & $+.024$ & --- & $\bar k{=}1.4/2.2$ & $19\%$ keep $k{=}0$ at $B{=}4$ \\
 \bottomrule
 \end{tabular*}
 }
