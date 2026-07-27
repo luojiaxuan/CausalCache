@@ -1,0 +1,58 @@
+{
+ "denominator": 361,
+ "sel1p": {
+  "success": 123,
+  "rate_pct": 34.07,
+  "missing": 0
+ },
+ "recent": {
+  "success": 119,
+  "rate_pct": 32.96,
+  "missing": 0
+ },
+ "b0": {
+  "success": 72,
+  "rate_pct": 19.94,
+  "missing": 0
+ },
+ "sel1p_vs_recent": {
+  "delta_pp": 1.11,
+  "ci95": [
+   -2.49,
+   4.71
+  ],
+  "discordant": "25:21",
+  "boot_p_leq0": 0.3017
+ },
+ "sel1p_vs_b0": {
+  "delta_pp": 14.13,
+  "ci95": [
+   9.42,
+   18.84
+  ],
+  "discordant": "66:15",
+  "boot_p_leq0": 0.0
+ },
+ "recent_vs_b0": {
+  "delta_pp": 13.02,
+  "ci95": [
+   8.59,
+   17.73
+  ],
+  "discordant": "61:14",
+  "boot_p_leq0": 0.0
+ },
+ "stratified_steps_ge6": {
+  "n": 358,
+  "sel1p_pct": 33.52,
+  "recent_pct": 32.68,
+  "b0_pct": 19.55,
+  "sel1p_vs_recent": {
+   "delta_pp": 0.84,
+   "ci95": [
+    -2.79,
+    4.47
+   ]
+  }
+ }
+}
