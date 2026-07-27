@@ -64,6 +64,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--readout-dropout", type=float, default=0.3)
     parser.add_argument("--readout-weight-decay", type=float, default=0.01)
     parser.add_argument(
+        "--feature-cache", type=Path, default=None,
+        help="cheap+set 特征缓存(.pt)。存在且 edge 数/维度匹配则直接加载;"
+             "否则多进程计算后写入 —— 三臂共享一份,免去三次重复构建",
+    )
+    parser.add_argument("--feature-workers", type=int, default=96)
+    parser.add_argument(
         "--arch", choices=("two_tower", "concat"), default="two_tower",
         help="two_tower = score 可加(cheap + 正则残差塔,无跨组交互);"
              "concat = 单塔全交互,readout 维经 dropout 后并入首层,"
@@ -73,6 +79,29 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
     return parser.parse_args()
+
+
+# note (luojiaxuan): 多进程特征构建的 fork 上下文。pool.map 需要可 pickle 的
+# 回调,闭包不行;worker 经 fork 继承本模块全局,主进程在建 Pool 前填充。
+_FEAT_CTX: dict = {}
+
+
+def _feat_worker(edge):
+    dp, selected, event, _marginal = edge
+    records = _FEAT_CTX["records"]
+    b0 = _FEAT_CTX["b0"]
+    dup_cache = _FEAT_CTX["dup"]
+    record = records[dp]
+    base = b0[dp]
+    return candidate_features(
+        record,
+        candidate_pool=[int(e) for e in base["candidate_pool"]],
+        duplicates=dup_cache[dp],
+        event=event,
+    ) + set_context_features(
+        record, selected=list(selected), event=event,
+        duplicates=dup_cache[dp],
+    )
 
 
 def load_jsonl_rows(root: Path, pattern: str):
@@ -163,21 +192,40 @@ def main() -> None:
         "anchor_states": len(anchors),
     }))
 
-    feats = []
     dup_cache = {dp: base.get("duplicates", {}) for dp, base in b0.items()}
-    for dp, selected, event, marginal in edges:
-        record = records[dp]
-        base = b0[dp]
-        f = candidate_features(
-            record,
-            candidate_pool=[int(e) for e in base["candidate_pool"]],
-            duplicates=dup_cache[dp],
-            event=event,
-        ) + set_context_features(
-            record, selected=list(selected), event=event,
-            duplicates=dup_cache[dp],
-        )
-        feats.append(f)
+    expected_dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES)
+
+    _FEAT_CTX.update({"records": records, "b0": b0, "dup": dup_cache})
+
+    feats = None
+    if args.feature_cache is not None and args.feature_cache.exists():
+        import torch as _torch
+        cached = _torch.load(args.feature_cache)
+        if (cached.get("edge_count") == len(edges)
+                and cached.get("dim") == expected_dim):
+            feats = cached["features"]
+            print(json.dumps({"feature_cache": "hit",
+                               "edges": len(edges)}))
+        else:
+            print(json.dumps({"feature_cache": "stale",
+                               "cached": cached.get("edge_count"),
+                               "expected": len(edges)}))
+    if feats is None:
+        import multiprocessing as _mp
+        import time as _time
+        started = _time.time()
+        workers = max(1, min(args.feature_workers, len(edges) // 500 or 1))
+        if workers > 1:
+            with _mp.get_context("fork").Pool(workers) as pool:
+                feats = pool.map(_feat_worker, edges, chunksize=512)
+        else:
+            feats = [_feat_worker(e) for e in edges]
+        print(json.dumps({"feature_build_seconds": round(_time.time() - started, 1),
+                           "workers": workers}))
+        if args.feature_cache is not None:
+            import torch as _torch
+            _torch.save({"features": feats, "edge_count": len(edges),
+                          "dim": expected_dim}, args.feature_cache)
 
     dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES)
     import hashlib as _hashlib
