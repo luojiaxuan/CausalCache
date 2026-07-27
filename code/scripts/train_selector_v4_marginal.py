@@ -70,6 +70,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--feature-workers", type=int, default=96)
     parser.add_argument(
+        "--intent-root", type=Path, default=None,
+        help="intent 特征目录(intent.shard*.jsonl,8 维目标无关意图特征,"
+             "extract_selector_v4_intent_features.py 产出)。给定即追加到特征尾部"
+             "(dim 28+8+8),单遍部署路径的 v2 输入",
+    )
+    parser.add_argument(
         "--arch", choices=("two_tower", "concat"), default="two_tower",
         help="two_tower = score 可加(cheap + 正则残差塔,无跨组交互);"
              "concat = 单塔全交互,readout 维经 dropout 后并入首层,"
@@ -93,7 +99,7 @@ def _feat_worker(edge):
     dup_cache = _FEAT_CTX["dup"]
     record = records[dp]
     base = b0[dp]
-    return candidate_features(
+    f = candidate_features(
         record,
         candidate_pool=[int(e) for e in base["candidate_pool"]],
         duplicates=dup_cache[dp],
@@ -102,6 +108,10 @@ def _feat_worker(edge):
         record, selected=list(selected), event=event,
         duplicates=dup_cache[dp],
     )
+    dims = _FEAT_CTX.get("intent_dims") or 0
+    if dims:
+        f = f + (_FEAT_CTX["intent"].get((dp, event)) or [0.0] * dims)
+    return f
 
 
 def load_jsonl_rows(root: Path, pattern: str):
@@ -193,9 +203,22 @@ def main() -> None:
     }))
 
     dup_cache = {dp: base.get("duplicates", {}) for dp, base in b0.items()}
-    expected_dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES)
+    expected_dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES) + intent_dims
 
-    _FEAT_CTX.update({"records": records, "b0": b0, "dup": dup_cache})
+    intent_map: dict[tuple[str, int], list[float]] = {}
+    intent_dims = 0
+    if args.intent_root is not None:
+        for row in load_jsonl_rows(args.intent_root, "intent.shard*.jsonl"):
+            if row.get("kind") == "intent":
+                intent_map[(row["dp_id"], int(row["event"]))] = row["vector"]
+        if not intent_map:
+            raise SystemExit("intent-root 给了但没读到任何 intent 行")
+        intent_dims = len(next(iter(intent_map.values())))
+        print(json.dumps({"intent_rows": len(intent_map),
+                           "intent_dims": intent_dims}))
+
+    _FEAT_CTX.update({"records": records, "b0": b0, "dup": dup_cache,
+                       "intent": intent_map, "intent_dims": intent_dims})
 
     feats = None
     if args.feature_cache is not None and args.feature_cache.exists():
@@ -227,7 +250,7 @@ def main() -> None:
             _torch.save({"features": feats, "edge_count": len(edges),
                           "dim": expected_dim}, args.feature_cache)
 
-    dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES)
+    dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES) + intent_dims
     import hashlib as _hashlib
 
     def _in_fraction(dp: str) -> bool:
@@ -584,6 +607,7 @@ def main() -> None:
         "set_feature_names": list(SET_FEATURE_NAMES),
         "hidden": args.hidden,
         "readout_dim": readout_dim,
+        "intent_dims": intent_dims,
     }, args.output_root / "marginal_scorer.pt")
     (args.output_root / "report.json").write_text(
         json.dumps({

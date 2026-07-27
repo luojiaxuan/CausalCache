@@ -74,6 +74,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--checkpoint-sha256", required=True)
     parser.add_argument("--true-score-cache", type=Path, required=True,
                         help="dp|set → 真 U 的共享 jsonl cache(跨 arm 复用)")
+    parser.add_argument("--intent-root", type=Path, default=None,
+                        help="intent 特征目录;bundle 带 intent_dims 时必给")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--seed", type=int, default=20260726)
     parser.add_argument("--beam", type=int, default=3)
@@ -128,7 +130,15 @@ def main() -> None:
         raise SystemExit("checkpoint SHA drifted")
 
     bundle = torch.load(args.scorer, map_location="cpu")
-    dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES)
+    intent_dims = int(bundle.get("intent_dims") or 0)
+    intent_map: dict[tuple[str, int], list[float]] = {}
+    if intent_dims:
+        if args.intent_root is None:
+            raise SystemExit("scorer 带 intent_dims,必须提供 --intent-root")
+        for row in load_rows(args.intent_root, "intent.shard*.jsonl"):
+            if row.get("kind") == "intent":
+                intent_map[(row["dp_id"], int(row["event"]))] = row["vector"]
+    dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES) + intent_dims
     readout_dim = int(bundle.get("readout_dim") or 0)
     hidden = int(bundle["hidden"])
     mean, std = bundle["mean"], bundle["std"]
@@ -336,6 +346,8 @@ def main() -> None:
                 ) + set_context_features(
                     record, selected=list(selected), event=e, duplicates=dup,
                 ))
+                if intent_dims:
+                    f = f + (intent_map.get((dp, e)) or [0.0] * intent_dims)
                 xs.append(norm(f))
                 vec = normed_ro.get(e)
                 rs.append(vec if vec is not None else [0.0] * readout_dim)
