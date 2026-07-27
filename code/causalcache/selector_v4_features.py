@@ -12,10 +12,67 @@
 from __future__ import annotations
 
 import math
+import os as _os
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from scripts.build_desktop_hgkv_corpus import history_action_matches_target
+from scripts.build_desktop_hgkv_corpus import (
+    _coordinate as _hist_coordinate,
+    history_action_matches_target,
+)
+
+# note (luojiaxuan): 单遍救援探针 A —— CAUSALCACHE_WITNESS_PSEUDO_TARGET=last_action
+# 时,witness 家族改用"上一步已执行动作"作伪目标(部署时选记忆前已知,无需
+# proposal pass)。伪目标转成 target_tool_call 形制后走同一 matcher,坐标经
+# _norm999 归到 [0,999] 与 _target_coordinate 口径一致。转换不了的类型给
+# "__none__",不会匹配任何候选。
+WITNESS_PSEUDO_TARGET = _os.environ.get("CAUSALCACHE_WITNESS_PSEUDO_TARGET", "")
+
+
+def _pseudo_target_from_history(
+    action: Mapping[str, Any], screen_size: tuple[int, int]
+) -> Mapping[str, Any]:
+    kind = action.get("type")
+    coord = _hist_coordinate(action, screen_size=screen_size)
+    if kind == "click" and action.get("button", "left") == "left" and coord:
+        return {"arguments": {"action": "left_click", "coordinate": list(coord)}}
+    if kind == "click" and action.get("button") == "middle" and coord:
+        return {"arguments": {"action": "middle_click", "coordinate": list(coord)}}
+    if kind == "right_click" and coord:
+        return {"arguments": {"action": "right_click", "coordinate": list(coord)}}
+    if kind == "double_click" and coord:
+        return {"arguments": {"action": "double_click", "coordinate": list(coord)}}
+    if kind == "drag" and coord:
+        return {"arguments": {"action": "left_click_drag", "coordinate": list(coord)}}
+    if kind == "move" and coord:
+        return {"arguments": {"action": "mouse_move", "coordinate": list(coord)}}
+    if kind == "type_text":
+        return {"arguments": {"action": "type", "text": action.get("text")}}
+    if kind == "press":
+        return {"arguments": {"action": "key", "keys": [str(action.get("key", ""))]}}
+    if kind == "hotkey":
+        return {"arguments": {"action": "key",
+                              "keys": [str(k) for k in action.get("keys", ())]}}
+    if kind == "scroll":
+        dy = action.get("dy")
+        dx = action.get("dx", 0)
+        if type(dy) is int and dy != 0 and dx == 0:
+            return {"arguments": {"action": "scroll", "pixels": int(dy)}}
+        if type(dx) is int and dx != 0:
+            return {"arguments": {"action": "hscroll", "pixels": int(dx)}}
+    return {"arguments": {"action": "__none__"}}
+
+
+def _witness_target(
+    record: Mapping[str, Any], screen_size: tuple[int, int]
+) -> Mapping[str, Any]:
+    if WITNESS_PSEUDO_TARGET == "last_action":
+        history = record.get("history") or []
+        if not history:
+            return {"arguments": {"action": "__none__"}}
+        last = max(history, key=lambda e: int(e["step_id"]))
+        return _pseudo_target_from_history(last.get("action") or {}, screen_size)
+    return record["target_tool_call"]
 
 FEATURE_SCHEMA = "causalcache.selector_v4_stage1_features.v1"
 FEATURE_NAMES = (
@@ -63,7 +120,7 @@ def candidate_features(
     """一个 (决策点, 候选事件) 的特征向量,顺序 = FEATURE_NAMES。"""
     current_step = int(record["step"])
     screen_size = tuple(record["screen_size"])
-    target = record["target_tool_call"]
+    target = _witness_target(record, screen_size)
     history_by_step = {int(entry["step_id"]): entry for entry in record["history"]}
 
     age = current_step - event
@@ -157,7 +214,7 @@ def set_context_features(
     """
     current_step = int(record["step"])
     screen_size = tuple(record["screen_size"])
-    target = record["target_tool_call"]
+    target = _witness_target(record, screen_size)
     if not selected:
         return [0.0, -1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
