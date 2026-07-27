@@ -1,0 +1,136 @@
+{
+  "b0_sample_schema": "causalcache.desktop_did_b0_sample.v2",
+  "b_values_built": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "b_values_trained": [
+    1,
+    2,
+    4
+  ],
+  "budget_semantics": "fixed_budget_replacement_v3",
+  "coordinate_tolerance": 25,
+  "group_count": 2181,
+  "inputs": {
+    "image_root": "/data/agentnet-frames-v3",
+    "manifest": "/data/desktop-did-corpus-v1/agentnet_screening_manifest_ubuntu_v1.jsonl",
+    "manifest_sha256": "38889f116961f08081ff9eb08c5e5cdd37a16dae17d577e728e771dc59951a59"
+  },
+  "parity_b0_sha256": "e33ac3a0e9daa9b7cf711b66443133e0b94d5b4b4300f7aa7e6b843b443e5fd0",
+  "per_b": {
+    "1": {
+      "counters": {
+        "dropped_retained_unrenderable": 7,
+        "groups": 962,
+        "groups_dev": 94,
+        "groups_double_click": 17,
+        "groups_key": 339,
+        "groups_left_click": 542,
+        "groups_left_click_drag": 11,
+        "groups_right_click": 14,
+        "groups_scroll": 9,
+        "groups_test": 101,
+        "groups_train": 767,
+        "groups_type": 30,
+        "rejected": 5034
+      },
+      "parity_count": 962,
+      "positive_age": {
+        "max": 28,
+        "min": 3,
+        "p50": 5,
+        "p90": 10
+      },
+      "sample_count": 4810,
+      "samples_sha256": "e2f5108dd801605210b5e74ca2e4fbd36537fc84e187b6a08c8250fcf4cd7485"
+    },
+    "2": {
+      "counters": {
+        "dropped_retained_unrenderable": 8,
+        "groups": 756,
+        "groups_dev": 72,
+        "groups_double_click": 15,
+        "groups_key": 295,
+        "groups_left_click": 393,
+        "groups_left_click_drag": 4,
+        "groups_right_click": 13,
+        "groups_scroll": 8,
+        "groups_test": 73,
+        "groups_train": 611,
+        "groups_type": 28,
+        "rejected": 5239
+      },
+      "parity_count": 0,
+      "positive_age": {
+        "max": 28,
+        "min": 4,
+        "p50": 6,
+        "p90": 11
+      },
+      "sample_count": 3780,
+      "samples_sha256": "b0ade7e06148f01900d49dc1e0bfb1184f1978024e725a4783f7cfc71ee471f9"
+    },
+    "4": {
+      "counters": {
+        "dropped_retained_unrenderable": 7,
+        "groups": 463,
+        "groups_dev": 45,
+        "groups_double_click": 6,
+        "groups_key": 174,
+        "groups_left_click": 250,
+        "groups_left_click_drag": 4,
+        "groups_right_click": 7,
+        "groups_scroll": 3,
+        "groups_test": 41,
+        "groups_train": 377,
+        "groups_type": 19,
+        "rejected": 5533
+      },
+      "parity_count": 0,
+      "positive_age": {
+        "max": 28,
+        "min": 6,
+        "p50": 8,
+        "p90": 13
+      },
+      "sample_count": 2315,
+      "samples_sha256": "c46734937dd485560550b5d8be84045b37a69f4934ac5b914a6635c4a078453f"
+    },
+    "8": {
+      "counters": {
+        "dropped_retained_unrenderable": 2,
+        "groups": 158,
+        "groups_dev": 11,
+        "groups_double_click": 1,
+        "groups_key": 40,
+        "groups_left_click": 105,
+        "groups_left_click_drag": 3,
+        "groups_right_click": 4,
+        "groups_test": 12,
+        "groups_train": 135,
+        "groups_type": 5,
+        "rejected": 5843
+      },
+      "parity_count": 0,
+      "positive_age": {
+        "max": 28,
+        "min": 10,
+        "p50": 12,
+        "p90": 19
+      },
+      "sample_count": 790,
+      "samples_sha256": "6435a64987f2950c08edbe2f4884903fefc3ed513092b409f4a960c6af6dc830"
+    }
+  },
+  "prompt_format": "desktop_official_multiturn",
+  "recent_definition": "distinct_frames_v2",
+  "renderer": "mobile_agent_v3_5_desktop_official_faithful",
+  "sample_count": 10905,
+  "sample_schema": "causalcache.desktop_did_sample.v2",
+  "samples_sha256": "e6575f934a6a701c9c50bebfa248dbdf2fc5e244b43d763b0cfe9d3cd96c897c",
+  "schema_version": "causalcache.desktop_did_corpus_b.v2",
+  "seed": 20260726
+}

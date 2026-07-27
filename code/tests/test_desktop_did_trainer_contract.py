@@ -388,6 +388,9 @@ DESKTOP_CONFIG_NAMES = (
     "causalcache_desktop_did_hgkv_v3.json",
     "causalcache_desktop_did_ungated_kv_v3.json",
     "causalcache_desktop_did_full_lora_v3.json",
+    "causalcache_desktop_did_hgkv_v4.json",
+    "causalcache_desktop_did_ungated_kv_v4.json",
+    "causalcache_desktop_did_full_lora_v4.json",
 )
 
 
@@ -402,9 +405,12 @@ def test_desktop_training_config_passes_all_startup_validators(name) -> None:
     assert adapter_type in trainer.SPARSE_SUPPORTED_ADAPTER_TYPES
     if adapter_type != "full_policy_lora":
         assert options == {"layer_count": 8, "rank": 8, "alpha": 16}
-    assert trainer.sparse_config_sample_schema(config) == (
-        trainer.SPARSE_DESKTOP_SAMPLE_SCHEMA
+    expected_schema = (
+        trainer.SPARSE_DESKTOP_SAMPLE_SCHEMA_V2
+        if name.endswith("_v4.json")
+        else trainer.SPARSE_DESKTOP_SAMPLE_SCHEMA
     )
+    assert trainer.sparse_config_sample_schema(config) == expected_schema
     trainer.validate_sparse_gates(config)
     kind, _objective = trainer.validate_sparse_objective(config)
     assert kind == trainer.SPARSE_OBJECTIVE_DID_RA_AWARE
@@ -415,7 +421,7 @@ def test_desktop_training_config_passes_all_startup_validators(name) -> None:
     )
     expected = (
         {"max_steps": 300, "checkpoint_every_steps": 50}
-        if name.endswith("_v3.json")
+        if name.endswith(("_v3.json", "_v4.json"))
         else {"max_steps": 150, "checkpoint_every_steps": 25}
     )
     assert controls == expected
@@ -423,7 +429,7 @@ def test_desktop_training_config_passes_all_startup_validators(name) -> None:
     assert trainer.resolve_train_on_label_classes(config) is None
 
 
-@pytest.mark.parametrize("suffix", ["_v1.json", "_v3.json"])
+@pytest.mark.parametrize("suffix", ["_v1.json", "_v3.json", "_v4.json"])
 def test_desktop_training_configs_share_the_frozen_protocol(suffix) -> None:
     import json as json_module
     from pathlib import Path
@@ -437,14 +443,28 @@ def test_desktop_training_configs_share_the_frozen_protocol(suffix) -> None:
     assert len(configs) == 3
     first = configs[0]
     for other in configs[1:]:
-        # §7:同一 split、同一训练组、同 visual tokens、相同 steps 与 cadence
-        assert other["training"] == first["training"]
+        # §7:同一 split、同一训练组、同 visual tokens、相同 steps 与 cadence。
+        # v4 三行按各自 world_size 配 accumulation(8×2 / 4×4 / 2×8),每优化步
+        # 恒消费 16 组(world × accum 不变式),故只剥离 accumulation 比较。
+        left = dict(first["training"])
+        right = dict(other["training"])
+        if suffix == "_v4.json":
+            left.pop("gradient_accumulation_steps")
+            right.pop("gradient_accumulation_steps")
+        assert right == left
         assert other["gates"] == first["gates"]
         assert other["objective"] == first["objective"]
         assert (
             other["data"]["samples_sha256"] == first["data"]["samples_sha256"]
         )
         assert other["target_effective_visual_tokens_per_image"] == 2560
+    if suffix == "_v4.json":
+        by_accum = {
+            json_module.loads((root / name).read_text(encoding="utf-8"))[
+                "training"]["gradient_accumulation_steps"]
+            for name in DESKTOP_CONFIG_NAMES if name.endswith(suffix)
+        }
+        assert by_accum == {2, 4, 8}  # world 8/4/2 → 16 组/步不变
 
 
 # ---------------------------------------------------------------------------
