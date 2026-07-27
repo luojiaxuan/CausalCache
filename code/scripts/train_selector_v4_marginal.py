@@ -48,6 +48,12 @@ def parse_args() -> argparse.Namespace:
         "--early-stop-patience", type=int, default=4,
         help="连续多少次 held-out 评测无提升即停;epochs 只是预算上限",
     )
+    parser.add_argument(
+        "--train-fraction", type=float, default=1.0,
+        help="学习曲线诊断用:按 episode 哈希取 train 子集(dev 恒全量)。"
+             "dev 指标随 fraction 上升 → 方差主导(加数据有效);"
+             "平坦且 train 指标也平庸 → 偏差主导(上更高维特征)",
+    )
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
     return parser.parse_args()
@@ -158,7 +164,20 @@ def main() -> None:
         feats.append(f)
 
     dim = len(FEATURE_NAMES) + len(SET_FEATURE_NAMES)
-    train_idx = [i for i, e in enumerate(edges) if split_of[e[0]] == "train"]
+    import hashlib as _hashlib
+
+    def _in_fraction(dp: str) -> bool:
+        if args.train_fraction >= 1.0:
+            return True
+        h = int.from_bytes(
+            _hashlib.sha256(f"{args.seed}:lc:{dp}".encode()).digest()[:8], "big"
+        ) / 2**64
+        return h < args.train_fraction
+
+    train_idx = [
+        i for i, e in enumerate(edges)
+        if split_of[e[0]] == "train" and _in_fraction(e[0])
+    ]
     dev_idx = [i for i, e in enumerate(edges) if split_of[e[0]] == "dev"]
     x_train = [feats[i] for i in train_idx]
     mean = [sum(col) / len(col) for col in zip(*x_train)]
@@ -274,13 +293,12 @@ def main() -> None:
         out["model_set_size_dist"] = dict(sorted(k_dist.items()))
         return out
 
-    def eval_dev():
-        model.eval()
-        pred = predict_indices(dev_idx).tolist()
-        truth = [edges[i][3] for i in dev_idx]
+    def _rank_metrics(idx_list, prefix):
+        pred = predict_indices(idx_list).tolist()
+        truth = [edges[i][3] for i in idx_list]
         mse = sum((a - b) ** 2 for a, b in zip(pred, truth)) / len(truth)
         by_state = defaultdict(list)
-        for local, i in enumerate(dev_idx):
+        for local, i in enumerate(idx_list):
             dp, selected, _e, m = edges[i]
             if not selected:
                 by_state[dp].append((pred[local], m))
@@ -294,11 +312,21 @@ def main() -> None:
             chosen = ts[max(range(len(ps)), key=lambda k: ps[k])]
             regrets.append(best - chosen)
         return {
-            "dev_edge_mse": round(mse, 5),
-            "dev_singleton_spearman": round(
+            f"{prefix}_edge_mse": round(mse, 5),
+            f"{prefix}_singleton_spearman": round(
                 sum(spearmans) / len(spearmans), 4) if spearmans else None,
-            "dev_top1_regret": round(sum(regrets) / len(regrets), 4)
+            f"{prefix}_top1_regret": round(sum(regrets) / len(regrets), 4)
             if regrets else None,
+        }
+
+    # train 侧对照样本(固定 800 条 train 边界内的边,区分优化失败 vs 泛化失败)
+    train_probe_idx = train_idx[:: max(1, len(train_idx) // 800)][:800]
+
+    def eval_dev():
+        model.eval()
+        return {
+            **_rank_metrics(dev_idx, "dev"),
+            **_rank_metrics(train_probe_idx, "train_probe"),
             **replay_dev(),
         }
 
