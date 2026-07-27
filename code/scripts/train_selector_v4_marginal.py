@@ -127,7 +127,7 @@ def main() -> None:
     set_rows: dict[str, dict[tuple[int, ...], dict]] = defaultdict(dict)
     anchors: dict[str, dict[int, float]] = defaultdict(dict)
     dedup_keys: set[str] = set()
-    for row in load_jsonl_rows(args.sets_root, "sets.shard*-of-015.jsonl"):
+    for row in load_jsonl_rows(args.sets_root, "sets.shard*.jsonl"):
         key = row.get("key")
         if not key or key in dedup_keys:
             continue
