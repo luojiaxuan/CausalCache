@@ -374,12 +374,18 @@ def main() -> None:
                 queued = time.perf_counter()
                 with inference_lock:
                     queue_seconds = time.perf_counter() - queued
+                    pass1_started = time.perf_counter()
                     with adapter_scope(messages, history_image_count):
                         generated = runtime.generate(messages)
+                    pass1_seconds = time.perf_counter() - pass1_started
+                    select_seconds = 0.0
+                    pass2_seconds = 0.0
                     if selector_model is not None:
+                        select_started = time.perf_counter()
                         chosen, diag = run_selection(
                             request, generated.canonical_action
                         )
+                        select_seconds = time.perf_counter() - select_started
                         tail_ids = [
                             int(e["step_id"]) for e in request["history"]
                         ][-args.selection_budget:]
@@ -421,9 +427,22 @@ def main() -> None:
                                     request["current_screenshot_png_base64"]
                                 ),
                             )
+                            pass2_started = time.perf_counter()
                             with adapter_scope(messages2, len(chosen)):
                                 generated = runtime.generate(messages2)
+                            pass2_seconds = time.perf_counter() - pass2_started
                             selection_info["passes"] = 2
+                    if selector_model is not None:
+                        # note (luojiaxuan): 两遍开销审计——reviewer 关心 pass-2 触发率
+                        # 与耗时占比;逐请求落日志,离线聚合出分布。
+                        print(json.dumps({
+                            "event": "SELECT_AUDIT",
+                            "passes": selection_info["passes"],
+                            "pool_size": len(request.get("history", [])),
+                            "pass1_seconds": round(pass1_seconds, 4),
+                            "select_seconds": round(select_seconds, 4),
+                            "pass2_seconds": round(pass2_seconds, 4),
+                        }), flush=True)
                 screen_size = tuple(request["screen_size"])
                 if generated.canonical_action is None:
                     action = {"action_type": "wait"}
