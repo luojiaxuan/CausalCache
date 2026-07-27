@@ -57,10 +57,16 @@ def main() -> None:
     parser.add_argument("--selector-arch", choices=("two_tower", "concat"),
                         default="two_tower")
     parser.add_argument("--selector-beam", type=int, default=3)
+    # note (luojiaxuan): proposal = CausalCache-P(两遍,先按 recent 尾出拟议动作
+    # 作参照,换帧则重组重生成);last_action = CausalCache-LA(单遍)。
+    parser.add_argument("--selector-witness",
+                        choices=("last_action", "proposal"),
+                        default="last_action")
     args = parser.parse_args()
 
-    # 必须在特征模块导入前生效:witness 伪目标 = 上一步已执行动作(单遍)。
-    os.environ["CAUSALCACHE_WITNESS_PSEUDO_TARGET"] = "last_action"
+    if args.selector_witness == "last_action":
+        # 必须在特征模块导入前生效:witness 伪目标 = 上一步已执行动作(单遍)。
+        os.environ["CAUSALCACHE_WITNESS_PSEUDO_TARGET"] = "last_action"
 
     import hashlib
 
@@ -177,12 +183,21 @@ def main() -> None:
             "budget": args.memory_budget,
             "beam": args.selector_beam,
             "readout_online": False,
-            "witness_pseudo_target": "last_executed_action",
-            "passes": 1,
+            "witness_pseudo_target": (
+                "last_executed_action"
+                if args.selector_witness == "last_action"
+                else "pass1_proposal"
+            ),
+            "passes": 1 if args.selector_witness == "last_action" else "1_or_2",
         }
 
-    def run_selection(request):
-        """eligible 池上的 beam exact-B;返回 (chosen 或 None, diagnostics)。"""
+    def run_selection(request, reference_arguments=None):
+        """eligible 池上的 beam exact-B;返回 (chosen 或 None, diagnostics)。
+
+        reference_arguments 非空时(proposal 模式)以其为 witness 目标动作
+        (computer_use 实参形制,[0,999] 坐标系,与离线 gold 目标同一 matcher);
+        为空时按 CAUSALCACHE_WITNESS_PSEUDO_TARGET 环境变量(last_action)。
+        """
         history = request["history"]
         forms = official_forms_from_history(history)
         pool = eligible_pool(history, forms)
@@ -190,6 +205,8 @@ def main() -> None:
         if len(pool) < budget:
             return None, {"reason": "pool_smaller_than_budget", "pool": len(pool)}
         record = synthetic_selector_record(request)
+        if reference_arguments is not None:
+            record["target_tool_call"] = {"arguments": dict(reference_arguments)}
         alias = dedup_alias(history)
         duplicates = {str(src): kept for src, kept in alias.items()}
 
@@ -335,10 +352,33 @@ def main() -> None:
                 forms = official_forms_from_history(history)
                 pool = eligible_pool(history, forms)
                 tail = pool[-args.memory_budget:] if args.memory_budget else []
+                screen_size = tuple(request["screen_size"])
+
+                def parse_output(text):
+                    arguments = None
+                    err = None
+                    try:
+                        matches = re.findall(
+                            r"<tool_call>\s*(.*?)\s*</tool_call>",
+                            text, re.DOTALL)
+                        if len(matches) == 1:
+                            payload = json.loads(matches[0])
+                            if isinstance(payload, dict):
+                                arguments = payload.get("arguments")
+                        action = parse_gui_owl_osworld_action(
+                            text, screen_size=screen_size)
+                        mapping = action.to_mapping()
+                    except Exception as error:  # noqa: BLE001
+                        err = f"{error.__class__.__name__}: {error}"
+                        mapping = {"type": "wait"}
+                    return arguments, mapping, err
+
                 selection_info: dict[str, Any] | None = None
                 select_seconds = 0.0
+                pass2_seconds = 0.0
                 shown = list(tail)
-                if selector_model is not None and args.memory_budget > 0:
+                if (selector_model is not None and args.memory_budget > 0
+                        and args.selector_witness == "last_action"):
                     select_started = time.perf_counter()
                     chosen, diag = run_selection(request)
                     select_seconds = time.perf_counter() - select_started
@@ -355,32 +395,51 @@ def main() -> None:
                 with inference_lock:
                     with adapter_scope(messages, len(shown)):
                         text, generation = generate_official(messages)
-                official_arguments = None
-                parse_error = None
-                screen_size = tuple(request["screen_size"])
-                try:
-                    matches = re.findall(
-                        r"<tool_call>\s*(.*?)\s*</tool_call>", text, re.DOTALL)
-                    if len(matches) == 1:
-                        payload = json.loads(matches[0])
-                        if isinstance(payload, dict):
-                            official_arguments = payload.get("arguments")
-                    action = parse_gui_owl_osworld_action(
-                        text, screen_size=screen_size)
-                    action_mapping = action.to_mapping()
-                except Exception as error:  # noqa: BLE001
-                    parse_error = f"{error.__class__.__name__}: {error}"
-                    action_mapping = {"type": "wait"}
+                    if (selector_model is not None and args.memory_budget > 0
+                            and args.selector_witness == "proposal"):
+                        prop_args, _, _ = parse_output(text)
+                        select_started = time.perf_counter()
+                        chosen, diag = run_selection(
+                            request, reference_arguments=prop_args or None)
+                        select_seconds = time.perf_counter() - select_started
+                        selection_info = {
+                            "passes": 1,
+                            "mode": "pass1_proposal",
+                            "recent_tail": tail,
+                            "chosen": chosen,
+                            "diagnostics": diag,
+                        }
+                        if chosen is not None and list(chosen) != list(tail):
+                            shown = list(chosen)
+                            messages2 = build_official_messages_for_request(
+                                request, shown)
+                            with adapter_scope(messages2, len(shown)):
+                                text2, generation2 = generate_official(
+                                    messages2)
+                            pass2_seconds = generation2["generation_seconds"]
+                            generation = {
+                                "prompt_tokens": generation2["prompt_tokens"],
+                                "generated_tokens":
+                                    generation2["generated_tokens"],
+                                "generation_seconds":
+                                    generation["generation_seconds"],
+                                "pass2_generation_seconds": pass2_seconds,
+                            }
+                            text = text2
+                            selection_info["passes"] = 2
+                official_arguments, action_mapping, parse_error = (
+                    parse_output(text))
+                if parse_error is not None:
                     with counter_lock:
                         counters["parse_failures"] += 1
                 if selector_model is not None:
                     print(json.dumps({
                         "event": "SELECT_AUDIT",
-                        "passes": 1,
+                        "passes": (selection_info or {}).get("passes", 1),
                         "pool_size": len(pool),
                         "pass1_seconds": generation["generation_seconds"],
                         "select_seconds": round(select_seconds, 4),
-                        "pass2_seconds": 0.0,
+                        "pass2_seconds": round(pass2_seconds, 4),
                     }), flush=True)
                 with counter_lock:
                     counters["requests"] += 1
@@ -393,6 +452,12 @@ def main() -> None:
                     "selection": selection_info,
                     "shown_events": shown,
                     "generation": generation,
+                    "cost": {
+                        "passes": (selection_info or {}).get("passes", 1),
+                        "pass1_seconds": generation["generation_seconds"],
+                        "select_seconds": round(select_seconds, 4),
+                        "pass2_seconds": round(pass2_seconds, 4),
+                    },
                 })
             except Exception as error:  # noqa: BLE001
                 with counter_lock:
