@@ -475,6 +475,10 @@ class OSWorldHistoryEvent:
     result_status: str
     screen_changed: bool
     post_screenshot: bytes
+    # note (luojiaxuan): 官方多轮 serve 需要每步的模型原文与 computer_use 实参
+    # (保留轮 full_response / 折叠动作行渲染);默认空值保持旧调用方兼容。
+    full_response: str = ""
+    official_arguments: Mapping[str, Any] | None = None
 
     def summary(self) -> dict[str, Any]:
         return {
@@ -483,6 +487,10 @@ class OSWorldHistoryEvent:
             "result_status": self.result_status,
             "screen_changed": self.screen_changed,
             "post_screenshot_sha256": _sha256_bytes(self.post_screenshot),
+            "official_arguments": (
+                dict(self.official_arguments)
+                if isinstance(self.official_arguments, Mapping) else None
+            ),
         }
 
 
@@ -529,6 +537,7 @@ def build_osworld_policy_request(
         "history": [
             {
                 **event.summary(),
+                "full_response": event.full_response,
                 "restored_post_screenshot_png_base64": (
                     base64.b64encode(event.post_screenshot).decode("ascii")
                     if event.step_id in selected
@@ -697,6 +706,8 @@ def run_osworld_episode(
             screenshot_name = f"step-{step_id:03d}.png"
             (attempt_root / screenshot_name).write_bytes(next_screenshot)
             result_status = "done" if done else "executed"
+            raw_response = decision.raw_response or {}
+            raw_arguments = raw_response.get("official_arguments")
             event = OSWorldHistoryEvent(
                 step_id=step_id,
                 action=decision.action.to_mapping(),
@@ -704,6 +715,10 @@ def run_osworld_episode(
                 result_status=result_status,
                 screen_changed=_sha256_bytes(screenshot) != _sha256_bytes(next_screenshot),
                 post_screenshot=next_screenshot,
+                full_response=str(raw_response.get("full_response") or ""),
+                official_arguments=(
+                    raw_arguments if isinstance(raw_arguments, Mapping) else None
+                ),
             )
             history.append(event)
             steps.append(
