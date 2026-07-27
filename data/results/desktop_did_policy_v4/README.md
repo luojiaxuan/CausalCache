@@ -103,6 +103,33 @@ byte 去重保留最近;tripleClick 类不可渲染候选跳过并计数;绑定�
 输出 `/data02/jaxan/runs/selector-v4/singletons/`,断点续跑。旧格式 v3 标签
 (58,376 行)保留作 renderer 迁移对照,不再进 selector 训练。
 
+## Selector v4 标签全量 + 三臂对比(2026-07-27 深夜)
+
+标签定稿:单例 52,823(B=1 穷举 oracle)+ 集合 147,297 唯一行(beam-3 ×
+shortlist-6 全 edge 整集重打分 + Recent-2/4 锚,5,335 状态,skipped=0)+
+**448 维 HGKV 反事实读出 52,823(100% 覆盖)**(8 层 × 8 kv-head × 7 相对
+统计量,候选池内 z 归一)。学习曲线(25/50/100% 三点全平 + train/dev MSE
+无缺口)判定 cheap 特征偏差主导后的处方验证:
+
+| 臂 | best dev top1-regret | dev Spearman | replay_gain_b2 | 备注 |
+|---|---|---|---|---|
+| cheap-only(28 维) | 0.0939 | 0.176 | +0.0051 | 特征天花板基线 |
+| **concat(全交互)** | **0.0849** | **0.193** | **+0.0108** | train/dev 缺口大(0.539/0.193) |
+| **two-tower(可加残差)** | **0.0849** | 0.171 | +0.0105 | 缺口小,epoch 10 即达最优 |
+
+- **读出特征有效**:regret −9.6%,replay_gain_b2 翻倍(+0.0051→+0.0108),
+  两个读出臂在所有部署相关指标上一致胜出 —— 路线正确;
+- concat 与 two-tower dev 打平(0.0849):可加性限制在 desktop 上零成本;
+  two-tower 训练侧记忆容量更小(train_probe Spearman 0.268 vs 0.539),
+  **零样本 mobile 迁移的保守选择 → 暂定主臂 two-tower**,concat 并列候选,
+  mobile 验证探针仲裁;
+- oracle_gap_b2 仍有 ~0.085:读出只咬下剩余 headroom 的一小口,后续升级臂
+  (last-position hidden Δ + 冻结随机投影)已登记;
+- replay_gain_b4 负值为已披露的图数不匹配下界(模型集合 1-2 张 vs 4 图锚),
+  正式验收以 fill-to-B 整集重打分为准;
+- 报告:本目录 selector_arm_{cheap,concat,twotower}_report.json;标签与
+  读出 staging 于两台 host,`PENDING_HF_UPLOAD`。
+
 ## 依赖与后续
 
 1. probe 汇总 → 判定 k≥2 是否有收益(有 → v4.1 语料加小比例 k=2 臂);
