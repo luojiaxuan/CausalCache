@@ -63,6 +63,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--readout-dropout", type=float, default=0.3)
     parser.add_argument("--readout-weight-decay", type=float, default=0.01)
+    parser.add_argument(
+        "--arch", choices=("two_tower", "concat"), default="two_tower",
+        help="two_tower = score 可加(cheap + 正则残差塔,无跨组交互);"
+             "concat = 单塔全交互,readout 维经 dropout 后并入首层,"
+             "readout 首层权重吃同样的强 weight decay。n 小、训练分钟级,"
+             "两种都跑 dev 上选,不靠先验拍板",
+    )
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
     return parser.parse_args()
@@ -264,13 +271,46 @@ def main() -> None:
                 score = score + self.readout(r).squeeze(-1) * rm
             return score
 
-    model = TwoTower().to(device)
-    param_groups = [{"params": model.cheap.parameters()}]
-    if readout_dim:
-        param_groups.append({
-            "params": model.readout.parameters(),
-            "weight_decay": args.readout_weight_decay,
-        })
+    class Concat(torch.nn.Module):
+        """单塔全交互:readout 经 dropout 与 mask 门控后并入首层。"""
+
+        def __init__(self):
+            super().__init__()
+            self.drop = torch.nn.Dropout(args.readout_dropout)
+            self.net = torch.nn.Sequential(
+                torch.nn.Linear(dim + readout_dim, args.hidden),
+                torch.nn.GELU(),
+                torch.nn.Linear(args.hidden, args.hidden), torch.nn.GELU(),
+                torch.nn.Linear(args.hidden, 1),
+            )
+
+        def forward(self, x, r=None, rm=None):
+            if readout_dim and r is not None:
+                r = self.drop(r) * rm.unsqueeze(-1)
+                x = torch.cat([x, r], dim=-1)
+            return self.net(x).squeeze(-1)
+
+    if args.arch == "concat" and readout_dim:
+        model = Concat().to(device)
+        first = model.net[0]
+        # readout 首层权重列吃强 weight decay(分组正则版降权,保留交互)
+        decay_params = [first.weight]
+        base_params = [
+            p for n, p in model.named_parameters() if p is not first.weight
+        ]
+        param_groups = [
+            {"params": base_params},
+            {"params": decay_params,
+             "weight_decay": args.readout_weight_decay},
+        ]
+    else:
+        model = TwoTower().to(device)
+        param_groups = [{"params": model.cheap.parameters()}]
+        if readout_dim:
+            param_groups.append({
+                "params": model.readout.parameters(),
+                "weight_decay": args.readout_weight_decay,
+            })
     optimizer = torch.optim.AdamW(param_groups, lr=args.learning_rate)
 
     x_all = torch.tensor([norm(f) for f in feats], dtype=torch.float32,
