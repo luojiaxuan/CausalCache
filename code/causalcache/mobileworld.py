@@ -14,18 +14,17 @@ from dataclasses import dataclass
 from typing import Any
 
 from causalcache.policy.gui_owl_v2 import GUIOwlV2Action
-from causalcache.policy.gui_owl_v2_1 import (
-    GUI_OWL_V2_1_FINAL_USER_INSTRUCTION,
-    GUI_OWL_V2_1_SYSTEM_PROMPT,
-    validate_gui_owl_v2_1_native_messages,
+from causalcache.policy.gui_owl_official import (
+    OFFICIAL_PROTOCOL_ID,
+    build_official_messages,
 )
 
 
 MOBILEWORLD_POLICY_REQUEST_SCHEMA_VERSION = (
-    "causalcache.mobileworld.policy_request.v1"
+    "causalcache.mobileworld.policy_request.v2"
 )
 MOBILEWORLD_POLICY_RESPONSE_SCHEMA_VERSION = (
-    "causalcache.mobileworld.policy_response.v1"
+    "causalcache.mobileworld.policy_response.v2"
 )
 MOBILEWORLD_SUPPORTED_MEMORY_ARMS = ("summary", "recent", "full")
 MOBILEWORLD_SUPPORTED_ACTION_TYPES = frozenset(
@@ -61,11 +60,15 @@ def _decode_png(encoded: str) -> Any:
 
 @dataclass(frozen=True)
 class MobileWorldHistoryEvent:
-    """One executed action and the post-action screenshot it produced."""
+    """One completed official-protocol policy step."""
 
     step_id: int
     action: Mapping[str, Any]
+    action_text: str
+    full_response: str
+    policy_parsed: bool
     screen_changed: bool
+    observation_screenshot: bytes
     post_screenshot: bytes
 
     def summary(self) -> dict[str, Any]:
@@ -73,14 +76,33 @@ class MobileWorldHistoryEvent:
             raise ValueError("MobileWorld history step ids must be positive integers")
         if not isinstance(self.action, Mapping):
             raise TypeError("MobileWorld history action must be a mapping")
+        if not isinstance(self.action_text, str) or not self.action_text.strip():
+            raise ValueError("MobileWorld history action text must be non-empty")
+        if not isinstance(self.full_response, str) or not self.full_response.strip():
+            raise ValueError("MobileWorld history full response must be non-empty")
+        if not isinstance(self.policy_parsed, bool):
+            raise TypeError("MobileWorld history policy_parsed must be boolean")
         if not isinstance(self.screen_changed, bool):
             raise TypeError("MobileWorld screen_changed must be boolean")
+        if (
+            not isinstance(self.observation_screenshot, bytes)
+            or not self.observation_screenshot
+        ):
+            raise ValueError(
+                "MobileWorld observation screenshot must be non-empty bytes"
+            )
         if not isinstance(self.post_screenshot, bytes) or not self.post_screenshot:
             raise ValueError("MobileWorld post screenshot must be non-empty bytes")
         return {
             "step_id": self.step_id,
             "action": dict(self.action),
+            "action_text": self.action_text,
+            "full_response": self.full_response,
+            "policy_parsed": self.policy_parsed,
             "screen_changed": self.screen_changed,
+            "observation_screenshot_sha256": _sha256_bytes(
+                self.observation_screenshot
+            ),
             "post_screenshot_sha256": _sha256_bytes(self.post_screenshot),
         }
 
@@ -149,8 +171,8 @@ def build_mobileworld_policy_request(
         "history": [
             {
                 **event.summary(),
-                "restored_post_screenshot_png_base64": (
-                    base64.b64encode(event.post_screenshot).decode("ascii")
+                "restored_observation_screenshot_png_base64": (
+                    base64.b64encode(event.observation_screenshot).decode("ascii")
                     if event.step_id in selected_ids
                     else None
                 ),
@@ -162,13 +184,14 @@ def build_mobileworld_policy_request(
             "supported_action_types": sorted(MOBILEWORLD_SUPPORTED_ACTION_TYPES),
             "contract": "Return exactly one MobileWorld JSONAction mapping.",
         },
+        "prompt_protocol": OFFICIAL_PROTOCOL_ID,
     }
 
 
 def build_mobileworld_gui_owl_messages(
     request: Mapping[str, Any],
 ) -> list[dict[str, Any]]:
-    """Render a MobileWorld request into the pinned GUI-Owl mobile envelope."""
+    """Render a MobileWorld request with the official-faithful mobile envelope."""
     if request.get("schema_version") != MOBILEWORLD_POLICY_REQUEST_SCHEMA_VERSION:
         raise ValueError("MobileWorld policy request schema version drifted")
     task = request.get("task")
@@ -178,62 +201,41 @@ def build_mobileworld_gui_owl_messages(
         raise ValueError("MobileWorld policy request lacks its instruction")
     if not isinstance(history, list) or not isinstance(selected, list):
         raise ValueError("MobileWorld policy request lacks history selection")
-    selected_ids = set(selected)
-    summaries = [
-        {
-            "step_id": event.get("step_id"),
-            "action": event.get("action"),
-            "screen_changed": event.get("screen_changed"),
-        }
-        for event in history
-    ]
-    content: list[dict[str, Any]] = [
-        {
-            "type": "text",
-            "text": (
-                "Generate the next mobile action for this task.\n"
-                f"Instruction: {task['instruction']}\n"
-                "Previous event summaries: "
-                f"{json.dumps(summaries, ensure_ascii=False, separators=(',', ':'))}"
-            ),
-        }
-    ]
-    observed_selected: set[int] = set()
+    if request.get("prompt_protocol") != OFFICIAL_PROTOCOL_ID:
+        raise ValueError("MobileWorld prompt protocol drifted")
+    selected_ids = tuple(selected)
+    event_ids = tuple(event.get("step_id") for event in history)
+    expected_suffix = event_ids[len(event_ids) - len(selected_ids) :] if selected_ids else ()
+    if selected_ids != expected_suffix:
+        raise ValueError(
+            "official MobileWorld prompt supports only a contiguous recent suffix"
+        )
+    recent_images: list[Any] = []
     for event in history:
         step_id = event.get("step_id")
         if step_id not in selected_ids:
             continue
-        encoded = event.get("restored_post_screenshot_png_base64")
+        encoded = event.get("restored_observation_screenshot_png_base64")
         if encoded is None:
-            raise ValueError("selected MobileWorld event lacks its restored screenshot")
-        content.extend(
-            (
-                {"type": "text", "text": f"Restored screenshot after step {step_id}:"},
-                {"type": "image", "image": _decode_png(encoded)},
+            raise ValueError(
+                "selected MobileWorld event lacks its observation screenshot"
             )
-        )
-        observed_selected.add(step_id)
-    if observed_selected != selected_ids:
-        raise ValueError("MobileWorld selected identities and screenshots differ")
-    content.extend(
-        (
-            {"type": "text", "text": "Current observation:"},
-            {
-                "type": "image",
-                "image": _decode_png(request["current_screenshot_png_base64"]),
-            },
-            {"type": "text", "text": GUI_OWL_V2_1_FINAL_USER_INSTRUCTION},
-        )
+        recent_images.append(_decode_png(encoded))
+    action_texts = [event.get("action_text") for event in history]
+    full_responses = [event.get("full_response") for event in history]
+    if any(not isinstance(value, str) or not value.strip() for value in action_texts):
+        raise ValueError("MobileWorld history lacks official action text")
+    if any(
+        not isinstance(value, str) or not value.strip() for value in full_responses
+    ):
+        raise ValueError("MobileWorld history lacks full assistant responses")
+    return build_official_messages(
+        goal=task["instruction"],
+        past_action_texts=action_texts,
+        past_full_responses=full_responses,
+        recent_images=recent_images,
+        current_image=_decode_png(request["current_screenshot_png_base64"]),
     )
-    messages = [
-        {
-            "role": "system",
-            "content": [{"type": "text", "text": GUI_OWL_V2_1_SYSTEM_PROMPT}],
-        },
-        {"role": "user", "content": content},
-    ]
-    validate_gui_owl_v2_1_native_messages(messages)
-    return messages
 
 
 def mobileworld_action_from_gui_owl(
@@ -290,6 +292,9 @@ def mobileworld_action_from_gui_owl(
 @dataclass(frozen=True)
 class MobileWorldPolicyDecision:
     action: Mapping[str, Any]
+    action_text: str
+    full_response: str
+    policy_parsed: bool
     raw_response: Mapping[str, Any]
     latency_seconds: float
 
@@ -337,8 +342,20 @@ class HTTPMobileWorldPolicy:
             raise TypeError("MobileWorld policy response action must be a mapping")
         if action.get("action_type") not in MOBILEWORLD_SUPPORTED_ACTION_TYPES:
             raise ValueError("MobileWorld policy returned an unsupported action")
+        action_text = raw.get("action_text")
+        full_response = raw.get("full_response")
+        policy_parsed = raw.get("policy_parsed")
+        if not isinstance(action_text, str) or not action_text.strip():
+            raise ValueError("MobileWorld policy response lacks action text")
+        if not isinstance(full_response, str) or not full_response.strip():
+            raise ValueError("MobileWorld policy response lacks full response")
+        if not isinstance(policy_parsed, bool):
+            raise TypeError("MobileWorld policy response lacks parser status")
         return MobileWorldPolicyDecision(
             action=dict(action),
+            action_text=action_text,
+            full_response=full_response,
+            policy_parsed=policy_parsed,
             raw_response=raw,
             latency_seconds=latency,
         )

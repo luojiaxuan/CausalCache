@@ -18,7 +18,12 @@ from pathlib import Path
 from typing import Any
 
 
-CONFIG_SCHEMA = "causalcache.mobileworld.benchmark_config.v1"
+CONFIG_SCHEMAS = frozenset(
+    {
+        "causalcache.mobileworld.benchmark_config.v1",
+        "causalcache.mobileworld.benchmark_config.v2",
+    }
+)
 EXECUTION_SCHEMA = "causalcache.mobileworld.execution_record.v1"
 TASK_SUBSET_SCHEMA = "causalcache.mobileworld.task_subset.v1"
 
@@ -184,8 +189,25 @@ def main() -> None:
         config_path = repository_root / config_path
     config_path = config_path.resolve()
     config = _load_json(config_path)
-    if config.get("schema_version") != CONFIG_SCHEMA:
+    if config.get("schema_version") not in CONFIG_SCHEMAS:
         raise ValueError("MobileWorld benchmark config schema drifted")
+    if (
+        config.get("schema_version")
+        == "causalcache.mobileworld.benchmark_config.v2"
+        and config.get("policy", {}).get("prompt_protocol")
+        != "mobile_agent_v3_5_gui_owl_official_faithful"
+    ):
+        raise ValueError("MobileWorld v2 config lacks the official prompt protocol")
+    if config.get("schema_version") == "causalcache.mobileworld.benchmark_config.v2":
+        policy_config = config["policy"]
+        if policy_config.get("memory_arm") != "recent":
+            raise ValueError("official MobileWorld v2 currently supports recent memory")
+        if policy_config.get("last_image") != policy_config.get("memory_budget") + 1:
+            raise ValueError("official MobileWorld last_image must equal memory_budget + 1")
+        if policy_config.get("history_observation") != "pre_action_screenshot":
+            raise ValueError("official MobileWorld history must use pre-action screenshots")
+        if policy_config.get("parse_failure_behavior") != "unknown_wait_step":
+            raise ValueError("official MobileWorld parser failure behavior drifted")
     if _git_revision(mobileworld_root) != config["upstream"]["revision"]:
         raise ValueError("MobileWorld upstream revision drifted")
     plan_path = repository_root / config["upstream"]["memory_split"]
@@ -267,6 +289,16 @@ def main() -> None:
         "task_names_sha256": _task_names_sha256(tasks),
         "num_envs": args.num_envs,
         "policy_endpoint": args.policy_endpoint,
+        "policy_contract": {
+            "prompt_protocol": config["policy"].get("prompt_protocol"),
+            "history_observation": config["policy"].get("history_observation"),
+            "parse_failure_behavior": config["policy"].get(
+                "parse_failure_behavior"
+            ),
+            "memory_arm": config["policy"]["memory_arm"],
+            "memory_budget": config["policy"]["memory_budget"],
+            "last_image": config["policy"].get("last_image"),
+        },
         "argv": list(sys.argv),
         "runtime_identity": _runtime_identity(),
         "policy_before": _policy_health(args.policy_endpoint),

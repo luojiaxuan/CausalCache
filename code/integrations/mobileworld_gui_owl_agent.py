@@ -51,8 +51,8 @@ class CausalCacheMobileWorldGUIOwlAgent(BaseAgent):
 
     def reset(self) -> None:
         self.history: list[MobileWorldHistoryEvent] = []
-        self.previous_action: dict[str, Any] | None = None
-        self.previous_screenshot: bytes | None = None
+        self.previous_decision = None
+        self.previous_observation: bytes | None = None
         self.instruction = None
 
     def predict(self, observation: dict[str, Any]) -> tuple[str, JSONAction]:
@@ -63,16 +63,21 @@ class CausalCacheMobileWorldGUIOwlAgent(BaseAgent):
             )
         image = observation["screenshot"]
         current = _png_bytes(image)
-        if self.previous_action is not None:
+        if self.previous_decision is not None:
+            if self.previous_observation is None:
+                raise RuntimeError("MobileWorld previous decision lacks its observation")
             self.history.append(
                 MobileWorldHistoryEvent(
                     step_id=len(self.history) + 1,
-                    action=self.previous_action,
+                    action=self.previous_decision.action,
+                    action_text=self.previous_decision.action_text,
+                    full_response=self.previous_decision.full_response,
+                    policy_parsed=self.previous_decision.policy_parsed,
                     screen_changed=(
-                        self.previous_screenshot is None
-                        or hashlib.sha256(current).digest()
-                        != hashlib.sha256(self.previous_screenshot).digest()
+                        hashlib.sha256(current).digest()
+                        != hashlib.sha256(self.previous_observation).digest()
                     ),
+                    observation_screenshot=self.previous_observation,
                     post_screenshot=current,
                 )
             )
@@ -90,8 +95,8 @@ class CausalCacheMobileWorldGUIOwlAgent(BaseAgent):
             screen_size=(int(image.width), int(image.height)),
         )
         decision = self.policy.act(request)
-        self.previous_action = dict(decision.action)
-        self.previous_screenshot = current
+        self.previous_decision = decision
+        self.previous_observation = current
         prediction = str(
             decision.raw_response.get("native_output", decision.action)
         )

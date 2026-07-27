@@ -2,6 +2,22 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-26:MobileWorld v1 作废，official-faithful B0/B4 v2 冻结
+
+- v1 对照 `main@3380799` 后判定 `INVALID_PROTOCOL_MISMATCH`：MobileWorld renderer
+  禁止官方要求的 `Action:` 行、把 executor JSONAction 像素坐标写回 history、把
+  recent images 塞在单个 user turn，而非官方 user/assistant 交替多轮结构；strict
+  parser 又把一步解析偏差升级为 task attempt failure。74 个 failures 中 68 个是
+  坐标越界，先前 strict B0/B4 差值及显著性全部撤回。
+- v2 直接复用 `build_official_messages` / `parse_official_output`；history 三元组为
+  pre-action screenshot、模型原始完整 response、`Action:` 文本，executor JSON 仅审计；
+  parser failure 以 UNKNOWN/wait 消耗一步并继续。B0/B4 唯一变量为
+  `memory_budget=0/4`、`last_image=1/5`。
+- 冻结配置：
+  `code/configs/causalcache_mobileworld_official_{b0,b4}_v2.json`。focused prompt、
+  parser、B0/B4 配置等价与既有回归共 57 tests；正式 Aries 双卡 strict-117 等待
+  commit/push 后发射。
+
 ## 2026-07-27:主张重冻结为固定预算重分配,corpus v3 构建完成,三行 v3 重训发射
 
 - 用户裁定:主实验从"C_r + 单槽新增"改为**固定预算 B 内替换**——Recent-B 把全部
@@ -38,7 +54,7 @@
 - 临时容器 `sglang-omni-jaxan-2` 已删;两台机器 GPU 已空,checkpoint/语料
   `PENDING_HF_UPLOAD`。
 
-## 2026-07-26:MobileWorld frozen GUI-Owl B0/B4 配对正式收官
+## 2026-07-26:MobileWorld frozen GUI-Owl B0/B4 v1 收官（后判协议无效）
 
 - 目标是给已有 B4 strict-117 结果提供同栈配对证据；唯一科学变量为
   `memory_budget: 4 → 0`，model revision、MobileWorld revision/image、roster、

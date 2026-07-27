@@ -1,6 +1,6 @@
 {
   "schema_version": "causalcache.mobileworld.b0_b4_run_provenance.v1",
-  "status": "COMPLETE_STRICT_117_WITH_MISSING_AS_ZERO",
+  "status": "INVALID_PROTOCOL_MISMATCH",
   "scientific_contract": {
     "execution_git_revision": "0efc728c8a8eb576d0ba0994600532119b0ef4e3",
     "config": "code/configs/causalcache_mobileworld_memory_b0_v1.json",

@@ -1,6 +1,11 @@
 # MobileWorld frozen GUI-Owl benchmark v1
 
-## 结论
+> **状态：`INVALID_PROTOCOL_MISMATCH`。** 本目录的 B4 campaign 使用了同一套错误的
+> v2.1 私有单轮 prompt、executor 像素坐标 history 与 task-fatal strict parser，只保留
+> 为失败证据；114/117、27 success 不得作为 official-faithful MobileWorld 基线引用。
+> 替代实验使用 `causalcache_mobileworld_official_b4_v2.json`。
+
+## 失效 run 的原始统计
 
 本次 benchmark campaign 已结束，但不是完整 117/117 结果：冻结 GUI-Owl 在
 `recent-at-most-B4`、每 task 最多 50 步、infra/policy failure 最多重试 2 次的合同下，
