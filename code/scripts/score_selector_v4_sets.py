@@ -27,6 +27,7 @@ from causalcache.agentnet_desktop_official import (
     build_official_forms_for_record,
     render_official_target_text,
 )
+from scripts.build_desktop_did_corpus_v2 import recent_window
 from scripts.build_desktop_hgkv_corpus import _split
 
 SCHEMA_VERSION = "causalcache.selector_v4_sets.v1"
@@ -233,6 +234,35 @@ def main() -> None:
         if state_key in done:
             continue
         forms = build_official_forms_for_record(record)
+        # note (luojiaxuan): 部署接受规则(2026-07-27 用户裁定"恒用满 B,recent
+        # 兜底")的参照系是 U(Recent-B) 本身,beam shortlist 不保证覆盖它——
+        # 每状态强制打 Recent-2 / Recent-4 锚集合(窗口步须全部可渲染,否则跳过
+        # 计数;Recent-1 = 单例表里的事件 s-2,不重算)。
+        current_step = int(record["step"])
+        for anchor_b in (2, 4):
+            window = recent_window(current_step, anchor_b)
+            if not window or window[0] < 1:
+                continue
+            key = f"{dp}|set:{','.join(map(str, window))}"
+            if key in done:
+                continue
+            if any(not forms[e].full_response for e in window):
+                handle.write(json.dumps({
+                    "key": key, "dp_id": dp, "kind": "recent_anchor_skipped",
+                    "events": list(window), "size": anchor_b,
+                }, ensure_ascii=False) + "\n")
+                handle.flush()
+                done.add(key)
+                continue
+            value = score_set(record, forms, window)
+            handle.write(json.dumps({
+                "key": key, "dp_id": dp, "kind": "recent_anchor",
+                "events": list(window), "size": anchor_b,
+                "score": value,
+            }, ensure_ascii=False) + "\n")
+            handle.flush()
+            done.add(key)
+            scored += 1
         shortlist = sorted(have, key=lambda e: have[e], reverse=True)[: args.shortlist]
         # size-1 种子直接取单例表(不重算)。
         level = [((event,), have[event]) for event in
