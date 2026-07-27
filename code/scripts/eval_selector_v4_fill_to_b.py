@@ -39,6 +39,24 @@ from scripts.build_desktop_hgkv_corpus import _split
 
 PROMPT_FORMAT = "desktop_official_multiturn"
 
+# note (luojiaxuan): 单遍部署消融 —— 置 1 时把目标依赖的 witness 家族特征清零
+# (cheap: witness_match/count/rank/coord_distance;set: n_witness_in_set/
+# witness_redundancy),量化 propose-then-select 第二遍买到的排序增益。
+import os as _os
+
+ZERO_WITNESS = _os.environ.get("CAUSALCACHE_ZERO_WITNESS_FEATURES") == "1"
+_WITNESS_CHEAP_IDX = (10, 11, 12, 18)
+_WITNESS_SET_IDX = (24, 25)
+
+
+def _maybe_zero_witness(features: list[float]) -> list[float]:
+    if not ZERO_WITNESS:
+        return features
+    out = list(features)
+    for i in _WITNESS_CHEAP_IDX + _WITNESS_SET_IDX:
+        out[i] = 0.0
+    return out
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -313,11 +331,11 @@ def main() -> None:
         def score_marginals(selected: tuple, candidates: list[int]) -> list[float]:
             xs, rs, rms = [], [], []
             for e in candidates:
-                f = candidate_features(
+                f = _maybe_zero_witness(candidate_features(
                     record, candidate_pool=pool, duplicates=dup, event=e,
                 ) + set_context_features(
                     record, selected=list(selected), event=e, duplicates=dup,
-                )
+                ))
                 xs.append(norm(f))
                 vec = normed_ro.get(e)
                 rs.append(vec if vec is not None else [0.0] * readout_dim)
