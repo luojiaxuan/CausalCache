@@ -157,3 +157,16 @@ shortlist-6 全 edge 整集重打分 + Recent-2/4 锚,5,335 状态,skipped=0)+
   HGKV 全 checkpoint devscore 循环(GPU2);
 - 舰队/监督/服务的清理义务:run 结束按 fleet manifest 逐 container 停删
   (mwh- 前缀),canonical 容器保留。
+
+## Fill-to-B 端到端验收(2026-07-27 凌晨,dev 全量,exact-B + recent 兜底,beam-3,真 U)
+
+| 臂 | B=2: selector−Recent-2 [95% CI] | B=4: selector−Recent-4 [95% CI] | k 分布(B=4) |
+|---|---|---|---|
+| two_tower | +0.0250 [+0.0132,+0.0368] | +0.0108 [+0.0010,+0.0209] | 0:107 / 1:164 / 2:80 / 3:147 / 4:61 |
+| **concat(改判主臂)** | **+0.0297 [+0.0185,+0.0409]** | **+0.0169 [+0.0067,+0.0277]** | 0:103 / 1:103 / 2:88 / 3:119 / 4:146 |
+
+- 两臂两预算全部显著为正(episode bootstrap,n=564/559;fresh 整集补打 1,123 次);
+- **concat 端到端反超**(dev 平手被真 U 对比打破)→ 桌面主臂 = concat;
+  two-tower 保留为跨平台迁移保守变体(mobile 探针再仲裁);
+- k=0(纯 Recent 兜底)真实被选中(B=4 下 ~19%),oracle_gap 仍余 ~0.06-0.08;
+- 报告:filltob_{two_tower,concat}.json(本目录)。

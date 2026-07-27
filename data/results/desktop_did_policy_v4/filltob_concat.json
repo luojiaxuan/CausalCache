@@ -1,0 +1,52 @@
+{
+  "arch": "concat",
+  "b2": {
+    "k_distribution": {
+      "0": 47,
+      "1": 230,
+      "2": 287
+    },
+    "oracle_gap": {
+      "ci_high": 0.08750189642069509,
+      "ci_low": 0.07191382831988961,
+      "n": 564,
+      "point": 0.07972505319523394
+    },
+    "selector_minus_recent": {
+      "ci_high": 0.040879405109761756,
+      "ci_low": 0.018499216026350275,
+      "n": 564,
+      "point": 0.02966824669105245
+    }
+  },
+  "b4": {
+    "k_distribution": {
+      "0": 103,
+      "1": 103,
+      "2": 88,
+      "3": 119,
+      "4": 146
+    },
+    "oracle_gap": {
+      "ci_high": 0.06719613020773126,
+      "ci_low": 0.05484339039355664,
+      "n": 559,
+      "point": 0.06077580013639779
+    },
+    "selector_minus_recent": {
+      "ci_high": 0.027694870268046536,
+      "ci_low": 0.006718865977732312,
+      "n": 559,
+      "point": 0.01694002266300745
+    }
+  },
+  "beam": 3,
+  "fresh_true_scores": 1123,
+  "policy_checkpoint_sha256": "572092c218a97d1aa88b6845086a2ad2cec77c1a6d6fcd796f2e125ed62d67a9",
+  "schema_version": "causalcache.selector_v4_fill_to_b_eval.v1",
+  "scorer": "/bigdata/mw/runs/selector-v4/from-h00/arm-concat/marginal_scorer.pt",
+  "skipped": {
+    "b2_no_anchor": 41,
+    "b4_no_anchor": 46
+  }
+}
