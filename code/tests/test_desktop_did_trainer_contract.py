@@ -634,6 +634,31 @@ def test_hgkv_w8_config_is_step_equivalent() -> None:
     assert w8_data == base["data"]
 
 
+def test_ungated_v4_w2_config_is_step_equivalent() -> None:
+    """w2 变体与 ungated_kv_v4 唯一差别 = accumulation 4→8(配 world 2,16 组/步不变)。"""
+    import json as json_module
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1] / "configs"
+    base = json_module.loads(
+        (root / "causalcache_desktop_did_ungated_kv_v4.json").read_text(
+            encoding="utf-8")
+    )
+    w2 = json_module.loads(
+        (root / "causalcache_desktop_did_ungated_kv_v4w2.json").read_text(
+            encoding="utf-8")
+    )
+    assert w2["training"]["gradient_accumulation_steps"] == 8
+    assert base["training"]["gradient_accumulation_steps"] == 4
+    w2_training = dict(w2["training"], gradient_accumulation_steps=4)
+    assert w2_training == base["training"]
+    assert w2["gates"] == base["gates"]
+    assert w2["objective"] == base["objective"]
+    w2_data = {k: v for k, v in w2["data"].items() if k != "world_size_note"}
+    base_data = {k: v for k, v in base["data"].items() if k != "world_size_note"}
+    assert w2_data == base_data
+
+
 def test_epoch_tail_plan_fixes_only_mixed_partitions() -> None:
     """混合尾巴(v3 死锁案发现场)补同步;均匀场景保持旧行为逐字节不变。"""
     plan = trainer.sparse_epoch_tail_plan
