@@ -49,6 +49,34 @@ MobileWorld 前例 ef19e1a 表明格式差异可吞掉稀疏选点收益。用�
 `/data04/jaxan/mw/runs/desktop-did-v4/probe-k/probe_k.shard*.jsonl`(断点续跑),
 完成标记 `PROBE_DONE_*` 后链式启动 ungated 行。
 
+## 探针结果(2026-07-27,427 状态,B=4,官方多轮渲染)
+
+| k | frozen 边际 [95% CI] | s300(旧格式)did 迁移 | n |
+|---|---|---|---|
+| 1 | **+0.0130 [+0.0048,+0.0211]** | +0.0002 [−0.0007,+0.0010](≈0) | 427 |
+| 2 | +0.0118 [−0.0078,+0.0304] n.s. | +0.0009 n.s. | 106 |
+| 3 | −0.0017 n.s. | +0.0022 n.s. | 32 |
+| 4 | −0.0243 [−0.0633,−0.0048] | −0.0006 | 3 |
+
+配对增量:k2−k1 = +0.0014 n.s.;k3−k2 = −0.0114 n.s.(负向);k4−k3 = −0.0330。
+可用性:75% 状态只有 1 个合格正例(321/427),k≥2 原料 25%,k≥3 仅 7.5%。
+
+**三个结论**:(1) 冻结替换效应在官方结构下**存活且为正**(k=1 显著 +0.013)——
+格式迁移风险(桌面版 ef19e1a)未命中冻结效应;(2) 旧格式 s300 的 HGKV 选择性
+在官方结构下**完全不迁移**(did≈0,v3 dev 口径为 +0.011)——**v4 重训是必要的**,
+adapter 选择性绑定 renderer;(3) **k≥2 无增量收益 + 原料稀薄 → v4 保持 k=1
+替换臂,不出 v4.1**;k≥2 布局仍由 selector 推理端 edge 重打分覆盖,若 edge2
+真实 U 显示失灵再议小比例 k=2 臂(与 v3 时的冻结决定一致)。
+汇总:`/bigdata/mw/runs/desktop-did-v4/probe-k/summary.json` +
+[summarize_desktop_official_k_probe.py](../../../code/scripts/summarize_desktop_official_k_probe.py)。
+
+## 运行变更记录
+
+- 2026-07-27:probe 结束后 hyper01 GPU3 被同机 124GB 服务进程抢占(root,活跃,
+  不符合 0% 空占击杀授权),ungated 行撤退到 GPU0-1 world-2×accum-8
+  (`causalcache_desktop_did_ungated_kv_v4w2.json`,等价性单测锁定;gate 打分
+  仍用 4 卡口径 config)。
+
 ## 依赖与后续
 
 1. probe 汇总 → 判定 k≥2 是否有收益(有 → v4.1 语料加小比例 k=2 臂);
