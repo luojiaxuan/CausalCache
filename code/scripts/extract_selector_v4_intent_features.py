@@ -48,9 +48,9 @@ def main() -> None:
 
     processor = AutoProcessor.from_pretrained(str(args.model_dir))
     tokenizer = processor.tokenizer
-    # 只要输入嵌入层:加载到 CPU 取权重再搬 GPU,避免整模型驻留
+    # 只要输入嵌入层:CPU 加载(不依赖 accelerate)后单独搬 GPU,整模型即弃
     model = AutoModelForImageTextToText.from_pretrained(
-        str(args.model_dir), torch_dtype=torch.bfloat16, device_map="cpu"
+        str(args.model_dir), torch_dtype=torch.bfloat16
     )
     embed = model.get_input_embeddings().to(args.device)
     del model
