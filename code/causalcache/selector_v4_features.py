@@ -129,4 +129,72 @@ def candidate_features(
     return list(values)
 
 
-__all__ = ["FEATURE_NAMES", "FEATURE_SCHEMA", "candidate_features"]
+SET_FEATURE_NAMES = (
+    "set_size",
+    "min_age_gap_to_set",     # |event − 最近的已选事件|;S=∅ 时 -1
+    "mean_age_gap_to_set",
+    "n_recent_in_set",        # 已选中 age<=5 的数量
+    "n_witness_in_set",       # 已选中 witness 的数量
+    "witness_redundancy",     # 候选是 witness 且 S 已含 witness
+    "event_older_than_set",   # 候选比 S 中最老的还老
+    "duplicate_of_set_member",  # 候选与某已选事件 byte 相同(经 duplicates 表)
+)
+
+
+def set_context_features(
+    record: Mapping[str, Any],
+    *,
+    selected: Sequence[int],
+    event: int,
+    duplicates: Mapping[str, int] | Mapping[int, int],
+    coordinate_tolerance: int = 25,
+) -> list[float]:
+    """候选相对已选集合 S 的上下文特征,顺序 = SET_FEATURE_NAMES;S=∅ 全零槽。
+
+    # note (luojiaxuan): 统一集合条件边际打分器的第二段输入。witness 判定与
+    # candidate_features 同一冻结等价函数;byte 重复经单例表的 duplicates 映射
+    # (kept_event 的所有别名一视同仁)。
+    """
+    current_step = int(record["step"])
+    screen_size = tuple(record["screen_size"])
+    target = record["target_tool_call"]
+    if not selected:
+        return [0.0, -1.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+
+    def is_witness(candidate_event: int) -> bool:
+        for entry in record["history"]:
+            if int(entry["step_id"]) - 1 != candidate_event:
+                continue
+            return history_action_matches_target(
+                entry["action"], target,
+                screen_size=screen_size,
+                coordinate_tolerance=coordinate_tolerance,
+            )
+        return False
+
+    gaps = [abs(event - s) for s in selected]
+    n_recent = sum(1 for s in selected if current_step - s <= 5)
+    witness_in_set = sum(1 for s in selected if is_witness(s))
+    event_witness = is_witness(event)
+    alias = {int(k): int(v) for k, v in dict(duplicates).items()}
+    canon = lambda e: alias.get(e, e)
+    duplicate_member = float(any(canon(event) == canon(s) for s in selected))
+    return [
+        float(len(selected)),
+        float(min(gaps)),
+        float(sum(gaps) / len(gaps)),
+        float(n_recent),
+        float(witness_in_set),
+        float(event_witness and witness_in_set > 0),
+        float(event < min(selected)),
+        duplicate_member,
+    ]
+
+
+__all__ = [
+    "FEATURE_NAMES",
+    "FEATURE_SCHEMA",
+    "SET_FEATURE_NAMES",
+    "candidate_features",
+    "set_context_features",
+]
