@@ -139,3 +139,21 @@ shortlist-6 全 edge 整集重打分 + Recent-2/4 锚,5,335 状态,skipped=0)+
 3. 旧格式 v3 结论(B=1/2/4 全过 gate,s300 pooled +0.01106)保留在
    [desktop_did_policy_v3](../desktop_did_policy_v3/README.md),v4 是其官方
    结构复核 —— 若 v4 gate 不过,即桌面版 ef19e1a(收益是单轮结构产物)。
+
+## 过夜冲刺(2026-07-27 深夜,用户最高授权)运行记录
+
+- **MobileWorld HGKV-B4 closed-loop**(决定性实验:须显著超过冻结基线
+  B0=28.21%/B4=29.91%, CI 跨零, 4f4ad25):基于并行会话的官方协议 harness
+  (branch luojiaxuan/mobileworld-memory-osworld2 @7ff6cad),新分支
+  `jaxan/mobileworld-hgkv-arm`(550e80a)给 serve 侧加可选 HGKV 挂载
+  (官方图序 mask;B0/无 adapter bitwise 冻结);config
+  `causalcache_mobileworld_official_b4_hgkv_v1.json`(desktop-v4 s300 零样本);
+  hyper01:16-env 舰队(host docker,prefix sglang-omni-jaxan-mwh-)+ 3 policy
+  副本(GPU0/1/7,restart-loop)+ 3 shard supervisor(断点续跑,pending 反推,
+  STALL 保护);run root `/data04/jaxan/mw/runs/mw-hgkv-b4-v1`;
+- **hyper00**:full_lora w4(GPU0-3,encode-off+expandable,config w4)与
+  ungated w4(GPU4-7)并行训练中;
+- **hyper01 附属**:fill-to-B 验收 ×2(GPU4/5,首启因 env 穿引号丢失重启)、
+  HGKV 全 checkpoint devscore 循环(GPU2);
+- 舰队/监督/服务的清理义务:run 结束按 fleet manifest 逐 container 停删
+  (mwh- 前缀),canonical 容器保留。
