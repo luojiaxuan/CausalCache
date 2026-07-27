@@ -35,6 +35,15 @@ CONFIG_PATH = ROOT / "code/configs/causalcache_mobileworld_memory_v1.json"
 OFFICIAL_B0_CONFIG_PATH = (
     ROOT / "code/configs/causalcache_mobileworld_official_b0_v2.json"
 )
+OFFICIAL_B1_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_mobileworld_official_b1_v2.json"
+)
+OFFICIAL_B2_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_mobileworld_official_b2_v2.json"
+)
+OFFICIAL_B3_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_mobileworld_official_b3_v2.json"
+)
 OFFICIAL_B4_CONFIG_PATH = (
     ROOT / "code/configs/causalcache_mobileworld_official_b4_v2.json"
 )
@@ -333,20 +342,34 @@ def test_mobileworld_manifest_and_config_lock_gui_only_denominator() -> None:
 
 
 def test_official_mobileworld_configs_differ_only_in_memory_budget() -> None:
-    b0 = json.loads(OFFICIAL_B0_CONFIG_PATH.read_text(encoding="utf-8"))
-    b4 = json.loads(OFFICIAL_B4_CONFIG_PATH.read_text(encoding="utf-8"))
-    assert b0["schema_version"] == b4["schema_version"] == (
-        "causalcache.mobileworld.benchmark_config.v2"
+    configs = [
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in (
+            OFFICIAL_B0_CONFIG_PATH,
+            OFFICIAL_B1_CONFIG_PATH,
+            OFFICIAL_B2_CONFIG_PATH,
+            OFFICIAL_B3_CONFIG_PATH,
+            OFFICIAL_B4_CONFIG_PATH,
+        )
+    ]
+    assert all(
+        value["schema_version"] == "causalcache.mobileworld.benchmark_config.v2"
+        for value in configs
     )
-    assert b0["policy"]["prompt_protocol"] == b4["policy"]["prompt_protocol"] == (
-        "mobile_agent_v3_5_gui_owl_official_faithful"
+    assert all(
+        value["policy"]["prompt_protocol"]
+        == "mobile_agent_v3_5_gui_owl_official_faithful"
+        for value in configs
     )
-    assert (b0["policy"]["memory_budget"], b0["policy"]["last_image"]) == (0, 1)
-    assert (b4["policy"]["memory_budget"], b4["policy"]["last_image"]) == (4, 5)
-    b0_comparable = json.loads(json.dumps(b0))
-    b4_comparable = json.loads(json.dumps(b4))
-    for value in (b0_comparable, b4_comparable):
+    assert [
+        (value["policy"]["memory_budget"], value["policy"]["last_image"])
+        for value in configs
+    ] == [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)]
+    comparable = []
+    for config in configs:
+        value = json.loads(json.dumps(config))
         value["policy"].pop("memory_budget")
         value["policy"].pop("last_image")
         value["outputs"] = {}
-    assert b0_comparable == b4_comparable
+        comparable.append(value)
+    assert all(value == comparable[0] for value in comparable[1:])

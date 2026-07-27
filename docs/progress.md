@@ -2,6 +2,22 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-27:MobileWorld B1/B2/B3 official-faithful dose campaign 冻结
+
+- 用户在 B0/B4 v2 收官后要求补跑 Recent-B1/B2/B3。三臂继续使用相同 frozen
+  GUI-Owl、MobileWorld revision、117 roster、59/58 shards、50-step/retry、
+  2,560 visual tokens/image、官方 prompt/parser 与确定性 decoding；唯一变量为
+  `(memory_budget,last_image)=(1,2)/(2,3)/(3,4)`。
+- 新增 committed config
+  `causalcache_mobileworld_official_b{1,2,3}_v2.json`，SHA256 分别为
+  `b8be5d94…759bab`、`c12eb2a0…bd6206`、`90121b42…752ad`；14 项
+  MobileWorld/reducer regression 通过，机械测试确认 B0–B4 五份 config 除
+  budget、last_image 与输出提示路径外逐字段一致。
+- 执行纪律继续为 Aries GPU0+1 双卡顺序运行：B1 完整归约后才启动 B2，
+  B2 完整归约后才启动 B3；不同 memory arm 不并行。共同 upstream
+  Mattermost evaluator failure 按既有 frozen strict-117 missing-as-zero 处理，
+  不修改 upstream 或分母。
+
 ## 2026-07-27:MobileWorld official-faithful B0/B4 v2 收官
 
 - 严格按用户要求顺序执行：Aries GPU0+1 先完整跑 B0，再释放双卡完整跑
