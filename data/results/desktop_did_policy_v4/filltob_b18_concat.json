@@ -1,0 +1,57 @@
+{
+  "arch": "concat",
+  "b1": {
+    "k_distribution": {
+      "0": 77,
+      "1": 525
+    },
+    "oracle_gap": {
+      "ci_high": 0.0,
+      "ci_low": 0.0,
+      "n": 602,
+      "point": 0.0
+    },
+    "selector_minus_recent": {
+      "ci_high": 0.05667525716816402,
+      "ci_low": 0.03164252538861559,
+      "n": 602,
+      "point": 0.04384446639584631
+    }
+  },
+  "b8": {
+    "k_distribution": {
+      "0": 65,
+      "1": 50,
+      "2": 36,
+      "3": 47,
+      "4": 41,
+      "5": 42,
+      "6": 33,
+      "7": 8,
+      "8": 4
+    },
+    "oracle_gap": {
+      "ci_high": 0.0,
+      "ci_low": 0.0,
+      "n": 326,
+      "point": 0.0
+    },
+    "selector_minus_recent": {
+      "ci_high": 0.017658348343153513,
+      "ci_low": -0.0039007451461645706,
+      "n": 326,
+      "point": 0.006839801161692826
+    }
+  },
+  "beam": 3,
+  "fresh_true_scores": 928,
+  "merged_from_shards": 4,
+  "policy_checkpoint_sha256": "572092c218a97d1aa88b6845086a2ad2cec77c1a6d6fcd796f2e125ed62d67a9",
+  "schema_version": "causalcache.selector_v4_fill_to_b_eval.v1",
+  "scorer": "/data/runs/selector-v4/arm-concat/marginal_scorer.pt",
+  "skipped": {
+    "b1_anchor_unrenderable": 3,
+    "b8_anchor_unrenderable": 13,
+    "b8_short_history": 266
+  }
+}

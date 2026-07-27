@@ -1,0 +1,53 @@
+{
+  "arch": "two_tower",
+  "b2": {
+    "k_distribution": {
+      "0": 25,
+      "1": 148,
+      "2": 391
+    },
+    "oracle_gap": {
+      "ci_high": 0.09043940646733317,
+      "ci_low": 0.07483124847921145,
+      "n": 564,
+      "point": 0.0825087598377198
+    },
+    "selector_minus_recent": {
+      "ci_high": 0.03493057048382639,
+      "ci_low": 0.009660913208399409,
+      "n": 564,
+      "point": 0.02226074142893446
+    }
+  },
+  "b4": {
+    "k_distribution": {
+      "0": 141,
+      "1": 82,
+      "2": 153,
+      "3": 137,
+      "4": 46
+    },
+    "oracle_gap": {
+      "ci_high": 0.06972555091802393,
+      "ci_low": 0.05761195745724518,
+      "n": 559,
+      "point": 0.06348939571168927
+    },
+    "selector_minus_recent": {
+      "ci_high": 0.027404974940519113,
+      "ci_low": 0.00656832845179833,
+      "n": 559,
+      "point": 0.016488423521881103
+    }
+  },
+  "beam": 3,
+  "fresh_true_scores": 1123,
+  "merged_from_shards": 8,
+  "policy_checkpoint_sha256": "572092c218a97d1aa88b6845086a2ad2cec77c1a6d6fcd796f2e125ed62d67a9",
+  "schema_version": "causalcache.selector_v4_fill_to_b_eval.v1",
+  "scorer": "/data/runs/selector-v4/arm-lastact/marginal_scorer.pt",
+  "skipped": {
+    "b2_no_anchor": 41,
+    "b4_no_anchor": 46
+  }
+}
