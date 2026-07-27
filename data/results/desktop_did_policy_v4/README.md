@@ -190,3 +190,22 @@ run root `/data04/jaxan/mw/runs/mw-hgkv-b4-v1`(轨迹 LOCAL_PRIVATE_RAW_TRACE),
 
 **full_lora**:w4 在 OOM 边缘存活(attempt2 过 s50),持续训练中,预计上午
 出 s300 → 补 gate。**paper 主表/摘要已填实测数字**(6 页编译通过)。
+
+## full_lora v4 终态:BLOCKED(内存,待用户裁决)
+
+w8(accum2)与 w4(accum4)各 3 次尝试全部 OOM(step ~40-70 的 B=4 长 prompt
+单元;141GB H200 差 ~134MB-342MB;encode-off + expandable_segments 已用)。
+根因:官方多轮 prompt(~14.5k tokens)× 全 36 层 LoRA 反向的激活峰值,较 v3
+单轮长 ~1-2k tokens,恰好越过容量线。梯度检查点因 ContextVar 旁路重算语义
+(plain_lora_bypass_scope)默认禁用。晨间选项:(a) use_reentrant=False 非重入
+GC + ContextVar 正确性单测(协议冻结面需记录豁免);(b) 该行沿用 v3 结论 +
+v4 blocked 披露;(c) 换更大显存机器。三次尝试日志在
+hyper00 /data02/jaxan/runs/desktop-did-v4/full_lora/train.log。
+
+## MobileWorld selected 臂 campaign(进行中)
+
+mw-hgkv-sel-b4-v1:16 env × 4 shard × 4 个 selector-enabled HGKV 副本
+(propose-then-select 两遍;witness=拟议动作;gap-fold 二遍渲染;
+memory_arm=full 全池随请求)。首批请求 0 失败。分支
+jaxan/mobileworld-hgkv-arm @b4c38c6(gap-fold/特征/serve 两遍/runner 白名单
+全有单测或编译检查)。结果将与冻结 B0/B4、HGKV-recent-B4(34/117)三方配对。
