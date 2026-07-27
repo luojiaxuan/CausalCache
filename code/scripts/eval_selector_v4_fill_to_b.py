@@ -373,8 +373,15 @@ def main() -> None:
                 continue
             anchor_u = anchors.get(dp, {}).get(b)
             if anchor_u is None:
-                skipped[f"b{b}_no_anchor"] += 1
-                continue
+                # note (luojiaxuan): B∈{1,8} 的 recent 锚不在离线集合表中(表只有
+                # Recent-2/4)——现场按同一 true_score 口径补打,进共享缓存。
+                if forms is None:
+                    forms = build_official_forms_for_record(record)
+                try:
+                    anchor_u = true_score(record, forms, list(window))
+                except ValueError:
+                    skipped[f"b{b}_anchor_unrenderable"] += 1
+                    continue
             if len(pool) < b:
                 skipped[f"b{b}_pool_too_small"] += 1
                 continue

@@ -63,7 +63,13 @@ def eligible_pool(
     history: Sequence[Mapping[str, Any]],
     forms: Sequence[OfficialStepForms],
 ) -> list[int]:
-    """可作保留轮的事件号:∈[1, t-2]、有截图载荷、保留轮响应非空。"""
+    """可作保留轮的事件号:∈[1, t-2]、有截图载荷、保留轮响应非空。
+
+    # note (luojiaxuan): 保留轮展示的是步骤 sid+1 的完整响应(事件 sid 的 post
+    # 帧作为步骤 sid+1 的观测,builder 取 steps[sid] 即 step sid+1)——所以
+    # 资格检查必须查 forms[sid],不是 forms[sid-1](后者曾放行"下一步响应缺失"
+    # 的事件,builder fail-closed 抛 ValueError)。
+    """
     total = len(history)
     pool = []
     for event in history:
@@ -72,7 +78,7 @@ def eligible_pool(
             continue  # 事件 t-1 的 post 帧即当前观测
         if event.get("restored_post_screenshot_png_base64") is None:
             continue
-        if not forms[sid - 1].full_response:
+        if not forms[sid].full_response:
             continue
         pool.append(sid)
     return pool

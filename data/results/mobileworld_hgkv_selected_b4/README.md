@@ -12,8 +12,18 @@ mobile_agent_v3_5 官方忠实;分母 117(frozen_gui_owl_gui_only);config
 | 轮 | 主机 | 布局 | 状态 | 成功 |
 |---|---|---|---|---|
 | r1 | hyper01 | 16 emu × 4 shard × 4 GPU | 完成 2026-07-27 | **39/117 = 33.33%** |
-| r2 | hyper01 | 同上(复用 fleet/servers) | 进行中 | — |
-| r3 | hyper01 | r2 后串行 | 排队 | — |
+| r2 | hyper01 | 同上(复用 fleet/servers) | 完成 2026-07-28 | **42/117 = 35.90%** |
+| r3(改单遍) | hyper01 | 单遍 last-action 臂 `mw-hgkv-sel1p-b4-v1` | 进行中 | — |
+
+两轮合并(selected 均值 34.62%)vs 冻结 B0 单轮:**+6.41pp CI[−0.85, +13.68]**
+(任务级配对均值差,bootstrap 10k;B0 加轮 r2/r3 落地后基线侧方差还会收窄)。
+
+### 两遍开销审计(r2 全程 2224 步,SELECT_AUDIT)
+
+pass-2 触发率 **81.7%**(池>B 时 96.9%);中位 pass1 4.23s / selector 39ms /
+pass2 3.26s;**平均每步开销 +65.9%**。两遍臂的真实成本高——这组数字是
+"主线切单遍 last-action"的决定性依据(单遍开销仅 selector 的 ~7-39ms)。
+文件:`two_pass_overhead_audit.json`、`per_task_success_r2.json`。
 
 配套加轮:冻结 B0 r2/r3(hyper00,16 emu 拆两半并行,run roots
 `/data/mw/runs/mw-b0-r{2,3}`);selector-only 消融 frozen+selected-B4

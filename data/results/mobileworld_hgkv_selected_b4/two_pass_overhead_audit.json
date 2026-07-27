@@ -1,0 +1,11 @@
+{
+ "steps_audited": 2224,
+ "pass2_rate_all": 0.8165,
+ "steps_pool_gt_B": 1875,
+ "pass2_rate_when_pool_gt_B": 0.9685,
+ "median_pass1_seconds": 4.229,
+ "median_select_seconds": 0.0389,
+ "median_pass2_seconds_when_fired": 3.258,
+ "mean_step_overhead_ratio_vs_pass1": 0.6587,
+ "source": "hyper01 mw-hgkv-sel-b4 r2 campaign SELECT_AUDIT (two-pass arm)"
+}
