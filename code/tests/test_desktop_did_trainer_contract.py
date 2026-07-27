@@ -659,6 +659,31 @@ def test_ungated_v4_w2_config_is_step_equivalent() -> None:
     assert w2_data == base_data
 
 
+def test_full_lora_v4_w8_config_is_step_equivalent() -> None:
+    """w8 变体与 full_lora_v4 唯一差别 = accumulation 8→2(配 world 8,16 组/步不变)。"""
+    import json as json_module
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1] / "configs"
+    base = json_module.loads(
+        (root / "causalcache_desktop_did_full_lora_v4.json").read_text(
+            encoding="utf-8")
+    )
+    w8 = json_module.loads(
+        (root / "causalcache_desktop_did_full_lora_v4w8.json").read_text(
+            encoding="utf-8")
+    )
+    assert w8["training"]["gradient_accumulation_steps"] == 2
+    assert base["training"]["gradient_accumulation_steps"] == 8
+    w8_training = dict(w8["training"], gradient_accumulation_steps=8)
+    assert w8_training == base["training"]
+    assert w8["gates"] == base["gates"]
+    assert w8["objective"] == base["objective"]
+    w8_data = {k: v for k, v in w8["data"].items() if k != "world_size_note"}
+    base_data = {k: v for k, v in base["data"].items() if k != "world_size_note"}
+    assert w8_data == base_data
+
+
 def test_epoch_tail_plan_fixes_only_mixed_partitions() -> None:
     """混合尾巴(v3 死锁案发现场)补同步;均匀场景保持旧行为逐字节不变。"""
     plan = trainer.sparse_epoch_tail_plan
