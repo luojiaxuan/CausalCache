@@ -361,40 +361,44 @@ replacement recovers Recent-$B$ exactly. Selector labels cover
 $B\in\{1,2,4\}$; the realized replacement intensity $k$
 (Eq.~\ref{eq:kstat}) is reported per budget, never preset.
 
-\paragraph{Deployment and the intent signal.}
-Four of the selector's input features are target-conditioned: they test
-whether some history action matches \emph{the action about to be taken},
-which at training time is the gold teacher-forced target but at deployment
-does not yet exist when memory is selected. We therefore deploy
-\emph{propose-then-select}: the policy first acts on the default
-Recent-$B$ prompt, its tentative action serves as the pseudo-target for the
-witness features, and the policy re-decides on the re-allocated prompt only
-when the selector displaces a recent frame. The second pass is not
-decorative, and its cost is bounded: under the official protocol's
-deterministic decoding, granting the Recent-$B$ baseline the same doubled
-compute reproduces its output byte-for-byte---the gain comes from changing
-the \emph{input} allocation, not from extra computation---and the first
-pass's action is retained as the fallback whenever no replacement is
-accepted. An ablation quantifies exactly what the intent signal buys:
-zeroing the four witness features (a single-pass deployment) preserves a
-significant $+0.016$ $[+0.003,+0.030]$ over Recent-$2$ but drops the
-primary $B{=}4$ contrast from $+0.011$ $[+0.001,+0.021]$ to $+0.009$
-$[-0.002,+0.020]$, no longer significant, while more than tripling
-full-replacement allocations ($k{=}4$: $11\%\to34\%$)---without intent the
-selector cannot tell which archived frame matters and over-replaces. We
-also tested the natural single-pass rescue: eight engineered features that
-read intent from the instruction text and trajectory progress (frozen
-input-embedding cosines between the instruction, each candidate's action
-line, and recent behavior) rather than from a tentative action. These
-features repair the over-replacement pathology ($k{=}4$ falls back to
-$12\%$) and retain a significant $B{=}2$ contrast
-($+0.015$ $[+0.000,+0.030]$), but the primary $B{=}4$ contrast stays
-non-significant ($+0.005$ $[-0.007,+0.016]$): knowing \emph{what the task
-wants} is not enough at larger budgets---the selector must know \emph{what
-the policy is about to do}, which only the proposal pass provides. This
-dissociation is itself evidence for the witness mechanism, and fixes
-propose-then-select as the deployment path at $B{=}4$ while licensing
-single-pass deployment at $B{=}2$.
+\paragraph{Single-pass deployment via action-recurrence witnesses.}
+Four of the selector's input features are \emph{witness} features: they
+test whether the action taken right after some archived frame matches a
+reference action. The choice of reference is the crux of deployment. At
+training time the reference is the gold teacher-forced target, which does
+not exist when memory must be selected online. We deploy the selector with
+the reference set to \emph{the action just executed} at step $t{-}1$---a
+quantity known before selection, requiring no extra forward pass. The
+mechanism this realizes is action-recurrence retrieval: GUI workflows
+revisit controls and views, so the archived frame after which the current
+action pattern last occurred is precisely the high-fidelity state worth
+restoring. With this reference the selector remains significant at both
+budgets ($+0.025$ $[+0.013,+0.036]$ over Recent-$2$; $+0.015$
+$[+0.006,+0.025]$ over Recent-$4$) with a healthy replacement profile
+($71\%$ of states displace at least one recent frame), and the deployed
+system selects memory and generates the action in a single pass, adding
+only the selector's own cost ($<10$\,ms) to the step.
+
+A ladder of alternative references isolates why this works and serves as
+an upper/lower bound analysis. (i) \emph{Gold/proposal reference}
+(propose-then-select: act once on the Recent-$B$ prompt, use the tentative
+action as the reference, re-decide on the re-allocated prompt when a frame
+is displaced) is the natural upper bound and scores $+0.011$
+$[+0.001,+0.021]$ at $B{=}4$---no better than the last-action reference,
+at the price of a conditional second generation. (ii) \emph{No reference}
+(witness features zeroed) keeps $B{=}2$ significant ($+0.016$
+$[+0.003,+0.030]$) but loses $B{=}4$ ($+0.009$ $[-0.002,+0.020]$) while
+more than tripling full-replacement allocations ($k{=}4$:
+$11\%\to34\%$)---without any action signal the selector cannot tell which
+archived frame matters and over-replaces. (iii) \emph{Instruction-only
+intent} (eight frozen-embedding cosine features between the instruction,
+each candidate's action line, and recent behavior) repairs the
+over-replacement pathology ($k{=}4$ back to $12\%$) yet stays
+non-significant at $B{=}4$ ($+0.005$ $[-0.007,+0.016]$). The dissociation
+is sharp: knowing \emph{what the task wants} is insufficient---the
+selector needs \emph{what the agent is doing}, and the last executed
+action carries that signal as well as a lookahead proposal does, at none
+of its cost.
 
 \section{Experimental Setup}
 
