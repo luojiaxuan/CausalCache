@@ -22,8 +22,10 @@
 
 ## 3. 轮数与检验(mobile)
 
-- 各主臂**等轮数 = 3**:P(r1/r2 已有,补 r3)、HGKV+Recent-B4(r1 已有,
-  补 r2/r3)、Frozen B0(3 轮已有);
+- (2026-07-28 修订,早于 recent r2/r3 完赛:)各主臂**等轮数 = 2**:
+  primary = P(r1,r2) vs HGKV+Recent-B4(r1,r2)双侧配对;P r3 取消;
+  recent r3(与 r2 并行已启动)完赛后仅作 robustness 附注,不进主检验;
+  Frozen B0 三轮作 secondary(基线侧超采样,披露);
 - 检验:任务级配对均值差,**双侧** cluster bootstrap 10k(按任务重采样),
   报告点估计、CI95、双侧 p;不把四舍五入 CI 界写成强结论;
 - 分层报告(描述性):memory_candidate(62)/single_app_control(55)。
