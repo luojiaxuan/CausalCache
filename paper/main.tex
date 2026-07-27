@@ -265,10 +265,34 @@ target---every prompt carries exactly $B$ history images:
     same-trajectory frame whose following action is \emph{not} equivalent to
     $a^*_t$.
 \end{itemize}
-Training teaches the $k{=}1$ replacement interface; larger-$k$ compositions
-arise at selection time. Positives do not require the base action to be
-wrong: both information addition and evidence amplification are admissible
-mechanisms.
+Positives do not require the base action to be wrong: both information
+addition and evidence amplification are admissible mechanisms.
+
+\paragraph{Why single-slot replacement ($k{=}1$).}
+Training teaches only the $k{=}1$ replacement interface, and this is an
+empirically grounded interface choice rather than a structural limit. On the
+demand side, multi-frame needs are rare even where archived pixels matter
+most: under the strictest \emph{image-only} criterion---the required value
+appears in neither the goal, the current frame, the recent window, nor any
+completed step's action text---mining 1{,}326 GUI-Odyssey trajectories yields
+96 image-only decision points at $B{=}4$, of which only 2 require two
+distinct evidence frames simultaneously (3 of 239 at $B{=}1$); on the
+desktop corpus, 75\% of eligible states admit exactly one recurrence
+witness. On the utility side, a matched-budget probe under the official
+multi-turn protocol shows the first replacement is worth its slot
+($+0.013$, 95\% CI $[+0.005,+0.021]$ frozen log-likelihood margin) while
+paired increments of a second and third replacement are indistinguishable
+from zero or negative ($+0.001$ and $-0.011$, n.s.)---under a fixed budget
+each further archived frame must evict the next-most-recent observation,
+and its measured value no longer covers that price. Larger-$k$ allocations
+nonetheless remain expressible at deployment: the selector performs
+at-most-$B$ set selection with exact re-scoring and a STOP action, so $k$
+stays a result statistic. Because supervision is annotation-free---labels
+are teacher-forced counterfactual scores of the current policy on its own
+trajectories---a domain that does exhibit multi-frame demand (detectable by
+the same probe) requires only regenerating the corpus with $k{\geq}2$
+replacement arms and re-running the identical trainer: a data-mix change,
+not a method change.
 
 Let $\ell$ denote mean target log-likelihood, superscripted by adapter state
 (active or frozen bypass). Each arm is anchored to \emph{its own} frozen
