@@ -15,8 +15,13 @@ mobile_agent_v3_5 官方忠实;分母 117(frozen_gui_owl_gui_only);config
 | r2 | hyper01 | 同上(复用 fleet/servers) | 完成 2026-07-28 | **42/117 = 35.90%** |
 | r3(改单遍) | hyper01 | 单遍 last-action 臂 `mw-hgkv-sel1p-b4-v1` | 进行中 | — |
 
-两轮合并(selected 均值 34.62%)vs 冻结 B0 单轮:**+6.41pp CI[−0.85, +13.68]**
-(任务级配对均值差,bootstrap 10k;B0 加轮 r2/r3 落地后基线侧方差还会收窄)。
+### 合并配对(2026-07-28 终版口径)
+
+selected 两轮均值 **34.62%** vs 冻结 B0 三轮均值 **28.21%**(33/32/34,轮间
+极稳;r2 有 1 个 evaluator 病态任务 MastodonUpdateContactsTask 按冻结先例
+missing→0):**Δ=+6.41pp,CI95[0.00,+12.82],bootstrap p(Δ≤0)=0.024**——
+显著超冻结基线(压线)。B0 per-task:`b0_per_task_r{2,3}.json`(r1 取
+Aries 官方轮)。
 
 ### 两遍开销审计(r2 全程 2224 步,SELECT_AUDIT)
 
