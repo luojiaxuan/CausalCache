@@ -361,6 +361,31 @@ replacement recovers Recent-$B$ exactly. Selector labels cover
 $B\in\{1,2,4\}$; the realized replacement intensity $k$
 (Eq.~\ref{eq:kstat}) is reported per budget, never preset.
 
+\paragraph{Deployment and the intent signal.}
+Four of the selector's input features are target-conditioned: they test
+whether some history action matches \emph{the action about to be taken},
+which at training time is the gold teacher-forced target but at deployment
+does not yet exist when memory is selected. We therefore deploy
+\emph{propose-then-select}: the policy first acts on the default
+Recent-$B$ prompt, its tentative action serves as the pseudo-target for the
+witness features, and the policy re-decides on the re-allocated prompt only
+when the selector displaces a recent frame. The second pass is not
+decorative, and its cost is bounded: under the official protocol's
+deterministic decoding, granting the Recent-$B$ baseline the same doubled
+compute reproduces its output byte-for-byte---the gain comes from changing
+the \emph{input} allocation, not from extra computation---and the first
+pass's action is retained as the fallback whenever no replacement is
+accepted. An ablation quantifies exactly what the intent signal buys:
+zeroing the four witness features (a single-pass deployment) preserves a
+significant $+0.016$ $[+0.003,+0.030]$ over Recent-$2$ but drops the
+primary $B{=}4$ contrast from $+0.011$ $[+0.001,+0.021]$ to $+0.009$
+$[-0.002,+0.020]$, no longer significant, while more than tripling
+full-replacement allocations ($k{=}4$: $11\%\to34\%$)---without intent the
+selector cannot tell which archived frame matters and over-replaces. A
+single-pass selector that reads intent from the instruction text and
+trajectory progress, rather than from a tentative action, is the natural
+next iteration; at $B{=}2$ the single-pass variant is already deployable.
+
 \section{Experimental Setup}
 
 \subsection{Training Data and Model Selection}
