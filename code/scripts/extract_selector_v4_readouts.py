@@ -286,8 +286,11 @@ def main() -> None:
             scope = adapter_scope_for_sample(
                 "history_gated_kv", encoded, sample, merge_size=merge_size
             )
+            # labels 会触发模型内部 loss(与 logits_to_keep=1 形状错配),提取
+            # 只要前向激活,剥掉。
+            inputs = {k: v for k, v in encoded.items() if k != "labels"}
             with scope, torch.no_grad():
-                model(**encoded, logits_to_keep=1)
+                model(**inputs, logits_to_keep=1)
             missing = [n for n in layer_of if n not in captured]
             if missing:
                 raise RuntimeError(f"hooks missed modules: {missing[:2]}")
