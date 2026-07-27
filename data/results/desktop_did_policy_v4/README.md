@@ -77,6 +77,32 @@ adapter 选择性绑定 renderer;(3) **k≥2 无增量收益 + 原料稀薄 → 
   (`causalcache_desktop_did_ungated_kv_v4w2.json`,等价性单测锁定;gate 打分
   仍用 4 卡口径 config)。
 
+## HGKV v4 s300 按 B 正式 gate(2026-07-27,dev 独立打分,2,000 次 episode bootstrap)
+
+| B | n(dev) | did_select [95% CI] | frozen_sel | \|A_r\| | wrong drift | 判定 | v3 最优选点对照 |
+|---|---|---|---|---|---|---|---|
+| 1 | 94 | **+0.0224 [+0.0162,+0.0294]** | +0.0791 | 0.0088 | 0.0085 | ✅ 全过 | +0.0120 |
+| 2 | 72 | **+0.0164 [+0.0110,+0.0221]** | +0.0256 | 0.0107 | 0.0078 | ✅ 全过 | +0.0128 |
+| 4(主设置) | 45 | **+0.0109 [+0.0070,+0.0154]** | −0.0002 | 0.0098 | 0.0091 | ✅ 全过 | +0.0075 |
+| 8(外推,未训练) | 11 | **+0.0063 [+0.0018,+0.0115]** | −0.0305 | 0.0106 | 0.0137 | ✅ **全过** | ≈0 n.s. |
+
+- **官方结构下每个 B 的 adapter 选择性都约为 v3 的 1.5-2 倍**,且 **B=8 外推档
+  首次显著**(v3 判定不显著)——四档全过 gate(含 |A_r|、wrong_drift 双 cap);
+- frozen_sel 随 B 递减(+0.079→+0.026→−0.000→−0.031):窗口越大冻结模型越
+  偏好纯 Recent,而 HGKV 在整条 B 轴上稳定创造正选择性——v3 的"逆风创造
+  选择性"叙事在 v4 内部呈现为跨 B 趋势;
+- 报告:本目录 `gate_report_hgkv_v4_s300_b{1,2,4,8}.json`;
+  s300 SHA `572092c218a97d1aa88b6845086a2ad2cec77c1a6d6fcd796f2e125ed62d67a9`;
+  全 checkpoint × B 表(pooled 选点用)由 hyper01 GPU2 循环补齐中。
+
+## Selector v4 标签(基于 s300)
+
+用户裁定 s300 全档过 gate 后直接开工:`score_selector_v4_singletons.py` 8 分片
+于 hyper00 8 卡运行(官方多轮渲染;B0 锚 bypass + 逐候选 active;候选池
+byte 去重保留最近;tripleClick 类不可渲染候选跳过并计数;绑定上述 SHA)。
+输出 `/data02/jaxan/runs/selector-v4/singletons/`,断点续跑。旧格式 v3 标签
+(58,376 行)保留作 renderer 迁移对照,不再进 selector 训练。
+
 ## 依赖与后续
 
 1. probe 汇总 → 判定 k≥2 是否有收益(有 → v4.1 语料加小比例 k=2 臂);
