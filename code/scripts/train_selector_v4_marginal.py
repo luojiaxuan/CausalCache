@@ -54,6 +54,15 @@ def parse_args() -> argparse.Namespace:
              "dev 指标随 fraction 上升 → 方差主导(加数据有效);"
              "平坦且 train 指标也平庸 → 偏差主导(上更高维特征)",
     )
+    parser.add_argument(
+        "--readout-root", type=Path, default=None,
+        help="HGKV 反事实读出特征目录(readouts.shard*.jsonl,键 dp|event)。"
+             "缺省 = 纯 cheap 特征(结构退化为单塔,与学习曲线口径逐字节一致)。"
+             "提供时走 two-tower:readout 先做**候选池内 z 归一**(迁移稳健),"
+             "经 dropout+强 weight decay 的残差塔并入,平台特异容量被约束在残差里",
+    )
+    parser.add_argument("--readout-dropout", type=float, default=0.3)
+    parser.add_argument("--readout-weight-decay", type=float, default=0.01)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
     return parser.parse_args()
@@ -187,19 +196,95 @@ def main() -> None:
     ]
     norm = lambda f: [(v - m) / s for v, m, s in zip(f, mean, std)]
 
+    # ---- 可选:HGKV 读出特征(two-tower 残差塔输入) ----
+    readout_dim = 0
+    readout_vecs = None
+    readout_mask = None
+    if args.readout_root is not None:
+        raw: dict[tuple[str, int], list[float]] = {}
+        for row in load_jsonl_rows(args.readout_root, "readouts.shard*.jsonl"):
+            if row.get("kind") != "readout":
+                continue
+            raw[(row["dp_id"], int(row["event"]))] = row["vector"]
+        if not raw:
+            raise SystemExit("readout-root 给了但没读到任何 readout 行")
+        readout_dim = len(next(iter(raw.values())))
+        # 候选池内 z 归一:每 dp、每维,对池内候选做 (v-μ)/σ —— scale-free,
+        # 跨平台分布漂移大部分被池内归一吸收。
+        by_dp: dict[str, list[tuple[int, list[float]]]] = defaultdict(list)
+        for (dp, event), vec in raw.items():
+            by_dp[dp].append((event, vec))
+        normed: dict[tuple[str, int], list[float]] = {}
+        for dp, items in by_dp.items():
+            cols = list(zip(*[v for _, v in items]))
+            mus = [sum(c) / len(c) for c in cols]
+            sds = [
+                max(math.sqrt(sum((x - m) ** 2 for x in c) / len(c)), 1e-6)
+                for c, m in zip(cols, mus)
+            ]
+            for event, vec in items:
+                normed[(dp, event)] = [
+                    (x - m) / s for x, m, s in zip(vec, mus, sds)
+                ]
+        readout_vecs = []
+        readout_mask = []
+        for dp, _selected, event, _m in edges:
+            vec = normed.get((dp, event))
+            if vec is None:
+                readout_vecs.append([0.0] * readout_dim)
+                readout_mask.append(0.0)
+            else:
+                readout_vecs.append(vec)
+                readout_mask.append(1.0)
+        coverage = sum(readout_mask) / len(readout_mask)
+        print(json.dumps({"readout_dim": readout_dim,
+                           "readout_coverage": round(coverage, 4)}))
+
     torch.manual_seed(args.seed)
     device = args.device
-    model = torch.nn.Sequential(
-        torch.nn.Linear(dim, args.hidden), torch.nn.GELU(),
-        torch.nn.Linear(args.hidden, args.hidden), torch.nn.GELU(),
-        torch.nn.Linear(args.hidden, 1),
-    ).to(device)
-    optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate)
+
+    class TwoTower(torch.nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.cheap = torch.nn.Sequential(
+                torch.nn.Linear(dim, args.hidden), torch.nn.GELU(),
+                torch.nn.Linear(args.hidden, args.hidden), torch.nn.GELU(),
+                torch.nn.Linear(args.hidden, 1),
+            )
+            if readout_dim:
+                self.readout = torch.nn.Sequential(
+                    torch.nn.Linear(readout_dim, 64), torch.nn.GELU(),
+                    torch.nn.Dropout(args.readout_dropout),
+                    torch.nn.Linear(64, 1),
+                )
+
+        def forward(self, x, r=None, rm=None):
+            score = self.cheap(x).squeeze(-1)
+            if readout_dim and r is not None:
+                score = score + self.readout(r).squeeze(-1) * rm
+            return score
+
+    model = TwoTower().to(device)
+    param_groups = [{"params": model.cheap.parameters()}]
+    if readout_dim:
+        param_groups.append({
+            "params": model.readout.parameters(),
+            "weight_decay": args.readout_weight_decay,
+        })
+    optimizer = torch.optim.AdamW(param_groups, lr=args.learning_rate)
 
     x_all = torch.tensor([norm(f) for f in feats], dtype=torch.float32,
                          device=device)
     y_all = torch.tensor([e[3] for e in edges], dtype=torch.float32,
                          device=device)
+    r_all = (
+        torch.tensor(readout_vecs, dtype=torch.float32, device=device)
+        if readout_dim else None
+    )
+    rm_all = (
+        torch.tensor(readout_mask, dtype=torch.float32, device=device)
+        if readout_dim else None
+    )
     ti = torch.tensor(train_idx, dtype=torch.long, device=device)
 
     # 组内 pairwise(组 = 同 (dp, S)):真边际差超过 margin 的有序对。
@@ -219,9 +304,19 @@ def main() -> None:
     print(json.dumps({"rank_pairs": len(pair_left), "feature_dim": dim,
                        "train_edges": len(train_idx), "dev_edges": len(dev_idx)}))
 
+    def _fwd(idx):
+        if readout_dim:
+            return model(x_all[idx], r_all[idx], rm_all[idx])
+        return model(x_all[idx])
+
     def predict_indices(idx_list):
+        idx = (
+            idx_list
+            if isinstance(idx_list, torch.Tensor)
+            else torch.tensor(idx_list, dtype=torch.long, device=device)
+        )
         with torch.no_grad():
-            return model(x_all[idx_list]).squeeze(-1)
+            return _fwd(idx)
 
     edge_index = {(e[0], e[1], e[2]): i for i, e in enumerate(edges)}
 
@@ -319,8 +414,17 @@ def main() -> None:
             if regrets else None,
         }
 
-    # train 侧对照样本(固定 800 条 train 边界内的边,区分优化失败 vs 泛化失败)
-    train_probe_idx = train_idx[:: max(1, len(train_idx) // 800)][:800]
+    # train 侧对照样本:抽**整组** dp(逐边抽样会把组抽稀成单候选,regret 恒 0、
+    # Spearman 无意义 —— 学习曲线首轮的教训),取前 ~80 个 train dp 的全部边。
+    _probe_dps: list[str] = []
+    for i in train_idx:
+        dp = edges[i][0]
+        if dp not in _probe_dps:
+            _probe_dps.append(dp)
+        if len(_probe_dps) >= 80:
+            break
+    _probe_set = set(_probe_dps)
+    train_probe_idx = [i for i in train_idx if edges[i][0] in _probe_set]
 
     def eval_dev():
         model.eval()
@@ -344,12 +448,12 @@ def main() -> None:
         total = 0.0
         for start in range(0, len(perm), args.batch_size):
             idx = perm[start:start + args.batch_size]
-            pred = model(x_all[idx]).squeeze(-1)
+            pred = _fwd(idx)
             loss = torch.nn.functional.mse_loss(pred, y_all[idx])
             if args.rank_weight and len(pl):
                 take = torch.randint(0, len(pl), (len(idx),), device=device)
-                lp = model(x_all[pl[take]]).squeeze(-1)
-                rp = model(x_all[pr[take]]).squeeze(-1)
+                lp = _fwd(pl[take])
+                rp = _fwd(pr[take])
                 loss = loss + args.rank_weight * torch.relu(
                     args.rank_margin - (lp - rp)
                 ).mean()
@@ -391,6 +495,7 @@ def main() -> None:
         "feature_names": list(FEATURE_NAMES),
         "set_feature_names": list(SET_FEATURE_NAMES),
         "hidden": args.hidden,
+        "readout_dim": readout_dim,
     }, args.output_root / "marginal_scorer.pt")
     (args.output_root / "report.json").write_text(
         json.dumps({
