@@ -206,6 +206,11 @@ _CHAT_TEMPLATE_PROMPT_FORMATS = (
     # 加进白名单;编码参数与两项保真校验一律不变。目前只有 probe_prompt_format.py 在
     # **冻结模型**上用它做格式对照,尚未进入任何冻结的五臂契约。
     "official_style_sparse_multiturn",
+    # note (luojiaxuan): v4 桌面官方多轮(causalcache/agentnet_desktop_official.py)。
+    # system prompt 已内嵌 <tools> computer_use 段,编码时**不得**再传 tools 实参
+    # (osworld_chat_template 分支会注入 _TOOL_SPEC,等于改 prompt),所以走本
+    # chat_template 分支 —— 与 mobile 官方 official_multiturn 完全同一条编码路径。
+    "desktop_official_multiturn",
 )
 _EXACT_BATCH_PROMPT_FORMATS = ("v2_1_private",)
 # note (luojiaxuan): 桌面语料(交接 §8.2)。它与上面 chat_template 家族的唯一差别
@@ -548,15 +553,34 @@ SPARSE_DESKTOP_ARM_CONTRACT: dict[str, tuple[str, str, str, str, str]] = {
         "WA", "negative", SPARSE_DESKTOP_PROMPT_FORMAT, "wrong", "active",
     ),
 }
+# note (luojiaxuan): 桌面 v2 schema(v4 语料,2026-07-27 用户裁定换官方多轮结构后
+# 重训)。与 v1 的唯一差异是 renderer:osworld_official 单轮(执行器 JSON 历史 +
+# 像素/[0,999] 量纲混用)换成 desktop_official_multiturn(官方滚动多轮,历史 =
+# 官方响应格式,坐标全 [0,999];见 agentnet_desktop_official.py)。臂代数、负样本、
+# split、必填键、派生量与 v1 逐字相同 —— v1 表原样保留,旧语料/checkpoint 可复现。
+SPARSE_DESKTOP_SAMPLE_SCHEMA_V2 = "causalcache.desktop_did_sample.v2"
+SPARSE_DESKTOP_PROMPT_FORMAT_V2 = "desktop_official_multiturn"
+SPARSE_DESKTOP_ARM_CONTRACT_V2: dict[str, tuple[str, str, str, str, str]] = {
+    slot: (arm_id, role, SPARSE_DESKTOP_PROMPT_FORMAT_V2, mode, adapter)
+    for slot, (arm_id, role, _format, mode, adapter) in (
+        SPARSE_DESKTOP_ARM_CONTRACT.items()
+    )
+}
 SPARSE_SAMPLE_SCHEMAS = (
     SPARSE_SAMPLE_SCHEMA,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA,
     SPARSE_DESKTOP_SAMPLE_SCHEMA,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2,
+)
+SPARSE_DESKTOP_SAMPLE_SCHEMAS = (
+    SPARSE_DESKTOP_SAMPLE_SCHEMA,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2,
 )
 SPARSE_ARM_CONTRACTS: dict[str, dict[str, tuple[str, str, str, str, str]]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_ARM_CONTRACT,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_ARM_CONTRACT,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_ARM_CONTRACT,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: SPARSE_DESKTOP_ARM_CONTRACT_V2,
 }
 # 部署基线臂按 schema 索引:v2/v6 有独立的官方 renderer N0;桌面的部署 prompt 与
 # R0 同 renderer 同选择器,基线就是 R0 本身(见上面的桌面契约注释)。
@@ -564,6 +588,7 @@ SPARSE_DEPLOYMENT_BASELINE_BY_SCHEMA: dict[str, str] = {
     SPARSE_SAMPLE_SCHEMA: "N0",
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: "N0",
     SPARSE_DESKTOP_SAMPLE_SCHEMA: "R0",
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: "R0",
 }
 # note (luojiaxuan): 两个集合,**别合并**,它们回答的是不同的问题:
 #   * ``SPARSE_NEGATIVE_KINDS`` —— v5 五臂语料里真实存在的三个 kind。它同时是
@@ -591,6 +616,7 @@ SPARSE_NEGATIVE_KINDS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_NEGATIVE_KINDS,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_NEGATIVE_KINDS,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_NEGATIVE_KINDS,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: SPARSE_DESKTOP_NEGATIVE_KINDS,
 }
 # note (luojiaxuan): 负样本 kind → arm_slot,按 schema 索引。v2/v6 的命名约定是
 # ``SA_neg_<kind>``,桌面语料沿用交接 §6 的臂名 WA。差值量名的记法是
@@ -604,6 +630,7 @@ SPARSE_NEGATIVE_SLOTS_BY_SCHEMA: dict[str, dict[str, str]] = {
         "age_matched": SPARSE_REPLACEMENT_NEGATIVE_SLOT,
     },
     SPARSE_DESKTOP_SAMPLE_SCHEMA: {"wrong": SPARSE_DESKTOP_NEGATIVE_SLOT},
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: {"wrong": SPARSE_DESKTOP_NEGATIVE_SLOT},
 }
 # note (luojiaxuan): v6 语料里 k=0(recent_sufficient)组只有 N0/R0/RA 三臂 —— 它们
 # 教的是"当前 Recent 已够用",是 **selector 的 STOP** 训练材料,不是 adapter 的。
@@ -639,6 +666,7 @@ SPARSE_REQUIRED_KEYS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_REQUIRED_KEYS,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_REQUIRED_KEYS,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_REQUIRED_KEYS,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: SPARSE_DESKTOP_REQUIRED_KEYS,
 }
 # 旧字段一旦出现说明样本没迁完:"sparse" 混淆了 prompt_format 与 selection_mode,
 # "reference_variant" 指向 native_recent{K}(与 trainer 实际参考臂矛盾)。
@@ -693,7 +721,7 @@ def validate_sparse_sample(sample: dict[str, Any], *, index: int) -> None:
         hint = (
             "; desktop corpora ship train/dev/test — run normalize_desktop_splits "
             "before grouping"
-            if schema == SPARSE_DESKTOP_SAMPLE_SCHEMA
+            if schema in SPARSE_DESKTOP_SAMPLE_SCHEMAS
             else ""
         )
         raise ValueError(f"{where} unknown split {sample['split']!r}{hint}")
@@ -909,6 +937,7 @@ SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_HELDOUT_REQUIRED_SLOTS,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_HELDOUT_REQUIRED_SLOTS,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: ("R0", "S0", "RA", "SA"),
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: ("R0", "S0", "RA", "SA"),
 }
 
 # ---------------------------------------------------------------------------
@@ -983,7 +1012,7 @@ def normalize_desktop_splits(
     kept: list[dict[str, Any]] = []
     counters = {"desktop_dev_to_heldout": 0, "desktop_test_dropped": 0}
     for sample in samples:
-        if sample.get("schema_version") != SPARSE_DESKTOP_SAMPLE_SCHEMA:
+        if sample.get("schema_version") not in SPARSE_DESKTOP_SAMPLE_SCHEMAS:
             kept.append(sample)
             continue
         split = sample.get("split")
@@ -2691,6 +2720,7 @@ SPARSE_DERIVED_QUANTITIES_BY_SCHEMA: dict[str, dict[str, str]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_DERIVED_QUANTITIES,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_DERIVED_QUANTITIES,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_DERIVED_QUANTITIES,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: SPARSE_DESKTOP_DERIVED_QUANTITIES,
 }
 # 词表只决定"允许引用哪些名字",放宽是安全的(见上方 v6 注释);按 schema 的
 # 必需/外来 gate 检查才是挡错的那一层。
