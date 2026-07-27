@@ -361,44 +361,44 @@ replacement recovers Recent-$B$ exactly. Selector labels cover
 $B\in\{1,2,4\}$; the realized replacement intensity $k$
 (Eq.~\ref{eq:kstat}) is reported per budget, never preset.
 
-\paragraph{Single-pass deployment via action-recurrence witnesses.}
+\paragraph{Reference actions and the two deployment modes.}
 Four of the selector's input features are \emph{witness} features: they
 test whether the action taken right after some archived frame matches a
-reference action. The choice of reference is the crux of deployment. At
-training time the reference is the gold teacher-forced target, which does
-not exist when memory must be selected online. We deploy the selector with
-the reference set to \emph{the action just executed} at step $t{-}1$---a
-quantity known before selection, requiring no extra forward pass. The
-mechanism this realizes is action-recurrence retrieval: GUI workflows
-revisit controls and views, so the archived frame after which the current
-action pattern last occurred is precisely the high-fidelity state worth
-restoring. With this reference the selector remains significant at both
-budgets ($+0.025$ $[+0.013,+0.036]$ over Recent-$2$; $+0.015$
-$[+0.006,+0.025]$ over Recent-$4$) with a healthy replacement profile
-($71\%$ of states displace at least one recent frame), and the deployed
-system selects memory and generates the action in a single pass, adding
-only the selector's own cost ($<10$\,ms) to the step.
+reference action. At training time the reference is the gold
+teacher-forced target---an offline oracle that upper-bounds what any
+online reference can provide but does not exist at deployment. We
+therefore instantiate two online modes that share every trained weight
+and differ only in the reference. \textbf{CausalCache-P} (default) uses
+the current policy's tentative action: the policy first acts on the
+Recent-$B$ prompt, the tentative action serves as a platform-calibrated
+reference, and the policy re-decides on the re-allocated prompt when a
+frame is displaced. \textbf{CausalCache-LA} replaces the proposal with
+\emph{the action just executed} at step $t{-}1$, eliminating the second
+policy call: memory is selected before the single generation, adding only
+the selector's own cost ($<10$\,ms). On held-out desktop decision groups
+the two modes are statistically indistinguishable (LA $+0.015$
+$[+0.006,+0.025]$, gold-reference $+0.011$ $[+0.001,+0.021]$ over
+Recent-$4$), but LA fails to transfer to the unseen mobile benchmark,
+where P is significantly better (Section~\ref{sec:results}); we therefore
+treat LA as an efficiency variant rather than the primary method, and the
+result is consistent with the reference action being one of the
+bottlenecks for cross-platform transfer.
 
-A ladder of alternative references isolates why this works and serves as
-an upper/lower bound analysis. (i) \emph{Gold/proposal reference}
-(propose-then-select: act once on the Recent-$B$ prompt, use the tentative
-action as the reference, re-decide on the re-allocated prompt when a frame
-is displaced) is the natural upper bound and scores $+0.011$
-$[+0.001,+0.021]$ at $B{=}4$---no better than the last-action reference,
-at the price of a conditional second generation. (ii) \emph{No reference}
-(witness features zeroed) keeps $B{=}2$ significant ($+0.016$
-$[+0.003,+0.030]$) but loses $B{=}4$ ($+0.009$ $[-0.002,+0.020]$) while
-more than tripling full-replacement allocations ($k{=}4$:
-$11\%\to34\%$)---without any action signal the selector cannot tell which
-archived frame matters and over-replaces. (iii) \emph{Instruction-only
-intent} (eight frozen-embedding cosine features between the instruction,
-each candidate's action line, and recent behavior) repairs the
-over-replacement pathology ($k{=}4$ back to $12\%$) yet stays
-non-significant at $B{=}4$ ($+0.005$ $[-0.007,+0.016]$). The dissociation
-is sharp: knowing \emph{what the task wants} is insufficient---the
-selector needs \emph{what the agent is doing}, and the last executed
-action carries that signal as well as a lookahead proposal does, at none
-of its cost.
+A ladder of weaker references isolates what the action signal buys.
+\emph{No reference} (witness features zeroed) keeps $B{=}2$ significant
+($+0.016$ $[+0.003,+0.030]$) but loses $B{=}4$ ($+0.009$
+$[-0.002,+0.020]$) while more than tripling full-replacement allocations
+($k{=}4$: $11\%\to34\%$)---without any action signal the selector cannot
+tell which archived frame matters and over-replaces.
+\emph{Instruction-only intent} (eight frozen-embedding cosine features
+between the instruction, each candidate's action line, and recent
+behavior) repairs the over-replacement pathology ($k{=}4$ back to
+$12\%$) yet stays non-significant at $B{=}4$ ($+0.005$
+$[-0.007,+0.016]$). Action-conditioned references thus dominate
+instruction-only and reference-free variants; the relative order of the
+action-conditioned references themselves depends on platform and
+protocol, which is precisely why the deployed default re-grounds the
+reference in the current policy's own proposal.
 
 \section{Experimental Setup}
 
