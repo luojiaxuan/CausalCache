@@ -46,8 +46,8 @@
 Long-horizon GUI agents keep compressed textual summaries of past events and a
 bounded number of high-fidelity history screenshots. Under a fixed
 visual-memory budget $B$, the standard Recent-$B$ policy allocates every slot
-to the most recent observations. We introduce \method, which instead selects
-at most $B$ events from the \emph{full} interaction history---recent frames
+to the most recent observations. We introduce \method, which fills the same
+$B$ slots from the \emph{full} interaction history---recent frames
 included---so its benefit comes from \emph{reallocating} a bounded memory
 budget rather than adding extra visual context. The number of selected
 non-recent events $k$ is a measured behavioral statistic, not a preset
@@ -63,8 +63,9 @@ no reliable preference for the target-relevant archived frame over the true
 previous frame ($+0.001$ nats/token, $95\%$ CI $[-0.024,+0.025]$): selectivity
 is not inherited. \hgkv{} creates it ($+0.010$ $[+0.006,+0.014]$) within a
 pre-registered drift envelope, while a full-layer LoRA control attains
-selectivity only by drifting beyond it. A budget-aware selector then chooses
-at most $B$ events from the full history with STOP allowed.
+selectivity only by drifting beyond it. A budget-aware selector then fills
+the $B$ slots from the full history, displacing a recent frame only when an
+archived candidate's measured marginal exceeds that frame's.
 \pending{Insert per-$B$ replacement gates, the $Q_B(k)$ reallocation curve,
 and zero-shot MobileWorld and OSWorld closed-loop results.}
 \end{abstract}
@@ -92,11 +93,12 @@ selector has nothing to improve.
 
 \method{} therefore poses the memory question as \emph{budget reallocation}.
 Under a fixed budget of $B$ high-fidelity history images, Recent-$B$ is one
-particular allocation---all slots to the most recent frames. \method{} selects
-at most $B$ events from the full history, with recent frames themselves as
-candidates and STOP allowed; the comparison
-$Q(S^{*})>Q(S_{\mathrm{recent}})$ at matched $B$ isolates allocation quality
-from visual capacity. The number of selected non-recent events,
+particular allocation---all slots to the most recent frames. \method{} fills
+the same $B$ slots from the full history, with recent frames as ordinary
+candidates and as the default: an archived frame enters only by displacing a
+recent frame it beats. Every allocation carries exactly $B$ images, so the
+comparison $Q(S^{*})>Q(S_{\mathrm{recent}})$ at matched $B$ isolates
+allocation quality from visual capacity. The number of selected non-recent events,
 $k=|S\setminus\mathrm{Recent}\text{-}B|$, is a \emph{result} statistic. The
 reallocation curve $Q_B(k)$ for $k=0,\ldots,B$ is genuinely empirical: all
 recent may over-weight recency, all archived may lose local continuity, and a
@@ -118,9 +120,9 @@ content reduces the loss.
 Our contributions are:
 \begin{itemize}
     \item a fixed-budget reallocation formulation of GUI visual memory:
-    Recent-$B$ versus at-most-$B$ selection from the full history at matched
-    image counts, with the replacement intensity $k$ as a measured statistic
-    and $Q_B(k)$ as the reallocation curve;
+    Recent-$B$ versus selected-$B$ allocation from the full history at
+    matched image counts, with the replacement intensity $k$ as a measured
+    statistic and $Q_B(k)$ as the reallocation curve;
     \item a policy-preserving \hgkv{} interface trained on matched-budget
     replacement groups with per-arm-anchored DiD supervision, exact
     no-history parity, and pre-registered caps on recent-window and
@@ -129,8 +131,9 @@ Our contributions are:
     attains selectivity only outside the drift envelope, and that token gating
     adds selective gain beyond a layer- and rank-matched ungated control;
     \item a budget-aware selector over the full candidate history (recent
-    frames included, STOP allowed), trained on desktop data only and evaluated
-    zero-shot on mobile and desktop benchmarks.
+    frames included as candidates and as the default fallback), trained on
+    desktop data only and evaluated zero-shot on mobile and desktop
+    benchmarks.
 \end{itemize}
 
 \section{Related Work}
@@ -285,9 +288,9 @@ paired increments of a second and third replacement are indistinguishable
 from zero or negative ($+0.001$ and $-0.011$, n.s.)---under a fixed budget
 each further archived frame must evict the next-most-recent observation,
 and its measured value no longer covers that price. Larger-$k$ allocations
-nonetheless remain expressible at deployment: the selector performs
-at-most-$B$ set selection with exact re-scoring and a STOP action, so $k$
-stays a result statistic. Because supervision is annotation-free---labels
+nonetheless remain expressible at deployment: the selector composes
+exactly-$B$ allocations with exact re-scoring, defaulting unclaimed slots to
+recent frames, so $k$ stays a result statistic. Because supervision is annotation-free---labels
 are teacher-forced counterfactual scores of the current policy on its own
 trajectories---a domain that does exhibit multi-frame demand (detectable by
 the same probe) requires only regenerating the corpus with $k{\geq}2$
@@ -326,33 +329,33 @@ could hide a method that helps at $B{=}4$ but fails at $B{=}1$.
 \subsection{Success-Anchored Utility and Selector Supervision}
 
 After the history interface is frozen, selector labels are true policy
-utilities: for each state and budget, singleton utilities for the full
-candidate pool (recent frames included), the matched $Q(\mathrm{Recent}
-\text{-}B)$ anchor, and---for budgets beyond one---set utilities along
-shortlisted, recent, greedy, and small-beam paths. All labels rerun complete
-prompts through the frozen \hgkv{} policy.
+utilities: for each state, singleton utilities for the \emph{entire}
+candidate pool (recent frames included)---an exhaustive $B{=}1$ oracle---the
+matched $Q(\mathrm{Recent}\text{-}B)$ anchors, and, for larger budgets, set
+utilities along beam-3 teacher paths over a singleton-shortlisted pool.
+Every set is fully re-scored as a complete prompt through the frozen
+\hgkv{} policy; set utility is never approximated by summing singleton
+utilities.
 
 \subsection{Budget-Aware Selector over the Full History}
 
-The selector should use the same interface through which the policy reads
-history. For each candidate and each adapted layer we capture a lightweight
-counterfactual readout: the frozen decision query attends to the candidate's
-history keys/values with and without the adapter increments, and the
-mean-head difference plus per-head norms give 160 features per layer (1{,}280
-per candidate). The input additionally encodes, explicitly, candidate age and
-recency-window membership, action family, summary features, and the remaining
-budget.
+The selector is a single set-conditional marginal scorer
+$\widehat{\Delta}_t(j\mid S)$ trained on the true marginals implied by the
+label table (singleton edges give $S{=}\varnothing$; each beam edge gives
+its parent set), with a joint regression and within-state ranking loss. Its
+input encodes, explicitly, candidate age and recency-window membership,
+target-recurrence witness signals with coordinate distance, action family,
+frame-deduplication multiplicity, trajectory shape, and set context
+(selected-set size, overlap and age gaps between the candidate and the
+already-selected events).
 
-A shared encoder with learned attention over the eight adapted layers feeds
-four heads: predicted conditional marginal $\widehat{\Delta}_t(j\mid S)$, within-state
-rank, positive probability, and STOP. Set-conditioned selection for
-$B{>}1$ contextualizes selected-event embeddings with one self-attention block
-and maps remaining candidates to that context with one cross-attention block
-\citep{zaheer2017deepsets,lee2019settransformer}. Recent frames are ordinary
-candidates: at each step the best remaining candidate rank is compared
-against STOP, and a replacement of a recent frame happens only when an
-archived event outranks it, realizing Eq.~\ref{eq:decision}. Selector labels
-cover $B\in\{1,2,4\}$; the realized replacement intensity $k$
+Deployment composes exactly-$B$ allocations by beam search initialized at
+$\mathrm{Recent}\text{-}B$: recent frames are ordinary candidates, and an
+archived event enters an allocation only by displacing the recent frame
+whose predicted marginal it beats, realizing Eq.~\ref{eq:decision} as a
+relative comparison with no learned stopping threshold---declining every
+replacement recovers Recent-$B$ exactly. Selector labels cover
+$B\in\{1,2,4\}$; the realized replacement intensity $k$
 (Eq.~\ref{eq:kstat}) is reported per budget, never preset.
 
 \section{Experimental Setup}
@@ -396,9 +399,9 @@ $B$ & Recent baseline & Replacement arms & \method \\
 \end{tabular}
 }
 \caption{The fixed-budget design. Training arms replace the oldest recent
-slot with one archived frame ($k{=}1$); the deployed selector chooses at most
-$B$ events from the full history, and the realized $k$ is reported as a
-statistic. All contrasts at a given $B$ are matched in image count;
+slot with one archived frame ($k{=}1$); the deployed selector fills all $B$
+slots from the full history with recent frames as the default, and the
+realized $k$ is reported as a statistic. All contrasts at a given $B$ are matched in image count;
 cross-$B$ comparisons are analysis only.}
 \label{tab:rdesign}
 \end{table}
@@ -417,8 +420,8 @@ compare four policy rows under identical data, steps, and cadence:
     $B{=}0$.
 \end{itemize}
 Memory baselines are Recent-$B$, Random, OCR/RGB similarity, and the learned
-budget-aware selector (STOP allowed); an oracle over the candidate pool
-bounds headroom. Every method receives the same summaries and the same image
+budget-aware selector (exact-$B$, recent fallback); a beam oracle over the
+candidate pool bounds headroom. Every method receives the same summaries and the same image
 budget.
 
 \subsection{Zero-Shot Benchmarks and Metrics}
@@ -522,15 +525,15 @@ Frozen & Recent-$B$ & \tbd & \tbd & \tbd & \tbd & $0$ & \\
 Frozen & oldest slot $\to$ archived & \tbd & \tbd & \tbd & \tbd & $1$ & $B{=}1$: $\approx$Recent \\
 \hgkv & Recent-$B$ & \tbd & \tbd & \tbd & \tbd & $0$ & \\
 \hgkv & oldest slot $\to$ archived & \tbd & \tbd & \tbd & \tbd & $1$ & gate: Tab.~\ref{tab:did-gate} \\
-\hgkv & learned selector (at-most-$B$, STOP) & \tbd & \tbd & \tbd & \tbd & \tbd & $k$ measured \\
+\hgkv & learned selector (exact-$B$, recent fallback) & \tbd & \tbd & \tbd & \tbd & \tbd & $k$ measured \\
 \bottomrule
 \end{tabular*}
 }
 \caption{Skeleton of the fixed-budget main table. Each cell is a matched-count
-contrast on the desktop heldout split; the learned selector may choose STOP
-and is charged the images it actually uses; $^{\dagger}$$B{=}8$ is excluded
-from training and reports budget extrapolation. Cross-$B$ comparisons are
-analysis only.}
+contrast on the desktop heldout split; every allocation carries exactly $B$
+images, and the learned selector may keep the full recent window ($k{=}0$);
+$^{\dagger}$$B{=}8$ is excluded from training and reports budget
+extrapolation. Cross-$B$ comparisons are analysis only.}
 \label{tab:per-r}
 \end{table*}
 
@@ -541,7 +544,8 @@ per-$B$ stratified DiD gates for \hgkv, ungated KV, and full-layer LoRA (a
 pooled mean may hide help at $B{=}4$ and failure at $B{=}1$); the $B{=}8$
 extrapolation; adapter depth and rank; removing the gain, content, or cap
 terms. Selector-side: recency-membership feature removal; candidate-pool
-size; STOP calibration; top-$k$ versus bottom-$k$ replacement; wrong-event
+size; replacement-acceptance margin; top-$k$ versus bottom-$k$ replacement;
+wrong-event
 and summary--image mismatch controls; a recent-memory dose analysis (varying
 window size without replacement) as an appendix. We also stratify by
 trajectory length, application, and positive-frame age.
@@ -551,10 +555,10 @@ trajectory length, application, and positive-frame age.
 Our frozen claim is about allocation, not modality:
 \begin{quote}
 Under a fixed high-fidelity visual-memory budget $B$, Recent-$B$ always
-allocates all slots to the most recent observations. \method{} instead
-selects at most $B$ events from the full interaction history. Its benefit
-therefore comes from reallocating a bounded memory budget, rather than adding
-extra visual context.
+allocates all slots to the most recent observations. \method{} instead fills
+the same $B$ slots from the full interaction history. Its benefit therefore
+comes from reallocating a bounded memory budget, rather than adding extra
+visual context.
 \end{quote}
 The claim is \emph{not} that old frames are usually better than recent ones;
 it is that for some decisions, the conditional value of a few specific
