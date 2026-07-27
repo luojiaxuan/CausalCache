@@ -44,6 +44,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=2048)
     parser.add_argument("--rank-weight", type=float, default=1.0)
     parser.add_argument("--rank-margin", type=float, default=0.005)
+    parser.add_argument(
+        "--early-stop-patience", type=int, default=4,
+        help="连续多少次 held-out 评测无提升即停;epochs 只是预算上限",
+    )
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
     return parser.parse_args()
@@ -298,7 +302,14 @@ def main() -> None:
             **replay_dev(),
         }
 
+    # note (luojiaxuan): epochs 是预算上限,不是训练时长的权威。选择权在
+    # held-out:按 dev_top1_regret(k=1 部署关键量,样本最稳)保存最优快照,
+    # 连续 patience 次评测无提升即早停;过峰值的过拟合段可见但不被选中。
     history = []
+    best_metric = None
+    best_state = None
+    best_epoch = None
+    misses = 0
     for epoch in range(args.epochs):
         model.train()
         perm = ti[torch.randperm(len(ti), device=device)]
@@ -323,10 +334,30 @@ def main() -> None:
                         **eval_dev()}
             history.append(snapshot)
             print(json.dumps(snapshot, ensure_ascii=False), flush=True)
+            metric = snapshot.get("dev_top1_regret")
+            if metric is not None and (best_metric is None or metric < best_metric):
+                best_metric = metric
+                best_epoch = epoch + 1
+                best_state = {
+                    k: v.detach().cpu().clone()
+                    for k, v in model.state_dict().items()
+                }
+                misses = 0
+            else:
+                misses += 1
+                if misses >= args.early_stop_patience:
+                    print(json.dumps({
+                        "early_stop_at_epoch": epoch + 1,
+                        "best_epoch": best_epoch,
+                        "best_dev_top1_regret": best_metric,
+                    }))
+                    break
 
     args.output_root.mkdir(parents=True, exist_ok=True)
     torch.save({
-        "model_state": model.state_dict(),
+        "model_state": best_state if best_state is not None else model.state_dict(),
+        "best_epoch": best_epoch,
+        "best_dev_top1_regret": best_metric,
         "mean": mean, "std": std,
         "feature_schema": FEATURE_SCHEMA,
         "feature_names": list(FEATURE_NAMES),
