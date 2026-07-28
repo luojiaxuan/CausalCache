@@ -41,6 +41,12 @@ selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
   `CartInfoNotificationTask` r2 轨迹，展示 `[11,12,13,14] → [6,7,8,12]`
   与 realized `k=3`；图按 event trace → 双路径 allocation → event 7 像素恢复
   → 短信 current screen → 真实 action/result 组织，不使用三面板解释框；
+- Figure 2 可编辑排版提案：
+  `figures/causalcache_qualitative_cart_editable.pptx`，真实 PowerPoint 渲染预览为
+  `figures/causalcache_qualitative_cart_ppt.png`。左侧把共有 prompt、任务目标、
+  完整 event trace 与关键 action summary 合并展示；所有文字、节点、连线和
+  `×`/`✓` 均为原生 PPT 对象，只有两张去 PII UI crop 是嵌入图片。该提案尚未
+  替换投稿用 Figure 2 PDF；
 - 两图由 `figures/build_causalcache_figures.py` 生成，`make figures` 可独立重建；
 - SVG 是可编辑源；投稿 PDF 经 Ghostscript 将文字转成矢量轮廓，以满足 AAAI
   的零 Type 3 字体要求；

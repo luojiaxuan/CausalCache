@@ -10,6 +10,15 @@
 | Figure 1：method overview | `paper/figures/causalcache_overview.svg` | `paper/figures/causalcache_overview.pdf` | `paper/figures/causalcache_overview.png` |
 | Figure 2：Cart qualitative case | `paper/figures/causalcache_qualitative_cart.svg` | `paper/figures/causalcache_qualitative_cart.pdf` | `paper/figures/causalcache_qualitative_cart.png` |
 
+Figure 2 另有一份等待作者确认的可编辑 PPT 排版提案：
+`paper/figures/causalcache_qualitative_cart_editable.pptx`，对应的真实 PPT 渲染为
+`paper/figures/causalcache_qualitative_cart_ppt.png`。它没有替换上表中的投稿
+PDF。PPT 左侧使用共有 `Shared prompt` 结构，依次放入任务目标、完整 event trace
+和关键 event 的 action summary；右侧仍保持 Recent-4/CausalCache 分叉、放大的
+event 7 证据、current 消息输入框汇合与失败/成功 action。除两张去 PII crop 外，
+图中对象均可在 PowerPoint 中独立编辑。LibreOffice 实际渲染和带 padding 的
+越界检查均通过。
+
 两图均为 7 inch 双栏宽度。Figure 1/2 高度分别为 3.89/2.85 inch；图内最小
 字号为 9 pt（SVG 中 18 个 viewBox unit，按 1008 unit → 504 pt 换算）。
 PNG 为 2016 px 宽，即 288 dpi。Figure 1 的颜色同时由边框、虚线、粗线和
@@ -102,5 +111,7 @@ font-outline 派生物；Ghostscript 可能改变等价 PDF 的对象级序列�
 | `causalcache_overview.png` | `89a43b8c85569b30114c972d38ca7e27abd97d3779173bd28524499cbbdfb549` |
 | `causalcache_qualitative_cart.svg` | `b2a49e8fb680173c1d69204a1669acd2c3a3da6197c8e51e0557072bfe75b2e4` |
 | `causalcache_qualitative_cart.png` | `205101f25c72af354a62a2af2c79d135b3de995e4fbf99b7c130e8f65fc11f2a` |
+| `causalcache_qualitative_cart_editable.pptx` | `42918b6416fe7b127b2928a6fb359dbf5680e1ff5eec10b02376e2f57f6a801f` |
+| `causalcache_qualitative_cart_ppt.png` | `ad2b449414a41c71f054c171dd297a7036a52c33635e987b1483c3dffa0a35de` |
 | `cart_order_evidence.png` | `0dd574a79528e3df8852fb4ef5167b9876e62c9ed28b2f4b7a6a1dd56a1fc20e` |
 | `cart_message_input.png` | `36f138cf5ec54a66133b414a9c71992d72abd32ce1e764725621db8bcc2aba53` |
