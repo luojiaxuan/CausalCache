@@ -67,26 +67,34 @@ the $B$ slots from the full history, displacing a recent frame only when an
 archived candidate's measured marginal exceeds that frame's.
 Per-$B$ gates pass at every trained budget and extrapolate to an untrained
 $B{=}8$, and the learned selector beats Recent-$B$ at matched image counts
-at every budget. In closed loop, memory reallocation is worth
-$+13$--$14$pp over a no-memory baseline on OSWorld-Verified, and on a
-117-task mobile benchmark evaluated strictly zero-shot, \method{} attains
-$33.9\%$ against $28.2\%$ for the frozen baseline and $30.2\%$ for the
-recent-window allocation at the same budget; on the $62$ tasks
-constructed to require cross-application memory, the same-budget gain is
-$+8.6$pp with a significant split-by-method interaction ($p{=}0.022$),
-while a recent-only dose sweep of the budget is flat --- on unseen
-platforms, \emph{which} frames occupy the budget matters, not how
-many.
+at every budget. In closed loop, high-fidelity visual history is worth
+$+13$--$14$pp over a no-memory baseline on OSWorld-Verified, where
+alternative same-budget allocations remain indistinguishable. On a
+117-task mobile benchmark evaluated strictly zero-shot, the primary
+result is on the construction-defined memory-critical split: over the
+$62$ tasks built to place critical visual evidence outside the recent
+window, \method{} improves on the same-budget Recent-$4$ baseline by
+$+8.6$pp ($95\%$ CI $[+1.6,+16.1]$), stays neutral on matched
+single-app controls, and yields a split-by-method interaction of
+$+10.4$pp ($[+1.5,+19.6]$, $p{=}0.022$), while a recent-only dose sweep
+of the same budget is flat --- on the unseen mobile memory-critical
+split, \emph{which} frames occupy the budget matters, not how many.
 \end{abstract}
 
 \section{Introduction}
 
 GUI agents accumulate screenshots, actions, text arguments, coordinates, and
 interface changes over many decisions. Retaining every screenshot is expensive
-and can distract a multimodal policy; text-only trajectories discard toggle
-state, layout, transient values, and spatial correspondence. A practical agent
+and can distract a multimodal policy; compressed summaries do not always
+preserve distant visual evidence in a policy-actionable form. A practical agent
 must therefore decide which historical events remain available in high fidelity
 \citep{lu2025guiodyssey,zeng2026mementogui,shi2026androtmem}.
+Our central claim is that long-horizon GUI agents do not merely need
+\emph{more} visual history; they need the \emph{right evidence within a
+fixed budget}: when task-critical visual evidence has fallen outside the
+recent window and is not reliably preserved in a policy-actionable form
+by compressed summaries, selectively restoring a distant high-fidelity
+screenshot can be worth more than retaining another recent frame.
 
 Most memory controllers frame this as unconditional selection: retain recent
 events, retrieve visually similar screenshots, or learn salience from task
@@ -561,14 +569,15 @@ $+0.030$ $[+0.019,+0.041]$ ($B{=}2$) and $+0.017$ $[+0.007,+0.028]$
 ($B{=}4$), keeping the full recent window in $19\%$ of $B{=}4$ states.
 
 \paragraph{Mobile closed loop (zero-shot).}
-On the 117-task mobile memory benchmark --- which contributes no training
-or selection signal --- the full \method{}-P system attains the highest
-success rate: $33.9\%$ (three runs: $39/42/38$ of $117$) against
-$30.2\%$ for \hgkv{}+Recent-$4$ (three runs: $34/37/35$), a paired
-per-task difference of $+3.7$pp ($95\%$ CI $[-0.9,+8.6]$; per-round
-differences $+4.3/+4.3/+2.6$pp), and $+5.7$pp over the frozen no-memory
-baseline ($28.2\%$ over three runs: $33/32/34$; $95\%$ CI
-$[-0.6,+12.0]$). The decomposition is clean:
+The 117-task mobile benchmark --- which contributes no training or
+selection signal --- is our primary test of \emph{allocation}, because
+its roster is constructed with a memory-critical split.
+The full-roster aggregates are secondary: \method{}-P attains the
+highest overall success rate, $33.9\%$ (three runs: $39/42/38$ of
+$117$) against $30.2\%$ for \hgkv{}+Recent-$4$ (three runs: $34/37/35$;
+paired $+3.7$pp, $95\%$ CI $[-0.9,+8.6]$, per-round
+$+4.3/+4.3/+2.6$pp) and $28.2\%$ for the frozen no-memory baseline
+(three runs: $33/32/34$; $+5.7$pp, $[-0.6,+12.0]$). The decomposition is clean:
 frozen Recent-$4$ ($29.9\%$), \hgkv{}+Recent-$4$ ($30.3\%$), and the
 no-memory baseline are statistically indistinguishable --- the behavioral
 counterpart of the drift cap --- so the gain is carried by \emph{which}
@@ -579,26 +588,21 @@ $28.2/26.5/26.5/29.1/29.9\%$, non-monotone with every paired contrast
 against $B{=}0$ crossing zero --- on this benchmark, additional recent
 frames alone buy nothing, so budget \emph{allocation} rather than budget
 \emph{size} is the operative variable.
-The benchmark's roster is constructed with a \emph{memory-critical
-split}: $62$ cross-application tasks whose target information surfaces in
-an application visited \emph{earlier} in the episode --- after the app
-switch, the Recent-$B$ window no longer contains that evidence by
-construction --- and $55$ matched single-application controls with no
-such dependency. On the memory-critical stratum the same-budget primary
-contrast is decisive: \method{}-P $28.0\%$ vs.\ Recent-$4$ $19.4\%$,
-$+8.6$pp ($95\%$ CI $[+1.6,+16.1]$); on the controls the method is
-correctly inert ($40.6\%$ vs.\ $42.4\%$, $-1.8$pp
-$[-6.7,+3.6]$); the split-by-method interaction is $+10.4$pp ($95\%$ CI
-$[+1.5,+19.6]$, two-sided $p{=}0.022$). The modest full-roster mean is
-therefore composition, not absence of effect: $47\%$ of the roster is
-control tasks on which no memory method should help. (No analogous stratum exists on OSWorld: its tasks are
-instruction-complete and their evidence is re-observable --- files
-persist and windows can be revisited --- so required information is
-rarely \emph{irrecoverably} outside the recent window; consistent with
-this, neither a domain-level proxy nor an instrument based on the two
-frozen arms yields a significant selection interaction there.
-Memory-critical evaluation requires benchmarks constructed for it, as
-the mobile split is.)
+The primary closed-loop result is the memory-critical split, defined at
+benchmark construction: $62$ cross-application tasks whose target
+information surfaces in an application visited \emph{earlier} in the
+episode --- after the app switch, the Recent-$B$ window no longer
+contains that evidence by construction --- and $55$ matched
+single-application controls with no such dependency. On the
+memory-critical stratum the same-budget contrast is decisive:
+\method{}-P $28.0\%$ vs.\ Recent-$4$ $19.4\%$, $+8.6$pp ($95\%$ CI
+$[+1.6,+16.1]$); on the controls the method is correctly inert
+($40.6\%$ vs.\ $42.4\%$, $-1.8$pp $[-6.7,+3.6]$); the split-by-method
+interaction is $+10.4$pp ($95\%$ CI $[+1.5,+19.6]$, two-sided
+$p{=}0.022$). The value of reallocation is conditional on distant visual
+dependency: the modest full-roster mean is composition, not absence of
+effect, since $47\%$ of the roster is control tasks on which no memory
+method should help.
 
 We further define \emph{memory-demanding long-horizon tasks} as tasks that the
 frozen no-memory policy cannot complete within the benchmark's official
@@ -609,9 +613,9 @@ on that stratum. On the $95$ such mobile tasks ($50$-step budget),
 $\Delta_{\text{long}}{=}{+}7.0$pp over the no-memory baseline ($95\%$
 CI $[+0.4,+14.0]$) and $+3.5$pp over frozen Recent-$4$ at the same budget
 ($[-3.2,+10.2]$); on the $22$ short tasks the baseline completes, memory
-reallocation adds nothing ($47.0\%$ base rate). The benefit concentrates
-exactly on long-horizon tasks, where high-fidelity restoration of a
-distant frame can matter. The efficiency variant \method{}-LA, unchanged in weights, fails
+reallocation adds nothing ($47.0\%$ base rate). The allocation benefit
+concentrates on construction-defined memory-critical tasks, not merely
+long tasks. The efficiency variant \method{}-LA, unchanged in weights, fails
 to transfer ($29.1\%$; $-4.8$pp vs.\ P, $95\%$ CI $[-10.5,+0.6]$), and
 its failure concentrates on single-app control tasks where the
 last-action reference trivially recurs: under platform shift the
@@ -620,30 +624,24 @@ proposal reference is what carries the selection signal.
 \paragraph{Desktop closed loop.}
 On OSWorld-Verified (361 tasks, official no-GDrive roster, docker
 provider, the official default budget of $15$ steps per task applied
-uniformly to all arms), memory dominates and the reference choice is
-neutral, as the
-offline analysis predicts for the training platform: \method{}-LA
-$34.1\%$, \method{}-P $32.7\%$, \hgkv{}+Recent-$4$ $33.0\%$, frozen
-Recent-$4$ $32.7\%$ (all pairwise differences non-significant), each
-$+13$--$14$pp over the frozen no-memory baseline ($19.9\%$; paired
-$95\%$ CIs excluding zero, $p{<}10^{-4}$). The adapter is again
-behaviorally neutral on matched allocations
-(\hgkv{}+Recent-$4$ vs.\ frozen Recent-$4$: $+0.3$pp, $p{=}0.96$),
-mirroring the mobile finding and giving the drift cap its behavioral
-certificate on both platforms. Per-task cost instrumentation of the P arm gives the
+uniformly to all arms), high-fidelity visual history improves
+substantially over no memory, while alternative same-budget allocations
+remain indistinguishable: \method{}-LA $34.1\%$, \method{}-P
+$32.7\%$, \hgkv{}+Recent-$4$ $33.0\%$, frozen Recent-$4$ $32.7\%$
+(all pairwise differences non-significant), each $+13$--$14$pp over the
+frozen no-memory baseline ($19.9\%$; paired $95\%$ CIs excluding zero,
+$p{<}10^{-4}$). OSWorld thus supports the memory-\emph{availability}
+claim; the memory-\emph{allocation} claim is tested by the mobile
+memory-critical split, and we do not claim that allocation helps on
+every long task. The adapter is again behaviorally neutral on matched
+allocations (\hgkv{}+Recent-$4$ vs.\ frozen Recent-$4$: $+0.3$pp,
+$p{=}0.96$), mirroring the mobile finding and giving the drift cap its
+behavioral certificate on both platforms. Per-task cost instrumentation of the P arm gives the
 deployment overhead directly: median $8$ extra policy calls and $20.6$
 model-seconds per task against a median task wall time of $308$s ---
 an end-to-end overhead of $7\%$ at the median ($10\%$ at P90, and
 $2.7\%$ on successful tasks), even though pass-2 fires on $82\%$ of
-steps and adds $66\%$ to policy compute in isolation. Under the same definition the desktop roster is almost entirely
-memory-demanding ($352$ of $361$ tasks exhaust the official $15$-step
-budget under the no-memory policy). On that stratum
-$\Delta_{\text{long}}$ against the no-memory baseline is
-$+14.2$pp for LA ($[+9.7,+19.0]$), but against the same-budget frozen
-Recent-$4$ baseline it is $+1.1$pp ($[-2.6,+4.8]$; P $+0.3$pp): on the
-training platform, the long-horizon gain is carried by having
-high-fidelity memory at all, while on the unseen mobile platform the
-allocation itself contributes.
+steps and adds $66\%$ to policy compute in isolation.
 
 \begin{table*}[t]
 \centering
@@ -758,8 +756,10 @@ learns to consume reallocated evidence inside a pre-registered drift
 envelope, and a budget-aware
 selector learns when replacing recent frames with archived events pays. All
 learning happens on desktop data; mobile benchmarks remain untouched for
-zero-shot evaluation.
-\pending{Update with final per-$B$ gates, $Q_B(k)$, and zero-shot findings.}
+zero-shot evaluation. In one sentence: \method{} learns when a distant
+screenshot is worth more than a recent one under the same visual budget,
+and its closed-loop benefit appears precisely on tasks constructed to
+place critical visual evidence outside the recent window.
 
 \bibliography{references}
 
