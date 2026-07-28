@@ -28,6 +28,19 @@ from scripts.build_desktop_hgkv_corpus import (
 # "__none__",不会匹配任何候选。
 WITNESS_PSEUDO_TARGET = _os.environ.get("CAUSALCACHE_WITNESS_PSEUDO_TARGET", "")
 
+# note (luojiaxuan): recency-membership 消融——置 1 时把 in_recent_1/2/4/8
+# (索引 4..7)清零,训练与评测同口径使用(原生消融)。
+ZERO_RECENCY = _os.environ.get("CAUSALCACHE_ZERO_RECENCY_FEATURES") == "1"
+
+
+def _maybe_zero_recency(features: list[float]) -> list[float]:
+    if not ZERO_RECENCY:
+        return features
+    out = list(features)
+    for idx in (4, 5, 6, 7):
+        out[idx] = 0.0
+    return out
+
 
 def _pseudo_target_from_history(
     action: Mapping[str, Any], screen_size: tuple[int, int]
@@ -183,7 +196,7 @@ def candidate_features(
         duplicate_count,
     )
     assert len(values) == len(FEATURE_NAMES)
-    return list(values)
+    return _maybe_zero_recency(list(values))
 
 
 SET_FEATURE_NAMES = (

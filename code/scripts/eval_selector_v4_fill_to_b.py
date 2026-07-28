@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 import argparse
+import functools as _functools
 import hashlib
 import json
 import math
@@ -88,6 +89,12 @@ def parse_args() -> argparse.Namespace:
     # episode-cluster CI(单片内的 CI 只是参考值,不作判定)。
     parser.add_argument("--shard-index", type=int, default=0)
     parser.add_argument("--shard-count", type=int, default=1)
+    # note (luojiaxuan): 选集器消融——beam(默认,学习打分器)、random(随机 B 集,
+    # per-(dp,b) 固定种子)、bottomk(打分取负,反向选择特异性控制)、
+    # rgb_sim(候选帧与当前帧 32×32 RGB 距离最小者,承诺过的相似度基线)。
+    parser.add_argument("--chooser",
+                        choices=("beam", "random", "bottomk", "rgb_sim"),
+                        default="beam")
     return parser.parse_args()
 
 
@@ -100,6 +107,20 @@ def load_rows(root: Path, pattern: str):
                 yield json.loads(line)
             except json.JSONDecodeError:
                 continue
+
+
+@_functools.lru_cache(maxsize=8192)
+def _rgb_thumb(path: str):
+    """32×32 RGB 缩略图(float32),供 rgb_sim 基线;坏图返回 None。"""
+    try:
+        import numpy as _np
+        from PIL import Image as _Image
+
+        with _Image.open(path) as im:
+            return _np.asarray(
+                im.convert("RGB").resize((32, 32)), dtype=_np.float32)
+    except Exception:  # noqa: BLE001
+        return None
 
 
 def cluster_ci(values_by_episode, *, iterations, seed):
@@ -385,29 +406,52 @@ def main() -> None:
             if len(pool) < b:
                 skipped[f"b{b}_pool_too_small"] += 1
                 continue
-            # beam 组合(exact-B;recent 是普通候选,全拒绝时收敛 Recent-B)
-            level = [((), 0.0)]
-            for _size in range(b):
-                expanded = []
-                seen = set()
-                for sel, acc in level:
-                    remaining = [e for e in pool if e not in sel]
-                    if not remaining:
+            if args.chooser == "random":
+                rng_c = random.Random(f"{args.seed}:{dp}:{b}")
+                chosen = sorted(rng_c.sample(list(pool), b))
+            elif args.chooser == "rgb_sim":
+                rels = record.get("image_relpaths") or []
+                cur = _rgb_thumb(str(args.image_root / rels[-1]))
+                sims = []
+                for e in pool:
+                    if e - 1 >= len(rels):
                         continue
-                    margs = score_marginals(sel, remaining)
-                    for e, m in sorted(
-                        zip(remaining, margs), key=lambda t: -t[1]
-                    )[: args.beam]:
-                        child = tuple(sorted((*sel, e)))
-                        if child in seen:
+                    cand = _rgb_thumb(str(args.image_root / rels[e - 1]))
+                    if cur is None or cand is None:
+                        continue
+                    sims.append((e, -float(abs(cur - cand).mean())))
+                if len(sims) < b:
+                    skipped[f"b{b}_rgb_short"] += 1
+                    continue
+                sims.sort(key=lambda t: -t[1])
+                chosen = sorted(e for e, _ in sims[:b])
+            else:
+                # beam 组合(exact-B;recent 是普通候选,全拒绝时收敛 Recent-B);
+                # bottomk 取负分走同一 beam(反向选择特异性控制)。
+                level = [((), 0.0)]
+                for _size in range(b):
+                    expanded = []
+                    seen = set()
+                    for sel, acc in level:
+                        remaining = [e for e in pool if e not in sel]
+                        if not remaining:
                             continue
-                        seen.add(child)
-                        expanded.append((child, acc + m))
-                if not expanded:
-                    break
-                expanded.sort(key=lambda t: -t[1])
-                level = expanded[: args.beam]
-            chosen = list(level[0][0])
+                        margs = score_marginals(sel, remaining)
+                        if args.chooser == "bottomk":
+                            margs = [-m for m in margs]
+                        for e, m in sorted(
+                            zip(remaining, margs), key=lambda t: -t[1]
+                        )[: args.beam]:
+                            child = tuple(sorted((*sel, e)))
+                            if child in seen:
+                                continue
+                            seen.add(child)
+                            expanded.append((child, acc + m))
+                    if not expanded:
+                        break
+                    expanded.sort(key=lambda t: -t[1])
+                    level = expanded[: args.beam]
+                chosen = list(level[0][0])
             if len(chosen) < b:
                 skipped[f"b{b}_beam_short"] += 1
                 continue
