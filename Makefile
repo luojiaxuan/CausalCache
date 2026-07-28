@@ -1,13 +1,37 @@
-.PHONY: paper clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines synthetic-phase0
+.PHONY: figures paper supplement paper-all clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines synthetic-phase0
 
-paper:
+FIGURE_SOURCE_DATE_EPOCH ?= 1785168000
+FIGURE_PDF_TMP_DIR ?= tmp/paper-figures
+GS_OUTLINE_FLAGS = -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNoOutputFonts -dOmitInfoDate=true -dOmitID=true -dDeterministicIDs=true
+
+figures:
+	python3 paper/figures/build_causalcache_figures.py
+	mkdir -p $(FIGURE_PDF_TMP_DIR)
+	SOURCE_DATE_EPOCH=$(FIGURE_SOURCE_DATE_EPOCH) rsvg-convert -f pdf -o $(FIGURE_PDF_TMP_DIR)/causalcache_overview.pdf paper/figures/causalcache_overview.svg
+	gs $(GS_OUTLINE_FLAGS) -sOutputFile=$(FIGURE_PDF_TMP_DIR)/causalcache_overview_warm.pdf $(FIGURE_PDF_TMP_DIR)/causalcache_overview.pdf
+	gs $(GS_OUTLINE_FLAGS) -sOutputFile=paper/figures/causalcache_overview.pdf $(FIGURE_PDF_TMP_DIR)/causalcache_overview.pdf
+	SOURCE_DATE_EPOCH=$(FIGURE_SOURCE_DATE_EPOCH) rsvg-convert -f png -w 2016 -o paper/figures/causalcache_overview.png paper/figures/causalcache_overview.svg
+	SOURCE_DATE_EPOCH=$(FIGURE_SOURCE_DATE_EPOCH) rsvg-convert -f pdf -o $(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart.pdf paper/figures/causalcache_qualitative_cart.svg
+	gs $(GS_OUTLINE_FLAGS) -sOutputFile=$(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart_warm.pdf $(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart.pdf
+	gs $(GS_OUTLINE_FLAGS) -sOutputFile=paper/figures/causalcache_qualitative_cart.pdf $(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart.pdf
+	SOURCE_DATE_EPOCH=$(FIGURE_SOURCE_DATE_EPOCH) rsvg-convert -f png -w 2016 -o paper/figures/causalcache_qualitative_cart.png paper/figures/causalcache_qualitative_cart.svg
+
+paper: figures
 	mkdir -p output/pdf
 	cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=../output/pdf main.tex
 	cp output/pdf/main.pdf output/pdf/causalcache_aaai27.pdf
 
+supplement:
+	mkdir -p output/pdf
+	cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=../output/pdf supplement.tex
+	cp output/pdf/supplement.pdf output/pdf/causalcache_aaai27_supplement.pdf
+
+paper-all: paper supplement
+
 clean-paper:
 	cd paper && latexmk -C -outdir=../output/pdf main.tex
-	rm -f output/pdf/causalcache_aaai27.pdf
+	cd paper && latexmk -C -outdir=../output/pdf supplement.tex
+	rm -f output/pdf/causalcache_aaai27.pdf output/pdf/causalcache_aaai27_supplement.pdf
 
 test:
 	cd code && python3 -m unittest discover -s tests -v
