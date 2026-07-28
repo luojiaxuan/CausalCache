@@ -64,6 +64,9 @@ selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
 - problem formulation 与方法组件归入 `Method`，实验设置、主结果和 ablation 归入
   `Experiments`，避免官方 AAAI 居中 section 标题把论文切得过碎；
 - 当前版本仍是随 `main` 与 ablation 结果更新的 working draft，不冻结 claim 或版式。
+- 2026-07-28 的叙事重写暂存于 `paper-draft` 分支：摘要、引言和 Results 改为按
+  availability / selective consumption / conditional allocation 三个问题组织；该分支
+  尚未合并到 canonical `main`。
 
 ## 主结果表契约(2026-07-27 起,固定预算 fidelity reallocation)
 
@@ -74,9 +77,9 @@ selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
   summary-plus-image；`B=4` 是主设置，`B=8` 是未训练预算外推；
 - `Table~\ref{tab:per-r}` 按 `B ∈ {1,2,4,8}` 报告 matched-budget allocation，
   行内 selected-vs-recent 是主比较，跨 `B` 只作分析；realized `k` 必须单独报告；
-- policy 侧 DiD gate 表(`Table~\ref{tab:did-gate}`)已填真实 r=0 数值
-  (HGKV/ungated/Full-LoRA 三行,dev 94 组);per-r 分层与零样本表保持 `TBD`
-  直至可复核结果落地;
+- 主稿 `Table~\ref{tab:per-r}` 汇总 policy-side 与 selector 的 per-budget
+  matched-count 结果；完整 HGKV/ungated per-budget gate、置信区间和 drift 统计放在
+  supplementary `Table~\ref{tab:s-gates}`。零样本预算表保持 `TBD`，直至可复核结果落地；
 - selector 行按实际使用的图片数计费,STOP 是合法输出;不得把 singleton gain
   求和冒充 set utility。
 

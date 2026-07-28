@@ -36,6 +36,13 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 
 ## 当前结论
 
+> **2026-07-28 working paper 叙事重写已进入 `paper-draft` 分支。**
+> 新稿将摘要、引言和 Results 统一组织为三个可分离问题：high-fidelity history
+> availability、policy-side selective consumption，以及 same-budget conditional
+> allocation；`paper/main.tex` 已消除失效的 `tab:did-gate` 交叉引用并保持 9 页
+> （7 页内 technical content，references 自第 7 页自然流入）。该分支尚未合并或
+> 推送到 canonical `main`。
+>
 > **2026-07-27 AAAI 两张主图完成并进入主稿。**
 > Figure 1 固定 complete summary trace 与 `B=4` active history-image budget，
 > 将方法画成 event-fidelity reallocation，而不是事件 inclusion 或加图；
