@@ -67,6 +67,13 @@ memory criticality.
 
 \section{Introduction}
 
+Autonomous agents that follow natural-language instructions and operate
+graphical user interfaces promise broad practical value: they can automate
+repetitive digital chores, carry out multi-application workflows on behalf
+of their users, and extend what a single person can accomplish on desktop
+and mobile devices \citep{xie2024osworld,rawles2025androidworld,
+xu2026mobileagent35}. Delivering that value on long tasks turns memory into
+a first-order design problem:
 GUI agents accumulate screenshots, actions, text arguments, coordinates, and
 interface changes over many decisions. A complete action trace persists
 cheaply as compressed text, but keeping every screenshot active is costly and
@@ -96,11 +103,11 @@ the active visual context; no pixels are reconstructed from text. Under a
 budget of $B$ high-fidelity history images, Recent-$B$ promotes the latest $B$
 events. \method{} reallocates the same $B$ promotions over the complete trace,
 with recent events as the default: a distant event enters only by displacing a
-recent image whose conditional marginal utility it exceeds. The matched-$B$
-comparison $Q(S^{*})>Q(S_{\mathrm{recent}})$ therefore isolates fidelity
-allocation from visual capacity. The realized number of non-recent promotions,
-$k=|S\setminus\mathrm{Recent}\text{-}B|$, is a result statistic, not a preset
-parameter. Figure~\ref{fig:qualitative-cart} illustrates this reallocation
+recent image whose conditional marginal utility it exceeds. Because every
+compared allocation carries the same number of images, the contrast
+isolates fidelity \emph{allocation} from visual capacity, and how many
+non-recent events are actually promoted is measured as a result, never
+preset. Figure~\ref{fig:qualitative-cart} illustrates this reallocation
 on a real cross-application episode.
 
 \begin{figure*}[t]
