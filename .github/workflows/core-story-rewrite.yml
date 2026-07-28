@@ -1,0 +1,250 @@
+name: Apply paper core-story rewrite
+
+on:
+  push:
+    branches:
+      - paper/core-story-rewrite
+
+permissions:
+  contents: write
+
+jobs:
+  rewrite:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: paper/core-story-rewrite
+
+      - name: Rewrite paper/main.tex
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("paper/main.tex")
+          src = path.read_text()
+
+          abstract = r'''\begin{abstract}
+          Autonomous GUI agents could automate repetitive computer work and complete
+          complex workflows, but long-horizon tasks often depend on visual evidence from
+          screens visited many steps earlier. Textual event summaries are cheap to
+          retain, whereas keeping every screenshot active is expensive and can distract
+          the policy. We formulate this trade-off as \emph{conditional high-fidelity
+          restoration}: every event remains in a complete summary trace and is linked to
+          an archived screenshot, while a fixed visual budget determines which events
+          regain pixels. \method{} separates two questions that are often conflated:
+          whether the policy can selectively use restored evidence, and which events
+          should be restored. Its history-gated key/value interface (\hgkv{}) adapts only
+          restored history-image tokens and exactly bypasses the frozen policy when no
+          history image is active. A budget-aware selector then reallocates the same
+          number of active images from the recent window to older events only when their
+          predicted conditional utility is higher. Matched-budget comparisons isolate
+          event identity from visual capacity. On desktop, the frozen policy does not
+          reliably prefer a task-relevant archived frame over the informative recent
+          frame it would displace, whereas \hgkv{} learns this selectivity within a
+          pre-registered drift envelope. On OSWorld-Verified, high-fidelity history is
+          worth about 13 success points over summary-only memory, while same-budget
+          allocations remain indistinguishable. Zero-shot on MobileWorld,
+          \method{} improves over the same-budget recent allocation by 8.6 points on
+          the construction-defined memory-critical split, remains neutral on matched
+          controls, and yields a significant split-by-method interaction.
+          \end{abstract}'''
+
+          intro = r'''\section{Introduction}
+
+          Autonomous agents that interpret natural-language instructions and operate
+          computing devices could provide substantial value by automating repetitive
+          work, assisting users with complex digital workflows, and making software more
+          accessible. Realizing this value requires agents that remain reliable over
+          long horizons. Information visible early in a task---an order number, a file
+          name, or a selected option---may be needed only after many intermediate actions
+          or after the agent has switched applications.
+
+          Long-horizon GUI agents therefore accumulate screenshots, actions, text
+          arguments, coordinates, and interface changes. These records have an important
+          asymmetry: a complete interaction trace can be retained cheaply as compressed
+          action summaries, but exposing every past screenshot to a multimodal policy is
+          costly and potentially distracting. We study the setting in which every event
+          already remains recorded as text and its screenshot remains available in a
+          cold archive. The control problem is therefore not whether an event survives
+          in memory, but at what \emph{fidelity} it is shown to the policy. A low-fidelity
+          event contributes its summary; a high-fidelity event contributes the same
+          record with its archived screenshot reattached.
+
+          Most long-horizon memory systems decide which items to retain or retrieve
+          \citep{lu2025guiodyssey,zeng2026mementogui,shi2026androtmem,liu2026atmem}.
+          \method{} instead holds the complete summary trace fixed and treats the active
+          visual context as a fidelity budget. The standard Recent-\textit{B} allocation
+          spends every image slot on the latest events. \method{} may exchange a recent
+          slot for an older event, but keeps the goal, complete summaries, current
+          screen, image resolution, and number of active images unchanged. The method
+          therefore asks which summarized events deserve pixels, rather than increasing
+          memory capacity, deleting events, or reconstructing screenshots from text.
+
+          A better allocation rule is useful only if the action policy can exploit the
+          restored content. This is not automatic. In our controlled replacement probes,
+          a strong frozen GUI policy responds to the presence of historical images but
+          does not reliably prefer a task-relevant archived frame over the informative
+          recent frame it would displace. A selector can therefore identify a better
+          screenshot and still produce no behavioral gain because the consumer of that
+          screenshot is not sufficiently content-selective. This observation separates
+          the problem into two learned functions: the policy must learn \emph{how to
+          use} restored evidence, and a controller must learn \emph{which evidence to
+          restore}.
+
+          \begin{figure*}[t]
+          \centering
+          \includegraphics[width=\textwidth]{figures/causalcache_overview.pdf}
+          \caption{\method{} treats GUI memory as fixed-budget event-fidelity
+          allocation. (a)~Every event remains in the complete summary trace and retains
+          an archived screenshot outside the active prompt; promotion reattaches those
+          pixels rather than reconstructing them. (b)~Recent-4 assigns high fidelity to
+          the latest four events, whereas \method{} may exchange one recent slot for a
+          more useful distant event while keeping the same image count and all other
+          prompt content fixed. (c)~The method learns two functions: \hgkv{} teaches the
+          policy to use restored history pixels selectively, and the default
+          proposal-conditioned selector decides whether a same-budget reallocation
+          warrants a second policy pass. The last-action variant is an efficiency branch,
+          not the primary method.}
+          \label{fig:overview}
+          \end{figure*}
+
+          \method{} implements this separation with two components. First, the
+          history-gated key/value interface (\hgkv{}) modifies only image tokens from
+          promoted historical events. Instruction text, event summaries, the current
+          screen, and action tokens bypass the adapter; when no history image is active,
+          the model is bitwise identical to the frozen base policy. \hgkv{} is trained on
+          matched-budget recent, relevant, and wrong restorations so that only selective
+          use of target-relevant content is rewarded while ordinary recent-history and
+          wrong-history behavior remain inside a pre-specified drift envelope. Second,
+          after freezing this interface, a budget-aware selector estimates the
+          conditional utility of restoring each summarized event given the images
+          already active. Deployment starts from Recent-\textit{B} and falls back to it
+          exactly: the selector displaces a recent event only when an older candidate is
+          ranked higher. The default proposal-conditioned version uses the policy's first
+          action proposal as an online reference and asks the policy to decide again only
+          when the allocation changes.
+
+          Our evaluation is organized around three claims. \emph{First}, useful
+          restoration requires content-selective consumption: the frozen policy does not
+          inherit this selectivity from pretraining. \emph{Second}, \hgkv{} learns the
+          required preference while preserving the no-history path and limiting drift on
+          recent and irrelevant history. \emph{Third}, reallocation should help
+          conditionally rather than universally. On MobileWorld, \method{} improves over
+          the same-budget recent allocation on construction-defined memory-critical
+          tasks, remains neutral on matched controls, and produces a significant
+          interaction with memory criticality. OSWorld-Verified provides the
+          complementary result: historical pixels are valuable relative to summary-only
+          memory, but competing same-budget allocations are not distinguishable. Taken
+          together, these results separate high-fidelity \emph{availability} from
+          high-fidelity \emph{allocation}.
+
+          Our contributions are:
+          \begin{itemize}
+              \item a conditional fidelity-restoration formulation and matched-budget
+              protocol that keep the complete summary trace, current screen, and active
+              image count fixed while changing only which events regain pixels;
+              \item a policy-preserving \hgkv{} interface that learns content-selective
+              use of restored history images with exact no-history bypass and explicit
+              controls on recent-history and wrong-history drift;
+              \item a budget-aware restoration selector, together with desktop and
+              zero-shot mobile evidence that separates the value of high-fidelity
+              availability from the value of high-fidelity allocation.
+          \end{itemize}'''
+
+          abstract_start = src.index("\\begin{abstract}")
+          abstract_end = src.index("\\end{abstract}", abstract_start) + len("\\end{abstract}")
+          out = src[:abstract_start] + abstract + src[abstract_end:]
+
+          intro_start = out.index("\\section{Introduction}")
+          intro_end = out.index("\\section{Related Work}", intro_start)
+          out = out[:intro_start] + intro + "\n\n" + out[intro_end:]
+
+          out = out.replace(
+              "Figure~\\ref{fig:overview} shows the two learned components and the\n"
+              "same-budget re-decision that defines the core comparison.",
+              "Figure~\\ref{fig:architecture} details the two learned components and the\n"
+              "same-budget re-decision used at deployment.",
+          )
+
+          architecture = "\\includegraphics[width=\\textwidth]{figures/causalcache_hgkv_pass2.pdf}"
+          figure_pos = out.index(architecture)
+          label_pos = out.index("\\label{fig:overview}", figure_pos)
+          out = out[:label_pos] + "\\label{fig:architecture}" + out[label_pos + len("\\label{fig:overview}"):]
+
+          out = out.replace(
+              "\\paragraph{Selectivity Is Not Inherited from the Frozen Policy.}",
+              "\\paragraph{Claim 1: Selective consumption is not inherited from the frozen policy.}",
+          )
+          out = out.replace(
+              "\\paragraph{Selective Use Within a Drift Envelope.}",
+              "\\paragraph{Claim 2: \\hgkv{} learns selective use without broad policy drift.}",
+          )
+          out = out.replace(
+              "\\paragraph{Fidelity Reallocation and Zero-Shot Transfer.}",
+              "\\paragraph{Offline allocation across budgets.}",
+          )
+          out = out.replace(
+              "\\paragraph{Mobile closed loop (zero-shot).}",
+              "\\paragraph{Claim 3: Reallocation helps on memory-critical tasks.}",
+          )
+          out = out.replace(
+              "\\paragraph{Desktop closed loop.}",
+              "\\paragraph{High-fidelity availability and allocation are distinct.}",
+          )
+
+          old_pending = r'''\paragraph{Closed-loop budget sweep.}
+          Table~\ref{tab:dose} extends the closed loop along the deployment budget
+          axis with single-round mobile campaigns at $B\in\{1,2,8\}$, sharing every
+          frozen weight with the primary setting.
+          \pending{$^{\dagger}$ cells are in-flight campaigns (36--82 of 117 done,
+          completion-ordered subsets); to be replaced by final numbers.}'''
+          new_pending = r'''\paragraph{Closed-loop budget sweep.}
+          Table~\ref{tab:dose} will extend the closed-loop evaluation along the
+          deployment budget axis with mobile campaigns at $B\in\{1,2,8\}$, sharing
+          every frozen weight with the primary setting.
+          \pending{Complete the remaining campaigns and replace all \tbd{} cells with
+          final full-roster results and paired intervals.}'''
+          out = out.replace(old_pending, new_pending)
+
+          out = out.replace(
+              r'''$1$ & $26.5^{*}$ & $30.6^{\dagger}$ \\''',
+              r'''$1$ & $26.5^{*}$ & \tbd{} \\''',
+          )
+          out = out.replace(
+              r'''$2$ & $26.5^{*}$ & $45.9^{\dagger}$ \\''',
+              r'''$2$ & $26.5^{*}$ & \tbd{} \\''',
+          )
+          out = out.replace(
+              r'''$8$ (untrained) & $31.7^{\dagger}$ & $42.2^{\dagger}$ \\''',
+              r'''$8$ (untrained) & \tbd{} & \tbd{} \\''',
+          )
+
+          old_caption = r'''\caption{Closed-loop MobileWorld success (\%) along the budget axis.
+          $B{=}0/4$: three-run means. $^{*}$Frozen-policy recent arm (\hgkv{} is
+          neutral on matched recent allocations). $^{\dagger}$In-flight
+          single-round campaigns.}'''
+          new_caption = r'''\caption{Closed-loop MobileWorld success (\%) along the budget axis.
+          $B{=}0/4$: three-run means. $^{*}$Frozen-policy recent arm (\hgkv{} is
+          neutral on matched recent allocations). \tbd{} entries denote campaigns
+          that are not yet complete; preliminary point estimates are intentionally not
+          reported.}'''
+          out = out.replace(old_caption, new_caption)
+
+          path.write_text(out)
+          PY
+
+      - name: Commit rewrite
+        shell: bash
+        run: |
+          if git diff --quiet -- paper/main.tex; then
+            echo "No changes produced"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add paper/main.tex
+          git commit -m "Rewrite paper core story and claims"
+          git push origin HEAD:paper/core-story-rewrite
