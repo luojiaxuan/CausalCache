@@ -286,8 +286,10 @@ Ungated KV control & $+0.0177$ & $0.0071$ \\
 \caption{The offline instrument: token-gated K/V probe on $94$
 development groups. Both adapters keep drift inside the pre-specified cap
 ($0.02$); gating buys a significantly larger selectivity margin per
-group. The probe generates training labels and never ships.
-\pending{32B cross-backbone DiD gate---training at step $260/300$}}
+group. The probe generates training labels and never ships. The same
+recipe transfers across backbone scale untouched: on GUI-Owl-1.5-32B it
+passes every pre-specified gate with DiD select $+0.0142$ ($95\%$ CI
+$[+0.011,+0.018]$) and recent-window drift within a third of the cap.}
 \label{tab:did-gate-v2}
 \end{table}
 
