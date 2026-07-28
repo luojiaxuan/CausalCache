@@ -695,7 +695,11 @@ supplement).}
 The budget is spent adaptively: at $B{=}4$ the learned scorer keeps the
 entire recent window on $19\%$ of states and replaces all of it on
 $26\%$---a state-dependent $k$ profile that neither random allocation nor
-RGB similarity reproduces.
+RGB similarity reproduces. Although training only ever supervises the
+$k{=}1$ interface, these multi-slot compositions sustain the closed-loop
+gains of Table~\ref{tab:closed-loop}: the token-gated adaptation is applied
+per restored frame and generalizes across replacement multiplicity rather
+than overfitting the single-replacement training condition.
 
 \paragraph{Closed-loop budget sweep.}
 Figure~\ref{fig:budget-curve} extends the closed loop along the deployment budget
