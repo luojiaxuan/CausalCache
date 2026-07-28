@@ -576,13 +576,18 @@ $28.2/26.5/26.5/29.1/29.9\%$, non-monotone with every paired contrast
 against $B{=}0$ crossing zero --- on this benchmark, additional recent
 frames alone buy nothing, so budget \emph{allocation} rather than budget
 \emph{size} is the operative variable.
-Stratifying by baseline behavior sharpens the picture: on the $95$ tasks
-the frozen baseline cannot finish within its $50$-step budget,
-\method{}-P gains $+7.0$pp over it ($95\%$ CI $[+0.4,+14.0]$), while on
-the $22$ short tasks the baseline completes, memory reallocation adds
-nothing ($47.0\%$ base rate) --- the benefit concentrates exactly on
-long-horizon tasks, where high-fidelity restoration of a distant frame can
-matter. The efficiency variant \method{}-LA, unchanged in weights, fails
+We define \emph{memory-demanding long-horizon tasks} as tasks that the
+frozen no-memory policy cannot complete within the benchmark's official
+interaction budget, and report
+$\Delta_{\text{long}}=P(\text{success}\mid\text{\method},\text{long})-P(\text{success}\mid\text{baseline},\text{long})$
+on that stratum. On the $95$ such mobile tasks ($50$-step budget),
+\method{}-P attains $30.9\%$ with
+$\Delta_{\text{long}}{=}{+}7.0$pp over the no-memory baseline ($95\%$
+CI $[+0.4,+14.0]$) and $+3.5$pp over frozen Recent-$4$ at the same budget
+($[-3.2,+10.2]$); on the $22$ short tasks the baseline completes, memory
+reallocation adds nothing ($47.0\%$ base rate). The benefit concentrates
+exactly on long-horizon tasks, where high-fidelity restoration of a
+distant frame can matter. The efficiency variant \method{}-LA, unchanged in weights, fails
 to transfer ($29.1\%$; $-4.8$pp vs.\ P, $95\%$ CI $[-10.5,+0.6]$), and
 its failure concentrates on single-app control tasks where the
 last-action reference trivially recurs: under platform shift the
@@ -606,13 +611,15 @@ deployment overhead directly: median $8$ extra policy calls and $20.6$
 model-seconds per task against a median task wall time of $308$s ---
 an end-to-end overhead of $7\%$ at the median ($10\%$ at P90, and
 $2.7\%$ on successful tasks), even though pass-2 fires on $82\%$ of
-steps and adds $66\%$ to policy compute in isolation. The same
-baseline-length stratification applied here is nearly degenerate ---
-$352$ of $361$ tasks exhaust the frozen baseline's $15$-step budget ---
-so the desktop roster is uniformly long-horizon for the baseline, and
-the $+13$--$14$pp memory gain (LA $+14.2$ $[+9.7,+19.0]$; P $+13.4$
-$[+8.8,+17.9]$ over the no-memory baseline on that stratum) is
-long-horizon gain by construction.
+steps and adds $66\%$ to policy compute in isolation. Under the same definition the desktop roster is almost entirely
+memory-demanding ($352$ of $361$ tasks exhaust the official $15$-step
+budget under the no-memory policy). On that stratum
+$\Delta_{\text{long}}$ against the no-memory baseline is
+$+14.2$pp for LA ($[+9.7,+19.0]$), but against the same-budget frozen
+Recent-$4$ baseline it is $+1.1$pp ($[-2.6,+4.8]$; P $+0.3$pp): on the
+training platform, the long-horizon gain is carried by having
+high-fidelity memory at all, while on the unseen mobile platform the
+allocation itself contributes.
 
 \begin{table*}[t]
 \centering
