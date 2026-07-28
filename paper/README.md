@@ -46,7 +46,8 @@ selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
   summary 合并展示；所有文字、节点、连线和 `×`/`✓` 均为原生 PPT 对象，只有
   两张去 PII UI crop 是嵌入图片。旧
   `figures/causalcache_qualitative_cart.svg` 仅保留为上一版布局记录，不再生成
-  投稿 PDF；
+  投稿 PDF。可编辑文字最小为 PPT 原生 15 pt，进入 7 inch 主稿后约 9.16 pt，
+  且底部 event-7 截图边框已完整收进画布；
 - `make figures` 用 `figures/build_causalcache_figures.py` 生成 Figure 1，并在
   macOS 上通过 `figures/export_pptx_to_pdf.applescript` 调用 Microsoft
   PowerPoint 导出 Figure 2；

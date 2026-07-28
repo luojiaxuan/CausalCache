@@ -16,15 +16,15 @@ PPT 左侧使用共有 `Shared Context` 结构，依次放入任务目标、完�
 关键 event 的 action summary；右侧保持 Recent-4/CausalCache 分叉、event 7
 订单证据、current keyboard image 汇合与失败/成功 action。除两张去 PII crop 外，
 图中对象均可在 PowerPoint 中独立编辑。PowerPoint/Artifact Tool 实际渲染和带
-padding 的越界检查均通过。
+padding 的越界检查均通过；底部 event-7 截图边框的下缘位于 360 px 画布的
+351.5 px，保留 8.5 px 安全边距。
 
 两图均以 7 inch 双栏宽度进入主稿。Figure 1/2 的主稿显示高度分别为
 3.89/2.29 inch；PNG 为 2016 px 宽，即 288 dpi。Figure 1 的最小标签为 9 pt。
-当前 Figure 2 PPT 的原生文字在 7 inch 主稿宽度下约为 6.0--12.4 pt，其中
-event id 和部分 action summary 小于 AAAI 建议的 9 pt；这是一项 working-paper
-排版告警，submission freeze 前需放大或精简。Figure 1 的颜色同时由边框、虚线、
-粗线和斜线填充编码；Figure 2 由分叉拓扑、路径标签和 `×`/`✓` 同时编码，
-灰度渲染仍能区分两条路径与结果。
+Figure 2 的所有可编辑文字 run 均至少为 PPT 原生 15 pt，且关闭自动缩字；从
+825 pt 画布缩放到 504 pt 主稿宽度后，最小显示字号约为 9.16 pt。Figure 1 的
+颜色同时由边框、虚线、粗线和斜线填充编码；Figure 2 由分叉拓扑、路径标签和
+`×`/`✓` 同时编码，灰度渲染仍能区分两条路径与结果。
 
 Figure 1 的生成源为 `paper/figures/build_causalcache_figures.py`。Figure 1 不把事件
 “删除/保留”误画成 memory selection：每个事件的 summary 一直存在，promotion
@@ -115,8 +115,8 @@ SVG、PPTX、PNG 与审计 crop 是稳定内容身份，当前 SHA-256 如下。
 | `causalcache_overview.svg` | `0b183fb16d21b7d5f07f0e9c055d023baff85fa5e4a0f91958ce0475f93d3cd1` |
 | `causalcache_overview.png` | `89a43b8c85569b30114c972d38ca7e27abd97d3779173bd28524499cbbdfb549` |
 | `causalcache_qualitative_cart.svg` | `b2a49e8fb680173c1d69204a1669acd2c3a3da6197c8e51e0557072bfe75b2e4` |
-| `causalcache_qualitative_cart.png` | `d542a3eca254c8d69e17041887cef064cd52c11c5a65143a4d6cffbb756c7c80` |
-| `causalcache_qualitative_cart_editable.pptx` | `8cec6434994ccf9350a73ba81f76a67906fc4d7e54b4b1049b2dd82c93addc0e` |
-| `causalcache_qualitative_cart_ppt.png` | `d542a3eca254c8d69e17041887cef064cd52c11c5a65143a4d6cffbb756c7c80` |
+| `causalcache_qualitative_cart.png` | `3a72ba7fb4a462588002dafbc33d882db594fe8f4609d76e7bfd3b9faa87bd32` |
+| `causalcache_qualitative_cart_editable.pptx` | `f760130a62fc1e1424a37f4aab8ef02b251814ac5d11e872e0e2cb83bcf1b197` |
+| `causalcache_qualitative_cart_ppt.png` | `3a72ba7fb4a462588002dafbc33d882db594fe8f4609d76e7bfd3b9faa87bd32` |
 | `cart_order_evidence.png` | `0dd574a79528e3df8852fb4ef5167b9876e62c9ed28b2f4b7a6a1dd56a1fc20e` |
 | `cart_message_input.png` | `36f138cf5ec54a66133b414a9c71992d72abd32ce1e764725621db8bcc2aba53` |
