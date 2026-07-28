@@ -132,6 +132,9 @@ def main() -> None:
                         default="two_tower")
     parser.add_argument("--selection-budget", type=int, default=4)
     parser.add_argument("--selector-beam", type=int, default=3)
+    parser.add_argument(
+        "--max-replacements", type=int, default=None,
+        help="k 上限:beam 组合中非-recent 促升数不得超过该值(k≤1 消融)。")
     # note (luojiaxuan): witness 伪目标来源。proposal = 两遍 propose-then-select
     # (先按 recent 尾出一遍动作再选);last_action = 单遍——witness 对比上一步
     # 已执行动作,选完记忆只生成一次(部署主线)。
@@ -315,6 +318,8 @@ def main() -> None:
                 return selector_model(
                     torch.tensor(xs, dtype=torch.float32)).tolist()
 
+        event_ids = [int(e["step_id"]) for e in history]
+        tail_set = {alias.get(s, s) for s in event_ids[-budget:]}
         level = [((), 0.0)]
         for _ in range(budget):
             expanded, seen = [], set()
@@ -326,6 +331,10 @@ def main() -> None:
                 for s, m in sorted(zip(remaining, margs), key=lambda t: -t[1])[: args.selector_beam]:
                     child = tuple(sorted((*sel, s)))
                     if child in seen:
+                        continue
+                    if (args.max_replacements is not None
+                            and sum(1 for c in child if c not in tail_set)
+                            > args.max_replacements):
                         continue
                     seen.add(child)
                     expanded.append((child, acc + m))
