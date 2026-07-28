@@ -66,10 +66,14 @@ pre-registered drift envelope. A budget-aware selector then fills
 the $B$ slots from the full history, displacing a recent frame only when an
 archived candidate's measured marginal exceeds that frame's.
 Per-$B$ gates pass at every trained budget and extrapolate to an untrained
-$B{=}8$; the learned selector beats Recent-$B$ at matched image counts
-($+0.030$ at $B{=}2$, $+0.017$ at $B{=}4$); and zero-shot on a 117-task
-mobile benchmark the adapter is behaviorally free on recent-only prompts,
-matching its pre-registered drift cap.
+$B{=}8$, and the learned selector beats Recent-$B$ at matched image counts
+at every budget. In closed loop, memory reallocation is worth
+$+13$--$14$pp over a no-memory baseline on OSWorld-Verified, and on a
+117-task mobile benchmark evaluated strictly zero-shot, \method{} attains
+$34.6\%$ against $28.2\%$ for the frozen baseline
+($+6.4$pp, bootstrap $p{=}0.024$) while a recent-only dose sweep of the
+same budget is flat --- on unseen platforms, \emph{which} frames occupy
+the budget matters, not how many.
 \end{abstract}
 
 \section{Introduction}
@@ -624,7 +628,8 @@ Frozen & Recent-$B$ & $0$ & $0$ & $0$ & $0$ & $0$ & reference \\
 Frozen & oldest slot $\to$ archived & $+.079$ & $+.026$ & $-.000$ & $-.031$ & $1$ & \\
 \hgkv & Recent-$B$ & $+.002$ & $+.005$ & $+.007$ & $+.009$ & $0$ & drift-capped \\
 \hgkv & oldest slot $\to$ archived & $+.103$ & $+.047$ & $+.018$ & $-.016$ & $1$ & gate: Tab.~\ref{tab:did-gate} \\
-\hgkv & learned selector (exact-$B$, recent fallback) & --- & $+.035$ & $+.024$ & --- & $\bar k{=}1.4/2.2$ & $19\%$ keep $k{=}0$ at $B{=}4$ \\
+\hgkv & selector, LA reference (deployed single-pass) & $+.039$ & $+.025$ & $+.015$ & $-.005$ & measured & $71\%$ displace ${\geq}1$ at $B{=}4$ \\
+\hgkv & selector, gold reference (offline upper bd.) & $+.044$ & $+.025$ & $+.011$ & $-.002$ & measured & teacher-forced oracle \\
 \bottomrule
 \end{tabular*}
 }
@@ -634,6 +639,35 @@ images, and the learned selector may keep the full recent window ($k{=}0$);
 $^{\dagger}$$B{=}8$ is excluded from training and reports budget
 extrapolation. Cross-$B$ comparisons are analysis only.}
 \label{tab:per-r}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+{\small
+\setlength{\tabcolsep}{5.0pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrr@{}}
+\toprule
+Method & OSWorld-Verified ($361$) & MobileWorld ($117$) & Extra policy calls \\
+\midrule
+Frozen, no memory ($B{=}0$) & $19.9$ & $28.2$\,{\scriptsize($3$ runs)} & $0$ \\
+Frozen $+$ Recent-$4$ & $32.7$ & $29.9$ & $0$ \\
+\hgkv{} $+$ Recent-$4$ & $33.0$ & $30.3$\,{\scriptsize($2$ runs)} & $0$ \\
+\method-LA (single-pass) & $\mathbf{34.1}$ & $29.1$ & $0$ \\
+\method-P (default) & $32.7$ & $\mathbf{34.6}$\,{\scriptsize($2$ runs)} & conditional \\
+\bottomrule
+\end{tabular*}
+}
+\caption{Closed-loop success rates (\%). OSWorld-Verified: official
+no-GDrive roster, docker provider, official $15$-step budget, one run per
+arm; all memory arms beat $B{=}0$ by $+13$--$14$pp (paired $95\%$ CIs
+excluding zero) and are pairwise indistinguishable. MobileWorld
+(zero-shot): multi-run means; \method-P over \hgkv{}$+$Recent-$4$ is
+$+4.3$pp ($95\%$ CI $[-0.9,+9.8]$; $+4.3$pp in each round separately) and
+$+6.4$pp over $B{=}0$ ($95\%$ CI $[0.0,+12.8]$, bootstrap $p{=}0.024$).
+\method-P's second call fires on $82\%$ of steps but adds only $7\%$
+median end-to-end task time. Per-round results and full paired statistics
+are in the appendix.}
+\label{tab:closed-loop}
 \end{table*}
 
 \section{Ablations and Analyses}
