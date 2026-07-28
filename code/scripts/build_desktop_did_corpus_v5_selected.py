@@ -279,6 +279,9 @@ def main() -> None:
                 counters["rejected_no_wrong_match"] += 1
                 continue
             wrong_set.sort()
+            # trainer 校验 oracle/distractor 源帧字段必须老于 recent 窗口:
+            # 字段语义 = 真正的 wrong 替换事件(取最老),不是 wrong_set 的 max。
+            wrong_marker = sorted(used)[0]
 
             specs = {
                 "recent": list(full_window),
@@ -326,10 +329,10 @@ def main() -> None:
                     "positive_rule": "selector_v4_beam_composition",
                     "positive_action_step": None,
                     "positive_event_step": promoted[0],
-                    "wrong_event_step": wrong_set[-1],
+                    "wrong_event_step": wrong_marker,
                     "promoted_events": promoted,
                     "positive_age": current_step - promoted[0],
-                    "wrong_age": current_step - wrong_set[-1],
+                    "wrong_age": current_step - wrong_marker,
                     "recent_definition": "distinct_frames_v2",
                     "budget_semantics": "selector_allocation_v5",
                     "renderer": DESKTOP_OFFICIAL_PROTOCOL_ID,
@@ -368,7 +371,7 @@ def main() -> None:
                     row["negative_kind"] = NEGATIVE_KIND
                     row["negative_scale"] = NEGATIVE_SCALE
                     row["donor_episode"] = episode
-                    row["distractor_source_step"] = wrong_set[-1]
+                    row["distractor_source_step"] = wrong_marker
                     row["oracle_source_step"] = promoted[0]
                 rows.append(row)
             for mode in specs:
