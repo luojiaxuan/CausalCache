@@ -595,10 +595,10 @@ Ungated KV (s125) & $+0.0076$ & $0.0090$ & $0.0063$ & pass \\
 \bottomrule
 \end{tabular}
 }
-\caption{Desktop DiD gate on 94 development groups ($B{=}1$; 2{,}000
-episode-clustered bootstrap replicates). DiD select $=(A_s-A_r)$; caps
-require $|A_r|,|A_n|<0.02$. \hgkv{}'s DiD CI is
-$[+0.0074,+0.0150]$; \hgkv{} B0 parity is bitwise exact.}
+\caption{Desktop DiD gate on 94 development groups ($B{=}1$). DiD select
+$=(A_s-A_r)$; caps require $|A_r|,|A_n|<0.02$. Both selection effects are
+significant under episode-clustered bootstrap (intervals in the
+supplement); \hgkv{} B0 parity is bitwise exact.}
 \label{tab:did-gate}
 \end{table}
 
@@ -694,18 +694,18 @@ band, so budget-context features carry substantial weight.
 \toprule
 Allocation rule & $B{=}2$ & $B{=}4$ \\
 \midrule
-Learned scorer & $+.030$ {\scriptsize$[+.019,+.041]$} & $+.017$ {\scriptsize$[+.007,+.028]$} \\
-Random exact-$B$ & $+.006$ {\scriptsize$[-.006,+.017]$} & $+.008$ {\scriptsize$[-.001,+.018]$} \\
-RGB similarity & $+.006$ {\scriptsize$[-.003,+.015]$} & $+.007$ {\scriptsize$[-.001,+.015]$} \\
-Inverted score & $-.016$ {\scriptsize$[-.029,-.003]$} & $-.009$ {\scriptsize$[-.018,-.000]$} \\
-No recency feats & $+.012$ {\scriptsize$[-.000,+.025]$} & $+.008$ {\scriptsize$[-.001,+.017]$} \\
+Learned scorer & $+.030$ & $+.017$ \\
+Random exact-$B$ & $+.006$ & $+.008$ \\
+RGB similarity & $+.006$ & $+.007$ \\
+Inverted score & $-.016$ & $-.009$ \\
+No recency feats & $+.012$ & $+.008$ \\
 \bottomrule
 \end{tabular}
 }
 \caption{Chooser ladder: log-likelihood margin over Recent-$B$ at matched
-budgets with fresh full-set policy scoring ($95\%$ episode-clustered CIs).
-Only the learned conditional ranking clears the noise band; reversing it is
-symmetrically harmful.}
+budgets with fresh full-set policy scoring. Only the learned ranking and
+its inversion separate from zero (episode-clustered intervals in the
+supplement).}
 \label{tab:chooser}
 \end{table}
 
@@ -718,8 +718,8 @@ RGB similarity reproduces.
 Table~\ref{tab:dose} extends the closed loop along the deployment budget
 axis with single-round mobile campaigns at $B\in\{1,2,8\}$, sharing every
 frozen weight with the primary setting.
-\pending{$^{\dagger}$ cells are in-flight campaigns (36--82 of 117 done,
-completion-ordered subsets); to be replaced by final numbers.}
+\pending{$^{\dagger}$ cells are in-flight campaigns ($96/102$ of $117$
+done); to be replaced by final numbers.}
 
 \begin{table}[t]
 \centering
@@ -730,17 +730,17 @@ completion-ordered subsets); to be replaced by final numbers.}
 $B$ & Recent-$B$ & \method-P \\
 \midrule
 $0$ (summary-only) & $28.2$ & --- \\
-$1$ & $26.5^{*}$ & $30.6^{\dagger}$ \\
-$2$ & $26.5^{*}$ & $45.9^{\dagger}$ \\
+$1$ & $26.5^{*}$ & $29.2^{\dagger}$ \\
+$2$ & $26.5^{*}$ & $33.3^{\dagger}$ \\
 $4$ (primary) & $30.2$ & $33.9$ \\
-$8$ (untrained) & $31.7^{\dagger}$ & $42.2^{\dagger}$ \\
+$8$ (untrained) & $29.9$ & $33.3$ \\
 \bottomrule
 \end{tabular}
 }
 \caption{Closed-loop MobileWorld success (\%) along the budget axis.
-$B{=}0/4$: three-run means. $^{*}$Frozen-policy recent arm (\hgkv{} is
-neutral on matched recent allocations). $^{\dagger}$In-flight
-single-round campaigns.}
+$B{=}0/4$: three-run means; other budgets: single rounds.
+$^{*}$Frozen-policy recent arm (\hgkv{} is neutral on matched recent
+allocations). $^{\dagger}$In-flight campaigns.}
 \label{tab:dose}
 \end{table}
 
