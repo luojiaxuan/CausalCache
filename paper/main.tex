@@ -473,23 +473,24 @@ selecting between samples---it cannot act as best-of-$n$.
 \centering
 {\small
 \setlength{\tabcolsep}{3.2pt}
-\begin{tabular}{@{}lrrrl@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-Benchmark / stratum & Recent-$B$ & \method{} & $\Delta$ & $95\%$ CI \\
+Benchmark / stratum & Recent-$B$ & \method{} & $\Delta$ \\
 \midrule
-MobileWorld full ($117$) & $30.2$ & $33.9$ & $+3.7$ & $[-0.9,+8.6]$ \\
-\hspace{7pt}memory-critical ($62$) & $19.4$ & $28.0$ & $+8.6$ & $[+1.6,+16.1]$ \\
-\hspace{7pt}single-app control ($55$) & $42.4$ & $40.6$ & $-1.8$ & $[-6.7,+3.6]$ \\
-\hspace{7pt}split$\times$method interact. & --- & --- & $+10.4$ & $[+1.5,+19.6]$ \\
-OSWorld-Verified ($361$) & $33.0$ & $32.7$ & $-0.3$ & $[-3.9,+3.3]$ \\
+MobileWorld full ($117$) & $30.2$ & $33.9$ & $+3.7$ \\
+\hspace{7pt}memory-critical ($62$) & $19.4$ & $28.0$ & $+8.6^{*}$ \\
+\hspace{7pt}single-app control ($55$) & $42.4$ & $40.6$ & $-1.8$ \\
+\hspace{7pt}split$\times$method interact. & --- & --- & $+10.4^{*}$ \\
+OSWorld-Verified ($361$) & $33.0$ & $32.7$ & $-0.3$ \\
 \bottomrule
 \end{tabular}
 }
 \caption{Primary closed-loop contrasts at the deployment budget $B{=}4$
 (task-paired bootstrap; MobileWorld three-run means; interaction two-sided
-$p{=}0.022$). The gain concentrates exactly on the construction-defined
-memory-critical stratum, with no detectable effect on controls or on the
-re-observable desktop benchmark.}
+$p{=}0.022$). $^{*}$~the $95\%$ confidence interval strictly excludes
+zero (full CI tables in the supplement). The gain concentrates exactly on
+the construction-defined memory-critical stratum, with no detectable
+effect on controls or on the re-observable desktop benchmark.}
 \label{tab:contrast}
 \end{table}
 
