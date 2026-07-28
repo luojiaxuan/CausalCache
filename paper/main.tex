@@ -713,9 +713,8 @@ in the supplement.}
 \end{figure}
 
 \paragraph{Deployment cost of the second pass.}
-The conditional second pass fires on $81$--$87\%$ of audited mobile steps,
-and the selector itself costs under $40$\,ms against a $3.7$--$4.2$\,s
-median policy pass. Instrumented across budgets, the added model time per
+The conditional second pass fires on
+$81$--$87\%$ of audited mobile steps; the selector costs under $40$\,ms. Instrumented across budgets, the added model time per
 step is $2.0/2.3/2.9$\,s at $B{=}1/2/4$---$8.1/8.7/10.5\%$ of the measured
 per-step wall time---and falls to roughly $5\%$ at $B{=}8$, where the
 selector keeps the recent tail on most steps and the second pass fires
@@ -728,28 +727,25 @@ supplementary document.
 \section{Limitations and Conclusion}
 
 The evidence assembles into three steps. First, the problem is fidelity
-allocation under a fixed visual budget, not memory existence: every event
-survives as text, and the only decision is which $B$ events regain pixels.
+allocation under a fixed visual budget: every event survives as text, and
+the only decision is which $B$ events regain pixels.
 Second, a frozen policy does not reliably separate a useful distant
-screenshot from the recent frame it would displace, so consuming restored
-pixels must be learned---\hgkv{} does so inside a drift envelope that
-leaves matched-recent behavior untouched. Third, the learned selector
+screenshot from the recent frame it would displace; \hgkv{} learns to,
+inside a drift envelope that leaves matched-recent behavior untouched.
+Third, the learned selector
 reallocates profitably exactly where distant visual dependency exists:
 memory-critical tasks improve, matched controls stay neutral, and random
 or similarity-based restoration buys nothing.
 
-We control an active context budget, not archive capacity: every compared
-policy exposes exactly $B$ summary-plus-image events, and \method{}
-reattaches rather than generates pixels. Restoration moves official
-retained turns---verbatim response plus screenshot---as a unit, so gains
-attribute to that bundle rather than to pixels alone; states whose
-critical value is recoverable only from pixels are rare ($0.36\%$ at
-$B{=}4$), and a finer decomposition is future work. We claim only that
+We control an active context budget, not archive capacity, and
+\method{} reattaches rather than generates pixels. Restoration moves official retained
+turns (verbatim response plus screenshot) as a unit, so gains attribute
+to that bundle, not to pixels alone; pixel-only-recoverable states are
+rare ($0.36\%$ at $B{=}4$). We claim only that
 some summarized events have greater conditional marginal utility than the
 recent realization they displace; ``causal'' denotes controlled prompt
-interventions, not structural causality, and teacher-forced margins must
-be judged by closed-loop success. Pretraining contamination remains
-possible. In one sentence: \method{} learns which summarized GUI events
+interventions, not structural causality. Pretraining contamination
+remains possible. In one sentence: \method{} learns which summarized GUI events
 deserve to be seen again.
 
 \bibliography{references}
