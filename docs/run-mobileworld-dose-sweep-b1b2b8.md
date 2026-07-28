@@ -46,7 +46,24 @@ mw-recent-b8-v1 新数据。
 - 完成判定:每臂 117 任务(shard 30+29+29+29)全部落盘 result 后 reduce;
   报告前核对分母。
 
+## 扩容(2026-07-27,用户指示每机 6 卡加速)
+
+- 模拟器:每机 +16(前缀 mwh2-/mws2-,种子 h00-dose2/h01-dose2-20260729),
+  总 32/机;每 campaign 16 个 = 4 shard × 4 envs(NUM_ENVS 2→4)。
+- server(每机 6 卡):hyper00 = P-B8 ×4(GPU 0,1,4,5;该臂 GPU 100% 为瓶颈)
+  + recent ×2(GPU 2,3);hyper01 = B1 ×3 + B2 ×3(canonical GPU0-3 四个 +
+  aux 容器 sglang-omni-jaxan-2(device 4-7,IP 172.17.0.38)两个:56589/56813)。
+  canonical 只挂 0-3 卡,跨容器 server 用 supervise_shard_b{1,2}e.sh
+  (arg4 = 完整 endpoint URL)。
+- 事故记录:扩容脚本 `docker exec` 少 `-i`,merge heredoc 静默空跑 →
+  supervisor 以 4 envs 对 2-模拟器 manifest 崩溃循环
+  ("fleet has fewer environments than requested"),16 shard 全部烧满
+  STALL 上限退出。修复:`docker exec -i` 重跑 merge(每 shard 4 模拟器)、
+  supervisor 全量重启,pending-from 断点续跑无数据损失。
+  教训(重复第二次):**容器内 heredoc 必须 `docker exec -i`**,且脚本要
+  校验关键步骤输出非空,不能只看退出码。
+
 ## 状态
 
-- 2026-07-27:hyper00 两臂 RUNNING(首任务已完成);hyper01 舰队 boot 中,
-  接管脚本在位。结果落盘后更新本节并入 data/results。
+- 2026-07-27:四臂扩容后全部 RUNNING(P-B8 38、recent-B8 67、B1 28、
+  B2 31 /117)。结果落盘后更新本节并入 data/results。
