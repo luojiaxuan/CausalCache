@@ -63,7 +63,24 @@ mw-recent-b8-v1 新数据。
   教训(重复第二次):**容器内 heredoc 必须 `docker exec -i`**,且脚本要
   校验关键步骤输出非空,不能只看退出码。
 
+## 暂停(2026-07-27,CUDA 驱动更新)
+
+- 暂停时进度:P-B8 44、recent-B8 76、B1 32、B2 33(/117)。
+- 已执行:supervisor/runner/server 全部杀净,GPU 容器 docker stop
+  (h00 sglang-omni-jaxan;h01 canonical + sglang-omni-jaxan-2)。
+  两机我方 GPU 显存清零(h01 GPU7 剩 10GB 为他人 root 进程,与我们无关)。
+- 模拟器容器(64 个,无 GPU)保持运行;若驱动更新伴随重启则全灭,
+  恢复脚本会用同种子重启舰队(名字/端口确定性复现,fleet-shard manifest
+  无需改动)。
+- 恢复:`code/scripts/ops/resume_dose_h00.sh` / `resume_dose_h01.sh`
+  (Git 为持久层;hyper01 数据盘另有副本 /data04/jaxan/mw/)。流程:
+  docker start → 模拟器检查(<32 则同种子重启舰队)→ 6 卡起 server →
+  health-wait → supervisor 重启(pending-from 断点续跑)。h01 aux 容器
+  IP 若变化脚本会打印提示(endpoint 数组用 $AUXIP 自动带入)。
+- 所有轨迹/心跳/manifest 均在持久数据盘(h00 /data02/jaxan、
+  h01 /data04/jaxan),重启无损。
+
 ## 状态
 
-- 2026-07-27:四臂扩容后全部 RUNNING(P-B8 38、recent-B8 67、B1 28、
-  B2 31 /117)。结果落盘后更新本节并入 data/results。
+- 2026-07-27:四臂扩容后 RUNNING,随后因驱动更新暂停(见上节)。
+  结果落盘后更新本节并入 data/results。
