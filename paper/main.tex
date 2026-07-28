@@ -60,8 +60,9 @@ envelope. On OSWorld-Verified, restoring history to high fidelity is worth
 about $13$ success points over summary-only memory, while same-budget
 allocations remain indistinguishable. Zero-shot on a mobile benchmark whose
 memory-critical split is fixed at construction, \method{} improves over
-Recent-$4$ by $8.6$ points on that split, remains neutral on matched
-controls, and the gain interacts significantly with memory criticality.
+the same-budget recent allocation by $8.6$ points on that split, remains
+neutral on matched controls, and the gain interacts significantly with
+memory criticality.
 \end{abstract}
 
 \section{Introduction}
@@ -543,17 +544,19 @@ only.}
 Method & OSWorld-Verified ($361$) & MobileWorld ($117$) & Extra policy calls \\
 \midrule
 Frozen, summary-only ($B{=}0$) & $19.9$ & $28.2$\,{\scriptsize($3$ runs)} & $0$ \\
-Frozen $+$ Recent-$4$ & $32.7$ & $29.9$ & $0$ \\
-\hgkv{} $+$ Recent-$4$ & $33.0$ & $30.2$\,{\scriptsize($3$ runs)} & $0$ \\
+Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $0$ \\
+\hgkv{} $+$ Recent-$B$ & $33.0$ & $30.2$\,{\scriptsize($3$ runs)} & $0$ \\
 \method-LA (single-pass) & $\mathbf{34.1}$ & $29.1$ & $0$ \\
 \method-P (default) & $32.7$ & $\mathbf{33.9}$\,{\scriptsize($3$ runs)} & conditional \\
 \bottomrule
 \end{tabular*}
 }
-\caption{Closed-loop success rates (\%). OSWorld-Verified: official
-no-GDrive roster and official $15$-step budget, one run per arm. MobileWorld:
-zero-shot three-run means. High-fidelity arms beat summary-only memory on
-desktop but remain pairwise indistinguishable; \method-P is best on mobile.
+\caption{Closed-loop success rates (\%) at the primary deployment budget
+$B{=}4$; the budget axis is swept offline in Table~\ref{tab:per-r}.
+OSWorld-Verified: official no-GDrive roster and official $15$-step budget,
+one run per arm. MobileWorld: zero-shot three-run means. High-fidelity arms
+beat summary-only memory on desktop but remain pairwise indistinguishable;
+\method-P is best on mobile.
 Full paired statistics and per-round results are in the supplementary
 document.}
 \label{tab:closed-loop}
@@ -630,12 +633,12 @@ are in the supplementary document.
 The 117-task mobile benchmark --- which contributes no training or
 selection signal --- is our primary test of \emph{allocation}, because
 its roster is constructed with a memory-critical split.
-The full-roster aggregates are secondary: over three runs, \method{}-P
-attains the highest overall success rate, $33.9\%$, against $30.2\%$ for
-\hgkv{}+Recent-$4$ and $28.2\%$ for the frozen summary-only baseline
-(Table~\ref{tab:closed-loop}), with the same sign in every round. The
-decomposition is clean:
-frozen Recent-$4$ ($29.9\%$), \hgkv{}+Recent-$4$ ($30.3\%$), and the
+The full-roster aggregates are secondary: over three runs at the primary
+budget $B{=}4$, \method{}-P attains the highest overall success rate,
+$33.9\%$, against $30.2\%$ for \hgkv{}+Recent-$B$ and $28.2\%$ for the
+frozen summary-only baseline (Table~\ref{tab:closed-loop}), with the same
+sign in every round. The decomposition is clean:
+frozen Recent-$B$ ($29.9\%$), \hgkv{}+Recent-$B$ ($30.3\%$), and the
 summary-only baseline are statistically indistinguishable --- the behavioral
 counterpart of the drift cap --- so the gain is carried by \emph{which
 summarized events are promoted}, not by the adapter or by recency alone. A full
@@ -652,7 +655,7 @@ episode --- after the app switch, the Recent-$B$ window no longer
 contains that evidence by construction --- and $55$ matched
 single-application controls with no such dependency. On the
 memory-critical stratum the same-budget contrast is decisive:
-\method{}-P $28.0\%$ vs.\ Recent-$4$ $19.4\%$, a $+8.6$pp gain; on the
+\method{}-P $28.0\%$ vs.\ Recent-$B$ $19.4\%$, a $+8.6$pp gain; on the
 controls the method is correctly inert ($40.6\%$ vs.\ $42.4\%$); and the
 split-by-method interaction is $+10.4$pp (two-sided $p{=}0.022$; intervals
 in the supplement). The value of reallocation is conditional on distant visual
@@ -679,7 +682,7 @@ paired $95\%$ CIs excluding zero), while same-budget allocations remain
 indistinguishable. OSWorld therefore supports high-fidelity
 \emph{availability}; conditional \emph{allocation} is tested by the mobile
 memory-critical split. \hgkv{} is again behaviorally neutral on matched
-Recent-$4$ allocations, mirroring the mobile finding. The P arm adds a
+Recent-$B$ allocations, mirroring the mobile finding. The P arm adds a
 median of eight policy calls per task, about $7\%$ of median end-to-end
 task time.
 
