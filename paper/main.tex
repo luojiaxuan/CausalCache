@@ -574,7 +574,13 @@ $[0.0,+12.8]$, bootstrap $p{=}0.024$). The decomposition is clean:
 frozen Recent-$4$ ($29.9\%$), \hgkv{}+Recent-$4$ ($30.3\%$), and the
 no-memory baseline are statistically indistinguishable --- the behavioral
 counterpart of the drift cap --- so the gain is carried by \emph{which}
-frames are restored, not by the adapter or by recency alone.
+frames are restored, not by the adapter or by recency alone. A full
+recent-dose sweep of the frozen policy makes the last point explicit:
+across $B{=}0/1/2/3/4$ the success rate is
+$28.2/26.5/26.5/29.1/29.9\%$, non-monotone with every paired contrast
+against $B{=}0$ crossing zero --- on this benchmark, additional recent
+frames alone buy nothing, so budget \emph{allocation} rather than budget
+\emph{size} is the operative variable.
 Stratifying by baseline behavior sharpens the picture: on the $95$ tasks
 the frozen baseline cannot finish within its $50$-step budget,
 \method{}-P gains $+8.8$pp over it ($95\%$ CI $[+1.8,+16.0]$), while on
