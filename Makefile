@@ -3,6 +3,9 @@
 FIGURE_SOURCE_DATE_EPOCH ?= 1785168000
 FIGURE_PDF_TMP_DIR ?= tmp/paper-figures
 GS_OUTLINE_FLAGS = -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNoOutputFonts -dOmitInfoDate=true -dOmitID=true -dDeterministicIDs=true
+GS_EMBED_FLAGS = -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dEmbedAllFonts=true -dSubsetFonts=true -dOmitInfoDate=true -dOmitID=true -dDeterministicIDs=true
+FIGURE2_PPTX = paper/figures/causalcache_qualitative_cart_editable.pptx
+FIGURE2_RAW_PDF = $(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart_powerpoint.pdf
 
 figures:
 	python3 paper/figures/build_causalcache_figures.py
@@ -11,10 +14,10 @@ figures:
 	gs $(GS_OUTLINE_FLAGS) -sOutputFile=$(FIGURE_PDF_TMP_DIR)/causalcache_overview_warm.pdf $(FIGURE_PDF_TMP_DIR)/causalcache_overview.pdf
 	gs $(GS_OUTLINE_FLAGS) -sOutputFile=paper/figures/causalcache_overview.pdf $(FIGURE_PDF_TMP_DIR)/causalcache_overview.pdf
 	SOURCE_DATE_EPOCH=$(FIGURE_SOURCE_DATE_EPOCH) rsvg-convert -f png -w 2016 -o paper/figures/causalcache_overview.png paper/figures/causalcache_overview.svg
-	SOURCE_DATE_EPOCH=$(FIGURE_SOURCE_DATE_EPOCH) rsvg-convert -f pdf -o $(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart.pdf paper/figures/causalcache_qualitative_cart.svg
-	gs $(GS_OUTLINE_FLAGS) -sOutputFile=$(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart_warm.pdf $(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart.pdf
-	gs $(GS_OUTLINE_FLAGS) -sOutputFile=paper/figures/causalcache_qualitative_cart.pdf $(FIGURE_PDF_TMP_DIR)/causalcache_qualitative_cart.pdf
-	SOURCE_DATE_EPOCH=$(FIGURE_SOURCE_DATE_EPOCH) rsvg-convert -f png -w 2016 -o paper/figures/causalcache_qualitative_cart.png paper/figures/causalcache_qualitative_cart.svg
+	osascript paper/figures/export_pptx_to_pdf.applescript "$(CURDIR)/$(FIGURE2_PPTX)" "$(CURDIR)/$(FIGURE2_RAW_PDF)"
+	gs $(GS_EMBED_FLAGS) -sOutputFile=paper/figures/causalcache_qualitative_cart.pdf $(FIGURE2_RAW_PDF)
+	gs -q -dSAFER -dBATCH -dNOPAUSE -sDEVICE=pngalpha -r175.9418 -dFirstPage=1 -dLastPage=1 -sOutputFile=paper/figures/causalcache_qualitative_cart.png paper/figures/causalcache_qualitative_cart.pdf
+	cp paper/figures/causalcache_qualitative_cart.png paper/figures/causalcache_qualitative_cart_ppt.png
 
 paper: figures
 	mkdir -p output/pdf

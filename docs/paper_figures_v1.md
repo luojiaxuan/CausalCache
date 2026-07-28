@@ -8,24 +8,25 @@
 | 图 | 可编辑源 | 投稿矢量 | 预览 |
 |---|---|---|---|
 | Figure 1：method overview | `paper/figures/causalcache_overview.svg` | `paper/figures/causalcache_overview.pdf` | `paper/figures/causalcache_overview.png` |
-| Figure 2：Cart qualitative case | `paper/figures/causalcache_qualitative_cart.svg` | `paper/figures/causalcache_qualitative_cart.pdf` | `paper/figures/causalcache_qualitative_cart.png` |
+| Figure 2：Cart qualitative case | `paper/figures/causalcache_qualitative_cart_editable.pptx` | `paper/figures/causalcache_qualitative_cart.pdf` | `paper/figures/causalcache_qualitative_cart.png` |
 
-Figure 2 另有一份等待作者确认的可编辑 PPT 排版提案：
-`paper/figures/causalcache_qualitative_cart_editable.pptx`，对应的真实 PPT 渲染为
-`paper/figures/causalcache_qualitative_cart_ppt.png`。它没有替换上表中的投稿
-PDF。PPT 左侧使用共有 `Shared prompt` 结构，依次放入任务目标、完整 event trace
-和关键 event 的 action summary；右侧仍保持 Recent-4/CausalCache 分叉、放大的
-event 7 证据、current 消息输入框汇合与失败/成功 action。除两张去 PII crop 外，
-图中对象均可在 PowerPoint 中独立编辑。LibreOffice 实际渲染和带 padding 的
-越界检查均通过。
+Figure 2 的 PPTX 已由作者修改并成为 canonical editable source；对应的
+PowerPoint 渲染副本为 `paper/figures/causalcache_qualitative_cart_ppt.png`。
+PPT 左侧使用共有 `Shared Context` 结构，依次放入任务目标、完整 event trace 和
+关键 event 的 action summary；右侧保持 Recent-4/CausalCache 分叉、event 7
+订单证据、current keyboard image 汇合与失败/成功 action。除两张去 PII crop 外，
+图中对象均可在 PowerPoint 中独立编辑。PowerPoint/Artifact Tool 实际渲染和带
+padding 的越界检查均通过。
 
-两图均为 7 inch 双栏宽度。Figure 1/2 高度分别为 3.89/2.85 inch；图内最小
-字号为 9 pt（SVG 中 18 个 viewBox unit，按 1008 unit → 504 pt 换算）。
-PNG 为 2016 px 宽，即 288 dpi。Figure 1 的颜色同时由边框、虚线、粗线和
-斜线填充编码；Figure 2 由分叉拓扑、路径标签和 `×`/`✓` 同时编码，
+两图均以 7 inch 双栏宽度进入主稿。Figure 1/2 的主稿显示高度分别为
+3.89/2.29 inch；PNG 为 2016 px 宽，即 288 dpi。Figure 1 的最小标签为 9 pt。
+当前 Figure 2 PPT 的原生文字在 7 inch 主稿宽度下约为 6.0--12.4 pt，其中
+event id 和部分 action summary 小于 AAAI 建议的 9 pt；这是一项 working-paper
+排版告警，submission freeze 前需放大或精简。Figure 1 的颜色同时由边框、虚线、
+粗线和斜线填充编码；Figure 2 由分叉拓扑、路径标签和 `×`/`✓` 同时编码，
 灰度渲染仍能区分两条路径与结果。
 
-生成源为 `paper/figures/build_causalcache_figures.py`。Figure 1 不把事件
+Figure 1 的生成源为 `paper/figures/build_causalcache_figures.py`。Figure 1 不把事件
 “删除/保留”误画成 memory selection：每个事件的 summary 一直存在，promotion
 只从 cold visual archive 重新挂接真实截图。Figure 1 同时固定以下语义：
 
@@ -87,13 +88,17 @@ make figures
 make paper
 ```
 
-`make figures` 重新生成 SVG，用 `rsvg-convert` 导出 PNG，并先生成 PDF 中间件；
-随后 Ghostscript 以 `-dNoOutputFonts` 将 PDF 文字转成矢量轮廓。这样保留 SVG
-作为可编辑 canonical source，同时让投稿 PDF 不含 Type 3 字体资源。最终验证包括：
+`make figures` 重新生成 Figure 1 SVG，用 `rsvg-convert` 导出 PNG 和 PDF 中间件，
+随后 Ghostscript 以 `-dNoOutputFonts` 将其文字转成矢量轮廓。Figure 2 则在
+macOS 上通过 AppleScript 调用 Microsoft PowerPoint 原生导出，再用 Ghostscript
+规范化 PDF、保留嵌入 TrueType 字体，并生成 2016 px PNG。因此复现 Figure 2
+需要已安装 Microsoft PowerPoint。最终验证包括：
 
 - SVG 可被 XML parser 读取，且没有外链图片依赖；
-- standalone PDF 页面尺寸分别为 `504x280.08 pt` 和 `504x205.2 pt`；
-- 投稿用 figure PDF 的文字均已转成矢量轮廓，`pdffonts` 不返回任何字体；
+- standalone PDF 页面尺寸分别为 `504x280.08 pt` 和 `825x270 pt`；Figure 2
+  在主稿中按宽度缩放为 `504x164.95 pt`；
+- Figure 1 投稿 PDF 的文字均已转成矢量轮廓；Figure 2 的 Arial、
+  Segoe UI Symbol 与 Microsoft YaHei 字体均以 TrueType subset 嵌入；
   9 页主稿只含 Type 1/TrueType 字体，零 Type 3；
 - Ghostscript 完整解析两张图和 9 页主稿；
 - 彩色与灰度各自从 PDF 重新 rasterize 后目视检查；
@@ -101,17 +106,17 @@ make paper
   references；
 - LaTeX 日志无 overfull box、undefined reference 或 fatal error。
 
-SVG、PNG 与审计 crop 是稳定内容身份，当前 SHA-256 如下。PDF 是 SVG 的
-font-outline 派生物；Ghostscript 可能改变等价 PDF 的对象级序列，因此不把
-其二进制 hash 当作 canonical identity。
+SVG、PPTX、PNG 与审计 crop 是稳定内容身份，当前 SHA-256 如下。PDF 是可编辑源
+的派生物；Ghostscript 可能改变等价 PDF 的对象级序列，因此不把其二进制 hash
+当作 canonical identity。
 
 | 文件 | SHA-256 |
 |---|---|
 | `causalcache_overview.svg` | `0b183fb16d21b7d5f07f0e9c055d023baff85fa5e4a0f91958ce0475f93d3cd1` |
 | `causalcache_overview.png` | `89a43b8c85569b30114c972d38ca7e27abd97d3779173bd28524499cbbdfb549` |
 | `causalcache_qualitative_cart.svg` | `b2a49e8fb680173c1d69204a1669acd2c3a3da6197c8e51e0557072bfe75b2e4` |
-| `causalcache_qualitative_cart.png` | `205101f25c72af354a62a2af2c79d135b3de995e4fbf99b7c130e8f65fc11f2a` |
-| `causalcache_qualitative_cart_editable.pptx` | `42918b6416fe7b127b2928a6fb359dbf5680e1ff5eec10b02376e2f57f6a801f` |
-| `causalcache_qualitative_cart_ppt.png` | `ad2b449414a41c71f054c171dd297a7036a52c33635e987b1483c3dffa0a35de` |
+| `causalcache_qualitative_cart.png` | `d542a3eca254c8d69e17041887cef064cd52c11c5a65143a4d6cffbb756c7c80` |
+| `causalcache_qualitative_cart_editable.pptx` | `8cec6434994ccf9350a73ba81f76a67906fc4d7e54b4b1049b2dd82c93addc0e` |
+| `causalcache_qualitative_cart_ppt.png` | `d542a3eca254c8d69e17041887cef064cd52c11c5a65143a4d6cffbb756c7c80` |
 | `cart_order_evidence.png` | `0dd574a79528e3df8852fb4ef5167b9876e62c9ed28b2f4b7a6a1dd56a1fc20e` |
 | `cart_message_input.png` | `36f138cf5ec54a66133b414a9c71992d72abd32ce1e764725621db8bcc2aba53` |

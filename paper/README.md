@@ -37,19 +37,21 @@ selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
 - Figure 1：`figures/causalcache_overview.{svg,pdf,png}`，7 inch 双栏宽，
   解释 complete summary trace、固定 `B=4` 的 fidelity reallocation、HGKV 和
   CausalCache-P/LA 部署路径；
-- Figure 2：`figures/causalcache_qualitative_cart.{svg,pdf,png}`，使用真实
+- Figure 2：可编辑源为 `figures/causalcache_qualitative_cart_editable.pptx`，
+  投稿与预览为 `figures/causalcache_qualitative_cart.{pdf,png}`；使用真实
   `CartInfoNotificationTask` r2 轨迹，展示 `[11,12,13,14] → [6,7,8,12]`
   与 realized `k=3`；图按 event trace → 双路径 allocation → event 7 像素恢复
   → 短信 current screen → 真实 action/result 组织，不使用三面板解释框；
-- Figure 2 可编辑排版提案：
-  `figures/causalcache_qualitative_cart_editable.pptx`，真实 PowerPoint 渲染预览为
-  `figures/causalcache_qualitative_cart_ppt.png`。左侧把共有 prompt、任务目标、
-  完整 event trace 与关键 action summary 合并展示；所有文字、节点、连线和
-  `×`/`✓` 均为原生 PPT 对象，只有两张去 PII UI crop 是嵌入图片。该提案尚未
-  替换投稿用 Figure 2 PDF；
-- 两图由 `figures/build_causalcache_figures.py` 生成，`make figures` 可独立重建；
-- SVG 是可编辑源；投稿 PDF 经 Ghostscript 将文字转成矢量轮廓，以满足 AAAI
-  的零 Type 3 字体要求；
+- Figure 2 左侧把共有 context、任务目标、完整 event trace 与关键 action
+  summary 合并展示；所有文字、节点、连线和 `×`/`✓` 均为原生 PPT 对象，只有
+  两张去 PII UI crop 是嵌入图片。旧
+  `figures/causalcache_qualitative_cart.svg` 仅保留为上一版布局记录，不再生成
+  投稿 PDF；
+- `make figures` 用 `figures/build_causalcache_figures.py` 生成 Figure 1，并在
+  macOS 上通过 `figures/export_pptx_to_pdf.applescript` 调用 Microsoft
+  PowerPoint 导出 Figure 2；
+- Figure 1 投稿 PDF 将文字转成矢量轮廓；Figure 2 PDF 保留 PowerPoint 嵌入的
+  TrueType 字体。两者均无 Type 3 字体；
 - 证据、crop provenance、hash 和灰度/字体检查见
   [`../docs/paper_figures_v1.md`](../docs/paper_figures_v1.md)，原子 claim ledger 见
   [`../docs/paper_claim_evidence.tsv`](../docs/paper_claim_evidence.tsv)。
