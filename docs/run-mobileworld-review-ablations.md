@@ -84,3 +84,13 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
   control −2.4(ns);对 HGKV+Recent-4:full −2.9(ns)、mem −1.6(ns)。
   即:把恢复槽位换成 verbatim 文本响应,memory-critical 增益整体消失,
   且不优于单纯 Recent-4——增益载体是像素,不是"历史被提及"。
+
+## OCR 臂终值 + h00 自动翻臂(2026-07-29)
+
+- **mw-cc-ocr-v1 收官 117/117**(h00 无 eval 故障):full 32.5%,
+  memory-critical 24.2%,control 41.8%。对像素恢复:mem −3.8pp(ns);
+  对 Recent-4:mem +4.8pp(ns)。OCR−text-only 直接配对差 +4.3(full)/
+  +4.9(mem),CI 跨零。排序:text-only ≈ Recent-4 ≪ 像素(显著),
+  OCR 居中(与两端皆不可分)。像素是唯一对 Recent-4 显著胜出的载体。
+- h00 触发器 15:45 UTC 点火(8/8 DONE),自动翻臂成功;两机 96 模拟器
+  现全部在跑 mw-cc-k1cap-v1 + mw-frozensel-v1(每臂 48,shard 0-7)。
