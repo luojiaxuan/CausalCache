@@ -2,6 +2,92 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-27:MobileWorld official-faithful B0–B4 budget curve 收官
+
+- 用户在 B0/B4 v2 收官后要求补跑 Recent-B1/B2/B3。三臂继续使用相同 frozen
+  GUI-Owl、MobileWorld revision、117 roster、59/58 shards、50-step/retry、
+  2,560 visual tokens/image、官方 prompt/parser 与确定性 decoding；唯一变量为
+  `(memory_budget,last_image)=(1,2)/(2,3)/(3,4)`。
+- 新增 committed config
+  `causalcache_mobileworld_official_b{1,2,3}_v2.json`，SHA256 分别为
+  `b8be5d94…759bab`、`c12eb2a0…bd6206`、`90121b42…752ad`；14 项
+  MobileWorld/reducer regression 通过，机械测试确认 B0–B4 五份 config 除
+  budget、last_image 与输出提示路径外逐字段一致。
+- 执行纪律继续为 Aries GPU0+1 双卡顺序运行：B1 完整归约后才启动 B2，
+  B2 完整归约后才启动 B3；不同 memory arm 不并行。共同 upstream
+  Mattermost evaluator failure 按既有 frozen strict-117 missing-as-zero 处理，
+  不修改 upstream 或分母。
+- 正式 B0/B1/B2/B3/B4 success 为 **33/31/31/34/35 / 117**，即
+  **28.21/26.50/26.50/29.06/29.91%**。相对 B0 的 paired delta/95% CI：
+  B1=`−1.71 [−7.69,+4.27] pp`、B2=`−1.71 [−7.69,+4.27] pp`、
+  B3=`+0.85 [−5.13,+6.84] pp`、B4=`+1.71 [−5.98,+9.40] pp`；
+  exact McNemar p=`0.7744/0.7905/1.0000/0.8238`。Recent-B 曲线不单调，
+  所有 CI 均跨 0，当前数据不支持“用满更多 recent history images 会稳定改善成功率”。
+- B1/B2/B3 均为 117/117 task results、policy failures=0、maximum history
+  images=1/2/3；冻结 parser 的 parse→wait 为 46/1/22，没有据此重跑。
+  B2 两个 primary shards 初始为 116/117，
+  `MattermostIncidentEscalationTask` 因 emulator initialization failure 缺失；
+  相同 B2 scientific config 在健康 fleet member 上做一次定点 repair，得
+  `score=1.0`，最终 union=117/117。
+- B1/B2/B3 双卡 makespan 约为
+  `3:05:51 / 3:48:56 (+7:46 repair) / 4:26:57`。container run root 为
+  `/data/runs/mw-official-b123-sequential-v2-7ff6cad`，Aries host persistent
+  root 为
+  `/mnt/data6/jiaxuanluo/runs/mw-official-b123-sequential-v2-7ff6cad`。
+- 20,000 次 task-level paired bootstrap（seed=`20260726`）与 exact McNemar
+  已由通用 reducer 固化；117-task matrix、逐臂 strict summaries/task scores、
+  完整 argv/hash/provenance 已进入
+  [`data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/`](../data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/README.md)；
+  raw trajectories 保持 `LOCAL_PRIVATE_RAW_TRACE`。
+- 按两份 fleet manifests 精确停止 16 个 emulator containers；B3 两路 policy
+  和 nested dockerd 已停止，canonical `sglang-omni-jaxan` 保留，Aries GPU0/1
+  回到 5 MiB、0%。
+
+## 2026-07-27:MobileWorld official-faithful B0/B4 v2 收官
+
+- 严格按用户要求顺序执行：Aries GPU0+1 先完整跑 B0，再释放双卡完整跑
+  Recent-B4；不同 memory arm 从未并行。冻结 117 roster 分为确定性 59/58
+  两片，intersection=0、union=117，full roster SHA `d11e0d93…f97fce`。
+- official-faithful 冻结合同审计通过：Git `71caac9`、MobileWorld `8ae5064`、
+  `chat_template_tools_kwarg=false`、B0 `last_image=1` / 实际 max history=0、
+  B4 `last_image=5` / 实际 max history=4；两臂 policy failures=0。B0/B4
+  13/2 次 parser failure 均按预注册 `unknown_wait_step` 恢复，没有升级为
+  attempt failure。
+- **正式结果：B0=33/117=28.21%，B4=35/117=29.91%；B4−B0=+1.71 pp，
+  paired bootstrap 95% CI[-5.98,+9.40] pp，9 个 B0-only / 11 个 B4-only，
+  exact McNemar p=0.8238。** 无证据支持 B0 更好，也无稳定证据支持
+  recent-B4 更好。cross-app 62 个任务为 14 vs 14、discordant 3/3；
+  B4 的 +2 净胜全部来自 single-app controls。
+- 两臂共同缺失 `MattermostReadingGroupTask` /
+  `MattermostShiftCoverageTask`：三次 primary attempt 均在 evaluator
+  `get_task_score` 失败；B0 另换 fleet member 各做三次 repair 仍复现。
+  根因是 Mattermost 服务 ready 前 login/create-channel 的 upstream 初始化竞态，
+  未修改 pinned upstream，按冻结 strict-117 同时计 0。
+- 双卡 makespan：B0=2:27:19.692，B4=3:18:35.087；从 B0 正式开始到
+  B4 正式结束共 6:15:32.756（含中间归约/切换）。旧 concurrent partial run
+  保留并标记 `ABORTED_BY_USER_SEQUENTIAL_REALLOCATION`，不计入结果。
+- 结果与完整 provenance 入
+  [`data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/`](../data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/README.md)。
+  raw traces 保留在 Aries persistent storage，状态 `LOCAL_PRIVATE_RAW_TRACE`。
+  16 个 manifest 指定 emulator containers、两路 policy/runner 与 nested dockerd
+  已停止/删除；canonical compute container 保留，GPU0/1 回到 5 MiB、0%。
+
+## 2026-07-26:MobileWorld v1 作废，official-faithful B0/B4 v2 冻结
+
+- v1 对照 `main@3380799` 后判定 `INVALID_PROTOCOL_MISMATCH`：MobileWorld renderer
+  禁止官方要求的 `Action:` 行、把 executor JSONAction 像素坐标写回 history、把
+  recent images 塞在单个 user turn，而非官方 user/assistant 交替多轮结构；strict
+  parser 又把一步解析偏差升级为 task attempt failure。74 个 failures 中 68 个是
+  坐标越界，先前 strict B0/B4 差值及显著性全部撤回。
+- v2 直接复用 `build_official_messages` / `parse_official_output`；history 三元组为
+  pre-action screenshot、模型原始完整 response、`Action:` 文本，executor JSON 仅审计；
+  parser failure 以 UNKNOWN/wait 消耗一步并继续。B0/B4 唯一变量为
+  `memory_budget=0/4`、`last_image=1/5`。
+- 冻结配置：
+  `code/configs/causalcache_mobileworld_official_{b0,b4}_v2.json`。focused prompt、
+  parser、B0/B4 配置等价与既有回归共 57 tests；正式 Aries 双卡 strict-117 等待
+  commit/push 后发射。
+
 ## 2026-07-27:主张重冻结为固定预算重分配,corpus v3 构建完成,三行 v3 重训发射
 
 - 用户裁定:主实验从"C_r + 单槽新增"改为**固定预算 B 内替换**——Recent-B 把全部
@@ -38,7 +124,7 @@
 - 临时容器 `sglang-omni-jaxan-2` 已删;两台机器 GPU 已空,checkpoint/语料
   `PENDING_HF_UPLOAD`。
 
-## 2026-07-26:MobileWorld frozen GUI-Owl B0/B4 配对正式收官
+## 2026-07-26:MobileWorld frozen GUI-Owl B0/B4 v1 收官（后判协议无效）
 
 - 目标是给已有 B4 strict-117 结果提供同栈配对证据；唯一科学变量为
   `memory_budget: 4 → 0`，model revision、MobileWorld revision/image、roster、

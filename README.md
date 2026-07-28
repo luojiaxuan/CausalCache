@@ -36,15 +36,35 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 
 ## 当前结论
 
-> **2026-07-26 MobileWorld strict-117 B0/B4 配对结果：B0 没有更好，反而显著更差。**
-> 在冻结 GUI-Owl 与相同 benchmark 合同下，B0=`17/117=0.145299`，
-> B4=`27/117=0.230769`，配对差值 **-8.55 pp**、20k bootstrap 95% CI
-> `[-15.38,-1.71] pp`，4 个 B0-only vs 14 个 B4-only，exact McNemar
-> `p=0.0309`。共同 observed 的 93 个 task 上方向相同（17 vs 25，-8.60 pp），
-> 但单独口径 `p=0.0768`。B0 不是 unlimited sentinel：5,455 个 audited prompts 的
-> 实测 `maximum_history_images=0`。cross-app memory candidates 中 B0/B4=2/6，
-> 且 0 个 B0-only vs 4 个 B4-only。完整结果与 provenance：
+> **2026-07-26 MobileWorld B0/B4 v1 已判 `INVALID_PROTOCOL_MISMATCH`。**
+> v1 错用了禁止 `Action:` 的私有单轮 prompt，把 executor 像素坐标写回 history，
+> 并用 strict parser 将一步格式偏差升级为 task attempt failure；74 个 failures 中
+> 68 个为坐标越界。因此先前 B0=`17/117`、B4=`27/117` 及其显著性不得引用。
+> `maximum_history_images=0` 只证明 B0 没有图片泄漏，不能证明 prompt 正确。
+> 替代实验改用与 AndroidWorld 相同的 official-faithful 多轮 renderer、模型原始完整
+> response、pre-action screenshot 和 UNKNOWN-step parser，配置为
+> `causalcache_mobileworld_official_{b0,b4}_v2.json`。失败证据保留在
 > [`data/results/mobileworld_frozen_gui_owl_b0_b4_v1/`](data/results/mobileworld_frozen_gui_owl_b0_b4_v1/README.md)。
+>
+> **2026-07-27 MobileWorld official-faithful B0/B4 v2 完成。**
+> frozen GUI-Owl strict-117：B0=`33/117=28.21%`，Recent-B4=`35/117=29.91%`；
+> 配对 `B4−B0=+1.71 pp`，95% CI `[-5.98,+9.40] pp`，9 个 B0-only /
+> 11 个 B4-only，McNemar `p=0.8238`。**没有证据表明 B0 优于 B4，也没有稳定证据
+> 表明 recent-B4 优于 B0。** 两臂共同缺失 2 个 upstream Mattermost evaluator
+> failure，均按冻结 strict-117 计 0；policy failures=0，实际 maximum history
+> images 为 B0=0 / B4=4。结果、完整 provenance 与 wall time 见
+> [`data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/`](data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/README.md)。
+>
+> **2026-07-27 MobileWorld official-faithful B0–B4 budget curve 收官。**
+> frozen GUI-Owl strict-117：B0/B1/B2/B3/B4 分别为
+> `33/31/31/34/35`，即 `28.21/26.50/26.50/29.06/29.91%`。相对 B0：
+> B1=`−1.71 pp [−7.69,+4.27]`、B2=`−1.71 pp [−7.69,+4.27]`、
+> B3=`+0.85 pp [−5.13,+6.84]`、B4=`+1.71 pp [−5.98,+9.40]`；
+> paired CI 全部跨 0。**Recent-B 不呈单调剂量效应，也没有证据表明用满更多
+> recent history images 会稳定改善成功率。** B1/B2/B3 policy failures 均为 0，
+> maximum history=1/2/3；16 个模拟器、两路 B3 policy 和 nested dockerd
+> 已清理，canonical compute container 保留。最终 summary、task matrix 与 provenance 见
+> [`data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/`](data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/README.md)。
 >
 > **2026-07-27 Desktop DiD 三臂正式结果:HGKV 通过全部预注册 gate。**
 > 969 组桌面语料(AgentNet Ubuntu 6,003 决策点 → target-action-recurrence,
@@ -291,7 +311,7 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 | Desktop DiD 语料 v1(969 组) | Hyper01 `/data04/jaxan/mw/desktop-did-corpus-v1/`;hyper00 镜像(引用图片子集 2,754 张);manifest 与 parity/机械审计报告入 Git `data/manifests/desktop_did_corpus_v1_*` | `samples.jsonl` SHA `2ef47af4…b71c1f`;intended `gavinlaw/causalcache-desktop-memory-training`,`PENDING_HF_UPLOAD` |
 | Desktop-trained adapters(三行 × 各 10 checkpoint) | hyper01 `/data04/jaxan/mw/runs/desktop-did-v1/{hgkv,ungated_kv}/`;hyper00 `/data02/jaxan/runs/desktop-did-v1/full_lora/`;dev 分数缓存同级 `devscore-*` | intended `gavinlaw/causalcache-gui-owl-desktop-memory-adapters`,`PENDING_HF_UPLOAD` |
 | Desktop memory training 交接与执行记录 | [`docs/desktop_memory_training_handoff_v1.md`](docs/desktop_memory_training_handoff_v1.md);发射/收官记录见 [`docs/progress.md`](docs/progress.md) 2026-07-26/27 条目 | Stage A/B 已完成;Stage C(selector)待 s150 冻结 |
-| MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`MobileWorld B4 result`](data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)；[`MobileWorld B0/B4 paired`](data/results/mobileworld_frozen_gui_owl_b0_b4_v1/README.md)；[`OSWorld 2.0 result`](data/results/osworld_v2_frozen_gui_owl_benchmark_v1/README.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；[`initial 5-GPU plan`](data/manifests/osworld_v2_gpu_shards_v1.json)；分支 `luojiaxuan/mobileworld-memory-osworld2` | MobileWorld strict B0/B4=`17/117` / `27/117`，B0−B4=`-8.55 pp`、95% CI `[-15.38,-1.71] pp`；OSWorld 2.0 full-108 corrected wall=46:31.472、strict mean=0.006692 |
+| MobileWorld-Memory / OSWorld 2.0 substrate | [`docs/mobileworld_memory_osworld2_v1.md`](docs/mobileworld_memory_osworld2_v1.md)；[`official-faithful MobileWorld B0/B4 v2`](data/results/mobileworld_frozen_gui_owl_official_b0_b4_v2/README.md)；[`official-faithful MobileWorld B0–B4 curve v2`](data/results/mobileworld_frozen_gui_owl_official_b1_b2_b3_v2/README.md)；[`invalid MobileWorld B4 v1`](data/results/mobileworld_frozen_gui_owl_benchmark_v1/README.md)；[`invalid MobileWorld B0/B4 v1`](data/results/mobileworld_frozen_gui_owl_b0_b4_v1/README.md)；[`OSWorld 2.0 result`](data/results/osworld_v2_frozen_gui_owl_benchmark_v1/README.md)；[`mobile manifest`](data/manifests/mobileworld_memory_split_v1.json)；[`OSWorld 2.0 manifest`](data/manifests/osworld_v2_memory_split_v1.json)；[`initial 5-GPU plan`](data/manifests/osworld_v2_gpu_shards_v1.json) | MobileWorld v2：B0–B4=`28.21/26.50/26.50/29.06/29.91%`，所有相对 B0 paired CI 跨 0；v1=`INVALID_PROTOCOL_MISMATCH`；OSWorld 2.0 full-108 corrected wall=46:31.472、strict mean=0.006692 |
 | GUI-Owl snapshot | `mPLUG/GUI-Owl-1.5-8B-Instruct@06d5faecff74840bab2be2425e9c42667a5d04fc` | frozen |
 | History-gated adapter hg-s100 | hyper00 `/data02/jaxan/runs/hgkv-formal-v1/lora-step100.pt`(sha256 前缀 `8f2cc49e1aa0b06c`);副本 hyper01 `/data02/jaxan/runs/hgkv-eval/hg-s100.pt`;config [`code/configs/causalcache_history_gated_kv_v1.json`](code/configs/causalcache_history_gated_kv_v1.json) | gate PASS(s100 冻结);`PENDING_HF_UPLOAD` |
 | hgkv gate v1 认证 | [`data/results/hgkv_gate_v1/`](data/results/hgkv_gate_v1/README.md);原始行 hyper01 `/data02/jaxan/runs/hgkv-eval/cert/`(s100/frozen 各 5,738 行 jsonl) | 判定表入 Git;逐行 jsonl `PENDING_HF_UPLOAD` |

@@ -1,5 +1,11 @@
 # MobileWorld-Memory 与 OSWorld 2.0 接入 v1
 
+> **2026-07-26 更正：下文 MobileWorld v1 campaign 已判
+> `INVALID_PROTOCOL_MISMATCH`。** v1 错用了 v2.1 私有单轮 prompt、executor 像素
+> 坐标 history 与 task-fatal strict parser；其中 114/117、27 success 及 B0/B4 差值
+> 只保留为失败证据。替代实验使用 official-faithful
+> `causalcache_mobileworld_official_{b0,b4}_v2.json`。
+
 ## 目标与边界
 
 本线从重新同步的 `main@23c0fb4` 创建分支

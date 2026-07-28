@@ -16,16 +16,37 @@ from scripts.serve_mobileworld_gui_owl_policy import _history_image_count
 from causalcache.mobileworld import (
     HTTPMobileWorldPolicy,
     MobileWorldHistoryEvent,
+    build_mobileworld_gui_owl_messages,
     build_mobileworld_policy_request,
     mobileworld_action_from_gui_owl,
     select_mobileworld_memory,
 )
 from causalcache.policy.gui_owl_v2 import GUIOwlV2Action
+from causalcache.policy.gui_owl_official import (
+    OFFICIAL_FIRST_USER_TEMPLATE,
+    OFFICIAL_SYSTEM_PROMPT,
+)
+from causalcache.policy.gui_owl_official_runtime import interpret_official_output
 
 
 ROOT = Path(__file__).resolve().parents[2]
 PLAN_PATH = ROOT / "data/manifests/mobileworld_memory_split_v1.json"
 CONFIG_PATH = ROOT / "code/configs/causalcache_mobileworld_memory_v1.json"
+OFFICIAL_B0_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_mobileworld_official_b0_v2.json"
+)
+OFFICIAL_B1_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_mobileworld_official_b1_v2.json"
+)
+OFFICIAL_B2_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_mobileworld_official_b2_v2.json"
+)
+OFFICIAL_B3_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_mobileworld_official_b3_v2.json"
+)
+OFFICIAL_B4_CONFIG_PATH = (
+    ROOT / "code/configs/causalcache_mobileworld_official_b4_v2.json"
+)
 
 
 def _history(count: int) -> tuple[MobileWorldHistoryEvent, ...]:
@@ -33,7 +54,15 @@ def _history(count: int) -> tuple[MobileWorldHistoryEvent, ...]:
         MobileWorldHistoryEvent(
             step_id=index,
             action={"action_type": "wait"},
+            action_text=f"Wait at step {index}",
+            full_response=(
+                f"Action: Wait at step {index}\n"
+                '<tool_call>\n{"name":"mobile_use","arguments":{"action":"wait"}}\n'
+                "</tool_call>"
+            ),
+            policy_parsed=True,
             screen_changed=index % 2 == 0,
+            observation_screenshot=f"observation-{index}".encode(),
             post_screenshot=f"png-{index}".encode(),
         )
         for index in range(1, count + 1)
@@ -86,10 +115,13 @@ def test_mobileworld_policy_request_restores_only_selected_images() -> None:
         selected_event_step_ids=(2, 3),
         screen_size=(432, 768),
     )
-    assert request["history"][0]["restored_post_screenshot_png_base64"] is None
+    assert (
+        request["history"][0]["restored_observation_screenshot_png_base64"]
+        is None
+    )
     assert base64.b64decode(
-        request["history"][1]["restored_post_screenshot_png_base64"]
-    ) == b"png-2"
+        request["history"][1]["restored_observation_screenshot_png_base64"]
+    ) == b"observation-2"
     with pytest.raises(ValueError, match="unknown"):
         build_mobileworld_policy_request(
             instruction="Do the task",
@@ -99,6 +131,106 @@ def test_mobileworld_policy_request_restores_only_selected_images() -> None:
             selected_event_step_ids=(4,),
             screen_size=(432, 768),
         )
+
+
+def _png_bytes(color: str) -> bytes:
+    from PIL import Image
+
+    output = io.BytesIO()
+    Image.new("RGB", (8, 8), color).save(output, format="PNG")
+    return output.getvalue()
+
+
+def _official_history(count: int) -> tuple[MobileWorldHistoryEvent, ...]:
+    return tuple(
+        MobileWorldHistoryEvent(
+            step_id=index,
+            action={"action_type": "click", "x": 120, "y": 1600},
+            action_text=f"Tap target {index}",
+            full_response=(
+                f"Action: Tap target {index}\n"
+                '<tool_call>\n{"name":"mobile_use","arguments":'
+                f'{{"action":"click","coordinate":[120,{200 + index}]}}'
+                "}\n</tool_call>"
+            ),
+            policy_parsed=True,
+            screen_changed=True,
+            observation_screenshot=_png_bytes("red"),
+            post_screenshot=_png_bytes("blue"),
+        )
+        for index in range(1, count + 1)
+    )
+
+
+def test_mobileworld_b0_uses_official_text_history_without_executor_json() -> None:
+    request = build_mobileworld_policy_request(
+        instruction="Do the task",
+        step_id=3,
+        screenshot=_png_bytes("white"),
+        history=_official_history(2),
+        selected_event_step_ids=(),
+        screen_size=(1080, 2400),
+    )
+    messages = build_mobileworld_gui_owl_messages(request)
+    assert len(messages) == 2
+    assert messages[0]["content"][0]["text"] == OFFICIAL_SYSTEM_PROMPT
+    expected_text = OFFICIAL_FIRST_USER_TEMPLATE.format(
+        goal="Do the task",
+        history="Step1: Tap target 1\nStep2: Tap target 2",
+    )
+    assert messages[1]["content"][0]["text"] == expected_text
+    assert "action_type" not in expected_text
+    assert "1600" not in expected_text
+    assert [block["type"] for block in messages[1]["content"]] == [
+        "text",
+        "image",
+    ]
+
+
+def test_mobileworld_b2_uses_official_alternating_full_response_history() -> None:
+    history = _official_history(3)
+    request = build_mobileworld_policy_request(
+        instruction="Do the task",
+        step_id=4,
+        screenshot=_png_bytes("white"),
+        history=history,
+        selected_event_step_ids=(2, 3),
+        screen_size=(1080, 2400),
+    )
+    messages = build_mobileworld_gui_owl_messages(request)
+    assert [message["role"] for message in messages] == [
+        "system",
+        "user",
+        "assistant",
+        "user",
+        "assistant",
+        "user",
+    ]
+    assert messages[2]["content"][0]["text"] == history[1].full_response
+    assert messages[4]["content"][0]["text"] == history[2].full_response
+    assert [block["type"] for block in messages[-1]["content"]] == ["image"]
+
+
+def test_mobileworld_official_prompt_rejects_non_recent_selection() -> None:
+    request = build_mobileworld_policy_request(
+        instruction="Do the task",
+        step_id=4,
+        screenshot=_png_bytes("white"),
+        history=_official_history(3),
+        selected_event_step_ids=(1, 3),
+        screen_size=(1080, 2400),
+    )
+    with pytest.raises(ValueError, match="contiguous recent suffix"):
+        build_mobileworld_gui_owl_messages(request)
+
+
+def test_official_parse_failure_becomes_a_history_step_not_an_exception() -> None:
+    result = interpret_official_output("Action: try again")
+    assert result.policy_parsed is False
+    assert result.canonical_action is None
+    assert result.action_text == "try again"
+    assert result.full_response == "Action: try again"
+    assert result.parse_error == "no tool call present"
 
 
 def test_gui_owl_actions_map_to_mobileworld_schema() -> None:
@@ -207,3 +339,37 @@ def test_mobileworld_manifest_and_config_lock_gui_only_denominator() -> None:
     assert config["environment"]["image"].endswith(
         "@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240"
     )
+
+
+def test_official_mobileworld_configs_differ_only_in_memory_budget() -> None:
+    configs = [
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in (
+            OFFICIAL_B0_CONFIG_PATH,
+            OFFICIAL_B1_CONFIG_PATH,
+            OFFICIAL_B2_CONFIG_PATH,
+            OFFICIAL_B3_CONFIG_PATH,
+            OFFICIAL_B4_CONFIG_PATH,
+        )
+    ]
+    assert all(
+        value["schema_version"] == "causalcache.mobileworld.benchmark_config.v2"
+        for value in configs
+    )
+    assert all(
+        value["policy"]["prompt_protocol"]
+        == "mobile_agent_v3_5_gui_owl_official_faithful"
+        for value in configs
+    )
+    assert [
+        (value["policy"]["memory_budget"], value["policy"]["last_image"])
+        for value in configs
+    ] == [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5)]
+    comparable = []
+    for config in configs:
+        value = json.loads(json.dumps(config))
+        value["policy"].pop("memory_budget")
+        value["policy"].pop("last_image")
+        value["outputs"] = {}
+        comparable.append(value)
+    assert all(value == comparable[0] for value in comparable[1:])

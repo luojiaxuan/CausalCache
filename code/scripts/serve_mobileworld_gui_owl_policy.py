@@ -18,6 +18,7 @@ from causalcache.mobileworld import (
     mobileworld_action_from_gui_owl,
 )
 from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntime
+from causalcache.policy.gui_owl_official_runtime import GUIOwlOfficialRuntime
 
 
 def _history_image_count(messages: list[dict[str, Any]]) -> int:
@@ -58,16 +59,18 @@ def main() -> None:
         raise ValueError("MobileWorld policy port must be within [1024, 65535]")
     if args.max_history_images is not None and args.max_history_images < 0:
         raise ValueError("max history images must be non-negative")
-    runtime = GUIOwlV21OfficialToolsRuntime(
+    base_runtime = GUIOwlV21OfficialToolsRuntime(
         model_dir=args.model_dir,
         expected_snapshot_manifest=args.snapshot_manifest,
         device=args.device,
         target_effective_visual_tokens_per_image=args.visual_tokens,
     )
+    runtime = GUIOwlOfficialRuntime(base_runtime)
     inference_lock = threading.Lock()
     counters = {
         "requests": 0,
         "failures": 0,
+        "parse_failures": 0,
         "audited_prompts": 0,
         "maximum_history_images": 0,
     }
@@ -119,12 +122,17 @@ def main() -> None:
                 queued = time.perf_counter()
                 with inference_lock:
                     queue_seconds = time.perf_counter() - queued
-                    generated = runtime.generate_native_action(messages)
+                    generated = runtime.generate(messages)
                 screen_size = tuple(request["screen_size"])
-                action = mobileworld_action_from_gui_owl(
-                    generated.parsed_output.canonical_action,
-                    screen_size=screen_size,
-                )
+                if generated.canonical_action is None:
+                    action = {"action_type": "wait"}
+                    with counter_lock:
+                        counters["parse_failures"] += 1
+                else:
+                    action = mobileworld_action_from_gui_owl(
+                        generated.canonical_action,
+                        screen_size=screen_size,
+                    )
                 with counter_lock:
                     counters["requests"] += 1
                     request_count = counters["requests"]
@@ -136,6 +144,11 @@ def main() -> None:
                             MOBILEWORLD_POLICY_RESPONSE_SCHEMA_VERSION
                         ),
                         "action": action,
+                        "action_text": generated.action_text,
+                        "full_response": generated.full_response,
+                        "policy_parsed": generated.policy_parsed,
+                        "parse_error": generated.parse_error,
+                        "dropped_arguments": dict(generated.dropped_arguments),
                         "native_output": generated.output_text,
                         "request_count": request_count,
                         "request_decode_seconds": queued - arrived,

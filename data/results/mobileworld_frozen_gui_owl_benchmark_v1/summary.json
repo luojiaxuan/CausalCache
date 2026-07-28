@@ -1,6 +1,6 @@
 {
   "schema_version": "causalcache.mobileworld.frozen_gui_owl_benchmark_summary.v1",
-  "status": "INCOMPLETE_114_OF_117_POLICY_INVALID_AFTER_RETRY",
+  "status": "INVALID_PROTOCOL_MISMATCH",
   "benchmark": {
     "name": "MobileWorld",
     "profile": "frozen_gui_owl_gui_only",

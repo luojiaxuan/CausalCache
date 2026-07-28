@@ -1,6 +1,18 @@
 # MobileWorld frozen GUI-Owl B0/B4 配对结果 v1
 
-## 结论
+> **状态：`INVALID_PROTOCOL_MISMATCH`。本目录只保留失败证据，不得引用其中的
+> B0/B4 差值作为 MobileWorld memory 结论。**
+>
+> 事后对照 `main@3380799` 的 official-faithful AndroidWorld harness，发现本次
+> MobileWorld adapter 错用了 v2.1 私有单轮 prompt：它禁止官方要求的 `Action:` 行，
+> 把 executor JSONAction（含 1080×2400 像素坐标）写回下一轮文本，却要求下一步模型
+> 输出 `[0,999]` 坐标，并以 strict full-match parser 将一步格式偏差升级为整个 task
+> attempt failure。74 个 policy failures 中 68 个是坐标越界，23 个 B0 missing 与
+> 三次 attempt 的失败结构高度一致。B0 的零历史图审计仍真实，但不能修复 prompt、
+> history 与 parser 合同错误。正式替代实验使用
+> `causalcache_mobileworld_official_{b0,b4}_v2.json`。
+
+## 失效 run 的原始统计
 
 用户提出的假设“B0 可能优于 B4”没有得到支持。相同冻结 GUI-Owl、MobileWorld
 revision、117-task roster、50-step 上限、retry、visual-token 配置与确定性 decoding 下，
