@@ -599,7 +599,13 @@ deployment overhead directly: median $8$ extra policy calls and $20.6$
 model-seconds per task against a median task wall time of $308$s ---
 an end-to-end overhead of $7\%$ at the median ($10\%$ at P90, and
 $2.7\%$ on successful tasks), even though pass-2 fires on $82\%$ of
-steps and adds $66\%$ to policy compute in isolation.
+steps and adds $66\%$ to policy compute in isolation. The same
+baseline-length stratification applied here is nearly degenerate ---
+$352$ of $361$ tasks exhaust the frozen baseline's $15$-step budget ---
+so the desktop roster is uniformly long-horizon for the baseline, and
+the $+13$--$14$pp memory gain (LA $+14.2$ $[+9.7,+19.0]$; P $+13.4$
+$[+8.8,+17.9]$ over the no-memory baseline on that stratum) is
+long-horizon gain by construction.
 
 \begin{table*}[t]
 \centering
