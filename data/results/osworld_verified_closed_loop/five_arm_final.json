@@ -1,0 +1,33 @@
+{
+ "rates": {
+  "b0": 19.94,
+  "frozen_recent": 32.69,
+  "hgkv_recent": 32.96,
+  "LA": 34.07,
+  "P": 32.69
+ },
+ "frozen_recent_vs_b0": {
+  "delta_pp": 12.74,
+  "ci95": [
+   8.59,
+   17.17
+  ],
+  "p": 0.0
+ },
+ "hgkv_recent_vs_frozen_recent": {
+  "delta_pp": 0.28,
+  "ci95": [
+   -3.05,
+   3.6
+  ],
+  "p": 0.9592
+ },
+ "LA_vs_frozen_recent": {
+  "delta_pp": 1.39,
+  "ci95": [
+   -2.49,
+   4.99
+  ],
+  "p": 0.5132
+ }
+}

@@ -599,10 +599,14 @@ provider, the official default budget of $15$ steps per task applied
 uniformly to all arms), memory dominates and the reference choice is
 neutral, as the
 offline analysis predicts for the training platform: \method{}-LA
-$34.1\%$, \method{}-P $32.7\%$, \hgkv{}+Recent-$4$ $33.0\%$ (all pairwise
-differences non-significant), each $+13$--$14$pp over the frozen
-no-memory baseline ($19.9\%$; paired $95\%$ CIs excluding zero,
-$p{<}10^{-4}$). Per-task cost instrumentation of the P arm gives the
+$34.1\%$, \method{}-P $32.7\%$, \hgkv{}+Recent-$4$ $33.0\%$, frozen
+Recent-$4$ $32.7\%$ (all pairwise differences non-significant), each
+$+13$--$14$pp over the frozen no-memory baseline ($19.9\%$; paired
+$95\%$ CIs excluding zero, $p{<}10^{-4}$). The adapter is again
+behaviorally neutral on matched allocations
+(\hgkv{}+Recent-$4$ vs.\ frozen Recent-$4$: $+0.3$pp, $p{=}0.96$),
+mirroring the mobile finding and giving the drift cap its behavioral
+certificate on both platforms. Per-task cost instrumentation of the P arm gives the
 deployment overhead directly: median $8$ extra policy calls and $20.6$
 model-seconds per task against a median task wall time of $308$s ---
 an end-to-end overhead of $7\%$ at the median ($10\%$ at P90, and

@@ -7,8 +7,14 @@ gap-fold),每臂零缺失。
 | 臂 | 成功 | 成功率 |
 |---|---|---|
 | 冻结 B0(无记忆) | 72/361 | 19.94% |
+| frozen + recent-B4(无 adapter) | 118/361 | 32.69% |
 | HGKV recent-B4 | 119/361 | 32.96% |
-| **HGKV + selector 单遍 last-action(B=4)** | **123/361** | **34.07%** |
+| CausalCache-LA(单遍) | 123/361 | 34.07% |
+| CausalCache-P(两遍) | 118/361 | 32.69% |
+
+五臂分解(`five_arm_final.json`):记忆 +12.74pp [8.59,17.17] p<1e-4;
+adapter 中性(+0.28,p=0.96);选择中性偏正(LA +1.39,p=0.51)。
+P 臂逐任务成本:`p_per_task_costs.json`(RTF 中位 7%,P90 10%)。
 
 配对(任务级 bootstrap 10k):
 
