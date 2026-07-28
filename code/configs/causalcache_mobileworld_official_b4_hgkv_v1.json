@@ -1,0 +1,79 @@
+{
+  "schema_version": "causalcache.mobileworld.benchmark_config.v2",
+  "upstream": {
+    "repository": "https://github.com/Tongyi-MAI/MobileWorld",
+    "revision": "8ae506487bf87785292d6cad101c49955d704d39",
+    "expected_task_count": 201,
+    "memory_split": "data/manifests/mobileworld_memory_split_v1.json"
+  },
+  "environment": {
+    "image": "ghcr.io/tongyi-mai/mobile_world@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240",
+    "image_digest": "sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240",
+    "requires_privileged": true,
+    "requires_kvm": true,
+    "task_source": "pinned_upstream_src_read_only_mount",
+    "container_topology": "one_emulator_per_exception_container",
+    "host_port_policy": "deterministic_irregular_high_ports"
+  },
+  "policy": {
+    "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+    "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+    "snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+    "frozen": true,
+    "adapter": {
+      "type": "history_gated_kv",
+      "checkpoint_sha256": "572092c218a97d1aa88b6845086a2ad2cec77c1a6d6fcd796f2e125ed62d67a9",
+      "layer_count": 8,
+      "rank": 8,
+      "alpha": 16,
+      "source": "CausalCache desktop-did-v4 HGKV lora-step300 (desktop-trained, zero-shot on mobile)",
+      "gating": "all retained history images masked as restored_history; current image ungated; B0 requests bypass bitwise"
+    },
+    "dtype": "torch.bfloat16",
+    "single_gpu_shared_service": true,
+    "target_effective_visual_tokens_per_image": 2560,
+    "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
+    "history_observation": "pre_action_screenshot",
+    "parse_failure_behavior": "unknown_wait_step",
+    "memory_arm": "recent",
+    "memory_budget": 4,
+    "last_image": 5,
+    "decoding": {
+      "do_sample": false,
+      "max_new_tokens": 256,
+      "num_beams": 1
+    }
+  },
+  "benchmark": {
+    "profile": "hgkv_b4_gui_only",
+    "expected_denominator": 117,
+    "excluded_interfaces": {
+      "mcp": 38,
+      "mcp_and_user_interaction": 2,
+      "user_interaction": 44
+    },
+    "max_round": 50,
+    "step_wait_time_seconds": 3.0,
+    "auto_retry": 2,
+    "pass_k": 1
+  },
+  "capacity": {
+    "profile": "frozen_gui_owl_gui_only",
+    "task_count_per_point": 16,
+    "max_round": 1,
+    "step_wait_time_seconds": 0.1,
+    "auto_retry": 2,
+    "points": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "selection": "evenly_spaced_over_frozen_gui_owl_gui_only"
+  },
+  "outputs": {
+    "run_root": "/data/runs/mw-official-b4-v2",
+    "policy_log": "/data/runs/mw-official-b4-v2/policy.log",
+    "fleet_manifest": "/data/runs/mw-official-b4-v2/environment-fleet.json"
+  }
+}
