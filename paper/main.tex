@@ -475,7 +475,6 @@ diagnostics), and (iii) zero-shot on a cross-app mobile memory benchmark of
 117 runnable tasks (62 cross-app memory candidates, 55 single-app controls),
 which contributes no data to any training or selection decision
 \citep{kong2026mobileworld}.
-\pending{Fix the final MobileWorld roster hashes.}
 Offline metrics: mean target log-likelihood margins, full-action equivalence
 (type, arguments, coordinates at $\tau{=}25$ of a $[0,999]$ grid; $\tau\in
 \{5,10\}$ as sensitivity), repair and amplification rates, wrong-history harm,
@@ -687,14 +686,58 @@ task time.
 \subsection{Ablations and Analyses}
 
 Policy-side per-$B$ gates and the frozen recent-dose sweep appear in Results.
-At matched budgets, the learned selector beats Recent-$B$; random exact-$B$
-and RGB-similarity restoration are indistinguishable from Recent-$B$, while
-inverting the learned score is significantly harmful---a specificity control
-showing the scorer ranks real signal symmetrically. Removing
-recency-membership features returns performance to the noise band. Thus the
-gain comes from the learned conditional ranking, not sparse exposure or
-visual similarity alone; complete intervals and the witness-reference ladder
-are reported in the supplementary document.
+Table~\ref{tab:chooser} brackets the learned selector between allocation
+rules that share its budget and rendering exactly. Random exact-$B$ and
+RGB-similarity restoration are indistinguishable from Recent-$B$: sparse
+exposure of archived pixels, or visual similarity to the current screen, is
+not utility. Inverting the learned score is significantly harmful at both
+budgets---a specificity control showing the scorer ranks real signal
+symmetrically rather than exploiting a rendering artifact. Retraining
+without the recency-membership features returns the selector to the noise
+band, so budget-context features carry substantial weight.
+
+\begin{table}[t]
+\centering
+{\small
+\setlength{\tabcolsep}{4.0pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Allocation rule & $B{=}2$ & $B{=}4$ \\
+\midrule
+Learned scorer & $+.030$ {\scriptsize$[+.019,+.041]$} & $+.017$ {\scriptsize$[+.007,+.028]$} \\
+Random exact-$B$ & $+.006$ {\scriptsize$[-.006,+.017]$} & $+.008$ {\scriptsize$[-.001,+.018]$} \\
+RGB similarity & $+.006$ {\scriptsize$[-.003,+.015]$} & $+.007$ {\scriptsize$[-.001,+.015]$} \\
+Inverted score & $-.016$ {\scriptsize$[-.029,-.003]$} & $-.009$ {\scriptsize$[-.018,-.000]$} \\
+No recency feats & $+.012$ {\scriptsize$[-.000,+.025]$} & $+.008$ {\scriptsize$[-.001,+.017]$} \\
+\bottomrule
+\end{tabular}
+}
+\caption{Chooser ladder: log-likelihood margin over Recent-$B$ at matched
+budgets with fresh full-set policy scoring ($95\%$ episode-clustered CIs).
+Only the learned conditional ranking clears the noise band; reversing it is
+symmetrically harmful.}
+\label{tab:chooser}
+\end{table}
+
+\paragraph{How the selector spends its budget.}
+At $B{=}4$ the learned scorer chooses $k{=}0/1/2/3/4$ non-recent promotions
+on $103/103/88/119/146$ evaluated states: it retains the entire recent
+window on $19\%$ of states and replaces the full window on $26\%$,
+adapting the allocation to the state rather than committing to a fixed
+sparse pattern. Random allocation concentrates on intermediate $k$ and RGB
+similarity collapses toward $k{=}0$, so neither reproduces this
+state-dependent profile.
+
+\paragraph{Deployment cost of the second pass.}
+Across $2{,}224$ audited mobile steps, the proposal-conditioned second pass
+fires on $82\%$ of steps ($97\%$ of steps whose eligible pool exceeds $B$),
+and the selector itself costs under $40$\,ms against a $4.2$\,s median
+policy pass. Viewed per step, the conditional re-decision adds $66\%$ to
+policy compute; viewed per task, environment interaction dominates and the
+median end-to-end overhead is $7\%$ on desktop. The single-pass \method-LA
+variant removes even that at matched desktop quality, at the demonstrated
+cost of cross-platform transfer. Complete intervals and the
+witness-reference ladder are reported in the supplementary document.
 
 \section{Limitations and Conclusion}
 
