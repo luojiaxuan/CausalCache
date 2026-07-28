@@ -1,0 +1,88 @@
+{
+  "schema_version": "causalcache.qualitative_case_audit.v1",
+  "audit_date": "2026-07-27",
+  "status": "CONFIRMED_DESCRIPTIVE_SINGLE_EPISODE",
+  "task": {
+    "name": "CartInfoNotificationTask",
+    "goal": "Find the items awaiting shipment in TaoDian and send an SMS reminder to the recipient, including the product name and order number, with no other text.",
+    "budget_b": 4
+  },
+  "selected_run": {
+    "method": "CausalCache-P",
+    "raw_trace_policy": "LOCAL_PRIVATE_RAW_TRACE",
+    "run_root": "/data04/jaxan/mw/runs/mw-hgkv-sel-b4-r2/shard-0/trajectories/CartInfoNotificationTask/",
+    "repository_revision": "b4c38c6793fd8ef2ee1da8f1314098e00ed08d8a",
+    "config_sha256": "357419a1a2d2abb9f7362f1c48fdd3f946f1d1843b9800bdf7944ff9e900a808",
+    "adapter_sha256": "572092c218a97d1aa88b6845086a2ad2cec77c1a6d6fcd796f2e125ed62d67a9",
+    "selector_bundle_sha256": "c72974ab611c99fb9b52f770b6689d5448dc1ca74387af36531bdfca1c18a00a",
+    "trajectory_sha256": "ff4319750fd7d505e2ec7b6d237fb988ab1e3455af939c9b13a1adb9ec32b2e5",
+    "critical_step": 15,
+    "recent_tail_event_ids": [11, 12, 13, 14],
+    "selected_event_ids": [6, 7, 8, 12],
+    "realized_k": 3,
+    "proposal_stability": {
+      "tested_proposals": [
+        "correct final input action",
+        "observed Recent-4 wrong input action",
+        "click message input"
+      ],
+      "selected_event_ids_for_every_proposal": [6, 7, 8, 12]
+    },
+    "typed_text": "经典白色T恤,保湿面霜套装,639281475036294",
+    "evaluator_score": 1.0,
+    "evaluator_reason": "Successfully found an SMS containing the order number and all product names."
+  },
+  "recent_run": {
+    "method": "Recent-4",
+    "raw_trace_policy": "LOCAL_PRIVATE_RAW_TRACE",
+    "run_root": "/data02/jaxan/mw/runs/mw-recent-r2/shard-0/trajectories/CartInfoNotificationTask/",
+    "repository_revision": "afe4dfdcac1cc97f6beef5bd02d2d303be10087d",
+    "config_sha256": "aab54fe6877cdc48c2902d7ec343bf3194152790436f275bafa1d67c2c072c34",
+    "adapter_sha256": "572092c218a97d1aa88b6845086a2ad2cec77c1a6d6fcd796f2e125ed62d67a9",
+    "trajectory_sha256": "ddf472947ae751dcc43096f464ba7809f5d919f493790f10280f08b7a11ce6f9",
+    "eventual_input_step": 23,
+    "typed_text": "Women's Cotton Short Sleeve T-shirt, 202306010001",
+    "evaluator_score": 0.0,
+    "evaluator_reason": "SMS with the required order number was not found."
+  },
+  "visual_evidence": {
+    "event_7_source_screenshot_sha256": "804f13480b1050bc37e6de219c7185ac41f4c0055e5032caa2b7706bbba12b1b",
+    "step_15_current_screenshot_sha256": "a62b5f9f3a5f095180da48dd7a87b64db6f73f5d32b43046364e4fa0b3dfdbbf",
+    "event_7_visible_fields": [
+      "经典白色T恤",
+      "保湿面霜套装",
+      "639281475036294"
+    ],
+    "committed_crops": [
+      {
+        "path": "paper/figures/assets/cart_order_evidence.png",
+        "source": "selected event-7 screenshot",
+        "crop_geometry": "1080x1150+0+480",
+        "sha256": "0dd574a79528e3df8852fb4ef5167b9876e62c9ed28b2f4b7a6a1dd56a1fc20e"
+      },
+      {
+        "path": "paper/figures/assets/cart_message_input.png",
+        "source": "selected step-15 current screenshot",
+        "crop_geometry": "1080x300+0+1980",
+        "sha256": "36f138cf5ec54a66133b414a9c71992d72abd32ce1e764725621db8bcc2aba53"
+      }
+    ],
+    "privacy": "Raw screenshots and traces are not committed. The committed crops exclude recipient name, address, and phone number."
+  },
+  "figure_artifacts": {
+    "svg": {
+      "path": "paper/figures/causalcache_qualitative_cart.svg",
+      "sha256": "b92325aa6f4890d6cf2b883ec98bbd4ba0fdacb52dda9efb1785903ebd49cc01"
+    },
+    "pdf": {
+      "path": "paper/figures/causalcache_qualitative_cart.pdf",
+      "sha256": null,
+      "identity_policy": "Derived font-outline PDF; validate structure and rendering rather than binary identity."
+    },
+    "png": {
+      "path": "paper/figures/causalcache_qualitative_cart.png",
+      "sha256": "00978135e1d64faa035290fa707ca5dd16131757aaa6fd8bf0b6a5e4d3e59d0e"
+    }
+  },
+  "interpretation_boundary": "This episode illustrates event-level high-fidelity restoration. It is not an aggregate effect estimate and does not establish environment-level causality."
+}

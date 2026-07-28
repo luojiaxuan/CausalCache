@@ -1,0 +1,303 @@
+\documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\usepackage[submission]{aaai2027} % DO NOT CHANGE THIS
+% The serif, sans-serif, and monospaced fonts are loaded automatically by
+% aaai2027.sty. Do not add any font package.
+\usepackage[hyphens]{url} % DO NOT CHANGE THIS
+\usepackage{graphicx} % DO NOT CHANGE THIS
+\urlstyle{rm} % DO NOT CHANGE THIS
+\def\UrlFont{\rm} % DO NOT CHANGE THIS
+\usepackage{natbib} % DO NOT CHANGE THIS AND DO NOT ADD OPTIONS
+\usepackage{caption} % DO NOT CHANGE THIS AND DO NOT ADD OPTIONS
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\frenchspacing % DO NOT CHANGE THIS
+
+\pdfinfo{
+/TemplateVersion (2027.1)
+}
+
+\setcounter{secnumdepth}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+\newcommand{\method}{\textsc{CausalCache}}
+\newcommand{\hgkv}{\textsc{HGKV}}
+
+\title{CausalCache: Conditional High-Fidelity Restoration for Long-Horizon
+GUI Agents\\Supplementary Material}
+\author{Anonymous Submission}
+\affiliations{}
+
+\begin{document}
+
+\maketitle
+
+\section{Scope of the Supplement}
+
+The main paper is self-contained. This supplementary document provides the
+complete fixed-budget design, confidence intervals for the policy and selector
+ablations, per-round closed-loop results, and deployment-cost measurements.
+The supplement is a separate PDF and does not count toward the seven pages of
+main content. All results use the same summary trace and archived screenshots
+as the main paper. Restoring an event means retrieving its archived
+post-action screenshot and reattaching it to the event summary; no screenshot
+is generated from text.
+
+\section{Fixed-Budget Restoration Protocol}
+
+At decision $t$, every completed event remains visible as an action summary.
+An active visual-context budget $B$ allows exactly $B$ summaries to be
+promoted to summary-plus-image form. Recent-$B$ promotes the latest $B$
+eligible events. A restoration allocation may instead demote a recent event
+to summary-only form and promote a distant event, preserving the image count,
+image resolution, summary trace, and prompt structure. The realized number of
+non-recent promotions is
+\[
+  k=\lvert S\setminus\mathrm{Recent}\text{-}B\rvert .
+\]
+It is an observed selector output, not a preset experimental treatment.
+
+\begin{center}
+\centering
+{\small
+\setlength{\tabcolsep}{3.8pt}
+\begin{tabular}{@{}rlll@{}}
+\toprule
+$B$ & Recent arm & Replacement training arm & Deployed allocation \\
+\midrule
+1 & Recent-1 & recent $\to$ archived & Selected-1 \\
+2 & Recent-2 & oldest $\to$ archived & Selected-$\leq2$ \\
+4 & Recent-4 & oldest $\to$ archived & Selected-$\leq4$ \\
+8 & Recent-8 & built, not trained & Selected-$\leq8$ \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Matched-budget fidelity-restoration design. The $B{=}8$ row is a
+budget-extrapolation test; it is excluded from adapter and selector training.}
+\label{tab:s-design}
+\end{center}
+
+\paragraph{Intervention arms.}
+For a matched group, $R_0$ and $R_A$ use Recent-$B$ under the frozen and
+adapted policies; $S_0$ and $S_A$ replace the oldest recent image with a
+target-relevant archived image; $W_A$ uses an age-matched wrong archived
+image. The adapter selection statistic is
+\[
+  \mathrm{DiD}_{\mathrm{select}}
+  =(S_A-S_0)-(R_A-R_0).
+\]
+The gate requires a positive episode-clustered bootstrap lower bound and
+point-estimate drift caps
+$\lvert R_A-R_0\rvert<0.02$ and
+$\lvert W_A-W_0\rvert<0.02$. Reported coalition utilities always rerun the
+complete restored set; they are never sums of singleton utilities.
+
+\paragraph{Uncertainty.}
+Offline intervals use 2,000 episode-clustered bootstrap replicates. Closed-loop
+intervals resample tasks while preserving the paired arms and repeated-run
+structure. A confidence interval crossing zero is described as
+indistinguishable, not as evidence for equivalence.
+
+\section{Additional Desktop Results}
+
+\subsection{Policy-Side Gates Across Visual Budgets}
+
+\begin{center}
+\centering
+{\small
+\setlength{\tabcolsep}{2.3pt}
+\begin{tabular}{@{}lrrrcc@{}}
+\toprule
+Adapter & $B$ & $\mathrm{DiD}_{\mathrm{select}}$ [95\% CI] &
+$|A_r|$ & Wrong & Gate \\
+\midrule
+\hgkv & 1 & $+.0224$ [$+.0162,+.0294$] & $.0088$ & $.0085$ & pass \\
+\hgkv & 2 & $+.0164$ [$+.0110,+.0221$] & $.0107$ & $.0078$ & pass \\
+\hgkv & 4 & $+.0109$ [$+.0070,+.0154$] & $.0098$ & $.0091$ & pass \\
+\hgkv & 8 & $+.0063$ [$+.0018,+.0115$] & $.0106$ & $.0137$ & pass \\
+\midrule
+Ungated & 1 & $+.0177$ [$+.0135,+.0220$] & $.0086$ & $.0071$ & pass \\
+Ungated & 2 & $+.0139$ [$+.0102,+.0177$] & $.0079$ & $.0069$ & pass \\
+Ungated & 4 & $+.0075$ [$+.0031,+.0118$] & $.0098$ & $.0089$ & pass \\
+Ungated & 8 & $+.0047$ [$+.0007,+.0093$] & $.0160$ & $.0163$ & pass \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Complete per-budget adapter gates. Group counts for
+$B=1/2/4/8$ are $94/72/45/11$; the frozen selection effects are
+$+.0791/+.0256/-.0002/-.0305$. $B{=}8$ is untrained.}
+\label{tab:s-gates}
+\end{center}
+
+Both adapters pass, but \hgkv{} has a larger selection effect at every budget
+and remains farther from the drift caps at $B{=}8$.
+
+\paragraph{Why the recent reference matters.}
+At $B{=}1$, the deployment renderer's most recent slot can duplicate the
+current screenshot. Against that redundant control, the frozen policy prefers
+the relevant archived event by $+0.0333$ nats/token
+($95\%$ CI $[+0.0118,+0.0567]$). Against the informative true previous frame,
+the frozen preference is only $+0.0013$ $[-0.0242,+0.0253]$. The \hgkv{}
+adapter retains a positive true-previous-frame DiD of
+$+0.0095$ $[+0.0056,+0.0138]$. Thus the learned selectivity is not an artifact
+of comparing useful pixels with a duplicated current screen.
+
+\subsection{Selector and Feature Ablations}
+
+\begin{center}
+\centering
+{\small
+\setlength{\tabcolsep}{4.0pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Allocation rule &
+$B{=}2$ &
+$B{=}4$ \\
+\midrule
+Learned scorer &
+\shortstack{$+.0297$\\$[+.0185,+.0409]$} &
+\shortstack{$+.0169$\\$[+.0067,+.0277]$} \\
+Random exact-$B$ &
+\shortstack{$+.0058$\\$[-.0056,+.0168]$} &
+\shortstack{$+.0082$\\$[-.0009,+.0177]$} \\
+RGB similarity &
+\shortstack{$+.0061$\\$[-.0032,+.0150]$} &
+\shortstack{$+.0071$\\$[-.0010,+.0152]$} \\
+Inverted score &
+\shortstack{$-.0159$\\$[-.0290,-.0033]$} &
+\shortstack{$-.0091$\\$[-.0180,-.0004]$} \\
+No recency features &
+\shortstack{$+.0121$\\$[-.0003,+.0246]$} &
+\shortstack{$+.0084$\\$[-.0012,+.0173]$} \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Exact-$B$ selector ablations with fresh full-set policy scoring.
+Random and RGB-similarity rules do not explain the gain; reversing the learned
+ranking is harmful.}
+\label{tab:s-selector-ablation}
+\end{center}
+
+At $B{=}4$, the learned scorer chooses
+$k=0/1/2/3/4$ on $103/103/88/119/146$ evaluated states. It therefore retains
+the entire recent window on $19\%$ of states and performs non-recent
+restoration selectively. The corresponding distributions for random
+allocation are $96/138/161/152/48$, and for RGB similarity
+$233/166/106/66/24$. Performance cannot be attributed to using a fixed sparse
+history pattern or to always displacing recent images.
+
+\paragraph{Witness-reference ladder.}
+The single-pass last-action reference yields
+$+0.0247$ $[+0.0133,+0.0363]$ at $B{=}2$ and
+$+0.0152$ $[+0.0058,+0.0250]$ at $B{=}4$ on desktop.
+Removing the witness reduces these effects to
+$+0.0161$ $[+0.0025,+0.0299]$ and
+$+0.0086$ $[-0.0024,+0.0196]$, respectively. This motivates the
+proposal-conditioned two-pass path as the default for cross-platform transfer,
+while retaining last-action conditioning as a domain-matched efficiency
+variant.
+
+\section{Additional Closed-Loop Results}
+
+\subsection{Zero-Shot Mobile Evaluation}
+
+\begin{center}
+\centering
+{\small
+\setlength{\tabcolsep}{4.2pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Method & Run 1 & Run 2 & Run 3 & Mean \\
+\midrule
+Frozen, summary-only & $33/117$ & $32/117$ & $34/117$ & $28.2\%$ \\
+\hgkv{} + Recent-4 & $34/117$ & $37/117$ & $35/117$ & $30.2\%$ \\
+\method-P & $39/117$ & $42/117$ & $38/117$ & $33.9\%$ \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Per-round zero-shot MobileWorld success. The paired
+\method-P minus \hgkv{}+Recent-4 mean is $+3.7$pp
+($95\%$ CI $[-0.9,+8.6]$, two-sided $p=0.129$).}
+\label{tab:s-mobile-rounds}
+\end{center}
+
+\begin{center}
+\centering
+{\small
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{@{}lrrc@{}}
+\toprule
+Stratum & \method-P & Recent-4 & $\Delta$ \\
+\midrule
+Memory-critical & $28.0\%$ & $19.4\%$ &
+\shortstack{$+8.6$pp\\$[+1.6,+16.1]$} \\
+Control & $40.6\%$ & $42.4\%$ &
+\shortstack{$-1.8$pp\\$[-6.7,+3.6]$} \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Primary mobile allocation analysis ($n=62$ memory-critical;
+$n=55$ control). The split-by-method interaction is $+10.4$pp
+($95\%$ CI $[+1.5,+19.6]$, two-sided $p=0.022$).}
+\label{tab:s-mobile-split}
+\end{center}
+
+\paragraph{Outcome-defined sensitivity analysis.}
+On the 95 tasks where the frozen summary-only policy reaches the official
+step cap, \method-P scores $32.6\%$, Recent-4 $28.9\%$, and summary-only
+$23.9\%$. The paired \method-P minus summary-only difference is
+$+8.8$pp $[+1.8,+16.0]$; the paired difference from Recent-4 is
+$+3.7$pp $[-2.6,+10.0]$. On the 22 tasks where summary-only terminates early,
+\method-P is $43.2\%$, Recent-4 is $36.4\%$, and summary-only is $47.0\%$;
+\method-P minus summary-only is $-3.8$pp $[-20.5,+12.1]$.
+These outcome-defined strata are secondary because they condition on baseline
+behavior; the construction-defined split in Table~\ref{tab:s-mobile-split}
+is the primary analysis.
+
+\paragraph{Two-pass mobile cost.}
+Across 2,224 audited steps, the proposal-conditioned second policy pass fires
+on $81.7\%$ of all steps and $96.9\%$ of steps with more than $B$ eligible
+events. Median pass-1, selector, and conditional pass-2 times are
+$4.229$\,s, $0.039$\,s, and $3.258$\,s, respectively. Mean per-step overhead
+relative to pass 1 is $65.9\%$. The selector itself is cheap; the extra policy
+pass dominates.
+
+\subsection{OSWorld-Verified Evaluation}
+
+\begin{center}
+\centering
+{\small
+\setlength{\tabcolsep}{2.8pt}
+\begin{tabular}{@{}lrc@{}}
+\toprule
+Method & Rate & Paired comparison \\
+\midrule
+B0 & $19.9\%$ ($72$) & reference \\
+FR & $32.7\%$ ($118$) &
+\shortstack{$+12.7$pp $[+8.6,+17.2]$\\vs.\ B0} \\
+HR & $33.0\%$ ($119$) &
+\shortstack{$+0.3$pp $[-3.1,+3.6]$\\vs.\ FR} \\
+\method-LA & $34.1\%$ ($123$) &
+\shortstack{$+1.4$pp $[-2.5,+5.0]$\\vs.\ FR} \\
+\method-P & $32.7\%$ ($118$) &
+\shortstack{$-0.3$pp $[-3.9,+3.3]$\\vs.\ HR} \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{OSWorld-Verified closed-loop results on the official no-GDrive
+361-task roster with a 15-step budget; parenthesized values are success counts.
+High-fidelity history is beneficial relative to summary-only memory;
+same-budget allocations are statistically indistinguishable. B0 denotes
+frozen summary-only, FR frozen Recent-4, and HR \hgkv{} Recent-4.}
+\label{tab:s-osworld}
+\end{center}
+
+For \method-P on OSWorld, the median task incurs eight extra policy calls and
+$20.6$ model-seconds. Median wall time is $307.6$\,s, so the added
+model time is approximately $7\%$ of end-to-end task time. These results
+separate two claims: desktop closed loop supports the availability of
+high-fidelity history, while the mobile construction-defined split tests
+which summarized events should receive that fidelity.
+
+\end{document}

@@ -2,14 +2,14 @@
 
 **Conditional Marginal Utility of Restoring Visual History for Long-Horizon GUI Agents**
 
-目标会议:AAAI。**冻结 paper claim(2026-07-27,fixed-budget 版,取代同日的
-additive 单槽版)**:
+目标会议:AAAI。**当前 working paper claim（2026-07-27 fixed-budget 版，
+尚未冻结；后续 ablation 结果继续更新）**:
 
 > Under a fixed high-fidelity visual-memory budget B, Recent-B always allocates
-> all slots to the most recent observations. CausalCache instead selects at
-> most B events from the full interaction history. Its benefit therefore comes
-> from reallocating a bounded memory budget, rather than adding extra visual
-> context.
+> all slots to the most recent observations. CausalCache instead reallocates
+> the same B high-fidelity promotions over a complete summary trace. Its benefit
+> therefore comes from reallocating a bounded visual-context budget, rather
+> than adding images or deleting summarized events.
 
 核心**不是**"旧图通常比新图好",而是:**对某些当前决策,少数特定旧图的条件价值
 高于它们所替换掉的近期图;CausalCache 学习识别这些状态和事件。**
@@ -36,6 +36,14 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 
 ## 当前结论
 
+> **2026-07-27 AAAI 两张主图完成并进入主稿。**
+> Figure 1 固定 complete summary trace 与 `B=4` active history-image budget，
+> 将方法画成 event-fidelity reallocation，而不是事件 inclusion 或加图；
+> Figure 2 使用真实 `CartInfoNotificationTask` r2 轨迹，实际 allocation 为
+> `[11,12,13,14]→[6,7,8,12]`、realized `k=3`。SVG/PDF/PNG、去 PII crop、
+> trace/config hash 和检查记录见
+> [`docs/paper_figures_v1.md`](docs/paper_figures_v1.md)。
+>
 > **2026-07-26 MobileWorld B0/B4 v1 已判 `INVALID_PROTOCOL_MISMATCH`。**
 > v1 错用了禁止 `Action:` 的私有单轮 prompt，把 executor 像素坐标写回 history，
 > 并用 strict parser 将一步格式偏差升级为 task attempt failure；74 个 failures 中
@@ -283,7 +291,8 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 ## 活跃文档
 
 - [`paper/README.md`](paper/README.md):AAAI-27 HGKV draft、官方 author-year / arXiv
-  bibliography、AuthorKit hashes、7+2 page rule 与独立 reproducibility checklist 状态；
+  bibliography、AuthorKit hashes、7+2 page rule、独立 supplementary PDF 与
+  reproducibility checklist 状态；
 - [`docs/history_gated_mainline_v1.md`](docs/history_gated_mainline_v1.md):主线冻结契约(2026-07-23);
 - [`docs/history_gated_mainline_v1_provenance.md`](docs/history_gated_mainline_v1_provenance.md):分支 provenance;
 - [`docs/sealed_zero_shot_policy_matrix_v1.md`](docs/sealed_zero_shot_policy_matrix_v1.md):sealed 零样本评测矩阵 v1(AW,预注册,执行中);
@@ -302,11 +311,16 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 
 ## Source of Truth
 
+GitHub canonical remote: <https://github.com/luojiaxuan/CausalCache>；
+working branch: `main`。精确 artifact revision 以对应文件的 Git history 为准。
+
 ### 当前主线 artifacts
 
 | 内容 | 位置 | 状态 |
 |---|---|---|
-| 代码、配置、论文、轻量结果 | 本 Git 仓库(当前主线分支 `luojiaxuan/mobileworld-memory-osworld2`) | canonical |
+| 代码、配置、论文、轻量结果 | 本 Git 仓库(当前主线分支 `main`) | canonical |
+| AAAI working paper | [`paper/main.tex`](paper/main.tex)；[`paper/supplement.tex`](paper/supplement.tex)；[`paper/README.md`](paper/README.md) | 主稿 9 页（7 页内正文、references 自第 7 页自然流入）；supplement 2 页；均无 embedded links/bookmarks；working、未冻结 |
+| AAAI Figure 1/2 | [`paper/figures/`](paper/figures/)；[设计与审计](docs/paper_figures_v1.md)；[Cart case audit](data/results/mobileworld_hgkv_selected_b4/qualitative_cart_audit.json) | SVG/PDF/288-dpi PNG 已生成；灰度、字体、PDF 与 9 页主稿布局检查通过 |
 | Desktop DiD 三臂正式结果 v1 | [`data/results/desktop_did_policy_v1/`](data/results/desktop_did_policy_v1/README.md);三份 gate 报告入 Git | **HGKV s150 全 gate PASS**;§9 第 6/7 项待跑,s150 未冻结 |
 | Desktop DiD 语料 v1(969 组) | Hyper01 `/data04/jaxan/mw/desktop-did-corpus-v1/`;hyper00 镜像(引用图片子集 2,754 张);manifest 与 parity/机械审计报告入 Git `data/manifests/desktop_did_corpus_v1_*` | `samples.jsonl` SHA `2ef47af4…b71c1f`;intended `gavinlaw/causalcache-desktop-memory-training`,`PENDING_HF_UPLOAD` |
 | Desktop-trained adapters(三行 × 各 10 checkpoint) | hyper01 `/data04/jaxan/mw/runs/desktop-did-v1/{hgkv,ungated_kv}/`;hyper00 `/data02/jaxan/runs/desktop-did-v1/full_lora/`;dev 分数缓存同级 `devscore-*` | intended `gavinlaw/causalcache-gui-owl-desktop-memory-adapters`,`PENDING_HF_UPLOAD` |

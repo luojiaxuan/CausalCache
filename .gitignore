@@ -35,6 +35,7 @@ hf_key.txt
 
 # Paper build intermediates
 output/pdf/main.pdf
+output/pdf/supplement.pdf
 
 # LaTeX
 *.aux
