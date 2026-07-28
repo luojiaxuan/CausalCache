@@ -407,8 +407,8 @@ Policy adaptation and selector training use only desktop data: successful
 AgentNet/OpenCUA Ubuntu trajectories (5{,}000 screened, 2{,}293 successful,
 6{,}003 decision points) yield fixed-budget replacement groups at
 $B{=}1/2/4$ of $969/764/470$ (2{,}203 in total; 1{,}774 training units and
-211 development groups, trajectory-disjoint; click $52$--$56\%$, plus
-key/type/drag/scroll), complemented by a high-precision OSWorld witness seed
+211 development groups, trajectory-disjoint), complemented by a
+high-precision OSWorld witness seed
 mined from official successful trajectories. A further $160$ groups at
 $B{=}8$ are constructed but deliberately excluded from training, so $B{=}8$
 evaluates out-of-training budget extrapolation. Checkpoints and thresholds
@@ -455,7 +455,10 @@ which contributes no data to any training or selection decision
 Offline metrics are teacher-forced log-likelihood margins and full-action
 equivalence under an argument and coordinate tolerance (sensitivity settings
 in the supplement); closed-loop metrics are paired task success with
-cluster bootstrap, step counts, and wall time.
+cluster bootstrap, step counts, and wall time. All arms decode greedily,
+so every action is a deterministic function of its rendered prompt, and
+the conditional second pass always replaces the proposal rather than
+selecting between samples---it cannot act as best-of-$n$.
 
 \subsection{Results}
 
