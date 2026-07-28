@@ -1,0 +1,20 @@
+{
+ "P_rounds": [
+  39,
+  42,
+  38
+ ],
+ "recent_rounds": [
+  34,
+  37,
+  35
+ ],
+ "P_mean_pct": 33.9,
+ "recent_mean_pct": 30.2,
+ "delta_pp": 3.7,
+ "ci95": [
+  -0.85,
+  8.55
+ ],
+ "two_sided_p": 0.1286
+}

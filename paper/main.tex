@@ -70,9 +70,9 @@ $B{=}8$, and the learned selector beats Recent-$B$ at matched image counts
 at every budget. In closed loop, memory reallocation is worth
 $+13$--$14$pp over a no-memory baseline on OSWorld-Verified, and on a
 117-task mobile benchmark evaluated strictly zero-shot, \method{} attains
-$34.6\%$ against $28.2\%$ for the frozen baseline
-($+6.4$pp, bootstrap $p{=}0.024$) while a recent-only dose sweep of the
-same budget is flat --- on unseen platforms, \emph{which} frames occupy
+$33.9\%$ against $28.2\%$ for the frozen baseline and $30.2\%$ for the
+recent-window allocation at the same budget, while a recent-only dose
+sweep of that budget is flat --- on unseen platforms, \emph{which} frames occupy
 the budget matters, not how many.
 \end{abstract}
 
@@ -560,12 +560,12 @@ $+0.030$ $[+0.019,+0.041]$ ($B{=}2$) and $+0.017$ $[+0.007,+0.028]$
 \paragraph{Mobile closed loop (zero-shot).}
 On the 117-task mobile memory benchmark --- which contributes no training
 or selection signal --- the full \method{}-P system attains the highest
-success rate: $34.6\%$ (two runs: $39/117$ and $42/117$) against
-$30.3\%$ for \hgkv{}+Recent-$4$ (two runs: $34/117$ and $37/117$), a
-paired per-task difference of $+4.3$pp ($95\%$ CI $[-0.9,+9.8]$; the
-per-round difference is $+4.3$pp in \emph{both} runs), and $+6.4$pp over
-the frozen no-memory baseline ($28.2\%$ over three runs; $95\%$ CI
-$[0.0,+12.8]$, bootstrap $p{=}0.024$). The decomposition is clean:
+success rate: $33.9\%$ (three runs: $39/42/38$ of $117$) against
+$30.2\%$ for \hgkv{}+Recent-$4$ (three runs: $34/37/35$), a paired
+per-task difference of $+3.7$pp ($95\%$ CI $[-0.9,+8.6]$; per-round
+differences $+4.3/+4.3/+2.6$pp), and $+5.7$pp over the frozen no-memory
+baseline ($28.2\%$ over three runs: $33/32/34$; $95\%$ CI
+$[-0.6,+12.0]$). The decomposition is clean:
 frozen Recent-$4$ ($29.9\%$), \hgkv{}+Recent-$4$ ($30.3\%$), and the
 no-memory baseline are statistically indistinguishable --- the behavioral
 counterpart of the drift cap --- so the gain is carried by \emph{which}
@@ -578,12 +578,12 @@ frames alone buy nothing, so budget \emph{allocation} rather than budget
 \emph{size} is the operative variable.
 Stratifying by baseline behavior sharpens the picture: on the $95$ tasks
 the frozen baseline cannot finish within its $50$-step budget,
-\method{}-P gains $+8.8$pp over it ($95\%$ CI $[+1.8,+16.0]$), while on
+\method{}-P gains $+7.0$pp over it ($95\%$ CI $[+0.4,+14.0]$), while on
 the $22$ short tasks the baseline completes, memory reallocation adds
 nothing ($47.0\%$ base rate) --- the benefit concentrates exactly on
 long-horizon tasks, where high-fidelity restoration of a distant frame can
 matter. The efficiency variant \method{}-LA, unchanged in weights, fails
-to transfer ($29.1\%$; $-5.6$pp vs.\ P, $95\%$ CI $[-11.1,-0.4]$), and
+to transfer ($29.1\%$; $-4.8$pp vs.\ P, $95\%$ CI $[-10.5,+0.6]$), and
 its failure concentrates on single-app control tasks where the
 last-action reference trivially recurs: under platform shift the
 proposal reference is what carries the selection signal.
@@ -651,9 +651,9 @@ Method & OSWorld-Verified ($361$) & MobileWorld ($117$) & Extra policy calls \\
 \midrule
 Frozen, no memory ($B{=}0$) & $19.9$ & $28.2$\,{\scriptsize($3$ runs)} & $0$ \\
 Frozen $+$ Recent-$4$ & $32.7$ & $29.9$ & $0$ \\
-\hgkv{} $+$ Recent-$4$ & $33.0$ & $30.3$\,{\scriptsize($2$ runs)} & $0$ \\
+\hgkv{} $+$ Recent-$4$ & $33.0$ & $30.2$\,{\scriptsize($3$ runs)} & $0$ \\
 \method-LA (single-pass) & $\mathbf{34.1}$ & $29.1$ & $0$ \\
-\method-P (default) & $32.7$ & $\mathbf{34.6}$\,{\scriptsize($2$ runs)} & conditional \\
+\method-P (default) & $32.7$ & $\mathbf{33.9}$\,{\scriptsize($3$ runs)} & conditional \\
 \bottomrule
 \end{tabular*}
 }
@@ -661,9 +661,9 @@ Frozen $+$ Recent-$4$ & $32.7$ & $29.9$ & $0$ \\
 no-GDrive roster, docker provider, official $15$-step budget, one run per
 arm; all memory arms beat $B{=}0$ by $+13$--$14$pp (paired $95\%$ CIs
 excluding zero) and are pairwise indistinguishable. MobileWorld
-(zero-shot): multi-run means; \method-P over \hgkv{}$+$Recent-$4$ is
-$+4.3$pp ($95\%$ CI $[-0.9,+9.8]$; $+4.3$pp in each round separately) and
-$+6.4$pp over $B{=}0$ ($95\%$ CI $[0.0,+12.8]$, bootstrap $p{=}0.024$).
+(zero-shot): three-run means; \method-P over \hgkv{}$+$Recent-$4$ is
+$+3.7$pp ($95\%$ CI $[-0.9,+8.6]$; per-round $+4.3/+4.3/+2.6$pp) and
+$+5.7$pp over $B{=}0$ ($95\%$ CI $[-0.6,+12.0]$).
 \method-P's second call fires on $82\%$ of steps but adds only $7\%$
 median end-to-end task time. Per-round results and full paired statistics
 are in the appendix.}
