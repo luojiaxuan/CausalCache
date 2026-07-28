@@ -352,6 +352,32 @@ also extends the extrapolation test from the offline gates to the closed
 loop. $B{=}4$ remains the primary setting; single-round budget cells are
 trend evidence, not headline contrasts.
 
+\begin{center}
+\centering
+{\small
+\setlength{\tabcolsep}{4.2pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Full roster ($117$)} &
+   \multicolumn{2}{c}{Mem.-critical ($62$)} \\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+$B$ & Recent-$B$ & \method{} & Recent-$B$ & \method{} \\
+\midrule
+$0$ & $28.2$ & $28.2$ & $21.0$ & $21.0$ \\
+$1$ & $26.5^{*}$ & $29.1$ & $16.1^{*}$ & $21.0$ \\
+$2$ & $26.5^{*}$ & $33.3$ & $17.7^{*}$ & $25.8$ \\
+$4$ (primary) & $30.2$ & $\mathbf{33.9}$ & $19.4$ & $\mathbf{28.0}$ \\
+$8$ (untrained) & $29.9$ & $33.3$ & $27.4$ & $29.0$ \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Closed-loop MobileWorld success (\%) along the budget
+axis. At $B{=}0$ \method{} is structurally identical to the summary-only
+baseline. $B{=}0/4$: three-run means; other budgets: single rounds.
+$^{*}$Frozen-policy recent arm.}
+\label{tab:s-dose}
+\end{center}
+
 Full-roster success ($/117$): \method{} $34/39/(39{,}42{,}38)/39$ vs.\
 same-budget recent $31/31/(34{,}37{,}35)/35$ at $B{=}1/2/4/8$, i.e.\
 per-budget paired gains of $+2.6/+6.8/+3.7/+3.4$pp. Pooled with equal
