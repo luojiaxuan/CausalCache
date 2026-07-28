@@ -35,9 +35,16 @@
       "rtf_added_over_wall": 0.105
     },
     "B8": {
-      "audited_steps": null,
+      "audited_steps": 97,
+      "pass2_fire_rate": 0.3918,
+      "median_pass1_s": 5.114,
+      "median_select_s": 0.0152,
+      "median_pass2_when_fired_s": 4.274,
+      "mean_added_s_per_step": 1.753,
+      "mean_added_over_pass1": 0.3514,
       "median_step_wall_s": 34.53,
-      "note": "hyper00 server revision (afe4fdc) predates SELECT_AUDIT; added-time not instrumented"
+      "rtf_added_over_wall": 0.051,
+      "note": "instrumented rerun on roster subset (mw-p-b8-rtf-v1, hyper01); wall from the full B8 campaign (n=141 tasks); fire rate collapse at B=8 consistent with the memory-critical margin narrowing"
     }
   },
   "notes": "B1/B2 audits include the resumed post-driver-update segment; B1/B2 median wall uses per-task medians robust to the pause gap. B4 numbers reproduce two_pass_overhead_audit.json bit-for-bit (parser cross-check)."

@@ -712,9 +712,11 @@ The conditional second pass fires on $81$--$87\%$ of audited mobile steps,
 and the selector itself costs under $40$\,ms against a $3.7$--$4.2$\,s
 median policy pass. Instrumented across budgets, the added model time per
 step is $2.0/2.3/2.9$\,s at $B{=}1/2/4$---$8.1/8.7/10.5\%$ of the measured
-per-step wall time---and on desktop the median end-to-end task overhead is
-$7\%$: environment interaction dominates, and the real-time cost of the
-re-decision stays near one-tenth of wall time across the budget axis.
+per-step wall time---and falls to roughly $5\%$ at $B{=}8$, where the
+selector keeps the recent tail on most steps and the second pass fires
+only $39\%$ of the time. On desktop the median end-to-end task overhead
+is $7\%$: environment interaction dominates, and the real-time cost of
+the re-decision peaks near one-tenth of wall time at the primary budget.
 Complete intervals and the witness-reference ladder are in the
 supplementary document.
 
