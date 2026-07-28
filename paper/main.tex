@@ -97,7 +97,8 @@ without being reliably sensitive to their \emph{content}, leaving an otherwise
 better restoration policy with nothing to improve.
 
 \method{} accordingly treats GUI memory as \emph{conditional high-fidelity
-restoration}. Every event remains in the complete low-fidelity action trace,
+restoration} (``causal'' denotes policy-specific effects of matched prompt
+interventions, rather than structural causal discovery). Every event remains in the complete low-fidelity action trace,
 and an archived screenshot is reattached only when that event is promoted into
 the active visual context; no pixels are reconstructed from text. Under a
 budget of $B$ high-fidelity history images, Recent-$B$ promotes the latest $B$
@@ -240,7 +241,13 @@ S^{*}=\arg\max_{\substack{S\subseteq\{1,\ldots,t-1\}\\ |S|\le B}} Q(S),
 Q(S^{*})>Q(S_{\mathrm{recent}}),
 \label{eq:decision}
 \end{equation}
-so recency is one candidate fidelity allocation, not a separate modality. The
+so recency is one candidate fidelity allocation, not a separate modality.
+We use \emph{causal} in a deliberately narrow, operational sense: for a
+fixed policy, current observation, summarized trace, and active-image
+budget, we intervene on the fidelity allocation and measure the resulting
+change in policy behavior. The conditional marginal utility so defined is
+policy- and prompt-specific; it is not an estimate of an
+environment-level structural causal effect. The
 realized replacement intensity $k=|S\setminus \mathrm{Recent}\text{-}B|$ is a
 measured statistic, not a preset parameter. All comparisons at a given $B$
 hold the image count, resolutions, underlying event trace, and prompt
@@ -548,20 +555,21 @@ holding drift further from the caps. Gating is what buys selectivity
 \centering
 {\small
 \setlength{\tabcolsep}{3.6pt}
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular}{@{}lrrr@{}}
 \toprule
-Adapter (selected step) & DiD select & $|A_r|$ & Wrong drift & Gates \\
+Adapter & DiD select & $|A_r|$ & Wrong drift \\
 \midrule
-\textbf{\hgkv{} (step 300, deployed)} & $\mathbf{+0.0224}$ & $0.0088$ & $0.0085$ & pass \\
-Ungated KV (step 300) & $+0.0177$ & $0.0086$ & $0.0071$ & pass \\
+\textbf{\hgkv{}} & $\mathbf{+0.0224}$ & $0.0088$ & $0.0085$ \\
+Ungated KV & $+0.0177$ & $0.0086$ & $0.0071$ \\
 \bottomrule
 \end{tabular}
 }
-\caption{Desktop DiD gate at $B{=}1$ (94 development groups, 77
-episodes) for the deployed step-300 checkpoints. DiD select $=(A_s-A_r)$;
-caps require $|A_r|,|A_n|<0.02$. Both selection effects are significant
-under episode-clustered bootstrap (intervals and all budgets in the
-supplement); \hgkv{} B0 parity is bitwise exact.}
+\caption{Desktop DiD evaluation on 94 development groups ($B{=}1$),
+deployed checkpoints. DiD select measures the target-relevant conditional
+margin ($A_s-A_r$); both adapters contain their recent-window ($|A_r|$)
+and wrong-history drift well within the predefined safety cap of $0.02$
+(intervals and all budgets in the supplement). The \hgkv{} zero-budget
+path is exactly the frozen policy.}
 \label{tab:did-gate}
 \end{table}
 
