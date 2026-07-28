@@ -40,3 +40,32 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
 - supervisor 断点续跑 + 心跳同剂量扫描;本机持久 Monitor 7 分钟一轮。
 - 预期:12 模拟器/臂,单轮 117 任务约 8-10h;6h 检查点报部分结果
   (memory-critical 62 子集与全量同步累积)。
+
+## 更新(2026-07-28 深夜):32B 降级、双机扩容、两个新臂
+
+- **32B 两臂撤下**(用户裁定非 P0:32B 需重训 HGKV/policy 才有意义,
+  见任务 #2)。已跑的 32B 服务器/监督器全部 kill,资源让给 text/OCR。
+- **双机扩容**:h01 恢复后以 count=8 全局分区加入——h00 跑 shard 0-3
+  (`/data/mw/runs`),h01 跑 shard 4-7(`/bigdata/mw/runs`),两臂各
+  48 模拟器。h01 canonical 容器只映射 GPU 0-3,GPU 4-7 由辅容器
+  `sglang-omni-jaxan-2`(172.17.0.55)承载 server;h00 GPU2 中途被
+  外部 106GB 进程抢占,OCR#2(58478)移至 GPU3 恢复。
+- **新臂准备(零延迟翻臂)**:text/OCR 两臂在某机全部 shard DONE
+  (心跳 `pending_at_attempt_start==0`)后,本地触发器立即在该机执行
+  `flip_h0{0,1}.sh`:清场 → 48 模拟器重切为两个新 campaign(各 24,
+  4 shard × 6 envs)→ 起新 server → 起监督器:
+  - `mw-cc-k1cap-v1`:完整 CausalCache + `--max-replacements 1`
+    (beam 子集若相对 recent 尾部的替换数 >1 直接拒绝;dedup 别名视为
+    tail 内)。拆 k=1 训练 vs 多帧替换部署的分布偏移之雷:受限 k≤1
+    仍应大幅击败基线,放开 k 只是系统完备性。
+  - `mw-frozensel-v1`:冻结 8B(**无 HGKV adapter**)+ selector 两遍。
+    补缺失 baseline:selector 单独是否够?若明显差于完整法,即 HGKV
+    必要性的直接证据。
+- 存活:同款监督器(断点续跑/心跳/STALL=3),本地 Monitor 7 分钟轮询
+  两机心跳,DONE/STALE/ALERT 皆上报;翻臂由本地后台触发器执行并校验
+  `H0x_FLIPPED` 哨兵,失败即 ALERT。
+- 归约工具入库:`code/scripts/harvest_mobileworld_arm.sh`(双机收割
+  task→score,跨机重复任务取首见并报冲突)+
+  `code/scripts/reduce_mobileworld_review_ablations.py`(full/62/55
+  三列 + 对 CausalCache-B4、HGKV+Recent-4 三轮均值的任务配对
+  bootstrap 差)。
