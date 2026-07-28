@@ -122,6 +122,36 @@ indistinguishable, not as evidence for equivalence.
 
 \subsection{Policy-Side Gates Across Visual Budgets}
 
+\begin{table*}[t]
+\centering
+{\small
+\setlength{\tabcolsep}{5.0pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrrr@{}}
+\toprule
+\multicolumn{8}{@{}l}{\textbf{Fixed-budget fidelity allocation (offline desktop heldout; primary setting $B=4$)}} \\
+\addlinespace[2pt]
+Policy & Allocation & $B{=}1$ & $B{=}2$ & $B{=}4$ & $B{=}8^{\dagger}$ & Realized $k$ & Notes \\
+\midrule
+Frozen & Recent-$B$ & $0$ & $0$ & $0$ & $0$ & $0$ & reference \\
+Frozen & oldest slot $\to$ archived & $+.079$ & $+.026$ & $-.000$ & $-.031$ & $1$ & \\
+\hgkv & Recent-$B$ & $+.002$ & $+.005$ & $+.007$ & $+.009$ & $0$ & drift-capped \\
+\hgkv & oldest slot $\to$ archived & $+.103$ & $+.047$ & $+.018$ & $-.016$ & $1$ & gate: main Tab.~3 \\
+\hgkv & selector, last-action reference & $+.039$ & $+.025$ & $+.015$ & $-.005$ & measured & $71\%$ displace ${\geq}1$ at $B{=}4$ \\
+\hgkv & selector, oracle-reference variant & $+.044$ & $+.025$ & $+.011$ & $-.002$ & measured & teacher-forced oracle \\
+\bottomrule
+\end{tabular*}
+}
+\caption{Fixed-budget fidelity-allocation results. Each cell is a matched-count
+contrast on the desktop heldout split; every allocation promotes exactly $B$
+events to summary-plus-image form, and the learned selector may keep every
+promotion on the recent window ($k{=}0$); $^{\dagger}$$B{=}8$ is excluded from
+training and reports budget extrapolation. Cross-$B$ comparisons are analysis
+only.}
+\label{tab:s-per-r}
+\end{table*}
+
+
+
 \begin{center}
 \centering
 {\small
@@ -157,6 +187,10 @@ budgets; at the unseen $B{=}8$, policy-side selectivity transfers, whereas
 the end-to-end offline allocation gain is inconclusive.
 
 \paragraph{Why the recent reference matters.}
+(The probes in this paragraph were measured during the initial development
+iteration of the corpus and adapter; the frozen-policy contrasts are
+checkpoint-independent, and the adapter re-scoring value is from that
+iteration's selected checkpoint.)
 At $B{=}1$, the deployment renderer's most recent slot can duplicate the
 current screenshot. Against that redundant control, the frozen policy prefers
 the relevant archived event by $+0.0333$ nats/token

@@ -55,14 +55,14 @@ difference-in-differences supervision make uniform history amplification worth
 zero; a budget-aware selector then chooses which summarized events to restore.
 On desktop, the frozen policy shows no reliable preference for a
 task-relevant archived screenshot over the recent frame it would displace;
-\hgkv{} learns exactly that selectivity inside a pre-registered drift
+\hgkv{} learns exactly that selectivity inside a pre-specified drift
 envelope. On OSWorld-Verified, restoring history to high fidelity is worth
 about $13$ success points over summary-only memory, while same-budget
 allocations remain indistinguishable. Zero-shot on a mobile benchmark whose
 memory-critical split is fixed by benchmark metadata at construction, \method{} improves over
-the same-budget recent allocation by $8.6$ points on that split, remains
-neutral on matched controls, and the gain interacts significantly with
-memory criticality.
+the same-budget recent allocation by $8.6$ points on that split, shows no
+detectable effect on matched controls, and the gain interacts
+significantly with memory criticality.
 \end{abstract}
 
 \section{Introduction}
@@ -128,7 +128,8 @@ Learning to \emph{use} reattached pixels must not corrupt the base agent.
 Full-layer adaptation simultaneously changes current-screen understanding,
 action syntax, and grounding. \method{} instead trains a history-gated KV interface
 (\hgkv) that touches only restored history-image tokens and is structurally
-bypassed at zero budget, with a difference-in-differences (DiD) objective in
+bypassed at zero budget, with a per-arm-anchored difference-of-differences
+(DiD) objective in
 which every arm is anchored to its own frozen score: uniform amplification of
 any history cancels exactly, and only \emph{selective} use of target-relevant
 content reduces the loss.
@@ -141,7 +142,7 @@ Our contributions are:
     complete trace;
     \item a policy-preserving \hgkv{} interface trained on matched-budget
     replacement groups with per-arm-anchored DiD supervision, exact
-    no-history parity, and pre-registered drift caps;
+    no-history parity, and pre-specified drift caps;
     \item a budget-aware restoration selector over the complete summarized
     trace, trained on desktop data only and evaluated zero-shot on mobile and
     desktop benchmarks.
@@ -405,13 +406,13 @@ platforms (reference ladder and efficiency analysis in the supplement).
 Policy adaptation and selector training use only desktop data: successful
 AgentNet/OpenCUA Ubuntu trajectories (5{,}000 screened, 2{,}293 successful,
 6{,}003 decision points) yield fixed-budget replacement groups at
-$B{=}1/2/4$ of $969/764/470$ (2{,}203 in total; 1{,}774 training units and
-211 development groups, trajectory-disjoint), complemented by a
+$B{=}1/2/4$ of $969/764/470$ (2{,}203 in total; 1{,}774 training units, 211 development
+groups, and 218 held-out test groups, trajectory-disjoint), complemented by a
 high-precision OSWorld witness seed
 mined from official successful trajectories. A further $160$ groups at
 $B{=}8$ are constructed but deliberately excluded from training, so $B{=}8$
 evaluates out-of-training budget extrapolation. Checkpoints and thresholds
-are selected only on the desktop development split under pre-registered
+are selected only on the desktop development split under pre-specified
 gates: positive DiD selection with a positive bootstrap lower bound, and
 drift caps $|A_r|,|A_n|<\epsilon$. No mobile benchmark data touches training
 or selection. All adapter training, offline scoring, and closed-loop serving
@@ -461,33 +462,30 @@ selecting between samples---it cannot act as best-of-$n$.
 
 \subsection{Results}
 
-\begin{table*}[!t]
+\begin{table}[t]
 \centering
 {\small
-\setlength{\tabcolsep}{5.0pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrrrr@{}}
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{@{}lrrrl@{}}
 \toprule
-\multicolumn{8}{@{}l}{\textbf{Fixed-budget fidelity allocation (offline desktop heldout; primary setting $B=4$)}} \\
-\addlinespace[2pt]
-Policy & Allocation & $B{=}1$ & $B{=}2$ & $B{=}4$ & $B{=}8^{\dagger}$ & Realized $k$ & Notes \\
+Benchmark / stratum & Recent-$B$ & \method{} & $\Delta$ & $95\%$ CI \\
 \midrule
-Frozen & Recent-$B$ & $0$ & $0$ & $0$ & $0$ & $0$ & reference \\
-Frozen & oldest slot $\to$ archived & $+.079$ & $+.026$ & $-.000$ & $-.031$ & $1$ & \\
-\hgkv & Recent-$B$ & $+.002$ & $+.005$ & $+.007$ & $+.009$ & $0$ & drift-capped \\
-\hgkv & oldest slot $\to$ archived & $+.103$ & $+.047$ & $+.018$ & $-.016$ & $1$ & gate: Tab.~\ref{tab:did-gate} \\
-\hgkv & selector, last-action reference & $+.039$ & $+.025$ & $+.015$ & $-.005$ & measured & $71\%$ displace ${\geq}1$ at $B{=}4$ \\
-\hgkv & selector, gold reference (offline upper bd.) & $+.044$ & $+.025$ & $+.011$ & $-.002$ & measured & teacher-forced oracle \\
+MobileWorld full ($117$) & $30.2$ & $33.9$ & $+3.7$ & $[-0.9,+8.6]$ \\
+\hspace{7pt}memory-critical ($62$) & $19.4$ & $28.0$ & $+8.6$ & $[+1.6,+16.1]$ \\
+\hspace{7pt}single-app control ($55$) & $42.4$ & $40.6$ & $-1.8$ & $[-6.7,+3.6]$ \\
+\hspace{7pt}split$\times$method interact. & --- & --- & $+10.4$ & $[+1.5,+19.6]$ \\
+OSWorld-Verified ($361$) & $33.0$ & $32.7$ & $-0.3$ & $[-3.9,+3.3]$ \\
 \bottomrule
-\end{tabular*}
+\end{tabular}
 }
-\caption{Fixed-budget fidelity-allocation results. Each cell is a matched-count
-contrast on the desktop heldout split; every allocation promotes exactly $B$
-events to summary-plus-image form, and the learned selector may keep every
-promotion on the recent window ($k{=}0$); $^{\dagger}$$B{=}8$ is excluded from
-training and reports budget extrapolation. Cross-$B$ comparisons are analysis
-only.}
-\label{tab:per-r}
-\end{table*}
+\caption{Primary closed-loop contrasts at the deployment budget $B{=}4$
+(task-paired bootstrap; MobileWorld three-run means; interaction two-sided
+$p{=}0.022$). The gain concentrates exactly on the construction-defined
+memory-critical stratum, with no detectable effect on controls or on the
+re-observable desktop benchmark.}
+\label{tab:contrast}
+\end{table}
+
 
 \begin{table*}[!t]
 \centering
@@ -506,7 +504,7 @@ Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $22.6$ \\
 \end{tabular*}
 }
 \caption{Closed-loop success rates (\%) at the primary deployment budget
-$B{=}4$; the budget axis is swept offline in Table~\ref{tab:per-r}.
+$B{=}4$; the offline budget sweep is in the supplement.
 OSWorld-Verified: official no-GDrive roster and official $15$-step budget,
 one run per arm. MobileWorld: zero-shot means over three runs for all
 multi-run arms; the
@@ -526,12 +524,12 @@ recent frame it would displace (recent-baseline construction details in
 the supplement): to the frozen policy the two are worth about the same,
 so profitable fidelity reallocation must be learned. Under the official
 multi-turn protocol the frozen replacement effect decays with the window
-and reverses at large $B$ (Table~\ref{tab:per-r}), while the learned
+and reverses at large $B$ (supplement), while the learned
 interface keeps a positive selection effect across the budget axis.
 
 \paragraph{Selective Use Within a Drift Envelope.}
 
-Table~\ref{tab:did-gate} reports the pre-registered desktop DiD gate at
+Table~\ref{tab:did-gate} reports the pre-specified desktop DiD gate at
 $B{=}1$. All adapters are trained for matched steps; checkpoints are
 selected by the frozen rule (all gates passed, maximal DiD selection,
 earliest tie-break). \hgkv{} passes every gate: its selected checkpoint
@@ -554,23 +552,24 @@ holding drift further from the caps. Gating is what buys selectivity
 \toprule
 Adapter (selected step) & DiD select & $|A_r|$ & Wrong drift & Gates \\
 \midrule
-\textbf{\hgkv{} (s150)} & $\mathbf{+0.0111}$ & $0.0087$ & $0.0085$ & pass \\
-Ungated KV (s125) & $+0.0076$ & $0.0090$ & $0.0063$ & pass \\
+\textbf{\hgkv{} (step 300, deployed)} & $\mathbf{+0.0224}$ & $0.0088$ & $0.0085$ & pass \\
+Ungated KV (step 300) & $+0.0177$ & $0.0086$ & $0.0071$ & pass \\
 \bottomrule
 \end{tabular}
 }
-\caption{Desktop DiD gate on 94 development groups ($B{=}1$). DiD select
-$=(A_s-A_r)$; caps require $|A_r|,|A_n|<0.02$. Both selection effects are
-significant under episode-clustered bootstrap (intervals in the
+\caption{Desktop DiD gate at $B{=}1$ (94 development groups, 77
+episodes) for the deployed step-300 checkpoints. DiD select $=(A_s-A_r)$;
+caps require $|A_r|,|A_n|<0.02$. Both selection effects are significant
+under episode-clustered bootstrap (intervals and all budgets in the
 supplement); \hgkv{} B0 parity is bitwise exact.}
 \label{tab:did-gate}
 \end{table}
 
 \paragraph{Fidelity Reallocation and Zero-Shot Transfer.}
 
-Table~\ref{tab:per-r} traces the budget axis. Across the trained budgets
+The offline budget axis (full table in the supplement) shows the same picture. Across the trained budgets
 $B\in\{1,2,4\}$, \hgkv{} maintains positive selectivity---per-$B$ DiD
-gates all pass with drift within the pre-registered caps---and the learned
+gates all pass with drift within the pre-specified caps---and the learned
 allocation improves over Recent-$B$ at matched image counts, while keeping
 the full recent window in $19\%$ of $B{=}4$ states. A layer- and
 rank-matched ungated KV control also passes its gates but attains
@@ -591,7 +590,7 @@ $33.9\%$, against $30.2\%$ for \hgkv{}+Recent-$B$ and $28.2\%$ for the
 frozen summary-only baseline (Table~\ref{tab:closed-loop}), with the same
 sign in every round. The decomposition is clean:
 frozen Recent-$B$, \hgkv{}+Recent-$B$, and the summary-only baseline are
-statistically indistinguishable ($29.9/30.3/28.2\%$) --- the behavioral
+statistically indistinguishable ($29.9/30.2/28.2\%$) --- the behavioral
 counterpart of the drift cap --- so the gain is carried by \emph{which
 summarized events are promoted}, not by the adapter or by recency alone. A
 recent-dose sweep of the frozen policy makes the last point explicit:
@@ -604,7 +603,7 @@ budget \emph{size} is the operative variable.
 \includegraphics[width=\columnwidth]{figures/causalcache_split_bars.pdf}
 \caption{The core contrast at the primary budget: on construction-defined
 memory-critical tasks \method{} gains $+8.6$pp over the same-budget recent
-allocation, while on matched single-app controls it is correctly inert;
+allocation, while on matched single-app controls no effect is detectable;
 the split-by-method interaction is significant ($p{=}0.022$).}
 \label{fig:split-bars}
 \end{figure}
@@ -618,7 +617,7 @@ supplement). On the
 memory-critical stratum the same-budget contrast is decisive
 (Figure~\ref{fig:split-bars}):
 \method{} $28.0\%$ vs.\ Recent-$B$ $19.4\%$, a $+8.6$pp gain; on the
-controls the method is correctly inert ($40.6\%$ vs.\ $42.4\%$); and the
+controls no effect is detectable ($40.6\%$ vs.\ $42.4\%$); and the
 split-by-method interaction is $+10.4$pp (two-sided $p{=}0.022$; intervals
 in the supplement). The value of reallocation is conditional on distant visual
 dependency: the modest full-roster mean is composition, not absence of
@@ -641,7 +640,7 @@ about $+13$pp over summary-only memory ($19.9\%$, paired $95\%$ CIs
 excluding zero), while same-budget allocations remain
 indistinguishable. OSWorld therefore supports high-fidelity
 \emph{availability}; conditional \emph{allocation} is tested by the mobile
-memory-critical split. \hgkv{} is again behaviorally neutral on matched
+memory-critical split. \hgkv{} again shows no detectable behavioral difference on matched
 Recent-$B$ allocations, mirroring the mobile finding. \method{} adds a
 median of eight policy calls per task, about $7\%$ of median end-to-end
 task time.
@@ -734,7 +733,7 @@ screenshot from the recent frame it would displace; \hgkv{} learns to,
 inside a drift envelope that leaves matched-recent behavior untouched.
 Third, the learned selector
 reallocates profitably exactly where distant visual dependency exists:
-memory-critical tasks improve, matched controls stay neutral, and random
+memory-critical tasks improve, controls show no detectable change, and random
 or similarity-based restoration buys nothing.
 
 We control an active context budget, not archive capacity, and
