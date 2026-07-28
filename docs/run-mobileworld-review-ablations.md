@@ -137,3 +137,20 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
   证据不变),但**部署端的多槽组合自由是必要条件**。
 - 后续(用户指示):用冻结策略重打教师标签训 frozen-teacher selector,
   验证 HGKV 是否连教师端也非必要。打分器已加 --teacher frozen。
+
+## frozen-teacher selector 管线启动(2026-07-29)
+
+- 阶段 1(在跑):singleton 重打分,--teacher frozen(锚+候选全 bypass,
+  不注入 adapter)。11 shard:h00 0-6(GPU 0,1,3-7,共 7 卡,
+  `/data/runs/selector-v4-frozen/singletons`),h01 7-10(canonical 0-3,
+  `/bigdata/mw/runs/selector-v4-frozen/singletons`)。两机 screening
+  manifest sha256 一致已核(38889f11…)。每 shard 3 次重试 + jsonl 断点
+  续跑;本地 Monitor 15 分钟轮询 heartbeat 汇总 + Traceback 告警。
+- 阶段 2:sets 重打分(score_selector_v4_sets --teacher frozen,以 frozen
+  singletons 为种子);阶段 3:train_selector_v4_marginal 训 two_tower;
+  阶段 4:frozen policy + frozen-teacher selector 上 96 模拟器闭环
+  (117 任务,count-8 shard 0-7)。**模拟器舰队为此保留未拆**;双机 8 个
+  旧 policy server 已按 PID 杀净(pkill 三层引号失效教训:改脚本文件)。
+- 假设检验:若 frozen-teacher selector ≈ HGKV-teacher selector,则 HGKV
+  在教师端也非必要,系统故事收敛为"冻结策略 + 预算感知重分配";若明显
+  更差,则 HGKV 的必要性 = 教师端效用测量仪,与 frozensel 部署结果自洽。
