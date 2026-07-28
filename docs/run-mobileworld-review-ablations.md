@@ -69,3 +69,18 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
   `code/scripts/reduce_mobileworld_review_ablations.py`(full/62/55
   三列 + 对 CausalCache-B4、HGKV+Recent-4 三轮均值的任务配对
   bootstrap 差)。
+
+## text-only 臂终值(2026-07-29 晨)与一则评测故障
+
+- **mw-cc-textonly-v1 收官 116/117**:`MastodonUpdateContactsTask`(属
+  memory-critical 62)在 h01 上策略轨迹正常跑完,但 benchmark 侧
+  `/task/eval` 连续 HTTP 500(两个不同模拟器、4 轮监督器尝试、12+ 次内部
+  重试),无法产生分数——评测基础设施故障,非臂属性。该任务记 missing,
+  配对分析自动按 n=116/61 剔除。h01 由人工点火翻臂(触发器条件是 8/8
+  DONE,STALL 卡死了它);h00 触发器已加"7 DONE + 1 STALLED 也翻"容错。
+- **结果**(`data/results/mobileworld_review_ablations_v1/`):full 27.6%,
+  memory-critical 18.0%,control 38.2%。对完整 CausalCache(像素恢复):
+  full −6.6pp(boot p=0.035)、memory-critical **−10.4pp(p=0.006)**、
+  control −2.4(ns);对 HGKV+Recent-4:full −2.9(ns)、mem −1.6(ns)。
+  即:把恢复槽位换成 verbatim 文本响应,memory-critical 增益整体消失,
+  且不优于单纯 Recent-4——增益载体是像素,不是"历史被提及"。

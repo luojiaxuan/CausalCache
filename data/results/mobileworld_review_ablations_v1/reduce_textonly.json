@@ -1,0 +1,75 @@
+{
+ "arms": {
+  "textonly": {
+   "control_pct": 38.2,
+   "full_pct": 27.6,
+   "memory_critical_pct": 18.0,
+   "missing_vs_roster": [
+    "MastodonUpdateContactsTask"
+   ],
+   "n_tasks": 116,
+   "vs_causalcache_b4": {
+    "control": {
+     "boot_p": 0.6721,
+     "ci95": [
+      -12.12,
+      7.27
+     ],
+     "delta_pp": -2.42,
+     "n": 55
+    },
+    "full": {
+     "boot_p": 0.0349,
+     "ci95": [
+      -12.93,
+      -0.57
+     ],
+     "delta_pp": -6.61,
+     "n": 116
+    },
+    "memory_critical": {
+     "boot_p": 0.0064,
+     "ci95": [
+      -18.58,
+      -3.28
+     ],
+     "delta_pp": -10.38,
+     "n": 61
+    }
+   },
+   "vs_recent_b4": {
+    "control": {
+     "boot_p": 0.4502,
+     "ci95": [
+      -14.55,
+      6.06
+     ],
+     "delta_pp": -4.24,
+     "n": 55
+    },
+    "full": {
+     "boot_p": 0.3817,
+     "ci95": [
+      -9.2,
+      3.16
+     ],
+     "delta_pp": -2.87,
+     "n": 116
+    },
+    "memory_critical": {
+     "boot_p": 0.7233,
+     "ci95": [
+      -8.74,
+      5.46
+     ],
+     "delta_pp": -1.64,
+     "n": 61
+    }
+   }
+  }
+ },
+ "split_counts": {
+  "control": 55,
+  "memory_critical": 62
+ }
+}
