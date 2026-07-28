@@ -157,8 +157,8 @@ actions directly from pixels \citep{hong2024cogagent,cheng2024seeclick,
 lin2025showui,xu2026mobileagent35}. These works measure long-horizon
 interaction; our question is which completed event should re-enter a bounded
 prompt in pixels.
-\pending{Cite the MobileWorld benchmark report once its canonical reference is
-fixed.}
+MobileWorld further stresses long-horizon, cross-application mobile workflows
+under reproducible functional evaluation \citep{kong2026mobileworld}.
 
 \paragraph{Agent memory and reusable experience.}
 RAG retrieves external memory, ReAct interleaves reasoning with action, and
@@ -487,8 +487,9 @@ evaluator scores (tasks whose trajectories seeded the witness corpus are
 excluded from zero-shot claims and reported separately as in-domain
 diagnostics), and (iii) zero-shot on a cross-app mobile memory benchmark of
 117 runnable tasks (62 cross-app memory candidates, 55 single-app controls),
-which contributes no data to any training or selection decision.
-\pending{Fix the MobileWorld citation and the final roster hashes.}
+which contributes no data to any training or selection decision
+\citep{kong2026mobileworld}.
+\pending{Fix the final MobileWorld roster hashes.}
 Offline metrics: mean target log-likelihood margins, full-action equivalence
 (type, arguments, coordinates at $\tau{=}25$ of a $[0,999]$ grid; $\tau\in
 \{5,10\}$ as sensitivity), repair and amplification rates, wrong-history harm,

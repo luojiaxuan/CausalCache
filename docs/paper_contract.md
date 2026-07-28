@@ -58,7 +58,7 @@ CausalCache 在完整 event-summary trace 上、固定 active history-image budg
 
 | Experiment / item | Question | Planned location | Blocking? | Status |
 |---|---|---|---|---|
-| MobileWorld canonical citation 与最终 roster hash | benchmark 的正式出处和 denominator provenance 是否完整？ | Related Work / Setup | freeze 前 blocking | pending |
+| MobileWorld 最终 roster hash | denominator provenance 是否完整？正式 ACL 2026 citation 已补齐。 | Setup | freeze 前 blocking | pending |
 | 正文 draft marker 清理 | `Pending` 是否都有最终证据？ | 全文 | freeze 前 blocking | pending |
 | AAAI reproducibility checklist | 独立 checklist 是否完整？ | 独立上传件 | freeze 前 blocking | pending |
 
