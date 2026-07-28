@@ -392,10 +392,9 @@ the re-allocated prompt only when a recent visual realization is
 displaced. This proposal reference is statistically indistinguishable
 from the gold oracle on held-out desktop groups, whereas weaker
 references---no action signal, or instruction-only similarity---degrade
-selection and over-replace (full reference ladder in the supplement). A
-single-pass variant that reuses the previously executed action as the
-reference removes the second policy call but transfers worse across
-platforms; its efficiency analysis is in the supplement.
+selection and over-replace; a single-pass variant reusing the previously
+executed action removes the second call but transfers worse across
+platforms (reference ladder and efficiency analysis in the supplement).
 
 \section{Experiments}
 
@@ -591,8 +590,8 @@ budget $B{=}4$, \method{} attains the highest overall success rate,
 $33.9\%$, against $30.2\%$ for \hgkv{}+Recent-$B$ and $28.2\%$ for the
 frozen summary-only baseline (Table~\ref{tab:closed-loop}), with the same
 sign in every round. The decomposition is clean:
-frozen Recent-$B$ ($29.9\%$), \hgkv{}+Recent-$B$ ($30.3\%$), and the
-summary-only baseline are statistically indistinguishable --- the behavioral
+frozen Recent-$B$, \hgkv{}+Recent-$B$, and the summary-only baseline are
+statistically indistinguishable ($29.9/30.3/28.2\%$) --- the behavioral
 counterpart of the drift cap --- so the gain is carried by \emph{which
 summarized events are promoted}, not by the adapter or by recency alone. A
 recent-dose sweep of the frozen policy makes the last point explicit:
