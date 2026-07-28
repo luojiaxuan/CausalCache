@@ -1,0 +1,40 @@
+{
+ "split": "benchmark-constructed memory_candidate(62)/single_app_control(55)",
+ "arms": "CausalCache-P(3 runs) vs HGKV+Recent-4(3 runs)",
+ "memory_critical": {
+  "n": 62,
+  "P_pct": 28.0,
+  "recent_pct": 19.4,
+  "delta_pp": 8.6,
+  "ci95": [
+   1.61,
+   16.13
+  ]
+ },
+ "control": {
+  "n": 55,
+  "P_pct": 40.6,
+  "recent_pct": 42.4,
+  "delta_pp": -1.82,
+  "ci95": [
+   -6.67,
+   3.64
+  ]
+ },
+ "interaction": {
+  "delta_pp": 10.42,
+  "ci95": [
+   1.48,
+   19.56
+  ],
+  "two_sided_p": 0.0215
+ },
+ "osworld_multiapp_proxy": {
+  "interaction_pp": 1.4,
+  "ci95": [
+   -5.46,
+   8.32
+  ],
+  "p": 0.724
+ }
+}

@@ -71,9 +71,12 @@ at every budget. In closed loop, memory reallocation is worth
 $+13$--$14$pp over a no-memory baseline on OSWorld-Verified, and on a
 117-task mobile benchmark evaluated strictly zero-shot, \method{} attains
 $33.9\%$ against $28.2\%$ for the frozen baseline and $30.2\%$ for the
-recent-window allocation at the same budget, while a recent-only dose
-sweep of that budget is flat --- on unseen platforms, \emph{which} frames occupy
-the budget matters, not how many.
+recent-window allocation at the same budget; on the $62$ tasks
+constructed to require cross-application memory, the same-budget gain is
+$+8.6$pp with a significant split-by-method interaction ($p{=}0.022$),
+while a recent-only dose sweep of the budget is flat --- on unseen
+platforms, \emph{which} frames occupy the budget matters, not how
+many.
 \end{abstract}
 
 \section{Introduction}
@@ -576,7 +579,25 @@ $28.2/26.5/26.5/29.1/29.9\%$, non-monotone with every paired contrast
 against $B{=}0$ crossing zero --- on this benchmark, additional recent
 frames alone buy nothing, so budget \emph{allocation} rather than budget
 \emph{size} is the operative variable.
-We define \emph{memory-demanding long-horizon tasks} as tasks that the
+The benchmark's roster is constructed with a \emph{memory-critical
+split}: $62$ cross-application tasks whose target information surfaces in
+an application visited \emph{earlier} in the episode --- after the app
+switch, the Recent-$B$ window no longer contains that evidence by
+construction --- and $55$ matched single-application controls with no
+such dependency. On the memory-critical stratum the same-budget primary
+contrast is decisive: \method{}-P $28.0\%$ vs.\ Recent-$4$ $19.4\%$,
+$+8.6$pp ($95\%$ CI $[+1.6,+16.1]$); on the controls the method is
+correctly inert ($40.6\%$ vs.\ $42.4\%$, $-1.8$pp
+$[-6.7,+3.6]$); the split-by-method interaction is $+10.4$pp ($95\%$ CI
+$[+1.5,+19.6]$, two-sided $p{=}0.022$). The modest full-roster mean is
+therefore composition, not absence of effect: $47\%$ of the roster is
+control tasks on which no memory method should help. (The analogous
+domain-level proxy on OSWorld --- multi-app vs.\ single-app tasks ---
+shows no significant interaction, consistent with reference-neutral
+selection on the training platform and with domain membership being a
+weaker instrument than constructed memory dependence.)
+
+We further define \emph{memory-demanding long-horizon tasks} as tasks that the
 frozen no-memory policy cannot complete within the benchmark's official
 interaction budget, and report
 $\Delta_{\text{long}}=P(\text{success}\mid\text{\method},\text{long})-P(\text{success}\mid\text{baseline},\text{long})$
