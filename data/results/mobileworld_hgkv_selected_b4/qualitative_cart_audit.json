@@ -72,15 +72,16 @@
   "figure_artifacts": {
     "svg": {
       "path": "paper/figures/causalcache_qualitative_cart.svg",
-      "sha256": "335c80d24a8ff079c69754e8916f46ca2daae50294935fb5b9bce0a9dad44968"
+      "sha256": "b92325aa6f4890d6cf2b883ec98bbd4ba0fdacb52dda9efb1785903ebd49cc01"
     },
     "pdf": {
       "path": "paper/figures/causalcache_qualitative_cart.pdf",
-      "sha256": "03d4b1f2380c17bd078645bb0c849d38e535a04a33e4e9be13aac7a3fdd4b379"
+      "sha256": null,
+      "identity_policy": "Derived font-outline PDF; validate structure and rendering rather than binary identity."
     },
     "png": {
       "path": "paper/figures/causalcache_qualitative_cart.png",
-      "sha256": "fd3f89efba8419c8757dc78ea1288fb37c2a3d79b4a33a892d4eff426ff0147a"
+      "sha256": "00978135e1d64faa035290fa707ca5dd16131757aaa6fd8bf0b6a5e4d3e59d0e"
     }
   },
   "interpretation_boundary": "This episode illustrates event-level high-fidelity restoration. It is not an aggregate effect estimate and does not establish environment-level causality."

@@ -91,9 +91,9 @@ font-outline 派生物；Ghostscript 可能改变等价 PDF 的对象级序列�
 
 | 文件 | SHA-256 |
 |---|---|
-| `causalcache_overview.svg` | `bb2574354f0a20f506c47a529a928bfa287b9054916e69af2dabe6bf08670fd4` |
-| `causalcache_overview.png` | `bbfbaaa5d83503cc10f51e1d3473711627b6a90b82a9552406ed9f8b4b6cffa9` |
-| `causalcache_qualitative_cart.svg` | `39a4d4e4e014cf3bc46a85dcacdde7a3cbc6f60eca6fd7675d2c027d4102bc7a` |
-| `causalcache_qualitative_cart.png` | `fd3f89efba8419c8757dc78ea1288fb37c2a3d79b4a33a892d4eff426ff0147a` |
+| `causalcache_overview.svg` | `0b183fb16d21b7d5f07f0e9c055d023baff85fa5e4a0f91958ce0475f93d3cd1` |
+| `causalcache_overview.png` | `89a43b8c85569b30114c972d38ca7e27abd97d3779173bd28524499cbbdfb549` |
+| `causalcache_qualitative_cart.svg` | `b92325aa6f4890d6cf2b883ec98bbd4ba0fdacb52dda9efb1785903ebd49cc01` |
+| `causalcache_qualitative_cart.png` | `00978135e1d64faa035290fa707ca5dd16131757aaa6fd8bf0b6a5e4d3e59d0e` |
 | `cart_order_evidence.png` | `0dd574a79528e3df8852fb4ef5167b9876e62c9ed28b2f4b7a6a1dd56a1fc20e` |
 | `cart_message_input.png` | `36f138cf5ec54a66133b414a9c71992d72abd32ce1e764725621db8bcc2aba53` |

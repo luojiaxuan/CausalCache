@@ -43,6 +43,7 @@ def text(
     anchor: str = "start",
     italic: bool = False,
 ) -> None:
+    size = max(size, 18)
     style = "italic" if italic else "normal"
     escaped_value = esc(value)
     out.append(
@@ -508,7 +509,7 @@ def build_overview() -> str:
         out,
         620,
         198,
-        "e3 replaces e5; B remains 4",
+        "e3 for e5; still B=4",
         size=17,
         weight=700,
         fill=ORANGE,
