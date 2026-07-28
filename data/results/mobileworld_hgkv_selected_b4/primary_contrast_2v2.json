@@ -1,0 +1,10 @@
+{
+ "P_mean_pct": 34.62,
+ "recent_mean_pct": 30.34,
+ "delta_pp": 4.27,
+ "ci95": [
+  -0.85,
+  9.83
+ ],
+ "two_sided_p": 0.1348
+}
