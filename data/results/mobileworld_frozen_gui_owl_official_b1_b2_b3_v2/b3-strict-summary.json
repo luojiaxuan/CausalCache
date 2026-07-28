@@ -1,0 +1,59 @@
+{
+  "arm": "B3",
+  "config_sha256": "90121b426e23d9472cc9ac03c427c70fd470ad381ae6a6953daa2090c79752ad",
+  "created_at": "2026-07-28T01:18:15.850852+00:00",
+  "denominator": 117,
+  "execution_records": [
+    {
+      "elapsed_seconds": 15128.79630909115,
+      "finished_at": "2026-07-27T20:32:48.679189+00:00",
+      "path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b3/shard0/execution-record.json",
+      "repair": false,
+      "sha256": "01e7638d31db4885be4aa1f07b2471e91428c310d80d080bcd7716b6d0bee6c6",
+      "shard": 0
+    },
+    {
+      "elapsed_seconds": 16016.060693059117,
+      "finished_at": "2026-07-27T20:47:35.882479+00:00",
+      "path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b3/shard1/execution-record.json",
+      "repair": false,
+      "sha256": "9cf2f14b288d2ff1d59fb119e389a6ed94bca592c921ec8c47b041012daef9d9",
+      "shard": 1
+    }
+  ],
+  "maximum_history_images": 3,
+  "missing_tasks": [],
+  "mobileworld_revision": "8ae506487bf87785292d6cad101c49955d704d39",
+  "observed_results": 117,
+  "parse_failures": 22,
+  "policy_failures": 0,
+  "policy_health": [
+    {
+      "audited_prompts": 2605,
+      "chat_template_tools_kwarg": false,
+      "failures": 0,
+      "maximum_history_images": 3,
+      "parse_failures": 0,
+      "port": 47237,
+      "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
+      "requests": 2605
+    },
+    {
+      "audited_prompts": 2667,
+      "chat_template_tools_kwarg": false,
+      "failures": 0,
+      "maximum_history_images": 3,
+      "parse_failures": 22,
+      "port": 58391,
+      "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
+      "requests": 2667
+    }
+  ],
+  "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
+  "repository_revision": "7ff6cad806ab9c36bd2fc9b8b9d8fff5fdf1ed57",
+  "schema_version": "causalcache.mobileworld.strict_arm_summary.v2",
+  "success_rate": 0.2905982905982906,
+  "success_threshold": 0.99,
+  "successes": 34,
+  "tools_kwarg": false
+}

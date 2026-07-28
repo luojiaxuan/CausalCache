@@ -1,0 +1,176 @@
+{
+  "arm": "B2",
+  "chat_template_tools_kwarg": false,
+  "config_sha256": "c12eb2a0e96a48cc95eae8bb6f8f7c8500e94dca4ca87a1ab7e8b32a35bd6206",
+  "created_at": "2026-07-27T16:18:58.714678+00:00",
+  "denominator": 117,
+  "execution_records": [
+    {
+      "elapsed_seconds": 13734.512038383633,
+      "finished_at": "2026-07-27T15:52:03.386688+00:00",
+      "path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b2/shard0/execution-record.json",
+      "repair": false,
+      "sha256": "48037e9183e5c0f6fbc47673e7f10c614935d0b338633c108f1ca3d56480024c",
+      "shard": 0
+    },
+    {
+      "elapsed_seconds": 13600.705124791712,
+      "finished_at": "2026-07-27T15:49:49.529126+00:00",
+      "path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b2/shard1/execution-record.json",
+      "repair": false,
+      "sha256": "c4385874a6b703d4e6a5b537d4a3e3941fb61e2f31e5ec11a2c95f20e73beda1",
+      "shard": 1
+    },
+    {
+      "elapsed_seconds": 464.3829118553549,
+      "finished_at": "2026-07-27T16:07:42.086710+00:00",
+      "path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b2/repair-incident-v2/execution-record.json",
+      "repair": true,
+      "sha256": "9cd1f8726f15e5cf6b8b52fb0945bbb92dff6157e09229de13a81e9e1c5fb7d2",
+      "shard": 0
+    }
+  ],
+  "maximum_history_images": 2,
+  "missing_tasks": [],
+  "mobileworld_revision": "8ae506487bf87785292d6cad101c49955d704d39",
+  "notes": [
+    "116 canonical task results came from the two frozen shards; MattermostIncidentEscalationTask was rerun once under the identical B2 scientific config after its original emulator initialization failure and scored 1.0.",
+    "Parse failures are frozen-policy malformed actions mapped by the official harness to wait; they are retained, not rerun."
+  ],
+  "observed_results": 117,
+  "parse_failures": 1,
+  "policy_failures": 0,
+  "policy_health": [
+    {
+      "counters": {
+        "audited_prompts": 2848,
+        "failures": 0,
+        "maximum_history_images": 2,
+        "parse_failures": 1,
+        "requests": 2848
+      },
+      "max_history_images": 2,
+      "port": 47237,
+      "runtime": {
+        "assistant_prefix_token_ids": [
+          151644,
+          77091,
+          198
+        ],
+        "chat_template_file_sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce",
+        "chat_template_text_sha256": "3636d0f0bd6bef02654cdffdc447b79cb2cef8ab02cc75267345946291a489e4",
+        "chat_template_tools_kwarg": false,
+        "device": "cuda:0",
+        "dtype": "torch.bfloat16",
+        "frozen": true,
+        "generation_eos_token_id": 151658,
+        "generation_interface": "processor_apply_chat_template_official_tools_kwarg",
+        "generation_num_beams": 1,
+        "generation_num_return_sequences": 1,
+        "generation_pad_token_id": 151643,
+        "generation_standard_eos_suppression": "negative_infinity_via_transformers_suppress_tokens",
+        "host_injected_tool_call_closer": false,
+        "max_pixels": 2621440,
+        "min_pixels": 2621440,
+        "model_class": "Qwen3VLForConditionalGeneration",
+        "model_dir": "/data/models/gui-owl-1.5-8b-06d5-verified",
+        "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "official_tool_schema_sha256": "8f92f2fe5eeda45af1e41852f364d2fa4738fbb502eb4fb80f6ef1025691f6c7",
+        "official_tools_argument_count": 1,
+        "output_parser": "official_permissive_unknown_step",
+        "output_recovery_or_normalization": false,
+        "processor_class": "Qwen3VLProcessor",
+        "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
+        "protocol_id": "causalcache_restoration_v2_1_official_tool_interface",
+        "single_device": true,
+        "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+        "suppressed_standard_eos_token_ids": [
+          151645,
+          151643
+        ],
+        "target_effective_visual_tokens_per_image": 2560,
+        "tool_call_close_token_id": 151658,
+        "tool_call_open_token_id": 151657,
+        "torch_version": "2.11.0+cu130",
+        "transformers_source_sha256": {
+          "image_processing_qwen2_vl.py": "de5859892f04c64f3e79c9d318842ac0040000788e43870997bd1ec6565c02bb",
+          "modeling_qwen3_vl.py": "c37abc40a3744dc116cf1e06eceb7ff79bd384cfbfe0d41773f5efc074f31523",
+          "processing_qwen3_vl.py": "b51f77d783b4a88d503bf9198828d46f71e3ead3833da2631748188b159253ba"
+        },
+        "transformers_version": "5.6.0",
+        "verified_model_file_count": 14,
+        "verified_model_total_bytes": 17545907171
+      },
+      "status": "ready"
+    },
+    {
+      "counters": {
+        "audited_prompts": 2815,
+        "failures": 0,
+        "maximum_history_images": 2,
+        "parse_failures": 0,
+        "requests": 2815
+      },
+      "max_history_images": 2,
+      "port": 58391,
+      "runtime": {
+        "assistant_prefix_token_ids": [
+          151644,
+          77091,
+          198
+        ],
+        "chat_template_file_sha256": "5c72a170d2a4a1a3bc5adad2e689ae28138a9700e5b8c96c0266331e86c0acce",
+        "chat_template_text_sha256": "3636d0f0bd6bef02654cdffdc447b79cb2cef8ab02cc75267345946291a489e4",
+        "chat_template_tools_kwarg": false,
+        "device": "cuda:0",
+        "dtype": "torch.bfloat16",
+        "frozen": true,
+        "generation_eos_token_id": 151658,
+        "generation_interface": "processor_apply_chat_template_official_tools_kwarg",
+        "generation_num_beams": 1,
+        "generation_num_return_sequences": 1,
+        "generation_pad_token_id": 151643,
+        "generation_standard_eos_suppression": "negative_infinity_via_transformers_suppress_tokens",
+        "host_injected_tool_call_closer": false,
+        "max_pixels": 2621440,
+        "min_pixels": 2621440,
+        "model_class": "Qwen3VLForConditionalGeneration",
+        "model_dir": "/data/models/gui-owl-1.5-8b-06d5-verified",
+        "model_repo": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "model_revision": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "official_tool_schema_sha256": "8f92f2fe5eeda45af1e41852f364d2fa4738fbb502eb4fb80f6ef1025691f6c7",
+        "official_tools_argument_count": 1,
+        "output_parser": "official_permissive_unknown_step",
+        "output_recovery_or_normalization": false,
+        "processor_class": "Qwen3VLProcessor",
+        "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
+        "protocol_id": "causalcache_restoration_v2_1_official_tool_interface",
+        "single_device": true,
+        "snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+        "suppressed_standard_eos_token_ids": [
+          151645,
+          151643
+        ],
+        "target_effective_visual_tokens_per_image": 2560,
+        "tool_call_close_token_id": 151658,
+        "tool_call_open_token_id": 151657,
+        "torch_version": "2.11.0+cu130",
+        "transformers_source_sha256": {
+          "image_processing_qwen2_vl.py": "de5859892f04c64f3e79c9d318842ac0040000788e43870997bd1ec6565c02bb",
+          "modeling_qwen3_vl.py": "c37abc40a3744dc116cf1e06eceb7ff79bd384cfbfe0d41773f5efc074f31523",
+          "processing_qwen3_vl.py": "b51f77d783b4a88d503bf9198828d46f71e3ead3833da2631748188b159253ba"
+        },
+        "transformers_version": "5.6.0",
+        "verified_model_file_count": 14,
+        "verified_model_total_bytes": 17545907171
+      },
+      "status": "ready"
+    }
+  ],
+  "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
+  "repository_revision": "7ff6cad806ab9c36bd2fc9b8b9d8fff5fdf1ed57",
+  "schema_version": "causalcache.mobileworld.strict_arm_summary.v2",
+  "success_rate": 0.26495726495726496,
+  "successes": 31
+}

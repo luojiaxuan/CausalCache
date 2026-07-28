@@ -1,0 +1,825 @@
+{
+  "arm": "B1",
+  "rows": [
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/AcceptMeetingTask/result.txt",
+      "result_sha256": "f09908e62b6a1e95a160a54f7d82c72d63d24b34f502b6710ba8f54cbe6ed35f",
+      "score": 1.0,
+      "shard": 0,
+      "task": "AcceptMeetingTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/AdjustBrightnessMaximumTask/result.txt",
+      "result_sha256": "36bed39678b6b83d69a4f1961d529f00c0f034c8443aa63121d766635ee50f89",
+      "score": 1.0,
+      "shard": 1,
+      "task": "AdjustBrightnessMaximumTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/AdjustBrightnessMinimumTask/result.txt",
+      "result_sha256": "36bed39678b6b83d69a4f1961d529f00c0f034c8443aa63121d766635ee50f89",
+      "score": 1.0,
+      "shard": 0,
+      "task": "AdjustBrightnessMinimumTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/AdjustFontIconMaximumTask/result.txt",
+      "result_sha256": "f45028dd15b1ec275c875a59d983494f6fa60921b2bf03790af428c1c5fffc66",
+      "score": 0.0,
+      "shard": 1,
+      "task": "AdjustFontIconMaximumTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/AdjustFontIconMinimumTask/result.txt",
+      "result_sha256": "36bed39678b6b83d69a4f1961d529f00c0f034c8443aa63121d766635ee50f89",
+      "score": 1.0,
+      "shard": 0,
+      "task": "AdjustFontIconMinimumTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/BidFileRenameTask/result.txt",
+      "result_sha256": "fb318b8c25298314734aa1cb9ae2356f73f73a0b82984c0747b669c678b59c31",
+      "score": 0.0,
+      "shard": 1,
+      "task": "BidFileRenameTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CVEmailTask/result.txt",
+      "result_sha256": "0f011d92fff4fb1cd441aef2599aca731acf6a6e0f9cc7e19056cf5bd4a35095",
+      "score": 1.0,
+      "shard": 0,
+      "task": "CVEmailTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CancelMeetingTask/result.txt",
+      "result_sha256": "f09908e62b6a1e95a160a54f7d82c72d63d24b34f502b6710ba8f54cbe6ed35f",
+      "score": 1.0,
+      "shard": 1,
+      "task": "CancelMeetingTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CartInfoNotificationTask/result.txt",
+      "result_sha256": "ca9cc6bf0c4aeaa8c2fe70fbe837321b681dca54a2562b80e8a57c0830ee479c",
+      "score": 0.0,
+      "shard": 0,
+      "task": "CartInfoNotificationTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CartManagementTask/result.txt",
+      "result_sha256": "22af51c6ffb5ccf5fdbd365b52ed6f5dbcf3839274936651d7a408d6955f4e56",
+      "score": 0.0,
+      "shard": 1,
+      "task": "CartManagementTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/ChangeWallpaperTask/result.txt",
+      "result_sha256": "36bed39678b6b83d69a4f1961d529f00c0f034c8443aa63121d766635ee50f89",
+      "score": 1.0,
+      "shard": 0,
+      "task": "ChangeWallpaperTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CheckCartPriceTask/result.txt",
+      "result_sha256": "aa6f80b20435bf2d30e961b326432eaf0dd7c9837845ed2f2b07cd0529d68cc8",
+      "score": 0.0,
+      "shard": 1,
+      "task": "CheckCartPriceTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CheckConferenceAndSendSmsTask1/result.txt",
+      "result_sha256": "b88bf48556a81b36af3e556345f88f1adec9f23c2306d826e0519b7124f5ba36",
+      "score": 0.0,
+      "shard": 0,
+      "task": "CheckConferenceAndSendSmsTask1"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CheckConferenceAndSendSmsTask2/result.txt",
+      "result_sha256": "b88bf48556a81b36af3e556345f88f1adec9f23c2306d826e0519b7124f5ba36",
+      "score": 0.0,
+      "shard": 1,
+      "task": "CheckConferenceAndSendSmsTask2"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CheckConferenceDurationTask/result.txt",
+      "result_sha256": "6a9f4d88836de2e00ac27c7420baf3d54a726780bbc5e4ed0b50622a2752495b",
+      "score": 0.0,
+      "shard": 0,
+      "task": "CheckConferenceDurationTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CheckConferenceLocationTask/result.txt",
+      "result_sha256": "bf97594bdbcddbba2d90d551e270b7b78f5f4db945f5b833906705fd9a0f17c0",
+      "score": 0.0,
+      "shard": 1,
+      "task": "CheckConferenceLocationTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CheckDeduplicatedEventsTask/result.txt",
+      "result_sha256": "f3bf3804fad1e515ee1eccd7f4d197ed065254d780997eca4558862ffecd541e",
+      "score": 0.0,
+      "shard": 0,
+      "task": "CheckDeduplicatedEventsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CheckDepartTimeTask/result.txt",
+      "result_sha256": "0f011d92fff4fb1cd441aef2599aca731acf6a6e0f9cc7e19056cf5bd4a35095",
+      "score": 1.0,
+      "shard": 1,
+      "task": "CheckDepartTimeTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CheckEventTimeTask/result.txt",
+      "result_sha256": "c7b0f3dfe1ec2d07b29164f38523daffef54815afa11176560395ada88cb823b",
+      "score": 0.0,
+      "shard": 0,
+      "task": "CheckEventTimeTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CheckGithubInfoTask/result.txt",
+      "result_sha256": "36bed39678b6b83d69a4f1961d529f00c0f034c8443aa63121d766635ee50f89",
+      "score": 1.0,
+      "shard": 1,
+      "task": "CheckGithubInfoTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CheckInterviewTimesTask/result.txt",
+      "result_sha256": "b16b5aa71989a914adff65281e10ffa39d72e87271454b57eeefcbc6bfb191e1",
+      "score": 0.0,
+      "shard": 0,
+      "task": "CheckInterviewTimesTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CheckInvoiceTask1/result.txt",
+      "result_sha256": "6658fe72ce76efc08c143c7c3b8a44bedd3a6e29d65e5551eb0c191d73b3d2db",
+      "score": 0.0,
+      "shard": 1,
+      "task": "CheckInvoiceTask1"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CheckInvoiceTask2/result.txt",
+      "result_sha256": "f71a98ed4d5e7d72cd5c66e612d9f2af7473a190cbeec72be7ccd8df7ead40ea",
+      "score": 0.0,
+      "shard": 0,
+      "task": "CheckInvoiceTask2"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CheckInvoiceTask3/result.txt",
+      "result_sha256": "5368d56dfe04c400e48bdf99d63ba456f2e55f032d9f1d7165284f1b8f529ec3",
+      "score": 0.0,
+      "shard": 1,
+      "task": "CheckInvoiceTask3"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CheckPuchasedItem/result.txt",
+      "result_sha256": "50ae0555c8186124e22d02bb3ecd6aa0ba5e9a44653553b9cf351a1a9e860092",
+      "score": 1.0,
+      "shard": 0,
+      "task": "CheckPuchasedItem"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CheckRegistrationTask/result.txt",
+      "result_sha256": "0f011d92fff4fb1cd441aef2599aca731acf6a6e0f9cc7e19056cf5bd4a35095",
+      "score": 1.0,
+      "shard": 1,
+      "task": "CheckRegistrationTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CheckSetMeetTimeTask/result.txt",
+      "result_sha256": "53c365f9652455cbaf9fcc6b2ed253f5024b9dd8c2ec56f9f5eaf382b55dd0f2",
+      "score": 0.0,
+      "shard": 0,
+      "task": "CheckSetMeetTimeTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/ChromeSearchBeijingWeatherTask/result.txt",
+      "result_sha256": "a1c82373fdae03cb34a7e8b10c5a8e48046b5cb010263c4e326649480a31ef2f",
+      "score": 0.0,
+      "shard": 1,
+      "task": "ChromeSearchBeijingWeatherTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/CloseFlightModeTask/result.txt",
+      "result_sha256": "36bed39678b6b83d69a4f1961d529f00c0f034c8443aa63121d766635ee50f89",
+      "score": 1.0,
+      "shard": 0,
+      "task": "CloseFlightModeTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/CountFileLinesTask/result.txt",
+      "result_sha256": "aa6f80b20435bf2d30e961b326432eaf0dd7c9837845ed2f2b07cd0529d68cc8",
+      "score": 0.0,
+      "shard": 1,
+      "task": "CountFileLinesTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/DownloadSendReceiptTask/result.txt",
+      "result_sha256": "c10db58d2117efa48f54d937b14cc777128f44ca481106eeea87d95016f31dd0",
+      "score": 0.0,
+      "shard": 0,
+      "task": "DownloadSendReceiptTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/GoogleMapsAlibabaPhoneContactTask/result.txt",
+      "result_sha256": "c8b3ad331c92834fbd6f53be5ee26cc6eb01c931b0159d84952a3ca182ce39d3",
+      "score": 0.0,
+      "shard": 1,
+      "task": "GoogleMapsAlibabaPhoneContactTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/GoogleMapsAlibabaSouthNeighborTask/result.txt",
+      "result_sha256": "776c0f4f6c9d4aff49395b468e65d8ad9a2213bc7ddb732c7b3bbfaf938660df",
+      "score": 0.0,
+      "shard": 0,
+      "task": "GoogleMapsAlibabaSouthNeighborTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/GraduationMassEmailTask/result.txt",
+      "result_sha256": "c10db58d2117efa48f54d937b14cc777128f44ca481106eeea87d95016f31dd0",
+      "score": 0.0,
+      "shard": 1,
+      "task": "GraduationMassEmailTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/InvoiceReceiptCopyAskUserTask/result.txt",
+      "result_sha256": "10ad5ad47a7f1d41bfb26cc7c7a70affa5e2add92848fba52ad518f8bc9d2669",
+      "score": 0.0,
+      "shard": 0,
+      "task": "InvoiceReceiptCopyAskUserTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/InvoiceReceiptCopyTask/result.txt",
+      "result_sha256": "313c689f655edaa82b61bca4ea6bde2a729ac09e93fd5da6a9d216e65264e108",
+      "score": 0.0,
+      "shard": 1,
+      "task": "InvoiceReceiptCopyTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/ItemCheckoutTask/result.txt",
+      "result_sha256": "22af51c6ffb5ccf5fdbd365b52ed6f5dbcf3839274936651d7a408d6955f4e56",
+      "score": 0.0,
+      "shard": 0,
+      "task": "ItemCheckoutTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/LocalFileManagementTask/result.txt",
+      "result_sha256": "96e288dba23d0776277ff43d7eb612e6d314c6881ae8fe23e858b0a7fc0c0293",
+      "score": 0.0,
+      "shard": 1,
+      "task": "LocalFileManagementTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/LocalFileManagementTask2/result.txt",
+      "result_sha256": "96e288dba23d0776277ff43d7eb612e6d314c6881ae8fe23e858b0a7fc0c0293",
+      "score": 0.0,
+      "shard": 0,
+      "task": "LocalFileManagementTask2"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonAddBookmarkTask/result.txt",
+      "result_sha256": "441ab0c8e1c1966769fc7c92a3896e46933928016598004671cf289500c2a236",
+      "score": 1.0,
+      "shard": 1,
+      "task": "MastodonAddBookmarkTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonAddFeaturedHashtagsTask/result.txt",
+      "result_sha256": "e44931db0981e4a4591161937b882aa012dc44d13ac50691c1b0862d070fc9cc",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonAddFeaturedHashtagsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonAdjustTootsTask/result.txt",
+      "result_sha256": "7795a911a6107975dd4e5260aa55a90c357a90631d3c88476183019a168e2fb7",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonAdjustTootsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonCalendarMultiMemosTask/result.txt",
+      "result_sha256": "3fea29c2fb39496aadd106fc734c120ae1a549221980d4f639aabb7b29a0bbdd",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonCalendarMultiMemosTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonChangeHeaderTask/result.txt",
+      "result_sha256": "b2b9a549bbdcf86668e39478a4d7125e247dff6d3bfada4cdf64bfabc509b593",
+      "score": 1.0,
+      "shard": 1,
+      "task": "MastodonChangeHeaderTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonChangeLanguageTask/result.txt",
+      "result_sha256": "823217cefa14b4d237650d52c435aa281c582af80bc60ee0e166b230305120ba",
+      "score": 1.0,
+      "shard": 0,
+      "task": "MastodonChangeLanguageTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonConditionalFavoTask/result.txt",
+      "result_sha256": "4bc2af181d2d4c0f662fb69ece1ce5abb2ca0196d463f15f151979bc4d6bec70",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonConditionalFavoTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonCreateListTask/result.txt",
+      "result_sha256": "0d848f6a18a70ac1dfdee09b395eca3b071a8b0752f37e56d87238d0add97d01",
+      "score": 1.0,
+      "shard": 0,
+      "task": "MastodonCreateListTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonCreateMemoTask/result.txt",
+      "result_sha256": "3fea29c2fb39496aadd106fc734c120ae1a549221980d4f639aabb7b29a0bbdd",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonCreateMemoTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonExportFollowsTask/result.txt",
+      "result_sha256": "f76d3b7b063454837471921ce6b172afb030fadea32eed074b0b54ec35b1fdb7",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonExportFollowsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonFavoriteTootsTask/result.txt",
+      "result_sha256": "0dc542abae5cc837ba73900b7f2a5ac24efe1a324aafd50f554dfba7fec82095",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonFavoriteTootsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonFilterLanguageTask/result.txt",
+      "result_sha256": "c62b778dc4904c09bcd043ec2b677ac9f1adf9efabc789eafbbfd25f7feef928",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonFilterLanguageTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonFollowTask/result.txt",
+      "result_sha256": "aff5004d41b0f9275202540be59b826adb6890cf9074f72ac85e5e2e2a2965b4",
+      "score": 1.0,
+      "shard": 1,
+      "task": "MastodonFollowTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonGetServerInfoTask/result.txt",
+      "result_sha256": "e816692ef5ed034c648044f5ff55d7f1492a5f5248f92ef9da8b7a4afe0a4154",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonGetServerInfoTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonImportMutedUsersTask/result.txt",
+      "result_sha256": "ed78d06ccfb407e0cb550addb7580067501ffae5cccb56d5631a9377a7fe1025",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonImportMutedUsersTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonInviteTask/result.txt",
+      "result_sha256": "f548c17a73d730e1395cc9939ace2f9e511102fc798083163fc663028c1c8e70",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonInviteTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonMallPurchaseCommodityTask/result.txt",
+      "result_sha256": "7cb7b3eda1b1699e6ba57a5cd64130b27c788a2e0f5e686e14cce3d25121cf01",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonMallPurchaseCommodityTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonMallShareOrderTask/result.txt",
+      "result_sha256": "12f6f8b40002a294b91cc097051abcfa21a037b02b5886a5d74cbeffa9d2638d",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonMallShareOrderTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonManageHashtagsTask/result.txt",
+      "result_sha256": "7200f32a0f37a1baea28ab099b816d72171f5f4baef38a000164b0665e30d868",
+      "score": 1.0,
+      "shard": 1,
+      "task": "MastodonManageHashtagsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonManageMultiListTask/result.txt",
+      "result_sha256": "2e1ae12940a3e6afbe249952274d9f245110dc98edf3132a1c9b94e0f4a9ba49",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonManageMultiListTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonMattermostPostNoticeTask/result.txt",
+      "result_sha256": "c31a9e01fbd46f348d2a04e125bc5c33ac759c9db246bca756e706f7cfdd6c12",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonMattermostPostNoticeTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonMultiInviteTask/result.txt",
+      "result_sha256": "c27922d79107883f5e90ab2a236bf5400ebddd28d6dd30b8e49c164ddca6b1a9",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonMultiInviteTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonNewFilterTask/result.txt",
+      "result_sha256": "3301b8a951b3d9c07a013fb15cfffd1aab68c9c32e4498a1c6b10db2eb7d1cfb",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonNewFilterTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonNewPostTask/result.txt",
+      "result_sha256": "bd7fb36b3f4a9048caeed4dbfd9aaecb01782731fbdf7b42552a11bc5bc1638d",
+      "score": 1.0,
+      "shard": 0,
+      "task": "MastodonNewPostTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonOpenAutomatedDeletionTask/result.txt",
+      "result_sha256": "19976dd75070f65c23df7478b96348d9006864f8e3b2a69c58860e5f4677bf02",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonOpenAutomatedDeletionTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonPinTootsTask/result.txt",
+      "result_sha256": "153abb342b6adc66b45762f219e14a71bb668b5de175b2933e383f76fad63ec7",
+      "score": 1.0,
+      "shard": 0,
+      "task": "MastodonPinTootsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonPostEditedPhotoTask/result.txt",
+      "result_sha256": "fc453d7a6cbf583ec23dff4757413a9e2463aada35a9524268a644681b4eeb5b",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonPostEditedPhotoTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonPostPollTask/result.txt",
+      "result_sha256": "03886104de1a72e8663f7ee8a85dbb9de24c3c950e169ab2e275ce5bce0c31c1",
+      "score": 1.0,
+      "shard": 0,
+      "task": "MastodonPostPollTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonRemoveBookmarkTask/result.txt",
+      "result_sha256": "eb902df00f0dd07efd3e89f822e198aaf118e7df650c2c47664f394d5961e7a3",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonRemoveBookmarkTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonReplyTask/result.txt",
+      "result_sha256": "aa38b2598a6c3d7165478f1193d0150321412503138b58cc8562b849ce2005b2",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonReplyTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonReportTask/result.txt",
+      "result_sha256": "35efe95293e8cdd3a1e46f54d38371f5029e9ae67c0d16d115d7976f303bd919",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonReportTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonRevisePhotoAltTask/result.txt",
+      "result_sha256": "ec9ea1bddb8c868b13fdc287490a11521d3af282182ddaf421753dcc3415d30a",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonRevisePhotoAltTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonRevisePollTask/result.txt",
+      "result_sha256": "88cebad3ddda3d494a437c95805e2423f8489e418e73c98c574fb5cf1fd05750",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonRevisePollTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonSavePhotosTask/result.txt",
+      "result_sha256": "ee0f94be06b88b107eff91e0caa8161ddeca5a7d20bd3645ca2e170fffd1be89",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonSavePhotosTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonServerInfoReportTask/result.txt",
+      "result_sha256": "c10db58d2117efa48f54d937b14cc777128f44ca481106eeea87d95016f31dd0",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonServerInfoReportTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonShareLocationTask/result.txt",
+      "result_sha256": "afa207027970f95e2f80cf97ee96d56e84d745e4e9a995b3a2207a001740c840",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonShareLocationTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MastodonUnfollowTask/result.txt",
+      "result_sha256": "6d3467cfd197f505f366bb4677e68f3afb77be546ce952e005c8a918d04a1d73",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MastodonUnfollowTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MastodonUpdateContactsTask/result.txt",
+      "result_sha256": "cadcff6dfb06a680160b6160be41231107e925c170ea94f9683c72e728d7f977",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MastodonUpdateContactsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MattermostBudgetApprovalPipelineTask/result.txt",
+      "result_sha256": "58078fe1f6ff7fe083e3c5b18f54530456a8f7fbc351af64f8f0d2a3df03226d",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MattermostBudgetApprovalPipelineTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MattermostCreateChannelTask/result.txt",
+      "result_sha256": "68264888bdce0915ba1ec26397996d71900de1f0f63e21b7878b46660a511c26",
+      "score": 1.0,
+      "shard": 0,
+      "task": "MattermostCreateChannelTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MattermostCustomerFeedbackAnalysisTask/result.txt",
+      "result_sha256": "703eaae00da861b7da564d5df2421db9801ad6ed38d8a93a2d314adb77b32bd3",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MattermostCustomerFeedbackAnalysisTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MattermostDeadlineReconciliationTask/result.txt",
+      "result_sha256": "38a9dc6f28dcca09b1bfb5c92f35be6c058ccdb72d334c9a1e04bbb4101360ec",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MattermostDeadlineReconciliationTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MattermostEmailTask/result.txt",
+      "result_sha256": "539cb3766b927be998bc8e1d0982b64c0fda029785282493ddd87e81aa7fbda7",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MattermostEmailTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MattermostIncidentEscalationTask/result.txt",
+      "result_sha256": "5f74938279db374b11f19f8aab501dca99a25ceb2698d5a189bf0944a7c3f762",
+      "score": 1.0,
+      "shard": 0,
+      "task": "MattermostIncidentEscalationTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MattermostProjectHandoverTask/result.txt",
+      "result_sha256": "58b23014b034581346c8d599938c13e318a10715f6e0302d77cce9e95f2af665",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MattermostProjectHandoverTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MattermostProjectStatusReportTask/result.txt",
+      "result_sha256": "eed17c7e470be8bf839483e0fc809f9bd6e283149e157059544aaa3483cdbc1a",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MattermostProjectStatusReportTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MattermostReadingGroupTask/result.txt",
+      "result_sha256": "2f35e3d776f31099cd69b8eb0174ae0b2d7b965515aea5e95378f106d16e6fef",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MattermostReadingGroupTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MattermostReplyToMessageTask/result.txt",
+      "result_sha256": "76e8184c4ad3b86480886cc07f4ea3cb19d17db6b43e0f5483ff21de379ca0a7",
+      "score": 1.0,
+      "shard": 0,
+      "task": "MattermostReplyToMessageTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MattermostResourceConflictResolutionTask/result.txt",
+      "result_sha256": "eed17c7e470be8bf839483e0fc809f9bd6e283149e157059544aaa3483cdbc1a",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MattermostResourceConflictResolutionTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MattermostSendFileTask/result.txt",
+      "result_sha256": "7c74ed2dabde24b805c7c5c7e2f4278c56083ed4b0410926335a79524fdd9e4d",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MattermostSendFileTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MattermostShiftCoverageTask/result.txt",
+      "result_sha256": "c228d37d780b3a862c3555755adb533a7eb5e60b7294a190fd5ea9dc01619454",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MattermostShiftCoverageTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/MattermostTechnicalDebtTriageTask/result.txt",
+      "result_sha256": "e8136d9de5cf8f6722525ee6d33cbcae14041f8f56e5e090e6bedf593e915328",
+      "score": 0.0,
+      "shard": 0,
+      "task": "MattermostTechnicalDebtTriageTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/MattermostVisualInstructionResponseTask/result.txt",
+      "result_sha256": "7e7052cbaf74b9137f06ccdc2e48a237f0b6957bd60bd9775317c1987c71d021",
+      "score": 0.0,
+      "shard": 1,
+      "task": "MattermostVisualInstructionResponseTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/OpenFlightModeTask/result.txt",
+      "result_sha256": "36bed39678b6b83d69a4f1961d529f00c0f034c8443aa63121d766635ee50f89",
+      "score": 1.0,
+      "shard": 0,
+      "task": "OpenFlightModeTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/PhotoManagementTask/result.txt",
+      "result_sha256": "db1044e9521b0cd6c5dc00db357839c1a8fe356396b9aac761eaf874db946436",
+      "score": 0.0,
+      "shard": 1,
+      "task": "PhotoManagementTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/ReadQwen3PaperTask1/result.txt",
+      "result_sha256": "719f04c4882f07bcfb3e58beb6adc1df1cacd2c57e4fde059c30841899b84702",
+      "score": 0.0,
+      "shard": 0,
+      "task": "ReadQwen3PaperTask1"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/ReadQwen3PaperTask2/result.txt",
+      "result_sha256": "719f04c4882f07bcfb3e58beb6adc1df1cacd2c57e4fde059c30841899b84702",
+      "score": 0.0,
+      "shard": 1,
+      "task": "ReadQwen3PaperTask2"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/ReadQwen3PaperTask3/result.txt",
+      "result_sha256": "40f12e8c3d88a30486bfa4e82165128423e6d0d3a556182c3e6076524a135779",
+      "score": 0.0,
+      "shard": 0,
+      "task": "ReadQwen3PaperTask3"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/ReadQwen3PaperTask4/result.txt",
+      "result_sha256": "719f04c4882f07bcfb3e58beb6adc1df1cacd2c57e4fde059c30841899b84702",
+      "score": 0.0,
+      "shard": 1,
+      "task": "ReadQwen3PaperTask4"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/ReadQwen3PaperTask5/result.txt",
+      "result_sha256": "9a6dff496ba2500c41a26d5672bb6eba3c4791644c1ebb55174c09853e9b37cc",
+      "score": 0.0,
+      "shard": 0,
+      "task": "ReadQwen3PaperTask5"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/RecentTotalExpenseTask/result.txt",
+      "result_sha256": "f68f6a262a5220729524a77e0dcdc3dba3b67fa9fbab038a95e4570b079154bd",
+      "score": 0.0,
+      "shard": 1,
+      "task": "RecentTotalExpenseTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/RequestCarpoolingTask/result.txt",
+      "result_sha256": "0f011d92fff4fb1cd441aef2599aca731acf6a6e0f9cc7e19056cf5bd4a35095",
+      "score": 1.0,
+      "shard": 0,
+      "task": "RequestCarpoolingTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/ReviewPaperEmailTask/result.txt",
+      "result_sha256": "6475f7c733ce4b119c5e7ebbbc98c7f921a5bc83ef827d684bb858125605c3d3",
+      "score": 0.0,
+      "shard": 1,
+      "task": "ReviewPaperEmailTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/SMSManagement/result.txt",
+      "result_sha256": "9aa47932be4a65a36b7e1eeed15f45f5aa685c137c410fbc7a4e1e30c823fb21",
+      "score": 0.0,
+      "shard": 0,
+      "task": "SMSManagement"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/ScheduleCoffeeTimeViaSmsTask/result.txt",
+      "result_sha256": "57d5fc50d69e06da62940fb3cf50864da2e66737a285ca2beb9ea981c015397d",
+      "score": 0.0,
+      "shard": 1,
+      "task": "ScheduleCoffeeTimeViaSmsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/ScheduleLunchViaSmsTask/result.txt",
+      "result_sha256": "6ae40cbcb0798acddf0e8c6dabbaf36169344448ee303788847e744224791013",
+      "score": 0.0,
+      "shard": 0,
+      "task": "ScheduleLunchViaSmsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/SearchItemAndCheckoutTask/result.txt",
+      "result_sha256": "36bed39678b6b83d69a4f1961d529f00c0f034c8443aa63121d766635ee50f89",
+      "score": 1.0,
+      "shard": 1,
+      "task": "SearchItemAndCheckoutTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/SendFormsTask/result.txt",
+      "result_sha256": "d3a3aea7ae788837bc1a284d867cbdb0b5a9665b8f0f98e9e603f988e9a93f8b",
+      "score": 0.0,
+      "shard": 0,
+      "task": "SendFormsTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/SendInterviewEmailTask/result.txt",
+      "result_sha256": "0f011d92fff4fb1cd441aef2599aca731acf6a6e0f9cc7e19056cf5bd4a35095",
+      "score": 1.0,
+      "shard": 1,
+      "task": "SendInterviewEmailTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/SendInterviewInvitationTask/result.txt",
+      "result_sha256": "836909fa00fc995eeeb00c9979b9489875032d4d7c90a2acf17e6be06e1445e3",
+      "score": 0.0,
+      "shard": 0,
+      "task": "SendInterviewInvitationTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/SendWaiverTask/result.txt",
+      "result_sha256": "0f011d92fff4fb1cd441aef2599aca731acf6a6e0f9cc7e19056cf5bd4a35095",
+      "score": 1.0,
+      "shard": 1,
+      "task": "SendWaiverTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/SetAlarmTask/result.txt",
+      "result_sha256": "0f011d92fff4fb1cd441aef2599aca731acf6a6e0f9cc7e19056cf5bd4a35095",
+      "score": 1.0,
+      "shard": 0,
+      "task": "SetAlarmTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/SharePhotosTask/result.txt",
+      "result_sha256": "d879264cc7f58b70119afde56206e6fea99fd050bb90295043aab51a620ad333",
+      "score": 0.0,
+      "shard": 1,
+      "task": "SharePhotosTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/SuggestPaperTask/result.txt",
+      "result_sha256": "a3c1d3fc0bb0f1acd76838c33967e834da0778510e21ec807cc9378c0e8906f8",
+      "score": 0.0,
+      "shard": 0,
+      "task": "SuggestPaperTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/SumFileLinesTask/result.txt",
+      "result_sha256": "aa6f80b20435bf2d30e961b326432eaf0dd7c9837845ed2f2b07cd0529d68cc8",
+      "score": 0.0,
+      "shard": 1,
+      "task": "SumFileLinesTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/TakeSelfieTask/result.txt",
+      "result_sha256": "bbe3fcf38ee4e6b56739c6654f9ae702e5ecf97efd988f5ca2002b1547174b86",
+      "score": 1.0,
+      "shard": 0,
+      "task": "TakeSelfieTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard1/trajectories/TextArrivalTimeTask/result.txt",
+      "result_sha256": "e48776046512a8e3f1518a4e9809e55ed87b0724f94780cc5194703c714195d2",
+      "score": 0.0,
+      "shard": 1,
+      "task": "TextArrivalTimeTask"
+    },
+    {
+      "result_path": "/data/runs/mw-official-b123-sequential-v2-7ff6cad/b1/shard0/trajectories/ThanksgivingPrepTask/result.txt",
+      "result_sha256": "53c365f9652455cbaf9fcc6b2ed253f5024b9dd8c2ec56f9f5eaf382b55dd0f2",
+      "score": 0.0,
+      "shard": 0,
+      "task": "ThanksgivingPrepTask"
+    }
+  ],
+  "schema_version": "causalcache.mobileworld.task_scores.v1"
+}
