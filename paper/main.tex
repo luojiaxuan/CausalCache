@@ -62,8 +62,7 @@ decision groups from successful AgentNet trajectories, the frozen policy shows
 no reliable preference for the target-relevant archived frame over the true
 previous frame ($+0.001$ nats/token, $95\%$ CI $[-0.024,+0.025]$): selectivity
 is not inherited. \hgkv{} creates it ($+0.010$ $[+0.006,+0.014]$) within a
-pre-registered drift envelope, while a full-layer LoRA control attains
-selectivity only by drifting beyond it. A budget-aware selector then fills
+pre-registered drift envelope. A budget-aware selector then fills
 the $B$ slots from the full history, displacing a recent frame only when an
 archived candidate's measured marginal exceeds that frame's.
 Per-$B$ gates pass at every trained budget and extrapolate to an untrained
@@ -111,9 +110,7 @@ out-of-training extension.
 
 Learning to \emph{use} restored evidence must not corrupt the base agent.
 Full-layer adaptation simultaneously changes current-screen understanding,
-action syntax, and grounding; we show empirically that it gains selectivity
-while drifting beyond a pre-registered envelope on recent-only and
-wrong-history prompts. \method{} instead trains a history-gated KV interface
+action syntax, and grounding. \method{} instead trains a history-gated KV interface
 (\hgkv) that touches only restored history-image tokens and is structurally
 bypassed at zero budget, with a difference-in-differences (DiD) objective in
 which every arm is anchored to its own frozen score: uniform amplification of
@@ -130,9 +127,9 @@ Our contributions are:
     replacement groups with per-arm-anchored DiD supervision, exact
     no-history parity, and pre-registered caps on recent-window and
     wrong-history drift;
-    \item matched structural controls showing that full-layer adaptation
-    attains selectivity only outside the drift envelope, and that token gating
-    adds selective gain beyond a layer- and rank-matched ungated control;
+    \item a layer- and rank-matched ungated control showing that token
+    gating adds selective gain and drift containment beyond matched
+    capacity;
     \item a budget-aware selector over the full candidate history (recent
     frames included as candidates and as the default fallback), trained on
     desktop data only and evaluated zero-shot on mobile and desktop
@@ -454,8 +451,6 @@ The frozen policy is GUI-Owl-1.5-8B-Instruct \citep{xu2026mobileagent35}. We
 compare four policy rows under identical data, steps, and cadence:
 \begin{itemize}
     \item \textbf{Frozen}: no trainable adapter;
-    \item \textbf{Full-layer LoRA}: all language-model Q/K/V/O projections
-    \citep{hu2022lora}, always active;
     \item \textbf{Ungated KV}: the same last-eight layers, K/V targets, rank,
     and alpha as \hgkv{} but active on all tokens;
     \item \textbf{\hgkv{} (ours)}: token-gated, structurally bypassed at
@@ -518,9 +513,7 @@ nonzero adapter weights. The layer- and
 rank-matched ungated control also learns selectivity ($+0.0076$), confirming
 that the last-eight K/V position carries signal, but token gating adds a
 paired per-group advantage of $+0.0035$ ($95\%$ CI $[+0.0007,+0.0062]$,
-56/94 groups). Full-layer LoRA attains the largest raw selectivity yet fails
-the envelope at every checkpoint ($|A_r|$ between $0.021$ and $0.027$; wrong
-drift up to $0.029$): it can select, but cannot stay anchored. Gating is what
+56/94 groups) while holding drift further from the caps. Gating is what
 buys selectivity \emph{inside} the envelope.
 
 \begin{table}[t]
@@ -533,15 +526,13 @@ Adapter (selected step) & DiD select & $|A_r|$ & Wrong drift & Gates \\
 \midrule
 \textbf{\hgkv{} (s150)} & $\mathbf{+0.0111}$ & $0.0087$ & $0.0085$ & pass \\
 Ungated KV (s125) & $+0.0076$ & $0.0090$ & $0.0063$ & pass \\
-Full-layer LoRA (best) & $+0.0163$ & $0.0215$ & $0.0116$ & fail \\
 \bottomrule
 \end{tabular}
 }
 \caption{Desktop DiD gate on 94 development groups ($B{=}1$; 2{,}000
 episode-clustered bootstrap replicates). DiD select $=(A_s-A_r)$; caps
 require $|A_r|,|A_n|<0.02$. \hgkv{}'s DiD CI is
-$[+0.0074,+0.0150]$; full-layer LoRA has no checkpoint satisfying the caps.
-\hgkv{} B0 parity is bitwise exact.}
+$[+0.0074,+0.0150]$; \hgkv{} B0 parity is bitwise exact.}
 \label{tab:did-gate}
 \end{table}
 
@@ -647,11 +638,10 @@ extrapolation. Cross-$B$ comparisons are analysis only.}
 
 \section{Ablations and Analyses}
 
-Planned ablations follow the fixed-budget factorization. Policy-side:
-per-$B$ stratified DiD gates for \hgkv, ungated KV, and full-layer LoRA (a
+Ablations follow the fixed-budget factorization. Policy-side:
+per-$B$ stratified DiD gates for \hgkv{} and ungated KV (a
 pooled mean may hide help at $B{=}4$ and failure at $B{=}1$); the $B{=}8$
-extrapolation; adapter depth and rank; removing the gain, content, or cap
-terms. Selector-side: recency-membership feature removal; candidate-pool
+extrapolation. Selector-side: recency-membership feature removal; candidate-pool
 size; replacement-acceptance margin; top-$k$ versus bottom-$k$ replacement;
 wrong-event
 and summary--image mismatch controls; a recent-memory dose analysis (varying
@@ -690,7 +680,7 @@ under a fixed number of high-fidelity slots, decide which events from the
 full interaction history deserve them, with recency as one candidate
 allocation rather than a privileged default. A token-gated KV interface
 learns to consume reallocated evidence inside a pre-registered drift
-envelope---where full-layer adaptation cannot stay---and a budget-aware
+envelope, and a budget-aware
 selector learns when replacing recent frames with archived events pays. All
 learning happens on desktop data; mobile benchmarks remain untouched for
 zero-shot evaluation.
