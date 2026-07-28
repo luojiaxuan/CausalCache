@@ -164,3 +164,21 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
   A_r ∈ [−0.006, +0.001] 全部远在 0.02 帽内。
 - 结论:同配方、同语料、免调参在 4× 骨干上复现"漂移包络内的正选择性"
   ——token-gated HGKV 的跨骨干泛化证据(main_v2 的 pending 可回填)。
+
+## v5 selector-allocation 语料 + v5a 训练启动(2026-07-29 深夜)
+
+- 全量构建:B=1/2/4 共 14,805 组(k 直方图 B4: 1953/480/1574/526 =
+  57% 多槽)。但 selector S* 的严格复现证据命中率仅 13/11/6.2%
+  (B=1/2/4)——误选占 ~90%,不能全量当正臂(会与 W 臂遏制信号打架)。
+- **hit 过滤**(证据命中 + v4 年龄规则 age≥B+2):1,208 组存活
+  (k: 787/361/53/7,35% 多槽),规模与 v4 主线(~1.8k)相当,300 步
+  ≈ 1.6 epoch。语料 `/data/desktop-did-corpus-v5-hit`(h00)。
+- 两个 launch 教训:trainer 需要 dataset-root 顶层 manifest.json
+  (v4 由 --merge 生成);trainer 冻结校验 oracle/distractor 源帧必须
+  age≥B+2——wrong 采样与促升事件都要过这条(构造器已修)。
+- k=0(S*=recent)组被跳过不是分布缺口:每组 R0/RA 臂即 k=0 形态,
+  漂移帽专训"recent 不许动";误选遏制由同基数 W 臂承载。typed 课程
+  (误选集合作第二负臂)需扩 trainer 臂契约,列 v5b。
+- v5a(last_8)在 h00 GPU0-3 训练中(4 卡上限合规);v5a-full(last_36)
+  排队顺序跑。按用户指示:盯步数,收益变缓的 checkpoint 先 offline
+  门控,再进 selector 重打标签/重训。

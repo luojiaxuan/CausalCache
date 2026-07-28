@@ -164,14 +164,18 @@ def compose_selected(record, pool, duplicates, score, *, budget: int, beam: int,
     return list(level[0][0])
 
 
-def wrong_pool(record, *, coordinate_tolerance: int) -> list[int]:
-    """following action 与 target 不等价的事件(select_contrast_events 同规则)。"""
+def wrong_pool(record, *, coordinate_tolerance: int, min_age: int) -> list[int]:
+    """following action 与 target 不等价、且 age >= min_age 的事件。
+
+    # note (luojiaxuan): min_age = B+2 是 v4 冻结年龄规则,trainer 校验
+    # oracle/distractor 源帧必须严格老于 recent 窗口——首launch因此三连败。
+    """
     current_step = int(record["step"])
     screen_size = tuple(record["screen_size"])
     target = record["target_tool_call"]
     history_by_step = {int(e["step_id"]): e for e in record["history"]}
     out = []
-    for event_step in range(1, current_step - 1):
+    for event_step in range(1, current_step - min_age + 1):
         following = history_by_step.get(event_step + 1)
         if following is None:
             continue
@@ -233,10 +237,30 @@ def main() -> None:
             if k == 0:
                 counters["skipped_k0_recent_kept"] += 1
                 continue
+            # v4 冻结年龄规则:促升与 wrong 都必须 age >= B+2(trainer 校验)
+            if any(current_step - e < b + 2 for e in promoted):
+                counters["rejected_promoted_age"] += 1
+                continue
+            # 证据命中过滤:至少一个促升事件满足严格动作复现正例规则
+            history_by_step = {int(e["step_id"]): e for e in record["history"]}
+            screen_size = tuple(record["screen_size"])
+            hit = any(
+                (f := history_by_step.get(ev + 1)) is not None
+                and history_action_matches_target(
+                    f["action"], record["target_tool_call"],
+                    screen_size=screen_size,
+                    coordinate_tolerance=args.coordinate_tolerance,
+                )
+                for ev in promoted
+            )
+            if not hit:
+                counters["skipped_no_evidence_hit"] += 1
+                continue
             # W 臂:每个促升事件换成 age 最近邻 wrong 事件(不可与 S* 重叠)
             negatives = [
                 w for w in wrong_pool(
-                    record, coordinate_tolerance=args.coordinate_tolerance)
+                    record, coordinate_tolerance=args.coordinate_tolerance,
+                    min_age=b + 2)
                 if w not in selected
             ]
             wrong_set = [s for s in selected if s not in promoted]
