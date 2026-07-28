@@ -103,17 +103,24 @@ parameter.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/causalcache_overview.pdf}
-\caption{\method{} treats GUI memory as conditional high-fidelity
-restoration. Every historical event remains in the complete action trace as a
-compact summary linked to an archived screenshot. Recent-$B$ promotes the
-latest $B$ events; \method{} reallocates the same active visual slots,
-promoting a distant event only when its conditional marginal utility exceeds
-that of the recent visual realization it replaces. Matched-budget restoration
-arms train \hgkv{} to modify only reattached history-image tokens, while the
-proposal-conditioned selector performs the same-$B$ reallocation and
-re-decides only after a displacement. Pixels are retrieved from the archive,
-not generated from text.}
+\includegraphics[width=\textwidth]{figures/causalcache_hgkv_pass2.pdf}
+\caption{The two learned components of \method{}.
+(a)~The history-gated K/V interface (\hgkv): a low-rank
+$\Delta K,\Delta V$ branch on the last eight frozen self-attention layers
+is multiplied by a binary token gate $g$ that is $1$ only on restored
+history-image tokens, so current-screen, text, and response tokens pass
+through unchanged, and at $B{=}0$ the gate vanishes and the policy is
+bitwise-identical to the frozen base.
+(b)~Proposal-conditioned re-decision (\method-P): pass~1 renders the
+default Recent-$B$ allocation and yields a proposal $a_1$; a two-tower
+scorer conditioned on per-event features with $a_1$ as witness and on
+budget context scores the \emph{complete} summarized trace and returns the
+exact-$B$ set $S^{*}$. If $S^{*}$ keeps the recent tail, $a_1$ is emitted
+with no extra compute; only when a recent event is displaced is the prompt
+re-rendered under $S^{*}$ and the \emph{same} frozen weights generate the
+final action $a_2$. Blue marks retained recent promotions, orange the
+promoted distant event, purple the \hgkv{} pieces; snowflakes denote
+frozen components.}
 \label{fig:overview}
 \end{figure*}
 
@@ -462,8 +469,9 @@ or selection.
 
 \paragraph{The Fixed-Budget Fidelity-Restoration Design.}
 
-Figure~\ref{fig:overview} defines the core comparison and the two learned
-components. Every compared allocation carries exactly $B$ history images with
+Figure~\ref{fig:overview} shows the two learned components and the
+same-budget re-decision that defines the core comparison.
+Every compared allocation carries exactly $B$ history images with
 identical resolutions, summaries, and prompt structure, so the contrast
 isolates \emph{which summarized events are promoted to high fidelity}.
 $B{=}4$ is the primary deployment-like setting; the realized number of
