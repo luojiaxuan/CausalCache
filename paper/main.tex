@@ -293,27 +293,14 @@ Positives do not require the base action to be wrong: both information
 addition and evidence amplification are admissible mechanisms.
 
 \paragraph{Why single-slot replacement ($k{=}1$).}
-Training teaches only the $k{=}1$ replacement interface, and this is an
-empirically grounded interface choice rather than a structural limit. On the
-demand side, multi-frame needs are rare even where archived pixels matter
-most: under the strictest \emph{image-only} criterion---the required value
-appears in neither the goal, the current frame, the recent window, nor any
-completed step's action text---mining 1{,}326 GUI-Odyssey trajectories yields
-96 image-only decision points at $B{=}4$, of which only two require two
-distinct evidence frames simultaneously (3 of 239 at $B{=}1$); on the
-desktop corpus, 75\% of eligible states admit exactly one recurrence
-witness. On the utility side, a matched-budget probe under the official
-multi-turn protocol shows the first replacement is worth its slot, while
-the paired increments of a second and third replacement are
-indistinguishable from zero or negative---under a fixed budget
-each further distant promotion must evict the next-most-recent visual
-realization, and its measured value no longer covers that price. Larger-$k$
-allocations nonetheless remain expressible at deployment: the selector composes
-exactly-$B$ allocations with exact re-scoring, defaulting unclaimed slots to
-recent events, so $k$ stays a result statistic. Supervision is
-annotation-free, so a domain that does exhibit multi-frame demand
-(detectable by the same probe) requires only regenerating the corpus with
-$k{\geq}2$ restoration arms: a data-mix change, not a method change.
+Training teaches only the $k{=}1$ replacement interface: offline mining
+finds simultaneous multi-frame demand rare, and a matched-budget probe
+shows the first replacement is worth its slot while the paired increments
+of a second and third are indistinguishable from zero or negative.
+Larger-$k$ allocations remain expressible at deployment because the
+selector composes exact-$B$ sets with recent fallback, so $k$ stays a
+result statistic; mining details and the full probe are in the
+supplement.
 
 Let $\ell$ denote mean target log-likelihood, superscripted by adapter state
 (active or frozen bypass). Each arm is anchored to \emph{its own} frozen
@@ -345,71 +332,39 @@ the same scale as the selection hinges. Losses and evaluation are stratified
 by $B$; a pooled mean could hide a method that helps at $B{=}4$ but fails at
 $B{=}1$.
 
-\subsection{Success-Anchored Utility and Selector Supervision}
-
-After the history interface is frozen, selector labels are true policy
-utilities: for each state, singleton utilities for the \emph{entire}
-summarized event pool (recent events included)---an exhaustive $B{=}1$
-oracle---the matched $Q(\mathrm{Recent}\text{-}B)$ anchors, and, for larger
-budgets, set utilities along beam-3 teacher paths over a singleton-shortlisted
-pool, each fully re-scored as a complete prompt through the frozen \hgkv{}
-policy.
-
 \subsection{Budget-Aware Restoration Selector}
 
-The selector is a single set-conditional marginal scorer
-$\widehat{\Delta}_t(j\mid S)$ trained on the true marginals implied by the
-label table (singleton edges give $S{=}\varnothing$; each beam edge gives
-its parent set), with a joint regression and within-state ranking loss. Its
-input encodes, explicitly, candidate age and recency-window membership,
-target-recurrence witness signals with coordinate distance, action family,
-frame-deduplication multiplicity, trajectory shape, and set context
-(selected-set size, overlap and age gaps between the candidate and the
-already-selected events).
-
-Deployment composes exactly-$B$ fidelity allocations by beam search initialized
-at $\mathrm{Recent}\text{-}B$: every summarized event is a candidate, and a
-distant event is promoted only by displacing the recent visual realization
-whose predicted marginal it beats, realizing Eq.~\ref{eq:decision} as a
-relative comparison with no learned stopping threshold---declining every
+After the history interface is frozen, selector labels are true policy
+utilities: singleton utilities for the \emph{entire} summarized event pool,
+matched $Q(\mathrm{Recent}\text{-}B)$ anchors, and set utilities along
+teacher paths, each fully re-scored as a complete prompt through the frozen
+\hgkv{} policy. The selector is a set-conditional marginal scorer
+$\widehat{\Delta}_t(j\mid S)$ trained on the implied marginals with a joint
+regression and within-state ranking loss; it scores each candidate event
+conditioned on the current action proposal, event recency, and the
+already-selected set (the full feature list is in the supplement).
+Deployment composes an exact-$B$ allocation with a small beam search
+initialized at $\mathrm{Recent}\text{-}B$: a distant event enters only by
+beating the predicted marginal of the recent realization it evicts,
+realizing Eq.~\ref{eq:decision} as a relative comparison---declining every
 replacement recovers Recent-$B$ exactly. Selector labels cover
 $B\in\{1,2,4\}$; the realized replacement intensity $k$ is reported per
 budget, never preset.
 
-\paragraph{Reference actions and the two deployment modes.}
-Four of the selector's input features are \emph{witness} features: they
-test whether the action taken right after some archived event matches a
-reference action. At training time the reference is the gold
-teacher-forced target---an offline oracle that upper-bounds what any
-online reference can provide but does not exist at deployment. We
-therefore instantiate two online modes that share every trained weight
-and differ only in the reference. \textbf{CausalCache-P} (default) uses
-the current policy's tentative action: the policy first acts on the
-Recent-$B$ prompt, the tentative action serves as a platform-calibrated
-reference, and the policy re-decides on the re-allocated prompt when a
-recent visual realization is displaced. \textbf{CausalCache-LA} replaces the proposal with
-\emph{the action just executed} at step $t{-}1$, eliminating the second
-policy call: memory is selected before the single generation, adding only
-the selector's own cost ($<10$\,ms). On held-out desktop decision groups
-the two modes are statistically indistinguishable from each other and from
-the gold reference, but LA fails to transfer to the unseen mobile
-benchmark, where P attains the higher mean. We therefore treat LA as an
-efficiency variant rather than the primary method; the directional result
-is consistent with the reference action being one bottleneck for
-cross-platform transfer.
-
-A ladder of weaker references isolates what the action signal buys.
-\emph{No reference} (witness features zeroed) keeps $B{=}2$ significant
-but loses $B{=}4$ while roughly tripling full-replacement
-allocations---without any action signal the selector cannot tell which
-summarized event merits visual restoration and over-replaces.
-\emph{Instruction-only intent} (frozen-embedding similarities between the
-instruction, each candidate's action line, and recent behavior) repairs
-the over-replacement pathology yet stays non-significant at $B{=}4$.
-Action-conditioned references thus dominate instruction-only and
-reference-free variants; their internal order depends on platform and
-protocol, which is why the deployed default re-grounds the reference in
-the policy's own proposal.
+\paragraph{Reference actions.}
+Part of the selector's input asks whether the action taken right after an
+archived event matches a reference action. Training uses the gold
+teacher-forced target, an offline oracle unavailable at deployment;
+\method{} therefore re-grounds the reference in the policy's own tentative
+action: the policy first acts on the Recent-$B$ prompt, and re-decides on
+the re-allocated prompt only when a recent visual realization is
+displaced. This proposal reference is statistically indistinguishable
+from the gold oracle on held-out desktop groups, whereas weaker
+references---no action signal, or instruction-only similarity---degrade
+selection and over-replace (full reference ladder in the supplement). A
+single-pass variant that reuses the previously executed action as the
+reference removes the second policy call but transfers worse across
+platforms; its efficiency analysis is in the supplement.
 
 \section{Experiments}
 
@@ -482,7 +437,7 @@ is multiplied by a binary token gate $g$ that is $1$ only on restored
 history-image tokens, so current-screen, text, and response tokens pass
 through unchanged, and at $B{=}0$ the gate vanishes and the policy is
 bitwise-identical to the frozen base.
-(b)~Proposal-conditioned re-decision (\method-P): pass~1 renders the
+(b)~Proposal-conditioned re-decision: pass~1 renders the
 default Recent-$B$ allocation and yields a proposal $a_1$; a two-tower
 scorer conditioned on per-event features with $a_1$ as witness and on
 budget context scores the \emph{complete} summarized trace and returns the
@@ -509,7 +464,7 @@ Frozen & Recent-$B$ & $0$ & $0$ & $0$ & $0$ & $0$ & reference \\
 Frozen & oldest slot $\to$ archived & $+.079$ & $+.026$ & $-.000$ & $-.031$ & $1$ & \\
 \hgkv & Recent-$B$ & $+.002$ & $+.005$ & $+.007$ & $+.009$ & $0$ & drift-capped \\
 \hgkv & oldest slot $\to$ archived & $+.103$ & $+.047$ & $+.018$ & $-.016$ & $1$ & gate: Tab.~\ref{tab:did-gate} \\
-\hgkv & selector, LA reference (deployed single-pass) & $+.039$ & $+.025$ & $+.015$ & $-.005$ & measured & $71\%$ displace ${\geq}1$ at $B{=}4$ \\
+\hgkv & selector, last-action reference & $+.039$ & $+.025$ & $+.015$ & $-.005$ & measured & $71\%$ displace ${\geq}1$ at $B{=}4$ \\
 \hgkv & selector, gold reference (offline upper bd.) & $+.044$ & $+.025$ & $+.011$ & $-.002$ & measured & teacher-forced oracle \\
 \bottomrule
 \end{tabular*}
@@ -527,43 +482,40 @@ only.}
 \centering
 {\small
 \setlength{\tabcolsep}{5.0pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrr@{}}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrr@{}}
 \toprule
-Method & OSWorld-Verified ($361$) & MobileWorld ($117$) & Extra policy calls \\
+Method & OSWorld-Verified ($361$) & MobileWorld ($117$) &
+MW memory-critical ($62$) & Extra policy calls \\
 \midrule
-Frozen, summary-only ($B{=}0$) & $19.9$ & $28.2$\,{\scriptsize($3$ runs)} & $0$ \\
-Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $0$ \\
-\hgkv{} $+$ Recent-$B$ & $33.0$ & $30.2$\,{\scriptsize($3$ runs)} & $0$ \\
-\method-LA (single-pass) & $\mathbf{34.1}$ & $29.1$ & $0$ \\
-\method-P (default) & $32.7$ & $\mathbf{33.9}$\,{\scriptsize($3$ runs)} & conditional \\
+Frozen, summary-only ($B{=}0$) & $19.9$ & $28.2$\,{\scriptsize($3$ runs)} & $21.0$\,{\scriptsize($3$ runs)} & $0$ \\
+Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $22.6$ & $0$ \\
+\hgkv{} $+$ Recent-$B$ & $33.0$ & $30.2$\,{\scriptsize($3$ runs)} & $19.4$\,{\scriptsize($3$ runs)} & $0$ \\
+\method{} & $32.7$ & $\mathbf{33.9}$\,{\scriptsize($3$ runs)} & $\mathbf{28.0}$\,{\scriptsize($3$ runs)} & conditional \\
 \bottomrule
 \end{tabular*}
 }
 \caption{Closed-loop success rates (\%) at the primary deployment budget
 $B{=}4$; the budget axis is swept offline in Table~\ref{tab:per-r}.
 OSWorld-Verified: official no-GDrive roster and official $15$-step budget,
-one run per arm. MobileWorld: zero-shot three-run means. High-fidelity arms
-beat summary-only memory on desktop but remain pairwise indistinguishable;
-\method-P is best on mobile.
-Full paired statistics and per-round results are in the supplementary
-document.}
+one run per arm. MobileWorld: zero-shot three-run means; the
+memory-critical column restricts to the $62$ construction-defined
+cross-app tasks, where the allocation contrast is largest. High-fidelity
+arms beat summary-only memory on desktop but remain pairwise
+indistinguishable. Full paired statistics and per-round results are in
+the supplementary document.}
 \label{tab:closed-loop}
 \end{table*}
 
 \paragraph{Selectivity Is Not Inherited from the Frozen Policy.}
 
-On the desktop development split at $B{=}1$, the choice of recent baseline
-matters. Against a \emph{redundant} baseline that promotes a byte-identical
-copy of the current screen (the deployment recent-selector's behavior), the
-frozen policy reliably prefers the target-relevant archived screenshot.
-Against the \emph{informative} true previous frame, however, its preference
-vanishes. To the frozen policy,
-promoting a task-relevant distant event and retaining the recent event it
-would displace are worth about the same; profitable fidelity reallocation must
-be learned. Under the official multi-turn protocol the frozen replacement
-effect decays with the window and reverses at large $B$
-(Table~\ref{tab:per-r}), while the learned interface keeps a positive
-selection effect across the budget axis.
+On the desktop development split, the frozen policy shows no reliable
+preference for a task-relevant archived screenshot over the informative
+recent frame it would displace (recent-baseline construction details in
+the supplement): to the frozen policy the two are worth about the same,
+so profitable fidelity reallocation must be learned. Under the official
+multi-turn protocol the frozen replacement effect decays with the window
+and reverses at large $B$ (Table~\ref{tab:per-r}), while the learned
+interface keeps a positive selection effect across the budget axis.
 
 \paragraph{Selective Use Within a Drift Envelope.}
 
@@ -608,21 +560,19 @@ Table~\ref{tab:per-r} traces the budget axis. Across the trained budgets
 $B\in\{1,2,4\}$, \hgkv{} maintains positive selectivity---per-$B$ DiD
 gates all pass with drift within the pre-registered caps---and the learned
 allocation improves over Recent-$B$ at matched image counts, while keeping
-the full recent window in $19\%$ of $B{=}4$ states. At the unseen $B{=}8$,
-policy-side selectivity transfers, whereas the end-to-end allocation gain
-is inconclusive. A layer- and rank-matched ungated KV control also passes
-its gates but attains uniformly smaller selection effects and drifts
-toward the cap at $B{=}8$: token gating adds selective gain and
-containment beyond matched capacity. The frozen replacement effect decays
-with the window and reverses at $B{=}8$. Full per-budget gate statistics
-are in the supplementary document.
+the full recent window in $19\%$ of $B{=}4$ states. A layer- and
+rank-matched ungated KV control also passes its gates but attains
+uniformly smaller selection effects and drifts toward the cap at the
+largest budget: token gating adds selective gain and containment beyond
+matched capacity. Untrained-budget extrapolation ($B{=}8$) and full
+per-budget gate statistics are in the supplement.
 
 \paragraph{Mobile closed loop (zero-shot).}
 The 117-task mobile benchmark --- which contributes no training or
 selection signal --- is our primary test of \emph{allocation}, because
 its roster is constructed with a memory-critical split.
 The full-roster aggregates are secondary: over three runs at the primary
-budget $B{=}4$, \method{}-P attains the highest overall success rate,
+budget $B{=}4$, \method{} attains the highest overall success rate,
 $33.9\%$, against $30.2\%$ for \hgkv{}+Recent-$B$ and $28.2\%$ for the
 frozen summary-only baseline (Table~\ref{tab:closed-loop}), with the same
 sign in every round. The decomposition is clean:
@@ -642,7 +592,7 @@ episode --- after the app switch, the Recent-$B$ window no longer
 contains that evidence by construction --- and $55$ matched
 single-application controls with no such dependency. On the
 memory-critical stratum the same-budget contrast is decisive:
-\method{}-P $28.0\%$ vs.\ Recent-$B$ $19.4\%$, a $+8.6$pp gain; on the
+\method{} $28.0\%$ vs.\ Recent-$B$ $19.4\%$, a $+8.6$pp gain; on the
 controls the method is correctly inert ($40.6\%$ vs.\ $42.4\%$); and the
 split-by-method interaction is $+10.4$pp (two-sided $p{=}0.022$; intervals
 in the supplement). The value of reallocation is conditional on distant visual
@@ -654,11 +604,9 @@ As a complementary outcome-defined analysis, we call tasks that the frozen
 summary-only policy cannot complete within the official budget
 \emph{memory-demanding}, and report
 $\Delta_{\text{long}}=P(\text{success}\mid\text{\method},\text{long})-P(\text{success}\mid\text{baseline},\text{long})$
-on that stratum. Across $95$ such mobile tasks, \method{}-P gains
+on that stratum. Across $95$ such mobile tasks, \method{} gains
 $7.0$pp over summary-only memory, while adding nothing on the $22$ tasks
-the baseline already solves. The \method{}-LA efficiency variant does not
-transfer, localizing the cross-platform signal to the proposal reference.
-These post-hoc strata are secondary to the construction-defined
+the baseline already solves. These post-hoc strata are secondary to the construction-defined
 memory-critical split.
 
 \paragraph{Desktop closed loop.}
@@ -727,7 +675,7 @@ done); to be replaced by final numbers.}
 \setlength{\tabcolsep}{5.5pt}
 \begin{tabular}{@{}lcc@{}}
 \toprule
-$B$ & Recent-$B$ & \method-P \\
+$B$ & Recent-$B$ & \method{} \\
 \midrule
 $0$ (summary-only) & $28.2$ & --- \\
 $1$ & $26.5^{*}$ & $29.2^{\dagger}$ \\

@@ -97,6 +97,21 @@ $\lvert R_A-R_0\rvert<0.02$ and
 $\lvert W_A-W_0\rvert<0.02$. Reported coalition utilities always rerun the
 complete restored set; they are never sums of singleton utilities.
 
+\paragraph{Single-slot training interface ($k{=}1$).}
+Under the strictest \emph{image-only} criterion---the required value
+appears in neither the goal, the current frame, the recent window, nor any
+completed step's action text---mining 1{,}326 GUI-Odyssey trajectories
+yields 96 image-only decision points at $B{=}4$, of which only two require
+two distinct evidence frames simultaneously (3 of 239 at $B{=}1$); on the
+desktop corpus, 75\% of eligible states admit exactly one recurrence
+witness. A matched-budget probe under the official multi-turn protocol
+shows the first replacement is worth its slot ($+0.013$, $95\%$ CI
+$[+0.005,+0.021]$) while the paired increments of a second and third
+replacement are indistinguishable from zero or negative ($+0.001$ and
+$-0.011$, n.s.). Supervision is annotation-free, so a domain exhibiting
+multi-frame demand requires only regenerating the corpus with $k{\geq}2$
+restoration arms: a data-mix change, not a method change.
+
 \paragraph{Uncertainty.}
 Offline intervals use 2,000 episode-clustered bootstrap replicates. Closed-loop
 intervals resample tasks while preserving the paired arms and repeated-run
@@ -135,7 +150,11 @@ $+.0791/+.0256/-.0002/-.0305$. $B{=}8$ is untrained.}
 \end{center}
 
 Both adapters pass, but \hgkv{} has a larger selection effect at every budget
-and remains farther from the drift caps at $B{=}8$.
+and remains farther from the drift caps at $B{=}8$. Across the trained
+budgets $B\in\{1,2,4\}$, \hgkv{} maintains positive selectivity and the
+learned allocation improves over Recent-$B$ at the deployment-relevant
+budgets; at the unseen $B{=}8$, policy-side selectivity transfers, whereas
+the end-to-end offline allocation gain is inconclusive.
 
 \paragraph{Why the recent reference matters.}
 At $B{=}1$, the deployment renderer's most recent slot can duplicate the
@@ -191,6 +210,25 @@ allocation are $96/138/161/152/48$, and for RGB similarity
 $233/166/106/66/24$. Performance cannot be attributed to using a fixed sparse
 history pattern or to always displacing recent images.
 
+\paragraph{Selector input features.}
+The scorer's input encodes, explicitly: candidate age and recency-window
+membership, target-recurrence witness signals with coordinate distance,
+action family, frame-deduplication multiplicity, trajectory shape, and set
+context (selected-set size, overlap and age gaps between the candidate and
+the already-selected events). The witness features compare the action taken
+right after an archived event against the reference action.
+
+\paragraph{Single-pass reference variant.}
+Replacing the proposal reference with the previously executed action
+removes the second policy call, adding only the selector's own cost
+($<10$\,ms). Offline it matches the proposal reference
+($+.039/+.025/+.015/-.005$ over Recent-$B$ at $B{=}1/2/4/8$) and on
+OSWorld-Verified it reaches $34.1\%$; zero-shot on mobile it drops to
+$29.1\%$ against $33.9\%$ for the deployed proposal-conditioned method,
+with the failure concentrated on single-app control tasks where the
+last-action reference trivially recurs. Cross-platform transfer is what
+the proposal reference buys.
+
 \paragraph{Witness-reference ladder.}
 The single-pass last-action reference yields
 $+0.0247$ $[+0.0133,+0.0363]$ at $B{=}2$ and
@@ -216,12 +254,12 @@ Method & Run 1 & Run 2 & Run 3 & Mean \\
 \midrule
 Frozen, summary-only & $33/117$ & $32/117$ & $34/117$ & $28.2\%$ \\
 \hgkv{} + Recent-4 & $34/117$ & $37/117$ & $35/117$ & $30.2\%$ \\
-\method-P & $39/117$ & $42/117$ & $38/117$ & $33.9\%$ \\
+\method{} & $39/117$ & $42/117$ & $38/117$ & $33.9\%$ \\
 \bottomrule
 \end{tabular}
 }
 \captionof{table}{Per-round zero-shot MobileWorld success. The paired
-\method-P minus \hgkv{}+Recent-4 mean is $+3.7$pp
+\method{} minus \hgkv{}+Recent-4 mean is $+3.7$pp
 ($95\%$ CI $[-0.9,+8.6]$, two-sided $p=0.129$).}
 \label{tab:s-mobile-rounds}
 \end{center}
@@ -232,7 +270,7 @@ Frozen, summary-only & $33/117$ & $32/117$ & $34/117$ & $28.2\%$ \\
 \setlength{\tabcolsep}{2.4pt}
 \begin{tabular}{@{}lrrc@{}}
 \toprule
-Stratum & \method-P & Recent-4 & $\Delta$ \\
+Stratum & \method{} & Recent-4 & $\Delta$ \\
 \midrule
 Memory-critical & $28.0\%$ & $19.4\%$ &
 \shortstack{$+8.6$pp\\$[+1.6,+16.1]$} \\
@@ -249,12 +287,12 @@ $n=55$ control). The split-by-method interaction is $+10.4$pp
 
 \paragraph{Outcome-defined sensitivity analysis.}
 On the 95 tasks where the frozen summary-only policy reaches the official
-step cap, \method-P scores $32.6\%$, Recent-4 $28.9\%$, and summary-only
-$23.9\%$. The paired \method-P minus summary-only difference is
+step cap, \method{} scores $32.6\%$, Recent-4 $28.9\%$, and summary-only
+$23.9\%$. The paired \method{} minus summary-only difference is
 $+8.8$pp $[+1.8,+16.0]$; the paired difference from Recent-4 is
 $+3.7$pp $[-2.6,+10.0]$. On the 22 tasks where summary-only terminates early,
-\method-P is $43.2\%$, Recent-4 is $36.4\%$, and summary-only is $47.0\%$;
-\method-P minus summary-only is $-3.8$pp $[-20.5,+12.1]$.
+\method{} is $43.2\%$, Recent-4 is $36.4\%$, and summary-only is $47.0\%$;
+\method{} minus summary-only is $-3.8$pp $[-20.5,+12.1]$.
 These outcome-defined strata are secondary because they condition on baseline
 behavior; the construction-defined split in Table~\ref{tab:s-mobile-split}
 is the primary analysis.
@@ -282,9 +320,7 @@ FR & $32.7\%$ ($118$) &
 \shortstack{$+12.7$pp $[+8.6,+17.2]$\\vs.\ B0} \\
 HR & $33.0\%$ ($119$) &
 \shortstack{$+0.3$pp $[-3.1,+3.6]$\\vs.\ FR} \\
-\method-LA & $34.1\%$ ($123$) &
-\shortstack{$+1.4$pp $[-2.5,+5.0]$\\vs.\ FR} \\
-\method-P & $32.7\%$ ($118$) &
+\method{} & $32.7\%$ ($118$) &
 \shortstack{$-0.3$pp $[-3.9,+3.3]$\\vs.\ HR} \\
 \bottomrule
 \end{tabular}
@@ -297,7 +333,7 @@ frozen summary-only, FR frozen Recent-4, and HR \hgkv{} Recent-4.}
 \label{tab:s-osworld}
 \end{center}
 
-For \method-P on OSWorld, the median task incurs eight extra policy calls and
+For \method{} on OSWorld, the median task incurs eight extra policy calls and
 $20.6$ model-seconds. Median wall time is $307.6$\,s, so the added
 model time is approximately $7\%$ of end-to-end task time. These results
 separate two claims: desktop closed loop supports the availability of
@@ -306,7 +342,7 @@ which summarized events should receive that fidelity.
 
 \subsection{Closed-Loop Budget Sweep}
 
-Single-round MobileWorld campaigns evaluate \method-P at
+Single-round MobileWorld campaigns evaluate \method{} at
 $B\in\{1,2,8\}$ with the same frozen weights; only the selection budget
 and the runner's matched image budget change. The same-budget references
 are the frozen Recent-$B$ dose curve at $B\in\{1,2\}$ (licensed by the

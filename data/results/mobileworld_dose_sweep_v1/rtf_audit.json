@@ -1,0 +1,44 @@
+{
+  "estimand": "per-step added model-seconds (selector + conditional pass-2) vs measured per-step wall; wall = trajectory screenshot mtime span / (shots-1), median over tasks",
+  "campaigns": {
+    "B1": {
+      "audited_steps": 5465,
+      "pass2_fire_rate": 0.8668,
+      "median_pass1_s": 3.668,
+      "median_select_s": 0.031,
+      "median_pass2_when_fired_s": 2.141,
+      "mean_added_s_per_step": 1.986,
+      "mean_added_over_pass1": 0.5146,
+      "median_step_wall_s": 24.4,
+      "rtf_added_over_wall": 0.081
+    },
+    "B2": {
+      "audited_steps": 5111,
+      "pass2_fire_rate": 0.8098,
+      "median_pass1_s": 3.869,
+      "median_select_s": 0.0372,
+      "median_pass2_when_fired_s": 2.642,
+      "mean_added_s_per_step": 2.289,
+      "mean_added_over_pass1": 0.5678,
+      "median_step_wall_s": 26.21,
+      "rtf_added_over_wall": 0.087
+    },
+    "B4": {
+      "audited_steps": 2224,
+      "pass2_fire_rate": 0.8165,
+      "median_pass1_s": 4.229,
+      "median_select_s": 0.0389,
+      "median_pass2_when_fired_s": 3.258,
+      "mean_added_s_per_step": 2.924,
+      "mean_added_over_pass1": 0.6587,
+      "median_step_wall_s": 27.77,
+      "rtf_added_over_wall": 0.105
+    },
+    "B8": {
+      "audited_steps": null,
+      "median_step_wall_s": 34.53,
+      "note": "hyper00 server revision (afe4fdc) predates SELECT_AUDIT; added-time not instrumented"
+    }
+  },
+  "notes": "B1/B2 audits include the resumed post-driver-update segment; B1/B2 median wall uses per-task medians robust to the pause gap. B4 numbers reproduce two_pass_overhead_audit.json bit-for-bit (parser cross-check)."
+}
