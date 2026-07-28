@@ -10,10 +10,11 @@
 | Figure 1：method overview | `paper/figures/causalcache_overview.svg` | `paper/figures/causalcache_overview.pdf` | `paper/figures/causalcache_overview.png` |
 | Figure 2：Cart qualitative case | `paper/figures/causalcache_qualitative_cart.svg` | `paper/figures/causalcache_qualitative_cart.pdf` | `paper/figures/causalcache_qualitative_cart.png` |
 
-两图均为 7 inch 双栏宽度。Figure 1/2 高度分别为 3.89/3.47 inch；图内最小
+两图均为 7 inch 双栏宽度。Figure 1/2 高度分别为 3.89/2.85 inch；图内最小
 字号为 9 pt（SVG 中 18 个 viewBox unit，按 1008 unit → 504 pt 换算）。
-PNG 为 2016 px 宽，即 288 dpi。颜色同时由边框、虚线、粗线和斜线填充编码，
-灰度渲染仍可区分 recent、restored 和 wrong restoration。
+PNG 为 2016 px 宽，即 288 dpi。Figure 1 的颜色同时由边框、虚线、粗线和
+斜线填充编码；Figure 2 由分叉拓扑、路径标签和 `×`/`✓` 同时编码，
+灰度渲染仍能区分两条路径与结果。
 
 生成源为 `paper/figures/build_causalcache_figures.py`。Figure 1 不把事件
 “删除/保留”误画成 memory selection：每个事件的 summary 一直存在，promotion
@@ -31,6 +32,12 @@ PNG 为 2016 px 宽，即 288 dpi。颜色同时由边框、虚线、粗线和�
 Figure 2 使用 `CartInfoNotificationTask` 的真实闭环轨迹，不是合成故事板。
 机器可读审计见
 `data/results/mobileworld_hgkv_selected_b4/qualitative_cart_audit.json`。
+
+图形结构按实际任务流程组织，而不是三个独立解释面板：左侧完整 event trace
+分叉为上方 Recent-4 与下方 CausalCache；CausalCache 路径紧接放大的 event 7
+订单截图；两条路径在短信编辑界面汇合，随后直接给出两个真实 `type(...)`
+action，并仅用 `×`/`✓` 标记失败与成功。cross-app 任务描述放在论文 caption，
+图内不重复。
 
 在 CausalCache-P r2 的第 15 步：
 
@@ -76,7 +83,7 @@ make paper
 作为可编辑 canonical source，同时让投稿 PDF 不含 Type 3 字体资源。最终验证包括：
 
 - SVG 可被 XML parser 读取，且没有外链图片依赖；
-- standalone PDF 页面尺寸分别为 `504x280.08 pt` 和 `504x249.84 pt`；
+- standalone PDF 页面尺寸分别为 `504x280.08 pt` 和 `504x205.2 pt`；
 - 投稿用 figure PDF 的文字均已转成矢量轮廓，`pdffonts` 不返回任何字体；
   9 页主稿只含 Type 1/TrueType 字体，零 Type 3；
 - Ghostscript 完整解析两张图和 9 页主稿；
@@ -93,7 +100,7 @@ font-outline 派生物；Ghostscript 可能改变等价 PDF 的对象级序列�
 |---|---|
 | `causalcache_overview.svg` | `0b183fb16d21b7d5f07f0e9c055d023baff85fa5e4a0f91958ce0475f93d3cd1` |
 | `causalcache_overview.png` | `89a43b8c85569b30114c972d38ca7e27abd97d3779173bd28524499cbbdfb549` |
-| `causalcache_qualitative_cart.svg` | `b92325aa6f4890d6cf2b883ec98bbd4ba0fdacb52dda9efb1785903ebd49cc01` |
-| `causalcache_qualitative_cart.png` | `00978135e1d64faa035290fa707ca5dd16131757aaa6fd8bf0b6a5e4d3e59d0e` |
+| `causalcache_qualitative_cart.svg` | `b2a49e8fb680173c1d69204a1669acd2c3a3da6197c8e51e0557072bfe75b2e4` |
+| `causalcache_qualitative_cart.png` | `205101f25c72af354a62a2af2c79d135b3de995e4fbf99b7c130e8f65fc11f2a` |
 | `cart_order_evidence.png` | `0dd574a79528e3df8852fb4ef5167b9876e62c9ed28b2f4b7a6a1dd56a1fc20e` |
 | `cart_message_input.png` | `36f138cf5ec54a66133b414a9c71992d72abd32ce1e764725621db8bcc2aba53` |

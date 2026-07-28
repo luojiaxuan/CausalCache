@@ -747,255 +747,197 @@ def build_overview() -> str:
 def build_qualitative() -> str:
     out = svg_start(
         1008,
-        500,
-        physical_height_in=3.47,
+        410,
+        physical_height_in=2.85,
         title_value="A real CartInfoNotificationTask restoration case",
         desc_value=(
-            "Three panels show the real cross-app trace, a failing Recent-4 "
-            "run, and a successful CausalCache-P allocation with three "
-            "non-recent promotions at the critical decision."
+            "A completed event trace branches into Recent-4 and CausalCache "
+            "allocations. CausalCache restores an enlarged event-7 order "
+            "screenshot before both paths reach the message composer, where "
+            "Recent-4 types the wrong action and CausalCache types the correct action."
         ),
     )
-    panel(out, 10, 10, 250, 420)
-    panel(out, 268, 10, 348, 420)
-    panel(out, 624, 10, 374, 420)
 
-    text(out, 23, 38, "(a) Cross-app trace", size=22, weight=700)
-    text(out, 23, 65, "All summaries remain present.", size=17, fill=MUTED)
-    trace_items = [
-        (23, 82, 48, "e1", "open TaoDian", "low"),
-        (78, 82, 48, "e6", "order list", "low"),
-        (133, 82, 48, "e7", "order detail", "distant"),
-        (188, 82, 48, "...", "app switch", "low"),
-    ]
-    for x, y, width, label_, subtitle, mode in trace_items:
-        event_card(out, x, y, width, mode=mode, label=label_, compact=True)
-        words = subtitle.split(" ")
-        if len(words) == 1:
-            lines_ = [words[0]]
-        elif len(words) == 2:
-            lines_ = words
-        else:
-            lines_ = [" ".join(words[:-1]), words[-1]]
-        multiline(
+    def event_chip(
+        x: float,
+        y: float,
+        value: str,
+        *,
+        fill: str = LIGHT,
+        stroke: str = GRAY_DARK,
+        width: float = 34,
+    ) -> None:
+        rect(
+            out,
+            x,
+            y,
+            width,
+            30,
+            fill=fill,
+            stroke=stroke,
+            stroke_width=1.8,
+            radius=15,
+        )
+        text(
             out,
             x + width / 2,
-            y + 85,
-            lines_,
+            y + 21,
+            value,
             size=18,
-            line_height=19,
-            fill=MUTED,
+            weight=700,
+            fill=stroke,
             anchor="middle",
         )
+
+    text(out, 18, 25, "Complete event trace", size=20, weight=700)
+    trace_values = ("e1", "...", "e6", "e7", "e8", "...", "e11", "e12", "e13", "e14")
+    trace_x = 16
+    for value in trace_values:
+        width = 28 if value != "..." else 24
+        if value == "e7":
+            fill, stroke = ORANGE_LIGHT, ORANGE
+        elif value in {"e11", "e12", "e13", "e14"}:
+            fill, stroke = BLUE_LIGHT, BLUE
+        else:
+            fill, stroke = LIGHT, GRAY_DARK
+        event_chip(trace_x, 42, value, fill=fill, stroke=stroke, width=width)
+        trace_x += width + 4
+    line(out, 18, 79, 306, 79, stroke=INK, stroke_width=2.2, arrow=True)
+
+    out.append(
+        f'<path d="M307 79 L307 147 L319 147" fill="none" '
+        f'stroke="{INK}" stroke-width="2.4" marker-end="url(#arrow)"/>'
+    )
+    out.append(
+        f'<path d="M307 79 L307 278 L319 278" fill="none" '
+        f'stroke="{INK}" stroke-width="2.4" marker-end="url(#arrow)"/>'
+    )
+
+    text(out, 324, 125, "Recent-4", size=22, weight=700, fill=BLUE)
+    for index, value in enumerate(("e11", "e12", "e13", "e14")):
+        event_chip(
+            324 + index * 40,
+            136,
+            value,
+            fill=BLUE_LIGHT,
+            stroke=BLUE,
+            width=36,
+        )
+
+    text(out, 324, 256, "CausalCache", size=22, weight=700, fill=ORANGE)
+    for index, value in enumerate(("e6", "e7", "e8", "e12")):
+        event_chip(
+            324 + index * 40,
+            267,
+            value,
+            fill=ORANGE_LIGHT if value != "e12" else BLUE_LIGHT,
+            stroke=ORANGE if value != "e12" else BLUE,
+            width=36,
+        )
+
+    out.append(
+        f'<path d="M484 151 L610 151 L653 198" fill="none" '
+        f'stroke="{BLUE}" stroke-width="3" marker-end="url(#arrow)"/>'
+    )
+    line(out, 484, 282, 496, 282, stroke=ORANGE, stroke_width=3, arrow=True)
+
+    text(out, 581, 201, "restored e7", size=20, weight=700, fill=ORANGE, anchor="middle")
     embed_png(
         out,
         ASSETS / "cart_order_evidence.png",
-        23,
-        207,
-        116,
-        139,
+        496,
+        211,
+        170,
+        181,
         stroke=ORANGE,
         stroke_width=3,
     )
-    multiline(
-        out,
-        148,
-        224,
-        [
-            "e7 pixels show:",
-            "white T-shirt",
-            "skincare set",
-            "task order ID",
-        ],
-        size=18,
-        line_height=24,
-        weight=700,
-        fill=ORANGE,
-    )
-    multiline(
-        out,
-        23,
-        381,
-        ["Summary stays active;", "the screenshot stays archived."],
-        size=18,
-        line_height=22,
-        fill=MUTED,
+    out.append(
+        f'<path d="M666 302 L684 302 L684 226" fill="none" '
+        f'stroke="{ORANGE}" stroke-width="3" marker-end="url(#arrow)"/>'
     )
 
-    text(out, 281, 38, "(b) Recent-4 fails", size=22, weight=700)
-    badge(out, 520, 20, 80, "FAIL", fill=RED, stroke=RED)
-    text(out, 281, 67, "Active history images (B=4)", size=18, weight=700, fill=BLUE)
-    recent_labels = [
-        ("e11", "enter recipient"),
-        ("e12", "choose contact"),
-        ("e13", "open composer"),
-        ("e14", "focus input"),
-    ]
-    for index, (label_, subtitle) in enumerate(recent_labels):
-        x = 281 + index * 80
-        event_card(out, x, 82, 66, mode="recent", label=label_, compact=True)
-        words = subtitle.split(" ")
-        multiline(
-            out,
-            x + 33,
-            165,
-            words,
-            size=18,
-            line_height=20,
-            fill=MUTED,
-            anchor="middle",
-        )
-    rect(
-        out,
-        281,
-        214,
-        321,
-        85,
-        fill=LIGHT,
-        stroke=GRAY_DARK,
-        stroke_width=1.4,
-        radius=7,
-    )
-    multiline(
-        out,
-        441.5,
-        237,
-        [
-            "e7 summary remains.",
-            "Its task-relevant pixels are",
-            "outside the active recent window.",
-        ],
-        size=18,
-        line_height=22,
-        weight=700,
-        fill=MUTED,
-        anchor="middle",
-    )
-    rect(
-        out,
-        281,
-        312,
-        321,
-        105,
-        fill="url(#redHatch)",
-        stroke=RED,
-        stroke_width=1.8,
-        radius=7,
-    )
-    multiline(
-        out,
-        294,
-        335,
-        [
-            "Actual eventual message:",
-            '"Women\'s Cotton Short Sleeve',
-            'T-shirt, 202306010001"',
-            "Wrong item/order -> failure",
-        ],
-        size=18,
-        line_height=21,
-        weight=700,
-        fill=RED,
-    )
-
-    text(out, 637, 38, "(c) CausalCache-P", size=22, weight=700)
-    badge(out, 903, 20, 80, "PASS", fill=GREEN, stroke=GREEN)
-    multiline(
-        out,
-        637,
-        65,
-        ["Step 15 reallocation (B=4):", "[11,12,13,14] -> [6,7,8,12]"],
-        size=18,
-        line_height=21,
-        weight=700,
-    )
-    selected_labels = [
-        ("e6", "order list", "distant"),
-        ("e7", "order detail", "distant"),
-        ("e8", "app switch", "distant"),
-        ("e12", "contact", "recent"),
-    ]
-    for index, (label_, subtitle, mode) in enumerate(selected_labels):
-        x = 637 + index * 83
-        event_card(out, x, 105, 68, mode=mode, label=label_, compact=True)
-        multiline(
-            out,
-            x + 34,
-            187,
-            subtitle.split(" "),
-            size=18,
-            line_height=20,
-            fill=ORANGE if mode == "distant" else BLUE,
-            anchor="middle",
-        )
-    badge(out, 637, 233, 125, "realized k = 3", fill=ORANGE, stroke=ORANGE)
+    text(out, 735, 171, "Current screen", size=20, weight=700, anchor="middle")
     embed_png(
         out,
         ASSETS / "cart_message_input.png",
-        774,
-        225,
-        209,
-        65,
+        676,
+        181,
+        118,
+        49,
         stroke=INK,
-        stroke_width=3,
+        stroke_width=2.5,
     )
+
+    out.append(
+        f'<path d="M794 205 L803 205 L803 148 L807 148" fill="none" '
+        f'stroke="{RED}" stroke-width="2.6" marker-end="url(#arrow)"/>'
+    )
+    out.append(
+        f'<path d="M794 205 L803 205 L803 323 L807 323" fill="none" '
+        f'stroke="{GREEN}" stroke-width="2.6" marker-end="url(#arrow)"/>'
+    )
+
+    text(out, 811, 83, "Recent-4 action", size=20, weight=700, fill=BLUE)
     rect(
         out,
-        637,
-        305,
-        346,
-        110,
-        fill=ORANGE_LIGHT,
-        stroke=ORANGE,
-        stroke_width=1.8,
+        808,
+        92,
+        190,
+        112,
+        fill="white",
+        stroke="#AAB4BE",
+        stroke_width=1.5,
         radius=7,
     )
     multiline(
         out,
-        650,
-        329,
+        820,
+        113,
         [
-            "Actual typed message (translated):",
-            '"Classic white T-shirt,',
-            "moisturizing set,",
-            '639281475036294"',
-            "Correct item/order -> success",
+            'type("Women\'s',
+            "Cotton Short Sleeve",
+            "T-shirt,",
+            '202306010001")',
         ],
         size=18,
-        line_height=19,
+        line_height=22,
         weight=700,
-        fill=ORANGE,
     )
+    line(out, 966, 178, 989, 197, stroke=RED, stroke_width=4)
+    line(out, 989, 178, 966, 197, stroke=RED, stroke_width=4)
 
+    text(out, 811, 258, "CausalCache action", size=20, weight=700, fill=ORANGE)
     rect(
         out,
-        10,
-        442,
-        988,
-        48,
-        fill=LIGHT,
-        stroke=INK,
-        stroke_width=1.4,
+        808,
+        267,
+        190,
+        122,
+        fill="white",
+        stroke="#AAB4BE",
+        stroke_width=1.5,
         radius=7,
     )
-    text(
+    multiline(
         out,
-        504,
-        462,
-        "Pass 1 -> pass 2 keeps the goal, all summaries, current screen, and B=4;",
+        820,
+        291,
+        [
+            'type("经典白色T恤,',
+            "保湿面霜套装,",
+            '639281475036294")',
+        ],
         size=18,
+        line_height=26,
         weight=700,
-        anchor="middle",
     )
-    text(
-        out,
-        504,
-        483,
-        "only which summarized events receive archived pixels changes.",
-        size=18,
-        weight=700,
-        anchor="middle",
+    out.append(
+        f'<path d="M964 362 L974 374 L992 349" fill="none" '
+        f'stroke="{GREEN}" stroke-width="4" stroke-linecap="round" '
+        'stroke-linejoin="round"/>'
     )
+
     out.append("</svg>")
     return "\n".join(out)
 

@@ -40,8 +40,9 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 > Figure 1 固定 complete summary trace 与 `B=4` active history-image budget，
 > 将方法画成 event-fidelity reallocation，而不是事件 inclusion 或加图；
 > Figure 2 使用真实 `CartInfoNotificationTask` r2 轨迹，实际 allocation 为
-> `[11,12,13,14]→[6,7,8,12]`、realized `k=3`。SVG/PDF/PNG、去 PII crop、
-> trace/config hash 和检查记录见
+> `[11,12,13,14]→[6,7,8,12]`、realized `k=3`；现按 event trace 分叉、
+> 放大 event 7 证据、短信 current screen 汇合与两个真实 `type(...)` action
+> 组织。SVG/PDF/PNG、去 PII crop、trace/config hash 和检查记录见
 > [`docs/paper_figures_v1.md`](docs/paper_figures_v1.md)。
 >
 > **2026-07-26 MobileWorld B0/B4 v1 已判 `INVALID_PROTOCOL_MISMATCH`。**

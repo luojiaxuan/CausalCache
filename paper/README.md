@@ -39,7 +39,8 @@ selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
   CausalCache-P/LA 部署路径；
 - Figure 2：`figures/causalcache_qualitative_cart.{svg,pdf,png}`，使用真实
   `CartInfoNotificationTask` r2 轨迹，展示 `[11,12,13,14] → [6,7,8,12]`
-  与 realized `k=3`，不是预设的一升一降示意；
+  与 realized `k=3`；图按 event trace → 双路径 allocation → event 7 像素恢复
+  → 短信 current screen → 真实 action/result 组织，不使用三面板解释框；
 - 两图由 `figures/build_causalcache_figures.py` 生成，`make figures` 可独立重建；
 - SVG 是可编辑源；投稿 PDF 经 Ghostscript 将文字转成矢量轮廓，以满足 AAAI
   的零 Type 3 字体要求；
