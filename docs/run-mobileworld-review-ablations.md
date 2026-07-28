@@ -116,3 +116,24 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
 - **后续**:训毕用 `score_sparse_history_arms.py --model-profile 32b`
   出 dev 组 DiD 门控报告(borrow 主线口径:DiD select、|A_r|、wrong
   drift、cap 0.02),等 k1cap/frozensel 收官释放 canonical GPU 后跑。
+
+## k1cap + frozensel 终值(2026-07-29):两个反转
+
+| 臂 | full | mem-crit | ctl | vs Recent-4 (mem) | vs CC-B4 (mem) |
+|---|---|---|---|---|---|
+| CausalCache B4(3 轮均值) | 33.9 | 28.0 | 40.6 | +8.6* | — |
+| frozensel(无 HGKV+selector) | 36.8 | 30.6 | 43.6 | +11.3 (p=.006) | +2.7 (ns) |
+| k1cap(CC + max-replacements 1) | 28.2 | 19.4 | 38.2 | 0.0 (ns) | −8.6 (p=.02) |
+
+- **反转 1(HGKV 部署非必要)**:frozensel 与完整 CC 统计不可分(数值更高),
+  对 Recent-4 显著。selector 训练标签仍由 HGKV 打分产生
+  (build_hgkv_coalition_score_cache_v2 强制 --hgkv-checkpoint-sha256),
+  即 HGKV 目前的必要性在离线教师端,部署端 adapter 行为中性——与正文
+  FR≈HR≈B0 的分解一致,把"增益由 allocation 承载"补完到 selected 侧。
+- **反转 2(k≤1 塌回基线)**:硬约束每步最多替换 1 帧后,mem-critical
+  恰好回到 Recent-4 水平(19.4 vs 19.4),完整 CC 的 +8.6 全部消失。
+  多槽重组(k>1,含 26% 全窗替换)是闭环增益的载体,不是完备性装饰。
+  原"k=1 训练接口即可"的叙事需要重写:训练接口 k=1 依旧(离线边际
+  证据不变),但**部署端的多槽组合自由是必要条件**。
+- 后续(用户指示):用冻结策略重打教师标签训 frozen-teacher selector,
+  验证 HGKV 是否连教师端也非必要。打分器已加 --teacher frozen。
