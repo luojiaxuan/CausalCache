@@ -46,12 +46,16 @@ is generated from text.
 
 \section{Fixed-Budget Restoration Protocol}
 
-At decision $t$, every completed event remains visible as an action summary.
-An active visual-context budget $B$ allows exactly $B$ summaries to be
-promoted to summary-plus-image form. Recent-$B$ promotes the latest $B$
+At decision $t$, every completed event remains visible in text. An active
+visual-context budget $B$ allows exactly $B$ events to occupy the official
+retained-turn form: the step's verbatim policy response paired with its
+reattached archived screenshot. Every other event appears as a one-line
+action summary. Recent-$B$ assigns the retained turns to the latest $B$
 eligible events. A restoration allocation may instead demote a recent event
-to summary-only form and promote a distant event, preserving the image count,
-image resolution, summary trace, and prompt structure. The realized number of
+to its one-line summary and promote a distant event to its retained turn,
+preserving the image count, image resolution, retained-turn count, and
+prompt structure; the official protocol pairs each retained observation
+with the response that produced it, so the two forms move as a unit. The realized number of
 non-recent promotions is
 \[
   k=\lvert S\setminus\mathrm{Recent}\text{-}B\rvert .
@@ -299,5 +303,19 @@ model time is approximately $7\%$ of end-to-end task time. These results
 separate two claims: desktop closed loop supports the availability of
 high-fidelity history, while the mobile construction-defined split tests
 which summarized events should receive that fidelity.
+
+\subsection{Closed-Loop Budget Sweep}
+
+Single-round MobileWorld campaigns evaluate \method-P at
+$B\in\{1,2,8\}$ with the same frozen weights; only the selection budget
+and the runner's matched image budget change. The same-budget references
+are the frozen Recent-$B$ dose curve at $B\in\{1,2\}$ (licensed by the
+adapter's behavioral neutrality on matched allocations, verified on both
+platforms) and a dedicated \hgkv{}+Recent-$8$ campaign at $B{=}8$, which
+also extends the extrapolation test from the offline gates to the closed
+loop. $B{=}4$ remains the primary setting; single-round budget cells are
+reported as trend evidence, not as headline contrasts.
+\textbf{[Pending: per-budget success rates and paired contrasts land
+here.]}
 
 \end{document}

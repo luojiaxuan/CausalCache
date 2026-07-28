@@ -211,9 +211,14 @@ H_t=\{e_1,\ldots,e_{t-1}\}, \qquad
 e_j=(x_j,a_j,x_{j+1}),
 \end{equation}
 where each event has a compact low-fidelity representation
-$e_j^{\mathrm{low}}=\tilde e_j$ and an available high-fidelity representation
-$e_j^{\mathrm{high}}=(\tilde e_j,v_j)$ formed by reattaching its archived
-post-action screenshot $v_j$.
+$e_j^{\mathrm{low}}=\tilde e_j$, its one-line action summary, and an
+available high-fidelity representation $e_j^{\mathrm{high}}=(r_j,v_j)$: the
+official retained-turn form pairing the step's verbatim policy response
+$r_j$ with its reattached archived post-action screenshot $v_j$. The
+official protocol pairs every retained observation with the response that
+produced it, so promotion and demotion move an event between these two
+forms as a unit --- a fidelity allocation reassigns retained turns, not
+images alone.
 
 \paragraph{Fixed active-fidelity budget.}
 Every prompt contains the goal $g$, the \emph{complete} textual action
@@ -250,8 +255,10 @@ Q_B(k)=\max_{\substack{|S|\le B\\ |S\setminus\mathrm{Recent}\text{-}B|=k}} Q(S),
 \label{eq:grestore}
 \end{equation}
 localizes where fidelity reallocation pays. All comparisons at a given $B$
-hold the image count, resolutions, summaries, and prompt structure fixed; only
-which summarized events are promoted differs. Cross-$B$ comparisons are
+hold the image count, resolutions, underlying event trace, and prompt
+structure fixed: every allocation renders exactly $|S|$ retained turns and
+keeps every other event at summary fidelity; only which events occupy the
+high-fidelity form differs. Cross-$B$ comparisons are
 analysis, not the causal contrast. Given a partial allocation $S$, conditional
 marginals
 $\Delta_t(j\mid S)=Q(S\cup\{j\})-Q(S)$ drive selection, and a replacement is
@@ -638,7 +645,7 @@ selection effects and drifts toward the cap at $B{=}8$
 ($|A_r|{=}0.016$ vs.\ $0.009$ for \hgkv): token gating adds selective gain
 and containment beyond matched capacity. The frozen replacement effect
 decays from $+0.079$ at $B{=}1$ to $-0.031$ at $B{=}8$. Full per-budget
-gate statistics are in Appendix~\ref{app:per-b}.
+gate statistics are in the supplementary document.
 
 \paragraph{Mobile closed loop (zero-shot).}
 The 117-task mobile benchmark --- which contributes no training or
@@ -713,7 +720,15 @@ in the supplementary document.
 
 We control an active context budget, not archive capacity: both policies expose
 exactly $B$ summary-plus-image events, and \method{} reattaches rather than
-generates pixels. We claim only that some summarized events have greater
+generates pixels. Restoration operates at the official protocol's
+retained-turn granularity --- a promoted event regains its verbatim step
+response together with its screenshot, while a demoted event keeps only its
+one-line action summary --- so our matched-budget contrasts attribute gains
+to the retained-turn bundle, not to pixels in isolation; offline mining
+finds states whose critical value is recoverable only from pixels to be
+rare ($0.36\%$ of $B{=}4$ states in our desktop corpus), and a
+pixel-versus-response decomposition would require off-protocol probes we
+leave to future work. We claim only that some summarized events have greater
 conditional marginal utility than the recent realization they displace.
 ``Causal'' denotes controlled prompt interventions, not structural causality,
 and teacher-forced margins must be judged by closed-loop success. We report a
@@ -721,76 +736,5 @@ true-previous-frame control for the duplicated training-time $B{=}1$ slot;
 pretraining contamination remains possible.
 
 \bibliography{references}
-
-\appendix
-
-\section{Per-Round Closed-Loop Results and Paired Statistics}
-\label{app:per-round}
-
-\paragraph{MobileWorld (zero-shot, three runs per arm).}
-Table~\ref{tab:app-mobile-rounds} lists per-round success counts on the
-117-task roster. Paired contrasts (episode-level bootstrap over the pooled
-runs): \method{}-P over \hgkv{}+Recent-$4$ is $+3.7$pp ($95\%$ CI
-$[-0.9,+8.6]$, two-sided $p{=}0.13$; per-round $+4.3/+4.3/+2.6$pp, same
-sign in all three rounds); \method{}-P over the frozen summary-only
-baseline is $+5.7$pp ($[-0.6,+12.0]$). On the benchmark-constructed
-memory-critical split, the same-budget contrast is
-$+8.6$pp ($[+1.6,+16.1]$) on the $62$ memory-critical tasks,
-$-1.8$pp ($[-6.7,+3.6]$) on the $55$ single-application controls, with
-split-by-method interaction $+10.4$pp ($[+1.5,+19.6]$, $p{=}0.022$;
-independent per-stratum resampling per replicate).
-
-\begin{table}[h]
-\centering
-{\small
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Arm & r1 & r2 & r3 & Mean (\%) \\
-\midrule
-Frozen, summary-only ($B{=}0$) & $33$ & $32$ & $34$ & $28.2$ \\
-\hgkv{}$+$Recent-$4$ & $34$ & $37$ & $35$ & $30.2$ \\
-\method{}-P & $39$ & $42$ & $38$ & $33.9$ \\
-\bottomrule
-\end{tabular}
-}
-\caption{MobileWorld per-round success counts ($/117$). Single-round arms
-(frozen Recent-dose sweep, \method{}-LA) appear in the main text.}
-\label{tab:app-mobile-rounds}
-\end{table}
-
-\paragraph{OSWorld-Verified (361 tasks, one run per arm).}
-Success rates: frozen summary-only $19.9\%$, frozen$+$Recent-$4$
-$32.7\%$, \hgkv{}$+$Recent-$4$ $33.0\%$, \method{}-LA $34.1\%$,
-\method{}-P $32.7\%$. Task-level paired contrasts: frozen$+$Recent-$4$
-over summary-only $+12.7$pp ($[+8.6,+17.2]$, $p{<}10^{-4}$);
-\hgkv{}$+$Recent-$4$ over frozen$+$Recent-$4$ $+0.3$pp
-($[-3.1,+3.6]$, $p{=}0.96$); \method{}-LA over frozen$+$Recent-$4$
-$+1.4$pp ($[-2.5,+5.0]$, $p{=}0.51$); \method{}-P over \method{}-LA
-$-1.4$pp ($[-5.0,+2.2]$, $p{=}0.50$); \method{}-P over summary-only
-$+12.7$pp ($[+8.3,+17.2]$, $p{<}10^{-4}$).
-
-\section{Per-Budget Gate Statistics}
-\label{app:per-b}
-
-Per-$B$ stratified DiD gates on the desktop heldout split
-(episode-clustered bootstrap):
-\hgkv{} attains $\mathrm{did}_{\mathrm{select}}=+0.0224$
-$[+0.0162,+0.0294]$, $+0.0164$ $[+0.0110,+0.0221]$, $+0.0109$
-$[+0.0070,+0.0154]$, $+0.0063$ $[+0.0018,+0.0115]$ at $B{=}1/2/4/8$,
-passing every drift gate; the layer- and rank-matched ungated KV control
-attains $+0.0177/+0.0139/+0.0075/+0.0047$ with recent-window drift
-reaching $|A_r|{=}0.016$ at $B{=}8$ (\hgkv{}: $0.009$). $B{=}8$ is
-excluded from training and reports out-of-training extrapolation.
-
-\section{Closed-Loop Budget Sweep}
-\label{app:closed-loop-b}
-
-Single-round MobileWorld campaigns at $B\in\{1,2,8\}$ for \method{}-P
-(same frozen weights; only the selection budget and the runner's
-matched image budget change), with \hgkv{}$+$Recent-$8$ as the
-same-budget baseline at $B{=}8$ and the frozen Recent-$B$ curve as the
-same-budget reference at $B\in\{1,2\}$ (adapter neutrality on matched
-allocations is verified on both platforms; Appendix~\ref{app:per-round}).
-Results pending: \pending{closed-loop dose table lands here}.
 
 \end{document}
