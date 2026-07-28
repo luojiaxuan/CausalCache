@@ -33,6 +33,35 @@ VISION_DEPTH = 27
 VISION_HIDDEN_SIZE = 1152
 VISION_OUTPUT_SIZE = 4096
 VISION_PATCH_SIZE = 16
+
+# note (luojiaxuan): 跨骨干档案。默认(导入时)= 8B,既有路径零变化;
+# 32B 仅身份元数据与 out_hidden 不同(同 Qwen3VL、同视觉塔 depth/hidden/patch)。
+# activate_model_profile 必须在任何 verify/runtime 构造之前调用。
+MODEL_PROFILES = {
+    "8b": {
+        "MODEL_REPO": "mPLUG/GUI-Owl-1.5-8B-Instruct",
+        "MODEL_REVISION": "06d5faecff74840bab2be2425e9c42667a5d04fc",
+        "SNAPSHOT_MANIFEST_SHA256":
+            "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+        "MODEL_FILE_COUNT": 14,
+        "MODEL_TOTAL_BYTES": 17_545_907_171,
+        "VISION_OUTPUT_SIZE": 4096,
+    },
+    "32b": {
+        "MODEL_REPO": "mPLUG/GUI-Owl-1.5-32B-Instruct",
+        "MODEL_REVISION": "6154cc22f19e7375994707986c1bd459e29621ac",
+        "SNAPSHOT_MANIFEST_SHA256":
+            "efaf75f50f4c9be1ed34033a64fd75d972486e8d28ef385816b6d41f00548a98",
+        "MODEL_FILE_COUNT": 25,
+        "MODEL_TOTAL_BYTES": 66_726_514_142,
+        "VISION_OUTPUT_SIZE": 5120,
+    },
+}
+
+
+def activate_model_profile(name: str) -> None:
+    profile = MODEL_PROFILES[name]
+    globals().update(profile)
 VISION_TEMPORAL_PATCH_SIZE = 2
 VISION_SPATIAL_MERGE_SIZE = 2
 DEEPSTACK_VISUAL_INDEXES = (8, 16, 24)

@@ -111,6 +111,9 @@ def main() -> None:
     parser.add_argument("--visual-tokens", type=int, default=2560)
     parser.add_argument("--max-history-images", type=int)
     parser.add_argument(
+        "--model-profile", choices=("8b", "32b"), default="8b",
+        help="骨干档案:32b 切换身份钉与视觉输出维度(跨骨干迁移测试)。")
+    parser.add_argument(
         "--history-render", choices=("images", "text_only", "ocr"),
         default="images",
         help="消融渲染:text_only 只保留保留轮的 verbatim 响应文本(去历史图);"
@@ -135,6 +138,8 @@ def main() -> None:
     parser.add_argument("--selector-witness", choices=("proposal", "last_action"),
                         default="proposal")
     args = parser.parse_args()
+    from causalcache.policy import gui_owl_v2_vision as _vision_profile
+    _vision_profile.activate_model_profile(args.model_profile)
 
     if not 1024 <= args.port <= 65535:
         raise ValueError("MobileWorld policy port must be within [1024, 65535]")
