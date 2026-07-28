@@ -562,16 +562,44 @@ end-to-end selector beats Recent-$B$ at matched image counts by
 $+0.030$ $[+0.019,+0.041]$ ($B{=}2$) and $+0.017$ $[+0.007,+0.028]$
 ($B{=}4$), keeping the full recent window in $19\%$ of $B{=}4$ states.
 
-On the 117-task mobile memory benchmark, the desktop-trained \hgkv{}
-deployed zero-shot on the Recent-$4$ allocation is statistically
-indistinguishable from the frozen policy ($29.1\%$ vs.\ $29.9\%$; exact
-McNemar $p{=}1.0$; six versus seven discordant tasks) --- the behavioral
-counterpart of the drift cap: shipping the adapter always-on costs nothing
-on recent-only prompts, on a platform it never saw. The selector-driven
-allocation, which is where the adapter's selective gains bind, requires
-non-contiguous restoration in the mobile protocol and is left to the
-camera-ready. The mobile benchmark contributes no training or selection
-signal.
+\paragraph{Mobile closed loop (zero-shot).}
+On the 117-task mobile memory benchmark --- which contributes no training
+or selection signal --- the full \method{}-P system attains the highest
+success rate: $34.6\%$ (two runs: $39/117$ and $42/117$) against
+$30.3\%$ for \hgkv{}+Recent-$4$ (two runs: $34/117$ and $37/117$), a
+paired per-task difference of $+4.3$pp ($95\%$ CI $[-0.9,+9.8]$; the
+per-round difference is $+4.3$pp in \emph{both} runs), and $+6.4$pp over
+the frozen no-memory baseline ($28.2\%$ over three runs; $95\%$ CI
+$[0.0,+12.8]$, bootstrap $p{=}0.024$). The decomposition is clean:
+frozen Recent-$4$ ($29.9\%$), \hgkv{}+Recent-$4$ ($30.3\%$), and the
+no-memory baseline are statistically indistinguishable --- the behavioral
+counterpart of the drift cap --- so the gain is carried by \emph{which}
+frames are restored, not by the adapter or by recency alone.
+Stratifying by baseline behavior sharpens the picture: on the $95$ tasks
+the frozen baseline cannot finish within its $50$-step budget,
+\method{}-P gains $+8.8$pp over it ($95\%$ CI $[+1.8,+16.0]$), while on
+the $22$ short tasks the baseline completes, memory reallocation adds
+nothing ($47.0\%$ base rate) --- the benefit concentrates exactly on
+long-horizon tasks, where high-fidelity restoration of a distant frame can
+matter. The efficiency variant \method{}-LA, unchanged in weights, fails
+to transfer ($29.1\%$; $-5.6$pp vs.\ P, $95\%$ CI $[-11.1,-0.4]$), and
+its failure concentrates on single-app control tasks where the
+last-action reference trivially recurs: under platform shift the
+proposal reference is what carries the selection signal.
+
+\paragraph{Desktop closed loop.}
+On OSWorld-Verified (361 tasks, official no-GDrive roster, docker
+provider), memory dominates and the reference choice is neutral, as the
+offline analysis predicts for the training platform: \method{}-LA
+$34.1\%$, \method{}-P $32.7\%$, \hgkv{}+Recent-$4$ $33.0\%$ (all pairwise
+differences non-significant), each $+13$--$14$pp over the frozen
+no-memory baseline ($19.9\%$; paired $95\%$ CIs excluding zero,
+$p{<}10^{-4}$). Per-task cost instrumentation of the P arm gives the
+deployment overhead directly: median $8$ extra policy calls and $20.6$
+model-seconds per task against a median task wall time of $308$s ---
+an end-to-end overhead of $7\%$ at the median ($10\%$ at P90, and
+$2.7\%$ on successful tasks), even though pass-2 fires on $82\%$ of
+steps and adds $66\%$ to policy compute in isolation.
 
 \begin{table*}[t]
 \centering
