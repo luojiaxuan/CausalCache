@@ -42,8 +42,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--image-root", type=Path, required=True)
     parser.add_argument("--model-dir", type=Path, required=True)
     parser.add_argument("--snapshot-manifest", type=Path, required=True)
-    parser.add_argument("--checkpoint", type=Path, required=True)
-    parser.add_argument("--checkpoint-sha256", required=True)
+    parser.add_argument("--checkpoint", type=Path, default=None)
+    parser.add_argument("--checkpoint-sha256", default=None)
+    parser.add_argument(
+        "--teacher", choices=("hgkv", "frozen"), default="hgkv",
+        help="frozen = 全部集合用冻结策略 bypass 打分(不注入 adapter),"
+             "不接受 --checkpoint;hgkv = v4 原口径(集合 active)",
+    )
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--splits", nargs="+", default=["train", "dev"])
     parser.add_argument("--seed", type=int, default=20260726)
@@ -106,11 +111,18 @@ def main() -> None:
         mean_target_logprob,
     )
 
-    digest = hashlib.sha256(args.checkpoint.read_bytes()).hexdigest()
-    if digest != args.checkpoint_sha256:
-        raise SystemExit(
-            f"checkpoint SHA drifted: {digest} != {args.checkpoint_sha256}"
-        )
+    if args.teacher == "frozen":
+        if args.checkpoint is not None or args.checkpoint_sha256 is not None:
+            raise SystemExit("--teacher frozen 不接受 --checkpoint(教师即冻结策略)")
+        digest = "frozen-bypass"
+    else:
+        if args.checkpoint is None or args.checkpoint_sha256 is None:
+            raise SystemExit("--teacher hgkv 需要 --checkpoint 与 --checkpoint-sha256")
+        digest = hashlib.sha256(args.checkpoint.read_bytes()).hexdigest()
+        if digest != args.checkpoint_sha256:
+            raise SystemExit(
+                f"checkpoint SHA drifted: {digest} != {args.checkpoint_sha256}"
+            )
 
     b0_rows, singleton_scores = load_singletons(args.singletons_root)
     records = {
@@ -178,13 +190,16 @@ def main() -> None:
         parameter.requires_grad_(False)
     model.config.use_cache = False
     merge_size = int(runtime.processor.image_processor.merge_size)
-    wrapped = inject_history_gated_kv(model, layer_count=8, rank=8, alpha=16)
-    load_history_gated_state_dict(
-        wrapped, torch.load(args.checkpoint, map_location="cpu")
-    )
-    for lora in wrapped.values():
-        lora.lora_a.requires_grad_(False)
-        lora.lora_b.requires_grad_(False)
+    if args.teacher == "hgkv":
+        wrapped = inject_history_gated_kv(model, layer_count=8, rank=8, alpha=16)
+        load_history_gated_state_dict(
+            wrapped, torch.load(args.checkpoint, map_location="cpu")
+        )
+        for lora in wrapped.values():
+            lora.lora_a.requires_grad_(False)
+            lora.lora_b.requires_grad_(False)
+
+    set_adapter_mode = "active" if args.teacher == "hgkv" else "bypass"
 
     heartbeat = args.output_root / f"heartbeat-shard{args.shard_index:03d}.json"
 
@@ -213,7 +228,7 @@ def main() -> None:
             "messages": serialized,
             "target_text": render_official_target_text(record["target_tool_call"]),
             "memory_config": {"restored_event_step_ids": sorted(events)},
-            "adapter_mode": "active",
+            "adapter_mode": set_adapter_mode,
         }
         encoded = encode_sample(
             runtime, sample, dataset_root=args.image_root, torch=torch
