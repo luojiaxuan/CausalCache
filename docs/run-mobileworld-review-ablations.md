@@ -154,3 +154,13 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
 - 假设检验:若 frozen-teacher selector ≈ HGKV-teacher selector,则 HGKV
   在教师端也非必要,系统故事收敛为"冻结策略 + 预算感知重分配";若明显
   更差,则 HGKV 的必要性 = 教师端效用测量仪,与 frozensel 部署结果自洽。
+
+## 32B 跨骨干 offline DiD 门控(2026-07-29)
+
+- 训练:300 步收官(EXIT_0,world 3 × accum 2,B∈{1,2,4} 混合语料同 v4)。
+- 门控(B=1,94 dev 组,与 8B 同口径):5/6 checkpoint 全门通过,按冻结
+  规则选 step200:**DiD select +0.0142 [0.0109, 0.0176]**(8B v4 为
+  +0.0224 [0.0162, 0.0294]);SA−RA +0.080,SA−WA +0.042,
+  A_r ∈ [−0.006, +0.001] 全部远在 0.02 帽内。
+- 结论:同配方、同语料、免调参在 4× 骨干上复现"漂移包络内的正选择性"
+  ——token-gated HGKV 的跨骨干泛化证据(main_v2 的 pending 可回填)。
