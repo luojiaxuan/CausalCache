@@ -1,0 +1,53 @@
+{
+  "arch": "two_tower",
+  "b2": {
+    "k_distribution": {
+      "0": 34,
+      "1": 263,
+      "2": 303
+    },
+    "oracle_gap": {
+      "ci_high": 0.10096482800101657,
+      "ci_low": 0.08423602431352871,
+      "n": 600,
+      "point": 0.09246641580364667
+    },
+    "selector_minus_recent": {
+      "ci_high": 0.016820662548432813,
+      "ci_low": -0.005570508733505223,
+      "n": 600,
+      "point": 0.005820078308849285
+    }
+  },
+  "b4": {
+    "k_distribution": {
+      "0": 96,
+      "1": 138,
+      "2": 161,
+      "3": 152,
+      "4": 48
+    },
+    "oracle_gap": {
+      "ci_high": 0.07560180482997869,
+      "ci_low": 0.06167827987453746,
+      "n": 595,
+      "point": 0.0683589308143069
+    },
+    "selector_minus_recent": {
+      "ci_high": 0.017689846019639667,
+      "ci_low": -0.0008562615934363991,
+      "n": 595,
+      "point": 0.008220007302111872
+    }
+  },
+  "beam": 3,
+  "fresh_true_scores": 1195,
+  "merged_from_shards": 8,
+  "policy_checkpoint_sha256": "572092c218a97d1aa88b6845086a2ad2cec77c1a6d6fcd796f2e125ed62d67a9",
+  "schema_version": "causalcache.selector_v4_fill_to_b_eval.v1",
+  "scorer": "/bigdata/mw/runs/selector-v4/from-h00/arm-twotower/marginal_scorer.pt",
+  "skipped": {
+    "b2_anchor_unrenderable": 5,
+    "b4_anchor_unrenderable": 10
+  }
+}

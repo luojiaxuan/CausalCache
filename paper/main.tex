@@ -679,15 +679,25 @@ are in the appendix.}
 
 \section{Ablations and Analyses}
 
-Ablations follow the fixed-budget factorization. Policy-side:
-per-$B$ stratified DiD gates for \hgkv{} and ungated KV (a
-pooled mean may hide help at $B{=}4$ and failure at $B{=}1$); the $B{=}8$
-extrapolation. Selector-side: recency-membership feature removal; candidate-pool
-size; replacement-acceptance margin; top-$k$ versus bottom-$k$ replacement;
-wrong-event
-and summary--image mismatch controls; a recent-memory dose analysis (varying
-window size without replacement) as an appendix. We also stratify by
-trajectory length, application, and positive-frame age.
+Ablations follow the fixed-budget factorization. Policy-side, the
+per-$B$ stratified DiD gates for \hgkv{} and ungated KV and the $B{=}8$
+extrapolation appear in the Results; the frozen recent-dose sweep (varying
+window size without replacement) appears in the mobile closed-loop
+analysis. Selector-side, a chooser ladder brackets the learned selector at
+matched budgets (selector$-$Recent-$B$, episode-clustered CIs): the
+deployed LA selector scores $+0.025/+0.015$ at $B{=}2/4$; \emph{random}
+exact-$B$ selection is indistinguishable from Recent-$B$
+($+0.006$ $[-0.006,+0.017]$ / $+0.008$ $[-0.001,+0.018]$), as is
+\emph{RGB-similarity} retrieval ($+0.006$ / $+0.007$, both crossing
+zero)---visual similarity to the current screen is not utility;
+\emph{inverting} the learned scorer (bottom-$k$) is significantly
+harmful ($-0.016$ $[-0.029,-0.003]$ / $-0.009$ $[-0.018,-0.000]$),
+a specificity control showing the scorer ranks real signal
+symmetrically; and retraining without the recency-membership features
+degrades the selector to the noise band ($+0.012$ $[-0.000,+0.025]$ /
+$+0.008$ $[-0.001,+0.017]$), so budget-context features carry
+substantial weight. The witness-reference ladder (gold/proposal,
+last-action, instruction-only, none) appears in the deployment section.
 
 \section{Limitations and Claim Boundary}
 
