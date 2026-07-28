@@ -40,8 +40,12 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 > Figure 1 固定 complete summary trace 与 `B=4` active history-image budget，
 > 将方法画成 event-fidelity reallocation，而不是事件 inclusion 或加图；
 > Figure 2 使用真实 `CartInfoNotificationTask` r2 轨迹，实际 allocation 为
-> `[11,12,13,14]→[6,7,8,12]`、realized `k=3`。SVG/PDF/PNG、去 PII crop、
-> trace/config hash 和检查记录见
+> `[11,12,13,14]→[6,7,8,12]`、realized `k=3`；现按 event trace 分叉、
+> 放大 event 7 证据、短信 current screen 汇合与两个真实 `type(...)` action
+> 组织。Figure 2 已切换到可直接修改文字、事件节点、连线与结果标记的 PPTX
+> canonical source；左侧包含共有 `Shared Context`、任务目标和关键 event
+> action summary，PowerPoint 原生导出的 PDF 已进入主稿。SVG/PDF/PNG/PPTX、
+> 去 PII crop、trace/config hash 和检查记录见
 > [`docs/paper_figures_v1.md`](docs/paper_figures_v1.md)。
 >
 > **2026-07-26 MobileWorld B0/B4 v1 已判 `INVALID_PROTOCOL_MISMATCH`。**
@@ -320,7 +324,7 @@ working branch: `main`。精确 artifact revision 以对应文件的 Git history
 |---|---|---|
 | 代码、配置、论文、轻量结果 | 本 Git 仓库(当前主线分支 `main`) | canonical |
 | AAAI working paper | [`paper/main.tex`](paper/main.tex)；[`paper/supplement.tex`](paper/supplement.tex)；[`paper/README.md`](paper/README.md) | 主稿 9 页（7 页内正文、references 自第 7 页自然流入）；supplement 2 页；均无 embedded links/bookmarks；working、未冻结 |
-| AAAI Figure 1/2 | [`paper/figures/`](paper/figures/)；[设计与审计](docs/paper_figures_v1.md)；[Cart case audit](data/results/mobileworld_hgkv_selected_b4/qualitative_cart_audit.json) | SVG/PDF/288-dpi PNG 已生成；灰度、字体、PDF 与 9 页主稿布局检查通过 |
+| AAAI Figure 1/2 | [`paper/figures/`](paper/figures/)；[设计与审计](docs/paper_figures_v1.md)；[Cart case audit](data/results/mobileworld_hgkv_selected_b4/qualitative_cart_audit.json) | Figure 1 以 SVG、Figure 2 以 PPTX 为可编辑源；投稿 PDF/288-dpi PNG 已生成；PPT 越界、PDF 字体与 9 页主稿布局检查通过 |
 | Desktop DiD 三臂正式结果 v1 | [`data/results/desktop_did_policy_v1/`](data/results/desktop_did_policy_v1/README.md);三份 gate 报告入 Git | **HGKV s150 全 gate PASS**;§9 第 6/7 项待跑,s150 未冻结 |
 | Desktop DiD 语料 v1(969 组) | Hyper01 `/data04/jaxan/mw/desktop-did-corpus-v1/`;hyper00 镜像(引用图片子集 2,754 张);manifest 与 parity/机械审计报告入 Git `data/manifests/desktop_did_corpus_v1_*` | `samples.jsonl` SHA `2ef47af4…b71c1f`;intended `gavinlaw/causalcache-desktop-memory-training`,`PENDING_HF_UPLOAD` |
 | Desktop-trained adapters(三行 × 各 10 checkpoint) | hyper01 `/data04/jaxan/mw/runs/desktop-did-v1/{hgkv,ungated_kv}/`;hyper00 `/data02/jaxan/runs/desktop-did-v1/full_lora/`;dev 分数缓存同级 `devscore-*` | intended `gavinlaw/causalcache-gui-owl-desktop-memory-adapters`,`PENDING_HF_UPLOAD` |

@@ -72,7 +72,7 @@
   "figure_artifacts": {
     "svg": {
       "path": "paper/figures/causalcache_qualitative_cart.svg",
-      "sha256": "b92325aa6f4890d6cf2b883ec98bbd4ba0fdacb52dda9efb1785903ebd49cc01"
+      "sha256": "b2a49e8fb680173c1d69204a1669acd2c3a3da6197c8e51e0557072bfe75b2e4"
     },
     "pdf": {
       "path": "paper/figures/causalcache_qualitative_cart.pdf",
@@ -81,7 +81,7 @@
     },
     "png": {
       "path": "paper/figures/causalcache_qualitative_cart.png",
-      "sha256": "00978135e1d64faa035290fa707ca5dd16131757aaa6fd8bf0b6a5e4d3e59d0e"
+      "sha256": "205101f25c72af354a62a2af2c79d135b3de995e4fbf99b7c130e8f65fc11f2a"
     }
   },
   "interpretation_boundary": "This episode illustrates event-level high-fidelity restoration. It is not an aggregate effect estimate and does not establish environment-level causality."
