@@ -451,4 +451,59 @@ per-step wall. Real-time overhead therefore peaks near $10\%$ at the
 primary budget and decreases at larger budgets as displacement becomes
 rarer.
 
+\subsection{Restoration-Content Controls}
+
+Two single-round campaigns at the primary budget keep the trained
+selector, the exact-$B$ interface, and the conditional second pass
+unchanged, and vary only what the restored slots contain. The
+\emph{text-only} control removes every history image from the composed
+prompt and substitutes the verbatim recorded response of the restored
+turn; the \emph{OCR} control substitutes a Tesseract transcription of
+each restored screenshot. Selector features are computed on unmodified
+data, so the restoration \emph{decisions} are distributed as in the pixel
+arm; only the policy-visible carrier changes. Because restoration moves an
+official retained turn (verbatim response plus screenshot) as a unit,
+these controls also settle the attribution question: states recoverable
+\emph{only} from pixels are rare ($0.36\%$ of audited $B{=}4$ steps), yet
+removing pixels removes the gain.
+
+\begin{center}
+\centering
+{\small
+\setlength{\tabcolsep}{4.2pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Restored content & Full ($117$) & Mem.-crit.\ ($62$) & Control ($55$) \\
+\midrule
+Pixels (\method{}) & $\mathbf{33.9}$ & $\mathbf{28.0}$ & $40.6$ \\
+OCR text & $32.5$ & $24.2$ & $41.8$ \\
+Verbatim response & $27.6$ & $18.0$ & $38.2$ \\
+None (Recent-$4$) & $30.2$ & $19.4$ & $42.4$ \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Success (\%) when the restored slots carry pixels, OCR
+text, or the verbatim response, versus no restoration. Pixel and
+Recent-$4$ rows: three-run means; controls: single rounds. The text-only
+round scored $116/117$ tasks: one task's benchmark evaluator returned
+persistent server errors after the trajectory completed (an evaluation
+infrastructure fault; paired contrasts drop the task).}
+\label{tab:s-content}
+\end{center}
+
+Task-paired bootstrap contrasts ($20{,}000$ replicates): on the
+memory-critical split, verbatim text sits $-10.4$pp below pixels ($95\%$
+CI $[-18.6,-3.3]$, $p{=}0.006$) and $-1.6$pp from Recent-$4$
+($[-8.7,+5.5]$)---replacing pixels with the turn's own text erases the
+subset gain entirely. OCR text recovers most of the level ($-3.8$pp from
+pixels, $[-12.9,+5.4]$; $+4.8$pp over Recent-$4$, $[-2.2,+12.4]$), and
+the direct OCR$-$text-only margin is $+4.9$pp ($[-3.3,+13.1]$); at
+single-round power neither separates from zero. The ordering that
+survives significance testing is: pixel restoration is the only carrier
+whose memory-critical margin over the recency heuristic is significant,
+and verbatim text is significantly below pixels. The restored
+screenshot's value is therefore not reducible to ``the turn was
+mentioned again,'' and is only partially captured by its extractable
+text.
+
 \end{document}

@@ -540,9 +540,8 @@ interface keeps a positive selection effect across the budget axis.
 \paragraph{Selective Use Within a Drift Envelope.}
 
 Table~\ref{tab:did-gate} reports the pre-specified desktop DiD gate at
-$B{=}1$. All adapters are trained for matched steps; checkpoints are
-selected by the frozen rule (all gates passed, maximal DiD selection,
-earliest tie-break). \hgkv{} passes every gate: its selected checkpoint
+$B{=}1$. Adapters are trained for matched steps; checkpoints follow the
+frozen selection rule. \hgkv{} passes every gate: its selected checkpoint
 learns a positive DiD selection effect against the redundant-duplicate
 recent control, a re-scoring probe confirms the effect against the
 informative true-previous-frame control, and recent-only and wrong-history
@@ -567,34 +566,31 @@ Ungated KV & $+0.0177$ & $0.0086$ & $0.0071$ \\
 \bottomrule
 \end{tabular}
 }
-\caption{Desktop DiD evaluation on 94 development groups ($B{=}1$),
-deployed checkpoints. DiD select measures the target-relevant conditional
-margin ($A_s-A_r$); both adapters contain their recent-window ($|A_r|$)
-and wrong-history drift well within the predefined safety cap of $0.02$
-(intervals and all budgets in the supplement). The \hgkv{} zero-budget
-path is exactly the frozen policy.}
+\caption{Desktop DiD evaluation on 94 development groups ($B{=}1$).
+DiD select is the target-relevant conditional margin ($A_s-A_r$); both
+adapters hold recent-window ($|A_r|$) and wrong-history drift within the
+cap $0.02$ (intervals and all budgets in the supplement). The \hgkv{}
+zero-budget path is exactly the frozen policy.}
 \label{tab:did-gate}
 \end{table}
 
 \paragraph{Fidelity Reallocation and Zero-Shot Transfer.}
 
-The offline budget axis (full table in the supplement) shows the same picture. Across the trained budgets
+The offline budget axis shows the same picture. Across the trained budgets
 $B\in\{1,2,4\}$, \hgkv{} maintains positive selectivity---per-$B$ DiD
 gates all pass with drift within the pre-specified caps---and the learned
 allocation improves over Recent-$B$ at matched image counts, while keeping
-the full recent window in $19\%$ of $B{=}4$ states. A layer- and
-rank-matched ungated KV control also passes its gates but attains
-uniformly smaller selection effects and drifts toward the cap at the
-largest budget: token gating adds selective gain and containment beyond
-matched capacity. Untrained-budget extrapolation ($B{=}8$) and full
-per-budget gate statistics are in the supplement.
+the full recent window in $19\%$ of $B{=}4$ states. The ungated control
+again passes but with uniformly smaller selection effects, drifting
+toward the cap at the largest budget. Untrained-budget extrapolation
+($B{=}8$) and the full per-budget tables are in the supplement.
 
 \paragraph{Mobile closed loop (zero-shot).}
-The 117-task mobile benchmark --- which contributes no training or
-selection signal --- is our primary test of \emph{allocation}, because
-its roster carries a memory-critical split deterministically partitioned
-via the benchmark's upstream metadata (multi-app vs.\ single-app), with
-zero manual filtering.
+The 117-task mobile benchmark contributes no training or selection
+signal and is our primary test of \emph{allocation}: its roster carries
+a memory-critical split deterministically partitioned via the
+benchmark's upstream metadata (multi-app vs.\ single-app), with zero
+manual filtering.
 The full-roster aggregates are secondary: over three runs at the primary
 budget $B{=}4$, \method{} attains the highest overall success rate,
 $33.9\%$, against $30.2\%$ for \hgkv{}+Recent-$B$ and $28.2\%$ for the
@@ -695,24 +691,32 @@ supplement).}
 The budget is spent adaptively: at $B{=}4$ the learned scorer keeps the
 entire recent window on $19\%$ of states and replaces all of it on
 $26\%$---a state-dependent $k$ profile that neither random allocation nor
-RGB similarity reproduces. Although training only ever supervises the
+RGB similarity reproduces. Although training supervises only the
 $k{=}1$ interface, these multi-slot compositions sustain the closed-loop
-gains of Table~\ref{tab:closed-loop}: the token-gated adaptation is applied
-per restored frame and generalizes across replacement multiplicity rather
-than overfitting the single-replacement training condition.
+gains of Table~\ref{tab:closed-loop}: the token-gated adaptation applies
+per restored frame and generalizes across replacement multiplicity.
 
 \paragraph{Closed-loop budget sweep.}
 Figure~\ref{fig:budget-curve} extends the closed loop along the deployment budget
 axis with single-round mobile campaigns at $B\in\{1,2,8\}$, sharing every
 frozen weight with the primary setting. The allocation gain is positive at
 every budget and, pooled over $B\in\{1,2,4,8\}$ with equal budget weight,
-reaches $+4.1$pp (two-sided $p{=}0.004$; task-paired bootstrap): the
-budget-axis trend is consistent and jointly significant, while
+reaches $+4.1$pp (two-sided $p{=}0.004$; task-paired bootstrap), while
 single-budget cells remain trend evidence. On the memory-critical subset
 the margin is largest at the trained budgets and narrows at the untrained
 $B{=}8$, where the eight-frame recent window already reaches back far
 enough to cover part of the split's evidence---further support that the
 operative variable is where the evidence sits relative to the window.
+
+\paragraph{What the restored slots must carry.}
+Two controls keep selection, budget, and the two-pass interface intact
+but replace each restored frame's pixels with text: the turn's verbatim
+recorded response, or an OCR transcription of the same screenshot. On the memory-critical split verbatim text collapses to the
+Recent-$4$ level ($18.0\%$ vs.\ $19.4\%$; $-10.4$pp below pixels,
+task-paired $p{=}0.006$), ruling out a generic ``reminder'' effect; OCR
+recovers part of the level ($24.2\%$) but its $+4.8$pp margin over
+Recent-$4$ does not separate from zero, while pixel restoration's
+$+8.6$pp does. Full tables in the supplement.
 
 \begin{figure}[t]
 \centering
@@ -720,9 +724,8 @@ operative variable is where the evidence sits relative to the window.
 \caption{Closed-loop MobileWorld success along the budget axis (full
 roster). $B{=}0/4$: three-run means; other budgets single rounds
 ($B{=}1/2$ references: frozen dose curve; \hgkv{} neutral on matched
-recent). At $B{=}0$ the methods are structurally identical. Pooled:
-$+4.1$pp ($95\%$ CI $[+1.3,+7.1]$, $p{=}0.004$); full per-budget table
-in the supplement.}
+recent). Pooled: $+4.1$pp ($95\%$ CI $[+1.3,+7.1]$, $p{=}0.004$); full
+per-budget table in the supplement.}
 \label{fig:budget-curve}
 \end{figure}
 
@@ -731,34 +734,27 @@ The conditional second pass fires on
 $81$--$87\%$ of audited mobile steps; the selector costs under $40$\,ms. Instrumented across budgets, the added model time per
 step is $2.0/2.3/2.9$\,s at $B{=}1/2/4$---$8.1/8.7/10.5\%$ of the measured
 per-step wall time---and falls to roughly $5\%$ at $B{=}8$, where the
-selector keeps the recent tail on most steps and the second pass fires
-only $39\%$ of the time. On desktop the median end-to-end task overhead
-is $7\%$: environment interaction dominates, and the real-time cost of
-the re-decision peaks near one-tenth of wall time at the primary budget.
-Complete intervals and the witness-reference ladder are in the
-supplementary document.
+second pass fires on only $39\%$ of steps. On desktop the median
+end-to-end task overhead is $7\%$. The re-decision's real-time cost thus
+peaks near one-tenth of wall time at the primary budget; complete
+intervals are in the supplement.
 
 \section{Limitations and Conclusion}
 
 The evidence assembles into three steps. First, the problem is fidelity
-allocation under a fixed visual budget: every event survives as text, and
-the only decision is which $B$ events regain pixels.
+allocation under a fixed visual budget: every event survives as text and
+only $B$ regain pixels.
 Second, a frozen policy does not reliably separate a useful distant
 screenshot from the recent frame it would displace; \hgkv{} learns to,
 inside a drift envelope that leaves matched-recent behavior untouched.
-Third, the learned selector
-reallocates profitably exactly where distant visual dependency exists:
-memory-critical tasks improve, controls show no detectable change, and random
-or similarity-based restoration buys nothing.
-
+Third, the learned selector reallocates profitably exactly where distant
+visual dependency exists: memory-critical tasks improve, controls show no
+detectable change.
 We control an active context budget, not archive capacity, and
-\method{} reattaches rather than generates pixels. Restoration moves official retained
-turns (verbatim response plus screenshot) as a unit, so gains attribute
-to that bundle, not to pixels alone; pixel-only-recoverable states are
-rare ($0.36\%$ at $B{=}4$). We claim only that
-some summarized events have greater conditional marginal utility than the
-recent realization they displace. Pretraining contamination remains possible. In one sentence: \method{} learns which summarized GUI events
-deserve to be seen again.
+\method{} reattaches rather than generates pixels. We claim only that
+some summarized events have greater conditional marginal utility than
+the recent realization they displace. In one sentence: \method{} learns
+which summarized GUI events deserve to be seen again.
 
 \bibliography{references}
 
