@@ -1,0 +1,70 @@
+{
+  "benchmark": {
+    "auto_retry": 2,
+    "excluded_interfaces": {
+      "mcp": 38,
+      "mcp_and_user_interaction": 2,
+      "user_interaction": 44
+    },
+    "expected_denominator": 117,
+    "max_round": 50,
+    "pass_k": 1,
+    "profile": "frozen32b_b4_gui_only",
+    "step_wait_time_seconds": 3.0
+  },
+  "capacity": {
+    "auto_retry": 2,
+    "max_round": 1,
+    "points": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "profile": "frozen_gui_owl_gui_only",
+    "selection": "evenly_spaced_over_frozen_gui_owl_gui_only",
+    "step_wait_time_seconds": 0.1,
+    "task_count_per_point": 16
+  },
+  "environment": {
+    "container_topology": "one_emulator_per_exception_container",
+    "host_port_policy": "deterministic_irregular_high_ports",
+    "image": "ghcr.io/tongyi-mai/mobile_world@sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240",
+    "image_digest": "sha256:b680380eac98a7ad064707f9653772af18554d201a3e6e7cf8f15d58cdc73240",
+    "requires_kvm": true,
+    "requires_privileged": true,
+    "task_source": "pinned_upstream_src_read_only_mount"
+  },
+  "outputs": {
+    "fleet_manifest": "/data/runs/mw-official-b4-32b-v1/environment-fleet.json",
+    "policy_log": "/data/runs/mw-official-b4-32b-v1/policy.log",
+    "run_root": "/data/runs/mw-official-b4-32b-v1"
+  },
+  "policy": {
+    "decoding": {
+      "do_sample": false,
+      "max_new_tokens": 256,
+      "num_beams": 1
+    },
+    "dtype": "torch.bfloat16",
+    "frozen": true,
+    "history_observation": "pre_action_screenshot",
+    "last_image": 5,
+    "memory_arm": "recent",
+    "memory_budget": 4,
+    "model_repo": "mPLUG/GUI-Owl-1.5-32B-Instruct",
+    "model_revision": "6154cc22f19e7375994707986c1bd459e29621ac",
+    "parse_failure_behavior": "unknown_wait_step",
+    "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
+    "single_gpu_shared_service": true,
+    "snapshot_manifest": "code/configs/gui_owl_1_5_32b_snapshot.json",
+    "target_effective_visual_tokens_per_image": 2560
+  },
+  "schema_version": "causalcache.mobileworld.benchmark_config.v2",
+  "upstream": {
+    "expected_task_count": 201,
+    "memory_split": "data/manifests/mobileworld_memory_split_v1.json",
+    "repository": "https://github.com/Tongyi-MAI/MobileWorld",
+    "revision": "8ae506487bf87785292d6cad101c49955d704d39"
+  }
+}

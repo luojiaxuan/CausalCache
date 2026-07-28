@@ -32,6 +32,52 @@ from causalcache.policy.gui_owl_v2_1_runtime import GUIOwlV21OfficialToolsRuntim
 from causalcache.policy.gui_owl_official_runtime import GUIOwlOfficialRuntime
 
 
+def _ocr_image_text(image: Any) -> str:
+    # note (luojiaxuan): OCR 消融臂用 tesseract;失败时显式标注而非静默空串。
+    try:
+        import pytesseract
+        text = pytesseract.image_to_string(image)
+        text = " ".join(text.split())[:2000]
+        return text if text else "(no text detected)"
+    except Exception as exc:  # pragma: no cover - 环境缺依赖时显式暴露
+        return f"(ocr unavailable: {exc})"
+
+
+def _apply_history_render(
+    messages: list[dict[str, Any]], mode: str
+) -> list[dict[str, Any]]:
+    """text_only: 删除所有历史图(保留 verbatim 响应);ocr: 历史图→OCR 文本。
+
+    # note (luojiaxuan): 最后一个 image 恒为 current 截图,必须保留;其余
+    # image 均属恢复的历史保留轮。变换在 pass-1/pass-2 生成前统一应用。
+    """
+    if mode == "images":
+        return messages
+    refs = [
+        (mi, ci)
+        for mi, message in enumerate(messages)
+        for ci, item in enumerate(message.get("content", ()))
+        if item.get("type") == "image"
+    ]
+    if len(refs) <= 1:
+        return messages
+    out = [dict(m, content=list(m.get("content", ()))) for m in messages]
+    for mi, ci in reversed(refs[:-1]):
+        if mode == "ocr":
+            text = _ocr_image_text(out[mi]["content"][ci].get("image"))
+            out[mi]["content"][ci] = {
+                "type": "text",
+                "text": "[restored screenshot, OCR text] " + text,
+            }
+        else:
+            del out[mi]["content"][ci]
+            if not out[mi]["content"]:
+                out[mi]["content"].append(
+                    {"type": "text", "text": "[screenshot omitted]"}
+                )
+    return out
+
+
 def _history_image_count(messages: list[dict[str, Any]]) -> int:
     image_count = sum(
         item.get("type") == "image"
@@ -64,6 +110,11 @@ def main() -> None:
     parser.add_argument("--port", type=int, required=True)
     parser.add_argument("--visual-tokens", type=int, default=2560)
     parser.add_argument("--max-history-images", type=int)
+    parser.add_argument(
+        "--history-render", choices=("images", "text_only", "ocr"),
+        default="images",
+        help="消融渲染:text_only 只保留保留轮的 verbatim 响应文本(去历史图);"
+             "ocr 用历史截图的 OCR 文本替换图像;current 屏幕恒保留。")
     parser.add_argument("--adapter-checkpoint", type=Path, default=None)
     parser.add_argument("--adapter-checkpoint-sha256", default=None)
     parser.add_argument("--adapter-layer-count", type=int, default=8)
@@ -417,6 +468,7 @@ def main() -> None:
                     messages = build_mobileworld_gui_owl_messages(pass1)
                 else:
                     messages = build_mobileworld_gui_owl_messages(request)
+                messages = _apply_history_render(messages, args.history_render)
                 history_image_count = _history_image_count(messages)
                 with counter_lock:
                     counters["audited_prompts"] += 1
@@ -490,8 +542,13 @@ def main() -> None:
                                     request["current_screenshot_png_base64"]
                                 ),
                             )
+                            messages2 = _apply_history_render(
+                                messages2, args.history_render
+                            )
                             pass2_started = time.perf_counter()
-                            with adapter_scope(messages2, len(chosen)):
+                            with adapter_scope(
+                                messages2, _history_image_count(messages2)
+                            ):
                                 generated = runtime.generate(messages2)
                             pass2_seconds = time.perf_counter() - pass2_started
                             selection_info["passes"] = 2
