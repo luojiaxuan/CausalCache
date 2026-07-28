@@ -3371,7 +3371,17 @@ def main() -> None:
         default=0,
         help="legacy paths only; rejected under training.sparse_history",
     )
+    parser.add_argument(
+        "--model-profile",
+        choices=("8b", "32b"),
+        default="8b",
+        help="骨干规格;必须与 --model-dir/--config 的 snapshot manifest 一致",
+    )
     args = parser.parse_args()
+
+    from causalcache.policy import gui_owl_v2_vision as _vision_profile
+
+    _vision_profile.activate_model_profile(args.model_profile)
 
     import torch
     import torch.distributed as dist

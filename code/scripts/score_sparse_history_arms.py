@@ -1098,11 +1098,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="smoke runs only; truncates the heldout set and flags the report",
     )
     parser.add_argument("--device", default="cuda:0")
+    parser.add_argument(
+        "--model-profile",
+        choices=("8b", "32b"),
+        default="8b",
+        help="骨干规格;必须与 --model-dir/--config 的 snapshot manifest 一致",
+    )
     return parser
 
 
 def main() -> None:
     args = build_parser().parse_args()
+
+    from causalcache.policy import gui_owl_v2_vision as _vision_profile
+
+    _vision_profile.activate_model_profile(args.model_profile)
     if not args.checkpoint and not args.include_identity_baseline:
         raise SystemExit("pass at least one --checkpoint (or --include-identity-baseline)")
     if args.bootstrap_replicates < 1:
