@@ -80,7 +80,24 @@ mw-recent-b8-v1 新数据。
 - 所有轨迹/心跳/manifest 均在持久数据盘(h00 /data02/jaxan、
   h01 /data04/jaxan),重启无损。
 
+## hyper00 恢复(2026-07-27,驱动 595.71.05,8 卡)
+
+- 主机重启,64 模拟器全灭 → 同种子重建两舰队(并发 launcher,~20 min)。
+  实际发现 **同种子端口并非完全确定**(被占端口会顺延,mwh2-13 漂移一例),
+  恢复脚本的逐名校验按设计中止;修法:按容器名从新 manifest 刷新
+  run-root fleet-shard 的 backend_url,再挂 supervisor。
+- **CUDA Error 803 坑(hyper01 更新后必遇)**:镜像烧了
+  /usr/local/cuda-13.0/compat/libcuda(ldconfig 优先),旧驱动 570 下正常,
+  升 595 后 compat 库旧于内核模块 → torch `cuda.is_available()=False`、
+  nvidia-smi 却正常。修法(容器内):
+  `mv /usr/local/cuda-13.0/compat /usr/local/cuda-13.0/compat.disabled && ldconfig`。
+- 8 卡布局(用户指示恢复用满 8 卡):P-B8 ×4(GPU 0/1/4/5,端口
+  57141/57253/57589/57701)+ recent-B8 ×4(GPU 2/3/6/7,端口
+  57365/57477/57813/57925),每 shard 1 server、4 envs。
+- 恢复后 8 shard 全部 RUNNING,进度无损(P-B8 44、recent-B8 76 /117)。
+
 ## 状态
 
-- 2026-07-27:四臂扩容后 RUNNING,随后因驱动更新暂停(见上节)。
+- 2026-07-27:hyper00 已 8 卡恢复运行;hyper01 仍暂停等驱动更新
+  (恢复时注意上面 Error 803 修法 + aux 容器需重建同样处理)。
   结果落盘后更新本节并入 data/results。
