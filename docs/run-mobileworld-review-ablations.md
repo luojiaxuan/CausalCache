@@ -94,3 +94,25 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
   OCR 居中(与两端皆不可分)。像素是唯一对 Recent-4 显著胜出的载体。
 - h00 触发器 15:45 UTC 点火(8/8 DONE),自动翻臂成功;两机 96 模拟器
   现全部在跑 mw-cc-k1cap-v1 + mw-frozensel-v1(每臂 48,shard 0-7)。
+
+## 32B 跨骨干支线启动(2026-07-29,用户升级为必做)
+
+- **目标**:同 v4 语料/目标在 GUI-Owl-1.5-32B 上重训 HGKV,offline DiD 门控
+  证明 token-gated 机制跨骨干泛化(闭环不在此支线范围)。
+- **配置**:`causalcache_desktop_did_hgkv_v4_32b.json`(=v4 HGKV,仅换
+  32B snapshot manifest;300 步、cadence 50、lr 1e-4、accum 2)。
+  world_size=3 → 有效批 6(8B 主线 4×2=8),支线非冻结契约,差异已注记。
+- **补丁**:`train_success_sft_lora.py` / `score_sparse_history_arms.py`
+  加 `--model-profile {8b,32b}`(与 serve 同款,profile 常量经 serve 侧
+  健康检查验证)。
+- **运行**:h01 辅容器 `sglang-omni-jaxan-2`,容器内 CUDA 1,2,3 =
+  host GPU 5/6/7(host GPU4 被外部 133GB 进程占用,即用户所称"3 卡");
+  语料 `/bigdata/mw/desktop-did-corpus-v4`(sha 与 v4 主线同源),fresh
+  frozen-score cache(8B 缓存对 32B 无效)。输出
+  `/bigdata/mw/runs/desktop-did-32b/hgkv/`。
+- **存活**:supervisor 3 次重试 + EXIT_N 哨兵;本地 Monitor 15 分钟轮询
+  `global_step`/`step_checkpoint`/Traceback/OOM。教训:该容器 shell 无
+  默认 PYTHONPATH,torchrun 必须显式 `PYTHONPATH=code`(首launch三连败)。
+- **后续**:训毕用 `score_sparse_history_arms.py --model-profile 32b`
+  出 dev 组 DiD 门控报告(borrow 主线口径:DiD select、|A_r|、wrong
+  drift、cap 0.02),等 k1cap/frozensel 收官释放 canonical GPU 后跑。
