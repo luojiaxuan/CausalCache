@@ -59,7 +59,7 @@ task-relevant archived screenshot over the recent frame it would displace;
 envelope. On OSWorld-Verified, restoring history to high fidelity is worth
 about $13$ success points over summary-only memory, while same-budget
 allocations remain indistinguishable. Zero-shot on a mobile benchmark whose
-memory-critical split is fixed at construction, \method{} improves over
+memory-critical split is fixed by benchmark metadata at construction, \method{} improves over
 the same-budget recent allocation by $8.6$ points on that split, remains
 neutral on matched controls, and the gain interacts significantly with
 memory criticality.
@@ -424,7 +424,8 @@ an uncontaminated OSWorld task roster \citep{xie2024osworld} with official
 evaluator scores (tasks whose trajectories seeded the witness corpus are
 excluded from zero-shot claims and reported separately as in-domain
 diagnostics), and (iii) zero-shot on a cross-app mobile memory benchmark of
-117 runnable tasks (62 cross-app memory candidates, 55 single-app controls),
+117 runnable tasks (62 cross-app memory candidates vs.\ 55 single-app
+controls, split mechanically by the benchmark's task metadata),
 which contributes no data to any training or selection decision
 \citep{kong2026mobileworld}.
 Offline metrics are teacher-forced log-likelihood margins and full-action
@@ -578,7 +579,9 @@ per-budget gate statistics are in the supplement.
 \paragraph{Mobile closed loop (zero-shot).}
 The 117-task mobile benchmark --- which contributes no training or
 selection signal --- is our primary test of \emph{allocation}, because
-its roster is constructed with a memory-critical split.
+its roster carries a memory-critical split deterministically partitioned
+via the benchmark's upstream metadata (multi-app vs.\ single-app), with
+zero manual filtering.
 The full-roster aggregates are secondary: over three runs at the primary
 budget $B{=}4$, \method{} attains the highest overall success rate,
 $33.9\%$, against $30.2\%$ for \hgkv{}+Recent-$B$ and $28.2\%$ for the
@@ -603,14 +606,12 @@ the split-by-method interaction is significant ($p{=}0.022$).}
 \label{fig:split-bars}
 \end{figure}
 
-The primary closed-loop result is the memory-critical split, fixed by a
-mechanical rule over the benchmark's own task definitions: the $62$
-cross-application tasks (more than one application in the official task
-metadata), constructed so that information from an earlier application is
-needed after the switch, versus the $55$ single-application controls. The
-rule uses no model outcome and no manual labeling, and candidates that do
+The primary closed-loop result is that split: cross-app tasks are
+constructed so that information from an earlier application is needed
+after the switch. The rule uses no model outcome, and candidates that do
 not truly require distant evidence only dilute the stratum toward zero,
-making the contrast conservative. On the
+making the contrast conservative (rule text and manifest hashes in the
+supplement). On the
 memory-critical stratum the same-budget contrast is decisive
 (Figure~\ref{fig:split-bars}):
 \method{} $28.0\%$ vs.\ Recent-$B$ $19.4\%$, a $+8.6$pp gain; on the
