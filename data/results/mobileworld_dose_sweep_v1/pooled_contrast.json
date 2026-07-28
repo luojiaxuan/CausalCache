@@ -1,0 +1,18 @@
+{
+  "estimand": "mean over B in {1,2,4,8} of task-paired (P - same-budget recent), pp",
+  "per_budget_delta_pp": {
+    "1": 2.56,
+    "2": 6.84,
+    "4": 3.7,
+    "8": 3.42
+  },
+  "pooled_delta_pp": 4.13,
+  "ci95_pp": [
+    1.28,
+    7.05
+  ],
+  "two_sided_p": 0.0039,
+  "replicates": 20000,
+  "seed": 20260728,
+  "notes": "B=4 uses 3v3 round means vs HGKV+Recent-4; B=1/2 recent reference is the frozen-policy dose curve (adapter neutrality disclosed); B=8 single rounds, HGKV+Recent-8."
+}
