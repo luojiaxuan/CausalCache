@@ -70,10 +70,10 @@ It is an observed selector output, not a preset experimental treatment.
 \toprule
 $B$ & Recent arm & Replacement training arm & Deployed allocation \\
 \midrule
-1 & Recent-1 & recent $\to$ archived & Selected-1 \\
-2 & Recent-2 & oldest $\to$ archived & Selected-$\leq2$ \\
-4 & Recent-4 & oldest $\to$ archived & Selected-$\leq4$ \\
-8 & Recent-8 & built, not trained & Selected-$\leq8$ \\
+1 & Recent-1 & recent $\to$ archived & exact-$1$ \\
+2 & Recent-2 & oldest $\to$ archived & exact-$2$ (recent fallback) \\
+4 & Recent-4 & oldest $\to$ archived & exact-$4$ (recent fallback) \\
+8 & Recent-8 & built, not trained & exact-$8$ (recent fallback) \\
 \bottomrule
 \end{tabular}
 }

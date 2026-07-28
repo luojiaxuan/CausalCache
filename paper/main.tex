@@ -231,13 +231,14 @@ summaries $\{\tilde e_1,\ldots,\tilde e_{t-1}\}$, and the current screenshot
 $x_t$. An active visual-context budget $B$ limits how many summarized events
 may be promoted by reattaching their archived pixels; it is not a limit on
 cold archival storage. A restoration allocation is a set
-$S\subseteq\{1,\ldots,t-1\}$ with $|S|\le B$. Let
+$S\subseteq\{1,\ldots,t-1\}$ with $|S|=\min(B,\,t{-}1)$: the budget is
+always filled, and reallocation is over \emph{which} events occupy it. Let
 $Q(S)$ denote the policy's mean target-token log-likelihood of the successful
 next action when events in $S$ are exposed in summary-plus-image form. The
 standard baseline is $S_{\mathrm{recent}}=\mathrm{Recent}\text{-}B$, the $B$
 most recent distinct events promoted to high fidelity. \method{} targets
 \begin{equation}
-S^{*}=\arg\max_{\substack{S\subseteq\{1,\ldots,t-1\}\\ |S|\le B}} Q(S),
+S^{*}=\arg\max_{\substack{S\subseteq\{1,\ldots,t-1\}\\ |S|=\min(B,t-1)}} Q(S),
 \qquad
 Q(S^{*})>Q(S_{\mathrm{recent}}),
 \label{eq:decision}
