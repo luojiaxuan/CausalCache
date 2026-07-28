@@ -254,6 +254,30 @@ the recent visual realization it displaces. Every formally reported set
 utility reruns the complete restored set; we never report a sum of singleton
 gains as the utility of a coalition.
 
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{figures/causalcache_hgkv_pass2.pdf}
+\caption{The two learned components of \method{}.
+(a)~The history-gated K/V interface (\hgkv): a low-rank
+$\Delta K,\Delta V$ branch on the last eight frozen self-attention layers
+is multiplied by a binary token gate $g$ that is $1$ only on restored
+history-image tokens, so current-screen, text, and response tokens pass
+through unchanged, and at $B{=}0$ the gate vanishes and the policy is
+bitwise-identical to the frozen base.
+(b)~Proposal-conditioned re-decision: pass~1 renders the
+default Recent-$B$ allocation and yields a proposal $a_1$; a two-tower
+scorer conditioned on per-event features with $a_1$ as witness and on
+budget context scores the \emph{complete} summarized trace and returns the
+exact-$B$ set $S^{*}$. If $S^{*}$ keeps the recent tail, $a_1$ is emitted
+with no extra compute; only when a recent event is displaced is the prompt
+re-rendered under $S^{*}$ and the \emph{same} frozen weights generate the
+final action $a_2$. Event cards follow Figure~\ref{fig:qualitative-cart}: dashed gray
+$=$ summary-only, blue $=$ recent with pixels, orange $=$ promoted
+distant event; orange-outlined boxes are the trained modules; snowflakes
+denote frozen components.}
+\label{fig:overview}
+\end{figure*}
+
 \subsection{Policy-Preserving History-Gated KV Adapter}
 
 Let $h_l$ be the input to layer $l$'s attention projections. In the last eight
@@ -435,29 +459,6 @@ cluster bootstrap, step counts, and wall time.
 
 \subsection{Results}
 
-\begin{figure*}[!t]
-\centering
-\includegraphics[width=\textwidth]{figures/causalcache_hgkv_pass2.pdf}
-\caption{The two learned components of \method{}.
-(a)~The history-gated K/V interface (\hgkv): a low-rank
-$\Delta K,\Delta V$ branch on the last eight frozen self-attention layers
-is multiplied by a binary token gate $g$ that is $1$ only on restored
-history-image tokens, so current-screen, text, and response tokens pass
-through unchanged, and at $B{=}0$ the gate vanishes and the policy is
-bitwise-identical to the frozen base.
-(b)~Proposal-conditioned re-decision: pass~1 renders the
-default Recent-$B$ allocation and yields a proposal $a_1$; a two-tower
-scorer conditioned on per-event features with $a_1$ as witness and on
-budget context scores the \emph{complete} summarized trace and returns the
-exact-$B$ set $S^{*}$. If $S^{*}$ keeps the recent tail, $a_1$ is emitted
-with no extra compute; only when a recent event is displaced is the prompt
-re-rendered under $S^{*}$ and the \emph{same} frozen weights generate the
-final action $a_2$. Blue marks retained recent promotions, orange the
-promoted distant event, purple the \hgkv{} pieces; snowflakes denote
-frozen components.}
-\label{fig:overview}
-\end{figure*}
-
 \begin{table*}[!t]
 \centering
 {\small
@@ -632,14 +633,14 @@ the baseline already solves. These post-hoc strata are secondary to the construc
 memory-critical split.
 
 \paragraph{Desktop closed loop.}
-On OSWorld-Verified (361 tasks, official no-GDrive roster, docker
-provider, and $15$-step budget), all high-fidelity arms reach
-$32.7$--$34.1\%$, each $+13$--$14$pp over summary-only memory ($19.9\%$,
-paired $95\%$ CIs excluding zero), while same-budget allocations remain
+On OSWorld-Verified (361 tasks, official no-GDrive roster and
+$15$-step budget), all high-fidelity arms reach $32.7$--$33.0\%$, each
+about $+13$pp over summary-only memory ($19.9\%$, paired $95\%$ CIs
+excluding zero), while same-budget allocations remain
 indistinguishable. OSWorld therefore supports high-fidelity
 \emph{availability}; conditional \emph{allocation} is tested by the mobile
 memory-critical split. \hgkv{} is again behaviorally neutral on matched
-Recent-$B$ allocations, mirroring the mobile finding. The P arm adds a
+Recent-$B$ allocations, mirroring the mobile finding. \method{} adds a
 median of eight policy calls per task, about $7\%$ of median end-to-end
 task time.
 
