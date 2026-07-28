@@ -302,7 +302,7 @@ demand side, multi-frame needs are rare even where archived pixels matter
 most: under the strictest \emph{image-only} criterion---the required value
 appears in neither the goal, the current frame, the recent window, nor any
 completed step's action text---mining 1{,}326 GUI-Odyssey trajectories yields
-96 image-only decision points at $B{=}4$, of which only 2 require two
+96 image-only decision points at $B{=}4$, of which only two require two
 distinct evidence frames simultaneously (3 of 239 at $B{=}1$); on the
 desktop corpus, 75\% of eligible states admit exactly one recurrence
 witness. On the utility side, a matched-budget probe under the official
@@ -313,12 +313,10 @@ each further distant promotion must evict the next-most-recent visual
 realization, and its measured value no longer covers that price. Larger-$k$
 allocations nonetheless remain expressible at deployment: the selector composes
 exactly-$B$ allocations with exact re-scoring, defaulting unclaimed slots to
-recent events, so $k$ stays a result statistic. Because supervision is
-annotation-free---labels are teacher-forced counterfactual scores of the
-current policy on its own trajectories---a domain that does exhibit
-multi-frame demand (detectable by the same probe) requires only regenerating
-the corpus with $k{\geq}2$ restoration arms and re-running the identical
-trainer: a data-mix change, not a method change.
+recent events, so $k$ stays a result statistic. Supervision is
+annotation-free, so a domain that does exhibit multi-frame demand
+(detectable by the same probe) requires only regenerating the corpus with
+$k{\geq}2$ restoration arms: a data-mix change, not a method change.
 
 Let $\ell$ denote mean target log-likelihood, superscripted by adapter state
 (active or frozen bypass). Each arm is anchored to \emph{its own} frozen
@@ -414,10 +412,9 @@ summarized event merits visual restoration and over-replaces.
 instruction, each candidate's action line, and recent behavior) repairs
 the over-replacement pathology yet stays non-significant at $B{=}4$.
 Action-conditioned references thus dominate instruction-only and
-reference-free variants; the relative order of the action-conditioned
-references themselves depends on platform and protocol, which is
-precisely why the deployed default re-grounds the reference in the
-current policy's own proposal.
+reference-free variants; their internal order depends on platform and
+protocol, which is why the deployed default re-grounds the reference in
+the policy's own proposal.
 
 \section{Experiments}
 
@@ -437,7 +434,8 @@ evaluates out-of-training budget extrapolation. Checkpoints and thresholds
 are selected only on the desktop development split under pre-registered
 gates: positive DiD selection with a positive bootstrap lower bound, and
 drift caps $|A_r|,|A_n|<\epsilon$. No mobile benchmark data touches training
-or selection.
+or selection. All adapter training, offline scoring, and closed-loop serving
+run on NVIDIA H200 Tensor Core GPUs.
 
 \paragraph{The Fixed-Budget Fidelity-Restoration Design.}
 
@@ -451,15 +449,11 @@ non-recent promotions $k$ is measured rather than preset.
 
 \paragraph{Policies and Fidelity-Allocation Baselines.}
 
-The frozen policy is GUI-Owl-1.5-8B-Instruct \citep{xu2026mobileagent35}. We
-compare four policy rows under identical data, steps, and cadence:
-\begin{itemize}
-    \item \textbf{Frozen}: no trainable adapter;
-    \item \textbf{Ungated KV}: the same last-eight layers, K/V targets, rank,
-    and alpha as \hgkv{} but active on all tokens;
-    \item \textbf{\hgkv{} (ours)}: token-gated, structurally bypassed at
-    $B{=}0$.
-\end{itemize}
+The frozen policy is GUI-Owl-1.5-8B-Instruct \citep{xu2026mobileagent35}.
+Under identical data, steps, and cadence we compare the frozen policy, an
+ungated KV control (the same last-eight layers, K/V targets, rank, and
+alpha as \hgkv{} but active on all tokens), and \hgkv{} itself
+(token-gated, structurally bypassed at $B{=}0$).
 Fidelity-allocation baselines are Recent-$B$, Random, OCR/RGB similarity, and
 the learned budget-aware restoration selector (exact-$B$, recent fallback); a
 beam oracle over the candidate pool bounds headroom. Every method receives the
@@ -476,11 +470,10 @@ diagnostics), and (iii) zero-shot on a cross-app mobile memory benchmark of
 117 runnable tasks (62 cross-app memory candidates, 55 single-app controls),
 which contributes no data to any training or selection decision
 \citep{kong2026mobileworld}.
-Offline metrics: mean target log-likelihood margins, full-action equivalence
-(type, arguments, coordinates at $\tau{=}25$ of a $[0,999]$ grid; $\tau\in
-\{5,10\}$ as sensitivity), repair and amplification rates, wrong-history harm,
-parser validity, and active history-image count. Closed-loop metrics: paired
-task success with cluster bootstrap, step counts, and wall time.
+Offline metrics are teacher-forced log-likelihood margins and full-action
+equivalence under an argument and coordinate tolerance (sensitivity settings
+in the supplement); closed-loop metrics are paired task success with
+cluster bootstrap, step counts, and wall time.
 
 \subsection{Results}
 
@@ -573,9 +566,9 @@ vanishes. To the frozen policy,
 promoting a task-relevant distant event and retaining the recent event it
 would displace are worth about the same; profitable fidelity reallocation must
 be learned. Under the official multi-turn protocol the frozen replacement
-effect is $+0.079/+0.026/-0.000/-0.031$ at $B{=}1/2/4/8$: whatever native
-preference exists decays with the window and reverses, while the learned
-interface keeps a positive selection effect across the whole budget axis.
+effect decays with the window and reverses at large $B$
+(Table~\ref{tab:per-r}), while the learned interface keeps a positive
+selection effect across the budget axis.
 
 \paragraph{Selective Use Within a Drift Envelope.}
 
@@ -641,13 +634,12 @@ sign in every round. The decomposition is clean:
 frozen Recent-$B$ ($29.9\%$), \hgkv{}+Recent-$B$ ($30.3\%$), and the
 summary-only baseline are statistically indistinguishable --- the behavioral
 counterpart of the drift cap --- so the gain is carried by \emph{which
-summarized events are promoted}, not by the adapter or by recency alone. A full
+summarized events are promoted}, not by the adapter or by recency alone. A
 recent-dose sweep of the frozen policy makes the last point explicit:
-across $B{=}0/1/2/3/4$ the success rate is
-$28.2/26.5/26.5/29.1/29.9\%$, non-monotone with every paired contrast
-against $B{=}0$ crossing zero --- on this benchmark, promoting additional
-recent events alone buys nothing, so fidelity \emph{allocation} rather than
-active visual budget \emph{size} is the operative variable.
+across $B{=}0$--$4$ success is non-monotone with every paired contrast
+against $B{=}0$ crossing zero; promoting additional recent events alone
+buys nothing, so fidelity \emph{allocation} rather than active visual
+budget \emph{size} is the operative variable.
 The primary closed-loop result is the memory-critical split, defined at
 benchmark construction: $62$ cross-application tasks whose target
 information surfaces in an application visited \emph{earlier} in the
@@ -722,44 +714,66 @@ symmetrically harmful.}
 \label{tab:chooser}
 \end{table}
 
-\paragraph{How the selector spends its budget.}
-At $B{=}4$ the learned scorer chooses $k{=}0/1/2/3/4$ non-recent promotions
-on $103/103/88/119/146$ evaluated states: it retains the entire recent
-window on $19\%$ of states and replaces the full window on $26\%$,
-adapting the allocation to the state rather than committing to a fixed
-sparse pattern. Random allocation concentrates on intermediate $k$ and RGB
-similarity collapses toward $k{=}0$, so neither reproduces this
-state-dependent profile.
+The budget is spent adaptively: at $B{=}4$ the learned scorer keeps the
+entire recent window on $19\%$ of states and replaces all of it on
+$26\%$---a state-dependent $k$ profile that neither random allocation nor
+RGB similarity reproduces.
+
+\paragraph{Closed-loop budget sweep.}
+Table~\ref{tab:dose} extends the closed loop along the deployment budget
+axis with single-round mobile campaigns at $B\in\{1,2,8\}$, sharing every
+frozen weight with the primary setting.
+\pending{$^{\dagger}$ cells are in-flight campaigns (36--82 of 117 done,
+completion-ordered subsets); to be replaced by final numbers.}
+
+\begin{table}[t]
+\centering
+{\small
+\setlength{\tabcolsep}{5.5pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+$B$ & Recent-$B$ & \method-P \\
+\midrule
+$0$ (summary-only) & $28.2$ & --- \\
+$1$ & $26.5^{*}$ & $30.6^{\dagger}$ \\
+$2$ & $26.5^{*}$ & $45.9^{\dagger}$ \\
+$4$ (primary) & $30.2$ & $33.9$ \\
+$8$ (untrained) & $31.7^{\dagger}$ & $42.2^{\dagger}$ \\
+\bottomrule
+\end{tabular}
+}
+\caption{Closed-loop MobileWorld success (\%) along the budget axis.
+$B{=}0/4$: three-run means. $^{*}$Frozen-policy recent arm (\hgkv{} is
+neutral on matched recent allocations). $^{\dagger}$In-flight
+single-round campaigns.}
+\label{tab:dose}
+\end{table}
 
 \paragraph{Deployment cost of the second pass.}
-Across $2{,}224$ audited mobile steps, the proposal-conditioned second pass
-fires on $82\%$ of steps ($97\%$ of steps whose eligible pool exceeds $B$),
-and the selector itself costs under $40$\,ms against a $4.2$\,s median
-policy pass. Viewed per step, the conditional re-decision adds $66\%$ to
-policy compute; viewed per task, environment interaction dominates and the
-median end-to-end overhead is $7\%$ on desktop. The single-pass \method-LA
-variant removes even that at matched desktop quality, at the demonstrated
-cost of cross-platform transfer. Complete intervals and the
-witness-reference ladder are reported in the supplementary document.
+Across $2{,}224$ audited mobile steps, the conditional second pass fires on
+$82\%$ of steps, and the selector itself costs under $40$\,ms against a
+$4.2$\,s median policy pass. Per step, the re-decision adds $66\%$ to
+policy compute; per task, environment interaction dominates and the median
+end-to-end overhead is $7\%$ on desktop. Complete intervals and the
+witness-reference ladder are in the supplementary document.
 
 \section{Limitations and Conclusion}
 
-We control an active context budget, not archive capacity: both policies expose
-exactly $B$ summary-plus-image events, and \method{} reattaches rather than
-generates pixels. Restoration operates at the official protocol's
-retained-turn granularity --- a promoted event regains its verbatim step
-response together with its screenshot, while a demoted event keeps only its
-one-line action summary --- so our matched-budget contrasts attribute gains
-to the retained-turn bundle, not to pixels in isolation; offline mining
-finds states whose critical value is recoverable only from pixels to be
-rare ($0.36\%$ of $B{=}4$ states in our desktop corpus), and a
-pixel-versus-response decomposition would require off-protocol probes we
-leave to future work. We claim only that some summarized events have greater
-conditional marginal utility than the recent realization they displace.
-``Causal'' denotes controlled prompt interventions, not structural causality,
-and teacher-forced margins must be judged by closed-loop success. We report a
-true-previous-frame control for the duplicated training-time $B{=}1$ slot;
-pretraining contamination remains possible.
+We control an active context budget, not archive capacity: every compared
+policy exposes exactly $B$ summary-plus-image events, and \method{}
+reattaches rather than generates pixels. Restoration moves official
+retained turns---verbatim response plus screenshot---as a unit, so gains
+attribute to that bundle rather than to pixels alone; states whose
+critical value is recoverable only from pixels are rare in our corpus
+($0.36\%$ at $B{=}4$), and a finer decomposition would require
+off-protocol probes. We claim only that some summarized events have
+greater conditional marginal utility than the recent realization they
+displace; ``causal'' denotes controlled prompt interventions, not
+structural causality, and teacher-forced margins must be judged by
+closed-loop success. We report a true-previous-frame control for the
+duplicated training-time $B{=}1$ slot; pretraining contamination remains
+possible. In one sentence: \method{} learns which summarized GUI events
+deserve to be seen again.
 
 \bibliography{references}
 
