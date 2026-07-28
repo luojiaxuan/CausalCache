@@ -244,6 +244,19 @@ variant.
 
 \subsection{Zero-Shot Mobile Evaluation}
 
+\paragraph{Memory-critical split construction.}
+The split is fixed by a mechanical rule over the benchmark's own task
+definitions: \texttt{memory\_candidate} $=$ tasks whose official metadata
+lists more than one application (\texttt{app\_count}~$\geq 2$ from the
+upstream \texttt{BaseTask.app\_names}), \texttt{single\_app\_control} $=$
+exactly one, restricted to the GUI-only interface. Every record in the
+frozen manifest carries the upstream source path and content hash; no
+model outcome and no manual labeling enter the rule. Cross-application
+membership is a preregistered memory-challenge \emph{candidate}, not a
+per-task guarantee of memory dependence: candidates that do not in fact
+require distant evidence dilute the stratum toward zero, so the reported
+contrast is conservative.
+
 \begin{center}
 \centering
 {\small
