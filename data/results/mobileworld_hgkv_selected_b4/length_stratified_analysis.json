@@ -1,0 +1,40 @@
+{
+ "stratifier": "frozen_b0_median_steps_r2r3(cap=50)",
+ "b0_terminates_early": {
+  "n": 22,
+  "P": 43.2,
+  "recent": 36.4,
+  "b0": 47.0,
+  "P_minus_recent": [
+   6.82,
+   0.0,
+   18.18
+  ],
+  "P_minus_b0": [
+   -3.79,
+   -20.45,
+   12.12
+  ]
+ },
+ "b0_hits_cap": {
+  "n": 95,
+  "P": 32.6,
+  "recent": 28.9,
+  "b0": 23.9,
+  "P_minus_recent": [
+   3.68,
+   -2.63,
+   10.0
+  ],
+  "P_minus_b0": [
+   8.77,
+   1.75,
+   15.96
+  ]
+ },
+ "per_round_consistency": {
+  "r1_delta_pp": 4.27,
+  "r2_delta_pp": 4.27,
+  "note": "P\u2212recent \u6bcf\u8f6e\u5747\u4e3a +5/117"
+ }
+}
