@@ -210,3 +210,15 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
 - 经典 +0.0249 @step200(last_8 为 +0.0218 @300),多槽 +0.0236 @200
   (last_8 +0.0193),两口径全胜且收敛快 3-6 倍(step50 即 0.011-0.013);
   A_r 漂移 max |−0.0057| 仍在帽内。选 step200 为 v5-full 教师候选。
+
+## frozen-teacher selector 闭环终值(2026-07-29):教师端 HGKV 仍有价值
+
+- mw-frozensel-ft-v1(冻结策略 + frozen-teacher selector,117/117 单轮):
+  full 33.3%,mem-critical 25.8%,ctl 41.8%。
+- 对 Recent-4 mem +6.5pp(p=0.04)仍显著——frozen 教师也能训出有效 selector;
+  但对 HGKV-teacher selector(同 60% 子集口径下的部署版,mem 30.6%)配对
+  差 **−4.8pp**:HGKV 教师标签质量更高。三层结论:部署 adapter 可省、
+  教师 HGKV 增益 ~5pp mem、机制(多槽像素重分配)不依赖 HGKV 存在。
+- 注意口径:frozen-teacher 用 60% sets 状态,HGKV-teacher(部署版 v4)用
+  100%——严格归因需 HGKV-teacher 同 60% 对照(数据已有,可训);单轮噪声
+  下 −4.8 的 CI 未算,谨慎表述为"方向性差距"。
