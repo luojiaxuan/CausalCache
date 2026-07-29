@@ -1,0 +1,73 @@
+{
+ "arms": {
+  "selv5": {
+   "control_pct": 43.6,
+   "full_pct": 33.3,
+   "memory_critical_pct": 24.2,
+   "missing_vs_roster": [],
+   "n_tasks": 117,
+   "vs_causalcache_b4": {
+    "control": {
+     "boot_p": 0.4766,
+     "ci95": [
+      -6.67,
+      12.73
+     ],
+     "delta_pp": 3.03,
+     "n": 55
+    },
+    "full": {
+     "boot_p": 0.8866,
+     "ci95": [
+      -6.84,
+      5.7
+     ],
+     "delta_pp": -0.57,
+     "n": 117
+    },
+    "memory_critical": {
+     "boot_p": 0.3936,
+     "ci95": [
+      -11.83,
+      4.3
+     ],
+     "delta_pp": -3.76,
+     "n": 62
+    }
+   },
+   "vs_recent_b4": {
+    "control": {
+     "boot_p": 0.7273,
+     "ci95": [
+      -7.88,
+      10.3
+     ],
+     "delta_pp": 1.21,
+     "n": 55
+    },
+    "full": {
+     "boot_p": 0.1958,
+     "ci95": [
+      -1.71,
+      8.26
+     ],
+     "delta_pp": 3.13,
+     "n": 117
+    },
+    "memory_critical": {
+     "boot_p": 0.0249,
+     "ci95": [
+      0.54,
+      10.75
+     ],
+     "delta_pp": 4.84,
+     "n": 62
+    }
+   }
+  }
+ },
+ "split_counts": {
+  "control": 55,
+  "memory_critical": 62
+ }
+}

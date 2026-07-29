@@ -222,3 +222,16 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
 - 注意口径:frozen-teacher 用 60% sets 状态,HGKV-teacher(部署版 v4)用
   100%——严格归因需 HGKV-teacher 同 60% 对照(数据已有,可训);单轮噪声
   下 −4.8 的 CI 未算,谨慎表述为"方向性差距"。
+
+## selector-v5(v5a last_8 教师)闭环终值(2026-07-30):loop-1 负结果
+
+- mw-selv5-v1(117/117,双机 96 模拟器):full 33.3%,mem 24.2%,ctl 43.6%。
+- 同任务配对(n=116):vs v4-teacher **−3.4 full / −6.6 mem**;vs
+  frozen-teacher 0.0。教师排行:v4(30.6 mem)≫ v5a≈frozen(24-26)。
+- **教训**:offline DiD 门控分数不等于教师排序质量——v5a 门控(+0.0193
+  多槽口径)高于隐含预期,但其效用地形对"候选帧排序"的判别力不如 v4
+  (k=1 最老槽位替换)教师;60% sets 标签子集也可能是负因子。用户裁定:
+  不再跑 v5a-full 教师闭环(标签已囤 6/8 singleton 供未来),资源转
+  32B 闭环 + OSWorld-30。
+- 收割跨机冲突 1 例(ChromeSearchBeijingWeatherTask 1.0 vs 0.0,取首见),
+  已计入 full 口径,边际影响 <1pp。
