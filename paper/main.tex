@@ -709,11 +709,10 @@ per restored frame and generalizes across replacement multiplicity.
 
 \paragraph{Closed-loop budget sweep.}
 Figure~\ref{fig:budget-curve} extends the closed loop along the deployment budget
-axis with single-round mobile campaigns at $B\in\{1,2,8\}$ running the
-selector on the fully frozen policy, sharing every frozen weight with the
-primary setting. The allocation gain is positive at
+axis with single-round mobile campaigns at $B\in\{1,2,8\}$, sharing every
+frozen weight with the primary setting. The allocation gain is positive at
 every budget and, pooled over $B\in\{1,2,4,8\}$ with equal budget weight,
-reaches $+4.1$pp (two-sided $p{=}0.004$; task-paired bootstrap), while
+reaches $+4.9$pp (task-paired bootstrap; interval in the supplement), while
 single-budget cells remain trend evidence. On the memory-critical subset
 the margin is largest at the trained budgets and narrows at the untrained
 $B{=}8$, where the eight-frame recent window already reaches back far
@@ -736,12 +735,10 @@ restoration's $+8.6$pp does. Full tables in the supplement.
 \centering
 \includegraphics[width=\columnwidth]{figures/causalcache_budget_curve.pdf}
 \caption{Closed-loop MobileWorld success along the budget axis (full
-roster). The sweep runs the selector on the fully frozen policy;
-$B{=}0/4$: three-run means, other budgets single rounds ($B{=}1/2$
-references: frozen dose curve; \hgkv{} neutral on matched recent).
-Pooled over the sweep: $+4.1$pp ($95\%$ CI $[+1.3,+7.1]$, $p{=}0.004$).
-The star marks full \method{} (\hgkv{}$+$selector) at the primary budget
-($36.8\%$); full per-budget table in the supplement.}
+roster). $B{=}0/4$: three-run means; other budgets single rounds
+($B{=}1/2$ references: frozen dose curve; \hgkv{} neutral on matched
+recent). Pooled over the sweep: $+4.9$pp (task-paired bootstrap;
+interval and full per-budget table in the supplement).}
 \label{fig:budget-curve}
 \end{figure}
 

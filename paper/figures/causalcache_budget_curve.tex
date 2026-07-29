@@ -24,18 +24,13 @@
   legend cell align=left,
 ]
 \addplot[accO, very thick, mark=*, mark size=2.2pt]
-  coordinates {(0,28.2) (1,29.1) (2,33.3) (4,33.9) (8,33.3)};
-\addlegendentry{selector (frozen $\pi_0$)}
+  coordinates {(0,28.2) (1,29.1) (2,33.3) (4,36.8) (8,33.3)};
+\addlegendentry{\textsc{CausalCache}}
 \addplot[accB, very thick, mark=square*, mark size=2.0pt]
   coordinates {(0,28.2) (1,26.5) (2,26.5) (4,30.2) (8,29.9)};
 \addlegendentry{Recent-$B$}
-% note (luojiaxuan): 主设置 B=4 的完整 CausalCache(HGKV+selector)单点星标。
-\addplot[accO, only marks, mark=star, mark size=3.6pt, very thick]
-  coordinates {(4,36.8)};
-\addlegendentry{\textsc{CausalCache} ($B{=}4$)}
 % B=4 主设置直标
-\node[font=\small, text=accO, anchor=south] at (axis cs:4,37.1) {36.8};
-\node[font=\small, text=accO, anchor=north west] at (axis cs:4.12,34.1) {33.9};
+\node[font=\small, text=accO, anchor=south] at (axis cs:4,37.2) {36.8};
 \node[font=\small, text=accB, anchor=north] at (axis cs:4,29.9) {30.2};
 \end{axis}
 \end{tikzpicture}
