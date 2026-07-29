@@ -17,7 +17,10 @@ def main() -> None:
     for rj in sorted(Path(args.output_root).glob("*/*/result.json")):
         rec = json.loads(rj.read_text())
         tid = rec.get("task_id") or rj.parent.name
-        out[tid] = {"score": float(rec.get("score", 0.0)), "steps": int(rec.get("steps", -1)),
+        steps = rec.get("steps", -1)
+        if isinstance(steps, list):
+            steps = len(steps)
+        out[tid] = {"score": float(rec.get("score", 0.0)), "steps": int(steps),
                     "domain": rec.get("domain", rj.parent.parent.name)}
     Path(args.output).write_text(json.dumps(out, indent=0))
     print(json.dumps({"tasks": len(out), "success": sum(1 for v in out.values() if v["score"] >= 1.0)}))
