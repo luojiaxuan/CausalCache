@@ -10,7 +10,8 @@
 \definecolor{chipgray}{HTML}{D9DEE3}
 \definecolor{bad}{HTML}{B83232}
 \definecolor{good}{HTML}{3A7D44}
-% note (luojiaxuan): 精简版 teaser——省略号压缩历史,字号放大,说明入 caption。
+% note (luojiaxuan): 放大版 teaser——行标签移到行上方、结果标记移到行下方,
+% 横向足迹从 ~11cm 压到 ~7cm,同一 \columnwidth 下主体放大约五成。
 \newcommand{\evcard}[3]{% x, y, style: 0=summary,1=recent,2=distant
   \ifnum#3=0
     \draw[slate, dashed, rounded corners=1.5pt, fill=white]
@@ -39,39 +40,42 @@
 \evcard{\dx*4}{0}{0}
 \node[font=\normalsize, text=slate] at (\dx*5,0) {$\cdots$};
 \foreach \i in {6,...,9} {\evcard{\dx*\i}{0}{0}}
-\node[font=\small, text=accO, anchor=south] at (\dx*4, 0.42)
+\node[font=\small, text=accO, anchor=south] at (\dx*3.55, 0.42)
   {$e_7$: order number};
 \draw[accO, very thick, rounded corners=1.5pt]
   (\dx*4-0.26,-0.34) rectangle (\dx*4+0.26,0.34);
 % recent window 分界
-\draw[slate, dashed] (\dx*5.5, 0.55) -- (\dx*5.5, -3.55);
+\draw[slate, dashed] (\dx*5.5, 0.55) -- (\dx*5.5, -3.42);
 
 %% ---------- Recent-4 ----------
-\def\rowy{-1.5}
-\node[font=\normalsize\bfseries, text=accB, anchor=east] at (0.3, \rowy) {Recent-$4$};
+\def\rowy{-1.72}
+\node[font=\small\bfseries, text=accB, anchor=west] at (\dx*1-0.26, \rowy+0.66)
+  {Recent-$4$};
 \node[font=\normalsize, text=slate] at (\dx*3,\rowy) {$\cdots$};
 \evcard{\dx*4}{\rowy}{0}
 \node[font=\normalsize, text=slate] at (\dx*5,\rowy) {$\cdots$};
 \foreach \i in {6,...,9} {\evcard{\dx*\i}{\rowy}{1}}
-\node[font=\normalsize, text=bad, anchor=west] at (\dx*9+0.5, \rowy)
+\node[font=\normalsize, text=bad, anchor=west] at (\dx*7.6, \rowy-0.56)
   {\ding{55}\; wrong};
 
 %% ---------- CausalCache ----------
-\def\rowyy{-3.0}
-\node[font=\normalsize\bfseries, text=accO, anchor=east] at (0.3, \rowyy) {\textsc{CausalCache}};
+\def\rowyy{-3.6}
+\node[font=\small\bfseries, text=accO, anchor=west] at (\dx*1-0.26, \rowyy+0.66)
+  {\textsc{CausalCache}};
 \node[font=\normalsize, text=slate] at (\dx*3,\rowyy) {$\cdots$};
 \evcard{\dx*4}{\rowyy}{2}
 \node[font=\normalsize, text=slate] at (\dx*5,\rowyy) {$\cdots$};
 \evcard{\dx*6}{\rowyy}{0}
 \foreach \i in {7,8,9} {\evcard{\dx*\i}{\rowyy}{1}}
-\node[font=\small, text=accO, anchor=north] at (\dx*4, \rowyy-0.4) {$e_7$};
-\node[font=\normalsize, text=good, anchor=west] at (\dx*9+0.5, \rowyy)
+\node[font=\small, text=accO, anchor=north] at (\dx*4, \rowyy-0.42) {$e_7$};
+\node[font=\normalsize, text=good, anchor=west] at (\dx*7.6, \rowyy-0.56)
   {\ding{51}\; correct};
 % swap 箭头
-\draw[arr, accO, very thick] ($(\dx*6, \rowy-0.4)$) to[bend right=25]
-  node[pos=0.5, left, font=\small, text=accO] {swap} ($(\dx*4, \rowyy+0.4)$);
+\draw[arr, accO, very thick] ($(\dx*6, \rowy-0.4)$) to[bend right=14]
+  ($(\dx*4, \rowyy+0.4)$);
+\node[font=\small, text=accO, anchor=east] at (\dx*4.75, -2.42) {swap};
 % 预算标注
-\node[font=\small, text=ink, anchor=west] at (0.3, -3.9)
+\node[font=\small, text=ink, anchor=west] at (\dx*1-0.26, \rowyy-1.06)
   {same budget: $B{=}4$ events carry pixels};
 \end{tikzpicture}
 \end{document}
