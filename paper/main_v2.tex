@@ -97,7 +97,9 @@ measured on desktop traces with a token-gated K/V probe (\hgkv) trained under
 difference-in-differences supervision inside a pre-specified drift envelope;
 the selector distills these measurements. The probe's role is
 \emph{teaching}, never shipping: at deployment it is behaviorally neutral
-and the distilled selector carries the entire gain.
+and the distilled selector carries the entire gain; a selector distilled
+from frozen-policy-scored labels recovers most of the closed-loop margin
+but trails the \hgkv{}-taught one on the memory-critical split.
 
 \section{Problem: Fixed-Budget Reallocation}
 
@@ -211,6 +213,7 @@ Frozen $+$ Recent-$B$ & $29.9$ & $22.6$ & $38.2$ \\
 \hgkv{} $+$ Recent-$B$ & $30.2$ & $19.4$ & $42.4$ \\
 \hgkv{} $+$ selector & $33.9$ & $28.0$ & $40.6$ \\
 Frozen $+$ selector (\method{}) & $\mathbf{36.8}$ & $\mathbf{30.6}$ & $43.6$ \\
+\hspace{5pt}frozen-taught selector variant & $33.3$ & $25.8$ & $41.8$ \\
 \bottomrule
 \end{tabular}
 }
@@ -218,7 +221,10 @@ Frozen $+$ selector (\method{}) & $\mathbf{36.8}$ & $\mathbf{30.6}$ & $43.6$ \\
 pairwise indistinguishable, and the two selector arms are pairwise
 indistinguishable ($+2.9$pp full, CI $[-2.9,+8.6]$): allocation carries
 the gain, the measurement adapter is deployment-neutral, and the best
-deployment ships zero adapted weights. OSWorld-Verified closed loop
+deployment ships zero adapted weights. Swapping the label teacher from
+\hgkv{} to the frozen policy keeps a significant margin over Recent-$B$
+($+6.5$pp memory-critical) but cedes part of it---the instrument earns
+its keep at training time. OSWorld-Verified closed loop
 (re-observable desktop): high-fidelity memory is worth $+12.8$pp over
 summary-only ($19.9\!\to\!32.7$), but allocation variants are
 indistinguishable there---consistent with placement: evidence rarely
@@ -308,8 +314,10 @@ falling to $\sim$$5\%$ at $B{=}8$ where it fires on only $39\%$ of steps.
 \section{Limitations and Conclusion}
 
 The headline selector arm is a single round against three-run baselines
-(\pending{additional rounds}). OSWorld shows fidelity value but no
-allocation headroom, so the
+(\pending{additional rounds}). The frozen-teacher variant was trained on
+a subsampled set-label pool, so part of its gap to the \hgkv{}-taught
+selector may reflect label volume rather than the teacher itself. OSWorld
+shows fidelity value but no allocation headroom, so the
 reallocation claim is currently mobile-only. We control an active context
 budget, not archive capacity, and \method{} reattaches rather than
 generates pixels. In one sentence: under a fixed visual budget, a frozen
