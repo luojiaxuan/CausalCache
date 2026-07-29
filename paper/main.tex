@@ -206,6 +206,19 @@ $B{=}4$ it replaces the entire recent window on $26\%$ of states---and the
 $k{\le}1$-capped control shows exactly these compositions carry the
 closed-loop gain.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/causalcache_hgkv_pass2.pdf}
+\caption{The two components. \emph{Left}: the \hgkv{} measurement
+probe---token-gated $\Delta K/\Delta V$ on the last eight layers, active
+only on restored history-image tokens and bitwise bypassed without
+them; it scores set utilities offline and never ships.
+\emph{Right}: deployment---the selector composes an exact-$B$ window and
+a conditional second pass lets the frozen policy re-decide under the
+recomposed window, always replacing the first proposal.}
+\label{fig:architecture}
+\end{figure}
+
 \paragraph{Deployed selector.}
 A two-tower marginal scorer $\hat\Delta(j\,|\,S)$ (cheap candidate
 features plus set-context features; recency-membership features carry
