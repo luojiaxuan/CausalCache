@@ -309,15 +309,12 @@ closed-loop gain.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/causalcache_pipeline.pdf}
-\caption{Training-to-deployment pipeline. \emph{(a)}~Offline, matched-budget
-candidate sets from desktop trajectories are scored as complete windows by a
-utility probe (\hgkv{} or the frozen policy; discarded after label
-generation), yielding set-conditioned marginal labels that train the
-budget-aware selector. \emph{(b)}~At deployment the frozen policy proposes
-$a_1$ under Recent-$B$; the selector composes an exact-$B$ set $S^{*}$, and
-only when the allocation changes is the prompt re-rendered and re-decoded by
-the same frozen weights. Only the selector is deployed; all policy weights
-remain frozen.}
+\caption{Training-to-deployment pipeline. Offline, matched-budget windows
+are scored as complete sets to produce set-conditioned marginal labels for
+the budget-aware selector. At deployment the frozen policy first acts under
+Recent-$B$; only when the selector changes the allocation is the prompt
+re-rendered and re-decoded. Only the selector is deployed; all policy
+weights remain frozen.}
 \label{fig:architecture}
 \end{figure*}
 

@@ -22,9 +22,9 @@
 \node[box, anchor=west] (traj) at (0,1.0) {Desktop\\trajectories};
 \node[box, right=5mm of traj] (groups) {Matched-budget\\candidate sets};
 \node[probe, right=5mm of groups] (score)
-  {Full-set utility scoring\\ \textcolor{slate}{\footnotesize probe scorer, discarded}\\ \textcolor{slate}{\footnotesize after label generation}};
-\node[box, right=5mm of score] (labels) {Set-conditioned\\marginal labels};
-\node[sel, right=5mm of labels] (train) {Train budget-aware\\selector};
+  {\textbf{Full-set utility scoring}\\ \textcolor{slate}{\footnotesize probe only; discarded after labels}};
+\node[box, right=5mm of score] (labels) {Set-conditioned\\labels};
+\node[sel, right=5mm of labels] (train) {\textbf{Selector training}};
 \draw[arr] (traj) -- (groups);
 \draw[arr] (groups) -- (score);
 \draw[arr] (score) -- (labels);
@@ -33,21 +33,17 @@
 %% ---------------- (b) deployment ----------------
 \node[lbl, anchor=west] (tb) at (0,-0.9) {(b) Frozen-policy deployment};
 \node[box, anchor=west] (prompt) at (0,-2.0) {Recent-$B$\\prompt};
-\node[pol, right=5mm of prompt] (pol1) {Frozen policy\\$\to$ proposal $a_1$};
-\node[sel, right=5mm of pol1] (selr) {Trained selector\\$\to$ exact-$B$ set $S^{*}$};
-\node[diamond, draw=ink, aspect=2.1, inner sep=1.2pt, right=5mm of selr,
-      font=\small, align=center] (dec) {allocation\\changed?};
-\node[pol, right=6mm of dec] (pol2) {re-render $S^{*}$;\\same frozen policy\\$\to$ final $a_2$};
+\node[pol, right=5mm of prompt] (pol1) {\textbf{Frozen policy}\\ \footnotesize proposal $a_1$};
+\node[sel, right=5mm of pol1] (selr) {\textbf{Budget-aware selector}\\ \footnotesize trained offline $\;\cdot\;$ exact-$B$ set $S^{*}$};
+\node[box, draw=slate, right=5mm of selr, font=\small] (dec)
+  {allocation changed};
+\node[pol, right=6mm of dec] (pol2) {\textbf{Re-decode under $S^{*}$}\\ \footnotesize same frozen weights $\to a_2$};
 \node[box, above=4.5mm of pol2, draw=slate] (emit) {emit $a_1$};
 \draw[arr] (prompt) -- (pol1);
 \draw[arr] (pol1) -- (selr);
 \draw[arr] (selr) -- (dec);
 \draw[arr] (dec) -- node[above, font=\footnotesize]{yes} (pol2);
 \draw[arr] (dec) |- node[pos=0.75, above, font=\footnotesize]{no} (emit);
-%% 训练→部署 连接
-\draw[arr, accO, very thick, dashed]
-  (train.south) to[out=-90,in=90] node[right, font=\footnotesize, text=accO]
-  {deployed} (selr.north);
 %% 底部性质句
 \node[font=\small\itshape, text=ink, anchor=west] at (0,-3.35)
   {Only the selector is deployed; all policy weights remain frozen.};
