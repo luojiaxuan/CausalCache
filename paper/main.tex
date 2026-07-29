@@ -117,7 +117,7 @@ on a real cross-application episode.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/causalcache_overview_case.pdf}
+\includegraphics[width=0.88\columnwidth]{figures/causalcache_overview_case.pdf}
 \caption{\method{} on a real cross-app episode (schematic; drawn with $B{=}4$). The agent must compose an SMS containing the order number it
 saw earlier in a shopping app. Every event persists as a one-line text
 summary; a budget of $B$ events may additionally carry their archived
@@ -268,7 +268,7 @@ gains as the utility of a coalition.
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=\textwidth]{figures/causalcache_hgkv_pass2.pdf}
+\includegraphics[width=0.76\textwidth]{figures/causalcache_hgkv_pass2.pdf}
 \caption{The two learned components of \method{}.
 (a)~The history-gated K/V interface (\hgkv): a low-rank
 $\Delta K,\Delta V$ branch on the last eight frozen self-attention layers
@@ -485,13 +485,13 @@ MobileWorld full ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
 \hspace{7pt}memory-critical ($62$) & $19.4$ & $30.6$ & $+11.2^{*}$ \\
 \hspace{7pt}single-app control ($55$) & $42.4$ & $43.6$ & $+1.2$ \\
 \hspace{7pt}split$\times$method interact. & --- & --- & $+10.1$ \\
-OSWorld-Verified ($361$, official $15$ steps) & $33.0$ & $33.3$ & $+0.3$ \\
+OSWorld-Verified ($361$) & $33.0$ & $33.3$ & $+0.3$ \\
 \hspace{7pt}$30$ max steps & $42.4$ & $46.7$ & $+4.3^{*}$ \\
 \bottomrule
 \end{tabular}
 }
 \caption{Primary closed-loop contrasts at the deployment budget $B{=}4$
-(task-paired bootstrap; MobileWorld three-run means). $^{*}$~the $95\%$
+(task-paired bootstrap; MobileWorld three-run means; the OSWorld row uses the official $15$-step cap). $^{*}$~the $95\%$
 confidence interval strictly excludes zero (full CI tables in the
 supplement; the interaction interval accompanies them). The gain
 concentrates exactly on the construction-defined memory-critical stratum,
@@ -623,7 +623,7 @@ buys nothing, so fidelity \emph{allocation} rather than active visual
 budget \emph{size} is the operative variable.
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/causalcache_split_bars.pdf}
+\includegraphics[width=0.82\columnwidth]{figures/causalcache_split_bars.pdf}
 \caption{The core contrast at the primary budget: on construction-defined
 memory-critical tasks \method{} gains $+11.2$pp over the same-budget recent
 allocation, while on matched single-app controls no effect is detectable
@@ -679,7 +679,7 @@ task time.
 
 \subsection{Ablations and Analyses}
 
-Policy-side per-$B$ gates and the frozen recent-dose sweep appear in Results.
+\looseness=-1 Policy-side per-$B$ gates and the frozen recent-dose sweep appear in Results.
 Table~\ref{tab:chooser} brackets the learned selector between allocation
 rules that share its budget and rendering exactly. Random exact-$B$ and
 RGB-similarity restoration are indistinguishable from Recent-$B$: sparse
@@ -713,7 +713,7 @@ supplement).}
 \label{tab:chooser}
 \end{table}
 
-The budget is spent adaptively: at $B{=}4$ the learned scorer keeps the
+\looseness=-1 The budget is spent adaptively: at $B{=}4$ the learned scorer keeps the
 entire recent window on $19\%$ of states and replaces all of it on
 $26\%$---a state-dependent $k$ profile that neither random allocation nor
 RGB similarity reproduces. Although training supervises only the
@@ -747,7 +747,7 @@ restoration's $+8.6$pp does. Full tables in the supplement.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/causalcache_budget_curve.pdf}
+\includegraphics[width=0.76\columnwidth]{figures/causalcache_budget_curve.pdf}
 \caption{Closed-loop MobileWorld success along the budget axis (full
 roster). $B{=}0/4$: three-run means; other budgets single rounds
 ($B{=}1/2$ references: frozen dose curve; \hgkv{} neutral on matched
@@ -767,7 +767,9 @@ peaks near one-tenth of wall time at the primary budget; complete
 intervals are in the supplement.
 
 \section{Limitations and Conclusion}
+\enlargethispage{2\baselineskip}
 
+\looseness=-1
 The evidence assembles into three steps. First, the problem is fidelity
 allocation under a fixed visual budget: every event survives as text and
 only $B$ regain pixels.
@@ -784,6 +786,7 @@ the recent realization they displace; pretraining contamination remains
 possible. In one sentence: \method{} learns
 which summarized GUI events deserve to be seen again.
 
+\clearpage
 \bibliography{references}
 
 \end{document}
