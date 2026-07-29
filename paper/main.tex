@@ -53,10 +53,11 @@ active, preserving current-screen processing. The adapter and selector
 are trained with matched-budget interventions on desktop trajectories and
 evaluated zero-shot on mobile. On OSWorld-Verified, activating historical
 screenshots improves success by about $13$ percentage points over
-summary-only memory. Under the official $15$-step limit, \method{} and
-Recent-$4$ are statistically indistinguishable; in a $30$-step
-diagnostic, \method{} achieves $46.7\%$ success versus $42.4\%$
-($+4.3$ points). Zero-shot on $117$ MobileWorld tasks, \method{} improves
+summary-only memory. At the default $15$-step rollout horizon, \method{}
+and Recent-$4$ are statistically indistinguishable. Because $352$ of
+$361$ episodes reach this horizon, we additionally evaluate both methods
+with an extended $30$-step horizon, where \method{} achieves $46.7\%$
+success versus $42.4\%$ ($+4.3$ points). Zero-shot on $117$ MobileWorld tasks, \method{} improves
 over Recent-$4$ from $30.2\%$ to $36.8\%$. The gain is concentrated on a
 pre-defined cross-app memory-candidate split ($30.6\%$ vs.\ $19.4\%$,
 $+11.2$ points), while single-app controls show no detectable difference
@@ -115,7 +116,7 @@ on a real cross-application episode.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.88\columnwidth]{figures/causalcache_overview_case.pdf}
+\includegraphics[width=0.86\columnwidth]{figures/causalcache_overview_case.pdf}
 \caption{\method{} on a real cross-app episode (schematic; drawn with $B{=}4$). The agent must compose an SMS containing the order number it
 saw earlier in a shopping app. Every event persists as a one-line text
 summary; a budget of $B$ events may additionally carry their archived
@@ -266,7 +267,7 @@ gains as the utility of a coalition.
 
 \begin{figure*}[!t]
 \centering
-\includegraphics[width=0.76\textwidth]{figures/causalcache_hgkv_pass2.pdf}
+\includegraphics[width=0.72\textwidth]{figures/causalcache_hgkv_pass2.pdf}
 \caption{The two learned components of \method{}.
 (a)~The history-gated K/V interface (\hgkv): a low-rank
 $\Delta K,\Delta V$ branch on the last eight frozen self-attention layers
@@ -461,6 +462,16 @@ diagnostics), and (iii) zero-shot on a cross-app mobile memory benchmark of
 controls, split mechanically by the benchmark's task metadata),
 which contributes no data to any training or selection decision
 \citep{kong2026mobileworld}.
+\looseness=-1 For OSWorld-Verified we use the no-GDrive task roster and the benchmark
+evaluator; the rollout horizon is controlled separately by the
+configurable \texttt{max\_steps} parameter\footnote{\texttt{max\_steps}
+is a serving-time evaluation parameter rather than part of the
+task-success evaluator.}: we use its default value of $15$ for the
+primary setting and additionally evaluate both allocation methods at
+\texttt{max\_steps}${=}30$ to measure sensitivity to horizon truncation.
+All comparisons between Recent-$B$ and \method{} use identical
+\texttt{max\_steps} values, so changing the horizon does not alter the
+matched-budget allocation contrast.
 Offline metrics are teacher-forced log-likelihood margins and full-action
 equivalence under an argument and coordinate tolerance (sensitivity settings
 in the supplement); closed-loop metrics are paired task success with
@@ -483,18 +494,21 @@ MobileWorld full ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
 \hspace{7pt}memory-critical ($62$) & $19.4$ & $30.6$ & $+11.2^{*}$ \\
 \hspace{7pt}single-app control ($55$) & $42.4$ & $43.6$ & $+1.2$ \\
 \hspace{7pt}split$\times$method interact. & --- & --- & $+10.1$ \\
-OSWorld-Verified ($361$) & $33.0$ & $33.3$ & $+0.3$ \\
-\hspace{7pt}$30$ max steps & $42.4$ & $46.7$ & $+4.3^{*}$ \\
+OSWorld-Verified, \texttt{max\_steps}${=}15$ & $33.0$ & $33.3$ & $+0.3$ \\
+OSWorld-Verified, \texttt{max\_steps}${=}30$ & $42.4$ & $46.7$ & $+4.3^{*}$ \\
 \bottomrule
 \end{tabular}
 }
 \caption{Primary closed-loop contrasts at the deployment budget $B{=}4$
-(task-paired bootstrap; MobileWorld three-run means; the OSWorld row uses the official $15$-step cap). $^{*}$~the $95\%$
+(task-paired bootstrap; MobileWorld three-run means). The main
+OSWorld-Verified row uses the default rollout horizon
+\texttt{max\_steps}${=}15$; because this horizon is saturated by
+$352/361$ episodes, we also report a matched extended-horizon comparison
+at \texttt{max\_steps}${=}30$. $^{*}$~the $95\%$
 confidence interval strictly excludes zero (full CI tables in the
 supplement; the interaction interval accompanies them). The gain
 concentrates exactly on the construction-defined memory-critical stratum,
-with no detectable effect on controls; on desktop the allocations tie at
-the official $15$-step cap and separate when it is doubled to $30$.}
+with no detectable effect on controls.}
 \label{tab:contrast}
 \end{table}
 
@@ -520,9 +534,10 @@ $\mathbf{30.6}$ & $\mathbf{43.6}$ \\
 }
 \caption{Closed-loop success rates (\%) at the primary deployment budget
 $B{=}4$; the offline budget sweep is in the supplement.
-OSWorld-Verified: official no-GDrive roster and official $15$-step budget,
-one run per arm (a $30$-step extended-horizon rerun of both closed-loop
-arms is reported in the text). MobileWorld: zero-shot means over three
+OSWorld-Verified: no-GDrive task roster with the benchmark evaluator;
+the reported main setting uses \texttt{max\_steps}${=}15$, one run per
+arm, and a matched extended-horizon comparison with
+\texttt{max\_steps}${=}30$ is discussed in the text. MobileWorld: zero-shot means over three
 runs for all multi-run arms; the memory-critical column restricts to the $62$
 construction-defined cross-app tasks, where the allocation contrast is
 largest, and the control column to the $55$ single-app tasks, where no
@@ -621,7 +636,7 @@ buys nothing, so fidelity \emph{allocation} rather than active visual
 budget \emph{size} is the operative variable.
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.82\columnwidth]{figures/causalcache_split_bars.pdf}
+\includegraphics[width=0.76\columnwidth]{figures/causalcache_split_bars.pdf}
 \caption{The core contrast at the primary budget: on construction-defined
 memory-critical tasks \method{} gains $+11.2$pp over the same-budget recent
 allocation, while on matched single-app controls no effect is detectable
@@ -656,21 +671,23 @@ the baseline already solves. These post-hoc strata are secondary to the construc
 memory-critical split.
 
 \paragraph{Desktop closed loop.}
-On OSWorld-Verified (361 tasks, official no-GDrive roster and
-$15$-step budget), all high-fidelity arms reach $32.7$--$33.3\%$
-(\method{} $33.3\%$), each
-about $+13$pp over summary-only memory ($19.9\%$, paired $95\%$ CIs
-excluding zero), while same-budget allocations remain
-indistinguishable. The official step budget itself binds, however:
-$352$ of $361$ episodes exhaust the $15$-step cap. Rerunning both arms
-with the cap doubled to $30$ steps separates the allocations: Recent-$4$
-rises to $42.4\%$ ($+9.5$pp from the extra horizon) while \method{}
-rises to $46.7\%$ ($+13.4$pp), converting the extended horizon into
-$+3.9$pp more in-domain success and a $+4.3$pp margin at $30$ steps
-versus $+0.3$ at $15$. Under the official cap OSWorld therefore
-supports high-fidelity \emph{availability}; conditional
-\emph{allocation} shows on the horizon-extended desktop run and is
-tested zero-shot by the mobile memory-critical split. \hgkv{} again shows no detectable behavioral difference on matched
+We evaluate on $361$ OSWorld-Verified tasks using the no-GDrive roster
+and benchmark evaluator. Our primary configuration uses the default
+rollout parameter \texttt{max\_steps}${=}15$. Under this horizon, all
+high-fidelity methods achieve $32.7$--$33.3\%$ success, approximately
+$13$ points above summary-only memory ($19.9\%$; paired $95\%$ CIs
+excluding zero), while Recent-$4$ and \method{} are statistically
+indistinguishable ($33.0\%$ vs.\ $33.3\%$).
+The $15$-step horizon is strongly saturated: $352$ of $361$ episodes
+terminate by reaching \texttt{max\_steps}. To assess whether this
+truncation masks differences in fidelity allocation, we rerun Recent-$4$
+and \method{} under an identical extended horizon of
+\texttt{max\_steps}${=}30$. Recent-$4$ reaches $42.4\%$, whereas
+\method{} reaches $46.7\%$, producing a $+4.3$-point allocation margin.
+Thus, the default-horizon result supports the value of historical visual
+context, while the extended-horizon analysis provides evidence that
+selective allocation becomes more useful when longer trajectories can
+unfold. \hgkv{} again shows no detectable behavioral difference on matched
 Recent-$B$ allocations, mirroring the mobile finding. \method{} adds a
 median of eight policy calls per task, about $7\%$ of median end-to-end
 task time.
@@ -745,7 +762,7 @@ restoration's $+8.6$pp does. Full tables in the supplement.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.76\columnwidth]{figures/causalcache_budget_curve.pdf}
+\includegraphics[width=0.73\columnwidth]{figures/causalcache_budget_curve.pdf}
 \caption{Closed-loop MobileWorld success along the budget axis (full
 roster). $B{=}0/4$: three-run means; other budgets single rounds
 ($B{=}1/2$ references: frozen dose curve; \hgkv{} neutral on matched
@@ -765,7 +782,7 @@ peaks near one-tenth of wall time at the primary budget; complete
 intervals are in the supplement.
 
 \section{Limitations and Conclusion}
-\enlargethispage{2\baselineskip}
+\enlargethispage{6\baselineskip}
 
 \looseness=-1
 The evidence assembles into three steps. First, the problem is fidelity
