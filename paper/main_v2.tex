@@ -100,14 +100,10 @@ cross-application episode.
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/causalcache_overview_case.pdf}
-\caption{\method{} on a real cross-app episode (schematic; drawn with
-$B{=}4$). The agent must compose an SMS containing the order number it
-saw earlier in a shopping app. Every event persists as a one-line text
-summary; a budget of $B$ events may additionally carry their archived
-pixels. After the app switch the evidence frame $e_7$ lies outside the
-recent window: Recent-$B$ spends every slot on the latest events and
-types the wrong number, while \method{} swaps one recent slot for $e_7$
-at the same budget and succeeds.}
+\caption{Fixed-budget reallocation in a cross-app episode ($B{=}4$). All
+events remain as text. Recent-$B$ assigns pixels to the latest four
+events and misses distant evidence $e_7$; \method{} swaps $e_7$ into the
+same four-slot visual budget and produces the correct order number.}
 \label{fig:qualitative-cart}
 \end{figure}
 
@@ -309,12 +305,11 @@ closed-loop gain.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/causalcache_pipeline.pdf}
-\caption{Training-to-deployment pipeline. Offline, matched-budget windows
-are scored as complete sets to produce set-conditioned marginal labels for
-the budget-aware selector. At deployment the frozen policy first acts under
-Recent-$B$; only when the selector changes the allocation is the prompt
-re-rendered and re-decoded. Only the selector is deployed; all policy
-weights remain frozen.}
+\caption{Training-to-deployment pipeline. Offline, complete matched-budget
+windows are scored to derive set-conditioned marginal labels for the
+budget-aware selector. At deployment, the frozen policy proposes $a_1$
+under Recent-$B$; the prompt is re-rendered and re-decoded only if the
+selector returns an allocation different from Recent-$B$.}
 \label{fig:architecture}
 \end{figure*}
 

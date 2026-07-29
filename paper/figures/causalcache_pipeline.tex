@@ -34,10 +34,10 @@
 \node[lbl, anchor=west] (tb) at (0,-0.9) {(b) Frozen-policy deployment};
 \node[box, anchor=west] (prompt) at (0,-2.0) {Recent-$B$\\prompt};
 \node[pol, right=5mm of prompt] (pol1) {\textbf{Frozen policy}\\ \footnotesize proposal $a_1$};
-\node[sel, right=5mm of pol1] (selr) {\textbf{Budget-aware selector}\\ \footnotesize trained offline $\;\cdot\;$ exact-$B$ set $S^{*}$};
+\node[sel, right=5mm of pol1] (selr) {\textbf{Budget-aware selector}\\ \footnotesize full trace $+$ proposal $a_1$ $\to$ exact-$B$ set $S^{*}$};
 \node[box, draw=slate, right=5mm of selr, font=\small] (dec)
-  {allocation changed};
-\node[pol, right=6mm of dec] (pol2) {\textbf{Re-decode under $S^{*}$}\\ \footnotesize same frozen weights $\to a_2$};
+  {Any recent slot\\displaced?};
+\node[pol, right=6mm of dec] (pol2) {\textbf{Re-render and re-decode}\\ \footnotesize under $S^{*}$, same frozen policy $\to a_2$};
 \node[box, above=4.5mm of pol2, draw=slate] (emit) {emit $a_1$};
 \draw[arr] (prompt) -- (pol1);
 \draw[arr] (pol1) -- (selr);
