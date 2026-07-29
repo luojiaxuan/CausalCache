@@ -512,6 +512,18 @@ mentioned again,'' and is only partially captured by its extractable
 text.
 
 
+\subsection{\hgkv{} Token-Level Structure}
+
+\begin{center}
+\includegraphics[width=\columnwidth]{figures/causalcache_hgkv_pass2.pdf}
+\captionof{figure}{The token-gated K/V probe and the proposal-conditioned
+re-decision, in full detail: a low-rank $\Delta K,\Delta V$ branch on the
+last eight frozen layers is gated to restored history-image tokens only and
+bitwise bypassed at $B{=}0$; deployment re-decides only when a recent event
+is displaced.}
+\label{fig:s-hgkv-structure}
+\end{center}
+
 \subsection{Deployment Arm Inventory (MobileWorld, $B{=}4$)}
 
 Single-round arms sharing roster, budget, rendering, and greedy decoding:
