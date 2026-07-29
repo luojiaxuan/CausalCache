@@ -48,6 +48,7 @@
 {"t": "82e3c869-49f6-4305-a7ce-f3e64a0618e7", "d": "multi_apps", "s": false, "score": 0.0, "n": 26, "term": "policy_done"}
 {"t": "d68204bf-11c1-4b13-b48b-d303c73d4bf6", "d": "multi_apps", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
 {"t": "869de13e-bef9-4b91-ba51-f6708c40b096", "d": "multi_apps", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
+{"t": "42d25c08-fb87-4927-8b65-93631280a26f", "d": "multi_apps", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
 {"t": "b337d106-053f-4d37-8da0-7f9c4043a66b", "d": "multi_apps", "s": false, "score": 0.0, "n": 15, "term": "policy_done"}
 {"t": "c2751594-0cd5-4088-be1b-b5f2f9ec97c4", "d": "multi_apps", "s": true, "score": 1.0, "n": 30, "term": "step_budget_exhausted"}
 {"t": "3a93cae4-ad3e-403e-8c12-65303b271818", "d": "multi_apps", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
@@ -72,6 +73,7 @@
 {"t": "4783cc41-c03c-4e1b-89b4-50658f642bd5", "d": "os", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
 {"t": "a4d98375-215b-4a4d-aee9-3d4370fccc41", "d": "os", "s": true, "score": 1.0, "n": 8, "term": "policy_done"}
 {"t": "4127319a-8b79-4410-b58a-7a151e15f3d7", "d": "os", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
+{"t": "3ce045a0-877b-42aa-8d2c-b4a863336ab8", "d": "os", "s": false, "score": 0.0, "n": 7, "term": "policy_done"}
 {"t": "5c1075ca-bb34-46a3-a7a0-029bd7463e79", "d": "os", "s": true, "score": 1.0, "n": 5, "term": "policy_done"}
 {"t": "13584542-872b-42d8-b299-866967b5c3ef", "d": "os", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
 {"t": "b6781586-6346-41cd-935a-a6b1487918fc", "d": "os", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
@@ -136,6 +138,7 @@
 {"t": "734d6579-c07d-47a8-9ae2-13339795476b", "d": "gimp", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
 {"t": "9b7bc335-06b5-4cd3-9119-1a649c478509", "d": "thunderbird", "s": true, "score": 1.0, "n": 15, "term": "policy_done"}
 {"t": "dd84e895-72fd-4023-a336-97689ded257c", "d": "thunderbird", "s": true, "score": 1.0, "n": 5, "term": "policy_done"}
+{"t": "3f49d2cc-f400-4e7d-90cc-9b18e401cc31", "d": "thunderbird", "s": true, "score": 1.0, "n": 7, "term": "policy_done"}
 {"t": "08c73485-7c6d-4681-999d-919f5c32dcfa", "d": "thunderbird", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
 {"t": "f201fbc3-44e6-46fc-bcaa-432f9815454c", "d": "thunderbird", "s": true, "score": 1.0, "n": 19, "term": "policy_done"}
 {"t": "a1af9f1c-50d5-4bc3-a51e-4d9b425ff638", "d": "thunderbird", "s": false, "score": 0.0, "n": 30, "term": "step_budget_exhausted"}
@@ -213,6 +216,7 @@
 {"t": "e2b5e914-ffe1-44d2-8e92-58f8c5d92bb2", "d": "vs_code", "s": true, "score": 1.0, "n": 10, "term": "policy_done"}
 {"t": "982d12a5-beab-424f-8d38-d2a48429e511", "d": "vs_code", "s": true, "score": 1.0, "n": 6, "term": "policy_done"}
 {"t": "930fdb3b-11a8-46fe-9bac-577332e2640e", "d": "vs_code", "s": false, "score": 0.0, "n": 10, "term": "policy_done"}
+{"t": "eabc805a-bfcf-4460-b250-ac92135819f6", "d": "vs_code", "s": true, "score": 1.0, "n": 9, "term": "policy_done"}
 {"t": "57667013-ea97-417c-9dce-2713091e6e2a", "d": "libreoffice_impress", "s": true, "score": 1.0, "n": 11, "term": "policy_done"}
 {"t": "70bca0cc-c117-427e-b0be-4df7299ebeb6", "d": "libreoffice_impress", "s": true, "score": 1.0, "n": 7, "term": "policy_done"}
 {"t": "c59742c0-4323-4b9d-8a02-723c251deaa0", "d": "libreoffice_impress", "s": true, "score": 1.0, "n": 8, "term": "policy_done"}
