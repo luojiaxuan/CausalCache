@@ -42,7 +42,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{scope}[shift={(0,0)}]
   \node[lbl, font=\small\bfseries, anchor=west] at (-0.2, 3.55)
-    {(a) HGKV: gated K/V, trained; policy frozen};
+    {(a) HGKV training};
 
   % attention 盒
   \node[draw=ink, thick, rounded corners=2pt, minimum width=6.55cm, minimum height=0.8cm,
@@ -84,8 +84,7 @@
 
   % 底注
   \node[slbl, anchor=north west, align=left] at (-0.2, -1.5)
-    {gate is $1$ only on restored history-image tokens;\\
-     $B{=}0 \Rightarrow g\equiv 0 \Rightarrow$ bitwise-exact frozen policy};
+    {$g{=}1$ only on restored history tokens; $B{=}0\Rightarrow$ exact frozen policy};
 \end{scope}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -93,7 +92,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{scope}[shift={(8.3,0)}]
   \node[lbl, font=\small\bfseries, anchor=west] at (-0.3, 3.55)
-    {(b) conditional re-decision: 2nd pass only on displacement};
+    {(b) conditional re-decision};
 
   % pass 1 行
   \node[slbl, anchor=east] at (0.16, 2.75) {pass 1};
@@ -102,13 +101,13 @@
   \node[draw=ink, rounded corners=2pt, inner sep=2.5pt, font=\scriptsize, anchor=west]
     (pol1) at (4.75, 2.75) {policy \frozenmark};
   \draw[arr] (0.47*9+0.24, 2.75) -- (pol1.west);
-  \node[lbl, anchor=west] (a1) at ($(pol1.east)+(0.18,0)$) {$a_1$ proposal};
+  \node[lbl, anchor=west] (a1) at ($(pol1.east)+(0.18,0)$) {$a_1$};
   \draw[arr] (pol1.east) -- (a1.west);
 
   % selector 盒(橙 = 被训练的部件)
   \node[draw=accO, very thick, rounded corners=2pt, fill=fillO, align=center,
         font=\scriptsize, inner sep=3.5pt] (selb) at (2.6, 1.45)
-    {selector (trained):\\scores all events given $a_1$, recency, chosen set};
+    {budget-aware selector (trained)};
   \draw[arr] (1.9, 2.45) -- ($(selb.north)+(-0.7,0)$);
   \draw[arr] (a1.south) |- ($(selb.east)+(0.35,0.1)$) -- ($(selb.east)+(0,0.1)$);
 
@@ -125,7 +124,7 @@
   \node[lbl, anchor=west] at ($(ss.east)+(0.08,0)$) {$S^{*}$, $|S^{*}|{=}B$};
 
   % 分支
-  \node[lbl, anchor=north] (br) at (2.6, -0.35) {$S^{*}$ keeps recent tail?\; yes $\to$ emit $a_1$};
+  \node[lbl, anchor=north] (br) at (2.6, -0.35) {recent slot displaced?\; no $\to$ emit $a_1$};
   \draw[arr] (ss.south) -- (br.north);
 
   % pass 2 行
@@ -136,9 +135,9 @@
   \node[draw=ink, rounded corners=2pt, inner sep=2.5pt, font=\scriptsize, anchor=west]
     (pol2) at (4.75, -1.45) {policy \frozenmark};
   \draw[arr] (0.47*9+0.24, -1.45) -- (pol2.west);
-  \node[lbl, anchor=west] (a2) at ($(pol2.east)+(0.18,0)$) {$a_2$ final};
+  \node[lbl, anchor=west] (a2) at ($(pol2.east)+(0.18,0)$) {$a_2$};
   \draw[arr] (pol2.east) -- (a2.west);
-  \draw[arr] (br.south) -- node[right, font=\scriptsize]{no: re-render, same weights} (2.6, -1.05);
+  \draw[arr] (br.south) -- node[right, font=\scriptsize]{yes: re-render} (2.6, -1.05);
 
   % 图例
   \node[slbl, anchor=north west, align=left] at (-0.3, -2.1)

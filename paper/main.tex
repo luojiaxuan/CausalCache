@@ -115,9 +115,9 @@ non-recent events are actually promoted is measured as a result, never
 preset. Figure~\ref{fig:qualitative-cart} illustrates this reallocation
 on a real cross-application episode.
 
-\begin{figure*}[!t]
+\begin{figure}[t]
 \centering
-\includegraphics[width=0.92\textwidth]{figures/causalcache_overview_case.pdf}
+\includegraphics[width=\columnwidth]{figures/causalcache_overview_case.pdf}
 \caption{\method{} on a real cross-app episode (schematic; drawn with $B{=}4$). The agent must compose an SMS containing the order number it
 saw earlier in a shopping app. Every event persists as a one-line text
 summary; a budget of $B$ events may additionally carry their archived
@@ -126,7 +126,7 @@ recent window: Recent-$B$ spends every slot on the latest events and
 types the wrong number, while \method{} swaps one recent slot for $e_7$
 at the same budget and succeeds.}
 \label{fig:qualitative-cart}
-\end{figure*}
+\end{figure}
 
 Learning to \emph{use} reattached pixels must not corrupt the base agent.
 Full-layer adaptation simultaneously changes current-screen understanding,

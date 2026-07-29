@@ -1,4 +1,4 @@
-\documentclass[tikz,border=8pt]{standalone}
+\documentclass[tikz,border=6pt]{standalone}
 \usepackage{pifont}
 \usepackage{amssymb}
 \usetikzlibrary{positioning,calc,arrows.meta,decorations.pathreplacing}
@@ -12,8 +12,8 @@
 \definecolor{bad}{HTML}{B83232}
 \definecolor{good}{HTML}{3A7D44}
 \newcommand{\frozenmark}{\textcolor{slate}{\ding{100}}}
-% note (luojiaxuan): 事件卡 = 圆角小卡,底部灰色摘要条;虚线灰边=纯摘要,
-% 蓝/橙实线=带图(吸收 overview.svg 的卡片语言,箭头保持手绘正确拓扑)。
+% note (luojiaxuan): 单栏紧凑版 case 图——行标签移行上、budget 药丸移 compose 下、
+% verdict 移 policy 下、图例两行,原生宽 ~8.5cm ≈ \columnwidth 一比一渲染。
 \newcommand{\evcard}[3]{% x, y, style: 0=summary,1=recent,2=distant
   \ifnum#3=0
     \draw[slate, dashed, rounded corners=1.2pt, fill=white]
@@ -39,8 +39,8 @@
 \def\dx{0.55}
 
 %% ---------- episode timeline ----------
+\node[lbl, anchor=west] at (\dx*1-0.19, 0.55) {episode};
 \foreach \i in {1,...,12} {\evcard{\dx*\i}{0}{0}}
-\node[lbl, anchor=east] at (0.18, 0) {episode};
 % e7 证据小票
 \begin{scope}[shift={(\dx*7,0)}]
   \draw[accO, very thick, fill=fillO] (-0.15,0.40) rectangle (0.15,0.82);
@@ -56,33 +56,30 @@
 \draw[slate, decorate, decoration={brace, mirror, amplitude=3pt}]
   ($(\dx*9-0.25,-0.40)$) -- ($(\dx*12+0.25,-0.40)$);
 \node[slbl, anchor=north] at ($(\dx*10.5,-0.55)$) {messaging app};
-% 当前屏 + B=4 药丸
-\node[draw=ink, thick, rounded corners=2pt, minimum width=1.3cm, minimum height=0.95cm,
-      align=center, font=\scriptsize, anchor=west] (cur) at ($(\dx*12+0.35,0)$)
+% 当前屏 + budget 药丸(移到 compose 下方省横向)
+\node[draw=ink, thick, rounded corners=2pt, minimum width=1.25cm, minimum height=0.9cm,
+      align=center, font=\scriptsize, anchor=west] (cur) at ($(\dx*12+0.32,0)$)
   {compose\\SMS};
 \node[slbl, anchor=south] at (cur.north) {current};
 \node[fill=ink, text=white, rounded corners=5pt, inner xsep=6pt, inner ysep=2.5pt,
-      font=\scriptsize\bfseries, anchor=west] at ($(cur.east)+(0.18,0.42)$) {budget $B$};
-% 摘要横带
-\node[draw=slate, fill=chipgray!45, rounded corners=1.5pt, minimum width=6.4cm,
-      minimum height=3.4mm, font=\scriptsize, text=slate]
-  (trace) at (3.6, -1.28) {all events stay as one-line text summaries};
+      font=\scriptsize\bfseries, anchor=north] at ($(cur.south)+(0,-0.16)$) {budget $B$};
 
 %% ---------- two allocations ----------
-\def\rowy{-2.45}
-\def\rowyy{-3.65}
+\def\rowy{-2.62}
+\def\rowyy{-4.05}
 % Recent-B row
-\node[font=\scriptsize\bfseries, text=accB, anchor=east] at (0.18, \rowy) {Recent-$B$};
+\node[font=\scriptsize\bfseries, text=accB, anchor=west] at (\dx*1-0.19, \rowy+0.52)
+  {Recent-$B$};
 \foreach \i in {1,...,8} {\evcard{\dx*\i}{\rowy}{0}}
 \foreach \i in {9,...,12} {\evcard{\dx*\i}{\rowy}{1}}
 \node[draw=ink, rounded corners=2pt, inner sep=2.5pt, font=\scriptsize, anchor=west]
-  (pol1) at (7.9, \rowy) {policy \frozenmark};
+  (pol1) at ($(\dx*12+0.42,\rowy)$) {policy \frozenmark};
 \draw[arr] ($(\dx*12+0.25, \rowy)$) -- (pol1.west);
-\node[font=\scriptsize, text=bad, anchor=north] (out1) at ($(pol1.south)+(0,-0.12)$)
-  {\ding{55}\; wrong order no.};
-\draw[arr] (pol1.south) -- (out1.north);
+\node[font=\scriptsize, text=bad, anchor=north] (out1) at ($(pol1.south)+(0,-0.10)$)
+  {\ding{55}\; wrong no.};
 % CausalCache row
-\node[font=\scriptsize\bfseries, text=accO, anchor=east] at (0.18, \rowyy) {\textsc{CausalCache}};
+\node[font=\scriptsize\bfseries, text=accO, anchor=west] at (\dx*1-0.19, \rowyy+0.52)
+  {\textsc{CausalCache}};
 \foreach \i in {1,...,6} {\evcard{\dx*\i}{\rowyy}{0}}
 \evcard{\dx*7}{\rowyy}{2}
 \evcard{\dx*8}{\rowyy}{0}
@@ -90,21 +87,24 @@
 \foreach \i in {10,...,12} {\evcard{\dx*\i}{\rowyy}{1}}
 \node[lbl, text=accO, anchor=north, font=\scriptsize] at ($(\dx*7, \rowyy-0.30)$) {$e_7$};
 \node[draw=ink, rounded corners=2pt, inner sep=2.5pt, font=\scriptsize, anchor=west]
-  (pol2) at (7.9, \rowyy) {policy \frozenmark};
+  (pol2) at ($(\dx*12+0.42,\rowyy)$) {policy \frozenmark};
 \draw[arr] ($(\dx*12+0.25, \rowyy)$) -- (pol2.west);
-\node[font=\scriptsize, text=good, anchor=north] (out2) at ($(pol2.south)+(0,-0.12)$)
-  {\ding{51}\; correct order no.};
-\draw[arr] (pol2.south) -- (out2.north);
+\node[font=\scriptsize, text=good, anchor=north] (out2) at ($(pol2.south)+(0,-0.10)$)
+  {\ding{51}\; correct no.};
 % swap 箭头:recent 行的 e9 槽位让给 CC 行的 e7
 \draw[arr, accO, very thick] ($(\dx*9, \rowy-0.30)$) to[bend right=30]
   node[pos=0.45, left, font=\scriptsize, text=accO] {swap}
   ($(\dx*7, \rowyy+0.30)$);
 % recent 窗口分界虚线
-\draw[slate, dashed] ($(\dx*8.5, 0.30)$) -- ($(\dx*8.5, \rowyy-0.55)$);
-\node[slbl, anchor=north] at ($(\dx*8.5, \rowyy-0.60)$) {recent-window boundary};
-% 图例
-\node[slbl, anchor=west, align=left] at (0.35, \rowyy-1.25)
-  {same budget: exactly $B$ events carry pixels\quad
+\draw[slate, dashed] ($(\dx*8.5, 0.30)$) -- ($(\dx*8.5, \rowyy-0.60)$);
+% 摘要横带
+\node[draw=slate, fill=chipgray!45, rounded corners=1.5pt, minimum width=6.2cm,
+      minimum height=3.4mm, font=\scriptsize, text=slate]
+  (trace) at (3.5, -1.42) {all events stay as one-line text summaries};
+\node[slbl, anchor=north] at ($(\dx*8.5, \rowyy-0.65)$) {recent-window boundary};
+% 图例(两行)
+\node[slbl, anchor=north west, align=left] at (\dx*1-0.19, \rowyy-1.18)
+  {same budget: exactly $B$ events carry pixels\\[1pt]
    \textcolor{accB}{$\blacksquare$}\,recent\quad
    \textcolor{accO}{$\blacksquare$}\,restored distant\quad
    \tikz{\draw[slate, dashed, rounded corners=1pt] (0,0) rectangle (0.24,0.18);}\,summary only\quad
