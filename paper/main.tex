@@ -92,9 +92,11 @@ promoting a summarized event back to pixels depends on which images are already
 active: without recent images, a distant screenshot may lack local grounding;
 with a saturated recent window, another image may be redundant. Moreover, the
 action policy must consume the reattached pixels. Our experiments show that a
-strong frozen policy can respond to the \emph{presence} of history images
-without being reliably sensitive to their \emph{content}, leaving an otherwise
-better restoration policy with nothing to improve.
+strong frozen policy exhibits weak and unreliable \emph{average}
+selectivity under matched replacement probes, although it can still
+benefit from restored evidence on a subset of states; \hgkv{} sharpens
+this content sensitivity and provides a more reliable utility signal for
+training and deployment.
 
 \method{} accordingly treats GUI memory as \emph{conditional high-fidelity
 restoration} (``causal'' denotes policy-specific effects of matched prompt
