@@ -62,7 +62,7 @@
   {compose\\SMS};
 \node[slbl, anchor=south] at (cur.north) {current};
 \node[fill=ink, text=white, rounded corners=5pt, inner xsep=6pt, inner ysep=2.5pt,
-      font=\scriptsize\bfseries, anchor=west] at ($(cur.east)+(0.18,0.42)$) {B = 4};
+      font=\scriptsize\bfseries, anchor=west] at ($(cur.east)+(0.18,0.42)$) {budget $B$};
 % 摘要横带
 \node[draw=slate, fill=chipgray!45, rounded corners=1.5pt, minimum width=6.4cm,
       minimum height=3.4mm, font=\scriptsize, text=slate]
@@ -72,15 +72,15 @@
 \def\rowy{-2.45}
 \def\rowyy{-3.65}
 % Recent-B row
-\node[font=\scriptsize\bfseries, text=accB, anchor=east] at (0.18, \rowy) {Recent-4};
+\node[font=\scriptsize\bfseries, text=accB, anchor=east] at (0.18, \rowy) {Recent-$B$};
 \foreach \i in {1,...,8} {\evcard{\dx*\i}{\rowy}{0}}
 \foreach \i in {9,...,12} {\evcard{\dx*\i}{\rowy}{1}}
 \node[draw=ink, rounded corners=2pt, inner sep=2.5pt, font=\scriptsize, anchor=west]
   (pol1) at (7.9, \rowy) {policy \frozenmark};
 \draw[arr] ($(\dx*12+0.25, \rowy)$) -- (pol1.west);
-\node[font=\scriptsize, text=bad, anchor=west] (out1) at ($(pol1.east)+(0.22,0)$)
+\node[font=\scriptsize, text=bad, anchor=north] (out1) at ($(pol1.south)+(0,-0.12)$)
   {\ding{55}\; wrong order no.};
-\draw[arr] (pol1.east) -- (out1.west);
+\draw[arr] (pol1.south) -- (out1.north);
 % CausalCache row
 \node[font=\scriptsize\bfseries, text=accO, anchor=east] at (0.18, \rowyy) {\textsc{CausalCache}};
 \foreach \i in {1,...,6} {\evcard{\dx*\i}{\rowyy}{0}}
@@ -92,9 +92,9 @@
 \node[draw=ink, rounded corners=2pt, inner sep=2.5pt, font=\scriptsize, anchor=west]
   (pol2) at (7.9, \rowyy) {policy \frozenmark};
 \draw[arr] ($(\dx*12+0.25, \rowyy)$) -- (pol2.west);
-\node[font=\scriptsize, text=good, anchor=west] (out2) at ($(pol2.east)+(0.22,0)$)
+\node[font=\scriptsize, text=good, anchor=north] (out2) at ($(pol2.south)+(0,-0.12)$)
   {\ding{51}\; correct order no.};
-\draw[arr] (pol2.east) -- (out2.west);
+\draw[arr] (pol2.south) -- (out2.north);
 % swap 箭头:recent 行的 e9 槽位让给 CC 行的 e7
 \draw[arr, accO, very thick] ($(\dx*9, \rowy-0.30)$) to[bend right=30]
   node[pos=0.45, left, font=\scriptsize, text=accO] {swap}
@@ -104,7 +104,7 @@
 \node[slbl, anchor=north] at ($(\dx*8.5, \rowyy-0.60)$) {recent-window boundary};
 % 图例
 \node[slbl, anchor=west, align=left] at (0.35, \rowyy-1.25)
-  {same budget: exactly 4 events carry pixels\quad
+  {same budget: exactly $B$ events carry pixels\quad
    \textcolor{accB}{$\blacksquare$}\,recent\quad
    \textcolor{accO}{$\blacksquare$}\,restored distant\quad
    \tikz{\draw[slate, dashed, rounded corners=1pt] (0,0) rectangle (0.24,0.18);}\,summary only\quad

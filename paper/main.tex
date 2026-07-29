@@ -112,19 +112,19 @@ non-recent events are actually promoted is measured as a result, never
 preset. Figure~\ref{fig:qualitative-cart} illustrates this reallocation
 on a real cross-application episode.
 
-\begin{figure*}[t]
+\begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/causalcache_overview_case.pdf}
-\caption{\method{} on a real cross-app episode (schematic). The agent must
-compose an SMS containing the order number it saw earlier in a shopping
-app. Every event persists as a one-line text summary; a fixed budget of
-$B{=}4$ events may additionally carry their archived pixels. After the app
-switch the evidence frame $e_7$ lies outside the recent window: Recent-$4$
-spends all four slots on the latest events and types the wrong number,
-while \method{} swaps one recent slot for $e_7$ at the same budget and
-succeeds.}
+\includegraphics[width=\columnwidth]{figures/causalcache_overview_case.pdf}
+\caption{\method{} on a real cross-app episode (schematic; drawn with
+four slots). The agent must compose an SMS containing the order number it
+saw earlier in a shopping app. Every event persists as a one-line text
+summary; a budget of $B$ events may additionally carry their archived
+pixels. After the app switch the evidence frame $e_7$ lies outside the
+recent window: Recent-$B$ spends every slot on the latest events and
+types the wrong number, while \method{} swaps one recent slot for $e_7$
+at the same budget and succeeds.}
 \label{fig:qualitative-cart}
-\end{figure*}
+\end{figure}
 
 Learning to \emph{use} reattached pixels must not corrupt the base agent.
 Full-layer adaptation simultaneously changes current-screen understanding,
@@ -753,7 +753,8 @@ detectable change.
 We control an active context budget, not archive capacity, and
 \method{} reattaches rather than generates pixels. We claim only that
 some summarized events have greater conditional marginal utility than
-the recent realization they displace. In one sentence: \method{} learns
+the recent realization they displace; pretraining contamination remains
+possible. In one sentence: \method{} learns
 which summarized GUI events deserve to be seen again.
 
 \bibliography{references}
