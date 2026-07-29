@@ -414,7 +414,7 @@ MobileWorld full ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
 \hspace{7pt}memory-critical ($62$) & $19.4$ & $30.6$ & $+11.3^{*}$ \\
 \hspace{7pt}single-app control ($55$) & $42.4$ & $43.6$ & $+1.2$ \\
 \hspace{7pt}split$\times$method interact. & --- & --- & $+10.4^{*}$ \\
-OSWorld-Verified ($361$) & $32.7$ & \tbd & \tbd \\
+OSWorld-Verified ($361$) & $32.7$ & $34.1$ & $+1.1$ \\
 \bottomrule
 \end{tabular}
 }
@@ -422,9 +422,9 @@ OSWorld-Verified ($361$) & $32.7$ & \tbd & \tbd \\
 frozen policy $+$ selector vs.\ frozen policy $+$ Recent-$B$ (task-paired
 bootstrap; $^{*}$the $95\%$ CI excludes zero, $p{=}0.035$ full /
 $p{=}0.006$ memory-critical; interaction two-sided $p{=}0.022$). Recent-$B$: three-run means; selector arm:
-single round (additional rounds \tbd). The OSWorld frozen$+$selector
-round is \tbd; the adapter-attached variant scores $32.7$ there,
-indistinguishable from Recent-$B$.}
+single round. The OSWorld frozen$+$selector contrast is $+1.1$pp
+(paired CI $[-2.5,+4.7]$, n.s.); the adapter-attached variant scores
+$32.7$ there, likewise indistinguishable from Recent-$B$.}
 \label{tab:contrast}
 \end{table}
 
@@ -441,7 +441,7 @@ Frozen, summary-only ($B{=}0$) & $19.9$ & $28.2$ & $21.0$ & $36.4$ \\
 Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $22.6$ & $38.2$ \\
 \hgkv{} $+$ Recent-$B$ & $33.0$ & $30.2$ & $19.4$ & $42.4$ \\
 \hgkv{} $+$ selector & $32.7$ & $33.9$ & $28.0$ & $40.6$ \\
-Frozen $+$ selector (\method{}) & \tbd & $\mathbf{36.8}$ &
+Frozen $+$ selector (\method{}) & $\mathbf{34.1}$ & $\mathbf{36.8}$ &
 $\mathbf{30.6}$ & $43.6$ \\
 \hspace{5pt}frozen-taught selector variant & --- & $33.3$ & $25.8$ &
 $41.8$ \\
@@ -686,9 +686,17 @@ Under the standard $15$-step setting, OSWorld provides limited exposure
 to fidelity reallocation: $352/361$ tasks run to the step cap, and within
 $15$ steps the evidence rarely leaves the recent window. We therefore
 include a matched $30$-step horizon analysis (Recent-$B$ vs.\
-frozen$+$selector, success-by-step curves) to test whether allocation
+frozen$+$selector, both full-roster rounds) to test whether allocation
 gains emerge as relevant evidence moves farther beyond the recent
-window: \tbd.
+window. They do not: doubling the horizon lifts Recent-$B$ from $33.0$
+to $36.0$ ($+3.1$pp, paired CI $[-1.1,+7.2]$) while the selector arm is
+flat ($34.1\!\to\!33.2$, $-0.8$pp, CI $[-5.3,+3.6]$), and the
+$30$-step contrast is $-2.8$pp (CI $[-7.2,+1.7]$, n.s.). The official
+$15$-step cap therefore does not suppress the baseline in our favor---
+if anything the extra steps help Recent-$B$ more---and the selector's
+small $15$-step edge is not robust to horizon extension, consistent
+with OSWorld evidence rarely leaving the recent window even at $30$
+steps.
 
 \section{Limitations and Conclusion}
 

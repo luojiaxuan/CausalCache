@@ -80,7 +80,10 @@ def main() -> None:
     arms15 = {}
     for arm, path in BASE15.items():
         raw = json.loads(path.read_text())
-        arms15[arm] = {t: (v if isinstance(v, dict) else {"score": float(v)}) for t, v in raw.items()}
+        # note (luojiaxuan): 15-step 基线键为 domain/uuid、值为 {'s':0/1,'steps':n},归一到 uuid + score。
+        arms15[arm] = {t.split("/")[-1]: {"score": float(v.get("s", v.get("score", 0.0))),
+                                          "steps": int(v.get("steps", -1))}
+                       for t, v in raw.items()}
 
     out = {"n_tasks": {a: len(m) for a, m in arms30.items()},
            "rates": {f"{a}@{h}": round(rate(m), 2)
