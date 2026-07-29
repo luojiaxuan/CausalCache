@@ -1,5 +1,7 @@
 \documentclass[letterpaper]{article} % DO NOT CHANGE THIS
 \usepackage[submission]{aaai2027} % DO NOT CHANGE THIS
+% The serif, sans-serif, and monospaced fonts are loaded automatically by
+% aaai2027.sty. Do not add any font package.
 \usepackage[hyphens]{url} % DO NOT CHANGE THIS
 \usepackage{graphicx} % DO NOT CHANGE THIS
 \urlstyle{rm} % DO NOT CHANGE THIS
@@ -17,8 +19,8 @@
 
 \setcounter{secnumdepth}{0}
 
-% v2 叙事草稿:冻结策略 + 预算感知重分配主线。未测数字一律 \pending,
-% 不许静默把计划写成结论。
+% Keep every unmeasured result explicit so the draft never silently turns an
+% intended experiment into an empirical claim.
 \newcommand{\pending}[1]{\textbf{[Pending: #1]}}
 \newcommand{\tbd}{\textsc{tbd}}
 \newcommand{\method}{\textsc{CausalCache}}
@@ -35,147 +37,349 @@
 \maketitle
 
 \begin{abstract}
-Long-horizon GUI agents retain their full interaction trace cheaply as text,
-but can afford to show the policy only a few past events in pixels. We
-formulate this as \emph{fixed-budget visual memory reallocation}: every event
-survives in summary form, an active budget $B$ caps how many regain their
-screenshot, and the only decision is which $B$ events those are. The
-ubiquitous Recent-$B$ heuristic spends every slot on the latest events;
-\method{} instead deploys a budget-aware set selector---trained offline from
-measured set utilities and attached to a \emph{completely frozen} policy---
-that recomposes the whole window when distant evidence outranks a recent
-frame. Zero-shot on a 117-task mobile benchmark whose memory-critical split is
-partitioned mechanically from the benchmark's own metadata, reallocation
-lifts overall success from $30.2\%$ to $36.8\%$ ($p{=}0.035$) and
-memory-critical success from $19.4\%$ to $30.6\%$ ($p{=}0.006$), with no
-detectable movement on single-app controls. Three content- and
-composition-matched controls locate the mechanism: substituting each restored
-screenshot with the turn's own verbatim text erases the entire gain,
-OCR text recovers only part of it, and capping the selector to single-slot
-replacement collapses success exactly to the Recent-$B$ level---the gain is
-carried by \emph{pixels}, restored in \emph{multi-slot compositions}, placed
-where distant visual dependency exists. A token-gated adapter used to measure
-set utilities offline is behaviorally neutral at deployment, so the entire
-gain is delivered without touching a single policy weight.
+Long-horizon GUI agents retain their full interaction trace cheaply as
+text, but can afford to show the policy only a few past events in pixels.
+We formulate this as \emph{fixed-budget visual memory reallocation}: every
+event survives in summary form, an active budget $B$ caps how many regain
+their archived screenshot, and the only decision is which $B$ events those
+are. The ubiquitous Recent-$B$ heuristic spends every slot on the latest
+events; \method{} instead deploys a budget-aware set selector---trained
+offline from measured set utilities and attached to a \emph{completely
+frozen} policy---that recomposes the whole window when distant evidence
+outranks a recent frame. Zero-shot on a 117-task mobile benchmark whose
+memory-critical split is partitioned mechanically from the benchmark's own
+metadata, reallocation lifts overall success from $30.2\%$ to $36.8\%$
+($p{=}0.035$) and memory-critical success from $19.4\%$ to $30.6\%$
+($p{=}0.006$), with no detectable movement on single-app controls. Three
+content- and composition-matched controls locate the mechanism:
+substituting each restored screenshot with the turn's own verbatim text
+erases the entire gain, OCR text recovers only part of it, and capping the
+selector to single-slot replacement collapses success exactly to the
+Recent-$B$ level---the gain is carried by \emph{pixels}, restored in
+\emph{multi-slot compositions}, placed where distant visual dependency
+exists. On desktop, restoring history to high fidelity is worth about
+$13$ success points over summary-only memory. The token-gated adapter used
+to measure set utilities offline is behaviorally neutral at deployment, so
+the entire gain is delivered without touching a single policy weight.
 \end{abstract}
 
 \section{Introduction}
 
-A GUI agent that books a flight, files an expense, or moves data between apps
-must act on information it saw many screens ago. Keeping every past
-screenshot in context is prohibitively expensive---high-resolution UI frames
-cost thousands of visual tokens each---so production systems keep a textual
-trace of every step and re-render only a small window of recent frames. That
-window is a \emph{budget}, and today it is spent by default: the last $B$
-frames, whatever they contain.
+Autonomous agents that follow natural-language instructions and operate
+graphical user interfaces promise broad practical value: they can automate
+repetitive digital chores, carry out multi-application workflows on behalf
+of their users, and extend what a single person can accomplish on desktop
+and mobile devices \citep{xie2024osworld,rawles2025androidworld,
+xu2026mobileagent35}. Delivering that value on long tasks turns memory into
+a first-order design problem: GUI agents accumulate screenshots, actions,
+text arguments, coordinates, and interface changes over many decisions. A
+complete action trace persists cheaply as compressed text, but keeping
+every screenshot active is costly and distracting. Each past event
+therefore has two policy-visible fidelities: a summary-only record and,
+when needed, that same record with its archived screenshot reattached. The
+memory-control question is not only which events remain recorded, but
+which recorded events should be exposed again in high-fidelity pixels
+\citep{lu2025guiodyssey,zeng2026mementogui,shi2026androtmem}.
 
-This paper treats the window as an allocation problem. Under a fixed budget
-$B$, every past event persists as text and exactly $B$ events regain their
-archived screenshot. Recent-$B$ is one point in this allocation space;
-\method{} searches the rest of it. The system is deliberately minimal at
-deployment: the policy stays \emph{completely frozen}---no fine-tuning, no
-adapters active, no extra weights---and a lightweight budget-aware selector
-(two-tower marginal scorer, beam composition, exact-$B$ with recent
-fallback) recomposes the visual window at each step, with a conditional
-second decoding pass that lets the policy re-decide under the recomposed
-window.
+This paper treats the visual window as an allocation problem. Under a
+fixed budget $B$, every past event persists as text and exactly $B$ events
+regain their archived screenshot. Recent-$B$---the default in existing
+controllers, which retain recent events, retrieve visually similar
+screenshots, or learn salience from task supervision
+\citep{zeng2026mementogui,shi2026androtmem,liu2026atmem}---is one point in
+this allocation space; \method{} searches the rest of it. The system is
+deliberately minimal at deployment: the policy stays \emph{completely
+frozen}---no fine-tuning, no adapters active, no extra weights---and a
+lightweight budget-aware selector (two-tower marginal scorer, beam
+composition, exact-$B$ with recent fallback) recomposes the visual window
+at each step, with a conditional second decoding pass that lets the policy
+re-decide under the recomposed window.
+Figure~\ref{fig:qualitative-cart} illustrates the reallocation on a real
+cross-application episode.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/causalcache_overview_case.pdf}
+\caption{\method{} on a real cross-app episode (schematic; drawn with
+$B{=}4$). The agent must compose an SMS containing the order number it
+saw earlier in a shopping app. Every event persists as a one-line text
+summary; a budget of $B$ events may additionally carry their archived
+pixels. After the app switch the evidence frame $e_7$ lies outside the
+recent window: Recent-$B$ spends every slot on the latest events and
+types the wrong number, while \method{} swaps one recent slot for $e_7$
+at the same budget and succeeds.}
+\label{fig:qualitative-cart}
+\end{figure}
 
 Our contributions are three.
 \textbf{(1) A deployment-free reallocation system.} Attached to a frozen
-GUI-Owl-1.5-8B policy, the selector transfers zero-shot to a 117-task mobile
-benchmark it never trained on, lifting overall success by $+6.6$pp
+GUI-Owl-1.5-8B policy, the selector transfers zero-shot to a 117-task
+mobile benchmark it never trained on, lifting overall success by $+6.6$pp
 ($p{=}0.035$) and memory-critical success by $+11.3$pp ($p{=}0.006$) over
 Recent-$B$ at matched budget, with single-app controls unchanged.
-\textbf{(2) A mechanism, isolated by construction.} Content-matched controls
-show the carrier must be pixels (verbatim-text restoration collapses to
-Recent-$B$; OCR text recovers only part), composition-capped controls show
-multi-slot recomposition is necessary (a $k{\le}1$ cap collapses exactly to
-Recent-$B$), and a metadata-partitioned split plus a budget sweep show the
-gain sits precisely where evidence lies beyond the recent window.
+\textbf{(2) A mechanism, isolated by construction.} Content-matched
+controls show the carrier must be pixels (verbatim-text restoration
+collapses to Recent-$B$; OCR text recovers only part), composition-capped
+controls show multi-slot recomposition is necessary (a $k{\le}1$ cap
+collapses exactly to Recent-$B$), and a metadata-partitioned split plus a
+budget sweep show the gain sits precisely where evidence lies beyond the
+recent window.
 \textbf{(3) An offline utility-measurement recipe.} Set utilities are
-measured on desktop traces with a token-gated K/V probe (\hgkv) trained under
-difference-in-differences supervision inside a pre-specified drift envelope;
-the selector distills these measurements. The probe's role is
+measured on desktop traces with a token-gated K/V probe (\hgkv) trained
+under difference-in-differences supervision inside a pre-specified drift
+envelope; the selector distills these measurements. The probe's role is
 \emph{teaching}, never shipping: at deployment it is behaviorally neutral
 and the distilled selector carries the entire gain; a selector distilled
 from frozen-policy-scored labels recovers most of the closed-loop margin
 but trails the \hgkv{}-taught one on the memory-critical split.
 
+\end{itemize}
+
+\section{Related Work}
+
+\paragraph{Visual GUI agents and benchmarks.}
+WebShop, WebArena, Mind2Web, WorkArena, WorkArena++, VisualWebArena, and REAL
+span grounded shopping, real websites, enterprise workflows, and visual web
+interaction \citep{yao2022webshop,zhou2024webarena,deng2023mind2web,
+drouin2024workarena,boisvert2024workarenaplus,koh2024visualwebarena,
+garg2025real}. AITW, AndroidControl, AndroidWorld, OSWorld, and GUI-Odyssey
+extend executable evaluation to mobile and desktop interfaces
+\citep{rawles2023aitw,li2024androidcontrol,rawles2025androidworld,
+xie2024osworld,lu2025guiodyssey}. Screenshot-native agents learn grounding and
+actions directly from pixels \citep{hong2024cogagent,cheng2024seeclick,
+lin2025showui,xu2026mobileagent35}. These works measure long-horizon
+interaction; our question is which completed event should re-enter a bounded
+prompt in pixels.
+MobileWorld further stresses long-horizon, cross-application mobile workflows
+under reproducible functional evaluation \citep{kong2026mobileworld}.
+
+\paragraph{Agent memory and reusable experience.}
+RAG retrieves external memory, ReAct interleaves reasoning with action, and
+later agents preserve reflections, experience, or evolving long-term stores
+\citep{lewis2020rag,yao2023react,shinn2023reflexion,zhao2024expel,
+zhong2024memorybank,gutierrez2024hipporag}. ICAL retrieves multimodal programs
+of thought \citep{sarch2024ical}. These systems write or retrieve artifacts
+across interactions or tasks; \method{} instead holds a within-episode summary
+trace fixed and controls whether an existing event is exposed as summary only
+or summary plus image.
+
+\paragraph{Long-horizon GUI memory.}
+GUI-Odyssey resamples prior screenshots, MementoGUI learns memory operators,
+and AndroTMem retrieves causally linked anchor states
+\citep{lu2025guiodyssey,zeng2026mementogui,shi2026androtmem}. Their primary
+variable is which item is retained or retrieved. \method{} keeps the compressed
+trace fixed, controls event fidelity conditioned on the already-active visual
+context, and trains the interface that consumes restored pixels.
+
+\paragraph{Context and visual-token compression.}
+Prompt compressors remove textual redundancy
+\citep{jiang2023llmlingua,jiang2024longllmlingua,pan2024llmlingua2}; KV methods
+retain, evict, select, or quantize cache states
+\citep{xiao2024streamingllm,zhang2023h2o,liu2023scissorhands,
+li2024snapkv,liu2024kivi,corallo2024finch}; and visual methods merge or prune
+tokens within an image \citep{bolya2023tome,chen2024fastv,yang2025visionzip}.
+Their unit is a token or KV position. \method{} instead preserves the summary
+trace and allocates whole archived screenshots across events; \hgkv{} controls
+only how promoted history-image tokens are consumed.
+
+\paragraph{Interventional memory value.}
+Recent work studies memory through controlled interventions or active state
+influence \citep{srivastava2026cmi,liu2026atmem}. Our intervention is narrower
+and executable: a selected event regains one archived post-action image while
+the remaining prompt stays fixed, yielding a policy-specific behavioral
+surrogate rather than an environment-level causal effect. Set models
+parameterize coalition-conditioned scores
+\citep{zaheer2017deepsets,lee2019settransformer}, whose marginals connect to
+cooperative-game attribution \citep{shapley1953value}; we use controlled
+restorations to train a deployable selector for one fixed GUI policy.
+
+\section{Method}
+
 \section{Problem: Fixed-Budget Reallocation}
 
 At step $t$ the agent holds a complete textual trace of events
-$1,\dots,t{-}1$ (instruction, per-step summaries, verbatim responses) and an
-archive of their screenshots. The active context $\ctx{t}$ renders every
-event as text and promotes a subset $S_t$ of past events to
+$1,\dots,t{-}1$ (instruction, per-step summaries, verbatim responses) and
+an archive of their screenshots. The active context $\ctx{t}$ renders
+every event as text and promotes a subset $S_t$ of past events to
 summary-plus-screenshot form, subject to the budget
 \begin{equation}
 |S_t| = \min(B,\, t-1),
 \label{eq:budget}
 \end{equation}
 so every allocation renders exactly the same number of images and any
-promotion of a distant event \emph{displaces} a recent one. Recent-$B$ fixes
-$S_t$ to the latest events; the reallocation problem is to choose $S_t$ to
-maximize downstream task success. We call an event's value \emph{conditional
-marginal utility}: the improvement in the policy's action distribution from
-promoting it, conditioned on the rest of the composed window---the quantity a
-selector must rank.
+promotion of a distant event \emph{displaces} a recent one. Restoration
+moves an official retained turn---verbatim response plus screenshot---as a
+unit; no pixels are ever reconstructed from text. Recent-$B$ fixes $S_t$
+to the latest events; the reallocation problem is to choose $S_t$ to
+maximize downstream task success. We call an event's value
+\emph{conditional marginal utility}: the improvement in the policy's
+action distribution from promoting it, conditioned on the rest of the
+composed window (``causal'' denotes policy-specific effects of matched
+prompt interventions, rather than structural causal discovery). Because
+every compared allocation carries the same number of images, the contrast
+isolates fidelity \emph{allocation} from visual capacity, and how many
+non-recent events are actually promoted is measured as a result, never
+preset.
 
 \section{Method}
 
-\method{} has two parts: an offline utility-measurement stage that produces
-training labels, and a deployed selector that recomposes windows for a frozen
-policy.
+\method{} has two parts: an offline utility-measurement stage that
+produces training labels, and a deployed selector that recomposes windows
+for a frozen policy.
 
 \paragraph{Measuring set utility offline.}
-On desktop traces we build matched-budget replacement groups: at a decision
-point with target action $a^*_t$, a candidate distant event replaces the
-oldest recent slot while text, order, and image count stay fixed, so the
-\emph{only} difference between arms is which event holds pixels. Utility is
-the teacher-forced log-likelihood margin of $a^*_t$ between the recomposed
-and recent windows. To make these margins sensitive, we instrument the
-policy with \hgkv{}, a token-gated K/V adapter on the last eight layers that
-touches only restored history-image tokens and is bitwise bypassed when no
-history image is present. Trained with per-arm-anchored
-difference-in-differences objectives and a drift cap
-($\epsilon{=}0.02$) that keeps matched-recent behavior untouched, \hgkv{}
-passes pre-specified selectivity gates that the frozen policy and an ungated
-control do not match (Table~\ref{tab:did-gate-v2}). Crucially, \hgkv{} is an
-offline \emph{instrument}: deployment does not require it
-(Table~\ref{tab:closed-loop-v2}).
+On desktop traces we build matched-budget replacement groups: at a
+decision point with target action $a^*_t$, a candidate distant event
+replaces the oldest recent slot while text, order, and image count stay
+fixed, so the \emph{only} difference between arms is which event holds
+pixels. Utility is the teacher-forced log-likelihood margin of $a^*_t$
+between the recomposed and recent windows. To make these margins
+sensitive, we instrument the policy with \hgkv{}, a token-gated K/V
+adapter on the last eight layers that touches only restored history-image
+tokens and is bitwise bypassed when no history image is present. Let
+$\ell$ denote mean target log-likelihood, superscripted by adapter state
+(active or frozen bypass); each arm is anchored to \emph{its own} frozen
+score:
+\begin{equation}
+\begin{aligned}
+A_s&=\ell^{\mathrm{on}}_{\mathrm{relevant}}-\ell^{\mathrm{off}}_{\mathrm{relevant}},\qquad
+A_r=\ell^{\mathrm{on}}_{\mathrm{recent}}-\ell^{\mathrm{off}}_{\mathrm{recent}},\\
+A_n&=\ell^{\mathrm{on}}_{\mathrm{wrong}}-\ell^{\mathrm{off}}_{\mathrm{wrong}},
+\end{aligned}
+\end{equation}
+and the DiD objective rewards $A_s$ over $A_r$ under margins while capping
+$|A_r|$ and wrong-history drift at $\epsilon{=}0.02$: uniform amplification
+of any history cancels exactly, and only \emph{selective} use of
+target-relevant content reduces the loss. \hgkv{} passes pre-specified
+selectivity gates that the frozen policy and an ungated control do not
+match (Table~\ref{tab:did-gate}). Crucially, \hgkv{} is an offline
+\emph{instrument}: deployment does not require it
+(Table~\ref{tab:closed-loop}).
+
+\paragraph{Why single-slot replacement ($k{=}1$).}
+Training teaches only the $k{=}1$ replacement interface: offline mining
+finds simultaneous multi-frame demand rare, and a matched-budget probe
+shows the first replacement is worth its slot while the paired increments
+of a second and third are indistinguishable from zero or negative.
+Larger-$k$ allocations remain expressible at deployment because the
+selector composes exact-$B$ sets with recent fallback, so $k$ stays a
+result statistic; mining details and the full probe are in the
+supplement.
+
 
 \paragraph{Set-level labels, not singletons.}
 Because deployment composes whole windows, labels must cover multi-slot
 compositions. A beam teacher expands scored sets from singleton seeds
 (shortlist $6$, beam $3$) up to the full budget, scoring every edge
-$U(S\cup\{j\})-U(S)$ by re-scoring the entire composed window; the resulting
-$147$k set edges supervise marginals conditioned on non-empty partial sets
-$|S|\in\{1,2,3\}$ alongside $58$k singleton edges. This is what licenses
-the deployed selector's multi-slot recompositions---at $B{=}4$ it replaces
-the entire recent window on $26\%$ of states---and the $k{\le}1$-capped
-control shows exactly these compositions carry the closed-loop gain.
+$U(S\cup\{j\})-U(S)$ by re-scoring the entire composed window; the
+resulting $147$k set edges supervise marginals conditioned on non-empty
+partial sets $|S|\in\{1,2,3\}$ alongside $58$k singleton edges. This is
+what licenses the deployed selector's multi-slot recompositions---at
+$B{=}4$ it replaces the entire recent window on $26\%$ of states---and the
+$k{\le}1$-capped control shows exactly these compositions carry the
+closed-loop gain.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/causalcache_hgkv_pass2.pdf}
+\caption{The two components. \emph{Left}: the \hgkv{} measurement
+probe---token-gated $\Delta K/\Delta V$ on the last eight layers, active
+only on restored history-image tokens and bitwise bypassed without
+them; it scores set utilities offline and never ships.
+\emph{Right}: deployment---the selector composes an exact-$B$ window and
+a conditional second pass lets the frozen policy re-decide under the
+recomposed window, always replacing the first proposal.}
+\label{fig:architecture}
+\end{figure}
 
 \paragraph{Deployed selector.}
-A two-tower marginal scorer $\hat\Delta(j\,|\,S)$ (cheap candidate features
-plus set-context features; recency-membership features carry substantial
-weight) drives a beam-$3$ composition to an exact-$B$ set with recent
-fallback. A conditional second pass re-decodes the action under the
-recomposed window and always replaces the first proposal---decoding is greedy
-everywhere, so the second pass cannot act as best-of-$n$. The selector adds
-under $40$\,ms per step; the second pass costs $\sim$$10\%$ of per-step wall
-time at $B{=}4$ and less at larger budgets.
+A two-tower marginal scorer $\hat\Delta(j\,|\,S)$ (cheap candidate
+features plus set-context features; recency-membership features carry
+substantial weight) drives a beam-$3$ composition to an exact-$B$ set with
+recent fallback. A conditional second pass re-decodes the action under the
+recomposed window and always replaces the first proposal---decoding is
+greedy everywhere, so the second pass cannot act as best-of-$n$. The
+selector adds under $40$\,ms per step; the second pass costs
+$\sim$$10\%$ of per-step wall time at $B{=}4$ and less at larger budgets.
+
+\paragraph{Reference actions.}
+Part of the selector's input asks whether the action taken right after an
+archived event matches a reference action. Training uses the gold
+teacher-forced target, an offline oracle unavailable at deployment;
+\method{} therefore re-grounds the reference in the policy's own tentative
+action: the policy first acts on the Recent-$B$ prompt, and re-decides on
+the re-allocated prompt only when a recent visual realization is
+displaced. This proposal reference is statistically indistinguishable
+from the gold oracle on held-out desktop groups, whereas weaker
+references---no action signal, or instruction-only similarity---degrade
+selection and over-replace; a single-pass variant reusing the previously
+executed action removes the second call but transfers worse across
+platforms (reference ladder and efficiency analysis in the supplement).
 
 \section{Experiments}
 
-\paragraph{Setup.}
-Policy: GUI-Owl-1.5-8B-Instruct, frozen, greedy decoding, $2{,}560$
-effective visual tokens per image. Selector trained on desktop traces only.
-Zero-shot evaluation on (i) OSWorld-Verified (official roster and step
-budget) and (ii) a 117-task mobile benchmark contributing no training or
-selection signal, whose memory-critical split ($62$ cross-app vs.\ $55$
-single-app tasks) is partitioned deterministically by the benchmark's
-upstream task metadata (multi-app vs.\ single-app) with zero manual
-filtering. Paired task-level bootstrap throughout; experiments on
-NVIDIA H200 nodes.
+\section{Experimental Setup}
+
+\paragraph{Training Data and Model Selection.}
+
+Policy adaptation and selector training use only desktop data: successful
+AgentNet/OpenCUA Ubuntu trajectories (5{,}000 screened, 2{,}293 successful,
+6{,}003 decision points) yield fixed-budget replacement groups at
+$B{=}1/2/4$ of $969/764/470$ (2{,}203 in total; 1{,}774 training units, 211 development
+groups, and 218 held-out test groups, trajectory-disjoint), complemented by a
+high-precision OSWorld witness seed
+mined from official successful trajectories. A further $160$ groups at
+$B{=}8$ are constructed but deliberately excluded from training, so $B{=}8$
+evaluates out-of-training budget extrapolation. Checkpoints and thresholds
+are selected only on the desktop development split under pre-specified
+gates: positive DiD selection with a positive bootstrap lower bound, and
+drift caps $|A_r|,|A_n|<\epsilon$. No mobile benchmark data touches training
+or selection. All adapter training, offline scoring, and closed-loop serving
+run on NVIDIA H200 Tensor Core GPUs.
+
+\paragraph{The Fixed-Budget Fidelity-Restoration Design.}
+
+Figure~\ref{fig:architecture} shows the two learned components and the
+same-budget re-decision that defines the core comparison.
+Every compared allocation carries exactly $B$ history images with
+identical resolutions, summaries, and prompt structure, so the contrast
+isolates \emph{which summarized events are promoted to high fidelity}.
+$B{=}4$ is the primary deployment-like setting; the realized number of
+non-recent promotions $k$ is measured rather than preset.
+
+\paragraph{Policies and Fidelity-Allocation Baselines.}
+
+The frozen policy is GUI-Owl-1.5-8B-Instruct \citep{xu2026mobileagent35}.
+Under identical data, steps, and cadence we compare the frozen policy, an
+ungated KV control (the same last-eight layers, K/V targets, rank, and
+alpha as \hgkv{} but active on all tokens), and \hgkv{} itself
+(token-gated, structurally bypassed at $B{=}0$).
+Fidelity-allocation baselines are Recent-$B$, Random, OCR/RGB similarity, and
+the learned budget-aware restoration selector (exact-$B$, recent fallback); a
+beam oracle over the candidate pool bounds headroom. Every method receives the
+same summaries and the same active image budget.
+
+\paragraph{Zero-Shot Benchmarks and Metrics.}
+
+The policy interface and selector, trained on desktop data only, are evaluated
+(i) on held-out desktop decision groups (offline, per-$B$), (ii) zero-shot on
+an uncontaminated OSWorld task roster \citep{xie2024osworld} with official
+evaluator scores (tasks whose trajectories seeded the witness corpus are
+excluded from zero-shot claims and reported separately as in-domain
+diagnostics), and (iii) zero-shot on a cross-app mobile memory benchmark of
+117 runnable tasks (62 cross-app memory candidates vs.\ 55 single-app
+controls, split mechanically by the benchmark's task metadata),
+which contributes no data to any training or selection decision
+\citep{kong2026mobileworld}.
+Offline metrics are teacher-forced log-likelihood margins and full-action
+equivalence under an argument and coordinate tolerance (sensitivity settings
+in the supplement); closed-loop metrics are paired task success with
+cluster bootstrap, step counts, and wall time. All arms decode greedily,
+so every action is a deterministic function of its rendered prompt, and
+the conditional second pass always replaces the proposal rather than
+selecting between samples---it cannot act as best-of-$n$.
+
+\section{Results}
 
 \begin{table}[t]
 \centering
@@ -183,11 +387,12 @@ NVIDIA H200 nodes.
 \setlength{\tabcolsep}{3.2pt}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
-MobileWorld stratum & Recent-$B$ & \method{} & $\Delta$ \\
+Benchmark / stratum & Recent-$B$ & \method{} & $\Delta$ \\
 \midrule
-full roster ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
+MobileWorld full ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
 \hspace{7pt}memory-critical ($62$) & $19.4$ & $30.6$ & $+11.3^{*}$ \\
 \hspace{7pt}single-app control ($55$) & $42.4$ & $43.6$ & $+1.2$ \\
+OSWorld-Verified ($361$) & $32.7$ & \tbd & \tbd \\
 \bottomrule
 \end{tabular}
 }
@@ -195,85 +400,174 @@ full roster ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
 frozen policy $+$ selector vs.\ frozen policy $+$ Recent-$B$ (task-paired
 bootstrap; $^{*}$the $95\%$ CI excludes zero, $p{=}0.035$ full /
 $p{=}0.006$ memory-critical). Recent-$B$: three-run means; selector arm:
-single round. \pending{additional selector-arm rounds to match the
-three-run protocol}}
-\label{tab:contrast-v2}
+single round (additional rounds \tbd). The OSWorld frozen$+$selector
+round is \tbd; the adapter-attached variant scores $32.7$ there,
+indistinguishable from Recent-$B$.}
+\label{tab:contrast}
 \end{table}
 
-\begin{table}[t]
+\begin{table*}[!t]
 \centering
 {\small
-\setlength{\tabcolsep}{3.4pt}
-\begin{tabular}{@{}lrrr@{}}
+\setlength{\tabcolsep}{5.0pt}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrr@{}}
 \toprule
-Method (mobile, $B{=}4$) & Full & Mem.-crit. & Control \\
+Method & OSWorld-Verified ($361$) & MobileWorld ($117$) &
+MW memory-critical ($62$) & MW control ($55$) \\
 \midrule
-Frozen, summary-only ($B{=}0$) & $28.2$ & $21.0$ & $36.4$ \\
-Frozen $+$ Recent-$B$ & $29.9$ & $22.6$ & $38.2$ \\
-\hgkv{} $+$ Recent-$B$ & $30.2$ & $19.4$ & $42.4$ \\
-\hgkv{} $+$ selector & $33.9$ & $28.0$ & $40.6$ \\
-Frozen $+$ selector (\method{}) & $\mathbf{36.8}$ & $\mathbf{30.6}$ & $43.6$ \\
-\hspace{5pt}frozen-taught selector variant & $33.3$ & $25.8$ & $41.8$ \\
+Frozen, summary-only ($B{=}0$) & $19.9$ & $28.2$ & $21.0$ & $36.4$ \\
+Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $22.6$ & $38.2$ \\
+\hgkv{} $+$ Recent-$B$ & $33.0$ & $30.2$ & $19.4$ & $42.4$ \\
+\hgkv{} $+$ selector & $32.7$ & $33.9$ & $28.0$ & $40.6$ \\
+Frozen $+$ selector (\method{}) & \tbd & $\mathbf{36.8}$ &
+$\mathbf{30.6}$ & $43.6$ \\
+\hspace{5pt}frozen-taught selector variant & --- & $33.3$ & $25.8$ &
+$41.8$ \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 }
-\caption{Deployment decomposition. The three Recent/summary arms are
-pairwise indistinguishable, and the two selector arms are pairwise
-indistinguishable ($+2.9$pp full, CI $[-2.9,+8.6]$): allocation carries
-the gain, the measurement adapter is deployment-neutral, and the best
-deployment ships zero adapted weights. Swapping the label teacher from
-\hgkv{} to the frozen policy keeps a significant margin over Recent-$B$
-($+6.5$pp memory-critical) but cedes part of it---the instrument earns
-its keep at training time. OSWorld-Verified closed loop
-(re-observable desktop): high-fidelity memory is worth $+12.8$pp over
-summary-only ($19.9\!\to\!32.7$), but allocation variants are
-indistinguishable there---consistent with placement: evidence rarely
-falls outside the recent window when state is re-observable.
-\pending{frozen$+$selector OSWorld round}}
-\label{tab:closed-loop-v2}
-\end{table}
+\caption{Closed-loop deployment decomposition at $B{=}4$.
+OSWorld-Verified: official no-GDrive roster, official $15$-step budget.
+MobileWorld: zero-shot; three-run means for multi-run arms, single rounds
+otherwise. The three Recent/summary arms are pairwise indistinguishable,
+and the two selector arms are pairwise indistinguishable ($+2.9$pp full,
+CI $[-2.9,+8.6]$): allocation carries the gain, the measurement adapter
+is deployment-neutral, and the best deployment ships zero adapted
+weights. Swapping the label teacher from \hgkv{} to the frozen policy
+keeps a significant margin over Recent-$B$ ($+6.5$pp memory-critical) but
+cedes part of it---the instrument earns its keep at training time. On
+desktop, high-fidelity memory is worth $+12.8$pp over summary-only
+($19.9\!\to\!32.7$) while allocation variants are indistinguishable
+there---consistent with placement: evidence rarely falls outside the
+recent window when state is re-observable.}
+\label{tab:closed-loop}
+\end{table*}
 
 \paragraph{Main result.}
-Table~\ref{tab:contrast-v2} gives the headline: at matched budget, learned
-reallocation on the frozen policy lifts the full roster by $+6.6$pp and the
-memory-critical stratum by $+11.3$pp, with controls unmoved.
-Table~\ref{tab:closed-loop-v2} decomposes the system: summary-only,
+Table~\ref{tab:contrast} gives the headline: at matched budget, learned
+reallocation on the frozen policy lifts the full mobile roster by
+$+6.6$pp and the memory-critical stratum by $+11.3$pp, with controls
+unmoved. Table~\ref{tab:closed-loop} decomposes the system: summary-only,
 Recent-$B$, and adapter-on-Recent-$B$ are pairwise indistinguishable (the
 behavioral face of the drift cap), while both selector arms separate from
 all of them and not from each other. The gain is a property of
-\emph{which events hold pixels}, not of any weight update.
+\emph{which events hold pixels}, not of any weight update. A frozen-policy
+recent-dose sweep makes the recency alternative explicit: across
+$B{=}0$--$4$, success is non-monotone with every paired contrast against
+$B{=}0$ crossing zero---promoting additional recent events alone buys
+nothing.
 
 \paragraph{Mechanism I: the carrier must be pixels.}
-Two content-matched controls keep selection, budget, and the two-pass
-interface intact and replace each restored frame's pixels with text. On the
-memory-critical split, restoring the turn's own verbatim response collapses
-to the Recent-$B$ level ($18.0\%$ vs.\ $19.4\%$; $-10.4$pp below pixel
-restoration, $p{=}0.006$), ruling out a generic reminder effect. An OCR
-transcription of the same screenshot recovers part of the level ($24.2\%$)
-but its margin over Recent-$B$ does not separate from zero. Pixels are the
-only carrier that significantly beats the recency heuristic.
+Two controls keep selection, budget, and the two-pass interface intact
+but replace each restored frame's pixels with text: the turn's verbatim
+recorded response, or an OCR transcription of the same screenshot. On the
+memory-critical split verbatim text collapses to the Recent-$B$ level
+($18.0\%$ vs.\ $19.4\%$; $-10.4$pp below pixels, task-paired
+$p{=}0.006$), ruling out a generic ``reminder'' effect; OCR recovers part
+of the level ($24.2\%$) but its $+4.8$pp margin over Recent-$B$ does not
+separate from zero, while pixel restoration's $+11.3$pp does. Full tables
+in the supplement.
 
 \paragraph{Mechanism II: multi-slot recomposition is necessary.}
-Capping the deployed selector at one replacement per step
-($k{\le}1$; dedup-aliased recent tails count as kept) collapses
-memory-critical success to exactly the Recent-$B$ level ($19.4\%$ vs.\
-$19.4\%$; $-8.6$pp below the uncapped system, $p{=}0.02$). At $B{=}4$ the
-uncapped selector keeps the full recent window on $19\%$ of states and
-replaces the whole window on $26\%$: those multi-slot compositions are not
-system completeness---they carry the gain. Training accordingly supervises
-set-conditioned marginals (the $147$k beam edges), not just singleton
-utilities.
+Capping the deployed selector at one replacement per step ($k{\le}1$;
+dedup-aliased recent tails count as kept) collapses memory-critical
+success to exactly the Recent-$B$ level ($19.4\%$ vs.\ $19.4\%$;
+$-8.6$pp below the uncapped adapter-attached system, $p{=}0.02$). At
+$B{=}4$ the uncapped selector keeps the full recent window on $19\%$ of
+states and replaces the whole window on $26\%$: those multi-slot
+compositions are not system completeness---they carry the gain. Although
+the \hgkv{} teacher's policy corpus supervises only the $k{=}1$
+replacement interface, the selector's set-level labels cover multi-slot
+compositions by construction, and the closed loop confirms the composed
+allocations transfer.
 
 \paragraph{Mechanism III: the gain sits where the evidence sits.}
-The memory-critical split is defined by the benchmark's own metadata, before
-any measurement: cross-app tasks force evidence beyond the recent window.
-The split$\times$method interaction is $+10.4$pp (two-sided $p{=}0.022$).
-Along the budget axis ($B\in\{1,2,4,8\}$, same frozen weights), the
-allocation gain is positive at every budget and pooled to $+4.1$pp
-($p{=}0.004$); at the untrained $B{=}8$ the memory-critical margin narrows,
-as an eight-frame recent window already reaches part of the split's
-evidence. (Budget-sweep arms carry the deployment-neutral measurement
-adapter; per-budget tables in the supplement.)
+The memory-critical split is defined by the benchmark's own metadata,
+before any measurement: cross-app tasks force evidence beyond the recent
+window. The split$\times$method interaction is $+10.4$pp (two-sided
+$p{=}0.022$). Figure~\ref{fig:split-bars} visualizes the contrast;
+Figure~\ref{fig:budget-curve} extends the closed loop along the budget
+axis ($B\in\{1,2,4,8\}$, same frozen weights): the allocation gain is
+positive at every budget, pooled to $+4.1$pp ($p{=}0.004$; task-paired
+bootstrap), and on the memory-critical subset the margin is largest at
+the trained budgets and narrows at the untrained $B{=}8$, where the
+eight-frame recent window already reaches back far enough to cover part
+of the split's evidence. (Budget-sweep arms carry the
+deployment-neutral measurement adapter; per-budget tables in the
+supplement.)
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/causalcache_split_bars.pdf}
+\caption{Memory-critical vs.\ single-app control success at $B{=}4$.
+The reallocation gain concentrates on the construction-defined
+memory-critical stratum with no detectable movement on controls.}
+\label{fig:split-bars}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/causalcache_budget_curve.pdf}
+\caption{Closed-loop MobileWorld success along the budget axis (full
+roster). $B{=}0/4$: three-run means; other budgets single rounds
+($B{=}1/2$ references: frozen dose curve). Pooled: $+4.1$pp ($95\%$ CI
+$[+1.3,+7.1]$, $p{=}0.004$); full per-budget table in the supplement.}
+\label{fig:budget-curve}
+\end{figure}
+
+\paragraph{The offline instrument.}
+
+Table~\ref{tab:did-gate} reports the pre-specified desktop DiD gate at
+$B{=}1$ on $94$ development groups. On this split the frozen policy shows
+no reliable preference for a task-relevant archived screenshot over the
+informative recent frame it would displace: to the frozen policy the two
+are worth about the same, so profitable fidelity reallocation must be
+learned---and measured with an instrument that can see it. \hgkv{} passes
+every gate with a selectivity margin the layer- and rank-matched ungated
+control does not reach, while holding recent-window and wrong-history
+drift well inside the cap. The same recipe transfers across backbone
+scale untouched: on GUI-Owl-1.5-32B it passes every pre-specified gate
+with DiD select $+0.0142$ ($95\%$ CI $[+0.011,+0.018]$) and recent-window
+drift within a third of the cap. The 32B closed-loop transfer round
+(frozen 32B $+$ the 8B-taught selector) is \tbd.
+
+\paragraph{Selectivity Is Not Inherited from the Frozen Policy.}
+
+On the desktop development split, the frozen policy shows no reliable
+preference for a task-relevant archived screenshot over the informative
+recent frame it would displace (recent-baseline construction details in
+the supplement): to the frozen policy the two are worth about the same,
+so profitable fidelity reallocation must be learned. Under the official
+multi-turn protocol the frozen replacement effect decays with the window
+and reverses at large $B$ (supplement), while the learned
+interface keeps a positive selection effect across the budget axis.
+
+\paragraph{Selective Use Within a Drift Envelope.}
+
+Table~\ref{tab:did-gate} reports the pre-specified desktop DiD gate at
+$B{=}1$. Adapters are trained for matched steps; checkpoints follow the
+frozen selection rule. \hgkv{} passes every gate: its selected checkpoint
+learns a positive DiD selection effect against the redundant-duplicate
+recent control, a re-scoring probe confirms the effect against the
+informative true-previous-frame control, and recent-only and wrong-history
+drift stay well inside the cap $\epsilon{=}0.02$; its no-history path is
+bitwise identical to the frozen policy under randomized nonzero adapter
+weights. The layer- and rank-matched ungated control also learns
+selectivity, confirming that the last-eight K/V position carries signal,
+but token gating adds a significant paired per-group advantage while
+holding drift further from the caps. Gating is what buys selectivity
+\emph{inside} the envelope.
+
+\paragraph{Fidelity Reallocation and Zero-Shot Transfer.}
+
+The offline budget axis shows the same picture. Across the trained budgets
+$B\in\{1,2,4\}$, \hgkv{} maintains positive selectivity---per-$B$ DiD
+gates all pass with drift within the pre-specified caps---and the learned
+allocation improves over Recent-$B$ at matched image counts, while keeping
+the full recent window in $19\%$ of $B{=}4$ states. The ungated control
+again passes but with uniformly smaller selection effects, drifting
+toward the cap at the largest budget. Untrained-budget extrapolation
+($B{=}8$) and the full per-budget tables are in the supplement.
 
 \begin{table}[t]
 \centering
@@ -288,42 +582,115 @@ Ungated KV control & $+0.0177$ & $0.0071$ \\
 \bottomrule
 \end{tabular}
 }
-\caption{The offline instrument: token-gated K/V probe on $94$
-development groups. Both adapters keep drift inside the pre-specified cap
-($0.02$); gating buys a significantly larger selectivity margin per
-group. The probe generates training labels and never ships. The same
-recipe transfers across backbone scale untouched: on GUI-Owl-1.5-32B it
-passes every pre-specified gate with DiD select $+0.0142$ ($95\%$ CI
-$[+0.011,+0.018]$) and recent-window drift within a third of the cap.}
-\label{tab:did-gate-v2}
+\caption{Token-gated K/V probe on $94$ development groups. Both adapters
+hold drift inside the pre-specified cap ($0.02$); gating buys a
+significantly larger selectivity margin per group. The probe generates
+training labels and never ships. On GUI-Owl-1.5-32B the same recipe
+passes all gates (DiD select $+0.0142$, CI strictly positive).}
+\label{tab:did-gate}
 \end{table}
 
-\paragraph{Chooser ladder.}
-Against allocation rules sharing its budget and rendering exactly, the
-learned scorer separates from Recent-$B$ while random exact-$B$ and RGB
-similarity do not; inverting the learned score is significantly harmful at
-both budgets, and removing recency-membership features returns the selector
-to the noise band. Sparse exposure of archived pixels is not utility;
-learned ranking is.
+Policy-side per-$B$ gates and the frozen recent-dose sweep appear in Results.
+Table~\ref{tab:chooser} brackets the learned selector between allocation
+rules that share its budget and rendering exactly. Random exact-$B$ and
+RGB-similarity restoration are indistinguishable from Recent-$B$: sparse
+exposure of archived pixels, or visual similarity to the current screen, is
+not utility. Inverting the learned score is significantly harmful at both
+budgets---a specificity control showing the scorer ranks real signal
+symmetrically rather than exploiting a rendering artifact. Retraining
+without the recency-membership features returns the selector to the noise
+band, so budget-context features carry substantial weight.
 
-\paragraph{Cost.}
-The selector costs under $40$\,ms per step. The conditional second pass adds
-$2.0/2.3/2.9$\,s at $B{=}1/2/4$ ($8.1/8.7/10.5\%$ of per-step wall time),
-falling to $\sim$$5\%$ at $B{=}8$ where it fires on only $39\%$ of steps.
+\begin{table}[t]
+\centering
+{\small
+\setlength{\tabcolsep}{4.0pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Allocation rule & $B{=}2$ & $B{=}4$ \\
+\midrule
+Learned scorer & $+.030$ & $+.017$ \\
+Random exact-$B$ & $+.006$ & $+.008$ \\
+RGB similarity & $+.006$ & $+.007$ \\
+Inverted score & $-.016$ & $-.009$ \\
+No recency feats & $+.012$ & $+.008$ \\
+\bottomrule
+\end{tabular}
+}
+\caption{Chooser ladder: log-likelihood margin over Recent-$B$ at matched
+budgets with fresh full-set policy scoring. Only the learned ranking and
+its inversion separate from zero (episode-clustered intervals in the
+supplement).}
+\label{tab:chooser}
+\end{table}
+
+The budget is spent adaptively: at $B{=}4$ the learned scorer keeps the
+entire recent window on $19\%$ of states and replaces all of it on
+$26\%$---a state-dependent $k$ profile that neither random allocation nor
+RGB similarity reproduces. Although training supervises only the
+$k{=}1$ interface, these multi-slot compositions sustain the closed-loop
+gains of Table~\ref{tab:closed-loop}: the token-gated adaptation applies
+per restored frame and generalizes across replacement multiplicity.
+
+\end{figure}
+
+\paragraph{Deployment cost of the second pass.}
+The conditional second pass fires on
+$81$--$87\%$ of audited mobile steps; the selector costs under $40$\,ms. Instrumented across budgets, the added model time per
+step is $2.0/2.3/2.9$\,s at $B{=}1/2/4$---$8.1/8.7/10.5\%$ of the measured
+per-step wall time---and falls to roughly $5\%$ at $B{=}8$, where the
+second pass fires on only $39\%$ of steps. On desktop the median
+end-to-end task overhead is $7\%$. The re-decision's real-time cost thus
+peaks near one-tenth of wall time at the primary budget; complete
+intervals are in the supplement.
+
+\paragraph{Desktop closed loop.}
+On OSWorld-Verified (361 tasks, official no-GDrive roster and
+$15$-step budget), all high-fidelity arms reach $32.7$--$33.0\%$, each
+about $+13$pp over summary-only memory ($19.9\%$, paired $95\%$ CIs
+excluding zero), while same-budget allocations remain
+indistinguishable. OSWorld therefore supports high-fidelity
+\emph{availability}; conditional \emph{allocation} is tested by the mobile
+memory-critical split. \hgkv{} again shows no detectable behavioral difference on matched
+Recent-$B$ allocations, mirroring the mobile finding. \method{} adds a
+median of eight policy calls per task, about $7\%$ of median end-to-end
+task time.
+
+\paragraph{Extended-horizon diagnostic (OSWorld).}
+Under the standard $15$-step setting, OSWorld provides limited exposure
+to fidelity reallocation: $352/361$ tasks run to the step cap, and within
+$15$ steps the evidence rarely leaves the recent window. We therefore
+include a matched $30$-step horizon analysis (Recent-$B$ vs.\
+frozen$+$selector, success-by-step curves) to test whether allocation
+gains emerge as relevant evidence moves farther beyond the recent
+window: \tbd.
 
 \section{Limitations and Conclusion}
 
+The evidence assembles into three steps. First, the problem is fidelity
+allocation under a fixed visual budget: every event survives as text and
+only $B$ regain pixels. Second, the frozen policy cannot measure which
+distant frame deserves a slot; the \hgkv{} probe learns exactly that
+selectivity inside a drift envelope that leaves matched-recent behavior
+untouched, and its measurements teach the selector. Third, the learned
+selector reallocates profitably exactly where distant visual dependency
+exists: memory-critical tasks improve, controls show no detectable
+change.
 The headline selector arm is a single round against three-run baselines
-(\pending{additional rounds}). The frozen-teacher variant was trained on
-a subsampled set-label pool, so part of its gap to the \hgkv{}-taught
+(additional rounds \tbd). The frozen-teacher variant was trained on a
+subsampled set-label pool, so part of its gap to the \hgkv{}-taught
 selector may reflect label volume rather than the teacher itself. OSWorld
-shows fidelity value but no allocation headroom, so the
-reallocation claim is currently mobile-only. We control an active context
-budget, not archive capacity, and \method{} reattaches rather than
-generates pixels. In one sentence: under a fixed visual budget, a frozen
-GUI agent's memory is best spent by \emph{recomposing} the window---
-several slots at a time, in pixels---exactly where distant evidence
-outranks recency.
+shows fidelity value but no allocation headroom at the official horizon,
+so the reallocation claim is currently mobile-only pending the
+$30$-step analysis. We control an active context budget, not archive
+capacity, and \method{} reattaches rather than generates pixels; the
+content-matched controls attribute the gain to the pixels themselves.
+We claim only that some summarized events have greater conditional
+marginal utility than the recent realization they displace; pretraining
+contamination remains possible. In one sentence: under a fixed visual
+budget, a frozen GUI agent's memory is best spent by \emph{recomposing}
+the window---several slots at a time, in pixels---exactly where distant
+evidence outranks recency.
 
 \bibliography{references}
 
