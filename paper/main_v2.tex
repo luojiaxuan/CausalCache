@@ -95,11 +95,11 @@ gain sits precisely where evidence lies beyond the recent window.
 \textbf{(3) An offline utility-measurement recipe.} Set utilities are
 measured on desktop traces with a token-gated K/V probe (\hgkv) trained under
 difference-in-differences supervision inside a pre-specified drift envelope;
-the selector distills these measurements. The probe never needs to ship: at
-deployment it is behaviorally neutral, and the distilled selector carries the
-entire gain. \pending{frozen-teacher selector: whether utilities measured
-under the fully frozen policy train an equally strong selector; campaign
-running}
+the selector distills these measurements. The probe's role is
+\emph{teaching}, never shipping: at deployment it is behaviorally neutral
+and the distilled selector carries the entire gain; a selector distilled
+from frozen-policy-scored labels recovers most of the closed-loop margin
+but trails the \hgkv{}-taught one on the memory-critical split.
 
 \section{Problem: Fixed-Budget Reallocation}
 
@@ -149,9 +149,10 @@ compositions. A beam teacher expands scored sets from singleton seeds
 (shortlist $6$, beam $3$) up to the full budget, scoring every edge
 $U(S\cup\{j\})-U(S)$ by re-scoring the entire composed window; the resulting
 $147$k set edges supervise marginals conditioned on non-empty partial sets
-$|S|\in\{1,2,3\}$ alongside $58$k singleton edges. This is what licenses the
-selector to replace several recent slots at once---the regime that, in the
-closed loop, turns out to carry the gain.
+$|S|\in\{1,2,3\}$ alongside $58$k singleton edges. This is what licenses
+the deployed selector's multi-slot recompositions---at $B{=}4$ it replaces
+the entire recent window on $26\%$ of states---and the $k{\le}1$-capped
+control shows exactly these compositions carry the closed-loop gain.
 
 \paragraph{Deployed selector.}
 A two-tower marginal scorer $\hat\Delta(j\,|\,S)$ (cheap candidate features
@@ -212,6 +213,7 @@ Frozen $+$ Recent-$B$ & $29.9$ & $22.6$ & $38.2$ \\
 \hgkv{} $+$ Recent-$B$ & $30.2$ & $19.4$ & $42.4$ \\
 \hgkv{} $+$ selector & $33.9$ & $28.0$ & $40.6$ \\
 Frozen $+$ selector (\method{}) & $\mathbf{36.8}$ & $\mathbf{30.6}$ & $43.6$ \\
+\hspace{5pt}frozen-taught selector variant & $33.3$ & $25.8$ & $41.8$ \\
 \bottomrule
 \end{tabular}
 }
@@ -219,7 +221,9 @@ Frozen $+$ selector (\method{}) & $\mathbf{36.8}$ & $\mathbf{30.6}$ & $43.6$ \\
 pairwise indistinguishable, and the two selector arms are pairwise
 indistinguishable ($+2.9$pp full, CI $[-2.9,+8.6]$): allocation carries
 the gain, the measurement adapter is deployment-neutral, and the best
-deployment ships zero adapted weights. OSWorld-Verified closed loop
+deployment ships zero adapted weights. Swapping the label teacher from
+\hgkv{} to the frozen policy keeps a significant margin over Recent-$B$
+but cedes part of it---the instrument earns its keep at training time. OSWorld-Verified closed loop
 (re-observable desktop): high-fidelity memory is worth $+12.8$pp over
 summary-only ($19.9\!\to\!32.7$), but allocation variants are
 indistinguishable there---consistent with placement: evidence rarely
@@ -309,10 +313,11 @@ falling to $\sim$$5\%$ at $B{=}8$ where it fires on only $39\%$ of steps.
 \section{Limitations and Conclusion}
 
 The headline selector arm is a single round against three-run baselines
-(\pending{additional rounds}); the selector's labels are currently measured
-under the \hgkv{} instrument, and whether a fully frozen teacher suffices is
-an open experiment in flight (\pending{frozen-teacher selector closed
-loop}); OSWorld shows fidelity value but no allocation headroom, so the
+(\pending{additional rounds}). The selector's labels are measured under
+the \hgkv{} instrument; a fully frozen teacher recovers most of the gain
+($+6.5$pp over Recent-$B$ on the memory-critical split vs.\ $+11.3$pp),
+and attributing the remainder between teacher model and label volume is
+left open. OSWorld shows fidelity value but no allocation headroom, so the
 reallocation claim is currently mobile-only. We control an active context
 budget, not archive capacity, and \method{} reattaches rather than
 generates pixels. In one sentence: under a fixed visual budget, a frozen
