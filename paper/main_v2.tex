@@ -209,17 +209,26 @@ summary-plus-screenshot form, subject to the budget
 so every allocation renders exactly the same number of images and any
 promotion of a distant event \emph{displaces} a recent one. Restoration
 moves an official retained turn---verbatim response plus screenshot---as a
-unit; no pixels are ever reconstructed from text. Recent-$B$ fixes $S_t$
-to the latest events; the reallocation problem is to choose $S_t$ to
-maximize downstream task success. We call an event's value
-\emph{conditional marginal utility}: the improvement in the policy's
-action distribution from promoting it, conditioned on the rest of the
-composed window (``causal'' denotes policy-specific effects of matched
-prompt interventions, rather than structural causal discovery). Because
-every compared allocation carries the same number of images, the contrast
-isolates fidelity \emph{allocation} from visual capacity, and how many
-non-recent events are actually promoted is measured as a result, never
-preset.
+unit; no pixels are ever reconstructed from text. Let $Q(S)$ be the
+policy's mean target-token log-likelihood of the successful next action
+when events in $S$ are exposed in summary-plus-image form. Recent-$B$
+fixes $S_t{=}S_{\mathrm{recent}}$, the $B$ most recent distinct events;
+\method{} targets
+\begin{equation}
+S^{*}=\arg\max_{\substack{S\subseteq\{1,\ldots,t-1\}\\ |S|=\min(B,t-1)}} Q(S),
+\qquad
+Q(S^{*})>Q(S_{\mathrm{recent}}),
+\label{eq:decision}
+\end{equation}
+so recency is one candidate allocation, not a separate modality. Given a
+partial allocation $S$, conditional marginals
+$\Delta_t(j\mid S)=Q(S\cup\{j\})-Q(S)$ drive selection: a distant event
+enters only by beating the marginal of the recent realization it evicts
+(``causal'' denotes policy-specific effects of matched prompt
+interventions, not structural causal discovery). Every reported set
+utility re-scores the complete restored set; the realized replacement
+intensity $k=|S\setminus\mathrm{Recent}\text{-}B|$ is a measured
+statistic, never preset.
 
 \section{Method}
 
@@ -229,10 +238,17 @@ for a frozen policy.
 
 \paragraph{Measuring set utility offline.}
 On desktop traces we build matched-budget replacement groups: at a
-decision point with target action $a^*_t$, a candidate distant event
-replaces the oldest recent slot while text, order, and image count stay
-fixed, so the \emph{only} difference between arms is which event holds
-pixels. Utility is the teacher-forced log-likelihood margin of $a^*_t$
+decision point with target action $a^*_t$, every prompt carries exactly
+$B$ history images and differs only in which event holds pixels:
+\begin{itemize}
+    \item \textbf{Recent}: $\mathrm{Recent}\text{-}B$;
+    \item \textbf{Relevant restore}: the oldest recent slot replaced by
+    the target-specific archived screenshot
+    ($\mathrm{age}\geq B{+}2$, strictly older than the window);
+    \item \textbf{Wrong restore}: the same slot replaced by an
+    age-matched screenshot whose following action is not equivalent to
+    $a^*_t$.
+\end{itemize} Utility is the teacher-forced log-likelihood margin of $a^*_t$
 between the recomposed and recent windows. To make these margins
 sensitive, we instrument the policy with \hgkv{}, a token-gated K/V
 adapter on the last eight layers that touches only restored history-image
@@ -247,10 +263,21 @@ A_r=\ell^{\mathrm{on}}_{\mathrm{recent}}-\ell^{\mathrm{off}}_{\mathrm{recent}},\
 A_n&=\ell^{\mathrm{on}}_{\mathrm{wrong}}-\ell^{\mathrm{off}}_{\mathrm{wrong}},
 \end{aligned}
 \end{equation}
-and the DiD objective rewards $A_s$ over $A_r$ under margins while capping
-$|A_r|$ and wrong-history drift at $\epsilon{=}0.02$: uniform amplification
-of any history cancels exactly, and only \emph{selective} use of
-target-relevant content reduces the loss. \hgkv{} passes pre-specified
+and the DiD objective is
+\begin{equation}
+\begin{aligned}
+\mathcal L ={}& [m-(A_s-A_r)]_+ + [m-A_s]_+ \\
+&+ [m-(A_s-A_n)]_+ \\
+&+ \lambda_{\mathrm{cap}}\bigl([|A_r|-\epsilon]_+ + [|A_n|-\epsilon]_+\bigr)
++ \lambda\lVert\Delta W\rVert_2^2,
+\end{aligned}
+\label{eq:did}
+\end{equation}
+with $m{=}0.01$, $\epsilon{=}0.02$, $\lambda_{\mathrm{cap}}{=}2$,
+$\lambda{=}10^{-4}$, and no action cross-entropy. On the identity adapter
+every increment is zero, so uniform amplification of any history cancels
+exactly; only \emph{selective} use of target-relevant content reduces the
+loss. \hgkv{} passes pre-specified
 selectivity gates that the frozen policy and an ungated control do not
 match (Table~\ref{tab:did-gate}). Crucially, \hgkv{} is an offline
 \emph{instrument}: deployment does not require it
@@ -392,6 +419,7 @@ Benchmark / stratum & Recent-$B$ & \method{} & $\Delta$ \\
 MobileWorld full ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
 \hspace{7pt}memory-critical ($62$) & $19.4$ & $30.6$ & $+11.3^{*}$ \\
 \hspace{7pt}single-app control ($55$) & $42.4$ & $43.6$ & $+1.2$ \\
+\hspace{7pt}split$\times$method interact. & --- & --- & $+10.4^{*}$ \\
 OSWorld-Verified ($361$) & $32.7$ & \tbd & \tbd \\
 \bottomrule
 \end{tabular}
@@ -399,7 +427,7 @@ OSWorld-Verified ($361$) & $32.7$ & \tbd & \tbd \\
 \caption{Primary zero-shot contrasts at deployment budget $B{=}4$:
 frozen policy $+$ selector vs.\ frozen policy $+$ Recent-$B$ (task-paired
 bootstrap; $^{*}$the $95\%$ CI excludes zero, $p{=}0.035$ full /
-$p{=}0.006$ memory-critical). Recent-$B$: three-run means; selector arm:
+$p{=}0.006$ memory-critical; interaction two-sided $p{=}0.022$). Recent-$B$: three-run means; selector arm:
 single round (additional rounds \tbd). The OSWorld frozen$+$selector
 round is \tbd; the adapter-attached variant scores $32.7$ there,
 indistinguishable from Recent-$B$.}
@@ -451,7 +479,10 @@ unmoved. Table~\ref{tab:closed-loop} decomposes the system: summary-only,
 Recent-$B$, and adapter-on-Recent-$B$ are pairwise indistinguishable (the
 behavioral face of the drift cap), while both selector arms separate from
 all of them and not from each other. The gain is a property of
-\emph{which events hold pixels}, not of any weight update. A frozen-policy
+\emph{which events hold pixels}, not of any weight update. An
+outcome-defined check agrees: on the $95$ tasks the summary-only baseline
+cannot solve, reallocation gains $7.0$pp, and it adds nothing on the $22$
+it already solves. A frozen-policy
 recent-dose sweep makes the recency alternative explicit: across
 $B{=}0$--$4$, success is non-monotone with every paired contrast against
 $B{=}0$ crossing zero---promoting additional recent events alone buys
