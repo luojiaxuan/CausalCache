@@ -13,8 +13,8 @@
 \begin{axis}[
   width=8.6cm, height=5.4cm,
   xlabel={active visual budget $B$}, ylabel={success rate (\%)},
-  xmin=-0.4, xmax=8.6, ymin=24.5, ymax=37.4,
-  xtick={0,1,2,4,8}, ytick={26,28,30,32,34,36},
+  xmin=-0.4, xmax=8.6, ymin=24.5, ymax=39.8,
+  xtick={0,1,2,4,8}, ytick={26,28,30,32,34,36,38},
   axis line style={slate}, tick style={slate},
   ticklabel style={font=\small, color=ink},
   label style={font=\small, color=ink},
@@ -25,12 +25,17 @@
 ]
 \addplot[accO, very thick, mark=*, mark size=2.2pt]
   coordinates {(0,28.2) (1,29.1) (2,33.3) (4,33.9) (8,33.3)};
-\addlegendentry{\textsc{CausalCache}}
+\addlegendentry{selector (frozen $\pi_0$)}
 \addplot[accB, very thick, mark=square*, mark size=2.0pt]
   coordinates {(0,28.2) (1,26.5) (2,26.5) (4,30.2) (8,29.9)};
 \addlegendentry{Recent-$B$}
+% note (luojiaxuan): 主设置 B=4 的完整 CausalCache(HGKV+selector)单点星标。
+\addplot[accO, only marks, mark=star, mark size=3.6pt, very thick]
+  coordinates {(4,36.8)};
+\addlegendentry{\textsc{CausalCache} ($B{=}4$)}
 % B=4 主设置直标
-\node[font=\small, text=accO, anchor=south] at (axis cs:4,34.3) {33.9};
+\node[font=\small, text=accO, anchor=south] at (axis cs:4,37.1) {36.8};
+\node[font=\small, text=accO, anchor=north west] at (axis cs:4.12,34.1) {33.9};
 \node[font=\small, text=accB, anchor=north] at (axis cs:4,29.9) {30.2};
 \end{axis}
 \end{tikzpicture}

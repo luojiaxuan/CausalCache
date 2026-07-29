@@ -60,10 +60,10 @@ envelope. On OSWorld-Verified, restoring history to high fidelity is worth
 about $13$ success points over summary-only memory, while same-budget
 allocations remain indistinguishable. Zero-shot on a cross-application mobile benchmark, \method{}
 significantly improves overall success over the same-budget recent
-allocation ($+3.7$ points on the full roster), and the gain concentrates
-where it should: $+8.6$ points on the memory-critical split fixed by
+allocation ($+6.6$ points on the full roster), and the gain concentrates
+where it should: $+11.2$ points on the memory-critical split fixed by
 benchmark metadata at construction, no detectable effect on matched
-controls, and a significant split-by-method interaction.
+controls, and a $+10.1$-point split-by-method interaction.
 \end{abstract}
 
 \section{Introduction}
@@ -478,20 +478,20 @@ selecting between samples---it cannot act as best-of-$n$.
 \toprule
 Benchmark / stratum & Recent-$B$ & \method{} & $\Delta$ \\
 \midrule
-MobileWorld full ($117$) & $30.2$ & $33.9$ & $+3.7^{*}$ \\
-\hspace{7pt}memory-critical ($62$) & $19.4$ & $28.0$ & $+8.6^{*}$ \\
-\hspace{7pt}single-app control ($55$) & $42.4$ & $40.6$ & $-1.8$ \\
-\hspace{7pt}split$\times$method interact. & --- & --- & $+10.4^{*}$ \\
-OSWorld-Verified ($361$) & $33.0$ & $32.7$ & $-0.3$ \\
+MobileWorld full ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
+\hspace{7pt}memory-critical ($62$) & $19.4$ & $30.6$ & $+11.2^{*}$ \\
+\hspace{7pt}single-app control ($55$) & $42.4$ & $43.6$ & $+1.2$ \\
+\hspace{7pt}split$\times$method interact. & --- & --- & $+10.1$ \\
+OSWorld-Verified ($361$) & $33.0$ & \tbd & \tbd \\
 \bottomrule
 \end{tabular}
 }
 \caption{Primary closed-loop contrasts at the deployment budget $B{=}4$
-(task-paired bootstrap; MobileWorld three-run means; interaction two-sided
-$p{=}0.022$). $^{*}$~the $95\%$ confidence interval strictly excludes
-zero (full CI tables in the supplement). The gain concentrates exactly on
-the construction-defined memory-critical stratum, with no detectable
-effect on controls or on the re-observable desktop benchmark.}
+(task-paired bootstrap; MobileWorld three-run means). $^{*}$~the $95\%$
+confidence interval strictly excludes zero (full CI tables in the
+supplement; the interaction interval accompanies them). The gain
+concentrates exactly on the construction-defined memory-critical stratum,
+with no detectable effect on controls.}
 \label{tab:contrast}
 \end{table}
 
@@ -500,15 +500,18 @@ effect on controls or on the re-observable desktop benchmark.}
 \centering
 {\small
 \setlength{\tabcolsep}{5.0pt}
-\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrr@{}}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrr@{}}
 \toprule
 Method & OSWorld-Verified ($361$) & MobileWorld ($117$) &
-MW memory-critical ($62$) \\
+MW memory-critical ($62$) & MW control ($55$) \\
 \midrule
-Frozen, summary-only ($B{=}0$) & $19.9$ & $28.2$ & $21.0$ \\
-Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $22.6$ \\
-\hgkv{} $+$ Recent-$B$ & $33.0$ & $30.2$ & $19.4$ \\
-\method{} & $32.7$ & $\mathbf{33.9}$ & $\mathbf{28.0}$ \\
+Frozen, summary-only ($B{=}0$) & $19.9$ & $28.2$ & $21.0$ & $36.4$ \\
+Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $22.6$ & $38.2$ \\
+\hgkv{} $+$ Recent-$B$ & $33.0$ & $30.2$ & $19.4$ & $42.4$ \\
+Frozen $+$ selector & $32.7$ & $33.9$ & $28.0$ & $40.6$ \\
+\method{} (\hgkv{} $+$ selector) & \tbd & $\mathbf{36.8}$ &
+$\mathbf{30.6}$ & $\mathbf{43.6}$ \\
+\hspace{7pt}frozen-taught selector variant & --- & $33.3$ & $25.8$ & $41.8$ \\
 \bottomrule
 \end{tabular*}
 }
@@ -516,12 +519,16 @@ Frozen $+$ Recent-$B$ & $32.7$ & $29.9$ & $22.6$ \\
 $B{=}4$; the offline budget sweep is in the supplement.
 OSWorld-Verified: official no-GDrive roster and official $15$-step budget,
 one run per arm. MobileWorld: zero-shot means over three runs for all
-multi-run arms; the
-memory-critical column restricts to the $62$ construction-defined
-cross-app tasks, where the allocation contrast is largest. High-fidelity
-arms beat summary-only memory on desktop but remain pairwise
-indistinguishable. Full paired statistics and per-round results are in
-the supplementary document.}
+multi-run arms; the memory-critical column restricts to the $62$
+construction-defined cross-app tasks, where the allocation contrast is
+largest, and the control column to the $55$ single-app tasks, where no
+restoration method should help. \method{} deploys the \hgkv{} adapter
+plus the budget-aware selector; Frozen $+$ selector runs the same
+selector on the fully frozen policy, and the frozen-taught variant
+additionally trains the selector on frozen-policy-scored labels.
+High-fidelity arms beat summary-only memory on desktop but remain
+pairwise indistinguishable there. Full paired statistics and per-round
+results are in the supplementary document.}
 \label{tab:closed-loop}
 \end{table*}
 
@@ -592,13 +599,17 @@ benchmark's upstream metadata (multi-app vs.\ single-app), with zero
 manual filtering.
 The full-roster aggregates are secondary: over three runs at the primary
 budget $B{=}4$, \method{} attains the highest overall success rate,
-$33.9\%$, against $30.2\%$ for \hgkv{}+Recent-$B$ and $28.2\%$ for the
+$36.8\%$, against $30.2\%$ for \hgkv{}+Recent-$B$ and $28.2\%$ for the
 frozen summary-only baseline (Table~\ref{tab:closed-loop}), with the same
 sign in every round. The decomposition is clean:
 frozen Recent-$B$, \hgkv{}+Recent-$B$, and the summary-only baseline are
 statistically indistinguishable ($29.9/30.2/28.2\%$) --- the behavioral
 counterpart of the drift cap --- so the gain is carried by \emph{which
-summarized events are promoted}, not by the adapter or by recency alone. A
+summarized events are promoted}, not by the adapter or by recency alone.
+Running the same selector on the fully frozen policy retains most of the
+margin ($33.9\%$), and re-teaching it from frozen-policy-scored labels
+retains less ($33.3\%$): the adapter contributes both at deployment and
+as the utility teacher. A
 recent-dose sweep of the frozen policy makes the last point explicit:
 across $B{=}0$--$4$ success is non-monotone with every paired contrast
 against $B{=}0$ crossing zero; promoting additional recent events alone
@@ -608,9 +619,10 @@ budget \emph{size} is the operative variable.
 \centering
 \includegraphics[width=\columnwidth]{figures/causalcache_split_bars.pdf}
 \caption{The core contrast at the primary budget: on construction-defined
-memory-critical tasks \method{} gains $+8.6$pp over the same-budget recent
-allocation, while on matched single-app controls no effect is detectable;
-the split-by-method interaction is significant ($p{=}0.022$).}
+memory-critical tasks \method{} gains $+11.2$pp over the same-budget recent
+allocation, while on matched single-app controls no effect is detectable
+($+1.2$pp); the split-by-method interaction is $+10.1$pp (paired
+intervals in the supplement).}
 \label{fig:split-bars}
 \end{figure}
 
@@ -622,9 +634,9 @@ making the contrast conservative (rule text and manifest hashes in the
 supplement). On the
 memory-critical stratum the same-budget contrast is decisive
 (Figure~\ref{fig:split-bars}):
-\method{} $28.0\%$ vs.\ Recent-$B$ $19.4\%$, a $+8.6$pp gain; on the
-controls no effect is detectable ($40.6\%$ vs.\ $42.4\%$); and the
-split-by-method interaction is $+10.4$pp (two-sided $p{=}0.022$; intervals
+\method{} $30.6\%$ vs.\ Recent-$B$ $19.4\%$, a $+11.2$pp gain; on the
+controls no effect is detectable ($43.6\%$ vs.\ $42.4\%$); and the
+split-by-method interaction is $+10.1$pp (intervals
 in the supplement). The value of reallocation is conditional on distant visual
 dependency: the modest full-roster mean is composition, not absence of
 effect, since $47\%$ of the roster is control tasks on which no high-fidelity
@@ -697,8 +709,9 @@ per restored frame and generalizes across replacement multiplicity.
 
 \paragraph{Closed-loop budget sweep.}
 Figure~\ref{fig:budget-curve} extends the closed loop along the deployment budget
-axis with single-round mobile campaigns at $B\in\{1,2,8\}$, sharing every
-frozen weight with the primary setting. The allocation gain is positive at
+axis with single-round mobile campaigns at $B\in\{1,2,8\}$ running the
+selector on the fully frozen policy, sharing every frozen weight with the
+primary setting. The allocation gain is positive at
 every budget and, pooled over $B\in\{1,2,4,8\}$ with equal budget weight,
 reaches $+4.1$pp (two-sided $p{=}0.004$; task-paired bootstrap), while
 single-budget cells remain trend evidence. On the memory-critical subset
@@ -710,21 +723,25 @@ operative variable is where the evidence sits relative to the window.
 \paragraph{What the restored slots must carry.}
 Two controls keep selection, budget, and the two-pass interface intact
 but replace each restored frame's pixels with text: the turn's verbatim
-recorded response, or an OCR transcription of the same screenshot. On the memory-critical split verbatim text collapses to the
-Recent-$4$ level ($18.0\%$ vs.\ $19.4\%$; $-10.4$pp below pixels,
-task-paired $p{=}0.006$), ruling out a generic ``reminder'' effect; OCR
-recovers part of the level ($24.2\%$) but its $+4.8$pp margin over
-Recent-$4$ does not separate from zero, while pixel restoration's
-$+8.6$pp does. Full tables in the supplement.
+recorded response, or an OCR transcription of the same screenshot (both
+run on the selector$+$frozen deployment, whose pixel version scores
+$28.0\%$ on this split). On the memory-critical split verbatim text
+collapses to the Recent-$4$ level ($18.0\%$ vs.\ $19.4\%$; $-10.4$pp
+below pixels, task-paired $p{=}0.006$), ruling out a generic
+``reminder'' effect; OCR recovers part of the level ($24.2\%$) but its
+$+4.8$pp margin over Recent-$4$ does not separate from zero, while pixel
+restoration's $+8.6$pp does. Full tables in the supplement.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\columnwidth]{figures/causalcache_budget_curve.pdf}
 \caption{Closed-loop MobileWorld success along the budget axis (full
-roster). $B{=}0/4$: three-run means; other budgets single rounds
-($B{=}1/2$ references: frozen dose curve; \hgkv{} neutral on matched
-recent). Pooled: $+4.1$pp ($95\%$ CI $[+1.3,+7.1]$, $p{=}0.004$); full
-per-budget table in the supplement.}
+roster). The sweep runs the selector on the fully frozen policy;
+$B{=}0/4$: three-run means, other budgets single rounds ($B{=}1/2$
+references: frozen dose curve; \hgkv{} neutral on matched recent).
+Pooled over the sweep: $+4.1$pp ($95\%$ CI $[+1.3,+7.1]$, $p{=}0.004$).
+The star marks full \method{} (\hgkv{}$+$selector) at the primary budget
+($36.8\%$); full per-budget table in the supplement.}
 \label{fig:budget-curve}
 \end{figure}
 
