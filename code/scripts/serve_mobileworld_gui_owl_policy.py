@@ -148,6 +148,12 @@ def main() -> None:
         raise ValueError("MobileWorld policy port must be within [1024, 65535]")
     if args.max_history_images is not None and args.max_history_images < 0:
         raise ValueError("max history images must be non-negative")
+    # note (luojiaxuan): torch 2.11 的 cuDNN SDPA 在高并发批形状下报
+    # mha_graph.execute is_good()==false(HTTP 500);env 旗标不生效,代码级关闭,
+    # 统一回退 flash/mem-efficient 内核。
+    import torch as _torch
+
+    _torch.backends.cuda.enable_cudnn_sdp(False)
     base_runtime = GUIOwlV21OfficialToolsRuntime(
         model_dir=args.model_dir,
         expected_snapshot_manifest=args.snapshot_manifest,
