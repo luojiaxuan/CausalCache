@@ -1,0 +1,1365 @@
+{
+  "bootstrap": {
+    "cluster_unit": "episode",
+    "clusters": 77,
+    "confidence": 0.95,
+    "method": "percentile",
+    "rationale": "pair-groups inside one episode share instruction, UI and the policy's task-level bias; resampling groups i.i.d. would shrink every interval by roughly sqrt(groups per episode)",
+    "replicates": 2000,
+    "seed": 20260724
+  },
+  "cache_hits": 0,
+  "checkpoints": [
+    {
+      "adapter_key": "fce6cc5018cfde9e2af63b9253ad3a0b51caf39829b7e2b6340193aa945ff9cb",
+      "all_must_pass": true,
+      "checkpoint_sha256": "fce6cc5018cfde9e2af63b9253ad3a0b51caf39829b7e2b6340193aa945ff9cb",
+      "composite_score": {
+        "bootstrap_replicates_used": 2000,
+        "ci_high": 0.016311848588848092,
+        "ci_low": 0.0059619380433234195,
+        "expression": "did_select",
+        "unavailable_reason": null,
+        "value": 0.011309184465914014
+      },
+      "derived_quantities": {
+        "SA_minus_R0": {
+          "ci_high": 0.12285913477006384,
+          "ci_low": 0.053167216798138565,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.08621880237726455
+        },
+        "SA_minus_RA": {
+          "ci_high": 0.1278202729509212,
+          "ci_low": 0.05764897379049218,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0904442923777598
+        },
+        "SA_minus_SA_neg_age_matched": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_duplicate": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_irrelevant": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_step_shuffled": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_WA": {
+          "ci_high": 0.05686193385739893,
+          "ci_low": 0.006324367226272768,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.030167059923343835
+        },
+        "adapter_on_recent": {
+          "ci_high": -0.0010080114562732194,
+          "ci_low": -0.007283663953367393,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": -0.0042254900004952516
+        },
+        "adapter_on_recent_abs": {
+          "ci_high": 0.014455959864992193,
+          "ci_low": 0.010727147032736955,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.012497900232197122
+        },
+        "adapter_on_sparse": {
+          "ci_high": 0.01070606953617307,
+          "ci_low": 0.003284690097001765,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.007083694465418762
+        },
+        "age_matched_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "deployment_delta": {
+          "ci_high": 0.12285913477006384,
+          "ci_low": 0.053167216798138565,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.08621880237726455
+        },
+        "did_select": {
+          "ci_high": 0.016311848588848092,
+          "ci_low": 0.0059619380433234195,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.011309184465914014
+        },
+        "duplicate_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "format_effect": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "frozen_selection_effect": {
+          "ci_high": 0.11567999386381218,
+          "ci_low": 0.04571594438272046,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.07913510791184579
+        },
+        "irrelevant_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "step_shuffled_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "wrong_drift": {
+          "ci_high": 0.00962308925431467,
+          "ci_low": 0.003232959910426616,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.006528465587526877
+        },
+        "wrong_drift_abs": {
+          "ci_high": 0.00962308925431467,
+          "ci_low": 0.003232959910426616,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.006528465587526877
+        }
+      },
+      "gates": {
+        "adapter_on_recent_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.014455959864992193,
+          "ci_low": 0.010727147032736955,
+          "compared_value": 0.012497900232197122,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.012497900232197122,
+          "statistic": "point",
+          "threshold": 0.02
+        },
+        "adapter_on_sparse": {
+          "applied_statistic": "point",
+          "ci_high": 0.01070606953617307,
+          "ci_low": 0.003284690097001765,
+          "compared_value": 0.007083694465418762,
+          "expression": "> 0",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.007083694465418762,
+          "statistic": "point",
+          "threshold": 0.0
+        },
+        "did_select": {
+          "applied_statistic": "ci_low",
+          "ci_high": 0.016311848588848092,
+          "ci_low": 0.0059619380433234195,
+          "compared_value": 0.0059619380433234195,
+          "expression": "> 0 @ci_low",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.011309184465914014,
+          "statistic": "ci_low",
+          "threshold": 0.0
+        },
+        "wrong_drift_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.00962308925431467,
+          "ci_low": 0.003232959910426616,
+          "compared_value": 0.006528465587526877,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.006528465587526877,
+          "statistic": "point",
+          "threshold": 0.02
+        }
+      },
+      "label": "lora-step150",
+      "order_index": 0,
+      "path": "/data/runs/desktop-did-v5/gated36-long/lora-step150.pt",
+      "selectable": true
+    },
+    {
+      "adapter_key": "444c78f07bad14b0aa6873e1ee42d12d81e1ed538ff3b2d6ee16aface0bdf739",
+      "all_must_pass": true,
+      "checkpoint_sha256": "444c78f07bad14b0aa6873e1ee42d12d81e1ed538ff3b2d6ee16aface0bdf739",
+      "composite_score": {
+        "bootstrap_replicates_used": 2000,
+        "ci_high": 0.018780057266875,
+        "ci_low": 0.007805997688163591,
+        "expression": "did_select",
+        "unavailable_reason": null,
+        "value": 0.013289678311768048
+      },
+      "derived_quantities": {
+        "SA_minus_R0": {
+          "ci_high": 0.12573628950135443,
+          "ci_low": 0.055654340517282005,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.08889538308288505
+        },
+        "SA_minus_RA": {
+          "ci_high": 0.1295985687046108,
+          "ci_low": 0.05923879503932208,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.09242478622361383
+        },
+        "SA_minus_SA_neg_age_matched": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_duplicate": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_irrelevant": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_step_shuffled": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_WA": {
+          "ci_high": 0.05775721741026264,
+          "ci_low": 0.007070403191630313,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.03169498943347246
+        },
+        "adapter_on_recent": {
+          "ci_high": 0.000109202715155096,
+          "ci_low": -0.007329983422645541,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": -0.003529403140728778
+        },
+        "adapter_on_recent_abs": {
+          "ci_high": 0.016128556312616452,
+          "ci_low": 0.011062474553456006,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.013494526709806411
+        },
+        "adapter_on_sparse": {
+          "ci_high": 0.013543443606280148,
+          "ci_low": 0.005733119205248837,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.00976027517103927
+        },
+        "age_matched_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "deployment_delta": {
+          "ci_high": 0.12573628950135443,
+          "ci_low": 0.055654340517282005,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.08889538308288505
+        },
+        "did_select": {
+          "ci_high": 0.018780057266875,
+          "ci_low": 0.007805997688163591,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.013289678311768048
+        },
+        "duplicate_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "format_effect": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "frozen_selection_effect": {
+          "ci_high": 0.11567999386381218,
+          "ci_low": 0.04571594438272046,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.07913510791184579
+        },
+        "irrelevant_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "step_shuffled_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "wrong_drift": {
+          "ci_high": 0.01101970612632643,
+          "ci_low": 0.00424190015896184,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.007677116783018759
+        },
+        "wrong_drift_abs": {
+          "ci_high": 0.01101970612632643,
+          "ci_low": 0.00424190015896184,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.007677116783018759
+        }
+      },
+      "gates": {
+        "adapter_on_recent_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.016128556312616452,
+          "ci_low": 0.011062474553456006,
+          "compared_value": 0.013494526709806411,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.013494526709806411,
+          "statistic": "point",
+          "threshold": 0.02
+        },
+        "adapter_on_sparse": {
+          "applied_statistic": "point",
+          "ci_high": 0.013543443606280148,
+          "ci_low": 0.005733119205248837,
+          "compared_value": 0.00976027517103927,
+          "expression": "> 0",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.00976027517103927,
+          "statistic": "point",
+          "threshold": 0.0
+        },
+        "did_select": {
+          "applied_statistic": "ci_low",
+          "ci_high": 0.018780057266875,
+          "ci_low": 0.007805997688163591,
+          "compared_value": 0.007805997688163591,
+          "expression": "> 0 @ci_low",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.013289678311768048,
+          "statistic": "ci_low",
+          "threshold": 0.0
+        },
+        "wrong_drift_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.01101970612632643,
+          "ci_low": 0.00424190015896184,
+          "compared_value": 0.007677116783018759,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.007677116783018759,
+          "statistic": "point",
+          "threshold": 0.02
+        }
+      },
+      "label": "lora-step300",
+      "order_index": 1,
+      "path": "/data/runs/desktop-did-v5/gated36-long/lora-step300.pt",
+      "selectable": true
+    },
+    {
+      "adapter_key": "c1562b1c9e025c144a3510e0d7f35d7116bcb61fde652e006dd580f841d7e87f",
+      "all_must_pass": true,
+      "checkpoint_sha256": "c1562b1c9e025c144a3510e0d7f35d7116bcb61fde652e006dd580f841d7e87f",
+      "composite_score": {
+        "bootstrap_replicates_used": 2000,
+        "ci_high": 0.021240708862917776,
+        "ci_low": 0.009457242973907896,
+        "expression": "did_select",
+        "unavailable_reason": null,
+        "value": 0.015062315240898665
+      },
+      "derived_quantities": {
+        "SA_minus_R0": {
+          "ci_high": 0.12163525524532273,
+          "ci_low": 0.05308219033990661,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.08572568936134747
+        },
+        "SA_minus_RA": {
+          "ci_high": 0.13061800492591488,
+          "ci_low": 0.06059074365281832,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.09419742315274446
+        },
+        "SA_minus_SA_neg_age_matched": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_duplicate": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_irrelevant": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_step_shuffled": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_WA": {
+          "ci_high": 0.061321461033440834,
+          "ci_low": 0.011996084027165052,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.03563777357835243
+        },
+        "adapter_on_recent": {
+          "ci_high": -0.004839339329395137,
+          "ci_low": -0.012471143037643056,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": -0.008471733791396973
+        },
+        "adapter_on_recent_abs": {
+          "ci_high": 0.018832629715597092,
+          "ci_low": 0.013149303522224176,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.01582345774674669
+        },
+        "adapter_on_sparse": {
+          "ci_high": 0.010434369379994405,
+          "ci_low": 0.0030249551526965604,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.006590581449501692
+        },
+        "age_matched_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "deployment_delta": {
+          "ci_high": 0.12163525524532273,
+          "ci_low": 0.05308219033990661,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.08572568936134747
+        },
+        "did_select": {
+          "ci_high": 0.021240708862917776,
+          "ci_low": 0.009457242973907896,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.015062315240898665
+        },
+        "duplicate_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "format_effect": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "frozen_selection_effect": {
+          "ci_high": 0.11567999386381218,
+          "ci_low": 0.04571594438272046,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.07913510791184579
+        },
+        "irrelevant_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "step_shuffled_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "wrong_drift": {
+          "ci_high": 0.0035438833892546436,
+          "ci_low": -0.0024055743150830527,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0005646389166012089
+        },
+        "wrong_drift_abs": {
+          "ci_high": 0.003596066772577257,
+          "ci_low": 5.397979334468893e-05,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0005646389166012089
+        }
+      },
+      "gates": {
+        "adapter_on_recent_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.018832629715597092,
+          "ci_low": 0.013149303522224176,
+          "compared_value": 0.01582345774674669,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.01582345774674669,
+          "statistic": "point",
+          "threshold": 0.02
+        },
+        "adapter_on_sparse": {
+          "applied_statistic": "point",
+          "ci_high": 0.010434369379994405,
+          "ci_low": 0.0030249551526965604,
+          "compared_value": 0.006590581449501692,
+          "expression": "> 0",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.006590581449501692,
+          "statistic": "point",
+          "threshold": 0.0
+        },
+        "did_select": {
+          "applied_statistic": "ci_low",
+          "ci_high": 0.021240708862917776,
+          "ci_low": 0.009457242973907896,
+          "compared_value": 0.009457242973907896,
+          "expression": "> 0 @ci_low",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.015062315240898665,
+          "statistic": "ci_low",
+          "threshold": 0.0
+        },
+        "wrong_drift_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.003596066772577257,
+          "ci_low": 5.397979334468893e-05,
+          "compared_value": 0.0005646389166012089,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.0005646389166012089,
+          "statistic": "point",
+          "threshold": 0.02
+        }
+      },
+      "label": "lora-step450",
+      "order_index": 2,
+      "path": "/data/runs/desktop-did-v5/gated36-long/lora-step450.pt",
+      "selectable": true
+    },
+    {
+      "adapter_key": "c6d13b20978fec7754369adc99a23ef7ff37014e662c5cbe5d971d64564d4a02",
+      "all_must_pass": true,
+      "checkpoint_sha256": "c6d13b20978fec7754369adc99a23ef7ff37014e662c5cbe5d971d64564d4a02",
+      "composite_score": {
+        "bootstrap_replicates_used": 2000,
+        "ci_high": 0.019842832309623262,
+        "ci_low": 0.006446410509878078,
+        "expression": "did_select",
+        "unavailable_reason": null,
+        "value": 0.013153737722995116
+      },
+      "derived_quantities": {
+        "SA_minus_R0": {
+          "ci_high": 0.12612536493914286,
+          "ci_low": 0.05580735610932076,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.08936489785605288
+        },
+        "SA_minus_RA": {
+          "ci_high": 0.1297590080904774,
+          "ci_low": 0.05889744384482543,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.09228884563484091
+        },
+        "SA_minus_SA_neg_age_matched": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_duplicate": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_irrelevant": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_step_shuffled": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_WA": {
+          "ci_high": 0.0608672376035349,
+          "ci_low": 0.011821108141294232,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.035160534034304795
+        },
+        "adapter_on_recent": {
+          "ci_high": 0.001390409841507632,
+          "ci_low": -0.0075622032692047704,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": -0.0029239477787880185
+        },
+        "adapter_on_recent_abs": {
+          "ci_high": 0.01872393522317406,
+          "ci_low": 0.012744580999919281,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.015485064978612231
+        },
+        "adapter_on_sparse": {
+          "ci_high": 0.014194533144671735,
+          "ci_low": 0.006156852300760156,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.010229789944207097
+        },
+        "age_matched_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "deployment_delta": {
+          "ci_high": 0.12612536493914286,
+          "ci_low": 0.05580735610932076,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.08936489785605288
+        },
+        "did_select": {
+          "ci_high": 0.019842832309623262,
+          "ci_low": 0.006446410509878078,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.013153737722995116
+        },
+        "duplicate_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "format_effect": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "frozen_selection_effect": {
+          "ci_high": 0.11567999386381218,
+          "ci_low": 0.04571594438272046,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.07913510791184579
+        },
+        "irrelevant_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "step_shuffled_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "wrong_drift": {
+          "ci_high": 0.007927986775725763,
+          "ci_low": 0.0013130721531224372,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0046810869553542515
+        },
+        "wrong_drift_abs": {
+          "ci_high": 0.007927986775725763,
+          "ci_low": 0.0013135042913494702,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0046810869553542515
+        }
+      },
+      "gates": {
+        "adapter_on_recent_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.01872393522317406,
+          "ci_low": 0.012744580999919281,
+          "compared_value": 0.015485064978612231,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.015485064978612231,
+          "statistic": "point",
+          "threshold": 0.02
+        },
+        "adapter_on_sparse": {
+          "applied_statistic": "point",
+          "ci_high": 0.014194533144671735,
+          "ci_low": 0.006156852300760156,
+          "compared_value": 0.010229789944207097,
+          "expression": "> 0",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.010229789944207097,
+          "statistic": "point",
+          "threshold": 0.0
+        },
+        "did_select": {
+          "applied_statistic": "ci_low",
+          "ci_high": 0.019842832309623262,
+          "ci_low": 0.006446410509878078,
+          "compared_value": 0.006446410509878078,
+          "expression": "> 0 @ci_low",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.013153737722995116,
+          "statistic": "ci_low",
+          "threshold": 0.0
+        },
+        "wrong_drift_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.007927986775725763,
+          "ci_low": 0.0013135042913494702,
+          "compared_value": 0.0046810869553542515,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.0046810869553542515,
+          "statistic": "point",
+          "threshold": 0.02
+        }
+      },
+      "label": "lora-step600",
+      "order_index": 3,
+      "path": "/data/runs/desktop-did-v5/gated36-long/lora-step600.pt",
+      "selectable": true
+    },
+    {
+      "adapter_key": "a890f6d2d0a07725170112f2f2e81a90cbe68d1a91386366e90dda0e0cffff0f",
+      "all_must_pass": true,
+      "checkpoint_sha256": "a890f6d2d0a07725170112f2f2e81a90cbe68d1a91386366e90dda0e0cffff0f",
+      "composite_score": {
+        "bootstrap_replicates_used": 2000,
+        "ci_high": 0.021860157631677514,
+        "ci_low": 0.010518293445124746,
+        "expression": "did_select",
+        "unavailable_reason": null,
+        "value": 0.015996887967822716
+      },
+      "derived_quantities": {
+        "SA_minus_R0": {
+          "ci_high": 0.12667224400342827,
+          "ci_low": 0.057073798227778,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.09024317367398675
+        },
+        "SA_minus_RA": {
+          "ci_high": 0.13191516198331327,
+          "ci_low": 0.061420316991226326,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0951319958796685
+        },
+        "SA_minus_SA_neg_age_matched": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_duplicate": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_irrelevant": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_step_shuffled": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_WA": {
+          "ci_high": 0.06189908918044056,
+          "ci_low": 0.010979379224496055,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.03545598881913627
+        },
+        "adapter_on_recent": {
+          "ci_high": -0.0020032185261248084,
+          "ci_low": -0.008126633473817882,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": -0.00488882220568175
+        },
+        "adapter_on_recent_abs": {
+          "ci_high": 0.014450804611902268,
+          "ci_low": 0.010335594017577552,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.012295725160932287
+        },
+        "adapter_on_sparse": {
+          "ci_high": 0.015353034455546765,
+          "ci_low": 0.0069736782606817345,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.011108065762140967
+        },
+        "age_matched_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "deployment_delta": {
+          "ci_high": 0.12667224400342827,
+          "ci_low": 0.057073798227778,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.09024317367398675
+        },
+        "did_select": {
+          "ci_high": 0.021860157631677514,
+          "ci_low": 0.010518293445124746,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.015996887967822716
+        },
+        "duplicate_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "format_effect": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "frozen_selection_effect": {
+          "ci_high": 0.11567999386381218,
+          "ci_low": 0.04571594438272046,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.07913510791184579
+        },
+        "irrelevant_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "step_shuffled_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "wrong_drift": {
+          "ci_high": 0.008150992627697237,
+          "ci_low": 0.002186719717104617,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.005263907988456652
+        },
+        "wrong_drift_abs": {
+          "ci_high": 0.008150992627697237,
+          "ci_low": 0.002186719717104617,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.005263907988456652
+        }
+      },
+      "gates": {
+        "adapter_on_recent_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.014450804611902268,
+          "ci_low": 0.010335594017577552,
+          "compared_value": 0.012295725160932287,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.012295725160932287,
+          "statistic": "point",
+          "threshold": 0.02
+        },
+        "adapter_on_sparse": {
+          "applied_statistic": "point",
+          "ci_high": 0.015353034455546765,
+          "ci_low": 0.0069736782606817345,
+          "compared_value": 0.011108065762140967,
+          "expression": "> 0",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.011108065762140967,
+          "statistic": "point",
+          "threshold": 0.0
+        },
+        "did_select": {
+          "applied_statistic": "ci_low",
+          "ci_high": 0.021860157631677514,
+          "ci_low": 0.010518293445124746,
+          "compared_value": 0.010518293445124746,
+          "expression": "> 0 @ci_low",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.015996887967822716,
+          "statistic": "ci_low",
+          "threshold": 0.0
+        },
+        "wrong_drift_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.008150992627697237,
+          "ci_low": 0.002186719717104617,
+          "compared_value": 0.005263907988456652,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.005263907988456652,
+          "statistic": "point",
+          "threshold": 0.02
+        }
+      },
+      "label": "lora-step750",
+      "order_index": 4,
+      "path": "/data/runs/desktop-did-v5/gated36-long/lora-step750.pt",
+      "selectable": true
+    },
+    {
+      "adapter_key": "aa7a9312805010ba32d5f2a1f7a0642a2639ea24c4992b7836556356584031c5",
+      "all_must_pass": true,
+      "checkpoint_sha256": "aa7a9312805010ba32d5f2a1f7a0642a2639ea24c4992b7836556356584031c5",
+      "composite_score": {
+        "bootstrap_replicates_used": 2000,
+        "ci_high": 0.02508777843010826,
+        "ci_low": 0.01395188686673018,
+        "expression": "did_select",
+        "unavailable_reason": null,
+        "value": 0.019263797484219393
+      },
+      "derived_quantities": {
+        "SA_minus_R0": {
+          "ci_high": 0.12887107340895484,
+          "ci_low": 0.05979406299266434,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0930697215185996
+        },
+        "SA_minus_RA": {
+          "ci_high": 0.13565677004840263,
+          "ci_low": 0.06518071927292211,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.09839890539606518
+        },
+        "SA_minus_SA_neg_age_matched": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_duplicate": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_irrelevant": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_SA_neg_step_shuffled": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "SA_minus_WA": {
+          "ci_high": 0.05934245307066516,
+          "ci_low": 0.009972820813694761,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0333407669268707
+        },
+        "adapter_on_recent": {
+          "ci_high": -0.0016731822280847358,
+          "ci_low": -0.008977315235502211,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": -0.005329183877465573
+        },
+        "adapter_on_recent_abs": {
+          "ci_high": 0.016679779266379282,
+          "ci_low": 0.012161179096543026,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.014295858311209273
+        },
+        "adapter_on_sparse": {
+          "ci_high": 0.018116099750239745,
+          "ci_low": 0.010255447799136164,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.01393461360675382
+        },
+        "age_matched_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "deployment_delta": {
+          "ci_high": 0.12887107340895484,
+          "ci_low": 0.05979406299266434,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.0930697215185996
+        },
+        "did_select": {
+          "ci_high": 0.02508777843010826,
+          "ci_low": 0.01395188686673018,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.019263797484219393
+        },
+        "duplicate_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "format_effect": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "frozen_selection_effect": {
+          "ci_high": 0.11567999386381218,
+          "ci_low": 0.04571594438272046,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.07913510791184579
+        },
+        "irrelevant_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "step_shuffled_drift_abs": {
+          "ci_high": null,
+          "ci_low": null,
+          "support_episodes": null,
+          "support_groups": null,
+          "value": null
+        },
+        "wrong_drift": {
+          "ci_high": 0.013266988847223521,
+          "ci_low": 0.006954728258018354,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.010205677725335068
+        },
+        "wrong_drift_abs": {
+          "ci_high": 0.013266988847223521,
+          "ci_low": 0.006954728258018354,
+          "support_episodes": 77,
+          "support_groups": 94,
+          "value": 0.010205677725335068
+        }
+      },
+      "gates": {
+        "adapter_on_recent_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.016679779266379282,
+          "ci_low": 0.012161179096543026,
+          "compared_value": 0.014295858311209273,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.014295858311209273,
+          "statistic": "point",
+          "threshold": 0.02
+        },
+        "adapter_on_sparse": {
+          "applied_statistic": "point",
+          "ci_high": 0.018116099750239745,
+          "ci_low": 0.010255447799136164,
+          "compared_value": 0.01393461360675382,
+          "expression": "> 0",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.01393461360675382,
+          "statistic": "point",
+          "threshold": 0.0
+        },
+        "did_select": {
+          "applied_statistic": "ci_low",
+          "ci_high": 0.02508777843010826,
+          "ci_low": 0.01395188686673018,
+          "compared_value": 0.01395188686673018,
+          "expression": "> 0 @ci_low",
+          "operator": ">",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.019263797484219393,
+          "statistic": "ci_low",
+          "threshold": 0.0
+        },
+        "wrong_drift_abs": {
+          "applied_statistic": "point",
+          "ci_high": 0.013266988847223521,
+          "ci_low": 0.006954728258018354,
+          "compared_value": 0.010205677725335068,
+          "expression": "< 0.02",
+          "operator": "<",
+          "passed": true,
+          "passed_conservative": true,
+          "point": 0.010205677725335068,
+          "statistic": "point",
+          "threshold": 0.02
+        }
+      },
+      "label": "lora-step900",
+      "order_index": 5,
+      "path": "/data/runs/desktop-did-v5/gated36-long/lora-step900.pt",
+      "selectable": true
+    }
+  ],
+  "config_path": "code/configs/causalcache_desktop_did_hgkv_v5_selected_full_long.json",
+  "config_sha256": "648a52aec24b7078df4cd634805ec7d4240fc8d9f9d11e7d946b0a5c858f0cc9",
+  "dataset_root": "/data/desktop-did-corpus-v4/samples-b1.jsonl",
+  "elapsed_seconds": 1203.9,
+  "forward_passes": 1974,
+  "gate_schema": "causalcache.sparse_history_gates.v2",
+  "gate_statistic": "declared",
+  "heldout": {
+    "episodes": 77,
+    "group_limit_applied": null,
+    "pair_groups": 94
+  },
+  "identity_consistency": null,
+  "image_root": "/data/desktop-did-corpus-v4",
+  "main_claim_quantity": "SA_minus_RA",
+  "reference_arm_id": "R0",
+  "require_cached": false,
+  "sample_count": 4305,
+  "sample_files": [
+    {
+      "path": "/data/desktop-did-corpus-v4/samples-b1.jsonl",
+      "sha256": "e2f5108dd801605210b5e74ca2e4fbd36537fc84e187b6a08c8250fcf4cd7485"
+    }
+  ],
+  "schema_version": "causalcache.sparse_history_gate_report.v1",
+  "score_cache": {
+    "merged_entries": 1974,
+    "own_entries": 1974,
+    "path": "/data/runs/desktop-did-v5/gated36-long/devscore-v4b1/cache.jsonl",
+    "shard_path": "/data/runs/desktop-did-v5/gated36-long/devscore-v4b1/cache.jsonl",
+    "sources": [],
+    "unfingerprinted_sources": []
+  },
+  "scoring_device": {
+    "computed_forwards": true,
+    "device": "cuda:0",
+    "device_name": "NVIDIA H200"
+  },
+  "selection": {
+    "candidates": [
+      "lora-step150",
+      "lora-step300",
+      "lora-step450",
+      "lora-step600",
+      "lora-step750",
+      "lora-step900"
+    ],
+    "eligible": [
+      "lora-step150",
+      "lora-step300",
+      "lora-step450",
+      "lora-step600",
+      "lora-step750",
+      "lora-step900"
+    ],
+    "reason": "maximize composite_score among 6 checkpoints passing all must_pass gates, tie_break=earliest_checkpoint",
+    "rule": {
+      "filter": "all_must_pass",
+      "objective": "maximize",
+      "quantity": "composite_score",
+      "tie_break": "earliest_checkpoint"
+    },
+    "selected": "lora-step900",
+    "selected_composite_score": 0.019263797484219393
+  },
+  "sharding": {
+    "group_slice": "all",
+    "reduction_ran": true,
+    "scored_pair_groups": 94,
+    "shard_count": 1,
+    "shard_index": 0
+  },
+  "smoke_run": false
+}

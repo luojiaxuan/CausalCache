@@ -1,0 +1,298 @@
+{
+  "checkpoint_selection_gates": {
+    "composite_score": "did_select",
+    "derived_quantities": {
+      "SA_minus_R0": "SA - R0",
+      "SA_minus_RA": "SA - RA",
+      "adapter_on_recent": "RA - R0",
+      "adapter_on_recent_abs": "abs(RA - R0)",
+      "adapter_on_sparse": "SA - S0",
+      "deployment_delta": "SA - R0",
+      "did_select": "(SA - S0) - (RA - R0)",
+      "frozen_selection_effect": "S0 - R0"
+    },
+    "drift_definition": "wrong_drift = \u7559\u51fa\u7ec4\u4e0a (l_WA \u5728 adapter active) - (\u540c\u4e00\u884c\u5728 adapter bypass) \u7684\u5747\u503c,\u5373 A_n \u7684\u5747\u503c;wrong_drift_abs = |wrong_drift|\u3002\u6bcf\u6761\u8d1f\u6837\u672c\u951a\u5230\u5b83\u81ea\u5df1\u7684\u51bb\u7ed3\u5206\u6570\u3002\u684c\u9762\u8bed\u6599\u53ea\u6709 wrong \u4e00\u4e2a kind,\u5fc5\u9700 gate \u56e0\u6b64\u53ea\u6709 wrong_drift_abs",
+    "gate_expression_syntax": "must_pass \u7684\u503c\u5f62\u5982 '<op> <number> [@<statistic>]',op \u2208 {>, >=, <, <=},statistic \u2208 {point(\u7f3a\u7701), ci_low, ci_high};composite_score \u4e0e derived_quantities \u662f\u540c\u4e00\u5957\u7b97\u672f\u5c0f\u8bed\u8a00\u3002scripts/score_sparse_history_arms.py \u4e0e trainer \u7684 validate_sparse_gates \u5171\u7528\u540c\u4e00\u4e2a\u89e3\u6790\u5668",
+    "gate_rationale": {
+      "why_A_r_capped": "\u79fb\u52a8\u4fa7 v5 \u7684\u5931\u8d25\u6a21\u5f0f\u6b63\u662f adapter \u5bf9 recent \u7684\u589e\u76ca\u5927\u4e8e\u5bf9 sparse \u7684\u589e\u76ca;\u4e0d\u5c01\u4f4f A_r,did_select \u53ef\u4ee5\u9760\u538b\u4f4e RA \u800c\u975e\u62ac\u9ad8 SA \u6765\u5237\u9ad8",
+      "why_ci_low": "\u4e3b\u5224\u636e\u7528 dev split \u7684 CI \u4e0b\u754c\u800c\u975e\u70b9\u4f30\u8ba1;checkpoint \u53ea\u5728 Desktop dev \u9009\u62e9(\u4ea4\u63a5 \u00a79),bootstrap \u6309 trajectory \u805a\u7c7b",
+      "why_did_select": "(SA-S0)-(RA-R0) \u5728 identity \u4e0a\u4e25\u683c\u7b49\u4e8e 0,\u51bb\u7ed3\u6a21\u578b\u5df2\u6709\u7684\u9009\u70b9\u4f18\u52bf\u4e0d\u4f1a\u88ab\u5192\u5145\u6210 adapter \u80fd\u529b",
+      "why_fixed_budget": "v3 \u4e3b\u5f20 = \u6709\u9650\u8bb0\u5fc6\u9884\u7b97\u7684\u91cd\u5206\u914d\u800c\u975e\u52a0\u56fe:Recent-B \u628a\u5168\u90e8\u69fd\u4f4d\u7ed9\u6700\u8fd1\u89c2\u6d4b,CausalCache \u4ece\u5b8c\u6574\u5386\u53f2\u9009\u81f3\u591a B \u4e2a\u4e8b\u4ef6;k(\u7a97\u53e3\u5916\u56fe\u6570)\u662f\u7ed3\u679c\u7edf\u8ba1\u91cf\u3002\u771f\u524d\u4e00\u5e27\u63a2\u9488(2026-07-27)\u5df2\u8bc1\u660e\u51bb\u7ed3\u6a21\u578b\u5bf9\u76ee\u6807\u76f8\u5173\u65e7\u5e27\u65e0\u5929\u7136\u504f\u597d,\u9009\u62e9\u6027\u7531 adapter \u4ea7\u751f",
+      "why_no_format_effect": "\u684c\u9762\u90e8\u7f72 prompt \u4e0e R0 \u540c renderer,format_effect \u7ed3\u6784\u6027\u4e3a 0,\u4e0d\u4f5c\u4e3a\u91cf\u62a5\u544a;deployment_delta \u7684\u57fa\u7ebf\u5c31\u662f R0"
+    },
+    "gate_schema": "causalcache.sparse_history_gates.v2",
+    "main_claim_quantity": "SA_minus_RA",
+    "must_pass": {
+      "adapter_on_recent_abs": "< 0.02",
+      "adapter_on_sparse": "> 0",
+      "did_select": "> 0 @ci_low",
+      "wrong_drift_abs": "< 0.02"
+    },
+    "reference_arm_id": "R0",
+    "selection_rule": {
+      "filter": "all_must_pass",
+      "note": "\u5e76\u5217\u53d6\u8bad\u7ec3\u987a\u5e8f\u66f4\u65e9\u8005;quantity \u53ea\u5141\u8bb8 composite_score\u3002Desktop dev \u53ea\u7528\u4e8e\u9009\u70b9,test split \u5df2\u5728 normalize_desktop_splits \u5265\u79bb,MobileWorld/OSWorld \u672a\u6c61\u67d3 roster \u5b8c\u5168\u4e0d\u53c2\u4e0e",
+      "objective": "maximize",
+      "quantity": "composite_score",
+      "tie_break": "earliest_checkpoint"
+    }
+  },
+  "cli_args": {
+    "checkpoint_every_steps": 0,
+    "config": "code/configs/causalcache_desktop_did_hgkv_v5_selected_full_long.json",
+    "dataset_root": "/data/desktop-did-corpus-v5-selected",
+    "encode_cache_scope": "group",
+    "frozen_score_cache": "/data/runs/desktop-did-v5/gated36-long/frozen-cache",
+    "max_steps": 0,
+    "model_dir": "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "output_root": "/data/runs/desktop-did-v5/gated36-long",
+    "repository_root": ".",
+    "resume_lora": null,
+    "start_epoch": 0
+  },
+  "cli_argv": [
+    "code/scripts/train_success_sft_lora.py",
+    "--config",
+    "code/configs/causalcache_desktop_did_hgkv_v5_selected_full_long.json",
+    "--dataset-root",
+    "/data/desktop-did-corpus-v5-selected",
+    "--model-dir",
+    "/data/artifacts/models/GUI-Owl-1.5-8B-Instruct",
+    "--output-root",
+    "/data/runs/desktop-did-v5/gated36-long",
+    "--frozen-score-cache",
+    "/data/runs/desktop-did-v5/gated36-long/frozen-cache",
+    "--encode-cache-scope",
+    "group",
+    "--repository-root",
+    "."
+  ],
+  "config": {
+    "adapter": {
+      "adapter_type": "history_gated_kv",
+      "alpha": 16,
+      "layer_scope": "last_36",
+      "rank": 8,
+      "target_modules": [
+        "k_proj",
+        "v_proj"
+      ]
+    },
+    "data": {
+      "ablation_protocol": "v5-selected(2026-07-29):S \u81c2 = selector beam \u7ec4\u5408 S*(k \u81ea\u7136\u5206\u5e03 1..B,37% \u591a\u69fd),W = \u540c\u57fa\u6570 age \u6700\u8fd1\u90bb wrong;\u8bed\u6599 build_desktop_did_corpus_v5_selected;\u52a8\u673a = k\u22641 \u95ed\u73af\u584c\u56de + frozensel \u6253\u5e73\u6240\u793a\u7684 k=1 \u8bad\u7ec3\u5206\u5e03\u6f02\u79fb | layer_scope=last_36 | 900 \u6b65\u52a0\u957f\u7248(\u22480.6 epoch):step300 \u65f6 did_select \u4ecd\u5728\u722c\u5347\u800c\u6f02\u79fb\u5df2\u5e73,\u68c0\u9a8c\u5ef6\u957f\u8bad\u7ec3\u662f\u5426\u767d\u8d5a\u9009\u62e9\u6027",
+      "adapter_switch_authority": "\u6bcf\u6761\u6837\u672c\u7684 adapter_mode \u5b57\u6bb5;\u7981\u6b62\u89e3\u6790\u540d\u5b57\u524d\u7f00",
+      "arms": {
+        "R0": "desktop_official_multiturn + Recent-B \u4e0d\u540c\u5e27\u7a97\u53e3 + bypass(reference \u517c\u90e8\u7f72\u57fa\u7ebf)",
+        "RA": "\u540c R0 prompt + active",
+        "S0": "desktop_official_multiturn + Recent-(B-1) + target-recurrence \u65e7\u5e27(\u6700\u8001\u69fd\u4f4d\u66ff\u6362)+ bypass",
+        "SA": "\u540c S0 prompt + active(\u672c\u65b9\u6cd5)",
+        "WA": "\u540c\u69fd\u4f4d\u66ff\u6362\u4e3a age-matched wrong \u65e7\u5e27 + active;W0 \u7531 trainer bypass \u91cd\u7b97"
+      },
+      "budget_semantics": "selector_allocation_v5",
+      "budgets_built": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "budgets_note": "B=8 \u53ea\u5efa\u4e0d\u8bad(160 \u7ec4,\u8bc4\u6d4b\u5916\u63a8:\u95e8\u63a7\u9009\u62e9\u6027\u662f\u5426\u6cdb\u5316\u5230\u66f4\u5927\u9884\u7b97\u7a97\u53e3);B=0 \u4ec5 parity;B=3 \u4e0d\u8fdb\u4efb\u4f55\u4e3b\u53e3\u5f84(\u8bc4\u6d4b\u7f51\u683c\u51bb\u7ed3 B\u2208{0,1,2,4}+8)",
+      "budgets_trained": [
+        1,
+        2,
+        4
+      ],
+      "corpus_build": {
+        "age_rule": "B+2",
+        "budget_semantics": "fixed_budget_replacement_v3",
+        "coordinate_tolerance": 25,
+        "recent_definition": "distinct_frames_v2",
+        "renderer": "official_multiturn_gap_fold_v4",
+        "replacement_rule": "oldest_recent_slot",
+        "seed": 20260726
+      },
+      "dataset_manifest": "data/manifests/desktop_did_corpus_v4_manifest.json",
+      "deployment_baseline_arm_id": "R0",
+      "duplicate_frame_disclosure": "\u90e8\u7f72 recent \u9009\u62e9\u5668 k=1 \u4f1a\u9009\u4e2d\u4e0e\u5f53\u524d\u622a\u56fe\u540c\u5e27\u7684\u4e8b\u4ef6 s-1;v3 \u7684 Recent \u7a97\u53e3\u7528\u4e0d\u540c\u5e27(s-2..s-1-B),\u8be5\u5dee\u5f02\u5355\u72ec\u62ab\u9732",
+      "expected_adapter_module_count": 16,
+      "parity_b0_sha256": "e33ac3a0e9daa9b7cf711b66443133e0b94d5b4b4300f7aa7e6b843b443e5fd0",
+      "policy_snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+      "renderer": "mobile_agent_v3_5_desktop_official_faithful",
+      "renderer_note": "v4 \u6362\u5b98\u65b9\u6eda\u52a8\u591a\u8f6e\u7ed3\u6784(2026-07-27 \u7528\u6237\u88c1\u5b9a):\u5386\u53f2 = \u5b98\u65b9\u54cd\u5e94\u683c\u5f0f Action \u884c + <tool_call>,\u5750\u6807\u5168 [0,999](\u5355\u8f6e\u7ed3\u6784 31.8% \u5386\u53f2\u52a8\u4f5c x/y>999 \u7684\u91cf\u7eb2\u6df7\u7528\u5728 v4 \u5168\u8bed\u6599\u626b\u63cf\u4e3a 0);\u4fdd\u7559\u8f6e = user(\u56fe)/assistant(\u5b8c\u6574\u54cd\u5e94) \u4ea4\u66ff,gap-fold \u6cdb\u5316\u627f\u8f7d\u975e\u8fde\u7eed\u66ff\u6362\u5e27;R \u81c2\u9010\u6d88\u606f\u9000\u5316\u4e3a\u5b98\u65b9\u7ed3\u6784;\u4fdd\u7559\u6b65\u7f3a\u5b98\u65b9\u54cd\u5e94(tripleClick)\u6574\u7ec4\u5f03\u7528(~1%)\u3002prompt_format=desktop_official_multiturn \u8d70 trainer chat_template \u5206\u652f(system \u5185\u5d4c <tools>,\u4e0d\u4f20 tools \u5b9e\u53c2)",
+      "row_note": "HGKV:\u6700\u540e 8 \u5c42 k/v,residual \u53ea\u4f5c\u7528\u4e8e restored-history image tokens",
+      "sample_schema_version": "causalcache.desktop_did_sample.v2",
+      "samples_sha256": "e6575f934a6a701c9c50bebfa248dbdf2fc5e244b43d763b0cfe9d3cd96c897c",
+      "screening_manifest_sha256": "38889f116961f08081ff9eb08c5e5cdd37a16dae17d577e728e771dc59951a59",
+      "source": "AgentNet/OpenCUA Ubuntu 6,003 \u51b3\u7b56\u70b9 \u2192 fixed-budget replacement v4(scripts/build_desktop_did_corpus_v4.py,\u5b98\u65b9\u591a\u8f6e renderer);staging Hyper00 /data02/jaxan/desktop-did-corpus-v4",
+      "split": {
+        "authority": "\u6837\u672c split \u5b57\u6bb5(\u8f68\u8ff9 hash,salt=20260726);trainer \u7ecf normalize_desktop_splits \u505a dev\u2192heldout \u5e76\u6574\u884c\u5265\u79bb test",
+        "heldout_groups": 211,
+        "per_b_groups": {
+          "1": 962,
+          "2": 756,
+          "4": 463,
+          "8": 158
+        },
+        "train_units": 1755
+      },
+      "training_reference_arm_id": "R0",
+      "world_size_note": "hyper00 8 \u5361 world_size=8 \u00d7 accum 2(16 \u7ec4/\u6b65,\u4e0e 4 \u5361\u00d7accum4 \u9010\u6b65\u7b49\u4ef7)"
+    },
+    "gates": {
+      "composite_score": "did_select",
+      "derived_quantities": {
+        "SA_minus_R0": "SA - R0",
+        "SA_minus_RA": "SA - RA",
+        "adapter_on_recent": "RA - R0",
+        "adapter_on_recent_abs": "abs(RA - R0)",
+        "adapter_on_sparse": "SA - S0",
+        "deployment_delta": "SA - R0",
+        "did_select": "(SA - S0) - (RA - R0)",
+        "frozen_selection_effect": "S0 - R0"
+      },
+      "drift_definition": "wrong_drift = \u7559\u51fa\u7ec4\u4e0a (l_WA \u5728 adapter active) - (\u540c\u4e00\u884c\u5728 adapter bypass) \u7684\u5747\u503c,\u5373 A_n \u7684\u5747\u503c;wrong_drift_abs = |wrong_drift|\u3002\u6bcf\u6761\u8d1f\u6837\u672c\u951a\u5230\u5b83\u81ea\u5df1\u7684\u51bb\u7ed3\u5206\u6570\u3002\u684c\u9762\u8bed\u6599\u53ea\u6709 wrong \u4e00\u4e2a kind,\u5fc5\u9700 gate \u56e0\u6b64\u53ea\u6709 wrong_drift_abs",
+      "gate_expression_syntax": "must_pass \u7684\u503c\u5f62\u5982 '<op> <number> [@<statistic>]',op \u2208 {>, >=, <, <=},statistic \u2208 {point(\u7f3a\u7701), ci_low, ci_high};composite_score \u4e0e derived_quantities \u662f\u540c\u4e00\u5957\u7b97\u672f\u5c0f\u8bed\u8a00\u3002scripts/score_sparse_history_arms.py \u4e0e trainer \u7684 validate_sparse_gates \u5171\u7528\u540c\u4e00\u4e2a\u89e3\u6790\u5668",
+      "gate_rationale": {
+        "why_A_r_capped": "\u79fb\u52a8\u4fa7 v5 \u7684\u5931\u8d25\u6a21\u5f0f\u6b63\u662f adapter \u5bf9 recent \u7684\u589e\u76ca\u5927\u4e8e\u5bf9 sparse \u7684\u589e\u76ca;\u4e0d\u5c01\u4f4f A_r,did_select \u53ef\u4ee5\u9760\u538b\u4f4e RA \u800c\u975e\u62ac\u9ad8 SA \u6765\u5237\u9ad8",
+        "why_ci_low": "\u4e3b\u5224\u636e\u7528 dev split \u7684 CI \u4e0b\u754c\u800c\u975e\u70b9\u4f30\u8ba1;checkpoint \u53ea\u5728 Desktop dev \u9009\u62e9(\u4ea4\u63a5 \u00a79),bootstrap \u6309 trajectory \u805a\u7c7b",
+        "why_did_select": "(SA-S0)-(RA-R0) \u5728 identity \u4e0a\u4e25\u683c\u7b49\u4e8e 0,\u51bb\u7ed3\u6a21\u578b\u5df2\u6709\u7684\u9009\u70b9\u4f18\u52bf\u4e0d\u4f1a\u88ab\u5192\u5145\u6210 adapter \u80fd\u529b",
+        "why_fixed_budget": "v3 \u4e3b\u5f20 = \u6709\u9650\u8bb0\u5fc6\u9884\u7b97\u7684\u91cd\u5206\u914d\u800c\u975e\u52a0\u56fe:Recent-B \u628a\u5168\u90e8\u69fd\u4f4d\u7ed9\u6700\u8fd1\u89c2\u6d4b,CausalCache \u4ece\u5b8c\u6574\u5386\u53f2\u9009\u81f3\u591a B \u4e2a\u4e8b\u4ef6;k(\u7a97\u53e3\u5916\u56fe\u6570)\u662f\u7ed3\u679c\u7edf\u8ba1\u91cf\u3002\u771f\u524d\u4e00\u5e27\u63a2\u9488(2026-07-27)\u5df2\u8bc1\u660e\u51bb\u7ed3\u6a21\u578b\u5bf9\u76ee\u6807\u76f8\u5173\u65e7\u5e27\u65e0\u5929\u7136\u504f\u597d,\u9009\u62e9\u6027\u7531 adapter \u4ea7\u751f",
+        "why_no_format_effect": "\u684c\u9762\u90e8\u7f72 prompt \u4e0e R0 \u540c renderer,format_effect \u7ed3\u6784\u6027\u4e3a 0,\u4e0d\u4f5c\u4e3a\u91cf\u62a5\u544a;deployment_delta \u7684\u57fa\u7ebf\u5c31\u662f R0"
+      },
+      "gate_schema": "causalcache.sparse_history_gates.v2",
+      "main_claim_quantity": "SA_minus_RA",
+      "must_pass": {
+        "adapter_on_recent_abs": "< 0.02",
+        "adapter_on_sparse": "> 0",
+        "did_select": "> 0 @ci_low",
+        "wrong_drift_abs": "< 0.02"
+      },
+      "reference_arm_id": "R0",
+      "selection_rule": {
+        "filter": "all_must_pass",
+        "note": "\u5e76\u5217\u53d6\u8bad\u7ec3\u987a\u5e8f\u66f4\u65e9\u8005;quantity \u53ea\u5141\u8bb8 composite_score\u3002Desktop dev \u53ea\u7528\u4e8e\u9009\u70b9,test split \u5df2\u5728 normalize_desktop_splits \u5265\u79bb,MobileWorld/OSWorld \u672a\u6c61\u67d3 roster \u5b8c\u5168\u4e0d\u53c2\u4e0e",
+        "objective": "maximize",
+        "quantity": "composite_score",
+        "tie_break": "earliest_checkpoint"
+      }
+    },
+    "objective": {
+      "A_c": "l_SA - l_S0 \u2014\u2014 adapter \u5bf9\u300e\u76ee\u6807\u76f8\u5173\u65e7\u5e27\u300f\u7684\u589e\u91cf",
+      "A_n": "l_n_active - l_n_bypass \u2014\u2014 adapter \u5bf9\u300eage-matched wrong \u5e27\u300f\u7684\u589e\u91cf",
+      "A_r": "l_RA - l_R0 \u2014\u2014 adapter \u5bf9\u300eRecent \u7a97\u53e3\u300f\u7684\u589e\u91cf",
+      "L": "L_select + L_gain + L_content + L_cap + L_l2,CE \u6743\u91cd\u6052\u4e3a 0",
+      "L_cap": "sparse_drift_cap_weight * [|A_r| - sparse_drift_cap_eps]+ + sparse_drift_cap_weight * \u03a3_n w_n * [|A_n| - sparse_drift_cap_eps]+",
+      "L_content": "sparse_content_weight * \u03a3_n w_n * [sparse_content_margin - (A_c - A_n)]+",
+      "L_gain": "sparse_gain_weight * [sparse_gain_margin - A_c]+",
+      "L_l2": "history_lora_l2_weight * \u03a3(\u2016A\u2016\u00b2 + \u2016B\u2016\u00b2)",
+      "L_select": "sparse_select_weight * [sparse_select_margin - (A_c - A_r)]+",
+      "did_rationale": "\u56fa\u5b9a\u9884\u7b97 B \u5185\u7684\u91cd\u5206\u914d\u5bf9\u7167:R \u4e0e S/W \u56fe\u6570\u6052\u540c(B \u5f20 + \u5f53\u524d\u56fe),\u552f\u4e00\u5dee\u522b\u662f\u6700\u8001\u69fd\u4f4d\u653e\u8fde\u7eed\u5e27\u8fd8\u662f\u9009\u4e2d\u65e7\u5e27\u3002\u5dee\u4e2d\u5dee A_c \u2212 A_r \u5728 identity \u4e0a\u4e25\u683c\u4e3a 0,\u51bb\u7ed3\u6a21\u578b\u65e2\u6709\u504f\u597d\u4e0e\u300e\u89c1\u5386\u53f2\u56fe\u5c31\u653e\u5927\u300f\u90fd\u5192\u5145\u4e0d\u8fdb\u6765(\u4ea4\u63a5 \u00a76 + 2026-07-27 fixed-budget \u91cd\u51bb\u7ed3)",
+      "drift_cap_rationale": "dead-zone hinge \u800c\u975e SmoothL1:drift \u5728 0.06 \u91cf\u7ea7\u65f6\u6743\u91cd 2 \u7684 SmoothL1 \u68af\u5ea6\u53ea\u6709\u7ea6 0.12,\u538b\u4e0d\u4f4f\u91cf\u7ea7\u4e3a 1 \u7684 rank hinge;[|A| \u2212 \u03b5]+ \u5728 |A| > \u03b5 \u540e\u68af\u5ea6\u6052\u4e3a 2,\u4e0e rank \u9879\u540c\u91cf\u7ea7",
+      "excluded_arms": [],
+      "excluded_arms_note": "\u8be5\u5217\u8868\u7531 trainer \u6309 objective.kind \u4e0e data.sample_schema_version \u53cd\u7b97(\u7559\u51fa\u81c2\u96c6\u5408\u7684\u8865\u96c6)\u3002\u684c\u9762 schema \u6ca1\u6709 N0(\u90e8\u7f72 prompt \u4e0e R0 \u540c renderer \u540c\u9009\u62e9\u5668,deployment_baseline_arm_id = R0),did_ra_aware \u6d88\u8d39 R0/S0/RA/SA \u56db\u81c2,\u8865\u96c6\u4e3a\u7a7a",
+      "gain_rationale": "\u53ea\u6709 L_select \u65f6,\u538b\u4f4e l_RA \u4e0e\u62ac\u9ad8 l_SA \u540c\u6837\u80fd\u51cf\u635f\u5931,\u800c\u300e\u628a recent \u81c2\u6253\u574f\u300f\u4e0d\u662f\u8981\u7684\u80fd\u529b\u3002L_gain \u8981\u6c42 sparse \u81c2\u7684\u7edd\u5bf9\u589e\u91cf\u81ea\u5df1\u4e5f\u4e3a\u6b63",
+      "kind": "did_ra_aware",
+      "normalization_rationale": "\u684c\u9762\u8bed\u6599\u6bcf\u7ec4\u6052\u6709\u4e14\u53ea\u6709\u4e00\u6761 WA \u8d1f\u6837\u672c,w_n \u6052\u4e3a 1;\u5f52\u4e00\u5316\u903b\u8f91\u4fdd\u7559\u662f\u4e3a\u4e86\u4e0e v6 \u540c\u4e00\u4efd\u635f\u5931\u4ee3\u7801,\u4e0d\u53e6\u5f00\u5206\u652f",
+      "notation": {
+        "l_R0": "R0 \u81c2(Recent-B \u4e0d\u540c\u5e27\u7a97\u53e3 + adapter bypass)\u7684\u51bb\u7ed3\u5206\u6570,A_r \u7684\u57fa\u51c6\u7aef",
+        "l_RA": "RA \u81c2(\u540c prompt + adapter active)\u7684\u5206\u6570,\u5e26\u68af\u5ea6",
+        "l_S0": "S0 \u81c2(Recent-(B-1) + target-recurrence \u65e7\u5e27,\u6700\u8001\u69fd\u4f4d\u66ff\u6362 + bypass)\u7684\u51bb\u7ed3\u5206\u6570",
+        "l_SA": "SA \u81c2(\u540c prompt + active)\u7684 teacher-forced \u5e73\u5747 log-prob,\u5e26\u68af\u5ea6",
+        "l_n_active": "WA(\u540c\u69fd\u4f4d\u66ff\u6362\u4e3a age-matched wrong \u65e7\u5e27)\u5728 active \u4e0b\u7684\u5206\u6570",
+        "l_n_bypass": "\u540c\u4e00\u884c WA \u7684\u51bb\u7ed3\u5206\u6570(W0,\u7531 trainer \u4e34\u65f6 bypass \u91cd\u7b97)",
+        "w_n": "\u6052\u4e3a\u5355\u6761 WA,\u5f52\u4e00\u5316\u540e\u4e3a 1"
+      }
+    },
+    "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+    "schema_version": "causalcache.success_sft_lora_config.v1",
+    "target_effective_visual_tokens_per_image": 2560,
+    "training": {
+      "checkpoint_every_steps": 150,
+      "epochs": 3,
+      "gradient_accumulation_steps": 2,
+      "gradient_checkpointing": false,
+      "history_ce_weight": 0.0,
+      "history_lora_l2_weight": 0.0001,
+      "learning_rate": 0.0001,
+      "lr_schedule": "constant",
+      "max_grad_norm": 1.0,
+      "max_optimizer_steps": 900,
+      "micro_batch_size": 1,
+      "seed": 20260726,
+      "sparse_content_margin": 0.01,
+      "sparse_content_weight": 1.0,
+      "sparse_drift_cap_eps": 0.02,
+      "sparse_drift_cap_weight": 2.0,
+      "sparse_gain_margin": 0.01,
+      "sparse_gain_weight": 1.0,
+      "sparse_history": true,
+      "sparse_select_margin": 0.01,
+      "sparse_select_weight": 1.0,
+      "weight_decay": 0.0
+    }
+  },
+  "config_path": "code/configs/causalcache_desktop_did_hgkv_v5_selected_full_long.json",
+  "config_sha256": "648a52aec24b7078df4cd634805ec7d4240fc8d9f9d11e7d946b0a5c858f0cc9",
+  "dataset_manifest_sha256": "3a80a75b79b36951f5c734c0a1721b863ae8fe50fcefd10a0265124aeecc618f",
+  "effective_checkpoint_every_steps": 150,
+  "effective_max_optimizer_steps": 900,
+  "effective_training": {
+    "checkpoint_every_steps": 150,
+    "epochs": 3,
+    "gradient_accumulation_steps": 2,
+    "gradient_checkpointing": false,
+    "history_ce_weight": 0.0,
+    "history_lora_l2_weight": 0.0001,
+    "learning_rate": 0.0001,
+    "lr_schedule": "constant",
+    "max_grad_norm": 1.0,
+    "max_optimizer_steps": 900,
+    "micro_batch_size": 1,
+    "seed": 20260726,
+    "sparse_content_margin": 0.01,
+    "sparse_content_weight": 1.0,
+    "sparse_drift_cap_eps": 0.02,
+    "sparse_drift_cap_weight": 2.0,
+    "sparse_gain_margin": 0.01,
+    "sparse_gain_weight": 1.0,
+    "sparse_history": true,
+    "sparse_select_margin": 0.01,
+    "sparse_select_weight": 1.0,
+    "weight_decay": 0.0
+  },
+  "hyperparameter_authority": "config.training only",
+  "lora_module_count": 72,
+  "objective": {
+    "A_c": "l_SA - l_S0 \u2014\u2014 adapter \u5bf9\u300e\u76ee\u6807\u76f8\u5173\u65e7\u5e27\u300f\u7684\u589e\u91cf",
+    "A_n": "l_n_active - l_n_bypass \u2014\u2014 adapter \u5bf9\u300eage-matched wrong \u5e27\u300f\u7684\u589e\u91cf",
+    "A_r": "l_RA - l_R0 \u2014\u2014 adapter \u5bf9\u300eRecent \u7a97\u53e3\u300f\u7684\u589e\u91cf",
+    "L": "L_select + L_gain + L_content + L_cap + L_l2,CE \u6743\u91cd\u6052\u4e3a 0",
+    "L_cap": "sparse_drift_cap_weight * [|A_r| - sparse_drift_cap_eps]+ + sparse_drift_cap_weight * \u03a3_n w_n * [|A_n| - sparse_drift_cap_eps]+",
+    "L_content": "sparse_content_weight * \u03a3_n w_n * [sparse_content_margin - (A_c - A_n)]+",
+    "L_gain": "sparse_gain_weight * [sparse_gain_margin - A_c]+",
+    "L_l2": "history_lora_l2_weight * \u03a3(\u2016A\u2016\u00b2 + \u2016B\u2016\u00b2)",
+    "L_select": "sparse_select_weight * [sparse_select_margin - (A_c - A_r)]+",
+    "did_rationale": "\u56fa\u5b9a\u9884\u7b97 B \u5185\u7684\u91cd\u5206\u914d\u5bf9\u7167:R \u4e0e S/W \u56fe\u6570\u6052\u540c(B \u5f20 + \u5f53\u524d\u56fe),\u552f\u4e00\u5dee\u522b\u662f\u6700\u8001\u69fd\u4f4d\u653e\u8fde\u7eed\u5e27\u8fd8\u662f\u9009\u4e2d\u65e7\u5e27\u3002\u5dee\u4e2d\u5dee A_c \u2212 A_r \u5728 identity \u4e0a\u4e25\u683c\u4e3a 0,\u51bb\u7ed3\u6a21\u578b\u65e2\u6709\u504f\u597d\u4e0e\u300e\u89c1\u5386\u53f2\u56fe\u5c31\u653e\u5927\u300f\u90fd\u5192\u5145\u4e0d\u8fdb\u6765(\u4ea4\u63a5 \u00a76 + 2026-07-27 fixed-budget \u91cd\u51bb\u7ed3)",
+    "drift_cap_rationale": "dead-zone hinge \u800c\u975e SmoothL1:drift \u5728 0.06 \u91cf\u7ea7\u65f6\u6743\u91cd 2 \u7684 SmoothL1 \u68af\u5ea6\u53ea\u6709\u7ea6 0.12,\u538b\u4e0d\u4f4f\u91cf\u7ea7\u4e3a 1 \u7684 rank hinge;[|A| \u2212 \u03b5]+ \u5728 |A| > \u03b5 \u540e\u68af\u5ea6\u6052\u4e3a 2,\u4e0e rank \u9879\u540c\u91cf\u7ea7",
+    "excluded_arms": [],
+    "excluded_arms_note": "\u8be5\u5217\u8868\u7531 trainer \u6309 objective.kind \u4e0e data.sample_schema_version \u53cd\u7b97(\u7559\u51fa\u81c2\u96c6\u5408\u7684\u8865\u96c6)\u3002\u684c\u9762 schema \u6ca1\u6709 N0(\u90e8\u7f72 prompt \u4e0e R0 \u540c renderer \u540c\u9009\u62e9\u5668,deployment_baseline_arm_id = R0),did_ra_aware \u6d88\u8d39 R0/S0/RA/SA \u56db\u81c2,\u8865\u96c6\u4e3a\u7a7a",
+    "gain_rationale": "\u53ea\u6709 L_select \u65f6,\u538b\u4f4e l_RA \u4e0e\u62ac\u9ad8 l_SA \u540c\u6837\u80fd\u51cf\u635f\u5931,\u800c\u300e\u628a recent \u81c2\u6253\u574f\u300f\u4e0d\u662f\u8981\u7684\u80fd\u529b\u3002L_gain \u8981\u6c42 sparse \u81c2\u7684\u7edd\u5bf9\u589e\u91cf\u81ea\u5df1\u4e5f\u4e3a\u6b63",
+    "kind": "did_ra_aware",
+    "normalization_rationale": "\u684c\u9762\u8bed\u6599\u6bcf\u7ec4\u6052\u6709\u4e14\u53ea\u6709\u4e00\u6761 WA \u8d1f\u6837\u672c,w_n \u6052\u4e3a 1;\u5f52\u4e00\u5316\u903b\u8f91\u4fdd\u7559\u662f\u4e3a\u4e86\u4e0e v6 \u540c\u4e00\u4efd\u635f\u5931\u4ee3\u7801,\u4e0d\u53e6\u5f00\u5206\u652f",
+    "notation": {
+      "l_R0": "R0 \u81c2(Recent-B \u4e0d\u540c\u5e27\u7a97\u53e3 + adapter bypass)\u7684\u51bb\u7ed3\u5206\u6570,A_r \u7684\u57fa\u51c6\u7aef",
+      "l_RA": "RA \u81c2(\u540c prompt + adapter active)\u7684\u5206\u6570,\u5e26\u68af\u5ea6",
+      "l_S0": "S0 \u81c2(Recent-(B-1) + target-recurrence \u65e7\u5e27,\u6700\u8001\u69fd\u4f4d\u66ff\u6362 + bypass)\u7684\u51bb\u7ed3\u5206\u6570",
+      "l_SA": "SA \u81c2(\u540c prompt + active)\u7684 teacher-forced \u5e73\u5747 log-prob,\u5e26\u68af\u5ea6",
+      "l_n_active": "WA(\u540c\u69fd\u4f4d\u66ff\u6362\u4e3a age-matched wrong \u65e7\u5e27)\u5728 active \u4e0b\u7684\u5206\u6570",
+      "l_n_bypass": "\u540c\u4e00\u884c WA \u7684\u51bb\u7ed3\u5206\u6570(W0,\u7531 trainer \u4e34\u65f6 bypass \u91cd\u7b97)",
+      "w_n": "\u6052\u4e3a\u5355\u6761 WA,\u5f52\u4e00\u5316\u540e\u4e3a 1"
+    }
+  },
+  "objective_kind": "did_ra_aware",
+  "resume_checkpoint_sha256": null,
+  "resume_lora": null,
+  "sample_count": 70135,
+  "sample_schema_version": "causalcache.sparse_history_sample.v2",
+  "schema_version": "causalcache.success_sft_lora_run.v3",
+  "world_size": 4
+}
