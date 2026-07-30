@@ -3,7 +3,7 @@
   "adapter_type": "full_policy_lora"
  },
  "data": {
-  "ablation_protocol": "v5-selected(2026-07-29):S 臂 = selector beam 组合 S*(k 自然分布 1..B,37% 多槽),W = 同基数 age 最近邻 wrong;语料 build_desktop_did_corpus_v5_selected;动机 = k≤1 闭环塌回 + frozensel 打平所示的 k=1 训练分布漂移 | adapter=full_policy_lora(all-layer q/k/v/o, r8a16), 语料同 v5-selected | 第一轮 CE=0(sparse_history DiD 路径不消费 history_ce_weight;k=0 行为由 drift-cap ε=0.02 锚定),CE 锚点作为第二轮 A/B | gradient_checkpointing=true(全层 LoRA 激活内存超 8B 单卡容量,OOM 实测)",
+  "ablation_protocol": "v5-selected(2026-07-29):S 臂 = selector beam 组合 S*(k 自然分布 1..B,37% 多槽),W = 同基数 age 最近邻 wrong;语料 build_desktop_did_corpus_v5_selected;动机 = k≤1 闭环塌回 + frozensel 打平所示的 k=1 训练分布漂移 | adapter=full_policy_lora(all-layer q/k/v/o, r8a16), 语料同 v5-selected | 第一轮 CE=0(sparse_history DiD 路径不消费 history_ce_weight;k=0 行为由 drift-cap ε=0.02 锚定),CE 锚点作为第二轮 A/B | 全层 q/k/v(去 o_proj:sparse_history 禁用梯度检查点,全层 q/k/v/o 差 394MB OOM)",
   "adapter_switch_authority": "每条样本的 adapter_mode 字段;禁止解析名字前缀",
   "arms": {
    "R0": "desktop_official_multiturn + Recent-B 不同帧窗口 + bypass(reference 兼部署基线)",
@@ -104,8 +104,7 @@
   "target_modules": [
    "q_proj",
    "k_proj",
-   "v_proj",
-   "o_proj"
+   "v_proj"
   ]
  },
  "objective": {
@@ -142,7 +141,7 @@
   "checkpoint_every_steps": 50,
   "epochs": 3,
   "gradient_accumulation_steps": 2,
-  "gradient_checkpointing": true,
+  "gradient_checkpointing": false,
   "history_ce_weight": 0.0,
   "history_lora_l2_weight": 0.0001,
   "learning_rate": 0.0001,
