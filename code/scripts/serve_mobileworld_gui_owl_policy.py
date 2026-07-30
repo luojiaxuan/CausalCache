@@ -123,6 +123,15 @@ def main() -> None:
     parser.add_argument("--adapter-layer-count", type=int, default=8)
     parser.add_argument("--adapter-rank", type=int, default=8)
     parser.add_argument("--adapter-alpha", type=int, default=16)
+    # note (luojiaxuan): 无门控普通 LoRA(训练侧 adapter_type=full_policy_lora)在
+    # 部署时没有 history scope 概念,注入路径与 HGKV 不同,必须显式声明,免得把一个
+    # 无门控 checkpoint 当成 HGKV 加载(键名对不上会直接报错,但语义混淆更危险)。
+    parser.add_argument(
+        "--adapter-type", choices=("history_gated_kv", "full_policy_lora"),
+        default="history_gated_kv")
+    parser.add_argument(
+        "--adapter-target-modules", default="q_proj,k_proj,v_proj",
+        help="仅 full_policy_lora 使用;逗号分隔,须与训练配置一致")
     parser.add_argument(
         "--selector-bundle", type=Path, default=None,
         help="marginal_scorer.pt;给定即启用 propose-then-select 两遍推理"
@@ -179,26 +188,54 @@ def main() -> None:
                 f"adapter checkpoint SHA drifted: {digest} != "
                 f"{args.adapter_checkpoint_sha256}"
             )
-        wrapped = inject_history_gated_kv(
-            base_runtime.model,
-            layer_count=args.adapter_layer_count,
-            rank=args.adapter_rank,
-            alpha=args.adapter_alpha,
-        )
-        load_history_gated_state_dict(
-            wrapped, torch.load(args.adapter_checkpoint, map_location="cpu")
-        )
+        if args.adapter_type == "full_policy_lora":
+            from scripts.train_success_sft_lora import (
+                inject_lora,
+                load_lora_state_dict,
+            )
+
+            targets = tuple(
+                m.strip() for m in args.adapter_target_modules.split(",") if m.strip()
+            )
+            wrapped = inject_lora(
+                base_runtime.model,
+                rank=args.adapter_rank,
+                alpha=args.adapter_alpha,
+                target_modules=targets,
+                torch=torch,
+            )
+            load_lora_state_dict(
+                wrapped, torch.load(args.adapter_checkpoint, map_location="cpu")
+            )
+            adapter_meta = {
+                "type": "full_policy_lora",
+                "checkpoint": str(args.adapter_checkpoint),
+                "checkpoint_sha256": digest,
+                "target_modules": list(targets),
+                "rank": args.adapter_rank,
+                "alpha": args.adapter_alpha,
+            }
+        else:
+            wrapped = inject_history_gated_kv(
+                base_runtime.model,
+                layer_count=args.adapter_layer_count,
+                rank=args.adapter_rank,
+                alpha=args.adapter_alpha,
+            )
+            load_history_gated_state_dict(
+                wrapped, torch.load(args.adapter_checkpoint, map_location="cpu")
+            )
+            adapter_meta = {
+                "type": "history_gated_kv",
+                "checkpoint": str(args.adapter_checkpoint),
+                "checkpoint_sha256": digest,
+                "layer_count": args.adapter_layer_count,
+                "rank": args.adapter_rank,
+                "alpha": args.adapter_alpha,
+            }
         for lora in wrapped.values():
             lora.lora_a.requires_grad_(False)
             lora.lora_b.requires_grad_(False)
-        adapter_meta = {
-            "type": "history_gated_kv",
-            "checkpoint": str(args.adapter_checkpoint),
-            "checkpoint_sha256": digest,
-            "layer_count": args.adapter_layer_count,
-            "rank": args.adapter_rank,
-            "alpha": args.adapter_alpha,
-        }
 
     merge_size = int(base_runtime.processor.image_processor.merge_size)
 
