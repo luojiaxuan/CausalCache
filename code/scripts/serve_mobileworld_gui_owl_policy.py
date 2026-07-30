@@ -418,8 +418,16 @@ def main() -> None:
                 request["current_screenshot_png_base64"]),
         )
 
-    def adapter_scope(messages: list[dict[str, Any]], history_image_count: int):
-        """HGKV mask scope for one request; nullcontext when adapter off / K=0."""
+    def adapter_scope(
+        messages: list[dict[str, Any]],
+        history_image_count: int,
+        encoded: Any = None,
+    ):
+        """HGKV mask scope for one request; nullcontext when adapter off / K=0.
+
+        # note (luojiaxuan): 传入 encoded 可复用调用方已算好的编码——掩码和 generate
+        # 用的是同一份 prompt,重复 apply_chat_template 等于把图像预处理做两遍。
+        """
         if adapter_meta is None or history_image_count < 1:
             return contextlib.nullcontext()
         from causalcache.policy.history_adapter_context import (
@@ -430,14 +438,8 @@ def main() -> None:
             build_history_token_mask,
         )
 
-        encoded = base_runtime.processor.apply_chat_template(
-            [messages],
-            tokenize=True,
-            add_generation_prompt=True,
-            return_dict=True,
-            return_tensors="pt",
-            padding=False,
-        )
+        if encoded is None:
+            encoded = runtime.encode(messages)
         mask = build_history_token_mask(
             encoded["input_ids"],
             encoded["mm_token_type_ids"],
@@ -546,8 +548,9 @@ def main() -> None:
                 with inference_lock:
                     queue_seconds = time.perf_counter() - queued
                     pass1_started = time.perf_counter()
-                    with adapter_scope(messages, history_image_count):
-                        generated = runtime.generate(messages)
+                    encoded1 = runtime.encode(messages)
+                    with adapter_scope(messages, history_image_count, encoded1):
+                        generated = runtime.generate(messages, encoded=encoded1)
                     pass1_seconds = time.perf_counter() - pass1_started
                     select_seconds = presel_seconds
                     pass2_seconds = 0.0
@@ -603,10 +606,13 @@ def main() -> None:
                                 messages2, args.history_render
                             )
                             pass2_started = time.perf_counter()
+                            encoded2 = runtime.encode(messages2)
                             with adapter_scope(
-                                messages2, _history_image_count(messages2)
+                                messages2, _history_image_count(messages2), encoded2
                             ):
-                                generated = runtime.generate(messages2)
+                                generated = runtime.generate(
+                                    messages2, encoded=encoded2
+                                )
                             pass2_seconds = time.perf_counter() - pass2_started
                             selection_info["passes"] = 2
                     if selector_model is not None:

@@ -106,12 +106,13 @@ class GUIOwlOfficialRuntime:
             "chat_template_tools_kwarg": False,
         }
 
-    def generate(
-        self,
-        messages: Sequence[Mapping[str, Any]],
-    ) -> GUIOwlOfficialGenerationResult:
-        base = self.base
-        encoded = base.processor.apply_chat_template(
+    def encode(self, messages: Sequence[Mapping[str, Any]]) -> Any:
+        """Tokenize + preprocess one prompt. 与 generate 内联版逐字节等价。
+
+        # note (luojiaxuan): 单独暴露出来是因为调用方(HGKV mask 计算)本来就要
+        # 编码一次;不复用的话每个请求要把 5 张图的 resize/patchify 做两遍。
+        """
+        return self.base.processor.apply_chat_template(
             [messages],
             tokenize=True,
             add_generation_prompt=True,
@@ -119,6 +120,19 @@ class GUIOwlOfficialRuntime:
             return_tensors="pt",
             padding=False,
         )
+
+    def generate(
+        self,
+        messages: Sequence[Mapping[str, Any]],
+        *,
+        encoded: Any = None,
+    ) -> GUIOwlOfficialGenerationResult:
+        base = self.base
+        encode_started = time.perf_counter()
+        reused_encoding = encoded is not None
+        if encoded is None:
+            encoded = self.encode(messages)
+        encode_seconds = time.perf_counter() - encode_started
         encoded = (
             encoded.to(base.device)
             if hasattr(encoded, "to")
@@ -157,6 +171,8 @@ class GUIOwlOfficialRuntime:
             "max_new_tokens": FROZEN_GUI_OWL_V2_MAX_NEW_TOKENS,
             "num_beams": 1,
             "latency_seconds": latency_seconds,
+            "encode_seconds": encode_seconds,
+            "reused_encoding": reused_encoding,
         }
         return interpret_official_output(output_text, metadata=metadata)
 
