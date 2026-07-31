@@ -1,0 +1,10 @@
+{
+ "batch": 8,
+ "batch_seconds": 123.1,
+ "count": 24,
+ "identical_action_pct": 100.0,
+ "identical_text_pct": 50.0,
+ "identical_token_ids_pct": 50.0,
+ "single_seconds": 222.6,
+ "speedup": 1.81
+}
