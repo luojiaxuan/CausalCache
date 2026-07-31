@@ -639,6 +639,24 @@ def main() -> None:
                 with counter_lock:
                     counters["requests"] += 1
                     request_count = counters["requests"]
+                # note (luojiaxuan): 逐请求耗时落到服务日志——闭环慢在哪以前只能靠
+                # runner 时间戳反推,拆不出编码/前向/选择各占多少。
+                print(
+                    json.dumps({
+                        "event": "MOBILEWORLD_POLICY_TIMING",
+                        "request": request_count,
+                        "queue_seconds": round(queue_seconds, 3),
+                        "pass1_seconds": round(pass1_seconds, 3),
+                        "select_seconds": round(select_seconds, 3),
+                        "pass2_seconds": round(pass2_seconds, 3),
+                        "encode_seconds": round(
+                            float(generated.metadata.get("encode_seconds", 0.0)), 3),
+                        "prompt_tokens": generated.metadata.get("prompt_tokens"),
+                        "generated_tokens": generated.metadata.get("generated_tokens"),
+                        "history_images": history_image_count,
+                    }, sort_keys=True),
+                    flush=True,
+                )
                 _json_response(
                     self,
                     200,
