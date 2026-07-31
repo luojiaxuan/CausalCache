@@ -491,6 +491,7 @@ def main() -> None:
             arrived = time.perf_counter()
             try:
                 length = int(self.headers.get("Content-Length", "0"))
+                body_bytes = length
                 request = json.loads(self.rfile.read(length).decode("utf-8"))
                 selection_info: dict[str, Any] | None = None
                 presel_seconds = 0.0
@@ -645,6 +646,8 @@ def main() -> None:
                     json.dumps({
                         "event": "MOBILEWORLD_POLICY_TIMING",
                         "request": request_count,
+                        "request_decode_seconds": round(queued - arrived, 3),
+                        "body_bytes": body_bytes,
                         "queue_seconds": round(queue_seconds, 3),
                         "pass1_seconds": round(pass1_seconds, 3),
                         "select_seconds": round(select_seconds, 3),
