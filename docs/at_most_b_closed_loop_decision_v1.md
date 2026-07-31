@@ -6,7 +6,7 @@
 
 观测分支：`paper-draft`
 
-观测 revision：`163fbf1f84c0226200d4135b16d16c7477699a9b`
+观测 revision：`72363dcd6fb40e68e82156f7bbf3795ccd5d47d3`
 
 本文记录两个相互关联、但必须分开判断的问题：
 
@@ -30,10 +30,12 @@ matched-budget 主结果，也不是新实验结果。
    objective。** 它能回答“在同一个 teacher-forced 决策点，打开 adapter 后，相关图是否
    比 recent/wrong 图更能提高 gold action 的 likelihood”，但不能回答换图导致动作变化后，
    agent 会进入什么新状态、最终是否成功。
-4. **下一版优先做 frozen-action-policy 下的 closed-loop selector learning。** 先固定
-   action policy，只让 memory policy 在 `0..B` 张图之间选择，并直接用 rollout return
-   学习；验证 selector 本身成立以后，再考虑更新 SFT/RL policy。不要第一步就让 policy
-   与 selector 共同变化。
+4. **下一版应把 memory selection 与 environment action 写成一个分层联合策略。** 冻结
+   action-policy 权重并不能冻结它的行为：selector 改变输入图片的身份、数量和布局后，
+   同一组权重也会产生新的 action distribution。永久冻结 action policy 只是在评估一个
+   固定模型对新 observation policy 的兼容性，不能解决 selector--policy co-adaptation。
+   正确路线是先让 action interface 覆盖 `0..B` 的 promotion-mask 分布，再用 on-policy
+   rollout 对 memory policy 与 action policy 做小步交替或联合优化。
 5. **STOP 不再作为一个自由 token 单独学习。** 对所有已搜索到的 `|S|=0..B` 完整集合
    比较预测 closed-loop value，选择最大者；若目标还包含自适应 compute/memory，应明确
    优化 `return - lambda * |S|` 或 average-budget constraint，而不是期待无成本的
@@ -144,6 +146,33 @@ margin 不能自动外推过去。
 closed-loop 的 full-roster 总体对照仍需要按配对区间谨慎表述，收益主要集中在
 construction-defined memory-critical split。二者不矛盾；它们测的是不同层级。
 
+### 2.1 冻结权重不等于冻结 action policy 的行为
+
+令 renderer 为 `R`，selector 为 `mu`，action-policy 权重为 `theta`。真实 action
+distribution 是：
+
+```text
+p(a_t | h_t) = pi_theta(a_t | R(h_t, S_t)),  S_t ~ mu(. | h_t).
+```
+
+即使 `theta` 完全冻结，改变 `mu` 仍会改变送给 `pi_theta` 的 observation，进而改变
+action distribution。Frozen weights 只能排除“action model 参数也在更新”，不能排除：
+
+- 图片数量和 token/turn layout 的格式漂移；
+- recent-dense 到 non-contiguous/sparse images 的语义分布漂移；
+- action policy 与 selector 形成新的 feedback loop；
+- selector 利用 policy 的格式脆弱性，而不是真正找到有用视觉证据。
+
+这不是纯理论风险。既有 renderer audit 已观察到：旧单轮 sparse 格式下 Random restoration
+也能显著胜 Recent，而 official-style multiturn 下 Random 回到零附近。对应结论是“赢的是
+格式，不是选点”，见 [`renderer_freeze_v1.md`](renderer_freeze_v1.md)。
+
+当前 exact-`B` matched-budget 设计能控制图片数量、主要 prompt structure 与分辨率，因而
+较适合隔离 image identity。真正的 at-most-`B` 会进一步改变 active image count；若不先
+训练/验证 variable-cardinality interface，closed-loop return 无法区分“少图更好”与“模型
+不适应这种格式”。因此，frozen-policy branch rollout 仍可作诊断，但不能成为推荐的最终
+训练算法或单独的 attribution 结论。
+
 因此正确裁决不是“DiD 方法错误”，而是：
 
 - DiD 适合作为 HGKV/interface 的 pretraining 与 invariance regularizer；
@@ -177,11 +206,35 @@ memory allocation 的对照探索。
 
 ## 4. 推荐的 closed-loop 主方法
 
-### 4.1 第一阶段固定 action policy，只学习 memory policy
+### 4.1 先建立 variable-cardinality-compatible action interface
 
-先冻结当前可执行的 action policy `pi_0`，让 memory selector `mu` 成为唯一学习变量。
-在每个决策点，`mu` 从完整 summarized history 选择一个集合
-`S_t, |S_t|<=B`，再由 `pi_0` 产生动作。优化目标为：
+在学习 selector 之前，先让 action policy 见过部署时可能出现的 observation family，而不
+只习惯“action summaries + dense Recent-`B` images”。训练分布应覆盖：
+
+- `m=0..B` 的实际 promoted-image count；
+- recent、relevant、mixed 与 non-contiguous allocation；
+- 保持 event-summary trace、renderer、图片位置语义和 action serialization 一致；
+- 明确的 cardinality/promotion-mask 条件，而不是让模型从 token 长度暗猜协议。
+
+可用 SFT/behavior regularization 做 interface warm start，但同一个 gold action 只应用于
+该 action 在当前 observation 下仍可判定或经 rollout 验证正确的 allocation；不能强迫
+缺失关键证据的 wrong/random arm 复述 gold action。DiD、B0 parity、recent/wrong drift
+cap 继续作为 auxiliary constraints，防止 policy 把“任何稀疏格式”都学成统一增益。
+
+这一步不是在学习最终 selector，而是在让 action policy 对 selector 将要产生的输入分布
+可用。对应的必要对照是：在相同 image identity 下只改变 `m`/layout，以及在相同 `m`/
+layout 下只改变 image identity。
+
+### 4.2 将 memory action 与 environment action 联合建模
+
+每个决策点包含两个相连的 action：
+
+```text
+S_t ~ mu_phi(. | h_t)                         # memory/acquisition action
+a_t ~ pi_theta(. | h_t, R(S_t))               # environment action
+```
+
+联合目标为：
 
 ```text
 maximize E[R_task - lambda * sum_t |S_t| - eta * latency_t].
@@ -191,10 +244,12 @@ maximize E[R_task - lambda * sum_t |S_t| - eta * latency_t].
 “实际少用图”当作必然结果。若目标包含 adaptive compute/memory，必须显式给每张图或
 每次 second pass 定价，或约束 episode-level average image budget。
 
-固定 `pi_0` 的好处是任何 return 变化都能归因于 memory policy，而不是 action policy
-同时变强/变弱。这个阶段最适合检验 CausalCache 的独立方法价值。
+这里 headline method 是 `(mu_phi, pi_theta)` 的组合，而不是声称 `mu` 脱离 action policy
+仍有普适 utility。为保留归因，训练和结果中应另报：固定 joint checkpoint 后替换 selector
+的 memory-policy delta、固定 selector 后替换 action checkpoint 的 policy delta，以及完整
+joint delta。
 
-### 4.2 不训练自由 STOP；联合比较 0..B 的完整集合
+### 4.3 不训练自由 STOP；联合比较 0..B 的完整集合
 
 候选 selector 应预测完整集合的 continuation value，例如：
 
@@ -214,40 +269,36 @@ argmax_S [V_hat(h_t, S, B-|S|) - lambda * |S|].
 sequential policy，输入必须包含 remaining budget，训练 target 必须是 lookahead
 continuation advantage，而不是 immediate marginal。
 
-### 4.3 Template-level closed-loop data collection
+### 4.4 Template-level closed-loop data collection 与交替更新
 
 建议的最小闭环数据循环：
 
 1. 按 **template** 划分 train/dev/test；同 template 的不同参数实例不得跨 split，避免
    selector 记住操作脚本或 UI 字段。
-2. 对训练 templates 生成多个初始状态/参数实例，固定 action policy 与环境版本。
+2. 对训练 templates 生成多个初始状态/参数实例，冻结环境版本，以 interface-randomized
+   SFT policy 初始化当前 action policy。
 3. 每个到达状态构造少量有意义的完整集合 arms：Recent-`B`、当前 selector、
    random/hard-negative、training-only witness/oracle proposal，以及不同 cardinality。
 4. 若环境支持 snapshot/fork，从同一 pre-action state 对 2--4 个 allocation 做短 horizon
    或完整 episode branch rollout；否则用重复 instance/seed 做配对 rollout。
-5. 用相对 Recent-`B` 的 n-step/episode return 训练 set-value 或 pairwise preference，
-   同时保留 offline DiD/margin 作为 auxiliary loss。
-6. 用更新后的 selector 重新采集 on-policy states，做 DAgger/policy-iteration 式迭代；
-   checkpoint 只按 template-disjoint closed-loop return 与 cost 选择。
-7. 在完全未参与训练、threshold、prompt 和 early stopping 的 templates/platform 上做最终
+5. 用相对 Recent-`B` 的 n-step/episode return 更新 set-value/memory policy，同时保留
+   offline DiD/margin 作为 auxiliary loss。
+6. 在当前 selector 诱导的 observation distribution 上，用成功/high-return rollouts 对
+   action policy 做受 KL/behavior anchor 约束的小步 SFT/RL 更新；不能只训练 selector。
+7. 重新 rollout 当前 `(mu,pi)`，交替执行短暂的 memory-policy update 与 action-policy
+   update；每轮旧 utility labels 都标记为上一 policy revision 的历史数据，而非当前真值。
+8. checkpoint 只按 template-disjoint closed-loop return、actual images 与 cost 选择。
+9. 在完全未参与训练、threshold、prompt 和 early stopping 的 templates/platform 上做最终
    closed-loop evaluation。
 
 Branch rollout 很重要：它在相同环境状态下改变 memory allocation，比“比较两条自然成功
 轨迹”更接近真正的 allocation intervention。若只能完整重跑，也应按 task instance/seed
 配对，而不是把不同 trajectory 当作独立样本。
 
-### 4.4 第二阶段再决定是否更新 action policy
-
-只有 frozen-`pi_0` 的 selector 已显示 closed-loop headroom 后，才进入联合改进：
-
-1. 用成功与高-return rollout 对 `pi_0` 做有限 SFT/RL，得到 `pi_1`；
-2. 冻结 `pi_1`，废止把 `pi_0` utility 当作当前真值；
-3. 重新采集/重标 memory data，训练 `mu_1`；
-4. 每轮分别报告 policy-only、memory-only 和 joint delta。
-
-这种交替更新比从第一天就 joint RL 更慢，但能避免 policy 与 selector 相互补偿后无法判断
-论文贡献来自哪里。若最终目标是 agent RL paper，可在 selector-only 成立后把交替过程
-推广成 joint policy optimization。
+训练时短暂冻结一侧只是一种 coordinate-update 工程手段，不是科学假设：`mu` 更新几步后
+必须让 `pi` 在新 observation distribution 上适配，`pi` 更新后又必须重新采集 memory
+return。为防止两者互相补偿到不可解释，每轮更新幅度要受 trust region/KL 限制，并保留
+上面的三类固定组件评测；不能把“永久冻结 action policy”作为解决鸡生蛋问题的答案。
 
 ## 5. 最小 Go/No-Go 路线
 
@@ -258,24 +309,26 @@ Branch rollout 很重要：它在相同环境状态下改变 memory allocation�
 - 只问“存在可重复的 closed-loop allocation headroom 吗”；
 - 如果 oracle/witness allocation 都不能稳定改善 return，停止训练 selector。
 
-### Gate B：frozen-policy learned selector
+### Gate B：variable-cardinality interface gate
 
-- 只训练 memory policy；
-- primary 对照为同 policy、同最大 `B`、同 instance 的 Recent-`B`；
-- 同时报实际图片数、latency/second-pass cost 和 template-clustered CI。
+- 在 content-matched 条件下检查 `m=0..B`/layout 是否导致系统性 action drift；
+- 在 cardinality-matched 条件下检查 relevant/recent/wrong 的内容选择性；
+- Random 不能因为格式变化而稳定胜 Recent，B0/summary-only 路径保持明确的 parity/drift
+  边界。
 
-### Gate C：at-most-B / adaptive-cost curve
+### Gate C：joint closed-loop policy iteration
+
+- 用当前 `(mu,pi)` 采集 template-level paired/branch rollouts并交替更新；
+- primary 对照为同 action-policy checkpoint、同最大 `B`、同 instance 的 Recent-`B`，
+  另报 policy-only 与 full-joint delta；
+- 每次 `pi` revision 后重新做 selector calibration，不复用旧 policy utility 作当前标签。
+
+### Gate D：at-most-B / adaptive-cost curve
 
 - 比较 exact-`B`、hard at-most-`B`、`return-lambda|S|` 或 average-budget constrained
   policy；
 - 报告 success versus actual images 的 Pareto frontier，而不是只报 capacity `B`；
 - 验证收益是否来自更好的 set identity、合理少用图，还是仅仅固定选满。
-
-### Gate D：可选的 policy improvement
-
-- Gate B/C 成立后才做 SFT/RL policy update；
-- 每次 policy revision 后重新做 selector calibration 与 closed-loop evaluation；
-- 不把旧 policy 的 offline DiD 数值当作新 policy 的 transferable guarantee。
 
 ## 6. 对当前论文的影响
 
@@ -283,8 +336,8 @@ Branch rollout 很重要：它在相同环境状态下改变 memory allocation�
   causal/protocol contrast；它避免 image-count confound，已有直接证据。
 - At-most-`B` 在新的 closed-loop + cost-aware protocol 通过前，只作为方法扩展与未来
   路线，不应把旧 direct-marginal 负结果改写成正面证据。
-- 若 frozen-policy closed-loop selector learning、variable-cardinality Pareto curve 和
-  on-policy iteration 都成立，这会形成一条比当前 offline DiD 更接近 ICLR/agent-RL 的
+- 若 variable-cardinality interface、joint closed-loop policy learning 与
+  variable-cardinality Pareto curve 都成立，这会形成一条比当前 offline DiD 更接近 ICLR/agent-RL 的
   独立工作：核心问题从“offline conditional utility estimation”升级为
   “policy-relative visual-memory control under distribution shift”。
 

@@ -17,9 +17,12 @@
   adaptive compute/memory claim，显式优化 `return-lambda|S|` 或 average-budget
   constraint，并报告 success--actual-images Pareto curve。
 - Offline DiD 保留为 HGKV/interface pretraining 与 drift/selectivity auxiliary
-  objective，不再假设其 teacher-forced margin 自动转化为 closed-loop success。下一版
-  优先冻结 action policy，只用 template-level paired/branch rollouts 训练 memory
-  selector；selector 单独成立后才交替更新 SFT/RL policy并重新采集标签。
+  objective，不再假设其 teacher-forced margin 自动转化为 closed-loop success。用户复核
+  指出“冻结 action policy 只训 selector”不能解决 co-adaptation：冻结权重不冻结 selector
+  改写 observation 后的 action distribution，尤其 variable-cardinality 会同时改变图片数与
+  layout。修订主线为先做 `m=0..B` interface randomization，再把 memory action 与
+  environment action 建成分层联合策略，用 template-level paired/branch rollouts做受
+  trust-region 约束的交替 on-policy 更新；frozen-policy 仅保留为诊断臂。
 - 完整判断、数学边界、template 探索协议和 Gate A--D 见
   [`docs/at_most_b_closed_loop_decision_v1.md`](at_most_b_closed_loop_decision_v1.md)。
 
