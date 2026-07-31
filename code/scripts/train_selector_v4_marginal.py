@@ -36,6 +36,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--singletons-root", type=Path, required=True)
     parser.add_argument("--sets-root", type=Path, required=True)
     parser.add_argument("--screening-manifest", type=Path, required=True)
+    # note (luojiaxuan): 等标签量对照——把训练限定在指定 dp_id 集合上,
+    # 用于"同样 N 个状态、只换教师"的干净比较。
+    parser.add_argument("--state-subset", type=Path, default=None,
+                        help="每行一个 dp_id 的文本文件;给定则只用这些状态")
     parser.add_argument("--seed", type=int, default=20260726)
     parser.add_argument("--epochs", type=int, default=60)
     parser.add_argument("--eval-every", type=int, default=5)
@@ -155,9 +159,20 @@ def main() -> None:
         dp: _split(str(r["task_id"]), seed=args.seed) for dp, r in records.items()
     }
 
+    subset: set[str] | None = None
+    if args.state_subset is not None:
+        subset = {
+            line.strip()
+            for line in args.state_subset.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        }
+        print(json.dumps({"state_subset_size": len(subset)}, sort_keys=True), flush=True)
+
     b0: dict[str, dict] = {}
     singles: dict[str, dict[int, float]] = defaultdict(dict)
     for row in load_jsonl_rows(args.singletons_root, "singletons.shard*.jsonl"):
+        if subset is not None and str(row.get("dp_id")) not in subset:
+            continue
         if row.get("kind") == "b0":
             b0[row["dp_id"]] = row
         elif row.get("kind") == "singleton":
@@ -169,6 +184,8 @@ def main() -> None:
     for row in load_jsonl_rows(args.sets_root, "sets.shard*.jsonl"):
         key = row.get("key")
         if not key or key in dedup_keys:
+            continue
+        if subset is not None and str(row.get("dp_id")) not in subset:
             continue
         dedup_keys.add(key)
         if row.get("kind") == "set":
