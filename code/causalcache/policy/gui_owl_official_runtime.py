@@ -121,6 +121,86 @@ class GUIOwlOfficialRuntime:
             padding=False,
         )
 
+    def encode_batch(self, batch: Sequence[Sequence[Mapping[str, Any]]]) -> Any:
+        """Left-padded batch encoding for micro-batched serving.
+
+        # note (luojiaxuan): 生成必须左填充,否则右填充的 pad 会落在 prompt 与新
+        # token 之间,decode 从错误位置续写。padding_side 显式设在 tokenizer 上而
+        # 不是依赖默认值——processor 的默认随版本变过。
+        """
+        tokenizer = self.base.processor.tokenizer
+        previous = tokenizer.padding_side
+        tokenizer.padding_side = "left"
+        try:
+            return self.base.processor.apply_chat_template(
+                list(batch),
+                tokenize=True,
+                add_generation_prompt=True,
+                return_dict=True,
+                return_tensors="pt",
+                padding=True,
+            )
+        finally:
+            tokenizer.padding_side = previous
+
+    def generate_batch(
+        self,
+        batch: Sequence[Sequence[Mapping[str, Any]]],
+        *,
+        encoded: Any = None,
+    ) -> list[GUIOwlOfficialGenerationResult]:
+        """One batched forward for N prompts; returns per-prompt results.
+
+        # note (luojiaxuan): 与逐条 generate 的差别只在 kernel 走批量路径,贪心解码
+        # 本身不变;但批量 GEMM 的归约次序不同会让 logits 有 ~1e-6 级差异,边界
+        # token 可能翻转。因此上线前必须做动作级一致性验证,不能假定逐字节相同。
+        """
+        base = self.base
+        encode_started = time.perf_counter()
+        if encoded is None:
+            encoded = self.encode_batch(batch)
+        encode_seconds = time.perf_counter() - encode_started
+        encoded = (
+            encoded.to(base.device)
+            if hasattr(encoded, "to")
+            else {key: value.to(base.device) for key, value in encoded.items()}
+        )
+        prompt_tokens = int(encoded["input_ids"].shape[1])
+        tokens = base.generation_tokens
+        started = time.perf_counter()
+        with base.torch.inference_mode():
+            generated = base.model.generate(
+                **encoded,
+                do_sample=False,
+                max_new_tokens=FROZEN_GUI_OWL_V2_MAX_NEW_TOKENS,
+                eos_token_id=tokens.tool_call_close_token_id,
+                pad_token_id=tokens.pad_token_id,
+                num_beams=1,
+                num_return_sequences=1,
+            )
+        latency_seconds = time.perf_counter() - started
+        new_tokens = generated[:, prompt_tokens:]
+        texts = base.processor.batch_decode(new_tokens, skip_special_tokens=True)
+        results = []
+        for index, text in enumerate(texts):
+            row = new_tokens[index].detach().to(device="cpu").tolist()
+            metadata = {
+                "prompt_protocol": OFFICIAL_PROTOCOL_ID,
+                "prompt_tokens": prompt_tokens,
+                "generated_tokens": len(row),
+                "generated_token_ids_sha256": hashlib.sha256(
+                    json.dumps(row, separators=(",", ":")).encode("utf-8")
+                ).hexdigest(),
+                "do_sample": False,
+                "max_new_tokens": FROZEN_GUI_OWL_V2_MAX_NEW_TOKENS,
+                "num_beams": 1,
+                "latency_seconds": latency_seconds,
+                "encode_seconds": encode_seconds,
+                "batch_size": len(texts),
+            }
+            results.append(interpret_official_output(text, metadata=metadata))
+        return results
+
     def generate(
         self,
         messages: Sequence[Mapping[str, Any]],

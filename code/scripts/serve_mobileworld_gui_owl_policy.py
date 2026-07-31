@@ -16,6 +16,7 @@ import argparse
 import contextlib
 import hashlib
 import json
+import queue
 import threading
 import time
 import traceback
@@ -132,6 +133,11 @@ def main() -> None:
     parser.add_argument(
         "--adapter-target-modules", default="q_proj,k_proj,v_proj",
         help="仅 full_policy_lora 使用;逗号分隔,须与训练配置一致")
+    # note (luojiaxuan): 微批。实测瓶颈是 inference_lock 的串行化(queue 11.7s vs
+    # 前向 2.0s),batch-1 解码是显存带宽瓶颈,批量解码墙钟几乎不变。默认 1 =
+    # 逐条路径逐字节不变;>1 需先做动作级一致性验证再用于正式实验。
+    parser.add_argument("--batch-max", type=int, default=1)
+    parser.add_argument("--batch-wait-ms", type=int, default=25)
     parser.add_argument(
         "--selector-bundle", type=Path, default=None,
         help="marginal_scorer.pt;给定即启用 propose-then-select 两遍推理"
@@ -455,6 +461,107 @@ def main() -> None:
         return history_adapter_scope(context)
 
     inference_lock = threading.Lock()
+
+    class _Job:
+        __slots__ = ("messages", "history_images", "done", "result", "error")
+
+        def __init__(self, messages, history_images):
+            self.messages = messages
+            self.history_images = history_images
+            self.done = threading.Event()
+            self.result = None
+            self.error = None
+
+    job_queue: "queue.Queue[_Job]" = queue.Queue()
+
+    def batched_adapter_scope(batch_masks, seq_len: int):
+        """把逐条掩码左填充成 [B, L] 后进入一次 scope。
+
+        # note (luojiaxuan): HGKV hook 按 mask.shape == output.shape[:-1] 校验,
+        # 所以批量必须给 [B, L];左填充位一律 False(pad 不是历史 token)。
+        """
+        if adapter_meta is None or not any(m is not None for m in batch_masks):
+            return contextlib.nullcontext()
+        import torch as _torch
+
+        from causalcache.policy.history_adapter_context import (
+            HistoryAdapterContext,
+            history_adapter_scope,
+        )
+
+        rows = []
+        for mask in batch_masks:
+            row = _torch.zeros(seq_len, dtype=_torch.bool)
+            if mask is not None:
+                flat = mask[0] if mask.dim() == 2 else mask
+                row[seq_len - flat.shape[0]:] = flat
+            rows.append(row)
+        stacked = _torch.stack(rows).to(base_runtime.device)
+        return history_adapter_scope(HistoryAdapterContext(
+            history_token_mask=stacked,
+            history_present=bool(stacked.any()),
+            image_roles=(),
+        ))
+
+    def build_mask(messages, history_image_count, encoded):
+        if adapter_meta is None or history_image_count < 1:
+            return None
+        from causalcache.policy.history_token_roles import build_history_token_mask
+        return build_history_token_mask(
+            encoded["input_ids"], encoded["mm_token_type_ids"],
+            encoded["image_grid_thw"], history_image_count, merge_size,
+        )
+
+    def batch_worker() -> None:
+        while True:
+            first = job_queue.get()
+            jobs = [first]
+            deadline = time.perf_counter() + args.batch_wait_ms / 1000.0
+            while len(jobs) < args.batch_max:
+                remaining = deadline - time.perf_counter()
+                if remaining <= 0:
+                    break
+                try:
+                    jobs.append(job_queue.get(timeout=remaining))
+                except queue.Empty:
+                    break
+            try:
+                per_job = [runtime.encode(j.messages) for j in jobs]
+                masks = [
+                    build_mask(j.messages, j.history_images, e)
+                    for j, e in zip(jobs, per_job)
+                ]
+                encoded = runtime.encode_batch([j.messages for j in jobs])
+                seq_len = int(encoded["input_ids"].shape[1])
+                with batched_adapter_scope(masks, seq_len):
+                    results = runtime.generate_batch(
+                        [j.messages for j in jobs], encoded=encoded
+                    )
+                for job, result in zip(jobs, results):
+                    job.result = result
+            except Exception as error:  # noqa: BLE001
+                for job in jobs:
+                    job.error = error
+            finally:
+                for job in jobs:
+                    job.done.set()
+
+    if args.batch_max > 1:
+        threading.Thread(target=batch_worker, daemon=True).start()
+
+    def run_generate(messages, history_image_count):
+        """batch_max=1 走原逐条路径(逐字节不变);>1 交给微批 worker。"""
+        if args.batch_max <= 1:
+            encoded = runtime.encode(messages)
+            with adapter_scope(messages, history_image_count, encoded):
+                return runtime.generate(messages, encoded=encoded)
+        job = _Job(messages, history_image_count)
+        job_queue.put(job)
+        job.done.wait()
+        if job.error is not None:
+            raise job.error
+        return job.result
+
     counters = {
         "requests": 0,
         "failures": 0,
@@ -549,9 +656,7 @@ def main() -> None:
                 with inference_lock:
                     queue_seconds = time.perf_counter() - queued
                     pass1_started = time.perf_counter()
-                    encoded1 = runtime.encode(messages)
-                    with adapter_scope(messages, history_image_count, encoded1):
-                        generated = runtime.generate(messages, encoded=encoded1)
+                    generated = run_generate(messages, history_image_count)
                     pass1_seconds = time.perf_counter() - pass1_started
                     select_seconds = presel_seconds
                     pass2_seconds = 0.0
@@ -607,13 +712,9 @@ def main() -> None:
                                 messages2, args.history_render
                             )
                             pass2_started = time.perf_counter()
-                            encoded2 = runtime.encode(messages2)
-                            with adapter_scope(
-                                messages2, _history_image_count(messages2), encoded2
-                            ):
-                                generated = runtime.generate(
-                                    messages2, encoded=encoded2
-                                )
+                            generated = run_generate(
+                                messages2, _history_image_count(messages2)
+                            )
                             pass2_seconds = time.perf_counter() - pass2_started
                             selection_info["passes"] = 2
                     if selector_model is not None:
