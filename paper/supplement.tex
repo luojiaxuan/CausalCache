@@ -406,14 +406,16 @@ trend evidence, not headline contrasts.
 
 \begin{center}
 \centering
-{\small
-\setlength{\tabcolsep}{4.2pt}
+% note (luojiaxuan): 五列在单栏宽下溢出 33.8pt(与 Table S10 同类问题),
+% 缩到 \footnotesize + 2.4pt 并把列头 selector 简写为 $+$sel 后归位。
+{\footnotesize
+\setlength{\tabcolsep}{2.4pt}
 \begin{tabular}{@{}lcccc@{}}
 \toprule
  & \multicolumn{2}{c}{Full roster ($117$)} &
    \multicolumn{2}{c}{Mem.-critical ($62$)} \\
 \cmidrule(lr){2-3}\cmidrule(l){4-5}
-$B$ & Recent-$B$ & \hgkv{}$+$selector & Recent-$B$ & \hgkv{}$+$selector \\
+$B$ & Recent-$B$ & \hgkv{}$+$sel & Recent-$B$ & \hgkv{}$+$sel \\
 \midrule
 $0$ & $28.2$ & $28.2$ & $21.0$ & $21.0$ \\
 $1$ & $26.5^{*}$ & $29.1$ & $16.1^{*}$ & $21.0$ \\
@@ -530,11 +532,13 @@ Single-round arms sharing roster, budget, rendering, and greedy decoding:
 
 \begin{center}
 \centering
-{\small
-\setlength{\tabcolsep}{3.6pt}
+% note (luojiaxuan): 这张表原先按 \small + 3.6pt 排,Control 列整列溢出到右栏、
+% 与右栏正文重叠(latexmk 报 45.8pt overfull)。缩到 \footnotesize + 2.4pt 后归位。
+{\footnotesize
+\setlength{\tabcolsep}{2.4pt}
 \begin{tabular}{@{}lccc@{}}
 \toprule
-Arm & Full ($117$) & Mem.-crit.\ ($62$) & Control ($55$) \\
+Arm & Full ($117$) & Mem.-crit.\ ($62$) & Ctrl.\ ($55$) \\
 \midrule
 Frozen $+$ selector (\method{}) & $\mathbf{36.8}$ & $\mathbf{30.6}$ & $43.6$ \\
 \hgkv{}$+$selector (3-run mean) & $33.9$ & $28.0$ & $40.6$ \\
@@ -562,20 +566,85 @@ $+4.8$pp $[-2.2,+12.4]$.}
 \subsection{Teacher Ablations}
 
 The deployed selector distills set utilities scored under the \hgkv{}
-instrument (all $5{,}335$ states; $58$k singleton $+$ $147$k set edges).
+instrument. Set scoring covers $3{,}992$ of the $5{,}335$ eligible
+desktop states ($58$k singleton $+$ $110$k unique scored set edges); the
+remaining $1{,}343$ states were never scored, so the deployed selector
+is trained on $75\%$ of its intended label pool.
 Two retrained variants swap only the label teacher, with set labels
-rescored on a uniformly interleaved $60\%$ state subset (identical tree
-parameters): scoring under the fully frozen policy yields $25.8\%$
+rescored on a uniformly interleaved $60\%$ state subset of the eligible
+pool (identical tree parameters), giving them $3{,}210$ states and
+$88.8$k set edges---$80\%$ of the deployed selector's realized volume,
+not the $60\%$ the design intended relative to it.
+Scoring under the fully frozen policy yields $25.8\%$
 memory-critical---still significantly above Recent-$4$ ($+6.5$pp,
 $p{=}0.04$)---and scoring under an \hgkv{} variant retrained on
 selector-composed multi-slot corpora yields $24.2\%$. The \hgkv{}-taught
-deployed selector reaches $30.6\%$; because the retrained variants also
-use the reduced label pool, the gap conflates teacher model with label
-volume, and the matched-volume comparison (frozen vs.\ multi-slot-taught,
-both $60\%$) shows no teacher separation. The instrument's necessity is
-therefore established offline (Table~2 of the main text: the frozen
-policy carries no measurable selectivity), while its closed-loop teaching
-advantage over a frozen scorer at matched label volume remains open.
+deployed selector reaches $30.6\%$. At $80\%$ relative volume the gap is
+therefore not primarily a volume artifact, though volume is not fully
+controlled either.
+
+\paragraph{Teacher $\times$ deployment at $9\%$ volume.}
+To separate teacher identity from deployment pairing we ran a full
+factorial at a deliberately small matched volume ($480$ states, $9\%$;
+both teachers restricted to the same \texttt{dp\_id} list, identical
+hyperparameters), each cell a full $117$-task closed-loop round.
+Matching the selector to the policy that taught it---rather than pairing
+it with the frozen policy---is worth $+1.7$pp (CI $[-3.4,+6.8]$), and
+swapping the teacher at equal volume is worth $-2.6$pp (CI
+$[-9.4,+4.3]$); a same-selector cross-host replication returns $0.0$pp
+(CI $[-6.8,+6.8]$), calibrating the noise floor. Neither factor is
+detectable. The informative outcome is the level rather than the
+contrasts: all four cells land at $28$--$31\%$, \emph{below} frozen
+$+$ Recent-$4$ ($33.3\%$) and far below the full-volume selector
+($36.8\%$). At $9\%$ of the labels a selector actively hurts, and no
+choice of teacher or deployment pairing recovers it. Label volume, not
+teacher identity, is the binding constraint in this regime---which is
+also why the $80\%$-volume teacher comparison above is the one that
+speaks to teacher quality.
+
+\subsection{Keeping the Probe at Deployment (2$\times$2)}
+
+The probe is a training-time instrument, but nothing forces us to remove
+it at deployment. We therefore crossed policy side (frozen / gated
+last-$36$ / layer- and rank-matched ungated) with allocation
+(Recent-$4$ / selector) on the full $117$-task roster, all cells run
+against the same emulator batch in a single round:
+
+\begin{center}
+{\small
+\setlength{\tabcolsep}{4.2pt}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Policy side & Recent-$4$ & $+$ selector \\
+\midrule
+Frozen & $33.3$ / $25.8$ & $36.8$ / $30.6$$^{\dagger}$ \\
+Gated last-$36$ & $31.6$ / $29.0$ & $35.9$ / $30.6$ \\
+Ungated full-layer & $30.8$ / $27.4$ & $35.0$ / $29.0$ \\
+\bottomrule
+\end{tabular}
+}
+\captionof{table}{Full roster / memory-critical success (\%).
+$^{\dagger}$three-run mean from the main results, not rerun in this
+batch; the other five cells are same-batch.}
+\label{tab:s-adapter-2x2}
+\end{center}
+
+Three readings. First, the selector is worth $+4.3$pp on \emph{both}
+adapters (CI $[-1.7,+10.3]$ gated, $[-2.6,+11.1]$ ungated)---numerically
+identical, so the gain comes from reallocating memory and not from what
+the policy carries. Second, gating versus no gating is undetectable
+under either allocation ($+0.9$pp with Recent-$4$, likewise with the
+selector); the two adapters disagree on only $5$ of $117$ tasks. Third,
+no adapter cell beats frozen $+$ selector: the best is $35.9\%$ against
+$36.8\%$. Keeping the probe at deployment buys nothing, which is the
+empirical content of shipping a frozen policy.
+
+Notably the offline instruments do not predict any of this. The ungated
+control has twice the gated adapter's offline selectivity ($+0.0291$
+against $+0.0145$ on the $B{=}4$ corpus) and six times its
+wrong-history drift ($0.031$ against $0.005$), yet the two are
+indistinguishable in closed loop on both allocation rules. Offline DiD
+separates instruments; it does not forecast deployment behavior.
 
 \subsection{Cross-Backbone Gates (GUI-Owl-1.5-32B)}
 
@@ -607,5 +676,30 @@ of the $0.02$ cap throughout: token-gated selectivity inside the drift
 envelope transfers across backbone scale without retuning.}
 \label{tab:s-32b-gates}
 \end{center}
+
+\paragraph{32B closed loop, and why the gates do not carry it.}
+Mounting the 8B-taught selector on the frozen 32B policy scores $39.2\%$
+against $49.0\%$ for 32B $+$ Recent-$4$ ($-9.8$pp, paired $n{=}51$, CI
+$[-21.6,+2.0]$, $2$ discordant pairs favouring the selector against
+$7$ against). The interval crosses zero, but the sign held at all six
+interim samples ($-5.3$ / $-12.5$ / $-10.9$ / $-11.8$ / $-10.2$ /
+$-9.8$), so we read this as a real negative transfer rather than noise.
+
+The mechanism is visible in the baseline: 32B $+$ Recent-$4$ scores
+$49.0\%$ where 8B $+$ Recent-$4$ scores $30.2\%$. A backbone that
+recovers from the recent window most of what 8B needed archived pixels
+for has a different set of deficits, and an 8B probe measures 8B's.
+Reproducing the gain at 32B requires rescoring set utilities with the
+32B policy in the probe.
+
+\emph{Coverage.} This is not a full-roster result. The Recent-$4$ arm
+reached $111/117$ and the selector arm $57/117$, intersecting on the
+$51$ paired tasks reported above. The selector arm was paused partway to
+free capacity for the baseline and never resumed; the Recent-$4$ arm's
+last six tasks failed three attempts each with emulator-internal
+timeouts (container and HTTP service alive, screenshot never returning)
+and were abandoned as infrastructure failures after two emulator
+replacements. Any use of this comparison should carry the $n{=}51$
+qualifier.
 
 \end{document}

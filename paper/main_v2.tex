@@ -551,8 +551,15 @@ control does not reach, while holding recent-window and wrong-history
 drift well inside the cap. The same recipe transfers across backbone
 scale untouched: on GUI-Owl-1.5-32B it passes every pre-specified gate
 with DiD select $+0.0142$ ($95\%$ CI $[+0.011,+0.018]$) and recent-window
-drift within a third of the cap. The 32B closed-loop transfer round
-(frozen 32B $+$ the 8B-taught selector) is \tbd.
+drift within a third of the cap. The closed-loop transfer does not follow:
+mounting the 8B-taught selector on a frozen 32B policy scores $39.2$
+against $49.0$ for Recent-$4$ ($-9.8$pp, paired $n{=}51$, CI
+$[-21.6,+2.0]$; coverage caveat in the supplement). The 32B Recent-$4$
+baseline is itself $19$pp above 8B's, so a larger backbone already
+resolves from the recent window much of what 8B needs archived pixels
+for; an 8B probe labels 8B's deficits, not 32B's. Selector transfer
+across backbone scale therefore requires relabeling with the deployed
+policy, even though the probe recipe itself transfers untouched.
 
 \paragraph{Selectivity Is Not Inherited from the Frozen Policy.}
 
@@ -687,12 +694,26 @@ gains emerge as relevant evidence moves farther beyond the recent
 window. They do not: doubling the horizon lifts Recent-$B$ from $33.0$
 to $36.0$ ($+3.1$pp, paired CI $[-1.1,+7.2]$) while the selector arm is
 flat ($34.1\!\to\!33.2$, $-0.8$pp, CI $[-5.3,+3.6]$), and the
-$30$-step contrast is $-2.8$pp (CI $[-7.2,+1.7]$, n.s.). The official
-$15$-step cap therefore does not suppress the baseline in our favor---
-if anything the extra steps help Recent-$B$ more---and the selector's
-small $15$-step edge is not robust to horizon extension, consistent
-with OSWorld evidence rarely leaving the recent window even at $30$
-steps.
+$30$-step contrast is $-2.8$pp (CI $[-7.2,+1.7]$, n.s.). Extending
+further confirms the flatness rather than a decline: at a $50$-step cap
+the selector arm returns $34.1$, exactly its $15$-step value ($0.0$pp,
+CI $[-4.7,+4.7]$, full roster). Across a $3.3\times$ range of step
+budget the selector arm moves within one percentage point.
+The official $15$-step cap therefore does not suppress the baseline in
+our favor---if anything the extra steps help Recent-$B$ more---and the
+selector's small $15$-step edge is neither amplified nor destroyed by
+horizon extension, consistent with OSWorld evidence rarely leaving the
+recent window even at $50$ steps.
+
+These OSWorld contrasts should be read against the benchmark's
+single-round noise, which we can measure directly: $10$ tasks were
+executed twice under identical configuration when work was sharded
+across hosts, and $7$ of the $10$ flipped outcome, in a balanced
+direction ($3$ versus $4$). Environment nondeterminism---VM timing,
+network, application state---moves single-round OSWorld outcomes even
+under deterministic decoding. Differences of a few points on one round
+are therefore not interpretable here, which is precisely the regime all
+of the above contrasts fall in.
 
 \section{Limitations and Conclusion}
 
@@ -705,13 +726,22 @@ untouched, and its measurements teach the selector. Third, the learned
 selector reallocates profitably exactly where distant visual dependency
 exists: memory-critical tasks improve, controls show no detectable
 change.
-The headline selector arm is a single round against three-run baselines
-(additional rounds \tbd). The frozen-teacher variant was trained on a
-subsampled set-label pool, so part of its gap to the \hgkv{}-taught
-selector may reflect label volume rather than the teacher itself. OSWorld
-shows fidelity value but no allocation headroom at the official horizon,
-so the reallocation claim is currently mobile-only pending the
-$30$-step analysis. We control an active context budget, not archive
+The headline selector arm is a single round against three-run baselines.
+The frozen-teacher variant carries $81\%$ of the \hgkv{}-taught
+selector's set labels ($88.8$K against $110.1$K scored set edges, over
+$80\%$ of its states), so label volume alone is an incomplete
+explanation of its mobile gap. Pushing volume much lower does bind: at
+$9\%$ of the states every selector we trained---either teacher, paired
+with either policy---falls below Recent-$4$ (supplement), so the
+factorial isolating teacher identity is only interpretable in the
+volume regime where selectors work at all. Conversely, the same
+frozen-taught selector is indistinguishable from the \hgkv{}-taught one
+on OSWorld ($33.8$ vs.\ $33.2$, $+0.6$pp, CI $[-3.6,+4.7]$), a
+benchmark with no allocation headroom for either teacher to exploit.
+The teaching advantage is thus specific to where reallocation pays,
+rather than a general property of probe labels. OSWorld shows fidelity value but no
+allocation headroom at any horizon we tested ($15$/$30$/$50$ steps), so
+the reallocation claim is mobile-only. We control an active context budget, not archive
 capacity, and \method{} reattaches rather than generates pixels; the
 content-matched controls attribute the gain to the pixels themselves.
 We claim only that some summarized events have greater conditional
