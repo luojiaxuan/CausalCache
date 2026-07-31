@@ -1,0 +1,66 @@
+{
+ "n_tasks": 117,
+ "note": "\u540c\u6279\u540c\u8f6e;frozen+selector \u672a\u5728\u672c\u6279\u590d\u8dd1,\u8bba\u6587\u503c 36.8/30.6(\u4e09\u8f6e\u5747\u503c)\u4f9b\u53c2\u7167",
+ "paired": {
+  "gated_recent_vs_frozen_recent": {
+   "ci95": [
+    -7.69,
+    4.27
+   ],
+   "delta_pp": -1.71,
+   "n": 117
+  },
+  "gated_selector_vs_gated_recent": {
+   "ci95": [
+    -1.71,
+    10.26
+   ],
+   "delta_pp": 4.27,
+   "n": 117
+  },
+  "gated_selector_vs_ungated_selector": {
+   "ci95": [
+    -4.27,
+    5.98
+   ],
+   "delta_pp": 0.85,
+   "n": 117
+  },
+  "ungated_selector_vs_ungated_recent": {
+   "ci95": [
+    -2.56,
+    11.11
+   ],
+   "delta_pp": 4.27,
+   "n": 117
+  }
+ },
+ "rates": {
+  "frozen_recent": {
+   "control": 41.8,
+   "full": 33.3,
+   "memory_critical": 25.8
+  },
+  "gated_recent": {
+   "control": 34.5,
+   "full": 31.6,
+   "memory_critical": 29.0
+  },
+  "gated_selector": {
+   "control": 41.8,
+   "full": 35.9,
+   "memory_critical": 30.6
+  },
+  "ungated_recent": {
+   "control": 34.5,
+   "full": 30.8,
+   "memory_critical": 27.4
+  },
+  "ungated_selector": {
+   "control": 41.8,
+   "full": 35.0,
+   "memory_critical": 29.0
+  }
+ },
+ "schema": "causalcache.mobileworld.adapter_2x2.v1"
+}
