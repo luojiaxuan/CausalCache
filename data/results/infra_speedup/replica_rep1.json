@@ -1,0 +1,10 @@
+{
+ "concurrency": 8,
+ "latency_median": 21.03,
+ "latency_p90": 21.21,
+ "ok": 24,
+ "replicas": 1,
+ "requests": 24,
+ "throughput_rps": 0.377,
+ "wall_seconds": 63.7
+}
