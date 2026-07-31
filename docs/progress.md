@@ -2,6 +2,27 @@
 
 > 2026-07-22 及更早的全部旧条目已逐字存档至 [`docs/archive/progress_2026-07-20_22.md`](archive/progress_2026-07-20_22.md);本文件只保留 history-gated mainline 时代(2026-07-23 起)的条目。
 
+## 2026-07-31:at-most-B 失败复盘与 closed-loop memory learning 方法裁决
+
+- 复核旧 direct-marginal / on-policy runs 后确认：at-most-`B` oracle 弱支配
+  exact-`B`，但旧实现只学习局部 `max marginal <= 0` STOP；optimizer 中
+  all-negative groups 仅 `2,124/84,441=2.52%`，候选池中位约 11，最大假正例使
+  STOP 极难触发。fixed-tune 的 `1,063/1,063` states 在 B1--B4 全部选满，后续
+  learned STOP 则在相邻 epoch 间出现全填满/空集全停振荡。
+- 更根本的表示错误是 `budget_input_to_model=false`，且一次 STOP 被复用到更大预算；
+  在 interaction/complementarity 下，同一集合对 remaining budget 1/2 可能需要不同
+  决策，myopic greedy 无法表达或搜索正确 at-most-`B` 解。
+- 方法裁决：不复活自由 STOP head；未来以 remaining-budget-conditioned continuation
+  value 搜索 `|S|=0..B` 完整集合，或直接从 beam 访问集合中选最大 value。若要形成
+  adaptive compute/memory claim，显式优化 `return-lambda|S|` 或 average-budget
+  constraint，并报告 success--actual-images Pareto curve。
+- Offline DiD 保留为 HGKV/interface pretraining 与 drift/selectivity auxiliary
+  objective，不再假设其 teacher-forced margin 自动转化为 closed-loop success。下一版
+  优先冻结 action policy，只用 template-level paired/branch rollouts 训练 memory
+  selector；selector 单独成立后才交替更新 SFT/RL policy并重新采集标签。
+- 完整判断、数学边界、template 探索协议和 Gate A--D 见
+  [`docs/at_most_b_closed_loop_decision_v1.md`](at_most_b_closed_loop_decision_v1.md)。
+
 ## 2026-07-27:MobileWorld official-faithful B0–B4 budget curve 收官
 
 - 用户在 B0/B4 v2 收官后要求补跑 Recent-B1/B2/B3。三臂继续使用相同 frozen
