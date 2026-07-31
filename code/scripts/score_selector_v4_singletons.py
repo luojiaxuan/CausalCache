@@ -45,6 +45,8 @@ def parse_args() -> argparse.Namespace:
         help="frozen = 锚与候选全部用冻结策略 bypass 打分(不注入 adapter),"
              "此时不接受 --checkpoint;hgkv = v4 原口径(锚 bypass、候选 active)",
     )
+    parser.add_argument("--teacher-layer-count", type=int, default=8,
+                        help="HGKV 教师的 layer_scope 层数,须与训练配置一致")
     parser.add_argument("--device", default="cuda:0")
     parser.add_argument("--splits", nargs="+", default=["train", "dev"])
     parser.add_argument("--seed", type=int, default=20260726)
@@ -149,7 +151,9 @@ def main() -> None:
     model.config.use_cache = False
     merge_size = int(runtime.processor.image_processor.merge_size)
     if args.teacher == "hgkv":
-        wrapped = inject_history_gated_kv(model, layer_count=8, rank=8, alpha=16)
+        # note (luojiaxuan): 同 sets 脚本,层数须与教师训练配置一致,不能写死 8。
+        wrapped = inject_history_gated_kv(
+            model, layer_count=args.teacher_layer_count, rank=8, alpha=16)
         load_history_gated_state_dict(
             wrapped, torch.load(args.checkpoint, map_location="cpu")
         )
