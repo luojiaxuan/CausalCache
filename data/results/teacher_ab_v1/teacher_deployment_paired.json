@@ -1,0 +1,49 @@
+{
+ "label_budget_states": 480,
+ "n_tasks": 117,
+ "paired": {
+  "frozen_selA_crossHost_sanity": {
+   "ci95": [
+    -6.84,
+    6.84
+   ],
+   "delta_pp": 0.0,
+   "n": 117
+  },
+  "matched_vs_frozen_sameHost": {
+   "ci95": [
+    -3.42,
+    6.84
+   ],
+   "delta_pp": 1.71,
+   "n": 117
+  },
+  "teacherA_vs_teacherB": {
+   "ci95": [
+    -9.4,
+    4.27
+   ],
+   "delta_pp": -2.56,
+   "n": 117
+  }
+ },
+ "rates": {
+  "frozen_selA_h00": {
+   "full": 28.2,
+   "memory_critical": 22.6
+  },
+  "frozen_selA_h01": {
+   "full": 28.2,
+   "memory_critical": 24.2
+  },
+  "frozen_selB_h01": {
+   "full": 30.8,
+   "memory_critical": 21.0
+  },
+  "matched_selA_h00": {
+   "full": 29.9,
+   "memory_critical": 22.6
+  }
+ },
+ "schema": "causalcache.teacher_and_deployment.v1"
+}
