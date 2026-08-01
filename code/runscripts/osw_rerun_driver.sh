@@ -56,10 +56,14 @@ while true; do
 done
 EOS
 chmod +x /tmp/osw_rerun_serve.sh"
+  # note (luojiaxuan): 错峰启动。8 个副本同时加载 8B 权重会在宿主上造成内存尖峰,
+  # 2026-08-01 h01 的容器就是在这个当口被 SIGKILL(ExitCode 137、OOMKilled=false,
+  # 即宿主级 OOM 杀 PID 1)。每个副本间隔 45s,把尖峰摊平。
   for g in $GPUS; do
     for _ in 1 2; do
       p=$((PORT0 + i)); i=$((i+1))
       docker exec -d $CONT bash -lc "bash /tmp/osw_rerun_serve.sh $g $p /tmp/rerun-$arm-$p.log $arm"
+      sleep 45
     done
   done
   # 等全部就绪
@@ -83,6 +87,13 @@ run_round() {   # $1=arm  $2=steps
   out=$BASE/rerun/out-$tag
   if [ -f "$BASE/rerun/DONE-$tag-$HOSTTAG" ]; then echo "skip $tag"; return 0; fi
   mkdir -p "$out"
+  # note (luojiaxuan): 容器可能被外部杀掉(共享机常态)。每轮前确认存活,否则拉起来;
+  # 拉不起来就中止本轮,不要空转四轮什么都不跑。
+  if ! docker ps --format '{{.Names}}' | grep -qx "$CONT"; then
+    echo "$(date -Is) 容器 $CONT 不在运行,尝试重启"
+    docker start "$CONT" >/dev/null 2>&1; sleep 10
+    docker ps --format '{{.Names}}' | grep -qx "$CONT" || { echo "$(date -Is) $tag ABORT 容器拉不起来"; return 1; }
+  fi
   stop_servers
   start_servers "$arm" || { echo "$(date -Is) $tag ABORT 服务器未就绪"; return 1; }
   echo "$(date -Is) === 开跑 $tag shards=[$SHARDS] ==="
