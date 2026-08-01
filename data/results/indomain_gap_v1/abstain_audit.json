@@ -1,0 +1,19 @@
+{
+ "steps": 2917,
+ "promoted": {
+  "0": 1570,
+  "1": 41,
+  "2": 1,
+  "None": 1305
+ },
+ "k_off_recent": {
+  "0": 1580,
+  "1": 31,
+  "2": 1,
+  "None": 1305
+ },
+ "reason": {
+  "pool_smaller_than_budget": 1305,
+  "None": 1612
+ }
+}

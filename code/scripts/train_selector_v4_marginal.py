@@ -97,6 +97,11 @@ def parse_args() -> argparse.Namespace:
                         help="加载 marginal_scorer.pt 只做评测,不训练")
     parser.add_argument("--eval-both-configs", action="store_true",
                         help="同时报告 readout 开(训练口径)与关(部署口径)两套指标")
+    # note (luojiaxuan): 修复 1。原先按"带 readout"的 dev_top1_regret 选 checkpoint,
+    # 而上线是 mask=0,实测 replay_gain_b2 从 +0.0113 掉到 +0.0023(低于 cheap-only
+    # 基线 +0.0051)。打开本开关后,早停与最优快照改按**部署配置**的指标判定。
+    parser.add_argument("--select-by-deploy-config", action="store_true",
+                        help="按 readout 关断(部署口径)的 dev 指标做早停与选最优快照")
     return parser.parse_args()
 
 
@@ -625,9 +630,18 @@ def main() -> None:
         if (epoch + 1) % args.eval_every == 0 or epoch == args.epochs - 1:
             snapshot = {"epoch": epoch + 1, "train_loss": round(total, 4),
                         **eval_dev()}
+            if args.select_by_deploy_config and readout_dim:
+                # note (luojiaxuan): 训练口径的指标仍然记录(便于与历史对照),
+                # 但选快照/早停改用部署口径(readout mask=0)的同名指标。
+                mask_readout["on"] = True
+                deploy_snap = eval_dev()
+                mask_readout["on"] = False
+                snapshot["deploy"] = deploy_snap
             history.append(snapshot)
             print(json.dumps(snapshot, ensure_ascii=False), flush=True)
-            metric = snapshot.get("dev_top1_regret")
+            metric = (snapshot["deploy"]["dev_top1_regret"]
+                      if args.select_by_deploy_config and readout_dim
+                      else snapshot.get("dev_top1_regret"))
             if metric is not None and (best_metric is None or metric < best_metric):
                 best_metric = metric
                 best_epoch = epoch + 1

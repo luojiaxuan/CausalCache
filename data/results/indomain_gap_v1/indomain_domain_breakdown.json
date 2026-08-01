@@ -1,0 +1,62 @@
+{
+ "multi_apps": {
+  "win": 4,
+  "loss": 2,
+  "n": 93,
+  "net": 2
+ },
+ "libreoffice_calc": {
+  "win": 4,
+  "loss": 2,
+  "n": 47,
+  "net": 2
+ },
+ "chrome": {
+  "win": 4,
+  "loss": 3,
+  "n": 46,
+  "net": 1
+ },
+ "libreoffice_impress": {
+  "win": 2,
+  "loss": 4,
+  "n": 47,
+  "net": -2
+ },
+ "gimp": {
+  "win": 4,
+  "loss": 1,
+  "n": 26,
+  "net": 3
+ },
+ "vs_code": {
+  "win": 2,
+  "loss": 2,
+  "n": 23,
+  "net": 0
+ },
+ "libreoffice_writer": {
+  "win": 0,
+  "loss": 4,
+  "n": 23,
+  "net": -4
+ },
+ "thunderbird": {
+  "win": 0,
+  "loss": 2,
+  "n": 15,
+  "net": -2
+ },
+ "os": {
+  "win": 3,
+  "loss": 1,
+  "n": 24,
+  "net": 2
+ },
+ "vlc": {
+  "win": 2,
+  "loss": 0,
+  "n": 17,
+  "net": 2
+ }
+}

@@ -57,6 +57,10 @@ def main() -> None:
     parser.add_argument("--selector-arch", choices=("two_tower", "concat"),
                         default="two_tower")
     parser.add_argument("--selector-beam", type=int, default=3)
+    # note (luojiaxuan): None = 原语义(无条件凑满 B);给定 τ 则只提升预测边际 > τ
+    # 的候选,不足 B 个用最近帧补齐。τ=0 是模型自身的"这一帧有用"边界,不需调参。
+    parser.add_argument("--selector-min-marginal", type=float, default=None,
+                        help="弃权阈值:预测边际 <= τ 的候选不提升,槽位留给最近帧")
     # note (luojiaxuan): proposal = CausalCache-P(两遍,先按 recent 尾出拟议动作
     # 作参照,换帧则重组重生成);last_action = CausalCache-LA(单遍)。
     parser.add_argument("--selector-witness",
@@ -225,6 +229,13 @@ def main() -> None:
                 return selector_model(
                     torch.tensor(xs, dtype=torch.float32)).tolist()
 
+        # note (luojiaxuan): --selector-min-marginal 打开弃权。原语义是无条件走满 B 层、
+        # 恒取 B 个:池子里没有值得提升的远端帧时,argmax 仍会挑一个出来,挤掉 recent。
+        # 同域诊断显示这正是伤害所在——单应用文档类(writer 0 赢 4 输、impress 2:4、
+        # thunderbird 0:2)净损失,而跨应用/图形类(multi_apps、gimp、os、vlc)净收益。
+        # 打开后:只有预测边际 > τ 的候选才允许进入集合,不足 B 个时用最近帧补齐。
+        # 预算仍是 B,只是不强制把槽位交给远端帧。
+        tau = args.selector_min_marginal
         level = [((), 0.0)]
         for _ in range(budget):
             expanded, seen = [], set()
@@ -234,6 +245,8 @@ def main() -> None:
                     continue
                 margs = marginals(sel, remaining)
                 ranked = sorted(zip(remaining, margs), key=lambda t: -t[1])
+                if tau is not None:
+                    ranked = [(s, m) for s, m in ranked if m > tau]
                 for s, m in ranked[: args.selector_beam]:
                     child = tuple(sorted((*sel, s)))
                     if child in seen:
@@ -246,8 +259,18 @@ def main() -> None:
             level = expanded[: args.selector_beam]
         chosen = sorted(level[0][0])
         if len(chosen) < budget:
-            return None, {"reason": "beam_short", "pool": len(pool)}
-        return chosen, {"pool": len(pool)}
+            if tau is None:
+                return None, {"reason": "beam_short", "pool": len(pool)}
+            # 弃权模式:剩余槽位交给最近帧(等价于"这些位置维持 Recent 默认")
+            promoted = len(chosen)
+            for s in sorted(pool, reverse=True):
+                if len(chosen) >= budget:
+                    break
+                if s not in chosen:
+                    chosen = sorted((*chosen, s))
+            return chosen, {"pool": len(pool), "promoted": promoted,
+                            "filled_recent": budget - promoted, "tau": tau}
+        return chosen, {"pool": len(pool), "promoted": len(chosen), "tau": tau}
 
     def adapter_scope(messages, history_image_count: int):
         if adapter_meta is None or history_image_count < 1:
@@ -433,10 +456,22 @@ def main() -> None:
                     with counter_lock:
                         counters["parse_failures"] += 1
                 if selector_model is not None:
+                    # note (luojiaxuan): 记录 promoted / filled_recent / k,
+                    # 否则跑完无法判断弃权到底触发了多少、selector 偏离 recent 多远。
+                    _si = selection_info or {}
+                    _diag = _si.get("diagnostics") or {}
+                    _chosen = _si.get("chosen")
+                    _tail = set(_si.get("recent_tail") or [])
                     print(json.dumps({
                         "event": "SELECT_AUDIT",
-                        "passes": (selection_info or {}).get("passes", 1),
+                        "passes": _si.get("passes", 1),
                         "pool_size": len(pool),
+                        "promoted": _diag.get("promoted"),
+                        "filled_recent": _diag.get("filled_recent"),
+                        "k_off_recent": (
+                            sum(1 for s in _chosen if s not in _tail)
+                            if _chosen else None),
+                        "reason": _diag.get("reason"),
                         "pass1_seconds": generation["generation_seconds"],
                         "select_seconds": round(select_seconds, 4),
                         "pass2_seconds": round(pass2_seconds, 4),
