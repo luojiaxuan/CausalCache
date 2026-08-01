@@ -31,8 +31,8 @@ PY
 while true; do
   tick=$((tick+1))
   a=$(count_arm selfix); b=$(count_arm recent)
-  d0=$(ssh -o ConnectTimeout=15 hyper00 'pgrep -fc "[o]sw_arm.sh" || echo 0' 2>/dev/null || echo "?")
-  d1=$(ssh -o ConnectTimeout=15 hyper01 'pgrep -fc "[o]sw_arm.sh" || echo 0' 2>/dev/null || echo "?")
+  d0=$(ssh -o ConnectTimeout=15 hyper00 'pgrep -fc "[o]sw_arm" || echo 0' 2>/dev/null || echo "?")
+  d1=$(ssh -o ConnectTimeout=15 hyper01 'pgrep -fc "[o]sw_arm" || echo 0' 2>/dev/null || echo "?")
   m0=$(ssh -o ConnectTimeout=15 hyper00 "free -g | awk '/^Mem:/ {printf \"%d/%d\", \$7, \$2}'" 2>/dev/null || echo "?/?")
   dk=$(ssh -o ConnectTimeout=15 hyper00 "df -h /data02 | tail -1 | awk '{print \$4}'" 2>/dev/null || echo "?")
 
