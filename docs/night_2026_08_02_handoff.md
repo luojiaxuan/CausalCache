@@ -80,7 +80,7 @@
 ## 需要你裁定的三件事
 
 1. **投稿版归属**:PDF 出自 `jaxan/trusting-zhukovsky-00d2bf` 分支的 main.tex,
-   该分支从未合进 main;我这两天的修改都在 main 分支的 main_v2.tex。
+   该分支从未合进 main;我这两天的修改都在 main 分支的 frozen_selector.tex。
    camera-ready 以哪个为基线?**在这之前我不动 .tex。**
 2. **B 的工作点**:oracle 头寸 B=2 是 **+0.102**、B=4 只剩 **+0.037**。
    **B=4 恰是最难展示选择价值的工作点**,与全量表"峰值在 B=2"一致。

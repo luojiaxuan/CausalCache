@@ -163,7 +163,7 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
   +0.0224 [0.0162, 0.0294]);SA−RA +0.080,SA−WA +0.042,
   A_r ∈ [−0.006, +0.001] 全部远在 0.02 帽内。
 - 结论:同配方、同语料、免调参在 4× 骨干上复现"漂移包络内的正选择性"
-  ——token-gated HGKV 的跨骨干泛化证据(main_v2 的 pending 可回填)。
+  ——token-gated HGKV 的跨骨干泛化证据(frozen_selector 的 pending 可回填)。
 
 ## v5 selector-allocation 语料 + v5a 训练启动(2026-07-29 深夜)
 

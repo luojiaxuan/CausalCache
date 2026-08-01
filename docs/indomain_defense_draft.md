@@ -1,8 +1,8 @@
-# 同域结果的论文表述草稿(待你选定 main.tex / main_v2.tex 后再落地)
+# 同域结果的论文表述草稿(待你选定 main.tex / frozen_selector.tex 后再落地)
 
 > 用途:回应"同域(desktop)没有提升,方法有何意义"这一最可能的审稿质疑。
 > **未写入任何 .tex**——投稿版归属(`jaxan/trusting-zhukovsky-00d2bf` 分支的 main.tex
-> vs main 分支的 main_v2.tex)尚未裁定,落地前需要你确认。
+> vs main 分支的 frozen_selector.tex)尚未裁定,落地前需要你确认。
 > 数据出处:`data/results/indomain_gap_v1/ROOT_CAUSE.md`。
 
 ## 论证结构(三步,按强度递增)

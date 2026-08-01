@@ -26,6 +26,17 @@ make paper-all
 - 独立 supplementary document：
   `output/pdf/causalcache_aaai27_supplement.pdf`。
 
+## 两份正文源的分工(2026-08-02 重命名)
+
+| 文件 | 叙事主线 | 状态 |
+|---|---|---|
+| `main.tex` | **HGKV**(策略侧 token-gated K/V 适配器为主角) | 保持不变;投稿 PDF `causalcache_main_eq_r13.pdf` 出自本文件在 `jaxan/trusting-zhukovsky-00d2bf` 分支的状态 |
+| `frozen_selector.tex` | **冻结策略 + 预算重分配**(HGKV 降为离线测量仪,selector 是主角) | 原名 `main_v2.tex`;两天来的结果回填都在这份 |
+
+两者不是版本关系而是**叙事关系**:同一批实验、不同的主张组织方式。
+`frozen_selector.tex` 比 `main.tex` 多约 820 行(找回的 Related Work、k≤1、chooser 表等)。
+**camera-ready 以哪份为基线尚未裁定。**
+
 `main.tex` 保持单一正文源文件，以符合 AAAI author kit 的提交要求。当前未完成的段落级结果以
 `[Pending: ...]` 标记，表格单元格以 `TBD` 标记；不能在获得可复核结果前替换为经验性结论。
 `supplement.tex` 是单独上传的 supplementary PDF，不被 `main.tex` 引入，也不计入主稿
