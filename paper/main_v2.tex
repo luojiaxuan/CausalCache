@@ -692,44 +692,52 @@ include a matched $30$-step horizon analysis (Recent-$B$ vs.\
 frozen$+$selector, both full-roster rounds) to test whether allocation
 gains emerge as relevant evidence moves farther beyond the recent
 window. They do not, but establishing that required first removing a
-host confound that our initial analysis missed.
+hardware confound that our initial analysis missed and then rerunning
+the affected episodes.
 
-Arms were sharded across whichever machines were free, so the arms did
-not share a common host population---and hosts are not exchangeable. On
-the $30$-step round one host returned $27.5\%$ against $33.9$--$36.9\%$
-for the other three, with median episode length $25$ steps against
-$17$--$19$; the gap survives direct standardization to a common domain
-mix ($27.9\%$), and it concentrates in graphics-heavy applications
+Episodes were sharded across whichever machines were free, and the
+machines are not interchangeable: three were H200 hosts, one was an
+older A6000 host. On the $30$-step round the A6000 host returned
+$26.4\%$ where the H200 hosts returned $33.9$--$36.9\%$. The deficit is
+not a task-mix artifact---it survives direct standardization to a common
+domain mix ($27.9\%$)---and it is not merely slower execution: on the
+\emph{same} episodes the A6000 host and an H200 rerun both take a median
+of $30$ steps and both exhaust the cap on $50\%$ of episodes, yet differ
+by $7.3$pp in success. It concentrates in graphics-heavy applications
 (GIMP $10.0$ vs.\ $41.2$, Impress $6.7$ vs.\ $34.4$) while text and
-navigation domains are unaffected or better---the signature of a
-renderer slow enough that screenshots are captured before the interface
-settles. That host contributed a third of the selector arm and none of
-the baseline. Restricting both arms to the $251$ tasks run on matched
-hosts removes the artifact entirely: the $30$-step contrast moves from
-$-2.8$pp to exactly $0.0$pp (CI $[-5.2,+5.2]$), and Recent-$B$'s horizon
-gain from $+3.1$ to $+1.2$pp (CI $[-3.6,+6.0]$).
+navigation domains are unaffected, the signature of a renderer slow
+enough that screenshots are captured before the interface settles.
 
-On that matched subset the selector arm reads $37.5/36.3/35.5\%$ at
-$15/30/50$ steps and Recent-$B$ reads $35.1/36.3\%$ at $15/30$: over a
-$3.3\times$ range of step budget the selector arm moves within two
-percentage points, every horizon contrast crosses zero, and the two
-allocations are indistinguishable at $30$ steps. The official $15$-step
-cap therefore does not suppress the baseline in our favor, and the
-selector's small $15$-step edge is neither amplified nor destroyed by
-horizon extension---consistent with OSWorld evidence rarely leaving the
-recent window even at $50$ steps.
+That host contributed $110$ of the selector arm's $361$ episodes and
+none of the baseline's. We reran exactly those $110$ on H200 hosts and
+substituted them, leaving every other episode untouched. The selector
+arm rises $2.2$pp and the $30$-step contrast moves from $-2.8$pp to
+$-0.5$pp (CI $[-4.7,+3.6]$): on matched hardware the two allocations are
+indistinguishable at $30$ steps, and the earlier reading that the
+selector's $15$-step edge collapses under horizon extension was an
+artifact of one machine.
 
-Sharding also lets us separate run-to-run noise from the host effect,
-because some tasks were executed twice. Across the two matched hosts
-$106$ tasks were duplicated and $98$ agreed, with the disagreements
-balanced ($5$ versus $3$): single-round noise on identical hardware is
-about $7.5\%$ of tasks, small enough that a few points are meaningful.
-Across mismatched hardware the same measurement gives $7$ flips out of
-$10$---an order of magnitude larger, and the clearest single indication
-that what we removed was a hardware artifact rather than ordinary
-variance. The main $15$-step comparison is unaffected by it: neither of
-its arms touched the outlier host, and its two hosts are the matched
-pair characterized above.
+Across the full roster the selector arm reads
+$34.1/35.5/34.1/35.2\%$ at $15/30/50/100$ steps---a $6.7\times$ range of
+step budget spanned by $1.4$ percentage points, with every horizon
+contrast crossing zero. Cap exhaustion falls only from $42.7\%$ to
+$36.6\%$ over the same range, so the residual failures are not
+step-starved. The official $15$-step cap therefore does not suppress the
+baseline in our favor, and the selector's small $15$-step edge is
+neither amplified nor destroyed by horizon extension---consistent with
+OSWorld evidence rarely leaving the recent window even at $100$ steps.
+
+Sharding also lets us separate run-to-run noise from the hardware
+effect, because some episodes were executed twice. Between two H200
+hosts, $106$ duplicated episodes agreed $98$ times with balanced
+disagreements ($5$ versus $3$), and a second, independent set of $22$
+duplicates from the rerun flipped twice: single-round noise on identical
+hardware is $7$--$9\%$ of episodes. Between mismatched hardware the same
+measurement gives $7$ flips out of $10$. That order-of-magnitude gap is
+the clearest single indication that what we removed was a hardware
+artifact rather than ordinary variance. The main $15$-step comparison is
+unaffected: neither of its arms touched the A6000 host, and the two H200
+hosts it does use are the matched pair characterized above.
 
 \section{Limitations and Conclusion}
 
@@ -751,12 +759,15 @@ $9\%$ of the states every selector we trained---either teacher, paired
 with either policy---falls below Recent-$4$ (supplement), so the
 factorial isolating teacher identity is only interpretable in the
 volume regime where selectors work at all. We ran the same comparison on
-OSWorld but do not report a verdict from it: the two arms happened to
-run on different hosts, and the between-host gap there ($\approx2$--$3$pp,
-above) is larger than the effect being tested, which flips sign between
-the raw and host-filtered readings. Whether the mobile teaching
-advantage generalizes to desktop is therefore open, and settling it
-requires rerunning one arm on the other's host. OSWorld shows fidelity value but no
+OSWorld but do not report a verdict from it: the two arms were executed
+on disjoint sets of machines, so no episode is paired across the
+comparison, and the reading flips sign ($+0.6$ to $-1.7$pp) depending on
+which version of the selector arm it is taken against. Since we have
+paired evidence that two hosts can differ and no paired evidence about
+this particular pair, the desktop teacher contrast is uninterpretable as
+run. Whether the mobile teaching advantage generalizes to desktop is
+therefore open, and settling it requires rerunning one arm on the
+other's machines. OSWorld shows fidelity value but no
 allocation headroom at any horizon we tested ($15$/$30$/$50$ steps), so
 the reallocation claim is mobile-only. We control an active context budget, not archive
 capacity, and \method{} reattaches rather than generates pixels; the

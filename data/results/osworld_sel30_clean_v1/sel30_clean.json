@@ -1,0 +1,99 @@
+{
+ "repair": {
+  "h00": 83,
+  "h01": 49,
+  "unique": 110,
+  "duplicated_across_hosts": 22,
+  "duplicate_flips": 2,
+  "flip_rate_pct": 9.1,
+  "merged_into_sel30": 110
+ },
+ "env_health": {
+  "n_common": 110,
+  "repair": {
+   "success": 33.64,
+   "median_steps": 30,
+   "hit_cap": 50.0
+  },
+  "recent30_same_hosts": {
+   "success": 35.45,
+   "median_steps": 25,
+   "hit_cap": 47.3
+  },
+  "aries_old": {
+   "success": 26.36,
+   "median_steps": 30,
+   "hit_cap": 50.0
+  },
+  "h100_overall_median_steps": 17,
+  "verdict": "补跑与同机 recent 同档、且相对 aries 收回约 7pp 成功率 = 环境健康"
+ },
+ "n_sel30_clean": 361,
+ "rates": {
+  "sel@15": 34.07,
+  "sel@30_clean": 35.46,
+  "sel@50": 34.07,
+  "sel@100": 35.18,
+  "recent@15": 32.96,
+  "recent@30": 36.01,
+  "frozen_taught@30": 33.8
+ },
+ "sel_vs_recent": {
+  "@15": {
+   "n": 361,
+   "delta_pp": 1.11,
+   "ci95": [
+    -2.77,
+    4.71
+   ],
+   "boot_p_leq0": 0.2966
+  },
+  "@30_clean": {
+   "n": 361,
+   "delta_pp": -0.55,
+   "ci95": [
+    -4.71,
+    3.6
+   ],
+   "boot_p_leq0": 0.6207
+  }
+ },
+ "horizon_vs_15": {
+  "sel@30_clean": {
+   "n": 361,
+   "delta_pp": 1.39,
+   "ci95": [
+    -3.05,
+    5.82
+   ],
+   "boot_p_leq0": 0.2971
+  },
+  "sel@50": {
+   "n": 361,
+   "delta_pp": 0.0,
+   "ci95": [
+    -4.71,
+    4.71
+   ],
+   "boot_p_leq0": 0.5229
+  },
+  "sel@100": {
+   "n": 361,
+   "delta_pp": 1.11,
+   "ci95": [
+    -3.6,
+    5.82
+   ],
+   "boot_p_leq0": 0.3477
+  }
+ },
+ "teacher_ft30_minus_sel30_clean": {
+  "n": 361,
+  "delta_pp": -1.66,
+  "ci95": [
+   -6.09,
+   2.49
+  ],
+  "boot_p_leq0": 0.8018
+ }
+}
