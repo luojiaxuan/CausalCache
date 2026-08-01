@@ -1,0 +1,101 @@
+{
+ "n_paired": 361,
+ "coverage": {
+  "selfix": 361,
+  "recent": 361
+ },
+ "rates": {
+  "selfix": 32.69,
+  "recent_same_batch": 30.47
+ },
+ "paired_same_batch": {
+  "n": 361,
+  "delta_pp": 2.22,
+  "ci95": [
+   -0.83,
+   5.54
+  ],
+  "boot_p_leq0": 0.1004
+ },
+ "discordance": {
+  "selfix_win": 22,
+  "recent_win": 14,
+  "flip_pct": 10.0
+ },
+ "by_domain": {
+  "chrome": {
+   "n": 46,
+   "win": 2,
+   "loss": 2,
+   "net": 0
+  },
+  "gimp": {
+   "n": 26,
+   "win": 1,
+   "loss": 1,
+   "net": 0
+  },
+  "libreoffice_calc": {
+   "n": 47,
+   "win": 5,
+   "loss": 1,
+   "net": 4
+  },
+  "libreoffice_impress": {
+   "n": 47,
+   "win": 2,
+   "loss": 2,
+   "net": 0
+  },
+  "libreoffice_writer": {
+   "n": 23,
+   "win": 3,
+   "loss": 2,
+   "net": 1
+  },
+  "multi_apps": {
+   "n": 93,
+   "win": 1,
+   "loss": 2,
+   "net": -1
+  },
+  "os": {
+   "n": 24,
+   "win": 4,
+   "loss": 1,
+   "net": 3
+  },
+  "thunderbird": {
+   "n": 15,
+   "win": 1,
+   "loss": 2,
+   "net": -1
+  },
+  "vlc": {
+   "n": 17,
+   "win": 0,
+   "loss": 0,
+   "net": 0
+  },
+  "vs_code": {
+   "n": 23,
+   "win": 3,
+   "loss": 1,
+   "net": 2
+  }
+ },
+ "cross_round_reference": {
+  "hist_sel1p": 34.07,
+  "hist_recent": 32.96,
+  "selfix_vs_hist_recent": {
+   "n": 361,
+   "delta_pp": -0.28,
+   "ci95": [
+    -4.43,
+    3.6
+   ],
+   "boot_p_leq0": 0.5776
+  },
+  "caveat": "跨轮,受 14.4% 噪声地板影响,仅作参考"
+ }
+}

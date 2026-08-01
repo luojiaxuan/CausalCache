@@ -1,0 +1,602 @@
+{
+"1704f00f-79e6-43a7-961b-cedd3724d5fd": {
+"score": 0.0,
+"steps": 15,
+"domain": "chrome"
+},
+"2888b4e6-5b47-4b57-8bf5-c73827890774": {
+"score": 0.0,
+"steps": 15,
+"domain": "chrome"
+},
+"3720f614-37fd-4d04-8a6b-76f54f8c222d": {
+"score": 0.0,
+"steps": 15,
+"domain": "chrome"
+},
+"44ee5668-ecd5-4366-a6ce-c1c9b8d4e938": {
+"score": 1.0,
+"steps": 8,
+"domain": "chrome"
+},
+"480bcfea-d68f-4aaa-a0a9-2589ef319381": {
+"score": 0.0,
+"steps": 10,
+"domain": "chrome"
+},
+"82279c77-8fc6-46f6-9622-3ba96f61b477": {
+"score": 0.0,
+"steps": 15,
+"domain": "chrome"
+},
+"82bc8d6a-36eb-4d2d-8801-ef714fb1e55a": {
+"score": 0.0,
+"steps": 13,
+"domain": "chrome"
+},
+"99146c54-4f37-4ab8-9327-5f3291665e1e": {
+"score": 0.0,
+"steps": 15,
+"domain": "chrome"
+},
+"a96b564e-dbe9-42c3-9ccf-b4498073438a": {
+"score": 0.0,
+"steps": 15,
+"domain": "chrome"
+},
+"af630914-714e-4a24-a7bb-f9af687d3b91": {
+"score": 1.0,
+"steps": 9,
+"domain": "chrome"
+},
+"b4f95342-463e-4179-8c3f-193cd7241fb2": {
+"score": 1.0,
+"steps": 10,
+"domain": "chrome"
+},
+"cabb3bae-cccb-41bd-9f5d-0f3a9fecd825": {
+"score": 0.0,
+"steps": 8,
+"domain": "chrome"
+},
+"f3b19d1e-2d48-44e9-b4e1-defcae1a0197": {
+"score": 1.0,
+"steps": 11,
+"domain": "chrome"
+},
+"f5d96daf-83a8-4c86-9686-bada31fc66ab": {
+"score": 0.0,
+"steps": 15,
+"domain": "chrome"
+},
+"045bf3ff-9077-4b86-b483-a1040a949cff": {
+"score": 0.0,
+"steps": 15,
+"domain": "gimp"
+},
+"06ca5602-62ca-47f6-ad4f-da151cde54cc": {
+"score": 0.0,
+"steps": 15,
+"domain": "gimp"
+},
+"2e6f678f-472d-4c55-99cc-8e7c5c402a71": {
+"score": 0.0,
+"steps": 15,
+"domain": "gimp"
+},
+"554785e9-4523-4e7a-b8e1-8016f565f56a": {
+"score": 1.0,
+"steps": 7,
+"domain": "gimp"
+},
+"58d3eeeb-e9d0-499f-962e-fd0db2a744d8": {
+"score": 0.0,
+"steps": 15,
+"domain": "gimp"
+},
+"72f83cdc-bf76-4531-9a1b-eb893a13f8aa": {
+"score": 1.0,
+"steps": 7,
+"domain": "gimp"
+},
+"7a4deb26-d57d-4ea9-9a73-630f66a7b568": {
+"score": 1.0,
+"steps": 8,
+"domain": "gimp"
+},
+"dbbf4b99-2253-4b10-9274-45f246af2466": {
+"score": 0.0,
+"steps": 15,
+"domain": "gimp"
+},
+"e2dd0213-26db-4349-abe5-d5667bfd725c": {
+"score": 1.0,
+"steps": 15,
+"domain": "gimp"
+},
+"f723c744-e62c-4ae6-98d1-750d3cd7d79d": {
+"score": 1.0,
+"steps": 8,
+"domain": "gimp"
+},
+"0cecd4f3-74de-457b-ba94-29ad6b5dafb6": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"1334ca3e-f9e3-4db8-9ca7-b4c653be7d17": {
+"score": 1.0,
+"steps": 6,
+"domain": "libreoffice_calc"
+},
+"1d17d234-e39d-4ed7-b46f-4417922a4e7c": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"1de60575-bb6e-4c3d-9e6a-2fa699f9f197": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"21ab7b40-77c2-4ae6-8321-e00d3a086c73": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"3a7c8185-25c1-4941-bd7b-96e823c9f21f": {
+"score": 0.0,
+"steps": 9,
+"domain": "libreoffice_calc"
+},
+"4e6fcf72-daf3-439f-a232-c434ce416af6": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"4f07fbe9-70de-4927-a4d5-bb28bc12c52c": {
+"score": 0.0,
+"steps": 8,
+"domain": "libreoffice_calc"
+},
+"51b11269-2ca8-4b2a-9163-f21758420e78": {
+"score": 1.0,
+"steps": 8,
+"domain": "libreoffice_calc"
+},
+"535364ea-05bd-46ea-9937-9f55c68507e8": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"7e429b8d-a3f0-4ed0-9b58-08957d00b127": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"7efeb4b1-3d19-4762-b163-63328d66303b": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"aa3a8974-2e85-438b-b29e-a64df44deb4b": {
+"score": 1.0,
+"steps": 13,
+"domain": "libreoffice_calc"
+},
+"eb03d19a-b88d-4de4-8a64-ca0ac66f426b": {
+"score": 0.0,
+"steps": 9,
+"domain": "libreoffice_calc"
+},
+"f9584479-3d0d-4c79-affa-9ad7afdd8850": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_calc"
+},
+"04578141-1d42-4146-b9cf-6fab4ce5fd74": {
+"score": 0.0,
+"steps": 12,
+"domain": "libreoffice_impress"
+},
+"0a211154-fda0-48d0-9274-eaac4ce5486d": {
+"score": 0.0,
+"steps": 10,
+"domain": "libreoffice_impress"
+},
+"21760ecb-8f62-40d2-8d85-0cee5725cb72": {
+"score": 1.0,
+"steps": 15,
+"domain": "libreoffice_impress"
+},
+"3161d64e-3120-47b4-aaad-6a764a92493b": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_impress"
+},
+"3b27600c-3668-4abd-8f84-7bcdebbccbdb": {
+"score": 0.035205885722018215,
+"steps": 6,
+"domain": "libreoffice_impress"
+},
+"57667013-ea97-417c-9dce-2713091e6e2a": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_impress"
+},
+"5d901039-a89c-4bfb-967b-bf66f4df075e": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_impress"
+},
+"70bca0cc-c117-427e-b0be-4df7299ebeb6": {
+"score": 1.0,
+"steps": 6,
+"domain": "libreoffice_impress"
+},
+"7dbc52a6-11e0-4c9a-a2cb-1e36cfda80d8": {
+"score": 1.0,
+"steps": 10,
+"domain": "libreoffice_impress"
+},
+"841b50aa-df53-47bd-a73a-22d3a9f73160": {
+"score": 0.0,
+"steps": 8,
+"domain": "libreoffice_impress"
+},
+"8979838c-54a5-4454-a2b8-3d135a1a5c8f": {
+"score": 0.0,
+"steps": 9,
+"domain": "libreoffice_impress"
+},
+"a097acff-6266-4291-9fbd-137af7ecd439": {
+"score": 1.0,
+"steps": 6,
+"domain": "libreoffice_impress"
+},
+"af2d657a-e6b3-4c6a-9f67-9e3ed015974c": {
+"score": 0.0,
+"steps": 8,
+"domain": "libreoffice_impress"
+},
+"b8adbc24-cef2-4b15-99d5-ecbe7ff445eb": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_impress"
+},
+"bf4e9888-f10f-47af-8dba-76413038b73c": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_impress"
+},
+"0810415c-bde4-4443-9047-d5f70165a697": {
+"score": 0.0,
+"steps": 10,
+"domain": "libreoffice_writer"
+},
+"0a0faba3-5580-44df-965d-f562a99b291c": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_writer"
+},
+"6f81754e-285d-4ce0-b59e-af7edb02d108": {
+"score": 0.0,
+"steps": 11,
+"domain": "libreoffice_writer"
+},
+"72b810ef-4156-4d09-8f08-a0cf57e7cefe": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_writer"
+},
+"8472fece-c7dd-4241-8d65-9b3cd1a0b568": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_writer"
+},
+"88fe4b2d-3040-4c70-9a70-546a47764b48": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_writer"
+},
+"bb8ccc78-479f-4a2f-a71e-d565e439436b": {
+"score": 0.0,
+"steps": 15,
+"domain": "libreoffice_writer"
+},
+"02ce9a50-7af2-47ed-8596-af0c230501f8": {
+"score": 1.0,
+"steps": 6,
+"domain": "multi_apps"
+},
+"09a37c51-e625-49f4-a514-20a773797a8a": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"1f18aa87-af6f-41ef-9853-cdb8f32ebdea": {
+"score": 0.0,
+"steps": 6,
+"domain": "multi_apps"
+},
+"26150609-0da3-4a7d-8868-0faf9c5f01bb": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"2b9493d7-49b8-493a-a71b-56cd1f4d6908": {
+"score": 1.0,
+"steps": 8,
+"domain": "multi_apps"
+},
+"2c9fc0de-3ee7-45e1-a5df-c86206ad78b5": {
+"score": 1.0,
+"steps": 7,
+"domain": "multi_apps"
+},
+"2fe4b718-3bd7-46ec-bdce-b184f5653624": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"3a93cae4-ad3e-403e-8c12-65303b271818": {
+"score": 1.0,
+"steps": 8,
+"domain": "multi_apps"
+},
+"3f05f3b9-29ba-4b6b-95aa-2204697ffc06": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"48d05431-6cd5-4e76-82eb-12b60d823f7d": {
+"score": 1.0,
+"steps": 7,
+"domain": "multi_apps"
+},
+"4c26e3f3-3a14-4d86-b44a-d3cedebbb487": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"68a25bd4-59c7-4f4d-975e-da0c8509c848": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"6d72aad6-187a-4392-a4c4-ed87269c51cf": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"6f4073b8-d8ea-4ade-8a18-c5d1d5d5aa9a": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"778efd0a-153f-4842-9214-f05fc176b877": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"7f35355e-02a6-45b5-b140-f0be698bcf85": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"873cafdd-a581-47f6-8b33-b9696ddb7b05": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"91190194-f406-4cd6-b3f9-c43fac942b22": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"9219480b-3aed-47fc-8bac-d2cffc5849f7": {
+"score": 1.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"98e8e339-5f91-4ed2-b2b2-12647cb134f4": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"a503b07f-9119-456b-b75d-f5146737d24f": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"a74b607e-6bb5-4ea8-8a7c-5d97c7bbcd2a": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"c7c1e4c3-9e92-4eba-a4b8-689953975ea4": {
+"score": 0.0,
+"steps": 9,
+"domain": "multi_apps"
+},
+"d68204bf-11c1-4b13-b48b-d303c73d4bf6": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"da922383-bfa4-4cd3-bbad-6bebab3d7742": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"e1fc0df3-c8b9-4ee7-864c-d0b590d3aa56": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"eb303e01-261e-4972-8c07-c9b4e7a4922a": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"ee9a3c83-f437-4879-8918-be5efbb9fac7": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"f7dfbef3-7697-431c-883a-db8583a4e4f9": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"f8369178-fafe-40c2-adc4-b9b08a125456": {
+"score": 0.0,
+"steps": 15,
+"domain": "multi_apps"
+},
+"f8cfa149-d1c1-4215-8dac-4a0932bad3c2": {
+"score": 0.0,
+"steps": 8,
+"domain": "multi_apps"
+},
+"23393935-50c7-4a86-aeea-2b78fd089c5c": {
+"score": 0.0,
+"steps": 15,
+"domain": "os"
+},
+"28cc3b7e-b194-4bc9-8353-d04c0f4d56d2": {
+"score": 1.0,
+"steps": 9,
+"domain": "os"
+},
+"4783cc41-c03c-4e1b-89b4-50658f642bd5": {
+"score": 0.0,
+"steps": 15,
+"domain": "os"
+},
+"5812b315-e7bd-4265-b51f-863c02174c28": {
+"score": 0.0,
+"steps": 15,
+"domain": "os"
+},
+"a462a795-fdc7-4b23-b689-e8b6df786b78": {
+"score": 0.0,
+"steps": 15,
+"domain": "os"
+},
+"c288e301-e626-4b98-a1ab-159dcb162af5": {
+"score": 0.0,
+"steps": 15,
+"domain": "os"
+},
+"ec4e3f68-9ea4-4c18-a5c9-69f89d1178b3": {
+"score": 1.0,
+"steps": 15,
+"domain": "os"
+},
+"f9be0997-4b7c-45c5-b05c-4612b44a6118": {
+"score": 1.0,
+"steps": 6,
+"domain": "os"
+},
+"08c73485-7c6d-4681-999d-919f5c32dcfa": {
+"score": 0.0,
+"steps": 15,
+"domain": "thunderbird"
+},
+"3f28fe4f-5d9d-4994-a456-efd78cfae1a3": {
+"score": 1.0,
+"steps": 7,
+"domain": "thunderbird"
+},
+"5203d847-2572-4150-912a-03f062254390": {
+"score": 0.0,
+"steps": 15,
+"domain": "thunderbird"
+},
+"7b1e1ff9-bb85-49be-b01d-d6424be18cd0": {
+"score": 1.0,
+"steps": 8,
+"domain": "thunderbird"
+},
+"9bc3cc16-074a-45ac-9bdc-b2a362e1daf3": {
+"score": 1.0,
+"steps": 11,
+"domain": "thunderbird"
+},
+"215dfd39-f493-4bc3-a027-8a97d72c61bf": {
+"score": 0.0,
+"steps": 15,
+"domain": "vlc"
+},
+"59f21cfb-0120-4326-b255-a5b827b38967": {
+"score": 1.0,
+"steps": 6,
+"domain": "vlc"
+},
+"5ac2891a-eacd-4954-b339-98abba077adb": {
+"score": 1.0,
+"steps": 7,
+"domain": "vlc"
+},
+"8ba5ae7a-5ae5-4eab-9fcc-5dd4fe3abf89": {
+"score": 0.0,
+"steps": 8,
+"domain": "vlc"
+},
+"8f080098-ddb1-424c-b438-4e96e5e4786e": {
+"score": 0.0,
+"steps": 15,
+"domain": "vlc"
+},
+"a5bbbcd5-b398-4c91-83d4-55e1e31bbb81": {
+"score": 1.0,
+"steps": 6,
+"domain": "vlc"
+},
+"f3977615-2b45-4ac5-8bba-80c17dbe2a37": {
+"score": 0.0,
+"steps": 15,
+"domain": "vlc"
+},
+"276cc624-87ea-4f08-ab93-f770e3790175": {
+"score": 1.0,
+"steps": 8,
+"domain": "vs_code"
+},
+"7aeae0e2-70ee-4705-821d-1bba5d5b2ddd": {
+"score": 0.0,
+"steps": 15,
+"domain": "vs_code"
+},
+"7c4cc09e-7a92-40dd-8338-b2286535c4ed": {
+"score": 0.0,
+"steps": 15,
+"domain": "vs_code"
+},
+"847a96b6-df94-4927-97e6-8cc9ea66ced7": {
+"score": 0.0,
+"steps": 15,
+"domain": "vs_code"
+},
+"930fdb3b-11a8-46fe-9bac-577332e2640e": {
+"score": 0.0,
+"steps": 12,
+"domain": "vs_code"
+},
+"9439a27b-18ae-42d8-9778-5f68f891805e": {
+"score": 0.0,
+"steps": 15,
+"domain": "vs_code"
+},
+"dcbe20e8-647f-4f1d-8696-f1c5bbb570e3": {
+"score": 0.0,
+"steps": 15,
+"domain": "vs_code"
+},
+"ea98c5d7-3cf9-4f9b-8ad3-366b58e0fcae": {
+"score": 0.0,
+"steps": 15,
+"domain": "vs_code"
+}
+}
