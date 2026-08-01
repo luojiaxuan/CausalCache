@@ -594,6 +594,31 @@ def main() -> None:
             mask_readout["on"] = masked
             out[tag] = eval_dev()
         mask_readout["on"] = False
+        # note (luojiaxuan): 校准诊断。教师标签里 68.4% 的单例边际为正、95.3% 的状态
+        # 至少有一个正单例,而部署侧实测 97.4% 的步无正边际候选。若 readout 塔的
+        # 输出均值显著为正,则"去掉残差"等价于给所有预测减一个常数——那样最便宜的
+        # 修法是补截距,而不是重训。这里直接量两塔各自的输出分布与正预测占比。
+        with torch.no_grad():
+            di = torch.tensor(dev_idx, dtype=torch.long, device=device)
+            truth = y_all[di]
+            cheap_only = model.cheap(x_all[di]).squeeze(-1)
+            calib = {
+                "dev_n": int(di.numel()),
+                "label_positive_pct": round(100.0 * float((truth > 0).float().mean()), 1),
+                "cheap_only_mean": round(float(cheap_only.mean()), 6),
+                "cheap_only_positive_pct": round(100.0 * float((cheap_only > 0).float().mean()), 1),
+                "label_mean": round(float(truth.mean()), 6),
+            }
+            if readout_dim:
+                ro = model.readout(r_all[di]).squeeze(-1) * rm_all[di]
+                full = cheap_only + ro
+                calib.update({
+                    "readout_mean": round(float(ro.mean()), 6),
+                    "readout_std": round(float(ro.std()), 6),
+                    "full_mean": round(float(full.mean()), 6),
+                    "full_positive_pct": round(100.0 * float((full > 0).float().mean()), 1),
+                })
+            out["calibration"] = calib
         args.output_root.mkdir(parents=True, exist_ok=True)
         (args.output_root / "deploy_config_eval.json").write_text(
             json.dumps(out, indent=1, ensure_ascii=False))

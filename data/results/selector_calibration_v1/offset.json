@@ -1,0 +1,12 @@
+{
+ "offset_mean_match": 0.085445,
+ "dev_n": 15664,
+ "label_positive_pct": 47.7,
+ "cheap_only_mean": -0.077841,
+ "cheap_only_positive_pct": 0.0,
+ "label_mean": 0.007604,
+ "readout_mean": 0.062485,
+ "readout_std": 0.030796,
+ "full_mean": -0.015357,
+ "full_positive_pct": 32.0
+}

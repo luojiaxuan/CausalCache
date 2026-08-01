@@ -61,6 +61,13 @@ def main() -> None:
     # 的候选,不足 B 个用最近帧补齐。τ=0 是模型自身的"这一帧有用"边界,不需调参。
     parser.add_argument("--selector-min-marginal", type=float, default=None,
                         help="弃权阈值:预测边际 <= τ 的候选不提升,槽位留给最近帧")
+    # note (luojiaxuan): 校准截距。two-tower 的 readout 塔在部署侧被 mask(它需要挂
+    # 探针才能算),而该塔实测近似一个常数偏置(dev 上均值 +0.0625、标准差仅 0.031)。
+    # 去掉它使 cheap 塔单独预测在 15,664 条 dev 边上**无一为正**(均值 −0.0778,
+    # 而标签 47.7% 为正、均值 +0.0076)。常数偏置不改变 argmax,所以原无阈值臂不受
+    # 影响;但它让任何阈值/早停判据全部失效。补上截距后阈值才有意义。
+    parser.add_argument("--selector-score-offset", type=float, default=0.0,
+                        help="加到 selector 预测边际上的常数;修正 readout 塔缺席造成的偏置")
     # note (luojiaxuan): proposal = CausalCache-P(两遍,先按 recent 尾出拟议动作
     # 作参照,换帧则重组重生成);last_action = CausalCache-LA(单遍)。
     parser.add_argument("--selector-witness",
@@ -226,8 +233,10 @@ def main() -> None:
                 )
                 xs.append(selector_norm(f))
             with torch.no_grad():
-                return selector_model(
+                raw = selector_model(
                     torch.tensor(xs, dtype=torch.float32)).tolist()
+            off = args.selector_score_offset
+            return [v + off for v in raw] if off else raw
 
         # note (luojiaxuan): --selector-min-marginal 打开弃权。原语义是无条件走满 B 层、
         # 恒取 B 个:池子里没有值得提升的远端帧时,argmax 仍会挑一个出来,挤掉 recent。
