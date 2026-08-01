@@ -17,6 +17,19 @@ echo "=== aries 补跑 $HOSTTAG 启动 $(date -Is) shards=[$SHARDS]/$SHARD_COUNT
 
 docker ps --format '{{.Names}}' | grep -qx "$CONT" || { docker start "$CONT" >/dev/null 2>&1; sleep 10; }
 
+# note (luojiaxuan): 端点主机名必须按容器网络模式决定,不能写死 127.0.0.1。
+# h00 是 host 网络(宿主 127.0.0.1 可达),h01 是 bridge(必须用容器 IP,且该 IP
+# 在 docker start 后会变)。写死 127.0.0.1 会让 h01 的 health 检查永远返回 000,
+# 而服务器其实已经 READY——这个坑本 session 已经踩过第二次。
+NETMODE=$(docker inspect "$CONT" --format '{{.HostConfig.NetworkMode}}')
+if [ "$NETMODE" = host ]; then
+  EPHOST=127.0.0.1
+else
+  EPHOST=$(docker inspect "$CONT" --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+  [ -n "$EPHOST" ] || { echo "FATAL 取不到容器 IP"; exit 1; }
+fi
+echo "$(date -Is) 网络模式=$NETMODE 端点主机=$EPHOST"
+
 docker exec $CONT bash -lc "cat > /tmp/osw_repair_serve.sh <<'EOS'
 #!/usr/bin/env bash
 set -uo pipefail
@@ -43,7 +56,7 @@ done; done
 
 for k in $(seq 1 60); do
   u=0; for j in $(seq 0 $((n_srv-1))); do
-    curl -sm 3 "http://127.0.0.1:$((PORT0+j))/health" >/dev/null 2>&1 && u=$((u+1))
+    curl -sm 3 "http://$EPHOST:$((PORT0+j))/health" >/dev/null 2>&1 && u=$((u+1))
   done
   [ "$u" -eq "$n_srv" ] && break
   sleep 20
@@ -61,7 +74,7 @@ for s in $SHARDS; do
         $WORKERCODE/scripts/run_osworld_benchmark_worker.py \
         --osworld-root "$OSWROOT" --meta-path "$META" \
         --shard-index "$s" --shard-count "$SHARD_COUNT" --output-root "$OUT" \
-        --policy-endpoint "http://127.0.0.1:$p/act" \
+        --policy-endpoint "http://$EPHOST:$p/act" \
         --memory-arm full --memory-budget 4 --max-steps 30 \
         --cache-dir "$BASE/aries-repair/cache" \
         >> "$BASE/aries-repair/logs/shard$s.log" 2>&1
