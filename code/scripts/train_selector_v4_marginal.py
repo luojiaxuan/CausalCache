@@ -88,6 +88,15 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
+    # note (luojiaxuan): 部署一致性诊断。训练与 dev 评测一直带 readout 塔前向,
+    # 而两个 serve 脚本都以 mask=0 关断它(readout_online=false,154 条真实启动记录
+    # 无一例外)。也就是说选 checkpoint 用的指标不是部署配置下的指标。
+    # --eval-only 加载已有 bundle 跳过训练,把同一份 dev 在 readout 开/关两种配置下
+    # 各算一遍,直接量出这个落差。
+    parser.add_argument("--eval-only", type=Path, default=None,
+                        help="加载 marginal_scorer.pt 只做评测,不训练")
+    parser.add_argument("--eval-both-configs", action="store_true",
+                        help="同时报告 readout 开(训练口径)与关(部署口径)两套指标")
     return parser.parse_args()
 
 
@@ -432,9 +441,14 @@ def main() -> None:
     print(json.dumps({"rank_pairs": len(pair_left), "feature_dim": dim,
                        "train_edges": len(train_idx), "dev_edges": len(dev_idx)}))
 
+    # note (luojiaxuan): mask_readout=True 复现部署侧 forward(只走 cheap 塔)。
+    mask_readout = {"on": False}
+
     def _fwd(idx):
-        if readout_dim:
+        if readout_dim and not mask_readout["on"]:
             return model(x_all[idx], r_all[idx], rm_all[idx])
+        if readout_dim:
+            return model(x_all[idx], r_all[idx], torch.zeros_like(rm_all[idx]))
         return model(x_all[idx])
 
     def predict_indices(idx_list):
@@ -561,6 +575,25 @@ def main() -> None:
             **_rank_metrics(train_probe_idx, "train_probe"),
             **replay_dev(),
         }
+
+    if args.eval_only is not None:
+        bundle = torch.load(args.eval_only, map_location=device)
+        model.load_state_dict(bundle["model_state"])
+        model.eval()
+        out = {"bundle": str(args.eval_only),
+               "bundle_best_epoch": bundle.get("best_epoch"),
+               "bundle_best_dev_top1_regret": bundle.get("best_dev_top1_regret"),
+               "dev_edges": len(dev_idx), "readout_dim": readout_dim}
+        for tag, masked in (("readout_on_training_config", False),
+                            ("readout_off_deployed_config", True)):
+            mask_readout["on"] = masked
+            out[tag] = eval_dev()
+        mask_readout["on"] = False
+        args.output_root.mkdir(parents=True, exist_ok=True)
+        (args.output_root / "deploy_config_eval.json").write_text(
+            json.dumps(out, indent=1, ensure_ascii=False))
+        print(json.dumps(out, indent=1, ensure_ascii=False))
+        return
 
     # note (luojiaxuan): epochs 是预算上限,不是训练时长的权威。选择权在
     # held-out:按 dev_top1_regret(k=1 部署关键量,样本最稳)保存最优快照,
