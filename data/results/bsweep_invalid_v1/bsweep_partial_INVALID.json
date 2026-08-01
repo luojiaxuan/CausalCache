@@ -1,0 +1,152 @@
+{
+ "coverage": {
+  "b0-recent": 36,
+  "b1-recent": 36,
+  "b1-sel": 36,
+  "b2-recent": 36,
+  "b2-sel": 36,
+  "b4-recent": 36,
+  "b4-sel": 36,
+  "b6-recent": 18
+ },
+ "curve": {
+  "B=0": {
+   "recent": 25.0,
+   "selector": 25.0,
+   "delta": {
+    "n": 36,
+    "delta_pp": 0.0,
+    "ci95": [
+     0.0,
+     0.0
+    ],
+    "note": "结构等同,未单独跑"
+   }
+  },
+  "B=1": {
+   "recent": 25.0,
+   "selector": 27.78,
+   "delta": {
+    "n": 36,
+    "delta_pp": 2.78,
+    "ci95": [
+     -11.11,
+     16.67
+    ]
+   },
+   "memory_critical": {
+    "n": 24,
+    "recent": 16.67,
+    "selector": 8.33,
+    "delta": {
+     "n": 24,
+     "delta_pp": -8.33,
+     "ci95": [
+      -25.0,
+      8.33
+     ]
+    }
+   },
+   "control": {
+    "n": 12,
+    "recent": 41.67,
+    "selector": 66.67,
+    "delta": {
+     "n": 12,
+     "delta_pp": 25.0,
+     "ci95": [
+      0.0,
+      50.0
+     ]
+    }
+   }
+  },
+  "B=2": {
+   "recent": 25.0,
+   "selector": 33.33,
+   "delta": {
+    "n": 36,
+    "delta_pp": 8.33,
+    "ci95": [
+     -8.33,
+     25.0
+    ]
+   },
+   "memory_critical": {
+    "n": 24,
+    "recent": 16.67,
+    "selector": 12.5,
+    "delta": {
+     "n": 24,
+     "delta_pp": -4.17,
+     "ci95": [
+      -20.83,
+      12.5
+     ]
+    }
+   },
+   "control": {
+    "n": 12,
+    "recent": 41.67,
+    "selector": 75.0,
+    "delta": {
+     "n": 12,
+     "delta_pp": 33.33,
+     "ci95": [
+      8.33,
+      58.33
+     ]
+    }
+   }
+  },
+  "B=4": {
+   "recent": 25.0,
+   "selector": 30.56,
+   "delta": {
+    "n": 36,
+    "delta_pp": 5.56,
+    "ci95": [
+     -5.56,
+     16.67
+    ]
+   },
+   "memory_critical": {
+    "n": 24,
+    "recent": 16.67,
+    "selector": 20.83,
+    "delta": {
+     "n": 24,
+     "delta_pp": 4.17,
+     "ci95": [
+      -8.33,
+      16.67
+     ]
+    }
+   },
+   "control": {
+    "n": 12,
+    "recent": 41.67,
+    "selector": 50.0,
+    "delta": {
+     "n": 12,
+     "delta_pp": 8.33,
+     "ci95": [
+      0.0,
+      25.0
+     ]
+    }
+   }
+  }
+ },
+ "summary": {
+  "budgets_reduced": [
+   "B=0",
+   "B=1",
+   "B=2",
+   "B=4"
+  ],
+  "best_B_full": "B=2",
+  "best_delta_pp": 8.33,
+  "caveat": "36 任务固定子集,单轮;峰值位置仅供趋势参考"
+ }
+}
