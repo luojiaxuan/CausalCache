@@ -19,6 +19,16 @@
 - 论文中 \method 的 46.7/33.3 依赖 GPT 原始记录,待到货核对;如需完全独立验证,
   需带 HGKV adapter 重跑 sel 臂(~3-4h)。
 
+## 论文口径（2026-07-31）
+
+- `max_steps` 是 serving-time rollout 参数，不属于 task-success evaluator；15 步只
+  来自初始 example-based baseline 配置，不能称为 official 或 primary setting。
+- 论文以 matched `max_steps=30` 作为同域 allocation 主比较，并保留 15 步作为
+  短 horizon sensitivity；合法结论是 horizon-conditional（30 步 `+4.3pp`，
+  15 步 `+0.3pp` 且 `352/361` episodes 触顶），不是跨 horizon 普遍增益。
+- 这次重分类不覆盖上面的 provenance 边界：在 GPT 原始配对记录进入 Git 前，
+  `46.7 vs 42.4` 仍是 provisional point estimate，不登记为已闭合显著性结果。
+
 ## 运维教训
 - VM zip 多 worker 并发下载会互相追加写坏(h100 曾写出 167GB 损坏包);必须单进程预下。
 - `/tmp/docker_port_allocation.lck` 陈锁会饿死后续 worker(h100 shard-4),清锁即愈。

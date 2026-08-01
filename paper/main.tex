@@ -51,13 +51,10 @@ recent event. A history-gated key/value adapter modifies only restored
 history-image tokens and is exactly bypassed when no history image is
 active, preserving current-screen processing. The adapter and selector
 are trained with matched-budget interventions on desktop trajectories and
-evaluated zero-shot on mobile. On OSWorld-Verified, activating historical
-screenshots improves success by about $13$ percentage points over
-summary-only memory. At the default $15$-step rollout horizon, \method{}
-and Recent-$4$ are statistically indistinguishable. Because $352$ of
-$361$ episodes reach this horizon, we additionally evaluate both methods
-with an extended $30$-step horizon, where \method{} achieves $46.7\%$
-success versus $42.4\%$ ($+4.3$ points). Zero-shot on $117$ MobileWorld tasks, \method{} improves
+evaluated zero-shot on mobile. On OSWorld-Verified at
+\texttt{max\_steps}${=}30$, \method{} achieves $46.7\%$ success versus
+$42.4\%$ for Recent-$4$ ($+4.3$ points); an initial $15$-step sensitivity
+truncates $352/361$ episodes and is inconclusive. Zero-shot on $117$ MobileWorld tasks, \method{} improves
 over Recent-$4$ from $30.2\%$ to $36.8\%$. The gain is concentrated on a
 pre-defined cross-app memory-candidate split ($30.6\%$ vs.\ $19.4\%$,
 $+11.2$ points), while single-app controls show no detectable difference
@@ -466,9 +463,10 @@ which contributes no data to any training or selection decision
 evaluator; the rollout horizon is controlled separately by the
 configurable \texttt{max\_steps} parameter\footnote{\texttt{max\_steps}
 is a serving-time evaluation parameter rather than part of the
-task-success evaluator.}: we use its default value of $15$ for the
-primary setting and additionally evaluate both allocation methods at
-\texttt{max\_steps}${=}30$ to measure sensitivity to horizon truncation.
+task-success evaluator.}. We report \texttt{max\_steps}${=}30$ as the main
+same-domain allocation comparison and retain our initial, example-based
+$15$-step run---which truncates $352/361$ episodes---as a short-horizon
+sensitivity.
 All comparisons between Recent-$B$ and \method{} use identical
 \texttt{max\_steps} values, so changing the horizon does not alter the
 matched-budget allocation contrast.
@@ -494,17 +492,17 @@ MobileWorld full ($117$) & $30.2$ & $36.8$ & $+6.6^{*}$ \\
 \hspace{7pt}memory-critical ($62$) & $19.4$ & $30.6$ & $+11.2^{*}$ \\
 \hspace{7pt}single-app control ($55$) & $42.4$ & $43.6$ & $+1.2$ \\
 \hspace{7pt}split$\times$method interact. & --- & --- & $+10.1$ \\
-OSWorld-Verified, \texttt{max\_steps}${=}15$ & $33.0$ & $33.3$ & $+0.3$ \\
-OSWorld-Verified, \texttt{max\_steps}${=}30$ & $42.4$ & $46.7$ & $+4.3^{*}$ \\
+OSWorld, $30$-step main & $42.4$ & $46.7$ & $+4.3$ \\
+OSWorld, $15$-step sens. & $33.0$ & $33.3$ & $+0.3$ \\
 \bottomrule
 \end{tabular}
 }
 \caption{Primary closed-loop contrasts at the deployment budget $B{=}4$
 (task-paired bootstrap; MobileWorld three-run means). The main
-OSWorld-Verified row uses the default rollout horizon
-\texttt{max\_steps}${=}15$; because this horizon is saturated by
-$352/361$ episodes, we also report a matched extended-horizon comparison
-at \texttt{max\_steps}${=}30$. $^{*}$~the $95\%$
+OSWorld-Verified allocation comparison uses \texttt{max\_steps}${=}30$;
+the initial $15$-step sensitivity truncates $352/361$ episodes. Neither
+horizon is part of the task-success evaluator.
+$^{*}$~the $95\%$
 confidence interval strictly excludes zero (full CI tables in the
 supplement; the interaction interval accompanies them). The gain
 concentrates exactly on the construction-defined memory-critical stratum,
@@ -519,7 +517,7 @@ with no detectable effect on controls.}
 \setlength{\tabcolsep}{5.0pt}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrr@{}}
 \toprule
-Method & OSWorld-Verified ($361$) & MobileWorld ($117$) &
+Method & OSW@15 sensitivity ($361$) & MobileWorld ($117$) &
 MW memory-critical ($62$) & MW control ($55$) \\
 \midrule
 Frozen, summary-only ($B{=}0$) & $19.9$ & $28.2$ & $21.0$ & $36.4$ \\
@@ -535,9 +533,9 @@ $\mathbf{30.6}$ & $\mathbf{43.6}$ \\
 \caption{Closed-loop success rates (\%) at the primary deployment budget
 $B{=}4$; the offline budget sweep is in the supplement.
 OSWorld-Verified: no-GDrive task roster with the benchmark evaluator;
-the reported main setting uses \texttt{max\_steps}${=}15$, one run per
-arm, and a matched extended-horizon comparison with
-\texttt{max\_steps}${=}30$ is discussed in the text. MobileWorld: zero-shot means over three
+this column is the initial \texttt{max\_steps}${=}15$ short-horizon
+sensitivity decomposition; the main matched comparison at
+\texttt{max\_steps}${=}30$ is in Table~\ref{tab:contrast}. MobileWorld: zero-shot means over three
 runs for all multi-run arms; the memory-critical column restricts to the $62$
 construction-defined cross-app tasks, where the allocation contrast is
 largest, and the control column to the $55$ single-app tasks, where no
@@ -672,22 +670,16 @@ memory-critical split.
 
 \paragraph{Desktop closed loop.}
 We evaluate on $361$ OSWorld-Verified tasks using the no-GDrive roster
-and benchmark evaluator. Our primary configuration uses the default
-rollout parameter \texttt{max\_steps}${=}15$. Under this horizon, all
-high-fidelity methods achieve $32.7$--$33.3\%$ success, approximately
-$13$ points above summary-only memory ($19.9\%$; paired $95\%$ CIs
-excluding zero), while Recent-$4$ and \method{} are statistically
-indistinguishable ($33.0\%$ vs.\ $33.3\%$).
-The $15$-step horizon is strongly saturated: $352$ of $361$ episodes
-terminate by reaching \texttt{max\_steps}. To assess whether this
-truncation masks differences in fidelity allocation, we rerun Recent-$4$
-and \method{} under an identical extended horizon of
-\texttt{max\_steps}${=}30$. Recent-$4$ reaches $42.4\%$, whereas
-\method{} reaches $46.7\%$, producing a $+4.3$-point allocation margin.
-Thus, the default-horizon result supports the value of historical visual
-context, while the extended-horizon analysis provides evidence that
-selective allocation becomes more useful when longer trajectories can
-unfold. \hgkv{} again shows no detectable behavioral difference on matched
+and benchmark evaluator. Our main same-domain allocation comparison uses
+\texttt{max\_steps}${=}30$, with the horizon matched between arms:
+Recent-$4$ reaches $42.4\%$, whereas \method{} reaches $46.7\%$, a
+$+4.3$-point allocation margin. In the initial $15$-step sensitivity,
+high-fidelity methods score $32.7$--$33.3\%$, about $13$ points above
+summary-only ($19.9\%$), but Recent-$4$ and \method{} are indistinguishable
+($33.0\%$ vs.\ $33.3\%$) and $352/361$ episodes reach the cap. The
+allocation claim is therefore horizon-conditional: separation at the
+evaluated $30$-step horizon, but not detectably at $15$. \hgkv{}
+again shows no detectable behavioral difference on matched
 Recent-$B$ allocations, mirroring the mobile finding. \method{} adds a
 median of eight policy calls per task, about $7\%$ of median end-to-end
 task time.
@@ -798,7 +790,8 @@ We control an active context budget, not archive capacity, and
 \method{} reattaches rather than generates pixels. We claim only that
 some summarized events have greater conditional marginal utility than
 the recent realization they displace; pretraining contamination remains
-possible. In one sentence: \method{} learns
+possible. The OSWorld closed-loop allocation result is also conditional on
+the horizon ($30$-step separation; $15$-step sensitivity inconclusive). In one sentence: \method{} learns
 which summarized GUI events deserve to be seen again.
 
 \clearpage

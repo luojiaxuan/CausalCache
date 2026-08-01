@@ -29,7 +29,7 @@ make paper-all
 `main.tex` 保持单一正文源文件，以符合 AAAI author kit 的提交要求。当前未完成的段落级结果以
 `[Pending: ...]` 标记，表格单元格以 `TBD` 标记；不能在获得可复核结果前替换为经验性结论。
 `supplement.tex` 是单独上传的 supplementary PDF，不被 `main.tex` 引入，也不计入主稿
-7 页 technical content。当前 supplementary 为 2 页，包含完整 per-budget gate、
+7 页 technical content。当前 supplementary 为 5 页，包含完整 per-budget gate、
 selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
 
 ## 主图
@@ -79,6 +79,12 @@ selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
   直至可复核结果落地;
 - selector 行按实际使用的图片数计费,STOP 是合法输出;不得把 singleton gain
   求和冒充 set utility。
+- OSWorld 的 `max_steps` 是 serving-time rollout 参数,不是 task-success evaluator
+  的组成部分。`15` 仅来自初始 example-based baseline 配置,不得称为 official 或
+  primary setting；正文以 matched `max_steps=30` 作为同域 allocation 主比较，并
+  保留 `max_steps=15` 作为短 horizon sensitivity。该主张必须写成 horizon-conditional：
+  30 步点估计为 `46.7% vs 42.4% (+4.3pp)`，15 步为
+  `33.3% vs 33.0% (+0.3pp)` 且 `352/361` episodes 被上限截断。
 
 ## AAAI-27 submission 约束
 

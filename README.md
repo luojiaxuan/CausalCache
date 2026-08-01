@@ -454,3 +454,8 @@ PYTHONPATH=code python3 -m compileall -q \
 - teacher-forced likelihood 是 surrogate,最终以闭环 success 裁决;
   MobileWorld 完全零样本,OSWorld 只报未污染 roster(witness 消耗的 task 单列
   in-domain diagnostic,见 contamination ledger)。
+- OSWorld 的 `max_steps` 是 rollout 参数而不是 evaluator 定义：`15` 只作为
+  example-based 短 horizon sensitivity，`30` 是论文的同域 allocation 主比较。
+  主张必须同时报告边界：30 步 `+4.3pp`，15 步 `+0.3pp` 且 `352/361` episodes
+  触顶；不得再把 15 步称为 official 或 primary setting，也不得声称跨 horizon
+  普遍增益。
