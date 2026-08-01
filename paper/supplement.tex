@@ -566,22 +566,19 @@ $+4.8$pp $[-2.2,+12.4]$.}
 \subsection{Teacher Ablations}
 
 The deployed selector distills set utilities scored under the \hgkv{}
-instrument. Set scoring covers $3{,}992$ of the $5{,}335$ eligible
-desktop states ($58$k singleton $+$ $110$k unique scored set edges); the
-remaining $1{,}343$ states were never scored, so the deployed selector
-is trained on $75\%$ of its intended label pool.
+instrument over all $5{,}335$ eligible desktop states ($58$k singleton
+$+$ $147$k unique scored set edges, no state skipped).
 Two retrained variants swap only the label teacher, with set labels
-rescored on a uniformly interleaved $60\%$ state subset of the eligible
-pool (identical tree parameters), giving them $3{,}210$ states and
-$88.8$k set edges---$80\%$ of the deployed selector's realized volume,
-not the $60\%$ the design intended relative to it.
+rescored on a uniformly interleaved $60\%$ state subset (identical tree
+parameters), giving them $88.8$k set edges---$60.3\%$ of the deployed
+selector's volume.
 Scoring under the fully frozen policy yields $25.8\%$
 memory-critical---still significantly above Recent-$4$ ($+6.5$pp,
 $p{=}0.04$)---and scoring under an \hgkv{} variant retrained on
 selector-composed multi-slot corpora yields $24.2\%$. The \hgkv{}-taught
-deployed selector reaches $30.6\%$. At $80\%$ relative volume the gap is
-therefore not primarily a volume artifact, though volume is not fully
-controlled either.
+deployed selector reaches $30.6\%$. Because the retrained variants also
+use the reduced label pool, this gap conflates teacher model with label
+volume; the matched-volume factorial below separates them.
 
 \paragraph{Teacher $\times$ deployment at $9\%$ volume.}
 To separate teacher identity from deployment pairing we ran a full

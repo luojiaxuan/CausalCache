@@ -751,10 +751,10 @@ selector reallocates profitably exactly where distant visual dependency
 exists: memory-critical tasks improve, controls show no detectable
 change.
 The headline selector arm is a single round against three-run baselines.
-The frozen-teacher variant carries $81\%$ of the \hgkv{}-taught
-selector's set labels ($88.8$K against $110.1$K scored set edges, over
-$80\%$ of its states), so label volume alone is an incomplete
-explanation of its mobile gap. Pushing volume much lower does bind: at
+The frozen-teacher variant carries $60\%$ of the \hgkv{}-taught
+selector's set labels ($88.8$K against $147.3$K scored set edges), so
+its mobile gap confounds teacher identity with label volume. Volume
+does bind at the low end: at
 $9\%$ of the states every selector we trained---either teacher, paired
 with either policy---falls below Recent-$4$ (supplement), so the
 factorial isolating teacher identity is only interpretable in the
