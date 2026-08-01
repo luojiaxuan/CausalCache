@@ -691,29 +691,45 @@ $15$ steps the evidence rarely leaves the recent window. We therefore
 include a matched $30$-step horizon analysis (Recent-$B$ vs.\
 frozen$+$selector, both full-roster rounds) to test whether allocation
 gains emerge as relevant evidence moves farther beyond the recent
-window. They do not: doubling the horizon lifts Recent-$B$ from $33.0$
-to $36.0$ ($+3.1$pp, paired CI $[-1.1,+7.2]$) while the selector arm is
-flat ($34.1\!\to\!33.2$, $-0.8$pp, CI $[-5.3,+3.6]$), and the
-$30$-step contrast is $-2.8$pp (CI $[-7.2,+1.7]$, n.s.). Extending
-further confirms the flatness rather than a decline: at a $50$-step cap
-the selector arm returns $34.1$, exactly its $15$-step value ($0.0$pp,
-CI $[-4.7,+4.7]$, full roster). Across a $3.3\times$ range of step
-budget the selector arm moves within one percentage point.
-The official $15$-step cap therefore does not suppress the baseline in
-our favor---if anything the extra steps help Recent-$B$ more---and the
+window. They do not, but establishing that required first removing a
+host confound that our initial analysis missed.
+
+Arms were sharded across whichever machines were free, so the arms did
+not share a common host population---and hosts are not exchangeable. On
+the $30$-step round one host returned $27.5\%$ against $33.9$--$36.9\%$
+for the other three, with median episode length $25$ steps against
+$17$--$19$; the gap survives direct standardization to a common domain
+mix ($27.9\%$), and it concentrates in graphics-heavy applications
+(GIMP $10.0$ vs.\ $41.2$, Impress $6.7$ vs.\ $34.4$) while text and
+navigation domains are unaffected or better---the signature of a
+renderer slow enough that screenshots are captured before the interface
+settles. That host contributed a third of the selector arm and none of
+the baseline. Restricting both arms to the $251$ tasks run on matched
+hosts removes the artifact entirely: the $30$-step contrast moves from
+$-2.8$pp to exactly $0.0$pp (CI $[-5.2,+5.2]$), and Recent-$B$'s horizon
+gain from $+3.1$ to $+1.2$pp (CI $[-3.6,+6.0]$).
+
+On that matched subset the selector arm reads $37.5/36.3/35.5\%$ at
+$15/30/50$ steps and Recent-$B$ reads $35.1/36.3\%$ at $15/30$: over a
+$3.3\times$ range of step budget the selector arm moves within two
+percentage points, every horizon contrast crosses zero, and the two
+allocations are indistinguishable at $30$ steps. The official $15$-step
+cap therefore does not suppress the baseline in our favor, and the
 selector's small $15$-step edge is neither amplified nor destroyed by
-horizon extension, consistent with OSWorld evidence rarely leaving the
+horizon extension---consistent with OSWorld evidence rarely leaving the
 recent window even at $50$ steps.
 
-These OSWorld contrasts should be read against the benchmark's
-single-round noise, which we can measure directly: $10$ tasks were
-executed twice under identical configuration when work was sharded
-across hosts, and $7$ of the $10$ flipped outcome, in a balanced
-direction ($3$ versus $4$). Environment nondeterminism---VM timing,
-network, application state---moves single-round OSWorld outcomes even
-under deterministic decoding. Differences of a few points on one round
-are therefore not interpretable here, which is precisely the regime all
-of the above contrasts fall in.
+Two cautions apply to every OSWorld number here. First, single-round
+noise is large: $10$ tasks were executed twice under identical
+configuration when work was sharded, and $7$ flipped outcome in a
+balanced direction ($3$ versus $4$), so differences of a few points on
+one round are not interpretable. Second, the main $15$-step comparison
+inherits the same design weakness---its selector arm ran entirely on one
+host while the baseline drew $79\%$ of its tasks from another. Here the
+imbalance runs \emph{against} the reported effect (the selector's host
+is the slower of the two), so the $+1.1$pp we report is if anything
+conservative; we leave it uncorrected rather than extrapolate a host
+effect measured at a different step budget.
 
 \section{Limitations and Conclusion}
 
@@ -734,12 +750,13 @@ explanation of its mobile gap. Pushing volume much lower does bind: at
 $9\%$ of the states every selector we trained---either teacher, paired
 with either policy---falls below Recent-$4$ (supplement), so the
 factorial isolating teacher identity is only interpretable in the
-volume regime where selectors work at all. Conversely, the same
-frozen-taught selector is indistinguishable from the \hgkv{}-taught one
-on OSWorld ($33.8$ vs.\ $33.2$, $+0.6$pp, CI $[-3.6,+4.7]$), a
-benchmark with no allocation headroom for either teacher to exploit.
-The teaching advantage is thus specific to where reallocation pays,
-rather than a general property of probe labels. OSWorld shows fidelity value but no
+volume regime where selectors work at all. We ran the same comparison on
+OSWorld but do not report a verdict from it: the two arms happened to
+run on different hosts, and the between-host gap there ($\approx2$--$3$pp,
+above) is larger than the effect being tested, which flips sign between
+the raw and host-filtered readings. Whether the mobile teaching
+advantage generalizes to desktop is therefore open, and settling it
+requires rerunning one arm on the other's host. OSWorld shows fidelity value but no
 allocation headroom at any horizon we tested ($15$/$30$/$50$ steps), so
 the reallocation claim is mobile-only. We control an active context budget, not archive
 capacity, and \method{} reattaches rather than generates pixels; the

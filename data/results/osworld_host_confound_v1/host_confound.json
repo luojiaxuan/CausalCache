@@ -1,0 +1,121 @@
+{
+ "host_profiles": {
+  "sel30_aries": {
+   "n": 120,
+   "success_pct": 27.5,
+   "hit_cap_pct": 47.5,
+   "median_steps": 25
+  },
+  "sel30_h100": {
+   "n": 251,
+   "success_pct": 36.25,
+   "hit_cap_pct": 39.4,
+   "median_steps": 17
+  },
+  "recent30_h00": {
+   "n": 290,
+   "success_pct": 36.9,
+   "hit_cap_pct": 42.1,
+   "median_steps": 18
+  },
+  "recent30_h01": {
+   "n": 177,
+   "success_pct": 33.9,
+   "hit_cap_pct": 42.4,
+   "median_steps": 19
+  }
+ },
+ "aries_domain_standardized_to_h100": 27.92,
+ "contaminated": {
+  "sel30": 33.24,
+  "recent30": 36.01,
+  "delta": {
+   "n": 361,
+   "delta_pp": -2.77,
+   "ci95": [
+    -7.2,
+    1.66
+   ],
+   "boot_p_leq0": 0.9074
+  },
+  "teacher_ft30_minus_sel30": {
+   "n": 361,
+   "delta_pp": 0.55,
+   "ci95": [
+    -3.6,
+    4.71
+   ],
+   "boot_p_leq0": 0.4254
+  }
+ },
+ "aries_removed": {
+  "n": 251,
+  "rates": {
+   "sel@15": 37.45,
+   "sel@30": 36.25,
+   "sel@50": 35.46,
+   "recent@15": 35.06,
+   "recent@30": 36.25
+  },
+  "sel_30_vs_15": {
+   "n": 251,
+   "delta_pp": -1.2,
+   "ci95": [
+    -6.77,
+    4.78
+   ],
+   "boot_p_leq0": 0.6799
+  },
+  "sel_50_vs_15": {
+   "n": 251,
+   "delta_pp": -1.99,
+   "ci95": [
+    -7.97,
+    3.98
+   ],
+   "boot_p_leq0": 0.759
+  },
+  "recent_30_vs_15": {
+   "n": 251,
+   "delta_pp": 1.2,
+   "ci95": [
+    -3.59,
+    5.98
+   ],
+   "boot_p_leq0": 0.3423
+  },
+  "sel_vs_recent_15": {
+   "n": 251,
+   "delta_pp": 2.39,
+   "ci95": [
+    -1.99,
+    6.77
+   ],
+   "boot_p_leq0": 0.1555
+  },
+  "sel_vs_recent_30": {
+   "n": 251,
+   "delta_pp": 0.0,
+   "ci95": [
+    -5.18,
+    5.18
+   ],
+   "boot_p_leq0": 0.5252
+  }
+ },
+ "teacher_after_removal": {
+  "n": 251,
+  "ft30": 34.26,
+  "sel30": 36.25,
+  "delta": {
+   "n": 251,
+   "delta_pp": -1.99,
+   "ci95": [
+    -7.17,
+    3.59
+   ],
+   "boot_p_leq0": 0.7928
+  },
+  "caveat": "ft30 全部来自 h01,sel30 全部来自 h100;两臂无共同主机,不可解释"
+ }
+}
