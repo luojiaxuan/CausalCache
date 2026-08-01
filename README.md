@@ -11,7 +11,7 @@
 > [`data/results/mobileworld_review_ablations_v1/README.md`](data/results/mobileworld_review_ablations_v1/README.md)
 > 的显式映射为准，不再从历史文件名推断 arm。
 
-AAAI-27 最终 supplement、code-only ZIP、SHA-256 与验证记录见
+AAAI-27 最终 supplement、code-only ZIP、LaTeX source ZIP、SHA-256 与验证记录见
 [`docs/aaai_submission_package.md`](docs/aaai_submission_package.md)。
 
 目标会议:AAAI。**当前 working paper claim（2026-07-27 fixed-budget 版，
