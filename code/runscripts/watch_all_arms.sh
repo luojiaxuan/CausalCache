@@ -15,6 +15,15 @@ while true; do
   s100=$(ssh -o ConnectTimeout=20 hyper00 'ls -1 /data02/jaxan/osworld/output-s100-hgkvsel/*/*/result.json 2>/dev/null | wc -l' 2>/dev/null || echo -1)
   w100=$(ssh -o ConnectTimeout=20 hyper00 'ps aux | grep -c "[r]un_osworld_benchmark_worker"' 2>/dev/null || echo -1)
 
+  # note (luojiaxuan): 内存看护。2026-08-01 曾因复用的推理服务器泄漏到 1.25TB 把
+  # hyper00 吃到只剩 17G,sshd fork 不出来、全机没人能登录。可用低于 15% 立即告警。
+  mem=$(ssh -o ConnectTimeout=20 hyper00 "free -g | awk '/^Mem:/ {printf \"%d %d\", \$7, \$2}'" 2>/dev/null || echo "-1 -1")
+  avail=${mem% *}; total=${mem#* }
+  if [ "$avail" != "-1" ] && [ "${total:-0}" -gt 0 ] 2>/dev/null; then
+    pct=$((avail * 100 / total))
+    [ "$pct" -lt 15 ] && echo "ALERT hyper00 内存可用仅 ${avail}G/${total}G (${pct}%) —— 逼近 sshd fork 失败,立即回收"
+  fi
+
   bs=$(ssh -o ConnectTimeout=20 hyper00 'docker exec sglang-omni-jaxan bash -lc "find /data/mw/runs/bsweep -name result.txt 2>/dev/null | wc -l"' 2>/dev/null || echo -1)
   bcfg=$(ssh -o ConnectTimeout=20 hyper00 'docker exec sglang-omni-jaxan bash -lc "ls -d /data/mw/runs/bsweep/b*/DONE 2>/dev/null | wc -l"' 2>/dev/null || echo -1)
   bdrv=$(ssh -o ConnectTimeout=20 hyper00 'pgrep -f bsweep_driver >/dev/null && echo up || echo DOWN' 2>/dev/null || echo "?")
@@ -47,7 +56,7 @@ while true; do
   prev_bcfg=$bcfg
 
   if [ $((tick % 6)) -eq 1 ]; then
-    echo "PROGRESS s100=$s100/361 (workers=$w100) | bsweep cfgs_done=$bcfg/11 results=$bs drv=$bdrv handoff=$bhand"
+    echo "PROGRESS s100=$s100/361 (workers=$w100) | bsweep cfgs_done=$bcfg/11 results=$bs drv=$bdrv | RAM avail ${avail}G/${total}G"
   fi
 
   prev_s100=$s100; prev_bs=$bs
