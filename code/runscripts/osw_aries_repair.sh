@@ -17,6 +17,10 @@ echo "=== aries 补跑 $HOSTTAG 启动 $(date -Is) shards=[$SHARDS]/$SHARD_COUNT
 
 docker ps --format '{{.Names}}' | grep -qx "$CONT" || { docker start "$CONT" >/dev/null 2>&1; sleep 10; }
 
+# note (luojiaxuan): 清掉上一轮遗留的孤儿 worker。杀驱动不会连带杀掉它派生的 worker
+# (它们是 setsid 会话里的孤儿),留着会按旧分片口径继续跑,与新口径重叠。
+pkill -f "[r]un_osworld_benchmark_worker" 2>/dev/null && sleep 3
+
 # note (luojiaxuan): 端点主机名必须按容器网络模式决定,不能写死 127.0.0.1。
 # h00 是 host 网络(宿主 127.0.0.1 可达),h01 是 bridge(必须用容器 IP,且该 IP
 # 在 docker start 后会变)。写死 127.0.0.1 会让 h01 的 health 检查永远返回 000,
