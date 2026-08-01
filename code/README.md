@@ -1,5 +1,15 @@
 # Code 目录
 
+AAAI code supplement 使用 [`SUBMISSION_README.md`](SUBMISSION_README.md) 作为匿名入口，
+由 `python3 scripts/package_aaai_code.py` 或根目录 `make submission-code` 生成。
+打包器只收录 Python 源码、tests、requirements 和论文相关 JSON configs；明确排除
+`data/`、paper/docs、运行输出、checkpoint、trace、缓存与机器专用 `runscripts/`。
+
+论文 arm 口径：CausalCache = HGKV+selector (`36.8/30.6/43.6`，三轮均为
+`43/117, 19/62, 24/55`)；Frozen+selector = `33.9/28.0/40.6`。历史
+`frozensel` 文件名发生过标签对调，不能作为 arm 语义来源；更正见
+`../data/results/mobileworld_review_ablations_v1/README.md`。
+
 本目录是 CausalCache 全部可执行逻辑的 Git source of truth：
 
 ```text

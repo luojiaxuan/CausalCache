@@ -1,0 +1,42 @@
+{
+  "schema_version": "causalcache.paper_evaluation.v1",
+  "method": {
+    "name": "CausalCache",
+    "policy": "GUI-Owl-1.5-8B-Instruct",
+    "adapter": "history-gated key/value adapter on restored history-image tokens",
+    "selector": "budget-aware proposal-conditioned selector",
+    "history_image_budget": 4,
+    "allocation": "exact-B with Recent-B fallback",
+    "decoding": "greedy"
+  },
+  "osworld_verified": {
+    "repository_revision": "b7db4d8c85d9e95e0b1db44de5bec954cf37f0cf",
+    "roster": "evaluation_examples/test_nogdrive.json",
+    "task_count": 361,
+    "main": {
+      "max_steps": 30,
+      "arms": [
+        "HGKV+Recent-4",
+        "HGKV+selector"
+      ]
+    },
+    "sensitivity": {
+      "max_steps": 15,
+      "origin": "example baseline invocation",
+      "is_official_task_success_setting": false
+    }
+  },
+  "mobileworld": {
+    "repository_revision": "8ae506487bf87785292d6cad101c49955d704d39",
+    "task_count": 117,
+    "memory_critical_task_count": 62,
+    "single_app_control_task_count": 55,
+    "rounds": 3,
+    "arms": [
+      "Frozen summary-only",
+      "HGKV+Recent-4",
+      "Frozen+selector",
+      "HGKV+selector"
+    ]
+  }
+}

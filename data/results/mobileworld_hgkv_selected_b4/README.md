@@ -1,7 +1,15 @@
-# MobileWorld HGKV+selected-B4 campaign(多轮)
+# MobileWorld Frozen+selected-B4 campaign（历史目录名保留）
 
-跨平台 closed-loop 主实验:GUI-Owl-1.5-8B + HGKV adapter(desktop v4 s300,
-sha256 5720…67a9)+ selector-v4 two_tower(cheap 塔在线、readout 屏蔽,B=4,
+> **Arm 标签更正（2026-07-31）**：Claude 生成论文汇总时对调了
+> `HGKV+selector` 与 `Frozen+selector` 的标签。本目录名和下方部分历史运行说明
+> 保留原样以维持路径 provenance，但这里的三轮 `39/42/38` 及其
+> `33.9%/28.0%/40.6%` 分层汇总在当前论文口径中属于
+> **Frozen+selector**。论文主臂 **HGKV+selector** 的三轮均为 `43/117`
+> （memory-critical=`19/62`、control=`24/55`），汇总见
+> `../mobileworld_review_ablations_v1/README.md`。不得再用目录名推断 arm 语义。
+
+跨平台 closed-loop 历史 repeated comparator:GUI-Owl-1.5-8B +
+selector-v4 two_tower(cheap 塔在线、readout 屏蔽,B=4,
 beam=3,propose-then-select 两遍,mobile gap-fold 二遍渲染)。协议
 mobile_agent_v3_5 官方忠实;分母 117(frozen_gui_owl_gui_only);config
 `causalcache_mobileworld_official_b4_hgkv_sel_v1.json`;分支

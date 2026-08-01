@@ -6,7 +6,7 @@
    "memory_critical_pct": 19.4,
    "missing_vs_roster": [],
    "n_tasks": 117,
-   "vs_causalcache_b4": {
+   "vs_frozen_selector_b4": {
     "control": {
      "boot_p": 0.6684,
      "ci95": [

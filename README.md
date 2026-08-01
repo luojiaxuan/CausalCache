@@ -2,6 +2,15 @@
 
 **Conditional Marginal Utility of Restoring Visual History for Long-Horizon GUI Agents**
 
+> **AAAI submission arm-label correction（2026-07-31）**：历史
+> `frozensel` 文件实际对应 **CausalCache（HGKV+selector）**，三轮均为
+> full=`43/117`、memory-critical=`19/62`、control=`24/55`，均值
+> `36.8%/30.6%/43.6%`。历史 `mobileworld_hgkv_selected_b4` 路径中的
+> `39/42/38` 三轮实际对应 **Frozen+selector**，均值
+> `33.9%/28.0%/40.6%`。当前论文、supplement 与原子 claim ledger 均以
+> [`data/results/mobileworld_review_ablations_v1/README.md`](data/results/mobileworld_review_ablations_v1/README.md)
+> 的显式映射为准，不再从历史文件名推断 arm。
+
 目标会议:AAAI。**当前 working paper claim（2026-07-27 fixed-budget 版，
 尚未冻结；后续 ablation 结果继续更新）**:
 

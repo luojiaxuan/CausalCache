@@ -1,4 +1,4 @@
-.PHONY: figures paper supplement paper-all clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines synthetic-phase0
+.PHONY: figures paper supplement paper-all submission-code clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines synthetic-phase0
 
 FIGURE_SOURCE_DATE_EPOCH ?= 1785168000
 FIGURE_PDF_TMP_DIR ?= tmp/paper-figures
@@ -30,6 +30,12 @@ supplement:
 	cp output/pdf/supplement.pdf output/pdf/causalcache_aaai27_supplement.pdf
 
 paper-all: paper supplement
+
+submission-code:
+	mkdir -p output/submission
+	python3 code/scripts/package_aaai_code.py \
+		--repository-root . \
+		--output output/submission/causalcache_aaai27_code.zip
 
 clean-paper:
 	cd paper && latexmk -C -outdir=../output/pdf main.tex

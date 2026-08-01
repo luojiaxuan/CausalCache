@@ -212,7 +212,10 @@ jaxan/mobileworld-hgkv-arm @b4c38c6(gap-fold/特征/serve 两遍/runner 白名�
 
 ### selected-B4 r1 结果(2026-07-27,117/117 全分母)
 
-**HGKV+selected-B4:39/117 = 33.33%** — 当前所有臂最高。配对检验
+**历史标签更正（2026-07-31）**：本段的 selected-B4 `39/117 = 33.33%`
+属于 Frozen+selector comparator，不是最终论文的 HGKV+selector 主臂。
+最终主臂三轮均为 `43/117 = 36.75%`。以下配对检验保留为该历史
+Frozen+selector round-1 的运行记录：
 (逐任务,missing 记 0;bootstrap 10k + exact McNemar;冻结臂 per-task 取自
 Aries `mw-official-sequential-v2-71caac9`,复算冻结 B4−B0 = +1.71pp
 CI[−5.98,+9.40] p=0.824 与提交口径逐位一致):

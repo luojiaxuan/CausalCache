@@ -32,6 +32,12 @@ make paper-all
 7 页 technical content。当前 supplementary 为 5 页，包含完整 per-budget gate、
 selector ablation、MobileWorld per-round/split 与 OSWorld paired 统计。
 
+MobileWorld arm 名称以 `main.tex` 为准：CausalCache = HGKV+selector，三轮
+full=`43/117`、memory-critical=`19/62`、control=`24/55`，均值
+`36.8%/30.6%/43.6%`；Frozen+selector 为 `33.9%/28.0%/40.6%`。
+历史 `frozensel`/`mobileworld_hgkv_selected_b4` 路径发生过标签对调，纠正记录见
+[`../data/results/mobileworld_review_ablations_v1/README.md`](../data/results/mobileworld_review_ablations_v1/README.md)。
+
 ## 主图
 
 - Figure 1：`figures/causalcache_overview.{svg,pdf,png}`，7 inch 双栏宽，

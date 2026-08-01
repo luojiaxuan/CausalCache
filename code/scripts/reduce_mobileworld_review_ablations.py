@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Reduce review-ablation MobileWorld arms (text-only / OCR / k1cap / frozen+selector).
+"""Reduce review-ablation MobileWorld arms (text-only / OCR / k1cap / HGKV+selector).
 
 输入是每臂一个 task->score 映射(双机收割去重后),输出 full/memory-critical/control
-三列成功率,并对照 CausalCache B=4 主臂(3 轮均值)与 HGKV+Recent-4(3 轮均值)
-给出任务配对差与 bootstrap CI。
+三列成功率,并对照 Frozen+selector B=4(3 轮均值)与 HGKV+Recent-4(3 轮均值)
+给出任务配对差与 bootstrap CI。历史 ``frozensel`` 输入名实际对应论文主臂
+HGKV+selector；旧 ``mobileworld_hgkv_selected_b4`` 目录实际保存
+Frozen+selector repeated comparator。
 """
 from __future__ import annotations
 
@@ -14,7 +16,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SPLIT_MANIFEST = ROOT / "data/manifests/mobileworld_memory_split_v1.json"
-B4_DIR = ROOT / "data/results/mobileworld_hgkv_selected_b4"
+# note (luojiaxuan): 目录名来自已确认的历史 arm-label 对调；不得据此把
+# 33.9/28.0/40.6 重新标成论文的 HGKV+selector 主臂。
+LEGACY_FROZEN_SELECTOR_DIR = ROOT / "data/results/mobileworld_hgkv_selected_b4"
 
 
 def load_split() -> tuple[set[str], set[str]]:
@@ -70,24 +74,28 @@ def main() -> None:
     args = ap.parse_args()
 
     mem, ctl = load_split()
-    cc_b4 = round_mean_maps([B4_DIR / f"per_task_success_r{i}.json" for i in (1, 2, 3)])
-    recent_b4 = round_mean_maps([B4_DIR / f"recent_per_task_r{i}.json" for i in (1, 2, 3)])
+    frozen_selector_b4 = round_mean_maps(
+        [LEGACY_FROZEN_SELECTOR_DIR / f"per_task_success_r{i}.json" for i in (1, 2, 3)]
+    )
+    recent_b4 = round_mean_maps(
+        [LEGACY_FROZEN_SELECTOR_DIR / f"recent_per_task_r{i}.json" for i in (1, 2, 3)]
+    )
 
     out = {"split_counts": {"memory_critical": len(mem), "control": len(ctl)}, "arms": {}}
     for spec in args.arm_map:
         name, path = spec.split("=", 1)
         scores = {t: float(v) for t, v in json.loads(Path(path).read_text()).items()}
-        missing = sorted(set(cc_b4) - set(scores))
+        missing = sorted(set(frozen_selector_b4) - set(scores))
         row = {
             "n_tasks": len(scores),
             "missing_vs_roster": missing,
             "full_pct": round(rate(scores)[0], 1),
             "memory_critical_pct": round(rate(scores, mem)[0], 1),
             "control_pct": round(rate(scores, ctl)[0], 1),
-            "vs_causalcache_b4": {
-                "full": paired_boot(scores, cc_b4, None),
-                "memory_critical": paired_boot(scores, cc_b4, mem),
-                "control": paired_boot(scores, cc_b4, ctl),
+            "vs_frozen_selector_b4": {
+                "full": paired_boot(scores, frozen_selector_b4, None),
+                "memory_critical": paired_boot(scores, frozen_selector_b4, mem),
+                "control": paired_boot(scores, frozen_selector_b4, ctl),
             },
             "vs_recent_b4": {
                 "full": paired_boot(scores, recent_b4, None),

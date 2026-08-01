@@ -121,15 +121,14 @@ baseline、同家族更大骨干。全部 MobileWorld 117 任务单轮、B=4。
 
 | 臂 | full | mem-crit | ctl | vs Recent-4 (mem) | vs CC-B4 (mem) |
 |---|---|---|---|---|---|
-| CausalCache B4(3 轮均值) | 33.9 | 28.0 | 40.6 | +8.6* | — |
-| frozensel(无 HGKV+selector) | 36.8 | 30.6 | 43.6 | +11.3 (p=.006) | +2.7 (ns) |
+| CausalCache（HGKV+selector，3 轮均值） | 36.8 | 30.6 | 43.6 | +11.3 (p=.006) | — |
+| Frozen+selector（历史 `mobileworld_hgkv_selected_b4` 路径） | 33.9 | 28.0 | 40.6 | +8.6* | −2.7 (ns) |
 | k1cap(CC + max-replacements 1) | 28.2 | 19.4 | 38.2 | 0.0 (ns) | −8.6 (p=.02) |
 
-- **反转 1(HGKV 部署非必要)**:frozensel 与完整 CC 统计不可分(数值更高),
-  对 Recent-4 显著。selector 训练标签仍由 HGKV 打分产生
-  (build_hgkv_coalition_score_cache_v2 强制 --hgkv-checkpoint-sha256),
-  即 HGKV 目前的必要性在离线教师端,部署端 adapter 行为中性——与正文
-  FR≈HR≈B0 的分解一致,把"增益由 allocation 承载"补完到 selected 侧。
+- **标签更正**：历史 `frozensel` 文件实际是完整 CausalCache（HGKV+selector），
+  而旧 `mobileworld_hgkv_selected_b4` 三轮实际是 Frozen+selector。此前
+  “HGKV 部署非必要”的反转结论由错误 arm 名称产生，现已撤销；论文主表、
+  supplement 与 claim ledger 统一采用上述更正映射。
 - **反转 2(k≤1 塌回基线)**:硬约束每步最多替换 1 帧后,mem-critical
   恰好回到 Recent-4 水平(19.4 vs 19.4),完整 CC 的 +8.6 全部消失。
   多槽重组(k>1,含 26% 全窗替换)是闭环增益的载体,不是完备性装饰。

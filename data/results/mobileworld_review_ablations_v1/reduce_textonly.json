@@ -8,7 +8,7 @@
     "MastodonUpdateContactsTask"
    ],
    "n_tasks": 116,
-   "vs_causalcache_b4": {
+   "vs_frozen_selector_b4": {
     "control": {
      "boot_p": 0.6721,
      "ci95": [

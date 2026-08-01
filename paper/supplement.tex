@@ -35,14 +35,14 @@ GUI Agents\\Supplementary Material}
 
 \section{Scope of the Supplement}
 
-Arm naming in this supplement is explicit: \hgkv{}$+$selector denotes the
-adapter-attached selector arm (three MobileWorld rounds); the deployed
-\method{} of the main text is the frozen policy $+$ selector (single
-round). Recent/summary arms are shared.
+Arm naming follows the main paper throughout: \method{} denotes
+\hgkv{}$+$selector, whereas Frozen$+$selector runs the same restoration
+selector with the adapter bypassed. Repeated-run aggregates and individual
+paper runs are labeled explicitly; Recent and summary-only arms are shared.
 
 The main paper is self-contained. This supplementary document provides the
 complete fixed-budget design, confidence intervals for the policy and selector
-ablations, per-round closed-loop results, and deployment-cost measurements.
+ablations, repeated-run closed-loop aggregates, and deployment-cost measurements.
 The supplement is a separate PDF and does not count toward the seven pages of
 main content. All results use the same summary trace and archived screenshots
 as the main paper. Restoring an event means retrieving its archived
@@ -263,7 +263,8 @@ removes the second policy call, adding only the selector's own cost
 ($<10$\,ms). Offline it matches the proposal reference
 ($+.039/+.025/+.015/-.005$ over Recent-$B$ at $B{=}1/2/4/8$) and on
 OSWorld-Verified it reaches $34.1\%$; zero-shot on mobile it drops to
-$29.1\%$ against $33.9\%$ for the deployed proposal-conditioned method,
+$29.1\%$ against $33.9\%$ for the repeated proposal-conditioned
+Frozen$+$selector comparator,
 with the failure concentrated on single-app control tasks where the
 last-action reference trivially recurs. Cross-platform transfer is what
 the proposal reference buys.
@@ -306,13 +307,15 @@ Method & Run 1 & Run 2 & Run 3 & Mean \\
 \midrule
 Frozen, summary-only & $33/117$ & $32/117$ & $34/117$ & $28.2\%$ \\
 \hgkv{} + Recent-4 & $34/117$ & $37/117$ & $35/117$ & $30.2\%$ \\
-\hgkv{}$+$selector & $39/117$ & $42/117$ & $38/117$ & $33.9\%$ \\
+Frozen $+$ selector & $39/117$ & $42/117$ & $38/117$ & $33.9\%$ \\
+\method{} & $43/117$ & $43/117$ & $43/117$ & $36.8\%$ \\
 \bottomrule
 \end{tabular}
 }
-\captionof{table}{Per-round zero-shot MobileWorld success. The paired
-\hgkv{}$+$selector minus \hgkv{}+Recent-4 mean is $+3.7$pp
-($95\%$ CI $[+0.8,+10.3]$).}
+\captionof{table}{Per-round zero-shot MobileWorld success. In every
+\method{} round, the memory-critical/control counts are $19/62$ and
+$24/55$. Against \hgkv{}+Recent-4, the three-run mean gain is $+6.6$pp
+($95\%$ CI $[+0.3,+13.1]$, $p{=}0.035$).}
 \label{tab:s-mobile-rounds}
 \end{center}
 
@@ -322,34 +325,35 @@ Frozen, summary-only & $33/117$ & $32/117$ & $34/117$ & $28.2\%$ \\
 \setlength{\tabcolsep}{2.4pt}
 \begin{tabular}{@{}lrrc@{}}
 \toprule
-Stratum & \hgkv{}$+$selector & Recent-4 & $\Delta$ \\
+Stratum & \method{} & Recent-4 & $\Delta$ \\
 \midrule
-Memory-critical & $28.0\%$ & $19.4\%$ &
-\shortstack{$+8.6$pp\\$[+1.6,+16.1]$} \\
-Control & $40.6\%$ & $42.4\%$ &
-\shortstack{$-1.8$pp\\$[-6.7,+3.6]$} \\
+Memory-critical & $30.6\%$ & $19.4\%$ &
+\shortstack{$+11.3$pp\\$[+2.7,+20.4]$} \\
+Control & $43.6\%$ & $42.4\%$ &
+\shortstack{$+1.2$pp\\$[-7.9,+10.3]$} \\
 \bottomrule
 \end{tabular}
 }
 \captionof{table}{Primary mobile allocation analysis ($n=62$ memory-critical;
-$n=55$ control). The split-by-method interaction is $+10.4$pp
-($95\%$ CI $[+1.5,+19.6]$, two-sided $p=0.022$).}
+$n=55$ control). The split-by-method interaction is $+10.1$pp
+($95\%$ CI $[-2.2,+22.9]$, two-sided $p{=}0.114$). The interaction point
+estimate is descriptive; its interval crosses zero.}
 \label{tab:s-mobile-split}
 \end{center}
 
 \paragraph{Outcome-defined sensitivity analysis.}
 On the 95 tasks where the frozen summary-only policy reaches the official
-step cap, \hgkv{}$+$selector scores $32.6\%$, Recent-4 $28.9\%$, and summary-only
-$23.9\%$. The paired \hgkv{}$+$selector minus summary-only difference is
+step cap, Frozen$+$selector scores $32.6\%$, Recent-4 $28.9\%$, and summary-only
+$23.9\%$. The paired Frozen$+$selector minus summary-only difference is
 $+8.8$pp $[+1.8,+16.0]$; the paired difference from Recent-4 is
 $+3.7$pp $[-2.6,+10.0]$. On the 22 tasks where summary-only terminates early,
-\hgkv{}$+$selector is $43.2\%$, Recent-4 is $36.4\%$, and summary-only is $47.0\%$;
-\hgkv{}$+$selector minus summary-only is $-3.8$pp $[-20.5,+12.1]$.
+Frozen$+$selector is $43.2\%$, Recent-4 is $36.4\%$, and summary-only is $47.0\%$;
+Frozen$+$selector minus summary-only is $-3.8$pp $[-20.5,+12.1]$.
 These outcome-defined strata are secondary because they condition on baseline
 behavior; the construction-defined split in Table~\ref{tab:s-mobile-split}
 is the primary analysis.
 
-\paragraph{Two-pass mobile cost.}
+\paragraph{Two-pass mobile cost audit.}
 Across 2,224 audited steps, the proposal-conditioned second policy pass fires
 on $81.7\%$ of all steps and $96.9\%$ of steps with more than $B$ eligible
 events. Median pass-1, selector, and conditional pass-2 times are
@@ -361,7 +365,7 @@ pass dominates.
 
 The main same-domain allocation comparison uses the same
 \texttt{max\_steps}${=}30$ horizon for both arms: Recent-$4$ reaches
-$42.4\%$ success and \hgkv{}$+$selector reaches $46.7\%$, a reported
+$42.4\%$ success and \method{} reaches $46.7\%$, a reported
 $+4.3$-point difference. We retain the earlier $15$-step run below as a
 short-horizon sensitivity and component decomposition. The latter setting
 was inherited from an example baseline invocation rather than from the
@@ -380,14 +384,16 @@ FR & $32.7\%$ ($118$) &
 \shortstack{$+12.7$pp $[+8.6,+17.2]$\\vs.\ B0} \\
 HR & $33.0\%$ ($119$) &
 \shortstack{$+0.3$pp $[-3.1,+3.6]$\\vs.\ FR} \\
-\hgkv{}$+$selector & $32.7\%$ ($118$) &
+Frozen $+$ selector & $32.7\%$ ($118$) &
 \shortstack{$-0.3$pp $[-3.9,+3.3]$\\vs.\ HR} \\
+\method{} & $33.3\%$ &
+\shortstack{$+0.3$pp vs.\ HR\\indistinguishable} \\
 \bottomrule
 \end{tabular}
 }
 \captionof{table}{OSWorld-Verified short-horizon sensitivity on the official
 no-GDrive 361-task roster with \texttt{max\_steps}${=}15$; parenthesized
-values are success counts. This is a rollout configuration, not an official
+values are success counts when an integer count is available. This is a rollout configuration, not an official
 task-success setting.
 High-fidelity history is beneficial relative to summary-only memory;
 same-budget allocations are statistically indistinguishable. B0 denotes
@@ -395,7 +401,7 @@ frozen summary-only, FR frozen Recent-4, and HR \hgkv{} Recent-4.}
 \label{tab:s-osworld}
 \end{center}
 
-For \hgkv{}$+$selector on OSWorld, the median task incurs eight extra policy calls and
+For \method{} on OSWorld, the median task incurs eight extra policy calls and
 $20.6$ model-seconds. Median wall time is $307.6$\,s, so the added
 model time is approximately $7\%$ of end-to-end task time. These results
 separate three claims: the $15$-step decomposition supports the availability
@@ -405,7 +411,7 @@ which summarized events should receive that fidelity out of domain.
 
 \subsection{Closed-Loop Budget Sweep}
 
-Single-round MobileWorld campaigns evaluate \hgkv{}$+$selector at
+Single-round MobileWorld campaigns evaluate Frozen$+$selector at
 $B\in\{1,2,8\}$ with the same frozen weights; only the selection budget
 and the runner's matched image budget change. The same-budget references
 are the frozen Recent-$B$ dose curve at $B\in\{1,2\}$ (licensed by the
@@ -424,7 +430,7 @@ trend evidence, not headline contrasts.
  & \multicolumn{2}{c}{Full ($117$)} &
    \multicolumn{2}{c}{Mem. ($62$)} \\
 \cmidrule(lr){2-3}\cmidrule(l){4-5}
-$B$ & Recent-$B$ & \hgkv{}$+$sel. & Recent-$B$ & \hgkv{}$+$sel. \\
+$B$ & Recent-$B$ & Frozen$+$sel. & Recent-$B$ & Frozen$+$sel. \\
 \midrule
 $0$ & $28.2$ & $28.2$ & $21.0$ & $21.0$ \\
 $1$ & $26.5^{*}$ & $29.1$ & $16.1^{*}$ & $21.0$ \\
@@ -435,20 +441,20 @@ $8^{\dagger}$ & $29.9$ & $33.3$ & $27.4$ & $29.0$ \\
 \end{tabular}
 }
 \captionof{table}{Closed-loop MobileWorld success (\%) along the budget
-axis. At $B{=}0$ \hgkv{}$+$selector is structurally identical to the summary-only
+axis for the Frozen$+$selector budget sweep. At $B{=}0$ this arm is structurally identical to the summary-only
 baseline. $B{=}0/4$: three-run means; other budgets: single rounds.
 $B{=}4$ is primary; $\dagger$ untrained. $^{*}$Frozen-policy recent arm.}
 \label{tab:s-dose}
 \end{center}
 
-Full-roster success ($/117$): \hgkv{}$+$selector $34/39/(39{,}42{,}38)/39$ vs.\
+Full-roster success ($/117$): Frozen$+$selector $34/39/(39{,}42{,}38)/39$ vs.\
 same-budget recent $31/31/(34{,}37{,}35)/35$ at $B{=}1/2/4/8$, i.e.\
 per-budget paired gains of $+2.6/+6.8/+3.7/+3.4$pp. Pooled with equal
 budget weight over $B\in\{1,2,4,8\}$ (task-level paired bootstrap,
 $20{,}000$ replicates, independent resampling within each budget), the
 allocation gain is $+4.1$pp, $95\%$ CI $[+1.3,+7.1]$, two-sided
 $p{=}0.0039$. On the construction-defined memory-critical subset the
-\hgkv{}$+$selector$-$recent margin is $+4.9/+8.1/+8.6/+1.6$pp: largest at the
+Frozen$+$selector$-$recent margin is $+4.9/+8.1/+8.6/+1.6$pp: largest at the
 trained budgets, narrowing at the untrained $B{=}8$ where the eight-frame
 recent window itself reaches part of the split's evidence.
 
@@ -491,7 +497,7 @@ removing pixels removes the gain.
 \toprule
 Restored content & Full & Mem.-crit. & Control \\
 \midrule
-Pixels (\hgkv{}$+$sel.) & $\mathbf{33.9}$ & $\mathbf{28.0}$ & $40.6$ \\
+Pixels (Frozen$+$sel.) & $\mathbf{33.9}$ & $\mathbf{28.0}$ & $40.6$ \\
 OCR text & $32.5$ & $24.2$ & $41.8$ \\
 Verbatim response & $27.6$ & $18.0$ & $38.2$ \\
 None (Recent-$4$) & $30.2$ & $19.4$ & $42.4$ \\
@@ -537,7 +543,8 @@ is displaced.}
 
 \subsection{Deployment Arm Inventory (MobileWorld, $B{=}4$)}
 
-Single-round arms sharing roster, budget, rendering, and greedy decoding:
+Arms sharing roster, budget, rendering, and greedy decoding; aggregation is
+marked where an arm has repeated runs:
 
 \begin{center}
 \centering
@@ -547,8 +554,8 @@ Single-round arms sharing roster, budget, rendering, and greedy decoding:
 \toprule
 Arm & Full & Mem. & Ctrl. \\
 \midrule
-Frozen $+$ selector (\method{}) & $\mathbf{36.8}$ & $\mathbf{30.6}$ & $43.6$ \\
-\hgkv{}$+$selector (3-run mean) & $33.9$ & $28.0$ & $40.6$ \\
+\method{} (\hgkv{}$+$selector) & $\mathbf{36.8}$ & $\mathbf{30.6}$ & $43.6$ \\
+Frozen $+$ selector (3-run mean) & $33.9$ & $28.0$ & $40.6$ \\
 frozen-taught selector & $33.3$ & $25.8$ & $41.8$ \\
 multi-slot-corpus-taught selector & $33.3$ & $24.2$ & $43.6$ \\
 $k{\le}1$-capped selector & $28.2$ & $19.4$ & $38.2$ \\
@@ -562,10 +569,10 @@ Recent-$4$ (3-run mean) & $30.2$ & $19.4$ & $42.4$ \\
 $n{=}117$, memory-critical $n{=}62$, control $n{=}55$). Task-paired
 bootstrap contrasts ($20{,}000$ replicates): \method{} vs.\ Recent-$4$
 full $+6.6$pp $[+0.3,+13.1]$ ($p{=}0.035$), memory-critical $+11.3$pp
-$[+2.7,+20.4]$ ($p{=}0.006$); \method{} vs.\ \hgkv{}$+$selector full
+$[+2.7,+20.4]$ ($p{=}0.006$); \method{} vs.\ Frozen$+$selector full
 $+2.9$pp $[-2.9,+8.6]$ (indistinguishable); $k{\le}1$ cap vs.\
-\hgkv{}$+$selector memory-critical $-8.6$pp $[-16.7,-1.6]$ ($p{=}0.02$);
-verbatim text vs.\ \hgkv{}$+$selector memory-critical $-10.4$pp
+Frozen$+$selector memory-critical $-8.6$pp $[-16.7,-1.6]$ ($p{=}0.02$);
+verbatim text vs.\ Frozen$+$selector memory-critical $-10.4$pp
 $[-18.6,-3.3]$ ($p{=}0.006$); OCR vs.\ Recent-$4$ memory-critical
 $+4.8$pp $[-2.2,+12.4]$.}
 \label{tab:s-arm-inventory}
