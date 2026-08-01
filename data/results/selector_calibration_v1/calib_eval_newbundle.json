@@ -1,0 +1,53 @@
+{
+ "bundle": "/bigdata/mw/runs/selector-v4-merged/arm-deploysel/marginal_scorer.pt",
+ "bundle_best_epoch": 25,
+ "bundle_best_dev_top1_regret": 0.0918,
+ "dev_edges": 20503,
+ "readout_dim": 448,
+ "readout_on_training_config": {
+  "dev_edge_mse": 0.00784,
+  "dev_singleton_spearman": 0.1773,
+  "dev_top1_regret": 0.0897,
+  "train_probe_edge_mse": 0.00685,
+  "train_probe_singleton_spearman": 0.2145,
+  "train_probe_top1_regret": 0.0712,
+  "replay_gain_b2": 0.0108,
+  "oracle_gap_b2": 0.0926,
+  "n_b2": 564,
+  "replay_gain_b4": -0.0302,
+  "oracle_gap_b4": 0.069,
+  "n_b4": 559,
+  "model_set_size_dist": {
+   "1": 533,
+   "2": 72
+  }
+ },
+ "readout_off_deployed_config": {
+  "dev_edge_mse": 0.01223,
+  "dev_singleton_spearman": 0.148,
+  "dev_top1_regret": 0.0918,
+  "train_probe_edge_mse": 0.01044,
+  "train_probe_singleton_spearman": 0.1257,
+  "train_probe_top1_regret": 0.0822,
+  "replay_gain_b2": 0.0066,
+  "oracle_gap_b2": 0.0953,
+  "n_b2": 564,
+  "replay_gain_b4": -0.0346,
+  "oracle_gap_b4": 0.0712,
+  "n_b4": 559,
+  "model_set_size_dist": {
+   "1": 605
+  }
+ },
+ "calibration": {
+  "dev_n": 20503,
+  "label_positive_pct": 44.6,
+  "cheap_only_mean": -0.066483,
+  "cheap_only_positive_pct": 0.0,
+  "label_mean": -0.000386,
+  "readout_mean": 0.065259,
+  "readout_std": 0.002087,
+  "full_mean": -0.001224,
+  "full_positive_pct": 37.0
+ }
+}
