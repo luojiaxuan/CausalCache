@@ -85,4 +85,6 @@ for s in $SHARDS; do
 done
 for pid in "${pids[@]}"; do wait "$pid"; done
 echo "$(date -Is) === $ARMNAME @$HOSTTAG 完成,本机 $(ls -1 $OUT/*/*/result.json 2>/dev/null | wc -l) ==="
-docker exec $CONT bash -lc "pkill -f '[o]sw_arm_${ARMNAME}.sh'; sleep 2; true"
+# note (luojiaxuan): 必须连 python 服务器一起杀。只杀监督循环会留下孤儿服务器
+# 继续占卡占内存——本轮两台共 12 个服务器、12 张卡就是这么漏的。
+docker exec $CONT bash -lc "pkill -f '[o]sw_arm_${ARMNAME}.sh'; sleep 2; pkill -f '[s]erve_osworld_official_policy'; sleep 5; echo 剩余服务器=\$(pgrep -fc '[s]erve_osworld_official_policy' || echo 0)"
