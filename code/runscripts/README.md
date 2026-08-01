@@ -79,3 +79,21 @@ nohup 不保活(用 docker exec -d);监督器发射后不可动,server 无状态
 了整个配置。`nvidia-smi` 与逐副本请求计数是判断副本是否真在干活的最小证据,
 "两个 server 都 /health 200" 完全不能说明问题。v2 改为每个配置并行跑两个 runner,
 各带一半任务(subset-a/b,奇偶交错)与一半模拟器(fleet-a/b,9+9 不重叠)。
+
+第八条教训——**容器的 GPU 绑定在创建时固定,`--gpus "device=0,1,2,3"` 会永久锁死可见范围**。
+h01 的 `sglang-omni-jaxan` 就是这样建的:宿主 8 卡,容器只见 4 张,而其中 3 张被他人占用,
+实际只剩 1 张可用。症状是 `torch.AcceleratorError: CUDA error: invalid device ordinal`
+——`CUDA_VISIBLE_DEVICES=0,1,4,5` 在容器里指向不存在的序号。
+
+判据:`docker inspect <c> --format '{{json .HostConfig.DeviceRequests}}'`,
+若 `DeviceIDs` 不是空(空=all)就是被锁死了。建容器一律 `--gpus all`,
+用哪几张由 `CUDA_VISIBLE_DEVICES` 在运行时决定。
+
+**顺带**:重建容器还解决了另一个隐蔽问题。PID 1 是 `sleep infinity`,**不回收子进程**,
+崩溃的训练留下大量 `<defunct>` 僵尸,它们**挂着显存不释放**——h01 的 GPU0 被误认为
+"别人占了 125GB",实际是我自己崩溃 run 的泄漏,重建后归零。
+
+重建前必查:`docker inspect --format '{{range .Mounts}}...'` 确认重要数据都在挂载上
+(本项目是 `/data0X/jaxan → /bigdata|/data`),以及容器内除自己的作业外无他人进程。
+重建命令须保留 `--ipc=host --shm-size=64g` 与 HF_HOME/XDG_CACHE_HOME/PIP_CACHE_DIR/TMPDIR
+四个缓存环境变量,否则缓存会落回容器层。
