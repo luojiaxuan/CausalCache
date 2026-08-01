@@ -1,64 +1,64 @@
 #!/bin/bash
-# note (luojiaxuan): 监控剩余两个在跑的作业:OSWorld s100(12 分片)与 MobileWorld B 扫描。
-# s50/ft30 已跑满 361 并归约入库,从监控里摘掉。完成信号用 latch 只发一次,避免每轮重复。
-# 停摆判据 = done 计数两轮不动 且 最新产出文件超过 STALE 秒没更新。
-STALE=1800
+# note (luojiaxuan): 监控 OSWorld 主机匹配重跑(h00 shard0-3 / h01 shard4-11,四轮)
+# 与 MobileWorld B 扫描,外加两台机器的内存看护。
+# s50/s100/ft30 已全部跑满并归档,不再监控。
+STALE=2400
 POLL=600
 tick=0
-prev_s100=-1; prev_bs=-1
-stall_s100=0; stall_bs=0
-latch_s100=0; latch_bs=0
+prev_sig=""; prev_bs=-1; stall_bs=0; latch_bs=0
+
+rr() {  # host base -> "sel15:n recent15:n sel30:n recent30:n"
+  ssh -o ConnectTimeout=20 "$1" "for t in sel-s15 recent-s15 sel-s30 recent-s30; do
+    d=$2/rerun/out-\$t
+    n=\$(ls -1 \$d/*/*/result.json 2>/dev/null | wc -l)
+    printf '%s=%s ' \"\$t\" \"\$n\"
+  done" 2>/dev/null || echo "?"
+}
 
 while true; do
   tick=$((tick+1))
 
-  s100=$(ssh -o ConnectTimeout=20 hyper00 'ls -1 /data02/jaxan/osworld/output-s100-hgkvsel/*/*/result.json 2>/dev/null | wc -l' 2>/dev/null || echo -1)
-  w100=$(ssh -o ConnectTimeout=20 hyper00 'ps aux | grep -c "[r]un_osworld_benchmark_worker"' 2>/dev/null || echo -1)
-
-  # note (luojiaxuan): 内存看护。2026-08-01 曾因复用的推理服务器泄漏到 1.25TB 把
-  # hyper00 吃到只剩 17G,sshd fork 不出来、全机没人能登录。可用低于 15% 立即告警。
-  mem=$(ssh -o ConnectTimeout=20 hyper00 "free -g | awk '/^Mem:/ {printf \"%d %d\", \$7, \$2}'" 2>/dev/null || echo "-1 -1")
-  avail=${mem% *}; total=${mem#* }
-  if [ "$avail" != "-1" ] && [ "${total:-0}" -gt 0 ] 2>/dev/null; then
-    pct=$((avail * 100 / total))
-    [ "$pct" -lt 15 ] && echo "ALERT hyper00 内存可用仅 ${avail}G/${total}G (${pct}%) —— 逼近 sshd fork 失败,立即回收"
-  fi
+  h00=$(rr hyper00 /data02/jaxan/osworld)
+  h01=$(rr hyper01 /data04/jaxan/osworld)
+  d00=$(ssh -o ConnectTimeout=20 hyper00 'pgrep -f "[o]sw_rerun_driver" >/dev/null && echo up || echo DOWN' 2>/dev/null || echo "?")
+  d01=$(ssh -o ConnectTimeout=20 hyper01 'pgrep -f "[o]sw_rerun_driver" >/dev/null && echo up || echo DOWN' 2>/dev/null || echo "?")
+  # note (luojiaxuan): 容器被外部 SIGKILL 过一次,四轮空转。存活性单独盯。
+  c01=$(ssh -o ConnectTimeout=20 hyper01 'docker ps --format "{{.Names}}" | grep -qx sglang-omni-jaxan && echo up || echo DOWN' 2>/dev/null || echo "?")
+  c00=$(ssh -o ConnectTimeout=20 hyper00 'docker ps --format "{{.Names}}" | grep -qx sglang-omni-jaxan && echo up || echo DOWN' 2>/dev/null || echo "?")
 
   bs=$(ssh -o ConnectTimeout=20 hyper00 'docker exec sglang-omni-jaxan bash -lc "find /data/mw/runs/bsweep -name result.txt 2>/dev/null | wc -l"' 2>/dev/null || echo -1)
   bcfg=$(ssh -o ConnectTimeout=20 hyper00 'docker exec sglang-omni-jaxan bash -lc "ls -d /data/mw/runs/bsweep/b*/DONE 2>/dev/null | wc -l"' 2>/dev/null || echo -1)
-  bdrv=$(ssh -o ConnectTimeout=20 hyper00 'pgrep -f bsweep_driver >/dev/null && echo up || echo DOWN' 2>/dev/null || echo "?")
-  bhand=$(ssh -o ConnectTimeout=20 hyper00 'pgrep -f bsweep_handoff >/dev/null && echo waiting || echo done' 2>/dev/null || echo "?")
 
-  # --- 停摆:计数不动才去查文件年龄,省 ssh ---
-  if [ "$s100" = "$prev_s100" ] && [ "$s100" != "-1" ]; then stall_s100=$((stall_s100+1)); else stall_s100=0; fi
+  m00=$(ssh -o ConnectTimeout=20 hyper00 "free -g | awk '/^Mem:/ {printf \"%d/%d\", \$7, \$2}'" 2>/dev/null || echo "?")
+  m01=$(ssh -o ConnectTimeout=20 hyper01 "free -g | awk '/^Mem:/ {printf \"%d/%d\", \$7, \$2}'" 2>/dev/null || echo "?")
+  for pair in "h00:$m00" "h01:$m01"; do
+    hh=${pair%%:*}; mm=${pair#*:}; av=${mm%%/*}; tt=${mm##*/}
+    [ "$tt" != "?" ] && [ "${tt:-0}" -gt 0 ] 2>/dev/null && [ $((av * 100 / tt)) -lt 15 ] && \
+      echo "ALERT $hh 内存可用仅 ${av}G/${tt}G —— 逼近 sshd fork 失败"
+  done
+
+  [ "$d00" = "DOWN" ] && echo "ALERT h00 重跑驱动消失 [$h00]"
+  [ "$d01" = "DOWN" ] && echo "ALERT h01 重跑驱动消失 [$h01]"
+  [ "$c00" = "DOWN" ] && echo "ALERT h00 容器 sglang-omni-jaxan 已停"
+  [ "$c01" = "DOWN" ] && echo "ALERT h01 容器 sglang-omni-jaxan 已停"
+
+  # B 扫描停摆
   if [ "$bs" = "$prev_bs" ] && [ "$bs" != "-1" ]; then stall_bs=$((stall_bs+1)); else stall_bs=0; fi
-
-  if [ "$stall_s100" -ge 2 ]; then
-    a=$(ssh -o ConnectTimeout=20 hyper00 'now=$(date +%s); n=$(find /data02/jaxan/osworld/output-s100-hgkvsel -type f -printf "%T@\n" 2>/dev/null | sort -n | tail -1 | cut -d. -f1); [ -n "$n" ] && echo $((now-n)) || echo -1' 2>/dev/null || echo -1)
-    [ "$a" -gt "$STALE" ] 2>/dev/null && echo "STALL s100 done=$s100 workers=$w100 no-new-file-for=${a}s"
-  fi
-  if [ "$stall_bs" -ge 2 ]; then
+  if [ "$stall_bs" -ge 3 ]; then
     a=$(ssh -o ConnectTimeout=20 hyper00 'docker exec sglang-omni-jaxan bash -lc "now=\$(date +%s); n=\$(find /data/mw/runs/bsweep -type f -printf \"%T@\n\" 2>/dev/null | sort -n | tail -1 | cut -d. -f1); [ -n \"\$n\" ] && echo \$((now-n)) || echo -1"' 2>/dev/null || echo -1)
-    [ "$a" -gt "$STALE" ] 2>/dev/null && echo "STALL bsweep results=$bs cfgs_done=$bcfg no-new-file-for=${a}s"
+    [ "$a" -gt "$STALE" ] 2>/dev/null && echo "STALL bsweep results=$bs cfgs=$bcfg 静默 ${a}s"
   fi
-
-  [ "$bdrv" = "DOWN" ] && [ "$bhand" = "done" ] && echo "ALERT B 扫描驱动进程消失(cfgs_done=$bcfg results=$bs)"
-  [ "$w100" = "0" ] && [ "$s100" -lt 361 ] 2>/dev/null && echo "ALERT s100 worker 全部退出但只完成 $s100/361"
-
-  # --- 完成:latch 只发一次 ---
-  if [ "$s100" -ge 361 ] 2>/dev/null && [ "$latch_s100" = "0" ]; then echo "DONE s100 跑满 361/361"; latch_s100=1; fi
+  prev_bs=$bs
   if [ "$bcfg" -ge 11 ] 2>/dev/null && [ "$latch_bs" = "0" ]; then echo "DONE B 扫描 11 个配置全部完成"; latch_bs=1; fi
 
-  # --- 配置推进 / 整点进度 ---
-  if [ "$bcfg" != "$prev_bcfg" ] && [ -n "${prev_bcfg:-}" ]; then
-    echo "BSWEEP 配置推进 -> 已完成 $bcfg/11(results=$bs)"
+  sig="$h00|$h01"
+  if [ "$sig" != "$prev_sig" ] && [ -n "$prev_sig" ] && [ $((tick % 3)) -eq 0 ]; then
+    echo "RERUN h00[$h00] h01[$h01]"
   fi
-  prev_bcfg=$bcfg
+  prev_sig="$sig"
 
   if [ $((tick % 6)) -eq 1 ]; then
-    echo "PROGRESS s100=$s100/361 (workers=$w100) | bsweep cfgs_done=$bcfg/11 results=$bs drv=$bdrv | RAM avail ${avail}G/${total}G"
+    echo "PROGRESS 重跑 h00[$h00] h01[$h01] drv=$d00/$d01 | bsweep $bcfg/11 ($bs) | RAM h00=$m00 h01=$m01"
   fi
-
-  prev_s100=$s100; prev_bs=$bs
   sleep $POLL
 done

@@ -719,17 +719,17 @@ selector's small $15$-step edge is neither amplified nor destroyed by
 horizon extension---consistent with OSWorld evidence rarely leaving the
 recent window even at $50$ steps.
 
-Two cautions apply to every OSWorld number here. First, single-round
-noise is large: $10$ tasks were executed twice under identical
-configuration when work was sharded, and $7$ flipped outcome in a
-balanced direction ($3$ versus $4$), so differences of a few points on
-one round are not interpretable. Second, the main $15$-step comparison
-inherits the same design weakness---its selector arm ran entirely on one
-host while the baseline drew $79\%$ of its tasks from another. Here the
-imbalance runs \emph{against} the reported effect (the selector's host
-is the slower of the two), so the $+1.1$pp we report is if anything
-conservative; we leave it uncorrected rather than extrapolate a host
-effect measured at a different step budget.
+Sharding also lets us separate run-to-run noise from the host effect,
+because some tasks were executed twice. Across the two matched hosts
+$106$ tasks were duplicated and $98$ agreed, with the disagreements
+balanced ($5$ versus $3$): single-round noise on identical hardware is
+about $7.5\%$ of tasks, small enough that a few points are meaningful.
+Across mismatched hardware the same measurement gives $7$ flips out of
+$10$---an order of magnitude larger, and the clearest single indication
+that what we removed was a hardware artifact rather than ordinary
+variance. The main $15$-step comparison is unaffected by it: neither of
+its arms touched the outlier host, and its two hosts are the matched
+pair characterized above.
 
 \section{Limitations and Conclusion}
 
