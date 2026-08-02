@@ -3591,6 +3591,11 @@ def main() -> None:
         help="legacy paths only; rejected under training.sparse_history",
     )
     parser.add_argument("--resume-lora", type=Path, default=None)
+    # note (luojiaxuan): 默认开。Slurm 上 requeue 是常态,忘记加开关就等于白跑;
+    # 没有 resume_state.pt 时行为与旧版逐字节相同(从 step 0 起)。
+    parser.add_argument("--auto-resume", action=argparse.BooleanOptionalAction,
+                        default=True,
+                        help="存在 output_root/resume_state.pt 时恢复步数与优化器状态")
     parser.add_argument("--start-epoch", type=int, default=0)
     parser.add_argument(
         "--frozen-score-cache",
@@ -3922,6 +3927,24 @@ def main() -> None:
     )
     ordering = random.Random(training_config["seed"])
     global_step = 0
+    # note (luojiaxuan): Slurm 抢占/requeue 后的真续跑。--resume-lora 只热启动权重,
+    # 步数与优化器动量都丢了,那是**另一次实验**;这里从 resume_state.pt 恢复三样
+    # 东西:global_step、optimizer 动量、adapter 权重。config_sha 不一致就 fail-closed
+    # ——拿另一份 config 的动量接着跑,比从头再来更糟,而且日志里看不出来。
+    resume_state_path = args.output_root / "resume_state.pt"
+    if args.auto_resume and resume_state_path.exists():
+        blob = torch.load(resume_state_path, map_location="cpu", weights_only=False)
+        if blob.get("config_sha256") not in (None, config_sha):
+            raise SystemExit(
+                f"resume_state.pt 来自 config {blob.get('config_sha256')},"
+                f"当前是 {config_sha};拒绝跨 config 续跑"
+            )
+        adapter_load_state_dict(wrapped, blob["adapter"])
+        optimizer.load_state_dict(blob["optimizer"])
+        global_step = int(blob["global_step"])
+        if rank == 0:
+            print(json.dumps({"auto_resumed_from_step": global_step,
+                              "path": str(resume_state_path)}), flush=True)
 
     def optimizer_sync_step() -> None:
         """One gradient sync + optimizer step — window boundary and epoch tail共用。
@@ -3949,9 +3972,30 @@ def main() -> None:
         ):
             step_path = args.output_root / f"lora-step{global_step}.pt"
             torch.save(adapter_state_dict(wrapped), step_path)
+            # note (luojiaxuan): 断点续跑状态(2026-08-02 新增,Slurm 前置条件)。
+            # 只存 LoRA 权重是**不够**的:重启后步数归零、优化器动量清空,
+            # 轨迹与不中断的 run 不同,严格说是另一次实验。Slurm 上抢占/requeue
+            # 是常态,所以每个 step checkpoint 都配一份 optimizer + step 状态。
+            # 先写临时文件再原子 rename —— 作业正好在写盘时被杀,不能留下半个文件
+            # 让下次 resume 从损坏状态起步。
+            resume_path = args.output_root / "resume_state.pt"
+            tmp_path = args.output_root / "resume_state.pt.tmp"
+            torch.save(
+                {
+                    "global_step": global_step,
+                    "epoch": epoch,
+                    "optimizer": optimizer.state_dict(),
+                    "adapter": adapter_state_dict(wrapped),
+                    "config_sha256": config_sha,
+                    "lora_checkpoint": str(step_path),
+                },
+                tmp_path,
+            )
+            os.replace(tmp_path, resume_path)
             print(
                 json.dumps(
-                    {"step_checkpoint": global_step, "path": str(step_path)}
+                    {"step_checkpoint": global_step, "path": str(step_path),
+                     "resume_state": str(resume_path)}
                 ),
                 flush=True,
             )
