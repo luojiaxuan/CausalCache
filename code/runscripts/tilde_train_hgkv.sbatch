@@ -45,6 +45,26 @@ mkdir -p "$OUT"
 # 缺了就从仓库补,补完仍由 runtime 自己逐文件核 sha,**不绕过校验**。
 SNAP=$MODEL/.snapshot.json
 [ -f "$SNAP" ] || cp "$REPO/code/configs/gui_owl_1_5_8b_snapshot.json" "$SNAP"
+# 守卫还要求目录内容与清单**精确相等**(14 个文件 + .snapshot.json,不许有多余)。
+# HF 下载会留下 .cache/、README.md、.gitattributes —— 第二次提交栽在这儿。
+# 这里只做**检查并报错**,不在作业里删模型文件(那太危险);
+# 修法写在报错里,由人执行一次即可,之后幂等。
+python3 - "$MODEL" <<'PYCHK' || exit 2
+import json, os, sys
+root = sys.argv[1]
+man = json.load(open(os.path.join(root, ".snapshot.json")))
+allowed = {f["path"] for f in man["files"]} | {".snapshot.json"}
+actual = {os.path.relpath(os.path.join(dp, fn), root)
+          for dp, _dn, fns in os.walk(root) for fn in fns}
+extra, missing = sorted(actual - allowed), sorted(allowed - actual)
+if extra or missing:
+    print(f"FATAL 模型目录清单不符 —— 多余 {len(extra)} 个、缺失 {len(missing)} 个")
+    for r in (extra + missing)[:5]:
+        print("   ", r)
+    print("修法:删掉多余文件(常见是 .cache/、README.md、.gitattributes)后重提交")
+    sys.exit(1)
+print(f"模型清单校验通过:{len(actual)} 个文件")
+PYCHK
 # 持久性自检:输出根目录必须可写,且**不是** /tmp 或节点本地盘。
 case "$OUT" in
   /tmp/*|/scratch/*|/dev/shm/*) echo "FATAL 输出目录不持久: $OUT"; exit 2 ;;
