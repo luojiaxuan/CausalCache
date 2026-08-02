@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --job-name=cc-hgkv
 #SBATCH --partition=main
-#SBATCH --gres=gpu:8
+#SBATCH --gres=gpu:4
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=32
@@ -30,6 +30,13 @@
 # 用法:sbatch --export=ALL,VARIANT=poolrank_seed2,SEED=7 tilde_train_hgkv.sbatch
 set -u
 VARIANT=${VARIANT:-poolrank_seed2}
+# note (luojiaxuan): **卡数是科学变量,不是资源参数。** 每优化步的全局批
+# = gradient_accumulation_steps × micro_batch × world_size,所以 8 卡在同样的
+# max_optimizer_steps 下见的数据是 4 卡的两倍(1340 单元:4 卡 300 步 ≈ 1.79 epoch,
+# 8 卡 ≈ 3.58 epoch,且会先撞 epochs=3 的上限在约 251 步停)。
+# 要与 hyper00 的 4 卡臂构成"只换种子"的复现,这里必须也是 4。
+# 想用满 8 卡就得同时按比例改 max_optimizer_steps,并且那已经不是复现了。
+NPROC=${NPROC:-4}
 CONFIG=${CONFIG:-code/configs/causalcache_desktop_did_hgkv_v7_poolrank.json}
 ROOT=$HOME/causalcache
 REPO=$ROOT/CausalCache
@@ -88,7 +95,7 @@ srun --container-image="$IMAGE" \
        # 再前置 PYTHONPATH;pylibs 必须排在 $REPO/code **前面**才能盖住镜像自带的。
        export PYTHONPATH=$ROOT/pylibs:$REPO/code
        export HF_HOME=$ROOT/hf
-       torchrun --standalone --nproc_per_node=8 code/scripts/train_success_sft_lora.py \
+       torchrun --standalone --nproc_per_node=${NPROC:-4} code/scripts/train_success_sft_lora.py \
          --config $CONFIG \
          --dataset-root $CORPUS \
          --model-dir $MODEL \
