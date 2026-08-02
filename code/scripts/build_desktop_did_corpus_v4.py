@@ -43,6 +43,7 @@ from scripts.build_desktop_hgkv_corpus import (
     NEGATIVE_ARM_SLOT,
     NEGATIVE_KIND,
     NEGATIVE_SCALE,
+    history_action_matches_target,
     _link_image_roots,
     _percentile_summary,
     _split,
@@ -53,6 +54,17 @@ from scripts.build_desktop_hgkv_corpus import (
 CORPUS_SCHEMA = "causalcache.desktop_did_corpus_b.v2"
 SAMPLE_SCHEMA_V2 = "causalcache.desktop_did_sample.v2"
 B0_SAMPLE_SCHEMA_V2 = "causalcache.desktop_did_b0_sample.v2"
+# note (luojiaxuan): 候选池扩展(--candidate-pool-size K > 0 时启用)。
+# 动机见 data/results/hgkv_v6_capsweep_v1/PREMISE_REFUTED.md:目标函数里
+# [m - A_s]_+ 奖励"把分做高",而 drift cap 只盯 recent/wrong 两个特定臂,
+# 对"所有集合一起抬高"完全不设限 —— 奖励在、约束不在,模型就走均匀抬升。
+# 要在目标上封死它,必须能估**组内平均效应** E_S[A(S)],这就需要每组多于一个
+# 稀疏臂。同一批臂同时提供漏洞 2 所需的排序目标,所以两件事合并成一次改造。
+#
+# K=0 时本脚本行为与建 corpus-v4 时**逐字节相同**(schema 仍是 v2),
+# 可用来复现旧语料;K>0 时 schema 升到 v3,trainer 按此判定新目标可用。
+SAMPLE_SCHEMA_V3 = "causalcache.desktop_did_sample.v3"
+CANDIDATE_ROLE = "candidate"
 PROMPT_FORMAT_V2 = "desktop_official_multiturn"
 B_VALUES = (1, 2, 4, 8)
 
@@ -78,6 +90,10 @@ def parse_args() -> argparse.Namespace:
         "--link-images", action=argparse.BooleanOptionalAction, default=True
     )
     parser.add_argument("--merge", action="store_true")
+    # note (luojiaxuan): K=0 时输出与 corpus-v4 逐字节一致(schema 仍 v2);
+    # K>0 每组额外发 K 对候选臂(active/bypass),schema 升 v3。
+    parser.add_argument("--candidate-pool-size", type=int, default=0,
+                        help="每组额外的非 witness 候选臂数量(0=关闭)")
     return parser.parse_args()
 
 
@@ -117,6 +133,56 @@ def render_official_selection(
     return _pathify(messages)
 
 
+def extra_candidate_events(
+    record: Mapping[str, Any],
+    *,
+    b: int,
+    positive_event: int,
+    wrong_event: int,
+    kept_window: Sequence[int],
+    pool_size: int,
+    coordinate_tolerance: int,
+) -> list[int]:
+    """挑 K 个"非 witness 的远端候选",用于估组内平均效应与池上排序。
+
+    # note (luojiaxuan): 必须排除 witness。目标是"SA 要排在这些之上",
+    # 若池里混进另一个 witness,标签就是错的。判 witness 的口径与
+    # select_contrast_events 完全一致(同一个 matcher、同一个容差),
+    # 否则两处会对同一帧给出相反的标签。
+    #
+    # 取样按年龄**等距铺开**而不是取最近的 K 个:排序任务需要跨度,
+    # 全挑年龄相邻的候选,模型只要学会"按年龄排"就能拿满分。
+    """
+    current_step = int(record["step"])
+    screen_size = tuple(record["screen_size"])
+    target = record["target_tool_call"]
+    history_by_step = {int(e["step_id"]): e for e in record["history"]}
+    excluded = {positive_event, wrong_event, *[int(s) for s in kept_window]}
+    min_age = b + 2
+    pool: list[int] = []
+    for event_step in range(1, current_step - min_age + 1):
+        if event_step in excluded:
+            continue
+        following = history_by_step.get(event_step + 1)
+        if following is None:
+            continue
+        if history_action_matches_target(
+            following["action"], target,
+            screen_size=screen_size,
+            coordinate_tolerance=coordinate_tolerance,
+        ):
+            continue  # 是 witness,不能当"应排在 SA 之下"的候选
+        pool.append(event_step)
+    if not pool or pool_size <= 0:
+        return []
+    if len(pool) <= pool_size:
+        return pool
+    # 等距取样(含两端),年龄跨度最大
+    step = (len(pool) - 1) / (pool_size - 1) if pool_size > 1 else 0.0
+    picked = sorted({pool[round(i * step)] for i in range(pool_size)})
+    return picked
+
+
 def build_b_groups(
     records: Sequence[dict[str, Any]],
     *,
@@ -125,6 +191,7 @@ def build_b_groups(
     seed: int,
     max_groups: int = 0,
     emit_parity: bool = False,
+    candidate_pool_size: int = 0,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     parity_rows: list[dict[str, Any]] = []
@@ -159,6 +226,15 @@ def build_b_groups(
             "recurrence": sorted([*kept_window, positive_event]),
             "wrong": sorted([*kept_window, wrong_event]),
         }
+        candidate_events = extra_candidate_events(
+            record, b=b,
+            positive_event=positive_event, wrong_event=wrong_event,
+            kept_window=kept_window,
+            pool_size=candidate_pool_size,
+            coordinate_tolerance=coordinate_tolerance,
+        )
+        for i, cand in enumerate(candidate_events, start=1):
+            selection_specs[f"cand{i}"] = sorted([*kept_window, cand])
         if emit_parity:
             selection_specs["none"] = []
         rendered: dict[str, dict[str, Any]] = {}
@@ -207,13 +283,15 @@ def build_b_groups(
                 "recent_definition": "distinct_frames_v2",
                 "budget_semantics": "fixed_budget_replacement_v3",
                 "renderer": DESKTOP_OFFICIAL_PROTOCOL_ID,
+                **({"candidate_events": candidate_events} if candidate_events else {}),
             },
         }
+        sample_schema = SAMPLE_SCHEMA_V3 if candidate_pool_size else SAMPLE_SCHEMA_V2
         for slot, (arm_id, role, prompt_format, mode, adapter_mode) in (
             DESKTOP_ARM_CONTRACT_V2.items()
         ):
             row = {
-                "schema_version": SAMPLE_SCHEMA_V2,
+                "schema_version": sample_schema,
                 "sample_id": f"{pair_group}|{slot}",
                 **common,
                 "arm_slot": slot,
@@ -246,6 +324,46 @@ def build_b_groups(
                 row["distractor_source_step"] = wrong_event
                 row["oracle_source_step"] = positive_event
             rows.append(row)
+        # 候选臂:每个候选一对(active / bypass),role=candidate。
+        # 老目标只认固定 slot 与 role=="negative",所以这些行对它是**惰性的**
+        # ——同一份语料既能训旧目标也能训新目标,两者可干净对比。
+        for i, cand in enumerate(candidate_events, start=1):
+            mode = f"cand{i}"
+            for suffix, arm_role, adapter_mode in (
+                ("A", CANDIDATE_ROLE, "active"),
+                ("0", "measurement", "bypass"),
+            ):
+                slot = f"C{i}{suffix}"
+                rows.append({
+                    "schema_version": sample_schema,
+                    "sample_id": f"{pair_group}|{slot}",
+                    **common,
+                    "arm_slot": slot,
+                    "arm_id": slot,
+                    "role": arm_role,
+                    "prompt_format": PROMPT_FORMAT_V2,
+                    "selection_mode": "recurrence",
+                    "adapter_mode": adapter_mode,
+                    "variant": f"{slot}_{mode}{b}",
+                    "candidate_event": cand,
+                    "candidate_age": current_step - cand,
+                    "candidate_index": i,
+                    "recent_frames_kept": sum(
+                        1 for step in rendered[mode]["selected_steps"]
+                        if step in full_window
+                    ),
+                    "memory_config": {
+                        "restored_event_step_ids": rendered[mode]["selected_steps"]
+                    },
+                    **{
+                        key: rendered[mode][key]
+                        for key in (
+                            "selected_steps", "selected_images",
+                            "messages", "messages_sha256",
+                        )
+                    },
+                })
+        counters[f"candidates_{len(candidate_events)}"] += 1
         if emit_parity:
             b0_arm_id, b0_role, b0_format, b0_mode, b0_adapter = B0_ARM_CONTRACT_V2
             parity_rows.append(
@@ -371,6 +489,7 @@ def main() -> None:
             seed=args.seed,
             max_groups=args.max_groups_per_b,
             emit_parity=emit_parity,
+            candidate_pool_size=args.candidate_pool_size,
         )
         samples_path = args.output_root / f"samples-b{b}.jsonl"
         with samples_path.open("w", encoding="utf-8") as handle:
