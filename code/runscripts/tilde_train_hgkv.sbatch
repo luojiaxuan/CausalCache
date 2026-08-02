@@ -39,6 +39,12 @@ OUT=$ROOT/runs/$VARIANT
 IMAGE=$ROOT/sglang-omni-dev.sqsh
 
 mkdir -p "$OUT"
+# note (luojiaxuan): 冻结视觉运行时的身份校验要求模型目录带 .snapshot.json,
+# 且解析后必须与 Git 清单相等(repo + revision + 14 个文件的 size/sha256)。
+# 新拉的 HF 快照不带这个文件 —— 首次提交就是栽在这儿。这里做成幂等的:
+# 缺了就从仓库补,补完仍由 runtime 自己逐文件核 sha,**不绕过校验**。
+SNAP=$MODEL/.snapshot.json
+[ -f "$SNAP" ] || cp "$REPO/code/configs/gui_owl_1_5_8b_snapshot.json" "$SNAP"
 # 持久性自检:输出根目录必须可写,且**不是** /tmp 或节点本地盘。
 case "$OUT" in
   /tmp/*|/scratch/*|/dev/shm/*) echo "FATAL 输出目录不持久: $OUT"; exit 2 ;;
@@ -69,6 +75,6 @@ srun --container-image="$IMAGE" \
          --repository-root .
      "
 CODE=$?
-echo \"=== exit $CODE $(date -u +%FT%TZ) ===\"
+echo "=== exit $CODE $(date -u +%FT%TZ) ==="
 [ $CODE -eq 0 ] && touch "$OUT/EXIT_0"
 exit $CODE
