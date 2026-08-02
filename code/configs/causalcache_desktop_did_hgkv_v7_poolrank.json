@@ -1,0 +1,152 @@
+{
+ "adapter": {
+  "adapter_type": "history_gated_kv",
+  "alpha": 16,
+  "layer_scope": "last_8",
+  "rank": 8,
+  "target_modules": [
+   "k_proj",
+   "v_proj"
+  ]
+ },
+ "data": {
+  "ablation_protocol": "三行同 split/同组/同 visual tokens(2560)/同 300 步/同 cadence 50/同 world_size=4;Frozen / Full-layer LoRA / matched ungated KV / HGKV",
+  "adapter_switch_authority": "每条样本的 adapter_mode 字段;禁止解析名字前缀",
+  "arms": {
+   "R0": "desktop_official_multiturn + Recent-B 不同帧窗口 + bypass(reference 兼部署基线)",
+   "RA": "同 R0 prompt + active",
+   "S0": "desktop_official_multiturn + Recent-(B-1) + target-recurrence 旧帧(最老槽位替换)+ bypass",
+   "SA": "同 S0 prompt + active(本方法)",
+   "WA": "同槽位替换为 age-matched wrong 旧帧 + active;W0 由 trainer bypass 重算"
+  },
+  "budgets_built": [
+   1,
+   2,
+   4,
+   8
+  ],
+  "budgets_note": "B=8 只建不训(160 组,评测外推:门控选择性是否泛化到更大预算窗口);B=0 仅 parity;B=3 不进任何主口径(评测网格冻结 B∈{0,1,2,4}+8)",
+  "budgets_trained": [
+   1,
+   2,
+   4
+  ],
+  "corpus_build": {
+   "age_rule": "B+2",
+   "budget_semantics": "fixed_budget_replacement_v3",
+   "coordinate_tolerance": 25,
+   "recent_definition": "distinct_frames_v2",
+   "renderer": "official_multiturn_gap_fold_v4",
+   "replacement_rule": "oldest_recent_slot",
+   "seed": 20260726
+  },
+  "dataset_manifest": "data/manifests/desktop_did_corpus_v4_manifest.json",
+  "deployment_baseline_arm_id": "R0",
+  "duplicate_frame_disclosure": "部署 recent 选择器 k=1 会选中与当前截图同帧的事件 s-1;v3 的 Recent 窗口用不同帧(s-2..s-1-B),该差异单独披露",
+  "expected_adapter_module_count": 16,
+  "parity_b0_sha256": "e33ac3a0e9daa9b7cf711b66443133e0b94d5b4b4300f7aa7e6b843b443e5fd0",
+  "policy_snapshot_manifest_sha256": "50b675ec31c5c46dbb0d44c137a808fffb9d054916d39b596648d4eb9df7cbc3",
+  "renderer": "mobile_agent_v3_5_desktop_official_faithful",
+  "renderer_note": "v4 换官方滚动多轮结构(2026-07-27 用户裁定):历史 = 官方响应格式 Action 行 + <tool_call>,坐标全 [0,999](单轮结构 31.8% 历史动作 x/y>999 的量纲混用在 v4 全语料扫描为 0);保留轮 = user(图)/assistant(完整响应) 交替,gap-fold 泛化承载非连续替换帧;R 臂逐消息退化为官方结构;保留步缺官方响应(tripleClick)整组弃用(~1%)。prompt_format=desktop_official_multiturn 走 trainer chat_template 分支(system 内嵌 <tools>,不传 tools 实参)",
+  "row_note": "HGKV:最后 8 层 k/v,residual 只作用于 restored-history image tokens",
+  "sample_schema_version": "causalcache.desktop_did_sample.v3",
+  "samples_sha256": "e6575f934a6a701c9c50bebfa248dbdf2fc5e244b43d763b0cfe9d3cd96c897c",
+  "screening_manifest_sha256": "38889f116961f08081ff9eb08c5e5cdd37a16dae17d577e728e771dc59951a59",
+  "source": "AgentNet/OpenCUA Ubuntu 6,003 决策点 → fixed-budget replacement v4(scripts/build_desktop_did_corpus_v4.py,官方多轮 renderer);staging Hyper00 /data02/jaxan/desktop-did-corpus-v4",
+  "split": {
+   "authority": "样本 split 字段(轨迹 hash,salt=20260726);trainer 经 normalize_desktop_splits 做 dev→heldout 并整行剥离 test",
+   "heldout_groups": 211,
+   "per_b_groups": {
+    "1": 962,
+    "2": 756,
+    "4": 463,
+    "8": 158
+   },
+   "train_units": 1755
+  },
+  "training_reference_arm_id": "R0",
+  "world_size_note": "hyper00 8 卡 world_size=8 × accum 2(16 组/步,与 4 卡×accum4 逐步等价)"
+ },
+ "gates": {
+  "composite_score": "did_select",
+  "derived_quantities": {
+   "SA_minus_R0": "SA - R0",
+   "SA_minus_RA": "SA - RA",
+   "adapter_on_recent": "RA - R0",
+   "adapter_on_recent_abs": "abs(RA - R0)",
+   "adapter_on_sparse": "SA - S0",
+   "deployment_delta": "SA - R0",
+   "did_select": "(SA - S0) - (RA - R0)",
+   "frozen_selection_effect": "S0 - R0"
+  },
+  "drift_definition": "wrong_drift = 留出组上 (l_WA 在 adapter active) - (同一行在 adapter bypass) 的均值,即 A_n 的均值;wrong_drift_abs = |wrong_drift|。每条负样本锚到它自己的冻结分数。桌面语料只有 wrong 一个 kind,必需 gate 因此只有 wrong_drift_abs",
+  "gate_expression_syntax": "must_pass 的值形如 '<op> <number> [@<statistic>]',op ∈ {>, >=, <, <=},statistic ∈ {point(缺省), ci_low, ci_high};composite_score 与 derived_quantities 是同一套算术小语言。scripts/score_sparse_history_arms.py 与 trainer 的 validate_sparse_gates 共用同一个解析器",
+  "gate_rationale": {
+   "why_A_r_capped": "移动侧 v5 的失败模式正是 adapter 对 recent 的增益大于对 sparse 的增益;不封住 A_r,did_select 可以靠压低 RA 而非抬高 SA 来刷高",
+   "why_ci_low": "主判据用 dev split 的 CI 下界而非点估计;checkpoint 只在 Desktop dev 选择(交接 §9),bootstrap 按 trajectory 聚类",
+   "why_did_select": "(SA-S0)-(RA-R0) 在 identity 上严格等于 0,冻结模型已有的选点优势不会被冒充成 adapter 能力",
+   "why_fixed_budget": "v3 主张 = 有限记忆预算的重分配而非加图:Recent-B 把全部槽位给最近观测,CausalCache 从完整历史选至多 B 个事件;k(窗口外图数)是结果统计量。真前一帧探针(2026-07-27)已证明冻结模型对目标相关旧帧无天然偏好,选择性由 adapter 产生",
+   "why_no_format_effect": "桌面部署 prompt 与 R0 同 renderer,format_effect 结构性为 0,不作为量报告;deployment_delta 的基线就是 R0"
+  },
+  "gate_schema": "causalcache.sparse_history_gates.v2",
+  "main_claim_quantity": "SA_minus_RA",
+  "must_pass": {
+   "adapter_on_recent_abs": "< 0.02",
+   "adapter_on_sparse": "> 0",
+   "did_select": "> 0 @ci_low",
+   "wrong_drift_abs": "< 0.02"
+  },
+  "reference_arm_id": "R0",
+  "selection_rule": {
+   "filter": "all_must_pass",
+   "note": "并列取训练顺序更早者;quantity 只允许 composite_score。Desktop dev 只用于选点,test split 已在 normalize_desktop_splits 剥离,MobileWorld/OSWorld 未污染 roster 完全不参与",
+   "objective": "maximize",
+   "quantity": "composite_score",
+   "tie_break": "earliest_checkpoint"
+  }
+ },
+ "objective": {
+  "A_c": "l_SA - l_S0 —— adapter 对『目标相关旧帧』的增量",
+  "A_n": "l_CiA - l_Ci0 —— adapter 对第 i 个『非 witness 远端候选』的增量",
+  "A_r": "l_RA - l_R0 —— adapter 对『Recent 窗口』的增量",
+  "L": "L_select + L_rank + L_cap + L_l2,CE 权重恒为 0",
+  "L_cap": "sparse_drift_cap_weight * [|A_r| - sparse_drift_cap_eps]+",
+  "L_l2": "history_lora_l2_weight * Σ(‖A‖² + ‖B‖²)",
+  "L_rank": "(sparse_rank_weight / K) * Σ_i [sparse_rank_margin - (A_c - A_n_i)]+",
+  "L_select": "sparse_select_weight * [sparse_select_margin - (A_c - A_r)]+",
+  "did_rationale": "沿用 v4 的固定预算差中差:R 与 S/C 图数恒同,唯一差别是最老槽位放连续帧还是选中旧帧;A_c - A_r 在 identity 上严格为 0",
+  "drift_cap_rationale": "**沿用宽松的 eps=0.02,不收紧。** 收紧无收益:实测 DiD 语料 recent 臂的 A_r 只有 ±0.003、held-out 甚至跨零(CI [-0.0031,+0.0019]),cap 项本就恒为 0;而收紧会让它频繁且逐 rank 不一致地激活,是 DDP 发散的诱因(v6 midcap/tightcap 实测死于此)",
+  "excluded_arms": [],
+  "excluded_arms_note": "由 trainer 按 objective.kind 与 data.sample_schema_version 反算。桌面 schema 没有 N0;did_pool_rank 消费 R0/S0/RA/SA 四条测量臂,候选臂由 role=candidate 发现不入此表,补集为空",
+  "kind": "did_pool_rank",
+  "no_gain_rationale": "**去掉 L_gain 是本目标的要点。** did_ra_aware 的四项里只有 [m - A_c]+ 是绝对量,而『把所有集合一起抬高』正是把 A_c 做大最省力的办法——实测 v4 适配器 77% 的效应与内容无关(data/results/hgkv_k_stratified_v1)。去掉后剩余各项全是差,对『给所有臂加同一常数』天然不变,中心化是隐含的。平凡解 A≡0 由 L_select 挡住(它要求 A_c - A_r ≥ m)",
+  "normalization_rationale": "K 个候选按 1/K 等权,与候选个数无关;语料侧保证每组候选数恒为 K(不满的整组弃用),所以各 rank 的 backward 次数一致",
+  "notation": "A(a) = l_a^active - l_a^bypass;a ∈ {SA, RA, C1..CK}",
+  "rank_rationale": "把 did_ra_aware 的单个 age-matched wrong 臂换成 K 个非 witness 候选上的排序。部署时 selector 要在多个看起来都合理的远端帧之间分高下,而适配器从未被要求做这件事(k 分层实测:对一般远端帧的选择性只有 +0.0027,比对训练时挖出的 witness 小 8.2 倍)。候选按年龄等距铺开,避免『学会按年龄排就满分』"
+ },
+ "policy_snapshot_manifest": "code/configs/gui_owl_1_5_8b_snapshot.json",
+ "schema_version": "causalcache.success_sft_lora_config.v1",
+ "target_effective_visual_tokens_per_image": 2560,
+ "training": {
+  "checkpoint_every_steps": 50,
+  "epochs": 3,
+  "gradient_accumulation_steps": 2,
+  "gradient_checkpointing": false,
+  "history_ce_weight": 0.0,
+  "history_lora_l2_weight": 0.0001,
+  "learning_rate": 0.0001,
+  "lr_schedule": "constant",
+  "max_grad_norm": 1.0,
+  "max_optimizer_steps": 300,
+  "micro_batch_size": 1,
+  "seed": 20260726,
+  "sparse_drift_cap_eps": 0.02,
+  "sparse_drift_cap_weight": 2.0,
+  "sparse_history": true,
+  "sparse_rank_margin": 0.01,
+  "sparse_rank_weight": 1.0,
+  "sparse_select_margin": 0.01,
+  "sparse_select_weight": 1.0,
+  "weight_decay": 0.0
+ }
+}

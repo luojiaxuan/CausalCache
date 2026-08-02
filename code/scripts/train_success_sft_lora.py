@@ -566,21 +566,43 @@ SPARSE_DESKTOP_ARM_CONTRACT_V2: dict[str, tuple[str, str, str, str, str]] = {
         SPARSE_DESKTOP_ARM_CONTRACT.items()
     )
 }
+# note (luojiaxuan): v3 = v2 + 每组 K 个候选臂(C{i}A/C{i}0),供 did_pool_rank 用。
+# K 写死为 3 并进 schema 名的语义:候选个数变了必须 bump schema,否则
+# 各 rank 的 backward 次数会随语料静默改变(DDP 发散,2026-08-02 实测过)。
+SPARSE_DESKTOP_SAMPLE_SCHEMA_V3 = "causalcache.desktop_did_sample.v3"
+SPARSE_DESKTOP_CANDIDATE_POOL_SIZE = 3
+SPARSE_DESKTOP_ARM_CONTRACT_V3: dict[str, tuple[str, str, str, str, str]] = {
+    **SPARSE_DESKTOP_ARM_CONTRACT_V2,
+    **{
+        f"C{i}{suffix}": (
+            f"C{i}{suffix}", role, SPARSE_DESKTOP_PROMPT_FORMAT_V2,
+            "recurrence", adapter,
+        )
+        for i in range(1, SPARSE_DESKTOP_CANDIDATE_POOL_SIZE + 1)
+        for suffix, role, adapter in (
+            ("A", "candidate", "active"),
+            ("0", "measurement", "bypass"),
+        )
+    },
+}
 SPARSE_SAMPLE_SCHEMAS = (
     SPARSE_SAMPLE_SCHEMA,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA,
     SPARSE_DESKTOP_SAMPLE_SCHEMA,
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3,
 )
 SPARSE_DESKTOP_SAMPLE_SCHEMAS = (
     SPARSE_DESKTOP_SAMPLE_SCHEMA,
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3,
 )
 SPARSE_ARM_CONTRACTS: dict[str, dict[str, tuple[str, str, str, str, str]]] = {
     SPARSE_SAMPLE_SCHEMA: SPARSE_ARM_CONTRACT,
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_ARM_CONTRACT,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_ARM_CONTRACT,
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: SPARSE_DESKTOP_ARM_CONTRACT_V2,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3: SPARSE_DESKTOP_ARM_CONTRACT_V3,
 }
 # 部署基线臂按 schema 索引:v2/v6 有独立的官方 renderer N0;桌面的部署 prompt 与
 # R0 同 renderer 同选择器,基线就是 R0 本身(见上面的桌面契约注释)。
@@ -589,6 +611,7 @@ SPARSE_DEPLOYMENT_BASELINE_BY_SCHEMA: dict[str, str] = {
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: "N0",
     SPARSE_DESKTOP_SAMPLE_SCHEMA: "R0",
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: "R0",
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3: "R0",
 }
 # note (luojiaxuan): 两个集合,**别合并**,它们回答的是不同的问题:
 #   * ``SPARSE_NEGATIVE_KINDS`` —— v5 五臂语料里真实存在的三个 kind。它同时是
@@ -617,6 +640,7 @@ SPARSE_NEGATIVE_KINDS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_NEGATIVE_KINDS,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_NEGATIVE_KINDS,
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: SPARSE_DESKTOP_NEGATIVE_KINDS,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3: SPARSE_DESKTOP_NEGATIVE_KINDS,
 }
 # note (luojiaxuan): 负样本 kind → arm_slot,按 schema 索引。v2/v6 的命名约定是
 # ``SA_neg_<kind>``,桌面语料沿用交接 §6 的臂名 WA。差值量名的记法是
@@ -631,6 +655,7 @@ SPARSE_NEGATIVE_SLOTS_BY_SCHEMA: dict[str, dict[str, str]] = {
     },
     SPARSE_DESKTOP_SAMPLE_SCHEMA: {"wrong": SPARSE_DESKTOP_NEGATIVE_SLOT},
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: {"wrong": SPARSE_DESKTOP_NEGATIVE_SLOT},
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3: {"wrong": SPARSE_DESKTOP_NEGATIVE_SLOT},
 }
 # note (luojiaxuan): v6 语料里 k=0(recent_sufficient)组只有 N0/R0/RA 三臂 —— 它们
 # 教的是"当前 Recent 已够用",是 **selector 的 STOP** 训练材料,不是 adapter 的。
@@ -667,6 +692,7 @@ SPARSE_REQUIRED_KEYS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_REPLACEMENT_REQUIRED_KEYS,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_REQUIRED_KEYS,
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: SPARSE_DESKTOP_REQUIRED_KEYS,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3: SPARSE_DESKTOP_REQUIRED_KEYS,
 }
 # 旧字段一旦出现说明样本没迁完:"sparse" 混淆了 prompt_format 与 selection_mode,
 # "reference_variant" 指向 native_recent{K}(与 trainer 实际参考臂矛盾)。
@@ -938,6 +964,7 @@ SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_HELDOUT_REQUIRED_SLOTS,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: ("R0", "S0", "RA", "SA"),
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: ("R0", "S0", "RA", "SA"),
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3: ("R0", "S0", "RA", "SA"),
 }
 
 # ---------------------------------------------------------------------------
@@ -957,13 +984,39 @@ SPARSE_HELDOUT_REQUIRED_SLOTS_BY_SCHEMA: dict[str, tuple[str, ...]] = {
 # 于是**严格等于 0** —— 冻结模型那 +0.0335 一分也进不来,"统一放大"也被两端同时抵消。
 SPARSE_OBJECTIVE_DID_RA_AWARE = "did_ra_aware"
 SPARSE_OBJECTIVE_LEGACY = "legacy_sa_minus_r0"
-SPARSE_OBJECTIVE_KINDS = (SPARSE_OBJECTIVE_DID_RA_AWARE, SPARSE_OBJECTIVE_LEGACY)
+# note (luojiaxuan): did_pool_rank —— 封死"均匀抬升"的目标(2026-08-02)。
+#
+# 诊断见 data/results/hgkv_v6_capsweep_v1/PREMISE_REFUTED.md。关键在于:
+# did_ra_aware 的四项里,**只有 L_gain = [m - A_c]_+ 是绝对量**,其余
+# L_select、L_content 都是差,drift cap 只是上界。而"把所有集合一起抬高"
+# 正是把 A_c 做大最省力的办法 —— 所以均匀抬升的**唯一激励来源就是 L_gain**。
+#
+# 于是本目标:
+#   1) **去掉 L_gain**。剩下的项全是差,对"给所有臂加同一个常数"天然不变
+#      —— 中心化是**隐含的**,不需要再额外减均值(差里会自动抵消)。
+#      平凡解 A≡0 由 L_select(要求 A_SA - A_RA ≥ m)挡住。
+#   2) **把三选一换成候选池上的排序**:对 K 个非 witness 候选各要求
+#      A_SA - A_Ci ≥ m_rank。这才是部署时真正的任务(在多个看起来都合理的
+#      远端帧之间分高下),而原来只有一个 age-matched 的 wrong 臂。
+#   3) drift cap 只保留在 RA 上,且**沿用宽松的 eps**:收紧它既无收益
+#      (那里本来就≈0)又会让 cap 频繁激活,是 DDP 发散的诱因。
+SPARSE_OBJECTIVE_POOL_RANK = "did_pool_rank"
+SPARSE_CANDIDATE_ROLE = "candidate"
+SPARSE_OBJECTIVE_KINDS = (
+    SPARSE_OBJECTIVE_DID_RA_AWARE,
+    SPARSE_OBJECTIVE_LEGACY,
+    SPARSE_OBJECTIVE_POOL_RANK,
+)
 # 每个目标真正读进训练损失的**测量臂**(负样本臂不在此列,它们由 role 字段决定)。
 # config 的 objective.excluded_arms 由这张表取补集算出并逐项比对,不再是一句散文——
 # 散文写着"RA 不进损失"而代码已经在打 RA 的分,这种分叉在日志里完全看不出来。
 SPARSE_OBJECTIVE_ARMS: dict[str, tuple[str, ...]] = {
     SPARSE_OBJECTIVE_DID_RA_AWARE: ("R0", "S0", "RA", "SA"),
     SPARSE_OBJECTIVE_LEGACY: ("R0", "SA"),
+    # 候选臂 C{i}A/C{i}0 不写进这张表:它们的**个数随语料的 K 变**,
+    # 写死就等于把 K 焊进 trainer。改为在损失里按 role=="candidate" 发现,
+    # 并由语料侧保证每组个数相同(不满 K 的组整组弃用,见构造器 fail-closed)。
+    SPARSE_OBJECTIVE_POOL_RANK: ("R0", "S0", "RA", "SA"),
 }
 # 差中差用到的两条新臂;参考臂仍只从每条样本的 reference_arm_id 字段读,不写死。
 SPARSE_RECENT_ACTIVE_SLOT = "RA"
@@ -1289,6 +1342,14 @@ def sparse_group_schedule_cost(
     budget = int(samples[group[SPARSE_POSITIVE_SLOT]]["budget"])
     if objective_kind == SPARSE_OBJECTIVE_DID_RA_AWARE:
         return 6 + 3 * negatives, budget
+    if objective_kind == SPARSE_OBJECTIVE_POOL_RANK:
+        # 第一遍:SA/S0/RA/R0 四次 + 每个候选 active/bypass 各一次;
+        # 第二遍:SA、RA 与全部候选各一次带梯度前向。K 个候选 → 6 + 3K。
+        candidates = sum(
+            1 for index in group.values()
+            if samples[index]["role"] == SPARSE_CANDIDATE_ROLE
+        )
+        return 6 + 3 * candidates, budget
     sparse_objective_arms(objective_kind)  # fail-closed:未知目标不给默认代价
     return 3 * (1 + negatives), budget
 
@@ -1521,6 +1582,8 @@ def _sparse_history_group_loss(
     """
     if objective_kind == SPARSE_OBJECTIVE_DID_RA_AWARE:
         body = _sparse_history_group_loss_did
+    elif objective_kind == SPARSE_OBJECTIVE_POOL_RANK:
+        body = _sparse_history_group_loss_pool_rank
     elif objective_kind == SPARSE_OBJECTIVE_LEGACY:
         body = _sparse_history_group_loss_legacy
     else:
@@ -1579,6 +1642,152 @@ def _sparse_history_group_loss(
     # 质量(权重为 0 或没有 adapter 参数),此时上面一个带梯度前向都没跑,返回 None 让
     # 调用方把这组算作"跳过",而不是把 0 计进 running_loss 的分母。
     return None if total == 0.0 else total
+
+
+def _sparse_history_group_loss_pool_rank(
+    *,
+    samples: list[dict[str, Any]],
+    group: dict[str, int],
+    forward: Any,
+    training: dict[str, Any],
+    adapter_parameters: list[Any],
+    accumulation: int,
+    torch: Any,
+) -> tuple[float | None, dict[str, float], str]:
+    """候选池排序目标:全部损失项都是**差**,所以对均匀抬升天然不变。
+
+    # note (luojiaxuan): 与 did_ra_aware 的区别只有两条,但都是要害:
+    #   * **没有 L_gain**。[m - A_c]_+ 是原目标里唯一的绝对量,也是"把所有集合
+    #     一起抬高"的唯一激励来源(实测占 v4 适配器效应的 77%)。
+    #   * L_content 的单个 wrong 臂换成 **K 个候选臂上的排序**,逼适配器在多个
+    #     看起来都合理的远端帧之间分高下 —— 那才是部署时 selector 干的事。
+    # 差的形式意味着"给所有臂加同一个常数"损失不变,中心化是隐含的,
+    # 不必再显式减均值。平凡解 A≡0 由 L_select 挡住。
+    """
+    ref_slot = samples[group[SPARSE_POSITIVE_SLOT]]["reference_arm_id"]
+    if ref_slot not in group:
+        raise ValueError(
+            f"objective {SPARSE_OBJECTIVE_POOL_RANK!r} needs reference arm "
+            f"{ref_slot!r}; slots={sorted(group)}"
+        )
+    missing = [
+        slot
+        for slot in (SPARSE_SPARSE_BYPASS_SLOT, SPARSE_RECENT_ACTIVE_SLOT,
+                     SPARSE_POSITIVE_SLOT)
+        if slot not in group
+    ]
+    if missing:
+        raise ValueError(
+            f"objective {SPARSE_OBJECTIVE_POOL_RANK!r} needs the full "
+            f"{ref_slot}/S0/RA/SA quartet; pair-group lacks {missing}"
+        )
+    # 候选臂按 slot 名排序发现,保证各 rank 顺序一致(名字是 C1A/C2A/…)
+    candidate_slots = sorted(
+        slot for slot, index in group.items()
+        if samples[index]["role"] == SPARSE_CANDIDATE_ROLE
+    )
+    if not candidate_slots:
+        raise ValueError(
+            f"objective {SPARSE_OBJECTIVE_POOL_RANK!r} needs at least one "
+            f"role={SPARSE_CANDIDATE_ROLE!r} arm; slots={sorted(group)}"
+        )
+
+    sparse_active = forward(SPARSE_POSITIVE_SLOT, grad=False)
+    sparse_frozen = forward(SPARSE_SPARSE_BYPASS_SLOT, grad=False)
+    recent_active = forward(SPARSE_RECENT_ACTIVE_SLOT, grad=False)
+    recent_frozen = forward(ref_slot, grad=False)
+    if any(v is None for v in (sparse_active, sparse_frozen,
+                               recent_active, recent_frozen)):
+        return None, {}, ref_slot
+    a_c = float(sparse_active) - float(sparse_frozen)
+    a_r = float(recent_active) - float(recent_frozen)
+
+    select_margin = float(training.get("sparse_select_margin", 0.01))
+    rank_margin = float(training.get("sparse_rank_margin", 0.01))
+    select_weight = float(training.get("sparse_select_weight", 1.0))
+    rank_weight = float(training.get("sparse_rank_weight", 1.0))
+    cap_epsilon = float(training.get("sparse_drift_cap_eps", 0.02))
+    cap_weight = float(training.get("sparse_drift_cap_weight", 2.0))
+    l2_weight = float(training.get("history_lora_l2_weight", 1e-4))
+
+    # 候选臂的 A:active 用它自己的 slot,bypass 用配对的 C{i}0
+    cand_effects: list[tuple[str, float]] = []
+    for slot in candidate_slots:
+        bypass_slot = f"{slot[:-1]}0"  # C1A -> C10
+        if bypass_slot not in group:
+            continue
+        active_value = forward(slot, grad=False)
+        frozen_value = forward(bypass_slot, grad=False)
+        if active_value is None or frozen_value is None:
+            continue
+        cand_effects.append((slot, float(active_value) - float(frozen_value)))
+    if not cand_effects:
+        return None, {}, ref_slot
+
+    weight_sparse = 0.0
+    weight_recent = 0.0
+    cand_weights: dict[str, float] = {}
+    loss_select = 0.0
+    loss_rank = 0.0
+    loss_cap = 0.0
+
+    select_slack = select_margin - (a_c - a_r)
+    if select_slack > 0.0:
+        loss_select = select_weight * select_slack
+        weight_sparse -= select_weight
+        weight_recent += select_weight
+
+    share = rank_weight / len(cand_effects)
+    for slot, a_n in cand_effects:
+        slack = rank_margin - (a_c - a_n)
+        if slack > 0.0:
+            loss_rank += share * slack
+            weight_sparse -= share
+            cand_weights[slot] = cand_weights.get(slot, 0.0) + share
+
+    recent_excess = abs(a_r) - cap_epsilon
+    if recent_excess > 0.0:
+        loss_cap += cap_weight * recent_excess
+        weight_recent += cap_weight * (1.0 if a_r > 0.0 else -1.0)
+
+    mean_cand = sum(a for _s, a in cand_effects) / len(cand_effects)
+    diagnostics: dict[str, float] = {
+        "adapter_on_sparse": a_c,
+        "adapter_on_recent": a_r,
+        "did_select": a_c - a_r,
+        "adapter_on_candidates_mean": mean_cand,
+        # 均匀成分的**直接读数**:整池(witness + 候选)平均效应。
+        # 修法成立与否就看它能不能压到 0 附近,而 did_select 不塌。
+        "pool_mean_effect": (a_c + sum(a for _s, a in cand_effects))
+        / (1 + len(cand_effects)),
+        "rank_margin_over_candidates": a_c - mean_cand,
+        "candidates": float(len(cand_effects)),
+    }
+
+    total = loss_select + loss_rank + loss_cap
+    # 固定臂序列(见 did 目标里同一处的注释):顺序与个数逐 rank 一致,
+    # 权重取不到就按 0 传,否则 NCCL 会在同一 SeqNum 上撞见不同形状。
+    for slot in (SPARSE_POSITIVE_SLOT, SPARSE_RECENT_ACTIVE_SLOT, *candidate_slots):
+        if slot == SPARSE_POSITIVE_SLOT:
+            weight = weight_sparse
+        elif slot == SPARSE_RECENT_ACTIVE_SLOT:
+            weight = weight_recent
+        else:
+            weight = cand_weights.get(slot, 0.0)
+        forward(slot, grad=True, backward_weight=weight / accumulation)
+
+    loss_l2 = 0.0
+    if l2_weight > 0.0 and adapter_parameters:
+        l2_term = l2_weight * sum(p.pow(2).sum() for p in adapter_parameters)
+        loss_l2 = float(l2_term.detach())
+        total += loss_l2
+        (l2_term / accumulation).backward()
+
+    diagnostics["loss_select"] = loss_select
+    diagnostics["loss_rank"] = loss_rank
+    diagnostics["loss_cap"] = loss_cap
+    diagnostics["loss_l2"] = loss_l2
+    return total, diagnostics, ref_slot
 
 
 def _sparse_history_group_loss_did(
@@ -2683,6 +2892,12 @@ SPARSE_TRAINING_KEYS_BY_OBJECTIVE: dict[str, tuple[str, ...]] = {
         "sparse_gain_margin", "sparse_rank_margin", "sparse_gain_weight",
         "sparse_rank_weight", "sparse_drift_weight",
     ),
+    # 没有 gain 家族:去掉 L_gain 正是本目标的要点,写了就该报 unconsumed。
+    SPARSE_OBJECTIVE_POOL_RANK: (
+        "sparse_select_margin", "sparse_rank_margin",
+        "sparse_select_weight", "sparse_rank_weight",
+        "sparse_drift_cap_eps", "sparse_drift_cap_weight",
+    ),
 }
 
 
@@ -2746,6 +2961,7 @@ SPARSE_DERIVED_QUANTITIES_BY_SCHEMA: dict[str, dict[str, str]] = {
     SPARSE_REPLACEMENT_SAMPLE_SCHEMA: SPARSE_DERIVED_QUANTITIES,
     SPARSE_DESKTOP_SAMPLE_SCHEMA: SPARSE_DESKTOP_DERIVED_QUANTITIES,
     SPARSE_DESKTOP_SAMPLE_SCHEMA_V2: SPARSE_DESKTOP_DERIVED_QUANTITIES,
+    SPARSE_DESKTOP_SAMPLE_SCHEMA_V3: SPARSE_DESKTOP_DERIVED_QUANTITIES,
 }
 # 词表只决定"允许引用哪些名字",放宽是安全的(见上方 v6 注释);按 schema 的
 # 必需/外来 gate 检查才是挡错的那一层。
@@ -3235,6 +3451,15 @@ SPARSE_OBJECTIVE_DOC_KEYS: dict[str, frozenset[str]] = {
             "L_select", "L_gain", "L_content", "L_cap", "L_l2", "L",
             "did_rationale", "gain_rationale", "drift_cap_rationale",
             "normalization_rationale", "excluded_arms", "excluded_arms_note",
+        }
+    ),
+    SPARSE_OBJECTIVE_POOL_RANK: frozenset(
+        {
+            "kind", "notation", "A_c", "A_r", "A_n",
+            "L_select", "L_rank", "L_cap", "L_l2", "L",
+            "did_rationale", "no_gain_rationale", "rank_rationale",
+            "drift_cap_rationale", "normalization_rationale",
+            "excluded_arms", "excluded_arms_note",
         }
     ),
     SPARSE_OBJECTIVE_LEGACY: frozenset(
