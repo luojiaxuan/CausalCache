@@ -38,6 +38,7 @@ def parse_args() -> argparse.Namespace:
                    metavar="LABEL=PATH",
                    help="臂标签=gate_report.json 路径,可重复。第一个应是 v4 基线")
     p.add_argument("--output-dir", type=Path, required=True)
+    p.add_argument("--title", default="held-out 门控对比")
     return p.parse_args()
 
 
@@ -65,16 +66,29 @@ def _excludes_zero(v: dict | None) -> bool:
 
 
 def pick(report: dict) -> tuple[dict, str]:
+    """取该臂 gate_report 自己选中的 checkpoint。
+
+    # note (luojiaxuan): 2026-08-02 修 bug —— 字段名是 ``selection.selected``,
+    # 原来只找 ``selected_label``/``label``,取不到就**静默**退到"第一个 selectable"
+    # (= lora-step50,训练最早、几乎什么都没学到),还把 pick_mode 标成 selectable
+    # 而不是 fallback。后果:didbase 被读成 A_r=+0.0036/did_select=+0.0002,
+    # 而它真正选中的 lora-step300 是 +0.0009/+0.0152 —— 判定完全反过来。
+    # 现在三个键都认,且一个都取不到时必须显式落到 fallback 分支并被标出来。
+    """
     cks = report.get("checkpoints") or []
     sel = report.get("selection") or {}
-    label = sel.get("selected_label") or sel.get("label")
+    label = sel.get("selected") or sel.get("selected_label") or sel.get("label")
     if label:
         for ck in cks:
             if ck.get("label") == label:
                 return ck, "selected"
+        raise ValueError(
+            f"gate_report 选中了 {label!r},但 checkpoints 里没有这个 label —— "
+            "报告自相矛盾,不做静默回退"
+        )
     for ck in cks:
         if ck.get("selectable"):
-            return ck, "selectable"
+            return ck, "fallback_first_selectable"
     best, bv = None, None
     for ck in cks:
         v = _q(ck, "did_select")
@@ -110,7 +124,7 @@ def main() -> None:
 
     base = rows[0]
     lines = [
-        "# v6 收紧 drift cap:held-out 门控三臂 vs v4 基线",
+        f"# {args.title}",
         "",
         f"dev 集:`{arms[0][1].get('dataset_root')}`,"
         f"{base.get('n_groups')} 组 / "

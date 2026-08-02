@@ -1,0 +1,109 @@
+{
+ "rows": [
+  {
+   "arm": "didbase(旧目标)",
+   "checkpoint": "lora-step300",
+   "pick_mode": "selected",
+   "selectable": true,
+   "n_groups": 94,
+   "adapter_on_recent": {
+    "ci_high": 0.003192146586130219,
+    "ci_low": -0.0014201139470527541,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.0008793699138976157
+   },
+   "adapter_on_recent_abs": {
+    "ci_high": 0.009671545972065305,
+    "ci_low": 0.00683537183430071,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.008279201277392977
+   },
+   "adapter_on_sparse": {
+    "ci_high": 0.019895200057780373,
+    "ci_low": 0.012603287966164564,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.01603418495258356
+   },
+   "did_select": {
+    "ci_high": 0.020038414754757292,
+    "ci_low": 0.01070126364621212,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.015154815038685944
+   },
+   "wrong_drift_abs": {
+    "ci_high": 0.007903291277050258,
+    "ci_low": 0.005163697555410461,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.006520563047973716
+   },
+   "SA_minus_RA": {
+    "ci_high": 0.13058963711413038,
+    "ci_low": 0.06090173612729731,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.09428992295053173
+   }
+  },
+  {
+   "arm": "poolrank(新目标)",
+   "checkpoint": "lora-step250",
+   "pick_mode": "selected",
+   "selectable": true,
+   "n_groups": 94,
+   "adapter_on_recent": {
+    "ci_high": -0.0027374403765009036,
+    "ci_low": -0.007311216404004661,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": -0.005139889195561409
+   },
+   "adapter_on_recent_abs": {
+    "ci_high": 0.010947718128693464,
+    "ci_low": 0.0077028522066819516,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.009322000271145334
+   },
+   "adapter_on_sparse": {
+    "ci_high": 0.016763523828226407,
+    "ci_low": 0.009815268148299153,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.013095421154309618
+   },
+   "did_select": {
+    "ci_high": 0.023111565040444787,
+    "ci_low": 0.013744890640658727,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.01823531034987103
+   },
+   "wrong_drift_abs": {
+    "ci_high": 0.005465011499490974,
+    "ci_low": 0.0020919152063507656,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.003693852543910133
+   },
+   "SA_minus_RA": {
+    "ci_high": 0.13372934345197574,
+    "ci_low": 0.0640756997416507,
+    "support_episodes": 77,
+    "support_groups": 94,
+    "value": 0.09737041826171682
+   }
+  }
+ ],
+ "verdicts": [
+  {
+   "arm": "poolrank(新目标)",
+   "verdict": "**无效**:均匀成分没降下来",
+   "detail": "A_r 为基线的 584%,did_select 为 120%"
+  }
+ ]
+}
