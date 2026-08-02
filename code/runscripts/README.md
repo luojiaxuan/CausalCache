@@ -93,6 +93,30 @@ h01 的 `sglang-omni-jaxan` 就是这样建的:宿主 8 卡,容器只见 4 张,�
 崩溃的训练留下大量 `<defunct>` 僵尸,它们**挂着显存不释放**——h01 的 GPU0 被误认为
 "别人占了 125GB",实际是我自己崩溃 run 的泄漏,重建后归零。
 
+第九条教训——**"只改一个 config 字段"不等于单变量对照,发射命令里的语料也是变量**。
+
+v6 三臂(tightcap/midcap/nogain)本意是"相对 v4 只改 drift cap eps",三个 config 确实
+逐字节核对过。但发射脚本是照抄 `train_gated36_long.sh` 改的,那个用
+`--dataset-root /data/desktop-did-corpus-v5-selected`,我改成了 **corpus-v1**,
+而 v4 基线用的是 **corpus-v4**:
+
+| | dataset_root | dataset_manifest_sha256 |
+|---|---|---|
+| v4 基线 | `desktop-did-corpus-v4` | `167009bc…` |
+| v6 首轮三臂 | `desktop-did-corpus-v1` | `e872828e…` |
+
+**config 严格对齐、语料悄悄换掉,归因照样不成立**,三臂全部重跑(约 2h)。
+
+判据要落在**产物**上而不是意图上:`run_manifest.json` 的 `cli_args` 与
+`dataset_manifest_sha256` 与基线逐字段 diff,**唯一允许的差异是有意改的那几项**
+(config 路径、output_root、frozen_score_cache)。这个 diff 十秒钟就能做,
+应当成为每次"对照实验"训完的第一件事,而不是发现异常后才回头查。
+
+**副产品:是下游的 schema 校验把这个错抓出来的。** corpus-v1 是
+`causalcache.desktop_did_sample.v1`,config 声明 v2 —— 训练器宽容放过,
+`score_sparse_history_arms.py` 拒绝执行。这类"上游宽容、下游严格"的不一致
+是免费的错误探测器,**遇到它时应当先怀疑自己的输入,不要去放宽下游校验**。
+
 重建前必查:`docker inspect --format '{{range .Mounts}}...'` 确认重要数据都在挂载上
 (本项目是 `/data0X/jaxan → /bigdata|/data`),以及容器内除自己的作业外无他人进程。
 重建命令须保留 `--ipc=host --shm-size=64g` 与 HF_HOME/XDG_CACHE_HOME/PIP_CACHE_DIR/TMPDIR
