@@ -93,6 +93,31 @@ h01 的 `sglang-omni-jaxan` 就是这样建的:宿主 8 卡,容器只见 4 张,�
 崩溃的训练留下大量 `<defunct>` 僵尸,它们**挂着显存不释放**——h01 的 GPU0 被误认为
 "别人占了 125GB",实际是我自己崩溃 run 的泄漏,重建后归零。
 
+## Tilde(Slurm 集群)接入要点
+
+2026-08-02 首次接入。**`tilde` 别名是登录节点 `login-0`,没有 GPU**,
+不要在上面跑任何训练/打分。资源:`main` 分区 36 节点 × 8×H100-80GB;
+账户 `guests/zhen`,配额 `gres/gpu=8`(= 一个节点);文件系统单挂载 196 T、
+已用 99%(3 T 可用)。
+
+| 事项 | 做法 |
+|---|---|
+| 提交 | `srun`/`sbatch`,秒级拿到分配;**只信真正被 grant 的分配,不信 `sinfo` 的 idle 快照** |
+| 容器 | `enroot 3.5.0`。`jaxanluo/sglang-omni:dev` 是**私有**镜像匿名拉不下来,用 **`hongccc/sglang-omni:dev`** |
+| 数据 | 与 hyper 主机**互不可达**,但两边都能到 huggingface.co → 一律走 HF 私有仓库中转,不经本机 |
+| 模型 | 登录节点能直连 HF,17 G 的 GUI-Owl 直接在 tilde 上拉,不要从 hyper 搬 |
+
+三处输出噪音(都不是同一个来源,分别治):
+
+- **交互登录横幅**来自服务端 `/etc/update-motd.d/{00-welcome,10-system-info,20-slurm-stats,30-ssh-users}`,
+  **只在交互式登录时跑**——非交互 `ssh tilde 'cmd'` 本来就干净。远端 `touch ~/.hushlogin` 关掉。
+- **客户端 INFO 噪音**:本机 `~/.ssh/config` 的 tilde 条目加 `LogLevel ERROR`。
+- **`cpu-bind=MASK - worker-N ...`** 是 `srun` 自己打的,站点默认带 `verbose` 修饰符。
+  `srun --quiet` **收不住**,要用 `SLURM_CPU_BIND=quiet`(或 `--cpu-bind=quiet,cores`)。
+
+另一个会浪费时间的小坑:**tilde 的 `/tmp` 是会话隔离的**,`scp` 到 `/tmp/x`
+之后另开一个 `ssh` 会话看不到那个文件。要么直投目标路径,要么走家目录中转。
+
 第九条教训——**"只改一个 config 字段"不等于单变量对照,发射命令里的语料也是变量**。
 
 v6 三臂(tightcap/midcap/nogain)本意是"相对 v4 只改 drift cap eps",三个 config 确实
