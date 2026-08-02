@@ -469,13 +469,26 @@ def test_diagnostic_keys_are_spelled_like_the_gate_vocabulary() -> None:
 # ---------------------------------------------------------------------------
 # 3. 损失的数值契约
 # ---------------------------------------------------------------------------
-def test_satisfied_group_is_skipped_without_backward() -> None:
+def test_satisfied_group_still_runs_every_backward_at_weight_zero() -> None:
+    """完全满足的组**照样**逐臂反传,权重全 0。
+
+    # note (luojiaxuan): 2026-08-02 行为变更(修 DDP 发散)。本测试原名
+    # ``test_satisfied_group_is_skipped_without_backward``,锁的是"满足就不 backward"。
+    # 那正是发散的根源:是否满足**取决于该 rank 拿到的数据**,一个 rank 跳过、
+    # 另一个 rank 照做,两边的集合通信次数就对不上。实测(v6 midcap 四卡)四个 rank
+    # 卡死在同一个 SeqNum=7009,但 NumelIn 一个是 1、三个是 32768 —— 同序号不同形状。
+    # 现在改为遍历固定臂序列、取不到权重按 0 传:多花算力,换各 rank 序列完全一致。
+    # 权重恒 0 时梯度也恒 0,数值上与旧行为等价。
+    """
     samples, group = make_group()
     values = {slot: 0.0 for slot in group}
     values["SA"] = 1.0
     forward = Recorder(values)
     assert call_loss(samples, group, forward) is None
-    assert forward.grad_weights == {}
+    assert set(forward.grad_weights) == {
+        "SA", "RA", "SA_neg_duplicate", "SA_neg_irrelevant", "SA_neg_step_shuffled",
+    }
+    assert all(w == 0.0 for w in forward.grad_weights.values())
 
 
 def test_identity_adapter_has_a_did_select_of_exactly_zero() -> None:
@@ -851,7 +864,9 @@ def test_cap_anchors_each_negative_to_its_own_frozen_score() -> None:
     assert call_loss(samples, group, forward) is None, (
         "A_n = 0 时 cap 不罚;旧的锚到 R0 语义会在这里收一笔与 adapter 无关的罚"
     )
-    assert forward.grad_weights == {}
+    # 2026-08-02:固定臂序列后,不受罚 = 权重 0 而不是"不出现"(见
+    # test_satisfied_group_still_runs_every_backward_at_weight_zero 的说明)。
+    assert all(w == 0.0 for w in forward.grad_weights.values())
 
 
 def test_cap_penalises_only_the_adapter_induced_displacement() -> None:
@@ -956,7 +971,10 @@ def test_a_negative_whose_anchor_forward_fails_leaves_the_normaliser() -> None:
         + CONTENT_WEIGHT * (CONTENT_MARGIN + 0.05)
     )
     assert result == pytest.approx(expected, abs=1e-9)
-    assert "SA_neg_duplicate" not in forward.grad_weights
+    # 2026-08-02:退出损失 = 权重 0,而不是"不反传"。锚点前向失不失败是**数据相关**的,
+    # 一个 rank 跳过、另一个不跳,集合通信当场对不上(见
+    # test_satisfied_group_still_runs_every_backward_at_weight_zero)。损失值不受影响。
+    assert forward.grad_weights["SA_neg_duplicate"] == 0.0
 
 
 # ---------------------------------------------------------------------------
