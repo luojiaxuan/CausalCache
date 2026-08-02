@@ -1,0 +1,6 @@
+### la_cheap
+{"final": {"epoch": 40, "train_loss": 0.8003, "dev_edge_mse": 0.00901, "dev_singleton_spearman": 0.1516, "dev_top1_regret": 0.0986, "train_probe_edge_mse": 0.01, "train_probe_singleton_spearman": 0.1938, "train_probe_top1_regret": 0.0856, "replay_gain_b2": -0.0105, "oracle_gap_b2": 0.0853, "n_b2": 368, "replay_gain_b4": -0.0494, "oracle_gap_b4": 0.0657, "n_b4": 365, "model_set_size_dist": {"1": 338, "2": 34}}}
+### la_visual
+{"final": {"epoch": 20, "train_loss": 0.7952, "dev_edge_mse": 0.00903, "dev_singleton_spearman": 0.1498, "dev_top1_regret": 0.0977, "train_probe_edge_mse": 0.00998, "train_probe_singleton_spearman": 0.1769, "train_probe_top1_regret": 0.0878, "replay_gain_b2": -0.0104, "oracle_gap_b2": 0.0863, "n_b2": 368, "replay_gain_b4": -0.0493, "oracle_gap_b4": 0.0673, "n_b4": 365, "model_set_size_dist": {"1": 366, "2": 6}}}
+### p_cheap
+{"final": {"epoch": 40, "train_loss": 0.7984, "dev_edge_mse": 0.009, "dev_singleton_spearman": 0.1443, "dev_top1_regret": 0.1028, "train_probe_edge_mse": 0.01002, "train_probe_singleton_spearman": 0.1902, "train_probe_top1_regret": 0.0857, "replay_gain_b2": -0.0154, "oracle_gap_b2": 0.087, "n_b2": 368, "replay_gain_b4": -0.0543, "oracle_gap_b4": 0.0666, "n_b4": 365, "model_set_size_dist": {"1": 339, "2": 33}}}

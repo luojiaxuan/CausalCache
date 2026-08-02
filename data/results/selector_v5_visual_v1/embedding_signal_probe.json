@@ -1,0 +1,49 @@
+{
+ "groups": 5335,
+ "skipped_no_current_embedding": 0,
+ "min_candidates": 3,
+ "within_state_spearman": {
+  "cos_cq": {
+   "mean": -0.0014,
+   "ci95": [
+    -0.0122,
+    0.0093
+   ]
+  },
+  "negdist": {
+   "mean": -0.001,
+   "ci95": [
+    -0.0117,
+    0.0097
+   ]
+  },
+  "cos_cmean": {
+   "mean": -0.0013,
+   "ci95": [
+    -0.012,
+    0.0094
+   ]
+  },
+  "age": {
+   "mean": 0.0634,
+   "ci95": [
+    0.05,
+    0.0768
+   ]
+  },
+  "random": {
+   "mean": -0.0045,
+   "ci95": [
+    -0.0151,
+    0.0061
+   ]
+  }
+ },
+ "top1_oracle_hit_pct": {
+  "cos_cq": 13.7,
+  "negdist": 13.1,
+  "cos_cmean": 13.3,
+  "age": 16.8,
+  "random": 12.8
+ }
+}
