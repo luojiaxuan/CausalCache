@@ -1776,13 +1776,38 @@ def _sparse_history_group_loss_did(
     total = loss_select + loss_gain + loss_content + loss_cap
     # 第二遍:逐臂带梯度前向并立即 backward。RA 在这里出现是 did 目标的新增开销 ——
     # L_select 与 L_cap 都要对 A_r 的 active 端求导,而 R0 那端是冻结的。
-    for slot, weight in (
-        (SPARSE_POSITIVE_SLOT, weight_sparse),
-        (SPARSE_RECENT_ACTIVE_SLOT, weight_recent),
-        *weights.items(),
-    ):
-        if weight == 0.0:
-            continue
+    # note (luojiaxuan): **不能跳过 weight==0 的臂**。每次 backward 触发一轮 DDP 梯度桶
+    # all-reduce;各 rank 的数据不同 → 激活的 hinge 不同 → 跳过的臂不同 → 集合通信的
+    # 次数与形状在 rank 之间对不上,NCCL 直接挂死(600s watchdog 超时,rank0 完成
+    # 6176 而 rank1 完成 6177)。
+    # 这个分支从 v4 起就在,只是 eps=0.02 太松、L_cap 几乎从不激活,臂集合恒定所以没
+    # 暴露;2026-08-01 把 eps 收到 0.002/0.005 后 cap 频繁激活,双卡两个臂在同一个
+    # SeqNum 上必挂。weight=0 时照常前向反传,梯度恒为 0,只是多花算力换确定性。
+    # note (luojiaxuan): 2026-08-02 修 —— 上面这段注释描述的问题是对的,但**代码并没有
+    # 真正修掉它**:遍历的是 `weights.items()`,而 `weights` 的键只有 cap/content
+    # 实际激活的负样本才会进去,**仍然是数据相关的**。各 rank 数据不同 → 键集合不同
+    # → backward 次数不同 → 集合通信对不上。
+    #
+    # 实证(v6 midcap,eps=0.005,四卡):四个 rank 全部卡死在 **同一个 SeqNum=7009**,
+    # 但 rank3 的 NumelIn=1、rank0/1/2 的 NumelIn=32768 —— 同序号不同形状,
+    # 是发散而非单纯的进度不齐。tightcap(eps=0.002)同样死法。
+    # eps=0.02 时 cap 几乎从不激活,键集合恒为空,所以旧配置侥幸没暴露。
+    #
+    # 改法:遍历**固定**的臂序列(SA、RA、全部负样本 slot 按名排序),
+    # 取不到权重就按 0 传。weight=0 时照常前向反传,梯度恒为 0,
+    # 用算力换各 rank 的集合通信序列完全一致。
+    fixed_backward_slots = (
+        SPARSE_POSITIVE_SLOT,
+        SPARSE_RECENT_ACTIVE_SLOT,
+        *sorted(negatives),
+    )
+    for slot in fixed_backward_slots:
+        if slot == SPARSE_POSITIVE_SLOT:
+            weight = weight_sparse
+        elif slot == SPARSE_RECENT_ACTIVE_SLOT:
+            weight = weight_recent
+        else:
+            weight = weights.get(slot, 0.0)
         forward(slot, grad=True, backward_weight=weight / accumulation)
 
     loss_l2 = 0.0

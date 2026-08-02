@@ -233,6 +233,13 @@ def build_b_groups(
             pool_size=candidate_pool_size,
             coordinate_tolerance=coordinate_tolerance,
         )
+        # note (luojiaxuan): 候选数**必须逐组相同**,否则每组的 backward 次数不同,
+        # 各 rank 的集合通信序列对不上 —— 与 2026-08-02 查实的 midcap 死法同源
+        # (四 rank 卡在同一 SeqNum=7009 但 NumelIn 一个是 1、三个是 32768)。
+        # 所以候选不满 K 的组整组弃用并计数,fail-closed,不做补齐或降级。
+        if candidate_pool_size and len(candidate_events) < candidate_pool_size:
+            counters["rejected_candidate_pool_short"] += 1
+            continue
         for i, cand in enumerate(candidate_events, start=1):
             selection_specs[f"cand{i}"] = sorted([*kept_window, cand])
         if emit_parity:
