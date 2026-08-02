@@ -80,11 +80,12 @@ def parse_args() -> argparse.Namespace:
              "(dim 28+8+8),单遍部署路径的 v2 输入",
     )
     parser.add_argument(
-        "--arch", choices=("two_tower", "concat"), default="two_tower",
+        "--arch", choices=("two_tower", "concat", "visual"), default="two_tower",
         help="two_tower = score 可加(cheap + 正则残差塔,无跨组交互);"
              "concat = 单塔全交互,readout 维经 dropout 后并入首层,"
              "readout 首层权重吃同样的强 weight decay。n 小、训练分钟级,"
-             "两种都跑 dev 上选,不靠先验拍板",
+             "两种都跑 dev 上选,不靠先验拍板;"
+             "visual = 方案 3,cheap 维 + 帧 embedding 交互块(需 --embedding-root)",
     )
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--device", default="cpu")
@@ -102,6 +103,18 @@ def parse_args() -> argparse.Namespace:
     # 基线 +0.0051)。打开本开关后,早停与最优快照改按**部署配置**的指标判定。
     parser.add_argument("--select-by-deploy-config", action="store_true",
                         help="按 readout 关断(部署口径)的 dev 指标做早停与选最优快照")
+    # note (luojiaxuan): 方案 3(免 pass-2 的视觉 selector)。readout 塔要一遍
+    # HGKV 前向、witness 家族要 proposal pass,两者都是 pass-2 的成本来源。
+    # 这里改用**缓存的帧 embedding**:每帧首次出现时由策略视觉塔顺带产出,
+    # 选记忆时只查表 + 过一个 ~32 万参数的 MLP,不需要第二遍解码。
+    # 关键是它必须建模"候选帧 × 当前状态"的**交互**——现有 cheap 塔的 28 维
+    # 几乎全是位置/年龄类结构量,对"这张旧图里有没有我现在需要的东西"一无所知。
+    parser.add_argument("--embedding-root", type=Path, default=None,
+                        help="帧 embedding 目录(emb.shard*.jsonl,"
+                             "extract_frame_embeddings_v1.py 产出)。给定即启用交互块")
+    parser.add_argument("--visual-proj", type=int, default=128,
+                        help="embedding 降维后的宽度(交互块按此宽度做逐元素积)")
+    parser.add_argument("--visual-dropout", type=float, default=0.1)
     return parser.parse_args()
 
 
@@ -349,6 +362,83 @@ def main() -> None:
         print(json.dumps({"readout_dim": readout_dim,
                            "readout_coverage": round(coverage, 4)}))
 
+    # ---- 可选:帧 embedding 交互块(方案 3,免 pass-2) ----
+    # note (luojiaxuan): 索引口径 —— image_relpaths 有 step 项,第 i 项是"执行第
+    # i+1 步动作前所看到的那一屏"。所以候选事件 e 的帧 = image_relpaths[e],
+    # 当前状态帧 = image_relpaths[step-1]。这与 candidate_features 里
+    # `exhibited = history_by_step[event + 1]` 是同一套编号,改动必须同步。
+    # 第 0 行恒为零向量,充当"缺帧 / 空集合"的占位,mask 语义由零向量承担。
+    visual_dim = 0
+    emb_matrix = None
+    v_idx_all = None
+    if args.embedding_root is not None:
+        rel_rows: dict[str, int] = {}
+        vecs: list[list[float]] = []
+        for row in load_jsonl_rows(args.embedding_root, "emb.shard*.jsonl"):
+            if row.get("kind") != "frame_embedding":
+                continue
+            rel = row["relpath"]
+            if rel in rel_rows:
+                continue
+            rel_rows[rel] = len(vecs) + 1
+            vecs.append(row["vector"])
+        if not vecs:
+            raise SystemExit("embedding-root 给了但没读到任何 frame_embedding 行")
+        visual_dim = len(vecs[0])
+        emb_matrix = torch.zeros((len(vecs) + 1, visual_dim), dtype=torch.float32)
+        emb_matrix[1:] = torch.tensor(vecs, dtype=torch.float32)
+        del vecs
+
+        def _frame_row(dp: str, ev: int) -> int:
+            rec = records.get(dp)
+            if rec is None:
+                return 0
+            rel = rec["image_relpaths"]
+            if not 0 <= ev < len(rel):
+                return 0
+            return rel_rows.get(rel[ev], 0)
+
+        set_row_of: dict[tuple, int] = {}
+        set_members: list[list[int]] = []
+        cand_rows, cur_rows, set_rows_idx = [], [], []
+        for dp, selected, event, _m in edges:
+            cand_rows.append(_frame_row(dp, event))
+            rec = records.get(dp)
+            cur_rows.append(
+                _frame_row(dp, int(rec["step"]) - 1) if rec is not None else 0
+            )
+            key = (dp, selected)
+            if key not in set_row_of:
+                rows = [r for r in (_frame_row(dp, e) for e in selected) if r]
+                if rows:
+                    set_row_of[key] = len(set_members) + 1
+                    set_members.append(rows)
+                else:
+                    set_row_of[key] = 0
+            set_rows_idx.append(set_row_of[key])
+        # 已选集合的均值向量单独成表(按 (dp, selected) 去重,边数远大于集合数)
+        set_matrix = torch.zeros((len(set_members) + 1, visual_dim),
+                                 dtype=torch.float32)
+        for i, rows in enumerate(set_members):
+            set_matrix[i + 1] = emb_matrix[rows].mean(dim=0)
+        emb_matrix = torch.cat([emb_matrix, set_matrix], dim=0)
+        set_offset = emb_matrix.shape[0] - set_matrix.shape[0]
+        v_idx_all = torch.tensor(
+            [
+                [c, q, (s + set_offset) if s else 0]
+                for c, q, s in zip(cand_rows, cur_rows, set_rows_idx)
+            ],
+            dtype=torch.long, device=args.device,
+        )
+        print(json.dumps({
+            "visual_dim": visual_dim,
+            "visual_frames": int(set_offset - 1),
+            "visual_unique_sets": len(set_members),
+            # 覆盖率必须两侧都报:缺当前帧的边等价于退化回无交互
+            "cand_coverage": round(sum(1 for r in cand_rows if r) / len(cand_rows), 4),
+            "cur_coverage": round(sum(1 for r in cur_rows if r) / len(cur_rows), 4),
+        }))
+
     torch.manual_seed(args.seed)
     device = args.device
 
@@ -367,7 +457,7 @@ def main() -> None:
                     torch.nn.Linear(64, 1),
                 )
 
-        def forward(self, x, r=None, rm=None):
+        def forward(self, x, r=None, rm=None, v=None):
             score = self.cheap(x).squeeze(-1)
             if readout_dim and r is not None:
                 score = score + self.readout(r).squeeze(-1) * rm
@@ -386,13 +476,70 @@ def main() -> None:
                 torch.nn.Linear(args.hidden, 1),
             )
 
-        def forward(self, x, r=None, rm=None):
+        def forward(self, x, r=None, rm=None, v=None):
             if readout_dim and r is not None:
                 r = self.drop(r) * rm.unsqueeze(-1)
                 x = torch.cat([x, r], dim=-1)
             return self.net(x).squeeze(-1)
 
-    if args.arch == "concat" and readout_dim:
+    class VisualInteract(torch.nn.Module):
+        """方案 3:候选帧 × 当前状态的低秩交互块,替代 pass-2 的 proposal witness。
+
+        # note (luojiaxuan): 为什么必须是**交互**而不是把 embedding 直接拼进
+        # 首层。cheap 塔的 28 维几乎全是位置量(年龄、新近排名、轨迹形状),
+        # 唯一带内容的是 witness 家族,而 witness 要么用真值目标(训练)、要么
+        # 用 proposal(pass-2)。单独拼 e_c 只告诉模型"这张图长什么样",
+        # 判断"它对**现在**有没有用"需要 e_c 与 e_q 同时出现在一个乘性项里。
+        # 所以交互块给的是 u_c ⊙ u_q、u_c − u_q 与 u_c ⊙ u_S(对已选集合的冗余度)。
+        # u_q 单独一项在组内是常数,不影响排序,但对边际回归项的状态偏置有用,保留。
+        """
+
+        def __init__(self):
+            super().__init__()
+            self.register_buffer("emb", emb_matrix)
+            self.ln = torch.nn.LayerNorm(visual_dim)
+            p = args.visual_proj
+            self.proj = torch.nn.Linear(visual_dim, p)
+            self.drop = torch.nn.Dropout(args.visual_dropout)
+            self.net = torch.nn.Sequential(
+                torch.nn.Linear(dim + 5 * p + 3, args.hidden), torch.nn.GELU(),
+                torch.nn.Linear(args.hidden, args.hidden), torch.nn.GELU(),
+                torch.nn.Linear(args.hidden, 1),
+            )
+
+        def forward(self, x, r=None, rm=None, v=None):
+            ec = self.ln(self.emb[v[:, 0]])
+            eq = self.ln(self.emb[v[:, 1]])
+            es = self.ln(self.emb[v[:, 2]])
+            uc, uq, us = self.proj(ec), self.proj(eq), self.proj(es)
+            cos = torch.nn.functional.cosine_similarity
+            scal = torch.stack([
+                cos(ec, eq, dim=-1),
+                cos(ec, es, dim=-1),
+                (ec - eq).norm(dim=-1) / math.sqrt(visual_dim),
+            ], dim=-1)
+            h = self.drop(
+                torch.cat([uc, uq, uc * uq, uc - uq, uc * us], dim=-1)
+            )
+            return self.net(torch.cat([x, h, scal], dim=-1)).squeeze(-1)
+
+    if args.arch == "visual":
+        if v_idx_all is None:
+            raise SystemExit("--arch visual 需要 --embedding-root")
+        model = VisualInteract().to(device)
+        decay_params = [model.proj.weight]
+        base_params = [
+            p for n, p in model.named_parameters()
+            if n != "proj.weight" and p.requires_grad
+        ]
+        # 降维矩阵吃与 readout 同档的强 weight decay:1152→128 是全模型参数量的
+        # 一半,不压住它就会把 embedding 噪声当信号背下来(n 只有 5 万条边)。
+        param_groups = [
+            {"params": base_params},
+            {"params": decay_params,
+             "weight_decay": args.readout_weight_decay},
+        ]
+    elif args.arch == "concat" and readout_dim:
         model = Concat().to(device)
         first = model.net[0]
         # readout 首层权重列吃强 weight decay(分组正则版降权,保留交互)
@@ -450,6 +597,10 @@ def main() -> None:
     mask_readout = {"on": False}
 
     def _fwd(idx):
+        if v_idx_all is not None:
+            # 方案 3 不带 readout 塔:embedding 就是它的内容侧输入,
+            # 且部署时无需 mask —— 缓存的 embedding 在线本来就拿得到。
+            return model(x_all[idx], None, None, v_idx_all[idx])
         if readout_dim and not mask_readout["on"]:
             return model(x_all[idx], r_all[idx], rm_all[idx])
         if readout_dim:
@@ -601,7 +752,11 @@ def main() -> None:
         with torch.no_grad():
             di = torch.tensor(dev_idx, dtype=torch.long, device=device)
             truth = y_all[di]
-            cheap_only = model.cheap(x_all[di]).squeeze(-1)
+            # visual 臂没有可分离的 cheap 塔,整模型输出就是部署输出
+            cheap_only = (
+                _fwd(di) if args.arch == "visual"
+                else model.cheap(x_all[di]).squeeze(-1)
+            )
             calib = {
                 "dev_n": int(di.numel()),
                 "label_positive_pct": round(100.0 * float((truth > 0).float().mean()), 1),
