@@ -82,7 +82,11 @@ srun --container-image="$IMAGE" \
      --container-mounts="$ROOT:$ROOT" \
      --container-workdir="$REPO" \
      bash -lc "
-       export PYTHONPATH=$REPO/code
+       # note (luojiaxuan): 冻结视觉守卫钉死 transformers==5.6.0,并核对视觉模块的
+       # **源码哈希**——不是只比版本号。tilde 的镜像 hongccc/sglang-omni:dev 带的是
+       # 5.12.1(torch 相同),第三次提交栽在这儿。不改镜像,把 5.6.0 装到挂载目录
+       # 再前置 PYTHONPATH;pylibs 必须排在 $REPO/code **前面**才能盖住镜像自带的。
+       export PYTHONPATH=$ROOT/pylibs:$REPO/code
        export HF_HOME=$ROOT/hf
        torchrun --standalone --nproc_per_node=8 code/scripts/train_success_sft_lora.py \
          --config $CONFIG \
