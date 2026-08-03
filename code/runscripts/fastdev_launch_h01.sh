@@ -63,3 +63,11 @@ for s in 0 1 2 3 4 5 6 7; do
 done
 sleep 5
 echo "h01 workers: $(pgrep -cf '[r]un_osworld_benchmark_worker')"
+
+# ---- 2026-08-03 补记:h01 首发踩的三个坑,重发时按此规避 ----
+# 1) worker 的 cwd 必须是已有 VM 镜像缓存的目录(run30),新建 cwd 会触发
+#    provider 重下 11.4 GB 且 8 进程竞写同一文件;老脚本的 vmdl 预下载就是防这个。
+# 2) 宿主没有 unzip 命令;预下载后用 python3 -c "import zipfile;..." 解压,
+#    或干脆让第一个 worker 自己解(provider 内置 zipfile 解压,能用)。
+# 3) 远程 pkill 模式必须写成 [r]un_osworld_...,不带括号会匹配到承载它的
+#    ssh 命令行自杀(exit 255)——README 第六条教训在远程执行下的变体。
