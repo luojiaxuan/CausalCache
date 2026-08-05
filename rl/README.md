@@ -57,7 +57,8 @@ serve(τ>0, --rl-audit-dir) × N 副本
 - [x] collector / GRPO trainer / ActionScorer / 任务切分
 - [x] 冒烟端到端通过(2026-08-05:exit 0,adv=±0.833 精确,零初始化 KL=0)
 - [x] `rl_iter_loop.sh` + 可学带任务表(47 任务,6 测量 0<p<1)
-- [ ] iter-0 bootstrap(v4 selector bundle 就位)+ 首轮正式迭代
+- [x] hidden 冒烟端到端(索引遍 2.7s/步;trainer adv 精确对账 0.7035;组内已见真实奖励方差)
+- [x] iter-0 bootstrap(hidden 头)+ 首轮迭代已发(ITER 1-4 @ h01,2026-08-05)
 - [ ] held-out 评测脚本(τ=0/50 步/2 轮);trainer DDP 分片(提速项,非阻塞)
 
 ## 2026-08-05 冒烟交接(容器变更警报)
