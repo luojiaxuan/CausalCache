@@ -53,3 +53,12 @@ ActionScorer 接口(trainer 已按此调用):`episode_action_logprob(ep, grad)`�
 `episode_kl_to_frozen(ep)`、`adapter_parameters()`、`save_adapter(path)`;
 prompt 重建必须走 `causalcache.osworld_official_online.build_official_messages_for_request`
 同源函数,图片从 episode 的 `attempt_dir/attempts/*/step-*.png` 读。
+
+## 2026-08-05 补充:tilde 实探与 B=2 裁定
+
+- **tilde 计算节点无 /dev/kvm、docker socket 拒绝**(worker-7 实测)——OSWorld VM
+  上不了 tilde;rollout 留 hyper,**训练步上 tilde 8×H100**(它才是瓶颈:
+  ~10 GPU·h/迭代),跨站经 HF 私有仓库交换(轨迹上行 ~0.5GB,权重下行 ~3MB)。
+- **预算固定 B=2**(用户裁定):oracle 空间是 B=4 的 2.8 倍,prompt 短 ~25%、
+  PL 采样 2 轮,rollout/训练各省 20–30%。
+- **估时**:流水线重叠后 ~1h/迭代;60 迭代判停线 ≈ 2.5–3 天,100 迭代 ≈ 4–5 天。
