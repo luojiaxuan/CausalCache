@@ -25,10 +25,10 @@ class ActionScorer:
         from causalcache.policy.gui_owl_v2_vision import (
             verify_frozen_vision_runtime,
         )
-        from scripts.train_success_sft_lora import (
+        from causalcache.policy.history_gated_lora import (
+            history_gated_state_dict,
             inject_history_gated_kv,
-            load_lora_state_dict,
-            lora_state_dict,
+            load_history_gated_state_dict,
         )
 
         self.torch = torch
@@ -44,21 +44,21 @@ class ActionScorer:
         ad = adapter_config["adapter"] if "adapter" in adapter_config else adapter_config
         self.wrapped = inject_history_gated_kv(
             self.model,
-            rank=int(ad["rank"]), alpha=int(ad["alpha"]),
-            layer_selection=ad.get("layers", "last_8"),
-            target_modules=tuple(ad.get("target_modules", ("k_proj", "v_proj"))),
-            torch=torch,
+            layer_count=int(ad.get("layer_count")
+                        or str(ad["layer_scope"]).rsplit("_", 1)[1]),
+            rank=int(ad["rank"]),
+            alpha=int(ad["alpha"]),
         )
         if resume_adapter is not None:
-            load_lora_state_dict(self.wrapped, torch.load(
+            load_history_gated_state_dict(self.wrapped, torch.load(
                 resume_adapter, map_location="cpu"))
-        self._lora_state_dict = lora_state_dict
+        self._lora_state_dict = history_gated_state_dict
 
     # ---- 参数与存取 ----
     def adapter_parameters(self):
         params = []
         for mod in self.wrapped.values():
-            params += [mod.lora_A, mod.lora_B]
+            params += [mod.lora_a, mod.lora_b]
         return params
 
     def save_adapter(self, path: Path) -> None:
@@ -75,15 +75,17 @@ class ActionScorer:
             history.append({
                 "step_id": s["step_index"],
                 "action": s.get("action") or {},
+                "official_arguments": s.get("official_arguments"),
+                "full_response": s.get("action_text"),
                 "restored_post_screenshot_png_base64":
                     base64.b64encode(png).decode(),
             })
         cur = ep["steps"][upto_step - 1]
         prev = (ep["steps"][upto_step - 2]["screenshot_file"]
                 if upto_step >= 2 else None)
-        # 当前屏 = 上一步的 post 截图;第一步用 attempt 目录里的 step-000 初始屏
+        # 当前屏 = 上一步的 post 截图;第一步用 attempt 目录的 initial.png
         cur_png = (root / prev if prev
-                   else next(iter(sorted((root / "attempts").rglob("step-000.png")))))
+                   else next(iter(sorted((root / "attempts").rglob("initial.png")))))
         meta = json.loads((root / "result.json").read_text())
         return {
             "task": {"task_id": ep["task_id"],
@@ -121,11 +123,29 @@ class ActionScorer:
         input_ids = torch.cat([enc["input_ids"], tgt], dim=1)
         attn = torch.ones_like(input_ids)
         prompt_len = enc["input_ids"].shape[1]
+        # Qwen3-VL M-RoPE 需要 mm_token_type_ids;目标 token 是纯文本 → 类型 0
+        mm = enc.get("mm_token_type_ids")
+        if mm is not None:
+            mm = torch.cat([mm, torch.zeros_like(tgt)], dim=1)
 
         if adapter_on and req["history"]:
-            mask = build_history_token_mask(
-                self.processor, enc, history_image_count=len(req["_shown"]))
-            scope = history_adapter_scope(HistoryAdapterContext(mask=mask))
+            # mask 只盖 prompt 段;目标 token(纯文本)不在图像块内,直接补 False
+            mask_prompt = build_history_token_mask(
+                enc["input_ids"], enc["mm_token_type_ids"],
+                enc["image_grid_thw"],
+                history_image_count=len(req["_shown"]),
+                merge_size=int(self.processor.image_processor.merge_size))
+            mp = mask_prompt.to(self.device)
+            if mp.dim() == 1:
+                mp = mp.unsqueeze(0)
+            pad = torch.zeros((1, tgt.shape[1]), dtype=torch.bool,
+                              device=self.device)
+            mask = torch.cat([mp, pad], dim=1)  # [1, seq] 契约
+            roles = tuple(["history"] * len(req["_shown"]) + ["current"])
+            scope = history_adapter_scope(HistoryAdapterContext(
+                history_token_mask=mask,
+                history_present=bool(mask.any()),
+                image_roles=roles))
         else:
             scope = contextlib.nullcontext()
 
@@ -133,6 +153,7 @@ class ActionScorer:
         with ctx, scope:
             out = self.model(
                 input_ids=input_ids, attention_mask=attn,
+                mm_token_type_ids=mm,
                 pixel_values=enc.get("pixel_values"),
                 image_grid_thw=enc.get("image_grid_thw"))
             logits = out.logits[0, prompt_len - 1:-1]

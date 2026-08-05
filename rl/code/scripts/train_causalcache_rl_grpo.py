@@ -66,7 +66,7 @@ def parse_args() -> argparse.Namespace:
 # ---------------------------------------------------------------------------
 def build_selector(bundle_path: Path, torch):
     bundle = torch.load(bundle_path, map_location="cpu")
-    dim = len(bundle["norm_mean"])
+    dim = len(bundle["mean"])
 
     class CheapHead(torch.nn.Module):
         def __init__(self) -> None:

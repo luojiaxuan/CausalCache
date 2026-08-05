@@ -67,3 +67,22 @@ h00 的原容器视图丢失,但宿主侧 /data02/jaxan/* 数据完好,需要时
    train_causalcache_rl_grpo 单卡;
 5. 首跑校验:重建 prompt 的 token 数 ≈ rollout 日志 prompt_tokens;
    groups 全 0/全 1 时 trainer 会明确拒绝(选翻转任务就是为避免这个)。
+
+## 2026-08-05 冒烟结果:全链路通到最后一关(OOM),两处已知修法
+
+**已验证通过**:serve PL 采样+审计(71 行,logp 数学自洽)→ 6 episode rollout
+(2 任务×G=3,B=2,零报错)→ collector 三键 join(6/6)→ selector 装载 →
+HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_response
+后 build_desktop_official_messages 通过)→ mask([1,seq] 契约 + 目标段补 False)
+→ Qwen3-VL 前向(mm_token_type_ids 随目标延长)。
+
+**OOM 根因与修法(下一 session 首件事):**
+1. trainer 把整条 episode(12-15 步 × 多图长 prompt)的梯度图攒着才 backward
+   —— 改成**逐步 backward**(adv/accum 缩放),接口从 episode_action_logprob
+   改为 per-step 回调;KL 与 logprob 合并进同一次带梯度前向,off 侧 no-grad;
+2. ActionScorer 没设 visual-tokens —— serve 用 2560,scorer 必须同值
+   (看 serve 如何把 --visual-tokens 应用到 processor),否则图片 token 数
+   既炸显存又与 rollout 分布不一致。
+
+冒烟 fixture(两退化组并成伪组)只用于走通代码路径,不是方法论。
+本轮 6 个修复均已回传本地 rl/ 目录。

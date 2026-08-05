@@ -82,6 +82,9 @@ def main() -> None:
                     "action_text": text,
                     "screenshot_file": step.get("screenshot_file"),
                     "action": step.get("action"),
+                    "official_arguments": (
+                        step.get("official_arguments")
+                        or resp.get("official_arguments")),
                 })
             if not steps_out:
                 dropped["empty"] += 1
