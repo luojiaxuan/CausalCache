@@ -68,10 +68,7 @@ PY"
       || cp "$ID_H/tasks.json" "$B/OSWorld/evaluation_examples/rl_iter_$ITER.json"
   fi
 
-  # ---------- 1. rollout ----------
-  if [ ! -f "$ID_H/ROLLOUT_DONE" ]; then
-    log "R: 启动 $SERVERS 个 server(τ=$TAU B=$BUDGET)"
-    # 上迭代产物:selector 必有;adapter 首迭代可无(缺省 = 冻结恒等)
+  launch_servers() {  # 参数:$1 = fatal|soft(健康检查失败是否致命)
     SEL=$PD_C/selector_bundle.pt
     if [ "$SELECTOR_MODE" = "hidden" ]; then
       SEL_FLAGS="--selector-mode hidden --selector-head $SEL"
@@ -96,27 +93,53 @@ PY"
     sleep 110
     for s in $(seq 0 $((SERVERS-1))); do
       code=$(curl -s -o /dev/null -w "%{http_code}" "http://$CIP:$((PORT0+s))/health" --max-time 5)
-      [ "$code" = "200" ] || { log "FATAL server $s health=$code"; exit 1; }
+      if [ "$code" != "200" ]; then
+        log "server $s health=$code"
+        [ "$1" = "fatal" ] && exit 1
+      fi
     done
+  }
+
+  run_generation() {  # 参数:$1 = 代号 g
+    local g=$1
+    cexec "mkdir -p $ID_C/out-g$g && chmod 777 $ID_C/out-g$g"
+    for s in $(seq 0 $((WORKERS-1))); do
+      ( cd "$B/run30" && PYTHONPATH=$WREPO/code:$B/OSWorld /usr/bin/python3 \
+          "$WREPO/code/scripts/run_osworld_benchmark_worker.py" \
+          --osworld-root "$B/OSWorld" \
+          --meta-path "evaluation_examples/rl_iter_$ITER.json" \
+          --shard-index "$s" --shard-count "$WORKERS" \
+          --output-root "$RLH/iter-$ITER/out-g$g" \
+          --policy-endpoint "http://$CIP:$((PORT0 + s % SERVERS))/act" \
+          --memory-arm full --memory-budget "$BUDGET" \
+          --max-steps "$MAX_STEPS" \
+          --cache-dir "$B/cache-fast" \
+          >> "$ID_H/worker-g$g-$s.log" 2>&1 ) &
+    done
+    wait
+  }
+
+  # ---------- 1. rollout ----------
+  if [ ! -f "$ID_H/ROLLOUT_DONE" ]; then
+    log "R: 启动 $SERVERS 个 server(τ=$TAU B=$BUDGET)"
+    launch_servers fatal
     log "R: $G 代 × $WORKERS worker rollout"
     for g in $(seq 0 $((G-1))); do
-      cexec "mkdir -p $ID_C/out-g$g && chmod 777 $ID_C/out-g$g"
-      for s in $(seq 0 $((WORKERS-1))); do
-        ( cd "$B/run30" && PYTHONPATH=$WREPO/code:$B/OSWorld /usr/bin/python3 \
-            "$WREPO/code/scripts/run_osworld_benchmark_worker.py" \
-            --osworld-root "$B/OSWorld" \
-            --meta-path "evaluation_examples/rl_iter_$ITER.json" \
-            --shard-index "$s" --shard-count "$WORKERS" \
-            --output-root "$RLH/iter-$ITER/out-g$g" \
-            --policy-endpoint "http://$CIP:$((PORT0 + s % SERVERS))/act" \
-            --memory-arm full --memory-budget "$BUDGET" \
-            --max-steps "$MAX_STEPS" \
-            --cache-dir "$B/cache-fast" \
-            >> "$ID_H/worker-g$g-$s.log" 2>&1 ) &
-      done
-      wait
+      run_generation "$g"
       log "R: 代 $g 完成"
     done
+    # ---- 修复遍(2026-08-06 iter-6 实测):cuDNN mha_graph 逐请求失败会毒化
+    # server —— 进程活着、/health 200,但请求全 500,挂它的 worker 全程 HTTPError
+    # (iter-6 损失 18/48)。判据 = serve 日志 OSWORLD_POLICY_FAILURE 计数;
+    # >0 则全量重启 server 后把所有代补跑一遍(断点续跑令已完成任务瞬时跳过)。
+    PF=$(cexec "cat $ID_C/serve-*.log 2>/dev/null | grep -c OSWORLD_POLICY_FAILURE" | tr -cd '0-9')
+    if [ "${PF:-0}" -gt 0 ]; then
+      log "R: 检测到 $PF 次策略失败,重启 server 补跑全部代"
+      cexec "pkill -f '[s]erve_osworld_rl_policy' || true"; sleep 5
+      launch_servers soft
+      for g in $(seq 0 $((G-1))); do run_generation "$g"; done
+      log "R: 补跑完成"
+    fi
     # 滚动重启纪律:rollout 一结束立刻杀 server(监督循环没有,直接杀进程)
     cexec "pkill -f '[s]erve_osworld_rl_policy' || true"; sleep 3
     n=$(find "$ID_H"/out-g* -name result.json 2>/dev/null | wc -l)
