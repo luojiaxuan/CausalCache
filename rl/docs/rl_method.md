@@ -65,6 +65,18 @@ $$\mathcal{L}_i = -A_i\big[w_s \log \pi_{\text{sel}}(\tau_i) + w_a \log p_\Delta
 | 记忆预算 B | **2**(用户裁定;oracle 空间是 B=4 的 2.8 倍) | BUDGET |
 | 采样温度 τ | 1.0(部署/评测 τ=0 即 argmax) | TAU |
 
+## 2.5 Selector v2(默认):policy hidden-state 打分头,零手写特征
+
+2026-08-05 用户裁定废除 28 维手写特征(它是最后一块启发式残留;witness 家族
+实测无用,内容盲特征学不出有用性,"部署零成本"的理由随 pivot 已死)。
+默认 selector 换为**索引遍 + 打分头**:全部历史图缩略(144 token/图)+ 各步
+动作行 + 当前屏,过冻结策略一次前向,各历史图 token 段 mean-pool hidden
+state(H=4096),Linear(H,1) 打分 → PL 采样。可学参数 ~4K;年龄/新近以
+位置编码形式留在模型自身表征里,用不用由 RL 决定。部署成本 = 每步多一次
+~5-8K token 的低清 prefill(诚实披露;低于旧 pass-2)。
+详细设计与 v1 边界:`selector_hidden_design.md`。cheap 塔保留为对照臂
+(SELECTOR_MODE=cheap)。
+
 ## 3. 怎么 rollout:探索来自 Plackett-Luce 选帧采样
 
 环境 = 真实 OSWorld(Docker VM,worker 在宿主起 VM,server 在容器出动作)。

@@ -78,6 +78,9 @@ def main() -> None:
                 steps_out.append({
                     "step_index": i,
                     "rounds": row.get("rounds") or [],
+                    "selector_mode": row.get("mode", "cheap"),
+                    "hidden_vectors": row.get("hidden_vectors"),
+                    "hidden_size": row.get("hidden_size"),
                     "shown_events": resp.get("shown_events") or [],
                     "action_text": text,
                     "screenshot_file": step.get("screenshot_file"),

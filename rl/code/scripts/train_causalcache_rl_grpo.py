@@ -65,7 +65,13 @@ def parse_args() -> argparse.Namespace:
 # selector:与部署同构的两塔 cheap 头(readout 部署侧恒 mask,RL 不训它)
 # ---------------------------------------------------------------------------
 def build_selector(bundle_path: Path, torch):
-    bundle = torch.load(bundle_path, map_location="cpu")
+    bundle = torch.load(bundle_path, map_location="cpu", weights_only=False)
+    # selector v2:hidden_head = Linear(H,1),特征 = 策略自己的 hidden state
+    # (审计里 base64-fp16 传输),无任何手写特征。
+    if bundle.get("kind") == "hidden_head":
+        head = torch.nn.Linear(int(bundle["hidden_size"]), 1)
+        head.load_state_dict(bundle["model_state"])
+        return head, bundle
     dim = len(bundle["mean"])
 
     class CheapHead(torch.nn.Module):
@@ -89,19 +95,34 @@ def build_selector(bundle_path: Path, torch):
     return model, bundle
 
 
+def _round_features(step, rnd, torch, device):
+    """一轮的候选特征矩阵:cheap = 审计内嵌 28 维;hidden = 解码 fp16 向量。"""
+    if rnd.get("features") is not None:
+        return torch.tensor(rnd["features"], dtype=torch.float32, device=device)
+    import base64
+
+    import numpy as np
+    hv = step.get("hidden_vectors") or {}
+    H = int(step["hidden_size"])
+    mats = [np.frombuffer(base64.b64decode(hv[str(c)]), dtype=np.float16)
+                .astype("float32").reshape(H)
+            for c in rnd["candidates"]]
+    return torch.tensor(np.stack(mats), device=device)
+
+
 def selector_logprob_and_entropy(model, episode, torch, temperature: float):
     """从审计特征复算 log pi_sel(整条轨迹)与逐轮熵(可导)。
 
-    # note (luojiaxuan): 审计里的特征已经过 bundle 归一化(serve 侧 selector_norm),
-    # 这里直接前向,千万不要再归一化一次。offset 是常数,softmax 下无影响,不加。
+    # note (luojiaxuan): cheap 特征已过 bundle 归一化,不要再归一化;
+    # hidden 向量原样进头(头自己学尺度)。offset 是常数,softmax 下无影响。
     """
     logp_total = None
     ent_total = None
     n_rounds = 0
     for step in episode["steps"]:
         for rnd in step.get("rounds") or []:
-            feats = torch.tensor(rnd["features"], dtype=torch.float32,
-                                 device=next(model.parameters()).device)
+            feats = _round_features(
+                step, rnd, torch, next(model.parameters()).device)
             scores = model(feats) / temperature
             logp = torch.log_softmax(scores, dim=0)
             idx = rnd["candidates"].index(rnd["chosen"])
@@ -209,10 +230,13 @@ def main() -> None:
 
     # ---- 落盘:selector bundle(部署同构)+ LoRA + 迭代统计 ----
     out_bundle = dict(bundle)
-    out_bundle["model_state"] = {
-        f"cheap.{k.split('cheap.', 1)[1]}" if k.startswith("cheap.") else k: v
-        for k, v in sel_model.state_dict().items()
-    }
+    if bundle.get("kind") == "hidden_head":
+        out_bundle["model_state"] = sel_model.state_dict()
+    else:
+        out_bundle["model_state"] = {
+            f"cheap.{k.split('cheap.', 1)[1]}" if k.startswith("cheap.") else k: v
+            for k, v in sel_model.state_dict().items()
+        }
     torch.save(out_bundle, args.output_root / "selector_bundle.pt")
     scorer.save_adapter(args.output_root / "adapter.pt")
     report = {

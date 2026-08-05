@@ -21,6 +21,10 @@ ITER_START=${ITER_START:?}; ITER_END=${ITER_END:?}
 TASKS_PER_ITER=${TASKS_PER_ITER:-8}; G=${G:-6}
 WORKERS=${WORKERS:-4}; SERVERS=${SERVERS:-3}
 MAX_STEPS=${MAX_STEPS:-30}; TAU=${TAU:-1.0}; BUDGET=${BUDGET:-2}
+# selector v2 为默认:hidden = 策略 hidden-state 打分头(零手写特征);
+# cheap = 旧 28 维两塔,仅作对照臂。iter-0 bootstrap 产物不同:
+#   hidden → make_hidden_head.py 的头 bundle;cheap → v4 marginal_scorer.pt
+SELECTOR_MODE=${SELECTOR_MODE:-hidden}
 EVAL_EVERY=${EVAL_EVERY:-20}
 
 CTN=sglang-omni-jaxan-2
@@ -69,6 +73,11 @@ PY"
     log "R: 启动 $SERVERS 个 server(τ=$TAU B=$BUDGET)"
     # 上迭代产物:selector 必有;adapter 首迭代可无(缺省 = 冻结恒等)
     SEL=$PD_C/selector_bundle.pt
+    if [ "$SELECTOR_MODE" = "hidden" ]; then
+      SEL_FLAGS="--selector-mode hidden --selector-head $SEL"
+    else
+      SEL_FLAGS="--selector-bundle $SEL --selector-arch two_tower"
+    fi
     ADP_FLAGS=""
     if cexec "test -f $PD_C/adapter.pt"; then
       SHA=$(cexec "sha256sum $PD_C/adapter.pt | cut -d' ' -f1")
@@ -80,7 +89,7 @@ PY"
         --model-dir $MODEL --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
         --device cuda:0 --port $((PORT0+s)) --visual-tokens 2560 \
         --memory-budget $BUDGET \
-        --selector-bundle $SEL --selector-arch two_tower \
+        $SEL_FLAGS \
         --selector-temperature $TAU --rl-audit-dir $ID_C/audit \
         $ADP_FLAGS >> $ID_C/serve-$s.log 2>&1"
     done
