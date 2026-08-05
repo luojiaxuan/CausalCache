@@ -20,11 +20,8 @@ class ActionScorer:
     def __init__(self, *, model_dir, snapshot_manifest, adapter_config,
                  resume_adapter=None, device="cuda:0") -> None:
         import torch
-        from transformers import AutoModelForImageTextToText, AutoProcessor
 
-        from causalcache.policy.gui_owl_v2_vision import (
-            verify_frozen_vision_runtime,
-        )
+        from causalcache.osworld_gui_owl import GUIOwlOSWorldRuntime
         from causalcache.policy.history_gated_lora import (
             history_gated_state_dict,
             inject_history_gated_kv,
@@ -33,11 +30,18 @@ class ActionScorer:
 
         self.torch = torch
         self.device = device
-        verify_frozen_vision_runtime(
-            model_dir=model_dir, expected_snapshot_manifest=snapshot_manifest)
-        self.processor = AutoProcessor.from_pretrained(model_dir)
-        self.model = AutoModelForImageTextToText.from_pretrained(
-            model_dir, torch_dtype=torch.bfloat16).to(device)
+        # note (luojiaxuan): 与 serve 同一 runtime 装载(冻结守卫 + visual-tokens
+        # 同为 2560)。手工 AutoProcessor 装载曾使图片 token 数与 rollout 分布
+        # 不一致且直接 OOM —— 训练/采样两侧必须共享装载路径。
+        runtime = GUIOwlOSWorldRuntime(
+            model_dir=model_dir,
+            expected_snapshot_manifest=snapshot_manifest,
+            device=device,
+            effective_visual_tokens_per_image=2560,
+            max_new_tokens=8,
+        )
+        self.processor = runtime.processor
+        self.model = runtime.model
         self.model.eval()
         for p in self.model.parameters():
             p.requires_grad_(False)
@@ -161,25 +165,32 @@ class ActionScorer:
             token_logp = logp.gather(1, tgt[0].unsqueeze(1)).squeeze(1)
         return token_logp, logp
 
-    def episode_action_logprob(self, ep, *, grad: bool):
-        total = None
-        for i in range(1, ep["n_steps"] + 1):
-            req = self._request_from_episode(ep, i)
-            token_logp, _ = self._teacher_forward(req, adapter_on=True, grad=grad)
-            s = token_logp.sum()
-            total = s if total is None else total + s
-        return total
+    def episode_backward(self, ep, *, pg_coef: float, kl_coef: float):
+        """逐步:一次带梯度前向 → loss=(-pg_coef·logp + kl_coef·KL).backward()。
 
-    def episode_kl_to_frozen(self, ep):
-        """动作 token 上 KL(on||off);off 侧 no-grad,on 侧带梯度。"""
+        # note (luojiaxuan): 整条 episode 攒计算图在 12-15 步 × 多图长 prompt 下
+        # 必 OOM(冒烟实测 139.7G 打满)。逐步反传后单步图 ~ 单 prompt 大小;
+        # 梯度在 optimizer.step 前自然累加,数学与整条等价。
+        # 返回 (sum_logp, sum_kl, steps) 的 float,用于诊断。
+        """
         torch = self.torch
-        total = None
+        tot_lp = tot_kl = 0.0
+        n = 0
         for i in range(1, ep["n_steps"] + 1):
             req = self._request_from_episode(ep, i)
-            if not req["history"]:
-                continue  # 无历史时 adapter 不生效,KL 恒 0
-            _, logp_on = self._teacher_forward(req, adapter_on=True, grad=True)
-            _, logp_off = self._teacher_forward(req, adapter_on=False, grad=False)
-            kl = (logp_on.exp() * (logp_on - logp_off)).sum(dim=-1).sum()
-            total = kl if total is None else total + kl
-        return total
+            token_logp, logp_on = self._teacher_forward(
+                req, adapter_on=True, grad=True)
+            loss = -pg_coef * token_logp.sum()
+            if kl_coef and req["history"]:
+                with torch.no_grad():
+                    _, logp_off = self._teacher_forward(
+                        req, adapter_on=False, grad=False)
+                kl = (logp_on.exp() * (logp_on - logp_off)).sum(dim=-1).sum()
+                loss = loss + kl_coef * kl
+                tot_kl += float(kl.detach())
+            # 无历史的步(如 step 1)LoRA 不在图里,loss 无 grad_fn —— 跳过反传
+            if loss.requires_grad:
+                loss.backward()
+            tot_lp += float(token_logp.detach().sum())
+            n += 1
+        return tot_lp, tot_kl, n

@@ -185,15 +185,15 @@ def main() -> None:
                 loss = loss - args.w_sel * adv * logp_sel
                 loss = loss - args.entropy_lambda * ent
                 stats["sel_rounds"] += n_rounds
-            # 动作侧:逐步 teacher-forcing(带梯度),KL 对照冻结 bypass
-            logp_act = scorer.episode_action_logprob(ep, grad=True)
-            if logp_act is not None:
-                loss = loss - args.w_act * adv * logp_act
-                kl = scorer.episode_kl_to_frozen(ep)
-                if kl is not None:
-                    loss = loss + args.kl_beta * kl
-                    stats["kl"] += float(kl.detach())
-            (loss / args.grad_accum).backward()
+            # selector 侧(小图)整条反传;动作侧在 scorer 内逐步反传(防 OOM)
+            if loss.requires_grad:
+                (loss / args.grad_accum).backward()
+            lp, kl, _n = scorer.episode_backward(
+                ep,
+                pg_coef=args.w_act * adv / args.grad_accum,
+                kl_coef=args.kl_beta / args.grad_accum)
+            stats["kl"] += kl
+            stats["act_logp"] += lp
             n_ep += 1
             stats["loss"] += float(loss.detach())
             stats["adv_abs"] += abs(adv)
