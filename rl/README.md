@@ -48,3 +48,22 @@ serve(τ>0, --rl-audit-dir) × N 副本
 - [ ] `rl_iter_loop.sh` 首跑冒烟(单迭代、2 任务 × G=2)——**下一步**
 - [ ] ActionScorer 首跑校验:重建 prompt 的 token 数与 rollout 日志的
       `prompt_tokens` 一致(容差 ±图片 token 化差异),不一致即 fail-closed
+
+## 2026-08-05 冒烟交接(容器变更警报)
+
+**两台 hyper 的 `sglang-omni-jaxan` 都被他人重建**(h00 21h 前、h01 12h 前,
+/data 挂载已不指向我们的盘)。**h01 的原容器还在,被顶名成 `sglang-omni-jaxan-2`**
+(挂载 /data04/jaxan→/bigdata、/data02/jaxan→/data,仓库与模型完好);
+h00 的原容器视图丢失,但宿主侧 /data02/jaxan/* 数据完好,需要时按 runscripts/README
+第八条重建。
+
+**冒烟(6 卡内,全部用 `sglang-omni-jaxan-2`)续跑步骤:**
+1. bundle 同步 rlsmoke 分支到 /bigdata/osworld/CausalCache(基点取容器内 HEAD);
+2. 冒烟 meta(2 个已知翻转任务,libreoffice_writer 0e763496/b21acd93)已生成于
+   本机 /tmp/smoke_meta.json,放到 $B/OSWorld/evaluation_examples/smoke_rl.json;
+3. server:GPU5,`--memory-budget 2 --selector-temperature 1.0 --rl-audit-dir
+   /bigdata/rl-smoke/audit`,端口 19501,容器 IP 端点;
+4. G=3 × 2 worker(cap 15 步)→ collect_rl_trajectories(audit + out-g*)→
+   train_causalcache_rl_grpo 单卡;
+5. 首跑校验:重建 prompt 的 token 数 ≈ rollout 日志 prompt_tokens;
+   groups 全 0/全 1 时 trainer 会明确拒绝(选翻转任务就是为避免这个)。
