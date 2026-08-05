@@ -13,7 +13,7 @@ transformers 5.6.0 源码哈希,漂移即拒绝启动)。可学参数只有两�
 
 | 可学件 | 参数量 | 作用 |
 |---|---|---|
-| **selector cheap 塔** | ~43K(28→192→192→1 MLP) | 决定"选哪些历史帧进 prompt"。readout 塔部署侧恒 mask,**不训** |
+| **selector 打分头(v2 默认)** | ~4K(Linear(4096,1),吃策略自身 hidden state) | 决定"选哪些历史帧进 prompt";§2.5。旧 28 维 cheap 塔(~43K)仅作对照臂 |
 | **HGKV LoRA** | ~2.6MB(last-8 层 k_proj/v_proj,rank 8,α 16) | 决定"选进来的历史帧怎么被读"。只作用于**历史图 token** 的 K/V(token 级门控 mask),当前屏与文本不受影响 |
 
 为什么这样切:这是 CausalCache 的身份——记忆是唯一可学件;同时 8B 全参 RL
