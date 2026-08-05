@@ -27,8 +27,11 @@ rl/
 | `causalcache.policy.history_adapter_context` / `history_token_roles` | 历史 token 掩码与 adapter 作用域 |
 | `scripts.train_success_sft_lora` 的 `inject_history_gated_kv` / `lora_state_dict` / `load_lora_state_dict` | LoRA 注入与状态(checkpoint 与 v4/v7 形制互通) |
 
-环境侧(serve 的 `--selector-temperature` / `--rl-audit-dir`、OSWorld worker、VM
-基建)留在主仓 —— 它们是共享环境,不属于 RL 目录。
+**server 归属(2026-08-05 变更)**:RL 独占 `code/scripts/serve_osworld_rl_policy.py`
+(从主仓 serve fork,含 PL 采样/审计/hidden selector 全部 RL 能力);
+主仓 serve 已回滚到 RL 之前,主线评测不受 RL 演化影响。
+主仓 bugfix 需要时手动 cherry-pick 进 RL serve,反向永不同步。
+OSWorld worker 与 VM 基建仍在主仓(纯环境,双线共用、都不改它)。
 
 ## 迭代闭环
 
@@ -50,7 +53,7 @@ serve(τ>0, --rl-audit-dir) × N 副本
 
 ## 状态
 
-- [x] serve RL 模式(PL 采样 + 审计)
+- [x] RL 独占 serve(PL 采样 + 审计 + hidden selector)
 - [x] collector / GRPO trainer / ActionScorer / 任务切分
 - [x] 冒烟端到端通过(2026-08-05:exit 0,adv=±0.833 精确,零初始化 KL=0)
 - [x] `rl_iter_loop.sh` + 可学带任务表(47 任务,6 测量 0<p<1)

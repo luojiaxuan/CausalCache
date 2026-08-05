@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
-"""Serve one GUI-Owl policy for OSWorld under the official desktop protocol.
+"""Serve one GUI-Owl policy for OSWorld — CausalCache-RL 独占版。
 
-# note (luojiaxuan): 与 mobile serve 同构的桌面 benchmark 版(旧
-# serve_osworld_gui_owl_policy.py 是 witness 语料时代的单轮口径,保留不动):
-#   * prompt 走 build_desktop_official_messages(v4 训练同口径,系统提示内嵌
-#     computer_use <tools>,编码时**不传** tools 实参);
-#   * 可选 --adapter-checkpoint 挂 HGKV(prefill 在 history_adapter_scope 内,
-#     decode 步由 hook 长度检查自然 bypass;K=0 与未挂时与冻结 bitwise 相同);
-#   * 可选 --selector-bundle 启用单遍 last-action selector:witness 伪目标 =
-#     上一步已执行动作(CAUSALCACHE_WITNESS_PSEUDO_TARGET=last_action 走离线
-#     判定同一特征分支),beam exact-B、recent 兜底,选完只生成一次;
-#   * 无 selector 时 shown = eligible 池的 recent 尾(B0 即空)。
-# 请求携带全池截图(runner memory_arm=full;B0 用 summary 不带图)。
+# note (luojiaxuan): 2026-08-05 从主仓 serve_osworld_official_policy.py fork
+# (基点 = 主仓 5033c5a 时刻的全功能版)。分离原因:RL 的 selector/HGKV 会
+# 高频演化,主线(论文/离线评测)的 serve 必须稳定不受扰。
+#   * RL 专属能力全在本文件:--selector-temperature(Plackett-Luce 采样)、
+#     --rl-audit-dir(逐步审计)、--selector-mode hidden(策略 hidden-state
+#     打分头索引遍)、--selector-head/--index-visual-tokens;
+#   * 主仓 serve 已回滚到 RL 之前(28094d8^),两边不再共享改动;
+#     主仓的 bugfix 需要时手动 cherry-pick 过来,反向永不同步。
 """
 
 from __future__ import annotations
@@ -73,6 +70,27 @@ def main() -> None:
     parser.add_argument("--selector-witness",
                         choices=("last_action", "proposal"),
                         default="last_action")
+    # note (luojiaxuan): CausalCache-RL(2026-08-04 pivot)。温度 > 0 时选帧从
+    # beam-argmax 换成 Plackett-Luce 顺序采样:B 个槽位依次从 softmax(边际/τ)
+    # 无放回抽取。这就是 RL 的探索来源;τ→0 退回部署语义。采样轮的候选特征
+    # (已归一化)与选中项写进 --rl-audit-dir,trainer 直接在特征上复算
+    # log π_sel 做策略梯度——不需要在训练侧重建环境状态。
+    # 温度模式下忽略 --selector-min-marginal(弃权交给 RL 自己学)。
+    parser.add_argument("--selector-temperature", type=float, default=0.0,
+                        help="Plackett-Luce 采样温度;0 = 原 beam-argmax")
+    parser.add_argument("--rl-audit-dir", type=Path, default=None,
+                        help="RL 轨迹审计目录(每请求一行 jsonl,含采样轮特征)")
+    # note (luojiaxuan): selector v2(2026-08-05,用户裁定废除手写特征)。
+    # hidden 模式 = "外围视觉"索引遍:全部历史图缩略(--index-visual-tokens/图)
+    # + 各步动作行 + 当前屏,过冻结策略一次,各历史图 token 段 mean-pool hidden
+    # state,线性头打分 → PL 采样。零手写特征;年龄/新近以位置编码形式留在
+    # 模型自己的表征里,用不用由 RL 决定。cheap 模式原样保留(对照用)。
+    parser.add_argument("--selector-mode", choices=("cheap", "hidden"),
+                        default="cheap")
+    parser.add_argument("--selector-head", type=Path, default=None,
+                        help="hidden 模式打分头 bundle(make_hidden_head.py 产出)")
+    parser.add_argument("--index-visual-tokens", type=int, default=144,
+                        help="索引遍每张历史缩略图的视觉 token 预算")
     args = parser.parse_args()
 
     if args.selector_witness == "last_action":
@@ -202,7 +220,138 @@ def main() -> None:
             "passes": 1 if args.selector_witness == "last_action" else "1_or_2",
         }
 
+    # ---- hidden 模式装载:索引遍处理器(缩略图预算)+ 线性打分头 ----
+    hidden_head = None
+    idx_processor = None
+    if args.selector_mode == "hidden":
+        import copy as _copy
+
+        if args.selector_head is None:
+            raise SystemExit("--selector-mode hidden 需要 --selector-head")
+        _hb = torch.load(args.selector_head, map_location="cpu",
+                         weights_only=False)
+        if _hb.get("kind") != "hidden_head":
+            raise SystemExit(f"selector-head kind 应为 hidden_head,得到 {_hb.get('kind')}")
+        _hsize = int(_hb["hidden_size"])
+        _msize = int(getattr(model.config, "text_config", model.config).hidden_size)
+        if _hsize != _msize:
+            raise SystemExit(f"打分头 hidden_size={_hsize} 与模型 {_msize} 不符")
+        hidden_head = torch.nn.Linear(_hsize, 1)
+        hidden_head.load_state_dict(_hb["model_state"])
+        hidden_head.eval()
+        idx_processor = _copy.deepcopy(processor)
+        # Qwen 系:merged token ≈ 28×28 px;max_pixels 决定缩略后 token 数
+        idx_processor.image_processor.max_pixels = args.index_visual_tokens * 28 * 28
+        idx_processor.image_processor.min_pixels = 16 * 28 * 28
+
+    selector_active = (selector_model is not None) or (hidden_head is not None)
+
+    def run_selection_hidden(request):
+        """索引遍:全历史缩略 + 动作行 → hidden 池化 → 头打分 → PL 采样。"""
+        import base64 as _b64
+        import io as _io
+
+        import numpy as _np
+        from PIL import Image as _Image
+
+        history = request["history"]
+        forms = official_forms_from_history(history)
+        pool = eligible_pool(history, forms)
+        budget = args.memory_budget
+        if len(pool) < budget:
+            return None, {"reason": "pool_smaller_than_budget", "pool": len(pool)}
+        line_of = {f.step_id: f.action_line for f in forms}
+
+        content = [{"type": "text",
+                    "text": "Task: " + str(request["task"]["instruction"])}]
+        imaged_events = []
+        for event in history:
+            sid = int(event["step_id"])
+            payload = event.get("restored_post_screenshot_png_base64")
+            content.append({"type": "text",
+                            "text": f"Step {sid}: {line_of.get(sid, '(action)')}"})
+            if payload:
+                content.append({"type": "image", "image": _Image.open(
+                    _io.BytesIO(_b64.b64decode(payload)))})
+                imaged_events.append(sid)
+        cur_payload = request.get("current_screenshot_png_base64")
+        if cur_payload:
+            content.append({"type": "text", "text": "Current screen:"})
+            content.append({"type": "image", "image": _Image.open(
+                _io.BytesIO(_b64.b64decode(cur_payload)))})
+        content.append({"type": "text",
+                        "text": "Which past steps matter for the next action?"})
+        candidates = [s for s in pool if s in set(imaged_events)]
+        if len(candidates) < budget:
+            return None, {"reason": "pool_missing_screenshots",
+                          "pool": len(pool), "imaged": len(candidates)}
+
+        enc = idx_processor.apply_chat_template(
+            [[{"role": "user", "content": content}]],
+            tokenize=True, add_generation_prompt=True,
+            return_dict=True, return_tensors="pt").to(args.device)
+        with torch.no_grad():
+            out = model(**{k: v for k, v in enc.items()},
+                        output_hidden_states=True)
+            hidden = out.hidden_states[-1][0].float().cpu()
+        # 图像 token 段 = mm_token_type_ids 的连续 1 块;顺序 = imaged_events + 当前屏
+        types = enc["mm_token_type_ids"][0].tolist()
+        spans, start = [], None
+        for i, t in enumerate(types + [0]):
+            if t == 1 and start is None:
+                start = i
+            elif t != 1 and start is not None:
+                spans.append((start, i))
+                start = None
+        expect = len(imaged_events) + (1 if cur_payload else 0)
+        if len(spans) != expect:
+            raise ValueError(
+                f"索引遍图像块数 {len(spans)} != 期望 {expect}(fail-closed)")
+        vec_of = {}
+        for sid, (a, b) in zip(imaged_events, spans[: len(imaged_events)]):
+            vec_of[sid] = hidden[a:b].mean(dim=0)
+        feats = torch.stack([vec_of[s] for s in candidates])
+        with torch.no_grad():
+            scores = hidden_head(feats).squeeze(-1)
+
+        diag_common = {
+            "pool": len(candidates), "mode": "hidden",
+            "index_tokens": args.index_visual_tokens,
+        }
+        if args.selector_temperature > 0:
+            tau_rl = args.selector_temperature
+            remaining = list(candidates)
+            rem_scores = scores.clone()
+            picks, rounds, logprob_sum = [], [], 0.0
+            for _ in range(budget):
+                logp = torch.log_softmax(rem_scores / tau_rl, dim=0)
+                idx = int(torch.multinomial(logp.exp(), 1).item())
+                logprob_sum += float(logp[idx])
+                rounds.append({"candidates": [int(s) for s in remaining],
+                               "chosen": int(remaining[idx]),
+                               "logprob": round(float(logp[idx]), 6)})
+                picks.append(remaining[idx])
+                keep = [i for i in range(len(remaining)) if i != idx]
+                remaining = [remaining[i] for i in keep]
+                rem_scores = rem_scores[keep]
+            hv = {str(s): _b64.b64encode(
+                      _np.asarray(vec_of[s], dtype=_np.float16).tobytes()
+                  ).decode() for s in candidates}
+            return sorted(picks), {
+                **diag_common, "promoted": budget,
+                "temperature": tau_rl,
+                "rl_logprob_sum": round(logprob_sum, 6),
+                "rl_rounds": rounds,
+                "hidden_vectors": hv,
+                "hidden_size": int(feats.shape[1]),
+            }
+        top = torch.topk(scores, budget).indices.tolist()
+        chosen = sorted(candidates[i] for i in top)
+        return chosen, {**diag_common, "promoted": budget, "tau": None}
+
     def run_selection(request, reference_arguments=None):
+        if args.selector_mode == "hidden":
+            return run_selection_hidden(request)
         """eligible 池上的 beam exact-B;返回 (chosen 或 None, diagnostics)。
 
         reference_arguments 非空时(proposal 模式)以其为 witness 目标动作
@@ -221,7 +370,7 @@ def main() -> None:
         alias = dedup_alias(history)
         duplicates = {str(src): kept for src, kept in alias.items()}
 
-        def marginals(selected, candidates):
+        def marginals(selected, candidates, return_features=False):
             xs = []
             for event in candidates:
                 f = candidate_features(
@@ -236,7 +385,42 @@ def main() -> None:
                 raw = selector_model(
                     torch.tensor(xs, dtype=torch.float32)).tolist()
             off = args.selector_score_offset
-            return [v + off for v in raw] if off else raw
+            margs = [v + off for v in raw] if off else raw
+            return (margs, xs) if return_features else margs
+
+        # ---- RL 模式:Plackett-Luce 顺序采样(exact-B,无放回) ----
+        # note (luojiaxuan): 每轮把"已选集合"喂回 set_context_features 再算边际,
+        # 与 beam 的逐层语义一致;log π_sel(S) = Σ_轮 [m_chosen/τ − logsumexp(m/τ)]。
+        # 审计里存**归一化后的特征矩阵**而不是原始状态:trainer 复算 log π 只需
+        # 特征 × 当前 selector 参数,彻底避开"训练侧重建 prompt 状态"这类漂移源。
+        if args.selector_temperature > 0:
+            tau_rl = args.selector_temperature
+            sel: tuple = ()
+            rounds = []
+            logprob_sum = 0.0
+            for _ in range(budget):
+                remaining = [s for s in pool if s not in sel]
+                if not remaining:
+                    break
+                margs, feats = marginals(sel, remaining, return_features=True)
+                scaled = torch.tensor(margs, dtype=torch.float32) / tau_rl
+                logp = torch.log_softmax(scaled, dim=0)
+                idx = int(torch.multinomial(logp.exp(), 1).item())
+                logprob_sum += float(logp[idx])
+                rounds.append({
+                    "candidates": [int(s) for s in remaining],
+                    "features": [[round(v, 6) for v in f] for f in feats],
+                    "chosen": int(remaining[idx]),
+                    "logprob": round(float(logp[idx]), 6),
+                })
+                sel = tuple(sorted((*sel, remaining[idx])))
+            chosen = sorted(sel)
+            return chosen, {
+                "pool": len(pool), "promoted": len(chosen),
+                "temperature": tau_rl,
+                "rl_logprob_sum": round(logprob_sum, 6),
+                "rl_rounds": rounds,
+            }
 
         # note (luojiaxuan): --selector-min-marginal 打开弃权。原语义是无条件走满 B 层、
         # 恒取 B 个:池子里没有值得提升的远端帧时,argmax 仍会挑一个出来,挤掉 recent。
@@ -409,7 +593,7 @@ def main() -> None:
                 select_seconds = 0.0
                 pass2_seconds = 0.0
                 shown = list(tail)
-                if (selector_model is not None and args.memory_budget > 0
+                if (selector_active and args.memory_budget > 0
                         and args.selector_witness == "last_action"):
                     select_started = time.perf_counter()
                     chosen, diag = run_selection(request)
@@ -427,7 +611,7 @@ def main() -> None:
                 with inference_lock:
                     with adapter_scope(messages, len(shown)):
                         text, generation = generate_official(messages)
-                    if (selector_model is not None and args.memory_budget > 0
+                    if (selector_active and args.memory_budget > 0
                             and args.selector_witness == "proposal"):
                         prop_args, _, _ = parse_output(text)
                         select_started = time.perf_counter()
@@ -464,7 +648,7 @@ def main() -> None:
                 if parse_error is not None:
                     with counter_lock:
                         counters["parse_failures"] += 1
-                if selector_model is not None:
+                if selector_active:
                     # note (luojiaxuan): 记录 promoted / filled_recent / k,
                     # 否则跑完无法判断弃权到底触发了多少、selector 偏离 recent 多远。
                     _si = selection_info or {}
@@ -485,6 +669,31 @@ def main() -> None:
                         "select_seconds": round(select_seconds, 4),
                         "pass2_seconds": round(pass2_seconds, 4),
                     }), flush=True)
+                    # ---- RL 审计:一步一行,自带 join 键与复算所需的全部特征 ----
+                    # join = (task_id, step_index, response_sha16):task+步定位到
+                    # result.json 的那一步;response 哈希区分同任务重试的多次尝试。
+                    if args.rl_audit_dir is not None and _diag.get("rl_rounds"):
+                        import hashlib as _hl
+                        audit_line = {
+                            "task_id": str(request["task"]["task_id"]),
+                            "step_index": len(request["history"]) + 1,
+                            "response_sha16": _hl.sha256(
+                                text.encode("utf-8")).hexdigest()[:16],
+                            "shown_events": shown,
+                            "temperature": _diag.get("temperature"),
+                            "rl_logprob_sum": _diag.get("rl_logprob_sum"),
+                            "rounds": _diag.get("rl_rounds"),
+                            "mode": _diag.get("mode", "cheap"),
+                            "hidden_vectors": _diag.get("hidden_vectors"),
+                            "hidden_size": _diag.get("hidden_size"),
+                            "full_response": text,
+                        }
+                        with counter_lock:
+                            args.rl_audit_dir.mkdir(parents=True, exist_ok=True)
+                            with (args.rl_audit_dir /
+                                  f"audit-{args.port}.jsonl").open(
+                                      "a", encoding="utf-8") as fh:
+                                fh.write(json.dumps(audit_line) + "\n")
                 with counter_lock:
                     counters["requests"] += 1
                 _json_response(self, 200, {

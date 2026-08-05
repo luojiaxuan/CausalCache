@@ -85,7 +85,7 @@ PY"
     fi
     for s in $(seq 0 $((SERVERS-1))); do
       docker exec -d "$CTN" bash -lc "cd $REPO && CUDA_VISIBLE_DEVICES=$((s+1)) PYTHONPATH=code \
-        python3 code/scripts/serve_osworld_official_policy.py \
+        python3 rl/code/scripts/serve_osworld_rl_policy.py \
         --model-dir $MODEL --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
         --device cuda:0 --port $((PORT0+s)) --visual-tokens 2560 \
         --memory-budget $BUDGET \
@@ -118,7 +118,7 @@ PY"
       log "R: 代 $g 完成"
     done
     # 滚动重启纪律:rollout 一结束立刻杀 server(监督循环没有,直接杀进程)
-    cexec "pkill -f '[s]erve_osworld_official_policy' || true"; sleep 3
+    cexec "pkill -f '[s]erve_osworld_rl_policy' || true"; sleep 3
     n=$(find "$ID_H"/out-g* -name result.json 2>/dev/null | wc -l)
     log "R: 共 $n 条 episode,server 已回收"
     touch "$ID_H/ROLLOUT_DONE"
