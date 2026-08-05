@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 def make_body(shots, budget):
-    """按服务端真实契约构造请求(task.instruction / history[*].restored_* / current_*)。"""
+    """按服务端契约构造请求:schema/protocol 钉死,selected 必须是 history 的连续尾缀。"""
     hist = []
     for i, s in enumerate(shots[:budget]):
         b64 = base64.b64encode(Path(s).read_bytes()).decode()
@@ -20,13 +20,14 @@ def make_body(shots, budget):
             "restored_observation_screenshot_png_base64": b64,
         })
     return {
+        "schema_version": "causalcache.mobileworld.policy_request.v2",
+        "prompt_protocol": "mobile_agent_v3_5_gui_owl_official_faithful",
         "task": {"instruction": "Open settings and enable dark mode."},
         "history": hist,
+        "selected_event_step_ids": [e["step_id"] for e in hist],
         "current_screenshot_png_base64": base64.b64encode(
             Path(shots[-1]).read_bytes()).decode(),
         "screen_size": [1080, 2400],
-        "memory_arm": "full",
-        "memory_budget": budget,
         "step_id": len(hist) + 1,
     }
 

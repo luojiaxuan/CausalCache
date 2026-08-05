@@ -148,7 +148,7 @@ def main() -> None:
     # note (luojiaxuan): 动作侧 teacher-forcing 走 train_success_sft_lora 的
     # encode/score 机制(同一 repo 版本,与 serve 的 prompt builder 同源)。
     # 这里只暴露两个函数:action_logprob(episode, grad) 与 kl_to_frozen(episode)。
-    from causalcache.rl_action_scoring import (  # 由 collect 阶段一起落地
+    from causalcache_rl.action_scoring import (
         ActionScorer,
     )
     scorer = ActionScorer(
