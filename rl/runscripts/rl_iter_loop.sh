@@ -1,0 +1,155 @@
+#!/bin/bash
+# note (luojiaxuan): CausalCache-RL 迭代编排(hyper01 宿主侧运行)。
+# 每迭代四阶段,阶段完成落 marker,重启从 marker 续(全局断点续跑规则):
+#   R rollout(τ>0 采样)→ C collect(三键 join)→ T train(GRPO)→ 滚动重启
+#
+# 拓扑(h01 单机,容器 sglang-omni-jaxan-2,device-locked:宿主 4-7 = 容器 0-3):
+#   rollout 阶段:S 个 policy server 于容器 GPU 1,2,3;worker 在宿主(要 dockerd 起 VM)
+#   train  阶段:server 已杀,trainer 单进程于容器 GPU 1
+#   两阶段串行共用 3 张卡,峰值占用 3 卡 < 6 卡/机上限
+#
+# 参数化(env 覆盖):
+#   ITER_START/ITER_END  迭代区间(含);TASKS_PER_ITER=8;G=6;WORKERS=4;SERVERS=3
+#   MAX_STEPS=30(训练 rollout cap;评测另走 50 步协议)
+#   TAU=1.0(Plackett-Luce 温度);BUDGET=2(用户裁定 B=2)
+#   EVAL_EVERY=20(到期只落 EVAL_DUE marker,held-out 评测走独立脚本)
+#
+# 已固化的坑(全部踩过):worker cwd 必须是 run30(否则重下 11.4G VM 镜像);
+# endpoint 用容器 IP(bridge);pkill 模式必须 [x] 括号;server 每迭代重启(RAM 泄漏)。
+set -u
+ITER_START=${ITER_START:?}; ITER_END=${ITER_END:?}
+TASKS_PER_ITER=${TASKS_PER_ITER:-8}; G=${G:-6}
+WORKERS=${WORKERS:-4}; SERVERS=${SERVERS:-3}
+MAX_STEPS=${MAX_STEPS:-30}; TAU=${TAU:-1.0}; BUDGET=${BUDGET:-2}
+EVAL_EVERY=${EVAL_EVERY:-20}
+
+CTN=sglang-omni-jaxan-2
+B=/data04/jaxan/osworld                 # 宿主视角
+RLH=/data04/jaxan/rl                    # 宿主视角迭代根
+RLC=/bigdata/rl                         # 容器视角同一目录
+REPO=/bigdata/osworld/CausalCache       # 容器视角仓库
+WREPO=/data02/jaxan/CausalCache-mwhgkv  # 宿主视角 worker 仓库
+BAND=$RLC/osworld_rl_train_band_v1.json # 可学带(bootstrap 时放入)
+MODEL=/bigdata/models/GUI-Owl-1.5-8B-Instruct
+PORT0=19511
+
+log() { echo "[$(date -u +%FT%TZ)] iter=$ITER $*"; }
+cexec() { docker exec "$CTN" bash -lc "$*"; }
+
+CIP=$(docker inspect "$CTN" --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+
+for ITER in $(seq "$ITER_START" "$ITER_END"); do
+  PREV=$((ITER-1))
+  ID_H=$RLH/iter-$ITER; ID_C=$RLC/iter-$ITER
+  PD_C=$RLC/iter-$PREV
+  cexec "mkdir -p $ID_C/audit && chmod -R 777 $ID_C"
+
+  # ---------- 0. 本迭代任务抽样(确定性:seed=迭代号) ----------
+  if [ ! -f "$ID_H/tasks.json" ]; then
+    cexec "python3 - <<PY
+import json, random
+band = json.load(open('$BAND'))
+flat = [(d, t) for d in sorted(band) for t in band[d]]
+random.Random(20260804 + $ITER).shuffle(flat)
+picked = flat[:$TASKS_PER_ITER]
+meta = {}
+for d, t in picked: meta.setdefault(d, []).append(t)
+json.dump(meta, open('$ID_C/tasks.json', 'w'), indent=1)
+print('iter $ITER 任务:', sum(len(v) for v in meta.values()))
+PY"
+    cp "$ID_H/tasks.json" "$B/OSWorld/evaluation_examples/rl_iter_$ITER.json" 2>/dev/null \
+      || cexec "cp $ID_C/tasks.json /bigdata/osworld/OSWorld/evaluation_examples/rl_iter_$ITER.json" || true
+    # 宿主视角的 OSWorld 也要一份(worker 用宿主路径)
+    [ -f "$B/OSWorld/evaluation_examples/rl_iter_$ITER.json" ] \
+      || cp "$ID_H/tasks.json" "$B/OSWorld/evaluation_examples/rl_iter_$ITER.json"
+  fi
+
+  # ---------- 1. rollout ----------
+  if [ ! -f "$ID_H/ROLLOUT_DONE" ]; then
+    log "R: 启动 $SERVERS 个 server(τ=$TAU B=$BUDGET)"
+    # 上迭代产物:selector 必有;adapter 首迭代可无(缺省 = 冻结恒等)
+    SEL=$PD_C/selector_bundle.pt
+    ADP_FLAGS=""
+    if cexec "test -f $PD_C/adapter.pt"; then
+      SHA=$(cexec "sha256sum $PD_C/adapter.pt | cut -d' ' -f1")
+      ADP_FLAGS="--adapter-checkpoint $PD_C/adapter.pt --adapter-checkpoint-sha256 $SHA"
+    fi
+    for s in $(seq 0 $((SERVERS-1))); do
+      docker exec -d "$CTN" bash -lc "cd $REPO && CUDA_VISIBLE_DEVICES=$((s+1)) PYTHONPATH=code \
+        python3 code/scripts/serve_osworld_official_policy.py \
+        --model-dir $MODEL --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
+        --device cuda:0 --port $((PORT0+s)) --visual-tokens 2560 \
+        --memory-budget $BUDGET \
+        --selector-bundle $SEL --selector-arch two_tower \
+        --selector-temperature $TAU --rl-audit-dir $ID_C/audit \
+        $ADP_FLAGS >> $ID_C/serve-$s.log 2>&1"
+    done
+    sleep 110
+    for s in $(seq 0 $((SERVERS-1))); do
+      code=$(curl -s -o /dev/null -w "%{http_code}" "http://$CIP:$((PORT0+s))/health" --max-time 5)
+      [ "$code" = "200" ] || { log "FATAL server $s health=$code"; exit 1; }
+    done
+    log "R: $G 代 × $WORKERS worker rollout"
+    for g in $(seq 0 $((G-1))); do
+      cexec "mkdir -p $ID_C/out-g$g && chmod 777 $ID_C/out-g$g"
+      for s in $(seq 0 $((WORKERS-1))); do
+        ( cd "$B/run30" && PYTHONPATH=$WREPO/code:$B/OSWorld /usr/bin/python3 \
+            "$WREPO/code/scripts/run_osworld_benchmark_worker.py" \
+            --osworld-root "$B/OSWorld" \
+            --meta-path "evaluation_examples/rl_iter_$ITER.json" \
+            --shard-index "$s" --shard-count "$WORKERS" \
+            --output-root "$RLH/iter-$ITER/out-g$g" \
+            --policy-endpoint "http://$CIP:$((PORT0 + s % SERVERS))/act" \
+            --memory-arm full --memory-budget "$BUDGET" \
+            --max-steps "$MAX_STEPS" \
+            --cache-dir "$B/cache-fast" \
+            >> "$ID_H/worker-g$g-$s.log" 2>&1 ) &
+      done
+      wait
+      log "R: 代 $g 完成"
+    done
+    # 滚动重启纪律:rollout 一结束立刻杀 server(监督循环没有,直接杀进程)
+    cexec "pkill -f '[s]erve_osworld_official_policy' || true"; sleep 3
+    n=$(find "$ID_H"/out-g* -name result.json 2>/dev/null | wc -l)
+    log "R: 共 $n 条 episode,server 已回收"
+    touch "$ID_H/ROLLOUT_DONE"
+  fi
+
+  # ---------- 2. collect ----------
+  if [ ! -f "$ID_H/COLLECT_DONE" ]; then
+    ROOTS=""
+    for g in $(seq 0 $((G-1))); do ROOTS="$ROOTS --rollout-root $ID_C/out-g$g"; done
+    cexec "cd $REPO && PYTHONPATH=code:rl/code python3 rl/code/scripts/collect_rl_trajectories.py \
+      $ROOTS --audit-dir $ID_C/audit --output $ID_C/groups.jsonl" | tail -1
+    touch "$ID_H/COLLECT_DONE"
+  fi
+
+  # ---------- 3. train ----------
+  if [ ! -f "$ID_H/TRAIN_DONE" ]; then
+    log "T: GRPO(容器 GPU1)"
+    RES=""
+    cexec "test -f $PD_C/adapter.pt" && RES="--resume-adapter $PD_C/adapter.pt"
+    cexec "cd $REPO && CUDA_VISIBLE_DEVICES=1 PYTHONPATH=code:rl/code \
+      PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
+      python3 rl/code/scripts/train_causalcache_rl_grpo.py \
+      --groups $ID_C/groups.jsonl \
+      --model-dir $MODEL \
+      --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
+      --selector-bundle $PD_C/selector_bundle.pt $RES \
+      --adapter-config code/configs/causalcache_desktop_did_hgkv_v7_poolrank.json \
+      --max-groups-per-step $TASKS_PER_ITER \
+      --seed $((20260804 + ITER)) \
+      --output-root $ID_C 2>&1 | grep -vE 'processor_kwargs|Loading weights' | tail -3"
+    cexec "test -f $ID_C/selector_bundle.pt && test -f $ID_C/adapter.pt" \
+      || { log "FATAL train 产物缺失"; exit 1; }
+    touch "$ID_H/TRAIN_DONE"
+    log "T: 完成,iter_report: $(cexec "cat $ID_C/iter_report.json" | tr -d '\n')"
+  fi
+
+  # ---------- 4. 评测到期标记 ----------
+  if [ $((ITER % EVAL_EVERY)) -eq 0 ]; then
+    touch "$ID_H/EVAL_DUE"
+    log "EVAL_DUE:held-out 120 任务 τ=0/50 步/2 轮,走独立评测脚本"
+  fi
+done
+echo "LOOP_DONE $ITER_START..$ITER_END"

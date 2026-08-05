@@ -41,13 +41,21 @@ serve(τ>0, --rl-audit-dir) × N 副本
 每 20 迭代:held-out 120 任务,τ=0、50 步、2 轮,只报方向。
 ```
 
+## 文档地图
+
+- **方法(怎么做 RL / GRPO 配置 / rollout / 参数更新 / LoRA-not-全参)**:
+  `docs/rl_method.md` ← 先读这个
+- 实验契约与预注册停止判据:`docs/rl_pivot_contract.md`
+- 迭代编排:`runscripts/rl_iter_loop.sh`(h01 宿主侧,阶段 marker 断点续跑)
+
 ## 状态
 
-- [x] serve RL 模式(主仓 `serve_osworld_official_policy.py`)
+- [x] serve RL 模式(PL 采样 + 审计)
 - [x] collector / GRPO trainer / ActionScorer / 任务切分
-- [ ] `rl_iter_loop.sh` 首跑冒烟(单迭代、2 任务 × G=2)——**下一步**
-- [ ] ActionScorer 首跑校验:重建 prompt 的 token 数与 rollout 日志的
-      `prompt_tokens` 一致(容差 ±图片 token 化差异),不一致即 fail-closed
+- [x] 冒烟端到端通过(2026-08-05:exit 0,adv=±0.833 精确,零初始化 KL=0)
+- [x] `rl_iter_loop.sh` + 可学带任务表(47 任务,6 测量 0<p<1)
+- [ ] iter-0 bootstrap(v4 selector bundle 就位)+ 首轮正式迭代
+- [ ] held-out 评测脚本(τ=0/50 步/2 轮);trainer DDP 分片(提速项,非阻塞)
 
 ## 2026-08-05 冒烟交接(容器变更警报)
 
