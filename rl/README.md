@@ -68,6 +68,9 @@ serve(τ>0, --rl-audit-dir) × N 副本
 (挂载 /data04/jaxan→/bigdata、/data02/jaxan→/data,仓库与模型完好);
 h00 的原容器视图丢失,但宿主侧 /data02/jaxan/* 数据完好,需要时按 runscripts/README
 第八条重建。
+**2026-08-06 更新**:`sglang-omni-jaxan-2` 已按全局规则重建为 `--gpus all`
+(原为 device-locked 宿主 4-7;重建前确认容器内无活进程,挂载与镜像不变),
+现在容器 GPU 序号 = 宿主序号,下文旧序号换算不再适用。
 
 **冒烟(6 卡内,全部用 `sglang-omni-jaxan-2`)续跑步骤:**
 1. bundle 同步 rlsmoke 分支到 /bigdata/osworld/CausalCache(基点取容器内 HEAD);
@@ -107,9 +110,18 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
 | 2 | 11/48 | 4/8 | 0.179 | |
 | 3 | 18/48 | 7/8 | 0.235 | |
 | 4 | 16/47 | 5/8 | 0.225 | KL 趋平,信任域生效;1 ep 重试用尽弃 |
+| 5 | 14/46 | 7/8 | 0.244 | band v2 起点 |
+| 6 | 9/28 | 4/6 | 0.177 | server 中毒事故:cuDNN mha_graph 逐请求失败,损失 18/48;催生 loop v2 修复遍 |
+| 7 | 24/48 训 | 4 可用组 | 0.193 | 修复遍生效,48/48 全收 |
 
 - 4 迭代不足以宣称学习信号(任务抽样不同);ITER 20 触发 held-out 评测。
 - **band v2**(ITER 5 起):裁掉 30 步 cap 下 ≥12 次测量全败的 3 个任务
   (b21acd93/ce2b64a2/f5c13cdd),44 任务;v1 是 50 步口径估的,cap 更严所致。
   纯调度优化:GRPO 本就跳过全败组,裁掉只省 rollout 不改梯度分布。
-- ITER 5–20 已发(~34h,loop5.log),节奏 ~2h10m/迭代。
+- **iter-8 停机事故(2026-08-06)**:他人 `run_multinode.py` 作业占走容器
+  可见 4 卡中的 3 张(各 ~141GB),旧 loop 硬编码"server s → 序号 s+1"+
+  单次 110s 健康检查直接判死。处置:按全局规则重建容器为 `--gpus all`
+  (重建前确认容器内无活进程;此后容器序号 = 宿主序号),loop v3 改为
+  `GPUS` 列表参数化 + 300s 健康轮询窗口(15s/轮)。ITER 8–20 以
+  `GPUS="2 5" SERVERS=2` 重发(loop8.log);2 server 带 4 worker,
+  节奏预计比 3 server 慢 ~20-30%,他人作业释放后可升配。

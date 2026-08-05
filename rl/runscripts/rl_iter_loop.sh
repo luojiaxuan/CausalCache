@@ -3,15 +3,20 @@
 # 每迭代四阶段,阶段完成落 marker,重启从 marker 续(全局断点续跑规则):
 #   R rollout(τ>0 采样)→ C collect(三键 join)→ T train(GRPO)→ 滚动重启
 #
-# 拓扑(h01 单机,容器 sglang-omni-jaxan-2,device-locked:宿主 4-7 = 容器 0-3):
-#   rollout 阶段:S 个 policy server 于容器 GPU 1,2,3;worker 在宿主(要 dockerd 起 VM)
-#   train  阶段:server 已杀,trainer 单进程于容器 GPU 1
-#   两阶段串行共用 3 张卡,峰值占用 3 卡 < 6 卡/机上限
+# 拓扑(h01 单机,容器 sglang-omni-jaxan-2,2026-08-06 起重建为 --gpus all,
+# 容器序号 = 宿主序号):
+#   rollout 阶段:S 个 policy server 各占 GPUS 列表一张卡;worker 在宿主(要 dockerd 起 VM)
+#   train  阶段:server 已杀,trainer 单进程于 TRAIN_GPU
+#   两阶段串行,峰值占用 = len(GPUS) 卡 ≤ 6 卡/机上限
 #
 # 参数化(env 覆盖):
-#   ITER_START/ITER_END  迭代区间(含);TASKS_PER_ITER=8;G=6;WORKERS=4;SERVERS=3
+#   ITER_START/ITER_END  迭代区间(含);TASKS_PER_ITER=8;G=6;WORKERS=4
+#   GPUS="1 2 3"  server 用卡列表(空格分隔容器序号;共享机上按实际空闲卡传);
+#                 SERVERS 默认 = 列表长度;TRAIN_GPU 默认 = 列表第一张
 #   MAX_STEPS=30(训练 rollout cap;评测另走 50 步协议)
 #   TAU=1.0(Plackett-Luce 温度);BUDGET=2(用户裁定 B=2)
+#   HEALTH_TIMEOUT=300  server 健康轮询窗口秒数(15s 一轮;iter-8 教训:
+#                       单次 110s 定时检查太脆,重载稍慢即误判死亡)
 #   EVAL_EVERY=20(到期只落 EVAL_DUE marker,held-out 评测走独立脚本)
 #
 # 已固化的坑(全部踩过):worker cwd 必须是 run30(否则重下 11.4G VM 镜像);
@@ -19,7 +24,12 @@
 set -u
 ITER_START=${ITER_START:?}; ITER_END=${ITER_END:?}
 TASKS_PER_ITER=${TASKS_PER_ITER:-8}; G=${G:-6}
-WORKERS=${WORKERS:-4}; SERVERS=${SERVERS:-3}
+WORKERS=${WORKERS:-4}
+GPUS=${GPUS:-"1 2 3"}; GPU_ARR=($GPUS)
+SERVERS=${SERVERS:-${#GPU_ARR[@]}}
+[ "$SERVERS" -le "${#GPU_ARR[@]}" ] || { echo "SERVERS=$SERVERS 超过 GPUS 列表长度 ${#GPU_ARR[@]}"; exit 1; }
+TRAIN_GPU=${TRAIN_GPU:-${GPU_ARR[0]}}
+HEALTH_TIMEOUT=${HEALTH_TIMEOUT:-300}
 MAX_STEPS=${MAX_STEPS:-30}; TAU=${TAU:-1.0}; BUDGET=${BUDGET:-2}
 # selector v2 为默认:hidden = 策略 hidden-state 打分头(零手写特征);
 # cheap = 旧 28 维两塔,仅作对照臂。iter-0 bootstrap 产物不同:
@@ -81,7 +91,7 @@ PY"
       ADP_FLAGS="--adapter-checkpoint $PD_C/adapter.pt --adapter-checkpoint-sha256 $SHA"
     fi
     for s in $(seq 0 $((SERVERS-1))); do
-      docker exec -d "$CTN" bash -lc "cd $REPO && CUDA_VISIBLE_DEVICES=$((s+1)) PYTHONPATH=code \
+      docker exec -d "$CTN" bash -lc "cd $REPO && CUDA_VISIBLE_DEVICES=${GPU_ARR[$s]} PYTHONPATH=code \
         python3 rl/code/scripts/serve_osworld_rl_policy.py \
         --model-dir $MODEL --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
         --device cuda:0 --port $((PORT0+s)) --visual-tokens 2560 \
@@ -90,14 +100,25 @@ PY"
         --selector-temperature $TAU --rl-audit-dir $ID_C/audit \
         $ADP_FLAGS >> $ID_C/serve-$s.log 2>&1"
     done
-    sleep 110
-    for s in $(seq 0 $((SERVERS-1))); do
-      code=$(curl -s -o /dev/null -w "%{http_code}" "http://$CIP:$((PORT0+s))/health" --max-time 5)
-      if [ "$code" != "200" ]; then
-        log "server $s health=$code"
-        [ "$1" = "fatal" ] && exit 1
-      fi
+    # 健康轮询窗口(替代单次定时检查):HEALTH_TIMEOUT 秒内每 15s 全量探活,
+    # 全部 200 即通过;窗口耗尽仍有掉队者才按 fatal|soft 处置
+    local t0=$SECONDS ok=0
+    while [ $((SECONDS - t0)) -lt "$HEALTH_TIMEOUT" ]; do
+      ok=1
+      for s in $(seq 0 $((SERVERS-1))); do
+        code=$(curl -s -o /dev/null -w "%{http_code}" "http://$CIP:$((PORT0+s))/health" --max-time 5)
+        [ "$code" = "200" ] || { ok=0; break; }
+      done
+      [ "$ok" = "1" ] && break
+      sleep 15
     done
+    if [ "$ok" != "1" ]; then
+      for s in $(seq 0 $((SERVERS-1))); do
+        code=$(curl -s -o /dev/null -w "%{http_code}" "http://$CIP:$((PORT0+s))/health" --max-time 5)
+        log "server $s(GPU ${GPU_ARR[$s]}) health=$code(窗口 ${HEALTH_TIMEOUT}s 耗尽)"
+      done
+      [ "$1" = "fatal" ] && exit 1
+    fi
   }
 
   run_generation() {  # 参数:$1 = 代号 g
@@ -158,10 +179,10 @@ PY"
 
   # ---------- 3. train ----------
   if [ ! -f "$ID_H/TRAIN_DONE" ]; then
-    log "T: GRPO(容器 GPU1)"
+    log "T: GRPO(GPU $TRAIN_GPU)"
     RES=""
     cexec "test -f $PD_C/adapter.pt" && RES="--resume-adapter $PD_C/adapter.pt"
-    cexec "cd $REPO && CUDA_VISIBLE_DEVICES=1 PYTHONPATH=code:rl/code \
+    cexec "cd $REPO && CUDA_VISIBLE_DEVICES=$TRAIN_GPU PYTHONPATH=code:rl/code \
       PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
       python3 rl/code/scripts/train_causalcache_rl_grpo.py \
       --groups $ID_C/groups.jsonl \
