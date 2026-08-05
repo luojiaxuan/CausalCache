@@ -73,6 +73,16 @@ def main() -> None:
     parser.add_argument("--selector-witness",
                         choices=("last_action", "proposal"),
                         default="last_action")
+    # note (luojiaxuan): CausalCache-RL(2026-08-04 pivot)。温度 > 0 时选帧从
+    # beam-argmax 换成 Plackett-Luce 顺序采样:B 个槽位依次从 softmax(边际/τ)
+    # 无放回抽取。这就是 RL 的探索来源;τ→0 退回部署语义。采样轮的候选特征
+    # (已归一化)与选中项写进 --rl-audit-dir,trainer 直接在特征上复算
+    # log π_sel 做策略梯度——不需要在训练侧重建环境状态。
+    # 温度模式下忽略 --selector-min-marginal(弃权交给 RL 自己学)。
+    parser.add_argument("--selector-temperature", type=float, default=0.0,
+                        help="Plackett-Luce 采样温度;0 = 原 beam-argmax")
+    parser.add_argument("--rl-audit-dir", type=Path, default=None,
+                        help="RL 轨迹审计目录(每请求一行 jsonl,含采样轮特征)")
     args = parser.parse_args()
 
     if args.selector_witness == "last_action":
@@ -221,7 +231,7 @@ def main() -> None:
         alias = dedup_alias(history)
         duplicates = {str(src): kept for src, kept in alias.items()}
 
-        def marginals(selected, candidates):
+        def marginals(selected, candidates, return_features=False):
             xs = []
             for event in candidates:
                 f = candidate_features(
@@ -236,7 +246,42 @@ def main() -> None:
                 raw = selector_model(
                     torch.tensor(xs, dtype=torch.float32)).tolist()
             off = args.selector_score_offset
-            return [v + off for v in raw] if off else raw
+            margs = [v + off for v in raw] if off else raw
+            return (margs, xs) if return_features else margs
+
+        # ---- RL 模式:Plackett-Luce 顺序采样(exact-B,无放回) ----
+        # note (luojiaxuan): 每轮把"已选集合"喂回 set_context_features 再算边际,
+        # 与 beam 的逐层语义一致;log π_sel(S) = Σ_轮 [m_chosen/τ − logsumexp(m/τ)]。
+        # 审计里存**归一化后的特征矩阵**而不是原始状态:trainer 复算 log π 只需
+        # 特征 × 当前 selector 参数,彻底避开"训练侧重建 prompt 状态"这类漂移源。
+        if args.selector_temperature > 0:
+            tau_rl = args.selector_temperature
+            sel: tuple = ()
+            rounds = []
+            logprob_sum = 0.0
+            for _ in range(budget):
+                remaining = [s for s in pool if s not in sel]
+                if not remaining:
+                    break
+                margs, feats = marginals(sel, remaining, return_features=True)
+                scaled = torch.tensor(margs, dtype=torch.float32) / tau_rl
+                logp = torch.log_softmax(scaled, dim=0)
+                idx = int(torch.multinomial(logp.exp(), 1).item())
+                logprob_sum += float(logp[idx])
+                rounds.append({
+                    "candidates": [int(s) for s in remaining],
+                    "features": [[round(v, 6) for v in f] for f in feats],
+                    "chosen": int(remaining[idx]),
+                    "logprob": round(float(logp[idx]), 6),
+                })
+                sel = tuple(sorted((*sel, remaining[idx])))
+            chosen = sorted(sel)
+            return chosen, {
+                "pool": len(pool), "promoted": len(chosen),
+                "temperature": tau_rl,
+                "rl_logprob_sum": round(logprob_sum, 6),
+                "rl_rounds": rounds,
+            }
 
         # note (luojiaxuan): --selector-min-marginal 打开弃权。原语义是无条件走满 B 层、
         # 恒取 B 个:池子里没有值得提升的远端帧时,argmax 仍会挑一个出来,挤掉 recent。
@@ -485,6 +530,28 @@ def main() -> None:
                         "select_seconds": round(select_seconds, 4),
                         "pass2_seconds": round(pass2_seconds, 4),
                     }), flush=True)
+                    # ---- RL 审计:一步一行,自带 join 键与复算所需的全部特征 ----
+                    # join = (task_id, step_index, response_sha16):task+步定位到
+                    # result.json 的那一步;response 哈希区分同任务重试的多次尝试。
+                    if args.rl_audit_dir is not None and _diag.get("rl_rounds"):
+                        import hashlib as _hl
+                        audit_line = {
+                            "task_id": str(request["task"]["task_id"]),
+                            "step_index": len(request["history"]) + 1,
+                            "response_sha16": _hl.sha256(
+                                text.encode("utf-8")).hexdigest()[:16],
+                            "shown_events": shown,
+                            "temperature": _diag.get("temperature"),
+                            "rl_logprob_sum": _diag.get("rl_logprob_sum"),
+                            "rounds": _diag.get("rl_rounds"),
+                            "full_response": text,
+                        }
+                        with counter_lock:
+                            args.rl_audit_dir.mkdir(parents=True, exist_ok=True)
+                            with (args.rl_audit_dir /
+                                  f"audit-{args.port}.jsonl").open(
+                                      "a", encoding="utf-8") as fh:
+                                fh.write(json.dumps(audit_line) + "\n")
                 with counter_lock:
                     counters["requests"] += 1
                 _json_response(self, 200, {
