@@ -33,7 +33,7 @@ RLH=/data04/jaxan/rl                    # 宿主视角迭代根
 RLC=/bigdata/rl                         # 容器视角同一目录
 REPO=/bigdata/osworld/CausalCache       # 容器视角仓库
 WREPO=/data02/jaxan/CausalCache-mwhgkv  # 宿主视角 worker 仓库
-BAND=$RLC/osworld_rl_train_band_v1.json # 可学带(bootstrap 时放入)
+BAND=${BAND:-$RLC/osworld_rl_train_band_v1.json} # 可学带(env 可覆盖;v2 起裁掉 30 步 cap 下持续全败的任务)
 MODEL=/bigdata/models/GUI-Owl-1.5-8B-Instruct
 PORT0=19511
 
