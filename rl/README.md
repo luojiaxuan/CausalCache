@@ -113,6 +113,7 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
 | 5 | 14/46 | 7/8 | 0.244 | band v2 起点 |
 | 6 | 9/28 | 4/6 | 0.177 | server 中毒事故:cuDNN mha_graph 逐请求失败,损失 18/48;催生 loop v2 修复遍 |
 | 7 | 24/48 训 | 4 可用组 | 0.193 | 修复遍生效,48/48 全收 |
+| 8 | 20/48 | 6/8 | 0.234 | h00 首迭代;断点续跑 credit 35 条 + 补回 13 条 flaky,48/48 全收 |
 
 - 4 迭代不足以宣称学习信号(任务抽样不同);ITER 20 触发 held-out 评测。
 - **band v2**(ITER 5 起):裁掉 30 步 cap 下 ≥12 次测量全败的 3 个任务
@@ -139,6 +140,12 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
   断点跳过,补缺失 13 条。GPUS="3 4 5"(h00 GPU 0-2 为他人占用)。
   **注意:h00 的 rl_iter_8.json meta 是手工放置的**——loop 只在任务采样时
   生成该文件,tasks.json 已存在会跳过;跨机迁移必须手工补。
+- **v4 换装(iter-9 起,2026-08-06)**:WORKERS 4→8(8 任务/迭代一人一个,
+  rollout 墙钟 ≈ 单 episode)+ train 段 torchrun 3 卡 DDP;预期
+  ~1h-1h15m/迭代(iters 1-8 实测 ~2h10m)。换装点选在 iter-8 训完、
+  iter-9 rollout 刚起时:杀 loop→SIGTERM worker(留够 VM 自清时间)→
+  删 4 个孤儿 VM 容器(happysixd/osworld-docker)→v4 重发,损失仅
+  iter-9 前几分钟的在飞 episode。上线确认:health 46s 过,8 worker 起跑。
   **trainer DDP 等价性冒烟(2026-08-06,通过)**:iter-8 原生 groups,
   2 episode × 1 组 × accum 2。前向统计(loss/KL/优势)w1 与 w2 逐位一致;
   param_sum 差异 w1-重跑 8.4e-7(非确定性基线)vs DDP 1.9e-4——后者是
