@@ -114,6 +114,7 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
 | 6 | 9/28 | 4/6 | 0.177 | server 中毒事故:cuDNN mha_graph 逐请求失败,损失 18/48;催生 loop v2 修复遍 |
 | 7 | 24/48 训 | 4 可用组 | 0.193 | 修复遍生效,48/48 全收 |
 | 8 | 20/48 | 6/8 | 0.234 | h00 首迭代;断点续跑 credit 35 条 + 补回 13 条 flaky,48/48 全收 |
+| 9 | 16/48 | 6/8 | 0.220 | v4 首迭代(8 worker):rollout 64min;serve 并发碎片 OOM ×8,修复遍 18min 自愈,48/48;**首次 DDP train 实跑 ×3 卡 ~13min**(单卡 28-45min) |
 
 - 4 迭代不足以宣称学习信号(任务抽样不同);ITER 20 触发 held-out 评测。
 - **band v2**(ITER 5 起):裁掉 30 步 cap 下 ≥12 次测量全败的 3 个任务
@@ -140,6 +141,10 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
   断点跳过,补缺失 13 条。GPUS="3 4 5"(h00 GPU 0-2 为他人占用)。
   **注意:h00 的 rl_iter_8.json meta 是手工放置的**——loop 只在任务采样时
   生成该文件,tasks.json 已存在会跳过;跨机迁移必须手工补。
+- **v5 换装(iter-10 起,2026-08-06)**:serve 进程加 `expandable_segments`,
+  根治 8-worker 并发下的碎片型 OOM(iter-9 实测 8 次/64min;修复遍虽能自愈
+  但每迭代 10-15min 修复税不值)。换装同样走"T 完成即杀-清-重发"脚本
+  (relaunch_v5.sh,VM 容器改 ancestor 过滤批量清)。
 - **v4 换装(iter-9 起,2026-08-06)**:WORKERS 4→8(8 任务/迭代一人一个,
   rollout 墙钟 ≈ 单 episode)+ train 段 torchrun 3 卡 DDP;预期
   ~1h-1h15m/迭代(iters 1-8 实测 ~2h10m)。换装点选在 iter-8 训完、
