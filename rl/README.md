@@ -139,6 +139,10 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
   断点跳过,补缺失 13 条。GPUS="3 4 5"(h00 GPU 0-2 为他人占用)。
   **注意:h00 的 rl_iter_8.json meta 是手工放置的**——loop 只在任务采样时
   生成该文件,tasks.json 已存在会跳过;跨机迁移必须手工补。
+  **groups.jsonl 不可跨机复用**:collect 产物内嵌 episode 目录的容器视角
+  绝对路径(h01 是 /bigdata/...,h00 是 /data/...),迁移后必须重跑 collect
+  (秒级);拿旧机的 groups.jsonl 直接训会在 `_request_from_episode` 处
+  StopIteration(DDP 冒烟首发即此坑,误以为是分片 bug)。
   首发三 server 全被冻结守卫拒启:h00 容器被语音项目会话升过包
   (transformers 5.12.1、sglang 0.5.16),守卫钉 5.6.0——**守卫按设计工作,
   这正是它存在的意义**。处置:容器内无活进程,`pip install transformers==5.6.0`
