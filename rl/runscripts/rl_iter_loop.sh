@@ -97,8 +97,11 @@ PY"
       SHA=$(cexec "sha256sum $PD_C/adapter.pt | cut -d' ' -f1")
       ADP_FLAGS="--adapter-checkpoint $PD_C/adapter.pt --adapter-checkpoint-sha256 $SHA"
     fi
+    # expandable_segments:8 worker 并发下 serve 端出现过瞬时 18-20G 分配的
+    # 碎片型 OOM(iter-9,64min 内 8 次,修复遍自愈);该开关显著降低碎片失败率
     for s in $(seq 0 $((SERVERS-1))); do
-      docker exec -d "$CTN" bash -lc "cd $REPO && CUDA_VISIBLE_DEVICES=${GPU_ARR[$s]} PYTHONPATH=code \
+      docker exec -d "$CTN" bash -lc "cd $REPO && CUDA_VISIBLE_DEVICES=${GPU_ARR[$s]} \
+        PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True PYTHONPATH=code \
         python3 rl/code/scripts/serve_osworld_rl_policy.py \
         --model-dir $MODEL --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
         --device cuda:0 --port $((PORT0+s)) --visual-tokens 2560 \
