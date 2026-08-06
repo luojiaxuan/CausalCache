@@ -139,3 +139,9 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
   断点跳过,补缺失 13 条。GPUS="3 4 5"(h00 GPU 0-2 为他人占用)。
   **注意:h00 的 rl_iter_8.json meta 是手工放置的**——loop 只在任务采样时
   生成该文件,tasks.json 已存在会跳过;跨机迁移必须手工补。
+  首发三 server 全被冻结守卫拒启:h00 容器被语音项目会话升过包
+  (transformers 5.12.1、sglang 0.5.16),守卫钉 5.6.0——**守卫按设计工作,
+  这正是它存在的意义**。处置:容器内无活进程,`pip install transformers==5.6.0`
+  降回后重发。共享容器跨项目改包环境是常态,迁移到任何"现成"容器都要先
+  对钉定版本;语音项目下次在此容器跑若依赖 5.12.1 需自行升回(已知冲突,
+  两项目不同时活跃)。
