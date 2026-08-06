@@ -117,6 +117,7 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
 | 9 | 16/48 | 6/8 | 0.220 | v4 首迭代(8 worker):rollout 64min;serve 并发碎片 OOM ×8,修复遍 18min 自愈,48/48;**首次 DDP train 实跑 ×3 卡 ~13min**(单卡 28-45min) |
 | 10 | 18/48 | 3/8 | 0.178 | v5 首迭代:**全程 1h16m**(rollout 67min 零 OOM + DDP 7.5min);退化组偏多属抽签噪声 |
 | 11 | 13/48 | 4/8 | 0.189 | 1h24m,零 OOM |
+| 12 | 22/48 | 4/8 | 0.224 | 训完即插播 held-out 方向读(eval12.log,RL@12 vs 冻结+recent-B) |
 
 - 4 迭代不足以宣称学习信号(任务抽样不同);ITER 20 触发 held-out 评测。
 - **band v2**(ITER 5 起):裁掉 30 步 cap 下 ≥12 次测量全败的 3 个任务
