@@ -37,6 +37,17 @@ case "$CIP" in ""|*[!0-9.]*) CIP=127.0.0.1;; esac
   || cp "$WREPO/rl/data/manifests/osworld_rl_heldout_v1.json" \
         "$B/OSWorld/evaluation_examples/$META"
 
+# 杀 server 并等进程真正消失(eval12 实测教训:pkill 后 CUDA 拆卸要 5-20s,
+# 垂死进程仍应答 /health 200,骗过下一臂健康检查 → 整臂 35 秒全灭收 0 条)
+kill_servers_wait() {
+  cexec "pkill -f '[s]erve_osworld' || true"
+  for i in $(seq 1 20); do
+    cexec "pgrep -f '[s]erve_osworld' >/dev/null" || return 0
+    sleep 3
+  done
+  log "WARN server 30s 内未退净,继续(端口绑定由新 server 报错兜底)"
+}
+
 launch_servers() {  # $1 = rl | recent
   if [ "$1" = "rl" ]; then
     SRV="rl/code/scripts/serve_osworld_rl_policy.py"
@@ -96,12 +107,14 @@ for arm in rl recent; do
     PF=$(cexec "cat $EV_C/serve-$arm-*.log 2>/dev/null | grep -c OSWORLD_POLICY_FAILURE" | tr -cd '0-9')
     if [ "${PF:-0}" -gt 0 ]; then
       log "臂 $arm:$PF 次策略失败,重启补跑一遍"
-      cexec "pkill -f '[s]erve_osworld' || true"; sleep 5
+      kill_servers_wait
       launch_servers "$arm"
       run_arm_workers "$arm"
     fi
-    cexec "pkill -f '[s]erve_osworld' || true"; sleep 3
+    kill_servers_wait
     n=$(find "$EV_H/out-$arm" -name result.json 2>/dev/null | wc -l)
+    # 收 0 条 = 系统性故障(如 server 换臂竞态),绝不盖章
+    if [ "$n" = "0" ]; then log "FATAL 臂 $arm 收 0 条"; exit 1; fi
     log "臂 $arm:收 $n 条,server 已回收"
     touch "$EV_H/ARM_${arm}_DONE"
   fi
