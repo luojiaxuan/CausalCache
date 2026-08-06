@@ -118,10 +118,24 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
 - **band v2**(ITER 5 起):裁掉 30 步 cap 下 ≥12 次测量全败的 3 个任务
   (b21acd93/ce2b64a2/f5c13cdd),44 任务;v1 是 50 步口径估的,cap 更严所致。
   纯调度优化:GRPO 本就跳过全败组,裁掉只省 rollout 不改梯度分布。
-- **iter-8 停机事故(2026-08-06)**:他人 `run_multinode.py` 作业占走容器
-  可见 4 卡中的 3 张(各 ~141GB),旧 loop 硬编码"server s → 序号 s+1"+
-  单次 110s 健康检查直接判死。处置:按全局规则重建容器为 `--gpus all`
-  (重建前确认容器内无活进程;此后容器序号 = 宿主序号),loop v3 改为
-  `GPUS` 列表参数化 + 300s 健康轮询窗口(15s/轮)。ITER 8–20 以
-  `GPUS="2 5" SERVERS=2` 重发(loop8.log);2 server 带 4 worker,
-  节奏预计比 3 server 慢 ~20-30%,他人作业释放后可升配。
+- **iter-8 停机事故 ×2(2026-08-06)**:
+  1. 他人 `run_multinode.py` 作业占走容器可见 4 卡中的 3 张(各 ~141GB),
+     旧 loop 硬编码"server s → 序号 s+1"+ 单次 110s 健康检查直接判死。
+     处置:按全局规则重建 h01 容器为 `--gpus all`(重建前确认无活进程;
+     此后容器序号 = 宿主序号),loop v3 改 `GPUS` 列表参数化 + 300s 健康
+     轮询窗(15s/轮),以 `GPUS="2 5"` 重发。
+  2. 重发后 rollout 收 35/48(修复遍未触发,缺失原因待查),trainer 在
+     加载模型阶段被**静默 SIGKILL**(无 traceback;非交互 shell 不报 Killed)
+     ——同一时刻他人 multinode 作业也集体消失,判断是有人为 benchmark 清场
+     整机扫进程,trainer 属误伤。用户随即让机 1 小时。
+- **迁移 hyper00(2026-08-06,loop8h00.log)**:用户指示直接去 h00 补跑。
+  h00 现容器 `sglang-omni-jaxan` 本就 `--gpus all`+host 网络,挂载
+  /data04/jaxan→/data;/data02 满盘(0 可用),工作集整体落 /data04:
+  模型/OSWorld/cache-fast/CausalCache(host+容器共用一棵树,bundle 升至
+  a53cb66)/run30(只拷 Ubuntu.qcow2,跳过 12G zip)。iter-7/8 状态由
+  h01 经 agent 转发 rsync 直传(~1GB,秒级;走 Mac 的 tar 管道实测太慢)。
+  loop v3.1:CTN/B/RLH/RLC/REPO/WREPO/MODEL/CACHE 全部 env 化 + host 网络
+  CIP 回退 127.0.0.1。iter-8 删 ROLLOUT/COLLECT 标记续跑:35 条既有 episode
+  断点跳过,补缺失 13 条。GPUS="3 4 5"(h00 GPU 0-2 为他人占用)。
+  **注意:h00 的 rl_iter_8.json meta 是手工放置的**——loop 只在任务采样时
+  生成该文件,tasks.json 已存在会跳过;跨机迁移必须手工补。

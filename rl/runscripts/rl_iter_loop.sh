@@ -37,20 +37,26 @@ MAX_STEPS=${MAX_STEPS:-30}; TAU=${TAU:-1.0}; BUDGET=${BUDGET:-2}
 SELECTOR_MODE=${SELECTOR_MODE:-hidden}
 EVAL_EVERY=${EVAL_EVERY:-20}
 
-CTN=sglang-omni-jaxan-2
-B=/data04/jaxan/osworld                 # 宿主视角
-RLH=/data04/jaxan/rl                    # 宿主视角迭代根
-RLC=/bigdata/rl                         # 容器视角同一目录
-REPO=/bigdata/osworld/CausalCache       # 容器视角仓库
-WREPO=/data02/jaxan/CausalCache-mwhgkv  # 宿主视角 worker 仓库
+# 主机档案(默认 = h01;h00 用 env 覆盖:CTN=sglang-omni-jaxan RLC=/data/rl
+#   REPO=/data/osworld/CausalCache WREPO=/data04/jaxan/osworld/CausalCache
+#   MODEL=/data/models/GUI-Owl-1.5-8B-Instruct,B/RLH/CACHE 两机恰好同值)
+CTN=${CTN:-sglang-omni-jaxan-2}
+B=${B:-/data04/jaxan/osworld}           # 宿主视角
+RLH=${RLH:-/data04/jaxan/rl}            # 宿主视角迭代根
+RLC=${RLC:-/bigdata/rl}                 # 容器视角同一目录
+REPO=${REPO:-/bigdata/osworld/CausalCache}  # 容器视角仓库
+WREPO=${WREPO:-/data02/jaxan/CausalCache-mwhgkv}  # 宿主视角 worker 仓库
+CACHE=${CACHE:-$B/cache-fast}           # worker 任务配置缓存
 BAND=${BAND:-$RLC/osworld_rl_train_band_v1.json} # 可学带(env 可覆盖;v2 起裁掉 30 步 cap 下持续全败的任务)
-MODEL=/bigdata/models/GUI-Owl-1.5-8B-Instruct
+MODEL=${MODEL:-/bigdata/models/GUI-Owl-1.5-8B-Instruct}
 PORT0=19511
 
 log() { echo "[$(date -u +%FT%TZ)] iter=$ITER $*"; }
 cexec() { docker exec "$CTN" bash -lc "$*"; }
 
 CIP=$(docker inspect "$CTN" --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
+# host 网络容器 inspect 不给 IP(h00 即此形态),回退 127.0.0.1;bridge(h01)不受影响
+case "$CIP" in ""|*[!0-9.]*) CIP=127.0.0.1;; esac
 
 for ITER in $(seq "$ITER_START" "$ITER_END"); do
   PREV=$((ITER-1))
@@ -134,7 +140,7 @@ PY"
           --policy-endpoint "http://$CIP:$((PORT0 + s % SERVERS))/act" \
           --memory-arm full --memory-budget "$BUDGET" \
           --max-steps "$MAX_STEPS" \
-          --cache-dir "$B/cache-fast" \
+          --cache-dir "$CACHE" \
           >> "$ID_H/worker-g$g-$s.log" 2>&1 ) &
     done
     wait
