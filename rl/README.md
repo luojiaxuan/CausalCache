@@ -139,6 +139,12 @@ HGKV 注入(history_gated_lora)→ prompt 重建(补 official_arguments/full_res
   断点跳过,补缺失 13 条。GPUS="3 4 5"(h00 GPU 0-2 为他人占用)。
   **注意:h00 的 rl_iter_8.json meta 是手工放置的**——loop 只在任务采样时
   生成该文件,tasks.json 已存在会跳过;跨机迁移必须手工补。
+  **trainer DDP 等价性冒烟(2026-08-06,通过)**:iter-8 原生 groups,
+  2 episode × 1 组 × accum 2。前向统计(loss/KL/优势)w1 与 w2 逐位一致;
+  param_sum 差异 w1-重跑 8.4e-7(非确定性基线)vs DDP 1.9e-4——后者是
+  AdamW 新状态首步 ≈ ±lr·sign(g) 对近零梯度求和序噪声的符号放大
+  (~10/660K 参数翻符号),非分片 bug(真 bug 会 1e-2 级且统计对不上);
+  rank 间参数逐位一致、episode 认领断言通过。判:等价成立,上线。
   **groups.jsonl 不可跨机复用**:collect 产物内嵌 episode 目录的容器视角
   绝对路径(h01 是 /bigdata/...,h00 是 /data/...),迁移后必须重跑 collect
   (秒级);拿旧机的 groups.jsonl 直接训会在 `_request_from_episode` 处
