@@ -6,13 +6,14 @@
 # 拓扑(h01 单机,容器 sglang-omni-jaxan-2,2026-08-06 起重建为 --gpus all,
 # 容器序号 = 宿主序号):
 #   rollout 阶段:S 个 policy server 各占 GPUS 列表一张卡;worker 在宿主(要 dockerd 起 VM)
-#   train  阶段:server 已杀,trainer 单进程于 TRAIN_GPU
-#   两阶段串行,峰值占用 = len(GPUS) 卡 ≤ 6 卡/机上限
+#   train  阶段:server 已杀,trainer DDP(torchrun,episode 分片)占 TRAIN_GPUS
+#   两阶段串行,峰值占用 = max(len(GPUS), len(TRAIN_GPUS)) ≤ 6 卡/机上限
 #
 # 参数化(env 覆盖):
 #   ITER_START/ITER_END  迭代区间(含);TASKS_PER_ITER=8;G=6;WORKERS=4
 #   GPUS="1 2 3"  server 用卡列表(空格分隔容器序号;共享机上按实际空闲卡传);
-#                 SERVERS 默认 = 列表长度;TRAIN_GPU 默认 = 列表第一张
+#                 SERVERS 默认 = 列表长度;TRAIN_GPUS 默认 = GPUS 全列表
+#                 (trainer DDP 按 episode 分片,train 段时长 ≈ 单卡 / 卡数)
 #   MAX_STEPS=30(训练 rollout cap;评测另走 50 步协议)
 #   TAU=1.0(Plackett-Luce 温度);BUDGET=2(用户裁定 B=2)
 #   HEALTH_TIMEOUT=300  server 健康轮询窗口秒数(15s 一轮;iter-8 教训:
@@ -28,7 +29,7 @@ WORKERS=${WORKERS:-4}
 GPUS=${GPUS:-"1 2 3"}; GPU_ARR=($GPUS)
 SERVERS=${SERVERS:-${#GPU_ARR[@]}}
 [ "$SERVERS" -le "${#GPU_ARR[@]}" ] || { echo "SERVERS=$SERVERS 超过 GPUS 列表长度 ${#GPU_ARR[@]}"; exit 1; }
-TRAIN_GPU=${TRAIN_GPU:-${GPU_ARR[0]}}
+TRAIN_GPUS=${TRAIN_GPUS:-$GPUS}; TG_ARR=($TRAIN_GPUS)
 HEALTH_TIMEOUT=${HEALTH_TIMEOUT:-300}
 MAX_STEPS=${MAX_STEPS:-30}; TAU=${TAU:-1.0}; BUDGET=${BUDGET:-2}
 # selector v2 为默认:hidden = 策略 hidden-state 打分头(零手写特征);
@@ -185,12 +186,14 @@ PY"
 
   # ---------- 3. train ----------
   if [ ! -f "$ID_H/TRAIN_DONE" ]; then
-    log "T: GRPO(GPU $TRAIN_GPU)"
+    log "T: GRPO(DDP ×${#TG_ARR[@]} @ GPU $TRAIN_GPUS)"
     RES=""
     cexec "test -f $PD_C/adapter.pt" && RES="--resume-adapter $PD_C/adapter.pt"
-    cexec "cd $REPO && CUDA_VISIBLE_DEVICES=$TRAIN_GPU PYTHONPATH=code:rl/code \
+    TG_CSV=${TRAIN_GPUS// /,}
+    cexec "cd $REPO && CUDA_VISIBLE_DEVICES=$TG_CSV PYTHONPATH=code:rl/code \
       PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
-      python3 rl/code/scripts/train_causalcache_rl_grpo.py \
+      python3 -m torch.distributed.run --standalone --nproc-per-node=${#TG_ARR[@]} \
+      rl/code/scripts/train_causalcache_rl_grpo.py \
       --groups $ID_C/groups.jsonl \
       --model-dir $MODEL \
       --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \

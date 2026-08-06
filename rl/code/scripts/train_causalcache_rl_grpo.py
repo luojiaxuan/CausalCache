@@ -21,6 +21,14 @@
 # 分布偏移统一被罚;这也是防"均匀抬升"复活的原理性版本。
 #
 # 全 0 / 全 1 的组优势为零,自动跳过(但计数披露,不静默)。
+#
+# DDP(2026-08-06):按 episode 分片 + 手工梯度 all-reduce,不用 DDP wrapper——
+# scorer 的逐步反传是"一次 optimizer.step 前多次 backward",与 wrapper 的
+# 桶式同步天生犯冲;手工 all-reduce(SUM)在累积窗口边界做一次,数学上与
+# 单进程严格等价(fp 加法顺序除外)。episode 全局计数决定窗口,rank 按
+# e_idx % world 认领;窗口内没活的 rank 以零梯度参与集合通信。所有 rank
+# 优化器状态恒等(同种子同初值同梯度),rank0 落盘,末尾跨 rank 校验参数和。
+# 单进程(WORLD_SIZE 缺省)走原路径,冒烟脚本不受影响。
 """
 
 from __future__ import annotations
@@ -28,6 +36,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import random
 from collections import defaultdict
 from pathlib import Path
@@ -58,6 +67,8 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--grad-accum", type=int, default=8)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260804)
+    p.add_argument("--limit-episodes-per-group", type=int, default=0,
+                   help="冒烟专用:每组只取前 N 条 episode(0=关)。改变优势口径,正式训练禁用")
     return p.parse_args()
 
 
@@ -137,9 +148,29 @@ def main() -> None:
     args = parse_args()
     import torch
 
+    # ---- DDP 形态(torchrun 注入 env;单进程时 world=1 走原路径)----
+    world = int(os.environ.get("WORLD_SIZE", "1"))
+    rank = int(os.environ.get("RANK", "0"))
+    if world > 1:
+        from datetime import timedelta
+
+        import torch.distributed as dist
+        local_rank = int(os.environ["LOCAL_RANK"])
+        torch.cuda.set_device(local_rank)
+        # episode 长短不均,窗口边界的 all-reduce 可能等最慢 rank 数分钟;
+        # 模型装载也在首个集合通信之前——超时给足
+        dist.init_process_group("nccl", timeout=timedelta(minutes=60))
+        args.device = f"cuda:{local_rank}"
+    is_main = rank == 0
+
+    def rprint(payload) -> None:
+        if is_main:
+            print(json.dumps(payload), flush=True)
+
     torch.manual_seed(args.seed)
     random.seed(args.seed)
-    args.output_root.mkdir(parents=True, exist_ok=True)
+    if is_main:
+        args.output_root.mkdir(parents=True, exist_ok=True)
 
     # ---- 组数据 ----
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -151,13 +182,15 @@ def main() -> None:
 
     usable, degenerate = [], 0
     for tid, eps in groups.items():
+        if args.limit_episodes_per_group > 0:
+            eps = eps[: args.limit_episodes_per_group]
         rs = [float(e["reward"]) for e in eps]
         if len(eps) >= 2 and max(rs) != min(rs):
             usable.append((tid, eps))
         else:
             degenerate += 1
-    print(json.dumps({"groups_total": len(groups), "groups_usable": len(usable),
-                      "groups_degenerate_skipped": degenerate}), flush=True)
+    rprint({"groups_total": len(groups), "groups_usable": len(usable),
+            "groups_degenerate_skipped": degenerate, "world_size": world})
     if not usable:
         raise SystemExit("没有可用组(全 0/全 1)——检查任务可学带筛选")
 
@@ -192,64 +225,108 @@ def main() -> None:
     optimizer.zero_grad(set_to_none=True)
     n_ep = 0
 
+    trainable = [p for g in params for p in g["params"]]
+
+    def sync_and_step() -> None:
+        # 窗口边界:先跨 rank 求和梯度(无梯度参数补零参与),再 clip + step。
+        # all-reduce 结果各 rank 逐位一致 → 优化器轨迹恒等,无需广播参数。
+        if world > 1:
+            import torch.distributed as dist
+            for p in trainable:
+                if p.grad is None:
+                    p.grad = torch.zeros_like(p)
+                dist.all_reduce(p.grad, op=dist.ReduceOp.SUM)
+        torch.nn.utils.clip_grad_norm_(trainable, 1.0)
+        optimizer.step()
+        optimizer.zero_grad(set_to_none=True)
+
+    e_idx = 0  # 全局 episode 序号:窗口划分与 rank 认领都用它
     for tid, eps in batch:
         rs = [float(e["reward"]) for e in eps]
         mean_r = sum(rs) / len(rs)
         std_r = math.sqrt(sum((r - mean_r) ** 2 for r in rs) / len(rs))
         for ep, r in zip(eps, rs):
-            adv = (r - mean_r) / (std_r + args.adv_std_eps)
-            tau = float(ep["temperature"])
-            logp_sel, ent, n_rounds = selector_logprob_and_entropy(
-                sel_model, ep, torch, tau)
-            loss = torch.zeros((), device=args.device)
-            if logp_sel is not None:
-                loss = loss - args.w_sel * adv * logp_sel
-                loss = loss - args.entropy_lambda * ent
-                stats["sel_rounds"] += n_rounds
-            # selector 侧(小图)整条反传;动作侧在 scorer 内逐步反传(防 OOM)
-            if loss.requires_grad:
-                (loss / args.grad_accum).backward()
-            lp, kl, _n = scorer.episode_backward(
-                ep,
-                pg_coef=args.w_act * adv / args.grad_accum,
-                kl_coef=args.kl_beta / args.grad_accum)
-            stats["kl"] += kl
-            stats["act_logp"] += lp
+            mine = (e_idx % world) == rank
+            e_idx += 1
             n_ep += 1
-            stats["loss"] += float(loss.detach())
-            stats["adv_abs"] += abs(adv)
+            if mine:
+                adv = (r - mean_r) / (std_r + args.adv_std_eps)
+                tau = float(ep["temperature"])
+                logp_sel, ent, n_rounds = selector_logprob_and_entropy(
+                    sel_model, ep, torch, tau)
+                loss = torch.zeros((), device=args.device)
+                if logp_sel is not None:
+                    loss = loss - args.w_sel * adv * logp_sel
+                    loss = loss - args.entropy_lambda * ent
+                    stats["sel_rounds"] += n_rounds
+                # selector 侧(小图)整条反传;动作侧 scorer 内逐步反传(防 OOM)
+                if loss.requires_grad:
+                    (loss / args.grad_accum).backward()
+                lp, kl, _n = scorer.episode_backward(
+                    ep,
+                    pg_coef=args.w_act * adv / args.grad_accum,
+                    kl_coef=args.kl_beta / args.grad_accum)
+                stats["kl"] += kl
+                stats["act_logp"] += lp
+                stats["loss"] += float(loss.detach())
+                stats["adv_abs"] += abs(adv)
+                stats["ep_local"] += 1
             if n_ep % args.grad_accum == 0:
-                torch.nn.utils.clip_grad_norm_(
-                    [p for g in params for p in g["params"]], 1.0)
-                optimizer.step()
-                optimizer.zero_grad(set_to_none=True)
+                sync_and_step()
 
     if n_ep % args.grad_accum:
-        optimizer.step()
-        optimizer.zero_grad(set_to_none=True)
+        sync_and_step()
 
-    # ---- 落盘:selector bundle(部署同构)+ LoRA + 迭代统计 ----
-    out_bundle = dict(bundle)
-    if bundle.get("kind") == "hidden_head":
-        out_bundle["model_state"] = sel_model.state_dict()
-    else:
-        out_bundle["model_state"] = {
-            f"cheap.{k.split('cheap.', 1)[1]}" if k.startswith("cheap.") else k: v
-            for k, v in sel_model.state_dict().items()
+    # ---- 跨 rank 汇总统计;校验参数轨迹未分叉 ----
+    param_sum = float(sum(p.detach().double().sum() for p in trainable))
+    if world > 1:
+        import torch.distributed as dist
+        agg = torch.tensor(
+            [stats["loss"], stats["adv_abs"], stats["kl"], stats["act_logp"],
+             stats["sel_rounds"], stats["ep_local"]],
+            dtype=torch.float64, device=args.device)
+        dist.all_reduce(agg, op=dist.ReduceOp.SUM)
+        (stats["loss"], stats["adv_abs"], stats["kl"], stats["act_logp"],
+         stats["sel_rounds"], stats["ep_local"]) = agg.tolist()
+        sums = [None] * world
+        dist.all_gather_object(sums, param_sum)
+        if is_main and any(abs(s - param_sum) > 1e-6 * max(1.0, abs(param_sum))
+                           for s in sums):
+            raise SystemExit(f"DDP 参数轨迹分叉:param_sum={sums}")
+    assert int(stats["ep_local"]) == n_ep, \
+        f"episode 认领不完整:{int(stats['ep_local'])} != {n_ep}"
+
+    # ---- 落盘(rank0):selector bundle(部署同构)+ LoRA + 迭代统计 ----
+    if is_main:
+        out_bundle = dict(bundle)
+        if bundle.get("kind") == "hidden_head":
+            out_bundle["model_state"] = sel_model.state_dict()
+        else:
+            out_bundle["model_state"] = {
+                f"cheap.{k.split('cheap.', 1)[1]}" if k.startswith("cheap.") else k: v
+                for k, v in sel_model.state_dict().items()
+            }
+        torch.save(out_bundle, args.output_root / "selector_bundle.pt")
+        scorer.save_adapter(args.output_root / "adapter.pt")
+        report = {
+            "episodes": n_ep,
+            "groups_used": len(batch),
+            "mean_loss": stats["loss"] / max(n_ep, 1),
+            "mean_abs_adv": stats["adv_abs"] / max(n_ep, 1),
+            "mean_kl": stats["kl"] / max(n_ep, 1),
+            "selector_rounds": int(stats["sel_rounds"]),
+            "world_size": world,
+            "trainable_param_sum": param_sum,
         }
-    torch.save(out_bundle, args.output_root / "selector_bundle.pt")
-    scorer.save_adapter(args.output_root / "adapter.pt")
-    report = {
-        "episodes": n_ep,
-        "groups_used": len(batch),
-        "mean_loss": stats["loss"] / max(n_ep, 1),
-        "mean_abs_adv": stats["adv_abs"] / max(n_ep, 1),
-        "mean_kl": stats["kl"] / max(n_ep, 1),
-        "selector_rounds": int(stats["sel_rounds"]),
-    }
-    (args.output_root / "iter_report.json").write_text(
-        json.dumps(report, indent=1, ensure_ascii=False))
-    print(json.dumps(report), flush=True)
+        if args.limit_episodes_per_group:
+            report["limit_episodes_per_group"] = args.limit_episodes_per_group
+        (args.output_root / "iter_report.json").write_text(
+            json.dumps(report, indent=1, ensure_ascii=False))
+        print(json.dumps(report), flush=True)
+    if world > 1:
+        import torch.distributed as dist
+        dist.barrier()
+        dist.destroy_process_group()
 
 
 if __name__ == "__main__":

@@ -126,6 +126,14 @@ loss_step.backward()          # 单步图立即释放;梯度在 optimizer.step �
 `clip_grad_norm(1.0)` + `optimizer.step()`。产物 `selector_bundle.pt`
 (与部署 bundle 同构,serve 直接吃)+ `adapter.pt`(HGKV 形制)。
 
+**DDP(2026-08-06 起默认)**:torchrun 多进程,episode 按全局序号
+`e_idx % world` 分片;**手工 all-reduce 而非 DDP wrapper**——逐步反传是
+"一次 step 前多次 backward",wrapper 的桶同步与之犯冲。累积窗口以全局
+episode 计数划界,窗口边界所有 rank all-reduce(SUM)梯度(缺席 rank 补零
+参与)再各自 clip+step;同种子同初值同梯度 → 各 rank 优化器轨迹恒等,
+rank0 落盘,末尾跨 rank 校验 `trainable_param_sum` 防分叉。数学与单进程
+严格等价(浮点加序除外)。单进程(不经 torchrun)自动走原路径。
+
 ## 5. 迭代闭环与算力
 
 ```
@@ -136,9 +144,10 @@ iter N:  [R] 3×server(τ=1, 上迭代权重) + 4×worker × G代  ≈ 30–45 m
 每 20 迭代:held-out 120 任务,τ=0、50 步、2 轮,只报方向(独立脚本)。
 ```
 
-h01 单机 3 卡串行两阶段 ≈ **1.5 h/迭代**;60 迭代判停线 ≈ 4 天。
-提速路径(按性价比):h00 容器重建后加入 rollout(减半)→ trainer 改
-torchrun DDP 按 episode 分片(训练段再减半)→ 合计可到 ~35 min/迭代。
+单机 3 卡串行两阶段实测 ≈ **2h10m/迭代**(iters 1-7,4 worker 单卡 train)。
+已做的提速(2026-08-06):worker 4→8(8 任务/迭代一人一个,rollout 墙钟
+≈ 单 episode 时长)+ trainer DDP 3 卡(train 段 ≈ 单卡/3)→ 预计
+**~1h-1h15m/迭代**。进一步提速要加机器(rollout 双机分代)。
 
 ## 6. 与离线时代的对照(为什么这套能避开老坑)
 
