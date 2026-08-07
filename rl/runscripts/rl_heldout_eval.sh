@@ -11,6 +11,12 @@ set -u
 ITER=${ITER:?需要 ITER=权重迭代号}
 GPUS=${GPUS:-"3 4 5"}; GPU_ARR=($GPUS); SERVERS=${SERVERS:-${#GPU_ARR[@]}}
 WORKERS=${WORKERS:-8}; MAX_STEPS=${MAX_STEPS:-50}; BUDGET=${BUDGET:-2}
+# 两臂并发分设:rl 臂跑索引遍,50 步下最多 49 张缩略图 ≈ 9.6K 视觉 token,
+# 注意力显存随 token 数平方涨(瞬时可达 18-36G),每 server 2.67 路会 OOM
+# (方向读实测 55 次);recent 臂无索引遍、prompt 小,可放开跑。
+# 经验上限:rl ≈ 2 路/server,recent ≈ 3-4 路/server。
+WORKERS_RL=${WORKERS_RL:-$WORKERS}
+WORKERS_RECENT=${WORKERS_RECENT:-$WORKERS}
 HEALTH_TIMEOUT=${HEALTH_TIMEOUT:-300}
 
 CTN=${CTN:-sglang-omni-jaxan}
@@ -91,6 +97,8 @@ launch_servers() {  # $1 = rl | recent
 }
 
 run_arm_workers() {  # $1 = rl | recent
+  local WORKERS
+  [ "$1" = "rl" ] && WORKERS=$WORKERS_RL || WORKERS=$WORKERS_RECENT
   # 两臂 worker 都传 --memory-arm full(worker 只有 summary|full 两选项;
   # recent-B 是 server 侧行为:官方 serve 不带 selector 即默认 recent-B 填充,
   # profile id "..._osworld_recent_b4_v1"。eval12 两轮全灭的真凶就是这里
