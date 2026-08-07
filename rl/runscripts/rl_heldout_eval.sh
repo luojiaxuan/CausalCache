@@ -21,10 +21,13 @@ REPO=${REPO:-/data/osworld/CausalCache}
 WREPO=${WREPO:-/data04/jaxan/osworld/CausalCache}
 CACHE=${CACHE:-$B/cache-fast}
 MODEL=${MODEL:-/data/models/GUI-Owl-1.5-8B-Instruct}
-PORT0=19511
+# 轮次隔离(正式评测 2 轮可并行):PORT0 与 TAG 各占一套端口与输出目录,
+# 配 GPUS 分组即可同机双轮,墙钟减半
+PORT0=${PORT0:-19511}
+TAG=${TAG:-}
 META=rl_heldout_v1.json
 
-EV_H=$RLH/eval-iter$ITER; EV_C=$RLC/eval-iter$ITER
+EV_H=$RLH/eval-iter$ITER$TAG; EV_C=$RLC/eval-iter$ITER$TAG
 mkdir -p "$EV_H"
 log() { echo "[$(date -u +%FT%TZ)] eval-iter$ITER $*"; }
 cexec() { docker exec "$CTN" bash -lc "$*"; }
@@ -39,10 +42,18 @@ case "$CIP" in ""|*[!0-9.]*) CIP=127.0.0.1;; esac
 
 # 杀 server 并等进程真正消失(eval12 实测教训:pkill 后 CUDA 拆卸要 5-20s,
 # 垂死进程仍应答 /health 200,骗过下一臂健康检查 → 整臂 35 秒全灭收 0 条)
+# 按本轮端口精确狙击:并行双轮时全局 pkill 会误杀另一轮的 server
 kill_servers_wait() {
-  cexec "pkill -f '[s]erve_osworld' || true"
+  local s i alive
+  for s in $(seq 0 $((SERVERS-1))); do
+    cexec "pkill -f '[s]erve_osworld.*--port $((PORT0+s))' || true"
+  done
   for i in $(seq 1 20); do
-    cexec "pgrep -f '[s]erve_osworld' >/dev/null" || return 0
+    alive=0
+    for s in $(seq 0 $((SERVERS-1))); do
+      cexec "pgrep -f '[s]erve_osworld.*--port $((PORT0+s))' >/dev/null" && alive=1
+    done
+    [ "$alive" = "0" ] && return 0
     sleep 3
   done
   log "WARN server 30s 内未退净,继续(端口绑定由新 server 报错兜底)"
