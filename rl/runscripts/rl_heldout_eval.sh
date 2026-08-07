@@ -123,7 +123,8 @@ run_arm_workers() {  # $1 = rl | recent
 for arm in rl recent; do
   if [ ! -f "$EV_H/ARM_${arm}_DONE" ]; then
     cexec "mkdir -p $EV_C/out-$arm && chmod -R 777 $EV_C" || mkdir -p "$EV_H/out-$arm"
-    log "臂 $arm:启动 $SERVERS server + $WORKERS worker(τ=0,$MAX_STEPS 步)"
+    ARM_W=$WORKERS_RECENT; [ "$arm" = "rl" ] && ARM_W=$WORKERS_RL
+    log "臂 $arm:启动 $SERVERS server + $ARM_W worker(τ=0,$MAX_STEPS 步)"
     launch_servers "$arm"
     run_arm_workers "$arm"
     PF=$(cexec "cat $EV_C/serve-$arm-*.log 2>/dev/null | grep -c OSWORLD_POLICY_FAILURE" | tr -cd '0-9')
