@@ -80,8 +80,11 @@ launch_servers() {  # $1 = rl | recent
 }
 
 run_arm_workers() {  # $1 = rl | recent
+  # 两臂 worker 都传 --memory-arm full(worker 只有 summary|full 两选项;
+  # recent-B 是 server 侧行为:官方 serve 不带 selector 即默认 recent-B 填充,
+  # profile id "..._osworld_recent_b4_v1"。eval12 两轮全灭的真凶就是这里
+  # 曾误传 'recent' → 8 worker argparse 秒退收 0)
   local memarm=full
-  [ "$1" = "recent" ] && memarm=recent
   for s in $(seq 0 $((WORKERS-1))); do
     ( cd "$B/run30" && PYTHONPATH=$WREPO/code:$B/OSWorld /usr/bin/python3 \
         "$WREPO/code/scripts/run_osworld_benchmark_worker.py" \
