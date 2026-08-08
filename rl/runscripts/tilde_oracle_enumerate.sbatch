@@ -57,7 +57,12 @@ srun --container-image="$IMAGE" \
 set -u
 i=0
 for SH in '"$SHARDS"'; do
-  CUDA_VISIBLE_DEVICES=$i PYTHONPATH=code:rl/code python3 rl/code/scripts/rl_oracle_enumerate.py \
+  # note (luojiaxuan): 冻结守卫钉死 transformers==5.6.0,而镜像自带的版本不同
+  # (首次提交 8 个分片全部 ValueError: Transformers version drifted)。
+  # $ROOT/pylibs 里装着 5.6.0,**必须排在最左**才能盖住镜像自带的 —— 顺序错了
+  # 等于没装。这是 tilde 上此前 HGKV 作业已踩过并固化的做法。
+  CUDA_VISIBLE_DEVICES=$i PYTHONPATH='"$ROOT"'/pylibs:code:rl/code \
+    python3 rl/code/scripts/rl_oracle_enumerate.py \
     --manifest '"$MANIFEST"' --image-root '"$IMAGES"' \
     --model-dir '"$MODEL"' --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
     --output '"$OUT"'/sh$SH.jsonl --limit-states '"$LIMIT"' --max-candidates 30 \
