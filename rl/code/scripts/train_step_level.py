@@ -74,7 +74,14 @@ def main() -> None:
         build_desktop_official_messages,
         official_step_forms,
     )
-    from causalcache.osworld_gui_owl import _TOOL_SPEC, GUIOwlOSWorldRuntime
+    from transformers import AutoProcessor
+
+    from causalcache.osworld_gui_owl import (
+        _TOOL_SPEC,
+        VISION_PATCH_SIZE,
+        VISION_SPATIAL_MERGE_SIZE,
+        GUIOwlOSWorldRuntime,
+    )
 
     torch.manual_seed(args.seed)
     rng = random.Random(args.seed)
@@ -88,6 +95,13 @@ def main() -> None:
         max_new_tokens=128,
     )
     model, processor, device = runtime.model, runtime.processor, runtime.device
+
+    # note (luojiaxuan): 索引遍要低清缩略图,但分辨率是 processor 构造时通过
+    # min/max_pixels 定死的、不是可改属性(改属性会 AttributeError)。因此
+    # **单独构造一个低清 processor**,与动作遍的高清 processor 并存,互不干扰。
+    _px = args.index_visual_tokens * (VISION_PATCH_SIZE * VISION_SPATIAL_MERGE_SIZE) ** 2
+    index_processor = AutoProcessor.from_pretrained(
+        args.model_dir, min_pixels=_px, max_pixels=_px, local_files_only=True)
 
     # ---- selector 头 ----
     bundle = torch.load(args.selector_bundle, map_location="cpu", weights_only=False)
@@ -176,10 +190,10 @@ def main() -> None:
 
             # --- 索引遍:一次前向拿各候选帧的 pooled hidden(selector 特征)---
             feats = index_features(rec, steps, cands, ev, str(cur),
-                                   runtime=runtime, torch=torch,
+                                   model=model, processor=index_processor,
+                                   device=device, torch=torch,
                                    build=build_desktop_official_messages,
-                                   tool_spec=_TOOL_SPEC,
-                                   index_tokens=args.index_visual_tokens)
+                                   tool_spec=_TOOL_SPEC)
             scores = head(feats).squeeze(-1)
 
             # --- 通道 A 采样 K 个子集 + 通道 B 打分 ---
@@ -267,8 +281,8 @@ def pl_sample(scores, budget: int, temperature: float, torch, rng):
     return chosen, logp, ent
 
 
-def index_features(rec, steps, cands, ev, cur, *, runtime, torch, build,
-                   tool_spec, index_tokens):
+def index_features(rec, steps, cands, ev, cur, *, model, processor, device,
+                   torch, build, tool_spec):
     """索引遍:全部候选帧低清 + 当前屏过一次冻结前向,取各图 token 段 mean-pool。
 
     # note (luojiaxuan): 与 serve 的 hidden selector 同一机制(选择是场景级的,
@@ -277,16 +291,11 @@ def index_features(rec, steps, cands, ev, cur, *, runtime, torch, build,
     """
     msgs = build(goal=rec["instruction"], steps=steps, shown_events=list(cands),
                  event_images={j: ev[j] for j in cands}, current_image=cur)
-    old = runtime.processor.image_processor.max_pixels
-    try:
-        runtime.processor.image_processor.max_pixels = index_tokens * 28 * 28
-        enc = runtime.processor.apply_chat_template(
-            msgs, tools=[tool_spec], tokenize=True, add_generation_prompt=True,
-            return_dict=True, return_tensors="pt").to(runtime.device)
-    finally:
-        runtime.processor.image_processor.max_pixels = old
+    enc = processor.apply_chat_template(
+        msgs, tools=[tool_spec], tokenize=True, add_generation_prompt=True,
+        return_dict=True, return_tensors="pt").to(device)
     with torch.no_grad():
-        out = runtime.model(**enc, output_hidden_states=True)
+        out = model(**enc, output_hidden_states=True)
     hs = out.hidden_states[-1][0]
     mm = enc.get("mm_token_type_ids")
     if mm is None:
