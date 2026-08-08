@@ -91,6 +91,11 @@ def main() -> None:
                    help="full=全枚举 C(n,B);pruned=单帧 top-k 后配对。"
                         "校验期用 full——剪枝结果可从全枚举离线推导,零额外成本")
     p.add_argument("--top-k", type=int, default=8)
+    p.add_argument("--skip-easy", action="store_true",
+                   help="先只跑 B=0;若已正确则记为 easy 并跳过全枚举。"
+                        "头寸只存在于 B=0 出错的 state,easy 态上花 190 次前向"
+                        "是纯浪费。**被跳过的 state 仍写一行记录**,base rate "
+                        "不丢,分母仍然干净")
     p.add_argument("--visual-tokens", type=int, default=2560)
     p.add_argument("--max-new-tokens", type=int, default=128)
     p.add_argument("--device", default="cuda:0")
@@ -202,6 +207,19 @@ def main() -> None:
                         "correct": action_correct(pred, gold,
                                                   tolerance=args.tolerance),
                         "pred_action": (pred or {}).get("action")}
+
+            if args.skip_easy:
+                b0_first = evaluate(())
+                if b0_first["correct"]:
+                    sink.write(json.dumps({
+                        "dp_id": rec["dp_id"], "step": s,
+                        "n_candidates": len(cands), "mode": "screen",
+                        "budget": args.budget, "gold_action": gold.get("action"),
+                        "b0_correct": True, "easy": True,
+                    }, ensure_ascii=False) + "\n")
+                    sink.flush()
+                    processed += 1
+                    continue
 
             if args.mode == "full":
                 subsets = list(itertools.combinations(cands, args.budget))

@@ -34,22 +34,33 @@ def main() -> None:
     if not rows:
         raise SystemExit("结果为空")
     full = [r for r in rows if r.get("mode") == "full"]
-
+    # note (luojiaxuan): --skip-easy 的 screen 行**没有 oracle**(未枚举)。
+    # 绝不可假定"B=0 对则四臂都对"——加历史图完全可能干扰掉本来正确的答案,
+    # oracle 也不因 B=0 正确而必然正确(空集与 B=2 子集是不同的东西)。
+    # 因此:oracle 正确率只在全枚举子集上报,分母显式区分。
+    screen = [r for r in rows if r.get("mode") == "screen"]
     n = len(rows)
-    arms = {k: sum(1 for r in rows if r[f"{k}_correct"]) for k in
+    known = [r for r in rows if "oracle_correct" in r]
+    nk = len(known)
+    arms = {k: sum(1 for r in known if r[f"{k}_correct"]) for k in
             ("oracle", "recent", "random", "b0")}
+    if screen:
+        print(f"注意:{len(screen)}/{n} 个 state 走了 --skip-easy 筛查(B=0 已正确,"
+              f"未做全枚举),其 oracle/recent/随机 状态未知,不进四臂统计。")
     print(f"state 数 {n}(全枚举 {len(full)});候选数中位 "
           f"{sorted(r['n_candidates'] for r in rows)[n // 2]}")
-    print("\n=== 四臂步级正确率 ===")
+    print(f"\n=== 四臂步级正确率(分母 = 有 oracle 的 {nk} 态)===")
     for k, label in (("oracle", "oracle-最优2"), ("recent", "recent-2"),
                      ("random", "随机-2"), ("b0", "B=0")):
-        print(f"  {label:<12} {arms[k]:3d}/{n}  {100 * arms[k] / n:5.1f}%")
-    print(f"\n头寸 oracle − recent = {100 * (arms['oracle'] - arms['recent']) / n:+.1f}pp")
-    print(f"内容敏感 oracle − 随机 = {100 * (arms['oracle'] - arms['random']) / n:+.1f}pp")
+        print(f"  {label:<12} {arms[k]:3d}/{nk}  {100 * arms[k] / max(nk,1):5.1f}%")
+    print(f"\n头寸 oracle − recent = "
+          f"{100 * (arms['oracle'] - arms['recent']) / max(nk,1):+.1f}pp")
+    print(f"内容敏感 oracle − 随机 = "
+          f"{100 * (arms['oracle'] - arms['random']) / max(nk,1):+.1f}pp")
 
     easy = [r for r in rows if r["b0_correct"]]
-    winnable = [r for r in rows if not r["b0_correct"] and r["oracle_correct"]]
-    hopeless = [r for r in rows if not r["b0_correct"] and not r["oracle_correct"]]
+    winnable = [r for r in known if not r["b0_correct"] and r["oracle_correct"]]
+    hopeless = [r for r in known if not r["b0_correct"] and not r["oracle_correct"]]
     print("\n=== 三类拆分(头寸只存在于 winnable)===")
     for label, grp in (("easy(B=0 已对)", easy), ("winnable(B=0 错但有解)", winnable),
                        ("hopeless(全错)", hopeless)):
