@@ -103,6 +103,10 @@ def main() -> None:
     # 枚举无同步点,按 state 天然可并行:每个分片只处理 行号 % count == index
     p.add_argument("--shard-index", type=int, default=0)
     p.add_argument("--shard-count", type=int, default=1)
+    # note (luojiaxuan): B 曲线必须**配对** —— 不同 B 若跑在不同 state 集合上,
+    # 曲线的升降会混进样本差异,读不出预算的边际贡献。传入一份 dp_id 白名单
+    # (每行一个 id,或每行一个含 dp_id 的 json),强制各 B 打在同一批态上。
+    p.add_argument("--only-dp-ids", type=Path, default=None)
     args = p.parse_args()
 
     import torch
@@ -143,6 +147,16 @@ def main() -> None:
         return runtime.processor.batch_decode(
             out[:, prompt_tokens:], skip_special_tokens=False,
             clean_up_tokenization_spaces=False)[0]
+    only: set[str] | None = None
+    if args.only_dp_ids is not None:
+        only = set()
+        for line in args.only_dp_ids.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            only.add(json.loads(line)["dp_id"] if line.startswith("{") else line)
+        print(json.dumps({"only_dp_ids": len(only)}), flush=True)
+
     rng = random.Random(args.seed)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     done = set()
@@ -165,6 +179,8 @@ def main() -> None:
             rec = json.loads(line)
             if rec["dp_id"] in done:
                 continue
+            if only is not None and rec["dp_id"] not in only:
+                continue
             s = int(rec["step"])
             images = rec["image_relpaths"]
             if len(images) != s:
@@ -185,9 +201,15 @@ def main() -> None:
             # (0-based),不是 steps[j-1]——builder 内部就是这么查的。写错会在
             # 枚举到含该事件的子集时才炸(如 triple_click 无官方形态)。
             cands = [j for j in range(1, s - 1) if steps[j].full_response]
-            if len(cands) < args.budget:
+            if not cands:
                 skipped["too_few_candidates"] = skipped.get("too_few_candidates", 0) + 1
                 continue
+            # note (luojiaxuan): 有效预算 = min(B, 候选数)。候选只有 3 个的 state
+            # 根本选不出 4 帧 —— 但 recent-4 在部署时同样只能拿到 3 帧,两臂一起
+            # 退化,对照仍然公平。旧写法是"候选 < B 就整态丢弃",在 B 曲线上会让
+            # 大 B 悄悄换掉样本集合(短轨迹被系统性剔除),曲线因此不可比。
+            # 逐态落盘 eff_budget,归约时披露有多少态被预算饱和。
+            eff_b = min(args.budget, len(cands))
             if len(cands) > args.max_candidates:
                 skipped["too_many_candidates"] = skipped.get("too_many_candidates", 0) + 1
                 continue
@@ -228,7 +250,8 @@ def main() -> None:
                         sink.write(json.dumps({
                             "dp_id": rec["dp_id"], "step": s,
                             "n_candidates": len(cands), "mode": "screen",
-                            "budget": args.budget, "gold_action": gold.get("action"),
+                            "budget": args.budget, "eff_budget": eff_b,
+                            "gold_action": gold.get("action"),
                             "b0_correct": True, "easy": True,
                         }, ensure_ascii=False) + "\n")
                         sink.flush()
@@ -236,13 +259,13 @@ def main() -> None:
                         continue
 
                 if args.mode == "full":
-                    subsets = list(itertools.combinations(cands, args.budget))
+                    subsets = list(itertools.combinations(cands, eff_b))
                 else:
                     # note (luojiaxuan): 单帧探针必须用 **B-1 张最近帧** 当搭档,
                     # 保持 prompt 形状与最终子集一致(B 张图)。此前硬编码成
                     # "候选 + 最近 1 帧"的两图 prompt —— B=2 时恰好正确,
                     # 但 B=4 时探针是 2 图、目标是 4 图,形状不一致会让排序失真。
-                    partners = tuple(cands[-(args.budget - 1):]) if args.budget > 1 else ()
+                    partners = tuple(cands[-(eff_b - 1):]) if eff_b > 1 else ()
                     scored = []
                     for c in cands:
                         if c in partners:
@@ -251,7 +274,7 @@ def main() -> None:
                         scored.append((int(evaluate(probe)["correct"]), c))
                     scored.sort(key=lambda t: (-t[0], -t[1]))
                     top = sorted({c for _, c in scored[: args.top_k]} | set(partners))
-                    subsets = list(itertools.combinations(top, args.budget))
+                    subsets = list(itertools.combinations(top, eff_b))
 
                 # 单个 state 出问题不许拖垮整批(跑批贵,续跑成本高)
                 try:
@@ -260,8 +283,8 @@ def main() -> None:
                     key = f"eval_error:{type(exc).__name__}"
                     skipped[key] = skipped.get(key, 0) + 1
                     continue
-                recent = tuple(cands[-args.budget:])
-                rand = tuple(sorted(rng.sample(cands, args.budget)))
+                recent = tuple(cands[-eff_b:])
+                rand = tuple(sorted(rng.sample(cands, eff_b)))
                 by_subset = {tuple(r["subset"]): r for r in results}
                 for extra in (recent, rand):
                     if extra not in by_subset:
@@ -271,6 +294,7 @@ def main() -> None:
                 sink.write(json.dumps({
                     "dp_id": rec["dp_id"], "step": s, "n_candidates": len(cands),
                     "mode": args.mode, "budget": args.budget,
+                    "eff_budget": eff_b,
                     "gold_action": gold.get("action"),
                     "oracle_correct": any(r["correct"] for r in results),
                     "oracle_subsets": [r["subset"] for r in results if r["correct"]][:8],
