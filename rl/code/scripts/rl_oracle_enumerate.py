@@ -191,6 +191,13 @@ def main() -> None:
             # note (luojiaxuan): 必须是 str —— processor 的 fetch_images 只吃
             # 字符串路径/URL/PIL,给 Path 会 TypeError。
             root = args.image_root
+            # 图片存在性预检:manifest 有 6003 态,但落盘图片只覆盖当初建语料
+            # 用到的子集,深处的 state 会缺图。**缺任何一张就整态跳过并计数**——
+            # 只丢掉缺的候选会让候选池不完整,从而系统性低估 oracle 头寸。
+            needed = [root / images[j] for j in cands] + [root / images[s - 1]]
+            if not all(p.exists() for p in needed):
+                skipped["missing_images"] = skipped.get("missing_images", 0) + 1
+                continue
             event_images = {j: str(root / images[j]) for j in cands}
             current = str(root / images[s - 1])
 
@@ -208,61 +215,67 @@ def main() -> None:
                                                   tolerance=args.tolerance),
                         "pred_action": (pred or {}).get("action")}
 
-            if args.skip_easy:
-                b0_first = evaluate(())
-                if b0_first["correct"]:
-                    sink.write(json.dumps({
-                        "dp_id": rec["dp_id"], "step": s,
-                        "n_candidates": len(cands), "mode": "screen",
-                        "budget": args.budget, "gold_action": gold.get("action"),
-                        "b0_correct": True, "easy": True,
-                    }, ensure_ascii=False) + "\n")
-                    sink.flush()
-                    processed += 1
-                    continue
-
-            if args.mode == "full":
-                subsets = list(itertools.combinations(cands, args.budget))
-            else:
-                partner = cands[-1]
-                singles = sorted(
-                    ((evaluate((c, partner) if c < partner else (partner, c))["correct"], c)
-                     for c in cands if c != partner),
-                    key=lambda t: (-int(t[0]), -t[1]))
-                top = sorted(c for _, c in singles[: args.top_k])
-                subsets = list(itertools.combinations(top, args.budget))
-
-            # 单个 state 出问题不许拖垮整批(跑批贵,续跑成本高)
+            # 整态兜底:任何一步炸了只记账跳过,不让单态拖垮整批
             try:
-                results = [evaluate(t) for t in subsets]
-            except (ValueError, KeyError, OSError) as exc:
-                key = f"eval_error:{type(exc).__name__}"
+                if args.skip_easy:
+                    b0_first = evaluate(())
+                    if b0_first["correct"]:
+                        sink.write(json.dumps({
+                            "dp_id": rec["dp_id"], "step": s,
+                            "n_candidates": len(cands), "mode": "screen",
+                            "budget": args.budget, "gold_action": gold.get("action"),
+                            "b0_correct": True, "easy": True,
+                        }, ensure_ascii=False) + "\n")
+                        sink.flush()
+                        processed += 1
+                        continue
+
+                if args.mode == "full":
+                    subsets = list(itertools.combinations(cands, args.budget))
+                else:
+                    partner = cands[-1]
+                    singles = sorted(
+                        ((evaluate((c, partner) if c < partner else (partner, c))["correct"], c)
+                         for c in cands if c != partner),
+                        key=lambda t: (-int(t[0]), -t[1]))
+                    top = sorted(c for _, c in singles[: args.top_k])
+                    subsets = list(itertools.combinations(top, args.budget))
+
+                # 单个 state 出问题不许拖垮整批(跑批贵,续跑成本高)
+                try:
+                    results = [evaluate(t) for t in subsets]
+                except (ValueError, KeyError, OSError) as exc:
+                    key = f"eval_error:{type(exc).__name__}"
+                    skipped[key] = skipped.get(key, 0) + 1
+                    continue
+                recent = tuple(cands[-args.budget:])
+                rand = tuple(sorted(rng.sample(cands, args.budget)))
+                by_subset = {tuple(r["subset"]): r for r in results}
+                for extra in (recent, rand):
+                    if extra not in by_subset:
+                        by_subset[extra] = evaluate(extra)
+                b0 = evaluate(())
+
+                sink.write(json.dumps({
+                    "dp_id": rec["dp_id"], "step": s, "n_candidates": len(cands),
+                    "mode": args.mode, "budget": args.budget,
+                    "gold_action": gold.get("action"),
+                    "oracle_correct": any(r["correct"] for r in results),
+                    "oracle_subsets": [r["subset"] for r in results if r["correct"]][:8],
+                    "recent_correct": by_subset[recent]["correct"],
+                    "random_correct": by_subset[rand]["correct"],
+                    "b0_correct": b0["correct"],
+                    "n_subsets_scored": len(by_subset),
+                    "n_subsets_correct": sum(1 for r in by_subset.values() if r["correct"]),
+                    "all": [{"s": list(k), "c": v["correct"]} for k, v in by_subset.items()],
+                }, ensure_ascii=False) + "\n")
+                sink.flush()
+                processed += 1
+
+            except (ValueError, KeyError, OSError, TypeError) as exc:
+                key = f"state_error:{type(exc).__name__}"
                 skipped[key] = skipped.get(key, 0) + 1
                 continue
-            recent = tuple(cands[-args.budget:])
-            rand = tuple(sorted(rng.sample(cands, args.budget)))
-            by_subset = {tuple(r["subset"]): r for r in results}
-            for extra in (recent, rand):
-                if extra not in by_subset:
-                    by_subset[extra] = evaluate(extra)
-            b0 = evaluate(())
-
-            sink.write(json.dumps({
-                "dp_id": rec["dp_id"], "step": s, "n_candidates": len(cands),
-                "mode": args.mode, "budget": args.budget,
-                "gold_action": gold.get("action"),
-                "oracle_correct": any(r["correct"] for r in results),
-                "oracle_subsets": [r["subset"] for r in results if r["correct"]][:8],
-                "recent_correct": by_subset[recent]["correct"],
-                "random_correct": by_subset[rand]["correct"],
-                "b0_correct": b0["correct"],
-                "n_subsets_scored": len(by_subset),
-                "n_subsets_correct": sum(1 for r in by_subset.values() if r["correct"]),
-                "all": [{"s": list(k), "c": v["correct"]} for k, v in by_subset.items()],
-            }, ensure_ascii=False) + "\n")
-            sink.flush()
-            processed += 1
-
     print(json.dumps({"processed": processed, "skipped": skipped},
                      ensure_ascii=False))
 
