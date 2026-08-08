@@ -38,6 +38,12 @@ MAX_STEPS=${MAX_STEPS:-30}; TAU=${TAU:-1.0}; BUDGET=${BUDGET:-2}
 SELECTOR_MODE=${SELECTOR_MODE:-hidden}
 EVAL_EVERY=${EVAL_EVERY:-20}
 GEN_PARALLEL=${GEN_PARALLEL:-1}   # 同时跑几"代"(见 run_generations)
+# note (luojiaxuan): worker 启动错峰秒数。OSWorld 的全局端口锁罩住整个容器
+# 启动(约 5s/台,全局串行),并发一高队列就堆积、等锁超时的 worker 直接死掉
+# 并丢整条 episode(v2 iter-1 实测 16 路丢 15/48,iter-2 又丢 5)。错开启动
+# 让队列永不堆积,**不依赖 LOCK_TIMEOUT 是多少**,是这里唯一稳的修法。
+# 建议 ≥ 单台容器启动耗时;16 路 × 8s = 128s,相对 35min rollout 可忽略。
+WORKER_STAGGER=${WORKER_STAGGER:-0}
 # 优化超参(v2 campaign 起 env 化)。v1 的 1e-4/1e-5/8 在 20 迭代 67 步下
 # 两条通道都没训动(selector 位移 4.4%,lora_b 范数 0.04);离线反事实显示
 # selector lr 1e-3 同数据量即可位移 0.59。见 README「根因诊断」。
@@ -161,6 +167,7 @@ PY"
             --cache-dir "$CACHE" \
             >> "$ID_H/worker-g$g-$s.log" 2>&1 ) &
         k=$((k+1))
+        [ "$WORKER_STAGGER" -gt 0 ] && sleep "$WORKER_STAGGER"
       done
     done
     wait
