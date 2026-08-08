@@ -12,7 +12,7 @@ from typing import Any
 
 
 def index_features(rec, steps, cands, ev, cur, *, model, processor, device,
-                   torch, build, tool_spec):
+                   torch, build, tool_spec, pooling="mean", return_context=False):
     """索引遍:全部候选帧低清 + 当前屏过一次冻结前向,取各图 token 段 mean-pool。
 
     # note (luojiaxuan): 与 serve 的 hidden selector 同一机制(选择是场景级的,
@@ -43,5 +43,23 @@ def index_features(rec, steps, cands, ev, cur, *, model, processor, device,
         segs.append((start, len(mask)))
     if len(segs) != len(cands) + 1:
         raise ValueError(f"segment count {len(segs)} != {len(cands) + 1}")
-    return torch.stack([hs[a:b].mean(dim=0) for a, b in segs[:-1]]).float()
+
+    def pool(a: int, b: int):
+        seg = hs[a:b]
+        if pooling == "mean":
+            return seg.mean(dim=0)
+        if pooling == "mean_max":
+            # note (luojiaxuan): mean 会把"画面里有一处关键区域"抹平成整图均值;
+            # max 保留极值通道。两者拼接,维度翻倍(打分头要同步 dim*2)。
+            return torch.cat([seg.mean(dim=0), seg.max(dim=0).values], dim=-1)
+        raise ValueError(f"未知 pooling: {pooling}")
+
+    feats = torch.stack([pool(a, b) for a, b in segs[:-1]]).float()
+    if not return_context:
+        return feats
+    # note (luojiaxuan): 末段是当前屏。v4 一直把它**丢掉**——而在因果注意力下
+    # 候选帧排在当前屏之前、看不到当前屏,于是打分函数的输入里根本没有
+    # "当前这一步长什么样",但标签问的恰恰是"这帧对当前这一步有没有用"。
+    # 这个特征本来就已经算出来了,取回来零额外成本。
+    return feats, pool(*segs[-1]).float()
 

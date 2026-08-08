@@ -51,6 +51,19 @@ def main() -> None:
     p.add_argument("--report-every", type=int, default=50)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260809)
+    # ---- 容量升级(2026-08-09):v4 的 Linear(4096,1) 连训练集都拟合不上 ----
+    # note (luojiaxuan): 三档是**消融梯度**,不是三选一。linear→mlp 的提升归因于
+    # 非线性,mlp→mlp_pair 归因于帧间交互,开/关 --use-context 归因于"打分函数
+    # 到底知不知道当前屏长什么样"。一步跳到最复杂那档就分不清是哪一项在起作用。
+    p.add_argument("--head-arch", choices=["linear", "mlp", "mlp_pair"],
+                   default="linear")
+    p.add_argument("--hidden", type=int, default=512)
+    p.add_argument("--pair-rank", type=int, default=64)
+    p.add_argument("--use-context", action="store_true",
+                   help="把当前屏 pooled 特征接进打分函数。v4 一直丢弃它 —— 而"
+                        "因果注意力下候选帧看不到当前屏,等于在问'这帧有用吗'"
+                        "却不告诉模型'对哪一步有用'")
+    p.add_argument("--pooling", choices=["mean", "mean_max"], default="mean")
     args = p.parse_args()
 
     import torch
@@ -67,6 +80,7 @@ def main() -> None:
         GUIOwlOSWorldRuntime,
     )
     from causalcache_rl.index_features import index_features
+    from causalcache_rl.subset_scorer import SubsetScorer, load_v4_linear
 
     torch.manual_seed(args.seed)
     rng = random.Random(args.seed)
@@ -109,9 +123,24 @@ def main() -> None:
         args.model_dir, min_pixels=_px, max_pixels=_px, local_files_only=True)
 
     bundle = torch.load(args.init_head, map_location="cpu", weights_only=False)
-    head = torch.nn.Linear(int(bundle["hidden_size"]), 1)
-    head.load_state_dict(bundle["model_state"])
+    # note (luojiaxuan): mean_max 池化把特征维翻倍,打分头必须同步,否则形状不符。
+    feat_dim = int(bundle["hidden_size"]) * (2 if args.pooling == "mean_max" else 1)
+    if args.head_arch == "linear" and args.pooling == "mean":
+        head = load_v4_linear(bundle, arch="linear", hidden=args.hidden,
+                              rank=args.pair_rank, use_context=False)
+    else:
+        # 形状与 v4 不同,只能随机初始化。**这不是缺陷**:v4 的头本身只到
+        # 51.1%,继承它反而会把新架构锚在同一个坏解附近;但必须显式记录,
+        # 否则读者会误以为新架构是"在 v4 基础上继续训"的。
+        head = SubsetScorer(feat_dim, arch=args.head_arch, hidden=args.hidden,
+                            rank=args.pair_rank, use_context=args.use_context)
     head.to(device).train()
+    print(json.dumps({"head_arch": args.head_arch, "pooling": args.pooling,
+                      "use_context": args.use_context, "feat_dim": feat_dim,
+                      "params": sum(x.numel() for x in head.parameters()),
+                      "init": "继承 v4" if (args.head_arch == "linear"
+                                            and args.pooling == "mean") else "随机"},
+                     ensure_ascii=False), flush=True)
     opt = torch.optim.AdamW(head.parameters(), lr=args.learning_rate)
     opt.zero_grad(set_to_none=True)
 
@@ -127,18 +156,31 @@ def main() -> None:
         cur = args.image_root / images[s - 1]
         if not all((args.image_root / images[j]).exists() for j in cands) or not cur.exists():
             raise ValueError("missing images")
-        feats = index_features(rec, steps, cands, ev, str(cur),
-                               model=model, processor=index_processor,
-                               device=device, torch=torch,
-                               build=build_desktop_official_messages,
-                               tool_spec=_TOOL_SPEC)
-        return cands, feats
+        got = index_features(rec, steps, cands, ev, str(cur),
+                             model=model, processor=index_processor,
+                             device=device, torch=torch,
+                             build=build_desktop_official_messages,
+                             tool_spec=_TOOL_SPEC,
+                             pooling=args.pooling,
+                             return_context=args.use_context)
+        feats, ctx = got if args.use_context else (got, None)
+        return cands, feats, ctx
 
-    def subset_score(sc, cands, subset):
-        """子集分 = 成员帧分之和 —— 与部署 top-B argmax 口径一致。"""
-        return sum(sc[cands.index(j)] for j in subset)
+    def subset_score(u, pair, cands, subset):
+        """子集分。加性档等价于 v4 的"成员帧分之和";mlp_pair 档另加成对项。
+
+        # note (luojiaxuan): 有成对项后 top-B argmax **不再等价于最优子集**,
+        # 部署侧的选择规则必须一并改成在 C(n,B) 上枚举打分
+        # (`SubsetScorer.score_subsets`)。训练与部署口径若在这里脱钩,
+        # 就是 v3 那个"训 log p、评 argmax"错误的翻版。
+        """
+        return head.subset_score(u, pair, [cands.index(j) for j in subset])
 
     stats = {"pairs": 0, "steps": 0, "loss": 0.0, "skipped": 0}
+    # note (luojiaxuan): **训练集排序准确率**是这一轮最重要的仪表。v4 的教训是
+    # 我们只看了留出集(0.5828),没看训练集 —— 而真正的病因是连训练集都没拟合上。
+    # 前置门槛:训练集排序准确率上不去,就不必再评留出集,直接判该架构容量不足。
+    fit_hits = 0
     seen = 0
     cache: dict[str, tuple] = {}
     for _epoch in range(args.epochs):
@@ -151,9 +193,9 @@ def main() -> None:
             if dp not in train_ids:
                 continue
             try:
-                cands, feats = cache.get(dp) or state_feats(rec)
-                cache[dp] = (cands, feats)
-                sc = head(feats).squeeze(-1)
+                cands, feats, ctx = cache.get(dp) or state_feats(rec)
+                cache[dp] = (cands, feats, ctx)
+                u, pair = head.frame_terms(feats, ctx)
                 loss = torch.zeros((), device=device)
                 k = 0
                 for _ in range(args.pairs_per_state):
@@ -161,8 +203,10 @@ def main() -> None:
                     neg = rng.choice(lab[dp]["neg"])
                     if not (set(pos) <= set(cands) and set(neg) <= set(cands)):
                         continue
-                    margin = subset_score(sc, cands, pos) - subset_score(sc, cands, neg)
+                    margin = (subset_score(u, pair, cands, pos)
+                              - subset_score(u, pair, cands, neg))
                     loss = loss - torch.nn.functional.logsigmoid(margin)
+                    fit_hits += int(float(margin) > 0)
                     k += 1
                 if k == 0:
                     raise ValueError("no usable pair")
@@ -178,13 +222,51 @@ def main() -> None:
                     print(json.dumps({
                         "states": seen, "opt_steps": stats["steps"],
                         "mean_pair_loss": round(stats["loss"] / seen, 4),
+                        "train_rank_acc": round(fit_hits / max(stats["pairs"], 1), 4),
                         "skipped": stats["skipped"]}, ensure_ascii=False), flush=True)
             except (ValueError, KeyError, OSError, TypeError, RuntimeError):
                 stats["skipped"] += 1
                 opt.zero_grad(set_to_none=True)
                 continue
 
-    # ---- 留出集:排序准确率(正子集分 > 负子集分 的比例)----
+    # ---- 训练集 / 留出集:排序准确率(正子集分 > 负子集分 的比例)----
+    # note (luojiaxuan): 训练集这一遍是**训练结束后的静态复测**,不能用训练过程中
+    # 累计的 fit_hits 代替 —— 那是滑动平均,早期未收敛时的错会一直压低它,
+    # 用它当拟合门槛会把"其实拟合上了"误判成"容量不足"。特征已缓存,这一遍
+    # 不需要重新前向,几乎不花时间。
+    head.eval()
+
+    def rank_acc(ids: set, use_cache: bool) -> tuple[int, int]:
+        hits = tot = 0
+        with torch.no_grad():
+            for line in args.manifest.open(encoding="utf-8"):
+                line = line.strip()
+                if not line:
+                    continue
+                rec = json.loads(line)
+                dp = rec["dp_id"]
+                if dp not in ids:
+                    continue
+                try:
+                    got = cache.get(dp) if use_cache else None
+                    cands, feats, ctx = got or state_feats(rec)
+                    u, pair = head.frame_terms(feats, ctx)
+                    # 固定 seed 重放同样的配对抽样,训练集/留出集口径一致
+                    r = random.Random(args.seed ^ hash(dp) & 0xFFFF)
+                    for _ in range(args.pairs_per_state):
+                        pos = r.choice(lab[dp]["pos"])
+                        neg = r.choice(lab[dp]["neg"])
+                        if not (set(pos) <= set(cands) and set(neg) <= set(cands)):
+                            continue
+                        tot += 1
+                        hits += int(float(subset_score(u, pair, cands, pos))
+                                    > float(subset_score(u, pair, cands, neg)))
+                except (ValueError, KeyError, OSError, TypeError, RuntimeError):
+                    continue
+        return hits, tot
+
+    fit_hits_final, fit_tot = rank_acc(train_ids, use_cache=True)
+
     hits = tot = 0
     with torch.no_grad():
         for line in args.manifest.open(encoding="utf-8"):
@@ -195,27 +277,46 @@ def main() -> None:
             if rec["dp_id"] not in hold:
                 continue
             try:
-                cands, feats = state_feats(rec)
-                sc = head(feats).squeeze(-1)
+                cands, feats, ctx = state_feats(rec)
+                u, pair = head.frame_terms(feats, ctx)
                 for _ in range(args.pairs_per_state):
                     pos = rng.choice(lab[rec["dp_id"]]["pos"])
                     neg = rng.choice(lab[rec["dp_id"]]["neg"])
                     if not (set(pos) <= set(cands) and set(neg) <= set(cands)):
                         continue
                     tot += 1
-                    hits += int(float(subset_score(sc, cands, pos))
-                                > float(subset_score(sc, cands, neg)))
+                    hits += int(float(subset_score(u, pair, cands, pos))
+                                > float(subset_score(u, pair, cands, neg)))
             except (ValueError, KeyError, OSError, TypeError, RuntimeError):
                 continue
 
     out = dict(bundle)
     out["model_state"] = head.state_dict()
+    # 部署侧要靠这些字段把头重建成同一个形状与同一套选择规则
+    out["head_arch"] = args.head_arch
+    out["pooling"] = args.pooling
+    out["use_context"] = args.use_context
+    out["hidden"] = args.hidden
+    out["pair_rank"] = args.pair_rank
+    out["feat_dim"] = feat_dim
+    out["selection_rule"] = ("enumerate_subsets" if args.head_arch == "mlp_pair"
+                             else "topb_argmax")
     torch.save(out, args.output_root / "selector_bundle.pt")
-    report = {"train_states": seen, "opt_steps": stats["steps"],
+    train_acc = round(fit_hits_final / max(fit_tot, 1), 4)
+    report = {"head_arch": args.head_arch, "pooling": args.pooling,
+              "use_context": args.use_context,
+              "params": sum(x.numel() for x in head.parameters()),
+              "train_states": seen, "opt_steps": stats["steps"],
               "pairs": stats["pairs"], "skipped": stats["skipped"],
+              "train_rank_acc": train_acc,
+              "train_pairs": fit_tot,
+              "train_rank_acc_running": round(fit_hits / max(stats["pairs"], 1), 4),
               "holdout_pairs": tot,
               "holdout_rank_acc": round(hits / max(tot, 1), 4),
-              "note": "排序准确率 0.5 = 与随机无异;>0.5 才说明学到了可迁移的排序"}
+              "fit_gate_pass": train_acc >= 0.85,
+              "note": "排序准确率 0.5 = 与随机无异。**先看 train_rank_acc**:"
+                      "它上不去就是容量不足,留出集数字无意义(v4 的教训:"
+                      "只看留出集 0.5828,没发现训练集本身就没拟合上)"}
     (args.output_root / "report.json").write_text(
         json.dumps(report, indent=1, ensure_ascii=False))
     print(json.dumps(report, ensure_ascii=False))
