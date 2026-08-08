@@ -74,6 +74,40 @@ def main() -> None:
         print(f"  winnable 内正确子集占比中位 "
               f"{100 * sorted(frac)[len(frac) // 2]:.1f}%(越低=越需要精准选择)")
 
+    # ---- winnable 里"谁是承载帧":逐事件的携带率 ----
+    # note (luojiaxuan): 平均数看不出 selector 能不能学。真正要问的是:正确子集
+    # 是集中在少数几个"承载帧"上(→ 可学,存在可预测的信号),还是均匀散布
+    # (→ 不可学,靠碰运气)。携带率 = 含该事件的子集中正确的比例;
+    # 与该 state 的基准正确率相比,高出越多说明该帧越关键。
+    carriers = []
+    for r in winnable:
+        pairs = {tuple(a["s"]): a["c"] for a in r.get("all", []) if len(a["s"]) == 2}
+        if not pairs:
+            continue
+        base = sum(pairs.values()) / len(pairs)
+        events = sorted({c for s in pairs for c in s})
+        per = []
+        for e in events:
+            sub = [v for s, v in pairs.items() if e in s]
+            if sub:
+                per.append((sum(sub) / len(sub), e, len(sub)))
+        per.sort(reverse=True)
+        top_rate, top_e, _ = per[0]
+        # 归一化年龄:1=最老,0=最新(候选区间 [1, s-2])
+        span = max(max(events) - min(events), 1)
+        age = (max(events) - top_e) / span
+        carriers.append((r["step"], base, top_rate, top_e, age, len(events)))
+    if carriers:
+        print(f"\n=== winnable 承载帧分析({len(carriers)} 态)===")
+        print(f"{'step':>5} {'基准':>6} {'最强帧携带率':>12} {'该帧':>5} {'归一年龄':>8} {'候选数':>6}")
+        for step, base, top, e, age, ne in carriers:
+            print(f"{step:>5} {100*base:>5.0f}% {100*top:>11.0f}% {e:>5} {age:>8.2f} {ne:>6}")
+        lift = sum(t - b for _, b, t, _, _, _ in carriers) / len(carriers)
+        ages = sorted(c[4] for c in carriers)
+        print(f"  平均提升(最强帧携带率 − 基准)= {100*lift:+.1f}pp"
+              f";最强帧归一年龄中位 {ages[len(ages)//2]:.2f}")
+        print("  提升大 = 正确子集集中在少数承载帧上(可学);接近 0 = 均匀散布(不可学)")
+
     # ---- 剪枝命中率(从全枚举推导)----
     hit = tot = 0
     for r in full:
