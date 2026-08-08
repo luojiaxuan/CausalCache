@@ -100,6 +100,9 @@ def main() -> None:
     p.add_argument("--max-new-tokens", type=int, default=128)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260808)
+    # 枚举无同步点,按 state 天然可并行:每个分片只处理 行号 % count == index
+    p.add_argument("--shard-index", type=int, default=0)
+    p.add_argument("--shard-count", type=int, default=1)
     args = p.parse_args()
 
     import torch
@@ -151,9 +154,11 @@ def main() -> None:
     skipped: dict[str, int] = {}
     processed = 0
     with args.output.open("a", encoding="utf-8") as sink:
-        for line in args.manifest.open(encoding="utf-8"):
+        for lineno, line in enumerate(args.manifest.open(encoding="utf-8")):
             if processed >= args.limit_states:
                 break
+            if lineno % args.shard_count != args.shard_index:
+                continue
             line = line.strip()
             if not line:
                 continue
