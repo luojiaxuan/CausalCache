@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "benchmark": {
+    "repo": "yali30/findingdory-subsampled-96",
+    "revision": "95afe1e8ef355e06f27000851fc4033266bdd480",
+    "validation_parquet": "data/validation-00000-of-00001.parquet",
+    "videos_zip": "videos.zip",
+    "video_frames": 96,
+    "current_frame": 95,
+    "low_level_category": "Object Attributes"
+  },
+  "model": {
+    "repo": "Qwen/Qwen2.5-VL-7B-Instruct",
+    "revision": "cc594898137f460bfe9f0759e9844b3ce807cfb5",
+    "visual_tokens_per_summary_image": 128,
+    "visual_tokens_per_restored_image": 256,
+    "summary_max_new_tokens": 192,
+    "policy_max_new_tokens": 96
+  },
+  "memory": {
+    "summary_chunk_frames": 8,
+    "summary_is_task_independent": true,
+    "budgets": [1, 4],
+    "current_frame_is_fixed_and_not_charged_to_budget": true,
+    "recent_rule": "last B history frames before current_frame",
+    "oracle_rule": "center of longest PDDL-valid historical run plus most-recent nonduplicate fillers",
+    "output_domain": "any original frame id from 0 through 95"
+  },
+  "schedule": {
+    "pilot_episode_limit": 20,
+    "full_episode_limit": 100,
+    "shards": 2,
+    "seed": 20260807
+  },
+  "statistics": {
+    "bootstrap_unit": "episode",
+    "bootstrap_samples": 10000,
+    "minimum_oracle_hl_sr": 0.3,
+    "minimum_oracle_minus_recent": 0.1,
+    "minimum_selection_difference_coverage": 0.5,
+    "require_ci95_lower_bound_above_zero": true
+  }
+}

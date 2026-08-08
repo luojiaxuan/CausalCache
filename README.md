@@ -36,6 +36,15 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 
 ## 当前结论
 
+> **2026-08-07 FindingDory multimodal-agent exact-B oracle 验证已冻结并进入 pilot。**
+> 公开 `yali30/findingdory-subsampled-96@95afe1e8...` 的 Object Attributes 作为首个
+> embodied memory 候选场景；冻结 `Qwen2.5-VL-7B-Instruct@cc594898...`，比较同一份
+> task-independent 8-frame chunk 摘要、同一 current frame 与同一 $B\in\{1,4\}$ 下的
+> Recent-$B$ / PDDL-valid Oracle-$B$。policy 可输出任意 0--95 原始帧，避免把 Recent
+> 机械判零；按 episode 做 paired cluster bootstrap。20-episode pilot 通过后才自动扩到
+> 100 episode / 491 tasks，论文 `GO` 只认 full gate。协议、实现和阈值见
+> [`docs/findingdory_object_attribute_oracle_gap_v1.md`](docs/findingdory_object_attribute_oracle_gap_v1.md)。
+>
 > **2026-07-27 AAAI 两张主图完成并进入主稿。**
 > Figure 1 固定 complete summary trace 与 `B=4` active history-image budget，
 > 将方法画成 event-fidelity reallocation，而不是事件 inclusion 或加图；
@@ -294,6 +303,8 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 
 ## 活跃文档
 
+- [`docs/findingdory_object_attribute_oracle_gap_v1.md`](docs/findingdory_object_attribute_oracle_gap_v1.md):
+  FindingDory Object Attributes exact-$B$ frozen-policy oracle-gap 协议与 go gate；
 - [`paper/README.md`](paper/README.md):AAAI-27 HGKV draft、官方 author-year / arXiv
   bibliography、AuthorKit hashes、7+2 page rule、独立 supplementary PDF 与
   reproducibility checklist 状态；
@@ -323,6 +334,7 @@ working branch: `main`。精确 artifact revision 以对应文件的 Git history
 | 内容 | 位置 | 状态 |
 |---|---|---|
 | 代码、配置、论文、轻量结果 | 本 Git 仓库(当前主线分支 `main`) | canonical |
+| FindingDory exact-B oracle-gap v1 | [协议](docs/findingdory_object_attribute_oracle_gap_v1.md)；[config](code/configs/findingdory_object_attribute_oracle_gap_v1.json)；[public dataset@95afe1e8](https://huggingface.co/datasets/yali30/findingdory-subsampled-96/tree/95afe1e8ef355e06f27000851fc4033266bdd480)；[Qwen2.5-VL-7B@cc594898](https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct/tree/cc594898137f460bfe9f0759e9844b3ce807cfb5) | 协议/实现入 Git；20-episode pilot 待跑；benchmark/model 复用公开 HF canonical artifact，不另行复制 |
 | AAAI working paper | [`paper/main.tex`](paper/main.tex)；[`paper/supplement.tex`](paper/supplement.tex)；[`paper/README.md`](paper/README.md) | 主稿 9 页（7 页内正文、references 自第 7 页自然流入）；supplement 2 页；均无 embedded links/bookmarks；working、未冻结 |
 | AAAI Figure 1/2 | [`paper/figures/`](paper/figures/)；[设计与审计](docs/paper_figures_v1.md)；[Cart case audit](data/results/mobileworld_hgkv_selected_b4/qualitative_cart_audit.json) | Figure 1 以 SVG、Figure 2 以 PPTX 为可编辑源；投稿 PDF/288-dpi PNG 已生成；PPT 越界、PDF 字体与 9 页主稿布局检查通过 |
 | Desktop DiD 三臂正式结果 v1 | [`data/results/desktop_did_policy_v1/`](data/results/desktop_did_policy_v1/README.md);三份 gate 报告入 Git | **HGKV s150 全 gate PASS**;§9 第 6/7 项待跑,s150 未冻结 |
