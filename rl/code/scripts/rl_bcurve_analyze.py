@@ -54,35 +54,62 @@ def mcnemar(b: int, c: int) -> float:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("--b1", nargs="+", type=pathlib.Path, required=True)
-    p.add_argument("--b2", nargs="+", type=pathlib.Path, required=True,
+    # note (luojiaxuan): 三个 B 都设成可选,是为了在 B=4 还没跑完时就能先出
+    # B=1/B=2 的部分曲线 —— 目的不是提前下结论,而是**提前把归约脚本跑通**。
+    # 等最贵的那批数据落地才发现脚本有 bug,代价是重跑而不是重算。
+    p.add_argument("--b1", nargs="*", type=pathlib.Path, default=[])
+    p.add_argument("--b2", nargs="*", type=pathlib.Path, default=[],
                    help="已有的全枚举结果(labels_all.jsonl),不重跑")
-    p.add_argument("--b4", nargs="+", type=pathlib.Path, required=True)
+    p.add_argument("--b4", nargs="*", type=pathlib.Path, default=[])
     p.add_argument("--easy-total", type=int, default=2809,
                    help="总体中 easy 态的真实个数(用于抽样重加权)")
     p.add_argument("--hard-total", type=int, default=2494)
+    p.add_argument("--min-stratum", type=int, default=50,
+                   help="每层最少态数;不足则拒绝输出重加权的总体数字")
     args = p.parse_args()
 
-    data = {1: load(args.b1), 2: load(args.b2), 4: load(args.b4)}
-    for b, d in data.items():
-        print(f"B={b}: 载入 {len(d)} 态")
-    common = set(data[1]) & set(data[2]) & set(data[4])
-    # B=2 那批里 --skip-easy 的行没有 oracle,进不了对照
-    common = {i for i in common if all("oracle_correct" in data[b][i] for b in (1, 2, 4))}
-    print(f"\n三个 B 共同且都有 oracle 的态:{len(common)}")
+    data = {b: load(getattr(args, f"b{b}")) for b in (1, 2, 4)}
+    budgets = [b for b in (1, 2, 4) if data[b]]
+    for b in (1, 2, 4):
+        print(f"B={b}: 载入 {len(data[b])} 态" + ("" if data[b] else "(缺,跳过)"))
+    if not budgets:
+        raise SystemExit("三个 B 一个都没给")
+    if len(budgets) < 3:
+        print(f"⚠️ 只有 B∈{budgets} 有数据 —— 这是**部分曲线**,"
+              f"不能据此对 B=2 的选型下结论。")
+    common = set.intersection(*(set(data[b]) for b in budgets))
+    # --skip-easy 的行没有 oracle(未枚举),进不了对照
+    common = {i for i in common
+              if all("oracle_correct" in data[b][i] for b in budgets)}
+    print(f"\nB∈{budgets} 共同且都有 oracle 的态:{len(common)}")
     if not common:
         raise SystemExit("交集为空:检查白名单与分片是否对齐")
 
-    # 分层用 B=0(与预算无关),取自 B=2 那批以保证三个 B 用同一套分层
-    easy = {i for i in common if data[2][i]["b0_correct"]}
+    # 分层用 B=0(与预算无关);优先取自 B=2 那批,缺时退到任一可用 B ——
+    # b0 与预算无关,但**必须全程用同一批的 b0**,否则 B=0 那约 2% 的
+    # 数值非确定性会让分层在不同 B 之间漂移,配对就假了。
+    ref = 2 if data[2] else budgets[0]
+    print(f"分层基准取自 B={ref} 那批的 b0_correct")
+    easy = {i for i in common if data[ref][i]["b0_correct"]}
     hard = common - easy
     w_easy = args.easy_total / max(len(easy), 1)
     w_hard = args.hard_total / max(len(hard), 1)
+    # note (luojiaxuan): 分层太小就**拒绝出总体数字**,不许靠权重把 5 个态
+    # 放大成 2809 个。第一次空跑就踩到了:easy 层只剩 5 态、权重 561.8×,
+    # 原因是复用的 labels_all 里 easy 态走了 --skip-easy、根本没有 oracle。
+    # 这种情况下"重加权到总体"是数字幻觉,必须报错而不是打印出来。
+    for name, grp, w in (("easy", easy, w_easy), ("非easy", hard, w_hard)):
+        if len(grp) < args.min_stratum:
+            raise SystemExit(
+                f"{name} 层只有 {len(grp)} 态(权重 {w:.1f}×),低于下限 "
+                f"{args.min_stratum} —— 重加权会把少数几个态放大成总体,"
+                f"这是数字幻觉不是估计。先把该层的枚举补齐,或用 "
+                f"--min-stratum 显式下调并在报告里写明。")
     print(f"分层:easy {len(easy)}(权重 {w_easy:.2f})、非easy {len(hard)}"
           f"(权重 {w_hard:.2f});重加权还原到总体 "
           f"{args.easy_total}+{args.hard_total}={args.easy_total + args.hard_total}")
 
-    sat = {b: sum(1 for i in common if data[b][i].get("eff_budget", b) < b) for b in (1, 2, 4)}
+    sat = {b: sum(1 for i in common if data[b][i].get("eff_budget", b) < b) for b in budgets}
     print(f"预算饱和(候选数 < B,有效预算被迫降级)条数:{sat}")
 
     def rate(b: int, arm: str, ids: set[str]) -> float:
@@ -98,17 +125,17 @@ def main() -> None:
     print("\n=== 总体正确率(重加权到真实占比)===")
     print(f"{'B':>3} {'oracle':>9} {'recent-B':>10} {'随机-B':>9} "
           f"{'头寸 or−rec':>12}")
-    for b in (1, 2, 4):
+    for b in budgets:
         print(f"{b:>3} {100*pop(b,'oracle'):>8.1f}% {100*pop(b,'recent'):>9.1f}% "
               f"{100*pop(b,'random'):>8.1f}% {100*(pop(b,'oracle')-pop(b,'recent')):>+11.1f}pp")
-    b0 = sum(data[2][i]["b0_correct"] for i in common)
+    b0 = sum(data[ref][i]["b0_correct"] for i in common)
     print(f"  参照 B=0(未加权 {100*b0/len(common):.1f}%;按定义 easy 层 100%、"
           f"非easy 层 0% → 加权 {100*args.easy_total/(args.easy_total+args.hard_total):.1f}%)")
 
     print("\n=== 分层拆开:大 B 修好了什么、又弄坏了什么 ===")
     print(f"{'B':>3} {'easy层 recent':>14} {'easy层 oracle':>14} "
           f"{'非easy层 recent':>16} {'非easy层 oracle':>16}")
-    for b in (1, 2, 4):
+    for b in budgets:
         print(f"{b:>3} {100*rate(b,'recent',easy):>13.1f}% {100*rate(b,'oracle',easy):>13.1f}% "
               f"{100*rate(b,'recent',hard):>15.1f}% {100*rate(b,'oracle',hard):>15.1f}%")
     print("  easy 层 recent 若随 B 下降 = 多给的历史图在干扰本来答对的题;"
@@ -117,7 +144,8 @@ def main() -> None:
     print("\n=== recent-B 跨预算配对检验(这是唯一可检验的对照)===")
     print("  两个真实可部署配置在同一批态上的配对差;oracle 与 recent 的差是"
           "结构性非负,不在此列。")
-    for lo, hi in ((1, 2), (2, 4), (1, 4)):
+    for lo, hi in [(a, c) for a, c in ((1, 2), (2, 4), (1, 4))
+                   if a in budgets and c in budgets]:
         bb = sum(1 for i in common
                  if data[hi][i]["recent_correct"] and not data[lo][i]["recent_correct"])
         cc = sum(1 for i in common
@@ -128,7 +156,7 @@ def main() -> None:
 
     print("\n=== 每态成本(部署侧,用于和头寸对照)===")
     print(f"{'B':>3} {'视觉 token':>11} {'相对 B=2':>9}")
-    for b in (1, 2, 4):
+    for b in budgets:
         print(f"{b:>3} {b*2560:>11d} {b/2:>8.1f}×")
     print("  头寸随 B 的增量若小于成本增量,B 就该往小取——这是选工作点的依据,"
           "比'哪个 B 头寸最大'更站得住,因为头寸本身不是可实现的收益。")

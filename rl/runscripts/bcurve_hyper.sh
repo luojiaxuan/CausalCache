@@ -41,7 +41,14 @@ for k in "${!gpus[@]}"; do
   (
     LOG=$OUT/bcurve_sh$SH.log
     echo "[$(date -Is)] 起 GPU $G / 分片 $SH(共 $SHARD_COUNT)" >> "$LOG"
-    for spec in "1 full" "4 pruned"; do
+    # note (luojiaxuan): **B=2 也要重跑,不能复用 labels_all**,两个原因:
+    #   ① labels_all 里的 easy 态走了 --skip-easy,只有一行 mode:screen、
+    #      没有 oracle —— 而 easy 层正是这条曲线区分"头寸"与"净收益"的关键,
+    #      复用等于把 400 个 easy 态全丢进过滤器(空跑归约时实测只剩 5 个);
+    #   ② 今天把单帧探针的 top 集合改成含搭档帧,B=2 的子集池由 C(8,2)=28
+    #      变成 C(9,2)=36,与旧产物不是同一口径。
+    # 整条曲线必须出自同一份代码。顺序 1→2→4:先便宜的,B=4 最贵放最后。
+    for spec in "1 full" "2 pruned" "4 pruned"; do
       set -- $spec; B=$1; MODE=$2
       for attempt in 1 2 3 4 5; do
         CUDA_VISIBLE_DEVICES=$G PYTHONPATH=$REPO/code:$REPO/rl/code \
