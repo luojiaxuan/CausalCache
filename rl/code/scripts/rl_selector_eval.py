@@ -45,6 +45,9 @@ def main() -> None:
     p.add_argument("--max-new-tokens", type=int, default=128)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260808)
+    # 评测无同步点,按 manifest 行号取模分片,可铺多卡
+    p.add_argument("--shard-index", type=int, default=0)
+    p.add_argument("--shard-count", type=int, default=1)
     args = p.parse_args()
 
     import torch
@@ -112,6 +115,8 @@ def main() -> None:
             if n_eval >= args.limit_states:
                 break
             if lineno < args.skip_first or not line.strip():
+                continue
+            if lineno % args.shard_count != args.shard_index:
                 continue
             rec = json.loads(line)
             try:
