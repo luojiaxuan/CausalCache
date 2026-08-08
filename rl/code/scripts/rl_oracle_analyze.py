@@ -53,10 +53,17 @@ def main() -> None:
     for k, label in (("oracle", "oracle-最优2"), ("recent", "recent-2"),
                      ("random", "随机-2"), ("b0", "B=0")):
         print(f"  {label:<12} {arms[k]:3d}/{nk}  {100 * arms[k] / max(nk,1):5.1f}%")
-    print(f"\n头寸 oracle − recent = "
-          f"{100 * (arms['oracle'] - arms['recent']) / max(nk,1):+.1f}pp")
-    print(f"内容敏感 oracle − 随机 = "
-          f"{100 * (arms['oracle'] - arms['random']) / max(nk,1):+.1f}pp")
+    # note (luojiaxuan): recent-2 与 随机-2 **都是被枚举的子集之一**,故
+    # oracle 按构造必然 ≥ 两者。因此 oracle−recent / oracle−随机 只能读作
+    # "上界有多高",**不能**做显著性检验,也**不能**当作"策略对内容敏感"的
+    # 证据(那是结构性的,不是经验性的)。真正有效的内容敏感证据见下方
+    # winnable 内的子集分化率与承载帧 lift;公平的臂间对照是 recent vs 随机。
+    print(f"\n上界高度 oracle − recent = "
+          f"{100 * (arms['oracle'] - arms['recent']) / max(nk,1):+.1f}pp"
+          f"(结构性非负,不可做检验)")
+    print(f"公平对照 recent − 随机 = "
+          f"{100 * (arms['recent'] - arms['random']) / max(nk,1):+.1f}pp"
+          f"(两者都是任选子集,这个差才是经验性的)")
 
     easy = [r for r in rows if r["b0_correct"]]
     winnable = [r for r in known if not r["b0_correct"] and r["oracle_correct"]]
