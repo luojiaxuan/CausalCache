@@ -15,6 +15,7 @@ from typing import Any
 from causalcache.findingdory_oracle_gap import (
     exact_budget_selections,
     frame_is_valid,
+    normalize_content_summary,
     parse_answer_groups,
     parse_predicted_frame,
     reduce_paired_results,
@@ -23,7 +24,7 @@ from causalcache.policy.qwen_runtime import QwenPolicyRuntime
 from causalcache.remote_zip import download_remote_zip_member, remote_zip_catalog
 
 
-SUMMARY_SYSTEM = """You build a task-independent episodic memory for an embodied household agent. Convert the supplied chronological observations into compact structured JSON. Record frame ids, visible objects and receptacles, rooms, interactions or state changes, and fine visual attributes only when supported by pixels. Never invent a future task or a navigation answer."""
+SUMMARY_SYSTEM = """You build a task-independent episodic memory for an embodied household agent. Convert the supplied chronological observations into compact structured JSON. The pixels contain legacy overlaid frame numbers and times from a longer source trajectory: ignore and never transcribe those overlays. Do not output any frame id, index, timestamp, time, or number. Record only visible objects and receptacles, rooms, interactions or state changes, and fine visual attributes supported by pixels. Never invent a future task or a navigation answer."""
 
 POLICY_SYSTEM = """You are a frozen high-level embodied navigation policy. Use the compressed episode memory and any restored high-fidelity frames to choose an original frame id that is a viable navigation goal for the task. You may choose any original frame from 0 through 95, including one described only by text. Return exactly one compact JSON object: {\"frame_indices\":[integer]}."""
 
@@ -138,19 +139,19 @@ def _read_video(path: Path, *, expected_frames: int) -> list[Any]:
 
 def _summary_messages(frames: list[Any], *, start: int) -> list[dict[str, Any]]:
     content: list[dict[str, Any]] = [
-        {"type": "text", "text": f"Chronological observation chunk, original frames {start}-{start + len(frames) - 1}."}
+        {"type": "text", "text": f"Chronological observation chunk. Canonical subsampled range {start}-{start + len(frames) - 1} is attached by the memory system outside your JSON."}
     ]
     for offset, frame in enumerate(frames):
         content.extend(
             [
-                {"type": "text", "text": f"Original frame {start + offset}:"},
+                {"type": "text", "text": f"Canonical subsampled observation slot {offset}; ignore any frame/time text inside the pixels:"},
                 {"type": "image", "image": frame},
             ]
         )
     content.append(
         {
             "type": "text",
-            "text": "Return one compact JSON object with an events list. Preserve original frame ids and observable fine attributes.",
+            "text": "Return one compact JSON object using only these keys when applicable: objects, receptacles, rooms, interactions, fine_attributes, state_changes. Values are short strings or lists of strings. Output no numbers or frame/time fields.",
         }
     )
     return [
@@ -172,7 +173,7 @@ def _policy_messages(
         {
             "start_frame": int(chunk["start_frame"]),
             "end_frame": int(chunk["end_frame"]),
-            "summary": str(chunk["output_text"]),
+            "content_summary": chunk["content_summary"],
         }
         for chunk in summaries
     ]
@@ -238,7 +239,14 @@ def summarize(args: argparse.Namespace, config: dict[str, Any]) -> None:
                 _summary_messages(frames[start : start + chunk_size], start=start),
                 max_new_tokens=int(config["model"]["summary_max_new_tokens"]),
             )
-            chunks.append({"start_frame": start, "end_frame": min(start + chunk_size, len(frames)) - 1, **result})
+            chunks.append(
+                {
+                    "start_frame": start,
+                    "end_frame": min(start + chunk_size, len(frames)) - 1,
+                    "content_summary": normalize_content_summary(result["output_text"]),
+                    **result,
+                }
+            )
         output_path.write_text(
             json.dumps({"episode_id": episode_id, "model": runtime.metadata, "chunks": chunks}, indent=2, sort_keys=True) + "\n",
             encoding="utf-8",

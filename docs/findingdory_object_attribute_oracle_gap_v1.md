@@ -10,8 +10,10 @@
 - 数据：公开 `yali30/findingdory-subsampled-96` validation，先跑前 20 个 episode pilot；通过后扩到
   100 episode 的全部 `Object Attributes`（491 tasks）。
 - 模型：`Qwen/Qwen2.5-VL-7B-Instruct@cc594898...`，summary 与 policy 都冻结、greedy decode。
-- 压缩：每 8 帧生成一条 task-independent JSON event summary；summary prompt 不接收 question、
-  task id 或 answer。
+- 压缩：每 8 帧生成一条 task-independent content summary；summary prompt 不接收 question、
+  task id 或 answer。公开视频像素内含原长轨迹的 legacy frame/time overlay，与 0--95
+  subsampled answer namespace 不同；VLM 输出中的所有数字和 frame/time 字段确定性移除，只有代码
+  外挂的 canonical chunk range 可见于 policy。
 - policy 输入：完整压缩摘要、task、exact-$B$ 张恢复历史图、固定 current frame 95。current 不计入
   $B$；$B\in\{1,4\}$。
 - Recent-$B$：current 之前最后 $B$ 帧。Oracle-$B$：PDDL-valid 历史区间最长连续段的中心帧，剩余
@@ -29,3 +31,9 @@
 
 完整 scientific config：
 [`code/configs/findingdory_object_attribute_oracle_gap_v1.json`](../code/configs/findingdory_object_attribute_oracle_gap_v1.json)。
+
+## Invalidated run
+
+首个 20-episode pilot 曾把像素中的 legacy frame number 写进压缩摘要，而 policy 输出域与 answer
+使用 subsampled 0--95。尽管该 run 得到很大的 Oracle$-$Recent gap，它会系统性损害 text/Recent arm，
+因此标记为 `INVALID_FRAME_ID_NAMESPACE`，不得引用；修复后从 summary 重新生成并重跑全部 policy rows。

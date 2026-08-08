@@ -1,6 +1,7 @@
 from causalcache.findingdory_oracle_gap import (
     exact_budget_selections,
     frame_is_valid,
+    normalize_content_summary,
     oracle_evidence_frame,
     parse_answer_groups,
     parse_predicted_frame,
@@ -28,6 +29,18 @@ def test_prediction_parser_and_validity() -> None:
     assert parse_predicted_frame('{"frame_indices":[]}') is None
     assert frame_is_valid(21, groups)
     assert not frame_is_valid(None, groups)
+
+
+def test_content_summary_removes_legacy_frame_and_time_namespace() -> None:
+    raw = '''```json
+    {"frame_id": 106, "time_of_day": "06:25", "objects": ["2 purple rolls"],
+     "interactions": ["picked object at frame 112"], "fine_attributes": ["striped"]}
+    ```'''
+    assert normalize_content_summary(raw) == {
+        "objects": ["purple rolls"],
+        "interactions": ["picked object at frame"],
+        "fine_attributes": ["striped"],
+    }
 
 
 def test_paired_reduction() -> None:

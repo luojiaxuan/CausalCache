@@ -12,6 +12,16 @@ from collections.abc import Mapping, Sequence
 from typing import Any
 
 
+SUMMARY_CONTENT_KEYS = (
+    "objects",
+    "receptacles",
+    "rooms",
+    "interactions",
+    "fine_attributes",
+    "state_changes",
+)
+
+
 def parse_answer_groups(raw: str) -> tuple[tuple[int, ...], ...]:
     value = ast.literal_eval(raw)
     if not isinstance(value, list) or not value:
@@ -112,6 +122,51 @@ def parse_predicted_frame(raw: str) -> int | None:
         if isinstance(candidates, str) and re.fullmatch(r"\s*\d+\s*", candidates):
             return int(candidates)
     return None
+
+
+def _clean_summary_value(value: Any) -> Any:
+    if isinstance(value, str):
+        return re.sub(r"\d+(?::\d+)?", "", value).strip()
+    if isinstance(value, list):
+        return [_clean_summary_value(item) for item in value]
+    if isinstance(value, Mapping):
+        return {
+            str(key): _clean_summary_value(item)
+            for key, item in value.items()
+            if not re.search(r"frame|time|index", str(key), flags=re.IGNORECASE)
+        }
+    if value is None or isinstance(value, bool):
+        return value
+    return _clean_summary_value(str(value))
+
+
+def normalize_content_summary(raw: str) -> dict[str, Any]:
+    """Remove the legacy overlaid frame/time namespace from VLM captions."""
+    decoder = json.JSONDecoder()
+    parsed = None
+    for index, character in enumerate(raw):
+        if character != "{":
+            continue
+        try:
+            value, _ = decoder.raw_decode(raw[index:])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, Mapping):
+            parsed = value
+            break
+    if parsed is None:
+        result = {"unstructured_caption": _clean_summary_value(raw)}
+    else:
+        result = {
+            key: _clean_summary_value(parsed[key])
+            for key in SUMMARY_CONTENT_KEYS
+            if key in parsed
+        }
+        if not result:
+            result = {"unstructured_caption": _clean_summary_value(raw)}
+    if re.search(r"\d", json.dumps(result, ensure_ascii=False)):
+        raise RuntimeError("normalized content summary retained a numeric namespace")
+    return result
 
 
 def frame_is_valid(frame: int | None, answer_groups: Sequence[Sequence[int]]) -> bool:
@@ -230,6 +285,7 @@ def reduce_paired_results(
 __all__ = [
     "exact_budget_selections",
     "frame_is_valid",
+    "normalize_content_summary",
     "oracle_evidence_frame",
     "parse_answer_groups",
     "parse_predicted_frame",
