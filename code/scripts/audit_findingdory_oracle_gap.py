@@ -65,6 +65,7 @@ def audit(input_dir: Path, config_path: Path) -> dict[str, Any]:
     success_recompute_violations = 0
     answer_group_violations = 0
     parse_failures: Counter[str] = Counter()
+    abstentions: Counter[str] = Counter()
     out_of_domain_predictions: Counter[str] = Counter()
     for row in rows:
         budget = int(row["budget"])
@@ -85,6 +86,8 @@ def audit(input_dir: Path, config_path: Path) -> dict[str, Any]:
         prediction = row["predicted_frame"]
         if prediction is None:
             parse_failures[f"B{budget}_{arm}"] += 1
+        elif prediction == -1:
+            abstentions[f"B{budget}_{arm}"] += 1
         elif not isinstance(prediction, int) or not 0 <= prediction < video_frames:
             out_of_domain_predictions[f"B{budget}_{arm}"] += 1
         if bool(row["success"]) != frame_is_valid(prediction, task_groups):
@@ -142,6 +145,7 @@ def audit(input_dir: Path, config_path: Path) -> dict[str, Any]:
         "critical_violations": critical,
         "diagnostics": {
             "parse_failures": dict(sorted(parse_failures.items())),
+            "negative_one_abstentions": dict(sorted(abstentions.items())),
             "out_of_domain_predictions": dict(sorted(out_of_domain_predictions.items())),
         },
         "protocol": {
