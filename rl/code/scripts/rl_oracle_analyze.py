@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+"""枚举 oracle 结果归约:头寸、四臂对照、三类拆分、剪枝命中率。
+
+# note (luojiaxuan): 契约见 rl/docs/oracle_selection_contract.md。
+#
+# 为什么必须做三类拆分:冒烟第一个 state 连 B=0(不给任何历史图)都答对了。
+# 这类"任何选择都对"的 state 会把平均头寸稀释掉——只报总体均值会把真实
+# 头寸埋掉。三类:
+#   easy      B=0 已正确        → 选择无杠杆(不算头寸)
+#   winnable  B=0 错,但存在正确子集 → **这才是头寸所在**
+#   hopeless  所有子集都错      → 选帧救不了(信息不在历史图里,或策略读不懂)
+#
+# 剪枝命中率**从全枚举离线推导,零额外算力**:单帧分数 = (候选, 最近候选)
+# 那一对的正确性,已含在全枚举结果里;据此取 top-k 再配对,看是否仍能命中
+# 一个正确子集。命中率 ≥90% 才允许后续用便宜版铺开。
+"""
+
+from __future__ import annotations
+
+import argparse
+import itertools
+import json
+import pathlib
+
+
+def main() -> None:
+    p = argparse.ArgumentParser()
+    p.add_argument("--results", type=pathlib.Path, required=True)
+    p.add_argument("--top-k", type=int, default=8)
+    args = p.parse_args()
+
+    rows = [json.loads(x) for x in
+            args.results.read_text(encoding="utf-8").splitlines() if x.strip()]
+    if not rows:
+        raise SystemExit("结果为空")
+    full = [r for r in rows if r.get("mode") == "full"]
+
+    n = len(rows)
+    arms = {k: sum(1 for r in rows if r[f"{k}_correct"]) for k in
+            ("oracle", "recent", "random", "b0")}
+    print(f"state 数 {n}(全枚举 {len(full)});候选数中位 "
+          f"{sorted(r['n_candidates'] for r in rows)[n // 2]}")
+    print("\n=== 四臂步级正确率 ===")
+    for k, label in (("oracle", "oracle-最优2"), ("recent", "recent-2"),
+                     ("random", "随机-2"), ("b0", "B=0")):
+        print(f"  {label:<12} {arms[k]:3d}/{n}  {100 * arms[k] / n:5.1f}%")
+    print(f"\n头寸 oracle − recent = {100 * (arms['oracle'] - arms['recent']) / n:+.1f}pp")
+    print(f"内容敏感 oracle − 随机 = {100 * (arms['oracle'] - arms['random']) / n:+.1f}pp")
+
+    easy = [r for r in rows if r["b0_correct"]]
+    winnable = [r for r in rows if not r["b0_correct"] and r["oracle_correct"]]
+    hopeless = [r for r in rows if not r["b0_correct"] and not r["oracle_correct"]]
+    print("\n=== 三类拆分(头寸只存在于 winnable)===")
+    for label, grp in (("easy(B=0 已对)", easy), ("winnable(B=0 错但有解)", winnable),
+                       ("hopeless(全错)", hopeless)):
+        print(f"  {label:<24} {len(grp):3d}  {100 * len(grp) / n:5.1f}%")
+    if winnable:
+        rec = sum(1 for r in winnable if r["recent_correct"])
+        rnd = sum(1 for r in winnable if r["random_correct"])
+        print(f"  winnable 内:recent-2 命中 {rec}/{len(winnable)}、"
+              f"随机-2 命中 {rnd}/{len(winnable)}")
+        frac = [r["n_subsets_correct"] / max(r["n_subsets_scored"], 1) for r in winnable]
+        print(f"  winnable 内正确子集占比中位 "
+              f"{100 * sorted(frac)[len(frac) // 2]:.1f}%(越低=越需要精准选择)")
+
+    # ---- 剪枝命中率(从全枚举推导)----
+    hit = tot = 0
+    for r in full:
+        pairs = {tuple(a["s"]): a["c"] for a in r["all"] if len(a["s"]) == 2}
+        if not any(pairs.values()):
+            continue                      # 无正确子集,不参与命中率统计
+        cands = sorted({c for s in pairs for c in s})
+        partner = cands[-1]
+        singles = []
+        for c in cands:
+            if c == partner:
+                continue
+            key = (c, partner) if c < partner else (partner, c)
+            if key in pairs:
+                singles.append((int(pairs[key]), c))
+        top = sorted(c for _, c in sorted(singles, key=lambda t: (-t[0], -t[1]))[: args.top_k])
+        pruned_ok = any(pairs.get(t, False)
+                        for t in itertools.combinations(top, 2))
+        hit += int(pruned_ok)
+        tot += 1
+    if tot:
+        print(f"\n=== 剪枝校验(top-{args.top_k},{tot} 个有解 state)===")
+        print(f"  命中率 {hit}/{tot} = {100 * hit / tot:.1f}%"
+              f"({'≥90%,可用便宜版铺开' if hit / tot >= 0.9 else '<90%,需放大 top-k 或全枚举'})")
+
+
+if __name__ == "__main__":
+    main()

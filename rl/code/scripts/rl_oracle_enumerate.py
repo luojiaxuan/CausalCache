@@ -170,8 +170,11 @@ def main() -> None:
             if len(steps) != s - 1:
                 skipped["history_len_mismatch"] = skipped.get("history_len_mismatch", 0) + 1
                 continue
-            # 候选事件:[1, s-2] 且该步能作保留轮(builder 要求 full_response)
-            cands = [j for j in range(1, s - 1) if steps[j - 1].full_response]
+            # 候选事件:[1, s-2] 且该步能作保留轮(builder 要求 full_response)。
+            # note (luojiaxuan): 事件 j 的保留轮是**步骤 j+1**,其形态是 steps[j]
+            # (0-based),不是 steps[j-1]——builder 内部就是这么查的。写错会在
+            # 枚举到含该事件的子集时才炸(如 triple_click 无官方形态)。
+            cands = [j for j in range(1, s - 1) if steps[j].full_response]
             if len(cands) < args.budget:
                 skipped["too_few_candidates"] = skipped.get("too_few_candidates", 0) + 1
                 continue
@@ -211,7 +214,13 @@ def main() -> None:
                 top = sorted(c for _, c in singles[: args.top_k])
                 subsets = list(itertools.combinations(top, args.budget))
 
-            results = [evaluate(t) for t in subsets]
+            # 单个 state 出问题不许拖垮整批(跑批贵,续跑成本高)
+            try:
+                results = [evaluate(t) for t in subsets]
+            except (ValueError, KeyError, OSError) as exc:
+                key = f"eval_error:{type(exc).__name__}"
+                skipped[key] = skipped.get(key, 0) + 1
+                continue
             recent = tuple(cands[-args.budget:])
             rand = tuple(sorted(rng.sample(cands, args.budget)))
             by_subset = {tuple(r["subset"]): r for r in results}
