@@ -180,9 +180,11 @@ def main() -> None:
                 continue
 
             gold = rec["target_tool_call"].get("arguments", {})
+            # note (luojiaxuan): 必须是 str —— processor 的 fetch_images 只吃
+            # 字符串路径/URL/PIL,给 Path 会 TypeError。
             root = args.image_root
-            event_images = {j: root / images[j] for j in cands}
-            current = root / images[s - 1]
+            event_images = {j: str(root / images[j]) for j in cands}
+            current = str(root / images[s - 1])
 
             def evaluate(subset: tuple[int, ...]) -> dict[str, Any]:
                 msgs = build_desktop_official_messages(
