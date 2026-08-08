@@ -33,6 +33,27 @@
 (rollout → train → 下一迭代)仍在,单迭代墙钟约等于**最慢一条 episode**,
 所以横向扩展的收益是"每迭代数据量",不是"迭代更快"。
 
+### ✅ 但有一条路完全绕开上面所有前置:枚举 oracle 实验
+
+**如果对方集群跑不了 VM(无 KVM / docker 受限),交接不必作废。**
+`rl/code/scripts/rl_oracle_enumerate.py` 这条线是**纯 GPU 前向、零虚拟机、
+零环境依赖**:输入是离线人类示范数据(AgentNet/OpenCUA,每步带 ground-truth
+动作),对每个 state 枚举 C(n,2) 个历史帧组合,量步级动作正确率。
+
+它对大集群的适配性极好:
+
+- **按 state 天然可并行**,无同步点、无环境、无锁竞争,128 卡线性加速;
+- 单 state 全枚举约 190 次前向(n≈20),约 4 分钟/卡;
+- **6003 个 state 全量全枚举 ≈ 400 GPU·小时 → 128 卡约 3 小时**
+  (我们在 1 张卡上只能做 30 个 state 的抽样)。
+
+这正是我们最缺算力的一步:它同时给出**强基线**(冻结 policy + 完美选帧
+值多少)、**上界标尺**(后续任何 selector 除以它得捕获率)和
+**selector 的监督标签**。契约见 `oracle_selection_contract.md`。
+
+**建议:把这条线优先交给对方**,VM 那条线(下面的端口锁等)等 KVM
+问题澄清后再说。
+
 ### ⚠️ 横向扩展的第一道硬墙:OSWorld 的全局端口锁(必须先改)
 
 `desktop_env/providers/docker/provider.py` 用**一把全局文件锁**
