@@ -37,6 +37,13 @@ MAX_STEPS=${MAX_STEPS:-30}; TAU=${TAU:-1.0}; BUDGET=${BUDGET:-2}
 #   hidden → make_hidden_head.py 的头 bundle;cheap → v4 marginal_scorer.pt
 SELECTOR_MODE=${SELECTOR_MODE:-hidden}
 EVAL_EVERY=${EVAL_EVERY:-20}
+GEN_PARALLEL=${GEN_PARALLEL:-1}   # 同时跑几"代"(见 run_generations)
+# 优化超参(v2 campaign 起 env 化)。v1 的 1e-4/1e-5/8 在 20 迭代 67 步下
+# 两条通道都没训动(selector 位移 4.4%,lora_b 范数 0.04);离线反事实显示
+# selector lr 1e-3 同数据量即可位移 0.59。见 README「根因诊断」。
+SEL_LR=${SEL_LR:-1e-4}
+LORA_LR=${LORA_LR:-1e-5}
+GRAD_ACCUM=${GRAD_ACCUM:-8}
 
 # 主机档案(默认 = h01;h00 用 env 覆盖:CTN=sglang-omni-jaxan RLC=/data/rl
 #   REPO=/data/osworld/CausalCache WREPO=/data04/jaxan/osworld/CausalCache
@@ -131,34 +138,50 @@ PY"
     fi
   }
 
-  run_generation() {  # 参数:$1 = 代号 g
-    local g=$1
-    cexec "mkdir -p $ID_C/out-g$g && chmod 777 $ID_C/out-g$g"
-    for s in $(seq 0 $((WORKERS-1))); do
-      ( cd "$B/run30" && PYTHONPATH=$WREPO/code:$B/OSWorld /usr/bin/python3 \
-          "$WREPO/code/scripts/run_osworld_benchmark_worker.py" \
-          --osworld-root "$B/OSWorld" \
-          --meta-path "evaluation_examples/rl_iter_$ITER.json" \
-          --shard-index "$s" --shard-count "$WORKERS" \
-          --output-root "$RLH/iter-$ITER/out-g$g" \
-          --policy-endpoint "http://$CIP:$((PORT0 + s % SERVERS))/act" \
-          --memory-arm full --memory-budget "$BUDGET" \
-          --max-steps "$MAX_STEPS" \
-          --cache-dir "$CACHE" \
-          >> "$ID_H/worker-g$g-$s.log" 2>&1 ) &
+  # 同时跑若干"代":每代 WORKERS 个 worker,全部 worker across 代按全局序号
+  # 轮询分配到 SERVERS 台 server 上,一次 wait。GEN_PARALLEL=2 时 rollout 墙钟
+  # 近乎减半(8 任务/代时单代 = 每 worker 一个任务,时长 = 最慢任务)。
+  # 并发上限依据:30 步口径下 2.67 worker/server 实测无 OOM(iter-9 之后)。
+  run_generations() {  # 参数:一组代号
+    local gs=("$@") g s k=0
+    for g in "${gs[@]}"; do
+      cexec "mkdir -p $ID_C/out-g$g && chmod 777 $ID_C/out-g$g"
+    done
+    for g in "${gs[@]}"; do
+      for s in $(seq 0 $((WORKERS-1))); do
+        ( cd "$B/run30" && PYTHONPATH=$WREPO/code:$B/OSWorld /usr/bin/python3 \
+            "$WREPO/code/scripts/run_osworld_benchmark_worker.py" \
+            --osworld-root "$B/OSWorld" \
+            --meta-path "evaluation_examples/rl_iter_$ITER.json" \
+            --shard-index "$s" --shard-count "$WORKERS" \
+            --output-root "$RLH/iter-$ITER/out-g$g" \
+            --policy-endpoint "http://$CIP:$((PORT0 + k % SERVERS))/act" \
+            --memory-arm full --memory-budget "$BUDGET" \
+            --max-steps "$MAX_STEPS" \
+            --cache-dir "$CACHE" \
+            >> "$ID_H/worker-g$g-$s.log" 2>&1 ) &
+        k=$((k+1))
+      done
     done
     wait
+  }
+
+  run_all_generations() {   # 按 GEN_PARALLEL 分批跑完 G 代
+    local g j batch
+    for ((g = 0; g < G; g += GEN_PARALLEL)); do
+      batch=()
+      for ((j = g; j < g + GEN_PARALLEL && j < G; j++)); do batch+=("$j"); done
+      run_generations "${batch[@]}"
+      log "R: 代 ${batch[*]} 完成"
+    done
   }
 
   # ---------- 1. rollout ----------
   if [ ! -f "$ID_H/ROLLOUT_DONE" ]; then
     log "R: 启动 $SERVERS 个 server(τ=$TAU B=$BUDGET)"
     launch_servers fatal
-    log "R: $G 代 × $WORKERS worker rollout"
-    for g in $(seq 0 $((G-1))); do
-      run_generation "$g"
-      log "R: 代 $g 完成"
-    done
+    log "R: $G 代 × $WORKERS worker rollout(并行度 $GEN_PARALLEL)"
+    run_all_generations
     # ---- 修复遍(2026-08-06 iter-6 实测):cuDNN mha_graph 逐请求失败会毒化
     # server —— 进程活着、/health 200,但请求全 500,挂它的 worker 全程 HTTPError
     # (iter-6 损失 18/48)。判据 = serve 日志 OSWORLD_POLICY_FAILURE 计数;
@@ -168,7 +191,7 @@ PY"
       log "R: 检测到 $PF 次策略失败,重启 server 补跑全部代"
       cexec "pkill -f '[s]erve_osworld_rl_policy' || true"; sleep 5
       launch_servers soft
-      for g in $(seq 0 $((G-1))); do run_generation "$g"; done
+      run_all_generations
       log "R: 补跑完成"
     fi
     # 滚动重启纪律:rollout 一结束立刻杀 server(监督循环没有,直接杀进程)
@@ -203,6 +226,8 @@ PY"
       --selector-bundle $PD_C/selector_bundle.pt $RES \
       --adapter-config code/configs/causalcache_desktop_did_hgkv_v7_poolrank.json \
       --max-groups-per-step $TASKS_PER_ITER \
+      --selector-learning-rate $SEL_LR --learning-rate $LORA_LR \
+      --grad-accum $GRAD_ACCUM \
       --seed $((20260804 + ITER)) \
       --output-root $ID_C 2>&1 | grep -vE 'processor_kwargs|Loading weights' | tail -3"
     cexec "test -f $ID_C/selector_bundle.pt && test -f $ID_C/adapter.pt" \
