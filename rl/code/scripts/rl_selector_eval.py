@@ -137,14 +137,24 @@ def main() -> None:
                 ev = {j: str(args.image_root / images[j]) for j in cands}
                 gold = rec["target_tool_call"].get("arguments", {})
 
+                # note (luojiaxuan): 返回 (是否正确, 原始预测)。**必须把原始
+                # 预测落盘** —— 否则容差就被烘焙进生成阶段,事后想做
+                # "结论对容差是否敏感"的曲线只能重跑整轮。容差应当是
+                # **分析时的旋钮**:生成只负责产出动作,判定放到归约里。
+                # (25 这个值原本是语料筛正例帧用的,不是为评测设计的;
+                #  归一 [0,999] 下 25 ≈ 横 48px / 纵 27px @1080p,
+                #  纵向已接近一整行菜单高度,必须能做敏感性检验。)
+                preds: dict[tuple, Any] = {}
+
                 def run(subset) -> bool:
                     msgs = build_desktop_official_messages(
                         goal=rec["instruction"], steps=steps,
                         shown_events=sorted(subset),
                         event_images={j: ev[j] for j in sorted(subset)},
                         current_image=str(cur))
-                    return action_correct(gen(msgs), gold,
-                                          tolerance=args.tolerance)
+                    pred = gen(msgs)
+                    preds[tuple(sorted(subset))] = pred
+                    return action_correct(pred, gold, tolerance=args.tolerance)
 
                 if run(()):                       # B=0 已对 → 无杠杆,跳过
                     skipped["easy"] = skipped.get("easy", 0) + 1
@@ -171,6 +181,8 @@ def main() -> None:
                     "n_candidates": len(cands),
                     "picks": {k: list(v) for k, v in picks.items()},
                     "correct": res,
+                    "gold": gold,
+                    "preds": {",".join(map(str, k)): v for k, v in preds.items()},
                 }, ensure_ascii=False) + "\n")
                 sink.flush()
             except (ValueError, KeyError, OSError, TypeError, RuntimeError) as exc:
