@@ -219,6 +219,11 @@ def main() -> None:
     ]
     optimizer = torch.optim.AdamW(params)
 
+    # note (luojiaxuan): 位移仪表(2026-08-08 加)。iter-20 复盘发现 selector 20
+    # 迭代只挪了 4.4%、选择与随机初始化头重合 86.7%——总优化步数仅约 75 次。
+    # 没有这个数就只能在 20 迭代后靠离线挖掘发现"根本没训动"。每迭代直接报。
+    sel_w0 = [p.detach().clone() for p in sel_model.parameters()]
+
     random.shuffle(usable)
     batch = usable[: args.max_groups_per_step]
     stats = defaultdict(float)
@@ -296,6 +301,14 @@ def main() -> None:
     assert int(stats["ep_local"]) == n_ep, \
         f"episode 认领不完整:{int(stats['ep_local'])} != {n_ep}"
 
+    # 本迭代 selector 相对位移 + 实际优化步数(诊断"训没训动"的第一手指标)
+    with torch.no_grad():
+        num = sum(float((p - q).pow(2).sum())
+                  for p, q in zip(sel_model.parameters(), sel_w0)) ** 0.5
+        den = sum(float(q.pow(2).sum()) for q in sel_w0) ** 0.5
+    sel_drift = num / den if den else float("nan")
+    opt_steps = n_ep // args.grad_accum + (1 if n_ep % args.grad_accum else 0)
+
     # ---- 落盘(rank0):selector bundle(部署同构)+ LoRA + 迭代统计 ----
     if is_main:
         out_bundle = dict(bundle)
@@ -317,6 +330,8 @@ def main() -> None:
             "selector_rounds": int(stats["sel_rounds"]),
             "world_size": world,
             "trainable_param_sum": param_sum,
+            "selector_drift": round(sel_drift, 6),
+            "optimizer_steps": opt_steps,
         }
         if args.limit_episodes_per_group:
             report["limit_episodes_per_group"] = args.limit_episodes_per_group
