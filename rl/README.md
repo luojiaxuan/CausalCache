@@ -3,6 +3,14 @@
 冻结 GUI-Owl 8B,RL 联训 selector(Plackett-Luce 随机化)+ HGKV LoRA,
 奖励 = OSWorld 任务成败。设计与预注册停止判据见 `docs/rl_pivot_contract.md`。
 
+> **先读这三份**(2026-08-09 起):
+> 待办与优先级 → [`docs/TODO.md`](docs/TODO.md);
+> 结论、口径、我犯过的错 → [`docs/audit_ledger_20260809.md`](docs/audit_ledger_20260809.md);
+> 方法 → [`docs/rl_method.md`](docs/rl_method.md)。
+>
+> **训练已整体搬到离线视频**(用户 08-08 裁定),OSWorld 只做评测;
+> 本 README 下半部分描述的闭环 RL 编排属于 v1/v2 时期,见 TODO 的 D3。
+
 ## 结构(与主仓同构,便于独立成 repo)
 
 ```
@@ -46,8 +54,12 @@ serve(τ>0, --rl-audit-dir) × N 副本
 
 ## 文档地图
 
+- **待办、优先级、待裁决项**:`docs/TODO.md` ← 想知道"接下来做什么"看这个
+- **实验台账(假设/现象/判断/改动/结果/去留 + 我犯过的错)**:
+  `docs/audit_ledger_20260809.md` ← 想知道"为什么现在是这样"看这个
 - **方法(怎么做 RL / GRPO 配置 / rollout / 参数更新 / LoRA-not-全参)**:
-  `docs/rl_method.md` ← 先读这个
+  `docs/rl_method.md`
+- 枚举 oracle 契约(上界标尺与监督标签的来源):`docs/oracle_selection_contract.md`
 - 实验契约与预注册停止判据:`docs/rl_pivot_contract.md`
 - 迭代编排:`runscripts/rl_iter_loop.sh`(h01 宿主侧,阶段 marker 断点续跑)
 
