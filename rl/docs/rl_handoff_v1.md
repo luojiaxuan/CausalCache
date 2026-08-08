@@ -33,6 +33,30 @@
 (rollout → train → 下一迭代)仍在,单迭代墙钟约等于**最慢一条 episode**,
 所以横向扩展的收益是"每迭代数据量",不是"迭代更快"。
 
+### ⚠️ 横向扩展的第一道硬墙:OSWorld 的全局端口锁(必须先改)
+
+`desktop_env/providers/docker/provider.py` 用**一把全局文件锁**
+(`/tmp/docker_port_allocation.lck`)罩住 **端口分配 + 整个容器启动**
+(`containers.run(...)`),默认 `LOCK_TIMEOUT = 10` 秒。后果:
+
+- **所有 VM 的启动被全局串行化**,每台约 5 秒;
+- 并发一高,排队深度超过 10 秒的 worker **直接失败并丢掉整条 episode**。
+
+我们的实测:8 路并发基本无事;**升到 16 路时 48 条里丢了 15 条**,失败计数
+与 `Timeout: The file lock '/tmp/docker_port_allocation...'` 精确对应,
+而且**不会触发 server 侧修复遍**(server 是好的),很容易被误读成"任务变难了"。
+
+**两处必改(接手人在大规模跑之前先做):**
+
+1. `LOCK_TIMEOUT` 10 → 600(让它排队等,而不是超时失败)。这是我们当前
+   在 hyper00 上打的本地补丁,**不在 Git 里**(OSWorld 是第三方 checkout),
+   接手人需自行施加并记录;
+2. 数百路并发时,**光加超时不够**——串行启动本身成为吞吐上限
+   (N 台 VM 至少需要 N×5 秒才能全部起来)。真正的扩展需要:
+   把锁的粒度缩到只罩端口分配(容器启动移出临界区),或按主机/命名空间
+   分片锁文件(如 `TMPDIR` 隔离 + 端口段分配),使不同分片互不争锁。
+   **这是 128 卡规模下必须先解决的工程项,不解决的话卡再多也起不来 VM。**
+
 ---
 
 ## 1. 三十秒看懂这是什么
@@ -180,6 +204,10 @@ python3 rl/code/scripts/rl_eval_summary.py --rounds <r1> <r2> --need 120
    直接配对会系统性偏袒 RL 臂。
 9. **worker 的 cwd 必须是 VM 镜像所在目录**,否则会重新下载 23GB 镜像。
 10. **共享机上永远不要跑爆宿主 RAM**——sshd fork 不出来,全员失去登录。
+11. **OSWorld 全局端口锁在高并发下静默丢 episode**(见第 0 节):16 路时
+    48 条丢 15 条,server 侧完好因而**不触发修复遍**,极易被误读成任务变难。
+    判据是 worker 日志里的 `Timeout: The file lock '/tmp/docker_port_allocation`
+    计数——**每次提高并发后都要 grep 一次这个**。
 
 ## 9. 测量噪声与检出力(报结果时必须一起给)
 
