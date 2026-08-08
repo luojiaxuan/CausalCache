@@ -107,6 +107,9 @@ def main() -> None:
     # 曲线的升降会混进样本差异,读不出预算的边际贡献。传入一份 dp_id 白名单
     # (每行一个 id,或每行一个含 dp_id 的 json),强制各 B 打在同一批态上。
     p.add_argument("--only-dp-ids", type=Path, default=None)
+    p.add_argument("--batch-size", type=int, default=1,
+                   help="同一 state 内并行打分的子集数。>1 显著提速,但与批 1 的"
+                        "贪心解码不保证逐位相同,同一条曲线上的所有 B 必须用同一值")
     args = p.parse_args()
 
     import torch
@@ -129,10 +132,26 @@ def main() -> None:
         max_new_tokens=args.max_new_tokens,
     )
 
-    def generate_from_messages(messages: list[dict[str, Any]]) -> str:
+    # note (luojiaxuan): 瓶颈在**自回归解码**不在 prefill —— 单条实测 1.75 s,
+    # 其中 5120 个视觉 token 的 prefill 只占很小一部分,其余是逐 token 解码。
+    # 枚举天然是同一 state 的一批独立 prompt,批起来解码步数被摊平,吞吐近似
+    # 乘以 batch。批 1 跑完全量 B 曲线要 22 小时,批 16 约 3-4 小时。
+    #
+    # **左填充是必须的**:generate 从右端续写,右填充会让短 prompt 的续写接在
+    # pad 之后,输出错位。批内 prompt_tokens 取填充后的统一长度。
+    #
+    # 批处理与批 1 的贪心解码在数值上**不保证逐位相同**(填充与 kernel 归约
+    # 顺序不同),所以批处理下的结果不能与旧的批 1 结果混用 —— B=2 那个点位
+    # 也要在同口径下重跑,并另跑一致率校验(见 --agreement-check)。
+    tok_pad_side = getattr(runtime.processor, "tokenizer", None)
+    if tok_pad_side is not None:
+        tok_pad_side.padding_side = "left"
+
+    def generate_batch(batch: list[list[dict[str, Any]]]) -> list[str]:
         encoded = runtime.processor.apply_chat_template(
-            messages, tools=[_TOOL_SPEC], tokenize=True,
+            batch, tools=[_TOOL_SPEC], tokenize=True,
             add_generation_prompt=True, return_dict=True, return_tensors="pt",
+            padding=True,
         ).to(runtime.device)
         prompt_tokens = int(encoded["input_ids"].shape[1])
         with torch.inference_mode():
@@ -146,7 +165,10 @@ def main() -> None:
             )
         return runtime.processor.batch_decode(
             out[:, prompt_tokens:], skip_special_tokens=False,
-            clean_up_tokenization_spaces=False)[0]
+            clean_up_tokenization_spaces=False)
+
+    def generate_from_messages(messages: list[dict[str, Any]]) -> str:
+        return generate_batch([messages])[0]
     only: set[str] | None = None
     if args.only_dp_ids is not None:
         only = set()
@@ -228,6 +250,25 @@ def main() -> None:
             event_images = {j: str(root / images[j]) for j in cands}
             current = str(root / images[s - 1])
 
+            def evaluate_many(subs: list[tuple[int, ...]]) -> list[dict[str, Any]]:
+                """一次打分多个子集。批内彼此独立,只是共享一次解码循环。"""
+                out: list[dict[str, Any]] = []
+                for i in range(0, len(subs), max(args.batch_size, 1)):
+                    chunk = subs[i: i + max(args.batch_size, 1)]
+                    msgs = [build_desktop_official_messages(
+                        goal=rec["instruction"], steps=steps,
+                        shown_events=list(t),
+                        event_images={j: event_images[j] for j in t},
+                        current_image=current,
+                    ) for t in chunk]
+                    for t, text in zip(chunk, generate_batch(msgs)):
+                        pred = parse_tool_call(text)
+                        out.append({"subset": list(t),
+                                    "correct": action_correct(pred, gold,
+                                                              tolerance=args.tolerance),
+                                    "pred_action": (pred or {}).get("action")})
+                return out
+
             def evaluate(subset: tuple[int, ...]) -> dict[str, Any]:
                 msgs = build_desktop_official_messages(
                     goal=rec["instruction"],
@@ -266,19 +307,18 @@ def main() -> None:
                     # "候选 + 最近 1 帧"的两图 prompt —— B=2 时恰好正确,
                     # 但 B=4 时探针是 2 图、目标是 4 图,形状不一致会让排序失真。
                     partners = tuple(cands[-(eff_b - 1):]) if eff_b > 1 else ()
-                    scored = []
-                    for c in cands:
-                        if c in partners:
-                            continue
-                        probe = tuple(sorted((c, *partners)))
-                        scored.append((int(evaluate(probe)["correct"]), c))
+                    probes = [tuple(sorted((c, *partners))) for c in cands
+                              if c not in partners]
+                    heads = [c for c in cands if c not in partners]
+                    scored = [(int(r["correct"]), c)
+                              for r, c in zip(evaluate_many(probes), heads)]
                     scored.sort(key=lambda t: (-t[0], -t[1]))
                     top = sorted({c for _, c in scored[: args.top_k]} | set(partners))
                     subsets = list(itertools.combinations(top, eff_b))
 
                 # 单个 state 出问题不许拖垮整批(跑批贵,续跑成本高)
                 try:
-                    results = [evaluate(t) for t in subsets]
+                    results = evaluate_many(subsets)
                 except (ValueError, KeyError, OSError) as exc:
                     key = f"eval_error:{type(exc).__name__}"
                     skipped[key] = skipped.get(key, 0) + 1
@@ -286,10 +326,11 @@ def main() -> None:
                 recent = tuple(cands[-eff_b:])
                 rand = tuple(sorted(rng.sample(cands, eff_b)))
                 by_subset = {tuple(r["subset"]): r for r in results}
-                for extra in (recent, rand):
-                    if extra not in by_subset:
-                        by_subset[extra] = evaluate(extra)
-                b0 = evaluate(())
+                extras = [t for t in (recent, rand) if t not in by_subset]
+                # b0(空集)也一起批,少一轮解码
+                for r in evaluate_many(extras + [()]):
+                    by_subset[tuple(r["subset"])] = r
+                b0 = by_subset.pop(())
 
                 sink.write(json.dumps({
                     "dp_id": rec["dp_id"], "step": s, "n_candidates": len(cands),
