@@ -123,7 +123,7 @@ def prepare_data(args: argparse.Namespace, config: dict[str, Any]) -> None:
 
 def _read_video(path: Path, *, expected_frames: int) -> list[Any]:
     import cv2
-    from PIL import Image
+    from PIL import Image, ImageDraw
 
     capture = cv2.VideoCapture(str(path))
     frames = []
@@ -131,7 +131,11 @@ def _read_video(path: Path, *, expected_frames: int) -> list[Any]:
         ok, frame = capture.read()
         if not ok:
             break
-        frames.append(Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)))
+        image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+        # note (luojiaxuan): Public videos burn the full-trajectory Frame/Time
+        # namespace at (10,50)/(10,70); answers instead use subsampled 0--95.
+        ImageDraw.Draw(image).rectangle((0, 30, 280, 84), fill=(0, 0, 0))
+        frames.append(image)
     capture.release()
     if len(frames) != expected_frames:
         raise ValueError(f"{path} has {len(frames)} frames, expected {expected_frames}")

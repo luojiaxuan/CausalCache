@@ -13,7 +13,8 @@
 - 压缩：每 8 帧生成一条 task-independent content summary；summary prompt 不接收 question、
   task id 或 answer。公开视频像素内含原长轨迹的 legacy frame/time overlay，与 0--95
   subsampled answer namespace 不同；VLM 输出中的所有数字和 frame/time 字段确定性移除，只有代码
-  外挂的 canonical chunk range 可见于 policy。
+  外挂的 canonical chunk range 可见于 policy。所有 summary/restored/current 图在视觉编码前还统一
+  遮掉官方代码写入 `(10,50)/(10,70)` 的左上角 legacy `Frame/Time` 区域；两臂处理相同。
 - policy 输入：完整压缩摘要、task、exact-$B$ 张恢复历史图、固定 current frame 95。current 不计入
   $B$；$B\in\{1,4\}$。
 - Recent-$B$：current 之前最后 $B$ 帧。Oracle-$B$：PDDL-valid 历史区间最长连续段的中心帧，剩余
@@ -34,6 +35,9 @@
 
 ## Invalidated run
 
-首个 20-episode pilot 曾把像素中的 legacy frame number 写进压缩摘要，而 policy 输出域与 answer
-使用 subsampled 0--95。尽管该 run 得到很大的 Oracle$-$Recent gap，它会系统性损害 text/Recent arm，
-因此标记为 `INVALID_FRAME_ID_NAMESPACE`，不得引用；修复后从 summary 重新生成并重跑全部 policy rows。
+1. 首个 20-episode pilot 曾把像素中的 legacy frame number 写进压缩摘要，而 policy 输出域与
+   answer 使用 subsampled 0--95。它标记为 `INVALID_FRAME_ID_NAMESPACE`，不得引用。
+2. content-summary namespace 修复后的 100-episode run 仍把带 legacy overlay 的恢复图直接送入
+   policy，导致 B4 的 out-of-domain prediction 明显增加。该 run 标记为
+   `INVALID_PIXEL_OVERLAY_NAMESPACE`，不得引用。最终版在所有视觉输入上统一 mask overlay，并从
+   summary 重新生成。

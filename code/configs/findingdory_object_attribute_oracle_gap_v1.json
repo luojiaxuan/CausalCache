@@ -21,6 +21,7 @@
     "summary_chunk_frames": 8,
     "summary_is_task_independent": true,
     "summary_namespace": "content-only; generated numeric frame/time namespaces are stripped; canonical subsampled chunk range is attached externally",
+    "pixel_preprocessing": "mask inclusive rectangle x=0..280,y=30..84 containing public-video legacy Frame/Time overlay before every summary/policy visual encode",
     "budgets": [1, 4],
     "current_frame_is_fixed_and_not_charged_to_budget": true,
     "recent_rule": "last B history frames before current_frame",
