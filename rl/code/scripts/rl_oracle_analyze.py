@@ -27,6 +27,7 @@ def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--results", type=pathlib.Path, required=True)
     p.add_argument("--top-k", type=int, default=8)
+    p.add_argument("--budget", type=int, default=2, help="子集大小,须与枚举时一致")
     args = p.parse_args()
 
     rows = [json.loads(x) for x in
@@ -88,7 +89,7 @@ def main() -> None:
     # 与该 state 的基准正确率相比,高出越多说明该帧越关键。
     carriers = []
     for r in winnable:
-        pairs = {tuple(a["s"]): a["c"] for a in r.get("all", []) if len(a["s"]) == 2}
+        pairs = {tuple(a["s"]): a["c"] for a in r.get("all", []) if len(a["s"]) == args.budget}
         if not pairs:
             continue
         base = sum(pairs.values()) / len(pairs)
@@ -118,7 +119,7 @@ def main() -> None:
     # ---- 剪枝命中率(从全枚举推导)----
     hit = tot = 0
     for r in full:
-        pairs = {tuple(a["s"]): a["c"] for a in r["all"] if len(a["s"]) == 2}
+        pairs = {tuple(a["s"]): a["c"] for a in r["all"] if len(a["s"]) == args.budget}
         if not any(pairs.values()):
             continue                      # 无正确子集,不参与命中率统计
         cands = sorted({c for s in pairs for c in s})
@@ -132,7 +133,7 @@ def main() -> None:
                 singles.append((int(pairs[key]), c))
         top = sorted(c for _, c in sorted(singles, key=lambda t: (-t[0], -t[1]))[: args.top_k])
         pruned_ok = any(pairs.get(t, False)
-                        for t in itertools.combinations(top, 2))
+                        for t in itertools.combinations(top, args.budget))
         hit += int(pruned_ok)
         tot += 1
     if tot:

@@ -238,12 +238,19 @@ def main() -> None:
                 if args.mode == "full":
                     subsets = list(itertools.combinations(cands, args.budget))
                 else:
-                    partner = cands[-1]
-                    singles = sorted(
-                        ((evaluate((c, partner) if c < partner else (partner, c))["correct"], c)
-                         for c in cands if c != partner),
-                        key=lambda t: (-int(t[0]), -t[1]))
-                    top = sorted(c for _, c in singles[: args.top_k])
+                    # note (luojiaxuan): 单帧探针必须用 **B-1 张最近帧** 当搭档,
+                    # 保持 prompt 形状与最终子集一致(B 张图)。此前硬编码成
+                    # "候选 + 最近 1 帧"的两图 prompt —— B=2 时恰好正确,
+                    # 但 B=4 时探针是 2 图、目标是 4 图,形状不一致会让排序失真。
+                    partners = tuple(cands[-(args.budget - 1):]) if args.budget > 1 else ()
+                    scored = []
+                    for c in cands:
+                        if c in partners:
+                            continue
+                        probe = tuple(sorted((c, *partners)))
+                        scored.append((int(evaluate(probe)["correct"]), c))
+                    scored.sort(key=lambda t: (-t[0], -t[1]))
+                    top = sorted({c for _, c in scored[: args.top_k]} | set(partners))
                     subsets = list(itertools.combinations(top, args.budget))
 
                 # 单个 state 出问题不许拖垮整批(跑批贵,续跑成本高)
