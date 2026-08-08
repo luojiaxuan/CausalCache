@@ -1,6 +1,7 @@
 from causalcache.findingdory_oracle_gap import (
     exact_budget_selections,
     frame_is_valid,
+    logical_episode_shard,
     normalize_content_summary,
     oracle_evidence_frame,
     parse_answer_groups,
@@ -41,6 +42,16 @@ def test_content_summary_removes_legacy_frame_and_time_namespace() -> None:
         "interactions": ["picked object at frame"],
         "fine_attributes": ["striped"],
     }
+
+
+def test_logical_episode_shards_are_disjoint_and_complete() -> None:
+    episodes = ["ep_10", "ep_2", "ep_1", "ep_3"]
+    left = logical_episode_shard(episodes, shard_index=0, num_shards=2)
+    right = logical_episode_shard(episodes, shard_index=1, num_shards=2)
+    assert left == ("ep_1", "ep_3")
+    assert right == ("ep_2", "ep_10")
+    assert set(left).isdisjoint(right)
+    assert set(left) | set(right) == set(episodes)
 
 
 def test_paired_reduction() -> None:

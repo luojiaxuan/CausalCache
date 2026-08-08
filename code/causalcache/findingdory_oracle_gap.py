@@ -22,6 +22,21 @@ SUMMARY_CONTENT_KEYS = (
 )
 
 
+def logical_episode_shard(
+    episode_ids: Sequence[str],
+    *,
+    shard_index: int,
+    num_shards: int,
+) -> tuple[str, ...]:
+    if num_shards <= 0 or not 0 <= shard_index < num_shards:
+        raise ValueError("invalid logical episode shard")
+    ordered = sorted(
+        set(str(episode_id) for episode_id in episode_ids),
+        key=lambda episode_id: int(episode_id.rsplit("_", 1)[1]),
+    )
+    return tuple(ordered[shard_index::num_shards])
+
+
 def parse_answer_groups(raw: str) -> tuple[tuple[int, ...], ...]:
     value = ast.literal_eval(raw)
     if not isinstance(value, list) or not value:
@@ -285,6 +300,7 @@ def reduce_paired_results(
 __all__ = [
     "exact_budget_selections",
     "frame_is_valid",
+    "logical_episode_shard",
     "normalize_content_summary",
     "oracle_evidence_frame",
     "parse_answer_groups",

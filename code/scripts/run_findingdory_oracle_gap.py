@@ -15,6 +15,7 @@ from typing import Any
 from causalcache.findingdory_oracle_gap import (
     exact_budget_selections,
     frame_is_valid,
+    logical_episode_shard,
     normalize_content_summary,
     parse_answer_groups,
     parse_predicted_frame,
@@ -221,8 +222,11 @@ def _task_file(path: Path) -> list[dict[str, Any]]:
 def summarize(args: argparse.Namespace, config: dict[str, Any]) -> None:
     tasks = _task_file(args.input_dir / "tasks.jsonl")
     episode_paths = {row["ep_id"]: args.data_dir / row["video"] for row in tasks}
-    episode_ids = sorted(episode_paths, key=_episode_number)
-    assigned = episode_ids[args.shard_index :: args.num_shards]
+    assigned = logical_episode_shard(
+        episode_paths,
+        shard_index=args.shard_index,
+        num_shards=args.num_shards,
+    )
     runtime = _runtime(args, config, summary=True)
     chunk_size = int(config["memory"]["summary_chunk_frames"])
     expected_frames = int(config["benchmark"]["video_frames"])
@@ -256,7 +260,14 @@ def summarize(args: argparse.Namespace, config: dict[str, Any]) -> None:
 
 def evaluate(args: argparse.Namespace, config: dict[str, Any]) -> None:
     tasks = _task_file(args.input_dir / "tasks.jsonl")
-    assigned = tasks[args.shard_index :: args.num_shards]
+    assigned_episode_ids = frozenset(
+        logical_episode_shard(
+            [task["ep_id"] for task in tasks],
+            shard_index=args.shard_index,
+            num_shards=args.num_shards,
+        )
+    )
+    assigned = [task for task in tasks if task["ep_id"] in assigned_episode_ids]
     runtime = _runtime(args, config, summary=False)
     current_frame = int(config["benchmark"]["current_frame"])
     expected_frames = int(config["benchmark"]["video_frames"])
