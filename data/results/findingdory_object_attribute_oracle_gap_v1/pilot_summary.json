@@ -1,0 +1,49 @@
+{
+  "any_budget_gate_pass": true,
+  "budgets": {
+    "1": {
+      "cluster_bootstrap_ci95": [
+        0.6236559139784946,
+        0.8409090909090909
+      ],
+      "episodes": 20,
+      "gate_pass": true,
+      "mcnemar_exact_p": 6.776263578034403e-21,
+      "oracle_hl_sr": 0.8913043478260869,
+      "oracle_minus_recent": 0.7391304347826086,
+      "oracle_only_successes": 68,
+      "paired_tasks": 92,
+      "recent_hl_sr": 0.15217391304347827,
+      "recent_only_successes": 0,
+      "selection_difference_coverage": 1.0
+    },
+    "4": {
+      "cluster_bootstrap_ci95": [
+        0.2777777777777778,
+        0.4777777777777778
+      ],
+      "episodes": 20,
+      "gate_pass": true,
+      "mcnemar_exact_p": 5.820766091346741e-11,
+      "oracle_hl_sr": 0.4782608695652174,
+      "oracle_minus_recent": 0.3804347826086957,
+      "oracle_only_successes": 35,
+      "paired_tasks": 92,
+      "recent_hl_sr": 0.09782608695652174,
+      "recent_only_successes": 0,
+      "selection_difference_coverage": 1.0
+    }
+  },
+  "config_sha256": "58c620b8dfaa62bde10b3c11523b341b1e5c8c513d73e0b152c5edf65063d16a",
+  "decision": "PILOT_PASS_EXPAND",
+  "episode_limit": 20,
+  "git_commit": "fdf4a4a573bc4f10da0ca25d2b0c8f4b8492cb51",
+  "result_rows": 368,
+  "runtime": {
+    "platform": "Linux-6.8.0-1043-aiext-x86_64-with-glibc2.39",
+    "python": "3.12.3 (main, Mar 23 2026, 19:04:32) [GCC 13.3.0]"
+  },
+  "schema_version": "1.0.0",
+  "scope": "pilot",
+  "task_count": 92
+}

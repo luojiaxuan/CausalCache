@@ -36,14 +36,20 @@ r-additive 单槽设计(corpus v2,86M)降级为 recent-dose 附录分析,不训�
 
 ## 当前结论
 
-> **2026-08-07 FindingDory multimodal-agent exact-B oracle 验证已冻结并进入 pilot。**
-> 公开 `yali30/findingdory-subsampled-96@95afe1e8...` 的 Object Attributes 作为首个
-> embodied memory 候选场景；冻结 `Qwen2.5-VL-7B-Instruct@cc594898...`，比较同一份
-> task-independent 8-frame chunk 摘要、同一 current frame 与同一 $B\in\{1,4\}$ 下的
-> Recent-$B$ / PDDL-valid Oracle-$B$。policy 可输出任意 0--95 原始帧，避免把 Recent
-> 机械判零；按 episode 做 paired cluster bootstrap。20-episode pilot 通过后才自动扩到
-> 100 episode / 491 tasks，论文 `GO` 只认 full gate。协议、实现和阈值见
-> [`docs/findingdory_object_attribute_oracle_gap_v1.md`](docs/findingdory_object_attribute_oracle_gap_v1.md)。
+> **2026-08-08 FindingDory multimodal-agent exact-B oracle 验证完成，判定 `GO`。**
+> 公开 `yali30/findingdory-subsampled-96@95afe1e8...` 的 Object Attributes，冻结
+> `Qwen2.5-VL-7B-Instruct@cc594898...`；100 episodes / 491 tasks、同一 task-independent
+> 8-frame 摘要、同一 current frame 与同一 exact-$B$ 图像预算下：B1 Recent/Oracle=
+> `7.54%/82.89%`，差值 `+75.36 pp`、episode-bootstrap 95% CI `[+70.47,+80.00]`；
+> B4=`5.50%/44.20%`，差值 `+38.70 pp`、CI `[+33.81,+43.64]`，两档均过冻结 gate。
+> 100 summary / 1,200 chunks / 1,964 rows 的 namespace、exact-B、selection-rule、GT evidence
+> 与 success 重算审计均为 0 violation。两轮带 legacy frame/time namespace 的早期结果已明确
+> invalid；最终 run 对全部视觉输入先 mask overlay 再重跑。结论边界：这证明 FindingDory
+> 存在可被同一冻结 policy 消费的 early-image headroom，足以进入 selector 实验；GT Oracle
+> 仍是 privileged upper bound，不是可部署方法。协议见
+> [`docs/findingdory_object_attribute_oracle_gap_v1.md`](docs/findingdory_object_attribute_oracle_gap_v1.md)，
+> 指标、定性图和 provenance 见
+> [`data/results/findingdory_object_attribute_oracle_gap_v1/`](data/results/findingdory_object_attribute_oracle_gap_v1/README.md)。
 >
 > **2026-07-27 AAAI 两张主图完成并进入主稿。**
 > Figure 1 固定 complete summary trace 与 `B=4` active history-image budget，

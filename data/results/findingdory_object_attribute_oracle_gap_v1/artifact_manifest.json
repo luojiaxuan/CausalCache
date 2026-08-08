@@ -1,0 +1,38 @@
+{
+  "audit_commit": "e01c934b7be3f7acc976831fee0391d1d41d1364",
+  "dataset": {
+    "repo": "yali30/findingdory-subsampled-96",
+    "revision": "95afe1e8ef355e06f27000851fc4033266bdd480"
+  },
+  "full_run": {
+    "completed_at_utc": {
+      "hyper00": "2026-08-08T08:14:49+00:00",
+      "hyper01": "2026-08-08T08:13:22+00:00"
+    },
+    "git_commit": "fdf4a4a573bc4f10da0ca25d2b0c8f4b8492cb51",
+    "merged_root_hyper00": "/data04/jaxan/runs/findingdory-object-attribute-oracle-gap-v1-masked-full-merge-fdf4a4a",
+    "started_at_utc": {
+      "hyper00": "2026-08-08T08:03:03+00:00",
+      "hyper01": "2026-08-08T08:03:02+00:00"
+    },
+    "worker_root_hyper00": "/data04/jaxan/runs/findingdory-object-attribute-oracle-gap-v1-masked-worker0-fdf4a4a",
+    "worker_root_hyper01": "/data04/jaxan/runs/findingdory-object-attribute-oracle-gap-v1-masked-worker1-fdf4a4a"
+  },
+  "hashes": {
+    "audit.json": "0db9b81c73193be2d9681aa602abd5d861fdb31d26663599c6ef146a334c14d1",
+    "data_manifest.json": "a02bdf8e2acc39a9f764a90bcf5329dbfe5826b6cdbdff75138302fbf930352c",
+    "pilot_summary.json": "787cf800ab05dd6911878c3961aa5612a533345e6967707dd2f9c3eefee63f35",
+    "qualitative_ep1_frames.png": "9d5fc64783cb4c1ea51c3bd43357ac1ae2e0372fdd8185a2693cd24a7d806007",
+    "results-shard-00.jsonl": "09aed9286676ea464faf73e8f7408e7aa20327be07b1eeebbdec703d559f1c7c",
+    "results-shard-01.jsonl": "73540b2f495140b153abb5cdaa5337d3406af5d2e90eb989c2b51180cb8984b7",
+    "summaries_sha256_manifest": "dab891e796f4bef96401258e314e422c170042dd596a70fc5f4ae9cf387a582c",
+    "summary.json": "94435a8301676a16b93eb08ef0bdd76e5e1ddc2c072de1316f743fccf0befaa0",
+    "tasks.jsonl": "b828122ff38a42f982702530175b479131f0966226396839d7c850a29daa75d6"
+  },
+  "model": {
+    "repo": "Qwen/Qwen2.5-VL-7B-Instruct",
+    "revision": "cc594898137f460bfe9f0759e9844b3ce807cfb5"
+  },
+  "raw_artifact_status": "PENDING_HF_UPLOAD",
+  "schema_version": "1.0.0"
+}

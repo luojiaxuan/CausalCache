@@ -33,6 +33,36 @@
 完整 scientific config：
 [`code/configs/findingdory_object_attribute_oracle_gap_v1.json`](../code/configs/findingdory_object_attribute_oracle_gap_v1.json)。
 
+## 结果
+
+最终 masked run 为 `GO`。100 episodes / 491 tasks / 1,964 paired policy rows：
+
+| B | Recent HL-SR | Oracle HL-SR | Oracle − Recent | episode-bootstrap 95% CI | gate |
+|---:|---:|---:|---:|---:|:---:|
+| 1 | 7.54% | 82.89% | +75.36 pp | [+70.47,+80.00] pp | PASS |
+| 4 | 5.50% | 44.20% | +38.70 pp | [+33.81,+43.64] pp | PASS |
+
+B1/B4 的 exact McNemar p 分别为 `7.75e-110` / `6.15e-56`，selection-difference coverage
+为 100% / 97.96%。运行 commit `fdf4a4a573bc4f10da0ca25d2b0c8f4b8492cb51`；完整结果见
+[`data/results/findingdory_object_attribute_oracle_gap_v1/`](../data/results/findingdory_object_attribute_oracle_gap_v1/README.md)。
+
+## 有效性审计
+
+100 summary files、1,200 chunks、1,964 unique result keys 全量通过：numeric/frame/time
+namespace、canonical chunk ranges、exact-$B$、selection rule、Oracle GT-valid evidence、answer
+groups 与 success 重算均为 0 violation。最终 run 的真正 out-of-domain prediction 为 0；B4
+的 `-1` 是 policy abstention（Recent 154 / Oracle 105），不是 legacy frame id。B4 因多图输入
+显著弱于 B1，因此本结果不支持 utility 随 B 单调增长。
+
+公开 metadata 也满足场景筛选：58.66% tasks 至少一个 valid frame 位于前半段，29.12% 的全部
+valid frames 都在前半段；Recent-B 完全没有 valid frame 的比例为 B1=99.39%、B4=89.41%。
+`ep_1` 的 frame 72 可见紫色圆柱纸卷，而 recent frame 94 与 current 95 只见墙面；purple/paper
+两题均为 Recent-B1 失败、Oracle-B1 成功。
+
+这个 Oracle 使用公开 PDDL-valid answer groups，是 privileged offline upper bound。`GO` 只说明
+FindingDory 存在同一冻结 policy 可消费的 early-image headroom；部署方法仍须训练不看 answer 的
+budget-conditioned selector，并与 Recent/random/text-only/GT Oracle 比较。
+
 ## Invalidated run
 
 1. 首个 20-episode pilot 曾把像素中的 legacy frame number 写进压缩摘要，而 policy 输出域与

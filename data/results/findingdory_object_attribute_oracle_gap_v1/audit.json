@@ -1,0 +1,46 @@
+{
+  "counts": {
+    "expected_result_rows": 1964,
+    "result_rows": 1964,
+    "summary_chunks": 1200,
+    "summary_files": 100,
+    "tasks": 491
+  },
+  "critical_violations": {
+    "answer_group_violations": 0,
+    "canonical_range_violations": 0,
+    "duplicate_result_keys": 0,
+    "duplicate_summary_episodes": 0,
+    "exact_budget_violations": 0,
+    "forbidden_summary_key_violations": 0,
+    "missing_or_unexpected_summary_episodes": 0,
+    "missing_result_keys": 0,
+    "numeric_namespace_violations": 0,
+    "oracle_missing_valid_evidence": 0,
+    "selection_rule_violations": 0,
+    "success_recompute_violations": 0,
+    "unexpected_result_keys": 0
+  },
+  "diagnostics": {
+    "negative_one_abstentions": {
+      "B1_recent": 1,
+      "B4_oracle": 105,
+      "B4_recent": 154
+    },
+    "out_of_domain_predictions": {},
+    "parse_failures": {
+      "B4_oracle": 15,
+      "B4_recent": 47
+    }
+  },
+  "protocol": {
+    "budgets": [
+      1,
+      4
+    ],
+    "current_frame": 95,
+    "pixel_preprocessing": "mask inclusive rectangle x=0..280,y=30..84 containing public-video legacy Frame/Time overlay before every summary/policy visual encode"
+  },
+  "schema_version": "1.0.0",
+  "valid": true
+}

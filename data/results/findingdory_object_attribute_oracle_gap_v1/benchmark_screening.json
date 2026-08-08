@@ -1,0 +1,16 @@
+{
+  "all_valid_frames_in_first_half_fraction": 0.29124236252545826,
+  "any_valid_frame_in_first_half_fraction": 0.5865580448065173,
+  "episodes": 100,
+  "median_age_from_current_to_last_valid_frame": 26,
+  "no_valid_frame_in_recent_b_fraction": {
+    "1": 0.9938900203665988,
+    "4": 0.8940936863543788,
+    "8": 0.7983706720977597,
+    "16": 0.6232179226069247,
+    "24": 0.5193482688391039,
+    "32": 0.40325865580448067,
+    "48": 0.2769857433808554
+  },
+  "tasks": 491
+}
