@@ -107,6 +107,9 @@ def main() -> None:
     # 曲线的升降会混进样本差异,读不出预算的边际贡献。传入一份 dp_id 白名单
     # (每行一个 id,或每行一个含 dp_id 的 json),强制各 B 打在同一批态上。
     p.add_argument("--only-dp-ids", type=Path, default=None)
+    p.add_argument("--no-store-preds", dest="store_preds", action="store_false",
+                   help="不落盘原始预测(默认落盘)。落盘后容差是分析时的旋钮,"
+                        "换容差不必重跑 GPU;体积约 2MB/千态,可忽略")
     p.add_argument("--batch-size", type=int, default=1,
                    help="同一 state 内并行打分的子集数。>1 显著提速,但与批 1 的"
                         "贪心解码不保证逐位相同,同一条曲线上的所有 B 必须用同一值")
@@ -266,7 +269,8 @@ def main() -> None:
                         out.append({"subset": list(t),
                                     "correct": action_correct(pred, gold,
                                                               tolerance=args.tolerance),
-                                    "pred_action": (pred or {}).get("action")})
+                                    "pred_action": (pred or {}).get("action"),
+                                    "pred": pred})
                 return out
 
             def evaluate(subset: tuple[int, ...]) -> dict[str, Any]:
@@ -281,7 +285,8 @@ def main() -> None:
                 return {"subset": list(subset),
                         "correct": action_correct(pred, gold,
                                                   tolerance=args.tolerance),
-                        "pred_action": (pred or {}).get("action")}
+                        "pred_action": (pred or {}).get("action"),
+                        "pred": pred}
 
             # 整态兜底:任何一步炸了只记账跳过,不让单态拖垮整批
             try:
@@ -326,6 +331,11 @@ def main() -> None:
                 recent = tuple(cands[-eff_b:])
                 rand = tuple(sorted(rng.sample(cands, eff_b)))
                 by_subset = {tuple(r["subset"]): r for r in results}
+                # note (luojiaxuan): 记下哪些子集属于 **oracle 池**。recent/随机
+                # 是额外补跑的臂,原口径里不进 oracle 的 max —— 事后换容差重算时
+                # 必须能还原这个区分,否则 oracle 会被悄悄放宽成"所有打过分的
+                # 子集里的最好者",与已发布的数字不同源。
+                enumerated = set(by_subset)
                 extras = [t for t in (recent, rand) if t not in by_subset]
                 # b0(空集)也一起批,少一轮解码
                 for r in evaluate_many(extras + [()]):
@@ -344,7 +354,23 @@ def main() -> None:
                     "b0_correct": b0["correct"],
                     "n_subsets_scored": len(by_subset),
                     "n_subsets_correct": sum(1 for r in by_subset.values() if r["correct"]),
-                    "all": [{"s": list(k), "c": v["correct"]} for k, v in by_subset.items()],
+                    # note (luojiaxuan): **原始预测必须落盘**。只存布尔值等于把容差
+                    # 烘焙进生成阶段,事后想换容差就只能重跑 GPU。这条教训在
+                    # rl_selector_eval.py 上已经吃过一次并写进注释,却没同步到
+                    # 枚举 —— 现在补上。容差应当是**分析时的旋钮**,而且有了它
+                    # 才能报"B 的选择随容差怎么变"这条稳健性曲线。
+                    # 体积可忽略:每条预测约 55 字节,1000 态 × 40 子集 ≈ 2MB。
+                    "gold": gold,
+                    "b0_pred": b0.get("pred"),
+                    # 事后按任意容差重算四臂,需要知道 recent/随机 各是哪个子集
+                    "recent_s": list(recent),
+                    "random_s": list(rand),
+                    "all": ([{"s": list(k), "c": v["correct"], "p": v.get("pred"),
+                              "e": k in enumerated}
+                             for k, v in by_subset.items()] if args.store_preds
+                            else [{"s": list(k), "c": v["correct"],
+                                   "e": k in enumerated}
+                                  for k, v in by_subset.items()]),
                 }, ensure_ascii=False) + "\n")
                 sink.flush()
                 processed += 1

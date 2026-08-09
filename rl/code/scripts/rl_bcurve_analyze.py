@@ -66,9 +66,43 @@ def main() -> None:
     p.add_argument("--hard-total", type=int, default=2494)
     p.add_argument("--min-stratum", type=int, default=50,
                    help="每层最少态数;不足则拒绝输出重加权的总体数字")
+    p.add_argument("--tolerance", type=float, default=None,
+                   help="按此容差**重算**四臂正确性(需要产物里带 preds)。"
+                        "不给则沿用生成时烘焙的判定。有了它,'容差取多少'"
+                        "就是分析时的旋钮,换一个数不必重跑 GPU,还能报"
+                        "'B 的选择随容差怎么变'这条稳健性曲线")
     args = p.parse_args()
 
     data = {b: load(getattr(args, f"b{b}")) for b in (1, 2, 4)}
+
+    if args.tolerance is not None:
+        import sys
+        sys.path.insert(0, str(pathlib.Path(__file__).parent))
+        from rl_oracle_enumerate import action_correct
+        missing = recomputed = 0
+        for d in data.values():
+            for r in d.values():
+                if "gold" not in r or not any("p" in a for a in r.get("all", [])):
+                    missing += 1
+                    continue
+                gold = r["gold"]
+                by = {tuple(a["s"]): a for a in r["all"]}
+                for a in r["all"]:
+                    a["c"] = action_correct(a.get("p"), gold, tolerance=args.tolerance)
+                r["oracle_correct"] = any(a["c"] for a in r["all"] if a.get("e"))
+                for arm, key in (("recent", "recent_s"), ("random", "random_s")):
+                    ent = by.get(tuple(r.get(key, [])))
+                    if ent is not None:
+                        r[f"{arm}_correct"] = ent["c"]
+                if "b0_pred" in r:
+                    r["b0_correct"] = action_correct(r["b0_pred"], gold,
+                                                     tolerance=args.tolerance)
+                recomputed += 1
+        print(f"按容差 {args.tolerance:g} 重算:{recomputed} 态;"
+              f"{missing} 态缺 preds 无法重算(沿用原判定)")
+        if missing:
+            print("⚠️ 混用了重算与原判定的态 —— 这在同一张表里是两套口径,"
+                  "要么把缺 preds 的产物重跑,要么把它们排除。")
     budgets = [b for b in (1, 2, 4) if data[b]]
     for b in (1, 2, 4):
         print(f"B={b}: 载入 {len(data[b])} 态" + ("" if data[b] else "(缺,跳过)"))
