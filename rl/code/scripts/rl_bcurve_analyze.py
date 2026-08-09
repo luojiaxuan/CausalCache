@@ -151,6 +151,29 @@ def main() -> None:
           f"{args.easy_total}+{args.hard_total}={args.easy_total + args.hard_total}")
 
     sat = {b: sum(1 for i in common if data[b][i].get("eff_budget", b) < b) for b in budgets}
+
+    # note (luojiaxuan): **剪枝覆盖率必须逐 B 报,而且它是对大 B 不利的偏差。**
+    # 完整子集空间 C(n,B) 随 B 组合爆炸,而剪枝池只线性变大(top_k + B − 1 里
+    # 取 B 个),所以覆盖率随 B 单调下降 —— 大 B 的 oracle 被低估得更狠。
+    # 若最终结论是"B=2 已够、不必上 B=4",这条偏差正好指向该结论,
+    # **必须主动披露**,否则就是拿方法的近似误差去支持自己想要的答案。
+    print("\n=== 剪枝覆盖率(枚举池 / 完整 C(候选数,B) 空间)===")
+    print(f"{'B':>3} {'覆盖率中位':>11} {'p10':>7} {'池大小中位':>11}")
+    for b in budgets:
+        fr, ps = [], []
+        for i in common:
+            r = data[b][i]
+            pool = sum(1 for a in r.get("all", []) if a.get("e"))
+            if not pool:
+                continue                      # arms_only 行不参与
+            full = math.comb(r["n_candidates"], r.get("eff_budget", b))
+            fr.append(pool / max(full, 1)); ps.append(pool)
+        if not fr:
+            continue
+        fr.sort(); ps.sort()
+        print(f"{b:>3} {100*fr[len(fr)//2]:>10.1f}% {100*fr[int(.1*len(fr))]:>6.1f}% "
+              f"{ps[len(ps)//2]:>11d}")
+    print("  覆盖率随 B 下降 = 大 B 的 oracle 被低估得更多(对大 B 不利的偏差)。")
     print(f"预算饱和(候选数 < B,有效预算被迫降级)条数:{sat}")
 
     def rate(b: int, arm: str, ids: set[str]) -> float:

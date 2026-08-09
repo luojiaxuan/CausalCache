@@ -329,6 +329,16 @@ def main() -> None:
                     scored = [(int(r["correct"]), c)
                               for r, c in zip(evaluate_many(probes), heads)]
                     scored.sort(key=lambda t: (-t[0], -t[1]))
+                    # note (luojiaxuan): top 是 **top_k 并上 B−1 个搭档帧**,
+                    # 所以它最多有 top_k + B − 1 个元素:B=2 时最多 9(池 ≤36),
+                    # B=4 时最多 11(池 ≤C(11,4)=330,不是我一度写成的 70)。
+                    #
+                    # **不改小它,理由是偏差方向**:剪枝天然低估 oracle,而且
+                    # **B 越大低估越狠** —— 完整空间 C(n,B) 随 B 组合爆炸,
+                    # 剪枝池却只线性变大,覆盖率反而下降。把 B=4 的池砍回 70
+                    # 会加重这个对大 B 不利的偏差,而 B=4 恰恰是本实验要检验的
+                    # 那一方,砍它等于替自己想要的结论(维持 B=2)做手脚。
+                    # 代价是 B=4 更贵,那就如实报成本、如实报覆盖率。
                     top = sorted({c for _, c in scored[: args.top_k]} | set(partners))
                     subsets = list(itertools.combinations(top, eff_b))
 
@@ -358,6 +368,9 @@ def main() -> None:
                     "mode": "arms_only" if args.arms_only else args.mode,
                     "budget": args.budget,
                     "eff_budget": eff_b,
+                    # note (luojiaxuan): 剪枝覆盖率不落盘 —— 它可由 n_candidates、
+                    # eff_budget 与 all 里带 e 标记的条数离线推出,归约端算即可。
+                    # 为一个可推导的字段重启五个分片(每次五次模型加载)不划算。
                     "gold_action": gold.get("action"),
                     # note (luojiaxuan): --arms-only 时**不写 oracle 字段**。
                     # 绝不能写成 False —— 那是在断言"没有正确子集",而我们
