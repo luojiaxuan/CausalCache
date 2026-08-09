@@ -107,6 +107,15 @@ def main() -> None:
     # 曲线的升降会混进样本差异,读不出预算的边际贡献。传入一份 dp_id 白名单
     # (每行一个 id,或每行一个含 dp_id 的 json),强制各 B 打在同一批态上。
     p.add_argument("--only-dp-ids", type=Path, default=None)
+    # note (luojiaxuan): easy 态(B=0 已对)只需要知道"加了历史图会不会把本来
+    # 答对的题弄坏",而那是 **recent-B 这条可部署臂**回答的,不需要枚举 oracle。
+    # easy 态的 oracle 本就接近饱和(只要存在保住正确的子集,oracle 必然找到),
+    # 花 48-83 次前向去测一个几乎恒为真的量不划算。开此开关后每态只打
+    # b0 / recent-B / 随机-B 三次,省 20 倍。
+    # **这不偏袒任何一方**:跨预算的可部署对照(recent-B)照常全量测;
+    # 被放弃的只是 easy 层的上界列,报告时显式说明 oracle 只在困难层定义。
+    p.add_argument("--arms-only", action="store_true",
+                   help="只打 b0/recent/随机 三臂,不枚举 oracle 池(用于 easy 态)")
     p.add_argument("--no-store-preds", dest="store_preds", action="store_false",
                    help="不落盘原始预测(默认落盘)。落盘后容差是分析时的旋钮,"
                         "换容差不必重跑 GPU;体积约 2MB/千态,可忽略")
@@ -304,7 +313,9 @@ def main() -> None:
                         processed += 1
                         continue
 
-                if args.mode == "full":
+                if args.arms_only:
+                    subsets = []
+                elif args.mode == "full":
                     subsets = list(itertools.combinations(cands, eff_b))
                 else:
                     # note (luojiaxuan): 单帧探针必须用 **B-1 张最近帧** 当搭档,
@@ -344,11 +355,18 @@ def main() -> None:
 
                 sink.write(json.dumps({
                     "dp_id": rec["dp_id"], "step": s, "n_candidates": len(cands),
-                    "mode": args.mode, "budget": args.budget,
+                    "mode": "arms_only" if args.arms_only else args.mode,
+                    "budget": args.budget,
                     "eff_budget": eff_b,
                     "gold_action": gold.get("action"),
-                    "oracle_correct": any(r["correct"] for r in results),
-                    "oracle_subsets": [r["subset"] for r in results if r["correct"]][:8],
+                    # note (luojiaxuan): --arms-only 时**不写 oracle 字段**。
+                    # 绝不能写成 False —— 那是在断言"没有正确子集",而我们
+                    # 根本没找过。归约端靠字段是否存在来决定这一行进不进
+                    # oracle 统计。
+                    **({} if args.arms_only else {
+                        "oracle_correct": any(r["correct"] for r in results),
+                        "oracle_subsets": [r["subset"] for r in results
+                                           if r["correct"]][:8]}),
                     "recent_correct": by_subset[recent]["correct"],
                     "random_correct": by_subset[rand]["correct"],
                     "b0_correct": b0["correct"],

@@ -111,11 +111,18 @@ def main() -> None:
     if len(budgets) < 3:
         print(f"⚠️ 只有 B∈{budgets} 有数据 —— 这是**部分曲线**,"
               f"不能据此对 B=2 的选型下结论。")
+    # note (luojiaxuan): **两个不同的分母,不能混为一谈**。
+    #   common      —— 三个 B 都测过的态,用于**可部署臂**(recent-B / 随机-B /
+    #                  B=0)的跨预算对照。easy 态走 --arms-only 也在此列。
+    #   common_orc  —— 其中还做了 oracle 枚举的态,用于**上界**。
+    # easy 态刻意不枚举 oracle(它接近饱和,48-83 次前向换一个几乎恒为真的量
+    # 不划算),所以 oracle 只在困难层定义 —— 报告时必须写明,不能让读者
+    # 以为总体 oracle 也测了。
     common = set.intersection(*(set(data[b]) for b in budgets))
-    # --skip-easy 的行没有 oracle(未枚举),进不了对照
-    common = {i for i in common
-              if all("oracle_correct" in data[b][i] for b in budgets)}
-    print(f"\nB∈{budgets} 共同且都有 oracle 的态:{len(common)}")
+    common_orc = {i for i in common
+                  if all("oracle_correct" in data[b][i] for b in budgets)}
+    print(f"\nB∈{budgets} 共同的态:{len(common)}"
+          f";其中做了 oracle 枚举的:{len(common_orc)}")
     if not common:
         raise SystemExit("交集为空:检查白名单与分片是否对齐")
 
@@ -147,31 +154,43 @@ def main() -> None:
     print(f"预算饱和(候选数 < B,有效预算被迫降级)条数:{sat}")
 
     def rate(b: int, arm: str, ids: set[str]) -> float:
-        if not ids:
+        sel = ids & common_orc if arm == "oracle" else ids
+        if not sel:
             return float("nan")
-        return sum(data[b][i][f"{arm}_correct"] for i in ids) / len(ids)
+        return sum(data[b][i][f"{arm}_correct"] for i in sel) / len(sel)
 
     def pop(b: int, arm: str) -> float:
         """按真实占比重加权的总体正确率。"""
         num = rate(b, arm, easy) * args.easy_total + rate(b, arm, hard) * args.hard_total
         return num / (args.easy_total + args.hard_total)
 
-    print("\n=== 总体正确率(重加权到真实占比)===")
-    print(f"{'B':>3} {'oracle':>9} {'recent-B':>10} {'随机-B':>9} "
-          f"{'头寸 or−rec':>12}")
+    print("\n=== 可部署臂:总体正确率(重加权到真实占比,分母 = 全部 "
+          f"{len(common)} 态)===")
+    print(f"{'B':>3} {'recent-B':>10} {'随机-B':>9} {'rec−随机':>10}")
     for b in budgets:
-        print(f"{b:>3} {100*pop(b,'oracle'):>8.1f}% {100*pop(b,'recent'):>9.1f}% "
-              f"{100*pop(b,'random'):>8.1f}% {100*(pop(b,'oracle')-pop(b,'recent')):>+11.1f}pp")
+        print(f"{b:>3} {100*pop(b,'recent'):>9.1f}% {100*pop(b,'random'):>8.1f}% "
+              f"{100*(pop(b,'recent')-pop(b,'random')):>+9.1f}pp")
+    print("  这一张是选工作点的依据:两条臂都真实可部署,跨预算的差可检验。")
+
+    hard_orc = hard & common_orc
+    print(f"\n=== 上界:oracle 头寸(**只在困难层定义**,n={len(hard_orc)})===")
+    print("  easy 态刻意未枚举 oracle —— 它接近饱和(只要存在保住正确的子集,"
+          "oracle 必然找到),花 48-83 次前向测一个几乎恒为真的量不划算。")
+    print(f"{'B':>3} {'oracle':>9} {'recent-B':>10} {'头寸 or−rec':>12}")
+    for b in budgets:
+        o, r = rate(b, "oracle", hard), rate(b, "recent", hard_orc)
+        print(f"{b:>3} {100*o:>8.1f}% {100*r:>9.1f}% {100*(o-r):>+11.1f}pp")
+    print("  头寸是结构性非负(recent-B 本身就是被枚举的子集之一),"
+          "只能读作'上界有多高',不可做检验。")
     b0 = sum(data[ref][i]["b0_correct"] for i in common)
     print(f"  参照 B=0(未加权 {100*b0/len(common):.1f}%;按定义 easy 层 100%、"
           f"非easy 层 0% → 加权 {100*args.easy_total/(args.easy_total+args.hard_total):.1f}%)")
 
-    print("\n=== 分层拆开:大 B 修好了什么、又弄坏了什么 ===")
-    print(f"{'B':>3} {'easy层 recent':>14} {'easy层 oracle':>14} "
-          f"{'非easy层 recent':>16} {'非easy层 oracle':>16}")
+    print("\n=== 分层拆开:大 B 修好了什么、又弄坏了什么(均为 recent-B)===")
+    print(f"{'B':>3} {'easy层':>10} {'非easy层':>10}")
     for b in budgets:
-        print(f"{b:>3} {100*rate(b,'recent',easy):>13.1f}% {100*rate(b,'oracle',easy):>13.1f}% "
-              f"{100*rate(b,'recent',hard):>15.1f}% {100*rate(b,'oracle',hard):>15.1f}%")
+        print(f"{b:>3} {100*rate(b,'recent',easy):>9.1f}% "
+              f"{100*rate(b,'recent',hard):>9.1f}%")
     print("  easy 层 recent 若随 B 下降 = 多给的历史图在干扰本来答对的题;"
           "非easy 层上升 = 大 B 确实带进了缺失信息。净收益是两者相抵后的结果。")
 

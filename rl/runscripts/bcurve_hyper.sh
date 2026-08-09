@@ -48,20 +48,40 @@ for k in "${!gpus[@]}"; do
     #   ② 今天把单帧探针的 top 集合改成含搭档帧,B=2 的子集池由 C(8,2)=28
     #      变成 C(9,2)=36,与旧产物不是同一口径。
     # 整条曲线必须出自同一份代码。顺序 1→2→4:先便宜的,B=4 最贵放最后。
-    for spec in "1 full" "2 pruned" "4 pruned"; do
-      set -- $spec; B=$1; MODE=$2
-      for attempt in 1 2 3 4 5; do
-        CUDA_VISIBLE_DEVICES=$G PYTHONPATH=$REPO/code:$REPO/rl/code \
-          python3 "$REPO/rl/code/scripts/rl_oracle_enumerate.py" \
-          --manifest "$MANIFEST" --image-root "$IMAGES" \
-          --model-dir "$MODEL" --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
-          --output "$OUT/bcurve_b${B}_sh$SH.jsonl" --limit-states "$LIMIT" \
-          --max-candidates 30 --only-dp-ids "$IDS" \
-          --budget "$B" --mode "$MODE" --top-k 8 \
-          --shard-index "$SH" --shard-count "$SHARD_COUNT" >> "$LOG" 2>&1 && break
-        echo "[$(date -Is)] B=$B 分片 $SH 第 $attempt 次异常退出,10s 后从断点续跑" >> "$LOG"
-        sleep 10
+    # note (luojiaxuan): 实测 2.91 前向/秒(5 卡),全量三档要 13.2 小时,太长。
+    # 唯一不影响结论的砍法:**easy 态只打三臂、不枚举 oracle**(--arms-only)。
+    # easy 层要回答的是"加历史图会不会把本来答对的题弄坏",而那由 recent-B
+    # 这条可部署臂回答;easy 的 oracle 接近饱和,不值 48-83 次前向。
+    # 跨预算的可部署对照仍是全量 1000 态,一点没缩。这样 13.2h → 约 8.5h。
+    #
+    # B=1 例外:它本来就便宜(约 13 次/态),整批 1000 态全枚举,
+    # 顺带白拿一列 easy 层的 B=1 oracle 作参照。
+    for spec in "1 full all" "2 pruned hard" "4 pruned hard"; do
+      set -- $spec; B=$1; MODE=$2; SCOPE=$3
+      if [ "$SCOPE" = "all" ]; then
+        RUNS="$IDS|"
+      else
+        RUNS="$OUT/bcurve_ids_hard.txt|;$OUT/bcurve_ids_easy.txt|--arms-only"
+      fi
+      OLDIFS=$IFS; IFS=";"
+      for run in $RUNS; do
+        IFS=$OLDIFS
+        ids=${run%%|*}; extra=${run#*|}
+        for attempt in 1 2 3 4 5; do
+          CUDA_VISIBLE_DEVICES=$G PYTHONPATH=$REPO/code:$REPO/rl/code \
+            python3 "$REPO/rl/code/scripts/rl_oracle_enumerate.py" \
+            --manifest "$MANIFEST" --image-root "$IMAGES" \
+            --model-dir "$MODEL" --snapshot-manifest code/configs/gui_owl_1_5_8b_snapshot.json \
+            --output "$OUT/bcurve_b${B}_sh$SH.jsonl" --limit-states "$LIMIT" \
+            --max-candidates 30 --only-dp-ids "$ids" \
+            --budget "$B" --mode "$MODE" --top-k 8 $extra \
+            --shard-index "$SH" --shard-count "$SHARD_COUNT" >> "$LOG" 2>&1 && break
+          echo "[$(date -Is)] B=$B($ids)分片 $SH 第 $attempt 次异常退出,10s 后续跑" >> "$LOG"
+          sleep 10
+        done
+        IFS=";"
       done
+      IFS=$OLDIFS
       echo "[$(date -Is)] B=$B 分片 $SH 结束,累计 $(wc -l < "$OUT/bcurve_b${B}_sh$SH.jsonl") 态" >> "$LOG"
     done
     echo "[$(date -Is)] 分片 $SH 全部完成" >> "$LOG"
