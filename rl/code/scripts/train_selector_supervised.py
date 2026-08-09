@@ -64,6 +64,11 @@ def main() -> None:
                         "因果注意力下候选帧看不到当前屏,等于在问'这帧有用吗'"
                         "却不告诉模型'对哪一步有用'")
     p.add_argument("--pooling", choices=["mean", "mean_max"], default="mean")
+    # note (luojiaxuan): 有缓存就**完全不加载 8B 模型** —— 索引遍是 no_grad 的,
+    # 输出与打分头无关,八种消融组合各过一遍前向纯属重复劳动。
+    # 缓存由 cache_index_features.py 生成(mean_max,mean 取前半段切片)。
+    p.add_argument("--feature-cache", type=Path, default=None,
+                   help="索引遍特征缓存 .pt;给了就跳过模型加载,训练降到分钟级")
     args = p.parse_args()
 
     import torch
@@ -111,20 +116,35 @@ def main() -> None:
     if not train_ids:
         raise SystemExit("没有 winnable 标签 —— 先把枚举跑出来")
 
-    runtime = GUIOwlOSWorldRuntime(
-        model_dir=args.model_dir,
-        expected_snapshot_manifest=args.snapshot_manifest,
-        device=args.device,
-        effective_visual_tokens_per_image=args.visual_tokens,
-        max_new_tokens=16)
-    model, device = runtime.model, runtime.device
-    _px = args.index_visual_tokens * (VISION_PATCH_SIZE * VISION_SPATIAL_MERGE_SIZE) ** 2
-    index_processor = AutoProcessor.from_pretrained(
-        args.model_dir, min_pixels=_px, max_pixels=_px, local_files_only=True)
+    fcache: dict[str, Any] | None = None
+    if args.feature_cache is not None:
+        fcache = torch.load(args.feature_cache, map_location="cpu", weights_only=False)
+        device = torch.device(args.device)
+        model = index_processor = None
+        print(json.dumps({"feature_cache": len(fcache), "model_loaded": False},
+                         ensure_ascii=False), flush=True)
+    else:
+        runtime = GUIOwlOSWorldRuntime(
+            model_dir=args.model_dir,
+            expected_snapshot_manifest=args.snapshot_manifest,
+            device=args.device,
+            effective_visual_tokens_per_image=args.visual_tokens,
+            max_new_tokens=16)
+        model, device = runtime.model, runtime.device
+        _px = args.index_visual_tokens * (VISION_PATCH_SIZE * VISION_SPATIAL_MERGE_SIZE) ** 2
+        index_processor = AutoProcessor.from_pretrained(
+            args.model_dir, min_pixels=_px, max_pixels=_px, local_files_only=True)
 
     bundle = torch.load(args.init_head, map_location="cpu", weights_only=False)
     # note (luojiaxuan): mean_max 池化把特征维翻倍,打分头必须同步,否则形状不符。
     feat_dim = int(bundle["hidden_size"]) * (2 if args.pooling == "mean_max" else 1)
+    if fcache:
+        cached_dim = next(iter(fcache.values()))["feats"].shape[-1]
+        want = cached_dim // 2 if args.pooling == "mean" else cached_dim
+        if want != feat_dim:
+            raise SystemExit(f"缓存特征维 {cached_dim}(取 {args.pooling} 得 {want})"
+                             f"与 bundle hidden_size 推出的 {feat_dim} 不符 —— "
+                             f"缓存与模型不同源,拒绝继续")
     if args.head_arch == "linear" and args.pooling == "mean":
         head = load_v4_linear(bundle, arch="linear", hidden=args.hidden,
                               rank=args.pair_rank, use_context=False)
@@ -145,6 +165,17 @@ def main() -> None:
     opt.zero_grad(set_to_none=True)
 
     def state_feats(rec):
+        if fcache is not None:
+            e = fcache.get(rec["dp_id"])
+            if e is None:
+                raise ValueError("not in feature cache")
+            f = e["feats"].to(device).float()
+            c = e["ctx"].to(device).float()
+            if args.pooling == "mean":
+                # 缓存按 mean_max 存;纯 mean 就是前半段
+                half = f.shape[-1] // 2
+                f, c = f[:, :half], c[:half]
+            return e["cands"], f, (c if args.use_context else None)
         s = int(rec["step"])
         images = rec["image_relpaths"]
         if len(images) != s:
