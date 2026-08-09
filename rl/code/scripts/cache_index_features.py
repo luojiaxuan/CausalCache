@@ -36,7 +36,11 @@ def main() -> None:
     p.add_argument("--image-root", type=Path, required=True)
     p.add_argument("--model-dir", type=Path, required=True)
     p.add_argument("--snapshot-manifest", type=Path, required=True)
-    p.add_argument("--output", type=Path, required=True)
+    p.add_argument("--output", type=Path, required=True,
+                   help="给多层时作为前缀,实际写 <output>_L<层号>.pt")
+    p.add_argument("--layers", default="-1",
+                   help="逗号分隔的层号(hidden_states 索引,第 0 项是嵌入)。"
+                        "一次前向可同时取多层,不必重跑")
     p.add_argument("--budget", type=int, default=2)
     p.add_argument("--index-visual-tokens", type=int, default=144)
     p.add_argument("--visual-tokens", type=int, default=2560)
@@ -89,11 +93,19 @@ def main() -> None:
     index_processor = AutoProcessor.from_pretrained(
         args.model_dir, min_pixels=_px, max_pixels=_px, local_files_only=True)
 
+    layers = [int(x) for x in args.layers.split(",")]
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    cache: dict[str, dict] = {}
-    if args.output.exists():                      # 断点续跑
-        cache = torch.load(args.output, map_location="cpu", weights_only=False)
-        print(json.dumps({"resumed": len(cache)}, ensure_ascii=False), flush=True)
+    # note (luojiaxuan): 一次前向取多层 —— hidden_states 本来就全算出来了,
+    # 分多次跑等于把 8B 前向做 N 遍。每层单独落盘,便于按层做消融。
+    paths = {L: args.output.with_name(f"{args.output.stem}_L{L}.pt") for L in layers}
+    caches: dict[int, dict] = {}
+    for L, pth in paths.items():
+        caches[L] = (torch.load(pth, map_location="cpu", weights_only=False)
+                     if pth.exists() else {})
+    print(json.dumps({"layers": layers,
+                      "resumed": {str(L): len(c) for L, c in caches.items()}},
+                     ensure_ascii=False), flush=True)
+    cache = caches[layers[0]]                      # 用第一层的进度做续跑判据
 
     skipped: dict[str, int] = {}
     done = 0
@@ -119,19 +131,24 @@ def main() -> None:
             if not all((args.image_root / images[j]).exists() for j in cands):
                 raise ValueError("missing images")
             ev = {j: str(args.image_root / images[j]) for j in cands}
-            feats, ctx = index_features(
+            # 一次前向出全部所需层
+            got = index_features(
                 rec, steps, cands, ev, str(cur),
                 model=model, processor=index_processor, device=device,
                 torch=torch, build=build_desktop_official_messages,
-                tool_spec=_TOOL_SPEC, pooling="mean_max", return_context=True)
-            # note (luojiaxuan): mean 是 mean_max 的前半段,存一份即可,
-            # 用的时候切片取 [:, :d//2] 就是纯 mean —— 别分开算两遍。
-            cache[dp] = {"cands": cands,
-                         "feats": feats.half().cpu(),
-                         "ctx": ctx.half().cpu()}
+                tool_spec=_TOOL_SPEC, pooling="mean_max", return_context=True,
+                layers=layers)
+            for L in layers:
+                feats, ctx = got[L]
+                # note (luojiaxuan): mean 是 mean_max 的前半段,存一份即可,
+                # 用的时候切片取 [:, :d//2] 就是纯 mean —— 别分开算两遍。
+                caches[L][dp] = {"cands": cands,
+                                 "feats": feats.half().cpu(),
+                                 "ctx": ctx.half().cpu()}
             done += 1
             if done % args.report_every == 0:
-                torch.save(cache, args.output)         # 定期落盘,断电只丢一段
+                for L, pth in paths.items():
+                    torch.save(caches[L], pth)         # 定期落盘,断电只丢一段
                 print(json.dumps({"cached": len(cache), "skipped": skipped},
                                  ensure_ascii=False), flush=True)
         except (ValueError, KeyError, OSError, TypeError, RuntimeError) as exc:
@@ -139,7 +156,8 @@ def main() -> None:
             skipped[k] = skipped.get(k, 0) + 1
             continue
 
-    torch.save(cache, args.output)
+    for L, pth in paths.items():
+        torch.save(caches[L], pth)
     dim = next(iter(cache.values()))["feats"].shape[-1] if cache else 0
     print(json.dumps({"cached": len(cache), "want": len(want),
                       "feat_dim_mean_max": dim, "skipped": skipped,
