@@ -94,7 +94,15 @@
   换下一个。过了之后再报干净留出集上 learned vs recent-2 的配对检验。
 - **阻塞**:无(训练只要 1 张卡;可等 A1 空出,或用 h00 GPU0/5 —— 那两张
   邻居只占 1.8/1.5 GB)。
-- **成本**:训练 1 卡 × 约 1 小时/配置;评测另计。
+- **成本**:特征缓存 1 卡 × 约 30 分钟(一次性),之后每档分钟级。
+- **一条命令就绪**:`GPU=<id> bash /data/selector_capacity_ablation.sh`
+  ([runscripts/selector_capacity_ablation.sh](../runscripts/selector_capacity_ablation.sh))。
+  自动:缓存特征 → 六档消融 + 一档过拟合探针(B2)→ 汇总表。
+  已有结果的档自动跳过,可断点续跑。lr 按参数量分档下调
+  (linear 1e-3 / mlp 3e-4 / mlp_pair 1e-4)。
+- **阻塞的真正原因**:5 张卡全在 B 曲线上(还需约 12 小时)。h00 的 0 号和
+  5 号卡邻居只占 5.3/1.6 GB,跑这个绰绰有余,但我说过不擅自动 hyper 的卡 ——
+  **要我用就说一声**,缓存 30 分钟、六档消融再半小时,今天就能有结果。
 - **代码已就绪(08-09)**:`causalcache_rl/subset_scorer.py`(三档 + 部署侧
   `score_subsets` 枚举选择规则)、`index_features` 支持 `mean_max` 与
   `return_context`、训练器加 `--head-arch/--pooling/--use-context` 与
