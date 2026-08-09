@@ -183,8 +183,11 @@ def main() -> None:
     print("  头寸是结构性非负(recent-B 本身就是被枚举的子集之一),"
           "只能读作'上界有多高',不可做检验。")
     b0 = sum(data[ref][i]["b0_correct"] for i in common)
-    print(f"  参照 B=0(未加权 {100*b0/len(common):.1f}%;按定义 easy 层 100%、"
-          f"非easy 层 0% → 加权 {100*args.easy_total/(args.easy_total+args.hard_total):.1f}%)")
+    print(f"\n参照 B=0(不给任何历史图):样本内 {100*b0/len(common):.1f}%"
+          f"(分母 {len(common)},即 easy 占比);按真实占比加权 "
+          f"{100*args.easy_total/(args.easy_total+args.hard_total):.1f}%。"
+          f"\n  **把 B=0 和 recent-B 并排看**:easy 层 B=0 按定义 100%,"
+          f"而 recent-B 低于 100% 的部分,就是多给历史图**弄坏**的题。")
 
     print("\n=== 分层拆开:大 B 修好了什么、又弄坏了什么(均为 recent-B)===")
     print(f"{'B':>3} {'easy层':>10} {'非easy层':>10}")
@@ -192,7 +195,19 @@ def main() -> None:
         print(f"{b:>3} {100*rate(b,'recent',easy):>9.1f}% "
               f"{100*rate(b,'recent',hard):>9.1f}%")
     print("  easy 层 recent 若随 B 下降 = 多给的历史图在干扰本来答对的题;"
-          "非easy 层上升 = 大 B 确实带进了缺失信息。净收益是两者相抵后的结果。")
+          "非easy 层上升 = 大 B 确实带进了缺失信息。")
+    # note (luojiaxuan): 直接把净收益算出来,不要让读者自己去减两个百分比 ——
+    # 两层的**权重不同**(easy 占总体 53%),分层正确率相减是错的算法。
+    print(f"\n{'B':>3} {'easy层被弄坏':>13} {'非easy层被修好':>15} "
+          f"{'加权净收益(相对 B=0)':>22}")
+    for b in budgets:
+        broke = 1 - rate(b, "recent", easy)          # easy 层 B=0 按定义 100%
+        fixed = rate(b, "recent", hard)              # 非easy 层 B=0 按定义 0%
+        net = (fixed * args.hard_total - broke * args.easy_total) / (
+            args.easy_total + args.hard_total)
+        print(f"{b:>3} {100*broke:>12.1f}% {100*fixed:>14.1f}% {100*net:>+21.1f}pp")
+    print("  净收益 = (修好数 × 非easy 占比 − 弄坏数 × easy 占比) / 总数。"
+          "为负说明在这个预算下,给历史图整体是**亏的**。")
 
     print("\n=== recent-B 跨预算配对检验(这是唯一可检验的对照)===")
     print("  两个真实可部署配置在同一批态上的配对差;oracle 与 recent 的差是"
