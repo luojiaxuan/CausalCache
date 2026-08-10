@@ -109,3 +109,24 @@ python3 merge_v5.py
 - 短历史决策点上合法非相邻选点集合很小(`cur=9,K=4` 只有 5 种),这些组的 S0/SA
   prompt 高度重复,对 `S0−R0` / `SA−RA` 的方差贡献接近零。这是相邻性约束的必然结果,
   不是 bug,但报告分层结果时要单列。
+
+
+## 4. 本地副本清理记录(2026-08-10,hyper01)
+
+用户要求清理 `hyper01:/data04/jaxan/{runs,artifacts}`。处置(删除前已在线验证
+HF 正本可达:`gavinlaw/causalcache-sparse-history-guiodyssey-v5` 134 文件、
+64 个 images tar、SHA256SUMS 齐全,身份 gavinlaw):
+
+| 对象 | 大小 | 处置 | 理由 |
+|---|---|---|---|
+| `artifacts/sft/sparse-v5`(64 个生成 part) | 20G | **删除** | 正本在上述 HF 仓库,逐字节可校验 |
+| `artifacts/sft/sparse-v5-final`(合并集) | 195M | 移至 `data/archive-20260810/` | samples.jsonl.gz 亦在 HF;本地留一份小的便于直接复用 |
+| `artifacts/causalcache-labels-dev-v1` | 3.2M | 移至同处 | dev 分片,被 labels_all(5303 态)取代 |
+| `artifacts/causalcache-rescue-v1` | 24M | 移至同处 | 7-26 rescue 批,线已收束 |
+| `runs/{eval-v5-epoch1, sparse-hgkv-v5, long_horizon_selection_v3.json, eval_epoch1.log}` | 16M | 移至同处 | v5 时代评测缓存与 LoRA step 检查点(lora-epoch1.pt 唯一副本,14M,归档不删) |
+| `artifacts/models/Qwen2.5-VL-7B-Instruct-cc594898` | 16G | **保留** | FindingDory 线(活跃)的冻结模型,公开 HF 快照可再拉,但不打断别人 |
+| `runs/findingdory-*`、`runs/qwen3-asr-next-1447` | 7.7M+ | **保留** | 别的活跃线/项目,不动 |
+
+净效果:`artifacts/` 从 35G 降到 16G(仅剩 FindingDory 冻结模型),
+`runs/` 从 23M 降到 7.6M(仅剩活跃线),归档集中在
+`hyper01:/data04/jaxan/data/archive-20260810/`(42M + 195M)。
