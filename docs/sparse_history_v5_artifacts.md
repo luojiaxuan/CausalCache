@@ -127,6 +127,14 @@ HF 正本可达:`gavinlaw/causalcache-sparse-history-guiodyssey-v5` 134 文件�
 | `artifacts/models/Qwen2.5-VL-7B-Instruct-cc594898` | 16G | **保留** | FindingDory 线(活跃)的冻结模型,公开 HF 快照可再拉,但不打断别人 |
 | `runs/findingdory-*`、`runs/qwen3-asr-next-1447` | 7.7M+ | **保留** | 别的活跃线/项目,不动 |
 
-净效果:`artifacts/` 从 35G 降到 16G(仅剩 FindingDory 冻结模型),
-`runs/` 从 23M 降到 7.6M(仅剩活跃线),归档集中在
-`hyper01:/data04/jaxan/data/archive-20260810/`(42M + 195M)。
+**并发修正**:执行期间另一只手(用户本人或另一 session,时间戳同分钟)把
+`models/Qwen2.5-VL-7B-Instruct-cc594898` 与 `sft/sparse-v5-final` 直接挪进了
+`/data04/jaxan/data/` 并移除了空的 `artifacts/`。两边操作无冲突、无数据丢失。
+
+**最终布局**(hyper01:/data04/jaxan):
+- `artifacts/` 已不存在;`runs/` 7.6M(仅 FindingDory 活跃线 + qwen3-asr);
+- `data/models/Qwen2.5-VL-7B-Instruct-cc594898`(16G,FindingDory 冻结模型);
+- `data/sft/sparse-v5-final`(195M,合并语料,HF 亦有正本);
+- `data/archive-20260810/`(42M:labels-dev、rescue、v5 评测缓存、
+  sparse-hgkv-v5 LoRA step 检查点)。
+净释放约 20G(sparse-v5 生成中间产物,HF 正本在线验证后删除)。
