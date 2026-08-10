@@ -58,6 +58,9 @@ def main() -> None:
     p.add_argument("--limit-states", type=int, default=0, help="冒烟用")
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260809)
+    # note (luojiaxuan): 5 折交叉验证 —— 单折留出仅 258 态,+3.9pp 的增益
+    # CI 压不进零右侧;折间训练/评测互斥,out-of-fold 合并后 n=1290。
+    p.add_argument("--fold", type=int, default=0)
     args = p.parse_args()
 
     import sys
@@ -84,7 +87,9 @@ def main() -> None:
     hopeless = sorted(set(hopeless))
     random.Random(args.seed).shuffle(hopeless)
     nh = int(len(hopeless) * args.holdout_frac)
-    hold, train_ids = set(hopeless[:nh]), set(hopeless[nh:])
+    lo, hi = args.fold * nh, (args.fold + 1) * nh
+    hold = set(hopeless[lo:hi])
+    train_ids = set(hopeless) - hold
     print(json.dumps({"hopeless": len(hopeless), "train": len(train_ids),
                       "holdout": len(hold)}, ensure_ascii=False), flush=True)
 
