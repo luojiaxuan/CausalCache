@@ -63,6 +63,17 @@ def index_features(rec, steps, cands, ev, cur, *, model, processor, device,
             return torch.cat([seg.mean(dim=0), seg.max(dim=0).values], dim=-1)
         raise ValueError(f"未知 pooling: {pooling}")
 
+    if pooling == "tokens":
+        # note (luojiaxuan): 阶梯 2 —— **不池化**,逐帧返回完整 token 矩阵。
+        # mean-pool 是涌现解(31.6% 的可解态两帧单独都错)的头号嫌疑:
+        # "两帧与当前屏的空间关系"在把 144 token 压成一个向量时就被抹掉了。
+        # 返回 list 而非 stack:index processor 虽然钉死了像素预算,但不同
+        # 宽高比的图 token 数可能在 144 附近浮动,不强行对齐。
+        toks = [hs[a:b] for a, b in segs[:-1]]
+        if not return_context:
+            return toks
+        return toks, hs[segs[-1][0]:segs[-1][1]]
+
     if layers is not None:
         got = {}
         for L in layers:
