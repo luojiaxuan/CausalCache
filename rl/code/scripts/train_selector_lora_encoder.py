@@ -57,6 +57,8 @@ def main() -> None:
     p.add_argument("--epochs", type=int, default=3)
     p.add_argument("--limit-states", type=int, default=0,
                    help=">0 时只用前 N 个训练态(冒烟用)")
+    p.add_argument("--full-holdout", action="store_true",
+                   help="截训练集时保留完整留出集(规模探针用)")
     p.add_argument("--eval-every", type=int, default=500,
                    help="每 N 个训练态评一次留出集(顺带存 checkpoint)")
     p.add_argument("--index-visual-tokens", type=int, default=144)
@@ -119,7 +121,11 @@ def main() -> None:
     hold, train = ids[:nh], ids[nh:]
     if args.limit_states > 0:
         train = train[: args.limit_states]
-        hold = hold[: max(args.limit_states // 3, 20)]
+        # note (luojiaxuan): 冒烟时连留出集一起截,是为了快;但**规模探针**
+        # (比较不同训练量)必须用同一个完整留出集,否则分母都不一样,
+        # 曲线是假的。--full-holdout 就是给规模探针用的开关。
+        if not args.full_holdout:
+            hold = hold[: max(args.limit_states // 3, 20)]
     print(json.dumps({"winnable": len(ids), "train": len(train),
                       "holdout": len(hold)}, ensure_ascii=False), flush=True)
 
