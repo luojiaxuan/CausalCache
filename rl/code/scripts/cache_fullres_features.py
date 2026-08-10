@@ -37,7 +37,11 @@ def main() -> None:
     p.add_argument("--visual-tokens", type=int, default=2560,
                    help="全清预算,与策略动作遍一致 —— 这正是要修的错配")
     p.add_argument("--regions", default="10,16",
-                   help="自适应池化后的区域网格(行,列)")
+                   help="自适应池化后的区域网格(行,列);**raw = 不做第二次池化**,"
+                        "逐帧保留全部 ~2560 个 token。区域平均是把 16 个 token 混成"
+                        "一个向量 —— 文字级细节在特征层被二次毁掉,这正是 2.5 版"
+                        "停在 recency 的头号嫌疑。代价:约 230MB/态、全量 ~290GB"
+                        "(盘余 2.1T,放得下)")
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--limit-states", type=int, default=0)
     p.add_argument("--shard-index", type=int, default=0)
@@ -75,7 +79,8 @@ def main() -> None:
         effective_visual_tokens_per_image=args.visual_tokens,
         max_new_tokens=16)
     model, device, proc = runtime.model, runtime.device, runtime.processor
-    rows, cols = (int(x) for x in args.regions.split(","))
+    raw_mode = args.regions.strip() == "raw"
+    rows, cols = (0, 0) if raw_mode else tuple(int(x) for x in args.regions.split(","))
     merge = VISION_SPATIAL_MERGE_SIZE
 
     def encode_frame(path: str) -> "torch.Tensor":
@@ -104,6 +109,8 @@ def main() -> None:
         R, C = (h // merge) * max(t, 1), w // merge
         if R * C != seg.shape[0]:
             raise ValueError(f"grid {R}x{C} != {seg.shape[0]} tokens")
+        if raw_mode:
+            return seg.float()                               # [~2560, D],不再池化
         x = seg.float().reshape(R, C, -1).permute(2, 0, 1).unsqueeze(0)
         pooled = F.adaptive_avg_pool2d(x, (rows, cols))[0]   # [D, rows, cols]
         return pooled.permute(1, 2, 0).reshape(rows * cols, -1)

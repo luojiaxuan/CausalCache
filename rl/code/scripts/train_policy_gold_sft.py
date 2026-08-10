@@ -207,9 +207,17 @@ def main() -> None:
     torch.save({"arm": args.arm, "rank": args.rank, "alpha": args.alpha,
                 "state": lora_state_dict(wrapped)},
                args.output_root / "adapter.pt")
+    n_skip = sum(stats["skipped"].values())
     print(json.dumps({"final": True, "arm": args.arm, "seen": stats["seen"],
                       "opt_steps": stats["steps"],
                       "skipped": stats["skipped"]}, ensure_ascii=False))
+    # note (luojiaxuan): 静默跳过差点酿成事故 —— 两个重复种子因显存被残留进程
+    # 占用,99.6% 的态 OOM 跳过、只训了 4 个态,却照常保存 adapter 并 exit 0,
+    # 下游评测把"没训过的 adapter"当正品评了。跳过率超阈必须**非零退出**,
+    # 让 && 链停下、让日志尖叫。
+    if n_skip > 0.1 * max(stats["seen"] + n_skip, 1):
+        raise SystemExit(f"FAILED: 跳过率 {n_skip}/{stats['seen']+n_skip} 超过 10%,"
+                         f"本次训练产物不可用")
 
 
 if __name__ == "__main__":

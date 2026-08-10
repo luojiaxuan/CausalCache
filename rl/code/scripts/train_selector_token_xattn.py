@@ -34,6 +34,9 @@ def main() -> None:
     # 非确定性极敏感),<3pp 的差必须有重复种子。--torch-seed 只换初始化与
     # 训练随机性,数据划分(--seed)不动 —— 划分变了 holdout 就不可比了。
     p.add_argument("--torch-seed", type=int, default=0)
+    p.add_argument("--max-ram-states", type=int, default=0,
+                   help=">0 时 RAM 缓存最多保留 N 个态(raw 全清缓存约 230MB/态,"
+                        "全量 290GB 进不了内存,FIFO 淘汰)")
     args = p.parse_args()
 
     import torch
@@ -88,6 +91,8 @@ def main() -> None:
         if e is None:
             e = torch.load(args.token_dir / f"{dp}.pt",
                            map_location="cpu", weights_only=False)
+            if args.max_ram_states and len(ram) >= args.max_ram_states:
+                ram.pop(next(iter(ram)))          # FIFO 淘汰,防 290GB 撑爆主机内存
             ram[dp] = e
         return e
 
