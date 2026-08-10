@@ -30,6 +30,10 @@ def main() -> None:
     p.add_argument("--budget", type=int, default=2)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260809)
+    # note (luojiaxuan): 实测该指标运行间方差约 ±3pp(LoRA/头的训练轨迹对 GPU
+    # 非确定性极敏感),<3pp 的差必须有重复种子。--torch-seed 只换初始化与
+    # 训练随机性,数据划分(--seed)不动 —— 划分变了 holdout 就不可比了。
+    p.add_argument("--torch-seed", type=int, default=0)
     args = p.parse_args()
 
     import torch
@@ -140,7 +144,7 @@ def main() -> None:
     for name, use_rec, lr in (("xattn", False, 1e-4),
                               ("xattn", False, 3e-4),
                               ("xattn+recency", True, 1e-4)):
-        torch.manual_seed(0)
+        torch.manual_seed(args.torch_seed)
         m = TokenCrossScorer(use_recency=use_rec).to(dev)
         opt = torch.optim.AdamW(m.parameters(), lr=lr)
         rng = random.Random(1)
@@ -181,7 +185,8 @@ def main() -> None:
                                   for k, (a, b) in marks.items()},
                         "best_holdout_pair": round(best, 4)})
 
-    report = {"recency_ref_pair": round(rec_pair, 4),
+    report = {"torch_seed": args.torch_seed,
+              "recency_ref_pair": round(rec_pair, 4),
               "pooled_best_pair": 0.593,
               "results": results,
               "note": "判据:best_holdout_pair 须明显超过 recency 0.595 与"
