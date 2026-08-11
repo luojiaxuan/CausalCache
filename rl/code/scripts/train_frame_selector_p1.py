@@ -132,7 +132,10 @@ def main() -> None:
 
     from causalcache.agentnet_desktop_official import official_step_forms
     from causalcache.osworld_gui_owl import GUIOwlOSWorldRuntime
-    sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "code" / "scripts"))
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "code" / "scripts"))
+    except IndexError:
+        pass  # 散件部署时靠 PYTHONPATH 提供 code/scripts
     from train_success_sft_lora import inject_lora, lora_state_dict
 
     lab = load_winnable(args.labels, args.token_dir)
