@@ -46,6 +46,11 @@ def main() -> None:
     p.add_argument("--configs", default="",
                    help="逗号分隔 name@lr 白名单(如 xattn+recency@0.0001);"
                         "空 = 全跑。lr=3e-4 在三种子×两配置中从未进入最优,可省")
+    # note (luojiaxuan): 阶梯 2.7 —— 部署口径终判(台账 §0.10)的机制诊断是
+    # "成对排序目标 ≠ argmax 目标":scorer 学到略胜 recency 的全局序,但
+    # 偏离 recent-2 的选择错 2 赢 1。listpos 把损失换成正子集 softmax
+    # −log(Σ_pos e^s / Σ_all e^s),直接压 argmax 命中;其余全部不动。
+    p.add_argument("--objective", choices=["pair", "listpos"], default="pair")
     args = p.parse_args()
 
     import torch
@@ -176,6 +181,20 @@ def main() -> None:
                 u = m.frame_scores(toks, ctx)
                 cands = e["cands"]
                 pos, neg = lab[dp]
+                if args.objective == "listpos":
+                    vp = [s for s in pos if set(s) <= set(cands)]
+                    vn = [s for s in neg if set(s) <= set(cands)]
+                    if vp and vn:
+                        allsc = torch.stack(
+                            [m.subset_score(u, cands, s) for s in vp + vn])
+                        loss = -(torch.logsumexp(allsc[:len(vp)], 0)
+                                 - torch.logsumexp(allsc, 0))
+                        loss.backward()
+                        torch.nn.utils.clip_grad_norm_(m.parameters(), 1.0)
+                        opt.step()
+                        opt.zero_grad(set_to_none=True)
+                    step += 1
+                    continue
                 loss = torch.zeros((), device=dev)
                 k = 0
                 for _ in range(8):
@@ -201,7 +220,8 @@ def main() -> None:
                 args.save_dir.mkdir(parents=True, exist_ok=True)
                 torch.save({"config": name, "lr": lr, "steps_per_state": target,
                             "use_recency": use_rec, "torch_seed": args.torch_seed,
-                            "fold": args.fold, "holdout_pair": round(pair, 4),
+                            "fold": args.fold, "objective": args.objective,
+                            "holdout_pair": round(pair, 4),
                             "state": {k: v.cpu() for k, v in m.state_dict().items()}},
                            args.save_dir / f"{name}_lr{lr:g}_s{target}.pt")
         best = max(v[0] for v in marks.values())
@@ -211,6 +231,7 @@ def main() -> None:
                         "best_holdout_pair": round(best, 4)})
 
     report = {"torch_seed": args.torch_seed, "fold": args.fold,
+              "objective": args.objective,
               "recency_ref_pair": round(rec_pair, 4),
               "pooled_best_pair": 0.593,
               "results": results,
