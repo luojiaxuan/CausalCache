@@ -37,6 +37,15 @@ def main() -> None:
     p.add_argument("--max-ram-states", type=int, default=0,
                    help=">0 时 RAM 缓存最多保留 N 个态(raw 全清缓存约 230MB/态,"
                         "全量 290GB 进不了内存,FIFO 淘汰)")
+    # note (luojiaxuan): 部署口径评测(rl_selector_deploy_eval.py)需要训练完的
+    # scorer 权重 —— 首轮三种子只落了 JSON 报告,argmax 选帧无从复现,被迫重训。
+    # --fold 与 #26 同构:fold 0 = 原划分,折间留出互斥,便于日后扩 out-of-fold。
+    p.add_argument("--fold", type=int, default=0)
+    p.add_argument("--save-dir", type=Path, default=None,
+                   help="给定时每个检查点保存 scorer state(部署评测用)")
+    p.add_argument("--configs", default="",
+                   help="逗号分隔 name@lr 白名单(如 xattn+recency@0.0001);"
+                        "空 = 全跑。lr=3e-4 在三种子×两配置中从未进入最优,可省")
     args = p.parse_args()
 
     import torch
@@ -77,9 +86,10 @@ def main() -> None:
     ids = sorted(lab)
     random.Random(args.seed).shuffle(ids)
     nh = int(len(ids) * 0.2)
-    hold, train = ids[:nh], ids[nh:]
+    lo, hi = args.fold * nh, (args.fold + 1) * nh
+    hold, train = ids[lo:hi], ids[:lo] + ids[hi:]
     hold_c = [d for d in hold if d in carrier]
-    print(json.dumps({"winnable": len(ids), "train": len(train),
+    print(json.dumps({"winnable": len(ids), "train": len(train), "fold": args.fold,
                       "holdout": len(hold), "holdout_carrier": len(hold_c)},
                      ensure_ascii=False), flush=True)
 
@@ -145,10 +155,13 @@ def main() -> None:
                         fh2 += int(float(u[cands.index(hi)]) > float(u[cands.index(lo)]))
         return hit / max(tot, 1), fh2 / max(ft2, 1)
 
+    allowed = {c.strip() for c in args.configs.split(",") if c.strip()}
     results = []
     for name, use_rec, lr in (("xattn", False, 1e-4),
                               ("xattn", False, 3e-4),
                               ("xattn+recency", True, 1e-4)):
+        if allowed and f"{name}@{lr:g}" not in allowed:
+            continue
         torch.manual_seed(args.torch_seed)
         m = TokenCrossScorer(use_recency=use_rec).to(dev)
         opt = torch.optim.AdamW(m.parameters(), lr=lr)
@@ -184,13 +197,20 @@ def main() -> None:
                               "holdout_pair": round(pair, 4),
                               "holdout_frame_auc": round(fauc, 4)},
                              ensure_ascii=False), flush=True)
+            if args.save_dir is not None:
+                args.save_dir.mkdir(parents=True, exist_ok=True)
+                torch.save({"config": name, "lr": lr, "steps_per_state": target,
+                            "use_recency": use_rec, "torch_seed": args.torch_seed,
+                            "fold": args.fold, "holdout_pair": round(pair, 4),
+                            "state": {k: v.cpu() for k, v in m.state_dict().items()}},
+                           args.save_dir / f"{name}_lr{lr:g}_s{target}.pt")
         best = max(v[0] for v in marks.values())
         results.append({"config": name, "lr": lr,
                         "marks": {str(k): [round(a, 4), round(b, 4)]
                                   for k, (a, b) in marks.items()},
                         "best_holdout_pair": round(best, 4)})
 
-    report = {"torch_seed": args.torch_seed,
+    report = {"torch_seed": args.torch_seed, "fold": args.fold,
               "recency_ref_pair": round(rec_pair, 4),
               "pooled_best_pair": 0.593,
               "results": results,
