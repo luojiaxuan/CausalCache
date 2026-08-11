@@ -44,24 +44,32 @@ def boot_ci(diffs: list[int], reps: int = 1999, seed: int = 12345):
 
 
 def summarize(rows: list[dict]) -> dict:
-    n = len(rows)
+    """c_sel=None 的态(选择未被枚举覆盖且尚未补测)只进 n_unmeasured。"""
+    meas = [r for r in rows if r.get("c_sel") is not None]
+    n = len(meas)
     if not n:
-        return {"n": 0}
-    sel = sum(r["c_sel"] for r in rows)
-    rec = sum(r["c_rec"] for r in rows)
-    n01 = sum(1 for r in rows if r["c_sel"] and not r["c_rec"])
-    n10 = sum(1 for r in rows if r["c_rec"] and not r["c_sel"])
-    diffs = [r["c_sel"] - r["c_rec"] for r in rows]
+        return {"n": 0, "n_unmeasured": len(rows)}
+    sel = sum(r["c_sel"] for r in meas)
+    rec = sum(r["c_rec"] for r in meas)
+    n01 = sum(1 for r in meas if r["c_sel"] and not r["c_rec"])
+    n10 = sum(1 for r in meas if r["c_rec"] and not r["c_sel"])
+    diffs = [r["c_sel"] - r["c_rec"] for r in meas]
     lo, hi = boot_ci(diffs)
-    return {"n": n,
-            "sel_acc": round(sel / n, 4), "rec_acc": round(rec / n, 4),
-            "diff_pp": round(100 * (sel - rec) / n, 2),
-            "ci95_pp": [round(100 * lo, 2), round(100 * hi, 2)],
-            "n01_sel_win": n01, "n10_rec_win": n10,
-            "mcnemar_p": round(mcnemar_p(n01, n10), 4),
-            "moved": sum(1 for r in rows if r["moved"]),
-            "oracle_acc": round(sum(r["oracle"] for r in rows) / n, 4),
-            "rand_acc": round(sum(r["rand"] for r in rows) / n, 4)}
+    out = {"n": n, "n_unmeasured": len(rows) - n,
+           "sel_acc": round(sel / n, 4), "rec_acc": round(rec / n, 4),
+           "diff_pp": round(100 * (sel - rec) / n, 2),
+           "ci95_pp": [round(100 * lo, 2), round(100 * hi, 2)],
+           "n01_sel_win": n01, "n10_rec_win": n10,
+           "mcnemar_p": round(mcnemar_p(n01, n10), 4),
+           "moved": sum(1 for r in meas if r["moved"]),
+           "oracle_acc": round(sum(r["oracle"] for r in meas) / n, 4),
+           "rand_acc": round(sum(r["rand"] for r in meas) / n, 4)}
+    if rows and "c_pool" in rows[0]:
+        np_ = len(rows)
+        out["pool_acc"] = round(sum(r["c_pool"] for r in rows) / np_, 4)
+        out["pool_diff_pp"] = round(
+            100 * sum(r["c_pool"] - r["c_rec"] for r in rows) / np_, 2)
+    return out
 
 
 def main() -> None:
@@ -149,12 +157,23 @@ def main() -> None:
                 order = sorted(range(len(cands)),
                                key=lambda i: float(u[i]), reverse=True)
                 chosen = frozenset(cands[i] for i in order[:args.budget])
+                # 池内 argmax(仅诊断):限定在被枚举过的帧对里取分和最大
+                pool = max(subs, key=lambda s: sum(float(u[cands.index(j)])
+                                                   for j in s))
                 if chosen not in subs:
+                    # note (luojiaxuan): 首版在此丢态 —— 每折丢 16-44%,而被丢的
+                    # 恰是 selector 选了探针池外帧的态,系统性有偏。现在把选择
+                    # 落盘(c_sel=None),缺的正确性由 rl_score_chosen_subsets.py
+                    # 拿冻结策略真跑补齐,归约时合并。
                     miss[0] += 1
-                    continue
                 rows.append({"dp": dp,
                              "domain": t2d.get(dp, "?"),
-                             "c_sel": int(subs[chosen]), "c_rec": int(subs[recent]),
+                             "chosen": sorted(chosen),
+                             "c_sel": (int(subs[chosen]) if chosen in subs
+                                       else None),
+                             "c_rec": int(subs[recent]),
+                             "c_pool": int(subs[pool]),
+                             "pool_moved": int(pool != recent),
                              "moved": int(chosen != recent),
                              "oracle": int(any(subs.values())),
                              "rand": sum(subs.values()) / len(subs)})
