@@ -103,6 +103,32 @@ def build_selector_messages(*, goal: str, cands: list[int], thumbs: dict,
     return [{"role": "user", "content": content}]
 
 
+def build_selector_messages_images(*, goal: str, cands: list[int], frames: dict,
+                                   steps, current_image: str) -> list[dict]:
+    """v3(用户 spec):全部候选帧高保真 + 全部动作摘要文本,无探针无 draft。"""
+    hist = "\n".join(f"Step{t}: {steps[t - 1].action_line}"
+                     for t in range(1, len(steps) + 1))
+    content: list[dict] = [{"type": "text", "text": (
+        "You are selecting memory frames for a GUI agent. Task goal: "
+        f"{goal}\nFull action history:\n{hist}\n"
+        "Below are the candidate history frames (older to newer), full "
+        "resolution. [Frame j] is the screen right after Step j.")}]
+    for j in cands:
+        content.append({"type": "text",
+                        "text": f"\n[Frame {j}] after Step{j} "
+                                f"({steps[j - 1].action_line})"})
+        content.append({"type": "image", "image": frames[j]})
+    content.append({"type": "text", "text": "\nCurrent screen:"})
+    content.append({"type": "image", "image": current_image})
+    content.append({"type": "text", "text": (
+        "\nBy default the agent is shown the two most recent frames "
+        f"[{cands[-2]}, {cands[-1]}]. If that default is already the best "
+        "choice, answer exactly: KEEP\nOtherwise select the two frames that "
+        "would most help the agent act correctly, answering exactly: "
+        "SELECT: i,j")})
+    return [{"role": "user", "content": content}]
+
+
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--labels", nargs="+", type=Path, required=True)
@@ -132,6 +158,9 @@ def main() -> None:
     # 移动率、每动错赢 2:1(台账 §0.11 P1 终判)。minimal = 最小干预目标:
     # recent-2 对 → KEEP;错 → 换到最靠 recency 的正确对。
     p.add_argument("--target", choices=["minimal", "uniform"], default="minimal")
+    # note (luojiaxuan): v3(用户裁定):停探针线;输入=全部候选帧高保真
+    # (每帧封顶 --visual-tokens)+ 全部动作摘要 + 当前屏。probe 模式留档可复现。
+    p.add_argument("--input-mode", choices=["images", "probe"], default="images")
     args = p.parse_args()
 
     import sys
@@ -153,7 +182,7 @@ def main() -> None:
     lo, hi = args.fold * nh, (args.fold + 1) * nh
     hold = set(ids[lo:hi])
     train_ids = [d for d in ids if d not in hold]
-    b1 = load_b1(args.b1_dir, set(ids))
+    b1 = load_b1(args.b1_dir, set(ids)) if args.input_mode == "probe" else {}
     print(json.dumps({"winnable": len(ids), "train": len(train_ids),
                       "holdout": len(hold), "fold": args.fold,
                       "with_b1": sum(1 for d in ids if d in b1)},
@@ -186,8 +215,25 @@ def main() -> None:
     params = [q for w in wrapped.values() for q in (w.lora_a, w.lora_b)]
     for q in params:
         q.requires_grad_(True)
+    if args.input_mode == "images":
+        # note (luojiaxuan): 全高保真候选帧 = 每样本 3-8 万视觉 token,激活
+        # 显存必须用梯度检查点压;LoRA 冻结主干下要让输入过梯度。
+        model.gradient_checkpointing_enable()
+        if hasattr(model, "enable_input_require_grads"):
+            model.enable_input_require_grads()
+        # note (luojiaxuan): 冻结契约把动作遍钉在 eager(位级确定性),但 eager
+        # 会物化 L×L 注意力矩阵 —— 36k token 时单次 72GB,冒烟即 OOM。选帧遍
+        # 的正确性由枚举表查表判定,不需要位级对齐,切 flash-attn(cu_seqlens 免稠密掩码)合法且必要。
+        n_sw = 0
+        for mod in model.modules():
+            cfg = getattr(mod, "config", None)
+            if cfg is not None and hasattr(cfg, "_attn_implementation"):
+                cfg._attn_implementation = "flash_attention_2"
+                n_sw += 1
+        print(json.dumps({"attn_switched_to_fa2": n_sw}), flush=True)
     print(json.dumps({"lora_modules": len(wrapped),
-                      "lora_params": sum(q.numel() for q in params)}), flush=True)
+                      "lora_params": sum(q.numel() for q in params),
+                      "input_mode": args.input_mode}), flush=True)
     opt = torch.optim.AdamW(params, lr=args.learning_rate)
     opt.zero_grad(set_to_none=True)
     tok = proc.tokenizer
@@ -222,14 +268,21 @@ def main() -> None:
         needed = [root / images[j] for j in cands] + [root / images[s - 1]]
         if not all(x.exists() for x in needed):
             raise ValueError("missing images")
-        probe = b1.get(rec["dp_id"])
-        if probe is None:
-            raise ValueError("no b1 probe")
-        thumbs = {j: make_thumb(root / images[j], args.thumb_pixels)
-                  for j in cands}
-        msgs = build_selector_messages(
-            goal=rec["instruction"], cands=cands, thumbs=thumbs,
-            probe=probe, current_image=str(root / images[s - 1]))
+        if args.input_mode == "images":
+            # v3:候选帧原图直传,processor max_pixels 统一封顶 —— 全部高保真
+            frames = {j: str(root / images[j]) for j in cands}
+            msgs = build_selector_messages_images(
+                goal=rec["instruction"], cands=cands, frames=frames,
+                steps=steps, current_image=str(root / images[s - 1]))
+        else:
+            probe = b1.get(rec["dp_id"])
+            if probe is None:
+                raise ValueError("no b1 probe")
+            thumbs = {j: make_thumb(root / images[j], args.thumb_pixels)
+                      for j in cands}
+            msgs = build_selector_messages(
+                goal=rec["instruction"], cands=cands, thumbs=thumbs,
+                probe=probe, current_image=str(root / images[s - 1]))
         enc = proc.apply_chat_template(
             msgs, tokenize=True, add_generation_prompt=True,
             return_dict=True, return_tensors="pt")
@@ -278,7 +331,15 @@ def main() -> None:
                         a, b = max(pos, key=lambda t: sum(t))
                         tgt_text = f"SELECT: {a},{b}"
                 ex = encode_example(rec, tgt_text)
-                loss = model(**ex).loss
+                # note (luojiaxuan): 不能让模型算全序列 logits —— 36k 位置 ×
+                # 15 万词表 fp32 要 20GB×数份,正是冒烟 OOM 的第二元凶。损失
+                # 只打尾部目标段,logits_to_keep 只算最后 k+1 个位置。
+                labels_t = ex.pop("labels")
+                k = int((labels_t != -100).sum())
+                out = model(**ex, logits_to_keep=k + 1)
+                logits = out.logits[0, :-1].float()
+                loss = torch.nn.functional.cross_entropy(
+                    logits, labels_t[0, -k:])
                 (loss / args.grad_accum).backward()
                 stats["seen"] += 1
                 stats["loss"] += float(loss.detach())
@@ -300,6 +361,7 @@ def main() -> None:
         torch.save({"task": "frame_selector_p1", "rank": args.rank,
                     "alpha": args.alpha, "torch_seed": args.torch_seed,
                     "fold": args.fold, "thumb_pixels": args.thumb_pixels,
+                    "target": args.target, "input_mode": args.input_mode,
                     "target": args.target,
                     "state": lora_state_dict(wrapped)},
                    args.output_root / f"adapter_ep{ep}.pt")
@@ -309,6 +371,7 @@ def main() -> None:
     torch.save({"task": "frame_selector_p1", "rank": args.rank,
                 "alpha": args.alpha, "torch_seed": args.torch_seed,
                 "fold": args.fold, "thumb_pixels": args.thumb_pixels,
+                    "target": args.target, "input_mode": args.input_mode,
                     "target": args.target,
                 "state": lora_state_dict(wrapped)},
                args.output_root / "adapter.pt")

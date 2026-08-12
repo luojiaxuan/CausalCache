@@ -49,6 +49,7 @@ def main() -> None:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from train_frame_selector_p1 import (
         build_selector_messages,
+        build_selector_messages_images,
         load_b1,
         load_winnable,
     )
@@ -73,7 +74,7 @@ def main() -> None:
     random.Random(args.seed).shuffle(ids)
     nh = int(len(ids) * args.holdout_frac)
     hold = ids[args.fold * nh:(args.fold + 1) * nh]
-    b1 = load_b1(args.b1_dir, set(hold))
+    b1 = load_b1(args.b1_dir, set(hold))  # images 模式下仅闲置
     dom = json.loads(args.domain_json.read_text())
     t2d = {}
     for line in args.manifest.open(encoding="utf-8"):
@@ -106,6 +107,13 @@ def main() -> None:
                           target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
                           torch=torch, last_layer_count=None)
     load_lora_state_dict(wrapped, bundle["state"])
+    if bundle.get("input_mode", "probe") == "images":
+        # note (luojiaxuan): 与训练器同款 —— 36k token 的 eager prefill 会物化
+        # L×L 矩阵(72GB)。选帧遍不需要位级对齐,切 flash-attn。
+        for mod in model.modules():
+            cfg = getattr(mod, "config", None)
+            if cfg is not None and hasattr(cfg, "_attn_implementation"):
+                cfg._attn_implementation = "flash_attention_2"
     print(json.dumps({"adapter": args.adapter.name,
                       "torch_seed": bundle.get("torch_seed"),
                       "modules": len(wrapped)}), flush=True)
@@ -160,14 +168,20 @@ def main() -> None:
                 needed = [root / images[j] for j in cands] + [root / images[s - 1]]
                 if not all(x.exists() for x in needed):
                     raise ValueError("missing images")
-                probe = b1.get(dp)
-                if probe is None:
-                    raise ValueError("no b1 probe")
-                thumbs = {j: make_thumb(root / images[j], thumb_pixels)
-                          for j in cands}
-                msgs = build_selector_messages(
-                    goal=rec["instruction"], cands=cands, thumbs=thumbs,
-                    probe=probe, current_image=str(root / images[s - 1]))
+                if bundle.get("input_mode", "probe") == "images":
+                    msgs = build_selector_messages_images(
+                        goal=rec["instruction"], cands=cands,
+                        frames={j: str(root / images[j]) for j in cands},
+                        steps=steps, current_image=str(root / images[s - 1]))
+                else:
+                    probe = b1.get(dp)
+                    if probe is None:
+                        raise ValueError("no b1 probe")
+                    thumbs = {j: make_thumb(root / images[j], thumb_pixels)
+                              for j in cands}
+                    msgs = build_selector_messages(
+                        goal=rec["instruction"], cands=cands, thumbs=thumbs,
+                        probe=probe, current_image=str(root / images[s - 1]))
                 enc = proc.apply_chat_template(
                     msgs, tokenize=True, add_generation_prompt=True,
                     return_dict=True, return_tensors="pt").to(device)
