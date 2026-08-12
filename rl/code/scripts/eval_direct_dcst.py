@@ -26,6 +26,7 @@ def main() -> None:
     p.add_argument("--checkpoint", type=Path, required=True)
     p.add_argument("--output", type=Path, required=True)
     p.add_argument("--fold", type=int, default=0)
+    p.add_argument("--draft-files", nargs="*", type=Path, default=[])
     p.add_argument("--limit-states", type=int, default=0)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260809)
@@ -54,13 +55,29 @@ def main() -> None:
                                         local_files_only=True)
     bundle = torch.load(args.checkpoint, map_location="cpu",
                         weights_only=False)
-    model = DirectDCST().to(dev)
+    cfg = bundle.get("cfg", {})
+    model = DirectDCST(d=cfg.get("dim", 512),
+                       k_spatial=cfg.get("k_spatial", 96),
+                       k_global=cfg.get("k_global", 32),
+                       dropout=cfg.get("dropout", 0.1),
+                       draft_dim=cfg.get("draft_dim", 0)).to(dev)
     model.load_state_dict(bundle["state"])
     model.eval()
     tau = float(bundle["tau"])
     print(json.dumps({"holdout": len(hold), "fold": args.fold, "tau": tau,
                       "ckpt_epoch": bundle.get("epoch"),
                       "inner": bundle.get("inner")}), flush=True)
+
+    draft_feats: dict[str, list[float]] = {}
+    if bundle.get("cfg", {}).get("draft_dim"):
+        from rl_e0_draft_gate_probe import features as draft_features
+        for f in args.draft_files:
+            for line in f.open(encoding="utf-8"):
+                line = line.strip()
+                if line:
+                    r_ = json.loads(line)
+                    draft_feats[r_["dp_id"]] = draft_features(r_)
+        print(json.dumps({"draft_feats": len(draft_feats)}), flush=True)
 
     t2d = {}
     meta = {}
@@ -117,7 +134,9 @@ def main() -> None:
                 nloc = len(cands)
                 recent = [nloc - 2, nloc - 1]
                 st = model.encode_state(toks, cur, segs, ages, acts, recent)
-                q = float(torch.sigmoid(model.recent_failure(st)))
+                dfeat = (torch.tensor(draft_feats[dp], device=dev)
+                         if dp in draft_feats else None)
+                q = float(torch.sigmoid(model.recent_failure(st, dfeat)))
                 all_subs = [t_ for t_ in itertools.combinations(range(nloc), 2)
                             if set(t_) != set(recent)]
                 gains = []

@@ -90,6 +90,15 @@ def main() -> None:
     p.add_argument("--limit-states", type=int, default=0)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260809)
+    # note (luojiaxuan): v3 变体开关 —— fold0 首轮 rescue/q 双随机 + 训练损失
+    # 记忆化(0.17)后的两条便宜反事实:更小更正则的模型;q 门注入 pass-1
+    # 特征(设计预留的 +pass-1 消融,E0 已证其单独 AUC 0.696)。
+    p.add_argument("--dim", type=int, default=512)
+    p.add_argument("--k-spatial", type=int, default=96)
+    p.add_argument("--k-global", type=int, default=32)
+    p.add_argument("--dropout", type=float, default=0.1)
+    p.add_argument("--use-draft", action="store_true")
+    p.add_argument("--draft-files", nargs="*", type=Path, default=[])
     args = p.parse_args()
 
     import sys
@@ -155,8 +164,23 @@ def main() -> None:
     usable = [i for i in ids if i in meta]
     print(json.dumps({"with_meta": len(usable)}), flush=True)
 
+    draft_feats: dict[str, list[float]] = {}
+    if args.use_draft:
+        from rl_e0_draft_gate_probe import features as draft_features
+        for f in args.draft_files:
+            for line in f.open(encoding="utf-8"):
+                line = line.strip()
+                if line:
+                    r_ = json.loads(line)
+                    if r_["dp_id"] in table:
+                        draft_feats[r_["dp_id"]] = draft_features(r_)
+        print(json.dumps({"draft_feats": len(draft_feats)}), flush=True)
+    draft_dim = len(next(iter(draft_feats.values()))) if draft_feats else 0
+
     torch.manual_seed(args.torch_seed)
-    model = DirectDCST().to(dev)
+    model = DirectDCST(d=args.dim, k_spatial=args.k_spatial,
+                       k_global=args.k_global, dropout=args.dropout,
+                       draft_dim=draft_dim).to(dev)
     n_par = sum(p_.numel() for p_ in model.parameters())
     print(json.dumps({"params": n_par}), flush=True)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr,
@@ -196,7 +220,9 @@ def main() -> None:
                 or all(y for _, y in subs):
             toks, cur, segs, ages, acts, rec, subs, b = load_state(dp)
         st = model.encode_state(toks, cur, segs, ages, acts, rec)
-        q_logit = model.recent_failure(st)
+        dfeat = (torch.tensor(draft_feats[dp], device=dev)
+                 if dp in draft_feats else None)
+        q_logit = model.recent_failure(st, dfeat)
         sub_list = [s_ for s_, _ in subs]
         y = torch.tensor([float(v) for _, v in subs], device=dev)
         r_log, h_log = model.score_subsets(st, sub_list)
@@ -253,7 +279,9 @@ def main() -> None:
                 continue
             with torch.autocast("cuda", dtype=torch.bfloat16):
                 st = model.encode_state(toks, cur, segs, ages, acts, rec)
-                q = torch.sigmoid(model.recent_failure(st).float())
+                dfeat = (torch.tensor(draft_feats[dp], device=dev)
+                         if dp in draft_feats else None)
+                q = torch.sigmoid(model.recent_failure(st, dfeat).float())
                 rset = frozenset(rec)
                 cand = [(s_, y_) for s_, y_ in subs if frozenset(s_) != rset]
                 if not cand:
@@ -336,6 +364,10 @@ def main() -> None:
             torch.save({"state": model.state_dict(), "tau": ev["tau"],
                         "epoch": ep, "fold": args.fold,
                         "torch_seed": args.torch_seed,
+                        "cfg": {"dim": args.dim, "k_spatial": args.k_spatial,
+                                "k_global": args.k_global,
+                                "dropout": args.dropout,
+                                "draft_dim": draft_dim},
                         "inner": ev}, args.output_root / "best.pt")
         else:
             since += 1

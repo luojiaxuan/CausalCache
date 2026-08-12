@@ -234,10 +234,12 @@ class SubsetScorer(nn.Module):
 
 
 class RecentFailureHead(nn.Module):
-    """q_s = P(recent-B 错 | R, current, C)。每态一次,候选无关。"""
+    """q_s = P(recent-B 错 | R, current, C)。每态一次,候选无关。
+    use_draft 时追加 pass-1 分布特征 token(设计的 +pass-1 增强消融;
+    E0 证明该特征单独可达 AUC 0.696,而纯视觉 q 头在 fold0 是随机)。"""
 
     def __init__(self, d: int = 512, heads: int = 8, ffn: int = 2048,
-                 dropout: float = 0.1) -> None:
+                 dropout: float = 0.1, draft_dim: int = 0) -> None:
         super().__init__()
         self.role_emb = nn.Embedding(2, d)                # 0=recent, 1=current
         self.queries = nn.Parameter(torch.randn(4, d) * 0.02)
@@ -245,11 +247,18 @@ class RecentFailureHead(nn.Module):
         self.selfb = _Block(d, heads, ffn, dropout)
         self.pool = AttnPool(d)
         self.head = nn.Linear(d, 1)
+        self.draft_proj = (nn.Sequential(nn.LayerNorm(draft_dim),
+                                         nn.Linear(draft_dim, d))
+                           if draft_dim else None)
 
     def forward(self, recent_fine: torch.Tensor, cur_fine: torch.Tensor,
-                ctx: torch.Tensor) -> torch.Tensor:
-        m = torch.cat([recent_fine + self.role_emb.weight[0],
-                       cur_fine + self.role_emb.weight[1], ctx]).unsqueeze(0)
+                ctx: torch.Tensor,
+                draft: torch.Tensor | None = None) -> torch.Tensor:
+        parts = [recent_fine + self.role_emb.weight[0],
+                 cur_fine + self.role_emb.weight[1], ctx]
+        if self.draft_proj is not None and draft is not None:
+            parts.append(self.draft_proj(draft).unsqueeze(0))
+        m = torch.cat(parts).unsqueeze(0)
         q = self.queries.unsqueeze(0)
         q = self.cross(q, m)
         q = self.selfb(q)
@@ -258,13 +267,13 @@ class RecentFailureHead(nn.Module):
 
 class DirectDCST(nn.Module):
     def __init__(self, d: int = 512, k_spatial: int = 96, k_global: int = 32,
-                 dropout: float = 0.1) -> None:
+                 dropout: float = 0.1, draft_dim: int = 0) -> None:
         super().__init__()
         self.resampler = FrameResampler(d, k_spatial, k_global, dropout=dropout)
         self.context = ContextEncoder(d, dropout=dropout)
         self.set_enc = CandidateSetEncoder(d, dropout=dropout)
         self.scorer = SubsetScorer(d, dropout=dropout)
-        self.fail = RecentFailureHead(d, dropout=dropout)
+        self.fail = RecentFailureHead(d, dropout=dropout, draft_dim=draft_dim)
 
     def encode_state(self, toks: list[torch.Tensor], cur: torch.Tensor,
                      ctx_segs: list[torch.Tensor], ages: list[int],
@@ -279,9 +288,9 @@ class DirectDCST(nn.Module):
         return {"lat": lat, "cur": cur_lat, "ctx": ctx, "h": h,
                 "recent": list(recent_idx)}
 
-    def recent_failure(self, st) -> torch.Tensor:
+    def recent_failure(self, st, draft=None) -> torch.Tensor:
         rec = st["lat"][st["recent"]].reshape(-1, st["lat"].shape[-1])
-        return self.fail(rec, st["cur"], st["ctx"])
+        return self.fail(rec, st["cur"], st["ctx"], draft)
 
     def score_subsets(self, st, subsets: list[tuple[int, ...]]):
         """subsets 为候选帧下标(局部 0..N-1)的可变长度元组;批式打分。"""
