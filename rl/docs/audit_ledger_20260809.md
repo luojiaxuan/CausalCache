@@ -164,6 +164,35 @@ fold0,我扩为 +fold1-4(n=252→1260):#26 经验 n≈250 的 CI ±5pp
 通过。**今后任何要实例化 GUIOwlOSWorldRuntime 的新容器,先
 `pip install transformers==5.6.0`。**
 
+## 0.12 ★ DCET 方案采纳 + E0 门信号确认(08-12)
+
+用户携外部方案(ChatGPT Pro)回归:**DCET(Draft-Conditioned Counterfactual
+Edge Transformer)** —— 决策原子从"帧"改为"替换 recent-2 的帧对干预",
+监督原子从"pair 是否正确"改为"这次干预是赢(01)是输(10)":边级
+4 分类 {00,01,10,11},收益 G=p01−λ·p10−ε,KEEP 锚定为 0,LCB+阈值控
+移动率。**已对照 §3 已证伪配置表核验:非加性(边由两帧 token 联合
+cross-attn)、draft 条件化、干预相对效用、显式 KEEP —— 四个要素均未被
+任何已试配置覆盖,采纳。**方案全文入库
+[selector_dcet_plan_20260812.md](selector_dcet_plan_20260812.md)。
+
+**资产核验**:①v5raw 特征 = hidden_states[0] 图像段(纯视觉投影,无文本
+上下文化)—— 方案的缓存假设成立,其"当前步上下文需另行注入"的提醒
+正确;②pass-1 draft 已采齐(1263/1263,贪心动作 + token 级 top-8
+logprob;方案要 top-16 + 解码 hidden,首轮按 top-8 + 冻结词嵌入 adapter
+的回退路径走,记为偏差,E0 若弱再补采)。
+
+**E0(方案规定的诊断步)已跑:pass-1 分布特征预测 recent-2 正确性,
+5 折 OOF AUC = 0.696**(逐折 0.655-0.749,基线 0.5,正负例均衡
+50.4%)—— **KEEP 门的信号确实在 pass-1 分布里**,DCET 的 recent-correct
+辅助头与门控设计有据。这是 disagree 规则(+1.19)之外第一个干净的
+可部署正信号。
+
+**预注册(执行序列与门槛)**:E1(非加性 pair comparator,fold0,
+1-3 GPUh/折)→ E2 DCET fold0 × 3 种子(6-15 GPUh/折/种子)——
+**fold0 部署口径 diff 为正且 W/L>1 才升 5 折**;终验收按方案 §5:
+OOF n=1263 diff ≥ +3pp 且 CI 不跨零、W/L>1、超过 +1.19 规则、
+MultiApp 不显著为负。λ/τ/κ 只在内层 OOF 校准。
+
 ## 0.11 ★★ pass-1 探针线:信号找到了——在策略行为空间,不在视觉特征空间(08-11)
 
 用户两问打开的口子:①"先跑一遍 forward 拿 draft action 当输入试过没有"
