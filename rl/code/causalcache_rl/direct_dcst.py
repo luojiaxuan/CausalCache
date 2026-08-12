@@ -81,12 +81,15 @@ class FrameResampler(nn.Module):
         self.col_emb = nn.Embedding(128, d)
         self.k_spatial, self.k_global = k_spatial, k_global
         self.queries = nn.Parameter(torch.randn(k_spatial + k_global, d) * 0.02)
-        # note (luojiaxuan): spatial-anchor 的锚位加到 query 上(12×8 网格的
-        # 归一坐标),对齐帧内真实二维位置;global 无锚。
-        gr, gc = 8, 12
-        anchors = [(r / (gr - 1), c / (gc - 1))
+        # note (luojiaxuan): spatial-anchor 的锚位加到 query 上(近 2:3 网格的
+        # 归一坐标),对齐帧内真实二维位置;global 无锚。网格由 k_spatial
+        # 因子分解得出(96→8×12,48→6×8)—— v3a 崩于写死 96 的教训。
+        gr = max(r for r in range(1, int(math.sqrt(k_spatial)) + 1)
+                 if k_spatial % r == 0)
+        gc = k_spatial // gr
+        anchors = [(r / max(gr - 1, 1), c / max(gc - 1, 1))
                    for r in range(gr) for c in range(gc)]
-        self.register_buffer("anchor_rc", torch.tensor(anchors))  # [96,2]
+        self.register_buffer("anchor_rc", torch.tensor(anchors))  # [k_spatial,2]
         self.blocks = nn.ModuleList(
             _Block(d, heads, ffn, dropout) for _ in range(blocks))
 
@@ -246,23 +249,26 @@ class RecentFailureHead(nn.Module):
         self.cross = _Block(d, heads, ffn, dropout)
         self.selfb = _Block(d, heads, ffn, dropout)
         self.pool = AttnPool(d)
-        self.head = nn.Linear(d, 1)
+        # note (luojiaxuan): draft 特征走**直连捷径**拼进头部输入 —— v3b 教训:
+        # 只作为记忆 token 进注意力会被 260+ 个视觉 token 淹没(q_auc 仍 0.5,
+        # 而 E0 同特征+逻辑回归可达 0.696)。
         self.draft_proj = (nn.Sequential(nn.LayerNorm(draft_dim),
-                                         nn.Linear(draft_dim, d))
+                                         nn.Linear(draft_dim, 64), nn.GELU())
                            if draft_dim else None)
+        self.head = nn.Linear(d + (64 if draft_dim else 0), 1)
 
     def forward(self, recent_fine: torch.Tensor, cur_fine: torch.Tensor,
                 ctx: torch.Tensor,
                 draft: torch.Tensor | None = None) -> torch.Tensor:
-        parts = [recent_fine + self.role_emb.weight[0],
-                 cur_fine + self.role_emb.weight[1], ctx]
-        if self.draft_proj is not None and draft is not None:
-            parts.append(self.draft_proj(draft).unsqueeze(0))
-        m = torch.cat(parts).unsqueeze(0)
+        m = torch.cat([recent_fine + self.role_emb.weight[0],
+                       cur_fine + self.role_emb.weight[1], ctx]).unsqueeze(0)
         q = self.queries.unsqueeze(0)
         q = self.cross(q, m)
         q = self.selfb(q)
-        return self.head(self.pool(q)).squeeze(-1)[0]     # 标量 logit
+        z = self.pool(q)
+        if self.draft_proj is not None and draft is not None:
+            z = torch.cat([z, self.draft_proj(draft).unsqueeze(0)], dim=-1)
+        return self.head(z).squeeze(-1)[0]                # 标量 logit
 
 
 class DirectDCST(nn.Module):
