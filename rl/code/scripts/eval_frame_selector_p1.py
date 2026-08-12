@@ -89,7 +89,18 @@ def main() -> None:
         device=args.device,
         effective_visual_tokens_per_image=args.visual_tokens,
         max_new_tokens=16)
-    model, device, proc = runtime.model, runtime.device, runtime.processor
+    model, device = runtime.model, runtime.device
+    # note (luojiaxuan): 与训练器同款 —— runtime processor 的 min=max 钉死会把
+    # 缩略图放大回 2560 token,选帧遍必须自建 min 放开的 processor。
+    from causalcache.osworld_gui_owl import (
+        VISION_PATCH_SIZE,
+        VISION_SPATIAL_MERGE_SIZE,
+    )
+    from transformers import AutoProcessor
+    unit = (VISION_PATCH_SIZE * VISION_SPATIAL_MERGE_SIZE) ** 2
+    proc = AutoProcessor.from_pretrained(
+        str(args.model_dir), min_pixels=4 * unit,
+        max_pixels=args.visual_tokens * unit, local_files_only=True)
     bundle = torch.load(args.adapter, map_location="cpu", weights_only=False)
     wrapped = inject_lora(model, rank=bundle["rank"], alpha=bundle["alpha"],
                           target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),

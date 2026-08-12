@@ -157,7 +157,20 @@ def main() -> None:
         device=args.device,
         effective_visual_tokens_per_image=args.visual_tokens,
         max_new_tokens=16)
-    model, device, proc = runtime.model, runtime.device, runtime.processor
+    model, device = runtime.model, runtime.device
+    # note (luojiaxuan): runtime 的 processor 把 min=max 像素钉死(策略动作遍
+    # 需要),会把缩略图强行放大回 2560 token —— 首启三种子因此每样本
+    # ~3.6 万视觉 token,2017/2022 全数 OOM。选帧 prompt 自建 processor:
+    # min 放开让缩略图保持小,max 封顶让当前屏落在 --visual-tokens。
+    from causalcache.osworld_gui_owl import (
+        VISION_PATCH_SIZE,
+        VISION_SPATIAL_MERGE_SIZE,
+    )
+    from transformers import AutoProcessor
+    unit = (VISION_PATCH_SIZE * VISION_SPATIAL_MERGE_SIZE) ** 2
+    proc = AutoProcessor.from_pretrained(
+        str(args.model_dir), min_pixels=4 * unit,
+        max_pixels=args.visual_tokens * unit, local_files_only=True)
     torch.manual_seed(args.torch_seed)
     wrapped = inject_lora(model, rank=args.rank, alpha=args.alpha,
                           target_modules=("q_proj", "k_proj", "v_proj", "o_proj"),
