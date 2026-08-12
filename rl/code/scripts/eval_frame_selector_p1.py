@@ -181,7 +181,9 @@ def main() -> None:
                 m = re.search(r"SELECT:\s*(\d+)\s*,\s*(\d+)", text)
                 recent = frozenset(cands[-2:])
                 fallback = False
-                if m:
+                if re.search(r"\bKEEP\b", text):
+                    chosen = recent
+                elif m:
                     a, b = int(m.group(1)), int(m.group(2))
                     if a in cands and b in cands and a != b:
                         chosen = frozenset((a, b))

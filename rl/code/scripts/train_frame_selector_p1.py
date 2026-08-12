@@ -94,9 +94,12 @@ def build_selector_messages(*, goal: str, cands: list[int], thumbs: dict,
     content.append({"type": "text",
                     "text": ("\nDraft action (the agent's output with no history "
                              f"frames): {json.dumps(draft, ensure_ascii=False)}\n"
-                             "Select the TWO history frames that would most help "
-                             "the agent take the correct next action. Answer with "
-                             "exactly: SELECT: i,j")})
+                             "By default the agent is shown the two most recent "
+                             f"frames [{cands[-2]}, {cands[-1]}]. If that default "
+                             "is already the best choice, answer exactly: KEEP\n"
+                             "Otherwise select the two frames that would most "
+                             "help the agent act correctly, answering exactly: "
+                             "SELECT: i,j")})
     return [{"role": "user", "content": content}]
 
 
@@ -124,6 +127,11 @@ def main() -> None:
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260809)
     p.add_argument("--torch-seed", type=int, default=0)
+    # note (luojiaxuan): v1 的 uniform 目标是失败根因 —— winnable 里 recent-2
+    # 本就正确的态占 ~50%,均匀采正对等于教模型"对的也要挪走",学出 75%
+    # 移动率、每动错赢 2:1(台账 §0.11 P1 终判)。minimal = 最小干预目标:
+    # recent-2 对 → KEEP;错 → 换到最靠 recency 的正确对。
+    p.add_argument("--target", choices=["minimal", "uniform"], default="minimal")
     args = p.parse_args()
 
     import sys
@@ -200,7 +208,7 @@ def main() -> None:
             img = img.resize((max(28, int(w * scale)), max(28, int(h * scale))))
         return img
 
-    def encode_example(rec: dict, target_pair: tuple[int, int]):
+    def encode_example(rec: dict, target_text: str):
         s = int(rec["step"])
         images = rec["image_relpaths"]
         if len(images) != s:
@@ -225,8 +233,7 @@ def main() -> None:
         enc = proc.apply_chat_template(
             msgs, tokenize=True, add_generation_prompt=True,
             return_dict=True, return_tensors="pt")
-        a, b = sorted(target_pair)
-        tgt_ids = tok(f"SELECT: {a},{b}", add_special_tokens=False,
+        tgt_ids = tok(target_text, add_special_tokens=False,
                       return_tensors="pt")["input_ids"]
         eos = torch.tensor([[tok.eos_token_id]])
         tgt = torch.cat([tgt_ids, eos], dim=1)
@@ -257,8 +264,20 @@ def main() -> None:
             if rec is None:
                 continue
             try:
-                pos = [t for t in lab[dp][0]]
-                ex = encode_example(rec, tuple(rng.choice(pos)))
+                pos = [tuple(sorted(t)) for t in lab[dp][0]]
+                if args.target == "uniform":
+                    a, b = rng.choice(pos)
+                    tgt_text = f"SELECT: {a},{b}"
+                else:
+                    cand_set = sorted({j for t in lab[dp][0] + lab[dp][1]
+                                       for j in t})
+                    recent2 = tuple(sorted(cand_set[-2:]))
+                    if recent2 in set(pos):
+                        tgt_text = "KEEP"
+                    else:
+                        a, b = max(pos, key=lambda t: sum(t))
+                        tgt_text = f"SELECT: {a},{b}"
+                ex = encode_example(rec, tgt_text)
                 loss = model(**ex).loss
                 (loss / args.grad_accum).backward()
                 stats["seen"] += 1
@@ -281,6 +300,7 @@ def main() -> None:
         torch.save({"task": "frame_selector_p1", "rank": args.rank,
                     "alpha": args.alpha, "torch_seed": args.torch_seed,
                     "fold": args.fold, "thumb_pixels": args.thumb_pixels,
+                    "target": args.target,
                     "state": lora_state_dict(wrapped)},
                    args.output_root / f"adapter_ep{ep}.pt")
         print(json.dumps({"epoch_end": ep, "seen": stats["seen"],
@@ -289,6 +309,7 @@ def main() -> None:
     torch.save({"task": "frame_selector_p1", "rank": args.rank,
                 "alpha": args.alpha, "torch_seed": args.torch_seed,
                 "fold": args.fold, "thumb_pixels": args.thumb_pixels,
+                    "target": args.target,
                 "state": lora_state_dict(wrapped)},
                args.output_root / "adapter.pt")
     n_skip = sum(stats["skipped"].values())
