@@ -71,18 +71,22 @@ def main() -> None:
     p.add_argument("--output-root", type=Path, required=True)
     p.add_argument("--fold", type=int, default=0)
     p.add_argument("--torch-seed", type=int, default=0)
-    p.add_argument("--epochs", type=int, default=15)
+    p.add_argument("--epochs", type=int, default=40)
     p.add_argument("--warmup-epochs", type=int, default=2,
                    help="先只训概率头(L_base+L_cond),再加 L_deploy")
     p.add_argument("--lr", type=float, default=2e-4)
     p.add_argument("--weight-decay", type=float, default=0.05)
-    p.add_argument("--grad-accum", type=int, default=16)
+    p.add_argument("--grad-accum", type=int, default=8)
     p.add_argument("--margin", type=float, default=0.1)
     p.add_argument("--alpha", type=float, default=1.0)
     p.add_argument("--beta", type=float, default=1.0)
-    p.add_argument("--cand-dropout", type=float, default=0.15)
+    p.add_argument("--cand-dropout", type=float, default=0.10)
     p.add_argument("--inner-frac", type=float, default=0.15)
-    p.add_argument("--patience", type=int, default=5)
+    p.add_argument("--patience", type=int, default=6)
+    # note (luojiaxuan): 首启教训——负 bias 保守初始化下 G 要多个
+    # epoch 才越过 0,paired-diff 在此前恒 0,patience 会在模型
+    # 开始移动前掐掉训练;min-epochs 之前不早停。
+    p.add_argument("--min-epochs", type=int, default=16)
     p.add_argument("--limit-states", type=int, default=0)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260809)
@@ -190,7 +194,7 @@ def main() -> None:
             dp, args.cand_dropout, rng)
         if len(subs) < 2 or not any(y for _, y in subs) \
                 or all(y for _, y in subs):
-            raise ValueError("degenerate after dropout")
+            toks, cur, segs, ages, acts, rec, subs, b = load_state(dp)
         st = model.encode_state(toks, cur, segs, ages, acts, rec)
         q_logit = model.recent_failure(st)
         sub_list = [s_ for s_, _ in subs]
@@ -224,10 +228,22 @@ def main() -> None:
         beta = 0.0 if ep < args.warmup_epochs else args.beta
         return l_base + args.alpha * l_cond + beta * l_dep
 
+    def _auc(pairs):
+        pos = sorted(s_ for s_, y_ in pairs if y_)
+        neg = sorted(s_ for s_, y_ in pairs if not y_)
+        if not pos or not neg:
+            return None
+        import bisect
+        h = sum(bisect.bisect_left(neg, x)
+                + 0.5 * (bisect.bisect_right(neg, x)
+                         - bisect.bisect_left(neg, x)) for x in pos)
+        return round(h / (len(pos) * len(neg)), 4)
+
     @torch.no_grad()
     def inner_eval():
         model.eval()
         rows = []
+        q_pairs, resc_aucs, harm_aucs = [], [], []
         for dp in inner_ids:
             if dp not in meta:
                 continue
@@ -235,18 +251,40 @@ def main() -> None:
                 toks, cur, segs, ages, acts, rec, subs, b = load_state(dp)
             except (ValueError, KeyError, OSError, AssertionError):
                 continue
-            st = model.encode_state(toks, cur, segs, ages, acts, rec)
-            q = torch.sigmoid(model.recent_failure(st))
-            rset = frozenset(rec)
-            cand = [(s_, y_) for s_, y_ in subs if frozenset(s_) != rset]
-            if not cand:
-                continue
-            r_log, h_log = model.score_subsets(st, [s_ for s_, _ in cand])
-            g = (q * torch.sigmoid(r_log)
-                 - (1 - q) * torch.sigmoid(h_log)).tolist()
+            with torch.autocast("cuda", dtype=torch.bfloat16):
+                st = model.encode_state(toks, cur, segs, ages, acts, rec)
+                q = torch.sigmoid(model.recent_failure(st).float())
+                rset = frozenset(rec)
+                cand = [(s_, y_) for s_, y_ in subs if frozenset(s_) != rset]
+                if not cand:
+                    continue
+                r_log, h_log = model.score_subsets(st, [s_ for s_, _ in cand])
+            r_p = torch.sigmoid(r_log.float()).tolist()
+            h_p = torch.sigmoid(h_log.float()).tolist()
+            g = [float(q) * rp - (1 - float(q)) * hp
+                 for rp, hp in zip(r_p, h_p)]
+            q_pairs.append((float(q), int(not b)))
+            ys = [int(y_) for _, y_ in cand]
+            if not b:
+                a = _auc(list(zip(r_p, ys)))
+                if a is not None:
+                    resc_aucs.append(a)
+            else:
+                a = _auc(list(zip(h_p, [1 - y_ for y_ in ys])))
+                if a is not None:
+                    harm_aucs.append(a)
             k = max(range(len(g)), key=lambda i: g[i])
             rows.append({"b": int(b), "gmax": g[k], "y": int(cand[k][1])})
         model.train()
+        diag = {"q_auc": _auc(q_pairs),
+                "rescue_auc": round(sum(resc_aucs) / len(resc_aucs), 4)
+                if resc_aucs else None,
+                "harm_auc": round(sum(harm_aucs) / len(harm_aucs), 4)
+                if harm_aucs else None,
+                "gmax_p50": round(sorted(r["gmax"] for r in rows)
+                                  [len(rows) // 2], 4) if rows else None,
+                "gmax_max": round(max((r["gmax"] for r in rows),
+                                      default=0.0), 4)}
         best = None
         for tau in [i / 50 for i in range(26)]:
             acc_s = sum(r["y"] if r["gmax"] > tau else r["b"] for r in rows)
@@ -257,7 +295,7 @@ def main() -> None:
             if best is None or (d, w - l_) > (best[0], best[1]):
                 best = (d, w - l_, tau, w, l_)
         return {"inner_diff_pp": round(100 * best[0], 2), "W": best[3],
-                "L": best[4], "tau": best[2], "n": len(rows)}
+                "L": best[4], "tau": best[2], "n": len(rows), **diag}
 
     args.output_root.mkdir(parents=True, exist_ok=True)
     rng = random.Random(args.seed + 13 + args.torch_seed)
@@ -272,7 +310,8 @@ def main() -> None:
             if dp not in meta:
                 continue
             try:
-                loss = state_losses(dp, ep, rng)
+                with torch.autocast("cuda", dtype=torch.bfloat16):
+                    loss = state_losses(dp, ep, rng)
                 (loss / args.grad_accum).backward()
                 seen += 1
                 run_loss += float(loss.detach())
@@ -288,8 +327,9 @@ def main() -> None:
                 continue
         ev = inner_eval()
         print(json.dumps({"epoch": ep, "mean_loss": round(
-            run_loss / max(len(order), 1), 4), **ev,
+            run_loss / max(seen, 1), 4), **ev,
             "skipped": skipped}, ensure_ascii=False), flush=True)
+        run_loss = 0.0
         key = (ev["inner_diff_pp"], ev["W"] - ev["L"])
         if best_diff is None or key > best_diff:
             best_diff, best_ep, since = key, ep, 0
@@ -299,7 +339,7 @@ def main() -> None:
                         "inner": ev}, args.output_root / "best.pt")
         else:
             since += 1
-            if since >= args.patience:
+            if ep >= args.min_epochs and since >= args.patience:
                 print(json.dumps({"early_stop": ep}), flush=True)
                 break
     print(json.dumps({"final": True, "best_epoch": best_ep,
