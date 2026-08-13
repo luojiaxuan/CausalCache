@@ -171,3 +171,13 @@ full GUI-Owl 从零联合训练。
 | E3 | 动作口径**复用冻结路径**:policy 输出 [0,999] 归一 `computer_use` 调用,env 映射到 1920×1080 像素;历史文本经 `render_official_action_line/response` 渲染 | 与 AgentNet 语料、既有 prompt builder、既有评测逐字同源,避免量纲/格式漂移 | 契约里集中做归一↔像素换算,单点可改 |
 | E4 | Phase 1 先不接 LLM 改写 instruction(用模板化多样性),LLM 改写留作 Phase 1.5 | 先把可验证的确定性骨架跑通;LLM 改写不影响 verifier 与 reward | 改写是纯文本后处理,随时可加 |
 | E5 | 验收项"不同 memory subset 改变成功概率"需真跑冻结 policy(GPU),排在环境自检之后 | 它是环境**有效性**的判据,不是环境**正确性**的判据 | 见 `scripts/agentic_memory_sensitivity.py` |
+| P2A-1 | Phase 2A 用**全层 qkvo LoRA r8**,而非路线文档写的"后若干层" | 台账 §0.8/§0.9 实测:同参数量的末 8 层 k/v 适配增益 ≈0,全层 qkvo r8 拿到 +5.50pp CI[+3.00,+8.06]。硬约束仍满足:视觉编码器全冻(特征缓存有效)、非 full finetune、LoRA 零初始化 ⇒ 训练起点逐位等于原始 GUI-Owl(即"gate 初始≈0") | `--last-layers N` 一个开关切回 |
+| P2A-2 | Phase 2 先做 **A 臂(历史帧走官方 prompt 主通路)**,B 臂(gate 侧通道 HGKV cross-attn)推到 Phase 3 管线打通之后 | A 臂是已验证路径,最快解锁 Phase 3(论文最关键阶段);B 臂多的是 token 成本故事与显式 g_l 旋钮,不改变"executor 会读稀疏历史"这个 Phase 2 目标 | 两臂共用 SFT 数据与评测,B 臂随时可加训并同表比较 |
+| P2A-3 | SFT 训练集按 **决策步全留 + 平凡步分层欠采样**(2591 条:决策 1226 / 平凡 1365) | 记忆是否被读出只在决策步体现,是最稀缺监督;不欠采样会被"点应用图标"这类步淹没 | `mix_sft.py` 的 budget 参数 |
+
+## 11. 实测数值(随执行更新)
+
+- **冻结 GUI-Owl 在 mock GUI 上的域差(2026-08-13)**:teacher-forced 单步动作
+  正确率 **52.5%**(n=160 留出记录;oracle 记忆 57.1% / recent-2 41.3%)——
+  **域差不是灾难性的**,模型能解析我们渲染的界面并做对一半的动作。
+  这条决定了 E5 验收可以在 Phase 1 就测,不必推迟到 Phase 2 之后。
