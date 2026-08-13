@@ -73,6 +73,10 @@ def main() -> None:
     p.add_argument("--limit-records", type=int, default=0)
     p.add_argument("--eval-every", type=int, default=1, help="每 N 个 epoch 评一次")
     p.add_argument("--eval-limit", type=int, default=240)
+    # note (luojiaxuan): 中途存档 —— 共享机上长跑不能等到 epoch 末才落盘,
+    # 被抢卡/OOM 就前功尽弃(台账 §6 的老教训)。
+    p.add_argument("--save-every", type=int, default=200,
+                   help="每 N 条样本存一次 adapter_latest.pt(0=关)")
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260813)
     p.add_argument("--torch-seed", type=int, default=0)
@@ -235,6 +239,15 @@ def main() -> None:
                     opt.step()
                     opt.zero_grad(set_to_none=True)
                     stats["steps"] += 1
+                if args.save_every and stats["seen"] % args.save_every == 0:
+                    torch.save({"arm": "mem_sft_a", "rank": args.rank,
+                                "alpha": args.alpha,
+                                "target_modules": args.target_modules,
+                                "last_layers": args.last_layers, "epoch": ep,
+                                "seen": stats["seen"],
+                                "torch_seed": args.torch_seed,
+                                "state": lora_state_dict(wrapped)},
+                               args.output_root / "adapter_latest.pt")
                 if stats["seen"] % 100 == 0:
                     print(json.dumps({"epoch": ep, "seen": stats["seen"],
                                       "opt_steps": stats["steps"],
