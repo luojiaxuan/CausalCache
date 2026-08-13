@@ -164,6 +164,41 @@ fold0,我扩为 +fold1-4(n=252→1260):#26 经验 n≈250 的 CI ±5pp
 通过。**今后任何要实例化 GUIOwlOSWorldRuntime 的新容器,先
 `pip install transformers==5.6.0`。**
 
+## 0.14 ★★★ v5 exact policy objective 终局(08-13):给定全量真 reward,最优可学策略收敛为"永不移动"——selector 线关闭条件触发
+
+用户问"能否 GRPO"后采纳外部建议:B=2 全量 reward 表下不采样,做
+**exact full-information discrete policy optimization** —— 删 rescue/harm
+分解,π=softmax([z_keep, z_S...]),L=−Σπ·R−0.01·熵(R:救回 +1/弄坏
+−1/白动 −0.05/KEEP 0),GUI-Owl 不在计算图,监督为"态内动作竞争"
+而非"跨态校准概率"(这是与已证伪 listpos/decomp 的原理性区别,
+全局 AUC 0.5 与"态内 argmax 常对"数学上可以共存,此前从未直接测过)。
+
+**结果(fold0,2×1 对照,各 17 epoch 早停,评测 252/252)**:
+纯视觉版与 +pass-1 版**双双塌缩到 always-KEEP**(z_keep−z_max ≈ +20,
+移动率 0,部署 diff 精确 0;rescue AUC 仍 0.49-0.51)。
+
+**判读:这不是训练失败,是优化器给出的正确答案。** 展开:b=1 态
+(~50%)上任何移动期望收益 ≤ −0.05;b=0 态上盲选子集的期望收益虽可
+为正,但模型无法区分 b(纯视觉)或区分不充分(pass-1 门 AUC 0.65),
+也无法在态内识别正对(rescue 随机)—— 于是全局最优盲策略就是 KEEP。
+**给定完整真实 reward 表、直接最大化部署期望收益、保留非加性结构与
+行为条件,学出的最优可部署策略 = recency 基线本身。**
+GPT 方案预先写明的关闭条件("若 exact policy objective 的 OOF top-1
+仍不动,则 rescue 信息不在当前输入,GRPO 也不会凭空创造")已触发。
+
+**selector 线正式关闭(§0.13 甲案,证据链最终形态)**:
+1. oracle 头寸 +28pp 真实存在(方法动机,枚举证明);
+2. KEEP 门可学但仅经 pass-1 行为分布(0.65-0.70,双实现互证);
+3. rescue 在部署可得输入下不可学:3 模型族(加性/8B LoRA/非加性
+   子集 Transformer)× 3 数据点(400/650/858,全平)× 3 监督范式
+   (分类/结构化 margin/exact policy)全部一致;
+4. 期望收益最大化的理性终点 = 永不移动(首个"不亏钱"selector 的
+   机制解释);
+5. rescue 信号的所在地被精确定位:逐帧真跑策略的正确性(UB +11pp)
+   —— 部署不可得。
+论文叙事:**recency 是该输入类下最优可学记忆策略;超越它需要行为
+探针计算(不可部署)或改策略(#26,+5.50pp 显著)。**
+
 ## 0.13 ★★★ Direct DCST 全链终判(08-12~13):KEEP 门可学、rescue 不可学,规模曲线三点全平
 
 设计冻结版(§0.12 后由用户升级为 Direct DCST,方案全文
