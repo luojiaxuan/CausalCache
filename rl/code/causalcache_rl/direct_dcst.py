@@ -215,10 +215,15 @@ class SubsetScorer(nn.Module):
         self.pool = AttnPool(d)
         self.head_rescue = nn.Linear(d, 1)
         self.head_harm = nn.Linear(d, 1)
+        # note (luojiaxuan): v5 exact policy objective 的标量策略 logit ——
+        # π = softmax([z_keep, z_S...]),训练最大化 Σπ·R(全量 reward 表,
+        # GUI-Owl 不在计算图);decomp 目标不用它。
+        self.head_z = nn.Linear(d, 1)
         # note (luojiaxuan): 负 bias 初始化 —— 初始 rescue≈0 → G≈0 →
         # 初始行为 = always-KEEP(设计要求的保守起点)。
         nn.init.constant_(self.head_rescue.bias, -2.0)
         nn.init.constant_(self.head_harm.bias, -2.0)
+        nn.init.zeros_(self.head_z.bias)
 
     def forward(self, fine: torch.Tensor, roles: torch.Tensor,
                 mask: torch.Tensor, hs: torch.Tensor) -> tuple:
@@ -233,7 +238,8 @@ class SubsetScorer(nn.Module):
         q = self.self1(q)
         q = self.cross2(q, m, mask)
         z = self.pool(q)
-        return self.head_rescue(z).squeeze(-1), self.head_harm(z).squeeze(-1)
+        return (self.head_rescue(z).squeeze(-1), self.head_harm(z).squeeze(-1),
+                self.head_z(z).squeeze(-1))
 
 
 class RecentFailureHead(nn.Module):

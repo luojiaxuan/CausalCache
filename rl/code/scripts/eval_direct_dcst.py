@@ -136,18 +136,23 @@ def main() -> None:
                 st = model.encode_state(toks, cur, segs, ages, acts, recent)
                 dfeat = (torch.tensor(draft_feats[dp], device=dev)
                          if dp in draft_feats else None)
-                q = float(torch.sigmoid(model.recent_failure(st, dfeat)))
+                q_logit_ = float(model.recent_failure(st, dfeat))
+                q = float(torch.sigmoid(torch.tensor(q_logit_)))
+                policy_mode = cfg.get("objective") == "policy"
                 all_subs = [t_ for t_ in itertools.combinations(range(nloc), 2)
                             if set(t_) != set(recent)]
                 gains = []
                 for k0 in range(0, len(all_subs), 128):
                     chunk = all_subs[k0:k0 + 128]
-                    r_log, h_log = model.score_subsets(st, chunk)
-                    g = (q * torch.sigmoid(r_log)
-                         - (1 - q) * torch.sigmoid(h_log))
+                    r_log, h_log, z_log = model.score_subsets(st, chunk)
+                    if policy_mode:
+                        g = z_log - q_logit_
+                    else:
+                        g = (q * torch.sigmoid(r_log)
+                             - (1 - q) * torch.sigmoid(h_log))
                     gains += [float(x) for x in g]
                 kbest = max(range(len(gains)), key=lambda i: gains[i])
-                move = gains[kbest] > tau
+                move = gains[kbest] > (0.0 if policy_mode else tau)
                 loc = all_subs[kbest] if move else tuple(recent)
                 chosen = tuple(sorted(cands[i] for i in loc))
                 rpair = tuple(sorted(cands[i] for i in recent))

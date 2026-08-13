@@ -99,6 +99,16 @@ def main() -> None:
     p.add_argument("--dropout", type=float, default=0.1)
     p.add_argument("--use-draft", action="store_true")
     p.add_argument("--draft-files", nargs="*", type=Path, default=[])
+    # note (luojiaxuan): v5 exact policy objective(用户 + GPT 裁定,GRPO 讨论
+    # 的结论):删 rescue/harm 分解,π=softmax([z_keep, z_S...]),训练最大化
+    # Σπ·R(R 全量已知:救回 +1/弄坏 −λ/白动 −c/KEEP 0),GUI-Owl 不在计算
+    # 图;测试才 argmax。训练动作空间=KEEP+已标注对(口径记档),部署
+    # argmax 在全组合空间。KEEP 头 bias +2 保守起点。
+    p.add_argument("--objective", choices=["decomp", "policy"],
+                   default="decomp")
+    p.add_argument("--move-cost", type=float, default=0.05)
+    p.add_argument("--lambda-harm", type=float, default=1.0)
+    p.add_argument("--ent-coef", type=float, default=0.01)
     args = p.parse_args()
 
     import sys
@@ -181,6 +191,8 @@ def main() -> None:
     model = DirectDCST(d=args.dim, k_spatial=args.k_spatial,
                        k_global=args.k_global, dropout=args.dropout,
                        draft_dim=draft_dim).to(dev)
+    if args.objective == "policy":
+        model.fail.head.bias.data.fill_(2.0)   # 保守起点:π(KEEP) 初始占优
     n_par = sum(p_.numel() for p_ in model.parameters())
     print(json.dumps({"params": n_par}), flush=True)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr,
@@ -225,7 +237,24 @@ def main() -> None:
         q_logit = model.recent_failure(st, dfeat)
         sub_list = [s_ for s_, _ in subs]
         y = torch.tensor([float(v) for _, v in subs], device=dev)
-        r_log, h_log = model.score_subsets(st, sub_list)
+        r_log, h_log, z_log = model.score_subsets(st, sub_list)
+        if args.objective == "policy":
+            rset_ = frozenset(rec)
+            keep_mask = torch.tensor([frozenset(s_) != rset_ for s_ in sub_list],
+                                     device=dev)
+            zc = z_log[keep_mask]
+            yc = y[keep_mask]
+            rew = torch.where(
+                yc > 0.5,
+                torch.full_like(yc, 1.0 if not b else -args.move_cost),
+                torch.full_like(yc, -args.move_cost if not b
+                                else -args.lambda_harm))
+            logits = torch.cat([q_logit.reshape(1), zc])
+            pi = torch.softmax(logits, dim=0)
+            rvec = torch.cat([rew.new_zeros(1), rew])
+            j_exp = (pi * rvec).sum()
+            ent = -(pi * (pi.clamp_min(1e-9)).log()).sum()
+            return -(j_exp) - args.ent_coef * ent
         l_base = torch.nn.functional.binary_cross_entropy_with_logits(
             q_logit, torch.tensor(1.0 - b, device=dev))
         if not b:
@@ -281,16 +310,22 @@ def main() -> None:
                 st = model.encode_state(toks, cur, segs, ages, acts, rec)
                 dfeat = (torch.tensor(draft_feats[dp], device=dev)
                          if dp in draft_feats else None)
-                q = torch.sigmoid(model.recent_failure(st, dfeat).float())
+                q_logit_ = model.recent_failure(st, dfeat).float()
+                q = torch.sigmoid(q_logit_)
                 rset = frozenset(rec)
                 cand = [(s_, y_) for s_, y_ in subs if frozenset(s_) != rset]
                 if not cand:
                     continue
-                r_log, h_log = model.score_subsets(st, [s_ for s_, _ in cand])
+                r_log, h_log, z_log = model.score_subsets(
+                    st, [s_ for s_, _ in cand])
             r_p = torch.sigmoid(r_log.float()).tolist()
             h_p = torch.sigmoid(h_log.float()).tolist()
-            g = [float(q) * rp - (1 - float(q)) * hp
-                 for rp, hp in zip(r_p, h_p)]
+            if args.objective == "policy":
+                # policy 口径:g = z_S − z_keep(>0 即 argmax 会动)
+                g = [float(z) - float(q_logit_) for z in z_log.float()]
+            else:
+                g = [float(q) * rp - (1 - float(q)) * hp
+                     for rp, hp in zip(r_p, h_p)]
             q_pairs.append((float(q), int(not b)))
             ys = [int(y_) for _, y_ in cand]
             if not b:
@@ -367,7 +402,8 @@ def main() -> None:
                         "cfg": {"dim": args.dim, "k_spatial": args.k_spatial,
                                 "k_global": args.k_global,
                                 "dropout": args.dropout,
-                                "draft_dim": draft_dim},
+                                "draft_dim": draft_dim,
+                                "objective": args.objective},
                         "inner": ev}, args.output_root / "best.pt")
         else:
             since += 1
