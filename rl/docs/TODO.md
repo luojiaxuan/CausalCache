@@ -1,4 +1,24 @@
-# CausalCache 记忆选择线 TODO(维护于 2026-08-09)
+# CausalCache 记忆选择线 TODO(维护于 2026-08-09,08-13 路线重启)
+
+> ⚠️ **2026-08-13 路线重启**:本文件 A-G 各节属于**已封存的离线 selector 战役**
+> (tag `selector-offline-final-20260813`,终判见台账 §0.13/§0.14),
+> 除被显式复用的组件外不再开工。**当前活跃路线的待办以
+> [agentic_memory_rl_roadmap_20260813.md](agentic_memory_rl_roadmap_20260813.md)
+> 为准**,阶段与门槛如下:
+>
+> | 阶段 | 内容 | 门槛 | 状态 |
+> |---|---|---|---|
+> | Phase 0 | 封存旧线 + 统一接口契约 | tag + `contract.py` 落地 | ✅ 08-13 |
+> | Phase 1 | 程序化 GUI 任务环境 + 数据集 | 专家≈100%、可复现、verifier 无歧义、五 regime 可生成、**不同 subset 改变成功率**、吞吐达标 | 🔴 在跑 |
+> | Phase 2 | Gated sparse-history SFT(`policy_mem_sft`) | 给对历史能用上、recent 够时不退化 | ⚪ 待 Phase 1 |
+> | Phase 3 | **Selector-only GRPO(论文最关键)** | synthetic OOD 上显著超 recent-2 | ⚪ |
+> | Phase 4 | Joint GRPO(adapter 级) | 五臂拆解证明 selector 有独立贡献 | ⚪ |
+> | Phase 5 | 真实 Ubuntu 应用 bridge set | real-UI OOD 仍超 recent-2 | ⚪ |
+> | Phase 6 | held-out benchmark + 论文表 | 主 claim:同 executor 下 RL selector > recent-2 | ⚪ |
+>
+> 路线**禁止重新引入**:milestone reward、step-level 正确性、gold 帧 selector SFT、
+> pass-1 draft、B=1 逐帧探针、Gumbel-softmax 软选帧、benchmark 上做 RL、
+> full GUI-Owl 从零联合训练。
 
 > 配套文档:[实验台账](audit_ledger_20260809.md)(为什么这么做、踩过什么坑)、
 > [枚举契约](oracle_selection_contract.md)、[方法转向契约](rl_pivot_contract.md)。

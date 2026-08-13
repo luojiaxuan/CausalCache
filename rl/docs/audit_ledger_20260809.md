@@ -164,6 +164,40 @@ fold0,我扩为 +fold1-4(n=252→1260):#26 经验 n≈250 的 CI ±5pp
 通过。**今后任何要实例化 GUIOwlOSWorldRuntime 的新容器,先
 `pip install transformers==5.6.0`。**
 
+## 0.15 ★★★ 路线重启(08-13 用户裁定):从"离线 selector-SFT"转向"程序化环境 + memory-aware policy SFT + selector-only GRPO + joint GRPO"
+
+**本台账 §0.6-§0.14 记录的离线 selector 战役到此封存**(tag
+`selector-offline-final-20260813`),不再调参;代码与结论保留为负结果与
+初始化资产。新路线的 plan of record 是
+[agentic_memory_rl_roadmap_20260813.md](agentic_memory_rl_roadmap_20260813.md)。
+
+**为什么换路线(与 §0.14 的因果衔接)**:离线战役证明的是
+"**给定固定的 AgentNet 轨迹分布 + 冻结策略 + 步级正确率标签**,
+选帧的可学部分已被 recency 吃满"。它没有证明、也无法证明的是
+"**在任务级反馈下、且策略本身被训练成会读稀疏历史时**,记忆策略是否可学"。
+新路线同时改掉三个受限前提:
+1. **反馈**:步级 0/1 正确率(混沌、噪声地板 1.7-3.2%)→ 任务级成功
+   (可由环境精确判定,与真实目标同源);
+2. **策略**:永久冻结、从未学过读稀疏历史 → 先做 gated sparse-history SFT,
+   让"历史可读"成为既成事实,再学选什么(§0.9 的 #26 已证这条可行:
+   全层适配的记忆可读性增益 +5.50pp CI[+3.00,+8.06]);
+3. **数据分布**:被动语料里 memory-demand 不可控、且与任务语义混杂 →
+   程序化环境按五种 memory regime 可控生成,且语义与 regime 解耦。
+
+**旧线遗产被显式复用**:高保真帧特征缓存与 candidate-set/subset encoder、
+policy scalar head(v5 已加)、recent-B/subset prompt assembler、
+配对评测与 wins/losses/move-rate 统计;**显式弃用**:rescue/harm 分类头、
+离线 binary correctness SFT、v5 exact-policy 作为最终训练方式、
+pass-1 draft、B=1 逐帧探针(路线文档 §9 全列)。
+
+**新路线的成功判据(比旧线更严)**:不是 full system 总分,而是
+**同一个 memory-aware executor 下、只改 memory rule,RL selector 在
+synthetic OOD 上稳定超过 recent-2**(Phase 3)。
+
+**执行状态(08-13)**:Phase 0 完成(封存 tag + 路线文档 + `contract.py`
+接口契约:状态模型即契约、声明式 effect、纯函数渲染、[0,999]↔像素单点换算、
+TaskSpec/Assertion/Trajectory schema);Phase 1(程序化环境)实现中。
+
 ## 0.14 ★★★ v5 exact policy objective 终局(08-13):给定全量真 reward,最优可学策略收敛为"永不移动"——selector 线关闭条件触发
 
 用户问"能否 GRPO"后采纳外部建议:B=2 全量 reward 表下不采样,做
