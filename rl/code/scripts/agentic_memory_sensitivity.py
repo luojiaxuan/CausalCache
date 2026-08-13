@@ -599,15 +599,35 @@ def main(argv: Sequence[str] | None = None) -> int:
                                            adapter=args.adapter))
     env = GUIEnv(auto_stop_on_success=False)
     n_new = 0
+    n_err = 0
     started = time.perf_counter()
     with args.output.open("a", encoding="utf-8") as sink:
         for task in shard:
             for arm in arms:
                 if (task.task_id, arm) in done:
                     continue
-                rec = run_episode(task, arm, policy, env, parse, args.shot_dir,
-                                  args.budget, args.arm_seed, args.max_steps,
-                                  keep_shots=not args.cleanup_shots)
+                # note (luojiaxuan): 逐 (task, arm) 兜底 —— 策略输出不可控,
+                # 一个任务抛异常不能打崩整个分片(2026-08-13 实测:策略偶发
+                # action="click" 让 2/4 分片直接退出,已在 policy_io 归一别名,
+                # 这里再加一层"记账为失败并继续"的护栏)。失败按 terminal
+                # reward 的定义就是 success=False,不额外惩罚也不静默丢弃。
+                try:
+                    rec = run_episode(task, arm, policy, env, parse,
+                                      args.shot_dir, args.budget, args.arm_seed,
+                                      args.max_steps,
+                                      keep_shots=not args.cleanup_shots)
+                except Exception as exc:  # noqa: BLE001
+                    rec = {"task_id": task.task_id,
+                           "template_id": task.template_id,
+                           "family": task.family, "regime": task.regime,
+                           "seed": task.seed, "arm": arm, "success": False,
+                           "reason": "episode_error", "n_steps": 0,
+                           "error": f"{type(exc).__name__}: {exc}"[:400]}
+                    n_err += 1
+                    print(json.dumps({"shard": args.shard_index,
+                                      "episode_error": rec["error"],
+                                      "task_id": task.task_id, "arm": arm},
+                                     ensure_ascii=False), flush=True)
                 sink.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 sink.flush()
                 n_new += 1
@@ -624,7 +644,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "n_tasks_requested": args.n_tasks, "task_seed": args.task_seed,
             "shard_index": args.shard_index, "shard_count": args.shard_count,
             "output": str(args.output), "shot_dir": str(args.shot_dir),
-            "new_records": n_new, "wall_sec": round(time.perf_counter() - started, 1),
+            "new_records": n_new, "episode_errors": n_err, "wall_sec": round(time.perf_counter() - started, 1),
             "reward": "terminal_verifier_only",
             "note": "memory_probe 仅用于 oracle 臂的上界诊断,不作 RL reward"}
     print(json.dumps({"records": str(args.output), "summary": str(args.summary),

@@ -156,6 +156,32 @@ def frames_for_subset(
 
 # ------------------------------------------------------------------ 官方形态
 
+# note (luojiaxuan): **动作别名归一** —— 冻结 GUI-Owl 的 tool spec 里 click 与
+# left_click 都是合法枚举值,executor 也两者都认;但官方历史渲染器
+# (render_official_action_line)只认规范名。实测:RL rollout 中策略偶尔输出
+# {"action": "click"},历史渲染直接抛错 → 整个分片崩掉(2026-08-13 敏感性
+# 跑挂了 2/4 分片)。策略输出是不可控的,归一必须在**进入历史之前**做,
+# 且只做同义改名,不改变任何语义。
+ACTION_ALIASES = {
+    "click": "left_click",
+    "drag": "left_click_drag",
+    "leftclick": "left_click",
+    "doubleclick": "double_click",
+    "rightclick": "right_click",
+    "middleclick": "middle_click",
+}
+
+
+def canonical_action(action: Mapping[str, Any]) -> dict[str, Any]:
+    """把动作 dict 的 action 名归一到官方渲染器认识的枚举值(不改其它字段)。"""
+    out = dict(action)
+    name = str(out.get("action", "")).strip()
+    key = name.lower().replace("-", "_")
+    out["action"] = ACTION_ALIASES.get(key, ACTION_ALIASES.get(
+        key.replace("_", ""), name))
+    return out
+
+
 def official_forms_from_actions(
     history_actions: Sequence[Mapping[str, Any]],
     *,
@@ -171,6 +197,7 @@ def official_forms_from_actions(
     forms: list[OfficialStepForms] = []
     for step_id, entry in enumerate(history_actions, start=1):
         call = _as_tool_call(entry, tool_name=tool_name, step_id=step_id)
+        call = {**call, "arguments": canonical_action(call["arguments"])}
         try:
             action_line = render_official_action_line(call)
             full_response = render_official_response(call)
