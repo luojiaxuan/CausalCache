@@ -110,7 +110,10 @@ def main() -> None:
         print(json.dumps({"adapter": str(args.adapter), "epoch": b.get("epoch"),
                           "modules": len(wrapped)}), flush=True)
 
-    builder = PolicyInputBuilder(budget=args.budget)
+    # note (luojiaxuan): builder 强制 |S| == budget(Phase 3 的 selector 恒选满
+    # B 张,这个约束是对的)。但 none 臂是 B=0 的对照,需要一个 budget=0 的
+    # builder —— 官方协议本来就支持 kept=0 的单轮退化形态。
+    builders = {b: PolicyInputBuilder(budget=b) for b in (0, args.budget)}
     env = GUIEnv()
     args.shot_dir.mkdir(parents=True, exist_ok=True)
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -181,7 +184,8 @@ def main() -> None:
                 }
                 for arm in args.arms:
                     sub = subsets[arm]
-                    msgs = builder.build(task.instruction, actions, sub, bank, dec)
+                    msgs = builders[len(sub)].build(
+                        task.instruction, actions, sub, bank, dec)
                     pred = gen(msgs)
                     row[f"{arm}_pred"] = pred
                     row[f"{arm}_correct"] = int(action_correct(
