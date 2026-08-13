@@ -195,7 +195,8 @@ class FrozenGUIOwlPolicy:
     """冻结 GUI-Owl-1.5-8B 运行时(解码参数逐行镜像 rl_score_chosen_subsets.py)。"""
 
     def __init__(self, model_dir: Path, snapshot_manifest: Path, device: str,
-                 visual_tokens: int, max_new_tokens: int) -> None:
+                 visual_tokens: int, max_new_tokens: int,
+                 adapter: Path | None = None) -> None:
         import torch
 
         from causalcache.osworld_gui_owl import _TOOL_SPEC, GUIOwlOSWorldRuntime
@@ -207,6 +208,34 @@ class FrozenGUIOwlPolicy:
             device=device, effective_visual_tokens_per_image=visual_tokens,
             max_new_tokens=max_new_tokens)
         self.metadata = dict(self.runtime.metadata)
+        # note (luojiaxuan): Phase 2 闭环评测要用 sparse-history SFT 出来的
+        # adapter(policy_mem_sft)。冻结守卫只管基座权重,LoRA 是显式外挂,
+        # 加载与否写进 metadata,避免"评的是哪个策略"这种记账含糊。
+        self.adapter = None
+        if adapter is not None:
+            import sys as _sys
+            for cand in (Path(__file__).resolve().parents[3] / "code" / "scripts",
+                         Path("/data/osworld/CausalCache/code/scripts")):
+                if cand.exists():
+                    _sys.path.insert(0, str(cand))
+                    break
+            from train_success_sft_lora import inject_lora, load_lora_state_dict
+            bundle = torch.load(adapter, map_location="cpu", weights_only=False)
+            wrapped = inject_lora(
+                self.runtime.model, rank=int(bundle["rank"]),
+                alpha=int(bundle["alpha"]),
+                target_modules=tuple(str(bundle.get(
+                    "target_modules", "q_proj,k_proj,v_proj,o_proj")).split(",")),
+                torch=torch,
+                last_layer_count=(int(bundle["last_layers"])
+                                  if bundle.get("last_layers") else None))
+            load_lora_state_dict(wrapped, bundle["state"])
+            self.adapter = {"path": str(adapter), "arm": bundle.get("arm"),
+                            "epoch": bundle.get("epoch"),
+                            "modules": len(wrapped)}
+            self.metadata["adapter"] = self.adapter
+            print(json.dumps({"adapter_loaded": self.adapter},
+                             ensure_ascii=False), flush=True)
 
     def generate(self, messages: list[dict[str, Any]], ctx: dict[str, Any]) -> str:
         runtime = self.runtime
@@ -495,6 +524,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     p.add_argument("--max-steps", type=int, default=None,
                    help="额外的步数上限(与 task.max_steps 取小)")
     p.add_argument("--model-dir", type=Path, default=None)
+    p.add_argument("--adapter", type=Path, default=None,
+                   help="sparse-history SFT 的 LoRA adapter(Phase 2 闭环评测);"
+                        "不给 = 冻结基线策略")
     p.add_argument("--snapshot-manifest", type=Path, default=None)
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--visual-tokens", type=int, default=2560)
@@ -563,7 +595,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     policy: Any = (DryRunPolicy(args.dry_run_mode, args.arm_seed) if args.dry_run
                    else FrozenGUIOwlPolicy(args.model_dir, args.snapshot_manifest,
                                            args.device, args.visual_tokens,
-                                           args.max_new_tokens))
+                                           args.max_new_tokens,
+                                           adapter=args.adapter))
     env = GUIEnv(auto_stop_on_success=False)
     n_new = 0
     started = time.perf_counter()
