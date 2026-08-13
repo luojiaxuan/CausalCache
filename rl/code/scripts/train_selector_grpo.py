@@ -1272,10 +1272,18 @@ def train(args: argparse.Namespace, groups: list[Group], report: dict[str, Any]
             meter.add("frac_effective_groups", 1.0)
             running.add("frac_effective_groups", 1.0)
 
-            per_rollout: list[Any] = []
-            for rec, a_i in zip(group.rollouts, adv):
-                if not rec.steps:
-                    continue
+            # note (luojiaxuan): **逐步 backward,不保留整组计算图**。
+            # 原写法把一组(8 条 rollout × ~10 步)的 surrogate 全部 append 后
+            # 才 backward —— 每步要在 C(n,2) 个子集上过 128-latent 帧,累起来
+            # 实测吃满 140GB 显存(2026-08-13 两次 OOM)。GRPO 的目标
+            # -mean_i mean_t[term] 对步与 rollout 都是**线性平均**,优势 a_i 是
+            # 常数,所以把 term/(n_roll*n_step) 就地 backward 与整组一次
+            # backward 的梯度**逐位等价**,只是峰值显存降到单步。
+            live_rollouts = [(rec, a_i) for rec, a_i in zip(group.rollouts, adv)
+                             if rec.steps]
+            n_roll = len(live_rollouts)
+            loss_acc = 0.0
+            for rec, a_i in live_rollouts:
                 surrogates: list[Any] = []
                 temp = effective_temperature(args, selector, rec)
                 for s in rec.steps:
@@ -1297,7 +1305,13 @@ def train(args: argparse.Namespace, groups: list[Group], report: dict[str, Any]
                         term = term - args.kl_coef * kl
                         for m in (meter, running):
                             m.add("kl", float(kl.detach()))
-                    surrogates.append(term)
+                    # 就地 backward(scale = 1/(组内 rollout 数 × 该 rollout 步数)
+                    # × 1/grad_accum),再丢弃该步的图
+                    n_step = max(len(rec.steps), 1)
+                    scale = 1.0 / (n_roll * n_step * max(args.grad_accum, 1))
+                    (-(term) * scale).backward()
+                    loss_acc += float(term.detach()) / (n_roll * n_step)
+                    surrogates.append(1)
                     # note (luojiaxuan): 诊断读数全部 detach —— 绝不让日志统计
                     # 意外把张量挂回计算图(也消掉 float(requires_grad) 的警告)。
                     with torch.no_grad():
@@ -1320,16 +1334,13 @@ def train(args: argparse.Namespace, groups: list[Group], report: dict[str, Any]
                             if fw.recent_index >= 0:
                                 m.add("pi_recent", float(probs[fw.recent_index]))
                     stats["steps_used"] += 1
-                if surrogates:
-                    per_rollout.append(torch.stack(surrogates).mean())
-            if not per_rollout:
+                if not surrogates:
+                    continue
+            if loss_acc == 0.0 and n_roll == 0:
                 continue
-            # note (luojiaxuan): 目标是 -mean_i mean_t[...] —— 先按 rollout 对步
-            # 取平均,再按组内 rollout 取平均,长轨迹不会因为步数多而被加权更重。
-            loss = -torch.stack(per_rollout).mean()
-            (loss / max(args.grad_accum, 1)).backward()
+            loss_value = -loss_acc
             for m in (meter, running):
-                m.add("loss", float(loss.detach()))
+                m.add("loss", loss_value)
             pending += 1
 
             if pending >= args.grad_accum:
