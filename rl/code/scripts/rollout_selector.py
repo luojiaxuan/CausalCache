@@ -980,6 +980,44 @@ def build_tasks(args: argparse.Namespace) -> list[TaskSpec]:
         out = tasks_module.generate_batch(args.n_tasks, args.task_seed, families=fams)
     else:
         out = tasks_module.make_dataset(args.tasks_split, args.n_tasks, args.task_seed)
+    # note (luojiaxuan): **难度分层采样**(2026-08-13 用户批准)。首轮 GRPO 的
+    # 有效组只占 26.9%(67 组里 37 全失败、12 全成功),学习信号被浪费。记忆
+    # 关键的三种 regime 上 oracle 与 recent-2 的差最大(Phase 2 闭环 73.3% vs
+    # 0.0%),组内更容易出现 reward 方差;"不需老帧"的两种必须保留一定比例 ——
+    # 它们提供"不该动就别动"的负向信号(random-2 在那里要付 −28pp)。
+    # **只改采样比例,不改目标函数、不引入任何新奖励**;评测仍在自然混合
+    # 分布上做,训练侧的偏置不会传进结论。
+    if getattr(args, "regime_weights", ""):
+        import collections
+        import random as _random
+        weights: dict[str, float] = {}
+        for item in args.regime_weights.split(","):
+            item = item.strip()
+            if not item:
+                continue
+            k, _, v = item.partition("=")
+            weights[k.strip()] = float(v)
+        if weights:
+            pool: dict[str, list] = collections.defaultdict(list)
+            for t_ in out:
+                pool[t_.regime].append(t_)
+            rng = _random.Random(args.task_seed + 7717)
+            for v in pool.values():
+                rng.shuffle(v)
+            total = sum(weights.values()) or 1.0
+            want = args.limit_tasks or args.n_tasks
+            picked: list = []
+            for reg, w in sorted(weights.items()):
+                k = int(round(want * w / total))
+                picked += pool.get(reg, [])[:k]
+            rng.shuffle(picked)
+            if picked:
+                print(json.dumps({"tag": "regime_stratified",
+                                  "requested": weights,
+                                  "picked": dict(collections.Counter(
+                                      x.regime for x in picked)),
+                                  "n": len(picked)}, ensure_ascii=False), flush=True)
+                return picked
     return out[: args.limit_tasks] if args.limit_tasks else out
 
 
@@ -997,6 +1035,11 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     p.add_argument("--n-tasks", type=int, default=64)
     p.add_argument("--task-seed", type=int, default=0)
     p.add_argument("--limit-tasks", type=int, default=0, help="0 = 不限")
+    p.add_argument("--regime-weights", default="",
+                   help="难度分层采样,如 'one_old_frame=0.25,"
+                        "two_frame_complementary=0.25,distractor_heavy=0.25,"
+                        "recent_sufficient=0.15,history_irrelevant=0.10';"
+                        "空 = 自然分布")
     # 分组与预算
     p.add_argument("--group-size", type=int, default=8, help="G:同 task 同初始状态的 rollout 数")
     p.add_argument("--budget", type=int, default=DEFAULT_BUDGET, help="B(primary=2)")
