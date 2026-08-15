@@ -93,7 +93,51 @@ from agentic_memory_sensitivity import (  # noqa: E402
     stable_seed,
 )
 
-ARMS = ("learned", "recent", "random")
+ARMS = ("learned", "recent", "random", "oracle_content")
+
+# note (luojiaxuan): **内容对齐 oracle(诊断臂,特权信息,禁止用于训练)**。
+# 既有的 oracle 臂用 memory_probe.required_steps —— 那是**专家轨迹**的步号,
+# 闭环里 80.3% 的轨迹会偏离,同名步号不再指向同一屏(审计文档 §4.3/§4.5 的
+# 同一个 bug)。本臂改为按**内容**判定:每步记录该帧顶层窗口的可见文本,
+# 决策时选"文本里真的出现了所需变量值"的帧。它对轨迹偏离免疫,因此是
+# **有效的闭环上界**。只用于诊断,不进 selector 输入、不进奖励。
+
+
+def _visible_text(state: Any) -> str:
+    """最顶层打开窗口的可见控件文本(窗口全屏,后台窗口被完全遮挡)。"""
+    tops = [a for a in state.z_order if state.windows[a].open]
+    if not tops:
+        return ""
+    w = state.windows[tops[-1]]
+    out = []
+    for g in w.widgets:
+        if not g.visible:
+            continue
+        if g.group is not None and g.group not in w.active_groups:
+            continue
+        out.append(f"{g.text}\x01{g.value}")
+    return "\n".join(out)
+
+
+def _content_oracle_subset(frame_texts: dict[int, str], values: list[str],
+                           candidates: Sequence[int], budget: int
+                           ) -> tuple[int, ...]:
+    """选出真正含有所需变量值的帧;不足预算时用最近帧补齐。"""
+    hits: list[int] = []
+    for v in values:
+        best = [c for c in candidates if v and v in frame_texts.get(c, "")]
+        if best:
+            hits.append(best[-1])          # 同一变量取最近的那张
+    picked: list[int] = []
+    for c in sorted(set(hits), reverse=True):
+        if len(picked) < budget:
+            picked.append(c)
+    for c in reversed(list(candidates)):
+        if len(picked) >= budget:
+            break
+        if c not in picked:
+            picked.append(c)
+    return tuple(sorted(picked[:budget]))
 # note (luojiaxuan): 自动发现 Phase 3 selector 实现的位置与工厂名。找不到就要求
 # 显式 --selector-factory MODULE:ATTR —— 宁可报错,也不猜一个不对的类默默跑。
 DEFAULT_SELECTOR_MODULE = "causalcache_agentic.selector_model"
@@ -421,6 +465,10 @@ def resolve_selector(args: argparse.Namespace) -> tuple[Any, dict[str, Any]]:
             f"--selector-arm {args.selector_arm} 是无参数基线臂,不接受 --selector-ckpt")
     if args.selector_arm == "recent":
         return RecentBSelector(), {"kind": "recent_b", "trainable": False}
+    if args.selector_arm == "oracle_content":
+        return (RecentBSelector(),
+                {"kind": "oracle_content", "trainable": False,
+                 "note": "诊断臂:按帧内容选帧(特权信息,不用于训练)"})
     if args.selector_arm == "random":
         return (RandomBSelector(seed=args.rollout_seed),
                 {"kind": "random_b", "trainable": False, "seed": args.rollout_seed})
@@ -788,8 +836,18 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
     logprob_sum = 0.0
     started = time.perf_counter()
 
+    frame_texts: dict[int, str] = {}
+    oracle_values: list[str] = []
+    if args.selector_arm == "oracle_content":
+        vs = (task.memory_probe or {}).get("variables") or {}
+        oracle_values = [str(v) for kk, v in vs.items()
+                         if kk.startswith("v") and isinstance(v, (str, int, float))
+                         and len(str(v)) >= 3]
+
     for k in range(limit):
         shot = str(shot_dir / f"step{k:02d}.png")
+        if args.selector_arm == "oracle_content":
+            frame_texts[k] = _visible_text(env.state)
         if args.skip_render:
             # note (luojiaxuan): dry-run 提速开关。policy_io 只传路径不读图,假
             # executor 也不读图,故跳过 PNG 编码不改变管线结构;真跑禁止使用。
@@ -806,10 +864,15 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
                 selector=selector, task_instruction=task.instruction,
                 history_actions=history_actions, history_lines=history_lines,
                 bank=bank, current_step=k, candidates=cands, budget=args.budget)
-            subset, logprob, sel_diag = choose_subset(
-                selector, state_repr, cands, args.budget,
-                temperature=args.temperature, greedy=args.selector_greedy,
-                delegate=(args.sampling_mode == "delegate"), rng=rng)
+            if args.selector_arm == "oracle_content":
+                subset = _content_oracle_subset(frame_texts, oracle_values,
+                                                cands, args.budget)
+                logprob, sel_diag = 0.0, {"arm": "oracle_content"}
+            else:
+                subset, logprob, sel_diag = choose_subset(
+                    selector, state_repr, cands, args.budget,
+                    temperature=args.temperature, greedy=args.selector_greedy,
+                    delegate=(args.sampling_mode == "delegate"), rng=rng)
         # note (luojiaxuan): fail-loud —— selector 给出非法 subset(越界/重复/基数
         # 不对)必须当场炸,否则 prompt 会静默错位,整批 RL 数据作废。
         builder.validate_subset(subset, bank, k)
