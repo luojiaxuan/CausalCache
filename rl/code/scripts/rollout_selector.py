@@ -867,7 +867,12 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
             if args.selector_arm == "oracle_content":
                 subset = _content_oracle_subset(frame_texts, oracle_values,
                                                 cands, args.budget)
-                logprob, sel_diag = 0.0, {"arm": "oracle_content"}
+                import math as _m
+                n_sub = _m.comb(len(cands), args.budget) if len(cands) >= args.budget else 1
+                logprob, sel_diag = 0.0, {
+                    "arm": "oracle_content", "n_subsets": n_sub,
+                    "softmax_logprob": 0.0, "entropy": 0.0,
+                    "recent_prob": None, "chosen_prob": None}
             else:
                 subset, logprob, sel_diag = choose_subset(
                     selector, state_repr, cands, args.budget,
