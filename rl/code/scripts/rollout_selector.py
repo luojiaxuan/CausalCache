@@ -890,7 +890,15 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
         ctx: dict[str, Any] = {"task": task, "arm": arm, "step": k,
                                "choice": _dry_choice(task, k, subset, logprob)
                                if args.dry_run else None}
-        raw = policy.generate(messages, ctx)
+        # note (luojiaxuan): Phase 4 joint —— executor 也要采样并记 log π_old,
+        # 否则 joint GRPO 的 ratio 无从计算(Phase 3 里 executor 恒为 greedy)。
+        if getattr(args, "executor_sample", False) and hasattr(
+                policy, "generate_with_logprob"):
+            raw, act_tokens, act_logp = policy.generate_with_logprob(
+                messages, ctx, temperature=args.executor_temperature)
+        else:
+            raw = policy.generate(messages, ctx)
+            act_tokens, act_logp = None, None
         parsed = parse(raw)
         if not isinstance(parsed, dict) or "action" not in parsed:
             parse_failures += 1
@@ -921,6 +929,9 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
             "softmax_logprob": sel_diag["softmax_logprob"],
             "entropy": sel_diag["entropy"],
             "is_recent": tuple(subset) == recent,
+            # Phase 4 joint:executor 侧的 log π_old 与被采样的动作 token
+            "policy_logprob": act_logp, "action_tokens": act_tokens,
+            "raw_action_text": raw if act_tokens is not None else None,
             "active_app": info["active_app"], "last_error": info["last_error"]})
         history_actions.append(dict(action))
         history_lines.append(line)
@@ -1103,6 +1114,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     p.add_argument("--n-tasks", type=int, default=64)
     p.add_argument("--task-seed", type=int, default=0)
     p.add_argument("--limit-tasks", type=int, default=0, help="0 = 不限")
+    p.add_argument("--executor-sample", action="store_true",
+                   help="Phase 4 joint:executor 采样而非 greedy,并记录 log π_old")
+    p.add_argument("--executor-temperature", type=float, default=1.0)
     p.add_argument("--regime-weights", default="",
                    help="难度分层采样,如 'one_old_frame=0.25,"
                         "two_frame_complementary=0.25,distractor_heavy=0.25,"
