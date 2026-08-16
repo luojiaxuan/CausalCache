@@ -330,7 +330,8 @@ def main() -> None:
             "不是 bf16 噪声,先修口径再训")
 
     rng = random.Random(args.seed)
-    stats = {"groups_used": 0, "steps": 0, "opt_steps": 0, "skipped_groups": 0}
+    stats = {"groups_used": 0, "steps": 0, "opt_steps": 0, "skipped_groups": 0,
+             "nonfinite_terms": 0, "skipped_opt_steps": 0}
     meters: dict[str, list[float]] = {}
 
     def meter(k: str, v: float) -> None:
@@ -376,6 +377,18 @@ def main() -> None:
                     term = torch.min(unc, cl)
                     ent = selector.entropy(sr, cands, args.budget)
                     term = term + args.ent_coef * ent
+                    # note (luojiaxuan): **最强的一条自检** —— 第一个反向之前
+                    # 权重尚未动过,old 又是同一条前向路径重算的,所以此刻
+                    # ratio 必须严格 =1。它不成立,就说明 old 缓存(键、state、
+                    # 分布口径)有错,而这种错在损失曲线上完全看不出来。
+                    r0 = float(ratio.detach())
+                    if stats["steps"] == 0 and abs(r0 - 1.0) > 1e-3:
+                        raise SystemExit(
+                            f"FAILED: 首步 ratio={r0:.6f} ≠ 1 —— old 与重算不同源")
+                    if not (math.isfinite(r0) and
+                            math.isfinite(float(term.detach()))):
+                        stats["nonfinite_terms"] += 1
+                        continue
                     scale = 1.0 / (n_roll * n_step * max(args.grad_accum, 1))
                     (-(term) * scale).backward()
                     stats["steps"] += 1
@@ -389,6 +402,14 @@ def main() -> None:
             if pending >= args.grad_accum:
                 gn_s = torch.nn.utils.clip_grad_norm_(sel_params, 1.0)
                 gn_e = torch.nn.utils.clip_grad_norm_(exec_params, 1.0)
+                # note (luojiaxuan): 非有限梯度**必须丢弃整个窗口**,不能让它
+                # 过 opt.step() —— clip_grad_norm_ 遇 inf/nan 时 clip 系数本身
+                # 就是 0 或 nan,权重会被静默打成垃圾,而日志一切正常。
+                if not (math.isfinite(float(gn_s)) and math.isfinite(float(gn_e))):
+                    stats["skipped_opt_steps"] += 1
+                    opt.zero_grad(set_to_none=True)
+                    pending = 0
+                    continue
                 if args.alternate:
                     turn = (stats["opt_steps"] // args.alternate) % 2
                     for q in (sel_params if turn else exec_params):
@@ -412,8 +433,13 @@ def main() -> None:
                 "joint_phase": "4A",
                 "exec_last_layers": args.exec_last_layers},
                args.out_adapter)
-    print(json.dumps({"final": True, **stats,
-                      **{k: round(sum(v) / len(v), 4) for k, v in meters.items() if v},
+    rr = sorted(meters.get("ratio", []))
+    pct = {f"ratio_p{q}": round(rr[min(int(len(rr) * q / 100), len(rr) - 1)], 4)
+           for q in (5, 50, 95)} if rr else {}
+    print(json.dumps({"final": True, **stats, **pct,
+                      "ratio_max": round(max(rr), 4) if rr else None,
+                      **{k: round(sum(v) / len(v), 4) for k, v in meters.items()
+                         if v and k != "ratio"},
                       "out_selector": str(args.out_selector),
                       "out_adapter": str(args.out_adapter)},
                      ensure_ascii=False))

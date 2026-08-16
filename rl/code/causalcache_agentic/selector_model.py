@@ -679,7 +679,15 @@ class SubsetSelectorPolicy(nn.Module):
         subsets, _, logprobs = self.distribution(state_repr, candidates, b)
         if len(subsets) <= 1:
             return self._zeros_with_graph(0).sum()
-        return -(logprobs.exp() * logprobs).sum()
+        # note (luojiaxuan): 按约定 0·log0 := 0。原式 `p*logp` 在 p 下溢到 0 时
+        # 得 0*(-inf) = **nan**,nan 顺着 entropy bonus 进梯度,grad_norm 变
+        # Infinity,一个优化步就把权重打坏。Phase 3 没暴露是因为那时 selector
+        # 刚初始化、分布接近均匀;Phase 4 从**已训练的尖锐分布**出发,尾部子集
+        # 概率真的会下溢,于是第一次联合更新就炸了(ratio 均值 4.4e+22)。
+        probs = logprobs.exp()
+        terms = torch.where(probs > 0, probs * logprobs,
+                            torch.zeros_like(probs))
+        return -terms.sum()
 
     def recent_prob(self, state_repr: SelectorStateRepr) -> float:
         """诊断:当前 π(recent-B)。塌缩监控与"选 recent-B 比例"报表用。"""
