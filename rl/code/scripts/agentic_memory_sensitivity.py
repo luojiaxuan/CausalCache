@@ -237,6 +237,43 @@ class FrozenGUIOwlPolicy:
             print(json.dumps({"adapter_loaded": self.adapter},
                              ensure_ascii=False), flush=True)
 
+    def generate_with_logprob(self, messages: list[dict[str, Any]],
+                              ctx: dict[str, Any], *, temperature: float = 1.0
+                              ) -> tuple[str, list[int], float]:
+        """**采样**一个动作,返回 (文本, 生成的 token ids, log π 之和)。
+
+        # note (luojiaxuan): Phase 4 joint GRPO 需要 executor 的 log π_old。
+        # 分布定义 = generate 用的 processed 分布(温度缩放 + suppress_tokens
+        # 屏蔽);训练器重算时必须套用**同一套变换**,并在启动时做一致性自检
+        # —— selector 侧那条检查(max|Δ|=2.6e-07)救过命,这里同样是命门。
+        """
+        runtime = self.runtime
+        torch = self._torch
+        enc = runtime.processor.apply_chat_template(
+            messages, tools=[self._tool_spec], tokenize=True,
+            add_generation_prompt=True, return_dict=True,
+            return_tensors="pt").to(runtime.device)
+        prompt_tokens = int(enc["input_ids"].shape[1])
+        gt = runtime.generation_tokens
+        with torch.inference_mode():
+            out = runtime.model.generate(
+                **enc, do_sample=True, temperature=float(temperature),
+                top_k=0, top_p=1.0, max_new_tokens=self.max_new_tokens,
+                eos_token_id=gt.tool_call_close_token_id,
+                pad_token_id=gt.pad_token_id,
+                suppress_tokens=list(gt.standard_eos_token_ids),
+                num_beams=1, num_return_sequences=1,
+                return_dict_in_generate=True, output_scores=True)
+        seq = out.sequences[0, prompt_tokens:]
+        logp = 0.0
+        for step_scores, tok in zip(out.scores, seq):
+            lp = torch.log_softmax(step_scores[0].float(), dim=-1)
+            logp += float(lp[int(tok)])
+        text = runtime.processor.batch_decode(
+            seq.unsqueeze(0), skip_special_tokens=False,
+            clean_up_tokenization_spaces=False)[0]
+        return text, [int(x) for x in seq], logp
+
     def generate(self, messages: list[dict[str, Any]], ctx: dict[str, Any]) -> str:
         runtime = self.runtime
         enc = runtime.processor.apply_chat_template(
