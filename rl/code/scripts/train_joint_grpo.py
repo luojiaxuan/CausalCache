@@ -89,8 +89,12 @@ def main() -> None:
     p.add_argument("--executor-temperature", type=float, default=1.0)
     p.add_argument("--budget", type=int, default=2)
     p.add_argument("--limit-groups", type=int, default=0)
+    p.add_argument("--train-dropout", action="store_true",
+                   help="前向开 dropout(与 Phase 3 同名开关);默认关,理由见代码")
     p.add_argument("--consistency-checks", type=int, default=24)
-    p.add_argument("--consistency-tol", type=float, default=0.05)
+    p.add_argument("--consistency-tol", type=float, default=0.02,
+                   help="**per-token** 结构性阈值:1e-3 量级=bf16 噪声,"
+                        "1e0 量级=结构错配,取 0.02 在两者之间")
     p.add_argument("--device", default="cuda:0")
     p.add_argument("--seed", type=int, default=20260816)
     args = p.parse_args()
@@ -168,7 +172,11 @@ def main() -> None:
                       "unfrozen_layers": sorted(keep)}), flush=True)
 
     selector = SubsetSelectorPolicy.load(str(args.selector_ckpt), map_location=dev)
-    selector.to(dev).train()
+    # note (luojiaxuan): 与 Phase 3 训练器同口径 —— **默认 eval**。开着 dropout
+    # 会让 ratio 在任何更新之前就 ≠1(纯噪声),clip 大量触发、更新方向被污染。
+    # 我第一版写的 .train() 正是踩了这个已经记录在案的坑。
+    selector.to(dev)
+    selector.train(bool(args.train_dropout))
     sel_params = [q for q in selector.parameters() if q.requires_grad]
     # note (luojiaxuan): state 口径是 log π 的定义域,**必须**与采样端逐字同路。
     # 所以不在这里自己拼 SelectorStateBuilder(第一版就是这么写的,签名都对不上),
@@ -245,39 +253,76 @@ def main() -> None:
         lp = torch.log_softmax(logits, dim=-1)
         return lp.gather(-1, tgt[0].unsqueeze(-1)).sum()
 
-    # ---- 启动自检:重算 log π 必须与采样时记录的值一致 ----
-    checked = worst = 0
-    diffs = []
+    def build_state(rec: dict, st: dict):
+        """按采样端同一条路径重建 selector state(预扫与训练共用一份实现)。"""
+        bank = HistoryFrameBank(feature_provider=feature_provider)
+        for s in rec["steps"]:
+            if int(s["step"]) <= int(st["step"]):
+                bank.add(int(s["step"]), s["screenshot"])
+        return state_factory(
+            selector=selector, task_instruction=rec.get("instruction", ""),
+            history_actions=[dict(s["action"]) for s in rec["steps"]
+                             if int(s["step"]) < int(st["step"])],
+            history_lines=[s["action_line"] for s in rec["steps"]
+                           if int(s["step"]) < int(st["step"])],
+            bank=bank, current_step=int(st["step"]),
+            candidates=[int(x) for x in st["candidates"]], budget=args.budget)
+
+    # ---- 启动预扫:在**初始权重**下重算每一步的 log π_old,并做结构性自检 ----
+    # note (luojiaxuan): 这里改过一次口径,理由很实在。最初直接拿采样时记录的
+    # logπ 当 old,启动自检报 max|Δ|=0.366 / mean|Δ|=0.029(整序列求和)。诊断
+    # (joint_logprob_diag.py)判明是**数值噪声**:per-token mean|Δ|=0.0008,
+    # 比结构性错配的量级低三个数量级,且重算两次逐位相同(确定性 0.0)。
+    #
+    # 但**不能就此放宽阈值**:差异不是均匀撒在所有步上,而是全部集中在 executor
+    # 真正不确定的步(π≈1 时 bf16 噪声看不见;π 不确定时 logits 彼此接近,
+    # log-softmax 把微小数值差放大)。实测最差一步 记录 -3.11 / 重算 -3.53,
+    # Δ=-0.42 ⇒ **初始 ratio 就是 1.52,已经超出裁剪带 1.2** —— 而这些恰恰是
+    # 唯一携带学习信号的步(76% 的步 π>0.9,近乎确定)。
+    #
+    # 故采用标准解法:old := **同一条前向路径**在初始权重下重算的值。这样初始
+    # ratio 严格 =1,之后的偏移全部是真实策略变化。采样时记录的值降级为诊断量。
+    # 保留的自检改成**结构性**判据(per-token,不随序列长度漂移):prompt 少一段、
+    # 掩码错、错位一格会给出 ~1 nat/token,与 1e-3 的数值噪声差三个数量级。
+    olds: dict[tuple[str, int], tuple[float, float]] = {}
+    diffs: list[float] = []
+    n_tok_tot = 0
     with torch.no_grad():
         for g in groups:
+            if advantages([float(bool(r.get("success")))
+                           for r in g["rollouts"]]) is None:
+                continue                      # 无方差组不参与训练,也不必预扫
             for rec in g["rollouts"]:
                 for st in rec["steps"]:
-                    if st.get("policy_logprob") is None or checked >= args.consistency_checks:
+                    if st.get("policy_logprob") is None:
                         continue
                     v = exec_logprob(st, rec, rec.get("instruction", ""))
                     if v is None:
                         continue
-                    d = abs(float(v) - float(st["policy_logprob"]))
-                    diffs.append(d)
-                    checked += 1
-                if checked >= args.consistency_checks:
-                    break
-            if checked >= args.consistency_checks:
-                break
+                    sr = build_state(rec, st)
+                    lp_sel = selector.logprob_of(
+                        sr, [int(x) for x in st["candidates"]], args.budget,
+                        tuple(int(x) for x in st["chosen_subset"]))
+                    olds[(rec["rollout_id"], int(st["step"]))] = (
+                        float(lp_sel), float(v))
+                    diffs.append(abs(float(v) - float(st["policy_logprob"])))
+                    n_tok_tot += len(st["action_tokens"])
     if not diffs:
         raise SystemExit("FAILED: rollout 里没有 policy_logprob —— "
                          "请用 --executor-sample 重新采数据")
-    mx = max(diffs)
-    print(json.dumps({"exec_logprob_check": {"n": len(diffs),
-                                             "max_abs_diff": round(mx, 6),
-                                             "mean_abs_diff": round(
-                                                 sum(diffs) / len(diffs), 6),
-                                             "tol": args.consistency_tol}},
-                     ensure_ascii=False), flush=True)
-    if mx > args.consistency_tol:
+    per_tok = sum(diffs) / max(n_tok_tot, 1)
+    print(json.dumps({"old_logprob_prescan": {
+        "steps": len(diffs), "tokens": n_tok_tot,
+        "mean_abs_diff_per_step": round(sum(diffs) / len(diffs), 6),
+        "mean_abs_diff_PER_TOKEN": round(per_tok, 6),
+        "max_abs_diff_per_step": round(max(diffs), 6),
+        "structural_tol_per_token": args.consistency_tol}},
+        ensure_ascii=False), flush=True)
+    if per_tok > args.consistency_tol:
         raise SystemExit(
-            f"FAILED: executor logprob 重算与采样值不一致(max|Δ|={mx:.4f} > "
-            f"{args.consistency_tol}) —— ratio 会全错,先修分布口径再训")
+            f"FAILED: 重算与采样的逐 token 差 {per_tok:.4f} > "
+            f"{args.consistency_tol} —— 这是**结构性**错配(prompt/掩码/错位),"
+            "不是 bf16 噪声,先修口径再训")
 
     rng = random.Random(args.seed)
     stats = {"groups_used": 0, "steps": 0, "opt_steps": 0, "skipped_groups": 0}
@@ -307,27 +352,18 @@ def main() -> None:
                 for st in rec["steps"]:
                     if st.get("policy_logprob") is None:
                         continue
-                    bank = HistoryFrameBank(feature_provider=feature_provider)
-                    for s in rec["steps"]:
-                        if int(s["step"]) <= int(st["step"]):
-                            bank.add(int(s["step"]), s["screenshot"])
                     cands = [int(x) for x in st["candidates"]]
-                    hist_lines = [s["action_line"] for s in rec["steps"]
-                                  if int(s["step"]) < int(st["step"])]
-                    hist_acts = [dict(s["action"]) for s in rec["steps"]
-                                 if int(s["step"]) < int(st["step"])]
-                    sr = state_factory(
-                        selector=selector, task_instruction=rec.get("instruction", ""),
-                        history_actions=hist_acts, history_lines=hist_lines,
-                        bank=bank, current_step=int(st["step"]),
-                        candidates=cands, budget=args.budget)
+                    sr = build_state(rec, st)
                     lp_sel = selector.logprob_of(
                         sr, cands, args.budget,
                         tuple(int(x) for x in st["chosen_subset"]))
                     lp_pol = exec_logprob(st, rec, rec.get("instruction", ""))
                     if lp_pol is None:
                         continue
-                    old = float(st["selector_logprob"]) + float(st["policy_logprob"])
+                    cached = olds.get((rec["rollout_id"], int(st["step"])))
+                    if cached is None:
+                        continue
+                    old = cached[0] + cached[1]
                     ratio = torch.exp(lp_sel + lp_pol - old)
                     unc = ratio * a_i
                     cl = torch.clamp(ratio, 1 - args.clip_eps,
