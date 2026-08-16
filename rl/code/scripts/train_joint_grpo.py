@@ -260,6 +260,21 @@ def main() -> None:
         lp = torch.log_softmax(logits, dim=-1)
         return lp.gather(-1, tgt[0].unsqueeze(-1)).sum()
 
+    def _okey(rec: dict, st: dict) -> str:
+        """log π_old 的**全局唯一**键。
+
+        # note (luojiaxuan): 这里踩过一个代价很大的坑 —— 最初用
+        # (rollout_id, step) 做键,而 ``rollout_id`` 只是**组内序号 0..7**,
+        # 不是全局唯一。384 条 rollout 的 4341 个 (id, step) 组合被压成 128 个,
+        # 97% 的 old 被别的 rollout 覆盖,训练时读到的是**另一条轨迹**的 logπ,
+        # ratio 于是爆到 1e+26。更阴的是它伪装成"步长过大":76% 的步近乎确定
+        # (logπ≈-0.001),两条 rollout 的值都≈0,键错了 ratio 仍≈1,所以中位数
+        # 停在 0.9993 看不出问题,只有在**不确定的步**上才咬人 —— 而那正是唯一
+        # 携带学习信号的步。故键必须含 task_id 与 group_id。
+        """
+        return (f"{rec['task_id']}|{rec.get('group_id','')}|"
+                f"{rec['rollout_id']}|{int(st['step'])}")
+
     def build_state(rec: dict, st: dict):
         """按采样端同一条路径重建 selector state(预扫与训练共用一份实现)。"""
         bank = HistoryFrameBank(feature_provider=feature_provider)
@@ -308,8 +323,7 @@ def main() -> None:
     if cache_path.exists():
         blob = json.loads(cache_path.read_text())
         if blob.get("key") == cache_key:
-            olds = {(k.split("\t")[0], int(k.split("\t")[1])): tuple(v)
-                    for k, v in blob["olds"].items()}
+            olds = {k: tuple(v) for k, v in blob["olds"].items()}
             print(json.dumps({"old_logprob_prescan": "从缓存加载",
                               "path": str(cache_path), "steps": len(olds)},
                              ensure_ascii=False), flush=True)
@@ -329,10 +343,13 @@ def main() -> None:
                     lp_sel = selector.logprob_of(
                         sr, [int(x) for x in st["candidates"]], args.budget,
                         tuple(int(x) for x in st["chosen_subset"]))
-                    olds[(rec["rollout_id"], int(st["step"]))] = (
-                        float(lp_sel), float(v))
+                    olds[_okey(rec, st)] = (float(lp_sel), float(v))
                     diffs.append(abs(float(v) - float(st["policy_logprob"])))
                     n_tok_tot += len(st["action_tokens"])
+    if diffs and len(olds) != len(diffs):
+        raise SystemExit(
+            f"FAILED: old 缓存条目 {len(olds)} ≠ 预扫步数 {len(diffs)} —— "
+            "键不唯一,会读到别的 rollout 的 logπ(这条断言就是为那个 bug 加的)")
     if not olds and not diffs:
         raise SystemExit("FAILED: rollout 里没有 policy_logprob —— "
                          "请用 --executor-sample 重新采数据")
@@ -340,7 +357,7 @@ def main() -> None:
         cache_path.parent.mkdir(parents=True, exist_ok=True)
         cache_path.write_text(json.dumps(
             {"key": cache_key,
-             "olds": {f"{k[0]}\t{k[1]}": list(v) for k, v in olds.items()}}))
+             "olds": {k: list(v) for k, v in olds.items()}}))
     per_tok = sum(diffs) / max(n_tok_tot, 1) if diffs else 0.0
     if diffs:
         print(json.dumps({"old_logprob_prescan": {
@@ -393,7 +410,7 @@ def main() -> None:
                     lp_pol = exec_logprob(st, rec, rec.get("instruction", ""))
                     if lp_pol is None:
                         continue
-                    cached = olds.get((rec["rollout_id"], int(st["step"])))
+                    cached = olds.get(_okey(rec, st))
                     if cached is None:
                         continue
                     old = cached[0] + cached[1]
