@@ -111,7 +111,6 @@ def main() -> None:
             break
 
     from causalcache.osworld_gui_owl import _TOOL_SPEC, GUIOwlOSWorldRuntime
-    from causalcache_agentic.features import build_extractor, FeatureCache
     from causalcache_agentic.policy_io import HistoryFrameBank, PolicyInputBuilder
     from causalcache_agentic.selector_model import (
         SelectorStateBuilder,
@@ -206,11 +205,6 @@ def main() -> None:
     print(json.dumps({"state_builder": state_factory.origin,
                       "feature_provider": feature_provider is not None}),
           flush=True)
-    extractor = build_extractor(argparse.Namespace(
-        dry_run=False, model_dir=args.model_dir,
-        snapshot_manifest=args.snapshot_manifest, device=args.device,
-        visual_tokens=2560, feature_dtype="float16"), runtime=runtime)
-    del extractor  # note (luojiaxuan): 特征源改由 resolve_feature_provider 统一提供
 
     opt = torch.optim.AdamW(
         [{"params": sel_params, "lr": args.lr_selector},
