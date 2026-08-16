@@ -442,8 +442,18 @@ def main() -> None:
                     # 46-token 序列在累积,处方完全不同。
                     meter("ratio_sel", float(torch.exp(
                         lp_sel.detach() - cached[0])))
-                    meter("ratio_pol", float(torch.exp(
-                        lp_pol.detach() - cached[1])))
+                    rpol = float(torch.exp(lp_pol.detach() - cached[1]))
+                    meter("ratio_pol", rpol)
+                    # note (luojiaxuan): **按不确定步分层** —— 全体步上的
+                    # ratio_pol 没意义:76% 的步 π≈1,∂logπ/∂θ≈0,本来就动不了,
+                    # 把它们算进去会把"策略梯度只在不确定处有信号"(正常)误读成
+                    # "executor 学不动"(病态)。我第一版就是这么误判的。
+                    # 判据只看 old 分布未饱和的步(π_old < 0.9)。
+                    if cached[1] < -0.105:            # log 0.9 ≈ -0.105
+                        meter("ratio_pol_UNCERTAIN", rpol)
+                        meter("frac_uncertain", 1.0)
+                    else:
+                        meter("frac_uncertain", 0.0)
                     meter("clip_frac", 1.0 if abs(float(ratio.detach()) - 1) >
                           args.clip_eps else 0.0)
                     meter("entropy", float(ent.detach()))
@@ -485,7 +495,7 @@ def main() -> None:
                 "exec_last_layers": args.exec_last_layers},
                args.out_adapter)
     pct = {}
-    for key in ("ratio", "ratio_sel", "ratio_pol"):
+    for key in ("ratio", "ratio_sel", "ratio_pol", "ratio_pol_UNCERTAIN"):
         rr = sorted(meters.get(key, []))
         if not rr:
             continue
