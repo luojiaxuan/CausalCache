@@ -171,12 +171,34 @@ def main() -> None:
     selector = SubsetSelectorPolicy.load(str(args.selector_ckpt), map_location=dev)
     selector.to(dev).train()
     sel_params = [q for q in selector.parameters() if q.requires_grad]
-    state_builder = SelectorStateBuilder(model_dir=str(args.model_dir), device=dev)
+    # note (luojiaxuan): state 口径是 log π 的定义域,**必须**与采样端逐字同路。
+    # 所以不在这里自己拼 SelectorStateBuilder(第一版就是这么写的,签名都对不上),
+    # 而是直接复用 rollout_selector 的 resolve_state_factory —— 它按 kwargs
+    # 超集过滤,并把 origin 落盘成 selector.state_builder 供两侧对账。
+    from rollout_selector import resolve_feature_provider, resolve_state_factory
+
+    fake_args = argparse.Namespace(
+        selector_module="causalcache_agentic.selector_model",
+        state_builder=None, budget=args.budget, device=args.device,
+        model_dir=args.model_dir, feature_source="auto", dry_run=False,
+        snapshot_manifest=args.snapshot_manifest, visual_tokens=2560,
+        feature_dtype="float16")
+    feature_provider = resolve_feature_provider(selector, fake_args)
+    state_factory = resolve_state_factory(fake_args, selector, feature_provider)
+    rec0 = groups[0]["rollouts"][0]
+    want = str((rec0.get("selector") or {}).get("state_builder", "")) or None
+    if want and want != state_factory.origin:
+        raise SystemExit(
+            f"FAILED: state 构造路径与采样端不一致(采样 {want!r} vs 训练 "
+            f"{state_factory.origin!r})—— log π 定义域不同,ratio 无意义")
+    print(json.dumps({"state_builder": state_factory.origin,
+                      "feature_provider": feature_provider is not None}),
+          flush=True)
     extractor = build_extractor(argparse.Namespace(
         dry_run=False, model_dir=args.model_dir,
         snapshot_manifest=args.snapshot_manifest, device=args.device,
         visual_tokens=2560, feature_dtype="float16"), runtime=runtime)
-    cache = FeatureCache(extractor, max_items=32)
+    del extractor  # note (luojiaxuan): 特征源改由 resolve_feature_provider 统一提供
 
     opt = torch.optim.AdamW(
         [{"params": sel_params, "lr": args.lr_selector},
@@ -279,7 +301,7 @@ def main() -> None:
                 for st in rec["steps"]:
                     if st.get("policy_logprob") is None:
                         continue
-                    bank = HistoryFrameBank()
+                    bank = HistoryFrameBank(feature_provider=feature_provider)
                     for s in rec["steps"]:
                         if int(s["step"]) <= int(st["step"]):
                             bank.add(int(s["step"]), s["screenshot"])
@@ -288,12 +310,11 @@ def main() -> None:
                                   if int(s["step"]) < int(st["step"])]
                     hist_acts = [dict(s["action"]) for s in rec["steps"]
                                  if int(s["step"]) < int(st["step"])]
-                    sr = state_builder.build(
+                    sr = state_factory(
                         selector=selector, task_instruction=rec.get("instruction", ""),
                         history_actions=hist_acts, history_lines=hist_lines,
                         bank=bank, current_step=int(st["step"]),
-                        candidates=cands, budget=args.budget,
-                        feature_provider=cache)
+                        candidates=cands, budget=args.budget)
                     lp_sel = selector.logprob_of(
                         sr, cands, args.budget,
                         tuple(int(x) for x in st["chosen_subset"]))
