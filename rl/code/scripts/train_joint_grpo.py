@@ -42,7 +42,10 @@ def load_groups(paths: list[Path], min_group: int = 2) -> list[dict]:
             if not line:
                 continue
             d = json.loads(line)
-            buckets.setdefault((d["task_id"], int(d.get("group_id", 0))),
+            # note (luojiaxuan): group_id 在 rollout schema 里是**字符串**
+            # (形如 "<template>::<regime>::<seed>"),不要强转 int —— 第一次
+            # 就是这么崩的。原样当 key 用即可。
+            buckets.setdefault((d["task_id"], str(d.get("group_id", ""))),
                                []).append(d)
     out = []
     for (tid, gid), rolls in sorted(buckets.items()):
