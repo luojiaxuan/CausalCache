@@ -89,6 +89,8 @@ def main() -> None:
     p.add_argument("--executor-temperature", type=float, default=1.0)
     p.add_argument("--budget", type=int, default=2)
     p.add_argument("--limit-groups", type=int, default=0)
+    p.add_argument("--old-cache", type=Path, default=None,
+                   help="log π_old 预扫缓存(默认落在 out-selector 同目录)")
     p.add_argument("--train-dropout", action="store_true",
                    help="前向开 dropout(与 Phase 3 同名开关);默认关,理由见代码")
     p.add_argument("--consistency-checks", type=int, default=24)
@@ -292,8 +294,27 @@ def main() -> None:
     olds: dict[tuple[str, int], tuple[float, float]] = {}
     diffs: list[float] = []
     n_tok_tot = 0
+    # note (luojiaxuan): 预扫只取决于**初始权重 + 这批数据**,与 lr/clip 等超参
+    # 无关,却要占 1965 次前向(约 40 分钟)。缓存到盘上,调参重跑时直接复用;
+    # 缓存键里带上两个 ckpt 路径与 rollout 文件名,换了任何一个就重算。
+    cache_key = json.dumps({"sel": str(args.selector_ckpt),
+                            "adp": str(args.executor_adapter),
+                            "rollouts": sorted(str(x) for x in args.rollouts),
+                            "budget": args.budget,
+                            "temperature": args.executor_temperature},
+                           sort_keys=True)
+    cache_path = (args.old_cache if args.old_cache
+                  else args.out_selector.parent / "old_logprob_cache.json")
+    if cache_path.exists():
+        blob = json.loads(cache_path.read_text())
+        if blob.get("key") == cache_key:
+            olds = {(k.split("\t")[0], int(k.split("\t")[1])): tuple(v)
+                    for k, v in blob["olds"].items()}
+            print(json.dumps({"old_logprob_prescan": "从缓存加载",
+                              "path": str(cache_path), "steps": len(olds)},
+                             ensure_ascii=False), flush=True)
     with torch.no_grad():
-        for g in groups:
+        for g in ([] if olds else groups):
             if advantages([float(bool(r.get("success")))
                            for r in g["rollouts"]]) is None:
                 continue                      # 无方差组不参与训练,也不必预扫
@@ -312,17 +333,23 @@ def main() -> None:
                         float(lp_sel), float(v))
                     diffs.append(abs(float(v) - float(st["policy_logprob"])))
                     n_tok_tot += len(st["action_tokens"])
-    if not diffs:
+    if not olds and not diffs:
         raise SystemExit("FAILED: rollout 里没有 policy_logprob —— "
                          "请用 --executor-sample 重新采数据")
-    per_tok = sum(diffs) / max(n_tok_tot, 1)
-    print(json.dumps({"old_logprob_prescan": {
-        "steps": len(diffs), "tokens": n_tok_tot,
-        "mean_abs_diff_per_step": round(sum(diffs) / len(diffs), 6),
-        "mean_abs_diff_PER_TOKEN": round(per_tok, 6),
-        "max_abs_diff_per_step": round(max(diffs), 6),
-        "structural_tol_per_token": args.consistency_tol}},
-        ensure_ascii=False), flush=True)
+    if diffs:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache_path.write_text(json.dumps(
+            {"key": cache_key,
+             "olds": {f"{k[0]}\t{k[1]}": list(v) for k, v in olds.items()}}))
+    per_tok = sum(diffs) / max(n_tok_tot, 1) if diffs else 0.0
+    if diffs:
+        print(json.dumps({"old_logprob_prescan": {
+            "steps": len(diffs), "tokens": n_tok_tot,
+            "mean_abs_diff_per_step": round(sum(diffs) / len(diffs), 6),
+            "mean_abs_diff_PER_TOKEN": round(per_tok, 6),
+            "max_abs_diff_per_step": round(max(diffs), 6),
+            "structural_tol_per_token": args.consistency_tol}},
+            ensure_ascii=False), flush=True)
     if per_tok > args.consistency_tol:
         raise SystemExit(
             f"FAILED: 重算与采样的逐 token 差 {per_tok:.4f} > "
@@ -393,6 +420,13 @@ def main() -> None:
                     (-(term) * scale).backward()
                     stats["steps"] += 1
                     meter("ratio", float(ratio.detach()))
+                    # note (luojiaxuan): **两侧分开量** —— 合起来的 ratio 爆了
+                    # 也说不清是 selector 的尖锐 softmax 在动,还是 executor 的
+                    # 46-token 序列在累积,处方完全不同。
+                    meter("ratio_sel", float(torch.exp(
+                        lp_sel.detach() - cached[0])))
+                    meter("ratio_pol", float(torch.exp(
+                        lp_pol.detach() - cached[1])))
                     meter("clip_frac", 1.0 if abs(float(ratio.detach()) - 1) >
                           args.clip_eps else 0.0)
                     meter("entropy", float(ent.detach()))
@@ -433,13 +467,19 @@ def main() -> None:
                 "joint_phase": "4A",
                 "exec_last_layers": args.exec_last_layers},
                args.out_adapter)
+    pct = {}
+    for key in ("ratio", "ratio_sel", "ratio_pol"):
+        rr = sorted(meters.get(key, []))
+        if not rr:
+            continue
+        for q in (5, 50, 95):
+            pct[f"{key}_p{q}"] = round(
+                rr[min(int(len(rr) * q / 100), len(rr) - 1)], 4)
+        pct[f"{key}_max"] = round(rr[-1], 4)
     rr = sorted(meters.get("ratio", []))
-    pct = {f"ratio_p{q}": round(rr[min(int(len(rr) * q / 100), len(rr) - 1)], 4)
-           for q in (5, 50, 95)} if rr else {}
     print(json.dumps({"final": True, **stats, **pct,
-                      "ratio_max": round(max(rr), 4) if rr else None,
                       **{k: round(sum(v) / len(v), 4) for k, v in meters.items()
-                         if v and k != "ratio"},
+                         if v and not k.startswith("ratio")},
                       "out_selector": str(args.out_selector),
                       "out_adapter": str(args.out_adapter)},
                      ensure_ascii=False))
