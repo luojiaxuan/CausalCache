@@ -175,18 +175,30 @@ def main() -> None:
     # 所以不在这里自己拼 SelectorStateBuilder(第一版就是这么写的,签名都对不上),
     # 而是直接复用 rollout_selector 的 resolve_state_factory —— 它按 kwargs
     # 超集过滤,并把 origin 落盘成 selector.state_builder 供两侧对账。
+    import rollout_selector as rs
     from rollout_selector import resolve_feature_provider, resolve_state_factory
 
-    fake_args = argparse.Namespace(
-        selector_module="causalcache_agentic.selector_model",
-        state_builder=None, budget=args.budget, device=args.device,
-        model_dir=args.model_dir, feature_source="auto", dry_run=False,
-        snapshot_manifest=args.snapshot_manifest, visual_tokens=2560,
-        feature_dtype="float16")
-    feature_provider = resolve_feature_provider(selector, fake_args)
-    state_factory = resolve_state_factory(fake_args, selector, feature_provider)
+    # note (luojiaxuan): **从采样端的 argparse 取默认值**再覆盖我关心的几项,
+    # 不要手拼 Namespace —— 手拼那版缺 feature_dim/feature_tokens/dummy_seed…
+    # 一个个补是没有尽头的,而且采样端加字段时这里会再次悄悄失配。
+    fake_args = rs.parse_args([
+        "--tasks-split", "train", "--out", "/dev/null",
+        "--model-dir", str(args.model_dir),
+        "--snapshot-manifest", str(args.snapshot_manifest),
+        "--budget", str(args.budget), "--device", args.device,
+        "--feature-source", "auto", "--selector-arm", "learned",
+        "--selector-ckpt", str(args.selector_ckpt),
+    ])
     rec0 = groups[0]["rollouts"][0]
-    want = str((rec0.get("selector") or {}).get("state_builder", "")) or None
+    sel_meta = dict(rec0.get("selector") or {})
+    if sel_meta.get("kind") != "learned":
+        raise SystemExit(
+            f"FAILED: 这批 rollout 的 selector 臂是 {sel_meta.get('kind')!r},"
+            "joint 训练要求 learned 臂(基线臂没有可训练的 log π_sel)")
+    feature_provider = resolve_feature_provider(selector, fake_args)
+    state_factory = resolve_state_factory(fake_args, selector, sel_meta,
+                                          feature_provider)
+    want = str(sel_meta.get("state_builder", "")) or None
     if want and want != state_factory.origin:
         raise SystemExit(
             f"FAILED: state 构造路径与采样端不一致(采样 {want!r} vs 训练 "
