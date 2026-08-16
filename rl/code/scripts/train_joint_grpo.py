@@ -149,7 +149,8 @@ def main() -> None:
         last_layer_count=(int(bundle["last_layers"])
                           if bundle.get("last_layers") else None))
     load_lora_state_dict(wrapped_all, bundle["state"])
-    model.gradient_checkpointing_enable()
+    model.gradient_checkpointing_enable(
+        gradient_checkpointing_kwargs={"use_reentrant": False})
     if hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
 
@@ -244,8 +245,12 @@ def main() -> None:
         if "mm_token_type_ids" in kw:
             kw["mm_token_type_ids"] = torch.cat(
                 [kw["mm_token_type_ids"], torch.zeros_like(tgt)], dim=1)
+        # note (luojiaxuan): **必须显式 use_cache=False** —— HF 在 use_cache=True
+        # 时会静默关掉梯度检查点(只发一条 warning),9.3k token 的序列于是把全部
+        # 激活留在显存里:实测 61.5 GB 直接 OOM,而症状看上去只是"卡不够大"。
         out = model(input_ids=input_ids,
                     attention_mask=torch.ones_like(input_ids),
+                    use_cache=False,
                     logits_to_keep=len(toks) + 1, **kw)
         logits = out.logits[0, :-1].float() / max(args.executor_temperature, 1e-6)
         if suppress:
