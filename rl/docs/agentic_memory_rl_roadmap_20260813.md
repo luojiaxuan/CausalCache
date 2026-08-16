@@ -383,6 +383,55 @@ executor 下只改 memory rule,RL selector 显著超过 recent-2,且显著超过
 **零捕获**,两臂同为 0.0%;④只有**一个 selector 训练种子**,尚无重复种子
 (效应 11pp 远大于历史上 ±3pp 的运行间噪声,但重复种子仍应补)。
 
+### Phase 4A 管线打通(2026-08-16):**机器正确,但暴露一个结构性问题**
+
+口径:hyper00 GPU2/3,任务容器 `sglang-omni-jaxan-20260813-090811-199280000`;
+数据 = iter1+iter2 合并批,48 组 / 384 rollout(24 任务 × group 8 × 2 轮,
+regime 分层采样),初始化 = `policy_mem_sft` + Phase 3 最佳 selector。
+
+**先量了一件此前没量过的事:executor 的动作分布有多尖锐。**
+整条动作序列(约 46 token)的概率中位数 **0.995**,**76.4% 的步 π>0.9**;
+但同组两条 rollout 的逐步动作分歧率 **61.5%** —— 探索存在,却全部集中在
+剩下那 ~24% 不确定的步上。
+
+**联合更新的健康读数(修完全部 bug 之后)**
+
+| 量 | 值 | 读法 |
+|---|---|---|
+| ratio_p50 / p95 / max | 1.0 / 1.39 / 7.92 | 中位数=1 说明 old 与重算同源;漂移可控 |
+| **ratio_sel** p95 / max | **1.391 / 7.96** | selector 在动 |
+| **ratio_pol** p95 / max | **1.012 / 2.11** | **executor 几乎不动** |
+| grad_norm sel / exec | 0.908 / 0.629 | 均为 O(1),健康 |
+| clip_frac | 0.256 | 正常范围 |
+| nonfinite / 跳过的优化步 | 0 / 0 | 防线未触发 |
+| 有效组 / 优化步 | 23 / 5 | **规模太小,不足以支撑任何结论** |
+
+**结论(方向性,需更大批次确认)**:当前配置下 joint GRPO 的位移约
+**97% 落在 selector**,executor 基本没被更新。这不是调参疏忽,而是上面那个
+分布尖锐度的直接后果 —— π≈1 时 ∂logπ/∂θ≈0,**饱和策略的 policy gradient
+本身趋近于零**。而审计 §4.7 已判定闭环瓶颈正在 executor(B1 探索失败 /
+B2 多步稳定性)。因此:**Phase 4A 若不解决 executor 的梯度饱和,就动不了
+已知瓶颈**。正在跑 executor 学习率探针(2e-5 → 2e-4)判断是"学不动"还是
+"步子太小";若确属饱和,下一个旋钮是提高采样温度(代价:训练分布偏离
+贪心部署)或在 executor 侧加熵项。
+
+**本轮修掉的 bug(全部是实现/口径错误,非方法问题)**
+
+| bug | 症状 | 根因 |
+|---|---|---|
+| `group_id` 强转 int | 启动即崩 | schema 里是 `template::regime::seed` 字符串 |
+| 自建 `SelectorStateBuilder` | 启动即崩 | 应复用采样端 `resolve_state_factory` |
+| 残留 `build_extractor` | 启动即崩 | 特征源已统一由 `resolve_feature_provider` 提供 |
+| log π_old 用解码路径的值 | 初始 ratio 1.52,超裁剪带 | 改为初始权重下同一前向路径重算 |
+| `use_cache=True` | OOM 61.5 GB | HF 静默关掉梯度检查点(只发 warning) |
+| `entropy` 的 `0·log0` | grad_norm=Inf,权重被打坏 | 概率下溢时 `p*logp` 得 nan |
+| **old 缓存键冲突** | **ratio 爆到 1e+26** | `rollout_id` 只是组内序号 0..7,4341 个 (id,step) 组合被压成 128 个 |
+
+**跨条目的教训(值得单列)**:上表后三条 bug **只在"executor 不确定的步"
+上显形**,汇总指标一律正常 —— 键冲突时 ratio 中位数仍是 0.9993,因为 76%
+的步两条 rollout 的 logπ 都≈0,错了也看不出来。这个系统的任何自检都必须
+**按不确定步分层看**,只看均值必然漏掉真正要紧的那 24%。
+
 ### 下一步(按优先级,2026-08-14 更新)
 
 1. ✅ **learned > random 已做到显著**(n=300:+11.33pp,p≈0);
