@@ -174,6 +174,10 @@ full GUI-Owl 从零联合训练。
 | P2A-1 | Phase 2A 用**全层 qkvo LoRA r8**,而非路线文档写的"后若干层" | 台账 §0.8/§0.9 实测:同参数量的末 8 层 k/v 适配增益 ≈0,全层 qkvo r8 拿到 +5.50pp CI[+3.00,+8.06]。硬约束仍满足:视觉编码器全冻(特征缓存有效)、非 full finetune、LoRA 零初始化 ⇒ 训练起点逐位等于原始 GUI-Owl(即"gate 初始≈0") | `--last-layers N` 一个开关切回 |
 | P2A-2 | Phase 2 先做 **A 臂(历史帧走官方 prompt 主通路)**,B 臂(gate 侧通道 HGKV cross-attn)推到 Phase 3 管线打通之后 | A 臂是已验证路径,最快解锁 Phase 3(论文最关键阶段);B 臂多的是 token 成本故事与显式 g_l 旋钮,不改变"executor 会读稀疏历史"这个 Phase 2 目标 | 两臂共用 SFT 数据与评测,B 臂随时可加训并同表比较 |
 | P2A-3 | SFT 训练集按 **决策步全留 + 平凡步分层欠采样**(2591 条:决策 1226 / 平凡 1365) | 记忆是否被读出只在决策步体现,是最稀缺监督;不欠采样会被"点应用图标"这类步淹没 | `mix_sft.py` 的 budget 参数 |
+| P4A-1 | 联合更新的第一批数据用 **iter1+iter2 合并(48 组 / 384 rollout)**,而不是每 24 组各训一次 | 24 组太薄:GRPO 只有 58.3% 的组有奖励方差,单轮实际可用约 14 组;两轮由同一套未更新权重采样,属同一 behavior policy,合并合法 | 两批 JSONL 独立落盘,随时可只取一批重训 |
+| P4A-2 | executor 采样温度取 **1.0**(模型原生分布),不为增加探索而调高 | 部署评测是贪心解码,训练分布调离贪心会引入 train/deploy 失配;先用原生温度看能否推动 | 若训练不动(ratio 恒 ≈1、grad 极小),第一个旋钮就是升温,`--executor-temperature` 一个参数 |
+| P4A-3 | 4A 解冻 **executor 后 8 层 LoRA(1.70M 参数)**,而非 Phase 2A 用的全层 qkvo | 联合 RL 的方差远大于 SFT,先给最小可动面;视觉塔与前 28 层保持冻结,历史帧特征缓存因此仍然有效 | `--exec-last-layers 0` 切回全层 |
+| P4A-4 | selector state 的构造**复用采样端 `resolve_state_factory`**,并在启动时对账 `selector.state_builder` origin | state 是 log π 的定义域;我第一版自建 builder 签名全错,若"侥幸"能跑就会用两个不同 state 训一个策略,而表面只表现为不收敛 | 对账不通过直接退出,不存在静默降级路径 |
 
 ## 11. 实测数值(随执行更新)
 
