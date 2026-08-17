@@ -91,6 +91,13 @@ def main() -> None:
     p.add_argument("--limit-groups", type=int, default=0)
     p.add_argument("--old-cache", type=Path, default=None,
                    help="log π_old 预扫缓存(默认落在 out-selector 同目录)")
+    # note (luojiaxuan): 预扫占单轮训练约 2/3 的时间(1929 次前向 ≈ 50 分钟),
+    # 而它**逐步独立**、与超参无关,天然可并行。拆成 N 个分片各算一片、
+    # 各写一份 .shardK 缓存,训练端合并 —— 单轮 2h → 1.2h。
+    p.add_argument("--prescan-only", action="store_true",
+                   help="只算本分片的 log π_old 缓存后退出(不训练)")
+    p.add_argument("--prescan-shard", type=int, default=0)
+    p.add_argument("--prescan-shards", type=int, default=1)
     p.add_argument("--train-dropout", action="store_true",
                    help="前向开 dropout(与 Phase 3 同名开关);默认关,理由见代码")
     p.add_argument("--consistency-checks", type=int, default=24)
@@ -320,15 +327,21 @@ def main() -> None:
                            sort_keys=True)
     cache_path = (args.old_cache if args.old_cache
                   else args.out_selector.parent / "old_logprob_cache.json")
-    if cache_path.exists():
-        blob = json.loads(cache_path.read_text())
+    shard_paths = sorted(cache_path.parent.glob(cache_path.name + ".shard*"))
+    for cp in ([cache_path] if cache_path.exists() else []) + shard_paths:
+        try:
+            blob = json.loads(cp.read_text())
+        except (json.JSONDecodeError, OSError):
+            continue                       # 分片还在写:忽略,当作没有
         if blob.get("key") == cache_key:
-            olds = {k: tuple(v) for k, v in blob["olds"].items()}
-            print(json.dumps({"old_logprob_prescan": "从缓存加载",
-                              "path": str(cache_path), "steps": len(olds)},
-                             ensure_ascii=False), flush=True)
+            olds.update({k: tuple(v) for k, v in blob["olds"].items()})
+    if olds:
+        print(json.dumps({"old_logprob_prescan": "从缓存加载",
+                          "files": len(shard_paths) + int(cache_path.exists()),
+                          "steps": len(olds)}, ensure_ascii=False), flush=True)
+    seen_steps = 0
     with torch.no_grad():
-        for g in ([] if olds else groups):
+        for g in ([] if (olds and not args.prescan_only) else groups):
             if advantages([float(bool(r.get("success")))
                            for r in g["rollouts"]]) is None:
                 continue                      # 无方差组不参与训练,也不必预扫
@@ -336,6 +349,9 @@ def main() -> None:
                 for st in rec["steps"]:
                     if st.get("policy_logprob") is None:
                         continue
+                    seen_steps += 1
+                    if (seen_steps - 1) % args.prescan_shards != args.prescan_shard:
+                        continue           # 不属于本分片
                     v = exec_logprob(st, rec, rec.get("instruction", ""))
                     if v is None:
                         continue
@@ -346,7 +362,7 @@ def main() -> None:
                     olds[_okey(rec, st)] = (float(lp_sel), float(v))
                     diffs.append(abs(float(v) - float(st["policy_logprob"])))
                     n_tok_tot += len(st["action_tokens"])
-    if diffs and len(olds) != len(diffs):
+    if diffs and args.prescan_shards == 1 and len(olds) != len(diffs):
         raise SystemExit(
             f"FAILED: old 缓存条目 {len(olds)} ≠ 预扫步数 {len(diffs)} —— "
             "键不唯一,会读到别的 rollout 的 logπ(这条断言就是为那个 bug 加的)")
@@ -355,9 +371,14 @@ def main() -> None:
                          "请用 --executor-sample 重新采数据")
     if diffs:
         cache_path.parent.mkdir(parents=True, exist_ok=True)
-        cache_path.write_text(json.dumps(
+        out_cache = (cache_path if args.prescan_shards == 1 else
+                     cache_path.with_name(
+                         f"{cache_path.name}.shard{args.prescan_shard}"))
+        tmp = out_cache.with_suffix(out_cache.suffix + ".tmp")
+        tmp.write_text(json.dumps(
             {"key": cache_key,
              "olds": {k: list(v) for k, v in olds.items()}}))
+        tmp.replace(out_cache)             # 原子替换:训练端不会读到半截文件
     per_tok = sum(diffs) / max(n_tok_tot, 1) if diffs else 0.0
     if diffs:
         print(json.dumps({"old_logprob_prescan": {
@@ -367,6 +388,10 @@ def main() -> None:
             "max_abs_diff_per_step": round(max(diffs), 6),
             "structural_tol_per_token": args.consistency_tol}},
             ensure_ascii=False), flush=True)
+    if args.prescan_only:
+        print(json.dumps({"prescan_only": True, "shard": args.prescan_shard,
+                          "of": args.prescan_shards, "steps": len(olds)}))
+        return
     if per_tok > args.consistency_tol:
         raise SystemExit(
             f"FAILED: 重算与采样的逐 token 差 {per_tok:.4f} > "
