@@ -322,3 +322,50 @@ selector 在当前 executor 下已经把能拿的都拿了(追平 index-oracle);
 `rl/code/scripts/`:`rollout_selector.py`、`train_selector_grpo.py`、
 `agentic_selector_eval_reduce.py`、`agentic_selector_diagnose.py`(本文件 §4 的
 数字由它产出)。路线文档:`rl/docs/agentic_memory_rl_roadmap_20260813.md`。
+
+## 4.8 `two_frame_complementary` 恒为 0% 的机制(2026-08-17,新证据)
+
+它是唯一在**所有**配置下都恒为 0.0% 的 regime:Phase 3 的 learned / recent /
+random 三臂、两种 oracle(索引对齐、内容对齐)、Phase 4 joint 的两臂,全部 0.0%。
+本节用三个互相独立的量把病因定死。
+
+**(1) 不是"读不懂两帧"。** teacher-forced 决策步探针(syn_ood 同 297 任务、
+同 executor、oracle 供帧 vs recent-2):
+
+| regime | oracle 供帧 | recent-2 | 差 |
+|---|---|---|---|
+| `two_frame_complementary` | **33.9%** | 0.0% | +33.93pp CI[+21.43,+46.43] W/L 19:0 p≈0 |
+| `one_old_frame` | 27.6% | 0.0% | +27.59pp W/L 16:0 |
+| `distractor_heavy` | 40.3% | 0.0% | +40.32pp W/L 25:0 |
+| 三个简单 regime | 与 recent-2 **逐点相等** | — | +0.00pp |
+
+被交到正确帧时,"两值求和"(33.9%)并不比"单值复制"(27.6%)更难。
+
+**(2) 不是"走不到决策步"。** 闭环 rollout 逐条统计:**全部五个 regime 到达
+决策步的比例都是 100%**,且都正常自终止(`terminated`,非 `max_steps`);
+two_frame 平均 11.71 步 vs 专家 12.21 步。它们**跑完全程然后断言失败**。
+
+**(3) 差异在决策步之后能否兑现。**
+
+| regime | 决策步上界(teacher-forced) | 闭环实得 | 兑现率 |
+|---|---|---|---|
+| `one_old_frame` | 27.6% | **27.6%** | **100%** |
+| `distractor_heavy` | 40.3% | 16.1% | 40% |
+| `two_frame_complementary` | 33.9% | **0.0%** | **0%** |
+
+**任务结构上的唯一差别**:`two_frame_complementary` 的 `required_steps` 长度
+**恒为 2**(56/56),其余硬 regime 恒为 1;它要求把两个老帧里的值**组合**
+(模板 `f5_browser_calc_sum`:跨 Browser 与 Calc 求和后 `type 9129`),
+而 `one_old_frame` 只是**复制**单值(`type CSE-PUM-2974 8019.58`)。
+其余结构量(决策步 ≈9.2、专家步数 ≈12.2、断言数 ≈4.5)各 regime 无差别。
+
+**结论**:在 **B=2** 下,需要**同时**保留两个老帧的任务把预算吃满、没有余量,
+闭环中没有任何一种选择策略(含两种 oracle)能把两帧同时送进决策步窗口 ——
+尽管 executor 在拿到两帧时能做对三分之一。这不是 executor 的理解力上限,
+也不是探索失败(100% 到达决策步),而是**预算与证据保留的结构性冲突**。
+
+**待验证(下一步)**:闭环中决策步窗口**同时**含两个所需帧的比例是多少?
+需用**内容对齐**判据(该帧顶层窗口可见文本里是否真的出现所需值),
+不能用专家步号 —— 后者正是 §4.3 作废那版分析的错误来源。
+若该比例接近 0,则可直接支持"B=2 对双证据任务是结构性不足"的论断;
+这将是论文里关于 budget 的一条真结论,而不是调参故事。
