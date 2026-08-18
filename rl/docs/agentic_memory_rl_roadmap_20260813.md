@@ -515,6 +515,31 @@ Tilde 配置:每轮 96 任务 × group 8(hyper 上是 48),采样 8 分片、**�
 (预扫是 hyper 上最大的串行瓶颈,占单轮 2/3)、更新 1 卡;8 轮;
 `--requeue` + 逐轮 checkpoint 跳过,最大重放一轮。
 
+### ★★ Phase 4A 学习曲线(2026-08-18,更新至 43 优化步):**executor 侧平坦**
+
+迭代联合训练迁至 tilde 8×H100 后(每轮 768 rollout,约 3.1h/轮),
+用 tilde round3 checkpoint(累计约 43 个联合优化步)按同一口径
+(n=300 syn_ood、task-seed 2101、argmax、group 1)加测一个曲线点:
+
+| 优化步 | selector 增益(完整 vs +recent2) | **executor 净增益**(+recent2 vs Phase3 +recent2) | 完整 vs Phase3 完整 |
+|---|---|---|---|
+| 0(Phase 3) | +11.00pp | — | — |
+| 9(full1) | +11.67pp | **−0.33pp** | +0.33pp |
+| **43(tilde r3)** | **+12.67pp** CI[+9.00,+17.00] | **−0.33pp**(逐点同 9 步) | +1.33pp p=0.29 |
+
+**读法**:34 个额外优化步后 executor 的闭环行为纹丝不动(B 臂 −0.33pp 与
+9 步时逐点相同)。机制假说(与训练读数自洽):更新只在 ~11% 的不确定步上
+移动 ±20% 概率,而部署是 **argmax 解码** —— 概率挪动不翻转众数,闭环行为
+就不变。selector 增益稳步上行(11.00→11.67→12.67,硬分层 +17.61pp 为
+历史最高),说明 joint 里 selector 仍在受益,只是 executor 不动。
+
+正在跑的机制验证:teacher-forced 决策步探针(round3 adapter vs
+policy_mem_sft,相同 297 任务相同输入)。若 oracle 臂精度也不变
+(mem_sft 基线 43.0%),则确证"更新量不足以翻转任何 argmax 决策",
+Phase 4A 需要换旋钮(候选:executor 侧熵正则/升温采样拉开分布、
+奖励塑形、或接受 executor 冻结、把 joint 收窄为 selector-under-joint)。
+round5–8(至约 70 步)仍会跑完,补齐曲线末点。
+
 ### 下一步(按优先级,2026-08-14 更新)
 
 1. ✅ **learned > random 已做到显著**(n=300:+11.33pp,p≈0);
