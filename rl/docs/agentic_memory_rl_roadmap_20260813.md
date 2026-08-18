@@ -533,12 +533,29 @@ Tilde 配置:每轮 96 任务 × group 8(hyper 上是 48),采样 8 分片、**�
 就不变。selector 增益稳步上行(11.00→11.67→12.67,硬分层 +17.61pp 为
 历史最高),说明 joint 里 selector 仍在受益,只是 executor 不动。
 
-正在跑的机制验证:teacher-forced 决策步探针(round3 adapter vs
-policy_mem_sft,相同 297 任务相同输入)。若 oracle 臂精度也不变
-(mem_sft 基线 43.0%),则确证"更新量不足以翻转任何 argmax 决策",
-Phase 4A 需要换旋钮(候选:executor 侧熵正则/升温采样拉开分布、
-奖励塑形、或接受 executor 冻结、把 joint 收窄为 selector-under-joint)。
-round5–8(至约 70 步)仍会跑完,补齐曲线末点。
+**机制验证(已完成,确证)**:teacher-forced 决策步探针,round3 adapter vs
+policy_mem_sft,相同 297 任务相同输入:
+
+| | oracle 供帧 | recent-2 |
+|---|---|---|
+| policy_mem_sft(0 步) | 43.0% | 23.0% |
+| round3(43 步) | 43.3% | 23.7% |
+| 硬分层 oracle | 34.1% | 34.1%(逐点相同) |
+
+teacher-forced 也不动(差均 ≤0.7pp,噪声内)⇒ **43 个联合优化步挪动了概率
+(训练侧 ratio 可见)但没有翻转任何 argmax 决策** —— 病因不是轨迹偏离,
+是更新量对贪心部署不构成行为变化。
+
+**三个候选方向(等用户裁决,round5–8 照跑补齐曲线末点)**:
+1. **executor 侧升温采样 + 熵正则**拉开分布再训 —— 代价是训练分布偏离贪心
+   部署,且需要的数据量可能仍是数量级问题;
+2. **奖励塑形** —— 注意与路线 §9 冻结原则冲突(禁止 milestone/step-level
+   训练信号),若走此路需先明确修约;
+3. **接受"RL 动不了 executor"作为结论**,把 Phase 4 收窄为
+   selector-under-joint,论文故事:**SFT 塑造 executor(53%→98%),RL 塑造
+   selector(+11~13pp);在本算力尺度下 joint RL 对 executor 无增益**
+   ——与 B=4 的"选得准≫给得多"互为支撑,是自洽的负结果叙事。
+   (推荐:3,理由是 1 的数据量在本尺度不现实、2 违反冻结原则。)
 
 ### 下一步(按优先级,2026-08-14 更新)
 
