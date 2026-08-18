@@ -162,6 +162,27 @@ def main() -> None:
         gradient_checkpointing_kwargs={"use_reentrant": False})
     if hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
+    # note (luojiaxuan): **必须 model.train(),否则梯度检查点根本不生效** ——
+    # HF 的实现是 `if self.gradient_checkpointing and self.training:`,而
+    # runtime 加载完是 eval 模式,于是 enable() 调了个寂寞。hyper00 的 143GB
+    # H200 把这个问题盖住了(实测吃到 93GB 仍能跑),换到 80GB 的 H100 立刻 OOM。
+    # 开 train 模式的前提是 dropout 必须为 0,否则会重蹈 selector 那个坑:
+    # dropout 让 ratio 在任何更新之前就 ≠1,clip 大量触发、更新方向被污染。
+    # 这里**逐模块实测**而不是信 config —— 只要有一个 p>0 就退回 eval 并告警。
+    drops = [(n, m.p) for n, m in model.named_modules()
+             if isinstance(m, torch.nn.Dropout) and float(m.p) > 0]
+    if drops:
+        print(json.dumps({"WARN": "存在非零 dropout,保持 eval 模式(梯度检查点"
+                                  "因此不生效,显存会显著升高)",
+                          "modules": drops[:5], "n": len(drops)},
+                         ensure_ascii=False), flush=True)
+    else:
+        model.train()
+        print(json.dumps({"model_train_mode": True,
+                          "gradient_checkpointing": bool(getattr(
+                              model, "is_gradient_checkpointing", False)),
+                          "note": "全模型 dropout=0,开 train 模式以启用检查点"},
+                         ensure_ascii=False), flush=True)
 
     # 4A:只解冻后 N 层的 LoRA;其余(含视觉塔)保持冻结
     import re as _re
