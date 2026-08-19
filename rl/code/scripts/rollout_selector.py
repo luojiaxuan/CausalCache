@@ -74,10 +74,12 @@ from causalcache_agentic.policy_io import (
     DEFAULT_BUDGET,
     HistoryFrameBank,
     PolicyInputBuilder,
+    PolicyIOError,
     RandomBSelector,
     RecentBSelector,
     SelectorPolicy,
     SelectorState,
+    official_forms_from_actions,
 )
 
 # note (luojiaxuan): 解码配置、冻结守卫、假策略、稳定 seed 全部**复用**
@@ -844,6 +846,7 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
                          if kk.startswith("v") and isinstance(v, (str, int, float))
                          and len(str(v)) >= 3]
 
+    reason_override = ""
     for k in range(limit):
         shot = str(shot_dir / f"step{k:02d}.png")
         if args.selector_arm == "oracle_content":
@@ -905,10 +908,40 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
             action = dict(FALLBACK_ACTION)
         else:
             action = normalize_action(parsed)
+        # note (luojiaxuan): **在动作进入历史之前验证它能被官方渲染器渲染**。
+        # round9 实测:RL 更新后的 executor 在 T=1.0 采样下吐出过中文动作词
+        # '左点击'(round5 还吐过 'select'),它一旦进 history_actions,下一步的
+        # PolicyInputBuilder.build 会抛 PolicyIOError 把**整个 shard worker**
+        # 杀掉(丢了 72/96 条)。处理原则:这是 policy 自己的输出垃圾,按
+        # **episode 失败(reward 0)终止**——这是合法的终局信号,RL 应当据此
+        # 学会不这么说话;悄悄别名化或丢弃样本都会歪曲训练分布。
+        try:
+            official_forms_from_actions([dict(action)],
+                                        tool_name=builder.tool_name)
+            unrenderable = False
+        except PolicyIOError:
+            unrenderable = True
+            step_errors += 1
         try:
             line = action_line(action)
         except (KeyError, TypeError, ValueError):
             line = f"Action: {json.dumps(action, ensure_ascii=False)}"
+        if unrenderable:
+            steps.append({
+                "step": k, "chosen_subset": list(subset),
+                "candidates": list(cands), "selector_logprob": logprob,
+                "action": dict(action), "action_line": line,
+                "screenshot": shot, "n_candidates": len(cands),
+                "n_subsets": sel_diag["n_subsets"],
+                "softmax_logprob": sel_diag["softmax_logprob"],
+                "entropy": sel_diag["entropy"],
+                "is_recent": tuple(subset) == bank.recent(args.budget, k),
+                "policy_logprob": act_logp, "action_tokens": act_tokens,
+                "raw_action_text": raw if act_tokens is not None else None,
+                "active_app": None,
+                "last_error": "unrenderable_action"})
+            reason_override = "unrenderable_action"
+            break
         _obs, done, info = env.step(action)
         if info["last_error"]:
             step_errors += 1
@@ -938,7 +971,7 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
         if done:
             break
 
-    success = env.verify()
+    success = env.verify() and not reason_override
     probe_required, probe_decision = read_probe(task)
     row = {
         "task_id": task.task_id, "template_id": task.template_id,
@@ -949,7 +982,8 @@ def run_rollout(task: TaskSpec, *, env: GUIEnv, policy: Any, selector: Any,
         # instruction 就不是当时喂给 selector 的那句),log π 会静默偏掉。
         "instruction": task.instruction,
         "group_id": group_id, "rollout_id": rollout_id, "arm": arm,
-        "success": bool(success), "reason": env.reason or "actions_exhausted",
+        "success": bool(success),
+        "reason": reason_override or env.reason or "actions_exhausted",
         "n_steps": len(steps), "steps": steps,
         "selector_logprob_sum": logprob_sum,
         # ---- 以下为附加字段(schema 的必需部分在上面) ----
