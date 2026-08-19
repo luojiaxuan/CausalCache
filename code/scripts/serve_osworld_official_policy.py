@@ -49,6 +49,9 @@ def main() -> None:
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--memory-budget", type=int, default=4)
     parser.add_argument("--adapter-checkpoint", type=Path, default=None)
+    parser.add_argument("--lora-bundle", type=Path, default=None,
+                        help="qkvo LoRA bundle(Phase 2 policy_mem_sft 产物;"
+                             "与 --adapter-checkpoint 的 HGKV 互斥)")
     parser.add_argument("--adapter-checkpoint-sha256", default=None)
     parser.add_argument("--adapter-layer-count", type=int, default=8)
     parser.add_argument("--adapter-rank", type=int, default=8)
@@ -138,6 +141,35 @@ def main() -> None:
             "layer_count": args.adapter_layer_count,
             "rank": args.adapter_rank,
             "alpha": args.adapter_alpha,
+        }
+
+    # note (luojiaxuan): Phase 5 真实 UI 桥接 —— 加载 agentic 线的 qkvo LoRA
+    # (policy_mem_sft)。与上面的 HGKV 是两种不同 adapter,不许同挂:
+    # 都改注意力投影,叠加后行为无定义。bundle 自带 rank/alpha/target/层数,
+    # 不从 CLI 读,保证与训练时逐字一致。
+    if args.lora_bundle is not None:
+        if args.adapter_checkpoint is not None:
+            raise SystemExit("--lora-bundle 与 --adapter-checkpoint 互斥")
+        from train_success_sft_lora import inject_lora, load_lora_state_dict
+
+        lb = torch.load(args.lora_bundle, map_location="cpu",
+                        weights_only=False)
+        wrapped_lora = inject_lora(
+            model, rank=int(lb["rank"]), alpha=int(lb["alpha"]),
+            target_modules=tuple(str(lb.get(
+                "target_modules", "q_proj,k_proj,v_proj,o_proj")).split(",")),
+            torch=torch,
+            last_layer_count=(int(lb["last_layers"])
+                              if lb.get("last_layers") else None))
+        load_lora_state_dict(wrapped_lora, lb["state"])
+        model.eval().requires_grad_(False)
+        adapter_meta = {
+            "kind": "qkvo_lora",
+            "checkpoint": str(args.lora_bundle),
+            "checkpoint_sha256": hashlib.sha256(
+                args.lora_bundle.read_bytes()).hexdigest(),
+            "rank": int(lb["rank"]), "alpha": int(lb["alpha"]),
+            "last_layers": lb.get("last_layers"),
         }
 
     selector_meta: dict[str, Any] | None = None
