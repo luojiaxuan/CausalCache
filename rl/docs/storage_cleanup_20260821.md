@@ -74,3 +74,17 @@ hyper01 的 `gui-owl-1.5-8b-think` ckpt(HF 无正本)已启动上传
 2. **HF 为数据 SoT**,体积不设限,本地仅工作副本。
 现存活跃目录(hyper00:/data04/jaxan/{agentic,osworld,models})在 Phase 5/6
 运行结束后迁入 /data01/jaxan。
+
+## 第四批:当前战役探索迭代封存(2026-08-21,用户指示)
+用户:「重心在 RL(grpo)和 joint sft,之前那些探索迭代的版本封存到 hf 然后删掉」。
+* **封存 repo**:`gavinlaw/causalcache-agentic-experiments-desktop-v1`(dataset,私有)
+  - `hyper00_agentic_v1.tar.gz`(439M):grpo/grpo2/grpo2_s1/joint 全部迭代的
+    rollout+训练日志+中间 ckpt、全部评测行(eval3/4_n300、eval_b4、curve r3/r8/r14、
+    eval_sampled、五个 probe、两个 sens)、sft 记录、启动脚本——排除可再生的
+    featcache/shots 与运行中 server 仍引用的 mem_sft_a/ckpt_curve/models;
+  - `tilde_joint_rounds_v1.tar.gz`:tilde 15 轮迭代联合训练的 rollout 记录与
+    prescan 缓存清单(排除截图)。
+* **上传字节数在线核验后**才删除 `grpo/featcache`(30G,特征缓存可再生)。
+* v5raw/v5full/rl(离线战役 338G)已同日处理:report+deploy 756M 迁
+  `/data01/jaxan/offline_campaign_reports/`,tokens 载荷删除。
+* 保留(仍被运行中的 Phase 5/6 引用):mem_sft_a、ckpt_curve、models、osworld。
