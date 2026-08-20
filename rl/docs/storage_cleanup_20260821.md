@@ -60,3 +60,17 @@
 ## 保留(活跃)
 hyper00:/data04/jaxan/{agentic 37G, osworld 29G, models 17G}(本线 Phase 5/6
 正在使用);/data04/jaxan/cache 26G(活跃容器 XDG)。
+
+## 第三批(2026-08-21,用户逐项批准)
+video-livr 310G(删前确认零进程引用)、autoterm 103G、RASST_rebuttal 41G、
+S2S_omni_runs 60G、chinese_lips 107G、mw 61G+68G —— 合计 ≈ 750G,
+依据:用户确认最终产物均在 HF("数据用 hf 当 SoT")。
+hyper01 的 `gui-owl-1.5-8b-think` ckpt(HF 无正本)已启动上传
+→ `gavinlaw/causalcache-gui-owl-think-8b`,确认落地后删本地。
+
+## 新的长期规则(已写入全局 CLAUDE.md)
+1. **单一目录**:hyper00 只用 `/data01/jaxan/`,hyper01 只用 `/data04/jaxan/`;
+   其余 `/data*/jaxan` 只出不进,随任务收尾清空;
+2. **HF 为数据 SoT**,体积不设限,本地仅工作副本。
+现存活跃目录(hyper00:/data04/jaxan/{agentic,osworld,models})在 Phase 5/6
+运行结束后迁入 /data01/jaxan。
