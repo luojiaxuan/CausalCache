@@ -640,6 +640,31 @@ selector 熵 0.78→0.56 收敛。**病因是任务分布被吃干**(约十个�
 基线快 2–3 倍(4–6 步 vs 15 步满额,学会了 terminate);全量 135 任务
 无回归评测(2 臂 × 4 worker,8 并发 VM)运行中。
 
+### RL 上限扩容与 Phase 5/6 选型(2026-08-20,与用户对齐)
+
+Phase 4A 收敛判定后,用户问"怎么扩 RL 上限",并给出两条原则:eval 要选
+**远端历史 image 恢复有意义**的任务;RL 训练任务要**长短类型多样**防过拟合。
+结合 ChatGPT 提供的 benchmark 清单(WAA/OpenComputer/WorldGUI/WindowsWorld/
+OSUniverse/CRAB/ComputerRL 等),定下三件事:
+
+1. **训练侧:扩自己的程序化模板池,不搬真实 VM 来训。**
+   吞吐差 5 个数量级(PIL 4410 steps/s vs 真实 VM ~2min/episode),我们的
+   卡规模撑不起 ComputerRL 式 1000+ 并行实例;正确姿势是把外部 benchmark 的
+   **任务语义**翻译成程序化模板(表格操作/邮件流/文件管理/跨应用取值-运算-
+   回填,参数化 operation,4–30 步长短混合),从 ~10 family 扩到 50–100,
+   乘上既有 5 regime。纯代码工作(Phase 1.5 LLM 辅助),不花 GPU。
+2. **评测侧:记忆关键性要自己测,不信标签。** 没有 benchmark 标注"需要
+   老帧";用审计 §4.8 的内容可见性探针审计 OSWorld-Verified(multi_apps 域
+   优先)与 WindowsWorld,筛真正记忆关键的子集作 bridge set,不足则按同
+   结构自造 30–60 个真实 UI 任务。**"现有 benchmark 记忆关键任务占比≈0"
+   本身是可量化 finding**,论证本工作环境的必要性。
+3. **切分与引用**:OSWorld-Verified 全量 held-out 永不训;按 family 切分;
+   related work 引 OpenComputer/ComputerRL/WAA/WorldGUI/CRAB/OSUniverse。
+
+**明确不做**:①shaped reward(subgoal/partial/step penalty)——违反 §9 冻结
+原则(终局 0/1 是论文身份的一部分),除非用户显式解冻;②WAA/Windows 系
+暂缓(需 Windows 11 VM 另一套基建,收益未证)。
+
 ### 下一步(按优先级,2026-08-14 更新)
 
 1. ✅ **learned > random 已做到显著**(n=300:+11.33pp,p≈0);
