@@ -48,9 +48,88 @@ def load_records(paths: list[Path], *, only_solvable: bool = True) -> list[dict]
     return out
 
 
+def load_real_rows(manifest: Path, image_root: Path, *, budget: int,
+                   keep_incorrect: bool) -> tuple[list[dict], dict[str, int]]:
+    """AgentNet manifest → 训练记录(kind=real)。
+
+    # note (luojiaxuan): 过滤纪律照抄 rl_oracle_enumerate:图片数与 step 不符、
+    # history 不可解析、候选为空、**缺任何一张所需图整行跳过**并分类计数 ——
+    # 只丢缺图候选会让 shown 系统性偏移。shown = 候选池的 recent 尾(recent-B),
+    # 与部署口径一致;target 走 render_official_response(与合成腿同一序列化,
+    # close token 由 encode 统一追加,不用 manifest 的 target_text 以免双闭合)。
+    """
+    from causalcache.agentnet_desktop_official import official_step_forms
+
+    rows: list[dict] = []
+    skipped: dict[str, int] = {}
+
+    def skip(key: str) -> None:
+        skipped[key] = skipped.get(key, 0) + 1
+
+    for line in manifest.open(encoding="utf-8"):
+        if not line.strip():
+            continue
+        rec = json.loads(line)
+        if not keep_incorrect and not rec.get("target_step_last_step_correct"):
+            skip("target_marked_incorrect")
+            continue
+        s = int(rec["step"])
+        images = rec["image_relpaths"]
+        if len(images) != s:
+            skip("image_count_mismatch")
+            continue
+        try:
+            screen = tuple(int(x) for x in rec["screen_size"])
+            forms = [official_step_forms(h, screen_size=screen)
+                     for h in rec["history"]]
+        except (ValueError, KeyError):
+            skip("unparseable_history")
+            continue
+        if len(forms) != s - 1:
+            skip("history_len_mismatch")
+            continue
+        cands = [j for j in range(1, s - 1) if forms[j].full_response]
+        if not cands:
+            skip("too_few_candidates")
+            continue
+        shown = cands[-budget:]
+        needed = [image_root / images[j] for j in shown] + [image_root / images[s - 1]]
+        if not all(q.exists() for q in needed):
+            skip("missing_images")
+            continue
+        rows.append({
+            "kind": "real",
+            "task_id": f"real::{rec['task_id']}",
+            "record_id": f"real::{rec['dp_id']}",
+            "regime": "real_ui",
+            "instruction": rec["instruction"],
+            "history": rec["history"],
+            "screen_size": list(rec["screen_size"]),
+            "shown_subset": shown,
+            "event_images": {int(j): str(image_root / images[j]) for j in shown},
+            "current_screenshot": str(image_root / images[s - 1]),
+            "expert_tool_call": rec["target_tool_call"],
+            "step": s,
+        })
+    return rows, skipped
+
+
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--records", nargs="+", type=Path, required=True)
+    # note (luojiaxuan): bridge 混合 SFT(Phase 5)—— 真实腿。AgentNet ubuntu
+    # 决策点 manifest,每行自带 history/target_tool_call/质量位;messages 构造与
+    # rl_oracle_enumerate 逐字同一条路径(official_step_forms +
+    # build_desktop_official_messages),与部署同源。动机:纯合成 SFT 在
+    # OSWorld 135 任务上 -13.04pp 灾难遗忘(roadmap 2026-08-20)。
+    p.add_argument("--real-manifest", type=Path, default=None)
+    p.add_argument("--image-root", type=Path, default=None)
+    p.add_argument("--real-mix", type=float, default=1.0,
+                   help="真实:合成 样本量比(每 epoch 重采真实腿到该比例)")
+    p.add_argument("--real-budget", type=int, default=2,
+                   help="真实腿 shown = 候选池 recent 尾(与部署 B 对齐)")
+    p.add_argument("--real-keep-incorrect", action="store_true",
+                   help="默认只取 target_step_last_step_correct=True 的行")
     # note (luojiaxuan): SFT 记录的 action_history 只带 action_line,而官方 prompt
     # 的保留轮需要完整 tool call(render_official_response)。轨迹文件带 action dict,
     # 按 (task_id, step) join 补齐 —— 比改数据生成侧再全量重跑便宜。
@@ -119,12 +198,35 @@ def main() -> None:
                          f"例:{missing[:3]}")
     # note (luojiaxuan): 按 task_id 划分内层验证集 —— 同一条轨迹的不同决策步
     # 高度相关,按记录划分会让验证集被训练集的同轨迹样本泄露。
+    real_all: list[dict] = []
+    if args.real_manifest is not None:
+        real_all, real_skipped = load_real_rows(
+            args.real_manifest, args.image_root, budget=args.real_budget,
+            keep_incorrect=args.real_keep_incorrect)
+        print(json.dumps({"real_rows": len(real_all),
+                          "real_skipped": real_skipped},
+                         ensure_ascii=False), flush=True)
+
     task_ids = sorted({r["task_id"] for r in recs})
     random.Random(args.seed).shuffle(task_ids)
     n_val = max(1, int(len(task_ids) * args.val_frac))
     val_ids = set(task_ids[:n_val])
     train = [r for r in recs if r["task_id"] not in val_ids]
     val = [r for r in recs if r["task_id"] in val_ids]
+    # note (luojiaxuan): 真实腿同样按 task_id 切内层验证集(同轨迹步高度相关),
+    # 训练侧每 epoch 重采样到 real_mix × 合成腿大小;验证侧固定,分开汇报
+    # real/synthetic 两条精度,混合是否"兼得"直接看这两个数。
+    real_train: list[dict] = []
+    val_real: list[dict] = []
+    if real_all:
+        real_tids = sorted({r["task_id"] for r in real_all})
+        random.Random(args.seed + 1).shuffle(real_tids)
+        n_rv = max(1, int(len(real_tids) * args.val_frac))
+        rv_ids = set(real_tids[:n_rv])
+        real_train = [r for r in real_all if r["task_id"] not in rv_ids]
+        val_real = [r for r in real_all if r["task_id"] in rv_ids]
+        print(json.dumps({"real_train": len(real_train),
+                          "real_val": len(val_real)}), flush=True)
     if args.limit_records:
         train = train[: args.limit_records]
     print(json.dumps({"train": len(train), "val": len(val),
@@ -155,7 +257,21 @@ def main() -> None:
     opt.zero_grad(set_to_none=True)
     builder = PolicyInputBuilder(budget=int(recs[0].get("budget", 2)))
 
+    from causalcache.agentnet_desktop_official import (
+        build_desktop_official_messages,
+        official_step_forms,
+    )
+
     def messages_of(r: dict) -> list[dict]:
+        if r.get("kind") == "real":
+            screen = tuple(int(x) for x in r["screen_size"])
+            forms = [official_step_forms(h, screen_size=screen)
+                     for h in r["history"]]
+            return build_desktop_official_messages(
+                goal=r["instruction"], steps=forms,
+                shown_events=list(r["shown_subset"]),
+                event_images={int(k): v for k, v in r["event_images"].items()},
+                current_image=r["current_screenshot"])
         bank = HistoryFrameBank()
         for c in r["candidate_history"]:
             bank.add(int(c["step"]), c["screenshot"])
@@ -226,6 +342,18 @@ def main() -> None:
     stats = {"seen": 0, "steps": 0, "loss": 0.0, "skipped": {}}
     for ep in range(args.epochs):
         order = list(train)
+        if real_train:
+            # note (luojiaxuan): 每 epoch 从真实腿重采 real_mix×|合成腿| 条混入。
+            # 有放回与否取决于池子大小:池大于需求就无放回采样,否则整池重复+
+            # 截断。合成腿全保留 —— 记忆行为是本工作的目标能力,真实腿是"别忘"。
+            need = int(len(train) * args.real_mix)
+            rng_r = random.Random(args.seed + 1000 + ep)
+            if need <= len(real_train):
+                order += rng_r.sample(real_train, need)
+            else:
+                pool = real_train * (need // len(real_train) + 1)
+                rng_r.shuffle(pool)
+                order += pool[:need]
         random.Random(args.seed + ep).shuffle(order)
         for r in order:
             try:
@@ -265,6 +393,10 @@ def main() -> None:
                   "state": lora_state_dict(wrapped)}
         torch.save(bundle, args.output_root / f"adapter_ep{ep}.pt")
         ev = evaluate(val) if (ep + 1) % args.eval_every == 0 else {}
+        if val_real and (ep % args.eval_every == 0 or ep == args.epochs - 1):
+            mr = evaluate(val_real)
+            print(json.dumps({"epoch": ep, "val_real": mr},
+                             ensure_ascii=False), flush=True)
         print(json.dumps({"epoch_end": ep,
                           "mean_loss": round(stats["loss"] / max(stats["seen"], 1), 4),
                           "eval": ev, "skipped": stats["skipped"]},
