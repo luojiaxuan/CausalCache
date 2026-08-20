@@ -88,3 +88,21 @@ hyper01 的 `gui-owl-1.5-8b-think` ckpt(HF 无正本)已启动上传
 * v5raw/v5full/rl(离线战役 338G)已同日处理:report+deploy 756M 迁
   `/data01/jaxan/offline_campaign_reports/`,tokens 载荷删除。
 * 保留(仍被运行中的 Phase 5/6 引用):mem_sft_a、ckpt_curve、models、osworld。
+
+## 终态(2026-08-21 收官)
+| 主机 | 清理前 | 清理后 | 构成 |
+|---|---|---|---|
+| hyper00 | 2.27T | **321G** | 本线活跃 176G(agentic/osworld/models/cache,Phase 5/6 运行中)+ 凭据/元数据 143G + /data01 2G |
+| hyper01 | 2.44T | **627G** | critic_hack 活跃线 429G + 杂项 ~150G(v7_synth/dots_seedtts 等其他线小目录)+ 元数据 45G |
+| **合计** | **4.7T** | **948G(−80%)** | 刨去 critic_hack 活跃线,我的数据 ≈ 486G |
+
+**保护闸全部生效**:think-ckpt(`THINK_UPLOADED` 核验)与 dense-hf-source
+(`DENSE_UPLOAD_VERIFIED` 17.96GB 字节核对)都是先传 HF 后删本地;
+所有可再生载荷的 manifest/receipts/logs 归档于两台机器的
+`kept_metadata_20260821/`;think-ckpt 正本
+`gavinlaw/causalcache-gui-owl-think-8b`。
+
+**经验教训(供下次)**:①容器 root 创建的文件宿主删不动(Permission denied
+杀死了三个批次的尾巴),共享机上的清理必须从带挂载的 root 容器执行;
+②append-only 状态文件的陈旧标记两次假触发看护,判据必须匹配唯一化标记;
+③SSH 长命令死在半路会留半套状态,一律脚本文件化+短命令执行。
