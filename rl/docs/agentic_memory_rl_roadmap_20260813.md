@@ -665,6 +665,34 @@ OSUniverse/CRAB/ComputerRL 等),定下三件事:
 原则(终局 0/1 是论文身份的一部分),除非用户显式解冻;②WAA/Windows 系
 暂缓(需 Windows 11 VM 另一套基建,收益未证)。
 
+### ★★★ Phase 5 首个真实 UI 判定(2026-08-20):**无回归检验不通过,bridge 训练转为必选**
+
+管线:OSWorld docker VM(hyper00,/dev/kvm)+ 官方桌面协议 policy server
+(`serve_osworld_official_policy.py`,新增 `--lora-bundle` 挂 qkvo LoRA)。
+fast_devset_v1(OSWorld 135 任务,10 个域),同任务配对,B=2 recent、
+max-steps 15:
+
+| 臂 | 成功率 | 平均步数 |
+|---|---|---|
+| 冻结 GUI-Owl + recent-2 | **27.1%** | 14.6 |
+| policy_mem_sft + recent-2 | **14.1%** | 13.7 |
+
+**−13.04pp,W/L 6:24 —— 纯合成 SFT 造成真实 UI 灾难遗忘**(此前 12 任务
+smoke 的 7→5 是真信号)。按域分层是双向的:thunderbird 100→28.6%、
+gimp 71→29%、calc 67→11% 重灾;但 writer 20→**60%**、chrome 0→25%、
+vlc 75→100% 反涨(学到的提前终止/记忆行为在部分域是净收益)。
+
+**含义**:①Phase 2 的 mem_sft adapter 不能直接当真实 UI executor;
+②bridge = **混合 SFT**(合成记忆数据 + 真实 UI 语料如 AgentNet 桌面集,
+后者在 tilde 已有)从可选变必选,且有了量化动机(-13pp 遗忘 + 部分域正迁移
+说明混合配比找得好就能兼得);③分工:数据采集在 hyper00(kvm),
+训练在 tilde 8×H100。
+
+**并行进行**:第三臂(mem_sft + r15 学习 selector 零样本,port 18803,
+LoRA 与 selector 双挂载)运行中 —— 它与 memsft+recent-2 共享同一 executor,
+selector 效应可分离;server 端已把 agentic selector 接入官方协议
+(编号口径逐条核对:agentic 帧索引 ≡ OSWorld 事件 step_id)。
+
 ### 下一步(按优先级,2026-08-14 更新)
 
 1. ✅ **learned > random 已做到显著**(n=300:+11.33pp,p≈0);
