@@ -99,6 +99,8 @@ def load_real_rows(manifest: Path, image_root: Path, *, budget: int,
             continue
         rows.append({
             "kind": "real",
+            "expert_action": rec["target_tool_call"].get("arguments", {}),
+            "subset_policy_effective": "real_recent2",
             "task_id": f"real::{rec['task_id']}",
             "record_id": f"real::{rec['dp_id']}",
             "regime": "real_ui",
@@ -253,6 +255,17 @@ def main() -> None:
         q.requires_grad_(True)
     print(json.dumps({"lora_modules": len(wrapped),
                       "lora_params": sum(q.numel() for q in params)}), flush=True)
+    # note (luojiaxuan): 首次 tilde(H100 80GB)混训跑成了废案:没开梯度检查点,
+    # 真实腿(prompt 普遍更长)每 epoch 六成样本 OOM 蒸发,优化步的有效 batch
+    # 组成混乱,合成验证精度从训前 51.7% 掉到 36%(越训越差)。三重修复:
+    # ①检查点(HF 要求 training=True 才生效,全模型 dropout=0 已在 joint 侧
+    # 逐模块验证过,train() 安全);②前向 use_cache=False(否则检查点被静默
+    # 关闭);③超长样本入队前跳过并计数。
+    model.gradient_checkpointing_enable(
+        gradient_checkpointing_kwargs={"use_reentrant": False})
+    if hasattr(model, "enable_input_require_grads"):
+        model.enable_input_require_grads()
+    model.train()
     opt = torch.optim.AdamW(params, lr=args.learning_rate)
     opt.zero_grad(set_to_none=True)
     builder = PolicyInputBuilder(budget=int(recs[0].get("budget", 2)))
@@ -300,6 +313,9 @@ def main() -> None:
                 continue
             out[k] = (torch.cat([v, torch.zeros_like(tgt)], dim=1)
                       if k == "mm_token_type_ids" else v)
+        if input_ids.shape[1] > 16384:
+            raise ValueError(f"overlong_prompt_{input_ids.shape[1]}")
+        out["use_cache"] = False
         return {k: (v.to(device) if hasattr(v, "to") else v) for k, v in out.items()}
 
     @torch.no_grad()
@@ -385,6 +401,8 @@ def main() -> None:
                 k = type(exc).__name__ if not str(exc) else str(exc)[:60]
                 stats["skipped"][k] = stats["skipped"].get(k, 0) + 1
                 opt.zero_grad(set_to_none=True)
+                if isinstance(exc, RuntimeError):
+                    torch.cuda.empty_cache()
                 continue
         bundle = {"arm": "mem_sft_a", "rank": args.rank, "alpha": args.alpha,
                   "target_modules": args.target_modules,
