@@ -18,8 +18,11 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import base64
 import json
 import os
+import hashlib
+import sys
 import re
 import threading
 import time
@@ -49,6 +52,9 @@ def main() -> None:
     parser.add_argument("--max-new-tokens", type=int, default=256)
     parser.add_argument("--memory-budget", type=int, default=4)
     parser.add_argument("--adapter-checkpoint", type=Path, default=None)
+    parser.add_argument("--agentic-selector-ckpt", type=Path, default=None,
+                        help="Phase 3/4 的 SubsetSelectorPolicy(RL 学习 selector);"
+                             "与旧 --selector-bundle 互斥")
     parser.add_argument("--lora-bundle", type=Path, default=None,
                         help="qkvo LoRA bundle(Phase 2 policy_mem_sft 产物;"
                              "与 --adapter-checkpoint 的 HGKV 互斥)")
@@ -171,6 +177,52 @@ def main() -> None:
             "rank": int(lb["rank"]), "alpha": int(lb["alpha"]),
             "last_layers": lb.get("last_layers"),
         }
+
+    # note (luojiaxuan): agentic 线的学习 selector(Phase 3/4 RL 产物)。
+    # **编号口径已核对**:agentic 帧索引 ≡ OSWorld 事件 step_id(帧 j = 1-based
+    # 动作 j 的 post 帧);当前帧 = len(history);候选 = eligible pool ⊆
+    # [1..len(history)-1];动作行 = forms[j-1].action_line。任何一处对不上,
+    # subset 就静默指向另一批帧(§4.3 的教训),所以这里逐条写死并断言。
+    agentic_sel = None
+    agentic_builder = None
+    agentic_cache = None
+    if args.agentic_selector_ckpt is not None:
+        if args.selector_bundle is not None:
+            raise SystemExit("--agentic-selector-ckpt 与 --selector-bundle 互斥")
+        repo_root = Path(__file__).resolve().parents[2]
+        for cand in (repo_root / "rl" / "code", Path("/data/agentic/code")):
+            if (cand / "causalcache_agentic").exists():
+                sys.path.insert(0, str(cand))
+                break
+        from causalcache_agentic import features as agf
+        from causalcache_agentic.selector_model import (
+            FrozenTextEmbedder,
+            SelectorStateBuilder,
+            SubsetSelectorPolicy,
+        )
+
+        agentic_sel = SubsetSelectorPolicy.load(
+            str(args.agentic_selector_ckpt), map_location=args.device)
+        agentic_sel.to(args.device).eval()
+        _emb = (getattr(agentic_sel, "embedder", None)
+                or getattr(agentic_sel, "text_embedder", None))
+        if _emb is None and callable(getattr(agentic_sel, "make_embedder", None)):
+            _emb = agentic_sel.make_embedder()
+        if _emb is None:
+            _emb = FrozenTextEmbedder.from_model_dir(
+                model_dir=str(args.model_dir), device=args.device)
+        agentic_builder = SelectorStateBuilder(embedder=_emb)
+        agentic_cache = agf.build_cache(argparse.Namespace(
+            dry_run=False, model_dir=args.model_dir,
+            snapshot_manifest=args.snapshot_manifest, device=args.device,
+            visual_tokens=2560, feature_dtype="float16",
+            feature_dim=None, feature_tokens=None, dummy_seed=-1,
+            feature_cache_dir=None, feature_cache_items=64))
+        adapter_meta = dict(adapter_meta or {})
+        adapter_meta["agentic_selector"] = {
+            "checkpoint": str(args.agentic_selector_ckpt),
+            "checkpoint_sha256": hashlib.sha256(
+                args.agentic_selector_ckpt.read_bytes()).hexdigest()}
 
     selector_meta: dict[str, Any] | None = None
     selector_model = None
@@ -441,7 +493,59 @@ def main() -> None:
                 select_seconds = 0.0
                 pass2_seconds = 0.0
                 shown = list(tail)
-                if (selector_model is not None and args.memory_budget > 0
+                if (agentic_sel is not None and args.memory_budget > 0
+                        and pool):
+                    select_started = time.perf_counter()
+                    # 截图按 sha 落盘一次,FeatureCache 以路径为键做 LRU
+                    tmp_root = Path(os.environ.get("TMPDIR", "/tmp")) / "agentic_shots"
+                    tmp_root.mkdir(parents=True, exist_ok=True)
+                    path_by_sid: dict[int, str] = {}
+                    for event in history:
+                        sid = int(event["step_id"])
+                        if sid not in pool:
+                            continue
+                        sha = event.get("post_screenshot_sha256") or f"sid{sid}"
+                        fp = tmp_root / f"{sha}.png"
+                        if not fp.exists():
+                            fp.write_bytes(base64.b64decode(
+                                event["restored_post_screenshot_png_base64"]))
+                        path_by_sid[sid] = str(fp)
+                    cur_sha = hashlib.sha256(
+                        request["current_screenshot_png_base64"].encode()).hexdigest()[:40]
+                    cur_fp = tmp_root / f"cur_{cur_sha}.png"
+                    if not cur_fp.exists():
+                        cur_fp.write_bytes(base64.b64decode(
+                            request["current_screenshot_png_base64"]))
+                    forms_lines = [f.action_line for f in forms]
+                    cur_step = len(history)          # 当前帧的事件索引 = t-1
+                    assert all(1 <= s < cur_step for s in pool), \
+                        f"pool 越界: {pool} vs 当前帧 {cur_step}"
+                    b_eff = min(args.memory_budget, len(pool))
+                    with inference_lock:
+                        with torch.inference_mode():
+                            state = agentic_builder.build(
+                                agentic_sel,
+                                task_instruction=str(
+                                    request["task"]["instruction"]),
+                                history_action_lines=forms_lines,
+                                candidates=list(pool),
+                                frame_features=(
+                                    lambda sid: agentic_cache(
+                                        sid, path_by_sid[sid])),
+                                current_step=cur_step,
+                                current_feature=agentic_cache(
+                                    cur_step, str(cur_fp)),
+                                budget=b_eff,
+                                recent=list(tail))
+                            chosen = tuple(int(x) for x in agentic_sel.argmax(
+                                state, list(pool), b_eff))
+                    select_seconds = time.perf_counter() - select_started
+                    shown = sorted(chosen)
+                    selection_info = {
+                        "passes": 1, "mode": "agentic_subset_selector",
+                        "recent_tail": tail, "chosen": shown,
+                        "diagnostics": {"pool": list(pool), "b_eff": b_eff}}
+                elif (selector_model is not None and args.memory_budget > 0
                         and args.selector_witness == "last_action"):
                     select_started = time.perf_counter()
                     chosen, diag = run_selection(request)
