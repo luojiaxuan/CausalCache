@@ -178,6 +178,8 @@ full GUI-Owl 从零联合训练。
 | P4A-2 | executor 采样温度取 **1.0**(模型原生分布),不为增加探索而调高 | 部署评测是贪心解码,训练分布调离贪心会引入 train/deploy 失配;先用原生温度看能否推动 | 若训练不动(ratio 恒 ≈1、grad 极小),第一个旋钮就是升温,`--executor-temperature` 一个参数 |
 | P4A-3 | 4A 解冻 **executor 后 8 层 LoRA(1.70M 参数)**,而非 Phase 2A 用的全层 qkvo | 联合 RL 的方差远大于 SFT,先给最小可动面;视觉塔与前 28 层保持冻结,历史帧特征缓存因此仍然有效 | `--exec-last-layers 0` 切回全层 |
 | P4A-4 | selector state 的构造**复用采样端 `resolve_state_factory`**,并在启动时对账 `selector.state_builder` origin | state 是 log π 的定义域;我第一版自建 builder 签名全错,若"侥幸"能跑就会用两个不同 state 训一个策略,而表面只表现为不收敛 | 对账不通过直接退出,不存在静默降级路径 |
+| P5-1 | bridge 混合 SFT 数据 = **AgentNet ubuntu 真实腿 + Phase 2 合成记忆腿**,默认配比 **1:1**(按优化步) | 真实腿:tilde 本地 `agentnet_screening_manifest_ubuntu_v1.jsonl` 6003 决策点 + 51G 截图,每行含 history/target_text/质量位,messages 构造复用 `rl_oracle_enumerate` 的同一条 `build_desktop_official_messages` 路径(与部署逐字同源);合成腿:Phase 2 的 2591 条(hyper00,经 HF 送 tilde)。−13pp 遗忘 + writer/chrome/vlc 正迁移说明配比找得好可兼得 | 配比是 CLI 参数,扫 {1:2, 1:1, 2:1} 由验收(135 无回归复测 + 合成 hard 分层)定 |
+| P5-2 | 真实腿质量过滤:只取 `target_step_last_step_correct=True` 的行;shown = recent-2(与部署 B=2 对齐) | 语料里有标注为错误/冗余的步,喂进去教坏 executor;shown 口径与部署一致避免 train/deploy 失配 | 过滤开关可关,重训对比 |
 
 ## 11. 实测数值(随执行更新)
 
