@@ -710,13 +710,14 @@ teacher-forced 合成 **98.75%**(纯合成训练 98.1%,记忆行为无损)/
 | 冻结 GUI-Owl + recent-2 | 27.1% | 基线 |
 | 纯合成 SFT + recent-2 | 14.1% | −13.04pp 灾难遗忘 |
 | **bridge SFT + recent-2** | **23.7%** | 遗忘坑填回 74%(−3.41pp,W/L 12:17) |
-| **bridge SFT + r15 selector**(n=102 暂计) | **27.5%** | **与基线打平**,且多出整套记忆能力 |
+| **bridge SFT + r15 selector**(n=135 定稿) | **25.9%** | 距基线 −1.2pp(n=102 暂计曾达 27.5% 打平,最后 33 个长历史难题拉低) |
 
-selector 在修复后的 executor 上仍给 **+2.94pp**(W/L 6:3)——合成环境训出的
-选帧策略对健康 executor 的真实 UI 增益。分域:chrome 0→66.7%、writer
-20→75%;残余赤字集中于 thunderbird(100→40)与 gimp/calc 未恢复部分。
+selector 增益全量定格 **+2.22pp**(W/L 7:4)——合成环境训出的选帧策略对
+健康 executor 的真实 UI 增益。分域:chrome 0→66.7%、writer 20→75%;
+残余赤字集中于 thunderbird(100→40)与 gimp/calc 未恢复部分。
+**遗忘坑合计填回 90%**(14.1→25.9)。
 
-**距离"主流 benchmark 跨零上涨"的最后一步**:全量持平 → 全量为正。
+**距离"主流 benchmark 跨零上涨"的最后一步**:−1.2pp → 为正。
 赤字集中在少数域 ⇒ 下一轮:混合配比 1:1→2:1(真实:合成)或定向补
 thunderbird 族真实轨迹;bridgedsel 剩余 33 任务补跑中,补齐后出正式统计。
 
