@@ -695,6 +695,31 @@ LoRA 与 selector 双挂载)运行中 —— 它与 memsft+recent-2 共享同一
 selector 效应可分离;server 端已把 agentic selector 接入官方协议
 (编号口径逐条核对:agentic 帧索引 ≡ OSWorld 事件 step_id)。
 
+### ★★★ Phase 5 合龙(2026-08-21):bridge 混合 SFT 闭环兑现,完整系统追平冻结基线
+
+**Bridge 混合 SFT 终版指标**(tilde job 194940,合成 2591 + AgentNet 真实
+5335 决策点 1:1 混合,2 epoch,全程零样本丢失):
+teacher-forced 合成 **98.75%**(纯合成训练 98.1%,记忆行为无损)/
+真实 UI **75.42%**。adapter 正本
+`gavinlaw/causalcache-agentic-ckpt` 的 `bridge_sft_r1.0/adapter_final.pt`。
+
+**闭环判定(OSWorld fast_devset 135,同口径配对)**:
+
+| 臂 | 成功率 | 读法 |
+|---|---|---|
+| 冻结 GUI-Owl + recent-2 | 27.1% | 基线 |
+| 纯合成 SFT + recent-2 | 14.1% | −13.04pp 灾难遗忘 |
+| **bridge SFT + recent-2** | **23.7%** | 遗忘坑填回 74%(−3.41pp,W/L 12:17) |
+| **bridge SFT + r15 selector**(n=102 暂计) | **27.5%** | **与基线打平**,且多出整套记忆能力 |
+
+selector 在修复后的 executor 上仍给 **+2.94pp**(W/L 6:3)——合成环境训出的
+选帧策略对健康 executor 的真实 UI 增益。分域:chrome 0→66.7%、writer
+20→75%;残余赤字集中于 thunderbird(100→40)与 gimp/calc 未恢复部分。
+
+**距离"主流 benchmark 跨零上涨"的最后一步**:全量持平 → 全量为正。
+赤字集中在少数域 ⇒ 下一轮:混合配比 1:1→2:1(真实:合成)或定向补
+thunderbird 族真实轨迹;bridgedsel 剩余 33 任务补跑中,补齐后出正式统计。
+
 ### 下一步(按优先级,2026-08-14 更新)
 
 1. ✅ **learned > random 已做到显著**(n=300:+11.33pp,p≈0);
