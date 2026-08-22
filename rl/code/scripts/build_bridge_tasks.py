@@ -55,9 +55,15 @@ def make_setup(files: dict[str, str]) -> list[dict]:
             "printf '' > /home/user/Desktop/report.txt"]
     for path, content in files.items():
         cmds.append(f"printf '%s\\n' \"{content}\" > {path}")
+    # note (luojiaxuan): smoke 教训 #2:setup 建完文件立刻截图,GNOME 桌面
+    # 图标还没刷新,agent 首帧看到**空桌面**,不知道文件在哪。补一个 settle
+    # sleep(官方任务里常见的 sleep 步型),让图标画出来再开局。
     return [{
         "type": "execute",
         "parameters": {"command": ["/bin/bash", "-c", " && ".join(cmds)]},
+    }, {
+        "type": "sleep",
+        "parameters": {"seconds": 5},
     }]
 
 
@@ -76,10 +82,10 @@ def gen_one_old(rng: random.Random, k: int) -> dict:
     folder = f"tmp{rng.randint(10, 99)}"
     errand = rng.choice(ERRANDS)
     instr = (
-        "Open the file 'access_code.txt' on the Desktop and read the access "
+        "Double-click the file 'access_code.txt' on the Desktop to open it and read the access "
         "code, then close that window. "
         f"Next, {errand.format(folder=folder)}. "
-        "Finally, open 'report.txt' on the Desktop and type exactly the access "
+        "Finally, double-click 'report.txt' on the Desktop to open it, type exactly the access "
         "code you read earlier into it, then save the file."
     )
     return {
