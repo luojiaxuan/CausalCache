@@ -53,8 +53,17 @@ def make_setup(files: dict[str, str]) -> list[dict]:
     # 指令改为"打开并输入",写入成本降到 3-4 步;evaluator 不变。
     cmds = ["mkdir -p /home/user/Desktop",
             "printf '' > /home/user/Desktop/report.txt"]
+    # note (luojiaxuan): v1.4 —— **环境强制挥发**。v1.3 让 agent 自己删证据,
+    # smoke 抓到冻结基线直接无视删除指令、照样重看拿分(evaluator 只查
+    # report.txt,删不删不扣分)。靠 agent 服从的约束不是约束;改为 setup 挂
+    # 定时自毁(75s,按每步 10-20s 的典型节奏约在第 4-6 步生效):证据像
+    # 验证码一样过期,重看物理不可能,指令明告挥发性保证信息公平。
+    vol = [pth for pth in files]
     for path, content in files.items():
         cmds.append(f"printf '%s\\n' \"{content}\" > {path}")
+    if vol:
+        rms = " ".join(vol)
+        cmds.append(f"nohup bash -c 'sleep 75 && rm -f {rms}' >/dev/null 2>&1 &")
     # note (luojiaxuan): smoke 教训 #2:setup 建完文件立刻截图,GNOME 桌面
     # 图标还没刷新,agent 首帧看到**空桌面**,不知道文件在哪。补一个 settle
     # sleep(官方任务里常见的 sleep 步型),让图标画出来再开局。
@@ -89,7 +98,8 @@ def gen_one_old(rng: random.Random, k: int) -> dict:
     instr = (
         "Double-click the file 'access_code.txt' on the Desktop to open it and "
         "read the access code, then close that window. "
-        "Then delete 'access_code.txt' by moving it to the Trash. "
+        "Note: that file self-destructs shortly after creation, so you cannot "
+        "open it again later. "
         f"Next, {errand.format(folder=folder)}. "
         "Finally, double-click 'report.txt' on the Desktop to open it, type "
         "exactly the access code you read earlier into it, then save the file."
@@ -118,7 +128,8 @@ def gen_distractor(rng: random.Random, k: int) -> dict:
     instr = (
         f"Two key files are on the Desktop: '{which}_key.txt' and '{other}_key.txt'. "
         f"Open BOTH files to view them, then close the windows. "
-        f"Then delete both key files by moving them to the Trash. "
+        f"Note: both key files self-destruct shortly after creation, so you "
+        f"cannot open them again later. "
         f"Next, {errand.format(folder=folder)}. "
         f"Finally, open 'report.txt' on the Desktop, type exactly the key "
         f"from '{which}_key.txt' into it (ignore the {other} key), and save."
@@ -146,11 +157,11 @@ def gen_two_value(rng: random.Random, k: int) -> dict:
     folder = f"tmp{rng.randint(10, 99)}"
     errand = rng.choice(ERRANDS)
     instr = (
-        "Open 'part_a.txt' on the Desktop to read the first number, close it, "
-        "and delete 'part_a.txt' by moving it to the Trash. "
+        "Open 'part_a.txt' on the Desktop to read the first number and close "
+        "it, then open 'part_b.txt' to read the second number and close it. "
+        "Note: both files self-destruct shortly after creation, so you cannot "
+        "open them again later. "
         f"Then {errand.format(folder=folder)}. "
-        "Then open 'part_b.txt' on the Desktop to read the second number, close "
-        "it, and delete 'part_b.txt' by moving it to the Trash. "
         "Finally, open 'report.txt' on the Desktop, type exactly the "
         "sum of the two numbers as digits into it, and save."
     )
