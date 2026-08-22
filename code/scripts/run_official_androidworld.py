@@ -82,6 +82,69 @@ def history_full_response(raw: str, description: str, action: Any | None) -> str
     return f"Action: {description}"
 
 
+class VLLMOfficialRuntime:
+    """Same official contract, generation served by a vLLM OpenAI endpoint.
+
+    # note (luojiaxuan): 基线复现 v2(2026-08-22)——官方(MobileForge)走 vLLM 服务,
+    # 本地 transformers 贪心是 7 月复现 38.0% vs 单次公开 56.0% 差距的两嫌疑之一。
+    # 消息构造/解析/历史逻辑全部复用,仅 generate 换后端:temperature=0、max 256、
+    # stop "</tool_call>" 且 include_stop_str_in_output=True —— 该 tag 在 Qwen3 词表
+    # 里是普通 added token,transformers 路径按 eos 停止后 decode 会保留它,vLLM 默认
+    # 却会剥掉 stop 串;不开这个开关,历史回填的 fail-closed(要求完整
+    # "Action:+<tool_call>...</tool_call>")会在第二步炸。并发由 vLLM continuous
+    # batching 吸收,无需 generate 锁。
+    """
+
+    def __init__(self, endpoint: str, model_name: str) -> None:
+        self.endpoint = endpoint.rstrip("/")
+        self.model_name = model_name
+
+    @staticmethod
+    def _to_openai_content(content: Any) -> Any:
+        import base64
+        import io
+
+        if not isinstance(content, list):
+            return content
+        out = []
+        for item in content:
+            if isinstance(item, dict) and item.get("type") == "image":
+                img = item["image"]
+                buf = io.BytesIO()
+                img.save(buf, format="PNG")
+                b64 = base64.b64encode(buf.getvalue()).decode("ascii")
+                out.append({"type": "image_url",
+                            "image_url": {"url": f"data:image/png;base64,{b64}"}})
+            else:
+                out.append(item)
+        return out
+
+    def generate(self, messages: list[dict[str, Any]]) -> str:
+        import requests
+
+        payload = {
+            "model": self.model_name,
+            "messages": [{"role": m["role"],
+                          "content": self._to_openai_content(m["content"])}
+                         for m in messages],
+            "temperature": 0.0,
+            "max_tokens": OFFICIAL_MAX_NEW_TOKENS,
+            "stop": ["</tool_call>"],
+            "include_stop_str_in_output": True,
+        }
+        # note (luojiaxuan): 网络瞬断重试 3 次;vLLM 排队可能拉长首 token,超时放宽。
+        last_err: Exception | None = None
+        for _ in range(3):
+            try:
+                r = requests.post(f"{self.endpoint}/v1/chat/completions",
+                                  json=payload, timeout=600)
+                r.raise_for_status()
+                return r.json()["choices"][0]["message"]["content"]
+            except Exception as e:  # noqa: BLE001
+                last_err = e
+        raise RuntimeError(f"vllm generate failed after retries: {last_err}")
+
+
 class OfficialRuntime:
     """Wraps the frozen model with the official prompt/parse contract."""
 
@@ -332,21 +395,29 @@ def main() -> None:
     p.add_argument("--base-url", action="append", required=True)
     p.add_argument("--last-image", type=int, default=5)
     p.add_argument("--infra-retries", type=int, default=3)
+    # note (luojiaxuan): 指定后走 vLLM 服务(基线复现 v2),不加载本地模型,
+    # --device 传 "vllm" 占位即可;不指定则为 7 月原路径,逐字不变。
+    p.add_argument("--vllm-endpoint", default=None)
+    p.add_argument("--served-model-name", default="gui-owl")
     args = p.parse_args()
     args.output_root.mkdir(parents=True, exist_ok=True)
 
-    import torch
+    if args.vllm_endpoint:
+        runtime: Any = VLLMOfficialRuntime(args.vllm_endpoint,
+                                           args.served_model_name)
+    else:
+        import torch
 
-    base = GUIOwlV21OfficialToolsRuntime(
-        model_dir=args.model_dir,
-        expected_snapshot_manifest=(
-            args.repository_root / "code/configs/gui_owl_1_5_8b_snapshot.json"
-        ),
-        device=args.device,
-        target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
-    )
-    base.model.eval()
-    runtime = OfficialRuntime(base, torch)
+        base = GUIOwlV21OfficialToolsRuntime(
+            model_dir=args.model_dir,
+            expected_snapshot_manifest=(
+                args.repository_root / "code/configs/gui_owl_1_5_8b_snapshot.json"
+            ),
+            device=args.device,
+            target_effective_visual_tokens_per_image=EFFECTIVE_VISUAL_TOKENS_PER_IMAGE,
+        )
+        base.model.eval()
+        runtime = OfficialRuntime(base, torch)
 
     instances = json.loads(args.plan_instances.read_text(encoding="utf-8"))
     work: queue.Queue = queue.Queue()
