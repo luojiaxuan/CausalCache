@@ -55,6 +55,9 @@ def main() -> None:
     parser.add_argument("--agentic-selector-ckpt", type=Path, default=None,
                         help="Phase 3/4 的 SubsetSelectorPolicy(RL 学习 selector);"
                              "与旧 --selector-bundle 互斥")
+    parser.add_argument("--oracle-open-frames", action="store_true",
+                        help="诊断臂:强制选'前两次 double_click 的后帧'"
+                             "(bridge 任务中按构造即证据帧),测利用侧")
     parser.add_argument("--lora-bundle", type=Path, default=None,
                         help="qkvo LoRA bundle(Phase 2 policy_mem_sft 产物;"
                              "与 --adapter-checkpoint 的 HGKV 互斥)")
@@ -493,7 +496,20 @@ def main() -> None:
                 select_seconds = 0.0
                 pass2_seconds = 0.0
                 shown = list(tail)
-                if (agentic_sel is not None and args.memory_budget > 0
+                if args.oracle_open_frames and args.memory_budget > 0 and pool:
+                    # note (luojiaxuan): bridge 诊断臂 —— 证据帧按构造 = 打开
+                    # 证据文件那步的后帧(事件号=该步步号)。从 history 的
+                    # official_arguments 找 double_click,取前 B 个仍在池内的。
+                    opens = [int(e["step_id"]) for e in history
+                             if (e.get("official_arguments") or {}).get("action")
+                             == "double_click"]
+                    oracle = [s for s in opens if s in pool][: args.memory_budget]
+                    if oracle:
+                        shown = sorted(set(oracle))
+                    selection_info = {"passes": 0, "mode": "oracle_open_frames",
+                                      "recent_tail": tail, "chosen": shown,
+                                      "diagnostics": {"opens": opens[:6]}}
+                elif (agentic_sel is not None and args.memory_budget > 0
                         and pool):
                     select_started = time.perf_counter()
                     # 截图按 sha 落盘一次,FeatureCache 以路径为键做 LRU
