@@ -967,3 +967,58 @@ learned-2 > recent-2 在一个真记忆导向实时 benchmark 上统计显著,�
 ③AndroidWorld 训练基建照旧推进(教义不变:冻结基座为起点,联合 GRPO),
 但评测协议按上文四臂 + 双环境重写;④369×50 主实验照跑,recent-2 臂
 结果通用。
+
+### ★★ ATMem 原文重叠度评估(2026-08-22,外审点名的最近邻威胁,已读原文)
+
+论文:What Memory Do GUI Agents Really Need? From Passive Records to Active
+Task-Driving States(arXiv 2606.31612,2026-07 挂出;基座 Qwen3-VL-4B/8B)。
+外审判其"方法论危险接近";逐维核对后**判定:同象限但不同问题,可差异化,
+不致命**。
+
+**他们怎么做的**:
+* **记忆表示 = 结构化文本状态**(JSON:workflow 层 phase/剩余与已完成
+  文件/约束 + schema 层字段与条目状态 {remaining,finished,skipped}),
+  由同一个 VLM 在每步响应里生成一个 memory 块、parser 提取后带入下一步。
+  **不存任何旧截图**——agent 的视觉输入只有当前观测(降到半分辨率)。
+* **训练两段**:SFT 用 GPT-5 planner 造的 21,713 步级样本引导记忆格式
+  (128 H20 × 2h);再 STR-GRPO 在线 RL(128 台容器化 Android 实机,
+  128 H20 × 3 天):组内一半 rollout 开记忆、一半关(loss 里 mask 掉
+  memory 块),组归一化优势直接度量记忆通道的边际效用;
+  **reward = 终局 0/1 verifier − α·(记忆使用率)·(开记忆 flag)**。
+* **DataScope**:自建,32 族 × 3 难度 = 96 实例、14 app、实时 Android、
+  程序化判分(DB/文件系统/应用状态),指标 SR + app 级进度 + scope-aware
+  F1(惩罚破坏性过度操作);难度靠干扰目标比 1.39×→3.22× 缩放。
+  代码"将公开",尚未确认可审计。
+
+**重叠点(写 related work 必须正面引用并区分)**:GUI 记忆 + 实时
+Android + GRPO 族在线 RL + 终局 verifier;其 memory-on/off 组内对比与
+我们"recent-B 永远合法"同构——都用组相对优势度量记忆的边际效用。
+
+**五个决定性差异(恰好映到外审的五限定词)**:
+1. **表示**:文本摘要(有损,值转录场景会幻觉——我们 bridge 轨迹诊断
+   抓到的正是这种失败)vs 原始像素帧(保真);
+2. **学什么**:何时启用+写什么(生成问题,LM 内部)vs 留哪几帧
+   (选择问题,外挂 41M selector,固定预算 B——他们无预算概念);
+3. **奖励纯度**:他们是 shaped(记忆成本惩罚项,若我们用即违反 §9)
+   且需 GPT-5 老师 SFT 引导;我们纯终局 0/1、零帧级监督;
+4. **归因**:他们训整个 LM、无 matched-executor 因果对照(on/off 对比
+   只是训练期 advantage 机制,非评测设计);
+5. **对比面**:他们没与任何其他记忆方法互比(UI-Mem/MemGUI 均缺席)。
+
+**对我们有利的实证信息**:
+* **AndroidWorld 有真实余量**:Qwen3-VL-8B 裸 47.6% → SFT 70.7% →
+  +GRPO 74.8% → +STR-GRPO 76.6%;GUI-Owl-1.5-Thinking 约 71.6%。
+  不存在 OSWorld multi_apps 式地板——支持新路线选 AndroidWorld。
+* **但 RL-over-SFT 边际很小**(标准 GRPO +4.1、STR 再 +1.8):我们
+  selector 增益的预期量级要按此校准,显著性设计要按小效应准备样本量。
+* DataScope 连他们自己都只有 6.2/6.2/3.1%(GPT-5.2 也才 18.8%)——
+  自建记忆压力 benchmark 的地板问题他们同样没逃掉,佐证外审"地板上
+  测不出差异"的普遍性。
+* 训练数据是自家 120 个人工模板生成的 1.1K 实例,未披露与评测的
+  重叠控制——他们同样暴露在"增益出现在自建条件里"的批评下。
+* 算力参照:128 H20 × 3 天 + 128 Android 容器,对手预算量级。
+
+**结论与动作**:窄叙事五限定词全部站得住;ATMem 定位为最近邻 related
+work + 概念对照臂(**文本摘要记忆 vs 原始帧选择**:值转录型任务正是
+文本摘要幻觉、原始帧保真的地方,可设计为论文核心对比论点)。若其代码
+放出,把 ATMem 式文本记忆作为一条 baseline 臂纳入评测矩阵。
