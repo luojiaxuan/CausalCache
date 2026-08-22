@@ -846,6 +846,41 @@ r2.0 executor 桌面工作流 0%,确认 frozen executor 为本线正确基座。
 主实验(verified 369 × 50 步四臂)照跑,其 recent-2 两臂与 selector 无关、
 结果直接可用;selector 臂待真实 GRPO 产物出来后重评。
 
+### ★★★ 路线纠偏(2026-08-22,用户三连质疑后):放弃自建 bridge,改用第三方记忆 benchmark
+
+**用户的批评(成立,我们自己的数据就是证据)**:
+「你 bridge 造出来的任务 recent-2 确实很低,但最终 eval benchmark 根本测不出来,
+没有你造的条件,最终指标没有差异,那你做了有啥意义」。实测:OSWorld 135 上
+selector −0.74pp(中性),bridge 60 上 selector 8.3% vs recent-2 1.7%(5×)——
+**增益只出现在我自建的条件里**,正是用户 08-20 已否掉的"弱 finding"。
+根因:OSWorld 里真需要跨应用记忆的 multi_apps 域所有臂都在 0-8% 地板上,
+无展示余量;模型能做对的单应用任务又不需要记忆。两头堵。
+
+**检索结果:2026 年已有多个第三方"GUI agent 记忆"benchmark**,不必自建:
+
+| benchmark | 形态 | 规模 | 关键性质 |
+|---|---|---|---|
+| **AndroTMem-Bench**(arXiv 2603.18429) | 离线轨迹 | **1069 任务 / 34473 步**(均 32.1,最长 65) | **按构造含"稀疏但决定性的中间状态"**;代码与数据已公开;基线含 full-replay 与 summary-based;指标 TCR/AMS;其结论"性能损失主要来自任务内记忆失败而非感知错误"**独立佐证我们的问题陈述** |
+| **MementoGUI-Bench**(arXiv 2605.18652) | 离线轨迹 | 200 轨迹 / 6953 步(均 34.8) | **基座正是 GUI-Owl-1.5 8B/32B**(与我们同源);在 GUI-Odyssey 上把 AMS 54.58→68.32 —— 证明标准 benchmark 上记忆有大空间;方法为 SFT+DPO 的文本摘要+ROI 裁剪记忆 |
+| **AndroidWorld** | **交互式** | 116 任务 × 参数化百万变体 | 程序化 reward(查 SQLite/文件系统);**这是现成的 RL 环境**,非我自建规则 |
+
+**新路线(取代 bridge)**:
+* **训练**:AndroidWorld 交互式 RL(终局 0/1,§9 合规;百万变体天然防过拟合),
+  selector + executor 联合 GRPO,**以冻结基座为起点**(见下条纠正);
+* **评测**:AndroTMem-Bench(记忆关键性第三方保证,有 full-replay/summary 基线可比)
+  + MementoGUI/GUI-Odyssey(与 MementoGUI 的 GUI-Owl-1.5 数字可直接对照);
+* **对照对象升级**:不再是"我造的 recent-2 负对照",而是**已发表的记忆方法**
+  (full-sequence replay、summary-based、Anchored State Memory、MementoGUI 的
+  混合记忆)—— 审稿人认的战场。
+
+**同时纠正冻结基座的错误论证**:此前用"bridge 上 frozen 35% vs r2.0 0%"
+论证应冻结 executor —— 那是**我的 SFT 把 executor 在桌面工作流上搞坏了**的证据,
+不是"executor 不该训"的证据。恢复用户原教义:**以冻结基座为初始化,
+selector + executor 全程联合 GRPO**,由 RL 自己决定怎么动 executor。
+
+**bridge set 的去留**:不再作为主结果,降级为消融/诊断附录(它证明了
+"证据不可重访时 recent-2 崩到 1.7%、oracle 帧 35%",作为机制插图仍有价值)。
+
 ### 下一步(按优先级,2026-08-14 更新)
 
 1. ✅ **learned > random 已做到显著**(n=300:+11.33pp,p≈0);
