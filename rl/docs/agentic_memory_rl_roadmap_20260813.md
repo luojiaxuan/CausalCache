@@ -753,6 +753,29 @@ OSWorld multi_apps + 按 evidence-then-occlusion 结构自造)——selector 在
 * 双机布局:hyper00 分片 0-4 + hyper01 分片 5-9,每臂独立 server
   (hyper01 GPU 2/5/6 三臂并行),180 episode 主对照墙钟 ≈ 1 小时。
 
+### Bridge set 设计迭代与零样本判定(2026-08-22,smoke 循环 v1.1→v1.4)
+
+四轮 smoke 各抓住一个会毁掉实验区分度的洞:
+
+| 版本 | 抓到的洞 | 修复 |
+|---|---|---|
+| v1.1 | GNOME 凭空建带内容文件要 6-10 UI 步,agent 卡死右键菜单 | setup 预建空 report.txt,指令改"打开-输入-保存" |
+| v1.2 | setup 后立即截图,桌面图标未刷新,agent 首帧见空桌面 | setup 追加 sleep 5;指令明示 double-click |
+| v1.3 | **冻结基线靠"重开文件"绕过记忆**(15 步获胜轨迹第 7 步重开证据) | 指令要求读后删除 —— 又被基线无视(evaluator 不查删除) |
+| v1.4 | 靠 agent 服从的约束不是约束 | **环境强制挥发**:setup 挂 sleep 75 && rm 定时自毁,证据如验证码过期 |
+
+**v1.4 判定(6 任务 smoke,30 步,冻结 executor 双臂)**:
+* frozen+recent-2 **0/6** —— 挥发设计封死重看,负向验证成立;
+* frozen+r15 selector **0/6** —— 且轨迹级归因已定谳:**选择侧失败**。
+  写码步(step 14)selector 选 [10,12](近期帧),证据帧 [1,3] 明明在池中
+  (agent 第 1/3 步打开过文件,B1 排除);模型幻觉输入 "00001234"。
+  合成像素学出的选择头认不出真实像素的证据帧。
+
+**进行中**:oracle 帧臂(server 按动作轨迹强制选前两次 double_click 后帧)
+分离利用侧 —— 得分 ⇒ 只差选择侧,修复 = bridge 训练集上真实 UI selector
+GRPO(终局 0/1,§9 合规,预计 1-2 天);仍 0 ⇒ 冻结模型读真实保留帧
+亦有缺陷,bridge 线以迁移缺口完整刻画收笔。
+
 ### 下一步(按优先级,2026-08-14 更新)
 
 1. ✅ **learned > random 已做到显著**(n=300:+11.33pp,p≈0);
