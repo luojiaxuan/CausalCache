@@ -742,6 +742,17 @@ thunderbird 族真实轨迹;bridgedsel 剩余 33 任务补跑中,补齐后出正
 OSWorld multi_apps + 按 evidence-then-occlusion 结构自造)——selector 在
 真实像素上复现两位数增益的地方;Phase 6 的 OpenComputer 纯 OOD 评测其后。
 
+### Bridge set 评测设计定稿(2026-08-22,与用户对齐)
+
+* **max-steps 是敏感度轴不是常量**(用户裁定):主对照统一 **30 步**
+  (三臂 × 60 任务 × 双机分片);另在 r2.0+recent-2 与 r2.0+selector 两臂
+  补 **15 步与 50 步**(预算敏感度分析——预算越紧,走回头路重看证据越贵,
+  selector 的理论价值越大,这条曲线本身是论文分析素材)。
+* v1.1 修订(smoke 教训):GNOME 凭空建带内容文件需 6-10 UI 步(实测 agent
+  卡死右键菜单),setup 预建空 report.txt、指令改"打开-输入-保存";杂务 2→1。
+* 双机布局:hyper00 分片 0-4 + hyper01 分片 5-9,每臂独立 server
+  (hyper01 GPU 2/5/6 三臂并行),180 episode 主对照墙钟 ≈ 1 小时。
+
 ### 下一步(按优先级,2026-08-14 更新)
 
 1. ✅ **learned > random 已做到显著**(n=300:+11.33pp,p≈0);
