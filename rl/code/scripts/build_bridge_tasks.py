@@ -47,7 +47,12 @@ def _num(rng: random.Random) -> int:
 
 
 def make_setup(files: dict[str, str]) -> list[dict]:
-    cmds = ["mkdir -p /home/user/Desktop"]
+    # note (luojiaxuan): smoke 教训(2026-08-22):GNOME 桌面右键没有"新建
+    # 文档",凭空造一个带内容的 report.txt 要 6-10 个 UI 步,15 步预算直接
+    # 爆掉(实测 agent 卡死在右键菜单)。setup 预建**空的** report.txt,
+    # 指令改为"打开并输入",写入成本降到 3-4 步;evaluator 不变。
+    cmds = ["mkdir -p /home/user/Desktop",
+            "printf '' > /home/user/Desktop/report.txt"]
     for path, content in files.items():
         cmds.append(f"printf '%s\\n' \"{content}\" > {path}")
     return [{
@@ -69,14 +74,13 @@ def evaluator_contains(expected: list[str]) -> dict:
 def gen_one_old(rng: random.Random, k: int) -> dict:
     code = _code(rng)
     folder = f"tmp{rng.randint(10, 99)}"
-    errands = rng.sample(ERRANDS, k=2)
+    errand = rng.choice(ERRANDS)
     instr = (
-        "Open the file 'access_code.txt' on the Desktop with the Text Editor and "
-        "read the access code, then close that window. "
-        f"Next, {errands[0].format(folder=folder)}. "
-        f"Then {errands[1].format(folder=folder)}. "
-        "Finally, create a file named 'report.txt' on the Desktop whose content "
-        "is exactly the access code you read earlier."
+        "Open the file 'access_code.txt' on the Desktop and read the access "
+        "code, then close that window. "
+        f"Next, {errand.format(folder=folder)}. "
+        "Finally, open 'report.txt' on the Desktop and type exactly the access "
+        "code you read earlier into it, then save the file."
     )
     return {
         "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"bridge-one-old-{k}-{code}")),
@@ -89,7 +93,7 @@ def gen_one_old(rng: random.Random, k: int) -> dict:
         "related_apps": ["os", "libreoffice_writer"],
         "evaluator": evaluator_contains([code]),
         "bridge_meta": {"family": "bridge_one_old", "required_values": [code],
-                        "errand_steps": 2},
+                        "errand_steps": 1},
     }
 
 
@@ -103,8 +107,8 @@ def gen_distractor(rng: random.Random, k: int) -> dict:
         f"Two key files are on the Desktop: '{which}_key.txt' and '{other}_key.txt'. "
         f"Open BOTH files to view them, then close the windows. "
         f"Next, {errand.format(folder=folder)}. "
-        f"Finally, create 'report.txt' on the Desktop containing exactly the key "
-        f"from '{which}_key.txt' (ignore the {other} key)."
+        f"Finally, open 'report.txt' on the Desktop, type exactly the key "
+        f"from '{which}_key.txt' into it (ignore the {other} key), and save."
     )
     return {
         "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"bridge-distractor-{k}-{real}")),
@@ -132,8 +136,8 @@ def gen_two_value(rng: random.Random, k: int) -> dict:
         "Open 'part_a.txt' on the Desktop to read the first number and close it. "
         f"Then {errand.format(folder=folder)}. "
         "Then open 'part_b.txt' on the Desktop to read the second number and "
-        "close it. Finally, create 'report.txt' on the Desktop whose content is "
-        "exactly the sum of the two numbers, as digits."
+        "close it. Finally, open 'report.txt' on the Desktop, type exactly the "
+        "sum of the two numbers as digits into it, and save."
     )
     return {
         "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"bridge-two-{k}-{a}-{b}")),
