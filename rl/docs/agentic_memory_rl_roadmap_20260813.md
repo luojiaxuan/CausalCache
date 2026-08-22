@@ -1052,3 +1052,11 @@ aw_fleet/aw_launch 脚本(code/runscripts/aw_baseline_v2/)、OCR=HF 正本、
 roster 生成器+templates116。候选新场地:hyper00(KVM✓、staging✓,但 RAM
 仅余 344G 须减并发、当前无净空 GPU)/ Aries(7 月同栈先例,A6000+KVM,
 但优先级末位)。待用户指定场地后 ~30 分钟可重新发射。
+
+**场地核实(2026-08-23,srun 实测)**:tilde 计算节点(worker-25)
+**无 /dev/kvm**(有 docker 二进制)——Android emulator 需硬件虚拟化,
+tilde 结构性出局,永久记录。hyper00:env 镜像在、KVM 在,但当前
+available RAM 仅 261G/2013G(13%,已破 15% 警戒线;9 个 OSWorld worker
+在跑)且无净空 GPU(最低 GPU4 也有 28.9G 他人驻留)——今晚发射会危及
+共享机。结论:v2 发射等 hyper00 本轮评测收官释放资源(脚本全就绪,
+30 分钟可射),或改走 Aries(7 月同栈先例,A6000+KVM)。
