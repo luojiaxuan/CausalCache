@@ -1022,3 +1022,19 @@ Android + GRPO 族在线 RL + 终局 verifier;其 memory-on/off 组内对比与
 work + 概念对照臂(**文本摘要记忆 vs 原始帧选择**:值转录型任务正是
 文本摘要幻觉、原始帧保真的地方,可设计为论文核心对比论点)。若其代码
 放出,把 ATMem 式文本记忆作为一条 baseline 臂纳入评测矩阵。
+
+### AndroidWorld 基线复现 v2:准备完成(2026-08-22 晚)
+
+7 月封存记录 `data/results/official_b4_reproduction_v1` 已答用户之问:官方 69.0
+= **Pass@3**(Pass@2=68.1),MobileForge 单次 56.0%,我们单次 38.0/38.9%
+(官方 seed30 同实例,协议逐项对齐);残余 ~17pt 两嫌疑 = emulator infra
+(17-21% 局死于故障)+ transformers-vs-vLLM 栈。**v2 设计 = 单变量**:同
+runner 同栈,只修 infra(每局一台全新 emulator;AW-Extend 先例 0 故障)。
+若恢复到 ~56% → 差距全归 infra;只恢复一半 → v3 换 vLLM 验证栈因素。
+hyper01 就绪:僵尸容器 jaxan-1/2 已拆(bridge 评完,defunct×6),新容器
+sglang-omni-jaxan-1 @GPU7(--network host);configs/manifests 补同步;OCR
+从 HF 正本重物化(gavinlaw/causalcache-rapidocr-ppocrv5-mobile-en@0dbc766a)
+PinnedOnlineOCRProvider 校验通过;templates116 已提取。待办:seed30 roster
+生成 → fleet(stock 探针补丁)分批启 116 台一次性 emulator → 单局 smoke →
+正式 116 局(预计 GPU 串行 ~3h + 启动 ~40min)。s50_r2_sel 主实验臂
+124/369 在 jaxan-3/GPU6 不受影响。
