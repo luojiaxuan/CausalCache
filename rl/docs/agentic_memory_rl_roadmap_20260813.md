@@ -1038,3 +1038,17 @@ PinnedOnlineOCRProvider 校验通过;templates116 已提取。待办:seed30 rost
 生成 → fleet(stock 探针补丁)分批启 116 台一次性 emulator → 单局 smoke →
 正式 116 局(预计 GPU 串行 ~3h + 启动 ~40min)。s50_r2_sel 主实验臂
 124/369 在 jaxan-3/GPU6 不受影响。
+
+### 基线复现 v2:hyper01 发射中止(2026-08-23 凌晨,用户指令)
+
+进展到:vLLM 适配补丁完成并 smoke 前就绪(gui-owl 在 vLLM 0.27 服务成功,
+/v1/models 通);roster 生成被 env 镜像 ENTRYPOINT 劫持(自动拉 emulator,
+修法 --entrypoint bash 已写入脚本);fleet 未启动。期间 hyper01 抢卡剧烈
+(GPU2/5/7 数次易主,vLLM 首启撞上 129G 瞬时占用而 OOM 退出)。用户令:
+不用 GPU7 → 全停、弃用 hyper01。已按收尾清单拆除 v2 全部资产(1v/1 容器、
+watcher、map 记录),**主实验容器 3 与 4 worker 未动**(s50_r2_sel 124/369
+续跑)。可迁移资产:runner 的 --vllm-endpoint 补丁(已入 Git)、
+aw_fleet/aw_launch 脚本(code/runscripts/aw_baseline_v2/)、OCR=HF 正本、
+roster 生成器+templates116。候选新场地:hyper00(KVM✓、staging✓,但 RAM
+仅余 344G 须减并发、当前无净空 GPU)/ Aries(7 月同栈先例,A6000+KVM,
+但优先级末位)。待用户指定场地后 ~30 分钟可重新发射。
