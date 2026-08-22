@@ -81,12 +81,18 @@ def gen_one_old(rng: random.Random, k: int) -> dict:
     code = _code(rng)
     folder = f"tmp{rng.randint(10, 99)}"
     errand = rng.choice(ERRANDS)
+    # note (luojiaxuan): v1.3 关键升级 —— smoke 抓到冻结基线用"重开文件"
+    # 绕过记忆(15 步轨迹第 7 步重开 access_code.txt 把证据拉回 recent-2 窗)。
+    # 改为"看完即毁":读码后指令要求把证据文件删进回收站,此后码只存在于
+    # 历史帧中,重看物理不可能 —— recent-2 必挂,selector 调回证据帧是唯一
+    # 解法。这才是与合成环境同构的真记忆关键结构(过去状态不可重访)。
     instr = (
-        "Double-click the file 'access_code.txt' on the Desktop to open it and read the access "
-        "code, then close that window. "
+        "Double-click the file 'access_code.txt' on the Desktop to open it and "
+        "read the access code, then close that window. "
+        "Then delete 'access_code.txt' by moving it to the Trash. "
         f"Next, {errand.format(folder=folder)}. "
-        "Finally, double-click 'report.txt' on the Desktop to open it, type exactly the access "
-        "code you read earlier into it, then save the file."
+        "Finally, double-click 'report.txt' on the Desktop to open it, type "
+        "exactly the access code you read earlier into it, then save the file."
     )
     return {
         "id": str(uuid.uuid5(uuid.NAMESPACE_URL, f"bridge-one-old-{k}-{code}")),
@@ -112,6 +118,7 @@ def gen_distractor(rng: random.Random, k: int) -> dict:
     instr = (
         f"Two key files are on the Desktop: '{which}_key.txt' and '{other}_key.txt'. "
         f"Open BOTH files to view them, then close the windows. "
+        f"Then delete both key files by moving them to the Trash. "
         f"Next, {errand.format(folder=folder)}. "
         f"Finally, open 'report.txt' on the Desktop, type exactly the key "
         f"from '{which}_key.txt' into it (ignore the {other} key), and save."
@@ -139,10 +146,12 @@ def gen_two_value(rng: random.Random, k: int) -> dict:
     folder = f"tmp{rng.randint(10, 99)}"
     errand = rng.choice(ERRANDS)
     instr = (
-        "Open 'part_a.txt' on the Desktop to read the first number and close it. "
+        "Open 'part_a.txt' on the Desktop to read the first number, close it, "
+        "and delete 'part_a.txt' by moving it to the Trash. "
         f"Then {errand.format(folder=folder)}. "
-        "Then open 'part_b.txt' on the Desktop to read the second number and "
-        "close it. Finally, open 'report.txt' on the Desktop, type exactly the "
+        "Then open 'part_b.txt' on the Desktop to read the second number, close "
+        "it, and delete 'part_b.txt' by moving it to the Trash. "
+        "Finally, open 'report.txt' on the Desktop, type exactly the "
         "sum of the two numbers as digits into it, and save."
     )
     return {
