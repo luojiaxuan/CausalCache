@@ -891,3 +891,79 @@ selector + executor 全程联合 GRPO**,由 RL 自己决定怎么动 executor。
 3. 补 Phase 2 统计强度:闭环每臂 40 → 150 + bootstrap CI;
 4. 闭环 OOD 四臂(补"不是背模板"的闭环证据);
 5. Phase 4 joint GRPO(仅当 1 与 2 站住之后)。
+
+### ★★★ 外审裁定与路线修正 v2(2026-08-22,ChatGPT 深度审计后)
+
+背景:用户自提三问(mobile-only 是否够 CVPR / 闭环教义 vs 第三方记忆
+benchmark 全是离线 / 要不要正面对比已发表记忆方法),经 chatgpt-review
+skill 提交外审(思考 20m46s、检索 60+ 来源,全文存档
+`rl/docs/external_audit_chatgpt_20260822.md`)。外审读到的是本仓库正本
+(用户 ChatGPT 挂了 GitHub connector),非转述。以下为逐条裁定。
+
+**一、采纳(外审对,我们改):**
+
+1. **32dff2c 的评测侧有硬伤——"闭环训练、离线主评测"= 论文中途换被估计量**。
+   训的是 AndroidWorld 终局任务成功,主报的却是 AndroTMem/MementoGUI 的
+   离线动作匹配/VLM 判定;审稿人必问"为何 agent 一被允许真行动,收益就
+   消失了"。修正:**主评测必须是第三方交互式环境**,离线套件全部降为诊断。
+2. **三个"第三方记忆 benchmark"逐一失格于闭环判据**(我 32dff2c 的选型
+   错误):AndroTMem 是离线重放框架、不执行动作,且其 evaluator 对缺失
+   截图自动记对(AUTO_PASS,待核实);MementoGUI 自称 offline、VLM 判分;
+   MemGUI-Bench 已重构为真实时运行但判分是 Progressive Scrutiny
+   (VLM 链),不是程序化终态谓词。三者只能作诊断,不能作闭环证据。
+3. **漏检了真正合格的闭环记忆 benchmark**:
+   * **LearnGUI-Online / LearnAct**:101 个在线任务,直接构建在
+     AndroidWorld 上(同模拟器/同指标/同判分),记忆形态为跨任务
+     示范/经验检索——与我们的任务内视觉工作记忆不同型但同判据合格;
+   * **MemGym → WebArena-Infinity**:computer-use 记忆轨道 140 任务,
+     实时 web 执行 + 程序化 verifier(结构化记忆 38.6% vs 无记忆 34.3%);
+     注意其观测是 a11y tree 为主,非像素;
+   * **MobileWorld**:非记忆 benchmark 但为合格第二环境(201 任务、
+     实时 Android、DB/本地存储/文本/回调判分),且 MemGUI-Agent 与
+     ATMem 都在其上报数——**采纳"AndroidWorld + MobileWorld 双闭环
+     环境"作为主评测组合**。
+4. **novelty 收窄**:2026 已有密集 GUI-memory 簇(UI-Mem、ATMem+STR-GRPO、
+   MAGNET、EchoTrail-GUI(CVPR'26)、EAM、AGMem(OSWorld 视觉记忆)、
+   MemGUI-Agent),一切 "first ..." 措辞禁用。可守的窄叙事:
+   **定额视觉工作记忆分配**——任务内截图史中,固定预算 B 帧、原始像素、
+   仅终局 0/1 学"留哪几帧",主因果对照用同一 executor。五个限定词
+   (fixed budget / raw visual / within episode / terminal outcome /
+   matched executor)每个都在承重,砍掉任何一个 novelty 即塌。
+5. **AndroidWorld 过拟合陷阱**:百万变体只是 116 个手写模板换参数,
+   值随机≠结构新颖。训练必须留出 held-out 模板/工作流族,并用第二
+   环境(MobileWorld)做跨环境确认。
+6. **"5×"式倍数表述禁用**(8.3% vs 1.7% 的绝对值太低、oracle 头寸还剩
+   3/4 未兑现);评测器应惩罚副作用(scope-aware,失忆 agent 可靠
+   破坏性过度操作蒙混过关)。
+7. **紧急核查项:DataScope / ATMem("What Memory Do GUI Agents Really
+   Need?",2026-06)是最近邻威胁**——GUI 记忆 + 在线 RL(STR-GRPO,
+   按任务完成对比 memory-on/off rollout)+ 自建记忆压力 benchmark,
+   方法论与我们危险地接近。**投入任何训练算力前先读原文定重叠度**。
+
+**二、外审确认我们已有判断的:** bridge 降级为机制/压力测试附录(保留,
+不删——"证据不可重访时 recent-2 崩、oracle 帧 35%"仍是好的干预研究
+插图);闭环教义本身正确,不放松;训练/评测任务族不相交。
+
+**三、外审有异议、待用户裁决的(涉及教义,不擅改):**
+外审主张**主因果对照用冻结 executor 四臂**(recent-2 / random-2 /
+learned-2 / oracle-2,同一 policy 同一批实时任务),理由是 joint 训练
+削弱归因——executor 和 selector 都在动时,"joint+learned > frozen+recent"
+说明不了记忆选择本身的作用,且 joint 后的 executor 配 recent-2 测试
+本身就是 OOD 干预;joint GRPO 作为第二阶段的系统上界结果保留。
+这与用户"selector+executor 全程联合 GRPO"教义**并不真冲突**:
+训练怎么训(联合)与主结果怎么归因(评测时四臂全用同一 executor
+检查点)可以并存——我的建议是**两条都要**:selector-only 对照出主
+因果数,joint 出系统上界数。但归因结构由用户拍板。
+
+**四、go/no-go 红线(外审提出,我认同并记为判决条件):**
+若 learned selector 在独立第三方实时评测上保持中性、只在自建 bridge
+或离线动作匹配上赢,**不投 CVPR 方法论文**。反之,若同一 executor 下
+learned-2 > recent-2 在一个真记忆导向实时 benchmark 上统计显著,且在
+第二个独立实时环境复现,并与 ATMem/UI-Mem/MemGUI-Agent 型基线干净
+区分,则论文成立。
+
+**下一步(顺序)**:①读 DataScope/ATMem 原文定重叠度(最高优先);
+②核实 LearnGUI-Online 判分链与 MemGym computer-use 轨道细节;
+③AndroidWorld 训练基建照旧推进(教义不变:冻结基座为起点,联合 GRPO),
+但评测协议按上文四臂 + 双环境重写;④369×50 主实验照跑,recent-2 臂
+结果通用。
