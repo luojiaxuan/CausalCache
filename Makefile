@@ -1,4 +1,4 @@
-.PHONY: figures paper supplement paper-all clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines synthetic-phase0
+.PHONY: figures paper arxiv arxiv-source supplement paper-all clean-paper test validate-contract validate-restoration-v2 validate-restoration-v2-interfaces validate-restoration-v2-executor-dispatch validate-restoration-v2-selection validate-restoration-v2-ocr-config validate-restoration-v2-ocr-artifact validate-restoration-v2-baselines synthetic-phase0
 
 FIGURE_SOURCE_DATE_EPOCH ?= 1785168000
 FIGURE_PDF_TMP_DIR ?= tmp/paper-figures
@@ -23,6 +23,14 @@ paper: figures
 	mkdir -p output/pdf
 	cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=../output/pdf main.tex
 	cp output/pdf/main.pdf output/pdf/causalcache_aaai27.pdf
+
+arxiv:
+	mkdir -p output/pdf
+	cd paper && latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=../output/pdf main_arxiv.tex
+	cp output/pdf/main_arxiv.pdf output/pdf/causalcache_arxiv_preview.pdf
+
+arxiv-source:
+	bash paper/package_arxiv.sh
 
 supplement:
 	mkdir -p output/pdf

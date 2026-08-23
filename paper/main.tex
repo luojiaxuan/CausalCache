@@ -1,5 +1,9 @@
 \documentclass[letterpaper]{article} % DO NOT CHANGE THIS
+\ifdefined\ARXIVVERSION
+\usepackage[preprint]{aaai2027}
+\else
 \usepackage[submission]{aaai2027} % DO NOT CHANGE THIS
+\fi
 % The serif, sans-serif, and monospaced fonts are loaded automatically by
 % aaai2027.sty. Do not add any font package.
 \usepackage[hyphens]{url} % DO NOT CHANGE THIS
@@ -32,7 +36,12 @@
 \newcommand{\grestore}{G_{\mathrm{restore}}}
 
 \title{CausalCache: Conditional High-Fidelity Restoration for Long-Horizon GUI Agents}
+\ifdefined\ARXIVVERSION
+\author{Jiaxuan Luo, Zhanfeng Liao, Jiayao Teng,\\
+Yuan Wang, Haojian Huang}
+\else
 \author{Anonymous Submission}
+\fi
 \affiliations{}
 
 \begin{document}

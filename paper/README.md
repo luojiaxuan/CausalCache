@@ -26,6 +26,22 @@ make paper-all
 - 独立 supplementary document：
   `output/pdf/causalcache_aaai27_supplement.pdf`。
 
+## arXiv 作者版
+
+`main.tex` 仍是唯一正文源。默认编译继续使用 AAAI anonymous submission；
+`main_arxiv.tex` 只定义 `ARXIVVERSION`，切换到官方 style 的 `preprint` 选项并显示作者：
+Jiaxuan Luo、Zhanfeng Liao、Jiayao Teng、Yuan Wang、Haojian Huang。当前未提供单位信息，
+因此 `\affiliations{}` 保持为空，正式提交前需要确认。
+
+```bash
+make arxiv
+make arxiv-source
+```
+
+生成的预览 PDF 是 `output/pdf/causalcache_arxiv_preview.pdf`，最小可编译源码包是
+`output/arxiv/causalcache_arxiv_source.tar.gz`。源码包根目录直接提供已启用作者版的
+`main.tex`，无需 arXiv 选择额外 root file。
+
 ## 两份正文源的分工(2026-08-02 重命名)
 
 | 文件 | 叙事主线 | 状态 |
