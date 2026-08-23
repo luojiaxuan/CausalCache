@@ -42,6 +42,14 @@ make arxiv-source
 `output/arxiv/causalcache_arxiv_source.tar.gz`。源码包根目录直接提供已启用作者版的
 `main.tex`，无需 arXiv 选择额外 root file。
 
+提交状态（2026-08-23）：
+
+- arXiv submission：`submit/7983880`；
+- primary category：`cs.AI`，无 cross-list；
+- license：arXiv perpetual, non-exclusive license；
+- arXiv TeX Live 2025 / `pdflatex` 编译成功，服务器 PDF 为 9 页且首页 5 位作者正确；
+- 当前状态：`submitted`；公开 arXiv identifier 尚未分配，待审核/公告后回填。
+
 ## 两份正文源的分工(2026-08-02 重命名)
 
 | 文件 | 叙事主线 | 状态 |
