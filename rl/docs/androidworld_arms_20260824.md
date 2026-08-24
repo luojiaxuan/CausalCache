@@ -97,3 +97,28 @@ OSWorld 主实验两条 recent 臂收官(fz 31.0%、r2.0 30.5%)。
 最核心的一对是 `fz_sel vs fz_recent`(同 executor 只换记忆策略),
 基准线已钉死 31.0%,待 fz_sel 收官读增益;并按域拆开,重点看 `multi_apps`
 (93 题,唯一真正需要跨时记忆的域,r2_recent 在其上仅 11.8%)。
+
+## 7. OSWorld 主实验终局(四臂全收官,2026-08-24)
+
+361 官方口径(剔 8 个 Google Drive 任务),B=2,50 步,transformers 路径(数据不受当日 vLLM/参数 bug 影响)。
+
+| 臂 | 全量 | multi_apps(93 题) |
+|---|---|---|
+| fz_recent(冻结+recent-2) | **112/361 = 31.0%** | 19/93 = 20.4% |
+| fz_sel(冻结+selector r15) | **115/361 = 31.9%** | 22/93 = 23.7% |
+| r2_recent(bridge SFT+recent-2) | 110/361 = 30.5% | **11/93 = 11.8%** |
+| r2_sel(bridge SFT+selector) | 110/360 = 30.6% | 13/93 = 14.0% |
+
+**配对检验(fz_sel vs fz_recent,同 executor 只换记忆)**:
+* 全量 n=361:都成功 87,仅 recent 25,仅 sel 28 —— **+0.9pp,McNemar p=0.78 不显著**;
+* multi_apps n=93:仅 recent 1,仅 sel 4 —— +3.3pp,不一致对 4:1 方向为正,
+  **p=0.375 不显著**(功效不足,不能定论,但方向与"记忆关键域获益"一致)。
+
+三条结论:
+1. **合成环境训的 r15 selector 在 OSWorld 零迁移增益正式钉死**(+0.9pp n.s.),
+   与 7 月 135 题开发集一致;真正的赌注仍在 MobileWorld 联合 GRPO;
+2. **50 步预算把 multi_apps 从地板抬起来了**(此前 15 步口径全臂 0-8%,
+   现冻结基座 20.4%)—— 用户坚持 50 步 long-horizon 是对的;
+3. **bridge SFT 显著伤害 multi_apps**(11.8% vs 冻结 20.4%,-8.6pp):合成数据
+   SFT 对跨应用长程任务是净负——再次佐证"executor 不能用我造的数据 SFT,
+   要动就用真实环境联合 RL"(用户教义)。
