@@ -180,6 +180,38 @@ B11 重跑条件已具备,multiseed 收官后由持链方补。
 - mw_rl 池 8 台:CUA-Lite 自管容器用不上,**smoke 通过后删除**(暂留作
   路线 B 兜底:若 slime 通路遇墙,官方 runner + 手搓迭代仍可用它跑)。
 
+## 4.6 ★ smoke 终判(2026-08-25 深夜,第六发):**四条验收全过**
+
+| 验收 | 证据 |
+|---|---|
+| ① reward 非全 0 | 第六发批2 `nonzero_return_rate=0.12`(4/32 成功、2 混合组);第四发批1 0.09;e2e 单集 reward=1.0 |
+| ② 选帧分布在变 | 行为层:805+ 条 CC_TRACE,S 非连续多样(如 [6,15,21]、[15,23,28]);参数层:selector 首轮真实训练 391 步后 `rel_drift=0.00275`,`/reload` 热换生效,后续决策由新参数驱动 |
+| ③ loss 有限 | selector loss 0.048 / grad 0.0037;executor step1 loss 有限、`grad_norm=2.03`、`nan_inf_count=0`、`adv_abs_max=9.16`(优势真实流动) |
+| ④ 权重真热换 | selector `/reload=true`;executor `update_weights` 实测 1.76s 完成,批3 rollout 使用更新后权重 |
+
+管线形态(实测):32 rollout/批全收零损耗;批间 `step_time≈38min`
+(rollout-bound,`wait_ratio=0.71`,train 11min/批 @TP2+CPU-offload,
+136 TFLOPS/卡)。**mini-run 前必办的两件调优**:提高 env 并发
+(16→32+,CPU 空间充足)压 rollout 墙钟;训推失配
+`train_rollout_logprob_abs_diff=0.034` nats(bf16 双引擎正常带内)
+列入监控,涨破 ~0.1 需查(v2 监控清单第 5 条)。
+
+### smoke 事故账(8 起,全修复入库)
+
+| # | 死点 | 根因 | 修法(commit) |
+|---|---|---|---|
+| 1/2 | worker 首连 raylet SETTINGS 超时(100% 复现) | 容器 nofile soft=1024,Ray 按 224 核 prestart 吃满 FD,NM accept 冻结 | `--ulimit nofile=524288`(9e562e6) |
+| 3 | NCCL NVLS CUDA 401 | 共享 H200 Fabric Manager 不支持 NVLS,上游 nvlink.sh 探到即强开无覆盖口 | worktree 补丁尊重预设 + `HAS_NVLINK=0`(ee4cb0b) |
+| 4 | selector 服务 500(哑) | step0 空帧 torch.stack 崩;500 无日志难定位 | 双侧修+异常落日志(13c27f7) |
+| 5 | "turn 无图像" 炸 episode | env 截图瞬时失败产生无图 turn(官方 runner 无此形态) | S 候选限带图 turn+当前帧回退,204 parity 复跑全绿(e368b30) |
+| 6 | returns 恒空(fail-loud 捕获) | adapter 写 env.metadata 是错误通道(segmenter 读 slime 侧样本 metadata);静默 except 掩盖 | engine.py 补丁注入 cc_episode(34e42bb) |
+| 7 | 第五发一小时静死 | pkill 匹配自身 ssh 命令行自杀;job 死于脏 session 预检而监控模式没抓预检类失败 | 脚本文件化+net env-server 重启+宽监控模式 |
+| 8 | selector 反传崩+daemon 静死 | PL slate_logprob 原地 mask 改写毁 autograd 版本(手搓 smoke 从未真正反传过,潜伏 bug) | mask 逐步 clone+daemon 兜异常保活(bb3abce) |
+
+**判定:任务三(selector/RLOO 进 slime)的 smoke 阶段完成。**
+mini-run(train78 × G8 × 30-50 步)就绪,发射前过效率三问
+(env 并发↑、每步墙钟压到 <25min、预计总墙钟 12-20h)。
+
 ## 5. 同日附加发现(读源/实测拾得)
 
 - 官方折叠把 obs i 的 tool 文本配给 action i 的结论(原版与补丁版同;
