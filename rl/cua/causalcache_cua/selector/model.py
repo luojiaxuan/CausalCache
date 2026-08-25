@@ -60,7 +60,11 @@ class FrameSelector(nn.Module):
         return sorted(idx), logp, ent / max_ent
 
     def slate_logprob(self, feats, positions, cur_step: int, chosen: list):
-        """按采样顺序重算联合 logprob(训练期用;信任域对 PL 联合概率而非边际积)。"""
+        """按采样顺序重算联合 logprob(训练期用;信任域对 PL 联合概率而非边际积)。
+
+        note (luojiaxuan): mask 必须逐步 clone —— masked_fill 会把 mask 存给
+        反传,原地 ``mask[i]=True`` 令其版本失效(autograd inplace 报错,
+        smoke 事故 #8;手搓 smoke 止损前从未真正反传过此路径)。"""
         lg = self.logits(feats, positions, cur_step)
         mask = torch.zeros_like(lg, dtype=torch.bool)
         logp = torch.tensor(0.0, device=lg.device)
@@ -68,5 +72,6 @@ class FrameSelector(nn.Module):
             masked = lg.masked_fill(mask, float("-inf"))
             logsm = torch.log_softmax(masked, dim=0)
             logp = logp + logsm[i]
+            mask = mask.clone()
             mask[i] = True
         return logp

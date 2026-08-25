@@ -166,7 +166,15 @@ def main():
 
     metrics_path = os.path.join(args.ckpt_dir, "selector_metrics.jsonl")
     while True:
-        m = train_round(args, args.device)
+        # note (luojiaxuan): 单轮异常不许杀死守护进程(事故 #8:autograd
+        # 报错逃逸后 daemon 静死,批次奖励无人消费)。异常落日志后下轮再试;
+        # crash 在 cursor 落盘前,episode 未消费,重试幂等。
+        try:
+            m = train_round(args, args.device)
+        except Exception:  # noqa: BLE001
+            import traceback
+            traceback.print_exc()
+            m = {"error": traceback.format_exc().splitlines()[-1]}
         m["t"] = time.time()
         with open(metrics_path, "a") as f:
             f.write(json.dumps(m) + "\n")
