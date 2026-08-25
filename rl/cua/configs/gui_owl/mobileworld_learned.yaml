@@ -1,0 +1,11 @@
+# GUI-Owl RL(joint selector+executor)on MobileWorld —— learned 选帧主臂。
+# v2 recipe:G=8 全 selector 臂 + RLOO(selector 侧车)/ grpo(executor,slime)。
+# selector 服务地址由 CC_SELECTOR_URL 注入(adapter 回退读 env)。
+agent_id: "gui_owl"
+agent_kwargs:
+  history_n: 3           # B=2,官方 CC_HISTORY_N=3 口径
+  frame_policy: "learned"
+env_id: "mobileworld"
+env_kwargs:
+  max_steps: 30          # smoke 口径(mini-run 视墙钟升 50)
+  extra_tools: ["terminate", "response"]   # 默认 [] 会把 terminate noop 掉(fid4 教训)

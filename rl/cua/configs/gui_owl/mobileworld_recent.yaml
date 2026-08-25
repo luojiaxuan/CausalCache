@@ -1,0 +1,9 @@
+# recent-B2 对照(低频测量臂,不进梯度;v2 recipe 第 3 条)。
+agent_id: "gui_owl"
+agent_kwargs:
+  history_n: 3
+  frame_policy: "recent"
+env_id: "mobileworld"
+env_kwargs:
+  max_steps: 30
+  extra_tools: ["terminate", "response"]

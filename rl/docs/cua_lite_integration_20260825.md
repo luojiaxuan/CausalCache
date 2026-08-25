@@ -153,9 +153,23 @@ B11 重跑条件已具备,multiseed 收官后由持链方补。
 
 ## 4. 下一步(顺序)
 
-1. gui_owl family:从 hyper00 取官方 prompts 模板 + parity fixtures,
-   写 adapter/action_space/protocol(S 参数化),过 88 用例字节级回归;
-2. selector service/trainer 侧车移植 + recipe 包 + 任务导出;
-3. env-server + 3 GPU smoke(验收四条:reward 非全 0 / 选帧分布在变 /
-   loss 有限 / 权重真热换);
-4. mini-run(train~78 × G8 × 30-50 步)→ 32×H20 runbook 交接。
+1. ✅ gui_owl family(同日完成):adapter/action_space/protocol/agent
+   四件套,**204/204 字节级 parity**(fixture 由官方 venv 内 monkeypatch
+   LLM client 生成,306 step-case,askuser 案例因 env note 格式偏差跳过);
+2. ✅ selector service/trainer 侧车 + recipe 包 + 冻结切分(78/39)+
+   任务导出脚本;
+3. ✅ e2e 单 episode(真环境+真 GUI-Owl-8B vLLM):8 步做完
+   AcceptMeetingTask,**官方评测器判 reward=1.0**——任务 1 的残留风险
+   (未见过非零 reward)就此闭合;CC_TRACE 窗口滑动与官方语义一致;
+4. 🔴 slime 容器 smoke(四条验收)→ mini-run(train78 × G8 × 30-50 步)
+   → 32×H20 runbook。发射清单见 rl/cua/README.md。
+
+## 5. 同日附加发现(读源/实测拾得)
+
+- 官方折叠把 obs i 的 tool 文本配给 action i 的结论(原版与补丁版同;
+  含 obs0 代码路径,真实 episode 不可达);
+- 补丁版 CC_DUMP 数据面块引用未定义变量,从未跑通——训练数据面改由
+  selector service 决策日志 + shim returns 落盘承担;
+- 上游 mobileworld env 支持容器复用(/task/init 快照重载,30 次后回收)
+  且 destroy 带 `-v`——RL 吞吐与卷泄漏两个隐患上游已解;
+- GUI-Owl-1.5 wire 坐标 ÷999(与 MAI-UI 同族),经 mai_ui 缩放助手复用。
