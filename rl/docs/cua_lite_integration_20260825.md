@@ -207,6 +207,7 @@ B11 重跑条件已具备,multiseed 收官后由持链方补。
 | 6 | returns 恒空(fail-loud 捕获) | adapter 写 env.metadata 是错误通道(segmenter 读 slime 侧样本 metadata);静默 except 掩盖 | engine.py 补丁注入 cc_episode(34e42bb) |
 | 7 | 第五发一小时静死 | pkill 匹配自身 ssh 命令行自杀;job 死于脏 session 预检而监控模式没抓预检类失败 | 脚本文件化+net env-server 重启+宽监控模式 |
 | 8 | selector 反传崩+daemon 静死 | PL slate_logprob 原地 mask 改写毁 autograd 版本(手搓 smoke 从未真正反传过,潜伏 bug) | mask 逐步 clone+daemon 兜异常保活(bb3abce) |
+| 9 | B11 v2 秒退+残留误读 | **匿名化反噬**:官方 runner `discover_backends` 按镜像子串 `mobile_world` 过滤,池镜像改 `sglang-omni:env0` 后 0 台可见;退出后 v1 残留 22 个快任务被归约读成 86.4%(幸存者偏差,真实 recent 口径 ~31%) | v3 改 `--aw-host` 显式 URL 列表跳过自动发现;**规则:改镜像/容器名前先 grep 按名发现的消费方,改完立刻验证发现仍通** |
 
 **判定:任务三(selector/RLOO 进 slime)的 smoke 阶段完成。**
 mini-run(train78 × G8 × 30-50 步)就绪,发射前过效率三问
