@@ -164,6 +164,22 @@ B11 重跑条件已具备,multiseed 收官后由持链方补。
 4. 🔴 slime 容器 smoke(四条验收)→ mini-run(train78 × G8 × 30-50 步)
    → 32×H20 runbook。发射清单见 rl/cua/README.md。
 
+## 4.5 smoke 基建进度与决策(滚动)
+
+- ✅ slime 子模块已拉(SSH url 改 https);slimerl/slime:v0.3.0 拉取中;
+- ✅ 标点集 + add_period_robustly 与官方 helpers **程序化比对全等**
+  (punct_check.py,防手抄漂移);
+- GPU 计划:hyper00 GPU 0/1/2 空闲 → rollout 1 卡 + train 2 卡(ASYNC);
+  GPU6 探针 vLLM 与 mw_random 池归并行 session,勿动;
+- **决策:slime 镜像重打为 `jaxanluo/sglang-omni:trainer`**(而非字面
+  白名单 `sglang-omni:dev`——该名已被他人 `hongccc/sglang-omni:dev` 族
+  占用语义,且我方 `jaxanluo/sglang-omni:dev` 仍指向旧镜像不宜重指;
+  `<owner>/sglang-omni:<tag>` 是本机同族既有形态,混同意图达成,零覆盖)。
+  容器名照规范 `sglang-omni-jaxan-<N>`(自复刻 docker run,launch.sh 的
+  名字/镜像硬编码不适用);补挂 cc_recipe、/data04/jaxan models、pyshim;
+- mw_rl 池 8 台:CUA-Lite 自管容器用不上,**smoke 通过后删除**(暂留作
+  路线 B 兜底:若 slime 通路遇墙,官方 runner + 手搓迭代仍可用它跑)。
+
 ## 5. 同日附加发现(读源/实测拾得)
 
 - 官方折叠把 obs i 的 tool 文本配给 action i 的结论(原版与补丁版同;
