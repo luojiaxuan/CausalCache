@@ -3,14 +3,21 @@
 > 方法读 `rl_recipe.md`(自足,不需要读任何历史文档);本文只管
 > "在你自己的机器上把它跑起来"。我方 hyper00 的 3×H200 smoke/mini 已
 > 验证全链;你的环境要做的适配点在 §5,如实标注了哪些是**未验证**的。
+>
+> **状态注记(2026-08-25)**:当前主计划改为 luojiaxuan 自己在 hyper00
+> 4×H200 上跑全量(tilde 计算节点无 docker/apptainer,裸机路线成本见
+> §5 探针结论),本文降级为"从零复现 runbook"备用——内容照常维护。
 
 ## 0. 访问与保密(先办)
 
-- **仓库不公开**。CausalCache GitHub 私有仓 + HF 私有 repo 由 luojiaxuan
-  邀请你的账号为 collaborator(read 即可);**不要要求转 public**。
-- 你需要的秘密只有:GitHub 访问、HF token(拉 executor 权重)、
-  以及(仅当跑 ask_user 任务时)一个 OpenAI 兼容 key——GUI-only 训练
-  不需要。
+- **项目仓库(私有,不公开)**:`https://github.com/luojiaxuan/CausalCache`
+  ——由 luojiaxuan 在 GitHub 仓库 Settings → Collaborators 邀请你的账号
+  (read 即可);**不要要求转 public**。克隆:
+  `git clone https://github.com/luojiaxuan/CausalCache.git`(本文所有
+  `rl/...` 相对路径均指此仓)。
+- **executor 权重是公开的**(见 §1),不需要 HF token。你需要的秘密
+  只有:上面这个私有仓的访问权,以及(仅当跑 ask_user 任务时)一个
+  OpenAI 兼容 key——GUI-only 训练不需要。
 - 项目保密纪律是否延伸到你的共享机(容器/镜像/进程命名中性化),
   与 luojiaxuan 约定;我方侧的做法见 `rl/cua/README.md` 匿名节,
   全套机制(命名补丁、pyshim)可原样复用。
@@ -19,11 +26,11 @@
 
 | 物料 | 来源 | 固定版本 |
 |---|---|---|
-| CUA-Lite | github.com/cua-lite/cua-lite(公开) | commit `2602509` |
-| slime 子模块 | github.com/cua-lite/slime(公开) | branch v0.3.0(SSH url 需改 https) |
+| CUA-Lite | `https://github.com/cua-lite/cua-lite`(公开) | commit `2602509` |
+| slime 子模块 | `https://github.com/cua-lite/slime`(公开) | branch v0.3.0(SSH url 需改 https) |
 | **上游四补丁** | 本仓 `rl/cua/patches/cua_lite_2602509_worktree.patch`(`git apply` 即可) | 必打;内容与动机见 patches/ 下同名说明文件 |
-| recipe 包 | 本仓 `rl/cua/`(`sglang_omni_rl` 包 + configs + fixtures + tests) | 以 main 最新为准 |
-| executor 权重 | GUI-Owl-1.5-8B-Instruct(HF;若源 repo gated/不可得,由 luojiaxuan 的私有 HF 转交) | 对表所用快照 |
+| recipe 包 | 本仓(§0 的私有仓)`rl/cua/`(`sglang_omni_rl` 包 + configs + fixtures + tests) | 以 main 最新为准 |
+| executor 权重 | **公开 HF:`mPLUG/GUI-Owl-1.5-8B-Instruct`**,`hf download mPLUG/GUI-Owl-1.5-8B-Instruct --revision 06d5faecff74840bab2be2425e9c42667a5d04fc` | revision `06d5faec…`(已与我方对表副本逐分片 sha256 比对一致,2026-08-25) |
 | 训练容器镜像 | slimerl/slime:v0.3.0(Docker Hub 公开) | v0.3.0 |
 | env 基座镜像 | ghcr.io/tongyi-mai/mobile_world(公开 GHCR) | digest `b680380e…`(Dockerfile 已钉) |
 
