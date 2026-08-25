@@ -39,8 +39,10 @@
 1. 硬件门槛:`/dev/kvm` 可读写(MobileWorld emulator 必需)、CPU 按
    2.5 核/emulator 预算、每 env 容器内存上限 32g;
 2. clone cua-lite@2602509 → `git apply` 四补丁 → `git submodule update
-   --init`(slime)→ `uv sync --extra gym`(**注意 extra,漏了 env-server
-   起不来**);
+   --init`(slime)→ **`uv sync --all-extras`**(必须 all-extras:部分
+   extras 或裸 `uv sync` 会剪掉在用的包——实测先后剪掉过 torch 与
+   jsonschema,症状分别是 selector 侧车 import 即死与 env 步进
+   RemoteEnvError);
 3. 把 `rl/cua/` 放在 cua-lite 同级(目录名随意,包经 symlink 进
    CUA_LITE_ROOT:`ln -s ../<recipe>/sglang_omni_rl cua-lite/sglang_omni_rl`);
 4. `bash lite/gym/envs/mobileworld/scripts/install.sh` 构建 env 镜像
@@ -59,7 +61,9 @@ env 宿主:serve_env.py(:30100)+ selector service/trainer 侧车(CPU 即可)
 ```
 
 发射参数模板与全部踩坑修正见 `rl/cua/scripts/run_mw_grpo.sh`
-(动态选卡段按你的机器改)。**三个必设**,漏一个就是我们踩过的事故:
+(动态选卡段按你的机器改)。侧车建议用独立小 venv(CPU torch + pillow,
+参考 hyper00 的 `selvenv`)与 cua-lite venv 解耦,任何一侧的依赖同步
+都不影响另一侧。**三个必设**,漏一个就是我们踩过的事故:
 
 - 训练容器 `--ulimit nofile=524288:524288`(Ray 按核数 prestart worker,
   默认 1024 会把 raylet 的 FD 顶满,worker 首连超时且报错極具误导性);
@@ -129,7 +133,8 @@ wait_ratio 实测 ~0.7),不是加训练卡。mini 口径(30 步 × 32 eps)
 
 ## 6. 已知事故速查(遇错先查这里)
 
-八起 smoke 事故的死状→根因→修法全表在
+venv 依赖坑(uv sync 剪包)已并入 §2/§3 正文;八起 smoke 事故的
+死状→根因→修法全表在
 `cua_lite_integration_20260825.md` §4.6;运维坑账(满盘假网络错、
 镜像改名反噬发现机制、pkill 自匹配、目录迁移断 venv)在同文档与
 `rl/cua/README.md`。selector 数学的唯一已知陷阱(PL slate_logprob 的
