@@ -90,18 +90,30 @@ docker exec "$CTN" bash /workspaces/cua-lite/scripts/train/slime/init.sh \
 echo "$CTN gpus=$G_ROLLOUT,$G_TRAIN host=$(hostname) created=$(date -u +%FT%TZ) desc=sglang-omni-rl trainer;收尾:smoke 判读后删" >> "$HOME/jiaxuanluo-map.txt"
 
 # ── [5] 容器内发射 run_grpo.sh ──
+# 实战修正(smoke1 踩坑):
+#   - 跨界文件(parquet/returns)一律走已挂载的 $REC 容器可见路径,
+#     不能用宿主 $RUN 直写(除非容器带 -v $RUN:$RUN);
+#   - CC_RET_DIR.path 哨兵写**容器视角**路径(worker 在容器内读);
+#   - checkout 因 symlink/sitecustomize 必 dirty → 显式
+#     CUA_LITE_ALLOW_DIRTY_ENV_SERVER=1(dev run 逃生阀,按其报错指引);
+#   - SAVE 目录放挂载内,权重热换产物宿主可见。
+mkdir -p "$REC/run_$ARM"/{returns,}
+cp "$RUN/train.parquet" "$REC/run_$ARM/"
+echo "/workspaces/cc_recipe/run_$ARM/returns" > "$REC/CC_RET_DIR.path"
 docker exec \
   -e ASYNC=1 -e NUM_TRAIN_GPUS=2 -e NUM_ROLLOUT_GPUS=1 \
   -e MODEL_ID=Qwen/Qwen3-VL-8B-Instruct \
   -e HF_CKPT=/data/models/GUI-Owl-1.5-8B-Instruct \
   -e ENV_ID=mobileworld \
-  -e PROMPT_DATA="$RUN/train.parquet" \
+  -e PROMPT_DATA="/workspaces/cc_recipe/run_$ARM/train.parquet" \
   -e ROLLOUT_BATCH_SIZE=4 -e N_SAMPLES_PER_PROMPT=8 -e NUM_STEPS_PER_ROLLOUT=1 \
   -e NUM_ROLLOUT="$STEPS" -e ENV_CONCURRENCY=16 \
   -e ROLLOUT_MODULE=causalcache_cua.rollout_grpo \
   -e CONFIG_PATH="/workspaces/cc_recipe/configs/gui_owl/mobileworld_${ARM}.yaml" \
-  -e CC_RET_DIR="$RUN/returns" -e CC_SELECTOR_URL=http://172.17.0.1:41010 \
   -e CUA_LITE_ENV_SERVER_URL -e CUA_LITE_ENV_SERVER_TOKEN \
+  -e CUA_LITE_ALLOW_DIRTY_ENV_SERVER=1 \
+  -e SAVE_DIR="/workspaces/cc_recipe/run_$ARM/ckpt_megatron" \
+  -e SAVE_HF_DIR="/workspaces/cc_recipe/run_$ARM/hf/iter_{rollout_id}" \
   "$CTN" bash /workspaces/cua-lite/scripts/train/run_grpo.sh \
   2>&1 | tee "$RUN/grpo.log"
 
