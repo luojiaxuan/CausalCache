@@ -80,6 +80,12 @@ OPTIM_CPU_OFFLOAD=1 bash scripts/train/run_grpo.sh
 selector 侧车照 `run_mw_grpo.sh` §3 原样起;监控清单与验收四条见
 `rl_recipe.md` §6。
 
+**难度优先采样**(默认开,`CC_TASK_PRIORITY=0` 关):shim 自动按
+`<CC_RET_DIR>/task_stats.json` 的逐任务混合组率加权采样(25% 均匀地板)。
+冷启动无统计时=均匀;把 mini-run 产出的 task_stats.json 预放进
+returns 目录即可从第 1 步就按先验加权。日志里 `CC_PRIORITY 选中 [...]`
+行可核对生效。
+
 ## 5. H20 适配点(如实:以下未在我方环境验证)
 
 1. **显存形态**:H20 96GB vs 我方 H200 141GB。我方 TP2+optimizer CPU

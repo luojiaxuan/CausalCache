@@ -49,8 +49,13 @@ cross-play 的"终版 exec+初始 sel"格也不涨),用已有成功轨迹按
 random S 重渲染做一小段 executor SFT(只教格式不教选择),再 RL。
 
 **任务采样**:无任何按历史成功率的硬闸门(那会恰好删掉 selector 能创造
-第一次成功的任务);用**均匀采样地板(20-30%)+ 难度优先级**(按 selector
-臂经验不确定度/混合组率加权);采到全同组时限次重采或换任务。
+第一次成功的任务);用**均匀采样地板(25%)+ 难度优先级**——已实现于
+`sglang_omni_rl/task_priority.py` + rollout shim:convert 每批增量维护
+逐任务混合组率表(`task_stats.json`,Laplace 平滑 + 访问数探索加成),
+get_samples 按优先分加权选任务(批内无放回,地板保证全败任务不被永久
+放弃)。无统计时严格退化为均匀;`CC_TASK_PRIORITY=0` 关闭。mini-run 以
+均匀口径跑(它就是统计收集遍),其产出的混合组率表作为全量阶段的
+初始权重。
 
 **recent 对照**:低频周期性采集(如每 5-10 step 一批),**只用于测量**
 selector-vs-recent 差距,不进梯度、不做因果声明(与动作无关的 baseline
