@@ -5,6 +5,10 @@ agent_id: "gui_owl"
 agent_kwargs:
   history_n: 3           # B=2,官方 CC_HISTORY_N=3 口径
   frame_policy: "learned"
+  # Ray worker 不继承 driver shell 环境变量 —— selector 地址必须走 config。
+  # 172.17.0.1 = docker 默认网桥宿主 IP(selector service 绑 127.0.0.1 时
+  # 容器够不着;service 需绑 0.0.0.0 或发射前把此值换成宿主实 IP)。
+  selector_url: "http://172.17.0.1:41010"
 env_id: "mobileworld"
 env_kwargs:
   max_steps: 30          # smoke 口径(mini-run 视墙钟升 50)

@@ -30,8 +30,24 @@ def _iter_samples(samples: Any):
             yield s
 
 
+def _ret_dir() -> str:
+    """CC_RET_DIR 解析:env 优先;Ray worker 不继承 driver shell,故回退读
+    挂载内哨兵文件(launcher 写入,所有 worker 可见)。"""
+    d = os.environ.get("CC_RET_DIR", "")
+    if d:
+        return d
+    # realpath:包经 symlink 挂进 CUA_LITE_ROOT 时,__file__ 的字面路径停在
+    # cua-lite 侧;哨兵在 cc_recipe 真身旁,必须解析 symlink 后再上跳。
+    sentinel = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                            "..", "CC_RET_DIR.path")
+    try:
+        return open(sentinel).read().strip()
+    except OSError:
+        return ""
+
+
 def _dump_episode_returns(samples: Any) -> None:
-    out_dir = os.environ.get("CC_RET_DIR", "")
+    out_dir = _ret_dir()
     if not out_dir:
         return
     os.makedirs(out_dir, exist_ok=True)

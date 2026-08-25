@@ -45,8 +45,10 @@ fi
 export CUA_LITE_ENV_SERVER_URL=http://172.17.0.1:30100   # slime 容器视角
 
 # ── [3] selector 侧车(仅 learned 臂;CPU 即可,编码器 64x64)──
+echo "$RUN/returns" > "$REC/CC_RET_DIR.path"   # Ray worker 经挂载读(shim 回退)
 if [ "$ARM" = learned ]; then
   CC_SEL_DEVICE=cpu CC_SEL_LOG="$RUN/decisions" CC_SEL_PORT=41010 \
+  CC_SEL_BIND=172.17.0.1 \
     nohup env PYTHONPATH="$REC" python3 -m causalcache_cua.selector.service \
     > "$RUN/selector_service.log" 2>&1 & echo $! > "$RUN/selector_service.pid"
   CC_SEL_TRAIN_DEVICE=cpu nohup env PYTHONPATH="$REC" python3 -m \
@@ -57,27 +59,53 @@ if [ "$ARM" = learned ]; then
     > "$RUN/selector_trainer.log" 2>&1 & echo $! > "$RUN/selector_trainer.pid"
 fi
 
-# ── [4] slime 容器 + run_grpo.sh(容器内)──
-# 注意:scripts/train/slime/launch.sh 的镜像与容器名需按共享机纪律替换;
-# 首发前人工核验其 docker run 参数(挂载 $CUA、$REC、/data04/jaxan models、
-# --init、pyshim PYTHONPATH、高位端口)。
-cat << EOT
-[发射清单——容器内执行]
-CUDA_VISIBLE_DEVICES=$G_ROLLOUT,$G_TRAIN 进容器后:
-  ASYNC=1 NUM_TRAIN_GPUS=2 NUM_ROLLOUT_GPUS=1 \\
-  MODEL_ID=Qwen/Qwen3-VL-8B-Instruct \\
-  HF_CKPT=/data/models/GUI-Owl-1.5-8B-Instruct \\
-  ENV_ID=mobileworld \\
-  PROMPT_DATA=$RUN/train.parquet \\
-  ROLLOUT_BATCH_SIZE=4 N_SAMPLES_PER_PROMPT=8 NUM_STEPS_PER_ROLLOUT=1 \\
-  NUM_ROLLOUT=$STEPS ENV_CONCURRENCY=16 \\
-  ROLLOUT_MODULE=causalcache_cua.rollout_grpo \\
-  CONFIG_PATH=$REC/configs/gui_owl/mobileworld_${ARM}.yaml \\
-  CC_RET_DIR=$RUN/returns CC_SELECTOR_URL=http://172.17.0.1:41010 \\
-  CUA_LITE_ENV_SERVER_URL=$CUA_LITE_ENV_SERVER_URL \\
-  CUA_LITE_ENV_SERVER_TOKEN=$CUA_LITE_ENV_SERVER_TOKEN \\
-  bash /workspaces/cua-lite/scripts/train/run_grpo.sh
-EOT
+# ── [4] slime 容器(规范名复刻 launch.sh 的 docker run;镜像已重打
+#        jaxanluo/sglang-omni:trainer)──
+# recipe 进 PYTHONPATH 的机关:run_grpo.sh 给 Ray worker 硬编码
+# PYTHONPATH=<Megatron>:<CUA_LITE_ROOT>:<slime>;故把 causalcache_cua 以
+# 相对 symlink 放进 cua-lite 根(host 与容器两侧路径同构,均可解析),
+# 上游零改动。pyshim 同理:sitecustomize.py 拷进 cua-lite 根即搭车。
+[ -e "$CUA/causalcache_cua" ] || ln -s ../cc_recipe/causalcache_cua "$CUA/causalcache_cua"
+[ -e "$CUA/sitecustomize.py" ] || cp /data01/jaxan/pyshim/sitecustomize.py "$CUA/sitecustomize.py"
+
+CTN=""
+for i in $(seq 1 99); do
+  docker container inspect "sglang-omni-jaxan-$i" &>/dev/null || { CTN="sglang-omni-jaxan-$i"; break; }
+done
+SID="cc-mw-$(date +%m%d)"
+docker run -d --gpus "\"device=$G_ROLLOUT,$G_TRAIN\"" --name "$CTN" --init \
+  --ipc=host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 \
+  --memory=400g \
+  -e CUA_LITE_ROOT=/workspaces/cua-lite \
+  -e CUA_LITE_DATASETS_ROOT=/workspaces/cua-lite/.data/huggingface \
+  -e CUA_LITE_ENV_SERVER_URL -e CUA_LITE_ENV_SERVER_TOKEN \
+  -e SESSION_ID="$SID" \
+  -v /data01/jaxan/cua/cua-lite:/workspaces/cua-lite \
+  -v /data01/jaxan/cua/cc_recipe:/workspaces/cc_recipe \
+  -v /data04/jaxan/models:/data/models:ro \
+  -v "$RUN":"$RUN" \
+  jaxanluo/sglang-omni:trainer sleep infinity
+docker exec "$CTN" bash /workspaces/cua-lite/scripts/train/slime/init.sh \
+  > "$RUN/slime_init.log" 2>&1
+echo "$CTN gpus=$G_ROLLOUT,$G_TRAIN host=$(hostname) created=$(date -u +%FT%TZ) desc=sglang-omni-rl trainer;收尾:smoke 判读后删" >> "$HOME/jiaxuanluo-map.txt"
+
+# ── [5] 容器内发射 run_grpo.sh ──
+docker exec \
+  -e ASYNC=1 -e NUM_TRAIN_GPUS=2 -e NUM_ROLLOUT_GPUS=1 \
+  -e MODEL_ID=Qwen/Qwen3-VL-8B-Instruct \
+  -e HF_CKPT=/data/models/GUI-Owl-1.5-8B-Instruct \
+  -e ENV_ID=mobileworld \
+  -e PROMPT_DATA="$RUN/train.parquet" \
+  -e ROLLOUT_BATCH_SIZE=4 -e N_SAMPLES_PER_PROMPT=8 -e NUM_STEPS_PER_ROLLOUT=1 \
+  -e NUM_ROLLOUT="$STEPS" -e ENV_CONCURRENCY=16 \
+  -e ROLLOUT_MODULE=causalcache_cua.rollout_grpo \
+  -e CONFIG_PATH="/workspaces/cc_recipe/configs/gui_owl/mobileworld_${ARM}.yaml" \
+  -e CC_RET_DIR="$RUN/returns" -e CC_SELECTOR_URL=http://172.17.0.1:41010 \
+  -e CUA_LITE_ENV_SERVER_URL -e CUA_LITE_ENV_SERVER_TOKEN \
+  "$CTN" bash /workspaces/cua-lite/scripts/train/run_grpo.sh \
+  2>&1 | tee "$RUN/grpo.log"
+
 echo "RUN_DIR=$RUN"
-# teardown 责任:smoke 收尾删 slime 容器 + kill 三个 pid 文件进程 +
-# env-server sessions 清理(docs/slime.md cleanup);KEEP 需显式说明。
+# teardown 责任:smoke 收尾删 slime 容器($CTN)+ kill 三个 pid 文件进程
+# + env-server sessions 清理(docs/slime.md cleanup)+ map 记录删除;
+# KEEP 需显式打印原因。

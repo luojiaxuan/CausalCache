@@ -82,8 +82,11 @@ class H(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     port = int(os.environ.get("CC_SEL_PORT", "41010"))
+    # note (luojiaxuan): 默认 127.0.0.1;slime 容器要经 docker 网桥访问时
+    # 设 CC_SEL_BIND=172.17.0.1(仅桥内可达,不暴露外网,合共享机纪律)。
+    bind = os.environ.get("CC_SEL_BIND", "127.0.0.1")
     ckpt = os.environ.get("CC_SEL_CKPT", "")
     if ckpt and os.path.exists(ckpt):
         selector.load_state_dict(torch.load(ckpt, map_location=DEVICE))
-    print(f"selector service on 127.0.0.1:{port}", flush=True)
-    ThreadingHTTPServer(("127.0.0.1", port), H).serve_forever()
+    print(f"selector service on {bind}:{port}", flush=True)
+    ThreadingHTTPServer((bind, port), H).serve_forever()
