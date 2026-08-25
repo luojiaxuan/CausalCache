@@ -11,5 +11,6 @@ agent_kwargs:
   selector_url: "http://172.17.0.1:41010"
 env_id: "mobileworld"
 env_kwargs:
-  max_steps: 30          # smoke 口径(mini-run 视墙钟升 50)
+  max_steps: 50          # 官方口径(mw eval --max_round 50;对表/P0.5/B11 全在 50)。
+                         # 30 是 smoke 省钱口径,实测饿死信号(3/4 批全灭),已弃
   extra_tools: ["terminate", "response"]   # 默认 [] 会把 terminate noop 掉(fid4 教训)
