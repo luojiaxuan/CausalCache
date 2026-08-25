@@ -113,10 +113,49 @@ executor 四格评测。没有它,"记忆选择的增益"与"executor 学会了�
 selector `rel_drift`(上线门槛参考 ≥0.02/迭代量级——低一个数量级的
 lr 曾把 20 迭代跑成"重复测量随机初始化头")。
 
+**高 reward 轨迹人工抽检(纪律,不是可选项)**:RL 的反馈延迟且间接,
+指标只能推断不能证明模型学了什么——**每隔几个 checkpoint(建议每
+5 个保存点)抽一批高 reward episode,逐条看截图与动作序列对不对劲**:
+是否在骗评测器(提前 terminate、Q&A 靠 answer 文本碰运气、利用评测器
+只查终态的漏洞)、成功是否真由选帧/操作达成。配套自动签名(OSWorld 线
+验证过的口径):任务级"成功率跳升 + 成功步数塌缩"= JUMP,"全成且极快"
+= FAST6,命中即人工复核。
+
 **smoke 验收四条(已过,新环境复用)**:reward 非全 0 / 选帧分布实际
 在变 / loss 全程有限 / 权重真热换(生成结果与旧权重可区分)。
 
-## 7. 风险与回退声明(预注册)
+## 7. TODOs(有意推迟/待测量/待接线——防遗忘清单)
+
+**有意推迟(全量阶段做,mini 不做)**
+- [ ] per-step critic / 状态依赖 baseline:episode 级共享 credit 的方差
+  缩减消融(终局奖励语义不变,合法);与 selector per-step credit 同批设计;
+- [ ] selector lr 灵敏度扫(历史教训:lr 低一个数量级 = 20 迭代白训;
+  mini 判读 rel_drift 曲线后决定是否 1e-3 档重扫);
+- [ ] 难度优先采样的**实跑验证**(代码已入库、单测绿,但未在真跑中生效
+  过;全量首批看 `CC_PRIORITY 选中` 日志与任务分布)。
+
+**设计解决不了、只能被 mini-run 测量**
+- [ ] **选帧→成败耦合强度**(本线最根本的不确定性):文本折叠使两臂
+  语义近同,静态上界仅 +3.5pp;判读口径——混合组率高(信号在)+
+  rel_drift 涨(在学)但 learned-vs-recent 差距不动 ⇒ 科学负结果,
+  走 §8 回退声明,不是管线故障;
+- [ ] executor 能否学会用非连续历史(分布下界是否可由 RL 消除):
+  cross-play 矩阵的"终版 exec + 初始 sel"格是判据;不行则启用
+  random-S 重渲染格式 SFT 的 contingency(§2)。
+
+**待接线(实现存在但编排缺位)**
+- [ ] **recent 对照低频测量批**:config(mobileworld_recent.yaml)就绪,
+  但"每 5-10 步插一批 recent 测量"的编排未做——mini 期间用离线对照
+  (P0.5 的 recent-B2 @50 步 ≈31%)代读,全量前必须接上;
+- [ ] cross-play 四格评测的编排脚本;
+- [ ] JUMP/FAST6 hacking 自动签名从 OSWorld 线的 rl_task_probe.py 移植;
+- [ ] MemGUI-Bench agent 接口与 GUI-Owl 的兼容性核查(入局前);
+- [ ] ask_user 文本格式偏差修复(interaction 44 任务入训前;GUI-only
+  不受影响);
+- [ ] 多节点 H20(actor-num-nodes 放开)实测;H100/H20 吞吐估算
+  (handoff §5.5)用真跑校准。
+
+## 8. 风险与回退声明(预注册)
 
 * 117 题过拟合 → heldout 39 全程不碰,主证据放跨 benchmark;
 * selector 学捷径(任务长度/app 身份而非视觉需要)→ cross-play 矩阵

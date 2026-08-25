@@ -101,6 +101,25 @@ returns 目录即可从第 1 步就按先验加权。日志里 `CC_PRIORITY 选�
 4. env 宿主可以与训练节点分离(env-server 就是为此设计),emulator
    吃 CPU 不吃 GPU——若 H20 节点 CPU 少,单独找 CPU 机器承载 env 池。
 
+## 5.5 墙钟预算估算(由 H200 实测外推,±40%,待真跑校准)
+
+实测锚点(3×H200:1 rollout + 2 train TP2):训练 1.7s/microbatch
+(136 TFLOPS/卡)、~24 segment/episode@30 步(50 步 ≈40)、rollout
+约 8s/env 步、权重热换 ~2s。全量口径按 **100 训练步 × 64 episode/步
+(batch 8 题 × G8)≈ 6400 episodes @50 步 cap** 计:
+
+| 配置 | 分工 | 瓶颈 | 预计墙钟 |
+|---|---|---|---|
+| **8×H100** | 4 train(TP4)+ 4 rollout;env 池 ≥64 台 | train(~45 min/步) | **≈3 天**(72h ±40%) |
+| **32×H20** | 24 train(TP4×DP6)+ 8 rollout;env 池 ≥128 台 | train | **≈2.5-3.5 天** |
+
+反直觉但要有预期:**32×H20 并不比 8×H100 快多少**——H20 单卡 bf16
+算力 ≈ H100 的 1/6.7(≈148 TFLOPS),24 张 H20 的训练算力 ≈ 3.6 张
+H100;它的优势是显存余量(96G 下 TP4 从容)与更多 rollout 引擎。
+提速的第一杠杆是 **emulator 并发数与 env 宿主 CPU**(rollout-bound,
+wait_ratio 实测 ~0.7),不是加训练卡。mini 口径(30 步 × 32 eps)
+两种配置都在 ~1 天内。
+
 ## 6. 已知事故速查(遇错先查这里)
 
 八起 smoke 事故的死状→根因→修法全表在
