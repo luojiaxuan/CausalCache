@@ -4,8 +4,8 @@
 # 步进→终局判分全链。不依赖 slime;generate_fn 手写为 OpenAI chat.completions
 # 调用(图像转 data URL)。
 # 用法(hyper00,cua-lite checkout 根):
-#   PYTHONPATH=/data01/jaxan/cua/cc_recipe CC_HISTORY_N=3 CC_FRAME_POLICY=recent \
-#   uv run python /data01/jaxan/cua/cc_recipe/scripts/e2e_probe.py \
+#   PYTHONPATH=/data01/jaxan/sglang-omni-rl/cc_recipe CC_HISTORY_N=3 CC_FRAME_POLICY=recent \
+#   uv run python /data01/jaxan/sglang-omni-rl/cc_recipe/scripts/e2e_probe.py \
 #     --task AcceptMeetingTask --llm http://127.0.0.1:41002/v1 --max-steps 8
 import argparse
 import asyncio
@@ -70,7 +70,7 @@ async def main():
     ap.add_argument("--max-steps", type=int, default=8)
     args = ap.parse_args()
 
-    from causalcache_cua import registration  # noqa: F401
+    from sglang_omni_rl import registration  # noqa: F401
     import lite.gym as gym
     from lite.agents.core.agent.base import AgentRegistry
     from transformers import AutoProcessor

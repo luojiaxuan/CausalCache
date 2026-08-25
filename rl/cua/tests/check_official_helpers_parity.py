@@ -1,5 +1,5 @@
 import re
-from causalcache_cua.gui_owl.protocol import _END_PUNCTUATIONS, add_period_robustly
+from sglang_omni_rl.gui_owl.protocol import _END_PUNCTUATIONS, add_period_robustly
 import mobile_world.agents.utils.helpers as H
 
 src = open("/data01/jaxan/mw/MobileWorld/src/mobile_world/agents/utils/helpers.py").read()

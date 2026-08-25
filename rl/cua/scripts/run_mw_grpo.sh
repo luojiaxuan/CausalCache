@@ -8,9 +8,9 @@
 # pyshim 压进程名、map 登记、launcher 尾部 teardown 或显式 KEEP。
 set -euo pipefail
 
-CUA=${CUA:-/data01/jaxan/cua/cua-lite}
-REC=${REC:-/data01/jaxan/cua/cc_recipe}
-RUN=${RUN:-/data01/jaxan/cua/run_$(date +%m%d_%H%M)}
+CUA=${CUA:-/data01/jaxan/sglang-omni-rl/cua-lite}
+REC=${REC:-/data01/jaxan/sglang-omni-rl/cc_recipe}
+RUN=${RUN:-/data01/jaxan/sglang-omni-rl/run_$(date +%m%d_%H%M)}
 ARM=${ARM:-learned}            # learned | recent(对照测量批)
 STEPS=${STEPS:-3}              # smoke 3;mini-run 30-50
 export PATH="/data01/jaxan/binshim:$HOME/.local/bin:$PATH"
@@ -49,10 +49,10 @@ echo "$RUN/returns" > "$REC/CC_RET_DIR.path"   # Ray worker 经挂载读(shim �
 if [ "$ARM" = learned ]; then
   CC_SEL_DEVICE=cpu CC_SEL_LOG="$RUN/decisions" CC_SEL_PORT=41010 \
   CC_SEL_BIND=172.17.0.1 \
-    nohup env PYTHONPATH="$REC" python3 -m causalcache_cua.selector.service \
+    nohup env PYTHONPATH="$REC" python3 -m sglang_omni_rl.selector.service \
     > "$RUN/selector_service.log" 2>&1 & echo $! > "$RUN/selector_service.pid"
   CC_SEL_TRAIN_DEVICE=cpu nohup env PYTHONPATH="$REC" python3 -m \
-    causalcache_cua.selector.trainer \
+    sglang_omni_rl.selector.trainer \
     --decisions-dir "$RUN/decisions" \
     --returns-file "$RUN/returns/episode_returns.jsonl" \
     --ckpt-dir "$RUN/ckpt" --interval 120 \
@@ -62,10 +62,10 @@ fi
 # ── [4] slime 容器(规范名复刻 launch.sh 的 docker run;镜像已重打
 #        jaxanluo/sglang-omni:trainer)──
 # recipe 进 PYTHONPATH 的机关:run_grpo.sh 给 Ray worker 硬编码
-# PYTHONPATH=<Megatron>:<CUA_LITE_ROOT>:<slime>;故把 causalcache_cua 以
+# PYTHONPATH=<Megatron>:<CUA_LITE_ROOT>:<slime>;故把 sglang_omni_rl 以
 # 相对 symlink 放进 cua-lite 根(host 与容器两侧路径同构,均可解析),
 # 上游零改动。pyshim 同理:sitecustomize.py 拷进 cua-lite 根即搭车。
-[ -e "$CUA/causalcache_cua" ] || ln -s ../cc_recipe/causalcache_cua "$CUA/causalcache_cua"
+[ -e "$CUA/sglang_omni_rl" ] || ln -s ../cc_recipe/sglang_omni_rl "$CUA/sglang_omni_rl"
 [ -e "$CUA/sitecustomize.py" ] || cp /data01/jaxan/pyshim/sitecustomize.py "$CUA/sitecustomize.py"
 
 CTN=""
@@ -84,8 +84,8 @@ docker run -d --gpus "\"device=$G_ROLLOUT,$G_TRAIN\"" --name "$CTN" --init \
   -e CUA_LITE_DATASETS_ROOT=/workspaces/cua-lite/.data/huggingface \
   -e CUA_LITE_ENV_SERVER_URL -e CUA_LITE_ENV_SERVER_TOKEN \
   -e SESSION_ID="$SID" \
-  -v /data01/jaxan/cua/cua-lite:/workspaces/cua-lite \
-  -v /data01/jaxan/cua/cc_recipe:/workspaces/cc_recipe \
+  -v /data01/jaxan/sglang-omni-rl/cua-lite:/workspaces/cua-lite \
+  -v /data01/jaxan/sglang-omni-rl/cc_recipe:/workspaces/cc_recipe \
   -v /data04/jaxan/models:/data/models:ro \
   -v "$RUN":"$RUN" \
   jaxanluo/sglang-omni:trainer sleep infinity
@@ -112,7 +112,7 @@ docker exec \
   -e PROMPT_DATA="/workspaces/cc_recipe/run_$ARM/train.parquet" \
   -e ROLLOUT_BATCH_SIZE=4 -e N_SAMPLES_PER_PROMPT=8 -e NUM_STEPS_PER_ROLLOUT=1 \
   -e NUM_ROLLOUT="$STEPS" -e ENV_CONCURRENCY=16 \
-  -e ROLLOUT_MODULE=causalcache_cua.rollout_grpo \
+  -e ROLLOUT_MODULE=sglang_omni_rl.rollout_grpo \
   -e CONFIG_PATH="/workspaces/cc_recipe/configs/gui_owl/mobileworld_${ARM}.yaml" \
   -e CUA_LITE_ENV_SERVER_URL -e CUA_LITE_ENV_SERVER_TOKEN \
   -e CUA_LITE_ALLOW_DIRTY_ENV_SERVER=1 \

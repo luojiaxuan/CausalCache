@@ -2,7 +2,7 @@
 
 把 CausalCache 的 joint selector+executor RL(v2 recipe,见
 `rl/docs/grpo_recipe_audit_20260824.md` 第三节)接进 CUA-Lite/slime。
-上游仓库不 fork:本包经 `ROLLOUT_MODULE=causalcache_cua.rollout_grpo` 的
+上游仓库不 fork:本包经 `ROLLOUT_MODULE=sglang_omni_rl.rollout_grpo` 的
 import 副作用注册 `gui_owl` family,rollout yaml 用 `agent_id: gui_owl`
 绕过 factory。背景与决策日志:`rl/docs/cua_lite_integration_20260825.md`。
 
@@ -21,7 +21,7 @@ import 副作用注册 `gui_owl` family,rollout yaml 用 `agent_id: gui_owl`
 ## 结构
 
 ```
-causalcache_cua/
+sglang_omni_rl/
   gui_owl/            # model family:prompts(vendored 官方字节)/
                       # action_space(÷999 坐标、mobile_use 方言)/
                       # protocol(S 参数化官方布局)/ adapter / agent
@@ -57,12 +57,12 @@ docs/                 # adapter_contract_notes.md(上游契约勘察)
 
 ```bash
 # parity(cua-lite checkout 根)
-PYTHONPATH=/data01/jaxan/cua/cc_recipe uv run python -m pytest \
-  /data01/jaxan/cua/cc_recipe/tests/test_parity_gui_owl.py -q
+PYTHONPATH=/data01/jaxan/sglang-omni-rl/cc_recipe uv run python -m pytest \
+  /data01/jaxan/sglang-omni-rl/cc_recipe/tests/test_parity_gui_owl.py -q
 
 # e2e 单 episode(需 GUI-Owl vLLM 端点)
-PYTHONPATH=/data01/jaxan/cua/cc_recipe CC_HISTORY_N=3 CC_FRAME_POLICY=recent \
-  uv run python /data01/jaxan/cua/cc_recipe/scripts/e2e_probe.py \
+PYTHONPATH=/data01/jaxan/sglang-omni-rl/cc_recipe CC_HISTORY_N=3 CC_FRAME_POLICY=recent \
+  uv run python /data01/jaxan/sglang-omni-rl/cc_recipe/scripts/e2e_probe.py \
   --task AcceptMeetingTask --llm http://127.0.0.1:41002/v1 --max-steps 8
 ```
 

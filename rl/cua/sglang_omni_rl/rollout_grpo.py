@@ -1,5 +1,5 @@
 # note (luojiaxuan): ROLLOUT_MODULE shim —— run_grpo.sh 以
-# ROLLOUT_MODULE=causalcache_cua.rollout_grpo 解析三个 dotted 入口。
+# ROLLOUT_MODULE=sglang_omni_rl.rollout_grpo 解析三个 dotted 入口。
 # import 副作用注册 gui_owl family(每个 Ray actor 都会 import 本模块)。
 # convert 在 slime 原版(组优势归一化)之上旁路落盘 episode returns,
 # 供 selector RLOO trainer 与 rollout 决策日志(cc_episode 键)对账。
@@ -10,7 +10,7 @@ import logging
 import os
 from typing import Any
 
-from causalcache_cua import registration  # noqa: F401 — 注册副作用
+from sglang_omni_rl import registration  # noqa: F401 — 注册副作用
 from lite.train.rollout.grpo import (  # noqa: F401 — dotted-path 再导出
     convert_samples_to_train_data as _base_convert,
     generate,

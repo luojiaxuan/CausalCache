@@ -1,0 +1,9 @@
+# note (luojiaxuan): 共享机匿名 —— env 容器名的 benchmark 标识段
+# (env_id 如 "mobileworld"、task_id 如 "AcceptMeetingTask")在
+# lite/gym/utils/config/naming.py 的单一文法点做别名:env_id 走固定表
+# (mobileworld→e2、osworld→e3、…),task_id 走 sha256[:8];
+# match_pattern(reaper 消费侧)同表别名,收割器保持一致。
+# 代价:各 env cleanup.sh 的 env_id 字面 grep 失效(我们只用
+# session 维度清理,可接受);test_naming.py 可能需同步。
+# 应用于 CUA-Lite@2602509 工作 checkout(hyper00,2026-08-25);
+# 具体 diff 见该机 checkout 的 git diff。

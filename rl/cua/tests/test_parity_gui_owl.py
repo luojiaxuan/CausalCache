@@ -5,8 +5,8 @@
 # 相邻 text part 合并、image part 以 md5 身份对齐 —— 即 chat template
 # 消费面的全部信息。askuser 案例跳过(env note 文本格式偏差,已记录)。
 # 运行(hyper00 cua-lite checkout 根):
-#   PYTHONPATH=/data01/jaxan/cua/cc_recipe uv run python -m pytest \
-#     /data01/jaxan/cua/cc_recipe/tests/test_parity_gui_owl.py -q
+#   PYTHONPATH=/data01/jaxan/sglang-omni-rl/cc_recipe uv run python -m pytest \
+#     /data01/jaxan/sglang-omni-rl/cc_recipe/tests/test_parity_gui_owl.py -q
 import hashlib
 import io
 import json
@@ -71,8 +71,8 @@ def load_cases():
 @pytest.mark.parametrize("rec", load_cases(),
                          ids=lambda r: f"{r['case']}_s{r['step']}")
 def test_render_parity(rec):
-    from causalcache_cua.registration import _adapter  # noqa: F401 注册副作用
-    from causalcache_cua.gui_owl.adapter import GuiOwlMobileUseAdapter
+    from sglang_omni_rl.registration import _adapter  # noqa: F401 注册副作用
+    from sglang_omni_rl.gui_owl.adapter import GuiOwlMobileUseAdapter
     from lite.core.metadata import LiteCUAMetadata
     from lite.core import LiteSample
 

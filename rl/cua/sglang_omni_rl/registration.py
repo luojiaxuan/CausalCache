@@ -5,7 +5,7 @@
 # action_space → protocol → adapter → agent。
 from __future__ import annotations
 
-from causalcache_cua.gui_owl import action_space as _action_space  # noqa: F401
-from causalcache_cua.gui_owl import protocol as _protocol  # noqa: F401
-from causalcache_cua.gui_owl import adapter as _adapter  # noqa: F401
-from causalcache_cua.gui_owl import agent as _agent  # noqa: F401
+from sglang_omni_rl.gui_owl import action_space as _action_space  # noqa: F401
+from sglang_omni_rl.gui_owl import protocol as _protocol  # noqa: F401
+from sglang_omni_rl.gui_owl import adapter as _adapter  # noqa: F401
+from sglang_omni_rl.gui_owl import agent as _agent  # noqa: F401
