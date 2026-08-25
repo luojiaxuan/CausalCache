@@ -88,7 +88,10 @@ def run_case(policy, hist_n, T, tool_mode, out_f):
         img_hashes.append(hashlib.md5(buf.getvalue()).hexdigest())
         tool_call = None
         ask_user = None
-        if tool_mode == "tool" and t % 2 == 0:
+        # note (luojiaxuan): obs 0(首观察)物理上不可能有 tool 结果——
+        # 之前没有动作;t=0 挂 tool 会造出官方代码路径可达但真实 episode
+        # 不存在的案例(首泡 fold 读 obs0 tool),故只在 t>=1 挂。
+        if tool_mode == "tool" and t % 2 == 1:
             tool_call = f"synthetic tool result {t}"
         elif tool_mode == "askuser" and t % 3 == 1:
             ask_user = f"synthetic user reply {t}"
