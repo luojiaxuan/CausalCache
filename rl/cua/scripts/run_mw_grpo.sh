@@ -73,8 +73,12 @@ for i in $(seq 1 99); do
   docker container inspect "sglang-omni-jaxan-$i" &>/dev/null || { CTN="sglang-omni-jaxan-$i"; break; }
 done
 SID="cc-mw-$(date +%m%d)"
+# --ulimit nofile 必给:docker 默认 soft 1024,Ray 按 224 核自动配置
+# (prestart 224 worker)把 raylet 的 FD 顶满 → NM 端口 accept 不动,
+# 所有 worker 首连 "SETTINGS frame 超时"(smoke1 两连击的根因)。
 docker run -d --gpus "\"device=$G_ROLLOUT,$G_TRAIN\"" --name "$CTN" --init \
   --ipc=host --shm-size=16g --ulimit memlock=-1 --ulimit stack=67108864 \
+  --ulimit nofile=524288:524288 \
   --memory=400g \
   -e CUA_LITE_ROOT=/workspaces/cua-lite \
   -e CUA_LITE_DATASETS_ROOT=/workspaces/cua-lite/.data/huggingface \
