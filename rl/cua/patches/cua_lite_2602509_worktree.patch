@@ -1,0 +1,101 @@
+diff --git a/lite/gym/envs/mobileworld/configs/default.yaml b/lite/gym/envs/mobileworld/configs/default.yaml
+index 2fa05c4..0179e64 100644
+--- a/lite/gym/envs/mobileworld/configs/default.yaml
++++ b/lite/gym/envs/mobileworld/configs/default.yaml
+@@ -38,7 +38,7 @@ env_kwargs:                       # explicit constructor/bind kwargs
+                                   # (upstream --step_wait_time 3 in the reference eval)
+   valid_actions: null             # null = no GUI action filter; [] deliberately removes the action-batch tool
+   extra_tools: []                 # explicit default: none (available: open_app, ask_user, response, terminate)
+-  image: "cua-lite/mobileworld:latest"   # spawn image (must match scripts/install.sh)
++  image: "sglang-omni:env2"   # spawn image (must match scripts/install.sh)
+ 
+ server_kwargs:                    # per-deploy infra
+   max_workers: 64                 # ThreadPoolExecutor size (each live container holds ≤2 threads)
+diff --git a/lite/gym/utils/config/naming.py b/lite/gym/utils/config/naming.py
+index ea7b10e..f9bbdb7 100644
+--- a/lite/gym/utils/config/naming.py
++++ b/lite/gym/utils/config/naming.py
+@@ -38,6 +38,24 @@ from lite.gym.utils.backend.ports import env_server_scope
+ 
+ _PREFIX = "lite-env"
+ 
++# cc(luojiaxuan): shared-host anonymity — benchmark-identifying name segments
++# are aliased at this single grammar point; match_pattern applies the same
++# alias so the reaper stays coherent. See cc_recipe/patches/.
++_CC_ENV_ALIAS = {
++    "mobileworld": "e2", "osworld": "e3", "androidworld": "e4",
++    "lite.osworld": "e5", "osworld_2": "e6", "osworld_g": "e7",
++    "androidlab": "e8", "mobilegym": "e9",
++}
++
++
++def _cc_env(env_id):
++    return _CC_ENV_ALIAS.get(env_id, env_id)
++
++
++def _cc_task(task_id):
++    import hashlib
++    return hashlib.sha256(task_id.encode()).hexdigest()[:8]
++
+ # Docker container names allow ``[a-zA-Z0-9][a-zA-Z0-9_.-]*``; sanitize
+ # task_ids (which can contain arbitrary punctuation) to that charset.
+ _DOCKER_NAME_SAFE_CHARS = frozenset("_.-")
+@@ -124,9 +142,9 @@ def format_container_name(
+     """
+     parts: list[str] = [_sanitize_session_id(session_id) if session_id else "local"]
+     if env_id:
+-        parts.append(env_id)
++        parts.append(_cc_env(env_id))
+     if task_id:
+-        parts.append(_sanitize_task_id(task_id))
++        parts.append(_cc_task(_sanitize_task_id(task_id)))
+     parts.append(suffix)
+     return container_name_prefix(
+         server_port=server_port, token_hash=token_hash
+@@ -188,7 +206,7 @@ def match_pattern(prefix: str, env_id: str) -> str:
+     ambiguous — and per-instance precision must come from
+     ``env.external_resource_id`` (exact match), never from name parsing.
+     """
+-    return f"^{prefix}.*-{re.escape(env_id)}-"
++    return f"^{prefix}.*-{re.escape(_cc_env(env_id))}-"
+ 
+ 
+ # ── Singleton shared-container scheme (webgym / mobilegym SINGLETON) ────────────
+diff --git a/lite/train/rollout/core/engine.py b/lite/train/rollout/core/engine.py
+index 094f137..750f388 100644
+--- a/lite/train/rollout/core/engine.py
++++ b/lite/train/rollout/core/engine.py
+@@ -513,6 +513,14 @@ async def generate(args: Any, sample: Sample, sampling_params: dict,
+         # ---- Run agent.sample(), then build Samples from rl_sample.steps ---
+         # Reset/step timeouts raise EnvTimeoutError → caught below → _empty_sample.
+         rl_sample = await agent.sample(env)
++        # cc(luojiaxuan): expose adapter episode id to train-data metadata
++        # (segmenter copies sample.metadata verbatim; see cc_recipe patches/).
++        _cc_ep = getattr(getattr(agent, "adapter", None), "_episode_id", None)
++        if _cc_ep and isinstance(getattr(sample, "metadata", None), dict):
++            _cc_o = sample.metadata.setdefault("others", {})
++            _cc_o["cc_episode"] = _cc_ep
++            _cc_o["cc_frame_policy"] = getattr(
++                agent.adapter, "frame_policy", None)
+         t.mark("sample")
+ 
+         # DAgger: swap each step's SFT target to the teacher's generated action
+diff --git a/scripts/train/utils/nvlink.sh b/scripts/train/utils/nvlink.sh
+index fe7192e..98b59cd 100644
+--- a/scripts/train/utils/nvlink.sh
++++ b/scripts/train/utils/nvlink.sh
+@@ -9,6 +9,9 @@
+ #
+ # Sets HAS_NVLINK to 1 if `nvidia-smi topo -m` reports any NVLink edges.
+ 
++if [ -n "${HAS_NVLINK:-}" ]; then
++   echo "HAS_NVLINK: ${HAS_NVLINK} (preset by caller; probe skipped)"
++else
+ _NVLINK_COUNT=$(nvidia-smi topo -m 2>/dev/null | grep -o 'NV[0-9][0-9]*' | wc -l)
+ if [ "$_NVLINK_COUNT" -gt 0 ]; then
+    HAS_NVLINK=1
+@@ -17,3 +20,4 @@ else
+ fi
+ echo "HAS_NVLINK: $HAS_NVLINK (detected $_NVLINK_COUNT NVLink references)"
+ unset _NVLINK_COUNT
++fi
