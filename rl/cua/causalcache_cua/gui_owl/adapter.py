@@ -3,8 +3,8 @@
 # (recent/random/learned)+ <tool_call> 解析。与 mai_ui 的关键差异:
 # assistant 的 Lite content 保存**全量 raw 文本**(含 <tool_call> 块)——
 # 官方 history bubble 渲染的就是 prediction.strip() 原文,拆开再重拼无法
-# 保证字节还原。episode 对账键 cc_episode 写进 sample.metadata.others,
-# 随 segmenter 流到 slime Sample.metadata["others"]。
+# 保证字节还原。episode 对账键 cc_episode 由 engine.py 工作区补丁注入
+# slime 样本 metadata(patches/engine_cc_episode.patch,事故 #6)。
 from __future__ import annotations
 
 import base64
@@ -171,12 +171,11 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
             self.frame_policy, self.history_n, total, S, self._episode_id,
         )
 
-        # episode 对账键流入 slime Sample.metadata["others"]。
-        try:
-            sample.metadata.others["cc_episode"] = self._episode_id
-            sample.metadata.others["cc_frame_policy"] = self.frame_policy
-        except Exception:  # noqa: BLE001 — metadata 缺席时不阻塞渲染
-            pass
+        # note (luojiaxuan): episode 对账键不再走 env.metadata(错误通道:
+        # segmenter 读的是 slime 侧 prompt 样本的 metadata,且 env 实例跨
+        # episode 复用会串味,smoke 事故 #6)。改由 engine.py 补丁在
+        # agent.sample 返回处读 adapter._episode_id 写入(patches/
+        # engine_cc_episode.patch)。
 
         self.protocol.pending_keep_frames = S
         messages = self.protocol.process_messages(truncated.messages)

@@ -1,0 +1,15 @@
+# note (luojiaxuan): cc_episode 对账键注入(smoke 事故 #6)。segmenter 的
+# Sample.metadata 拷贝自 slime 侧 prompt 样本(parquet 行),adapter 侧
+# 无通路可达;在 engine.generate 的 agent.sample 返回处把
+# adapter._episode_id 写进 sample.metadata.others,随 segmenter 原样流到
+# 训练数据面,shim 的 returns 旁路即可对账。应用于 CUA-Lite@2602509
+# 工作 checkout;上游可提"per-rollout 自定义 metadata 钩子"泛化版。
+--- a/lite/train/rollout/core/engine.py
++++ b/lite/train/rollout/core/engine.py
+@@ (rl_sample = await agent.sample(env) 之后, t.mark("sample") 之前)
++        _cc_ep = getattr(getattr(agent, "adapter", None), "_episode_id", None)
++        if _cc_ep and isinstance(getattr(sample, "metadata", None), dict):
++            _cc_o = sample.metadata.setdefault("others", {})
++            _cc_o["cc_episode"] = _cc_ep
++            _cc_o["cc_frame_policy"] = getattr(
++                agent.adapter, "frame_policy", None)
