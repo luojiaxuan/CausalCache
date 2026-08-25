@@ -19,4 +19,4 @@ cp "$paper_dir/figures/causalcache_hgkv_pass2.pdf" "$staging_root/source/figures
 cp "$paper_dir/figures/causalcache_split_bars.pdf" "$staging_root/source/figures/causalcache_split_bars.pdf"
 cp "$paper_dir/figures/causalcache_budget_curve.pdf" "$staging_root/source/figures/causalcache_budget_curve.pdf"
 
-tar -C "$staging_root/source" -czf "$output_dir/causalcache_arxiv_source.tar.gz" .
+COPYFILE_DISABLE=1 tar -C "$staging_root/source" -czf "$output_dir/causalcache_arxiv_source.tar.gz" .

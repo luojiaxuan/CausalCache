@@ -30,8 +30,9 @@ make paper-all
 
 `main.tex` 仍是唯一正文源。默认编译继续使用 AAAI anonymous submission；
 `main_arxiv.tex` 只定义 `ARXIVVERSION`，切换到官方 style 的 `preprint` 选项并显示作者：
-Jiaxuan Luo、Zhanfeng Liao、Jiayao Teng、Yuan Wang、Haojian Huang。当前未提供单位信息，
-因此 `\affiliations{}` 保持为空，正式提交前需要确认。
+Jiaxuan Luo、Zhanfeng Liao、Jiayao Teng、Yuan Wang。Jiaxuan Luo 与 Jiayao Teng 标注
+Johns Hopkins University，Zhanfeng Liao 与 Yuan Wang 标注 Tsinghua University；首页同时给出
+4 位作者的机构邮箱。AAAI 默认入口继续匿名，不暴露作者信息。
 
 ```bash
 make arxiv
@@ -42,13 +43,18 @@ make arxiv-source
 `output/arxiv/causalcache_arxiv_source.tar.gz`。源码包根目录直接提供已启用作者版的
 `main.tex`，无需 arXiv 选择额外 root file。
 
-提交状态（2026-08-23）：
+提交状态（2026-08-24）：
 
-- arXiv submission：`submit/7983880`；
+- 公开文章：[arXiv:2608.22577](https://arxiv.org/abs/2608.22577)；v1 submission 为
+  `submit/7983880`；
+- replacement submission：`submit/7989797`，正式提交于 2026-08-24 PDT；
 - primary category：`cs.AI`，无 cross-list；
 - license：arXiv perpetual, non-exclusive license；
-- arXiv TeX Live 2025 / `pdflatex` 编译成功，服务器 PDF 为 9 页且首页 5 位作者正确；
-- 当前状态：`submitted`；公开 arXiv identifier 尚未分配，待审核/公告后回填。
+- replacement 源码正文来自 `jaxan/trusting-zhukovsky-00d2bf` 的精确 commit
+  `1dfd5b0a6aa0cb7c2ca8576c7d42fd862a6baf88`，与用户确认的
+  `causalcache_main_eq_r13.pdf` 抽取文本逐 token 一致；
+- arXiv TeX Live 2025 / `pdflatex` 编译成功，服务器 PDF 为 9 页，首页 4 位作者、单位和邮箱正确；
+- 当前状态：replacement `processing`，等待 arXiv 公告为下一版本。
 
 ## 两份正文源的分工(2026-08-02 重命名)
 
