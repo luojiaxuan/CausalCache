@@ -153,6 +153,24 @@ class GuiOwlHistoryProtocol(TurnWindowProtocol, key="gui_owl.history"):
         def turn_at(i: int) -> dict[str, Any]:
             return current_turn if i == total else completed[i]
 
+        def frame_at(i: int) -> dict[str, Any]:
+            """取 turn i 的帧;当前 turn 缺帧时(env 截图瞬时失败,官方
+            runner 语义中不存在)回退最近带图 turn 的帧并告警,不让一次
+            截图失败炸掉整条 episode(smoke 事故 #5)。历史 turn 由
+            adapter 保证带图,缺帧仍是硬错误。"""
+            frame = _turn_frame(turn_at(i))
+            if frame is not None:
+                return frame
+            if i == total:
+                for j in range(total - 1, -1, -1):
+                    frame = _turn_frame(completed[j])
+                    if frame is not None:
+                        import logging
+                        logging.getLogger(__name__).warning(
+                            "CC_WARN 当前观察无帧,回退 turn %s 的帧", j)
+                        return frame
+            raise ValueError(f"turn {i} 无图像,无法进入 S")
+
         instruction = self._extract_instruction(turns[0])
 
         # ── 折叠文本(补丁版 _cc_format_steps_by_index)──
@@ -174,9 +192,7 @@ class GuiOwlHistoryProtocol(TurnWindowProtocol, key="gui_owl.history"):
         else:
             first_text = USER_PROMPT_TEMPLATE.format(instruction=instruction)
 
-        first_frame = _turn_frame(turn_at(S[0]))
-        if first_frame is None:
-            raise ValueError(f"turn {S[0]} 无图像,无法作为 S[0]")
+        first_frame = frame_at(S[0])
         result: list[LiteMessage] = [{
             "role": "user",
             "content": [{"type": "text", "text": first_text}, first_frame],
@@ -193,9 +209,7 @@ class GuiOwlHistoryProtocol(TurnWindowProtocol, key="gui_owl.history"):
                 })
             nxt = S[k + 1]
             nxt_turn = turn_at(nxt)
-            frame = _turn_frame(nxt_turn)
-            if frame is None:
-                raise ValueError(f"turn {nxt} 无图像,无法进入 S")
+            frame = frame_at(nxt)
             tool_text = _turn_tool_text(nxt_turn, is_first=(nxt == 0))
             result.append({
                 "role": "user",

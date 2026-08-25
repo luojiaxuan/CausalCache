@@ -87,24 +87,26 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
 
     def _select_frames(
         self, total: int, budget: int, instruction: str,
-        history_frames_b64: list[str],
-    ) -> list[int] | None:
-        """返回 S(含 total)或 None(recent=协议默认后缀窗)。
-        与补丁版 _cc_select_frames 语义逐一对应。"""
+        img_hist: list[int], history_frames_b64: list[str],
+    ) -> list[int]:
+        """返回 S(含 total)。候选一律取**带图的历史 turn**(img_hist)——
+        env 截图瞬时失败会产生无图 turn(官方 runner 语义中不存在,smoke
+        事故 #5),三策略同口径在候选集上作业;无缺口时与官方逐字节等价
+        (random 的 rng.sample 对同长同序序列取样一致)。"""
         policy = self.frame_policy
-        budget = max(0, min(budget, total))
+        budget = max(0, min(budget, len(img_hist)))
         if policy == "recent":
-            return None
+            return img_hist[len(img_hist) - budget:] + [total]
         if policy == "random":
             key = f"{self.random_seed}|{instruction}|{total}|{total}".encode()
             rng = _random.Random(int(hashlib.md5(key).hexdigest()[:16], 16))
-            past = rng.sample(range(total), budget) if total > 0 else []
+            past = rng.sample(img_hist, budget) if img_hist else []
             return sorted(past) + [total]
         if policy == "learned":
-            if total == 0 or budget == 0:
-                # 无候选或无预算:S=[total] 与 recent 后缀窗等价,免打服务
-                # (空帧曾令服务端 torch.stack 崩 500,smoke 事故 #4)。
-                return None
+            if not img_hist or budget == 0:
+                # 无候选或无预算:免打服务(空帧曾令服务端 torch.stack 崩
+                # 500,smoke 事故 #4)。
+                return [total]
             if not self.selector_url:
                 raise RuntimeError("frame_policy=learned 但 selector_url 为空")
             payload = json.dumps({
@@ -119,7 +121,8 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
             # fail loud:selector 失败不回退 recent,静默回退会污染训练数据面。
             with urllib.request.urlopen(req, timeout=30) as r:
                 idx = json.loads(r.read())["indices"]
-            return sorted(int(i) for i in idx) + [total]
+            # 服务返回 frames_b64 内序数 → 映射回真实 turn 索引。
+            return sorted(img_hist[int(i)] for i in idx) + [total]
         raise ValueError(f"unknown frame_policy: {policy!r}")
 
     # ------------------------------------------------------------------
@@ -143,25 +146,29 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
 
         instruction = self.protocol._extract_instruction(turns[0]) if turns else ""
 
+        # 候选 = 带图历史 turn(截图瞬时失败的无图 turn 不进 S,事故 #5)。
+        img_hist = [t for t in range(total)
+                    if _image_parts(completed[t]["observations"])]
+        if len(img_hist) < total:
+            logger.warning("CC_WARN 无图历史 turn: %s (episode=%s)",
+                           sorted(set(range(total)) - set(img_hist)),
+                           self._episode_id)
+
         history_b64: list[str] = []
-        if self.frame_policy == "learned" and total > 0:
-            for t in range(total):
+        if self.frame_policy == "learned":
+            for t in img_hist:
                 img_parts = _image_parts(completed[t]["observations"])
-                if not img_parts:
-                    raise ValueError(f"turn {t} 无图像,learned 选帧无法特征化")
                 img = processed[img_parts[-1]["index"]]
                 if img is None:
                     raise ValueError(f"turn {t} 图像未 prepare(index="
                                      f"{img_parts[-1]['index']})")
                 history_b64.append(_pil_to_b64_png(img))
 
-        S = self._select_frames(total, budget, instruction, history_b64)
+        S = self._select_frames(total, budget, instruction, img_hist, history_b64)
         # CC_TRACE:smoke 验收第 2 条(选帧分布在变)的观测口径,勿删。
         logger.warning(
             "CC_TRACE policy=%s hist_n=%s total=%s S=%s episode=%s",
-            self.frame_policy, self.history_n, total,
-            S if S is not None else list(range(total - budget, total + 1)),
-            self._episode_id,
+            self.frame_policy, self.history_n, total, S, self._episode_id,
         )
 
         # episode 对账键流入 slime Sample.metadata["others"]。
