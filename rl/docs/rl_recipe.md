@@ -35,6 +35,19 @@ optimization with arm-specific RLOO/control baselines*(不是标准 GRPO)。
 | selector(侧车进程) | **G=8 全 selector 臂 + RLOO**(留一均值) | **PL 联合 slate 概率**的比率裁剪(clip 0.2;不是两个边际之积) | 熵正则按**最大可行熵归一化**(候选数随步数涨,固定系数会强度漂移);AdamW lr 1e-4 |
 | executor(slime/Megatron) | 组内基线(reward−组均值)/std | PPO 裁剪 0.2/0.28 + dual-clip 3.0 | 全参 bf16,lr 1e-6,KL 系数 0(信任域靠 clip) |
 
+**初始化(无我方 SFT 阶段,有意设计)**:executor 起点 =
+GUI-Owl-1.5-8B-Instruct 发布权重(上游已 GUI SFT,官方榜 37.6% 即此
+checkpoint;但其历史格式是 recent 连续窗口——非连续 S 对它是 OOD,
+教会它用非连续历史正是联合 RL 的目标之一)。selector 无 SFT:随机
+初始化 PL 头 + **recency 偏置冷启动**(初始 logits 随帧龄衰减,开局
+策略 ≈ recent-B2,落在 executor 分布内、继承 ~31% 的非零奖励地板)。
+不做 selector SFT 的理由:MobileWorld 无枚举标签(oracle 枚举成本
+不可承受);且 OSWorld 线的离线监督选帧阶梯已在部署口径全败于
+recency,"先监督再 RL"的前半段被证伪过。**Contingency(现阶段不做)**:
+若 RL 后 executor 仍用不动非连续历史(learned 持续低于 recent 对照且
+cross-play 的"终版 exec+初始 sel"格也不涨),用已有成功轨迹按
+random S 重渲染做一小段 executor SFT(只教格式不教选择),再 RL。
+
 **任务采样**:无任何按历史成功率的硬闸门(那会恰好删掉 selector 能创造
 第一次成功的任务);用**均匀采样地板(20-30%)+ 难度优先级**(按 selector
 臂经验不确定度/混合组率加权);采到全同组时限次重采或换任务。
