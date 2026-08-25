@@ -48,6 +48,9 @@ class H(BaseHTTPRequestHandler):
                 with _lock:
                     selector.load_state_dict(torch.load(req["path"], map_location=DEVICE))
                 out = {"ok": True}
+            elif not req.get("frames_b64"):
+                # 空帧防御(正常时 adapter 已短路不来;双保险)
+                out = {"indices": []}
             else:
                 frames = req["frames_b64"]  # 历史帧(不含当前帧)
                 cur = int(req["step"])
@@ -73,6 +76,8 @@ class H(BaseHTTPRequestHandler):
             body = json.dumps(out).encode()
             self.send_response(200)
         except Exception as e:  # noqa: BLE001
+            import traceback
+            traceback.print_exc()  # 500 必须可观测(事故 #4:哑 500 难定位)
             body = json.dumps({"error": str(e)}).encode()
             self.send_response(500)
         self.send_header("Content-Length", str(len(body)))

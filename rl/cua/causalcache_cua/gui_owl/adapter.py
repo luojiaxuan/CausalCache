@@ -101,6 +101,10 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
             past = rng.sample(range(total), budget) if total > 0 else []
             return sorted(past) + [total]
         if policy == "learned":
+            if total == 0 or budget == 0:
+                # 无候选或无预算:S=[total] 与 recent 后缀窗等价,免打服务
+                # (空帧曾令服务端 torch.stack 崩 500,smoke 事故 #4)。
+                return None
             if not self.selector_url:
                 raise RuntimeError("frame_policy=learned 但 selector_url 为空")
             payload = json.dumps({
