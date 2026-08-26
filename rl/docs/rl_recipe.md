@@ -38,7 +38,7 @@ optimization with arm-specific RLOO/control baselines*(不是标准 GRPO)。
 
 | 通道 | 估计量 | 信任域 | 其它 |
 |---|---|---|---|
-| selector(侧车进程) | **G=8 全 selector 臂 + RLOO**(留一均值) | **PL 联合 slate 概率**的比率裁剪(clip 0.2;不是两个边际之积) | 熵正则按**最大可行熵归一化**(候选数随步数涨,固定系数会强度漂移);AdamW lr:mini 用 1e-4 已实测过小(930 步漂移仅 3.2%、frame_age 纹丝不动),**全量起步 1e-3** |
+| selector(侧车进程) | **G=8 全 selector 臂 + RLOO**(留一均值) | **PL 联合 slate 概率**的比率裁剪(clip 0.2;不是两个边际之积) | 熵正则按**最大可行熵归一化**(候选数随步数涨,固定系数会强度漂移);AdamW lr:mini 用 1e-4 实测过小(930 步权重漂 3.2%、行为零位移)。**全量起步 3e-4 + 行为门控升档 1e-3**(外审改判,fullrun_launch_review_20260826):连续 10 个 selector 批满足"固定态探针位移≈0 + PL clip 占比<10% + 熵健康"三条才升;clip 占比已高时加 lr 是反向修复,先查 logit 温度/优势缩放 |
 | executor(slime/Megatron) | 组内基线(reward−组均值)/std | PPO 裁剪 0.2/0.28 + dual-clip 3.0 | 全参 bf16,lr 1e-6,KL 系数 0(信任域靠 clip) |
 
 **初始化(无我方 SFT 阶段,有意设计)**:executor 起点 =
@@ -79,8 +79,10 @@ credit 摊派是最大方差源,per-step 状态依赖 baseline(嫁接 PPO 有用
 selector-vs-recent 差距,不进梯度、不做因果声明(与动作无关的 baseline
 不改变梯度期望,只改方差——所以对照臂不值得花一半 rollout 预算)。
 
-**cross-play 归因矩阵(必做)**:{初始, 终版} selector × {初始, 终版}
-executor 四格评测。没有它,"记忆选择的增益"与"executor 学会了容忍非
+**cross-play 归因矩阵(必做,外审扩列)**:{E_0, E_t} × {S_0, S_t,
+recency} 六格评测,同 heldout 实例同环境种子;另在 2-3 个 checkpoint 做
+10 批 recency-训练 fork(matched-compute 对照的让步版,外审要求全程
+并行臂,因预算改 fork)。没有它,"记忆选择的增益"与"executor 学会了容忍非
 连续截图"不可分——而后者正是我们自己提出的 OOD 论证。
 
 ## 3. 训练环境与数据
@@ -118,7 +120,7 @@ executor 四格评测。没有它,"记忆选择的增益"与"executor 学会了�
 |---|---|---|---|
 | smoke | 4 题 × G8 × 3 步 | 30 步 cap(省钱口径,仅此阶段) | ✅ 四条验收全过 |
 | **mini-run** | train78 × G8 × 30 步 | **50 步**、batch 4 题/步、conc 32、3×H200(1 rollout + 2 train TP2+optimizer CPU offload) | ✅ 30/30 收官,终判见台账 §4.9 |
-| 全量 | train78 × G8 × 100+ 步 | hyper00 4×H200(2 train TP2 + 2 rollout);selector lr 1e-3 起步,难度先验 warm-start;per-step critic 消融 | 待发射(外审后) |
+| 全量 | train78 × G8 × 100+ 步 | hyper00 4×H200(2 train TP2 + 2 rollout);selector lr 3e-4 起步门控升档 1e-3,难度先验 warm-start;per-step critic 消融 | 待发射(外审后) |
 
 吞吐锚点(实测):32 rollout/批,rollout-bound(train_wait 占 ~70%),
 批墙钟 ~25-40 分钟;权重热换 1.7-2.0s;train-sglang logprob 失配
@@ -128,8 +130,23 @@ executor 四格评测。没有它,"记忆选择的增益"与"executor 学会了�
 
 **每批必看**:混合组率、nonzero_return_rate、selector 归一化熵、选帧
 年龄分布(CC_TRACE)、`train_rollout_logprob_abs_diff`(>0.1 报警)、
-selector `rel_drift`(上线门槛参考 ≥0.02/迭代量级——低一个数量级的
-lr 曾把 20 迭代跑成"重复测量随机初始化头")。
+selector `rel_drift`(参考量级;**单看权重漂移不作数**——mini 实证漂
+3.2% 而行为零位移)。
+
+**固定态探针库(外审采纳,行为位移的主判据)**:从 mini decisions 冻结
+~200 个状态特征为探针库,每个 checkpoint 计算:KL(S_t‖S_0)、top-2 选集
+Jaccard(vs S_0)、top-2 logit margin 分布、PL clip 占比、熵、recency
+对的概率质量(替代对确定性 recency 的 KL)。写入 selector_metrics。
+
+**判停(外审改判版,预登记)**:MDE=+3pp(绝对);批 60 是**诊断点非
+kill 点**;判停需**两次连续**固定口径配对评测满足以下之一:(1) selector
+固定态位移显著但 learned-vs-recency 的置信上界 < MDE 且无 executor
+交互增长;(2) 3e-4→1e-3 升档后 selector 仍无法位移(梯度非零一致、无
+病态 clip/熵塌缩);(3) selector 位移但与奖励无可复现关联。混合组率
+**不进判停条件**(它只证 Var(R|task)>0,不证 Cov(R,∇logπ_sel)≠0)。
+非连续历史能力探针(固定 random-S 批)每 checkpoint 跟踪:若"selector
+有位移但零奖励关联 + executor 非连续能力零增长",启用 §2 的 random-S
+重渲染 SFT contingency。
 
 **高 reward 轨迹人工抽检(纪律,不是可选项)**:RL 的反馈延迟且间接,
 指标只能推断不能证明模型学了什么——**每隔几个 checkpoint(建议每
@@ -147,9 +164,11 @@ lr 曾把 20 迭代跑成"重复测量随机初始化头")。
 **有意推迟(全量阶段做,mini 不做)**
 - [ ] per-step critic / 状态依赖 baseline:episode 级共享 credit 的方差
   缩减消融(终局奖励语义不变,合法);与 selector per-step credit 同批设计;
-- [x] selector lr 灵敏度:mini 已判(930 步漂移 3.2%、行为零位移),
-  全量起步 1e-3;仍需在全量首 20 批监控"行为位移"(frame_age 分布、
-  与 recency 的 KL),权重漂移单独不作数;
+- [x] selector lr 灵敏度:mini 已判(930 步漂移 3.2%、行为零位移);
+  外审改判为 3e-4 起步 + 行为门控升档 1e-3(§2 表、§6 判据);
+- [ ] 论文基线补齐(外审要求,不阻塞发射,池上并行跑):uniform-2 /
+  change-point-2 / adaptive-B(装满即薄化)/ best-of-N random-S 作
+  hindsight-B2 代理(oracle 枚举不可承受);random-2 已有(-5.2pp);
 - [ ] 难度优先采样 warm-start:全量加载 rl/results/mini_v5/task_stats.json
   作先验(58/78 模板、混合组率 41%、18 个零混合死信号任务靠 floor 探索);
 - [ ] 难度优先采样的**实跑验证**(代码已入库、单测绿,但未在真跑中生效
