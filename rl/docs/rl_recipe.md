@@ -38,7 +38,7 @@ optimization with arm-specific RLOO/control baselines*(不是标准 GRPO)。
 
 | 通道 | 估计量 | 信任域 | 其它 |
 |---|---|---|---|
-| selector(侧车进程) | **G=8 全 selector 臂 + RLOO**(留一均值) | **PL 联合 slate 概率**的比率裁剪(clip 0.2;不是两个边际之积) | 熵正则按**最大可行熵归一化**(候选数随步数涨,固定系数会强度漂移);AdamW lr 1e-4 |
+| selector(侧车进程) | **G=8 全 selector 臂 + RLOO**(留一均值) | **PL 联合 slate 概率**的比率裁剪(clip 0.2;不是两个边际之积) | 熵正则按**最大可行熵归一化**(候选数随步数涨,固定系数会强度漂移);AdamW lr:mini 用 1e-4 已实测过小(930 步漂移仅 3.2%、frame_age 纹丝不动),**全量起步 1e-3** |
 | executor(slime/Megatron) | 组内基线(reward−组均值)/std | PPO 裁剪 0.2/0.28 + dual-clip 3.0 | 全参 bf16,lr 1e-6,KL 系数 0(信任域靠 clip) |
 
 **初始化(无我方 SFT 阶段,有意设计)**:executor 起点 =
@@ -147,8 +147,11 @@ lr 曾把 20 迭代跑成"重复测量随机初始化头")。
 **有意推迟(全量阶段做,mini 不做)**
 - [ ] per-step critic / 状态依赖 baseline:episode 级共享 credit 的方差
   缩减消融(终局奖励语义不变,合法);与 selector per-step credit 同批设计;
-- [ ] selector lr 灵敏度扫(历史教训:lr 低一个数量级 = 20 迭代白训;
-  mini 判读 rel_drift 曲线后决定是否 1e-3 档重扫);
+- [x] selector lr 灵敏度:mini 已判(930 步漂移 3.2%、行为零位移),
+  全量起步 1e-3;仍需在全量首 20 批监控"行为位移"(frame_age 分布、
+  与 recency 的 KL),权重漂移单独不作数;
+- [ ] 难度优先采样 warm-start:全量加载 rl/results/mini_v5/task_stats.json
+  作先验(58/78 模板、混合组率 41%、18 个零混合死信号任务靠 floor 探索);
 - [ ] 难度优先采样的**实跑验证**(代码已入库、单测绿,但未在真跑中生效
   过;全量首批看 `CC_PRIORITY 选中` 日志与任务分布)。
 

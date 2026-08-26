@@ -272,6 +272,38 @@ MattermostIncidentEscalation)。限定:B10 仅单轮,2 vs 4-6 的计数差
 上限不是 60.9%(那只是可行子集),而是"短任务追 B11 + 长任务不劣于
 B2"的合成线。
 
+## 4.9 ★ mini-run v5 终判(2026-08-26)——管线全绿,学习判读如预期"测不出而非失败"
+
+**收官**:30/30 批(恢复前 12 + 恢复后 18),`Job succeeded` 06:19;
+全程含 2 次 OOM 事故(→900g + lazy-expand 后稳定,峰值 249G/900G)与
+多次 ASYNC 训练步窗口的 503 熔断(定性为固有形态,重试自动扛过,零损失)。
+证据小件(returns/task_stats/selector 曲线与权重)入库
+`rl/results/mini_v5/`。
+
+**四条判读**:
+
+1. **executor:30 批测不出效应(如预期)**。批均奖励三分段
+   19.3%→28.6%→37.4% 看似陡升,但逐任务配对(首尾段皆有样本的 15 任务)
+   4 升 5 降 6 平、平均 Δ=+0.3pp≈零——**上升全部来自难度优先采样器把
+   预算移向可学任务(设计行为),不是策略变强**。mini 的角色本就是
+   管线验证+统计收集,效应检测需要全量的批规模。
+2. **selector:权重在动、行为未动 → lr 结论坐实**。930 步 trainer,
+   相对初始漂移终值 3.2%,但 mean_frame_age 全程 2.45 不变、sel_loss
+   平在 0.0111。**全量 selector lr 1e-4→1e-3**(方向确定,幅度=TODO
+   的首个消融),并加"行为位移"监控(frame_age 分布、与 recency 的
+   KL)而非只看权重漂移。
+3. **难度优先采样先验落盘**:58/78 模板被采,总组 140、混合组率 41%;
+   采样正确偏向可学任务(SharePhotos 7 组、CheckDeduplicatedEvents
+   5 组=4 混合)。18 个任务 ≥2 组仍零混合(当前策略下死信号,靠 25%
+   uniform floor 维持探索)。`task_stats.json` 作为全量 warm-start 先验。
+4. **高分抽检合格**:末段 132 个成功 episode 集中在体面任务
+   (ScheduleCoffeeTimeViaSms/MastodonNewPost/ChangeHeader 等),
+   成功轨迹步数 11~49、中位 29~44,无 1~2 步通关的 hacking 签名。
+
+**收尾处置**:Ray 集群停止、GPU 0-2 释放;容器 sglang-omni-jaxan-1 与
+池 32 台 KEEP(全量同任务线,map 注明);Megatron dist 分片(66G×2)
+在验证 HF 格式导出在盘后删除,最新 hf 导出保留至全量发射。
+
 ## 5. 同日附加发现(读源/实测拾得)
 
 - 官方折叠把 obs i 的 tool 文本配给 action i 的结论(原版与补丁版同;
