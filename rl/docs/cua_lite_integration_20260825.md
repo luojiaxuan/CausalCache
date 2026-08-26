@@ -308,6 +308,38 @@ GPU 0 上随后出现的 110G 进程经 cgroup 核属为 chenye 容器(我方结
 释放 ~313G(盘 73%);正本=选择器/指标/returns 已入 Git(2d21bcf),
 iter_11 在 HF。容器与池 32 台 KEEP(map 已注明:待全量发射,取消则删)。
 
+## 4.10 ★ 全量发射事故账(2026-08-26 夜,六发才通)+ 在轨基线
+
+外审(fullrun_launch_review_20260826)后发射。六连发事故与修复,
+**共同根因:发射脚本基于 smoke 期 repo 版起笔,未对照宿主演化版
+mini_resume_v5.sh(其早已含四件必设)**:
+
+| # | 症状 | 根因 | 修复 |
+|---|---|---|---|
+| 1 | NVLS CUDA 401,NCCL 组网即死 | 漏 `HAS_NVLINK=0` | 补 env(smoke #3 原样复发) |
+| 2 | 30 分钟零完成,stall 看门狗全批取消 | ENV_CONCURRENCY 48 击穿单引擎(排队使单步 46s) | 降 32 + `ROLLOUT_STALL_TIMEOUT_S=3600` |
+| 3 | 批 1 train 步 GPU OOM(词表 logit 5.58G 挤不进) | 漏 `TP_SIZE=2` + `OPTIM_CPU_OFFLOAD=1`,Adam fp32 驻 GPU | 补 env,对齐 mini 全套 |
+| 4 | 新发射被拒:dirty session | 前发死亡时 24 实例挂 in-flight | env server 换新+清容器 |
+| 5 | 再拒:cleanup 后仍有 live 实例 | **pid 文件指向重启失败的新实例,原始 env server 一直霸占端口**带僵尸注册表 | 按真身 PID 处决,验证 `{"instances":[]}` 再发 |
+| 6 | selector trainer 消费 188 条后报表异常 | **跨发射 group_index 碰撞**:第三发 60 条残留与批 1 的 64 条同组混算 RLOO 基线;同时发现 trainer 默认 service-url(127.0.0.1)与 service 绑定(172.17.0.1)不匹配,**reload 一直静默失败** | 归档污染数据面+重置 selector=S₀+trainer 显式 `--service-url`;脚本加"重发前轮转 returns/decisions"纪律 |
+
+事故 6 的两个幸运与一个复核:reload 失败反而隔离了污染(错误权重
+从未达服务端,批 1-2 rollout 实际全程 S₀,干净);探针库指标在污染轮
+实证全链路可产出(probe_kl_s0=0.052、jaccard=1.0、recency_mass=0.574、
+clip_frac=0.368);**mini 审计:35 轮 reload:true 全成功,不受此 bug
+影响,§4.9 的 lr 结论维持原判**。
+
+**拓扑演化(当日用户两次授权)**:3 卡(train 1/2 + 引擎在混卡 GPU5)
+→ 用户授权 GPU3 混用 → 四卡双引擎(train TP2=GPU1/2,引擎=GPU5/3,
+MEM_FRACTION 0.55)→ 用户点名授权 kill GPU3 的 45.8G 泄漏 worker
+(chenye 容器内 PID 690418,2 天龄、5 秒连续 0% util;仅杀该进程,
+其 GPU0 活任务未动)→ GPU3 全净。
+
+**在轨基线(前两批)**:批墙钟 35/39 分钟(单引擎版 56)、64/64 全收、
+混合组率 62%/38%、rate 0.31/0.16、批 1 权重热换 1.9s、容器内存 348G
+稳态(offload 生效)。预计 100 批 ≈ 2.6 天。selector 数据面自批 3 起
+干净(损失前 2 批 selector 样本,executor 零影响)。
+
 ## 5. 同日附加发现(读源/实测拾得)
 
 - 官方折叠把 obs i 的 tool 文本配给 action i 的结论(原版与补丁版同;
