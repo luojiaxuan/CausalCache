@@ -76,6 +76,7 @@ CC_SEL_TRAIN_DEVICE=cpu nohup env PYTHONPATH="$REC" python3 -m \
   --returns-file "$REC/run_full/returns/episode_returns.jsonl" \
   --ckpt-dir "$RUN/ckpt" --interval 120 --lr 3e-4 \
   --probe-bank "$RUN/probe_bank.jsonl" \
+  --service-url http://172.17.0.1:41010 \
   > "$RUN/selector_trainer.log" 2>&1 & echo $! > "$RUN/selector_trainer.pid"
 
 # ── [4] slime 容器 ──
@@ -104,6 +105,8 @@ docker exec "$CTN" bash /workspaces/cua-lite/scripts/train/slime/init.sh \
 echo "$CTN gpus=$G_ROLLOUT,$G_TRAIN host=$(hostname) created=$(date -u +%FT%TZ) desc=sglang-omni-rl trainer 全量(100批,约4-5天);GPU$G_ROLLOUT/$G_TRAIN 中含用户授权混卡的占位卡;收尾:全量终判后删" >> "$HOME/jiaxuanluo-map.txt"
 
 # ── [5] 发射(nohup 后台;监控走宿主 tail)──
+# 防跨发射污染:group_index 每次发射从 0 重计,残留 returns 会与新批同组
+# 混算 RLOO 基线(2026-08-26 实锤事故);重发前必须轮转 returns 与 decisions。
 mkdir -p "$REC/run_full/returns"
 cp "$RUN/train.parquet" "$REC/run_full/"
 nohup docker exec \
