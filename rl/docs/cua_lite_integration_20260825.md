@@ -300,9 +300,13 @@ B2"的合成线。
    (ScheduleCoffeeTimeViaSms/MastodonNewPost/ChangeHeader 等),
    成功轨迹步数 11~49、中位 29~44,无 1~2 步通关的 hacking 签名。
 
-**收尾处置**:Ray 集群停止、GPU 0-2 释放;容器 sglang-omni-jaxan-1 与
-池 32 台 KEEP(全量同任务线,map 注明);Megatron dist 分片(66G×2)
-在验证 HF 格式导出在盘后删除,最新 hf 导出保留至全量发射。
+**收尾处置(已执行)**:侧车按 PID 文件停止、Ray 停止,GPU 1/2 清零;
+GPU 0 上随后出现的 110G 进程经 cgroup 核属为 chenye 容器(我方结束后
+上卡的正常共享使用,未动)——教训重申:kill 前先核归属,容器内盲杀
+循环因 PID 命名空间隔离才碰巧无害。checkpoint 清理:删 Megatron dist
+分片(66G+98G)与中间 hf 导出,仅留终版 `hf_p2/iter_17`(17G),
+释放 ~313G(盘 73%);正本=选择器/指标/returns 已入 Git(2d21bcf),
+iter_11 在 HF。容器与池 32 台 KEEP(map 已注明:待全量发射,取消则删)。
 
 ## 5. 同日附加发现(读源/实测拾得)
 

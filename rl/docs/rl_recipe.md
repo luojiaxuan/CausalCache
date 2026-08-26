@@ -117,8 +117,8 @@ executor 四格评测。没有它,"记忆选择的增益"与"executor 学会了�
 | 阶段 | 规模 | 参数 | 状态 |
 |---|---|---|---|
 | smoke | 4 题 × G8 × 3 步 | 30 步 cap(省钱口径,仅此阶段) | ✅ 四条验收全过 |
-| **mini-run** | train78 × G8 × 30 步 | **50 步**、batch 4 题/步、conc 32、3×H200(1 rollout + 2 train TP2+optimizer CPU offload) | 🔴 在跑 |
-| 全量 | train78 × G8 × 100+ 步 | 32×H20,全参 FSDP/Megatron;selector lr 与 per-step critic 消融 | 交接同事 |
+| **mini-run** | train78 × G8 × 30 步 | **50 步**、batch 4 题/步、conc 32、3×H200(1 rollout + 2 train TP2+optimizer CPU offload) | ✅ 30/30 收官,终判见台账 §4.9 |
+| 全量 | train78 × G8 × 100+ 步 | hyper00 4×H200(2 train TP2 + 2 rollout);selector lr 1e-3 起步,难度先验 warm-start;per-step critic 消融 | 待发射(外审后) |
 
 吞吐锚点(实测):32 rollout/批,rollout-bound(train_wait 占 ~70%),
 批墙钟 ~25-40 分钟;权重热换 1.7-2.0s;train-sglang logprob 失配
