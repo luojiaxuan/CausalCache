@@ -7,8 +7,9 @@
 #   - 容器内存 1200g(mini 900g 峰值 249G,但 train 峰随混合组数扩;批翻倍留余量)
 #     + CUA_LITE_MULTIMODAL_LAZY_EXPAND=1(事故 #11);
 #   - ROLLOUT_BATCH_SIZE=8 × G8 = 64 rollout/批,NUM_ROLLOUT=100,SAVE_INTERVAL=3;
-#   - ENV_CONCURRENCY=48(决策:CUA-Lite 自管 env 容器,非 p 池;首批盯
-#     host CPU/RAM,病态则降 32 重启);
+#   - ENV_CONCURRENCY=32(48 实测击穿:单 rollout 引擎排队使单步 46s,
+#     50 步 episode 40+ 分钟,首批 30 分钟零完成触发 stall 看门狗全批取消;
+#     32 是该拓扑的 mini 实测上限)+ ROLLOUT_STALL_TIMEOUT_S=3600;
 #   - GPU 现实:真空卡 1,2 + 用户授权混卡的 GPU5 占位(util 0)= 3 卡,
 #     mini 同构拓扑(rollout 1 + train 2);任一整卡释放→从 ckpt 重启升 4 卡。
 #     若 GPU5 持有者回归致进程死亡:从最新 HF ckpt 重启(mini 已验证恢复链)。
@@ -113,7 +114,8 @@ nohup docker exec \
   -e ENV_ID=mobileworld \
   -e PROMPT_DATA="/workspaces/cc_recipe/run_full/train.parquet" \
   -e ROLLOUT_BATCH_SIZE=8 -e N_SAMPLES_PER_PROMPT=8 -e NUM_STEPS_PER_ROLLOUT=1 \
-  -e NUM_ROLLOUT="$STEPS" -e ENV_CONCURRENCY=48 \
+  -e NUM_ROLLOUT="$STEPS" -e ENV_CONCURRENCY=32 \
+  -e ROLLOUT_STALL_TIMEOUT_S=3600 \
   -e SAVE_INTERVAL=3 \
   -e CC_TASK_PRIORITY=1 \
   -e CUA_LITE_MULTIMODAL_LAZY_EXPAND=1 \
