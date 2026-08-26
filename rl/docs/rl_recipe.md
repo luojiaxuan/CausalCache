@@ -16,7 +16,13 @@
 
 因此"冻结 executor 下 selector 不敌 recent"不能证伪记忆选择;联合 RL
 是同时消掉两层下界的唯一办法:**selector 学"选哪几帧",executor 学
-"如何用非连续历史"**。方法如实命名为 *joint executor–memory policy
+"如何用非连续历史"**。
+
+另一头,"不选、全塞"也被实测封死(集成台账 §4.7/4.8):可行 69 题上
+recent-B11 比 B2 高 +16-19pp(选帧的靶子),但 41% 任务 32k 装不下
+B11;对这些长任务逐级退到最大可行 B=10 的 max-fit 臂只有 4.3%,反而
+**劣于 B2 的 ~9.9%(三轮方向一致)**——塞满上下文在长任务上是负收益。
+**小 B + 学会选,是唯一能同时吃两头的设计。**方法如实命名为 *joint executor–memory policy
 optimization with arm-specific RLOO/control baselines*(不是标准 GRPO)。
 
 ## 2. 方法
