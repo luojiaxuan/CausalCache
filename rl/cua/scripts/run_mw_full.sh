@@ -108,6 +108,7 @@ mkdir -p "$REC/run_full/returns"
 cp "$RUN/train.parquet" "$REC/run_full/"
 nohup docker exec \
   -e ASYNC=1 -e NUM_TRAIN_GPUS=2 -e NUM_ROLLOUT_GPUS=1 \
+  -e TP_SIZE=2 -e OPTIM_CPU_OFFLOAD=1 \
   -e HAS_NVLINK=0 \
   -e MODEL_ID=Qwen/Qwen3-VL-8B-Instruct \
   -e HF_CKPT=/data/models/GUI-Owl-1.5-8B-Instruct \
