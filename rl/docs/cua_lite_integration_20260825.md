@@ -340,6 +340,34 @@ MEM_FRACTION 0.55)→ 用户点名授权 kill GPU3 的 45.8G 泄漏 worker
 稳态(offload 生效)。预计 100 批 ≈ 2.6 天。selector 数据面自批 3 起
 干净(损失前 2 批 selector 样本,executor 零影响)。
 
+## 4.11 全量在轨监控发现(2026-08-27,前 21 批)
+
+**QA 记忆化通道(高分抽检纪律的直接产出)**:CheckDeduplicatedEvents
+成功率 3/8→12/21(57%)且全为 1 次选帧调用的 ~3 步速解。读源实锤:
+该任务 goal 是"数日历事件数",评测器做 `correct_answer in str(answer)`
+**文本子串匹配**;训练集是冻结实例 → 正确数字恒定 → **RL 可直接记忆
+答案数字刷分,不需要真看日历**。枚举:train78 中 **12 个任务(15%)**
+走 interaction_cache 文本匹配评测(CheckCartPrice / CheckConference
+Duration / CheckDeduplicatedEvents / CheckInvoice1 / ChromeSearch
+BeijingWeather / CountFileLines / GoogleMapsAlibabaSouthNeighbor /
+ReadQwen3Paper2/3/4 / RecentTotalExpense / SendForms)。**汇报纪律
+(即日生效)**:训练奖励与评测一律分两列报——态验证 66 题 vs 答案
+验证 12 题;heldout-39 是唯一真话;12 题名单的逐任务奖励曲线跟踪
+记忆化签名(快速爬向全对+超短解)。不改任务集(冻结契约),
+这是测量口径修正,不是管线修理。
+
+**selector 小批聚合改造(预登记判据命中)**:clip_frac 三连
+0.68/0.71/0.75(>0.5 线),probe_recency_mass 折返(0.385→0.548)
+呈振荡不收敛——逐条 opt.step 的轮内千步漂移把大半比率推出裁剪域,
+正优势更新失效。已改:决策全收集+洗牌+64 条 minibatch 均值步进
+(轮内漂移 ~64 倍降),trainer 热替换部署,主跑零中断。判读:后续
+clip_frac 应显著回落;recency_mass 曲线转向单调即为收敛信号。
+
+**其余在轨读数**:前 21 批节奏 ~36 分/批,混合组率带 25-75%(均值
+~50%,优先采样维持信号密度),InstanceGone 稳态 ~9%/批(conc64 批
+边界税),内存 307-348G 稳态,checkpoint 链 hf_p2 iter 2..17 完整,
+第 5 保存点高分抽检无 JUMP/FAST6 签名(QA 通道单列如上)。
+
 ## 5. 同日附加发现(读源/实测拾得)
 
 - 官方折叠把 obs i 的 tool 文本配给 action i 的结论(原版与补丁版同;
