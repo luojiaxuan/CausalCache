@@ -128,10 +128,10 @@ def train_round(args, device):
         torch.save(sel.state_dict(), init_ck)
     opt = torch.optim.AdamW(sel.parameters(), lr=args.lr, weight_decay=0.01)
 
-    losses, ages, n_used = [], [], 0
-    n_clipped = 0
-    gn = None
-    trained_eps = set()
+    # note (luojiaxuan): 逐条 opt.step 在千步量级的轮内造成策略大幅漂移,
+    # 全量实测 clip_frac 0.68-0.75(判据命中,2026-08-27):先收集全部
+    # 决策再洗牌、按 64 条小批聚合均值损失步进,轮内漂移降 ~64 倍。
+    pending = []
     for f in glob.glob(os.path.join(args.decisions_dir, "*.jsonl")):
         for line in open(f):
             try:
@@ -142,6 +142,29 @@ def train_round(args, device):
             a = adv.get(ep, 0.0)
             if a == 0.0 or rec.get("n_frames", 0) == 0:
                 continue
+            pending.append((rec, a, ep))
+    import random
+    random.Random(len(pending)).shuffle(pending)
+
+    losses, ages, n_used = [], [], 0
+    n_clipped = 0
+    gn = None
+    trained_eps = set()
+    MB = 64
+    batch_losses = []
+
+    def _step():
+        nonlocal gn, batch_losses
+        if not batch_losses:
+            return
+        opt.zero_grad()
+        torch.stack(batch_losses).mean().backward()
+        gn = torch.nn.utils.clip_grad_norm_(sel.parameters(), 1.0)
+        opt.step()
+        batch_losses = []
+
+    if True:
+        for rec, a, ep in pending:
             feats = torch.tensor(rec["feats"], device=device)
             pos = torch.arange(rec["n_frames"], device=device)
             new_lp = sel.slate_logprob(feats, pos, rec["step"], rec["chosen"])
@@ -156,14 +179,14 @@ def train_round(args, device):
                 1.0, torch.log(torch.tensor(float(rec["n_frames"])))
             )
             loss = -surr - ENT_COEF * ent
-            opt.zero_grad()
-            loss.backward()
-            gn = torch.nn.utils.clip_grad_norm_(sel.parameters(), 1.0)
-            opt.step()
+            batch_losses.append(loss)
+            if len(batch_losses) >= MB:
+                _step()
             losses.append(float(loss))
             ages.append(rec["step"] - (sum(rec["chosen"]) / max(1, len(rec["chosen"]))))
             n_used += 1
             trained_eps.add(ep)
+    _step()
 
     torch.save(sel.state_dict(), ck)
     consumed |= set(adv.keys())
