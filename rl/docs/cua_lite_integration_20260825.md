@@ -388,6 +388,44 @@ learned 10 高 / recent 5 高 / 5 平,learned 强项在 recent 全灭题
 {S_0,S_t,recency},外审协议)。脚本 ctrl_recent_b30.sh 可复用为周期
 对照(每 ~30 批一点)。
 
+## 4.13 ★ 批 60 诊断交叉评测(2026-08-28)——分诊结论:selector 在学、
+但离 recency 还差一截;executor 适应度是当前瓶颈
+
+**协议**:三格同 20 题(seed 20260827,与 §4.12 批 30 点同集)、τ=0、
+官方判分、池 32 台、复用在跑训练引擎(零额外 GPU)。格 C 期间 selector
+service 临时载入 `selector_init.pt`,跑完自动还原 latest(实测 reload
+两次均 `{"ok":true}`);该窗口内主跑 rollout 的选帧同样退回 S₀,**约
+2 批的 selector 数据面带此混杂,如实记录**。
+
+| 格 | 配置 | 全域 20 题 | 态验证 15 题(剔 QA) |
+|---|---|---|---|
+| A | E_t × S_t(learned) | 40.0% | 33.3% |
+| B | E_t × recency | **45.0%** | **46.7%** |
+| C | E_t × S₀(初始 selector) | 30.0% | 26.7% |
+
+逐题:A>B 2 题 / B>A 3 题 / 同 15;A>C 3 / C>A 1 / 同 16。
+
+**三条判读**:
+
+1. **selector 确实学到了东西(A−C = +10pp,方向 3:1)**——同一 executor
+   下,训练 60 批后的 selector 明显优于初始 selector。这是本线首个
+   "selector 学习"的直接证据(不是权重漂移,是终局成功率)。
+2. **但仍不敌 recency(A−B = −5pp,态验证域 −13.4pp)**——学到的量还
+   不足以翻越 recency 基线。**未达 MDE(+3pp),且方向为负**。
+3. **executor 适应度是瓶颈,不是 selector 优化**:B 格(recency)在
+   60 批 learned 训练后仍是三格最优 45%,说明 executor 的能力提升
+   主要落在 recency 分布上;非连续帧输入依旧吃亏。这正是外审预言的
+   bootstrap 死结的实证形态(selector 探索→executor 用不动→回报低)。
+
+**样本量诚实声明**:20 题、单次、0/1,逐格差 1-3 题即翻转;A−B 的
+−5pp 落在噪声带内(不显著),**只能作方向性诊断,不能作判决**。
+批 100 收官时用 heldout-39 + 多次重复做正式判决。
+
+**分诊结论(按预注册决策树)**:命中"executor 用不动非连续历史"分支
+→ 首选后手 = **random-S 重渲染格式 SFT**(用已有成功轨迹按随机选帧
+重渲染,只教格式不教选择),而非扩 G 或放宽信任域。已有素材:P1+P2
+累计成功 episode 数百条,重渲染管线复用 gui_owl protocol。
+
 ## 5. 同日附加发现(读源/实测拾得)
 
 - 官方折叠把 obs i 的 tool 文本配给 action i 的结论(原版与补丁版同;
