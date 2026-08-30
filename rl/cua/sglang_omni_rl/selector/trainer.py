@@ -128,9 +128,8 @@ def train_round(args, device):
         torch.save(sel.state_dict(), init_ck)
     opt = torch.optim.AdamW(sel.parameters(), lr=args.lr, weight_decay=0.01)
 
-    # note (luojiaxuan): 逐条 opt.step 在千步量级的轮内造成策略大幅漂移,
-    # 全量实测 clip_frac 0.68-0.75(判据命中,2026-08-27):先收集全部
-    # 决策再洗牌、按 64 条小批聚合均值损失步进,轮内漂移降 ~64 倍。
+    # note (luojiaxuan): 先收集全部决策再洗牌,配合下方自适应 minibatch
+    # 把轮内优化步数钉死,避免边收边步进造成的轮内策略漂移。
     pending = []
     for f in glob.glob(os.path.join(args.decisions_dir, "*.jsonl")):
         for line in open(f):
@@ -150,7 +149,13 @@ def train_round(args, device):
     n_clipped = 0
     gn = None
     trained_eps = set()
-    MB = 64
+    # note (luojiaxuan): minibatch 自适应,把每轮优化步数钉在 TARGET_STEPS。
+    # 固定 MB=64 时一轮 ~1700 条决策要走 ~27 步,轮内策略漂移把 clip_frac
+    # 推到 0.55(逐步追踪实测:1 步 11.5% → 5 步 18.2%,外推 27 步即 50%+);
+    # 而 step0 越界率为 0,证明记账无误、漂移全部来自轮内累积更新。
+    # 大 batch + 少步数:数据用满,漂移可控。
+    TARGET_STEPS = 8
+    MB = max(64, -(-len(pending) // TARGET_STEPS))
     batch_losses = []
 
     def _step():
@@ -163,29 +168,28 @@ def train_round(args, device):
         opt.step()
         batch_losses = []
 
-    if True:
-        for rec, a, ep in pending:
-            feats = torch.tensor(rec["feats"], device=device)
-            pos = torch.arange(rec["n_frames"], device=device)
-            new_lp = sel.slate_logprob(feats, pos, rec["step"], rec["chosen"])
-            ratio = torch.exp(new_lp - torch.tensor(rec["logp"], device=device))
-            if abs(float(ratio) - 1.0) > CLIP:
-                n_clipped += 1
-            surr = torch.min(ratio * a, ratio.clamp(1 - CLIP, 1 + CLIP) * a)
-            # note (luojiaxuan): 首选分布熵/logT 作可微归一化熵近似
-            lg = sel.logits(feats, pos, rec["step"])
-            p = torch.softmax(lg, 0)
-            ent = -(p * torch.log(p + 1e-9)).sum() / max(
-                1.0, torch.log(torch.tensor(float(rec["n_frames"])))
-            )
-            loss = -surr - ENT_COEF * ent
-            batch_losses.append(loss)
-            if len(batch_losses) >= MB:
-                _step()
-            losses.append(float(loss))
-            ages.append(rec["step"] - (sum(rec["chosen"]) / max(1, len(rec["chosen"]))))
-            n_used += 1
-            trained_eps.add(ep)
+    for rec, a, ep in pending:
+        feats = torch.tensor(rec["feats"], device=device)
+        pos = torch.arange(rec["n_frames"], device=device)
+        new_lp = sel.slate_logprob(feats, pos, rec["step"], rec["chosen"])
+        ratio = torch.exp(new_lp - torch.tensor(rec["logp"], device=device))
+        if abs(float(ratio) - 1.0) > CLIP:
+            n_clipped += 1
+        surr = torch.min(ratio * a, ratio.clamp(1 - CLIP, 1 + CLIP) * a)
+        # note (luojiaxuan): 首选分布熵/logT 作可微归一化熵近似
+        lg = sel.logits(feats, pos, rec["step"])
+        p = torch.softmax(lg, 0)
+        ent = -(p * torch.log(p + 1e-9)).sum() / max(
+            1.0, torch.log(torch.tensor(float(rec["n_frames"])))
+        )
+        loss = -surr - ENT_COEF * ent
+        batch_losses.append(loss)
+        if len(batch_losses) >= MB:
+            _step()
+        losses.append(float(loss))
+        ages.append(rec["step"] - (sum(rec["chosen"]) / max(1, len(rec["chosen"]))))
+        n_used += 1
+        trained_eps.add(ep)
     _step()
 
     torch.save(sel.state_dict(), ck)
