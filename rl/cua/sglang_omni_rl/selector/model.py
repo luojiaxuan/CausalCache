@@ -57,7 +57,12 @@ class FrameSelector(nn.Module):
             idx.append(int(i))
         # note (luojiaxuan): 归一化熵 = 实际熵 / log(可行序列数上界)
         max_ent = sum(math.log(max(T - k, 1)) for k in range(b)) or 1.0
-        return sorted(idx), logp, ent / max_ent
+        # note (luojiaxuan): 必须返回**采样顺序**而非排序后的索引 —— PL 是
+        # 有序过程,logp 按抽取顺序累加;若返回 sorted 而训练期按该顺序重算,
+        # 同一权重下 ratio 也不等于 1(实测 68% 的决策失配、57% 直接落在
+        # 裁剪域外)。渲染侧无需有序:protocol._select_messages 自己会
+        # sorted(set(S))。
+        return idx, logp, ent / max_ent
 
     def slate_logprob(self, feats, positions, cur_step: int, chosen: list):
         """按采样顺序重算联合 logprob(训练期用;信任域对 PL 联合概率而非边际积)。
