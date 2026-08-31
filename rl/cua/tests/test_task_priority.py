@@ -16,8 +16,10 @@ def test_update_stats_counts_mixed():
         "mobileworld@A": [[1.0, 0.0], [0.0, 0.0]],   # 1 混合 + 1 全败
         "mobileworld@B": [[1.0, 1.0]],               # 全成,非混合
     })
-    assert stats["mobileworld@A"] == {"groups": 2, "mixed": 1}
-    assert stats["mobileworld@B"] == {"groups": 1, "mixed": 0}
+    assert stats["mobileworld@A"]["groups"] == 2
+    assert stats["mobileworld@A"]["mixed"] == 1
+    assert stats["mobileworld@B"]["groups"] == 1
+    assert stats["mobileworld@B"]["mixed"] == 0
 
 
 def test_priority_orders_by_mixed_rate_and_explores_unseen():
@@ -60,3 +62,37 @@ if __name__ == "__main__":
         if name.startswith("test_"):
             fn()
             print(f"{name} OK")
+
+
+def test_p_mixed_peaks_at_half():
+    """P(mixed) 应在 p=0.5 取最大,并对称地把 p→0 与 p→1 降权。"""
+    from sglang_omni_rl.task_priority import p_mixed
+    assert p_mixed(0.5) > p_mixed(0.25) > p_mixed(0.05) > p_mixed(0.01)
+    assert abs(p_mixed(0.1) - p_mixed(0.9)) < 1e-9
+    assert p_mixed(0.01) < 0.1 and p_mixed(0.5) > 0.98
+
+
+def test_priority_prefers_mixed_over_saturated():
+    """半数成功的任务优先分应高于恒成功与恒失败的任务。"""
+    from sglang_omni_rl.task_priority import priority
+    stats = {
+        "half": {"groups": 5, "mixed": 4, "attempts": 40, "successes": 20},
+        "always": {"groups": 5, "mixed": 0, "attempts": 40, "successes": 40},
+        "never": {"groups": 5, "mixed": 0, "attempts": 40, "successes": 0},
+    }
+    assert priority(stats, "half") > priority(stats, "always")
+    assert priority(stats, "half") > priority(stats, "never")
+
+
+def test_layers_split_zero_success_by_attempts():
+    from sglang_omni_rl.task_priority import _layer, AUDIT_ATTEMPTS
+    assert _layer({"attempts": 8, "successes": 0}) == "frontier"
+    assert _layer({"attempts": AUDIT_ATTEMPTS + 1, "successes": 0}) == "audit"
+    assert _layer({"attempts": 40, "successes": 3}) == "main"
+
+
+def test_update_stats_tracks_episode_level():
+    from sglang_omni_rl.task_priority import update_stats
+    st = update_stats({}, {"t": [[1.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]]})
+    assert st["t"]["groups"] == 2 and st["t"]["mixed"] == 1
+    assert st["t"]["attempts"] == 8 and st["t"]["successes"] == 1
