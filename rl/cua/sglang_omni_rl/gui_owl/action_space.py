@@ -23,6 +23,11 @@ from lite.agents.models.mai_ui.action_space import (
     _required_from_mai,
     _scale_to_mai,
 )
+# note (luojiaxuan): 未知动作按类型累计。它们走 unknown 反馈继续 episode,
+# 不会崩,因此没有计数就完全隐形——CheckInvoiceTask3 的 37 次全败正是这样
+# 被埋了一个月(模型固定生成 double_tap,官方评测侧则直接抛 ValueError)。
+_UNKNOWN_ACTION_COUNTS: dict[str, int] = {}
+
 from lite.core.tools.action_space import (
     LITE_MOBILE_ACTION_BATCH_TOOL_NAME,
     merge_adjacent_lite_action_batches,
@@ -221,7 +226,10 @@ class GuiOwlMobileActionSpace(BaseActionSpace, key="gui_owl@mobile"):
                 coordinate=_required_from_mai(args.get("coordinate")),
                 duration=float(t) if t is not None else None,
             )]
-        if action == "swipe":
+        # note (luojiaxuan): scroll/pull 是模型先验带入的同义词,wire 参数
+        # 签名与 swipe 完全一致(coordinate + coordinate2);不接受它们只会
+        # 让这些步变成 unknown 空转(实测训练中 pull 25 次、scroll 4 次)。
+        if action in ("swipe", "scroll", "pull"):
             return [LiteMobileActionSpace.swipe(
                 start_coordinate=_required_from_mai(args.get("coordinate")),
                 coordinate=_required_from_mai(
@@ -232,8 +240,12 @@ class GuiOwlMobileActionSpace(BaseActionSpace, key="gui_owl@mobile"):
         if action == "system_button":
             return [LiteMobileActionSpace.system_button(
                 button=args.get("button", ""))]
-        if action == "open":
-            return [make_tool_call("open_app", {"app_name": args.get("text", "")})]
+        # note (luojiaxuan): 反向渲染把 open_app 写成 open,但模型会用自己的
+        # 原生名 open_app 回来(实测 22 次);两侧都接受,消除方言不对称。
+        if action in ("open", "open_app"):
+            return [make_tool_call(
+                "open_app",
+                {"app_name": args.get("text") or args.get("app_name", "")})]
         if action == "wait":
             t = args.get("time")
             return [LiteMobileActionSpace.wait(
@@ -253,6 +265,8 @@ class GuiOwlMobileActionSpace(BaseActionSpace, key="gui_owl@mobile"):
             return [unknown_wrapper_action_batch(
                 LITE_MOBILE_ACTION_BATCH_TOOL_NAME, args)]
 
-        logger.warning("Unknown GUI-Owl action: %s(%s)", action, args)
+        _UNKNOWN_ACTION_COUNTS[action] = _UNKNOWN_ACTION_COUNTS.get(action, 0) + 1
+        logger.warning("Unknown GUI-Owl action: %s(%s) [累计 %d 次]",
+                       action, args, _UNKNOWN_ACTION_COUNTS[action])
         return [unknown_wrapper_action_batch(
             LITE_MOBILE_ACTION_BATCH_TOOL_NAME, args)]
