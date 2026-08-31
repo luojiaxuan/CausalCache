@@ -27,9 +27,24 @@ optimization with arm-specific RLOO/control baselines*(不是标准 GRPO)。
 
 ## 2. 方法
 
-**决策结构**:每步 selector(41M 级 Plackett-Luce 打分头,输入各历史帧
-特征+步位置)无放回采样 B=2 帧进 executor 的视觉上下文(B = history_n−1,
-官方 CC_HISTORY_N=3 口径);executor(GUI-Owl-1.5-8B 全参)产生动作。
+**决策结构**:每步 selector 无放回采样 B=2 帧进 executor 的视觉上下文
+(B = history_n−1,官方 CC_HISTORY_N=3 口径);executor(GUI-Owl-1.5-8B
+全参)产生动作。
+
+> ⚠ **现行 selector 实现有两个已证实的结构性缺陷(2026-08-31),接手者
+> 务必先读 `summary_retrieval_design_20260831.md` 再动手**:
+> 1. **表示残废**:输入是截图转灰度、缩到 **64×64**(压缩比 1898:1,
+>    40-50px 高的文字只剩约 1 像素),再过一个**随机初始化、从不训练的**
+>    2 层 MLP。可训练参数实为 **0.1M**(编码器 1.1M 冻结),**并非此前
+>    文档所写的 41M**。这是 smoke 阶段的临时件,规模阶段从未替换。
+> 2. **打分结构不成立**:逐帧独立打分再按序联乘,数学上假设两帧价值
+>    可加;而帧效用探针实测**交互效应占 oracle 收益的 61-79%**,即多数
+>    收益来自组合而非各帧之和。**换更好的视觉特征也救不了这个结构**,
+>    选择器必须改为组合感知(见设计文档 §5 的三种可选结构)。
+>
+> 探针同时给出该路线的**非零天花板**:oracle 双帧比 recency 高
+> **+0.142 nats**(95%CI [+0.111,+0.173]),**85% 的状态存在更优组合** ——
+> 信息确实在历史帧中,只是当前 selector 提不出来。
 奖励 = 终局 0/1(官方 `/task/eval`,与 `scan_finished_tasks` 同源),
 **无任何 shaping**;episode 内全部选帧决策与动作 token 共享终局 credit
 (per-step critic 留作全量阶段的方差缩减消融)。
@@ -38,7 +53,7 @@ optimization with arm-specific RLOO/control baselines*(不是标准 GRPO)。
 
 | 通道 | 估计量 | 信任域 | 其它 |
 |---|---|---|---|
-| selector(侧车进程) | **G=8 全 selector 臂 + RLOO**(留一均值) | **PL 联合 slate 概率**的比率裁剪(clip 0.2;不是两个边际之积) | 熵正则按**最大可行熵归一化**(候选数随步数涨,固定系数会强度漂移);AdamW lr:mini 用 1e-4 实测过小(930 步权重漂 3.2%、行为零位移)。**全量起步 3e-4 + 行为门控升档 1e-3**(外审改判,fullrun_launch_review_20260826):连续 10 个 selector 批满足"固定态探针位移≈0 + PL clip 占比<10% + 熵健康"三条才升;clip 占比已高时加 lr 是反向修复,先查 logit 温度/优势缩放 |
+| selector(侧车进程) | **G=8 全 selector 臂 + RLOO**(留一均值) | **PL 联合 slate 概率**的比率裁剪(clip 0.2;不是两个边际之积)。⚠ 注意:比率口径正确,但**打分函数本身是逐帧独立的**,见上方缺陷 2 | 熵正则按**最大可行熵归一化**(候选数随步数涨,固定系数会强度漂移);AdamW lr:mini 用 1e-4 实测过小(930 步权重漂 3.2%、行为零位移)。**全量起步 3e-4 + 行为门控升档 1e-3**(外审改判,fullrun_launch_review_20260826):连续 10 个 selector 批满足"固定态探针位移≈0 + PL clip 占比<10% + 熵健康"三条才升;clip 占比已高时加 lr 是反向修复,先查 logit 温度/优势缩放 |
 | executor(slime/Megatron) | 组内基线(reward−组均值)/std | PPO 裁剪 0.2/0.28 + dual-clip 3.0 | 全参 bf16,lr 1e-6,KL 系数 0(信任域靠 clip) |
 
 **初始化(无我方 SFT 阶段,有意设计)**:executor 起点 =
