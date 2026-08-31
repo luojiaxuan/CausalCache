@@ -131,6 +131,8 @@ def train_round(args, device):
     # note (luojiaxuan): 先收集全部决策再洗牌,配合下方自适应 minibatch
     # 把轮内优化步数钉死,避免边收边步进造成的轮内策略漂移。
     pending = []
+    n_stale = 0
+    round_start = time.time()
     for f in glob.glob(os.path.join(args.decisions_dir, "*.jsonl")):
         for line in open(f):
             try:
@@ -141,6 +143,13 @@ def train_round(args, device):
             a = adv.get(ep, 0.0)
             if a == 0.0 or rec.get("n_frames", 0) == 0:
                 continue
+            # note (luojiaxuan): 按龄过滤 —— 陈旧决策的行为策略与当前参数已
+            # 相隔多次 reload,其比率偏离测得 12-32%(而当前权重下产生的
+            # 决策为 0%);丢弃它们比让裁剪吃掉梯度更划算,新数据每分钟都在产。
+            if args.max_age > 0 and rec.get("t"):
+                if round_start - rec["t"] > args.max_age:
+                    n_stale += 1
+                    continue
             pending.append((rec, a, ep))
     import random
     random.Random(len(pending)).shuffle(pending)
@@ -218,6 +227,8 @@ def train_round(args, device):
         "sel_grad_last": float(gn) if gn is not None else None,
         "rel_drift": relative_drift(sel, init_ck, device),
         "clip_frac": (n_clipped / n_used) if n_used else None,
+        "n_stale_dropped": n_stale,
+        "mb_size": MB,
         "reload": reload_ok,
         **probe_metrics(sel, init_ck, args.probe_bank_data, device),
     }
@@ -234,6 +245,8 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-4)
     ap.add_argument("--probe-bank", default="",
                     help="固定态探针库 JSONL(feats/n_frames/step);空=跳过")
+    ap.add_argument("--max-age", type=float, default=900.0,
+                    help="丢弃早于此秒数的决策(行为策略已隔多次 reload);0=不过滤")
     ap.add_argument("--interval", type=int, default=60,
                     help="daemon 轮询秒;0 = 单轮后退出")
     ap.add_argument("--device", default=os.environ.get("CC_SEL_TRAIN_DEVICE",
