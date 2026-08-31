@@ -557,6 +557,52 @@ staleness 的真实贡献。`--max-age 900` 丢弃陈旧决策(实测一轮丢 1
 外审"一次只改一项"的纪律在这里体现为实打实的价值:三层污染被逐层剥离,
 每一层的贡献都有独立读数。
 
+## 4.17 零成功任务分诊(外审第 5 步,2026-08-31)
+
+对 P3 期间有决策记录的 9 个零成功任务做初筛(决策日志 25GB 且每条带 256
+维特征,整体 JSON 解析跑不动;改用 grep 抽 episode/step 两个标量字段,
+16499 条秒级完成——**大日志诊断的通用手法,记下备用**)。
+
+| 分类 | 数量 | 特征 | 处方方向 |
+|---|---|---|---|
+| **A. 撞步数上限**(≥70% 满步) | 7 | 中位 49 步、跑满即止 | 视界/循环 或 能力缺失 |
+| **B. 未撞上限即失败** | 2 | 中位 1-23 步 | 动作/感知错误 或 评测器口径 |
+
+对照组显著:**零成功任务平均满步率 71% vs 混合结果任务 40%**,证实"撞
+上限"与失败强相关(但按外审提醒,撞上限本身不证明上限是根因)。
+
+### B 类逐个复核(信息密度最高)
+
+- **CheckConferenceDurationTask**(中位 **1 步**):判词
+  `Incorrect answer , expected 12` 与 `Incorrect answer 10, expected 12`
+  ——**答案为空或答错**,属 QA 文本匹配任务(§4.11 的 12 题名单成员),
+  是"答错"而非"不会操作"。1 步即终止的形态与已知 QA 记忆化任务
+  CheckDeduplicatedEvents 一致。
+- **CheckInvoiceTask3**(中位 23 步、满步仅 12%):**存在真实矛盾**——
+  官方 runner 的三个臂(recentB2 / full / recentB11)result.txt **全部
+  score 1.0 success**,而训练管线内 37 次尝试全败。已排除 crash 解释
+  (该任务仅 3 次 crash)。**剩余最可能的假设:训练用 learned selector
+  而官方评测用 recency,若 learned 选帧在该任务上有害则会系统性失败。**
+  此假设列为第 4 步 selector-only 评测的**重点观察对象**;若证实,
+  它是"selector 在部分任务上为负"的首个具体案例。
+
+### task_crash 的查证(一度误判,如实记录)
+
+分诊中发现日志有 **215 次 `[reason=task_crash]`**(≈6.8% 的 episode),
+根因是 `InstanceGone`——即长期在监控里被当作"例行损耗"的那个信号。
+`engine.py` 对它返回 `_empty_sample(reward=0.0, status=FAILED)`,而我方
+`dynamic_sampling_filter_path=None`,**我一度判断这是 6.8% 的假负样本
+污染训练**。
+
+**查证后推翻**:`lite/train/rollout/grpo.py` 的 `bucket_trajectories`
+注释明确 "``rollouts`` is the filtered list",errored 轨迹进独立桶
+(`n_trajs_errored`)不入 advantage;数字亦吻合——
+**理论 3392 − 实际 returns 3177 = 215 = crash 数**,即 crash 样本既不进
+returns(selector 侧干净)也不进 advantage(executor 侧干净)。
+
+**真实影响修正为:浪费 6.8% 的 rollout 算力,不影响梯度质量。** 次要
+影响是使部分组的有效样本数从 8 降至更少,抬高 GRPO 基线方差。
+
 ## 5. 同日附加发现(读源/实测拾得)
 
 - 官方折叠把 obs i 的 tool 文本配给 action i 的结论(原版与补丁版同;
