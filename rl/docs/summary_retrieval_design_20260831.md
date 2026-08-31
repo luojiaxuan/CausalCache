@@ -369,3 +369,24 @@ selector 的近随机选帧相当于给 executor 做了历史帧布局的数据�
 **冻结点判决:iter_59**,下一阶段唯一基座,PENDING_HF_UPLOAD(本地路径
 `/data01/jaxan/sglang-omni-rl/cc_recipe/run_full/hf_p3/iter_59`)。P4 已停
 (11 批,末次保存 hf_p4/iter_11,未跑 heldout)。
+
+
+## 11. 标注与预训练执行计划(外审修订版,2026-09-01)
+
+外审全文:`reviews/label_pretrain_protocol_review_20260901.md`。要点:两层
+拆分——"学得会标签"(可行)与"标签改善在线成功率"(有辨识风险);量产前
+先做代理有效性审计。执行分三级:
+
+1. **Stage A 代理审计(~500 状态,先行)**:23 分/状态(空+6单+15对+recency)
+   + 全 15 对逆序分 + 4 个 context 的贪心解码(空/recency/最优对/最差对),
+   离线核对"teacher-forcing 增益是否预测解码动作正确性"(动作等价类:
+   类型匹配 + 坐标容差)。**若相关弱,整条监督路线停,改 margin 标签。**
+2. **Stage B 首轮预训练(2–4k 状态)**:轨迹等权、每轨迹 ≤ 数个隔开状态;
+   损失 = 效用加权 regret(对比软标签 KL);闸门 = held-out 收回 ≥20–30%
+   oracle 增益(按轨迹聚类 CI 不含零)+ 半量→全量可见提升。
+3. **Stage C(5–8k)**:曲线仍涨才加码;15k 是保险非必需。
+
+评测:mean regret / 聚合 FOG / P(胜 recency) / ε-oracle 命中 / 随候选池
+规模(6/12/24/全)的退化曲线;切分双口径(unseen-traj/seen-task 与
+unseen-task)。部署形态改**两段式**:粗检索到 M≈6–12 再枚举组合,直接
+回应极值问题并与 B=4 扩展同构。
