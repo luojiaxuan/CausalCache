@@ -127,6 +127,8 @@ def train_round(args, device):
     if not os.path.exists(init_ck):
         torch.save(sel.state_dict(), init_ck)
     opt = torch.optim.AdamW(sel.parameters(), lr=args.lr, weight_decay=0.01)
+    pv_file = os.path.join(args.ckpt_dir, "selector_pv.txt")
+    cur_pv = int(open(pv_file).read().strip()) if os.path.exists(pv_file) else 0
 
     # note (luojiaxuan): 先收集全部决策再洗牌,配合下方自适应 minibatch
     # 把轮内优化步数钉死,避免边收边步进造成的轮内策略漂移。
@@ -143,13 +145,13 @@ def train_round(args, device):
             a = adv.get(ep, 0.0)
             if a == 0.0 or rec.get("n_frames", 0) == 0:
                 continue
-            # note (luojiaxuan): 按龄过滤 —— 陈旧决策的行为策略与当前参数已
-            # 相隔多次 reload,其比率偏离测得 12-32%(而当前权重下产生的
-            # 决策为 0%);丢弃它们比让裁剪吃掉梯度更划算,新数据每分钟都在产。
-            if args.max_age > 0 and rec.get("t"):
-                if round_start - rec["t"] > args.max_age:
-                    n_stale += 1
-                    continue
+            # note (luojiaxuan): 按策略版本过滤 —— 权重热换只在轮次边界发生,
+            # 故一轮窗口内的决策全部出自同一版本,与本轮起始权重完全 on-policy;
+            # 真正陈旧的是回报晚到、跨了轮次边界的那些,其比率偏离测得 12-32%。
+            # 用墙钟年龄做代理会连同窗口内的同版本决策一起丢掉。
+            if rec.get("pv") != cur_pv:
+                n_stale += 1
+                continue
             pending.append((rec, a, ep))
     import random
     random.Random(len(pending)).shuffle(pending)
@@ -206,10 +208,14 @@ def train_round(args, device):
     json.dump(sorted(consumed), open(args.cursor, "w"))
 
     if args.service_url:
+        # 先落版本文件再热换:service 独立重启时读回同一个号,两侧不错位。
+        new_pv = cur_pv + 1
+        with open(pv_file, "w") as f:
+            f.write(str(new_pv))
         try:
             req = urllib.request.Request(
                 args.service_url.rstrip("/") + "/reload",
-                data=json.dumps({"path": ck}).encode(),
+                data=json.dumps({"path": ck, "pv": new_pv}).encode(),
                 headers={"Content-Type": "application/json"})
             urllib.request.urlopen(req, timeout=30).read()
             reload_ok = True
@@ -228,6 +234,7 @@ def train_round(args, device):
         "rel_drift": relative_drift(sel, init_ck, device),
         "clip_frac": (n_clipped / n_used) if n_used else None,
         "n_stale_dropped": n_stale,
+        "pv": cur_pv,
         "mb_size": MB,
         "reload": reload_ok,
         **probe_metrics(sel, init_ck, args.probe_bank_data, device),
@@ -245,8 +252,6 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-4)
     ap.add_argument("--probe-bank", default="",
                     help="固定态探针库 JSONL(feats/n_frames/step);空=跳过")
-    ap.add_argument("--max-age", type=float, default=900.0,
-                    help="丢弃早于此秒数的决策(行为策略已隔多次 reload);0=不过滤")
     ap.add_argument("--interval", type=int, default=60,
                     help="daemon 轮询秒;0 = 单轮后退出")
     ap.add_argument("--device", default=os.environ.get("CC_SEL_TRAIN_DEVICE",

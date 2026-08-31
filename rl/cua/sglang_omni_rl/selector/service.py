@@ -37,6 +37,14 @@ def _feats(b64_list):
         return encoder(torch.stack(ims).to(DEVICE))
 
 
+# note (luojiaxuan): 策略版本号。决策记录带 pv,trainer 据此只训练与本轮
+# 起始权重同版本的决策 —— 墙钟年龄不是 off-policy 的正确度量:热换只在
+# 轮次边界发生,一轮窗口内的决策全部出自同一版本。版本文件由 trainer 在
+# POST /reload 前写,service 独立重启时读回,两侧不会错位。
+_PV_FILE = os.environ["CC_SEL_PV_FILE"]
+_PV = int(open(_PV_FILE).read().strip()) if os.path.exists(_PV_FILE) else 0
+
+
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a):
         pass
@@ -45,9 +53,11 @@ class H(BaseHTTPRequestHandler):
         try:
             req = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
             if self.path == "/reload":
+                global _PV
                 with _lock:
                     selector.load_state_dict(torch.load(req["path"], map_location=DEVICE))
-                out = {"ok": True}
+                    _PV = int(req["pv"])
+                out = {"ok": True, "pv": _PV}
             elif not req.get("frames_b64"):
                 # 空帧防御(正常时 adapter 已短路不来;双保险)
                 out = {"indices": []}
@@ -64,7 +74,7 @@ class H(BaseHTTPRequestHandler):
                 # episode 为 rollout 侧生成的 uuid,是与 episode returns 对账的
                 # 唯一 join 键;task 仅用于分文件与人读。
                 rec = {
-                    "t": time.time(), "episode": req.get("episode", "?"),
+                    "t": time.time(), "pv": _PV, "episode": req.get("episode", "?"),
                     "task": req.get("task", "?"), "step": cur,
                     "chosen": idx, "logp": float(logp), "n_frames": len(frames),
                     "norm_ent": float(ent), "feats": feats.cpu().tolist(),
