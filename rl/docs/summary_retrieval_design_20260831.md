@@ -473,3 +473,14 @@ max_neg u_neg(c),负样本 = 本状态各上下文解码错误的动作(自然
 hard negative)+ 参考动作坐标平移合成;500 状态 × 4 上下文 × ≤3 负样本,
 双卡 ~1.5h,同口径重跑闸门。若 margin 亦无预测力,离线代理路线整体
 存疑,回到在线行为信号(selector RL / 解码正确性直接做标签)并再议。
+
+
+## 15. margin 闸门裁决与行为 argmax 闸门(2026-09-01)
+
+margin 试点 64.8%(CI ±2.3,六种对型 59–71% 全高于随机;动作段 margin
+49.8% 崩盘 → **行为预测信号在 NL 动作描述 token,不在 JSON**)。外审裁决
+(全文 `reviews/margin_gate_review_20260901.md`):预登记 65% 闸门**记未
+通过**,但 0.2 分不杀线;go/no-go 改挂**行为 argmax 闸门**——margin 选中
+上下文的解码正确率 vs recency。Stage B 配方修订:同状态共享负样本池、
+logsumexp 软化聚合、selector 训状态内排序不训原始幅值、NL 只做 teacher
+探针不进推理输入;Stage B 审计以 top-of-list 行为为主指标。
