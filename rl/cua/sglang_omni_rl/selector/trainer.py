@@ -132,9 +132,13 @@ def train_round(args, device):
 
     # note (luojiaxuan): 先收集全部决策再洗牌,配合下方自适应 minibatch
     # 把轮内优化步数钉死,避免边收边步进造成的轮内策略漂移。
-    pending = []
-    n_stale = 0
-    round_start = time.time()
+    # note (luojiaxuan): 按策略版本过滤,且**有效性单位是 episode 而非单条决策**。
+    # 墙钟年龄不是 off-policy 的度量:热换只在轮次边界发生,同一窗口内的决策
+    # 全部出自同一版本。而跨了 reload 的 episode 即使只保留新版本那几条也不
+    # 干净——它们的状态由旧版本动作诱导,早期动作的回报又含新版本的后续行为,
+    # 故整条弃用。实测该情形占 0.6%(717 条 episode 中 4 条):episode 中位
+    # 时长 666s 远短于 reload 中位间隔 2178s。
+    by_ep: dict[str, list] = {}
     for f in glob.glob(os.path.join(args.decisions_dir, "*.jsonl")):
         for line in open(f):
             try:
@@ -142,19 +146,34 @@ def train_round(args, device):
             except Exception:  # noqa: BLE001
                 continue
             ep = str(rec.get("episode"))
-            a = adv.get(ep, 0.0)
-            if a == 0.0 or rec.get("n_frames", 0) == 0:
+            if adv.get(ep, 0.0) == 0.0 or rec.get("n_frames", 0) == 0:
                 continue
-            # note (luojiaxuan): 按策略版本过滤 —— 权重热换只在轮次边界发生,
-            # 故一轮窗口内的决策全部出自同一版本,与本轮起始权重完全 on-policy;
-            # 真正陈旧的是回报晚到、跨了轮次边界的那些,其比率偏离测得 12-32%。
-            # 用墙钟年龄做代理会连同窗口内的同版本决策一起丢掉。
-            if rec.get("pv") != cur_pv:
-                n_stale += 1
-                continue
-            pending.append((rec, a, ep))
+            by_ep.setdefault(ep, []).append(rec)
+
+    pending = []
+    n_stale = 0
+    n_mixed_eps = 0
+    for ep, recs in by_ep.items():
+        vers = {r.get("pv") for r in recs}
+        if vers != {cur_pv}:
+            n_stale += len(recs)
+            if len(vers) > 1:
+                n_mixed_eps += 1
+            continue
+        pending.extend((r, adv[ep], ep) for r in recs)
     import random
     random.Random(len(pending)).shuffle(pending)
+
+    # note (luojiaxuan): serving/training 一致性自检(外审 20260901 要求)。
+    # 轮次起始权重就是采样时的权重,故版本匹配样本的 logp 重算值应与落盘值
+    # 相等;不为零说明推理与训练两侧对 PL 语义的理解有分歧,而版本号查不出
+    # 这种失配 —— 这正是 PL 顺序记账 bug 当初逃过检查的通道。
+    with torch.no_grad():
+        drift = [abs(float(sel.slate_logprob(
+            torch.tensor(r["feats"], device=device),
+            torch.arange(r["n_frames"], device=device),
+            r["step"], r["chosen"])) - r["logp"]) for r, _, _ in pending]
+    logp_mae = sum(drift) / len(drift) if drift else None
 
     losses, ages, n_used = [], [], 0
     n_clipped = 0
@@ -208,16 +227,18 @@ def train_round(args, device):
     json.dump(sorted(consumed), open(args.cursor, "w"))
 
     if args.service_url:
-        # 先落版本文件再热换:service 独立重启时读回同一个号,两侧不错位。
+        # note (luojiaxuan): 版本号只在服务确实加载成功之后才落盘激活。
+        # 若先落盘后热换,一次失败的 reload 会让下一轮把全部决策判成
+        # 版本不匹配而清零数据面(外审 20260901 指出)。
         new_pv = cur_pv + 1
-        with open(pv_file, "w") as f:
-            f.write(str(new_pv))
         try:
             req = urllib.request.Request(
                 args.service_url.rstrip("/") + "/reload",
                 data=json.dumps({"path": ck, "pv": new_pv}).encode(),
                 headers={"Content-Type": "application/json"})
             urllib.request.urlopen(req, timeout=30).read()
+            with open(pv_file, "w") as f:
+                f.write(str(new_pv))
             reload_ok = True
         except Exception as e:  # noqa: BLE001
             reload_ok = f"FAIL:{e}"
@@ -234,6 +255,8 @@ def train_round(args, device):
         "rel_drift": relative_drift(sel, init_ck, device),
         "clip_frac": (n_clipped / n_used) if n_used else None,
         "n_stale_dropped": n_stale,
+        "n_mixed_version_eps": n_mixed_eps,
+        "logp_consistency_mae": logp_mae,
         "pv": cur_pv,
         "mb_size": MB,
         "reload": reload_ok,

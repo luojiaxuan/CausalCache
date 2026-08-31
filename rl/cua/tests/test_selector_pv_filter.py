@@ -1,53 +1,63 @@
 # note (luojiaxuan): 策略版本过滤的回归测试。热换只在轮次边界发生,故一轮
-# 窗口内的决策与本轮起始权重同版本,必须全部进训练;跨了轮次边界的才丢。
-import json
+# 窗口内的决策与本轮起始权重同版本;有效性单位是 episode——跨了 reload 的
+# episode 即使只留新版本那几条也不干净(状态由旧版本动作诱导),整条弃用。
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from sglang_omni_rl.selector import trainer as T  # noqa: E402
 
-
-def _filter(records, cur_pv):
-    """复刻 train_round 里的过滤判据。"""
-    kept, dropped = [], 0
-    for rec in records:
-        if rec.get("pv") != cur_pv:
-            dropped += 1
+def _select(by_ep, adv, cur_pv):
+    """复刻 train_round 的资格判定。"""
+    pending, n_stale, n_mixed = [], 0, 0
+    for ep, recs in by_ep.items():
+        vers = {r.get("pv") for r in recs}
+        if vers != {cur_pv}:
+            n_stale += len(recs)
+            if len(vers) > 1:
+                n_mixed += 1
             continue
-        kept.append(rec)
-    return kept, dropped
+        pending.extend((r, adv[ep], ep) for r in recs)
+    return pending, n_stale, n_mixed
 
 
-def test_same_version_all_kept_regardless_of_wall_clock():
-    # 同一版本、墙钟跨度 1 小时:全部保留(旧的按龄过滤会丢掉大半)
-    recs = [{"pv": 7, "t": 1000.0 + 600 * i} for i in range(6)]
-    kept, dropped = _filter(recs, 7)
-    assert len(kept) == 6 and dropped == 0
+def test_same_version_kept_regardless_of_wall_clock():
+    # 同版本、墙钟跨度一小时:全保留(旧的按龄过滤会丢掉大半)
+    eps = {"e1": [{"pv": 7, "t": 1000.0 + 600 * i} for i in range(6)]}
+    pending, stale, mixed = _select(eps, {"e1": 1.0}, 7)
+    assert len(pending) == 6 and stale == 0 and mixed == 0
 
 
-def test_older_version_dropped_even_if_recent():
-    # 跨轮次边界的决策即便刚产生也要丢
-    recs = [{"pv": 6, "t": 9999.0}, {"pv": 7, "t": 1.0}]
-    kept, dropped = _filter(recs, 7)
-    assert dropped == 1 and kept[0]["pv"] == 7
+def test_mixed_version_episode_dropped_whole():
+    # 跨 reload 的 episode 整条弃用,不保留其中的新版本决策
+    eps = {"e1": [{"pv": 6}, {"pv": 6}, {"pv": 7}, {"pv": 7}]}
+    pending, stale, mixed = _select(eps, {"e1": 1.0}, 7)
+    assert pending == [] and stale == 4 and mixed == 1
+
+
+def test_wholly_old_episode_dropped_but_not_counted_mixed():
+    eps = {"e1": [{"pv": 6}, {"pv": 6}]}
+    pending, stale, mixed = _select(eps, {"e1": 1.0}, 7)
+    assert pending == [] and stale == 2 and mixed == 0
 
 
 def test_unstamped_records_dropped():
-    # 改造前写下的记录无 pv,属于更早的部署,应丢弃
-    kept, dropped = _filter([{"t": 5.0}], 0)
-    assert dropped == 1 and kept == []
-
-
-def test_pv_handshake_increments_and_persists(tmp_path):
-    pv_file = tmp_path / "selector_pv.txt"
-    assert (int(pv_file.read_text()) if pv_file.exists() else 0) == 0
-    pv_file.write_text("1")
-    assert int(pv_file.read_text()) == 1
+    # 改造前写下的记录无 pv,属于更早的部署
+    pending, stale, mixed = _select({"e1": [{"t": 5.0}]}, {"e1": 1.0}, 0)
+    assert pending == [] and stale == 1
 
 
 def test_max_age_flag_removed():
-    # 墙钟阈值不再是判据,残留的参数会让运维以为它还在生效
-    ap_src = open(os.path.join(os.path.dirname(T.__file__), "trainer.py")).read()
-    assert "--max-age" not in ap_src
+    # 墙钟阈值不再是判据,残留参数会让运维以为它还在生效
+    src = open(os.path.join(os.path.dirname(__file__), "..",
+                            "sglang_omni_rl", "selector", "trainer.py")).read()
+    assert "--max-age" not in src and "max_age" not in src
+
+
+def test_version_activated_only_after_successful_reload():
+    # 版本文件必须写在 urlopen 之后:失败的 reload 不得推进版本号,
+    # 否则下一轮把全部决策判为不匹配而清空数据面
+    src = open(os.path.join(os.path.dirname(__file__), "..",
+                            "sglang_omni_rl", "selector", "trainer.py")).read()
+    body = src[src.index("new_pv = cur_pv + 1"):src.index("reload_ok = True")]
+    assert body.index("urlopen") < body.index('open(pv_file, "w")')
