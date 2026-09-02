@@ -645,3 +645,28 @@ tag 超时 7200s,回合约 100 分钟;selector 初始化 = 无泄漏最终头
 /GPU 进程数。已知债:trainer CPU 逐组合前向 ~30min/轮,后续向量化或搬
 GPU;首个观测目标 = clip_frac 与 loss 出现非零(混合组到来)后的
 回报趋势。
+
+
+## 22. ★ RL 首个有效梯度轮(2026-09-03)
+
+round 1 全部 8 tag 收官(55 回报)后,首个混合组训练轮落地:
+
+```
+sel_updates=826  episodes_trained=14  loss=0.112  grad_norm=0.093
+clip_frac=0.0(轮内完全 on-policy)  logp_consistency_mae=4.4e-05
+reload=true  pv 2→3
+```
+
+selector 首次在行为回报上取得真实梯度,全链路(预训练头初始化 →
+mw-eval rollout → RLOO 组 → 版本过滤 → 向量化重算 → 热换)闭环。
+
+**上线后热修两笔**(均已入库):
+- trainer 逐组合 CPU 前向 ~1.5h/轮 → B=2 向量化快路径(30 决策等价性
+  自检,误差 1.4e-06),轮次压到分钟级;
+- **节奏错配失血**:interval=180s 轮轮热换 × episode 15–25 分钟 →
+  大量 episode 跨版本被丢(实测一轮 439 条)——P4 墙钟浪费的版本号
+  变体。修为**数据量门控**:版本匹配组 <12 不训练不热换不消费,
+  热换节奏自动对齐 rollout 波次。
+
+观测队列:回报趋势(按回合的训练任务均值)、clip/一致性持续读数;
+待办:周期性 heldout 评测锚(与 P1–P4 的 heldout-39 同口径可比)。

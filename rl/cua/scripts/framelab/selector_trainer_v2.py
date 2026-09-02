@@ -69,6 +69,43 @@ def load_returns(path, consumed):
 
 
 def slate_logprob(model, rec, dev):
+    if rec.get("budget", 2) == 2:
+        return _slate_logprob_b2(model, rec, dev)
+    return _slate_logprob_slow(model, rec, dev)
+
+
+def _slate_logprob_b2(model, rec, dev):
+    """B=2 向量化:u/v 各一次批式前向,与逐组合路径数学等价
+    (等价性由启动自检对若干决策比对到 1e-4)。"""
+    def _dec(x):
+        if isinstance(x, str):
+            return torch.frombuffer(bytearray(base64.b64decode(x)),
+                                    dtype=torch.float16).to(torch.float32)
+        return torch.tensor(x, dtype=torch.float32)
+    q = _dec(rec["q_feat"]).to(dev)
+    keep = rec["cand_set"]
+    c = torch.stack([_dec(rec["feats"][str(i)]) for i in keep]).to(dev)
+    pos = torch.tensor([rec["pos"][str(i)] for i in keep],
+                       dtype=torch.float32, device=dev)
+    m = len(keep)
+    hq = model.q(q)
+    hc = model.c(c)
+    b = torch.full((m, 1), 2.0, device=dev)
+    u = model.u(torch.cat([hq.expand(m, -1), hc, pos, b], dim=1)).squeeze(1)
+    ai, bj = torch.triu_indices(m, m, offset=1, device=dev)
+    P = ai.shape[0]
+    v = model.v(torch.cat([hq.expand(P, -1), hc[ai], hc[bj],
+                           pos[ai, :1], pos[bj, :1],
+                           torch.full((P, 1), 2.0, device=dev)], dim=1)).squeeze(1)
+    es = u[ai] + u[bj] + v
+    logits = torch.log_softmax(es, 0)
+    remap = {orig: j for j, orig in enumerate(keep)}
+    x, y = sorted(remap[i] for i in rec["chosen"])
+    pick = ((ai == x) & (bj == y)).nonzero(as_tuple=True)[0]
+    return logits[pick[0]]
+
+
+def _slate_logprob_slow(model, rec, dev):
     def _dec(x):
         if isinstance(x, str):
             return torch.frombuffer(bytearray(base64.b64decode(x)),
@@ -117,13 +154,25 @@ def train_round(args, device):
                 by_ep[key].append(rec)
 
     pending, n_stale, n_mixed = [], 0, 0
+    stale_keys = set()
     for key, recs in by_ep.items():
         vers = {r.get("pv") for r in recs}
         if vers != {cur_pv}:
             n_stale += len(recs)
             n_mixed += 1 if len(vers) > 1 else 0
+            stale_keys.add(key)
             continue
         pending.extend((r, adv[key], key) for r in recs)
+
+    # note (luojiaxuan): 数据量门控 —— 版本匹配的组不足 min_eps 时不训练、
+    # 不热换、更**不消费**,等下一波 rollout 凑齐。否则每 interval 轮轮
+    # reload 会让 15–25 分钟的 episode 大量跨版本被丢(实测一轮丢 333 条,
+    # 即 P4 时代墙钟浪费的版本号变体)。热换节奏由此自动对齐 rollout 波次。
+    eligible = {k for _, _, k in pending}
+    if len(eligible) < args.min_eps:
+        return {"sel_updates": 0,
+                "note": f"await data: eligible={len(eligible)}<{args.min_eps}",
+                "stale_pending": len(stale_keys)}
     import random
     random.Random(len(pending)).shuffle(pending)
 
@@ -162,7 +211,7 @@ def train_round(args, device):
     _step()
 
     torch.save({"state_dict": model.state_dict(), "dq": b["dq"], "dc": b["dc"]}, ck)
-    consumed |= set(adv.keys())
+    consumed |= trained | stale_keys
     json.dump(sorted(consumed), open(args.cursor, "w"))
 
     reload_ok = "skipped"
@@ -200,6 +249,8 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-4)
     ap.add_argument("--cursor", default="")
     ap.add_argument("--interval", type=int, default=120)
+    ap.add_argument("--min-eps", type=int, default=12,
+                    help="版本匹配组数低于此值时跳过且不消费")
     ap.add_argument("--device", default="cpu")
     args = ap.parse_args()
     if not args.cursor:
