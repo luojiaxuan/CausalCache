@@ -32,7 +32,7 @@ from lite.core.messages.turns import group_into_turns, truncate_sample_to_turn
 
 from .action_space import GuiOwlMobileActionSpace
 from .prompts import SYSTEM_PROMPT
-from .protocol import GuiOwlHistoryProtocol, _image_parts
+from .protocol import _text_parts, GuiOwlHistoryProtocol, _image_parts
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +88,7 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
     def _select_frames(
         self, total: int, budget: int, instruction: str,
         img_hist: list[int], history_frames_b64: list[str],
+        cur_b64: str | None = None, concls: list[str] | None = None,
     ) -> list[int]:
         """返回 S(含 total)。候选一律取**带图的历史 turn**(img_hist)——
         env 截图瞬时失败会产生无图 turn(官方 runner 语义中不存在,smoke
@@ -113,6 +114,10 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
                 "frames_b64": history_frames_b64, "step": total,
                 "budget": budget, "task": instruction[:80],
                 "episode": self._episode_id,
+                "goal": instruction, "cur_b64": cur_b64,
+                "concls": concls,
+                "cand_steps": [t + 1 for t in img_hist],
+                "tag": os.environ.get("CC_EP_TAG", ""),
             }).encode()
             req = urllib.request.Request(
                 self.selector_url.rstrip("/") + "/select", data=payload,
@@ -155,6 +160,8 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
                            self._episode_id)
 
         history_b64: list[str] = []
+        cur_b64 = None
+        concls: list[str] = []
         if self.frame_policy == "learned":
             for t in img_hist:
                 img_parts = _image_parts(completed[t]["observations"])
@@ -163,8 +170,20 @@ class GuiOwlMobileUseAdapter(BaseAgentAdapter, key="gui_owl@mobile@use"):
                     raise ValueError(f"turn {t} 图像未 prepare(index="
                                      f"{img_parts[-1]['index']})")
                 history_b64.append(_pil_to_b64_png(img))
+                # 候选帧来历 = 产生它的上一动作 conclusion;turn 0 为初始屏
+                concls.append("initial screen" if t == 0 else _text_parts(
+                    completed[t - 1]["assistant"]).strip().split("\n")[0]
+                    .replace("Action:", "").strip())
+            cur_turn = turns[-1] if turns and turns[-1].get("assistant") is None \
+                else (completed[-1] if completed else None)
+            cur_parts = _image_parts(cur_turn["observations"]) if cur_turn else []
+            if cur_parts:
+                cur_img = processed[cur_parts[-1]["index"]]
+                if cur_img is not None:
+                    cur_b64 = _pil_to_b64_png(cur_img)
 
-        S = self._select_frames(total, budget, instruction, img_hist, history_b64)
+        S = self._select_frames(total, budget, instruction, img_hist, history_b64,
+                                cur_b64=cur_b64, concls=concls)
         # CC_TRACE:smoke 验收第 2 条(选帧分布在变)的观测口径,勿删。
         logger.warning(
             "CC_TRACE policy=%s hist_n=%s total=%s S=%s episode=%s",

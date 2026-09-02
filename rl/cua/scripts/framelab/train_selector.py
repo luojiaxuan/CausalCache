@@ -88,6 +88,8 @@ def main():
     ap.add_argument("--lr", type=float, default=3e-4)
     ap.add_argument("--device", default="cuda:0" if torch.cuda.is_available() else "cpu")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--final", action="store_true",
+                    help="全量数据训固定轮数,导出推理包(RL 初始化用)")
     ap.add_argument("--data-frac", type=float, default=1.0)
     args = ap.parse_args()
     torch.manual_seed(args.seed)
@@ -142,7 +144,7 @@ def main():
             ck = f"{key}|c{n}"
             if fr in frames.files and ck in stext.files:
                 feats.append(np.concatenate([nf(frames[fr], fmean), nf(stext[ck], tmean)]))
-                poss.append([(k - n) / max(k, 1), n / max(r.get("traj_len", k) or k, 1)])
+                poss.append([(k - n) / max(k, 1), n / max(k, 1)])
                 keep.append(slot)
         if len(keep) < len(cand_files):
             continue
@@ -159,6 +161,22 @@ def main():
                      "p": torch.tensor(poss, dtype=torch.float32),
                      "slate": r.get("slate", 6), "oks": oks})
     print(f"可训状态 {len(data)}")
+
+    if args.final:
+        tr, va = data, data[:200]
+        traj_n = collections.Counter(d["dir"] for d in tr)
+        dq = tr[0]["q"].shape[0]
+        dc = tr[0]["c"].shape[1]
+        model = Energy(dq, dc).to(dev)
+        opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
+        _run_epochs(args, model, opt, tr, va, traj_n, dev)
+        import numpy as _np
+        torch.save({"state_dict": model.state_dict(), "dq": dq, "dc": dc},
+                   "/data01/jaxan/selector_feats/energy_final.pt")
+        _np.savez("/data01/jaxan/selector_feats/norm_stats.npz",
+                  fmean=fmean, tmean=tmean)
+        print("FINAL_BUNDLE_SAVED")
+        return
 
     groups = collections.defaultdict(list)
     for d in data:
@@ -180,7 +198,12 @@ def main():
     dc = tr[0]["c"].shape[1]
     model = Energy(dq, dc).to(dev)
     opt = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01)
+    _run_epochs(args, model, opt, tr, va, traj_n, dev)
+    return
 
+
+
+def _run_epochs(args, model, opt, tr, va, traj_n, dev):
     def classes(d):
         n = d["c"].shape[0]
         out = []
@@ -261,8 +284,6 @@ def main():
             best_b2 = (float(m.group(1)), ep, vline)
         if ep % 5 == 4:
             print("  train:", evaluate(tr[:300]), flush=True)
-    torch.save(model.state_dict(), "/data01/jaxan/selector_feats/energy_head.pt")
-    print("saved energy_head.pt")
     print(f"BEST ep{best_b2[1]}  {best_b2[2]}")
 
 

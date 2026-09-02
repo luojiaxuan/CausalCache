@@ -614,3 +614,34 @@ patch 级空间特征)——数据扩张已证伪,提升只能来自这里;(3) R
 
 预训练腿站住。下一步:特征升级攻严口径(与当前帧差分、patch 级空间
 特征),随后 RL 精调腿接线。
+
+
+## 21. ★★ RL 线点火:smoke 全绿,正式训练启动(2026-09-03)
+
+**架构**(全部新造,不再依赖 slime/Megatron):mw-eval 评测环做 rollout
+(冻结 executor iter_59 由 vLLM 单卡服务),RLOO 组 = 同任务 × G 个 tag 的
+独立 rollout(对账键 gmd5+tag);selector 服务 v2(能量头 + 在线特征 +
+两段式选择 + pv 戳决策)单卡;trainer v2 守护(CPU)从决策记录内嵌特征在
+当前参数下精确重算枚举 logprob,比率裁剪 + minibatch 聚合 + episode 级
+版本过滤。**全程 2 GPU**(对比 P1–P4 的 4 卡)。
+
+**smoke 终审(2 任务 × G=4)**:回合机器闭环(4 tag 全 exit=0,8/8 回报
+对账入组);**logp_consistency_mae = 4.6e-05 ≈ 0**——§4.19 预registered
+验收判据通过,P1–P3 的 PL 记账 bug 类在新管线证明不存在;reload 成功
+pv 0→1;loss=0 系两任务组内结果全同(RLOO 零优势的正确退化),非缺陷。
+
+**smoke 期修复入账**(各一次实证):venv 路径笔误;mw 树独立 agent 副本
+(payload v2 须打在 `MobileWorld/src/.../gui_owl_1_5.py`,cc_recipe 副本
+对 mw-eval 无效);per-tag timeout 丢失(单个不健康设备可拖死回合 10h,
+已补 7200s 兜底);决策特征 JSON 浮点数组体积爆炸(1.3MB/条 → base64
+fp16,~13×);selvenv 缺 numpy(Energy 内联进 trainer)。
+另:pkill 模式匹配 ssh 命令串自身的自杀坑第三次出现——kill 一律走脚本
+文件,此教训升格为硬规。
+
+**正式训练参数**:G=8 × 8 任务/回合,CONC_TAGS=2(16 env 并发),
+tag 超时 7200s,回合约 100 分钟;selector 初始化 = 无泄漏最终头
+(energy_final.pt);trainer interval 180s,lr 1e-4,CLIP 0.2。
+监控:回合线/回报量/SEL2 指标(接受、clip、logp 一致性、pv)/tag 卡死
+/GPU 进程数。已知债:trainer CPU 逐组合前向 ~30min/轮,后续向量化或搬
+GPU;首个观测目标 = clip_frac 与 loss 出现非零(混合组到来)后的
+回报趋势。
