@@ -28,14 +28,16 @@ def cur_round():
         return -1
 
 
-def evaluated():
+def evaluated(policy):
     done = set()
     if os.path.exists(CURVE):
         for l in open(CURVE):
             try:
-                done.add(json.loads(l)["round"])
+                rec = json.loads(l)
             except Exception:  # noqa: BLE001
                 continue
+            if rec["policy"] == policy:
+                done.add(rec["round"])
     return done
 
 
@@ -80,10 +82,17 @@ def main():
     if not any(json.loads(l).get("policy") == "recent" for l in open(CURVE)) \
             if os.path.exists(CURVE) else True:
         run_eval(-1, "recent", "recency_base")
+    # note (luojiaxuan): 每个采点位同时评 learned 与 recency(同 20 题、同一时段的
+    # 模拟器),基线成为与 learned 配对的序列而非单次测量;单次 n=19 的基线
+    # 标准误约 8pp,无法分辨 learned 的涨跌是信号还是基线噪声。
     while True:
         r = cur_round()
-        if r >= 0 and r % EVERY == 0 and r not in evaluated():
-            run_eval(r, "learned", f"learned_r{r}")
+        m = r - r % EVERY
+        if m >= 0:
+            if m not in evaluated("learned"):
+                run_eval(m, "learned", f"learned_r{m}")
+            if m not in evaluated("recent"):
+                run_eval(m, "recent", f"recency_r{m}")
         time.sleep(300)
 
 

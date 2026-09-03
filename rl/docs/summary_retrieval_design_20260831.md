@@ -813,3 +813,30 @@ Docker:hyper00 上的僵尸群属 `jiaxind`(同事,10 个 Exited 14–32h)与 bb
 (与另一租户 SGLang 98GB 共卡);trainer v9 已上线。待办:heldout recency 基线
 重测;r18/r21 采点;ROUND_DONE 17 首次重启验证(RSS 归零、`Already borrowed`
 归零);iter_86/iter_11 上传 HF;决策键加 episode id 以区分重试尝试。
+
+### 25.6 追加(12:45 PT):首次重启结果、泄漏机理、配对锚点
+
+- **首次边界重启如期发生**(ROUND_DONE 17,pv 18):`docker restart` 到 /reload
+  成功共 26 秒(冷启动远快于预估),之后 8,392 条决策零次 `Already borrowed`
+  ——分词器锁生效。
+- **泄漏机理定位**:重启 2 小时后服务进程 RssAnon 83GB、**419 个线程全部停在
+  futex_wait**。每个请求线程首次执行并行 CPU 算子(`torch.tensor(cands)` 的
+  numpy→tensor 拷贝超过并行阈值)时 libgomp 为它建一支 OpenMP 工作线程队,
+  请求线程退出后该队不释放;数百支空转线程队 + 各自的 glibc arena 即为增长
+  来源(斜率约 0.5GB/分钟)。修复:服务启动处 `torch.set_num_threads(1)`
+  (CPU 侧只有小向量搬运),下次边界重启生效;验证指标是重启后线程数保持
+  两位数、RSS 曲线平。过渡期 `SEL_RESTART_EVERY=3`(每 3 回合重启一次,
+  pv≡0 mod 3 ↔ 回合≡2 mod 3,与锚点错开不变),验证后回调 6。
+- **r18 点:4/19 = 21.1%**,从 r15 的 31.6% 回落。五点单调被打破,正是此前
+  警告的 ±10pp 噪声水平;r9–r18 四点合并 19/75 = 25.3% 对基线 3/19 = 15.8%
+  仍不显著。
+- **锚点改为配对评测(anchor v3,已上线)**:每个采点位先评 learned 再评
+  recency(同 20 题、同一时段),基线从单次 n=19 变成与 learned 配对的序列,
+  同时吸收模拟器环境随时间的漂移。上线即在空闲窗口补跑 `recency_r18`
+  (约 50 分钟),之后每 3 回合成对出点;learned 部分 ≤1h 内结束,不与
+  服务重启窗口重叠;recency 不调用服务。
+- RSS 采样器(`rss_sampler.sh`,每分钟一采到 `rl_v2/rls_rss.log`)已起,供
+  重启周期的最终取值。
+- 运维教训重犯一次:ad-hoc ssh 命令里的 `pgrep -f <pattern>` 匹配到承载
+  该命令的远端 shell(把自己当成第二个 trainer 报了出来;采样器守卫因此
+  没启动)。**模式一律写成 `[x]pattern`** 或走脚本文件。

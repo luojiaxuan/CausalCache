@@ -16,6 +16,10 @@ from transformers import AutoProcessor, AutoModelForImageTextToText
 sys.path.insert(0, "/data01/jaxan")
 from train_selector import Energy  # noqa: E402
 
+# note (luojiaxuan): 每个请求线程首次跑并行 CPU 算子(numpy->tensor 拷贝)都会
+# 让 libgomp 为它建一支常驻 OpenMP 工作线程队,线程退出后队不释放——实测 2h
+# 积到 419 个空转线程、匿名 RSS 83GB。CPU 侧只有小向量搬运,单线程即可。
+torch.set_num_threads(1)
 DEVICE = os.environ.get("CC_SEL_DEVICE", "cuda:0")
 LOG_DIR = os.environ["CC_SEL_LOG"]
 _PV_FILE = os.environ["CC_SEL_PV_FILE"]
