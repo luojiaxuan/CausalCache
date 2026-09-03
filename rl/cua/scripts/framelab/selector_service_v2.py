@@ -46,6 +46,9 @@ selector.load_state_dict(_b["state_dict"])
 selector.eval()
 
 _lock = threading.Lock()
+# note (luojiaxuan): HF fast tokenizer 非线程安全,并发请求同时进入会抛
+# "Already borrowed";processor 处理图像时内部也走同一分词器,共用一把锁。
+_tok_lock = threading.Lock()
 _fcache: dict[str, np.ndarray] = {}
 _tcache: dict[str, np.ndarray] = {}
 
@@ -60,7 +63,8 @@ def frame_feat(b64s):
     if key in _fcache:
         return _fcache[key]
     img = Image.open(io.BytesIO(base64.b64decode(b64s))).convert("RGB")
-    inputs = proc(images=[img], text=["<|image_pad|>"], return_tensors="pt")
+    with _tok_lock:
+        inputs = proc(images=[img], text=["<|image_pad|>"], return_tensors="pt")
     with torch.no_grad():
         out = visual(inputs["pixel_values"].to(DEVICE, torch.bfloat16),
                      grid_thw=inputs["image_grid_thw"].to(DEVICE))
@@ -78,8 +82,9 @@ def text_feat(s):
     key = hashlib.md5((s or " ").encode()).hexdigest()
     if key in _tcache:
         return _tcache[key]
-    ids = tok(s or " ", return_tensors="pt", truncation=True,
-              max_length=512)["input_ids"].to(DEVICE)
+    with _tok_lock:
+        ids = tok(s or " ", return_tensors="pt", truncation=True,
+                  max_length=512)["input_ids"].to(DEVICE)
     with torch.no_grad():
         e = embed(ids).mean(1)[0]
     f = _nf(e.float().cpu().numpy(), TMEAN)

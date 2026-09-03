@@ -65,6 +65,9 @@ def run_eval(rnd, policy, label):
             continue
         n += 1
         k += 1 if sc > 0 else 0
+    for d in glob.glob(os.path.join(out, "*/")):
+        import shutil
+        shutil.rmtree(os.path.join(d, "screenshots"), ignore_errors=True)
     rec = {"round": rnd, "policy": policy, "judged": n, "success": k,
            "rate": k / max(n, 1), "t": time.time()}
     with open(CURVE, "a") as f:

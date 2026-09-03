@@ -3,7 +3,8 @@
 # 特征与位置,当前参数下按服务端完全相同的枚举序重算 slate logprob,
 # 比率裁剪 + minibatch 聚合 + episode 级版本过滤,全部沿用 v1 结论
 # (§4.19):版本号仅在 reload 成功后落盘。
-import argparse, base64, collections, glob, itertools, json, os, time
+import argparse, base64, collections, glob, itertools, json, os, subprocess, time
+import urllib.error
 import urllib.request
 
 import torch
@@ -40,6 +41,41 @@ class Energy(nn.Module):
 CLIP = 0.2
 ENT_COEF = 0.0
 TARGET_STEPS = 8
+SERVICE_CONTAINER = os.environ.get("SEL_SERVICE_CONTAINER", "sglang-omni-jaxan-rls")
+RESTART_EVERY = int(os.environ.get("SEL_RESTART_EVERY", "6"))
+
+
+def _post_reload(service_url, ck, new_pv):
+    req = urllib.request.Request(
+        service_url.rstrip("/") + "/reload",
+        data=json.dumps({"path": ck, "pv": new_pv}).encode(),
+        headers={"Content-Type": "application/json"})
+    urllib.request.urlopen(req, timeout=60).read()
+
+
+def boundary_reload(service_url, ck, new_pv, want_reload_path):
+    # note (luojiaxuan): 长命推理服务的宿主 RSS 单调增长(23h 实测 155GB),
+    # 每 RESTART_EVERY 个版本在回合间隙整容器重启一次。只在 want_reload 旗子
+    # 在场时做:编排器的 ROUND_DONE 屏障正等它消失,重启期间不会有新 tag 起;
+    # 锚点评估在 ROUND_DONE≡0 (mod 3) 起、约 50 分钟结束,版本号≡0 (mod 6)
+    # 对应回合≡2 (mod 3),与之错开。重启后服务从 pv 文件读到旧版本号并回到
+    # 预训练权重,故必须紧接 /reload 把最新权重与新版本号一起送回。
+    restart = (RESTART_EVERY and new_pv % RESTART_EVERY == 0
+               and os.path.exists(want_reload_path))
+    if not restart:
+        _post_reload(service_url, ck, new_pv)
+        return True
+    t0 = time.time()
+    subprocess.run(["docker", "restart", SERVICE_CONTAINER], check=True, timeout=180)
+    while True:
+        try:
+            _post_reload(service_url, ck, new_pv)
+            break
+        except (urllib.error.URLError, ConnectionResetError):
+            if time.time() - t0 > 480:
+                raise
+            time.sleep(10)
+    return f"restarted:{time.time() - t0:.0f}s"
 
 
 def load_returns(path, consumed):
@@ -241,18 +277,13 @@ def train_round(args, device):
         open(os.path.join(os.path.dirname(args.returns_file), "want_reload"), "w").close()
     elif args.service_url and n_used:
         new_pv = cur_pv + 1
+        wr = os.path.join(os.path.dirname(args.returns_file), "want_reload")
         try:
-            req = urllib.request.Request(
-                args.service_url.rstrip("/") + "/reload",
-                data=json.dumps({"path": ck, "pv": new_pv}).encode(),
-                headers={"Content-Type": "application/json"})
-            urllib.request.urlopen(req, timeout=60).read()
+            reload_ok = boundary_reload(args.service_url, ck, new_pv, wr)
             with open(pv_file, "w") as f:
                 f.write(str(new_pv))
-            wr = os.path.join(os.path.dirname(args.returns_file), "want_reload")
             if os.path.exists(wr):
                 os.remove(wr)
-            reload_ok = True
         except Exception as e:  # noqa: BLE001
             reload_ok = f"FAIL:{e}"
 
@@ -300,15 +331,11 @@ def main():
             return
         cur = int(open(pv_file).read().strip()) if os.path.exists(pv_file) else 0
         try:
-            req = urllib.request.Request(
-                args.service_url.rstrip("/") + "/reload",
-                data=json.dumps({"path": ck, "pv": cur + 1}).encode(),
-                headers={"Content-Type": "application/json"})
-            urllib.request.urlopen(req, timeout=60).read()
+            res = boundary_reload(args.service_url, ck, cur + 1, wr)
             with open(pv_file, "w") as f:
                 f.write(str(cur + 1))
             os.remove(wr)
-            print(f"RELOAD_SYNC pv->{cur + 1}", flush=True)
+            print(f"RELOAD_SYNC pv->{cur + 1} {res}", flush=True)
         except Exception as e:  # noqa: BLE001
             print(f"RELOAD_SYNC_FAIL {e}", flush=True)
 

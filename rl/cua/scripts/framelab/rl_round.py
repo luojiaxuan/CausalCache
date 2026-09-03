@@ -62,6 +62,9 @@ def harvest(rnd, tag):
                 "gmd5": hashlib.md5(goal.encode()).hexdigest()[:16],
                 "score": 1.0 if score > 0 else 0.0, "t": time.time()}) + "\n")
             n += 1
+            # 收割即清截图:分数与 traj.json 已足够,逐帧 PNG 是满盘元凶
+            import shutil
+            shutil.rmtree(os.path.join(d, "screenshots"), ignore_errors=True)
     return n
 
 
