@@ -919,3 +919,35 @@ OSWorld 上撞过的"两头堵"(§roadmap):需要记忆的任务在地板,能做
 决策日志:问题=null result 后往哪走;默认=先把目标 benchmark 跑通再谈方法;理由=
 26.0–26.3 的证据链;回滚=RL 循环可从 `energy_pv22_paused.pt` + `RL_ROUND0=23`
 续跑;外审=§25 外审已建议"先修表征、先跑真考场",与本节一致。
+
+### 26.6 追加(16:35 PT):贪心侦察收官、MemGUI-Bench 基线臂启动、judge 阻塞点
+
+**贪心侦察(argmax 部署,同 20 题、同时段配对)**:
+
+| 任务集 | RL 权重 pv22 贪心 | 预训练初始贪心 | recency |
+|---|---|---|---|
+| heldout-20 | 3/19 = 15.8% | 3/19 = 15.8% | 15.8% / 20.0% / 26.3%(三次) |
+| train-20 | 8/18 = 44.4% | 7/17 = 41.2% | 8/18 = 44.4% |
+
+按外审判决规则:final argmax ≈ init argmax ≈ recency → **停止在 RL 上投入算力**;预训练
+selector 的离线 +5.1pp 没有转化为闭环收益,与 26.1 的 executor 地板解释一致。RL 循环
+保持暂停(权重 `energy_pv22_paused.pt`,`RL_ROUND0=23` 可续)。
+
+**MemGUI-Bench 链路已跑通**:单任务冒烟 50 步执行 + judge 调用 + 榜单 JSON 导出全部
+发生;移植版 agent(选帧钩子)以覆盖方式装进其 fork(原文件 `.bak_pre_cc`),按路径
+加载会缺 `tools` 参数故改用注册名。8 台后端 `sglang-omni-jaxan-mg_0..7`(6900–6907)
+healthy,每台约 2.4 核/11GB。executor 容器 rle 已切到**原版 GUI-Owl-1.5-8B-Instruct**
+(130s 就绪),与榜单 Pass@1 11.7% 直接可比;基线臂 A(官方默认 history_n=1,128 题
+Pass@1)于 16:29 PT 启动,预计 3–4 小时。
+
+**judge 阻塞**:论文原配 gemini-2.5-flash(逐步)+ gemini-2.5-pro(终判)。用户 Mac 的
+Gemini key 在开启自动充值后仍为 FreeTier 配额(flash 5 RPM / 20 RPD,quotaId 带
+`-FreeTier`),疑为计费挂在了另一项目;且 **gemini-2.5-pro 对该账号 404(新用户
+不可用)**,与计费无关,只能经 OpenRouter 等网关获得。家目录无 OpenRouter key
+(`agy_key.txt` 为 Antigravity token)。处置:rollout 先行(judge 零重试、失败即过,
+轨迹与截图保留),`memgui_rejudge.py` 逐任务调 `evaluate_memgui_trajectory` 离线补判;
+等 key 就位后统一判分。判分一致性要求:所有臂用同一 judge 配置。
+
+脚本入库 `rl/cua/scripts/memgui/`:`memgui_pool_up.sh`(起后端+登记 map)、
+`memgui_arm.sh`(一臂)、`switch_executor.sh`(切 executor 权重)、`memgui_rejudge.py`、
+`memgui_baseline_go.sh`。
