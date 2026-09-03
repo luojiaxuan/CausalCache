@@ -18,17 +18,21 @@ split = json.load(open("/data01/jaxan/sglang-omni-rl/cc_recipe/fixtures/mw_split
 TRAIN = sorted(split.get("train") or split.get("train_tasks"))
 
 
-def run_tag(rnd, tag, tasks):
+ALL_PORTS = [l.split("\t")[3].strip() for l in
+             open("/data01/jaxan/sglang-omni-rl/pool_ports.tsv") if l.strip()]
+
+
+def run_tag(rnd, tag, tasks, slot):
     out = f"{ROOT}/round_{rnd}/tag{tag}"
     os.makedirs(out, exist_ok=True)
     env = dict(os.environ)
     env.update({"CC_HISTORY_N": "3", "CC_FRAME_POLICY": "learned",
                 "CC_SELECTOR_URL": SEL, "CC_EP_TAG": f"r{rnd}t{tag}",
                 "PYTHONPATH": "/data01/jaxan/pyshim"})
-    hosts = subprocess.run(
-        ["bash", "-c",
-         "cut -f4 /data01/jaxan/sglang-omni-rl/pool_ports.tsv | sed 's|^|http://127.0.0.1:|' | paste -sd,"],
-        capture_output=True, text=True).stdout.strip()
+    # 每并发槽独占 8 台模拟器(槽 0/1/2 -> 池前 24 台;后 8 台留给 heldout 锚),
+    # 消除共享主机名单下的环境抢占碰撞。
+    ports = ALL_PORTS[slot * 8:(slot + 1) * 8]
+    hosts = ",".join(f"http://127.0.0.1:{p}" for p in ports)
     cmd = ["timeout", os.environ.get("RL_TAG_TIMEOUT", "7200"),
            "uv", "run", "mw", "eval", "--agent_type", "gui_owl_1_5",
            "--task", ",".join(tasks), "--max_round", "50",
@@ -68,18 +72,32 @@ def main():
         print(f"[round {rnd}] tasks={tasks}", flush=True)
         pend = list(range(G))
         running = []
+        free_slots = list(range(CONC_TAGS))
+
+        def _mark():
+            with open(f"{ROOT}/tags_running.txt", "w") as f:
+                f.write(str(len(running)))
+        _mark()
         while pend or running:
-            while pend and len(running) < CONC_TAGS:
+            while pend and free_slots:
                 tag = pend.pop(0)
-                running.append((tag, run_tag(rnd, tag, tasks)))
-                print(f"[round {rnd}] tag{tag} 起", flush=True)
-            for tag, pr in list(running):
+                slot = free_slots.pop(0)
+                running.append((tag, slot, run_tag(rnd, tag, tasks, slot)))
+                _mark()
+                print(f"[round {rnd}] tag{tag} 起(槽{slot})", flush=True)
+            for tag, slot, pr in list(running):
                 if pr.poll() is not None:
-                    running.remove((tag, pr))
+                    running.remove((tag, slot, pr))
+                    free_slots.append(slot)
+                    _mark()
                     n = harvest(rnd, tag)
                     print(f"[round {rnd}] tag{tag} 收 {n} 回报(exit={pr.returncode})",
                           flush=True)
             time.sleep(20)
+        wr = f"{ROOT}/want_reload"
+        t0 = time.time()
+        while os.path.exists(wr) and time.time() - t0 < 600:
+            time.sleep(10)
         print(f"ROUND_DONE {rnd}", flush=True)
     print("RL_LOOP_DONE", flush=True)
 

@@ -52,11 +52,14 @@ def load_returns(path, consumed):
         except Exception:  # noqa: BLE001
             continue
         rows.append(r)
-    groups = collections.defaultdict(dict)   # gmd5 -> tag -> score
+    # 组键 = (回合, gmd5):任务跨回合重复时不得把不同策略版本的 rollout
+    # 混进同一 RLOO 组(基线会被旧策略污染)。tag 形如 r{round}t{i}。
+    groups = collections.defaultdict(dict)
     for r in rows:
-        groups[r["gmd5"]][r["tag"]] = float(r["score"])
+        rnd = r["tag"].split("t")[0]
+        groups[(rnd, r["gmd5"])][r["tag"]] = float(r["score"])
     adv = {}
-    for g, tags in groups.items():
+    for (_, g), tags in groups.items():
         if len(tags) < 2:
             continue
         for tag, sc in tags.items():
@@ -169,7 +172,16 @@ def train_round(args, device):
     # reload 会让 15–25 分钟的 episode 大量跨版本被丢(实测一轮丢 333 条,
     # 即 P4 时代墙钟浪费的版本号变体)。热换节奏由此自动对齐 rollout 波次。
     eligible = {k for _, _, k in pending}
-    if len(eligible) < args.min_eps:
+    root = os.path.dirname(args.returns_file)
+    at_boundary = False
+    try:
+        at_boundary = int(open(os.path.join(root, "tags_running.txt"))
+                          .read().strip()) == 0
+    except (OSError, ValueError):
+        pass
+    # 边界 flush:回合末尾无在途 tag 时,余组不足门槛也训完再热换,
+    # 否则紧随的 reload 会把它们打成旧版本(每回合尾巴 ~25% 数据)。
+    if len(eligible) < args.min_eps and not (at_boundary and eligible):
         return {"sel_updates": 0,
                 "note": f"await data: eligible={len(eligible)}<{args.min_eps}",
                 "stale_pending": len(stale_keys)}
@@ -215,7 +227,19 @@ def train_round(args, device):
     json.dump(sorted(consumed), open(args.cursor, "w"))
 
     reload_ok = "skipped"
-    if args.service_url and n_used:
+    # note (luojiaxuan): 热换只在回合间隙(无在途 tag)执行,否则飞行中的
+    # episode 全部跨版本作废(实测一轮 stale 15 组 ≈ 50% 数据)。间隙前的
+    # 多个训练轮共享同一 pv,轮间漂移由比率裁剪吸收(PPO 语义)。
+    tags_running = 0
+    trf = os.path.join(os.path.dirname(args.returns_file), "tags_running.txt")
+    try:
+        tags_running = int(open(trf).read().strip())
+    except (OSError, ValueError):
+        pass
+    if tags_running > 0:
+        reload_ok = f"deferred(tags_running={tags_running})"
+        open(os.path.join(os.path.dirname(args.returns_file), "want_reload"), "w").close()
+    elif args.service_url and n_used:
         new_pv = cur_pv + 1
         try:
             req = urllib.request.Request(
@@ -225,6 +249,9 @@ def train_round(args, device):
             urllib.request.urlopen(req, timeout=60).read()
             with open(pv_file, "w") as f:
                 f.write(str(new_pv))
+            wr = os.path.join(os.path.dirname(args.returns_file), "want_reload")
+            if os.path.exists(wr):
+                os.remove(wr)
             reload_ok = True
         except Exception as e:  # noqa: BLE001
             reload_ok = f"FAIL:{e}"
@@ -257,6 +284,34 @@ def main():
         args.cursor = os.path.join(args.ckpt_dir, "cursor.json")
     os.makedirs(args.ckpt_dir, exist_ok=True)
     metrics = os.path.join(args.ckpt_dir, "metrics.jsonl")
+    def try_sync_reload():
+        root = os.path.dirname(args.returns_file)
+        wr = os.path.join(root, "want_reload")
+        if not os.path.exists(wr):
+            return
+        try:
+            if int(open(os.path.join(root, "tags_running.txt")).read().strip()) > 0:
+                return
+        except (OSError, ValueError):
+            pass
+        ck = os.path.join(args.ckpt_dir, "energy_latest.pt")
+        pv_file = os.path.join(args.ckpt_dir, "selector_pv.txt")
+        if not os.path.exists(ck):
+            return
+        cur = int(open(pv_file).read().strip()) if os.path.exists(pv_file) else 0
+        try:
+            req = urllib.request.Request(
+                args.service_url.rstrip("/") + "/reload",
+                data=json.dumps({"path": ck, "pv": cur + 1}).encode(),
+                headers={"Content-Type": "application/json"})
+            urllib.request.urlopen(req, timeout=60).read()
+            with open(pv_file, "w") as f:
+                f.write(str(cur + 1))
+            os.remove(wr)
+            print(f"RELOAD_SYNC pv->{cur + 1}", flush=True)
+        except Exception as e:  # noqa: BLE001
+            print(f"RELOAD_SYNC_FAIL {e}", flush=True)
+
     while True:
         try:
             m = train_round(args, args.device)
@@ -268,6 +323,8 @@ def main():
         with open(metrics, "a") as f:
             f.write(json.dumps(m) + "\n")
         print("SEL2_TRAIN", json.dumps(m), flush=True)
+        # 边界顺序:先 flush(train_round 内完成并自带 reload),残留旗再同步。
+        try_sync_reload()
         if args.interval <= 0:
             break
         time.sleep(args.interval)
