@@ -697,3 +697,31 @@ mw-eval rollout → RLOO 组 → 版本过滤 → 向量化重算 → 热换)闭
 **首段曲线**:训练域回合均值 0.25→0.29 微升,重复任务 2 升 0 降(方向性);
 heldout 锚:recency 15.8%(恒定),learned r3 5.3% → r6 13.3%——回到基线
 带内,未见模板暂无增益,与离线严口径结论一致;判断窗口 r9/r12。
+
+
+## 24. ★ 事故:/data01 满盘(2026-09-03)——处置与整改
+
+**事故**:/data01 达 3.3T/3.5T(可用 0),trainer 写指标崩溃。**根因在我方**:
+P1–P4 停线只清了容器未清 checkpoint,`cc_recipe/run_full` 下 Megatron
+续训态 + 全史 HF 快照共 **1.75T** 长期滞留,常态精简纪律欠账。
+
+**处置**(root 属主文件走 --rm 容器删):
+- 保留三个有科学身份的权重(共 50G):`hf_p2/iter_86`(P2 末代,文档引用)、
+  `hf_p3/iter_59`(冻结基座)、`hf_p4/iter_11`(P4 终点);
+- 删除:全部 `ckpt_megatron_*`(已关闭线的续训态,权重存于 HF 格式副本)、
+  其余中间 HF 快照(逐个被后继取代)、rl_v2 已收割回合的截图、tmp;
+- 结果:**3.3T/100% → 1.6T/49%**,训练循环恢复,rollout 未中断。
+
+**兜底正本**:iter_59 已上 HF 私有仓
+`gavinlaw/causalcache-guiowl15-8b-iter59-frozen-base`(文件数对账
+UPLOAD_VERIFIED)。上传过程另записал两笔环境事实:hyper00 的
+/data01/cache/huggingface 属其他租户(默认 token 非 gavinlaw,不动);
+gavinlaw token 存于 hyper01:/data04/jaxan/awfleet/token_gavinlaw,已按
+并排命名规则复制为 hyper00:/data01/jaxan/token_gavinlaw。
+
+**整改**:
+1. rollout/锚的 harvest **收割即清截图**(补丁已部署,回合边界生效)——
+   逐帧 PNG 是持续增长源;
+2. **停线清单增补一条:磁盘盘点**——删容器的同时必须 du 本线目录并按
+   保留策略清 checkpoint,"结果落盘"与"盘不留债"同级;
+3. iter_86 / iter_11 的 HF 上传排队执行,完成后本地仅为工作副本。
