@@ -10,11 +10,15 @@ ap = argparse.ArgumentParser()
 ap.add_argument("root")
 ap.add_argument("--agent-name", default="GUIOWL15AgentMCP")
 ap.add_argument("--only-errors", action="store_true", help="只重判 result.txt 含 MemGUI-Eval error 的任务")
+ap.add_argument("--shard", type=int, default=0)
+ap.add_argument("--nshards", type=int, default=1)
 args = ap.parse_args()
-out = open(os.path.join(args.root, "rejudge.jsonl"), "a")
+out = open(os.path.join(args.root, f"rejudge_{args.shard}.jsonl"), "a")
 n = k = 0
-for d in sorted(glob.glob(os.path.join(args.root, "*/"))):
+for i, d in enumerate(sorted(glob.glob(os.path.join(args.root, "*/")))):
     task = os.path.basename(d.rstrip("/"))
+    if i % args.nshards != args.shard or task.startswith("_"):
+        continue
     if not os.path.exists(os.path.join(d, "traj.json")):
         continue
     rp = os.path.join(d, "result.txt")

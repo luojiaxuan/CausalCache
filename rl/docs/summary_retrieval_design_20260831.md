@@ -951,3 +951,33 @@ Gemini key 在开启自动充值后仍为 FreeTier 配额(flash 5 RPM / 20 RPD,q
 脚本入库 `rl/cua/scripts/memgui/`:`memgui_pool_up.sh`(起后端+登记 map)、
 `memgui_arm.sh`(一臂)、`switch_executor.sh`(切 executor 权重)、`memgui_rejudge.py`、
 `memgui_baseline_go.sh`。
+
+### 26.7 追加(18:30 PT):用户决策、两臂 rollout 完成、AndroTMem-Bench 到手
+
+**用户决策(原话要点)**:支持两级 RL 设计;judge 用不了 gemini-2.5-pro 就用 gemini-3.1-pro,
+之后基线重跑一遍分数即可;"按你说的做"(含 oracle 上界优先、AndroTMem 门控接受)。
+gemini-2.5-pro 404 的根因:Google 对该 key(末四位 DRoY)所属项目按"新用户"门控下线了
+该模型,v1/v1beta、五个版本别名、原生与 OpenAI 兼容端点、Vertex express 全部 404,
+与计费无关。**定案 judge:逐步描述 gemini-2.5-flash(论文原配),终判 gemini-3.1-pro-preview
+(替代,全部臂统一)**;开启计费后 flash 连发 15/15 通过。
+
+**MemGUI 两臂 rollout 完成**(原版 GUI-Owl-1.5-8B,各 128 题,16 台后端并行,约 1 小时):
+臂 A 官方默认历史窗(history_n=1)、臂 B recency B=2(history_n=3)。rollout 期间 judge 不可用,
+分数全 0(理由字段为 MemGUI-Eval 4xx),轨迹与截图完整;离线重判(`memgui_rejudge.py`,
+每臂 4 分片并行)18:10 PT 启动。冒烟轨迹重判验证:判成功、IRR/BadCase 分支正常。
+
+**AndroTMem-Bench(门控自动审批,gavinlaw 账号接受条款)已下载**:annos.zip 1064 个任务
+JSON、merged_anno_new.jsonl 1.9GB、imgs.zip 10.7GB(下载中)。统计:1069 题 / 34,473 步
+(均 32.2);**73.5% 的步带因果边 `links[]`(35,611 条,69.2% 标 is_critical)**,关系类型
+subgoal_prerequisite 13.1k / env_prerequisite 10.6k / **context_use 7.9k / entity_binding 4.0k**
+(后两类是"需要先前屏幕内容"的记忆边);边时滞均值 4.2 步,**≥5 步 26.6%(约 9.5k),
+≥10 步 12.7%(约 4.5k)**;动作 tap 22.4k / text 3.7k / open_app 2.6k / FINISH 1.0k;37 个中文
+app(QQ、微信、网易云、飞书、美团……)。含义:每步都有第三方标注的"依赖哪个先前步"——
+这就是外审要的 **oracle 记忆(gold anchors)**,也是记忆敏感上下文的天然筛选器
+(context_use/entity_binding 且时滞 ≥5)。评测代码仓 `CVC2233/AndroTMem` 已 clone 到
+`/data01/jaxan/AndroTMem`(AMS/TCR 定义待读)。
+
+**下一步(按外审顺序)**:(1)两臂重判出分 + IRR/FRR;(2)AndroTMem 上的 oracle 上界曲线:
+冻结 GUI-Owl-1.5-8B 在记忆敏感步上,recency / 随机远帧 / gold-anchor 帧 / 全回放 四种
+历史给法的 AMS——决定项目余量;(3)Stage I(固定 B=2、反事实记忆优势 reward、只训
+记忆敏感上下文,RLOO + 同预算监督对照)。
