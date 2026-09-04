@@ -88,10 +88,23 @@ def synth_response(step, w, h):
     elif a == "back": args_ = {"action": "system_button", "button": "Back"}
     return f"Action: {summ}\n<tool_call>\n{json.dumps({'name': 'mobile_use', 'arguments': args_}, ensure_ascii=False)}\n</tool_call>"
 
-def build_messages(task, i, S, notext=False):
+def _action_line(af):
+    a = af.get("action"); x, y = af.get("x"), af.get("y")
+    if a in ("tap", "long_press") and x is not None: return f"{a}({int(x)},{int(y)})"
+    if a == "text": return f'text("{af.get("value", "")}")'
+    if a in ("swipe", "swipe_two_points"): return f"swipe({af.get('direction', '')})"
+    if a == "open_app": return f"open_app({af.get('app_value') or af.get('value') or ''})"
+    return str(a)
+
+
+def build_messages(task, i, S, notext=False, actions_only=False):
+    # note (luojiaxuan): 文本历史三档——gold 摘要(summary_en,强)、AndroTMem v1 式仅动作(弱)、无。
     steps = task["steps"]; instr = task.get("instruction_en") or task["instruction"]
     text_idx = [] if notext else [k for k in range(i) if k not in S]
-    lines = [f"Step{k+1}: {((steps[k].get('extra_info') or {}).get('summary_en') or '').rstrip('.')}." for k in text_idx]
+    if actions_only:
+        lines = [f"Step{k+1}: {_action_line(steps[k].get('actionForm') or {})}" for k in text_idx]
+    else:
+        lines = [f"Step{k+1}: {((steps[k].get('extra_info') or {}).get('summary_en') or '').rstrip('.')}." for k in text_idx]
     msgs = [{"role": "system", "content": SYS}]
     first = [{"type": "text", "text": (GUI_OWL_1_5_USER_PROMPT_WITH_HISTSTEPS_TEMPLATE.format(instruction=instr, previous_steps="\n".join(lines)) if lines else GUI_OWL_1_5_USER_PROMPT_TEMPLATE.format(instruction=instr))}]
     chain = list(S) + [i]
@@ -119,7 +132,9 @@ def to_androtmem(parsed, w, h):
     return {"action": str(a)}
 
 def choose(task, i, gold, cond):
-    if cond in ("none", "none_notext"): return []
+    if cond in ("none", "none_notext", "none_actions"): return []
+    if cond == "recency2_actions": return [k for k in (i - 2, i - 1) if k >= 0]
+    if cond == "rec1_gold1_actions": return sorted(set([i - 1] + gold[-1:]))
     if cond == "gold_notext": return gold
     if cond == "recency2_notext": return [k for k in (i - 2, i - 1) if k >= 0]
     if cond == "recency2": return [k for k in (i - 2, i - 1) if k >= 0]
@@ -143,7 +158,7 @@ out = open(args.out, "a"); olock = threading.Lock()
 def run(task, i, gold, cond):
     steps = task["steps"]; st = steps[i]
     S = [k for k in choose(task, i, gold, cond) if steps[k]["image_name"] in have]
-    msgs = build_messages(task, i, S, notext=cond.endswith("_notext")); w, h = size(st["image_name"])
+    msgs = build_messages(task, i, S, notext=cond.endswith("_notext"), actions_only=cond.endswith("_actions")); w, h = size(st["image_name"])
     raw = agent.openai_chat_completions_create(model="gui-owl", messages=msgs, retry_times=3, temperature=0.0, top_p=1.0, max_tokens=1024)
     try:
         parsed = parse_action_to_structure_output(raw); pred = to_androtmem(parsed, w, h)
