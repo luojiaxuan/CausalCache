@@ -1214,3 +1214,25 @@ RL 线仍处 §26–27 所述的暂停状态,未启动 Stage I。
 
 (3)RL 线的状态盘点与下一步见 `rl_recipe.md`(joint 训练线)与本文件 §26–27(冻结 executor 线)
 的对照汇报(chat,2026-09-04 02:30 PT)。
+
+## 28. RL 线"稀疏信号"问题清单的状态盘点(2026-09-04 02:40 PT,应用户问"之前整理的 RL 稀疏问题解决了吗")
+
+两条 RL 线(joint 训练线 `cua_lite_integration_20260825.md` §4.x;冻结 executor 线本文件 §21–27)
+曾各自整理过一批"回报稀疏 / 无梯度"的问题。逐条对账:
+
+| # | 问题 | 处置 | 状态 | 出处 |
+|---|---|---|---|---|
+| 1 | 终局 0/1 稀疏,critic 学不出 | critic-free 组内基线(GRPO/RLOO,G=8),50 步口径混合组率 45–50% | 已做;只证 Var(R\|task)>0,不证回报与选帧协变 | rl_recipe §2 |
+| 2 | 全败/全成任务占满采样,组内零对比 | `task_priority.py`:25% 均匀地板 + 难度优先(Laplace 平滑混合组率) | 代码入库、单测绿,**真跑中从未验证生效** | rl_recipe §7 |
+| 3 | selector 梯度被裁剪吃掉(clip_frac 0.55) | PL 有序记账 bug 修复;轮内步数 27→8;>15 分钟陈旧决策丢弃;策略版本过滤 | 已修,clip_frac→0.165;但 §4.18 selector-only 两次评测符号相反、效应≈0 | cua_lite §4.16/4.18/4.19 |
+| 4 | episode 级均匀 credit 摊派 = 最大方差源 | per-step 状态依赖 baseline | **未做**(TODO 未勾) | rl_recipe §7 |
+| 5 | executor 用不动非连续帧(bootstrap 死结:selector 探索→executor 吃亏→回报低) | random-S 重渲染格式 SFT(11,190 样本,`build_random_s_sft.py`) | 料已备,**未训练**;P4 停线 | cua_lite §4.13/4.20 |
+| 6 | 非法动作(double_tap 等)训练侧静默吞掉、评测侧崩 | 计数上报 / 显式负反馈 / 动作空间差集核对 | **未做** | cua_lite §4.18 |
+| 7 | 70% RLOO 组零对比(MobileWorld heldout);根因 executor 地板 | 训练与评测主战场改到"记忆真正起作用"的可控上下文(1,853 中 452 个,24.4%) | 标签在,**训练未改** | 本文件 §26.2/26.3 |
+| 8 | 记忆敏感态上的密集反馈 | Stage I:executor 反馈 contextual bandit,反事实记忆优势 r_mem=Match(E(x,M))−Match(E(x,M₀)),只训可控上下文;Stage II 闭环 RL | 设计已外审、用户已批,**一行未写** | 本文件 §26.7、reviews/two_stage |
+| 9 | 外审前置条件:冻结 executor + oracle 记忆的闭环 Pass@1 上界 | AndroTMem 离线探针(已删);MemGUI 两臂 5.5%(50 步口径) | **未测**;仅有训练域步级可控率 24.4% 可作代理 | §27.8/27.9 |
+
+结论:解决的是管线与优化器层面的稀疏问题(#1、#3);使回报对选帧不敏感的根本原因
+(#5 executor 用不动非连续帧、#7 大多数态的结果与记忆无关)一个都没动。此外一条硬事实:
+密集行为标签的监督预训练(§19–20)域内 +5.1pp、新模板零增益(外审读为表征/泛化问题),
+因此 #8 若只换优化器不换数据分布与 executor,不应期望不同结果。
