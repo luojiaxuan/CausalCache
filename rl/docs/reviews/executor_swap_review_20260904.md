@@ -177,3 +177,14 @@ Net: swap yes; proposed gate no. The critical gate is oracle selective B=2 > rec
 - G2 主闸门(离线,heldout-39 轨迹上的动作级贪心正确率,协议同 §17):oracle-2 − recency-2 ≥ +5pp 且
   random-2 ≤ recency-2 + 2pp(即"选得准才有用");满足则进入 selector 重建,不满足则停线/缩主张。
 - 违反 G0 时不解读 G1/G2。
+
+## 4. 闸门结果(2026-09-04 08:50 PT,数据落地后填写;判据未改)
+
+| 闸门 | 预注册判据 | 结果 | 判定 |
+|---|---|---|---|
+| G0 | recency-2 在 117 题 ≥ 40% | 53/116 = 45.7%(论文 65.8%;温度 0 与 harness 差异待核) | ✓ |
+| G1 | 剂量/选择臂对 recency-2 的 W/L/T(只作诊断) | recent0 5/9/102;recent8 10/8/98;change2 6/12/98;heldout change2 4/3/31;四臂并集 56.0% | 诊断:多帧小增益,盲选远帧整体有害但救少数题 |
+| G2 | oracle-2 − recency-2 ≥ +5pp 且 random-2 ≤ recency-2 + 2pp(未见模板) | heldout 136 状态:98.5 − 90.4 = **+8.1pp**;random 88.2 ≤ 92.4;全部 396 状态 +5.8pp | ✓(形式) |
+
+赢家诅咒对照(未预注册,作为解读而非判据):72% 状态对上下文完全不敏感;recency 错的 32 态中 16 态无图亦对;
+仅远帧可救 15 态(3.8%)。结论写入 ledger §5 08:50 PT 条目;去留交用户(ledger §8)。
