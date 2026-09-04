@@ -57,9 +57,20 @@ def iter_states(roots, per_traj):
                        "cand_idx": picked}
 
 
-def messages(st, image_turns):
+def messages(st, image_turns, no_text=False):
     # note (luojiaxuan): 过往 turn j(0-based)的截图 = shots[j];当前截图 = shots[k-1]。
+    # no_text=True 为辅助诊断口径(镜像 §17 的 GUI-Owl 协议):去掉全部文本推理历史,历史截图按时间序
+    # 与当前截图放在同一条 user 消息里——衡量 executor 仅凭视觉历史能否复现参考动作。
     msgs = [{"role": "system", "content": SYSTEM_PROMPT.format(user_task=st["goal"])}]
+    if no_text:
+        content = []
+        for j in sorted(image_turns):
+            content += [{"type": "text", "text": "History Screenshot:"},
+                        {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64(st['shots'][j])}"}}]
+        content += [{"type": "text", "text": "Current Screenshot:\n"},
+                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64(st['shots'][st['step'] - 1])}"}}]
+        msgs.append({"role": "user", "content": content})
+        return msgs
     for j, raw in enumerate(st["hist"]):
         content = ""
         if j in image_turns:
@@ -92,6 +103,7 @@ def main():
     ap.add_argument("--limit", type=int, default=400)
     ap.add_argument("--workers", type=int, default=8)
     ap.add_argument("--max-tokens", type=int, default=4096)
+    ap.add_argument("--no-text", action="store_true")
     args = ap.parse_args()
     done = set()
     if os.path.exists(args.out):
@@ -106,7 +118,7 @@ def main():
     def decode(st, name, turns):
         out = post(args.base_url, {"model": "UI-Venus-2", "temperature": 0.0, "max_tokens": args.max_tokens,
                                    "repetition_penalty": 1.05, "frequency_penalty": 0.3,
-                                   "messages": messages(st, turns)})
+                                   "messages": messages(st, turns, args.no_text)})
         txt = out["choices"][0]["message"]["content"] or ""
         m = re.search(r"<action>(.*?)</action>", txt, re.S)
         return name, (m.group(1).strip() if m else ""), out.get("usage", {}).get("prompt_tokens")
