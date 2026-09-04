@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-04 03:30 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-04 03:50 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -32,13 +32,15 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | J7 | **Stage I(executor 反馈 contextual bandit)暂不启动**:同一数据上的密集监督已失败于泛化(J3),只换优化器不换数据分布/executor 不应期望不同结果 | J3 + reviews/two_stage §3 | 09-03 "两级 RL 立即开工"的排程 |
 | J8 | **MemGUI 对外基线一律引用论文 11.7% / 15.6%**;我们的 5.5% 是 50 步上限口径,只作内部配对 | §27.9–27.10;用户裁定 | — |
 | J9 | **判分只保留 Pass@1 所需调用**(逐步描述 + 终判),IRR/BadCase 关闭;终判模型 gemini-3.1-pro-preview 替代 2.5-pro 须脚注 | §27.10;开关已入库 | — |
-| J10 | **下一步 = 换 executor 为 UI-Venus-2-9B**(MemGUI 62.6%、AndroidWorld 80.2%、MobileWorld 65.8%;权重公开 18.8GB,Qwen3.5-9B 底座,vLLM 镜像已支持 Qwen3_5 架构;权重许可证"待确认"),**先做零成本余量探针**:MobileWorld heldout-39 程序判分,三臂 = 无图历史 / 最近 2 帧 / 满历史;满历史显著高于最近 2 帧才继续 | 本文件 §4 最新条目;HF 仓核验 2026-09-04 03:00 PT | GUI-Owl / iter_59 血统作为主线 |
+| J10 | **下一步 = 换 executor 为 UI-Venus-2-9B**(MemGUI 62.6、AndroidWorld 80.2、MobileWorld 65.8;权重公开 18.8GB,Qwen3.5-9B 底座,vLLM 镜像已支持;权重许可证"待确认")。**闸门按外审改判并预注册**(reviews/executor_swap_review_20260904.md §3):G0 闭环地板 recency-2 ≥ 40%(117 题);G1 剂量/选择臂 N_IMG 0/2/8 + 启发式非连续 B=2 只作诊断;**G2 主闸门 = heldout-39 轨迹上离线 oracle-2 − recency-2 ≥ +5pp 且 random-2 ≤ recency-2 + 2pp**;MemGUI 不参与任何决策 | 外审 2026-09-04 03:40 PT;HF 仓核验 03:00 PT | 03:30 PT 版 J10 的"满历史 − 最近两帧 ≥ 3pp"闸门(外审指出不是命题的必要条件) |
 
 ## 3. 当前生效的假设与口径
 
 | 假设/口径 | 取值 | 谁定的 | 依据 | 若错会怎样 |
 |---|---|---|---|---|
 | 记忆预算 B | 2 张历史帧 + 当前帧 | 外审+用户(09-01) | 可枚举 C(n,2),可变 B 排在固定 B 之后 | 结论只对 B=2 成立 |
+| 研究范围 | 文本动作/推理历史之上的**视觉情景记忆选择**(Venus N_IMG=0 仍保留 assistant 文本历史) | 外审(09-04) | Venus 官方协议 | 不得表述为"记忆 vs 无记忆" |
+| 探针考场 | MobileWorld GUI-only 全部 117 题(train 78 + heldout 39;executor 探针不涉及 selector 训练故可全用),heldout-39 另报;50 步上限 | 外审(09-04) | 39 题一题 = 2.56pp,分辨不了 3pp | — |
 | MobileWorld 切分 | 按主 app 分层 2:1,train 78 / heldout 39,seed 20260825 | 我选的 | `cc_recipe/fixtures/mw_split_v1.json` | heldout 含训练模板则泛化数字虚高 |
 | 最小值得效应 MDE | +3pp 绝对 | 外审功效论证 | rl_recipe §6 | 更小效应视为未证 |
 | "可控上下文"定义 | recency 对错、∃某帧对使贪心解码对(等价类匹配) | 我选的 | summary §26.2:1,853 中 452 个(24.4%) | ∃ 带赢家诅咒,真可控率偏低 |
@@ -65,6 +67,16 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-04 03:50 PT 外审改判闸门;Venus-2 探针 v1 停、v2 重发
+- 假设:换 executor 后"满历史 > 最近两帧"能作为记忆杠杆的闸门。
+- 现象:外审指出该闸门非命题的必要条件(token 稀释可让满历史输而 B=2 选择赢),39 题分辨不了 3pp,
+  且未诊断 selector OOD 失败就换表征是乱撞。
+- 判断:采纳。主闸门改为 Venus 上离线 oracle-2 余量(G2),闭环探针改为 117 题四臂剂量/选择诊断(G1),
+  地板健康 G0;全部在数据落地前预注册于 reviews/executor_swap_review_20260904.md §3。
+- 改动:v1 探针(heldout-39,N_IMG 0/2/all)于 08:5xZ 停止,部分结果归档 `rl_v2/venus/partial_v1_*`;
+  agent 加非连续启发臂;tally 加列联表与循环/撞限诊断;v2 探针 117 题四臂发射(见 §9 更新)。
+- 结果:待。去留:待 G0–G2。
 
 ### 2026-09-04 03:00 PT 判断整合与方向改判(本文件建立)
 - 假设:历史台账互相冲突导致我反复改口(SFT 一会做一会不做)。
@@ -139,14 +151,17 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | MemGUI 定稿运行的判分预算 | 每臂约 $10–15(开关已开) | 只跑定稿配置一次 | 无对外可比数字 |
 | 第二档磁盘清理(hyper00 `osworld/` 33G、`aw/` 13G) | 删 | 均已上 HF 或可重建 | 占盘 |
 
-## 9. 未来 6 小时的执行计划(2026-09-04 03:30–09:30 PT,用户睡眠期间)
+## 9. 未来 6 小时的执行计划(2026-09-04 03:50 PT 修订,用户睡眠期间)
 
-1. 外审(ChatGPT)方向 J10;结果落 `reviews/executor_swap_review_20260904.md`,采纳与否写回本文件 §5。
-2. hyper00:删 GUI-Owl executor 容器 rle(任务已结束),GPU1 起 UI-Venus-2-9B vLLM 服务(reasoning
-   parser qwen3),map 登记。
-3. 把 UI-Venus-2 官方 mobile agent(N_IMG 历史截图 + 完整推理历史)移植进 MobileWorld harness,
-   单任务冒烟。
-4. 重启 8–16 台池容器,heldout-39 三臂探针(N_IMG = 0 / 2 / 满),程序判分,零 API 费用;每臂
-   预计 1–2 小时。
-5. 出数 → 更新本文件 §2 J10 与 §5;若满历史显著高于最近 2 帧,起草 selector 表征改造计划;否则
-   写"换 executor 亦无余量"的负结果并停。
+1. [done 03:40 PT] 外审落盘 `reviews/executor_swap_review_20260904.md`,闸门 G0–G2 预注册。
+2. [done 01:50–03:00 PT] rle(GUI-Owl)容器删除;GPU1 起 `sglang-omni-jaxan-3` = UI-Venus-2-9b vLLM
+   (131k 上下文,64 图/请求);map 登记;Venus-2 官方 mobile 协议移植为 `ui_venus2` agent,单任务冒烟通过
+   (8 步、约 5 s/步)。
+3. 探针 v2:MobileWorld 117 题 × 四臂(N_IMG 0 / 2 / 8 / 启发式非连续 B=2),池 p00–p11 并发 12,程序判分,
+   零 API 费用;每臂预计 40–60 分钟;tally 报成功率、对 recency-2 的 wins/losses/ties、死循环率、撞限率、
+   成功中位步数;heldout-39 另报。
+4. 离线 G2:在 heldout-39 的既有轨迹上用 Venus-2 跑 current-only / recency-2 / random-2 / oracle-2 的贪心
+   动作正确率(协议同 §17,需把 `behav_label_full.py` 的 prompt/历史格式换成 Venus 协议)。若时间允许在
+   探针 v2 之后起。
+5. 出数 → 更新 §2 J10 与 §5;G2 成立则起草 selector 重建方案(先诊断 OOD 失败原因,再谈表征),否则写
+   负结果并停。
