@@ -21,6 +21,12 @@ def parse(a):
     return name, params
 
 
+def pt(v):
+    # note (luojiaxuan): 无文本历史口径下模型更常把坐标写成标量或残缺串(系统边界:解析模型输出),
+    # 非法坐标归 None,按"动作不匹配"计。
+    return tuple(v) if isinstance(v, (tuple, list)) and len(v) == 2 and all(isinstance(x, (int, float)) for x in v) else None
+
+
 def match(dec, ref):
     if dec is None or ref is None:
         return None
@@ -28,11 +34,11 @@ def match(dec, ref):
     if dn != rn:
         return 0
     if dn in ("Click", "DoubleClick", "LongPress"):
-        a, b = dp.get("point") or dp.get("box"), rp.get("point") or rp.get("box")
+        a, b = pt(dp.get("point") or dp.get("box")), pt(rp.get("point") or rp.get("box"))
         return int(bool(a and b) and math.dist(a, b) <= TOL)
     if dn in ("Swipe", "Drag"):
-        ok = all(k in dp and k in rp for k in ("start", "end"))
-        return int(ok and math.dist(dp["start"], rp["start"]) <= TOL and math.dist(dp["end"], rp["end"]) <= TOL)
+        ds, de, rs, re_ = pt(dp.get("start")), pt(dp.get("end")), pt(rp.get("start")), pt(rp.get("end"))
+        return int(all((ds, de, rs, re_)) and math.dist(ds, rs) <= TOL and math.dist(de, re_) <= TOL)
     if dn == "Finished":
         # note (luojiaxuan): 结束动作的 content 是自由文本总结,类型相同即等价。
         return 1
