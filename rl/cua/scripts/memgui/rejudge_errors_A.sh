@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # note (luojiaxuan): 臂 A 补跑期间 judge 有 86 次 429,43 题落成 error decision;低并发(2 分片)只重判错误项。
 set -uo pipefail
+# note (luojiaxuan): 只要 Pass@1,跳过 IRR/BadCase 两次终判模型调用。
+export MEMGUI_SKIP_PROCESS_METRICS=${MEMGUI_SKIP_PROCESS_METRICS:-1}
 export PATH="/data01/jaxan/binshim:$HOME/.local/bin:$PATH"
 cd /data01/jaxan/memgui
 sed -i "s/^MEMGUI_LLM_MAX_CONCURRENCY=.*/MEMGUI_LLM_MAX_CONCURRENCY=2/" /data01/jaxan/memgui/.env
