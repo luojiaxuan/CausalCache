@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
-# note (luojiaxuan): random-S 重渲染 SFT 数据构建(批60 诊断分诊的首选
-# 后手)。对已落盘的成功轨迹逐步重渲染:候选历史帧里随机抽 B=2 帧
-# (非连续),按官方 WITH_HISTSTEPS 布局重建输入,目标 = 原 prediction
-# 原文。只教"读非连续历史"的格式,不教"选哪几帧"(选择仍归 selector RL)。
+# note (luojiaxuan): 历史布局重渲染的 SFT 数据构建。对已落盘的成功轨迹逐步重渲染:按 --frame-rule
+# 从候选历史帧里取 B 帧,按官方 WITH_HISTSTEPS 布局重建输入,目标 = 原 prediction 原文。
+# 只教"读这种历史布局",不教"选哪几帧"。三种规则构成严格配对的对照组——同轨迹、同目标、
+# 同图像张数,只改是哪几张:
+#   recency = 最近 B 帧(连续尾窗,官方默认布局)
+#   older   = 与 random 同 rng 抽样后取其中位帧龄处的相邻 B 帧(平均时间距离与 random 配平,
+#             但两帧相邻)——隔离"非连续"本身
+#   random  = 随机 B 帧(非连续)
+#   oracle  = 需要 --oracle-labels 给出的每状态最优帧集(缺失时退回 random 并计数)
 # 纯 CPU 离线,不占 GPU。
 import argparse, glob, json, os, random, re
 import sys
@@ -67,9 +72,18 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--budget", type=int, default=2)
     ap.add_argument("--seed", type=int, default=20260828)
+    ap.add_argument("--frame-rule", choices=("random", "recency", "older", "oracle"), default="random")
+    ap.add_argument("--oracle-labels", default="",
+                    help="oracle 规则用:每行 {task, step, keep} 的 jsonl")
     args = ap.parse_args()
 
     rng = random.Random(args.seed)
+    oracle = {}
+    if args.frame_rule == "oracle":
+        for line in open(args.oracle_labels):
+            r = json.loads(line)
+            oracle[(r["task"], r["step"])] = r["keep"]
+    n_oracle_miss = 0
     trajs = load_ok_trajs(args.roots)
     n_samples = n_skip = 0
     with open(args.out, "w") as fo:
@@ -88,7 +102,22 @@ def main():
                     break
                 total = k
                 budget = min(args.budget, total)
-                S = sorted(rng.sample(range(total), budget)) if budget else []
+                if not budget:
+                    S = []
+                elif args.frame_rule == "recency":
+                    S = list(range(total - budget, total))
+                elif args.frame_rule == "older":
+                    base = sorted(rng.sample(range(total), budget))
+                    m = min(max(sum(base) // len(base), 0), max(total - budget, 0))
+                    S = list(range(m, m + budget))
+                elif args.frame_rule == "oracle":
+                    S = oracle.get((os.path.basename(d.rstrip("/")), k + 1))
+                    if S is None:
+                        n_oracle_miss += 1
+                        S = sorted(rng.sample(range(total), budget))
+                    S = sorted(i for i in S if i < total)[:budget]
+                else:
+                    S = sorted(rng.sample(range(total), budget))
                 imgs = [shots[i] for i in S] + [shots[k]]
                 if concl:
                     prev = "\n".join(
@@ -111,7 +140,9 @@ def main():
                 c = extract_conclusion(pred)
                 if c:
                     concl.append(add_period_robustly(c))
-    print(f"成功轨迹 {len(trajs)} 条,跳过(无截图) {n_skip};SFT 样本 {n_samples} 条 -> {args.out}")
+    print(f"成功轨迹 {len(trajs)} 条,跳过(无截图) {n_skip};规则 {args.frame_rule};"
+          f"SFT 样本 {n_samples} 条" + (f",oracle 缺失回退 {n_oracle_miss}" if args.frame_rule == "oracle" else "")
+          + f" -> {args.out}")
 
 
 if __name__ == "__main__":
