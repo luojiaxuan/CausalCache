@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-04 03:50 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-04 04:15 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -8,9 +8,10 @@
 
 四条 RL 线中三条已判死或停线(OSWorld v1/v2、MobileWorld 联合训练 P1–P4、冻结 iter_59 的
 selector 终局 RL),第四条(MemGUI 闭环基线)已出数但只作内部配对口径。当前判断:**瓶颈不是
-RL 优化器,而是(a)selector 选帧精度跨模板不泛化、(b)executor 任务级地板**;下一步是
-换 executor 为 UI-Venus-2-9B 并先做零成本余量探针(MobileWorld heldout 三臂),再决定是否
-在其上重做 selector 表征。该方向 2026-09-04 03:30 PT 送外审,外审为输入不阻塞。
+RL 优化器,而是(a)selector 选帧精度跨模板不泛化、(b)executor 任务级地板**。执行中(2026-09-04
+02:01Z 起,用户睡眠期间):executor 已换为 UI-Venus-2-9B(hyper00 GPU1,容器 `sglang-omni-jaxan-3`),
+闭环探针 v2(MobileWorld 117 题 × 四臂,09:01Z 起,预计 4 小时)在跑,收官后自动接离线主闸门 G2
+(oracle-2 余量,预计 1 小时);外审已落盘并采纳(闸门 G0–G2 预注册)。下一个决策点 = G2 结果。
 
 ## 1. 三十秒背景
 
@@ -157,11 +158,11 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 2. [done 01:50–03:00 PT] rle(GUI-Owl)容器删除;GPU1 起 `sglang-omni-jaxan-3` = UI-Venus-2-9b vLLM
    (131k 上下文,64 图/请求);map 登记;Venus-2 官方 mobile 协议移植为 `ui_venus2` agent,单任务冒烟通过
    (8 步、约 5 s/步)。
-3. 探针 v2:MobileWorld 117 题 × 四臂(N_IMG 0 / 2 / 8 / 启发式非连续 B=2),池 p00–p11 并发 12,程序判分,
+3. [running 09:01Z] 探针 v2:MobileWorld 117 题 × 四臂(N_IMG 0 / 2 / 8 / 启发式非连续 B=2),池 p00–p11 并发 12,程序判分,
    零 API 费用;每臂预计 40–60 分钟;tally 报成功率、对 recency-2 的 wins/losses/ties、死循环率、撞限率、
    成功中位步数;heldout-39 另报。
-4. 离线 G2:在 heldout-39 的既有轨迹上用 Venus-2 跑 current-only / recency-2 / random-2 / oracle-2 的贪心
-   动作正确率(协议同 §17,需把 `behav_label_full.py` 的 prompt/历史格式换成 Venus 协议)。若时间允许在
-   探针 v2 之后起。
+4. [armed] 离线 G2:`venus_oracle.py`(Venus 官方多轮协议,23 上下文/状态,状态取自 v2 四臂成功轨迹,≤400
+   状态,heldout-39 / train-78 分报)+ `venus_oracle_verdict.py`(0–999 网格 TOL=60 等价类);两状态管线
+   测试通过;`venus_g2_after_probe.sh` 等 v2 收官自动执行,产物 `rl_v2/venus/oracle_v2_verdict.txt`。
 5. 出数 → 更新 §2 J10 与 §5;G2 成立则起草 selector 重建方案(先诊断 OOD 失败原因,再谈表征),否则写
    负结果并停。
