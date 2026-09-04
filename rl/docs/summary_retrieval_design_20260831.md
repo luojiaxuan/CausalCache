@@ -1134,3 +1134,63 @@ rec1_gold1(_notext) 比 recency2(_notext) 高 ≥3pp 且恢复率明显高于伤
 只在"原版模型 + gold 文本历史 + 离线 teacher-forced"这一设定下成立,**不外推到闭环**。
 
 当前唯一活动线:MemGUI-Bench 闭环基线(臂 A 7/128;臂 B 补跑第 2 轮进行中)。
+
+### 27.9 ★★ MemGUI 闭环配对基线终表;两处必须先报的问题:步数预算协议偏差、判分 API 花费(2026-09-04 01:20 PT)
+
+**终表**(executor = 原版 GUI-Owl-1.5-8B-Instruct,vLLM,hyper00 GPU1;judge = 逐步 gemini-2.5-flash +
+终判 gemini-3.1-pro-preview;每臂 128 题各一次;缺失计失败;两臂现已 128/128 有判定,判错 0):
+
+| 臂 | 历史给法 | Pass@1 | 难度 1 / 2 / 3 | requires_ui_memory N / Y |
+|---|---|---|---|---|
+| A `armA_base_hist1` | 官方默认窗(history_n=1,仅当前帧) | **7/128 = 5.5%** | 7/48 · 0/42 · 0/38 | 7/13 · 0/115 |
+| B `armB_base_recency_h3` | recency B=2(history_n=3,最近两帧+当前) | **7/128 = 5.5%** | 5/48 · 1/42 · 1/38 | 5/13 · 2/115 |
+
+同题配对:两臂同成 4、仅 A 成 3(005/006-SearchSportsScores、024-ToggleSystemSetting)、仅 B 成 3
+(001-FindProductAndFilter、022-NavigateAndComparePrices[难度 2,需记忆]、079-FindRecipeAndCreateList
+[难度 3,需记忆])、同败 118。McNemar 精确检验 3:3,p = 1.0;n=128 下 5.5% 的标准误约 2pp。
+读法:多给一张最近帧对总分无影响;B 臂拿下的两道"需记忆"题是仅有的正向迹象,3 对 3 的不一致
+项完全在噪声内。**这两个数是配对且同协议的,可互比;但不能与榜单比,见下。**
+
+**失败模式**(两臂 128 条轨迹):撞满 50 步上限的 episode 占 83%(A)/ 81%(B);尾部 8 步动作≤2 种
+(死循环)占 22%(A)/ **49%(B)**——多给一张帧使重复动作率翻倍;judge 理由含 loop/stuck/repeat 的
+70/128(A)、66/128(B)。成功轨迹短:A 的 7 例长度 9/11/13/13/23/50/50。每步 prompt 4.0k(A)/ 9.0k(B)
+token。结论不变:这个 executor 在 MemGUI 上处于地板,帧选择没有杠杆——但地板的**一部分是我们的
+上限造成的**,见下一条。
+
+**协议偏差(我的错误,必须先纠正再谈可比性)**:`memgui_arm.sh` 写死 `--max-round 50`;官方口径是
+不传该参数、runner 取每题 `int(golden_steps × 2.5 + 1)`(`core/runner.py:87`;README 同)。128 题
+golden_steps 中位数 32(3–160),官方预算中位数 81、最大 401;**90/128 题官方预算 > 50**。两臂撞
+50 步的 episode 里,官方预算本应更大的有 **79 条(A)/ 75 条(B)**——这些题被我们提前截断。
+因此 5.5% 只是官方口径下的**下界**,与榜单 GUI-Owl-1.5-8B-Instruct **Pass@1 11.7% / Pass@3 15.6%
+(IRR 15.5 / FRR 4.0;32B 为 10.9 / 20.3)**不可直接比。可排除的混杂:移植 agent 在
+`CC_FRAME_POLICY=recent` 下与官方 agent 逐字节等价(parity 测试),臂 A 的 prompt 即官方 prompt;
+仍未排除的混杂:终判模型 3.1-pro-preview 替代 2.5-pro。修复已落地但**未执行**:`memgui_arm.sh`
+默认不传 `--max-round`(`MG_MAX_ROUND` 显式设定时才固定上限),`memgui_pass_loop.sh` 臂列表改
+`ARM_SPECS` 参数,`missing_tasks.py` 接受臂名,新 wrapper `memgui_official_run.sh` 逐臂
+串行(补跑收敛 → 两遍低并发补判 → 终表)。
+
+**判分 API 花费事故(用户 01:00 PT 指出账单约 50 美元)**:MemGUI-Eval `mode=full` 对每条轨迹
+做 (i) 每步一次 flash 图文调用(截图 + 动作,约 50 次/轨迹),(ii) 终判一次 pro 调用(最后 3 张截图
+拼图 + 全部步骤描述),(iii) **IRR 分析一次 pro 调用**,(iv) **BadCase 分类一次 pro 调用**——(iii)(iv)
+是榜单的 IRR/FRR 列所需,**Pass@1 不需要**,evaluator 里无开关、无条件执行。单价:flash
+$0.30 / $2.50 每百万 token(harness 内置价目),3.1-pro-preview **$2 / $12 每百万 token,思考
+token 计入输出**。估算每条 50 步轨迹一次完整判分约 $0.05(flash)+ $0.10–0.15(三次 pro,含思考)
+≈ $0.15–0.20。我们的判分次数被放大:rollout 期 judge 4xx(免费)→ 离线全量重判 → 补跑期 in-run
+判分 → 429 判错项 `--no-resume` 重判(每次重判**整条轨迹重描述**,harness 不缓存步骤描述)→ 两遍
+扫尾 + 冒烟。盘面证据(重判会覆盖工作区,故为下界):步骤描述文件 16,199 个、终判 355 个、IRR 300
+个、BadCase 339 个。按 300–350 条轨迹次 × $0.15–0.20 ≈ $50,与账单一致。
+**处置**:官方口径重跑于 00:49 PT 启动,收到用户消息后 01:00 PT 用 `stop_official_run.sh` 停止
+(9 题起跑、2 题已判),此后无任何 judge 调用;**判分花费自此列为硬停止项,预算未获授权前不
+再发起任何调用 judge 的运行**。若用户授权重跑官方口径,费用估算:轨迹约 2 倍长,原样 mode=full
+约 $80–100 / 两臂;补一个跳过 IRR/BadCase 的开关(只做 Pass@1 所需的两类调用)约 $40–50;
+再把 429 重判改为复用已有步骤描述可再省约 1/3。执行前须做的三件事:去掉 IRR/BadCase 调用、
+in-run 判分并发压到 2 以杜绝 429 重判、只判一次不做"全量重判"。
+
+**决策日志(已作废,留档)**:问题=当前 50 步上限的分数是否需按官方口径重跑;默认=重跑两臂,臂 A
+先;理由=否则与榜单不可比,"重新拿个分数"的要求未完成;回滚=`stop_official_run.sh`(已执行);
+外审=未发(运维级判断,答案明显)。**作废原因**:该决定隐含约 $80–100 的 API 花费而未先取得
+预算授权,属硬停止范围;等用户定预算。
+
+**当前状态(01:20 PT)**:hyper00 无 judge/评测进程;后端 mga_0..4 在线(纯 CPU,无 API 费用,
+map 保留期 2026-09-06 PT);executor rle(GPU1)空闲;两臂旧结果目录 61G(含截图)保留作证据;
+RL 线仍处 §26–27 所述的暂停状态,未启动 Stage I。
