@@ -34,6 +34,7 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | J9 | **判分只保留 Pass@1 所需调用**(逐步描述 + 终判),IRR/BadCase 关闭;终判模型 gemini-3.1-pro-preview 替代 2.5-pro 须脚注 | §27.10;开关已入库 | — |
 | J10 | **下一步 = 换 executor 为 UI-Venus-2-9B**(MemGUI 62.6、AndroidWorld 80.2、MobileWorld 65.8;权重公开 18.8GB,Qwen3.5-9B 底座,vLLM 镜像已支持;权重许可证"待确认")。**闸门按外审改判并预注册**(reviews/executor_swap_review_20260904.md §3):G0 闭环地板 recency-2 ≥ 40%(117 题);G1 剂量/选择臂 N_IMG 0/2/8 + 启发式非连续 B=2 只作诊断;**G2 主闸门 = heldout-39 轨迹上离线 oracle-2 − recency-2 ≥ +5pp 且 random-2 ≤ recency-2 + 2pp**;MemGUI 不参与任何决策 | 外审 2026-09-04 03:40 PT;HF 仓核验 03:00 PT | 03:30 PT 版 J10 的"满历史 − 最近两帧 ≥ 3pp"闸门(外审指出不是命题的必要条件) **[08:50 PT 结果]** G0 ✓(recency-2 45.7%);G1 剂量 42.2→45.7→47.4,启发式净负 6 但救 6;G2 形式 ✓(+5.8pp)但赢家诅咒对照显示视觉记忆特有可救状态仅约 4%。**去留待用户裁决(§8)** |
 | J11 | **控制对象 = 动态 B(用户 2026-09-04 11:10 PT 定案)**:文本推理历史恒定保留,平时 B=0 不存图,只在需要视觉记忆时才取 B 张。取代我提的『文本与帧的预算分配』(用户判:记忆方向已拥挤,且探针本身表明保留文本即够,分配问题不成立) | 用户裁定;§5 10:40 PT 与 08:50 PT 的数据 | 我 09-04 10:45 PT 的 §8 推荐 |
+| J12 | **UI-Venus-2 的 MemGUI 62.6 / MobileWorld 65.8 是他方自报,不进我们的任何基线表**(只可标注为『他方自报』)。理由:(a) MemGUI 仓库 `site/leaderboard.json` 只有 8 条、最高 M3A 32.8,Qwen3-VL-235B 仅 23.4,62.6/77.3 只出现在 README 新闻栏的第三方自报;(b) 我们按官方协议、官方 mobile 示例逐条移植,同 117 题 50 步测得 45.7%,比其自报低 20pp,复现不出;(c) 时间线上 MemGUI 2026-02-09 公开,UI-Venus-2 2026-08 才发布(Qwen3.5-9B 底座),GUI-Owl-1.5 2026-02-15 与 benchmark 同期——两者不在同样的『benchmark 是否已公开』条件下。**我们对外只用自测的配对数**(Venus 45.7% vs GUI-Owl heldout ≈16%,同考场同协议) | 本地 leaderboard.json;§5 07:05 PT;arXiv 2609.00028 / 2602.06075 | 此前把 62.6 当作『换 executor 的理由之一』的表述 |
 
 ## 3. 当前生效的假设与口径
 
@@ -51,7 +52,7 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 判分模型 | 逐步 gemini-2.5-flash;终判 gemini-3.1-pro-preview | 用户裁定(2.5-pro 账号门控) | §26.7 | 与榜单判分不完全同源,须脚注 |
 | 判分费用 | **硬停止**:未获预算不发起任何 judge 调用 | 用户(09-04 01:00 PT) | §27.9 事故 | — |
 | selector 特征 | 冻结视觉塔均值池化 + 文本 embedding 均值 | 我选的 | summary §12/§19 | 已判为泛化瓶颈(J3) |
-| 榜单对照 | GUI-Owl-1.5-8B 11.7/15.6;UI-Venus-2-9B 62.6 | 第三方 | `memgui/site/leaderboard.json`、Venus README | — |
+| 榜单对照 | **官方榜单**(leaderboard.json):M3A 32.8、Qwen3-VL-235B 23.4、GUI-Owl-1.5-8B 11.7/15.6。**他方自报**(README 新闻栏,不入基线表):UI-Venus-2-9B 62.6、Qwen-UI-Agent 77.3 | 第三方 | `memgui/site/leaderboard.json` 与 README | 见 J12 |
 | 主机/算力 | hyper00,账号 4 卡上限;executor 单卡 vLLM | 全局规则 | — | — |
 
 ## 4. 已剪枝与未做的事
