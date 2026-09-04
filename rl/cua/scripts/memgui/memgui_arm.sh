@@ -5,6 +5,8 @@
 # executor 走本机 vLLM(gui-owl);judge 由 .env 配置(逐步 gemini-2.5-flash,终判 gemini-3.1-pro-preview)。
 # 步数预算默认沿用官方口径(不传 --max-round,runner 取 golden_steps*2.5+1);MG_MAX_ROUND 设定时改为固定上限。
 set -uo pipefail
+# note (luojiaxuan): 只要 Pass@1,跳过 IRR/BadCase 两次终判模型调用。
+export MEMGUI_SKIP_PROCESS_METRICS=${MEMGUI_SKIP_PROCESS_METRICS:-1}
 export PATH="/data01/jaxan/binshim:$HOME/.local/bin:$PATH"
 ARM=$1; POL=$2; HN=$3; NB=$4; shift 4
 cd /data01/jaxan/memgui
