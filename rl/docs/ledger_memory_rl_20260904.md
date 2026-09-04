@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-04 12:10 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-04 13:00 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -35,6 +35,7 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | J10 | **下一步 = 换 executor 为 UI-Venus-2-9B**(MemGUI 62.6、AndroidWorld 80.2、MobileWorld 65.8;权重公开 18.8GB,Qwen3.5-9B 底座,vLLM 镜像已支持;权重许可证"待确认")。**闸门按外审改判并预注册**(reviews/executor_swap_review_20260904.md §3):G0 闭环地板 recency-2 ≥ 40%(117 题);G1 剂量/选择臂 N_IMG 0/2/8 + 启发式非连续 B=2 只作诊断;**G2 主闸门 = heldout-39 轨迹上离线 oracle-2 − recency-2 ≥ +5pp 且 random-2 ≤ recency-2 + 2pp**;MemGUI 不参与任何决策 | 外审 2026-09-04 03:40 PT;HF 仓核验 03:00 PT | 03:30 PT 版 J10 的"满历史 − 最近两帧 ≥ 3pp"闸门(外审指出不是命题的必要条件) **[08:50 PT 结果]** G0 ✓(recency-2 45.7%);G1 剂量 42.2→45.7→47.4,启发式净负 6 但救 6;G2 形式 ✓(+5.8pp)但赢家诅咒对照显示视觉记忆特有可救状态仅约 4%。**去留待用户裁决(§8)** |
 | J11 | **控制对象 = 动态 B(用户 2026-09-04 11:10 PT 定案)**:文本推理历史恒定保留,平时 B=0 不存图,只在需要视觉记忆时才取 B 张。取代我提的『文本与帧的预算分配』(用户判:记忆方向已拥挤,且探针本身表明保留文本即够,分配问题不成立) | 用户裁定;§5 10:40 PT 与 08:50 PT 的数据 | 我 09-04 10:45 PT 的 §8 推荐 |
 | J12 | **UI-Venus-2 的 MemGUI 62.6 / MobileWorld 65.8 是他方自报,不进我们的任何基线表**(只可标注为『他方自报』)。理由:(a) MemGUI 仓库 `site/leaderboard.json` 只有 8 条、最高 M3A 32.8,Qwen3-VL-235B 仅 23.4,62.6/77.3 只出现在 README 新闻栏的第三方自报;(b) 我们按官方协议、官方 mobile 示例逐条移植,同 117 题 50 步测得 45.7%,比其自报低 20pp,复现不出;(c) 时间线上 MemGUI 2026-02-09 公开,UI-Venus-2 2026-08 才发布(Qwen3.5-9B 底座),GUI-Owl-1.5 2026-02-15 与 benchmark 同期——两者不在同样的『benchmark 是否已公开』条件下。**我们对外只用自测的配对数**(同为 MobileWorld heldout 口径:Venus recency-2 39.5%/38 题;GUI-Owl 三臂 9/36、9/35、12/35 = 25–34%,来自 §4.15 期的联合训练 checkpoint) | 本地 leaderboard.json;§5 07:05 PT;arXiv 2609.00028 / 2602.06075 | 此前把 62.6 当作『换 executor 的理由之一』的表述 |
+| J13 | **主张按外审弱化(2026-09-04 12:50 PT)**:不是『训练造出了利用非连续帧的能力』(冻结模型本来就会用 oracle 对:Venus 去文本 +30.0pp、GUI-Owl +17.7pp),而是**『配对的历史采样训练会改变 agent 从检索到的截图中获得的收益;因此冻结 agent 的比较不必然预测联合适配系统的排名与表现』**。核心实验为三臂配对 SFT + 固定选择器交互效应 | reviews/history_layout_sft_review_20260904.md | 我 09-04 11:40 PT 的『训练造出能力』表述 |
 
 ## 3. 当前生效的假设与口径
 
@@ -70,6 +71,22 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-04 13:00 PT 三臂配对数据集建成,时间距离与非连续性已分离
+- 外审要求加 OLDER-CONTIGUOUS 臂把『看更老的帧』与『两帧彼此散开』分开。实现:older 规则与 random 共用
+  同一个 rng 抽样,取其两帧**中位帧龄**处的一对**相邻**帧。三臂状态键完全一致,各 15,473 条:
+
+| 臂 | 平均帧龄(中位/均值) | 两帧间距(中位/均值) | 隔离了什么 |
+|---|---|---|---|
+| recency | 1.5 / 1.5 | 1.0 / 1.0 | 基线(官方默认布局) |
+| older | 10.5 / 12.5 | 1.0 / 1.0 | 与 recency 比 → **帧龄**的作用 |
+| random | 10.5 / 12.7 | 6.0 / 8.7 | 与 older 比 → **非连续性**的作用(帧龄已配平) |
+
+  older 与 random 的平均帧龄中位数都是 10.5、均值 12.5 vs 12.7,**时间距离配平**;唯一差别是两帧相邻还是散开。
+- 无关历史对照(测干扰易感性)属**评测期**控制,不是训练臂:喂来自其他轨迹的历史帧,看各臂退化多少;
+  实现放在标注器里,发射评测前完成。
+- 脚本:`build_random_s_sft.py --frame-rule {recency,older,random,oracle}`;产物
+  `sglang-omni-rl/sft_{recency,older,random}_v2.jsonl`。
 
 ### 2026-09-04 12:05 PT GUI-Owl 地板的失败形态拆解(回答用户『是不是一直打转用完步数』)
 - MobileWorld heldout 三臂(`traj_final_held_{recency,S0,St}`)的失败轨迹拆解:
