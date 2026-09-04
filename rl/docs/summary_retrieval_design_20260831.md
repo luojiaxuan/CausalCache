@@ -1074,3 +1074,25 @@ oracle 余量 ≈ 0——无论替换还是追加,远程截图都不优于最近
 仍可用同一套 bandit→RL 机制训(AndroTMem ASM、MemGUI-Agent 所在赛道);(B)换更强的
 冻结 executor(GUI-Owl-1.5-32B / Qwen3-VL)重跑同一探针,验证"是否存在能用远程截图的
 executor"——用现有脚本几小时可得;(C)放开 executor 训练(改题)。方向性抉择交用户。
+
+### 27.6 MemGUI 基线的运维收敛(2026-09-03 22:00 PT):三层根因与最终协议
+
+三层根因(逐层证实):
+1. **宿主 inotify 配额**:`fs.inotify.max_user_instances=128` 按 UID 计,所有容器均为 root
+   共享;宿主 71 个 root 容器时我们第 8 台后端里 adb 起不来(`failed to create inotify fd:
+   Too many open files`),模拟器恢复后 adb 报 `device unauthorized`。管理员侧一行 sysctl
+   可解,已请用户转达;在此之前我方最多 5–7 台后端。
+2. **官方 `mg env run` 起的容器无 init**:PID 1 是 `tail -f`,模拟器崩溃后成 `<defunct>`,
+   容器内恢复脚本永远 `in_progress`。改为按其 dry-run 原命令自起并加 `--init`。
+3. **runner 的自愈路径**:显式 `--aw-host` 时不知道容器名(不能自愈);知道容器名后又会
+   对起不健康的后端**无限重建**(重建出的容器无 init),病后端以 0 秒假完成吞掉任务
+   (臂 B 一轮 96 题里 76 题为假完成)。
+
+最终协议(`memgui_pass_loop.sh`):我方接管后端健康——每轮开始删掉不健康/无 init 的后端、
+带 `--init` 重起到 5 台、等 healthy;计算该臂**轨迹为空**的任务只跑这些(runner 按前缀自动
+发现,并发 = 健康后端数);最多 4 轮直到无缺失。判分:in-run judge 在 7 路并发下有 429
+(臂 A 86 次、43 题判错),统一用 `memgui_rejudge.py --only-errors --no-resume` 低并发补判;
+runner 重试留下的 `<task>_backup_<ts>` 目录不是评测单元,跳过。分数口径:每臂 128 题,
+成功数 / 128(缺失即失败)与 成功数 / 有效判定数 两列并报。
+
+臂 A(官方默认历史窗)当前:7 题成功,41 题判错待补判,其余判定失败。
