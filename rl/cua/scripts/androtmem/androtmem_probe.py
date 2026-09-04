@@ -88,9 +88,9 @@ def synth_response(step, w, h):
     elif a == "back": args_ = {"action": "system_button", "button": "Back"}
     return f"Action: {summ}\n<tool_call>\n{json.dumps({'name': 'mobile_use', 'arguments': args_}, ensure_ascii=False)}\n</tool_call>"
 
-def build_messages(task, i, S):
+def build_messages(task, i, S, notext=False):
     steps = task["steps"]; instr = task.get("instruction_en") or task["instruction"]
-    text_idx = [k for k in range(i) if k not in S]
+    text_idx = [] if notext else [k for k in range(i) if k not in S]
     lines = [f"Step{k+1}: {((steps[k].get('extra_info') or {}).get('summary_en') or '').rstrip('.')}." for k in text_idx]
     msgs = [{"role": "system", "content": SYS}]
     first = [{"type": "text", "text": (GUI_OWL_1_5_USER_PROMPT_WITH_HISTSTEPS_TEMPLATE.format(instruction=instr, previous_steps="\n".join(lines)) if lines else GUI_OWL_1_5_USER_PROMPT_TEMPLATE.format(instruction=instr))}]
@@ -119,9 +119,13 @@ def to_androtmem(parsed, w, h):
     return {"action": str(a)}
 
 def choose(task, i, gold, cond):
-    if cond == "none": return []
+    if cond in ("none", "none_notext"): return []
+    if cond == "gold_notext": return gold
+    if cond == "recency2_notext": return [k for k in (i - 2, i - 1) if k >= 0]
     if cond == "recency2": return [k for k in (i - 2, i - 1) if k >= 0]
     if cond == "gold": return gold
+    if cond == "rec1_gold1": return sorted(set([i - 1] + gold[-1:]))
+    if cond == "rec2_gold1": return sorted(set([k for k in (i - 2, i - 1) if k >= 0] + gold[-1:]))
     if cond == "random2":
         pool = [k for k in range(0, i - 4) if k not in gold and task["steps"][k]["image_name"] in have]
         return sorted(random.Random(hash((task["task_id"], i))).sample(pool, min(2, len(pool)))) if pool else []
@@ -137,7 +141,7 @@ out = open(args.out, "a"); olock = threading.Lock()
 def run(task, i, gold, cond):
     steps = task["steps"]; st = steps[i]
     S = [k for k in choose(task, i, gold, cond) if steps[k]["image_name"] in have]
-    msgs = build_messages(task, i, S); w, h = size(st["image_name"])
+    msgs = build_messages(task, i, S, notext=cond.endswith("_notext")); w, h = size(st["image_name"])
     raw = agent.openai_chat_completions_create(model="gui-owl", messages=msgs, retry_times=3, temperature=0.0, top_p=1.0, max_tokens=1024)
     try:
         parsed = parse_action_to_structure_output(raw); pred = to_androtmem(parsed, w, h)

@@ -13,19 +13,28 @@ ap.add_argument("--only-errors", action="store_true", help="只重判 result.txt
 ap.add_argument("--shard", type=int, default=0)
 ap.add_argument("--nshards", type=int, default=1)
 args = ap.parse_args()
+# note (luojiaxuan): 续传——已判过的任务(任一分片文件里有记录)跳过;单任务异常不中断整批。
+done = set()
+for f in glob.glob(os.path.join(args.root, "rejudge_*.jsonl")):
+    for l in open(f):
+        try: done.add(json.loads(l)["task"])
+        except Exception: pass
 out = open(os.path.join(args.root, f"rejudge_{args.shard}.jsonl"), "a")
 n = k = 0
 for i, d in enumerate(sorted(glob.glob(os.path.join(args.root, "*/")))):
     task = os.path.basename(d.rstrip("/"))
-    if i % args.nshards != args.shard or task.startswith("_"):
+    if i % args.nshards != args.shard or task.startswith("_") or task in done:
         continue
     if not os.path.exists(os.path.join(d, "traj.json")):
         continue
     rp = os.path.join(d, "result.txt")
     if args.only_errors and os.path.exists(rp) and "MemGUI-Eval" not in open(rp).read():
         continue
-    score, reason = evaluate_memgui_trajectory(log_file_root=args.root, task_name=task, task_traj_dir=d.rstrip("/"),
-                                               agent_name=args.agent_name, attempt_num=1)
+    try:
+        score, reason = evaluate_memgui_trajectory(log_file_root=args.root, task_name=task, task_traj_dir=d.rstrip("/"),
+                                                   agent_name=args.agent_name, attempt_num=1)
+    except Exception as exc:  # noqa: BLE001
+        score, reason = 0.0, f"REJUDGE_ERROR: {exc}"
     with open(rp, "w") as f:
         f.write(f"score: {score}\nreason: {reason}\n")
     out.write(json.dumps({"task": task, "score": score, "reason": reason[:300], "t": time.time()}) + "\n"); out.flush()

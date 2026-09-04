@@ -981,3 +981,64 @@ app(QQ、微信、网易云、飞书、美团……)。含义:每步都有第三
 冻结 GUI-Owl-1.5-8B 在记忆敏感步上,recency / 随机远帧 / gold-anchor 帧 / 全回放 四种
 历史给法的 AMS——决定项目余量;(3)Stage I(固定 B=2、反事实记忆优势 reward、只训
 记忆敏感上下文,RLOO + 同预算监督对照)。
+
+## 27. ★★★ Stage 0:AndroTMem 上的 oracle 记忆上界探针——远程截图对冻结 executor 无增益(2026-09-03 21:50 PT)
+
+外审(§reviews/two_stage_memory_rl_review)把"冻结 executor 在 oracle 记忆下能到哪"列为
+最重要的一个数。本节是第一批结果(第二批混合条件与去文本消融进行中)。
+
+### 27.1 协议
+
+数据:AndroTMem-Bench(1,069 题 / 34,473 步,96.2% 步有截图;每步带第三方标注的因果边
+`links[]`,关系 context_use / entity_binding 表示"需要先前屏幕的内容")。
+单元:**记忆敏感步** = 存在 context_use/entity_binding 边、时滞 ≥5 步、当前图与来源图齐,
+共 **3,425** 步(GT:tap 2,366 全带 bbox、text 587、long_press 203、FINISH 68、wait 59、
+open_app 49)。
+执行器:原版 GUI-Owl-1.5-8B-Instruct(vLLM,温度 0),teacher-forced:文本历史 = 其余
+所有先前步的 `summary_en`,历史截图按条件给,截图之间插入按记录动作合成的 GUI-Owl 风格
+回复(与 mw agent 消息结构一致)。判分:AndroTMem 官方 `calculate_step_score`
+(tap 落在扩 14% 的 bbox 内、文本精确、滑动方向、无参动作类型)。
+条件:`none`(仅文本历史+当前图,即 AndroTMem 官方 v1 式基线)、`recency2`(最近两帧)、
+`gold`(标注来源步截图,≤2,critical 优先)、`random2`(两张时滞 ≥5 的非 gold 随机帧)。
+每步四条件各问一次,13,700 次查询,GPU1 满载 75 分钟。
+
+### 27.2 结果(n = 3,403 四条件齐全)
+
+| 条件 | AMS | tap | text | long_press |
+|---|---|---|---|---|
+| none(文本历史) | 50.7% | 57.8 | 50.8 | 12.3 |
+| **recency2** | **57.0%** | 64.6 | 57.2 | 11.8 |
+| gold(oracle 来源帧) | 43.9% | 51.4 | 37.3 | 13.8 |
+| random2(随机远帧) | 43.0% | 50.0 | 39.9 | 8.9 |
+
+- **gold ≈ random,且都比"什么历史图都不给"还差 7pp**:在每个时滞桶(5–7 / 8–12 /
+  13–20 / 21+)里 gold 与 random 都在 ±2pp 内,recency2 稳定最高。
+- 恢复率 P(gold 对 | recency2 错) = **11.1%**(n=1,464);伤害率 P(gold 错 | recency2 对)
+  = **31.4%**,与随机远帧的 31.6% 相同。
+- 四条件取并集的"oracle" 66.1% 对 recency2 57.0% 看似有 9pp,但"只有 gold 对"的步 90 个
+  对"只有 random 对"的 72 个——并集增益主要是采样随机性,不是记忆信息。
+- text 类动作(输入先前看到的值,记忆应最有用)gold 反而最差(37.3 vs 57.2)。
+
+### 27.3 判读
+
+冻结的 GUI-Owl-1.5-8B **不能利用"替换最近帧"的远程截图**:标注为决定性的来源屏幕,对它
+而言与随机远帧无异;它真正依赖的是最近帧提供的状态追踪(recency2 比 none 高 6.3pp)。
+这与 §26.2 训练标签"24.4% 上下文中某帧对能救回"并不矛盾——那里的正确对可以包含最近帧;
+也直接回答了用户 09-01 的问题"executor 能不能理解不连续的图":在这个尺度和提示格式下,
+**不能**。剩余的假设空间只有一种:**保留最近帧 + 追加一张远帧**(第二批条件
+rec1_gold1 / rec2_gold1);同时用去文本消融(none_notext / gold_notext / recency2_notext)
+判断信息到底在文本摘要里还是在截图里——若文本摘要已经携带了所需信息,"选帧"的前提
+就被"记忆用文本表示"(AndroTMem 的 ASM、MemGUI-Agent 的做法)所取代。
+
+### 27.4 同期事故:MemGUI 两臂约 84% 任务未真正执行(已定位、补跑中)
+
+两臂 128 题中 106 / 109 题的 traj.json 为空、耗时 0.0–0.3 秒即"完成"。链条:模拟器中途
+不健康("Device is not healthy; emulator recovery")→ runner 的 `_recover_backend_env`
+因**不知道容器名**而放弃("container name is unknown":我们用自定义前缀起容器,而
+`mg eval` 需通过 `--env-name-prefix` 才能反查)→ 该后端上的后续任务 tear_down 503、
+0 秒失败,队列继续把死后端派给新任务。宿主负载峰值 995(224 核):48 台模拟器 +
+两路 vLLM + 探针并发。处置:停掉空闲的 MobileWorld 32 台池(RL 线暂停,`docker start`
+可恢复,map 已标注)、重启 3 台不健康后端、删除空轨迹任务目录、按 `_missing.csv`
+只补跑未执行任务并传 `--env-name-prefix`;补跑与探针第二批并行。教训:MemGUI 的
+runner 自愈依赖容器命名约定,启动与评测两侧前缀必须一致;成批 0 秒完成是"环境死了"
+的签名,应进监控告警。
