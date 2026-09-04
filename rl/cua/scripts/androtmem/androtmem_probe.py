@@ -125,6 +125,8 @@ def choose(task, i, gold, cond):
     if cond == "recency2": return [k for k in (i - 2, i - 1) if k >= 0]
     if cond == "gold": return gold
     if cond == "rec1_gold1": return sorted(set([i - 1] + gold[-1:]))
+    if cond == "rec1_gold1_notext": return sorted(set([i - 1] + gold[-1:]))
+    if cond == "rec2_gold1_notext": return sorted(set([k for k in (i - 2, i - 1) if k >= 0] + gold[-1:]))
     if cond == "rec2_gold1": return sorted(set([k for k in (i - 2, i - 1) if k >= 0] + gold[-1:]))
     if cond == "random2":
         pool = [k for k in range(0, i - 4) if k not in gold and task["steps"][k]["image_name"] in have]
