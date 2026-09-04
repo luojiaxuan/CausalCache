@@ -1121,3 +1121,16 @@ runner 重试留下的 `<task>_backup_<ts>` 目录不是评测单元,跳过。�
 rec1_gold1 / recency2_notext / rec1_gold1_notext。判读规则预注册:若 (a) 或 (b) 中
 rec1_gold1(_notext) 比 recency2(_notext) 高 ≥3pp 且恢复率明显高于伤害率,则"远程帧可用"
 成立、方向 B/视觉记忆保留;否则维持"信息载体是文本"的判决。
+
+### 27.8 用户决策(2026-09-04 00:05 PT):AndroTMem 离线线全部停止并删除
+
+用户判定:AndroTMem 是纯离线数据集、非闭环,对本项目无用;要求删除。已执行:停止全部探针
+进程(原版 8B 弱文本补测、iter_59 复跑、v1 式弱文本链、hyper01 32B 全量),删除两台主机上的
+数据副本与代码 clone(正本为公开 HF 数据集 `CVC2233/AndroTMem-Bench`,可重取),拆除为探针
+起的两个 executor 容器(hyper00 GPU2 iter_59、hyper01 GPU2 32B),map 对账。保留:8B 九条件
+探针结果与汇总的 HF 私有仓 `gavinlaw/causalcache-androtmem-oracle-probe`(rev `c98eef7`)
+作为 §27 数字的正本;32B 中途读数(2,621 步:recency2 63.8 / rec1_gold1 63.1)未上传,
+仅记于此。§27.7 预注册的公平测试未完成,其判读**作废**;§27 关于"信息载体是文本"的结论
+只在"原版模型 + gold 文本历史 + 离线 teacher-forced"这一设定下成立,**不外推到闭环**。
+
+当前唯一活动线:MemGUI-Bench 闭环基线(臂 A 7/128;臂 B 补跑第 2 轮进行中)。
