@@ -6,6 +6,8 @@ import ast
 import base64
 import os
 import re
+
+import numpy as np
 from io import BytesIO
 from typing import Any
 
@@ -163,11 +165,17 @@ class Venus2Agent(BaseAgent):
     def __init__(self, llm_base_url: str, model_name: str, api_key: str = "EMPTY",
                  model_config: dict | None = None, **kwargs) -> None:
         super().__init__(**kwargs)
-        config = {"max_tokens": 16384, "temperature": 0.0, **(model_config or {})}
+        # note (luojiaxuan): 模型卡对 agent 类任务建议 temperature=1.0 并保留完整推理历史;官方离线示例脚本
+        # 默认 0.0。用 CC_VENUS_TEMP 显式指定,便于两档对照。
+        config = {"max_tokens": 16384, "temperature": float(os.environ.get("CC_VENUS_TEMP", "0.0")),
+                  **(model_config or {})}
         self.model_name = model_name
         self.max_tokens = config["max_tokens"]
         self.temperature = config["temperature"]
-        self.n_img = int(os.environ.get("CC_VENUS_N_IMG", "2"))
+        # note (luojiaxuan): CC_VENUS_HIST = recent:<N>(官方 N_IMG 语义,-1 为全部)| change2(非连续启发式)。
+        spec = os.environ.get("CC_VENUS_HIST", "recent:" + os.environ.get("CC_VENUS_N_IMG", "2"))
+        self.policy, _, arg = spec.partition(":")
+        self.n_img = int(arg) if self.policy == "recent" else 1
         self.history: list[dict] = []
         self.build_openai_client(llm_base_url, api_key)
 
@@ -183,13 +191,24 @@ class Venus2Agent(BaseAgent):
         return [{"type": "text", "text": label},
                 {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{b64}"}}]
 
+    def _image_turns(self) -> set[int]:
+        t = len(self.history)
+        if self.policy == "change2":
+            # note (luojiaxuan): 最近一帧 + 视觉变化最大的更早帧;t<3 时退化为 recency-2。
+            if t < 3:
+                return set(range(max(0, t - 2), t))
+            scores = [0.0] + [float(np.abs(self.history[i]["thumb"] - self.history[i - 1]["thumb"]).mean())
+                              for i in range(1, t - 1)]
+            return {t - 1, int(np.argmax(scores))}
+        n_img = t if self.n_img < 0 else self.n_img
+        return set(range(max(0, t - n_img), t))
+
     def _build_messages(self, cur_b64: str) -> list[dict]:
         messages = [{"role": "system", "content": SYSTEM_PROMPT.format(user_task=self.instruction)}]
-        n_img = len(self.history) if self.n_img < 0 else self.n_img
-        image_start = max(0, len(self.history) - n_img)
+        keep = self._image_turns()
         for index, turn in enumerate(self.history):
             content: Any = ""
-            if n_img > 0 and index >= image_start:
+            if index in keep:
                 content = self._image_content(turn["b64"], "History Screenshot:")
             messages.append({"role": "user", "content": content})
             messages.append({"role": "assistant", "content": turn["raw_response"]})
@@ -215,12 +234,17 @@ class Venus2Agent(BaseAgent):
         )
         if generated_text is None:
             raise ValueError("LLM call failed after retries.")
-        logger.info(f"CC_TRACE venus2 n_img={self.n_img} hist={len(self.history)} "
-                    f"imgs={min(len(self.history), len(self.history) if self.n_img < 0 else self.n_img) + 1}")
+        # note (luojiaxuan): 模板把 <think> 放进生成前缀,模型只输出 </think>;官方脚本以完整
+        # <think>…</think> 作为历史 assistant 原文,这里补回开头标签以保持同一历史格式。
+        if "</think>" in generated_text and "<think>" not in generated_text:
+            generated_text = "<think>" + generated_text
+        logger.info(f"CC_TRACE venus2 policy={self.policy} n_img={self.n_img} hist={len(self.history)} "
+                    f"S={sorted(self._image_turns())}")
         logger.info(f"Response: {repr(generated_text[-600:])}")
 
         think, action = parse_response(generated_text)
-        self.history.append({"b64": cur_b64, "raw_response": generated_text})
+        thumb = np.asarray(img.convert("L").resize((54, 120)), dtype=np.float32)
+        self.history.append({"b64": cur_b64, "raw_response": generated_text, "thumb": thumb})
         name, params = parse_action_call(action)
         try:
             aw = venus_action_to_json(name, params, width, height)
