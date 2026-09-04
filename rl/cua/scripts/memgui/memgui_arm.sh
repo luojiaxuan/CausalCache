@@ -9,10 +9,14 @@ ARM=$1; POL=$2; HN=$3; NB=$4; shift 4
 cd /data01/jaxan/memgui
 HOSTS=${MG_HOSTS:-$(seq -s, -f "http://127.0.0.1:69%02g" 0 $((NB-1)))}
 mkdir -p /data01/jaxan/rl_v2/memgui/$ARM
+if [ -n "${MG_TASKFILE:-}" ]; then TASK_ARGS=(--task-file "$MG_TASKFILE"); else TASK_ARGS=(--task ALL); fi
+# note (luojiaxuan): MG_DISCOVER=1 时不传 --aw-host,由 runner 按容器名前缀自动发现后端并记住容器名,
+# 这样不健康后端才能被它重启/重建;显式 --aw-host 会让 runner 丢失容器名而无法自愈。
+if [ "${MG_DISCOVER:-0}" = "1" ]; then HOST_ARGS=(); else HOST_ARGS=(--aw-host "$HOSTS"); fi
 CC_FRAME_POLICY=$POL CC_HISTORY_N=$HN CC_SELECTOR_URL=${CC_SELECTOR_URL:-http://172.17.0.1:41010} CC_EP_TAG=$ARM PYTHONPATH=/data01/jaxan/pyshim \
   uv run mg eval --agent-type gui_owl_1_5 --model-name gui-owl \
   --llm-base-url http://172.17.0.1:41041/v1 --api-key EMPTY \
-  ${MG_TASKFILE:+--task-file $MG_TASKFILE} ${MG_TASKFILE:---task ALL} --max-round 50 --aw-host "$HOSTS" --max-concurrency $NB \
+  "${TASK_ARGS[@]}" --max-round 50 "${HOST_ARGS[@]}" --max-concurrency $NB \
   --env-name-prefix "${MG_PREFIX:-sglang-omni-jaxan-mg}" \
   --log-file-root /data01/jaxan/rl_v2/memgui/$ARM "$@"
 echo "ARM_DONE $ARM rc=$?"
