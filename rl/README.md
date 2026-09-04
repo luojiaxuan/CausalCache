@@ -3,13 +3,14 @@
 冻结 GUI-Owl 8B,RL 联训 selector(Plackett-Luce 随机化)+ HGKV LoRA,
 奖励 = OSWorld 任务成败。设计与预注册停止判据见 `docs/rl_pivot_contract.md`。
 
-> **先读这三份**(2026-08-09 起):
-> 待办与优先级 → [`docs/TODO.md`](docs/TODO.md);
-> 结论、口径、我犯过的错 → [`docs/audit_ledger_20260809.md`](docs/audit_ledger_20260809.md);
-> 方法 → [`docs/rl_method.md`](docs/rl_method.md)。
+> **先读这一份(2026-09-04 起)**:RL 线现行判断与口径的唯一清单 →
+> [`docs/ledger_memory_rl_20260904.md`](docs/ledger_memory_rl_20260904.md)。
+> 其余文档是证据仓库:冻结 executor 线日志 [`docs/summary_retrieval_design_20260831.md`](docs/summary_retrieval_design_20260831.md);
+> 联合训练线日志 [`docs/cua_lite_integration_20260825.md`](docs/cua_lite_integration_20260825.md);
+> 联合线配方 [`docs/rl_recipe.md`](docs/rl_recipe.md);外审 [`docs/reviews/`](docs/reviews/);
+> OSWorld 时期 → [`docs/TODO.md`](docs/TODO.md)、[`docs/audit_ledger_20260809.md`](docs/audit_ledger_20260809.md)、[`docs/rl_method.md`](docs/rl_method.md)。
 >
-> **训练已整体搬到离线视频**(用户 08-08 裁定),OSWorld 只做评测;
-> 本 README 下半部分描述的闭环 RL 编排属于 v1/v2 时期,见 TODO 的 D3。
+> 本 README 下半部分描述的 OSWorld 闭环 RL 编排属于 v1/v2 时期(2026-08-04→09),已判零效应。
 
 ## 结构(与主仓同构,便于独立成 repo)
 
