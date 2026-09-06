@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 18:30 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 18:55 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -71,6 +71,12 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-06 18:55 PT ★ PartMatch v3(Documents,六候选网格)GUI-Owl 自然前缀:方向同前,n=12、gold 58%,只作辅助
+- GUI-Owl 自然前缀(候选列表第一次上屏为决策步),12 个有效 checkpoint:text_only 0.250、rec2 0.083、irr2 0.083、ctrl_keep 0.167、**src_keep 0.417**、
+  swap_keep 0.333、gold_text 0.583。src − ctrl +25.0 [+7.1, +46.2],src − rec2 +33.3 [+9.1, +60.0](8 对聚类)。方向与 Pictures 版(16:10 PT)一致,
+  但 gold 58% 远低于 85% 有效性门槛(六候选网格底行被切,GUI-Owl 也常看不到 cand_e/f 的文件名),只作辅助;外部效度主臂等 v4(四候选)。
+- Venus 在该布局上先滑动再点,矩阵不可用(已记);v4 链已接力(装任务 → Venus 采集+矩阵 → GUI-Owl 采集+矩阵)。
 
 ### 2026-09-06 18:30 PT ★★★ 交互对照(外审点名):同格式的一行历史只差"事实留/删",图的价值只在事实被删时出现——交互项 +46.7pp
 - Venus,Mail 30 checkpoint,历史文本 = 只留 action;"留"= 证据轮加一句 `Noted: <事实>`(同长度同风格,只差这句);所有图条件带请求帧。
