@@ -7,7 +7,8 @@
 ## 0. 现象(2026-09-06 更新:呈现方式决定历史截图是益是害,且随数量非单调)
 
 冻结 GUI-Owl-1.5-8B,MobileWorld,337 个自一致状态(recency-2 成功轨迹中取步;采样条件于成功,见台账),步级动作复现率(%)。
-图见 `fig1_harm_vs_n.png`,数据 `harm/harm_vs_n_base_*.jsonl`。
+图见 `fig1_harm_vs_n.png`(伤害 vs N,四种布局 + Venus)与 `fig2_trigger.png`(剂量 × 放置:只有指令之后的图块触发终止;
+同剂量放指令之前、等 token 文本、拼成一块都不触发),数据 `harm/harm_vs_n_base_*.jsonl`、`harm/dose*_base.jsonl`、`harm/reply_pattern*_base.jsonl`。
 
 | 历史图数 N(官方榜单协议为 N=0;recency-2 是本项目 B=2 约定) | **部署布局**(交错多轮,agent 真实所见) 真实 / 无关 | 标注器布局(图连排在前 + 全部 conclusion) 真实 / 无关 |
 |---|---|---|
