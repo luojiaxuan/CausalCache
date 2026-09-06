@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 17:30 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 17:35 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -71,6 +71,13 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-06 17:35 PT ★ QuoteRecall 共享请求版(孪生只差数字):干净的孪生翻转 40%
+- Venus,只留 action + 请求帧,n=11(16 题中 11 个有效 checkpoint):text_only 0 / rec2 0 / ctrl 0 / **src_at_turn 0.455** / swap→孪生答案 0.400 /
+  gold_text 0.636;src − ctrl = +45.5 [+9.1, +83.3](7 对聚类);**孪生翻转联合概率 0.400**(源帧→本版答案且换成孪生源帧→孪生答案),
+  此前请求随 TWIN 变的版本只有 0.0–0.18。读法:请求相同、只换证据图,答案跟着图上的数字走——这是"决策随证据帧走"的干净反事实。
+  限定:n=11、7 对;gold_text 64% 低于 85% 门槛(该族 Compose 屏上给了答案也只六成会打字),绝对值偏低但方向一致。
+- PartMatch v3(Documents 列表视图)Venus 矩阵全部 0 含 gold_text → 端点(点击行号映射)与实际布局不符,重标定后离线重判(decodes 已存,不重跑)。
 
 ### 2026-09-06 17:30 PT ★★★ GUI-Owl 教师强制第二轮:同样两帧的预算下,"请求轮 + 证据轮"43% vs 默认"最近两轮"0%
 - 同 16:55 PT 的 30 个 checkpoint(GUI-Owl 沿 Venus 轨迹自写一行 conclusion,部署协议保留文本),加"保留哪几轮"的组合条件:
