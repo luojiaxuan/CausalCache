@@ -61,6 +61,7 @@ def add_period(c):
 #   variant="noresp"  交错轮次里 assistant 回复只留 "Action: <conclusion>" 一行(去掉 <tool_call> 与长文本)——测"冗长的回复历史"是否是诱因;
 #   variant="hint"    首条 user 文本末尾加一句 "The task is NOT finished yet; do not terminate unless the goal is verifiably complete."——测提示能否压制;
 #   variant="short"   保留 N 张图但 assistant 回复换成空串——极端版 noresp(只剩图与轮次结构)。
+#   variant="noted"   保留 N 张图与轮次,但最近两轮之前的 assistant 回复换成 "Noted the screenshot."——测"已完成动作的序列"是否是终止的触发物。
 def messages_deploy(st, n, irr=None, keep_set=None, variant=""):
     k = st["step"]; total = k - 1                      # 0-based 当前 turn 下标 = total
     if keep_set is None:
@@ -92,6 +93,7 @@ def messages_deploy(st, n, irr=None, keep_set=None, variant=""):
         rtxt = resp.get(turn + 1, "")
         if variant == "noresp": rtxt = "Action: " + add_period(st["concls"][turn]) if turn < len(st["concls"]) else rtxt
         elif variant == "short": rtxt = ""
+        elif variant == "noted" and a < len(Sidx) - 3: rtxt = "Noted the screenshot."
         msgs.append({"role": "assistant", "content": [{"type": "text", "text": rtxt}]})
         msgs.append({"role": "user", "content": [{"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(frames[Sidx[a + 1]])}"}}]})
     if goal_tail:
@@ -113,6 +115,7 @@ def load_picks(pattern):
 #   first  放在第一条 user 消息(文本之后、首帧之前)——首发版,109 态上 −27pp;
 #   last   放在最后一条 user 消息、当前帧之前(离决策最近);
 #   turn   作为额外的 user/assistant 轮次插在最近两轮之前:user=[标记文本+图],assistant="(reference only)"——不破坏"一 turn 一图"。
+#   turnin 同 turn,但插在首条 user 消息(指令)及其回复之后——测"参考轮在指令之后"是否触发终止。
 def messages_hybrid(st, picks, where="first"):
     msgs = messages_deploy(st, 2); k = st["step"]
     items = [(j, {"type": "text", "text": f"[PAST screenshot from {k - 1 - j} steps ago, for reference only]"},
@@ -128,16 +131,22 @@ def messages_hybrid(st, picks, where="first"):
         for _, t, im in items:
             ins += [{"role": "user", "content": [t, im]}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference screenshot."}]}]
         msgs = [msgs[0]] + ins + msgs[1:]  # system | 参考轮次(user/assistant 交替) | 原生首条 user(文本+首帧)及其后交错轮次——保持角色交替
+    elif where == "turnin":
+        ins = []
+        for _, t, im in items:
+            ins += [{"role": "user", "content": [t, im]}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference screenshot."}]}]
+        msgs = msgs[:3] + ins + msgs[3:]  # system | 首条 user + 其 assistant 回复 | 参考轮次 | 其余交错轮次——参考轮落在指令消息之后、最近两轮之前
     return msgs
 
 def build(st, spec_name):
-    if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn"):
+    if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn", "hybridturnin"):
         kind, key = spec_name.split(":", 1); key = key[:-7] if key.endswith("_deploy") else key
         pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
         if pk is None: return None
         if kind == "hybrid": return messages_hybrid(st, pk, where="first")
         if kind == "hybridlast": return messages_hybrid(st, pk, where="last")
         if kind == "hybridturn": return messages_hybrid(st, pk, where="turn")
+        if kind == "hybridturnin": return messages_hybrid(st, pk, where="turnin")
         return messages_deploy(st, 2, irr=[st["shots"][i] for i in sorted(pk)[:2]])
     if spec_name.startswith("pick:"):                  # pick:<judge>|<mode>|<cands>_deploy
         key = spec_name[5:-7]; pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
