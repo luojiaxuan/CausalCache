@@ -156,8 +156,9 @@ def messages_dose(st, m, kind, where="after"):
     concls = [add_period(c) for c in st["concls"][:max(k - 1, 1)]] or ["No earlier step."]
     ins = []
     # note (luojiaxuan): kind="stack":只有 1 个参考轮,里面是 m 张灰图竖向拼成的一张图(token ≈ m 张,图块 = 1)——分辨"图块数"与"图 token 数"。
-    if kind == "stack":
-        stack = BLANK.replace(".png", f"_x{m}.png")
+    if kind in ("stack", "frac"):
+        # note (luojiaxuan): frac:m 是"十分之几张截图"(05 = 0.5 张、15 = 1.5 张、25 = 2.5 张),文件为按比例裁高的灰图,用于细化阈值。
+        stack = BLANK.replace(".png", f"_x{m}.png" if kind == "stack" else f"_f{m:02d}.png")
         content = [{"type": "text", "text": "[PAST screenshots, for reference only]"},
                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(stack)}"}}]
         ins = [{"role": "user", "content": content}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference."}]}]
@@ -193,8 +194,8 @@ def noterm_ids(base_url):
     return {str(i): -100 for i in ids}
 
 def build(st, spec_name):
-    m = re.match(r"(grayturnin|longtextturnin|graybefore|graystackturnin)(\d+)$", spec_name)
-    if m: return messages_dose(st, int(m.group(2)), {"longtextturnin": "text", "graystackturnin": "stack"}.get(m.group(1), "gray"), where="before" if m.group(1) == "graybefore" else "after")
+    m = re.match(r"(grayturnin|longtextturnin|graybefore|graystackturnin|grayfracturnin)(\d+)$", spec_name)
+    if m: return messages_dose(st, int(m.group(2)), {"longtextturnin": "text", "graystackturnin": "stack", "grayfracturnin": "frac"}.get(m.group(1), "gray"), where="before" if m.group(1) == "graybefore" else "after")
     if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn", "hybridturnin", "hybridturnin_gray", "hybridturnin_text"):
         kind, key = spec_name.split(":", 1); key = key[:-7] if key.endswith("_deploy") else key
         pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
