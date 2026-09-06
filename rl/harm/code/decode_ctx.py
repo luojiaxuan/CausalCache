@@ -250,7 +250,10 @@ if os.path.exists(args.out):
         r = json.loads(l); done.add(f"{r['dir']}|{r['step']}")
 todo = [s for s in states if f"{s['dir']}|{s['step']}" not in done]
 specs = args.specs.split(","); print(f"states {len(states)} todo {len(todo)} specs {specs}", flush=True); lock = threading.Lock()
-if any(sp.endswith("_noterm") for sp in specs): NOTERM_BIAS = noterm_ids(args.base_url); print("noterm logit_bias ids:", NOTERM_BIAS, flush=True)
+if any(sp.endswith("_noterm") for sp in specs):
+    # note (luojiaxuan): 优先用词表扫描出的全集(make_noterm_ids.py),没有时退回按词首 token 取(会被 BPE 另一种切法绕过)。
+    NOTERM_BIAS = json.load(open("/data01/jaxan/harm/noterm_ids.json")) if os.path.exists("/data01/jaxan/harm/noterm_ids.json") else noterm_ids(args.base_url)
+    print("noterm logit_bias ids:", len(NOTERM_BIAS), flush=True)
 def run(st):
     ref = go.parse_action(st["target"]); rec = {"tag": args.tag, "dir": st["dir"], "task": st["task"], "step": st["step"], "target": st["target"], "decodes": {}, "match": {}}
     rec["ptoks"] = {}

@@ -20,6 +20,13 @@
   P3.3 注意力测量(待做,需要 HF transformers 前向)。
 
 ## 3. 台账(时间倒序)
+### 2026-09-06 18:55 PT 禁 terminate 重跑(dose4,只禁 3 个词首 token)**无效**:终止率纹丝不动(rec4 22.0 → 22.3%)——BPE 换一种切法绕过
+- 单独分词 "terminate" = 1 个 token(48061),上下文里 JSON 的 `"terminate"` 也是它;但把 48061 / 29654 / 62519 压到 −100 后,模型照样写出
+  terminate(总终止 22.3 / 19.6 / 20.8 / 19.9%,与不禁完全一样)——它改用 `term`+`inate` 一类的拼法。**dose2 那轮"回收六成"是禁掉引号
+  的副作用,已作废;dose4 说明词首禁令根本没生效。**
+- 改法:扫词表收集所有能拼出 terminate 开头的 token(19 个:ter/term/termin/terminate 及大小写、带前空格变体,`make_noterm_ids.py`),
+  整组 −100,作为 dose7 排在 dose6 之后。副作用:term/terminal 一类词也被压,动作里极少出现,可接受。
+- 若 dose7 仍不能压住终止,就不再走 logit_bias,改做 teacher-forced 的 terminate-vs-gold logprob 边际(外审建议的 logit 探针)。
 ### 2026-09-06 18:05 PT ★★ dose3 全量(337 态)推翻 17:50 PT 的初读:**拼成一块的 2–4 张灰图几乎不塌** → 触发变量是**图块数**,不是视觉 token 量
 | 指令之后的填充 | 视觉 token(prompt_tokens 中位) | 图块数 | 复现 | 总终止 |
 |---|---|---|---|---|

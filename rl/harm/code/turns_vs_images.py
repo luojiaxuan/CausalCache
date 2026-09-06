@@ -2,7 +2,7 @@
 # (轮数, 图数) → 复现率、错误数、错误中 terminate 占比、总体 terminate 率。
 import json, re, statistics as st
 files = {"deploy": "/data01/jaxan/harm/harm_vs_n_base_deploy.jsonl", "format": "/data01/jaxan/harm/format_base.jsonl",
-         "format2": "/data01/jaxan/harm/format2_base.jsonl", "term": "/data01/jaxan/harm/term_interv_base.jsonl", "goal": "/data01/jaxan/harm/goal_interv_base.jsonl", "replypat": "/data01/jaxan/harm/reply_pattern_base.jsonl", "replypat2": "/data01/jaxan/harm/reply_pattern2_base.jsonl", "dose": "/data01/jaxan/harm/dose_base.jsonl", "dose2": "/data01/jaxan/harm/dose2_base.jsonl", "dose3": "/data01/jaxan/harm/dose3_base.jsonl", "dose4": "/data01/jaxan/harm/dose4_base.jsonl", "dose5": "/data01/jaxan/harm/dose5_base.jsonl", "dose6": "/data01/jaxan/harm/dose6_base.jsonl"}
+         "format2": "/data01/jaxan/harm/format2_base.jsonl", "term": "/data01/jaxan/harm/term_interv_base.jsonl", "goal": "/data01/jaxan/harm/goal_interv_base.jsonl", "replypat": "/data01/jaxan/harm/reply_pattern_base.jsonl", "replypat2": "/data01/jaxan/harm/reply_pattern2_base.jsonl", "dose": "/data01/jaxan/harm/dose_base.jsonl", "dose2": "/data01/jaxan/harm/dose2_base.jsonl", "dose3": "/data01/jaxan/harm/dose3_base.jsonl", "dose4": "/data01/jaxan/harm/dose4_base.jsonl", "dose5": "/data01/jaxan/harm/dose5_base.jsonl", "dose6": "/data01/jaxan/harm/dose6_base.jsonl", "dose7": "/data01/jaxan/harm/dose7_base.jsonl"}
 recs = {}
 for tag, p in files.items():
     try:
