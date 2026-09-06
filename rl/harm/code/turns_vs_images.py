@@ -2,7 +2,7 @@
 # (轮数, 图数) → 复现率、错误数、错误中 terminate 占比、总体 terminate 率。
 import json, re, statistics as st
 files = {"deploy": "/data01/jaxan/harm/harm_vs_n_base_deploy.jsonl", "format": "/data01/jaxan/harm/format_base.jsonl",
-         "format2": "/data01/jaxan/harm/format2_base.jsonl", "term": "/data01/jaxan/harm/term_interv_base.jsonl", "goal": "/data01/jaxan/harm/goal_interv_base.jsonl", "replypat": "/data01/jaxan/harm/reply_pattern_base.jsonl", "replypat2": "/data01/jaxan/harm/reply_pattern2_base.jsonl"}
+         "format2": "/data01/jaxan/harm/format2_base.jsonl", "term": "/data01/jaxan/harm/term_interv_base.jsonl", "goal": "/data01/jaxan/harm/goal_interv_base.jsonl", "replypat": "/data01/jaxan/harm/reply_pattern_base.jsonl", "replypat2": "/data01/jaxan/harm/reply_pattern2_base.jsonl", "dose": "/data01/jaxan/harm/dose_base.jsonl"}
 recs = {}
 for tag, p in files.items():
     try:
@@ -16,6 +16,8 @@ def shape(sp):
     if m: n = int(m.group(1)); return (n, n + 1, "recN" + (m.group(2) or ""))
     m = re.match(r"irr(\d+)_deploy$", sp)
     if m: n = int(m.group(1)); return (n, n + 1, "irrN")
+    m = re.match(r"(grayturnin|longtextturnin)(\d+)$", sp)
+    if m: d = int(m.group(2)); return (2, 3 + (d if m.group(1) == "grayturnin" else 0), f"{m.group(1)}{d} {d} 个{'灰图' if m.group(1) == 'grayturnin' else '长文本'}参考轮插在指令之后")
     kind = sp.split(":")[0]
     return {"pickimg": (2, 3, "pickimg 2轮3图(图换老帧)"), "hybrid": (2, 5, "hybrid 2轮+2标记图放首条"), "hybridlast": (2, 5, "hybridlast 2轮+2标记图放末条"),
             "hybridturn": (2, 5, "hybridturn 2轮+2参考轮(Noted 回复,插在指令之前)"), "hybridturnin": (2, 5, "hybridturnin 2轮+2参考轮(Noted 回复,插在指令之后)"), "hybridturnin_gray": (2, 5, "hybridturnin_gray 参考轮换灰图,插在指令之后"), "hybridturnin_text": (2, 3, "hybridturnin_text 参考轮只有文本,插在指令之后")}.get(kind, (None, None, sp))

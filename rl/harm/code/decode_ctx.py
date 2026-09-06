@@ -2,7 +2,7 @@
 #   recN   最近 N 帧(N=0..6);irrN   来自别的轨迹的 N 帧(同图数对照);
 #   recN_mark  最近 N 帧但每张前加 "[PAST screenshot, t-j]" 文本标记(Step 3 干预:时序消歧);
 #   recN_blank 最近 N 帧换成同尺寸纯灰图(Step 3 干预:纯 token 数效应)。
-import argparse, glob, hashlib, importlib.util, json, os, random, sys, threading
+import argparse, glob, hashlib, importlib.util, json, os, random, re, sys, threading
 from concurrent.futures import ThreadPoolExecutor
 ap = argparse.ArgumentParser()
 ap.add_argument("--oracle-py", default="/data01/jaxan/guiowl_oracle.py")
@@ -148,7 +148,27 @@ def messages_hybrid(st, picks, where="first"):
         msgs = msgs[:3] + ins + msgs[3:]
     return msgs
 
+# note (luojiaxuan): 触发物的剂量曲线——M 个"内容为空"的参考轮插在指令消息之后、最近两轮之前:
+#   grayturninM      每轮一张灰图(与真实截图同 token 数)+ "Noted" 回复;
+#   longtextturninM  每轮一段与一张图 token 数相当(约 4,400 字符)的纯文本(早期 conclusion 循环拼接)+ "Noted" 回复。
+def messages_dose(st, m, kind):
+    msgs = messages_deploy(st, 2); k = st["step"]
+    concls = [add_period(c) for c in st["concls"][:max(k - 1, 1)]] or ["No earlier step."]
+    ins = []
+    for i in range(m):
+        if kind == "gray":
+            content = [{"type": "text", "text": "[PAST screenshot, for reference only]"},
+                       {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(BLANK)}"}}]
+        else:
+            txt = ""; j = i
+            while len(txt) < 4400: txt += f"[PAST step note {j % len(concls) + 1}: {concls[j % len(concls)]}] "; j += 1
+            content = [{"type": "text", "text": txt}]
+        ins += [{"role": "user", "content": content}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference."}]}]
+    return msgs[:3] + ins + msgs[3:]
+
 def build(st, spec_name):
+    m = re.match(r"(grayturnin|longtextturnin)(\d+)$", spec_name)
+    if m: return messages_dose(st, int(m.group(2)), "gray" if m.group(1) == "grayturnin" else "text")
     if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn", "hybridturnin", "hybridturnin_gray", "hybridturnin_text"):
         kind, key = spec_name.split(":", 1); key = key[:-7] if key.endswith("_deploy") else key
         pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
