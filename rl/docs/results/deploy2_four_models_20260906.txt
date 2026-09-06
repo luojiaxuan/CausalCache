@@ -1,0 +1,48 @@
+
+[base_deploy] n=337  (rescue/harm 相对 text-only=rec0_deploy;% 状态)
+  spec                                    V  rescue   harm    net     n
+  rec0_deploy                          70.9     0.0    0.0   +0.0   337
+  rec2_deploy                          93.2    23.1    0.9  +22.3   337
+  irr2_deploy                          84.0    19.6    6.5  +13.1   337
+  pickimg:judge|direct|full            82.2    19.0    7.7  +11.3   337
+  hybrid:judge|direct|full             72.4    17.8   16.3   +1.5   337
+  pickimg:judge_glm46v|direct|full     79.2    17.5    9.2   +8.3   337
+  hybrid:judge_glm46v|direct|full      72.7    17.8   16.0   +1.8   337
+  pickimg:qwen38_27b|direct|full       85.8    20.8    5.9  +14.8   337
+  hybrid:qwen38_27b|direct|full        73.9    19.0   16.0   +3.0   337
+
+[older_s0_deploy] n=337  (rescue/harm 相对 text-only=rec0_deploy;% 状态)
+  spec                                    V  rescue   harm    net     n
+  rec0_deploy                          74.2     0.0    0.0   +0.0   337
+  rec2_deploy                          91.7    20.5    3.0  +17.5   337
+  irr2_deploy                          86.1    18.1    6.2  +11.9   337
+  pickimg:judge|direct|full            86.9    19.6    6.8  +12.8   337
+  hybrid:judge|direct|full             81.0    18.1   11.3   +6.8   337
+  pickimg:judge_glm46v|direct|full     85.5    17.8    6.5  +11.3   337
+  hybrid:judge_glm46v|direct|full      79.5    18.1   12.8   +5.3   337
+  pickimg:qwen38_27b|direct|full       90.5    20.8    4.5  +16.3   337
+  hybrid:qwen38_27b|direct|full        79.8    18.4   12.8   +5.6   337
+
+[random_s0_deploy] n=337  (rescue/harm 相对 text-only=rec0_deploy;% 状态)
+  spec                                    V  rescue   harm    net     n
+  rec0_deploy                          74.2     0.0    0.0   +0.0   337
+  rec2_deploy                          91.1    20.2    3.3  +16.9   337
+  irr2_deploy                          86.6    18.1    5.6  +12.5   337
+  pickimg:judge|direct|full            86.9    19.6    6.8  +12.8   337
+  hybrid:judge|direct|full             81.0    17.5   10.7   +6.8   337
+  pickimg:judge_glm46v|direct|full     84.6    17.2    6.8  +10.4   337
+  hybrid:judge_glm46v|direct|full      79.2    17.2   12.2   +5.0   337
+  pickimg:qwen38_27b|direct|full       90.5    20.5    4.2  +16.3   337
+  hybrid:qwen38_27b|direct|full        79.2    17.8   12.8   +5.0   337
+
+[recency_s0_deploy] n=337  (rescue/harm 相对 text-only=rec0_deploy;% 状态)
+  spec                                    V  rescue   harm    net     n
+  rec0_deploy                          75.4     0.0    0.0   +0.0   337
+  rec2_deploy                          91.4    19.3    3.3  +16.0   337
+  irr2_deploy                          87.2    17.5    5.6  +11.9   337
+  pickimg:judge|direct|full            86.9    18.7    7.1  +11.6   337
+  hybrid:judge|direct|full             82.8    16.9    9.5   +7.4   337
+  pickimg:judge_glm46v|direct|full     84.6    16.3    7.1   +9.2   337
+  hybrid:judge_glm46v|direct|full      80.7    16.9   11.6   +5.3   337
+  pickimg:qwen38_27b|direct|full       90.5    19.3    4.2  +15.1   337
+  hybrid:qwen38_27b|direct|full        81.3    16.6   10.7   +5.9   337
