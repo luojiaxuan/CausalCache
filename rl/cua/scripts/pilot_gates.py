@@ -1,13 +1,16 @@
-# note (luojiaxuan): B-pilot 三档判定的计算(设计稿 §5):全样本配对 ΔV(source − irrelevant / source − recency2 / source − text_only),
+# note (luojiaxuan): B-pilot 三档判定的计算(设计稿 §5):全样本配对 ΔV(source − ctrl(同龄无证据轮)/ source − recency2 / source − text_only),
 # 按基础对(pair)聚类的 bootstrap 95% 区间;孪生翻转率 P(source→本版答案 ∧ swap→另一版答案);gold_text 有效性;leak 分层。
-# 用法:pilot_gates.py <eval.jsonl> [--source src_pickimg] [--swap swap_pickimg] [--boot 4000]
+# 条件名按后端取默认:owl = src_keep / ctrl_keep / swap_keep,venus = src_at_turn / ctrl_at_turn / swap_at_turn;可用 --source/--ctrl/--swap 覆盖。
+# 用法:pilot_gates.py <eval.jsonl> [--source ...] [--ctrl ...] [--swap ...] [--boot 4000]
 import argparse, json, random, sys
 ap = argparse.ArgumentParser()
-ap.add_argument("evals", nargs="+"); ap.add_argument("--source", default="src_pickimg"); ap.add_argument("--swap", default="swap_pickimg")
+ap.add_argument("evals", nargs="+"); ap.add_argument("--source", default=""); ap.add_argument("--ctrl", default=""); ap.add_argument("--swap", default="")
 ap.add_argument("--boot", type=int, default=4000); ap.add_argument("--seed", type=int, default=0)
 args = ap.parse_args()
 rows = [json.loads(l) for f in args.evals for l in open(f)]
 tag = ",".join(sorted({r["tag"] for r in rows}))
+suffix = "_at_turn" if rows and rows[0].get("backend") == "venus" else "_keep"
+args.source = args.source or "src" + suffix; args.ctrl = args.ctrl or "ctrl" + suffix; args.swap = args.swap or "swap" + suffix
 conds = sorted({c for r in rows for c in r["hit"]})
 print(f"[{tag}] n={len(rows)} pairs={len({(r['family'], r['pair']) for r in rows})} families={sorted({r['family'] for r in rows})}")
 print(f"  gold_text 有效性: {sum(r['hit'].get('gold_text', 0) for r in rows)}/{len(rows)}   leak: goal={sum(r['leak']['goal'] for r in rows)} hist={sum(r['leak']['hist'] for r in rows)}")
@@ -27,7 +30,7 @@ def boot_ci(rs, a, b):
     stats.sort(); return stats[int(0.025 * len(stats))], stats[int(0.975 * len(stats))], len(keys)
 
 print(f"  闸门(source = {args.source};ΔV 单位 pp;区间 = 按 pair 聚类 bootstrap 95%):")
-for ctrl in ("irr2", "rec2", "text_only", "swap_pickimg"):
+for ctrl in (args.ctrl, "rec2", "text_only", args.swap, "irr2"):
     d = delta(rows, args.source, ctrl)
     if not d: print(f"    source − {ctrl:10s}: 无该条件"); continue
     lo, hi, k = boot_ci(rows, args.source, ctrl); m = sum(d) / len(d)

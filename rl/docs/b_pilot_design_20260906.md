@@ -65,14 +65,16 @@ MobileWorld 自然任务几乎不需要视觉记忆,所以余量问题必须在�
 
 - pilot:**24 对 × 2 孪生 = 48 个 checkpoint**,跨三族;推断单位是 24 个基础对(按对聚类的配对 bootstrap),不把 48 个孪生当独立样本,
   不要求逐族显著(每族 8 对无功效),逐族只作描述并要求没有一族 `V(source)−V(recency2) < −10pp`。
-- 主 executor = UI-Venus-2-9B(Venus 原生多轮协议);GUI-Owl 只作异质性。所有帧条件共用同一构造器:`source` / `twin_wrong_source` /
-  `recency2` / `irrelevant2` 只换图不换结构(GUI-Owl 用 `pickimg` 槽位;Venus 另加 `src_at_turn` = 老帧放回原 turn 位置的原生干预)。
-  主负对照 = 孪生另一版的源帧(`swap_pickimg`,构造上完全匹配);`irr2` 取同族另一对同步位截图,只作次对照。
+- 主 executor = UI-Venus-2-9B(Venus 原生多轮协议);GUI-Owl 只作异质性。**主干预只动一个变量:"保留哪几轮"**(用户 2026-09-06 13:20 PT
+  指正:保留老图 = 连该轮原始回复一起保留并从折叠文本抽走,这才是控制变量),其余全按部署协议:`src_keep` 保留源帧所在轮;`ctrl_keep`
+  保留同一轨迹里同龄的无证据轮(源帧前一帧,通常是收件箱/文件夹列表)= 配对负对照;`swap_keep` 源帧所在轮整轮换成孪生另一版的对应轮
+  (截图 + 其原始回复,判定按另一版答案)= 反事实;`rec2` 部署默认;`text_only`。Venus 的对应物为 `src_at_turn` / `ctrl_at_turn` /
+  `swap_at_turn`(其协议文本恒保留、只有图按轮窗口化)。`pickimg`(槽位只换图)与 `hybrid`(附带 PAST 标记)降为机制诊断,不进闸门。
 - 有效性前提:`gold_text ≥ 85%`(文本直接给事实时能作答),否则 checkpoint 无效而非模型失败;每个 checkpoint 记录 `leak`
   三标志(goal / 自写 conclusion / 文件名或工具输出是否已含 expected),自写文本含答案按"竞争通道"处理——原生文本臂不动文本,
   另跑无文本臂。
 - 主终点 = 全样本配对 ΔV(不筛 text_only 失败),两条对照、两种文本协议共四个闸:
-  ① `V(source)−V(irrelevant)`(原生文本)② `V(source)−V(recency2)`(原生文本)③ ④ 同上,无文本协议;
+  ① `V(src_keep)−V(ctrl_keep)`(原生文本)② `V(src_keep)−V(rec2)`(原生文本)③ ④ 同上,无文本协议;
   外加 ⑤ 孪生翻转:`P(source→本版答案 ∧ twin_source→另一版答案)`。
 - 三档判定(预注册):
   - **GO**(进联合 RL):①–④ 点估计均 ≥ +10pp 且配对 95% CI 下界 > 0;⑤ ≥ 70% 且下界 > 50%。
