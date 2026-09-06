@@ -151,7 +151,7 @@ def messages_hybrid(st, picks, where="first"):
 # note (luojiaxuan): 触发物的剂量曲线——M 个"内容为空"的参考轮插在指令消息之后、最近两轮之前:
 #   grayturninM      每轮一张灰图(与真实截图同 token 数)+ "Noted" 回复;
 #   longtextturninM  每轮一段与一张图 token 数相当(约 4,400 字符)的纯文本(早期 conclusion 循环拼接)+ "Noted" 回复。
-def messages_dose(st, m, kind):
+def messages_dose(st, m, kind, where="after"):
     msgs = messages_deploy(st, 2); k = st["step"]
     concls = [add_period(c) for c in st["concls"][:max(k - 1, 1)]] or ["No earlier step."]
     ins = []
@@ -164,11 +164,25 @@ def messages_dose(st, m, kind):
             while len(txt) < 4400: txt += f"[PAST step note {j % len(concls) + 1}: {concls[j % len(concls)]}] "; j += 1
             content = [{"type": "text", "text": txt}]
         ins += [{"role": "user", "content": content}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference."}]}]
+    if where == "before": return [msgs[0]] + ins + msgs[1:]      # system | 参考轮 | 指令消息及其后
     return msgs[:3] + ins + msgs[3:]
 
+# note (luojiaxuan): 规格名尾缀 _noterm = 解码时用 logit_bias 禁掉 "terminate" 的首 token(外审建议:若复现率回到 ~90%,说明长视觉历史
+# 只是把策略推进"假完成"模式,而非普遍破坏能力)。token id 在启动时通过 vLLM 的 /tokenize 取得。
+NOTERM_BIAS = {}
+def noterm_ids(base_url):
+    import urllib.request
+    root = base_url[:-3] if base_url.endswith("/v1") else base_url
+    ids = set()
+    for txt in ["terminate", " terminate", "\"terminate", "Terminate", " Terminate", "\"Terminate"]:
+        req = urllib.request.Request(root + "/tokenize", data=json.dumps({"model": args.model, "prompt": txt, "add_special_tokens": False}).encode(), headers={"Content-Type": "application/json"})
+        toks = json.loads(urllib.request.urlopen(req, timeout=60).read())["tokens"]
+        ids.add(toks[0])
+    return {str(i): -100 for i in ids}
+
 def build(st, spec_name):
-    m = re.match(r"(grayturnin|longtextturnin)(\d+)$", spec_name)
-    if m: return messages_dose(st, int(m.group(2)), "gray" if m.group(1) == "grayturnin" else "text")
+    m = re.match(r"(grayturnin|longtextturnin|graybefore)(\d+)$", spec_name)
+    if m: return messages_dose(st, int(m.group(2)), "text" if m.group(1) == "longtextturnin" else "gray", where="before" if m.group(1) == "graybefore" else "after")
     if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn", "hybridturnin", "hybridturnin_gray", "hybridturnin_text"):
         kind, key = spec_name.split(":", 1); key = key[:-7] if key.endswith("_deploy") else key
         pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
@@ -216,14 +230,19 @@ if os.path.exists(args.out):
         r = json.loads(l); done.add(f"{r['dir']}|{r['step']}")
 todo = [s for s in states if f"{s['dir']}|{s['step']}" not in done]
 specs = args.specs.split(","); print(f"states {len(states)} todo {len(todo)} specs {specs}", flush=True); lock = threading.Lock()
+if any(sp.endswith("_noterm") for sp in specs): NOTERM_BIAS = noterm_ids(args.base_url); print("noterm logit_bias ids:", NOTERM_BIAS, flush=True)
 def run(st):
     ref = go.parse_action(st["target"]); rec = {"tag": args.tag, "dir": st["dir"], "task": st["task"], "step": st["step"], "target": st["target"], "decodes": {}, "match": {}}
+    rec["ptoks"] = {}
     for sp in specs:
-        msgs = build(st, sp)
+        noterm = sp.endswith("_noterm"); msgs = build(st, sp[:-7] if noterm else sp)
         if msgs is None: continue
-        out = go.post(args.base_url, {"model": args.model, "temperature": 0.0, "max_tokens": 512, "messages": msgs})
+        payload = {"model": args.model, "temperature": 0.0, "max_tokens": 512, "messages": msgs}
+        if noterm: payload["logit_bias"] = NOTERM_BIAS
+        out = go.post(args.base_url, payload)
         txt = out["choices"][0]["message"]["content"] or ""
         rec["decodes"][sp] = txt; rec["match"][sp] = go.match(go.parse_action(txt), ref) if ref is not None else None
+        rec["ptoks"][sp] = (out.get("usage") or {}).get("prompt_tokens")
     with lock:
         with open(args.out, "a") as f: f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 with ThreadPoolExecutor(args.workers) as ex: list(ex.map(run, todo))
