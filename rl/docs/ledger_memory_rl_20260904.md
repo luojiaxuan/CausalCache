@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 11:20 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 11:50 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -71,6 +71,28 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-06 11:50 PT ★★ 外审"下一步"(读钉住 commit)+ 前缀采集诊断:底座 GUI-Owl 到不了决策步
+- **外审**(`reviews/next_steps_review_20260906.md`,GPT-6 极高档,读了台账/故事/设计稿/评测器四个文件并按文件+节引用):
+  (1) 下一实验 = **Venus 为主、同 checkpoint 同布局的反事实帧内容干预**;deploy2 只作外部效度背景——它的无关图 +11.4 说明部署布局分不清
+  "哪张老图";(2) 闸门改硬:`V(source)−V(irrelevant)` 与 `V(source)−V(recency2)` **均 ≥ +10pp 且配对 95% CI 下界 > 0**,原生文本与无文本
+  两协议都要过;孪生翻转 ≥70%(下界 >50%);`gold_text ≥85%` 为 checkpoint 有效性前提;按 24 对聚类,不要求逐族显著;**仅无文本过线 =
+  对联合 RL NO-GO,但是干净的协议依赖结果**;(3) 三个真问题:评测器把 Venus 也走 GUI-Owl 的 `decode_ctx` 构造器(致命阻断)、
+  `swap_hybrid` 改变了干预本身(要 `swap_pickimg`)、无关对照未匹配(主负对照应是孪生另一版的源帧);自写文本含答案不是泄漏而是竞争通道,
+  要审计 goal/conclusion/文件名;延后揭示未延后对 RL 主张致命、对冻结因果测试不致命。**全部采纳**,加一档 EXPAND(点估计 ≥+10pp 但
+  下界 ≤0 → 扩到 ≥100 对再判),三档预注册进设计稿 §5。
+- **前缀采集诊断**(`rl_v2/pilot/prefix_base/`,18/48 完成):**全部 40 步、0 分、从不 Compose**。轨迹形态一致:前 8 步依次打开一封 PO 邮件、
+  一封供应商邮件、短信线程(源帧与请求都看到了),然后 Mail↔Home 往返、反复重开同两封邮件直到步数用尽(`OrderAddressJoinTask01A`
+  第 9–40 步为周期 6 的循环;`QuoteRecallTask01A` 第 12–40 步为 Mail→Home 周期 2)。Mail 种子数据本身正确(收件箱与正文截图核实)。
+  结论:**GUI-Owl 自然前缀里有源帧但没有决策步**,"自然前缀 + 决策步 checkpoint"在 GUI-Owl 上不成立(J5 任务级地板的又一实例)。
+- **决定(默认推进,四件套)**:问题——checkpoint 从哪来。默认——**前缀改由 UI-Venus-2 自然生成**(同 48 题、同两台模拟器、Venus 官方协议),
+  这与外审"Venus 为主 + Venus 原生协议"同向;deploy2 与 GUI-Owl 前缀跑完释放 GPU 后立刻发射。理由——Venus 闭环强得多(heldout 39.5–47.4%
+  vs GUI-Owl 15.8%),最可能自然到达"读完短信后去 Compose"的状态。回滚/备选——若 Venus 同样到不了决策态,退回 **teacher-forced 脚本前缀**:
+  adb 脚本化导航(逐封打开证据邮件→短信→Compose 填好收件人/主题、光标在正文),每步让 executor 在被强制的屏幕上自写 conclusion(因果、
+  只看已发生的屏幕),决策态 = 正文空白的 Compose 屏,源帧按构造已知、距决策步 ≥4 步。外审——本条决定在外审之后作出,外审"Venus 为主"
+  已覆盖其方向;脚本前缀方案未经外审,若启用先补审。
+- 评测器改造(本条目落地项):`--backend venus`(复用 `venus_oracle.messages`,含 `--no-text`)、`swap_pickimg`、`src_at_turn`(Venus 原生
+  位置干预)、`leak` 三标志、无关对照改为同族另一对同步位截图。
 
 ### 2026-09-06 11:10 PT B-pilot 环境问题与载体更换;部署布局重测第一臂出数
 - **Mattermost 手机端在 `init_state` 快照里未登录**(截图:"Let's Connect to a Server" → 登录页,agent 乱输凭证 40 步);池子里另一
