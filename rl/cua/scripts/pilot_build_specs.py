@@ -6,6 +6,7 @@
 #         也出现的词不能用)的最早 f;
 #   对照帧 = 与源帧同龄的无证据帧(源帧前一帧,通常是收件箱或文件夹列表;若它本身是源帧则取后一帧)——"保留老图 = 连该轮原始回复一起保留"
 #         的控制变量要求对照也是同一轨迹里的一个真实轮次;
+#   请求帧(Mail 两族)= 打开短信线程后的帧:无文本口径下"要哪一项"只存在于这一屏,所有图条件都要带上它,否则模型无从知道该答什么;
 #   孪生 = 同族同对另一版(源帧取它自己检出的源帧,expected_swap = 它的答案);无关 = 同族另一对 A 版的源帧(同一工作流阶段)。
 # 源帧落在最近两帧窗口内(idx ≥ k−3)的 checkpoint 标 in_recency,不进主终点。可选 --contact 输出每个 checkpoint 的拼图供人工核对。
 import argparse, ast, glob, json, os, re, sys
@@ -95,6 +96,14 @@ def build(d, t):
                 seen = preds.get(j + 2, ""); opened = any(w in norm(seen) for w in words) or leaves_view(action_of(seen), seen)
                 if opened: f = j + 1; break
         src.append(f)
+    req = None
+    if t["family"] != "PartMatch":
+        for j in range(0, min(n, len(shots)) - 1):
+            txt = norm(preds[j + 1])
+            if is_click(action_of(preds[j + 1])) and any(a in txt for a in ("987-6543", "987 6543", "sms", "message", "conversation", "text from")):
+                seen = norm(preds.get(j + 2, ""))
+                if any(w in seen for w in ("logistics needs", "send accounting", "quoted by", "please send", "shipping address for order", "the quote emails")):
+                    req = j + 1; break
     ctrl = []
     for f in src:
         if f is None: ctrl.append(None); continue
@@ -105,7 +114,7 @@ def build(d, t):
         k = j + 2 if j is not None and j + 2 <= n else None
         # note (luojiaxuan): 候选列表上屏之前经过的帧里若有 Approved 文件夹列表(含样品缩略图),对照帧取它之后的无缩略图列表帧。
     return {"dir": d, "task": t["task"], "family": t["family"], "pair": t["pair"], "twin": t["twin"], "expected": t["expected"],
-            "expected_kind": t["kind"], "step": k, "k_outcome": k_out, "n_steps": n, "source_frames": src, "control_frames": ctrl,
+            "expected_kind": t["kind"], "step": k, "k_outcome": k_out, "n_steps": n, "source_frames": src, "control_frames": ctrl, "request_frames": [] if req is None else [req],
             "score": open(os.path.join(d, "result.txt")).read().split("score:")[1].split()[0] if os.path.exists(os.path.join(d, "result.txt")) else None}
 
 S = seeds(); rows = {}
@@ -117,7 +126,8 @@ for d in sorted(glob.glob(os.path.join(args.prefix_dir, "*/"))):
 specs = []
 for name, r in rows.items():
     ok_src = all(i is not None for i in r["source_frames"])
-    r["valid"] = bool(r["step"] and ok_src and all(i < r["step"] - 1 for i in r["source_frames"]) and all(c is not None and c < r["step"] - 1 for c in r["control_frames"]))
+    r["valid"] = bool(r["step"] and ok_src and all(i < r["step"] - 1 for i in r["source_frames"]) and all(c is not None and c < r["step"] - 1 for c in r["control_frames"])
+                      and (r["family"] == "PartMatch" or r["request_frames"]))
     r["in_recency"] = bool(r["valid"] and any(i >= r["step"] - 3 for i in r["source_frames"]))
     twin = rows.get(f"{r['family']}Task{r['pair']:02d}{'BA'[r['twin']]}")
     if twin and all(i is not None for i in twin["source_frames"]):
@@ -136,7 +146,7 @@ for fam in fams:
           f"all_sources={sum(all(i is not None for i in r['source_frames']) for r in rs):2d} valid={sum(r['valid'] for r in rs):2d} "
           f"with_twin={sum('swap_frames_dir' in r for r in rs if r['valid']):2d}")
 for r in sorted(rows.values(), key=lambda r: r["task"]):
-    print(f"    {r['task']:24s} steps={r['n_steps']:2d} score={r['score']} k={r['step']} src={r['source_frames']} ctrl={r['control_frames']} valid={r['valid']}")
+    print(f"    {r['task']:24s} steps={r['n_steps']:2d} score={r['score']} k={r['step']} src={r['source_frames']} ctrl={r['control_frames']} req={r['request_frames']} valid={r['valid']}")
 if args.contact and specs:
     try:
         from PIL import Image, ImageDraw
@@ -144,7 +154,7 @@ if args.contact and specs:
         print("PIL unavailable; no contact sheets"); sys.exit(0)
     os.makedirs(args.contact, exist_ok=True)
     for r in specs:
-        shots = shots_of(r["dir"]); frames = [(f"src {i}", shots[i]) for i in r["source_frames"]] + [(f"ctrl {i}", shots[i]) for i in r["control_frames"]] + [(f"rec {r['step']-3}", shots[r['step']-3]), (f"rec {r['step']-2}", shots[r['step']-2]), (f"now {r['step']-1}", shots[r['step']-1])]
+        shots = shots_of(r["dir"]); frames = [(f"req {i}", shots[i]) for i in r["request_frames"]] + [(f"src {i}", shots[i]) for i in r["source_frames"]] + [(f"ctrl {i}", shots[i]) for i in r["control_frames"]] + [(f"rec {r['step']-3}", shots[r['step']-3]), (f"rec {r['step']-2}", shots[r['step']-2]), (f"now {r['step']-1}", shots[r['step']-1])]
         ims = [Image.open(p).convert("RGB").resize((270, 600)) for _, p in frames]
         sheet = Image.new("RGB", (280 * len(ims), 630), "white"); dr = ImageDraw.Draw(sheet)
         for i, ((lab, _), im) in enumerate(zip(frames, ims)):

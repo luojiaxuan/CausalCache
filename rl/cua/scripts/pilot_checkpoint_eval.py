@@ -7,6 +7,7 @@
 #   swap_keep   源帧所在轮整轮换成孪生另一版的对应轮(截图 + 原始回复;判定按另一版答案)
 #   gold_text   文本里直接给出事实(checkpoint 有效性前提)
 # Venus 的对应物:src_at_turn / ctrl_at_turn / swap_at_turn(Venus 协议文本恒保留,只有图按轮窗口化)。
+# 无文本口径(--no-text)下"要哪一项"只存在于请求帧(短信屏),所有图条件一律带上 request_frames;gold_text 的事实以文本行附在当前屏前。
 # 机制诊断(不作闸门):src_pickimg / swap_pickimg / irr2(最近两帧槽位只换图)、src_hybrid / swap_hybrid / judge_hybrid:<judge>(附带 PAST 标记的额外图)。
 # 每行另记 leak 标志:expected 是否已出现在 goal 或决策步之前的自写文本里(竞争通道,不是泄漏;用于分层)。
 import argparse, ast, glob, importlib.util, json, os, re, sys, threading
@@ -108,11 +109,14 @@ def venus_at_turn(st, turn_idx, frames):
     for i, p in zip(turn_idx, frames): fake["shots"][i] = p
     return vo.messages(fake, set(turn_idx[:len(frames)]), args.no_text)
 
-def venus_gold(st, exp):
+def venus_gold(st, exp, req):
+    if args.no_text:
+        msgs = vo.messages(st, set(req), True)
+        msgs[-1]["content"].insert(0, {"type": "text", "text": f"Note: the requested item is {exp}.\n"}); return msgs
     g = dict(st); g["hist"] = list(st["hist"])
     note = f"<think>Note: the requested item is {exp}.</think>"
     g["hist"] = g["hist"][:-1] + [(g["hist"][-1] if g["hist"] else "") + note]
-    return vo.messages(g, set(), args.no_text)
+    return vo.messages(g, set(), False)
 
 def swapped_state(st, src, twin_dir, twin_idx):
     # note (luojiaxuan): 整轮反事实:源帧所在轮的截图与原始回复都换成孪生另一版对应轮的,其余轮不动。
@@ -152,15 +156,18 @@ def conditions(sp, st):
             if pk: c[f"judge_hybrid:{jname}"] = owl_hybrid(st, [(k - 1 - i, st["shots"][i]) for i in pk])
         c["gold_text"] = owl_gold(st, sp["expected"])
     else:
-        c["text_only"] = vo.messages(st, set(), args.no_text); c["rec2"] = vo.messages(st, set(slots(st)), args.no_text)
+        req = set(i for i in sp.get("request_frames", []) if 0 <= i < k - 1) if args.no_text else set()
+        c["text_only"] = vo.messages(st, req, args.no_text); c["rec2"] = vo.messages(st, req | set(slots(st)), args.no_text)
         if src_paths:
-            c["src_at_turn"] = vo.messages(st, set(src), args.no_text); c["src_pickimg"] = venus_slots(st, src_paths)
-        if ctrl: c["ctrl_at_turn"] = vo.messages(st, set(ctrl), args.no_text)
-        if swap_paths:
-            if len(sw_idx) == len(src): c["swap_at_turn"] = vo.messages(swapped_state(st, src, sp["swap_frames_dir"], sw_idx), set(src), args.no_text)
-            c["swap_pickimg"] = venus_slots(st, swap_paths)
-        if irr_paths: c["irr2"] = venus_slots(st, irr_paths)
-        c["gold_text"] = venus_gold(st, sp["expected"])
+            c["src_at_turn"] = vo.messages(st, req | set(src), args.no_text)
+        if ctrl: c["ctrl_at_turn"] = vo.messages(st, req | set(ctrl), args.no_text)
+        if swap_paths and len(sw_idx) == len(src):
+            c["swap_at_turn"] = vo.messages(swapped_state(st, src, sp["swap_frames_dir"], sw_idx), req | set(src), args.no_text)
+        if irr_paths and len(irr_paths) == len(src):
+            g = dict(st); g["shots"] = list(st["shots"])
+            for i, p in zip(src, irr_paths): g["shots"][i] = p
+            c["irr_at_turn"] = vo.messages(g, req | set(src), args.no_text)
+        c["gold_text"] = venus_gold(st, sp["expected"], req)
     return c
 
 lock = threading.Lock()
