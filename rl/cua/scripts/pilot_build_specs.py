@@ -122,8 +122,9 @@ def build(d, t):
             c = f - 1 if f - 1 >= 0 and (f - 1) not in src else f + 1
         ctrl.append(c if 0 <= c < len(shots) else None)
     if t["family"] == "PartMatch" and src and src[0] is not None:
-        j = next((j for j in range(src[0], n) if "candidates" in norm(preds[j + 1]) and is_click(action_of(preds[j + 1]))), None)
-        k = j + 2 if j is not None and j + 2 <= n else None
+        # note (luojiaxuan): 决策屏 = 候选列表第一次在屏幕上:观察该屏时写下的文本会点名候选文件(cand_*);按"点击 Candidates 文件夹"定位
+        # 会在导航文字提到 Documents/Candidates 时提前触发(Documents 列表被当成决策屏)。
+        k = next((s_ for s_ in range(src[0] + 2, n + 1) if "cand_" in norm(preds[s_])), None)
         # note (luojiaxuan): 候选列表上屏之前经过的帧里若有 Approved 文件夹列表(含样品缩略图),对照帧取它之后的无缩略图列表帧。
     return {"dir": d, "task": t["task"], "family": t["family"], "pair": t["pair"], "twin": t["twin"], "expected": t["expected"],
             "expected_kind": t["kind"], "step": k, "k_outcome": k_out, "n_steps": n, "source_frames": src, "control_frames": ctrl, "request_frames": [] if req is None else [req],
