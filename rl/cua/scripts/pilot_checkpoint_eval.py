@@ -184,6 +184,12 @@ def conditions(sp, st):
             c["src_pickimg"] = dc.messages_deploy(st, 2, irr=src_paths)
             c["src_hybrid"] = owl_hybrid(st, [(k - 1 - i, p) for i, p in zip(src, src_paths)])
         if ctrl: c["ctrl_keep"] = dc.messages_deploy(st, 0, keep_set=set(ctrl))
+        # note (luojiaxuan): 一行 conclusion 同样丢掉短信里"要哪一项";控制器该保留的是请求轮 + 证据轮(B=2~3),单独保留请求轮作对照。
+        reqk = [i for i in sp.get("request_frames", []) if 0 <= i < k - 1]
+        if reqk:
+            c["req_keep"] = dc.messages_deploy(st, 0, keep_set=set(reqk))
+            if src: c["src_req_keep"] = dc.messages_deploy(st, 0, keep_set=set(src) | set(reqk))
+            if ctrl: c["ctrl_req_keep"] = dc.messages_deploy(st, 0, keep_set=set(ctrl) | set(reqk))
         if swap_paths:
             if len(sw_idx) == len(src): c["swap_keep"] = dc.messages_deploy(swapped_state(st, src, sp["swap_frames_dir"], sw_idx), 0, keep_set=set(src))
             c["swap_pickimg"] = dc.messages_deploy(st, 2, irr=swap_paths)

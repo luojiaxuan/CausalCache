@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 16:45 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 16:55 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -71,6 +71,25 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-06 16:55 PT ★★★ GUI-Owl 教师强制复现(一行摘要 agent,Mail 两族 30 checkpoint):不给图 0% → 保留证据轮 23%,能力对照 100%
+- 做法:沿 Venus 跑出的 30 条 Mail 轨迹逐屏让 GUI-Owl 按自己的部署协议(最近两帧 + 每步一行 conclusion)写回复,动作按 Venus 原路执行
+  (`pilot_owl_tf.py`),得到"一行摘要 agent"在同一串屏幕上的因果前缀;再在同一批决策步上跑"保留哪几轮"矩阵(`eval_owl_tf_mail`)。
+  它写的 conclusion 果然只记动作("Click on the email titled …"),`leak.hist = 3/30`。
+
+| text_only | rec2 | ctrl_keep | irr2 | **src_keep** | src_pickimg | src_hybrid | swap_keep(按孪生答案) | gold_text |
+|---|---|---|---|---|---|---|---|---|
+| **0.000** | 0.000 | 0.000 | 0.000 | **0.233** | 0.267 | 0.267 | 0.250 | **1.000** |
+
+  闸门(16 对聚类):src − ctrl = src − rec2 = src − text_only = **+23.3 [+6.7, +42.9]**,四个原生文本闸全部过线(这是保留文本的部署协议!);
+  分族:OrderAddressJoin src 0.43 / swap 0.42,QuoteRecall src 0.06 / swap 0.12。上下文成本(prompt_tokens 中位):text_only 3919,+1 帧
+  (src_keep)6515,+2 帧(rec2)9099——GUI-Owl 一帧约 2,600 token。
+- 读法:(1) **在保留文本的部署协议下,一行摘要 agent 记不住值,不给图 / 最近两帧 / 同龄对照轮 / 无关帧全部 0;把当年看证据那一轮连图带回复
+  保留,救回 23%;文本直接给答案 100%——能力不是瓶颈,缺的只是信息**。这是 13:35 PT "文本够用"结论的对立面,同一批屏幕、只换 agent 的
+  文本记法。(2) QuoteRecall 只有 6%:它的 conclusion 同样丢掉了短信里"要哪一项"(OrderAddressJoin 的请求写在 Compose 主题行上,所以 43%)。
+  控制器该保留的是**请求轮 + 证据轮**(B=2~3);已加 `req_keep` / `src_req_keep` / `ctrl_req_keep` 条件,第二轮排在预算曲线之后。
+  (3) 换成孪生的证据轮 25% 跟孪生答案走,与 src 23% 对称。
+- 至此三条独立证据指向同一形态(Venus 只留 action 33%、GUI-Owl PartMatch 37.5%、GUI-Owl 教师强制 Mail 23%,对照全 0 或近 0)。
 
 ### 2026-09-06 16:45 PT ★ 用户定案:论文空间 = "各家 GUI agent 的记忆管理不同"这一轴上的两个制式
 - **用户的话**:各个 GUI agent 的 memory 管理不一样,有的 action summary 非常详细,有的非常简略。简略的那类,视觉回看补信息(准确率);
