@@ -4,20 +4,23 @@
 set -uo pipefail
 source /data01/jaxan/cc_container_lib.sh
 export PATH="/data01/jaxan/binshim:$HOME/.local/bin:$PATH"
-R=/data01/jaxan/rl_v2; E=http://172.17.0.1:41221/v1; C=""
+R=/data01/jaxan/rl_v2; E=http://172.17.0.1:41241/v1; C=""
 TASKS=$(python3 -c "import json; s=json.load(open('/data01/jaxan/sglang-omni-rl/cc_recipe/fixtures/mw_split_v1.json')); print(','.join(sorted(set(s['train'])|set(s['heldout']))))")
 G=""; until G=$(pick_gpu) && [ -n "$G" ]; do sleep 120; done
 C=$(alloc_name); docker run -d --init --label cc.owner=$OWN --name $C --gpus "\"device=$G\"" --ipc=host --shm-size 16g \
   -v /data01/jaxan:/data01/jaxan -v /data04/jaxan:/data04/jaxan -v /data01/jaxan/pyshim:/pyshim -e PYTHONPATH=/pyshim \
-  -p 172.17.0.1:41221:8000 vllm/vllm-omni:dev --model /data04/jaxan/models/GUI-Owl-1.5-8B-Instruct --served-model-name gui-owl \
+  -p 172.17.0.1:41241:8000 vllm/vllm-omni:dev --model /data04/jaxan/models/GUI-Owl-1.5-8B-Instruct --served-model-name gui-owl \
   --max-model-len 32768 --gpu-memory-utilization 0.85 --limit-mm-per-prompt '{"image":12}' >/dev/null
 reg "$C" "$G" "sglang-omni-rl 底座 GUI-Owl 多臂闭环(recent0/recent8/random2,117 题,union 余量);⚠ 在用勿删;收尾:三臂结束删"
-for t in $(seq 1 60); do curl -s -m 5 $E/models >/dev/null && break; sleep 20; done
-curl -s -m 5 $E/models >/dev/null || { echo "SERVER_FAIL"; docker logs "$C" 2>&1 | grep -a -i "free memory\|error" | tail -2 | cut -c1-160; rm_own "$C"; exit 1; }
-echo "$(date -u +%FT%TZ) gui-owl up on GPU$G"
+# note (luojiaxuan): 上一次 docker run 因端口冲突失败但 curl 打到了别的进程,agent 拿到 None 响应、三臂全废。这里先确认容器真在跑,
+# 再用一次真实补全请求验证服务的是 gui-owl,两者任一不满足就退出。
+docker ps --format '{{.Names}}' | grep -qx "$C" || { echo "CONTAINER_MISSING $C"; rm_own "$C"; exit 1; }
+for t in $(seq 1 60); do curl -s -m 5 $E/models | grep -q '"gui-owl"' && break; sleep 20; done
+curl -s -m 60 $E/chat/completions -H "Content-Type: application/json" -d '{"model":"gui-owl","messages":[{"role":"user","content":"Say OK"}],"max_tokens":4}' | grep -q '"choices"' \
+  || { echo "SERVER_FAIL (no completion)"; docker logs "$C" 2>&1 | grep -a -i "free memory\|error" | tail -2 | cut -c1-160; rm_own "$C"; exit 1; }
+echo "$(date -u +%FT%TZ) gui-owl up on GPU$G ($C)"
 for spec in "recent0:1:recent" "recent8:9:recent" "random2:3:random"; do
   arm=${spec%%:*}; rest=${spec#*:}; N=${rest%%:*}; POL=${rest#*:}; O=$R/guiowl_base_$arm; mkdir -p $O
-  grep -q "Final:" $O.log 2>/dev/null && { echo "skip $arm"; continue; }
   echo "$(date -u +%FT%TZ) START $arm (CC_HISTORY_N=$N CC_FRAME_POLICY=$POL)"
   cd /data01/jaxan/mw/MobileWorld && CC_HISTORY_N=$N CC_FRAME_POLICY=$POL PYTHONPATH=/data01/jaxan/pyshim timeout 14400 \
     uv run mw eval --agent_type gui_owl_1_5 --task "$TASKS" --max_round 50 --model_name gui-owl --llm_base_url $E --api_key EMPTY \
