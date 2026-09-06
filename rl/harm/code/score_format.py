@@ -2,7 +2,7 @@
 # 以 rec2_deploy 为基线报配对差;"不给图会错"子集用 harm_vs_n_base_deploy 的 rec0_deploy 判定。
 import json, statistics as st, sys
 fmt = {}
-for l in open("/data01/jaxan/harm/format_base.jsonl"):
+for l in open(sys.argv[1] if len(sys.argv) > 1 else "/data01/jaxan/harm/format_base.jsonl"):
     r = json.loads(l); fmt[f"{r['dir']}|{r['step']}"] = r
 base = {}
 for l in open("/data01/jaxan/harm/harm_vs_n_base_deploy.jsonl"):
