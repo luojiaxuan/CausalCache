@@ -1,31 +1,54 @@
-"""Two-frame relational join (memory-critical pilot, family B).
+"""Two-source relational join (memory-critical pilot, family B) — Mail carrier.
 
-Channel #q4-orders lists order id -> supplier; channel #supplier-directory lists supplier -> shipping address.
-An SMS then asks for the shipping address of ONE order id. Answering requires combining two screens that are
-never visible together (order->supplier on one, supplier->address on the other). Twins A/B re-randomize the
-order->supplier mapping and the addresses, so a two-frame budget is substantive: one frame alone cannot answer.
+Procurement emails say which supplier each order was placed with; separate vendor-management emails give each
+supplier's shipping address. An SMS then names ONE order id; the agent must combine two emails that are never on
+screen together. Twins share the layout (order ids, mail order) and differ in the order->supplier mapping and addresses.
 """
 
 import random
 import re
-import time
 
 from loguru import logger
 
-from mobile_world.runtime.app_helpers import mattermost
 from mobile_world.runtime.app_helpers.mail import get_sent_email_info
-from mobile_world.runtime.app_helpers.mattermost import DEFAULT_PASSWORD, USERS
 from mobile_world.runtime.controller import AndroidController
 from mobile_world.tasks.base import BaseTask
 
 
+# note (luojiaxuan): 任务注册表按文件路径加载模块,没有包上下文,相对导入会失败;Mail 种数据的两个函数因此内联。
+import json as _json
+import tempfile as _tempfile
+from mobile_world.runtime.utils.helpers import execute_adb as _execute_adb
+
+_REMOTE_STATE = "/sdcard/Android/data/com.gmailclone/files/state.json"
+
+
+def seed_inbox(mails, username="Harry Kong"):
+    state = {"username": username, "activeTab": "Mail", "mails": mails}
+    with _tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        _json.dump(state, f, ensure_ascii=False)
+        path = f.name
+    r = _execute_adb(f"push {path} {_REMOTE_STATE}")
+    if not r.success:
+        logger.error(f"push inbox failed: {r.error}")
+        return False
+    _execute_adb("shell am force-stop com.gmailclone")
+    _execute_adb("shell am start -n com.gmailclone/.MainActivity")
+    return True
+
+
+def mail(subject, body, sender, date="Sep 5", status="unread"):
+    return {"headers": {"subject": subject, "date": date, "from": sender, "to": "harry.kong@neuralforge.ai",
+                        "sender": sender, "senderLogo": ""}, "body": body, "status": status, "attachments": []}
+
+
+
 class _OrderAddressJoinMixin:
     task_tags = {"lang-en", "memory-critical"}
-    app_names = {"Mattermost", "Messages", "Mail"}
+    app_names = {"Mail", "Messages"}
 
-    SEED = 0
-    ORDERS_CHANNEL = "q4-orders"
-    DIRECTORY_CHANNEL = "supplier-directory"
+    PAIR = 0
+    TWIN = 0
     EMAIL_ADDRESS = "logistics@globalent.com"
     MANAGER_NUMBER = "+15559876543"
     SUPPLIERS = ["Northwind Metals", "Orion Components", "Kestrel Logistics", "Vega Industrial", "Halcyon Plastics"]
@@ -33,51 +56,39 @@ class _OrderAddressJoinMixin:
     CITIES = ["Tacoma, WA", "Reno, NV", "Boise, ID", "Fresno, CA", "Tucson, AZ", "Eugene, OR", "Provo, UT"]
 
     goal = (
-        "In Mattermost, the 'q4-orders' channel lists which supplier each order was placed with, and the "
-        "'supplier-directory' channel lists each supplier's shipping address. Then open the latest SMS from your "
-        "manager: she names one order id. Send that order's supplier shipping address (street, city, state) to "
+        "In the Mail app, the procurement emails say which supplier each Q4 order was placed with, and the "
+        "vendor-management emails give each supplier's shipping address. Then open the latest SMS from your manager: "
+        "she names one order id. Send that order's supplier shipping address (street, city, state) to "
         "logistics@globalent.com via Email."
     )
 
     def __init__(self, params=None):
         super().__init__(params)
-        rng = random.Random(self.SEED)
+        lay = random.Random(1000 + self.PAIR); rng = random.Random(2000 + self.PAIR * 2 + self.TWIN)
         streets = rng.sample(self.STREETS, len(self.SUPPLIERS)); cities = rng.sample(self.CITIES, len(self.SUPPLIERS))
         self.address = {s: f"{rng.randrange(100, 9900)} {st}, {ct}" for s, st, ct in zip(self.SUPPLIERS, streets, cities)}
-        self.orders = {f"Q4-{rng.randrange(1000, 9999)}": s for s in rng.sample(self.SUPPLIERS, 4)}
-        self.target_order = rng.choice(list(self.orders))
+        order_ids = [f"Q4-{lay.randrange(1000, 9999)}" for _ in range(4)]
+        self.orders = dict(zip(order_ids, rng.sample(self.SUPPLIERS, 4)))
+        self.target_order = lay.choice(order_ids)
+        self.mail_order = lay.sample(range(9), 9)
         self.expected = self.address[self.orders[self.target_order]]
 
     def initialize_task_hook(self, controller: AndroidController) -> bool:
-        mattermost.start_mattermost_backend()
-        time.sleep(5)
-        cli = mattermost.MattermostCLI()
-        cli.login(USERS["alex"], DEFAULT_PASSWORD)
-        members = ["harry.kong@neuralforge.ai", USERS["sofia"], USERS["mike"], USERS["sam"]]
-        cli.create_channel(team=mattermost.TEAM_NAME, channel_name=self.ORDERS_CHANNEL, display_name="Q4 Orders",
-                           private=False, purpose="Purchase orders placed this quarter")
-        cli.add_users_to_channel(team=mattermost.TEAM_NAME, channel=self.ORDERS_CHANNEL, users=members)
-        cli.create_channel(team=mattermost.TEAM_NAME, channel_name=self.DIRECTORY_CHANNEL, display_name="Supplier Directory",
-                           private=False, purpose="Supplier contact and shipping details")
-        cli.add_users_to_channel(team=mattermost.TEAM_NAME, channel=self.DIRECTORY_CHANNEL, users=members)
-        cli.logout()
-        cli.login(USERS["sofia"], DEFAULT_PASSWORD)
-        for oid, sup in self.orders.items():
-            cli.send_message(team=mattermost.TEAM_NAME, channel=self.ORDERS_CHANNEL,
-                             message=f"Order **{oid}** placed with **{sup}** — 3 pallets, net 30.")
-        cli.logout()
-        cli.login(USERS["mike"], DEFAULT_PASSWORD)
-        for sup in self.SUPPLIERS:
-            cli.send_message(team=mattermost.TEAM_NAME, channel=self.DIRECTORY_CHANNEL,
-                             message=f"**{sup}** — shipping address: {self.address[sup]}")
-        cli.logout()
+        order_mails = [mail(f"PO confirmation {oid}", f"Hello Harry,\n\nOrder {oid} has been placed with {sup} — 3 pallets, net 30.\n\nProcurement",
+                            "procurement@neuralforge.ai") for oid, sup in self.orders.items()]
+        dir_mails = [mail(f"Vendor record update: {sup}", f"Hello Harry,\n\n{sup} — shipping address: {self.address[sup]}.\n\nVendor Management",
+                          "vendors@neuralforge.ai") for sup in self.SUPPLIERS]
+        all_mails = order_mails + dir_mails
+        mails = [all_mails[i] for i in self.mail_order]
+        if not seed_inbox(mails):
+            return False
         sms = (f"Hi, logistics needs the supplier shipping address for order {self.target_order} "
-               f"(see the q4-orders and supplier-directory channels). Please email it to them. Thanks!")
+               f"(see the procurement and vendor emails). Please email it to them. Thanks!")
         res = controller.simulate_sms(self.MANAGER_NUMBER, sms)
         if not res.success:
             logger.error(f"simulate_sms failed: {res.error}")
             return False
-        logger.info(f"OrderAddressJoin seed={self.SEED}: order={self.target_order} supplier={self.orders[self.target_order]} expected={self.expected}")
+        logger.info(f"OrderAddressJoin pair={self.PAIR} twin={self.TWIN}: order={self.target_order} supplier={self.orders[self.target_order]} expected={self.expected}")
         return True
 
     @staticmethod
@@ -100,9 +111,82 @@ class _OrderAddressJoinMixin:
         return 1.0, "success"
 
 
-class OrderAddressJoinTaskA(_OrderAddressJoinMixin, BaseTask):
-    SEED = 20260916
+class OrderAddressJoinTask01A(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 1
+    TWIN = 0
 
 
-class OrderAddressJoinTaskB(_OrderAddressJoinMixin, BaseTask):
-    SEED = 20260917
+class OrderAddressJoinTask01B(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 1
+    TWIN = 1
+
+
+class OrderAddressJoinTask02A(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 2
+    TWIN = 0
+
+
+class OrderAddressJoinTask02B(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 2
+    TWIN = 1
+
+
+class OrderAddressJoinTask03A(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 3
+    TWIN = 0
+
+
+class OrderAddressJoinTask03B(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 3
+    TWIN = 1
+
+
+class OrderAddressJoinTask04A(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 4
+    TWIN = 0
+
+
+class OrderAddressJoinTask04B(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 4
+    TWIN = 1
+
+
+class OrderAddressJoinTask05A(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 5
+    TWIN = 0
+
+
+class OrderAddressJoinTask05B(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 5
+    TWIN = 1
+
+
+class OrderAddressJoinTask06A(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 6
+    TWIN = 0
+
+
+class OrderAddressJoinTask06B(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 6
+    TWIN = 1
+
+
+class OrderAddressJoinTask07A(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 7
+    TWIN = 0
+
+
+class OrderAddressJoinTask07B(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 7
+    TWIN = 1
+
+
+class OrderAddressJoinTask08A(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 8
+    TWIN = 0
+
+
+class OrderAddressJoinTask08B(_OrderAddressJoinMixin, BaseTask):
+    PAIR = 8
+    TWIN = 1
+
