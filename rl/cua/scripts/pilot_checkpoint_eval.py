@@ -205,6 +205,10 @@ def conditions(sp, st):
         c["text_only"] = vo.messages(st, req, args.no_text); c["rec2"] = vo.messages(st, req | set(slots(st)), args.no_text)
         if src_paths:
             c["src_at_turn"] = vo.messages(st, req | set(src), args.no_text)
+            for sc in [float(x) for x in args.scales.split(",") if x]:
+                g = dict(st); g["shots"] = list(st["shots"])
+                for i in set(src) | set(req): g["shots"][i] = scaled(st["shots"][i], sc)
+                c[f"src_at_turn@{sc:g}"] = vo.messages(g, req | set(src), args.no_text)
         if ctrl: c["ctrl_at_turn"] = vo.messages(st, req | set(ctrl), args.no_text)
         if swap_paths and len(sw_idx) == len(src):
             c["swap_at_turn"] = vo.messages(swapped_state(st, src, sp["swap_frames_dir"], sw_idx), req | set(src), args.no_text)
