@@ -109,7 +109,11 @@ def build(d, t):
     ctrl = []
     for f in src:
         if f is None: ctrl.append(None); continue
-        c = f - 1 if f - 1 >= 0 and (f - 1) not in src else f + 1
+        if t["family"] == "PartMatch":
+            # note (luojiaxuan):Approved 文件夹列表与其上的"用哪个应用打开"选择器都露出样品缩略图,同龄无证据帧只能取 Files 打开时的 Download 列表(帧 1)。
+            c = 1
+        else:
+            c = f - 1 if f - 1 >= 0 and (f - 1) not in src else f + 1
         ctrl.append(c if 0 <= c < len(shots) else None)
     if t["family"] == "PartMatch" and src and src[0] is not None:
         j = next((j for j in range(src[0], n) if "candidates" in norm(preds[j + 1]) and is_click(action_of(preds[j + 1]))), None)
