@@ -1,91 +1,107 @@
-"""Late-bound quote recall (memory-critical pilot, family A).
+"""Late-bound quote recall (memory-critical pilot, family A) — Mail carrier.
 
-Four supplier quotes are posted in a Mattermost channel. Afterwards an SMS from the manager names ONE
-supplier and ONE attribute (delivery charge / lead time / unit price); the agent must recall that figure
-and email it to accounting. Which figure will be needed is unknown while the quotes are being read, so
-the agent cannot know in advance what to write down. Counterfactual twins (A/B) share the layout and
-differ only in the randomized figures and the requested supplier/attribute, so the correct answer differs.
+Four supplier quotes arrive as separate emails (plus unrelated mail). An SMS from the manager names ONE supplier and
+ONE attribute; the agent must find/recall that figure and email it to accounting. Counterfactual twins share the layout
+(supplier order, noise mail) and differ only in the figures and the requested supplier/attribute.
 """
 
 import random
 import re
-import time
 
 from loguru import logger
 
-from mobile_world.runtime.app_helpers import mattermost
 from mobile_world.runtime.app_helpers.mail import get_sent_email_info
-from mobile_world.runtime.app_helpers.mattermost import DEFAULT_PASSWORD, USERS
 from mobile_world.runtime.controller import AndroidController
 from mobile_world.tasks.base import BaseTask
 
 
+# note (luojiaxuan): 任务注册表按文件路径加载模块,没有包上下文,相对导入会失败;Mail 种数据的两个函数因此内联。
+import json as _json
+import tempfile as _tempfile
+from mobile_world.runtime.utils.helpers import execute_adb as _execute_adb
+
+_REMOTE_STATE = "/sdcard/Android/data/com.gmailclone/files/state.json"
+
+
+def seed_inbox(mails, username="Harry Kong"):
+    state = {"username": username, "activeTab": "Mail", "mails": mails}
+    with _tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
+        _json.dump(state, f, ensure_ascii=False)
+        path = f.name
+    r = _execute_adb(f"push {path} {_REMOTE_STATE}")
+    if not r.success:
+        logger.error(f"push inbox failed: {r.error}")
+        return False
+    _execute_adb("shell am force-stop com.gmailclone")
+    _execute_adb("shell am start -n com.gmailclone/.MainActivity")
+    return True
+
+
+def mail(subject, body, sender, date="Sep 5", status="unread"):
+    return {"headers": {"subject": subject, "date": date, "from": sender, "to": "harry.kong@neuralforge.ai",
+                        "sender": sender, "senderLogo": ""}, "body": body, "status": status, "attachments": []}
+
+
+
 class _QuoteRecallMixin:
     task_tags = {"lang-en", "memory-critical"}
-    app_names = {"Mattermost", "Messages", "Mail"}
+    app_names = {"Mail", "Messages"}
 
-    SEED = 0
-    CHANNEL_NAME = "procurement-quotes"
+    PAIR = 0
+    TWIN = 0
     EMAIL_ADDRESS = "accounting@globalent.com"
     MANAGER_NUMBER = "+15559876543"
     SUPPLIERS = ["Northwind Metals", "Orion Components", "Kestrel Logistics", "Vega Industrial"]
-    POSTERS = ["sofia", "mike", "sam", "alex"]
     ATTRIBUTES = {
-        "delivery charge": ("delivery charge", "USD", lambda r: r.randrange(180, 990, 5)),
-        "lead time": ("lead time", "days", lambda r: r.randrange(7, 45)),
-        "unit price": ("unit price", "USD", lambda r: round(r.uniform(12.5, 89.5), 2)),
+        "delivery charge": ("delivery charge", lambda r: r.randrange(180, 990, 5)),
+        "lead time": ("lead time", lambda r: r.randrange(7, 45)),
+        "unit price": ("unit price", lambda r: round(r.uniform(12.5, 89.5), 2)),
     }
+    NOISE = [("Team lunch on Friday", "Reminder: team lunch at noon, RSVP by Thursday.", "office@neuralforge.ai"),
+             ("Parking permit renewal", "Your parking permit expires next month. Renew online.", "facilities@neuralforge.ai"),
+             ("Weekly digest", "Top posts this week from the engineering channel.", "digest@neuralforge.ai")]
 
     goal = (
-        "Read the supplier quotes posted in the 'procurement-quotes' channel in Mattermost. "
+        "Read the supplier quote emails in the Mail app (one email per supplier). "
         "Then open the latest SMS from your manager: she names one supplier and one figure from its quote. "
         "Send exactly that figure (number only in the message body) to accounting@globalent.com via Email."
     )
 
     def __init__(self, params=None):
         super().__init__(params)
-        rng = random.Random(self.SEED)
-        self.quotes = {}
-        for s in self.SUPPLIERS:
-            self.quotes[s] = {name: gen(rng) for name, (_, _, gen) in self.ATTRIBUTES.items()}
+        lay = random.Random(1000 + self.PAIR); rng = random.Random(2000 + self.PAIR * 2 + self.TWIN)
+        self.SUPPLIERS = lay.sample(self.SUPPLIERS, len(self.SUPPLIERS))
+        self.noise_slots = sorted(lay.sample(range(7), 3))
+        self.quotes = {s: {name: gen(rng) for name, (_, gen) in self.ATTRIBUTES.items()} for s in self.SUPPLIERS}
         self.target_supplier = rng.choice(self.SUPPLIERS)
         self.target_attr = rng.choice(list(self.ATTRIBUTES))
         self.expected = self.quotes[self.target_supplier][self.target_attr]
 
-    def _quote_message(self, supplier: str) -> str:
-        q = self.quotes[supplier]
-        return (
-            f"**Quote — {supplier}**\n"
-            f"- Unit price: USD {q['unit price']:.2f}\n"
-            f"- Delivery charge: USD {q['delivery charge']}\n"
-            f"- Lead time: {q['lead time']} days\n"
-            f"Valid for 14 days."
-        )
+    def _quote_mail(self, supplier: str) -> dict:
+        q = self.quotes[supplier]; dom = supplier.split()[0].lower()
+        return mail(f"Quote for the Q4 order — {supplier}",
+                    f"Hello Harry,\n\nPlease find our quote for the Q4 order:\n- Unit price: USD {q['unit price']:.2f}\n"
+                    f"- Delivery charge: USD {q['delivery charge']}\n- Lead time: {q['lead time']} days\n\nValid for 14 days.\n\nBest regards,\n{supplier} Sales",
+                    f"sales@{dom}.com")
 
     def initialize_task_hook(self, controller: AndroidController) -> bool:
-        mattermost.start_mattermost_backend()
-        time.sleep(5)
-        cli = mattermost.MattermostCLI()
-        cli.login(USERS["alex"], DEFAULT_PASSWORD)
-        cli.create_channel(team=mattermost.TEAM_NAME, channel_name=self.CHANNEL_NAME,
-                           display_name="Procurement Quotes", private=False,
-                           purpose="Supplier quotes for the Q4 order")
-        cli.add_users_to_channel(team=mattermost.TEAM_NAME, channel=self.CHANNEL_NAME,
-                                 users=["harry.kong@neuralforge.ai"] + [USERS[p] for p in self.POSTERS])
-        cli.logout()
-        for supplier, poster in zip(self.SUPPLIERS, self.POSTERS):
-            cli.login(USERS[poster], DEFAULT_PASSWORD)
-            cli.send_message(team=mattermost.TEAM_NAME, channel=self.CHANNEL_NAME,
-                             message=self._quote_message(supplier))
-            cli.logout()
-        label, _, _ = self.ATTRIBUTES[self.target_attr]
-        sms = (f"Hi, for the Q4 order please send accounting the {label} quoted by "
-               f"{self.target_supplier} (the one in the procurement-quotes channel). Thanks!")
+        quotes = [self._quote_mail(s) for s in self.SUPPLIERS]
+        noise = [mail(s, b, f) for s, b, f in self.NOISE]
+        mails = []; qi = ni = 0
+        for slot in range(7):
+            if slot in self.noise_slots and ni < len(noise): mails.append(noise[ni]); ni += 1
+            elif qi < len(quotes): mails.append(quotes[qi]); qi += 1
+        mails += quotes[qi:] + noise[ni:]
+        if not seed_inbox(mails):
+            return False
+        label, _ = self.ATTRIBUTES[self.target_attr]
+        sms = (f"Hi, for the Q4 order please send accounting the {label} quoted by {self.target_supplier} "
+               f"(see the quote emails). Thanks!")
         res = controller.simulate_sms(self.MANAGER_NUMBER, sms)
         if not res.success:
             logger.error(f"simulate_sms failed: {res.error}")
             return False
-        logger.info(f"QuoteRecall seed={self.SEED}: target={self.target_supplier}/{self.target_attr} expected={self.expected}")
+        logger.info(f"QuoteRecall pair={self.PAIR} twin={self.TWIN}: target={self.target_supplier}/{self.target_attr} expected={self.expected}")
         return True
 
     def is_successful(self, controller: AndroidController) -> tuple[float, str]:
@@ -100,16 +116,88 @@ class _QuoteRecallMixin:
         exp = float(self.expected)
         if not any(abs(n - exp) < 0.005 for n in nums):
             return 0.0, f"expected {self.expected} not in body: {body[:120]!r}"
-        # 反事实孪生的判别力:正确数字之外不得同时包含其它供应商同属性的数字(否则是"把所有数都发了")
         others = [float(self.quotes[s][self.target_attr]) for s in self.SUPPLIERS if s != self.target_supplier]
         if any(abs(n - o) < 0.005 for n in nums for o in others):
             return 0.0, "body also contains other suppliers' figures"
         return 1.0, "success"
 
 
-class QuoteRecallTaskA(_QuoteRecallMixin, BaseTask):
-    SEED = 20260906
+class QuoteRecallTask01A(_QuoteRecallMixin, BaseTask):
+    PAIR = 1
+    TWIN = 0
 
 
-class QuoteRecallTaskB(_QuoteRecallMixin, BaseTask):
-    SEED = 20260907
+class QuoteRecallTask01B(_QuoteRecallMixin, BaseTask):
+    PAIR = 1
+    TWIN = 1
+
+
+class QuoteRecallTask02A(_QuoteRecallMixin, BaseTask):
+    PAIR = 2
+    TWIN = 0
+
+
+class QuoteRecallTask02B(_QuoteRecallMixin, BaseTask):
+    PAIR = 2
+    TWIN = 1
+
+
+class QuoteRecallTask03A(_QuoteRecallMixin, BaseTask):
+    PAIR = 3
+    TWIN = 0
+
+
+class QuoteRecallTask03B(_QuoteRecallMixin, BaseTask):
+    PAIR = 3
+    TWIN = 1
+
+
+class QuoteRecallTask04A(_QuoteRecallMixin, BaseTask):
+    PAIR = 4
+    TWIN = 0
+
+
+class QuoteRecallTask04B(_QuoteRecallMixin, BaseTask):
+    PAIR = 4
+    TWIN = 1
+
+
+class QuoteRecallTask05A(_QuoteRecallMixin, BaseTask):
+    PAIR = 5
+    TWIN = 0
+
+
+class QuoteRecallTask05B(_QuoteRecallMixin, BaseTask):
+    PAIR = 5
+    TWIN = 1
+
+
+class QuoteRecallTask06A(_QuoteRecallMixin, BaseTask):
+    PAIR = 6
+    TWIN = 0
+
+
+class QuoteRecallTask06B(_QuoteRecallMixin, BaseTask):
+    PAIR = 6
+    TWIN = 1
+
+
+class QuoteRecallTask07A(_QuoteRecallMixin, BaseTask):
+    PAIR = 7
+    TWIN = 0
+
+
+class QuoteRecallTask07B(_QuoteRecallMixin, BaseTask):
+    PAIR = 7
+    TWIN = 1
+
+
+class QuoteRecallTask08A(_QuoteRecallMixin, BaseTask):
+    PAIR = 8
+    TWIN = 0
+
+
+class QuoteRecallTask08B(_QuoteRecallMixin, BaseTask):
+    PAIR = 8
+    TWIN = 1
+
