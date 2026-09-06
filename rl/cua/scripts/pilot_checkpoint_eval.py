@@ -60,11 +60,11 @@ def state_of(d, k):
 def norm(s):
     return re.sub(r"[\s,]+", " ", str(s)).strip().lower()
 
-# note (luojiaxuan): PartMatch 的决策屏是 Files 的列表视图(Documents/Candidates,cand_a..cand_f 按名排,六行全可见,
-# 行心约在 0–1000 归一化纵坐标 317/397/477/557/637/717,行高 80);模型点击行而非报文件名,所以按点击纵坐标落到哪一行判定。
+# note (luojiaxuan): PartMatch 的决策屏是 Files 的两列缩略图网格(cand_a..cand_d 按名排:a b / c d),两行整行可见且带文件名;
+# 首行纵坐标约 280–540(0–1000 归一化),次行约 540–800;模型点缩略图而非报文件名,所以按点击坐标落到哪个格子判定。
 def grid_file(x, y):
-    row = int((y - 277) // 80)
-    return f"cand_{'abcdef'[row]}.png" if 0 <= row < 6 else ""
+    col = 0 if x < 500 else 1; row = 0 if y < 540 else 1
+    return f"cand_{'abcd'[row * 2 + col]}.png" if y >= 250 else ""
 
 def click_point(txt):
     if args.backend == "owl":
