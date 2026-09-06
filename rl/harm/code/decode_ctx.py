@@ -104,21 +104,35 @@ def load_picks(pattern):
 # 同时把最近两步压成 conclusion,结构和内容一起变了。两个解耦的规格:
 #   pickimg:<judge>   结构固定为最近两 turn(回复原文),只把这两个 turn 的**图**换成裁判帧(与 irr2_deploy 同法,图不同)→ 纯内容效应;
 #   hybrid:<judge>    最近两 turn 原样保留,裁判帧作为带 "[PAST screenshot from j steps ago]" 标记的额外图放进第一条 user 消息 → 候选的检索友好格式。
-def messages_hybrid(st, picks):
+# note (luojiaxuan): hybrid 的三种放法(GUI-Owl 原生格式是"每个 user turn 恰好一张图",额外图放哪里可能决定成败):
+#   first  放在第一条 user 消息(文本之后、首帧之前)——首发版,109 态上 −27pp;
+#   last   放在最后一条 user 消息、当前帧之前(离决策最近);
+#   turn   作为额外的 user/assistant 轮次插在最近两轮之前:user=[标记文本+图],assistant="(reference only)"——不破坏"一 turn 一图"。
+def messages_hybrid(st, picks, where="first"):
     msgs = messages_deploy(st, 2); k = st["step"]
-    extra = []
-    for j in sorted(i for i in picks if 0 <= i < k - 1):
-        extra += [{"type": "text", "text": f"[PAST screenshot from {k - 1 - j} steps ago, for reference only]"},
-                  {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(st['shots'][j])}"}}]
-    msgs[1]["content"] = [msgs[1]["content"][0]] + extra + msgs[1]["content"][1:]
+    items = [(j, {"type": "text", "text": f"[PAST screenshot from {k - 1 - j} steps ago, for reference only]"},
+              {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(st['shots'][j])}"}})
+             for j in sorted(i for i in picks if 0 <= i < k - 1)]
+    extra = [c for _, t, im in items for c in (t, im)]
+    if where == "first":
+        msgs[1]["content"] = [msgs[1]["content"][0]] + extra + msgs[1]["content"][1:]
+    elif where == "last":
+        msgs[-1]["content"] = extra + msgs[-1]["content"]
+    elif where == "turn":
+        ins = []
+        for _, t, im in items:
+            ins += [{"role": "user", "content": [t, im]}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference screenshot."}]}]
+        msgs = [msgs[0]] + ins + msgs[1:]  # system | 参考轮次(user/assistant 交替) | 原生首条 user(文本+首帧)及其后交错轮次——保持角色交替
     return msgs
 
 def build(st, spec_name):
-    if spec_name.startswith("pickimg:") or spec_name.startswith("hybrid:"):
+    if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn"):
         kind, key = spec_name.split(":", 1); key = key[:-7] if key.endswith("_deploy") else key
         pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
         if pk is None: return None
-        if kind == "hybrid": return messages_hybrid(st, pk)
+        if kind == "hybrid": return messages_hybrid(st, pk, where="first")
+        if kind == "hybridlast": return messages_hybrid(st, pk, where="last")
+        if kind == "hybridturn": return messages_hybrid(st, pk, where="turn")
         return messages_deploy(st, 2, irr=[st["shots"][i] for i in sorted(pk)[:2]])
     if spec_name.startswith("pick:"):                  # pick:<judge>|<mode>|<cands>_deploy
         key = spec_name[5:-7]; pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
