@@ -23,8 +23,9 @@ ap.add_argument("--base-url", required=True); ap.add_argument("--model", require
 ap.add_argument("--tag", required=True); ap.add_argument("--out", required=True)
 ap.add_argument("--workers", type=int, default=8)
 ap.add_argument("--no-text", action="store_true", help="venus: 去掉全部文本推理历史(诊断口径)")
-ap.add_argument("--text-mode", choices=["full", "oneline", "action"], default="full",
-                help="venus: 历史文本保真度——full=官方协议(整段 think+action);oneline=每轮只留 think 首句+action(模拟一行摘要);action=只留 action")
+ap.add_argument("--text-mode", choices=["full", "oneline", "action", "action_fact"], default="full",
+                help="venus: 历史文本——full=官方协议(整段 think+action);oneline=每轮只留 think 首句+action;action=只留 action;"
+                     "action_fact=只留 action 但证据轮加一句 'Noted: <事实>'(与 action 同长度同风格,只差事实留/删,用于交互项)")
 ap.add_argument("--rescore", action="store_true", help="不解码:读 --out 里已保存的解码文本重新判定并汇总")
 ap.add_argument("--scales", default="", help="venus: 额外跑源帧缩放版 src_at_turn@<s>(s 为边长比例,逗号分隔),用于'精简视觉 token vs 详细文本'的预算曲线")
 ap.add_argument("--conds", default="", help="只跑这些条件(逗号分隔);空 = 全部")
@@ -46,7 +47,7 @@ def squeeze(p):
     # note (luojiaxuan): 把 Venus 一轮的原文压成"一行摘要 + 动作"或"只有动作",模拟常见 GUI agent 的文本历史保真度。
     if args.text_mode == "full": return p
     act = re.search(r"<action>.*?</action>", p, re.S); act = act.group(0) if act else ""
-    if args.text_mode == "action": return act
+    if args.text_mode in ("action", "action_fact"): return act
     th = re.search(r"<think>(.*?)</think>", p, re.S); first = re.split(r"(?<=[.!?。])\s+", th.group(1).strip(), maxsplit=1)[0] if th else ""
     return f"<think>{first}</think>\n{act}"
 
@@ -201,7 +202,7 @@ def conditions(sp, st):
         c["gold_text"] = owl_gold(st, sp["expected"])
     else:
         # note (luojiaxuan): 文本里没有请求内容的口径(无文本、只留 action)下,"要哪一项"只在短信屏上,所有图条件都带请求帧。
-        req = set(i for i in sp.get("request_frames", []) if 0 <= i < k - 1) if (args.no_text or args.text_mode == "action") else set()
+        req = set(i for i in sp.get("request_frames", []) if 0 <= i < k - 1) if (args.no_text or args.text_mode in ("action", "action_fact")) else set()
         c["text_only"] = vo.messages(st, req, args.no_text); c["rec2"] = vo.messages(st, req | set(slots(st)), args.no_text)
         if src_paths:
             c["src_at_turn"] = vo.messages(st, req | set(src), args.no_text)
@@ -223,6 +224,11 @@ lock = threading.Lock()
 def run(sp):
     st = state_of(sp["dir"], sp["step"]); kind = sp.get("expected_kind", "text")
     exp = sp["expected"]
+    if args.backend == "venus" and args.text_mode == "action_fact":
+        # note (luojiaxuan): 事实留存臂:证据轮的一行历史 = "Noted: <事实>" + 该轮动作;其余轮与 action 模式完全相同。
+        k = st["step"]; src = [i for i in sp["source_frames"] if 0 <= i < k - 1]
+        for i in src: st["hist"][i] = f"<think>Noted: {exp}.</think>\n" + st["hist"][i]
+        st["concls"] = [go.extract_conclusion(h) for h in st["hist"]]
     leak = {"goal": int(norm(exp) in norm(st["goal"])), "hist": int(any(norm(exp) in norm(h) for h in st["hist"]))}
     rec = {"tag": args.tag, "backend": args.backend, "no_text": args.no_text, "text_mode": args.text_mode, "dir": st["dir"], "task": st["task"], "family": sp.get("family", ""),
            "pair": sp.get("pair"), "step": st["step"], "expected": exp, "expected_swap": sp.get("expected_swap"), "leak": leak, "decodes": {}, "hit": {}}
