@@ -1,5 +1,6 @@
 # note (luojiaxuan): 从前缀轨迹建 B-pilot 的 checkpoint 规格(供 pilot_checkpoint_eval.py)。每个任务:
-#   决策步 k = executor 第一次输出携带 expected 的动作(Type/Answer;PartMatch 为提到目标文件名)的那一步 → checkpoint 状态 = 第 k 步之前的全部历史;
+#   决策步 k:PartMatch 按结构定义 = 看过样品之后、候选列表(Candidates)第一次出现在屏幕上的那一步(不看 agent 当时选没选对,避免按结果选态);
+#            Mail 两族暂按结果定义 = executor 第一次输出携带 expected 的动作(Type/Answer)的那一步;k_outcome 一律另记。checkpoint 状态 = 第 k 步之前的全部历史;
 #   源帧 = 打开证据后、离开该视图(Back/Home)那一步观察到的帧:第 j 轮(0-based)的文本提到证据关键词(供应商名或其邮箱域 / 订单号 / approved_sample)且动作是点击,
 #         之后第一次离开动作在第 b 步 → 帧 b−1(没有离开动作则帧 j+1);
 #   孪生 = 同族同对另一版(源帧取它自己检出的源帧,expected_swap = 它的答案);无关 = 同族另一对 A 版的源帧(同一工作流阶段)。
@@ -73,7 +74,8 @@ def build(d, t):
     if not data: return None
     traj = list(data.values())[0].get("traj") or []
     preds = {s["step"]: s.get("prediction") or "" for s in traj}; shots = shots_of(d); n = len(preds)
-    k = next((s for s in range(1, n + 1) if carries(preds[s], t)), None)
+    k_out = next((s for s in range(1, n + 1) if carries(preds[s], t)), None)
+    k = k_out
     src = []
     for aliases in t["keys"]:
         j = next((j for j in range(0, n) if any(norm(a) in norm(preds[j + 1]) for a in aliases) and is_click(action_of(preds[j + 1]))), None)
@@ -83,8 +85,11 @@ def build(d, t):
         # 观察到的帧 = 证据显示得最完整的一帧;决策步之前没有离开动作则取点击后的下一帧。
         b = next((b for b in range(j + 2, (k or n) + 1) if leaves_view(action_of(preds[b]), preds[b])), None)
         src.append(b - 1 if b and b - 1 < len(shots) else j + 1)
+    if t["family"] == "PartMatch" and src and src[0] is not None:
+        j = next((j for j in range(src[0], n) if "candidates" in norm(preds[j + 1]) and is_click(action_of(preds[j + 1]))), None)
+        k = j + 2 if j is not None and j + 2 <= n else None
     return {"dir": d, "task": t["task"], "family": t["family"], "pair": t["pair"], "twin": t["twin"], "expected": t["expected"],
-            "expected_kind": t["kind"], "step": k, "n_steps": n, "source_frames": src,
+            "expected_kind": t["kind"], "step": k, "k_outcome": k_out, "n_steps": n, "source_frames": src,
             "score": open(os.path.join(d, "result.txt")).read().split("score:")[1].split()[0] if os.path.exists(os.path.join(d, "result.txt")) else None}
 
 S = seeds(); rows = {}
