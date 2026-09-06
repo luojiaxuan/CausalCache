@@ -9,8 +9,8 @@ import argparse, os, re, shutil, subprocess, sys
 INCLUDE = ["rl", "docs", "data/results", "code", "ablations", "README.md", "AGENTS.md", "research_log.md", "pyproject.toml", "Makefile", "tools"]
 DENY = ["paper/", "data/results/c_case_audit/", ".github/", ".claude/", "tools/review_mirror.py"]
 SUBS = [
-    (r"\bhyper00\b", "hostA"), (r"\bhyper01\b", "hostB"), (r"\bmoss\b", "hostC"), (r"\baries\b", "hostD"),
-    (r"\btilde\b", "hostE"), (r"\btaurus\b", "hostF"), (r"\bb200\b", "hostG"), (r"\beval-h100\b", "hostH"),
+    (r"hyper00", "hostA"), (r"hyper01", "hostB"), (r"\bmoss\b", "hostC"), (r"\baries\b", "hostD"),
+    (r"\btilde\b", "hostE"), (r"\btaurus\b", "hostF"), (r"\bb200\b", "hostG"), (r"eval-h100", "hostH"),
     (r"\bMoss\b", "HostC"), (r"\bAries\b", "HostD"), (r"\bTilde\b", "HostE"), (r"\bTaurus\b", "HostF"),
     (r"sglang-omni-jaxan-", "ctr-"), (r"sglang-omni-jaxan", "ctr"), (r"sglang[-_ ]?omni", "ns"),
     (r"critic[-_ ]?hack", "proj-x"), (r"jiaxuanluo-map(\.txt)?", "container-map"),
