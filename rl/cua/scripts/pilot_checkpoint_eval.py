@@ -21,10 +21,13 @@ ap.add_argument("--base-url", required=True); ap.add_argument("--model", require
 ap.add_argument("--tag", required=True); ap.add_argument("--out", required=True)
 ap.add_argument("--workers", type=int, default=8)
 ap.add_argument("--no-text", action="store_true", help="venus: 去掉全部文本推理历史(诊断口径)")
+ap.add_argument("--rescore", action="store_true", help="不解码:读 --out 里已保存的解码文本重新判定并汇总")
 args = ap.parse_args()
 
 go = load("/data01/jaxan/guiowl_oracle.py", "go")
-if args.backend == "owl":
+if args.rescore:
+    pass
+elif args.backend == "owl":
     sys.argv = ["decode_ctx.py", "--base-url", args.base_url, "--tag", "x", "--out", "/dev/null", "--specs", "rec0", "--roots", "/nonexistent"]
     dc = load("/data01/jaxan/decode_ctx.py", "dc")
 else:
@@ -52,6 +55,8 @@ def carries_text(body, exp, kind, whole):
         return int(exp in norm(body))
 
 def carries(txt, exp, kind):
+    # note (luojiaxuan): file 类(PartMatch)的决策是点击候选文件,判定看整段输出是否指名目标文件;文本类只看 type/answer 的内容。
+    if kind == "file": return carries_text("", exp, kind, txt)
     if args.backend == "owl":
         act = go.parse_action(txt)
         if act is None or act["action"] not in ("type", "answer"): return 0
@@ -130,7 +135,7 @@ def conditions(sp, st):
         if swap_paths:
             c["swap_pickimg"] = dc.messages_deploy(st, 2, irr=swap_paths)
             c["swap_hybrid"] = owl_hybrid(st, [(k - 1 - i, p) for i, p in zip(sw_idx, swap_paths)])
-        if len(irr_paths) == 2: c["irr2"] = dc.messages_deploy(st, 2, irr=irr_paths)
+        if irr_paths: c["irr2"] = dc.messages_deploy(st, 2, irr=irr_paths)
         for jname, pk in (sp.get("judge_picks") or {}).items():
             pk = [i for i in pk if 0 <= i < k - 1][:2]
             if pk: c[f"judge_hybrid:{jname}"] = owl_hybrid(st, [(k - 1 - i, st["shots"][i]) for i in pk])
@@ -141,7 +146,7 @@ def conditions(sp, st):
             c["src_pickimg"] = venus_slots(st, src_paths); c["src_at_turn"] = vo.messages(st, set(src), args.no_text)
         if swap_paths:
             c["swap_pickimg"] = venus_slots(st, swap_paths); c["swap_at_turn"] = venus_at_turn(st, src if len(src) == len(swap_paths) else sw_idx, swap_paths)
-        if len(irr_paths) == 2: c["irr2"] = venus_slots(st, irr_paths)
+        if irr_paths: c["irr2"] = venus_slots(st, irr_paths)
         c["gold_text"] = venus_gold(st, sp["expected"])
     return c
 
@@ -159,8 +164,16 @@ def run(sp):
         with open(args.out, "a") as f: f.write(json.dumps(rec, ensure_ascii=False) + "\n")
 
 specs = [json.loads(l) for l in open(args.spec)]
-with ThreadPoolExecutor(args.workers) as ex: list(ex.map(run, specs))
-rows = [json.loads(l) for l in open(args.out) if json.loads(l)["tag"] == args.tag]
+if args.rescore:
+    kinds = {sp["dir"]: sp.get("expected_kind", "text") for sp in specs}; swaps = {sp["dir"]: sp.get("expected_swap") for sp in specs}
+    rows = [json.loads(l) for l in open(args.out) if json.loads(l)["tag"] == args.tag]
+    for r in rows:
+        r["hit"] = {c: carries(t, swaps[r["dir"]] if c.startswith("swap_") else r["expected"], kinds[r["dir"]]) for c, t in r["decodes"].items()}
+    with open(args.out, "w") as f:
+        for r in rows: f.write(json.dumps(r, ensure_ascii=False) + "\n")
+else:
+    with ThreadPoolExecutor(args.workers) as ex: list(ex.map(run, specs))
+    rows = [json.loads(l) for l in open(args.out) if json.loads(l)["tag"] == args.tag]
 conds = sorted({c for r in rows for c in r["hit"]})
 print(f"[{args.tag}] backend={args.backend} no_text={args.no_text} n={len(rows)}  leak goal={sum(r['leak']['goal'] for r in rows)} hist={sum(r['leak']['hist'] for r in rows)}")
 print("  命中率(动作携带正确答案;swap_* 按另一版答案判):")
