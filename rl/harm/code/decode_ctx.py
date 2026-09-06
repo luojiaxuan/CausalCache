@@ -136,10 +136,20 @@ def messages_hybrid(st, picks, where="first"):
         for _, t, im in items:
             ins += [{"role": "user", "content": [t, im]}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference screenshot."}]}]
         msgs = msgs[:3] + ins + msgs[3:]  # system | 首条 user + 其 assistant 回复 | 参考轮次 | 其余交错轮次——参考轮落在指令消息之后、最近两轮之前
+    elif where in ("turnin_gray", "turnin_text"):
+        # note (luojiaxuan): 同 turnin 的位置,但参考轮的内容换成灰图(同 token、无内容)或纯文本(无图、少 token),分辨"按 token 算"还是"按轮算"。
+        ins = []
+        for j, t, im in items:
+            if where == "turnin_gray":
+                content = [t, {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(BLANK)}"}}]
+            else:
+                content = [{"type": "text", "text": f"[PAST step {j + 1}, {k - 1 - j} steps ago, for reference only: {add_period(st['concls'][j])}]"}]
+            ins += [{"role": "user", "content": content}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference."}]}]
+        msgs = msgs[:3] + ins + msgs[3:]
     return msgs
 
 def build(st, spec_name):
-    if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn", "hybridturnin"):
+    if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn", "hybridturnin", "hybridturnin_gray", "hybridturnin_text"):
         kind, key = spec_name.split(":", 1); key = key[:-7] if key.endswith("_deploy") else key
         pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
         if pk is None: return None
@@ -147,6 +157,8 @@ def build(st, spec_name):
         if kind == "hybridlast": return messages_hybrid(st, pk, where="last")
         if kind == "hybridturn": return messages_hybrid(st, pk, where="turn")
         if kind == "hybridturnin": return messages_hybrid(st, pk, where="turnin")
+        if kind == "hybridturnin_gray": return messages_hybrid(st, pk, where="turnin_gray")
+        if kind == "hybridturnin_text": return messages_hybrid(st, pk, where="turnin_text")
         return messages_deploy(st, 2, irr=[st["shots"][i] for i in sorted(pk)[:2]])
     if spec_name.startswith("pick:"):                  # pick:<judge>|<mode>|<cands>_deploy
         key = spec_name[5:-7]; pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
