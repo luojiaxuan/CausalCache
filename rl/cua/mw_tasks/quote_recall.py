@@ -20,7 +20,7 @@ from mobile_world.runtime.controller import AndroidController
 from mobile_world.tasks.base import BaseTask
 
 
-class _QuoteRecallBase(BaseTask):
+class _QuoteRecallMixin:
     task_tags = {"lang-en", "memory-critical"}
     app_names = {"Mattermost", "Messages", "Mail"}
 
@@ -107,9 +107,9 @@ class _QuoteRecallBase(BaseTask):
         return 1.0, "success"
 
 
-class QuoteRecallTaskA(_QuoteRecallBase):
+class QuoteRecallTaskA(_QuoteRecallMixin, BaseTask):
     SEED = 20260906
 
 
-class QuoteRecallTaskB(_QuoteRecallBase):
+class QuoteRecallTaskB(_QuoteRecallMixin, BaseTask):
     SEED = 20260907
