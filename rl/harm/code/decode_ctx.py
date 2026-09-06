@@ -13,6 +13,7 @@ ap.add_argument("--specs", default="rec0,rec1,rec2,rec3,rec4,rec6,irr1,irr2,irr3
 ap.add_argument("--base-url", required=True); ap.add_argument("--model", default="gui-owl")
 ap.add_argument("--tag", required=True); ap.add_argument("--out", required=True)
 ap.add_argument("--no-text", action="store_true"); ap.add_argument("--workers", type=int, default=12)
+ap.add_argument("--picks", default="", help="glob;给出时 specs 里可用 pick:<judge>|<mode>|<cands>_deploy")
 args = ap.parse_args()
 spec = importlib.util.spec_from_file_location("go", args.oracle_py); go = importlib.util.module_from_spec(spec); spec.loader.exec_module(go)
 ns = {}; exec(open(args.prompts).read(), ns)
@@ -56,32 +57,77 @@ def responses(st):
 def add_period(c):
     c = (c or "").strip(); return c if not c or c[-1] in ".!?。" else c + "."
 
-def messages_deploy(st, n, irr=None):
+# note (luojiaxuan): 机制 A(N≥4 过早终止)的干预变体:
+#   variant="noresp"  交错轮次里 assistant 回复只留 "Action: <conclusion>" 一行(去掉 <tool_call> 与长文本)——测"冗长的回复历史"是否是诱因;
+#   variant="hint"    首条 user 文本末尾加一句 "The task is NOT finished yet; do not terminate unless the goal is verifiably complete."——测提示能否压制;
+#   variant="short"   保留 N 张图但 assistant 回复换成空串——极端版 noresp(只剩图与轮次结构)。
+def messages_deploy(st, n, irr=None, keep_set=None, variant=""):
     k = st["step"]; total = k - 1                      # 0-based 当前 turn 下标 = total
-    keep = min(n, total); text_cnt = total - keep
-    Sidx = list(range(text_cnt, total + 1))            # 保留为图的 turn(含当前)
+    if keep_set is None:
+        keep = min(n, total); text_cnt = total - keep
+        Sidx = list(range(text_cnt, total + 1))        # 保留为图的 turn(含当前)
+        text_idx = list(range(text_cnt))
+    else:
+        # note (luojiaxuan): 任意保留集合(裁判帧对):与 agent 的 _cc_text_idx 同法,非保留步压成 conclusion 文本
+        Sidx = sorted({i for i in keep_set if 0 <= i < total}) + [total]
+        text_idx = [i for i in range(total) if i not in Sidx]
     frames = {i: st["shots"][i] for i in Sidx}
     if irr is not None:
         for i, p in zip(Sidx[:-1], irr): frames[i] = p
     resp = responses(st)
-    if text_cnt:
-        prev = "\n".join(f"Step{i + 1}: {add_period(st['concls'][i])}" for i in range(text_cnt))
+    if text_idx:
+        prev = "\n".join(f"Step{i + 1}: {add_period(st['concls'][i])}" for i in text_idx)
         first_text = th.format(instruction=st["goal"], previous_steps=prev)
     else:
         first_text = tp.format(instruction=st["goal"])
+    if variant == "hint":
+        first_text += "\nNote: the task is NOT finished yet. Do not terminate unless the goal is verifiably complete on the current screen."
     msgs = [{"role": "system", "content": sysprompt},
             {"role": "user", "content": [{"type": "text", "text": first_text},
                                          {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(frames[Sidx[0]])}"}}]}]
     for a in range(len(Sidx) - 1):
         turn = Sidx[a]
-        msgs.append({"role": "assistant", "content": [{"type": "text", "text": resp.get(turn + 1, "")}]})
+        rtxt = resp.get(turn + 1, "")
+        if variant == "noresp": rtxt = "Action: " + add_period(st["concls"][turn]) if turn < len(st["concls"]) else rtxt
+        elif variant == "short": rtxt = ""
+        msgs.append({"role": "assistant", "content": [{"type": "text", "text": rtxt}]})
         msgs.append({"role": "user", "content": [{"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(frames[Sidx[a + 1]])}"}}]})
     return msgs
 
+PICKS = {}
+def load_picks(pattern):
+    for f in sorted(glob.glob(pattern)):
+        for l in open(f):
+            r = json.loads(l); PICKS.setdefault(f"{r['dir']}|{r['step']}", {})[f"{r['judge']}|{r['mode']}|{r['cands']}"] = r["pick"]
+
+# note (luojiaxuan): 部署布局里"选哪几帧"与"哪几个 turn 的 assistant 回复保留原文"绑在一起——pick:* 把裁判选的老帧变成保留 turn,
+# 同时把最近两步压成 conclusion,结构和内容一起变了。两个解耦的规格:
+#   pickimg:<judge>   结构固定为最近两 turn(回复原文),只把这两个 turn 的**图**换成裁判帧(与 irr2_deploy 同法,图不同)→ 纯内容效应;
+#   hybrid:<judge>    最近两 turn 原样保留,裁判帧作为带 "[PAST screenshot from j steps ago]" 标记的额外图放进第一条 user 消息 → 候选的检索友好格式。
+def messages_hybrid(st, picks):
+    msgs = messages_deploy(st, 2); k = st["step"]
+    extra = []
+    for j in sorted(i for i in picks if 0 <= i < k - 1):
+        extra += [{"type": "text", "text": f"[PAST screenshot from {k - 1 - j} steps ago, for reference only]"},
+                  {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(st['shots'][j])}"}}]
+    msgs[1]["content"] = [msgs[1]["content"][0]] + extra + msgs[1]["content"][1:]
+    return msgs
+
 def build(st, spec_name):
-    if spec_name.endswith("_deploy"):
-        core = spec_name[:-7]; kind = core[:3]; n = int(core[3:])
-        return messages_deploy(st, n, irr=(irr_frames(st, n) if kind == "irr" else None))
+    if spec_name.startswith("pickimg:") or spec_name.startswith("hybrid:"):
+        kind, key = spec_name.split(":", 1); key = key[:-7] if key.endswith("_deploy") else key
+        pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
+        if pk is None: return None
+        if kind == "hybrid": return messages_hybrid(st, pk)
+        return messages_deploy(st, 2, irr=[st["shots"][i] for i in sorted(pk)[:2]])
+    if spec_name.startswith("pick:"):                  # pick:<judge>|<mode>|<cands>_deploy
+        key = spec_name[5:-7]; pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
+        if pk is None: return None
+        return messages_deploy(st, 0, keep_set=set(pk))
+    if "_deploy" in spec_name:                          # recN_deploy[_noresp|_hint|_short]
+        core, _, variant = spec_name.partition("_deploy"); variant = variant.lstrip("_")
+        kind = core[:3]; n = int(core[3:])
+        return messages_deploy(st, n, irr=(irr_frames(st, n) if kind == "irr" else None), variant=variant)
     k = st["step"]; kind = spec_name[:3]; rest = spec_name[3:]; n = int(rest.split("_")[0]); variant = rest.split("_")[1] if "_" in rest else ""
     if kind == "rec":
         keep = {k - 1 - j for j in range(1, n + 1) if k - 1 - j >= 0}
@@ -103,6 +149,7 @@ def build(st, spec_name):
         return messages(st, set(), irr=irr_frames(st, n), no_text=args.no_text)
     raise ValueError(spec_name)
 
+if args.picks: load_picks(args.picks)
 done = set()
 if os.path.exists(args.out):
     for l in open(args.out):
@@ -112,7 +159,9 @@ specs = args.specs.split(","); print(f"states {len(states)} todo {len(todo)} spe
 def run(st):
     ref = go.parse_action(st["target"]); rec = {"tag": args.tag, "dir": st["dir"], "task": st["task"], "step": st["step"], "target": st["target"], "decodes": {}, "match": {}}
     for sp in specs:
-        out = go.post(args.base_url, {"model": args.model, "temperature": 0.0, "max_tokens": 512, "messages": build(st, sp)})
+        msgs = build(st, sp)
+        if msgs is None: continue
+        out = go.post(args.base_url, {"model": args.model, "temperature": 0.0, "max_tokens": 512, "messages": msgs})
         txt = out["choices"][0]["message"]["content"] or ""
         rec["decodes"][sp] = txt; rec["match"][sp] = go.match(go.parse_action(txt), ref) if ref is not None else None
     with lock:
