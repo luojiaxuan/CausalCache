@@ -35,7 +35,8 @@ def seeds():
             t["kind"] = "text"; t["keys"] = [[re.search(r"order=(\S+)", rest).group(1)], [sup]]
             t["content"] = [["placed with", "pallets", "net 30"], ["shipping address", "vendor management"]]
         else:
-            t["kind"] = "file"; t["keys"] = [["approved", "sample"]]; t["content"] = [["shape", "triangle", "hexagon", "gear", "circle", "square", "star", "ring", "color", "colour", "grey", "gray", "red", "blue", "green", "orange", "purple", "yellow", "hole"]]
+            t["kind"] = "file"; t["keys"] = [["approved_sample", "approved sample", "sample image"]]
+            t["content"] = [[r"\b(shape|triangle|hexagon|gear|circle|square|star|ring|colou?r|gr[ae]y|red|blue|green|orange|purple|yellow|hole|image shows)\b"]]
         out[t["task"]] = t
     return out
 
@@ -84,9 +85,10 @@ def build(d, t):
     src = []
     for aliases, words in zip(t["keys"], t["content"]):
         if t["family"] == "PartMatch":
-            # note (luojiaxuan): Files 要经过"用哪个应用打开"选择器,证据真正显示的帧 = 写下形状/颜色描述时观察的那一帧。
+            # note (luojiaxuan): Files 要经过"用哪个应用打开"选择器,证据真正显示的帧 = 写下形状/颜色描述时观察的那一帧;
+            # 描述词按整词匹配(否则 start/whole/during 之类会误命中 star/hole/ring)。
             f = next((f for f in range(0, min(n, len(shots)) - 1) if any(norm(a) in norm(preds[f + 1]) for a in aliases)
-                      and any(w in norm(preds[f + 1]) for w in words)), None)
+                      and any(re.search(w, norm(preds[f + 1])) for w in words)), None)
         else:
             # note (luojiaxuan): Mail:点击主题行含身份关键词的那封邮件(第 j+1 步的文本提到它且动作是点击)→ 打开后的帧 j+1;
             # 要求观察该帧时写下的文本含只在正文里出现的内容词,或下一步是离开动作,以确认邮件确实打开了。
