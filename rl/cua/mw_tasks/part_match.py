@@ -1,10 +1,11 @@
 """Visual binding (memory-critical pilot, family C).
 
 An 'approved sample' photo is shown once (Download/Approved). Later the agent must pick, among six candidate
-photos of similar parts (Pictures/Candidates, neutral file names, shuffled), the one showing the same part and
-copy it into Pictures/Selected. Candidates live in a different top-level folder so that the folder listings the
-agent passes through on the way (Download, root, Pictures) carry no thumbnail of the sample: the last two frames
-before the choice are evidence-free by construction. The parts differ only in shape, colour and hole layout — no text — so the text
+photos of similar parts (Documents/Candidates, neutral file names, shuffled), the one showing the same part and
+copy it into Documents/Selected. Candidates live in a different top-level folder so that the folder listings the
+agent passes through on the way (Download, root, Documents) carry no thumbnail of the sample: the last two frames
+before the choice are evidence-free by construction. Documents renders as a list (Pictures renders as a grid that
+cuts off the bottom row and forces a scroll), so all six candidates are visible and the choice is a single click. The parts differ only in shape, colour and hole layout — no text — so the text
 trace can carry the identity only if the agent describes the sample precisely; the referent is inherently visual.
 Twins A/B use a different approved part and a different candidate ordering.
 """
@@ -27,13 +28,13 @@ class _PartMatchMixin:
     TWIN = 0
     N_PARTS = 6
     APPROVED_DIR = "/sdcard/Download/Approved"
-    CAND_DIR = "/sdcard/Pictures/Candidates"
-    SELECTED_DIR = "/sdcard/Pictures/Selected"
+    CAND_DIR = "/sdcard/Documents/Candidates"
+    SELECTED_DIR = "/sdcard/Documents/Selected"
 
     goal = (
         "In the Files app, open Download/Approved/approved_sample.png to see the part our client approved. "
-        "Then look through the photos in Pictures/Candidates and copy the ONE photo that shows the same part "
-        "into a new folder Pictures/Selected. Copy exactly one file."
+        "Then look through the photos in Documents/Candidates and copy the ONE photo that shows the same part "
+        "into a new folder Documents/Selected. Copy exactly one file."
     )
 
     def __init__(self, params=None):
