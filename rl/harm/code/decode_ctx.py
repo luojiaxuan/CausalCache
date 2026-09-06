@@ -163,10 +163,17 @@ def messages_dose(st, m, kind, where="after"):
                    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(stack)}"}}]
         ins = [{"role": "user", "content": content}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference."}]}]
         return msgs[:3] + ins + msgs[3:]
+    # note (luojiaxuan): kind="pair":1 个参考轮里放 m 张灰图(m 个图块、1 个 user 轮)——分辨"图块数"与"user 轮数"。
+    if kind == "pair":
+        content = [{"type": "text", "text": "[PAST screenshots, for reference only]"}] + [{"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(BLANK)}"}} for _ in range(m)]
+        ins = [{"role": "user", "content": content}, {"role": "assistant", "content": [{"type": "text", "text": "Noted the reference."}]}]
+        return msgs[:3] + ins + msgs[3:]
+    # note (luojiaxuan): kind="small"/"tiny":m 个参考轮,每轮一张半张高(f05)/ 0.2 张高(f02)的灰图——一块图要多大才算"一块"。
+    small = BLANK.replace(".png", "_f05.png" if kind == "small" else "_f02.png")
     for i in range(m):
-        if kind == "gray":
+        if kind in ("gray", "small", "tiny"):
             content = [{"type": "text", "text": "[PAST screenshot, for reference only]"},
-                       {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(BLANK)}"}}]
+                       {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(BLANK if kind == 'gray' else small)}"}}]
         else:
             txt = ""; j = i
             while len(txt) < 4400: txt += f"[PAST step note {j % len(concls) + 1}: {concls[j % len(concls)]}] "; j += 1
@@ -194,8 +201,8 @@ def noterm_ids(base_url):
     return {str(i): -100 for i in ids}
 
 def build(st, spec_name):
-    m = re.match(r"(grayturnin|longtextturnin|graybefore|graystackturnin|grayfracturnin)(\d+)$", spec_name)
-    if m: return messages_dose(st, int(m.group(2)), {"longtextturnin": "text", "graystackturnin": "stack", "grayfracturnin": "frac"}.get(m.group(1), "gray"), where="before" if m.group(1) == "graybefore" else "after")
+    m = re.match(r"(grayturnin|longtextturnin|graybefore|graystackturnin|grayfracturnin|graysmallturnin|graytinyturnin|graypairturnin)(\d+)$", spec_name)
+    if m: return messages_dose(st, int(m.group(2)), {"longtextturnin": "text", "graystackturnin": "stack", "grayfracturnin": "frac", "graysmallturnin": "small", "graytinyturnin": "tiny", "graypairturnin": "pair"}.get(m.group(1), "gray"), where="before" if m.group(1) == "graybefore" else "after")
     if spec_name.split(":")[0] in ("pickimg", "hybrid", "hybridlast", "hybridturn", "hybridturnin", "hybridturnin_gray", "hybridturnin_text"):
         kind, key = spec_name.split(":", 1); key = key[:-7] if key.endswith("_deploy") else key
         pk = PICKS.get(f"{st['dir']}|{st['step']}", {}).get(key)
