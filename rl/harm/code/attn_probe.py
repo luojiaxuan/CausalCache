@@ -59,13 +59,31 @@ with open(A.out, "a") as f:
             STORE.clear(); SEQ[0] = len(ids)
             with torch.no_grad(): model(**inputs, use_cache=False)
             BYL = {int(li): w for li, w in STORE}
+            # note (luojiaxuan): 把文本再按轮次拆开——用 <|im_start|>role 与 <|im_end|> 定位每个 turn 的 token 区间,
+            # 区分 system / 首条 user 文本 / 各 assistant 回复 / 其后 user turn(只含图)/ 生成提示。
+            im_s = proc.tokenizer.convert_tokens_to_ids("<|im_start|>"); im_e = proc.tokenizer.convert_tokens_to_ids("<|im_end|>")
+            turns = []; i = 0
+            while i < len(ids):
+                if ids[i] == im_s:
+                    j = i + 1
+                    while j < len(ids) and ids[j] != im_e: j += 1
+                    role = proc.tokenizer.decode(ids[i + 1:i + 2]).strip()
+                    turns.append((role, i, min(j, len(ids) - 1))); i = j + 1
+                else: i += 1
             rec = {"dir": st["dir"], "step": st["step"], "spec": sp, "seq": len(ids), "n_img_spans": len(spans), "layers": {}}
             rec["n_lm_layers"] = len(BYL)
             for L in layers:
                 if L not in BYL: continue
                 w = BYL[L]
                 imgs = [float(w[a:b + 1].sum()) for a, b in spans]
-                rec["layers"][L] = {"current_image": imgs[-1] if imgs else 0.0, "history_images": imgs[:-1], "text": float(w.sum()) - sum(imgs)}
+                img_mask = torch.zeros(len(ids), dtype=torch.bool)
+                for a, b in spans: img_mask[a:b + 1] = True
+                by_turn = []
+                for role, a, b in turns:
+                    seg = w[a:b + 1].clone(); seg[img_mask[a:b + 1]] = 0.0; by_turn.append((role, float(seg.sum())))
+                asst = [v for r, v in by_turn if r == "assistant"]; usr = [v for r, v in by_turn if r == "user"]; sysv = sum(v for r, v in by_turn if r == "system")
+                rec["layers"][L] = {"current_image": imgs[-1] if imgs else 0.0, "history_images": imgs[:-1], "text": float(w.sum()) - sum(imgs),
+                                    "system_text": sysv, "first_user_text": usr[0] if usr else 0.0, "assistant_texts": asst, "later_user_texts": usr[1:]}
             f.write(json.dumps(rec) + "\n"); f.flush()
         print(f"state {si + 1}/{len(sel)} seq={len(ids)} spans={len(spans)}", flush=True)
 print("ATTN_PROBE_DONE", flush=True)
