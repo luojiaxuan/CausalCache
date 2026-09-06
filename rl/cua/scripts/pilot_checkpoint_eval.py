@@ -23,6 +23,8 @@ ap.add_argument("--base-url", required=True); ap.add_argument("--model", require
 ap.add_argument("--tag", required=True); ap.add_argument("--out", required=True)
 ap.add_argument("--workers", type=int, default=8)
 ap.add_argument("--no-text", action="store_true", help="venus: 去掉全部文本推理历史(诊断口径)")
+ap.add_argument("--text-mode", choices=["full", "oneline", "action"], default="full",
+                help="venus: 历史文本保真度——full=官方协议(整段 think+action);oneline=每轮只留 think 首句+action(模拟一行摘要);action=只留 action")
 ap.add_argument("--rescore", action="store_true", help="不解码:读 --out 里已保存的解码文本重新判定并汇总")
 args = ap.parse_args()
 
@@ -38,9 +40,17 @@ else:
 def shots_of(d):
     return sorted(glob.glob(os.path.join(d, "screenshots", "*.png")), key=lambda p: int(re.search(r"-(\d+)\.png$", p).group(1)))
 
+def squeeze(p):
+    # note (luojiaxuan): 把 Venus 一轮的原文压成"一行摘要 + 动作"或"只有动作",模拟常见 GUI agent 的文本历史保真度。
+    if args.text_mode == "full": return p
+    act = re.search(r"<action>.*?</action>", p, re.S); act = act.group(0) if act else ""
+    if args.text_mode == "action": return act
+    th = re.search(r"<think>(.*?)</think>", p, re.S); first = re.split(r"(?<=[.!?。])\s+", th.group(1).strip(), maxsplit=1)[0] if th else ""
+    return f"<think>{first}</think>\n{act}"
+
 def state_of(d, k):
     traj = list(json.load(open(os.path.join(d, "traj.json"))).values())[0].get("traj") or []
-    preds = {s["step"]: s.get("prediction") or "" for s in traj}
+    preds = {s["step"]: (squeeze(s.get("prediction") or "") if args.backend == "venus" else (s.get("prediction") or "")) for s in traj}
     hist = [preds[j] for j in range(1, k)]
     return {"dir": d, "task": os.path.basename(d.rstrip("/")), "goal": traj[0].get("task_goal", ""), "step": k, "shots": shots_of(d),
             "concls": [go.extract_conclusion(h) for h in hist], "hist": hist, "preds": preds, "target": preds.get(k, "")}
@@ -191,7 +201,7 @@ def run(sp):
     st = state_of(sp["dir"], sp["step"]); kind = sp.get("expected_kind", "text")
     exp = sp["expected"]
     leak = {"goal": int(norm(exp) in norm(st["goal"])), "hist": int(any(norm(exp) in norm(h) for h in st["hist"]))}
-    rec = {"tag": args.tag, "backend": args.backend, "no_text": args.no_text, "dir": st["dir"], "task": st["task"], "family": sp.get("family", ""),
+    rec = {"tag": args.tag, "backend": args.backend, "no_text": args.no_text, "text_mode": args.text_mode, "dir": st["dir"], "task": st["task"], "family": sp.get("family", ""),
            "pair": sp.get("pair"), "step": st["step"], "expected": exp, "expected_swap": sp.get("expected_swap"), "leak": leak, "decodes": {}, "hit": {}}
     for name, msgs in conditions(sp, st).items():
         txt = decode(msgs); rec["decodes"][name] = txt

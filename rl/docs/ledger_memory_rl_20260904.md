@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 15:40 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 16:10 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -71,6 +71,32 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-06 16:10 PT ★★★ 用户指正:"text 够用"是 Venus 全文转录协议的产物,一行摘要的 agent 记不住;GUI-Owl 在 PartMatch 上首次出现"源帧 > 最近帧 + 决策跟证据走"
+- **用户的点**:常见 GUI agent 的文本历史是每步一行摘要,没道理一行摘要能保留全部信息。**核实成立**:Venus 官方协议保留每轮完整 `<think>+<action>`
+  (Mail 前缀中位 234 字符/轮,均值 556),它读到证据当即把值写进 think 首句——30 个 checkpoint 里 full 30/30、只留 think 首句 29/30 仍含答案,
+  只留 action 才降到 3/30;**GUI-Owl 的一行 conclusion(中位 45 字符)写的是动作不是所见**("Click on the email titled …"),同批 Mail 任务
+  32 条里只有 3 条的 conclusion 含目标值。所以 13:35 PT 的"文本把值全带到决策步"限定于**全文转录型**文本历史;一行摘要型 agent 的文本通道
+  是有损的,视觉回看的余量就回来了。
+- **首个正向证据(GUI-Owl,PartMatch,Pictures 网格布局,自然前缀 16 checkpoint,部署协议 = 最近两帧 + 一行 conclusion,`eval_owl_pm2`)**:
+
+| text_only | rec2 | ctrl_keep(同龄无证据轮) | **src_keep(源帧轮)** | src_pickimg | irr2 | **swap_keep(整轮换孪生;按另一版答案判)** | gold_text |
+|---|---|---|---|---|---|---|---|
+| 0.125 | 0.188 | 0.125 | **0.375** | 0.250 | 0.250 | **0.562** | 0.750 |
+
+  闸门(按 8 对聚类):src − ctrl **+25.0 [+6.2, +43.8]**(过线);src − rec2 +18.8 [−6.2, +43.8](EXPAND 级);src − text_only +25.0 [0, +43.8];
+  `leak.hist = 0/16`(conclusion 里没有形状信息);gold_text 75%(有效性略低于 85% 门槛)。读法:**一行摘要记不住形状 → 不给图 12.5%;最近两帧
+  (根目录/Pictures 列表)不救;把看过样品的那一轮连图带回复保留,命中翻三倍;整轮换成孪生的样品轮,56% 跟着孪生答案走**——决策随证据帧走,
+  不是布局效应(ctrl_keep 同结构只有 12.5%)。限定:n=16、8 对;GUI-Owl 闭环只成功 1/16(它能选对但后续复制常失败);Pictures 网格底行被切
+  (GUI-Owl 按文件名点击,端点可用,但 cand_e/f 可能看不见);孪生翻转联合概率只 6%(源帧命中与孪生命中几乎不重叠,样本小)。
+- **对论文的含义**:主张不必退到"效率"——回到用户原题"记忆余量 + 视觉不该默认最近图",但加一个决定性的条件变量:**文本历史的保真度**。
+  全文转录(Venus)→ 视觉冗余、余量 0;一行摘要(GUI-Owl,业界常态)→ 值丢失,老源帧 > 最近帧、决策跟证据走。这是可控实验:同一批 checkpoint、
+  同一个模型,只改文本保真度(full / think 首句 / 仅 action / 无)× 帧策略(无 / 最近两帧 / 源帧轮 / 对照轮 / 孪生轮)。预期曲线:帧价值随文本
+  保真度下降而上升;"该保留哪一轮"的问题只在有损摘要处出现——这就是控制器(动态 B)的触发条件,也是效率叙事的机制解释。
+- **已发射**:(1) Venus 文本保真度扫描(Mail 30 checkpoint × {oneline, action}),`pilot_venus_textmode.sh`;(2) **GUI-Owl 教师强制**:沿 Venus 的
+  30 条 Mail 轨迹逐屏让 GUI-Owl 按自己的部署协议写回复(动作按 Venus 原路执行),得到"一行摘要 agent"的因果前缀,再跑同一批 checkpoint 的
+  "保留哪几轮"矩阵,`pilot_owl_tf.py` / `pilot_owl_tf_chain.sh`;(3) QuoteRecall 共享请求版重采与 PartMatch v3(Documents 列表视图)链照跑。
+  外审:方向已变(从效率叙事回到保真度条件下的余量主张),下一轮外审在 TF 与扫描出数后发。
 
 ### 2026-09-06 15:40 PT ★★ B-pilot 第二轮:Mail 无文本口径(带请求帧)源帧有特异效应但绝对值低;PartMatch 端点与孪生设计两处返工
 - **Mail 两族,Venus 无文本口径(重做,所有图条件带请求帧),n=30**:text_only(只有请求帧)0.0;rec2 0.0;ctrl_at_turn 0.0;irr_at_turn 0.0;
