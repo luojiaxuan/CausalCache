@@ -82,6 +82,8 @@ def messages_deploy(st, n, irr=None, keep_set=None, variant=""):
         first_text = tp.format(instruction=st["goal"])
     if variant == "hint":
         first_text += "\nNote: the task is NOT finished yet. Do not terminate unless the goal is verifiably complete on the current screen."
+    # note (luojiaxuan): H5′ 目标稀释的干预:把任务指令**再放一遍**到最后一条 user 消息(当前帧旁边),让它靠近决策点。
+    goal_tail = f"\nReminder of the task: {st['goal']}" if variant == "goal" else ""
     msgs = [{"role": "system", "content": sysprompt},
             {"role": "user", "content": [{"type": "text", "text": first_text},
                                          {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(frames[Sidx[0]])}"}}]}]
@@ -92,6 +94,9 @@ def messages_deploy(st, n, irr=None, keep_set=None, variant=""):
         elif variant == "short": rtxt = ""
         msgs.append({"role": "assistant", "content": [{"type": "text", "text": rtxt}]})
         msgs.append({"role": "user", "content": [{"type": "image_url", "image_url": {"url": f"data:image/png;base64,{go.b64(frames[Sidx[a + 1]])}"}}]})
+    if goal_tail:
+        if len(msgs) > 2: msgs[-1]["content"].append({"type": "text", "text": goal_tail})
+        else: msgs[1]["content"].append({"type": "text", "text": goal_tail})
     return msgs
 
 PICKS = {}
