@@ -48,9 +48,25 @@ def state_of(d, k):
 def norm(s):
     return re.sub(r"[\s,]+", " ", str(s)).strip().lower()
 
+# note (luojiaxuan): PartMatch 的决策屏是 Files 的两列缩略图网格(cand_a..cand_f 按名排,行高约 26%,首行从约 28% 起);
+# 模型点击缩略图而非报文件名,所以文件名端点之外还按点击坐标(0–1000 归一化)落到哪个格子判定。
+def grid_file(x, y):
+    col = 0 if x < 500 else 1; row = 0 if y < 538 else (1 if y < 796 else 2)
+    return f"cand_{'abcdef'[row * 2 + col]}.png"
+
+def click_point(txt):
+    if args.backend == "owl":
+        act = go.parse_action(txt)
+        if act and act.get("action") in ("click", "long_press", "double_click") and act.get("coordinate"): return tuple(act["coordinate"][:2])
+        return None
+    m = re.search(r"<action>\s*(Click|LongPress|DoubleClick)\(point=\((\d+),\s*(\d+)\)", txt)
+    return (int(m.group(2)), int(m.group(3))) if m else None
+
 def carries_text(body, exp, kind, whole):
     exp = norm(exp)
-    if kind == "file": return int(exp in norm(whole))
+    if kind == "file":
+        if exp in norm(whole): return 1
+        pt = click_point(whole); return int(pt is not None and grid_file(*pt) == exp)
     try:
         e = float(exp); return int(any(abs(float(n) - e) < 0.005 for n in re.findall(r"\d+(?:\.\d+)?", body.replace(",", ""))))
     except ValueError:
@@ -176,7 +192,7 @@ def run(sp):
     exp = sp["expected"]
     leak = {"goal": int(norm(exp) in norm(st["goal"])), "hist": int(any(norm(exp) in norm(h) for h in st["hist"]))}
     rec = {"tag": args.tag, "backend": args.backend, "no_text": args.no_text, "dir": st["dir"], "task": st["task"], "family": sp.get("family", ""),
-           "pair": sp.get("pair"), "step": st["step"], "expected": exp, "leak": leak, "decodes": {}, "hit": {}}
+           "pair": sp.get("pair"), "step": st["step"], "expected": exp, "expected_swap": sp.get("expected_swap"), "leak": leak, "decodes": {}, "hit": {}}
     for name, msgs in conditions(sp, st).items():
         txt = decode(msgs); rec["decodes"][name] = txt
         rec["hit"][name] = carries(txt, sp["expected_swap"] if name.startswith("swap_") else exp, kind)

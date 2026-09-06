@@ -2,7 +2,8 @@
 
 Four supplier quotes arrive as separate emails (plus unrelated mail). An SMS from the manager names ONE supplier and
 ONE attribute; the agent must find/recall that figure and email it to accounting. Counterfactual twins share the layout
-(supplier order, noise mail) and differ only in the figures and the requested supplier/attribute.
+(supplier order, noise mail) and the request (which supplier, which attribute) and differ only in the figures,
+so swapping the source frame between twins is a clean counterfactual on the answer.
 """
 
 import random
@@ -73,8 +74,8 @@ class _QuoteRecallMixin:
         self.SUPPLIERS = lay.sample(self.SUPPLIERS, len(self.SUPPLIERS))
         self.noise_slots = sorted(lay.sample(range(7), 3))
         self.quotes = {s: {name: gen(rng) for name, (_, gen) in self.ATTRIBUTES.items()} for s in self.SUPPLIERS}
-        self.target_supplier = rng.choice(self.SUPPLIERS)
-        self.target_attr = rng.choice(list(self.ATTRIBUTES))
+        self.target_supplier = lay.choice(self.SUPPLIERS)
+        self.target_attr = lay.choice(list(self.ATTRIBUTES))
         self.expected = self.quotes[self.target_supplier][self.target_attr]
 
     def _quote_mail(self, supplier: str) -> dict:

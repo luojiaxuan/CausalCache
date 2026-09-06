@@ -86,9 +86,15 @@ def build(d, t):
     for aliases, words in zip(t["keys"], t["content"]):
         if t["family"] == "PartMatch":
             # note (luojiaxuan): Files 要经过"用哪个应用打开"选择器,证据真正显示的帧 = 写下形状/颜色描述时观察的那一帧;
-            # 描述词按整词匹配(否则 start/whole/during 之类会误命中 star/hole/ring)。
+            # 描述词按整词匹配(否则 start/whole/during 之类会误命中 star/hole/ring)。GUI-Owl 的文本只写动作不写所见,
+            # 对它改用"点击 approved_sample 后第一次离开视图(Back)那一步观察到的帧"。
             f = next((f for f in range(0, min(n, len(shots)) - 1) if any(norm(a) in norm(preds[f + 1]) for a in aliases)
                       and any(re.search(w, norm(preds[f + 1])) for w in words)), None)
+            if f is None and args.backend == "owl":
+                j = next((j for j in range(0, n) if "approved_sample" in norm(preds[j + 1]) and is_click(action_of(preds[j + 1]))), None)
+                if j is not None:
+                    b = next((b for b in range(j + 2, n + 1) if leaves_view(action_of(preds[b]), preds[b])), None)
+                    f = b - 1 if b and j + 1 <= b - 1 < len(shots) else None
         else:
             # note (luojiaxuan): Mail:点击主题行含身份关键词的那封邮件(第 j+1 步的文本提到它且动作是点击)→ 打开后的帧 j+1;
             # 要求观察该帧时写下的文本含只在正文里出现的内容词,或下一步是离开动作,以确认邮件确实打开了。
