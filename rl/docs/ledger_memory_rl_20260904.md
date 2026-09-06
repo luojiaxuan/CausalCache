@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 12:10 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 13:05 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -71,6 +71,26 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-06 13:05 PT ★ B-pilot 第一批读数:Venus 自然到达决策步;GUI-Owl 在 PartMatch 上的干预矩阵(旧布局,带两条保留意见)
+- **Venus 前缀**(`prefix_venus/`,官方协议最近两帧):前 4 道报价题全部做对、各约 20 步——Venus 自然走到"读完短信去写邮件"的决策步,
+  Mail 两族的 checkpoint 有了(GUI-Owl 48 题 3 成功、Mail 两族 0 决策步,只有 PartMatch 7/16 到决策步)。
+- **评测器 bug 与修复**:file 类(PartMatch)判定被"必须是 type/answer 动作"的门挡住,冒烟全 0;解码本身正确。改为 file 类看整段输出
+  是否指名目标文件;单源帧族的无关对照允许一帧;加 `--rescore` 用已存解码重判(冒烟与 16 态矩阵均离线重判,未重跑)。
+- **GUI-Owl × PartMatch 16 个结构化 checkpoint**(决策步 = 看过样品后候选列表第一次上屏,不按结果选态;`eval_owl_partmatch.jsonl`):
+
+| 条件 | text_only | rec2 | src_pickimg | src_keep | src_hybrid | swap_pickimg | swap_hybrid | gold_text |
+|---|---|---|---|---|---|---|---|---|
+| V(命中) | 0.188 | 0.250 | 0.250 | 0.375 | **0.500** | 0.250 | 0.375 | 1.000 |
+
+  读法:附带 PAST 标记把样品图附进去(`src_hybrid`)命中翻倍(0.50 vs rec2 0.25),换成孪生的样品图后 0.375 跟着另一版答案走——模型确实在读
+  附入的那张图;换进最近槽位(`pickimg`)则无效。这与自然状态上"hybrid 最差"相反:**在必须回看的状态上,附老帧有用**。
+  **两条保留意见,数字不作闸门引用**:(1) 拼图核对发现决策步的最近两帧含 Approved 文件夹列表,其缩略图已透露样品形状,rec2 不是无证据
+  对照 → 候选目录已挪到 Pictures(另一棵目录树),Venus 全量前缀跑完后自动重采 PartMatch(Venus + GUI-Owl 各 16 题);(2) text_only
+  命中的恰好是 expected=cand_d 的 3 题、其余 0——GUI-Owl 对第 4 行有位置先验,text_only 的 0.188 不是记忆。
+- 已排队自动链:`pilot_partmatch_recollect.sh`(等 Venus 前缀结束 → 装新任务类 → Venus/GUI-Owl 重采 PartMatch)、`pilot_eval_venus_run.sh`
+  (等 Venus 前缀结束 → Mail 两族规格 → Venus 原生协议矩阵,原生文本 + 无文本)。闸门计算脚本 `pilot_gates.py`(按对聚类 bootstrap、孪生翻转、
+  leak 分层)。
 
 ### 2026-09-06 12:10 PT ★★ 部署布局重测四模型齐:四个模型同构,三臂之间无可分辨差别
 - 数据:`rl_v2/deploy2_{base,recency_s0,random_s0,older_s0}.jsonl`(同一批 337 个自一致状态 × 9 上下文;`results/deploy2_four_models_20260906.txt`)。
