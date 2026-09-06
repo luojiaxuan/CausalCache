@@ -2,7 +2,7 @@
 # (轮数, 图数) → 复现率、错误数、错误中 terminate 占比、总体 terminate 率。
 import json, re, statistics as st
 files = {"deploy": "/data01/jaxan/harm/harm_vs_n_base_deploy.jsonl", "format": "/data01/jaxan/harm/format_base.jsonl",
-         "format2": "/data01/jaxan/harm/format2_base.jsonl", "term": "/data01/jaxan/harm/term_interv_base.jsonl", "goal": "/data01/jaxan/harm/goal_interv_base.jsonl", "replypat": "/data01/jaxan/harm/reply_pattern_base.jsonl", "replypat2": "/data01/jaxan/harm/reply_pattern2_base.jsonl", "dose": "/data01/jaxan/harm/dose_base.jsonl", "dose2": "/data01/jaxan/harm/dose2_base.jsonl"}
+         "format2": "/data01/jaxan/harm/format2_base.jsonl", "term": "/data01/jaxan/harm/term_interv_base.jsonl", "goal": "/data01/jaxan/harm/goal_interv_base.jsonl", "replypat": "/data01/jaxan/harm/reply_pattern_base.jsonl", "replypat2": "/data01/jaxan/harm/reply_pattern2_base.jsonl", "dose": "/data01/jaxan/harm/dose_base.jsonl", "dose2": "/data01/jaxan/harm/dose2_base.jsonl", "dose3": "/data01/jaxan/harm/dose3_base.jsonl"}
 recs = {}
 for tag, p in files.items():
     try:
@@ -16,7 +16,8 @@ def shape(sp):
     if m: n = int(m.group(1)); return (n, n + 1, "recN" + (m.group(2) or ""))
     m = re.match(r"irr(\d+)_deploy$", sp)
     if m: n = int(m.group(1)); return (n, n + 1, "irrN")
-    m = re.match(r"(grayturnin|longtextturnin|graybefore)(\d+)(_noterm)?$", sp)
+    m = re.match(r"(grayturnin|longtextturnin|graybefore|graystackturnin)(\d+)(_noterm)?$", sp)
+    if m and m.group(1) == "graystackturnin": d = int(m.group(2)); return (2, 4, f"{sp}: 1 个参考轮,{d} 张灰图拼成一张(token≈{d} 张,图块 1)插在指令之后")
     if m: d = int(m.group(2)); return (2, 3 + (0 if m.group(1) == "longtextturnin" else d), f"{sp}: {d} 个{'长文本' if m.group(1) == 'longtextturnin' else '灰图'}参考轮插在指令{'之前' if m.group(1) == 'graybefore' else '之后'}{' 禁terminate' if m.group(3) else ''}")
     if sp.endswith("_noterm") and ":" in sp: sp2 = sp[:-7]; a, im, lab = shape(sp2); return (a, im, lab + " 禁terminate")
     kind = sp.split(":")[0]
