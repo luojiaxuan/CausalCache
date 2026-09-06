@@ -180,11 +180,16 @@ NOTERM_BIAS = {}
 def noterm_ids(base_url):
     import urllib.request
     root = base_url[:-3] if base_url.endswith("/v1") else base_url
-    ids = set()
-    for txt in ["terminate", " terminate", "\"terminate", "Terminate", " Terminate", "\"Terminate"]:
+    # note (luojiaxuan): 只禁"terminate"这个词本身的首 token;带前引号的写法会把 `"`(id 1)也禁掉,破坏 JSON 输出——首轮 dose2 犯过这个错,
+    # 那一轮的 *_noterm 结果作废。每个候选先 detokenize 回来核对,首 token 必须以 "term"/"Term" 开头才收。
+    ids = {}
+    for txt in ["terminate", " terminate", "Terminate", " Terminate"]:
         req = urllib.request.Request(root + "/tokenize", data=json.dumps({"model": args.model, "prompt": txt, "add_special_tokens": False}).encode(), headers={"Content-Type": "application/json"})
         toks = json.loads(urllib.request.urlopen(req, timeout=60).read())["tokens"]
-        ids.add(toks[0])
+        req2 = urllib.request.Request(root + "/detokenize", data=json.dumps({"model": args.model, "tokens": [toks[0]]}).encode(), headers={"Content-Type": "application/json"})
+        piece = json.loads(urllib.request.urlopen(req2, timeout=60).read())["prompt"]
+        if piece.strip().lower().startswith("term"): ids[toks[0]] = piece
+    print("noterm tokens:", ids, flush=True)
     return {str(i): -100 for i in ids}
 
 def build(st, spec_name):
