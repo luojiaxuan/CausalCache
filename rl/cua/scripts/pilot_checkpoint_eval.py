@@ -1,12 +1,13 @@
 # note (luojiaxuan): B-pilot 的 checkpoint 干预矩阵。两种 executor 后端,各用自己的**部署协议**构造上下文:
 #   owl   GUI-Owl 交错多轮布局(复用 harm 线 decode_ctx.py 的 messages_deploy / messages_hybrid);
 #   venus UI-Venus-2 官方多轮协议(复用 venus_oracle.messages;--no-text 为无文本诊断口径)。
-# 主条件(所有帧条件共用同一构造器,只换图不换结构;全部在预指定 checkpoint 上跑,不筛 text_only 失败):
-#   text_only   B=0                      rec2          最近两帧
-#   src_pickimg 最近两帧槽位换成源帧        swap_pickimg  槽位换成孪生另一版的源帧(主负对照;判定按另一版答案)
-#   irr2        槽位换成同族另一对同步位截图  gold_text     文本里直接给出事实(checkpoint 有效性前提)
-# Venus 另加 src_at_turn / swap_at_turn:老帧放回原 turn 位置的原生干预(不改任何文本轮)。
-# GUI-Owl 诊断条件:src_keep(源帧作为保留 turn,连带其原文)、src_hybrid / swap_hybrid / judge_hybrid:<judge>(附带 PAST 标记的额外图)。
+# 主条件 = "保留哪几轮"这一个控制变量,其余全按部署协议(保留一轮 = 该轮截图 + 该轮原始回复一起保留、并从折叠文本里抽走):
+#   text_only   B=0                      rec2        保留最近两轮(部署默认)
+#   src_keep    保留源帧所在轮             ctrl_keep   保留同龄的无证据轮(同一轨迹里源帧前一帧,通常是列表屏)
+#   swap_keep   源帧所在轮整轮换成孪生另一版的对应轮(截图 + 原始回复;判定按另一版答案)
+#   gold_text   文本里直接给出事实(checkpoint 有效性前提)
+# Venus 的对应物:src_at_turn / ctrl_at_turn / swap_at_turn(Venus 协议文本恒保留,只有图按轮窗口化)。
+# 机制诊断(不作闸门):src_pickimg / swap_pickimg / irr2(最近两帧槽位只换图)、src_hybrid / swap_hybrid / judge_hybrid:<judge>(附带 PAST 标记的额外图)。
 # 每行另记 leak 标志:expected 是否已出现在 goal 或决策步之前的自写文本里(竞争通道,不是泄漏;用于分层)。
 import argparse, ast, glob, importlib.util, json, os, re, sys, threading
 from concurrent.futures import ThreadPoolExecutor
@@ -113,9 +114,17 @@ def venus_gold(st, exp):
     g["hist"] = g["hist"][:-1] + [(g["hist"][-1] if g["hist"] else "") + note]
     return vo.messages(g, set(), args.no_text)
 
+def swapped_state(st, src, twin_dir, twin_idx):
+    # note (luojiaxuan): 整轮反事实:源帧所在轮的截图与原始回复都换成孪生另一版对应轮的,其余轮不动。
+    tw = state_of(twin_dir, max(twin_idx) + 2); g = dict(st); g["shots"] = list(st["shots"]); g["hist"] = list(st["hist"]); g["concls"] = list(st["concls"]); g["preds"] = dict(st["preds"])
+    for i, j in zip(src, twin_idx):
+        g["shots"][i] = tw["shots"][j]; g["hist"][i] = tw["hist"][j]; g["concls"][i] = tw["concls"][j]; g["preds"][i + 1] = tw["preds"][j + 1]
+    return g
+
 def conditions(sp, st):
     k = st["step"]
     src = [i for i in sp["source_frames"] if 0 <= i < k - 1][:2]
+    ctrl = [i for i in sp.get("control_frames", []) if i is not None and 0 <= i < k - 1][:2]
     src_paths = [st["shots"][i] for i in src]
     swap_paths, sw_idx = [], []
     if sp.get("swap_frames_dir") and sp.get("expected_swap") is not None:
@@ -129,10 +138,12 @@ def conditions(sp, st):
     if args.backend == "owl":
         c["text_only"] = dc.messages_deploy(st, 0); c["rec2"] = dc.messages_deploy(st, 2)
         if src_paths:
-            c["src_pickimg"] = dc.messages_deploy(st, 2, irr=src_paths)
             c["src_keep"] = dc.messages_deploy(st, 0, keep_set=set(src))
+            c["src_pickimg"] = dc.messages_deploy(st, 2, irr=src_paths)
             c["src_hybrid"] = owl_hybrid(st, [(k - 1 - i, p) for i, p in zip(src, src_paths)])
+        if ctrl: c["ctrl_keep"] = dc.messages_deploy(st, 0, keep_set=set(ctrl))
         if swap_paths:
+            if len(sw_idx) == len(src): c["swap_keep"] = dc.messages_deploy(swapped_state(st, src, sp["swap_frames_dir"], sw_idx), 0, keep_set=set(src))
             c["swap_pickimg"] = dc.messages_deploy(st, 2, irr=swap_paths)
             c["swap_hybrid"] = owl_hybrid(st, [(k - 1 - i, p) for i, p in zip(sw_idx, swap_paths)])
         if irr_paths: c["irr2"] = dc.messages_deploy(st, 2, irr=irr_paths)
@@ -143,9 +154,11 @@ def conditions(sp, st):
     else:
         c["text_only"] = vo.messages(st, set(), args.no_text); c["rec2"] = vo.messages(st, set(slots(st)), args.no_text)
         if src_paths:
-            c["src_pickimg"] = venus_slots(st, src_paths); c["src_at_turn"] = vo.messages(st, set(src), args.no_text)
+            c["src_at_turn"] = vo.messages(st, set(src), args.no_text); c["src_pickimg"] = venus_slots(st, src_paths)
+        if ctrl: c["ctrl_at_turn"] = vo.messages(st, set(ctrl), args.no_text)
         if swap_paths:
-            c["swap_pickimg"] = venus_slots(st, swap_paths); c["swap_at_turn"] = venus_at_turn(st, src if len(src) == len(swap_paths) else sw_idx, swap_paths)
+            if len(sw_idx) == len(src): c["swap_at_turn"] = vo.messages(swapped_state(st, src, sp["swap_frames_dir"], sw_idx), set(src), args.no_text)
+            c["swap_pickimg"] = venus_slots(st, swap_paths)
         if irr_paths: c["irr2"] = venus_slots(st, irr_paths)
         c["gold_text"] = venus_gold(st, sp["expected"])
     return c
