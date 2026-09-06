@@ -21,7 +21,8 @@ class _PartMatchMixin:
     task_tags = {"lang-en", "memory-critical"}
     app_names = {"Files"}
 
-    SEED = 0
+    PAIR = 0
+    TWIN = 0
     N_PARTS = 6
     APPROVED_DIR = "/sdcard/Download/Approved"
     CAND_DIR = "/sdcard/Download/Candidates"
@@ -35,9 +36,10 @@ class _PartMatchMixin:
 
     def __init__(self, params=None):
         super().__init__(params)
-        rng = random.Random(self.SEED)
+        # 布局(候选文件名顺序)由 PAIR 决定,A/B 共享;记忆内容(哪一件是已批准样品)由 TWIN 决定。
+        lay = random.Random(1000 + self.PAIR); rng = random.Random(2000 + self.PAIR * 2 + self.TWIN)
+        order = list(range(self.N_PARTS)); lay.shuffle(order)
         self.approved_idx = rng.randrange(self.N_PARTS)
-        order = list(range(self.N_PARTS)); rng.shuffle(order)
         letters = "abcdefgh"
         self.cand_files = {f"cand_{letters[j]}.png": idx for j, idx in enumerate(order)}
         self.expected_file = next(f for f, idx in self.cand_files.items() if idx == self.approved_idx)
@@ -60,7 +62,7 @@ class _PartMatchMixin:
                 logger.error(f"push failed {remote}: {res.error}")
                 return False
             controller.refresh_media_scan(remote)
-        logger.info(f"PartMatch seed={self.SEED}: approved=part_{self.approved_idx + 1:02d} expected={self.expected_file}")
+        logger.info(f"PartMatch pair={self.PAIR} twin={self.TWIN}: approved=part_{self.approved_idx + 1:02d} expected={self.expected_file}")
         return True
 
     def is_successful(self, controller: AndroidController) -> tuple[float, str]:
@@ -76,9 +78,82 @@ class _PartMatchMixin:
         return 0.0, f"expected {self.expected_file}, found {files}"
 
 
-class PartMatchTaskA(_PartMatchMixin, BaseTask):
-    SEED = 20260926
+class PartMatchTask01A(_PartMatchMixin, BaseTask):
+    PAIR = 1
+    TWIN = 0
 
 
-class PartMatchTaskB(_PartMatchMixin, BaseTask):
-    SEED = 20260927
+class PartMatchTask01B(_PartMatchMixin, BaseTask):
+    PAIR = 1
+    TWIN = 1
+
+
+class PartMatchTask02A(_PartMatchMixin, BaseTask):
+    PAIR = 2
+    TWIN = 0
+
+
+class PartMatchTask02B(_PartMatchMixin, BaseTask):
+    PAIR = 2
+    TWIN = 1
+
+
+class PartMatchTask03A(_PartMatchMixin, BaseTask):
+    PAIR = 3
+    TWIN = 0
+
+
+class PartMatchTask03B(_PartMatchMixin, BaseTask):
+    PAIR = 3
+    TWIN = 1
+
+
+class PartMatchTask04A(_PartMatchMixin, BaseTask):
+    PAIR = 4
+    TWIN = 0
+
+
+class PartMatchTask04B(_PartMatchMixin, BaseTask):
+    PAIR = 4
+    TWIN = 1
+
+
+class PartMatchTask05A(_PartMatchMixin, BaseTask):
+    PAIR = 5
+    TWIN = 0
+
+
+class PartMatchTask05B(_PartMatchMixin, BaseTask):
+    PAIR = 5
+    TWIN = 1
+
+
+class PartMatchTask06A(_PartMatchMixin, BaseTask):
+    PAIR = 6
+    TWIN = 0
+
+
+class PartMatchTask06B(_PartMatchMixin, BaseTask):
+    PAIR = 6
+    TWIN = 1
+
+
+class PartMatchTask07A(_PartMatchMixin, BaseTask):
+    PAIR = 7
+    TWIN = 0
+
+
+class PartMatchTask07B(_PartMatchMixin, BaseTask):
+    PAIR = 7
+    TWIN = 1
+
+
+class PartMatchTask08A(_PartMatchMixin, BaseTask):
+    PAIR = 8
+    TWIN = 0
+
+
+class PartMatchTask08B(_PartMatchMixin, BaseTask):
+    PAIR = 8
+    TWIN = 1
+
