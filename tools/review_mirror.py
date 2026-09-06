@@ -7,18 +7,18 @@
 import argparse, os, re, shutil, subprocess, sys
 
 INCLUDE = ["rl", "docs", "data/results", "code", "ablations", "README.md", "AGENTS.md", "research_log.md", "pyproject.toml", "Makefile", "tools"]
-DENY = ["paper/", "data/results/c_case_audit/", ".github/", ".claude/"]
+DENY = ["paper/", "data/results/c_case_audit/", ".github/", ".claude/", "tools/review_mirror.py"]
 SUBS = [
     (r"\bhyper00\b", "hostA"), (r"\bhyper01\b", "hostB"), (r"\bmoss\b", "hostC"), (r"\baries\b", "hostD"),
     (r"\btilde\b", "hostE"), (r"\btaurus\b", "hostF"), (r"\bb200\b", "hostG"), (r"\beval-h100\b", "hostH"),
     (r"\bMoss\b", "HostC"), (r"\bAries\b", "HostD"), (r"\bTilde\b", "HostE"), (r"\bTaurus\b", "HostF"),
-    (r"sglang-omni-jaxan-", "ctr-"), (r"sglang-omni-jaxan", "ctr"), (r"sglang[-_]omni", "ns"),
-    (r"critic[-_ ]?hack", "proj-x"), (r"jiaxuanluo-map\.txt", "container-map.txt"),
+    (r"sglang-omni-jaxan-", "ctr-"), (r"sglang-omni-jaxan", "ctr"), (r"sglang[-_ ]?omni", "ns"),
+    (r"critic[-_ ]?hack", "proj-x"), (r"jiaxuanluo-map(\.txt)?", "container-map"),
     (r"\b(hayden|junnan|audrey|chenye|zhouyuhan|wenyao|Hayden727|zhaochenyang20|yxs)\b", "[user]"),
     (r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", "[email]"),
     (r"\b(?!127\.0\.0\.1\b)(?!172\.17\.0\.1\b)(?!0\.0\.0\.0\b)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", "[ip]"),
 ]
-LEAK_GATE = [r"sglang[-_]omni", r"\bhyper0[01]\b", r"\bmoss\b", r"\baries\b", r"\btilde\b", r"\btaurus\b", r"critic[-_ ]?hack",
+LEAK_GATE = [r"sglang.?omni", r"hyper0[01]", r"jiaxuanluo-map", r"\bmoss\b", r"\baries\b", r"\btilde\b", r"\btaurus\b", r"critic[-_ ]?hack",
              r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}", r"\b(?!127\.0\.0\.1\b)(?!172\.17\.0\.1\b)(?!0\.0\.0\.0\b)\d{1,3}(\.\d{1,3}){3}\b",
              r"hf_[A-Za-z0-9]{20,}", r"sk-[A-Za-z0-9]{20,}", r"ghp_[A-Za-z0-9]{20,}", r"BEGIN (RSA|OPENSSH) PRIVATE"]
 MAX_TEXT = 5 * 1024 * 1024
