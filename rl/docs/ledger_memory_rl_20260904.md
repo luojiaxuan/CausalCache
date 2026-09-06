@@ -72,6 +72,21 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
 
+### 2026-09-06 11:10 PT B-pilot 环境问题与载体更换;部署布局重测第一臂出数
+- **Mattermost 手机端在 `init_state` 快照里未登录**(截图:"Let's Connect to a Server" → 登录页,agent 乱输凭证 40 步);池子里另一
+  session 的 `MattermostCreateChannelTask` episode 同样如此(前 8 步全在连接/登录)。后端种数据是成功的(CLI 登录、消息已发),问题在
+  手机端 app 会话。**Mattermost 载体在当前环境不可用**(池子与独立模拟器都一样),族 A/B 改为 **Mail 载体**:报价/订单/供应商记录
+  各为一封邮件(自定义 `state.json` 推入 gmail clone,与内置 gmail 任务同法),请求仍由短信给出;族 C(Files)不变。48 个任务
+  (3 族 × 8 对 × A/B)在 p12/p13 重新注册通过,前缀采集重启。**已知设计局限**:短信通知在第 1 步就可见(截图证实),"延后揭示"
+  未真正延后;真正延后要走 ask_user 通道(用户模拟器端点 41002 当前无服务)或把请求放进需要导航才能看到的载体——pilot 先接受此局限。
+- 独立模拟器 p12/p13 是两天前遗留的已退出容器,`docker start` 复用并登记 map;任务注册表在容器内 `/app/service` 拷贝里,
+  `install_pilot_tasks.sh` 负责拷入 + 重启任务服务;注册表按文件路径加载模块,**相对导入不可用**(Mail 助手已内联)。
+- 部署布局重测(`arms_deploy_chain.sh` → `decode_ctx.py`,`deploy2_*.jsonl`)第一臂 recency_s0(337 态,相对 text-only 的逐状态
+  救回/伤害):recency-2 **+16.5**(救 19.5 / 伤 2.9);无关两帧 +11.4;pickimg(结构=最近两轮原文,只换图为裁判老帧):30B +12.5、
+  GLM +9.2、Qwen3.8 +15.8;hybrid(最近两轮原样 + 裁判老帧带 PAST 标记附入):+6.3 ~ +8.1(伤害 9–11)。读法:**部署布局下加图是大收益,
+  其中大部分是格式效应(无关图也 +11.4),内容贡献约 +5;把裁判老帧换进最近两轮的图位不明显吃亏但也不胜 recency;在 recency 之上
+  再附老帧反而更差**。random/older/base 在跑。
+
 ### 2026-09-06 11:20 PT ★ 口径更正 + 绝对成功率对账(用户质疑)
 - 官方榜(仓库 `site/leaderboard.json`):GUI-Owl-1.5-8B-Instruct GUI-only **38.2%**(3 runs、50 步、agent 默认 history_n=1 = **不带历史图**)。
   本项目一直称 recency-2 为"官方默认"是**错误**的:它是 8-24 P0.5 起的 B=2 约定。J14/J18/J21/J22 中"官方默认最近两帧"一律改为"B=2 约定"。
