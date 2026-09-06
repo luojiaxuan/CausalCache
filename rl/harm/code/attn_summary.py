@@ -26,3 +26,11 @@ for sp in ("rec4_deploy", "rec6_deploy"):
         for x in r["layers"].values():
             for i, v in enumerate(x["history_images"]): per[i].append(v)
     print(f"    {sp}: 各历史帧(旧→新)注意力 % = " + ", ".join(f"{100*st.mean(per[i]):.1f}" for i in sorted(per)))
+
+print("\n  文本注意力按轮次拆分(全层平均,%):system / 首条 user 文本 / assistant 回复合计(旧→新) / 其后 user 文本")
+for sp in specs:
+    rs = [x for r in rows if r["spec"] == sp for x in r["layers"].values() if "assistant_texts" in x]
+    if not rs: continue
+    na = max(len(x["assistant_texts"]) for x in rs)
+    asst = [100 * st.mean(x["assistant_texts"][i] if i < len(x["assistant_texts"]) else 0.0 for x in rs) for i in range(na)]
+    print(f"    {sp:12s} sys {100*st.mean(x['system_text'] for x in rs):5.1f} | user0 {100*st.mean(x['first_user_text'] for x in rs):5.1f} | asst " + ", ".join(f"{v:.1f}" for v in asst) + f" | later_user {100*st.mean(sum(x['later_user_texts']) for x in rs):5.1f}")
