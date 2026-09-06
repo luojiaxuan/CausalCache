@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 13:45 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 15:40 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -71,6 +71,23 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-06 15:40 PT ★★ B-pilot 第二轮:Mail 无文本口径(带请求帧)源帧有特异效应但绝对值低;PartMatch 端点与孪生设计两处返工
+- **Mail 两族,Venus 无文本口径(重做,所有图条件带请求帧),n=30**:text_only(只有请求帧)0.0;rec2 0.0;ctrl_at_turn 0.0;irr_at_turn 0.0;
+  **src_at_turn 0.267**;swap_at_turn 0.071;**gold_text 0.233**。闸门:source − ctrl = +26.7 [+10.7, +43.8],source − rec2 同,source − swap = +17.9
+  [+7.1, +28.6](按 16 对聚类)。读法:(1) 去掉文本后,**只有源帧能救回决策,同龄对照帧/最近帧/无关帧一个都救不回**——视觉通道存在且对内容
+  特异,效应显著;(2) 但 gold_text 只有 23%:即使把答案以文本行给它,无文本口径下 Venus 在 Compose 屏也多半不会去打字——该口径对 Venus
+  严重分布外,绝对值被协议压低,**预注册的有效性前提(gold_text ≥ 85%)不满足**,所以这是"通道能力"的证据,不是"部署需要"的证据;
+  (3) 分族:OrderAddressJoin src 0.36 / gold 0.43 / swap 0.17;QuoteRecall src 0.19 / gold 0.06 / swap 0.0。
+- **QuoteRecall 孪生设计缺陷**:目标供应商与属性由 TWIN 种子抽取 → 孪生的**请求**也不同,换成孪生源帧时请求与证据不匹配,翻转率 0 是构造使然
+  (OrderAddressJoin 的请求由 PAIR 给出,是干净反事实)。已改为由 PAIR 种子抽取(共享请求,只有数字变),重采 Venus 前缀 + 重跑矩阵(链已发射)。
+- **PartMatch(Pictures 布局)端点失效**:模型点缩略图不报文件名,文本端点下 gold_text 也只有 3/16;改按点击坐标落格后仍不可用——Pictures 是
+  两列网格、底行被切掉,Venus 决策屏上的动作有约一半是先 Swipe 再点(如 `PartMatchTask01B` 各条件全为 Swipe),决策不再是一步,且滚动后
+  坐标→文件映射失效。两轮 pm2 矩阵数字(原生 0.31–0.375、无文本 0.19–0.56)**不作引用**。改到 Documents/Candidates(列表视图,六行全可见,
+  按点击行号判定,行心 317/397/…/717),v3 全链排在 QuoteRecall 重采之后自动跑(Venus 采集+矩阵 → GUI-Owl 采集+矩阵)。GUI-Owl 在 Pictures 布局
+  上 16 题只成功 1 题;其 pm2 矩阵(16 checkpoint,原生文本)在跑,同样只作参考。
+- 现状判断不变:部署条件(保留文本)下构造任务也无余量(13:35 PT 条目);视觉通道的"能力"在无文本口径下可见但被协议压低;"需要"只能来自
+  指代物不可文本化(PartMatch v3 待出)或延后揭示 + 有损摘要(待设计、待外审)。
 
 ### 2026-09-06 13:45 PT 无文本口径首轮按构造无效(请求帧缺失)→ 重做;Venus 在新布局 PartMatch 上 14/14;占卡与收尾纪律两处修补
 - **无文本口径首轮**(`eval_venus_mail_notext.jsonl`,n=30):全部条件 ≈0,`gold_text` 也是 0 → checkpoint 在该口径下**无效**,不是结果。
