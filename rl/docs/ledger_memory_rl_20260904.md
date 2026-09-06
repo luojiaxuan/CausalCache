@@ -1,4 +1,4 @@
-# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 16:25 PT)
+# CausalCache 记忆控制器 RL 线 实验台账(截至 2026-09-06 16:45 PT)
 
 本文件是 RL 线的**唯一现行判断清单**。历史日志(`cua_lite_integration_20260825.md` §4.x、
 `summary_retrieval_design_20260831.md` §1–28、`rl_recipe.md`、`audit_ledger_20260809.md`)只作
@@ -71,6 +71,19 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 | 池 p00–p31 | 已停(CPU 让 MemGUI 后端) | 探针需重启 8–16 台 | 重启约十分钟 |
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
+
+### 2026-09-06 16:45 PT ★ 用户定案:论文空间 = "各家 GUI agent 的记忆管理不同"这一轴上的两个制式
+- **用户的话**:各个 GUI agent 的 memory 管理不一样,有的 action summary 非常详细,有的非常简略。简略的那类,视觉回看补信息(准确率);
+  **详细的那类,要做的是看能不能用精简的 vision token 在效率上超过详细的 summary 文本**。
+- 落成实验(默认推进;实验设计与下一批结果一起送外审):**预算曲线**——同一批 Mail 30 checkpoint、同一个 Venus,横轴 = 上下文 token
+  (vLLM `usage.prompt_tokens`,含图像 token,逐条件记录),纵轴 = 命中率。臂:整段文本不给图(详细摘要基线,100%);think 首句不给图;
+  只留 action + 请求帧 + 源帧,源帧边长缩放 1 / 0.5 / 0.35 / 0.25(像素数 1 / 1/4 / 1/8 / 1/16,图像 token 随之降);只留 action + 请求帧 +
+  最近两帧;只留 action + 对照帧。判据:若某个缩放档的"只留 action + 精简源帧"在 token 数低于整段文本时命中率不显著低于它,则"精简视觉
+  token 胜过详细文本"成立;若必须原尺寸才追得上,则效率主张只对图像 token 便宜的模型成立。评测器已加 `--scales` / `--conds` / `ptoks`。
+- 与两个制式对应的两条主张:(a) 简略摘要制式(GUI-Owl 一行 conclusion、只留 action 的 Venus):值会丢,老源帧优于最近帧、决策跟证据走
+  (准确率主张,已有证据);(b) 详细摘要制式(Venus 官方):文本冗长而截图冗余,用精简的检索帧替换冗长文本可在同精度下省 token(效率主张,
+  预算曲线待出)。控制器(动态 B)在两个制式下的触发条件不同:前者按"摘要缺什么"取帧,后者按"预算"以帧换文。
+- 队列(hyper00,本线 ≤2 卡):GUI-Owl 教师强制(GPU1,进行中)→ 只留 action + 请求帧重跑 → 预算曲线;并行:PartMatch v3 / QuoteRecall 共享请求版(GPU2)。
 
 ### 2026-09-06 16:00 PT ★★★ 文本保真度扫描(Venus,Mail 30 checkpoint):视觉余量随文本保真度下降而出现,曲线成形
 - 同一批 checkpoint、同一个模型,只改历史文本的保真度(`--text-mode`):full = 官方协议整段 think+action;oneline = 每轮只留 think 首句 + action;

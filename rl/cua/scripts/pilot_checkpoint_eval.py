@@ -26,6 +26,8 @@ ap.add_argument("--no-text", action="store_true", help="venus: 去掉全部文�
 ap.add_argument("--text-mode", choices=["full", "oneline", "action"], default="full",
                 help="venus: 历史文本保真度——full=官方协议(整段 think+action);oneline=每轮只留 think 首句+action(模拟一行摘要);action=只留 action")
 ap.add_argument("--rescore", action="store_true", help="不解码:读 --out 里已保存的解码文本重新判定并汇总")
+ap.add_argument("--scales", default="", help="venus: 额外跑源帧缩放版 src_at_turn@<s>(s 为边长比例,逗号分隔),用于'精简视觉 token vs 详细文本'的预算曲线")
+ap.add_argument("--conds", default="", help="只跑这些条件(逗号分隔);空 = 全部")
 args = ap.parse_args()
 
 go = load("/data01/jaxan/guiowl_oracle.py", "go")
@@ -106,7 +108,17 @@ def decode(msgs):
     else:
         out = vo.post(args.base_url, {"model": args.model, "temperature": 0.0, "max_tokens": 2048, "messages": msgs,
                                       "repetition_penalty": 1.05, "frequency_penalty": 0.3})
-    return out["choices"][0]["message"]["content"] or ""
+    # note (luojiaxuan): vLLM 的 usage.prompt_tokens 含图像 token,直接作为该条件的上下文成本。
+    return out["choices"][0]["message"]["content"] or "", out.get("usage", {}).get("prompt_tokens")
+
+def scaled(path, scale):
+    # note (luojiaxuan): 缩放截图(边长比例 scale)后缓存到盘,给"精简视觉 token"条件用;像素数按 scale² 降,图像 token 随之降。
+    from PIL import Image
+    d = os.path.join("/data01/jaxan/rl_v2/pilot/scaled", f"{scale:g}"); os.makedirs(d, exist_ok=True)
+    out = os.path.join(d, os.path.basename(os.path.dirname(os.path.dirname(path))) + "_" + os.path.basename(path))
+    if not os.path.exists(out):
+        im = Image.open(path); im.resize((max(28, int(im.width * scale)), max(28, int(im.height * scale)))).save(out)
+    return out
 
 def slots(st):
     k = st["step"]; return [k - 3, k - 2] if k >= 3 else [0, 1]
@@ -204,8 +216,10 @@ def run(sp):
     leak = {"goal": int(norm(exp) in norm(st["goal"])), "hist": int(any(norm(exp) in norm(h) for h in st["hist"]))}
     rec = {"tag": args.tag, "backend": args.backend, "no_text": args.no_text, "text_mode": args.text_mode, "dir": st["dir"], "task": st["task"], "family": sp.get("family", ""),
            "pair": sp.get("pair"), "step": st["step"], "expected": exp, "expected_swap": sp.get("expected_swap"), "leak": leak, "decodes": {}, "hit": {}}
+    rec["ptoks"] = {}; only = set(x for x in args.conds.split(",") if x)
     for name, msgs in conditions(sp, st).items():
-        txt = decode(msgs); rec["decodes"][name] = txt
+        if only and name not in only: continue
+        txt, pt = decode(msgs); rec["decodes"][name] = txt; rec["ptoks"][name] = pt
         rec["hit"][name] = carries(txt, sp["expected_swap"] if name.startswith("swap_") else exp, kind)
     with lock:
         with open(args.out, "a") as f: f.write(json.dumps(rec, ensure_ascii=False) + "\n")
@@ -225,4 +239,5 @@ conds = sorted({c for r in rows for c in r["hit"]})
 print(f"[{args.tag}] backend={args.backend} no_text={args.no_text} n={len(rows)}  leak goal={sum(r['leak']['goal'] for r in rows)} hist={sum(r['leak']['hist'] for r in rows)}")
 print("  命中率(动作携带正确答案;swap_* 按另一版答案判):")
 for c in conds:
-    xs = [r["hit"][c] for r in rows if c in r["hit"]]; print(f"  {c:26s} {sum(xs)/max(len(xs),1):.3f} (n={len(xs)})")
+    xs = [r["hit"][c] for r in rows if c in r["hit"]]; pts = [r["ptoks"][c] for r in rows if r.get("ptoks", {}).get(c)]
+    print(f"  {c:26s} {sum(xs)/max(len(xs),1):.3f} (n={len(xs)})" + (f"  prompt_tokens median={sorted(pts)[len(pts)//2]}" if pts else ""))
