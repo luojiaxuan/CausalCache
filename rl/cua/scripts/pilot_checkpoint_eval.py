@@ -182,7 +182,8 @@ def conditions(sp, st):
             if pk: c[f"judge_hybrid:{jname}"] = owl_hybrid(st, [(k - 1 - i, st["shots"][i]) for i in pk])
         c["gold_text"] = owl_gold(st, sp["expected"])
     else:
-        req = set(i for i in sp.get("request_frames", []) if 0 <= i < k - 1) if args.no_text else set()
+        # note (luojiaxuan): 文本里没有请求内容的口径(无文本、只留 action)下,"要哪一项"只在短信屏上,所有图条件都带请求帧。
+        req = set(i for i in sp.get("request_frames", []) if 0 <= i < k - 1) if (args.no_text or args.text_mode == "action") else set()
         c["text_only"] = vo.messages(st, req, args.no_text); c["rec2"] = vo.messages(st, req | set(slots(st)), args.no_text)
         if src_paths:
             c["src_at_turn"] = vo.messages(st, req | set(src), args.no_text)
