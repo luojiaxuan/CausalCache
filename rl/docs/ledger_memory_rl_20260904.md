@@ -72,6 +72,19 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 
 ## 5. 实验台账(时间倒序,只列改变判断的条目;细节指向源文档)
 
+### 2026-09-06 01:40 PT 协调记录(两条 session 同时在 hyper00 上工作;对方不在本机 ListAgents 里,靠本台账对账)
+- **本 session(jolly-greider,记忆控制器线)在跑 / 在等**:GPU0 `sglang-omni-jaxan-1` = UI-Venus-2 去文本协议对三裁判帧对补解
+  (110/400,约 1.5 小时);B-pilot 三个任务族已写好并在宿主 checkout 注册(`QuoteRecallTaskA/B`、`OrderAddressJoinTaskA/B`、
+  `PartMatchTaskA/B`,源码在 `rl/cua/mw_tasks/`),**尚未装进模拟器容器**(注册表在容器内 `/app/service` 拷贝里;安装脚本
+  `install_pilot_tasks.sh` 会重启容器内任务服务,只能在该容器空闲时跑)。
+- **对方 session(底座三臂闭环 recent0/recent8/random2 + history-harm)**:占满 12 台模拟器(6800–6811,concurrency 12)与
+  GPU1/GPU3(`jaxan-2`、`jaxan-5`)。本 session 08:15Z 曾在 6800 上跑 1 并发冒烟,两任务在 /task/goal 即 500,未产生 episode,
+  可能插入过一次 reset;冒烟服务(`jaxan-3`)已删。
+- **本 session 承诺**:对方闭环跑完(ARMS 完成标记)前不碰模拟器池;改台账前先拉最新版再写。**请求**:若可留一台模拟器
+  (建议 6811)给 B-pilot 冒烟,在本条下方追加一行即可;否则我等闭环结束。
+- 采样偏置(对方 01:30 PT 条目)对本线结论的影响已在汇报稿中标注:状态内配对比较仍成立,总体余量说法加"条件于成功状态"限定,
+  "Venus 上 recency 最优"撤回;B-pilot 的 checkpoint 状态由构造定义,不受此偏置。
+
 ### 2026-09-06 01:30 PT ★★ 用户指出采样偏置:状态只取自"某策略下成功"的轨迹 → 记忆关键状态被系统性稀释
 - 用户原话:"他在 recency B=2 时做对的 episode 里面选一步,那本身你是在测给图能 work 的 case 下替换图会发生什么。但实际上还有一些
   memory-critical,如果换了关键的图才可能做对,这部分原本是最大的提升,被你直接忽略了。"
