@@ -17,6 +17,7 @@ ap.add_argument("--spec", required=True); ap.add_argument("--base-url", required
 ap.add_argument("--model", default="UI-Venus-2"); ap.add_argument("--tag", required=True); ap.add_argument("--out", required=True)
 ap.add_argument("--budgets", default="2000,4000,8000,16000"); ap.add_argument("--workers", type=int, default=4)
 ap.add_argument("--archive-only", action="store_true")
+ap.add_argument("--probe", action="store_true", help="延后揭示口径:决策步不是 GUI 动作而是回忆探针,问题在最后一条 user 消息里给出")
 args = ap.parse_args()
 
 vo = load("/data01/jaxan/venus_oracle.py", "vo")
@@ -72,7 +73,7 @@ def pack(items, budget):
         out.append((j, t)); used += n
     return sorted(out), used
 
-def messages(st, image_turns, archive_block, scale_paths=None):
+def messages(st, image_turns, archive_block, scale_paths=None, question=None):
     msgs = [{"role": "system", "content": vo.SYSTEM_PROMPT.format(user_task=st["goal"])}]
     for j, raw in enumerate(st["hist"]):
         content = ""
@@ -85,8 +86,11 @@ def messages(st, image_turns, archive_block, scale_paths=None):
     if archive_block:
         msgs.append({"role": "user", "content": [{"type": "text", "text": archive_block}]})
         msgs.append({"role": "assistant", "content": "Noted."})
-    msgs.append({"role": "user", "content": [{"type": "text", "text": "Current Screenshot:\n"},
-                                             {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{vo.b64(st['shots'][st['step'] - 1])}"}}]})
+    tail = [{"type": "text", "text": "Current Screenshot:\n"},
+            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{vo.b64(st['shots'][st['step'] - 1])}"}}]
+    if question:
+        tail.append({"type": "text", "text": "\n" + question})
+    msgs.append({"role": "user", "content": tail})
     return msgs
 
 def block(kind, items):
@@ -123,7 +127,7 @@ def run(sp):
     notes = [(j, arc["notes"][str(j)]) for j in range(n_hist) if str(j) in arc["notes"]]
     ocr = [(j, arc["ocr"][str(j)]) for j in range(n_hist) if str(j) in arc["ocr"]]
     rec = {"tag": args.tag, "task": sp["task"], "family": sp["family"], "pair": sp["pair"], "dir": d, "step": k,
-           "expected": sp["expected"], "n_hist": n_hist, "hit": {}, "ptoks": {}, "fill": {}}
+           "expected": sp["expected"], "question": sp.get("question"), "n_hist": n_hist, "hit": {}, "ptoks": {}, "fill": {}}
     conds = {}
     for B in [int(x) for x in args.budgets.split(",")]:
         n_img = int(B // IMG_TOK); n_img35 = int(B // IMG_TOK35)
@@ -137,12 +141,13 @@ def run(sp):
             conds[f"{kind}_q@{B}"] = ("txt", [], block(kind, ranked), used_q)
     conds["none"] = ("img", [], None, None)
     conds["gold"] = ("txt", [], f"[Memory archive]\n- the requested item is {sp['expected']}", None)
+    if args.probe: conds["all_img"] = ("img35", sorted(range(n_hist))[-16:], None, None)
     for name, (mode, turns, blk, used) in conds.items():
         if mode == "img35":
             paths = {j: scaled(st["shots"][j], 0.35) for j in turns}
-            msgs = messages(st, set(turns), blk, paths)
+            msgs = messages(st, set(turns), blk, paths, question=sp.get("question"))
         else:
-            msgs = messages(st, set(turns), blk)
+            msgs = messages(st, set(turns), blk, question=sp.get("question"))
         out = vo.post(args.base_url, {"model": args.model, "temperature": 0.0, "max_tokens": 2048, "messages": msgs,
                                       "repetition_penalty": 1.05, "frequency_penalty": 0.3})
         txt = out["choices"][0]["message"]["content"] or ""
