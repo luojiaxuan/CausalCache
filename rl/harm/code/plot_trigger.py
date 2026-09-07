@@ -35,6 +35,7 @@ conds = [("rec2_deploy", "rec2 (3 imgs)"), ("rec3_deploy", "rec3 (4 imgs)"), ("r
          ("hybrid:judge_glm46v|direct|six", "2 extra imgs inside instruction msg"), ("hybridturnin:judge_glm46v|direct|six", "2 ref turns after instruction"),
          ("hybridturnin_gray:judge_glm46v|direct|six", "2 gray ref turns after instruction"), ("hybridturnin_text:judge_glm46v|direct|six", "2 text-only ref turns after instruction"),
          ("hybridlast:judge_glm46v|direct|six", "2 extra imgs next to current frame"), ("hybridturn:judge_glm46v|direct|six", "2 ref turns BEFORE instruction"),
+         ("graytinyturnin2", "2 ref turns, each a 0.2-screenshot gray (~500 tokens)"), ("graypairturnin2", "1 ref turn holding 2 gray imgs"), ("graypairturnin3", "1 ref turn holding 3 gray imgs"),
          ("rec4_deploy_noted", "rec4, early replies -> 'Noted'"), ("rec4_deploy_short", "rec4, replies emptied")]
 labels, ys, lo, hi, reps = [], [], [], [], []
 for sp, lab in conds:
