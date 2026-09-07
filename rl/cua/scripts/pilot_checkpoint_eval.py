@@ -225,9 +225,17 @@ def run(sp):
     st = state_of(sp["dir"], sp["step"]); kind = sp.get("expected_kind", "text")
     exp = sp["expected"]
     if args.backend == "venus" and args.text_mode == "action_fact":
-        # note (luojiaxuan): 事实留存臂:证据轮的一行历史 = "Noted: <事实>" + 该轮动作;其余轮与 action 模式完全相同。
+        # note (luojiaxuan): 事实留存臂:证据轮的一行历史 = 一句事实 + 该轮动作;其余轮与 action 模式完全相同。文本可写的事实用
+        # "Noted: <事实>";视觉指代物(PartMatch)没有可写的"事实",改用模型自己在那一轮 think 的首句(它对样品的文字描述)。
         k = st["step"]; src = [i for i in sp["source_frames"] if 0 <= i < k - 1]
-        for i in src: st["hist"][i] = f"<think>Noted: {exp}.</think>\n" + st["hist"][i]
+        raw = {t["step"]: t.get("prediction") or "" for t in list(json.load(open(os.path.join(st["dir"], "traj.json"))).values())[0]["traj"]}
+        for i in src:
+            if kind == "file":
+                th = re.search(r"<think>(.*?)</think>", raw.get(i + 1, ""), re.S)
+                first = re.split(r"(?<=[.!?。])\s+", th.group(1).strip(), maxsplit=1)[0] if th else ""
+                st["hist"][i] = f"<think>{first}</think>\n" + st["hist"][i]
+            else:
+                st["hist"][i] = f"<think>Noted: {exp}.</think>\n" + st["hist"][i]
         st["concls"] = [go.extract_conclusion(h) for h in st["hist"]]
     leak = {"goal": int(norm(exp) in norm(st["goal"])), "hist": int(any(norm(exp) in norm(h) for h in st["hist"]))}
     rec = {"tag": args.tag, "backend": args.backend, "no_text": args.no_text, "text_mode": args.text_mode, "dir": st["dir"], "task": st["task"], "family": sp.get("family", ""),
