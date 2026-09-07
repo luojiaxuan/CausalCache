@@ -32,7 +32,9 @@
 - 13 题无结果是环境错误(Mattermost 后端 HTTP 报错 / 初始化失败),不是图数上限(服务设 12 张,N=8 需 9 张)。
 - 读法与决定:MobileWorld 自然任务的任务级成功率被能力地板(约 28%,失败几乎全是转圈)压住,对历史布局不敏感;**"检索帧放指令之前"这条规则
   的任务级验证不能在自然任务上做,要放到记忆关键任务(B 路 pilot)上**——那里"看不看老帧"决定成败。因此不再在 MobileWorld 上发
-  "同 4 帧、老帧前置 vs 多保留轮"的闭环对照;建议已转给 B 路 session(把 src_keep 的源帧改放指令之前作参考轮,作为第三臂)。
+  "同 4 帧、老帧前置 vs 多保留轮"的闭环对照;建议已转给 B 路 session,**已采纳**(20:50 PT):其 GUI-Owl 评测器加了 src_before / ctrl_before / src_req_before / ctrl_req_before 四臂
+  (直接调用 `decode_ctx.messages_hybrid(where="turn")`,参考轮带 "Noted" 回复放指令之前),与 src_keep / src_req_keep 并排,先跑 Mail 教师强制 30 个
+  checkpoint(那里 src_req_keep 0.433 vs rec2 0)与 PartMatch v4 自然前缀;出数记入主线台账,本线只引用不重跑。
 - random2 臂 00:32Z 开跑,出数后补四臂并集余量。
 ### 2026-09-06 20:10 PT ★★ dose7(全词表禁 terminate,19 个 token,337 态):**禁掉终止后复现率回到 87.5–89.6**——塌陷的八成是"假完成"模式,不是能力被破坏
 | 条件 | 原样:复现 / 总终止 | 禁 terminate:复现 / 总终止 | 回收(占与 rec2=93.5 差距的比例) |
