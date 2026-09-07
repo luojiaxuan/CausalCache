@@ -18,7 +18,7 @@ def stat(sp):
     term = [t for _, t in v]; rep = [m for m, _ in v]
     rng = random.Random(0); n = len(v); ms = sorted(st.mean(rng.choices(term, k=n)) for _ in range(1000))
     return 100*st.mean(term), 100*ms[25], 100*ms[975], 100*st.mean(rep), n
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 4.4))
+fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(19, 4.4))
 # 左:剂量曲线
 for kind, lab, c in (("grayturnin", "M gray images AFTER the instruction", "tab:orange"), ("graybefore", "same M gray images BEFORE the instruction", "tab:purple"), ("longtextturnin", "M text blocks after the instruction (~1 screenshot of tokens each)", "tab:green"), ("graystackturnin", "M gray screenshots stacked into ONE image block, after the instruction", "tab:brown")):
     xs, ys, lo, hi = [], [], [], []
@@ -46,6 +46,17 @@ ax2.bar(xs, ys, yerr=[lo, hi], capsize=3, color=["tab:red" if y > 10 else "tab:b
 for x, y, rp in zip(xs, ys, reps): ax2.text(x, y + 1, f"{rp:.0f}", ha="center", fontsize=7, color="gray")
 ax2.set_xticks(xs); ax2.set_xticklabels(labels, rotation=40, ha="right", fontsize=7); ax2.set_ylabel("terminate rate (%)")
 ax2.set_title("placement decides it (gray number = action reproduction %)", fontsize=9); ax2.grid(axis="y", alpha=.3)
+# 第三面板:禁掉 terminate(全词表 19 token)后的复现率——塌陷的几成是"假完成"模式
+pairs = [("rec2_deploy", None, "rec2"), ("rec4_deploy", "rec4_deploy_noterm", "rec4"), ("rec6_deploy", "rec6_deploy_noterm", "rec6"),
+         ("grayturnin2", "grayturnin2_noterm", "2 gray ref turns after instr."), ("hybridturnin:judge_glm46v|direct|six", "hybridturnin:judge_glm46v|direct|six_noterm", "2 judge-frame ref turns after instr.")]
+xs, labs = [], []; x = 0
+for a, b, lab in pairs:
+    ra = stat(a); rb = stat(b) if b else None
+    if ra: ax3.bar(x - (0.2 if rb else 0), ra[3], width=0.4, color="tab:red" if ra[0] > 10 else "tab:blue", label="as decoded" if x == 1 else None)
+    if rb: ax3.bar(x + 0.2, rb[3], width=0.4, color="tab:green", label="terminate masked at decoding" if x == 1 else None)
+    xs.append(x); labs.append(lab); x += 1
+ax3.set_xticks(xs); ax3.set_xticklabels(labs, rotation=25, ha="right", fontsize=8); ax3.set_ylabel("action reproduction (%)"); ax3.set_ylim(60, 96)
+ax3.set_title("masking terminate recovers 72-80% of the gap", fontsize=9); ax3.grid(axis="y", alpha=.3); ax3.legend(fontsize=8, loc="lower right")
 plt.tight_layout(); plt.savefig(f"{H}/fig2_trigger.png", dpi=150); print("saved", f"{H}/fig2_trigger.png")
 for sp, lab in conds + [(f"{k}{m}", f"{k}{m}") for k in ("grayturnin", "graybefore", "longtextturnin", "graystackturnin") for m in (1, 2, 3, 4)]:
     r = stat(sp)
