@@ -43,7 +43,9 @@ class _PartMatchMixin:
         # 布局(候选文件名顺序)由 PAIR 决定,A/B 共享;记忆内容(哪一件是已批准样品)由 TWIN 决定。
         lay = random.Random(1000 + self.PAIR); rng = random.Random(2000 + self.PAIR * 2 + self.TWIN)
         order = list(range(self.N_PARTS)); lay.shuffle(order)
-        self.approved_idx = rng.randrange(self.N_PARTS)
+        # 孪生 B 的样品必须与 A 不同,否则换帧反事实无信息:A 用 PAIR 种子抽,B 从其余里抽。
+        a_idx = random.Random(2000 + self.PAIR * 2).randrange(self.N_PARTS)
+        self.approved_idx = a_idx if self.TWIN == 0 else random.Random(2000 + self.PAIR * 2 + 1).choice([i for i in range(self.N_PARTS) if i != a_idx])
         letters = "abcdefgh"
         self.cand_files = {f"cand_{letters[j]}.png": idx for j, idx in enumerate(order)}
         self.expected_file = next(f for f, idx in self.cand_files.items() if idx == self.approved_idx)

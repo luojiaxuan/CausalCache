@@ -253,10 +253,13 @@ def run(sp):
 
 specs = [json.loads(l) for l in open(args.spec)]
 if args.rescore:
+    # note (luojiaxuan): 重判以规格文件为准(expected / expected_swap 都取规格),行里存的 expected 可能来自过期的种子文件。
     kinds = {sp["dir"]: sp.get("expected_kind", "text") for sp in specs}; swaps = {sp["dir"]: sp.get("expected_swap") for sp in specs}
+    exps = {sp["dir"]: sp["expected"] for sp in specs}
     rows = [json.loads(l) for l in open(args.out) if json.loads(l)["tag"] == args.tag]
     for r in rows:
-        r["hit"] = {c: carries(t, swaps[r["dir"]] if c.startswith("swap_") else r["expected"], kinds[r["dir"]]) for c, t in r["decodes"].items()}
+        r["expected"] = exps.get(r["dir"], r["expected"]); r["expected_swap"] = swaps.get(r["dir"])
+        r["hit"] = {c: carries(t, r["expected_swap"] if c.startswith("swap_") else r["expected"], kinds[r["dir"]]) for c, t in r["decodes"].items()}
     with open(args.out, "w") as f:
         for r in rows: f.write(json.dumps(r, ensure_ascii=False) + "\n")
 else:
