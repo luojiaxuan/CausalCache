@@ -3,7 +3,7 @@
 import json, os, re, random, statistics as st
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 H = "/data01/jaxan/harm"
-files = ["harm_vs_n_base_deploy.jsonl", "format_base.jsonl", "format2_base.jsonl", "term_interv_base.jsonl", "goal_interv_base.jsonl", "reply_pattern_base.jsonl", "reply_pattern2_base.jsonl", "dose_base.jsonl", "dose2_base.jsonl", "dose3_base.jsonl", "dose4_base.jsonl"]
+files = ["harm_vs_n_base_deploy.jsonl", "format_base.jsonl", "format2_base.jsonl", "term_interv_base.jsonl", "goal_interv_base.jsonl", "reply_pattern_base.jsonl", "reply_pattern2_base.jsonl", "dose_base.jsonl", "dose2_base.jsonl", "dose3_base.jsonl", "dose4_base.jsonl", "dose5_base.jsonl", "dose6_base.jsonl", "dose7_base.jsonl"]
 recs = {}
 for f in files:
     p = f"{H}/{f}"
