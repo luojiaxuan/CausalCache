@@ -29,6 +29,10 @@ NOTE_PROMPT = ("You are keeping a running memory while operating a phone. In at 
                "what it shows, and every concrete value visible (numbers, prices, addresses, names, ids, file names). "
                "You do not know what you will be asked later. Output the note only.")
 OCR_PROMPT = "Transcribe every readable line of text on this screen, in reading order. No commentary."
+# note (luojiaxuan): v1 笔记实测约 320 token/帧(模型忽略字数上限并自言自语),在小预算上不公平地压低文本基线;
+# v2 强制单行、截断在 96 token,作为"简洁的称职笔记"一并参赛。
+NOTE2_PROMPT = ("Write ONE line of at most 25 words recording this screen for later recall: app, screen, and the exact values "
+                "shown (numbers, prices, addresses, ids, file names). No preface, no reasoning, just the line.")
 
 def shots_of(d):
     return sorted(glob.glob(os.path.join(d, "screenshots", "*.png")), key=lambda p: int(re.search(r"-(\d+)\.png$", p).group(1)))
@@ -42,8 +46,8 @@ def state_of(d, k):
     return {"dir": d, "goal": traj[0].get("task_goal", ""), "step": k, "shots": shots_of(d),
             "hist": [action_of(preds[j]) for j in range(1, k)]}
 
-def ask(img_path, prompt):
-    body = {"model": args.model, "temperature": 0.0, "max_tokens": 512,
+def ask(img_path, prompt, max_tokens=512):
+    body = {"model": args.model, "temperature": 0.0, "max_tokens": max_tokens,
             "messages": [{"role": "user", "content": [{"type": "text", "text": prompt},
                                                       {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{vo.b64(img_path)}"}}]}]}
     return (vo.post(args.base_url, body)["choices"][0]["message"]["content"] or "").strip()
@@ -51,13 +55,22 @@ def ask(img_path, prompt):
 def archive(d, k):
     # note (luojiaxuan): 档案在"浏览阶段"写成,只看当帧、不知道后续请求;按目录缓存,重跑免费。
     path = os.path.join(d, "archive_v1.json")
-    arc = json.load(open(path)) if os.path.exists(path) else {"notes": {}, "ocr": {}}
-    shots = shots_of(d); todo = [j for j in range(0, min(k - 1, len(shots))) if str(j) not in arc["notes"]]
-    for j in todo:
-        arc["notes"][str(j)] = ask(shots[j], NOTE_PROMPT)
-        arc["ocr"][str(j)] = ask(shots[j], OCR_PROMPT)
-    if todo: json.dump(arc, open(path, "w"), ensure_ascii=False)
+    arc = json.load(open(path)) if os.path.exists(path) else {}
+    for key in ("notes", "ocr", "notes2"): arc.setdefault(key, {})
+    shots = shots_of(d); frames = range(0, min(k - 1, len(shots))); wrote = False
+    for j in frames:
+        if str(j) not in arc["notes"]: arc["notes"][str(j)] = ask(shots[j], NOTE_PROMPT); wrote = True
+        if str(j) not in arc["ocr"]: arc["ocr"][str(j)] = ask(shots[j], OCR_PROMPT); wrote = True
+        if str(j) not in arc["notes2"]: arc["notes2"][str(j)] = ask(shots[j], NOTE2_PROMPT, 96); wrote = True
+    if wrote: json.dump(arc, open(path, "w"), ensure_ascii=False)
     return arc
+
+# note (luojiaxuan): Venus 是动作模型,写笔记时会带"Got it, let's ... First,"一类自言自语;这些前缀白占预算并稀释检索,
+# 读取时剥掉(不重新生成档案)。剥不掉的原文保留,不做进一步改写。
+PREAMBLE = re.compile(r"^(?:(?:got it|okay|ok|alright|sure|first|let me|let's|now)\b[^.!?]*[.!?]\s*)+", re.I)
+def clean(t):
+    t = PREAMBLE.sub("", (t or "").strip())
+    return re.sub(r"\s+", " ", t).strip()
 
 WORD = re.compile(r"[a-z0-9]+")
 def sim(query, text):
@@ -94,7 +107,8 @@ def messages(st, image_turns, archive_block, scale_paths=None, question=None):
     return msgs
 
 def block(kind, items):
-    head = {"notes": "[Memory archive: notes you wrote while browsing]", "ocr": "[Memory archive: text transcribed from screens you visited]"}[kind]
+    head = {"notes": "[Memory archive: notes you wrote while browsing]", "notes2": "[Memory archive: one-line notes you wrote while browsing]",
+            "ocr": "[Memory archive: text transcribed from screens you visited]"}[kind]
     return head + "\n" + "\n".join(f"- step {j + 1}: {t}" for j, t in items)
 
 def scaled(path, s):
@@ -124,8 +138,8 @@ def run(sp):
         print(f"{sp['task']} archived {len(arc['notes'])} frames", flush=True); return
     src = [i for i in sp["source_frames"] + sp.get("request_frames", []) if 0 <= i < k - 1]
     n_hist = k - 1
-    notes = [(j, arc["notes"][str(j)]) for j in range(n_hist) if str(j) in arc["notes"]]
-    ocr = [(j, arc["ocr"][str(j)]) for j in range(n_hist) if str(j) in arc["ocr"]]
+    def col(key): return [(j, clean(arc.get(key, {})[str(j)])) for j in range(n_hist) if str(j) in arc.get(key, {})]
+    notes, ocr, notes2 = col("notes"), col("ocr"), col("notes2")
     rec = {"tag": args.tag, "task": sp["task"], "family": sp["family"], "pair": sp["pair"], "dir": d, "step": k,
            "expected": sp["expected"], "question": sp.get("question"), "n_hist": n_hist, "hit": {}, "ptoks": {}, "fill": {}}
     conds = {}
@@ -134,7 +148,7 @@ def run(sp):
         conds[f"img_rec@{B}"] = ("img", sorted(range(max(0, n_hist - n_img), n_hist))[:n_img], None, None)
         conds[f"img_src@{B}"] = ("img", sorted(src)[:n_img], None, None)
         conds[f"img_src35@{B}"] = ("img35", sorted(src)[:n_img35], None, None)
-        for kind, items in (("notes", notes), ("ocr", ocr)):
+        for kind, items in (("notes", notes), ("notes2", notes2), ("ocr", ocr)):
             newest, used = pack(list(reversed(items)), B)
             conds[f"{kind}@{B}"] = ("txt", [], block(kind, newest), used)
             ranked, used_q = pack(sorted(items, key=lambda it: -sim(st["goal"], it[1])), B)
