@@ -78,7 +78,10 @@ def click_point(txt):
 def carries_text(body, exp, kind, whole):
     exp = norm(exp)
     if kind == "file":
-        if exp in norm(whole): return 1
+        # note (luojiaxuan): 文件端点只看动作:Venus 的 think 会把候选文件逐个点名,按"文本里出现文件名"判会把任何条件都判成命中;
+        # GUI-Owl 的动作行会写 'Click on the "cand_d.png" file',取 <tool_call> 之前的动作行;两者都再按点击坐标落格兜底。
+        act_line = whole.split("<tool_call>")[0] if args.backend == "owl" else ""
+        if act_line and exp in norm(act_line): return 1
         pt = click_point(whole); return int(pt is not None and grid_file(*pt) == exp)
     try:
         e = float(exp); return int(any(abs(float(n) - e) < 0.005 for n in re.findall(r"\d+(?:\.\d+)?", body.replace(",", ""))))
