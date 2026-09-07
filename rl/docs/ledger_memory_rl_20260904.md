@@ -83,6 +83,15 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 > 标签比真实时刻快约 50–60 分钟;各处引用("16:55 PT 条目"等)以标签为键,顺序与内容不受影响,标签不改。机器日志一律 UTC,以日志为准。
 
 
+### 2026-09-06 17:30 PT(UTC 00:30)★ PartMatch v4(四候选)Venus 原生文本:所有条件 0.80——整段 think 把样品形状写成了文字
+- Venus 自然前缀 16 题成功 15,15 个有效 checkpoint(候选网格第一次上屏,源帧距决策步 ≥9 步,in_recency 0);2×2 网格端点。
+  原生文本(整段 think):text_only 0.800 = rec2 = ctrl = src = irr 0.800,swap→孪生 0.733,gold_text 0.800。
+- 读法:Venus 在看样品那一轮就把形状写进 think("dark gray right triangle with a circle"),之后靠文字就能在候选里选对——**视觉指代物在
+  全文转录型协议下同样不需要回看图**;12/15 的天花板由 gold 0.80 给出(四选一,给了文件名也只 80% 会点对:有些 checkpoint 上模型选择
+  长按/复制流程与端点不合),与图无关。孪生条件 0.733 跟着孪生答案走则说明它跟文本描述走(文本描述被换成孪生的了)。
+- 一行摘要制式(描述删 / 描述留 = 它自己 think 首句)× 证据轮 / 对照轮 的矩阵已排在 v4 全链之后(`pilot_pm4_venus_action.sh`);无文本口径与
+  GUI-Owl 臂由 v4 链继续。
+
 ### 2026-09-06 18:55 PT ★ PartMatch v3(Documents,六候选网格)GUI-Owl 自然前缀:方向同前,n=12、gold 58%,只作辅助
 - GUI-Owl 自然前缀(候选列表第一次上屏为决策步),12 个有效 checkpoint:text_only 0.250、rec2 0.083、irr2 0.083、ctrl_keep 0.167、**src_keep 0.417**、
   swap_keep 0.333、gold_text 0.583。src − ctrl +25.0 [+7.1, +46.2],src − rec2 +33.3 [+9.1, +60.0](8 对聚类)。方向与 Pictures 版(16:10 PT)一致,
