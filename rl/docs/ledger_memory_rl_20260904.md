@@ -83,6 +83,21 @@ executor),使第三方记忆 benchmark(MemGUI-Bench,128 题闭环,LLM 判分)显
 > 标签比真实时刻快约 50–60 分钟;各处引用("16:55 PT 条目"等)以标签为键,顺序与内容不受影响,标签不改。机器日志一律 UTC,以日志为准。
 
 
+### 2026-09-06 21:10 PT(UTC 04:10)★ GUI-Owl 第三种放法(参考轮前置,history-harm 线建议)≈ 保留原位;PartMatch v4 GUI-Owl 只到 5 个决策态
+- **参考轮前置**(`messages_hybrid(where="turn")`,Noted 变体,最近两轮照常保留;history-harm 线 dose6 口径),教师强制 Mail 30 checkpoint:
+
+| 条件 | rec2 | src_keep | src_before | src_req_keep | src_req_before | ctrl_before | ctrl_req_before | gold_text |
+|---|---|---|---|---|---|---|---|---|
+| 命中率 | 0.000 | 0.200 | 0.333 | 0.433 | **0.467** | 0.000 | 0.000 | 1.000 |
+| prompt_tokens | 9,099 | 6,515 | 11,687 | 9,108 | 14,269 | 11,687 | 14,269 | 3,932 |
+
+  读法:前置与原位在"请求轮 + 证据轮"上持平(46.7 vs 43.3),单证据轮上前置略高(33.3 vs 20.0);对照轮前置仍为 0——**放法不是关键,
+  选哪几帧才是**;前置版多带最近两轮,token 多 2.5–5k。步级"前置 88.3"的优势在这批决策上没有放大。
+- **PartMatch v4 GUI-Owl 自然前缀**:16 题 0 成功,只有 5 题到达候选网格;n=5:text_only 0.2 / rec2 0.2 / ctrl 0.2 / src_keep 0.6 / src_before 0.6 /
+  swap 0.4 / gold 0.8。方向同前,样本太小不作引用;GUI-Owl 上的自然外部效度仍靠 Pictures 版(n=16)。
+- 工程:PartMatch v4 的 Venus 一行摘要制式与 gold 重解码两条链空跑——规格里的 `dir` 是相对路径(重建时用了相对 `--prefix-dir`),在脚本 cwd 下
+  找不到 traj.json;已改绝对路径并把四口径(整段 / 无文本 / 只留 action / action + 自己的描述)合成一条链重跑(`pilot_pm4_venus_all.sh`)。
+
 ### 2026-09-06 17:50 PT(UTC 00:50)★★ PartMatch v4 更正:前一条"所有条件 0.80"是端点污染;按点击重判后——整段文本下图仍有格式效应、决策跟样品图走;无文本下只有源帧能救
 - 两处错误:(1) 文件端点"文本里出现文件名即命中"——Venus 的 think 逐个点名候选文件,任何条件都被判成命中(前一条各条件同为 0.80 的原因);
   改为只看点击落格(GUI-Owl 取动作行)。(2) 规格用了六候选版的旧种子(`task_seeds.txt` 里 PartMatch 行未随 v4 更新,expected 出现 cand_e/f),
