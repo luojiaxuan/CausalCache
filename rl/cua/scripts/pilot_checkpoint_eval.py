@@ -194,6 +194,11 @@ def conditions(sp, st):
             c["req_keep"] = dc.messages_deploy(st, 0, keep_set=set(reqk))
             if src: c["src_req_keep"] = dc.messages_deploy(st, 0, keep_set=set(src) | set(reqk))
             if ctrl: c["ctrl_req_keep"] = dc.messages_deploy(st, 0, keep_set=set(ctrl) | set(reqk))
+        # note (luojiaxuan): history-harm 线的步级赢家:检索帧作为"参考轮"放在指令消息之前(最近两轮照常保留),与保留在原位对照。
+        if src: c["src_before"] = dc.messages_hybrid(st, src, where="turn")
+        if ctrl: c["ctrl_before"] = dc.messages_hybrid(st, ctrl, where="turn")
+        if src and reqk: c["src_req_before"] = dc.messages_hybrid(st, src + reqk, where="turn")
+        if ctrl and reqk: c["ctrl_req_before"] = dc.messages_hybrid(st, ctrl + reqk, where="turn")
         if swap_paths:
             if len(sw_idx) == len(src): c["swap_keep"] = dc.messages_deploy(swapped_state(st, src, sp["swap_frames_dir"], sw_idx), 0, keep_set=set(src))
             c["swap_pickimg"] = dc.messages_deploy(st, 2, irr=swap_paths)
